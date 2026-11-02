@@ -36,7 +36,7 @@ class WebJsonController(http.Controller):
             HTTPStatus.TEMPORARY_REDIRECT
         )
 
-    @http.route('/json/1/<path:subpath>', auth='bearer', type='http', readonly=True)
+    @http.route('/json/1/<path:subpath>', auth='bearer', bearer_scope='rpc', type='http', readonly=True)
     def web_json_1(self, subpath, **kwargs):
         """Simple JSON representation of the views.
 
@@ -151,7 +151,7 @@ class WebJsonController(http.Controller):
             domains.append([('activity_ids', '!=', False)])
             # add activity fields
             for field_name, field in model._fields.items():
-                if field_name.startswith('activity_') and field_name not in spec and model._has_field_access(field, 'read'):
+                if field_name.startswith('activity_') and field_name not in spec and model.has_field_access(field, 'read'):
                     spec[field_name] = {}
 
         # Group by
@@ -201,7 +201,7 @@ class WebJsonController(http.Controller):
     def _check_json_route_active(self):
         # experimental route, only enabled in demo mode or when explicitly set
         if not (request.env.ref('base.module_base').demo
-                or request.env['ir.config_parameter'].sudo().get_param('web.json.enabled')):
+                or request.env['ir.config_parameter'].sudo().get_bool('web.json.enabled')):
             raise NotFound()
 
     def _get_action(self, subpath):

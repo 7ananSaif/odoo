@@ -1,30 +1,30 @@
-import { Component, onMounted, onWillDestroy, useChildSubEnv, useRef, useState } from "@odoo/owl";
-import { toolbarButtonProps } from "@html_editor/main/toolbar/toolbar";
-import { AnimateOption } from "./animate_option";
-import { usePopover } from "@web/core/popover/popover_hook";
+import { BaseOptionComponent } from "@html_builder/core/base_option_component";
 import { DependencyManager } from "@html_builder/core/dependency_manager";
-import { BaseOptionComponent } from "@html_builder/core/utils";
+import { Component, onMounted, onWillDestroy, proxy, signal, useProps, t } from "@odoo/owl";
+import { usePopover } from "@web/core/popover/popover_hook";
 import { POSITION_BUS } from "@web/core/position/position_hook";
+import { useSubEnv } from "@web/owl2/utils";
+import { AnimateOption, animateOptionProps } from "./animate_option";
 
-class AnimateTextPopover extends BaseOptionComponent {
+export class AnimateTextPopover extends BaseOptionComponent {
     static template = "website_builder.AnimateTextPopover";
-    static props = {
-        animateOptionProps: AnimateOption.props,
-        onReset: Function,
+    props = useProps({
+        animateOptionProps: t.object(animateOptionProps),
+        onReset: t.function(),
 
         // Popover service
-        close: { type: Function, optional: true },
-    };
+        close: t.function().optional(),
+    });
     static components = { AnimateOption };
+    contentRef = signal.ref();
 
     setup() {
         super.setup();
-        this.contentRef = useRef("content");
         this.resizeObserver = new ResizeObserver(() => {
             this.env[POSITION_BUS]?.trigger("update");
         });
         onMounted(() => {
-            this.resizeObserver.observe(this.contentRef.el);
+            this.resizeObserver.observe(this.contentRef());
         });
         onWillDestroy(() => {
             this.resizeObserver.disconnect();
@@ -34,36 +34,39 @@ class AnimateTextPopover extends BaseOptionComponent {
 
 export class AnimateText extends Component {
     static template = "website_builder.AnimateText";
-    static props = {
-        ...toolbarButtonProps,
-        config: { type: Object, shape: { editor: Object, editorBus: Object } },
-        animateOptionProps: AnimateOption.props,
-        getAnimatedTextOrCreateDefault: Function,
-        isActive: Function,
-        isDisabled: Function,
-    };
+    props = useProps({
+        // from toolbarButtonProps
+        title: t.or([t.string(), t.function()]),
+        getSelection: t.function(),
+        config: t.object({ editor: t.object(), editorBus: t.object() }),
+        animateOptionProps: t.object(animateOptionProps),
+        getAnimatedTextOrCreateDefault: t.function(),
+        isActive: t.function(),
+        isDisabled: t.boolean(),
+    });
+
+    root = signal.ref();
 
     setup() {
-        this.state = useState({});
+        this.state = proxy({});
         this.updateState();
 
-        this.root = useRef("root");
-        useChildSubEnv({
+        useSubEnv({
             dependencyManager: new DependencyManager(),
-            getEditingElement: () => this.activeElement,
-            getEditingElements: () => (this.activeElement ? [this.activeElement] : []),
+            getEditingElement: () => this.activeElements?.[0],
+            getEditingElements: () => this.activeElements || [],
             weContext: {},
             editor: this.props.config.editor,
             editorBus: this.props.config.editorBus,
             services: this.props.config.editor.services,
         });
         this.popover = usePopover(AnimateTextPopover, {
-            env: this.__owl__.childEnv,
             onClose: () => {
                 if (!this.props.config.editor.isDestroyed) {
                     this.updateState();
                 }
             },
+            withScope: true,
         });
     }
 
@@ -71,17 +74,17 @@ export class AnimateText extends Component {
         if (this.popover.isOpen) {
             return;
         }
-        const { element, onReset } = this.props.getAnimatedTextOrCreateDefault();
-        if (!element) {
+        const { elements, onReset } = this.props.getAnimatedTextOrCreateDefault();
+        if (!elements?.length) {
             return;
         }
-        this.activeElement = element;
+        this.activeElements = elements;
 
         this.updateState();
-        this.popover.open(this.root.el, {
+        this.popover.open(this.root(), {
             animateOptionProps: this.props.animateOptionProps,
             onReset: () => {
-                onReset(this.activeElement);
+                onReset(this.activeElements);
                 this.popover.close();
             },
         });
@@ -89,6 +92,5 @@ export class AnimateText extends Component {
 
     updateState() {
         this.state.isActive = this.props.isActive();
-        this.state.isDisabled = this.props.isDisabled();
     }
 }

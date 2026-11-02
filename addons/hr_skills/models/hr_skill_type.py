@@ -65,7 +65,6 @@ class HrSkillType(models.Model):
         return [
             {
                 **vals,
-                "name": self.env._("%(skill_type_name)s (copy)", skill_type_name=skill_type.name),
                 "color": 0,
                 "skill_ids": [Command.create({"name": skill.name}) for skill in skill_type.skill_ids],
             }

@@ -5,46 +5,99 @@
 # Bone NI <bounkirdni@gmail.com>, 2026.
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0\n"
+"Project-Id-Version: Odoo Server 19.4a1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2026-06-06 12:42+0000\n"
+"POT-Creation-Date: 2026-09-18 17:40+0000\n"
+"PO-Revision-Date: 2026-10-24 11:33+0000\n"
 "Last-Translator: Bone NI <bounkirdni@gmail.com>\n"
-"Language-Team: Lao <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Lao <https://translate.odoo.com/projects/odoo-20/"
 "stock_delivery/lo/>\n"
 "Language: lo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: stock_delivery
+#: model:ir.module.module,description:base.module_stock_delivery
+msgid ""
+"\n"
+"Allows you to add delivery methods in pickings.\n"
+"===============================================\n"
+"\n"
+"When creating invoices from picking, the system is able to add and compute "
+"the shipping line.\n"
+msgstr ""
+"\n"
+"ອະນຸຍາດໃຫ້ທ່ານເພີ່ມວິທີການຈັດສົ່ງໃນລາຍການເບີກສິນຄ້າ.\n"
+"===============================================\n"
+"\n"
+"ເມື່ອສ້າງໃບຮຽກເກັບເງິນຈາກລາຍການເບີກສິນຄ້າ, ລະບົບຈະສາມາດເພີ່ມ ແລະ ຄິດໄລ່ ລາຍການຄ່າຈັດສົ່ງໄດ້.\n"
 
 #. module: stock_delivery
 #. odoo-python
 #: code:addons/stock_delivery/models/sale_order.py:0
 msgid "%(name)s (Estimated Cost: %(cost)s)"
-msgstr "%(name)s (ຄ່າຈັດສົ່ງໂດຍປະມານ: %(cost)s)"
+msgstr "%(name)s (ຄ່າໃຊ້ຈ່າຍປະມານການ: %(cost)s)"
+
+#. module: stock_delivery
+#. odoo-python
+#: code:addons/stock_delivery/wizard/stock_package_label_layout.py:0
+msgid "%(weight_name)s: %(weight)s %(uom)s"
+msgstr "%(weight_name)s: %(weight)s %(uom)s"
+
+#. module: stock_delivery
+#: model:ir.actions.report,print_report_name:stock_delivery.action_report_shipping_docs
+msgid "'Shipping-Document-%s' % object.name"
+msgstr "'Shipping-Document-%s' % object.name"
+
+#. module: stock_delivery
+#: model:ir.actions.report,print_report_name:stock_delivery.action_report_shipping_labels
+msgid "'Shipping-Label-%s' % object.name"
+msgstr "'Shipping-Label-%s' % object.name"
 
 #. module: stock_delivery
 #: model_terms:ir.ui.view,arch_db:stock_delivery.stock_package_view_form
 msgid "(computed:"
-msgstr "(ຄິດໄລ່:"
+msgstr "(ຄິດໄລ່ແລ້ວ:"
+
+#. module: stock_delivery
+#. odoo-javascript
+#: code:addons/stock_delivery/static/src/return_order_dialog/return_label_info.xml:0
+msgid "1. Download and print the Return label and place it in your package."
+msgstr "1. ດາວໂຫຼດ ແລະ ພິມປ້າຍກຳກັບການສົ່ງຄືນ ແລ້ວໃສ່ໄວ້ໃນຫໍ່ເຄື່ອງຂອງທ່ານ."
+
+#. module: stock_delivery
+#. odoo-javascript
+#: code:addons/stock_delivery/static/src/return_order_dialog/return_label_info.xml:0
+msgid "2. Download and print the Shipping label and place it on your package."
+msgstr "2. ດາວໂຫຼດ ແລະ ພິມປ້າຍກຳກັບການຈັດສົ່ງ ແລ້ວຕິດໃສ່ເທິງຫໍ່ເຄື່ອງຂອງທ່ານ."
+
+#. module: stock_delivery
+#: model_terms:ir.ui.view,arch_db:stock_delivery.view_picking_type_form_delivery
+msgid ""
+"<i class=\"oi pe-1\" data-icon=\"arrow_forward\"/>Configure Carrier Labels"
+msgstr ""
+"<i class=\"oi pe-1\" data-icon=\"arrow_forward\"/>ກຳນົດຄ່າປ້າຍກຳກັບຜູ້ຈັດສົ່ງ"
+
+#. module: stock_delivery
+#: model_terms:ir.ui.view,arch_db:stock_delivery.view_picking_type_form_delivery
+msgid ""
+"<i class=\"oi pe-1\" data-icon=\"arrow_forward\"/>Configure Export Documents"
+msgstr ""
+"<i class=\"oi pe-1\" data-icon=\"arrow_forward\"/>ກຳນົດຄ່າເອກະສານສົ່ງອອກ"
 
 #. module: stock_delivery
 #: model_terms:ir.ui.view,arch_db:stock_delivery.stock_report_delivery_package_section_line_inherit_delivery
 msgid "<span> - Weight (estimated): </span>"
-msgstr "<span> - ນ້ຳໜັກ (ໂດຍປະມານ): </span>"
+msgstr "<span> - ນ້ຳໜັກ (ປະມານ): </span>"
 
 #. module: stock_delivery
 #: model_terms:ir.ui.view,arch_db:stock_delivery.delivery_stock_report_delivery_no_package_section_line
 #: model_terms:ir.ui.view,arch_db:stock_delivery.stock_report_delivery_package_section_line_inherit_delivery
 msgid "<span> - Weight: </span>"
 msgstr "<span> - ນ້ຳໜັກ: </span>"
-
-#. module: stock_delivery
-#: model_terms:ir.ui.view,arch_db:stock_delivery.report_package_barcode_small_delivery
-msgid "<span>Shipping Weight: </span>"
-msgstr "<span>ນ້ຳໜັກໃນການຈັດສົ່ງ: </span>"
 
 #. module: stock_delivery
 #: model_terms:ir.ui.view,arch_db:stock_delivery.report_shipping2
@@ -57,14 +110,9 @@ msgid "<strong>Carrier</strong>"
 msgstr "<strong>ຜູ້ຈັດສົ່ງ</strong>"
 
 #. module: stock_delivery
-#: model_terms:ir.ui.view,arch_db:stock_delivery.report_shipping2
-msgid "<strong>Shipping Method:</strong>"
-msgstr "<strong>ວິທີການຈັດສົ່ງ:</strong>"
-
-#. module: stock_delivery
 #: model_terms:ir.ui.view,arch_db:stock_delivery.report_package_barcode_delivery
 msgid "<strong>Shipping Weight: </strong>"
-msgstr "<strong>ນ້ຳໜັກໃນການຈັດສົ່ງ: </strong>"
+msgstr "<strong>ນ້ຳໜັກຈັດສົ່ງ: </strong>"
 
 #. module: stock_delivery
 #: model_terms:ir.ui.view,arch_db:stock_delivery.report_package_barcode_delivery
@@ -72,7 +120,7 @@ msgid ""
 "<strong>Shipping Weight:</strong>\n"
 "                    <br/>"
 msgstr ""
-"<strong>ນ້ຳໜັກໃນການຈັດສົ່ງ:</strong>\n"
+"<strong>ນ້ຳໜັກຈັດສົ່ງ:</strong>\n"
 "                    <br/>"
 
 #. module: stock_delivery
@@ -100,9 +148,30 @@ msgstr ""
 "                <br/>"
 
 #. module: stock_delivery
+#: model_terms:ir.ui.view,arch_db:stock_delivery.pay_on_delivery_form
+msgid "A payment totaling"
+msgstr "ການຊຳລະເງິນລວມທັງໝົດ"
+
+#. module: stock_delivery
+#: model:ir.model.fields,help:stock_delivery.field_stock_picking_type__batch_max_weight
+msgid ""
+"A transfer will not be automatically added to batches that will exceed this "
+"weight if the transfer is added to it.\n"
+"Leave this value as '0' if no weight limit."
+msgstr ""
+"ລາຍການໂອນຍ້າຍຈະບໍ່ຖືກເພີ່ມເຂົ້າໃນຊຸດໂດຍອັດຕະໂນມັດ ຖ້າຫາກຈະເຮັດໃຫ້ນ້ຳໜັກເກີນຄ່ານີ້ ເມື່ອມີການເພີ່ມການໂອ"
+"ນຍ້າຍເຂົ້າໄປ.\n"
+"ໃຫ້ປະຄ່ານີ້ເປັນ '0' ຖ້າບໍ່ມີການກຳນົດນ້ຳໜັກສູງສຸດ."
+
+#. module: stock_delivery
 #: model:ir.model.fields,help:stock_delivery.field_stock_picking__integration_level
-msgid "Action while validating Delivery Orders"
-msgstr "ການດຳເນີນການໃນຂະນະທີ່ກວດສອບໃບສັ່ງຈັດສົ່ງ"
+msgid "Action while validating Delivery Orders."
+msgstr "ການດຳເນີນການໃນຂະນະທີ່ຢືນຢັນໃບສັ່ງຈັດສົ່ງ."
+
+#. module: stock_delivery
+#: model_terms:ir.ui.view,arch_db:stock_delivery.view_picking_type_form_delivery
+msgid "All"
+msgstr "ທັງໝົດ"
 
 #. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_picking__allowed_carrier_ids
@@ -110,11 +179,53 @@ msgid "Allowed Carrier"
 msgstr "ຜູ້ຈັດສົ່ງທີ່ອະນຸຍາດ"
 
 #. module: stock_delivery
-#: model:ir.model.fields,field_description:stock_delivery.field_stock_route__shipping_selectable
-msgid "Applicable on Shipping Methods"
-msgstr "ໃຊ້ໄດ້ກັບວິທີການຈັດສົ່ງ"
+#: model:ir.model.fields,field_description:stock_delivery.field_pay_on_delivery__amount_to_collect
+msgid "Amount To Collect"
+msgstr "ຈຳນວນເງິນທີ່ຕ້ອງເກັບ"
 
 #. module: stock_delivery
+#: model:ir.model.fields,field_description:stock_delivery.field_stock_route__shipping_selectable
+msgid "Applicable on Delivery Methods"
+msgstr "ນຳໃຊ້ໄດ້ກັບວິທີການຈັດສົ່ງ"
+
+#. module: stock_delivery
+#: model:ir.model.fields,field_description:stock_delivery.field_stock_picking_type__auto_print_carrier_labels
+msgid "Auto Print Carrier Labels"
+msgstr "ພິມປ້າຍກຳກັບຜູ້ຈັດສົ່ງອັດຕະໂນມັດ"
+
+#. module: stock_delivery
+#: model:ir.model.fields,field_description:stock_delivery.field_stock_picking_type__auto_print_export_documents
+msgid "Auto Print Export Documents"
+msgstr "ພິມເອກະສານສົ່ງອອກອັດຕະໂນມັດ"
+
+#. module: stock_delivery
+#: model:ir.model.fields,help:stock_delivery.field_stock_picking_type__batch_group_by_carrier
+msgid "Automatically group batches by carriers"
+msgstr "ຈັດກຸ່ມຊຸດຕາມຜູ້ຈັດສົ່ງໂດຍອັດຕະໂນມັດ"
+
+#. module: stock_delivery
+#: model:ir.model.fields,help:stock_delivery.field_stock_picking_type__auto_print_carrier_labels
+msgid ""
+"Automatically print the carrier labels of the picking when they are created."
+msgstr "ພິມປ້າຍກຳກັບຜູ້ຈັດສົ່ງຂອງລາຍການເບີກສິນຄ້າໂດຍອັດຕະໂນມັດເມື່ອຖືກສ້າງຂຶ້ນ."
+
+#. module: stock_delivery
+#: model:ir.model.fields,help:stock_delivery.field_stock_picking_type__auto_print_export_documents
+msgid ""
+"Automatically print the export documents of the picking when they are "
+"created. Availability of export documents depends on the carrier and the "
+"destination."
+msgstr ""
+"ພິມເອກະສານສົ່ງອອກຂອງລາຍການເບີກສິນຄ້າໂດຍອັດຕະໂນມັດເມື່ອຖືກສ້າງຂຶ້ນ. ຄວາມພ້ອມຂອງເອກະສານສົ່ງອອກແມ່"
+"ນຂຶ້ນກັບຜູ້ຈັດສົ່ງ ແລະ ປາຍທາງ."
+
+#. module: stock_delivery
+#: model:ir.model,name:stock_delivery.model_stock_picking_batch
+msgid "Batch Transfer"
+msgstr "ການໂອນຍ້າຍເປັນຊຸດ"
+
+#. module: stock_delivery
+#: model_terms:ir.ui.view,arch_db:stock_delivery.pay_on_delivery_form
 #: model_terms:ir.ui.view,arch_db:stock_delivery.view_picking_withcarrier_out_form
 msgid "Cancel"
 msgstr "ຍົກເລີກ"
@@ -122,8 +233,7 @@ msgstr "ຍົກເລີກ"
 #. module: stock_delivery
 #: model_terms:ir.ui.view,arch_db:stock_delivery.view_picking_withcarrier_out_form
 msgid ""
-"Cancelling a delivery may not be undoable. Are you sure you want to "
-"continue?"
+"Cancelling a delivery may not be undoable. Are you sure you want to continue?"
 msgstr ""
 "ການຍົກເລີກການຈັດສົ່ງອາດຈະບໍ່ສາມາດກັບຄືນໄດ້. ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການສືບຕໍ່?"
 
@@ -132,6 +242,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_package__package_carrier_type
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_package_type__package_carrier_type
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_picking__carrier_id
+#: model:ir.model.fields,field_description:stock_delivery.field_stock_picking_type__batch_group_by_carrier
 #: model_terms:ir.ui.view,arch_db:stock_delivery.stock_move_line_view_search_delivery
 msgid "Carrier"
 msgstr "ຜູ້ຈັດສົ່ງ"
@@ -140,6 +251,11 @@ msgstr "ຜູ້ຈັດສົ່ງ"
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_package_type__shipper_package_code
 msgid "Carrier Code"
 msgstr "ລະຫັດຜູ້ຈັດສົ່ງ"
+
+#. module: stock_delivery
+#: model_terms:ir.ui.view,arch_db:stock_delivery.view_picking_type_form_delivery
+msgid "Carrier Labels"
+msgstr "ປ້າຍກຳກັບຜູ້ຈັດສົ່ງ"
 
 #. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_put_in_pack__package_carrier_type
@@ -152,25 +268,93 @@ msgid "Carrier name"
 msgstr "ຊື່ຜູ້ຈັດສົ່ງ"
 
 #. module: stock_delivery
+#: model:ir.model,name:stock_delivery.model_product_label_layout
+msgid "Choose the sheet layout to print the labels"
+msgstr "ເລືອກຮູບແບບໜ້າເຈ້ຍເພື່ອພິມປ້າຍກຳກັບ"
+
+#. module: stock_delivery
+#. odoo-python
+#: code:addons/stock_delivery/models/stock_picking.py:0
+msgid "Collect Payment"
+msgstr "ເກັບເງິນ"
+
+#. module: stock_delivery
+#. odoo-python
+#: code:addons/stock_delivery/models/ir_actions_report.py:0
+msgid "Configure a printer to print this report: '%s'"
+msgstr "ກຳນົດຄ່າເຄື່ອງພິມເພື່ອພິມລາຍງານນີ້: '%s'"
+
+#. module: stock_delivery
+#. odoo-python
+#: code:addons/stock_delivery/models/ir_actions_report.py:0
+msgid ""
+"Configure the carrier to generate labels in PDF format, or use a ZPL/ePOS "
+"printer to print %s from the chatter."
+msgstr ""
+"ກຳນົດຄ່າຜູ້ຈັດສົ່ງເພື່ອສ້າງປ້າຍກຳກັບໃນຮູບແບບ PDF, ຫຼື ໃຊ້ເຄື່ອງພິມ ZPL/ePOS ເພື່ອພິມ %s ຈາກຊ່ອງສົນທະນ"
+"າ."
+
+#. module: stock_delivery
+#: model_terms:ir.ui.view,arch_db:stock_delivery.pay_on_delivery_form
+msgid "Confirm Payment"
+msgstr "ຢືນຢັນການຊຳລະເງິນ"
+
+#. module: stock_delivery
+#: model:ir.model,name:stock_delivery.model_res_partner
+msgid "Contact"
+msgstr "ຜູ້ຕິດຕໍ່"
+
+#. module: stock_delivery
 #. odoo-python
 #: code:addons/stock_delivery/models/stock_picking.py:0
 msgid "Cost: %(price).2f %(currency)s"
 msgstr "ຄ່າໃຊ້ຈ່າຍ: %(price).2f %(currency)s"
 
 #. module: stock_delivery
+#: model:ir.model,website_form_label:stock_delivery.model_res_partner
+msgid "Create a Customer"
+msgstr "ສ້າງລູກຄ້າ"
+
+#. module: stock_delivery
+#: model:ir.model.fields,field_description:stock_delivery.field_pay_on_delivery__create_uid
+msgid "Created by"
+msgstr "ສ້າງໂດຍ"
+
+#. module: stock_delivery
+#: model:ir.model.fields,field_description:stock_delivery.field_pay_on_delivery__create_date
+msgid "Created on"
+msgstr "ສ້າງເມື່ອ"
+
+#. module: stock_delivery
+#: model:ir.model.fields,field_description:stock_delivery.field_pay_on_delivery__currency_id
+msgid "Currency"
+msgstr "ສະກຸນເງິນ"
+
+#. module: stock_delivery
+#: model:ir.module.module,shortdesc:base.module_stock_delivery
+msgid "Delivery - Stock"
+msgstr "ການຈັດສົ່ງ - ສາງສິນຄ້າ"
+
+#. module: stock_delivery
+#: model:ir.model,name:stock_delivery.model_delivery_carrier
+msgid "Delivery Method"
+msgstr "ວິທີການຈັດສົ່ງ"
+
+#. module: stock_delivery
 #: model:ir.model,name:stock_delivery.model_choose_delivery_carrier
-msgid "Delivery Carrier Selection Wizard"
-msgstr "ຕົວຊ່ວຍເລືອກຜູ້ຈັດສົ່ງ"
+msgid "Delivery Method Selection Wizard"
+msgstr "ຕົວຊ່ວຍເລືອກວິທີການຈັດສົ່ງ"
 
 #. module: stock_delivery
 #: model:ir.ui.menu,name:stock_delivery.menu_action_delivery_carrier_form
+#: model_terms:ir.ui.view,arch_db:stock_delivery.stock_location_route_view_form_inherit_stock_delivery
 msgid "Delivery Methods"
 msgstr "ວິທີການຈັດສົ່ງ"
 
 #. module: stock_delivery
 #: model_terms:ir.ui.view,arch_db:stock_delivery.vpicktree_view_tree
 msgid "Destination"
-msgstr "ຈຸດໝາຍປາຍທາງ"
+msgstr "ປາຍທາງ"
 
 #. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_move_line__destination_country_code
@@ -181,16 +365,23 @@ msgstr "ປະເທດປາຍທາງ"
 #. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_choose_delivery_carrier__display_name
 #: model:ir.model.fields,field_description:stock_delivery.field_delivery_carrier__display_name
+#: model:ir.model.fields,field_description:stock_delivery.field_ir_actions_report__display_name
+#: model:ir.model.fields,field_description:stock_delivery.field_pay_on_delivery__display_name
+#: model:ir.model.fields,field_description:stock_delivery.field_product_label_layout__display_name
+#: model:ir.model.fields,field_description:stock_delivery.field_product_product__display_name
 #: model:ir.model.fields,field_description:stock_delivery.field_product_template__display_name
+#: model:ir.model.fields,field_description:stock_delivery.field_res_partner__display_name
 #: model:ir.model.fields,field_description:stock_delivery.field_sale_order__display_name
 #: model:ir.model.fields,field_description:stock_delivery.field_sale_order_line__display_name
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_move__display_name
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_move_line__display_name
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_package__display_name
+#: model:ir.model.fields,field_description:stock_delivery.field_stock_package_label_layout__display_name
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_package_type__display_name
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_picking__display_name
+#: model:ir.model.fields,field_description:stock_delivery.field_stock_picking_batch__display_name
+#: model:ir.model.fields,field_description:stock_delivery.field_stock_picking_type__display_name
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_put_in_pack__display_name
-#: model:ir.model.fields,field_description:stock_delivery.field_stock_return_picking__display_name
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_route__display_name
 msgid "Display Name"
 msgstr "ຊື່ທີ່ສະແດງ"
@@ -201,36 +392,48 @@ msgid "Display tracking links"
 msgstr "ສະແດງລິ້ງຕິດຕາມ"
 
 #. module: stock_delivery
+#. odoo-javascript
+#: code:addons/stock_delivery/static/src/return_order_dialog/return_order_dialog.js:0
+msgid "Download Shipping Label"
+msgstr "ດາວໂຫຼດປ້າຍກຳກັບການຈັດສົ່ງ"
+
+#. module: stock_delivery
 #: model:ir.model.fields,help:stock_delivery.field_delivery_carrier__invoice_policy
 msgid ""
-"Estimated Cost: the customer will be invoiced the estimated cost of the shipping.\n"
-"Real Cost: the customer will be invoiced the real cost of the shipping, the cost of theshipping will be updated on the SO after the delivery."
+"Estimated Cost: the customer will be invoiced the estimated cost of the "
+"shipping.\n"
+"Real Cost: the customer will be invoiced the real cost of the shipping, the "
+"cost of theshipping will be updated on the SO after the delivery."
 msgstr ""
-"ຄ່າໃຊ້ຈ່າຍໂດຍປະມານ: ລູກຄ້າຈະຖືກອອກໃບບິນຕາມຄ່າຈັດສົ່ງໂດຍປະມານ.\n"
-"ຄ່າໃຊ້ຈ່າຍຕົວຈິງ: ລູກຄ້າຈະຖືກອອກໃບບິນຕາມຄ່າຈັດສົ່ງຕົວຈິງ, ເຊິ່ງຄ່າຈັດສົ່ງຈະຖືກອັບເດດໃນ SO ຫຼັງຈາກການຈັດ"
-"ສົ່ງ."
+"ຄ່າໃຊ້ຈ່າຍປະມານການ: ລູກຄ້າຈະຖືກອອກໃບຮຽກເກັບເງິນຕາມຄ່າໃຊ້ຈ່າຍປະມານການຂອງການຈັດສົ່ງ.\n"
+"ຄ່າໃຊ້ຈ່າຍຕົວຈິງ: ລູກຄ້າຈະຖືກອອກໃບຮຽກເກັບເງິນຕາມຄ່າໃຊ້ຈ່າຍຕົວຈິງຂອງການຈັດສົ່ງ, ໂດຍຄ່າຈັດສົ່ງຈະຖືກອັບເ"
+"ດດໃນໃບສັ່ງຂາຍ (SO) ຫຼັງຈາກການຈັດສົ່ງສຳເລັດ."
 
 #. module: stock_delivery
 #. odoo-python
 #: code:addons/stock_delivery/models/stock_picking.py:0
 msgid "Exception occurred with respect to carrier on the transfer"
-msgstr "ເກີດຂໍ້ຜິດພາດກ່ຽວກັບຜູ້ຈັດສົ່ງໃນລະຫວ່າງການໂອນຍ້າຍ"
+msgstr "ເກີດຂໍ້ຜິດພາດຂຶ້ນກ່ຽວກັບຜູ້ຈັດສົ່ງໃນການໂອນຍ້າຍ"
 
 #. module: stock_delivery
 #. odoo-python
 #: code:addons/stock_delivery/models/stock_picking.py:0
 msgid "Exception:"
-msgstr "ຂໍ້ຍົກເວັ້ນ:"
+msgstr "ຂໍ້ຜິດພາດ:"
 
 #. module: stock_delivery
-#: model_terms:ir.ui.view,arch_db:stock_delivery.report_shipping2
-msgid "FedEx"
-msgstr "FedEx"
+#: model_terms:ir.ui.view,arch_db:stock_delivery.view_picking_type_form_delivery
+msgid "Export Documents"
+msgstr "ເອກະສານສົ່ງອອກ"
+
+#. module: stock_delivery
+#: model_terms:ir.ui.view,arch_db:stock_delivery.view_picking_type_form_delivery
+msgid "Export documents"
+msgstr "ເອກະສານສົ່ງອອກ"
 
 #. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_product_product__hs_code
 #: model:ir.model.fields,field_description:stock_delivery.field_product_template__hs_code
-#: model_terms:ir.ui.view,arch_db:stock_delivery.product_template_hs_code
 #: model_terms:ir.ui.view,arch_db:stock_delivery.report_delivery_document2
 msgid "HS Code"
 msgstr "ລະຫັດ HS"
@@ -238,50 +441,77 @@ msgstr "ລະຫັດ HS"
 #. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_choose_delivery_carrier__id
 #: model:ir.model.fields,field_description:stock_delivery.field_delivery_carrier__id
+#: model:ir.model.fields,field_description:stock_delivery.field_ir_actions_report__id
+#: model:ir.model.fields,field_description:stock_delivery.field_pay_on_delivery__id
+#: model:ir.model.fields,field_description:stock_delivery.field_product_label_layout__id
+#: model:ir.model.fields,field_description:stock_delivery.field_product_product__id
 #: model:ir.model.fields,field_description:stock_delivery.field_product_template__id
+#: model:ir.model.fields,field_description:stock_delivery.field_res_partner__id
 #: model:ir.model.fields,field_description:stock_delivery.field_sale_order__id
 #: model:ir.model.fields,field_description:stock_delivery.field_sale_order_line__id
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_move__id
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_move_line__id
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_package__id
+#: model:ir.model.fields,field_description:stock_delivery.field_stock_package_label_layout__id
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_package_type__id
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_picking__id
+#: model:ir.model.fields,field_description:stock_delivery.field_stock_picking_batch__id
+#: model:ir.model.fields,field_description:stock_delivery.field_stock_picking_type__id
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_put_in_pack__id
-#: model:ir.model.fields,field_description:stock_delivery.field_stock_return_picking__id
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_route__id
 msgid "ID"
-msgstr "ໄອດີ"
+msgstr "ID"
 
 #. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_picking__integration_level
 msgid "Integration Level"
-msgstr "ລະດັບການເຊື່ອມຕໍ່"
+msgstr "ລະດັບການເຊື່ອມໂຍງ"
 
 #. module: stock_delivery
 #: model:ir.model,name:stock_delivery.model_stock_route
-msgid "Inventory Routes"
+msgid "Inventory Route"
 msgstr "ເສັ້ນທາງສາງສິນຄ້າ"
 
 #. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_delivery_carrier__invoice_policy
 msgid "Invoicing Policy"
-msgstr "ນະໂຍບາຍການອອກໃບບິນ"
+msgstr "ນະໂຍບາຍການອອກໃບຮຽກເກັບເງິນ"
 
 #. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_picking__is_return_picking
 msgid "Is Return Picking"
-msgstr "ແມ່ນການຮັບຄືນສິນຄ້າ"
+msgstr "ແມ່ນການເບີກສົ່ງຄືນ"
+
+#. module: stock_delivery
+#: model:ir.model.fields,field_description:stock_delivery.field_pay_on_delivery__write_uid
+msgid "Last Updated by"
+msgstr "ອັບເດດຫຼ້າສຸດໂດຍ"
+
+#. module: stock_delivery
+#: model:ir.model.fields,field_description:stock_delivery.field_pay_on_delivery__write_date
+msgid "Last Updated on"
+msgstr "ອັບເດດຫຼ້າສຸດເມື່ອ"
+
+#. module: stock_delivery
+#: model:ir.ui.menu,name:stock_delivery.manage_printers_action
+msgid "Manage Printers"
+msgstr "ຈັດການເຄື່ອງພິມ"
 
 #. module: stock_delivery
 #. odoo-python
 #: code:addons/stock_delivery/models/stock_picking.py:0
 msgid "Manual actions might be needed."
-msgstr "ອາດຈະຕ້ອງໄດ້ດຳເນີນການດ້ວຍຕົນເອງ."
+msgstr "ອາດຈຳເປັນຕ້ອງດຳເນີນການດ້ວຍຕົນເອງ."
+
+#. module: stock_delivery
+#: model:ir.model.fields,field_description:stock_delivery.field_stock_picking_type__batch_max_weight
+msgid "Maximum weight"
+msgstr "ນ້ຳໜັກສູງສຸດ"
 
 #. module: stock_delivery
 #: model:ir.model.fields.selection,name:stock_delivery.selection__stock_package_type__package_carrier_type__none
 msgid "No carrier integration"
-msgstr "ບໍ່ມີການເຊື່ອມຕໍ່ກັບຜູ້ຈັດສົ່ງ"
+msgstr "ບໍ່ມີການເຊື່ອມໂຍງກັບຜູ້ຈັດສົ່ງ"
 
 #. module: stock_delivery
 #: model_terms:ir.ui.view,arch_db:stock_delivery.delivery_tracking_url_warning_form
@@ -289,27 +519,53 @@ msgid "OK"
 msgstr "ຕົກລົງ"
 
 #. module: stock_delivery
+#: model:ir.model.fields,field_description:stock_delivery.field_pay_on_delivery__order_ids
+msgid "Order"
+msgstr "ຄຳສັ່ງຊື້"
+
+#. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_product_product__country_of_origin
 #: model:ir.model.fields,field_description:stock_delivery.field_product_template__country_of_origin
 msgid "Origin of Goods"
-msgstr "ແຫຼ່ງກຳເນີດຂອງສິນຄ້າ"
+msgstr "ແຫຼ່ງກຳເນີດສິນຄ້າ"
 
 #. module: stock_delivery
 #: model:ir.model,name:stock_delivery.model_stock_package
 msgid "Package"
-msgstr "ຫີບຫໍ່"
+msgstr "ຫໍ່ເຄື່ອງ"
 
 #. module: stock_delivery
 #. odoo-python
 #: code:addons/stock_delivery/wizard/stock_put_in_pack.py:0
 msgid "Package too heavy!"
-msgstr "ຫີບຫໍ່ມີນ້ຳໜັກຫຼາຍເກີນໄປ!"
+msgstr "ຫໍ່ເຄື່ອງໜັກເກີນໄປ!"
 
 #. module: stock_delivery
-#: model_terms:ir.ui.view,arch_db:stock_delivery.sale_order_portal_content_inherit_sale_stock_inherit_website_sale
+#: model:ir.model,name:stock_delivery.model_pay_on_delivery
+#: model_terms:ir.ui.view,arch_db:stock_delivery.pay_on_delivery_form
+msgid "Pay on Delivery"
+msgstr "ຊຳລະເງິນຕອນຈັດສົ່ງ"
+
+#. module: stock_delivery
+#: model:ir.model,name:stock_delivery.model_stock_picking_type
+msgid "Picking Type"
+msgstr "ປະເພດການເບີກສິນຄ້າ"
+
+#. module: stock_delivery
+#: model:ir.model.fields,field_description:stock_delivery.field_res_partner__pickup_location_data
+#: model:ir.model.fields,field_description:stock_delivery.field_res_users__pickup_location_data
+msgid "Pickup Location Data"
+msgstr "ຂໍ້ມູນສະຖານທີ່ຮັບເຄື່ອງ"
+
+#. module: stock_delivery
+#: model:ir.model,name:stock_delivery.model_stock_package_label_layout
+msgid "Prepare Package Labels"
+msgstr "ກະກຽມປ້າຍກຳກັບຫໍ່ເຄື່ອງ"
+
+#. module: stock_delivery
 #: model_terms:ir.ui.view,arch_db:stock_delivery.view_picking_withcarrier_out_form
 msgid "Print Return Label"
-msgstr "ພິມສະຫຼາກການສົ່ງຄືນ"
+msgstr "ພິມປ້າຍກຳກັບການສົ່ງຄືນ"
 
 #. module: stock_delivery
 #: model:ir.model,name:stock_delivery.model_product_template
@@ -319,7 +575,12 @@ msgstr "ສິນຄ້າ"
 #. module: stock_delivery
 #: model:ir.model,name:stock_delivery.model_stock_move_line
 msgid "Product Moves (Stock Move Line)"
-msgstr "ການເຄື່ອນຍ້າຍສິນຄ້າ (ລາຍການເຄື່ອນຍ້າຍສາງ)"
+msgstr "ການເຄື່ອນຍ້າຍສິນຄ້າ (ແຖວການເຄື່ອນຍ້າຍສາງ)"
+
+#. module: stock_delivery
+#: model:ir.model,name:stock_delivery.model_product_product
+msgid "Product Variant"
+msgstr "ຮູບແບບຍ່ອຍຂອງສິນຄ້າ"
 
 #. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_picking__delivery_type
@@ -329,22 +590,32 @@ msgstr "ຜູ້ໃຫ້ບໍລິການ"
 #. module: stock_delivery
 #: model:ir.model,name:stock_delivery.model_stock_put_in_pack
 msgid "Put In Pack Wizard"
-msgstr "ຕົວຊ່ວຍໃນການບັນຈຸຫີບຫໍ່"
+msgstr "ຕົວຊ່ວຍສ້າງຫໍ່ເຄື່ອງ"
 
 #. module: stock_delivery
 #: model:ir.model.fields.selection,name:stock_delivery.selection__delivery_carrier__invoice_policy__real
 msgid "Real cost"
-msgstr "ຕົ້ນທຶນຕົວຈິງ"
+msgstr "ຄ່າໃຊ້ຈ່າຍຕົວຈິງ"
+
+#. module: stock_delivery
+#: model:ir.model,name:stock_delivery.model_ir_actions_report
+msgid "Report Action"
+msgstr "ການດຳເນີນການລາຍງານ"
+
+#. module: stock_delivery
+#: model:ir.ui.menu,name:stock_delivery.cached_printers_section
+msgid "Reporting"
+msgstr "ລາຍງານ"
+
+#. module: stock_delivery
+#: model:ir.ui.menu,name:stock_delivery.cached_printers_action
+msgid "Reset Linked Printers"
+msgstr "ຣີເຊັດເຄື່ອງພິມທີ່ເຊື່ອມຕໍ່"
 
 #. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_picking__return_label_ids
 msgid "Return Label"
-msgstr "ສະຫຼາກການສົ່ງຄືນ"
-
-#. module: stock_delivery
-#: model:ir.model,name:stock_delivery.model_stock_return_picking
-msgid "Return Picking"
-msgstr "ການຮັບຄືນສິນຄ້າ"
+msgstr "ປ້າຍກຳກັບການສົ່ງຄືນ"
 
 #. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_delivery_carrier__route_ids
@@ -356,12 +627,14 @@ msgstr "ເສັ້ນທາງ"
 #: model:ir.model.fields,help:stock_delivery.field_product_product__country_of_origin
 #: model:ir.model.fields,help:stock_delivery.field_product_template__country_of_origin
 msgid ""
-"Rules of origin determine where goods originate, i.e. not where they have been shipped from, but where they have been produced or manufactured.\n"
-"As such, the ‘origin’ is the 'economic nationality' of goods traded in commerce."
+"Rules of origin determine where goods originate, i.e. not where they have "
+"been shipped from, but where they have been produced or manufactured.\n"
+"As such, the ‘origin’ is the 'economic nationality' of goods traded in "
+"commerce."
 msgstr ""
-"ກົດລະບຽບແຫຼ່ງກຳເນີດຈະກຳນົດວ່າສິນຄ້າມີຕົ້ນກຳເນີດມາຈາກໃສ, ບໍ່ແມ່ນບ່ອນທີ່ຖືກສົ່ງມາ, ແຕ່ແມ່ນບ່ອນທີ່ຖືກຜະລິດ "
-"ຫຼື ປຸງແຕ່ງ.\n"
-"ດັ່ງນັ້ນ, 'ຕົ້ນກຳເນີດ' ຈຶ່ງແມ່ນ 'ສັນຊາດທາງເສດຖະກິດ' ຂອງສິນຄ້າທີ່ເຮັດການຄ້າຂາຍ."
+"ກົດລະບຽບແຫຼ່ງກຳເນີດສິນຄ້າກຳນົດວ່າສິນຄ້ານັ້ນມີແຫຼ່ງກຳເນີດມາຈາກໃສ, ນັ້ນຄື ບໍ່ແມ່ນສະຖານທີ່ທີ່ຈັດສົ່ງມາ, ແຕ່ແມ່ນ"
+"ສະຖານທີ່ຜະລິດ ຫຼື ປຸງແຕ່ງສິນຄ້າ.\n"
+"ດັ່ງນັ້ນ, 'ແຫຼ່ງກຳເນີດ' ຈຶ່ງປຽບຄື 'ສັນຊາດທາງເສດຖະກິດ' ຂອງສິນຄ້າທີ່ມີການຊື້ຂາຍກັນ."
 
 #. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_move_line__sale_price
@@ -387,9 +660,10 @@ msgstr "ສົ່ງໃຫ້ຜູ້ຈັດສົ່ງ"
 #. odoo-python
 #: code:addons/stock_delivery/models/stock_picking.py:0
 msgid ""
-"Shipment sent to carrier %(carrier_name)s for shipping with tracking number "
-"%(ref)s"
-msgstr "ການຈັດສົ່ງຖືກສົ່ງໃຫ້ຜູ້ຈັດສົ່ງ %(carrier_name)s ດ້ວຍເລກຕິດຕາມ %(ref)s"
+"Shipment sent to carrier %(carrier_name)s for shipping with tracking number %"
+"(ref)s"
+msgstr ""
+"ສົ່ງສິນຄ້າໃຫ້ຜູ້ຈັດສົ່ງ %(carrier_name)s ແລ້ວ ດ້ວຍເລກຕິດຕາມພັດສະດຸ %(ref)s"
 
 #. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_picking__carrier_price
@@ -397,31 +671,42 @@ msgid "Shipping Cost"
 msgstr "ຄ່າຈັດສົ່ງ"
 
 #. module: stock_delivery
+#: model:ir.actions.report,name:stock_delivery.action_report_shipping_docs
+msgid "Shipping Documents"
+msgstr "ເອກະສານການຈັດສົ່ງ"
+
+#. module: stock_delivery
+#: model:ir.actions.act_window,name:stock_delivery.open_export_docs_report
+msgid "Shipping Documents Report"
+msgstr "ລາຍງານເອກະສານການຈັດສົ່ງ"
+
+#. module: stock_delivery
 #: model_terms:ir.ui.view,arch_db:stock_delivery.view_picking_withcarrier_out_form
 msgid "Shipping Information"
 msgstr "ຂໍ້ມູນການຈັດສົ່ງ"
 
 #. module: stock_delivery
-#: model:ir.model,name:stock_delivery.model_delivery_carrier
-#: model_terms:ir.ui.view,arch_db:stock_delivery.stock_location_route_view_form_inherit_stock_delivery
-msgid "Shipping Methods"
-msgstr "ວິທີການຈັດສົ່ງ"
+#: model:ir.actions.report,name:stock_delivery.action_report_shipping_labels
+msgid "Shipping Labels"
+msgstr "ປ້າຍກຳກັບການຈັດສົ່ງ"
 
 #. module: stock_delivery
+#: model:ir.actions.act_window,name:stock_delivery.open_shipping_labels_report
+msgid "Shipping Labels Report"
+msgstr "ລາຍງານປ້າຍກຳກັບການຈັດສົ່ງ"
+
+#. module: stock_delivery
+#. odoo-python
+#: code:addons/stock_delivery/wizard/stock_package_label_layout.py:0
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_put_in_pack__shipping_weight
 msgid "Shipping Weight"
-msgstr "ນ້ຳໜັກໃນການຈັດສົ່ງ"
-
-#. module: stock_delivery
-#: model_terms:ir.ui.view,arch_db:stock_delivery.report_package_barcode_small_delivery
-msgid "Shipping Weight:"
-msgstr "ນ້ຳໜັກໃນການຈັດສົ່ງ:"
+msgstr "ນ້ຳໜັກຈັດສົ່ງ"
 
 #. module: stock_delivery
 #: model:ir.model.fields,help:stock_delivery.field_product_product__hs_code
 #: model:ir.model.fields,help:stock_delivery.field_product_template__hs_code
 msgid "Standardized code for international shipping and goods declaration."
-msgstr "ລະຫັດມາດຕະຖານສຳລັບການຈັດສົ່ງສາກົນ ແລະ ການແຈ້ງສິນຄ້າ."
+msgstr "ລະຫັດມາດຕະຖານສຳລັບການຂົນສົ່ງລະຫວ່າງປະເທດ ແລະ ການແຈ້ງພາສີສິນຄ້າ."
 
 #. module: stock_delivery
 #: model:ir.model,name:stock_delivery.model_stock_move
@@ -431,17 +716,26 @@ msgstr "ການເຄື່ອນຍ້າຍສາງ"
 #. module: stock_delivery
 #: model:ir.model,name:stock_delivery.model_stock_package_type
 msgid "Stock package type"
-msgstr "ປະເພດຫີບຫໍ່ສາງ"
+msgstr "ປະເພດຫໍ່ເຄື່ອງສາງ"
 
 #. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_package__weight_uom_rounding
 msgid "Technical field indicating weight's number of decimal places"
-msgstr "ຟິວທາງເຕັກນິກທີ່ລະບຸຈຳນວນທົດສະນິຍົມຂອງນ້ຳໜັກ"
+msgstr "ຊ່ອງຂໍ້ມູນທາງເທັກນິກທີ່ລະບຸຈຳນວນຫຼັກທົດສະນິຍົມຂອງນ້ຳໜັກ"
 
 #. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_package__weight_is_kg
 msgid "Technical field indicating whether weight uom is kg or not (i.e. lb)"
-msgstr "ຟິວທາງເຕັກນິກທີ່ລະບຸວ່າຫົວໜ່ວຍນ້ຳໜັກເປັນ ກກ ຫຼື ບໍ່ (ເຊັ່ນ: ປອນ)"
+msgstr "ຊ່ອງຂໍ້ມູນທາງເທັກນິກທີ່ລະບຸວ່າຫົວໜ່ວຍນ້ຳໜັກແມ່ນ kg ຫຼື ບໍ່ (ເຊັ່ນ: lb)"
+
+#. module: stock_delivery
+#: model:ir.model.fields,help:stock_delivery.field_res_partner__pickup_location_data
+#: model:ir.model.fields,help:stock_delivery.field_res_users__pickup_location_data
+msgid ""
+"Technical field: information needed by delivery providers in case of pickup "
+"point addresses."
+msgstr ""
+"ຊ່ອງຂໍ້ມູນທາງເທັກນິກ: ຂໍ້ມູນທີ່ຈຳເປັນສຳລັບຜູ້ໃຫ້ບໍລິການຈັດສົ່ງ ໃນກໍລະນີທີ່ເປັນທີ່ຢູ່ຈຸດຮັບເຄື່ອງ."
 
 #. module: stock_delivery
 #: model:ir.model.fields,help:stock_delivery.field_stock_move_line__destination_country_code
@@ -450,8 +744,8 @@ msgid ""
 "The ISO country code in two chars. \n"
 "You can use this field for quick search."
 msgstr ""
-"ລະຫັດປະເທດ ISO ເປັນສອງຕົວອັກສອນ. \n"
-"ທ່ານສາມາດໃຊ້ຟິວນີ້ເພື່ອການຄົ້ນຫາແບບໄວ."
+"ລະຫັດປະເທດ ISO ເປັນຕົວອັກສອນ 2 ຕົວ. \n"
+"ທ່ານສາມາດໃຊ້ຊ່ອງຂໍ້ມູນນີ້ເພື່ອຄົ້ນຫາຢ່າງວ່ອງໄວ."
 
 #. module: stock_delivery
 #. odoo-python
@@ -459,13 +753,14 @@ msgstr ""
 msgid ""
 "The package cannot be created because the total weight of the products in "
 "the picking is 0.0 %s"
-msgstr "ບໍ່ສາມາດສ້າງຫີບຫໍ່ໄດ້ ເພາະນ້ຳໜັກລວມຂອງສິນຄ້າໃນການເບີກຈ່າຍແມ່ນ 0.0 %s"
+msgstr ""
+"ບໍ່ສາມາດສ້າງຫໍ່ເຄື່ອງໄດ້ ເນື່ອງຈາກນ້ຳໜັກລວມຂອງສິນຄ້າໃນລາຍການເບີກສິນຄ້າແມ່ນ 0.0 %s"
 
 #. module: stock_delivery
 #. odoo-python
 #: code:addons/stock_delivery/wizard/choose_delivery_carrier.py:0
 msgid "The shipping price will be set once the delivery is done."
-msgstr "ລາຄາຄ່າຈັດສົ່ງຈະຖືກກຳນົດເມື່ອການຈັດສົ່ງສຳເລັດ."
+msgstr "ລາຄາການຈັດສົ່ງຈະຖືກກຳນົດເມື່ອການຈັດສົ່ງສຳເລັດແລ້ວ."
 
 #. module: stock_delivery
 #. odoo-python
@@ -474,7 +769,7 @@ msgid ""
 "The weight of your package is higher than the maximum weight authorized for "
 "its package type. Please choose another package."
 msgstr ""
-"ນ້ຳໜັກຫີບຫໍ່ຂອງທ່ານສູງກວ່ານ້ຳໜັກສູງສຸດທີ່ອະນຸຍາດສຳລັບປະເພດຫີບຫໍ່ນີ້. ກະລຸນາເລືອກຫີບຫໍ່ໃໝ່."
+"ນ້ຳໜັກຫໍ່ເຄື່ອງຂອງທ່ານສູງກວ່ານ້ຳໜັກສູງສຸດທີ່ອະນຸຍາດສຳລັບປະເພດຫໍ່ເຄື່ອງນີ້. ກະລຸນາເລືອກຫໍ່ເຄື່ອງອື່ນ."
 
 #. module: stock_delivery
 #. odoo-python
@@ -483,7 +778,7 @@ msgid ""
 "The weight of your package is higher than the maximum weight authorized for "
 "this package type. Please choose another package type."
 msgstr ""
-"ນ້ຳໜັກຫີບຫໍ່ຂອງທ່ານສູງກວ່ານ້ຳໜັກສູງສຸດທີ່ອະນຸຍາດສຳລັບປະເພດຫີບຫໍ່ນີ້. ກະລຸນາເລືອກປະເພດຫີບຫໍ່ໃໝ່."
+"ນ້ຳໜັກຫໍ່ເຄື່ອງຂອງທ່ານສູງກວ່ານ້ຳໜັກສູງສຸດທີ່ອະນຸຍາດສຳລັບປະເພດຫໍ່ເຄື່ອງນີ້. ກະລຸນາເລືອກປະເພດຫໍ່ເຄື່ອງອື່ນ."
 
 #. module: stock_delivery
 #. odoo-python
@@ -492,19 +787,39 @@ msgid "There is no matching delivery rule."
 msgstr "ບໍ່ມີກົດລະບຽບການຈັດສົ່ງທີ່ກົງກັນ."
 
 #. module: stock_delivery
+#. odoo-python
+#: code:addons/stock_delivery/wizard/pay_on_delivery.py:0
+msgid ""
+"These transfers are for orders that are paid on delivery, and the amounts "
+"still due are in different currencies. Validate the transfers one currency "
+"at a time to collect them."
+msgstr ""
+"ລາຍການໂອນຍ້າຍເຫຼົ່ານີ້ແມ່ນສຳລັບຄຳສັ່ງຊື້ທີ່ຊຳລະເງິນຕອນຈັດສົ່ງ, ແລະ ຈຳນວນເງິນທີ່ຄ້າງຊຳລະແມ່ນເປັນສະກຸນເງິ"
+"ນທີ່ຕ່າງກັນ. ໃຫ້ຢືນຢັນລາຍການໂອນຍ້າຍເທື່ອລະສະກຸນເງິນເພື່ອເກັບເງິນ."
+
+#. module: stock_delivery
+#. odoo-python
+#: code:addons/stock_delivery/models/ir_actions_report.py:0
+msgid ""
+"This action is meant to print %s attachments from the chatter: none was "
+"found."
+msgstr ""
+"ການດຳເນີນການນີ້ແມ່ນເພື່ອພິມໄຟລ໌ຄັດຕິດ %s ຈາກຊ່ອງສົນທະນາ: ແຕ່ບໍ່ພົບໄຟລ໌ໃດເລີຍ."
+
+#. module: stock_delivery
 #: model:ir.model.fields,help:stock_delivery.field_stock_package__weight
 msgid "Total weight of all the products contained in the package."
-msgstr "ນ້ຳໜັກລວມຂອງສິນຄ້າທັງໝົດທີ່ບັນຈຸຢູ່ໃນຫີບຫໍ່."
+msgstr "ນ້ຳໜັກລວມຂອງສິນຄ້າທັງໝົດທີ່ບັນຈຸໃນຫໍ່ເຄື່ອງ."
 
 #. module: stock_delivery
 #: model:ir.model.fields,help:stock_delivery.field_stock_picking__weight
 msgid "Total weight of the products in the picking."
-msgstr "ນ້ຳໜັກລວມຂອງສິນຄ້າໃນການເບີກຈ່າຍ."
+msgstr "ນ້ຳໜັກລວມຂອງສິນຄ້າໃນລາຍການເບີກສິນຄ້າ."
 
 #. module: stock_delivery
 #: model_terms:ir.ui.view,arch_db:stock_delivery.delivery_tracking_url_warning_form
 msgid "Trackers URL"
-msgstr "ລິ້ງຕິດຕາມ (URL)"
+msgstr "URL ຕິດຕາມ"
 
 #. module: stock_delivery
 #: model_terms:ir.ui.view,arch_db:stock_delivery.view_picking_withcarrier_out_form
@@ -514,12 +829,12 @@ msgstr "ການຕິດຕາມ"
 #. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_picking__carrier_tracking_ref
 msgid "Tracking Reference"
-msgstr "ຂໍ້ມູນອ້າງອີງການຕິດຕາມ"
+msgstr "ລະຫັດອ້າງອີງການຕິດຕາມ"
 
 #. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_picking__carrier_tracking_url
 msgid "Tracking URL"
-msgstr "ລິ້ງຕິດຕາມ (URL)"
+msgstr "URL ການຕິດຕາມ"
 
 #. module: stock_delivery
 #. odoo-python
@@ -538,6 +853,8 @@ msgid "Transfer"
 msgstr "ການໂອນຍ້າຍ"
 
 #. module: stock_delivery
+#. odoo-python
+#: code:addons/stock_delivery/wizard/stock_package_label_layout.py:0
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_move__weight
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_package__weight
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_picking__weight
@@ -553,30 +870,26 @@ msgstr "ນ້ຳໜັກສຳລັບການຈັດສົ່ງ"
 #. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_package__weight_uom_name
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_picking__weight_uom_name
+#: model:ir.model.fields,field_description:stock_delivery.field_stock_picking_type__weight_uom_name
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_put_in_pack__weight_uom_name
 msgid "Weight unit of measure label"
-msgstr "ປ້າຍຫົວໜ່ວຍນ້ຳໜັກ"
-
-#. module: stock_delivery
-#: model_terms:ir.ui.view,arch_db:stock_delivery.report_package_barcode_small_delivery
-msgid "Weight:"
-msgstr "ນ້ຳໜັກ:"
+msgstr "ປ້າຍກຳກັບຫົວໜ່ວຍວັດແທກນ້ຳໜັກ"
 
 #. module: stock_delivery
 #. odoo-python
 #: code:addons/stock_delivery/models/stock_move.py:0
 msgid ""
 "You cannot pack products into the same package when they have different "
-"carriers (i.e. check that all of their transfers have a carrier assigned and"
-" are using the same carrier)."
+"carriers (i.e. check that all of their transfers have a carrier assigned and "
+"are using the same carrier)."
 msgstr ""
-"ທ່ານບໍ່ສາມາດບັນຈຸສິນຄ້າເຂົ້າໃນຫີບຫໍ່ດຽວກັນໄດ້ຫາກມີຜູ້ຈັດສົ່ງທີ່ຕ່າງກັນ (ກະລຸນາກວດສອບວ່າທຸກການໂອນຍ້າຍໄດ້ກຳນົ"
-"ດຜູ້ຈັດສົ່ງດຽວກັນ)."
+"ທ່ານບໍ່ສາມາດບັນຈຸສິນຄ້າລົງໃນຫໍ່ດຽວກັນໄດ້ເມື່ອສິນຄ້າມີຜູ້ຈັດສົ່ງຕ່າງກັນ (ເຊັ່ນ: ກວດເບິ່ງວ່າທຸກລາຍການໂອນຍ້າຍໄດ້"
+"ກຳນົດຜູ້ຈັດສົ່ງແລ້ວ ແລະ ໃຊ້ຜູ້ຈັດສົ່ງດຽວກັນ)."
 
 #. module: stock_delivery
 #: model_terms:ir.ui.view,arch_db:stock_delivery.delivery_tracking_url_warning_form
 msgid "You have multiple tracker links, they are available in the chatter."
-msgstr "ທ່ານມີລິ້ງຕິດຕາມຫຼາຍອັນ, ເຊິ່ງສາມາດເບິ່ງໄດ້ໃນສ່ວນການສົນທະນາ (chatter)."
+msgstr "ທ່ານມີລິ້ງຕິດຕາມຫຼາຍອັນ, ເຊິ່ງສາມາດເບິ່ງໄດ້ໃນຊ່ອງສົນທະນາ."
 
 #. module: stock_delivery
 #. odoo-python
@@ -585,7 +898,7 @@ msgid ""
 "Your delivery method has no redirect on courier provider's website to track "
 "this order."
 msgstr ""
-"ວິທີການຈັດສົ່ງຂອງທ່ານບໍ່ມີລິ້ງເຊື່ອມຕໍ່ໄປຫາເວັບໄຊທ໌ຂອງຜູ້ຈັດສົ່ງເພື່ອຕິດຕາມໃບສັ່ງນີ້."
+"ວິທີການຈັດສົ່ງຂອງທ່ານບໍ່ມີການເຊື່ອມຕໍ່ໄປຍັງເວັບໄຊຂອງຜູ້ໃຫ້ບໍລິການຂົນສົ່ງເພື່ອຕິດຕາມຄຳສັ່ງຊື້ນີ້."
 
 #. module: stock_delivery
 #: model:ir.ui.menu,name:stock_delivery.menu_delivery_zip_prefix
@@ -593,33 +906,49 @@ msgid "Zip Prefix"
 msgstr "ຄຳນຳໜ້າລະຫັດໄປສະນີ"
 
 #. module: stock_delivery
-#: model_terms:ir.ui.view,arch_db:stock_delivery.label_package_template_view_delivery
-msgid "^A0N,44,33^FDShipping Weight:"
-msgstr "^A0N,44,33^FDນ້ຳໜັກຈັດສົ່ງ:"
+#: model_terms:ir.ui.view,arch_db:stock_delivery.package_zpl_label_delivery
+msgid "^FO310,200^A0N,44,33^FH^FD"
+msgstr "^FO310,200^A0N,44,33^FH^FD"
 
 #. module: stock_delivery
-#: model_terms:ir.ui.view,arch_db:stock_delivery.label_package_template_view_delivery
-msgid "^A0N,44,33^FDWeight:"
-msgstr "^A0N,44,33^FDນ້ຳໜັກ:"
+#: model_terms:ir.ui.view,arch_db:stock_delivery.barcode_alternative_label
+msgid "^FO35,180^A0N,15^FH^FDHS:"
+msgstr "^FO35,180^A0N,15^FH^FDHS:"
 
 #. module: stock_delivery
-#: model_terms:ir.ui.view,arch_db:stock_delivery.label_package_template_view_delivery
-msgid "^FO310,200"
-msgstr "^FO310,200"
+#: model_terms:ir.ui.view,arch_db:stock_delivery.barcode_normal_label
+msgid "^FO35,220^A0N,15^FH^FDHS:"
+msgstr "^FO35,220^A0N,15^FH^FDHS:"
 
 #. module: stock_delivery
-#: model_terms:ir.ui.view,arch_db:stock_delivery.alternative_zpl_label
-msgid "^FO35, 180 ^A0N,15^FDHS:"
-msgstr "^FO35, 180 ^A0N,15^FDHS:"
-
-#. module: stock_delivery
-#: model_terms:ir.ui.view,arch_db:stock_delivery.normal_zpl_label
-msgid "^FO35, 220 ^A0N,15^FDHS:"
-msgstr "^FO35, 220 ^A0N,15^FDHS:"
-
-#. module: stock_delivery
-#: model_terms:ir.ui.view,arch_db:stock_delivery.alternative_zpl_label
-#: model_terms:ir.ui.view,arch_db:stock_delivery.label_package_template_view_delivery
-#: model_terms:ir.ui.view,arch_db:stock_delivery.normal_zpl_label
+#: model_terms:ir.ui.view,arch_db:stock_delivery.barcode_alternative_label
+#: model_terms:ir.ui.view,arch_db:stock_delivery.barcode_normal_label
+#: model_terms:ir.ui.view,arch_db:stock_delivery.package_zpl_label_delivery
 msgid "^FS"
 msgstr "^FS"
+
+#. module: stock_delivery
+#: model_terms:ir.ui.view,arch_db:stock_delivery.view_picking_type_form_delivery
+msgid "and"
+msgstr "ແລະ"
+
+#. module: stock_delivery
+#: model_terms:ir.ui.view,arch_db:stock_delivery.view_picking_type_form_delivery
+msgid ""
+"are uploaded to the chatter when the picking is validated. If you want to\n"
+"                    print them automatically on validation, you need to "
+"configure a printer on the\n"
+"                    report form.<br/>"
+msgstr ""
+"ຈະຖືກອັບໂຫຼດລົງໃນຊ່ອງສົນທະນາເມື່ອລາຍການເບີກສິນຄ້າໄດ້ຮັບການຢືນຢັນແລ້ວ. ຖ້າທ່ານຕ້ອງການ\n"
+"                    ພິມເອກະສານເຫຼົ່ານັ້ນໂດຍອັດຕະໂນມັດເມື່ອຢືນຢັນ, ທ່ານຕ້ອງກຳນົດຄ່າເຄື່ອງພິມໃນ\n"
+"                    ແບບຟອມລາຍງານ.<br/>"
+
+#. module: stock_delivery
+#: model_terms:ir.ui.view,arch_db:stock_delivery.pay_on_delivery_form
+msgid ""
+"must be collected for\n"
+"                the delivery of the following orders:"
+msgstr ""
+"ຕ້ອງໄດ້ຮັບການເກັບເງິນສຳລັບ\n"
+"                ການຈັດສົ່ງຄຳສັ່ງຊື້ຕໍ່ໄປນີ້:"

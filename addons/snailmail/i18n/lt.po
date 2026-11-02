@@ -20,10 +20,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:39+0000\n"
-"PO-Revision-Date: 2025-09-16 18:41+0000\n"
-"Last-Translator: \"Tiffany Chang (tic)\" <tic@odoo.com>\n"
-"Language-Team: Lithuanian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-11 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 20:27+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Lithuanian <https://translate.odoo.com/projects/odoo-s19-4/"
 "snailmail/lt/>\n"
 "Language: lt\n"
 "MIME-Version: 1.0\n"
@@ -32,7 +32,15 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n % 10 == 1 && (n % 100 > 19 || n % 100 < "
 "11) ? 0 : (n % 10 >= 2 && n % 10 <=9) && (n % 100 > 19 || n % 100 < 11) ? "
 "1 : n % 1 != 0 ? 2: 3);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: snailmail
+#: model:ir.module.module,description:base.module_snailmail
+msgid ""
+"\n"
+"Allows users to send documents by post\n"
+"=====================================================\n"
+msgstr ""
 
 #. module: snailmail
 #: model:ir.model.fields.selection,name:snailmail.selection__snailmail_letter__error_code__attachment_error
@@ -97,6 +105,12 @@ msgid "Both sides"
 msgstr ""
 
 #. module: snailmail
+#. odoo-javascript
+#: code:addons/snailmail/static/src/core/notification_model_patch.js:0
+msgid "Bounced"
+msgstr ""
+
+#. module: snailmail
 #: model:ir.model.fields.selection,name:snailmail.selection__snailmail_letter__error_code__credit_error
 msgid "CREDIT_ERROR"
 msgstr ""
@@ -125,10 +139,6 @@ msgstr "Spalva"
 
 #. module: snailmail
 #: model:ir.model,name:snailmail.model_res_company
-msgid "Companies"
-msgstr "Įmonės"
-
-#. module: snailmail
 #: model:ir.model.fields,field_description:snailmail.field_snailmail_letter__company_id
 msgid "Company"
 msgstr "Įmonė"
@@ -175,6 +185,12 @@ msgid "Created on"
 msgstr "Sukurta"
 
 #. module: snailmail
+#. odoo-javascript
+#: code:addons/snailmail/static/src/core/notification_model_patch.js:0
+msgid "Dispatched"
+msgstr ""
+
+#. module: snailmail
 #: model:ir.model.fields,field_description:snailmail.field_ir_actions_report__display_name
 #: model:ir.model.fields,field_description:snailmail.field_mail_message__display_name
 #: model:ir.model.fields,field_description:snailmail.field_mail_notification__display_name
@@ -187,7 +203,7 @@ msgid "Display Name"
 msgstr "Rodomas pavadinimas"
 
 #. module: snailmail
-#: model:ir.model.fields,field_description:snailmail.field_snailmail_letter__attachment_datas
+#: model:ir.model.fields,field_description:snailmail.field_snailmail_letter__attachment_raw
 #: model_terms:ir.ui.view,arch_db:snailmail.snailmail_letter_list
 msgid "Document"
 msgstr "Dokumentas"
@@ -261,6 +277,11 @@ msgid "Invalid recipient name."
 msgstr ""
 
 #. module: snailmail
+#: model:ir.model.fields.selection,name:snailmail.selection__snailmail_letter__error_code__letter_undeliverable
+msgid "LETTER_UNDELIVERABLE"
+msgstr ""
+
+#. module: snailmail
 #: model:ir.model.fields,field_description:snailmail.field_snailmail_letter__write_uid
 msgid "Last Updated by"
 msgstr "Paskutinį kartą atnaujino"
@@ -277,9 +298,27 @@ msgid "Letter"
 msgstr "Laiškas"
 
 #. module: snailmail
+#. odoo-javascript
+#: code:addons/snailmail/static/src/core/notification_model_patch.js:0
+msgid "Letter Undeliverable"
+msgstr ""
+
+#. module: snailmail
+#. odoo-python
+#: code:addons/snailmail/controller/snailmail_webhook.py:0
+msgid "Letter is delivered successfully"
+msgstr ""
+
+#. module: snailmail
 #. odoo-python
 #: code:addons/snailmail/models/snailmail_letter.py:0
 msgid "Letter sent by post with Snailmail"
+msgstr ""
+
+#. module: snailmail
+#. odoo-python
+#: code:addons/snailmail/controller/snailmail_webhook.py:0
+msgid "Letter was unable to be delivered"
 msgstr ""
 
 #. module: snailmail
@@ -299,8 +338,8 @@ msgstr "Žinutė"
 
 #. module: snailmail
 #: model:ir.model,name:snailmail.model_mail_notification
-msgid "Message Notifications"
-msgstr "Žinučių pranešimai"
+msgid "Message Notification"
+msgstr ""
 
 #. module: snailmail
 #. odoo-javascript
@@ -368,6 +407,11 @@ msgid "Print In Color"
 msgstr "Spausdinti spalvotai"
 
 #. module: snailmail
+#: model:ir.model.fields.selection,name:snailmail.selection__snailmail_letter__state__process
+msgid "Processing"
+msgstr ""
+
+#. module: snailmail
 #: model:ir.model.fields,field_description:snailmail.field_snailmail_letter__partner_id
 msgid "Recipient"
 msgstr "Gavėjas"
@@ -405,6 +449,12 @@ msgid "Sent by"
 msgstr ""
 
 #. module: snailmail
+#: model:iap.service,name:snailmail.iap_service_snailmail
+#: model:ir.module.module,shortdesc:base.module_snailmail
+msgid "Snail Mail"
+msgstr ""
+
+#. module: snailmail
 #. odoo-python
 #: code:addons/snailmail/models/snailmail_letter.py:0
 msgid "Snail Mails are successfully sent"
@@ -419,11 +469,6 @@ msgstr ""
 #. module: snailmail
 #: model:ir.model.fields,field_description:snailmail.field_res_company__snailmail_color
 msgid "Snailmail Color"
-msgstr ""
-
-#. module: snailmail
-#: model:ir.model.fields,field_description:snailmail.field_res_config_settings__snailmail_cover_readonly
-msgid "Snailmail Cover Readonly"
 msgstr ""
 
 #. module: snailmail
@@ -481,8 +526,18 @@ msgid "Snailmail Trial Error"
 msgstr ""
 
 #. module: snailmail
+#: model:ir.model.fields.selection,name:snailmail.selection__mail_notification__failure_type__sn_undeliverable
+msgid "Snailmail Undeliverable"
+msgstr ""
+
+#. module: snailmail
 #: model:ir.model.fields.selection,name:snailmail.selection__mail_notification__failure_type__sn_error
 msgid "Snailmail Unknown Error"
+msgstr ""
+
+#. module: snailmail
+#: model:ir.model.fields,field_description:snailmail.field_snailmail_letter__letter_uid
+msgid "Snailmail letter ID"
 msgstr ""
 
 #. module: snailmail
@@ -549,13 +604,15 @@ msgstr ""
 #. module: snailmail
 #. odoo-python
 #: code:addons/snailmail/models/snailmail_letter.py:0
-msgid "The document to be sent exceeds the maximum allowed limit of 8 pages."
+msgid ""
+"The document has been accepted by postal service provider and is being "
+"processed.<br>The tracking id is %s"
 msgstr ""
 
 #. module: snailmail
 #. odoo-python
 #: code:addons/snailmail/models/snailmail_letter.py:0
-msgid "The document was correctly sent by post.<br>The tracking id is %s"
+msgid "The document to be sent exceeds the maximum allowed limit of 8 pages."
 msgstr ""
 
 #. module: snailmail
@@ -593,9 +650,11 @@ msgstr ""
 #: model:ir.model.fields,help:snailmail.field_snailmail_letter__state
 msgid ""
 "When a letter is created, the status is 'Pending'.\n"
-"If the letter is correctly sent, the status goes in 'Sent',\n"
-"If not, it will got in state 'Error' and the error message will be displayed "
-"in the field 'Error Message'."
+"If the letter is correctly sent to provider, the status goes in 'process',\n"
+"If the provider confirms the letter is delivered, the status goes in "
+"'Sent'.\n"
+"If not sent or delivered, it will got in state 'Error' and the error message "
+"will be displayed in the field 'Error Message'."
 msgstr ""
 
 #. module: snailmail
@@ -618,46 +677,3 @@ msgstr ""
 #: model:ir.model.fields,field_description:snailmail.field_snailmail_letter__zip
 msgid "Zip"
 msgstr "Pašto kodas"
-
-#~ msgid "Address"
-#~ msgstr "Adresas"
-
-#~ msgid "Buy credits"
-#~ msgstr "Įsigyti kreditų"
-
-#~ msgid "Cancel Letter"
-#~ msgstr "Atšaukti laišką"
-
-#~ msgid "Cancel letter"
-#~ msgstr "Atšaukti laišką"
-
-#~ msgid "Cancel notification in failure"
-#~ msgstr "Atšaukti nesėkmės pranešimą"
-
-#~ msgid "Canceled"
-#~ msgstr "Atšaukta"
-
-#~ msgid "Close"
-#~ msgstr "Uždaryti"
-
-#~ msgid ""
-#~ "Message type: email for email message, notification for system message, "
-#~ "comment for other messages such as user replies"
-#~ msgstr ""
-#~ "Žinutės tipas: el. paštas pašto žinutei, pranešimas sistemos žinutei, "
-#~ "komentaras kitoms žinutėms, tokioms, kaip vartotojų atsakymai"
-
-#~ msgid "Partner"
-#~ msgstr "Partneris"
-
-#~ msgid "Re-send letter"
-#~ msgstr "Persiųsti laišką"
-
-#~ msgid "Street 2..."
-#~ msgstr "Gatvė 2..."
-
-#~ msgid "Street..."
-#~ msgstr "Gatvė..."
-
-#~ msgid "ZIP"
-#~ msgstr "Pašto kodas"

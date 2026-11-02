@@ -8,17 +8,54 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo 9.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:37+0000\n"
-"PO-Revision-Date: 2025-11-15 11:29+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Hindi <https://translate.odoo.com/projects/odoo-19/hr_expense/"
-"hi/>\n"
+"POT-Creation-Date: 2026-10-09 17:39+0000\n"
+"PO-Revision-Date: 2026-08-31 16:38+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Hindi <https://translate.odoo.com/projects/odoo-s19-4/"
+"hr_expense/hi/>\n"
 "Language: hi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: hr_expense
+#: model:ir.module.module,description:base.module_hr_expense
+msgid ""
+"\n"
+"Manage expenses by Employees\n"
+"============================\n"
+"\n"
+"This application allows you to manage your employees' daily expenses. It "
+"gives you access to your employees’ fee notes and give you the right to "
+"complete and validate or refuse the notes. After validation it creates an "
+"invoice for the employee.\n"
+"Employee can encode their own expenses and the validation flow puts it "
+"automatically in the accounting after validation by managers.\n"
+"\n"
+"\n"
+"The whole flow is implemented as:\n"
+"---------------------------------\n"
+"* Draft expense\n"
+"* Submitted by the employee to his manager\n"
+"* Approved by his manager\n"
+"* Validation by the accountant and accounting entries creation\n"
+"\n"
+"This module also uses analytic accounting and is compatible with the invoice "
+"on timesheet module so that you are able to automatically re-invoice your "
+"customers' expenses if your work by project.\n"
+msgstr ""
+
+#. module: hr_expense
+#: model:ir.model.fields,help:hr_expense.field_hr_expense__has_existing_bill
+msgid ""
+" - When a bill already exists, the payment will use the supplier payable "
+"account so it can be matched with the bill.\n"
+"                 - When no bill exists, the payment will be recorded "
+"directly on the expense account, as usual.\n"
+"            "
+msgstr ""
 
 #. module: hr_expense
 #. odoo-python
@@ -61,15 +98,14 @@ msgstr "%(user)s पुष्टि करता है कि यह खर्�
 #. module: hr_expense
 #: model:ir.actions.report,print_report_name:hr_expense.action_report_hr_expense
 msgid ""
-"'Expense - %s - %s' % (object.employee_id.name, (object.name).replace('/', "
-"''))"
+"'Expense - %s - %s' % (object.employee_id.name, (object.name or "
+"'').replace('/', ''))"
 msgstr ""
-"'खर्च - %s - %s' % (object.employee_id.name, (object.name).replace('/', ''))"
 
 #. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
-msgid "(incl"
-msgstr "(शामिल है"
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_submitted_expenses
+msgid "--<br/>"
+msgstr ""
 
 #. module: hr_expense
 #. odoo-python
@@ -86,8 +122,13 @@ msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
-msgid "<i class=\"oi oi-arrow-right\"/> Setup your alias domain"
-msgstr "<i class=\"oi oi-arrow-right\"/> अपना एलियास डोमेन सेटअप करें"
+msgid "<i class=\"oi\" data-icon=\"east\"/> Setup your alias domain"
+msgstr "<i class=\"oi\" data-icon=\"east\"/> अपना एलियास डोमेन सेटअप करें"
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_split
+msgid "<span class=\"mx-1\" invisible=\"split_possible\">/</span>"
+msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.view_payment_form_inherit_expense
@@ -100,14 +141,14 @@ msgid "<span class=\"o_stat_text\">Journal Entry</span>"
 msgstr "<span class=\"o_stat_text\">जनरल एंट्री</span>"
 
 #. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
-msgid "<span>@</span>"
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
+msgid "<span class=\"o_stat_text\">Payment</span>"
 msgstr ""
 
 #. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.report_expense
-msgid "<span>Date:</span>"
-msgstr "<span>तारीख:</span>"
+#: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
+msgid "<span>@</span>"
+msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.report_expense
@@ -125,9 +166,21 @@ msgid "<span>Paid by:</span>"
 msgstr "<span>इन्होंने चुकाया:</span>"
 
 #. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_split
-msgid "<span>The total amount doesn't match the original amount.</span>"
-msgstr "<span>दर्ज की गई कुल रकम, वास्तविक रकम से अलग है.</span>"
+#: model_terms:ir.ui.view,arch_db:hr_expense.view_move_form_inherit_expense
+msgid ""
+"<span>This bill was already paid by an employee and the bill has been sent "
+"to you. Don't pay the supplier</span>"
+msgstr ""
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_submitted_expenses
+msgid "<strong>expenses</strong> pending approval, from:"
+msgstr ""
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_submitted_expenses
+msgid "A new expense is waiting for your approval in Odoo."
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__account_id
@@ -140,20 +193,19 @@ msgid "Accounting"
 msgstr "अकाउंटिंग"
 
 #. module: hr_expense
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_post_wizard__accounting_date
 #: model_terms:ir.ui.view,arch_db:hr_expense.view_move_list_expense
 msgid "Accounting Date"
-msgstr "अकाउंटिंग की तारीख"
-
-#. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_post_wizard_view
-msgid "Accounting date"
 msgstr "अकाउंटिंग की तारीख"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__message_needaction
 msgid "Action Needed"
 msgstr "कार्रवाई की ज़रूरत है"
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
+msgid "Action Required"
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__activity_ids
@@ -164,6 +216,11 @@ msgstr "गतिविधियाँ"
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__activity_exception_decoration
 msgid "Activity Exception Decoration"
 msgstr "ऐक्टिविटी एक्सेप्शन डेकोरेशन"
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__activity_plans_ids
+msgid "Activity Plans"
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__activity_state
@@ -223,6 +280,12 @@ msgid "Amount Due"
 msgstr "बकाया रकम"
 
 #. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/hr_expense.py:0
+msgid "Amount reimbursed"
+msgstr ""
+
+#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
 msgid "An"
 msgstr "एक"
@@ -235,14 +298,27 @@ msgstr "अपलोड के दौरान कोई गड़बड़ी �
 
 #. module: hr_expense
 #: model:ir.model.fields,help:hr_expense.field_hr_expense__account_id
-msgid "An expense account is expected"
-msgstr "इस काम को पूरा करने के लिए एक खर्च खाते (एक्सपेंस अकाउंट) की ज़रूरत है"
+msgid ""
+"An expense account is expected for employee paid expenses and company paid "
+"expenses without a matched bill.\n"
+"For company paid expenses with a matched bill, the account needs to be the "
+"payable account of the bill."
+msgstr ""
 
 #. module: hr_expense
 #. odoo-javascript
 #: code:addons/hr_expense/static/src/views/expense_form_view.js:0
-msgid "An expense of same category, amount and date already exists."
-msgstr "इसी कैटेगरी, रकम और तारीख का एक खर्च पहले से मौजूद है।"
+msgid ""
+"An expense with the same product, amount, and date already exists.\n"
+"Are you sure you want to submit this one as well?"
+msgstr ""
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_split
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_split_form_view
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
+msgid "Analytic"
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model,name:hr_expense.model_account_analytic_account
@@ -280,7 +356,6 @@ msgstr "अनुमति की स्थिति"
 
 #. module: hr_expense
 #. odoo-javascript
-#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
 #: code:addons/hr_expense/static/src/views/list.xml:0
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_approve_duplicate_view_form
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
@@ -314,6 +389,11 @@ msgid "Attach a receipt - usually an image or a PDF file."
 msgstr "रसीद अटैच करें - जो आमतौर पर एक इमेज या पीडीएफ फ़ाइल होती है।"
 
 #. module: hr_expense
+#: model:ir.model,name:hr_expense.model_ir_attachment
+msgid "Attachment"
+msgstr ""
+
+#. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__message_attachment_count
 msgid "Attachment Count"
 msgstr "अटैचमेंट की संख्या"
@@ -336,6 +416,12 @@ msgid "Auto-validation"
 msgstr "ऑटो-वैलिडेशन"
 
 #. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_account_bank_statement_line__bill_paid_by_employee
+#: model:ir.model.fields,field_description:hr_expense.field_account_move__bill_paid_by_employee
+msgid "Bill Paid By Employee"
+msgstr ""
+
+#. module: hr_expense
 #: model:ir.model.fields,help:hr_expense.field_hr_expense__tax_ids
 msgid ""
 "Both price-included and price-excluded taxes will behave as price-included "
@@ -345,14 +431,14 @@ msgstr ""
 "टैक्स ही माना जाएगा।"
 
 #. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.report_expense
-msgid "Business Trip"
-msgstr "बिज़नेस ट्रिप"
-
-#. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__can_approve
 msgid "Can Approve"
 msgstr "अनुमति दे सकता है"
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__can_edit_account
+msgid "Can Edit Account"
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__can_reset
@@ -360,33 +446,30 @@ msgid "Can Reset"
 msgstr "रीसेट कर सकता है"
 
 #. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_approve_duplicate_view_form
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_post_wizard_view
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_refuse_wizard_view_form
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_split
-msgid "Cancel"
-msgstr "रद्द"
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
+msgid "Cap Reimbursement to Policy"
+msgstr ""
 
 #. module: hr_expense
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__product_id
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
 #: model_terms:ir.ui.view,arch_db:hr_expense.product_product_expense_form_view
 msgid "Category"
 msgstr "वर्ग"
 
 #. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_register
-msgid "Category:"
-msgstr "कैटगरी:"
-
-#. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_register
-msgid "Category: not found"
-msgstr "कैटगरी: नहीं मिला"
-
-#. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__message_main_attachment_checksum
 msgid "Checksum/SHA1"
+msgstr ""
+
+#. module: hr_expense
+#. odoo-javascript
+#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
+msgid "Click here to create your employee profile."
+msgstr ""
+
+#. module: hr_expense
+#. odoo-javascript
+#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
+msgid "Click on all expenses"
 msgstr ""
 
 #. module: hr_expense
@@ -395,15 +478,11 @@ msgid "Communication"
 msgstr "कम्यूनिकेशन"
 
 #. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/ir_actions_report.py:0
 #: model:ir.model,name:hr_expense.model_res_company
-msgid "Companies"
-msgstr "कंपनियां"
-
-#. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__company_id
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_post_wizard__company_id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split__company_id
-#: model:ir.model.fields.selection,name:hr_expense.selection__hr_expense__payment_mode__company_account
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
 msgid "Company"
 msgstr "संस्था"
@@ -419,6 +498,11 @@ msgid "Configuration"
 msgstr "कॉन्फ़िगरेशन"
 
 #. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_product_job_position_limit__company_currency_id
+msgid "Cost Currency"
+msgstr ""
+
+#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.product_product_expense_kanban_view
 msgid "Cost:"
 msgstr "कीमत:"
@@ -427,6 +511,12 @@ msgstr "कीमत:"
 #: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_account
 msgid "Create a new expense"
 msgstr "नया खर्च बनाएं"
+
+#. module: hr_expense
+#. odoo-javascript
+#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
+msgid "Create and edit a new employee profile."
+msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
@@ -448,7 +538,7 @@ msgstr ""
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__create_uid
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_approve_duplicate__create_uid
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_post_wizard__create_uid
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_product_job_position_limit__create_uid
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_refuse_wizard__create_uid
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split__create_uid
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split_wizard__create_uid
@@ -458,7 +548,7 @@ msgstr "इन्होंने बनाया"
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__create_date
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_approve_duplicate__create_date
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_post_wizard__create_date
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_product_job_position_limit__create_date
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_refuse_wizard__create_date
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split__create_date
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split_wizard__create_date
@@ -466,14 +556,10 @@ msgid "Created on"
 msgstr "इस तारीख को बनाया गया"
 
 #. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.report_expense
-msgid "Credit Card"
-msgstr "क्रेडिट कार्ड"
-
-#. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__currency_id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split__currency_id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split_wizard__currency_id
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
 msgid "Currency"
 msgstr "करेंसी"
 
@@ -483,8 +569,13 @@ msgid "Currency Rate"
 msgstr "करेंसी रेट"
 
 #. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__date
+#: model_terms:ir.ui.view,arch_db:hr_expense.report_expense
+msgid "Date"
+msgstr ""
+
+#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_register
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_submitted_expenses
 msgid "Dear"
 msgstr "नमस्ते"
 
@@ -526,6 +617,7 @@ msgstr "ओसीआर और एआई की मदद से अपनी �
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_account_analytic_account__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_account_analytic_applicability__display_name
+#: model:ir.model.fields,field_description:hr_expense.field_account_journal__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_account_move__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_account_move_line__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_account_payment__display_name
@@ -536,11 +628,12 @@ msgstr "ओसीआर और एआई की मदद से अपनी �
 #: model:ir.model.fields,field_description:hr_expense.field_hr_employee_public__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_approve_duplicate__display_name
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_post_wizard__display_name
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_product_job_position_limit__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_refuse_wizard__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split_wizard__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_ir_actions_report__display_name
+#: model:ir.model.fields,field_description:hr_expense.field_ir_attachment__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_product_product__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_product_template__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_res_company__display_name
@@ -570,12 +663,6 @@ msgid "Domain"
 msgstr "डोमेन"
 
 #. module: hr_expense
-#. odoo-javascript
-#: code:addons/hr_expense/static/src/mixins/qrcode.js:0
-msgid "Download our App"
-msgstr "हमारा ऐप्लिकेशन डाउनलोड करें"
-
-#. module: hr_expense
 #: model:ir.model.fields.selection,name:hr_expense.selection__hr_expense__state__draft
 #: model:mail.message.subtype,name:hr_expense.mt_expense_reset
 msgid "Draft"
@@ -589,6 +676,12 @@ msgid "Duplicate Expense"
 msgstr "डुप्लीकेट एक्सपेंस"
 
 #. module: hr_expense
+#. odoo-javascript
+#: code:addons/hr_expense/static/src/views/expense_form_view.js:0
+msgid "Duplicate Expense found"
+msgstr ""
+
+#. module: hr_expense
 #. odoo-python
 #: code:addons/hr_expense/models/account_move.py:0
 msgid ""
@@ -598,17 +691,20 @@ msgstr ""
 "कंपनी द्वारा दिए गए हर खर्च के लिए एक खास और अलग जर्नल एंट्री दर्ज करना ज़रूरी है।"
 
 #. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/ir_actions_report.py:0
 #: model:ir.model,name:hr_expense.model_hr_employee
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__employee_id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split__employee_id
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
+#: model_terms:ir.ui.view,arch_db:hr_expense.report_expense
 msgid "Employee"
 msgstr "कर्मचारी"
 
 #. module: hr_expense
 #: model:ir.model.fields.selection,name:hr_expense.selection__hr_expense__payment_mode__own_account
-msgid "Employee (to reimburse)"
-msgstr "कर्मचारी (भरपाई के लिए)"
+msgid "Employee (Through a Purchase Receipt)"
+msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
@@ -617,18 +713,54 @@ msgstr "कर्मचारी के खर्च का जर्नल"
 
 #. module: hr_expense
 #: model:ir.actions.act_window,name:hr_expense.action_hr_expense_account
-#: model:ir.ui.menu,name:hr_expense.menu_hr_expense_account_employee_expenses
 msgid "Employee Expenses"
 msgstr "कर्मचारी के खर्च"
 
 #. module: hr_expense
-#. odoo-javascript
-#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
-msgid ""
-"Enter a name then choose a category and configure the amount of your expense."
-msgstr "पहले नाम डालें, फिर कैटगरी चुनें और अंत में अपने खर्च की रकम सेट करें।"
+#. odoo-python
+#: code:addons/hr_expense/models/hr_expense.py:0
+msgid "Enter a description and select a product to proceed."
+msgstr ""
 
 #. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/hr_expense.py:0
+msgid "Enter a description to proceed."
+msgstr ""
+
+#. module: hr_expense
+#. odoo-javascript
+#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
+msgid "Enter the total amount of the expense."
+msgstr ""
+
+#. module: hr_expense
+#. odoo-javascript
+#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
+msgid "Enter your name to create your employee profile."
+msgstr ""
+
+#. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/hr_expense.py:0
+msgid "Exceeds company limit"
+msgstr ""
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__existing_bill_id
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
+msgid "Existing Bill"
+msgstr ""
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_account_bank_statement_line__existing_expense_ids
+#: model:ir.model.fields,field_description:hr_expense.field_account_move__existing_expense_ids
+msgid "Existing Expense"
+msgstr ""
+
+#. module: hr_expense
+#. odoo-javascript
+#: code:addons/hr_expense/static/src/webclient/share_target/expense_share_target_item.js:0
 #: model:account.journal,name:hr_expense.hr_expense_account_journal
 #: model:ir.model,name:hr_expense.model_hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_account_bank_statement_line__expense_ids
@@ -640,6 +772,7 @@ msgstr "पहले नाम डालें, फिर कैटगरी च
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split__expense_id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split_wizard__expense_id
 #: model:ir.model.fields.selection,name:hr_expense.selection__account_analytic_applicability__business_domain__expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.account_journal_dashboard_kanban_view_inherit_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_employee_view_form_inherit_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
 msgid "Expense"
@@ -663,9 +796,13 @@ msgstr "डुप्लिकेट खर्च की मंज़ूरी"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_employee__expense_manager_id
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_employee_search_view
 msgid "Expense Approver"
 msgstr "वह व्यक्ति जो खर्चों को मंज़ूरी देता है"
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.account_journal_dashboard_kanban_view_inherit_expense
+msgid "Expense Bills"
+msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
@@ -673,14 +810,6 @@ msgid "Expense Card"
 msgstr ""
 
 #. module: hr_expense
-#: model:ir.actions.act_window,name:hr_expense.hr_expense_product
-#: model:ir.ui.menu,name:hr_expense.menu_hr_product
-#: model_terms:ir.ui.view,arch_db:hr_expense.product_product_expense_form_view
-msgid "Expense Categories"
-msgstr "एक्सपेंस कैटगरी"
-
-#. module: hr_expense
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__date
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
 msgid "Expense Date"
 msgstr "खर्च की तारीख"
@@ -696,9 +825,16 @@ msgid "Expense Manager"
 msgstr "एक्सपेंस मैनेजर"
 
 #. module: hr_expense
-#: model:ir.model,name:hr_expense.model_hr_expense_post_wizard
-msgid "Expense Posting Wizard"
-msgstr "एक्सपेंस पोस्टिंग विज़ॉर्ड"
+#: model:ir.model,name:hr_expense.model_hr_expense_product_job_position_limit
+msgid "Expense Product Limit by Job Position"
+msgstr ""
+
+#. module: hr_expense
+#: model:ir.actions.act_window,name:hr_expense.hr_expense_product
+#: model:ir.ui.menu,name:hr_expense.menu_hr_product
+#: model_terms:ir.ui.view,arch_db:hr_expense.product_product_expense_form_view
+msgid "Expense Products"
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model,name:hr_expense.model_hr_expense_refuse_wizard
@@ -736,21 +872,26 @@ msgid "Expense approved"
 msgstr "खर्च को मंज़ूर किया गया"
 
 #. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_product
-msgid "Expense categories can be reinvoiced to your customers."
-msgstr ""
-"उन खर्चों को ग्राहकों से वापस लिया जा सकता है जिनके लिए उन्हें इनवॉइस किया गया है।"
-
-#. module: hr_expense
 #. odoo-python
 #: code:addons/hr_expense/models/hr_expense.py:0
 msgid "Expense created from a split."
 msgstr "बड़े खर्च को बांटकर बनाया गया खर्च।"
 
 #. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/account_journal.py:0
+msgid "Expense linked moves"
+msgstr ""
+
+#. module: hr_expense
 #: model:mail.message.subtype,description:hr_expense.mt_expense_paid
 msgid "Expense paid"
 msgstr "खर्च के लिए चुकाया गया"
+
+#. module: hr_expense
+#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_product
+msgid "Expense products can be reinvoiced to your customers."
+msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_refuse_wizard_view_form
@@ -774,16 +915,12 @@ msgid "Expense split"
 msgstr "खर्च का बंटवारा"
 
 #. module: hr_expense
-#: model:ir.actions.act_window,name:hr_expense.action_hr_expense_department_to_approve
-msgid "Expense to Approve"
-msgstr "मंजू़री के लिए खर्च"
-
-#. module: hr_expense
 #. odoo-python
 #: code:addons/hr_expense/models/account_move.py:0
 #: code:addons/hr_expense/models/account_payment.py:0
 #: model:ir.model.fields,field_description:hr_expense.field_product_product__can_be_expensed
 #: model:ir.model.fields,field_description:hr_expense.field_product_template__can_be_expensed
+#: model:ir.module.module,shortdesc:base.module_hr_expense
 #: model:ir.ui.menu,name:hr_expense.menu_hr_expense_root
 #: model:product.template,name:hr_expense.product_product_no_cost_product_template
 #: model:res.groups.privilege,name:hr_expense.res_groups_privilege_expenses
@@ -812,11 +949,6 @@ msgid "Expenses Report"
 msgstr "खर्चों की रिपोर्ट"
 
 #. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_submitted_expenses
-msgid "Expenses approval"
-msgstr ""
-
-#. module: hr_expense
 #. odoo-python
 #: code:addons/hr_expense/models/hr_expense.py:0
 msgid "Expenses of %(employee)s"
@@ -828,6 +960,13 @@ msgid "Expenses of Your Team Member"
 msgstr "आपकी टीम के सदस्यों के खर्च"
 
 #. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/hr_expense.py:0
+msgid "Expenses similar to %(other_expense_name)s"
+msgstr ""
+
+#. module: hr_expense
+#: model:ir.actions.act_window,name:hr_expense.action_hr_expense_department_to_approve
 #: model:ir.model.fields,field_description:hr_expense.field_hr_department__expenses_to_approve_count
 msgid "Expenses to Approve"
 msgstr "मंज़ूरी के लिए खर्च"
@@ -837,6 +976,11 @@ msgstr "मंज़ूरी के लिए खर्च"
 #: model:ir.ui.menu,name:hr_expense.menu_hr_expense_expenses_to_process
 msgid "Expenses to Process"
 msgstr "प्रोसेस करने के लिए खर्च"
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.view_account_invoice_filter_inherit_expense
+msgid "Expenses to post"
+msgstr ""
 
 #. module: hr_expense
 #. odoo-python
@@ -876,11 +1020,6 @@ msgid "Followers (Partners)"
 msgstr "फ़ॉलोवर (पार्टनर)"
 
 #. module: hr_expense
-#: model:ir.model.fields,help:hr_expense.field_hr_expense__activity_type_icon
-msgid "Font awesome icon e.g. fa-tasks"
-msgstr "फॉन्ट के बेहतरीन आइकॉन जैसे, फा-टॉस्क"
-
-#. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__former_sheet_id
 msgid "Former Report"
 msgstr "पुरानी रिपोर्ट"
@@ -913,13 +1052,30 @@ msgid "Go to Account"
 msgstr ""
 
 #. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/hr_expense.py:0
+msgid "Go to expense(s)"
+msgstr ""
+
+#. module: hr_expense
+#. odoo-javascript
+#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
+msgid "Go to the Settings tab to configure the expense approver."
+msgstr ""
+
+#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.product_product_expense_form_view
 msgid "Guideline"
 msgstr "गाइडलाइन"
 
 #. module: hr_expense
-#: model:ir.actions.server,name:hr_expense.ir_cron_send_submitted_expenses_mail_ir_actions_server
-msgid "HR Expense: Send Submitted Expenses Mail"
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__has_existing_bill
+msgid "Has Existing Bill"
+msgstr ""
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__has_expense_job_position_limit
+msgid "Has Expense Job Position Limit"
 msgstr ""
 
 #. module: hr_expense
@@ -928,9 +1084,19 @@ msgid "Has Message"
 msgstr "मैसेज है"
 
 #. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_submitted_expenses
+msgid "Hi"
+msgstr ""
+
+#. module: hr_expense
 #: model_terms:product.template,description:hr_expense.expense_product_travel_accommodation_product_template
 msgid "Hotel, plane ticket, taxi, etc."
 msgstr "होटल, प्लेन टिकट, टैक्सी वगैरह।"
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_account_tax__hr_expense_ids
+msgid "Hr Expense"
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_res_config_settings__hr_expense_alias_domain_id
@@ -940,6 +1106,7 @@ msgstr "एचआर एक्सपेंस एलियास डोमेन
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_account_analytic_account__id
 #: model:ir.model.fields,field_description:hr_expense.field_account_analytic_applicability__id
+#: model:ir.model.fields,field_description:hr_expense.field_account_journal__id
 #: model:ir.model.fields,field_description:hr_expense.field_account_move__id
 #: model:ir.model.fields,field_description:hr_expense.field_account_move_line__id
 #: model:ir.model.fields,field_description:hr_expense.field_account_payment__id
@@ -950,11 +1117,12 @@ msgstr "एचआर एक्सपेंस एलियास डोमेन
 #: model:ir.model.fields,field_description:hr_expense.field_hr_employee_public__id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_approve_duplicate__id
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_post_wizard__id
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_product_job_position_limit__id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_refuse_wizard__id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split__id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split_wizard__id
 #: model:ir.model.fields,field_description:hr_expense.field_ir_actions_report__id
+#: model:ir.model.fields,field_description:hr_expense.field_ir_attachment__id
 #: model:ir.model.fields,field_description:hr_expense.field_product_product__id
 #: model:ir.model.fields,field_description:hr_expense.field_product_template__id
 #: model:ir.model.fields,field_description:hr_expense.field_res_company__id
@@ -1010,14 +1178,29 @@ msgid "Invalid attachments!"
 msgstr "अमान्य अटैचमेंट!"
 
 #. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.view_account_invoice_filter_inherit_expense
+msgid "Invoices from an expense, approved but not posted yet"
+msgstr ""
+
+#. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__is_editable
 msgid "Is Editable By Current User"
 msgstr "मौजूदा उपयोगकर्ता इसमें बदलाव कर सकता है"
 
 #. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__is_expense_exceeding_job_position_limit
+msgid "Is Expense Exceeding Job Position Limit"
+msgstr ""
+
+#. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__message_is_follower
 msgid "Is Follower"
 msgstr "फ़ॉलोवर है"
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__is_own_expense
+msgid "Is Own Expense"
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__is_multiple_currency
@@ -1036,9 +1219,28 @@ msgid "It all begins here - let's go!"
 msgstr "शुरुआत यहीं से होती है, अब आगे बढ़ते हैं!"
 
 #. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__expense_job_position_limit_amount
+msgid "Job Position Limit"
+msgstr ""
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__expense_job_position_limit_amount_currency
+msgid "Job Position Limit in Currency"
+msgstr ""
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_product_product__expense_job_position_limit_ids
+msgid "Job Position Limits"
+msgstr ""
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_product_job_position_limit__job_ids
+msgid "Job Positions"
+msgstr ""
+
+#. module: hr_expense
+#: model:ir.model,name:hr_expense.model_account_journal
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__journal_id
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_post_wizard__employee_journal_id
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_post_wizard_view
 msgid "Journal"
 msgstr "पत्रिका"
 
@@ -1091,9 +1293,14 @@ msgid "Label Currency Rate"
 msgstr "लेबल करेंसी रेट"
 
 #. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__last_notification_date
+msgid "Last Notification Date"
+msgstr ""
+
+#. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__write_uid
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_approve_duplicate__write_uid
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_post_wizard__write_uid
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_product_job_position_limit__write_uid
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_refuse_wizard__write_uid
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split__write_uid
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split_wizard__write_uid
@@ -1103,7 +1310,7 @@ msgstr "इन्होंने आखिरी बार अपडेट क�
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__write_date
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_approve_duplicate__write_date
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_post_wizard__write_date
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_product_job_position_limit__write_date
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_refuse_wizard__write_date
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split__write_date
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split_wizard__write_date
@@ -1114,6 +1321,11 @@ msgstr "आखिरी बार अपडेट हुआ"
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
 msgid "Late Activities"
 msgstr "लेट एक्टिविटी"
+
+#. module: hr_expense
+#: model:ir.model.fields,help:hr_expense.field_hr_expense_product_job_position_limit__job_ids
+msgid "Leave empty to define the limit for all job positions."
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_res_config_settings__hr_expense_use_mailgateway
@@ -1131,6 +1343,16 @@ msgstr "आइए देखें कि आप अपने सभी कर्
 #: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
 msgid "Let's go back to your expenses."
 msgstr "चलिए, वापस आपके खर्चे पर चलते हैं।"
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_product_job_position_limit__limit_amount
+msgid "Limit"
+msgstr ""
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.product_product_expense_form_view
+msgid "Limits"
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_res_config_settings__module_hr_expense_stripe
@@ -1169,13 +1391,24 @@ msgstr ""
 #. module: hr_expense
 #. odoo-javascript
 #: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
-msgid "Managers can inspect all expenses from here."
-msgstr "मैनेजर यहां से सभी खर्चों की जांच कर सकते हैं।"
+msgid "Managers can inspect and select expenses from here."
+msgstr ""
+
+#. module: hr_expense
+#. odoo-javascript
+#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
+msgid "Managers can inspect expenses from here."
+msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.report_expense
 msgid "Marc Demo"
 msgstr "मार्क डेमो"
+
+#. module: hr_expense
+#: model:ir.model.fields,help:hr_expense.field_hr_expense__activity_type_icon
+msgid "Material Symbols icon e.g. checklist"
+msgstr ""
 
 #. module: hr_expense
 #: model:product.template,name:hr_expense.expense_product_meal_product_template
@@ -1201,6 +1434,24 @@ msgstr "माइलेज"
 #: model_terms:ir.ui.view,arch_db:hr_expense.report_expense
 msgid "Mitchell Admin"
 msgstr "मिचेल एडमिन"
+
+#. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/ir_actions_report.py:0
+msgid "Multiple Managers"
+msgstr ""
+
+#. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/ir_actions_report.py:0
+msgid "Multiple employees"
+msgstr ""
+
+#. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/ir_actions_report.py:0
+msgid "Multiple payment modes"
+msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
@@ -1232,19 +1483,6 @@ msgstr "नाम"
 
 #. module: hr_expense
 #. odoo-python
-#: code:addons/hr_expense/wizard/hr_expense_post_wizard.py:0
-msgid "New expense entries"
-msgstr "खर्च के लिए नई एंट्री"
-
-#. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_submitted_expenses
-msgid ""
-"New expenses are waiting for your approval. You can Review them by following "
-"this link."
-msgstr ""
-
-#. module: hr_expense
-#. odoo-python
 #: code:addons/hr_expense/models/hr_expense.py:0
 msgid "New expenses waiting for your approval"
 msgstr "कुछ नए खर्च आए हैं जिन्हें आपको मंज़ूरी देनी है"
@@ -1270,6 +1508,16 @@ msgid "Next Activity Type"
 msgstr "अगली गतिविधि का प्रकार"
 
 #. module: hr_expense
+#: model:res.groups.privilege,placeholder:hr_expense.res_groups_privilege_expenses
+msgid "No"
+msgstr ""
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
+msgid "No (Direct Expense)"
+msgstr ""
+
+#. module: hr_expense
 #. odoo-python
 #: code:addons/hr_expense/models/hr_expense.py:0
 msgid "No attachment was provided"
@@ -1282,15 +1530,32 @@ msgid "No data yet!"
 msgstr "अभी तक कोई डेटा नहीं मिला!"
 
 #. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/ir_actions_report.py:0
+msgid "No employee"
+msgstr ""
+
+#. module: hr_expense
 #: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_product
-msgid "No expense categories found. Let's create one!"
-msgstr "खर्च की कोई कैगटरी नहीं मिली. चलिए, एक कैटगरी बनाते हैं!"
+msgid "No expense products found. Let's create one!"
+msgstr ""
 
 #. module: hr_expense
 #. odoo-python
 #: code:addons/hr_expense/models/hr_expense.py:0
 msgid "No work contact found for the employee %(name)s, please configure one."
 msgstr "कर्मचारी %(name)s के लिए कोई काम का संपर्क नहीं मिला, कृपया एक कॉन्फ़िगर करें।"
+
+#. module: hr_expense
+#: model:ir.model.fields.selection,name:hr_expense.selection__hr_expense__payment_mode__company_account
+msgid "None (Paid by Company)"
+msgstr ""
+
+#. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/ir_actions_report.py:0
+msgid "None (automatic)"
+msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.product_product_expense_categories_tree_view
@@ -1317,6 +1582,11 @@ msgstr "अटैचमेंट की संख्या"
 #: model:ir.model.fields,field_description:hr_expense.field_account_move__nb_expenses
 msgid "Number of Expenses"
 msgstr "खर्च की संख्या"
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__split_expense_count
+msgid "Number of Split Expenses"
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__message_has_error_counter
@@ -1390,31 +1660,37 @@ msgstr "सिर्फ़ वही खर्च जिनका स्टे�
 #. module: hr_expense
 #. odoo-python
 #: code:addons/hr_expense/models/hr_expense.py:0
-msgid "Only expense paid by the employee can be posted with the wizard"
-msgstr ""
-"सिर्फ़ कर्मचारी द्वारा भुगतान किया गया खर्च ही विज़ार्ड के साथ पोस्ट किया जा सकता है"
-
-#. module: hr_expense
-#. odoo-python
-#: code:addons/hr_expense/models/hr_expense.py:0
 msgid "Only one expense can be linked to a particular payment"
 msgstr "सिर्फ़ एक खर्च को किसी विशेष पेमेंट से जोड़ा जा सकता है"
 
 #. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/hr_expense_product_job_position_limit.py:0
+msgid "Only one generic expense limit can be defined per product."
+msgstr ""
+
+#. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/hr_expense.py:0
+msgid "Only submitted expenses exceeding a job position limit can be capped."
+msgstr ""
+
+#. module: hr_expense
 #. odoo-javascript
 #: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
-msgid "Open bugger menu."
-msgstr "बर्गर मेन्यू खोलें।"
+msgid "Open burger menu."
+msgstr ""
+
+#. module: hr_expense
+#. odoo-javascript
+#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
+msgid "Open the actions menu."
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__split_expense_origin_id
 msgid "Origin Split Expense"
 msgstr "मूल विभाजित खर्च"
-
-#. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_split
-msgid "Original Amount"
-msgstr "मूल राशि"
 
 #. module: hr_expense
 #: model:ir.model.fields,help:hr_expense.field_hr_expense__split_expense_origin_id
@@ -1426,11 +1702,6 @@ msgstr "विभाजन से आया मूल खर्च।"
 #: model:mail.message.subtype,name:hr_expense.mt_expense_paid
 msgid "Paid"
 msgstr "चुका दिया गया"
-
-#. module: hr_expense
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__payment_mode
-msgid "Paid By"
-msgstr "इन्होंने चुकाया"
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
@@ -1450,6 +1721,11 @@ msgstr "साथी"
 #. module: hr_expense
 #: model:ir.model,name:hr_expense.model_account_payment_register
 msgid "Pay"
+msgstr ""
+
+#. module: hr_expense
+#: model:ir.model,name:hr_expense.model_account_payment
+msgid "Payment"
 msgstr ""
 
 #. module: hr_expense
@@ -1480,11 +1756,6 @@ msgid "Payment methods available for expenses paid by company"
 msgstr "कंपनी खर्चों के लिए उपलब्ध भुगतान के तरीके"
 
 #. module: hr_expense
-#: model:ir.model,name:hr_expense.model_account_payment
-msgid "Payments"
-msgstr "पेमेंट"
-
-#. module: hr_expense
 #: model_terms:product.template,description:hr_expense.expense_product_communication_product_template
 msgid "Phone bills, postage, etc."
 msgstr "फ़ोन बिल, पोस्टेज, वगैरह।"
@@ -1493,36 +1764,9 @@ msgstr "फ़ोन बिल, पोस्टेज, वगैरह।"
 #. odoo-python
 #: code:addons/hr_expense/models/hr_expense.py:0
 msgid ""
-"Please specify if the expenses were paid by the company, or the employee."
-msgstr "कृपया बताएं कि खर्चों का भुगतान कंपनी ने किया या कर्मचारी ने।"
-
-#. module: hr_expense
-#. odoo-javascript
-#: code:addons/hr_expense/static/src/views/list.xml:0
-msgid "Post Entries"
-msgstr "एंट्रीज़ को पोस्ट करें"
-
-#. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_post_wizard_view
-msgid "Post Expenses"
-msgstr "खर्चों को पोस्ट करें"
-
-#. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
-msgid "Post Journal Entries"
-msgstr "जर्नल एंट्रीज़ को पोस्ट करें"
-
-#. module: hr_expense
-#. odoo-python
-#: code:addons/hr_expense/models/hr_expense.py:0
-msgid "Post expenses"
-msgstr "खर्चों को पोस्ट करें"
-
-#. module: hr_expense
-#. odoo-python
-#: code:addons/hr_expense/models/hr_expense.py:0
-msgid "Post expenses paid by the employee"
-msgstr "कर्मचारी द्वारा किए गए खर्चों को पोस्ट करें"
+"Please specify if the expenses were paid by the company, reimbursed to the "
+"employee directly, or in a payslip."
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields.selection,name:hr_expense.selection__hr_expense__state__posted
@@ -1541,8 +1785,19 @@ msgid "Price:"
 msgstr "कीमत:"
 
 #. module: hr_expense
+#. odoo-javascript
+#. odoo-python
+#: code:addons/hr_expense/models/hr_expense.py:0
+#: code:addons/hr_expense/static/src/views/list.xml:0
+msgid "Print"
+msgstr ""
+
+#. module: hr_expense
 #: model:ir.model,name:hr_expense.model_product_template
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__product_id
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_product_job_position_limit__product_id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split__product_id
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
 msgid "Product"
 msgstr "उत्पाद"
 
@@ -1572,6 +1827,16 @@ msgid "Product Variants"
 msgstr "प्रॉडक्ट के वेरिएंट"
 
 #. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_register
+msgid "Product:"
+msgstr ""
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_register
+msgid "Product: not found"
+msgstr ""
+
+#. module: hr_expense
 #: model:ir.model,name:hr_expense.model_hr_employee_public
 msgid "Public Employee"
 msgstr "सार्वजनिक कर्मचारी"
@@ -1592,11 +1857,9 @@ msgstr "रेटिंग"
 #: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
 msgid ""
 "Ready? You can save it manually or discard modifications from here. You "
-"don't <em>need to save</em> - Odoo will save eveyrthing for you when you "
+"don't <em>need to save</em> - Odoo will save everything for you when you "
 "navigate."
 msgstr ""
-"तैयार हैं? आप इसे मैन्युअल रूप से सेव करें या यहां से बदलावों को खारिज करें. आपको <em>सेव करने "
-"की ज़रूरत</em> नहीं है - जब आप आगे जाएंगे, तो Odoo आपके लिए सब कुछ सेव कर देगा।"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_refuse_wizard__reason
@@ -1621,6 +1884,8 @@ msgid "Refund employees via their payslips."
 msgstr "कर्मचारियों को उनके पेस्लिप के ज़रिए रिफ़ंड करें।"
 
 #. module: hr_expense
+#. odoo-javascript
+#: code:addons/hr_expense/static/src/views/list.xml:0
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_approve_duplicate_view_form
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_refuse_wizard_view_form
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
@@ -1649,6 +1914,17 @@ msgstr "पेस्लिप में खर्चों का पैसा �
 #: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
 msgid "Reimburse in Payslip"
 msgstr "पेस्लिप में पैसा वापस दें"
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__payment_mode
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
+msgid "Reimbursement"
+msgstr ""
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
+msgid "Related"
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model,name:hr_expense.model_ir_actions_report
@@ -1681,6 +1957,11 @@ msgid "Restaurants, business lunches, etc."
 msgstr "रेस्टोरेंट, बिज़नेस लंच, वगैरह।"
 
 #. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_submitted_expenses
+msgid "Review Expenses"
+msgstr ""
+
+#. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr "एसएमएस डिलीवरी में गड़बड़ी"
@@ -1696,6 +1977,12 @@ msgid "Same Receipt Expense"
 msgstr "एक ही रसीद से संबंधित खर्च"
 
 #. module: hr_expense
+#. odoo-javascript
+#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
+msgid "Save the employee profile."
+msgstr ""
+
+#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
 msgid "Save this page and come back here to set up the feature."
 msgstr "इस पेज को सेव करें और फिर इस सुविधा को सेट करने के लिए बाद में यहीं लौटकर आएं।"
@@ -1705,13 +1992,30 @@ msgstr "इस पेज को सेव करें और फिर इस �
 #: code:addons/hr_expense/static/src/views/kanban.xml:0
 #: code:addons/hr_expense/static/src/views/list.xml:0
 msgid "Scan"
-msgstr "स्कैन"
+msgstr ""
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
+msgid "Select Bill..."
+msgstr ""
+
+#. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/hr_expense.py:0
+msgid "Select a product to proceed."
+msgstr ""
+
+#. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/hr_expense.py:0
+msgid "Select an employee to proceed."
+msgstr ""
 
 #. module: hr_expense
 #. odoo-javascript
-#: code:addons/hr_expense/static/src/components/qrcode_action.xml:0
-msgid "Scan this QR code to get the Odoo app:"
-msgstr "Odoo ऐप पाने के लिए यह क्यूआर कोड स्कैन करें:"
+#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
+msgid "Select the expense approver."
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields,help:hr_expense.field_hr_employee__expense_manager_id
@@ -1734,19 +2038,26 @@ msgstr "चुनी जा सकने वाली भुगतान वि�
 msgid ""
 "Send an email to this email alias with the receipt in attachment to create "
 "an expense in one click. If the first word of the mail subject contains the "
-"category's internal reference or the category name, the corresponding "
-"category will automatically be set. Type the expense amount in the mail "
-"subject to set it on the expense too."
+"product's internal reference or the product name, the corresponding product "
+"will automatically be set. Type the expense amount in the mail subject to "
+"set it on the expense too."
 msgstr ""
-"एक क्लिक में खर्च बनाने के लिए, रसीद को अटैचमेंट में डालकर इस ईमेल उपनाम पर एक ईमेल भेजें. "
-"अगर ईमेल विषय का पहला शब्द कैटगरी के इंटरनल रेफ़रेंस या कैटेगरी नाम में शामिल है, तो संबंधित "
-"कैटगरी अपने-आप सेट हो जाएगी. खर्च की राशि को भी खर्च पर सेट करने के लिए उसे ईमेल विषय "
-"में टाइप करें।"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_res_config_settings__module_hr_expense_extract
 msgid "Send bills to OCR to generate expenses"
 msgstr "खर्च बनाने के लिए बिल को ओसीआर (OCR) पर भेजें"
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_product_job_position_limit__sequence
+msgid "Sequence"
+msgstr ""
+
+#. module: hr_expense
+#. odoo-javascript
+#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
+msgid "Set an expense approver for this employee."
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.actions.act_window,name:hr_expense.action_hr_expense_configuration
@@ -1765,26 +2076,16 @@ msgid "Source Document"
 msgstr "सोर्स डॉक्यूमेंट"
 
 #. module: hr_expense
-#: model:ir.model.fields,help:hr_expense.field_hr_expense_post_wizard__accounting_date
-msgid "Specify the bill date of the related vendor bill."
-msgstr "संबंधित वेंडर बिल की बिल तारीख बताएं।"
-
-#. module: hr_expense
 #: model:ir.model.fields,help:hr_expense.field_product_product__can_be_expensed
 #: model:ir.model.fields,help:hr_expense.field_product_template__can_be_expensed
 msgid "Specify whether the product can be selected in an expense."
 msgstr "बताएं कि प्रॉडक्ट को किसी खर्च में चुना जा सकता है या नहीं।"
 
 #. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_split
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
 msgid "Split"
 msgstr "स्प्लिट करें"
-
-#. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_split
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
-msgid "Split Expense"
-msgstr "खर्च को बांटें"
 
 #. module: hr_expense
 #. odoo-python
@@ -1797,11 +2098,6 @@ msgstr "खर्चों को बांटें"
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split_wizard__split_possible
 msgid "Split Possible"
 msgstr "बांटना संभव है"
-
-#. module: hr_expense
-#: model:ir.model.fields,field_description:hr_expense.field_product_product__standard_price_update_warning
-msgid "Standard Price Update Warning"
-msgstr "मानक मूल्य में बदलाव करने की चेतावनी"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__state
@@ -1825,6 +2121,7 @@ msgstr ""
 
 #. module: hr_expense
 #. odoo-javascript
+#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
 #: code:addons/hr_expense/static/src/views/list.xml:0
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
 msgid "Submit"
@@ -1832,9 +2129,14 @@ msgstr "सबमिट करें"
 
 #. module: hr_expense
 #. odoo-javascript
-#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
-msgid "Submit to Manager"
-msgstr "मैनेजर को सबमिट करें"
+#: code:addons/hr_expense/static/src/views/expense_form_view.js:0
+msgid "Submit Expense"
+msgstr ""
+
+#. module: hr_expense
+#: model:ir.module.module,summary:base.module_hr_expense
+msgid "Submit, validate and reinvoice employee expenses"
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields.selection,name:hr_expense.selection__hr_expense__approval_state__submitted
@@ -1854,8 +2156,16 @@ msgid "Subtotal in currency"
 msgstr "करेंसी में कुल योग"
 
 #. module: hr_expense
+#. odoo-javascript
+#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
+msgid "Switch to the list view."
+msgstr ""
+
+#. module: hr_expense
 #: model:ir.model,name:hr_expense.model_account_tax
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split__tax_ids
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_split
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_split_form_view
 #: model_terms:ir.ui.view,arch_db:hr_expense.view_move_list_expense
 msgid "Tax"
 msgstr "टैक्स"
@@ -1904,6 +2214,11 @@ msgid "Team Approver"
 msgstr "टीम अप्रूवर"
 
 #. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_submitted_expenses
+msgid "Thanks,"
+msgstr ""
+
+#. module: hr_expense
 #. odoo-python
 #: code:addons/hr_expense/models/hr_expense.py:0
 msgid "The account %(name)s (%(code)s) is archived. Activate it to continue"
@@ -1932,24 +2247,38 @@ msgid "The current user has no related employee. Please, create one."
 msgstr "मौजूदा उपयोगकर्ता से कोई संबंधित कर्मचारी नहीं है. कृपया, एक बनाएं।"
 
 #. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/res_company.py:0
+msgid "The employee expense journal must be a purchase journal."
+msgstr ""
+
+#. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/hr_expense.py:0
+msgid "The existing bill must be set."
+msgstr ""
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
+msgid ""
+"The expense existing bill is not linked, please reference it before "
+"approving."
+msgstr ""
+
+#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_register
 msgid ""
-"The first word of the email subject did not correspond to any category code. "
-"You'll have to set the category manually on the expense."
+"The first word of the email subject did not correspond to any product code. "
+"You'll have to set the product manually on the expense."
 msgstr ""
-"ईमेल के सब्जेक्ट लाइन का जो पहला शब्द था, वह किसी भी पहले से बनी हुई खर्च की कैटेगरी से "
-"नहीं मिल रहा था. इसलिए, आपको खुद ही उस खर्च की कैटेगरी तय करनी पड़ेगी।"
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_approve_duplicate_view_form
 msgid ""
-"The following approved expenses have similar employee, amount and category "
+"The following approved expenses have similar employee, amount and product "
 "than some expenses of this report. Please verify this report does not "
 "contain duplicates."
 msgstr ""
-"इस रिपोर्ट में कुछ ऐसे खर्च हैं जो पहले से मंजूर किए गए खर्चों जैसे ही लग रहे हैं, क्योंकि उनमें "
-"कर्मचारी, रकम और कैटगरी एक जैसी है. कृपया जांच लें कि इस रिपोर्ट में कोई भी खर्च दो बार "
-"तो नहीं लिखा गया है।"
 
 #. module: hr_expense
 #. odoo-python
@@ -1959,13 +2288,6 @@ msgid ""
 "this isn't supported:\n"
 "%(expenses)s"
 msgstr ""
-
-#. module: hr_expense
-#: model:ir.model.fields,help:hr_expense.field_hr_expense_post_wizard__employee_journal_id
-msgid "The journal used when the expense is paid by employee."
-msgstr ""
-"वह जर्नल जिसका इस्तेमाल तब किया जाता है जब खर्च का भुगतान कर्मचारी द्वारा किया जाता "
-"है।"
 
 #. module: hr_expense
 #: model:ir.model.fields,help:hr_expense.field_hr_expense__payment_method_line_id
@@ -1991,24 +2313,26 @@ msgstr "बांटने के बाद, सभी हिस्सों क
 msgid ""
 "The vendor is required for expenses using SEPA Credit Transfer as the "
 "payment method.\n"
-"Please set a vendor on the following expenses: %s"
+"Please set a vendor on the expenses."
 msgstr ""
 
 #. module: hr_expense
 #. odoo-python
 #: code:addons/hr_expense/models/product_product.py:0
 msgid ""
-"There are unsubmitted expenses linked to this category. Updating the "
-"category cost will change expense amounts. Make sure it is what you want to "
-"do."
+"There are draft expenses linked to this product. Updating the product cost "
+"will change expense amounts. Make sure it is what you want to do."
 msgstr ""
-"इस कैटगरी से संबंधित कुछ ऐसे खर्च हैं जिन्हें अभी जमा (सबमिट) नहीं किया गया है. कैटगरी की "
-"कीमत को बदलने से खर्चों की राशियां बदल जाएंगी. पक्का करें कि आप यही बदलाव करना चाहते हैं।"
 
 #. module: hr_expense
 #: model_terms:web_tour.tour,rainbow_man_message:hr_expense.hr_expense_tour
 msgid "There you go - expense management in a nutshell!"
 msgstr "बस इतना ही - खर्चों को संभालने की पूरी प्रक्रिया संक्षेप में!"
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
+msgid "This expense exceeds the limit of"
+msgstr ""
 
 #. module: hr_expense
 #: model:digest.tip,name:hr_expense.digest_tip_hr_expense_0
@@ -2041,6 +2365,8 @@ msgstr "आज की गतिविधियां"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__total_amount
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_split
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_split_form_view
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
 #: model_terms:ir.ui.view,arch_db:hr_expense.report_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.view_move_list_expense
@@ -2073,6 +2399,11 @@ msgstr "वह कुल योग जिस पर अभी टैक्स �
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__untaxed_amount_currency
 msgid "Total Untaxed Amount In Currency"
 msgstr "करेंसी में वह कुल योग जिस पर अभी टैक्स नहीं लगाया गया है"
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
+msgid "Total With Conversion"
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields,help:hr_expense.field_hr_expense_split_wizard__total_amount_currency_original
@@ -2117,22 +2448,28 @@ msgid "Unit Price"
 msgstr "यूनिट प्राइस"
 
 #. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/ir_actions_report.py:0
+msgid "Unknown"
+msgstr ""
+
+#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.report_expense
 msgid "Untaxed Amount"
 msgstr "बिना टैक्स वाली राशि"
 
 #. module: hr_expense
-#. odoo-python
-#: code:addons/hr_expense/models/hr_expense.py:0
-msgid "Untitled Expense %s"
-msgstr "शीर्षक-रहित खर्च %s"
+#. odoo-javascript
+#: code:addons/hr_expense/static/src/components/hr_expense_product_form_view.js:0
+msgid "Update cost"
+msgstr ""
 
 #. module: hr_expense
 #. odoo-javascript
 #: code:addons/hr_expense/static/src/views/kanban.xml:0
 #: code:addons/hr_expense/static/src/views/list.xml:0
 msgid "Upload"
-msgstr "अपलोड करें"
+msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_actions_my_all
@@ -2162,11 +2499,6 @@ msgid "View Expense"
 msgstr "खर्च देखें"
 
 #. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_submitted_expenses
-msgid "View expenses"
-msgstr "खर्चों को देखें"
-
-#. module: hr_expense
 #. odoo-python
 #: code:addons/hr_expense/models/hr_expense.py:0
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
@@ -2181,34 +2513,17 @@ msgid "Waiting Reimbursement"
 msgstr "रिफ़ंड का इंतज़ार"
 
 #. module: hr_expense
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__website_message_ids
-msgid "Website Messages"
-msgstr "वेबसाइट मैसेज"
-
-#. module: hr_expense
-#: model:ir.model.fields,help:hr_expense.field_hr_expense__website_message_ids
-msgid "Website communication history"
-msgstr "वेबसाइट कम्यूनिकेशन हिस्ट्री"
-
-#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.product_product_expense_form_view
 msgid ""
 "When the cost of an expense product is different than 0, then the "
 "user                                             using this product won't be "
 "able to change the amount of the "
 "expense,                                             only the quantity. Use "
-"a cost different than 0 for expense categories funded "
+"a cost different than 0 for expense products funded "
 "by                                             the company at fixed cost "
 "like allowances for mileage, per diem, "
 "accommodation                                             or meal."
 msgstr ""
-"जब किसी खर्च प्रॉडक्ट की कीमत 0 से अलग होती "
-"है,                                              तो इस प्रॉडक्ट का इस्तेमाल करने "
-"वाला उपयोगकर्ता खर्च की राशि नहीं बदल पाएगा, सिर्फ़ मात्रा बदल "
-"पाएगा.                                             . उन खर्च कैटगरी के लिए शून्य "
-"से अलग मूल्य का इस्तेमाल करें जिनका                                              "
-"भुगतान कंपनी निश्चित दर पर करती है, जैसे कि माइलेज, दैनिक भत्ता, ठहरने या भोजन के "
-"लिए                                              दिए जाने वाले भत्ते।"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__product_has_tax
@@ -2222,10 +2537,9 @@ msgid "Wizard"
 msgstr "विज़ार्ड"
 
 #. module: hr_expense
-#. odoo-python
-#: code:addons/hr_expense/models/hr_expense.py:0
-msgid "You can not submit an expense without a category."
-msgstr "आप कैटेगरी के बिना खर्च जमा नहीं कर सकते।"
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
+msgid "Yes (Match to Bill)"
+msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_register
@@ -2241,12 +2555,23 @@ msgstr "आप सिर्फ़ मंज़ूर किए गए खर्�
 #. module: hr_expense
 #. odoo-python
 #: code:addons/hr_expense/models/hr_expense.py:0
-msgid ""
-"You can't post simultaneously employee-paid expenses belonging to different "
-"companies"
+msgid "You can't add an attachment to an expense once it has been approved."
 msgstr ""
-"आप एक साथ उन खर्चों को पोस्ट नहीं कर सकते जिनका भुगतान कर्मचारी ने किया है, लेकिन वे "
-"अलग-अलग कंपनियों से जुड़े हैं"
+
+#. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/hr_expense.py:0
+msgid ""
+"You can't create move for employee-paid expenses belonging to different "
+"companies at the same time"
+msgstr ""
+
+#. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/ir_attachment.py:0
+msgid ""
+"You can't delete attachments from an expense once it has been submitted."
+msgstr ""
 
 #. module: hr_expense
 #. odoo-python
@@ -2261,8 +2586,8 @@ msgstr ""
 #. module: hr_expense
 #. odoo-python
 #: code:addons/hr_expense/models/hr_expense.py:0
-msgid "You cannot cancel an expense linked to a posted journal entry"
-msgstr "आप पोस्ट की गई जर्नल एंट्री से जुड़े खर्च को रद्द नहीं कर सकते"
+msgid "You cannot cancel an expense linked to a journal entry"
+msgstr ""
 
 #. module: hr_expense
 #. odoo-python
@@ -2295,22 +2620,25 @@ msgstr "आप किसी खर्च के सुरक्षा फ़ी�
 #: code:addons/hr_expense/models/hr_expense.py:0
 msgid ""
 "You cannot refuse:\n"
-" %(reasons)s"
+"%(reasons)s"
 msgstr ""
-"आप अस्वीकार नहीं कर सकते: \n"
-" %(reasons)s"
 
 #. module: hr_expense
 #. odoo-python
 #: code:addons/hr_expense/models/hr_expense.py:0
-msgid "You cannot reset to draft an expense linked to a posted journal entry."
-msgstr "आप पोस्ट की गई जर्नल एंट्री से जुड़े खर्च को ड्राफ़्ट में रीसेट नहीं कर सकते।"
+msgid "You cannot reset to draft an expense linked to a journal entry."
+msgstr ""
 
 #. module: hr_expense
 #. odoo-python
 #: code:addons/hr_expense/models/hr_expense.py:0
 msgid "You cannot split an expense that is already posted."
 msgstr "आप पहले से पोस्ट किए गए खर्च को विभाजित नहीं कर सकते।"
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_submitted_expenses
+msgid "You currently have"
+msgstr ""
 
 #. module: hr_expense
 #. odoo-python
@@ -2326,24 +2654,15 @@ msgstr "आपके पास इस खर्च को बदलने का
 
 #. module: hr_expense
 #. odoo-python
-#: code:addons/hr_expense/wizard/hr_expense_post_wizard.py:0
-msgid "You don't have the rights to create accounting entries."
-msgstr "आपके पास अकाउंटिंग एंट्री बनाने का अधिकार नहीं है।"
+#: code:addons/hr_expense/models/hr_expense.py:0
+msgid "You don't have the access rights to modify this expense."
+msgstr ""
 
 #. module: hr_expense
 #. odoo-python
 #: code:addons/hr_expense/models/hr_expense.py:0
 msgid "You need to add a manual payment method on the journal (%s)"
 msgstr "आपको जर्नल (%s) पर एक मैनुअल भुगतान विधि जोड़ने की ज़रूरत है"
-
-#. module: hr_expense
-#. odoo-python
-#: code:addons/hr_expense/models/hr_expense.py:0
-msgid ""
-"You need to have at least one category that can be expensed in your database "
-"to proceed!"
-msgstr ""
-"आगे बढ़ने के लिए आपके डेटाबेस में कम से कम एक ऐसी कैटगरी होनी चाहिए जिसे खर्च किया जा सके!"
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_refuse_reason
@@ -2356,9 +2675,19 @@ msgid "Your expense has been successfully registered."
 msgstr "आपका खर्च सफलतापूर्वक दर्ज कर लिया गया है।"
 
 #. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
+msgid "Your job position has a limit of"
+msgstr ""
+
+#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
 msgid "alias"
 msgstr "उपनाम"
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
+msgid "defined for this job position."
+msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.product_product_expense_form_view
@@ -2386,6 +2715,11 @@ msgid "expense"
 msgstr "खर्च"
 
 #. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
+msgid "for this expense. You may not be fully reimbursed!"
+msgstr ""
+
+#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_refuse_reason
 msgid "has been refused"
 msgstr "अस्वीकार कर दिया गया है"
@@ -2401,44 +2735,83 @@ msgid "per"
 msgstr "प्रति"
 
 #. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
-msgid "tax)"
-msgstr "टैक्स"
-
-#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
 msgid "use OCR to fill data from a picture of the bill"
 msgstr "बिल की तस्वीर से डेटा भरने के लिए ओसीआर का इस्तेमाल करें"
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
+msgid "with the same category, date, amount, and employee already exists."
+msgstr ""
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
 msgid "with the same receipt already exists."
 msgstr "वही रसीद पहले से मौजूद है।"
 
-#~ msgid "$100.00"
-#~ msgstr "100.00 डॉलर"
-
-#~ msgid "2023-08-11"
-#~ msgstr "11-08-2023"
+#~ msgid ""
+#~ "You cannot refuse:\n"
+#~ " %(reasons)s"
+#~ msgstr ""
+#~ "आप अस्वीकार नहीं कर सकते: \n"
+#~ " %(reasons)s"
 
 #~ msgid ""
-#~ "New expenses are awaiting your approval.\n"
-#~ "                You can review them by following this link"
+#~ "'Expense - %s - %s' % (object.employee_id.name, "
+#~ "(object.name).replace('/', ''))"
 #~ msgstr ""
-#~ "कुछ नए खर्च आए हैं जिन्हें आपको मंज़ूरी देनी है.\n"
-#~ "                उन्हें देखने के लिए नीचे दिए गए लिंक का उपयोग करें"
+#~ "'खर्च - %s - %s' % (object.employee_id.name, (object.name).replace('/', "
+#~ "''))"
 
-#~ msgid "View Attachments"
-#~ msgstr "अटैचमेंट देखें"
+#~ msgid "<span>Date:</span>"
+#~ msgstr "<span>तारीख:</span>"
 
-#~ msgid "Accounting Settings"
-#~ msgstr "अकाउंटिंग सेटिंग"
+#~ msgid "Business Trip"
+#~ msgstr "बिज़नेस ट्रिप"
 
-#~ msgid "You should install a Fiscal Localization first."
-#~ msgstr "आपको पहले अपने देश के टैक्स और अकाउंटिंग नियम इंस्टॉल करने होंगे।"
+#~ msgid "Credit Card"
+#~ msgstr "क्रेडिट कार्ड"
 
-#~ msgid "Date"
-#~ msgstr "तिथि"
+#~ msgid "Expense Posting Wizard"
+#~ msgstr "एक्सपेंस पोस्टिंग विज़ॉर्ड"
 
-#~ msgid "Qty"
-#~ msgstr "मात्रा"
+#~ msgid "New expense entries"
+#~ msgstr "खर्च के लिए नई एंट्री"
+
+#~ msgid "Only expense paid by the employee can be posted with the wizard"
+#~ msgstr ""
+#~ "सिर्फ़ कर्मचारी द्वारा भुगतान किया गया खर्च ही विज़ार्ड के साथ पोस्ट किया जा सकता है"
+
+#~ msgid "Post Expenses"
+#~ msgstr "खर्चों को पोस्ट करें"
+
+#~ msgid "Post expenses"
+#~ msgstr "खर्चों को पोस्ट करें"
+
+#~ msgid "Post expenses paid by the employee"
+#~ msgstr "कर्मचारी द्वारा किए गए खर्चों को पोस्ट करें"
+
+#~ msgid "Specify the bill date of the related vendor bill."
+#~ msgstr "संबंधित वेंडर बिल की बिल तारीख बताएं।"
+
+#~ msgid "The journal used when the expense is paid by employee."
+#~ msgstr ""
+#~ "वह जर्नल जिसका इस्तेमाल तब किया जाता है जब खर्च का भुगतान कर्मचारी द्वारा किया "
+#~ "जाता है।"
+
+#~ msgid ""
+#~ "You can't post simultaneously employee-paid expenses belonging to "
+#~ "different companies"
+#~ msgstr ""
+#~ "आप एक साथ उन खर्चों को पोस्ट नहीं कर सकते जिनका भुगतान कर्मचारी ने किया है, लेकिन वे "
+#~ "अलग-अलग कंपनियों से जुड़े हैं"
+
+#~ msgid "You cannot cancel an expense linked to a posted journal entry"
+#~ msgstr "आप पोस्ट की गई जर्नल एंट्री से जुड़े खर्च को रद्द नहीं कर सकते"
+
+#~ msgid ""
+#~ "You cannot reset to draft an expense linked to a posted journal entry."
+#~ msgstr "आप पोस्ट की गई जर्नल एंट्री से जुड़े खर्च को ड्राफ़्ट में रीसेट नहीं कर सकते।"
+
+#~ msgid "You don't have the rights to create accounting entries."
+#~ msgstr "आपके पास अकाउंटिंग एंट्री बनाने का अधिकार नहीं है।"

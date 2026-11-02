@@ -1,14 +1,13 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from datetime import timedelta
 import logging
-
-from markupsafe import Markup
+from datetime import timedelta, UTC
 from random import randint
 from textwrap import shorten
+from zoneinfo import ZoneInfo
 
-from pytz import timezone, utc
 import werkzeug.urls
+from markupsafe import Markup
 
 from odoo import api, fields, models, tools
 from odoo.exceptions import UserError
@@ -81,7 +80,7 @@ class EventTrack(models.Model):
     kanban_state_label = fields.Char(
         string='Kanban State Label', compute='_compute_kanban_state_label', store=True,
         tracking=True)
-    partner_id = fields.Many2one('res.partner', 'Contact')
+    partner_id = fields.Many2one('res.partner', 'Contact', index='btree_not_null')
     # speaker information
     partner_name = fields.Char(
         string='Name', compute='_compute_partner_name',
@@ -230,10 +229,10 @@ class EventTrack(models.Model):
             if track.partner_id and not track.partner_function:
                 track.partner_function = track.partner_id.function
 
-    @api.depends('partner_id', 'partner_id.company_type')
+    @api.depends('partner_id', 'partner_id.is_company')
     def _compute_partner_company_name(self):
         for track in self:
-            if track.partner_id.company_type == 'company':
+            if track.partner_id.is_company:
                 track.partner_company_name = track.partner_id.name
             elif not track.partner_company_name:
                 track.partner_company_name = track.partner_id.parent_id.name
@@ -329,7 +328,7 @@ class EventTrack(models.Model):
                  'event_track_visitor_ids.is_blacklisted')
     @api.depends_context('uid')
     def _compute_is_reminder_on(self):
-        current_visitor = self.env['website.visitor']._get_visitor_from_request()
+        current_visitor = self.env['ir.http']._get_visitor_from_request()
         if self.env.user._is_public() and not current_visitor:
             for track in self:
                 track.is_reminder_on = track.wishlisted_by_default
@@ -366,15 +365,20 @@ class EventTrack(models.Model):
 
     @api.depends('event_track_visitor_ids.visitor_id', 'event_track_visitor_ids.is_wishlisted')
     def _compute_wishlist_visitor_ids(self):
+        """Compute the number of track visitors, and the associated website visitors.
+
+        Note that there may be more track visitors than visitors, as some may be linked to partners.
+        """
         results = self.env['event.track.visitor']._read_group(
             [('track_id', 'in', self.ids), ('is_wishlisted', '=', True)],
             ['track_id'],
-            ['visitor_id:array_agg'],
+            ['visitor_id:recordset', '__count'],
         )
-        visitor_ids_map = {track.id: visitor_ids for track, visitor_ids in results}
+        track_visitor_data = {track.id: (visitors, visitor_count) for track, visitors, visitor_count in results}
         for track in self:
-            track.wishlist_visitor_ids = visitor_ids_map.get(track.id, [])
-            track.wishlist_visitor_count = len(visitor_ids_map.get(track.id, []))
+            visitors, visitor_count = track_visitor_data.get(track.id, (self.env['website.visitor'], 0))
+            track.wishlist_visitor_ids = visitors
+            track.wishlist_visitor_count = visitor_count
 
     def _search_wishlist_visitor_ids(self, operator, operand):
         if operator in ('not in', 'not any'):
@@ -384,7 +388,7 @@ class EventTrack(models.Model):
             ('visitor_id', operator, operand),
             ('is_wishlisted', '=', True)
         ])
-        return [('id', 'in', subquery.subselect('track_id'))]
+        return [('id', 'in', subquery.subselect(subquery.table.track_id))]
 
     # TIME
 
@@ -392,14 +396,14 @@ class EventTrack(models.Model):
     def _compute_track_time_data(self):
         """ Compute start and remaining time for track itself. Do everything in
         UTC as we compute only time deltas here. """
-        now_utc = utc.localize(fields.Datetime.now().replace(microsecond=0))
+        now_utc = fields.Datetime.now().replace(microsecond=0, tzinfo=UTC)
         for track in self:
             if not (track.date or track.date_end):
                 track.is_track_live = track.is_track_soon = track.is_track_today = track.is_track_upcoming = track.is_track_done = False
                 track.track_start_relative = track.track_start_remaining = 0
                 continue
-            date_begin_utc = utc.localize(track.date, is_dst=False)
-            date_end_utc = utc.localize(track.date_end, is_dst=False)
+            date_begin_utc = track.date.replace(tzinfo=UTC)
+            date_end_utc = track.date_end.replace(tzinfo=UTC)
             track.is_track_live = date_begin_utc <= now_utc < date_end_utc
             track.is_track_soon = (date_begin_utc - now_utc).total_seconds() < 30*60 if date_begin_utc > now_utc else False
             track.is_track_today = date_begin_utc.date() == now_utc.date()
@@ -416,14 +420,14 @@ class EventTrack(models.Model):
     def _compute_cta_time_data(self):
         """ Compute start and remaining time for track itself. Do everything in
         UTC as we compute only time deltas here. """
-        now_utc = utc.localize(fields.Datetime.now().replace(microsecond=0))
+        now_utc = fields.Datetime.now().replace(microsecond=0, tzinfo=UTC)
         for track in self:
             if not track.website_cta:
                 track.is_website_cta_live = track.website_cta_start_remaining = False
                 continue
 
-            date_begin_utc = utc.localize(track.date, is_dst=False) + timedelta(minutes=track.website_cta_delay or 0)
-            date_end_utc = utc.localize(track.date_end, is_dst=False)
+            date_begin_utc = track.date.replace(tzinfo=UTC) + timedelta(minutes=track.website_cta_delay or 0)
+            date_end_utc = track.date_end.replace(tzinfo=UTC)
             track.is_website_cta_live = date_begin_utc <= now_utc <= date_end_utc
             if date_begin_utc >= now_utc:
                 td = date_begin_utc - now_utc
@@ -503,10 +507,10 @@ class EventTrack(models.Model):
             ('stage_id.is_visible_in_agenda', '=', True),
         ]
         mapping = {
-            'description': {'name': 'description', 'type': 'text', 'truncate': True, 'html': True},
             'name': {'name': 'name', 'type': 'text', 'match': True},
-            'partner_name': {'name': 'partner_name', 'type': 'text', 'match': True, 'html': True},
             'website_url': {'name': 'website_url', 'type': 'text', 'truncate': False},
+            'search_item_metadata': {'name': 'partner_name', 'type': 'text', 'html': True, 'match': True},
+            'description': {'name': 'description', 'type': 'text', 'truncate': True, 'html': True, 'match': True},
         }
         return {
             'model': 'event.track',
@@ -514,8 +518,9 @@ class EventTrack(models.Model):
             'search_fields': ['name', 'partner_name'],
             'fetch_fields': ['name', 'website_url', 'partner_name', 'description'],
             'mapping': mapping,
-            'icon': 'fa-microphone',
+            'icon': 'mic',
             'order': order,
+            'group_name': self.env._("Talks"),
         }
 
     # ------------------------------------------------------------
@@ -532,11 +537,11 @@ class EventTrack(models.Model):
             info['email_to_lst'] = tools.mail.email_split_and_format_normalize(track.partner_email) or [track.partner_email]
         return recipients
 
-    def _message_post_after_hook(self, message, msg_vals):
+    def _message_post_after_hook(self, message):
         #  OVERRIDE
         #  If no partner is set on track when sending a message, then we create one from suggested contact selected.
         #  If one or more have been created from chatter (Suggested Recipients) we search for the expected one and write the partner_id on track.
-        if msg_vals.get('partner_ids') and not self.partner_id:
+        if message.partner_ids and not self.partner_id:
             #  Contact(s) created from chatter set on track : we verify if at least one is the expected contact
             #  linked to the track. (created from contact_email if any, then partner_email if any)
             main_email = self.contact_email or self.partner_email
@@ -553,27 +558,26 @@ class EventTrack(models.Model):
                 self.search([
                     ('partner_id', '=', False), email_domain, ('stage_id.is_cancel', '=', False),
                 ]).write({'partner_id': new_partner[0].id})
-        return super()._message_post_after_hook(message, msg_vals)
+        return super()._message_post_after_hook(message)
 
-    def _track_template(self, changes):
-        res = super()._track_template(changes)
+    def _track_template_parameters(self, tracked_fields):
+        res = super()._track_template_parameters(tracked_fields)
         track = self[0]
-        if 'stage_id' in changes and track.stage_id.mail_template_id:
+        if 'stage_id' in tracked_fields and track.stage_id.mail_template_id:
             res['stage_id'] = (track.stage_id.mail_template_id, {
                 'auto_delete_keep_log': False,
                 'composition_mode': 'comment',
-                'email_layout_xmlid': 'mail.mail_notification_light',
                 'subtype_id': self.env['ir.model.data']._xmlid_to_res_id('mail.mt_note'),
             })
         return res
 
-    def _track_subtype(self, init_values):
+    def _track_log_get_default_subtype(self, track_init_values):
         self.ensure_one()
-        if 'kanban_state' in init_values and self.kanban_state == 'blocked':
+        if 'kanban_state' in track_init_values and self.kanban_state == 'blocked':
             return self.env.ref('website_event_track.mt_track_blocked')
-        elif 'kanban_state' in init_values and self.kanban_state == 'done':
+        elif 'kanban_state' in track_init_values and self.kanban_state == 'done':
             return self.env.ref('website_event_track.mt_track_ready')
-        return super()._track_subtype(init_values)
+        return super()._track_log_get_default_subtype(track_init_values)
 
     # ------------------------------------------------------------
     # ACTION
@@ -600,7 +604,7 @@ class EventTrack(models.Model):
         self.ensure_one()
 
         force_visitor_create = self.env.user._is_public()
-        visitor_sudo = self.env['website.visitor']._get_visitor_from_request(force_create=force_visitor_create)
+        visitor_sudo = self.env['ir.http']._get_visitor_from_request(force_create=force_visitor_create)
         if visitor_sudo:
             visitor_sudo._update_visitor_last_visit()
 
@@ -641,13 +645,13 @@ class EventTrack(models.Model):
 
             date_tz = track.event_id.date_tz
             reminder_dates = track._get_track_calendar_reminder_dates()
-            cal_track.add('created').value = fields.Datetime.now().replace(tzinfo=timezone('UTC'))
-            cal_track.add('dtstart').value = reminder_dates['date_begin'].astimezone(timezone(date_tz))
-            cal_track.add('dtend').value = reminder_dates['date_end'].astimezone(timezone(date_tz))
+            cal_track.add('created').value = fields.Datetime.now().replace(tzinfo=ZoneInfo('UTC'))
+            cal_track.add('dtstart').value = reminder_dates['date_begin'].astimezone(ZoneInfo(date_tz))
+            cal_track.add('dtend').value = reminder_dates['date_end'].astimezone(ZoneInfo(date_tz))
             cal_track.add('summary').value = track.name
             cal_track.add('description').value = track._get_track_calendar_description()
-            if track.event_id.address_inline or track.location_id:
-                cal_track.add('location').value = ', '.join([track.event_id.address_inline, track.location_id.sudo().name or ''])
+            if track.event_id.contact_address_inline or track.location_id:
+                cal_track.add('location').value = ', '.join([track.event_id.contact_address_inline or '', track.location_id.sudo().name or ''])
 
             result[track.id] = cal.serialize().encode('utf-8')
         return result
@@ -736,11 +740,11 @@ class EventTrack(models.Model):
     def _get_track_calendar_urls(self):
         date_tz = self.event_id.date_tz
         reminder_dates = self._get_track_calendar_reminder_dates()
-        url_date_begin = reminder_dates['date_begin'].astimezone(timezone(date_tz)).strftime('%Y%m%dT%H%M%S')
-        url_date_end = reminder_dates['date_end'].astimezone(timezone(date_tz)).strftime('%Y%m%dT%H%M%S')
+        url_date_begin = reminder_dates['date_begin'].astimezone(ZoneInfo(date_tz)).strftime('%Y%m%dT%H%M%S')
+        url_date_end = reminder_dates['date_end'].astimezone(ZoneInfo(date_tz)).strftime('%Y%m%dT%H%M%S')
 
-        if self.event_id.address_inline or self.location_id:
-            location = ', '.join([self.event_id.sudo().address_inline, self.location_id.sudo().name or ''])
+        if self.event_id.contact_address_inline or self.location_id:
+            location = ', '.join([self.event_id.sudo().contact_address_inline or '', self.location_id.sudo().name or ''])
         else:
             location = ''
 

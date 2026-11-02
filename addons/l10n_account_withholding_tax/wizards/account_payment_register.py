@@ -11,11 +11,12 @@ class AccountPaymentRegister(models.TransientModel):
     # ------------------
 
     display_withholding = fields.Boolean(compute='_compute_display_withholding')
-    should_withhold_tax = fields.Boolean(
-        string='Withhold Tax Amounts',
-        compute='_compute_should_withhold_tax',
-        readonly=False,
-        store=True,
+    withhold = fields.Selection(
+        selection=[
+            ('withhold_pay', 'Withhold and Pay'),
+            ('withhold', 'Withhold Only'),
+            ('payment', 'Payment Only'),
+        ],
         copy=False,
     )
     withholding_line_ids = fields.One2many(
@@ -49,6 +50,33 @@ class AccountPaymentRegister(models.TransientModel):
     )
     withholding_payment_account_id = fields.Many2one(related="payment_method_line_id.payment_account_id")
     withholding_hide_tax_base_account = fields.Boolean(compute='_compute_withholding_hide_tax_base_account')
+    withholding_hide_name = fields.Boolean(compute='_compute_withholding_hide_name')
+
+    @api.model
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+        if 'withhold' in fields_list:
+
+            if self.env.context.get('active_model') == 'account.move':
+                moves = self.env['account.move'].browse(self.env.context.get('active_ids', []))
+            elif self.env.context.get('active_model') == 'account.move.line':
+                moves = self.env['account.move.line'].browse(self.env.context.get('active_ids', [])).move_id
+            else:
+                moves = self.env['account.move']
+
+            res['withhold'] = self._get_default_withhold(moves)
+
+        return res
+
+    @api.model
+    def _get_default_withhold(self, moves):
+        """ Return the withholding mode the wizard defaults to when registering a payment on the given documents. """
+        withholding_residual = sum(moves.mapped('withholding_residual_amount_currency'))
+        withholding_net_residual = sum(moves.mapped('withholding_net_residual_amount_currency'))
+
+        if withholding_residual > 0:
+            return 'withhold_pay' if withholding_net_residual else 'withhold'
+        return 'payment'
 
     # --------------------------------
     # Compute, inverse, search methods
@@ -61,12 +89,12 @@ class AccountPaymentRegister(models.TransientModel):
         It is simply the payment amount - the sum of withholding taxes.
         """
         for wizard in self:
-            if wizard.can_edit_wizard:
+            if wizard.can_edit_wizard and wizard.withhold != 'withhold':
                 wizard.withholding_net_amount = wizard.amount - sum(wizard.withholding_line_ids.mapped('amount'))
             else:
                 wizard.withholding_net_amount = 0.0
 
-    @api.depends('withholding_payment_account_id', 'should_withhold_tax')
+    @api.depends('withholding_payment_account_id', 'withhold')
     def _compute_withholding_outstanding_account_id(self):
         """
         We propose a default account by getting one from the latest payment which:
@@ -75,7 +103,7 @@ class AccountPaymentRegister(models.TransientModel):
          - Yet the payment has an outstanding_account_id
          """
         for wizard in self:
-            if not wizard.should_withhold_tax:
+            if wizard.withhold == 'payment':
                 wizard.withholding_outstanding_account_id = False
                 continue
             if wizard.withholding_payment_account_id:
@@ -105,7 +133,7 @@ class AccountPaymentRegister(models.TransientModel):
 
             withholding_taxes = self.env['account.tax'].search([
                 *self.env['account.tax']._check_company_domain(company),
-                ('is_withholding_tax_on_payment', '=', True),
+                ('is_withholding_tax', '=', True),
             ])
             for wizard in self:
                 # To avoid displaying things for nothing, also ensure to only consider withholding taxes matching the payment type.
@@ -140,22 +168,17 @@ class AccountPaymentRegister(models.TransientModel):
 
             # Compute the lines themselves once; when opening the wizard.
             if not wizard.withholding_line_ids:
-                batch = wizard.batches[0]
+                batch = wizard._get_batches()[0]
                 base_lines = []
-                for move in batch['lines'].move_id:
+                for move in batch['lines'].move_id.filtered(lambda m: m.withholding_residual_amount_currency):
                     move_base_lines, _move_tax_lines = move._get_rounded_base_and_tax_lines()
                     base_lines += move_base_lines
 
-                wizard.withholding_line_ids = wizard.withholding_line_ids._prepare_withholding_lines_commands(
-                    base_lines=base_lines,
-                    company=wizard.company_id or self.env.company,
-                )
-
-    @api.depends('withholding_line_ids')
-    def _compute_should_withhold_tax(self):
-        """ Ensures that we display the line table if any withholding line has been added to the payment. """
-        for wizard in self:
-            wizard.should_withhold_tax = bool(wizard.withholding_line_ids)
+                if base_lines:
+                    wizard.withholding_line_ids = wizard.withholding_line_ids._prepare_withholding_lines_commands(
+                        base_lines=base_lines,
+                        company=wizard.company_id or self.env.company,
+                    )
 
     @api.depends('company_id')
     def _compute_withholding_hide_tax_base_account(self):
@@ -165,6 +188,71 @@ class AccountPaymentRegister(models.TransientModel):
         """
         for wizard in self:
             wizard.withholding_hide_tax_base_account = bool(wizard.company_id.withholding_tax_base_account_id)
+
+    @api.depends('can_edit_wizard', 'display_withholding', 'withhold')
+    def _compute_amount(self):
+        super()._compute_amount()
+        for wizard in self:
+            if wizard.can_edit_wizard and wizard.display_withholding:
+                batches = wizard._get_batches()
+                total_amount_values = wizard._get_total_amounts_to_pay(batches)
+                base_amount = (
+                    total_amount_values['amount_by_default']
+                    if total_amount_values['epd_applied']
+                    else max(0.0, total_amount_values['amount_by_default'] - wizard.unreconciled_paid_amount)
+                )
+                moves = batches[0]['lines'].move_id
+                withholding_residual = sum(moves.mapped('withholding_residual_amount_currency'))
+                if wizard.withhold == 'withhold':
+                    wizard.amount = withholding_residual
+                elif wizard.withhold == 'payment':
+                    wizard.amount = max(0.0, base_amount - withholding_residual) if withholding_residual > 0 else base_amount
+                elif wizard.withhold == 'withhold_pay':
+                    wizard.amount = base_amount
+
+    @api.depends('withhold', 'payment_difference')
+    def _compute_show_payment_difference(self):
+        super()._compute_show_payment_difference()
+        for wizard in self:
+            if wizard.withhold == 'payment':
+                withholding_residual = sum(
+                    move.currency_id._convert(
+                        from_amount=move.withholding_residual_amount_currency,
+                        to_currency=wizard.currency_id,
+                        company=wizard.company_id,
+                        date=wizard.payment_date,
+                    )
+                    for move in wizard._get_batches()[0]['lines'].move_id
+                )
+                if wizard.payment_difference == withholding_residual:
+                    wizard.show_payment_difference = False
+
+    @api.depends('withhold')
+    def _compute_journal_id(self):
+        for wizard in self:
+            if wizard.withhold == 'withhold':
+                wizard.journal_id = self.env['account.journal'].search([
+                    *self.env['account.journal']._check_company_domain(wizard.company_id),
+                    ('type', '=', 'general'),
+                ], limit=1)
+            elif not wizard.journal_id or wizard.journal_id.type == 'general':
+                # Compute if not set or not withhold only and general journal set (most likely from previous setting).
+                super(AccountPaymentRegister, wizard)._compute_journal_id()
+
+    @api.depends("withholding_line_ids.withholding_sequence_id")
+    def _compute_withholding_hide_name(self):
+        for wizard in self:
+            wizard.withholding_hide_name = not any(line.withholding_sequence_id for line in wizard.withholding_line_ids)
+
+    @api.depends('withhold')
+    def _compute_available_journal_ids(self):
+        withhold_only = self.filtered(lambda w: w.withhold == 'withhold')
+        super(AccountPaymentRegister, self - withhold_only)._compute_available_journal_ids()
+        for wizard in withhold_only:
+            wizard.available_journal_ids = self.env['account.journal'].search([
+                *self.env['account.journal']._check_company_domain(wizard.company_id),
+                ('type', '=', 'general'),
+            ])
 
     # ----------------------------
     # Onchange, Constraint methods
@@ -197,8 +285,9 @@ class AccountPaymentRegister(models.TransientModel):
         """
         # EXTEND 'account'
         payment_vals = super()._create_payment_vals_from_wizard(batch_result)
+        payment_vals['withhold'] = self.withhold
 
-        if not self.withholding_line_ids or not self.should_withhold_tax:
+        if not self.withholding_line_ids or self.withhold == 'payment':
             return payment_vals
 
         if self.withholding_net_amount < 0:
@@ -208,9 +297,6 @@ class AccountPaymentRegister(models.TransientModel):
         withholding_account = self.withholding_outstanding_account_id
         if withholding_account:
             payment_vals['outstanding_account_id'] = withholding_account.id
-            if not withholding_account.reconcile and withholding_account.account_type not in ('asset_cash', 'liability_credit_card', 'off_balance'):
-                withholding_account.reconcile = True
-        payment_vals['should_withhold_tax'] = self.should_withhold_tax
         payment_vals['withholding_line_ids'] = []
         for withholding_line_values in self.withholding_line_ids.with_context(active_test=False).copy_data():
             del withholding_line_values['payment_register_id']
@@ -231,7 +317,7 @@ class AccountPaymentRegister(models.TransientModel):
         if not self.can_edit_wizard:
             return 0.0
 
-        moves = self.batches[0]['lines'].move_id  # Use the move to get the TOTAL amount, including all installment.
+        moves = self._get_batches()[0]['lines'].move_id  # Use the move to get the TOTAL amount, including all installment.
         wizard_curr = self.currency_id
         comp_curr = self.company_currency_id
 

@@ -3,22 +3,23 @@
 # * project_todo
 #
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
-# "Chloe Wang (chwa)" <chwa@odoo.com>, 2025.
+# "Chloe Wang (chwa)" <chwa@odoo.com>, 2025, 2026.
+# 张飞虎 <feihu.zhang@live.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~18.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-12-20 09:52+0000\n"
-"Last-Translator: \"Chloe Wang (chwa)\" <chwa@odoo.com>\n"
+"POT-Creation-Date: 2026-09-04 17:44+0000\n"
+"PO-Revision-Date: 2026-10-11 06:33+0000\n"
+"Last-Translator: 张飞虎 <feihu.zhang@live.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://translate.odoo.com/"
-"projects/odoo-19/project_todo/zh_Hans/>\n"
+"projects/odoo-20/project_todo/zh_Hans/>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: project_todo
 #: model_terms:ir.ui.view,arch_db:project_todo.todo_user_onboarding
@@ -30,18 +31,33 @@ msgstr ""
 "    欢迎使用待办应用程序！"
 
 #. module: project_todo
+#: model_terms:digest.tip,tip_description:project_todo.digest_tip_project_todo_0
+msgid "<b>Alt + Shift + T</b> (Windows/Linux)"
+msgstr "<b>Alt + Shift + T</b>（Windows/Linux）"
+
+#. module: project_todo
+#: model_terms:digest.tip,tip_description:project_todo.digest_tip_project_todo_0
+msgid "<b>Ctrl + Shift + T</b> (macOS)"
+msgstr "<b>Ctrl + Shift + T</b>（macOS）"
+
+#. module: project_todo
+#: model_terms:digest.tip,tip_description:project_todo.digest_tip_project_todo_0
+msgid "<b>Tip: Create to-dos from anywhere</b>"
+msgstr "<b>提示：随时随地创建待办事项</b>"
+
+#. module: project_todo
 #: model_terms:ir.ui.view,arch_db:project_todo.todo_user_onboarding
 msgid ""
 "<br/>\n"
-"    <span style=\"font-size: 14px;\">\n"
-"        Ensure you follow the correct format and order. For example: Send "
-"invitations #event @Mitchell !\n"
-"    </span>"
+"        <span style=\"font-size: 14px;\">\n"
+"            Ensure you follow the correct format and order. For example: "
+"Send invitations #event @Mitchell !\n"
+"        </span>"
 msgstr ""
 "<br/>\n"
-"    <span style=\"font-size: 14px;\">\n"
-"        确保遵循正确的格式和顺序。例如 发送邀请 #event @Mitchell ！\n"
-"    </span>"
+"        <span style=\"font-size: 14px;\">\n"
+"            确保遵循正确的格式和顺序。例如 发送邀请 #event @Mitchell ！\n"
+"        </span>"
 
 #. module: project_todo
 #: model_terms:ir.ui.view,arch_db:project_todo.todo_user_onboarding
@@ -132,6 +148,19 @@ msgstr ""
 "            <span style=\"font-style: italic; text-decoration-line: "
 "underline;\">样式</span>\n"
 "        </span>"
+
+#. module: project_todo
+#: model_terms:ir.ui.view,arch_db:project_todo.todo_user_onboarding
+msgid ""
+"<span style=\"font-size: 14px;\">\n"
+"            Use these keywords in the title to streamline your to-dos:\n"
+"        </span>\n"
+"        <br/>"
+msgstr ""
+"<span style=\"font-size: 14px;\">\n"
+"        在标题中使用这些关键词来简化你的待办事项：\n"
+"    </span>\n"
+"    <br/>"
 
 #. module: project_todo
 #: model_terms:ir.ui.view,arch_db:project_todo.todo_user_onboarding
@@ -256,19 +285,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:project_todo.todo_user_onboarding
 msgid ""
 "<span style=\"font-size: 14px;\">\n"
-"        Use these keywords in the title to streamline your to-dos:\n"
-"    </span>\n"
-"    <br/>"
-msgstr ""
-"<span style=\"font-size: 14px;\">\n"
-"        在标题中使用这些关键词来简化你的待办事项：\n"
-"    </span>\n"
-"    <br/>"
-
-#. module: project_todo
-#: model_terms:ir.ui.view,arch_db:project_todo.todo_user_onboarding
-msgid ""
-"<span style=\"font-size: 14px;\">\n"
 "        Wherever you are, use the magic keyboard shortcut to add yourself a "
 "reminder &amp;#128161;\n"
 "    </span>\n"
@@ -318,18 +334,21 @@ msgstr "<span style=\"font-size: 14px;\">尝试下面的</span>"
 #: model_terms:ir.ui.view,arch_db:project_todo.todo_user_onboarding
 msgid ""
 "<span style=\"font-weight: bolder;\">\n"
-"                <font class=\"text-o-color-2\">!!!:</font>\n"
-"            </span>\n"
-"            Mark the to-do as urgent"
+"                    <font class=\"text-o-color-2\">!!!:</font>\n"
+"                </span>\n"
+"                Mark the to-do as urgent"
 msgstr ""
+"<span style=\"font-weight: bolder;\">\n"
+"                    <font class=\"text-o-color-2\">!!!：</font>\n"
+"                </span>                将待办事项标记为紧急"
 
 #. module: project_todo
 #: model_terms:ir.ui.view,arch_db:project_todo.todo_user_onboarding
 msgid ""
 "<span style=\"font-weight: bolder;\">\n"
-"                <font class=\"text-o-color-2\">!!:</font>\n"
-"            </span>\n"
-"            Mark the to-do as high priority"
+"                    <font class=\"text-o-color-2\">!!:</font>\n"
+"                </span>\n"
+"                Mark the to-do as high priority"
 msgstr ""
 "<span style=\"font-weight: bolder;\">\n"
 "                <font class=\"text-o-color-2\">!!:</font>\n"
@@ -340,28 +359,40 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:project_todo.todo_user_onboarding
 msgid ""
 "<span style=\"font-weight: bolder;\">\n"
-"                <font class=\"text-o-color-2\">!:</font>\n"
-"            </span>\n"
-"            Mark the to-do as medium priority"
+"                    <font class=\"text-o-color-2\">!:</font>\n"
+"                </span>\n"
+"                Mark the to-do as medium priority"
 msgstr ""
+"<span style=\"font-weight: bolder;\">\n"
+"                    <font class=\"text-o-color-2\">!:</font>\n"
+"                </span>\n"
+"                将此待办事项标记为中等优先级"
 
 #. module: project_todo
 #: model_terms:ir.ui.view,arch_db:project_todo.todo_user_onboarding
 msgid ""
 "<span style=\"font-weight: bolder;\">\n"
-"                <font class=\"text-o-color-2\">#tags:</font>\n"
-"            </span>\n"
-"            Add tags to categorize the to-do"
+"                    <font class=\"text-o-color-2\">#tags:</font>\n"
+"                </span>\n"
+"                Add tags to categorize the to-do"
 msgstr ""
+"<span style=\"font-weight: bolder;\">\n"
+"                    <font class=\"text-o-color-2\">#标签：</font>\n"
+"                </span>\n"
+"                添加标签以对待办事项进行分类"
 
 #. module: project_todo
 #: model_terms:ir.ui.view,arch_db:project_todo.todo_user_onboarding
 msgid ""
 "<span style=\"font-weight: bolder;\">\n"
-"                <font class=\"text-o-color-2\">@user:</font>\n"
-"            </span>\n"
-"            Assign the to-do to a specific user"
+"                    <font class=\"text-o-color-2\">@user:</font>\n"
+"                </span>\n"
+"                Assign the to-do to a specific user"
 msgstr ""
+"<span style=\"font-weight: bolder;\">\n"
+"                    <font class=\"text-o-color-2\">@用户：</font>\n"
+"                </span>\n"
+"                将待办事项分配给特定用户"
 
 #. module: project_todo
 #: model_terms:ir.ui.view,arch_db:project_todo.todo_user_onboarding
@@ -396,7 +427,7 @@ msgstr "添加待办事项"
 
 #. module: project_todo
 #. odoo-javascript
-#: code:addons/project_todo/static/src/web/activity/activity_menu_patch.js:0
+#: code:addons/project_todo/static/src/core/web/activity_menu_patch.js:0
 msgid "Add a To-Do"
 msgstr "添加待办事项"
 
@@ -407,7 +438,6 @@ msgstr "添加待办事项详细信息..."
 
 #. module: project_todo
 #: model_terms:ir.ui.view,arch_db:project_todo.project_task_view_todo_form
-#: model_terms:ir.ui.view,arch_db:project_todo.project_task_view_todo_search
 msgid "Archived"
 msgstr "已归档"
 
@@ -424,7 +454,6 @@ msgstr "指派给"
 
 #. module: project_todo
 #: model_terms:ir.ui.view,arch_db:project_todo.project_task_view_todo_form
-#: model_terms:ir.ui.view,arch_db:project_todo.project_task_view_todo_search
 msgid "Assignees"
 msgstr "受指派人"
 
@@ -432,11 +461,6 @@ msgstr "受指派人"
 #: model_terms:ir.ui.view,arch_db:project_todo.project_task_view_todo_search
 msgid "By assigned tags"
 msgstr "根据已指派标签"
-
-#. module: project_todo
-#: model_terms:ir.ui.view,arch_db:project_todo.project_task_view_todo_search
-msgid "By personal stages"
-msgstr "根据个人阶段"
 
 #. module: project_todo
 #: model_terms:ir.ui.view,arch_db:project_todo.project_task_view_todo_conversion_form
@@ -502,12 +526,6 @@ msgid "Delete"
 msgstr "删除"
 
 #. module: project_todo
-#: model_terms:ir.ui.view,arch_db:project_todo.mail_activity_todo_create_popup
-#: model_terms:ir.ui.view,arch_db:project_todo.project_task_view_todo_conversion_form
-msgid "Discard"
-msgstr "丢弃"
-
-#. module: project_todo
 #: model:ir.model.fields,field_description:project_todo.field_mail_activity_todo_create__display_name
 #: model:ir.model.fields,field_description:project_todo.field_project_task__display_name
 #: model:ir.model.fields,field_description:project_todo.field_res_users__display_name
@@ -522,7 +540,7 @@ msgstr "截止日期"
 #. module: project_todo
 #: model_terms:ir.ui.view,arch_db:project_todo.todo_user_onboarding
 msgid "Enhance Your To-Dos with Shortcuts &amp;#9889;"
-msgstr ""
+msgstr "使用快捷方式优化待办事项&amp;#9889;"
 
 #. module: project_todo
 #: model_terms:ir.ui.view,arch_db:project_todo.project_task_view_todo_search
@@ -598,6 +616,11 @@ msgid "Organize your to-dos however you want"
 msgstr "随心所欲地安排待办事项"
 
 #. module: project_todo
+#: model:ir.module.module,summary:base.module_project_todo
+msgid "Organize your work with memos and to-do lists"
+msgstr "用备忘和待办清单安排您的工作"
+
+#. module: project_todo
 #: model_terms:ir.ui.view,arch_db:project_todo.project_task_view_todo_calendar
 msgid "Personal Stage"
 msgstr "个人阶段"
@@ -637,7 +660,6 @@ msgid "Show all records whose next activity date is past"
 msgstr "显示所有逾期未完成活动的记录"
 
 #. module: project_todo
-#: model_terms:ir.ui.view,arch_db:project_todo.project_task_view_todo_search
 #: model_terms:ir.ui.view,arch_db:project_todo.project_task_view_todo_tree
 msgid "Stage"
 msgstr "阶段"
@@ -653,8 +675,6 @@ msgid "Tags"
 msgstr "标签"
 
 #. module: project_todo
-#. odoo-python
-#: code:addons/project_todo/models/res_users.py:0
 #: model:ir.model,name:project_todo.model_project_task
 msgid "Task"
 msgstr "任务"
@@ -662,7 +682,7 @@ msgstr "任务"
 #. module: project_todo
 #: model_terms:ir.ui.view,arch_db:project_todo.project_task_view_todo_form
 msgid "Task Title..."
-msgstr ""
+msgstr "任务标题..."
 
 #. module: project_todo
 #. odoo-javascript
@@ -673,8 +693,16 @@ msgid ""
 msgstr "待办事项描述目前没有任何可恢复的过往内容。"
 
 #. module: project_todo
+#: model:digest.tip,name:project_todo.digest_tip_project_todo_0
+msgid "Tip: Create to-dos from anywhere"
+msgstr "提示：随时随地创建待办事项"
+
+#. module: project_todo
+#. odoo-javascript
 #. odoo-python
 #: code:addons/project_todo/models/res_users.py:0
+#: code:addons/project_todo/static/src/webclient/share_target/todo_share_target_item.js:0
+#: model:ir.module.module,shortdesc:base.module_project_todo
 msgid "To-Do"
 msgstr "代办"
 
@@ -745,6 +773,17 @@ msgid ""
 "        Make sure to use the right format and order e.g. Improve the "
 "configuration screen 5h #feature #v16 @Mitchell !"
 msgstr ""
+"在新的任务标题中，使用这些关键字进行设置：\n"
+"\n"
+"        30h：向任务分配 30 小时\n"
+"        #标签名称：为任务设置标签\n"
+"        @用户名：将任务指派给用户\n"
+"        !：将任务设为中等优先级别\n"
+"        !!：将任务设为高优先级别\n"
+"        !!!：将任务设为紧急\n"
+"\n"
+"        记得使用正确格式及顺序，例如：改进配置画面 5h #特色功能 #v16 "
+"@Mitchell!"
 
 #. module: project_todo
 #: model_terms:ir.ui.view,arch_db:project_todo.project_task_view_todo_quick_create_form
@@ -760,6 +799,16 @@ msgid ""
 "                             Ensure you follow the correct format and order. "
 "For example: \"Send invitations #event @Mitchell !\""
 msgstr ""
+"在标题中使用以下关键词以优化待办事项：\n"
+"\n"
+"                             #tags：添加标签以对待办事项进行分类\n"
+"                             @user：将待办事项分配给特定用户\n"
+"                             !：将待办事项标记为中等优先级\n"
+"                             !!：将待办事项标记为高优先级\n"
+"                             !!!：将待办事项标记为紧急\n"
+"\n"
+"                             请确保遵循正确的格式和顺序。 例如：“发送邀请 #活"
+"动 @Mitchell !”"
 
 #. module: project_todo
 #: model:ir.model,name:project_todo.model_res_users
@@ -782,6 +831,13 @@ msgstr "版本历史"
 #: code:addons/project_todo/models/res_users.py:0
 msgid "Welcome %s!"
 msgstr "欢迎%s！"
+
+#. module: project_todo
+#: model_terms:digest.tip,tip_description:project_todo.digest_tip_project_todo_0
+msgid ""
+"Wherever you are, use the magic keyboard shortcut to set yourself a "
+"reminder: 💡<br>"
+msgstr "无论您身在何处，都可以使用神奇的键盘快捷键为自己设置提醒：💡<br>"
 
 #. module: project_todo
 #: model_terms:ir.ui.view,arch_db:project_todo.todo_user_onboarding
@@ -808,18 +864,3 @@ msgstr "例如：发送邀请"
 #: model_terms:ir.ui.view,arch_db:project_todo.todo_user_onboarding
 msgid "todo-access"
 msgstr "todo-access"
-
-#~ msgid "Group By"
-#~ msgstr "分组方式"
-
-#~ msgid "Onboarding todo already generated for those users"
-#~ msgstr "已为这些用户生成新手待办事项"
-
-#~ msgid "The To-do description was empty at the time."
-#~ msgstr "待办事项描述目前空白。"
-
-#~ msgid "To-do..."
-#~ msgstr "待办事项⋯"
-
-#~ msgid "menu load To-dos"
-#~ msgstr "菜单加载待办"

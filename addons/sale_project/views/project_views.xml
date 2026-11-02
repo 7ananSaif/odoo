@@ -6,16 +6,20 @@
         <field name="inherit_id" ref="project.project_project_view_form_simplified"/>
         <field name="priority">25</field>
         <field name="arch" type="xml">
-            <xpath expr="//div[hasclass('o_settings_container')]" position="inside">
-                <field name="company_id" invisible="1"/>
-                <setting class="col-lg-12" help="Invoice your time and material to customers" invisible="context.get('hide_allow_billable', False)">
-                    <field name="allow_billable"/>
-                    <div invisible="not allow_billable" class="d-flex flex-column flex-sm-row align-items-baseline">
-                        <label for="partner_id"/>
-                        <field name="partner_id" class="ms-1" widget="res_partner_many2one" context="{'res_partner_search_mode': 'customer'}"
-                            options="{'no_create_edit': True, 'no_open': True}" placeholder="Select who to bill..."/>
-                    </div>
-                </setting>
+            <field name="date_start" position="before">
+                <field
+                    name="partner_id"
+                    string="Customer"
+                    placeholder="Select who to bill..."
+                    widget="res_partner_many2one"
+                    options="{'no_create_edit': True, 'no_open': True}"
+                />
+                <field name="allow_billable" invisible="1"/>
+            </field>
+            <xpath expr="//div[hasclass('oe_title')]" position="before">
+                <div class="alert alert-warning" role="alert" invisible="not sale_warning_text or not allow_billable">
+                    <field name="sale_warning_text" class="fw-bold"/>
+                </div>
             </xpath>
         </field>
     </record>
@@ -42,6 +46,17 @@
         <field name="domain">[('allow_billable', '=', True)]</field>
     </record>
 
+    <record id="project_embedded_action_sales_order_items" model="ir.embedded.actions">
+        <field name="parent_res_model">project.project</field>
+        <field name="sequence">52</field>
+        <field name="name">Sales Order Items</field>
+        <field name="parent_action_id" ref="project.act_project_project_2_project_task_all"/>
+        <field name="python_method">action_view_sols</field>
+        <field name="context">{"from_embedded_action": true}</field>
+        <field name="groups_ids" eval="[(4, ref('sales_team.group_sale_salesman_all_leads'))]" />
+        <field name="domain">[('allow_billable', '=', True)]</field>
+    </record>
+
     <record id="project_embedded_action_invoices_dashboard" model="ir.embedded.actions">
         <field name="parent_res_model">project.project</field>
         <field name="sequence">60</field>
@@ -61,6 +76,17 @@
         <field name="python_method">action_view_sos</field>
         <field name="context">{"from_embedded_action": true}</field>
         <field name="groups_ids" eval="[(4, ref('sales_team.group_sale_salesman'))]" />
+        <field name="domain">[('allow_billable', '=', True)]</field>
+    </record>
+
+    <record id="project_embedded_action_sales_order_items_dashboard" model="ir.embedded.actions">
+        <field name="parent_res_model">project.project</field>
+        <field name="sequence">52</field>
+        <field name="name">Sales Order Items</field>
+        <field name="parent_action_id" ref="project.project_update_all_action"/>
+        <field name="python_method">action_view_sols</field>
+        <field name="context">{"from_embedded_action": true}</field>
+        <field name="groups_ids" eval="[(4, ref('sales_team.group_sale_salesman_all_leads'))]" />
         <field name="domain">[('allow_billable', '=', True)]</field>
     </record>
 
@@ -111,6 +137,23 @@
         <field name="inherit_id" ref="project.project_templates_view_list"/>
         <field name="arch" type="xml">
             <field name="sale_line_id" position="replace"/>
+        </field>
+    </record>
+
+    <record id="project_project_view_card_inherit_sale_project" model="ir.ui.view">
+        <field name="name">project.project.card.inherit.sale.project</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.view_project_card"/>
+        <field name="arch" type="xml">
+            <xpath expr="//templates" position="before">
+                <field name="allow_billable"/>
+            </xpath>
+            <xpath expr="//div[@name='project_customer_rating_menu']" position="attributes">
+                <attribute name="t-if">record.show_ratings.raw_value and record.allow_billable.raw_value</attribute>
+            </xpath>
+            <xpath expr="//div[@t-if='record.show_ratings.raw_value and record.rating_count.raw_value &gt; 0']" position="attributes">
+                <attribute name="t-if">record.show_ratings.raw_value and record.allow_billable.raw_value and record.rating_count.raw_value &gt; 0 </attribute>
+            </xpath>
         </field>
     </record>
 </odoo>

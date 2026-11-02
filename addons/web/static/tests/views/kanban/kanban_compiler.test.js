@@ -1,38 +1,36 @@
 import { expect, test } from "@odoo/hoot";
 
-import { KanbanCompiler } from "@web/views/kanban/kanban_compiler";
+import { CardCompiler } from "@web/views/card/card_compiler";
 
 function compileTemplate(arch) {
     const parser = new DOMParser();
     const xml = parser.parseFromString(arch, "text/xml");
-    const compiler = new KanbanCompiler({ kanban: xml.documentElement });
-    return compiler.compile("kanban");
+    const compiler = new CardCompiler({ card: xml.documentElement });
+    return compiler.compile("card");
 }
 
-test("bootstrap dropdowns with kanban_ignore_dropdown class should be left as is", async () => {
+test("card compiler keeps dynamic attributes on <main> and adds o_record_main", async () => {
     const arch = `
-        <kanban>
+        <card>
             <templates>
                 <t t-name="card">
-                    <button name="dropdown" class="kanban_ignore_dropdown" type="button" data-bs-toggle="dropdown">Boostrap dropdown</button>
-                    <div class="dropdown-menu kanban_ignore_dropdown" role="menu">
-                        <span>Dropdown content</span>
-                    </div>
+                    <main t-att-class="{'test': true}">
+                        <span>Content</span>
+                    </main>
                 </t>
             </templates>
-        </kanban>`;
+        </card>`;
     const expected = `
         <t t-translation="off">
-            <kanban>
+            <card>
                 <templates>
                     <t t-name="card">
-                        <button name="dropdown" class="kanban_ignore_dropdown" type="button" data-bs-toggle="dropdown">Boostrap dropdown</button>
-                        <div class="dropdown-menu kanban_ignore_dropdown" role="menu">
-                            <span>Dropdown content</span>
+                        <div t-att-class="{'test': true}" class="o_record_main">
+                            <span>Content</span>
                         </div>
                     </t>
                 </templates>
-            </kanban>
+            </card>
         </t>`;
     expect(compileTemplate(arch)).toHaveOuterHTML(expected);
 });

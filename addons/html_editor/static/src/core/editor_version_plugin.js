@@ -9,23 +9,25 @@ export class EditorVersionPlugin extends Plugin {
     static id = "editorVersion";
     /** @type {import("plugins").EditorResources} */
     resources = {
-        clean_for_save_handlers: this.cleanForSave.bind(this),
-        normalize_handlers: this.normalize.bind(this),
+        clean_for_save_processors: this.cleanForSave.bind(this),
+        html_compatibility_processors: this.stripVersionMarkers.bind(this),
     };
 
-    normalize(element) {
+    stripVersionMarkers(element) {
         if (element.matches(VERSION_SELECTOR) && element !== this.editable) {
             delete element.dataset.oeVersion;
         }
         stripVersion(element);
+        return element;
     }
 
-    cleanForSave({ root }) {
+    cleanForSave(root) {
         const VERSIONS = htmlEditorVersions();
         const firstChild = root.firstElementChild;
         const version = VERSIONS.at(-1);
         if (firstChild && version) {
             firstChild.dataset.oeVersion = version;
         }
+        return root;
     }
 }

@@ -4,7 +4,7 @@
 import psycopg2
 
 from odoo.addons.website_slides.tests import common as slides_common
-from odoo.tests.common import users
+from odoo.tests.common import tagged, users
 from odoo.tools import mute_logger
 
 
@@ -97,6 +97,7 @@ class TestSlideInternals(slides_common.SlidesCase):
 
         slide.slide_category = 'document'
         self.assertFalse(slide.html_content)
+
 
 class TestVideoFromURL(slides_common.SlidesCase):
     def test_video_youtube(self):

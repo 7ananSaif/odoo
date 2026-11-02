@@ -14,26 +14,28 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0beta\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2022-09-22 05:57+0000\n"
-"Last-Translator: Dorin Hongu <dhongu@gmail.com>, 2023\n"
-"Language-Team: Romanian (https://app.transifex.com/odoo/teams/41243/ro/)\n"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 15:05+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Romanian <https://translate.odoo.com/projects/odoo-s19-4/"
+"website_sale_slides/ro/>\n"
 "Language: ro\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
-"Plural-Forms: nplurals=3; plural=(n==1?0:(((n%100>19)||((n%100==0)&&(n!=0)))?"
-"2:1));\n"
+"Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
+"20)) ? 1 : 2;\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: website_sale_slides
 #: model_terms:ir.ui.view,arch_db:website_sale_slides.course_option_buy_course_now
-msgid "<i class=\"fa fa-bolt\"/> Buy Now"
-msgstr "<i class=\"fa fa-bolt\"/>Cumpără acum"
+msgid "<i class=\"oi\" data-icon=\"flash_on\"/> Buy Now"
+msgstr "<i class=\"oi\" data-icon=\"flash_on\"/>Cumpără acum"
 
 #. module: website_sale_slides
 #: model_terms:ir.ui.view,arch_db:website_sale_slides.course_buy_course_button
-msgid "<i class=\"fa fa-shopping-cart\"/> Add to Cart"
-msgstr "<i class=\"fa fa-shopping-cart\"/>Adaugă în coș"
+msgid "<i class=\"oi\" data-icon=\"shopping_cart\"/> Add to Cart"
+msgstr "<i class=\"oi\" data-icon=\"shopping_cart\"/>Adaugă în coș"
 
 #. module: website_sale_slides
 #. odoo-python
@@ -56,7 +58,7 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/website_sale_slides/static/src/xml/website_sale_slides_quiz.xml:0
 msgid "Buy the course to validate your answers!"
-msgstr "Cumpărați cursul pentru a vă valida răspunsurile!"
+msgstr ""
 
 #. module: website_sale_slides
 #. odoo-javascript
@@ -82,7 +84,7 @@ msgstr ""
 
 #. module: website_sale_slides
 #. odoo-javascript
-#: code:addons/website_sale_slides/static/src/website_builder/course_page_option_plugin.js:0
+#: code:addons/website_sale_slides/static/src/website_builder/course_page_option.xml:0
 msgid "Course Page"
 msgstr ""
 
@@ -164,8 +166,6 @@ msgid ""
 "Leaving the course and re-enrolling afterwards means that you'll be charged "
 "again."
 msgstr ""
-"Părăsirea cursului și reînscrierea ulterioară înseamnă că veți fi taxat din "
-"nou."
 
 #. module: website_sale_slides
 #: model_terms:ir.ui.view,arch_db:website_sale_slides.course_buy_course_button
@@ -235,16 +235,31 @@ msgid "Sales Order Line"
 msgstr ""
 
 #. module: website_sale_slides
+#: model:ir.module.module,shortdesc:base.module_website_sale_slides
+msgid "Sell Courses"
+msgstr ""
+
+#. module: website_sale_slides
+#: model:ir.module.module,summary:base.module_website_sale_slides
+msgid "Sell your courses online"
+msgstr ""
+
+#. module: website_sale_slides
+#: model:ir.module.module,description:base.module_website_sale_slides
+msgid "Sell your courses using the e-commerce features of the website."
+msgstr ""
+
+#. module: website_sale_slides
 #. odoo-javascript
 #: code:addons/website_sale_slides/static/src/xml/slide_course_join.xml:0
 msgid "Sign in"
-msgstr "Autentificare"
+msgstr ""
 
 #. module: website_sale_slides
 #. odoo-javascript
 #: code:addons/website_sale_slides/static/src/xml/website_sale_slides_quiz.xml:0
 msgid "Sign in and buy the course to take the quiz"
-msgstr "Conectați-vă și cumpărați cursul pentru a da testul"
+msgstr ""
 
 #. module: website_sale_slides
 #: model_terms:ir.ui.view,arch_db:website_sale_slides.course_buy_course_button
@@ -275,7 +290,7 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/website_sale_slides/static/src/xml/website_slides_unsubscribe.xml:0
 msgid "This course is paid."
-msgstr "Acest curs este plătit."
+msgstr ""
 
 #. module: website_sale_slides
 #: model_terms:ir.ui.view,arch_db:website_sale_slides.slide_channel_view_tree_report
@@ -327,21 +342,3 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:website_sale_slides.course_buy_course_link
 msgid "to access resources"
 msgstr "pentru a accesa resursele"
-
-#~ msgid ""
-#~ "A storable product is a product for which you manage stock. The Inventory "
-#~ "app has to be installed.\n"
-#~ "A consumable product is a product for which stock is not managed.\n"
-#~ "A service is a non-material product you provide."
-#~ msgstr ""
-#~ "Un produs stocabil este un produs pentru care gestionați stocul. "
-#~ "Aplicația \"Inventar\" trebuie instalată.\n"
-#~ "Un produs consumabil, pe de altă parte, este un produs pentru care nu "
-#~ "este gestionat stocul.\n"
-#~ "Un serviciu este un produs nematerial pe care îl oferiți."
-
-#~ msgid "Product Type"
-#~ msgstr "Tip produs"
-
-#~ msgid "Website"
-#~ msgstr "Pagină web"

@@ -1,4 +1,5 @@
 from odoo.addons.website_slides.tests.common import SlidesCase
+from odoo.tests import tagged
 
 
 class TestSlidesMail(SlidesCase):
@@ -47,7 +48,7 @@ class TestSlidesMail(SlidesCase):
             suggested_recipient,
             {
                 'email': user_id.email, 'name': user_id.name,
-                'partner_id': user_id.partner_id.id, 'create_values': {}
+                'partner_id': user_id.partner_id.id, 'create_values': {}, 'recipient_type': 'to',
             }
         )
 

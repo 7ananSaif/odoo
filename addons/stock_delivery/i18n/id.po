@@ -9,17 +9,28 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2026-05-02 09:48+0000\n"
+"POT-Creation-Date: 2026-09-18 17:40+0000\n"
+"PO-Revision-Date: 2026-08-31 17:59+0000\n"
 "Last-Translator: \"Nurul Aini Akrima Sabila (nuaas)\" <nuaas@odoo.com>\n"
-"Language-Team: Indonesian <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Indonesian <https://translate.odoo.com/projects/odoo-s19-4/"
 "stock_delivery/id/>\n"
 "Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: stock_delivery
+#: model:ir.module.module,description:base.module_stock_delivery
+msgid ""
+"\n"
+"Allows you to add delivery methods in pickings.\n"
+"===============================================\n"
+"\n"
+"When creating invoices from picking, the system is able to add and compute "
+"the shipping line.\n"
+msgstr ""
 
 #. module: stock_delivery
 #. odoo-python
@@ -28,9 +39,49 @@ msgid "%(name)s (Estimated Cost: %(cost)s)"
 msgstr "%(name)s (Estimasi Biaya: %(cost)s)"
 
 #. module: stock_delivery
+#. odoo-python
+#: code:addons/stock_delivery/wizard/stock_package_label_layout.py:0
+msgid "%(weight_name)s: %(weight)s %(uom)s"
+msgstr ""
+
+#. module: stock_delivery
+#: model:ir.actions.report,print_report_name:stock_delivery.action_report_shipping_docs
+msgid "'Shipping-Document-%s' % object.name"
+msgstr ""
+
+#. module: stock_delivery
+#: model:ir.actions.report,print_report_name:stock_delivery.action_report_shipping_labels
+msgid "'Shipping-Label-%s' % object.name"
+msgstr ""
+
+#. module: stock_delivery
 #: model_terms:ir.ui.view,arch_db:stock_delivery.stock_package_view_form
 msgid "(computed:"
 msgstr "(dihitung:"
+
+#. module: stock_delivery
+#. odoo-javascript
+#: code:addons/stock_delivery/static/src/return_order_dialog/return_label_info.xml:0
+msgid "1. Download and print the Return label and place it in your package."
+msgstr ""
+
+#. module: stock_delivery
+#. odoo-javascript
+#: code:addons/stock_delivery/static/src/return_order_dialog/return_label_info.xml:0
+msgid "2. Download and print the Shipping label and place it on your package."
+msgstr ""
+
+#. module: stock_delivery
+#: model_terms:ir.ui.view,arch_db:stock_delivery.view_picking_type_form_delivery
+msgid ""
+"<i class=\"oi pe-1\" data-icon=\"arrow_forward\"/>Configure Carrier Labels"
+msgstr ""
+
+#. module: stock_delivery
+#: model_terms:ir.ui.view,arch_db:stock_delivery.view_picking_type_form_delivery
+msgid ""
+"<i class=\"oi pe-1\" data-icon=\"arrow_forward\"/>Configure Export Documents"
+msgstr ""
 
 #. module: stock_delivery
 #: model_terms:ir.ui.view,arch_db:stock_delivery.stock_report_delivery_package_section_line_inherit_delivery
@@ -44,11 +95,6 @@ msgid "<span> - Weight: </span>"
 msgstr "<span> - Berat: </span>"
 
 #. module: stock_delivery
-#: model_terms:ir.ui.view,arch_db:stock_delivery.report_package_barcode_small_delivery
-msgid "<span>Shipping Weight: </span>"
-msgstr "<span>Berat Pengiriman: </span>"
-
-#. module: stock_delivery
 #: model_terms:ir.ui.view,arch_db:stock_delivery.report_shipping2
 msgid "<strong>Carrier:</strong>"
 msgstr "<strong>Carrier:</strong>"
@@ -57,11 +103,6 @@ msgstr "<strong>Carrier:</strong>"
 #: model_terms:ir.ui.view,arch_db:stock_delivery.report_delivery_document2
 msgid "<strong>Carrier</strong>"
 msgstr "<strong>Carrier</strong>"
-
-#. module: stock_delivery
-#: model_terms:ir.ui.view,arch_db:stock_delivery.report_shipping2
-msgid "<strong>Shipping Method:</strong>"
-msgstr "<strong>Metode Pengiriman:</strong>"
 
 #. module: stock_delivery
 #: model_terms:ir.ui.view,arch_db:stock_delivery.report_package_barcode_delivery
@@ -100,21 +141,79 @@ msgid ""
 msgstr ""
 
 #. module: stock_delivery
+#: model_terms:ir.ui.view,arch_db:stock_delivery.pay_on_delivery_form
+msgid "A payment totaling"
+msgstr ""
+
+#. module: stock_delivery
+#: model:ir.model.fields,help:stock_delivery.field_stock_picking_type__batch_max_weight
+msgid ""
+"A transfer will not be automatically added to batches that will exceed this "
+"weight if the transfer is added to it.\n"
+"Leave this value as '0' if no weight limit."
+msgstr ""
+
+#. module: stock_delivery
 #: model:ir.model.fields,help:stock_delivery.field_stock_picking__integration_level
-msgid "Action while validating Delivery Orders"
-msgstr "Action saat memvalidasi Order Pengiriman"
+msgid "Action while validating Delivery Orders."
+msgstr ""
+
+#. module: stock_delivery
+#: model_terms:ir.ui.view,arch_db:stock_delivery.view_picking_type_form_delivery
+msgid "All"
+msgstr ""
 
 #. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_picking__allowed_carrier_ids
 msgid "Allowed Carrier"
-msgstr "Carrier yang Diizinkan"
+msgstr "Kurir yang Diinginkan"
+
+#. module: stock_delivery
+#: model:ir.model.fields,field_description:stock_delivery.field_pay_on_delivery__amount_to_collect
+msgid "Amount To Collect"
+msgstr ""
 
 #. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_route__shipping_selectable
-msgid "Applicable on Shipping Methods"
+msgid "Applicable on Delivery Methods"
 msgstr "Dapat Diterapkan pada Metode Pengiriman"
 
 #. module: stock_delivery
+#: model:ir.model.fields,field_description:stock_delivery.field_stock_picking_type__auto_print_carrier_labels
+msgid "Auto Print Carrier Labels"
+msgstr ""
+
+#. module: stock_delivery
+#: model:ir.model.fields,field_description:stock_delivery.field_stock_picking_type__auto_print_export_documents
+msgid "Auto Print Export Documents"
+msgstr ""
+
+#. module: stock_delivery
+#: model:ir.model.fields,help:stock_delivery.field_stock_picking_type__batch_group_by_carrier
+msgid "Automatically group batches by carriers"
+msgstr ""
+
+#. module: stock_delivery
+#: model:ir.model.fields,help:stock_delivery.field_stock_picking_type__auto_print_carrier_labels
+msgid ""
+"Automatically print the carrier labels of the picking when they are created."
+msgstr ""
+
+#. module: stock_delivery
+#: model:ir.model.fields,help:stock_delivery.field_stock_picking_type__auto_print_export_documents
+msgid ""
+"Automatically print the export documents of the picking when they are "
+"created. Availability of export documents depends on the carrier and the "
+"destination."
+msgstr ""
+
+#. module: stock_delivery
+#: model:ir.model,name:stock_delivery.model_stock_picking_batch
+msgid "Batch Transfer"
+msgstr ""
+
+#. module: stock_delivery
+#: model_terms:ir.ui.view,arch_db:stock_delivery.pay_on_delivery_form
 #: model_terms:ir.ui.view,arch_db:stock_delivery.view_picking_withcarrier_out_form
 msgid "Cancel"
 msgstr "Batal"
@@ -132,9 +231,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_package__package_carrier_type
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_package_type__package_carrier_type
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_picking__carrier_id
+#: model:ir.model.fields,field_description:stock_delivery.field_stock_picking_type__batch_group_by_carrier
 #: model_terms:ir.ui.view,arch_db:stock_delivery.stock_move_line_view_search_delivery
 msgid "Carrier"
-msgstr "Pembawa"
+msgstr "Ekspedisi"
 
 #. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_package_type__shipper_package_code
@@ -142,14 +242,54 @@ msgid "Carrier Code"
 msgstr "Kode Carrier"
 
 #. module: stock_delivery
+#: model_terms:ir.ui.view,arch_db:stock_delivery.view_picking_type_form_delivery
+msgid "Carrier Labels"
+msgstr ""
+
+#. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_put_in_pack__package_carrier_type
 msgid "Carrier Type"
-msgstr "Tipe Carrier"
+msgstr "Tipe Kurir"
 
 #. module: stock_delivery
 #: model_terms:ir.ui.view,arch_db:stock_delivery.stock_move_line_view_search_delivery
 msgid "Carrier name"
 msgstr "Nama carrier"
+
+#. module: stock_delivery
+#: model:ir.model,name:stock_delivery.model_product_label_layout
+msgid "Choose the sheet layout to print the labels"
+msgstr ""
+
+#. module: stock_delivery
+#. odoo-python
+#: code:addons/stock_delivery/models/stock_picking.py:0
+msgid "Collect Payment"
+msgstr ""
+
+#. module: stock_delivery
+#. odoo-python
+#: code:addons/stock_delivery/models/ir_actions_report.py:0
+msgid "Configure a printer to print this report: '%s'"
+msgstr ""
+
+#. module: stock_delivery
+#. odoo-python
+#: code:addons/stock_delivery/models/ir_actions_report.py:0
+msgid ""
+"Configure the carrier to generate labels in PDF format, or use a ZPL/ePOS "
+"printer to print %s from the chatter."
+msgstr ""
+
+#. module: stock_delivery
+#: model_terms:ir.ui.view,arch_db:stock_delivery.pay_on_delivery_form
+msgid "Confirm Payment"
+msgstr ""
+
+#. module: stock_delivery
+#: model:ir.model,name:stock_delivery.model_res_partner
+msgid "Contact"
+msgstr ""
 
 #. module: stock_delivery
 #. odoo-python
@@ -158,12 +298,43 @@ msgid "Cost: %(price).2f %(currency)s"
 msgstr "Biaya: %(price).2f%(currency)s"
 
 #. module: stock_delivery
+#: model:ir.model,website_form_label:stock_delivery.model_res_partner
+msgid "Create a Customer"
+msgstr ""
+
+#. module: stock_delivery
+#: model:ir.model.fields,field_description:stock_delivery.field_pay_on_delivery__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: stock_delivery
+#: model:ir.model.fields,field_description:stock_delivery.field_pay_on_delivery__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: stock_delivery
+#: model:ir.model.fields,field_description:stock_delivery.field_pay_on_delivery__currency_id
+msgid "Currency"
+msgstr ""
+
+#. module: stock_delivery
+#: model:ir.module.module,shortdesc:base.module_stock_delivery
+msgid "Delivery - Stock"
+msgstr ""
+
+#. module: stock_delivery
+#: model:ir.model,name:stock_delivery.model_delivery_carrier
+msgid "Delivery Method"
+msgstr "Metode Pengiriman"
+
+#. module: stock_delivery
 #: model:ir.model,name:stock_delivery.model_choose_delivery_carrier
-msgid "Delivery Carrier Selection Wizard"
-msgstr "Wizard Pemilihan Carrier Pengiriman"
+msgid "Delivery Method Selection Wizard"
+msgstr "Wizard Pemilihan Metode Pengiriman"
 
 #. module: stock_delivery
 #: model:ir.ui.menu,name:stock_delivery.menu_action_delivery_carrier_form
+#: model_terms:ir.ui.view,arch_db:stock_delivery.stock_location_route_view_form_inherit_stock_delivery
 msgid "Delivery Methods"
 msgstr "Metode Pengiriman"
 
@@ -181,16 +352,23 @@ msgstr "Negara Tujuan"
 #. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_choose_delivery_carrier__display_name
 #: model:ir.model.fields,field_description:stock_delivery.field_delivery_carrier__display_name
+#: model:ir.model.fields,field_description:stock_delivery.field_ir_actions_report__display_name
+#: model:ir.model.fields,field_description:stock_delivery.field_pay_on_delivery__display_name
+#: model:ir.model.fields,field_description:stock_delivery.field_product_label_layout__display_name
+#: model:ir.model.fields,field_description:stock_delivery.field_product_product__display_name
 #: model:ir.model.fields,field_description:stock_delivery.field_product_template__display_name
+#: model:ir.model.fields,field_description:stock_delivery.field_res_partner__display_name
 #: model:ir.model.fields,field_description:stock_delivery.field_sale_order__display_name
 #: model:ir.model.fields,field_description:stock_delivery.field_sale_order_line__display_name
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_move__display_name
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_move_line__display_name
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_package__display_name
+#: model:ir.model.fields,field_description:stock_delivery.field_stock_package_label_layout__display_name
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_package_type__display_name
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_picking__display_name
+#: model:ir.model.fields,field_description:stock_delivery.field_stock_picking_batch__display_name
+#: model:ir.model.fields,field_description:stock_delivery.field_stock_picking_type__display_name
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_put_in_pack__display_name
-#: model:ir.model.fields,field_description:stock_delivery.field_stock_return_picking__display_name
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_route__display_name
 msgid "Display Name"
 msgstr "Nama Tampilan"
@@ -199,6 +377,12 @@ msgstr "Nama Tampilan"
 #: model:ir.actions.act_window,name:stock_delivery.act_delivery_trackers_url
 msgid "Display tracking links"
 msgstr "Tampilkan link pelacakan"
+
+#. module: stock_delivery
+#. odoo-javascript
+#: code:addons/stock_delivery/static/src/return_order_dialog/return_order_dialog.js:0
+msgid "Download Shipping Label"
+msgstr ""
 
 #. module: stock_delivery
 #: model:ir.model.fields,help:stock_delivery.field_delivery_carrier__invoice_policy
@@ -225,14 +409,18 @@ msgid "Exception:"
 msgstr "Pengecualian:"
 
 #. module: stock_delivery
-#: model_terms:ir.ui.view,arch_db:stock_delivery.report_shipping2
-msgid "FedEx"
-msgstr "FedEx"
+#: model_terms:ir.ui.view,arch_db:stock_delivery.view_picking_type_form_delivery
+msgid "Export Documents"
+msgstr ""
+
+#. module: stock_delivery
+#: model_terms:ir.ui.view,arch_db:stock_delivery.view_picking_type_form_delivery
+msgid "Export documents"
+msgstr ""
 
 #. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_product_product__hs_code
 #: model:ir.model.fields,field_description:stock_delivery.field_product_template__hs_code
-#: model_terms:ir.ui.view,arch_db:stock_delivery.product_template_hs_code
 #: model_terms:ir.ui.view,arch_db:stock_delivery.report_delivery_document2
 msgid "HS Code"
 msgstr "Kode HS"
@@ -240,16 +428,23 @@ msgstr "Kode HS"
 #. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_choose_delivery_carrier__id
 #: model:ir.model.fields,field_description:stock_delivery.field_delivery_carrier__id
+#: model:ir.model.fields,field_description:stock_delivery.field_ir_actions_report__id
+#: model:ir.model.fields,field_description:stock_delivery.field_pay_on_delivery__id
+#: model:ir.model.fields,field_description:stock_delivery.field_product_label_layout__id
+#: model:ir.model.fields,field_description:stock_delivery.field_product_product__id
 #: model:ir.model.fields,field_description:stock_delivery.field_product_template__id
+#: model:ir.model.fields,field_description:stock_delivery.field_res_partner__id
 #: model:ir.model.fields,field_description:stock_delivery.field_sale_order__id
 #: model:ir.model.fields,field_description:stock_delivery.field_sale_order_line__id
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_move__id
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_move_line__id
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_package__id
+#: model:ir.model.fields,field_description:stock_delivery.field_stock_package_label_layout__id
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_package_type__id
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_picking__id
+#: model:ir.model.fields,field_description:stock_delivery.field_stock_picking_batch__id
+#: model:ir.model.fields,field_description:stock_delivery.field_stock_picking_type__id
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_put_in_pack__id
-#: model:ir.model.fields,field_description:stock_delivery.field_stock_return_picking__id
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_route__id
 msgid "ID"
 msgstr "ID"
@@ -261,7 +456,7 @@ msgstr "Level Integrasi"
 
 #. module: stock_delivery
 #: model:ir.model,name:stock_delivery.model_stock_route
-msgid "Inventory Routes"
+msgid "Inventory Route"
 msgstr "Rute Inventaris"
 
 #. module: stock_delivery
@@ -275,10 +470,30 @@ msgid "Is Return Picking"
 msgstr "Adalah Return Picking"
 
 #. module: stock_delivery
+#: model:ir.model.fields,field_description:stock_delivery.field_pay_on_delivery__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: stock_delivery
+#: model:ir.model.fields,field_description:stock_delivery.field_pay_on_delivery__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: stock_delivery
+#: model:ir.ui.menu,name:stock_delivery.manage_printers_action
+msgid "Manage Printers"
+msgstr ""
+
+#. module: stock_delivery
 #. odoo-python
 #: code:addons/stock_delivery/models/stock_picking.py:0
 msgid "Manual actions might be needed."
 msgstr "Tindakan manual mungkin diperlukan."
+
+#. module: stock_delivery
+#: model:ir.model.fields,field_description:stock_delivery.field_stock_picking_type__batch_max_weight
+msgid "Maximum weight"
+msgstr ""
 
 #. module: stock_delivery
 #: model:ir.model.fields.selection,name:stock_delivery.selection__stock_package_type__package_carrier_type__none
@@ -289,6 +504,11 @@ msgstr "Tidak ada integrasi carrier"
 #: model_terms:ir.ui.view,arch_db:stock_delivery.delivery_tracking_url_warning_form
 msgid "OK"
 msgstr "OK"
+
+#. module: stock_delivery
+#: model:ir.model.fields,field_description:stock_delivery.field_pay_on_delivery__order_ids
+msgid "Order"
+msgstr ""
 
 #. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_product_product__country_of_origin
@@ -308,7 +528,28 @@ msgid "Package too heavy!"
 msgstr "Paket terlalu berat!"
 
 #. module: stock_delivery
-#: model_terms:ir.ui.view,arch_db:stock_delivery.sale_order_portal_content_inherit_sale_stock_inherit_website_sale
+#: model:ir.model,name:stock_delivery.model_pay_on_delivery
+#: model_terms:ir.ui.view,arch_db:stock_delivery.pay_on_delivery_form
+msgid "Pay on Delivery"
+msgstr ""
+
+#. module: stock_delivery
+#: model:ir.model,name:stock_delivery.model_stock_picking_type
+msgid "Picking Type"
+msgstr ""
+
+#. module: stock_delivery
+#: model:ir.model.fields,field_description:stock_delivery.field_res_partner__pickup_location_data
+#: model:ir.model.fields,field_description:stock_delivery.field_res_users__pickup_location_data
+msgid "Pickup Location Data"
+msgstr ""
+
+#. module: stock_delivery
+#: model:ir.model,name:stock_delivery.model_stock_package_label_layout
+msgid "Prepare Package Labels"
+msgstr ""
+
+#. module: stock_delivery
 #: model_terms:ir.ui.view,arch_db:stock_delivery.view_picking_withcarrier_out_form
 msgid "Print Return Label"
 msgstr "Cetak Label Pengembalian"
@@ -322,6 +563,11 @@ msgstr "Produk"
 #: model:ir.model,name:stock_delivery.model_stock_move_line
 msgid "Product Moves (Stock Move Line)"
 msgstr "Pergerakan Produk (Baris Pergerakan Stok)"
+
+#. module: stock_delivery
+#: model:ir.model,name:stock_delivery.model_product_product
+msgid "Product Variant"
+msgstr ""
 
 #. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_picking__delivery_type
@@ -339,14 +585,24 @@ msgid "Real cost"
 msgstr "Biaya sebenarnya"
 
 #. module: stock_delivery
+#: model:ir.model,name:stock_delivery.model_ir_actions_report
+msgid "Report Action"
+msgstr ""
+
+#. module: stock_delivery
+#: model:ir.ui.menu,name:stock_delivery.cached_printers_section
+msgid "Reporting"
+msgstr ""
+
+#. module: stock_delivery
+#: model:ir.ui.menu,name:stock_delivery.cached_printers_action
+msgid "Reset Linked Printers"
+msgstr ""
+
+#. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_picking__return_label_ids
 msgid "Return Label"
 msgstr "Label Pengembalian"
-
-#. module: stock_delivery
-#: model:ir.model,name:stock_delivery.model_stock_return_picking
-msgid "Return Picking"
-msgstr "Return Picking"
 
 #. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_delivery_carrier__route_ids
@@ -404,25 +660,36 @@ msgid "Shipping Cost"
 msgstr "Biaya Pengiriman"
 
 #. module: stock_delivery
+#: model:ir.actions.report,name:stock_delivery.action_report_shipping_docs
+msgid "Shipping Documents"
+msgstr ""
+
+#. module: stock_delivery
+#: model:ir.actions.act_window,name:stock_delivery.open_export_docs_report
+msgid "Shipping Documents Report"
+msgstr ""
+
+#. module: stock_delivery
 #: model_terms:ir.ui.view,arch_db:stock_delivery.view_picking_withcarrier_out_form
 msgid "Shipping Information"
 msgstr "Informasi Pengiriman"
 
 #. module: stock_delivery
-#: model:ir.model,name:stock_delivery.model_delivery_carrier
-#: model_terms:ir.ui.view,arch_db:stock_delivery.stock_location_route_view_form_inherit_stock_delivery
-msgid "Shipping Methods"
-msgstr "Metode Pengiriman"
+#: model:ir.actions.report,name:stock_delivery.action_report_shipping_labels
+msgid "Shipping Labels"
+msgstr ""
 
 #. module: stock_delivery
+#: model:ir.actions.act_window,name:stock_delivery.open_shipping_labels_report
+msgid "Shipping Labels Report"
+msgstr ""
+
+#. module: stock_delivery
+#. odoo-python
+#: code:addons/stock_delivery/wizard/stock_package_label_layout.py:0
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_put_in_pack__shipping_weight
 msgid "Shipping Weight"
 msgstr "Berat Pengiriman"
-
-#. module: stock_delivery
-#: model_terms:ir.ui.view,arch_db:stock_delivery.report_package_barcode_small_delivery
-msgid "Shipping Weight:"
-msgstr "BeratPengiriman:"
 
 #. module: stock_delivery
 #: model:ir.model.fields,help:stock_delivery.field_product_product__hs_code
@@ -451,6 +718,14 @@ msgid "Technical field indicating whether weight uom is kg or not (i.e. lb)"
 msgstr ""
 "Field teknis yang mengindikasikan apakah satuan ukuran berat adalah kg atau "
 "tidak (contohnya lb)"
+
+#. module: stock_delivery
+#: model:ir.model.fields,help:stock_delivery.field_res_partner__pickup_location_data
+#: model:ir.model.fields,help:stock_delivery.field_res_users__pickup_location_data
+msgid ""
+"Technical field: information needed by delivery providers in case of pickup "
+"point addresses."
+msgstr ""
 
 #. module: stock_delivery
 #: model:ir.model.fields,help:stock_delivery.field_stock_move_line__destination_country_code
@@ -504,6 +779,23 @@ msgid "There is no matching delivery rule."
 msgstr "Tidak ada peraturan pengiriman yang cocok."
 
 #. module: stock_delivery
+#. odoo-python
+#: code:addons/stock_delivery/wizard/pay_on_delivery.py:0
+msgid ""
+"These transfers are for orders that are paid on delivery, and the amounts "
+"still due are in different currencies. Validate the transfers one currency "
+"at a time to collect them."
+msgstr ""
+
+#. module: stock_delivery
+#. odoo-python
+#: code:addons/stock_delivery/models/ir_actions_report.py:0
+msgid ""
+"This action is meant to print %s attachments from the chatter: none was "
+"found."
+msgstr ""
+
+#. module: stock_delivery
 #: model:ir.model.fields,help:stock_delivery.field_stock_package__weight
 msgid "Total weight of all the products contained in the package."
 msgstr "Total berat semua produk di dalam kemasan."
@@ -550,6 +842,8 @@ msgid "Transfer"
 msgstr "Transfer"
 
 #. module: stock_delivery
+#. odoo-python
+#: code:addons/stock_delivery/wizard/stock_package_label_layout.py:0
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_move__weight
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_package__weight
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_picking__weight
@@ -565,14 +859,10 @@ msgstr "Berat untuk pengiriman"
 #. module: stock_delivery
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_package__weight_uom_name
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_picking__weight_uom_name
+#: model:ir.model.fields,field_description:stock_delivery.field_stock_picking_type__weight_uom_name
 #: model:ir.model.fields,field_description:stock_delivery.field_stock_put_in_pack__weight_uom_name
 msgid "Weight unit of measure label"
 msgstr "Satuan berat dari label ukuran"
-
-#. module: stock_delivery
-#: model_terms:ir.ui.view,arch_db:stock_delivery.report_package_barcode_small_delivery
-msgid "Weight:"
-msgstr "Berat:"
 
 #. module: stock_delivery
 #. odoo-python
@@ -608,66 +898,62 @@ msgid "Zip Prefix"
 msgstr "Awalan Zip"
 
 #. module: stock_delivery
-#: model_terms:ir.ui.view,arch_db:stock_delivery.label_package_template_view_delivery
-msgid "^A0N,44,33^FDShipping Weight:"
-msgstr "^A0N,44,33^FDShipping Weight:"
-
-#. module: stock_delivery
-#: model_terms:ir.ui.view,arch_db:stock_delivery.label_package_template_view_delivery
-msgid "^A0N,44,33^FDWeight:"
-msgstr "^A0N,44,33^FDWeight:"
-
-#. module: stock_delivery
-#: model_terms:ir.ui.view,arch_db:stock_delivery.label_package_template_view_delivery
-msgid "^FO310,200"
-msgstr "^FO310,200"
-
-#. module: stock_delivery
-#: model_terms:ir.ui.view,arch_db:stock_delivery.alternative_zpl_label
-msgid "^FO35, 180 ^A0N,15^FDHS:"
+#: model_terms:ir.ui.view,arch_db:stock_delivery.package_zpl_label_delivery
+msgid "^FO310,200^A0N,44,33^FH^FD"
 msgstr ""
 
 #. module: stock_delivery
-#: model_terms:ir.ui.view,arch_db:stock_delivery.normal_zpl_label
-msgid "^FO35, 220 ^A0N,15^FDHS:"
+#: model_terms:ir.ui.view,arch_db:stock_delivery.barcode_alternative_label
+msgid "^FO35,180^A0N,15^FH^FDHS:"
 msgstr ""
 
 #. module: stock_delivery
-#: model_terms:ir.ui.view,arch_db:stock_delivery.alternative_zpl_label
-#: model_terms:ir.ui.view,arch_db:stock_delivery.label_package_template_view_delivery
-#: model_terms:ir.ui.view,arch_db:stock_delivery.normal_zpl_label
+#: model_terms:ir.ui.view,arch_db:stock_delivery.barcode_normal_label
+msgid "^FO35,220^A0N,15^FH^FDHS:"
+msgstr ""
+
+#. module: stock_delivery
+#: model_terms:ir.ui.view,arch_db:stock_delivery.barcode_alternative_label
+#: model_terms:ir.ui.view,arch_db:stock_delivery.barcode_normal_label
+#: model_terms:ir.ui.view,arch_db:stock_delivery.package_zpl_label_delivery
 msgid "^FS"
 msgstr "^FS"
 
-#~ msgid "Company"
-#~ msgstr "Perusahaan"
+#. module: stock_delivery
+#: model_terms:ir.ui.view,arch_db:stock_delivery.view_picking_type_form_delivery
+msgid "and"
+msgstr ""
 
-#~ msgid "Created by"
-#~ msgstr "Dibuat oleh"
+#. module: stock_delivery
+#: model_terms:ir.ui.view,arch_db:stock_delivery.view_picking_type_form_delivery
+msgid ""
+"are uploaded to the chatter when the picking is validated. If you want to\n"
+"                    print them automatically on validation, you need to "
+"configure a printer on the\n"
+"                    report form.<br/>"
+msgstr ""
 
-#~ msgid "Created on"
-#~ msgstr "Dibuat pada"
+#. module: stock_delivery
+#: model_terms:ir.ui.view,arch_db:stock_delivery.pay_on_delivery_form
+msgid ""
+"must be collected for\n"
+"                the delivery of the following orders:"
+msgstr ""
 
-#~ msgid "Delivery Package Selection Wizard"
-#~ msgstr "Wizard Pengiriman Paket Pengiriman"
+#~ msgid "<span>Shipping Weight: </span>"
+#~ msgstr "<span>Berat Pengiriman: </span>"
 
-#~ msgid "Delivery Package Type"
-#~ msgstr "Tipe Paket Pengiriman"
+#~ msgid "Shipping Weight:"
+#~ msgstr "BeratPengiriman:"
 
-#~ msgid "Discard"
-#~ msgstr "Buang"
+#~ msgid "Weight:"
+#~ msgstr "Berat:"
 
-#~ msgid "Last Updated by"
-#~ msgstr "Terakhir Diperbarui oleh"
+#~ msgid "^A0N,44,33^FDShipping Weight:"
+#~ msgstr "^A0N,44,33^FDShipping Weight:"
 
-#~ msgid "Last Updated on"
-#~ msgstr "Terakhir Diperbarui pada"
+#~ msgid "^A0N,44,33^FDWeight:"
+#~ msgstr "^A0N,44,33^FDWeight:"
 
-#~ msgid "Package Details"
-#~ msgstr "Detail Paket"
-
-#~ msgid "Packages"
-#~ msgstr "Kemasan"
-
-#~ msgid "Save"
-#~ msgstr "Simpan"
+#~ msgid "^FO310,200"
+#~ msgstr "^FO310,200"

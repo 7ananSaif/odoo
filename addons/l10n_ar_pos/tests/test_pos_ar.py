@@ -6,6 +6,8 @@ from odoo.addons.l10n_ar.tests.common import TestArCommon
 @tagged('post_install_l10n', 'post_install', '-at_install')
 class TestPosAR(AccountTestInvoicingHttpCommon, TestArCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -29,6 +31,7 @@ class TestPosAR(AccountTestInvoicingHttpCommon, TestArCommon):
 
         cls.bank_pm = cls.env['pos.payment.method'].sudo().create({
             'name': 'Bank',
+            'type': 'bank',
             'journal_id': cls.company_data['default_journal_bank'].id,
             'receivable_account_id': cls.pos_receivable_bank.id,
             'outstanding_account_id': cls.outstanding_bank.id,
@@ -36,6 +39,7 @@ class TestPosAR(AccountTestInvoicingHttpCommon, TestArCommon):
         })
         cls.cash_pm = cls.env['pos.payment.method'].sudo().create({
             'name': 'Cash',
+            'type': 'cash',
             'journal_id': cls.company_data['default_journal_cash'].id,
             'receivable_account_id': cls.pos_receivable_bank.id,
             'outstanding_account_id': cls.outstanding_bank.id,

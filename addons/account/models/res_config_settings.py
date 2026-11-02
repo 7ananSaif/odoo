@@ -25,6 +25,7 @@ class ResConfigSettings(models.TransientModel):
         readonly=False,
         check_company=True,
         domain="[('internal_group', '=', 'income')]")
+    income_currency_exchange_account_active = fields.Boolean(related='income_currency_exchange_account_id.active', string="Gain Exchange Rate Account Active")
     expense_currency_exchange_account_id = fields.Many2one(
         comodel_name="account.account",
         related="company_id.expense_currency_exchange_account_id",
@@ -32,6 +33,7 @@ class ResConfigSettings(models.TransientModel):
         readonly=False,
         check_company=True,
         domain="[('account_type', 'in', ('expense', 'expense_other'))]")
+    expense_currency_exchange_account_active = fields.Boolean(related='expense_currency_exchange_account_id.active', string="Loss Exchange Rate Account Active")
     has_chart_of_accounts = fields.Boolean(compute='_compute_has_chart_of_accounts', string='Company has a chart of accounts')
     chart_template = fields.Selection(selection=lambda self: self.env.company._chart_template_selection(), default=lambda self: self.env.company.chart_template)
     sale_tax_id = fields.Many2one(
@@ -55,6 +57,9 @@ class ResConfigSettings(models.TransientModel):
         required=True,
         help="Default on whether the sales price used on the product and invoices with this Company includes its taxes."
     )
+    vat_disabled = fields.Boolean(string="Not Subject to VAT", related='company_id.vat_disabled', readonly=False)
+    # Technical field to hide / show the `vat_disabled`
+    vat_disabled_available = fields.Boolean(string="Not Subject to VAT Available", related='company_id.vat_disabled_available')
 
     tax_calculation_rounding_method = fields.Selection(
         related='company_id.tax_calculation_rounding_method', string='Tax calculation rounding method', readonly=False)
@@ -68,6 +73,7 @@ class ResConfigSettings(models.TransientModel):
         help='Bank Transactions are posted immediately after import or synchronization. '
              'Their counterparty is the bank suspense account.\n'
              'Reconciliation replaces the latter by the definitive account(s).')
+    account_journal_suspense_account_active = fields.Boolean(related='account_journal_suspense_account_id.active', string="Bank Suspense Account Active")
     transfer_account_id = fields.Many2one('account.account', string="Internal Transfer",
         related='company_id.transfer_account_id', readonly=False,
         check_company=True,
@@ -76,12 +82,12 @@ class ResConfigSettings(models.TransientModel):
             ('account_type', '=', 'asset_current'),
         ],
         help="Intermediary account used when moving from a liquidity account to another.")
+    transfer_account_active = fields.Boolean(related='transfer_account_id.active', string="Internal Transfer Account Active")
     module_account_accountant = fields.Boolean(string='Accounting')
-    group_cash_rounding = fields.Boolean(string="Cash Rounding", implied_group='account.group_cash_rounding')
+    group_cash_rounding = fields.Boolean(string="Total Rounding", implied_group='account.group_cash_rounding')
     show_sale_receipts = fields.Boolean(string='Sale Receipt', config_parameter='account.show_sale_receipts')
     module_account_budget = fields.Boolean(string='Budget Management')
     module_account_payment = fields.Boolean(string='Invoice Online Payment')
-    module_account_reports = fields.Boolean("Dynamic Reports")
     module_account_check_printing = fields.Boolean("Allow check printing and deposits")
     module_account_batch_payment = fields.Boolean(string='Use batch payments',
         help='This allows you grouping payments into a single batch and eases the reconciliation process.\n'
@@ -91,12 +97,15 @@ class ResConfigSettings(models.TransientModel):
     module_account_bank_statement_import_qif = fields.Boolean("Import .qif files")
     module_currency_rate_live = fields.Boolean(string="Automatic Currency Rates")
     module_account_intrastat = fields.Boolean(string='Intrastat')
+    module_account_avatax = fields.Boolean(string='AvaTax')
     module_product_margin = fields.Boolean(string="Allow Product Margin")
     module_account_extract = fields.Boolean(string="Document Digitization")
     module_account_invoice_extract = fields.Boolean("Invoice Digitization", compute='_compute_module_account_invoice_extract', readonly=False, store=True)
     module_account_bank_statement_extract = fields.Boolean("Bank Statement Digitization", compute='_compute_module_account_bank_statement_extract', readonly=False, store=True)
+    module_account_loan_extract = fields.Boolean("Loans Digitization", compute='_compute_module_account_loan_extract', readonly=False, store=True)
     module_snailmail_account = fields.Boolean(string="Snailmail")
     module_account_peppol = fields.Boolean(string='PEPPOL Invoicing')
+    module_l10n_eu_account_vies = fields.Boolean(string='VAT number validation with VIES')
     tax_exigibility = fields.Boolean(string='Cash Basis', related='company_id.tax_exigibility', readonly=False)
     tax_cash_basis_journal_id = fields.Many2one(
         'account.journal',
@@ -112,6 +121,7 @@ class ResConfigSettings(models.TransientModel):
         check_company=True,
         related='company_id.account_cash_basis_base_account_id',
     )
+    account_cash_basis_base_account_active = fields.Boolean(related='account_cash_basis_base_account_id.active', string="Base Tax Received Account Active")
     account_fiscal_country_id = fields.Many2one(string="Fiscal Country Code", related="company_id.account_fiscal_country_id", readonly=False, store=False)
 
     qr_code = fields.Boolean(string='Display SEPA QR-code', related='company_id.qr_code', readonly=False)
@@ -123,7 +133,7 @@ class ResConfigSettings(models.TransientModel):
     terms_type = fields.Selection(
         related='company_id.terms_type', readonly=False)
     display_invoice_amount_total_words = fields.Boolean(
-        string="Total amount of invoice in letters",
+        string="Total amount of invoice in words",
         related='company_id.display_invoice_amount_total_words',
         readonly=False
     )
@@ -140,10 +150,12 @@ class ResConfigSettings(models.TransientModel):
     account_use_credit_limit = fields.Boolean(
         string="Sales Credit Limit", related="company_id.account_use_credit_limit", readonly=False,
         help="Enable the use of credit limit on partners.")
-    account_default_credit_limit = fields.Monetary(
+    account_default_credit_limit = fields.Float(
         string="Default Credit Limit", readonly=False,
         help='This is the default credit limit that will be used on partners that do not have a specific limit on them.',
-        compute="_compute_account_default_credit_limit", inverse="_inverse_account_default_credit_limit")
+        related='company_id.account_credit_limit',
+    )
+    vat_check_vies = fields.Boolean(related='company_id.vat_check_vies', readonly=False, string='Verify VAT Numbers')
 
     # Technical field to hide country specific fields from accounting configuration
     country_code = fields.Char(related='company_id.account_fiscal_country_id.code', readonly=True)
@@ -156,7 +168,10 @@ class ResConfigSettings(models.TransientModel):
     group_sale_delivery_address = fields.Boolean("Customer Addresses", implied_group='account.group_delivery_invoice_address')
 
     # Quick encoding (fiduciary mode)
-    quick_edit_mode = fields.Selection(string="Quick encoding", readonly=False, related='company_id.quick_edit_mode')
+    quick_edit_mode_enabled = fields.Boolean(string="Quick encoding", readonly=False, related='company_id.quick_edit_mode_enabled')
+    quick_edit_mode = fields.Selection(readonly=False, related='company_id.quick_edit_mode')
+    document_sequence_editable = fields.Boolean(string="Document's sequence editable", readonly=False, related='company_id.document_sequence_editable')
+    set_to_review_documents = fields.Boolean(string="Review data", readonly=False, related='company_id.set_to_review_documents')
 
     account_journal_early_pay_discount_loss_account_id = fields.Many2one(
         comodel_name='account.account',
@@ -167,6 +182,7 @@ class ResConfigSettings(models.TransientModel):
         check_company=True,
         domain="[('account_type', 'in', ('expense', 'expense_other', 'income', 'income_other'))]",
     )
+    account_journal_early_pay_discount_loss_account_active = fields.Boolean(related='account_journal_early_pay_discount_loss_account_id.active', string="Early Discount Loss Account Active")
     account_journal_early_pay_discount_gain_account_id = fields.Many2one(
         comodel_name='account.account',
         string='Early Discount Gain',
@@ -176,6 +192,7 @@ class ResConfigSettings(models.TransientModel):
         related='company_id.account_journal_early_pay_discount_gain_account_id',
         domain="[('account_type', 'in', ('income', 'income_other', 'expense', 'expense_other'))]",
     )
+    account_journal_early_pay_discount_gain_account_active = fields.Boolean(related='account_journal_early_pay_discount_gain_account_id.active', string="Early Discount Gain Account Active")
 
     # Accounts for allocation of discounts
     account_discount_income_allocation_id = fields.Many2one(
@@ -185,6 +202,7 @@ class ResConfigSettings(models.TransientModel):
         related='company_id.account_discount_income_allocation_id',
         domain="[('account_type', 'in', ('income', 'income_other', 'expense', 'expense_other'))]",
     )
+    account_discount_income_allocation_active = fields.Boolean(related='account_discount_income_allocation_id.active', string="Vendor Bills Discounts Account Active")
     account_discount_expense_allocation_id = fields.Many2one(
         comodel_name='account.account',
         string='Customer Invoices Discounts Account',
@@ -192,6 +210,7 @@ class ResConfigSettings(models.TransientModel):
         related='company_id.account_discount_expense_allocation_id',
         domain="[('account_type', 'in', ('income', 'income_other', 'expense', 'expense_other'))]",
     )
+    account_discount_expense_allocation_active = fields.Boolean(related='account_discount_expense_allocation_id.active', string="Customer Invoices Discounts Account Active")
 
     # PEPPOL
     is_account_peppol_eligible = fields.Boolean(
@@ -206,7 +225,21 @@ class ResConfigSettings(models.TransientModel):
     # Autopost of bills
     autopost_bills = fields.Boolean(related='company_id.autopost_bills', readonly=False)
     income_account_id = fields.Many2one(related='company_id.income_account_id', readonly=False, check_company=True)
+    income_account_active = fields.Boolean(related='income_account_id.active', string="Income Account Active")
     expense_account_id = fields.Many2one(related='company_id.expense_account_id', readonly=False, check_company=True)
+    expense_account_active = fields.Boolean(related='expense_account_id.active', string="Expense Account Active")
+
+    # Cash rounding default accounts
+    cash_rounding_profit_account_id = fields.Many2one(
+        related='company_id.cash_rounding_profit_account_id',
+        domain="[('internal_group', '=', 'income')]",
+        readonly=False, check_company=True,
+    )
+    cash_rounding_loss_account_id = fields.Many2one(
+        related='company_id.cash_rounding_loss_account_id',
+        domain="[('internal_group', '=', 'expense')]",
+        readonly=False, check_company=True,
+    )
 
     @api.depends('country_code')
     def _compute_is_account_peppol_eligible(self):
@@ -222,24 +255,12 @@ class ResConfigSettings(models.TransientModel):
         and self.chart_template != self.company_id.chart_template:
             self.env['account.chart.template'].try_loading(self.chart_template, company=self.company_id)
             self.company_id._initiate_account_onboardings()
+        # Install `l10n_eu_account_vies` if the user wants to use the VAT number validation with VIES.
+        if not self.module_l10n_eu_account_vies and self.vat_check_vies:
+            self.module_l10n_eu_account_vies = True
 
     def reload_template(self):
         self.env['account.chart.template'].try_loading(self.company_id.chart_template, company=self.company_id)
-
-    @api.depends('company_id')
-    def _compute_account_default_credit_limit(self):
-        ResPartner = self.env['res.partner']
-        company_limit = ResPartner._fields['credit_limit'].get_company_dependent_fallback(ResPartner)
-        self.account_default_credit_limit = company_limit
-
-    def _inverse_account_default_credit_limit(self):
-        for setting in self:
-            self.env['ir.default'].set(
-                'res.partner',
-                'credit_limit',
-                setting.account_default_credit_limit,
-                company_id=setting.company_id.id
-            )
 
     @api.depends('company_id')
     def _compute_has_chart_of_accounts(self):
@@ -254,7 +275,12 @@ class ResConfigSettings(models.TransientModel):
     @api.depends('module_account_extract')
     def _compute_module_account_bank_statement_extract(self):
         for config in self:
-            config.module_account_bank_statement_extract = config.module_account_extract and self.env['ir.module.module']._get('account_invoice_extract').state == 'installed'
+            config.module_account_bank_statement_extract = config.module_account_extract and self.env['ir.module.module']._get('account_bank_statement_extract').state == 'installed'
+
+    @api.depends('module_account_extract')
+    def _compute_module_account_loan_extract(self):
+        for config in self:
+            config.module_account_loan_extract = config.module_account_extract and self.env['ir.module.module']._get('account_loans_extract').state == 'installed'
 
     @api.onchange('group_analytic_accounting')
     def onchange_analytic_accounting(self):

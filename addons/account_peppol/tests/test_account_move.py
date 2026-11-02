@@ -1,3 +1,4 @@
+from odoo.exceptions import UserError
 from odoo.tests.common import tagged
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 
@@ -7,10 +8,12 @@ FAKE_UUID = 'yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy'
 @tagged('-at_install', 'post_install')
 class TestPeppolAccountMove(AccountTestInvoicingCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.env['ir.config_parameter'].sudo().set_param('account_peppol.edi.mode', 'test')
+        cls.env['ir.config_parameter'].sudo().set_str('account_peppol.edi.mode', 'test')
 
     def _peppol_invoice(self, post=False):
         move = self._create_invoice(post=post)
@@ -60,6 +63,44 @@ class TestPeppolAccountMove(AccountTestInvoicingCommon):
         move.action_peppol_reset_documents()
 
         self.assertEqual(move.state, 'posted')
+
+    def test_reset_selected_to_draft_only_resets_not_sent_peppol(self):
+        sent_move = self._peppol_invoice(post=True)
+        sent_move.peppol_move_state = 'done'
+        not_sent_move = self._peppol_invoice(post=True)
+
+        (sent_move + not_sent_move).action_reset_selected_to_draft()
+
+        self.assertEqual(sent_move.state, 'posted')
+        self.assertEqual(not_sent_move.state, 'draft')
+
+        with self.assertRaisesRegex(UserError, "sent via Peppol / PDP"):
+            sent_move.button_draft()
+
+    def test_cancel_sent_peppol(self):
+        move = self._peppol_invoice(post=True)
+        move.peppol_move_state = 'done'
+
+        move.button_cancel()
+
+        self.assertEqual(move.state, 'cancel')
+
+    def test_unlink_sent_peppol(self):
+        move = self._peppol_invoice(post=True)
+        move.peppol_move_state = 'done'
+
+        move.button_cancel()
+
+        self.assertTrue(move.peppol_is_sent, "Cancelling must not reset the Peppol state")
+        with self.assertRaisesRegex(UserError, "sent via Peppol / PDP"):
+            move.unlink()
+
+    def test_unlink_not_sent_peppol(self):
+        move = self._peppol_invoice()
+
+        move.unlink()
+
+        self.assertFalse(move.exists())
 
     def test_reset_documents_cancelled_peppol_untouched(self):
         move = self._peppol_invoice()

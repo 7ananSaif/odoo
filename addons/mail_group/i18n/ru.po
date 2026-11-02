@@ -4,15 +4,15 @@
 #
 # Translators:
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
-# Weblate <noreply-mt-weblate@weblate.org>, 2026.
+# "Anastasiia Koroleva (koan)" <koan@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:39+0000\n"
-"PO-Revision-Date: 2026-06-13 04:52+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Russian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-04 17:45+0000\n"
+"PO-Revision-Date: 2026-08-31 17:09+0000\n"
+"Last-Translator: \"Anastasiia Koroleva (koan)\" <koan@odoo.com>\n"
+"Language-Team: Russian <https://translate.odoo.com/projects/odoo-s19-4/"
 "mail_group/ru/>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
@@ -21,22 +21,29 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
 "(n%100>=11 && n%100<=14)? 2 : 3);\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: mail_group
+#: model:ir.module.module,description:base.module_mail_group
+msgid ""
+"\n"
+"Manage your mailing lists from Odoo.\n"
+msgstr ""
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_group_view_list
 msgid "#Members"
-msgstr ""
+msgstr "#Участники"
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_group_view_list
 msgid "#Messages"
-msgstr ""
+msgstr "#Сообщения"
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_group_view_list
 msgid "#To Review"
-msgstr ""
+msgstr "#На проверку"
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_group_message_reject_form
@@ -51,6 +58,8 @@ msgid ""
 "<br/>\n"
 "                    Get the conversation started by sending an email to"
 msgstr ""
+"<br/>\n"
+"                    Начните обсуждение, отправив письмо на адрес"
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.confirmation_subscription
@@ -145,99 +154,101 @@ msgstr ""
 "        "
 
 #. module: mail_group
+#: model_terms:ir.ui.view,arch_db:mail_group.mail_groups
+msgid ""
+"<i class=\"oi me-1\" data-icon=\"mail\" role=\"img\" aria-label=\"Alias\" "
+"title=\"Alias\"/>"
+msgstr ""
+"<i class=\"oi me-1\" data-icon=\"mail\" role=\"img\" aria-label=\"Alias\" "
+"title=\"Alias\"/>"
+
+#. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.message_footer
 msgid ""
-"<i class=\"fa fa-calendar\" role=\"img\" aria-label=\"Date\" title=\"Date\"/>"
+"<i class=\"oi oi-filled\" data-icon=\"calendar_today\" role=\"img\" aria-"
+"label=\"Date\" title=\"Date\"/>"
 msgstr ""
-"<i class=\"fa fa-calendar\" role=\"img\" aria-label=\"Date\" title=\"Date\"/>"
+"<i class=\"oi oi-filled\" data-icon=\"calendar_today\" role=\"img\" aria-"
+"label=\"Date\" title=\"Date\"/>"
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_groups
 msgid ""
-"<i class=\"fa fa-envelope-o me-1\" role=\"img\" aria-label=\"Alias\" "
-"title=\"Alias\"/>"
+"<i class=\"oi oi-fw oi-filled\" data-icon=\"person\" role=\"img\" aria-"
+"label=\"Recipients\" title=\"Recipients\"/>"
 msgstr ""
-"<i class=\"fa fa-envelope-o me-1\" role=\"img\" aria-label=\"Alias\" "
-"title=\"Alias\"/>"
-
-#. module: mail_group
-#: model_terms:ir.ui.view,arch_db:mail_group.group_name
-msgid ""
-"<i class=\"fa fa-envelope-o\" role=\"img\" aria-label=\"Alias\" "
-"title=\"Alias\"/>"
-msgstr ""
-"<i class=\"fa fa-envelope-o\" role=\"img\" aria-label=\"Alias\" "
-"title=\"Alias\"/>"
+"<i class=\"oi oi-fw oi-filled\" data-icon=\"person\" role=\"img\" aria-"
+"label=\"Recipients\" title=\"Recipients\"/>"
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_groups
 msgid ""
-"<i class=\"fa fa-fw fa-envelope-o\" role=\"img\" aria-label=\"Traffic\" "
+"<i class=\"oi oi-fw\" data-icon=\"mail\" role=\"img\" aria-label=\"Traffic\" "
 "title=\"Traffic\"/>"
 msgstr ""
 
 #. module: mail_group
-#: model_terms:ir.ui.view,arch_db:mail_group.mail_groups
-msgid ""
-"<i class=\"fa fa-fw fa-user\" role=\"img\" aria-label=\"Recipients\" "
-"title=\"Recipients\"/>"
-msgstr ""
-"<i class=\"fa fa-fw fa-user\" role=\"img\" aria-label=\"Recipients\" "
-"title=\"Recipients\"/>"
-
-#. module: mail_group
-#: model_terms:ir.ui.view,arch_db:mail_group.group_message
-msgid ""
-"<i class=\"oi oi-arrow-left\" role=\"img\" aria-label=\"Previous message\" "
-"title=\"Previous message\"/>"
-msgstr ""
-"<i class=\"oi oi-arrow-left\" role=\"img\" aria-label=\"Previous message\" "
-"title=\"Previous message\"/>"
-
-#. module: mail_group
-#: model_terms:ir.ui.view,arch_db:mail_group.group_message
-msgid ""
-"<i class=\"oi oi-arrow-right\" role=\"img\" aria-label=\"Next message\" "
-"title=\"Next message\"/>"
-msgstr ""
-"<i class=\"oi oi-arrow-right\" role=\"img\" aria-label=\"Next message\" "
-"title=\"Next message\"/>"
-
-#. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.message_attachments
 msgid ""
-"<i class=\"oi oi-chevron-down\" role=\"img\" aria-label=\"Show attachments\" "
-"title=\"Show attachments\"/>"
-msgstr ""
-"<i class=\"oi oi-chevron-down\" role=\"img\" aria-label=\"Show attachments\" "
-"title=\"Show attachments\"/>"
-
-#. module: mail_group
-#: model_terms:ir.ui.view,arch_db:mail_group.messages_short
-msgid ""
-"<i class=\"oi oi-chevron-down\" role=\"img\" aria-label=\"Show replies\" "
-"title=\"Show replies\"/>"
-msgstr ""
-"<i class=\"oi oi-chevron-down\" role=\"img\" aria-label=\"Show replies\" "
-"title=\"Show replies\"/>"
-
-#. module: mail_group
-#: model_terms:ir.ui.view,arch_db:mail_group.message_attachments
-msgid ""
-"<i class=\"oi oi-chevron-right\" role=\"img\" aria-label=\"Hide "
+"<i class=\"oi\" data-icon=\"chevron_forward\" role=\"img\" aria-label=\"Hide "
 "attachments\" title=\"Hide attachments\"/>"
 msgstr ""
-"<i class=\"oi oi-chevron-right\" role=\"img\" aria-label=\"Hide "
+"<i class=\"oi\" data-icon=\"chevron_forward\" role=\"img\" aria-label=\"Hide "
 "attachments\" title=\"Hide attachments\"/>"
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.messages_short
 msgid ""
-"<i class=\"oi oi-chevron-right\" role=\"img\" aria-label=\"Hide replies\" "
-"title=\"Hide replies\"/>"
+"<i class=\"oi\" data-icon=\"chevron_forward\" role=\"img\" aria-label=\"Hide "
+"replies\" title=\"Hide replies\"/>"
 msgstr ""
-"<i class=\"oi oi-chevron-right\" role=\"img\" aria-label=\"Hide replies\" "
-"title=\"Hide replies\"/>"
+"<i class=\"oi\" data-icon=\"chevron_forward\" role=\"img\" aria-label=\"Hide "
+"replies\" title=\"Hide replies\"/>"
+
+#. module: mail_group
+#: model_terms:ir.ui.view,arch_db:mail_group.group_message
+msgid ""
+"<i class=\"oi\" data-icon=\"east\" role=\"img\" aria-label=\"Next message\" "
+"title=\"Next message\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"east\" role=\"img\" aria-label=\"Next message\" "
+"title=\"Next message\"/>"
+
+#. module: mail_group
+#: model_terms:ir.ui.view,arch_db:mail_group.message_attachments
+msgid ""
+"<i class=\"oi\" data-icon=\"keyboard_arrow_down\" role=\"img\" aria-"
+"label=\"Show attachments\" title=\"Show attachments\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"keyboard_arrow_down\" role=\"img\" aria-"
+"label=\"Show attachments\" title=\"Show attachments\"/>"
+
+#. module: mail_group
+#: model_terms:ir.ui.view,arch_db:mail_group.messages_short
+msgid ""
+"<i class=\"oi\" data-icon=\"keyboard_arrow_down\" role=\"img\" aria-"
+"label=\"Show replies\" title=\"Show replies\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"keyboard_arrow_down\" role=\"img\" aria-"
+"label=\"Show replies\" title=\"Show replies\"/>"
+
+#. module: mail_group
+#: model_terms:ir.ui.view,arch_db:mail_group.group_name
+msgid ""
+"<i class=\"oi\" data-icon=\"mail\" role=\"img\" aria-label=\"Alias\" "
+"title=\"Alias\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"mail\" role=\"img\" aria-label=\"Alias\" "
+"title=\"Alias\"/>"
+
+#. module: mail_group
+#: model_terms:ir.ui.view,arch_db:mail_group.group_message
+msgid ""
+"<i class=\"oi\" data-icon=\"west\" role=\"img\" aria-label=\"Previous "
+"message\" title=\"Previous message\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"west\" role=\"img\" aria-label=\"Previous "
+"message\" title=\"Previous message\"/>"
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.messages_short
@@ -495,7 +506,6 @@ msgstr "Выберите или настройте пользовательск�
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_group_view_form
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_group_view_kanban
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_groups
-#, fuzzy
 msgid "Closed"
 msgstr "Закрыто"
 
@@ -504,6 +514,8 @@ msgstr "Закрыто"
 msgid ""
 "Closed groups might still be accessed, but emails sent to it will bounce"
 msgstr ""
+"Закрытые группы могут оставаться доступными, но отправленные в них письма "
+"будут возвращаться с ошибкой"
 
 #. module: mail_group
 #: model:mail.template,subject:mail_group.mail_template_list_subscribe
@@ -567,11 +579,6 @@ msgstr "Значения по умолчанию"
 #: model:ir.model.fields,field_description:mail_group.field_mail_group__description
 msgid "Description"
 msgstr "Описание"
-
-#. module: mail_group
-#: model_terms:ir.ui.view,arch_db:mail_group.mail_group_message_reject_form
-msgid "Discard"
-msgstr "Отменить"
 
 #. module: mail_group
 #: model:ir.model.fields,field_description:mail_group.field_mail_group__display_name
@@ -676,7 +683,6 @@ msgstr ""
 #. module: mail_group
 #. odoo-python
 #: code:addons/mail_group/controllers/portal.py:0
-#, fuzzy
 msgid "Groups"
 msgstr "Группы"
 
@@ -706,6 +712,12 @@ msgid ""
 "    <br/><br/>\n"
 "    Kind Regards,"
 msgstr ""
+"Здравствуйте!\n"
+"    <br/><br/>\n"
+"    Список рассылки, к которому вы обращаетесь, закрыт и больше не принимает "
+"новые сообщения.\n"
+"    <br/><br/>\n"
+"    С уважением,"
 
 #. module: mail_group
 #: model:ir.model.fields,field_description:mail_group.field_mail_group__id
@@ -769,7 +781,6 @@ msgstr "Запрещено"
 
 #. module: mail_group
 #: model:ir.model.fields,field_description:mail_group.field_mail_group__is_closed
-#, fuzzy
 msgid "Is Closed"
 msgstr "Закрыто"
 
@@ -827,6 +838,7 @@ msgstr "Обнаружение входящих на основе локальн
 
 #. module: mail_group
 #: model:ir.model,name:mail_group.model_mail_group
+#: model:ir.module.module,shortdesc:base.module_mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_group_view_form
 msgid "Mail Group"
 msgstr "Почтовая группа"
@@ -903,6 +915,11 @@ msgid "Mailing-List:"
 msgstr "Список рассылки:"
 
 #. module: mail_group
+#: model:ir.module.module,summary:base.module_mail_group
+msgid "Manage your mailing lists"
+msgstr ""
+
+#. module: mail_group
 #: model:ir.actions.act_window,name:mail_group.mail_group_member_action
 #: model:ir.model.fields,field_description:mail_group.field_mail_group__member_ids
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_group_view_form
@@ -962,7 +979,6 @@ msgstr "Сообщения, требующие действий"
 
 #. module: mail_group
 #: model:ir.model.fields,field_description:mail_group.field_mail_group__moderation
-#, fuzzy
 msgid "Moderate"
 msgstr "Модерируйте"
 
@@ -1053,12 +1069,13 @@ msgstr "Имя"
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_groups
 msgid ""
-"Need to unsubscribe? <br/>It's right here! <span class=\"oi fa-2x oi-arrow-"
-"down float-end\" role=\"img\" aria-label=\"\" title=\"Read this !\"/>"
-msgstr ""
-"Нужно отказаться от подписки? <br/>Это прямо здесь! <span class=\"oi fa-2x "
-"oi-arrow-down float-end\" role=\"img\" aria-label=\"\" title=\"Read this !\"/"
+"Need to unsubscribe? <br/>It's right here! <span class=\"oi oi-2x float-"
+"end\" data-icon=\"south\" role=\"img\" aria-label=\"\" title=\"Read this !\"/"
 ">"
+msgstr ""
+"Нужно отказаться от подписки? <br/>Это прямо здесь! <span class=\"oi oi-2x "
+"float-end\" data-icon=\"south\" role=\"img\" aria-label=\"\" title=\"Read "
+"this !\"/>"
 
 #. module: mail_group
 #: model:ir.model.fields,help:mail_group.field_mail_group__moderation_guidelines
@@ -1127,7 +1144,7 @@ msgstr ""
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.messages_short
 msgid "Oops, there are no messages here."
-msgstr ""
+msgstr "Здесь пока нет сообщений."
 
 #. module: mail_group
 #: model:ir.model.fields,help:mail_group.field_mail_group__alias_force_thread_id
@@ -1287,16 +1304,9 @@ msgid "Rejected"
 msgstr "Отклонено"
 
 #. module: mail_group
-#: model_terms:ir.ui.view,arch_db:mail_group.mail_group_message_view_form
-#: model_terms:ir.ui.view,arch_db:mail_group.mail_group_message_view_list
-msgid "Remove message with explanation"
-msgstr "Удалить сообщение с объяснением"
-
-#. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_group_view_form
-#, fuzzy
 msgid "Responsibles"
-msgstr "Responsibles"
+msgstr "Ответственные"
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_group_message_view_search
@@ -1321,7 +1331,7 @@ msgstr "Поиск по списку модерации"
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_group_view_form
 msgid "Select users"
-msgstr ""
+msgstr "Выберите пользователей"
 
 #. module: mail_group
 #: model:ir.model.fields.selection,name:mail_group.selection__mail_group__access_mode__groups
@@ -1356,14 +1366,13 @@ msgstr "Отправить электронное письмо автору со
 
 #. module: mail_group
 #: model:ir.actions.act_window,name:mail_group.mail_compose_message_action_mail_group
-#, fuzzy
 msgid "Send email"
-msgstr "Отправка e-mail писем"
+msgstr "Оправить письмо"
 
 #. module: mail_group
 #: model:ir.model.fields,field_description:mail_group.field_mail_group__moderation_guidelines
 msgid "Send guidelines to new members"
-msgstr ""
+msgstr "Отправлять правила новым участникам"
 
 #. module: mail_group
 #: model:mail.template,description:mail_group.mail_template_guidelines
@@ -1572,13 +1581,13 @@ msgstr ""
 #. odoo-python
 #: code:addons/mail_group/models/mail_group.py:0
 msgid "You can not join a closed group."
-msgstr ""
+msgstr "Вы не можете вступить в закрытую группу."
 
 #. module: mail_group
 #. odoo-python
 #: code:addons/mail_group/models/mail_group.py:0
 msgid "You can not send guidelines for a closed group."
-msgstr ""
+msgstr "Нельзя отправить правила для закрытой группы."
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_group_notify_moderation
@@ -1614,7 +1623,7 @@ msgstr "например, \"Информационный бюллетень\""
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_group_view_form
 msgid "e.g. \"This group is about ...\""
-msgstr ""
+msgstr "Например: «Эта группа посвящена...»"
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_group_view_form
@@ -1624,7 +1633,7 @@ msgstr "например, mycompany.com"
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_group_view_form
 msgid "e.g.\"Please be polite and ...\""
-msgstr ""
+msgstr "Например: «Пожалуйста, соблюдайте вежливость и ...»"
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_group_message_view_search
@@ -1639,7 +1648,7 @@ msgstr "был"
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_groups
 msgid "members<br/>"
-msgstr ""
+msgstr "участники<br/>"
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_groups
@@ -1649,7 +1658,7 @@ msgstr "сообщения / месяц"
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_group_view_kanban
 msgid "messages to review"
-msgstr ""
+msgstr "сообщения на проверку"
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.messages_short
@@ -1680,120 +1689,3 @@ msgstr "отписался от"
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_groups
 msgid "your email..."
 msgstr "ваш e-mail..."
-
-#~ msgid "_______________________________________________"
-#~ msgstr "_______________________________________________"
-
-#~ msgid ""
-#~ "<div style=\"margin: 0px; padding: 0px;\">\n"
-#~ "                Hello,<br><br>\n"
-#~ "                You have requested to be subscribed to the mailing list "
-#~ "<strong t-out=\"object.name or ''\"></strong>.\n"
-#~ "                <br><br>\n"
-#~ "                To confirm, please visit the following link: <strong t-"
-#~ "if=\"ctx.get('token_url')\"><a t-att-href=\"ctx['token_url']\"><t t-"
-#~ "out=\"ctx['token_url'] or ''\"></t></a></strong>\n"
-#~ "                <br><br>\n"
-#~ "                If this was a mistake or you did not requested this "
-#~ "action, please ignore this message.\n"
-#~ "            </div>\n"
-#~ "        "
-#~ msgstr ""
-#~ "<div style=\"margin: 0px; padding: 0px;\">\n"
-#~ "                Здравствуйте,<br><br>\n"
-#~ "                Вы запросили подписку на рассылку <strong t-"
-#~ "out=\"object.name or ''\"></strong>.\n"
-#~ "               <br><br>\n"
-#~ "                Для подтверждения, пожалуйста, перейдите по следующей "
-#~ "ссылке: <strong t-if=\"ctx.get('token_url')\"><a t-att-"
-#~ "href=\"ctx['token_url']\"><t t-out=\"ctx['token_url'] or ''\"></t></a></"
-#~ "strong>\n"
-#~ "               <br><br>\n"
-#~ "                Если это была ошибка или вы не запрашивали это действие, "
-#~ "пожалуйста, проигнорируйте это сообщение.\n"
-#~ "            </div>\n"
-#~ "        "
-
-#~ msgid ""
-#~ "<div style=\"margin: 0px; padding: 0px;\">\n"
-#~ "                Hello,<br><br>\n"
-#~ "                You have requested to be unsubscribed to the mailing list "
-#~ "<strong t-out=\"object.name or ''\"></strong>.\n"
-#~ "                <br><br>\n"
-#~ "                To confirm, please visit the following link: <strong t-"
-#~ "if=\"ctx.get('token_url')\"><a t-att-href=\"ctx['token_url']\"><t t-"
-#~ "out=\"ctx['token_url'] or ''\"></t></a></strong>.\n"
-#~ "                <br><br>\n"
-#~ "                If this was a mistake or you did not requested this "
-#~ "action, please ignore this message.\n"
-#~ "            </div>\n"
-#~ "        "
-#~ msgstr ""
-#~ "<div style=\"margin: 0px; padding: 0px;\">\n"
-#~ "                Здравствуйте,<br><br>\n"
-#~ "                Вы попросили отменить подписку на рассылку <strong t-"
-#~ "out=\"object.name or ''\"></strong>.\n"
-#~ "               <br><br>\n"
-#~ "                Для подтверждения, пожалуйста, перейдите по следующей "
-#~ "ссылке: <strong t-if=\"ctx.get('token_url')\"><a t-att-"
-#~ "href=\"ctx['token_url']\"><t t-out=\"ctx['token_url'] or ''\"></t></a></"
-#~ "strong>.\n"
-#~ "               <br><br>\n"
-#~ "                Если это была ошибка или вы не запрашивали это действие, "
-#~ "пожалуйста, проигнорируйте это сообщение.\n"
-#~ "            </div>\n"
-#~ "        "
-
-#~ msgid ""
-#~ "<div>\n"
-#~ "                <p>Hello <t t-out=\"object.partner_id.name or ''\"></t>,</"
-#~ "p>\n"
-#~ "                <p>Please find below the guidelines of the "
-#~ "{{ object.mail_group_id.name }} mailing list.</p>\n"
-#~ "                <p><t t-"
-#~ "out=\"object.mail_group_id.moderation_guidelines_msg or ''\"></t></p>\n"
-#~ "            </div>\n"
-#~ "        "
-#~ msgstr ""
-#~ "<div>\n"
-#~ "                <p>Здравствуйте <t t-out=\"object.partner_id.name or "
-#~ "''\"></t>,</p>\n"
-#~ "                <p>Ниже приведены правила списка рассылки "
-#~ "{{ object.mail_group_id.name }}.</p>\n"
-#~ "                <p><t t-"
-#~ "out=\"object.mail_group_id.moderation_guidelines_msg or ''\"></t></p>\n"
-#~ "            </div>\n"
-#~ "        "
-
-#~ msgid "Group By"
-#~ msgstr "Группировать по"
-
-#~ msgid "Invalid email address %r"
-#~ msgstr "Неверный адрес электронной почты %r"
-
-#~ msgid "Member"
-#~ msgstr "Участник"
-
-#~ msgid "Moderate this group"
-#~ msgstr "Умерьте эту группу"
-
-#~ msgid "Responsible Users"
-#~ msgstr "Ответственные пользователи"
-
-#~ msgid "Send Guidelines"
-#~ msgstr "Руководство по отправке"
-
-#~ msgid "Send guidelines to new subscribers"
-#~ msgstr "Отправляйте рекомендации новым подписчикам"
-
-#~ msgid "e.g. domain.com"
-#~ msgstr "например, domain.com"
-
-#~ msgid ""
-#~ "members<br/>\n"
-#~ "                        <i class=\"fa fa-fw fa-envelope-o\" role=\"img\" "
-#~ "aria-label=\"Traffic\" title=\"Traffic\"/>"
-#~ msgstr ""
-#~ "члены<br/>\n"
-#~ "                        <i class=\"fa fa-fw fa-envelope-o\" role=\"img\" "
-#~ "aria-label=\"Traffic\" title=\"Traffic\"/>"

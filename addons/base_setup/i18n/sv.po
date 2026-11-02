@@ -21,24 +21,29 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-06-11 17:56+0000\n"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-08-31 16:28+0000\n"
 "Last-Translator: Hanna Kharraziha <hakha@odoo.com>\n"
-"Language-Team: Swedish <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Swedish <https://translate.odoo.com/projects/odoo-s19-4/"
 "base_setup/sv/>\n"
 "Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+#: model:ir.module.module,description:base.module_base_setup
 msgid ""
-"<span class=\"fa fa-lg fa-users\" aria-label=\"Number of active users\"/>"
+"\n"
+"This module helps to configure the system at the installation of a new "
+"database.\n"
+"================================================================================\n"
+"\n"
+"Shows you a list of applications features to install from.\n"
+"\n"
 msgstr ""
-"<span class=\"fa fa-lg fa-users\" aria-label=\"Antal aktiva användare\"/>"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -57,7 +62,7 @@ msgstr ""
 "                                    <span class=\"o_form_label\" "
 "invisible=\"active_user_count &lt;= 1\">\n"
 "                                        Aktiva användare\n"
-"                                    <span>"
+"                                    </span>"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -177,11 +182,6 @@ msgid "Add fun feedback and motivate your employees"
 msgstr "Lägg till rolig feedback och motivera era anställda"
 
 #. module: base_setup
-#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_mail_plugin
-msgid "Allow integration with the mail plugins"
-msgstr "Tillåt integration med e-postplugins"
-
-#. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_google_calendar
 msgid "Allow the users to synchronize their calendar  with Google Calendar"
 msgstr "Tillåt användarna att synkronisera sin kalender med Google Kalender"
@@ -269,17 +269,8 @@ msgstr "Konfigurera dokumentlayout"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid ""
-"Configure company rules to automatically create SO/PO when one of your "
-"company sells/buys to another of your company."
-msgstr ""
-"Konfigurera bolagsregler för att automatiskt skapa säljordrar/inköpsordrar "
-"när ett av era bolag säljer/köper av ett av era andra bolag."
-
-#. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
 msgid "Contacts"
-msgstr "Kontakter"
+msgstr "Kontaktpersoner"
 
 #. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__company_country_group_codes
@@ -372,13 +363,13 @@ msgstr "GeoLokalisera"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Geolocate your partners"
-msgstr "Geolokalisera dina partners"
+msgid "Geolocation"
+msgstr "Geolokalisering"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Geolocation"
-msgstr "Geolokalisering"
+msgid "Get the latitude and the longitude of your partners"
+msgstr ""
 
 #. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_google_address_autocomplete
@@ -404,9 +395,9 @@ msgid "Import & Export"
 msgstr "Import och export"
 
 #. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Integrate with mail client plugins"
-msgstr "Integrera med plugins för e-postklienter"
+#: model:ir.module.module,shortdesc:base.module_base_setup
+msgid "Initial Setup Tools"
+msgstr ""
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -416,7 +407,7 @@ msgstr "Integrationer"
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
 msgid "Inter-Company Transactions"
-msgstr "Transaktioner mellan företag"
+msgstr "Transaktioner mellan koncernföretag"
 
 #. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__is_root_company
@@ -443,11 +434,6 @@ msgstr "Språk"
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
 msgid "Layout"
 msgstr "Layout"
-
-#. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Mail Plugin"
-msgstr "Plugin för e-post"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -493,6 +479,11 @@ msgstr "Antal företag"
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__language_count
 msgid "Number of Languages"
 msgstr "Antal språk"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Number of active users"
+msgstr ""
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -553,7 +544,7 @@ msgstr "Skydda dina formulär med CF Turnstile."
 #. odoo-javascript
 #: code:addons/base_setup/static/src/views/module_views.xml:0
 msgid "Reset Updating States"
-msgstr "Återställ uppdatering av lägen"
+msgstr ""
 
 #. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_sms
@@ -591,8 +582,8 @@ msgid ""
 "The ISO country code in two chars. \n"
 "You can use this field for quick search."
 msgstr ""
-"ISO-kod med två tecken.\n"
-"Fältet används för snabbsökning."
+"ISO-landskoden med två tecken.\n"
+"Du kan använda det här fältet för snabb sökning."
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -642,7 +633,7 @@ msgstr "Användare"
 #. odoo-python
 #: code:addons/base_setup/models/res_config_settings.py:0
 msgid "VAT"
-msgstr "Momsregistreringsnummer"
+msgstr "Skattenummer"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -666,28 +657,8 @@ msgid "reCAPTCHA"
 msgstr "reCAPTCHA"
 
 #~ msgid ""
-#~ "Automatically generate counterpart documents for orders/invoices between "
-#~ "companies"
+#~ "<span class=\"oi oi-lg oi-filled\" data-icon=\"group\" aria-"
+#~ "label=\"Number of active users\"/>"
 #~ msgstr ""
-#~ "Generera automatiskt motpartsdokument för ordrar/fakturor mellan bolag."
-
-#~ msgid "Documentation"
-#~ msgstr "Dokumentation"
-
-#~ msgid "Google Calendar"
-#~ msgstr "Google Kalender"
-
-#~ msgid "On Apple Store"
-#~ msgstr "I Apple Store"
-
-#~ msgid "On Google Play"
-#~ msgstr "I Google Play"
-
-#~ msgid "Outlook Calendar"
-#~ msgstr "Outlook Kalender"
-
-#~ msgid "Synchronize your calendar with Google Calendar"
-#~ msgstr "Synkronisera er kalender med Google Kalender"
-
-#~ msgid "Synchronize your calendar with Outlook"
-#~ msgstr "Synkronisera er kalender med Outlook"
+#~ "<span class=\"oi oi-lg oi-filled\" data-icon=\"group\" aria-label=\"Antal "
+#~ "aktiva användare\"/>"

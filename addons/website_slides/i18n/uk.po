@@ -6,16 +6,15 @@
 # Martin Trigaux, 2022
 # Alina Lisnenko <alina.lisnenko@erp.co.ua>, 2022
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
-# Weblate <noreply-mt-weblate@weblate.org>, 2025.
-# Vlad Patenko <vlad.patenko@gmail.com>, 2026.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-15 17:35+0000\n"
-"PO-Revision-Date: 2026-05-07 15:10+0000\n"
-"Last-Translator: Vlad Patenko <vlad.patenko@gmail.com>\n"
-"Language-Team: Ukrainian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-11 17:41+0000\n"
+"PO-Revision-Date: 2026-08-31 15:44+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Ukrainian <https://translate.odoo.com/projects/odoo-s19-4/"
 "website_slides/uk/>\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
@@ -25,7 +24,24 @@ msgstr ""
 "11 ? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % "
 "100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || "
 "(n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: website_slides
+#: model:ir.module.module,description:base.module_website_slides
+msgid ""
+"\n"
+"Create Online Courses\n"
+"=====================\n"
+"\n"
+"Featuring\n"
+"\n"
+" * Integrated course and lesson management\n"
+" * Fullscreen navigation\n"
+" * Support Youtube videos, Google documents, PDF, images, articles\n"
+" * Test knowledge with quizzes\n"
+" * Filter and Tag\n"
+" * Statistics\n"
+msgstr ""
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__members_engaged_count
@@ -121,7 +137,6 @@ msgstr "% пройденого вмісту"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.courses_my
-#: model_terms:ir.ui.view,arch_db:website_slides.mail_notification_channel_invite
 msgid "&amp;nbsp;"
 msgstr "&amp;nbsp;"
 
@@ -157,7 +172,6 @@ msgstr ""
 #. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/interactions/slide_archive.js:0
-#: code:addons/website_slides/static/src/js/slides_course_slides_list.js:0
 msgid "(empty)"
 msgstr "(пусто)"
 
@@ -236,6 +250,18 @@ msgid ""
 "out=\"object.channel_id.name or ''\">Basics of Gardening</t>.\n"
 "    </p>\n"
 "</div>\n"
+"<div style=\"margin: 32px 0px 32px 0px;\">\n"
+"    <a t-att-href=\"object.invitation_link\" style=\"background-color: "
+"#875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; "
+"border-radius: 5px; font-size:13px;\">\n"
+"        <t t-if=\"enroll_mode\"> Click here to start the course </t> <t t-"
+"else=\"\"> Click here to get started </t>\n"
+"    </a>\n"
+"</div>\n"
+"<div style=\"margin: 0px; padding: 0px; font-size:13px;\">\n"
+"    Enjoy this exclusive content!\n"
+"</div>\n"
+"<div>&amp;nbsp;</div>\n"
 "            "
 msgstr ""
 
@@ -249,6 +275,18 @@ msgid ""
 "out=\"object.channel_id.name or ''\">Basics of Gardening</t>.\n"
 "    </p>\n"
 "</div>\n"
+"<div style=\"margin: 32px 0px 32px 0px;\">\n"
+"    <a t-att-href=\"object.invitation_link\" style=\"background-color: "
+"#875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; "
+"border-radius: 5px; font-size:13px;\">\n"
+"        <t t-if=\"enroll_mode\"> Click here to start the course </t> <t t-"
+"else=\"\"> Click here to get started </t>\n"
+"    </a>\n"
+"</div>\n"
+"<div style=\"margin: 0px; padding: 0px; font-size:13px;\">\n"
+"    Enjoy this exclusive content!\n"
+"</div>\n"
+"<div>&amp;nbsp;</div>\n"
 "            "
 msgstr ""
 
@@ -276,12 +314,11 @@ msgid ""
 "                            </a>\n"
 "                        </div>\n"
 "                        Enjoy this exclusive content!\n"
-"                        <t t-if=\"object.channel_id.user_id.signature\" data-"
-"o-mail-quote-container=\"1\">\n"
+"                        <t t-if=\"object.channel_id.user_id.signature\">\n"
 "                            <br/>\n"
 "                            <div data-o-mail-quote=\"1\">--<br data-o-mail-"
-"quote=\"1\"/><t t-out=\"object.channel_id.user_id.signature or ''\" data-o-"
-"mail-quote=\"1\">Mitchell Admin</t></div>\n"
+"quote=\"1\"/><t t-out=\"object.channel_id.user_id.signature or ''\">Mitchell "
+"Admin</t></div>\n"
 "                        </t>\n"
 "                    </div>\n"
 "                </div>\n"
@@ -315,12 +352,10 @@ msgid ""
 "                                View <strong t-out=\"object.name or "
 "''\">Document</strong></a>\n"
 "                        </div>\n"
-"                        <t t-if=\"user.signature\" data-o-mail-quote-"
-"container=\"1\">\n"
+"                        <t t-if=\"user.signature\">\n"
 "                            <br/>\n"
 "                            <div data-o-mail-quote=\"1\">--<br data-o-mail-"
-"quote=\"1\"/><t t-out=\"user.signature or ''\" data-o-mail-"
-"quote=\"1\">Mitchell Admin</t></div>\n"
+"quote=\"1\"/><t t-out=\"user.signature or ''\">Mitchell Admin</t></div>\n"
 "                        </t>\n"
 "                    \n"
 "                </div>\n"
@@ -355,12 +390,10 @@ msgid ""
 "{{user.company_id.email_primary_color or '#FFFFFF'}}; border-radius: 5px;"
 "\">View <strong t-out=\"object.name or ''\">Trees</strong></a>\n"
 "                        </div>\n"
-"                        <t t-if=\"user.signature\" data-o-mail-quote-"
-"container=\"1\">\n"
+"                        <t t-if=\"user.signature\">\n"
 "                            <br/>\n"
 "                            <div data-o-mail-quote=\"1\">--<br data-o-mail-"
-"quote=\"1\"/><t t-out=\"user.signature or ''\" data-o-mail-"
-"quote=\"1\">Mitchell Admin</t></div>\n"
+"quote=\"1\"/><t t-out=\"user.signature or ''\">Mitchell Admin</t></div>\n"
 "                        </t>\n"
 "                    \n"
 "                </div>\n"
@@ -399,12 +432,10 @@ msgid ""
 "radius: 5px;\">View content</a>\n"
 "                        </div>\n"
 "                        Enjoy this exclusive content!\n"
-"                        <t t-if=\"user.signature\" data-o-mail-quote-"
-"container=\"1\">\n"
+"                        <t t-if=\"user.signature\">\n"
 "                            <br/>\n"
 "                            <div data-o-mail-quote=\"1\">--<br data-o-mail-"
-"quote=\"1\"/><t t-out=\"user.signature or ''\" data-o-mail-"
-"quote=\"1\">Mitchell Admin</t></div>\n"
+"quote=\"1\"/><t t-out=\"user.signature or ''\">Mitchell Admin</t></div>\n"
 "                        </t>\n"
 "                    \n"
 "                </div>\n"
@@ -412,320 +443,306 @@ msgid ""
 msgstr ""
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.user_profile_content
-msgid "<i class=\"fa fa-arrow-right\"/> Start Learning"
-msgstr "<i class=\"fa fa-arrow-right\"/> Розпочати навчання"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_content_detailed
-msgid "<i class=\"fa fa-bar-chart\"/> Statistics"
-msgstr "<i class=\"fa fa-bar-chart\"/> Статистика"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_fullscreen
-msgid ""
-"<i class=\"fa fa-bars\"/><span class=\"d-none d-md-inline-block "
-"ms-1\">Lessons</span>"
-msgstr ""
-"<i class=\"fa fa-bars\"/><span class=\"d-none d-md-inline-block "
-"ms-1\">Уроки</span>"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.lesson_card
-msgid "<i class=\"fa fa-check me-1\"/>Completed"
-msgstr "<i class=\"fa fa-check me-1\"/>Завершено"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_card
-msgid "<i class=\"fa fa-check\" aria-hidden=\"true\"/> Completed"
-msgstr ""
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_join
-#: model_terms:ir.ui.view,arch_db:website_slides.courses_my
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_fullscreen
-msgid "<i class=\"fa fa-check\"/> Completed"
-msgstr "<i class=\"fa fa-check\"/> Завершено"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.embed_slide
-msgid "<i class=\"fa fa-circle-o-notch fa-spin me-2\"/><b>Loading...</b>"
-msgstr "<i class=\"fa fa-circle-o-notch fa-spin me-2\"/><b>Завантаження...</b>"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_social_embed
-msgid "<i class=\"fa fa-clipboard\"/> Copy Embed Code"
-msgstr "<i class=\"fa fa-clipboard\"/> Копіювати код вставлення"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_share_link
-msgid "<i class=\"fa fa-clipboard\"/> Copy Link"
-msgstr "<i class=\"fa fa-clipboard\"/> Копіювати посилання"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_slide_view_kanban
-msgid ""
-"<i class=\"fa fa-clock-o me-2\" aria-label=\"Duration\" role=\"img\" "
-"title=\"Duration\"/>"
-msgstr ""
-"<i class=\"fa fa-clock-o me-2\" aria-label=\"Duration\" role=\"img\" "
-"title=\"Duration\"/>"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_slides_cards
-msgid "<i class=\"fa fa-cloud-upload me-1\"/>Add Content"
-msgstr "<i class=\"fa fa-cloud-upload me-1\"/>Додати вміст"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_content_detailed
-msgid "<i class=\"fa fa-comments\"/> Comments"
-msgstr ""
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_content_detailed
-msgid ""
-"<i class=\"fa fa-desktop me-xl-2 my-1\"/>\n"
-"                <span class=\"d-none d-xl-inline-block\">Fullscreen</span>"
-msgstr ""
-"<i class=\"fa fa-desktop me-xl-2 my-1\"/>\n"
-"                <span class=\"d-none d-xl-inline-block\">Повний екрсн</span>"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_social_email
-msgid "<i class=\"fa fa-envelope\"/> Send Email"
-msgstr "<i class=\"fa fa-envelope\"/> Надіслати Email"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_slides_cards
-msgid "<i class=\"fa fa-eraser me-1\"/>Clear filters"
-msgstr "<i class=\"fa fa-eraser me-1\"/>Очистити фільтри"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.embed_slide_forbidden
-msgid ""
-"<i class=\"fa fa-exclamation-triangle\" role=\"img\" aria-"
-"label=\"Attention\" title=\"Attention\"/> This document is private."
-msgstr ""
-"<i class=\"fa fa-exclamation-triangle\" role=\"img\" aria-"
-"label=\"Attention\" title=\"Attention\"/> Цей документ приватний."
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_slide_view_kanban
-msgid ""
-"<i class=\"fa fa-eye me-2\" aria-label=\"Views\" role=\"img\" "
-"title=\"Views\"/>"
-msgstr ""
-"<i class=\"fa fa-eye me-2\" aria-label=\"Views\" role=\"img\" "
-"title=\"Views\"/>"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_slide_view_kanban
-msgid ""
-"<i class=\"fa fa-file-code-o me-2\" aria-label=\"article\" role=\"img\" "
-"title=\"Article\"/>"
-msgstr ""
-"<i class=\"fa fa-file-code-o me-2\" aria-label=\"article\" role=\"img\" "
-"title=\"Article\"/>"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_slide_view_kanban
-msgid ""
-"<i class=\"fa fa-file-image-o me-2\" aria-label=\"Infographic\" role=\"img\" "
-"title=\"Infographic\"/>"
-msgstr ""
-"<i class=\"fa fa-file-image-o me-2\" aria-label=\"Infographic\" role=\"img\" "
-"title=\"Infographic\"/>"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_slide_view_kanban
-msgid ""
-"<i class=\"fa fa-file-pdf-o me-2\" aria-label=\"Document\" role=\"img\" "
-"title=\"Document\"/>"
-msgstr ""
-"<i class=\"fa fa-file-pdf-o me-2\" aria-label=\"Document\" role=\"img\" "
-"title=\"Document\"/>"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_slide_view_kanban
-msgid ""
-"<i class=\"fa fa-file-video-o me-2\" aria-label=\"Video\" role=\"img\" "
-"title=\"Video\"/>"
-msgstr ""
-"<i class=\"fa fa-file-video-o me-2\" aria-label=\"Video\" role=\"img\" "
-"title=\"Video\"/>"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_slide_view_kanban
-msgid ""
-"<i class=\"fa fa-flag me-2\" aria-label=\"Quiz\" role=\"img\" title=\"Quiz\"/"
-">"
-msgstr ""
-"<i class=\"fa fa-flag me-2\" aria-label=\"Quiz\" role=\"img\" title=\"Quiz\"/"
-">"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_aside_training_category
-msgid "<i class=\"fa fa-flag text-warning\"/> Quiz"
-msgstr "<i class=\"fa fa-flag text-warning\"/> Вікторина"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_fullscreen_sidebar_category
-msgid "<i class=\"fa fa-flag-checkered text-warning\"/>Quiz"
-msgstr "<i class=\"fa fa-flag-checkered text-warning\"/>Вікторина"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_slides_list
-msgid "<i class=\"fa fa-folder-o me-1\"/><span>Add Section</span>"
-msgstr "<i class=\"fa fa-folder-o me-1\"/><span>Додати розділ</span>"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_slides_cards
-msgid "<i class=\"fa fa-folder-o me-1\"/>Add a section"
-msgstr "<i class=\"fa fa-folder-o me-1\"/>Додати розділ"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_pages_kanban_view
-msgid "<i class=\"fa fa-globe me-1\" title=\"Website\"/>"
-msgstr "<i class=\"fa fa-globe me-1\" title=\"Website\"/>"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_content_detailed
-msgid "<i class=\"fa fa-home\"/> About"
-msgstr "<i class=\"fa fa-home\"/> Про"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_main
-msgid "<i class=\"fa fa-home\"/> Course"
-msgstr "<i class=\"fa fa-home\"/> Курс"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_fullscreen
-msgid ""
-"<i class=\"fa fa-home\"/><span class=\"d-none d-md-inline-block ms-1\">Back "
-"to course</span>"
-msgstr ""
-"<i class=\"fa fa-home\"/><span class=\"d-none d-md-inline-block "
-"ms-1\">Повернутися до курсу</span>"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_join
-msgid ""
-"<i class=\"fa fa-lock\"/>\n"
-"                        <span>Course Locked</span>"
-msgstr ""
-"<i class=\"fa fa-lock\"/>\n"
-"                        <span>Курс заблоковано</span>"
-
-#. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.course_slides_list
 msgid ""
-"<i class=\"fa fa-plus me-1\"/> <span class=\"d-none d-md-inline-block\">Add "
-"Content</span>"
+"<i class=\"oi me-1\" data-icon=\"add\"/> <span class=\"d-none d-md-inline-"
+"block\">Add Content</span>"
 msgstr ""
-"<i class=\"fa fa-plus me-1\"/> <span class=\"d-none d-md-inline-"
+"<i class=\"oi me-1\" data-icon=\"add\"/> <span class=\"d-none d-md-inline-"
 "block\">Додати вміст</span>"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.course_slides_list
-msgid "<i class=\"fa fa-plus me-1\"/><span>Add Content</span>"
-msgstr "<i class=\"fa fa-plus me-1\"/><span>Додати вміст</span>"
+msgid "<i class=\"oi me-1\" data-icon=\"add\"/><span>Add Content</span>"
+msgstr "<i class=\"oi me-1\" data-icon=\"add\"/><span>Додати вміст</span>"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.lesson_card
+msgid "<i class=\"oi me-1\" data-icon=\"check\"/>Completed"
+msgstr "<i class=\"oi me-1\" data-icon=\"check\"/>Завершено"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.course_slides_cards
+msgid "<i class=\"oi me-1\" data-icon=\"cloud_upload\"/>Add Content"
+msgstr "<i class=\"oi me-1\" data-icon=\"cloud_upload\"/>Додати вміст"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.user_profile_content
+msgid "<i class=\"oi me-1\" data-icon=\"east\"/>All Courses"
+msgstr "<i class=\"oi me-1\" data-icon=\"east\"/>Усі курси"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.course_slides_list
+msgid "<i class=\"oi me-1\" data-icon=\"folder\"/><span>Add Section</span>"
+msgstr "<i class=\"oi me-1\" data-icon=\"folder\"/><span>Додати розділ</span>"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.course_slides_cards
+msgid "<i class=\"oi me-1\" data-icon=\"folder\"/>Add a section"
+msgstr "<i class=\"oi me-1\" data-icon=\"folder\"/>Додати розділ"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.course_slides_cards
+msgid "<i class=\"oi me-1\" data-icon=\"ink_eraser\"/>Clear filters"
+msgstr "<i class=\"oi me-1\" data-icon=\"ink_eraser\"/>Очистити фільтри"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_pages_kanban_view
+msgid "<i class=\"oi me-1\" data-icon=\"public\" title=\"Website\"/>"
+msgstr "<i class=\"oi me-1\" data-icon=\"public\" title=\"Website\"/>"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.courses_search_tags
+msgid ""
+"<i class=\"oi me-2 text-muted\" data-icon=\"label\"/>\n"
+"          My Courses"
+msgstr ""
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.lesson_content_quiz_add_buttons
 msgid ""
-"<i class=\"fa fa-plus me-2\"/>\n"
+"<i class=\"oi me-2\" data-icon=\"add\"/>\n"
 "            <span>Add Question</span>"
 msgstr ""
-"<i class=\"fa fa-plus me-2\"/>\n"
+"<i class=\"oi me-2\" data-icon=\"add\"/>\n"
 "            <span>Додати запитання</span>"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.lesson_content_quiz_add_buttons
 msgid ""
-"<i class=\"fa fa-plus me-2\"/>\n"
+"<i class=\"oi me-2\" data-icon=\"add\"/>\n"
 "            <span>Add Quiz</span>"
 msgstr ""
-"<i class=\"fa fa-plus me-2\"/>\n"
+"<i class=\"oi me-2\" data-icon=\"add\"/>\n"
 "            <span>Додати вікторину</span>"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_slide_view_kanban
-msgid ""
-"<i class=\"fa fa-question me-2\" aria-label=\"Number of Questions\" "
-"role=\"img\" title=\"Number of Questions\"/>"
-msgstr ""
-"<i class=\"fa fa-question me-2\" aria-label=\"Number of Questions\" "
-"role=\"img\" title=\"Number of Questions\"/>"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_content_detailed
 msgid ""
-"<i class=\"fa fa-share-alt me-xl-2 my-1\"/>\n"
+"<i class=\"oi me-2\" data-icon=\"chevron_backward\"/> <span class=\"d-none d-"
+"sm-inline-block\">Prev</span>"
+msgstr ""
+"<i class=\"oi me-2\" data-icon=\"chevron_backward\"/> <span class=\"d-none d-"
+"sm-inline-block\">Попередній перегляд</span>"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.slide_slide_view_kanban
+msgid ""
+"<i class=\"oi me-2\" data-icon=\"code\" aria-label=\"article\" role=\"img\" "
+"title=\"Article\"/>"
+msgstr ""
+"<i class=\"oi me-2\" data-icon=\"code\" aria-label=\"article\" role=\"img\" "
+"title=\"Article\"/>"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.slide_slide_view_kanban
+msgid ""
+"<i class=\"oi me-2\" data-icon=\"help\" aria-label=\"Number of Questions\" "
+"role=\"img\" title=\"Number of Questions\"/>"
+msgstr ""
+"<i class=\"oi me-2\" data-icon=\"help\" aria-label=\"Number of Questions\" "
+"role=\"img\" title=\"Number of Questions\"/>"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.slide_slide_view_kanban
+msgid ""
+"<i class=\"oi me-2\" data-icon=\"image\" aria-label=\"Infographic\" "
+"role=\"img\" title=\"Infographic\"/>"
+msgstr ""
+"<i class=\"oi me-2\" data-icon=\"image\" aria-label=\"Infographic\" "
+"role=\"img\" title=\"Infographic\"/>"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.slide_slide_view_kanban
+msgid ""
+"<i class=\"oi me-2\" data-icon=\"movie\" aria-label=\"Video\" role=\"img\" "
+"title=\"Video\"/>"
+msgstr ""
+"<i class=\"oi me-2\" data-icon=\"movie\" aria-label=\"Video\" role=\"img\" "
+"title=\"Video\"/>"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.slide_slide_view_kanban
+msgid ""
+"<i class=\"oi me-2\" data-icon=\"picture_as_pdf\" aria-label=\"Document\" "
+"role=\"img\" title=\"Document\"/>"
+msgstr ""
+"<i class=\"oi me-2\" data-icon=\"picture_as_pdf\" aria-label=\"Document\" "
+"role=\"img\" title=\"Document\"/>"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.slide_slide_view_kanban
+msgid ""
+"<i class=\"oi me-2\" data-icon=\"schedule\" aria-label=\"Duration\" "
+"role=\"img\" title=\"Duration\"/>"
+msgstr ""
+"<i class=\"oi me-2\" data-icon=\"schedule\" aria-label=\"Duration\" "
+"role=\"img\" title=\"Duration\"/>"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.slide_slide_view_kanban
+msgid ""
+"<i class=\"oi me-2\" data-icon=\"visibility\" aria-label=\"Views\" "
+"role=\"img\" title=\"Views\"/>"
+msgstr ""
+"<i class=\"oi me-2\" data-icon=\"visibility\" aria-label=\"Views\" "
+"role=\"img\" title=\"Views\"/>"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.slide_content_detailed
+msgid ""
+"<i class=\"oi me-xl-2 my-1\" data-icon=\"desktop_windows\"/>\n"
+"                <span class=\"d-none d-xl-inline-block\">Fullscreen</span>"
+msgstr ""
+"<i class=\"oi me-xl-2 my-1\" data-icon=\"desktop_windows\"/>\n"
+"                <span class=\"d-none d-xl-inline-block\">Повний екрсн</span>"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.slide_content_detailed
+msgid ""
+"<i class=\"oi me-xl-2 my-1\" data-icon=\"family_history\"/>\n"
 "                <span class=\"d-none d-xl-inline-block\">Share</span>"
 msgstr ""
-"<i class=\"fa fa-share-alt me-xl-2 my-1\"/>\n"
+"<i class=\"oi me-xl-2 my-1\" data-icon=\"family_history\"/>\n"
 "                <span class=\"d-none d-xl-inline-block\">Поділитися</span>"
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.embed_slide
+#: model_terms:ir.ui.view,arch_db:website_slides.slide_slide_view_kanban
 msgid ""
-"<i class=\"fa fa-share-alt\" aria-label=\"Share\" title=\"Share\"/>\n"
-"                                            Share"
+"<i class=\"oi oi-filled me-2\" data-icon=\"flag\" aria-label=\"Quiz\" "
+"role=\"img\" title=\"Quiz\"/>"
 msgstr ""
-"<i class=\"fa fa-share-alt\" aria-label=\"Share\" title=\"Share\"/>\n"
-"                                            Поділитися"
+"<i class=\"oi oi-filled me-2\" data-icon=\"flag\" aria-label=\"Quiz\" "
+"role=\"img\" title=\"Quiz\"/>"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.slide_aside_training_category
+msgid "<i class=\"oi oi-filled text-warning\" data-icon=\"flag\"/> Quiz"
+msgstr "<i class=\"oi oi-filled text-warning\" data-icon=\"flag\"/> Вікторина"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.slide_content_detailed
+msgid "<i class=\"oi oi-filled\" data-icon=\"forum\"/> Comments"
+msgstr ""
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.embed_slide
+msgid "<i class=\"oi oi-spin me-2\" data-icon=\"autorenew\"/><b>Loading...</b>"
+msgstr ""
+"<i class=\"oi oi-spin me-2\" data-icon=\"autorenew\"/><b>Завантаження...</b>"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.slide_fullscreen_sidebar_category
+msgid "<i class=\"oi text-warning\" data-icon=\"sports_score\"/>Quiz"
+msgstr "<i class=\"oi text-warning\" data-icon=\"sports_score\"/>Вікторина"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.user_profile_content
+msgid "<i class=\"oi\" data-icon=\"arrow_forward\"/> Start Learning"
+msgstr "<i class=\"oi\" data-icon=\"arrow_forward\"/> Розпочати навчання"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.slide_content_detailed
+msgid "<i class=\"oi\" data-icon=\"bar_chart\"/> Statistics"
+msgstr "<i class=\"oi\" data-icon=\"bar_chart\"/> Статистика"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.course_card
+msgid "<i class=\"oi\" data-icon=\"check\" aria-hidden=\"true\"/> Completed"
+msgstr ""
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.course_join
+#: model_terms:ir.ui.view,arch_db:website_slides.courses_my
+#: model_terms:ir.ui.view,arch_db:website_slides.slide_fullscreen
+msgid "<i class=\"oi\" data-icon=\"check\"/> Completed"
+msgstr "<i class=\"oi\" data-icon=\"check\"/> Завершено"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_fullscreen
 msgid ""
-"<i class=\"fa fa-share-alt\"/>\n"
+"<i class=\"oi\" data-icon=\"family_history\"/>\n"
 "                        <span class=\"d-none d-md-inline-block ms-2\">Share</"
 "span>"
 msgstr ""
-"<i class=\"fa fa-share-alt\"/>\n"
+"<i class=\"oi\" data-icon=\"family_history\"/>\n"
 "                        <span class=\"d-none d-md-inline-block "
 "ms-2\">Поділитися</span>"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.course_sidebar
-msgid "<i class=\"fa fa-share-alt\"/> Share"
-msgstr "<i class=\"fa fa-share-alt\"/> Поділитися"
+msgid "<i class=\"oi\" data-icon=\"family_history\"/> Share"
+msgstr "<i class=\"oi\" data-icon=\"family_history\"/> Поділитися"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.slide_content_detailed
+msgid "<i class=\"oi\" data-icon=\"home\"/> About"
+msgstr "<i class=\"oi\" data-icon=\"home\"/> Про"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.course_main
+msgid "<i class=\"oi\" data-icon=\"home\"/> Course"
+msgstr "<i class=\"oi\" data-icon=\"home\"/> Курс"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_fullscreen
 msgid ""
-"<i class=\"fa fa-sign-out\"/><span class=\"d-none d-md-inline-block "
+"<i class=\"oi\" data-icon=\"home\"/><span class=\"d-none d-md-inline-block "
+"ms-1\">Back to course</span>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"home\"/><span class=\"d-none d-md-inline-block "
+"ms-1\">Повернутися до курсу</span>"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.course_join
+msgid ""
+"<i class=\"oi\" data-icon=\"lock\"/>\n"
+"                        <span>Course Locked</span>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"lock\"/>\n"
+"                        <span>Курс заблоковано</span>"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.slide_fullscreen
+msgid ""
+"<i class=\"oi\" data-icon=\"logout\"/><span class=\"d-none d-md-inline-block "
 "ms-1\">Exit Fullscreen</span>"
 msgstr ""
-"<i class=\"fa fa-sign-out\"/><span class=\"d-none d-md-inline-block "
+"<i class=\"oi\" data-icon=\"logout\"/><span class=\"d-none d-md-inline-block "
 "ms-1\">Вийти з повного екрану</span>"
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.courses_search_tags
+#: model_terms:ir.ui.view,arch_db:website_slides.slide_fullscreen
 msgid ""
-"<i class=\"fa fa-tag me-2 text-muted\"/>\n"
-"          My Courses"
+"<i class=\"oi\" data-icon=\"menu\"/><span class=\"d-none d-md-inline-block "
+"ms-1\">Lessons</span>"
 msgstr ""
+"<i class=\"oi\" data-icon=\"menu\"/><span class=\"d-none d-md-inline-block "
+"ms-1\">Уроки</span>"
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.user_profile_content
-msgid "<i class=\"oi oi-arrow-right me-1\"/>All Courses"
-msgstr "<i class=\"oi oi-arrow-right me-1\"/>Усі курси"
+#: model_terms:ir.ui.view,arch_db:website_slides.embed_slide
+msgid ""
+"<i class=\"oi\" data-icon=\"share\" aria-label=\"Share\" title=\"Share\"/>\n"
+"                                            Share"
+msgstr ""
+"<i class=\"oi\" data-icon=\"share\" aria-label=\"Share\" title=\"Share\"/>\n"
+"                                            Поділитися"
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_content_detailed
+#: model_terms:ir.ui.view,arch_db:website_slides.embed_slide_forbidden
 msgid ""
-"<i class=\"oi oi-chevron-left me-2\"/> <span class=\"d-none d-sm-inline-"
-"block\">Prev</span>"
+"<i class=\"oi\" data-icon=\"warning\" role=\"img\" aria-label=\"Attention\" "
+"title=\"Attention\"/> This document is private."
 msgstr ""
-"<i class=\"oi oi-chevron-left me-2\"/> <span class=\"d-none d-sm-inline-"
-"block\">Попередній перегляд</span>"
+"<i class=\"oi\" data-icon=\"warning\" role=\"img\" aria-label=\"Attention\" "
+"title=\"Attention\"/> Цей документ приватний."
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.courses_my
 msgid ""
-"<small class=\"text-muted d-none d-md-inline\"><i class=\"fa fa-check me-1\" "
-"role=\"img\"/>You are enrolled</small>"
+"<small class=\"text-muted d-none d-md-inline\"><i class=\"oi me-1\" data-"
+"icon=\"check\" role=\"img\"/>You are enrolled</small>"
 msgstr ""
 
 #. module: website_slides
@@ -742,15 +759,16 @@ msgstr ""
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_main
 msgid ""
-"<small><span class=\"badge text-bg-success fw-normal\"><i class=\"fa fa-"
-"check\"/> Completed</span></small>"
+"<small><span class=\"badge text-bg-success fw-normal\"><i class=\"oi\" data-"
+"icon=\"check\"/> Completed</span></small>"
 msgstr ""
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.course_slides_list_sample
 msgid ""
 "<span class=\"badge fw-bold m-1 text-bg-warning\">\n"
-"                            <i class=\"fa fa-fw fa-flag\"/> 10 xp\n"
+"                            <i class=\"oi oi-filled oi-fw\" data-"
+"icon=\"flag\"/> 10 xp\n"
 "                        </span>"
 msgstr ""
 
@@ -783,17 +801,17 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:website_slides.courses_my
 msgid ""
 "<span class=\"d-none d-md-inline me-2 me-md-0\">Start now</span><i "
-"class=\"oi oi-arrow-right d-md-none\" aria-hidden=\"true\"/>"
+"class=\"oi d-md-none\" data-icon=\"east\" aria-hidden=\"true\"/>"
 msgstr ""
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_content_detailed
 msgid ""
-"<span class=\"d-none d-sm-inline-block\">Next</span> <i class=\"oi oi-"
-"chevron-right ms-2\"/>"
+"<span class=\"d-none d-sm-inline-block\">Next</span> <i class=\"oi ms-2\" "
+"data-icon=\"chevron_forward\"/>"
 msgstr ""
-"<span class=\"d-none d-sm-inline-block\">Далі</span> <i class=\"oi oi-"
-"chevron-right ms-2\"/>"
+"<span class=\"d-none d-sm-inline-block\">Далі</span> <i class=\"oi ms-2\" "
+"data-icon=\"chevron_forward\"/>"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_main
@@ -801,15 +819,10 @@ msgid "<span class=\"fw-normal\">Last update:</span>"
 msgstr "<span class=\"fw-normal\">Останнє оновлення:</span>"
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_social_embed
-msgid "<span class=\"input-group-text\">Start at Page</span>"
-msgstr "<span class=\"input-group-text\">Почати сторінку</span>"
-
-#. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.courses_my
 msgid ""
-"<span class=\"me-2 d-none d-md-inline\">Continue</span><i class=\"oi oi-"
-"arrow-right\" aria-hidden=\"true\"/>"
+"<span class=\"me-2 d-none d-md-inline\">Continue</span><i class=\"oi\" data-"
+"icon=\"east\" aria-hidden=\"true\"/>"
 msgstr ""
 
 #. module: website_slides
@@ -839,7 +852,7 @@ msgstr "<span class=\"o_stat_text\">Вбудовані перегляди</span>
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.res_config_settings_view_form
 msgid ""
-"<span class=\"oi oi-arrow-right\"/>\n"
+"<span class=\"oi\" data-icon=\"east\"/>\n"
 "                                        Create a Google Project and Get a Key"
 msgstr ""
 
@@ -912,42 +925,46 @@ msgstr "<span class=\"text-muted\">Частини інформатики</span>"
 #: model_terms:ir.ui.view,arch_db:website_slides.embed_slide
 msgid ""
 "<span id=\"first\" class=\"me-1 me-sm-2\" title=\"First slide\" aria-"
-"label=\"First slide\" role=\"button\"><i class=\"fa fa-step-backward\"/></"
-"span>\n"
+"label=\"First slide\" role=\"button\"><i class=\"oi\" data-"
+"icon=\"skip_previous\"/></span>\n"
 "                                        <span id=\"previous\" class=\"mx-1 "
 "mx-sm-2\" title=\"Previous slide\" aria-label=\"Previous slide\" "
-"role=\"button\"><i class=\"fa fa-arrow-circle-left\"/></span>\n"
+"role=\"button\"><i class=\"oi oi-filled\" data-icon=\"arrow_circle_left\"/></"
+"span>\n"
 "                                        <span id=\"next\" class=\"mx-1 mx-"
 "sm-2\" title=\"Next slide\" aria-label=\"Next slide\" role=\"button\"><i "
-"class=\"fa fa-arrow-circle-right\"/></span>\n"
+"class=\"oi oi-filled\" data-icon=\"arrow_circle_right\"/></span>\n"
 "                                        <span id=\"last\" class=\"mx-1 mx-"
 "sm-2\" title=\"Last slide\" aria-label=\"Last slide\" role=\"button\"><i "
-"class=\"fa fa-step-forward\"/></span>"
+"class=\"oi\" data-icon=\"skip_next\"/></span>"
 msgstr ""
 "<span id=\"first\" class=\"me-1 me-sm-2\" title=\"First slide\" aria-"
-"label=\"First slide\" role=\"button\"><i class=\"fa fa-step-backward\"/></"
-"span>\n"
+"label=\"First slide\" role=\"button\"><i class=\"oi\" data-"
+"icon=\"skip_previous\"/></span>\n"
 "                                        <span id=\"previous\" class=\"mx-1 "
 "mx-sm-2\" title=\"Previous slide\" aria-label=\"Previous slide\" "
-"role=\"button\"><i class=\"fa fa-arrow-circle-left\"/></span>\n"
+"role=\"button\"><i class=\"oi oi-filled\" data-icon=\"arrow_circle_left\"/></"
+"span>\n"
 "                                        <span id=\"next\" class=\"mx-1 mx-"
 "sm-2\" title=\"Next slide\" aria-label=\"Next slide\" role=\"button\"><i "
-"class=\"fa fa-arrow-circle-right\"/></span>\n"
+"class=\"oi oi-filled\" data-icon=\"arrow_circle_right\"/></span>\n"
 "                                        <span id=\"last\" class=\"mx-1 mx-"
 "sm-2\" title=\"Last slide\" aria-label=\"Last slide\" role=\"button\"><i "
-"class=\"fa fa-step-forward\"/></span>"
+"class=\"oi\" data-icon=\"skip_next\"/></span>"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.embed_slide
 msgid ""
 "<span id=\"fullscreen\" class=\"ms-1 ms-sm-2\" title=\"View fullscreen\" "
 "aria-label=\"Fullscreen\" role=\"button\">\n"
-"                                            <i class=\"fa fa-arrows-alt\"/>\n"
+"                                            <i class=\"oi\" data-"
+"icon=\"open_with\"/>\n"
 "                                        </span>"
 msgstr ""
 "<span id=\"fullscreen\" class=\"ms-1 ms-sm-2\" title=\"View fullscreen\" "
 "aria-label=\"Fullscreen\" role=\"button\">\n"
-"                                            <i class=\"fa fa-arrows-alt\"/>\n"
+"                                            <i class=\"oi\" data-"
+"icon=\"open_with\"/>\n"
 "                                        </span>"
 
 #. module: website_slides
@@ -955,13 +972,13 @@ msgstr ""
 msgid ""
 "<span id=\"zoomout\" class=\"d-inline ms-2 me-2\" title=\"Zoom out\" aria-"
 "label=\"Zoom out\" role=\"button\">\n"
-"                                            <i class=\"fa fa-search-minus\"/"
-">\n"
+"                                            <i class=\"oi\" data-"
+"icon=\"zoom_out\"/>\n"
 "                                        </span>\n"
 "                                        <span id=\"zoomin\" class=\"d-"
 "inline\" title=\"Zoom in\" aria-label=\"Zoom in\" role=\"button\">\n"
-"                                            <i class=\"fa fa-search-plus\"/"
-">\n"
+"                                            <i class=\"oi\" data-"
+"icon=\"zoom_in\"/>\n"
 "                                        </span>"
 msgstr ""
 
@@ -1060,8 +1077,8 @@ msgid "<strong>No Attendees Yet!</strong>"
 msgstr "<strong>Ще немає учасників!</strong>"
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_social_email
-msgid "<strong>Sharing is caring!</strong> Your email(s) will arrive shortly."
+#: model_terms:ir.actions.act_window,help:website_slides.slide_channel_partner_action_report_certified
+msgid "<strong>No Certified Attendees Yet!</strong>"
 msgstr ""
 
 #. module: website_slides
@@ -1206,6 +1223,11 @@ msgid "Access Rights"
 msgstr "Права доступу"
 
 #. module: website_slides
+#: model:portal.entry,description:website_slides.portal_slides_client
+msgid "Access all your e-learning courses"
+msgstr ""
+
+#. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_slide_partner_view_tree
 msgid "Accessed on"
 msgstr "Доступ до"
@@ -1249,6 +1271,12 @@ msgstr "Дія"
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__activity_exception_decoration
 msgid "Activity Exception Decoration"
 msgstr "Оформлення виключення дії"
+
+#. module: website_slides
+#: model:ir.model.fields,field_description:website_slides.field_slide_channel__activity_plans_ids
+#, fuzzy
+msgid "Activity Plans"
+msgstr "Плани дій"
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__activity_state
@@ -1318,13 +1346,13 @@ msgstr "Додати тег"
 
 #. module: website_slides
 #. odoo-javascript
-#: code:addons/website_slides/static/src/xml/slide_quiz_create.xml:0
+#: code:addons/website_slides/static/src/js/public/components/slides_course_quiz_question_form/slides_course_quiz_question_form.xml:0
 msgid "Add an answer below this one"
 msgstr "Додайте відповідь під цим"
 
 #. module: website_slides
 #. odoo-javascript
-#: code:addons/website_slides/static/src/xml/slide_quiz_create.xml:0
+#: code:addons/website_slides/static/src/js/public/components/slides_course_quiz_question_form/slides_course_quiz_question_form.xml:0
 msgid "Add comment on this answer"
 msgstr "Додайте коментар до цієї відповіді"
 
@@ -1389,7 +1417,7 @@ msgstr ""
 
 #. module: website_slides
 #. odoo-javascript
-#: code:addons/website_slides/static/src/js/slides_course_quiz.js:0
+#: code:addons/website_slides/static/src/interactions/slides_course_quiz.js:0
 msgid "All questions must be answered!"
 msgstr "На всі питання мають бути відповіді!"
 
@@ -1411,7 +1439,8 @@ msgid ""
 "All the courses you attend will appear here. <br/>\n"
 "                        <a href=\"/slides/\" class=\"btn-link "
 "o_translate_inline\">\n"
-"                            <i class=\"fa fa-arrow-right\"/> Start Learning\n"
+"                            <i class=\"oi\" data-icon=\"arrow_forward\"/> "
+"Start Learning\n"
 "                        </a>"
 msgstr ""
 
@@ -1555,7 +1584,7 @@ msgstr "Ви впевнені, що хочете видалити цю кате�
 
 #. module: website_slides
 #. odoo-javascript
-#: code:addons/website_slides/static/src/js/slides_course_quiz.js:0
+#: code:addons/website_slides/static/src/interactions/slides_course_quiz_edit.js:0
 msgid "Are you sure you want to delete this question \"%(title)s\"?"
 msgstr ""
 
@@ -1599,6 +1628,11 @@ msgid "Attendee"
 msgstr "Учасник"
 
 #. module: website_slides
+#: model:ir.model.fields,field_description:website_slides.field_digest_digest__kpi_nbr_of_new_attendees
+msgid "Attendee Registrations"
+msgstr ""
+
+#. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel_partner__member_status
 msgid "Attendee Status"
 msgstr "Статус учасників"
@@ -1631,6 +1665,20 @@ msgid "Auto Enroll Groups"
 msgstr "Автоматичний реєстр груп"
 
 #. module: website_slides
+#: model:ir.model.fields,field_description:website_slides.field_slide_channel__publish_on
+#: model:ir.model.fields,field_description:website_slides.field_slide_channel_tag_group__publish_on
+#: model:ir.model.fields,field_description:website_slides.field_slide_slide__publish_on
+msgid "Auto publish on"
+msgstr ""
+
+#. module: website_slides
+#: model:ir.model.fields,help:website_slides.field_slide_channel__publish_on
+#: model:ir.model.fields,help:website_slides.field_slide_channel_tag_group__publish_on
+#: model:ir.model.fields,help:website_slides.field_slide_slide__publish_on
+msgid "Automatically publish the page on the chosen date and time."
+msgstr ""
+
+#. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__rating_avg
 msgid "Average Rating"
 msgstr "Середня оцінка"
@@ -1639,12 +1687,6 @@ msgstr "Середня оцінка"
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_view_tree_report
 msgid "Average Review"
 msgstr "Середній перегляд"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_content_detailed
-msgid "BUILDING BLOCKS DROPPED HERE WILL BE SHOWN ACROSS ALL LESSONS"
-msgstr ""
-"КОНСТРУКТОРСЬКІ БЛОКИ, ЩО ПЕРЕТЯГНЕНІ СЮДИ, БУДУТЬ ВІДОБРАЖЕНІ ПО ВСІМ УРОКАМ"
 
 #. module: website_slides
 #. odoo-javascript
@@ -1686,6 +1728,7 @@ msgstr "Основи озеленення"
 #. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/js/public/components/slide_unsubscribe_dialog/slide_unsubscribe_dialog.xml:0
+#, fuzzy
 msgid "Be notified when a new content is added."
 msgstr "Отримуйте сповіщення, коли буде додано новий вміст."
 
@@ -1752,12 +1795,7 @@ msgstr "Можна не позначати як невиконано"
 
 #. module: website_slides
 #. odoo-javascript
-#: code:addons/website_slides/static/src/interactions/category_add.js:0
-#: code:addons/website_slides/static/src/interactions/category_delete.js:0
-#: code:addons/website_slides/static/src/interactions/enroll_email.js:0
-#: code:addons/website_slides/static/src/js/public/components/slide_upload_dialog/slide_upload_dialog.xml:0
-#: code:addons/website_slides/static/src/xml/slide_quiz_create.xml:0
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_invite_view_form
+#: code:addons/website_slides/static/src/js/public/components/slides_course_quiz_question_form/slides_course_quiz_question_form.xml:0
 msgid "Cancel"
 msgstr "Скасувати"
 
@@ -1790,10 +1828,20 @@ msgid "Certifications"
 msgstr "Сертифікації"
 
 #. module: website_slides
+#: model:ir.model.fields,field_description:website_slides.field_digest_digest__kpi_nbr_of_certified_attendees
+msgid "Certified Attendees"
+msgstr ""
+
+#. module: website_slides
 #: model:gamification.badge,name:website_slides.badge_data_certification
 #: model:gamification.goal.definition,name:website_slides.badge_data_certification_goal
 msgid "Certified Knowledge"
 msgstr "Сертифіковані знання"
+
+#. module: website_slides
+#: model:ir.actions.act_window,name:website_slides.slide_channel_partner_action_report_certified
+msgid "Certified attendees"
+msgstr ""
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide_partner__channel_id
@@ -1827,8 +1875,8 @@ msgstr "Тип каналу"
 
 #. module: website_slides
 #: model:ir.model,name:website_slides.model_slide_channel_tag_group
-msgid "Channel/Course Groups"
-msgstr "Групи каналу/курсу"
+msgid "Channel/Course Group"
+msgstr ""
 
 #. module: website_slides
 #: model:ir.model,name:website_slides.model_slide_channel_tag
@@ -1849,6 +1897,7 @@ msgstr "Шпаргалка"
 #. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/js/public/components/slide_quiz_finish_dialog/slide_quiz_finish_dialog.xml:0
+#, fuzzy
 msgid "Check Profile"
 msgstr "Перевірити профіль"
 
@@ -1904,17 +1953,6 @@ msgid "Click <b>Save</b> to create it."
 msgstr "Натисніть <b>Зберегти</b>, щоб створити."
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.mail_notification_channel_invite
-msgid "Click here to get started"
-msgstr "Натисніть тут, щоби почати"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.mail_notification_channel_invite
-msgid "Click here to start the course"
-msgstr "Натисніть тут, що розпочати курс"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.courses_home
 #: model_terms:ir.ui.view,arch_db:website_slides.courses_search_results
 msgid "Click on \"New\" in the top-right corner to write your first course."
 msgstr ""
@@ -1949,7 +1987,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:website_slides.course_main
 #: model_terms:ir.ui.view,arch_db:website_slides.courses_home
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_invite_view_form
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_share_modal_header
 msgid "Close"
 msgstr "Закрити"
 
@@ -2086,6 +2123,12 @@ msgid "Completion Time"
 msgstr "Час завершення"
 
 #. module: website_slides
+#: model:ir.model.fields,field_description:website_slides.field_slide_channel_partner__completion_date
+#: model:ir.model.fields,help:website_slides.field_slide_channel_partner__completion_date
+msgid "Completion date"
+msgstr ""
+
+#. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_invite_view_form
 msgid "Compose Email"
 msgstr "Створити електронний лист"
@@ -2163,6 +2206,7 @@ msgstr "Відповідальний на контакті"
 #. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
+#, fuzzy
 msgid "Contact the responsible to enroll."
 msgstr "Зверніться до відповідального для реєстрації."
 
@@ -2380,6 +2424,12 @@ msgid "Course Set Uncompleted"
 msgstr "Набір курсів незавершений"
 
 #. module: website_slides
+#. odoo-python
+#: code:addons/website_slides/models/slide_slide.py:0
+msgid "Course Slides"
+msgstr ""
+
+#. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_tag_view_form
 msgid "Course Tag"
 msgstr "Тег курсу"
@@ -2414,6 +2464,17 @@ msgid "Course Type"
 msgstr "Тип курсу"
 
 #. module: website_slides
+#: model:ir.model.fields,field_description:website_slides.field_website_visitor__visitor_slide_channel_count
+#: model_terms:ir.ui.view,arch_db:website_slides.website_slides_visitor_view_form
+msgid "Course Views"
+msgstr ""
+
+#. module: website_slides
+#: model:ir.actions.act_window,name:website_slides.website_slides_visitor_slide_channel_action
+msgid "Course Views History"
+msgstr ""
+
+#. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__karma_gen_channel_finish
 msgid "Course finished"
 msgstr "Курс завершено"
@@ -2442,16 +2503,17 @@ msgid "Course: %s"
 msgstr "Курс: %s"
 
 #. module: website_slides
-#. odoo-javascript
 #. odoo-python
 #: code:addons/website_slides/models/res_partner.py:0
+#: code:addons/website_slides/models/slide_channel.py:0
 #: code:addons/website_slides/models/website.py:0
-#: code:addons/website_slides/static/src/website_builder/slides_searchbar_option.xml:0
 #: model:ir.actions.act_window,name:website_slides.slide_channel_action_report
+#: model:ir.model.fields,field_description:website_slides.field_website_visitor__slide_channel_ids
 #: model:ir.ui.menu,name:website_slides.menu_slide_channel_pages
 #: model:ir.ui.menu,name:website_slides.website_slides_menu_courses
 #: model:ir.ui.menu,name:website_slides.website_slides_menu_courses_courses
 #: model:ir.ui.menu,name:website_slides.website_slides_menu_report_courses
+#: model:portal.entry,name:website_slides.portal_slides_client
 #: model:website.menu,name:website_slides.website_menu_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.course_nav
 #: model_terms:ir.ui.view,arch_db:website_slides.courses_search_bar
@@ -2459,12 +2521,13 @@ msgstr "Курс: %s"
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_view_search
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_view_tree
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_view_tree_report
+#: model_terms:ir.ui.view,arch_db:website_slides.website_slides_visitor_page_view_search
 msgid "Courses"
 msgstr "Курси"
 
 #. module: website_slides
 #. odoo-javascript
-#: code:addons/website_slides/static/src/website_builder/courses_list_page_option_plugin.js:0
+#: code:addons/website_slides/static/src/website_builder/courses_list_page_option.xml:0
 msgid "Courses Page"
 msgstr "Сторінка курсів"
 
@@ -2655,13 +2718,11 @@ msgstr "Видалити категорію"
 
 #. module: website_slides
 #. odoo-javascript
-#: code:addons/website_slides/static/src/js/slides_course_quiz.js:0
+#: code:addons/website_slides/static/src/interactions/slides_course_quiz_edit.js:0
 msgid "Delete Question"
 msgstr "Видалити запитання"
 
 #. module: website_slides
-#. odoo-javascript
-#: code:addons/website_slides/static/src/website_builder/slides_searchbar_option_plugin.js:0
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__description
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide__description
 #: model_terms:ir.ui.view,arch_db:website_slides.view_slide_channel_form
@@ -2680,8 +2741,15 @@ msgid "Did you read the whole article?"
 msgstr "Ви прочитали всю статтю?"
 
 #. module: website_slides
+#: model:ir.model,name:website_slides.model_digest_digest
+#, fuzzy
+msgid "Digest"
+msgstr "Огляд"
+
+#. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/js/public/components/slide_unsubscribe_dialog/slide_unsubscribe_dialog.xml:0
+#: code:addons/website_slides/static/src/js/public/components/slide_upload_dialog/slide_upload_dialog.xml:0
 msgid "Discard"
 msgstr "Відмінити"
 
@@ -2706,9 +2774,11 @@ msgstr "Відобразити"
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_base_partner_merge_automatic_wizard__display_name
+#: model:ir.model.fields,field_description:website_slides.field_digest_digest__display_name
 #: model:ir.model.fields,field_description:website_slides.field_gamification_challenge__display_name
 #: model:ir.model.fields,field_description:website_slides.field_gamification_karma_tracking__display_name
 #: model:ir.model.fields,field_description:website_slides.field_mail_activity__display_name
+#: model:ir.model.fields,field_description:website_slides.field_mail_message__display_name
 #: model:ir.model.fields,field_description:website_slides.field_res_config_settings__display_name
 #: model:ir.model.fields,field_description:website_slides.field_res_groups__display_name
 #: model:ir.model.fields,field_description:website_slides.field_res_partner__display_name
@@ -2726,6 +2796,8 @@ msgstr "Відобразити"
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide_resource__display_name
 #: model:ir.model.fields,field_description:website_slides.field_slide_tag__display_name
 #: model:ir.model.fields,field_description:website_slides.field_website__display_name
+#: model:ir.model.fields,field_description:website_slides.field_website_track__display_name
+#: model:ir.model.fields,field_description:website_slides.field_website_visitor__display_name
 msgid "Display Name"
 msgstr "Назва для відображення"
 
@@ -2846,6 +2918,11 @@ msgid "Download URL"
 msgstr "Завантажити URL"
 
 #. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.slide_content_detailed
+msgid "Drag blocks here to add them on all lessons"
+msgstr ""
+
+#. module: website_slides
 #: model:slide.slide,name:website_slides.slide_slide_demo_4_10
 msgid "Drawing 1"
 msgstr "Креслення 1"
@@ -2866,7 +2943,7 @@ msgstr "Тривалість"
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_content_detailed
 msgid "Earn more Karma to leave a comment."
-msgstr "Заробіть більше карми, щоб залишати коментарі."
+msgstr "Заробіть більше карми, щоб залишати коментарі"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.course_slides_list_slide
@@ -2940,7 +3017,6 @@ msgstr "Вставити код"
 #. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/js/public/components/slide_share_dialog/slide_share_dialog.xml:0
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_social_embed
 msgid "Embed in another Website"
 msgstr "Вставити на інший веб-сайт"
 
@@ -2959,11 +3035,6 @@ msgstr "Завершити курс"
 #: model:slide.slide,name:website_slides.slide_slide_demo_1_2
 msgid "Energy Efficiency Facts"
 msgstr "Факти енергоефективності"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.mail_notification_channel_invite
-msgid "Enjoy this exclusive content!"
-msgstr "Насолоджуйтеся цим ексклюзивним контентом!"
 
 #. module: website_slides
 #. odoo-python
@@ -3157,11 +3228,6 @@ msgid "Followers (Partners)"
 msgstr "Підписники (Партнери)"
 
 #. module: website_slides
-#: model:ir.model.fields,help:website_slides.field_slide_channel__activity_type_icon
-msgid "Font awesome icon e.g. fa-tasks"
-msgstr "Іконка зі шрифтом Font awesome, напр. fa-tasks"
-
-#. module: website_slides
 #: model:slide.slide,name:website_slides.slide_slide_demo_4_0
 #: model_terms:slide.slide,html_content:website_slides.slide_slide_demo_4_0
 msgid "Foreword"
@@ -3259,7 +3325,7 @@ msgstr "Додайте до вашого курсу привабливий <b>З
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.user_profile_content
 msgid "Go through all its content to see a Course in this section. <br/>"
-msgstr "Пройдіть весь вміст, щоб побачити курс в розділі. <br/>"
+msgstr "Пройдіть весь весь вміст, щоб побачити курс в розділі. <br/>"
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_res_config_settings__website_slide_google_app_key
@@ -3297,7 +3363,8 @@ msgstr ""
 
 #. module: website_slides
 #. odoo-javascript
-#: code:addons/website_slides/static/src/activity/activity_patch.xml:0
+#: code:addons/website_slides/static/src/core/web/activity_patch.xml:0
+#, fuzzy
 msgid "Grant Access"
 msgstr "Надати доступ"
 
@@ -3433,9 +3500,11 @@ msgstr "Як"
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_base_partner_merge_automatic_wizard__id
+#: model:ir.model.fields,field_description:website_slides.field_digest_digest__id
 #: model:ir.model.fields,field_description:website_slides.field_gamification_challenge__id
 #: model:ir.model.fields,field_description:website_slides.field_gamification_karma_tracking__id
 #: model:ir.model.fields,field_description:website_slides.field_mail_activity__id
+#: model:ir.model.fields,field_description:website_slides.field_mail_message__id
 #: model:ir.model.fields,field_description:website_slides.field_res_config_settings__id
 #: model:ir.model.fields,field_description:website_slides.field_res_groups__id
 #: model:ir.model.fields,field_description:website_slides.field_res_partner__id
@@ -3453,6 +3522,8 @@ msgstr "Як"
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide_resource__id
 #: model:ir.model.fields,field_description:website_slides.field_slide_tag__id
 #: model:ir.model.fields,field_description:website_slides.field_website__id
+#: model:ir.model.fields,field_description:website_slides.field_website_track__id
+#: model:ir.model.fields,field_description:website_slides.field_website_visitor__id
 msgid "ID"
 msgstr "ID"
 
@@ -3627,6 +3698,7 @@ msgstr "Встановити"
 #. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/js/public/components/slide_upload_dialog/slide_upload_dialog_select.xml:0
+#, fuzzy
 msgid "Install the"
 msgstr "Встановіть"
 
@@ -3768,6 +3840,7 @@ msgstr "Чи очікує на розгляд запрошення для цьо
 #. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/js/public/components/slide_upload_dialog/slide_upload_dialog.xml:0
+#, fuzzy
 msgid "It should look similar to"
 msgstr "Це має бути схожим на"
 
@@ -3782,7 +3855,7 @@ msgstr ""
 
 #. module: website_slides
 #. odoo-javascript
-#: code:addons/website_slides/static/src/js/slides_course_quiz.js:0
+#: code:addons/website_slides/static/src/interactions/slides_course_quiz.js:0
 msgid "Join & Submit"
 msgstr "Приєднатися та надіслати"
 
@@ -3795,23 +3868,16 @@ msgstr "Приєднатися до курсу"
 #. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
+#, fuzzy
 msgid "Join the course to take the quiz and verify your answers!"
 msgstr ""
 "Приєднуйтесь до курсу, щоб пройти вікторину та перевірити свої відповіді!"
 
 #. module: website_slides
-#. odoo-javascript
-#: code:addons/website_slides/static/src/js/slides_course_join.js:0
 #: model_terms:ir.ui.view,arch_db:website_slides.course_join
 #: model_terms:ir.ui.view,arch_db:website_slides.join_course_link
 msgid "Join this Course"
 msgstr "Приєднайтеся до цього курсу"
-
-#. module: website_slides
-#: model:ir.model.fields.selection,name:website_slides.selection__slide_channel_partner__member_status__joined
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_partner_view_search
-msgid "Joined"
-msgstr "Приєднався"
 
 #. module: website_slides
 #: model_terms:slide.slide,description:website_slides.slide_slide_demo_1_2
@@ -3874,6 +3940,16 @@ msgid ""
 msgstr ""
 "Знання характеристик деревини - це вимога, щоб знати, який вид деревини "
 "використовувати в даній ситуації."
+
+#. module: website_slides
+#: model:ir.model.fields,field_description:website_slides.field_digest_digest__kpi_nbr_of_certified_attendees_value
+msgid "Kpi Nbr Of Certified Attendees Value"
+msgstr ""
+
+#. module: website_slides
+#: model:ir.model.fields,field_description:website_slides.field_digest_digest__kpi_nbr_of_new_attendees_value
+msgid "Kpi Nbr Of New Attendees Value"
+msgstr ""
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel_invite__lang
@@ -3944,6 +4020,11 @@ msgid "Latest achievements"
 msgstr "Останні досягнення"
 
 #. module: website_slides
+#: model:website.snippet.filter,name:website_slides.dynamic_filter_latest_courses
+msgid "Latest eLearning Courses"
+msgstr ""
+
+#. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/website_builder/courses_list_page_option.xml:0
 #: model_terms:ir.ui.view,arch_db:website_slides.toggle_leaderboard
@@ -3968,8 +4049,8 @@ msgstr "Вивчайте основи садівництва!"
 
 #. module: website_slides
 #: model_terms:slide.slide,description:website_slides.slide_slide_demo_5_1
-msgid "Learn to identify quality wood in order to create solid furnitures."
-msgstr "Навчіться визначати якісну деревину, щоб створювати масивні меблі."
+msgid "Learn to identify quality wood in order to create solid furniture."
+msgstr ""
 
 #. module: website_slides
 #. odoo-javascript
@@ -4081,6 +4162,11 @@ msgid "Main Trees Categories"
 msgstr "Категорії основних рослин"
 
 #. module: website_slides
+#: model:ir.module.module,summary:base.module_website_slides
+msgid "Manage and publish an eLearning platform"
+msgstr ""
+
+#. module: website_slides
 #: model:res.groups,name:website_slides.group_website_slides_manager
 msgid "Manager"
 msgstr "Керівник"
@@ -4092,7 +4178,7 @@ msgstr "Позначити Готово"
 
 #. module: website_slides
 #. odoo-javascript
-#: code:addons/website_slides/static/src/js/slides_course_quiz.js:0
+#: code:addons/website_slides/static/src/interactions/slides_course_non_fullscreen.js:0
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_content_detailed
 msgid "Mark To Do"
 msgstr "Позначити як Зробити"
@@ -4118,6 +4204,11 @@ msgid "Mark the correct answer by checking the <b>correct</b> mark."
 msgstr "Позначайте правильні відповіді, позначивши <b>правильно</b>."
 
 #. module: website_slides
+#: model:ir.model.fields,help:website_slides.field_slide_channel__activity_type_icon
+msgid "Material Symbols icon e.g. checklist"
+msgstr ""
+
+#. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.course_sidebar
 msgid "Members"
 msgstr "Учасники"
@@ -4141,7 +4232,13 @@ msgstr "Вхід у меню"
 
 #. module: website_slides
 #: model:ir.model,name:website_slides.model_base_partner_merge_automatic_wizard
+#, fuzzy
 msgid "Merge Partner Wizard"
+msgstr "Помічник злиття партнерів"
+
+#. module: website_slides
+#: model:ir.model,name:website_slides.model_mail_message
+msgid "Message"
 msgstr ""
 
 #. module: website_slides
@@ -4325,7 +4422,8 @@ msgstr "Наступний урок"
 
 #. module: website_slides
 #. odoo-javascript
-#: code:addons/website_slides/static/src/js/slides_course_quiz.js:0
+#: code:addons/website_slides/static/src/interactions/slides_course_quiz_edit.js:0
+#: model:res.groups.privilege,placeholder:website_slides.res_groups_privilege_elearning
 #: model:slide.answer,text_value:website_slides.slide_slide_demo_1_4_question_0_1
 #: model:slide.answer,text_value:website_slides.slide_slide_demo_1_4_question_1_1
 #: model:slide.answer,text_value:website_slides.slide_slide_demo_2_0_question_0_1
@@ -4347,7 +4445,6 @@ msgid "No Attendees Yet!"
 msgstr "Ще немає жодних учасників!"
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.courses_home
 #: model_terms:ir.ui.view,arch_db:website_slides.courses_search_results
 msgid "No Course created yet."
 msgstr "Ще не створено жодного курсу."
@@ -4376,6 +4473,11 @@ msgstr "Ще немає пройдених курсів!"
 #: model_terms:ir.ui.view,arch_db:website_slides.course_slides_cards
 msgid "No content was found using your search"
 msgstr "Не знайдено жодного змісту, що відповідає вашому пошуку"
+
+#. module: website_slides
+#: model_terms:ir.actions.act_window,help:website_slides.website_slides_visitor_slide_channel_action
+msgid "No course views yet for this visitor"
+msgstr ""
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.courses_search_results
@@ -4426,6 +4528,12 @@ msgstr "Немає"
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_pages_kanban_view
 msgid "Not Published"
 msgstr "Неопубліковано"
+
+#. module: website_slides
+#: model:ir.model.fields.selection,name:website_slides.selection__slide_channel_partner__member_status__joined
+#: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_partner_view_search
+msgid "Not Started"
+msgstr ""
 
 #. module: website_slides
 #. odoo-python
@@ -4509,11 +4617,6 @@ msgstr "Кількість повідомлень з помилковою дст
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide__questions_count
 msgid "Numbers of Questions"
 msgstr "Кількість запитань"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.mail_notification_channel_invite
-msgid "Odoo"
-msgstr "Odoo"
 
 #. module: website_slides
 #: model_terms:slide.slide,html_content:website_slides.slide_slide_demo_1_4
@@ -4618,11 +4721,10 @@ msgstr "Зведена таблиця"
 
 #. module: website_slides
 #. odoo-javascript
+#: code:addons/website_slides/static/src/js/public/components/course_join_popup/course_join_popup.xml:0
 #: code:addons/website_slides/static/src/js/public/components/slide_share_dialog/email_sharing_input.xml:0
-#: code:addons/website_slides/static/src/xml/slide_course_join.xml:0
 #: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
 #: model_terms:ir.ui.view,arch_db:website_slides.course_join
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_social_email
 msgid "Please"
 msgstr "Будь ласка"
 
@@ -4655,13 +4757,12 @@ msgstr "Введіть дійсне посилання Google Drive"
 #. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/js/public/components/slide_share_dialog/email_sharing_input.js:0
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_social_email
 msgid "Please enter valid email(s)"
 msgstr "Введіть дійсну адресу електронної пошти"
 
 #. module: website_slides
 #. odoo-javascript
-#: code:addons/website_slides/static/src/js/slides_course_quiz_question_form.js:0
+#: code:addons/website_slides/static/src/js/public/components/slides_course_quiz_question_form/slides_course_quiz_question_form.js:0
 msgid "Please fill in the question"
 msgstr "Заповніть у запитанні"
 
@@ -4681,11 +4782,6 @@ msgstr "Бали нагороди"
 #: model:gamification.goal.definition,name:website_slides.badge_data_course_goal
 msgid "Power User"
 msgstr "Досвідчений користувач"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.mail_notification_channel_invite
-msgid "Powered by"
-msgstr "Зроблено"
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__prerequisite_of_channel_ids
@@ -4771,17 +4867,6 @@ msgid "Public Views"
 msgstr "Публічні перегляди"
 
 #. module: website_slides
-#. odoo-javascript
-#: code:addons/website_slides/static/src/website_builder/slides_searchbar_option_plugin.js:0
-msgid "Publication Date"
-msgstr "Дата публікації"
-
-#. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_slide_slide__date_published
-msgid "Publish Date"
-msgstr "Дата публікації"
-
-#. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_pages_kanban_view
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_view_kanban
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_view_search
@@ -4799,6 +4884,14 @@ msgstr "Опублікований вміст"
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.view_slide_slide_form
 msgid "Published Date"
+msgstr "Опублікована дата"
+
+#. module: website_slides
+#: model:ir.model.fields,field_description:website_slides.field_slide_channel__published_date
+#: model:ir.model.fields,field_description:website_slides.field_slide_channel_tag_group__published_date
+#: model:ir.model.fields,field_description:website_slides.field_slide_slide__published_date
+#, fuzzy
+msgid "Published date"
 msgstr "Опублікована дата"
 
 #. module: website_slides
@@ -4940,7 +5033,8 @@ msgstr "Одержувачі"
 
 #. module: website_slides
 #. odoo-javascript
-#: code:addons/website_slides/static/src/activity/activity_patch.xml:0
+#: code:addons/website_slides/static/src/core/web/activity_patch.xml:0
+#, fuzzy
 msgid "Refuse Access"
 msgstr "Відхилити права доступу"
 
@@ -4957,13 +5051,13 @@ msgstr "Пов’язано"
 
 #. module: website_slides
 #. odoo-javascript
-#: code:addons/website_slides/static/src/xml/slide_quiz_create.xml:0
+#: code:addons/website_slides/static/src/js/public/components/slides_course_quiz_question_form/slides_course_quiz_question_form.xml:0
 msgid "Remove the answer comment"
 msgstr "Вилучити коментар відповіді"
 
 #. module: website_slides
 #. odoo-javascript
-#: code:addons/website_slides/static/src/xml/slide_quiz_create.xml:0
+#: code:addons/website_slides/static/src/js/public/components/slides_course_quiz_question_form/slides_course_quiz_question_form.xml:0
 msgid "Remove this answer"
 msgstr "Вилучити цю відповідь"
 
@@ -4997,6 +5091,7 @@ msgstr "Запитуваний партнер"
 #. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
+#, fuzzy
 msgid "Reset"
 msgstr "Скинути"
 
@@ -5035,6 +5130,7 @@ msgstr "Відповідальний користувач"
 #. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
+#, fuzzy
 msgid "Responsible already contacted."
 msgstr "Відповідальний вже зв'язався."
 
@@ -5060,6 +5156,7 @@ msgstr "Повторити"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.profile_access_denied
+#, fuzzy
 msgid "Return to the course."
 msgstr "Поверніться на курс."
 
@@ -5152,7 +5249,7 @@ msgstr "Зразок"
 #: code:addons/website_slides/static/src/interactions/category_add.js:0
 #: code:addons/website_slides/static/src/js/public/components/slide_unsubscribe_dialog/slide_unsubscribe_dialog.xml:0
 #: code:addons/website_slides/static/src/js/public/components/slide_upload_dialog/slide_upload_category.xml:0
-#: code:addons/website_slides/static/src/xml/slide_quiz_create.xml:0
+#: code:addons/website_slides/static/src/js/public/components/slides_course_quiz_question_form/slides_course_quiz_question_form.xml:0
 msgid "Save"
 msgstr "Зберегти"
 
@@ -5168,7 +5265,6 @@ msgid "Score"
 msgstr "Оцінка"
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_nav
 #: model_terms:ir.ui.view,arch_db:website_slides.course_slides_cards
 msgid "Search"
 msgstr "Пошук"
@@ -5179,16 +5275,10 @@ msgid "Search Contents"
 msgstr "Зміст пошуку"
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.courses_search_bar
-msgid "Search Courses"
-msgstr ""
-
-#. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.course_nav
-#: model_terms:ir.ui.view,arch_db:website_slides.courses_home
 #: model_terms:ir.ui.view,arch_db:website_slides.courses_search_bar
-msgid "Search courses"
-msgstr "Пошук курсів"
+msgid "Search courses..."
+msgstr ""
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.course_slides_cards
@@ -5268,7 +5358,7 @@ msgstr ""
 
 #. module: website_slides
 #. odoo-javascript
-#: code:addons/website_slides/static/src/xml/slide_quiz_create.xml:0
+#: code:addons/website_slides/static/src/js/public/components/slides_course_quiz_question_form/slides_course_quiz_question_form.xml:0
 msgid "Select the correct answer below:"
 msgstr "Оберіть правильну відповідь нижче:"
 
@@ -5291,6 +5381,7 @@ msgstr "Надіслати"
 #. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/js/public/components/slide_share_dialog/email_sharing_input.xml:0
+#: model:ir.actions.act_window,name:website_slides.slide_channel_partner_action_send_mail
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel_invite__send_email
 msgid "Send Email"
 msgstr "Надіслати ел. листа"
@@ -5371,7 +5462,6 @@ msgstr "Поділитися каналом"
 #. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/js/public/components/slide_share_dialog/slide_share_dialog.xml:0
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_share_link
 msgid "Share Link"
 msgstr "Посилання для поширення"
 
@@ -5381,11 +5471,6 @@ msgid "Share Template"
 msgstr "Шаблон поширення"
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_share_modal_header
-msgid "Share This Content"
-msgstr "Поділитися цим вмістом"
-
-#. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide__website_share_url
 msgid "Share URL"
 msgstr "Поділитися URL"
@@ -5393,49 +5478,42 @@ msgstr "Поділитися URL"
 #. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/js/public/components/slide_share_dialog/slide_share_dialog.xml:0
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_social_email
 msgid "Share by Email"
 msgstr "Поділитися через Email"
 
 #. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/js/public/components/slide_share_dialog/slide_share_dialog.xml:0
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_share_social
 msgid "Share on Facebook"
 msgstr "Поділитися на Facebook"
 
 #. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/js/public/components/slide_share_dialog/slide_share_dialog.xml:0
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_share_social
 msgid "Share on LinkedIn"
 msgstr "Поділитися на LinkedIn"
 
 #. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/js/public/components/slide_share_dialog/slide_share_dialog.xml:0
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_share_social
 msgid "Share on Pinterest"
 msgstr "Поділитися на Pinterest"
 
 #. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/js/public/components/slide_share_dialog/slide_share_dialog.xml:0
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_share_modal_body
 msgid "Share on Social Media"
 msgstr "Поділитися у Соцмережах"
 
 #. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/js/public/components/slide_share_dialog/slide_share_dialog.xml:0
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_share_social
 msgid "Share on Whatsapp"
 msgstr "Поділитися у Whatsapp"
 
 #. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/js/public/components/slide_share_dialog/slide_share_dialog.xml:0
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_share_social
 msgid "Share on X"
 msgstr ""
 
@@ -5488,6 +5566,7 @@ msgstr "Зареєструватися!"
 #. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
+#, fuzzy
 msgid "Sign in and join the course to verify your answers!"
 msgstr "Увійдіть та приєднайтеся до курсу, щоб перевірити свої відповіді!"
 
@@ -5502,6 +5581,7 @@ msgid "Signed In"
 msgstr "Увійшов"
 
 #. module: website_slides
+#: model:ir.model,name:website_slides.model_slide_slide
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide_resource__slide_id
 msgid "Slide"
 msgstr "Слайд"
@@ -5512,9 +5592,14 @@ msgid "Slide / Partner decorated m2m"
 msgstr "Slide / Partner decorated m2m"
 
 #. module: website_slides
+#: model:ir.model.fields,field_description:website_slides.field_website_track__slide_channel_id
+msgid "Slide Channel"
+msgstr ""
+
+#. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide__slide_icon_class
-msgid "Slide Icon fa-class"
-msgstr "Знак слайду fa-class"
+msgid "Slide Icon oi-class"
+msgstr ""
 
 #. module: website_slides
 #: model:ir.model,name:website_slides.model_slide_answer
@@ -5555,7 +5640,6 @@ msgstr ""
 #. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/xml/website_slides_fullscreen.xml:0
-#: model:ir.model,name:website_slides.model_slide_slide
 #: model_terms:ir.ui.view,arch_db:website_slides.res_config_settings_view_form
 msgid "Slides"
 msgstr "Слайди"
@@ -5813,7 +5897,7 @@ msgid ""
 "'Course Attendees'"
 msgstr ""
 "У політиці реєстрації має бути встановлено значення «На запрошення», якщо "
-"для видимості встановлено значення «Відвідувачі курсу»"
+"для видимості встановлено значення «Відвідувачі курсу»."
 
 #. module: website_slides
 #. odoo-javascript
@@ -5908,7 +5992,7 @@ msgstr ""
 
 #. module: website_slides
 #. odoo-javascript
-#: code:addons/website_slides/static/src/js/slides_course_quiz.js:0
+#: code:addons/website_slides/static/src/interactions/slides_course_quiz.js:0
 msgid "There was an error validating this quiz."
 msgstr "Виникла помилка під час перевірки цієї вікторини."
 
@@ -5944,6 +6028,7 @@ msgstr ""
 #. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
+#, fuzzy
 msgid "This course is private."
 msgstr "Це приватний курс."
 
@@ -5973,13 +6058,13 @@ msgstr "Це запрошувальне посилання не для цьог�
 
 #. module: website_slides
 #. odoo-javascript
-#: code:addons/website_slides/static/src/xml/slide_quiz_create.xml:0
+#: code:addons/website_slides/static/src/js/public/components/slides_course_quiz_question_form/slides_course_quiz_question_form.xml:0
 msgid "This is the correct answer"
 msgstr "Це правильна відповідь"
 
 #. module: website_slides
 #. odoo-javascript
-#: code:addons/website_slides/static/src/xml/slide_quiz_create.xml:0
+#: code:addons/website_slides/static/src/js/public/components/slides_course_quiz_question_form/slides_course_quiz_question_form.xml:0
 msgid "This is the correct answer, congratulations"
 msgstr "Це правильна відповідь, вітаємо"
 
@@ -5993,7 +6078,7 @@ msgstr ""
 
 #. module: website_slides
 #. odoo-javascript
-#: code:addons/website_slides/static/src/js/slides_course_quiz.js:0
+#: code:addons/website_slides/static/src/interactions/slides_course_quiz.js:0
 msgid "This quiz is already done. Retaking it is not possible."
 msgstr "Цю вікторину пройдено. Повторити її неможливо."
 
@@ -6080,6 +6165,11 @@ msgid "Total Views"
 msgstr "Всього переглядів"
 
 #. module: website_slides
+#: model:ir.model.fields,help:website_slides.field_website_visitor__visitor_slide_channel_count
+msgid "Total number of views on courses"
+msgstr ""
+
+#. module: website_slides
 #: model:ir.model,name:website_slides.model_gamification_karma_tracking
 msgid "Track Karma Changes"
 msgstr "Зміни карми відстеження"
@@ -6155,7 +6245,7 @@ msgstr "Невідомий веб-сайт"
 #. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/interactions/slide_like.js:0
-#: code:addons/website_slides/static/src/js/slides_course_join.js:0
+#: code:addons/website_slides/static/src/interactions/slides_course_join.js:0
 msgid "Unknown error"
 msgstr "Невідома помилка"
 
@@ -6172,16 +6262,8 @@ msgid "Unlisted"
 msgstr "Не в списку"
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_card
-#: model_terms:ir.ui.view,arch_db:website_slides.course_slides_list_slide
-#: model_terms:ir.ui.view,arch_db:website_slides.courses_my
-#: model_terms:ir.ui.view,arch_db:website_slides.lesson_card
-msgid "Unpublished"
-msgstr "Неопубліковано"
-
-#. module: website_slides
 #. odoo-javascript
-#: code:addons/website_slides/static/src/xml/slide_quiz_create.xml:0
+#: code:addons/website_slides/static/src/js/public/components/slides_course_quiz_question_form/slides_course_quiz_question_form.xml:0
 msgid "Update"
 msgstr "Оновити"
 
@@ -6262,6 +6344,7 @@ msgstr "Використовуйте шаблон"
 #. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/js/public/components/slide_upload_dialog/slide_upload_dialog.xml:0
+#, fuzzy
 msgid "Use the"
 msgstr "Використовуйте"
 
@@ -6350,6 +6433,11 @@ msgid "View course"
 msgstr "Переглянути курс"
 
 #. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.dynamic_filter_template_slide_channel_card
+msgid "View {{0}}"
+msgstr ""
+
+#. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_view_kanban
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_content_detailed
 msgid "Views"
@@ -6384,6 +6472,16 @@ msgstr ""
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide__website_published
 msgid "Visible on current website"
 msgstr "Видимий на поточному веб-сайті"
+
+#. module: website_slides
+#: model:ir.model,name:website_slides.model_website_track
+msgid "Visited Page"
+msgstr ""
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.website_slides_visitor_page_view_tree
+msgid "Visitor Course Views History"
+msgstr ""
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__total_views
@@ -6455,12 +6553,6 @@ msgid "Website Absolute URL"
 msgstr ""
 
 #. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_slide_channel__website_message_ids
-#: model:ir.model.fields,field_description:website_slides.field_slide_slide__website_message_ids
-msgid "Website Messages"
-msgstr "Повідомлення з веб-сайту"
-
-#. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__website_url
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel_tag_group__website_url
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide__website_url
@@ -6468,10 +6560,9 @@ msgid "Website URL"
 msgstr "URL сайту"
 
 #. module: website_slides
-#: model:ir.model.fields,help:website_slides.field_slide_channel__website_message_ids
-#: model:ir.model.fields,help:website_slides.field_slide_slide__website_message_ids
-msgid "Website communication history"
-msgstr "Історія бесіди на сайті"
+#: model:ir.model,name:website_slides.model_website_visitor
+msgid "Website Visitor"
+msgstr ""
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__website_meta_description
@@ -6609,7 +6700,7 @@ msgstr "XP"
 #. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/interactions/enroll_email.js:0
-#: code:addons/website_slides/static/src/js/slides_course_quiz.js:0
+#: code:addons/website_slides/static/src/interactions/slides_course_quiz_edit.js:0
 #: model:slide.answer,text_value:website_slides.slide_slide_demo_1_4_question_0_0
 #: model:slide.answer,text_value:website_slides.slide_slide_demo_1_4_question_1_0
 #: model:slide.answer,text_value:website_slides.slide_slide_demo_2_0_question_0_0
@@ -6731,7 +6822,7 @@ msgstr "Ви зробили це!"
 #. odoo-python
 #: code:addons/website_slides/controllers/main.py:0
 msgid "You do not have permission to access this course."
-msgstr "Ви не маєте доступу до цього курсу."
+msgstr "Ви не маєте доступу до цього курсу"
 
 #. module: website_slides
 #. odoo-javascript
@@ -6748,12 +6839,13 @@ msgstr "У вас недостатньо карми для голосуванн�
 #. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/js/public/components/slide_quiz_finish_dialog/slide_quiz_finish_dialog.xml:0
+#, fuzzy
 msgid "You gained"
 msgstr "Ви отримали"
 
 #. module: website_slides
 #. odoo-javascript
-#: code:addons/website_slides/static/src/js/slides_course_join.js:0
+#: code:addons/website_slides/static/src/interactions/slides_course_join.js:0
 msgid "You have already joined this channel"
 msgstr "Ви вже приєдналися до цього каналу"
 
@@ -6785,7 +6877,7 @@ msgstr "Тепер ви можете взяти участь у нашому е�
 
 #. module: website_slides
 #. odoo-javascript
-#: code:addons/website_slides/static/src/js/slides_course_quiz.js:0
+#: code:addons/website_slides/static/src/interactions/slides_course_quiz.js:0
 msgid "You must be logged to submit the quiz."
 msgstr "Щоб надіслати вікторину, потрібно зареєструватися."
 
@@ -6829,9 +6921,16 @@ msgid "YouTube:"
 msgstr ""
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.mail_notification_channel_invite
-msgid "Your"
-msgstr "Ваші"
+#. odoo-python
+#: code:addons/website_slides/wizard/slide_channel_invite.py:0
+msgid "Your %s"
+msgstr ""
+
+#. module: website_slides
+#. odoo-python
+#: code:addons/website_slides/wizard/slide_channel_invite.py:0
+msgid "Your document"
+msgstr ""
 
 #. module: website_slides
 #: model_terms:ir.actions.act_window,help:website_slides.slide_channel_action_overview
@@ -6911,6 +7010,7 @@ msgstr "в усякому разі"
 #. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/js/public/components/slide_upload_dialog/slide_upload_dialog_select.xml:0
+#, fuzzy
 msgid "app."
 msgstr "додаток."
 
@@ -6928,15 +7028,9 @@ msgstr ""
 #. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/js/public/components/slide_share_dialog/email_sharing_input.xml:0
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_social_email
+#, fuzzy
 msgid "by email."
 msgstr "за електронною поштою."
-
-#. module: website_slides
-#. odoo-python
-#: code:addons/website_slides/models/slide_channel.py:0
-msgid "copy"
-msgstr "скопіювати"
 
 #. module: website_slides
 #. odoo-javascript
@@ -6951,7 +7045,7 @@ msgstr "курси"
 
 #. module: website_slides
 #. odoo-javascript
-#: code:addons/website_slides/static/src/xml/slide_course_join.xml:0
+#: code:addons/website_slides/static/src/js/public/components/course_join_popup/course_join_popup.xml:0
 msgid "create an account"
 msgstr "створити акаунт"
 
@@ -7002,7 +7096,7 @@ msgstr "напр., \"Вступ\""
 
 #. module: website_slides
 #. odoo-javascript
-#: code:addons/website_slides/static/src/xml/slide_quiz_create.xml:0
+#: code:addons/website_slides/static/src/js/public/components/slides_course_quiz_question_form/slides_course_quiz_question_form.xml:0
 msgid "e.g. \"Which animal cannot fly?\""
 msgstr "напр., \"Яка тварина не вміє літати?\""
 
@@ -7038,8 +7132,10 @@ msgstr "напр. Ваш рівень"
 #. module: website_slides
 #. odoo-python
 #: code:addons/website_slides/controllers/main.py:0
+#: model:ir.module.module,shortdesc:base.module_website_slides
 #: model:ir.ui.menu,name:website_slides.website_slides_menu_root
 #: model:res.groups.privilege,name:website_slides.res_groups_privilege_elearning
+#: model_terms:ir.ui.view,arch_db:website_slides.digest_digest_view_form
 #: model_terms:ir.ui.view,arch_db:website_slides.res_config_settings_view_form
 msgid "eLearning"
 msgstr "електронне навчання"
@@ -7079,15 +7175,14 @@ msgstr "приєднатися"
 
 #. module: website_slides
 #. odoo-javascript
+#: code:addons/website_slides/static/src/js/public/components/course_join_popup/course_join_popup.xml:0
 #: code:addons/website_slides/static/src/js/public/components/slide_share_dialog/email_sharing_input.xml:0
-#: code:addons/website_slides/static/src/xml/slide_course_join.xml:0
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_social_email
 msgid "login"
 msgstr "вхід"
 
 #. module: website_slides
 #. odoo-javascript
-#: code:addons/website_slides/static/src/xml/slide_course_join.xml:0
+#: code:addons/website_slides/static/src/js/public/components/course_join_popup/course_join_popup.xml:0
 #: model_terms:ir.ui.view,arch_db:website_slides.course_join
 msgid "or"
 msgstr "або"
@@ -7123,6 +7218,7 @@ msgstr "старт"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.course_card
+#: model_terms:ir.ui.view,arch_db:website_slides.dynamic_filter_template_slide_channel_card
 msgid "steps"
 msgstr "кроки"
 
@@ -7149,12 +7245,14 @@ msgstr "для звернення до відповідальних"
 #. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
+#, fuzzy
 msgid "to enroll."
 msgstr "зарахувати."
 
 #. module: website_slides
 #. odoo-javascript
-#: code:addons/website_slides/static/src/xml/slide_course_join.xml:0
+#: code:addons/website_slides/static/src/js/public/components/course_join_popup/course_join_popup.xml:0
+#, fuzzy
 msgid "to join this course"
 msgstr "для приєднання на курс"
 
@@ -7166,7 +7264,7 @@ msgstr "для запиту доступу"
 #. module: website_slides
 #. odoo-javascript
 #: code:addons/website_slides/static/src/js/public/components/slide_share_dialog/email_sharing_input.xml:0
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_social_email
+#, fuzzy
 msgid "to share this"
 msgstr "поділитися цим"
 
@@ -7183,11 +7281,6 @@ msgid "xp"
 msgstr "xp"
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_social_email
-msgid "your-friend@domain.com, your-friend2@domain.com"
-msgstr "your-friend@domain.com, your-friend2@domain.com"
-
-#. module: website_slides
 #: model:mail.template,subject:website_slides.mail_template_channel_shared
 msgid "{{ user.name }} shared a Course"
 msgstr "{{ user.name }} поділився курсом"
@@ -7201,336 +7294,3 @@ msgstr "{{ user.name }} поділився з вами {{ object.slide_category 
 #: model_terms:ir.ui.view,arch_db:website_slides.course_nav
 msgid "└<span class=\"ms-1\">Uncategorized</span>"
 msgstr "└<span class=\"ms-1\">Без категорії</span>"
-
-#~ msgid "<i class=\"fa fa-comments\"/> Comments ("
-#~ msgstr "<i class=\"fa fa-comments\"/> Коментарі ("
-
-#~ msgid ". This way, they will be secured."
-#~ msgstr ". Таким чином вони будуть убезпечені."
-
-#~ msgid ""
-#~ "<i class=\"fa fa-desktop me-2\"/>\n"
-#~ "                <span class=\"d-none d-sm-inline-block\">Fullscreen</span>"
-#~ msgstr ""
-#~ "<i class=\"fa fa-desktop me-2\"/>\n"
-#~ "                <span class=\"d-none d-sm-inline-block\">Повний екран</"
-#~ "span>"
-
-#~ msgid "<i class=\"fa fa-eraser\"/> Clear filters"
-#~ msgstr "<i class=\"fa fa-eraser\"/> Очистити фільтр"
-
-#~ msgid "<i class=\"fa fa-flag-checkered text-warning me-2\"/>Quiz"
-#~ msgstr "<i class=\"fa fa-flag-checkered text-warning me-2\"/>Вікторина"
-
-#~ msgid "<i class=\"fa fa-graduation-cap me-1\"/>All courses"
-#~ msgstr "<i class=\"fa fa-graduation-cap me-1\"/>Усі курси"
-
-#~ msgid ""
-#~ "<i class=\"fa fa-share-alt me-2\"/>\n"
-#~ "                <span class=\"d-none d-sm-inline-block\">Share</span>"
-#~ msgstr ""
-#~ "<i class=\"fa fa-share-alt me-2\"/>\n"
-#~ "                <span class=\"d-none d-sm-inline-block\">Поділитися</span>"
-
-#~ msgid ""
-#~ "<i class=\"fa fa-tag me-2 text-muted\"/>\n"
-#~ "                      My Courses"
-#~ msgstr ""
-#~ "<i class=\"fa fa-tag me-2 text-muted\"/>\n"
-#~ "                      Мої курси"
-
-#~ msgid ""
-#~ "<small><span class=\"badge rounded-pill text-bg-success fw-normal\"><i "
-#~ "class=\"fa fa-check\"/> Completed</span></small>"
-#~ msgstr ""
-#~ "<small><span class=\"badge rounded-pill text-bg-success fw-normal\"><i "
-#~ "class=\"fa fa-check\"/> Завершено</span></small>"
-
-#~ msgid ""
-#~ "<span class=\"badge fw-bold px-2 py-1 m-1 text-bg-warning\">\n"
-#~ "                            <i class=\"fa fa-fw fa-flag\"/> 10 xp\n"
-#~ "                        </span>"
-#~ msgstr ""
-#~ "<span class=\"badge fw-bold px-2 py-1 m-1 text-bg-warning\">\n"
-#~ "                            <i class=\"fa fa-fw fa-flag\"/> 10 xp\n"
-#~ "                        </span>"
-
-#~ msgid ""
-#~ "<span class=\"badge rounded-pill text-bg-success pull-right py-1 "
-#~ "px-2\"><i class=\"fa fa-check\"/> Completed</span>"
-#~ msgstr ""
-#~ "<span class=\"badge rounded-pill text-bg-success pull-right py-1 "
-#~ "px-2\"><i class=\"fa fa-check\"/> Завершено</span>"
-
-#~ msgid ""
-#~ "<span class=\"badge text-bg-info badge-arrow-right fw-normal px-2 py-1 "
-#~ "m-1\">New</span>"
-#~ msgstr ""
-#~ "<span class=\"badge text-bg-info badge-arrow-right fw-normal px-2 py-1 "
-#~ "m-1\">Новий</span>"
-
-#~ msgid ""
-#~ "<span class=\"badge text-bg-light badge-hide border fw-normal px-2 py-1 "
-#~ "m-1\">Add Quiz</span>"
-#~ msgstr ""
-#~ "<span class=\"badge text-bg-light badge-hide border fw-normal px-2 py-1 "
-#~ "m-1\">Додати вікторину</span>"
-
-#~ msgid ""
-#~ "<span class=\"badge text-bg-success fw-normal px-2 py-1 "
-#~ "m-1\"><span>Preview</span></span>"
-#~ msgstr ""
-#~ "<span class=\"badge text-bg-success fw-normal px-2 py-1 "
-#~ "m-1\"><span>Переглянути</span></span>"
-
-#~ msgid ""
-#~ "<span class=\"badge text-bg-success fw-normal px-2 py-1 m-1\">Preview</"
-#~ "span>"
-#~ msgstr ""
-#~ "<span class=\"badge text-bg-success fw-normal px-2 py-1 "
-#~ "m-1\">Переглянути</span>"
-
-#~ msgid "<span class=\"fw-bold text-muted me-2\">Current rank:</span>"
-#~ msgstr "<span class=\"fw-bold text-muted me-2\">Поточне звання:</span>"
-
-#~ msgid "<span class=\"o_wslides_arrow\">New Content</span>"
-#~ msgstr "<span class=\"o_wslides_arrow\">Новий вміст</span>"
-
-#~ msgid "<span class=\"text-500 mx-2\">•</span>"
-#~ msgstr "<span class=\"text-500 mx-2\">•</span>"
-
-#~ msgid ""
-#~ "<span id=\"zoomout\" class=\"d-none d-sm-inline ms-2 me-2\" title=\"Zoom "
-#~ "out\" aria-label=\"Zoom out\" role=\"button\">\n"
-#~ "                                            <i class=\"fa fa-search-"
-#~ "minus\"/>\n"
-#~ "                                        </span>\n"
-#~ "                                        <span id=\"zoomin\" class=\"d-"
-#~ "none d-sm-inline\" title=\"Zoom in\" aria-label=\"Zoom in\" "
-#~ "role=\"button\">\n"
-#~ "                                            <i class=\"fa fa-search-"
-#~ "plus\"/>\n"
-#~ "                                        </span>"
-#~ msgstr ""
-#~ "<span id=\"zoomout\" class=\"d-none d-sm-inline ms-2 me-2\" title=\"Zoom "
-#~ "out\" aria-label=\"Zoom out\" role=\"button\">\n"
-#~ "                                            <i class=\"fa fa-search-"
-#~ "minus\"/>\n"
-#~ "                                        </span>\n"
-#~ "                                        <span id=\"zoomin\" class=\"d-"
-#~ "none d-sm-inline\" title=\"Zoom in\" aria-label=\"Zoom in\" "
-#~ "role=\"button\">\n"
-#~ "                                            <i class=\"fa fa-search-"
-#~ "plus\"/>\n"
-#~ "                                        </span>"
-
-#~ msgid ""
-#~ "<span name=\"done_members_count_label\" class=\"text-muted\">Finished</"
-#~ "span>"
-#~ msgstr ""
-#~ "<span name=\"done_members_count_label\" class=\"text-muted\">Завершено</"
-#~ "span>"
-
-#~ msgid "<strong>Sharing is caring!</strong> Email(s) sent."
-#~ msgstr "<strong>Ділитися – це турбота!</strong> Лист надіслано."
-
-#~ msgid ""
-#~ "A good course has a structure. Pick a name for your first section and "
-#~ "click <b>Save</b> to create it."
-#~ msgstr ""
-#~ "Хороший курс має структуру. Виберіть назву для свого першого розділу та "
-#~ "натисніть <b>Зберегти</b>, щоб створити його."
-
-#~ msgid "Already installing \"%s\"."
-#~ msgstr "Вже встановлюється \"%s\"."
-
-#~ msgid "Certification"
-#~ msgstr "Сертифікація"
-
-#~ msgid "Change video privacy settings"
-#~ msgstr "Змінити налаштування конфіденційності відео"
-
-#~ msgid "Clear filters"
-#~ msgstr "Очистити фільтри"
-
-#~ msgid "Click on the <b>Create</b> button to create your first course."
-#~ msgstr "Натисніть кнопки <b>Створити</b>, щоб створити ваш перший курс."
-
-#~ msgid "Contact us"
-#~ msgstr "Зв'яжіться з нами"
-
-#~ msgid "Create new %s '%s'"
-#~ msgstr "Створити новий %s '%s'"
-
-#~ msgid "Creation Date"
-#~ msgstr "Дата створення"
-
-#~ msgid "Discover more"
-#~ msgstr "Відкрити більше"
-
-#~ msgid "Do you want to install the \"%s\" app?"
-#~ msgstr "Ви хочете встановити модуль \"%s\"?"
-
-#~ msgid "Email(s) sent."
-#~ msgstr "Лист надіслано."
-
-#~ msgid "Failed to install \"%s\"."
-#~ msgstr "Не вдалося встановити \"%s\"."
-
-#~ msgid "First, upload your videos on YouTube and mark them as"
-#~ msgstr "Спочатку завантажте свої відео на YouTube і позначте їх як"
-
-#~ msgid "Group By"
-#~ msgstr "Групувати за"
-
-#~ msgid "How to plant a potted tree"
-#~ msgstr "Як посадити дерево у горщик"
-
-#~ msgid "How to upload your PowerPoint Presentations or Word Documents?"
-#~ msgstr "Як завантажити вашу презентацію PowerPoint чи документи Word?"
-
-#~ msgid "How to use Google Drive?"
-#~ msgstr "Як використовувати Google Drive?"
-
-#~ msgid ""
-#~ "If you want to use other types of files, you may want to use an external "
-#~ "source (Google Drive) instead."
-#~ msgstr ""
-#~ "Якщо ви хочет використовувати інші типи файлів, ви певно захочете "
-#~ "натомість використовувати зовнішнє джерело (Google Drive)."
-
-#~ msgid "Installing \"%s\"."
-#~ msgstr "Встановлення \"%s\"."
-
-#~ msgid "Interesting Tree Facts"
-#~ msgstr "Цікаві факти про дерева"
-
-#~ msgid "Most popular courses"
-#~ msgstr "Найпопулярніші курси"
-
-#~ msgid "My Courses"
-#~ msgstr "Мої курси"
-
-#~ msgid "New Certification"
-#~ msgstr "Новий сертифікат"
-
-#~ msgid "New Content Ribbon"
-#~ msgstr "Стрічка нового контенту"
-
-#~ msgid "Newest courses"
-#~ msgstr "Найновіші курси"
-
-#~ msgid "Next rank:"
-#~ msgstr "Наступне звання:"
-
-#~ msgid "Number of messages which requires an action"
-#~ msgstr "Кількість повідомлень, які потебують дії"
-
-#~ msgid "On Google Drive"
-#~ msgstr "На Google Drive"
-
-#~ msgid "On Vimeo"
-#~ msgstr "На Vimeo"
-
-#~ msgid "On YouTube"
-#~ msgstr "На YouTube"
-
-#~ msgid ""
-#~ "Optional translation language (ISO code) to select when sending out an "
-#~ "email. If not set, the english version will be used. This should usually "
-#~ "be a placeholder expression that provides the appropriate language, e.g. "
-#~ "{{ object.partner_id.lang }}."
-#~ msgstr ""
-#~ "Додаткова мова перекладу (код ISO), яку можна вибрати під час надсилання "
-#~ "електронного листа. Якщо не встановлено, використовуватиметься англійська "
-#~ "версія. Зазвичай це має бути вираз-заповнювач, який забезпечує відповідну "
-#~ "мову, напр. {{ object.partner_id.lang }}."
-
-#~ msgid ""
-#~ "Please <a href=\"/web/login?redirect=%s\">login</a> or <a href=\"/web/"
-#~ "signup?redirect=%s\">create an account</a> to vote for this lesson"
-#~ msgstr ""
-#~ "Будь ласка <a href=\"/web/login?redirect=%s\">увійдіть</a> або <a href=\"/"
-#~ "web/signup?redirect=%s\">створіть обліковий запис</a>, щоби проголосувати "
-#~ "за цей урок"
-
-#~ msgid ""
-#~ "Please <a href=\"/web/login?redirect=%s\">login</a> to vote for this "
-#~ "lesson"
-#~ msgstr ""
-#~ "Будь ласка <a href=\"/web/login?redirect=%s\">увійдіть</a>, щоби "
-#~ "проголосувати за цей урок"
-
-#~ msgid "Question \"%s\" must have 1 correct answer"
-#~ msgstr "Запитання \"%s\" повинно містити 1 коректну відповідь"
-
-#~ msgid ""
-#~ "Question \"%s\" must have 1 correct answer and at least 1 incorrect answer"
-#~ msgstr ""
-#~ "Запитання \"%s\" повинно містити 1 правильну відповідь а принаймні 1 "
-#~ "неправильну"
-
-#~ msgid "Reach new heights"
-#~ msgstr "Досягніть нові висоти"
-
-#~ msgid "Restrict publishing to this website."
-#~ msgstr "Обмеження публікації на цьому веб-сайті."
-
-#~ msgid "Save & Publish"
-#~ msgstr "Зберегти та опублікувати"
-
-#~ msgid "Save your presentations or documents as PDF files and upload them."
-#~ msgstr ""
-#~ "Збережіть ваші презентації або документи як файли PDF та завантажте їх."
-
-#~ msgid "Share This Course"
-#~ msgstr "Поділитися цим вмістом"
-
-#~ msgid "Share on Twitter"
-#~ msgstr "Поділитися на Twitter"
-
-#~ msgid ""
-#~ "Skill up and have an impact! Your business career starts here.<br/>Time "
-#~ "to start a course."
-#~ msgstr ""
-#~ "Вдосконалюйте свій рівень та впливайте! Ваша бізнес-кар'єра починається "
-#~ "тут.<br/>Час почати курс."
-
-#~ msgid "Start your online course today!"
-#~ msgstr "Розпочніть ваш онлійн-курс сьогодні!"
-
-#~ msgid "Tag Group (required for new tags)"
-#~ msgstr "Група тегів (потрібна для нових тегів)"
-
-#~ msgid "The full URL to access the document through the website."
-#~ msgstr "URL-адреса повністю, для доступу до документації через сайт."
-
-#~ msgid "Tree Infographic"
-#~ msgstr "Інфографіка дерева"
-
-#~ msgid "Tree planting in hanging bottles on wall"
-#~ msgstr "Деревні рослини у висячих горщиках на стіні"
-
-#~ msgid "What does"
-#~ msgstr "Що робить"
-
-#~ msgid "Your Level"
-#~ msgstr "Ваш рівень"
-
-#~ msgid "Your Role"
-#~ msgstr "Ваша роль"
-
-#~ msgid "achieved"
-#~ msgstr "досягнув"
-
-#~ msgid ""
-#~ "means? The YouTube \"unlisted\" means it is a video which can be viewed "
-#~ "only by the users with the link to it. Your video will never come up in "
-#~ "the search results nor on your channel."
-#~ msgstr ""
-#~ "означає? YouTube \"не в списку\" означає, що це відео, яке можуть "
-#~ "переглядати лише користувачі з посиланням на нього. Ваше відео ніколи не "
-#~ "з’явиться в результатах пошуку чи на вашому каналі."
-
-#~ msgid "unlisted"
-#~ msgstr "не в списку"

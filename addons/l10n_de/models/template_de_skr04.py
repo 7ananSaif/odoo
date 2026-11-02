@@ -11,8 +11,6 @@ class AccountChartTemplate(models.AbstractModel):
         return {
             'name': 'German chart of accounts SKR04',
             'code_digits': '4',
-            'property_account_receivable_id': 'chart_skr04_1205',
-            'property_account_payable_id': 'chart_skr04_3301',
         }
 
     @template('de_skr04', 'res.company')
@@ -34,7 +32,8 @@ class AccountChartTemplate(models.AbstractModel):
                 'account_purchase_tax_id': 'tax_vst_19_skr04',
                 'expense_account_id': 'chart_skr04_5400',
                 'income_account_id': 'chart_skr04_4400',
-                'account_stock_journal_id': 'inventory_valuation',
+                'receivable_account_id': 'chart_skr04_1205',
+                'payable_account_id': 'chart_skr04_3301',
                 'account_stock_valuation_id': 'chart_skr04_1000',
             },
         }
@@ -146,5 +145,225 @@ class AccountChartTemplate(models.AbstractModel):
             'chart_skr04_1000': {
                 'account_stock_expense_id': 'chart_skr04_5000',
                 'account_stock_variation_id': 'chart_skr04_5880',
+            },
+            'chart_skr04_130': {
+                'depreciation_model_id': 'asset_5_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_134',
+                'asset_expense_account_id': 'chart_skr04_6200',
+            },
+            'chart_skr04_135': {
+                'depreciation_model_id': 'asset_1_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_139',
+                'asset_expense_account_id': 'chart_skr04_6200',
+            },
+            'chart_skr04_140': {
+                'depreciation_model_id': 'asset_5_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_149',
+                'asset_expense_account_id': 'chart_skr04_6200',
+            },
+            'chart_skr04_150': {
+                'depreciation_model_id': 'asset_15_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_159',
+                'asset_expense_account_id': 'chart_skr04_6200',
+            },
+            'chart_skr04_240': {
+                'depreciation_model_id': 'asset_33_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_249',
+                'asset_expense_account_id': 'chart_skr04_6221',
+            },
+            'chart_skr04_250': {
+                'depreciation_model_id': 'asset_33_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_259',
+                'asset_expense_account_id': 'chart_skr04_6221',
+            },
+            'chart_skr04_260': {
+                'depreciation_model_id': 'asset_33_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_249',
+                'asset_expense_account_id': 'chart_skr04_6221',
+            },
+            'chart_skr04_270': {
+                'depreciation_model_id': 'asset_20_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_249',
+                'asset_expense_account_id': 'chart_skr04_6221',
+            },
+            'chart_skr04_280': {
+                'depreciation_model_id': 'asset_10_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_249',
+                'asset_expense_account_id': 'chart_skr04_6221',
+            },
+            'chart_skr04_285': {
+                'depreciation_model_id': 'asset_19_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_249',
+                'asset_expense_account_id': 'chart_skr04_6221',
+            },
+            'chart_skr04_290': {
+                'depreciation_model_id': 'asset_10_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_249',
+                'asset_expense_account_id': 'chart_skr04_6221',
+            },
+            'chart_skr04_300': {
+                'depreciation_model_id': 'asset_50_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_309',
+                'asset_expense_account_id': 'chart_skr04_6221',
+            },
+            'chart_skr04_305': {
+                'depreciation_model_id': 'asset_20_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_309',
+                'asset_expense_account_id': 'chart_skr04_6221',
+            },
+            'chart_skr04_310': {
+                'depreciation_model_id': 'asset_10_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_309',
+                'asset_expense_account_id': 'chart_skr04_6221',
+            },
+            'chart_skr04_315': {
+                'depreciation_model_id': 'asset_19_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_309',
+                'asset_expense_account_id': 'chart_skr04_6221',
+            },
+            'chart_skr04_320': {
+                'depreciation_model_id': 'asset_10_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_309',
+                'asset_expense_account_id': 'chart_skr04_6221',
+            },
+            'chart_skr04_340': {
+                'depreciation_model_id': 'asset_33_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_349',
+                'asset_expense_account_id': 'chart_skr04_6221',
+            },
+            'chart_skr04_350': {
+                'depreciation_model_id': 'asset_33_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_359',
+                'asset_expense_account_id': 'chart_skr04_6221',
+            },
+            'chart_skr04_360': {
+                'depreciation_model_id': 'asset_50_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_369',
+                'asset_expense_account_id': 'chart_skr04_6221',
+            },
+            'chart_skr04_370': {
+                'depreciation_model_id': 'asset_33_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_349',
+                'asset_expense_account_id': 'chart_skr04_6221',
+            },
+            'chart_skr04_380': {
+                'depreciation_model_id': 'asset_20_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_349',
+                'asset_expense_account_id': 'chart_skr04_6221',
+            },
+            'chart_skr04_390': {
+                'depreciation_model_id': 'asset_10_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_349',
+                'asset_expense_account_id': 'chart_skr04_6221',
+            },
+            'chart_skr04_395': {
+                'depreciation_model_id': 'asset_19_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_349',
+                'asset_expense_account_id': 'chart_skr04_6221',
+            },
+            'chart_skr04_398': {
+                'depreciation_model_id': 'asset_10_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_349',
+                'asset_expense_account_id': 'chart_skr04_6221',
+            },
+            'chart_skr04_440': {
+                'depreciation_model_id': 'asset_10_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_449',
+                'asset_expense_account_id': 'chart_skr04_6220',
+            },
+            'chart_skr04_450': {
+                'depreciation_model_id': 'asset_14_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_459',
+                'asset_expense_account_id': 'chart_skr04_6220',
+            },
+            'chart_skr04_460': {
+                'depreciation_model_id': 'asset_10_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_469',
+                'asset_expense_account_id': 'chart_skr04_6220',
+            },
+            'chart_skr04_470': {
+                'depreciation_model_id': 'asset_10_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_479',
+                'asset_expense_account_id': 'chart_skr04_6220',
+            },
+            'chart_skr04_520': {
+                'depreciation_model_id': 'asset_6_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_529',
+                'asset_expense_account_id': 'chart_skr04_6222',
+            },
+            'chart_skr04_540': {
+                'depreciation_model_id': 'asset_9_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_549',
+                'asset_expense_account_id': 'chart_skr04_6222',
+            },
+            'chart_skr04_560': {
+                'depreciation_model_id': 'asset_7_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_569',
+                'asset_expense_account_id': 'chart_skr04_6222',
+            },
+            'chart_skr04_5601': {
+                'depreciation_model_id': 'asset_7_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_569',
+                'asset_expense_account_id': 'chart_skr04_6222',
+            },
+            'chart_skr04_5602': {
+                'depreciation_model_id': 'asset_3_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_569',
+                'asset_expense_account_id': 'chart_skr04_6222',
+            },
+            'chart_skr04_5603': {
+                'depreciation_model_id': 'asset_8_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_569',
+                'asset_expense_account_id': 'chart_skr04_6220',
+            },
+            'chart_skr04_5604': {
+                'depreciation_model_id': 'asset_7_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_569',
+                'asset_expense_account_id': 'chart_skr04_6220',
+            },
+            'chart_skr04_620': {
+                'depreciation_model_id': 'asset_5_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_629',
+                'asset_expense_account_id': 'chart_skr04_6220',
+            },
+            'chart_skr04_635': {
+                'depreciation_model_id': 'asset_1_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_639',
+                'asset_expense_account_id': 'chart_skr04_6220',
+            },
+            'chart_skr04_6351': {
+                'depreciation_model_id': 'asset_5_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_639',
+                'asset_expense_account_id': 'chart_skr04_6220',
+            },
+            'chart_skr04_6352': {
+                'depreciation_model_id': 'asset_7_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_639',
+                'asset_expense_account_id': 'chart_skr04_6220',
+            },
+            'chart_skr04_640': {
+                'depreciation_model_id': 'asset_8_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_649',
+                'asset_expense_account_id': 'chart_skr04_6220',
+            },
+            'chart_skr04_650': {
+                'depreciation_model_id': 'asset_13_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_659',
+                'asset_expense_account_id': 'chart_skr04_6220',
+            },
+            'chart_skr04_660': {
+                'depreciation_model_id': 'asset_5_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_669',
+                'asset_expense_account_id': 'chart_skr04_6220',
+            },
+            'chart_skr04_670': {
+                'depreciation_model_id': 'asset_1_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_674',
+                'asset_expense_account_id': 'chart_skr04_6220',
+            },
+            'chart_skr04_675': {
+                'depreciation_model_id': 'asset_5_year_linear',
+                'asset_depreciation_account_id': 'chart_skr04_679',
+                'asset_expense_account_id': 'chart_skr04_6220',
             },
         }

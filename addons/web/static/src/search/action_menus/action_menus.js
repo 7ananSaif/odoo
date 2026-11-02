@@ -1,4 +1,4 @@
-import { browser } from "@web/core/browser/browser";
+import { location } from "@web/core/browser/browser";
 import { makeContext } from "@web/core/context";
 import { session } from "@web/session";
 import { Dropdown } from "@web/core/dropdown/dropdown";
@@ -6,10 +6,36 @@ import { DropdownItem } from "@web/core/dropdown/dropdown_item";
 import { _t } from "@web/core/l10n/translation";
 import { useService } from "@web/core/utils/hooks";
 
-import { Component, onWillStart, onWillUpdateProps, useState } from "@odoo/owl";
+import {
+    Component,
+    onWillStart,
+    onWillUpdateProps,
+    usePlugin,
+    proxy,
+    t,
+    useProps,
+} from "@odoo/owl";
+import { OfflinePlugin } from "@web/core/offline/offline_plugin";
+import { ConnectionLostError } from "@web/core/network/rpc";
 
 export const STATIC_ACTIONS_GROUP_NUMBER = 1;
 export const ACTIONS_GROUP_NUMBER = 100;
+
+export const actionMenusProps = {
+    getActiveIds: t.function(),
+    context: t.object(),
+    resModel: t.string(),
+    printDropdownTitle: t.string().optional(_t("Print")),
+    domain: t.array().optional(),
+    isDomainSelected: t.boolean().optional(),
+    items: t.object({
+        action: t.array().optional(),
+        print: t.array().optional(),
+    }),
+    onActionExecuted: t.function().optional(() => () => {}),
+    shouldExecuteAction: t.function().optional(() => () => true),
+    loadExtraPrintItems: t.function().optional(() => () => []),
+};
 
 /**
  * Action menus (or Action/Print bar, previously called 'Sidebar')
@@ -27,35 +53,17 @@ export class ActionMenus extends Component {
         Dropdown,
         DropdownItem,
     };
-    static props = {
-        getActiveIds: Function,
-        context: Object,
-        resModel: String,
-        printDropdownTitle: { type: String, optional: true },
-        domain: { type: Array, optional: true },
-        isDomainSelected: { type: Boolean, optional: true },
-        items: {
-            type: Object,
-            shape: {
-                action: { type: Array, optional: true },
-                print: { type: Array, optional: true },
-            },
-        },
-        onActionExecuted: { type: Function, optional: true },
-        shouldExecuteAction: { type: Function, optional: true },
-        loadExtraPrintItems: { type: Function, optional: true },
-    };
-    static defaultProps = {
-        printDropdownTitle: _t("Print"),
-        onActionExecuted: () => {},
-        shouldExecuteAction: () => true,
-        loadExtraPrintItems: () => [],
-    };
+    // ugly hack to be overridable by the CogMenu. not a correct design, but
+    // i do it for now to be able to move this pr forward, and we will refactor
+    // later if needed.
+    static actionMenusProps = actionMenusProps;
+    props = useProps(this.constructor.actionMenusProps);
 
     setup() {
         this.orm = useService("orm");
         this.actionService = useService("action");
-        this.state = useState({ printItems: []})
+        this.offlinePlugin = usePlugin(OfflinePlugin);
+        this.state = proxy({ printItems: [] });
         onWillStart(async () => {
             this.actionItems = await this.getActionItems(this.props);
         });
@@ -134,7 +142,7 @@ export class ActionMenus extends Component {
             this.executeAction(item.action);
         } else if (item.url) {
             // Event has been prevented at its source: we need to redirect manually.
-            browser.location = item.url;
+            location.href = item.url;
         }
     }
 
@@ -148,11 +156,18 @@ export class ActionMenus extends Component {
                 : validActionIds.push(action.id);
         }
         if (actionWithDomainIds.length) {
-            const validActionsWithDomainIds = await this.orm.call(
-                "ir.actions.report",
-                "get_valid_action_reports",
-                [actionWithDomainIds, this.props.resModel, this.props.getActiveIds()]
-            );
+            let validActionsWithDomainIds = [];
+            try {
+                validActionsWithDomainIds = await this.orm.call(
+                    "ir.actions.report",
+                    "get_valid_action_reports",
+                    [actionWithDomainIds, this.props.resModel, this.props.getActiveIds()]
+                );
+            } catch (e) {
+                if (!(e instanceof ConnectionLostError)) {
+                    throw e;
+                }
+            }
             validActionIds.push(...validActionsWithDomainIds);
         }
         return printActions

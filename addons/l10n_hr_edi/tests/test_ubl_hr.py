@@ -8,6 +8,8 @@ from odoo.tools import misc
 @tagged('post_install_l10n', 'post_install', '-at_install', 'l10n_hr_edi_xml')
 class TestL10nHrEdiXml(TestL10nHrEdiCommon, AccountTestInvoicingCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -107,7 +109,6 @@ class TestL10nHrEdiXml(TestL10nHrEdiCommon, AccountTestInvoicingCommon):
         self.setup_partner_as_hr_alt(self.partner_a)
         tax = self.env['account.chart.template'].ref('VAT_S_IN_ROC_25')
         tax.cash_basis_transition_account_id = self.safe_copy(self.company_data['default_account_tax_sale'])
-        tax.cash_basis_transition_account_id.reconcile = True
         tax.tax_exigibility = 'on_payment'
 
         invoice = self.env['account.move'].create({
@@ -335,7 +336,7 @@ class TestL10nHrEdiXml(TestL10nHrEdiCommon, AccountTestInvoicingCommon):
         """
         self.setup_partner_as_hr(self.env.company.partner_id)
         self.setup_partner_as_hr_alt(self.partner_a)
-        self.partner_a.bank_ids.unlink()
+        self.partner_a.bank_ids.sudo().unlink()
         tax = self.env['account.chart.template'].ref('VAT_S_IN_ROC_25')
 
         original_invoice = self._create_invoice(

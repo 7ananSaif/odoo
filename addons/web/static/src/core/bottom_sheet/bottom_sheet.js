@@ -3,9 +3,9 @@
  *
  * @class
  */
-import { Component, useState, useRef, onMounted, useExternalListener } from "@odoo/owl";
+import { Component, onMounted, proxy, signal, t, useProps } from "@odoo/owl";
 import { useHotkey } from "@web/core/hotkeys/hotkey_hook";
-import { useForwardRefToParent } from "@web/core/utils/hooks";
+import { useBackButton } from "@web/core/utils/hooks";
 import { useThrottleForAnimation } from "@web/core/utils/timing";
 import { compensateScrollbar } from "@web/core/utils/scrolling";
 import { getViewportDimensions, useViewportChange } from "@web/core/utils/dvu";
@@ -15,28 +15,31 @@ import { browser } from "@web/core/browser/browser";
 export class BottomSheet extends Component {
     static template = "web.BottomSheet";
 
-    static defaultProps = {
-        class: "",
-    };
-
-    static props = {
+    props = useProps({
         // Main props
-        component: { type: Function },
-        componentProps: { optional: true, type: Object },
-        close: { type: Function },
+        component: t.function(),
+        componentProps: t.object().optional(),
+        close: t.function(),
 
-        class: { optional: true },
-        role: { optional: true, type: String },
+        class: t.any().optional(""),
+        role: t.string().optional(),
+    });
 
-        // Technical props
-        ref: { optional: true, type: Function },
-        slots: { optional: true, type: Object },
-    };
+    // The sheet body element is exposed to the parent (the popover/bottom_sheet
+    // service caller) through the `ref` prop, an Owl 3 signal ref.
+    ref = useProps.static(
+        "ref",
+        t.signal(t.ref()).optional(() => signal.ref())
+    );
+
+    containerRef = signal.ref();
+    scrollRailRef = signal.ref();
+    sheetRef = signal.ref();
 
     setup() {
         this.maxHeightPercent = 90;
 
-        this.state = useState({
+        this.state = proxy({
             isPositionedReady: false, // Sheet is ready for display
             isSnappingEnabled: false,
             isDismissing: false, // Sheet is being dismissed
@@ -51,15 +54,6 @@ export class BottomSheet extends Component {
             dismissThreshold: 0,
         };
 
-        // Popover Ref Requirement
-        useForwardRefToParent("ref");
-
-        // References
-        this.containerRef = useRef("container");
-        this.scrollRailRef = useRef("scrollRail");
-        this.sheetRef = useRef("sheet");
-        this.sheetBodyRef = useRef("ref");
-
         // Create throttled version for onScroll
         this.throttledOnScroll = useThrottleForAnimation(this.onScroll.bind(this));
 
@@ -73,17 +67,10 @@ export class BottomSheet extends Component {
         // Handle "ESC" key press.
         useHotkey("escape", () => this.slideOut());
 
-        // Handle mobile "back" gesture and "back" navigation button.
-        // Push a history state when the BottomSheet opens, intercept the browser's
-        // history events, prevents navigation by pushing another state and closes the sheet.
-        window.history.pushState({ bottomSheet: true }, "");
-        this.handlePopState = () => {
-            if (this.state.isPositionedReady && !this.state.isDismissing) {
-                window.history.pushState({ bottomSheet: true }, "");
-                this.slideOut();
-            }
-        };
-        useExternalListener(window, "popstate", this.handlePopState);
+        useBackButton(
+            () => this.slideOut(),
+            () => this.state.isPositionedReady && !this.state.isDismissing
+        );
 
         onMounted(() => {
             const isReduced =
@@ -91,10 +78,10 @@ export class BottomSheet extends Component {
                 browser.matchMedia(`(prefers-reduced-motion: reduce)`).matches === true;
 
             this.prefersReducedMotion =
-                isReduced || getComputedStyle(this.containerRef.el).animationName === "none";
+                isReduced || getComputedStyle(this.containerRef()).animationName === "none";
 
             this.initializeSheet();
-            compensateScrollbar(this.scrollRailRef.el, true, true, "padding-right");
+            compensateScrollbar(this.scrollRailRef(), true, true, "padding-right");
         });
     }
 
@@ -103,7 +90,7 @@ export class BottomSheet extends Component {
      * Sets up measurements, snap points, and event handlers
      */
     initializeSheet() {
-        if (!this.containerRef.el || !this.scrollRailRef.el || !this.sheetRef.el) {
+        if (!this.containerRef() || !this.scrollRailRef() || !this.sheetRef()) {
             return;
         }
 
@@ -125,14 +112,14 @@ export class BottomSheet extends Component {
         if (this.prefersReducedMotion) {
             this.state.isSnappingEnabled = true;
         } else {
-            this.sheetRef.el?.addEventListener(
+            this.sheetRef()?.addEventListener(
                 "animationend",
                 () => (this.state.isSnappingEnabled = true),
                 {
                     once: true,
                 }
             );
-            this.sheetRef.el?.addEventListener(
+            this.sheetRef()?.addEventListener(
                 "animationcancel",
                 () => (this.state.isSnappingEnabled = true),
                 {
@@ -155,7 +142,7 @@ export class BottomSheet extends Component {
         this.applyDimensions();
 
         // // Update scroll position
-        const scrollTop = this.scrollRailRef.el.scrollTop;
+        const scrollTop = this.scrollRailRef().scrollTop;
 
         // Update progress value
         this.updateProgressValue(scrollTop);
@@ -172,7 +159,7 @@ export class BottomSheet extends Component {
         const maxHeightPx = (this.maxHeightPercent / 100) * viewportHeight;
 
         // Reset any previously set constraints to measure natural height
-        const sheet = this.sheetRef.el;
+        const sheet = this.sheetRef();
         sheet.style.removeProperty("min-height");
         sheet.style.removeProperty("height");
 
@@ -194,7 +181,7 @@ export class BottomSheet extends Component {
      * Sets CSS variables and styles based on measurements and snap points
      */
     applyDimensions() {
-        const rail = this.scrollRailRef.el;
+        const rail = this.scrollRailRef();
 
         // Convert heights to dvh percentages for CSS variables
         const heightPercent = Math.min(
@@ -213,8 +200,8 @@ export class BottomSheet extends Component {
      * Configures initial scroll position and overflow behavior
      */
     positionSheet() {
-        const scrollRail = this.scrollRailRef.el;
-        const bodyContent = this.sheetBodyRef.el;
+        const scrollRail = this.scrollRailRef();
+        const bodyContent = this.ref();
 
         const scrollValue = this.measurements.maxHeight;
 
@@ -232,7 +219,7 @@ export class BottomSheet extends Component {
      * Sets up event handlers for scroll and touch events
      */
     setupEventHandlers() {
-        const scrollRail = this.scrollRailRef.el;
+        const scrollRail = this.scrollRailRef();
 
         // Add scroll event listener
         scrollRail.addEventListener("scroll", this.throttledOnScroll);
@@ -243,11 +230,11 @@ export class BottomSheet extends Component {
      * Updates progress, handles position snapping, and triggers dismissal
      */
     onScroll() {
-        if (!this.scrollRailRef.el) {
+        if (!this.scrollRailRef()) {
             return;
         }
 
-        const scrollTop = this.scrollRailRef.el.scrollTop;
+        const scrollTop = this.scrollRailRef().scrollTop;
 
         // Update progress value for visual effects
         this.updateProgressValue(scrollTop);
@@ -284,10 +271,10 @@ export class BottomSheet extends Component {
         if (this.prefersReducedMotion) {
             this.props.close?.();
         } else {
-            this.sheetRef.el?.addEventListener("animationend", () => this.props.close?.(), {
+            this.sheetRef()?.addEventListener("animationend", () => this.props.close?.(), {
                 once: true,
             });
-            this.sheetRef.el?.addEventListener("animationcancel", () => this.props.close?.(), {
+            this.sheetRef()?.addEventListener("animationcancel", () => this.props.close?.(), {
                 once: true,
             });
         }

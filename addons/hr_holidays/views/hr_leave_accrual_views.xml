@@ -13,43 +13,52 @@
                         <group class="o_accrual" string="Accrual Level Options">
                             <label class="fw-bold" for="added_value" string="Set the employee accrual frequency :"/>
                             <span>
-                                <field nolabel="1" class="me-1 o_field_accrual" name="added_value"
+                                <field nolabel="1" class="me-1 o_hr_narrow_field-5 o_accrual_input" name="added_value"
                                        widget="float_without_trailing_zeros"/>
-                                <field nolabel="1" class="me-1 o_field_accrual" name="added_value_type"
+                                <field nolabel="1" class="me-1 o_hr_narrow_field-4" name="added_value_type"
                                        readonly="not can_modify_value_type"/>
-                                <field nolabel="1" class="o_field_accrual" name="frequency"/>
+                                <field nolabel="1" class="o_hr_narrow_field" name="frequency"/>
                                 <span name="weekly" invisible="frequency != 'weekly'">
                                     on
-                                    <field nolabel="1" name="week_day" class="o_field_accrual" required="frequency == 'weekly'" placeholder="select a weekday"/>
+                                    <field nolabel="1" name="week_day" class="o_hr_narrow_field-6" required="frequency == 'weekly'" placeholder="select a weekday"/>
                                 </span>
                                 <span name="monthly" invisible="frequency != 'monthly'">
                                     on the
-                                    <field nolabel="1" name="first_day" class="o_field_accrual" required="frequency == 'monthly'" placeholder="select a day"/>
+                                    <field nolabel="1" name="first_day" class="o_hr_narrow_field-3" required="frequency == 'monthly'" placeholder="select a day"/>
                                     of the month.
                                 </span>
                                 <span name="bimonthly" invisible="frequency != 'bimonthly'" style="width: 100%">
                                     on the
-                                    <field nolabel="1" name="first_day" class="o_field_accrual" required="frequency == 'bimonthly'" placeholder="select a day"/>
+                                    <field nolabel="1" name="first_day" class="o_hr_narrow_field-3" required="frequency == 'bimonthly'" placeholder="select a day"/>
                                     and the
-                                    <field nolabel="1" name="second_day" class="o_field_accrual" required="frequency == 'bimonthly'" placeholder="select a day"/>
+                                    <field nolabel="1" name="second_day" class="o_hr_narrow_field-3" required="frequency == 'bimonthly'" placeholder="select a day"/>
                                     of the month
                                 </span>
                                 <span name="biyearly" invisible="frequency != 'biyearly'">
                                     on the
-                                    <field nolabel="1" name="first_month_day" class="o_field_accrual" widget="day_selection" month_field="first_month" placeholder="select a day" required="frequency == 'biyearly'"/>
+                                    <field nolabel="1" name="first_month_day" class="o_hr_narrow_field-3" widget="day_selection" month_field="first_month" placeholder="select a day" required="frequency == 'biyearly'"/>
                                     of
-                                    <field name="first_month" class="o_field_accrual" placeholder="select a month" required="frequency == 'biyearly'"/>
+                                    <field name="first_month" class="o_hr_narrow_field-5" placeholder="select a month" required="frequency == 'biyearly'"/>
                                     and the
-                                    <field nolabel="1" name="second_month_day" class="o_field_accrual" widget="day_selection" month_field="second_month" placeholder="select a day" required="frequency == 'biyearly'"/>
+                                    <field nolabel="1" name="second_month_day" class="o_hr_narrow_field-3" widget="day_selection" month_field="second_month" placeholder="select a day" required="frequency == 'biyearly'"/>
                                     of
-                                    <field nolabel="1" name="second_month" class="o_field_accrual" placeholder="select a month" required="frequency == 'biyearly'"/>
+                                    <field nolabel="1" name="second_month" class="o_hr_narrow_field-5" placeholder="select a month" required="frequency == 'biyearly'"/>
                                 </span>
                                 <span name="yearly" invisible="frequency != 'yearly'">
                                     on the
-                                    <field nolabel="1" name="yearly_day" class="o_field_accrual" widget="day_selection" month_field="yearly_month" required="frequency == 'yearly'" placeholder="select a day"/>
+                                    <field nolabel="1" name="yearly_day" class="o_hr_narrow_field-3" widget="day_selection" month_field="yearly_month" required="frequency == 'yearly'" placeholder="select a day"/>
                                     of
-                                    <field nolabel="1" name="yearly_month" class="o_field_accrual" required="frequency == 'yearly'" placeholder="select a month"/>
+                                    <field nolabel="1" name="yearly_month" class="o_hr_narrow_field-5" required="frequency == 'yearly'" placeholder="select a month"/>
                                 </span>
+                            </span>
+                            <span name="yearly_gain" class="text-muted">
+                                <label class="fw-bold" for="yearly_gain" string="Gain for the year :" invisible="is_based_on_worked_time"/>
+                                <label class="fw-bold" for="yearly_gain" string="Maximum gain for the year :" invisible="not is_based_on_worked_time"/>
+                            </span>
+                            <span class="text-muted">
+                                <field nolabel="1" name="yearly_gain" class="me-1 o_hr_narrow_field-5"/>
+                                <field nolabel="1" name="added_value_type" class="o_hr_narrow_field-4" readonly="1"/>
+                                <span invisible="not cap_accrued_time_yearly and not cap_accrued_time" class="ms-3">(Caps can affect that gain)</span>
                             </span>
                             <label class="fw-bold" for="milestone_date" string="This milestone will be reached :"/>
                             <span name="milestone_date">
@@ -57,14 +66,14 @@
                                        widget="radio_followed_by_element"
                                        options="{'links': {'after': 'milestone_date_after'}, 'observe': 'milestone_date'}"/>
                                 <span id="milestone_date_after">
-                                    <field nolabel="1" class="ms-1 me-1 o_field_accrual" name="start_count"/>
-                                    <field nolabel="1" class="me-1 o_field_accrual" name="start_type"/>
+                                    <field nolabel="1" class="ms-1 me-1 o_hr_narrow_field-5 o_accrual_input" name="start_count"/>
+                                    <field nolabel="1" class="me-1 o_hr_narrow_field-4" name="start_type"/>
                                     from the start of allocation
                                 </span>
                             </span>
                         </group>
                         <group class="o_accrual" invisible="not can_be_carryover" string="Carry Over Options">
-                            <label class="fw-bold" for="action_with_unused_accruals" string="After a year, unused time off will be :"/>
+                            <label class="fw-bold" for="action_with_unused_accruals" string="After a year, unused accrued time will be :"/>
                             <span>
                                 <span name="unused_accruals">
                                     <field nolabel="1" class="ms-1" name="action_with_unused_accruals"
@@ -79,7 +88,7 @@
                                            widget="radio_followed_by_element"
                                            options="{'links': {'limited': 'carryover_options_limited'}, 'observe': 'carryover_options'}"/>
                                     <span id="carryover_options_limited" readonly="1">
-                                        <field nolabel="1" class="ms-1 me-1 o_field_accrual" name="postpone_max_days"/>
+                                        <field nolabel="1" class="ms-1 me-1 o_field_accrual" name="max_carriedover_duration"/>
                                         <field nolabel="1" class="o_field_accrual" name="added_value_type" readonly="1"/>
                                     </span>
                                 </span>
@@ -122,7 +131,7 @@
                     <button string="Save" type="object" special="save" class="btn btn-primary"/>
                     <button string="Save &amp; New" type="object" name="action_save_new" class="btn btn-primary"
                             invisible="not context.get('new')"/>
-                    <button string="Discard" special="cancel" class="btn btn-secondary"/>
+                    <button special="cancel" class="btn btn-secondary"/>
                     <button string="Delete" type="object" name="unlink" class="btn btn-danger ms-auto"
                             invisible="context.get('new')"/>
                 </footer>
@@ -150,7 +159,7 @@
                 <sheet>
                     <div class="oe_button_box" name="button_box" invisible="not id">
                         <button name="action_open_accrual_plan_employees" type="object" class="oe_stat_button"
-                                icon="fa-users" invisible="employees_count == 0" groups="hr.group_hr_user">
+                                icon="group" icon_class="oi-filled" invisible="employees_count == 0" groups="hr.group_hr_user">
                             <field name="employees_count" widget="statinfo"/>
                         </button>
                     </div>
@@ -161,8 +170,12 @@
                                 <div class="oe_title w-50">
                                     <label class="fw-bold" for="name" string="Title"/>
                                     <h1><field name="name" placeholder="e.g. Seniority Plan, PTO, RTT, ..." required="id"/></h1>
-                                    <group groups="base.group_multi_company">
-                                        <field name="company_id" options="{'no_create': True}"  groups="base.group_multi_company" placeholder="Visible to all"/>
+                                    <group>
+                                        <field name="work_entry_type_id" class="o_hr_medium_field"/>
+                                        <field name="company_id"
+                                            options="{'no_create': True}"
+                                            groups="base.group_multi_company"
+                                            placeholder="Visible to all"/>
                                     </group>
                                 </div>
                                 <group string="Configuration" class="mt-0 o_accrual">
@@ -179,14 +192,17 @@
                                         <template id="is_based_on_worked_time_no">No, always consider the entire accrual period (whole calendar days).
                                         </template>
                                     </span>
-                                    <label class="fw-bold" for="can_be_carryover"
-                                           string="Do you need a carry-over of the accrued days from one year to another?"/>
-                                    <span>
-                                        <field class="ms-1" name="can_be_carryover"/>
-                                    </span>
-                                    <label class="fw-bold" invisible="not can_be_carryover" for="carryover_date"
-                                           string="When do you want the accrued time left to be carried-over?"/>
-                                    <span name="carryover" invisible="not can_be_carryover">
+                                    <label class="fw-bold" for="can_be_carryover" string="What should happen to the unused accrued time?"/>
+                                    <field nolabel="1" class="ms-1" name="can_be_carryover" widget="boolean_radio" options="{
+                                                    'yes_label_element_id': 'can_be_carryover_yes',
+                                                    'no_label_element_id': 'can_be_carryover_no'}"/>
+                                    <template id="can_be_carryover_no">They should be lost (reset).
+                                    </template>
+                                     <template id="can_be_carryover_yes">They should be carried over.
+                                    </template>
+                                    <label class="fw-bold" for="carryover_date"
+                                           string="When should unused accrued time be reset/carried over?"/>
+                                    <span name="carryover">
                                         <field class="ms-1" name="carryover_date"
                                                widget="radio_followed_by_element"
                                                options="{'links': {'other': 'carryover_custom_date'}, 'observe': 'carryover'}"/>

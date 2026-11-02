@@ -1,9 +1,14 @@
+import { t, useProps } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
 import { Attachment, FileSelector, IMAGE_MIMETYPES } from "./file_selector";
 import { renderToElement } from "@web/core/utils/render";
 
 export class DocumentAttachment extends Attachment {
     static template = "html_editor.DocumentAttachment";
+
+    documentAttachmentProps = useProps({
+        selectAttachment: t.function(),
+    });
 }
 
 export class DocumentSelector extends FileSelector {
@@ -29,7 +34,7 @@ export class DocumentSelector extends FileSelector {
 
     get attachmentsDomain() {
         const domain = super.attachmentsDomain;
-        domain.push(["mimetype", "not in", IMAGE_MIMETYPES]);
+        domain.push(["mimetype", "not in", IMAGE_MIMETYPES], ["url", "not =like", "/web/font/%"]);
         // The assets should not be part of the documents.
         // All assets begin with '/web/assets/', see _get_asset_template_url().
         domain.unshift("&", "|", ["url", "=", null], "!", ["url", "=like", "/web/assets/%"]);
@@ -41,6 +46,10 @@ export class DocumentSelector extends FileSelector {
         await this.props.save();
     }
 
+    selectInitialMedia() {
+        return super.selectInitialMedia() && this.props.media.classList.contains("o_file_box");
+    }
+
     async fetchAttachments(...args) {
         const attachments = await super.fetchAttachments(...args);
 
@@ -48,7 +57,7 @@ export class DocumentSelector extends FileSelector {
             for (const attachment of attachments) {
                 if (
                     `/web/content/${attachment.id}` ===
-                    this.props.media.querySelector("a").getAttribute("href").replace(/[?].*/, "")
+                    this.props.media.querySelector("a")?.getAttribute("href")?.replace(/[?].*/, "")
                 ) {
                     this.selectAttachment(attachment);
                 }
@@ -60,7 +69,7 @@ export class DocumentSelector extends FileSelector {
     /**
      * Utility method used by the MediaDialog component.
      */
-    static async createElements(selectedMedia, { orm }) {
+    static async createElements(selectedMedia, { orm, document = window.document } = {}) {
         return Promise.all(
             selectedMedia.map(async (attachment) => {
                 let url = `/web/content/${encodeURIComponent(
@@ -75,29 +84,38 @@ export class DocumentSelector extends FileSelector {
                     }
                     url += `&access_token=${encodeURIComponent(accessToken)}`;
                 }
-                return this.renderFileElement(attachment, url);
+                return this.renderFileElement(attachment, url, document);
             })
         );
     }
 
-    static renderFileElement(attachment, downloadUrl) {
+    static renderFileElement(attachment, downloadUrl, document) {
         return renderStaticFileBox(
             attachment.name,
             attachment.mimetype,
             downloadUrl,
-            attachment.id
+            attachment.id,
+            document
         );
     }
 }
 
-export function renderStaticFileBox(filename, mimetype, downloadUrl, id) {
+export function renderStaticFileBox(
+    filename,
+    mimetype,
+    downloadUrl,
+    id,
+    document = window.document
+) {
     const rootSpan = document.createElement("span");
     rootSpan.classList.add("o_file_box", "o-contenteditable-false");
     rootSpan.contentEditable = false;
     rootSpan.dataset.attachmentId = id;
+    const parts = filename.split(".");
+    rootSpan.dataset.extension = parts.length > 1 ? parts.pop() : "";
     const bannerElement = renderToElement("html_editor.StaticFileBox", {
         fileModel: { filename, mimetype, downloadUrl },
     });
-    rootSpan.append(bannerElement);
+    rootSpan.append(document.importNode(bannerElement, true));
     return rootSpan;
 }

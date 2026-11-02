@@ -36,10 +36,13 @@ class AccountTaxGroup(models.Model):
         """
         Make sure we don't uninstall a required tax group
         """
+        if self.env.context.get('force_delete'):
+            return
         ar_companies = self.filtered(lambda g: g.company_id.chart_template.startswith('ar_')).mapped('company_id')
         profits_tax_group_ids = self.env['ir.model.data'].search([
             ('name', 'in', [f'{company.id}_tax_group_percepcion_ganancias' for company in ar_companies]),
             ('module', '=', 'account'),
+            ('res_id', '!=', False),
         ]).mapped('res_id')
         if profit_tax_groups_to_be_deleted := self.filtered(lambda g: g.id in profits_tax_group_ids):
             raise UserError(

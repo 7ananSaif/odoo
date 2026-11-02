@@ -1,5 +1,5 @@
 import { _t } from "@web/core/l10n/translation";
-import { Component } from "@odoo/owl";
+import { Component, useProps, t } from "@odoo/owl";
 import { usePos } from "@point_of_sale/app/hooks/pos_hook";
 import { TextInputPopup } from "@point_of_sale/app/components/popups/text_input_popup/text_input_popup";
 import { useService } from "@web/core/utils/hooks";
@@ -7,14 +7,16 @@ import { makeAwaitable } from "@point_of_sale/app/utils/make_awaitable_dialog";
 
 export class NoteButton extends Component {
     static template = "point_of_sale.NoteButton";
-    static props = {
-        icon: { type: String, optional: true },
-        label: { type: String, optional: false },
-        class: { type: String, optional: true },
-    };
+    props = useProps({
+        icon: t.string().optional(),
+        iconClass: t.string().optional(""),
+        label: t.string(),
+        class: t.string().optional(),
+    });
 
     setup() {
         this.pos = usePos();
+        this.ui = useService("ui");
         this.dialog = useService("dialog");
     }
 
@@ -25,29 +27,27 @@ export class NoteButton extends Component {
         if (selectedOrderline) {
             this.setChanges(selectedOrderline, payload);
         } else {
-            this.pos.getOrder().setGeneralCustomerNote(payload);
+            const order = this.pos.getOrder();
+            order.general_customer_note = payload;
         }
         return { confirmed: typeof payload === "string", inputNote: payload };
     }
 
     // Update line changes and set them
     async setChanges(selectedOrderline, payload) {
-        var quantity_with_note = 0;
-        const changes = this.pos.getOrderChanges();
-        for (const key in changes.orderlines) {
-            if (changes.orderlines[key].uuid == selectedOrderline.uuid) {
-                quantity_with_note = changes.orderlines[key].quantity;
-                break;
-            }
-        }
-        const saved_quantity = selectedOrderline.qty - quantity_with_note;
-        if (saved_quantity > 0 && quantity_with_note > 0) {
+        const savedQuantity = selectedOrderline.prep_line_ids.reduce((totalQty, prepLine) => {
+            totalQty += prepLine.quantity;
+            return totalQty;
+        }, 0);
+
+        const qtyToAdd = selectedOrderline.qty - savedQuantity;
+        if (savedQuantity > 0 && qtyToAdd > 0) {
             await this.pos.addLineToCurrentOrder({
                 product_tmpl_id: selectedOrderline.product_id.product_tmpl_id,
-                qty: quantity_with_note,
-                note: payload,
+                qty: qtyToAdd,
+                [this.type === "internal" ? "note" : "customer_note"]: payload,
             });
-            selectedOrderline.qty = saved_quantity;
+            selectedOrderline.qty = savedQuantity;
             for (const line of selectedOrderline.combo_line_ids) {
                 line.setQuantity(line.uiState.oldQty);
             }
@@ -125,8 +125,8 @@ export class InternalNoteButton extends NoteButton {
 
     async onClick() {
         const selectedOrderline = this.pos.getOrder().getSelectedOrderline();
-        const selectedNote = JSON.parse(this.currentNote || "[]");
-        const payload = await this.openTextInput(selectedNote.map((n) => n.text).join("\n"));
+        const selectedNote = JSON.parse(this.currentNote || null);
+        const payload = await this.openTextInput(selectedNote?.map((n) => n.text).join("\n"));
         const coloredNotes = payload ? this.reframeNotes(payload) : "";
         if (selectedOrderline) {
             this.setChanges(selectedOrderline, coloredNotes);

@@ -27,7 +27,7 @@
             <field name="name">purchase.report.view.list</field>
             <field name="model">purchase.report</field>
             <field name="arch" type="xml">
-                <list string="Purchase Analysis">
+                <list string="Purchase Analysis" action="action_open_purchase_order" type="object">
                     <field name="date_order"/>
                     <field name="order_id" optional="show"/>
                     <field name="partner_id" optional="show"/>
@@ -53,8 +53,11 @@
             <search string="Purchase Orders">
                 <filter string="Requests for Quotation" name="quotes" domain="[('state','in',('draft','sent'))]"/>
                 <filter string="Purchase Orders" name="orders" domain="[('state','!=','draft'), ('state','!=','sent'), ('state','!=','cancel')]"/>
-                <filter string="Confirmation Date Last Year" name="later_than_a_year_ago" domain="[('date_approve', '&gt;=', 'today -1y')]"/>
+                <separator/>
                 <filter name="filter_date_order" date="date_order"/>
+                <filter name="order_date_last_year" string="Order Deadline: Last 365 Days"
+                        domain="[('date_order', '&gt;=', 'today -365d')]" invisible="1"/>
+                <separator/>
                 <filter name="filter_date_approve" date="date_approve" default_period="month"/>
                 <field name="partner_id"/>
                 <field name="product_id"/>
@@ -69,12 +72,13 @@
                     <filter string="Vendor" name="group_partner_id" context="{'group_by':'partner_id'}"/>
                     <filter string="Vendor Country" name="country_id" context="{'group_by':'country_id'}"/>
                     <filter string="Buyer" name="user_id" context="{'group_by':'user_id'}"/>
+                    <filter string="Orders" name="group_order_id" context="{'group_by': 'order_id'}"/>
                     <filter string="Product" name="group_product_id" context="{'group_by':'product_id'}"/>
                     <filter string="Product Category" name="group_category_id" context="{'group_by':'category_id'}"/>
                     <filter string="Status" name="status" context="{'group_by':'state'}"/>
                     <filter string="Company" name="company" context="{'group_by':'company_id'}" groups="base.group_multi_company"/>
                     <separator/>
-                    <filter string="Order Date" name="order_month" context="{'group_by': 'date_order:month'}"/>
+                    <filter name="order_month" context="{'group_by': 'date_order:month'}"/>
                     <filter string="Confirmation Date" name="group_date_approve_month" context="{'group_by': 'date_approve:month'}"/>
                 </group>
             </search>
@@ -89,7 +93,7 @@
         <field name="view_id"></field>  <!-- force empty -->
         <field name="context">{
                 'search_default_orders': 1,
-                'search_default_filter_date_approve': 1}</field>
+                'search_default_order_date_last_year': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 No Purchase Analysis

@@ -12,7 +12,7 @@ notes into the legally required pattern that embeds two journal-level fields:
 Legal reference: https://porezna-uprava.gov.hr/Regulations#169%7C228, https://porezna-uprava.gov.hr/Propisi#3149|3150
 """
 
-import pytz
+import zoneinfo
 
 from odoo import models, api
 from odoo.exceptions import ValidationError
@@ -54,7 +54,7 @@ class SequenceMixin(models.AbstractModel):
             _logger.error("Issuing device label is not set on the journal.")
             raise ValidationError(self.env._("Issuing device label is not set on the journal."))
 
-        current_year = datetime.now(pytz.timezone('Europe/Zagreb')).year
+        current_year = datetime.now(zoneinfo.ZoneInfo('Europe/Zagreb')).year
         format_values = {
             'code': self.journal_id.code,
             'year': current_year,

@@ -1,4 +1,5 @@
 from .test_project_base import TestProjectCommon
+from odoo.tests import tagged
 
 
 class TestProjectConfig(TestProjectCommon):

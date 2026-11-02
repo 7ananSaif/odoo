@@ -153,6 +153,55 @@ class TestHolidaysMultiContract(TestHolidayContract):
         self.assertEqual(second_leave.state, 'confirm')
         self.assertEqual(second_leave.number_of_days, 11)
 
+    def test_leave_multi_versions_split(self):
+        # Check that the split of an existing time off is done on the version
+        # periods, not on the contract dates shared by all the versions
+        self.jules_emp.create_version({
+            'date_version': date(2022, 6, 10),
+            'wage': 6000.0,
+        })
+        leave = self.create_leave(date(2022, 6, 1), date(2022, 6, 30), name="Doctor Appointment", employee_id=self.jules_emp.id)
+        leave.action_approve()
+        self.assertEqual(leave.number_of_days, 22)
+
+        self.contract_cdi.contract_date_end = date(2022, 6, 15)
+        self.jules_emp.create_version({
+            'date_version': date(2022, 6, 16),
+            'contract_date_start': date(2022, 6, 16),
+            'contract_date_end': False,
+            'name': 'New Contract for Jules',
+            'resource_calendar_id': self.calendar_40h.id,
+            'wage': 5000.0,
+        })
+
+        self.assertEqual(leave.state, 'refuse')
+        leaves = self.env['hr.leave'].search([('employee_id', '=', self.jules_emp.id), ('state', '!=', 'refuse')])
+        self.assertEqual(sum(leaves.mapped('number_of_days')), 22)
+        self.assertEqual(
+            sorted((l.request_date_from, l.request_date_to) for l in leaves),
+            [
+                (date(2022, 6, 1), date(2022, 6, 9)),
+                (date(2022, 6, 10), date(2022, 6, 15)),
+                (date(2022, 6, 16), date(2022, 6, 30)),
+            ],
+        )
+
+    def test_new_version_without_contract_with_leaves(self):
+        # An employee without contract, having time off, can get a new
+        # version with another working schedule
+        employee = self.env['hr.employee'].create({
+            'name': 'No Contract Employee',
+            'date_version': date(2022, 1, 1),
+            'resource_calendar_id': self.calendar_35h.id,
+        })
+        leave = self.create_leave(date(2022, 7, 6), date(2022, 7, 8), name="Doctor Appointment", employee_id=employee.id)
+        employee.create_version({
+            'date_version': date(2022, 7, 1),
+            'resource_calendar_id': self.calendar_40h.id,
+        })
+        self.assertEqual(len(employee.version_ids), 2)
+        self.assertNotEqual(leave.state, 'refuse')
+
     def test_multi_contracts_draft(self):
         # Check that setting a contract as running correctly
         # make the existing time off to draft for this employee
@@ -178,6 +227,45 @@ class TestHolidaysMultiContract(TestHolidayContract):
         self.assertEqual(leave.state, 'confirm')
         self.assertEqual(leave.number_of_days, 4)
 
+    def test_update_calendar_preserves_leave_request_dates(self):
+        duration_calendar = self.env['resource.calendar'].create({
+            'name': 'Tuesday to Friday',
+            'attendance_ids': [
+                (0, 0, {
+                    'dayofweek': dayofweek,
+                    'duration_hours': 7.6,
+                })
+                for dayofweek in ['1', '2', '3', '4']
+            ],
+        })
+        employee = self.env['hr.employee'].create({
+            'name': 'Employee with a new working schedule',
+            'tz': 'Europe/Brussels',
+        })
+        employee.version_id.write({
+            'date_version': date(2025, 3, 3),
+            'contract_date_start': date(2025, 3, 3),
+        })
+        monday_leave = self.create_leave(
+            date(2026, 2, 23), date(2026, 2, 26), employee_id=employee.id,
+        )
+        control_leave = self.create_leave(
+            date(2026, 3, 3), date(2026, 3, 6), employee_id=employee.id,
+        )
+        self.assertEqual(monday_leave.number_of_days, 4)
+        self.assertEqual(control_leave.number_of_days, 4)
+
+        employee.version_id.write({
+            'resource_calendar_id': duration_calendar.id,
+        })
+
+        self.assertEqual(monday_leave.number_of_days, 3)
+        self.assertEqual(monday_leave.request_date_from, date(2026, 2, 23))
+        self.assertEqual(monday_leave.request_date_to, date(2026, 2, 26))
+        self.assertEqual(control_leave.number_of_days, 4)
+        self.assertEqual(control_leave.request_date_from, date(2026, 3, 3))
+        self.assertEqual(control_leave.request_date_to, date(2026, 3, 6))
+
     def test_contract_traceability_calculate_nbr_leave(self):
         """
             The goal is to test the traceability of contracts in the past,
@@ -191,15 +279,15 @@ class TestHolidaysMultiContract(TestHolidayContract):
             {
                 'name': 'Partial time (4/5)',
                 'attendance_ids': [
-                    (0, 0, {'name': 'Monday Morning', 'dayofweek': '0', 'hour_from': 8, 'hour_to': 12, 'day_period': 'morning'}),
-                    (0, 0, {'name': 'Monday Evening', 'dayofweek': '0', 'hour_from': 13, 'hour_to': 17, 'day_period': 'afternoon'}),
-                    (0, 0, {'name': 'Tuesday Morning', 'dayofweek': '1', 'hour_from': 8, 'hour_to': 12, 'day_period': 'morning'}),
-                    (0, 0, {'name': 'Tuesday Evening', 'dayofweek': '1', 'hour_from': 13, 'hour_to': 17, 'day_period': 'afternoon'}),
+                    (0, 0, {'dayofweek': '0', 'hour_from': 8, 'hour_to': 12}),
+                    (0, 0, {'dayofweek': '0', 'hour_from': 13, 'hour_to': 17}),
+                    (0, 0, {'dayofweek': '1', 'hour_from': 8, 'hour_to': 12}),
+                    (0, 0, {'dayofweek': '1', 'hour_from': 13, 'hour_to': 17}),
                     # Does not work on Wednesdays
-                    (0, 0, {'name': 'Thursday Morning', 'dayofweek': '3', 'hour_from': 8, 'hour_to': 12, 'day_period': 'morning'}),
-                    (0, 0, {'name': 'Thursday Evening', 'dayofweek': '3', 'hour_from': 13, 'hour_to': 17, 'day_period': 'afternoon'}),
-                    (0, 0, {'name': 'Friday Morning', 'dayofweek': '4', 'hour_from': 8, 'hour_to': 12, 'day_period': 'morning'}),
-                    (0, 0, {'name': 'Friday Evening', 'dayofweek': '4', 'hour_from': 13, 'hour_to': 17, 'day_period': 'afternoon'})
+                    (0, 0, {'dayofweek': '3', 'hour_from': 8, 'hour_to': 12}),
+                    (0, 0, {'dayofweek': '3', 'hour_from': 13, 'hour_to': 17}),
+                    (0, 0, {'dayofweek': '4', 'hour_from': 8, 'hour_to': 12}),
+                    (0, 0, {'dayofweek': '4', 'hour_from': 13, 'hour_to': 17})
                 ]
             },
         ])
@@ -223,17 +311,19 @@ class TestHolidaysMultiContract(TestHolidayContract):
             'resource_calendar_id': calendar_partial.id,
             'wage': 1000.0,
         })
-        leave_type = self.env['hr.leave.type'].create({
+        work_entry_type = self.env['hr.work.entry.type'].create({
             'name': 'Leave Type',
-            'time_type': 'leave',
+            'code': 'Leave Type',
+            'count_as': 'absence',
             'requires_allocation': True,
             'leave_validation_type': 'hr',
             'request_unit': 'day',
+            'unit_of_measure': 'day',
         })
         allocation = self.env['hr.leave.allocation'].create({
             'name': 'Allocation',
             'employee_id': employee.id,
-            'holiday_status_id': leave_type.id,
+            'work_entry_type_id': work_entry_type.id,
             'number_of_days': 10,
             'state': 'confirm',
             'date_from': datetime.strptime('2023-01-01', '%Y-%m-%d').date(),
@@ -243,13 +333,13 @@ class TestHolidaysMultiContract(TestHolidayContract):
         leave_during_full_time, leave_during_partial_time = self.env['hr.leave'].create([
             {
                 'employee_id': employee.id,
-                'holiday_status_id': leave_type.id,
+                'work_entry_type_id': work_entry_type.id,
                 'request_date_from': '2023-01-03',  # Tuesday
                 'request_date_to': '2023-01-05',  # Thursday
             },
             {
                 'employee_id': employee.id,
-                'holiday_status_id': leave_type.id,
+                'work_entry_type_id': work_entry_type.id,
                 'request_date_from': '2023-12-05',  # Tuesday
                 'request_date_to': '2023-12-07',  # Thursday
             },
@@ -282,14 +372,14 @@ class TestHolidaysMultiContract(TestHolidayContract):
             {
                 'name': 'Partial time (4/5)',
                 'attendance_ids': [
-                    (0, 0, {'name': 'Monday Morning', 'dayofweek': '0', 'hour_from': 8, 'hour_to': 12, 'day_period': 'morning'}),
-                    (0, 0, {'name': 'Monday Evening', 'dayofweek': '0', 'hour_from': 13, 'hour_to': 17, 'day_period': 'afternoon'}),
-                    (0, 0, {'name': 'Tuesday Morning', 'dayofweek': '1', 'hour_from': 8, 'hour_to': 12, 'day_period': 'morning'}),
-                    (0, 0, {'name': 'Tuesday Evening', 'dayofweek': '1', 'hour_from': 13, 'hour_to': 17, 'day_period': 'afternoon'}),
-                    (0, 0, {'name': 'Wednesday Morning', 'dayofweek': '2', 'hour_from': 8, 'hour_to': 12, 'day_period': 'morning'}),
-                    (0, 0, {'name': 'Wednesday Evening', 'dayofweek': '2', 'hour_from': 13, 'hour_to': 17, 'day_period': 'afternoon'}),
-                    (0, 0, {'name': 'Thursday Morning', 'dayofweek': '3', 'hour_from': 8, 'hour_to': 12, 'day_period': 'morning'}),
-                    (0, 0, {'name': 'Thursday Evening', 'dayofweek': '3', 'hour_from': 13, 'hour_to': 17, 'day_period': 'afternoon'})
+                    (0, 0, {'dayofweek': '0', 'hour_from': 8, 'hour_to': 12}),
+                    (0, 0, {'dayofweek': '0', 'hour_from': 13, 'hour_to': 17}),
+                    (0, 0, {'dayofweek': '1', 'hour_from': 8, 'hour_to': 12}),
+                    (0, 0, {'dayofweek': '1', 'hour_from': 13, 'hour_to': 17}),
+                    (0, 0, {'dayofweek': '2', 'hour_from': 8, 'hour_to': 12}),
+                    (0, 0, {'dayofweek': '2', 'hour_from': 13, 'hour_to': 17}),
+                    (0, 0, {'dayofweek': '3', 'hour_from': 8, 'hour_to': 12}),
+                    (0, 0, {'dayofweek': '3', 'hour_from': 13, 'hour_to': 17})
                 ]
             },
         ])
@@ -317,24 +407,26 @@ class TestHolidaysMultiContract(TestHolidayContract):
             # 'state': 'draft',
         })
 
-        leave_type = self.env['hr.leave.type'].create({
+        work_entry_type = self.env['hr.work.entry.type'].create({
             'name': 'Leave Type',
-            'time_type': 'leave',
+            'code': 'Leave Type',
+            'count_as': 'absence',
             'requires_allocation': False,
             'leave_validation_type': 'hr',
             'request_unit': 'day',
+            'unit_of_measure': 'day',
         })
 
         leave1 = self.env['hr.leave'].create({
             'employee_id': employee.id,
-            'holiday_status_id': leave_type.id,
+            'work_entry_type_id': work_entry_type.id,
             'request_date_from': '2024-01-01',
             'request_date_to': '2024-01-31',
         })
 
         leave2 = self.env['hr.leave'].create({
             'employee_id': employee.id,
-            'holiday_status_id': leave_type.id,
+            'work_entry_type_id': work_entry_type.id,
             'request_date_from': '2024-02-01',
             'request_date_to': '2024-02-29',
         })
@@ -354,31 +446,31 @@ class TestHolidaysMultiContract(TestHolidayContract):
             {
                 'name': 'Full time (5/5, 8h/day)',
                 'attendance_ids': [
-                    (0, 0, {'name': 'Monday Morning', 'dayofweek': '0', 'hour_from': 8, 'hour_to': 12, 'day_period': 'morning'}),
-                    (0, 0, {'name': 'Monday Afternoon', 'dayofweek': '0', 'hour_from': 13, 'hour_to': 17, 'day_period': 'afternoon'}),
-                    (0, 0, {'name': 'Tuesday Morning', 'dayofweek': '1', 'hour_from': 8, 'hour_to': 12, 'day_period': 'morning'}),
-                    (0, 0, {'name': 'Tuesday Afternoon', 'dayofweek': '1', 'hour_from': 13, 'hour_to': 17, 'day_period': 'afternoon'}),
-                    (0, 0, {'name': 'Wednesday Morning', 'dayofweek': '2', 'hour_from': 8, 'hour_to': 12, 'day_period': 'morning'}),
-                    (0, 0, {'name': 'Wednesday Afternoon', 'dayofweek': '2', 'hour_from': 13, 'hour_to': 17, 'day_period': 'afternoon'}),
-                    (0, 0, {'name': 'Thursday Morning', 'dayofweek': '3', 'hour_from': 8, 'hour_to': 12, 'day_period': 'morning'}),
-                    (0, 0, {'name': 'Thursday Afternoon', 'dayofweek': '3', 'hour_from': 13, 'hour_to': 17, 'day_period': 'afternoon'}),
-                    (0, 0, {'name': 'Friday Morning', 'dayofweek': '4', 'hour_from': 8, 'hour_to': 12, 'day_period': 'morning'}),
-                    (0, 0, {'name': 'Friday Afternoon', 'dayofweek': '4', 'hour_from': 13, 'hour_to': 17, 'day_period': 'afternoon'}),
+                    (0, 0, {'dayofweek': '0', 'hour_from': 8, 'hour_to': 12}),
+                    (0, 0, {'dayofweek': '0', 'hour_from': 13, 'hour_to': 17}),
+                    (0, 0, {'dayofweek': '1', 'hour_from': 8, 'hour_to': 12}),
+                    (0, 0, {'dayofweek': '1', 'hour_from': 13, 'hour_to': 17}),
+                    (0, 0, {'dayofweek': '2', 'hour_from': 8, 'hour_to': 12}),
+                    (0, 0, {'dayofweek': '2', 'hour_from': 13, 'hour_to': 17}),
+                    (0, 0, {'dayofweek': '3', 'hour_from': 8, 'hour_to': 12}),
+                    (0, 0, {'dayofweek': '3', 'hour_from': 13, 'hour_to': 17}),
+                    (0, 0, {'dayofweek': '4', 'hour_from': 8, 'hour_to': 12}),
+                    (0, 0, {'dayofweek': '4', 'hour_from': 13, 'hour_to': 17}),
                 ]
             },
             {
                 'name': 'Partial time (5/5, 6h/day)',
                 'attendance_ids': [
-                    (0, 0, {'name': 'Monday Morning', 'dayofweek': '0', 'hour_from': 9, 'hour_to': 12, 'day_period': 'morning'}),
-                    (0, 0, {'name': 'Monday Afternoon', 'dayofweek': '0', 'hour_from': 13, 'hour_to': 16, 'day_period': 'afternoon'}),
-                    (0, 0, {'name': 'Tuesday Morning', 'dayofweek': '1', 'hour_from': 9, 'hour_to': 12, 'day_period': 'morning'}),
-                    (0, 0, {'name': 'Tuesday Afternoon', 'dayofweek': '1', 'hour_from': 13, 'hour_to': 16, 'day_period': 'afternoon'}),
-                    (0, 0, {'name': 'Wednesday Morning', 'dayofweek': '2', 'hour_from': 9, 'hour_to': 12, 'day_period': 'morning'}),
-                    (0, 0, {'name': 'Wednesday Afternoon', 'dayofweek': '2', 'hour_from': 13, 'hour_to': 16, 'day_period': 'afternoon'}),
-                    (0, 0, {'name': 'Thursday Morning', 'dayofweek': '3', 'hour_from': 9, 'hour_to': 12, 'day_period': 'morning'}),
-                    (0, 0, {'name': 'Thursday Afternoon', 'dayofweek': '3', 'hour_from': 13, 'hour_to': 16, 'day_period': 'afternoon'}),
-                    (0, 0, {'name': 'Friday Morning', 'dayofweek': '4', 'hour_from': 9, 'hour_to': 12, 'day_period': 'morning'}),
-                    (0, 0, {'name': 'Friday Afternoon', 'dayofweek': '4', 'hour_from': 13, 'hour_to': 16, 'day_period': 'afternoon'}),
+                    (0, 0, {'dayofweek': '0', 'hour_from': 9, 'hour_to': 12}),
+                    (0, 0, {'dayofweek': '0', 'hour_from': 13, 'hour_to': 16}),
+                    (0, 0, {'dayofweek': '1', 'hour_from': 9, 'hour_to': 12}),
+                    (0, 0, {'dayofweek': '1', 'hour_from': 13, 'hour_to': 16}),
+                    (0, 0, {'dayofweek': '2', 'hour_from': 9, 'hour_to': 12}),
+                    (0, 0, {'dayofweek': '2', 'hour_from': 13, 'hour_to': 16}),
+                    (0, 0, {'dayofweek': '3', 'hour_from': 9, 'hour_to': 12}),
+                    (0, 0, {'dayofweek': '3', 'hour_from': 13, 'hour_to': 16}),
+                    (0, 0, {'dayofweek': '4', 'hour_from': 9, 'hour_to': 12}),
+                    (0, 0, {'dayofweek': '4', 'hour_from': 13, 'hour_to': 16}),
                 ]
             },
         ])
@@ -403,15 +495,17 @@ class TestHolidaysMultiContract(TestHolidayContract):
             "wage": 1000.0,
         })
 
-        leave_type = self.env['hr.leave.type'].create({
+        work_entry_type = self.env['hr.work.entry.type'].create({
             'name': 'Leave Type',
-            'time_type': 'leave',
+            'code': 'Leave Type',
+            'count_as': 'absence',
             'requires_allocation': False,
             'request_unit': 'day',
+            'unit_of_measure': 'day',
         })
 
-        with Form(self.env['hr.leave'].with_context(default_employee_id=employee.id)) as leave_form:
-            leave_form.holiday_status_id = leave_type
+        with Form(self.env['hr.leave'].with_context(default_employee_id=employee.id, leave_fast_create=True)) as leave_form:
+            leave_form.work_entry_type_id = work_entry_type
             leave_form.request_date_from = date(2023, 2, 14)  # full-time calendar
             leave_form.request_date_to = date(2023, 2, 14)
 
@@ -427,3 +521,29 @@ class TestHolidaysMultiContract(TestHolidayContract):
         # Assert based on partial-time calendar
         self.assertEqual(leave.number_of_days, 1)
         self.assertEqual(leave.number_of_hours, 6)
+
+    def test_cancelled_leave_next_version_calendar_change(self):
+        # A cancelled time off shouldn't be impacted when the working schedule of the next version changes
+        employee = self.env['hr.employee'].create({
+            'name': 'Employee with two versions',
+            'tz': 'Europe/Brussels',
+        })
+        employee.version_id.write({
+            'date_version': date(2026, 9, 1),
+            'contract_date_start': date(2026, 9, 1),
+            'resource_calendar_id': self.calendar_40h.id,
+        })
+        october_version = employee.create_version({
+            'date_version': date(2026, 10, 1),
+            'resource_calendar_id': self.calendar_40h.id,
+        })
+        leave = self.create_leave(date(2026, 9, 30), date(2026, 10, 2), employee_id=employee.id)
+        leave.action_approve()
+        leave._force_cancel("Not needed anymore")
+        self.assertEqual(leave.state, 'cancel')
+
+        october_version.resource_calendar_id = self.calendar_35h
+
+        self.assertEqual(leave.state, 'cancel')
+        self.assertEqual(leave.resource_calendar_id, self.calendar_40h)
+        self.assertEqual(self.env['hr.leave'].search([('employee_id', '=', employee.id)]), leave)

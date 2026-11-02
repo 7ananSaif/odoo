@@ -1,5 +1,5 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-from odoo import models
+from odoo import models, _
 from odoo.addons.account.models.chart_template import template
 
 
@@ -10,9 +10,6 @@ class AccountChartTemplate(models.AbstractModel):
     def _get_cl_template_data(self):
         return {
             'code_digits': '6',
-            'property_account_receivable_id': 'account_110310',
-            'property_account_payable_id': 'account_210210',
-            'property_stock_valuation_account_id': 'account_110610',
         }
 
     @template('cl', 'res.company')
@@ -30,10 +27,16 @@ class AccountChartTemplate(models.AbstractModel):
                 'tax_calculation_rounding_method': 'round_globally',
                 'account_sale_tax_id': 'ITAX_19',
                 'account_purchase_tax_id': 'OTAX_19',
+                'deferred_expense_account_id': 'account_110820',
                 'expense_account_id': 'account_410235',
                 'income_account_id': 'account_310115',
-                'account_stock_journal_id': 'inventory_valuation',
+                'receivable_account_id': 'account_110310',
+                'payable_account_id': 'account_210210',
+                'downpayment_account_id': 'account_310140',
+                'withholding_tax_base_account_id': 'account_210715',
                 'account_stock_valuation_id': 'account_110612',
+                'account_production_wip_account_id': 'account_110660',
+                'account_production_wip_overhead_account_id': 'account_410255',
             },
         }
 
@@ -44,4 +47,23 @@ class AccountChartTemplate(models.AbstractModel):
                 'account_stock_expense_id': 'account_410230',
                 'account_stock_variation_id': 'account_603100',
             },
+            'account_110625': {'asset_depreciation_account_id': 'account_121310', 'asset_expense_account_id': 'account_410141'},
+            'account_110730': {'asset_depreciation_account_id': 'account_121310', 'asset_expense_account_id': 'account_420120'},
+            'account_121110': {'asset_depreciation_account_id': 'account_121310', 'asset_expense_account_id': 'account_410141'},
+            'account_121120': {'asset_depreciation_account_id': 'account_121320', 'asset_expense_account_id': 'account_410141'},
+            'account_121130': {'asset_depreciation_account_id': 'account_121330', 'asset_expense_account_id': 'account_410141'},
+            'account_150405': {'asset_depreciation_account_id': 'account_121330', 'asset_expense_account_id': 'account_420120'},
+        }
+
+    @template('cl', 'account.journal')
+    def _get_cl_account_journal(self):
+        return {
+            'domestic_purchase': {
+                'name': _("Domestic Purchases"),
+                'code': 'DMP',
+                'type': 'purchase',
+                'sequence': 2,
+                'l10n_latam_use_documents': True,
+                'default_account_id': 'account_410235',
+            }
         }

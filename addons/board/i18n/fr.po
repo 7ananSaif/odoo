@@ -7,14 +7,16 @@
 # Cécile Collart <cco@odoo.com>, 2022
 # Jolien De Paepe, 2023
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Manon Rondou (ronm)" <ronm@odoo.com>, 2026.
+# "Cécile Collart (cco)" <cco@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-09-14 21:08+0000\n"
-"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
-"Language-Team: French <https://translate.odoo.com/projects/odoo-19/board/fr/"
+"POT-Creation-Date: 2026-10-16 17:43+0000\n"
+"PO-Revision-Date: 2026-10-09 14:33+0000\n"
+"Last-Translator: \"Cécile Collart (cco)\" <cco@odoo.com>\n"
+"Language-Team: French <https://translate.odoo.com/projects/odoo-20/board/fr/"
 ">\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -22,7 +24,22 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=(n == 0 || n == 1) ? 0 : ((n != 0 && n % "
 "1000000 == 0) ? 1 : 2);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: board
+#: model:ir.module.module,description:base.module_board
+msgid ""
+"\n"
+"Lets the user create a custom dashboard.\n"
+"========================================\n"
+"\n"
+"Allows users to create custom dashboard.\n"
+msgstr ""
+"\n"
+"Permet à l’utilisateur de créer un tableau de bord personnalisé.\n"
+"========================================\n"
+"\n"
+"Permet aux utilisateurs de créer un tableau de bord personnalisé.\n"
 
 #. module: board
 #. odoo-javascript
@@ -58,6 +75,11 @@ msgid "Board"
 msgstr "Tableau"
 
 #. module: board
+#: model:ir.module.module,summary:base.module_board
+msgid "Build your own dashboards"
+msgstr "Créez vos propres tableaux de bord"
+
+#. module: board
 #. odoo-javascript
 #: code:addons/board/static/src/board_controller.xml:0
 msgid "Change Layout"
@@ -74,6 +96,11 @@ msgstr "Impossible d'ajouter le filtre au tableau de bord"
 #: code:addons/board/static/src/add_to_board/add_to_board.xml:0
 msgid "Dashboard"
 msgstr "Tableau de bord"
+
+#. module: board
+#: model:ir.module.module,shortdesc:base.module_board
+msgid "Dashboards"
+msgstr "Tableaux de bord"
 
 #. module: board
 #: model:ir.model.fields,field_description:board.field_board_board__display_name
@@ -103,12 +130,6 @@ msgstr "Agencement"
 #: model_terms:ir.ui.view,arch_db:board.board_my_dash_view
 msgid "My Dashboard"
 msgstr "Mon tableau de bord"
-
-#. module: board
-#. odoo-javascript
-#: code:addons/board/static/src/add_to_board/add_to_board.js:0
-msgid "Please refresh your browser for the changes to take effect."
-msgstr "Veuillez rafraîchir votre navigateur pour appliquer les changements."
 
 #. module: board
 #. odoo-javascript
@@ -150,3 +171,7 @@ msgstr "dans le menu \"Favoris\" des options de recherches."
 #: code:addons/board/static/src/add_to_board/add_to_board.js:0
 msgid "“%s” added to dashboard"
 msgstr "“%s” est ajouté(e) au tableau de bord"
+
+#~ msgid "Please refresh your browser for the changes to take effect."
+#~ msgstr ""
+#~ "Veuillez rafraîchir votre navigateur pour appliquer les changements."

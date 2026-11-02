@@ -16,7 +16,7 @@
                 <button type="object"
                     name="action_view_picking"
                     class="oe_stat_button"
-                    icon="fa-truck" invisible="incoming_picking_count == 0" groups="stock.group_stock_user">
+                    icon="local_shipping" invisible="incoming_picking_count == 0" groups="stock.group_stock_user">
                     <field name="incoming_picking_count" widget="statinfo" string="Receipt" help="Incoming Shipments"/>
                 </button>
             </xpath>
@@ -28,32 +28,26 @@
             </xpath>
             <xpath expr="//page/field[@name='order_line']/list/field[@name='product_qty']" position="after">
                 <field name="forecasted_issue" column_invisible="True"/>
-                <button type="object" name="action_product_forecast_report" title="Forecast Report" icon="fa-area-chart" invisible="not id or not forecasted_issue or not is_storable" class="text-danger"/>
-                <button type="object" name="action_product_forecast_report" title="Forecast Report" icon="fa-area-chart" invisible="not id or forecasted_issue or not is_storable"/>
+                <button type="object" name="action_product_forecast_report" title="Forecast Report" icon="area_chart" invisible="not id or not forecasted_issue or not is_storable" class="text-danger"/>
+                <button type="object" name="action_product_forecast_report" title="Forecast Report" icon="area_chart" invisible="not id or forecasted_issue or not is_storable"/>
             </xpath>
             <xpath expr="//div[@name='date_planned_div']" position="inside">
-                <div>
-                    <button name="%(action_purchase_vendor_delay_report)d" class="oe_link" type="action" context="{'search_default_partner_id': partner_id}" invisible="state == 'purchase' or not partner_id">
-                        <span invisible="on_time_rate &lt; 0"><field name="on_time_rate" digits="[42, 0]" class="oe_inline"/>% On-Time Delivery</span>
-                        <span invisible="on_time_rate &gt;= 0">No data yet</span>
-                    </button>
-                </div>
+                <button name="%(action_purchase_vendor_delay_report)d" class="oe_link ps-0 pb-0 pt-sm-0" type="action" context="{'search_default_partner_id': partner_id}" invisible="not partner_id or on_time_rate &lt; 0">
+                    <span><field name="on_time_rate" digits="[42, 0]" class="oe_inline"/>% On Time</span>
+                </button>
             </xpath>
-            <xpath expr="//label[@for='receipt_reminder_email']" position="attributes">
-                <attribute name="invisible">effective_date</attribute>
+            <xpath expr="//field[@name='order_line']/list/field[@name='date_planned']" position="after">
+                <field name="date_promised" optional="hide" column_invisible="parent.state not in ('purchase', 'cancel')"/>
             </xpath>
             <xpath expr="//div[@name='reminder']" position="attributes">
-                <attribute name="invisible">effective_date</attribute>
+                <attribute name="invisible" add="effective_date" separator=" or "/>
             </xpath>
-            <xpath expr="//div[@name='reminder']" position="after">
-                <field name="effective_date" invisible="not effective_date"/>
+            <xpath expr="//label[@for='receipt_reminder_email']" position="attributes">
+                <attribute name="invisible" add="effective_date" separator=" or "/>
             </xpath>
             <xpath expr="//field[@name='order_line']/form//field[@name='invoice_lines']" position="after">
                 <field name="move_ids"/>
             </xpath>
-            <field name="invoice_status" position="before">
-                <field name="receipt_status" invisible="state != 'purchase'"/>
-            </field>
             <xpath expr="//field[@name='order_line']/form//field[@name='analytic_distribution']" position="before">
                 <field name="propagate_cancel" groups="base.group_no_one"/>
             </xpath>
@@ -64,14 +58,20 @@
                 <attribute name="column_invisible">parent.state != 'purchase'</attribute>
                 <attribute name="readonly">product_type == 'consu'</attribute>
             </xpath>
-            <xpath expr="//page[@name='purchase_delivery_invoice']/group/group" position="inside">
+            <xpath expr="//field[@name='fiscal_position_id']" position="after">
                 <field name="default_location_dest_id_usage" invisible="1"/>
-                <field name="incoterm_id" readonly="locked"/>
-                <field name="incoterm_location"  readonly="locked"/>
+            </xpath>
+            <xpath expr="//group[@name='purchase_info']/field[@name='date_approve']" position="after">
+                <field name="date_promised" invisible="state not in ('purchase', 'cancel')"/>
             </xpath>
             <xpath expr="//div[@name='reminder']" position="after">
-                <field name="picking_type_id" domain="[('code','=','incoming'), '|', ('warehouse_id', '=', False), ('warehouse_id.company_id', '=', company_id)]" options="{'no_create': True}" readonly="state in ['cancel', 'purchase']"/>
+                <field name="picking_type_id" options="{'no_create': True}" readonly="state in ['cancel', 'purchase']"/>
                 <field name="dest_address_id" invisible="default_location_dest_id_usage != 'customer'" readonly="locked" required="default_location_dest_id_usage == 'customer'"/>
+            </xpath>
+            <xpath expr="//div[@name='receipt_status_on_form']" position="after">
+                <span class="text-muted" invisible="not effective_date">
+                    On <field name="effective_date" nolabel="1" class="text-muted oe_inline"/>
+                </span>
             </xpath>
         </field>
     </record>
@@ -93,13 +93,9 @@
         <field name="model">purchase.order</field>
         <field name="inherit_id" ref="purchase.purchase_order_view_tree"/>
         <field name="arch" type="xml">
-            <field name="invoice_status" position="before">
-                <field name="effective_date" column_invisible="True"/>
-                <field name="receipt_status" optional="hide" widget="badge"
-                decoration-success="receipt_status=='full'"
-                decoration-danger="date_planned and (date_planned &lt; effective_date or date_planned &lt; datetime.datetime.combine(datetime.date.today(), datetime.time(0,0,0)).to_utc().strftime('%Y-%m-%d %H:%M:%S') and receipt_status!='full' and effective_date &lt;= date_planned)"
-                decoration-warning="date_planned and date_planned &gt;= datetime.datetime.combine(datetime.date.today(), datetime.time(0,0,0)).to_utc().strftime('%Y-%m-%d %H:%M:%S') and date_planned &lt;= datetime.datetime.combine(datetime.date.today(), datetime.time(23,59,59)).to_utc().strftime('%Y-%m-%d %H:%M:%S') and receipt_status!='full'"/>
-            </field>
+            <xpath expr="//button[@name='action_receive']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
             <xpath expr="//field[@name='date_planned']" position="attributes">
                 <attribute name="decoration-danger">date_planned and (date_planned &lt; effective_date or date_planned &lt; datetime.datetime.combine(datetime.date.today(), datetime.time(0,0,0)).to_utc().strftime('%Y-%m-%d %H:%M:%S') and receipt_status!='full' and effective_date &lt;= date_planned)</attribute>
             </xpath>

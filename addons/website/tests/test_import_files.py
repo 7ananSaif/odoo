@@ -1,22 +1,16 @@
-import unittest
-
-from odoo.tests import TransactionCase, can_import, loaded_demo_data, tagged
-from odoo.tools.misc import file_open
+from odoo.tests import TransactionCase, loaded_demo_data, tagged
 
 
 @tagged("post_install", "-at_install")
 class TestImportFiles(TransactionCase):
 
-    @unittest.skipUnless(
-        can_import("xlrd.xlsx") or can_import("openpyxl"), "XLRD/XLSX not available",
-    )
-    def test_import_task_template_xls(self):
+    def test_import_task_template_xlsx(self):
         if not loaded_demo_data(self.env):
             self.skipTest('Needs demo data to be able to import those files')
         model = "website.rewrite"
         filename = "redirects_import_template.xlsx"
 
-        file_content = file_open(f"website/static/xls/{filename}", "rb").read()
+        file_content = self.file_read(f"website/static/xls/{filename}")
         import_wizard = self.env["base_import.import"].create(
             {
                 "res_model": model,

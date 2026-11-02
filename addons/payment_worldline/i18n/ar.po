@@ -8,10 +8,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-10-13 12:17+0000\n"
-"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
-"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:44+0000\n"
+"PO-Revision-Date: 2026-08-31 14:42+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-s19-4/"
 "payment_worldline/ar/>\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
@@ -19,7 +19,12 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: payment_worldline
+#: model:ir.module.module,summary:base.module_payment_worldline
+msgid "A French payment provider covering several European countries."
+msgstr ""
 
 #. module: payment_worldline
 #: model_terms:ir.ui.view,arch_db:payment_worldline.payment_provider_form
@@ -32,9 +37,59 @@ msgid "API Secret"
 msgstr "سر الواجهة البرمجية للتطبيق"
 
 #. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_alipay_plus
+msgid "Alipay+"
+msgstr ""
+
+#. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_amex
+msgid "American Express"
+msgstr ""
+
+#. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_bancontact
+msgid "Bancontact"
+msgstr ""
+
+#. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_bizum
+msgid "Bizum"
+msgstr ""
+
+#. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_card
+msgid "Card"
+msgstr ""
+
+#. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_cartes_bancaires
+msgid "Cartes Bancaires"
+msgstr ""
+
+#. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_cirrus
+msgid "Cirrus"
+msgstr ""
+
+#. module: payment_worldline
 #: model:ir.model.fields,field_description:payment_worldline.field_payment_provider__code
 msgid "Code"
 msgstr "رمز"
+
+#. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_dankort
+msgid "Dankort"
+msgstr ""
+
+#. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_diners
+msgid "Diners Club"
+msgstr ""
+
+#. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_discover
+msgid "Discover"
+msgstr ""
 
 #. module: payment_worldline
 #: model:ir.model.fields,field_description:payment_worldline.field_payment_provider__display_name
@@ -43,10 +98,70 @@ msgid "Display Name"
 msgstr "اسم العرض"
 
 #. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_eps
+msgid "EPS"
+msgstr ""
+
+#. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_floa_bank
+msgid "Floa Bank"
+msgstr ""
+
+#. module: payment_worldline
 #: model:ir.model.fields,field_description:payment_worldline.field_payment_provider__id
 #: model:ir.model.fields,field_description:payment_worldline.field_payment_transaction__id
 msgid "ID"
 msgstr "المُعرف"
+
+#. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_jcb
+msgid "JCB"
+msgstr ""
+
+#. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_klarna
+msgid "Klarna"
+msgstr ""
+
+#. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_mbway
+msgid "MB WAY"
+msgstr ""
+
+#. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_maestro
+msgid "Maestro"
+msgstr ""
+
+#. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_mastercard
+msgid "MasterCard"
+msgstr ""
+
+#. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_meeza
+msgid "Meeza"
+msgstr ""
+
+#. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_multibanco
+msgid "Multibanco"
+msgstr ""
+
+#. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_naps
+msgid "NAPS"
+msgstr ""
+
+#. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_omannet
+msgid "OmanNet"
+msgstr ""
+
+#. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_p24
+msgid "P24"
+msgstr ""
 
 #. module: payment_worldline
 #: model_terms:ir.ui.view,arch_db:payment_worldline.payment_provider_form
@@ -59,9 +174,24 @@ msgid "Payment Provider"
 msgstr "مزود الدفع"
 
 #. module: payment_worldline
+#: model:ir.module.module,shortdesc:base.module_payment_worldline
+msgid "Payment Provider: Worldline"
+msgstr ""
+
+#. module: payment_worldline
 #: model:ir.model,name:payment_worldline.model_payment_transaction
 msgid "Payment Transaction"
 msgstr "معاملة الدفع"
+
+#. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_paypal
+msgid "Paypal"
+msgstr ""
+
+#. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_post_finance
+msgid "PostFinance Pay"
+msgstr ""
 
 #. module: payment_worldline
 #. odoo-python
@@ -77,6 +207,11 @@ msgid ""
 "(error_code)s."
 msgstr ""
 "تم استلام حالة معاملة غير صالحة %(status)s مع كود الخطأ %(error_code)s."
+
+#. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_rupay
+msgid "RuPay"
+msgstr ""
 
 #. module: payment_worldline
 #: model:ir.model.fields,help:payment_worldline.field_payment_provider__code
@@ -96,6 +231,31 @@ msgid "Transaction declined with error code %(error_code)s."
 msgstr "تم رفض المعاملة مع رمز الخطأ %(error_code)s."
 
 #. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_troy
+msgid "Troy"
+msgstr ""
+
+#. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_twint
+msgid "Twint"
+msgstr ""
+
+#. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_unionpay
+msgid "UnionPay"
+msgstr ""
+
+#. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_visa
+msgid "VISA"
+msgstr ""
+
+#. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_wechat_pay
+msgid "WeChat Pay"
+msgstr ""
+
+#. module: payment_worldline
 #: model_terms:ir.ui.view,arch_db:payment_worldline.payment_provider_form
 msgid "Webhook Key"
 msgstr "مفتاح Webhook"
@@ -104,6 +264,12 @@ msgstr "مفتاح Webhook"
 #: model_terms:ir.ui.view,arch_db:payment_worldline.payment_provider_form
 msgid "Webhook Secret"
 msgstr "سر Webhook"
+
+#. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_wero
+#: model:payment.method,name:payment_worldline.payment_method_wero_brand
+msgid "Wero"
+msgstr ""
 
 #. module: payment_worldline
 #: model:ir.model.fields.selection,name:payment_worldline.selection__payment_provider__code__worldline
@@ -135,17 +301,13 @@ msgstr "Worldline Webhook Key"
 msgid "Worldline Webhook Secret"
 msgstr "Worldline Webhook Secret"
 
-#~ msgid "Could not establish the connection to the API."
-#~ msgstr "تعذر إنشاء الاتصال بالواجهة البرمجية للتطبيق."
+#. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_cofidis
+msgid "cofidis"
+msgstr ""
 
-#~ msgid "No transaction found matching reference %s."
-#~ msgstr "لم يتم العثور على معاملة تطابق المرجع %s."
-
-#~ msgid "Received data with missing reference %(ref)s."
-#~ msgstr "تم استلام البيانات دون مرجع %(ref)s."
-
-#~ msgid "The communication with the API failed. Details: %s"
-#~ msgstr "فشل التواصل مع الواجهة البرمجية. التفاصيل: %s"
-
-#~ msgid "The transaction is not linked to a token."
-#~ msgstr "المعاملة غير مرتبطة برمز."
+#. module: payment_worldline
+#: model:payment.method,name:payment_worldline.payment_method_ideal
+#: model:payment.method,name:payment_worldline.payment_method_ideal_brand
+msgid "iDEAL"
+msgstr ""

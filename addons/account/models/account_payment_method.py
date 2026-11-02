@@ -6,7 +6,7 @@ from odoo.fields import Domain
 
 class AccountPaymentMethod(models.Model):
     _name = 'account.payment.method'
-    _description = "Payment Methods"
+    _description = "Payment Method"
 
     name = fields.Char(required=True, translate=True)
     code = fields.Char(required=True)  # For internal identification
@@ -94,7 +94,7 @@ class AccountPaymentMethod(models.Model):
 
 class AccountPaymentMethodLine(models.Model):
     _name = 'account.payment.method.line'
-    _description = "Payment Methods"
+    _description = "Payment Method Line"
     _order = 'sequence, id'
     _check_company_domain = models.check_company_domain_parent_of
 
@@ -106,6 +106,7 @@ class AccountPaymentMethodLine(models.Model):
         comodel_name='account.payment.method',
         domain="[('payment_type', '=?', payment_type), ('id', 'in', available_payment_method_ids)]",
         required=True,
+        index=True,
     )
     payment_account_id = fields.Many2one(
         comodel_name='account.account',
@@ -135,7 +136,9 @@ class AccountPaymentMethodLine(models.Model):
         for method in self:
             if self.env.context.get('hide_payment_journal_id'):
                 return super()._compute_display_name()
-            method.display_name = f"{method.name} ({method.journal_id.name})"
+            # sudo: account.journal - the journal name is part of the payment
+            # method name, which is readable by every internal user.
+            method.display_name = f"{method.name} ({method.sudo().journal_id.name})"
 
     @api.depends('payment_method_id.name')
     def _compute_name(self):
@@ -161,14 +164,3 @@ class AccountPaymentMethodLine(models.Model):
         (self - unused_payment_method_lines).write({'journal_id': False})
 
         return super(AccountPaymentMethodLine, unused_payment_method_lines).unlink()
-
-    @api.model
-    def _auto_toggle_account_to_reconcile(self, account_id):
-        """This method is deprecated and will be removed.
-        Automatically toggle the account to reconcile if allowed.
-
-        :param account_id: The id of an account.account.
-        """
-        account = self.env['account.account'].browse(account_id)
-        if not account.reconcile and account.account_type not in ('asset_cash', 'liability_credit_card', 'off_balance'):
-            account.reconcile = True

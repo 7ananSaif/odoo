@@ -7,21 +7,35 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-30 19:06+0000\n"
-"PO-Revision-Date: 2025-11-17 03:11+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Greek <https://translate.odoo.com/projects/odoo-19-l10n/"
+"POT-Creation-Date: 2026-08-28 18:20+0000\n"
+"PO-Revision-Date: 2026-08-31 16:53+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Greek <https://translate.odoo.com/projects/odoo-s19-4/"
 "l10n_gr_edi/el/>\n"
 "Language: el\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: l10n_gr_edi
+#: model:ir.module.module,description:base.module_l10n_gr_edi
+msgid ""
+"\n"
+"myDATA is a platform created by Greece's tax authority,\n"
+"The Independent Authority for Public Revenue (IAPR),\n"
+"to digitize business tax and accounting information declaration.\n"
+msgstr ""
 
 #. module: l10n_gr_edi
 #: model:ir.model.fields.selection,name:l10n_gr_edi.selection__account_move__l10n_gr_edi_payment_method__1
 msgid "1 - Domestic Payments Account Number"
+msgstr ""
+
+#. module: l10n_gr_edi
+#: model:ir.model.fields.selection,name:l10n_gr_edi.selection__account_move__l10n_gr_edi_budget_type__1
+msgid "1 - Ordinary Budget"
 msgstr ""
 
 #. module: l10n_gr_edi
@@ -357,6 +371,11 @@ msgid "2 - Foreign Payments Account Number"
 msgstr ""
 
 #. module: l10n_gr_edi
+#: model:ir.model.fields.selection,name:l10n_gr_edi.selection__account_move__l10n_gr_edi_budget_type__2
+msgid "2 - PDE (Public Investment Budget)"
+msgstr ""
+
+#. module: l10n_gr_edi
 #: model:ir.model.fields.selection,name:l10n_gr_edi.selection__account_move_line__l10n_gr_edi_tax_exemption_category__2
 #: model:ir.model.fields.selection,name:l10n_gr_edi.selection__account_tax__l10n_gr_edi_default_tax_exemption_category__2
 msgid "2 - Without VAT - article 5 of the VAT code"
@@ -542,6 +561,11 @@ msgid "3 - Cash"
 msgstr ""
 
 #. module: l10n_gr_edi
+#: model:ir.model.fields.selection,name:l10n_gr_edi.selection__account_move__l10n_gr_edi_budget_type__3
+msgid "3 - Other Budget"
+msgstr ""
+
+#. module: l10n_gr_edi
 #: model:ir.model.fields.selection,name:l10n_gr_edi.selection__account_move_line__l10n_gr_edi_tax_exemption_category__3
 #: model:ir.model.fields.selection,name:l10n_gr_edi.selection__account_tax__l10n_gr_edi_default_tax_exemption_category__3
 msgid "3 - Without VAT - article 13 of the VAT code"
@@ -670,6 +694,12 @@ msgid "9 - Without VAT - article 25 of the VAT code"
 msgstr ""
 
 #. module: l10n_gr_edi
+#. odoo-python
+#: code:addons/l10n_gr_edi/models/account_edi_xml_ubl_gr.py:0
+msgid "A Greek CIUS credit note must reference the original invoice."
+msgstr ""
+
+#. module: l10n_gr_edi
 #: model:ir.model.fields,field_description:l10n_gr_edi.field_res_company__l10n_gr_edi_aade_key
 #: model:ir.model.fields,field_description:l10n_gr_edi.field_res_config_settings__l10n_gr_edi_aade_key
 msgid "AADE Subscription Key"
@@ -682,14 +712,10 @@ msgid "AADE User ID"
 msgstr ""
 
 #. module: l10n_gr_edi
-#: model:ir.model,name:l10n_gr_edi.model_account_move_reversal
-msgid "Account Move Reversal"
-msgstr "Αντιλογισμός Κίνησης Λογαριασμού"
-
-#. module: l10n_gr_edi
-#: model:ir.model,name:l10n_gr_edi.model_account_move_send
-msgid "Account Move Send"
-msgstr "Αποστολή Κίνησης Λογαριασμού"
+#: model:ir.model.fields,help:l10n_gr_edi.field_account_bank_statement_line__l10n_gr_edi_project_reference
+#: model:ir.model.fields,help:l10n_gr_edi.field_account_move__l10n_gr_edi_project_reference
+msgid "ADA or Enaritmos number"
+msgstr ""
 
 #. module: l10n_gr_edi
 #: model_terms:ir.ui.view,arch_db:l10n_gr_edi.res_config_settings_form_inherit_l10n_gr_edi
@@ -713,6 +739,30 @@ msgid "Branch number in the Tax Registry"
 msgstr ""
 
 #. module: l10n_gr_edi
+#: model:ir.model.fields,field_description:l10n_gr_edi.field_account_bank_statement_line__l10n_gr_edi_budget_type
+#: model:ir.model.fields,field_description:l10n_gr_edi.field_account_move__l10n_gr_edi_budget_type
+#: model_terms:ir.ui.view,arch_db:l10n_gr_edi.account_move_form_inherit_l10n_gr_edi
+msgid "Budget Type"
+msgstr ""
+
+#. module: l10n_gr_edi
+#. odoo-python
+#: code:addons/l10n_gr_edi/models/account_edi_xml_ubl_gr.py:0
+msgid "Budget Type and Project reference is required for B2G invoicing"
+msgstr ""
+
+#. module: l10n_gr_edi
+#. odoo-python
+#: code:addons/l10n_gr_edi/models/account_edi_xml_ubl_gr.py:0
+msgid "Buyer VAT must start with prefix 'EL'"
+msgstr ""
+
+#. module: l10n_gr_edi
+#: model:ir.model,name:l10n_gr_edi.model_account_edi_xml_ubl_gr
+msgid "CIUS GR"
+msgstr ""
+
+#. module: l10n_gr_edi
 #. odoo-python
 #: code:addons/l10n_gr_edi/models/account_move_send.py:0
 msgid "Check Invoice(s)"
@@ -725,13 +775,29 @@ msgid "Classification Mark"
 msgstr ""
 
 #. module: l10n_gr_edi
-#: model:ir.model,name:l10n_gr_edi.model_res_company
-msgid "Companies"
-msgstr "Εταιρίες"
+#: model:ir.model.fields,help:l10n_gr_edi.field_res_partner__l10n_gr_edi_contracting_authority_code
+#: model:ir.model.fields,help:l10n_gr_edi.field_res_users__l10n_gr_edi_contracting_authority_code
+msgid "Code of the contracting authority (e.g. 2048.8010430600.00061)"
+msgstr ""
+
+#. module: l10n_gr_edi
+#: model:ir.model.fields,help:l10n_gr_edi.field_product_product__l10n_gr_edi_cpv_code
+#: model:ir.model.fields,help:l10n_gr_edi.field_product_template__l10n_gr_edi_cpv_code
+msgid ""
+"Common Procurement Vocabulary (CPV) code for public procurement in Greece."
+msgstr ""
+
+#. module: l10n_gr_edi
+#: model:ir.model.fields,help:l10n_gr_edi.field_account_move_line__l10n_gr_edi_cpv_code
+msgid ""
+"Common Procurement Vocabulary (CPV) code for public sector procurement in "
+"Greece."
+msgstr ""
 
 #. module: l10n_gr_edi
 #. odoo-python
 #: code:addons/l10n_gr_edi/models/account_move.py:0
+#: model:ir.model,name:l10n_gr_edi.model_res_company
 msgid "Company"
 msgstr "Εταιρία"
 
@@ -741,9 +807,49 @@ msgid "Config Settings"
 msgstr "Ρυθμίσεις διαμόρφωσης"
 
 #. module: l10n_gr_edi
+#: model:ir.module.module,summary:base.module_l10n_gr_edi
+msgid "Connect to myDATA API implementation for Greece"
+msgstr ""
+
+#. module: l10n_gr_edi
 #: model:ir.model,name:l10n_gr_edi.model_res_partner
 msgid "Contact"
 msgstr "Επαφή"
+
+#. module: l10n_gr_edi
+#: model:ir.model.fields,field_description:l10n_gr_edi.field_account_bank_statement_line__l10n_gr_edi_contract_reference
+#: model:ir.model.fields,field_description:l10n_gr_edi.field_account_move__l10n_gr_edi_contract_reference
+msgid "Contract ADAM"
+msgstr ""
+
+#. module: l10n_gr_edi
+#: model_terms:ir.ui.view,arch_db:l10n_gr_edi.account_move_form_inherit_l10n_gr_edi
+msgid "Contract Reference"
+msgstr ""
+
+#. module: l10n_gr_edi
+#: model:ir.model.fields,field_description:l10n_gr_edi.field_res_partner__l10n_gr_edi_contracting_authority_name
+#: model:ir.model.fields,field_description:l10n_gr_edi.field_res_users__l10n_gr_edi_contracting_authority_name
+msgid "Contracting authority"
+msgstr ""
+
+#. module: l10n_gr_edi
+#: model:ir.model.fields,field_description:l10n_gr_edi.field_res_partner__l10n_gr_edi_contracting_authority_code
+#: model:ir.model.fields,field_description:l10n_gr_edi.field_res_users__l10n_gr_edi_contracting_authority_code
+msgid "Contracting authority code"
+msgstr ""
+
+#. module: l10n_gr_edi
+#. odoo-python
+#: code:addons/l10n_gr_edi/models/account_edi_xml_ubl_gr.py:0
+msgid "Contracting authority code is required for Greek buyer"
+msgstr ""
+
+#. module: l10n_gr_edi
+#. odoo-python
+#: code:addons/l10n_gr_edi/models/account_edi_xml_ubl_gr.py:0
+msgid "Contracting authority name is required for Greek buyer"
+msgstr ""
 
 #. module: l10n_gr_edi
 #: model:ir.model.fields,field_description:l10n_gr_edi.field_account_bank_statement_line__l10n_gr_edi_correlation_id
@@ -754,7 +860,7 @@ msgstr ""
 #. module: l10n_gr_edi
 #: model:ir.model,website_form_label:l10n_gr_edi.model_res_partner
 msgid "Create a Customer"
-msgstr "Δημιουργία Πελάτη"
+msgstr ""
 
 #. module: l10n_gr_edi
 #: model:ir.model.fields,field_description:l10n_gr_edi.field_l10n_gr_edi_document__create_uid
@@ -779,11 +885,18 @@ msgid "Default Tax Exemption Category"
 msgstr ""
 
 #. module: l10n_gr_edi
+#: model:ir.model.fields,help:l10n_gr_edi.field_res_partner__l10n_gr_edi_contracting_authority_name
+#: model:ir.model.fields,help:l10n_gr_edi.field_res_users__l10n_gr_edi_contracting_authority_name
+msgid "Description-name of the procurement dept.(e.g. Ministry of Justice)"
+msgstr ""
+
+#. module: l10n_gr_edi
 #: model:ir.model.fields,field_description:l10n_gr_edi.field_account_move_line__l10n_gr_edi_detail_type
 msgid "Detail Type"
 msgstr ""
 
 #. module: l10n_gr_edi
+#: model:ir.model.fields,field_description:l10n_gr_edi.field_account_edi_xml_ubl_gr__display_name
 #: model:ir.model.fields,field_description:l10n_gr_edi.field_account_fiscal_position__display_name
 #: model:ir.model.fields,field_description:l10n_gr_edi.field_account_move__display_name
 #: model:ir.model.fields,field_description:l10n_gr_edi.field_account_move_line__display_name
@@ -1556,6 +1669,14 @@ msgid "ETA tax codes mixin"
 msgstr ""
 
 #. module: l10n_gr_edi
+#. odoo-python
+#: code:addons/l10n_gr_edi/models/account_edi_xml_ubl_gr.py:0
+msgid ""
+"Each invoice line with a product must have a CPV code for Greek B2G "
+"invoicing.Set CPV code on the product or on the line."
+msgstr ""
+
+#. module: l10n_gr_edi
 #: model_terms:ir.ui.view,arch_db:l10n_gr_edi.res_config_settings_form_inherit_l10n_gr_edi
 msgid "Electronic Invoicing - myDATA"
 msgstr ""
@@ -1605,6 +1726,16 @@ msgid ""
 msgstr ""
 
 #. module: l10n_gr_edi
+#: model:ir.model.fields.selection,name:l10n_gr_edi.selection__res_partner__invoice_edi_format__ubl_gr
+msgid "Greece (Greek CIUS BIS 3.0)"
+msgstr ""
+
+#. module: l10n_gr_edi
+#: model:ir.module.module,shortdesc:base.module_l10n_gr_edi
+msgid "Greece - myDATA"
+msgstr ""
+
+#. module: l10n_gr_edi
 #: model_terms:ir.ui.view,arch_db:l10n_gr_edi.report_invoice_document
 msgid "Greece Barcode"
 msgstr ""
@@ -1621,6 +1752,7 @@ msgid "Greece document object for tracking all sent XML to myDATA"
 msgstr ""
 
 #. module: l10n_gr_edi
+#: model:ir.model.fields,field_description:l10n_gr_edi.field_account_edi_xml_ubl_gr__id
 #: model:ir.model.fields,field_description:l10n_gr_edi.field_account_fiscal_position__id
 #: model:ir.model.fields,field_description:l10n_gr_edi.field_account_move__id
 #: model:ir.model.fields,field_description:l10n_gr_edi.field_account_move_line__id
@@ -1635,6 +1767,14 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_gr_edi.field_res_partner__id
 msgid "ID"
 msgstr "Κωδικός"
+
+#. module: l10n_gr_edi
+#: model:ir.model.fields,help:l10n_gr_edi.field_account_bank_statement_line__l10n_gr_edi_contract_reference
+#: model:ir.model.fields,help:l10n_gr_edi.field_account_move__l10n_gr_edi_contract_reference
+msgid ""
+"Internet contract posting number(ADAM) of the Central Electronic Register of "
+"Public Procurement (KIMDIS)"
+msgstr ""
 
 #. module: l10n_gr_edi
 #. odoo-python
@@ -1662,9 +1802,29 @@ msgid "Invoice sent"
 msgstr ""
 
 #. module: l10n_gr_edi
+#. odoo-python
+#: code:addons/l10n_gr_edi/models/account_move_send.py:0
+msgid ""
+"Invoice(s) are not yet sent to myDATA. First enable myDATA sending, then you "
+"can send via Peppol for B2G invoicing."
+msgstr ""
+
+#. module: l10n_gr_edi
+#: model:ir.model.fields,field_description:l10n_gr_edi.field_account_move_line__l10n_gr_edi_cpv_code
+#: model:ir.model.fields,field_description:l10n_gr_edi.field_product_product__l10n_gr_edi_cpv_code
+#: model:ir.model.fields,field_description:l10n_gr_edi.field_product_template__l10n_gr_edi_cpv_code
+msgid "Item CPV Code"
+msgstr ""
+
+#. module: l10n_gr_edi
 #: model:ir.model,name:l10n_gr_edi.model_account_move
 msgid "Journal Entry"
 msgstr "Εγγραφή Ημερολογίου"
+
+#. module: l10n_gr_edi
+#: model:ir.model,name:l10n_gr_edi.model_account_move_reversal
+msgid "Journal Entry Reversal"
+msgstr ""
 
 #. module: l10n_gr_edi
 #: model:ir.model,name:l10n_gr_edi.model_account_move_line
@@ -1761,6 +1921,12 @@ msgid "Last Updated on"
 msgstr "Τελευταία Ενημέρωση στις"
 
 #. module: l10n_gr_edi
+#. odoo-python
+#: code:addons/l10n_gr_edi/models/account_edi_xml_ubl_gr.py:0
+msgid "M.AR.K number is required for Suppliers"
+msgstr ""
+
+#. module: l10n_gr_edi
 #: model:ir.model.fields,field_description:l10n_gr_edi.field_account_bank_statement_line__l10n_gr_edi_mark
 #: model:ir.model.fields,field_description:l10n_gr_edi.field_account_move__l10n_gr_edi_mark
 msgid "Mark"
@@ -1770,6 +1936,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_gr_edi.field_l10n_gr_edi_document__message
 msgid "Message"
 msgstr "Μήνυμα"
+
+#. module: l10n_gr_edi
+#. odoo-python
+#: code:addons/l10n_gr_edi/models/account_edi_xml_ubl_gr.py:0
+msgid "Missing Greek Invoice type"
+msgstr ""
 
 #. module: l10n_gr_edi
 #. odoo-python
@@ -1897,6 +2069,17 @@ msgstr "Πρότυπο Είδους"
 
 #. module: l10n_gr_edi
 #: model_terms:ir.ui.view,arch_db:l10n_gr_edi.account_move_form_inherit_l10n_gr_edi
+msgid "Project Reference"
+msgstr ""
+
+#. module: l10n_gr_edi
+#: model:ir.model.fields,field_description:l10n_gr_edi.field_account_bank_statement_line__l10n_gr_edi_project_reference
+#: model:ir.model.fields,field_description:l10n_gr_edi.field_account_move__l10n_gr_edi_project_reference
+msgid "Project reference number"
+msgstr ""
+
+#. module: l10n_gr_edi
+#: model_terms:ir.ui.view,arch_db:l10n_gr_edi.account_move_form_inherit_l10n_gr_edi
 msgid "Send Expense Classifications to myDATA"
 msgstr ""
 
@@ -1917,6 +2100,11 @@ msgid "Settings"
 msgstr "Ρυθμίσεις"
 
 #. module: l10n_gr_edi
+#: model:ir.model,name:l10n_gr_edi.model_account_move_send
+msgid "Shared Send Invoice Wizard Functions"
+msgstr ""
+
+#. module: l10n_gr_edi
 #. odoo-python
 #: code:addons/l10n_gr_edi/models/account_move.py:0
 msgid ""
@@ -1925,8 +2113,20 @@ msgid ""
 msgstr ""
 
 #. module: l10n_gr_edi
+#. odoo-python
+#: code:addons/l10n_gr_edi/models/account_edi_xml_ubl_gr.py:0
+msgid "Supplier VAT must start with 'EL'"
+msgstr ""
+
+#. module: l10n_gr_edi
 #: model:ir.model.fields,field_description:l10n_gr_edi.field_account_move_line__l10n_gr_edi_tax_exemption_category
 msgid "Tax Exemption Category"
+msgstr ""
+
+#. module: l10n_gr_edi
+#. odoo-python
+#: code:addons/l10n_gr_edi/models/res_partner.py:0
+msgid "The Greek contracting authority code format is invalid"
 msgstr ""
 
 #. module: l10n_gr_edi
@@ -2023,6 +2223,54 @@ msgstr ""
 #: code:addons/l10n_gr_edi/models/account_move.py:0
 msgid ""
 "You should use Send & Print wizard for sending customer invoices to myDATA."
+msgstr ""
+
+#. module: l10n_gr_edi
+#: model:ir.model.fields,field_description:l10n_gr_edi.field_res_partner__invoice_edi_format
+#: model:ir.model.fields,field_description:l10n_gr_edi.field_res_users__invoice_edi_format
+msgid "eInvoice format"
+msgstr ""
+
+#. module: l10n_gr_edi
+#. odoo-python
+#: code:addons/l10n_gr_edi/models/account_edi_xml_ubl_gr.py:0
+msgid "gr_bt_10"
+msgstr ""
+
+#. module: l10n_gr_edi
+#. odoo-python
+#: code:addons/l10n_gr_edi/models/account_edi_xml_ubl_gr.py:0
+msgid "gr_bt_25"
+msgstr ""
+
+#. module: l10n_gr_edi
+#. odoo-python
+#: code:addons/l10n_gr_edi/models/account_edi_xml_ubl_gr.py:0
+msgid "gr_bt_46"
+msgstr ""
+
+#. module: l10n_gr_edi
+#. odoo-python
+#: code:addons/l10n_gr_edi/models/account_edi_xml_ubl_gr.py:0
+msgid "gr_r_003"
+msgstr ""
+
+#. module: l10n_gr_edi
+#. odoo-python
+#: code:addons/l10n_gr_edi/models/account_edi_xml_ubl_gr.py:0
+msgid "gr_r_004_1"
+msgstr ""
+
+#. module: l10n_gr_edi
+#. odoo-python
+#: code:addons/l10n_gr_edi/models/account_edi_xml_ubl_gr.py:0
+msgid "gr_r_006"
+msgstr ""
+
+#. module: l10n_gr_edi
+#. odoo-python
+#: code:addons/l10n_gr_edi/models/account_edi_xml_ubl_gr.py:0
+msgid "gr_r_007"
 msgstr ""
 
 #. module: l10n_gr_edi

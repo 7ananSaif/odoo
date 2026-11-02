@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0+e\n"
+"Project-Id-Version: Odoo Server 19.5a1+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-19 18:05+0000\n"
-"PO-Revision-Date: 2026-06-19 18:05+0000\n"
+"POT-Creation-Date: 2026-08-28 18:22+0000\n"
+"PO-Revision-Date: 2026-08-28 18:22+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -27,11 +27,6 @@ msgid "Accepted"
 msgstr ""
 
 #. module: l10n_pl_edi
-#: model:ir.model,name:l10n_pl_edi.model_account_move_send
-msgid "Account Move Send"
-msgstr ""
-
-#. module: l10n_pl_edi
 #: model:ir.model.fields,field_description:l10n_pl_edi.field_res_config_settings__l10n_pl_edi_register
 msgid "Allow KSeF integration"
 msgstr ""
@@ -40,6 +35,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/l10n_pl_edi/models/res_config_settings.py:0
 msgid "Authentication with KSeF failed."
+msgstr ""
+
+#. module: l10n_pl_edi
+#. odoo-python
+#: code:addons/l10n_pl_edi/models/account_move.py:0
+msgid "Bill Fetched Successfully from KSeF"
 msgstr ""
 
 #. module: l10n_pl_edi
@@ -56,7 +57,7 @@ msgstr ""
 
 #. module: l10n_pl_edi
 #: model:ir.model,name:l10n_pl_edi.model_res_company
-msgid "Companies"
+msgid "Company"
 msgstr ""
 
 #. module: l10n_pl_edi
@@ -89,11 +90,18 @@ msgid "Create a Customer"
 msgstr ""
 
 #. module: l10n_pl_edi
+#. odoo-python
+#: code:addons/l10n_pl_edi/models/account_move.py:0
+msgid "Currency '%s' from the KSeF bill was not found."
+msgstr ""
+
+#. module: l10n_pl_edi
 #: model_terms:ir.ui.view,arch_db:l10n_pl_edi.fa3_xml_template
 msgid "Data wystawienia faktury"
 msgstr ""
 
 #. module: l10n_pl_edi
+#: model:ir.model.fields,field_description:l10n_pl_edi.field_account_journal__display_name
 #: model:ir.model.fields,field_description:l10n_pl_edi.field_account_move__display_name
 #: model:ir.model.fields,field_description:l10n_pl_edi.field_account_move_send__display_name
 #: model:ir.model.fields,field_description:l10n_pl_edi.field_res_company__display_name
@@ -116,6 +124,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/l10n_pl_edi/models/account_move_send.py:0
 msgid "Error when sending invoices to the KSeF"
+msgstr ""
+
+#. module: l10n_pl_edi
+#: model:ir.module.module,description:base.module_l10n_pl_edi
+msgid ""
+"Export FA(3) compliant XML invoices and prepare for integration with KSeF."
 msgstr ""
 
 #. module: l10n_pl_edi
@@ -204,12 +218,39 @@ msgid "Failed to start token authentication: %s"
 msgstr ""
 
 #. module: l10n_pl_edi
+#: model:ir.model.fields.selection,name:l10n_pl_edi.selection__account_move__l10n_pl_edi_status__fetch_failed
+msgid "Fetch Failed"
+msgstr ""
+
+#. module: l10n_pl_edi
+#: model:ir.model.fields.selection,name:l10n_pl_edi.selection__account_move__l10n_pl_edi_status__fetch_ready
+msgid "Fetch Ready"
+msgstr ""
+
+#. module: l10n_pl_edi
+#: model:ir.model.fields.selection,name:l10n_pl_edi.selection__account_move__l10n_pl_edi_status__fetched
+msgid "Fetched"
+msgstr ""
+
+#. module: l10n_pl_edi
+#. odoo-python
+#: code:addons/l10n_pl_edi/models/account_move.py:0
+msgid "Fetching Bill from KSeF ..."
+msgstr ""
+
+#. module: l10n_pl_edi
+#: model:ir.model.fields,field_description:l10n_pl_edi.field_account_journal__id
 #: model:ir.model.fields,field_description:l10n_pl_edi.field_account_move__id
 #: model:ir.model.fields,field_description:l10n_pl_edi.field_account_move_send__id
 #: model:ir.model.fields,field_description:l10n_pl_edi.field_res_company__id
 #: model:ir.model.fields,field_description:l10n_pl_edi.field_res_config_settings__id
 #: model:ir.model.fields,field_description:l10n_pl_edi.field_res_partner__id
 msgid "ID"
+msgstr ""
+
+#. module: l10n_pl_edi
+#: model:ir.model,name:l10n_pl_edi.model_account_journal
+msgid "Journal"
 msgstr ""
 
 #. module: l10n_pl_edi
@@ -386,7 +427,13 @@ msgstr ""
 #. module: l10n_pl_edi
 #. odoo-python
 #: code:addons/l10n_pl_edi/models/account_move.py:0
-msgid "KSeF XML failed. The bill was created empty. Reason: %s"
+msgid "KSeF XML failed. Reason: %s"
+msgstr ""
+
+#. module: l10n_pl_edi
+#. odoo-python
+#: code:addons/l10n_pl_edi/models/account_move.py:0
+msgid "KSeF XML failed. Something went wrong"
 msgstr ""
 
 #. module: l10n_pl_edi
@@ -464,6 +511,11 @@ msgid "Please set up a valid KSeF Certificate, with its Private Key set"
 msgstr ""
 
 #. module: l10n_pl_edi
+#: model:ir.module.module,shortdesc:base.module_l10n_pl_edi
+msgid "Polish E-Invoicing FA(3)"
+msgstr ""
+
+#. module: l10n_pl_edi
 #: model:ir.model.fields.selection,name:l10n_pl_edi.selection__res_partner__invoice_edi_format__fa3_pl
 msgid "Polish FA3"
 msgstr ""
@@ -525,11 +577,21 @@ msgid "Session key"
 msgstr ""
 
 #. module: l10n_pl_edi
+#: model:ir.model,name:l10n_pl_edi.model_account_move_send
+msgid "Shared Send Invoice Wizard Functions"
+msgstr ""
+
+#. module: l10n_pl_edi
+#: model:ir.module.module,summary:base.module_l10n_pl_edi
+msgid "Support for FA(3) electronic invoices in Poland via KSeF"
+msgstr ""
+
+#. module: l10n_pl_edi
 #. odoo-python
 #: code:addons/l10n_pl_edi/models/account_move.py:0
 msgid ""
 "Tax corresponding to '%s' required to derive the net unit price from gross "
-"price during KSeF import was not found in the mapping."
+"price during KSeF import could not be interpreted."
 msgstr ""
 
 #. module: l10n_pl_edi
@@ -547,14 +609,22 @@ msgid "The KSeF XML has been attached."
 msgstr ""
 
 #. module: l10n_pl_edi
-#: model:ir.model.constraint,message:l10n_pl_edi.constraint_account_move_l10n_pl_edi_number_uniq
-msgid "The KSeF number must be unique"
+#: model:ir.model.constraint,message:l10n_pl_edi.constraint_account_move_l10n_pl_edi_number_company_id_move_type_uniq
+msgid "The KSeF number must be unique per company per move_type"
 msgstr ""
 
 #. module: l10n_pl_edi
 #. odoo-python
 #: code:addons/l10n_pl_edi/models/account_move.py:0
 msgid "The KSeF service returned empty UPO content."
+msgstr ""
+
+#. module: l10n_pl_edi
+#. odoo-python
+#: code:addons/l10n_pl_edi/models/account_move_send.py:0
+msgid ""
+"The invoice was successfully sent to KSeF but the status check failed and "
+"will be retried later, 'Check Sending' to retry immediately."
 msgstr ""
 
 #. module: l10n_pl_edi
@@ -594,6 +664,12 @@ msgstr ""
 #: model:ir.model.fields,help:l10n_pl_edi.field_account_move__l10n_pl_edi_header
 msgid ""
 "User description of the current state, with hints to make the flow progress"
+msgstr ""
+
+#. module: l10n_pl_edi
+#. odoo-python
+#: code:addons/l10n_pl_edi/models/account_move_send.py:0
+msgid "Warning: KSeF status check failed"
 msgstr ""
 
 #. module: l10n_pl_edi

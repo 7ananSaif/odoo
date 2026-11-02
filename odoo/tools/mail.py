@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import base64
@@ -10,6 +9,7 @@ import re
 import socket
 import time
 import email.utils
+from collections.abc import Buffer
 from email.utils import getaddresses as orig_getaddresses
 from urllib.parse import urlparse
 from typing import Literal
@@ -68,10 +68,11 @@ else:
 safe_attrs = defs.safe_attrs | frozenset(
     ['style',
      'data-o-mail-quote', 'data-o-mail-quote-node',  # quote detection
+     'data-o-mail-full-composer',  # body composed with the full composer
      'data-oe-model', 'data-oe-id', 'data-oe-field', 'data-oe-type', 'data-oe-expression', 'data-oe-translation-source-sha', 'data-oe-nodeid',
-     'data-last-history-steps', 'data-oe-protected', 'data-embedded', 'data-embedded-editable', 'data-embedded-props', 'data-oe-version',
+     'data-last-history-commits', 'data-oe-protected', 'data-embedded', 'data-embedded-editable', 'data-embedded-props', 'data-oe-version',
      'data-oe-transient-content', 'data-behavior-props', 'data-prop-name', 'data-width', 'data-height', 'data-scale-x', 'data-scale-y', 'data-x', 'data-y',  # legacy editor
-     'data-oe-role', 'data-oe-aria-label',
+     'data-oe-role', 'data-oe-aria-label', 'data-o-datetime',
      'data-publish', 'data-id', 'data-res_id', 'data-interval', 'data-member_id', 'data-scroll-background-ratio', 'data-view-id',
      'data-class', 'data-mimetype', 'data-original-src', 'data-original-id', 'data-gl-filter', 'data-quality', 'data-resize-width',
      'data-shape', 'data-shape-colors', 'data-file-name', 'data-original-mimetype',
@@ -81,6 +82,7 @@ safe_attrs = defs.safe_attrs | frozenset(
      'data-mimetype-before-conversion',
      'data-language-id',
      'data-bs-toggle',  # support nav-tabs
+     'data-icon',
      ])
 
 defs.link_attrs |= {'xlink:href'}
@@ -210,25 +212,31 @@ def tag_quote(el):
     # gmail or yahoo // # outlook, html // # msoffice
     if 'gmail_extra' in el_class or \
             ('SkyDrivePlaceholder' in el_class or 'SkyDrivePlaceholder' in el_class):
-        el.set('data-o-mail-quote', '1')
-        if el.getparent() is not None:
+        if el.tag != 't':
+            el.set('data-o-mail-quote', '1')
+        if el.getparent() is not None and el.getparent().tag != 't':
             el.getparent().set('data-o-mail-quote-container', '1')
 
     if (el.tag == 'hr' and ('stopSpelling' in el_class or 'stopSpelling' in el_id)) or \
        'yahoo_quoted' in el_class:
         # Quote all elements after this one
-        el.set('data-o-mail-quote', '1')
+        if el.tag != 't':
+            el.set('data-o-mail-quote', '1')
         for sibling in el.itersiblings(preceding=False):
             sibling.set('data-o-mail-quote', '1')
 
     # odoo, gmail and outlook automatic signature wrapper
-    is_signature_wrapper = 'odoo_signature_wrapper' in el_class or 'gmail_signature' in el_class or el_id == "Signature"
+    is_signature_wrapper = (
+        'odoo_signature_wrapper' in el_class or
+        # gmail
+        'gmail_signature' in el_class or el_id == "Signature" or el.get('data-smartmail')
+    )
     is_outlook_auto_message = 'appendonsend' in el_id
     # gmail and outlook reply quote
     is_outlook_reply_quote = 'divRplyFwdMsg' in el_id
     is_gmail_quote = 'gmail_quote' in el_class
     is_quote_wrapper = is_signature_wrapper or is_gmail_quote or is_outlook_reply_quote
-    if is_quote_wrapper:
+    if is_quote_wrapper and el.tag != 't':
         el.set('data-o-mail-quote-container', '1')
         el.set('data-o-mail-quote', '1')
 
@@ -238,11 +246,11 @@ def tag_quote(el):
         reply_quote = el.getnext()
         if hr is not None and hr.tag == 'hr':
             hr.set('data-o-mail-quote', '1')
-        if reply_quote is not None:
+        if reply_quote is not None and reply_quote.tag != 't':
             reply_quote.set('data-o-mail-quote-container', '1')
             reply_quote.set('data-o-mail-quote', '1')
 
-    if is_outlook_auto_message:
+    if is_outlook_auto_message and el.tag != 't':
         if not el.text or not el.text.strip():
             el.set('data-o-mail-quote-container', '1')
             el.set('data-o-mail-quote', '1')
@@ -250,8 +258,9 @@ def tag_quote(el):
     # html signature (-- <br />blah)
     signature_begin = re.compile(r"((?:(?:^|\n)[-]{2}[\s]?$))")
     if el.text and el.find('br') is not None and re.search(signature_begin, el.text):
-        el.set('data-o-mail-quote', '1')
-        if el.getparent() is not None:
+        if el.tag != 't':
+            el.set('data-o-mail-quote', '1')
+        if el.getparent() is not None and el.getparent().tag != 't':
             el.getparent().set('data-o-mail-quote-container', '1')
 
     # text-based quotes (>, >>) and signatures (-- Signature)
@@ -264,7 +273,7 @@ def tag_quote(el):
         el.set('data-o-mail-quote-node', '1')
         el.set('data-o-mail-quote', '1')
     if el.getparent() is not None and not el.getparent().get('data-o-mail-quote-node'):
-        if el.getparent().get('data-o-mail-quote'):
+        if el.getparent().get('data-o-mail-quote') and el.tag != 't':
             el.set('data-o-mail-quote', '1')
         # only quoting the elements following the first quote in the container
         # avoids issues with repeated calls to html_normalize
@@ -273,9 +282,9 @@ def tag_quote(el):
                 siblings = el.getparent().getchildren()
                 quote_index = siblings.index(first_sibling_quote)
                 element_index = siblings.index(el)
-                if quote_index < element_index:
+                if quote_index < element_index and el.tag != 't':
                     el.set('data-o-mail-quote', '1')
-    if el.getprevious() is not None and el.getprevious().get('data-o-mail-quote') and not el.text_content().strip():
+    if el.getprevious() is not None and el.getprevious().get('data-o-mail-quote') and not el.text_content().strip() and el.tag != 't':
         el.set('data-o-mail-quote', '1')
 
 
@@ -292,8 +301,8 @@ def fromstring(html_, base_url=None, parser=None, **kw):
     """
     if parser is None:
         parser = html_parser
-    if isinstance(html_, bytes):
-        is_full_html = _looks_like_full_html_bytes(html_)
+    if isinstance(html_, Buffer):
+        is_full_html = _looks_like_full_html_bytes(bytes(html_))
     else:
         is_full_html = _looks_like_full_html_unicode(html_)
     doc = html.document_fromstring(html_, parser=parser, base_url=base_url, **kw)
@@ -468,12 +477,38 @@ def html_sanitize(src, silent=True, sanitize_tags=True, sanitize_attributes=Fals
     return markupsafe.Markup(sanitized)
 
 # ----------------------------------------------------------
+# lxml manipulation helpers
+# ----------------------------------------------------------
+
+
+def lxml_remove_element_preserve_tail(element, tail_separator='\n'):
+    """Remove an lxml element, mutating its parent tree and preserving its tail."""
+    parent_element = element.getparent()
+    if parent_element is None:
+        return False
+    # combine element tail with sibling tail or parent text
+    # this is safe as both are escaped xml text and will again be serialized as such
+    if element.tail:
+        tail = element.tail and element.tail.strip()
+        if tail:
+            previous_sibling = element.getprevious()
+            if previous_sibling is not None:
+                previous_sibling.tail = (previous_sibling.tail or '') + tail_separator + tail
+            else:
+                parent_element.text = (parent_element.text or '') + tail_separator + tail
+    parent_element.remove(element)
+    return True
+
+# ----------------------------------------------------------
 # HTML/Text management
 # ----------------------------------------------------------
 
 URL_SKIP_PROTOCOL_REGEX = r'mailto:|tel:|sms:'
 URL_REGEX = rf'''(\bhref=['"](?!{URL_SKIP_PROTOCOL_REGEX})([^'"]+)['"])'''
-TEXT_URL_REGEX = r'https?://[\w@:%.+&~#=/-]+(?:\?\S+)?'
+TEXT_URL_ALLOWED_GROUP = r'[\w@:%+&~#=/-]|[.,][^\s](?!$)'  # defines what characters can be inside a URL
+TEXT_URL_REGEX = r'https?://'  # scheme
+TEXT_URL_REGEX += rf'(?:{TEXT_URL_ALLOWED_GROUP})+'  # domain + path
+TEXT_URL_REGEX += r'(?:\?(?:[^\s.,]|[.,][^\s](?!$))+)?'  # query parameters
 # retrieve inner content of the link
 HTML_TAG_URL_REGEX = URL_REGEX + r'([^<>]*>([^<>]+)<\/)?'
 HTML_TAGS_REGEX = re.compile('<.*?>')
@@ -516,6 +551,42 @@ def html_keep_url(text):
     return final
 
 
+def html_remove_links(body):
+    """Replace every ``<a>`` by its text content followed by its target.
+
+    ``<a href="https://odoo.com">Odoo</a>`` becomes ``Odoo (https://odoo.com)``.
+
+    Intended for content displayed inertly (e.g. sandboxed previews of files
+    uploaded by users).
+    """
+    if not body or not body.strip():
+        return body
+    root = html.fragment_fromstring(body, create_parent='div')
+    for link in list(root.iter('a')):
+        href = (link.get('href') or '').strip()
+        if href and not href.startswith('#'):
+            link.tail = f' ({href}){link.tail or ""}'
+        link.drop_tag()
+    result = html.tostring(root, encoding='unicode')[5:-6]
+    return markupsafe.Markup(result) if isinstance(body, markupsafe.Markup) else result
+
+
+def html_remove_xpath(body, xpath_expression):
+    """Remove all elements matching some xpath."""
+    BodyClass = type(body)
+    parsed_body_root = html.fragment_fromstring(body, create_parent='div')
+    xpath_elements = parsed_body_root.xpath(xpath_expression)
+    for element in xpath_elements:
+        if element != parsed_body_root:
+            lxml_remove_element_preserve_tail(element)
+    # if the input body was already a single node with no trailing string, avoid adding wrapper div
+    root_children = parsed_body_root.getchildren()
+    if len(root_children) == 1 and not root_children[0].tail:
+        parsed_body_root = root_children[0]
+    final_body = html.tostring(parsed_body_root, encoding='unicode')
+    return BodyClass(final_body)
+
+
 def html_to_inner_content(html):
     """Returns unformatted text after removing html tags and excessive whitespace from a
     string/Markup. Passed strings will first be sanitized.
@@ -554,8 +625,8 @@ def html2plaintext(
     if not (html and html.strip()):
         return ''
 
-    if isinstance(html, bytes):
-        html = html.decode(encoding)
+    if isinstance(html, Buffer):
+        html = bytes(html).decode(encoding)
     else:
         assert isinstance(html, str), f"expected str got {html.__class__.__name__}"
 
@@ -657,7 +728,8 @@ def plaintext2html(text: str, container_tag: str | None = None, with_paragraph: 
         final = '<%s>%s</%s>' % (container_tag, final, container_tag)
     return markupsafe.Markup(final)
 
-def append_content_to_html(html, content, plaintext=True, preserve=False, container_tag=None):
+
+def append_content_to_html(html, content, plaintext=True, preserve=False, container_tag=None, add_line_breaks=True):
     """ Append extra content at the end of an HTML snippet, trying
         to locate the end of the HTML document (</body>, </html>, or
         EOF), and converting the provided content in html unless ``plaintext``
@@ -680,14 +752,17 @@ def append_content_to_html(html, content, plaintext=True, preserve=False, contai
         :param bool preserve: if content is plaintext, wrap it into a <pre>
             instead of converting it into html
         :param str container_tag: tag to wrap the content into, defaults to `div`.
+        :param bool add_line_breaks: content is surrounded by \n, one before and
+            one after
         :rtype: markupsafe.Markup
     """
     if plaintext and preserve:
-        content = '\n<pre>%s</pre>\n' % misc.html_escape(content)
+        content = '<pre>%s</pre>' % misc.html_escape(content)
     elif plaintext:
-        content = '\n%s\n' % plaintext2html(content, container_tag)
+        content = '%s' % plaintext2html(content, container_tag)
     else:
         content = re.sub(r'(?i)(</?(?:html|body|head|!\s*DOCTYPE)[^>]*>)', '', content)
+    if add_line_breaks:
         content = '\n%s\n' % content
     # Force all tags to lowercase
     html = re.sub(r'(</?)(\w+)([ >])',
@@ -949,6 +1024,11 @@ def url_domain_extract(url):
     if company_hostname and '.' in company_hostname:
         return '.'.join(company_hostname.split('.')[-2:])  # remove subdomains
     return False
+
+
+def text_url_replace(original_url, new_url, text):
+    """Replace an url with another inside some arbitrary text. Avoids matching sub-urls."""
+    return re.sub(re.escape(original_url) + rf'(?!{TEXT_URL_ALLOWED_GROUP})', new_url, text)
 
 def email_escape_char(email_address):
     """ Escape problematic characters in the given email address string"""

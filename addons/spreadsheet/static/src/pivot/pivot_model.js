@@ -6,6 +6,7 @@ import { PivotModel } from "@web/views/pivot/pivot_model";
 
 import { helpers, constants, EvaluationError, SpreadsheetPivotTable } from "@odoo/o-spreadsheet";
 import { parseGroupField } from "./pivot_helpers";
+import { localeCompare } from "@web/core/l10n/utils";
 
 const { toNormalizedPivotValue, toNumber, isDateOrDatetimeField, pivotTimeAdapter, deepEquals } =
     helpers;
@@ -753,7 +754,10 @@ export class OdooPivotModel extends PivotModel {
         const allGroupBys = params.groupingSets.flat();
         const order = columns
             .concat(rows)
-            .filter((dimension) => allGroupBys.includes(dimension.nameWithGranularity))
+            .filter(
+                (dimension) =>
+                    allGroupBys.includes(dimension.nameWithGranularity) && !dimension.isCustomField
+            ) // the order should not contain the custom groups
             .map((dimension) =>
                 dimension.order
                     ? `${dimension.nameWithGranularity} ${dimension.order}`
@@ -778,9 +782,13 @@ export class OdooPivotModel extends PivotModel {
         }
         const subGroup = { ...subGroups[0] };
         for (const measure of measures) {
+            if (measure === "__count") {
+                continue;
+            }
             const aggregator = measure.split(":")[1];
             switch (aggregator) {
                 case "sum":
+                case "sum_currency":
                 case "count":
                     subGroup[measure] = subGroups.reduce((sum, sg) => sum + sg[measure], 0);
                     break;
@@ -801,6 +809,8 @@ export class OdooPivotModel extends PivotModel {
                     }
                     break;
                 }
+                default:
+                    throw new Error(`Unsupported aggregator: ${aggregator}`);
             }
         }
         subGroup.__count = subGroups.reduce((sum, sg) => sum + (sg.__count || 0), 0);
@@ -839,7 +849,7 @@ export class OdooPivotModel extends PivotModel {
 
             const aLabel = (Array.isArray(aValue) ? aValue[1] : String(aValue)).toLowerCase();
             const bLabel = (Array.isArray(bValue) ? bValue[1] : String(bValue)).toLowerCase();
-            return order === "asc" ? aLabel.localeCompare(bLabel) : bLabel.localeCompare(aLabel);
+            return order === "asc" ? localeCompare(aLabel, bLabel) : localeCompare(bLabel, aLabel);
         };
 
         const sortSubGroups = (groupBys, subGroups) => {

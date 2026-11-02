@@ -1,17 +1,19 @@
-import { Component, useExternalListener, useRef } from "@odoo/owl";
+import { Component, useProps, signal, t, useListener } from "@odoo/owl";
 import { useScrollShadow } from "../../utils/scroll_shadow_hook";
 
 export class CategoryListPopup extends Component {
     static template = "pos_self_order.CategoryListPopup";
-    static props = {
-        close: Function,
-        categories: Object,
-        onCategorySelected: Function,
-    };
+    props = useProps({
+        close: t.function(),
+        categories: t.object(),
+        onCategorySelected: t.function(),
+    });
+
+    scrollContainerRef = signal.ref();
 
     setup() {
-        this.scrollShadow = useScrollShadow(useRef("scrollContainer"));
-        useExternalListener(window, "click", this.props.close);
+        this.scrollShadow = useScrollShadow(this.scrollContainerRef);
+        useListener(window, "click", this.props.close);
     }
 
     selectCategory(cat) {

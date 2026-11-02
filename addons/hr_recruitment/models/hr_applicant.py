@@ -3,12 +3,12 @@ import re
 
 from markupsafe import Markup
 from collections import defaultdict
-from datetime import datetime
 
 from odoo import api, fields, models, tools
 from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Domain
 from odoo.tools import SQL, clean_context
+from odoo.tools.misc import unquote
 from odoo.tools.translate import _
 
 
@@ -24,7 +24,7 @@ class HrApplicant(models.Model):
     _name = 'hr.applicant'
     _description = "Applicant"
     _order = "priority desc, sequence, id desc"
-    _inherit = ['mail.thread.cc',
+    _inherit = [
                'mail.thread.main.attachment',
                'mail.thread.blacklist',
                'mail.thread.phone',
@@ -37,11 +37,23 @@ class HrApplicant(models.Model):
     _primary_email = 'email_from'
     _track_duration_field = 'stage_id'
 
+    def _recruiter_domain(self):
+        recruiter_groups = [
+            self.env.ref("hr_recruitment.group_hr_recruitment_manager").id,
+            self.env.ref("hr_recruitment.group_hr_recruitment_user").id,
+        ]
+        return (
+            Domain("user_id", "!=", False)
+            & Domain("user_id.share", "=", False)
+            & Domain("user_id.group_ids", "in", recruiter_groups)
+            & Domain("company_id", "=?", unquote("company_id"))
+        )
+
     sequence = fields.Integer(string='Sequence', index=True, default=10)
     active = fields.Boolean("Active", default=True, help="If the active field is set to false, it will allow you to hide the case without removing it.", index=True)
 
     partner_id = fields.Many2one('res.partner', "Contact", copy=False, index='btree_not_null')
-    partner_name = fields.Char("Applicant's Name")
+    partner_name = fields.Char("Applicant's Name", tracking=True)
     email_from = fields.Char(
         string="Email",
         size=128,
@@ -49,6 +61,7 @@ class HrApplicant(models.Model):
         inverse='_inverse_partner_email',
         copy=True,
         store=True,
+        tracking=True,
         index='trigram',
     )
     email_normalized = fields.Char(index='trigram')  # inherited via mail.thread.blacklist
@@ -59,13 +72,14 @@ class HrApplicant(models.Model):
         inverse='_inverse_partner_email',
         copy=True,
         store=True,
+        tracking=True,
         index='btree_not_null',
     )
     partner_phone_sanitized = fields.Char(
         string="Sanitized Phone Number", compute='_compute_partner_phone_sanitized', store=True, index='btree_not_null'
     )
-    linkedin_profile = fields.Char('LinkedIn Profile', index='btree_not_null')
-    type_id = fields.Many2one('hr.recruitment.degree', "Degree")
+    linkedin_profile = fields.Char('LinkedIn Profile', tracking=True, index='btree_not_null')
+    type_id = fields.Many2one('hr.recruitment.degree', "Degree", tracking=True)
     availability = fields.Date("Availability", help="The date at which the applicant will be available to start working", tracking=True)
     color = fields.Integer("Color Index", default=0)
     employee_id = fields.Many2one('hr.employee', string="Employee", help="Employee linked to the applicant.", copy=False, index='btree_not_null')
@@ -76,44 +90,48 @@ class HrApplicant(models.Model):
     create_date = fields.Datetime("Applied on", readonly=True)
     stage_id = fields.Many2one('hr.recruitment.stage', 'Stage', ondelete='restrict', tracking=True,
                                compute='_compute_stage', store=True, readonly=False,
-                               domain="['|', ('job_ids', '=', False), ('job_ids', '=', job_id)]",
+                               domain="['&', '|', ('job_ids', '=', False), ('job_ids', '=', job_id), '|', ('company_id', '=', False), ('company_id', '=', company_id)]",
                                copy=False, index=True,
                                group_expand='_read_group_stage_ids')
     last_stage_id = fields.Many2one('hr.recruitment.stage', "Last Stage",
                                     help="Stage of the applicant before being in the current stage. Used for lost cases analysis.")
-    categ_ids = fields.Many2many('hr.applicant.category', string="Tags")
-    company_id = fields.Many2one('res.company', "Company", compute='_compute_company', store=True, readonly=False, tracking=True)
-    user_id = fields.Many2one(
-        'res.users', "Recruiter", compute='_compute_user', domain="[('share', '=', False), ('company_ids', 'in', company_id)]",
-        tracking=True, store=True, readonly=False)
+    categ_ids = fields.Many2many('hr.applicant.category', string="Tags", tracking=True)
+    currency_id = fields.Many2one('res.currency', string='Currency', related='company_id.currency_id')
+    company_id = fields.Many2one('res.company', "Company", compute='_compute_company', store=True, index=True, readonly=False, tracking=True, domain=lambda self: [('id', 'in', self.env.companies.ids)])
+    recruiter_id = fields.Many2one('hr.employee', "Recruiter", compute='_compute_recruiter', domain=lambda self: str(self._recruiter_domain()),
+        tracking=True, store=True, index=True, readonly=False)
     date_closed = fields.Datetime("Hire Date", compute='_compute_date_closed', store=True, readonly=False, tracking=True, copy=False)
     date_open = fields.Datetime("Assigned", readonly=True)
     date_last_stage_update = fields.Datetime("Last Stage Update", index=True, default=fields.Datetime.now)
     priority = fields.Selection(AVAILABLE_PRIORITIES, "Evaluation", default='0')
+    salary_proposed = fields.Monetary("Proposed", aggregator="avg", currency_field='currency_id', help="Salary Proposed by the Organisation", groups="hr_recruitment.group_hr_recruitment_user")
     job_id = fields.Many2one('hr.job', "Job Position", domain="company_id and [('company_id', '=', company_id)] or []", tracking=True, index=True, copy=False)
-    salary_proposed_extra = fields.Char("Proposed Salary Extra", help="Salary Proposed by the Organisation, extra advantages", tracking=True, groups="hr_recruitment.group_hr_recruitment_user")
-    salary_expected_extra = fields.Char("Expected Salary Extra", help="Salary Expected by Applicant, extra advantages", tracking=True, groups="hr_recruitment.group_hr_recruitment_user")
-    salary_proposed = fields.Float("Proposed", aggregator="avg", help="Salary Proposed by the Organisation", tracking=True, groups="hr_recruitment.group_hr_recruitment_user")
-    salary_expected = fields.Float("Expected", aggregator="avg", help="Salary Expected by Applicant", tracking=True, groups="hr_recruitment.group_hr_recruitment_user")
+    salary_proposed_extra = fields.Char("Proposed Salary Extra", help="Salary Proposed by the Organisation, extra advantages", groups="hr_recruitment.group_hr_recruitment_user")
+    salary_expected = fields.Monetary("Expected", aggregator="avg", currency_field='currency_id', help="Salary Expected by Applicant", groups="hr_recruitment.group_hr_recruitment_user")
+    salary_expected_extra = fields.Char("Expected Salary Extra", help="Salary Expected by Applicant, extra advantages", groups="hr_recruitment.group_hr_recruitment_user")
+    schedule_pay = fields.Selection([
+        ('hourly', 'Hour'),
+        ('daily', 'Day'),
+        ('weekly', 'Week'),
+        ('biweekly', 'Bi-Week'),
+        ('monthly', 'Month'),
+        ('yearly', 'Year'),
+    ], string='Schedule Pay', default='monthly', required=True, groups="hr_recruitment.group_hr_recruitment_user")
     department_id = fields.Many2one(
         'hr.department', "Department", compute='_compute_department', store=True, readonly=False,
         domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]", tracking=True)
     day_open = fields.Float(compute='_compute_day', string="Days to Open", compute_sudo=True)
     day_close = fields.Float(compute='_compute_day', string="Days to Close", compute_sudo=True)
     delay_close = fields.Float(compute="_compute_delay", string='Delay to Close', readonly=True, aggregator="avg", help="Number of days to close", store=True)
-    user_email = fields.Char(related='user_id.email', string="User Email", readonly=True)
+    recruiter_email = fields.Char(related='recruiter_id.work_email', string="Recruiter Work Email", readonly=True)
     attachment_number = fields.Integer(compute='_get_attachment_number', string="Number of Attachments")
     attachment_ids = fields.One2many('ir.attachment', 'res_id', domain=[('res_model', '=', 'hr.applicant')], string='Attachments')
     kanban_state = fields.Selection([
         ('normal', 'In Progress'),
-        ('done', 'Ready for Next Stage'),
+        ('done', 'Ready'),
         ('waiting', 'Waiting'),
         ('blocked', 'Blocked')], string='Kanban State',
         copy=False, default='normal', required=True)
-    legend_blocked = fields.Char(related='stage_id.legend_blocked', string='Kanban Blocked')
-    legend_done = fields.Char(related='stage_id.legend_done', string='Kanban Valid')
-    legend_waiting = fields.Char(related='stage_id.legend_waiting', string='Kanban Waiting')
-    legend_normal = fields.Char(related='stage_id.legend_normal', string='Kanban Ongoing')
     refuse_reason_id = fields.Many2one('hr.applicant.refuse.reason', string='Refuse Reason', tracking=True)
     meeting_ids = fields.One2many('calendar.event', 'applicant_id', 'Meetings')
     meeting_display_text = fields.Char(compute='_compute_meeting_display')
@@ -132,11 +150,12 @@ class HrApplicant(models.Model):
         ('archived', 'Archived'),
     ], compute="_compute_application_status", search="_search_application_status")
     application_count = fields.Integer(compute='_compute_application_count', help='Applications with the same email or phone or mobile')
-    applicant_properties = fields.Properties('Properties', definition='job_id.applicant_properties_definition', copy=True)
+    applicant_properties = fields.Properties('Properties', definition='company_id.applicant_properties_definition', precompute=False, copy=True)
     applicant_notes = fields.Html()
     refuse_date = fields.Datetime('Refuse Date')
     talent_pool_ids = fields.Many2many(comodel_name="hr.talent.pool", string="Talent Pools")
     pool_applicant_id = fields.Many2one("hr.applicant", index='btree_not_null')
+    linked_applicant_ids = fields.One2many('hr.applicant', 'pool_applicant_id', 'Applications')
     is_pool_applicant = fields.Boolean(compute="_compute_is_pool")
     is_applicant_in_pool = fields.Boolean(
         compute="_compute_is_applicant_in_pool", search="_search_is_applicant_in_pool"
@@ -150,6 +169,12 @@ class HrApplicant(models.Model):
         for talent in self:
             if talent.pool_applicant_id == talent and not talent.talent_pool_ids:
                 raise ValidationError(self.env._("Talent must belong to at least one Talent Pool."))
+
+    @api.model
+    def _get_model_description(self, model_name):
+        if model_name != 'hr.applicant':
+            return super()._get_model_description(model_name)
+        return self.env._("Application")
 
     @api.depends("email_normalized", "partner_phone_sanitized", "linkedin_profile", "pool_applicant_id.talent_pool_ids")
     def _compute_talent_pool_count(self):
@@ -176,21 +201,8 @@ class HrApplicant(models.Model):
         if not indirectly_linked:
             return
 
-        all_emails = {a.email_normalized for a in indirectly_linked if a.email_normalized}
-        all_phones = {a.partner_phone_sanitized for a in indirectly_linked if a.partner_phone_sanitized}
-        all_linkedins = {a.linkedin_profile for a in indirectly_linked if a.linkedin_profile}
-
-        epl_domain = Domain.FALSE
-        if all_emails:
-            epl_domain |= Domain("email_normalized", "in", list(all_emails))
-        if all_phones:
-            epl_domain |= Domain("partner_phone_sanitized", "in", list(all_phones))
-        if all_linkedins:
-            epl_domain |= Domain("linkedin_profile", "in", list(all_linkedins))
-
-        pool_domain = Domain(["|", ("talent_pool_ids", "!=", False), ("pool_applicant_id", "!=", False)])
-        domain = pool_domain & epl_domain
-        in_pool_applicants = self.env["hr.applicant"].with_context(active_test=True).search(domain)
+        domain = self._get_similar_applicants_domain() & Domain(["|", ("talent_pool_ids", "!=", False), ("pool_applicant_id", "!=", False)])
+        in_pool_applicants = self.env["hr.applicant"].with_context(active_test=False).search(domain)
 
         in_pool_emails = defaultdict(int)
         in_pool_phones = defaultdict(int)
@@ -242,9 +254,15 @@ class HrApplicant(models.Model):
                 applicant.partner_id = applicant._partner_find_from_emails_single(
                     [applicant.email_from], no_create=False,
                     additional_values={
-                        email_normalized: {'lang': self.env.lang}
+                        email_normalized: {
+                            'lang': self.env.lang,
+                            'name': applicant.partner_name,
+                            'phone': applicant.partner_phone,
+                        },
                     },
                 )
+                continue
+            applicant._track_record(applicant.partner_id, ['name', 'email', 'phone'], body="Contact has been updated")
             if applicant.partner_name and applicant.partner_name != applicant.partner_id.name:
                 applicant.partner_id.name = applicant.partner_name
             if email_normalized and email_normalized != applicant.partner_id.email:
@@ -294,9 +312,7 @@ class HrApplicant(models.Model):
             if applicant.pool_applicant_id:
                 related_ids.update(pool_applicant_map.get(applicant.pool_applicant_id, set()))
 
-            count = len(related_ids)
-
-            applicant.application_count = max(0, count)
+            applicant.application_count = len(related_ids)
 
     @api.depends("talent_pool_ids")
     def _compute_is_pool(self):
@@ -305,7 +321,7 @@ class HrApplicant(models.Model):
 
     def _get_similar_applicants_domain(self, ignore_talent=False, only_talent=False):
         """
-        This method returns a domain for the applicants whitch match with the
+        This method returns a domain for the applicants which match with the
         current applicant according to email_from, partner_phone or linkedin_profile.
         Thus, search on the domain will return the current applicant as well
         if any of the following fields are filled.
@@ -358,21 +374,8 @@ class HrApplicant(models.Model):
         if not indirect:
             return
 
-        all_emails = {a.email_normalized for a in indirect if a.email_normalized}
-        all_phones = {a.partner_phone_sanitized for a in indirect if a.partner_phone_sanitized}
-        all_linkedins = {a.linkedin_profile for a in indirect if a.linkedin_profile}
-
-        epl_domain = Domain.FALSE
-        if all_emails:
-            epl_domain |= Domain("email_normalized", "in", list(all_emails))
-        if all_phones:
-            epl_domain |= Domain("partner_phone_sanitized", "in", list(all_phones))
-        if all_linkedins:
-            epl_domain |= Domain("linkedin_profile", "in", list(all_linkedins))
-
-        pool_domain = Domain(["|", ("talent_pool_ids", "!=", False), ("pool_applicant_id", "!=", False)])
-        domain = pool_domain & epl_domain
-        in_pool_applicants = self.env["hr.applicant"].with_context(active_test=True).search(domain)
+        domain = self._get_similar_applicants_domain() & Domain(["|", ("talent_pool_ids", "!=", False), ("pool_applicant_id", "!=", False)])
+        in_pool_applicants = self.env["hr.applicant"].with_context(active_test=False).search(domain)
         in_pool_data = {"emails": set(), "phones": set(), "linkedins": set()}
 
         for applicant in in_pool_applicants:
@@ -489,7 +492,7 @@ class HrApplicant(models.Model):
             'meeting_display_text': _('No Meeting'),
             'meeting_display_date': ''
         })
-        today = fields.Date.today()
+        today = fields.Date.context_today(self)
         for applicant in applicant_with_meetings:
             count = len(applicant.meeting_ids)
             dates = applicant.meeting_ids.mapped('start')
@@ -548,24 +551,42 @@ class HrApplicant(models.Model):
         job_id = self.env.context.get('default_job_id')
         search_domain = [('job_ids', '=', False)]
         if job_id:
-            search_domain = ['|', ('job_ids', '=', job_id)] + search_domain
+            job = self.env['hr.job'].browse(job_id)
+            search_domain = Domain.AND([
+                Domain.OR([
+                    search_domain, [('job_ids', '=', job_id)]
+                ]),
+                Domain.OR([
+                    [('company_id', '=', False)], [('company_id', '=', job.company_id.id)],
+                ])
+            ])
+        else:
+            search_domain = Domain.AND([
+                search_domain,
+                Domain.OR([
+                    [('company_id', '=', False)], [('company_id', 'in', self.env.companies.ids)]
+                ]),
+            ])
         if stages:
-            search_domain = ['|', ('id', 'in', stages.ids)] + search_domain
+            search_domain = Domain.OR([
+                search_domain,
+                [('id', 'in', stages.ids)]
+            ])
 
         stage_ids = stages.sudo()._search(search_domain, order=stages._order)
         return stages.browse(stage_ids)
 
-    @api.depends('job_id', 'department_id')
+    @api.depends('job_id', 'department_id', 'job_id.company_id')
     def _compute_company(self):
         for applicant in self:
             company_id = False
-            if applicant.department_id:
+            if applicant.department_id.company_id == applicant.job_id.company_id:
                 company_id = applicant.department_id.company_id.id
             if not company_id and applicant.job_id:
                 company_id = applicant.job_id.company_id.id
             applicant.company_id = company_id or self.env.company.id
 
-    @api.depends('job_id')
+    @api.depends('job_id', 'job_id.department_id')
     def _compute_department(self):
         for applicant in self:
             applicant.department_id = applicant.job_id.department_id.id
@@ -586,9 +607,9 @@ class HrApplicant(models.Model):
                 applicant.stage_id = False
 
     @api.depends('job_id')
-    def _compute_user(self):
+    def _compute_recruiter(self):
         for applicant in self:
-            applicant.user_id = applicant.job_id.user_id.id
+            applicant.recruiter_id = applicant.job_id.recruiter_id.id
 
     def _phone_get_number_fields(self):
         """ This method returns the fields to use to find the number to use to
@@ -617,10 +638,13 @@ class HrApplicant(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            if vals.get('user_id'):
+            if vals.get('recruiter_id'):
                 vals['date_open'] = fields.Datetime.now()
             if vals.get('email_from'):
                 vals['email_from'] = vals['email_from'].strip()
+            if vals.get('job_id'):
+                job = self.env['hr.job'].browse(vals['job_id'])
+                vals['schedule_pay'] = job.payment_interval or 'monthly'
         applicants = super().create(vals_list)
         applicants.sudo().interviewer_ids._create_recruitment_interviewers()
 
@@ -646,9 +670,13 @@ class HrApplicant(models.Model):
                 )
         return applicants
 
+    @api.model
+    def _get_sync_fields(self):
+        return ('partner_name', 'email_from', 'partner_phone', 'linkedin_profile', 'categ_ids', 'type_id', 'availability')
+
     def write(self, vals):
-        # user_id change: update date_open
-        if vals.get('user_id'):
+        # recruiter change: update date_open
+        if vals.get('recruiter_id'):
             vals['date_open'] = fields.Datetime.now()
         old_interviewers = self.interviewer_ids
         # stage_id: track last stage before update
@@ -669,16 +697,9 @@ class HrApplicant(models.Model):
             vals['date_last_stage_update'] = fields.Datetime.now()
         res = super().write(vals)
 
-        for applicant in self:
-            if applicant.pool_applicant_id and applicant != applicant.pool_applicant_id and (not applicant.is_pool_applicant):
-                if 'email_from' in vals:
-                    applicant.pool_applicant_id.email_from = vals['email_from']
-                if 'partner_phone' in vals:
-                    applicant.pool_applicant_id.partner_phone = vals['partner_phone']
-                if 'linkedin_profile' in vals:
-                    applicant.pool_applicant_id.linkedin_profile = vals['linkedin_profile']
-                if 'type_id' in vals:
-                    applicant.pool_applicant_id.type_id = vals['type_id']
+        if not self.env.context.get('fields_synced', False):
+            sync_fields_in_vals = {field: vals[field] for field in self._get_sync_fields() if field in vals}
+            (self.pool_applicant_id.linked_applicant_ids - self).with_context(fields_synced=True).write(sync_fields_in_vals)
 
         if 'interviewer_ids' in vals:
             interviewers_to_clean = old_interviewers - self.interviewer_ids
@@ -702,6 +723,11 @@ class HrApplicant(models.Model):
                         model_description="Applicant",
                     )
         return res
+
+    def copy(self, default=None):
+        if self.filtered("is_pool_applicant"):
+            raise UserError(self.env._("You cannot duplicate the talent(s)."))
+        return super().copy(default=default)
 
     @api.model
     def get_empty_list_help(self, help_message):
@@ -742,7 +768,6 @@ class HrApplicant(models.Model):
             if not self.partner_name:
                 raise UserError(_('You must define a Contact Name for this applicant.'))
             self.partner_id = self.env['res.partner'].create({
-                'is_company': False,
                 'name': self.partner_name,
                 'email': self.email_from,
             })
@@ -751,7 +776,7 @@ class HrApplicant(models.Model):
         if self.env.user.has_group('hr_recruitment.group_hr_recruitment_interviewer') and not self.env.user.has_group('hr_recruitment.group_hr_recruitment_user'):
             partners |= self.env.user.partner_id
         else:
-            partners |= self.user_id.partner_id
+            partners |= self.recruiter_id.user_partner_id
 
         res = self.env['ir.actions.act_window']._for_xml_id('calendar.action_calendar_event')
         # As we are redirected from the hr.applicant, calendar checks rules on "hr.applicant",
@@ -816,7 +841,6 @@ class HrApplicant(models.Model):
                 "active_test": False,
                 "search_default_stage": 1,
                 "default_applicant_ids": self.ids,
-                "no_create_application_button": True,
             },
         }
 
@@ -853,37 +877,36 @@ class HrApplicant(models.Model):
                 )
                 or [],
                 "default_applicant_ids": self.ids,
+                "display_applicant_ids": len(self) != 1,
             },
         }
 
     def action_job_add_applicants(self):
         return {
-            "name": _("Create Applications"),
+            "name": _("Apply to Jobs"),
             "type": "ir.actions.act_window",
             "res_model": "job.add.applicants",
             "target": "new",
-            "views": [[False, "form"]],
+            "views": [[self.env.ref('hr_recruitment.job_add_applicants_view_form').id, "form"]],
             "context": {
                 "is_modal": True,
-                "dialog_size": "medium",
                 "default_applicant_ids": self.ids
                 or self.env.context.get("default_applicant_ids"),
             },
         }
 
-    def _track_template(self, changes):
-        res = super()._track_template(changes)
+    def _track_template_parameters(self, tracked_fields):
+        res = super()._track_template_parameters(tracked_fields)
         applicant = self[0]
         # When applcant is unarchived, they are put back to the default stage automatically. In this case,
         # don't post automated message related to the stage change.
-        if 'stage_id' in changes and applicant.exists()\
+        if 'stage_id' in tracked_fields and applicant.exists()\
             and applicant.stage_id.template_id\
             and not applicant.env.context.get('just_moved')\
             and not applicant.env.context.get('just_unarchived'):
             res['stage_id'] = (applicant.stage_id.template_id, {
                 'auto_delete_keep_log': False,
                 'subtype_id': self.env['ir.model.data']._xmlid_to_res_id('mail.mt_note'),
-                'email_layout_xmlid': 'hr_recruitment.mail_notification_light_without_background'
             })
         return res
 
@@ -893,11 +916,11 @@ class HrApplicant(models.Model):
             return self.env.ref('hr_recruitment.mt_talent_new', raise_if_not_found=False)
         return self.env.ref('hr_recruitment.mt_applicant_new')
 
-    def _track_subtype(self, init_values):
+    def _track_log_get_default_subtype(self, track_init_values):
         record = self[0]
-        if 'stage_id' in init_values and record.stage_id:
+        if 'stage_id' in track_init_values and record.stage_id:
             return self.env.ref('hr_recruitment.mt_applicant_stage_changed')
-        return super()._track_subtype(init_values)
+        return super()._track_log_get_default_subtype(track_init_values)
 
     def _notify_get_reply_to(self, default=None, author_id=False):
         """ Override to set alias of applicants to their job definition if any. """
@@ -967,7 +990,7 @@ class HrApplicant(models.Model):
         res._compute_partner_phone_email()
         return res
 
-    def _message_post_after_hook(self, message, msg_vals):
+    def _message_post_after_hook(self, message):
         if self.email_from and not self.partner_id:
             # we consider that posting a message with a specified recipient (not a follower, a specific one)
             # on a document without customer means that it was created through the chatter using
@@ -988,7 +1011,7 @@ class HrApplicant(models.Model):
                 self.search([
                     ('partner_id', '=', False), email_domain, ('stage_id.fold', '=', False)
                 ]).write({'partner_id': new_partner[0].id})
-        return super()._message_post_after_hook(message, msg_vals)
+        return super()._message_post_after_hook(message)
 
     def create_employee_from_applicant(self):
         """ Create an employee from applicant """
@@ -999,7 +1022,6 @@ class HrApplicant(models.Model):
             if not self.partner_name:
                 raise UserError(_('Please provide an applicant name.'))
             self.partner_id = self.env['res.partner'].create({
-                'is_company': False,
                 'name': self.partner_name,
                 'email': self.email_from,
             })
@@ -1009,14 +1031,13 @@ class HrApplicant(models.Model):
         action['res_id'] = employee.id
         employee_attachments = self.env['ir.attachment'].search([('res_model', '=','hr.employee'), ('res_id', '=', employee.id)])
         unique_attachments = self.attachment_ids.filtered(
-            lambda attachment: attachment.datas not in employee_attachments.mapped('datas')
+            lambda attachment: attachment.checksum not in employee_attachments.mapped('checksum')
         )
         unique_attachments.copy({'res_model': 'hr.employee', 'res_id': employee.id})
         employee.write({
             'job_id': self.job_id.id,
             'job_title': self.job_id.name,
             'department_id': self.department_id.id,
-            'work_email': self.department_id.company_id.email or self.email_from, # To have a valid email address by default
             'work_phone': self.department_id.company_id.phone,
         })
         return action
@@ -1041,7 +1062,6 @@ class HrApplicant(models.Model):
             'lang': address_sudo.lang,
             'department_id': self.department_id.id,
             'address_id': self.company_id.partner_id.id,
-            'work_email': self.department_id.company_id.email or self.email_from,  # To have a valid email address by default
             'work_phone': self.department_id.company_id.phone,
             'applicant_ids': self.ids,
             'phone': self.partner_phone
@@ -1052,6 +1072,19 @@ class HrApplicant(models.Model):
             raise UserError(_('You are not allowed to perform this action.'))
 
     def archive_applicant(self):
+        if len(self) == 1:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': _('Refuse Reason'),
+                'res_model': 'applicant.refuse.single',
+                'view_mode': 'form',
+                'target': 'new',
+                'context': {
+                    'default_applicant_ids': self.ids,
+                    'hide_mail_template_management_options': True,
+                },
+                'views': [[False, 'form']],
+            }
         return {
             'type': 'ir.actions.act_window',
             'name': _('Refuse Reason'),
@@ -1060,7 +1093,6 @@ class HrApplicant(models.Model):
             'target': 'new',
             'context': {
                 'default_applicant_ids': self.ids,
-                'active_test': False,
                 'hide_mail_template_management_options': True,
             },
             'views': [[False, 'form']]
@@ -1090,22 +1122,8 @@ class HrApplicant(models.Model):
         self.reset_applicant()
         return res
 
-    def action_send_email(self):
-        return {
-            'name': _('Send Email'),
-            'type': 'ir.actions.act_window',
-            'target': 'new',
-            'view_mode': 'form',
-            'res_model': 'applicant.send.mail',
-            'context': {
-                'default_applicant_ids': self.ids,
-            }
-        }
-
-    def _get_duration_from_tracking(self, trackings):
-        json = super()._get_duration_from_tracking(trackings)
-        now = datetime.now()
-        for applicant in self:
-            if applicant.refuse_reason_id and applicant.refuse_date:
-                json[applicant.stage_id.id] -= (now - applicant.refuse_date).total_seconds()
-        return json
+    def _creation_message(self):
+        self.ensure_one()
+        if self.is_pool_applicant:
+            return self.env._("Talent created")
+        return super()._creation_message()

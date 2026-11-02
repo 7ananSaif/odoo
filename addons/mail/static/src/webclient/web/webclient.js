@@ -54,7 +54,7 @@ patch(WebClient.prototype, {
      * @return {Promise<void>}
      */
     async _subscribePush(numberTry = 1) {
-        await this.serviceWorkerActivatedDeferred;
+        await this.serviceWorkerIsActivated;
         const pushManager = await this.pushManager();
         if (!pushManager) {
             return;
@@ -93,7 +93,7 @@ patch(WebClient.prototype, {
         }
         const kwargs = subscription.toJSON();
         if (previousEndpoint && subscription.endpoint !== previousEndpoint) {
-            kwargs.previous_endpoint = previousEndpoint;
+            kwargs.previousEndpoint = previousEndpoint;
         }
         try {
             kwargs.vapid_public_key = this._arrayBufferToBase64(
@@ -124,7 +124,7 @@ patch(WebClient.prototype, {
      * @return {Promise<void>}
      */
     async _unsubscribePush() {
-        await this.serviceWorkerActivatedDeferred;
+        await this.serviceWorkerIsActivated;
         const pushManager = await this.pushManager();
         if (!pushManager) {
             return;

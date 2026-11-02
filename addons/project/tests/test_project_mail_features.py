@@ -14,7 +14,7 @@ class TestProjectMailFeatures(TestProjectCommon, MailCommon):
         super().setUpClass()
 
         # set high threshold to be sure to not hit mail limit during tests for a model
-        cls.env['ir.config_parameter'].sudo().set_param('mail.gateway.loop.threshold', 50)
+        cls.env['ir.config_parameter'].sudo().set_int('mail.gateway.loop.threshold', 50)
 
         # be sure to test emails
         cls.user_employee.notification_type = 'email'
@@ -152,7 +152,8 @@ class TestProjectMailFeatures(TestProjectCommon, MailCommon):
                         # already received the email)
                         'notified_partner_ids': internal_followers,
                         # deduced from 'To' and 'Cc' (recognized only)
-                        'partner_ids': self.partner_1 + self.partner_2,
+                        'partner_ids': self.partner_1,
+                        'partner_cc_ids': self.partner_2,
                         'parent_id': self.env['mail.message'],
                         'reply_to': formataddr((
                             self.user_portal.name,
@@ -207,7 +208,6 @@ class TestProjectMailFeatures(TestProjectCommon, MailCommon):
                 self.assertFalse(new_partner_customer)
 
                 self.assertIn('Please call me as soon as possible', task.description)
-                self.assertEqual(task.email_cc, f'"New Cc" <new.cc@test.agrolait.com>, {self.partner_2.email_formatted}, {self.partner_1.email_formatted}, "New Customer" <new.customer@test.agrolait.com>')
                 self.assertEqual(task.name, f'Test from {author.email_formatted}')
                 self.assertEqual(task.partner_id, author)
                 self.assertEqual(task.project_id, self.project_followers)
@@ -235,7 +235,8 @@ class TestProjectMailFeatures(TestProjectCommon, MailCommon):
                                 # already received the email)
                                 'notified_partner_ids': internal_followers,
                                 # deduced from 'To' and 'Cc' (recognized partners)
-                                'partner_ids': self.partner_1 + self.partner_2,
+                                'partner_ids': self.partner_1,
+                                'partner_cc_ids': self.partner_2,
                                 'parent_id': self.env['mail.message'],
                                 'reply_to': formataddr((author.name, self.project_followers_alias.alias_full_name)),
                                 'subject': f'Test from {author.email_formatted}',
@@ -307,6 +308,7 @@ class TestProjectMailFeatures(TestProjectCommon, MailCommon):
                             'email': 'new.author@test.agrolait.com',
                             'name': 'New Author',
                             'partner_id': author.id,  # already created by project upon initial email reception
+                            'recipient_type': 'to',
                         }
                     ]
                 elif test_user == self.user_portal:
@@ -316,20 +318,23 @@ class TestProjectMailFeatures(TestProjectCommon, MailCommon):
                             'email': self.user_portal.email_normalized,
                             'name': self.user_portal.name,
                             'partner_id': self.user_portal.partner_id.id,
+                            'recipient_type': 'to',
                         }
                     ]
                 expected_all += [
-                    {  # mail.thread.cc: email_cc field
-                        'create_values': {},
-                        'email': 'new.cc@test.agrolait.com',
-                        'name': 'New Cc',
-                        'partner_id': new_partner_cc.id,
-                    },
                     {  # incoming email other recipients (new.customer)
                         'create_values': {},
                         'email': 'new.customer@test.agrolait.com',
                         'name': 'New Customer',
                         'partner_id': new_partner_customer.id,
+                        'recipient_type': 'to',
+                    },
+                    {  # Email CC without a partner
+                        'create_values': {},
+                        'email': 'new.cc@test.agrolait.com',
+                        'name': 'New Cc',
+                        'partner_id': new_partner_cc.id,
+                        'recipient_type': 'cc',
                     },
                     # other CC (partner_2) and customer (partner_id) already follower
                 ]
@@ -412,11 +417,6 @@ class TestProjectMailFeatures(TestProjectCommon, MailCommon):
                     cc=f'"Another Cc" <another.cc@test.agrolait.com>, {self.partner_3.email}',
                     target_model='project.task',
                 )
-                self.assertEqual(
-                    task.email_cc,
-                    '"Another Cc" <another.cc@test.agrolait.com>, valid.poilboeuf@gmail.com, "New Cc" <new.cc@test.agrolait.com>, '
-                    '"Valid Poilvache" <valid.other@gmail.com>, "Valid Lelitre" <valid.lelitre@agrolait.com>, "New Customer" <new.customer@test.agrolait.com>',
-                    'Updated with new Cc')
                 self.assertEqual(len(task.message_ids), 4, 'Incoming email + acknowledgement + chatter reply + customer reply')
                 self.assertEqual(
                     task.message_partner_ids,
@@ -441,7 +441,8 @@ class TestProjectMailFeatures(TestProjectCommon, MailCommon):
                                 'notified_partner_ids': internal_followers,
                                 'parent_id': responsible_answer,
                                 # same reasoning as email_to/cc
-                                'partner_ids': external_partners + self.partner_3,
+                                'partner_ids': external_partners,
+                                'partner_cc_ids': self.partner_3,
                                 'reply_to': formataddr((author.name, self.project_followers_alias.alias_full_name)),
                                 'subject': f'Re: Re: {task.name}',
                                 'subtype_id': self.env.ref('mail.mt_comment'),
@@ -607,8 +608,6 @@ class TestProjectMailFeatures(TestProjectCommon, MailCommon):
             self.assertNotIn(task.user_ids, self.user_public + self.user_portal, "Assignees should not be set for user other than internal users")
             # sender should not be added as user in the task
             self.assertNotIn(task.user_ids, self.user_employee, "Sender can never be in assignees")
-            # internal users in cc of mail shoudl be added in email_cc field
-            self.assertEqual(task.email_cc, new_user.email, "The internal user in CC is not added into email_cc field")
 
     def test_task_creation_removes_email_signatures(self):
         """
@@ -644,30 +643,24 @@ Content-Type: text/html;
 """
 
         with self.mock_mail_gateway():
-            gmail_task_id = self.env['mail.thread'].message_process(
+            gmail_task = self.env['mail.thread'].message_process(
                 model='project.task',
                 message=gmail_email_source,
                 custom_values={'project_id': self.project_followers.id}
             )
-            outlook_task_id = self.env['mail.thread'].message_process(
+            outlook_task = self.env['mail.thread'].message_process(
                 model='project.task',
                 message=outlook_email_source,
                 custom_values={'project_id': self.project_followers.id}
             )
 
         # Verify Gmail signature removal
-        self.assertTrue(gmail_task_id, "Gmail task creation should return a valid ID.")
-        gmail_task = self.env['project.task'].browse(gmail_task_id)
-
         self.assertIn("This is the main email content that should be kept", gmail_task.description)
         self.assertNotIn("--", gmail_task.description, "The Gmail signature separator should have been removed.")
         self.assertNotIn("John Doe", gmail_task.description, "The Gmail signature should have been removed.")
         self.assertNotIn("Software Engineer", gmail_task.description, "The Gmail signature should have been removed.")
 
         # Verify Outlook signature removal
-        self.assertTrue(outlook_task_id, "Outlook task creation should return a valid ID.")
-        outlook_task = self.env['project.task'].browse(outlook_task_id)
-
         self.assertIn("This is the main email content that should be kept", outlook_task.description)
         self.assertNotIn("John Smith", outlook_task.description, "The Outlook signature should have been removed.")
         self.assertNotIn("Software Developer", outlook_task.description, "The Outlook signature should have been removed.")
@@ -685,7 +678,7 @@ Content-Type: text/html;
             'user': 'test@example.com',
             'password': '',
         })
-        task_id = self.env["mail.thread"].with_context(
+        task = self.env["mail.thread"].with_context(
             default_fetchmail_server_id=server.id
         ).message_process(
             server.object_id.model,
@@ -699,12 +692,31 @@ Content-Type: text/html;
             save_original=server.original,
             strip_attachments=not server.attach,
         )
-        task = self.env['project.task'].browse(task_id)
         self.assertEqual(task.name, "In a cage")
         self.assertEqual(task.project_id, self.project_pigs)
 
     def test_task_access_action(self):
-        """ Test that the access action link is correctly generated for portal users """
+        """ Test that the access action link is correctly generated for internal and portal users """
+
+        # 1. Internal User + Task with Project -> Deep Link
+        task_internal = self.env['project.task'].create({
+            'name': 'Test Task Internal',
+            'project_id': self.project_pigs.id,
+        })
+
+        action = task_internal.with_user(self.user_projectuser)._get_access_action()
+        self.assertEqual(
+            action['type'],
+            'ir.actions.act_url',
+            "Internal user should get an act_url instead of act_window",
+        )
+        self.assertIn(
+            f'/odoo/project/{self.project_pigs.id}/tasks/{task_internal.id}',
+            action['url'],
+            "URL should contain project and task IDs",
+        )
+
+        # 2. Portal User -> Standard Portal Link
         project_portal = self.env['project.project'].create({
             'name': 'Portal Project',
             'privacy_visibility': 'portal',
@@ -714,7 +726,34 @@ Content-Type: text/html;
             'project_id': project_portal.id,
         })
 
-        # Portal User + Project Sharing -> Project Sharing Link
+        task_portal.message_subscribe(partner_ids=[self.user_portal.partner_id.id])
+        action = task_portal.with_user(self.user_portal)._get_access_action()
+        self.assertEqual(action['type'], 'ir.actions.act_url')
+        self.assertIn(
+            '/my/tasks',
+            action['url'],
+            "Portal user should get a link to /my/tasks",
+        )
+
+        # 3. Internal User + Private Task (No Project) -> All Tasks Link
+        task_private = self.env['project.task'].create({
+            'name': 'Private Task',
+            'project_id': False,
+            'user_ids': [Command.set([self.user_projectuser.id])],
+        })
+        action = task_private.with_user(self.user_projectuser)._get_access_action()
+        self.assertEqual(
+            action['type'],
+            'ir.actions.act_url',
+            "Internal user should get an act_url instead of act_window",
+        )
+        self.assertIn(
+            f'/odoo/all-tasks/{task_private.id}',
+            action['url'],
+            "URL should point to the all-tasks route",
+        )
+
+        # 4. Portal User + Project Sharing -> Project Sharing Link
         project_portal.message_subscribe(partner_ids=self.user_portal.partner_id.ids)
         project_portal._add_collaborators(self.user_portal.partner_id)
         action = task_portal.with_user(self.user_portal)._get_access_action()

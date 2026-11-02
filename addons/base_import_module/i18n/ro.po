@@ -11,10 +11,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~12.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-11-13 14:24+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Romanian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-11 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 20:12+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Romanian <https://translate.odoo.com/projects/odoo-s19-4/"
 "base_import_module/ro/>\n"
 "Language: ro\n"
 "MIME-Version: 1.0\n"
@@ -22,7 +22,19 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
 "20)) ? 1 : 2;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: base_import_module
+#: model:ir.module.module,description:base.module_base_import_module
+msgid ""
+"\n"
+"Import a custom data module\n"
+"===========================\n"
+"\n"
+"This module allows authorized users to import a custom data module (.xml "
+"files and static assests)\n"
+"for customization purpose.\n"
+msgstr ""
 
 #. module: base_import_module
 #. odoo-python
@@ -55,9 +67,9 @@ msgid "Apps"
 msgstr "Aplicații"
 
 #. module: base_import_module
-#: model_terms:ir.ui.view,arch_db:base_import_module.view_base_module_import
-msgid "Cancel"
-msgstr "Anulează"
+#: model:ir.module.module,shortdesc:base.module_base_import_module
+msgid "Base import module"
+msgstr ""
 
 #. module: base_import_module
 #: model_terms:ir.ui.view,arch_db:base_import_module.view_base_module_import
@@ -96,7 +108,6 @@ msgstr "Creat în"
 
 #. module: base_import_module
 #: model:ir.model.fields,field_description:base_import_module.field_base_import_module__display_name
-#: model:ir.model.fields,field_description:base_import_module.field_base_module_uninstall__display_name
 #: model:ir.model.fields,field_description:base_import_module.field_ir_http__display_name
 #: model:ir.model.fields,field_description:base_import_module.field_ir_module_module__display_name
 #: model:ir.model.fields,field_description:base_import_module.field_ir_ui_view__display_name
@@ -116,6 +127,11 @@ msgstr ""
 "\n"
 " %(error_message)s \n"
 "\n"
+
+#. module: base_import_module
+#: model:ir.model.fields,field_description:base_import_module.field_ir_module_module__total_lines_of_code
+msgid "Extra lines of Code"
+msgstr ""
 
 #. module: base_import_module
 #. odoo-python
@@ -142,7 +158,6 @@ msgstr "Rutare HTTP"
 
 #. module: base_import_module
 #: model:ir.model.fields,field_description:base_import_module.field_base_import_module__id
-#: model:ir.model.fields,field_description:base_import_module.field_base_module_uninstall__id
 #: model:ir.model.fields,field_description:base_import_module.field_ir_http__id
 #: model:ir.model.fields,field_description:base_import_module.field_ir_module_module__id
 #: model:ir.model.fields,field_description:base_import_module.field_ir_ui_view__id
@@ -234,11 +249,6 @@ msgid "Module Type"
 msgstr "Tip modul"
 
 #. module: base_import_module
-#: model:ir.model,name:base_import_module.model_base_module_uninstall
-msgid "Module Uninstall"
-msgstr "Dezinstalare Modul"
-
-#. module: base_import_module
 #: model_terms:ir.ui.view,arch_db:base_import_module.view_base_module_import
 msgid "Module file (.zip)"
 msgstr "Fișier modul (.zip)"
@@ -265,6 +275,14 @@ msgstr ""
 msgid ""
 "Note: you can only import data modules (.xml files, i18n files and static "
 "assets)"
+msgstr ""
+
+#. module: base_import_module
+#: model:ir.model.fields,help:base_import_module.field_ir_module_module__total_lines_of_code
+msgid ""
+"Number of lines of code that may be billed under an Enterprise subscription. "
+"For exact pricing details, please contact your account manager or visit "
+"odoo.com/pricing."
 msgstr ""
 
 #. module: base_import_module
@@ -361,34 +379,5 @@ msgstr "efectuat"
 msgid "init"
 msgstr "init"
 
-#~ msgid "Import App"
-#~ msgstr "Importați App"
-
-#~ msgid "Import module"
-#~ msgstr "Importați modulul"
-
-#~ msgid "Last Modified on"
-#~ msgstr "Ultima modificare la"
-
-#~ msgid ""
-#~ "Note: you can only import data modules (.xml files and static assets)"
-#~ msgstr ""
-#~ "Notă: puteți importa doar module de date (fișiere .xml și active statice)"
-
-#~ msgid "Open Modules"
-#~ msgstr "Deschideți Modulele"
-
-#~ msgid "Select module package to import (.zip file):"
-#~ msgstr "Selectați pachetul modulului care va fi importat (fișier .zip):"
-
-#~ msgid "Studio customizations require Studio"
-#~ msgstr "Personalizările Studio necesită Studio"
-
-#~ msgid ""
-#~ "Unmet module dependencies: \n"
-#~ "\n"
-#~ " - %s"
-#~ msgstr ""
-#~ "Dependențe de modul neîndeplinite: \n"
-#~ "\n"
-#~ " - %s"
+#~ msgid "Module Uninstall"
+#~ msgstr "Dezinstalare Modul"

@@ -34,7 +34,6 @@ test("copies an object to the clipboard", async () => {
 
 test("does not submit forms", async () => {
     class Parent extends Component {
-        static props = ["*"];
         static components = { CopyButton };
         static template = xml`
                 <form t-on-submit="this.onSubmit">

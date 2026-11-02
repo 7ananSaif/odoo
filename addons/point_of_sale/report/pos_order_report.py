@@ -1,14 +1,14 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import fields, models, tools
+from odoo.tools import SQL
 
 
 class ReportPosOrder(models.Model):
     _name = 'report.pos.order'
     _description = "Point of Sale Orders Report"
     _auto = False
-    _order = 'date desc'
+    _order = 'date desc, id desc'
     _rec_name = 'order_id'
 
     date = fields.Datetime(string='Order Date', readonly=True)
@@ -20,11 +20,11 @@ class ReportPosOrder(models.Model):
         [('draft', 'New'), ('paid', 'Paid'), ('done', 'Posted'), ('cancel', 'Cancelled')],
         string='Status', readonly=True)
     user_id = fields.Many2one('res.users', string='User', readonly=True)
-    price_total = fields.Float(string='Total Price', readonly=True)
-    price_sub_total = fields.Float(string='Subtotal w/o discount', readonly=True)
-    price_subtotal_excl = fields.Float(string='Subtotal w/o Tax', readonly=True)
-    total_discount = fields.Float(string='Total Discount', readonly=True)
-    average_price = fields.Float(string='Average Price', readonly=True, aggregator="avg")
+    price_total = fields.Monetary(string='Total Price', readonly=True)
+    price_sub_total = fields.Monetary(string='Subtotal w/o discount', readonly=True)
+    price_subtotal_excl = fields.Monetary(string='Subtotal w/o Tax', readonly=True)
+    total_discount = fields.Monetary(string='Total Discount', readonly=True)
+    average_price = fields.Monetary(string='Average Price', readonly=True, aggregator="avg")
     company_id = fields.Many2one('res.company', string='Company', readonly=True)
     nbr_lines = fields.Integer(string='Sale Line Count', readonly=True)
     product_qty = fields.Integer(string='Product Quantity', readonly=True)
@@ -36,11 +36,13 @@ class ReportPosOrder(models.Model):
     config_id = fields.Many2one('pos.config', string='Point of Sale', readonly=True)
     pricelist_id = fields.Many2one('product.pricelist', string='Pricelist', readonly=True)
     session_id = fields.Many2one('pos.session', string='Session', readonly=True)
-    margin = fields.Float(string='Margin', readonly=True)
+    margin = fields.Monetary(string='Margin', readonly=True)
     payment_method_id = fields.Many2one('pos.payment.method', string='Payment Method', readonly=True)
+    preset_id = fields.Many2one('pos.preset', string='Preset', readonly=True)
+    currency_id = fields.Many2one('res.currency', string="Currency", readonly=True)
 
     def _select(self):
-        return """
+        return SQL("""
             -- The purpose of this CTE is to map each "pos_order_line" to the "payment_method_id" corresponding to its "pos_order"
             -- considering we always show the first "payment_method_id"
             WITH payment_method_by_order_line AS (
@@ -81,6 +83,7 @@ class ReportPosOrder(models.Model):
                 s.state AS state,
                 s.user_id AS user_id,
                 s.company_id AS company_id,
+                co.currency_id AS currency_id,
                 s.sale_journal AS journal_id,
                 l.product_id AS product_id,
                 pt.categ_id AS product_categ_id,
@@ -88,15 +91,16 @@ class ReportPosOrder(models.Model):
                 ps.config_id,
                 s.pricelist_id,
                 s.session_id,
+                s.preset_id,
                 s.account_move IS NOT NULL AS invoiced,
                 ((SIGN(l.qty) * SIGN(l.price_unit) * ABS(l.price_subtotal)) - COALESCE(l.total_cost,0)) / COALESCE(NULLIF(s.currency_rate, 0), 1.0) AS margin,
                 pm.payment_method_id AS payment_method_id,
                 fpc.id AS pos_categ_id
 
-        """
+        """)
 
     def _from(self):
-        return """
+        return SQL("""
             FROM pos_order_line AS l
                 INNER JOIN pos_order s ON (s.id=l.order_id)
                 LEFT JOIN product_product p ON (l.product_id=p.id)
@@ -108,17 +112,17 @@ class ReportPosOrder(models.Model):
                 LEFT JOIN payment_method_by_order_line pm ON (pm.pos_order_line_id=l.id)
                 LEFT JOIN pos_payment_method ppm ON (pm.payment_method_id=ppm.id)
                 LEFT JOIN first_pos_category fpc ON (pt.id = fpc.product_template_id)
-        """
+        """)
 
     def _group_by(self):
-        return ""
+        return SQL()
 
     def init(self):
         tools.drop_view_if_exists(self.env.cr, self._table)
-        self.env.cr.execute("""
+        self.env.cr.execute(SQL("""
             CREATE OR REPLACE VIEW %s AS (
                 %s
                 %s
             )
-        """ % (self._table, self._select(), self._from())
+        """, SQL.identifier(self._table), self._select(), self._from())
         )

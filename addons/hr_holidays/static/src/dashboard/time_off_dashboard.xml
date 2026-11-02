@@ -1,37 +1,51 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" ?>
 <templates xml:space="preserve">
-    <div t-name="hr_holidays.TimeOffDashboard" class="o_timeoff_dashboard">
-        <t t-foreach="state.holidays" t-as="holiday" t-key="holiday[3]">
-            <TimeOffCard
-                name="holiday[0]"
-                data="holiday[1]"
-                requires_allocation="holiday[2]"
-                holidayStatusId="holiday[3]"
-                employeeId="props.employeeId"/>
-        </t>
-        <div class="o_timeoff_card p-0 d-flex justify-content-around">
-            <div class="row justify-content-center align-items-center border-bottom h-25 w-100 p-0" t-if="hasAccrualAllocation">
-                Balance at the
-                <div class="p-1" style="max-width: 100px!important">
-                    <DateTimeInput
-                        type="'date'"
-                        value="state.date"
-                        onChange="(date) => this.loadDashboardData(date)"
-                        minDate="state.today"
-                        placeholder.translate="Today"/>
+    <div t-name="hr_holidays.TimeOffDashboard" class="o_timeoff_dashboard mb-2 px-3">
+        <div class="d-flex flex-row p-0 pb-2 gap-3 overflow-x-auto">
+            <t t-foreach="this.state.holidays" t-as="holiday" t-key="holiday[3]">
+                <TimeOffCard
+                    name="holiday[0]"
+                    data="holiday[1]"
+                    requires_allocation="holiday[2]"
+                    holidayStatusId="holiday[3]"
+                    employeeId="this.props.employeeId"
+                />
+            </t>
+            <div t-if="this.state.allocationsNumber"
+                 class="o_timeoff_card d-flex justify-content-center gap-3"
+            >
+                <div class="d-inline-flex flex-row align-items-center justify-content-center bg-warning-subtle bg-gradient rounded px-4 py-2 gap-2 cursor-pointer o_timeoff_card_inner"
+                     role="button"
+                     t-on-click="this.openPendingAllocations"
+                >
+                    <span class="o_timeoff_duration font-monospace">
+                        <t t-out="this.state.allocationsNumber"/>
+                    </span>
+                    <div class="d-flex flex-column align-items-start justify-content-center">
+                        <span class="o_timeoff_name m-0 fw-semibold">Pending<br/>Allocations</span>
+                    </div>
                 </div>
-                <button class="o_timeoff_today_button btn btn-secondary" t-on-click="resetDate">Today</button>
             </div>
-            <div class="d-flex flex-column justify-content-center align-items-center w-100">
-                <strong class="o_timeoff_name">Pending Requests</strong>
-                <span t-on-click="openPendingRequests"
-                    t-att-class="'o_timeoff_duration' + (state.allocationRequests ? ' cursor-pointer' : '')">
-                    <t t-esc="state.allocationRequests"/>
-                </span>
-                <a class="text-uppercase o_timeoff_details p-1" t-on-click="newAllocationRequest">
-                    <t t-if="employeeId">Grant Time</t>
-                    <t t-else="">New Allocation Request</t>
-                </a>
+            <a
+                class="btn btn-secondary d-inline-flex flex-column gap-2 align-items-center justify-content-center bg-gradient shadow-sm rounded p-3 gap-2 cursor-pointer o_timeoff_card_inner"
+                role="button"
+                t-on-click.prevent="this.openNewAllocation"
+            >
+                <i class="oi fs-3" data-icon="calendar_add_on" aria-hidden="true"/>
+                New Request
+            </a>
+            <div t-if="this.hasAccrualAllocation or this.hasFutureAllocation"
+                 class="o_timeoff_card d-flex align-items-center justify-content-center gap-2"
+            >
+                <span class="text-danger o_timeoff_name m-0">Balance on the</span>
+                <div class="d-flex flex-column align-items-start justify-content-center o_timeoff_validity">
+                    <DateTimeInput
+                            type="'date'"
+                            value="this.state.date"
+                            onChange="(date) => this.loadDashboardData(date)"
+                            minDate="this.state.today"
+                            placeholder.translate="Today"/>
+                </div>
             </div>
         </div>
     </div>

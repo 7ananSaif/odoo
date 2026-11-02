@@ -15,6 +15,14 @@ class WebsitePagePropertiesBase(models.TransientModel):
     is_homepage = fields.Boolean(compute='_compute_is_homepage', inverse='_inverse_is_homepage', string='Homepage')
     can_publish = fields.Boolean(compute='_compute_can_publish')
     is_published = fields.Boolean(compute='_compute_is_published', inverse='_inverse_is_published')
+    published_date = fields.Datetime(compute='_compute_published_date', inverse='_inverse_published_date', readonly=False)
+    publish_on = fields.Datetime(compute='_compute_publish_on', inverse='_inverse_publish_on', readonly=False)
+
+    def action_unschedule(self):
+        for record in self:
+            target = record.target_model_id
+            if target and 'publish_on' in target._fields:
+                target.publish_on = False
 
     def _selection_target_model_id(self):
         return [(model.model, model.name) for model in self.env['ir.model'].sudo().search([])]
@@ -31,6 +39,38 @@ class WebsitePagePropertiesBase(models.TransientModel):
         else:
             domain += [('url', '=', url_to_check)]
         return domain
+
+    @api.depends('target_model_id')
+    def _compute_published_date(self):
+        for record in self:
+            target = record.target_model_id
+            if target and 'published_date' in target._fields:
+                record.published_date = target.published_date
+            else:
+                record.published_date = False
+
+    def _inverse_published_date(self):
+        for record in self:
+            target = record.target_model_id
+            if target and 'published_date' in target._fields:
+                target.published_date = record.published_date
+
+    @api.depends('target_model_id')
+    def _compute_publish_on(self):
+        for record in self:
+            target = record.target_model_id
+            if target and 'publish_on' in target._fields:
+                record.publish_on = target.publish_on
+            else:
+                record.publish_on = False
+
+    def _inverse_publish_on(self):
+        for record in self:
+            target = record.target_model_id
+            if target and 'publish_on' in target._fields:
+                target.publish_on = record.publish_on
+                if record.publish_on:
+                    target.is_published = False
 
     @api.depends('url', 'website_id')
     def _compute_menu_ids(self):
@@ -76,6 +116,9 @@ class WebsitePagePropertiesBase(models.TransientModel):
     def _inverse_is_homepage(self):
         self.ensure_one()
         url = self.url
+        self._update_homepage(url)
+
+    def _update_homepage(self, url):
         if self.is_homepage:
             if url and url != '/':
                 self.website_id.homepage_url = url
@@ -118,13 +161,12 @@ class WebsitePagePropertiesBase(models.TransientModel):
             if self.can_publish:
                 if self.is_published:
                     # Publish
-                    target.visibility = ''
+                    target.visibility = 'public'
                     target.group_ids -= self._get_ir_ui_view_unpublish_group()
                 else:
                     # Unpublish
                     target.visibility = 'restricted_group'
                     target.group_ids += self._get_ir_ui_view_unpublish_group()
-                self.env.registry.clear_cache('templates')
         elif 'is_published' in target._fields:
             target.is_published = self.is_published
 
@@ -140,24 +182,32 @@ class WebsitePagePropertiesBase(models.TransientModel):
         view.ensure_one()
         return not view.visibility
 
+    def write(self, vals):
+        if 'is_published' in vals and any(self._ids):
+            self.env.transaction.invalidate_ormcache('templates')
+        return super().write(vals)
+
 
 class WebsitePageProperties(models.TransientModel):
     _name = 'website.page.properties'
-    _description = "Page Properties"
+    _description = "Page Property"
     _inherit = [
         'website.page.properties.base',
     ]
 
     target_model_id = fields.Many2one('website.page')
-    name = fields.Char(related='target_model_id.name', readonly=False)
+    name = fields.Char(related='target_model_id.name', readonly=False, copy=True)
     url = fields.Char(related='target_model_id.url', readonly=False)
-    date_publish = fields.Datetime(related='target_model_id.date_publish', readonly=False)
     website_indexed = fields.Boolean(related='target_model_id.website_indexed', readonly=False)
     visibility = fields.Selection(related='target_model_id.visibility', readonly=False)
     visibility_password_display = fields.Char(related='target_model_id.visibility_password_display', readonly=False)
     group_ids = fields.Many2many(related='target_model_id.group_ids', readonly=False)
     is_new_page_template = fields.Boolean(related='target_model_id.is_new_page_template', readonly=False)
 
+    has_parent_page = fields.Boolean(compute='_compute_has_parent_page', readonly=False,
+        help="Improve navigation and hierarchy of site by adding parent page in breadcrumbs format.")
+    parent_id = fields.Many2one(related='target_model_id.parent_id', readonly=False,
+        domain="['|', ('website_id', '=?', website_id), ('website_id', '=', False), ('id', '!=', target_model_id)]")
     old_url = fields.Char()
     redirect_old_url = fields.Boolean(default=False, store=False)
     redirect_type = fields.Selection(
@@ -169,6 +219,13 @@ class WebsitePageProperties(models.TransientModel):
         store=False,
         required=True,
     )
+    url_in_website_default_lang = fields.Char(compute='_compute_url_in_website_default_lang')
+
+    @api.depends('url')
+    def _compute_url_in_website_default_lang(self):
+        for page_properties in self:
+            website_default_lang = page_properties.website_id.default_lang_id.code
+            page_properties.url_in_website_default_lang = page_properties.with_context(lang=website_default_lang).url
 
     @api.depends('url', 'website_id.homepage_url')
     def _compute_is_homepage(self):
@@ -177,38 +234,58 @@ class WebsitePageProperties(models.TransientModel):
         accessed route's url.
         """
         for record in self:
-            url = record.url
             current_homepage_url = record.website_id.homepage_url or '/'
-            record.is_homepage = url == current_homepage_url
+            record.is_homepage = record.url_in_website_default_lang == current_homepage_url
+
+    def _inverse_is_homepage(self):
+        self.ensure_one()
+        website_default_lang = self.website_id.default_lang_id.code
+        url = self.with_context(lang=website_default_lang).url
+        self._update_homepage(url)
+
+    @api.depends('parent_id')
+    def _compute_has_parent_page(self):
+        for page in self:
+            page.has_parent_page = bool(page.parent_id)
+
+    @api.onchange('has_parent_page')
+    def _onchange_has_parent_page(self):
+        domain = self.website_id.website_domain() + [('url', '=', self.website_id.homepage_url or '/')]
+        homepage = self.env['website.page'].search(domain, limit=1)
+        self.parent_id = (self.has_parent_page and (self.parent_id or homepage)) or False
 
     @api.model_create_multi
     def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('is_homepage'):
+                vals['parent_id'] = False
         records = super().create(vals_list)
         for record in records:
-            record.old_url = record.url
+            record.old_url = record.url_in_website_default_lang
         return records
 
     def write(self, vals):
+        # If the page is being set as homepage, clear its parent page
+        if 'is_homepage' in vals:
+            vals['parent_id'] = False
         write_result = super().write(vals)
 
         # Once website.page has been written, the url might have been modified.
         # We can now create the redirects.
-        if 'url' in vals:
-            for record in self:
-                old_url = record.old_url
-                new_url = record.url
-                if old_url != new_url:
-                    if vals.get('redirect_old_url'):
-                        website_id = vals.get('website_id') or record.website_id.id or False
-                        self.env['website.rewrite'].create(
-                            {
-                                'name': vals.get('name') or record.name,
-                                'redirect_type': vals.get('redirect_type') or record.redirect_type,
-                                'url_from': old_url,
-                                'url_to': new_url,
-                                'website_id': website_id,
-                            }
-                        )
-                    record.old_url = new_url
+        for record in self:
+            old_url = record.old_url
+            new_url = record.url_in_website_default_lang
+            if old_url != new_url:
+                if record.redirect_old_url:
+                    self.env['website.rewrite'].create(
+                        {
+                            'name': record.with_context(lang='en_US').name,
+                            'redirect_type': record.redirect_type,
+                            'url_from': old_url,
+                            'url_to': new_url,
+                            'website_id': record.website_id.id,
+                        }
+                    )
+                record.old_url = new_url
 
         return write_result

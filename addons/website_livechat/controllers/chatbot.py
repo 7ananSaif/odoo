@@ -21,7 +21,7 @@ class WebsiteLivechatChatbotScriptController(http.Controller):
             ["chatbot_current_step_id.chatbot_script_id", "=", chatbot_script.id],
         ])
         for channel in channels:
-            channel._close_livechat_session()
+            channel._close_livechat_session(message=channel._get_visitor_leave_message())
         store.add(channels, {"close_chat_window": True})
 
         discuss_channel_values = {
@@ -43,18 +43,19 @@ class WebsiteLivechatChatbotScriptController(http.Controller):
                     },
                 ),
             ],
-            'livechat_operator_id': chatbot_script.operator_partner_id.id,
             'chatbot_current_step_id': chatbot_script._get_welcome_steps()[-1].id,
             'channel_type': 'livechat',
             'name': chatbot_script.title,
         }
         discuss_channel = request.env['discuss.channel'].create(discuss_channel_values)
         chatbot_script._post_welcome_steps(discuss_channel)
-        store.add(discuss_channel, {"open_chat_window": True})
-        request.env["res.users"]._init_store_data(store)
-        store.add(chatbot_script)
+        store.add(discuss_channel, "_store_open_chat_window_fields")
+        store.add_global_values(request.env.user.sudo(False)._store_init_global_fields)
+        store.add(chatbot_script, "_store_script_fields")
         return request.render("im_livechat.chatbot_test_script_page", {
             'server_url': chatbot_script.get_base_url(),
             'chatbot_script': chatbot_script,
-            'chatbot_test_store': store.get_result(),
+            'chatbot_test_store': store.as_dict(),
+            'session_info': {'bus_info': request.env['ir.http']._get_bus_session_info()},
+            'title': self.env._("Test %s", chatbot_script.title),
         })

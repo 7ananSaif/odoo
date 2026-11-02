@@ -4,6 +4,8 @@ from odoo.tests import tagged
 
 @tagged('post_install', '-at_install')
 class TestAccountPaymentDuplicateMoves(AccountTestInvoicingCommon):
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -121,7 +123,6 @@ class TestAccountPaymentDuplicateMoves(AccountTestInvoicingCommon):
             'name': 'Outstanding Payment Account B',
             'code': 'OPAB',
             'account_type': 'asset_current',
-            'reconcile': True,
         })
         # Create new payments in the second journal
         payment_in_2 = payment_in_1.copy(default={'date': payment_in_1.date})

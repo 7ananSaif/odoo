@@ -1,8 +1,7 @@
+import { proxy } from "@odoo/owl";
 import { Plugin } from "@html_editor/plugin";
-import { reactive } from "@odoo/owl";
 import { throttleForAnimation } from "@web/core/utils/timing";
 import { getScrollingElement, getScrollingTarget } from "@web/core/utils/scrolling";
-import { checkElement } from "../builder_options_plugin";
 import { OverlayButtons } from "./overlay_buttons";
 import { withSequence } from "@html_editor/utils/resource";
 
@@ -18,11 +17,12 @@ import { withSequence } from "@html_editor/utils/resource";
  * @typedef {{
  *      getButtons: (target: HTMLElement) => BuilderButtonDescriptor;
  * }[]} get_overlay_buttons
+ * @typedef {((target: HTMLElement) => bool | undefined)[]} should_show_overlay_buttons_of_ancestor_predicates
  */
 
 export class OverlayButtonsPlugin extends Plugin {
     static id = "overlayButtons";
-    static dependencies = ["selection", "overlay", "history", "operation"];
+    static dependencies = ["builderOptions", "overlay", "history", "operation", "toolbar"];
     static shared = [
         "hideOverlayButtons",
         "showOverlayButtons",
@@ -31,9 +31,15 @@ export class OverlayButtonsPlugin extends Plugin {
     ];
     /** @type {import("plugins").BuilderResources} */
     resources = {
-        step_added_handlers: this.refreshButtons.bind(this),
-        change_current_options_containers_listeners: this.addOverlayButtons.bind(this),
-        on_mobile_preview_clicked: withSequence(20, this.refreshButtons.bind(this)),
+        on_selectionchange_handlers: this.shouldShowToolbar.bind(this),
+        on_selection_leave_handlers: this.showOverlayButtonsUi.bind(this),
+        on_committed_to_history_handlers: this.refreshButtons.bind(this),
+        on_current_options_containers_changed_handlers: this.addOverlayButtons.bind(this),
+        on_mobile_view_switched_handlers: withSequence(20, this.refreshButtons.bind(this)),
+        on_prepare_drag_handlers: () => {
+            this.hideOverlayButtons();
+            return () => {}; // it will be refreshed by the call to `updateContainers` after drop (or cancel)
+        },
     };
 
     setup() {
@@ -48,13 +54,13 @@ export class OverlayButtonsPlugin extends Plugin {
                         const iframeRect = this.iframe.getBoundingClientRect();
                         if (this.target && position.top < iframeRect.top) {
                             const targetRect = this.target.getBoundingClientRect();
-                            const newTop = iframeRect.top + targetRect.bottom + 15;
+                            const newTop = iframeRect.top + targetRect.bottom + 1;
                             position.top = newTop;
                             overlayEl.style.top = `${newTop}px`;
                         }
                         return;
                     },
-                    margin: 15,
+                    margin: 1,
                     flip: false,
                 },
                 closeOnPointerdown: false,
@@ -64,7 +70,7 @@ export class OverlayButtonsPlugin extends Plugin {
             { sequence: 49 }
         );
         this.target = null;
-        this.state = reactive({
+        this.state = proxy({
             isVisible: true,
             showUi: true,
             buttons: [],
@@ -121,7 +127,7 @@ export class OverlayButtonsPlugin extends Plugin {
         }
         const buttons = [];
         for (const { getButtons, editableOnly } of this.getResource("get_overlay_buttons")) {
-            if (checkElement(this.target, { editableOnly })) {
+            if (this.dependencies.builderOptions.checkElement(this.target, { editableOnly })) {
                 buttons.push(...getButtons(this.target));
             }
         }
@@ -130,12 +136,23 @@ export class OverlayButtonsPlugin extends Plugin {
             button.handler = (...args) => {
                 this.dependencies.operation.next(async () => {
                     await handler(...args);
-                    this.dependencies.history.addStep();
+                    this.dependencies.history.commit();
                 });
             };
         }
         this.state.buttons = buttons;
         this.overlay.updatePosition();
+    }
+
+    shouldShowToolbar() {
+        clearTimeout(this.toolbarTimeout);
+        this.toolbarTimeout = setTimeout(() => {
+            if (this.dependencies.toolbar.getIsToolbarOpen()) {
+                this.hideOverlayButtonsUi();
+            } else {
+                this.showOverlayButtonsUi();
+            }
+        }, 500);
     }
 
     hideOverlayButtons() {
@@ -159,7 +176,14 @@ export class OverlayButtonsPlugin extends Plugin {
 
         // Find the innermost option needing the overlay buttons.
         const optionWithOverlayButtons = optionsContainer.findLast(
-            (option) => option.hasOverlayOptions
+            (option) =>
+                option.hasOverlayOptions &&
+                !(
+                    this.checkPredicates(
+                        "should_show_overlay_buttons_of_ancestor_predicates",
+                        option.element
+                    ) ?? false
+                )
         );
         if (optionWithOverlayButtons) {
             this.target = optionWithOverlayButtons.element;

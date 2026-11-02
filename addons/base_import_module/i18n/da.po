@@ -6,23 +6,35 @@
 # Martin Trigaux, 2022
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
-# "Kira Petersen François (peti)" <peti@odoo.com>, 2025.
-# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# "Kira Petersen François (peti)" <peti@odoo.com>, 2025, 2026.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~12.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-11-13 13:10+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Danish <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-11 17:42+0000\n"
+"PO-Revision-Date: 2026-09-09 13:55+0000\n"
+"Last-Translator: \"Kira Petersen François (peti)\" <peti@odoo.com>\n"
+"Language-Team: Danish <https://translate.odoo.com/projects/odoo-master/"
 "base_import_module/da/>\n"
 "Language: da\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: base_import_module
+#: model:ir.module.module,description:base.module_base_import_module
+msgid ""
+"\n"
+"Import a custom data module\n"
+"===========================\n"
+"\n"
+"This module allows authorized users to import a custom data module (.xml "
+"files and static assests)\n"
+"for customization purpose.\n"
+msgstr ""
 
 #. module: base_import_module
 #. odoo-python
@@ -34,6 +46,11 @@ msgid ""
 "If you need Website themes, it can be downloaded from https://github.com/"
 "odoo/design-themes.\n"
 msgstr ""
+"\n"
+"Du skal muligvis bruge Enterprise-versionen for at installere datamodulet. "
+"Se venligst https://www.odoo.com/pricing-plan for yderligere oplysninger.\n"
+"Hvis du har brug for temaer til webstedsdesign, kan du downloade dem fra "
+"https://github.com/odoo/design-themes.\n"
 
 #. module: base_import_module
 #: model_terms:ir.ui.view,arch_db:base_import_module.module_form_apps_inherit
@@ -49,9 +66,9 @@ msgid "Apps"
 msgstr "Apps"
 
 #. module: base_import_module
-#: model_terms:ir.ui.view,arch_db:base_import_module.view_base_module_import
-msgid "Cancel"
-msgstr "Annullér"
+#: model:ir.module.module,shortdesc:base.module_base_import_module
+msgid "Base import module"
+msgstr ""
 
 #. module: base_import_module
 #: model_terms:ir.ui.view,arch_db:base_import_module.view_base_module_import
@@ -64,12 +81,15 @@ msgstr "Luk"
 msgid ""
 "Connection to %(url)s failed, the module %(module)s cannot be downloaded."
 msgstr ""
+"Forbindelsen til %(url)s mislykkedes, modulet %(module)s kunne ikke "
+"downloades."
 
 #. module: base_import_module
 #. odoo-python
 #: code:addons/base_import_module/models/ir_module.py:0
 msgid "Connection to %s failed The list of industry modules cannot be fetched"
 msgstr ""
+"Forbindelsen til %s mislykkedes. Listen over branchemoduler kunne ikke hentes"
 
 #. module: base_import_module
 #. odoo-python
@@ -89,12 +109,11 @@ msgstr "Oprettet den"
 
 #. module: base_import_module
 #: model:ir.model.fields,field_description:base_import_module.field_base_import_module__display_name
-#: model:ir.model.fields,field_description:base_import_module.field_base_module_uninstall__display_name
 #: model:ir.model.fields,field_description:base_import_module.field_ir_http__display_name
 #: model:ir.model.fields,field_description:base_import_module.field_ir_module_module__display_name
 #: model:ir.model.fields,field_description:base_import_module.field_ir_ui_view__display_name
 msgid "Display Name"
-msgstr "Vis navn"
+msgstr "Visningsnavn"
 
 #. module: base_import_module
 #. odoo-python
@@ -105,12 +124,21 @@ msgid ""
 " %(error_message)s \n"
 "\n"
 msgstr ""
+"Fejl under import af modul '%(module)s'.\n"
+"\n"
+" %(error_message)s \n"
+"\n"
+
+#. module: base_import_module
+#: model:ir.model.fields,field_description:base_import_module.field_ir_module_module__total_lines_of_code
+msgid "Extra lines of Code"
+msgstr "Ekstra kodelinjer"
 
 #. module: base_import_module
 #. odoo-python
 #: code:addons/base_import_module/models/ir_module.py:0
 msgid "File '%s' exceed maximum allowed file size"
-msgstr "Fil '%s'  overskrider den maksimum tilladte fil størrelse"
+msgstr "Fil '%s' overskrider den maksimum tilladte fil størrelse"
 
 #. module: base_import_module
 #: model:ir.model.fields,field_description:base_import_module.field_base_import_module__force
@@ -131,7 +159,6 @@ msgstr "HTTP-routing"
 
 #. module: base_import_module
 #: model:ir.model.fields,field_description:base_import_module.field_base_import_module__id
-#: model:ir.model.fields,field_description:base_import_module.field_base_module_uninstall__id
 #: model:ir.model.fields,field_description:base_import_module.field_ir_http__id
 #: model:ir.model.fields,field_description:base_import_module.field_ir_module_module__id
 #: model:ir.model.fields,field_description:base_import_module.field_ir_ui_view__id
@@ -153,7 +180,7 @@ msgstr "Importer modul"
 #. module: base_import_module
 #: model:ir.model.fields,field_description:base_import_module.field_base_import_module__with_demo
 msgid "Import demo data of module"
-msgstr ""
+msgstr "Importér modulets data"
 
 #. module: base_import_module
 #: model:ir.model.fields,field_description:base_import_module.field_ir_module_module__imported
@@ -174,12 +201,12 @@ msgstr "Installer"
 #. odoo-python
 #: code:addons/base_import_module/models/ir_module.py:0
 msgid "Install an Industry"
-msgstr ""
+msgstr "Installér en branche"
 
 #. module: base_import_module
 #: model_terms:ir.ui.view,arch_db:base_import_module.view_base_module_import
 msgid "Install the application"
-msgstr ""
+msgstr "Installér appen"
 
 #. module: base_import_module
 #: model:ir.model.fields,field_description:base_import_module.field_base_import_module__write_uid
@@ -203,6 +230,8 @@ msgid ""
 "Load demo data to test the industry's features with sample records. Do not "
 "load them if this is your production database."
 msgstr ""
+"Indlæs demodata for at teste branchens funktioner med eksempler på poster. "
+"Indlæs dem ikke, hvis du arbejder i din produktionsdatabase."
 
 #. module: base_import_module
 #: model:ir.model,name:base_import_module.model_ir_module_module
@@ -217,12 +246,7 @@ msgstr "Modul .ZIP fil"
 #. module: base_import_module
 #: model:ir.model.fields,field_description:base_import_module.field_ir_module_module__module_type
 msgid "Module Type"
-msgstr ""
-
-#. module: base_import_module
-#: model:ir.model,name:base_import_module.model_base_module_uninstall
-msgid "Module Uninstall"
-msgstr "Modul afinstallér"
+msgstr "Modultype"
 
 #. module: base_import_module
 #: model_terms:ir.ui.view,arch_db:base_import_module.view_base_module_import
@@ -232,7 +256,7 @@ msgstr "Modulfil (.zip)"
 #. module: base_import_module
 #: model:ir.model.fields,field_description:base_import_module.field_base_import_module__modules_dependencies
 msgid "Modules Dependencies"
-msgstr ""
+msgstr "Modulafhængigheder"
 
 #. module: base_import_module
 #. odoo-python
@@ -245,6 +269,8 @@ msgstr "Ingen fil sendt."
 #: code:addons/base_import_module/models/ir_module.py:0
 msgid "No manifest found in '%(modules)s'. Can't import the zip file."
 msgstr ""
+"Der blev ikke fundet en pakkeliste i '%(modules)s'. ZIP-filen kan derfor "
+"ikke importeres."
 
 #. module: base_import_module
 #: model_terms:ir.ui.view,arch_db:base_import_module.view_base_module_import
@@ -252,17 +278,30 @@ msgid ""
 "Note: you can only import data modules (.xml files, i18n files and static "
 "assets)"
 msgstr ""
+"Bemærk: Du kan kun importere datamoduler (.xml-filer, i18n-filer og faste "
+"aktiver)"
+
+#. module: base_import_module
+#: model:ir.model.fields,help:base_import_module.field_ir_module_module__total_lines_of_code
+msgid ""
+"Number of lines of code that may be billed under an Enterprise subscription. "
+"For exact pricing details, please contact your account manager or visit "
+"odoo.com/pricing."
+msgstr ""
+"Antal kodelinjer, der kan faktureres i henhold til et Enterprise-abonnement. "
+"For nøjagtige prisoplysninger bedes du kontakte din kontoadministrator eller "
+"besøge odoo.com/pricing."
 
 #. module: base_import_module
 #: model:ir.model.fields.selection,name:base_import_module.selection__ir_module_module__module_type__official
 msgid "Official Apps"
-msgstr ""
+msgstr "Officielle apps"
 
 #. module: base_import_module
 #. odoo-python
 #: code:addons/base_import_module/models/ir_module.py:0
 msgid "Only administrators can install data modules."
-msgstr ""
+msgstr "Kun administratorer kan installere datamoduler."
 
 #. module: base_import_module
 #. odoo-python
@@ -294,6 +333,8 @@ msgid ""
 "The assets path in the manifest of imported module '%(module_name)s' cannot "
 "contain glob wildcards (e.g., *, **)."
 msgstr ""
+"Stien til ressourcerne i manifestet for det importerede modul '%"
+"(module_name)s' må ikke indeholde glob-jokertegn (f.eks. *, **)."
 
 #. module: base_import_module
 #. odoo-python
@@ -302,25 +343,27 @@ msgid ""
 "The installation of the data module would fail as the following dependencies "
 "can't be found in the addons-path:\n"
 msgstr ""
+"Installationen af datamodulet mislykkes, da følgende afhængigheder ikke "
+"findes i udvidelsesstien:\n"
 
 #. module: base_import_module
 #. odoo-python
 #: code:addons/base_import_module/models/ir_module.py:0
 msgid ""
 "The list of industry applications cannot be fetched. Please try again later"
-msgstr ""
+msgstr "Listen over branche-apps kunne ikke hentes. Prøv venligst igen senere"
 
 #. module: base_import_module
 #. odoo-python
 #: code:addons/base_import_module/models/ir_module.py:0
 msgid "The module %s cannot be downloaded"
-msgstr ""
+msgstr "Modulet %s kan ikke downloades"
 
 #. module: base_import_module
 #. odoo-python
 #: code:addons/base_import_module/models/ir_module.py:0
 msgid "Unknown module dependencies:"
-msgstr ""
+msgstr "Ukendte modulafhængigheder:"
 
 #. module: base_import_module
 #: model_terms:ir.ui.view,arch_db:base_import_module.module_form_apps_inherit
@@ -343,34 +386,5 @@ msgstr "Udført"
 msgid "init"
 msgstr "init"
 
-#~ msgid "Import App"
-#~ msgstr "Importer App"
-
-#~ msgid "Import module"
-#~ msgstr "Importer modul"
-
-#~ msgid "Last Modified on"
-#~ msgstr "Sidst ændret den"
-
-#~ msgid ""
-#~ "Note: you can only import data modules (.xml files and static assets)"
-#~ msgstr ""
-#~ "Bemærk: Du kan kun importere data moduler (.xml filer og faste aktiver)"
-
-#~ msgid "Open Modules"
-#~ msgstr "Åbn moduler"
-
-#~ msgid "Select module package to import (.zip file):"
-#~ msgstr "Vælg en modulpakke for at importere (.zip fil):"
-
-#~ msgid "Studio customizations require Studio"
-#~ msgstr "Studiotilpasninger kræver Studio"
-
-#~ msgid ""
-#~ "Unmet module dependencies: \n"
-#~ "\n"
-#~ " - %s"
-#~ msgstr ""
-#~ "Uopfyldte modul afhængigheder:\n"
-#~ "\n"
-#~ "- %s"
+#~ msgid "Module Uninstall"
+#~ msgstr "Modul afinstallér"

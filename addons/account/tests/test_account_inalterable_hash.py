@@ -10,6 +10,8 @@ from unittest.mock import patch
 
 @tagged('post_install', '-at_install')
 class TestAccountMoveInalterableHash(AccountTestInvoicingCommon):
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -64,7 +66,7 @@ class TestAccountMoveInalterableHash(AccountTestInvoicingCommon):
         self.company_data['default_journal_sale'].restrict_mode_hash_table = True
         self.company_data['default_journal_purchase'].restrict_mode_hash_table = True
         move = self._init_and_post([{'partner': self.partner_a, 'date': '2023-01-01', 'amounts': [1000]}])
-        in_invoice = self.init_invoice("in_invoice", self.partner_a, "2023-01-01", amounts=[1000], post=True)
+        in_invoice = self._create_invoice_one_line(price_unit=1000, move_type='in_invoice', partner_id=self.partner_a.id, post=True)
         # in_invoice and out_invoice should both be hashed on post
         self.assertNotEqual(move.inalterable_hash, False)
         self.assertNotEqual(in_invoice.inalterable_hash, False)
@@ -296,7 +298,7 @@ class TestAccountMoveInalterableHash(AccountTestInvoicingCommon):
         invoice = self.init_invoice('out_invoice', products=self.product_a+self.product_b)
         move_form = Form(invoice)
         # Add a cash rounding having 'add_invoice_line'.
-        move_form.invoice_cash_rounding_id = self.cash_rounding_a
+        invoice.invoice_cash_rounding_id = self.cash_rounding_a
         with move_form.invoice_line_ids.edit(0) as line_form:
             line_form.price_unit = 999.99
         move_form.save()

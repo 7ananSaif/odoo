@@ -8,6 +8,8 @@ from odoo.addons.account_payment.tests.common import AccountPaymentCommon
 @tagged('-at_install', 'post_install')
 class TestPaymentProvider(AccountPaymentCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     def test_duplicate_provider_child_company_no_journal_id(self):
         """
         When you duplicate a payment provider from a parent company and set it to a child company,
@@ -22,7 +24,6 @@ class TestPaymentProvider(AccountPaymentCommon):
             provider_duplicated = self.dummy_provider.copy(default={
                 'name': 'Duplicated Provider',
                 'company_id': child_company.id,
-                'state': 'test',
             })
             self.assertFalse(provider_duplicated.journal_id)
 
@@ -33,3 +34,21 @@ class TestPaymentProvider(AccountPaymentCommon):
             })
             provider_duplicated.invalidate_recordset(fnames=['journal_id'])
             self.assertEqual(provider_duplicated.journal_id, bank_journal)
+
+    def test_provider_not_available_for_unavailable_pricelists(self):
+        """Test that the provider is not compatible with a pricelist that is not available."""
+        pricelist_10 = self.env['product.pricelist'].create({
+            'name': 'EUR 10',
+            'currency_id': self.currency_euro.id,
+        })
+        pricelist_20 = self.env['product.pricelist'].create({
+            'name': 'EUR 20',
+            'currency_id': self.currency_euro.id,
+        })
+        self.partner.property_product_pricelist = pricelist_10
+        self.provider.available_pricelist_ids = pricelist_20
+
+        available_providers = self.env['payment.provider']._find_available_providers(
+            self.company.id, self.partner.id, self.amount,
+        )
+        self.assertNotIn(self.provider, available_providers)

@@ -3,21 +3,33 @@
 # * onboarding
 #
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+# 张飞虎 <feihu.zhang@live.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-09-16 15:34+0000\n"
-"Last-Translator: \"Tiffany Chang (tic)\" <tic@odoo.com>\n"
+"POT-Creation-Date: 2026-08-28 17:44+0000\n"
+"PO-Revision-Date: 2026-10-11 13:33+0000\n"
+"Last-Translator: 张飞虎 <feihu.zhang@live.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://translate.odoo.com/"
-"projects/odoo-19/onboarding/zh_Hans/>\n"
+"projects/odoo-20/onboarding/zh_Hans/>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: onboarding
+#: model:ir.module.module,description:base.module_onboarding
+msgid ""
+"\n"
+"This module allows to manage onboardings and their progress\n"
+"================================================================================\n"
+msgstr ""
+"\n"
+"此模块用于管理入门流程及其进度\n"
+"================================================================================\n"
 
 #. module: onboarding
 #: model:ir.model.fields,help:onboarding.field_onboarding_onboarding__progress_ids
@@ -56,11 +68,6 @@ msgstr "您确定要隐藏这些配置步骤吗？"
 #: model:ir.model.fields,field_description:onboarding.field_onboarding_onboarding_step__button_text
 msgid "Button text"
 msgstr "按钮文本"
-
-#. module: onboarding
-#: model_terms:ir.ui.view,arch_db:onboarding.onboarding_container
-msgid "Cancel"
-msgstr "取消"
 
 #. module: onboarding
 #: model_terms:ir.ui.view,arch_db:onboarding.onboarding_container
@@ -116,6 +123,11 @@ msgid "Description"
 msgstr "描述"
 
 #. module: onboarding
+#: model_terms:ir.ui.view,arch_db:onboarding.onboarding_container
+msgid "Discard"
+msgstr "丢弃"
+
+#. module: onboarding
 #: model:ir.model.fields,field_description:onboarding.field_onboarding_onboarding__display_name
 #: model:ir.model.fields,field_description:onboarding.field_onboarding_onboarding_step__display_name
 #: model:ir.model.fields,field_description:onboarding.field_onboarding_progress__display_name
@@ -130,11 +142,6 @@ msgstr "显示名称"
 #: model:ir.model.fields.selection,name:onboarding.selection__onboarding_progress_step__step_state__done
 msgid "Done"
 msgstr "已完成"
-
-#. module: onboarding
-#: model:ir.model.fields,field_description:onboarding.field_onboarding_onboarding_step__done_icon
-msgid "Font Awesome Icon when completed"
-msgstr "当完成Font Awesome图标"
 
 #. module: onboarding
 #: model_terms:ir.ui.view,arch_db:onboarding.onboarding_container
@@ -189,6 +196,11 @@ msgstr "上次更新日期"
 #: model_terms:ir.ui.view,arch_db:onboarding.onboarding_step
 msgid "Let's do it"
 msgstr "让我们开始吧"
+
+#. module: onboarding
+#: model:ir.model.fields,field_description:onboarding.field_onboarding_onboarding_step__done_icon
+msgid "Material Symbols Icon when completed"
+msgstr "完成时显示的 Material Symbols 图标"
 
 #. module: onboarding
 #: model:ir.model.fields,field_description:onboarding.field_onboarding_onboarding__text_completed
@@ -283,6 +295,11 @@ msgstr "入职进度步骤"
 #: model_terms:ir.ui.view,arch_db:onboarding.onboarding_onboarding_step_view_tree
 msgid "Onboarding Steps"
 msgstr "入职步骤"
+
+#. module: onboarding
+#: model:ir.module.module,shortdesc:base.module_onboarding
+msgid "Onboarding Toolbox"
+msgstr "入门工具箱"
 
 #. module: onboarding
 #: model:ir.model.constraint,message:onboarding.constraint_onboarding_onboarding_route_name_uniq

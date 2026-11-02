@@ -1,12 +1,16 @@
-import { beforeEach, describe, expect, test } from "@odoo/hoot";
-import { manuallyDispatchProgrammaticEvent } from "@odoo/hoot-dom";
-import { Deferred, advanceTime, animationFrame } from "@odoo/hoot-mock";
-import { Component, OwlError, onError, onWillStart, xml } from "@odoo/owl";
 import {
-    makeMockEnv,
+    animationFrame,
+    beforeEach,
+    describe,
+    expect,
+    manuallyDispatchProgrammaticEvent,
+    test,
+} from "@odoo/hoot";
+import { Component, useProps, xml } from "@odoo/owl";
+import {
+    assignTestEnv,
+    makeTestApp,
     mockService,
-    mountWithCleanup,
-    onRpc,
     patchWithCleanup,
     serverState,
 } from "@web/../tests/web_test_helpers";
@@ -17,35 +21,33 @@ import {
     standardErrorDialogProps,
 } from "@web/core/errors/error_dialogs";
 import { UncaughtPromiseError } from "@web/core/errors/error_service";
-import { ConnectionLostError, RPCError } from "@web/core/network/rpc";
+import { RPCError } from "@web/core/network/rpc";
 import { registry } from "@web/core/registry";
-import { omit } from "@web/core/utils/objects";
 
 const errorDialogRegistry = registry.category("error_dialogs");
 const errorHandlerRegistry = registry.category("error_handlers");
 
 test("can handle rejected promise errors with a string as reason", async () => {
-    expect.assertions(2);
-    expect.errors(1);
-    await makeMockEnv();
+    await makeTestApp();
     errorHandlerRegistry.add(
         "__test_handler__",
         (env, err, originalError) => {
-            expect(originalError).toBe("-- something went wrong --");
+            expect.step(originalError);
         },
         { sequence: 0 }
     );
+
+    expect.errors(1);
     Promise.reject("-- something went wrong --");
-    await animationFrame();
+
+    await expect.waitForSteps(["-- something went wrong --"]);
     expect.verifyErrors(["-- something went wrong --"]);
 });
 
 test("handle RPC_ERROR of type='server' and no associated dialog class", async () => {
-    expect.assertions(5);
-    expect.errors(1);
     const error = new RPCError();
     error.code = 701;
-    error.message = "Some strange error occured";
+    error.message = "Some strange error occurred";
     error.data = { debug: "somewhere" };
     error.subType = "strange_error";
     error.model = "some model";
@@ -53,7 +55,7 @@ test("handle RPC_ERROR of type='server' and no associated dialog class", async (
     mockService("dialog", {
         add(dialogClass, props) {
             expect(dialogClass).toBe(RPCErrorDialog);
-            expect(omit(props, "traceback", "serverHost")).toEqual({
+            expect(props).toMatchObject({
                 name: "RPC_ERROR",
                 type: "server",
                 code: 701,
@@ -61,31 +63,34 @@ test("handle RPC_ERROR of type='server' and no associated dialog class", async (
                     debug: "somewhere",
                 },
                 subType: "strange_error",
-                message: "Some strange error occured",
+                message: "Some strange error occurred",
                 exceptionName: null,
                 model: "some model",
             });
-            expect(props.traceback).toMatch(/RPC_ERROR/);
-            expect(props.traceback).toMatch(/Some strange error occured/);
+            expect(props.traceback).toMatch(/RPC_ERROR: Some strange error occurred/);
+            expect.step("dialog.add");
         },
     });
-    await makeMockEnv();
+    await makeTestApp();
+
+    expect.errors(1);
     Promise.reject(error);
-    await animationFrame();
-    expect.verifyErrors(["RPC_ERROR: Some strange error occured"]);
+
+    await expect.waitForSteps(["dialog.add"]);
+    expect.verifyErrors(["RPC_ERROR: Some strange error occurred"]);
 });
 
 test("handle custom RPC_ERROR of type='server' and associated custom dialog class", async () => {
-    expect.assertions(5);
-    expect.errors(1);
     class CustomDialog extends Component {
         static template = xml`<RPCErrorDialog title="'Strange Error'"/>`;
         static components = { RPCErrorDialog };
-        static props = { ...standardErrorDialogProps };
+        props = useProps({
+            ...standardErrorDialogProps,
+        });
     }
     const error = new RPCError();
     error.code = 701;
-    error.message = "Some strange error occured";
+    error.message = "Some strange error occurred";
     error.model = "some model";
     const errorData = {
         context: { exception_class: "strange_error" },
@@ -96,43 +101,42 @@ test("handle custom RPC_ERROR of type='server' and associated custom dialog clas
     mockService("dialog", {
         add(dialogClass, props) {
             expect(dialogClass).toBe(CustomDialog);
-            expect(omit(props, "traceback", "serverHost")).toEqual({
+            expect(props).toMatchObject({
                 name: "RPC_ERROR",
                 type: "server",
                 code: 701,
                 data: errorData,
                 subType: null,
-                message: "Some strange error occured",
+                message: "Some strange error occurred",
                 exceptionName: null,
                 model: "some model",
             });
-            expect(props.traceback).toMatch(/RPC_ERROR/);
-            expect(props.traceback).toMatch(/Some strange error occured/);
+            expect(props.traceback).toMatch(/RPC_ERROR: Some strange error occurred/);
+            expect.step("dialog.add");
         },
     });
-    await makeMockEnv();
+    await makeTestApp();
     errorDialogRegistry.add("strange_error", CustomDialog);
+
+    expect.errors(1);
     Promise.reject(error);
-    await animationFrame();
-    expect.verifyErrors(["RPC_ERROR: Some strange error occured"]);
+
+    await expect.waitForSteps(["dialog.add"]);
+    expect.verifyErrors(["RPC_ERROR: Some strange error occurred"]);
 });
 
 test("handle normal RPC_ERROR of type='server' and associated custom dialog class", async () => {
-    expect.assertions(5);
-    expect.errors(1);
     class CustomDialog extends Component {
         static template = xml`<RPCErrorDialog title="'Strange Error'"/>`;
         static components = { RPCErrorDialog };
-        static props = ["*"];
     }
     class NormalDialog extends Component {
         static template = xml`<RPCErrorDialog title="'Normal Error'"/>`;
         static components = { RPCErrorDialog };
-        static props = ["*"];
     }
     const error = new RPCError();
     error.code = 701;
-    error.message = "A normal error occured";
+    error.message = "A normal error occurred";
     const errorData = {
         context: { exception_class: "strange_error" },
     };
@@ -142,76 +146,34 @@ test("handle normal RPC_ERROR of type='server' and associated custom dialog clas
     mockService("dialog", {
         add(dialogClass, props) {
             expect(dialogClass).toBe(NormalDialog);
-            expect(omit(props, "traceback", "serverHost")).toEqual({
+            expect(props).toMatchObject({
                 name: "RPC_ERROR",
                 type: "server",
                 code: 701,
                 data: errorData,
                 subType: null,
-                message: "A normal error occured",
+                message: "A normal error occurred",
                 exceptionName: "normal_error",
                 model: "some model",
             });
-            expect(props.traceback).toMatch(/RPC_ERROR/);
-            expect(props.traceback).toMatch(/A normal error occured/);
+            expect(props.traceback).toMatch(/RPC_ERROR: A normal error occurred/);
+            expect.step("dialog.add");
         },
     });
-    await makeMockEnv();
+    await makeTestApp();
     errorDialogRegistry.add("strange_error", CustomDialog);
     errorDialogRegistry.add("normal_error", NormalDialog);
-    Promise.reject(error);
-    await animationFrame();
-    expect.verifyErrors(["RPC_ERROR: A normal error occured"]);
-});
 
-test("handle CONNECTION_LOST_ERROR", async () => {
     expect.errors(1);
-    mockService("notification", {
-        add(message) {
-            expect.step(`create (${message})`);
-            return () => {
-                expect.step(`close`);
-            };
-        },
-    });
-    const values = [false, true]; // simulate the 'back online status' after 2 'version_info' calls
-    onRpc("/web/webclient/version_info", async () => {
-        expect.step("version_info");
-        const online = values.shift();
-        if (online) {
-            return true;
-        } else {
-            return Promise.reject();
-        }
-    });
-
-    await makeMockEnv();
-    const error = new ConnectionLostError("/fake_url");
     Promise.reject(error);
-    await animationFrame();
-    patchWithCleanup(Math, {
-        random: () => 0,
-    });
-    // wait for timeouts
-    await advanceTime(2000);
-    await advanceTime(3500);
-    expect.verifySteps([
-        "create (Connection lost. Trying to reconnect...)",
-        "version_info",
-        "version_info",
-        "close",
-        "create (Connection restored. You are back online.)",
-    ]);
-    expect.verifyErrors([
-        `Error: Connection to "/fake_url" couldn't be established or was interrupted`,
-    ]);
+
+    await expect.waitForSteps(["dialog.add"]);
+    expect.verifyErrors(["RPC_ERROR: A normal error occurred"]);
 });
 
 test("will let handlers from the registry handle errors first", async () => {
-    expect.assertions(4);
-    expect.errors(1);
-    const testEnv = await makeMockEnv();
-    testEnv.someValue = 14;
+    assignTestEnv({ someValue: 14 });
+    await makeTestApp();
     errorHandlerRegistry.add("__test_handler__", (env, err, originalError) => {
         expect(originalError).toBe(error);
         expect(env.someValue).toBe(14);
@@ -221,73 +183,38 @@ test("will let handlers from the registry handle errors first", async () => {
     const error = new Error();
     error.name = "boom";
 
+    expect.errors(1);
     Promise.reject(error);
-    await animationFrame();
+
+    await expect.waitForSteps(["in handler"]);
     expect.verifyErrors(["boom"]);
-    expect.verifySteps(["in handler"]);
 });
 
 test("originalError is the root cause of the error chain", async () => {
-    expect.assertions(10);
-    expect.errors(2);
-    await makeMockEnv();
+    const rootError = new Error();
+    rootError.name = "boom";
     const error = new Error();
     error.name = "boom";
+    error.cause = rootError;
+
     errorHandlerRegistry.add("__test_handler__", (env, err, originalError) => {
         expect(err).toBeInstanceOf(UncaughtPromiseError); // Wrapped by error service
-        expect(err.cause).toBeInstanceOf(OwlError); // Wrapped by owl
-        expect(err.cause.cause).toBe(originalError); // original error
+        expect(err.cause).toBe(error);
+        expect(originalError).toBe(rootError);
         expect.step("in handler");
         return true;
     });
 
-    class ErrHandler extends Component {
-        static template = xml`<t t-component="props.comp"/>`;
-        static props = ["*"];
-        setup() {
-            onError(async (err) => {
-                Promise.reject(err);
-                await animationFrame();
-                prom.resolve();
-            });
-        }
-    }
-    class ThrowInSetup extends Component {
-        static template = xml``;
-        static props = ["*"];
-        setup() {
-            throw error;
-        }
-    }
+    await makeTestApp();
 
-    let prom = new Deferred();
-    mountWithCleanup(ErrHandler, { props: { comp: ThrowInSetup } });
-    await prom;
-    expect.verifyErrors([
-        `Error: An error occured in the owl lifecycle (see this Error's "cause" property)`,
-    ]);
-    expect.verifySteps(["in handler"]);
+    expect.errors(1);
+    Promise.reject(error);
 
-    class ThrowInWillStart extends Component {
-        static template = xml``;
-        static props = ["*"];
-        setup() {
-            onWillStart(() => {
-                throw error;
-            });
-        }
-    }
-
-    prom = new Deferred();
-    mountWithCleanup(ErrHandler, { props: { comp: ThrowInWillStart } });
-    await prom;
-    expect.verifyErrors([`Error: The following error occurred in onWillStart: ""`]);
-    expect.verifySteps(["in handler"]);
+    await expect.waitForSteps(["in handler"]);
+    expect.verifyErrors(["boom"]);
 });
 
 test("handle uncaught promise errors", async () => {
-    expect.assertions(5);
-    expect.errors(1);
     class TestError extends Error {}
     const error = new TestError();
     error.message = "This is an error test";
@@ -296,24 +223,24 @@ test("handle uncaught promise errors", async () => {
     mockService("dialog", {
         add(dialogClass, props) {
             expect(dialogClass).toBe(ClientErrorDialog);
-            expect(omit(props, "traceback", "serverHost")).toEqual({
+            expect(props).toMatchObject({
                 name: "UncaughtPromiseError > TestError",
                 message: "Uncaught Promise > This is an error test",
             });
-            expect(props.traceback).toMatch(/TestError/);
-            expect(props.traceback).toMatch(/This is an error test/);
+            expect(props.traceback).toMatch(/TestError: This is an error test/);
+            expect.step("dialog.add");
         },
     });
-    await makeMockEnv();
+    await makeTestApp();
 
+    expect.errors(1);
     Promise.reject(error);
-    await animationFrame();
+
+    await expect.waitForSteps(["dialog.add"]);
     expect.verifyErrors(["TestError: This is an error test"]);
 });
 
 test("handle uncaught client errors", async () => {
-    expect.assertions(4);
-    expect.errors(1);
     class TestError extends Error {}
     const error = new TestError();
     error.message = "This is an error test";
@@ -324,19 +251,21 @@ test("handle uncaught client errors", async () => {
             expect(dialogClass).toBe(ClientErrorDialog);
             expect(props.name).toBe("UncaughtClientError > TestError");
             expect(props.message).toBe("Uncaught Javascript Error > This is an error test");
+            expect.step("dialog.add");
         },
     });
-    await makeMockEnv();
+    await makeTestApp();
 
+    expect.errors(1);
     setTimeout(() => {
         throw error;
     });
-    await animationFrame();
+
+    await expect.waitForSteps(["dialog.add"]);
     expect.verifyErrors(["TestError: This is an error test"]);
 });
 
 test("don't show dialog for errors in third-party scripts", async () => {
-    expect.errors(1);
     class TestError extends Error {}
     const error = new TestError();
     error.name = "Script error.";
@@ -346,17 +275,17 @@ test("don't show dialog for errors in third-party scripts", async () => {
             throw new Error("should not pass here");
         },
     });
-    await makeMockEnv();
+    await makeTestApp();
 
+    expect.errors(1);
     // Error events from errors in third-party scripts have no colno, no lineno and no filename
     // because of CORS.
     await manuallyDispatchProgrammaticEvent(window, "error", { error });
-    await animationFrame();
-    expect.verifyErrors(["Script error."]);
+
+    await expect.waitForErrors(["Script error."]);
 });
 
 test("show dialog for errors in third-party scripts in debug mode", async () => {
-    expect.errors(1);
     class TestError extends Error {}
     const error = new TestError();
     error.name = "Script error.";
@@ -368,25 +297,24 @@ test("show dialog for errors in third-party scripts in debug mode", async () => 
             return () => {};
         },
     });
-    await makeMockEnv();
+    await makeTestApp();
 
+    expect.errors(1);
     // Error events from errors in third-party scripts have no colno, no lineno and no filename
     // because of CORS.
     await manuallyDispatchProgrammaticEvent(window, "error", { error });
-    await animationFrame();
+    await expect.waitForSteps(["Dialog: Third-Party Script Error"]);
     expect.verifyErrors(["Script error."]);
-    expect.verifySteps(["Dialog: Third-Party Script Error"]);
 });
 
 test("lazy loaded handlers", async () => {
-    expect.assertions(3);
-    expect.errors(2);
-    await makeMockEnv();
+    await makeTestApp();
 
+    expect.errors(2);
     Promise.reject(new Error("error"));
     await animationFrame();
 
-    expect.verifyErrors(["Error: error"]);
+    await expect.waitForErrors(["Error: error"]);
 
     errorHandlerRegistry.add("__test_handler__", () => {
         expect.step("in handler");
@@ -394,10 +322,9 @@ test("lazy loaded handlers", async () => {
     });
 
     Promise.reject(new Error("error"));
-    await animationFrame();
 
+    await expect.waitForSteps(["in handler"]);
     expect.verifyErrors(["Error: error"]);
-    expect.verifySteps(["in handler"]);
 });
 
 let unhandledRejectionCb;
@@ -417,7 +344,6 @@ describe("Error Service Logs", () => {
     });
 
     test("logs the traceback of the full error chain for unhandledrejection", async () => {
-        expect.assertions(2);
         const regexParts = [
             /^.*This is a wrapper error/,
             /Caused by:.*This is a second wrapper error/,
@@ -427,6 +353,7 @@ describe("Error Service Logs", () => {
         patchWithCleanup(console, {
             error(errorMessage) {
                 expect(errorMessage).toMatch(errorRegex);
+                expect.step("console.error");
             },
         });
 
@@ -434,18 +361,18 @@ describe("Error Service Logs", () => {
         error.cause = new Error("This is a second wrapper error");
         error.cause.cause = new Error("This is the original error");
 
-        await makeMockEnv();
+        await makeTestApp();
         const errorEvent = new PromiseRejectionEvent("unhandledrejection", {
             reason: error,
             promise: null,
             cancelable: true,
         });
         await unhandledRejectionCb(errorEvent);
+        expect.verifySteps(["console.error"]);
         expect(errorEvent.defaultPrevented).toBe(true);
     });
 
     test("logs the traceback of the full error chain for uncaughterror", async () => {
-        expect.assertions(2);
         const regexParts = [
             /^.*This is a wrapper error/,
             /Caused by:.*This is a second wrapper error/,
@@ -455,6 +382,7 @@ describe("Error Service Logs", () => {
         patchWithCleanup(console, {
             error(errorMessage) {
                 expect(errorMessage).toMatch(errorRegex);
+                expect.step("console.error");
             },
         });
 
@@ -462,7 +390,7 @@ describe("Error Service Logs", () => {
         error.cause = new Error("This is a second wrapper error");
         error.cause.cause = new Error("This is the original error");
 
-        await makeMockEnv();
+        await makeTestApp();
         const errorEvent = new Event("error", {
             promise: null,
             cancelable: true,
@@ -470,6 +398,7 @@ describe("Error Service Logs", () => {
         errorEvent.error = error;
         errorEvent.filename = "dummy_file.js"; // needed to not be treated as a CORS error
         await errorCb(errorEvent);
+        expect.verifySteps(["console.error"]);
         expect(errorEvent.defaultPrevented).toBe(true);
     });
 
@@ -490,15 +419,13 @@ describe("Error Service Logs", () => {
         patchWithCleanup(console, {
             error(errorMessage) {
                 expect(errorMessage).toMatch(
-                    new RegExp(
-                        `^@web/core/error_service: handler "__test_handler__" failed with "Error: Boom in handler" while trying to handle:\nError: Genuine Business Boom.*`
-                    )
+                    /^@web\/core\/error_service: handler "__test_handler__" failed with "Error: Boom in handler" while trying to handle:\nError: Genuine Business Boom.*/
                 );
                 expect.step("error logged");
             },
         });
 
-        await makeMockEnv();
+        await makeTestApp();
         let errorEvent = new Event("error", {
             promise: null,
             cancelable: true,

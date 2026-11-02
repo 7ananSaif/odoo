@@ -1,11 +1,10 @@
 from base64 import b64decode
 from contextlib import suppress
 import binascii
-import re
 
 from lxml import etree
 
-from odoo import _, api, fields, models, Command
+from odoo import api, fields, models, Command
 from odoo.tools.mimetypes import guess_mimetype
 from odoo.exceptions import UserError
 from odoo.tools import frozendict
@@ -14,12 +13,7 @@ from odoo.tools import frozendict
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
-    ubl_cii_xml_id = fields.Many2one(
-        comodel_name='ir.attachment',
-        string="Attachment",
-        compute=lambda self: self._compute_linked_attachment_id('ubl_cii_xml_id', 'ubl_cii_xml_file'),
-        depends=['ubl_cii_xml_file']
-    )
+    has_grouped_lines = fields.Boolean(help="Is move lines Grouped")
     ubl_cii_xml_file = fields.Binary(
         attachment=True,
         string="UBL/CII File",
@@ -28,6 +22,12 @@ class AccountMove(models.Model):
     ubl_cii_xml_filename = fields.Char(
         string="UBL/CII Filename",
         compute='_compute_filename',
+    )
+    ubl_cii_xml_id = fields.Many2one(
+        comodel_name='ir.attachment',
+        string="Attachment",
+        compute=lambda self: self._compute_linked_attachment_id('ubl_cii_xml_id', 'ubl_cii_xml_file'),
+        depends=['ubl_cii_xml_file']
     )
 
     # -------------------------------------------------------------------------
@@ -39,17 +39,6 @@ class AccountMove(models.Model):
         """ Compute the filename based on the uploaded file. """
         for record in self:
             record.ubl_cii_xml_filename = record.ubl_cii_xml_id.name
-
-    # -------------------------------------------------------------------------
-    # ACTIONS
-    # -------------------------------------------------------------------------
-
-    def action_invoice_download_ubl(self):
-        return {
-            'type': 'ir.actions.act_url',
-            'url': f'/account/download_invoice_documents/{",".join(map(str, self.ids))}/ubl?allow_fallback=true',
-            'target': 'download',
-        }
 
     # -------------------------------------------------------------------------
     # BUSINESS
@@ -66,11 +55,11 @@ class AccountMove(models.Model):
         self.ensure_one()
         if filetype == 'ubl':
             if ubl_attachment := self.ubl_cii_xml_id:
-                return {
+                return [{
                     'filename': ubl_attachment.name,
                     'filetype': 'xml',
                     'content': ubl_attachment.raw,
-                }
+                }]
             elif allow_fallback:
                 if (
                     self.partner_id
@@ -81,34 +70,13 @@ class AccountMove(models.Model):
                     builder = self.env['res.partner']._get_edi_builder(edi_format)
                     xml_content, errors = builder._export_invoice(self)
                     filename = builder._export_invoice_filename(self)
-                    return {
+                    return [{
                         'filename': filename,
                         'filetype': 'xml',
                         'content': xml_content,
                         'errors': errors,
-                    }
+                    }]
         return super()._get_invoice_legal_documents(filetype, allow_fallback=allow_fallback)
-
-    def get_extra_print_items(self):
-        print_items = super().get_extra_print_items()
-        posted_moves = self.filtered(lambda move: move.state == 'posted')
-        can_export_xml = any(
-            (
-                move.ubl_cii_xml_id
-                or (
-                    (edi_format := move.commercial_partner_id.with_company(move.company_id)._get_ubl_cii_edi_format())
-                    and move._need_ubl_cii_xml(edi_format)
-                )
-            )
-            for move in posted_moves.filtered(lambda move: move.ubl_cii_xml_id or move.commercial_partner_id)
-        )
-        if can_export_xml:
-            print_items.append({
-                'key': 'download_ubl',
-                'description': _('Export XML'),
-                **posted_moves.action_invoice_download_ubl(),
-            })
-        return print_items
 
     def action_group_ungroup_lines_by_tax(self):
         """
@@ -117,7 +85,7 @@ class AccountMove(models.Model):
         self.ensure_one()
         self._check_move_for_group_ungroup_lines_by_tax()
 
-        if self._has_lines_grouped():
+        if self.has_grouped_lines:
             self._ungroup_lines()
         else:
             self._group_lines_by_tax()
@@ -141,6 +109,7 @@ class AccountMove(models.Model):
 
         self.invoice_line_ids = [Command.clear()]
         if decoder(self, file_data_group[0]) is None:
+            self.has_grouped_lines = False
             self._message_log(body=self.env._("Ungrouped lines from %s", file_data_group[0]['attachment'].name))
         else:
             raise UserError(error_message)
@@ -156,6 +125,7 @@ class AccountMove(models.Model):
         line_vals = self._get_line_vals_group_by_tax(self.partner_id)
         self.invoice_line_ids = [Command.clear()]
         self.invoice_line_ids = line_vals
+        self.has_grouped_lines = True
         self._message_log(body=self.env._("Grouped lines by tax"))
 
     def _get_line_vals_group_by_tax(self, partner):
@@ -189,8 +159,11 @@ class AccountMove(models.Model):
         for base_line in base_lines:
             taxes = base_line['tax_ids']
             account = base_line['account_id']
+            description = account.name
+            if taxes.mapped('name') and len(base_lines) > 1:
+                description += f" - {taxes.mapped('name')[0]}"
             to_create.append(Command.create({
-                'name': " - ".join([partner.name or self.env._("Unknown partner"), account.code, " / ".join(taxes.mapped('name')) or self.env._("Untaxed")]),
+                'name': description,
                 'quantity': base_line['quantity'],
                 'price_unit': base_line['price_unit'],
                 'extra_tax_data': AccountTax._export_base_line_extra_tax_data(base_line),
@@ -205,18 +178,8 @@ class AccountMove(models.Model):
         self.ensure_one()
         if self.state != 'draft':
             raise UserError(self.env._("You can only (un)group lines of a draft invoice"))
-
-    def _has_lines_grouped(self):
-        """
-        Check if the move has its lines grouped
-        :return: True if lines look like they're grouped, False otherwise
-        """
-        self.ensure_one()
-        partner_name = re.escape(self.partner_id.name or self.env._("Unknown partner")) + r' - \d+ - .*'
-        return any(
-            re.match(partner_name, line.name)
-            for line in self.line_ids.filtered(lambda line: line.name and line.display_type == 'product')
-        )
+        if len(self.invoice_line_ids) <= 1 and not self.has_grouped_lines:
+            raise UserError(self.env._("You need at least two lines to group them."))
 
     @api.model
     def _post_process_link_to_purchase_order(self, invoice):
@@ -241,7 +204,7 @@ class AccountMove(models.Model):
             ('id', '!=', invoice.id),
             *self.env['account.move']._check_company_domain(invoice.company_id),
         ], order='create_date desc', limit=1)
-        if last_bill_from_vendor and last_bill_from_vendor._has_lines_grouped():
+        if last_bill_from_vendor and last_bill_from_vendor.has_grouped_lines:
             invoice._group_lines_by_tax()
 
     # -------------------------------------------------------------------------
@@ -391,12 +354,13 @@ class AccountMove(models.Model):
             'tax_ids': [Command.set(tax_ids)],
         } for name, quantity, price_unit, tax_ids in lines_vals]
 
-    def _get_specific_tax(self, name, amount_type, amount, tax_type):
+    def _get_specific_tax(self, name, domain):
         AccountMoveLine = self.env['account.move.line']
-        if hasattr(AccountMoveLine, '_predict_specific_tax'):
+        if hasattr(AccountMoveLine, '_get_predicted_values'):
             # company check is already done in the prediction query
-            predicted_tax_id = AccountMoveLine._predict_specific_tax(
-                self, name, self.partner_id, amount_type, amount, tax_type,
-            )
-            return self.env['account.tax'].browse(predicted_tax_id)
+            return AccountMoveLine._get_predicted_values(
+                name,
+                move=self,
+                line_domain=[('tax_ids', 'any', domain)],
+            ).get('tax_ids', self.env['account.tax'])
         return self.env['account.tax']

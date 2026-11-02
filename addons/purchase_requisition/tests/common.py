@@ -16,7 +16,7 @@ class TestPurchaseRequisitionCommon(common.TransactionCase):
         user_group_purchase_user = cls.env.ref('purchase.group_purchase_user')
 
         # User Data: purchase requisition Manager and User
-        Users = cls.env['res.users'].with_context({'tracking_disable': True})
+        Users = cls.env['res.users']
 
         cls.user_purchase_requisition_manager = Users.create({
             'name': 'Purchase requisition Manager',
@@ -58,7 +58,7 @@ class TestPurchaseRequisitionCommon(common.TransactionCase):
             'line_ids': [(0, 0, {
                 'product_id': cls.product_09.id,
                 'product_qty': 10.0,
-                'product_uom_id': cls.product_uom_id.id})]
+                'uom_id': cls.product_uom_id.id})]
         })
 
         cls.res_partner_1 = cls.env['res.partner'].create({

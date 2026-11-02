@@ -14,17 +14,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~18.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:38+0000\n"
-"PO-Revision-Date: 2026-06-06 14:19+0000\n"
+"POT-Creation-Date: 2026-10-16 17:41+0000\n"
+"PO-Revision-Date: 2026-09-09 13:53+0000\n"
 "Last-Translator: \"Tony Ng (ngto)\" <ngto@odoo.com>\n"
 "Language-Team: Chinese (Traditional Han script) <https://translate.odoo.com/"
-"projects/odoo-19/website_hr_recruitment/zh_Hant/>\n"
+"projects/odoo-master/website_hr_recruitment/zh_Hant/>\n"
 "Language: zh_TW\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: website_hr_recruitment
 #. odoo-python
@@ -51,15 +51,14 @@ msgstr ""
 "        "
 
 #. module: website_hr_recruitment
-#. odoo-python
-#: code:addons/website_hr_recruitment/controllers/main.py:0
-msgid " In case of issue, contact %(contact_infos)s"
-msgstr " 如有問題，請聯絡 %(contact_infos)s"
-
-#. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.index
 msgid "'. Showing results for '"
 msgstr "」。顯示以下結果：「"
+
+#. module: website_hr_recruitment
+#: model:website.page,url:website_hr_recruitment.thankyou
+msgid "/job-thank-you"
+msgstr ""
 
 #. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
@@ -76,23 +75,38 @@ msgstr ""
 "target=\"_blank\"><small><b>閱讀</b></small></a>"
 
 #. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.detail
-msgid "<i class=\"fa fa-long-arrow-left text-primary me-2\"/>All Jobs"
-msgstr "<i class=\"fa fa-long-arrow-left text-primary me-2\"/> 所有職位空缺"
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.dynamic_filter_template_hr_job_card
+msgid ""
+"<i class=\"oi oi-fw\" data-icon=\"account_tree\" title=\"Department\" "
+"role=\"img\" aria-label=\"Department\"/>"
+msgstr ""
 
 #. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.index
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.dynamic_filter_template_hr_job_card
 msgid ""
-"<i class=\"fa fa-suitcase fa-fw\" title=\"Employment type\" role=\"img\" "
-"aria-label=\"Employment type\"/>"
+"<i class=\"oi oi-fw\" data-icon=\"location_on\" title=\"Address\" "
+"role=\"img\" aria-label=\"Address\"/>"
 msgstr ""
-"<i class=\"fa fa-suitcase fa-fw\" title=\"聘用類型\" role=\"img\" aria-"
-"label=\"聘用類型\"/>"
+
+#. module: website_hr_recruitment
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.dynamic_filter_template_hr_job_card
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_card
+msgid ""
+"<i class=\"oi oi-fw\" data-icon=\"luggage\" title=\"Employment type\" "
+"role=\"img\" aria-label=\"Employment type\"/>"
+msgstr ""
+"<i class=\"oi oi-fw\" data-icon=\"luggage\" title=\"聘用類型\" role=\"img\" "
+"aria-label=\"聘用類型\"/>"
+
+#. module: website_hr_recruitment
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.detail
+msgid "<i class=\"oi text-primary me-2\" data-icon=\"west\"/>All Jobs"
+msgstr "<i class=\"oi text-primary me-2\" data-icon=\"west\"/> 所有職位空缺"
 
 #. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.apply
-msgid "<i class=\"oi oi-arrow-left\"/> Job Description"
-msgstr "<i class=\"oi oi-arrow-left\"/> 職位描述"
+msgid "<i class=\"oi\" data-icon=\"west\"/> Job Description"
+msgstr "<i class=\"oi\" data-icon=\"west\"/> 職位描述"
 
 #. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.thankyou_ir_ui_view
@@ -104,6 +118,11 @@ msgstr ""
 "<span class=\"h5 fw-light\">與此同時，</span><br/>\n"
 "                                            <span class=\"h3 mt8 mb32 fw-"
 "bold\">歡迎看看我們的網站：</span>"
+
+#. module: website_hr_recruitment
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.apply
+msgid "<span class=\"s_website_form_label_content\">Company</span>"
+msgstr ""
 
 #. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.apply
@@ -192,27 +211,27 @@ msgstr ""
 "<span class=\"text-muted small\">提供履歷檔案，或linkedin個人檔案</span>"
 
 #. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_rating
 msgid "<strong class=\"s_rating_title\">Administrative Work</strong>"
 msgstr "<strong class=\"s_rating_title\">行政工作</strong>"
 
 #. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_rating
 msgid "<strong class=\"s_rating_title\">Autonomy</strong>"
 msgstr "<strong class=\"s_rating_title\">自主</strong>"
 
 #. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_rating
 msgid "<strong class=\"s_rating_title\">Customer Relationship</strong>"
 msgstr "<strong class=\"s_rating_title\">客戶關係</strong>"
 
 #. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_rating
 msgid "<strong class=\"s_rating_title\">Personal Evolution</strong>"
 msgstr "<strong class=\"s_rating_title\">個人成長</strong>"
 
 #. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_rating
 msgid "<strong class=\"s_rating_title\">Technical Expertise</strong>"
 msgstr "<strong class=\"s_rating_title\">技術知識及能力</strong>"
 
@@ -248,17 +267,15 @@ msgid "All"
 msgstr "所有"
 
 #. module: website_hr_recruitment
+#. odoo-javascript
+#: code:addons/website_hr_recruitment/static/src/website_builder/website_hr_recruitment_floating_snippets_plugin.js:0
+msgid "All jobs"
+msgstr ""
+
+#. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.view_hr_job_form_website_published_button
 msgid "All websites"
 msgstr "所有網站"
-
-#. module: website_hr_recruitment
-#. odoo-python
-#: code:addons/website_hr_recruitment/controllers/main.py:0
-msgid ""
-"An application already exists for %(value)s. Duplicates might be rejected. %"
-"(recruiter_contact)s"
-msgstr "已有 %(value)s 的職位申請。重複申請可能會被拒絕。%(recruiter_contact)s"
 
 #. module: website_hr_recruitment
 #: model:ir.model,name:website_hr_recruitment.model_hr_applicant
@@ -292,35 +309,14 @@ msgid "Apply for a Job"
 msgstr "申請職位"
 
 #. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
-msgid ""
-"As an employee of our company, you will <b>collaborate with each department\n"
-"                        to create and deploy disruptive products.</b> Come "
-"work at a growing company\n"
-"                        that offers great benefits with opportunities to "
-"moving forward and learn\n"
-"                        alongside accomplished leaders. We're seeking an "
-"experienced and outstanding\n"
-"                        member of staff.\n"
-"                        <br/><br/>\n"
-"                        This position is both <b>creative and rigorous</b> "
-"by nature you need to think\n"
-"                        outside the box. We expect the candidate to be "
-"proactive and have a \"get it done\"\n"
-"                        spirit. To be successful, you will have solid "
-"solving problem skills."
-msgstr ""
-"作為我們公司的員工，您將<b>與每個部門合作建立和部署顛覆性產品。</b>來到一家成"
-"長中的公司工作，該公司提供巨大的好處，並有機會與有成就的領導者一起前進和學"
-"習。我們正在尋找一位經驗豐富且優秀的員工。<br><br>這個職位<b>本質上既富有創意"
-"又嚴謹</b>，你需要跳出框框思考。我們希望候選人積極主動並具有“完成任務”的精"
-"神。要取得成功，您將擁有紮實的解決問題的能力。"
+#: model:ir.model.fields,field_description:website_hr_recruitment.field_hr_job__publish_on
+msgid "Auto publish on"
+msgstr "自動發佈於"
 
 #. module: website_hr_recruitment
-#. odoo-javascript
-#: code:addons/website_hr_recruitment/static/src/fields/boolean_toggle_labeled_field.js:0
-msgid "Autosave"
-msgstr "自動儲存"
+#: model:ir.model.fields,help:website_hr_recruitment.field_hr_job__publish_on
+msgid "Automatically publish the page on the chosen date and time."
+msgstr "在選定的日期及時間，自動發佈頁面。"
 
 #. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
@@ -336,6 +332,12 @@ msgstr "可以發佈"
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.topbar_customizations
 msgid "Close"
 msgstr "關閉"
+
+#. module: website_hr_recruitment
+#. odoo-javascript
+#: code:addons/website_hr_recruitment/static/src/js/systray_items/new_content.js:0
+msgid "Company Mismatch"
+msgstr ""
 
 #. module: website_hr_recruitment
 #: model:ir.model.fields,help:website_hr_recruitment.field_hr_job__job_details
@@ -399,12 +401,6 @@ msgid "Departments Filter"
 msgstr "部門篩選器"
 
 #. module: website_hr_recruitment
-#. odoo-javascript
-#: code:addons/website_hr_recruitment/static/src/website_builder/website_hr_recruitment_searchbar_option_plugin.js:0
-msgid "Description"
-msgstr "說明"
-
-#. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
 msgid "Discover our products."
 msgstr "了解我們的產品。"
@@ -416,8 +412,14 @@ msgstr "了解我們的產品。"
 #: model:ir.model.fields,field_description:website_hr_recruitment.field_hr_recruitment_source__display_name
 #: model:ir.model.fields,field_description:website_hr_recruitment.field_website__display_name
 #: model:ir.model.fields,field_description:website_hr_recruitment.field_website_page__display_name
+#: model:ir.model.fields,field_description:website_hr_recruitment.field_website_published_multi_mixin__display_name
 msgid "Display Name"
 msgstr "顯示名稱"
+
+#. module: website_hr_recruitment
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.detail
+msgid "Drag blocks here to add them on all jobs"
+msgstr ""
 
 #. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
@@ -459,11 +461,6 @@ msgid "Experience in writing online content"
 msgstr "編寫線上內容的經驗"
 
 #. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_right_side_bar
-msgid "Facebook"
-msgstr "Facebook"
-
-#. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_filter_base
 msgid "Filter by country"
 msgstr "以國家/地區篩選"
@@ -472,11 +469,6 @@ msgstr "以國家/地區篩選"
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.topbar_customizations
 msgid "Filters"
 msgstr "篩選"
-
-#. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_right_side_bar
-msgid "Follow us"
-msgstr "追蹤我們"
 
 #. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
@@ -540,15 +532,9 @@ msgstr "我覺得很幸運"
 #: model:ir.model.fields,field_description:website_hr_recruitment.field_hr_recruitment_source__id
 #: model:ir.model.fields,field_description:website_hr_recruitment.field_website__id
 #: model:ir.model.fields,field_description:website_hr_recruitment.field_website_page__id
+#: model:ir.model.fields,field_description:website_hr_recruitment.field_website_published_multi_mixin__id
 msgid "ID"
 msgstr "識別號"
-
-#. module: website_hr_recruitment
-#. odoo-javascript
-#: code:addons/website_hr_recruitment/static/src/fields/boolean_toggle_labeled_field.js:0
-msgid ""
-"If checked, the record will be saved immediately when the field is modified."
-msgstr "若勾選，修改欄位時會立即儲存記錄。"
 
 #. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_filter_by_industries
@@ -562,7 +548,7 @@ msgid "Industries Filter"
 msgstr "行業篩選器"
 
 #. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.index
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_card
 msgid "Insert a Job Description..."
 msgstr "加入職位描述⋯"
 
@@ -608,11 +594,10 @@ msgid "Job not found"
 msgstr "找不到相關職位"
 
 #. module: website_hr_recruitment
-#. odoo-javascript
 #. odoo-python
 #: code:addons/website_hr_recruitment/controllers/main.py:0
+#: code:addons/website_hr_recruitment/models/hr_job.py:0
 #: code:addons/website_hr_recruitment/models/website.py:0
-#: code:addons/website_hr_recruitment/static/src/website_builder/website_hr_recruitment_searchbar_option.xml:0
 #: model:ir.ui.menu,name:website_hr_recruitment.menu_job_pages
 #: model:website.menu,name:website_hr_recruitment.website_menu_jobs
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.apply
@@ -621,9 +606,14 @@ msgstr "職位空缺"
 
 #. module: website_hr_recruitment
 #. odoo-javascript
-#: code:addons/website_hr_recruitment/static/src/website_builder/website_hr_recruitment_option_plugin.js:0
+#: code:addons/website_hr_recruitment/static/src/website_builder/website_hr_recruitment_option.xml:0
 msgid "Jobs Page"
 msgstr "職位空缺頁面"
+
+#. module: website_hr_recruitment
+#: model:website.snippet.filter,name:website_hr_recruitment.dynamic_filter_latest_job_positions
+msgid "Latest Job Positions"
+msgstr ""
 
 #. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
@@ -631,15 +621,15 @@ msgid "Lead the entire sales cycle"
 msgstr "帶領整個銷售循環"
 
 #. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_right_side_bar
-msgid "LinkedIn"
-msgstr "LinkedIn"
-
-#. module: website_hr_recruitment
 #. odoo-javascript
-#: code:addons/website_hr_recruitment/static/src/js/website_hr_recruitment_editor.js:0
+#: code:addons/website_hr_recruitment/static/src/js/website_hr_recruitment_editor.edit.js:0
 msgid "LinkedIn Profile"
 msgstr "LinkedIn 個人檔案"
+
+#. module: website_hr_recruitment
+#: model:ir.module.module,summary:base.module_website_hr_recruitment
+msgid "Manage your online hiring process"
+msgstr ""
 
 #. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
@@ -678,10 +668,12 @@ msgid ""
 msgstr "無謂在企業流程上浪費時間，肩負真正責任及自主權"
 
 #. module: website_hr_recruitment
-#. odoo-javascript
-#: code:addons/website_hr_recruitment/static/src/fields/boolean_toggle_labeled_field.xml:0
-msgid "Not Published"
-msgstr "未發佈"
+#. odoo-python
+#: code:addons/website_hr_recruitment/models/website_published_multi_mixin.py:0
+msgid ""
+"No website found for the company. Please create a website for this company "
+"to be able to open the job offer on the website."
+msgstr ""
 
 #. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_filter_by_offices
@@ -695,6 +687,11 @@ msgid "Offices Filter"
 msgstr "辦公地點篩選器"
 
 #. module: website_hr_recruitment
+#: model:ir.module.module,shortdesc:base.module_website_hr_recruitment
+msgid "Online Jobs"
+msgstr ""
+
+#. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.apply
 msgid "Optional introduction, or any question you might have about the job…"
 msgstr "可選填的介紹，或是你可能對這份工作的任何疑問⋯"
@@ -706,8 +703,8 @@ msgstr "其他"
 
 #. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.index
-msgid "Our Job Offers"
-msgstr "我們的工作職缺"
+msgid "Our Job Opportunities"
+msgstr "我們的職位空缺"
 
 #. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
@@ -736,7 +733,7 @@ msgstr "薪酬津貼"
 
 #. module: website_hr_recruitment
 #. odoo-javascript
-#: code:addons/website_hr_recruitment/static/src/js/website_hr_recruitment_editor.js:0
+#: code:addons/website_hr_recruitment/static/src/js/website_hr_recruitment_editor.edit.js:0
 msgid "Phone Number"
 msgstr "電話號碼"
 
@@ -757,8 +754,11 @@ msgid "Products"
 msgstr "產品"
 
 #. module: website_hr_recruitment
-#. odoo-javascript
-#: code:addons/website_hr_recruitment/static/src/fields/boolean_toggle_labeled_field.xml:0
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.view_hr_job_form_website_published_button
+msgid "Publish On"
+msgstr "發佈於"
+
+#. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.hr_job_search_view_inherit
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.hr_job_website_inherit
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.view_hr_job_form_website_published_button
@@ -768,7 +768,7 @@ msgstr "已發佈"
 
 #. module: website_hr_recruitment
 #: model:ir.model.fields,field_description:website_hr_recruitment.field_hr_job__published_date
-msgid "Published Date"
+msgid "Published date"
 msgstr "發佈日期"
 
 #. module: website_hr_recruitment
@@ -783,6 +783,8 @@ msgstr "在一家快速發展的公司中的真正責任和挑戰"
 
 #. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.apply
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.detail
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_card
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_filter_by_offices
 msgid "Remote"
 msgstr "遙距工作"
@@ -814,6 +816,12 @@ msgid "SEO optimized"
 msgstr "SEO 已最佳化"
 
 #. module: website_hr_recruitment
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.hr_job_website_inherit
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_pages_tree_view
+msgid "Scheduled"
+msgstr "已排程"
+
+#. module: website_hr_recruitment
 #. odoo-javascript
 #: code:addons/website_hr_recruitment/static/src/website_builder/website_hr_recruitment_option.xml:0
 msgid "Search Bar"
@@ -837,15 +845,11 @@ msgstr "分享職位"
 
 #. module: website_hr_recruitment
 #. odoo-javascript
-#: code:addons/website_hr_recruitment/static/src/js/website_hr_recruitment_editor.js:0
-msgid "Short Introduction"
-msgstr "簡短介紹"
-
-#. module: website_hr_recruitment
 #. odoo-python
 #: code:addons/website_hr_recruitment/controllers/main.py:0
-msgid "Short introduction from applicant"
-msgstr "申請人簡短自我介紹"
+#: code:addons/website_hr_recruitment/static/src/js/website_hr_recruitment_editor.edit.js:0
+msgid "Short Introduction"
+msgstr "簡短介紹"
 
 #. module: website_hr_recruitment
 #. odoo-javascript
@@ -869,6 +873,11 @@ msgid "Strong analytical skills"
 msgstr "高分析能力"
 
 #. module: website_hr_recruitment
+#: model:website.page,name:website_hr_recruitment.thankyou
+msgid "Thank you (Recruitment)"
+msgstr ""
+
+#. module: website_hr_recruitment
 #: model:ir.model.fields,help:website_hr_recruitment.field_hr_job__website_absolute_url
 msgid "The full absolute URL to access the document through the website."
 msgstr "透過網站存取該文件的完整絕對網址。"
@@ -887,8 +896,8 @@ msgstr "職位連結已複製至剪貼簿。"
 #. module: website_hr_recruitment
 #. odoo-python
 #: code:addons/website_hr_recruitment/models/hr_applicant.py:0
-msgid "The job offer has been closed."
-msgstr "該工作機會已關閉。"
+msgid "The job opportunity has been closed."
+msgstr "此工作機會已關閉。"
 
 #. module: website_hr_recruitment
 #. odoo-javascript
@@ -909,9 +918,38 @@ msgstr ""
 
 #. module: website_hr_recruitment
 #. odoo-javascript
-#: code:addons/website_hr_recruitment/static/src/fields/boolean_toggle_labeled_field.js:0
-msgid "ToggleLabeled"
-msgstr "切換已標籤"
+#: code:addons/website_hr_recruitment/static/src/website_builder/website_hr_recruitment_floating_snippets_plugin.js:0
+msgid "This job"
+msgstr ""
+
+#. module: website_hr_recruitment
+#: model:ir.module.module,description:base.module_website_hr_recruitment
+msgid ""
+"This module allows to publish your available job positions on your website "
+"and keep track of application submissions easily."
+msgstr ""
+
+#. module: website_hr_recruitment
+#. odoo-javascript
+#: code:addons/website_hr_recruitment/static/src/website_builder/website_hr_recruitment_floating_snippets_plugin.js:0
+msgid "This page"
+msgstr ""
+
+#. module: website_hr_recruitment
+#. odoo-javascript
+#: code:addons/website_hr_recruitment/static/src/js/systray_items/new_content.js:0
+msgid ""
+"This website belongs to %(company)s, which isn't one of your active "
+"companies. Switch to it first, then try again."
+msgstr ""
+
+#. module: website_hr_recruitment
+#. odoo-javascript
+#: code:addons/website_hr_recruitment/static/src/js/systray_items/new_content.js:0
+msgid ""
+"This website belongs to a company you don't have access to. Ask your "
+"administrator for access before creating a Job Position here."
+msgstr ""
 
 #. module: website_hr_recruitment
 #: model:ir.model.fields,field_description:website_hr_recruitment.field_hr_recruitment_source__url
@@ -929,6 +967,11 @@ msgid "Types"
 msgstr "類型"
 
 #. module: website_hr_recruitment
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.view_hr_job_form_website_published_button
+msgid "Unschedule"
+msgstr "取消排定"
+
+#. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_filter_base
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_filter_base_mobile
 msgid "Unspecified"
@@ -938,6 +981,11 @@ msgstr "未指定"
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
 msgid "Valid work permit for Belgium"
 msgstr "比利時的有效工作簽證"
+
+#. module: website_hr_recruitment
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.dynamic_filter_template_hr_job_card
+msgid "View {{0}}"
+msgstr ""
 
 #. module: website_hr_recruitment
 #: model:ir.model.fields,field_description:website_hr_recruitment.field_hr_job__website_published
@@ -956,26 +1004,6 @@ msgstr ""
 "                                我們打造出色的產品來解決您的業務問題。"
 
 #. module: website_hr_recruitment
-#. odoo-python
-#: code:addons/website_hr_recruitment/controllers/main.py:0
-msgid ""
-"We found a recent application with a similar name, email, phone number. You "
-"can continue if it's not a mistake."
-msgstr ""
-"我們發現近期也有使用相似姓名、電郵地址及電話號碼的申請。如果沒有錯誤，可以繼"
-"續操作。"
-
-#. module: website_hr_recruitment
-#. odoo-python
-#: code:addons/website_hr_recruitment/controllers/main.py:0
-msgid ""
-"We've found a previous closed application in our system within the last 6 "
-"months. Please consider before applying in order not to duplicate efforts."
-msgstr ""
-"系統發現過去 6 個月內，已有一份已關閉的較早前申請。申請前請考慮這點，以免重複"
-"浪費心力。"
-
-#. module: website_hr_recruitment
 #: model:ir.model,name:website_hr_recruitment.model_website
 #: model:ir.model.fields,field_description:website_hr_recruitment.field_hr_job__website_id
 msgid "Website"
@@ -985,6 +1013,11 @@ msgstr "網站"
 #: model:ir.model.fields,field_description:website_hr_recruitment.field_hr_job__website_absolute_url
 msgid "Website Absolute URL"
 msgstr "網站絕對網址"
+
+#. module: website_hr_recruitment
+#: model:ir.model,name:website_hr_recruitment.model_website_published_multi_mixin
+msgid "Website Published Mixin"
+msgstr ""
 
 #. module: website_hr_recruitment
 #: model:ir.actions.act_url,name:website_hr_recruitment.action_open_website
@@ -1022,6 +1055,11 @@ msgid "Website opengraph image"
 msgstr "網站 opengraph 圖片"
 
 #. module: website_hr_recruitment
+#: model:ir.model.fields,field_description:website_hr_recruitment.field_hr_job__website_rating
+msgid "Website rating"
+msgstr "網站評分"
+
+#. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
 msgid "What We Offer"
 msgstr "福利制度"
@@ -1032,24 +1070,19 @@ msgid "What's great in the job?"
 msgstr "這份工作的優點?"
 
 #. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_right_side_bar
-msgid "X"
-msgstr ""
-
-#. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.thankyou_ir_ui_view
 msgid "Your <b>contact</b> information is:"
 msgstr "你的<b>聯絡人</b>資料如下："
 
 #. module: website_hr_recruitment
 #. odoo-javascript
-#: code:addons/website_hr_recruitment/static/src/js/website_hr_recruitment_editor.js:0
+#: code:addons/website_hr_recruitment/static/src/js/website_hr_recruitment_editor.edit.js:0
 msgid "Your Email"
 msgstr "你的電郵地址"
 
 #. module: website_hr_recruitment
 #. odoo-javascript
-#: code:addons/website_hr_recruitment/static/src/js/website_hr_recruitment_editor.js:0
+#: code:addons/website_hr_recruitment/static/src/js/website_hr_recruitment_editor.edit.js:0
 msgid "Your Name"
 msgstr "你的名字"
 
@@ -1071,8 +1104,10 @@ msgstr "頁面路徑"
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.view_hr_job_form_inherit_website
 msgid ""
 "e.g. Summarize the position in one or two lines that will be displayed on "
-"the Jobs list page..."
-msgstr "例：請用一兩行文字概括介紹該職位，以在職位清單頁面顯示⋯"
+"the job page and the jobs list page..."
+msgstr ""
+"例：寫一兩行文字，簡要說明職位空缺，此描述會在招聘頁面及職位空缺列表頁面顯"
+"示..."
 
 #. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.apply
@@ -1090,47 +1125,18 @@ msgid "job URL"
 msgstr "職位網址"
 
 #. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.index
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.dynamic_filter_template_hr_job_card
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_card
 msgid "open position"
 msgstr "開放職位空缺"
 
 #. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.index
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.dynamic_filter_template_hr_job_card
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_card
 msgid "open positions"
 msgstr "開放職位空缺"
 
 #. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.index
-msgid "unpublished"
-msgstr "未發佈"
-
-#~ msgid "+1 (650) 555-0187"
-#~ msgstr "+1 (650) 555-0187"
-
-#~ msgid ""
-#~ "<i class=\"fa fa-fw fa-external-link\" role=\"img\"/>\n"
-#~ "                        Job Page"
-#~ msgstr ""
-#~ "<i class=\"fa fa-fw fa-external-link\" role=\"img\"/>\n"
-#~ "                        職位空缺頁面"
-
-#~ msgid "<i class=\"fa fa-globe me-1\" title=\"Website\"/>"
-#~ msgstr "<i class=\"fa fa-globe me-1\" title=\"網站\"/>"
-
-#~ msgid "Administrative Work"
-#~ msgstr "行政工作"
-
-#~ msgid "Autonomy"
-#~ msgstr "自主"
-
-#~ msgid "Customer Relationship"
-#~ msgstr "客戶關係"
-
-#~ msgid "Personal Evolution"
-#~ msgstr "個人發展"
-
-#~ msgid "SEO Optimized"
-#~ msgstr "SEO 已最佳化"
-
-#~ msgid "Technical Expertise"
-#~ msgstr "技術專長"
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_card
+msgid "scheduled"
+msgstr "已排程"

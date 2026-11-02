@@ -1,8 +1,17 @@
-import { describe, destroy, expect, getFixture, test } from "@odoo/hoot";
-import { click, tick } from "@odoo/hoot-dom";
-import { Deferred, advanceTime, animationFrame, microTick, runAllTimers } from "@odoo/hoot-mock";
+import {
+    advanceTime,
+    animationFrame,
+    click,
+    describe,
+    expect,
+    getFixture,
+    microTick,
+    runAllTimers,
+    test,
+    tick,
+} from "@odoo/hoot";
 import { Component, xml } from "@odoo/owl";
-import { mountWithCleanup } from "@web/../tests/web_test_helpers";
+import { destroyApp, mountWithCleanup } from "@web/../tests/web_test_helpers";
 
 import {
     batched,
@@ -10,6 +19,7 @@ import {
     throttleForAnimation,
     useDebounced,
     useThrottleForAnimation,
+    useTimer,
 } from "@web/core/utils/timing";
 
 describe.current.tags("headless");
@@ -198,10 +208,10 @@ describe("debounce", () => {
     });
 
     test("debounce on an async function", async () => {
-        const imSearchDef = new Deferred();
+        const imSearchDef = Promise.withResolvers();
         const myFunc = () => {
             expect.step("myFunc");
-            return imSearchDef;
+            return imSearchDef.promise;
         };
         const myDebouncedFunc = debounce(myFunc, 3000);
         myDebouncedFunc().then(() => {
@@ -362,7 +372,8 @@ describe("throttleForAnimation", () => {
 
 describe("throttleForAnimationScrollEvent", () => {
     test("scroll loses target", async () => {
-        let throttled = new Deferred();
+        const throttled = Promise.withResolvers();
+        let callCount = 0;
         const throttledFn = throttleForAnimation((val, targetEl) => {
             // In Chrome, the currentTarget of scroll events is lost after the
             // event was handled, it is therefore null here.
@@ -373,26 +384,32 @@ describe("throttleForAnimationScrollEvent", () => {
             expect.step(
                 `throttled function called with ${nodeName} in event, but ${targetName} in parameter`
             );
-            throttled.resolve();
+            callCount++;
+            if (callCount === 2) {
+                throttled.resolve();
+            }
         });
 
         const el = document.createElement("div");
         el.style = "position: absolute; overflow: scroll; height: 100px; width: 100px;";
         const childEl = document.createElement("div");
         childEl.style = "height: 200px; width: 200px;";
-        let scrolled = new Deferred();
+        const scrolled = Promise.withResolvers();
         el.appendChild(childEl);
         el.addEventListener("scroll", (ev) => {
             expect.step("before scroll");
+            // Leading edge: called synchronously, while the event is still
+            // dispatching, so its currentTarget is still set.
+            throttledFn(ev, ev.currentTarget);
+            // Queued: only runs once the event has finished dispatching, on
+            // the next animation frame, so its currentTarget is lost by then.
             throttledFn(ev, ev.currentTarget);
             expect.step("after scroll");
             scrolled.resolve();
         });
         getFixture().appendChild(el);
         el.scrollBy(1, 1);
-        el.scrollBy(2, 2);
-        await scrolled;
-        await throttled;
+        await scrolled.promise;
 
         expect.verifySteps([
             "before scroll",
@@ -400,16 +417,7 @@ describe("throttleForAnimationScrollEvent", () => {
             "after scroll",
         ]);
 
-        throttled = new Deferred();
-        scrolled = new Deferred();
-        el.scrollBy(3, 3);
-        await scrolled;
-        expect.verifySteps([
-            "before scroll",
-            // Further call is delayed.
-            "after scroll",
-        ]);
-        await throttled;
+        await throttled.promise;
         expect.verifySteps(["throttled function called with null in event, but DIV in parameter"]);
         el.remove();
     });
@@ -418,13 +426,12 @@ describe("throttleForAnimationScrollEvent", () => {
 describe("useDebounced", () => {
     test("cancels on component destroy", async () => {
         class TestComponent extends Component {
-            static template = xml`<button class="c" t-on-click="debounced">C</button>`;
-            static props = ["*"];
+            static template = xml`<button class="c" t-on-click="this.debounced">C</button>`;
             setup() {
                 this.debounced = useDebounced(() => expect.step("debounced"), 1000);
             }
         }
-        const component = await mountWithCleanup(TestComponent);
+        await mountWithCleanup(TestComponent);
         expect.verifySteps([]);
         expect("button.c").toHaveCount(1);
 
@@ -439,7 +446,7 @@ describe("useDebounced", () => {
         await advanceTime(900);
         expect.verifySteps([]);
 
-        destroy(component);
+        destroyApp();
         await advanceTime(200);
         expect.verifySteps([]);
     });
@@ -447,14 +454,13 @@ describe("useDebounced", () => {
     test("execBeforeUnmount option (callback not resolved before component destroy)", async () => {
         class TestComponent extends Component {
             static template = xml`<button class="c" t-on-click="() => this.debounced('hello')">C</button>`;
-            static props = ["*"];
             setup() {
                 this.debounced = useDebounced((p) => expect.step(`debounced: ${p}`), 1000, {
                     execBeforeUnmount: true,
                 });
             }
         }
-        const component = await mountWithCleanup(TestComponent);
+        await mountWithCleanup(TestComponent);
         expect.verifySteps([]);
         expect(`button.c`).toHaveCount(1);
 
@@ -469,21 +475,20 @@ describe("useDebounced", () => {
         await advanceTime(900);
         expect.verifySteps([]);
 
-        destroy(component);
+        destroyApp();
         expect.verifySteps(["debounced: hello"]);
     });
 
     test("execBeforeUnmount option (callback resolved before component destroy)", async () => {
         class TestComponent extends Component {
-            static template = xml`<button class="c" t-on-click="debounced">C</button>`;
-            static props = ["*"];
+            static template = xml`<button class="c" t-on-click="this.debounced">C</button>`;
             setup() {
                 this.debounced = useDebounced(() => expect.step("debounced"), 1000, {
                     execBeforeUnmount: true,
                 });
             }
         }
-        const component = await mountWithCleanup(TestComponent);
+        await mountWithCleanup(TestComponent);
         expect.verifySteps([]);
         expect(`button.c`).toHaveCount(1);
 
@@ -494,7 +499,7 @@ describe("useDebounced", () => {
         await advanceTime(200);
         expect.verifySteps(["debounced"]);
 
-        destroy(component);
+        destroyApp();
         await advanceTime(1000);
         expect.verifySteps([]);
     });
@@ -503,13 +508,12 @@ describe("useDebounced", () => {
 describe("useThrottleForAnimation", () => {
     test("cancels on component destroy", async () => {
         class TestComponent extends Component {
-            static template = xml`<button class="c" t-on-click="throttled">C</button>`;
-            static props = ["*"];
+            static template = xml`<button class="c" t-on-click="this.throttled">C</button>`;
             setup() {
                 this.throttled = useThrottleForAnimation(() => expect.step("throttled"), 1000);
             }
         }
-        const component = await mountWithCleanup(TestComponent);
+        await mountWithCleanup(TestComponent);
         expect.verifySteps([]);
         expect(`button.c`).toHaveCount(1);
 
@@ -534,8 +538,104 @@ describe("useThrottleForAnimation", () => {
         await click(`button.c`);
         expect.verifySteps([]);
 
-        destroy(component);
+        destroyApp();
         await animationFrame();
         expect.verifySteps([]);
+    });
+});
+
+describe("useTimer", () => {
+    test("progress starts at 0 and reaches 1 after the duration", async () => {
+        class TestComponent extends Component {
+            static template = xml`<div/>`;
+            setup() {
+                this.timer = useTimer(1000);
+            }
+        }
+        const component = await mountWithCleanup(TestComponent);
+        expect(component.timer.progress() >= 0 && component.timer.progress() < 1).toBe(true);
+
+        await advanceTime(1000);
+        await animationFrame();
+        expect(component.timer.progress()).toBe(1);
+    });
+
+    test("stop halts the animation at the current progress", async () => {
+        class TestComponent extends Component {
+            static template = xml`<div/>`;
+            setup() {
+                this.timer = useTimer(1000);
+            }
+        }
+        const component = await mountWithCleanup(TestComponent);
+
+        await advanceTime(500);
+        await animationFrame();
+        const frozenProgress = component.timer.progress();
+        component.timer.stop();
+        await advanceTime(500);
+        await animationFrame();
+        expect(component.timer.progress()).toBe(frozenProgress);
+    });
+
+    test("reset restarts the timer from 0", async () => {
+        class TestComponent extends Component {
+            static template = xml`<div/>`;
+            setup() {
+                this.timer = useTimer(1000);
+            }
+        }
+        const component = await mountWithCleanup(TestComponent);
+
+        await advanceTime(500);
+        await animationFrame();
+        const progressBeforeReset = component.timer.progress();
+        component.timer.reset();
+        await animationFrame();
+        expect(
+            component.timer.progress() >= 0 && component.timer.progress() < progressBeforeReset
+        ).toBe(true);
+        await advanceTime(1000);
+        await animationFrame();
+        expect(component.timer.progress()).toBe(1);
+    });
+
+    test("resume continues from the current progress", async () => {
+        class TestComponent extends Component {
+            static template = xml`<div/>`;
+            setup() {
+                this.timer = useTimer(1000);
+            }
+        }
+        const component = await mountWithCleanup(TestComponent);
+
+        await advanceTime(500);
+        await animationFrame();
+        const progressAtStop = component.timer.progress();
+        component.timer.stop();
+        component.timer.resume();
+        expect(component.timer.progress()).toBe(progressAtStop);
+        await animationFrame();
+        await advanceTime(500);
+        await animationFrame();
+        expect(component.timer.progress()).toBe(1);
+    });
+
+    test("stops on component destroy", async () => {
+        class TestComponent extends Component {
+            static template = xml`<div/>`;
+            setup() {
+                this.timer = useTimer(1000);
+            }
+        }
+        const component = await mountWithCleanup(TestComponent);
+
+        await advanceTime(500);
+        await animationFrame();
+        const progressAtDestroy = component.timer.progress();
+        destroyApp();
+        await advanceTime(500);
+        await animationFrame();
+        expect(component.timer.progress()).toBe(progressAtDestroy);
     });
 });

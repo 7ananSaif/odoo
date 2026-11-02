@@ -5,7 +5,7 @@ const openProductAttribute = (product_attribute) => [
     ...stepUtils.goToAppSteps("sale.sale_menu_root", "Go to the Sales App"),
     {
         content: 'Open configuration menu',
-        trigger: '.o-dropdown[data-menu-xmlid="sale.menu_sale_config"]',
+        trigger: '.o-dropdown[data-menu-xmlid="sale.product_menu_catalog"]',
         run: "click",
     },
     {
@@ -15,14 +15,14 @@ const openProductAttribute = (product_attribute) => [
     },
     {
         content: `Navigate to ${product_attribute}`,
-        trigger: `.o_data_cell[data-tooltip=${product_attribute}]`,
+        trigger: `.o_data_cell:text(${product_attribute})`,
         run: "click",
     },
 ];
 const deletePAV = (product_attribute_value, message) => [
     {
         content: 'Click delete button',
-        trigger: `.o_data_cell[data-tooltip=${product_attribute_value}] ~ .o_list_record_remove`,
+        trigger: `.o_data_cell:text(${product_attribute_value}) ~ .o_list_record_remove`,
         run: "click",
     },
     {
@@ -39,7 +39,6 @@ const deletePAV = (product_attribute_value, message) => [
 
 // This tour relies on data created on the Python test.
 registry.category("web_tour.tours").add('delete_product_attribute_value_tour', {
-    url: '/odoo',
     steps: () => [
         ...openProductAttribute("PA"),
         // Test error message on a used attribute value

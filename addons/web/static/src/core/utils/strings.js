@@ -12,15 +12,6 @@ function hasSubstitutionDict(substitutions) {
     return substitutions.length === 1 && isObject(substitutions[0]);
 }
 
-const HTML_ESCAPED_CHARACTERS = [
-    ["&", "&amp;"],
-    ["<", "&lt;"],
-    [">", "&gt;"],
-    ["'", "&#x27;"],
-    ['"', "&quot;"],
-    ["`", "&#x60;"],
-];
-
 /**
  * Based on:
  * {@link http://stackoverflow.com/questions/46155/validate-email-address-in-javascript}
@@ -30,7 +21,7 @@ const R_EMAIL =
 const R_FALSY = /^false|0$/i;
 const R_KEYED_SUBSTITUTION = /%\((?<key>[^)]+)\)s/g;
 const R_NUMERIC = /^\d+$/;
-const R_REGEX_SPECIAL_CHARS = /[.*+?^${}()|[\]\\]/g;
+const R_REGEX_SPECIAL_CHARS = /[-/\\^$*+?.()|[\]{}]/g;
 
 export const nbsp = "\u00a0";
 
@@ -42,22 +33,6 @@ export const nbsp = "\u00a0";
  */
 export function capitalize(str) {
     return str ? str[0].toUpperCase() + str.slice(1) : "";
-}
-
-/**
- * Escapes HTML special characters in a given value.
- *
- * @param {unknown} [value]
- * @returns {string}
- */
-export function escape(value) {
-    if (typeof value !== "string") {
-        return String(value ?? "");
-    }
-    for (const [char, replacer] of HTML_ESCAPED_CHARACTERS) {
-        value = value.replaceAll(char, replacer);
-    }
-    return value;
 }
 
 /**
@@ -269,4 +244,13 @@ export function uuid() {
         id += b.toString(16).padStart(2, "0");
     }
     return id;
+}
+/**
+ * Generates a string ID.
+ *
+ * @param {string} prefix
+ * @returns {string}
+ */
+export function generateHTMLId(prefix = "o") {
+    return `${prefix}${Math.random().toString(36).substring(2, 15)}`;
 }

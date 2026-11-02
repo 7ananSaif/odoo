@@ -1,6 +1,6 @@
 import { after, expect, test } from "@odoo/hoot";
 import { click, queryOne, queryValue, setInputFiles, waitFor } from "@odoo/hoot-dom";
-import { Deferred, animationFrame } from "@odoo/hoot-mock";
+import { animationFrame } from "@odoo/hoot-mock";
 import {
     clickSave,
     contains,
@@ -13,11 +13,14 @@ import {
     pagerNext,
 } from "@web/../tests/web_test_helpers";
 
-import { toBase64Length } from "@web/core/utils/binary";
 import { MAX_FILENAME_SIZE_BYTES } from "@web/views/fields/binary/binary_field";
 
-const BINARY_FILE =
+const BINARY_CONTENT =
     "R0lGODlhDAAMAKIFAF5LAP/zxAAAANyuAP/gaP///wAAAAAAACH5BAEAAAUALAAAAAAMAAwAAAMlWLPcGjDKFYi9lxKBOaGcF35DhWHamZUW0K4mAbiwWtuf0uxFAgA7";
+const BINARY_FILE = {
+    content: BINARY_CONTENT,
+    size: 96,
+};
 
 class Partner extends models.Model {
     _name = "res.partner";
@@ -26,7 +29,7 @@ class Partner extends models.Model {
     document = fields.Binary();
     product_id = fields.Many2one({ relation: "product" });
 
-    _records = [{ foo: "coucou.txt", document: "coucou==\n" }];
+    _records = [{ foo: "coucou.txt", document: { content: "coucou==\n" } }];
 }
 
 class Product extends models.Model {
@@ -51,10 +54,6 @@ test("BinaryField is correctly rendered (readonly)", async () => {
         expect(body.get("field")).toBe("document", {
             message: "we should download the field document",
         });
-        expect(body.get("data")).toBe("coucou==\n", {
-            message: "we should download the correct data",
-        });
-
         return new Blob([body.get("data")], { type: "text/plain" });
     });
 
@@ -70,7 +69,7 @@ test("BinaryField is correctly rendered (readonly)", async () => {
         `,
     });
 
-    expect(`.o_field_widget[name="document"] a > .fa-download`).toHaveCount(1, {
+    expect(`.o_field_widget[name="document"] a > [data-icon='download']`).toHaveCount(1, {
         message: "the binary field should be rendered as a downloadable link in readonly",
     });
     expect(`.o_field_widget[name="document"]`).toHaveText("coucou.txt", {
@@ -82,7 +81,7 @@ test("BinaryField is correctly rendered (readonly)", async () => {
 
     // Testing the download button in the field
     // We must avoid the browser to download the file effectively
-    const deferred = new Deferred();
+    const deferred = Promise.withResolvers();
     const downloadOnClick = (ev) => {
         const target = ev.target;
         if (target.tagName === "A" && "download" in target.attributes) {
@@ -95,8 +94,49 @@ test("BinaryField is correctly rendered (readonly)", async () => {
     after(() => document.removeEventListener("click", downloadOnClick));
 
     await contains(`.o_field_widget[name="document"] a`).click();
-    await deferred;
+    await deferred.promise;
     expect.verifySteps(["/web/content"]);
+});
+
+test("BinaryField is correctly rendered (readonly on fresh record)", async () => {
+    // Readonly on fresh record happens when editing one2many items on a new record (lines out of focus become readonly)
+    await mountView({
+        resModel: "res.partner",
+        type: "form",
+        arch: `
+            <form>
+                <!-- field holding the filename of the "document" file (see default value above) -->
+                <field name="foo" invisible="1"/>
+                <field name="document" filename="foo" readonly="1"/>
+            </form>
+        `,
+    });
+
+    const filenameDefaultValue = "My little Foo Value";
+    expect(`.o_field_widget[name="document"]`).toHaveText(filenameDefaultValue, {
+        message:
+            "the binary field should display the name of the file (based on the hidden field foo)",
+    });
+    expect(`.o_field_widget[name="document"] a > [data-icon='download']`).toHaveCount(0, {
+        message:
+            "the binary field should not be rendered as a downloadable link for a fresh record",
+    });
+});
+
+test("BinaryField is correctly rendered (readonly on fresh record without filename)", async () => {
+    await mountView({
+        resModel: "res.partner",
+        type: "form",
+        arch: `
+            <form>
+                <field name="document" readonly="1"/>
+            </form>
+        `,
+    });
+
+    expect(`.o_field_widget[name="document"]`).toHaveText("", {
+        message: "the binary field should be empty",
+    });
 });
 
 test("BinaryField is correctly rendered", async () => {
@@ -108,10 +148,6 @@ test("BinaryField is correctly rendered", async () => {
         expect(body.get("field")).toBe("document", {
             message: "we should download the field document",
         });
-        expect(body.get("data")).toBe("coucou==\n", {
-            message: "we should download the correct data",
-        });
-
         return new Blob([body.get("data")], { type: "text/plain" });
     });
 
@@ -127,7 +163,7 @@ test("BinaryField is correctly rendered", async () => {
         `,
     });
 
-    expect(`.o_field_widget[name="document"] a > .fa-download`).toHaveCount(0, {
+    expect(`.o_field_widget[name="document"] a > [data-icon='download']`).toHaveCount(0, {
         message: "the binary field should not be rendered as a downloadable link in edit",
     });
     expect(`.o_field_widget[name="document"].o_field_binary .o_input`).toHaveValue("coucou.txt", {
@@ -142,7 +178,7 @@ test("BinaryField is correctly rendered", async () => {
 
     // Testing the download button in the field
     // We must avoid the browser to download the file effectively
-    const deferred = new Deferred();
+    const deferred = Promise.withResolvers();
     const downloadOnClick = (ev) => {
         const target = ev.target;
         if (target.tagName === "A" && "download" in target.attributes) {
@@ -154,8 +190,8 @@ test("BinaryField is correctly rendered", async () => {
     document.addEventListener("click", downloadOnClick);
     after(() => document.removeEventListener("click", downloadOnClick));
 
-    await click(`.fa-download`);
-    await deferred;
+    await click(`[data-icon='download']`);
+    await deferred.promise;
     expect.verifySteps(["/web/content"]);
 
     await click(`.o_field_binary .o_clear_file_button`);
@@ -169,7 +205,7 @@ test("BinaryField is correctly rendered", async () => {
     });
 
     await clickSave();
-    expect(`.o_field_widget[name="document"] a > .fa-download`).toHaveCount(0, {
+    expect(`.o_field_widget[name="document"] a > [data-icon='download']`).toHaveCount(0, {
         message:
             "the binary field should not render as a downloadable link since we removed the file",
     });
@@ -198,13 +234,13 @@ test("BinaryField is correctly rendered (isDirty)", async () => {
     const file = new File(["test"], "fake_file.txt", { type: "text/plain" });
     await setInputFiles([file]);
     await waitFor(`.o_form_button_save:visible`);
-    expect(`.o_field_widget[name="document"] .fa-download`).toHaveCount(0, {
+    expect(`.o_field_widget[name="document"] [data-icon='download']`).toHaveCount(0, {
         message:
             "the binary field should not be rendered as a downloadable since the record is dirty",
     });
 
     await clickSave();
-    expect(`.o_field_widget[name="document"] .fa-download`).toHaveCount(1, {
+    expect(`.o_field_widget[name="document"] [data-icon='download']`).toHaveCount(1, {
         message:
             "the binary field should render as a downloadable link since the record is not dirty",
     });
@@ -217,10 +253,11 @@ test("file name field is not defined", async () => {
         type: "form",
         arch: `<form><field name="document" filename="foo"/></form>`,
     });
-    expect(`.o_field_binary`).toHaveText("", {
-        message: "there should be no text since the name field is not in the view",
+    queryOne(".o_select_file_button").focus();
+    expect(`.o_field_binary`).toHaveText("Replace current file", {
+        message: "there should be no file name since the name field is not in the view",
     });
-    expect(`.o_field_binary .fa-download`).toBeVisible({
+    expect(`.o_field_binary [data-icon='download']`).toBeVisible({
         message: "download icon should be visible",
     });
 });
@@ -232,6 +269,7 @@ test("icons are displayed exactly once", async () => {
         type: "form",
         arch: `<form><field name="document" filename="foo"/></form>`,
     });
+    queryOne(".o_select_file_button").focus();
     expect(queryOne`.o_field_binary .o_select_file_button`).toBeVisible({
         message: "only one select file icon should be visible",
     });
@@ -315,7 +353,7 @@ test("readonly in create mode does not download", async () => {
     expect(`.o_field_widget[name="document"] a`).toHaveCount(0, {
         message: "The link to download the binary should not be present",
     });
-    expect(`.o_field_widget[name="document"] a > .fa-download`).toHaveCount(0, {
+    expect(`.o_field_widget[name="document"] a > [data-icon='download']`).toHaveCount(0, {
         message: "The download icon should not be present",
     });
     expect.verifySteps([]);
@@ -328,7 +366,7 @@ test("BinaryField in list view (formatter)", async () => {
         type: "list",
         arch: `<list><field name="document"/></list>`,
     });
-    expect(`.o_data_row .o_data_cell`).toHaveText("93.43 Bytes");
+    expect(`.o_data_row .o_data_cell`).toHaveText("96 Bytes");
 });
 
 test("BinaryField in list view with filename", async () => {
@@ -353,15 +391,12 @@ test("new record has no download button", async () => {
         type: "form",
         arch: `<form><field name="document" filename="foo"/></form>`,
     });
-    expect(`button.fa-download`).toHaveCount(0);
+    expect(`button[data-icon='download']`).toHaveCount(0);
 });
 
 test("filename doesn't exceed 255 bytes", async () => {
-    const LARGE_BINARY_FILE = BINARY_FILE.repeat(5);
-    expect((LARGE_BINARY_FILE.length / 4) * 3).toBeGreaterThan(MAX_FILENAME_SIZE_BYTES, {
-        message:
-            "The initial binary file should be larger than max bytes that can represent the filename",
-    });
+    const data = "A".repeat(MAX_FILENAME_SIZE_BYTES + 1);
+    const LARGE_BINARY_FILE = {filename: data, content: data, size: data.length};
 
     Partner._fields.document.default = LARGE_BINARY_FILE;
     await mountView({
@@ -370,9 +405,9 @@ test("filename doesn't exceed 255 bytes", async () => {
         arch: `<form><field name="document"/></form>`,
     });
     expect(queryValue(`.o_field_binary input[type=text]`)).toHaveLength(
-        toBase64Length(MAX_FILENAME_SIZE_BYTES),
+        MAX_FILENAME_SIZE_BYTES,
         {
-            message: "The filename shouldn't exceed the maximum size in bytes in base64",
+            message: "The filename shouldn't exceed the maximum size in bytes",
         }
     );
 });
@@ -508,7 +543,7 @@ test("Binary field in list view doesn't open the record when clicked", async () 
     });
 
     expect(`.o_data_row .o_data_cell`).toHaveText("coucou.txt");
-    const deferred = new Deferred();
+    const deferred = Promise.withResolvers();
     const downloadOnClick = (ev) => {
         const target = ev.target;
         if (target.tagName === "A" && "download" in target.attributes) {
@@ -520,7 +555,7 @@ test("Binary field in list view doesn't open the record when clicked", async () 
     document.addEventListener("click", downloadOnClick);
     after(() => document.removeEventListener("click", downloadOnClick));
     await contains(".o_field_widget[name='document'] .o_form_uri").click();
-    await deferred;
+    await deferred.promise;
     expect.verifySteps(["/web/content"]);
 
     await contains(`.o_data_row .o_data_cell:eq(1)`).click();

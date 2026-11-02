@@ -24,29 +24,39 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0beta\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-12 17:36+0000\n"
-"PO-Revision-Date: 2025-10-28 15:18+0000\n"
-"Last-Translator: Kristina Pešehodko <kristina@avalah.ee>\n"
-"Language-Team: Estonian <https://translate.odoo.com/projects/odoo-19/repair/"
-"et/>\n"
+"POT-Creation-Date: 2026-09-18 17:38+0000\n"
+"PO-Revision-Date: 2026-08-31 15:29+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Estonian <https://translate.odoo.com/projects/odoo-s19-4/"
+"repair/et/>\n"
 "Language: et\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: repair
+#: model:ir.module.module,description:base.module_repair
+msgid ""
+"\n"
+"The aim is to have a complete module to manage all products repairs.\n"
+"====================================================================\n"
+"\n"
+"The following topics are covered by this module:\n"
+"------------------------------------------------------\n"
+"    * Add/remove products in the reparation\n"
+"    * Impact for stocks\n"
+"    * Warranty concept\n"
+"    * Repair quotation report\n"
+"    * Notes for the technician and for the final customer\n"
+msgstr ""
 
 #. module: repair
 #. odoo-python
 #: code:addons/repair/models/stock_warehouse.py:0
 msgid "%(name)s Sequence repair"
 msgstr "%(name)s Parandamise järjekord"
-
-#. module: repair
-#. odoo-python
-#: code:addons/repair/models/repair.py:0
-msgid "%(product)s: Insufficient Quantity To Repair"
-msgstr "%(product)s: Ebapiisav kogus parandamiseks"
 
 #. module: repair
 #: model:ir.actions.report,print_report_name:repair.action_report_repair_order
@@ -69,23 +79,9 @@ msgid ""
 "* The 'New' status is used when a user is encoding a new and unconfirmed "
 "repair order.\n"
 "* The 'Confirmed' status is used when a user confirms the repair order.\n"
-"* The 'Under Repair' status is used when the repair is ongoing.\n"
-"* The 'Repaired' status is set when repairing is completed.\n"
+"* The 'Done' status is set when repairing is completed.\n"
 "* The 'Cancelled' status is used when user cancel repair order."
 msgstr ""
-"*„Uus” olekut kasutatakse siis, kui kasutaja sisestab uut ja kinnitamata "
-"parandustellimust.\n"
-"*„Kinnitatud” olekut kasutatakse siis, kui kasutaja kinnitab "
-"parandustellimuse.\n"
-"*„Paranduses” olekut kasutatakse siis, kui parandus on käimas.\n"
-"*„Parandatud” olek määratakse siis, kui parandus on lõpetatud.\n"
-"*„Tühistatud” olekut kasutatakse siis, kui kasutaja tühistab "
-"parandustellimuse."
-
-#. module: repair
-#: model_terms:ir.ui.view,arch_db:repair.stock_warn_insufficient_qty_repair_form_view
-msgid "<br/>You can still confirm the repair of"
-msgstr "<br/>Te saate endiselt kinnitada parandust"
 
 #. module: repair
 #: model_terms:ir.ui.view,arch_db:repair.report_repairorder
@@ -101,11 +97,6 @@ msgstr "<span class=\"col-6\">Kinnitatud</span>"
 #: model_terms:ir.ui.view,arch_db:repair.stock_repair_type_kanban
 msgid "<span class=\"col-6\">Late</span>"
 msgstr "<span class=\"col-6\">Hilinenud</span>"
-
-#. module: repair
-#: model_terms:ir.ui.view,arch_db:repair.stock_repair_type_kanban
-msgid "<span class=\"col-6\">Under Repair</span>"
-msgstr "<span class=\"col-6\">Parandamises</span>"
 
 #. module: repair
 #: model_terms:ir.ui.view,arch_db:repair.stock_production_lot_view_form
@@ -163,13 +154,6 @@ msgid "<strong>Status:</strong>"
 msgstr "<strong>Staatus:</strong>"
 
 #. module: repair
-#: model_terms:ir.ui.view,arch_db:repair.stock_warn_insufficient_qty_repair_form_view
-msgid ""
-"? , but get ready to have fun taking inventory to fix the negative stock "
-"quantity!"
-msgstr "?, kuid ole valmis tegema inventuuri, et negatiivne laoseis parandada!"
-
-#. module: repair
 #: model:ir.model.fields,field_description:repair.field_repair_order__message_needaction
 msgid "Action Needed"
 msgstr "Vajalik toiming"
@@ -183,6 +167,11 @@ msgstr "Tegevused"
 #: model:ir.model.fields,field_description:repair.field_repair_order__activity_exception_decoration
 msgid "Activity Exception Decoration"
 msgstr "Tegevuse erandlik kohendus"
+
+#. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_order__activity_plans_ids
+msgid "Activity Plans"
+msgstr ""
 
 #. module: repair
 #: model:ir.model.fields,field_description:repair.field_repair_order__activity_state
@@ -242,6 +231,7 @@ msgstr "Lubatud partii"
 
 #. module: repair
 #: model:ir.model.fields,field_description:repair.field_repair_order__allowed_uom_ids
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__allowed_uom_ids
 msgid "Allowed Uom"
 msgstr "Lubatud mõõtühik"
 
@@ -302,6 +292,16 @@ msgid "BoM Components"
 msgstr "Retsepti komponendid"
 
 #. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_order__can_create_extra_invoice
+msgid "Can Create Extra Invoice"
+msgstr ""
+
+#. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_order__can_create_sale_or_invoice
+msgid "Can Create Sale Or Invoice"
+msgstr ""
+
+#. module: repair
 #. odoo-python
 #: code:addons/repair/models/stock_warehouse.py:0
 msgid "Can't find any production location."
@@ -309,8 +309,8 @@ msgstr "Ei leia ühtegi tootmiskohta."
 
 #. module: repair
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
-msgid "Cancel Repair"
-msgstr "Tühista parandustöö"
+msgid "Cancel"
+msgstr ""
 
 #. module: repair
 #: model:ir.model.fields.selection,name:repair.selection__repair_order__state__cancel
@@ -322,11 +322,6 @@ msgstr "Tühistatud"
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
 msgid "Catalog"
 msgstr "Kataloog"
-
-#. module: repair
-#: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
-msgid "Check availability"
-msgstr "Kontrolli laoseisu"
 
 #. module: repair
 #: model:ir.model.fields,help:repair.field_repair_order__partner_id
@@ -344,6 +339,7 @@ msgstr "Värvikood"
 
 #. module: repair
 #: model:ir.model.fields,field_description:repair.field_repair_order__company_id
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__company_id
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form_filter
 msgid "Company"
 msgstr "Ettevõte"
@@ -371,6 +367,11 @@ msgid "Configuration"
 msgstr "Seadistus"
 
 #. module: repair
+#: model_terms:ir.ui.view,arch_db:repair.view_repair_consumption_warning_form
+msgid "Confirm"
+msgstr ""
+
+#. module: repair
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
 msgid "Confirm Repair"
 msgstr "Kinnita parandustöö"
@@ -384,9 +385,20 @@ msgid "Confirmed"
 msgstr "Kinnitatud"
 
 #. module: repair
-#: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
-msgid "Create Quotation"
-msgstr "Loo hinnapakkumine"
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning_line__product_consumed_qty_uom
+msgid "Consumed"
+msgstr ""
+
+#. module: repair
+#: model:ir.actions.act_window,name:repair.action_repair_consumption_warning
+#: model_terms:ir.ui.view,arch_db:repair.view_repair_consumption_warning_form
+msgid "Consumption Warning"
+msgstr ""
+
+#. module: repair
+#: model:ir.model,name:repair.model_res_partner
+msgid "Contact"
+msgstr ""
 
 #. module: repair
 #. odoo-python
@@ -394,6 +406,11 @@ msgstr "Loo hinnapakkumine"
 #: model:ir.actions.server,name:repair.action_create_repair_order
 msgid "Create Repair"
 msgstr "Loo parandus"
+
+#. module: repair
+#: model:ir.model,website_form_label:repair.model_res_partner
+msgid "Create a Customer"
+msgstr ""
 
 #. module: repair
 #: model_terms:ir.actions.act_window,help:repair.action_repair_order_tag
@@ -407,16 +424,20 @@ msgid "Create on Order"
 msgstr "Loo tellimus"
 
 #. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning__create_uid
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning_line__create_uid
 #: model:ir.model.fields,field_description:repair.field_repair_order__create_uid
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__create_uid
 #: model:ir.model.fields,field_description:repair.field_repair_tags__create_uid
-#: model:ir.model.fields,field_description:repair.field_stock_warn_insufficient_qty_repair__create_uid
 msgid "Created by"
 msgstr "Loonud"
 
 #. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning__create_date
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning_line__create_date
 #: model:ir.model.fields,field_description:repair.field_repair_order__create_date
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__create_date
 #: model:ir.model.fields,field_description:repair.field_repair_tags__create_date
-#: model:ir.model.fields,field_description:repair.field_stock_warn_insufficient_qty_repair__create_date
 msgid "Created on"
 msgstr "Loodud"
 
@@ -442,6 +463,7 @@ msgid "Demand"
 msgstr "Nõudlus"
 
 #. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__description
 #: model_terms:ir.ui.view,arch_db:repair.report_repairorder
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
 msgid "Description"
@@ -453,11 +475,21 @@ msgid "Details"
 msgstr "Üksikasjad"
 
 #. module: repair
+#: model_terms:ir.ui.view,arch_db:repair.view_repair_consumption_warning_form
+msgid "Discard"
+msgstr ""
+
+#. module: repair
+#: model:ir.model.fields,field_description:repair.field_account_move__display_name
 #: model:ir.model.fields,field_description:repair.field_account_move_line__display_name
 #: model:ir.model.fields,field_description:repair.field_product_product__display_name
 #: model:ir.model.fields,field_description:repair.field_product_template__display_name
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning__display_name
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning_line__display_name
 #: model:ir.model.fields,field_description:repair.field_repair_order__display_name
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__display_name
 #: model:ir.model.fields,field_description:repair.field_repair_tags__display_name
+#: model:ir.model.fields,field_description:repair.field_res_partner__display_name
 #: model:ir.model.fields,field_description:repair.field_sale_order__display_name
 #: model:ir.model.fields,field_description:repair.field_sale_order_line__display_name
 #: model:ir.model.fields,field_description:repair.field_stock_forecasted_product_product__display_name
@@ -468,19 +500,19 @@ msgstr "Üksikasjad"
 #: model:ir.model.fields,field_description:repair.field_stock_picking_type__display_name
 #: model:ir.model.fields,field_description:repair.field_stock_traceability_report__display_name
 #: model:ir.model.fields,field_description:repair.field_stock_warehouse__display_name
-#: model:ir.model.fields,field_description:repair.field_stock_warn_insufficient_qty_repair__display_name
 msgid "Display Name"
 msgstr "Kuva nimi"
+
+#. module: repair
+#: model:ir.model.fields.selection,name:repair.selection__repair_order__state__done
+#: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form_filter
+msgid "Done"
+msgstr ""
 
 #. module: repair
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
 msgid "End Repair"
 msgstr "Parandustööde lõpp"
-
-#. module: repair
-#: model:ir.model.fields,help:repair.field_repair_order__tracking
-msgid "Ensure the traceability of a storable product in your warehouse."
-msgstr "Tagage oma lattu ladustava toote jälgitavus."
 
 #. module: repair
 #. odoo-python
@@ -504,20 +536,6 @@ msgid "Followers (Partners)"
 msgstr "Jälgijad (partnerid)"
 
 #. module: repair
-#: model:ir.model.fields,help:repair.field_repair_order__activity_type_icon
-msgid "Font awesome icon e.g. fa-tasks"
-msgstr "Font awesome icon nt. fa-tasks"
-
-#. module: repair
-#: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
-msgid ""
-"For some of the parts, there is a difference between the initial demand and "
-"the actual quantity that was used. Are you sure you want to confirm ?"
-msgstr ""
-"Mõne komponendi puhul erineb kasutatud kogus algsest nõudlusest. Kas soovid "
-"kinnitada?"
-
-#. module: repair
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form_filter
 msgid "Future Activities"
 msgstr "Tulevased tegevused"
@@ -533,11 +551,16 @@ msgid "Has Uncomplete Moves"
 msgstr "On lõpetamata liikumisi"
 
 #. module: repair
+#: model:ir.model.fields,field_description:repair.field_account_move__id
 #: model:ir.model.fields,field_description:repair.field_account_move_line__id
 #: model:ir.model.fields,field_description:repair.field_product_product__id
 #: model:ir.model.fields,field_description:repair.field_product_template__id
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning__id
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning_line__id
 #: model:ir.model.fields,field_description:repair.field_repair_order__id
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__id
 #: model:ir.model.fields,field_description:repair.field_repair_tags__id
+#: model:ir.model.fields,field_description:repair.field_res_partner__id
 #: model:ir.model.fields,field_description:repair.field_sale_order__id
 #: model:ir.model.fields,field_description:repair.field_sale_order_line__id
 #: model:ir.model.fields,field_description:repair.field_stock_forecasted_product_product__id
@@ -548,7 +571,6 @@ msgstr "On lõpetamata liikumisi"
 #: model:ir.model.fields,field_description:repair.field_stock_picking_type__id
 #: model:ir.model.fields,field_description:repair.field_stock_traceability_report__id
 #: model:ir.model.fields,field_description:repair.field_stock_warehouse__id
-#: model:ir.model.fields,field_description:repair.field_stock_warn_insufficient_qty_repair__id
 msgid "ID"
 msgstr "ID"
 
@@ -622,6 +644,32 @@ msgid "Inventory Moves"
 msgstr "Laoliikumised"
 
 #. module: repair
+#: model:ir.model.fields.selection,name:repair.selection__repair_order__validate_button_style__invisible
+msgid "Invisible"
+msgstr ""
+
+#. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_order__invoice_ids
+#: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
+msgid "Invoice"
+msgstr ""
+
+#. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_order__invoice_count
+msgid "Invoice Count"
+msgstr ""
+
+#. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__invoice_line_ids
+msgid "Invoice Line"
+msgstr ""
+
+#. module: repair
+#: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
+msgid "Invoices"
+msgstr ""
+
+#. module: repair
 #: model:ir.model.fields,field_description:repair.field_repair_order__message_is_follower
 msgid "Is Follower"
 msgstr "Jälgija"
@@ -637,9 +685,14 @@ msgid "John Doe"
 msgstr "Jaan Tamm"
 
 #. module: repair
+#: model:ir.model,name:repair.model_account_move
+msgid "Journal Entry"
+msgstr ""
+
+#. module: repair
 #: model:ir.model,name:repair.model_account_move_line
 msgid "Journal Item"
-msgstr "Andmiku kanderida"
+msgstr ""
 
 #. module: repair
 #: model_terms:ir.ui.view,arch_db:repair.report_repairorder
@@ -652,16 +705,20 @@ msgid "Laptop"
 msgstr "Sülearvuti"
 
 #. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning__write_uid
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning_line__write_uid
 #: model:ir.model.fields,field_description:repair.field_repair_order__write_uid
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__write_uid
 #: model:ir.model.fields,field_description:repair.field_repair_tags__write_uid
-#: model:ir.model.fields,field_description:repair.field_stock_warn_insufficient_qty_repair__write_uid
 msgid "Last Updated by"
 msgstr "Viimati uuendatud (kelle poolt)"
 
 #. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning__write_date
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning_line__write_date
 #: model:ir.model.fields,field_description:repair.field_repair_order__write_date
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__write_date
 #: model:ir.model.fields,field_description:repair.field_repair_tags__write_date
-#: model:ir.model.fields,field_description:repair.field_stock_warn_insufficient_qty_repair__write_date
 msgid "Last Updated on"
 msgstr "Viimati uuendatud"
 
@@ -686,15 +743,20 @@ msgstr ""
 "roheline, siis RO valmiduse staatus on valmis."
 
 #. module: repair
-#: model:ir.model.fields,field_description:repair.field_stock_warn_insufficient_qty_repair__location_id
-msgid "Location"
-msgstr "Asukoht"
+#: model:ir.model,name:repair.model_repair_consumption_warning_line
+msgid "Line of issue consumption"
+msgstr ""
 
 #. module: repair
 #: model:ir.model,name:repair.model_stock_lot
 #: model:ir.model.fields,field_description:repair.field_repair_order__lot_id
 msgid "Lot/Serial"
 msgstr "Partii/seerianumber"
+
+#. module: repair
+#: model:ir.model.fields,help:repair.field_repair_order__activity_type_icon
+msgid "Material Symbols icon e.g. checklist"
+msgstr ""
 
 #. module: repair
 #: model:ir.model.fields,field_description:repair.field_repair_order__message_has_error
@@ -705,6 +767,11 @@ msgstr "Sõnumi edastamise veateade"
 #: model:ir.model.fields,field_description:repair.field_repair_order__message_ids
 msgid "Messages"
 msgstr "Sõnumid"
+
+#. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning_line__move_id
+msgid "Move"
+msgstr ""
 
 #. module: repair
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form_filter
@@ -790,11 +857,6 @@ msgid "Number of Repair Orders Confirmed"
 msgstr "Kinnitatud parandustellimuste arv"
 
 #. module: repair
-#: model:ir.model.fields,field_description:repair.field_stock_picking_type__count_repair_under_repair
-msgid "Number of Repair Orders Under Repair"
-msgstr "Paranduses olevate parandustellimuste kogus"
-
-#. module: repair
 #: model:ir.model.fields,field_description:repair.field_stock_picking_type__count_repair_ready
 msgid "Number of Repair Orders to Process"
 msgstr "Töötlemist vajavate parandustellimuste kogus"
@@ -840,6 +902,11 @@ msgid "Orders"
 msgstr "Tellimused"
 
 #. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning_line__repair_consumption_warning_id
+msgid "Parent Wizard"
+msgstr ""
+
+#. module: repair
 #: model:ir.model.fields,field_description:repair.field_repair_order__move_ids
 #: model_terms:ir.ui.view,arch_db:repair.report_repairorder
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
@@ -855,11 +922,6 @@ msgstr "Osade saadavuse olek"
 #: model_terms:ir.ui.view,arch_db:repair.report_repairorder
 msgid "Pending"
 msgstr "Töökäsu ootel"
-
-#. module: repair
-#: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
-msgid "Picked"
-msgstr "Komplekteeritud"
 
 #. module: repair
 #: model:ir.model.fields,field_description:repair.field_repair_order__picking_product_ids
@@ -883,14 +945,19 @@ msgid "Please set the first Serial Number or a default sequence"
 msgstr "Palun määrake esimene seerianumber või vaike jada"
 
 #. module: repair
+#: model:ir.model.fields.selection,name:repair.selection__repair_order__validate_button_style__primary
+msgid "Primary"
+msgstr ""
+
+#. module: repair
 #: model:ir.model.fields,field_description:repair.field_repair_order__priority
 msgid "Priority"
 msgstr "Prioriteet"
 
 #. module: repair
 #: model:ir.model,name:repair.model_product_template
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning_line__product_id
 #: model:ir.model.fields,field_description:repair.field_repair_order__picking_product_id
-#: model:ir.model.fields,field_description:repair.field_stock_warn_insufficient_qty_repair__product_id
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form_filter
 msgid "Product"
 msgstr "Toode"
@@ -904,11 +971,6 @@ msgstr "Toode A"
 #: model_terms:ir.ui.view,arch_db:repair.report_repairorder
 msgid "Product B"
 msgstr "Toode B"
-
-#. module: repair
-#: model:ir.model.fields,field_description:repair.field_product_product__product_catalog_product_is_in_repair
-msgid "Product Catalog Product Is In Repair"
-msgstr "Tootekataloogi toode on paranduses"
 
 #. module: repair
 #: model:ir.model.fields,field_description:repair.field_repair_order__product_location_dest_id
@@ -948,11 +1010,6 @@ msgid "Product Variant"
 msgstr "Toote variatsioon"
 
 #. module: repair
-#: model:ir.ui.menu,name:repair.repair_menu_product_product
-msgid "Product Variants"
-msgstr "Toote variatsioonid"
-
-#. module: repair
 #: model:ir.model.fields,field_description:repair.field_repair_order__product_id
 msgid "Product to Repair"
 msgstr "Parandatav toode"
@@ -974,17 +1031,17 @@ msgid "Properties"
 msgstr "Omadused"
 
 #. module: repair
-#: model:ir.model.fields,field_description:repair.field_stock_warn_insufficient_qty_repair__quant_ids
-msgid "Quant"
-msgstr "Lao kogused"
-
-#. module: repair
-#: model:ir.model.fields,field_description:repair.field_stock_warn_insufficient_qty_repair__quantity
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__quantity
 #: model_terms:ir.ui.view,arch_db:repair.report_repairorder
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_tree
 msgid "Quantity"
 msgstr "Kogus"
+
+#. module: repair
+#: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
+msgid "Quote"
+msgstr ""
 
 #. module: repair
 #: model_terms:ir.ui.view,arch_db:repair.report_repairorder
@@ -1038,12 +1095,18 @@ msgid "Removed Parts Destination Location"
 msgstr "Eemaldatud varuosade sihtkoht"
 
 #. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning__repair_id
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__repair_id
 #: model:ir.model.fields,field_description:repair.field_stock_move__repair_id
 #: model:ir.model.fields,field_description:repair.field_stock_picking__repair_ids
-#: model:ir.model.fields,field_description:repair.field_stock_warn_insufficient_qty_repair__repair_id
 #: model:ir.model.fields.selection,name:repair.selection__stock_picking_type__code__repair_operation
 msgid "Repair"
 msgstr "Paranda"
+
+#. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning__repair_consumption_warning_line_ids
+msgid "Repair Consumption Warning Line"
+msgstr ""
 
 #. module: repair
 #: model:ir.model.fields,field_description:repair.field_stock_warehouse__repair_mto_pull_id
@@ -1064,12 +1127,22 @@ msgstr "Paranduse operatsioonitüüp"
 #. module: repair
 #: model:ir.actions.report,name:repair.action_report_repair_order
 #: model:ir.model,name:repair.model_repair_order
+#: model:ir.model.fields,field_description:repair.field_account_bank_statement_line__repair_order_id
+#: model:ir.model.fields,field_description:repair.field_account_move__repair_order_id
+#: model:ir.model.fields,field_description:repair.field_account_move_line__repair_order_id
 #: model:ir.model.fields,field_description:repair.field_sale_order__repair_order_ids
 #: model:ir.model.fields.selection,name:repair.selection__product_template__service_tracking__repair
+#: model_terms:ir.ui.view,arch_db:repair.view_account_move_form_inherit_repair
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form_filter
 msgid "Repair Order"
 msgstr "Parandustellimus"
+
+#. module: repair
+#: model:ir.model.fields,field_description:repair.field_res_partner__repair_order_count
+#: model:ir.model.fields,field_description:repair.field_res_users__repair_order_count
+msgid "Repair Order Count"
+msgstr ""
 
 #. module: repair
 #: model:ir.model.fields,field_description:repair.field_sale_order__repair_count
@@ -1078,6 +1151,7 @@ msgstr "Parandustellimus(ed)"
 
 #. module: repair
 #. odoo-python
+#: code:addons/repair/models/res_partner.py:0
 #: code:addons/repair/models/sale_order.py:0
 #: code:addons/repair/models/stock_picking.py:0
 #: model:ir.actions.act_window,name:repair.action_picking_repair
@@ -1118,20 +1192,32 @@ msgid "Repair Request"
 msgstr "Parandustöö päring"
 
 #. module: repair
+#: model:ir.model,name:repair.model_repair_service_line
+#: model:ir.model.fields,field_description:repair.field_account_move_line__repair_service_line_id
+#: model:ir.model.fields,field_description:repair.field_sale_order_line__repair_service_line_id
+msgid "Repair Service Line"
+msgstr ""
+
+#. module: repair
 #: model:product.template,name:repair.product_service_order_repair_product_template
 msgid "Repair Services"
 msgstr "Parandusteenused"
 
 #. module: repair
 #: model:ir.model,name:repair.model_repair_tags
-msgid "Repair Tags"
-msgstr "Parandustöö sildid"
+msgid "Repair Tag"
+msgstr ""
+
+#. module: repair
+#: model:ir.module.module,summary:base.module_repair
+msgid "Repair damaged products"
+msgstr ""
 
 #. module: repair
 #. odoo-python
 #: code:addons/repair/models/repair.py:0
-msgid "Repair must be under repair in order to end reparation."
-msgstr "Parandustöö peab olema paranduses, et lõpetada hüvitis."
+msgid "Repair must be confirmed in order to end reparation."
+msgstr ""
 
 #. module: repair
 #. odoo-python
@@ -1145,12 +1231,6 @@ msgid "Repair part count"
 msgstr "Remondiosade arv"
 
 #. module: repair
-#: model:ir.model.fields.selection,name:repair.selection__repair_order__state__done
-#: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form_filter
-msgid "Repaired"
-msgstr "Parandatud"
-
-#. module: repair
 #: model:ir.model.fields,field_description:repair.field_stock_lot__repaired_count
 msgid "Repaired count"
 msgstr "Parandatud kogus"
@@ -1158,9 +1238,11 @@ msgstr "Parandatud kogus"
 #. module: repair
 #. odoo-python
 #: code:addons/repair/models/stock_warehouse.py:0
+#: model:ir.module.module,shortdesc:base.module_repair
 #: model:ir.ui.menu,name:repair.menu_repair_order
 #: model:ir.ui.menu,name:repair.repair_menu
 #: model:stock.picking.type,name:repair.picking_type_warehouse0_repair
+#: model_terms:ir.ui.view,arch_db:repair.view_partner_form
 #: model_terms:ir.ui.view,arch_db:repair.view_sale_order_form_inherit_repair
 msgid "Repairs"
 msgstr "Parandustööd"
@@ -1184,6 +1266,11 @@ msgid "Reporting"
 msgstr "Aruandlus"
 
 #. module: repair
+#: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
+msgid "Reserve"
+msgstr ""
+
+#. module: repair
 #: model:ir.model.fields,field_description:repair.field_repair_order__user_id
 msgid "Responsible"
 msgstr "Vastutaja"
@@ -1202,6 +1289,11 @@ msgstr "Tagastatud"
 #: model:ir.model.fields,field_description:repair.field_repair_order__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr "Sõnumi kohaletoimetamise viga"
+
+#. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__sale_line_id
+msgid "Sale Line"
+msgstr ""
 
 #. module: repair
 #: model:ir.model.fields,field_description:repair.field_repair_order__sale_order_id
@@ -1250,10 +1342,40 @@ msgid "Search Repair Orders"
 msgstr "Otsi parandustellimusi"
 
 #. module: repair
+#: model:ir.model.fields.selection,name:repair.selection__repair_order__validate_button_style__secondary
+msgid "Secondary"
+msgstr ""
+
+#. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__sequence
+msgid "Sequence"
+msgstr ""
+
+#. module: repair
 #. odoo-python
 #: code:addons/repair/models/repair.py:0
 msgid "Serial number is required for product to repair : %s"
 msgstr "Seerianumber on vajalik toote remontimiseks : %s"
+
+#. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__product_id
+msgid "Service"
+msgstr ""
+
+#. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_order__repair_service_line_ids
+msgid "Service Lines"
+msgstr ""
+
+#. module: repair
+#: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
+msgid "Services"
+msgstr ""
+
+#. module: repair
+#: model_terms:ir.ui.view,arch_db:repair.view_repair_consumption_warning_form
+msgid "Set Quantities & Validate"
+msgstr ""
 
 #. module: repair
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
@@ -1264,11 +1386,6 @@ msgstr "Määra mustandiks"
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form_filter
 msgid "Show all records whose next activity date is past"
 msgstr "Näita kõiki andmeid, mille järgmise tegevuse kuupäev on möödas"
-
-#. module: repair
-#: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
-msgid "Start Repair"
-msgstr "Alusta parandustööd"
 
 #. module: repair
 #: model:ir.model.fields,field_description:repair.field_repair_order__state
@@ -1316,6 +1433,13 @@ msgstr "Sildi nimi on juba loodud!"
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_tag_tree
 msgid "Tags"
 msgstr "Sildid"
+
+#. module: repair
+#: model:ir.model.fields,help:repair.field_repair_order__tracking
+msgid ""
+"Technical field holding the tracking method. False on a storable product "
+"means it's tracked by quantity only."
+msgstr ""
 
 #. module: repair
 #: model:ir.model.fields,help:repair.field_repair_order__reserve_visible
@@ -1398,6 +1522,21 @@ msgid "This is the location where the repaired product is located."
 msgstr "See on asukoht, kus parandatud toode asub."
 
 #. module: repair
+#. odoo-python
+#: code:addons/repair/models/repair_service_line.py:0
+#: code:addons/repair/models/stock_move.py:0
+msgid ""
+"This line is linked to a posted invoice and cannot be modified.\n"
+"Please create a new line to link to a new invoice or reset the invoice to "
+"draft."
+msgstr ""
+
+#. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning_line__product_expected_qty_uom
+msgid "To Consume"
+msgstr ""
+
+#. module: repair
 #: model_terms:ir.ui.view,arch_db:repair.stock_repair_type_kanban
 msgid "To Repair"
 msgstr "Parandamiseks"
@@ -1443,7 +1582,7 @@ msgstr "Tüüp"
 #. module: repair
 #: model:ir.model.fields,field_description:repair.field_stock_picking_type__code
 msgid "Type of Operation"
-msgstr "Operatsioonitüüp"
+msgstr ""
 
 #. module: repair
 #: model:ir.model.fields,help:repair.field_repair_order__activity_exception_decoration
@@ -1451,19 +1590,14 @@ msgid "Type of the exception activity on record."
 msgstr "Kirjel oleva erandtegevuse tüüp."
 
 #. module: repair
-#: model:ir.model.fields.selection,name:repair.selection__repair_order__state__under_repair
-#: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form_filter
-msgid "Under Repair"
-msgstr "Parandamises"
-
-#. module: repair
 #: model:ir.model.fields,field_description:repair.field_repair_order__under_warranty
 msgid "Under Warranty"
 msgstr "Garantii all"
 
 #. module: repair
-#: model:ir.model.fields,field_description:repair.field_repair_order__product_uom
-#: model:ir.model.fields,field_description:repair.field_stock_warn_insufficient_qty_repair__product_uom_name
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning_line__uom_id
+#: model:ir.model.fields,field_description:repair.field_repair_order__uom_id
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__uom_id
 msgid "Unit"
 msgstr "Ühik"
 
@@ -1473,7 +1607,7 @@ msgid "Units"
 msgstr "Ühikud"
 
 #. module: repair
-#: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
+#: model:ir.actions.server,name:repair.action_unreserve
 msgid "Unreserve"
 msgstr "Vabasta reserveeringust"
 
@@ -1483,14 +1617,14 @@ msgid "Urgent"
 msgstr "Kiireloomuline"
 
 #. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_order__validate_button_style
+msgid "Validate Button Style"
+msgstr ""
+
+#. module: repair
 #: model:ir.model,name:repair.model_stock_warehouse
 msgid "Warehouse"
 msgstr "Ladu"
-
-#. module: repair
-#: model:ir.model,name:repair.model_stock_warn_insufficient_qty_repair
-msgid "Warn Insufficient Repair Quantity"
-msgstr "Ebapiisava parandustöö koguse hoiatus"
 
 #. module: repair
 #. odoo-python
@@ -1499,14 +1633,11 @@ msgid "Warning"
 msgstr "Hoiatus"
 
 #. module: repair
-#: model:ir.model.fields,field_description:repair.field_repair_order__website_message_ids
-msgid "Website Messages"
-msgstr "Veebilehe sõnumid"
-
-#. module: repair
-#: model:ir.model.fields,help:repair.field_repair_order__website_message_ids
-msgid "Website communication history"
-msgstr "Veebilehe suhtluse ajalugu"
+#: model:ir.model,name:repair.model_repair_consumption_warning
+msgid ""
+"Wizard for warning about mismatching expected vs actual component "
+"consumption quantities for ROs"
+msgstr ""
 
 #. module: repair
 #: model:ir.model.fields.selection,name:repair.selection__repair_order__search_date_category__yesterday
@@ -1553,6 +1684,12 @@ msgstr ""
 "%(ref_str)s"
 
 #. module: repair
+#: model_terms:ir.ui.view,arch_db:repair.view_repair_consumption_warning_form
+msgid ""
+"You consumed a different quantity than expected for the following products."
+msgstr ""
+
+#. module: repair
 #. odoo-python
 #: code:addons/repair/models/repair.py:0
 msgid ""
@@ -1566,11 +1703,6 @@ msgstr ""
 "%(ref_str)s"
 
 #. module: repair
-#: model_terms:ir.ui.view,arch_db:repair.stock_warn_insufficient_qty_repair_form_view
-msgid "from location"
-msgstr "asukohast"
-
-#. module: repair
 #. odoo-python
 #: code:addons/repair/models/stock_picking.py:0
 msgid "id"
@@ -1582,409 +1714,19 @@ msgstr "id"
 msgid "sale_order_id"
 msgstr "sale_order_id"
 
-#~ msgid ""
-#~ "(\n"
-#~ "                object.state == 'draft' and 'Repair Quotation - %s' % "
-#~ "(object.name) or\n"
-#~ "                'Repair Order - %s' % (object.name))"
-#~ msgstr ""
-#~ "(\n"
-#~ "                object.state == 'Mustand' ja 'Paranduspakkumine - %s' % "
-#~ "(object.name) or\n"
-#~ "                'Parandustellimus - %s' % (object.name))"
+#. module: repair
+#: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
+msgid "text"
+msgstr ""
 
-#~ msgid "(update)"
-#~ msgstr "(uuenda)"
+#~ msgid "Ensure the traceability of a storable product in your warehouse."
+#~ msgstr "Tagage oma lattu ladustava toote jälgitavus."
 
-#~ msgid ""
-#~ "* The 'Draft' status is used when a user is encoding a new and "
-#~ "unconfirmed repair order.\n"
-#~ "* The 'Confirmed' status is used when a user confirms the repair order.\n"
-#~ "* The 'Ready to Repair' status is used to start to repairing, user can "
-#~ "start repairing only after repair order is confirmed.\n"
-#~ "* The 'Under Repair' status is used when the repair is ongoing.\n"
-#~ "* The 'To be Invoiced' status is used to generate the invoice before or "
-#~ "after repairing done.\n"
-#~ "* The 'Done' status is set when repairing is completed.\n"
-#~ "* The 'Cancelled' status is used when user cancel repair order."
-#~ msgstr ""
-#~ "* Olekut \"Mustand\" kasutatakse siis, kui kasutaja kodeerib uut ja "
-#~ "kinnitamata parandustellimust.\n"
-#~ "* Olekut \"Kinnitatud\" kasutatakse siis, kui kasutaja kinnitab "
-#~ "parandustellimuse.\n"
-#~ "* Paranduse alustamiseks kasutatakse olekut „Paranduseks valmis”, "
-#~ "kasutaja saab parandamist alustada alles pärast parandustellimuse "
-#~ "kinnitamist.\n"
-#~ "* Kui parandamine on pooleli, kasutatakse olekut „Parandamises”.\n"
-#~ "* Olekut \"Arveldada\" kasutatakse arve koostamiseks enne või pärast "
-#~ "paranduse tegemist.\n"
-#~ "* Olek 'Valmis' määratakse, kui parandus on lõpetatud.\n"
-#~ "* Olekut \"Tühistatud\" kasutatakse siis, kui kasutaja tühistab "
-#~ "parandustellimuse."
+#~ msgid "Check availability"
+#~ msgstr "Kontrolli laoseisu"
 
-#~ msgid ": Insufficient Quantity To Repair"
-#~ msgstr ": Ebapiisav kogus parandamiseks"
+#~ msgid "Website Messages"
+#~ msgstr "Veebilehe sõnumid"
 
-#~ msgid ""
-#~ "<span class=\"o_stat_text\">1</span>\n"
-#~ "                                <span class=\"o_stat_text\">Invoices</"
-#~ "span>"
-#~ msgstr ""
-#~ "<span class=\"o_stat_text\">1</span>\n"
-#~ "                                <span class=\"o_stat_text\">Arved</span>"
-
-#~ msgid "<span class=\"o_stat_text\">Repairs</span>"
-#~ msgstr "<span class=\"o_stat_text\">Parandused</span>"
-
-#~ msgid "<strong>Lot/Serial Number:</strong>"
-#~ msgstr "<strong>Partii/seerianumber:</strong>"
-
-#~ msgid "<strong>Operations</strong>"
-#~ msgstr "<strong>Operatsioonid</strong>"
-
-#~ msgid "<strong>Parts</strong>"
-#~ msgstr "<strong>Osad</strong>"
-
-#~ msgid "<strong>Printing Date:</strong>"
-#~ msgstr "<strong>Printimise kuupäev:</strong>"
-
-#~ msgid "<strong>Product to Repair:</strong>"
-#~ msgstr "<strong>Toode parandamiseks:</strong>"
-
-#~ msgid "<strong>Total Without Taxes</strong>"
-#~ msgstr "<strong>Kokku maksudeta</strong>"
-
-#~ msgid "<strong>Total</strong>"
-#~ msgstr "<strong>Kokku</strong>"
-
-#~ msgid "<strong>Warranty:</strong>"
-#~ msgstr "<strong>Garantii:</strong>"
-
-#~ msgid "? This may lead to inconsistencies in your inventory."
-#~ msgstr "? See võib tekitada teie inventuuris ebakõla."
-
-#~ msgid "Add quotation notes."
-#~ msgstr "Lisa pakkumisele märkmeid."
-
-#~ msgid "After Repair"
-#~ msgstr "Parandusjärgne"
-
-#~ msgid "Allowed Picking Type"
-#~ msgstr "Lubatud komplekteerimistüüp"
-
-#~ msgid "Before Repair"
-#~ msgstr "Paranduseelne"
-
-#~ msgid "Cancel"
-#~ msgstr "Tühista"
-
-#~ msgid "Category"
-#~ msgstr "Kategooria"
-
-#~ msgid ""
-#~ "Conversion between Units of Measure can only occur if they belong to the "
-#~ "same category. The conversion will be made based on the ratios."
-#~ msgstr ""
-#~ "Ühikute vaheline konversioon on võimalik ainult siis, kui ühikud kuuluvad "
-#~ "samasse kategooriasse. Konverteerimist tehakse määrade järgi."
-
-#~ msgid "Create Invoice"
-#~ msgstr "Loo arve"
-
-#~ msgid "Create Mass Invoice (repair)"
-#~ msgstr "Create Mass Invoice (repair)"
-
-#~ msgid "Create Repair Orders from Returns"
-#~ msgstr "Looge tagastustest parandustellimusi"
-
-#~ msgid "Create invoices"
-#~ msgstr "Loo arve"
-
-#~ msgid "Currency"
-#~ msgstr "Valuuta"
-
-#~ msgid "Default Address"
-#~ msgstr "Aadress vaikimisi"
-
-#~ msgid "Delivery Address"
-#~ msgstr "Tarneaadress"
-
-#~ msgid "Dest. Location"
-#~ msgstr "Sihtkoht"
-
-#~ msgid "Do you confirm you want to repair"
-#~ msgstr "Kas kinnitate, et soovite parandada?"
-
-#~ msgid "Do you really want to create the invoice(s)?"
-#~ msgstr "Kas soovite tõesti arve(d) luua?"
-
-#~ msgid "Done"
-#~ msgstr "Tehtud"
-
-#~ msgid "Draft"
-#~ msgstr "Planeerimata"
-
-#~ msgid ""
-#~ "Draft invoices for this order will be cancelled. Do you confirm the "
-#~ "action?"
-#~ msgstr ""
-#~ "Selle tellimuse arvete mustandid tühistatakse. Kas kinnitate toimingu?"
-
-#~ msgid "Extra Info"
-#~ msgstr "Täiendav info"
-
-#~ msgid "Fees"
-#~ msgstr "Kulud"
-
-#~ msgid "Group By"
-#~ msgstr "Rühmitamine"
-
-#~ msgid "Group by partner invoice address"
-#~ msgstr "Rühmita partneri arve aadressi järgi"
-
-#~ msgid "History"
-#~ msgstr "Ajalugu"
-
-#~ msgid ""
-#~ "If ticked, you will be able to directly create repair orders from a "
-#~ "return."
-#~ msgstr "Kui on valitud, saate otse tagastamisest luua parandustellimusi."
-
-#~ msgid "Invoice"
-#~ msgstr "Arve"
-
-#~ msgid "Invoice Line"
-#~ msgstr "Arve rida"
-
-#~ msgid "Invoice Method"
-#~ msgstr "Arve meetod"
-
-#~ msgid "Invoice State"
-#~ msgstr "Arve staatus"
-
-#~ msgid "Invoice address:"
-#~ msgstr "Arve aadress:"
-
-#~ msgid "Invoice and shipping address:"
-#~ msgstr "Arve ja tarne aadress:"
-
-#~ msgid "Invoice created"
-#~ msgstr "Arve loodud"
-
-#~ msgid "Invoiced"
-#~ msgstr "Arveldatud"
-
-#~ msgid "Invoicing Address"
-#~ msgstr "Arveaadress"
-
-#~ msgid "Journal Entry"
-#~ msgstr "Andmiku kanne"
-
-#~ msgid "No Invoice"
-#~ msgstr "Arve puudub"
-
-#~ msgid "No account defined for product \"%s\"."
-#~ msgstr "Partnerile pole määratud kontot \"%s\"."
-
-#~ msgid "No product defined on fees."
-#~ msgstr "Tasusid ei ole määratletud."
-
-#~ msgid "Number of messages which requires an action"
-#~ msgstr "Tegutsemist nõudvate sõnumite arv"
-
-#~ msgid "Only draft repairs can be confirmed."
-#~ msgstr "Kinnitada saab ainult \"Mustand\" parandamisi."
-
-#~ msgid "Price"
-#~ msgstr "Hind"
-
-#~ msgid "Pricelist"
-#~ msgstr "Hinnakiri"
-
-#~ msgid "Pricelist of the selected partner."
-#~ msgstr "Valitud partneri hinnakiri."
-
-#~ msgid "Print Quotation"
-#~ msgstr "Prindi pakkumine"
-
-#~ msgid "Product Unit of Measure"
-#~ msgstr "Toote mõõtühik"
-
-#~ msgid "Quotation"
-#~ msgstr "Pakkumine"
-
-#~ msgid "Quotation / Order"
-#~ msgstr "Pakkumine / Korraldus"
-
-#~ msgid "Quotation Notes"
-#~ msgstr "Hinnapakkumise märkused"
-
-#~ msgid "Quotations"
-#~ msgstr "Pakkumised"
-
-#~ msgid "Ready To Repair"
-#~ msgstr "Valmis parandustöödeks"
-
-#~ msgid "Ready to Repair"
-#~ msgstr "Valmis parandustöödeks"
-
-#~ msgid "Repair Description"
-#~ msgstr "Paranduse kirjeldus"
-
-#~ msgid "Repair Fee"
-#~ msgstr "Paranduse tasu"
-
-#~ msgid "Repair Fees"
-#~ msgstr "Paranduse tasud"
-
-#~ msgid "Repair Line"
-#~ msgstr "Parandustööde järjekord"
-
-#~ msgid "Repair Line (parts)"
-#~ msgstr "Parandustööde järjekord (osad)"
-
-#~ msgid "Repair Order #:"
-#~ msgstr "Paranda tellimust #:"
-
-#~ msgid "Repair Order Reference"
-#~ msgstr "Paranda tellimusviide"
-
-#~ msgid "Repair Quotation #:"
-#~ msgstr "Parandustöö hinnapakkumist #:"
-
-#~ msgid "Repair must be canceled in order to reset it to draft."
-#~ msgstr "Parandustöö peab olema tühistatud, et seda saaks muuta mustandiks."
-
-#~ msgid "Repair must be confirmed before starting reparation."
-#~ msgstr "Parandustöö tuleb enne remondi alustamist kinnitada."
-
-#~ msgid "Repair must be repaired in order to make the product moves."
-#~ msgstr "Repair must be repaired in order to make the product moves."
-
-#~ msgid "Repair order count"
-#~ msgstr "Parandustöö tellimuste arv"
-
-#~ msgid "Repair: Quotation"
-#~ msgstr "Parandustöö: Pakkumine"
-
-#~ msgid "Return"
-#~ msgstr "Tagastus"
-
-#~ msgid "Return Order from which the product to be repaired comes from."
-#~ msgstr "Tagastustellimus, kust parandatav toode pärineb."
-
-#~ msgid "Return Type Of"
-#~ msgstr "Tagastuse tüüp"
-
-#~ msgid "Sale Order from which the product to be repaired comes from."
-#~ msgstr "Müügitellimus, kust parandatav toode pärineb."
-
-#~ msgid ""
-#~ "Selecting 'Before Repair' or 'After Repair' will allow you to generate "
-#~ "invoice before or after the repair is done respectively. 'No invoice' "
-#~ "means you don't want to generate invoice for this repair order."
-#~ msgstr ""
-#~ "Valiku „Enne parandamist” või „Peale parandamist” valimine võimaldab teil "
-#~ "luua arve enne või pärast parandustööde teostamist. „Ei ole arve” "
-#~ "tähendab, et te ei soovi selle parandustöö jaoks arvet genereerida."
-
-#~ msgid "Send Quotation"
-#~ msgstr "Saada pakkumine"
-
-#~ msgid "Sent manually when clicking on \"Send Quotation\" on a repair order"
-#~ msgstr ""
-#~ "Saadetakse käsitsi, kui klõpsate parandustellimuse nupul \"Saada "
-#~ "pakkumine\"."
-
-#~ msgid "Serial number is required for operation lines with products: %s"
-#~ msgstr "Seerianumber on vajalik järgmiste toodetega tööliinide jaoks: %s"
-
-#~ msgid "Show all records which has next action date is before today"
-#~ msgstr ""
-#~ "Näita kõiki andmeid, millel on järgmise tegevuse kuupäev on ennem tänast "
-#~ "kuupäeva"
-
-#~ msgid "Source Location"
-#~ msgstr "Lähtekoht"
-
-#~ msgid "Subtotal"
-#~ msgstr "Vahesumma"
-
-#~ msgid "Tax"
-#~ msgstr "Tulumaks"
-
-#~ msgid "Taxes"
-#~ msgstr "Maksud"
-
-#~ msgid "The name of the Repair Order must be unique!"
-#~ msgstr "Parandustöö tellimuse nimi peab olema unikaalne!"
-
-#~ msgid ""
-#~ "The product unit of measure you chose has a different category than the "
-#~ "product unit of measure."
-#~ msgstr ""
-#~ "Teie valitud toote mõõtühiku kategooria on toote mõõtühikust erinev."
-
-#~ msgid ""
-#~ "The status of a repair line is set automatically to the one of the linked "
-#~ "repair order."
-#~ msgstr ""
-#~ "Parandustöö rea olekuks määratakse automaatselt seotud parandustöö "
-#~ "tellimuse olek."
-
-#~ msgid "To be Invoiced"
-#~ msgstr "Tehakse arve"
-
-#~ msgid "Total"
-#~ msgstr "Kokku"
-
-#~ msgid "Total amount"
-#~ msgstr "Kogusumma"
-
-#~ msgid ""
-#~ "True if this repair is linked to a Return Order and the order is 'Done'. "
-#~ "False otherwise."
-#~ msgstr ""
-#~ "Tõene, kui see parandus on seotud tagastustellimusega ja tellimus on "
-#~ "\"Valmis\". Muidu vale."
-
-#~ msgid "Unit Price"
-#~ msgstr "Ühikhind"
-
-#~ msgid "Unit of Measure"
-#~ msgstr "Mõõtühik"
-
-#~ msgid "Untaxed Amount"
-#~ msgstr "Maksudeta summa"
-
-#~ msgid "Untaxed amount"
-#~ msgstr "Maksudeta summa"
-
-#~ msgid "UoM"
-#~ msgstr "Mõõtühikud"
-
-#~ msgid "Warranty Expiration"
-#~ msgstr "Garantii aegumine"
-
-#~ msgid ""
-#~ "You can not delete a repair order once it has been confirmed. You must "
-#~ "first cancel it."
-#~ msgstr ""
-#~ "Kinnitatud parandustellimust ei saa te kustutada. Esmalt peate selle "
-#~ "tühistama."
-
-#~ msgid ""
-#~ "You can not delete a repair order which is linked to an invoice which has "
-#~ "been posted once."
-#~ msgstr ""
-#~ "Te ei saa kustutada parandustellimust, mis on seotud postitatud arvega."
-
-#~ msgid "You have to select an invoice address in the repair form."
-#~ msgstr "Parandustöö vormis tuleb valida arve aadress."
-
-#~ msgid ""
-#~ "{{ object.partner_id.name }} Repair Orders (Ref {{ object.name or 'n/"
-#~ "a' }})"
-#~ msgstr ""
-#~ "{{ object.partner_id.name }} Parandustöö tellimusi (Ref {{ object.name or "
-#~ "'n/a' }})"
+#~ msgid "Website communication history"
+#~ msgstr "Veebilehe suhtluse ajalugu"

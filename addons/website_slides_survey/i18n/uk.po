@@ -6,25 +6,24 @@
 # Martin Trigaux, 2022
 # Alina Lisnenko <alina.lisnenko@erp.co.ua>, 2022
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
-# Vlad Patenko <vlad.patenko@gmail.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2026-04-16 08:26+0000\n"
-"Last-Translator: Vlad Patenko <vlad.patenko@gmail.com>\n"
-"Language-Team: Ukrainian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-11 17:44+0000\n"
+"PO-Revision-Date: 2026-08-31 19:00+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Ukrainian <https://translate.odoo.com/projects/odoo-s19-4/"
 "website_slides_survey/uk/>\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
-"Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n % 10 == 1 && n % 100 != 11 "
-"? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > "
-"14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || (n % "
-"100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
-"X-Generator: Weblate 5.16.2\n"
+"Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n % 10 == 1 && n % 100 != "
+"11 ? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % "
+"100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || "
+"(n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_slide_channel__members_certified_count
@@ -36,15 +35,6 @@ msgstr ""
 #: code:addons/website_slides_survey/models/survey_survey.py:0
 msgid "- %(certification)s (Courses - %(courses)s)"
 msgstr "- %(certification)s (Курси - %(courses)s)"
-
-#. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_survey_view_kanban
-msgid ""
-"<br/>\n"
-"                        <span class=\"text-muted\">Courses</span>"
-msgstr ""
-"<br/>\n"
-"                        <span class=\"text-muted\">Курси</span>"
 
 #. module: website_slides_survey
 #: model:mail.template,body_html:website_slides_survey.mail_template_user_input_certification_failed
@@ -74,59 +64,70 @@ msgid ""
 msgstr ""
 
 #. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
-msgid "<i class=\"fa fa-arrow-right\"/> Get Certified"
-msgstr "<i class=\"fa fa-arrow-right\"/> Отримайте сертифікацію"
-
-#. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
-msgid ""
-"<i class=\"fa fa-download\" aria-label=\"Download certification\" "
-"title=\"Download Certification\"/>"
-msgstr ""
-"<i class=\"fa fa-download\" aria-label=\"Download certification\" "
-"title=\"Download Certification\"/>"
-
-#. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.slide_content_detailed
-msgid ""
-"<i class=\"fa fa-fw fa-trophy\" role=\"img\" aria-label=\"Download "
-"certification\" title=\"Download certification\"/> Download certification"
+msgid "<i class=\"oi me-1\" data-icon=\"east\"/>Add Questions to this Survey"
 msgstr ""
-"<i class=\"fa fa-fw fa-trophy\" role=\"img\" aria-label=\"Download "
-"certification\" title=\"Download certification\"/> Завантажити сертифікат"
+"<i class=\"oi me-1\" data-icon=\"east\"/>Додайте запитання до цього "
+"опитування"
+
+#. module: website_slides_survey
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
+msgid "<i class=\"oi me-1\" data-icon=\"east\"/>All Certifications"
+msgstr "<i class=\"oi me-1\" data-icon=\"east\"/>Усі сертифікації"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_fill_form_done_inherit_website_slides
 msgid ""
-"<i class=\"fa fa-share-alt\" aria-label=\"Share certification\" "
-"title=\"Share certification\"/>\n"
-"                        Share your certification"
+"<i class=\"oi me-2\" data-icon=\"chevron_backward\" aria-hidden=\"true\"/>Go "
+"back to course"
 msgstr ""
-"<i class=\"fa fa-share-alt\" aria-label=\"Share certification\" "
-"title=\"Share certification\"/>\n"
-"                        Поділіться вашим сертифікатом"
 
 #. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
-msgid "<i class=\"fa fa-share-alt\" aria-label=\"Share\" title=\"Share\"/>"
-msgstr "<i class=\"fa fa-share-alt\" aria-label=\"Share\" title=\"Share\"/>"
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_fill_form_done_inherit_website_slides
+msgid ""
+"<i class=\"oi oi-filled d-none d-md-inline\" data-icon=\"share\" aria-"
+"label=\"Share certification\" title=\"Share certification\"/>\n"
+"                        <span class=\"d-md-none\">Share certification</span>"
+msgstr ""
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.slide_content_detailed
-msgid "<i class=\"oi oi-arrow-right me-1\"/>Add Questions to this Survey"
+msgid ""
+"<i class=\"oi oi-fw oi-filled\" data-icon=\"trophy\" role=\"img\" aria-"
+"label=\"Download certification\" title=\"Download certification\"/> Download "
+"certification"
 msgstr ""
-"<i class=\"oi oi-arrow-right me-1\"/>Додайте запитання до цього опитування"
+"<i class=\"oi oi-fw oi-filled\" data-icon=\"trophy\" role=\"img\" aria-"
+"label=\"Download certification\" title=\"Download certification\"/> "
+"Завантажити сертифікат"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
-msgid "<i class=\"oi oi-arrow-right me-1\"/>All Certifications"
-msgstr "<i class=\"oi oi-arrow-right me-1\"/>Усі сертифікації"
+msgid "<i class=\"oi\" data-icon=\"arrow_forward\"/> Get Certified"
+msgstr "<i class=\"oi\" data-icon=\"arrow_forward\"/> Отримайте сертифікацію"
+
+#. module: website_slides_survey
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
+msgid ""
+"<i class=\"oi\" data-icon=\"download\" aria-label=\"Download certification\" "
+"title=\"Download Certification\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"download\" aria-label=\"Download certification\" "
+"title=\"Download Certification\"/>"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.user_profile_content
-msgid "<i class=\"oi oi-arrow-right\"/> See Certifications"
-msgstr "<i class=\"oi oi-arrow-right\"/> Переглянути сертифікації"
+msgid "<i class=\"oi\" data-icon=\"east\"/> See Certifications"
+msgstr "<i class=\"oi\" data-icon=\"east\"/> Переглянути сертифікації"
+
+#. module: website_slides_survey
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
+msgid ""
+"<i class=\"oi\" data-icon=\"family_history\" aria-label=\"Share\" "
+"title=\"Share\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"family_history\" aria-label=\"Share\" "
+"title=\"Share\"/>"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.badge_content
@@ -154,11 +155,18 @@ msgid "<span class=\"text-muted\">Certifications</span>"
 msgstr "<span class=\"text-muted\">Сертифікати</span>"
 
 #. module: website_slides_survey
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_survey_view_kanban
+msgid "<span>Courses</span>"
+msgstr ""
+
+#. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.course_main
 msgid ""
-"<span>Start Now</span><i class=\"oi oi-chevron-right ms-2 align-middle\"/>"
+"<span>Start Now</span><i class=\"oi ms-2 align-middle\" data-"
+"icon=\"chevron_forward\"/>"
 msgstr ""
-"<span>Почати зараз</span><i class=\"oi oi-chevron-right ms-2 align-middle\"/>"
+"<span>Почати зараз</span><i class=\"oi ms-2 align-middle\" data-"
+"icon=\"chevron_forward\"/>"
 
 #. module: website_slides_survey
 #: model:ir.model.constraint,message:website_slides_survey.constraint_slide_slide_check_survey_id
@@ -181,12 +189,17 @@ msgstr "Додати сертифікат"
 #. odoo-javascript
 #: code:addons/website_slides_survey/static/src/xml/website_slides_fullscreen.xml:0
 msgid "Add Questions to this Survey"
-msgstr "Додайте запитання до цього опитування"
+msgstr ""
 
 #. module: website_slides_survey
 #: model_terms:ir.actions.act_window,help:website_slides_survey.slide_slide_action_certification
 msgid "Add a new certification"
 msgstr "Додати новий сертифікат"
+
+#. module: website_slides_survey
+#: model:ir.module.module,summary:base.module_website_slides_survey
+msgid "Add certification capabilities to your courses"
+msgstr ""
 
 #. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_slide_slide__is_preview
@@ -355,6 +368,11 @@ msgid "Course"
 msgstr "Курс"
 
 #. module: website_slides_survey
+#: model:ir.module.module,shortdesc:base.module_website_slides_survey
+msgid "Course Certifications"
+msgstr ""
+
+#. module: website_slides_survey
 #. odoo-python
 #: code:addons/website_slides_survey/models/survey_survey.py:0
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_survey_view_form
@@ -412,11 +430,6 @@ msgstr "Меблі"
 #: model:survey.survey,title:website_slides_survey.furniture_certification
 msgid "Furniture Creation Certification"
 msgstr "Сертифікація створення меблів"
-
-#. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_fill_form_done_inherit_website_slides
-msgid "Go back to course"
-msgstr "Повернутися до курсу"
 
 #. module: website_slides_survey
 #. odoo-javascript
@@ -539,6 +552,11 @@ msgid "Shelf"
 msgstr "Полиця"
 
 #. module: website_slides_survey
+#: model:ir.model,name:website_slides_survey.model_slide_slide
+msgid "Slide"
+msgstr ""
+
+#. module: website_slides_survey
 #: model:ir.model,name:website_slides_survey.model_slide_slide_partner
 msgid "Slide / Partner decorated m2m"
 msgstr "Slide / Partner decorated m2m"
@@ -552,11 +570,6 @@ msgstr "Тип слайду"
 #: model:ir.model.fields,help:website_slides_survey.field_survey_user_input__slide_partner_id
 msgid "Slide membership information for the logged in user"
 msgstr "Розмістіть інформацію про членство для зареєстрованого користувача"
-
-#. module: website_slides_survey
-#: model:ir.model,name:website_slides_survey.model_slide_slide
-msgid "Slides"
-msgstr "Слайди"
 
 #. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_survey_user_input__slide_partner_id
@@ -640,6 +653,13 @@ msgid "The slides this survey is linked to through the e-learning application"
 msgstr "Слайди цього опитування пов'язані через модуль електронного навчання"
 
 #. module: website_slides_survey
+#: model:ir.module.module,description:base.module_website_slides_survey
+msgid ""
+"This module lets you use the full power of certifications within your "
+"courses."
+msgstr ""
+
+#. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_slide_slide__name
 msgid "Title"
 msgstr "Заголовок"
@@ -698,28 +718,11 @@ msgstr "Ви не пройшли курс: {{ object.slide_partner_id.channel_id
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.user_profile_content
 msgid "You have not taken any certification yet."
-msgstr "Ви ще не пройшли жодної сертифікації."
+msgstr "Ви ще не пройшли жодної сертифікації"
 
 #~ msgid ""
-#~ "<span class=\"o_stat_text\" attrs=\"{'invisible': [('nbr_certification', "
-#~ "'&gt;', 0)]}\">Finished</span>\n"
-#~ "                <span class=\"o_stat_text\" attrs=\"{'invisible': "
-#~ "[('nbr_certification', '=', 0)]}\">Certified</span>"
+#~ "<br/>\n"
+#~ "                        <span class=\"text-muted\">Courses</span>"
 #~ msgstr ""
-#~ "<span class=\"o_stat_text\" attrs=\"{'invisible': [('nbr_certification', "
-#~ "'&gt;', 0)]}\">Завершено</span>\n"
-#~ "                <span class=\"o_stat_text\" attrs=\"{'invisible': "
-#~ "[('nbr_certification', '=', 0)]}\">Сертифіковано</span>"
-
-#~ msgid "<span class=\"text-muted\">Certified</span>"
-#~ msgstr "<span class=\"text-muted\">Сертифіковано</span>"
-
-#~ msgid "<span class=\"text-muted\">Finished</span>"
-#~ msgstr "<span class=\"text-muted\">Завершено</span>"
-
-#~ msgid ""
-#~ "You can create your certification from here or use an existing one. Once "
-#~ "your certification is created, you can still edit it in backend."
-#~ msgstr ""
-#~ "Ви можете створити сертифікацію тут або використайте вже існуючу. Після "
-#~ "того, як ви створите сертифікацію, ви зможеье редагувати її з бекенду."
+#~ "<br/>\n"
+#~ "                        <span class=\"text-muted\">Курси</span>"

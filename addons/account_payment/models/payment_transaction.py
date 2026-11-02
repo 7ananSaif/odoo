@@ -84,7 +84,7 @@ class PaymentTransaction(models.Model):
         command_list = values.get('invoice_ids')
         if command_list:
             # Extract invoice id(s) from the X2M commands
-            invoice_ids = self._fields['invoice_ids'].convert_to_cache(command_list, self)
+            invoice_ids = self._fields['invoice_ids'].convert_to_cache(command_list, self.browse())
             invoices = self.env['account.move'].browse(invoice_ids).exists()
             if len(invoices) == len(invoice_ids):  # All ids are valid
                 prefix = separator.join(invoices.filtered(lambda inv: inv.name).mapped('name'))
@@ -93,31 +93,22 @@ class PaymentTransaction(models.Model):
                 return prefix
         return super()._compute_reference_prefix(separator, **values)
 
-    #=== BUSINESS METHODS - POST-PROCESSING ===#
+    # === LIFECYCLE METHODS - POST-PROCESSING === #
 
     def _post_process(self):
         """ Override of `payment` to add account-specific logic to the post-processing.
 
         In particular, for confirmed transactions we write a message in the chatter with the payment
         and transaction references, post relevant fiscal documents, and create missing payments. For
-        cancelled transactions, we cancel the payment.
+        draft, cancelled, or errored transactions, we cancel the payment.
         """
         super()._post_process()
         for tx in self.filtered(lambda t: t.state == 'done'):
             # Validate invoices automatically once the transaction is confirmed.
-            self.invoice_ids.filtered(lambda inv: inv.state == 'draft').action_post()
+            tx.invoice_ids.filtered(lambda inv: inv.state == 'draft').action_post()
 
             # Create and post missing payments.
-            # As there is nothing to reconcile for validation transactions, no payment is created
-            # for them. This is also true for validations with or without a validity check (transfer
-            # of a small amount with immediate refund) because validation amounts are not included
-            # in payouts. As the reconciliation is done in the child transactions for partial voids
-            # and captures, no payment is created for their source transactions either.
-            if (
-                tx.operation != 'validation'
-                and not tx.payment_id
-                and not any(child.state in ['done', 'cancel'] for child in tx.child_transaction_ids)
-            ):
+            if tx._should_create_payment():
                 tx.with_company(tx.company_id)._create_payment()
 
             if tx.payment_id:
@@ -127,8 +118,26 @@ class PaymentTransaction(models.Model):
                     link=tx.payment_id._get_html_link(),
                 )
                 tx._log_message_on_linked_documents(message)
-        for tx in self.filtered(lambda t: t.state == 'cancel'):
+        for tx in self.filtered(lambda t: t.state in ('draft', 'cancel', 'error')):
             tx.payment_id.action_cancel()
+
+    def _should_create_payment(self):
+        """Return whether an `account.payment` should be created for this transaction.
+
+        :return: Whether a payment should be created.
+        :rtype: bool
+        """
+        self.ensure_one()
+        return (
+            not self.payment_id
+            # There is nothing to reconcile for validation transactions as no payment is created for
+            # them. This is also true for validations with validity check (transfer of a small
+            # amount with immediate refund) because validation amounts are not included in payouts.
+            and self.operation != "validation"
+            # Reconciliation is done in the child transactions for partial voids and captures, thus
+            # no payment is created for their source transactions.
+            and not any(child.state in ["done", "cancel"] for child in self.child_transaction_ids)
+        )
 
     def _create_payment(self, **extra_create_values):
         """Create an `account.payment` record for the current transaction.
@@ -143,8 +152,6 @@ class PaymentTransaction(models.Model):
         """
         self.ensure_one()
 
-        reference = f'{self.reference} - {self.provider_reference or ""}'
-
         payment_method_line = self.provider_id.journal_id.inbound_payment_method_line_ids\
             .filtered(lambda l: l.payment_provider_id == self.provider_id)
         payment_values = {
@@ -158,7 +165,7 @@ class PaymentTransaction(models.Model):
             'payment_method_line_id': payment_method_line.id,
             'payment_token_id': self.token_id.id,
             'payment_transaction_id': self.id,
-            'memo': reference,
+            'memo': self.reference,
             'write_off_line_vals': [],
             'invoice_ids': self.invoice_ids,
             **extra_create_values,

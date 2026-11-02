@@ -76,7 +76,6 @@ test("Only call once lazy session info data on action", async () => {
     const actionRegistry = registry.category("actions");
     class TestClientAction extends Component {
         static template = xml`<div/>`;
-        static props = ["*"];
         setup() {
             expect.step("myaction_before");
             this.lazySession = useService("lazy_session");
@@ -141,7 +140,6 @@ test("Call lazy session info after webclient init with action and service", asyn
     const actionRegistry = registry.category("actions");
     class TestClientAction extends Component {
         static template = xml`<div/>`;
-        static props = ["*"];
         setup() {
             expect.step("myaction_before");
             this.lazySession = useService("lazy_session");

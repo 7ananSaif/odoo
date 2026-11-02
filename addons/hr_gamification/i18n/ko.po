@@ -11,17 +11,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0beta\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-12-02 14:37+0000\n"
-"Last-Translator: \"Kwanghee Park (kwpa)\" <kwpa@odoo.com>\n"
-"Language-Team: Korean <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 19:32+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Korean <https://translate.odoo.com/projects/odoo-s19-4/"
 "hr_gamification/ko/>\n"
 "Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: hr_gamification
 #: model_terms:ir.actions.act_window,help:hr_gamification.goals_menu_groupby_action2
@@ -122,12 +122,6 @@ msgid "Direct Badge"
 msgstr "직접 배지"
 
 #. module: hr_gamification
-#: model_terms:ir.ui.view,arch_db:hr_gamification.view_badge_wizard_reward
-#: model_terms:ir.ui.view,arch_db:hr_gamification.view_current_badge_form
-msgid "Discard"
-msgstr "작성 취소"
-
-#. module: hr_gamification
 #: model:ir.model.fields,field_description:hr_gamification.field_gamification_badge__display_name
 #: model:ir.model.fields,field_description:hr_gamification.field_gamification_badge_user__display_name
 #: model:ir.model.fields,field_description:hr_gamification.field_gamification_badge_user_wizard__display_name
@@ -208,6 +202,11 @@ msgid "Granted by"
 msgstr "수여자"
 
 #. module: hr_gamification
+#: model:ir.module.module,shortdesc:base.module_hr_gamification
+msgid "HR Gamification"
+msgstr ""
+
+#. module: hr_gamification
 #: model:ir.model.fields,field_description:hr_gamification.field_hr_employee__has_badges
 #: model:ir.model.fields,field_description:hr_gamification.field_hr_employee_public__has_badges
 msgid "Has Badges"
@@ -227,6 +226,12 @@ msgstr "편집 및 삭제 액세스 권한 여부"
 #: model:ir.model.fields,field_description:hr_gamification.field_res_users__id
 msgid "ID"
 msgstr "ID"
+
+#. module: hr_gamification
+#: model_terms:ir.ui.view,arch_db:hr_gamification.hr_employee_public_view_form
+#: model_terms:ir.ui.view,arch_db:hr_gamification.hr_hr_employee_view_form
+msgid "No Badges granted."
+msgstr ""
 
 #. module: hr_gamification
 #: model:ir.model,name:hr_gamification.model_hr_employee_public
@@ -256,14 +261,14 @@ msgid "The selected employee does not correspond to the selected user."
 msgstr "선택한 직원이 선택한 사용자와 일치하지 않습니다."
 
 #. module: hr_gamification
-#: model_terms:ir.ui.view,arch_db:hr_gamification.hr_employee_public_view_form
-#: model_terms:ir.ui.view,arch_db:hr_gamification.hr_hr_employee_view_form
+#: model:ir.module.module,description:base.module_hr_gamification
 msgid ""
-"There are no badges for this employee.<br/>\n"
-"                                It's time to allow the first one."
+"Use the HR resources for the gamification process.\n"
+"\n"
+"The HR officer can now manage challenges and badges.\n"
+"This allow the user to send badges to employees instead of simple users.\n"
+"Badge received are displayed on the user profile.\n"
 msgstr ""
-"이 직원에게 배지가 없습니다. <br/>\n"
-"                            첫 번째 배지를 부여해 주세요."
 
 #. module: hr_gamification
 #: model:ir.model,name:hr_gamification.model_res_users
@@ -293,33 +298,9 @@ msgstr "배지는 자신에게 보낼 수 없습니다."
 msgid "on"
 msgstr "-"
 
-#~ msgid ""
-#~ "Badges are rewards of good work. Give them to people you believe deserve "
-#~ "it."
-#~ msgstr ""
-#~ "배지는 열심히 일한 보상입니다. 그럴만한 자격이 있다고 믿는 사람들에게 보내"
-#~ "주십시오."
-
-#~ msgid "Basic Employee"
-#~ msgstr "기본 직원"
-
-#~ msgid "Cancel"
-#~ msgstr "취소"
-
-#~ msgid "Grant this employee his first badge"
-#~ msgstr "이 직원에게 첫 번째 배지 부여"
-
-#~ msgid "Received Badges"
-#~ msgstr "배지를 받음"
-
-#~ msgid "Related user name for the resource to manage its access."
-#~ msgstr "접근 권한을 관리할 자원의 관련 사용자 이름."
-
-#~ msgid "Reward Employee"
-#~ msgstr "직원 포상"
-
-#~ msgid "You can send badges only to employees linked to a user."
-#~ msgstr "사용자로 연결된 직원에게만 배지를 보낼 수 있습니다."
-
-#~ msgid "to reward this employee for a good action"
-#~ msgstr "좋은 행동에 대해 이 직원에게 포상"
+msgid ""
+"There are no badges for this employee.<br/>\n"
+"                                It's time to allow the first one."
+msgstr ""
+"이 직원에게 배지가 없습니다. <br/>\n"
+"                            첫 번째 배지를 부여해 주세요."

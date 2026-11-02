@@ -1,21 +1,18 @@
-import { onWillStart, useState } from "@odoo/owl";
-import { BaseOptionComponent, useDomState } from "@html_builder/core/utils";
+import { BaseOptionComponent } from "@html_builder/core/base_option_component";
+import { useDomState } from "@html_builder/core/utils";
 import { useDynamicSnippetOption } from "@website/builder/plugins/options/dynamic_snippet_hook";
+import { registry } from "@web/core/registry";
 
 export class DynamicSnippetBlogPostsOption extends BaseOptionComponent {
+    static id = "dynamic_snippet_blog_posts_option";
     static template = "website_blog.DynamicSnippetBlogPostsOption";
     static dependencies = ["dynamicSnippetBlogPostsOption"];
-    static selector = ".s_dynamic_snippet_blog_posts";
+
     setup() {
         super.setup();
-        const { fetchBlogs, getModelNameFilter } = this.dependencies.dynamicSnippetBlogPostsOption;
-        this.dynamicOptionParams = useDynamicSnippetOption(getModelNameFilter());
-        this.blogState = useState({
-            blogs: [],
-        });
-        onWillStart(async () => {
-            this.blogState.blogs.push(...(await fetchBlogs()));
-        });
+        const { getModelNameFilter } = this.dependencies.dynamicSnippetBlogPostsOption;
+        this.modelNameFilter = getModelNameFilter();
+        this.dynamicOptionParams = useDynamicSnippetOption(this.modelNameFilter);
         this.templateKeyState = useDomState((el) => ({
             templateKey: el.dataset.templateKey,
         }));
@@ -66,10 +63,14 @@ export class DynamicSnippetBlogPostsOption extends BaseOptionComponent {
             "website_blog.dynamic_filter_template_blog_post_big_picture"
         );
     }
-    showCoverImage() {
-        return (
-            this.templateKeyState.templateKey ===
-            "website_blog.dynamic_filter_template_blog_post_single_aside"
-        );
+    showCoverImageOption() {
+        return [
+            "website_blog.dynamic_filter_template_blog_post_single_aside",
+            "website_blog.dynamic_filter_template_blog_post_single_circle",
+        ].includes(this.templateKeyState.templateKey);
     }
 }
+
+registry
+    .category("website-options")
+    .add(DynamicSnippetBlogPostsOption.id, DynamicSnippetBlogPostsOption);

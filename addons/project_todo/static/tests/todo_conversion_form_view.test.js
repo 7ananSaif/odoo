@@ -32,14 +32,14 @@ beforeEach(() => {
                             widget="many2many_avatar_user"
                             domain="[('share', '=', False), ('active', '=', True)]"/>
                         <field name="tag_ids" widget="many2many_tags"
-                            options="{'color_field': 'color', 'no_create_edit': True}"
+                            options="{'color_field': 'color', 'on_tag_click': 'edit_color', 'no_create_edit': True}"
                             context="{'project_id': project_id}"
                             placeholder="Choose tags from the selected project"/>
                     </group>
                 </sheet>
                 <footer>
                     <button name="action_convert_to_task" string="Convert to Task" type="object" class="btn-primary"/>
-                    <button string="Discard" special="cancel"/>
+                    <button special="cancel"/>
                 </footer>
             </form>`,
     };

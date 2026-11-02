@@ -1,6 +1,14 @@
 /* global posmodel */
 
-import { simulateBarCode } from "@barcodes/../tests/legacy/helpers";
+import { patch } from "@web/core/utils/patch";
+import { TourHelpers } from "@web_tour/tour_helpers/tour_helpers";
+
+patch(TourHelpers.prototype, {
+    async scan(barcode) {
+        odoo.__WOWL_DEBUG__.root.env.services.barcode.bus.trigger("barcode_scanned", { barcode });
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+    },
+});
 
 export function negate(selector, parent = "body") {
     return `${parent}:not(:has(${selector}))`;
@@ -13,9 +21,7 @@ export function scan_barcode(barcode) {
         {
             content: `PoS model scan barcode '${barcode}'`,
             trigger: "body", // The element here does not really matter as long as it is present
-            run: () => {
-                simulateBarCode([...barcode, "Enter"]);
-            },
+            run: ({ scan }) => scan(barcode),
         },
     ];
 }
@@ -59,13 +65,6 @@ export function refresh() {
         true
     );
 }
-export function elementDoesNotExist(selector) {
-    return {
-        content: `Check that element "${selector}" don't exist.`,
-        trigger: negate(selector),
-    };
-}
-
 export function assertCurrentOrderDirty(dirty = true) {
     return {
         trigger: "body",

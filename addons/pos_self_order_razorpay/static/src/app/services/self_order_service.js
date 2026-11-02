@@ -7,7 +7,7 @@ patch(SelfOrder.prototype, {
         await super.setup(...arguments);
 
         const razorpayPaymentMethod = this.models["pos.payment.method"].find(
-            (p) => p.use_payment_terminal === "razorpay"
+            (p) => p.payment_provider === "razorpay"
         );
 
         if (razorpayPaymentMethod) {
@@ -19,12 +19,6 @@ patch(SelfOrder.prototype, {
                 this.handleRazorpayError.bind(this)
             );
         }
-    },
-
-    filterPaymentMethods(pms) {
-        const pm = super.filterPaymentMethods(...arguments);
-        const razorpay_pm = pms.filter((rec) => rec.use_payment_terminal === "razorpay");
-        return [...new Set([...pm, ...razorpay_pm])];
     },
 
     handleRazorpayError(error, type) {

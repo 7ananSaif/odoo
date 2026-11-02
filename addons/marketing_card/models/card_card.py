@@ -8,7 +8,12 @@ class CardCard(models.Model):
     _name = 'card.card'
     _description = 'Marketing Card'
 
+    @api.model
+    def _lang_get(self):
+        return self.env['res.lang'].get_installed()
+
     active = fields.Boolean('Active', default=True)
+    lang = fields.Selection(string='Language', selection=_lang_get, required=True)
     campaign_id = fields.Many2one('card.campaign', required=True, index=True, ondelete="cascade")
     res_model = fields.Selection(related='campaign_id.res_model')
     res_id = fields.Many2oneReference('Record ID', model_field='res_model', required=True)
@@ -19,9 +24,9 @@ class CardCard(models.Model):
         ('visited', 'Visited'),
     ])
 
-    _campaign_record_unique = models.Constraint(
-        'unique(campaign_id, res_id)',
-        'Each record should be unique for a campaign',
+    _campaign_record_lang_unique = models.Constraint(
+        'unique(campaign_id, lang, res_id)',
+        'Each record should be unique for a campaign and language',
     )
 
     @api.depends('res_model', 'res_id')
@@ -30,7 +35,7 @@ class CardCard(models.Model):
             if not model:
                 cards.display_name = ""
                 continue
-            self.env[model].browse(cards.mapped('res_id')).sudo().fetch(['display_name'])
+            self.env[model].browse(cards.filtered('res_id').mapped('res_id')).sudo().fetch(['display_name'])
             for card in cards:
                 card.display_name = self.env[model].browse(card.res_id).sudo().display_name
 
@@ -43,7 +48,7 @@ class CardCard(models.Model):
     @api.autovacuum
     def _gc_card(self):
         """Remove cards. Social networks are expected to cache the images on their side."""
-        timedelta_days = self.env['ir.config_parameter'].get_param('marketing_card.card_image_cleanup_interval_days', 60)
+        timedelta_days = self.env['ir.config_parameter'].get_int('marketing_card.card_image_cleanup_interval_days', 60)
         if not timedelta_days:
             return
         self.with_context({"active_test": False}).search([('write_date', '<=', datetime.now() - timedelta(days=timedelta_days))]).unlink()

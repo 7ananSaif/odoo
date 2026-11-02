@@ -1,10 +1,11 @@
+import { render } from "@web/owl2/utils";
 import { _t } from "@web/core/l10n/translation";
 import { AutoComplete } from "@web/core/autocomplete/autocomplete";
 import { Transition } from "@web/core/transition";
 import { useOwnedDialogs, useService } from "@web/core/utils/hooks";
 import { SelectCreateDialog } from "@web/views/view_dialogs/select_create_dialog";
 import { getColor } from "../utils";
-import { Component, useState } from "@odoo/owl";
+import { Component, proxy, t, useProps } from "@odoo/owl";
 
 let nextId = 1;
 
@@ -17,13 +18,14 @@ export class CalendarFilterSection extends Component {
     static subTemplates = {
         filter: "web.CalendarFilterSection.filter",
     };
-    static props = {
-        model: Object,
-        section: Object,
-    };
+    props = useProps({
+        model: t.object(),
+        section: t.object(),
+        placeholder: t.string().optional(),
+    });
 
     setup() {
-        this.state = useState({
+        this.state = proxy({
             collapsed: false,
             fieldRev: 1,
         });
@@ -35,7 +37,7 @@ export class CalendarFilterSection extends Component {
         return {
             autoSelect: true,
             resetOnSelect: true,
-            placeholder: _t("+ Add %s", this.section.label),
+            placeholder: this.props.placeholder ?? _t("+ Add %s", this.section.label),
             sources: [
                 {
                     placeholder: _t("Loading..."),
@@ -89,7 +91,7 @@ export class CalendarFilterSection extends Component {
     async loadSource(request) {
         const resModel = this.props.model.fields[this.section.fieldName].relation;
         const activeIds = this.section.filters.map((f) => f.value);
-        const domain = [["id", "not in", activeIds]];
+        const domain = this.getFilterDomain(activeIds);
         const records = await this.orm.call(resModel, "name_search", [], {
             name: request,
             operator: "ilike",
@@ -103,9 +105,7 @@ export class CalendarFilterSection extends Component {
                 id: result[0],
             },
             label: result[1],
-            onSelect: () => {
-                return this.props.model.createFilter(this.section.fieldName, result[0]);
-            },
+            onSelect: () => this.onFilterSelected(result),
         }));
 
         if (records.length > 7) {
@@ -126,26 +126,34 @@ export class CalendarFilterSection extends Component {
         return options;
     }
 
+    onFilterSelected(filterRecord) {
+        this.props.model.createFilter(this.section.fieldName, filterRecord[0])
+    }
+
+    getFilterDomain(activeIds) {
+        return [["id", "not in", activeIds]]
+    }
+
     toggleSection() {
         this.state.collapsed = !this.state.collapsed;
     }
 
     onFilterInputChange(filter, ev) {
         this.props.model.updateFilters(this.section.fieldName, [filter], ev.target.checked);
-        this.render();
+        render(this);
     }
 
     onAllFilterInputChange(ev) {
         const { fieldName, filters } = this.section;
         this.props.model.updateFilters(fieldName, filters, ev.target.checked);
-        this.render();
+        render(this);
     }
 
     onFilterRemoveBtnClick(filter, ev) {
         if (!ev.currentTarget.dataset.unlinked) {
             ev.currentTarget.dataset.unlinked = true;
             this.props.model.unlinkFilter(this.section.fieldName, filter.recordId);
-            this.render();
+            render(this);
         }
     }
 

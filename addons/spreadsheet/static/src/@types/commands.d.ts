@@ -50,6 +50,15 @@ declare module "@spreadsheet" {
     type OdooDispatch = UIDispatch & OdooCommandDispatcher["dispatch"];
     type OdooCoreDispatch = CoreDispatch & OdooCoreCommandDispatcher["dispatch"];
 
+
+    type OdooListCoreDefinition = {
+        model: string;
+        domain: Array<Array<string>>;
+        orderBy: Array<string>;
+        context: Record<string, any>;
+        columns: { name: string; string?: string }[];
+    }
+
     // CORE
 
     export interface ExtendedAddPivotCommand extends AddPivotCommand {
@@ -115,6 +124,19 @@ declare module "@spreadsheet" {
         delta: number;
     }
 
+    export interface SetOdooLinkToChartCommand {
+        type: "UPDATE_ODOO_LINK_TO_CHART";
+        chartId: string;
+        odooLink:
+            | { type: "odooMenu"; odooMenuId: number | string }
+            | {
+                type: "dataSource";
+                dataSourceCoreId: string;
+                datasourceType: string;
+              }
+            | undefined;
+    }
+
     // UI
 
     export interface RefreshAllDataSourcesCommand {
@@ -132,6 +154,28 @@ declare module "@spreadsheet" {
         filters: { filterId: string; value: any }[];
     }
 
+    export interface InsertListCommand {
+        type: "INSERT_ODOO_LIST";
+        listId: string;
+        definition: OdooListCoreDefinition;
+        sheetId: string;
+        col: number;
+        row: number;
+        linesNumber: number;
+        mode: "static" | "dynamic";
+    }
+
+    export interface ReinsertListCommand {
+        type: "RE_INSERT_ODOO_LIST";
+        listId: string;
+        sheetId: string;
+        col: number;
+        row: number;
+        linesNumber: number;
+        columns: { name: string; string?: string }[];
+        mode: "static" | "dynamic";
+    }
+
     type OdooCoreCommand =
         | ExtendedAddPivotCommand
         | ExtendedUpdatePivotCommand
@@ -142,7 +186,9 @@ declare module "@spreadsheet" {
         | AddGlobalFilterCommand
         | EditGlobalFilterCommand
         | RemoveGlobalFilterCommand
-        | MoveGlobalFilterCommand;
+        | MoveGlobalFilterCommand
+        | InsertListCommand
+        | ReinsertListCommand;
 
     export type AllCoreCommand = OdooCoreCommand | CoreCommand;
 

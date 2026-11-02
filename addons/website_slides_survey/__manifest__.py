@@ -1,17 +1,12 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 {
     'name': "Course Certifications",
     'summary': 'Add certification capabilities to your courses',
     'description': """This module lets you use the full power of certifications within your courses.""",
     'category': 'Website/eLearning',
-    'version': '1.0',
     'depends': ['website_slides', 'survey'],
-    'installable': True,
     'auto_install': True,
     'data': [
-        'security/ir.model.access.csv',
-        'security/website_slides_survey_security.xml',
         'views/slide_channel_partner_views.xml',
         'views/slide_channel_views.xml',
         'views/slide_slide_partner_views.xml',
@@ -28,6 +23,7 @@
         'data/mail_template_data.xml',
         'data/gamification_data.xml',
         'views/res_config_settings_views.xml',
+        'security/ir.access.csv',
     ],
     'demo': [
         'data/survey_demo.xml',
@@ -37,7 +33,7 @@
     'assets': {
         'web.assets_frontend': [
             'website_slides_survey/static/src/scss/website_slides_survey.scss',
-            'website_slides_survey/static/src/js/slides_course_fullscreen_player.js',
+            'website_slides_survey/static/src/interactions/*.js',
             'website_slides_survey/static/src/xml/website_slides_fullscreen.xml',
             'website_slides_survey/static/src/js/public/**/*',
         ],

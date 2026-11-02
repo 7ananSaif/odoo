@@ -1,14 +1,16 @@
+import { Component, signal, toRaw, useEffect, usePlugin, useProps } from "@odoo/owl";
+import { DebugModePlugin } from "@web/core/debug_mode_plugin";
 import { _t } from "@web/core/l10n/translation";
-import { x2ManyCommands } from "@web/core/orm_service";
+import { localeCompare } from "@web/core/l10n/utils";
+import { x2ManyCommands } from "@web/core/orm_plugin";
 import { registry } from "@web/core/registry";
 import { deepCopy } from "@web/core/utils/objects";
 import { parseXML } from "@web/core/utils/xml";
 import { Record } from "@web/model/record";
+import { useSubEnv } from "@web/owl2/utils";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
 import { FormArchParser } from "@web/views/form/form_arch_parser";
 import { FormRenderer } from "@web/views/form/form_renderer";
-
-import { Component, onWillRender, toRaw, useChildSubEnv } from "@odoo/owl";
 
 /**
  * This widget is only used for the 'group_ids' field of the 'res.users'
@@ -18,7 +20,11 @@ import { Component, onWillRender, toRaw, useChildSubEnv } from "@odoo/owl";
 class ResUserGroupIdsField extends Component {
     static template = "web.ResUserGroupIdsField";
     static components = { Record, FormRenderer };
-    static props = { ...standardFieldProps };
+    props = useProps({
+        ...standardFieldProps,
+    });
+
+    debugMode = usePlugin(DebugModePlugin);
 
     setup() {
         const { groups, privileges, categories } = toRaw(
@@ -53,7 +59,7 @@ class ResUserGroupIdsField extends Component {
                     privilege.groupFieldName = this.getFieldName(privilege);
                     return privilege;
                 })
-                .sort((p1, p2) => p1.name.localeCompare(p2.name)),
+                .sort((p1, p2) => localeCompare(p1.name, p2.name)),
         };
 
         // Generate selection (for privileges) and boolean (for extra right groups) fields
@@ -97,7 +103,7 @@ class ResUserGroupIdsField extends Component {
                 <group>
                     ${categories.map((category) => this.getCategoryArch(category)).join("")}
                 </group>
-                ${odoo.debug ? this.getExtraGroupsArch() : ""}
+                ${this.debugMode.isActive() ? this.getExtraGroupsArch() : ""}
             </t>`;
         this.archInfo = new FormArchParser().parse(parseXML(arch), models, "main");
 
@@ -111,10 +117,12 @@ class ResUserGroupIdsField extends Component {
             groups: {},
             privileges,
         };
-        useChildSubEnv({
-            resUserGroupsInfo: this.info, // computed in onWillRender
+        useSubEnv({
+            resUserGroupsInfo: this.info,
         });
-        onWillRender(() => {
+        this.values = signal({});
+        this.shadowedGroupIds = [];
+        useEffect(() => {
             // Generate groups information based on current ids, i.e.
             //  - `id`, `name`, `privilege_id`, `comment` are kept as in the static definition
             //  - `selected` is true iff the group is explicitely selected (!= implied)
@@ -171,8 +179,8 @@ class ResUserGroupIdsField extends Component {
             }
 
             // Generate values for the dynamically generated selection and boolean fields
-            this.values = {};
-            this.shadowedGroupIds = [];
+            const values = {};
+            const shadowedGroupIds = [];
             for (const category of categories) {
                 for (const privilege of category.privileges) {
                     let groupId =
@@ -182,17 +190,19 @@ class ResUserGroupIdsField extends Component {
                     if (groupId && !options.some((option) => option[0] === groupId)) {
                         // The option has been removed because a higher level group is implied
                         // => force the value to false to show the implied group instead
-                        this.shadowedGroupIds.push(groupId);
+                        shadowedGroupIds.push(groupId);
                         groupId = false;
                     }
-                    this.values[fieldName] = groupId;
+                    values[fieldName] = groupId;
                 }
             }
             if (this.extraCategory) {
                 for (const privilege of this.extraCategory.privileges) {
-                    this.values[this.getFieldName(privilege)] = selectedIds.has(privilege.groupId);
+                    values[this.getFieldName(privilege)] = selectedIds.has(privilege.groupId);
                 }
             }
+            this.shadowedGroupIds = shadowedGroupIds;
+            this.values.set(values);
         });
 
         this.hooks = {

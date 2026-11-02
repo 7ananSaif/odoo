@@ -7,15 +7,15 @@
 # Leonardo J. Caballero G. <leonardocaballero@gmail.com>, 2022
 # Pedro M. Baeza <pedro.baeza@tecnativa.com>, 2023
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
-# "Noemi Pla Garcia (nopl)" <nopl@odoo.com>, 2025.
+# "Noemi Pla Garcia (nopl)" <nopl@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-12-23 14:43+0000\n"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-09-21 11:34+0000\n"
 "Last-Translator: \"Noemi Pla Garcia (nopl)\" <nopl@odoo.com>\n"
-"Language-Team: Spanish <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Spanish <https://translate.odoo.com/projects/odoo-20/"
 "website_slides_forum/es/>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
@@ -23,7 +23,7 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=(n == 1) ? 0 : ((n != 0 && n % 1000000 == "
 "0) ? 1 : 2);\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: website_slides_forum
 #: model_terms:forum.forum,faq:website_slides_forum.forum_forum_demo_channel_0
@@ -155,11 +155,11 @@ msgstr ""
 #. module: website_slides_forum
 #: model_terms:ir.ui.view,arch_db:website_slides_forum.slide_fullscreen
 msgid ""
-"<i class=\"fa fa-comments\"/><span class=\"ms-1 d-none d-md-inline-"
-"block\">Forum</span>"
+"<i class=\"oi oi-filled\" data-icon=\"forum\"/><span class=\"ms-1 d-none d-"
+"md-inline-block\">Forum</span>"
 msgstr ""
-"<i class=\"fa fa-comments\"/><span class=\"ms-1 d-none d-md-inline-"
-"block\">Foro</span>"
+"<i class=\"oi oi-filled\" data-icon=\"forum\"/><span class=\"ms-1 d-none d-"
+"md-inline-block\">Foro</span>"
 
 #. module: website_slides_forum
 #: model_terms:forum.forum,faq:website_slides_forum.forum_forum_demo_channel_0
@@ -192,9 +192,16 @@ msgstr ""
 "preguntas y respuestas?</span>"
 
 #. module: website_slides_forum
-#: model_terms:ir.ui.view,arch_db:website_slides_forum.website_slides_forum_breadcrumb
-msgid "<strong>Forum</strong>"
-msgstr "<strong>Foro</strong>"
+#: model:ir.module.module,description:base.module_website_slides_forum
+msgid ""
+"A Slide channel can be linked to forum. Also, profiles from slide and forum "
+"are regrouped together"
+msgstr ""
+
+#. module: website_slides_forum
+#: model:ir.module.module,summary:base.module_website_slides_forum
+msgid "Allows to link forum on a course"
+msgstr ""
 
 #. module: website_slides_forum
 #: model:forum.forum,name:website_slides_forum.forum_forum_demo_channel_0
@@ -203,8 +210,8 @@ msgstr "Conceptos básicos de jardinería"
 
 #. module: website_slides_forum
 #: model_terms:ir.ui.view,arch_db:website_slides_forum.forum_all_all_entries
-msgid "Check out our courses <i class=\"fa fa-long-arrow-right\"/>"
-msgstr "Descubrir nuestros cursos<i class=\"fa fa-long-arrow-right\"/>"
+msgid "Check out our courses <i class=\"oi\" data-icon=\"east\"/>"
+msgstr ""
 
 #. module: website_slides_forum
 #: model_terms:ir.actions.act_window,help:website_slides_forum.forum_post_action_channel
@@ -298,6 +305,11 @@ msgid ""
 "Forum linked to a Course, the visibility is the one applied on the course."
 msgstr ""
 "Foro vinculado a un curso, la visibilidad es la que se aplica en el curso."
+
+#. module: website_slides_forum
+#: model:ir.module.module,shortdesc:base.module_website_slides_forum
+msgid "Forum on Courses"
+msgstr ""
 
 #. module: website_slides_forum
 #: model:ir.actions.act_window,name:website_slides_forum.forum_forum_action_channel
@@ -404,12 +416,6 @@ msgid "Show Course To"
 msgstr "Mostrar curso a"
 
 #. module: website_slides_forum
-#. odoo-javascript
-#: code:addons/website_slides_forum/static/src/website_builder/slides_forum_page_option_plugin.js:0
-msgid "Slides Forum Snippet Options"
-msgstr "Opciones del snippet del foro de diapositivas"
-
-#. module: website_slides_forum
 #: model_terms:forum.forum,faq:website_slides_forum.forum_forum_demo_channel_0
 #: model_terms:forum.forum,faq:website_slides_forum.forum_forum_demo_channel_2
 msgid ""
@@ -463,7 +469,7 @@ msgstr "Árboles, madera y jardines"
 #: model_terms:forum.forum,welcome_message:website_slides_forum.forum_forum_demo_channel_0
 #: model_terms:forum.forum,welcome_message:website_slides_forum.forum_forum_demo_channel_2
 msgid "Welcome!"
-msgstr "¡Bienvenido/a!"
+msgstr "¡Te damos la bienvenida!"
 
 #. module: website_slides_forum
 #: model_terms:forum.forum,faq:website_slides_forum.forum_forum_demo_channel_0
@@ -578,40 +584,3 @@ msgid ""
 msgstr ""
 "su respuesta se proporciona junto con la pregunta, y espera más respuestas: "
 "\"Yo uso ______ para ______, ¿qué usáis vosotros?\""
-
-#~ msgid "<b>What kinds of questions can I ask here?</b>"
-#~ msgstr "<b>¿Qué tipo de preguntas puedo hacer aquí?</b>"
-
-#~ msgid "<b>What should I avoid in my answers?</b>"
-#~ msgstr "<b>¿Qué debo evitar en mis respuestas?</b>"
-
-#~ msgid "<b>What should I avoid in my questions?</b>"
-#~ msgstr "<b>¿Qué debo evitar en mis preguntas?</b>"
-
-#~ msgid "<b>Why can other people edit my questions/answers?</b>"
-#~ msgstr ""
-#~ "<b>¿Por qué otras personas pueden editar mis preguntas / respuestas?</b>"
-
-#~ msgid "<i class=\"fa fa-home\"/> Course"
-#~ msgstr "<i class=\"fa fa-home\"/>Curso"
-
-#~ msgid "Courses Discussions"
-#~ msgstr "Discusiones de Cursos"
-
-#~ msgid "Description"
-#~ msgstr "Descripción"
-
-#~ msgid "Forum Page"
-#~ msgstr "Página del foro"
-
-#~ msgid "Hide Intro"
-#~ msgstr "Ocultar introducción"
-
-#~ msgid "Register"
-#~ msgstr "Registro"
-
-#~ msgid "Reviews"
-#~ msgstr "Reseñas"
-
-#~ msgid "See all Courses"
-#~ msgstr "Ver todos los Cursos"

@@ -4,16 +4,21 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0+e\n"
+"Project-Id-Version: Odoo Server 19.5a1+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-06 19:06+0000\n"
-"PO-Revision-Date: 2026-03-06 19:06+0000\n"
+"POT-Creation-Date: 2026-08-28 18:20+0000\n"
+"PO-Revision-Date: 2026-08-28 18:20+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
+
+#. module: l10n_in_pos
+#: model_terms:ir.ui.view,arch_db:l10n_in_pos.pos_orderline_receipt_information
+msgid "<span>HSN Code: </span>"
+msgstr ""
 
 #. module: l10n_in_pos
 #: model_terms:ir.ui.view,arch_db:l10n_in_pos.res_config_settings_view_form_l10n_in_pos_inherit
@@ -31,25 +36,28 @@ msgid ""
 msgstr ""
 
 #. module: l10n_in_pos
-#. odoo-javascript
-#: code:addons/l10n_in_pos/static/src/app/screens/receipt_screen/pos_receipt.xml:0
+#: model:ir.model,name:l10n_in_pos.model_res_partner_bank
+msgid "Bank Account"
+msgstr ""
+
+#. module: l10n_in_pos
+#: model_terms:ir.ui.view,arch_db:l10n_in_pos.pos_order_receipt
 msgid "CESS"
 msgstr ""
 
 #. module: l10n_in_pos
-#. odoo-javascript
-#: code:addons/l10n_in_pos/static/src/app/screens/receipt_screen/pos_receipt.xml:0
+#: model_terms:ir.ui.view,arch_db:l10n_in_pos.pos_order_receipt
 msgid "CGST"
 msgstr ""
 
 #. module: l10n_in_pos
 #: model:ir.model,name:l10n_in_pos.model_pos_bill
-msgid "Coins/Bills"
+msgid "Coin/Bill"
 msgstr ""
 
 #. module: l10n_in_pos
 #: model:ir.model,name:l10n_in_pos.model_res_company
-msgid "Companies"
+msgid "Company"
 msgstr ""
 
 #. module: l10n_in_pos
@@ -71,16 +79,24 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_in_pos.field_pos_config__display_name
 #: model:ir.model.fields,field_description:l10n_in_pos.field_pos_order__display_name
 #: model:ir.model.fields,field_description:l10n_in_pos.field_pos_order_line__display_name
+#: model:ir.model.fields,field_description:l10n_in_pos.field_pos_order_receipt__display_name
+#: model:ir.model.fields,field_description:l10n_in_pos.field_pos_payment_method__display_name
 #: model:ir.model.fields,field_description:l10n_in_pos.field_pos_session__display_name
 #: model:ir.model.fields,field_description:l10n_in_pos.field_product_product__display_name
 #: model:ir.model.fields,field_description:l10n_in_pos.field_product_template__display_name
 #: model:ir.model.fields,field_description:l10n_in_pos.field_res_company__display_name
+#: model:ir.model.fields,field_description:l10n_in_pos.field_res_partner_bank__display_name
 msgid "Display Name"
 msgstr ""
 
 #. module: l10n_in_pos
 #: model:ir.model,name:l10n_in_pos.model_account_tax
 msgid "ETA tax codes mixin"
+msgstr ""
+
+#. module: l10n_in_pos
+#: model:ir.module.module,description:base.module_l10n_in_pos
+msgid "GST Point of Sale"
 msgstr ""
 
 #. module: l10n_in_pos
@@ -102,15 +118,8 @@ msgid "Go to company configuration"
 msgstr ""
 
 #. module: l10n_in_pos
-#. odoo-javascript
-#: code:addons/l10n_in_pos/static/src/app/screens/receipt_screen/pos_receipt.xml:0
+#: model_terms:ir.ui.view,arch_db:l10n_in_pos.pos_order_receipt
 msgid "HSN Code"
-msgstr ""
-
-#. module: l10n_in_pos
-#. odoo-javascript
-#: code:addons/l10n_in_pos/static/src/app/screens/receipt_screen/pos_receipt.xml:0
-msgid "HSN Code:"
 msgstr ""
 
 #. module: l10n_in_pos
@@ -119,8 +128,7 @@ msgid "HSN Missing in POS"
 msgstr ""
 
 #. module: l10n_in_pos
-#. odoo-javascript
-#: code:addons/l10n_in_pos/static/src/app/screens/receipt_screen/pos_receipt.xml:0
+#: model_terms:ir.ui.view,arch_db:l10n_in_pos.pos_order_receipt
 msgid "HSN Summary"
 msgstr ""
 
@@ -138,23 +146,38 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_in_pos.field_pos_config__id
 #: model:ir.model.fields,field_description:l10n_in_pos.field_pos_order__id
 #: model:ir.model.fields,field_description:l10n_in_pos.field_pos_order_line__id
+#: model:ir.model.fields,field_description:l10n_in_pos.field_pos_order_receipt__id
+#: model:ir.model.fields,field_description:l10n_in_pos.field_pos_payment_method__id
 #: model:ir.model.fields,field_description:l10n_in_pos.field_pos_session__id
 #: model:ir.model.fields,field_description:l10n_in_pos.field_product_product__id
 #: model:ir.model.fields,field_description:l10n_in_pos.field_product_template__id
 #: model:ir.model.fields,field_description:l10n_in_pos.field_res_company__id
+#: model:ir.model.fields,field_description:l10n_in_pos.field_res_partner_bank__id
 msgid "ID"
 msgstr ""
 
 #. module: l10n_in_pos
-#. odoo-javascript
-#: code:addons/l10n_in_pos/static/src/app/screens/receipt_screen/pos_receipt.xml:0
+#: model_terms:ir.ui.view,arch_db:l10n_in_pos.pos_order_receipt
 msgid "IGST"
 msgstr ""
 
 #. module: l10n_in_pos
-#. odoo-javascript
-#: code:addons/l10n_in_pos/static/src/app/screens/receipt_screen/pos_receipt.xml:0
+#: model_terms:ir.ui.view,arch_db:l10n_in_pos.pos_order_receipt_header
 msgid "INVOICE"
+msgstr ""
+
+#. module: l10n_in_pos
+#. odoo-javascript
+#: code:addons/l10n_in_pos/static/src/app/components/popups/qr_code_popup/qr_code_popup.xml:0
+#: code:addons/l10n_in_pos/static/src/customer_display/customer_display.xml:0
+msgid "Icon"
+msgstr ""
+
+#. module: l10n_in_pos
+#: model:ir.model.fields,help:l10n_in_pos.field_pos_payment_method__qr_payment_icon_ids
+msgid ""
+"Icons that will be displayed in the QR dialog to indicate the available "
+"payment options."
 msgstr ""
 
 #. module: l10n_in_pos
@@ -163,6 +186,16 @@ msgstr ""
 msgid ""
 "If you know the HSN codes, you can go to Products and set the missing ones "
 "there."
+msgstr ""
+
+#. module: l10n_in_pos
+#: model:ir.module.module,shortdesc:base.module_l10n_in_pos
+msgid "Indian - Point of Sale"
+msgstr ""
+
+#. module: l10n_in_pos
+#: model_terms:ir.ui.view,arch_db:l10n_in_pos.pos_order_receipt_header
+msgid "Invoice"
 msgstr ""
 
 #. module: l10n_in_pos
@@ -193,9 +226,14 @@ msgid "Ok"
 msgstr ""
 
 #. module: l10n_in_pos
-#. odoo-javascript
-#: code:addons/l10n_in_pos/static/src/app/screens/receipt_screen/pos_receipt.xml:0
-msgid "Phone:"
+#: model:ir.model.constraint,message:l10n_in_pos.constraint_pos_payment_method_check_unique_upi_identifier
+msgid "Payment Method with this UPI ID already exist."
+msgstr ""
+
+#. module: l10n_in_pos
+#. odoo-python
+#: code:addons/l10n_in_pos/models/pos_payment_method.py:0
+msgid "Please set a UPI ID for the payment method '%s'."
 msgstr ""
 
 #. module: l10n_in_pos
@@ -204,13 +242,23 @@ msgid "Point of Sale Configuration"
 msgstr ""
 
 #. module: l10n_in_pos
-#: model:ir.model,name:l10n_in_pos.model_pos_order_line
-msgid "Point of Sale Order Lines"
+#: model:ir.model,name:l10n_in_pos.model_pos_order
+msgid "Point of Sale Order"
 msgstr ""
 
 #. module: l10n_in_pos
-#: model:ir.model,name:l10n_in_pos.model_pos_order
-msgid "Point of Sale Orders"
+#: model:ir.model,name:l10n_in_pos.model_pos_order_line
+msgid "Point of Sale Order Line"
+msgstr ""
+
+#. module: l10n_in_pos
+#: model:ir.model,name:l10n_in_pos.model_pos_order_receipt
+msgid "Point of Sale Order Receipt Generator"
+msgstr ""
+
+#. module: l10n_in_pos
+#: model:ir.model,name:l10n_in_pos.model_pos_payment_method
+msgid "Point of Sale Payment Method"
 msgstr ""
 
 #. module: l10n_in_pos
@@ -229,14 +277,23 @@ msgid "Product Variant"
 msgstr ""
 
 #. module: l10n_in_pos
-#. odoo-javascript
-#: code:addons/l10n_in_pos/static/src/app/screens/receipt_screen/pos_receipt.xml:0
+#: model:ir.model.fields,field_description:l10n_in_pos.field_pos_payment_method__qr_payment_icon_ids
+#: model_terms:ir.ui.view,arch_db:l10n_in_pos.pos_payment_method_view_form_inherit_l10n_in_pos
+msgid "QR Payment Icons"
+msgstr ""
+
+#. module: l10n_in_pos
+#: model_terms:ir.ui.view,arch_db:l10n_in_pos.pos_order_receipt_header
+msgid "R-"
+msgstr ""
+
+#. module: l10n_in_pos
+#: model_terms:ir.ui.view,arch_db:l10n_in_pos.pos_order_receipt
 msgid "Rate%"
 msgstr ""
 
 #. module: l10n_in_pos
-#. odoo-javascript
-#: code:addons/l10n_in_pos/static/src/app/screens/receipt_screen/pos_receipt.xml:0
+#: model_terms:ir.ui.view,arch_db:l10n_in_pos.pos_order_receipt
 msgid "SGST"
 msgstr ""
 
@@ -255,15 +312,37 @@ msgid ""
 msgstr ""
 
 #. module: l10n_in_pos
-#. odoo-javascript
-#: code:addons/l10n_in_pos/static/src/app/screens/receipt_screen/pos_receipt.xml:0
-msgid "Tax Invoice"
+#: model_terms:ir.ui.view,arch_db:l10n_in_pos.pos_order_receipt_header
+msgid "Tax"
 msgstr ""
 
 #. module: l10n_in_pos
 #. odoo-javascript
 #: code:addons/l10n_in_pos/static/src/app/components/popups/product_info_popup/product_info_popup.js:0
 msgid "Total GST:"
+msgstr ""
+
+#. module: l10n_in_pos
+#. odoo-python
+#: code:addons/l10n_in_pos/models/res_partner_bank.py:0
+msgid "UPI"
+msgstr ""
+
+#. module: l10n_in_pos
+#: model:ir.model.fields,field_description:l10n_in_pos.field_pos_payment_method__upi_identifier
+msgid "UPI ID"
+msgstr ""
+
+#. module: l10n_in_pos
+#: model:ir.model.fields,help:l10n_in_pos.field_pos_payment_method__upi_identifier
+msgid "UPI ID to be used for UPI QR payments."
+msgstr ""
+
+#. module: l10n_in_pos
+#. odoo-javascript
+#: code:addons/l10n_in_pos/static/src/app/components/popups/qr_code_popup/qr_code_popup.xml:0
+#: code:addons/l10n_in_pos/static/src/customer_display/customer_display.xml:0
+msgid "UPI:"
 msgstr ""
 
 #. module: l10n_in_pos
@@ -277,6 +356,11 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/l10n_in_pos/static/src/app/components/popups/company_state_dialog/company_state_dialog.xml:0
 msgid "Your company"
+msgstr ""
+
+#. module: l10n_in_pos
+#: model_terms:ir.ui.view,arch_db:l10n_in_pos.pos_payment_method_view_form_inherit_l10n_in_pos
+msgid "e.g. success@odoo"
 msgstr ""
 
 #. module: l10n_in_pos

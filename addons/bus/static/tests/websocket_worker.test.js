@@ -1,13 +1,7 @@
 import { getWebSocketWorker } from "@bus/../tests/mock_websocket";
 import { advanceTime, describe, expect, test } from "@odoo/hoot";
 import { runAllTimers } from "@odoo/hoot-dom";
-import {
-    asyncStep,
-    makeMockServer,
-    MockServer,
-    patchWithCleanup,
-    waitForSteps,
-} from "@web/../tests/web_test_helpers";
+import { makeMockServer, MockServer, patchWithCleanup } from "@web/../tests/web_test_helpers";
 
 import { WEBSOCKET_CLOSE_CODES, WebsocketWorker } from "@bus/workers/websocket_worker";
 
@@ -36,35 +30,35 @@ const startWebSocketWorker = async (onBroadcast) => {
 test("connect event is broadcasted after calling start", async () => {
     await startWebSocketWorker((type) => {
         if (type !== "BUS:WORKER_STATE_UPDATED") {
-            asyncStep(`broadcast ${type}`);
+            expect.step(`broadcast ${type}`);
         }
     });
-    await waitForSteps(["broadcast BUS:CONNECT"]);
+    await expect.waitForSteps(["broadcast BUS:CONNECT"]);
 });
 
 test("disconnect event is broadcasted", async () => {
     const worker = await startWebSocketWorker((type) => {
         if (type !== "BUS:WORKER_STATE_UPDATED") {
-            asyncStep(`broadcast ${type}`);
+            expect.step(`broadcast ${type}`);
         }
     });
-    await waitForSteps(["broadcast BUS:CONNECT"]);
+    await expect.waitForSteps(["broadcast BUS:CONNECT"]);
     worker.websocket.close(WEBSOCKET_CLOSE_CODES.CLEAN);
     await runAllTimers();
-    await waitForSteps(["broadcast BUS:DISCONNECT"]);
+    await expect.waitForSteps(["broadcast BUS:DISCONNECT"]);
 });
 
 test("reconnecting/reconnect event is broadcasted", async () => {
     const worker = await startWebSocketWorker((type) => {
         if (type !== "BUS:WORKER_STATE_UPDATED") {
-            asyncStep(`broadcast ${type}`);
+            expect.step(`broadcast ${type}`);
         }
     });
-    await waitForSteps(["broadcast BUS:CONNECT"]);
+    await expect.waitForSteps(["broadcast BUS:CONNECT"]);
     worker.websocket.close(WEBSOCKET_CLOSE_CODES.ABNORMAL_CLOSURE);
-    await waitForSteps(["broadcast BUS:DISCONNECT", "broadcast BUS:RECONNECTING"]);
+    await expect.waitForSteps(["broadcast BUS:DISCONNECT", "broadcast BUS:RECONNECTING"]);
     await runAllTimers();
-    await waitForSteps(["broadcast BUS:RECONNECT"]);
+    await expect.waitForSteps(["broadcast BUS:RECONNECT"]);
 });
 
 test("notification event is broadcasted", async () => {
@@ -84,14 +78,42 @@ test("notification event is broadcasted", async () => {
             expect(message).toEqual(notifications);
         }
         if (["BUS:CONNECT", "BUS:NOTIFICATION"].includes(type)) {
-            asyncStep(`broadcast ${type}`);
+            expect.step(`broadcast ${type}`);
         }
     });
-    await waitForSteps(["broadcast BUS:CONNECT"]);
+    await expect.waitForSteps(["broadcast BUS:CONNECT"]);
     for (const serverWs of MockServer.current._websockets) {
         serverWs.send(JSON.stringify(notifications));
     }
-    await waitForSteps(["broadcast BUS:NOTIFICATION"]);
+    await expect.waitForSteps(["broadcast BUS:NOTIFICATION"]);
+});
+
+test("last_id_reset updates worker state", async () => {
+    const worker = await startWebSocketWorker();
+    worker.lastNotificationId = 50;
+    worker.seenNotificationIds.add(5);
+    worker.seenNotificationIds.add(40);
+    worker.seenNotificationIds.add(50);
+    const internalMsg = [{ type: "bus/last_id_reset", internal: true, payload: 10 }];
+    for (const serverWs of MockServer.current._websockets) {
+        serverWs.send(JSON.stringify(internalMsg));
+    }
+    await runAllTimers();
+    expect(worker.lastNotificationId).toBe(10);
+    expect(worker.seenNotificationIds.has(5)).toBe(true);
+    expect(worker.seenNotificationIds.has(40)).toBe(false);
+    expect(worker.seenNotificationIds.has(50)).toBe(false);
+});
+
+test("last_id_reset with zero payload resets to 0, not undefined", async () => {
+    const worker = await startWebSocketWorker();
+    worker.lastNotificationId = 50;
+    const internalMsg = [{ type: "bus/last_id_reset", internal: true, payload: 0 }];
+    for (const serverWs of MockServer.current._websockets) {
+        serverWs.send(JSON.stringify(internalMsg));
+    }
+    await runAllTimers();
+    expect(worker.lastNotificationId).toBe(0);
 });
 
 test("disconnect event is sent when stopping the worker", async () => {
@@ -109,18 +131,18 @@ test("disconnect event is sent when stopping the worker", async () => {
 test("check connection health during inactivity", async () => {
     const ogSocket = window.WebSocket;
     let waitingForCheck = true;
-    patchWithCleanup(window, {
-        WebSocket: function () {
-            const ws = new ogSocket(...arguments);
-            ws.send = (message) => {
-                if (waitingForCheck && message instanceof Uint8Array) {
-                    expect.step("check_connection_health_sent");
-                    waitingForCheck = false;
-                }
-            };
-            return ws;
-        },
-    });
+    const newSocket = function () {
+        const ws = new ogSocket(...arguments);
+        ws.send = (message) => {
+            if (waitingForCheck && message instanceof Uint8Array) {
+                expect.step("check_connection_health_sent");
+                waitingForCheck = false;
+            }
+        };
+        return ws;
+    };
+    Object.assign(newSocket, ogSocket);
+    patchWithCleanup(window, { WebSocket: newSocket });
     patchWithCleanup(WebsocketWorker.prototype, {
         enableCheckInterval: true,
         _restartConnectionCheckInterval() {
@@ -149,4 +171,45 @@ test("check connection health during inactivity", async () => {
     await expect.waitForSteps(["_restartConnectionCheckInterval"]);
     await advanceTime(worker.CONNECTION_CHECK_DELAY + 1000);
     await expect.waitForSteps(["check_connection_health_sent"]);
+});
+
+test("debounced updates respect force and batching", async () => {
+    patchWithCleanup(WebsocketWorker, { OUTGOING_BATCH_DELAY: 120_000 });
+    patchWithCleanup(WebsocketWorker.prototype, {
+        _sendToServer(message) {
+            if (message.event_name === "subscribe") {
+                expect.step(`subscribe - ${JSON.stringify(message.data.channels)}`);
+            }
+            super._sendToServer(message);
+        },
+    });
+    const worker = await startWebSocketWorker((type) => {
+        if (type == "BUS:CONNECT") {
+            expect.step(type);
+        }
+    });
+    const client = new MessagePort();
+    worker.registerClient(client);
+    worker._start();
+    await expect.waitForSteps(["BUS:CONNECT"]);
+    await advanceTime(120_000);
+    await expect.waitForSteps(["subscribe - []"]);
+    worker._onClientMessage(client, { action: "BUS:ADD_CHANNEL", data: "C1" });
+    await advanceTime(120_000);
+    await expect.waitForSteps(['subscribe - ["C1"]']);
+    // 1 add channel => force => only one forced subscribe
+    worker._onClientMessage(client, { action: "BUS:ADD_CHANNEL", data: "C1" });
+    worker._onClientMessage(client, { action: "BUS:FORCE_UPDATE_CHANNELS" });
+    await advanceTime(120_000);
+    await expect.waitForSteps(['subscribe - ["C1"]']);
+    // 2 force => add channel => only one forced subscribe
+    worker._onClientMessage(client, { action: "BUS:FORCE_UPDATE_CHANNELS" });
+    worker._onClientMessage(client, { action: "BUS:ADD_CHANNEL", data: "C1" });
+    await advanceTime(120_000);
+    await expect.waitForSteps(['subscribe - ["C1"]']);
+    // 3 multiple adds => only one subscribe
+    worker._onClientMessage(client, { action: "BUS:ADD_CHANNEL", data: "C2" });
+    worker._onClientMessage(client, { action: "BUS:ADD_CHANNEL", data: "C3" });
+    await advanceTime(120_000);
+    await expect.waitForSteps(['subscribe - ["C1","C2","C3"]']);
 });

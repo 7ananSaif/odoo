@@ -1,22 +1,36 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from base64 import b64encode
 from hashlib import sha512
 from odoo import models, fields, api
-from odoo.tools import html_escape, file_open
-from odoo.tools.misc import limited_field_access_token
+from odoo.tools import BinaryBytes, html_escape
+from odoo.tools.misc import file_open, limited_field_access_token
 
 
-def get_hsl_from_seed(seed):
+def get_random_ui_color_from_seed(seed: str):
     hashed_seed = sha512(seed.encode()).hexdigest()
-    # full range of colors, in degree
-    hue = int(hashed_seed[0:2], 16) * 360 / 255
-    # colorful result but not too flashy, in percent
-    sat = int(hashed_seed[2:4], 16) * ((70 - 40) / 255) + 40
-    # not too bright and not too dark, in percent
-    lig = 45
-    return f'hsl({hue:.0f}, {sat:.0f}%, {lig:.0f}%)'
+    # Colors from COLOR_XL[] in core/colors/colors.js
+    avatar_bg_colors = ["#4EA7F2", "#3188E6", "#056BD9", "#155193", "#A76DBC", "#7F4295", "#6D2387", "#4F1565", "#EA6175", "#CE4257", "#982738", "#791B29", "#43C5B1", "#00A78D", "#0E8270", "#105F53", "#F4A261", "#F48935", "#BE5D10", "#7D380D", "#8481DD", "#5752D1", "#3A3580", "#26235F", "#A4A8B6", "#7E8290", "#545B70", "#3F4250", "#FFD86D", "#FFBC2C", "#C08A16", "#936A12"]
+    num = int(hashed_seed, 16)
+    return avatar_bg_colors[num % len(avatar_bg_colors)]
+
+
+def generate_text_avatar_svg(text, seed):
+    """Build an SVG avatar showing ``text`` over a ``seed``-stable UI color.
+
+    :param str text: the short text (initials or number) drawn on the avatar.
+    :param str seed: value the background color is derived from.
+    :return: the SVG avatar bytes.
+    :rtype: odoo.tools.BinaryBytes
+    """
+    bgcolor = get_random_ui_color_from_seed(seed)
+    font_size = 104 if len(text) <= 1 else 86
+    return BinaryBytes((
+        "<?xml version='1.0' encoding='UTF-8' ?>"
+        "<svg height='180' width='180' xmlns='http://www.w3.org/2000/svg'>"
+        f"<rect fill='{bgcolor}' height='180' width='180'/>"
+        f"<text fill='#ffffff' font-size='{font_size}' font-weight='bold' text-anchor='middle' x='90' y='124' font-family='sans-serif'>{html_escape(text)}</text>"
+        "</svg>"
+    ).encode())
 
 
 class AvatarMixin(models.AbstractModel):
@@ -25,7 +39,7 @@ class AvatarMixin(models.AbstractModel):
     _description = "Avatar Mixin"
     _avatar_name_field = "name"
 
-    # all image fields are base64 encoded and PIL-supported
+    # all image fields are PIL-supported
     avatar_1920 = fields.Image("Avatar", compute="_compute_avatar_1920")
     avatar_1024 = fields.Image("Avatar 1024", compute="_compute_avatar_1024")
     avatar_512 = fields.Image("Avatar 512", compute="_compute_avatar_512")
@@ -39,7 +53,7 @@ class AvatarMixin(models.AbstractModel):
                 if record.id and record[record._avatar_name_field]:
                     avatar = record._avatar_generate_svg()
                 else:
-                    avatar = b64encode(record._avatar_get_placeholder())
+                    avatar = record._avatar_get_placeholder()
             record[avatar_field] = avatar
 
     @api.depends(lambda self: [self._avatar_name_field, 'image_1920'])
@@ -64,21 +78,21 @@ class AvatarMixin(models.AbstractModel):
 
     def _avatar_generate_svg(self):
         initial = html_escape(self[self._avatar_name_field][0].upper())
-        bgcolor = get_hsl_from_seed(self[self._avatar_name_field] + str(self.create_date.timestamp() if self.create_date else ""))
-        return b64encode((
-            "<?xml version='1.0' encoding='UTF-8' ?>"
-            "<svg height='180' width='180' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>"
-            f"<rect fill='{bgcolor}' height='180' width='180'/>"
-            f"<text fill='#ffffff' font-size='96' text-anchor='middle' x='90' y='125' font-family='sans-serif'>{initial}</text>"
-            "</svg>"
-        ).encode())
+        bgcolor = get_random_ui_color_from_seed(f"{self[self._avatar_name_field]}{self.create_date.timestamp() if self.create_date else ""}")
+        return BinaryBytes((
+            '<?xml version="1.0" encoding="UTF-8" ?>'
+            '<svg height="180" width="180" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">'
+            f'<rect fill="{bgcolor}" height="180" width="180"/>'
+            f'<text fill="#ffffff" font-size="96" text-anchor="middle" x="90" y="125" font-family="sans-serif">{initial}</text>'
+            '</svg>'
+        ).encode(), filename=f'avatar_{initial}.svg')
 
     def _avatar_get_placeholder_path(self):
         return "base/static/img/avatar_grey.png"
 
     def _avatar_get_placeholder(self):
         with file_open(self._avatar_get_placeholder_path(), 'rb') as f:
-            return f.read()
+            return BinaryBytes(f.read(), filename='avatar.svg')
 
     def _get_avatar_128_access_token(self):
         """Return a scoped access token for the `avatar_128` field. The token can be

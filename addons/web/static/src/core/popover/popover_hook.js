@@ -1,9 +1,9 @@
-import { onWillUnmount, status, useComponent } from "@odoo/owl";
+import { onWillUnmount, useScope } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 
 /**
- * @typedef {import("@web/core/popover/popover_service").PopoverServiceAddFunction} PopoverServiceAddFunction
- * @typedef {import("@web/core/popover/popover_service").PopoverServiceAddOptions} PopoverServiceAddOptions
+ * @typedef {import("@web/core/popover/popover_plugin").PopoverPlugin["add"]} PopoverServiceAddFunction
+ * @typedef {import("@web/core/popover/popover_plugin").PopoverOptionSchema} PopoverServiceAddOptions
  */
 
 /**
@@ -33,10 +33,13 @@ export function makePopover(addFn, component, options) {
             close();
             const newOptions = Object.create(options);
             newOptions.onClose = () => {
-                removeFn = null;
+                if (removeFn === remove) {
+                    removeFn = null;
+                }
                 options.onClose?.();
             };
-            removeFn = addFn(target, component, props, newOptions);
+            const remove = addFn(target, component, props, newOptions);
+            removeFn = remove;
         },
         close,
         get isOpen() {
@@ -59,14 +62,19 @@ export function usePopover(component, options = {}) {
     } else {
         service = useService("popover");
     }
-    const owner = useComponent();
     const newOptions = Object.create(options);
-    newOptions.onClose = () => {
-        if (status(owner) !== "destroyed") {
-            options.onClose?.();
-        }
-    };
-    const popover = makePopover(service.add, component, newOptions);
+    const scope = useScope();
+    if (options.withScope) {
+        newOptions.scope = scope;
+    }
+    if (options.onClose) {
+        newOptions.onClose = () => {
+            if (scope.status === 1) {
+                options.onClose();
+            }
+        };
+    }
+    const popover = makePopover(service.add.bind(service), component, newOptions);
     onWillUnmount(popover.close);
     return popover;
 }

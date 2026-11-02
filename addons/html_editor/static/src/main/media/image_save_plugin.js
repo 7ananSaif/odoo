@@ -4,7 +4,9 @@ import {
     backgroundImagePartsToCss,
     getImageSrc,
 } from "@html_editor/utils/image";
+import { loadImage } from "@html_editor/utils/image_processing";
 import { rpc } from "@web/core/network/rpc";
+import { ATTACHMENT_PENDING_RECORD_ID } from "./media_plugin";
 
 /**
  * @typedef { Object } ImageSaveShared
@@ -13,18 +15,21 @@ import { rpc } from "@web/core/network/rpc";
 
 /**
  * @typedef {((el: HTMLElement) => HTMLElement)[]} closest_savable_providers
+ *
+ * @typedef {((args: {imageEl: HTMLElement}) => void)[]} on_image_saved_handlers
  */
 
 export class ImageSavePlugin extends Plugin {
     static id = "imageSave";
     static shared = ["savePendingImages"];
+    static dependencies = ["imagePostProcess"];
 
     /** @type {import("plugins").EditorResources} */
     resources = {
-        before_save_handlers: this.savePendingImages.bind(this),
+        on_will_save_handlers: this.savePendingImages.bind(this),
 
         ...(this.config.dropImageAsAttachment && {
-            added_image_handlers: (img) => img.classList.add("o_b64_image_to_save"),
+            on_image_added_handlers: (img) => img.classList.add("o_b64_image_to_save"),
         }),
     };
 
@@ -102,6 +107,14 @@ export class ImageSavePlugin extends Plugin {
         if (!attachment) {
             return;
         }
+        if (!this.config.getRecordInfo()?.resId) {
+            // `el` is the image node in the clone that will be saved.
+            // we need to add these to the image in the DOM so the
+            // remap mechanism intercept it and works properly.
+            const originalImage = this.editable.querySelector(`[src="${el.getAttribute("src")}"]`);
+            originalImage.classList.add(ATTACHMENT_PENDING_RECORD_ID);
+            originalImage.dataset.attachmentId = attachment.id;
+        }
         if (attachment.mimetype === "image/webp") {
             el.classList.add("o_modified_image_to_save");
             el.dataset.originalId = attachment.id;
@@ -140,29 +153,30 @@ export class ImageSavePlugin extends Plugin {
         // it was modified previously, as the other modified image may be used
         // elsewhere if the snippet was duplicated or was saved as a custom one.
         let altData = undefined;
+        const altImages = {};
         const isImageField = !!el.closest("[data-oe-type=image]");
+
+        const loadedImgEl = await loadImage(getImageSrc(el));
+        const maxSize = loadedImgEl.width;
         if (el.dataset.mimetype === "image/webp" && isImageField) {
             // Generate alternate sizes and format for reports.
             altData = {};
-            const image = document.createElement("img");
-            image.src = getImageSrc(el);
-            await new Promise((resolve) => image.addEventListener("load", resolve));
-            const originalSize = Math.max(image.width, image.height);
+            const originalSize = Math.max(loadedImgEl.width, loadedImgEl.height);
             const smallerSizes = [1024, 512, 256, 128].filter((size) => size < originalSize);
             for (const size of [originalSize, ...smallerSizes]) {
                 const ratio = size / originalSize;
                 const canvas = document.createElement("canvas");
-                canvas.width = image.width * ratio;
-                canvas.height = image.height * ratio;
+                canvas.width = loadedImgEl.width * ratio;
+                canvas.height = loadedImgEl.height * ratio;
                 const ctx = canvas.getContext("2d");
                 ctx.fillStyle = "rgb(255, 255, 255)";
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(
-                    image,
+                    loadedImgEl,
                     0,
                     0,
-                    image.width,
-                    image.height,
+                    loadedImgEl.width,
+                    loadedImgEl.height,
                     0,
                     0,
                     canvas.width,
@@ -172,35 +186,96 @@ export class ImageSavePlugin extends Plugin {
                     "image/jpeg": canvas.toDataURL("image/jpeg").split(",")[1],
                 };
                 if (size !== originalSize) {
-                    altData[size]["image/webp"] = canvas
-                        .toDataURL("image/webp")
-                        .split(",")[1];
+                    altData[size]["image/webp"] = canvas.toDataURL("image/webp").split(",")[1];
                 }
             }
         }
-        const newAttachmentSrc = await rpc(
-            `/html_editor/modify_image/${encodeURIComponent(el.dataset.originalId)}`,
-            {
-                res_model: resModel,
-                res_id: parseInt(resId),
-                data: getImageSrc(el).split(",")[1],
-                alt_data: altData,
-                mimetype: isBackground
-                    ? el.dataset.mimetype
-                    : el.getAttribute("src").split(":")[1].split(";")[0],
-                name: el.dataset.fileName ? el.dataset.fileName : null,
+        if (
+            !isImageField &&
+            !isBackground &&
+            el.dataset.mimetype !== "image/gif" &&
+            !el.dataset.hoverEffect
+        ) {
+            // We are using these sizes instead of the normally used 128, 256, ...
+            // because we want to optimize smartphone data usage and loading time.
+            // Each sizes in smallerSizes fits a certain category of smartphone,
+            // while still limiting the number of image generated.
+            const smallerSizes = [750, 900, 1080, 1280].filter(
+                // We only generate sizes smaller than 85% of the original size
+                (size) => size < Math.floor(maxSize * 0.85)
+            );
+            if (smallerSizes.length) {
+                const imgCloneEl = el.cloneNode(true);
+                for (const size of smallerSizes) {
+                    const updateImageSize = await this.dependencies.imagePostProcess.processImage({
+                        img: imgCloneEl,
+                        newDataset: { resizeWidth: size },
+                    });
+                    updateImageSize();
+                    if (getImageSrc(imgCloneEl)) {
+                        altImages[size] = this.getImageBase64Payload(imgCloneEl);
+                    }
+                }
             }
-        );
+        }
+        let attachmentNotFound = false;
+        let newAttachmentUrls;
+        try {
+            newAttachmentUrls = await rpc(
+                `/html_editor/modify_image/${encodeURIComponent(el.dataset.originalId)}`,
+                {
+                    res_model: resModel,
+                    res_id: parseInt(resId),
+                    data: this.getImageBase64Payload(el),
+                    alt_data: altData,
+                    alt_images: Object.keys(altImages).length ? altImages : null,
+                    mimetype: isBackground
+                        ? el.dataset.mimetype
+                        : el.getAttribute("src").split(":")[1].split(";")[0],
+                    name: el.dataset.fileName ? el.dataset.fileName : null,
+                }
+            );
+        } catch {
+            // On RPC failure, set a placeholder image source with a flag.
+            newAttachmentUrls = {
+                original: "/html_editor/static/src/img/placeholder_thumbnail.png",
+            };
+            attachmentNotFound = true;
+        }
+        const srcset = [];
+        if (!attachmentNotFound && Object.keys(altImages).length) {
+            for (const size in altImages) {
+                if (newAttachmentUrls[size]) {
+                    srcset.push(`${newAttachmentUrls[size]} ${size}w`);
+                }
+            }
+            srcset.push(`${newAttachmentUrls["original"]} ${maxSize}w`);
+        }
+
         el.classList.remove("o_modified_image_to_save");
+        let targetEl = el;
         if (isBackground) {
             const parts = backgroundImageCssToParts(el.style["background-image"]);
-            parts.url = `url('${newAttachmentSrc}')`;
+            parts.url = `url('${newAttachmentUrls["original"]}')`;
             const combined = backgroundImagePartsToCss(parts);
             el.style["background-image"] = combined;
         } else {
-            el.setAttribute("src", newAttachmentSrc);
+            if (attachmentNotFound) {
+                // Reset image to a clean state if a placeholder is returned.
+                targetEl = document.createElement("img");
+                el.insertAdjacentElement("afterend", targetEl);
+                el.remove();
+            }
+            targetEl.setAttribute("src", newAttachmentUrls["original"]);
+            if (srcset.length) {
+                targetEl.setAttribute("srcset", srcset.join(", "));
+            }
         }
-        this.dispatchTo("on_image_saved_handlers", { imageEl: el });
+        this.trigger("on_image_saved_handlers", { imageEl: targetEl });
+    }
+
+    getImageBase64Payload(el) {
+        return getImageSrc(el).split(",")[1];
     }
 
     getRecordInfo(editableEl = null) {

@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">
-    <cbc:ID>RINV/2025/00001</cbc:ID>
+    <cbc:ID>RPOSUSD/2025/00001</cbc:ID>
     <cbc:IssueDate>2025-01-01</cbc:IssueDate>
     <cbc:IssueTime>00:00:00Z</cbc:IssueTime>
     <cbc:InvoiceTypeCode listVersionID="1.1">04</cbc:InvoiceTypeCode>
@@ -108,9 +108,6 @@
             </cac:PartyLegalEntity>
         </cac:DeliveryParty>
     </cac:Delivery>
-    <cac:PrepaidPayment>
-        <cbc:PaidAmount currencyID="USD">0.00</cbc:PaidAmount>
-    </cac:PrepaidPayment>
     <cac:TaxExchangeRate>
         <cbc:SourceCurrencyCode>USD</cbc:SourceCurrencyCode>
         <cbc:TargetCurrencyCode>MYR</cbc:TargetCurrencyCode>
@@ -158,7 +155,6 @@
             </cac:TaxSubtotal>
         </cac:TaxTotal>
         <cac:Item>
-            <cbc:Description>Product 1</cbc:Description>
             <cbc:Name>Product 1</cbc:Name>
             <cac:CommodityClassification>
                 <cbc:ItemClassificationCode listID="CLASS">004</cbc:ItemClassificationCode>

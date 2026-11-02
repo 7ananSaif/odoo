@@ -1,11 +1,9 @@
-from lxml import etree
 from urllib.parse import urlencode
 
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
-from odoo.tools import cleanup_xml_node
-from odoo.tools.sql import column_exists, create_column
 
+from odoo.addons.l10n_gr_edi import utils
 from odoo.addons.l10n_gr_edi.models.l10n_gr_edi_document import _make_mydata_request
 from odoo.addons.l10n_gr_edi.models.preferred_classification import (
     CLASSIFICATION_CATEGORY_EXPENSE,
@@ -23,7 +21,6 @@ from odoo.addons.l10n_gr_edi.models.preferred_classification import (
     TYPES_WITH_VAT_CATEGORY_8,
     TYPES_WITH_VAT_EXEMPT,
     VALID_TAX_AMOUNTS,
-    VALID_TAX_CATEGORY_MAP,
 )
 
 
@@ -34,11 +31,13 @@ class AccountMove(models.Model):
         string='Mark',
         compute='_compute_from_l10n_gr_edi_document_ids',
         store=True,
+        init_storage=lambda model: None,
     )
     l10n_gr_edi_cls_mark = fields.Char(
         string='Classification Mark',
         compute='_compute_from_l10n_gr_edi_document_ids',
         store=True,
+        init_storage=lambda model: None,
     )
     l10n_gr_edi_document_ids = fields.One2many(
         comodel_name='l10n_gr_edi.document',
@@ -56,6 +55,7 @@ class AccountMove(models.Model):
         compute='_compute_from_l10n_gr_edi_document_ids',
         store=True,
         tracking=True,
+        init_storage=lambda model: None,
     )
     l10n_gr_edi_available_inv_type = fields.Char(compute='_compute_l10n_gr_edi_available_inv_type')
     l10n_gr_edi_correlation_id = fields.Many2one(
@@ -68,12 +68,14 @@ class AccountMove(models.Model):
         compute='_compute_l10n_gr_edi_inv_type',
         store=True,
         readonly=False,
+        init_storage=lambda model: None,
     )
     l10n_gr_edi_payment_method = fields.Selection(
         selection=PAYMENT_METHOD_SELECTION,
         string='Payment Method',
         compute='_compute_l10n_gr_edi_payment_method',
         store=True,
+        init_storage=lambda model: None,
     )
     l10n_gr_edi_alerts = fields.Json(compute='_compute_l10n_gr_edi_alerts')
     l10n_gr_edi_need_correlated = fields.Boolean(compute='_compute_l10n_gr_edi_need_fields')
@@ -85,24 +87,25 @@ class AccountMove(models.Model):
         comodel_name='ir.attachment',
         compute='_compute_from_l10n_gr_edi_document_ids',
         store=True,
+        init_storage=lambda model: None,
     )
-
-    def _auto_init(self):
-        """
-        Create all compute-stored fields here to avoid MemoryError when initializing on large databases.
-        """
-        for column_name, column_type in (
-            ('l10n_gr_edi_mark', 'varchar'),
-            ('l10n_gr_edi_cls_mark', 'varchar'),
-            ('l10n_gr_edi_state', 'varchar'),
-            ('l10n_gr_edi_inv_type', 'varchar'),
-            ('l10n_gr_edi_payment_method', 'varchar'),
-            ('l10n_gr_edi_attachment_id', 'int4'),
-        ):
-            if not column_exists(self.env.cr, 'account_move', column_name):
-                create_column(self.env.cr, 'account_move', column_name, column_type)
-
-        return super()._auto_init()
+    l10n_gr_edi_budget_type = fields.Selection([
+        ('1', '1 - Ordinary Budget'),
+        ('2', '2 - PDE (Public Investment Budget)'),
+        ('3', '3 - Other Budget')
+        ], string="Budget Type"
+    )
+    l10n_gr_edi_project_reference = fields.Char(
+        string='Project reference number',
+        help='ADA or Enaritmos number',
+    )
+    l10n_gr_edi_contract_reference = fields.Char(
+        string='Contract ADAM',
+        help='Internet contract posting number(ADAM) of the Central Electronic Register of Public Procurement (KIMDIS)',
+        default='0',
+        init_storage=lambda model: None,
+        required=True,
+    )
 
     ################################################################################
     # Standard Field Computes
@@ -133,7 +136,7 @@ class AccountMove(models.Model):
             if move.l10n_gr_edi_state in ('invoice_sent', 'bill_sent'):
                 move.show_reset_to_draft_button = False
 
-    @api.depends('country_code', 'state')
+    @api.depends('country_code', 'state', 'company_id', 'l10n_gr_edi_inv_type', 'commercial_partner_id', 'invoice_line_ids')
     def _compute_l10n_gr_edi_alerts(self):
         for move in self:
             # Warnings are only calculated when the move state is posted.
@@ -194,7 +197,7 @@ class AccountMove(models.Model):
                     # If we have previously calculated the inv_type, reuse it here.
                     # For entry moves, we want the inv_type to be False. (we don't send anything to myDATA on entry moves)
                     move.l10n_gr_edi_inv_type = move.l10n_gr_edi_inv_type
-                elif move.move_type in ('out_refund', 'in_refund'):
+                elif move.is_refund():
                     # inv_type specific for credit notes
                     if move.l10n_gr_edi_correlation_id:
                         # when possible, we must add the associate invoice/bill mark (id)
@@ -221,68 +224,8 @@ class AccountMove(models.Model):
             move.l10n_gr_edi_need_payment_method = move.l10n_gr_edi_inv_type in TYPES_WITH_MANDATORY_PAYMENT
 
     ################################################################################
-    # Greece Document Helpers
-    ################################################################################
-
-    def _l10n_gr_edi_create_error_document(self, values: dict):
-        """
-        Creates ``l10n_gr_edi.document`` of state ``invoice_error`` or ``bill_error``.
-        :param values: dictionary in the format of: {'error': <str>, 'xml_content': <optional/str>}
-        """
-        self.ensure_one()
-        document = self.env['l10n_gr_edi.document'].create({
-            'move_id': self.id,
-            'state': 'invoice_error' if self.is_sale_document(include_receipts=True) else 'bill_error',
-            'message': values['error'],
-        })
-        if xml_content := values.get('xml_content'):
-            document.attachment_id = self.env['ir.attachment'].sudo().create({
-                'name': f"mydata_{self.name.replace('/', '_')}.xml",
-                'res_model': document._name,
-                'res_id': document.id,
-                'raw': xml_content,
-                'type': 'binary',
-                'mimetype': 'application/xml',
-            })
-        return document
-
-    def _l10n_gr_edi_create_sent_document(self, values: dict):
-        """
-        Creates ``l10n_gr_edi.document`` of state ``invoice_sent`` or ``bill_sent``.
-        :param values: dictionary in the format of:
-        {
-            'mydata_mark': <str>,
-            'mydata_cls_mark': <optional/str>,
-            'mydata_url': <str>,
-            'xml_content': <str>,
-        }
-        """
-        self.ensure_one()
-        document = self.env['l10n_gr_edi.document'].create({
-            'move_id': self.id,
-            'state': 'invoice_sent' if self.is_sale_document(include_receipts=True) else 'bill_sent',
-            'mydata_mark': values['mydata_mark'],
-            'mydata_cls_mark': values.get('mydata_cls_mark'),
-            'mydata_url': values['mydata_url'],
-        })
-        document.attachment_id = self.env['ir.attachment'].sudo().create({
-            'name': f"mydata_{self.name.replace('/', '_')}.xml",
-            'res_model': self._name,
-            'res_id': self.id,
-            'raw': values['xml_content'],
-            'type': 'binary',
-            'mimetype': 'application/xml',
-        })
-        return document
-
-    ################################################################################
     # Helpers
     ################################################################################
-
-    @api.model
-    def _l10n_gr_edi_generate_xml_content(self, xml_template, xml_vals):
-        xml_content = self.env['ir.qweb']._render(xml_template, xml_vals)
-        return etree.tostring(element_or_tree=cleanup_xml_node(xml_content), encoding='ISO-8859-7', standalone='yes')
 
     def _l10n_gr_edi_eligible_for_mydata(self):
         """Shorthand for getting the eligibility of the current move to send to myDATA."""
@@ -515,7 +458,7 @@ class AccountMove(models.Model):
                 vat_exemption_category = ''
                 if line.tax_ids and move.l10n_gr_edi_inv_type not in TYPES_WITH_VAT_EXEMPT:
                     tax = base_line['tax_details']['taxes_data'][0]['tax']  # here, `tax` is guaranteed to be a single `account.tax` record
-                    vat_category = VALID_TAX_CATEGORY_MAP[int(tax.amount)]
+                    vat_category = tax._l10n_gr_edi_get_vat_category()
                 if vat_category == 7 and move.l10n_gr_edi_inv_type in TYPES_WITH_VAT_CATEGORY_8:
                     vat_category = 8
                 if vat_category == 7:  # Need vat exemption category
@@ -687,71 +630,27 @@ class AccountMove(models.Model):
                 }
         return errors
 
-    def _l10n_gr_edi_get_pre_error_string(self):
-        self.ensure_one()
-        pre_error = self._l10n_gr_edi_get_pre_error_dict()
-        error_messages = (error_val['message'] for error_val in pre_error.values())
-        return '\n'.join(error_messages)
-
-    @api.model
-    def _l10n_gr_edi_handle_send_result(self, result, xml_vals):
-        """
-        Handle the result object received from sending xml to myDATA.
-        Create the related error/sent document with the necessary values.
-        """
-        move_xml_map = {}  # Dictionary mapping of ``move_id`` -> ``xml_content``.
-        for invoice_vals in xml_vals['invoice_values_list']:
-            single_xml_vals = {'invoice_values_list': [invoice_vals]}
-            move = invoice_vals['__move__']
-            xml_template = 'l10n_gr_edi.mydata_invoice' if move.is_sale_document(include_receipts=True) else 'l10n_gr_edi.mydata_expense_classification'
-            xml_content = self._l10n_gr_edi_generate_xml_content(xml_template, single_xml_vals)
-            move_xml_map[move] = xml_content
-
-        move_ids = list(move_xml_map.keys())
-
-        if 'error' in result:
-            # If the request failed at this stage, it is probably caused by connection/credentials issues.
-            # In such case, we don't need to attach the xml here as it won't be helpful for the user.
-            for move in move_ids:
-                move._l10n_gr_edi_create_error_document(result)
-        else:
-            for result_id, result_dict in result.items():
-                move = move_ids[result_id]
-                xml_content = move_xml_map[move]
-                document_values = {**result_dict, 'xml_content': xml_content}
-                # Delete previous error documents
-                move.l10n_gr_edi_document_ids.filtered(lambda d: d.state in ('invoice_error', 'bill_error')).unlink()
-                if 'error' in result_dict:
-                    # In this stage, the sending process has succeeded, and any error we receive is generated from the myDATA API.
-                    # Previous error(s) without attachments (generated from pre-compute) are now useless and can be unlinked.
-                    move._l10n_gr_edi_create_error_document(document_values)
-                else:
-                    move._l10n_gr_edi_create_sent_document(document_values)
-
-        if self._can_commit():
-            self.env.cr.commit()
-
     def _l10n_gr_edi_send_invoices(self):
         """ Send batches of invoice SendInvoice XML to myDATA. """
         for company, invoices in self.grouped('company_id').items():
             xml_vals = invoices._l10n_gr_edi_get_invoices_xml_vals()
-            xml_content = invoices._l10n_gr_edi_generate_xml_content('l10n_gr_edi.mydata_invoice', xml_vals)
+            xml_content = self.env['l10n_gr_edi.document']._l10n_gr_edi_generate_xml_content('l10n_gr_edi.mydata_invoice', xml_vals)
             result = _make_mydata_request(company=company, endpoint='SendInvoices', xml_content=xml_content)
-            self._l10n_gr_edi_handle_send_result(result, xml_vals)
+            self.env['l10n_gr_edi.document']._l10n_gr_edi_handle_send_result(result, xml_vals)
 
     def _l10n_gr_edi_send_expense_classification(self):
         """ Send batches of bill SendExpensesClassification XML to myDATA. """
         for company, bills in self.grouped('company_id').items():
             xml_vals = bills._l10n_gr_edi_get_expense_classification_xml_vals()
-            xml_content = bills._l10n_gr_edi_generate_xml_content('l10n_gr_edi.mydata_expense_classification', xml_vals)
+            xml_content = self.env['l10n_gr_edi.document']._l10n_gr_edi_generate_xml_content('l10n_gr_edi.mydata_expense_classification', xml_vals)
             result = _make_mydata_request(company=company, endpoint='SendExpensesClassification', xml_content=xml_content)
-            self._l10n_gr_edi_handle_send_result(result, xml_vals)
+            self.env['l10n_gr_edi.document']._l10n_gr_edi_handle_send_result(result, xml_vals)
 
     def l10n_gr_edi_try_send_invoices(self):
         moves_to_send = self.env['account.move']
         for move in self:
-            if error := move._l10n_gr_edi_get_pre_error_string():
-                move._l10n_gr_edi_create_error_document({'error': error})
+            if error := move._l10n_gr_edi_get_pre_error_dict():
+                self.env['l10n_gr_edi.document']._l10n_gr_edi_create_error_document(move, {'error': utils.get_pre_error_string(error)})
             else:
                 moves_to_send |= move
 
@@ -762,8 +661,8 @@ class AccountMove(models.Model):
     def l10n_gr_edi_try_send_expense_classification(self):
         moves_to_send = self.env['account.move']
         for move in self:
-            if error_message := move._l10n_gr_edi_get_pre_error_string():
-                move._l10n_gr_edi_create_error_document({'error': error_message})
+            if error_message := move._l10n_gr_edi_get_pre_error_dict():
+                self.env['l10n_gr_edi.document']._l10n_gr_edi_create_error_document(move, {'error': utils.get_pre_error_string(error_message)})
 
                 # Simulate the error handling behavior on invoice's send and print wizard.
                 # If we're only sending one bill, raise the warning error immediately.
@@ -786,3 +685,19 @@ class AccountMove(models.Model):
             raise UserError(_("Some of the selected moves does not meet the requirements to be sent to myDATA."))
 
         self.l10n_gr_edi_try_send_expense_classification()
+
+    ################################################################################
+    # Peppol/UBL helpers
+    ################################################################################
+
+    def _need_ubl_cii_xml(self, ubl_cii_format):
+        """
+        Override the generic check to postpone the creation of the UBL file
+        for Greek B2G invoices until we actually receive the `l10n_gr_edi_mark`
+        from myDATA.
+        """
+        if not super()._need_ubl_cii_xml(ubl_cii_format):
+            return False
+        if ubl_cii_format == 'ubl_gr':
+            return bool(self.l10n_gr_edi_mark)
+        return True

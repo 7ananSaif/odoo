@@ -1,48 +1,62 @@
 import { _t } from "@web/core/l10n/translation";
 import { useService } from "@web/core/utils/hooks";
 import { parseFloat } from "@web/views/fields/parsers";
-import { Component, useState } from "@odoo/owl";
+import { Component, onWillStart, proxy, useProps, t } from "@odoo/owl";
 import { usePos } from "@point_of_sale/app/hooks/pos_hook";
-
-import { CashMoveReceipt } from "@point_of_sale/app/components/popups/cash_move_popup/cash_move_receipt/cash_move_receipt";
 import { CashMoveListPopup } from "@point_of_sale/app/components/popups/cash_move_popup/cash_move_list_popup/cash_move_list_popup";
 import { Dialog } from "@web/core/dialog/dialog";
 import { useAsyncLockedMethod } from "@point_of_sale/app/hooks/hooks";
-import { Input } from "@point_of_sale/app/components/inputs/input/input";
 import { makeAwaitable } from "@point_of_sale/app/utils/make_awaitable_dialog";
 import { NumberPopup } from "@point_of_sale/app/components/popups/number_popup/number_popup";
-import { formatDateTime } from "@web/core/l10n/dates";
+import { CashInput } from "@point_of_sale/app/components/inputs/input/cash_input/cash_input";
+import { logPosMessage } from "@point_of_sale/app/utils/pretty_console_log";
 
 const { DateTime } = luxon;
 
 export class CashMovePopup extends Component {
     static template = "point_of_sale.CashMovePopup";
-    static components = { Input, Dialog };
-    static props = ["confirmKey?", "close", "getPayload?"];
+    static components = { Dialog, CashInput };
+    props = useProps({
+        confirmKey: t.string().optional(),
+        close: t.function(),
+        getPayLoad: t.function().optional(),
+    });
     setup() {
         super.setup();
         this.notification = useService("notification");
         this.pos = usePos();
         this.dialog = useService("dialog");
-        this.hardwareProxy = useService("hardware_proxy");
-        this.printer = useService("printer");
-        this.state = useState({
+        this.state = proxy({
             /** @type {'in'|'out'} */
             type: "out",
             amount: "",
             reason: "",
+            cashMoves: [],
         });
-        this.confirm = useAsyncLockedMethod(this.confirm);
+        this.confirm = useAsyncLockedMethod(this.confirm.bind(this));
         this.ui = useService("ui");
+        onWillStart(() => {
+            this.loadCashMoves();
+        });
     }
 
     get partnerId() {
         return this.pos.user.partner_id.id;
     }
 
+    async loadCashMoves() {
+        try {
+            this.state.cashMoves = await this.pos.data.call("pos.session", "get_cash_in_out_list", [
+                this.pos.session.id,
+            ]);
+        } catch (e) {
+            logPosMessage(e);
+        }
+    }
+
     async confirm() {
         const amount = parseFloat(this.state.amount);
-        const formattedAmount = this.env.utils.formatCurrency(amount);
+        const formattedAmount = this.pos.formatCurrency(amount);
         if (!amount) {
             this.notification.add(_t("Cash in/out of %s is ignored.", formattedAmount));
             return this.props.close();
@@ -50,14 +64,13 @@ export class CashMovePopup extends Component {
 
         const type = this.state.type;
         const translatedType = _t(type);
-        const extras = { formattedAmount, translatedType };
         const reason = this.state.reason.trim();
 
         await this.pos.data.call(
             "pos.session",
             "try_cash_in_out",
-            this._prepareTryCashInOutPayload(type, amount, reason, this.partnerId, extras),
-            {},
+            this._prepareTryCashInOutPayload(type, amount, reason, this.partnerId),
+            this._getCashInOutExtraParams(),
             true
         );
         await this.pos.logEmployeeMessage(
@@ -73,13 +86,13 @@ export class CashMovePopup extends Component {
             tracking_number: "",
             sequence_number: 0,
             pos_reference: "",
+            state: "cancel", // transient receipt-only order, must never reach IndexedDB
         });
-        await this.printer.print(CashMoveReceipt, {
+        await this.pos.ticketPrinter.printCashMoveReceipt({
             reason,
             translatedType,
             order: order,
             formattedAmount,
-            date: formatDateTime(DateTime.now()),
         });
         this.pos.models["pos.order"].delete(order);
 
@@ -91,29 +104,30 @@ export class CashMovePopup extends Component {
     }
     onClickButton(type) {
         this.state.type = type;
-        this.inputRef.el.focus();
+        this.inputRef?.()?.focus();
     }
     format(value) {
-        return this.env.utils.isValidFloat(value)
-            ? this.env.utils.formatCurrency(parseFloat(value))
-            : "";
+        return this.pos.isValidFloat(value) ? this.pos.formatCurrency(parseFloat(value)) : "";
     }
-    _prepareTryCashInOutPayload(type, amount, reason, partnerId, extras) {
-        return [[this.pos.session.id], type, amount, reason, partnerId, extras];
+    _prepareTryCashInOutPayload(type, amount, reason, partnerId) {
+        return [[this.pos.session.id], type, amount, reason, partnerId];
+    }
+    _getCashInOutExtraParams() {
+        return {};
     }
     isValidCashMove() {
-        return this.env.utils.isValidFloat(this.state.amount) && this.state.reason.trim() !== "";
+        return this.pos.isValidFloat(this.state.amount) && this.state.reason.trim() !== "";
     }
     async openDetails() {
-        const cashMoves = await this.pos.data.call("pos.session", "get_cash_in_out_list", [
-            this.pos.session.id,
-        ]);
         this.dialog.add(CashMoveListPopup, {
-            cashMoves: cashMoves.map((m) => ({
+            cashMoves: this.state.cashMoves.map((m) => ({
                 ...m,
                 date: DateTime.fromSQL(m.date, { zone: "UTC" }).setZone("local"),
             })),
             partnerId: this.partnerId,
+            onDelete: (id) => {
+                this.state.cashMoves = this.state.cashMoves.filter((cm) => cm.id !== id);
+            },
         });
     }
     async openNumpadDialog() {
@@ -129,6 +143,13 @@ export class CashMovePopup extends Component {
         if (result) {
             this.state.amount = result;
         }
+    }
+    handleAmountBlur() {
+        this.state.amount = this.pos.formatCurrency(
+            parseFloat(this.state.amount),
+            this.pos.config.currency_id.id,
+            { noSymbol: true }
+        );
     }
     async cancel() {
         this.props.close();

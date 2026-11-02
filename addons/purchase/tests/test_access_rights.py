@@ -10,6 +10,8 @@ from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 @tagged('post_install', '-at_install')
 class TestPurchaseInvoice(AccountTestInvoicingCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -139,6 +141,30 @@ class TestPurchaseInvoice(AccountTestInvoicingCommon):
         })
         self.assertTrue(product, "The default purchase UOM should be in the same category as the sale UOM.")
 
+    def test_change_uom_without_purchase_access(self):
+        """A product manager without Purchase access can change the UoM of a
+        product used on a purchase order line, and the line follows it."""
+        product_manager = self.env['res.users'].create({
+            'name': 'Product manager',
+            'login': 'productManagerUom',
+            'group_ids': [Command.set([
+                self.env.ref('base.group_user').id,
+                self.env.ref('product.group_product_manager').id,
+            ])],
+        })
+        product = self.env['product.template'].create({
+            'name': 'Test Product UOM Change',
+            'uom_id': self.env.ref('uom.product_uom_unit').id,
+        })
+        purchase_order = self.env['purchase.order'].create({
+            'partner_id': self.vendor.id,
+            'order_line': [Command.create({'product_id': product.product_variant_id.id})],
+        })
+        uom_dozen = self.env.ref('uom.product_uom_dozen')
+
+        product.with_user(product_manager).uom_id = uom_dozen
+        self.assertEqual(purchase_order.order_line.uom_id, uom_dozen)
+
     def test_prepare_purchase_order_line_from_branch_company(self):
         """Check that a purchase order line can be created from a nested branch company."""
         self.env.company.child_ids = [Command.create({
@@ -162,3 +188,16 @@ class TestPurchaseInvoice(AccountTestInvoicingCommon):
             product, 1, product.uom_id, nested_branch, vendor, order,
         )
         self.assertTrue(PurchaseOrder.order_line.create(po_line_vals))
+
+    def test_demo_user_creates_purchase_order_with_tracked_product(self):
+        """Verify user with product view access can confirm purchase order with tracked product."""
+        self.product.write({
+            'type': 'consu',
+            'is_storable': True,
+        })
+        purchase_order = self.env['purchase.order'].with_user(self.purchase_user).create({
+            'partner_id': self.vendor.id,
+            'order_line': [Command.create({'product_id': self.product.id})],
+        })
+        purchase_order.button_confirm()
+        self.assertEqual(purchase_order.state, 'purchase')

@@ -14,29 +14,60 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-22 17:40+0000\n"
-"PO-Revision-Date: 2026-06-06 15:34+0000\n"
+"POT-Creation-Date: 2026-10-09 17:38+0000\n"
+"PO-Revision-Date: 2026-09-09 14:04+0000\n"
 "Last-Translator: Bren Driesen <brdri@odoo.com>\n"
-"Language-Team: Dutch <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Dutch <https://translate.odoo.com/projects/odoo-master/"
 "pos_restaurant/nl/>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: pos_restaurant
+#: model:ir.module.module,description:base.module_pos_restaurant
+msgid ""
+"\n"
+"\n"
+"This module adds several features to the Point of Sale that are specific to "
+"restaurant management:\n"
+"- Bill Printing: Allows you to print a receipt before the order is paid\n"
+"- Bill Splitting: Allows you to split an order into different orders\n"
+"- Kitchen Order Printing: allows you to print orders updates to kitchen or "
+"bar printers\n"
+"\n"
+msgstr ""
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/split_bill_screen/split_bill_screen.xml:0
-msgid "% discount"
-msgstr "% korting"
+#: code:addons/pos_restaurant/static/src/app/models/restaurant_table.js:0
+msgid "%s'"
+msgstr ""
 
 #. module: pos_restaurant
 #. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/services/pos_store.js:0
 msgid "%s, sent to the kitchen"
 msgstr "%s, verzonden naar de keuken"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/models/restaurant_table.js:0
+msgid "%sh"
+msgstr ""
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/models/restaurant_table.js:0
+msgid "%sh%s'"
+msgstr ""
+
+#. module: pos_restaurant
+#: model_terms:ir.ui.view,arch_db:pos_restaurant.pos_order_receipt_header
+msgid ", Guest"
+msgstr ", Gast"
 
 #. module: pos_restaurant
 #. odoo-javascript
@@ -65,14 +96,29 @@ msgstr ""
 "barbecuesaus"
 
 #. module: pos_restaurant
+#: model_terms:ir.ui.view,arch_db:pos_restaurant.pos_order_change_receipt
+msgid "<span class=\"text-bold\">T </span>"
+msgstr ""
+
+#. module: pos_restaurant
+#: model_terms:ir.ui.view,arch_db:pos_restaurant.pos_restaurant_pos_category_kanban_view
+msgid "<span>Course:</span>"
+msgstr "<span>Gang:</span>"
+
+#. module: pos_restaurant
 #: model_terms:ir.ui.view,arch_db:pos_restaurant.view_restaurant_floor_kanban
 msgid "<strong>Floor Name: </strong>"
-msgstr "<strong>Naam zaal: </strong>"
+msgstr "<strong>Zaalnaam: </strong>"
 
 #. module: pos_restaurant
 #: model_terms:ir.ui.view,arch_db:pos_restaurant.view_restaurant_floor_kanban
 msgid "<strong>Point of Sales:</strong>"
 msgstr "<strong>Verkooppunt:</strong>"
+
+#. module: pos_restaurant
+#: model:ir.model.constraint,message:pos_restaurant.constraint_pos_course_name_unique
+msgid "A course with this name already exists"
+msgstr "Er bestaat al een gang met deze naam"
 
 #. module: pos_restaurant
 #: model_terms:ir.actions.act_window,help:pos_restaurant.action_restaurant_floor_form
@@ -92,21 +138,21 @@ msgstr "Actief"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/toolbar/toolbar.xml:0
+msgid "Add Decor"
+msgstr "Decor toevoegen"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/toolbar/toolbar.xml:0
 msgid "Add Floor"
 msgstr "Zaal toevoegen"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/toolbar/toolbar.xml:0
 msgid "Add Table"
 msgstr "Tafel toevoegen"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
-msgid "Add a new floor to get started."
-msgstr "Voeg een nieuwe zaal toe om te beginnen."
 
 #. module: pos_restaurant
 #: model_terms:ir.actions.act_window,help:pos_restaurant.action_restaurant_floor_form
@@ -114,51 +160,33 @@ msgid "Add a new restaurant floor"
 msgstr "Voeg een nieuwe zaal toe"
 
 #. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
-msgid "Add a new table to get started."
-msgstr "Voeg een nieuwe tafel toe om te beginnen."
+#: model_terms:ir.actions.act_window,help:pos_restaurant.action_pos_course
+msgid "Add courses"
+msgstr "Gangen toevoegen"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/tip_screen/tip_screen.xml:0
-msgid "Add a tip"
-msgstr "Voeg een fooi toe"
-
-#. module: pos_restaurant
-#: model_terms:ir.ui.view,arch_db:pos_restaurant.res_config_settings_view_form
-msgid "Add tip after payment"
-msgstr "Voeg een fooi toe na betaling"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/toolbar/toolbar.xml:0
+msgid "Add decor"
+msgstr "Decor toevoegen"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/payment_screen/payment_screen_payment_lines/payment_screen_payment_lines.xml:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/add_decor_popup/add_decor_popup.xml:0
+msgid "Add image"
+msgstr "Afbeelding toevoegen"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/payment_screen/payment_screen_payment_lines/payment_screen_payment_lines.js:0
 msgid "Adjust Amount"
 msgstr "Pas bedrag aan"
 
 #. module: pos_restaurant
-#: model:ir.model.fields,help:pos_restaurant.field_pos_config__set_tip_after_payment
-msgid ""
-"Adjust the amount authorized by payment terminals to add a tip after the "
-"customers left or at the end of the day."
-msgstr ""
-"Pas het bedrag aan dat is geautoriseerd door betaalterminals om een fooi toe "
-"te voegen nadat de klanten zijn vertrokken of aan het einde van de dag."
-
-#. module: pos_restaurant
-#: model_terms:ir.ui.view,arch_db:pos_restaurant.res_config_settings_view_form
-msgid "Allow Bill Splitting"
-msgstr "Sta rekening splitsen toe"
-
-#. module: pos_restaurant
-#: model_terms:ir.ui.view,arch_db:pos_restaurant.res_config_settings_view_form
-msgid "Allow to print receipt before payment"
-msgstr "Sta het afdrukken van de kassabon toe voordat er betaald wordt"
-
-#. module: pos_restaurant
-#: model:ir.model.fields,help:pos_restaurant.field_pos_config__iface_printbill
-msgid "Allows to print the Bill before payment."
-msgstr "Sta het afdrukken van de factuur toe, voordat er betaald wordt."
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Alignment"
+msgstr "Uitlijning"
 
 #. module: pos_restaurant
 #: model:product.attribute.value,name:pos_restaurant.pav_extras_pizza_anchovy
@@ -171,11 +199,6 @@ msgid "Aperol Spritz"
 msgstr "Aperol Spritz"
 
 #. module: pos_restaurant
-#: model_terms:ir.ui.view,arch_db:pos_restaurant.view_restaurant_table_form
-msgid "Appearance"
-msgstr "Voorkomen"
-
-#. module: pos_restaurant
 #: model_terms:ir.ui.view,arch_db:pos_restaurant.view_restaurant_floor_form
 #: model_terms:ir.ui.view,arch_db:pos_restaurant.view_restaurant_floor_search
 msgid "Archived"
@@ -183,9 +206,9 @@ msgstr "Gearchiveerd"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
-msgid "Are you sure?"
-msgstr "Weet je het zeker?"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_floor/edit_floor.js:0
+msgid "Are you sure you want to delete this floor?"
+msgstr "Weet je zeker dat je deze zaal wilt verwijderen?"
 
 #. module: pos_restaurant
 #. odoo-javascript
@@ -194,26 +217,47 @@ msgid "Assign"
 msgstr "Toewijzen"
 
 #. module: pos_restaurant
+#: model_terms:ir.ui.view,arch_db:pos_restaurant.res_config_settings_view_form
+msgid "Assign categories to default course"
+msgstr "Categorieën toewijzen aan standaardgang"
+
+#. module: pos_restaurant
+#: model_terms:ir.actions.act_window,help:pos_restaurant.action_pos_course
+msgid ""
+"Assign products to courses like starter, main or dessert to ensure dishes "
+"are prepared and served in the correct order."
+msgstr ""
+"Wijs producten toe aan gangen zoals voorgerecht, hoofdgerecht of dessert om "
+"ervoor te zorgen dat gerechten in de juiste volgorde worden bereid en "
+"geserveerd."
+
+#. module: pos_restaurant
+#: model_terms:ir.ui.view,arch_db:pos_restaurant.res_config_settings_view_form
+msgid "Automatic course allocation"
+msgstr "Gangen automatisch toewijzen"
+
+#. module: pos_restaurant
 #. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
-#: code:addons/pos_restaurant/static/src/app/screens/tip_screen/tip_screen.xml:0
 msgid "Back"
 msgstr "Terug"
 
 #. module: pos_restaurant
-#: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_floor__background_color
-msgid "Background Color"
-msgstr "Achtergrondkleur"
-
-#. module: pos_restaurant
-#: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_floor__background_image
-msgid "Background Image"
-msgstr "Achtergrondafbeelding"
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_floor/edit_floor.xml:0
+msgid "Background"
+msgstr "Achtergrond"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.pos_food_bacon_product_template
 msgid "Bacon Burger"
 msgstr "Bacon Burger"
+
+#. module: pos_restaurant
+#: model:pos.config,name:pos_restaurant.pos_config_main_bar
+msgid "Bar"
+msgstr ""
 
 #. module: pos_restaurant
 #: model:product.attribute.value,name:pos_restaurant.pav_sides_fries
@@ -222,19 +266,7 @@ msgstr "Huisgemaakte frietjes"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/product_screen/control_buttons/control_buttons.xml:0
-msgid "Bill"
-msgstr "Rekening"
-
-#. module: pos_restaurant
-#: model:ir.model.fields,field_description:pos_restaurant.field_pos_config__iface_printbill
-msgid "Bill Printing"
-msgstr "Rekening afdrukken"
-
-#. module: pos_restaurant
-#. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/screens/split_bill_screen/split_bill_screen.xml:0
-#: model:ir.model.fields,field_description:pos_restaurant.field_pos_config__iface_splitbill
 msgid "Bill Splitting"
 msgstr "Rekening splitsen"
 
@@ -245,9 +277,26 @@ msgstr "Zwarte olijven"
 
 #. module: pos_restaurant
 #. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Bold"
+msgstr "Vet"
+
+#. module: pos_restaurant
+#. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/screens/product_screen/order_summary/order_summary.xml:0
 msgid "Book table"
 msgstr "Boek een tafel"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Border"
+msgstr "Rand"
+
+#. module: pos_restaurant
+#: model:ir.model.fields.selection,name:pos_restaurant.selection__restaurant_table__parent_side__bottom
+msgid "Bottom"
+msgstr "Onderaan"
 
 #. module: pos_restaurant
 #: model:product.template,description_sale:pos_restaurant.product_old_fashioned_product_template
@@ -255,9 +304,20 @@ msgid "Bourbon, bitters, sugar, and a twist of citrus zest."
 msgstr "Bourbon, bitter, suiker en een vleugje citrusschil."
 
 #. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Bring forward"
+msgstr "Naar voren"
+
+#. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.burger_drink_combo_product_template
 msgid "Burger Menu Combo"
 msgstr "Combinatie burgermenu"
+
+#. module: pos_restaurant
+#: model:product.combo,name:pos_restaurant.burger_combo
+msgid "Burgers"
+msgstr "Hamburgers"
 
 #. module: pos_restaurant
 #: model:pos.payment.method,name:pos_restaurant.payment_method
@@ -277,18 +337,6 @@ msgid "Cash Restaurant"
 msgstr "Cash restaurant"
 
 #. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
-msgid "Change Floor Background"
-msgstr "Achtergrond vloer wijzigen"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
-msgid "Change table number?"
-msgstr "Tafelnummer wijzigen?"
-
-#. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.pos_food_cheeseburger_product_template
 msgid "Cheese Burger"
 msgstr "Cheese Burger"
@@ -300,15 +348,11 @@ msgstr "Kip curry sandwich"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
-msgid "Clone"
-msgstr "Klonen"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/payment_screen/payment_screen.xml:0
-msgid "Close Tab"
-msgstr "Sluit tab"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/add_decor_popup/add_decor_popup.xml:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/add_table_popup/add_table_popup.xml:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/floor_plan_editor.xml:0
+msgid "Close"
+msgstr "Sluiten"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.pos_food_club_product_template
@@ -326,7 +370,9 @@ msgid "Cocktails"
 msgstr "Cocktails"
 
 #. module: pos_restaurant
-#: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__color
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_table/edit_table.xml:0
 msgid "Color"
 msgstr "Kleur"
 
@@ -337,9 +383,10 @@ msgstr "Configuratie-instellingen"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/receipt_screen/receipt_screen.xml:0
-msgid "Continue"
-msgstr "Doorgaan"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_table/edit_table.xml:0
+msgid "Corner rounding"
+msgstr "Hoekafronding"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.product_cosmopolitan_product_template
@@ -348,17 +395,26 @@ msgstr "Cosmopolitan"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/models/restaurant_order_course.js:0
 #: code:addons/pos_restaurant/static/src/app/screens/product_screen/actionpad_widget/actionpad_widget.xml:0
 #: code:addons/pos_restaurant/static/src/app/screens/product_screen/control_buttons/control_buttons.xml:0
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_category__course_id
+#: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_order_course__course_id
 msgid "Course"
 msgstr "Gang"
 
 #. module: pos_restaurant
 #. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/models/pos_order.js:0
+#: code:addons/pos_restaurant/static/src/app/screens/split_bill_screen/split_bill_screen.js:0
 #: code:addons/pos_restaurant/static/src/app/services/pos_store.js:0
-msgid "Course %s fired"
-msgstr "Gang %s verzonden"
+msgid "Course "
+msgstr "Gang "
+
+#. module: pos_restaurant
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_course__name
+#: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_order_course__name
+msgid "Course Name"
+msgstr "Naam van de gang"
 
 #. module: pos_restaurant
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_order_line__course_id
@@ -371,7 +427,10 @@ msgid "Course index"
 msgstr "Index gerecht"
 
 #. module: pos_restaurant
+#: model:ir.actions.act_window,name:pos_restaurant.action_pos_course
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_order__course_ids
+#: model:ir.ui.menu,name:pos_restaurant.menu_pos_course
+#: model_terms:ir.ui.view,arch_db:pos_restaurant.view_pos_course_list
 msgid "Courses"
 msgstr "Gangen"
 
@@ -381,6 +440,7 @@ msgid "Cranberry Jus, lime jus, vodka and Cointreau"
 msgstr "Veenbessensap, limoensap, wodka en Cointreau"
 
 #. module: pos_restaurant
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_course__create_uid
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_floor__create_uid
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_order_course__create_uid
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__create_uid
@@ -388,11 +448,18 @@ msgid "Created by"
 msgstr "Aangemaakt door"
 
 #. module: pos_restaurant
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_course__create_date
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_floor__create_date
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_order_course__create_date
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__create_date
 msgid "Created on"
 msgstr "Aangemaakt op"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Dashed"
+msgstr "Gestreept"
 
 #. module: pos_restaurant
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_config__default_screen
@@ -402,15 +469,16 @@ msgstr "Standaardscherm"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_floor/edit_floor.js:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/floor_plan_editor.xml:0
 msgid "Delete"
 msgstr "Verwijderen"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
-msgid "Delete Error"
-msgstr "Foutmelding verwijderen"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_floor/edit_floor.xml:0
+msgid "Delete Floor"
+msgstr "Zaal verwijderen"
 
 #. module: pos_restaurant
 #: model:pos.preset,name:pos_restaurant.pos_delivery_preset
@@ -420,7 +488,7 @@ msgstr "Levering"
 #. module: pos_restaurant
 #: model_terms:ir.ui.view,arch_db:pos_restaurant.res_config_settings_view_form
 msgid "Design floors and assign orders to tables"
-msgstr "Ontwerp zaalplannen en wijs orders toe aan tafels"
+msgstr "Ontwerp zaalplannen en wijs bestellingen toe aan tafels"
 
 #. module: pos_restaurant
 #: model:pos.preset,name:pos_restaurant.pos_takein_preset
@@ -435,17 +503,26 @@ msgstr "Directe verkoop"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/services/pos_store.js:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/navbar/navbar.xml:0
 msgid "Discard"
 msgstr "Negeren"
 
 #. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/navbar/navbar.xml:0
+msgid "Discard all changes"
+msgstr "Alle wijzigingen verwijderen"
+
+#. module: pos_restaurant
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_category__display_name
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_config__display_name
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_course__display_name
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_order__display_name
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_order_line__display_name
-#: model:ir.model.fields,field_description:pos_restaurant.field_pos_payment__display_name
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_order_receipt__display_name
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_preset__display_name
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_session__display_name
+#: model:ir.model.fields,field_description:pos_restaurant.field_product_template__display_name
 #: model:ir.model.fields,field_description:pos_restaurant.field_res_config_settings__display_name
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_floor__display_name
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_order_course__display_name
@@ -454,14 +531,28 @@ msgid "Display Name"
 msgstr "Schermnaam"
 
 #. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Dotted"
+msgstr "Gestippeld"
+
+#. module: pos_restaurant
 #: model:pos.category,name:pos_restaurant.drinks
+#: model:product.category,name:pos_restaurant.product_category_drinks
+#: model:product.combo,name:pos_restaurant.drink_combo
 msgid "Drinks"
 msgstr "Dranken"
 
 #. module: pos_restaurant
-#: model_terms:ir.ui.view,arch_db:pos_restaurant.res_config_settings_view_form
-msgid "Early Receipt Printing"
-msgstr "Kassabon vroegtijdig afdrukken"
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/floor_plan_editor.xml:0
+msgid "Duplicate"
+msgstr "Dupliceren"
+
+#. module: pos_restaurant
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_order__duration
+msgid "Duration"
+msgstr ""
 
 #. module: pos_restaurant
 #: model:ir.model,name:pos_restaurant.model_pos_preset
@@ -470,36 +561,47 @@ msgstr "Laad moeiteloos een reeks configuratieopties"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/product_screen/control_buttons/control_buttons.xml:0
-#: code:addons/pos_restaurant/static/src/app/services/pos_store.js:0
-msgid "Edit Order Name"
-msgstr "Naam order bewerken"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/toolbar/toolbar.xml:0
+msgid "Edit Floor"
+msgstr "Zaal bewerken"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/components/navbar/navbar.xml:0
-msgid "Edit Plan"
-msgstr "Plan bewerken"
-
-#. module: pos_restaurant
-#: model:ir.model.fields,help:pos_restaurant.field_pos_config__iface_splitbill
-msgid "Enables Bill Splitting in the Point of Sale."
-msgstr "Sta splitsen van rekeningen toe in de kassa."
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
+msgid "Edit Floor Plan"
+msgstr "Zaalplan bewerken"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
-msgid "Encountered error when loading image. Please try again."
-msgstr ""
-"Fout opgetreden bij het laden van afbeelding. Probeer het a.je.b. opnieuw."
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Edit text"
+msgstr "Tekst bewerken"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan/floor_plan.xml:0
+msgid "Edit your floor plan"
+msgstr "Bewerk je zaalplan"
+
+#. module: pos_restaurant
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_config__use_course_allocation
+#: model:ir.model.fields,field_description:pos_restaurant.field_res_config_settings__pos_use_course_allocation
+msgid "Enable Course Allocation"
+msgstr "Gangtoewijzing inschakelen"
 
 #. module: pos_restaurant
 #. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/components/numpad_dropdown/numpad_dropdown.xml:0
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
 #: code:addons/pos_restaurant/static/src/app/screens/product_screen/product_screen.xml:0
 msgid "Enter a table number"
 msgstr "Voer een tafelnummer in"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/add_decor_popup/add_decor_popup.js:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.js:0
+msgid "Enter your text"
+msgstr "Voer je tekst in"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.espresso_product_template
@@ -520,12 +622,6 @@ msgstr "Extra's"
 #: model:product.template,name:pos_restaurant.fanta_product_template
 msgid "Fanta"
 msgstr "Fanta"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
-msgid "File"
-msgstr "Bestand"
 
 #. module: pos_restaurant
 #. odoo-javascript
@@ -551,26 +647,27 @@ msgid "Floor"
 msgstr "Zaal"
 
 #. module: pos_restaurant
-#: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_floor__floor_background_image
-msgid "Floor Background Image"
-msgstr "Achtergrondafbeelding van de zaal"
-
-#. module: pos_restaurant
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_floor__name
 msgid "Floor Name"
 msgstr "Zaalnaam"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
-msgid "Floor Name ?"
-msgstr "Zaalnaam?"
-
-#. module: pos_restaurant
-#. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/components/navbar/navbar.xml:0
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_config__floor_plan
 msgid "Floor Plan"
 msgstr "Zaalplan"
+
+#. module: pos_restaurant
+#: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_floor__floor_plan_layout
+#: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__floor_plan_layout
+msgid "Floor Plan Layout"
+msgstr "Zaalplan Lay-out"
+
+#. module: pos_restaurant
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_config__floor_plan_settings
+msgid "Floor Plan Settings"
+msgstr "Zaalplan Instellingen"
 
 #. module: pos_restaurant
 #: model:ir.actions.act_window,name:pos_restaurant.action_restaurant_floor_form
@@ -580,9 +677,15 @@ msgstr "Zaalplannen"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/floor_plan_editor.js:0
 msgid "Floor name"
 msgstr "Zaalnaam"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/navbar/navbar.xml:0
+msgid "Floor plan editor"
+msgstr "Zaalplan-editor"
 
 #. module: pos_restaurant
 #. odoo-python
@@ -607,9 +710,11 @@ msgstr "Eten"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/receipt_screen/order_receipt/order_receipt.xml:0
-msgid "For convenience, we are providing the following gratuity calculations:"
-msgstr "Gemakshalve bieden we de volgende fooiberekeningen:"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_floor/edit_floor.js:0
+msgid "For the current display, an image a resolution of %s is recommended."
+msgstr ""
+"Voor de huidige weergave wordt een afbeelding met een resolutie van %s "
+"aanbevolen."
 
 #. module: pos_restaurant
 #: model:ir.model.fields,help:pos_restaurant.field_pos_preset__use_guest
@@ -639,34 +744,31 @@ msgid "Grilled vegetables"
 msgstr "Gegrilde groenten"
 
 #. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/product_screen/control_buttons/control_buttons.xml:0
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_preset__use_guest
+#: model_terms:ir.ui.view,arch_db:pos_restaurant.pos_order_change_receipt
 msgid "Guest"
 msgstr "Gast"
 
 #. module: pos_restaurant
 #. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/screens/product_screen/control_buttons/control_buttons.xml:0
+#: code:addons/pos_restaurant/static/src/app/screens/ticket_screen/order_details_dialog/order_details_dialog.js:0
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_order__customer_count
 msgid "Guests"
 msgstr "Gasten"
 
 #. module: pos_restaurant
-#: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__height
-msgid "Height"
-msgstr "Hoogte"
-
-#. module: pos_restaurant
-#: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__position_h
-msgid "Horizontal Position"
-msgstr "Horizontale positie"
-
-#. module: pos_restaurant
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_category__id
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_config__id
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_course__id
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_order__id
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_order_line__id
-#: model:ir.model.fields,field_description:pos_restaurant.field_pos_payment__id
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_order_receipt__id
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_preset__id
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_session__id
+#: model:ir.model.fields,field_description:pos_restaurant.field_product_template__id
 #: model:ir.model.fields,field_description:pos_restaurant.field_res_config_settings__id
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_floor__id
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_order_course__id
@@ -690,13 +792,26 @@ msgstr ""
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/services/pos_store.js:0
-msgid ""
-"It seems that the order has not been sent. Would you like to send it to "
-"preparation?"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/floor_plan_editor.js:0
+msgid "If you proceed, your changes will be lost"
+msgstr "Als je doorgaat, gaan je wijzigingen verloren"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/add_decor_popup/add_decor_popup.xml:0
+msgid "Images"
+msgstr "Afbeeldingen"
+
+#. module: pos_restaurant
+#: model_terms:ir.ui.view,arch_db:pos_restaurant.res_config_settings_view_form
+msgid "Include the products when printing a fired course ticket"
 msgstr ""
-"Het lijkt erop dat de bestelling niet is verstuurd. Wil je deze naar de "
-"voorbereiding sturen?"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Italic"
+msgstr "Cursief"
 
 #. module: pos_restaurant
 #. odoo-javascript
@@ -705,12 +820,7 @@ msgid "Jump"
 msgstr "Ga"
 
 #. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/payment_screen/payment_screen.xml:0
-msgid "Keep Open"
-msgstr "Openhouden"
-
-#. module: pos_restaurant
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_course__write_uid
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_floor__write_uid
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_order_course__write_uid
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__write_uid
@@ -718,6 +828,7 @@ msgid "Last Updated by"
 msgstr "Laatst bijgewerkt door"
 
 #. module: pos_restaurant
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_course__write_date
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_floor__write_date
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_order_course__write_date
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__write_date
@@ -726,15 +837,14 @@ msgstr "Laatst bijgewerkt op"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
-msgid "Loading"
-msgstr "Laden"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Layers"
+msgstr "Lagen"
 
 #. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
-msgid "Loading Image Error"
-msgstr "Fout bij laden van afbeelding"
+#: model:ir.model.fields.selection,name:pos_restaurant.selection__restaurant_table__parent_side__left
+msgid "Left"
+msgstr "Links"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.pos_food_maki_product_template
@@ -758,26 +868,14 @@ msgstr "Mai Tai"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
-msgid "Make Round"
-msgstr "Rond maken"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
-msgid "Make Square"
-msgstr "Vierkant maken"
+#: code:addons/pos_restaurant/static/src/app/services/floor_plan/floor_plan_service.js:0
+msgid "Main Floor"
+msgstr "Hoofdzaal"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.product_margarita_product_template
 msgid "Margarita"
 msgstr "Margarita"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/services/pos_store.js:0
-msgid "Message"
-msgstr "Bericht"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.milkshake_banana_product_template
@@ -795,6 +893,12 @@ msgid "Mojito"
 msgstr "Mojito"
 
 #. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/toolbar/toolbar.xml:0
+msgid "More"
+msgstr "Meer"
+
+#. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.product_moscow_mule_product_template
 msgid "Moscow Mule"
 msgstr "Moscow Mule"
@@ -810,6 +914,12 @@ msgid "Mushroom"
 msgstr "Paddenstoel"
 
 #. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_floor/edit_floor.xml:0
+msgid "Name"
+msgstr "Naam"
+
+#. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.product_negroni_product_template
 msgid "Negroni"
 msgstr "Negroni"
@@ -823,7 +933,7 @@ msgstr "Nieuw"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/floor_plan_editor.js:0
 msgid "New Floor"
 msgstr "Nieuwe zaal"
 
@@ -834,64 +944,32 @@ msgid "New Order"
 msgstr "Nieuwe bestelling"
 
 #. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/tip_screen/tip_screen.xml:0
-msgid "No Tip"
-msgstr "Geen fooi"
+#: model_terms:ir.ui.view,arch_db:pos_restaurant.view_pos_category_form_inherit_course
+msgid "No default"
+msgstr "Geen standaardwaarde"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/services/pos_store.js:0
-msgid "Note"
-msgstr "Notitie"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan/floor_plan.xml:0
+msgid "No tables are available yet."
+msgstr "Er zijn nog geen tafels beschikbaar."
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
-msgid "Number of Seats?"
-msgstr "Aantal plaatsen?"
+#: code:addons/pos_restaurant/static/src/app/screens/product_screen/actionpad_widget/actionpad_widget.js:0
+msgid "Notes"
+msgstr "Notities"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_table/edit_table.xml:0
+msgid "Number of Seats"
+msgstr "Aantal plaatsen"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.product_old_fashioned_product_template
 msgid "Old Fashioned"
 msgstr "Old Fashioned"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
-msgid "Only web-compatible Image formats such as .png or .jpeg are supported."
-msgstr ""
-"Alleen web-compatibele afbeeldingsindelingen zoals .png of .jpeg worden "
-"ondersteund."
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
-msgid "Oops! No floors available."
-msgstr "Oeps! Geen zaal beschikbaar."
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
-msgid "Oops! No tables available."
-msgstr "Oeps! Geen tafel beschikbaar."
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/ticket_screen/ticket_screen.js:0
-msgid "Open"
-msgstr "Open"
-
-#. module: pos_restaurant
-#: model_terms:ir.ui.view,arch_db:pos_restaurant.view_pos_preset_form_inherit_pos_restaurant
-msgid "Options"
-msgstr "Opties"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/services/pos_store.js:0
-msgid "Order"
-msgstr "Order"
 
 #. module: pos_restaurant
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_order_course__line_ids
@@ -904,9 +982,25 @@ msgid "Order Ref"
 msgstr "Orderreferentie"
 
 #. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/add_table_popup/add_table_popup.xml:0
+msgid "Oval"
+msgstr "Ovaal"
+
+#. module: pos_restaurant
+#: model:ir.model,name:pos_restaurant.model_pos_course
+msgid "POS Course"
+msgstr "Kassa Gang"
+
+#. module: pos_restaurant
 #: model:ir.model,name:pos_restaurant.model_restaurant_order_course
 msgid "POS Restaurant Order Course"
 msgstr "Kassa Restaurant Bestelling Gerecht"
+
+#. module: pos_restaurant
+#: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__parent_side
+msgid "Parent Side"
+msgstr "Bovenliggende tabelzijde"
 
 #. module: pos_restaurant
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__parent_id
@@ -926,7 +1020,6 @@ msgstr "Pasta Bolognese"
 #. module: pos_restaurant
 #. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/screens/product_screen/product_screen.xml:0
-#: code:addons/pos_restaurant/static/src/app/screens/receipt_screen/receipt_screen.xml:0
 msgid "Pay"
 msgstr "Betaal"
 
@@ -946,12 +1039,6 @@ msgstr "Pepe, latte, gorgonzola dolce, taleggio, parmigiano reggiano"
 #: model:product.attribute.value,name:pos_restaurant.pav_extras_pizza_pepperoni
 msgid "Pepperoni"
 msgstr "Pepperoni"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
-msgid "Picture"
-msgstr "Afbeelding"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.product_pina_colada_product_template
@@ -988,24 +1075,35 @@ msgstr ""
 "Open sessie: %(session_names)s"
 
 #. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/ticket_screen/order_details_dialog/order_details_dialog.js:0
+msgid "Point of Sale"
+msgstr "Kassa"
+
+#. module: pos_restaurant
+#: model:ir.model,name:pos_restaurant.model_pos_category
+msgid "Point of Sale Category"
+msgstr "Kassacategorie"
+
+#. module: pos_restaurant
 #: model:ir.model,name:pos_restaurant.model_pos_config
 msgid "Point of Sale Configuration"
 msgstr "Kassa-instellingen"
 
 #. module: pos_restaurant
-#: model:ir.model,name:pos_restaurant.model_pos_order_line
-msgid "Point of Sale Order Lines"
-msgstr "Kassa orderregels"
-
-#. module: pos_restaurant
 #: model:ir.model,name:pos_restaurant.model_pos_order
-msgid "Point of Sale Orders"
-msgstr "Kassaorders"
+msgid "Point of Sale Order"
+msgstr "Kassaorder"
 
 #. module: pos_restaurant
-#: model:ir.model,name:pos_restaurant.model_pos_payment
-msgid "Point of Sale Payments"
-msgstr "Kassa betalingen"
+#: model:ir.model,name:pos_restaurant.model_pos_order_line
+msgid "Point of Sale Order Line"
+msgstr "Kassaorderregel"
+
+#. module: pos_restaurant
+#: model:ir.model,name:pos_restaurant.model_pos_order_receipt
+msgid "Point of Sale Order Receipt Generator"
+msgstr "Kassa Kassabon-generator"
 
 #. module: pos_restaurant
 #: model:ir.model,name:pos_restaurant.model_pos_session
@@ -1018,19 +1116,9 @@ msgid "Point of Sales"
 msgstr "Kassa's"
 
 #. module: pos_restaurant
-#: model:ir.model.fields,field_description:pos_restaurant.field_res_config_settings__pos_iface_printbill
-msgid "Pos Iface Printbill"
-msgstr "Kassa Iface Rekening afdrukken"
-
-#. module: pos_restaurant
-#: model:ir.model.fields,field_description:pos_restaurant.field_res_config_settings__pos_iface_splitbill
-msgid "Pos Iface Splitbill"
-msgstr "Kassa Iface Rekening splitsen"
-
-#. module: pos_restaurant
-#: model:ir.model.fields,field_description:pos_restaurant.field_res_config_settings__pos_set_tip_after_payment
-msgid "Pos Set Tip After Payment"
-msgstr "Kassa stelt fooi in na betaling"
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_course__category_ids
+msgid "Pos Category"
+msgstr "Kassacategorie"
 
 #. module: pos_restaurant
 #: model:product.attribute.value,name:pos_restaurant.pav_sides_potato_thyme
@@ -1038,15 +1126,26 @@ msgid "Potatoes with thyme"
 msgstr "Aardappelen met tijm"
 
 #. module: pos_restaurant
+#: model:ir.model,name:pos_restaurant.model_product_template
+msgid "Product"
+msgstr "Product"
+
+#. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/receipt_screen/order_receipt/order_receipt.xml:0
-msgid "Pro forma receipt"
-msgstr "Proformabon"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/floor_plan_editor.xml:0
+msgid "Properties"
+msgstr "Eigenschappen"
 
 #. module: pos_restaurant
 #: model:product.template,description_sale:pos_restaurant.product_aperol_spritz_product_template
 msgid "Prosecco, aperol, soda"
 msgstr "Prosecco, aperol, soda"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/add_table_popup/add_table_popup.xml:0
+msgid "Rectangular"
+msgstr "Rechthoekig"
 
 #. module: pos_restaurant
 #: model:ir.model.fields.selection,name:pos_restaurant.selection__pos_config__default_screen__register
@@ -1067,33 +1166,21 @@ msgstr "Tafel vrijgeven"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
-msgid "Removing a floor cannot be undone. Do you still want to remove %s?"
-msgstr ""
-"Het verwijderen van een zaal kan niet worden ongedaan gemaakt. Wil je %s nog "
-"steeds verwijderen?"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_floor/edit_floor.xml:0
+msgid "Remove Background Image"
+msgstr "Achtergrondafbeelding verwijderen"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
-msgid "Removing a table cannot be undone"
-msgstr "Een tafel verwijderen kan niet ongedaan worden"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
-msgid "Rename"
-msgstr "Naam wijzigen"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/tip_screen/tip_screen.xml:0
-msgid "Reprint receipts"
-msgstr "Bonnen opnieuw afdrukken"
+#: code:addons/pos_restaurant/static/src/app/screens/product_screen/actionpad_widget/actionpad_widget.xml:0
+msgid "Reprint"
+msgstr "Opnieuw afdrukken"
 
 #. module: pos_restaurant
 #. odoo-python
 #: code:addons/pos_restaurant/models/pos_config.py:0
+#: model:ir.module.module,shortdesc:base.module_pos_restaurant
+#: model:pos.config,name:pos_restaurant.pos_config_main_restaurant
 #: model_terms:ir.ui.view,arch_db:pos_restaurant.view_pos_preset_form_inherit_pos_restaurant
 msgid "Restaurant"
 msgstr "Restaurant"
@@ -1118,27 +1205,26 @@ msgid "Restaurant Table"
 msgstr "Restauranttafel"
 
 #. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/payment_screen/payment_screen_payment_lines/payment_screen_payment_lines.xml:0
-msgid "Reverse"
-msgstr "Omkeren"
+#: model:ir.module.module,summary:base.module_pos_restaurant
+msgid "Restaurant extensions for the Point of Sale "
+msgstr "Restaurant-extensies voor Kassa "
+
+#. module: pos_restaurant
+#: model:ir.model.fields.selection,name:pos_restaurant.selection__restaurant_table__parent_side__right
+msgid "Right"
+msgstr "Rechts"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/payment_screen/payment_screen_payment_lines/payment_screen_payment_lines.xml:0
-msgid "Reverse Payment"
-msgstr "Omkering betaling"
-
-#. module: pos_restaurant
-#: model:ir.model.fields.selection,name:pos_restaurant.selection__restaurant_table__shape__round
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/add_table_popup/add_table_popup.xml:0
 msgid "Round"
 msgstr "Rond"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
-msgid "Round Shape"
-msgstr "Ronde vorm"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Rounded"
+msgstr "Afgerond"
 
 #. module: pos_restaurant
 #: model:product.template,description_sale:pos_restaurant.product_mai_tai_product_template
@@ -1152,7 +1238,7 @@ msgstr "Zalm en Avocado"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/navbar/navbar.xml:0
 msgid "Save"
 msgstr "Opslaan"
 
@@ -1162,11 +1248,15 @@ msgid "Schweppes"
 msgstr "Scheppes"
 
 #. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__seats
 msgid "Seats"
 msgstr "Plaatsen"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/add_table_popup/add_table_popup.xml:0
+msgid "Select Table Shape"
+msgstr "Selecteer de vorm van de tafel"
 
 #. module: pos_restaurant
 #. odoo-javascript
@@ -1182,15 +1272,60 @@ msgstr ""
 
 #. module: pos_restaurant
 #. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/ticket_screen/order_details_dialog/order_details_dialog.js:0
+msgid "Self-Order Kiosk"
+msgstr "Zelfbestellingskiosk"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/ticket_screen/order_details_dialog/order_details_dialog.js:0
+msgid "Self-Order Mobile"
+msgstr "Zelfbestelling mobiel"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan/floor_plan.js:0
+msgid ""
+"Self-orders cannot be transferred or merged, whether they are the order "
+"being moved or the one receiving it."
+msgstr ""
+
+#. module: pos_restaurant
+#. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/screens/product_screen/actionpad_widget/actionpad_widget.xml:0
 #: code:addons/pos_restaurant/static/src/app/screens/product_screen/product_screen.xml:0
 msgid "Send"
 msgstr "Verzenden"
 
 #. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Send backward"
+msgstr "Naar achteren"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Send to back"
+msgstr "Volledig naar achteren"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Send to front"
+msgstr "Naar voren"
+
+#. module: pos_restaurant
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_course__sequence
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_floor__sequence
 msgid "Sequence"
 msgstr "Reeks"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/services/pos_store.js:0
+msgid "Set Order Name"
+msgstr "Ordernaam instellen"
 
 #. module: pos_restaurant
 #. odoo-javascript
@@ -1205,32 +1340,50 @@ msgid "Set Table"
 msgstr "Tafel instellen"
 
 #. module: pos_restaurant
-#: model:ir.model.fields,field_description:pos_restaurant.field_pos_config__set_tip_after_payment
-msgid "Set Tip After Payment"
-msgstr "Stel fooi in na betaling"
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_floor/edit_floor.xml:0
+msgid "Set a Background Image"
+msgstr "Achtergrondafbeelding instellen"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/ticket_screen/ticket_screen.xml:0
-#: code:addons/pos_restaurant/static/src/app/screens/tip_screen/tip_screen.xml:0
-msgid "Settle"
-msgstr "Afrekenen"
-
-#. module: pos_restaurant
-#: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__shape
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_table/edit_table.xml:0
 msgid "Shape"
 msgstr "Vorm"
 
 #. module: pos_restaurant
-#: model:product.attribute,name:pos_restaurant.pa_sides
-msgid "Sides"
-msgstr "Bijgerecht"
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/add_decor_popup/add_decor_popup.xml:0
+msgid "Shapes"
+msgstr "Vormen"
+
+#. module: pos_restaurant
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_config__use_show_items_on_course_ticket
+#: model:ir.model.fields,field_description:pos_restaurant.field_res_config_settings__pos_use_show_items_on_course_ticket
+msgid "Show Items on Fired Course Ticket"
+msgstr ""
+
+#. module: pos_restaurant
+#: model:ir.model.fields,help:pos_restaurant.field_pos_config__use_show_items_on_course_ticket
+#: model:ir.model.fields,help:pos_restaurant.field_res_config_settings__pos_use_show_items_on_course_ticket
+msgid "Show items again on the fired course ticket in preparation printer"
+msgstr ""
+
+#. module: pos_restaurant
+#: model_terms:ir.ui.view,arch_db:pos_restaurant.res_config_settings_view_form
+msgid "Show items on fired course ticket"
+msgstr ""
+
+#. module: pos_restaurant
+#: model:ir.model.fields,help:pos_restaurant.field_pos_order__duration
+msgid "Shows how long the table has been occupied."
+msgstr ""
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/components/tip_receipt/tip_receipt.xml:0
-msgid "Signature"
-msgstr "Handtekening"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Size"
+msgstr "Grootte"
 
 #. module: pos_restaurant
 #: model:product.attribute.value,name:pos_restaurant.pav_sides_smashed_sweet_potato
@@ -1243,15 +1396,15 @@ msgid "Soft drinks"
 msgstr "Frisdranken"
 
 #. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Solid"
+msgstr "Vast"
+
+#. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.pos_food_tuna_product_template
 msgid "Spicy Tuna Sandwich"
 msgstr "Pikante tonijnen sandwich"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/product_screen/control_buttons/control_buttons.xml:0
-msgid "Split"
-msgstr "Splitsen"
 
 #. module: pos_restaurant
 #. odoo-javascript
@@ -1260,26 +1413,21 @@ msgid "Split Order"
 msgstr "Bestelling splitsen"
 
 #. module: pos_restaurant
-#: model_terms:ir.ui.view,arch_db:pos_restaurant.res_config_settings_view_form
-msgid "Split total or order lines"
-msgstr "Splits de totale rekening of enkele orderregels"
-
-#. module: pos_restaurant
-#: model:ir.model.fields.selection,name:pos_restaurant.selection__restaurant_table__shape__square
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/add_table_popup/add_table_popup.xml:0
 msgid "Square"
 msgstr "Vierkant"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
-msgid "Square Shape"
-msgstr "Vierkante vorm"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Style"
+msgstr "Stijl"
 
 #. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/components/tip_receipt/tip_receipt.xml:0
-msgid "Subtotal"
-msgstr "Subtotaal"
+#: model:product.combo,name:pos_restaurant.sushi_choice
+msgid "Sushi"
+msgstr "Sushi"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.sushi_drink_combo_product_template
@@ -1293,31 +1441,17 @@ msgstr "Zoete aardappelfrietjes"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/components/navbar/navbar.xml:0
-msgid "Switch Floor View"
-msgstr "Schakel naar zaalweergave"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
+#: code:addons/pos_restaurant/static/src/app/screens/ticket_screen/order_details_dialog/order_details_dialog.js:0
 #: code:addons/pos_restaurant/static/src/app/screens/ticket_screen/ticket_screen.xml:0
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_order__table_id
+#: model_terms:ir.ui.view,arch_db:pos_restaurant.pos_order_change_receipt
+#: model_terms:ir.ui.view,arch_db:pos_restaurant.pos_order_receipt_header
 msgid "Table"
 msgstr "Tafel"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/receipt_header_patch.js:0
-msgid "Table %(number)s"
-msgstr "Tafel %(number)s"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/receipt_header_patch.js:0
-msgid "Table %(number)s, Guests: %(count)s"
-msgstr "Tafel %(number)s, Gasten: %(count)s"
-
-#. module: pos_restaurant
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_table/edit_table.xml:0
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__table_number
 msgid "Table Number"
 msgstr "Tafelnummer"
@@ -1342,14 +1476,16 @@ msgid "Tequila Jose Cuervo, lime jus, sugar cane Cointreau"
 msgstr "Tequila Jose Cuervo, limoensap, rietsuiker, Cointreau"
 
 #. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/add_decor_popup/add_decor_popup.xml:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Text"
+msgstr "Tekst"
+
+#. module: pos_restaurant
 #: model:ir.model.fields,help:pos_restaurant.field_pos_order__customer_count
 msgid "The amount of customers that have been served by this order."
 msgstr "Het aantal klanten dat bediend is met deze order."
-
-#. module: pos_restaurant
-#: model:ir.model.fields,help:pos_restaurant.field_restaurant_floor__background_color
-msgid "The background color of the floor in a html-compatible format"
-msgstr "De achtergrondkleur van je zaal in een HTML-compatibel formaat"
 
 #. module: pos_restaurant
 #: model:ir.model.fields,help:pos_restaurant.field_restaurant_table__seats
@@ -1368,6 +1504,11 @@ msgstr ""
 "De bovenstaande tafel als deze tafel deel uitmaakt van een groep tafels"
 
 #. module: pos_restaurant
+#: model:ir.model.fields,help:pos_restaurant.field_restaurant_table__parent_side
+msgid "The parent table side where this table will be displayed"
+msgstr "De bovenliggende tabelzijde waar deze tabel zal worden weergegeven"
+
+#. module: pos_restaurant
 #: model:ir.model.fields,help:pos_restaurant.field_pos_config__floor_ids
 #: model:ir.model.fields,help:pos_restaurant.field_res_config_settings__pos_floor_ids
 msgid "The restaurant floors served by this point of sale."
@@ -1379,71 +1520,10 @@ msgid "The table where this order was served"
 msgstr "De tafel waar deze order geserveerd is"
 
 #. module: pos_restaurant
-#: model:ir.model.fields,help:pos_restaurant.field_restaurant_table__color
-msgid "The table's color, expressed as a valid 'background' CSS property value"
-msgstr ""
-"De tafelkleur, voorgesteld als een valide 'background' CSS eigenschap waarde"
-
-#. module: pos_restaurant
-#: model:ir.model.fields,help:pos_restaurant.field_restaurant_table__height
-msgid "The table's height in pixels"
-msgstr "De tafel zijn hoogte in pixels"
-
-#. module: pos_restaurant
-#: model:ir.model.fields,help:pos_restaurant.field_restaurant_table__position_h
-msgid ""
-"The table's horizontal position from the left side to the table's center, in "
-"pixels"
-msgstr ""
-"De tafel zijn horizontale positie van de linkse kant van de tafel naar het "
-"midden van de tafel, in pixels"
-
-#. module: pos_restaurant
-#: model:ir.model.fields,help:pos_restaurant.field_restaurant_table__position_v
-msgid ""
-"The table's vertical position from the top to the table's center, in pixels"
-msgstr ""
-"De tafel zijn verticale positie van de bovenkant van de tafel naar het "
-"midden van de tafel, in pixels"
-
-#. module: pos_restaurant
-#: model:ir.model.fields,help:pos_restaurant.field_restaurant_table__width
-msgid "The table's width in pixels"
-msgstr "De tafel zijn breedte in pixels"
-
-#. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/tip_screen/tip_screen.js:0
-msgid ""
-"This order is not yet synced to server. Make sure it is synced then try "
-"again."
-msgstr ""
-"Deze order is nog niet gesynchroniseerd met de server. Zorg ervoor dat het "
-"is gesynchroniseerd en probeer het opnieuw."
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/ticket_screen/ticket_screen.xml:0
-msgid "Tip"
-msgstr "Fooi"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/tip_screen/tip_screen.xml:0
-msgid "Tip Amount"
-msgstr "Fooibedrag"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/components/tip_receipt/tip_receipt.xml:0
-msgid "Tip:"
-msgstr "Fooi:"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/ticket_screen/ticket_screen.js:0
-msgid "Tipping"
-msgstr "Fooien"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Thickness"
+msgstr "Dikte"
 
 #. module: pos_restaurant
 #: model:product.template,description_sale:pos_restaurant.pos_food_margherita_product_template
@@ -1451,10 +1531,9 @@ msgid "Tomato sauce, Agerola mozzarella \"fior di latte\", fresh basil"
 msgstr "Tomatensaus, Agerola mozzarella 'fior di latte', verse basilicum"
 
 #. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/components/tip_receipt/tip_receipt.xml:0
-msgid "Total:"
-msgstr "Totaal:"
+#: model:ir.model.fields.selection,name:pos_restaurant.selection__restaurant_table__parent_side__top
+msgid "Top"
+msgstr "Bovenaan"
 
 #. module: pos_restaurant
 #. odoo-javascript
@@ -1476,43 +1555,41 @@ msgstr "Verplaatsen / Samenvoegen"
 
 #. module: pos_restaurant
 #. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/product_screen/control_buttons/control_buttons.xml:0
+msgid "Transfer Course"
+msgstr "Gerecht verplaatsen"
+
+#. module: pos_restaurant
+#. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/services/pos_store.js:0
 msgid "Transfer all products of \"%s\" into:"
 msgstr "Verplaats alle producten van \"%s\" naar:"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/product_screen/control_buttons/control_buttons.xml:0
-msgid "Transfer course"
-msgstr "Verplaats gerecht"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_floor/edit_floor.xml:0
+msgid "Transparency"
+msgstr "Transparantie"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
-msgid "Unsupported File Format"
-msgstr "Bestandsformaat niet ondersteund"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Underline"
+msgstr "Onderstrepen"
 
 #. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/tip_screen/tip_screen.js:0
-msgid "Unsynced order"
-msgstr "Niet-gesynchroniseerde order"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/tip_screen/tip_screen.xml:0
-msgid "Username"
-msgstr "Gebruikersnaam"
+#. odoo-python
+#: code:addons/pos_restaurant/models/pos_restaurant.py:0
+msgid "Uploaded image's format is not supported. Try with: %s"
+msgstr ""
+"Het formaat van de geüploade afbeelding wordt niet ondersteund. Probeer met: "
+"%s"
 
 #. module: pos_restaurant
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_order_course__uuid
 msgid "Uuid"
 msgstr "Uuid"
-
-#. module: pos_restaurant
-#: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__position_v
-msgid "Vertical Position"
-msgstr "Verticale positie"
 
 #. module: pos_restaurant
 #: model:product.template,description_sale:pos_restaurant.product_moscow_mule_product_template
@@ -1521,9 +1598,15 @@ msgstr "Vodka 42 Below, limoen, suiker, gingerbeer"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/services/pos_store.js:0
-msgid "Warning !"
-msgstr "Waarschuwing!"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/add_decor_popup/add_decor_popup.xml:0
+msgid "Walls"
+msgstr "Muren"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/services/floor_plan/floor_plan_service.js:0
+msgid "Warning"
+msgstr "Waarschuwing"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.water_product_template
@@ -1551,11 +1634,6 @@ msgid "White rum, sugar, lime juice, soda water, and mint."
 msgstr "Witte rum, suiker, limoensap, sodawater en munt."
 
 #. module: pos_restaurant
-#: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__width
-msgid "Width"
-msgstr "Breedte"
-
-#. module: pos_restaurant
 #. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/screens/split_bill_screen/split_bill_screen.xml:0
 msgid "With"
@@ -1577,7 +1655,7 @@ msgstr ""
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
+#: code:addons/pos_restaurant/static/src/app/services/floor_plan/floor_plan_service.js:0
 msgid "You cannot delete a floor with orders still in draft for this floor."
 msgstr ""
 "Je kunt een zaal niet verwijderen als er nog orders in concept zijn voor "
@@ -1594,7 +1672,7 @@ msgstr ""
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
+#: code:addons/pos_restaurant/static/src/app/services/floor_plan/floor_plan_service.js:0
 msgid "You cannot delete a table with orders still in draft for this table."
 msgstr "Je kunt geen tafel verwijderen waarvan de orders nog in concept zijn."
 
@@ -1632,9 +1710,21 @@ msgstr "Een bestelling kan niet naar zichzelf worden overgezet"
 
 #. module: pos_restaurant
 #. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/split_bill_screen/split_bill_screen.xml:0
+msgid "discount"
+msgstr "korting"
+
+#. module: pos_restaurant
+#. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/services/pos_store.js:0
 msgid "e.g. John"
 msgstr "bv. John"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/services/pos_store.js:0
+msgid "fired"
+msgstr "verstuurd"
 
 #. module: pos_restaurant
 #. odoo-javascript
@@ -1648,152 +1738,26 @@ msgstr "items"
 msgid "product(s) selected"
 msgstr "Geselecteerde product(en)"
 
+#~ msgid "Edit Plan"
+#~ msgstr "Plan bewerken"
+
+#~ msgid "Switch Floor View"
+#~ msgstr "Zaalweergave wisselen"
+
+#~ msgid "Options"
+#~ msgstr "Opties"
+
+#~ msgid "Sides"
+#~ msgstr "Bijgerecht"
+
 #~ msgid " and $1"
 #~ msgstr " en € 1"
 
-#~ msgid "________________________"
-#~ msgstr "________________________"
+#~ msgid "Message"
+#~ msgstr "Bericht"
 
-#~ msgid "______________________________________________"
-#~ msgstr "______________________________________________"
+#~ msgid "Note"
+#~ msgstr "Notitie"
 
-#~ msgid "18:45 John 4P"
-#~ msgstr "18:45 Johannes 4P"
-
-#~ msgid "Add"
-#~ msgstr "Toevoegen"
-
-#~ msgid "Add internal notes on order lines for the kitchen"
-#~ msgstr "Interne opmerkingen aan orderregels toevoegen voor de keuken"
-
-#~ msgid "Add tip after payment (North America specific)"
-#~ msgstr "Fooi toevoegen na betaling (specifiek voor Noord-Amerika)."
-
-#~ msgid "Amount"
-#~ msgstr "Bedrag"
-
-#~ msgid "An internal identification of a table"
-#~ msgstr "Een interne identificatie van een tafel"
-
-#~ msgid "Back to floor"
-#~ msgstr "Terug naar vloer"
-
-#~ msgid "Blocked action"
-#~ msgstr "Geblokkeerde actie"
-
-#~ msgid "Blue"
-#~ msgstr "Blauw"
-
-#~ msgid "Cash Bar"
-#~ msgstr "Cash Bar"
-
-#~ msgid "Close"
-#~ msgstr "Sluiten"
-
-#~ msgid "Floor: %s - PoS Config: %s \n"
-#~ msgstr "Verdieping: %s - Kassa configuratie: %s \n"
-
-#~ msgid "Green"
-#~ msgstr "Groen"
-
-#~ msgid "Grey"
-#~ msgstr "Grijs"
-
-#~ msgid "Guests:"
-#~ msgstr "Gasten:"
-
-#~ msgid "Internal Note"
-#~ msgstr "Interne notitie"
-
-#~ msgid "Internal Note added by the waiter."
-#~ msgstr "Interne opmerking toegevoegd door de ober."
-
-#~ msgid "Internal Notes"
-#~ msgstr "Interne notities"
-
-#~ msgid "Is a Bar/Restaurant"
-#~ msgstr "Is een bar/restaurant"
-
-#~ msgid "Light grey"
-#~ msgstr "Lichtgrijs"
-
-#~ msgid "Logo"
-#~ msgstr "Logo"
-
-#~ msgid "Margherita"
-#~ msgstr "Margarita"
-
-#~ msgid "Ok"
-#~ msgstr "Ok"
-
-#~ msgid "Orange"
-#~ msgstr "Oranje"
-
-#~ msgid "PRO FORMA"
-#~ msgstr "PRO FORMA"
-
-#~ msgid "Pasta 4 formaggi "
-#~ msgstr "Pasta 4 formaggi "
-
-#~ msgid "Pos Iface Orderline Notes"
-#~ msgstr "Kassa Iface Orderregel notities"
-
-#~ msgid "Print"
-#~ msgstr "Afdrukken"
-
-#~ msgid "Printing is not supported on some browsers"
-#~ msgstr "Afdrukken wordt in sommige browsers niet ondersteund"
-
-#~ msgid ""
-#~ "Printing is not supported on some browsers due to no default printing "
-#~ "protocol is available. It is possible to print your tickets by making use "
-#~ "of an IoT Box."
-#~ msgstr ""
-#~ "Afdrukken wordt niet ondersteund in sommige browsers omdat er geen "
-#~ "standaard afdrukprotocol beschikbaar is. Het is mogelijk om je tickets te "
-#~ "printen door gebruik te maken van een IoT Box."
-
-#~ msgid "Purple"
-#~ msgstr "Paars"
-
-#~ msgid "Red"
-#~ msgstr "Rood"
-
-#~ msgid "Served by"
-#~ msgstr "Geholpen door"
-
-#~ msgid "Table Name"
-#~ msgstr "Tafelnaam"
-
-#~ msgid "Tel:"
-#~ msgstr "Tel:"
-
-#~ msgid "Tint"
-#~ msgstr "Tint"
-
-#~ msgid "Turquoise"
-#~ msgstr "Turquoise"
-
-#~ msgid "VAT:"
-#~ msgstr "BTW:"
-
-#~ msgid "Vegetarian"
-#~ msgstr "Vegetarisch"
-
-#~ msgid "With a"
-#~ msgstr "Met een"
-
-#~ msgid "Yellow"
-#~ msgstr "Geel"
-
-#~ msgid "You cannot put a number that exceeds %s "
-#~ msgstr "Je kunt geen getal plaatsen dat hoger is dan %s "
-
-#~ msgid "at"
-#~ msgstr "voor"
-
-#~ msgid "at table"
-#~ msgstr "aan tafel"
-
-#~ msgid "discount"
-#~ msgstr "korting"
+#~ msgid "Split"
+#~ msgstr "Splitsen"

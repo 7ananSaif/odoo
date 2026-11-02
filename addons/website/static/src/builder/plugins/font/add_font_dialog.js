@@ -1,24 +1,13 @@
 import { rpc } from "@web/core/network/rpc";
-import { Component, useEffect, useRef, useState } from "@odoo/owl";
+import { Component, proxy, signal, useProps, t } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
 import { useService } from "@web/core/utils/hooks";
 import { AutoComplete } from "@web/core/autocomplete/autocomplete";
 import { Dialog } from "@web/core/dialog/dialog";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
+import { Switch } from "@html_editor/components/switch/switch";
 
 class GoogleFontAutoComplete extends AutoComplete {
-    setup() {
-        super.setup();
-        this.inputRef = useRef("input");
-        this.sourcesListRef = useRef("sourcesList");
-        useEffect(
-            (el) => {
-                el.setAttribute("id", "google_font");
-            },
-            () => [this.inputRef.el]
-        );
-    }
-
     get dropdownOptions() {
         return {
             ...super.dropdownOptions,
@@ -28,37 +17,79 @@ class GoogleFontAutoComplete extends AutoComplete {
 
     onInput(ev) {
         super.onInput(ev);
-        if (this.sourcesListRef.el) {
-            this.sourcesListRef.el.scrollTop = 0;
+        if (this.listRef()) {
+            this.listRef().scrollTop = 0;
         }
     }
 }
 
+// These Google Fonts weight names should stay in sync with FONT_WEIGHT_OPTIONS
+// in theme_tab_plugin.js.
+const UPLOADED_FONT_WEIGHT_BY_NAME = {
+    thin: 100,
+    "extra light": 200,
+    light: 300,
+    regular: 400,
+    normal: 400,
+    medium: 500,
+    "semi bold": 600,
+    bold: 700,
+    "extra bold": 800,
+    black: 900,
+};
+
+const EXPLICIT_FONT_WEIGHT_REGEX = /(?:^|[^0-9])(100|200|300|400|500|600|700|800|900)(?=$|[^0-9])/;
+const NORMALIZED_FONT_WEIGHT_REGEX =
+    /(?:^|[^a-z])(extra light|semi bold|extra bold|thin|light|regular|normal|medium|bold|black)(?: italic| oblique)?$/;
+
+/**
+ * Normalizes uploaded font filenames so weight/style keywords can be matched
+ * consistently across extension-based, dash/underscore-separated, and camel-cased names.
+ */
+function normalizeUploadedFontName(fontName) {
+    return fontName
+        .replace(/\.[^.]+$/, "")
+        .replace(/([a-z])([A-Z])/g, "$1 $2")
+        .replace(/[-_]+/g, " ")
+        .trim()
+        .toLowerCase();
+}
+
+function getUploadedFontWeight(fontName) {
+    const normalizedFontName = normalizeUploadedFontName(fontName);
+    const explicitWeight = normalizedFontName.match(EXPLICIT_FONT_WEIGHT_REGEX);
+    if (explicitWeight) {
+        return parseInt(explicitWeight[1]);
+    }
+    const namedWeight = normalizedFontName.match(NORMALIZED_FONT_WEIGHT_REGEX);
+    return namedWeight && UPLOADED_FONT_WEIGHT_BY_NAME[namedWeight[1]];
+}
+
 export class AddFontDialog extends Component {
     static template = "website.dialog.addFont";
-    static components = { GoogleFontAutoComplete, Dialog };
-    static props = {
-        close: Function,
-        allFonts: Array,
-        googleFonts: Array,
-        googleLocalFonts: Array,
-        uploadedLocalFonts: Array,
-        variable: String,
-        customize: Function,
-        reloadEditor: Function,
-    };
-    state = useState({
+    static components = { GoogleFontAutoComplete, Dialog, Switch };
+    props = useProps({
+        close: t.function(),
+        allFonts: t.array(),
+        googleFonts: t.array(),
+        googleLocalFonts: t.array(),
+        uploadedLocalFonts: t.array(),
+        variable: t.string(),
+        customize: t.function(),
+        reloadEditor: t.function(),
+    });
+    state = proxy({
         valid: true,
         loading: false,
         googleFontFamily: undefined,
-        googleServe: !this.env.services.website.currentWebsite.cookies_bar,
+        googleServe: false,
         uploadedFontName: undefined,
         uploadedFonts: [],
         uploadedFontFaces: undefined,
         previewText: _t("The quick brown fox jumps over the lazy dog."),
     });
+    fileInput = signal.ref();
     setup() {
-        this.fileInput = useRef("fileInput");
         this.dialog = useService("dialog");
         this.orm = useService("orm");
     }
@@ -102,7 +133,7 @@ export class AddFontDialog extends Component {
         ];
     }
     async onGoogleFontSelect(fontFamily) {
-        this.fileInput.el.value = "";
+        this.fileInput().value = "";
         this.state.uploadedFonts = [];
         this.state.uploadedFontName = undefined;
         this.state.uploadedFontFaces = undefined;
@@ -110,7 +141,7 @@ export class AddFontDialog extends Component {
             const result = await fetch(
                 `https://fonts.googleapis.com/css?family=${encodeURIComponent(
                     fontFamily
-                )}:300,300i,400,400i,700,700i`,
+                )}:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i`,
                 { method: "HEAD" }
             );
             // Google fonts server returns a 400 status code if family is not valid.
@@ -134,7 +165,7 @@ export class AddFontDialog extends Component {
     }
     async onUploadChange(e) {
         this.state.googleFontFamily = undefined;
-        const file = this.fileInput.el.files[0];
+        const file = this.fileInput().files[0];
         if (!file) {
             this.state.uploadedFonts = [];
             this.state.uploadedFontName = undefined;
@@ -167,36 +198,30 @@ export class AddFontDialog extends Component {
         let shortestNamedFont;
         for (const font of this.state.uploadedFonts) {
             if (!shortestNamedFont || font.name.length < shortestNamedFont.name.length) {
-                shortestNamedFont = font;
+                // Create a copy of the font to not mangle the original font
+                // when setting the weight and style later
+                shortestNamedFont = JSON.parse(JSON.stringify(font));
             }
             font.isItalic = /italic/i.test(font.name);
-            font.isLight = /light|300/i.test(font.name);
-            font.isBold = /bold|700/i.test(font.name);
-            font.isRegular = /regular|400/i.test(font.name);
-            font.weight = font.isRegular ? 400 : font.isLight ? 300 : font.isBold ? 700 : undefined;
-            if (font.isItalic && !font.weight) {
-                if (!/00|thin|medium|black|condense|extrude/i.test(font.name)) {
-                    font.isRegular = true;
-                    font.weight = 400;
-                }
-            }
+            font.weight = getUploadedFontWeight(font.name);
             font.style = font.isItalic ? "italic" : "normal";
             if (font.weight) {
                 targetFonts[`${font.weight}${font.style}`] = font;
             }
         }
-        if (!Object.values(targetFonts).filter((font) => font.isRegular).length) {
-            // Keep font with shortest name.
+        if (!Object.values(targetFonts).some((font) => font.weight === 400)) {
+            // Keep font with the shortest name.
             shortestNamedFont.weight = 400;
             shortestNamedFont.style = "normal";
-            targetFonts["400"] = shortestNamedFont;
+            targetFonts["400normal"] = shortestNamedFont;
         }
         const fontFaces = [];
         for (const font of Object.values(targetFonts)) {
             fontFaces.push(`@font-face{
-                font-family: ${baseFontName};
+                font-family: "${baseFontName}";
                 font-style: ${font.style};
                 font-weight: ${font.weight};
+                font-display: swap;
                 src:url("${font.url}");
             }`);
         }
@@ -251,13 +276,16 @@ export class AddFontDialog extends Component {
                     {
                         name: uploadedFontName,
                         description: `CSS font face for ${uploadedFontName}`,
-                        datas: btoa(uploadedFontFaces),
+                        raw: btoa(uploadedFontFaces),
                         res_model: "ir.attachment",
                         mimetype: "text/css",
                         public: true,
                     },
                 ],
             ]);
+            await this.orm.write("ir.attachment", [fontCssId], {
+                url: `/web/font/${fontCssId}/${uploadedFontName}`,
+            });
             this.props.uploadedLocalFonts.push(`'${uploadedFontName}': ${fontCssId}`);
             font = uploadedFontName;
         } else {
@@ -268,7 +296,7 @@ export class AddFontDialog extends Component {
                 const result = await fetch(
                     "https://fonts.googleapis.com/css?family=" +
                         encodeURIComponent(font) +
-                        ":300,300i,400,400i,700,700i",
+                        ":100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i",
                     { method: "HEAD" }
                 );
                 // Google fonts server returns a 400 status code if family is not valid.

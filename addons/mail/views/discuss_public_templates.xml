@@ -6,14 +6,14 @@
                 <meta charset="utf-8"/>
                 <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
                 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
-                <title t-esc="title or 'Odoo'"/>
+                <title t-out="title or 'Odoo'"/>
                 <link type="image/x-icon" rel="shortcut icon" t-att-href="x_icon or '/web/static/img/favicon.ico'"/>
                 <script>
                     window.odoo = {
                         __session_info__: <t t-out="json.dumps(session_info)"/>,
                         csrf_token: "<t t-out="request.csrf_token(None)"/>",
                         debug: "<t t-out="debug"/>",
-                        discuss_data: <t t-out="json.dumps(data)"/>
+                        discuss_data: <t t-out="json.dumps(store_data)"/>
                     };
                 </script>
                 <t t-call-assets="mail.assets_public"/>

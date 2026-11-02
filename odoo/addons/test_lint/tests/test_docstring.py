@@ -9,17 +9,108 @@ import docutils.parsers.rst.directives.admonitions
 import docutils.parsers.rst.roles
 
 from odoo.modules.registry import Registry
-from odoo.tests.common import BaseCase, get_db_name, tagged
+from odoo.tests.common import BaseCase, get_db_name, tagged, no_retry
 
 logger = logging.getLogger(__name__)
 
 # There are too many broken docstrings to fix them all in one PR, we use
 # this list to fix one module at a time.
 MODULES_TO_LINT = (
+    'ai_crm_livechat',
+    'ai_livechat',
+    'ai_website_livechat',
     'base',
+    'bus',
+    'crm_livechat',
+    'delivery_iot',
+    'documents_fsm',
+    'documents_project',
+    'documents_project_sale',
+    'documents_project_sign',
+    'esg_project',
+    'event_iot',
+    'event_sale_iot',
+    'helpdesk',
+    'helpdesk_account',
+    'helpdesk_fsm',
+    'helpdesk_fsm_report',
+    'helpdesk_fsm_sale',
+    'helpdesk_holidays',
+    'helpdesk_repair',
+    'helpdesk_sale',
+    'helpdesk_sale_coupon',
+    'helpdesk_sale_loyalty',
+    'helpdesk_sale_timesheet',
+    'helpdesk_sms',
+    'helpdesk_timesheet',
+    'hr_livechat',
+    'hr_timesheet',
+    'im_livechat',
+    'iot',
+    'mail',
+    'mrp_iot',
+    'planning',
+    'planning_attendance',
+    'planning_calendar',
+    'planning_contract',
+    'planning_holidays',
+    'planning_hr_skills',
+    'point_of_sale',
+    'pos_',
+    'project',
+    'project_account_asset',
+    'project_account_budget',
+    'project_enterprise',
+    'project_enterprise_hr_contract',
+    'project_forecast',
+    'project_helpdesk',
+    'project_holidays',
+    'project_purchase',
+    'project_sale_subscription',
+    'project_timesheet_forecast',
+    'project_timesheet_forecast_sale',
+    'project_timesheet_holiday',
+    'project_todo',
+    'quality_control_iot',
+    'quality_iot',
+    'sale_planning',
+    'sale_project',
+    'sale_project_enterprise',
+    'sale_project_forecast',
+    'sale_renting_planning',
+    'sale_timesheet',
+    'sale_timesheet_account_budget',
+    'sale_timesheet_enterprise',
+    'sale_timesheet_enterprise_holidays',
+    'spreadsheet_dashboard_im_livechat',
+    'test_web_grid',
+    'timer',
+    'timesheet_grid',
+    'timesheet_grid_holidays',
+    'voip',
+    'voip_ai',
+    'voip_crm',
+    'voip_helpdesk',
+    'voip_hr',
+    'voip_hr_recruitment',
+    'voip_project',
+    'voip_sale',
+    'voip_sale_subscription',
+    'voip_sms',
+    'web_grid',
+    'website_crm_livechat',
+    'website_helpdesk',
+    'website_helpdesk_forum',
+    'website_helpdesk_knowledge',
+    'website_helpdesk_livechat',
+    'website_helpdesk_sale_loyalty',
+    'website_helpdesk_slides',
+    'website_helpdesk_slides_forum',
+    'website_hr_recruitment_livechat',
+    'website_livechat',
+    'worksheet',
 )
 MODULES_TO_LINT_ONLY_PUBLIC_METHODS = (
-    'helpdesk',
 )
 
 POSITIONAL_ONLY = inspect.Parameter.POSITIONAL_ONLY
@@ -152,6 +243,7 @@ def extract_docstring_params(doctree):
 
 
 @tagged('-at_install', 'post_install')
+@no_retry
 class TestDocstring(BaseCase):
     @classmethod
     def setUpClass(cls):

@@ -4,7 +4,7 @@ import * as spreadsheet from "@odoo/o-spreadsheet";
 import { waitForDataLoaded } from "@spreadsheet/helpers/model";
 import { animationFrame } from "@odoo/hoot-mock";
 
-const { toCartesian, toZone, lettersToNumber, deepCopy } = spreadsheet.helpers;
+const { toCartesian, toZone, lettersToNumber, deepCopy, UuidGenerator } = spreadsheet.helpers;
 
 /**
  * @typedef {import("@spreadsheet").GlobalFilter} GlobalFilter
@@ -149,6 +149,24 @@ export function addColumns(
         position,
         base: lettersToNumber(column),
         quantity,
+        sheetName: model.getters.getSheetName(sheetId),
+    });
+}
+
+export function addRows(
+    model,
+    position,
+    row,
+    quantity,
+    sheetId = model.getters.getActiveSheetId()
+) {
+    return model.dispatch("ADD_COLUMNS_ROWS", {
+        sheetId,
+        dimension: "ROW",
+        position,
+        base: row,
+        quantity,
+        sheetName: model.getters.getSheetName(sheetId),
     });
 }
 
@@ -179,6 +197,7 @@ export function deleteColumns(model, columns, sheetId = model.getters.getActiveS
         sheetId,
         dimension: "COL",
         elements: columns.map(lettersToNumber),
+        sheetName: model.getters.getSheetName(sheetId),
     });
 }
 
@@ -188,7 +207,7 @@ export function createBasicChart(
     chartId,
     definition,
     sheetId = model.getters.getActiveSheetId(),
-    figureId = model.uuidGenerator.smallUuid()
+    figureId = UuidGenerator.smallUuid()
 ) {
     model.dispatch("CREATE_CHART", {
         chartId,
@@ -202,12 +221,16 @@ export function createBasicChart(
         sheetId: sheetId,
         definition: {
             title: { text: "test" },
-            dataSets: [{ dataRange: "A1" }],
+            dataSource: {
+                type: "range",
+                dataSets: [{ dataRange: "A1" }],
+            },
             type: "bar",
             background: "#fff",
             verticalAxisPosition: "left",
             legendPosition: "top",
             stackedBar: false,
+            dataSetStyles: {},
             ...definition,
         },
     });
@@ -218,7 +241,7 @@ export function createScorecardChart(
     model,
     chartId,
     sheetId = model.getters.getActiveSheetId(),
-    figureId = model.uuidGenerator.smallUuid()
+    figureId = UuidGenerator.smallUuid()
 ) {
     model.dispatch("CREATE_CHART", {
         figureId,
@@ -229,7 +252,7 @@ export function createScorecardChart(
         sheetId: sheetId,
         definition: {
             title: { text: "test" },
-            keyValue: "A1",
+            keyValue: "=A1",
             type: "scorecard",
             background: "#fff",
             baselineColorDown: "#DC6965",
@@ -244,7 +267,7 @@ export function createGaugeChart(
     model,
     chartId,
     sheetId = model.getters.getActiveSheetId(),
-    figureId = model.uuidGenerator.smallUuid()
+    figureId = UuidGenerator.smallUuid()
 ) {
     model.dispatch("CREATE_CHART", {
         figureId,
@@ -336,19 +359,27 @@ export function updatePivotMeasureDisplay(model, pivotId, measureId, display) {
 }
 
 export function createSheet(model, data = {}) {
-    const sheetId = data.sheetId || model.uuidGenerator.smallUuid();
+    const sheetId = data.sheetId || UuidGenerator.smallUuid();
     return model.dispatch("CREATE_SHEET", {
         position: data.position !== undefined ? data.position : 1,
         sheetId,
         cols: data.cols,
         rows: data.rows,
-        name: data.name,
+        name: data.name || sheetId.toString(),
+    });
+}
+
+export function deleteSheet(model, sheetId) {
+    const sheetName = model.getters.tryGetSheet(sheetId)?.name ?? "SheetName";
+    return model.dispatch("DELETE_SHEET", {
+        sheetId,
+        sheetName,
     });
 }
 
 export function createCarousel(model, data = { items: [] }, carouselId, sheetId, figureData = {}) {
     return model.dispatch("CREATE_CAROUSEL", {
-        figureId: carouselId || model.uuidGenerator.smallUuid(),
+        figureId: carouselId || UuidGenerator.smallUuid(),
         sheetId: sheetId || model.getters.getActiveSheetId(),
         col: 0,
         row: 0,
@@ -365,9 +396,13 @@ export function addChartFigureToCarousel(
     chartFigureId,
     sheetId = model.getters.getActiveSheetId()
 ) {
-    return model.dispatch("ADD_FIGURE_CHART_TO_CAROUSEL", {
+    return model.dispatch("ADD_FIGURES_CHART_TO_CAROUSEL", {
         carouselFigureId: carouselId,
-        chartFigureId,
+        chartFigureIds: [chartFigureId],
         sheetId,
     });
+}
+
+export function lockSheet(model, sheetId = model.getters.getActiveSheetId()) {
+    return model.dispatch("LOCK_SHEET", { sheetId });
 }

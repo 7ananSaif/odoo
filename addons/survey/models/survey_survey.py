@@ -10,7 +10,10 @@ from odoo import api, exceptions, fields, models, _
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.fields import Domain
 from odoo.tools import is_html_empty
+from odoo.tools.translate import mark_as_copy
 from odoo.tools.urls import urljoin as url_join
+
+SURVEY_LEADERBOARD_MAX_PARTICIPANTS = 250
 
 
 class SurveySurvey(models.Model):
@@ -51,7 +54,7 @@ class SurveySurvey(models.Model):
         help="Leave the field empty to support all installed languages."
     )
     allowed_survey_types = fields.Json(string='Allowed survey types', compute="_compute_allowed_survey_types")
-    title = fields.Char('Survey Title', required=True, translate=True)
+    title = fields.Char('Survey Title', required=True, translate=True, copy=mark_as_copy('title'))
     color = fields.Integer('Color Index', default=0)
     description = fields.Html(
         "Description", translate=True, sanitize=True, sanitize_overridable=True,
@@ -61,6 +64,7 @@ class SurveySurvey(models.Model):
         help="This message will be displayed when survey is completed")
     background_image = fields.Image("Background Image")
     background_image_url = fields.Char('Background Url', compute="_compute_background_image_url")
+    background_image_filename = fields.Char("Background Filename")
     active = fields.Boolean("Active", default=True)
     user_id = fields.Many2one(
         'res.users', string='Responsible',
@@ -127,13 +131,15 @@ class SurveySurvey(models.Model):
         domain="[('model', '=', 'survey.user_input')]",
         help="Automated email sent to the user when they succeed the certification, containing their certification document.")
     certification_report_layout = fields.Selection([
-        ('modern_purple', 'Modern Purple'),
-        ('modern_blue', 'Modern Blue'),
-        ('modern_gold', 'Modern Gold'),
-        ('classic_purple', 'Classic Purple'),
-        ('classic_blue', 'Classic Blue'),
-        ('classic_gold', 'Classic Gold')],
-        string='Certification template', default='modern_purple')
+        ('modern_company', 'Modern'),
+        ('modern_black', 'Modern Black'),
+        ('minimal_company', 'Minimal'),
+        ('minimal_black', 'Minimal Black'),
+        ('classic-1_company', 'Classic #1'),
+        ('classic-1_black', 'Classic #1 Black'),
+        ('classic-2_company', 'Classic #2'),
+        ('classic-2_black', 'Classic #2 Black')],
+        string='Certification template', default='modern_company')
     # Certification badge
     #   certification_badge_id_dummy is used to have two different behaviours in the form view :
     #   - If the certification badge is not set, show certification_badge_id and only display create option in the m2o
@@ -156,6 +162,7 @@ class SurveySurvey(models.Model):
     # live sessions - current question fields
     session_question_id = fields.Many2one('survey.question', string="Current Question", copy=False,
         help="The current question of the survey session.")
+    session_question_can_answer = fields.Boolean("Can Answer Current Question", default=True, copy=False)
     session_start_time = fields.Datetime("Current Session Start Time", copy=False)
     session_question_start_time = fields.Datetime("Current Question Start Time", copy=False,
         help="The time at which the current question has started, used to handle the timer for attendees.")
@@ -382,12 +389,16 @@ class SurveySurvey(models.Model):
 
     @api.depends_context('uid')
     def _compute_allowed_survey_types(self):
+        """Assign static array of allowed survey types depending on users groups."""
+        # List of keys allowed for selection; icons are now mapped
+        # separately in the view via the 'icon_mapping' option.
+        # Implementation example in: addons/survey/views/survey_survey_views.xml:53
         self.allowed_survey_types = [
             'survey',
             'live_session',
             'assessment',
             'custom',
-        ] if self.env.user.has_group('survey.group_survey_user') else False
+        ] if self.env.user.has_group('survey.group_survey_user') else []
 
     @api.onchange('survey_type')
     def _onchange_survey_type(self):
@@ -516,10 +527,6 @@ class SurveySurvey(models.Model):
                     dst.triggering_answer_ids = [answers_map[src_answer_id.id] for src_answer_id in src.triggering_answer_ids]
         return new_surveys
 
-    def copy_data(self, default=None):
-        vals_list = super().copy_data(default=default)
-        return [dict(vals, title=self.env._("%s (copy)", survey.title)) for survey, vals in zip(self, vals_list)]
-
     def action_archive(self):
         super().action_archive()
         self.certification_badge_id.action_archive()
@@ -638,7 +645,7 @@ class SurveySurvey(models.Model):
                 questions |= page.question_ids
             else:
                 if 0 < page.random_questions_count < len(page.question_ids):
-                    questions = questions.concat(*random.sample(page.question_ids, page.random_questions_count))
+                    questions += questions.browse().concat(random.sample(page.question_ids, page.random_questions_count))
                 else:
                     questions |= page.question_ids
 
@@ -983,7 +990,7 @@ class SurveySurvey(models.Model):
             'id',
             'nickname',
             'scoring_total',
-        ], limit=15, order="scoring_total desc")
+        ], limit=SURVEY_LEADERBOARD_MAX_PARTICIPANTS, order="scoring_total desc")
 
         if leaderboard and self.session_state == 'in_progress' and \
            any(answer.answer_score for answer in self.session_question_id.suggested_answer_ids):
@@ -997,17 +1004,23 @@ class SurveySurvey(models.Model):
                     question_scores.get(input_line['user_input_id'][0], 0) + input_line['answer_score']
 
             score_position = 0
+            max_question_score = sum(
+                score for score in self.session_question_id.suggested_answer_ids.mapped('answer_score')
+                if score > 0
+            ) or 1
+            min_current_score = max(min(
+                leaderboard_item['scoring_total'] - question_scores.get(leaderboard_item['id'], 0)
+                for leaderboard_item in leaderboard
+            ), 0)
             for leaderboard_item in leaderboard:
                 question_score = question_scores.get(leaderboard_item['id'], 0)
                 leaderboard_item.update({
                     'updated_score': leaderboard_item['scoring_total'],
                     'scoring_total': leaderboard_item['scoring_total'] - question_score,
                     'leaderboard_position': score_position,
-                    'max_question_score': sum(
-                        score for score in self.session_question_id.suggested_answer_ids.mapped('answer_score')
-                        if score > 0
-                    ) or 1,
-                    'question_score': question_score
+                    'max_question_score': max_question_score,
+                    'min_current_score': min_current_score,
+                    'question_score': question_score,
                 })
                 score_position += 1
             leaderboard = sorted(
@@ -1051,8 +1064,8 @@ class SurveySurvey(models.Model):
             self.env.context,
             default_survey_id=self.id,
             default_template_id=template and template.id or False,
-            default_email_layout_xmlid='mail.mail_notification_light',
             default_send_email=(self.access_mode != 'public'),
+            hide_mail_template_management_options=True,
         )
         return {
             'type': 'ir.actions.act_window',
@@ -1182,6 +1195,7 @@ class SurveySurvey(models.Model):
         return '/s/%s' % self.access_token[:6]
 
     def get_print_url(self):
+        self.check_access('read')  # avoid cache pollution
         return '/survey/print/%s' % self.access_token
 
     # ------------------------------------------------------------

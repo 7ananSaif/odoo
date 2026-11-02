@@ -3,13 +3,15 @@
 from odoo.addons.stock_account.tests.test_anglo_saxon_valuation_reconciliation_common import ValuationReconciliationTestCommon
 from odoo.addons.sale_stock.tests.common import TestSaleStockCommon
 from odoo import fields
-from odoo.tests import tagged
+from odoo.tests import Command, freeze_time, tagged
 
 from datetime import timedelta
 
 
 @tagged('post_install', '-at_install')
 class TestSaleStockLeadTime(TestSaleStockCommon, ValuationReconciliationTestCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):
@@ -200,6 +202,38 @@ class TestSaleStockLeadTime(TestSaleStockCommon, ValuationReconciliationTestComm
         new_deadline -= timedelta(days=pick.move_ids.rule_id.delay)
         self.assertEqual(pick.date_deadline, new_deadline)
 
+    def test_change_commitment_date_updates_pick_deadline(self):
+        """
+        Ensure date deadline propagation when in two step delivery.
+        """
+        warehouse = self.company_data['default_warehouse']
+        warehouse.delivery_steps = 'pick_ship'
+
+        so = self.env['sale.order'].create({
+            'partner_id': self.partner_a.id,
+            'commitment_date': '2025-01-10 09:00:00',
+            'order_line': [Command.create({
+                'product_id': self.test_product_delivery.id,
+                'product_uom_qty': 10,
+            })],
+        })
+        so.action_confirm()
+
+        new_commitment_date = so.commitment_date + timedelta(days=10)
+        so.commitment_date = new_commitment_date
+        pick = so.picking_ids
+
+        self.assertEqual(len(pick), 1)
+        self.assertEqual(pick.date_deadline, new_commitment_date)
+
+        pick.move_ids.quantity = 10
+        pick.move_ids.picked = True
+        pick._action_done()
+        self.assertEqual(pick.state, 'done')
+
+        ship = pick.move_ids.move_dest_ids.picking_id
+        self.assertEqual(ship.date_deadline, new_commitment_date)
+
     def test_03_product_company_level_delays(self):
         """Partial duplicate of test_02 to make sure there is no default value specified in sale
         that disables the computation of the customer_lead.
@@ -229,3 +263,32 @@ class TestSaleStockLeadTime(TestSaleStockCommon, ValuationReconciliationTestComm
         out_date = order.date_order + timedelta(days=self.test_product_order.sale_delay) - timedelta(days=self.env.company.security_lead)
         min_date = order.picking_ids[0].scheduled_date
         self.assertTrue(abs(min_date - out_date) <= timedelta(seconds=1), 'Schedule date of picking should be equal to: order date + Customer Lead Time - Sales Safety Days.')
+
+    @freeze_time('2024-01-01')
+    def test_move_deadline_respects_per_line_customer_lead(self):
+        """When confirming a SO with multiple lines having different
+        customer_lead, the generated picking's move deadlines are correctly computed per line
+        and not overridden by the SO's commitment_date.
+        """
+        order = self.env['sale.order'].create({
+            'partner_id': self.partner_a.id,
+            'picking_policy': 'direct',
+            'warehouse_id': self.company_data['default_warehouse'].id,
+            'order_line': [
+                Command.create({
+                    'product_id': self.product_a.id,
+                    'product_uom_qty': 1,
+                    'customer_lead': 5.0,
+                }),
+                Command.create({
+                    'product_id': self.product_b.id,
+                    'product_uom_qty': 1,
+                    'customer_lead': 10.0,
+                }),
+            ],
+        })
+        order.action_confirm()
+        self.assertRecordValues(order.picking_ids.move_ids, [
+            {'product_id': self.product_a.id, 'date_deadline': fields.Datetime.today() + timedelta(days=5)},
+            {'product_id': self.product_b.id, 'date_deadline': fields.Datetime.today() + timedelta(days=10)},
+        ])

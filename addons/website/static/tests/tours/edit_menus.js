@@ -1,6 +1,5 @@
 /** @odoo-module */
 
-import { delay } from "@web/core/utils/concurrency";
 import { registry } from "@web/core/registry";
 import {
     clickOnEditAndWaitEditMode,
@@ -9,8 +8,164 @@ import {
     goBackToBlocks,
     insertSnippet,
     openLinkPopup,
-    registerWebsitePreviewTour,
 } from "@website/js/tours/tour_utils";
+
+export const triggerModalEditMenu = `.modal:has(.modal-title:contains(edit menu))`;
+const triggerModalMenuItem = `.modal:has(.modal-title:contains(menu item))`;
+
+const menuEditorLi = (title, isMegaMenu = false) =>
+    `${triggerModalEditMenu} .oe_menu_editor li${
+        isMegaMenu ? `[data-is-mega-menu="true"]` : ``
+    }:has(.js_menu_label:contains(${title}))`;
+
+export const addMegaMenu = (title) => {
+    const steps = [
+        {
+            content: "Trigger the link dialog",
+            trigger: `${triggerModalEditMenu} a:contains(Add Menu Item)`,
+            run: "click",
+        },
+        {
+            content: "Toggle is mega menu option",
+            trigger: `${triggerModalMenuItem} input[type=checkbox]`,
+            run: "click",
+        },
+        {
+            content: "Write a label for the new menu item",
+            trigger: `${triggerModalMenuItem} input:first`,
+            run: `edit ${title}`,
+        },
+        {
+            content: "Confirm the mega menu label",
+            trigger: `${triggerModalMenuItem} button:contains(Continue)`,
+            run: "click",
+        },
+        {
+            trigger: menuEditorLi(title, true),
+        },
+        {
+            content: "Save the new menu",
+            trigger: `${triggerModalEditMenu} button.btn-primary:contains(Save)`,
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal))",
+        },
+        {
+            content: "Wait for the Megaaaaa! item to be added to the navbar after save",
+            trigger: `:iframe .top_menu:has(a.o_mega_menu_toggle:contains(${title}))`,
+        },
+    ];
+    return steps;
+};
+
+const openEditMenu = [
+    {
+        content: "Open site menu",
+        trigger: '.o_navbar button[data-menu-xmlid="website.menu_site"]',
+        run: "click",
+    },
+    {
+        content: "Click on Edit Menu",
+        trigger: '.o_popover a[data-menu-xmlid="website.menu_edit_menu"]',
+        run: "click",
+    },
+];
+
+export const editMenu = ({ title, href } = {}) => {
+    const steps = [];
+    if (title) {
+        steps.push({
+            content: "edit title value",
+            trigger: `${triggerModalMenuItem} input:first`,
+            run: `edit ${title}`,
+        });
+    }
+    if (href) {
+        steps.push({
+            content: "edit link value",
+            trigger: `${triggerModalMenuItem} #url_input`,
+            run: `edit ${href}`,
+        });
+    }
+    steps.push({
+        content: "Save menu item",
+        trigger: `${triggerModalMenuItem} button.btn-primary:contains(Continue)`,
+        run: "click",
+    });
+    return steps;
+};
+
+const addMenu = (title, href = "#") => {
+    const steps = [
+        {
+            content: "Trigger the link dialog",
+            trigger: `${triggerModalEditMenu} a:contains(Add Menu Item)`,
+            run: "click",
+        },
+        {
+            content: "Confirm the new menu entry without a label",
+            trigger: `${triggerModalMenuItem} button.btn-primary:contains(Continue)`,
+            run: "click",
+        },
+        {
+            content: "It didn't save without a label",
+            trigger: `${triggerModalMenuItem}:has(input.is-invalid)`,
+        },
+        ...editMenu({ title, href }),
+        {
+            content: "Click on edit to re-edit the menu",
+            trigger: `${menuEditorLi(title)} .js_edit_menu`,
+            run: "click",
+        },
+        {
+            content: `Check that the URL is ${href}`,
+            trigger: `${triggerModalMenuItem} #url_input:value(${href})`,
+        },
+        {
+            content: "Save menu item",
+            trigger: `${triggerModalMenuItem} button.btn-primary:contains(Continue)`,
+            run: "click",
+        },
+        {
+            trigger: menuEditorLi(title),
+        },
+        {
+            content: "Save the website menu with the new entry",
+            trigger: `${triggerModalEditMenu} button.btn-primary:contains(save)`,
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal))",
+        },
+        {
+            content: "Check Random! has been added to top menu",
+            trigger: `:iframe .top_menu:has(a:contains(${title}))`,
+        },
+    ];
+    return steps;
+};
+
+/**
+ * Generates tour steps that add 5 extra menu items ("brol 1" … "brol 5") to
+ * the website navbar via the menu editor dialog.
+ *
+ * On a fresh localhost install only a handful of menus exist, so the navbar
+ * always has enough space to display them inline. On runbot (or any install
+ * with many addons), the navbar overflows and the surplus items are collapsed
+ * into the "extra menu" dropdown (.o_extra_menu_items). Mega-menu tour steps
+ * that rely on clickOnExtraMenuItem only work when that dropdown is present,
+ * so this helper artificially inflates the menu list to reproduce runbot-like
+ * conditions locally.
+ */
+export const simulateLotOfMenusAsOnRunbot = [1, 2, 3, 4, 5].flatMap((i) => [
+    {
+        content: `Add menu item: brol ${i}`,
+        trigger: `${triggerModalEditMenu} a:contains(add menu item)`,
+        run: "click",
+    },
+    ...editMenu({ title: `brol ${i}` }),
+]);
 
 registry.category("web_tour.tours").add("parent_child_menu", {
     steps: () => [
@@ -35,12 +190,8 @@ registry.category("web_tour.tours").add("parent_child_menu", {
             run: "click",
         },
         {
-            content: "Wait for the record to be saved",
-            trigger: ".o_form_button_save:not(:visible)",
-        },
-        {
             content: "Click on Add a line button",
-            trigger: "div[name='child_id'] td.o_field_x2many_list_row_add a",
+            trigger: "div[name='child_id'] td.o_field_x2many_list_row_add button",
             run: "click",
         },
         {
@@ -60,8 +211,11 @@ registry.category("web_tour.tours").add("parent_child_menu", {
         },
         {
             content: "Click on Save Button",
-            trigger: ".o_form_button_save",
+            trigger: "body:has(.o_form_dirty) .o_form_button_save",
             run: "click",
+        },
+        {
+            trigger: "body:not(:has(.o_form_dirty))",
         },
         {
             content: "Check the Parent's URL",
@@ -74,151 +228,42 @@ registry.category("web_tour.tours").add("parent_child_menu", {
     ],
 });
 
-registerWebsitePreviewTour(
-    "edit_menus",
-    {
-        url: "/",
-    },
-    () => [
+registry.category("web_tour.tours").add("edit_menus", {
+    steps: () => [
         // Add a megamenu item from the menu.
         {
             trigger: ":iframe #wrapwrap",
         },
-        {
-            content: "open site menu",
-            trigger: 'button[data-menu-xmlid="website.menu_site"]',
-            run: "click",
-        },
-        {
-            content: "Click on Edit Menu",
-            trigger: 'a[data-menu-xmlid="website.menu_edit_menu"]',
-            run: "click",
-        },
-        {
-            trigger: ".o_website_dialog:visible",
-        },
-        {
-            content: "Trigger the link dialog (click 'Add Mega Menu Item')",
-            trigger: ".modal:not(.o_inactive_modal) .modal-body a:eq(1)",
-            run: "click",
-        },
-        {
-            content: "Write a label for the new menu item",
-            trigger: ".modal:not(.o_inactive_modal) .modal-dialog .o_website_dialog input",
-            run: "edit Megaaaaa!",
-        },
-        {
-            content: "Confirm the mega menu label",
-            trigger: ".modal:not(.o_inactive_modal) .modal-footer .btn-primary:contains(Continue)",
-            run: "click",
-        },
-        {
-            trigger:
-                '.oe_menu_editor [data-is-mega-menu="true"] .js_menu_label:contains("Megaaaaa!")',
-        },
-        {
-            content: "Save the new menu",
-            trigger: ".modal-footer .btn-primary",
-            run: "click",
-        },
-        {
-            trigger: "body:not(:has(.oe_menu_editor))",
-        },
-        {
-            trigger: ":iframe body:contains(welcome to your)",
-        },
-        clickOnExtraMenuItem({}, true),
-        {
-            content: "There should be a new megamenu item.",
-            trigger: ':iframe .top_menu .nav-item a.o_mega_menu_toggle:contains("Megaaaaa!")',
-        },
+        ...openEditMenu,
+        ...simulateLotOfMenusAsOnRunbot,
+        ...addMegaMenu("Megaaaaa!"),
         // Add a menu item in edit mode.
         ...clickOnEditAndWaitEditMode(),
-        ...openLinkPopup(":iframe .top_menu .nav-item a:contains('Home')", "Home", 1),
+        ...openLinkPopup({
+            trigger: ":iframe .top_menu .nav-item a:contains('Home')",
+            label: "Home",
+        }),
         {
             content: "Click on Edit Menu",
             trigger: ".o-we-linkpopover .js_edit_menu",
             run: "click",
         },
-        {
-            trigger: ".o_website_dialog:visible",
-        },
-        {
-            content: "Trigger the link dialog (click 'Add Menu Item')",
-            trigger: ".modal-body a:eq(0)",
-            run: "click",
-        },
-        {
-            trigger: ".modal:not(.o_inactive_modal) .modal-dialog .o_website_dialog input:eq(0)",
-        },
-        {
-            content: "Confirm the new menu entry without a label",
-            trigger: ".modal:not(.o_inactive_modal) .modal-footer .btn-primary:contains(Continue)",
-            run: "click",
-        },
-        {
-            content: "It didn't save without a label. Fill label input.",
-            trigger: ".modal:not(.o_inactive_modal) .modal-dialog .o_website_dialog input:eq(0)",
-            run: "edit Random!",
-        },
-        {
-            content: "Remove the URL input value",
-            trigger:
-                ".modal:not(.o_inactive_modal) .modal-dialog .o_website_dialog input#url_input",
-            run: "edit ",
-        },
-        {
-            content: "Confirm the new menu entry without a url",
-            trigger: ".modal:not(.o_inactive_modal) .modal-footer .btn-primary:contains(Continue)",
-            run: "click",
-        },
-        {
-            content: "Re-open the link dialog ",
-            trigger: '.modal .input-group:has(.js_menu_label:contains("Random!")) .js_edit_menu',
-            run: "click",
-        },
-        {
-            content: "Check that the URL is #",
-            trigger: ".modal:not(.o_inactive_modal) #url_input:value('#')",
-        },
-        {
-            content: "Save the dialog",
-            trigger: ".modal:not(.o_inactive_modal) .modal-footer .btn-primary:contains(Continue)",
-            run: "click",
-        },
-        {
-            trigger: '.oe_menu_editor .js_menu_label:contains("Random!")',
-        },
-        {
-            content: "Save the website menu with the new entry",
-            trigger: ".modal:not(.o_inactive_modal) .modal-footer .btn-primary",
-            run: "click",
-        },
-        {
-            trigger: "body:not(:has(.modal))",
-        },
+        // Add menu in nav to simulate more menus in localhost
+        // (as on runbot when all addons are installed)
+        ...addMenu("Random!"),
         // Edit the new menu item from the "edit link" popover button
         clickOnExtraMenuItem({}, true),
-        ...openLinkPopup(":iframe .top_menu .nav-item a:contains('Random!')", "Random!", 1),
         {
             content: "navbar shouldn't have any zwnbsp and no o_link_in_selection class",
             trigger: ':iframe nav.navbar:not(:has(.o_link_in_selection)):not(:contains("\ufeff"))',
         },
-        {
-            content: "Click on Edit Link",
-            trigger: ".o-we-linkpopover a.o_we_edit_link",
-            run: "click",
-        },
-        {
-            content: "Change the label",
-            trigger: ".modal-dialog .o_website_dialog input:eq(0)",
-            run: "edit Modnar",
-        },
-        {
-            content: "Confirm the new label",
-            trigger: ".modal-footer .btn-primary",
-            run: "click",
-        },
+        ...openLinkPopup({
+            trigger: ":iframe .top_menu .nav-item a:contains('Random!')",
+            label: "Home",
+            url: "/#",
+            edit: true,
+        }),
+        ...editMenu({ title: "Modnar" }),
         ...clickOnSave(),
         clickOnExtraMenuItem({}, true),
         {
@@ -227,24 +272,12 @@ registerWebsitePreviewTour(
         },
         // Edit the menu item from the "edit menu" popover button
         ...clickOnEditAndWaitEditMode(),
-        {
-            content: "Wait for the builder sidebar to fully open",
-            trigger: ":iframe .editor_enable",
-            run: async function () {
-                // Entering the edit mode opens the builder sidebar, which triggers
-                // multiple iframe resize events, which in turn rebuilds the extra
-                // menu items dropdown (see `auto_hide_menu.js` resize handler).
-                //
-                // We wait briefly to ensure all recalculations complete,
-                // avoiding race conditions when opening the link popover.
-                //
-                // NOTE: the delay below (200ms) matches the CSS `transition-delay`
-                // defined for `o-website-builder_sidebar`.
-                await delay(200);
-            },
-        },
         clickOnExtraMenuItem({}, true),
-        ...openLinkPopup(":iframe .top_menu .nav-item a:contains('Modnar')", "Modnar", 1),
+        ...openLinkPopup({
+            trigger: ":iframe .top_menu .nav-item a:contains('Modnar')",
+            label: "Home",
+            url: "/#",
+        }),
         {
             content: "Click on the popover Edit Menu button",
             trigger: ".o-we-linkpopover .js_edit_menu",
@@ -252,34 +285,25 @@ registerWebsitePreviewTour(
         },
         {
             content: "Click on the dialog Edit Menu button",
-            trigger: '.oe_menu_editor .js_menu_label:contains("Modnar")',
-            run() {
-                const liEl = this.anchor.closest("[data-menu-id]");
-                liEl.querySelector("button.js_edit_menu").click();
-            },
-        },
-        {
-            content: "Change the label",
-            trigger: ".modal:not(.o_inactive_modal) .modal-dialog .o_website_dialog input:eq(0)",
-            run: "edit Modnar !!",
-        },
-        {
-            content: "Confirm the new menu label",
-            trigger: ".modal:not(.o_inactive_modal) .modal-footer button:contains(Continue)",
+            trigger: `${menuEditorLi("Modnar")} .js_edit_menu`,
             run: "click",
         },
+        ...editMenu({ title: "Modnar !!" }),
         {
-            trigger: '.oe_menu_editor .js_menu_label:contains("Modnar !!")',
+            trigger: `${menuEditorLi("Modnar !!")}`,
         },
         {
             content: "Save the website menu with the new menu label",
-            trigger: ".modal:not(.o_inactive_modal) .modal-footer button:contains(save)",
+            trigger: `${triggerModalEditMenu} button:contains(save)`,
             run: "click",
         },
         {
-            trigger: "body:not(:has(.oe_menu_editor))",
+            trigger: "body:not(:has(.oe_menu_editor)):not(.modal-open)",
         },
-        // Drag a block to be able to scroll later.
+        {
+            trigger:
+                ".o-website-builder_sidebar:has([aria-selected]:contains(Style)) .o-tab-content:contains(Select a block on your page to style it.)",
+        },
         goBackToBlocks(),
         ...insertSnippet({ id: "s_media_list", name: "Media List", groupName: "Content" }),
         ...clickOnSave(),
@@ -311,21 +335,12 @@ registerWebsitePreviewTour(
             },
         },
         // Nest menu item from the menu.
+        ...openEditMenu,
         {
-            content: "open site menu",
-            trigger: 'button[data-menu-xmlid="website.menu_site"]',
-            run: "click",
-        },
-        {
-            content: "Click on Edit Menu",
-            trigger: 'a[data-menu-xmlid="website.menu_edit_menu"]',
-            run: "click",
-        },
-        {
-            content: `Drag "Contact Us" menu below "Home" menu`,
-            trigger: '.oe_menu_editor li:contains("Contact us") .oi-draggable',
-            run(helpers) {
-                return helpers.drag_and_drop('.oe_menu_editor li:contains("Home")', {
+            content: `Drag "Modnar !!" menu below "Home" menu`,
+            trigger: '.oe_menu_editor li:contains("Modnar !!") [data-icon="drag_indicator"]',
+            async run({ drag_and_drop }) {
+                await drag_and_drop('.oe_menu_editor li:contains("Home")', {
                     position: {
                         top: 57,
                         left: 5,
@@ -335,25 +350,28 @@ registerWebsitePreviewTour(
             },
         },
         {
-            content: "Drag 'Contact Us' item as a child of the 'Home' item",
-            trigger: '.oe_menu_editor li:contains("Contact us") .oi-draggable',
-            run: 'drag_and_drop .oe_menu_editor li:contains("Contact us") .form-control',
+            content: "Drag 'Modnar !!' item as a child of the 'Home' item",
+            trigger: '.oe_menu_editor li:contains("Modnar !!") [data-icon="drag_indicator"]',
+            run: 'drag_and_drop .oe_menu_editor li:contains("Modnar !!") .form-control',
         },
         {
             content: "Wait for drop",
-            trigger: '.oe_menu_editor li:contains("Home") ul li:contains("Contact us")',
+            trigger: '.oe_menu_editor li:contains("Home") ul li:contains("Modnar !!")',
         },
         // Drag the Mega menu to the first position.
         {
             content: "Drag Mega at the top",
-            trigger: '.oe_menu_editor li:contains("Megaaaaa!") .oi-draggable',
-            run(helpers) {
-                return helpers.drag_and_drop('.oe_menu_editor li:contains("Home") .oi-draggable', {
-                    position: {
-                        top: 20,
-                    },
-                    relative: true,
-                });
+            trigger: '.oe_menu_editor li:contains("Megaaaaa!") [data-icon="drag_indicator"]',
+            async run({ drag_and_drop }) {
+                await drag_and_drop(
+                    '.oe_menu_editor li:contains("Home") [data-icon="drag_indicator"]',
+                    {
+                        position: {
+                            top: 20,
+                        },
+                        relative: true,
+                    }
+                );
             },
         },
         {
@@ -375,7 +393,7 @@ registerWebsitePreviewTour(
         {
             content: "When menu item is opened, child item must appear in the shown menu",
             trigger:
-                ':iframe .top_menu .nav-item:contains("Home") ul.show li a.dropdown-item:contains("Contact us")[href="/contactus"]',
+                ':iframe .top_menu .nav-item:contains("Home") ul.show li a.dropdown-item:contains("Modnar !!")',
             run() {
                 // Scroll down.
                 this.anchor
@@ -391,16 +409,13 @@ registerWebsitePreviewTour(
         {
             content: "Open the Home menu after scroll",
             trigger: ':iframe .top_menu .nav-item a.dropdown-toggle:contains("Home")',
-            async run(helpers) {
-                await delay(1000);
-                await helpers.click();
-            },
+            run: "click",
         },
         {
             content: "Check that the Home menu is opened",
             trigger:
                 ':iframe .top_menu .nav-item:contains("Home") ul.show li' +
-                ' a.dropdown-item:contains("Contact us")[href="/contactus"]',
+                ' a.dropdown-item:contains("Modnar !!")',
         },
         {
             content: "Close the Home menu",
@@ -419,7 +434,7 @@ registerWebsitePreviewTour(
         {
             content: "When the mega menu is opened, scroll up",
             trigger: ":iframe .top_menu .o_mega_menu_toggle.show",
-            run() {
+            async run(helpers) {
                 const marginTopOfMegaMenu = getComputedStyle(
                     this.anchor.closest(".dropdown").querySelector(".o_mega_menu")
                 )["margin-top"];
@@ -427,6 +442,7 @@ registerWebsitePreviewTour(
                     console.error("The margin-top of the mega menu should be 0px");
                 }
                 // Scroll up.
+                await helpers.animationFrame();
                 this.anchor
                     .closest("body")
                     .querySelector(".s_media_list_item:nth-child(2)")
@@ -462,87 +478,47 @@ registerWebsitePreviewTour(
         {
             // If this step fails, it means that a patch inside bootstrap was lost.
             content: "Press the 'down arrow' key.",
-            trigger: ':iframe .top_menu .nav-item:contains("Home") li:contains("Contact us")',
+            trigger: ':iframe .top_menu .nav-item:contains("Home") li:contains("Modnar !!")',
             run: "press ArrowDown",
         },
         ...clickOnSave(),
         // Nest and re-arrange menu items for a newly created menu
-        {
-            content: "Open site menu",
-            trigger: 'button[data-menu-xmlid="website.menu_site"]',
+        ...openEditMenu,
+        ...addMenu("new_menu"),
+        ...openEditMenu,
+        ...addMenu("new_nested_menu"),
+        ...openEditMenu,
+        // Remove simulateLotOfMenusAsOnRunbot
+        ...[1, 2, 3, 4, 5].map((i) => ({
+            content: `Delete Brol ${i}`,
+            trigger: `${menuEditorLi(`brol ${i}`)} .js_delete_menu`,
             run: "click",
-        },
+        })),
         {
-            content: "Click on Edit Menu",
-            trigger: 'a[data-menu-xmlid="website.menu_edit_menu"]',
-            run: "click",
-        },
-        {
-            content: "Trigger link dialog (click 'Add Menu Item')",
-            trigger: ".modal-body a:eq(0)",
-            run: "click",
-        },
-        {
-            content: "Write a label for the new menu item",
-            trigger: ".modal-dialog .o_website_dialog input:eq(0)",
-            run: "edit new_menu",
-        },
-        {
-            content: "Write a url for the new menu item",
-            trigger: ".modal-dialog .o_website_dialog input:eq(1)",
-            run: "edit #",
-        },
-        {
-            content: "Confirm the new menu entry",
-            trigger: ".modal:not(.o_inactive_modal) .modal-footer .btn-primary:contains(Continue)",
-            run: "click",
-        },
-        {
-            content: "Check if new menu(new_menu) is added",
-            trigger: '.oe_menu_editor li:contains("new_menu")',
-        },
-        {
-            content: "Trigger link dialog (click 'Add Menu Item')",
-            trigger: ".modal-body a:eq(0)",
-            run: "click",
-        },
-        {
-            content: "Write a label for the new menu item",
-            trigger: ".modal-dialog .o_website_dialog input:eq(0)",
-            run: "edit new_nested_menu",
-        },
-        {
-            content: "Write a url for the new menu item",
-            trigger: ".modal-dialog .o_website_dialog input:eq(1)",
-            run: "edit #",
-        },
-        {
-            content: "Confirm the new menu entry",
-            trigger: ".modal:not(.o_inactive_modal) .modal-footer .btn-primary:contains(Continue)",
-            run: "click",
-        },
-        {
-            content: "Check if new menu(new_nested_menu) is added",
-            trigger: '.oe_menu_editor li:contains("new_nested_menu")',
+            content: "Wait for the deleted menus to be removed from the editor",
+            trigger: `${triggerModalEditMenu} .oe_menu_editor:not(:has(.js_menu_label:contains(brol)))`,
         },
         {
             content: "Nest 'new_nested_menu' under 'new_menu'",
-            trigger: '.oe_menu_editor li:contains("new_nested_menu") .oi-draggable',
-            run(helpers) {
-                return helpers.drag_and_drop(
-                    ".oe_menu_editor li:contains('new_menu') .form-control",
-                    {
-                        position: "bottom",
-                    }
-                );
+            trigger: '.oe_menu_editor li:contains("new_nested_menu") [data-icon="drag_indicator"]',
+            async run({ drag_and_drop }) {
+                await drag_and_drop(".oe_menu_editor li:contains('new_menu') .form-control", {
+                    position: "bottom",
+                });
             },
         },
         {
+            content: "Wait for drop",
+            trigger:
+                '.oe_menu_editor li:contains("new_menu") > ul > li:contains("new_nested_menu")',
+        },
+        {
             content: "Drag 'Modnar !!' below 'new_menu'",
-            trigger: '.oe_menu_editor li:contains("Modnar !!") .oi-draggable',
-            run(helpers) {
-                return helpers.drag_and_drop(
-                    '.oe_menu_editor li:contains("new_menu") .oi-draggable',
+            trigger:
+                '.oe_menu_editor li:contains("Home") > ul > li:contains("Modnar !!") [data-icon="drag_indicator"]',
+            async run({ drag_and_drop }) {
+                await drag_and_drop(
+                    '.oe_menu_editor li:contains("new_menu") [data-icon="drag_indicator"]',
                     {
                         position: "bottom",
                     }
@@ -551,12 +527,12 @@ registerWebsitePreviewTour(
         },
         {
             content: "Nest 'Modnar !!' under 'new_menu'",
-            trigger: '.oe_menu_editor li:contains("Modnar !!") .oi-draggable',
-            run(helpers) {
-                return helpers.drag_and_drop(
-                    ".oe_menu_editor li:contains('new_menu') .form-control",
+            trigger: '.oe_menu_editor li:contains("Modnar !!") [data-icon="drag_indicator"]',
+            async run({ drag_and_drop }) {
+                await drag_and_drop(
+                    ".oe_menu_editor li:contains('new_menu') > ul > li:contains('new_nested_menu')",
                     {
-                        position: "bottom",
+                        position: "top",
                     }
                 );
             },
@@ -569,10 +545,10 @@ registerWebsitePreviewTour(
         {
             content: "Move 'Modnar !!' below 'new_nested_menu' inside the 'new_menu'",
             trigger:
-                '.oe_menu_editor  li:contains("new_menu") > ul > li:contains("Modnar !!") .oi-draggable',
-            run(helpers) {
-                return helpers.drag_and_drop(
-                    ".oe_menu_editor  li:contains('new_menu') > ul > li:contains('new_nested_menu') .oi-draggable",
+                '.oe_menu_editor  li:contains("new_menu") > ul > li:contains("Modnar !!") [data-icon="drag_indicator"]',
+            async run({ drag_and_drop }) {
+                await drag_and_drop(
+                    ".oe_menu_editor li:contains('new_menu') > ul > li:contains('new_nested_menu') [data-icon='drag_indicator']",
                     {
                         position: "bottom",
                     }
@@ -584,15 +560,11 @@ registerWebsitePreviewTour(
             trigger:
                 '.oe_menu_editor li:contains("new_menu") > ul > li:last-child:contains("Modnar !!")',
         },
-    ]
-);
+    ],
+});
 
-registerWebsitePreviewTour(
-    "edit_menus_delete_parent",
-    {
-        url: "/",
-    },
-    () => [
+registry.category("web_tour.tours").add("edit_menus_delete_parent", {
+    steps: () => [
         {
             trigger: ":iframe #wrapwrap",
         },
@@ -616,5 +588,5 @@ registerWebsitePreviewTour(
             trigger: ".modal-footer button:first-child",
             run: "click",
         },
-    ]
-);
+    ],
+});

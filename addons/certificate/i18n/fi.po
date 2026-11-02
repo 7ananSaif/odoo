@@ -9,17 +9,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-03 18:37+0000\n"
-"PO-Revision-Date: 2026-04-07 09:14+0000\n"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-08-31 20:13+0000\n"
 "Last-Translator: Saara Hakanen <sahak@odoo.com>\n"
-"Language-Team: Finnish <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Finnish <https://translate.odoo.com/projects/odoo-s19-4/"
 "certificate/fi/>\n"
 "Language: fi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.16.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: certificate
 #. odoo-python
@@ -65,11 +65,23 @@ msgid "Available date"
 msgstr "Saatavilla oleva päivämäärä"
 
 #. module: certificate
+#: model_terms:ir.ui.view,arch_db:certificate.certificate_certificate_view_search
+msgid "CA certificates"
+msgstr ""
+
+#. module: certificate
 #: model:ir.model,name:certificate.model_certificate_certificate
 #: model:ir.model.fields,field_description:certificate.field_certificate_certificate__content
+#: model:ir.module.module,shortdesc:base.module_certificate
 #: model_terms:ir.ui.view,arch_db:certificate.certificate_certificate_view_list
 msgid "Certificate"
 msgstr "Todistus"
+
+#. module: certificate
+#: model:ir.model.fields.selection,name:certificate.selection__certificate_certificate__scope__ca
+#: model_terms:ir.ui.view,arch_db:certificate.certificate_certificate_view_search
+msgid "Certificate Authority"
+msgstr ""
 
 #. module: certificate
 #: model:ir.model.fields,field_description:certificate.field_certificate_certificate__pkcs12_password
@@ -132,8 +144,8 @@ msgstr "Luotu"
 
 #. module: certificate
 #: model:ir.model,name:certificate.model_certificate_key
-msgid "Cryptographic Keys"
-msgstr "Kryptografiset avaimet"
+msgid "Cryptographic Key"
+msgstr ""
 
 #. module: certificate
 #: model:ir.model.fields.selection,name:certificate.selection__certificate_certificate__content_format__der
@@ -173,6 +185,11 @@ msgstr "ID"
 #: model_terms:ir.ui.view,arch_db:certificate.certificate_key_view_search
 msgid "Invalid"
 msgstr "Virheellinen"
+
+#. module: certificate
+#: model:ir.model.fields,field_description:certificate.field_certificate_certificate__issuer_cert_id
+msgid "Issuer Certificate"
+msgstr "Myöntäjän varmenne"
 
 #. module: certificate
 #: model_terms:ir.ui.view,arch_db:certificate.certificate_key_view_list
@@ -227,6 +244,11 @@ msgid "Make sure to use a public key to verify the signature of documents."
 msgstr ""
 "Varmista, että käytät julkista avainta asiakirjojen allekirjoituksen "
 "vahvistamiseen."
+
+#. module: certificate
+#: model:ir.module.module,summary:base.module_certificate
+msgid "Manage certificate"
+msgstr ""
 
 #. module: certificate
 #: model_terms:ir.ui.view,arch_db:certificate.res_config_settings_view_form
@@ -423,6 +445,7 @@ msgstr "Tämä varmenne ei ole voimassa, sen voimassaolo on päättynyt."
 #. module: certificate
 #. odoo-python
 #: code:addons/certificate/models/key.py:0
+#: code:addons/certificate/tests/test_keys_certificates.py:0
 msgid ""
 "This key could not be loaded. Either its content or its password is "
 "erroneous."

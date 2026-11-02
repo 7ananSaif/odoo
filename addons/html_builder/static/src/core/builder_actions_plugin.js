@@ -9,7 +9,7 @@ import { Plugin } from "@html_editor/plugin";
  * @property { BuilderActionsPlugin['applyAction'] } applyAction
  */
 
-/** @typedef {BuilderAction[]} builder_actions */
+/** @typedef {Record<string, BuilderAction>[]} builder_actions */
 
 export class BuilderActionsPlugin extends Plugin {
     static id = "builderActions";
@@ -54,10 +54,10 @@ export class BuilderActionsPlugin extends Plugin {
      */
     applyAction(actionId, spec) {
         const action = this.getAction(actionId);
-        this.dependencies.operation.next(
+        return this.dependencies.operation.next(
             async () => {
                 await action.apply(spec);
-                this.dependencies.history.addStep();
+                this.dependencies.history.commit();
             },
             {
                 ...action,

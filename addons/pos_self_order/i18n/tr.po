@@ -7,21 +7,22 @@
 # DeepL <noreply-mt-deepl@weblate.org>, 2025.
 # Odoo Turkish Import <dyki+tr@odoo.com>, 2025.
 # "Deniz Guvener Unal (degu)" <degu@odoo.com>, 2026.
+# Burkay Yıldızhan <seyil@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-12 17:37+0000\n"
-"PO-Revision-Date: 2026-04-13 20:50+0000\n"
-"Last-Translator: \"Deniz Guvener Unal (degu)\" <degu@odoo.com>\n"
-"Language-Team: Turkish <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-10-23 17:41+0000\n"
+"PO-Revision-Date: 2026-10-14 13:34+0000\n"
+"Last-Translator: Burkay Yıldızhan <seyil@odoo.com>\n"
+"Language-Team: Turkish <https://translate.odoo.com/projects/odoo-20/"
 "pos_self_order/tr/>\n"
 "Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.16.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: pos_self_order
 #: model:ir.actions.report,print_report_name:pos_self_order.report_self_order_qr_codes_page
@@ -29,10 +30,22 @@ msgid "\"QR codes\""
 msgstr "\"QR kodları\""
 
 #. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/pages/cart_page/cart_page.xml:0
+msgid "(Tips included)"
+msgstr ""
+
+#. module: pos_self_order
 #. odoo-python
 #: code:addons/pos_self_order/models/pos_config.py:0
 msgid "(require Odoo Enterprise)"
 msgstr "(Odoo Kurumsal gerektirir)"
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/components/choose_combo_popup/choose_combo_popup.xml:0
+msgid "(up to"
+msgstr ""
 
 #. module: pos_self_order
 #: model_terms:ir.ui.view,arch_db:pos_self_order.qr_codes_page
@@ -80,6 +93,12 @@ msgid ""
 "                    <br/>\n"
 "                    <div>Thank you,</div>\n"
 "                    <br/>\n"
+"                    <div t-if=\"object.state == 'paid'\">\n"
+"                        <div>You can download your receipt <a t-attf-"
+"href=\"{{ object.get_base_url() }}/pos-self-order/receipt/{{ object.id }}?"
+"access_token={{ object.access_token }}\">here</a></div>\n"
+"                        <br/>\n"
+"                    </div>\n"
 "                    <t t-out=\"store_name\">Store name</t>\n"
 "                </div>\n"
 "            "
@@ -110,6 +129,12 @@ msgid ""
 "                    <br/>\n"
 "                    <div>Thank you,</div>\n"
 "                    <br/>\n"
+"                    <div t-if=\"object.state == 'paid'\">\n"
+"                        <div>You can download your receipt <a t-attf-"
+"href=\"{{ object.get_base_url() }}/pos-self-order/receipt/{{ object.id }}?"
+"access_token={{ object.access_token }}\">here</a></div>\n"
+"                        <br/>\n"
+"                    </div>\n"
 "                    <t t-out=\"store_name\">Store name</t>\n"
 "                </div>\n"
 "            "
@@ -144,8 +169,27 @@ msgstr "Dil Ekle"
 #. module: pos_self_order
 #: model:ir.model.fields,field_description:pos_self_order.field_pos_config__self_ordering_image_home_ids
 #: model:ir.model.fields,field_description:pos_self_order.field_res_config_settings__pos_self_ordering_image_home_ids
-msgid "Add images"
-msgstr "Görsel ekleyin"
+msgid "Add Media"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/pages/cart_page/cart_page.js:0
+msgid "Add a Tip"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/pages/cart_page/cart_page.xml:0
+msgid "Add a tip"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/pages/cart_page/cart_page.js:0
+#: code:addons/pos_self_order/static/src/app/pages/cart_page/cart_page.xml:0
+msgid "Add an order note"
+msgstr ""
 
 #. module: pos_self_order
 #. odoo-javascript
@@ -153,6 +197,26 @@ msgstr "Görsel ekleyin"
 #: code:addons/pos_self_order/static/src/app/pages/product_page/product_page.xml:0
 msgid "Add to cart"
 msgstr "Sepete Ekle"
+
+#. module: pos_self_order
+#: model:ir.module.module,summary:base.module_pos_self_order
+msgid ""
+"Addon for the POS App that allows customers to view the menu on their "
+"smartphone."
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/components/preset_info_popup/preset_info_popup.js:0
+#: code:addons/pos_self_order/static/src/app/components/preset_info_popup/preset_info_popup.xml:0
+msgid "Address"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/services/self_order_service.js:0
+msgid "Afternoon"
+msgstr ""
 
 #. module: pos_self_order
 #. odoo-javascript
@@ -165,6 +229,18 @@ msgstr "Tümü"
 #: code:addons/pos_self_order/static/src/app/services/self_order_service.js:0
 msgid "An error has occurred"
 msgstr "Bir hata oluştu"
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/components/choose_combo_popup/choose_combo_popup.xml:0
+msgid "Apply"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/pages/payment_page/payment_page.js:0
+msgid "Are you sure you want to cancel the cash machine payment?"
+msgstr ""
 
 #. module: pos_self_order
 #. odoo-javascript
@@ -208,11 +284,18 @@ msgstr "Kullanılabilir arayüz dilleri"
 
 #. module: pos_self_order
 #. odoo-javascript
-#: code:addons/pos_self_order/static/src/app/components/order_widget/order_widget.js:0
+#: code:addons/pos_self_order/static/src/app/pages/eating_location_page/eating_location_page.xml:0
+msgid "Average time:"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/pages/cart_page/cart_page.xml:0
 #: code:addons/pos_self_order/static/src/app/pages/combo_page/combo_page.xml:0
 #: code:addons/pos_self_order/static/src/app/pages/eating_location_page/eating_location_page.xml:0
 #: code:addons/pos_self_order/static/src/app/pages/order_history_page/order_history_page.xml:0
 #: code:addons/pos_self_order/static/src/app/pages/payment_page/payment_page.xml:0
+#: code:addons/pos_self_order/static/src/app/pages/product_list_page/product_list_page.xml:0
 #: code:addons/pos_self_order/static/src/app/pages/product_page/product_page.xml:0
 #: code:addons/pos_self_order/static/src/app/pages/stand_number_page/stand_number_page.xml:0
 msgid "Back"
@@ -225,7 +308,8 @@ msgstr "Arka Plan"
 
 #. module: pos_self_order
 #. odoo-javascript
-#: code:addons/pos_self_order/static/src/app/components/order_widget/order_widget.js:0
+#: code:addons/pos_self_order/static/src/app/components/pills_selection_popup/pills_selection_popup.xml:0
+#: code:addons/pos_self_order/static/src/app/components/preset_info_popup/preset_info_popup.xml:0
 #: code:addons/pos_self_order/static/src/app/pages/cart_page/cart_page.xml:0
 msgid "Cancel"
 msgstr "İptal"
@@ -238,10 +322,16 @@ msgstr "Siparişi İptal Edin"
 
 #. module: pos_self_order
 #. odoo-javascript
-#: code:addons/pos_self_order/static/src/app/components/order_widget/order_widget.js:0
 #: code:addons/pos_self_order/static/src/app/pages/cart_page/cart_page.js:0
+#: code:addons/pos_self_order/static/src/app/pages/product_list_page/product_list_page.js:0
 msgid "Cancel order"
 msgstr "Siparişi iptal edin"
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/pages/payment_page/payment_page.xml:0
+msgid "Cancellation in progress"
+msgstr ""
 
 #. module: pos_self_order
 #. odoo-javascript
@@ -257,9 +347,15 @@ msgstr "Kategoriler"
 
 #. module: pos_self_order
 #. odoo-javascript
-#: code:addons/pos_self_order/static/src/app/components/order_widget/order_widget.js:0
+#: code:addons/pos_self_order/static/src/app/pages/product_list_page/product_list_page.xml:0
 msgid "Checkout"
 msgstr "Ödeme işlemleri"
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/components/choose_combo_popup/choose_combo_popup.xml:0
+msgid "Choose"
+msgstr ""
 
 #. module: pos_self_order
 #: model:ir.model.fields,help:pos_self_order.field_pos_config__self_ordering_service_mode
@@ -280,14 +376,7 @@ msgid "Choose when the customer will pay"
 msgstr "Müşterinin ne zaman ödeme yapacağını seçin"
 
 #. module: pos_self_order
-#. odoo-javascript
-#: code:addons/pos_self_order/static/src/app/components/preset_info_popup/preset_info_popup.xml:0
-msgid "Choose your time"
-msgstr "Zamanınızı seçin"
-
-#. module: pos_self_order
-#. odoo-javascript
-#: code:addons/pos_self_order/static/src/app/components/preset_info_popup/preset_info_popup.xml:0
+#: model:ir.model.fields,field_description:pos_self_order.field_pos_preset__delivery_from_city
 msgid "City"
 msgstr "Şehir"
 
@@ -295,8 +384,10 @@ msgstr "Şehir"
 #. odoo-javascript
 #: code:addons/pos_self_order/static/src/app/components/category_list_popup/category_list_popup.xml:0
 #: code:addons/pos_self_order/static/src/app/components/network_connectionLost_popup/network_connectionLost_popup.xml:0
-#: code:addons/pos_self_order/static/src/app/components/product_info_popup/product_info_propup.xml:0
+#: code:addons/pos_self_order/static/src/app/components/product_info_popup/product_info_popup.xml:0
 #: code:addons/pos_self_order/static/src/app/pages/confirmation_page/confirmation_page.xml:0
+#: code:addons/pos_self_order/static/src/app/services/self_order_service.js:0
+#: code:addons/pos_self_order/static/src/overrides/components/dynamic_qr_popup/dynamic_qr_popup.xml:0
 msgid "Close"
 msgstr "Kapat"
 
@@ -304,6 +395,13 @@ msgstr "Kapat"
 #: model_terms:ir.ui.view,arch_db:pos_self_order.pos_self_order_menu_item
 msgid "Close Session"
 msgstr "Oturumu Kapat"
+
+#. module: pos_self_order
+#: model:ir.model.fields,field_description:pos_self_order.field_pos_config__self_ordering_primary_color
+#: model:ir.model.fields,field_description:pos_self_order.field_res_config_settings__pos_self_ordering_primary_color
+#: model_terms:ir.ui.view,arch_db:pos_self_order.res_config_settings_view_form_menu
+msgid "Color"
+msgstr ""
 
 #. module: pos_self_order
 #. odoo-javascript
@@ -314,13 +412,26 @@ msgstr "Kombo"
 
 #. module: pos_self_order
 #: model:ir.model.fields,field_description:pos_self_order.field_pos_order_line__combo_id
-msgid "Combo reference"
-msgstr "Karma ürün referansı"
+msgid "Combo Reference"
+msgstr ""
 
 #. module: pos_self_order
 #: model:ir.model,name:pos_self_order.model_res_config_settings
 msgid "Config Settings"
 msgstr "Yapılandırma Ayarları"
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/components/number_popup/number_popup.xml:0
+#: code:addons/pos_self_order/static/src/app/components/pills_selection_popup/pills_selection_popup.xml:0
+msgid "Confirm"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/pages/payment_page/payment_page.js:0
+msgid "Confirm cancellation"
+msgstr ""
 
 #. module: pos_self_order
 #. odoo-javascript
@@ -339,23 +450,13 @@ msgstr "Kontak"
 #: code:addons/pos_self_order/static/src/app/components/preset_info_popup/preset_info_popup.xml:0
 #: code:addons/pos_self_order/static/src/app/components/slots_popup/slots_popup.xml:0
 #: code:addons/pos_self_order/static/src/app/components/timeout_popup/timeout_popup.xml:0
+#: code:addons/pos_self_order/static/src/app/pages/optional_product_page/optional_product_page.xml:0
 msgid "Continue"
 msgstr "Devam Et"
 
 #. module: pos_self_order
-#. odoo-javascript
-#: code:addons/pos_self_order/static/src/app/components/popup_table/popup_table.xml:0
-msgid "Continue with table"
-msgstr "Masayla devam edin"
-
-#. module: pos_self_order
-#. odoo-javascript
-#: code:addons/pos_self_order/static/src/app/components/popup_table/popup_table.xml:0
-msgid "Could you please confirm your table number?"
-msgstr "Lütfen masa numaranızı teyit eder misiniz?"
-
-#. module: pos_self_order
 #: model:ir.model,name:pos_self_order.model_res_country
+#: model:ir.model.fields,field_description:pos_self_order.field_pos_preset__delivery_from_country_id
 msgid "Country"
 msgstr "Ülke"
 
@@ -429,11 +530,33 @@ msgid "Default language for the kiosk mode"
 msgstr "Kiosk modu için varsayılan dil"
 
 #. module: pos_self_order
-#. odoo-javascript
-#: code:addons/pos_self_order/static/src/overrides/components/receipt_header/receipt_header.xml:0
 #: model:ir.model.fields.selection,name:pos_self_order.selection__pos_preset__service_at__delivery
+#: model_terms:ir.ui.view,arch_db:pos_self_order.pos_order_receipt_header
 msgid "Delivery"
 msgstr "Teslimat"
+
+#. module: pos_self_order
+#: model:product.template,name:pos_self_order.product_delivery_template
+msgid "Delivery Fee (Self-order)"
+msgstr ""
+
+#. module: pos_self_order
+#: model:ir.model.fields,field_description:pos_self_order.field_pos_preset__delivery_product_id
+msgid "Delivery Product"
+msgstr ""
+
+#. module: pos_self_order
+#: model:ir.model.fields,help:pos_self_order.field_pos_preset__free_delivery_min_amount
+msgid "Delivery is free when the order total reaches this amount."
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-python
+#: code:addons/pos_self_order/controllers/orders.py:0
+msgid ""
+"Delivery isn't available for this address. You can still place your order "
+"using another method."
+msgstr ""
 
 #. module: pos_self_order
 #: model:mail.template,name:pos_self_order.delivery_email_template
@@ -448,23 +571,29 @@ msgstr "Devre dışı"
 #. module: pos_self_order
 #. odoo-javascript
 #: code:addons/pos_self_order/static/src/app/components/language_popup/language_popup.xml:0
-#: code:addons/pos_self_order/static/src/app/pages/combo_page/combo_page.xml:0
-#: code:addons/pos_self_order/static/src/app/pages/product_page/product_page.xml:0
+#: code:addons/pos_self_order/static/src/app/components/number_popup/number_popup.xml:0
+#: code:addons/pos_self_order/static/src/app/components/product_interface/product_interface.xml:0
+#: code:addons/pos_self_order/static/src/app/pages/product_list_page/product_list_page.xml:0
 msgid "Discard"
 msgstr "Sil"
 
 #. module: pos_self_order
 #: model:ir.model.fields,field_description:pos_self_order.field_ir_http__display_name
+#: model:ir.model.fields,field_description:pos_self_order.field_ir_ui_view__display_name
 #: model:ir.model.fields,field_description:pos_self_order.field_mail_template__display_name
 #: model:ir.model.fields,field_description:pos_self_order.field_pos_category__display_name
 #: model:ir.model.fields,field_description:pos_self_order.field_pos_config__display_name
 #: model:ir.model.fields,field_description:pos_self_order.field_pos_load_mixin__display_name
 #: model:ir.model.fields,field_description:pos_self_order.field_pos_order__display_name
 #: model:ir.model.fields,field_description:pos_self_order.field_pos_order_line__display_name
+#: model:ir.model.fields,field_description:pos_self_order.field_pos_order_receipt__display_name
 #: model:ir.model.fields,field_description:pos_self_order.field_pos_payment_method__display_name
+#: model:ir.model.fields,field_description:pos_self_order.field_pos_prep_line__display_name
+#: model:ir.model.fields,field_description:pos_self_order.field_pos_prep_order__display_name
 #: model:ir.model.fields,field_description:pos_self_order.field_pos_preset__display_name
 #: model:ir.model.fields,field_description:pos_self_order.field_pos_self_order_custom_link__display_name
 #: model:ir.model.fields,field_description:pos_self_order.field_pos_session__display_name
+#: model:ir.model.fields,field_description:pos_self_order.field_pos_snooze__display_name
 #: model:ir.model.fields,field_description:pos_self_order.field_product_product__display_name
 #: model:ir.model.fields,field_description:pos_self_order.field_product_tag__display_name
 #: model:ir.model.fields,field_description:pos_self_order.field_product_template__display_name
@@ -477,10 +606,21 @@ msgid "Display Name"
 msgstr "İsim Göster"
 
 #. module: pos_self_order
+#: model:ir.model.fields,field_description:pos_self_order.field_pos_preset__delivery_distance_unit
+msgid "Distance unit"
+msgstr ""
+
+#. module: pos_self_order
 #. odoo-javascript
 #: code:addons/pos_self_order/static/src/app/components/network_connectionLost_popup/network_connectionLost_popup.xml:0
 msgid "Do not refresh the page."
 msgstr "Sayfayı yenilemeyin."
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/components/choose_combo_popup/choose_combo_popup.xml:0
+msgid "Do you want to make a combo instead ?"
+msgstr ""
 
 #. module: pos_self_order
 #: model_terms:ir.ui.view,arch_db:pos_self_order.res_config_settings_view_form_menu
@@ -490,8 +630,13 @@ msgstr "QR Kodlarını İndirin"
 #. module: pos_self_order
 #. odoo-javascript
 #: code:addons/pos_self_order/static/src/app/pages/confirmation_page/confirmation_page.xml:0
-msgid "Download your receipt here"
-msgstr "Fişinizi buradan indirin"
+msgid "Download receipt"
+msgstr ""
+
+#. module: pos_self_order
+#: model:ir.model.fields.selection,name:pos_self_order.selection__pos_config__self_ordering_service_mode__dynamic_qr
+msgid "Dynamic QR"
+msgstr ""
 
 #. module: pos_self_order
 #. odoo-python
@@ -530,8 +675,8 @@ msgstr "Email Doğrulama"
 
 #. module: pos_self_order
 #: model:ir.model,name:pos_self_order.model_mail_template
-msgid "Email Templates"
-msgstr "E-posta Şablonları"
+msgid "Email Template"
+msgstr ""
 
 #. module: pos_self_order
 #. odoo-javascript
@@ -544,8 +689,14 @@ msgstr ""
 
 #. module: pos_self_order
 #. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/components/number_popup/number_popup.js:0
+msgid "Enter Amount"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
 #: code:addons/pos_self_order/static/src/app/components/preset_info_popup/preset_info_popup.xml:0
-msgid "Enter a valid phone number starting with the country code (e.g. +32)"
+msgid "Enter a valid phone number"
 msgstr ""
 
 #. module: pos_self_order
@@ -559,6 +710,18 @@ msgstr "Özel değerinizi girin"
 #: code:addons/pos_self_order/static/src/app/pages/stand_number_page/stand_number_page.xml:0
 msgid "Enter your tracker number"
 msgstr "Takip numaranızı girin"
+
+#. module: pos_self_order
+#. odoo-python
+#: code:addons/pos_self_order/models/pos_order.py:0
+msgid "Error while creating the order. Please try again."
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/services/self_order_service.js:0
+msgid "Evening"
+msgstr ""
 
 #. module: pos_self_order
 #. odoo-javascript
@@ -576,6 +739,17 @@ msgstr ""
 "yazdırabilirsiniz."
 
 #. module: pos_self_order
+#: model:ir.model.fields,field_description:pos_self_order.field_pos_preset__delivery_product_price
+msgid "Fixed Price"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/pages/payment_page/payment_page.xml:0
+msgid "Follow instructions on the cash machine"
+msgstr ""
+
+#. module: pos_self_order
 #. odoo-javascript
 #: code:addons/pos_self_order/static/src/app/pages/payment_page/payment_page.xml:0
 msgid "Follow instructions on the terminal"
@@ -587,6 +761,17 @@ msgid "Free Metal / Wood Stands"
 msgstr "Ücretsiz Metal / Ahşap Standlar"
 
 #. module: pos_self_order
+#: model:ir.model.fields,field_description:pos_self_order.field_pos_preset__free_delivery_min_amount
+msgid "Free if order amount is above"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/services/self_order_service.js:0
+msgid "Full Day"
+msgstr ""
+
+#. module: pos_self_order
 #. odoo-python
 #: code:addons/pos_self_order/models/pos_config.py:0
 msgid "Generic"
@@ -594,7 +779,6 @@ msgstr "Jenerik"
 
 #. module: pos_self_order
 #. odoo-javascript
-#: code:addons/pos_self_order/static/src/overrides/components/navbar/navbar.xml:0
 #: code:addons/pos_self_order/static/src/overrides/screens/floor_screen/floor_screen.xml:0
 msgid "Get QR Codes"
 msgstr "QR Kodlarını Alın"
@@ -648,16 +832,21 @@ msgstr "Nasıl kullanılır"
 
 #. module: pos_self_order
 #: model:ir.model.fields,field_description:pos_self_order.field_ir_http__id
+#: model:ir.model.fields,field_description:pos_self_order.field_ir_ui_view__id
 #: model:ir.model.fields,field_description:pos_self_order.field_mail_template__id
 #: model:ir.model.fields,field_description:pos_self_order.field_pos_category__id
 #: model:ir.model.fields,field_description:pos_self_order.field_pos_config__id
 #: model:ir.model.fields,field_description:pos_self_order.field_pos_load_mixin__id
 #: model:ir.model.fields,field_description:pos_self_order.field_pos_order__id
 #: model:ir.model.fields,field_description:pos_self_order.field_pos_order_line__id
+#: model:ir.model.fields,field_description:pos_self_order.field_pos_order_receipt__id
 #: model:ir.model.fields,field_description:pos_self_order.field_pos_payment_method__id
+#: model:ir.model.fields,field_description:pos_self_order.field_pos_prep_line__id
+#: model:ir.model.fields,field_description:pos_self_order.field_pos_prep_order__id
 #: model:ir.model.fields,field_description:pos_self_order.field_pos_preset__id
 #: model:ir.model.fields,field_description:pos_self_order.field_pos_self_order_custom_link__id
 #: model:ir.model.fields,field_description:pos_self_order.field_pos_session__id
+#: model:ir.model.fields,field_description:pos_self_order.field_pos_snooze__id
 #: model:ir.model.fields,field_description:pos_self_order.field_product_product__id
 #: model:ir.model.fields,field_description:pos_self_order.field_product_tag__id
 #: model:ir.model.fields,field_description:pos_self_order.field_product_template__id
@@ -696,11 +885,15 @@ msgstr "Arka planda görüntülenecek görüntü"
 
 #. module: pos_self_order
 #: model:ir.model.fields,help:pos_self_order.field_pos_config__self_ordering_image_brand
-#: model:ir.model.fields,help:pos_self_order.field_pos_config__self_ordering_image_home_ids
 #: model:ir.model.fields,help:pos_self_order.field_res_config_settings__pos_self_ordering_image_brand
-#: model:ir.model.fields,help:pos_self_order.field_res_config_settings__pos_self_ordering_image_home_ids
 msgid "Image to display on the self order screen"
 msgstr "Self-servis sipariş ekranında gösterilecek görsel"
+
+#. module: pos_self_order
+#. odoo-python
+#: code:addons/pos_self_order/models/pos_order.py:0
+msgid "Impossible to create a new order."
+msgstr ""
 
 #. module: pos_self_order
 #. odoo-python
@@ -730,7 +923,25 @@ msgstr "İnternet Bağlantısı Kesildi"
 #. module: pos_self_order
 #. odoo-python
 #: code:addons/pos_self_order/models/pos_order.py:0
+msgid "Invalid combo line"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-python
+#: code:addons/pos_self_order/models/pos_order.py:0
 msgid "Invalid preset"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-python
+#: code:addons/pos_self_order/models/pos_order.py:0
+msgid "Invalid product attribute"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-python
+#: code:addons/pos_self_order/models/pos_order.py:0
+msgid "Invalid quantity"
 msgstr ""
 
 #. module: pos_self_order
@@ -762,8 +973,10 @@ msgstr "Dijital sipariş ekranı"
 
 #. module: pos_self_order
 #. odoo-javascript
-#: code:addons/pos_self_order/static/src/app/store/order_change_receipt_template.xml:0
-msgid "Kiosk T"
+#. odoo-python
+#: code:addons/pos_self_order/receipt/pos_order_receipt.py:0
+#: code:addons/pos_self_order/static/src/overrides/utils/printer/generate_printer_data.js:0
+msgid "Kiosk Order"
 msgstr ""
 
 #. module: pos_self_order
@@ -793,6 +1006,11 @@ msgid "Last Updated on"
 msgstr "Son Güncelleme"
 
 #. module: pos_self_order
+#: model:ir.model.fields,field_description:pos_self_order.field_pos_preset__delivery_from_latitude
+msgid "Latitude"
+msgstr ""
+
+#. module: pos_self_order
 #: model_terms:ir.ui.view,arch_db:pos_self_order.res_config_settings_view_form_menu
 msgid "Let your customers order using their mobile or a kiosk."
 msgstr ""
@@ -805,15 +1023,15 @@ msgid "Light"
 msgstr "Açık"
 
 #. module: pos_self_order
-#: model:ir.model.fields,field_description:pos_self_order.field_pos_category__pos_config_ids
-msgid "Linked PoS Configurations"
-msgstr "Bağlantılı Satış Noktası Yapılandırmaları"
-
-#. module: pos_self_order
 #. odoo-javascript
 #: code:addons/pos_self_order/static/src/app/pages/confirmation_page/confirmation_page.xml:0
 msgid "Loading..."
 msgstr "Yükleniyor..."
+
+#. module: pos_self_order
+#: model:ir.model.fields,field_description:pos_self_order.field_pos_preset__delivery_from_longitude
+msgid "Longitude"
+msgstr ""
 
 #. module: pos_self_order
 #: model_terms:ir.ui.view,arch_db:pos_self_order.qr_codes_page
@@ -844,10 +1062,26 @@ msgstr ""
 "tamamladınız."
 
 #. module: pos_self_order
+#: model:ir.model.fields,field_description:pos_self_order.field_pos_preset__delivery_max_distance_km
+msgid "Max radius"
+msgstr ""
+
+#. module: pos_self_order
+#: model:ir.model.fields,help:pos_self_order.field_pos_preset__delivery_max_distance_km
+msgid "Maximum delivery distance, in the unit shown next to the field."
+msgstr ""
+
+#. module: pos_self_order
 #. odoo-python
 #: code:addons/pos_self_order/models/pos_config.py:0
 msgid "Meal"
 msgstr "Yemek"
+
+#. module: pos_self_order
+#: model:ir.model.fields,help:pos_self_order.field_pos_config__self_ordering_image_home_ids
+#: model:ir.model.fields,help:pos_self_order.field_res_config_settings__pos_self_ordering_image_home_ids
+msgid "Media items to display on the self order screen"
+msgstr ""
 
 #. module: pos_self_order
 #: model_terms:ir.ui.view,arch_db:pos_self_order.pos_self_order_menu_item
@@ -861,6 +1095,12 @@ msgstr "Mobil self-servis ve kiosk"
 
 #. module: pos_self_order
 #. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/services/self_order_service.js:0
+msgid "Morning"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
 #: code:addons/pos_self_order/static/src/app/pages/landing_page/landing_page.xml:0
 msgid "My Order"
 msgstr "Siparişim"
@@ -871,18 +1111,6 @@ msgstr "Siparişim"
 #: code:addons/pos_self_order/static/src/app/pages/order_history_page/order_history_page.xml:0
 msgid "My Orders"
 msgstr "Siparişlerim"
-
-#. module: pos_self_order
-#. odoo-javascript
-#: code:addons/pos_self_order/static/src/app/store/order_change_receipt_template.xml:0
-msgid "NEW"
-msgstr "YENİ"
-
-#. module: pos_self_order
-#. odoo-javascript
-#: code:addons/pos_self_order/static/src/app/store/order_change_receipt_template.xml:0
-msgid "NOTE"
-msgstr "NOT"
 
 #. module: pos_self_order
 #. odoo-javascript
@@ -906,6 +1134,13 @@ msgstr "Sonraki"
 #: model_terms:ir.ui.view,arch_db:pos_self_order.qr_codes_page
 msgid "No"
 msgstr "Hayır"
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/components/choose_combo_popup/choose_combo_popup.xml:0
+#: code:addons/pos_self_order/static/src/app/pages/optional_product_page/optional_product_page.xml:0
+msgid "No Thanks"
+msgstr ""
 
 #. module: pos_self_order
 #. odoo-javascript
@@ -974,9 +1209,20 @@ msgstr "Kiosk'u Açın"
 
 #. module: pos_self_order
 #. odoo-javascript
-#: code:addons/pos_self_order/static/src/app/components/order_widget/order_widget.js:0
+#: code:addons/pos_self_order/static/src/overrides/components/dynamic_qr_popup/dynamic_qr_popup.xml:0
+msgid "Open self-order on this device"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/pages/optional_product_page/optional_product_page.xml:0
+msgid "Options"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/pages/cart_page/cart_page.js:0
 #: code:addons/pos_self_order/static/src/app/pages/stand_number_page/stand_number_page.js:0
-#: code:addons/pos_self_order/static/src/app/store/order_change_receipt_template.xml:0
 msgid "Order"
 msgstr "Sipariş"
 
@@ -985,6 +1231,18 @@ msgstr "Sipariş"
 #: code:addons/pos_self_order/models/pos_config.py:0
 msgid "Order Now"
 msgstr "Hemen Alın"
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/pages/confirmation_page/confirmation_page.xml:0
+msgid "Order for"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/pages/cart_page/cart_page.xml:0
+msgid "Order note"
+msgstr ""
 
 #. module: pos_self_order
 #. odoo-javascript
@@ -999,10 +1257,20 @@ msgstr "Kaynak"
 
 #. module: pos_self_order
 #. odoo-javascript
-#: code:addons/pos_self_order/static/src/app/pages/combo_page/combo_page.xml:0
-#: code:addons/pos_self_order/static/src/app/pages/product_list_page/product_list_page.xml:0
+#: code:addons/pos_self_order/static/src/app/pages/cart_page/cart_page.xml:0
+msgid "Other"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/components/product_card/product_card.xml:0
 msgid "Out of stock"
 msgstr "Stokta yok"
+
+#. module: pos_self_order
+#: model:ir.module.module,shortdesc:base.module_pos_self_order
+msgid "POS Self Order"
+msgstr ""
 
 #. module: pos_self_order
 #. odoo-javascript
@@ -1012,8 +1280,7 @@ msgstr "Ödendi"
 
 #. module: pos_self_order
 #. odoo-javascript
-#: code:addons/pos_self_order/static/src/app/components/order_widget/order_widget.js:0
-#: code:addons/pos_self_order/static/src/app/pages/confirmation_page/confirmation_page.xml:0
+#: code:addons/pos_self_order/static/src/app/pages/cart_page/cart_page.js:0
 #: code:addons/pos_self_order/static/src/app/pages/stand_number_page/stand_number_page.js:0
 msgid "Pay"
 msgstr "Ödeme İşlemi"
@@ -1031,17 +1298,15 @@ msgstr "Sonradan Ödeyin"
 
 #. module: pos_self_order
 #: model_terms:ir.ui.view,arch_db:pos_self_order.res_config_settings_view_form_menu
-msgid "Personalize the Kiosk background"
-msgstr "Kiosk arka planını kişiselleştirin"
+msgid "Personalize the Interface"
+msgstr ""
 
 #. module: pos_self_order
 #: model_terms:ir.ui.view,arch_db:pos_self_order.res_config_settings_view_form_menu
 msgid ""
-"Personalize your splash screen by adding one or multiple images to create a "
-"slideshow"
+"Personalize your splash screen by adding one or multiple media items to "
+"create a slideshow"
 msgstr ""
-"Bir slayt gösterisi oluşturmak için bir veya birden fazla görsel ekleyerek "
-"açılış ekranınızı kişiselleştirin."
 
 #. module: pos_self_order
 #. odoo-javascript
@@ -1050,8 +1315,7 @@ msgid "Phone"
 msgstr "Telefon"
 
 #. module: pos_self_order
-#. odoo-javascript
-#: code:addons/pos_self_order/static/src/overrides/components/receipt_header/receipt_header.xml:0
+#: model_terms:ir.ui.view,arch_db:pos_self_order.pos_order_receipt_header
 msgid "Pickup At Counter"
 msgstr "Kasadan Teslim Alma"
 
@@ -1060,6 +1324,19 @@ msgstr "Kasadan Teslim Alma"
 #: model:ir.model.fields.selection,name:pos_self_order.selection__pos_preset__service_at__counter
 msgid "Pickup zone"
 msgstr "Teslim Alma alanı"
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/pages/cart_page/cart_page.js:0
+msgid "Please choose a table for your order."
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/components/preset_info_popup/preset_info_popup.js:0
+#: code:addons/pos_self_order/static/src/app/pages/cart_page/cart_page.js:0
+msgid "Please choose a time slot for your order."
+msgstr ""
 
 #. module: pos_self_order
 #: model:ir.model,name:pos_self_order.model_pos_load_mixin
@@ -1077,19 +1354,24 @@ msgid "Point of Sale Configuration"
 msgstr "Satış Noktası Yapılandırması"
 
 #. module: pos_self_order
-#: model:ir.model,name:pos_self_order.model_pos_order_line
-msgid "Point of Sale Order Lines"
-msgstr "Satış Noktası Sipariş Satırları"
+#: model:ir.model,name:pos_self_order.model_pos_order
+msgid "Point of Sale Order"
+msgstr ""
 
 #. module: pos_self_order
-#: model:ir.model,name:pos_self_order.model_pos_order
-msgid "Point of Sale Orders"
-msgstr "Satış Noktası Siparişi"
+#: model:ir.model,name:pos_self_order.model_pos_order_line
+msgid "Point of Sale Order Line"
+msgstr ""
+
+#. module: pos_self_order
+#: model:ir.model,name:pos_self_order.model_pos_order_receipt
+msgid "Point of Sale Order Receipt Generator"
+msgstr ""
 
 #. module: pos_self_order
 #: model:ir.model,name:pos_self_order.model_pos_payment_method
-msgid "Point of Sale Payment Methods"
-msgstr "Satış Noktası Ödeme Yöntemleri"
+msgid "Point of Sale Payment Method"
+msgstr ""
 
 #. module: pos_self_order
 #: model:ir.model,name:pos_self_order.model_pos_session
@@ -1107,6 +1389,34 @@ msgid "Points of Sale"
 msgstr "Satış Noktaları"
 
 #. module: pos_self_order
+#: model:ir.model,name:pos_self_order.model_pos_prep_line
+msgid "Pos Preparation Line"
+msgstr ""
+
+#. module: pos_self_order
+#: model:ir.model,name:pos_self_order.model_pos_prep_order
+msgid "Pos Preparation Order"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/components/preset_info_popup/preset_info_popup.xml:0
+msgid "Powered by Google"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-python
+#: code:addons/pos_self_order/models/pos_order.py:0
+msgid "Preset is not available in self-ordering"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-python
+#: code:addons/pos_self_order/models/pos_order.py:0
+msgid "Preset is not available in this configuration"
+msgstr ""
+
+#. module: pos_self_order
 #: model:ir.model.fields,field_description:pos_self_order.field_pos_self_order_custom_link__link_html
 msgid "Preview"
 msgstr "Önizle"
@@ -1122,6 +1432,12 @@ msgid "Primary"
 msgstr "Birincil"
 
 #. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/overrides/components/dynamic_qr_popup/dynamic_qr_popup.xml:0
+msgid "Print"
+msgstr ""
+
+#. module: pos_self_order
 #: model_terms:ir.ui.view,arch_db:pos_self_order.res_config_settings_view_form_menu
 msgid "Print QR Codes"
 msgstr "QR Kodlarını Yazdırın"
@@ -1131,6 +1447,12 @@ msgstr "QR Kodlarını Yazdırın"
 #: code:addons/pos_self_order/static/src/app/components/printing_failure_popup/printing_failure_popup.js:0
 msgid "Printing failed"
 msgstr "Yazdırma başarısız oldu"
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/pages/payment_page/payment_page.xml:0
+msgid "Processing your payment..."
+msgstr ""
 
 #. module: pos_self_order
 #: model:ir.model,name:pos_self_order.model_product_template
@@ -1158,6 +1480,18 @@ msgstr "Ürün mevcut değil"
 #: code:addons/pos_self_order/static/src/app/services/self_order_service.js:0
 msgid "Product not found"
 msgstr "Ürün bulunamadı"
+
+#. module: pos_self_order
+#: model:ir.model.fields,help:pos_self_order.field_pos_preset__delivery_product_id
+msgid "Product used for delivery fees in self order."
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/overrides/components/dynamic_qr_popup/dynamic_qr_popup.xml:0
+#: model_terms:ir.ui.view,arch_db:pos_self_order.DynamicQrReceipt
+msgid "QR Code"
+msgstr ""
 
 #. module: pos_self_order
 #: model:ir.actions.report,name:pos_self_order.report_self_order_qr_codes_page
@@ -1193,14 +1527,15 @@ msgstr "Miktar seçimi"
 
 #. module: pos_self_order
 #. odoo-javascript
-#: code:addons/pos_self_order/static/src/app/components/attribute_selection/attribute_selection.xml:0
-msgid "Required"
+#: code:addons/pos_self_order/static/src/app/pages/payment_page/payment_page.xml:0
+msgid "Remaining:"
 msgstr ""
 
 #. module: pos_self_order
-#: model_terms:ir.ui.view,arch_db:pos_self_order.res_config_settings_view_form_menu
-msgid "Reset QR Codes"
-msgstr "QR Kodlarını Sıfırlayın"
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/components/attribute_selection/attribute_selection.xml:0
+msgid "Required"
+msgstr ""
 
 #. module: pos_self_order
 #: model:ir.model,name:pos_self_order.model_restaurant_floor
@@ -1237,6 +1572,42 @@ msgid "Retrying..."
 msgstr "Tekrar deneniyor..."
 
 #. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/components/choose_combo_popup/choose_combo_popup.xml:0
+msgid "Save"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/pages/payment_page/payment_page.xml:0
+msgid "Scan the QR code to pay"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/overrides/components/dynamic_qr_popup/dynamic_qr_popup.xml:0
+#: code:addons/pos_self_order/static/src/overrides/screens/product_screen/control_buttons/control_buttons.js:0
+msgid "Scan to join the order"
+msgstr ""
+
+#. module: pos_self_order
+#: model_terms:ir.ui.view,arch_db:pos_self_order.DynamicQrReceipt
+msgid "Scan to join your order"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/components/preset_info_popup/preset_info_popup.xml:0
+msgid "Search country..."
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/components/preset_info_popup/preset_info_popup.js:0
+msgid "Searching for addresses..."
+msgstr ""
+
+#. module: pos_self_order
 #: model:ir.model.fields.selection,name:pos_self_order.selection__pos_self_order_custom_link__style__secondary
 msgid "Secondary"
 msgstr "İkincil"
@@ -1254,33 +1625,22 @@ msgstr "Neler kaçırdığınızı görün"
 
 #. module: pos_self_order
 #. odoo-javascript
-#: code:addons/pos_self_order/static/src/app/components/preset_info_popup/preset_info_popup.xml:0
-msgid "Select"
-msgstr "Seçme"
-
-#. module: pos_self_order
-#. odoo-javascript
-#: code:addons/pos_self_order/static/src/app/components/preset_info_popup/preset_info_popup.xml:0
-msgid "Select a country"
-msgstr "Bir ülke seçin"
-
-#. module: pos_self_order
-#. odoo-javascript
-#: code:addons/pos_self_order/static/src/app/components/slots_popup/slots_popup.xml:0
+#: code:addons/pos_self_order/static/src/app/components/preset_info_popup/preset_info_popup.js:0
+#: code:addons/pos_self_order/static/src/app/pages/cart_page/cart_page.js:0
 msgid "Select a hour"
 msgstr "Bir saat seçin"
 
 #. module: pos_self_order
 #. odoo-javascript
-#: code:addons/pos_self_order/static/src/app/components/preset_info_popup/preset_info_popup.xml:0
-msgid "Select a state"
-msgstr "Bir eyalet seçin"
+#: code:addons/pos_self_order/static/src/app/pages/cart_page/cart_page.js:0
+msgid "Select a table"
+msgstr "Masa seçin"
 
 #. module: pos_self_order
 #. odoo-javascript
-#: code:addons/pos_self_order/static/src/app/components/popup_table/popup_table.xml:0
-msgid "Select a table"
-msgstr "Masa seçin"
+#: code:addons/pos_self_order/static/src/app/components/slots_popup/slots_popup.xml:0
+msgid "Select an hour"
+msgstr ""
 
 #. module: pos_self_order
 #: model:ir.model.fields,help:pos_self_order.field_pos_self_order_custom_link__pos_config_ids
@@ -1295,13 +1655,22 @@ msgstr ""
 
 #. module: pos_self_order
 #. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/pages/eating_location_page/eating_location_page.xml:0
+msgid "Select your preferred option"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
 #: code:addons/pos_self_order/static/src/app/pages/product_page/product_page.xml:0
 msgid "Selection"
 msgstr "Seçim"
 
 #. module: pos_self_order
+#. odoo-javascript
 #. odoo-python
 #: code:addons/pos_self_order/models/pos_config.py:0
+#: code:addons/pos_self_order/receipt/pos_order_receipt.py:0
+#: code:addons/pos_self_order/static/src/overrides/utils/printer/generate_printer_data.js:0
 msgid "Self Order"
 msgstr "Self Servis Sipariş"
 
@@ -1316,6 +1685,11 @@ msgstr "Self Order Kiosk Görsel Markası"
 #: model:ir.model.fields,field_description:pos_self_order.field_res_config_settings__pos_self_ordering_image_brand_name
 msgid "Self Order Kiosk Image Brand Name"
 msgstr "Self Servis Kiosk Görsel Marka Adı"
+
+#. module: pos_self_order
+#: model:ir.model.fields.selection,name:pos_self_order.selection__pos_snooze__type__self-ordering
+msgid "Self Order Service"
+msgstr ""
 
 #. module: pos_self_order
 #: model:ir.model.fields,field_description:pos_self_order.field_product_product__self_order_visible
@@ -1363,15 +1737,23 @@ msgstr "Self Servis Sipariş Mobil"
 
 #. module: pos_self_order
 #. odoo-javascript
-#: code:addons/pos_self_order/static/src/app/store/order_change_receipt_template.xml:0
-msgid "Self-Order T"
+#: code:addons/pos_self_order/static/src/app/pages/cart_page/cart_page.js:0
+msgid "Self-Order T %s"
+msgstr "Self Servis Sipariş T %s"
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/self_order_index.xml:0
+msgid ""
+"Self-ordering is only available through the QR code provided by our staff. "
+"You can still view the menu."
 msgstr ""
 
 #. module: pos_self_order
 #. odoo-javascript
-#: code:addons/pos_self_order/static/src/app/pages/cart_page/cart_page.js:0
-msgid "Self-Order T %s"
-msgstr "Self Servis Sipariş T %s"
+#: code:addons/pos_self_order/static/src/app/self_order_index.xml:0
+msgid "Self-ordering is temporarily paused."
+msgstr ""
 
 #. module: pos_self_order
 #. odoo-javascript
@@ -1380,9 +1762,14 @@ msgid "Self-ordering:"
 msgstr "Self-Servis Sipariş:"
 
 #. module: pos_self_order
+#: model:ir.model.fields,field_description:pos_self_order.field_pos_preset__delivery_from_address
+msgid "Sender address"
+msgstr ""
+
+#. module: pos_self_order
 #: model:mail.template,description:pos_self_order.delivery_email_template
 #: model:mail.template,description:pos_self_order.takeout_email_template
-msgid "Sent to customers"
+msgid "Sent to customers with a link to download their receipt"
 msgstr ""
 
 #. module: pos_self_order
@@ -1391,14 +1778,18 @@ msgid "Sequence"
 msgstr "Sıralama"
 
 #. module: pos_self_order
+#: model_terms:ir.ui.view,arch_db:pos_self_order.DynamicQrReceipt
+msgid "Served by"
+msgstr ""
+
+#. module: pos_self_order
 #: model:ir.model.fields,field_description:pos_self_order.field_pos_preset__service_at
 #: model_terms:ir.ui.view,arch_db:pos_self_order.res_config_settings_view_form_menu
 msgid "Service at"
 msgstr "Servis yeri"
 
 #. module: pos_self_order
-#. odoo-javascript
-#: code:addons/pos_self_order/static/src/overrides/components/receipt_header/receipt_header.xml:0
+#: model_terms:ir.ui.view,arch_db:pos_self_order.pos_order_receipt_header
 msgid "Service at Table"
 msgstr "Masada Servis"
 
@@ -1415,6 +1806,37 @@ msgid "Set background image"
 msgstr "Arka plan resmini ayarla"
 
 #. module: pos_self_order
+#: model:ir.model.fields,field_description:pos_self_order.field_pos_snooze__type
+msgid "Snoozed for?"
+msgstr ""
+
+#. module: pos_self_order
+#: model:ir.model,name:pos_self_order.model_pos_snooze
+msgid "Snoozed records for Point of Sale"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/overrides/screens/product_screen/control_buttons/control_buttons.js:0
+msgid "Something went wrong while generating the QR code"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/overrides/screens/ticket_screen/ticket_screen.js:0
+msgid "Source"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/pages/cart_page/cart_page.js:0
+msgid ""
+"Specify which utensils, napkins, straws, and condiments you want to be "
+"included or any special instructions that you want the restaurant to be "
+"aware of"
+msgstr ""
+
+#. module: pos_self_order
 #: model_terms:ir.ui.view,arch_db:pos_self_order.res_config_settings_view_form_menu
 msgid "Splash screens"
 msgstr "Açılış ekranları"
@@ -1425,15 +1847,19 @@ msgid "Start Kiosk"
 msgstr "Kiosk'u Başlatın"
 
 #. module: pos_self_order
+#: model:ir.model.fields,field_description:pos_self_order.field_pos_preset__delivery_from_state_id
+msgid "State"
+msgstr ""
+
+#. module: pos_self_order
 #: model:ir.model.fields,field_description:pos_self_order.field_pos_config__status
 msgid "Status"
 msgstr "Durumu"
 
 #. module: pos_self_order
-#. odoo-javascript
-#: code:addons/pos_self_order/static/src/app/components/preset_info_popup/preset_info_popup.xml:0
-msgid "Street and Number"
-msgstr "Cadde/Sokak ve Numara"
+#: model:ir.model.fields,field_description:pos_self_order.field_pos_preset__delivery_from_street
+msgid "Street"
+msgstr ""
 
 #. module: pos_self_order
 #: model:ir.model.fields,field_description:pos_self_order.field_pos_self_order_custom_link__style
@@ -1448,6 +1874,7 @@ msgstr "Başarılı"
 #. module: pos_self_order
 #: model:ir.model.fields.selection,name:pos_self_order.selection__pos_config__self_ordering_service_mode__table
 #: model:ir.model.fields.selection,name:pos_self_order.selection__pos_preset__service_at__table
+#: model_terms:ir.ui.view,arch_db:pos_self_order.DynamicQrReceipt
 msgid "Table"
 msgstr "Masa"
 
@@ -1458,20 +1885,16 @@ msgstr "Masa Standı Numarası"
 
 #. module: pos_self_order
 #. odoo-javascript
-#: code:addons/pos_self_order/static/src/overrides/components/receipt_header/receipt_header.xml:0
-msgid "Table Tracker:"
-msgstr "Masa Takipçisi:"
+#. odoo-python
+#: code:addons/pos_self_order/receipt/pos_order_receipt.py:0
+#: code:addons/pos_self_order/static/src/overrides/utils/printer/generate_printer_data.js:0
+msgid "Table Tracker %s"
+msgstr ""
 
 #. module: pos_self_order
 #: model:ir.model.fields,field_description:pos_self_order.field_pos_order__self_ordering_table_id
 msgid "Table reference"
 msgstr "Masa referansı"
-
-#. module: pos_self_order
-#. odoo-javascript
-#: code:addons/pos_self_order/static/src/app/components/popup_table/popup_table.xml:0
-msgid "Table selection"
-msgstr "Masa seçimi"
 
 #. module: pos_self_order
 #: model_terms:ir.ui.view,arch_db:pos_self_order.qr_codes_page
@@ -1497,7 +1920,6 @@ msgstr "Vergiler:"
 
 #. module: pos_self_order
 #. odoo-javascript
-#: code:addons/pos_self_order/static/src/app/components/popup_table/popup_table.xml:0
 #: code:addons/pos_self_order/static/src/app/components/slots_popup/slots_popup.xml:0
 msgid "Thanks a lot!"
 msgstr "Çok teşekkürler!"
@@ -1510,9 +1932,33 @@ msgstr "Self-Order varsayılan kullanıcısı bir POS kullanıcısı olmalıdır
 
 #. module: pos_self_order
 #. odoo-python
+#: code:addons/pos_self_order/models/pos_preset.py:0
+msgid ""
+"The delivery address could not be geolocated. Please check the address. If "
+"the address is valid, your geolocation service may be unavailable or unable "
+"to resolve it"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-python
 #: code:addons/pos_self_order/models/pos_order.py:0
 msgid "The mail template with xmlid %s has been deleted."
 msgstr "xmlid %s adresli posta şablonu silindi."
+
+#. module: pos_self_order
+#. odoo-python
+#: code:addons/pos_self_order/models/pos_order.py:0
+msgid ""
+"The order ID isn't linked to the order UUID. This is a sign of a tampered "
+"payload."
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/services/self_order_service.js:0
+msgid ""
+"The shop is currently closed but you can still place an order for later."
+msgstr ""
 
 #. module: pos_self_order
 #. odoo-python
@@ -1528,8 +1974,37 @@ msgid "This combination does not exist."
 msgstr "Bu kombinasyon mevcut değil."
 
 #. module: pos_self_order
+#: model_terms:ir.ui.view,arch_db:pos_self_order.DynamicQrReceipt
+msgid "Ticket"
+msgstr ""
+
+#. module: pos_self_order
 #. odoo-javascript
-#: code:addons/pos_self_order/static/src/app/components/order_widget/order_widget.xml:0
+#: code:addons/pos_self_order/static/src/app/pages/confirmation_page/confirmation_page.xml:0
+msgid "To pay at the counter"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/pages/confirmation_page/confirmation_page.xml:0
+msgid "To pay in cash at the counter"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/models/pos_preset.js:0
+msgid "Today"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/models/pos_preset.js:0
+msgid "Tommorrow"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/pages/product_list_page/product_list_page.xml:0
 msgid "Total"
 msgstr "Toplam"
 
@@ -1552,15 +2027,15 @@ msgstr "URL:"
 
 #. module: pos_self_order
 #. odoo-javascript
-#: code:addons/pos_self_order/static/src/app/pages/product_list_page/product_list_page.xml:0
-msgid "Unavailable"
-msgstr "Kullanım dışı"
-
-#. module: pos_self_order
-#. odoo-javascript
 #: code:addons/pos_self_order/static/src/app/services/self_order_service.js:0
 msgid "Uncategorised"
 msgstr "Kategorize edilmemiş"
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/pages/cart_page/cart_page.xml:0
+msgid "Utensils, special instructions, etc."
+msgstr ""
 
 #. module: pos_self_order
 #. odoo-javascript
@@ -1569,9 +2044,28 @@ msgid "Validate your selection"
 msgstr "Seçiminizi doğrulayın"
 
 #. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/components/preset_info_popup/preset_info_popup.xml:0
+msgid "Validating..."
+msgstr ""
+
+#. module: pos_self_order
+#: model:ir.model,name:pos_self_order.model_ir_ui_view
+msgid "View"
+msgstr ""
+
+#. module: pos_self_order
 #: model:ir.model.fields.selection,name:pos_self_order.selection__pos_self_order_custom_link__style__warning
 msgid "Warning"
 msgstr "Uyarı"
+
+#. module: pos_self_order
+#. odoo-python
+#: code:addons/pos_self_order/controllers/orders.py:0
+msgid ""
+"We couldn't locate this address. Please enter a complete address with a "
+"street number."
+msgstr ""
 
 #. module: pos_self_order
 #. odoo-javascript
@@ -1649,13 +2143,6 @@ msgid "You are not authorized to remove this order"
 msgstr "Bu siparişi silmeye yetkili değilsiniz"
 
 #. module: pos_self_order
-#. odoo-python
-#: code:addons/pos_self_order/models/pos_config.py:0
-#: code:addons/pos_self_order/models/res_config_settings.py:0
-msgid "You cannot add cash payment methods in kiosk mode."
-msgstr "Kiosk modunda nakit ödeme yöntemleri ekleyemezsiniz."
-
-#. module: pos_self_order
 #. odoo-javascript
 #: code:addons/pos_self_order/static/src/app/services/self_order_service.js:0
 msgid "You're not authorized to perform this action"
@@ -1686,14 +2173,19 @@ msgid "Your order number"
 msgstr "Sipariş numaranız"
 
 #. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/services/self_order_service.js:0
+msgid "Your order was just updated. Please review your cart before paying."
+msgstr ""
+
+#. module: pos_self_order
 #: model:mail.template,subject:pos_self_order.delivery_email_template
 #: model:mail.template,subject:pos_self_order.takeout_email_template
 msgid "Your {{ object.config_id.name }} receipt"
 msgstr "{{ object.config_id.name }} makbuzunuz"
 
 #. module: pos_self_order
-#. odoo-javascript
-#: code:addons/pos_self_order/static/src/app/components/preset_info_popup/preset_info_popup.xml:0
+#: model:ir.model.fields,field_description:pos_self_order.field_pos_preset__delivery_from_zip
 msgid "Zip"
 msgstr "PK"
 
@@ -1707,12 +2199,6 @@ msgstr ""
 #: code:addons/pos_self_order/static/src/app/components/unavailable_product_dialog/unavailable_product_dialog.xml:0
 msgid "are"
 msgstr "vardır"
-
-#. module: pos_self_order
-#. odoo-javascript
-#: code:addons/pos_self_order/static/src/app/pages/confirmation_page/confirmation_page.xml:0
-msgid "at the counter"
-msgstr "kasada"
 
 #. module: pos_self_order
 #. odoo-javascript
@@ -1749,6 +2235,34 @@ msgid "is"
 msgstr "olan"
 
 #. module: pos_self_order
+#: model:ir.model.fields.selection,name:pos_self_order.selection__pos_preset__delivery_distance_unit__km
+msgid "km"
+msgstr ""
+
+#. module: pos_self_order
+#: model:ir.model.fields.selection,name:pos_self_order.selection__pos_preset__delivery_distance_unit__mi
+msgid "mi"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/pages/eating_location_page/eating_location_page.xml:0
+msgid "min"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/pages/eating_location_page/eating_location_page.xml:0
+msgid "minutes"
+msgstr ""
+
+#. module: pos_self_order
+#. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/components/choose_combo_popup/choose_combo_popup.xml:0
+msgid "more)"
+msgstr ""
+
+#. module: pos_self_order
 #. odoo-javascript
 #: code:addons/pos_self_order/static/src/app/components/unavailable_product_dialog/unavailable_product_dialog.xml:0
 msgid "no longer available. Please go back and edit your order."
@@ -1767,159 +2281,8 @@ msgstr ""
 
 #. module: pos_self_order
 #. odoo-javascript
+#: code:addons/pos_self_order/static/src/app/components/choose_combo_popup/choose_combo_popup.xml:0
 #: code:addons/pos_self_order/static/src/app/pages/cart_page/cart_page.xml:0
 #: code:addons/pos_self_order/static/src/app/pages/combo_page/combo_page.xml:0
 msgid "x"
 msgstr ""
-
-#~ msgid "Sent to customers with the receipt in attachment"
-#~ msgstr "Makbuz ekinde müşterilere gönderilir"
-
-#~ msgid "Choose your"
-#~ msgstr "Seçim yapın:"
-
-#~ msgid "included"
-#~ msgstr "dahil"
-
-#~ msgid "Select your address"
-#~ msgstr "Adresinizi seçin"
-
-#~ msgid "/ Tracker number:"
-#~ msgstr "/ Takip numarası:"
-
-#~ msgid ""
-#~ "%s is not available anymore, it has thus been removed from your order. "
-#~ "Please review your order and validate it again."
-#~ msgstr ""
-#~ "%s artık mevcut değildir, bu nedenle siparişinizden kaldırılmıştır. "
-#~ "Lütfen siparişinizi gözden geçirin ve tekrar onaylayın."
-
-#~ msgid "<sup title=\"Only works for kiosk and mobile\">?</sup>"
-#~ msgstr "<sup title=\"Yalnızca kiosk ve mobil için çalışır\">?</sup>"
-
-#~ msgid "Add an image to brand your header."
-#~ msgstr "Üst bilginizi markalaştırmak için bir görsel ekleyin."
-
-#~ msgid "Add to Cart"
-#~ msgstr "Sepete Ekle"
-
-#~ msgid "All the items will be removed from the cart."
-#~ msgstr "Tüm ürünler sepetten kaldırılacaktır."
-
-#~ msgid "Allow self-order customers to set their order for takeout."
-#~ msgstr ""
-#~ "Kendi siparişini veren müşterilerin siparişini paket servis olarak "
-#~ "ayarlamasına izin verin."
-
-#~ msgid "Allow takeout order"
-#~ msgstr "Paket servis siparişine izin verin"
-
-#~ msgid "Any items already sent will not be cancelled"
-#~ msgstr "Zaten gönderilmiş ürünler iptal edilmeyecektir"
-
-#~ msgid "Availability After"
-#~ msgstr "Şu Zamandan Sonra Uygun:"
-
-#~ msgid "Availability Until"
-#~ msgstr "Şu Zamana Kadar Uygun"
-
-#~ msgid "Available between"
-#~ msgstr "Şu Zamanlar Arasında Uygun"
-
-#~ msgid "Choose your eating location"
-#~ msgstr "Yemek yeme konumunuzu seçin"
-
-#~ msgid "Connection lost, please try again later"
-#~ msgstr "Bağlantı koptu, lütfen daha sonra tekrar deneyin"
-
-#~ msgid "Customize Header"
-#~ msgstr "Başlığı Özelleştirin"
-
-#~ msgid "Eat In"
-#~ msgstr "Evde Yemek"
-
-#~ msgid "Edit"
-#~ msgstr "Düzenle"
-
-#~ msgid "File streaming helper model for controllers"
-#~ msgstr "Denetleyiciler için dosya akışı yardımcı modeli"
-
-#~ msgid "Fiscal Position"
-#~ msgstr "Mali Durum"
-
-#~ msgid "Get a tracker and enter its number here"
-#~ msgstr "Bir takip cihazı edinin ve numarasını buraya girin"
-
-#~ msgid "No products found"
-#~ msgstr "Ürün bulunamadı"
-
-#~ msgid "Order to pick-up at the counter"
-#~ msgstr "Tezgahtan teslim alınacak sipariş"
-
-#~ msgid "Pay at the cashier"
-#~ msgstr "Kasada ödeme yapın"
-
-#~ msgid "PoS Order by Session"
-#~ msgstr "Oturuma göre PoS Siparişi"
-
-#~ msgid "Product Information"
-#~ msgstr "Ürün Bilgisi"
-
-#~ msgid "Product image"
-#~ msgstr "Ürün görüntüsü"
-
-#~ msgid "Self Ordering Enabled"
-#~ msgstr "Self Order Özelliği Etkin"
-
-#~ msgid "Self Takeaway"
-#~ msgstr "Gel-Al Paket Servis"
-
-#~ msgid "Self-Order"
-#~ msgstr "Self-Servis Sipariş"
-
-#~ msgid "Service at table"
-#~ msgstr "Masada servis"
-
-#~ msgid "Table detective time!"
-#~ msgstr "Masa tespiti zamanı!"
-
-#~ msgid "Take Out"
-#~ msgstr "Eve Servis"
-
-#~ msgid "The Availability After must be set between 00:00 and 24:00"
-#~ msgstr "\"Sonra Müsait\" zamanı 00:00 ile 24:00 arasında ayarlanmalıdır"
-
-#~ msgid "The Availability Until must be greater than Availability After."
-#~ msgstr ""
-#~ "\"Mevcut Olma Bitişi\", \"Mevcut Olma Başlangıcından\" daha sonraki bir "
-#~ "saat olmalıdır."
-
-#~ msgid "The Availability Until must be set between 00:00 and 24:00"
-#~ msgstr "Müsaitlik Bitiş Saati 00:00 ile 24:00 arasında olmalıdır."
-
-#~ msgid "The product will be available after this hour."
-#~ msgstr "Ürün bu saatten sonra kullanıma sunulacaktır."
-
-#~ msgid "The product will be available until this hour."
-#~ msgstr "Ürün bu saate kadar kullanılabilir olacaktır."
-
-#~ msgid "Unavailable at this time of the day"
-#~ msgstr "Günün bu saatinde kullanılamaz"
-
-#~ msgid "You cannot edit a posted orderline !"
-#~ msgstr "Yayınlanmış bir sipariş satırını düzenleyemezsiniz!"
-
-#~ msgid "Your Selection"
-#~ msgstr "Seçiminiz"
-
-#~ msgid "Your order has been cancelled"
-#~ msgstr "Siparişiniz iptal edildi"
-
-#~ msgid "Your order status has been changed"
-#~ msgstr "Sipariş durumunuz değiştirildi"
-
-#~ msgid "and"
-#~ msgstr "ve"
-
-#~ msgid "options"
-#~ msgstr "seçeekler"

@@ -1,10 +1,12 @@
 import * as ProductScreen from "@point_of_sale/../tests/pos/tours/utils/product_screen_util";
-import * as ReceiptScreen from "@point_of_sale/../tests/pos/tours/utils/receipt_screen_util";
+import * as FeedbackScreen from "@point_of_sale/../tests/pos/tours/utils/feedback_screen_util";
 import * as PaymentScreen from "@point_of_sale/../tests/pos/tours/utils/payment_screen_util";
 import * as TicketScreen from "@point_of_sale/../tests/pos/tours/utils/ticket_screen_util";
 import * as Order from "@point_of_sale/../tests/generic_helpers/order_widget_util";
 import * as Chrome from "@point_of_sale/../tests/pos/tours/utils/chrome_util";
 import * as Dialog from "@point_of_sale/../tests/generic_helpers/dialog_util";
+import * as NumberPopup from "@point_of_sale/../tests/generic_helpers/number_popup_util";
+import { negateStep } from "@point_of_sale/../tests/generic_helpers/utils";
 import { registry } from "@web/core/registry";
 
 registry.category("web_tour.tours").add("test_pos_global_discount_sell_and_refund", {
@@ -25,32 +27,46 @@ registry.category("web_tour.tours").add("test_pos_global_discount_sell_and_refun
             {
                 content: "Manually trigger keyup event",
                 trigger: ".ticket-screen",
-                run: function () {
-                    window.dispatchEvent(new KeyboardEvent("keyup", { key: "9" }));
-                },
+                run: "press 9",
             },
             TicketScreen.loadSelectedOrder(),
             ProductScreen.clickControlButton("Discount"),
-            {
-                content: `click discount numpad button: 5`,
-                trigger: `.o_dialog div.numpad button:contains(5)`,
-                run: "click",
-            },
+            NumberPopup.enterValue("5"),
             Dialog.confirm(),
             ProductScreen.selectedOrderlineHas("discount", 1, "-0.15"),
             ProductScreen.totalAmountIs("2.85"),
             ProductScreen.clickPayButton(),
             PaymentScreen.clickPaymentMethod("Bank"),
             PaymentScreen.clickValidate(),
-            ReceiptScreen.isShown(),
-            ReceiptScreen.clickNextOrder(),
+            FeedbackScreen.isShown(),
+            FeedbackScreen.clickNextOrder(),
             ...ProductScreen.clickRefund(),
             TicketScreen.selectOrder("001"),
             ProductScreen.clickNumpad("1"),
-            TicketScreen.toRefundTextContains("To Refund: 1"),
+            TicketScreen.toRefundTextContains("1"),
             ProductScreen.clickLine("discount"),
-            ProductScreen.clickNumpad("1"),
-            Dialog.confirm(),
+            Order.hasLine({
+                withClass: ".selected",
+                productName: "Discount",
+                run: "click",
+            }),
+            Dialog.is({ body: "You cannot edit a discount line." }),
+            Dialog.confirm("Ok"),
+            //simulate the click to increase the qty
+            Order.hasLine({
+                withClass: ".selected",
+                productName: "Discount",
+                run: "click",
+            }),
+            Dialog.is({ body: "You cannot edit a discount line." }),
+            Dialog.confirm("Ok"),
+            negateStep(
+                ...Order.hasLine({
+                    withClass: ".selected",
+                    productName: "Discount",
+                    refundQty: "2",
+                })
+            ),
             TicketScreen.confirmRefund(),
             PaymentScreen.isShown(),
             PaymentScreen.clickBack(),
@@ -61,6 +77,6 @@ registry.category("web_tour.tours").add("test_pos_global_discount_sell_and_refun
             ProductScreen.clickPayButton(),
             PaymentScreen.clickPaymentMethod("Bank"),
             PaymentScreen.clickValidate(),
-            ReceiptScreen.isShown(),
+            FeedbackScreen.isShown(),
         ].flat(),
 });

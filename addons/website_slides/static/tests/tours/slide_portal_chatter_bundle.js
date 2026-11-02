@@ -13,7 +13,7 @@ registry.category("web_tour.tours").add("portal_chatter_bundle", {
         {
             content: "Wait for the whole page to load",
             trigger: "#chatterRoot:shadow .o-mail-Chatter",
-            run: () => odoo.portalChatterReady,
+            run: () => odoo.portalChatterReady.promise,
         },
     ],
 });

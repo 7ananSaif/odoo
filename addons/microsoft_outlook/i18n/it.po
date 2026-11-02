@@ -8,32 +8,35 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-10-16 07:03+0000\n"
-"Last-Translator: \"Marianna Ciofani (cima)\" <cima@odoo.com>\n"
-"Language-Team: Italian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 14:24+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Italian <https://translate.odoo.com/projects/odoo-s19-4/"
 "microsoft_outlook/it/>\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.12.2\n"
-
-#. module: microsoft_outlook
-#: model_terms:ir.ui.view,arch_db:microsoft_outlook.fetchmail_server_view_form
-#: model_terms:ir.ui.view,arch_db:microsoft_outlook.ir_mail_server_view_form
-msgid "<i class=\"fa fa-cog\" title=\"Edit Settings\"/>"
-msgstr "<i class=\"fa fa-cog\" title=\"Modifica impostazioni\"/>"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: microsoft_outlook
 #: model_terms:ir.ui.view,arch_db:microsoft_outlook.fetchmail_server_view_form
 #: model_terms:ir.ui.view,arch_db:microsoft_outlook.ir_mail_server_view_form
 msgid ""
-"<i class=\"oi oi-arrow-right\"/>\n"
+"<i class=\"oi oi-filled\" data-icon=\"settings\" title=\"Edit Settings\"/>"
+msgstr ""
+"<i class=\"oi oi-filled\" data-icon=\"settings\" title=\"Modifica "
+"impostazioni\"/>"
+
+#. module: microsoft_outlook
+#: model_terms:ir.ui.view,arch_db:microsoft_outlook.fetchmail_server_view_form
+#: model_terms:ir.ui.view,arch_db:microsoft_outlook.ir_mail_server_view_form
+msgid ""
+"<i class=\"oi\" data-icon=\"east\"/>\n"
 "                        Connect your Outlook account"
 msgstr ""
-"<i class=\"fa fa-arrow-right\"/>\n"
+"<i class=\"fa-arrow-right fa\" data-icon=\"east\"/>\n"
 "                        Connetti il tuo account Outlook"
 
 #. module: microsoft_outlook
@@ -168,6 +171,11 @@ msgid "Mail Server"
 msgstr "Server di posta"
 
 #. module: microsoft_outlook
+#: model:ir.module.module,shortdesc:base.module_microsoft_outlook
+msgid "Microsoft Outlook"
+msgstr ""
+
+#. module: microsoft_outlook
 #: model:ir.model,name:microsoft_outlook.model_microsoft_outlook_mixin
 msgid "Microsoft Outlook Mixin"
 msgstr "Mixin Outlook di Microsoft"
@@ -241,6 +249,11 @@ msgstr "Autenticazione OAuth per Outlook"
 #: model:ir.model.fields,field_description:microsoft_outlook.field_microsoft_outlook_mixin__microsoft_outlook_refresh_token
 msgid "Outlook Refresh Token"
 msgstr "Token di aggiornamento Outlook"
+
+#. module: microsoft_outlook
+#: model:ir.module.module,description:base.module_microsoft_outlook
+msgid "Outlook support for incoming / outgoing mail servers"
+msgstr ""
 
 #. module: microsoft_outlook
 #. odoo-python
@@ -325,28 +338,3 @@ msgstr "Errore sconosciuto."
 #: model:ir.model,name:microsoft_outlook.model_res_users
 msgid "User"
 msgstr "Utente"
-
-#~ msgid "An error occurred: %s."
-#~ msgstr "Si è verificato un errore: %s."
-
-#~ msgid "Outlook is not configured on IAP."
-#~ msgstr "Outlook non è configurato nello IAP."
-
-#~ msgid "Please configure your outlook credentials."
-#~ msgstr "Configurare le credenziali Outlook."
-
-#~ msgid "You don't have an active subscription."
-#~ msgstr "Non hai un abbonamento attivo."
-
-#~ msgid "Go back to your mail server"
-#~ msgstr "Ritorna al server di posta"
-
-#~ msgid "Is Outlook Credential Configured"
-#~ msgstr "Sono configurate le credenziali Outlook"
-
-#~ msgid ""
-#~ "Setup your Outlook API credentials in the general settings to link a "
-#~ "Outlook account."
-#~ msgstr ""
-#~ "Per collegare un account impostare le credenziali API di Outlook nelle "
-#~ "impostazioni generali."

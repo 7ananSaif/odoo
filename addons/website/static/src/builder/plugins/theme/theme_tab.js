@@ -1,24 +1,27 @@
-import { Component, useState, useSubEnv } from "@odoo/owl";
+import { useSubEnv } from "@web/owl2/utils";
+import { Component, useProps, proxy, signal, t } from "@odoo/owl";
 import { OptionsContainer } from "@html_builder/sidebar/option_container";
 import { useOptionsSubEnv } from "@html_builder/utils/utils";
 
 export class ThemeTab extends Component {
     static template = "website.ThemeTab";
     static components = { OptionsContainer };
-    static props = {
-        // optionsContainers: { type: Array, optional: true },
-        colorPresetToShow: { type: Number | null, optional: true },
-    };
-    static defaultProps = {
-        // optionsContainers: [],
-    };
+    props = useProps({
+        // optionsContainers: t.array().optional([]),
+        colorPresetToShow: t.or([t.number(), t.literal(null)]).optional(),
+        targetRowId: t.or([t.string(), t.literal(null)]).optional(),
+        targetContainerId: t.or([t.string(), t.literal(null)]).optional(),
+    });
+    contentRef = signal.ref();
 
     setup() {
         useOptionsSubEnv(() => [this.env.editor.document.body]);
         useSubEnv({
             colorPresetToShow: this.props.colorPresetToShow,
+            targetRowId: this.props.targetRowId,
+            targetContainerId: this.props.targetContainerId,
         });
-        this.state = useState({
+        this.state = proxy({
             fontsData: {},
         });
         this.optionsContainers = this.env.editor.resources["theme_options"];

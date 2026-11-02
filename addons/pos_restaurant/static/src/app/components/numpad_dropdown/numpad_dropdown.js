@@ -1,7 +1,8 @@
-import { Component, useState } from "@odoo/owl";
+import { Component, proxy, t, usePlugin, useProps } from "@odoo/owl";
+import { PosNumberBufferPlugin } from "@point_of_sale/app/plugins/pos_number_buffer_plugin";
 import { usePos } from "@point_of_sale/app/hooks/pos_hook";
 import { useService } from "@web/core/utils/hooks";
-import { SIZES, utils } from "@web/core/ui/ui_service";
+import { SIZES, utils } from "@web/core/ui/ui_utils";
 import {
     getButtons,
     EMPTY,
@@ -12,18 +13,21 @@ import {
 
 export class NumpadDropdown extends Component {
     static template = "pos_restaurant.NumpadDropdown";
-    static props = {};
     static components = { Numpad };
+
+    props = useProps({
+        contentClass: t.string().optional(),
+    });
 
     setup() {
         this.pos = usePos();
         this.ui = useService("ui");
-        this.numberBuffer = useService("number_buffer");
+        this.numberBuffer = usePlugin(PosNumberBufferPlugin);
         this.numberBuffer.use({
             triggerAtEnter: () => this.pos.searchOrder(this.state.buffer),
             triggerAtInput: ({ buffer }) => this.checkIsValid(buffer),
         });
-        this.state = useState({
+        this.state = proxy({
             buffer: "",
             isValidBuffer: true,
         });
@@ -47,10 +51,6 @@ export class NumpadDropdown extends Component {
         if (this.state.isValidBuffer) {
             this.pos.searchOrder(this.state.buffer);
         }
-    }
-
-    toggleTableSelector() {
-        this.pos.tableSelectorState = !this.pos.tableSelectorState;
     }
 
     get isSmall() {

@@ -1,8 +1,14 @@
-import { BaseVerticalAlignmentOption } from "./base_vertical_alignment_option";
+import { BaseOptionComponent } from "@html_builder/core/base_option_component";
+import { useProps, t } from "@odoo/owl";
+import { registry } from "@web/core/registry";
 
-export class VerticalAlignmentOption extends BaseVerticalAlignmentOption {
-    static selector =
-        ".s_text_image, .s_image_text, .s_three_columns, .s_showcase, .s_numbers, .s_faq_collapse, .s_references, .s_accordion_image, .s_shape_image, .s_reviews_wall";
-    static applyTo = ".row";
-    static name = "verticalAlignmentOption";
+export class VerticalAlignmentOption extends BaseOptionComponent {
+    static id = "vertical_alignment_option";
+    static template = "html_builder.VerticalAlignmentOption";
+    props = useProps({
+        level: t.number().optional(1),
+        justify: t.boolean().optional(true),
+    });
 }
+
+registry.category("builder-options").add(VerticalAlignmentOption.id, VerticalAlignmentOption);

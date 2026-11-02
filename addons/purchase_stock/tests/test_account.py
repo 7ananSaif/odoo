@@ -9,6 +9,8 @@ from .common import PurchaseTestCommon
 
 
 class TestPurchaseOrderInvoice(PurchaseTestCommon):
+    _test_user_groups = None  # FIXME list needed groups
+
     def test_invoice_standard(self):
         po = self._create_purchase(self.product_standard, price_unit=12)
         self._receive(po)
@@ -37,7 +39,7 @@ class TestPurchaseOrderInvoice(PurchaseTestCommon):
             {'account_id': self.account_payable.id, 'debit': 0.0, 'credit': 12.0},
         ])
         closing = self._close()
-        self.assertRecordValues(closing.line_ids, [
+        self.assertRecordValues(closing.line_ids.sorted('account_id'), [
             {'account_id': self.account_stock_valuation.id, 'debit': 0.0, 'credit': 2.0},
             {'account_id': self.account_stock_variation.id, 'debit': 2.0, 'credit': 0.0},
         ])
@@ -63,12 +65,12 @@ class TestPurchaseOrderInvoice(PurchaseTestCommon):
 
         today = fields.Date.today()
         tomorrow = today + relativedelta(days=1)
-        self._use_multi_currencies([
-            (fields.Date.to_string(today), 2.0),
-            (fields.Date.to_string(tomorrow), 4.0),
+        other_currency = self._use_multi_currencies([
+            (fields.Date.to_string(today - relativedelta(days=1)), 2.0),
+            (fields.Date.to_string(today), 4.0),
         ])
 
-        po = self._create_purchase(self.product_standard_auto, quantity=10, price_unit=12, currency_id=self.other_currency.id)
+        po = self._create_purchase(self.product_standard_auto, quantity=10, price_unit=12, currency_id=other_currency.id)
         self._receive(po)
         with freeze_time(tomorrow):
             bill = self._create_bill(purchase_order=po)
@@ -287,7 +289,141 @@ class TestPurchaseOrderInvoice(PurchaseTestCommon):
         # Should reverse the closing before bill
         closing_after_bill = self._close()
         self.assertTrue(closing_after_bill)
-        self.assertRecordValues(closing_after_bill.line_ids, [
+        self.assertRecordValues(closing_after_bill.line_ids.sorted('account_id'), [
             {'account_id': self.account_stock_valuation.id, 'debit': 0.0, 'credit': 12.0},
             {'account_id': self.account_stock_variation.id, 'debit': 12.0, 'credit': 0.0},
+        ])
+
+    def test_invoice_set_non_deductible_tax_on_bill_percent(self):
+        tax_with_no_account = self.env['account.tax'].create({
+            'name': "Tax with no account",
+            'amount_type': 'percent',
+            'amount': 50,
+            'sequence': 8,
+        })
+        po = self._create_purchase(self.product_fifo, 10, 10)
+        move = self._receive(po)
+        self.assertEqual(move.value, 100)
+
+        bill = self._create_bill(purchase_order=po)
+        bill_line = bill.invoice_line_ids[0]
+        self.assertRecordValues(bill.line_ids, [
+            {'account_id': self.account_expense.id, 'debit': 100.0, 'credit': 0.0},
+            {'account_id': self.account_payable.id, 'debit': 0.0, 'credit': 100.0},
+        ])
+
+        bill.button_draft()
+        bill_line.tax_ids = [Command.set(tax_with_no_account.ids)]
+        bill.action_post()
+        move._set_value()
+        self.assertRecordValues(bill.line_ids, [
+            {'account_id': self.account_expense.id, 'debit': 100.0, 'credit': 0.0},
+            {'account_id': self.account_payable.id, 'debit': 0.0, 'credit': 150.0},
+            {'account_id': self.account_expense.id, 'debit': 50.0, 'credit': 0.0},
+        ])
+        closing = self._close()
+        self.assertRecordValues(closing.line_ids, [
+            {'account_id': self.account_stock_variation.id, 'debit': 0.0, 'credit': 150.0},
+            {'account_id': self.account_stock_valuation.id, 'debit': 150.0, 'credit': 0.0},
+        ])
+
+    def test_invoice_set_non_deductible_tax_on_bill_fixed(self):
+        tax_with_no_account = self.env['account.tax'].create({
+            'name': "Tax with no account",
+            'amount_type': 'fixed',
+            'amount': 5,
+            'sequence': 8,
+        })
+        po = self._create_purchase(self.product_fifo, 10, 10)
+        move = self._receive(po)
+        self.assertEqual(move.value, 100)
+
+        bill = self._create_bill(purchase_order=po)
+        bill_line = bill.invoice_line_ids[0]
+        self.assertRecordValues(bill.line_ids, [
+            {'account_id': self.account_expense.id, 'debit': 100.0, 'credit': 0.0},
+            {'account_id': self.account_payable.id, 'debit': 0.0, 'credit': 100.0},
+        ])
+
+        bill.button_draft()
+        bill_line.tax_ids = [Command.set(tax_with_no_account.ids)]
+        bill.action_post()
+        move._set_value()
+        self.assertRecordValues(bill.line_ids, [
+            {'account_id': self.account_expense.id, 'debit': 100.0, 'credit': 0.0},
+            {'account_id': self.account_payable.id, 'debit': 0.0, 'credit': 150.0},
+            {'account_id': self.account_expense.id, 'debit': 50.0, 'credit': 0.0},
+        ])
+        closing = self._close()
+        self.assertRecordValues(closing.line_ids, [
+            {'account_id': self.account_stock_variation.id, 'debit': 0.0, 'credit': 150.0},
+            {'account_id': self.account_stock_valuation.id, 'debit': 150.0, 'credit': 0.0},
+        ])
+
+    def test_invoice_set_non_deductible_tax_on_bill_discount_percent(self):
+        tax_with_no_account = self.env['account.tax'].create({
+            'name': "Tax with no account",
+            'amount_type': 'percent',
+            'amount': 50,
+            'sequence': 8,
+        })
+        po = self._create_purchase(self.product_fifo, 10, 10)
+        move = self._receive(po)
+        self.assertEqual(move.value, 100)
+
+        bill = self._create_bill(purchase_order=po)
+        bill_line = bill.invoice_line_ids[0]
+        self.assertRecordValues(bill.line_ids, [
+            {'account_id': self.account_expense.id, 'debit': 100.0, 'credit': 0.0},
+            {'account_id': self.account_payable.id, 'debit': 0.0, 'credit': 100.0},
+        ])
+
+        bill.button_draft()
+        bill_line.tax_ids = [Command.set(tax_with_no_account.ids)]
+        bill_line.discount = 20.0
+        bill.action_post()
+        move._set_value()
+        self.assertRecordValues(bill.line_ids, [
+            {'account_id': self.account_expense.id, 'debit': 80.0, 'credit': 0.0},
+            {'account_id': self.account_payable.id, 'debit': 0.0, 'credit': 120.0},
+            {'account_id': self.account_expense.id, 'debit': 40.0, 'credit': 0.0},
+        ])
+        closing = self._close()
+        self.assertRecordValues(closing.line_ids, [
+            {'account_id': self.account_stock_variation.id, 'debit': 0.0, 'credit': 120.0},
+            {'account_id': self.account_stock_valuation.id, 'debit': 120.0, 'credit': 0.0},
+        ])
+
+    def test_invoice_set_non_deductible_tax_on_bill_discount_fixed(self):
+        tax_with_no_account = self.env['account.tax'].create({
+            'name': "Tax with no account",
+            'amount_type': 'fixed',
+            'amount': 5,
+            'sequence': 8,
+        })
+        po = self._create_purchase(self.product_fifo, 10, 10)
+        move = self._receive(po)
+        self.assertEqual(move.value, 100)
+
+        bill = self._create_bill(purchase_order=po)
+        bill_line = bill.invoice_line_ids[0]
+        self.assertRecordValues(bill.line_ids, [
+            {'account_id': self.account_expense.id, 'debit': 100.0, 'credit': 0.0},
+            {'account_id': self.account_payable.id, 'debit': 0.0, 'credit': 100.0},
+        ])
+
+        bill.button_draft()
+        bill_line.tax_ids = [Command.set(tax_with_no_account.ids)]
+        bill_line.discount = 20.0
+        bill.action_post()
+        move._set_value()
+        self.assertRecordValues(bill.line_ids, [
+            {'account_id': self.account_expense.id, 'debit': 80.0, 'credit': 0.0},
+            {'account_id': self.account_payable.id, 'debit': 0.0, 'credit': 130.0},
+            {'account_id': self.account_expense.id, 'debit': 50.0, 'credit': 0.0},
+        ])
+        closing = self._close()
+        self.assertRecordValues(closing.line_ids, [
+            {'account_id': self.account_stock_variation.id, 'debit': 0.0, 'credit': 130.0},
+            {'account_id': self.account_stock_valuation.id, 'debit': 130.0, 'credit': 0.0},
         ])

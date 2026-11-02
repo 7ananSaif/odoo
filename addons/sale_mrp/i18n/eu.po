@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo 9.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-16 13:49+0000\n"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
 "PO-Revision-Date: 2016-02-09 18:15+0000\n"
 "Last-Translator: Martin Trigaux\n"
 "Language-Team: Basque (http://www.transifex.com/odoo/odoo-9/language/eu/)\n"
@@ -18,28 +18,37 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. module: sale_mrp
-#: model_terms:ir.ui.view,arch_db:sale_mrp.sale_order_portal_content_inherit_sale_mrp
-msgid "<i class=\"fa fa-fw fa-check\"/> <b>Manufactured</b>"
+#: model:ir.module.module,description:base.module_sale_mrp
+msgid ""
+"\n"
+"This module provides facility to the user to install mrp and sales modulesat "
+"a time.\n"
+"====================================================================================\n"
+"\n"
+"It is basically used when we want to keep track of production orders "
+"generated\n"
+"from sales order. It adds sales name and sales Reference on production "
+"order.\n"
 msgstr ""
 
 #. module: sale_mrp
 #: model_terms:ir.ui.view,arch_db:sale_mrp.sale_order_portal_content_inherit_sale_mrp
-msgid "<i class=\"fa fa-fw fa-clock-o\"/> <b>Confirmed</b>"
+msgid "<i class=\"oi oi-fw\" data-icon=\"check\"/> Manufactured"
 msgstr ""
 
 #. module: sale_mrp
 #: model_terms:ir.ui.view,arch_db:sale_mrp.sale_order_portal_content_inherit_sale_mrp
-msgid "<i class=\"fa fa-fw fa-clock-o\"/> <b>In progress</b>"
+msgid "<i class=\"oi oi-fw\" data-icon=\"close\"/> Cancelled"
 msgstr ""
 
 #. module: sale_mrp
 #: model_terms:ir.ui.view,arch_db:sale_mrp.sale_order_portal_content_inherit_sale_mrp
-msgid "<i class=\"fa fa-fw fa-times\"/> <b>Cancelled</b>"
+msgid "<i class=\"oi oi-fw\" data-icon=\"schedule\"/> Confirmed"
 msgstr ""
 
 #. module: sale_mrp
-#: model_terms:ir.ui.view,arch_db:sale_mrp.sale_order_form_mrp
-msgid "<span class=\"o_stat_text\">Manufacturing</span>"
+#: model_terms:ir.ui.view,arch_db:sale_mrp.sale_order_portal_content_inherit_sale_mrp
+msgid "<i class=\"oi oi-fw\" data-icon=\"schedule\"/> In Progress"
 msgstr ""
 
 #. module: sale_mrp
@@ -48,15 +57,11 @@ msgid "<span class=\"o_stat_text\">Sale</span>"
 msgstr ""
 
 #. module: sale_mrp
-#: model_terms:ir.ui.view,arch_db:sale_mrp.sale_order_portal_content_inherit_sale_mrp
-msgid "<strong>Manufacturing Orders</strong>"
-msgstr ""
-
-#. module: sale_mrp
 #. odoo-python
 #: code:addons/sale_mrp/models/mrp_bom.py:0
 msgid ""
-"As long as there are some sale order lines that must be delivered/invoiced and are related to these bills of materials, you can not remove them.\n"
+"As long as there are some sale order lines that must be delivered/invoiced "
+"and are related to these bills of materials, you can not remove them.\n"
 "The error concerns these products: %s"
 msgstr ""
 
@@ -76,13 +81,45 @@ msgid "Count of Source SO"
 msgstr ""
 
 #. module: sale_mrp
-#: model_terms:ir.ui.view,arch_db:sale_mrp.sale_order_portal_content_inherit_sale_mrp
-msgid "Date:"
+#: model:ir.model.fields,field_description:sale_mrp.field_account_move_line__display_name
+#: model:ir.model.fields,field_description:sale_mrp.field_mrp_bom__display_name
+#: model:ir.model.fields,field_description:sale_mrp.field_mrp_production__display_name
+#: model:ir.model.fields,field_description:sale_mrp.field_sale_order__display_name
+#: model:ir.model.fields,field_description:sale_mrp.field_sale_order_line__display_name
+#: model:ir.model.fields,field_description:sale_mrp.field_stock_move__display_name
+#: model:ir.model.fields,field_description:sale_mrp.field_stock_rule__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: sale_mrp
+#: model:ir.model.fields,field_description:sale_mrp.field_account_move_line__id
+#: model:ir.model.fields,field_description:sale_mrp.field_mrp_bom__id
+#: model:ir.model.fields,field_description:sale_mrp.field_mrp_production__id
+#: model:ir.model.fields,field_description:sale_mrp.field_sale_order__id
+#: model:ir.model.fields,field_description:sale_mrp.field_sale_order_line__id
+#: model:ir.model.fields,field_description:sale_mrp.field_stock_move__id
+#: model:ir.model.fields,field_description:sale_mrp.field_stock_rule__id
+msgid "ID"
 msgstr ""
 
 #. module: sale_mrp
 #: model:ir.model,name:sale_mrp.model_account_move_line
 msgid "Journal Item"
+msgstr ""
+
+#. module: sale_mrp
+#: model_terms:ir.ui.view,arch_db:sale_mrp.sale_order_form_mrp
+msgid "Manufacturing"
+msgstr ""
+
+#. module: sale_mrp
+#: model:ir.model,name:sale_mrp.model_mrp_production
+msgid "Manufacturing Order"
+msgstr ""
+
+#. module: sale_mrp
+#: model_terms:ir.ui.view,arch_db:sale_mrp.sale_order_portal_content_inherit_sale_mrp
+msgid "Manufacturing Orders"
 msgstr ""
 
 #. module: sale_mrp
@@ -97,13 +134,8 @@ msgid "Manufacturing orders associated with this sales order."
 msgstr ""
 
 #. module: sale_mrp
-#: model:ir.model,name:sale_mrp.model_stock_move_line
-msgid "Product Moves (Stock Move Line)"
-msgstr ""
-
-#. module: sale_mrp
-#: model:ir.model,name:sale_mrp.model_mrp_production
-msgid "Production Order"
+#: model:ir.model.fields,field_description:sale_mrp.field_mrp_production__sale_line_id
+msgid "Origin sale order line"
 msgstr ""
 
 #. module: sale_mrp
@@ -117,6 +149,11 @@ msgid "Sales Order Line"
 msgstr "Salmenta lerroa"
 
 #. module: sale_mrp
+#: model:ir.module.module,shortdesc:base.module_sale_mrp
+msgid "Sales and MRP Management"
+msgstr ""
+
+#. module: sale_mrp
 #. odoo-python
 #: code:addons/sale_mrp/models/mrp_production.py:0
 msgid "Sources Sale Orders of %s"
@@ -125,4 +162,9 @@ msgstr ""
 #. module: sale_mrp
 #: model:ir.model,name:sale_mrp.model_stock_move
 msgid "Stock Move"
-msgstr "Izakinen mugimendua"
+msgstr ""
+
+#. module: sale_mrp
+#: model:ir.model,name:sale_mrp.model_stock_rule
+msgid "Stock Rule"
+msgstr ""

@@ -1,28 +1,36 @@
 <odoo>
     <template id="portal_my_details" inherit_id="portal.portal_my_details">
-        <select name="invoice_sending_method" position="after">
-            <div t-if="peppol_eas_list" class="col-xl-6 portal_peppol_toggle">
-                <label class="col-form-label label-optional" for="peppol_eas">
+        <div name="address_details" position="inside">
+            <fieldset t-if="routing_scheme_list" class="col-lg-6 portal_peppol_toggle">
+                <t t-set="current_eas" t-value="(partner_sudo.routing_identifier or '').partition(':')[0]"/>
+                <label class="col-form-label label-optional" for="routing_scheme">
                     Peppol e-Address (EAS)
                 </label>
-                <select name="peppol_eas">
+                <select name="routing_scheme" class="form-select">
                     <option
-                        t-foreach="peppol_eas_list"
+                        t-foreach="routing_scheme_list"
                         t-as="eas"
                         t-att-value="eas"
-                        t-att-selected="(peppol_eas or partner_sudo.peppol_eas) == eas"
+                        t-att-selected="current_eas == eas"
                         t-out="eas_value"
                     />
                 </select>
-                <label class="col-form-label label-optional" for="peppol_endpoint">
+            </fieldset>
+            <fieldset t-if="routing_scheme_list" class="col-lg-6 portal_peppol_toggle">
+                <t
+                    t-set="current_endpoint"
+                    t-value="(partner_sudo.routing_identifier or '').partition(':')[2]"
+                />
+                <label class="col-form-label label-optional" for="routing_endpoint">
                     Peppol Endpoint
                 </label>
                 <input
+                    name="routing_endpoint"
                     type="text"
-                    name="peppol_endpoint"
-                    t-att-value="peppol_endpoint or partner_sudo.peppol_endpoint"
+                    class="form-control"
+                    t-att-value="current_endpoint"
                 />
-            </div>
-        </select>
+            </fieldset>
+        </div>
     </template>
 </odoo>

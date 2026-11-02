@@ -4,7 +4,7 @@ import {
     contains,
     defineModels,
     editSelectMenu,
-    getMockEnv,
+    isSmall,
     mountView,
     onRpc,
     serverState,
@@ -400,7 +400,7 @@ test(`Click on "?" should not trigger a focus`, async () => {
     await contains(`.o_form_label[for="field_222_0"] :contains("?")`).click();
     await runAllTimers();
     expect(".o-overlay-container .o-dropdown-item").toHaveCount(0);
-    if (getMockEnv().isSmall) {
+    if (isSmall()) {
         expect(".o-overlay-container .o-tooltip").toHaveCount(1);
     } else {
         expect(".o-overlay-container .o-tooltip").toHaveCount(0);
@@ -704,13 +704,13 @@ test("disjoint groups", async () => {
         resId: 1,
     });
 
-    expect(".o_group_info_button.fa-info-circle:not(.invisible)").toHaveCount(3);
-    expect(".o_group_info_button.fa-exclamation-triangle:not(.invisible)").toHaveCount(0);
+    expect(".o_group_info_button[data-icon='info']:not(.invisible)").toHaveCount(3);
+    expect(".o_group_info_button[data-icon='warning']:not(.invisible)").toHaveCount(0);
     expect(".o_is_disjoint").toHaveCount(0);
 
     await contains(".o_inner_group:eq(3) input[type=checkbox]").click();
-    expect(".o_group_info_button.fa-info-circle:not(.invisible)").toHaveCount(2);
-    expect(".o_group_info_button.fa-exclamation-triangle:not(.invisible)").toHaveCount(2);
+    expect(".o_group_info_button[data-icon='info']:not(.invisible)").toHaveCount(2);
+    expect(".o_group_info_button[data-icon='warning']:not(.invisible)").toHaveCount(2);
     expect(".o_is_disjoint").toHaveCount(2);
 
     await contains(".o_inner_group:eq(3) .o_group_info_button").click();

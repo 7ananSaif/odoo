@@ -3,6 +3,7 @@ import { _t } from "@web/core/l10n/translation";
 import { user } from "@web/core/user";
 import { sortBy } from "@web/core/utils/arrays";
 import { KeepLast, Race } from "@web/core/utils/concurrency";
+import { getAggregateCurrencyId, getCurrencyAggregateSpecs } from "@web/model/currency_aggregates";
 import { addPropertyFieldDefs, Model } from "@web/model/model";
 import { rankInterval } from "@web/search/utils/dates";
 import { getGroupBy } from "@web/search/utils/group_by";
@@ -10,7 +11,6 @@ import { GROUPABLE_TYPES } from "@web/search/utils/misc";
 import { computeReportMeasures, processMeasure } from "@web/views/utils";
 
 export const SEP = " / ";
-const DATA_LIMIT = 80;
 
 export const SEQUENTIAL_TYPES = ["date", "datetime"];
 
@@ -61,12 +61,6 @@ export class GraphModel extends Model {
         await this._fetchDataPoints(metaData);
     }
 
-    async forceLoadAll() {
-        const metaData = this._buildMetaData();
-        await this._fetchDataPoints(metaData, true);
-        this.notify();
-    }
-
     /**
      * @override
      */
@@ -83,7 +77,7 @@ export class GraphModel extends Model {
         if ("measure" in params) {
             const metaData = this._buildMetaData(params);
             await this._fetchDataPoints(metaData);
-            this.useSampleModel = false;
+            this.useSampleModel = false; // can be removed
         } else {
             await this.race.getCurrentProm();
             this.metaData = Object.assign({}, this.metaData, params);
@@ -135,12 +129,11 @@ export class GraphModel extends Model {
      * several side effects. It can alter this.metaData and set this.dataPoints.
      * @protected
      * @param {Object} metaData
-     * @param {boolean} [forceUseAllDataPoints=false]
      */
-    async _fetchDataPoints(metaData, forceUseAllDataPoints = false) {
+    async _fetchDataPoints(metaData) {
         [this.dataPoints] = await this.keepLast.add(this._loadDataPoints(metaData));
         this.metaData = metaData;
-        this._prepareData(forceUseAllDataPoints);
+        this._prepareData();
     }
 
     /**
@@ -149,30 +142,15 @@ export class GraphModel extends Model {
      * to produce the charts.
      * @protected
      * @param {Object[]} dataPoints
-     * @param {boolean} forceUseAllDataPoints
      * @returns {Object}
      */
-    _getData(dataPoints, forceUseAllDataPoints) {
+    _getData(dataPoints) {
         const { mode } = this.metaData;
-
-        const dataPtMapping = new WeakMap();
-        const datasetsTmp = {};
-        let exceeds = false;
 
         // dataPoints --> labels
         const labels = [];
         const labelMap = {};
         for (const dataPt of dataPoints) {
-            const datasetLabel = this._getDatasetLabel(dataPt);
-            if (!(datasetLabel in datasetsTmp)) {
-                if (!forceUseAllDataPoints && Object.keys(datasetsTmp).length >= DATA_LIMIT) {
-                    exceeds = true;
-                    continue;
-                }
-                datasetsTmp[datasetLabel] = { label: datasetLabel }; // add the entry but don't initialize it entirely
-            }
-            dataPtMapping.set(dataPt, datasetsTmp[datasetLabel]);
-
             const x = dataPt.labels.slice(0, mode === "pie" ? undefined : 1);
             const trueLabel = x.length ? x.join(SEP) : _t("Total");
             const key = JSON.stringify(x);
@@ -186,35 +164,33 @@ export class GraphModel extends Model {
         }
 
         // dataPoints + labels --> datasetsTmp --> datasets
+        const datasetsTmp = {};
         for (const dataPt of dataPoints) {
-            if (!dataPtMapping.has(dataPt)) {
-                continue;
-            }
-
-            const { domain, labelIndex, trueLabel, value, identifier, cumulatedStart, currencyId } =
+            const { currencyId, domain, labelIndex, trueLabel, value, identifier, cumulatedStart } =
                 dataPt;
-            const dataset = dataPtMapping.get(dataPt);
-            if (!dataset.data) {
+            const datasetLabel = this._getDatasetLabel(dataPt);
+            if (!(datasetLabel in datasetsTmp)) {
                 const dataLength = labels.length;
-                Object.assign(dataset, {
+                datasetsTmp[datasetLabel] = {
                     data: new Array(dataLength).fill(0),
                     cumulatedStart,
                     trueLabels: labels.slice(0, dataLength),
                     domains: new Array(dataLength).fill([]),
+                    label: datasetLabel,
                     identifiers: new Set(),
                     currencyIds: new Array(dataLength).fill(),
-                });
+                };
             }
-            dataset.data[labelIndex] = value;
-            dataset.domains[labelIndex] = domain;
-            dataset.trueLabels[labelIndex] = trueLabel;
-            dataset.identifiers.add(identifier);
-            dataset.currencyIds[labelIndex] = currencyId;
+            datasetsTmp[datasetLabel].data[labelIndex] = value;
+            datasetsTmp[datasetLabel].domains[labelIndex] = domain;
+            datasetsTmp[datasetLabel].trueLabels[labelIndex] = trueLabel;
+            datasetsTmp[datasetLabel].identifiers.add(identifier);
+            datasetsTmp[datasetLabel].currencyIds[labelIndex] = currencyId;
         }
 
         const datasets = Object.values(datasetsTmp);
 
-        return { datasets, labels, exceeds };
+        return { datasets, labels };
     }
 
     _getLineOverlayDataset() {
@@ -320,9 +296,10 @@ export class GraphModel extends Model {
         const sequentialSpec = sequentialField && groupBy[0].spec;
         const measures = ["__count"];
         let fieldAggregate = "__count",
-            monetaryAggregates;
+            currencySpec,
+            convertedSpec;
         if (measure !== "__count") {
-            let { aggregator, currency_field, name, type } = fields[measure];
+            let { aggregator, currency_field, type } = fields[measure];
             if (type === "many2one") {
                 aggregator = "count_distinct";
             }
@@ -332,11 +309,9 @@ export class GraphModel extends Model {
                 );
             }
             if (type === "monetary" && currency_field) {
-                monetaryAggregates = [
-                    `${currency_field}:array_agg_distinct`,
-                    `${name}:sum_currency`,
-                ];
-                measures.push(...monetaryAggregates);
+                const currencyAggregates = getCurrencyAggregateSpecs(fields[measure]);
+                [currencySpec, convertedSpec] = currencyAggregates;
+                measures.push(...currencyAggregates);
             }
             fieldAggregate = `${measure}:${aggregator}`;
             measures.push(fieldAggregate);
@@ -445,20 +420,22 @@ export class GraphModel extends Model {
                 cumulatedStart: cumulatedStartValue[groupId] || 0,
             };
             // There is a currency aggregate
-            if (monetaryAggregates && __count) {
-                const currencies = group[monetaryAggregates[0]];
-                dataPoint.currencyId = currencies[0];
-                dataPoint.convertedValue = group[monetaryAggregates[1]];
-                if (currencies.length > 1) {
-                    dataPoint.currencyId = defaultCurrency;
-                    dataPoint.value = dataPoint.convertedValue;
+            if (currencySpec && __count) {
+                const currencies = group[currencySpec];
+                dataPoint.currencyId = getAggregateCurrencyId(fields[measure], currencies);
+                if (convertedSpec) {
+                    dataPoint.convertedValue = group[convertedSpec];
+                    if (currencies.length > 1) {
+                        dataPoint.value = dataPoint.convertedValue;
+                    }
                 }
                 graphCurrencies.add(dataPoint.currencyId);
             }
             dataPoints.push(dataPoint);
         }
         for (const dataPoint of dataPoints) {
-            if (graphCurrencies.size > 1) {
+            // points without a converted value keep their own currency
+            if (graphCurrencies.size > 1 && dataPoint.convertedValue !== undefined) {
                 dataPoint.currencyId = defaultCurrency;
                 dataPoint.value = dataPoint.convertedValue;
             }
@@ -518,11 +495,10 @@ export class GraphModel extends Model {
 
     /**
      * @protected
-     * @param {boolean} [forceUseAllDataPoints=false]
      */
-    _prepareData(forceUseAllDataPoints = false) {
+    _prepareData() {
         const processedDataPoints = this._getProcessedDataPoints();
-        this.data = this._getData(processedDataPoints, forceUseAllDataPoints);
+        this.data = this._getData(processedDataPoints);
         this.lineOverlayDataset = null;
         if (this.metaData.mode === "bar") {
             this.lineOverlayDataset = this._getLineOverlayDataset();

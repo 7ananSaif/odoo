@@ -28,7 +28,7 @@
         <field name="name">l10n.fr.pdp.reports.flow.form.reporting</field>
         <field name="model">l10n.fr.pdp.reports.flow</field>
         <field name="arch" type="xml">
-            <form string="E-Reporting">
+            <form string="E-Reporting" create="0">
                 <header>
                     <field name="state" widget="statusbar"
                            statusbar_visible="pending,ready,error,sent,completed"/>
@@ -36,7 +36,7 @@
                             type="object"
                             class="btn-secondary"
                             string="Build Payload"
-                            invisible="state not in ['pending', 'error']"/>
+                            invisible="state != 'pending'"/>
                     <button name="action_open_send_wizard"
                             type="object"
                             class="btn-primary"
@@ -47,12 +47,12 @@
                     <widget name="web_ribbon" title="Sent" bg_color="text-bg-success"
                             invisible="state not in ['sent', 'completed']"/>
                     <widget name="web_ribbon" title="Error" bg_color="text-bg-danger"
-                            invisible="state != 'error' or not transport_status or transport_status not in ['ERROR', 'REFUSED']"/>
+                            invisible="state != 'error'"/>
                     <div class="oe_button_box" name="button_box">
                         <button type="object"
                                 name="action_view_moves"
                                 class="oe_stat_button"
-                                icon="fa-file-text-o"
+                                icon="article"
                                 invisible="not move_ids">
                             <field name="move_ids" string="Invoices" widget="statinfo" invisible="report_type == 'payment'"/>
                             <field name="move_ids" string="Payments" widget="statinfo" invisible="report_type == 'transaction'"/>
@@ -60,7 +60,7 @@
                         <button type="object"
                                 name="action_view_initial"
                                 class="oe_stat_button"
-                                icon="fa-file-text-o"
+                                icon="article"
                                 invisible="not initial_flow_id">
                             <div>Initial</div>
                         </button>

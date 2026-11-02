@@ -2,7 +2,7 @@ import * as Chrome from "@point_of_sale/../tests/pos/tours/utils/chrome_util";
 import * as Dialog from "@point_of_sale/../tests/generic_helpers/dialog_util";
 import * as PaymentScreen from "@point_of_sale/../tests/pos/tours/utils/payment_screen_util";
 import * as ProductScreen from "@point_of_sale/../tests/pos/tours/utils/product_screen_util";
-import * as ReceiptScreen from "@point_of_sale/../tests/pos/tours/utils/receipt_screen_util";
+import * as FeedbackScreen from "@point_of_sale/../tests/pos/tours/utils/feedback_screen_util";
 import { registry } from "@web/core/registry";
 
 registry.category("web_tour.tours").add("L10nJoEdiPosTour", {
@@ -14,10 +14,19 @@ registry.category("web_tour.tours").add("L10nJoEdiPosTour", {
             ProductScreen.clickPayButton(),
             PaymentScreen.clickPaymentMethod("Cash"),
             PaymentScreen.clickValidate(),
-            ReceiptScreen.receiptIsThere(),
-            {
-                content: "Check for JoFotara QR code",
-                trigger: "div:contains('JoFotara QR code') + div img.pos-receipt-qrcode",
-            },
+            FeedbackScreen.isContinueEnabled(),
+            FeedbackScreen.checkTicketData({
+                cssRules: [
+                    {
+                        css: "div",
+                        text: "JoFotara QR code",
+                        length: 1,
+                    },
+                    {
+                        css: "div.l10n-jo-edi-pos-qr img.pos-receipt-qrcode",
+                        length: 1,
+                    },
+                ],
+            }),
         ].flat(),
 });

@@ -1,4 +1,4 @@
-import { Component, useState, onWillStart } from "@odoo/owl";
+import { Component, onWillStart, useProps, proxy, t } from "@odoo/owl";
 import { get } from "@web/core/network/http_service";
 import { SelectMenu } from "@web/core/select_menu/select_menu";
 import { DropdownItem } from "@web/core/dropdown/dropdown_item";
@@ -6,16 +6,13 @@ import { DropdownItem } from "@web/core/dropdown/dropdown_item";
 export class WebsiteForumTagsWrapper extends Component {
     static template = "website_forum.WebsiteForumTagsWrapper";
     static components = { SelectMenu, DropdownItem };
-    static defaultProps = {
-        isReadOnly: false,
-    };
-    static props = {
-        defaulValue: { optional: true, type: Array },
-        isReadOnly: { optional: true, Type: Boolean },
-    };
+    props = useProps({
+        defaulValue: t.array().optional(),
+        isReadOnly: t.boolean().optional(false),
+    });
 
     setup() {
-        this.state = useState({
+        this.state = proxy({
             value: this.props.defaulValue || [],
         });
         onWillStart(async () => {

@@ -1,15 +1,22 @@
-/** @odoo-module **/
-
-import { afterEach, beforeEach, describe, expect, test } from "@odoo/hoot";
-import { advanceTime, animationFrame, queryFirst } from "@odoo/hoot-dom";
+import {
+    afterEach,
+    animationFrame,
+    beforeEach,
+    describe,
+    expect,
+    queryFirst,
+    test,
+    waitUntil,
+} from "@odoo/hoot";
 import { Component, xml } from "@odoo/owl";
 import {
     getService,
-    makeMockEnv,
+    makeTestApp,
     mountWithCleanup,
+    onRpc,
     patchWithCleanup,
 } from "@web/../tests/web_test_helpers";
-import { browser } from "@web/core/browser/browser";
+import { location, browser } from "@web/core/browser/browser";
 import { Dialog } from "@web/core/dialog/dialog";
 import { Macro } from "@web/core/macro";
 import { registry } from "@web/core/registry";
@@ -20,16 +27,11 @@ describe.current.tags("desktop");
 const tourRegistry = registry.category("web_tour.tours");
 let macro;
 async function waitForMacro() {
-    for (let i = 0; i < 50; i++) {
-        await animationFrame();
-        await advanceTime(265);
-        if (macro.isComplete) {
-            return;
-        }
-    }
-    if (!macro.isComplete) {
-        throw new Error(`Macro is not complete`);
-    }
+    await waitUntil(() => macro.isComplete, {
+        timeout: 5_000,
+        message: "waitForMacro: macro did not complete in time",
+    });
+    await animationFrame();
 }
 
 beforeEach(() => {
@@ -73,31 +75,92 @@ test("Step Tour validity", async () => {
         },
         {
             trigger: "button.bar",
-            run() {},
         },
     ];
     tourRegistry.add("tour1", {
         steps: () => steps,
     });
-    await makeMockEnv({});
-    const waited_error1 = `Error in schema for TourStep ${JSON.stringify(
-        steps[0],
-        null,
-        4
-    )}\nInvalid object: unknown key 'Belgium', unknown key 'wins', unknown key 'EURO2024'`;
-    const waited_error2 = `Error in schema for TourStep ${JSON.stringify(
-        steps[1],
-        null,
-        4
-    )}\nInvalid object: unknown key 'my_title', unknown key 'doku'`;
-    const waited_error3 = `Error in schema for TourStep ${JSON.stringify(
-        steps[2],
-        null,
-        4
-    )}\nInvalid object: 'run' is not a string or function or boolean`;
+    await makeTestApp();
     await getService("tour_service").startTour("tour1");
     await animationFrame();
-    expect.verifySteps([waited_error1, waited_error2, waited_error3]);
+    expect.verifySteps([
+        `Error in schema for TourStep
+[
+  {
+    "received": {
+      "Belgium": true,
+      "wins": "of course",
+      "EURO2024": true,
+      "trigger": "button.foo"
+    },
+    "path": "",
+    "message": "object value has unknown keys",
+    "unknownKeys": [
+      "Belgium",
+      "wins",
+      "EURO2024"
+    ]
+  }
+]`,
+        `Error in schema for TourStep
+[
+  {
+    "received": {
+      "my_title": "EURO2024",
+      "trigger": "button.bar",
+      "doku": "Lukaku 10"
+    },
+    "path": "",
+    "message": "object value has unknown keys",
+    "unknownKeys": [
+      "my_title",
+      "doku"
+    ]
+  }
+]`,
+        `Error in schema for TourStep
+[
+  {
+    "received": [
+      "Enjoy euro 2024"
+    ],
+    "path": "run",
+    "message": "value does not match union type",
+    "subIssues": [
+      {
+        "received": "[Known object]",
+        "path": "run",
+        "message": "value is not a string"
+      },
+      {
+        "received": "[Known object]",
+        "path": "run",
+        "message": "value is not a function"
+      }
+    ]
+  }
+]`,
+    ]);
+});
+
+test("testing a custom tour that only exists in the database", async () => {
+    onRpc("web_tour.tour", "get_tour_json_by_name", () => ({
+        name: "custom_tour",
+        steps: [{ trigger: ".button0", run: "click" }],
+    }));
+
+    class Root extends Component {
+        static components = {};
+        static template = xml/*html*/ `<button class="button0" t-on-click="this.onClick">Button 0</button>`;
+        onClick() {
+            expect.step("clicked");
+        }
+    }
+
+    await mountWithCleanup(Root);
+    await odoo.startTour("custom_tour", { mode: "auto", fromDB: true });
+    await waitForMacro();
+    expect.verifySteps(["clicked"]);
 });
 
 test("a tour with invalid step trigger", async () => {
@@ -149,7 +212,6 @@ test("a failing tour logs the step that failed in run", async () => {
                 <button class="button2">Button 2</button>
             </t>
         `;
-        static props = ["*"];
     }
 
     await mountWithCleanup(Root);
@@ -181,6 +243,34 @@ test("a failing tour logs the step that failed in run", async () => {
     expect.verifySteps(expectedError);
 });
 
+test("empty run function is rejected", async () => {
+    patchWithCleanup(console, {
+        error: (msg) => expect.step(msg),
+    });
+    tourRegistry.add("tour_reject_empty_run", {
+        steps: () => [
+            { trigger: "button", run: () => {} },
+            { trigger: "button", run: function () {} },
+            { trigger: "button", run() {} },
+        ],
+    });
+    const expectedError = `Error in schema for TourStep\n${JSON.stringify(
+        [
+            {
+                received: "run",
+                path: "run",
+                message: "run must be a string or a non-empty function",
+            },
+        ],
+        null,
+        2
+    )}`;
+    await makeTestApp();
+    await getService("tour_service").startTour("tour_reject_empty_run");
+    await animationFrame();
+    expect.verifySteps([expectedError, expectedError, expectedError]);
+});
+
 test("a failing tour with disabled element", async () => {
     patchWithCleanup(browser.console, {
         log: (s) => {},
@@ -196,7 +286,6 @@ test("a failing tour with disabled element", async () => {
                 <button class="button2">Button 2</button>
             </t>
         `;
-        static props = ["*"];
     }
 
     await mountWithCleanup(Root);
@@ -251,7 +340,6 @@ test("a failing tour logs the step that failed", async () => {
                 <button class="button7">Button 7</button>
             </t>
         `;
-        static props = ["*"];
     }
 
     await mountWithCleanup(Root);
@@ -313,10 +401,10 @@ test("a failing tour logs the step that failed", async () => {
         "log: [3/9] Tour tour1 → Step content (trigger: .button2)",
         "log: [4/9] Tour tour1 → Step content (trigger: .button3)",
         "log: [5/9] Tour tour1 → Step content (trigger: .wrong_selector)",
+        `runbot: {"content":"content","trigger":".button1","run":"click"},{"content":"content","trigger":".button2","run":"click"},{"content":"content","trigger":".button3","run":"click"},FAILED:[5/9]Tourtour1→Stepcontent(trigger:.wrong_selector){"content":"content","trigger":".wrong_selector","run":"click","timeout":111},{"content":"content","trigger":".button4","run":"click"},{"content":"content","trigger":".button5","run":"click"},{"content":"content","trigger":".button6","run":"click"},`,
         `error: FAILED: [5/9] Tour tour1 → Step content (trigger: .wrong_selector).
 Element (.wrong_selector) has not been found.
 TIMEOUT step failed to complete within 111 ms.`,
-        `runbot: {"content":"content","trigger":".button1","run":"click"},{"content":"content","trigger":".button2","run":"click"},{"content":"content","trigger":".button3","run":"click"},FAILED:[5/9]Tourtour1→Stepcontent(trigger:.wrong_selector){"content":"content","trigger":".wrong_selector","run":"click","timeout":111},{"content":"content","trigger":".button4","run":"click"},{"content":"content","trigger":".button5","run":"click"},{"content":"content","trigger":".button6","run":"click"},`,
     ]);
 });
 
@@ -332,7 +420,6 @@ test("check tour with inactive steps", async () => {
                 </div>
             </t>
         `;
-        static props = ["*"];
     }
 
     await mountWithCleanup(Root);
@@ -374,7 +461,6 @@ test("automatic tour with invisible element", async () => {
         warn: (s) => {},
         error: (s) => expect.step(`error: ${s}`),
     });
-    await makeMockEnv();
 
     class Root extends Component {
         static components = {};
@@ -387,7 +473,6 @@ test("automatic tour with invisible element", async () => {
                 </div>
             </t>
         `;
-        static props = ["*"];
     }
 
     await mountWithCleanup(Root);
@@ -426,7 +511,6 @@ test("automatic tour with invisible element but use :not(:visible))", async () =
         warn: (s) => {},
         error: (s) => expect.step(`error: ${s}`),
     });
-    await makeMockEnv();
 
     class Root extends Component {
         static components = {};
@@ -439,7 +523,6 @@ test("automatic tour with invisible element but use :not(:visible))", async () =
                 </div>
             </t>
         `;
-        static props = ["*"];
     }
 
     await mountWithCleanup(Root);
@@ -515,7 +598,6 @@ test("automatic tour with alternative trigger", async () => {
                 </div>
             </t>
         `;
-        static props = ["*"];
     }
     await mountWithCleanup(Root);
     await odoo.startTour("tour_des_flandres", { mode: "auto" });
@@ -531,7 +613,6 @@ test("check not possible to click below modal", async () => {
         dir: () => {},
     });
     class DummyDialog extends Component {
-        static props = ["*"];
         static components = { Dialog };
         static template = xml`
             <Dialog>
@@ -545,14 +626,13 @@ test("check not possible to click below modal", async () => {
         static template = xml/*html*/ `
             <t>
                 <div class="container">
-                    <div class="p-3"><button class="button0" t-on-click="openDialog">Button 0</button></div>
+                    <div class="p-3"><button class="button0" t-on-click="this.openDialog">Button 0</button></div>
                     <div class="p-3"><button class="button1">Button 1</button></div>
                     <div class="p-3"><button class="button2">Button 2</button></div>
                     <div class="p-3"><button class="button3">Button 3</button></div>
                 </div>
             </t>
         `;
-        static props = ["*"];
         setup() {
             this.dialogService = useService("dialog");
         }
@@ -570,6 +650,9 @@ test("check not possible to click below modal", async () => {
                 run: "click",
             },
             {
+                trigger: ".modal",
+            },
+            {
                 trigger: ".button1",
                 run: "click",
             },
@@ -578,9 +661,10 @@ test("check not possible to click below modal", async () => {
     await odoo.startTour("tour_check_modal", { mode: "auto" });
     await waitForMacro();
     expect.verifySteps([
-        "log: [1/2] Tour tour_check_modal → Step .button0",
-        "log: [2/2] Tour tour_check_modal → Step .button1",
-        `error: FAILED: [2/2] Tour tour_check_modal → Step .button1.
+        "log: [1/3] Tour tour_check_modal → Step .button0",
+        "log: [2/3] Tour tour_check_modal → Step .modal",
+        "log: [3/3] Tour tour_check_modal → Step .button1",
+        `error: FAILED: [3/3] Tour tour_check_modal → Step .button1.
 Element has been found.
 BUT: It is not allowed to do action on an element that's below a modal.
 TIMEOUT step failed to complete within 888 ms.`,
@@ -601,7 +685,6 @@ test("a tour where hoot trigger failed", async () => {
                 <button class="button2">Button 2</button>
             </t>
         `;
-        static props = ["*"];
     }
 
     await mountWithCleanup(Root);
@@ -626,4 +709,37 @@ test("a tour where hoot trigger failed", async () => {
 ERROR during find trigger:
 Failed to execute 'querySelectorAll' on 'Element': '.button1:brol(:machin)' is not a valid selector.`,
     ]);
+});
+
+test("Tour redirect to given url", async () => {
+    class Root extends Component {
+        static components = {};
+        static template = xml/*html*/ `
+            <t>
+                <button class="button0">Button 0</button>
+                <button class="button1">Button 1</button>
+                <button class="button2">Button 2</button>
+            </t>
+        `;
+    }
+
+    await mountWithCleanup(Root);
+    tourRegistry.add("tour_redirect", {
+        steps: () => [
+            {
+                content: "content",
+                trigger: ".button0",
+                run: "click",
+            },
+            {
+                content: "content",
+                trigger: ".button1",
+                run: "click",
+            },
+        ],
+    });
+    expect(location.pathname).toBe("/");
+    await odoo.startTour("tour_redirect", { mode: "auto", url: "/odoo" });
+    await waitForMacro();
+    expect(location.pathname).toBe("/odoo");
 });

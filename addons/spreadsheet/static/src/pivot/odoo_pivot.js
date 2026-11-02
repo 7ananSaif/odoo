@@ -94,6 +94,16 @@ export class OdooPivot {
         this.context = omit(nextDefinition.context, ...Object.keys(user.context));
         const actualDefinition = this.coreDefinition;
         this.coreDefinition = nextDefinition;
+        // Build the runtime definition synchronously, from the fields already
+        // known so far, so `definition` (read notably by the side panel) reflects
+        // the new row/column/measure order immediately instead of only once the
+        // reload below resolves.
+        if (this._fields) {
+            this.runtimeDefinition = new OdooPivotRuntimeDefinition(
+                this.coreDefinition,
+                this.getFields()
+            );
+        }
         if (!deepEquals(actualDefinition.sortedColumn, nextDefinition.sortedColumn)) {
             this.model.updateSortColumn(nextDefinition.sortedColumn);
         }
@@ -119,12 +129,7 @@ export class OdooPivot {
                     nextDefinition.measures
                 )
             ) {
-                this.coreDefinition = nextDefinition;
-                const runtimeDefinition = new OdooPivotRuntimeDefinition(
-                    this.coreDefinition,
-                    this.getFields()
-                );
-                this.model.updateMeasures(runtimeDefinition.measures);
+                this.model.updateMeasures(this.runtimeDefinition.measures);
                 return;
             }
         }
@@ -356,6 +361,9 @@ export class OdooPivot {
 
     getCollapsedTableStructure() {
         this.assertIsValid();
+        if (this.coreDefinition.style?.tabularForm) {
+            return this.model.getExpandedTableStructure();
+        }
         return this.model.getCollapsedTableStructure();
     }
 
@@ -602,6 +610,15 @@ export class OdooPivotRuntimeDefinition extends PivotRuntimeDefinition {
         }
     }
 
+    createPivotDimension(fields, dimension) {
+        const dim = super.createPivotDimension(fields, dimension);
+        const field = fields[dimension.fieldName];
+        if (field?.relation) {
+            dim.relation = field.relation;
+        }
+        return dim;
+    }
+
     get domain() {
         return this._domain;
     }
@@ -671,12 +688,15 @@ pivotRegistry.add("ODOO", {
         ((MEASURES_TYPES.includes(field.type) && field.aggregator) || field.type === "many2one") &&
         field.name !== "id" &&
         !field.name.includes(".") && // relational field path are not supported as measures (e.g. 'company_id.partner_id')
-        field.store,
+        (field.store || field.aggregator),
     canHaveCustomGroup: (field) =>
         field.groupable &&
         !field.isCustomField &&
         ["many2one", "char", "one2many", "many2many", "selection"].includes(field.type),
     isGroupable: (field) => field.groupable && pivotNormalizationValueRegistry.contains(field.type),
+    isPivotUnused: (getters, pivotId) =>
+        !getters.isDataSourceLinkedToChart("pivot", pivotId) &&
+        !getters.isPivotUsedInHyperlinks(pivotId),
 });
 
 supportedPivotPositionalFormulaRegistry.add("ODOO", true);

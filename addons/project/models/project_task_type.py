@@ -21,7 +21,7 @@ class ProjectTaskType(models.Model):
         return not self.env.context.get('default_project_id', False) and self.env.uid
 
     active = fields.Boolean('Active', default=True, export_string_translation=False)
-    name = fields.Char(string='Name', required=True, translate=True)
+    name = fields.Char(string='Stage Name', required=True, translate=True)
     sequence = fields.Integer(default=1)
     project_ids = fields.Many2many('project.project', 'project_task_type_rel', 'type_id', 'project_id', string='Projects',
         default=lambda self: self._get_default_project_ids(),
@@ -32,14 +32,11 @@ class ProjectTaskType(models.Model):
         string='Email Template',
         domain=[('model', '=', 'project.task')],
         help="If set, an email will be automatically sent to the customer when the task reaches this stage.")
-    color = fields.Integer(string='Color', export_string_translation=False)
     fold = fields.Boolean(string='Folded')
     rating_template_id = fields.Many2one(
         'mail.template',
         string='Rating Email Template',
-        domain=[('model', '=', 'project.task')],
-        help="If set, a rating request will automatically be sent by email to the customer when the task reaches this stage. \n"
-             "Alternatively, it will be sent at a regular interval as long as the task remains in this stage.")
+        domain=[('model', '=', 'project.task')])
     auto_validation_state = fields.Boolean('Automatic Kanban Status', default=False,
         help="Automatically modify the state when the customer replies to the feedback for this stage.\n"
             " * Good feedback from the customer will update the state to 'Approved' (green bullet).\n"
@@ -51,12 +48,12 @@ class ProjectTaskType(models.Model):
 
     # rating fields
     rating_request_deadline = fields.Datetime(compute='_compute_rating_request_deadline', store=True, export_string_translation=False)
-    rating_active = fields.Boolean('Send a customer rating request')
+    rating_active = fields.Boolean('Ask for Ratings')
     rating_status = fields.Selection(
         string='Customer Ratings Status',
         selection=[
-            ('stage', 'when reaching this stage'),
-            ('periodic', 'on a periodic basis'),
+            ('stage', 'When reaching this stage'),
+            ('periodic', 'On a periodic basis'),
         ],
         default='stage',
         required=True,
@@ -123,10 +120,6 @@ class ProjectTaskType(models.Model):
                 self.env.ref('project.mt_task_rating').hidden = not rating_active
         return super().write(vals)
 
-    def copy_data(self, default=None):
-        vals_list = super().copy_data(default=default)
-        return [dict(vals, name=self.env._("%s (copy)", task_type.name)) for task_type, vals in zip(self, vals_list)]
-
     @api.ondelete(at_uninstall=False)
     def _unlink_if_remaining_personal_stages(self):
         """ Prepare personal stages for deletion (i.e. move task to other personal stages) and
@@ -157,18 +150,26 @@ class ProjectTaskType(models.Model):
             user_stages_to_unlink._prepare_personal_stages_deletion(user_remaining_stages, personal_stages_to_update)
 
     def _prepare_personal_stages_deletion(self, remaining_stages_dict, personal_stages_to_update):
-        """ _prepare_personal_stages_deletion prepare the deletion of personal stages of a single user.
-            Tasks using that stage will be moved to the first stage with a lower sequence if it exists
-            higher if not.
-        :param self: project.task.type recordset containing the personal stage of a user
-                     that need to be deleted
-        :param remaining_stages_dict: list of dict representation of the personal stages of a user that
-                                      can be used to replace the deleted ones. Can not be empty.
-                                      e.g: [{'id': stage1_id, 'seq': stage1_sequence}, ...]
-        :param personal_stages_to_update: project.task.stage.personal recordset containing the records
-                                          that need to be updated after stage modification. Is passed to
-                                          this method as an argument to avoid to reload it for each users
-                                          when this method is called multiple times.
+        """
+        Prepare the deletion of personal stages in ``self`` for a single user.
+
+        Tasks using the stage to be deleted will be reassigned to the first available
+        stage with a lower sequence (or the next higher one, if none exists). This
+        method updates the provided ``personal_stages_to_update`` recordset in place.
+
+        :param list[dict] remaining_stages_dict: A list of dictionaries representing the user's remaining
+                                    personal stages that may replace the deleted ones.
+                                    Cannot be empty.
+                                    Example: ``[{'id': stage1_id, 'seq': stage1_sequence}, ...]``
+
+        :param personal_stages_to_update: Recordset of ``project.task.stage.personal`` containing
+                                        records to update after the stage is modified.
+                                        Passed to avoid reloading for each user when the method
+                                        is called multiple times.
+        :type personal_stages_to_update: recordset of project.task.stage.personal
+
+        :returns: None. The ``personal_stages_to_update`` recordset is modified in place.
+        :rtype: None
         """
         stages_to_delete_dict = sorted([{'id': stage.id, 'seq': stage.sequence} for stage in self],
                                        key=lambda stage: stage['seq'])

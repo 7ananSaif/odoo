@@ -1,23 +1,24 @@
 import { dataUrlToBlob } from "@mail/core/common/attachment_uploader_hook";
 import { registry } from "@web/core/registry";
-import { standardFieldProps } from "@web/views/fields/standard_field_props";
 import { useService } from "@web/core/utils/hooks";
 import { useX2ManyCrud } from "@web/views/fields/relational_utils";
+import { Record } from "@web/model/relational_model/record";
 
-import { Component } from "@odoo/owl";
+import { Component, types, useProps } from "@odoo/owl";
 import { FileUploader } from "@web/views/fields/file_handler";
+
+import { useMailComposerAttachmentsUploader } from "./mail_composer_attachment_hook";
 
 export class MailComposerAttachmentSelector extends Component {
     static template = "mail.MailComposerAttachmentSelector";
     static components = { FileUploader };
-    static props = { ...standardFieldProps };
 
     setup() {
+        this.props = useProps({ record: types.instanceOf(Record) });
         this.mailStore = useService("mail.store");
         this.attachmentUploadService = useService("mail.attachment_upload");
-        this.operations = useX2ManyCrud(() => {
-            return this.props.record.data["attachment_ids"];
-        }, true);
+        this.operations = useX2ManyCrud(() => this.props.record.data["attachment_ids"], true);
+        this.doUpload = useMailComposerAttachmentsUploader();
     }
 
     /** @param {Object} data */
@@ -31,20 +32,28 @@ export class MailComposerAttachmentSelector extends Component {
                 ? JSON.parse(this.props.record.data.res_ids)
                 : this.props.record.context.active_ids;
         }
-        const thread = await this.mailStore.Thread.insert({
-            model: this.props.record.data.model,
-            id: resIds[0],
-        });
-        const file = new File([dataUrlToBlob(data, type)], name, { type });
-        const isThreadComposer = this.props.record.context.is_thread_composer;
-        const attachment = await this.attachmentUploadService.upload(
-            thread,
-            isThreadComposer ? thread.composer : undefined,
-            file,
-        );
-        if (attachment) {
-            await this.operations.saveRecord([attachment.id]);
-        }
+
+        const uploadFile = async () => {
+            const thread = await this.mailStore["mail.thread"].insert({
+                model: this.props.record.data.model || this.props.record.context.active_model,
+                id: resIds[0],
+            });
+            const file = new File([dataUrlToBlob(data, type)], name, { type });
+            const syncAttachmentsToThreadComposer =
+                this.props.record.context.sync_attachments_to_thread_composer;
+            let composer = syncAttachmentsToThreadComposer ? thread.composer : undefined;
+            // Use an isolated composer object instead of thread.composer to
+            // avoid pushing into the main thread's composer.attachments list,
+            // which is observed by the chatter.
+            if (this.props.record.resModel === "mail.scheduled.message") {
+                composer = { attachments: [] };
+            }
+            const attachment = await this.attachmentUploadService.upload(thread, composer, file);
+            if (attachment) {
+                await this.operations.saveRecord([attachment.id]);
+            }
+        };
+        await this.doUpload(uploadFile());
     }
 }
 

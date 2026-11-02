@@ -7,10 +7,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.2alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-09-16 21:24+0000\n"
-"Last-Translator: \"Tiffany Chang (tic)\" <tic@odoo.com>\n"
-"Language-Team: Slovenian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 19:42+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Slovenian <https://translate.odoo.com/projects/odoo-s19-4/"
 "google_recaptcha/sl/>\n"
 "Language: sl\n"
 "MIME-Version: 1.0\n"
@@ -18,12 +18,20 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=4; plural=n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || "
 "n%100==4 ? 2 : 3;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: google_recaptcha
+#: model:ir.module.module,description:base.module_google_recaptcha
+msgid ""
+"\n"
+"This module implements reCaptchaV3 so that you can prevent bot spam on your "
+"public modules.\n"
+msgstr ""
 
 #. module: google_recaptcha
 #: model_terms:ir.ui.view,arch_db:google_recaptcha.res_config_settings_view_form
-msgid "<i class=\"oi oi-arrow-right\"/> Generate reCAPTCHA v3 keys"
-msgstr "<i class=\"oi oi-arrow-right\"/> Generiraj ključe reCAPTCHA v3"
+msgid "<i class=\"oi\" data-icon=\"east\"/> Generate reCAPTCHA v3 keys"
+msgstr "<i class=\"oi\" data-icon=\"east\"/> Generiraj ključe reCAPTCHA v3"
 
 #. module: google_recaptcha
 #: model:ir.model.fields,help:google_recaptcha.field_res_config_settings__recaptcha_min_score
@@ -48,6 +56,11 @@ msgstr ""
 #. module: google_recaptcha
 #: model:ir.model.fields,field_description:google_recaptcha.field_res_config_settings__enable_recaptcha
 msgid "Enable reCAPTCHA"
+msgstr ""
+
+#. module: google_recaptcha
+#: model:ir.module.module,shortdesc:base.module_google_recaptcha
+msgid "Google reCAPTCHA integration"
 msgstr ""
 
 #. module: google_recaptcha
@@ -83,7 +96,7 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/google_recaptcha/static/src/xml/recaptcha.xml:0
 msgid "Protected by reCAPTCHA,"
-msgstr "Zaščiteno s strani reCAPTCHA,"
+msgstr ""
 
 #. module: google_recaptcha
 #: model:ir.model.fields,field_description:google_recaptcha.field_res_config_settings__recaptcha_private_key
@@ -141,7 +154,7 @@ msgstr "Vaša zahteva je potekla, poskusite znova."
 #. odoo-javascript
 #: code:addons/google_recaptcha/static/src/xml/recaptcha.xml:0
 msgid "apply."
-msgstr "uporabi."
+msgstr ""
 
 #. module: google_recaptcha
 #. odoo-javascript

@@ -4,9 +4,12 @@
 from odoo.addons.mail_group.tests.common import TestMailListCommon
 from odoo.addons.mail_group.tests.data import GROUP_TEMPLATE
 from odoo.exceptions import AccessError
+from odoo.tests import tagged
+
 from odoo.tools import mute_logger
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestMailGroupMessage(TestMailListCommon):
 
     def test_batch_send(self):
@@ -28,7 +31,7 @@ class TestMailGroupMessage(TestMailListCommon):
         self.assertEqual(len(self.test_group.member_ids), 42)
 
         # force a batch split with a low limit
-        self.env['ir.config_parameter'].sudo().set_param('mail.session.batch.size', 10)
+        self.env['ir.config_parameter'].sudo().set_int('mail.session.batch.size', 10)
 
         with self.mock_mail_gateway():
             self.format_and_process(
@@ -98,11 +101,16 @@ class TestMailGroupMessage(TestMailListCommon):
         self.assertEqual(len(mails), len(self.test_group.member_ids) - 1)
         self.assertNotIn(self.test_group_member_1.email, mails.mapped('email_to'), 'Should not have send the email to the original author')
 
-    @mute_logger('odoo.addons.base.models.ir_rule')
+    @mute_logger('odoo.addons.base.models.ir_access')
     def test_mail_group_message_security_groups(self):
         user_group = self.env.ref('base.group_partner_manager')
         self.test_group.access_group_id = user_group
         self.test_group.access_mode = 'groups'
+
+        # As such, the code below crashes because base.group_partner_manager
+        # implies base.group_user, which is disjoint from base.group_portal.
+        # Does it make any sense (a portal user being a partner manager) ?
+        user_group.implied_ids -= self.env.ref('base.group_user')
 
         # Message pending
         with self.assertRaises(AccessError, msg='Portal should not have access to pending messages'):
@@ -125,7 +133,7 @@ class TestMailGroupMessage(TestMailListCommon):
         with self.assertRaises(AccessError, msg='User not in the group should not have access to accepted message'):
             self.test_group_msg_2_accepted.with_user(self.user_portal).check_access('read')
 
-    @mute_logger('odoo.addons.base.models.ir_rule')
+    @mute_logger('odoo.addons.base.models.ir_access')
     def test_mail_group_message_security_public(self):
         self.test_group.access_mode = 'public'
 

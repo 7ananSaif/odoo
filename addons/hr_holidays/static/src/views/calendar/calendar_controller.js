@@ -1,28 +1,49 @@
+import { userHasEmployeeInCurrentCompany } from "@hr_holidays/utils";
+import { AlertDialog, ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
-import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
+import { Dropdown } from "@web/core/dropdown/dropdown";
+import { DropdownItem } from "@web/core/dropdown/dropdown_item";
 import { CalendarController } from "@web/views/calendar/calendar_controller";
 
 import { serializeDate } from "@web/core/l10n/dates";
 
-import { TimeOffCalendarSidePanel } from "./calendar_side_panel/calendar_side_panel";
-import { TimeOffCalendarMobileFilterPanel } from "./calendar_filter_panel/calendar_mobile_filter_panel";
+import { onWillStart, usePlugin, providePlugins } from "@odoo/owl";
+import { useLeaveCancelWizard, useNewAllocationRequest } from "../hooks";
+import { TimeOffPlugin } from "../time_off_plugin";
 import { TimeOffFormViewDialog } from "../view_dialog/form_view_dialog";
-import { useLeaveCancelWizard } from "../hooks";
-import { EventBus, useSubEnv } from "@odoo/owl";
+import { TimeOffCalendarMobileFilterPanel } from "./calendar_filter_panel/calendar_mobile_filter_panel";
+import { TimeOffCalendarSidePanel } from "./calendar_side_panel/calendar_side_panel";
 
 export class TimeOffCalendarController extends CalendarController {
     static components = {
         ...CalendarController.components,
         CalendarSidePanel: TimeOffCalendarSidePanel,
         MobileFilterPanel: TimeOffCalendarMobileFilterPanel,
+        Dropdown,
+        DropdownItem,
     };
-    static template = "hr_holidays.CalendarController";
+
     setup() {
         super.setup();
-        useSubEnv({
-            timeOffBus: new EventBus(),
-        });
+
+        providePlugins([TimeOffPlugin]);
+
+        this.timeOffPlugin = usePlugin(TimeOffPlugin);
+
         this.leaveCancelWizard = useLeaveCancelWizard();
+        this.newAllocRequest = useNewAllocationRequest();
+
+        onWillStart(async () => {
+            this.hasEmployee = await userHasEmployeeInCurrentCompany(this.orm);
+            if (!this.employeeId && !this.hasEmployee) {
+                this.env.services.notification.add(
+                    _t(
+                        "You are not linked to an employee in the current company, so you cannot create requests for yourself."
+                    ),
+                    { type: "warning" }
+                );
+            }
+        });
     }
 
     get employeeId() {
@@ -30,6 +51,15 @@ export class TimeOffCalendarController extends CalendarController {
     }
 
     newTimeOffRequest() {
+        if (!this.employeeId && !this.hasEmployee) {
+            this.displayDialog(AlertDialog, {
+                title: _t("UserError"),
+                body: _t(
+                    "This operation is not allowed as you are not linked to an employee in the current company."
+                ),
+            });
+            return;
+        }
         const context = {};
         if (this.props.context.active_id && this.props.context.active_model === "hr.employee") {
             context["default_employee_id"] = this.props.context.active_id;
@@ -53,12 +83,34 @@ export class TimeOffCalendarController extends CalendarController {
             viewId: this.model.formViewId,
             onRecordSaved: () => {
                 this.model.load();
-                this.env.timeOffBus.trigger("update_dashboard");
+                this.timeOffPlugin.updateDashboard();
             },
             onRecordDeleted: (record) => {},
             onLeaveCancelled: (record) => {},
             size: "md",
             context: context,
+        });
+    }
+
+    newAllocationRequest() {
+        if (!this.employeeId && !this.hasEmployee) {
+            this.displayDialog(AlertDialog, {
+                title: _t("UserError"),
+                body: _t(
+                    "This operation is not allowed as you are not linked to an employee in the current company."
+                ),
+            });
+            return;
+        }
+        let empId;
+        if (this.props.context.active_id && this.props.context.active_model === "hr.employee") {
+            empId = this.props.context.active_id;
+        } else if (this.employeeId) {
+            empId = this.employeeId;
+        }
+        this.newAllocRequest({
+            employeeId: empId,
+            forceLargeDialog: this.props.context.hide_employee_name ?? false,
         });
     }
 
@@ -69,14 +121,14 @@ export class TimeOffCalendarController extends CalendarController {
                 body: _t("Are you sure you want to delete this record?"),
                 confirm: async () => {
                     await this.model.unlinkRecord(resId);
-                    this.env.timeOffBus.trigger("update_dashboard");
+                    this.timeOffPlugin.updateDashboard();
                 },
                 cancel: () => {},
             });
         } else {
             this.leaveCancelWizard(resId, () => {
                 this.model.load();
-                this.env.timeOffBus.trigger("update_dashboard");
+                this.timeOffPlugin.updateDashboard();
             });
         }
     }
@@ -86,9 +138,18 @@ export class TimeOffCalendarController extends CalendarController {
     }
 
     _editRecord(record, context, props = {}) {
+        if (!this.employeeId && !this.hasEmployee) {
+            this.displayDialog(AlertDialog, {
+                title: _t("UserError"),
+                body: _t(
+                    "This operation is not allowed as you are not linked to an employee in the current company."
+                ),
+            });
+            return;
+        }
         const onDialogClosed = () => {
             this.model.load();
-            this.env.timeOffBus.trigger("update_dashboard");
+            this.timeOffPlugin.updateDashboard();
         };
 
         return new Promise((resolve) => {
@@ -105,7 +166,7 @@ export class TimeOffCalendarController extends CalendarController {
                     onRecordDeleted: (record) =>
                         this._deleteRecord(record.resId, record.data.can_cancel),
                     onLeaveCancelled: onDialogClosed,
-                    size: "md",
+                    size: "sm",
                 },
                 { onClose: () => resolve() }
             );
@@ -114,11 +175,5 @@ export class TimeOffCalendarController extends CalendarController {
 
     async editRecord(record, context = {}) {
         return this._editRecord(record, context);
-    }
-}
-
-export class TimeOffReportCalendarController extends TimeOffCalendarController {
-    async editRecord(record, context = {}) {
-        return this._editRecord(record, context, { canExpand: false });
     }
 }

@@ -5,51 +5,64 @@
 # Bone NI <bounkirdni@gmail.com>, 2026.
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0\n"
+"Project-Id-Version: Odoo Server 19.4a1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2026-06-08 10:56+0000\n"
+"POT-Creation-Date: 2026-09-18 17:40+0000\n"
+"PO-Revision-Date: 2026-10-22 02:33+0000\n"
 "Last-Translator: Bone NI <bounkirdni@gmail.com>\n"
-"Language-Team: Lao <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Lao <https://translate.odoo.com/projects/odoo-20/"
 "website_sale_loyalty/lo/>\n"
 "Language: lo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: website_sale_loyalty
+#: model:ir.module.module,description:base.module_website_sale_loyalty
+msgid ""
+"\n"
+"Create coupons, promotion codes, gift cards and loyalty programs to boost "
+"your sales (free products,\n"
+"discounts, etc.). Shoppers can use them in the eCommerce checkout.\n"
+"\n"
+"Coupon & promotion programs can be edited in the Catalog menu of the Website "
+"app.\n"
+msgstr ""
+"\n"
+"ສ້າງຄູປອງ, ລະຫັດໂປຣໂມຊັນ, ບັດຂອງຂວັນ ແລະ ໂຄງການສະມາຊິກເພື່ອເພີ່ມຍອດຂາຍຂອງທ່ານ (ສິນຄ້າຟຣີ,\n"
+"ສ່ວນຫຼຸດ, ອື່ນໆ). ລູກຄ້າສາມາດນຳໃຊ້ພວກມັນໄດ້ໃນຕອນຊຳລະເງິນຜ່ານລະບົບອອນລາຍ.\n"
+"\n"
+"ໂຄງການຄູປອງ ແລະ ໂປຣໂມຊັນສາມາດແກ້ໄຂໄດ້ຢູ່ໃນເມນູ ລາຍການສິນຄ້າ ຂອງແອັບເວັບໄຊ.\n"
 
 #. module: website_sale_loyalty
 #. odoo-python
 #: code:addons/website_sale_loyalty/wizard/coupon_share.py:0
 msgid "A coupon is needed for coupon programs."
-msgstr "ຕ້ອງມີຄູປອງສຳລັບໂຄງການຄູປອງ."
+msgstr "ຈຳເປັນຕ້ອງມີຄູປອງສຳລັບໂຄງການຄູປອງ."
 
 #. module: website_sale_loyalty
 #. odoo-python
 #: code:addons/website_sale_loyalty/models/loyalty_rule.py:0
 msgid "A coupon with the same code was found."
-msgstr "ພົບຄູປອງທີ່ມີລະຫັດດຽວກັນແລ້ວ."
+msgstr "ພົບຄູປອງທີ່ມີລະຫັດຄືກັນ."
 
 #. module: website_sale_loyalty
 #: model_terms:ir.ui.view,arch_db:website_sale_loyalty.loyalty_program_view_form_inherit_website_sale_loyalty
 msgid "All websites"
-msgstr "ທຸກເວັບໄຊ"
+msgstr "ເວັບໄຊທັງໝົດ"
+
+#. module: website_sale_loyalty
+#. odoo-python
+#: code:addons/website_sale_loyalty/models/sale_order.py:0
+msgid "Applied rewards have changed. Please review your cart."
+msgstr "ລາງວັນທີ່ນຳໃຊ້ມີການປ່ຽນແປງ. ກະລຸນາກວດສອບກະຕ່າສິນຄ້າຂອງທ່ານຄືນໃໝ່."
 
 #. module: website_sale_loyalty
 #: model:ir.model.fields,field_description:website_sale_loyalty.field_loyalty_program__ecommerce_ok
 msgid "Available on Website"
 msgstr "ມີໃຫ້ໃຊ້ໃນເວັບໄຊ"
-
-#. module: website_sale_loyalty
-#. odoo-python
-#: code:addons/website_sale_loyalty/controllers/payment.py:0
-msgid ""
-"Cannot process payment: applied reward was changed or has expired.\n"
-"Please refresh the page and try again."
-msgstr ""
-"ບໍ່ສາມາດດຳເນີນການຊຳລະເງິນ: ລາງວັນທີ່ນຳໃຊ້ມີການປ່ຽນແປງ ຫຼື ໝົດອາຍຸແລ້ວ.\n"
-"ກະລຸນາໂຫຼດໜ້າໃໝ່ ແລະ ລອງອີກຄັ້ງ."
 
 #. module: website_sale_loyalty
 #. odoo-javascript
@@ -74,20 +87,19 @@ msgid "Coupon"
 msgstr "ຄູປອງ"
 
 #. module: website_sale_loyalty
-#. odoo-javascript
-#: code:addons/website_sale_loyalty/static/src/website_builder/coupon_option_plugin.js:0
-msgid "Coupon Snippet Options"
-msgstr "ຕົວເລືອກສ່ວນເສີມຄູປອງ"
-
-#. module: website_sale_loyalty
 #: model_terms:ir.ui.view,arch_db:website_sale_loyalty.modify_code_form
 msgid "Coupons -"
 msgstr "ຄູປອງ -"
 
 #. module: website_sale_loyalty
+#: model:ir.module.module,shortdesc:base.module_website_sale_loyalty
+msgid "Coupons, Promotions, Gift Card and Loyalty for eCommerce"
+msgstr "ຄູປອງ, ໂປຣໂມຊັນ, ບັດຂອງຂວັນ ແລະ ລະບົບສະມາຊິກ ສຳລັບການຄ້າອອນລາຍ"
+
+#. module: website_sale_loyalty
 #: model:ir.model,name:website_sale_loyalty.model_coupon_share
 msgid "Create links that apply a coupon and redirect to a specific page"
-msgstr "ສ້າງລິ້ງທີ່ນຳໃຊ້ຄູປອງ ແລະ ສົ່ງໄປຫາໜ້າທີ່ກຳນົດ"
+msgstr "ສ້າງລິ້ງທີ່ນຳໃຊ້ຄູປອງ ແລະ ສົ່ງຕໍ່ໄປຍັງໜ້າສະເພາະໃດໜຶ່ງ"
 
 #. module: website_sale_loyalty
 #: model:ir.model.fields,field_description:website_sale_loyalty.field_coupon_share__create_uid
@@ -107,22 +119,7 @@ msgstr "ປິດການໃຊ້ງານລາງວັນອັດຕະໂ
 #. module: website_sale_loyalty
 #: model:ir.ui.menu,name:website_sale_loyalty.menu_discount_loyalty_type_config
 msgid "Discount & Loyalty"
-msgstr "ສ່ວນຫຼຸດ ແລະ ລູກຄ້າສຳພັນ"
-
-#. module: website_sale_loyalty
-#: model_terms:ir.ui.view,arch_db:website_sale_loyalty.reduction_coupon_code
-msgid "Discount code or gift card"
-msgstr "ລະຫັດສ່ວນຫຼຸດ ຫຼື ບັດຂອງຂວັນ"
-
-#. module: website_sale_loyalty
-#: model_terms:ir.ui.view,arch_db:website_sale_loyalty.cart_discount
-msgid "Discount:"
-msgstr "ສ່ວນຫຼຸດ:"
-
-#. module: website_sale_loyalty
-#: model_terms:ir.ui.view,arch_db:website_sale_loyalty.cart_discount
-msgid "Discounted amount"
-msgstr "ຈຳນວນສ່ວນຫຼຸດ"
+msgstr "ສ່ວນຫຼຸດ & ລະບົບສະມາຊິກ"
 
 #. module: website_sale_loyalty
 #: model:ir.model.fields,field_description:website_sale_loyalty.field_coupon_share__display_name
@@ -133,7 +130,7 @@ msgstr "ຈຳນວນສ່ວນຫຼຸດ"
 #: model:ir.model.fields,field_description:website_sale_loyalty.field_sale_order__display_name
 #: model:ir.model.fields,field_description:website_sale_loyalty.field_sale_order_line__display_name
 msgid "Display Name"
-msgstr "ຊື່ທີ່ສະແດງ"
+msgstr "ຊື່ສະແດງ"
 
 #. module: website_sale_loyalty
 #: model_terms:ir.ui.view,arch_db:website_sale_loyalty.coupon_share_view_form
@@ -144,6 +141,16 @@ msgstr "ສຳເລັດ"
 #: model_terms:ir.ui.view,arch_db:website_sale_loyalty.modify_code_form
 msgid "Expired Date:"
 msgstr "ວັນໝົດອາຍຸ:"
+
+#. module: website_sale_loyalty
+#: model:loyalty.program,name:website_sale_loyalty.free_shipping_promotion
+msgid "Free Shipping"
+msgstr "ສົ່ງຟຣີ"
+
+#. module: website_sale_loyalty
+#: model:loyalty.reward,description:website_sale_loyalty.free_shipping_promotion_reward
+msgid "Free shipping"
+msgstr "ສົ່ງຟຣີ"
 
 #. module: website_sale_loyalty
 #: model_terms:ir.ui.view,arch_db:website_sale_loyalty.coupon_share_view_form
@@ -158,7 +165,7 @@ msgstr "ບັດຂອງຂວັນ ຫຼື ລະຫັດສ່ວນຫ�
 #. module: website_sale_loyalty
 #: model:ir.ui.menu,name:website_sale_loyalty.menu_gift_ewallet_type_config
 msgid "Gift cards & eWallet"
-msgstr "ບັດຂອງຂວັນ ແລະ ກະເປົາເງິນອີເລັກໂທຣນິກ"
+msgstr "ບັດຂອງຂວັນ & ກະເປົາເງິນອີເລັກໂຕຣນິກ"
 
 #. module: website_sale_loyalty
 #: model:ir.model.fields,field_description:website_sale_loyalty.field_coupon_share__id
@@ -169,52 +176,58 @@ msgstr "ບັດຂອງຂວັນ ແລະ ກະເປົາເງິນ�
 #: model:ir.model.fields,field_description:website_sale_loyalty.field_sale_order__id
 #: model:ir.model.fields,field_description:website_sale_loyalty.field_sale_order_line__id
 msgid "ID"
-msgstr "ໄອດີ"
+msgstr "ລະຫັດປະຈຳຕົວ"
 
 #. module: website_sale_loyalty
 #: model_terms:ir.ui.view,arch_db:website_sale_loyalty.modify_code_form
 msgid "Invalid or expired promo code."
-msgstr "ລະຫັດໂປຣໂມຊັນບໍ່ຖືກຕ້ອງ ຫຼື ໝົດອາຍຸ."
+msgstr "ລະຫັດໂປຣໂມຊັນບໍ່ຖືກຕ້ອງ ຫຼື ໝົດອາຍຸແລ້ວ."
 
 #. module: website_sale_loyalty
 #: model:ir.model.fields,field_description:website_sale_loyalty.field_coupon_share__write_uid
 msgid "Last Updated by"
-msgstr "ແກ້ໄຂລ່າສຸດໂດຍ"
+msgstr "ອັບເດດຫຼ້າສຸດໂດຍ"
 
 #. module: website_sale_loyalty
 #: model:ir.model.fields,field_description:website_sale_loyalty.field_coupon_share__write_date
 msgid "Last Updated on"
-msgstr "ແກ້ໄຂລ່າສຸດເມື່ອ"
+msgstr "ອັບເດດຫຼ້າສຸດເມື່ອ"
 
 #. module: website_sale_loyalty
 #: model:ir.ui.menu,name:website_sale_loyalty.menu_loyalty
 msgid "Loyalty"
-msgstr "ລູກຄ້າສຳພັນ"
+msgstr "ຄວາມພັກດີ"
 
 #. module: website_sale_loyalty
 #: model:ir.model,name:website_sale_loyalty.model_loyalty_card
 msgid "Loyalty Coupon"
-msgstr "ຄູປອງລູກຄ້າສຳພັນ"
+msgstr "ຄູປອງສະມາຊິກ"
 
 #. module: website_sale_loyalty
 #: model:ir.model,name:website_sale_loyalty.model_loyalty_program
 msgid "Loyalty Program"
-msgstr "ໂຄງການລູກຄ້າສຳພັນ"
-
-#. module: website_sale_loyalty
-#: model_terms:ir.ui.view,arch_db:website_sale_loyalty.res_config_settings_view_form_inherit_website_sale_loyalty
-msgid "Loyalty Programs"
-msgstr "ໂຄງການລູກຄ້າສຳພັນ"
+msgstr "ໂຄງການສະມາຊິກ"
 
 #. module: website_sale_loyalty
 #: model:ir.model,name:website_sale_loyalty.model_loyalty_rule
 msgid "Loyalty Rule"
-msgstr "ກົດລະບຽບລູກຄ້າສຳພັນ"
+msgstr "ກົດລະບຽບສະມາຊິກ"
+
+#. module: website_sale_loyalty
+#. odoo-python
+#: code:addons/website_sale_loyalty/tests/test_shop_sale_coupon.py:0
+msgid "No reward to claim with this coupon"
+msgstr "ບໍ່ມີລາງວັນໃຫ້ຮັບສິດດ້ວຍຄູປອງນີ້"
+
+#. module: website_sale_loyalty
+#: model:loyalty.program,portal_point_name:website_sale_loyalty.free_shipping_promotion
+msgid "Points"
+msgstr "ຄະແນນ"
 
 #. module: website_sale_loyalty
 #: model:ir.model,name:website_sale_loyalty.model_product_product
 msgid "Product Variant"
-msgstr "ລຸ້ນສິນຄ້າ"
+msgstr "ລຸ້ນຍ່ອຍສິນຄ້າ"
 
 #. module: website_sale_loyalty
 #: model:ir.model.fields,field_description:website_sale_loyalty.field_coupon_share__program_id
@@ -232,6 +245,11 @@ msgid "Promo Code"
 msgstr "ລະຫັດໂປຣໂມຊັນ"
 
 #. module: website_sale_loyalty
+#: model_terms:ir.ui.view,arch_db:website_sale_loyalty.res_config_settings_view_form_inherit_website_sale_loyalty
+msgid "Promotions"
+msgstr "ໂປຣໂມຊັນ"
+
+#. module: website_sale_loyalty
 #. odoo-python
 #: code:addons/website_sale_loyalty/wizard/coupon_share.py:0
 msgid "Provide either a coupon or a program."
@@ -240,7 +258,7 @@ msgstr "ກະລຸນາລະບຸຄູປອງ ຫຼື ໂຄງກາ�
 #. module: website_sale_loyalty
 #: model:ir.model.fields,field_description:website_sale_loyalty.field_coupon_share__redirect
 msgid "Redirect"
-msgstr "ສົ່ງໄປຫາໜ້າໃໝ່"
+msgstr "ສົ່ງຕໍ່ໄປຍັງ"
 
 #. module: website_sale_loyalty
 #: model:ir.model.fields,help:website_sale_loyalty.field_coupon_share__program_website_id
@@ -252,12 +270,12 @@ msgstr "ຈຳກັດສະເພາະເວັບໄຊໃດໜຶ່ງ."
 #. module: website_sale_loyalty
 #: model:ir.model,name:website_sale_loyalty.model_sale_order
 msgid "Sales Order"
-msgstr "ໃບສັ່ງຊື້"
+msgstr "ໃບສັ່ງຂາຍ"
 
 #. module: website_sale_loyalty
 #: model:ir.model,name:website_sale_loyalty.model_sale_order_line
 msgid "Sales Order Line"
-msgstr "ລາຍການໃບສັ່ງຊື້"
+msgstr "ລາຍການໃບສັ່ງຂາຍ"
 
 #. module: website_sale_loyalty
 #. odoo-python
@@ -281,37 +299,30 @@ msgstr "ລິ້ງແບ່ງປັນ"
 #. module: website_sale_loyalty
 #: model_terms:ir.ui.view,arch_db:website_sale_loyalty.coupon_share_view_form
 msgid "Share Loyalty Card"
-msgstr "ແບ່ງປັນບັດລູກຄ້າສຳພັນ"
-
-#. module: website_sale_loyalty
-#. odoo-javascript
-#: code:addons/website_sale_loyalty/static/src/website_builder/coupon_option.xml:0
-msgid "Show Discount in Subtotal"
-msgstr "ສະແດງສ່ວນຫຼຸດໃນຍອດລວມຍ່ອຍ"
+msgstr "ແບ່ງປັນບັດສະມາຊິກ"
 
 #. module: website_sale_loyalty
 #: model:ir.model.fields,field_description:website_sale_loyalty.field_loyalty_program__show_non_published_product_warning
 msgid "Show Non Published Product Warning"
-msgstr "ສະແດງຄຳເຕືອນສຳລັບສິນຄ້າທີ່ບໍ່ໄດ້ເຜີຍແຜ່"
+msgstr "ສະແດງຄຳເຕືອນສິນຄ້າທີ່ຍັງບໍ່ໄດ້ເຜີຍແຜ່"
 
 #. module: website_sale_loyalty
 #. odoo-python
 #: code:addons/website_sale_loyalty/controllers/main.py:0
 msgid ""
-"The coupon will be automatically applied when you add something in your "
-"cart."
-msgstr "ຄູປອງຈະຖືກນຳໃຊ້ໂດຍອັດຕະໂນມັດເມື່ອທ່ານເພີ່ມສິນຄ້າລົງໃນກະຕ່າ."
+"The coupon will be automatically applied when you add something in your cart."
+msgstr "ຄູປອງຈະຖືກນຳໃຊ້ອັດຕະໂນມັດເມື່ອທ່ານເພີ່ມສິນຄ້າລົງໃນກະຕ່າ."
 
 #. module: website_sale_loyalty
 #: model_terms:ir.ui.view,arch_db:website_sale_loyalty.layout
 msgid "The following promo code was applied on your order:"
-msgstr "ລະຫັດໂປຣໂມຊັນຕໍ່ໄປນີ້ຖືກນຳໃຊ້ເຂົ້າໃນການສັ່ງຊື້ຂອງທ່ານ:"
+msgstr "ລະຫັດໂປຣໂມຊັນຕໍ່ໄປນີ້ຖືກນຳໃຊ້ກັບລາຍການສັ່ງຊື້ຂອງທ່ານແລ້ວ:"
 
 #. module: website_sale_loyalty
 #. odoo-python
 #: code:addons/website_sale_loyalty/models/loyalty_rule.py:0
 msgid "The promo code must be unique."
-msgstr "ລະຫັດໂປຣໂມຊັນຕ້ອງບໍ່ຊໍ້າກັນ."
+msgstr "ລະຫັດໂປຣໂມຊັນຕ້ອງບໍ່ຊ້ຳກັນ."
 
 #. module: website_sale_loyalty
 #. odoo-python
@@ -325,7 +336,9 @@ msgid ""
 "To be able to top up eWallet from the portal, eWallet products must be\n"
 "                     published."
 msgstr ""
-"ເພື່ອໃຫ້ສາມາດຕື່ມເງິນເຂົ້າ eWallet ຈາກພໍທັລ, ສິນຄ້າ eWallet ຕ້ອງໄດ້ຮັບການເຜີຍແຜ່."
+"ເພື່ອໃຫ້ສາມາດຕື່ມເງິນໃສ່ກະເປົາເງິນອີເລັກໂຕຣນິກຈາກໜ້າປະຕູໄດ້, ສິນຄ້າກະເປົາເງິນອີເລັກໂຕຣນິກຈະຕ້ອງໄດ້ຮັ"
+"ບ\n"
+"                     ການເຜີຍແຜ່ກ່ອນ."
 
 #. module: website_sale_loyalty
 #. odoo-javascript
@@ -339,6 +352,14 @@ msgid "Use"
 msgstr "ນຳໃຊ້"
 
 #. module: website_sale_loyalty
+#: model:ir.module.module,summary:base.module_website_sale_loyalty
+msgid ""
+"Use coupon, promotion, gift cards and loyalty programs in your eCommerce "
+"store"
+msgstr ""
+"ນຳໃຊ້ຄູປອງ, ໂປຣໂມຊັນ, ບັດຂອງຂວັນ ແລະ ໂຄງການສະມາຊິກ ໃນຮ້ານຄ້າອອນລາຍຂອງທ່ານ"
+
+#. module: website_sale_loyalty
 #: model:ir.model.fields,field_description:website_sale_loyalty.field_coupon_share__website_id
 #: model:ir.model.fields,field_description:website_sale_loyalty.field_loyalty_program__website_id
 #: model:ir.model.fields,field_description:website_sale_loyalty.field_loyalty_rule__website_id
@@ -350,9 +371,11 @@ msgstr "ເວັບໄຊ"
 #: model_terms:ir.ui.view,arch_db:website_sale_loyalty.coupon_share_view_form
 msgid ""
 "You can share this promotion with your customers.\n"
-"                            It will be applied at checkout when the customer uses this link."
+"                            It will be applied at checkout when the customer "
+"uses this link."
 msgstr ""
-"ທ່ານສາມາດແບ່ງປັນໂປຣໂມຊັນນີ້ໃຫ້ກັບລູກຄ້າຂອງທ່ານ. ມັນຈະຖືກນຳໃຊ້ໃນຂັ້ນຕອນການຊຳລະເງິນເມື່ອລູກຄ້າໃຊ້ລິ້ງນີ້."
+"ທ່ານສາມາດແບ່ງປັນໂປຣໂມຊັນນີ້ໃຫ້ກັບລູກຄ້າຂອງທ່ານໄດ້.\n"
+"                            ມັນຈະຖືກນຳໃຊ້ໃນຕອນຊຳລະເງິນເມື່ອລູກຄ້າໃຊ້ລິ້ງນີ້."
 
 #. module: website_sale_loyalty
 #: model_terms:ir.ui.view,arch_db:website_sale_loyalty.modify_code_form

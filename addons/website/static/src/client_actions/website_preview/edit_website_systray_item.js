@@ -1,4 +1,4 @@
-import { Component, useState } from "@odoo/owl";
+import { Component, proxy, useProps, t } from "@odoo/owl";
 import { useBus, useService } from "@web/core/utils/hooks";
 import { registry } from "@web/core/registry";
 import { Dropdown } from "@web/core/dropdown/dropdown";
@@ -10,11 +10,11 @@ const websiteSystrayRegistry = registry.category("website_systray");
 
 export class EditWebsiteSystrayItem extends Component {
     static template = "website.EditWebsiteSystrayItem";
-    static props = {
-        onNewPage: { type: Function },
-        onEditPage: { type: Function },
-        iframeEl: { type: HTMLElement },
-    };
+    props = useProps({
+        onNewPage: t.function(),
+        onEditPage: t.function(),
+        iframeEl: t.instanceOf(HTMLElement),
+    });
     static components = {
         Dropdown,
         DropdownItem,
@@ -23,7 +23,7 @@ export class EditWebsiteSystrayItem extends Component {
     setup() {
         this.websiteService = useService("website");
         this.notification = useService("notification");
-        this.websiteContext = useState(this.websiteService.context);
+        this.websiteContext = proxy(this.websiteService.context);
         // TODO: website service should share a reactive
         useBus(websiteSystrayRegistry, "CONTENT-UPDATED", () => this.checkPendingTranslations());
         this.isEnteringTranslateMode = false;

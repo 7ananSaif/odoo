@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0+e\n"
+"Project-Id-Version: Odoo Server 19.5a1+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-20 19:05+0000\n"
-"PO-Revision-Date: 2026-02-20 19:05+0000\n"
+"POT-Creation-Date: 2026-09-11 18:13+0000\n"
+"PO-Revision-Date: 2026-09-11 18:13+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -22,6 +22,21 @@ msgid ""
 "\n"
 "\n"
 "You must contact your system administrator to update the GSP."
+msgstr ""
+
+#. module: l10n_in_edi
+#: model:ir.module.module,description:base.module_l10n_in_edi
+msgid ""
+"\n"
+"Indian - E-invoicing\n"
+"====================\n"
+"To submit invoicing through API to the government.\n"
+"We use \"Tera Software Limited\" as GSP\n"
+"Step 1: First you need to create an API username and password in the E-invoice portal.\n"
+"Step 2: Switch to company related to that GST number\n"
+"Step 3: Set that username and password in Odoo (Goto: Invoicing/Accounting -> Configuration -> Settings -> Customer Invoices or find \"E-invoice\" in search bar)\n"
+"Step 4: Repeat steps 1,2,3 for all GSTIN you have in odoo. If you have a multi-company with the same GST number then perform step 1 for the first company only.\n"
+"For the creation of API username and password please ref this document: <https://service.odoo.co.in/einvoice_create_api_user>\n"
 msgstr ""
 
 #. module: l10n_in_edi
@@ -89,11 +104,6 @@ msgid "API credentials validated successfully"
 msgstr ""
 
 #. module: l10n_in_edi
-#: model:ir.model,name:l10n_in_edi.model_account_move_send
-msgid "Account Move Send"
-msgstr ""
-
-#. module: l10n_in_edi
 #: model_terms:ir.ui.view,arch_db:l10n_in_edi.invoice_form_inherit_l10n_in_edi
 msgid ""
 "Are you sure you want to cancel this invoice without waiting for the EDI "
@@ -153,16 +163,16 @@ msgid "Check Partner Data"
 msgstr ""
 
 #. module: l10n_in_edi
-#: model:ir.model,name:l10n_in_edi.model_res_company
-msgid "Companies"
-msgstr ""
-
-#. module: l10n_in_edi
 #. odoo-python
 #: code:addons/l10n_in_edi/models/res_company.py:0
 msgid ""
 "Companies should have a complete address, verify their Street, City, State, "
 "Country and Zip code."
+msgstr ""
+
+#. module: l10n_in_edi
+#: model:ir.model,name:l10n_in_edi.model_res_company
+msgid "Company"
 msgstr ""
 
 #. module: l10n_in_edi
@@ -197,11 +207,7 @@ msgid "Data Entry Mistake"
 msgstr ""
 
 #. module: l10n_in_edi
-#: model_terms:ir.ui.view,arch_db:l10n_in_edi.view_ewaybill_cancel_form
-msgid "Discard"
-msgstr ""
-
-#. module: l10n_in_edi
+#: model:ir.model.fields,field_description:l10n_in_edi.field_account_journal__display_name
 #: model:ir.model.fields,field_description:l10n_in_edi.field_account_move__display_name
 #: model:ir.model.fields,field_description:l10n_in_edi.field_account_move_line__display_name
 #: model:ir.model.fields,field_description:l10n_in_edi.field_account_move_send__display_name
@@ -348,6 +354,7 @@ msgid "Force cancelled %(invoice)s by %(username)s"
 msgstr ""
 
 #. module: l10n_in_edi
+#: model:ir.model.fields,field_description:l10n_in_edi.field_account_journal__id
 #: model:ir.model.fields,field_description:l10n_in_edi.field_account_move__id
 #: model:ir.model.fields,field_description:l10n_in_edi.field_account_move_line__id
 #: model:ir.model.fields,field_description:l10n_in_edi.field_account_move_send__id
@@ -370,6 +377,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_in_edi.field_account_bank_statement_line__l10n_in_edi_status
 #: model:ir.model.fields,field_description:l10n_in_edi.field_account_move__l10n_in_edi_status
 msgid "India E-Invoice Status"
+msgstr ""
+
+#. module: l10n_in_edi
+#: model:ir.module.module,shortdesc:base.module_l10n_in_edi
+msgid "Indian - E-invoicing"
 msgstr ""
 
 #. module: l10n_in_edi
@@ -412,6 +424,17 @@ msgstr ""
 #. odoo-python
 #: code:addons/l10n_in_edi/models/account_move.py:0
 msgid "Invoice number should not be more than 16 characters"
+msgstr ""
+
+#. module: l10n_in_edi
+#. odoo-python
+#: code:addons/l10n_in_edi/models/account_journal.py:0
+msgid "Invoices to send for E-Invoicing"
+msgstr ""
+
+#. module: l10n_in_edi
+#: model:ir.model,name:l10n_in_edi.model_account_journal
+msgid "Journal"
 msgstr ""
 
 #. module: l10n_in_edi
@@ -521,6 +544,11 @@ msgid ""
 msgstr ""
 
 #. module: l10n_in_edi
+#: model:ir.model,name:l10n_in_edi.model_account_move_send
+msgid "Shared Send Invoice Wizard Functions"
+msgstr ""
+
+#. module: l10n_in_edi
 #. odoo-python
 #: code:addons/l10n_in_edi/models/account_move.py:0
 msgid ""
@@ -547,6 +575,11 @@ msgstr ""
 #. module: l10n_in_edi
 #: model:ir.model.fields.selection,name:l10n_in_edi.selection__account_move__l10n_in_edi_status__to_send
 msgid "To Send"
+msgstr ""
+
+#. module: l10n_in_edi
+#: model_terms:ir.ui.view,arch_db:l10n_in_edi.account_journal_dashboard_kanban_view_in
+msgid "To Send For E-Invoicing"
 msgstr ""
 
 #. module: l10n_in_edi

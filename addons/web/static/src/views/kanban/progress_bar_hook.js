@@ -1,6 +1,8 @@
-import { reactive } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { Domain } from "@web/core/domain";
 import { _t } from "@web/core/l10n/translation";
+import { ConnectionLostError } from "@web/core/network/rpc";
+import { getAggregateCurrencyId } from "@web/model/currency_aggregates";
 import {
     extractInfoFromGroupData,
     getAggregateSpecifications,
@@ -39,7 +41,7 @@ function _groupsToAggregateValues(groups, groupBy, fields, domain) {
     });
 }
 
-class ProgressBarState {
+export class ProgressBarState {
     constructor(progressAttributes, model, aggregateFields, activeBars = {}) {
         this.progressAttributes = progressAttributes;
         this.model = model;
@@ -96,7 +98,7 @@ class ProgressBarState {
                 count: group.count - bars.map((r) => r.count).reduce((a, b) => a + b, 0),
                 value: FALSE,
                 string: _t("Other"),
-                color: "200",
+                color: "300",
             });
 
             // Update activeBars count and aggreagates
@@ -159,18 +161,19 @@ class ProgressBarState {
         value ||= 0;
         if (aggregateField.type === "monetary" && aggregateField.currency_field) {
             const aggValues = _findGroup(this._aggregateValues, groupByField, serverValue);
-            const currencies = aggValues?.[aggregateField.currency_field];
-            if (currencies?.length > 1) {
+            const currencies = aggValues?.[aggregateField.currency_field] ?? [];
+            const currencyId = getAggregateCurrencyId(aggregateField, currencies);
+            if (currencyId && currencies.length > 1) {
                 return {
                     value,
                     currencies,
                 };
             }
-            if (currencies?.[0]) {
+            if (currencyId) {
                 return {
                     title,
                     value,
-                    currencies: [currencies[0]],
+                    currencies: [currencyId],
                 };
             }
         }
@@ -314,13 +317,20 @@ class ProgressBarState {
     async loadProgressBar({ context, domain, groupBy, resModel }) {
         if (groupBy.length) {
             const { colors, fieldName: field, help } = this.progressAttributes;
-            const res = await this.model.orm.call(resModel, "read_progress_bar", [], {
-                domain,
-                group_by: groupBy[0],
-                progress_bar: { colors, field, help },
-                context,
-            });
-            this._pbCounts = res;
+            try {
+                this._pbCounts = await this.model.orm.call(resModel, "read_progress_bar", [], {
+                    domain,
+                    group_by: groupBy[0],
+                    progress_bar: { colors, field, help },
+                    context,
+                });
+            } catch (error) {
+                if (error instanceof ConnectionLostError) {
+                    this._pbCounts = null;
+                } else {
+                    throw error;
+                }
+            }
         }
     }
 
@@ -354,9 +364,12 @@ class ProgressBarState {
     }
 }
 
-export function useProgressBar(progressAttributes, model, aggregateFields, activeBars) {
-    const progressBarState = reactive(
-        new ProgressBarState(progressAttributes, model, aggregateFields, activeBars)
+export function useProgressBar(
+    { progressAttributes, model, aggregateFields, activeBars },
+    ProgressBarStateClass = ProgressBarState
+) {
+    const progressBarState = proxy(
+        new ProgressBarStateClass(progressAttributes, model, aggregateFields, activeBars)
     );
 
     const onWillLoadRoot = model.hooks.onWillLoadRoot;
@@ -373,7 +386,7 @@ export function useProgressBar(progressAttributes, model, aggregateFields, activ
     const onRootLoaded = model.hooks.onRootLoaded;
     model.hooks.onRootLoaded = async (root) => {
         await onRootLoaded(root);
-        if (model.isReady) {
+        if (model.isReady()) {
             // do not wait for the progressbar on first load, to show the kanban view asap
             return prom;
         }

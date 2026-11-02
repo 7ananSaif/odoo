@@ -16,23 +16,35 @@
                     <sheet>
                         <div class="oe_button_box" name="button_box">
                             <button name="open_document" string="Open Document"
-                                    type="object" class="oe_link" icon="fa-sitemap"
+                                    type="object" class="oe_link" icon="account_tree"
                                     invisible="not alias_model_id or alias_force_thread_id == 0"/>
                             <button name="open_parent_document"
-                                    type="object" class="oe_link" icon="fa-sitemap"
+                                    type="object" class="oe_link" icon="account_tree"
                                     invisible="not alias_parent_model_id or alias_parent_thread_id == 0">
                                     <div class="o_field_widget o_stat_info">
                                         <span class="o_stat_text">Open Parent Document</span>
                                     </div>
                             </button>
                         </div>
-                        <div class="d-flex">
-                            <h2 class="flex-grow-1" dir="ltr">
-                                <field name="alias_name" placeholder="alias" class="oe_inline"/>@
-                                <field name="alias_domain_id" class="oe_inline" placeholder="e.g. mycompany.com"
-                                       options="{'no_create': True, 'no_open': True}"/>
-                            </h2>
-                            <field name="alias_status" widget="badge"
+                        <div class="d-flex flex-column-reverse flex-md-row">
+                            <div class="oe_title d-flex justify-content-between mw-100">
+                                <h2 dir="ltr" class="w-100">
+                                    <div class="d-flex flex-column flex-md-row">
+                                        <label for="alias_name" class="d-md-none"/>
+                                        <field name="alias_name" placeholder="alias" class="o_field_highlight w-auto o_outlined"/>
+                                        <label for="alias_domain_id" class="d-md-none"/>
+                                        <div class="d-flex o_outlined">
+                                            <span>@</span>
+                                            <field name="alias_domain_id" class="o_field_highlight" placeholder="e.g. mycompany.com"
+                                                options="{'no_create': True, 'no_open': True}"/>
+                                            <field name="alias_full_name" widget="CopyClipboardButton"
+                                                invisible="not alias_name or not alias_domain_id"
+                                                class="ms-2" options="{'btn_class': 'link p-0'}" string=""/>
+                                        </div>
+                                    </div>
+                                </h2>
+                            </div>
+                            <field name="alias_status" widget="badge" class="ms-auto"
                                    decoration-success="alias_status == 'valid'"
                                    decoration-warning="alias_status == 'not_tested'"
                                    decoration-danger="alias_status == 'invalid'"/>
@@ -73,10 +85,10 @@
                            decoration-warning="alias_status == 'not_tested'"
                            decoration-danger="alias_status == 'invalid'"/>
                     <button name="open_document" type="object"
-                            string="Open Document" icon="fa-sitemap"
+                            string="Open Document" icon="account_tree"
                             invisible="not alias_model_id or alias_force_thread_id == 0"/>
                     <button name="open_parent_document" type="object"
-                            string="Open Owner" icon="fa-sitemap"
+                            string="Open Owner" icon="account_tree"
                             invisible="not alias_parent_model_id or alias_parent_thread_id == 0"/>
                 </list>
             </field>

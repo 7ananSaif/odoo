@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
@@ -21,16 +20,18 @@
         'views/website_blog_templates.xml',
         'views/snippets/snippets.xml',
         'views/snippets/s_blog_posts.xml',
+        'views/snippets/s_blog_posts_carousel.xml',
         'views/snippets/s_dynamic_snippet_blog_posts_preview_data.xml',
+        'views/snippets/s_dynamic_snippet_blog_posts_carousel_preview_data.xml',
+        'views/website_blog_visitor_views.xml',
         'views/website_pages_views.xml',
         'views/blog_post_add.xml',
-        'security/ir.model.access.csv',
         'security/website_blog_security.xml',
+        'security/ir.access.csv',
     ],
     'demo': [
         'data/website_blog_demo.xml'
     ],
-    'installable': True,
     'assets': {
         'web.assets_backend': [
             'website_blog/static/src/tours/website_blog.js',

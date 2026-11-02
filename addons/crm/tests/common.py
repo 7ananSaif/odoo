@@ -53,7 +53,7 @@ class TestCrmCommon(TestSalesCommon, MailCase):
         'team_id', 'state_id', 'stage_id', 'medium_id', 'source_id', 'user_id',
         'city', 'contact_name', 'partner_name',
         'phone', 'probability', 'expected_revenue', 'street', 'street2', 'zip',
-        'create_date', 'date_automation_last', 'email_from', 'email_cc', 'website'
+        'create_date', 'date_automation_last', 'email_from', 'website'
     ]
     merge_fields = ['description', 'type', 'priority']
 
@@ -199,7 +199,6 @@ class TestCrmCommon(TestSalesCommon, MailCase):
         cls.contact_company_1 = cls.env['res.partner'].create({
             'name': 'Planet Express',
             'email': cls.test_email_data[0],
-            'is_company': True,
             'street': '57th Street',
             'city': 'New New York',
             'country_id': cls.env.ref('base.us').id,
@@ -212,7 +211,6 @@ class TestCrmCommon(TestSalesCommon, MailCase):
             'lang': cls.lang_en.code,
             'phone': False,
             'parent_id': cls.contact_company_1.id,
-            'is_company': False,
             'street': 'Actually the sewers',
             'city': 'New York',
             'country_id': cls.env.ref('base.us').id,
@@ -224,7 +222,6 @@ class TestCrmCommon(TestSalesCommon, MailCase):
             'lang': cls.lang_en.code,
             'phone': cls.test_phone_data[2],
             'parent_id': False,
-            'is_company': False,
             'street': 'Cookieville Minimum-Security Orphanarium',
             'city': 'New New York',
             'country_id': cls.env.ref('base.us').id,
@@ -232,8 +229,7 @@ class TestCrmCommon(TestSalesCommon, MailCase):
         })
         cls.contact_company = cls.env['res.partner'].create({
             'name': 'Mom',
-            'company_name': 'MomCorp',
-            'is_company': True,
+            'vat': 'BE0477472701',
             'street': 'Mom Friendly Robot Street',
             'city': 'New new York',
             'country_id': base_us.id,
@@ -616,7 +612,7 @@ class TestLeadConvertCommon(TestCrmCommon):
             'assignment_domain': [('probability', '>=', 10)],
         })
 
-        cls.env['ir.config_parameter'].set_param('sales_team.membership_multi', True)
+        cls.env['ir.config_parameter'].set_bool('sales_team.membership_multi', True)
         cls.sales_team_1_m3 = cls.env['crm.team.member'].create({
             'user_id': cls.user_sales_salesman.id,
             'crm_team_id': cls.sales_team_1.id,
@@ -636,7 +632,7 @@ class TestLeadConvertCommon(TestCrmCommon):
 
     @classmethod
     def _switch_to_auto_assign(cls):
-        cls.env['ir.config_parameter'].set_param('crm.lead.auto.assignment', True)
+        cls.env['ir.config_parameter'].set_bool('crm.lead.auto.assignment', True)
         cls.assign_cron = cls.env.ref('crm.ir_cron_crm_lead_assign')
         cls.assign_cron.update({
             'active': True,

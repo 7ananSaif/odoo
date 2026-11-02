@@ -2,24 +2,36 @@
 
 import json
 import logging
-import netifaces
+import re
 import subprocess
 import threading
 import time
-
 from itertools import groupby
 from pathlib import Path
 
-from odoo import http
-from odoo.addons.iot_drivers.tools import certificate, helpers, route, upgrade, wifi
-from odoo.addons.iot_drivers.tools.system import IOT_SYSTEM, IS_RPI
-from odoo.addons.iot_drivers.main import iot_devices, unsupported_devices
-from odoo.addons.iot_drivers.connection_manager import connection_manager
+import netifaces
+import werkzeug
+
+from odoo.http import Controller
+from odoo.http.stream import Stream
 from odoo.tools.misc import file_path
-from odoo.addons.iot_drivers.server_logger import (
-    check_and_update_odoo_config_log_to_server_option,
-    get_odoo_config_log_to_server_option,
-    close_server_log_sender_handler,
+
+from odoo.addons.iot_drivers.connection_manager import connection_manager
+from odoo.addons.iot_drivers.main import iot_devices, unsupported_devices
+from odoo.addons.iot_drivers.tools import (
+    certificate,
+    helpers,
+    route,
+    system,
+    upgrade,
+    wifi,
+)
+from odoo.addons.iot_drivers.tools.system import (
+    IOT_IDENTIFIER,
+    IOT_SYSTEM,
+    IS_RPI,
+    ODOO_START_TIME,
+    SYSTEM_START_TIME,
 )
 
 _logger = logging.getLogger(__name__)
@@ -40,28 +52,46 @@ CONTENT_SECURITY_POLICY = (
 )
 
 
-class IotBoxOwlHomePage(http.Controller):
+@system.rpi_only
+def get_network_interfaces():
+    network_interfaces = []
+    ssid = wifi.get_current() or wifi.get_access_point_ssid()
+    for iface_id in netifaces.interfaces():
+        if iface_id == 'lo' or 'tailscale' in iface_id:
+            continue  # Skip loopback interface (127.0.0.1) and Tailscale interfaces
+
+        is_wifi = 'wlan' in iface_id
+        network_interfaces.extend([{
+            'id': iface_id,
+            'is_wifi': is_wifi,
+            'ssid': ssid if is_wifi else None,
+            'ip': conf.get('addr', 'No Internet'),
+        } for conf in netifaces.ifaddresses(iface_id).get(netifaces.AF_INET, [])])
+    return network_interfaces
+
+
+class IotBoxOwlHomePage(Controller):
     def __init__(self):
         super().__init__()
         self.updating = threading.Lock()
 
     @route.iot_route('/', type='http')
     def index(self):
-        return http.Stream.from_path("iot_drivers/views/index.html").get_response(content_security_policy=CONTENT_SECURITY_POLICY)
+        return Stream.from_path("iot_drivers/views/index.html").get_response(content_security_policy=CONTENT_SECURITY_POLICY)
 
     @route.iot_route('/logs', type='http')
     def logs_page(self):
-        return http.Stream.from_path("iot_drivers/views/logs.html").get_response(content_security_policy=CONTENT_SECURITY_POLICY)
+        return Stream.from_path("iot_drivers/views/logs.html").get_response(content_security_policy=CONTENT_SECURITY_POLICY)
 
     @route.iot_route('/status', type='http')
     def status_page(self):
-        return http.Stream.from_path("iot_drivers/views/status_display.html").get_response(content_security_policy=CONTENT_SECURITY_POLICY)
+        return Stream.from_path("iot_drivers/views/status_display.html").get_response(content_security_policy=CONTENT_SECURITY_POLICY)
 
     # ---------------------------------------------------------- #
     # GET methods                                                #
     # -> Always use json.dumps() to return a JSON response       #
     # ---------------------------------------------------------- #
-    @route.iot_route('/iot_drivers/restart_odoo_service', type='http', cors='*')
+    @route.iot_route(['/iot_drivers/restart_odoo_service', '/hw_posbox_homepage/restart_odoo_service'], type='http', cors='*')
     def odoo_service_restart(self):
         helpers.odoo_restart(0)
         return json.dumps({
@@ -72,15 +102,27 @@ class IotBoxOwlHomePage(http.Controller):
     @route.iot_route('/iot_drivers/iot_logs', type='http', cors='*')
     def get_iot_logs(self):
         logs_path = "/var/log/odoo/odoo-server.log" if IS_RPI else Path().absolute().parent.joinpath('odoo.log')
+        log_max_size_chars = 2000000
+        log_max_size_lines = 10000
+
         with open(logs_path, encoding="utf-8") as file:
+            file_length = file.seek(0, 2)
+            starting_offset = max(file_length - log_max_size_chars, 0)
+            file.seek(starting_offset)
+
+            file_contents = file.read()
+            file_contents_no_ansi_codes = re.sub(r"\x1b\[[\w;]+m", "", file_contents)
+            file_lines = file_contents_no_ansi_codes.splitlines()
+            filtered_lines = [line for line in file_lines if not "GET /iot_drivers/iot_logs" in line]
+            log_text = "\n".join(filtered_lines[-log_max_size_lines:])
             return json.dumps({
                 'status': 'success',
-                'logs': file.read(),
+                'logs': log_text,
             })
 
     @route.iot_route('/iot_drivers/six_payment_terminal_clear', type='http', cors='*')
     def clear_six_terminal(self):
-        helpers.update_conf({'six_payment_terminal': ''})
+        system.update_conf({'six_payment_terminal': ''})
         return json.dumps({
             'status': 'success',
             'message': 'Successfully cleared Six Payment Terminal',
@@ -88,7 +130,7 @@ class IotBoxOwlHomePage(http.Controller):
 
     @route.iot_route('/iot_drivers/clear_credential', type='http', cors='*')
     def clear_credential(self):
-        helpers.update_conf({
+        system.update_conf({
             'db_uuid': '',
             'enterprise_code': '',
         })
@@ -100,7 +142,7 @@ class IotBoxOwlHomePage(http.Controller):
 
     @route.iot_route('/iot_drivers/wifi_clear', type='http', cors='*', linux_only=True)
     def clear_wifi_configuration(self):
-        helpers.update_conf({'wifi_ssid': '', 'wifi_password': ''})
+        system.update_conf({'wifi_ssid': '', 'wifi_password': ''})
         wifi.disconnect()
         return json.dumps({
             'status': 'success',
@@ -110,7 +152,6 @@ class IotBoxOwlHomePage(http.Controller):
     @route.iot_route('/iot_drivers/server_clear', type='http', cors='*')
     def clear_server_configuration(self):
         helpers.disconnect_from_server()
-        close_server_log_sender_handler()
         return json.dumps({
             'status': 'success',
             'message': 'Successfully disconnected from server',
@@ -125,21 +166,6 @@ class IotBoxOwlHomePage(http.Controller):
 
     @route.iot_route('/iot_drivers/data', type="http", cors='*')
     def get_homepage_data(self):
-        network_interfaces = []
-        if IS_RPI:
-            ssid = wifi.get_current() or wifi.get_access_point_ssid()
-            for iface_id in netifaces.interfaces():
-                if iface_id == 'lo':
-                    continue  # Skip loopback interface (127.0.0.1)
-
-                is_wifi = 'wlan' in iface_id
-                network_interfaces.extend([{
-                    'id': iface_id,
-                    'is_wifi': is_wifi,
-                    'ssid': ssid if is_wifi else None,
-                    'ip': conf.get('addr', 'No Internet'),
-                } for conf in netifaces.ifaddresses(iface_id).get(netifaces.AF_INET, [])])
-
         devices = [{
             'name': device.device_name,
             'type': device.device_type,
@@ -156,35 +182,34 @@ class IotBoxOwlHomePage(http.Controller):
             for device_type, devices in groupby(sorted(devices, key=device_type_key), device_type_key)
         }
 
-        six_terminal = helpers.get_conf('six_payment_terminal') or 'Not Configured'
-        network_qr_codes = wifi.generate_network_qr_codes() if IS_RPI else {}
+        six_terminal = system.get_conf('six_payment_terminal') or 'Not Configured'
+        network_qr_codes = wifi.generate_network_qr_codes() or {}
         odoo_server_url = helpers.get_odoo_server_url() or ''
-        odoo_uptime_seconds = time.monotonic() - helpers.odoo_start_time
-        system_uptime_seconds = time.monotonic() - helpers.system_start_time
+        odoo_uptime_seconds = time.monotonic() - ODOO_START_TIME
+        system_uptime_seconds = time.monotonic() - SYSTEM_START_TIME
 
         return json.dumps({
-            'db_uuid': helpers.get_conf('db_uuid'),
-            'enterprise_code': helpers.get_conf('enterprise_code'),
-            'ip': helpers.get_ip(),
-            'identifier': helpers.get_identifier(),
-            'mac_address': helpers.get_mac_address(),
+            'db_uuid': system.get_conf('db_uuid'),
+            'enterprise_code': system.get_conf('enterprise_code'),
+            'ip': system.get_ip(),
+            'identifier': IOT_IDENTIFIER,
+            'mac_address': system.get_mac_address(),
             'devices': grouped_devices,
             'server_status': odoo_server_url,
             'pairing_code': connection_manager.pairing_code,
             'new_database_url': connection_manager.new_database_url,
             'pairing_code_expired': connection_manager.pairing_code_expired and not odoo_server_url,
             'six_terminal': six_terminal,
-            'is_access_point_up': IS_RPI and wifi.is_access_point(),
-            'network_interfaces': network_interfaces,
-            'version': helpers.get_version(),
+            'is_access_point_up': wifi.is_access_point(),
+            'network_interfaces': get_network_interfaces() or [],
+            'version': system.get_version(),
             'system': IOT_SYSTEM,
             'odoo_uptime_seconds': odoo_uptime_seconds,
             'system_uptime_seconds': system_uptime_seconds,
             'certificate_end_date': certificate.get_certificate_end_date(),
-            'wifi_ssid': helpers.get_conf('wifi_ssid'),
+            'wifi_ssid': system.get_conf('wifi_ssid'),
             'qr_code_wifi': network_qr_codes.get('qr_wifi'),
             'qr_code_url': network_qr_codes.get('qr_url'),
-            "l10n_eg_proxy_token": helpers.get_conf("proxy_access_token", "options"),
         })
 
     @route.iot_route('/iot_drivers/wifi', type="http", cors='*', linux_only=True)
@@ -192,34 +217,6 @@ class IotBoxOwlHomePage(http.Controller):
         return json.dumps({
             'currentWiFi': wifi.get_current(),
             'availableWiFi': wifi.get_available_ssids(),
-        })
-
-    @route.iot_route('/iot_drivers/version_info', type="http", cors='*', linux_only=True)
-    def get_version_info(self):
-        # Check branch name and last commit hash on IoT Box
-        current_commit = upgrade.git("rev-parse", "HEAD")
-        current_branch = upgrade.git("rev-parse", "--abbrev-ref", "HEAD")
-        if not current_commit or not current_branch:
-            return json.dumps({
-                'status': 'error',
-                'message': 'Failed to retrieve current commit or branch',
-            })
-
-        last_available_commit = upgrade.git("ls-remote", "origin", current_branch)
-        if not last_available_commit:
-            _logger.error("Failed to retrieve last commit available for branch origin/%s", current_branch)
-            return json.dumps({
-                'status': 'error',
-                'message': 'Failed to retrieve last commit available for branch origin/' + current_branch,
-            })
-        last_available_commit = last_available_commit.split()[0].strip()
-
-        return json.dumps({
-            'status': 'success',
-            # Checkout requires db to align with its version (=branch)
-            'odooIsUpToDate': current_commit == last_available_commit or not bool(helpers.get_odoo_server_url()),
-            'imageIsUpToDate': IS_RPI and not bool(helpers.check_image()),
-            'currentCommitHash': current_commit,
         })
 
     @route.iot_route('/iot_drivers/log_levels', type="http", cors='*')
@@ -234,27 +231,27 @@ class IotBoxOwlHomePage(http.Controller):
             'drivers_list': drivers_list,
             'interfaces_list': interfaces_list,
             'server': helpers.get_odoo_server_url(),
-            'is_log_to_server_activated': get_odoo_config_log_to_server_option(),
             'root_logger_log_level': self._get_logger_effective_level_str(logging.getLogger()),
             'odoo_current_log_level': self._get_logger_effective_level_str(logging.getLogger('odoo')),
             'recommended_log_level': 'warning',
             'available_log_levels': AVAILABLE_LOG_LEVELS,
             'drivers_logger_info': self._get_iot_handlers_logger(drivers_list, 'drivers'),
             'interfaces_logger_info': self._get_iot_handlers_logger(interfaces_list, 'interfaces'),
+            'is_custom_handlers_enabled': system.get_conf('custom_handlers'),
         })
 
     @route.iot_route('/iot_drivers/load_iot_handlers', type="http", cors='*')
     def load_iot_handlers(self):
-        helpers.download_iot_handlers(False)
+        helpers.download_iot_handlers()
         helpers.odoo_restart(0)
         return json.dumps({
             'status': 'success',
             'message': 'IoT Handlers loaded successfully',
         })
 
-    @route.iot_route('/iot_drivers/is_ngrok_enabled', type="http", linux_only=True)
-    def is_ngrok_enabled(self):
-        return json.dumps({'enabled': helpers.is_ngrok_enabled()})
+    @route.iot_route('/iot_drivers/is_remote_debug_enabled', type="http", linux_only=True)
+    def is_remote_debug_enabled(self):
+        return json.dumps({'enabled': system.is_remote_debug_enabled()})
 
     # ---------------------------------------------------------- #
     # POST methods                                               #
@@ -263,7 +260,7 @@ class IotBoxOwlHomePage(http.Controller):
     @route.iot_route('/iot_drivers/six_payment_terminal_add', type="jsonrpc", methods=['POST'], cors='*')
     def add_six_terminal(self, terminal_id):
         if terminal_id.isdigit():
-            helpers.update_conf({'six_payment_terminal': terminal_id})
+            system.update_conf({'six_payment_terminal': terminal_id})
         else:
             _logger.warning('Ignoring invalid Six TID: "%s". Only digits are allowed', terminal_id)
             return self.clear_six_terminal()
@@ -274,7 +271,7 @@ class IotBoxOwlHomePage(http.Controller):
 
     @route.iot_route('/iot_drivers/save_credential', type="jsonrpc", methods=['POST'], cors='*')
     def save_credential(self, db_uuid, enterprise_code):
-        helpers.update_conf({
+        system.update_conf({
             'db_uuid': db_uuid,
             'enterprise_code': enterprise_code,
         })
@@ -287,7 +284,7 @@ class IotBoxOwlHomePage(http.Controller):
     @route.iot_route('/iot_drivers/update_wifi', type="jsonrpc", methods=['POST'], cors='*', linux_only=True)
     def update_wifi(self, essid, password):
         if wifi.reconnect(essid, password, force_update=True):
-            helpers.update_conf({'wifi_ssid': essid, 'wifi_password': password})
+            system.update_conf({'wifi_ssid': essid, 'wifi_password': password})
 
             res_payload = {
                 'status': 'success',
@@ -302,20 +299,28 @@ class IotBoxOwlHomePage(http.Controller):
         return res_payload
 
     @route.iot_route(
-        '/iot_drivers/generate_password', type="jsonrpc", methods=["POST"], cors='*', linux_only=True
+        ['/iot_drivers/generate_password', '/hw_posbox_homepage/generate_password'],
+        type="jsonrpc",
+        methods=["POST"],
+        cors='*',
+        linux_only=True,
     )
     def generate_password(self):
+        if helpers.get_odoo_server_url():
+            raise werkzeug.exceptions.Forbidden(
+                "Password generation is disabled once linked to an Odoo server"
+            )
         return {
-            'password': helpers.generate_password(),
+            "password": system.generate_password(),
         }
 
-    @route.iot_route('/iot_drivers/enable_ngrok', type="jsonrpc", methods=['POST'], linux_only=True)
+    @route.iot_route('/iot_drivers/enable_remote_debug', type="jsonrpc", methods=['POST'], linux_only=True)
     def enable_remote_connection(self, auth_token):
-        return {'status': 'success' if helpers.toggle_remote_connection(auth_token) else 'failure'}
+        return {'status': 'success' if system.toggle_remote_debug(auth_token) else 'failure'}
 
-    @route.iot_route('/iot_drivers/disable_ngrok', type="jsonrpc", methods=['POST'], linux_only=True)
+    @route.iot_route('/iot_drivers/disable_remote_debug', type="jsonrpc", methods=['POST'], linux_only=True)
     def disable_remote_connection(self):
-        return {'status': 'success' if helpers.toggle_remote_connection() else 'failure'}
+        return {'status': 'success' if system.toggle_remote_debug() else 'failure'}
 
     @route.iot_route('/iot_drivers/connect_to_server', type="jsonrpc", methods=['POST'], cors='*')
     def connect_to_odoo_server(self, token):
@@ -357,9 +362,6 @@ class IotBoxOwlHomePage(http.Controller):
                 'message': 'Invalid logger name',
             }
 
-        if name == 'log-to-server':
-            check_and_update_odoo_config_log_to_server_option(value)
-
         name = name[len(IOT_LOGGING_PREFIX):]
         if name == 'root':
             self._update_logger_level('', value, AVAILABLE_LOG_LEVELS)
@@ -387,6 +389,11 @@ class IotBoxOwlHomePage(http.Controller):
             'status': 'success',
             'message': 'Successfully updated the IoT Box',
         }
+
+    @route.iot_route('/iot_drivers/enable_custom_handlers', type="jsonrpc", methods=['POST'], cors='*')
+    def enable_custom_handlers(self, enable):
+        helpers.toggle_custom_handlers(enable)
+        return {'status': 'success'}
 
     # ---------------------------------------------------------- #
     # Utils                                                      #
@@ -434,7 +441,7 @@ class IotBoxOwlHomePage(http.Controller):
             logger_name = logger.name
 
         ODOO_TOOL_CONFIG_HANDLER_NAME = 'log_handler'
-        LOG_HANDLERS = (helpers.get_conf(ODOO_TOOL_CONFIG_HANDLER_NAME, section='options') or []).split(',')
+        LOG_HANDLERS = (system.get_conf(ODOO_TOOL_CONFIG_HANDLER_NAME, section='options') or []).split(',')
         LOGGER_PREFIX = logger_name + ':'
         IS_NEW_LEVEL_PARENT = new_level == 'parent'
 
@@ -470,7 +477,7 @@ class IotBoxOwlHomePage(http.Controller):
         _logger.debug('Change logger %s level to %s', logger_name, real_new_level)
         logging.getLogger(logger_name).setLevel(real_new_level)
 
-        helpers.update_conf(conf, section='options')
+        system.update_conf(conf, section='options')
 
     def _get_logger_effective_level_str(self, logger):
         return logging.getLevelName(logger.getEffectiveLevel()).lower()

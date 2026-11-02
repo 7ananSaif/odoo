@@ -13,7 +13,7 @@
                             <div class="col">
                                 <field class="fw-bold fs-5" type="open" name="badge_name"/>
                                 <div>
-                                    Granted on <t t-esc="luxon.DateTime.fromISO(record.create_date.raw_value).toFormat('D')"/>
+                                    Granted on <t t-out="luxon.DateTime.fromISO(record.create_date.raw_value).toFormat('D')"/>
                                     <div class="d-flex align-items-center">
                                         By
                                         <field class="m-0 mx-1 oe_inline" name="create_uid" options="{'no_open': True}" widget="many2one_avatar_user"/>
@@ -24,7 +24,7 @@
                             <div class="col-2">
                                 <field name="badge_id" widget="image" options="{'preview_image': 'image_1024'}" t-att-alt="record.badge_name.value" />
                             </div>
-                            <field class="mt-1 o_badge_content text-muted" name="comment"/>
+                            <field class="mt-1 o_line_clamp o_line_clamp_5 text-muted" name="comment"/>
                         </t>
                     </t>
                 </templates>

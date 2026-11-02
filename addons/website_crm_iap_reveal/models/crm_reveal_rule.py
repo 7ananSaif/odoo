@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import datetime
@@ -7,8 +6,7 @@ import logging
 import re
 from dateutil.relativedelta import relativedelta
 
-import odoo
-from odoo import api, fields, models, tools, _
+from odoo import api, fields, models, _
 from odoo.addons.iap.tools import iap_tools
 from odoo.addons.crm.models import crm_stage
 from odoo.exceptions import ValidationError
@@ -22,8 +20,10 @@ DEFAULT_REVEAL_MONTH_VALID = 6
 
 class CrmRevealRule(models.Model):
     _name = 'crm.reveal.rule'
-    _description = 'CRM Lead Generation Rules'
+    _description = 'CRM Lead Generation Rule'
     _order = 'sequence'
+    _clear_cache_name = 'default'
+    _clear_cache_on_fields = {'active', 'country_ids', 'regex_url'}  # in order to recompute _get_active_rules
 
     name = fields.Char(string='Rule Name', required=True)
     active = fields.Boolean(default=True)
@@ -85,23 +85,6 @@ class CrmRevealRule(models.Model):
         except Exception:
             raise ValidationError(_('Enter Valid Regex.'))
 
-    @api.model_create_multi
-    def create(self, vals_list):
-        self.env.registry.clear_cache() # Clear the cache in order to recompute _get_active_rules
-        return super().create(vals_list)
-
-    def write(self, vals):
-        fields_set = {
-            'country_ids', 'regex_url', 'active'
-        }
-        if set(vals.keys()) & fields_set:
-            self.env.registry.clear_cache() # Clear the cache in order to recompute _get_active_rules
-        return super().write(vals)
-
-    def unlink(self):
-        self.env.registry.clear_cache() # Clear the cache in order to recompute _get_active_rules
-        return super().unlink()
-
     def action_get_lead_tree_view(self):
         action = self.env["ir.actions.actions"]._for_xml_id("crm.crm_lead_all_leads")
         action['domain'] = [('id', 'in', self.lead_ids.ids), ('type', '=', 'lead')]
@@ -115,7 +98,7 @@ class CrmRevealRule(models.Model):
         return action
 
     @api.model
-    @tools.ormcache()
+    @api.ormcache()
     def _get_active_rules(self):
         """
         Returns informations about the all rules.
@@ -232,11 +215,7 @@ class CrmRevealRule(models.Model):
         created lead with given IP. So, we unlink crm.reveal.view with same IP
         as a already created lead.
         """
-        months_valid = self.env['ir.config_parameter'].sudo().get_param('reveal.lead_month_valid', DEFAULT_REVEAL_MONTH_VALID)
-        try:
-            months_valid = int(months_valid)
-        except ValueError:
-            months_valid = DEFAULT_REVEAL_MONTH_VALID
+        months_valid = self.env['ir.config_parameter'].sudo().get_int('reveal.lead_month_valid') or DEFAULT_REVEAL_MONTH_VALID
         domain = []
         domain.append(('reveal_ip', '!=', False))
         domain.append(('create_date', '>', fields.Datetime.to_string(datetime.date.today() - relativedelta(months=months_valid))))
@@ -286,14 +265,10 @@ class CrmRevealRule(models.Model):
         company_country = self.env.company.country_id
         rule_payload = {}
         for rule in self:
-            # accumulate all reveal_ids (separated by ',') into one list
-            # eg: 3 records with values: "175,176", "177" and "190,191"
-            # will become ['175','176','177','190','191']
-            reveal_ids = [
-                reveal_id.strip()
-                for reveal_ids in rule.mapped('industry_tag_ids.reveal_ids')
-                for reveal_id in reveal_ids.split(',')
-            ]
+            # accumulate all sic_group into one list
+            # eg: 3 records with values: 42, 54 and 1
+            # will become [42,54,1]
+            sic_groups = rule.industry_tag_ids.mapped('sic_group')
             data = {
                 'rule_id': rule.id,
                 'lead_for': rule.lead_for,
@@ -301,7 +276,7 @@ class CrmRevealRule(models.Model):
                 'filter_on_size': rule.filter_on_size,
                 'company_size_min': rule.company_size_min,
                 'company_size_max': rule.company_size_max,
-                'industry_tags': reveal_ids,
+                'industry_tags': sic_groups,
                 'user_country': company_country and company_country.code or False
             }
             if rule.lead_for == 'people':
@@ -346,11 +321,11 @@ class CrmRevealRule(models.Model):
             views.write({'reveal_state': 'not_found'})
             views.flush_recordset()
             # reset notified parameter to re-send credit notice if appears again
-            self.env['ir.config_parameter'].sudo().set_param('reveal.already_notified', False)
+            self.env['ir.config_parameter'].sudo().set_bool('reveal.already_notified', False)
         return True
 
     def _iap_contact_reveal(self, params, timeout=300):
-        endpoint = self.env['ir.config_parameter'].sudo().get_param('reveal.endpoint', DEFAULT_ENDPOINT) + '/iap/clearbit/1/reveal'
+        endpoint = (self.env['ir.config_parameter'].sudo().get_str('reveal.endpoint') or DEFAULT_ENDPOINT) + '/iap/clearbit/1/reveal'
         return iap_tools.iap_jsonrpc(endpoint, params=params, timeout=timeout)
 
     def _create_lead_from_response(self, result):
@@ -390,9 +365,14 @@ class CrmRevealRule(models.Model):
     def _lead_vals_from_response(self, result):
         self.ensure_one()
         company_data = result['reveal_data']
-        people_data = result.get('people_data')
-        lead_vals = self.env['crm.iap.lead.helpers'].lead_vals_from_response(self.lead_type, self.team_id.id, self.tag_ids.ids, self.user_id.id, company_data, people_data)
+        lead_vals = self.env['crm.iap.lead.helpers'].lead_vals_from_response(self.lead_type, self.team_id.id, self.tag_ids.ids, self.user_id.id, company_data)
 
+        if people_data := result.get('people_data'):
+            lead_vals.update({
+                'contact_name': people_data[0]['full_name'],
+                'email_from': people_data[0]['email'],
+                'function': people_data[0]['title'],
+            })
         lead_vals.update({
             'priority': self.priority,
             'reveal_ip': result['ip'],

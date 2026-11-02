@@ -1,32 +1,44 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-
 import base64
 
-import requests
+from odoo.exceptions import ValidationError
+from odoo.tests import JsonRpcException, common
 
-from odoo.tests import JsonRpcException, patch
-
-from odoo.addons.base.tests.common import HttpCaseWithUserDemo, Mock
+from odoo.addons.base.tests.common import HttpCaseWithUserDemo
 
 IMAGE_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="
 IMAGE_BYTES = base64.b64decode(IMAGE_BASE64)
 
 
+class TestUnsplash(common.TransactionCase):
+    def test_constraint(self):
+        self.env["ir.attachment"].create(
+            {
+                "name": "attachment",
+                "url": "/unsplash/xyz",
+                "raw": IMAGE_BASE64,
+            },
+        )
+
+        with self.assertRaises(ValidationError):
+            self.env["ir.attachment"].create(
+                {
+                    "name": "attachment",
+                    "url": "/unsplash/xyz",
+                    "raw": "dGVzdA==",
+                },
+            )
+
+
 class TestUnsplashHttp(HttpCaseWithUserDemo):
-
-    def _mocked_save_unsplash_url(self, url, *args, **kwargs):
-        """Mock the external requests to Unsplash"""
-        response = Mock()
-        response.status_code = 200
-        if url.startswith("https://images.unsplash.com/"):
-            response.content = IMAGE_BYTES
-        return response
-
     def test_access(self):
         url_image = "https://images.unsplash.com/foo"
         url_download = "https://api.unsplash.com/photos/foo"
         self.authenticate("demo", "demo")
-        with patch.object(requests, 'get', self._mocked_save_unsplash_url):
+        with (
+            common.MockHTTPClient(url=url_image, return_body=IMAGE_BYTES),
+            common.MockHTTPClient(url=url_download),
+        ):
             # Upload an unplash image on my partner -> Allowed
             result = self.make_jsonrpc_request(
                 "/web_unsplash/attachment/add",

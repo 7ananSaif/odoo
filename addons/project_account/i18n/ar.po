@@ -4,14 +4,15 @@
 #
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Malaz Siddig Elsayed Abuidris (msea)" <msea@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-10-13 12:17+0000\n"
-"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
-"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-10-22 07:33+0000\n"
+"Last-Translator: \"Malaz Siddig Elsayed Abuidris (msea)\" <msea@odoo.com>\n"
+"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-20/"
 "project_account/ar/>\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
@@ -19,7 +20,23 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: project_account
+#: model:ir.module.module,description:base.module_project_account
+msgid ""
+"\n"
+"Allows the computation of some section for the project profitability\n"
+"==================================================================================================\n"
+"This module allows the computation of the 'Vendor Bills', 'Other Costs' and "
+"'Other Revenue' section for the project profitability, in the project update "
+"view.\n"
+msgstr ""
+"\n"
+"يتيح لك حساب بعض الأجزاء المتعلقة بمدى ربحية المشروع\n"
+"==================================================================================================\n"
+"يمكّنك هذا التطبيق من حساب أقسام 'فواتير الموردين' و'التكاليف الأخرى' "
+"و'الإيرادات الأخرى' المتعلقة بربحية المشروع، في عرض تحديث المشروع.\n"
 
 #. module: project_account
 #: model:ir.embedded.actions,name:project_account.project_embedded_action_analytic_items
@@ -38,24 +55,16 @@ msgid "ID"
 msgstr "المُعرف"
 
 #. module: project_account
-#. odoo-python
-#: code:addons/project_account/models/project_project.py:0
-msgid "Other Costs"
-msgstr "التكاليف الأخرى"
-
-#. module: project_account
-#. odoo-python
-#: code:addons/project_account/models/project_project.py:0
-msgid "Other Revenues"
-msgstr "الإيرادات الأخرى"
-
-#. module: project_account
 #: model:ir.model,name:project_account.model_project_project
 msgid "Project"
 msgstr "المشروع"
 
 #. module: project_account
-#. odoo-python
-#: code:addons/project_account/models/project_project.py:0
-msgid "Vendor Bills"
-msgstr "فواتير المورد"
+#: model:ir.module.module,shortdesc:base.module_project_account
+msgid "Project - Account"
+msgstr "المشروع - الحساب"
+
+#. module: project_account
+#: model:ir.module.module,summary:base.module_project_account
+msgid "project profitability items computation"
+msgstr "احتساب عناصر ربحية المشروع"

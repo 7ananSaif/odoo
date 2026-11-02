@@ -11,10 +11,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2026-05-16 09:40+0000\n"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-09-21 11:34+0000\n"
 "Last-Translator: \"Noemi Pla Garcia (nopl)\" <nopl@odoo.com>\n"
-"Language-Team: Spanish <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Spanish <https://translate.odoo.com/projects/odoo-20/"
 "stock_sms/es/>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
@@ -22,38 +22,41 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=(n == 1) ? 0 : ((n != 0 && n % 1000000 == "
 "0) ? 1 : 2);\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: stock_sms
 #: model:sms.template,body:stock_sms.sms_template_data_stock_delivery
 msgid ""
 "\n"
-"                {{ (object.company_id.name + ': We are glad to inform you "
-"that your order n° ' + object.origin + ' has been shipped.' if object.origin "
-"else object.company_id.name + ': We are glad to inform you that your order "
-"has been shipped.') + (' Your tracking reference is ' + "
+"                {{ (object.company_id.name + ': Your order n° ' + "
+"object.origin + ' has been collected.' if object.origin else "
+"object.company_id.name + ': Your order has been collected.') if "
+"hasattr(object, 'delivery_type') and object.delivery_type == 'in_store' else "
+"(object.company_id.name + ': We are glad to inform you that your order n° ' "
+"+ object.origin + ' has been shipped.' if object.origin else "
+"object.company_id.name + ': We are glad to inform you that your order has "
+"been shipped.') + (' Your tracking reference is ' + "
 "(object.carrier_tracking_ref) + '.' if hasattr(object, "
 "'carrier_tracking_ref') and object.carrier_tracking_ref else '') }}\n"
 "            "
 msgstr ""
 "\n"
-"                {{ (object.company_id.name + ': Te informamos de que tu "
-"pedido con número de referencia ' + object.origin + ' ha sido enviado.' if "
-"object.origin else object.company_id.name + ': Te informamos de que tu "
-"pedido se ha enviado.') + (' La referencia de seguimiento es ' + "
-"(object.carrier_tracking_ref) + '.' if hasattr(object, "
-"'carrier_tracking_ref') and object.carrier_tracking_ref else '') }}\n"
+"                {{ (object.company_id.name + ': Tu pedido con número ' + "
+"object.origin + ' ha sido recogido.' if object.origin else "
+"object.company_id.name + ': Tu pedido se ha recogido.') if hasattr(object, "
+"'delivery_type') and object.delivery_type == 'in_store' else "
+"(object.company_id.name + ': Te informamos de que tu pedido con número ' + "
+"object.origin + ' se ha enviado.' if object.origin else "
+"object.company_id.name + ': Te informamos de que tu pedido se ha enviado.') "
+"+ (' La referencia de seguimiento es ' + (object.carrier_tracking_ref) + '.' "
+"if hasattr(object, 'carrier_tracking_ref') and object.carrier_tracking_ref "
+"else '') }}\n"
 "            "
 
 #. module: stock_sms
-#: model_terms:ir.ui.view,arch_db:stock_sms.view_confirm_stock_sms
-msgid "Cancel"
-msgstr "Cancelar"
-
-#. module: stock_sms
 #: model:ir.model,name:stock_sms.model_res_company
-msgid "Companies"
-msgstr "Compañías"
+msgid "Company"
+msgstr "Empresa"
 
 #. module: stock_sms
 #: model:ir.model,name:stock_sms.model_res_config_settings
@@ -146,6 +149,17 @@ msgid "SMS sent to the customer once the order is delivered."
 msgstr "SMS que se envía al cliente una vez que se entrega la orden."
 
 #. module: stock_sms
+#: model:ir.module.module,description:base.module_stock_sms
+#: model:ir.module.module,summary:base.module_stock_sms
+msgid "Send text messages when final stock move"
+msgstr ""
+
+#. module: stock_sms
+#: model:ir.module.module,shortdesc:base.module_stock_sms
+msgid "Stock - SMS"
+msgstr ""
+
+#. module: stock_sms
 #: model:ir.model,name:stock_sms.model_stock_picking
 msgid "Transfer"
 msgstr "Traslado"
@@ -161,12 +175,3 @@ msgstr ""
 ">\n"
 "                Esta característica se puede desactivar fácilmente desde los "
 "ajustes de inventario o haciendo clic en \"Deshabilitar SMS\".<br/>"
-
-#~ msgid "Last Modified on"
-#~ msgstr "Última modificación el"
-
-#~ msgid "SMS Confirmation"
-#~ msgstr "Confirmación por SMS"
-
-#~ msgid "SMS Validation with stock move"
-#~ msgstr "Validación de SMS con movimiento de stock"

@@ -3,21 +3,31 @@
 # * event_booth
 #
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+# 张飞虎 <feihu.zhang@live.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-09-16 15:38+0000\n"
-"Last-Translator: \"Tiffany Chang (tic)\" <tic@odoo.com>\n"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-10-11 13:33+0000\n"
+"Last-Translator: 张飞虎 <feihu.zhang@live.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://translate.odoo.com/"
-"projects/odoo-19/event_booth/zh_Hans/>\n"
+"projects/odoo-20/event_booth/zh_Hans/>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: event_booth
+#: model:ir.module.module,description:base.module_event_booth
+msgid ""
+"\n"
+"Create booths for your favorite event.\n"
+msgstr ""
+"\n"
+"为您喜爱的活动创建展位。\n"
 
 #. module: event_booth
 #: model_terms:ir.ui.view,arch_db:event_booth.event_booth_booked_template
@@ -125,6 +135,11 @@ msgstr "活动"
 #: model:ir.model.fields,field_description:event_booth.field_event_booth__activity_exception_decoration
 msgid "Activity Exception Decoration"
 msgstr "活动异常标示"
+
+#. module: event_booth
+#: model:ir.model.fields,field_description:event_booth.field_event_booth__activity_plans_ids
+msgid "Activity Plans"
+msgstr "活动计划"
 
 #. module: event_booth
 #: model:ir.model.fields,field_description:event_booth.field_event_booth__activity_state
@@ -342,6 +357,11 @@ msgid "Event booth"
 msgstr "活动展位"
 
 #. module: event_booth
+#: model:ir.module.module,shortdesc:base.module_event_booth
+msgid "Events Booths"
+msgstr "活动展位"
+
+#. module: event_booth
 #: model:ir.model.fields,field_description:event_booth.field_event_booth__message_follower_ids
 msgid "Followers"
 msgstr "关注者"
@@ -350,11 +370,6 @@ msgstr "关注者"
 #: model:ir.model.fields,field_description:event_booth.field_event_booth__message_partner_ids
 msgid "Followers (Partners)"
 msgstr "关注者（合作伙伴）"
-
-#. module: event_booth
-#: model:ir.model.fields,help:event_booth.field_event_booth__activity_type_icon
-msgid "Font awesome icon e.g. fa-tasks"
-msgstr "Font Awesome图标，例如：fa-tasks"
 
 #. module: event_booth
 #: model:event.booth,name:event_booth.event_booth_20_event_7
@@ -454,6 +469,16 @@ msgstr "最后更新人"
 #: model:ir.model.fields,field_description:event_booth.field_event_type_booth__write_date
 msgid "Last Updated on"
 msgstr "上次更新日期"
+
+#. module: event_booth
+#: model:ir.module.module,summary:base.module_event_booth
+msgid "Manage event booths"
+msgstr "管理活动展位"
+
+#. module: event_booth
+#: model:ir.model.fields,help:event_booth.field_event_booth__activity_type_icon
+msgid "Material Symbols icon e.g. checklist"
+msgstr "Material Symbols 图标，例如 checklist"
 
 #. module: event_booth
 #: model:ir.model.fields,field_description:event_booth.field_event_booth__message_has_error
@@ -677,16 +702,6 @@ msgid "VIP Booth A5"
 msgstr "VIP展位A5"
 
 #. module: event_booth
-#: model:ir.model.fields,field_description:event_booth.field_event_booth__website_message_ids
-msgid "Website Messages"
-msgstr "网站消息"
-
-#. module: event_booth
-#: model:ir.model.fields,help:event_booth.field_event_booth__website_message_ids
-msgid "Website communication history"
-msgstr "网站沟通记录"
-
-#. module: event_booth
 #: model_terms:ir.ui.view,arch_db:event_booth.event_booth_category_view_form
 msgid "e.g. \"Those stands will be place near the entrance and...\""
 msgstr "例如：“那些看台将被放置在入口附近，并且......”"
@@ -703,5 +718,8 @@ msgstr "例如：第一展位巷1"
 msgid "e.g. Premium Booth"
 msgstr "例如：高级展位"
 
-#~ msgid "Group By"
-#~ msgstr "分组方式"
+msgid "Website Messages"
+msgstr "网站消息"
+
+msgid "Website communication history"
+msgstr "网站沟通记录"

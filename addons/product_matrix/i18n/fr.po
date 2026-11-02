@@ -7,14 +7,15 @@
 # Jolien De Paepe, 2023
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Manon Rondou (ronm)" <ronm@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0beta\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-09-14 21:11+0000\n"
-"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
-"Language-Team: French <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 17:49+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: French <https://translate.odoo.com/projects/odoo-s19-4/"
 "product_matrix/fr/>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -22,7 +23,14 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=(n == 0 || n == 1) ? 0 : ((n != 0 && n % "
 "1000000 == 0) ? 1 : 2);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: product_matrix
+#: model:ir.module.module,description:base.module_product_matrix
+msgid ""
+"\n"
+"Please refer to Sale Matrix or Purchase Matrix for the use of this module.\n"
+msgstr ""
 
 #. module: product_matrix
 #: model_terms:ir.ui.view,arch_db:product_matrix.matrix
@@ -42,12 +50,6 @@ msgstr "<strong>Bloc de matrice de produits</strong>"
 #: model_terms:ir.ui.view,arch_db:product_matrix.matrix
 msgid "Cell name"
 msgstr "Nom de la cellule"
-
-#. module: product_matrix
-#. odoo-javascript
-#: code:addons/product_matrix/static/src/xml/product_matrix_dialog.xml:0
-msgid "Choose Product Variants"
-msgstr "Choisissez des variantes de produit"
 
 #. module: product_matrix
 #: model_terms:ir.ui.view,arch_db:product_matrix.matrix
@@ -95,6 +97,11 @@ msgid "Product"
 msgstr "Produit"
 
 #. module: product_matrix
+#: model:ir.module.module,shortdesc:base.module_product_matrix
+msgid "Product Matrix"
+msgstr ""
+
+#. module: product_matrix
 #: model:ir.model,name:product_matrix.model_product_template_attribute_value
 msgid "Product Template Attribute Value"
 msgstr "Valeur caratéristique du modèle produit"
@@ -103,6 +110,11 @@ msgstr "Valeur caratéristique du modèle produit"
 #: model:product.template,description_sale:product_matrix.matrix_product_template_shirt
 msgid "Show your company love around you =)."
 msgstr "Montrez l'amour de votre entreprise autour de vous =)"
+
+#. module: product_matrix
+#: model:ir.module.module,summary:base.module_product_matrix
+msgid "Technical module: Matrix Implementation"
+msgstr ""
 
 #. module: product_matrix
 #: model_terms:ir.ui.view,arch_db:product_matrix.matrix
@@ -117,33 +129,3 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:product_matrix.extra_price
 msgid "Variant price"
 msgstr "Prix de la variante"
-
-#~ msgid "Blue"
-#~ msgstr "Bleu"
-
-#~ msgid "Gender"
-#~ msgstr "Genre"
-
-#~ msgid "Men"
-#~ msgstr "Hommes"
-
-#~ msgid "Pink"
-#~ msgstr "Rose"
-
-#~ msgid "Rainbow"
-#~ msgstr "Arc-en-ciel"
-
-#~ msgid "Size"
-#~ msgstr "Taille"
-
-#~ msgid "Women"
-#~ msgstr "Femmes"
-
-#~ msgid "XL"
-#~ msgstr "XL"
-
-#~ msgid "XS"
-#~ msgstr "XS"
-
-#~ msgid "Yellow"
-#~ msgstr "Jaune"

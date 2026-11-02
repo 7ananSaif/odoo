@@ -1,10 +1,8 @@
-import { stepUtils } from "@web_tour/tour_utils";
 import { clickOnSave, goToTheme, registerWebsitePreviewTour } from "@website/js/tours/tour_utils";
 
 registerWebsitePreviewTour(
     "hide_sidebar_header",
     {
-        url: "/",
         edition: true,
     },
     () => [
@@ -30,6 +28,7 @@ registerWebsitePreviewTour(
         {
             content: "Check that the header changed to 'Sidebar'",
             trigger: ":iframe #wrapwrap>header.o_header_sidebar",
+            timeout: 20000,
         },
         {
             content: "Check that the builder is not disabled",
@@ -41,7 +40,6 @@ registerWebsitePreviewTour(
             trigger: ".hb-row[data-label='Show Header'] input[type='checkbox']",
             run: "click",
         },
-        stepUtils.waitIframeIsReady(),
         {
             content: "Check that the header has been hidden",
             trigger: ":iframe #wrapwrap:not(:has(:scope > header))",

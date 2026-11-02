@@ -2,7 +2,6 @@ import { setupInteractionWhiteList, startInteractions } from "@web/../tests/publ
 
 import { describe, expect, test } from "@odoo/hoot";
 import { click, microTick, queryOne } from "@odoo/hoot-dom";
-import { Deferred } from "@odoo/hoot-mock";
 
 import { onRpc } from "@web/../tests/web_test_helpers";
 
@@ -11,18 +10,18 @@ setupInteractionWhiteList("website.listing_layout");
 describe.current.tags("interaction_dev");
 
 test("listing_layout toggle to list mode", async () => {
-    const deferred = new Deferred();
+    const deferred = Promise.withResolvers();
     await startInteractions(`
         <div class="container o_website_listing_layout">
             <section>
                 <div class="listing_layout_switcher btn-group" data-active-classes="border-primary" data-view-id="123">
                     <input id="apply_grid" type="radio" class="btn-check" value="grid" checked="checked">
                     <label title="Grid" for="apply_grid" class="btn">
-                        <i class="fa fa-th-large"></i>
+                        <i class="oi" data-icon="view_module"></i>
                     </label>
                     <input id="apply_list" type="radio" class="btn-check" value="list">
                     <label title="List" for="apply_list" class="btn">
-                        <i class="oi oi-view-list"></i>
+                        <i class="oi" data-icon="view_list"></i>
                     </label>
                 </div>
             </section>
@@ -56,23 +55,23 @@ test("listing_layout toggle to list mode", async () => {
         "px-2",
         "col-xs-12",
     ]);
-    await deferred;
+    await deferred.promise;
     expect.verifySteps(["rpc"]);
 });
 
 test("listing_layout toggle to grid mode", async () => {
-    const deferred = new Deferred();
+    const deferred = Promise.withResolvers();
     await startInteractions(`
         <div class="container o_website_listing_layout">
             <section>
                 <div class="listing_layout_switcher btn-group" data-active-classes="border-primary" data-view-id="123">
                     <input id="apply_grid" type="radio" class="btn-check" value="grid">
                     <label title="Grid" for="apply_grid" class="btn">
-                        <i class="fa fa-th-large"></i>
+                        <i class="oi" data-icon="view_module"></i>
                     </label>
                     <input id="apply_list" type="radio" class="btn-check" value="list" checked="checked">
                     <label title="List" for="apply_list" class="btn">
-                        <i class="oi oi-view-list"></i>
+                        <i class="oi" data-icon="view_list"></i>
                     </label>
                 </div>
             </section>
@@ -106,6 +105,6 @@ test("listing_layout toggle to grid mode", async () => {
         "px-2",
         "col-xs-12",
     ]);
-    await deferred;
+    await deferred.promise;
     expect.verifySteps(["rpc"]);
 });

@@ -11,15 +11,11 @@ const searchTemplate = `
             <input type="search" name="search" class="search-query form-control oe_search_box" placeholder="Search..."
                     data-search-type="test"
                     data-limit="3"
-                    data-display-image="false"
-                    data-display-description="false"
-                    data-display-extra-link="true"
-                    data-display-detail="false"
                     data-order-by="name asc"
                     autocomplete="off"
             />
             <button type="submit" aria-label="Search" title="Search" class="btn oe_search_button border border-start-0 px-4 bg-o-color-4">
-                <i class="oi oi-search"></i>
+                <i class="oi" data-icon="search"></i>
             </button>
         </div>
         <input name="order" type="hidden" class="o_search_order_by" value="test desc"/>

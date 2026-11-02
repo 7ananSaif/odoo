@@ -2,9 +2,9 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import markupsafe
-import re
 
 from odoo import api, fields, models, release
+from odoo.addons.l10n_es_edi_tbai.const import TBAI_EXTRA_CODES_SALE
 from odoo.tools import LazyTranslate
 
 _lt = LazyTranslate(__name__)
@@ -93,6 +93,22 @@ class ResCompany(models.Model):
         for company in self:
             company.l10n_es_tbai_is_enabled = company.country_code == 'ES' and company.l10n_es_tbai_tax_agency
 
+    def _l10n_es_special_vat_regime_codes(self):
+        # EXTENDS 'l10n_es'
+        self.ensure_one()
+        codes = super()._l10n_es_special_vat_regime_codes()
+        if self.l10n_es_tbai_is_enabled:
+            codes = codes | {'equivalence_surcharge': '51', 'simplified': '52'}
+        return codes
+
+    def _l10n_es_regime_available_codes(self, use, applicability=None):
+        # EXTENDS 'l10n_es'
+        self.ensure_one()
+        codes = super()._l10n_es_regime_available_codes(use, applicability=applicability)
+        if use == 'sale' and self.l10n_es_tbai_is_enabled:
+            codes = codes + TBAI_EXTRA_CODES_SALE
+        return codes
+
     @api.depends('country_id', 'l10n_es_tbai_certificate_ids')
     def _compute_l10n_es_tbai_certificate(self):
         for company in self:
@@ -144,7 +160,7 @@ class ResCompany(models.Model):
         if not self.l10n_es_tbai_chain_sequence_id:
             self_sudo = self.sudo()
             self_sudo.l10n_es_tbai_chain_sequence_id = self_sudo.env['ir.sequence'].create({
-                'name': f'TicketBAI account move sequence for {self.name} (id: {self.id})',
+                'name': f'TicketBAI journal entry sequence for {self.name} (id: {self.id})',
                 'code': f'l10n_es.edi.tbai.account.move.{self.id}',
                 'implementation': 'no_gap',
                 'company_id': self.id,
@@ -165,11 +181,4 @@ class ResCompany(models.Model):
 
     def _l10n_es_freelancer(self):
         self.ensure_one()
-        if not self.vat:
-            return False
-
-        vat = self.vat
-        if vat.startswith('ES'):
-            vat = vat[2:]
-
-        return re.fullmatch(r"(\d{8}[TRWAGMYFPDXBNJZSQVHLCKE]|[XYZ]\d{7}[TRWAGMYFPDXBNJZSQVHLCKE]|E\d{7}[A-J0-9])", vat) or False
+        return self.partner_id._l10n_es_freelancer()

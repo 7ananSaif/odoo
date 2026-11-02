@@ -1,4 +1,4 @@
-import { Component, useRef, useState } from "@odoo/owl";
+import { Component, proxy, signal, t, useProps } from "@odoo/owl";
 import { Dialog } from "@web/core/dialog/dialog";
 import { ExpressionEditor } from "@web/core/expression_editor/expression_editor";
 import { evaluateExpr } from "@web/core/py_js/py";
@@ -9,20 +9,21 @@ import { user } from "@web/core/user";
 export class ExpressionEditorDialog extends Component {
     static components = { Dialog, ExpressionEditor };
     static template = "web.ExpressionEditorDialog";
-    static props = {
-        close: Function,
-        resModel: String,
-        fields: Object,
-        expression: String,
-        onConfirm: Function,
-    };
+    props = useProps({
+        close: t.function(),
+        resModel: t.string(),
+        fields: t.object(),
+        expression: t.string(),
+        onConfirm: t.function(),
+    });
+
+    confirmButtonRef = signal.ref();
 
     setup() {
         this.notification = useService("notification");
-        this.state = useState({
+        this.state = proxy({
             expression: this.props.expression,
         });
-        this.confirmButtonRef = useRef("confirm");
     }
 
     get expressionEditorProps() {
@@ -57,14 +58,14 @@ export class ExpressionEditorDialog extends Component {
     }
 
     async onConfirm() {
-        this.confirmButtonRef.el.disabled = true;
+        this.confirmButtonRef().disabled = true;
         const record = this.makeDefaultRecord();
         const evalContext = { ...user.context, ...record };
         try {
             evaluateExpr(this.state.expression, evalContext);
         } catch {
-            if (this.confirmButtonRef.el) {
-                this.confirmButtonRef.el.disabled = false;
+            if (this.confirmButtonRef()) {
+                this.confirmButtonRef().disabled = false;
             }
             this.notification.add(_t("Expression is invalid. Please correct it"), {
                 type: "danger",

@@ -12,17 +12,28 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-01-05 04:33+0000\n"
-"Last-Translator: \"Kwanghee Park (kwpa)\" <kwpa@odoo.com>\n"
-"Language-Team: Korean <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-04 17:44+0000\n"
+"PO-Revision-Date: 2026-08-31 18:32+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Korean <https://translate.odoo.com/projects/odoo-s19-4/"
 "stock_landed_costs/ko/>\n"
 "Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: stock_landed_costs
+#: model:ir.module.module,description:base.module_stock_landed_costs
+msgid ""
+"\n"
+"Landed Costs Management\n"
+"=======================\n"
+"This module allows you to easily add extra costs on pickings and decide the "
+"split of these costs among their stock moves in order to take them into "
+"account in your stock valuation.\n"
+msgstr ""
 
 #. module: stock_landed_costs
 #. odoo-python
@@ -34,14 +45,16 @@ msgstr "+ %(value)s (양륙 비용: %(landed_cost)s)"
 #. odoo-python
 #: code:addons/stock_landed_costs/models/stock_move.py:0
 msgid "+ %(value)s from %(vendor_bill)s (Landed Cost: %(landed_cost)s)"
-msgstr ""
+msgstr "+ %(value)s 업체 청구서 %(vendor_bill)s (양륙 비용: %(landed_cost)s)"
 
 #. module: stock_landed_costs
 #: model_terms:ir.ui.view,arch_db:stock_landed_costs.stock_landed_cost_view_kanban
 msgid ""
-"<i class=\"fa fa-clock-o\" title=\"Date\" role=\"img\" aria-label=\"Date\"/>"
+"<i class=\"oi\" data-icon=\"schedule\" title=\"Date\" role=\"img\" aria-"
+"label=\"Date\"/>"
 msgstr ""
-"<i class=\"fa fa-clock-o\" title=\"Date\" role=\"img\" aria-label=\"Date\"/>"
+"<i class=\"oi\" data-icon=\"schedule\" title=\"Date\" role=\"img\" aria-"
+"label=\"Date\"/>"
 
 #. module: stock_landed_costs
 #: model:ir.model.fields,field_description:stock_landed_costs.field_stock_landed_cost_lines__account_id
@@ -67,6 +80,11 @@ msgstr "활동"
 #: model:ir.model.fields,field_description:stock_landed_costs.field_stock_landed_cost__activity_exception_decoration
 msgid "Activity Exception Decoration"
 msgstr "활동 예외 장식"
+
+#. module: stock_landed_costs
+#: model:ir.model.fields,field_description:stock_landed_costs.field_stock_landed_cost__activity_plans_ids
+msgid "Activity Plans"
+msgstr "활동 계획"
 
 #. module: stock_landed_costs
 #: model:ir.model.fields,field_description:stock_landed_costs.field_stock_landed_cost__activity_state
@@ -99,7 +117,26 @@ msgstr ""
 "%(landed_cost)s"
 
 #. module: stock_landed_costs
+#: model_terms:ir.ui.view,arch_db:stock_landed_costs.view_product_landed_cost_form
+#: model_terms:ir.ui.view,arch_db:stock_landed_costs.view_stock_landed_cost_form
+msgid "All Products"
+msgstr ""
+
+#. module: stock_landed_costs
+#: model:ir.model.fields,field_description:stock_landed_costs.field_stock_landed_cost__allowed_product_ids
+msgid "Allowed Product"
+msgstr ""
+
+#. module: stock_landed_costs
+#: model:ir.model.fields,field_description:stock_landed_costs.field_product_product__landed_cost_on_product_ids
+#: model:ir.model.fields,field_description:stock_landed_costs.field_product_template__landed_cost_on_product_ids
+msgid "Apply Landed Cost On"
+msgstr ""
+
+#. module: stock_landed_costs
 #: model:ir.model.fields,field_description:stock_landed_costs.field_stock_landed_cost__target_model
+#: model:ir.model.fields,field_description:stock_landed_costs.field_stock_landed_cost_lines__apply_on_product_ids
+#: model_terms:ir.ui.view,arch_db:stock_landed_costs.view_product_landed_cost_form
 msgid "Apply On"
 msgstr "적용"
 
@@ -144,10 +181,6 @@ msgstr "취소됨"
 
 #. module: stock_landed_costs
 #: model:ir.model,name:stock_landed_costs.model_res_company
-msgid "Companies"
-msgstr "회사"
-
-#. module: stock_landed_costs
 #: model:ir.model.fields,field_description:stock_landed_costs.field_stock_landed_cost__company_id
 msgid "Company"
 msgstr "회사"
@@ -306,11 +339,6 @@ msgid "Followers (Partners)"
 msgstr "팔로워 (협력사)"
 
 #. module: stock_landed_costs
-#: model:ir.model.fields,help:stock_landed_costs.field_stock_landed_cost__activity_type_icon
-msgid "Font awesome icon e.g. fa-tasks"
-msgstr "멋진 아이콘 폰트 예: fa-tasks"
-
-#. module: stock_landed_costs
 #: model_terms:ir.ui.view,arch_db:stock_landed_costs.view_stock_landed_cost_search
 msgid "Future Activities"
 msgstr "향후 활동"
@@ -424,6 +452,7 @@ msgstr "양륙 비용"
 #: model:ir.actions.act_window,name:stock_landed_costs.action_stock_landed_cost
 #: model:ir.model.fields,field_description:stock_landed_costs.field_account_bank_statement_line__landed_costs_ids
 #: model:ir.model.fields,field_description:stock_landed_costs.field_account_move__landed_costs_ids
+#: model:ir.module.module,summary:base.module_stock_landed_costs
 #: model:ir.ui.menu,name:stock_landed_costs.menu_stock_landed_cost
 #: model_terms:ir.ui.view,arch_db:stock_landed_costs.account_view_move_form_inherited
 #: model_terms:ir.ui.view,arch_db:stock_landed_costs.view_stock_landed_cost_form
@@ -476,6 +505,11 @@ msgstr "지연된 활동"
 #: model:ir.model.fields,field_description:stock_landed_costs.field_res_company__lc_journal_id
 msgid "Lc Journal"
 msgstr "LC 전표"
+
+#. module: stock_landed_costs
+#: model:ir.model.fields,help:stock_landed_costs.field_stock_landed_cost__activity_type_icon
+msgid "Material Symbols icon e.g. checklist"
+msgstr ""
 
 #. module: stock_landed_costs
 #: model:ir.model.fields,field_description:stock_landed_costs.field_stock_landed_cost__message_has_error
@@ -569,6 +603,11 @@ msgstr "원래 가격"
 #: model_terms:ir.ui.view,arch_db:stock_landed_costs.view_stock_landed_cost_search
 msgid "Picking"
 msgstr "선별"
+
+#. module: stock_landed_costs
+#: model:ir.model.fields,field_description:stock_landed_costs.field_stock_landed_cost__pickings_count
+msgid "Pickings Count"
+msgstr "피킹 집계"
 
 #. module: stock_landed_costs
 #. odoo-python
@@ -674,6 +713,18 @@ msgid "Stock Move"
 msgstr "재고 이동"
 
 #. module: stock_landed_costs
+#: model:ir.model.fields,help:stock_landed_costs.field_product_product__landed_cost_on_product_ids
+#: model:ir.model.fields,help:stock_landed_costs.field_product_template__landed_cost_on_product_ids
+#: model:ir.model.fields,help:stock_landed_costs.field_stock_landed_cost_lines__apply_on_product_ids
+msgid ""
+"The landed cost is by default applied only on these products, if they are "
+"included in the transfer.\n"
+"Even if landed costs can be applied on all goods, only products valued using "
+"the AVCO or FIFO methods will have their calculated value affected by landed "
+"costs."
+msgstr ""
+
+#. module: stock_landed_costs
 #: model_terms:ir.ui.view,arch_db:stock_landed_costs.view_stock_landed_cost_search
 msgid "Today Activities"
 msgstr "오늘 활동"
@@ -684,8 +735,11 @@ msgid "Total"
 msgstr "총계"
 
 #. module: stock_landed_costs
+#. odoo-python
+#: code:addons/stock_landed_costs/models/stock_landed_cost.py:0
 #: model:ir.model.fields,field_description:stock_landed_costs.field_stock_landed_cost__picking_ids
 #: model:ir.model.fields.selection,name:stock_landed_costs.selection__stock_landed_cost__target_model__picking
+#: model_terms:ir.ui.view,arch_db:stock_landed_costs.view_stock_landed_cost_form
 msgid "Transfers"
 msgstr "이동"
 
@@ -711,8 +765,8 @@ msgstr ""
 
 #. module: stock_landed_costs
 #: model:ir.model,name:stock_landed_costs.model_stock_valuation_adjustment_lines
-msgid "Valuation Adjustment Lines"
-msgstr "평가 조정 명세"
+msgid "Valuation Adjustment Line"
+msgstr "평가 조정 항목"
 
 #. module: stock_landed_costs
 #: model:ir.model.fields,field_description:stock_landed_costs.field_stock_landed_cost__valuation_adjustment_lines
@@ -731,14 +785,9 @@ msgid "Volume"
 msgstr "부피"
 
 #. module: stock_landed_costs
-#: model:ir.model.fields,field_description:stock_landed_costs.field_stock_landed_cost__website_message_ids
-msgid "Website Messages"
-msgstr "웹사이트 메시지"
-
-#. module: stock_landed_costs
-#: model:ir.model.fields,help:stock_landed_costs.field_stock_landed_cost__website_message_ids
-msgid "Website communication history"
-msgstr "웹사이트 대화 이력"
+#: model:ir.module.module,shortdesc:base.module_stock_landed_costs
+msgid "WMS Landed Costs"
+msgstr ""
 
 #. module: stock_landed_costs
 #: model:ir.model.fields,field_description:stock_landed_costs.field_stock_valuation_adjustment_lines__weight
@@ -747,49 +796,8 @@ msgstr "무게"
 
 #. module: stock_landed_costs
 #. odoo-python
-#: code:addons/stock_landed_costs/models/stock_landed_cost.py:0
-msgid ""
-"You cannot apply landed costs on the chosen %s(s). Landed costs can only be "
-"applied for products with FIFO or average costing method."
-msgstr ""
-"선택한 %s 항목에 양륙 비용을 적용시킬 수 없습니다. 양륙 비용은 FIFO (선입선출"
-"법)이나 평균원가법을 사용하는 품목에만 적용하실 수 있습니다."
-
-#. module: stock_landed_costs
-#. odoo-python
 #: code:addons/stock_landed_costs/models/product.py:0
 msgid ""
 "You cannot change the product type or disable landed cost option because the "
-"product is used in an account move line."
+"product is used in a journal item."
 msgstr ""
-"해당 품목이 계정 이동 내역에서 사용되기 때문에 품목 유형을 변경하거나 수입부"
-"대비용 옵션을 비활성화시킬 수 없습니다."
-
-#~ msgid " already out"
-#~ msgstr " 이미 종료"
-
-#~ msgid ""
-#~ "A storable product is a product for which you manage stock. The Inventory "
-#~ "app has to be installed.\n"
-#~ "A consumable product is a product for which stock is not managed.\n"
-#~ "A service is a non-material product you provide."
-#~ msgstr ""
-#~ "저장 가능 제품은 재고를 관리하는 품목입니다. 창고 앱이 설치되어 있어야 합"
-#~ "니다.\n"
-#~ "소모품은 재고가 관리되지 않는 품목입니다.\n"
-#~ "서비스는 귀하가 제공하는 비물질 품목입니다."
-
-#~ msgid "Company related to this journal"
-#~ msgstr "이 분개장과 관련된 회사"
-
-#~ msgid "Group By"
-#~ msgstr "그룹별"
-
-#~ msgid "Number of messages which requires an action"
-#~ msgstr "조치가 필요한 메시지 수"
-
-#~ msgid "Show all records which has next action date is before today"
-#~ msgstr "다음 행동 날짜가 오늘 이전 인 모든 기록보기"
-
-#~ msgid "Stock Valuation Layer"
-#~ msgstr "재고 평가 레이어"

@@ -1,10 +1,12 @@
-import { Component, useRef, onMounted, onWillUnmount, useEffect, useState } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount, computed, proxy, signal } from "@odoo/owl";
 import { useSelfOrder } from "@pos_self_order/app/services/self_order_service";
 import { useService } from "@web/core/utils/hooks";
+import { _t } from "@web/core/l10n/translation";
 
 import { OrderWidget } from "@pos_self_order/app/components/order_widget/order_widget";
-import { ProductNameWidget } from "@pos_self_order/app/components/product_name_widget/product_name_widget";
+import { ProductCard } from "@pos_self_order/app/components/product_card/product_card";
 import { CategoryListPopup } from "@pos_self_order/app/components/category_list_popup/category_list_popup";
+import { CancelPopup } from "@pos_self_order/app/components/cancel_popup/cancel_popup";
 import { useCategoryScrollSpy } from "../../utils/category_scrollspy_hook";
 import { useDraggableScroll } from "../../utils/scroll_dnd_hook";
 import { scrollItemIntoViewX } from "../../utils/scroll";
@@ -14,17 +16,19 @@ let savedScrollTop = 0;
 
 export class ProductListPage extends Component {
     static template = "pos_self_order.ProductListPage";
-    static components = { OrderWidget, ProductNameWidget };
-    static props = {};
+    static components = { OrderWidget, ProductCard };
+
+    categoryListRef = signal.ref();
+    subCategoryListRef = signal.ref();
+    productListRef = signal.ref();
+    subCategoryContainerRef = signal.ref();
+    categoryContainerRef = signal.ref();
 
     setup() {
         this.selfOrder = useSelfOrder();
         this.router = useService("router");
         this.dialog = useService("dialog");
-        this.categoryListRef = useRef("category_list");
-        this.subCategoryListRef = useRef("sub_category_list");
-        this.productListRef = useRef("product_list");
-        this.subCategoryContainerRef = useRef("sub_cat_container");
+        this.ui = useService("ui");
 
         const initCategories = !this.selfOrder.currentCategory;
         if (initCategories) {
@@ -37,7 +41,7 @@ export class ProductListPage extends Component {
                 ? topCategories[0]
                 : this.selfOrder.currentCategory;
 
-        this.state = useState({
+        this.state = proxy({
             selectedCategory: selectedCategory,
             quantityByProductTmplId: {},
             topCategories: topCategories,
@@ -59,12 +63,11 @@ export class ProductListPage extends Component {
 
         this.scrollShadow = useScrollShadow(this.productListRef);
         useDraggableScroll(this.categoryListRef);
-        useHorizontalScrollShadow(this.categoryListRef, useRef("category_container"));
+        useHorizontalScrollShadow(this.categoryListRef, this.categoryContainerRef);
         useDraggableScroll(this.subCategoryListRef);
-
-        useEffect(
-            (lines) => {
-                this.state.quantityByProductTmplId = lines
+        Object.defineProperty(this.state, "quantityByProductTmplId", {
+            get: computed(() =>
+                this.selfOrder.currentOrder.lines
                     .filter((line) => !line.combo_parent_id)
                     .reduce((acc, { product_id, changes: { qty } }) => {
                         const tmplId = product_id.product_tmpl_id.id;
@@ -72,23 +75,61 @@ export class ProductListPage extends Component {
                             acc[tmplId] = (acc[tmplId] || 0) + qty;
                         }
                         return acc;
-                    }, {});
-            },
-            () => [this.selfOrder.currentOrder.lines]
-        );
+                    }, {})
+            ),
+        });
 
         onMounted(() => {
             this.toggleSubCategoryPanel();
             this.ensureCategoryVisible();
-            if (this.productListRef.el) {
-                this.productListRef.el.scrollTop = savedScrollTop;
+            if (this.productListRef()) {
+                this.productListRef().scrollTop = savedScrollTop;
             }
         });
 
         onWillUnmount(() => {
             this.selfOrder.currentCategory = this.state.selectedCategory;
-            savedScrollTop = this.productListRef.el?.scrollTop || 0;
+            savedScrollTop = this.productListRef()?.scrollTop || 0;
         });
+    }
+
+    get showBackButton() {
+        const order = this.selfOrder.currentOrder;
+        return Object.keys(order.changes).length === 0 || order.lines.length === 0;
+    }
+
+    get backTargetPage() {
+        const order = this.selfOrder.currentOrder;
+        const payAfter = this.selfOrder.config.self_ordering_pay_after;
+        const alreadyOrdered =
+            payAfter === "meal" && Object.keys(order.uiState.lineChanges).length > 0;
+        return this.selfOrder.hasPresets() && !alreadyOrdered ? "location" : "default";
+    }
+
+    discardOrder() {
+        this.dialog.add(CancelPopup, {
+            title: _t("Cancel order"),
+            confirm: () => {
+                this.selfOrder.cancelOrder();
+                this.router.navigate("default");
+            },
+        });
+    }
+
+    get checkoutDisabled() {
+        const order = this.selfOrder.currentOrder;
+        return order.lines.length === 0 || order.unsentLines.length === 0;
+    }
+
+    get total() {
+        const orderLineNotSend = this.selfOrder.orderLineNotSend;
+        return {
+            count: orderLineNotSend.count,
+            price:
+                this.selfOrder.config.iface_tax_included === "total"
+                    ? orderLineNotSend.priceWithTax
+                    : orderLineNotSend.priceWithoutTax,
+        };
     }
 
     selectCategory(category) {
@@ -98,7 +139,7 @@ export class ProductListPage extends Component {
                 this.toggleSubCategoryPanel();
             }
             this.ensureCategoryVisible();
-            this.productListRef.el?.scrollTo({ top: 0 });
+            this.productListRef()?.scrollTo({ top: 0 });
         } else {
             this.scrollToCategory(category.id);
         }
@@ -110,17 +151,10 @@ export class ProductListPage extends Component {
         }
 
         scrollItemIntoViewX(
-            this.categoryListRef.el,
+            this.categoryListRef(),
             `[data-category-pill="${this.selectedCategory.id}"]`,
-            { edgePadding: 20, minRightGap: this.categoryListRef.el.offsetWidth / 3 }
+            { edgePadding: 20, minRightGap: this.categoryListRef().offsetWidth / 3 }
         );
-    }
-
-    isProductAvailable(product) {
-        if (product.pos_categ_ids.length === 0) {
-            return true;
-        }
-        return product.pos_categ_ids.some((categ) => this.selfOrder.isCategoryAvailable(categ.id));
     }
 
     get topSelectedCategory() {
@@ -154,7 +188,13 @@ export class ProductListPage extends Component {
     }
 
     getProducts(category) {
-        return category.associatedProducts || this.selfOrder.productByCategIds[category.id] || [];
+        return (
+            category.associatedProducts ||
+            this.selfOrder.productByCategIds[category.id] ||
+            []
+        ).filter(
+            (product) => product.self_order_available && this.selfOrder.isProductAvailable(product)
+        );
     }
 
     toggleSubCategoryPanel() {
@@ -162,7 +202,7 @@ export class ProductListPage extends Component {
             return;
         }
 
-        const el = this.subCategoryContainerRef.el;
+        const el = this.subCategoryContainerRef();
         const nextSubCategories = this.getSubCategories();
         // Managing this with state would hide the subcategory items before the container finishes closing,
         // causing an awkward visual transition.
@@ -189,130 +229,12 @@ export class ProductListPage extends Component {
         this.router.navigate("cart");
     }
 
-    selectProduct(product, target) {
-        if (!product.self_order_available || !this.isProductAvailable(product)) {
-            return;
-        }
-        if (product.isCombo()) {
-            const { show, selectedCombos } = this.selfOrder.showComboSelectionPage(product);
-            if (show) {
-                this.router.navigate("combo_selection", { id: product.id });
-            } else {
-                this.flyToCart(target);
-                this.selfOrder.addToCart(
-                    product,
-                    1,
-                    "",
-                    {},
-                    {},
-                    selectedCombos.map((combo) => ({
-                        ...combo,
-                        qty: 1,
-                    }))
-                );
-            }
-        } else if (this.selfOrder.isProductConfigurable(product)) {
-            this.router.navigate("product", { id: product.id });
-        } else {
-            if (!this.selfOrder.ordering) {
-                return;
-            }
-            this.flyToCart(target);
-            this.selfOrder.addToCart(product, 1);
-        }
-    }
-
     displayCategoryList(categories) {
         this.dialog.add(CategoryListPopup, {
             categories: categories,
             onCategorySelected: (cat) => {
                 this.selectCategory(cat);
             },
-        });
-    }
-
-    flyToCart(target) {
-        const productEl = target.closest(".o_self_product_box");
-
-        const toOrder = document.querySelector(".to-order");
-        if (!toOrder || window.getComputedStyle(toOrder).display === "none" || !productEl) {
-            return;
-        }
-
-        const ANIMATION_CONFIG = {
-            flyDuration: "900ms",
-            cartDuration: "200ms",
-            flyEasing: "cubic-bezier(0.34, 1.56, 0.64, 1)",
-            initialScale: ".65",
-            finalScale: "0.05",
-            cartScale: "1.08",
-            rotation: "5deg",
-        };
-
-        const cardRect = productEl.getBoundingClientRect();
-        const toOrderRect = toOrder.getBoundingClientRect();
-        const offsetTop = toOrderRect.top - cardRect.top;
-        const offsetLeft = toOrderRect.left - cardRect.left;
-
-        const clonedPic = productEl.cloneNode(true);
-        const initialStyles = {
-            top: `${cardRect.top}px`,
-            left: `${cardRect.left}px`,
-            width: `${cardRect.width}px`,
-            height: `${cardRect.height}px`,
-            transform: "scale(1)",
-            opacity: "1",
-            transition: `all ${ANIMATION_CONFIG.flyDuration} ${ANIMATION_CONFIG.flyEasing}`,
-            pointerEvents: "none",
-        };
-
-        const wrapper = document.createElement("div");
-        Object.assign(wrapper.style, initialStyles);
-        wrapper.classList.add("position-fixed", "o_self_product_list_page", "shadow-lg", "z-1");
-        wrapper.appendChild(clonedPic);
-
-        const infosDiv = clonedPic.querySelector(".product-infos");
-        if (infosDiv) {
-            Object.assign(infosDiv.style, {
-                transform: "scale(0.9)",
-                transition: `all ${ANIMATION_CONFIG.flyDuration} ${ANIMATION_CONFIG.flyEasing}`,
-            });
-        }
-
-        document.body.appendChild(wrapper);
-
-        requestAnimationFrame(() => {
-            wrapper.style.transform = `scale(${ANIMATION_CONFIG.initialScale})`;
-            requestAnimationFrame(() => {
-                wrapper.style.transform = `
-                    translateY(${offsetTop}px) 
-                    translateX(${offsetLeft}px) 
-                    scale(${ANIMATION_CONFIG.finalScale}) 
-                    rotate(${ANIMATION_CONFIG.rotation})
-                `;
-                wrapper.style.opacity = "0";
-
-                if (infosDiv) {
-                    infosDiv.style.transform = "scale(0.7)";
-                }
-
-                const cartAnimation = {
-                    transform: `scale(${ANIMATION_CONFIG.cartScale})`,
-                    transition: `transform ${ANIMATION_CONFIG.cartDuration} ${ANIMATION_CONFIG.flyEasing}`,
-                };
-                Object.assign(toOrder.style, cartAnimation);
-
-                setTimeout(() => {
-                    Object.assign(toOrder.style, {
-                        transform: "scale(1)",
-                        transition: `transform ${ANIMATION_CONFIG.cartDuration} ${ANIMATION_CONFIG.flyEasing}`,
-                    });
-                }, parseInt(ANIMATION_CONFIG.cartDuration));
-            });
-        });
-
-        wrapper.addEventListener("transitionend", () => {
-            wrapper.remove();
         });
     }
 }

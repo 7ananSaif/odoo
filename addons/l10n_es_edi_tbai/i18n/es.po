@@ -2,48 +2,90 @@
 # This file contains the translation of the following modules:
 # * l10n_es_edi_tbai
 #
-# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2026.
+# "Noemi Pla Garcia (nopl)" <nopl@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 19:16+0000\n"
-"PO-Revision-Date: 2026-04-16 08:13+0000\n"
-"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
-"Language-Team: Spanish <https://translate.odoo.com/projects/odoo-19-l10n/"
+"POT-Creation-Date: 2026-10-02 18:21+0000\n"
+"PO-Revision-Date: 2026-08-31 16:53+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Spanish <https://translate.odoo.com/projects/odoo-s19-4/"
 "l10n_es_edi_tbai/es/>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.16.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: l10n_es_edi_tbai
+#: model:ir.module.module,description:base.module_l10n_es_edi_tbai
+msgid ""
+"\n"
+"This module sends invoices and vendor bills to the \"Diputaciones\n"
+"Forales\" of Araba/Álava, Bizkaia and Gipuzkoa.\n"
+"\n"
+"Invoices and bills get converted to XML and regularly sent to the\n"
+"Basque government servers which provides them with a unique identifier.\n"
+"A hash chain ensures the continuous nature of the invoice/bill\n"
+"sequences. QR codes are added to emitted (sent/printed) invoices,\n"
+"bills and tickets to allow anyone to check they have been declared.\n"
+"\n"
+"You need to configure your certificate and the tax agency.\n"
+msgstr ""
+
+#. module: l10n_es_edi_tbai
+#. odoo-python
+#: code:addons/l10n_es_edi_tbai/models/account_tax.py:0
+msgid ""
+"19 - Activities under the Special Regime for Agriculture, Livestock and "
+"Fisheries (REAGYP)"
+msgstr ""
+"19 - Operaciones de actividades incluidas en el Régimen Especial de "
+"Agricultura, Ganadería y Pesca (REAGYP)"
+
+#. module: l10n_es_edi_tbai
+#. odoo-python
+#: code:addons/l10n_es_edi_tbai/models/account_tax.py:0
+msgid "51 - Equivalence surcharge"
+msgstr "51 - Operaciones en recargo de equivalencia"
+
+#. module: l10n_es_edi_tbai
+#. odoo-python
+#: code:addons/l10n_es_edi_tbai/models/account_tax.py:0
+msgid "52 - Simplified regime"
+msgstr "52 - Operaciones en régimen simplificado"
+
+#. module: l10n_es_edi_tbai
+#. odoo-python
+#: code:addons/l10n_es_edi_tbai/models/account_tax.py:0
+msgid ""
+"53 - Operations by persons/entities not considered businesses or "
+"professionals for VAT purposes"
+msgstr ""
+"53 - Operaciones realizadas por personas o entidades que no tengan la "
+"consideración de empresarios o profesionales a efectos del IVA"
+
+#. module: l10n_es_edi_tbai
+#. odoo-python
+#: code:addons/l10n_es_edi_tbai/models/account_tax.py:0
+msgid ""
+"54 - Operations from a permanent establishment for indirect tax purposes in "
+"Canarias, Ceuta or Melilla"
+msgstr ""
+"54 - Operaciones efectuadas desde un establecimiento permanente a efectos de "
+"impuestos indirectos en Canarias, Ceuta o Melilla"
+
+#. module: l10n_es_edi_tbai
+#: model_terms:ir.ui.view,arch_db:l10n_es_edi_tbai.res_config_settings_view_form
+msgid "<strong>Registro de Libros connection TicketBAI</strong>"
+msgstr ""
 
 #. module: l10n_es_edi_tbai
 #: model:ir.model.fields.selection,name:l10n_es_edi_tbai.selection__l10n_es_edi_tbai_document__state__accepted
 msgid "Accepted"
 msgstr "Aceptado"
-
-#. module: l10n_es_edi_tbai
-#: model:ir.model,name:l10n_es_edi_tbai.model_account_move_reversal
-msgid "Account Move Reversal"
-msgstr "Reversión de movimiento de cuenta"
-
-#. module: l10n_es_edi_tbai
-#: model:ir.model,name:l10n_es_edi_tbai.model_account_move_send
-msgid "Account Move Send"
-msgstr "Enviar asiento contable"
-
-#. module: l10n_es_edi_tbai
-#: model:ir.model.fields,help:l10n_es_edi_tbai.field_account_bank_statement_line__l10n_es_tbai_refund_reason
-#: model:ir.model.fields,help:l10n_es_edi_tbai.field_account_move__l10n_es_tbai_refund_reason
-#: model:ir.model.fields,help:l10n_es_edi_tbai.field_account_move_reversal__l10n_es_tbai_refund_reason
-msgid ""
-"BOE-A-1992-28740. Ley 37/1992, de 28 de diciembre, del Impuesto sobre el "
-"Valor Añadido. Artículo 80. Modificación de la base imponible."
-msgstr ""
-"BOE-A-1992-28740. Ley 37/1992, de 28 de diciembre, del Impuesto sobre el "
-"Valor Añadido. Artículo 80. Modificación de la base imponible."
 
 #. module: l10n_es_edi_tbai
 #. odoo-python
@@ -106,10 +148,6 @@ msgstr "Índice de secuencia"
 
 #. module: l10n_es_edi_tbai
 #: model:ir.model,name:l10n_es_edi_tbai.model_res_company
-msgid "Companies"
-msgstr "Compañías"
-
-#. module: l10n_es_edi_tbai
 #: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_l10n_es_edi_tbai_document__company_id
 msgid "Company"
 msgstr "Compañía"
@@ -142,14 +180,19 @@ msgstr "Fecha"
 #. module: l10n_es_edi_tbai
 #: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_account_move__display_name
 #: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_account_move_line__display_name
-#: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_account_move_reversal__display_name
 #: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_account_move_send__display_name
+#: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_account_tax__display_name
 #: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_certificate_certificate__display_name
 #: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_l10n_es_edi_tbai_document__display_name
 #: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_res_company__display_name
 #: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_res_config_settings__display_name
 msgid "Display Name"
 msgstr "Nombre mostrado"
+
+#. module: l10n_es_edi_tbai
+#: model:ir.model,name:l10n_es_edi_tbai.model_account_tax
+msgid "ETA tax codes mixin"
+msgstr ""
 
 #. module: l10n_es_edi_tbai
 #. odoo-python
@@ -181,8 +224,8 @@ msgstr ""
 #. module: l10n_es_edi_tbai
 #: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_account_move__id
 #: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_account_move_line__id
-#: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_account_move_reversal__id
 #: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_account_move_send__id
+#: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_account_tax__id
 #: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_certificate_certificate__id
 #: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_l10n_es_edi_tbai_document__id
 #: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_res_company__id
@@ -228,13 +271,6 @@ msgstr ""
 "reembolsadas, puede configurarlas aquí."
 
 #. module: l10n_es_edi_tbai
-#: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_account_bank_statement_line__l10n_es_tbai_refund_reason
-#: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_account_move__l10n_es_tbai_refund_reason
-#: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_account_move_reversal__l10n_es_tbai_refund_reason
-msgid "Invoice Refund Reason Code (TicketBai)"
-msgstr "Código de motivo de reembolso de la factura (TicketBAI)"
-
-#. module: l10n_es_edi_tbai
 #: model:ir.model.fields,help:l10n_es_edi_tbai.field_account_bank_statement_line__l10n_es_tbai_chain_index
 #: model:ir.model.fields,help:l10n_es_edi_tbai.field_account_move__l10n_es_tbai_chain_index
 msgid ""
@@ -248,11 +284,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_l10n_es_edi_tbai_document__is_cancel
 msgid "Is Cancel"
 msgstr "Está cancelado"
-
-#. module: l10n_es_edi_tbai
-#: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_account_move_reversal__l10n_es_tbai_is_required
-msgid "Is TicketBai required for this reversal"
-msgstr "¿Se necesita TicketBAI para realizar una reversión?"
 
 #. module: l10n_es_edi_tbai
 #: model:ir.model.fields,help:l10n_es_edi_tbai.field_account_bank_statement_line__l10n_es_tbai_is_required
@@ -364,6 +395,18 @@ msgstr ""
 "TicketBAI no se podrá firmar.\n"
 
 #. module: l10n_es_edi_tbai
+#: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_account_bank_statement_line__l10n_es_original_invoice_credited
+#: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_account_move__l10n_es_original_invoice_credited
+msgid "Original Invoice Credited"
+msgstr ""
+
+#. module: l10n_es_edi_tbai
+#: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_account_bank_statement_line__l10n_es_tbai_original_invoice_date
+#: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_account_move__l10n_es_tbai_original_invoice_date
+msgid "Original Invoice Date (TicketBAI)"
+msgstr ""
+
+#. module: l10n_es_edi_tbai
 #. odoo-python
 #: code:addons/l10n_es_edi_tbai/models/l10n_es_edi_tbai_document.py:0
 msgid "Please configure the Tax ID on your company for TicketBAI."
@@ -374,6 +417,14 @@ msgstr "Configure el NIF en su compañía par TicketBai."
 #: code:addons/l10n_es_edi_tbai/models/l10n_es_edi_tbai_document.py:0
 msgid "Please configure the certificate for TicketBAI."
 msgstr "Por favor, configure el certificado para TicketBAI/SII."
+
+#. module: l10n_es_edi_tbai
+#. odoo-python
+#: code:addons/l10n_es_edi_tbai/models/account_move.py:0
+msgid ""
+"Please create the credit note from the original invoice. If that's not "
+"possible, fill in the 'Original Invoice Credited' field."
+msgstr ""
 
 #. module: l10n_es_edi_tbai
 #. odoo-python
@@ -393,71 +444,20 @@ msgid "Production mode: EDI data is sent to the official agency servers."
 msgstr "Modo producción: los datos EDI se envían a los servidores oficiales."
 
 #. module: l10n_es_edi_tbai
-#: model:ir.model.fields.selection,name:l10n_es_edi_tbai.selection__account_move__l10n_es_tbai_refund_reason__r1
-#: model:ir.model.fields.selection,name:l10n_es_edi_tbai.selection__account_move_reversal__l10n_es_tbai_refund_reason__r1
-msgid "R1: Art. 80.1, 80.2, 80.6 and rights founded error"
-msgstr "R1: Art. 80.1, 80.2, 80.6 y por derechos fundados en el error"
-
-#. module: l10n_es_edi_tbai
-#: model:ir.model.fields.selection,name:l10n_es_edi_tbai.selection__account_move__l10n_es_tbai_refund_reason__r2
-#: model:ir.model.fields.selection,name:l10n_es_edi_tbai.selection__account_move_reversal__l10n_es_tbai_refund_reason__r2
-msgid "R2: Art. 80.3"
-msgstr "R2: Art. 80.3"
-
-#. module: l10n_es_edi_tbai
-#: model:ir.model.fields.selection,name:l10n_es_edi_tbai.selection__account_move__l10n_es_tbai_refund_reason__r3
-#: model:ir.model.fields.selection,name:l10n_es_edi_tbai.selection__account_move_reversal__l10n_es_tbai_refund_reason__r3
-msgid "R3: Art. 80.4"
-msgstr "R3: Art. 80.4"
-
-#. module: l10n_es_edi_tbai
-#: model:ir.model.fields.selection,name:l10n_es_edi_tbai.selection__account_move__l10n_es_tbai_refund_reason__r4
-#: model:ir.model.fields.selection,name:l10n_es_edi_tbai.selection__account_move_reversal__l10n_es_tbai_refund_reason__r4
-msgid "R4: Art. 80 - other"
-msgstr "R4: Art. 80 - resto"
-
-#. module: l10n_es_edi_tbai
-#: model:ir.model.fields.selection,name:l10n_es_edi_tbai.selection__account_move__l10n_es_tbai_refund_reason__r5
-#: model:ir.model.fields.selection,name:l10n_es_edi_tbai.selection__account_move_reversal__l10n_es_tbai_refund_reason__r5
-msgid "R5: Factura rectificativa en facturas simplificadas"
-msgstr "R5: Factura rectificativa en facturas simplificadas"
-
-#. module: l10n_es_edi_tbai
-#. odoo-python
-#: code:addons/l10n_es_edi_tbai/models/l10n_es_edi_tbai_document.py:0
-msgid "Refund reason cannot be R5 for non-simplified invoices (TicketBAI)"
-msgstr ""
-"El motivo de reembolso no puede ser R5 para facturas no simplificadas "
-"(TicketBAI)"
-
-#. module: l10n_es_edi_tbai
-#. odoo-python
-#: code:addons/l10n_es_edi_tbai/models/l10n_es_edi_tbai_document.py:0
-msgid "Refund reason must be R5 for simplified invoices (TicketBAI)"
-msgstr ""
-"El motivo de reembolso debe ser R5 para facturas simplificadas (TicketBAI)"
-
-#. module: l10n_es_edi_tbai
-#. odoo-python
-#: code:addons/l10n_es_edi_tbai/models/l10n_es_edi_tbai_document.py:0
-msgid "Refund reason must be specified (TicketBAI)"
-msgstr "Se debe especificar el motivo del reembolso (TicketBAI)"
-
-#. module: l10n_es_edi_tbai
 #: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_account_bank_statement_line__l10n_es_tbai_reversed_ids
 #: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_account_move__l10n_es_tbai_reversed_ids
 msgid "Refunded Vendor Bills"
 msgstr "Facturas de proveedores reembolsadas"
 
 #. module: l10n_es_edi_tbai
-#: model_terms:ir.ui.view,arch_db:l10n_es_edi_tbai.res_config_settings_view_form
-msgid "Registro de Libros connection TicketBAI"
-msgstr "Registro de Libros conexión TicketBAI"
-
-#. module: l10n_es_edi_tbai
 #: model:ir.model.fields.selection,name:l10n_es_edi_tbai.selection__l10n_es_edi_tbai_document__state__rejected
 msgid "Rejected"
 msgstr "Rechazado"
+
+#. module: l10n_es_edi_tbai
+#: model:ir.actions.server,name:l10n_es_edi_tbai.action_request_cancel
+msgid "Request TicketBAI Cancellation"
+msgstr ""
 
 #. module: l10n_es_edi_tbai
 #: model_terms:ir.ui.view,arch_db:l10n_es_edi_tbai.view_move_form_inherit_l10n_es_edi_tbai
@@ -468,12 +468,6 @@ msgstr "Reenviar a TicketBAI"
 #: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_l10n_es_edi_tbai_document__response_message
 msgid "Response Message"
 msgstr "Mensaje de respuesta"
-
-#. module: l10n_es_edi_tbai
-#. odoo-python
-#: code:addons/l10n_es_edi_tbai/wizards/account_move_reversal.py:0
-msgid "Reversals mixing invoices with and without TicketBAI are not allowed."
-msgstr "No se permiten reversiones que mezclen facturas con y sin TicketBAI."
 
 #. module: l10n_es_edi_tbai
 #: model_terms:ir.ui.view,arch_db:l10n_es_edi_tbai.view_move_form_inherit_l10n_es_edi_tbai
@@ -492,6 +486,11 @@ msgid "Sent"
 msgstr "Enviado"
 
 #. module: l10n_es_edi_tbai
+#: model:ir.model,name:l10n_es_edi_tbai.model_account_move_send
+msgid "Shared Send Invoice Wizard Functions"
+msgstr ""
+
+#. module: l10n_es_edi_tbai
 #. odoo-python
 #: code:addons/l10n_es_edi_tbai/models/res_company.py:0
 msgid "Software name"
@@ -502,6 +501,11 @@ msgstr "Nombre del software"
 #: code:addons/l10n_es_edi_tbai/models/res_company.py:0
 msgid "Software version"
 msgstr "Versión del software"
+
+#. module: l10n_es_edi_tbai
+#: model:ir.module.module,shortdesc:base.module_l10n_es_edi_tbai
+msgid "Spain - TicketBAI"
+msgstr ""
 
 #. module: l10n_es_edi_tbai
 #: model:ir.ui.menu,name:l10n_es_edi_tbai.menu_l10n_es_edi_tbai_root
@@ -592,11 +596,6 @@ msgid "TicketBAI"
 msgstr "TicketBAI"
 
 #. module: l10n_es_edi_tbai
-#: model_terms:ir.ui.view,arch_db:l10n_es_edi_tbai.view_move_form_inherit_l10n_es_edi_tbai
-msgid "TicketBAI Cancel"
-msgstr "Cancelar TicketBAI"
-
-#. module: l10n_es_edi_tbai
 #: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_account_bank_statement_line__l10n_es_tbai_cancel_file
 #: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_account_move__l10n_es_tbai_cancel_file
 msgid "TicketBAI Cancel File"
@@ -674,6 +673,14 @@ msgstr ""
 "cabeza de cadena (%s)"
 
 #. module: l10n_es_edi_tbai
+#. odoo-python
+#: code:addons/l10n_es_edi_tbai/models/l10n_es_edi_tbai_document.py:0
+msgid ""
+"TicketBAI: For reversal documents without a source invoice in Odoo, you must "
+"provide the original invoice number and date"
+msgstr ""
+
+#. module: l10n_es_edi_tbai
 #: model:ir.model.fields,field_description:l10n_es_edi_tbai.field_res_company__l10n_es_tbai_chain_sequence_id
 msgid "TicketBai account.move chain sequence"
 msgstr "Secuencia en cadena del account.move de TicketBai"
@@ -731,8 +738,53 @@ msgstr ""
 msgid "status"
 msgstr "estado"
 
-#~ msgid "1.0"
-#~ msgstr "1.0"
+#~ msgid "Registro de Libros connection TicketBAI"
+#~ msgstr "Registro de Libros conexión TicketBAI"
 
-#~ msgid "1.1"
-#~ msgstr "1.1"
+#~ msgid "TicketBAI Cancel"
+#~ msgstr "Cancelar TicketBAI"
+
+#~ msgid ""
+#~ "BOE-A-1992-28740. Ley 37/1992, de 28 de diciembre, del Impuesto sobre el "
+#~ "Valor Añadido. Artículo 80. Modificación de la base imponible."
+#~ msgstr ""
+#~ "BOE-A-1992-28740. Ley 37/1992, de 28 de diciembre, del Impuesto sobre el "
+#~ "Valor Añadido. Artículo 80. Modificación de la base imponible."
+
+#~ msgid "Invoice Refund Reason Code (TicketBai)"
+#~ msgstr "Código de motivo de reembolso de la factura (TicketBAI)"
+
+#~ msgid "Is TicketBai required for this reversal"
+#~ msgstr "¿Se necesita TicketBAI para realizar una reversión?"
+
+#~ msgid "R1: Art. 80.1, 80.2, 80.6 and rights founded error"
+#~ msgstr "R1: Art. 80.1, 80.2, 80.6 y por derechos fundados en el error"
+
+#~ msgid "R2: Art. 80.3"
+#~ msgstr "R2: Art. 80.3"
+
+#~ msgid "R3: Art. 80.4"
+#~ msgstr "R3: Art. 80.4"
+
+#~ msgid "R4: Art. 80 - other"
+#~ msgstr "R4: Art. 80 - resto"
+
+#~ msgid "R5: Factura rectificativa en facturas simplificadas"
+#~ msgstr "R5: Factura rectificativa en facturas simplificadas"
+
+#~ msgid "Refund reason cannot be R5 for non-simplified invoices (TicketBAI)"
+#~ msgstr ""
+#~ "El motivo de reembolso no puede ser R5 para facturas no simplificadas "
+#~ "(TicketBAI)"
+
+#~ msgid "Refund reason must be R5 for simplified invoices (TicketBAI)"
+#~ msgstr ""
+#~ "El motivo de reembolso debe ser R5 para facturas simplificadas (TicketBAI)"
+
+#~ msgid "Refund reason must be specified (TicketBAI)"
+#~ msgstr "Se debe especificar el motivo del reembolso (TicketBAI)"
+
+#~ msgid ""
+#~ "Reversals mixing invoices with and without TicketBAI are not allowed."
+#~ msgstr ""
+#~ "No se permiten reversiones que mezclen facturas con y sin TicketBAI."

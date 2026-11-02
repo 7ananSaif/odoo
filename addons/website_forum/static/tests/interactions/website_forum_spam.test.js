@@ -1,6 +1,5 @@
 import { describe, expect, test } from "@odoo/hoot";
 import { advanceTime, click, edit, fill, queryAll, tick } from "@odoo/hoot-dom";
-import { Deferred } from "@odoo/hoot-mock";
 import { startInteractions, setupInteractionWhiteList } from "@web/../tests/public/helpers";
 import { onRpc } from "@web/../tests/web_test_helpers";
 
@@ -22,7 +21,7 @@ const template = (options = {}) => `
                 </div>
                 <div class="modal-footer justify-content-start">
                     <button type="button" class="btn btn-primary o_wforum_mark_spam">Mark as spam</button>
-                    <a class="btn btn-sm btn-default o_wforum_select_all_spam" href="#" type="button">Select All</a>
+                    <a class="btn btn-light o_wforum_select_all_spam" href="#" type="button">Select All</a>
                 </div>
             </div>
         </div>
@@ -38,9 +37,9 @@ test("spamIds returns empty array if dataset is empty", async () => {
 test("keep last spam input search", async () => {
     await startInteractions(template({ spamIds: true }));
 
-    const def = new Deferred();
-    def.then(() => expect.step("rpc"));
-    onRpc("forum.post", "search_read", async () => await def);
+    const def = Promise.withResolvers();
+    def.promise.then(() => expect.step("rpc"));
+    onRpc("forum.post", "search_read", async () => await def.promise);
     await click("#spamSearch");
     await fill("coucou");
     await advanceTime(201); // debounced
@@ -92,7 +91,7 @@ test("select all checkboxes", async () => {
                     </div>
                     <div class="modal-footer justify-content-start">
                         <button type="button" class="btn btn-primary o_wforum_mark_spam">Mark as spam</button>
-                        <a class="btn btn-sm btn-default o_wforum_select_all_spam" href="#" type="button">Select All</a>
+                        <a class="btn btn-light o_wforum_select_all_spam" href="#" type="button">Select All</a>
                     </div>
                 </div>
             </div>

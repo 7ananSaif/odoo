@@ -2,7 +2,6 @@
 
 {
     'name': 'Ecuador - Sale',
-    'version': '1.0',
     'description': """Ecuador Sale""",
     'category': 'Accounting/Localizations/Sale',
     'depends': [
@@ -10,7 +9,6 @@
         'sale',
     ],
     'data': [
-        'data/payment_method_data.xml',
         'views/payment_method_views.xml',
         'views/sale_order_views.xml',
     ],

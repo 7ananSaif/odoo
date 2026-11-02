@@ -7,21 +7,45 @@
 # Jeffery CHEN <jeffery9@gmail.com>, 2022
 # Martin Trigaux, 2023
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+# "Chloe Wang (chwa)" <chwa@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-09-16 15:23+0000\n"
-"Last-Translator: \"Tiffany Chang (tic)\" <tic@odoo.com>\n"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 13:37+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://translate.odoo.com/"
-"projects/odoo-19/event_sale/zh_Hans/>\n"
+"projects/odoo-s19-4/event_sale/zh_Hans/>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: event_sale
+#: model:ir.module.module,description:base.module_event_sale
+msgid ""
+"\n"
+"Creating registration with sales orders.\n"
+"========================================\n"
+"\n"
+"This module allows you to automate and connect your registration creation "
+"with\n"
+"your main sale flow and therefore, to enable the invoicing feature of "
+"registrations.\n"
+"\n"
+"It defines a new kind of service products that offers you the possibility "
+"to\n"
+"choose an event category associated with it. When you encode a sales order "
+"for\n"
+"that product, you will be able to choose an existing event of that category "
+"and\n"
+"when you confirm your sales order it will automatically create a "
+"registration for\n"
+"this event.\n"
+msgstr ""
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_registration_change_exception
@@ -32,8 +56,9 @@ msgstr "<span> 可能需要手动操作。</span>"
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_configurator_view_form
-msgid "<i class=\"fa fa-arrow-right\"/> Configure Events &amp; Tickets"
-msgstr "<i class=\"fa fa-arrow-right\"/> 配置活动和门票"
+msgid ""
+"<i class=\"oi\" data-icon=\"arrow_forward\"/> Configure Events &amp; Tickets"
+msgstr "<i class=\"oi\" data-icon=\"arrow_forward\"/> 配置活动和门票"
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_registration_ticket_view_form
@@ -54,6 +79,11 @@ msgstr "<span>与会者的注册修改：</span>"
 #: model_terms:ir.ui.view,arch_db:event_sale.event_configurator_view_form
 msgid "Add"
 msgstr "添加"
+
+#. module: event_sale
+#: model:ir.model.fields,field_description:event_sale.field_event_event_configurator__additional_product_ids
+msgid "Additional Products"
+msgstr "其他产品"
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_configurator_view_form
@@ -298,6 +328,11 @@ msgstr "活动门票"
 #: model_terms:ir.ui.view,arch_db:event_sale.event_sale_report_view_search
 msgid "Event Type"
 msgstr "活动类型"
+
+#. module: event_sale
+#: model:ir.module.module,shortdesc:base.module_event_sale
+msgid "Events Sales"
+msgstr ""
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_sale_report_view_search
@@ -559,6 +594,13 @@ msgid "Select an Event"
 msgstr "选择一个活动"
 
 #. module: event_sale
+#: model:ir.model.fields,help:event_sale.field_event_event_configurator__additional_product_ids
+msgid ""
+"Select products to include with each registration. They will also show up "
+"separately on Sale Orders."
+msgstr ""
+
+#. module: event_sale
 #. odoo-python
 #: code:addons/event_sale/models/event_registration.py:0
 #: model:ir.model.fields,field_description:event_sale.field_event_event_configurator__event_slot_id
@@ -669,122 +711,3 @@ msgstr "请提供参与者详细信息。"
 #: model_terms:ir.ui.view,arch_db:event_sale.event_registration_change_exception
 msgid "to"
 msgstr "到"
-
-#~ msgid ""
-#~ "<span>Not enough seats available. All registrations were created as "
-#~ "\"Unconfirmed\" and can be updated later on.</span>"
-#~ msgstr ""
-#~ "<span>没有足够的可用的席位。所有的注册都被创建为 \"未确认\"，可以在以后更"
-#~ "新。</span>"
-
-#~ msgid ""
-#~ "A description of the ticket that you want to communicate to your "
-#~ "customers."
-#~ msgstr "要传达给客户的票的描述。"
-
-#~ msgid ""
-#~ "A storable product is a product for which you manage stock. The Inventory "
-#~ "app has to be installed.\n"
-#~ "A consumable product is a product for which stock is not managed.\n"
-#~ "A service is a non-material product you provide."
-#~ msgstr ""
-#~ "可库存商品是指在库存中受存量管控的产品。 要使用此项目您必须安装库存模"
-#~ "块。\n"
-#~ "可消耗商品是指不受库存量管控的产品。\n"
-#~ "服务是指您提供的非产品类服务业务。"
-
-#~ msgid "Cancel"
-#~ msgstr "取消"
-
-#~ msgid "Configure an event"
-#~ msgstr "配置一个活动"
-
-#~ msgid "Currency"
-#~ msgstr "币种"
-
-#~ msgid "Description"
-#~ msgstr "说明"
-
-#~ msgid "Event Registration - Standard"
-#~ msgstr "注册活动 - 标准"
-
-#~ msgid "Event Registration - VIP"
-#~ msgstr "注册活动 - VIP"
-
-#~ msgid "Event Template Ticket"
-#~ msgstr "活动门票"
-
-#~ msgid "Event Tickets"
-#~ msgstr "活动门票"
-
-#~ msgid "Group By"
-#~ msgstr "分组"
-
-#~ msgid "Is Paid"
-#~ msgstr "已支付"
-
-#~ msgid "Journal Entry"
-#~ msgstr "会计凭证"
-
-#~ msgid "Locked"
-#~ msgstr "已锁定"
-
-#~ msgid "Mobile"
-#~ msgstr "手机"
-
-#~ msgid "Not Paid"
-#~ msgstr "未支付"
-
-#~ msgid "Not enough seats for all registrations"
-#~ msgstr "没有足够的席位给所有注册人"
-
-#~ msgid "Ok"
-#~ msgstr "确定"
-
-#~ msgid "Order Ref"
-#~ msgstr "订单参考"
-
-#~ msgid "Paid"
-#~ msgstr "已支付"
-
-#~ msgid "Price"
-#~ msgstr "价格"
-
-#~ msgid "Price Reduce"
-#~ msgstr "降价"
-
-#~ msgid "Price Reduce Tax inc"
-#~ msgstr "减税后价格"
-
-#~ msgid "Product Type"
-#~ msgstr "产品类型"
-
-#~ msgid "Product Variant"
-#~ msgstr "产品变体"
-
-#~ msgid "Quotation Template Line"
-#~ msgstr "报价模板行"
-
-#~ msgid "Quotation Template Option"
-#~ msgstr "报价模板选项"
-
-#~ msgid "Sales (Tax Excluded)"
-#~ msgstr "销售（含税）"
-
-#~ msgid "Sales End"
-#~ msgstr "销售结束"
-
-#~ msgid "Sales Start"
-#~ msgstr "销售开始"
-
-#~ msgid "Skip"
-#~ msgstr "跳过"
-
-#~ msgid "Ticket changed from"
-#~ msgstr "票已经更改自"
-
-#~ msgid "Transaction"
-#~ msgstr "交易"
-
-#~ msgid "please give attendee details."
-#~ msgstr "请提供与会者的详细资料"

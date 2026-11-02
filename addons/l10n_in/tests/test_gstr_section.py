@@ -9,6 +9,8 @@ TEST_DATE = date(2025, 6, 8)
 
 @tagged('post_install_l10n', 'post_install', '-at_install')
 class TestGstrSection(L10nInTestInvoicingCommon):
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -22,7 +24,7 @@ class TestGstrSection(L10nInTestInvoicingCommon):
         cls.nil_rated_tax = ChartTemplate.ref('nil_rated_sale')
         cls.igst_lut_sale_28_sez = ChartTemplate.ref('igst_sale_28_sez_lut')
         cls.igst_rc_sale_18 = ChartTemplate.ref('igst_sale_18_rc')
-        cls.igst_exp_sale_18 = ChartTemplate.ref('igst_sale_18_sez_exp')
+        cls.igst_exp_sale_18 = ChartTemplate.ref('igst_sale_18_exp')
 
     def test_gstr_sections(self):
         def assert_line_sections(lines, expected_sections):

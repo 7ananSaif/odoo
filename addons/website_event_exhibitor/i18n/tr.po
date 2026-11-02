@@ -7,21 +7,23 @@
 # DeepL <noreply-mt-deepl@weblate.org>, 2025.
 # Odoo Turkish Import <dyki+tr@odoo.com>, 2025.
 # "Malaz Siddig Elsayed Abuidris (msea)" <msea@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2026.
+# Burkay Yıldızhan <seyil@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-11-28 12:51+0000\n"
-"Last-Translator: \"Malaz Siddig Elsayed Abuidris (msea)\" <msea@odoo.com>\n"
-"Language-Team: Turkish <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:44+0000\n"
+"PO-Revision-Date: 2026-10-14 13:34+0000\n"
+"Last-Translator: Burkay Yıldızhan <seyil@odoo.com>\n"
+"Language-Team: Turkish <https://translate.odoo.com/projects/odoo-20/"
 "website_event_exhibitor/tr/>\n"
 "Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: website_event_exhibitor
 #. odoo-javascript
@@ -54,33 +56,23 @@ msgstr ""
 "keşfedin</a>"
 
 #. module: website_event_exhibitor
-#: model_terms:ir.ui.view,arch_db:website_event_exhibitor.exhibitor_card
-msgid "<i class=\"fa fa-ban me-2\"/>Unpublished"
-msgstr "<i class=\"fa fa-ban me-2\"/>Yayımlanmamış"
-
-#. module: website_event_exhibitor
 #: model_terms:ir.ui.view,arch_db:website_event_exhibitor.event_sponsor_view_form
 msgid ""
-"<i class=\"fa fa-long-arrow-right mx-2\" aria-label=\"Arrow icon\" "
+"<i class=\"oi mx-2\" data-icon=\"east\" aria-label=\"Arrow icon\" "
 "title=\"Arrow\"/>"
 msgstr ""
-"<i class=\"fa fa-long-arrow-right mx-2\" aria-label=\"Arrow icon\" "
+"<i class=\"oi mx-2\" data-icon=\"east\" aria-label=\"Arrow icon\" "
 "title=\"Arrow\"/>"
-
-#. module: website_event_exhibitor
-#: model_terms:ir.ui.view,arch_db:website_event_exhibitor.exhibitor_aside
-msgid "<small class=\"badge text-bg-danger\">Unpublished</small>"
-msgstr "<small class=\"badge text-bg-danger\">Yayımlanmamış</small>"
-
-#. module: website_event_exhibitor
-#: model_terms:ir.ui.view,arch_db:website_event_exhibitor.exhibitors_main
-msgid "<span class=\"fa fa-plus me-1\"/> Add Exhibitors"
-msgstr "<span class=\"fa fa-plus me-1\"/> Katılımcı Ekle"
 
 #. module: website_event_exhibitor
 #: model_terms:ir.ui.view,arch_db:website_event_exhibitor.exhibitor_aside
 msgid "<span class=\"h5 m-3\">Other exhibitors</span>"
 msgstr "<span class=\"h5 m-3\">Diğer katılımcılar</span>"
+
+#. module: website_event_exhibitor
+#: model_terms:ir.ui.view,arch_db:website_event_exhibitor.exhibitors_main
+msgid "<span class=\"oi me-1\" data-icon=\"add\"/> Add Exhibitors"
+msgstr "<span class=\"oi me-1\" data-icon=\"add\"/> Katılımcı Ekle"
 
 #. module: website_event_exhibitor
 #: model_terms:ir.ui.view,arch_db:website_event_exhibitor.exhibitor_main
@@ -106,6 +98,12 @@ msgstr "Aktiviteler"
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor__activity_exception_decoration
 msgid "Activity Exception Decoration"
 msgstr "Etkinlik İstisna Dekorasyonu"
+
+#. module: website_event_exhibitor
+#: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor__activity_plans_ids
+#, fuzzy
+msgid "Activity Plans"
+msgstr "Aktivite Planları"
 
 #. module: website_event_exhibitor
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor__activity_state
@@ -170,6 +168,18 @@ msgstr "Ek Sayısı"
 #: model_terms:ir.ui.view,arch_db:website_event_exhibitor.exhibitor_main
 msgid "Attendees will be able to join to meet"
 msgstr "Katılımcılar toplantıya katılabilecek"
+
+#. module: website_event_exhibitor
+#: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor__publish_on
+#, fuzzy
+msgid "Auto publish on"
+msgstr "Otomatik yayınla"
+
+#. module: website_event_exhibitor
+#: model:ir.model.fields,help:website_event_exhibitor.field_event_sponsor__publish_on
+#, fuzzy
+msgid "Automatically publish the page on the chosen date and time."
+msgstr "Sayfayı seçilen tarih ve saatte otomatik olarak yayınlayın."
 
 #. module: website_event_exhibitor
 #: model_terms:ir.ui.view,arch_db:website_event_exhibitor.exhibitor_main
@@ -331,6 +341,11 @@ msgid "Event"
 msgstr "Etkinlik"
 
 #. module: website_event_exhibitor
+#: model:ir.module.module,shortdesc:base.module_website_event_exhibitor
+msgid "Event Exhibitors"
+msgstr ""
+
+#. module: website_event_exhibitor
 #: model:ir.model,name:website_event_exhibitor.model_event_sponsor
 msgid "Event Sponsor"
 msgstr "Etkinlik Sponsoru"
@@ -359,11 +374,24 @@ msgid "Event Template"
 msgstr "Etkinlik Şablonu"
 
 #. module: website_event_exhibitor
+#: model:ir.module.module,summary:base.module_website_event_exhibitor
+msgid "Event: manage sponsors and exhibitors"
+msgstr ""
+
+#. module: website_event_exhibitor
+#. odoo-python
+#: code:addons/website_event_exhibitor/models/event_sponsor.py:0
+msgid "Events"
+msgstr ""
+
+#. module: website_event_exhibitor
 #: model:ir.model.fields.selection,name:website_event_exhibitor.selection__event_sponsor__exhibitor_type__exhibitor
 msgid "Exhibitor"
 msgstr "Sergileyici"
 
 #. module: website_event_exhibitor
+#. odoo-python
+#: code:addons/website_event_exhibitor/models/event_sponsor.py:0
 #: model_terms:ir.ui.view,arch_db:website_event_exhibitor.event_sponsor_view_search
 #: model_terms:ir.ui.view,arch_db:website_event_exhibitor.exhibitors_topbar
 msgid "Exhibitors"
@@ -400,11 +428,6 @@ msgstr "Takipçiler"
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor__message_partner_ids
 msgid "Followers (Partners)"
 msgstr "Takipçiler (İş ortakları)"
-
-#. module: website_event_exhibitor
-#: model:ir.model.fields,help:website_event_exhibitor.field_event_sponsor__activity_type_icon
-msgid "Font awesome icon e.g. fa-tasks"
-msgstr "Yazı tipi harika simgesi ör. fa-görevler"
 
 #. module: website_event_exhibitor
 #: model:ir.model.fields.selection,name:website_event_exhibitor.selection__event_sponsor__exhibitor_type__sponsor
@@ -550,6 +573,11 @@ msgid "Logo"
 msgstr "Logo"
 
 #. module: website_event_exhibitor
+#: model:ir.model.fields,help:website_event_exhibitor.field_event_sponsor__activity_type_icon
+msgid "Material Symbols icon e.g. checklist"
+msgstr ""
+
+#. module: website_event_exhibitor
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_website_event_menu__menu_type
 msgid "Menu Type"
 msgstr "Menü Türü"
@@ -668,6 +696,12 @@ msgid "Published"
 msgstr "Yayınlandı"
 
 #. module: website_event_exhibitor
+#: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor__published_date
+#, fuzzy
+msgid "Published date"
+msgstr "Yayınlanma tarihi"
+
+#. module: website_event_exhibitor
 #: model_terms:ir.actions.act_window,help:website_event_exhibitor.event_sponsor_type_action
 msgid ""
 "Rank your sponsors based on your own grading system (e.g. \"Gold, Silver, "
@@ -698,8 +732,8 @@ msgstr "SMS İleti hatası"
 
 #. module: website_event_exhibitor
 #: model_terms:ir.ui.view,arch_db:website_event_exhibitor.exhibitors_topbar
-msgid "Search an exhibitor ..."
-msgstr "Katılımcı arayın ..."
+msgid "Search an exhibitor..."
+msgstr ""
 
 #. module: website_event_exhibitor
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor__sequence
@@ -778,6 +812,8 @@ msgstr "Sponsor resmi"
 
 #. module: website_event_exhibitor
 #. odoo-javascript
+#. odoo-python
+#: code:addons/website_event_exhibitor/models/event_sponsor.py:0
 #: code:addons/website_event_exhibitor/static/src/website_builder/event_page_option.xml:0
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_event_event__sponsor_ids
 #: model_terms:ir.ui.view,arch_db:website_event_exhibitor.event_event_view_form
@@ -852,11 +888,6 @@ msgid "Type of the exception activity on record."
 msgstr "Kayıtlardaki istisna etkinliğinin türü."
 
 #. module: website_event_exhibitor
-#: model_terms:ir.ui.view,arch_db:website_event_exhibitor.event_sponsor_thumb_details
-msgid "Unpublished"
-msgstr "Yayında Değil"
-
-#. module: website_event_exhibitor
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor__website_published
 msgid "Visible on current website"
 msgstr "Mevcut web sitesinde görülebilir"
@@ -889,19 +920,9 @@ msgid "Website Event Menu"
 msgstr "Web Sitesi Etkinlik Menüsü"
 
 #. module: website_event_exhibitor
-#: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor__website_message_ids
-msgid "Website Messages"
-msgstr "Websitesi Mesajları"
-
-#. module: website_event_exhibitor
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor__website_url
 msgid "Website URL"
 msgstr "Web Sitesi URL Adresi"
-
-#. module: website_event_exhibitor
-#: model:ir.model.fields,help:website_event_exhibitor.field_event_sponsor__website_message_ids
-msgid "Website communication history"
-msgstr "Websitesi iletişim geçmişi"
 
 #. module: website_event_exhibitor
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor__is_in_opening_hours
@@ -961,6 +982,11 @@ msgid ""
 msgstr ""
 "bitti.\n"
 "                <br/>"
+
+#. module: website_event_exhibitor
+#: model_terms:ir.ui.view,arch_db:website_event_exhibitor.exhibitors_topbar
+msgid "sponsor"
+msgstr ""
 
 #. module: website_event_exhibitor
 #. odoo-javascript

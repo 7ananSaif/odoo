@@ -5,8 +5,11 @@ import * as PartnerList from "@point_of_sale/../tests/pos/tours/utils/partner_li
 import * as TextInputPopup from "@point_of_sale/../tests/generic_helpers/text_input_popup_util";
 import * as Dialog from "@point_of_sale/../tests/generic_helpers/dialog_util";
 import * as Chrome from "@point_of_sale/../tests/pos/tours/utils/chrome_util";
-import { LONG_PRESS_DURATION } from "@point_of_sale/utils";
+import * as ChoseComboPopup from "@point_of_sale/../tests/pos/tours/utils/chose_combo_popup_util";
+import { LONG_PRESS_DURATION, TOUCH_DELAY } from "@point_of_sale/utils";
 import * as PaymentScreen from "@point_of_sale/../tests/pos/tours/utils/payment_screen_util";
+import * as FeedbackScreen from "@point_of_sale/../tests/pos/tours/utils/feedback_screen_util";
+import { negateStep } from "@point_of_sale/../tests/generic_helpers/utils";
 
 export function firstProductIsFavorite(name) {
     return [
@@ -51,12 +54,25 @@ export function selectFloatingOrder(index) {
     return [
         {
             isActive: ["mobile"],
-            trigger: ".fa-caret-down",
+            trigger: "[data-icon='arrow_drop_down']",
             run: "click",
         },
         {
-            trigger: `.list-container-items .btn:eq(${index})`,
+            isActive: ["mobile"],
+            trigger: `.modal-dialog .list-container-items .btn:eq(${index})`,
             run: "click",
+        },
+        {
+            isActive: ["desktop"],
+            trigger: `.list-container-items .floating-order-container`,
+            run: () => {
+                const btns = document.querySelectorAll(
+                    ".list-container-items .floating-order-container .btn"
+                );
+                if (btns[index]) {
+                    btns[index].click();
+                }
+            },
         },
     ];
 }
@@ -65,24 +81,22 @@ export function checkFloatingOrderCount(expectedCount) {
     return [
         {
             isActive: ["mobile"],
-            trigger: ".fa-caret-down",
+            trigger: "[data-icon='arrow_drop_down']",
             run: "click",
         },
         {
+            isActive: ["mobile"],
             content: `check there are ${expectedCount} floating order`,
-            trigger: ".list-container-items .btn",
-            run: () => {
-                const btns = document.querySelectorAll(".list-container-items .btn");
-                if (btns.length !== expectedCount) {
-                    throw new Error(
-                        `Expected ${expectedCount} floating order buttons, found ${btns.length}`
-                    );
-                }
-            },
+            trigger: `.modal-dialog .list-container-items:has(.btn:count(${expectedCount}))`,
+        },
+        {
+            isActive: ["desktop"],
+            content: `check there are ${expectedCount} floating order`,
+            trigger: `.list-container-items:has(.floating-order-container:has(.btn):count(${expectedCount}))`,
         },
         {
             isActive: ["mobile"],
-            trigger: ".modal-header .oi-arrow-left",
+            trigger: ".modal-header [data-icon='arrow_back']",
             run: "click",
         },
     ];
@@ -191,6 +205,10 @@ export function clickPayButton(shouldCheck = true) {
         steps.push({
             content: "now in payment screen",
             trigger: ".pos-content .payment-screen",
+            async run() {
+                // Wait this.pos_order_id is set
+                await new Promise((r) => setTimeout(r, 500));
+            },
         });
     }
     return steps;
@@ -205,39 +223,89 @@ export function clickPartnerButton() {
         },
         {
             content: "partner screen is shown",
-            trigger: PartnerList.partnerListTrigger(),
+            trigger: `${PartnerList.clickPartner().trigger}`,
         },
     ];
 }
-export function clickCustomer(name) {
-    return [...PartnerList.clickPartner(name), { ...back(), isActive: ["mobile"] }];
+
+export function createPartner(partnerData = {}) {
+    const steps = [
+        clickReview(),
+        {
+            content: "click customer button",
+            trigger: ".product-screen .set-partner",
+            run: "click",
+        },
+        {
+            content: "click customer create button",
+            trigger: ".modal .modal-header button:contains(Create)",
+            run: "click",
+        },
+    ];
+    if (partnerData.name) {
+        steps.push({
+            content: "edit customer name",
+            trigger: "div.o_field_field_partner_autocomplete .o-autocomplete input",
+            run: `edit ${partnerData.name}`,
+        });
+    }
+    if (partnerData.phone) {
+        steps.push({
+            content: "edit customer phone",
+            trigger: "div.o_field_phone input",
+            run: `edit ${partnerData.phone}`,
+        });
+    }
+    steps.push({
+        content: "click save button",
+        trigger: ".modal-footer button.o_form_button_save",
+        run: "click",
+    });
+
+    return steps;
 }
-export function selectPreset(selectedPreset, presetToSelect) {
+export function clickCustomer(name, pressEnter = false) {
     return [
+        ...PartnerList.searchCustomerValue(name, pressEnter),
+        PartnerList.clickPartner(name),
+        { ...back(), isActive: ["mobile"] },
+    ];
+}
+export function selectPreset(selectedPreset, presetToSelect, presetPopup = true) {
+    const steps = [
         clickReview(),
         {
             content: "click preset button",
             trigger: `.product-screen button:contains("${selectedPreset}")`,
             run: "click",
         },
-        {
-            content: `click preset '${presetToSelect}' from preset modal`,
-            trigger: `.modal-body button:contains(${presetToSelect})`,
-            run: "click",
-        },
     ];
+    if (presetPopup) {
+        steps.push({
+            content: `click preset '${presetToSelect}' from preset modal`,
+            trigger: `.modal-body button:contains("${presetToSelect}")`,
+            run: "click",
+        });
+    }
+    return steps;
 }
 export function customerIsSelected(name) {
     return [
         clickReview(),
         {
+            isActive: ["desktop"],
             content: `customer '${name}' is selected`,
             trigger: `.product-screen .set-partner:contains("${name}")`,
+        },
+        {
+            isActive: ["mobile"],
+            content: `customer is selected`,
+            trigger: `.product-screen .set-partner.btn-outline-secondary.active`,
         },
     ];
 }
 export function clickRefund() {
-    return [clickReview(), ...clickControlButton("Refund")];
+    return [clickReview(), Chrome.clickOrders(), ...selectFilter("Paid")];
 }
 export function controlButtonTrigger(name = "") {
     return `.control-buttons button:contains("${name}")`;
@@ -300,6 +368,17 @@ export function clickInternalNoteButton(buttonLabel) {
     ];
 }
 
+export function cancelOrder() {
+    return [
+        ...clickControlButton("Cancel Order"),
+        {
+            content: "Confirm cancel order",
+            trigger: ".o_dialog .modal-footer button:contains('Ok')",
+            run: "click",
+        },
+    ];
+}
+
 /**
  * Selects a given price list in the user interface. This function is designed to be used to select a specific price list.
  *
@@ -352,9 +431,16 @@ export function enterOpeningAmount(amount) {
     return [
         {
             content: "enter opening amount",
-            trigger: ".cash-input-sub-section input",
-            run: "edit " + amount,
+            trigger: ".modal:contains(Opening Control) .cash-input-sub-section input",
+            run: `edit ${amount}`,
         },
+        {
+            trigger: `.modal input:value(${amount})`,
+            async run() {
+                await new Promise((r) => setTimeout(r, 500));
+            },
+        },
+        Dialog.proceed({ title: "Opening control", body: "Opening note", button: "Open Register" }),
     ];
 }
 /**
@@ -411,7 +497,6 @@ export function checkFiscalPosition(name) {
         {
             content: `check fiscal position '${name}' is selected`,
             trigger: `.o_fiscal_position_button:contains("${name}")`,
-            run: () => {},
         },
         Dialog.cancel(),
     ];
@@ -432,175 +517,9 @@ export function closeWithCashAmount(val) {
         },
     ];
 }
-export function clickCloseSession() {
-    return [
-        {
-            trigger: "footer .button:contains('Close Session')",
-        },
-    ];
-}
 export function back() {
     return utilsBack();
 }
-export function clickLotIcon() {
-    return [
-        {
-            content: "click lot icon",
-            trigger: ".line-lot-icon",
-            run: "click",
-        },
-    ];
-}
-export function deleteNthLotNumber(number) {
-    return [
-        {
-            content: "delete lot number",
-            trigger: `.lot-container .lot-item:eq(${number - 1}) .btn`,
-            run: "click",
-        },
-    ];
-}
-export function selectNthLotNumber(number) {
-    return [
-        {
-            trigger: `.o-autocomplete--dropdown-menu .o-autocomplete--dropdown-item:eq(${
-                number - 1
-            })`,
-            run: "click",
-        },
-        Dialog.confirm(),
-    ];
-}
-export function enterLotNumber(number, tracking = "serial", click = false) {
-    const steps = [];
-    if (click) {
-        steps.push({
-            trigger: ".o-autocomplete input",
-            run: "click",
-        });
-    }
-    steps.push(
-        {
-            trigger:
-                ".o-autocomplete--dropdown-item a:contains('No existing Lot/Serial number found...')",
-        },
-        {
-            content: "enter lot number",
-            trigger: ".o-autocomplete input",
-            run: "edit " + number,
-        },
-        {
-            trigger: ".o-autocomplete--dropdown-item a:contains('Create Lot/Serial number...')",
-        },
-        {
-            trigger: ".o-autocomplete input",
-            run: "press Enter",
-        }
-    );
-    if (tracking === "serial") {
-        steps.push(...serialCheckStep(number));
-    }
-    steps.push(Dialog.confirm());
-    return steps;
-}
-
-export function serialCheckStep(number) {
-    return [
-        {
-            content: "Check entered lot/serial number",
-            trigger: `.lot-container .lot-item:eq(-1) span:contains(${number})`,
-        },
-        {
-            trigger: ".o-autocomplete input:value()",
-        },
-    ];
-}
-
-export function enterExistingLotNumber(number, tracking = "serial") {
-    const steps = [];
-    steps.push(
-        {
-            content: "enter lot number",
-            trigger: ".o-autocomplete input",
-            run: "edit " + number,
-        },
-        {
-            trigger: ".o-autocomplete input",
-            run: "press Enter",
-        }
-    );
-    if (tracking === "serial") {
-        steps.push(...serialCheckStep(number));
-    }
-    steps.push(Dialog.confirm());
-    return steps;
-}
-
-export function enterLotNumbers(numbers) {
-    const steps = [
-        {
-            trigger: ".o-autocomplete input",
-            run: "click",
-        },
-    ];
-    for (const lot of numbers) {
-        steps.push(
-            {
-                content: "enter lot number",
-                trigger: ".o-autocomplete input",
-                run: "edit " + lot,
-            },
-            {
-                trigger: ".o-autocomplete--dropdown-item a:contains('Create Lot/Serial number...')",
-            },
-            {
-                trigger: ".o-autocomplete input",
-                run: "press Enter",
-            },
-            {
-                content: "check entered lot number",
-                trigger: `.lot-container .lot-item:eq(-1) span:contains(${lot})`,
-            },
-            {
-                trigger: ".o-autocomplete input:value()",
-            }
-        );
-    }
-    steps.push(Dialog.confirm());
-    return steps;
-}
-
-export function enterExistingLotNumbers(numbers) {
-    const steps = [
-        {
-            trigger: ".o-autocomplete input",
-            run: "click",
-        },
-    ];
-    for (const lot of numbers) {
-        steps.push(
-            {
-                content: "enter lot number",
-                trigger: ".o-autocomplete input",
-                run: "edit " + lot,
-            },
-            {
-                trigger: ".o-autocomplete input",
-                run: "press Enter",
-            },
-            {
-                content: "check entered lot number",
-                trigger: `.lot-container .lot-item:eq(-1) span:contains(${lot})`,
-            },
-            {
-                trigger: ".o-autocomplete input:value()",
-            }
-        );
-    }
-    steps.push(Dialog.confirm());
-    return steps;
-}
-
 export function isShown() {
     return [
         {
@@ -665,7 +584,7 @@ export function searchProduct(string) {
         {
             isActive: ["mobile"],
             content: `Click search field`,
-            trigger: `.fa-search`,
+            trigger: `[data-icon="search"]`,
             run: `click`,
         },
         {
@@ -697,15 +616,6 @@ export function productCardQtyIs(productName, qty) {
         {
             content: `'${productName}' should have '${qty}' quantity`,
             trigger: `article.product .product-content:has(.product-name:contains("${productName}")):has(.product-cart-qty:contains("${qty}"))`,
-        },
-    ];
-}
-
-export function checkFirstLotNumber(number) {
-    return [
-        {
-            content: "Check lot number",
-            trigger: `.lot-container .lot-item:eq(0) span:contains(${number})`,
         },
     ];
 }
@@ -805,22 +715,9 @@ export function finishOrder() {
     return [
         ...PaymentScreen.clickValidate(),
         Chrome.isSyncStatusConnected(),
-        {
-            isActive: ["desktop"],
-            content: "click Next Order",
-            trigger: ".receipt-screen .button.next.highlight:visible",
-            run: "click",
-        },
-        {
-            isActive: ["mobile"],
-            content: "Click Next Order",
-            trigger: ".receipt-screen .btn-switchpane.validation-button.highlight[name='done']",
-            run: "click",
-        },
-        {
-            content: "check if we left the receipt screen",
-            trigger: ".pos-content div:not(:has(.receipt-screen))",
-        },
+        ...FeedbackScreen.isShown(),
+        ...FeedbackScreen.clickNextOrder(),
+        ...isShown(),
     ];
 }
 
@@ -828,6 +725,12 @@ export function checkTaxAmount(amount) {
     return {
         trigger: `.order-summary .tax:contains(${amount})`,
     };
+}
+
+export function hasNoTax() {
+    return negateStep({
+        trigger: `.order-summary .tax-info`,
+    });
 }
 
 export function checkRoundingAmountIsNotThere() {
@@ -844,12 +747,6 @@ export function checkRoundingAmountIsNotThere() {
     ];
 }
 
-export function checkRoundingAmount(amount) {
-    return {
-        trigger: `.order-summary .rounding:contains(${amount})`,
-    };
-}
-
 export function customerIs(name) {
     return [
         {
@@ -861,6 +758,22 @@ export function customerIs(name) {
 export function checkTotalAmount(amount) {
     return {
         trigger: `.order-summary .total:contains(${amount})`,
+    };
+}
+
+export function checkTotalAmountStriclyLessThan(amount) {
+    return {
+        content: `Check if the total amount is lesser than ${amount}`,
+        trigger: `.order-summary .total`,
+        run: function () {
+            const totalElement = document.querySelector(".order-summary .total");
+            const totalValue = parseFloat(totalElement.textContent.replace(/[^0-9.]+/g, ""));
+            if (totalValue > amount) {
+                throw new Error(
+                    `Expected total amount to be less than ${amount}, but got ${totalValue}`
+                );
+            }
+        },
     };
 }
 
@@ -946,13 +859,19 @@ export function ensureTaxesInputIsReadonly() {
 }
 
 export function createProductFromFrontend(name, barcode, list_price, category) {
-    return [
+    const steps = [
         ...productInputSteps(name, barcode, list_price),
         {
             content: "Remove default tax 15%.",
             trigger: 'div[name="taxes_id"] .o_delete',
             run: "click",
         },
+    ];
+    if (!category) {
+        return steps;
+    }
+    return [
+        ...steps,
         {
             content: "Open category selector.",
             trigger: 'div[name="pos_categ_ids"] input',
@@ -983,10 +902,14 @@ export function longPressProduct(productName) {
             content: `Long pressing product "${productName}"...`,
             trigger: `.product-list .product-name:contains("${productName}")`,
             run: async (el) => {
-                const mouseDown = new MouseEvent("mousedown", { bubbles: true });
-                const mouseUp = new MouseEvent("mouseup", { bubbles: true });
+                const mouseDown = new MouseEvent("pointerdown", { bubbles: true });
+                const mouseUp = new MouseEvent("pointerup", { bubbles: true });
                 el.anchor.dispatchEvent(mouseDown);
-                await new Promise((resolve) => setTimeout(resolve, LONG_PRESS_DURATION + 50));
+                // A synthetic MouseEvent has no `pointerType`, so the long press
+                // hook takes its touch branch and waits LONG_PRESS_DURATION + TOUCH_DELAY.
+                await new Promise((resolve) =>
+                    setTimeout(resolve, LONG_PRESS_DURATION + TOUCH_DELAY + 50)
+                );
                 el.anchor.dispatchEvent(mouseUp);
             },
         },
@@ -1017,7 +940,6 @@ export function clickFastPaymentButton(paymentMethodName) {
         },
     ];
 }
-
 export function longPressOrderline(productName, delay = 500) {
     return [
         {
@@ -1047,12 +969,100 @@ export function openCartMobile() {
     ];
 }
 
+export function clickApplyCombo(
+    isOptionShown = false,
+    optionsShown = [],
+    optionToChoose = "",
+    dialogStillPresent = false
+) {
+    let id;
+    const steps = [
+        {
+            content: "Check apply combo button is there",
+            trigger: ".combo-proposition",
+        },
+        {
+            content: "Click apply combo button",
+            trigger: ".combo-proposition button.btn",
+            run: "click",
+        },
+    ];
+    if (isOptionShown) {
+        steps.push({
+            content: "Chose combo popup is shown",
+            trigger: ".chose-combo-popup",
+            run({ queryFirst }) {
+                id = queryFirst(`.o_dialog`).getAttribute("id");
+            },
+        });
+        for (const option of optionsShown) {
+            steps.push(ChoseComboPopup.isOptionShown(option));
+        }
+        steps.push(ChoseComboPopup.apply(optionToChoose));
+    }
+    if (dialogStillPresent) {
+        steps.push({
+            content: "Check the modal has been rendered before to close it",
+            trigger: "body",
+            async run({ waitFor }) {
+                await waitFor(`.o_dialog:not(#${id}) .chose-combo-popup`, {
+                    timeout: 1000,
+                });
+            },
+        });
+        steps.push(Dialog.cancel());
+    }
+    return inLeftSide(steps.flat());
+}
+
+export function clickBreakCombo() {
+    return [
+        {
+            content: "Click break combo button",
+            trigger: ".break-combo-button",
+            run: "click",
+        },
+    ];
+}
+
+export function selectFilter(name) {
+    return [
+        {
+            trigger: `.pos-search-bar .filter`,
+            run: "click",
+        },
+        {
+            trigger: `.pos-search-bar .filter ul`,
+        },
+        {
+            trigger: `.pos-search-bar .filter ul li:contains("${name}")`,
+            run: "click",
+        },
+    ];
+}
+export function productIsSnoozed(product_name) {
+    return [
+        {
+            trigger: `article.product.opacity-50:has(.product-name:contains('${product_name}'))`,
+            content: "Check that the product card is grayed out",
+        },
+    ];
+}
+export function productIsNotSnoozed(product_name) {
+    return [
+        {
+            trigger: `article.product:not(.opacity-50):has(.product-name:contains('${product_name}'))`,
+            content: "Check that the product card is not grayed out",
+        },
+    ];
+}
+
 export function saveOrder() {
     return [
         clickReview(),
         {
             content: "save order",
-            trigger: ".pads .fa-upload",
+            trigger: ".pads [data-icon='upload']",
             run: "click",
         },
     ];

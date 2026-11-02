@@ -5,24 +5,24 @@
 # Bone NI <bounkirdni@gmail.com>, 2026.
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0\n"
+"Project-Id-Version: Odoo Server 19.4a1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2026-06-06 14:54+0000\n"
+"POT-Creation-Date: 2026-09-11 17:44+0000\n"
+"PO-Revision-Date: 2026-10-22 02:33+0000\n"
 "Last-Translator: Bone NI <bounkirdni@gmail.com>\n"
-"Language-Team: Lao <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Lao <https://translate.odoo.com/projects/odoo-20/"
 "website_slides_survey/lo/>\n"
 "Language: lo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_slide_channel__members_certified_count
 msgid "# Certified Attendees"
-msgstr "# ຈຳນວນຜູ້ທີ່ໄດ້ຮັບໃບຢັ້ງຢືນ"
+msgstr "ຈຳນວນຜູ້ເຂົ້າຮ່ວມທີ່ໄດ້ຮັບໃບຢັ້ງຢືນ"
 
 #. module: website_slides_survey
 #. odoo-python
@@ -31,24 +31,23 @@ msgid "- %(certification)s (Courses - %(courses)s)"
 msgstr "- %(certification)s (ຫຼັກສູດ - %(courses)s)"
 
 #. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_survey_view_kanban
-msgid ""
-"<br/>\n"
-"                        <span class=\"text-muted\">Courses</span>"
-msgstr ""
-"<br/>\n"
-"                        <span class=\"text-muted\">ຫຼັກສູດ</span>"
-
-#. module: website_slides_survey
 #: model:mail.template,body_html:website_slides_survey.mail_template_user_input_certification_failed
 msgid ""
 "<div style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
 "    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
-"        Dear <t t-out=\"object.partner_id.name or 'participant' or ''\">participant</t><br/><br/>\n"
-"        Unfortunately, you have failed the certification and are no longer a member of the course: <t t-out=\"object.slide_partner_id.channel_id.name or ''\">Basics of Gardening</t>.<br/><br/>\n"
+"        Dear <t t-out=\"object.partner_id.name or 'participant' or "
+"''\">participant</t><br/><br/>\n"
+"        Unfortunately, you have failed the certification and are no longer a "
+"member of the course: <t t-out=\"object.slide_partner_id.channel_id.name or "
+"''\">Basics of Gardening</t>.<br/><br/>\n"
 "        Don't hesitate to enroll again!\n"
 "        </p><div style=\"margin: 16px 0px 16px 0px;\">\n"
-"            <a t-att-href=\"(object.slide_partner_id.channel_id.website_absolute_url)\" t-attf-style=\"background-color: {{user.company_id.email_secondary_color or '#875A7B'}}; padding: 8px 16px 8px 16px; text-decoration: none; color: {{user.company_id.email_primary_color or '#FFFFFF'}}; border-radius: 5px; font-size:13px;\">\n"
+"            <a t-att-"
+"href=\"(object.slide_partner_id.channel_id.website_absolute_url)\" t-attf-"
+"style=\"background-color: {{user.company_id.email_secondary_color or "
+"'#875A7B'}}; padding: 8px 16px 8px 16px; text-decoration: none; color: "
+"{{user.company_id.email_primary_color or '#FFFFFF'}}; border-radius: 5px; "
+"font-size:13px;\">\n"
 "                Enroll now\n"
 "            </a>\n"
 "        </div>\n"
@@ -61,9 +60,9 @@ msgstr ""
 "    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
 "        ຮຽນ <t t-out=\"object.partner_id.name or 'participant' or ''\">ຜູ້ເຂົ້າຮ່ວ"
 "ມ</t><br/><br/>\n"
-"        ເປັນທີ່ໜ້າເສຍດາຍ, ທ່ານສອບເສັງບໍ່ຜ່ານ ແລະ ບໍ່ໄດ້ເປັນສະມາຊິກຂອງຫຼັກສູດນີ້ອີກຕໍ່ໄປ: <t t-"
-"out=\"object.slide_partner_id.channel_id.name or ''\">Basics of Gardening</t>"
-".<br/><br/>\n"
+"        ໜ້າເສຍດາຍ, ທ່ານບໍ່ຜ່ານການສອບເສັງເອົາໃບຢັ້ງຢືນ ແລະ ບໍ່ໄດ້ເປັນສະມາຊິກຂອງຫຼັກສູດນີ້ອີກຕໍ່ໄປ: "
+"<t t-out=\"object.slide_partner_id.channel_id.name or ''\">Basics of "
+"Gardening</t>.<br/><br/>\n"
 "        ຢ່າລັງເລທີ່ຈະລົງທະບຽນໃໝ່ອີກຄັ້ງ!\n"
 "        </p><div style=\"margin: 16px 0px 16px 0px;\">\n"
 "            <a t-att-href=\""
@@ -75,68 +74,83 @@ msgstr ""
 "                ລົງທະບຽນດຽວນີ້\n"
 "            </a>\n"
 "        </div>\n"
-"        ຂໍຂອບໃຈສຳລັບການເຂົ້າຮ່ວມຂອງທ່ານ.\n"
+"        ຂອບໃຈສຳລັບການເຂົ້າຮ່ວມຂອງທ່ານ.\n"
 "    \n"
 "</div>\n"
 "            "
 
 #. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
-msgid "<i class=\"fa fa-arrow-right\"/> Get Certified"
-msgstr "<i class=\"fa fa-arrow-right\"/> ຮັບໃບຢັ້ງຢືນ"
-
-#. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
-msgid ""
-"<i class=\"fa fa-download\" aria-label=\"Download certification\" "
-"title=\"Download Certification\"/>"
-msgstr ""
-"<i class=\"fa fa-download\" aria-label=\"ດາວໂຫລດໃບຢັ້ງຢືນ\" title=\"ດາວໂຫລດໃບຢັ້ງຢື"
-"ນ\"/>"
-
-#. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.slide_content_detailed
-msgid ""
-"<i class=\"fa fa-fw fa-trophy\" role=\"img\" aria-label=\"Download "
-"certification\" title=\"Download certification\"/> Download certification"
-msgstr ""
-"<i class=\"fa fa-fw fa-trophy\" role=\"img\" aria-label=\"ດາວໂຫລດໃບຢັ້ງຢືນ\" "
-"title=\"ດາວໂຫລດໃບຢັ້ງຢືນ\"/> ດາວໂຫລດໃບຢັ້ງຢືນ"
+msgid "<i class=\"oi me-1\" data-icon=\"east\"/>Add Questions to this Survey"
+msgstr "<i class=\"oi me-1\" data-icon=\"east\"/>ເພີ່ມຄຳຖາມໃສ່ແບບສຳຫຼວດນີ້"
+
+#. module: website_slides_survey
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
+msgid "<i class=\"oi me-1\" data-icon=\"east\"/>All Certifications"
+msgstr "<i class=\"oi me-1\" data-icon=\"east\"/>ໃບຢັ້ງຢືນທັງໝົດ"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_fill_form_done_inherit_website_slides
 msgid ""
-"<i class=\"fa fa-share-alt\" aria-label=\"Share certification\" title=\"Share certification\"/>\n"
-"                        Share your certification"
+"<i class=\"oi me-2\" data-icon=\"chevron_backward\" aria-hidden=\"true\"/>Go "
+"back to course"
 msgstr ""
-"<i class=\"fa fa-share-alt\" aria-label=\"ແບ່ງປັນໃບຢັ້ງຢືນ\" title=\"ແບ່ງປັນໃບຢັ້ງຢື"
-"ນ\"/>\n"
-"                        ແບ່ງປັນໃບຢັ້ງຢືນຂອງທ່ານ"
+"<i class=\"oi me-2\" data-icon=\"chevron_backward\" aria-hidden=\"true\"/>ກັບໄ"
+"ປຫາຫຼັກສູດ"
 
 #. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
-msgid "<i class=\"fa fa-share-alt\" aria-label=\"Share\" title=\"Share\"/>"
-msgstr "<i class=\"fa fa-share-alt\" aria-label=\"ແບ່ງປັນ\" title=\"ແບ່ງປັນ\"/>"
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_fill_form_done_inherit_website_slides
+msgid ""
+"<i class=\"oi oi-filled d-none d-md-inline\" data-icon=\"share\" aria-"
+"label=\"Share certification\" title=\"Share certification\"/>\n"
+"                        <span class=\"d-md-none\">Share certification</span>"
+msgstr ""
+"<i class=\"oi oi-filled d-none d-md-inline\" data-icon=\"share\" aria-"
+"label=\"ແບ່ງປັນໃບຢັ້ງຢືນ\" title=\"ແບ່ງປັນໃບຢັ້ງຢືນ\"/>\n"
+"                        <span class=\"d-md-none\">ແບ່ງປັນໃບຢັ້ງຢືນ</span>"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.slide_content_detailed
-msgid "<i class=\"oi oi-arrow-right me-1\"/>Add Questions to this Survey"
-msgstr "<i class=\"oi oi-arrow-right me-1\"/>ເພີ່ມຄຳຖາມໃສ່ແບບສອບຖາມນີ້"
+msgid ""
+"<i class=\"oi oi-fw oi-filled\" data-icon=\"trophy\" role=\"img\" aria-"
+"label=\"Download certification\" title=\"Download certification\"/> Download "
+"certification"
+msgstr ""
+"<i class=\"oi oi-fw oi-filled\" data-icon=\"trophy\" role=\"img\" aria-"
+"label=\"ດາວໂຫຼດໃບຢັ້ງຢືນ\" title=\"ດາວໂຫຼດໃບຢັ້ງຢືນ\"/> ດາວໂຫຼດໃບຢັ້ງຢືນ"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
-msgid "<i class=\"oi oi-arrow-right me-1\"/>All Certifications"
-msgstr "<i class=\"oi oi-arrow-right me-1\"/>ໃບຢັ້ງຢືນທັງໝົດ"
+msgid "<i class=\"oi\" data-icon=\"arrow_forward\"/> Get Certified"
+msgstr "<i class=\"oi\" data-icon=\"arrow_forward\"/> ຮັບໃບຢັ້ງຢືນ"
+
+#. module: website_slides_survey
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
+msgid ""
+"<i class=\"oi\" data-icon=\"download\" aria-label=\"Download certification\" "
+"title=\"Download Certification\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"download\" aria-label=\"ດາວໂຫຼດໃບຢັ້ງຢືນ\" title=\"ດາ"
+"ວໂຫຼດໃບຢັ້ງຢືນ\"/>"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.user_profile_content
-msgid "<i class=\"oi oi-arrow-right\"/> See Certifications"
-msgstr "<i class=\"oi oi-arrow-right\"/> ເບິ່ງໃບຢັ້ງຢືນ"
+msgid "<i class=\"oi\" data-icon=\"east\"/> See Certifications"
+msgstr "<i class=\"oi\" data-icon=\"east\"/> ເບິ່ງໃບຢັ້ງຢືນ"
+
+#. module: website_slides_survey
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
+msgid ""
+"<i class=\"oi\" data-icon=\"family_history\" aria-label=\"Share\" "
+"title=\"Share\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"family_history\" aria-label=\"ແບ່ງປັນ\" title=\"ແບ່ງ"
+"ປັນ\"/>"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.badge_content
 msgid "<i class=\"text-muted\"> awarded users</i>"
-msgstr "<i class=\"text-muted\"> ຜູ້ໃຊ້ທີ່ໄດ້ຮັບລາງວັນ</i>"
+msgstr "<i class=\"text-muted\"> ຜູ້ໃຊ້ທີ່ໄດ້ຮັບຮາງວັນ</i>"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.courses_search_bar_inherit_survey
@@ -146,7 +160,7 @@ msgstr "<span class=\"ms-1\">ໃບຢັ້ງຢືນ</span>"
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.slide_channel_view_form
 msgid "<span class=\"o_stat_text\">Certified</span>"
-msgstr "<span class=\"o_stat_text\">ໄດ້ຮັບໃບຢັ້ງຢືນແລ້ວ</span>"
+msgstr "<span class=\"o_stat_text\">ຜ່ານການຢັ້ງຢືນ</span>"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.all_user_card
@@ -159,20 +173,28 @@ msgid "<span class=\"text-muted\">Certifications</span>"
 msgstr "<span class=\"text-muted\">ໃບຢັ້ງຢືນ</span>"
 
 #. module: website_slides_survey
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_survey_view_kanban
+msgid "<span>Courses</span>"
+msgstr "<span>ຫຼັກສູດ</span>"
+
+#. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.course_main
-msgid "<span>Start Now</span><i class=\"oi oi-chevron-right ms-2 align-middle\"/>"
+msgid ""
+"<span>Start Now</span><i class=\"oi ms-2 align-middle\" data-"
+"icon=\"chevron_forward\"/>"
 msgstr ""
-"<span>ເລີ່ມຕົ້ນດຽວນີ້</span><i class=\"oi oi-chevron-right ms-2 align-middle\"/>"
+"<span>ເລີ່ມຕົ້ນດຽວນີ້</span><i class=\"oi ms-2 align-middle\" data-"
+"icon=\"chevron_forward\"/>"
 
 #. module: website_slides_survey
 #: model:ir.model.constraint,message:website_slides_survey.constraint_slide_slide_check_survey_id
 msgid "A slide of type 'certification' requires a certification."
-msgstr "ສະໄລ້ປະເພດ 'ໃບຢັ້ງຢືນ' ຕ້ອງມີການກຳນົດແບບສອບຖາມໃບຢັ້ງຢືນ."
+msgstr "ສະໄລ້ປະເພດ 'ໃບຢັ້ງຢືນ' ຕ້ອງການແບບສຳຫຼວດໃບຢັ້ງຢືນ."
 
 #. module: website_slides_survey
 #: model:ir.model.constraint,message:website_slides_survey.constraint_slide_slide_check_certification_preview
 msgid "A slide of type certification cannot be previewed."
-msgstr "ສະໄລ້ປະເພດໃບຢັ້ງຢືນ ບໍ່ສາມາດເບິ່ງຕົວຢ່າງໄດ້."
+msgstr "ສະໄລ້ປະເພດໃບຢັ້ງຢືນບໍ່ສາມາດເບິ່ງຕົວຢ່າງໄດ້."
 
 #. module: website_slides_survey
 #. odoo-javascript
@@ -185,12 +207,17 @@ msgstr "ເພີ່ມໃບຢັ້ງຢືນ"
 #. odoo-javascript
 #: code:addons/website_slides_survey/static/src/xml/website_slides_fullscreen.xml:0
 msgid "Add Questions to this Survey"
-msgstr "ເພີ່ມຄຳຖາມໃສ່ແບບສອບຖາມນີ້"
+msgstr "ເພີ່ມຄຳຖາມໃສ່ແບບສຳຫຼວດນີ້"
 
 #. module: website_slides_survey
 #: model_terms:ir.actions.act_window,help:website_slides_survey.slide_slide_action_certification
 msgid "Add a new certification"
 msgstr "ເພີ່ມໃບຢັ້ງຢືນໃໝ່"
+
+#. module: website_slides_survey
+#: model:ir.module.module,summary:base.module_website_slides_survey
+msgid "Add certification capabilities to your courses"
+msgstr "ເພີ່ມຄວາມສາມາດໃນການອອກໃບຢັ້ງຢືນໃຫ້ແກ່ຫຼັກສູດຂອງທ່ານ"
 
 #. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_slide_slide__is_preview
@@ -200,7 +227,7 @@ msgstr "ອະນຸຍາດໃຫ້ເບິ່ງຕົວຢ່າງ"
 #. module: website_slides_survey
 #: model:survey.question.answer,value:website_slides_survey.furniture_certification_page_1_question_1_choice_3
 msgid "Ash"
-msgstr "ໄມ້ Ash"
+msgstr "ໄມ້ແອຊ"
 
 #. module: website_slides_survey
 #: model_terms:ir.actions.act_window,help:website_slides_survey.survey_survey_action_slides
@@ -208,13 +235,13 @@ msgid ""
 "Assess the level of understanding of your attendees\n"
 "                <br>and send them a document if they pass the test."
 msgstr ""
-"ປະເມີນລະດັບຄວາມເຂົ້າໃຈຂອງຜູ້ເຂົ້າຮ່ວມຂອງທ່ານ\n"
-"                <br>ແລະ ສົ່ງເອກະສານໃຫ້ພວກເຂົາ ຖ້າພວກເຂົາສອບເສັງຜ່ານ."
+"ປະເມີນລະດັບຄວາມເຂົ້າໃຈຂອງຜູ້ເຂົ້າຮ່ວມ\n"
+"                <br>ແລະ ສົ່ງເອກະສານໃຫ້ພວກເຂົາຖ້າສອບເສັງຜ່ານ."
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.user_profile_content
 msgid "Attempt n°"
-msgstr "ຄັ້ງທີ"
+msgstr "ຄັ້ງທີ່ທົດສອບ n°"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_survey_view_tree_slides
@@ -224,24 +251,24 @@ msgstr "ຄະແນນສະເລ່ຍ (%)"
 #. module: website_slides_survey
 #: model:survey.question.answer,value:website_slides_survey.furniture_certification_page_1_question_2_choice_5
 msgid "Bed"
-msgstr "ຕຽງ"
+msgstr "ຕຽງນອນ"
 
 #. module: website_slides_survey
 #: model:survey.question.answer,value:website_slides_survey.furniture_certification_page_1_question_1_choice_4
 msgid "Beech"
-msgstr "ໄມ້ Beech"
+msgstr "ໄມ້ບີຊ"
 
 #. module: website_slides_survey
 #. odoo-javascript
 #: code:addons/website_slides_survey/static/src/xml/website_slides_fullscreen.xml:0
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.slide_content_detailed
 msgid "Begin Certification"
-msgstr "ເລີ່ມການສອບເສັງເອົາໃບຢັ້ງຢືນ"
+msgstr "ເລີ່ມຕົ້ນການສອບເສັງໃບຢັ້ງຢືນ"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.course_main
 msgid "Begin your <b>certification</b> today!"
-msgstr "ເລີ່ມຕົ້ນການຮັບ <b>ໃບຢັ້ງຢືນ</b> ຂອງທ່ານໃນມື້ນີ້!"
+msgstr "ເລີ່ມຕົ້ນສອບເສັງເອົາ<b>ໃບຢັ້ງຢືນ</b>ຂອງທ່ານໃນມື້ນີ້!"
 
 #. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_slide_slide__slide_category
@@ -261,12 +288,12 @@ msgstr "ໃບຢັ້ງຢືນ"
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.user_profile_content
 msgid "Certification Attempts"
-msgstr "ຈຳນວນຄັ້ງທີ່ສອບເສັງ"
+msgstr "ຈຳນວນຄັ້ງທີ່ສອບເສັງໃບຢັ້ງຢືນ"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.badge_content
 msgid "Certification Badges"
-msgstr "ຫຼຽນກາໃບຢັ້ງຢືນ"
+msgstr "ຫຼຽນກຽດຕິຍົດໃບຢັ້ງຢືນ"
 
 #. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_survey_survey__slide_channel_ids
@@ -277,7 +304,7 @@ msgstr "ຫຼັກສູດໃບຢັ້ງຢືນ"
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.slide_slide_partner_view_search
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.slide_slide_partner_view_tree
 msgid "Certification Passed"
-msgstr "ສອບເສັງໃບຢັ້ງຢືນຜ່ານແລ້ວ"
+msgstr "ຜ່ານການສອບເສັງໃບຢັ້ງຢືນ"
 
 #. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_survey_survey__slide_ids
@@ -287,7 +314,7 @@ msgstr "ສະໄລ້ໃບຢັ້ງຢືນ"
 #. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_slide_slide_partner__survey_scoring_success
 msgid "Certification Succeeded"
-msgstr "ໃບຢັ້ງຢືນສຳເລັດແລ້ວ"
+msgstr "ສອບເສັງໃບຢັ້ງຢືນສຳເລັດ"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_survey_view_tree_slides
@@ -308,7 +335,7 @@ msgstr "ໄອຄອນໃບຢັ້ງຢືນ"
 #. odoo-python
 #: code:addons/website_slides_survey/controllers/slides.py:0
 msgid "Certification slides are completed when the survey is succeeded."
-msgstr "ສະໄລ້ໃບຢັ້ງຢືນຈະຖືວ່າສຳເລັດ ເມື່ອເຮັດແບບສອບຖາມຜ່ານ."
+msgstr "ສະໄລ້ໃບຢັ້ງຢືນຈະສຳເລັດເມື່ອຜ່ານແບບສຳຫຼວດແລ້ວ."
 
 #. module: website_slides_survey
 #: model:ir.actions.act_window,name:website_slides_survey.slide_slide_action_certification
@@ -321,19 +348,19 @@ msgstr "ໃບຢັ້ງຢືນ"
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
 msgid "Certifications are exams that you successfully passed. <br/>"
-msgstr "ໃບຢັ້ງຢືນແມ່ນການສອບເສັງທີ່ທ່ານໄດ້ຜ່ານແລ້ວ. <br/>"
+msgstr "ໃບຢັ້ງຢືນແມ່ນການສອບເສັງທີ່ທ່ານໄດ້ສອບຜ່ານແລ້ວ. <br/>"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.slide_content_detailed
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.slide_sidebar_done_button
 msgid "Certifications you have passed cannot be marked as not done"
-msgstr "ໃບຢັ້ງຢືນທີ່ທ່ານຜ່ານແລ້ວ ບໍ່ສາມາດໝາຍວ່າ 'ຍັງບໍ່ໄດ້ເຮັດ' ຄືນໄດ້"
+msgstr "ໃບຢັ້ງຢືນທີ່ທ່ານສອບຜ່ານແລ້ວບໍ່ສາມາດໝາຍວ່າບໍ່ສຳເລັດໄດ້"
 
 #. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_slide_channel_partner__survey_certification_success
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.slide_channel_partner_view_search
 msgid "Certified"
-msgstr "ໄດ້ຮັບໃບຢັ້ງຢືນແລ້ວ"
+msgstr "ຜ່ານການຢັ້ງຢືນ"
 
 #. module: website_slides_survey
 #: model:survey.question.answer,value:website_slides_survey.furniture_certification_page_1_question_2_choice_1
@@ -343,19 +370,24 @@ msgstr "ຕັ່ງ"
 #. module: website_slides_survey
 #: model:ir.model,name:website_slides_survey.model_slide_channel_partner
 msgid "Channel / Partners (Members)"
-msgstr "ຊ່ອງທາງ / ຄູ່ຮ່ວມ (ສະມາຊິກ)"
+msgstr "ຊ່ອງທາງ / ຄູ່ຄ້າ (ສະມາຊິກ)"
 
 #. module: website_slides_survey
 #. odoo-javascript
 #: code:addons/website_slides_survey/static/src/xml/website_slides_fullscreen.xml:0
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.slide_content_detailed
 msgid "Congratulations, you passed the Certification!"
-msgstr "ຂໍສະແດງຄວາມຍິນດີ, ທ່ານສອບເສັງໃບຢັ້ງຢືນຜ່ານແລ້ວ!"
+msgstr "ຂໍສະແດງຄວາມຍິນດີ, ທ່ານສອບເສັງຜ່ານໃບຢັ້ງຢືນແລ້ວ!"
 
 #. module: website_slides_survey
 #: model:ir.model,name:website_slides_survey.model_slide_channel
 msgid "Course"
 msgstr "ຫຼັກສູດ"
+
+#. module: website_slides_survey
+#: model:ir.module.module,shortdesc:base.module_website_slides_survey
+msgid "Course Certifications"
+msgstr "ໃບຢັ້ງຢືນຫຼັກສູດ"
 
 #. module: website_slides_survey
 #. odoo-python
@@ -377,7 +409,7 @@ msgstr "ສ້າງໃບຢັ້ງຢືນ"
 #. module: website_slides_survey
 #: model:slide.slide,name:website_slides_survey.slide_slide_demo_6_0
 msgid "DIY Furniture Certification"
-msgstr "ໃບຢັ້ງຢືນການເຮັດເຟີນີເຈີດ້ວຍຕົນເອງ"
+msgstr "ໃບຢັ້ງຢືນການເຮັດເຄື່ອງເຮືອນ DIY"
 
 #. module: website_slides_survey
 #: model:survey.question.answer,value:website_slides_survey.furniture_certification_page_1_question_2_choice_3
@@ -392,7 +424,7 @@ msgstr "ໂຕະເຮັດວຽກ"
 #: model:ir.model.fields,field_description:website_slides_survey.field_survey_survey__display_name
 #: model:ir.model.fields,field_description:website_slides_survey.field_survey_user_input__display_name
 msgid "Display Name"
-msgstr "ຊື່ທີ່ສະແດງ"
+msgstr "ຊື່ສະແດງ"
 
 #. module: website_slides_survey
 #. odoo-javascript
@@ -403,29 +435,24 @@ msgstr "ດາວໂຫຼດໃບຢັ້ງຢືນ"
 #. module: website_slides_survey
 #: model:survey.question.answer,value:website_slides_survey.furniture_certification_page_1_question_1_choice_1
 msgid "Fir"
-msgstr "ໄມ້ເຟີ (Fir)"
+msgstr "ໄມ້ເຟີ"
 
 #. module: website_slides_survey
 #: model:survey.question,title:website_slides_survey.furniture_certification_page_1
 msgid "Furniture"
-msgstr "ເຟີນີເຈີ"
+msgstr "ເຄື່ອງເຮືອນ"
 
 #. module: website_slides_survey
 #: model:slide.slide,name:website_slides_survey.slide_slide_demo_5_4
 #: model:survey.survey,title:website_slides_survey.furniture_certification
 msgid "Furniture Creation Certification"
-msgstr "ການຢັ້ງຢືນການສ້າງເຟີນີເຈີ"
-
-#. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_fill_form_done_inherit_website_slides
-msgid "Go back to course"
-msgstr "ກັບຄືນສູ່ຫຼັກສູດ"
+msgstr "ໃບຢັ້ງຢືນການສ້າງເຄື່ອງເຮືອນ"
 
 #. module: website_slides_survey
 #. odoo-javascript
 #: code:addons/website_slides_survey/static/src/js/public/components/slide_upload_dialog/slide_upload_dialog.xml:0
 msgid "How to upload a certification on your course?"
-msgstr "ວິທີການອັບໂຫຼດການຢັ້ງຢືນໃສ່ຫຼັກສູດຂອງທ່ານ?"
+msgstr "ວິທີອັບໂຫຼດໃບຢັ້ງຢືນເຂົ້າໃນຫຼັກສູດຂອງທ່ານ?"
 
 #. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_slide_channel__id
@@ -435,12 +462,12 @@ msgstr "ວິທີການອັບໂຫຼດການຢັ້ງຢືນ
 #: model:ir.model.fields,field_description:website_slides_survey.field_survey_survey__id
 #: model:ir.model.fields,field_description:website_slides_survey.field_survey_user_input__id
 msgid "ID"
-msgstr "ລະຫັດ"
+msgstr "ID"
 
 #. module: website_slides_survey
 #: model_terms:slide.slide,description:website_slides_survey.slide_slide_demo_6_0
 msgid "It's time to test your knowledge!"
-msgstr "ໄດ້ເວລາທົດສອບຄວາມຮູ້ຂອງທ່ານແລ້ວ!"
+msgstr "ເຖິງເວລາທົດສອບຄວາມຮູ້ຂອງທ່ານແລ້ວ!"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.res_config_settings_view_form
@@ -450,29 +477,29 @@ msgstr "ຈັດການໃບຢັ້ງຢືນ"
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.slide_content_detailed
 msgid "Mark To Do"
-msgstr "ໝາຍໄວ້ວ່າຕ້ອງເຮັດ"
+msgstr "ໝາຍວ່າຕ້ອງເຮັດ"
 
 #. module: website_slides_survey
 #. odoo-python
 #: code:addons/website_slides_survey/models/slide_channel.py:0
 msgid "No Attendee passed this course certification yet!"
-msgstr "ຍັງບໍ່ທັນມີຜູ້ເຂົ້າຮ່ວມຄົນໃດສອບເສັງຜ່ານໃບຢັ້ງຢືນຫຼັກສູດນີ້!"
+msgstr "ຍັງບໍ່ທັນມີຜູ້ເຂົ້າຮ່ວມຄົນໃດສອບຜ່ານໃບຢັ້ງຢືນຫຼັກສູດນີ້!"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.user_profile_content
 msgid "No certification found for the given search term."
-msgstr "ບໍ່ພົບໃບຢັ້ງຢືນສຳລັບຄຳຄົ້ນຫານີ້."
+msgstr "ບໍ່ພົບໃບຢັ້ງຢືນຕາມຄຳຄົ້ນຫາທີ່ລະບຸ."
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
 msgid "No certifications yet!"
-msgstr "ຍັງບໍ່ທັນມີໃບຢັ້ງຢືນເທື່ອ!"
+msgstr "ຍັງບໍ່ມີໃບຢັ້ງຢືນເທື່ອ!"
 
 #. module: website_slides_survey
 #: model_terms:slide.slide,description:website_slides_survey.slide_slide_demo_5_4
 msgid ""
 "Now that you have completed the course, it's time to test your knowledge!"
-msgstr "ຕອນນີ້ທ່ານໄດ້ຮຽນຈົບຫຼັກສູດແລ້ວ, ໄດ້ເວລາທົດສອບຄວາມຮູ້ຂອງທ່ານແລ້ວ!"
+msgstr "ເມື່ອທ່ານຮຽນຈົບຫຼັກສູດແລ້ວ, ເຖິງເວລາທົດສອບຄວາມຮູ້ຂອງທ່ານ!"
 
 #. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_slide_channel__nbr_certification
@@ -484,7 +511,7 @@ msgstr "ຈຳນວນໃບຢັ້ງຢືນ"
 #. module: website_slides_survey
 #: model:survey.question.answer,value:website_slides_survey.furniture_certification_page_1_question_1_choice_2
 msgid "Oak"
-msgstr "ໄມ້ Oak"
+msgstr "ໄມ້ໂອ໊ກ"
 
 #. module: website_slides_survey
 #. odoo-javascript
@@ -510,7 +537,7 @@ msgstr "ຄົ້ນຫາ"
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.user_profile_content
 msgid "Search Attempts..."
-msgstr "ຄົ້ນຫາການສອບເສັງ..."
+msgstr "ຄົ້ນຫາຄັ້ງທີ່ສອບເສັງ..."
 
 #. module: website_slides_survey
 #. odoo-javascript
@@ -521,7 +548,7 @@ msgstr "ເລືອກໃບຢັ້ງຢືນ"
 #. module: website_slides_survey
 #: model:survey.question,title:website_slides_survey.furniture_certification_page_1_question_2
 msgid "Select all the furniture shown in the video"
-msgstr "ເລືອກເຟີນີເຈີທັງໝົດທີ່ສະແດງໃນວິດີໂອ"
+msgstr "ເລືອກເຄື່ອງເຮືອນທັງໝົດທີ່ສະແດງໃນວິດີໂອ"
 
 #. module: website_slides_survey
 #. odoo-javascript
@@ -530,22 +557,27 @@ msgid ""
 "Select an existing certification from the list. Creating or editing a "
 "certification can be done from the backend."
 msgstr ""
-"ເລືອກໃບຢັ້ງຢືນທີ່ມີຢູ່ແລ້ວຈາກລາຍການ. ການສ້າງ ຫຼື ແກ້ໄຂໃບຢັ້ງຢືນສາມາດເຮັດໄດ້ຈາກລະບົບຫຼັງບ້ານ."
+"ເລືອກໃບຢັ້ງຢືນທີ່ມີຢູ່ຈາກລາຍການ. ການສ້າງ ຫຼື ແກ້ໄຂໃບຢັ້ງຢືນສາມາດເຮັດໄດ້ຈາກລະບົບຫຼັງບ້ານ."
 
 #. module: website_slides_survey
 #: model:mail.template,description:website_slides_survey.mail_template_user_input_certification_failed
 msgid "Sent to participant if they failed the certification"
-msgstr "ສົ່ງໃຫ້ຜູ້ເຂົ້າຮ່ວມ ຖ້າພວກເຂົາສອບເສັງໃບຢັ້ງຢືນບໍ່ຜ່ານ"
+msgstr "ສົ່ງຫາຜູ້ເຂົ້າຮ່ວມຖ້າພວກເຂົາສອບເສັງໃບຢັ້ງຢືນບໍ່ຜ່ານ"
 
 #. module: website_slides_survey
 #: model:survey.question.answer,value:website_slides_survey.furniture_certification_page_1_question_2_choice_4
 msgid "Shelf"
-msgstr "ຫິ້ງ / ຊັ້ນວາງ"
+msgstr "ຊັ້ນວາງເຄື່ອງ"
+
+#. module: website_slides_survey
+#: model:ir.model,name:website_slides_survey.model_slide_slide
+msgid "Slide"
+msgstr "ສະໄລ້"
 
 #. module: website_slides_survey
 #: model:ir.model,name:website_slides_survey.model_slide_slide_partner
 msgid "Slide / Partner decorated m2m"
-msgstr "ສະໄລ້ / ຄູ່ຮ່ວມ decorated m2m"
+msgstr "ສະໄລ້ / ຄູ່ຄ້າ decorated m2m"
 
 #. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_slide_slide__slide_type
@@ -555,12 +587,7 @@ msgstr "ປະເພດສະໄລ້"
 #. module: website_slides_survey
 #: model:ir.model.fields,help:website_slides_survey.field_survey_user_input__slide_partner_id
 msgid "Slide membership information for the logged in user"
-msgstr "ຂໍ້ມູນສະມາຊິກສະໄລ້ສຳລັບຜູ້ໃຊ້ທີ່ເຂົ້າສູ່ລະບົບ"
-
-#. module: website_slides_survey
-#: model:ir.model,name:website_slides_survey.model_slide_slide
-msgid "Slides"
-msgstr "ສະໄລ້"
+msgstr "ຂໍ້ມູນສະມາຊິກສະໄລ້ສຳລັບຜູ້ໃຊ້ທີ່ເຂົ້າສູ່ລະບົບແລ້ວ"
 
 #. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_survey_user_input__slide_partner_id
@@ -570,10 +597,10 @@ msgstr "ຂໍ້ມູນຜູ້ຕິດຕາມ"
 #. module: website_slides_survey
 #: model:ir.model.fields,help:website_slides_survey.field_slide_slide__slide_type
 msgid ""
-"Subtype of the slide category, allows more precision on the actual file type"
-" / source type."
+"Subtype of the slide category, allows more precision on the actual file "
+"type / source type."
 msgstr ""
-"ປະເພດຍ່ອຍຂອງໝວດໝູ່ສະໄລ້, ຊ່ວຍໃຫ້ກຳນົດປະເພດໄຟລ໌ ຫຼື ປະເພດແຫຼ່ງຂໍ້ມູນໄດ້ລະອຽດຂຶ້ນ."
+"ປະເພດຍ່ອຍຂອງໝວດໝູ່ສະໄລ້, ຊ່ວຍໃຫ້ລະບຸປະເພດໄຟລ໌ / ປະເພດແຫຼ່ງຂໍ້ມູນໄດ້ລະອຽດຂຶ້ນ."
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_survey_view_tree_slides
@@ -583,17 +610,17 @@ msgstr "ອັດຕາຄວາມສຳເລັດ (%)"
 #. module: website_slides_survey
 #: model:ir.model,name:website_slides_survey.model_survey_survey
 msgid "Survey"
-msgstr "ແບບສອບຖາມ"
+msgstr "ແບບສຳຫຼວດ"
 
 #. module: website_slides_survey
 #: model:ir.model,name:website_slides_survey.model_survey_user_input
 msgid "Survey User Input"
-msgstr "ຂໍ້ມູນທີ່ຜູ້ໃຊ້ປ້ອນໃນແບບສອບຖາມ"
+msgstr "ຂໍ້ມູນທີ່ຜູ້ໃຊ້ປ້ອນໃນແບບສຳຫຼວດ"
 
 #. module: website_slides_survey
 #: model:mail.template,name:website_slides_survey.mail_template_user_input_certification_failed
 msgid "Survey: Certification Failure"
-msgstr "ແບບສອບຖາມ: ການສອບເສັງບໍ່ຜ່ານ"
+msgstr "ແບບສຳຫຼວດ: ບໍ່ຜ່ານການສອບເສັງໃບຢັ້ງຢືນ"
 
 #. module: website_slides_survey
 #: model:survey.question.answer,value:website_slides_survey.furniture_certification_page_1_question_2_choice_2
@@ -603,20 +630,20 @@ msgstr "ໂຕະ"
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.slide_content_detailed
 msgid "Take Quiz"
-msgstr "ເຮັດບົດທົດສອບ"
+msgstr "ເຮັດແບບທົດສອບ"
 
 #. module: website_slides_survey
 #. odoo-javascript
 #: code:addons/website_slides_survey/static/src/xml/website_slides_fullscreen.xml:0
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.slide_content_detailed
 msgid "Test Certification"
-msgstr "ທົດສອບການສອບເສັງ"
+msgstr "ທົດສອບໃບຢັ້ງຢືນ"
 
 #. module: website_slides_survey
 #: model_terms:survey.question,description:website_slides_survey.furniture_certification_page_1
 #: model_terms:survey.survey,description:website_slides_survey.furniture_certification
 msgid "Test your furniture knowledge!"
-msgstr "ທົດສອບຄວາມຮູ້ກ່ຽວກັບເຟີນີເຈີຂອງທ່ານ!"
+msgstr "ທົດສອບຄວາມຮູ້ກ່ຽວກັບເຄື່ອງເຮືອນຂອງທ່ານ!"
 
 #. module: website_slides_survey
 #: model:ir.model.fields,help:website_slides_survey.field_slide_slide__is_preview
@@ -624,23 +651,30 @@ msgid ""
 "The course is accessible by anyone : the users don't need to join the "
 "channel to access the content of the course."
 msgstr ""
-"ທຸກຄົນສາມາດເຂົ້າເຖິງຫຼັກສູດນີ້ໄດ້: ຜູ້ໃຊ້ບໍ່ຈຳເປັນຕ້ອງເຂົ້າຮ່ວມຊ່ອງທາງເພື່ອເບິ່ງເນື້ອຫາ."
+"ທຸກຄົນສາມາດເຂົ້າເຖິງຫຼັກສູດໄດ້: ຜູ້ໃຊ້ບໍ່ຈຳເປັນຕ້ອງເຂົ້າຮ່ວມຊ່ອງທາງເພື່ອເຂົ້າເບິ່ງເນື້ອຫາຂອງຫຼັກສູດ."
 
 #. module: website_slides_survey
 #: model:ir.model.fields,help:website_slides_survey.field_survey_survey__slide_channel_ids
-msgid ""
-"The courses this survey is linked to through the e-learning application"
-msgstr "ຫຼັກສູດທີ່ແບບສອບຖາມນີ້ເຊື່ອມຕໍ່ຜ່ານລະບົບ e-learning"
+msgid "The courses this survey is linked to through the e-learning application"
+msgstr "ຫຼັກສູດທີ່ແບບສຳຫຼວດນີ້ເຊື່ອມໂຍງຜ່ານແອັບພລິເຄຊັນ e-learning"
 
 #. module: website_slides_survey
 #: model:ir.model.fields,help:website_slides_survey.field_survey_user_input__slide_id
 msgid "The related course slide when there is no membership information"
-msgstr "ສະໄລ້ຫຼັກສູດທີ່ກ່ຽວຂ້ອງ ເມື່ອບໍ່ມີຂໍ້ມູນສະມາຊິກ"
+msgstr "ສະໄລ້ຫຼັກສູດທີ່ກ່ຽວຂ້ອງເມື່ອບໍ່ມີຂໍ້ມູນສະມາຊິກ"
 
 #. module: website_slides_survey
 #: model:ir.model.fields,help:website_slides_survey.field_survey_survey__slide_ids
 msgid "The slides this survey is linked to through the e-learning application"
-msgstr "ສະໄລ້ທີ່ແບບສອບຖາມນີ້ເຊື່ອມຕໍ່ຜ່ານລະບົບ e-learning"
+msgstr "ສະໄລ້ທີ່ແບບສຳຫຼວດນີ້ເຊື່ອມໂຍງຜ່ານແອັບພລິເຄຊັນ e-learning"
+
+#. module: website_slides_survey
+#: model:ir.module.module,description:base.module_website_slides_survey
+msgid ""
+"This module lets you use the full power of certifications within your "
+"courses."
+msgstr ""
+"ໂມດູນນີ້ຊ່ວຍໃຫ້ທ່ານນຳໃຊ້ປະສິດທິພາບຂອງໃບຢັ້ງຢືນພາຍໃນຫຼັກສູດຂອງທ່ານຢ່າງເຕັມທີ່."
 
 #. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_slide_slide__name
@@ -651,52 +685,54 @@ msgstr "ຫົວຂໍ້"
 #. odoo-python
 #: code:addons/website_slides_survey/models/survey_survey.py:0
 msgid ""
-"Uh-oh! You can’t delete surveys used as a Course Certification! Otherwise, students might think diplomas just grow on trees.\n"
+"Uh-oh! You can’t delete surveys used as a Course Certification! Otherwise, "
+"students might think diplomas just grow on trees.\n"
 "The courses that need them are:\n"
 "%s"
 msgstr ""
-"ໂອ້! ທ່ານບໍ່ສາມາດລຶບແບບສອບຖາມທີ່ໃຊ້ເປັນໃບຢັ້ງຢືນຫຼັກສູດໄດ້! ບໍ່ດັ່ງນັ້ນ, ນັກຮຽນອາດຈະຄິດວ່າໃບປະກາດສະນີຍະ"
-"ບັດນັ້ນໄດ້ມາແບບງ່າຍດາຍເກີນໄປ.\n"
-"ຫຼັກສູດທີ່ຕ້ອງການພວກມັນຄື:\n"
+"ໂອ້! ທ່ານບໍ່ສາມາດລຶບແບບສຳຫຼວດທີ່ໃຊ້ເປັນໃບຢັ້ງຢືນຫຼັກສູດໄດ້! ບໍ່ດັ່ງນັ້ນ ນັກຮຽນອາດຈະຄິດວ່າໃບປະກາດສະນີຍະບັດ"
+"ຫາໄດ້ງ່າຍຄືໃບໄມ້.\n"
+"ຫຼັກສູດທີ່ຕ້ອງການແບບສຳຫຼວດເຫຼົ່ານີ້ຄື:\n"
 "%s"
 
 #. module: website_slides_survey
 #: model:survey.question,title:website_slides_survey.furniture_certification_page_1_question_3
 msgid "What do you think about the content of the course? (not rated)"
-msgstr "ທ່ານຄິດແນວໃດກ່ຽວກັບເນື້ອຫາຂອງຫຼັກສູດນີ້? (ບໍ່ມີການໃຫ້ຄະແນນ)"
+msgstr "ທ່ານຄິດແນວໃດກ່ຽວກັບເນື້ອຫາຂອງຫຼັກສູດ? (ບໍ່ມີການໃຫ້ຄະແນນ)"
 
 #. module: website_slides_survey
 #: model:survey.question,title:website_slides_survey.furniture_certification_page_1_question_1
 msgid "What type of wood is the best for furniture?"
-msgstr "ໄມ້ຊະນິດໃດດີທີ່ສຸດສຳລັບເຮັດເຟີນີເຈີ?"
+msgstr "ໄມ້ຊະນິດໃດດີທີ່ສຸດສຳລັບເຮັດເຄື່ອງເຮືອນ?"
 
 #. module: website_slides_survey
 #. odoo-python
 #: code:addons/website_slides_survey/controllers/slides.py:0
 msgid "You are not allowed to create a survey."
-msgstr "ທ່ານບໍ່ໄດ້ຮັບອະນຸຍາດໃຫ້ສ້າງແບບສອບຖາມ."
+msgstr "ທ່ານບໍ່ໄດ້ຮັບອະນຸຍາດໃຫ້ສ້າງແບບສຳຫຼວດ."
 
 #. module: website_slides_survey
 #. odoo-python
 #: code:addons/website_slides_survey/controllers/slides.py:0
 msgid "You are not allowed to link a certification."
-msgstr "ທ່ານບໍ່ໄດ້ຮັບອະນຸຍາດໃຫ້ເຊື່ອມຕໍ່ໃບຢັ້ງຢືນ."
+msgstr "ທ່ານບໍ່ໄດ້ຮັບອະນຸຍາດໃຫ້ເຊື່ອມໂຍງໃບຢັ້ງຢືນ."
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.badge_content
 msgid ""
-"You can gain badges by passing certifications. Here is a list of all available certification badges.\n"
-"                            <br/>Follow the links to reach new heights and skill up!"
+"You can gain badges by passing certifications. Here is a list of all "
+"available certification badges.\n"
+"                            <br/>Follow the links to reach new heights and "
+"skill up!"
 msgstr ""
-"ທ່ານສາມາດໄດ້ຮັບຫຼຽນກາໂດຍການສອບເສັງຜ່ານໃບຢັ້ງຢືນ. ນີ້ແມ່ນລາຍຊື່ຂອງຫຼຽນກາໃບຢັ້ງຢືນທັງໝົດທີ່ມີ.\n"
-"                            <br/>ຕິດຕາມລິ້ງເພື່ອພັດທະນາທັກສະຂອງທ່ານໃຫ້ສູງຂຶ້ນ!"
+"ທ່ານສາມາດໄດ້ຮັບຫຼຽນກຽດຕິຍົດໂດຍການສອບຜ່ານໃບຢັ້ງຢືນ. ນີ້ແມ່ນລາຍການຫຼຽນກຽດຕິຍົດໃບຢັ້ງຢືນທັງໝົດທີ່ມີ.\n"
+"                            <br/>ກົດຕາມລິ້ງເພື່ອພັດທະນາທັກສະ ແລະ ກ້າວໄປສູ່ລະດັບໃໝ່!"
 
 #. module: website_slides_survey
 #: model:mail.template,subject:website_slides_survey.mail_template_user_input_certification_failed
 msgid ""
 "You have failed the course: {{ object.slide_partner_id.channel_id.name }}"
-msgstr ""
-"ທ່ານສອບເສັງບໍ່ຜ່ານຫຼັກສູດ: {{ object.slide_partner_id.channel_id.name }}"
+msgstr "ທ່ານບໍ່ຜ່ານຫຼັກສູດ: {{ object.slide_partner_id.channel_id.name }}"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.user_profile_content

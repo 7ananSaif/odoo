@@ -1,6 +1,6 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import fields, models, api
+from odoo import api, fields, models
 
 
 class PosNote(models.Model):
@@ -19,7 +19,8 @@ class PosNote(models.Model):
     )
 
     @api.model
-    def _load_pos_data_domain(self, data, config):
+    def _load_pos_data_domain(self, data):
+        config = data['pos.config']
         return [('id', 'in', config.note_ids.ids)] if config.note_ids else []
 
     @api.model

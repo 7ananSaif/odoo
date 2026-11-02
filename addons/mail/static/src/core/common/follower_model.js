@@ -1,16 +1,21 @@
-import { fields, Record } from "@mail/core/common/record";
+import { fields, Record } from "@mail/model/export";
 import { rpc } from "@web/core/network/rpc";
 import { _t } from "@web/core/l10n/translation";
 
 export class Follower extends Record {
     static _name = "mail.followers";
-    static id = "id";
 
-    thread = fields.One("Thread");
+    thread = fields.One("mail.thread");
+    /** @type {string} */
+    display_name;
+    /** @type {string} */
+    email;
     /** @type {number} */
     id;
     /** @type {boolean} */
     is_active;
+    /** @type {string} */
+    name;
     partner_id = fields.One("res.partner");
     subtype_ids = fields.Many("mail.message.subtype");
 
@@ -21,7 +26,7 @@ export class Follower extends Record {
     /** @returns {boolean} */
     get isEditable() {
         const hasWriteAccess = this.thread ? this.thread.hasWriteAccess : false;
-        return this.partner_id.eq(this.store.self_partner)
+        return this.partner_id.eq(this.store.self_user?.partner_id)
             ? this.thread.hasReadAccess
             : hasWriteAccess;
     }

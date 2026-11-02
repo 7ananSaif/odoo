@@ -14,13 +14,12 @@ from odoo.addons.project.controllers.portal import ProjectCustomerPortal
 
 class TimesheetCustomerPortal(CustomerPortal):
 
-    def _prepare_home_portal_values(self, counters):
-        values = super()._prepare_home_portal_values(counters)
-        if 'timesheet_count' in counters:
-            Timesheet = request.env['account.analytic.line']
-            domain = Timesheet._timesheet_get_portal_domain()
-            values['timesheet_count'] = Timesheet.sudo().search_count(domain)
-        return values
+    def _prepare_portal_counter_values(self, counter):
+        if counter == 'timesheet_count':
+            model_name = 'account.analytic.line'
+            domain = request.env[model_name]._timesheet_get_portal_domain()
+            return model_name, domain, 'sudo'
+        return super()._prepare_portal_counter_values(counter)
 
     def _get_searchbar_inputs(self):
         return {
@@ -81,7 +80,7 @@ class TimesheetCustomerPortal(CustomerPortal):
 
         searchbar_groupby = dict(sorted(self._get_searchbar_groupby().items(), key=lambda item: item[1]['sequence']))
 
-        today = fields.Date.today()
+        today = fields.Date.context_today(request.env.user)
         quarter_start, quarter_end = date_utils.get_quarter(today)
         last_quarter_date = date_utils.subtract(quarter_start, weeks=1)
         last_quarter_start, last_quarter_end = date_utils.get_quarter(last_quarter_date)
@@ -139,7 +138,7 @@ class TimesheetCustomerPortal(CustomerPortal):
                 else:
                     time_data = Timesheet_sudo._read_group(domain, [field], ['unit_amount:sum'])
                     mapped_time = {field.id: unit_amount for field, unit_amount in time_data}
-                    grouped_timesheets = [(Timesheet_sudo.concat(*g), mapped_time[k.id]) for k, g in groupbyelem(timesheets, itemgetter(field))]
+                    grouped_timesheets = [(Timesheet_sudo.concat(g), mapped_time[k.id]) for k, g in groupbyelem(timesheets, itemgetter(field))]
                 return timesheets, grouped_timesheets
 
             grouped_timesheets = [(

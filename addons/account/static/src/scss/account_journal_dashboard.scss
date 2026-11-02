@@ -1,8 +1,11 @@
 .o_account_kanban .o_kanban_renderer {
-    --KanbanRecord-padding-v: #{$o-kanban-dashboard-vpadding};
-    --KanbanRecord-padding-h: #{$o-kanban-dashboard-hpadding};
+    --Card-padding-v: #{$o-kanban-dashboard-vpadding};
+    --Card-padding-h: #{$o-kanban-dashboard-hpadding};
+
+    overflow-x: auto;
 
     .o_kanban_record {
+        container: account-journal-card / inline-size;
 
         &:not(.o_kanban_ghost) {
             min-height: 150px;
@@ -17,19 +20,24 @@
         .o_dashboard_star {
             font-size: 12px;
 
-            &.fa-star-o {
+            &[data-icon="star"] {
                 color: $o-main-color-muted;
                 &:hover {
                     color: gold;
                 }
-            }
-            &.fa-star {
-                color: gold;
+
+                &.oi-filled {
+                    color: gold;
+                }
             }
         }
 
         .o_dashboard_graph {
-            margin-bottom: -$o-horizontal-padding/2;
+            margin-bottom: -#{map-get($spacers, 2)};
+        }
+
+        .o_graph_barchart {
+            margin-bottom: -#{map-get($spacers, 1)};
         }
 
         .o_field_widget.o_field_kanban_vat_activity {
@@ -44,12 +52,22 @@
     }
 
     &.o_kanban_ungrouped {
-        @include media-breakpoint-down(lg) {
-            --KanbanRecord-width: 100vw;
+        --KanbanRecord-width: calc(50% - #{$o-kanban-record-margin * 2});
+
+        > .o_kanban_record {
+            flex-basis: var(--KanbanRecord-width);
         }
-        @include media-breakpoint-up(lg) {
-            --KanbanRecord-width: 47vw;
+
+        > .o_kanban_record:not(.o_kanban_ghost) {
+            min-width: Min(360px, 100%);
         }
+
+        @include media-breakpoint-up(sm) {
+            > .o_kanban_record {
+                margin: var(--KanbanRecord-margin-v) var(--KanbanRecord-margin-h);
+            }
+        }
+
         &:has(> .o_kanban_record:nth-child(12)) {
             // 3 cards per row for large screens if there are more than 5 cards (+ 6 ghost cards)
             @include media-breakpoint-up(xxl) {
@@ -65,10 +83,22 @@
     }
 }
 
+@container account-journal-card (max-width: 25rem) {
+    [name="kanban_primary_left"] .o_widget_account_file_uploader {
+        .d-sm-none {
+            display: block !important;
+        }
+
+        .d-sm-block {
+            display: none !important;
+        }
+    }
+}
+
 // Style for the widget "dashboard_graph"
 .o_dashboard_graph {
     position: relative;
-    margin: 16px -16px;
+    margin: $spacer (-$spacer);
 
     canvas {
         height: 150px;

@@ -9,8 +9,9 @@ from odoo import fields
 from odoo import http
 from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal
+from odoo.addons.website.controllers.main import QueryURL
 from odoo.addons.website_google_map.controllers.main import GoogleMap
-from odoo.addons.website_partner.controllers.main import WebsitePartnerPage
+from odoo.addons.website_partnership.controllers.main import WebsitePartnership
 from odoo.fields import Domain
 
 from odoo.tools.translate import _, LazyTranslate
@@ -32,22 +33,12 @@ class WebsiteAccount(CustomerPortal):
             ('type', '=', 'opportunity')
         ]
 
-    def _prepare_home_portal_values(self, counters):
-        values = super()._prepare_home_portal_values(counters)
-        CrmLead = request.env['crm.lead']
-        if 'lead_count' in counters:
-            values['lead_count'] = (
-                CrmLead.search_count(self.get_domain_my_lead(request.env.user))
-                if CrmLead.has_access('read')
-                else 0
-            )
-        if 'opp_count' in counters:
-            values['opp_count'] = (
-                CrmLead.search_count(self.get_domain_my_opp(request.env.user))
-                if CrmLead.has_access('read')
-                else 0
-            )
-        return values
+    def _prepare_portal_counter_values(self, counter):
+        if counter == 'lead_count':
+            return 'crm.lead', self.get_domain_my_lead(request.env.user), 'read'
+        if counter == 'opp_count':
+            return 'crm.lead', self.get_domain_my_opp(request.env.user), 'read'
+        return super()._prepare_portal_counter_values(counter)
 
     @http.route(['/my/leads', '/my/leads/page/<int:page>'], type='http', auth="user", website=True)
     def portal_my_leads(self, page=1, date_begin=None, date_end=None, sortby=None, **kw):
@@ -71,7 +62,7 @@ class WebsiteAccount(CustomerPortal):
 
         # pager
         lead_count = CrmLead.search_count(domain)
-        pager = request.website.pager(
+        pager = self.env.website.pager(
             url="/my/leads",
             url_args={'date_begin': date_begin, 'date_end': date_end, 'sortby': sortby},
             total=lead_count,
@@ -98,7 +89,7 @@ class WebsiteAccount(CustomerPortal):
         CrmLead = request.env['crm.lead']
         domain = self.get_domain_my_opp(request.env.user)
 
-        today = fields.Date.today()
+        today = fields.Date.context_today(request.env.user)
 
         searchbar_filters = {
             'all': {'label': _('Active'), 'domain': []},
@@ -138,7 +129,7 @@ class WebsiteAccount(CustomerPortal):
         leads_sudo = CrmLead.sudo()._search(domain)
         domain = [('id', 'in', leads_sudo)]
         opp_count = CrmLead.search_count(domain)
-        pager = request.website.pager(
+        pager = self.env.website.pager(
             url="/my/opportunities",
             url_args={'date_begin': date_begin, 'date_end': date_end, 'sortby': sortby, 'filterby': filterby},
             total=opp_count,
@@ -185,7 +176,7 @@ class WebsiteAccount(CustomerPortal):
             })
 
 
-class WebsiteCrmPartnerAssign(WebsitePartnerPage, GoogleMap):
+class WebsiteCrmPartnerAssign(WebsitePartnership, GoogleMap):
     _references_per_page = 40
 
     def _get_gmap_domains(self, **kw):
@@ -212,7 +203,6 @@ class WebsiteCrmPartnerAssign(WebsitePartnerPage, GoogleMap):
 
         slug = env['ir.http']._slug
         base_partner_domain = [
-            ('is_company', '=', True),
             ('grade_id', '!=', False),
             ('website_published', '=', True),
             ('grade_id.website_published', '=', True),
@@ -230,6 +220,12 @@ class WebsiteCrmPartnerAssign(WebsitePartnerPage, GoogleMap):
             if not qs or qs.lower() in loc:
                 yield {'loc': loc}
 
+    def _get_partners_detail_values(self, partner_id, **post):
+        values = super()._get_partners_detail_values(partner_id, **post)
+        if country_id := post.get('country_id'):
+            values.update({'current_country': request.env['res.country'].browse(int(country_id)).exists()})
+        return values
+
     def _get_partners_values(self, country=None, grade=None, page=0, references_per_page=20, **post):
         country_all = post.pop('country_all', False)
         partner_obj = request.env['res.partner']
@@ -241,25 +237,15 @@ class WebsiteCrmPartnerAssign(WebsitePartnerPage, GoogleMap):
 
         search = post.get('search', '')
 
-        base_partner_domain = [('is_company', '=', True), ('grade_id', '!=', False), ('website_published', '=', True), ('grade_id.active', '=', True)]
-        if not request.env.user.has_group('website.group_website_restricted_editor'):
-            base_partner_domain += [('grade_id.website_published', '=', True)]
-        if search:
-            base_partner_domain += Domain.OR(
-                Domain(field, 'ilike', search)
-                for field in ('name', 'website_description', 'street', 'street2', 'city', 'zip', 'state_id', 'country_id')
-            )
+        base_partner_domain = self._get_base_partner_domain(search, searched_fields=('name', 'website_description', 'street', 'street2', 'city', 'zip', 'state_id', 'country_id'))
 
-        # Infer Country
         if not country and not country_all:
             if request.geoip.country_code:
                 country = country_obj.search([('code', '=', request.geoip.country_code)], limit=1)
-
         # Group by country
         country_domain = list(base_partner_domain)
         if grade:
             country_domain += [('grade_id', '=', grade.id)]
-
         country_groups = partner_obj.sudo()._read_group(
             country_domain + [('country_id', '!=', False)],
             ["country_id"], ["__count"], order="country_id")
@@ -270,23 +256,10 @@ class WebsiteCrmPartnerAssign(WebsitePartnerPage, GoogleMap):
         if fallback_all_countries:
             country = None
 
-        # Group by grade
         grade_domain = list(base_partner_domain)
         if country:
             grade_domain += [('country_id', '=', country.id)]
-        grade_groups = partner_obj.sudo()._read_group(
-            grade_domain, ["grade_id"], ["__count"], order="grade_id")
-        grades = [{
-            'grade_id_count': sum(count for __, count in grade_groups),
-            'grade_id': (0, ""),
-            'active': grade is None,
-        }]
-        for g_grade, count in grade_groups:
-            grades.append({
-                'grade_id_count': count,
-                'grade_id': (g_grade.id, g_grade.display_name),
-                'active': grade and grade.id == g_grade.id,
-            })
+        grades = self._get_grades(grade, grade_domain)
 
         countries = [{
             'country_id_count': sum(count for __, count in country_groups),
@@ -300,24 +273,22 @@ class WebsiteCrmPartnerAssign(WebsitePartnerPage, GoogleMap):
                 'active': country and g_country.id == country.id,
             })
 
-        # current search
-        if grade:
-            base_partner_domain += [('grade_id', '=', grade.id)]
-        if country:
-            base_partner_domain += [('country_id', '=', country.id)]
-        if current_industry:
-            base_partner_domain += [('implemented_partner_ids.industry_id', 'in', current_industry.id)]
+        # current search, modify the base_partner_domain
+        if self.env.website.is_view_active("website_partnership.categories_setting") and grade:
+            base_partner_domain = Domain.AND([base_partner_domain, Domain('grade_id', '=', grade.id)])
+        if self.env.website.is_view_active("website_crm_partner_assign.countries_setting") and country:
+            base_partner_domain = Domain.AND([base_partner_domain, Domain('country_id', '=', country.id)])
+        if self.env.website.is_view_active("website_crm_partner_assign.industries_setting") and current_industry:
+            base_partner_domain = Domain.AND([base_partner_domain, Domain('implemented_partner_ids.industry_id', 'in', current_industry.id)])
 
         # format pager
         slug = request.env['ir.http']._slug
-        if grade and not country:
-            url = '/partners/grade/' + slug(grade)
-        elif country and not grade:
-            url = '/partners/country/' + slug(country)
-        elif country and grade:
-            url = '/partners/grade/' + slug(grade) + '/country/' + slug(country)
-        else:
-            url = '/partners'
+        url = '/partners'
+        if grade:
+            url += '/grade/' + slug(grade)
+        if country:
+            url += '/country/' + slug(country)
+
         url_args = {}
         if search:
             url_args['search'] = search
@@ -327,17 +298,18 @@ class WebsiteCrmPartnerAssign(WebsitePartnerPage, GoogleMap):
             url_args['industry'] = slug(current_industry)
 
         partner_count = partner_obj.sudo().search_count(base_partner_domain)
-        pager = request.website.pager(
+        pager = self.env.website.pager(
             url=url, total=partner_count, page=page, step=references_per_page, scope=7,
             url_args=url_args)
 
-        # search partners matching current search parameters
-        partner_ids = partner_obj.sudo().search(
-            base_partner_domain, order="grade_sequence ASC, implemented_partner_count DESC, complete_name ASC, id ASC",
-            offset=pager['offset'], limit=references_per_page)
-        partners = partner_ids.sudo()
+        google_maps_api_key = self.env.website.google_maps_api_key
+        partners = self._get_partners(base_partner_domain, pager, references_per_page=references_per_page, search_order="grade_sequence ASC, implemented_partner_count DESC, complete_name ASC, id ASC")
 
-        google_maps_api_key = request.website.google_maps_api_key
+        keep = QueryURL('/partners', ['grade', 'country'],
+            grade=grade,
+            country=country,
+            **{key: value for key, value in post.items() if (key in ['search', 'country_all', 'industry'])}
+        )
 
         values = {
             'industries': industries,
@@ -354,6 +326,8 @@ class WebsiteCrmPartnerAssign(WebsitePartnerPage, GoogleMap):
             'search': search,
             'google_maps_api_key': google_maps_api_key,
             'fallback_all_countries': fallback_all_countries,
+            'keep_partners_url': keep,
+            'structured_data': partners._render_jsonld(),
         }
         return values
 
@@ -369,7 +343,7 @@ class WebsiteCrmPartnerAssign(WebsitePartnerPage, GoogleMap):
 
         '/partners/grade/<model("res.partner.grade"):grade>/country/<model("res.country"):country>',
         '/partners/grade/<model("res.partner.grade"):grade>/country/<model("res.country"):country>/page/<int:page>',
-    ], type='http', auth="public", website=True, sitemap=sitemap_partners, readonly=True, list_as_website_content=_lt("Partners"))
+    ], type='http', sitemap=sitemap_partners)
     def partners(self, country=None, grade=None, page=0, **post):
         values = self._get_partners_values(
             country=country,
@@ -378,32 +352,4 @@ class WebsiteCrmPartnerAssign(WebsitePartnerPage, GoogleMap):
             references_per_page=self._references_per_page,
             **post
         )
-        return request.render("website_crm_partner_assign.index", values, status=values.get('partners') and 200 or 404)
-
-    # Do not use semantic controller due to sudo()
-    @http.route()
-    def partners_detail(self, partner_id, **post):
-        current_slug = partner_id
-        _, partner_id = request.env['ir.http']._unslug(partner_id)
-        current_grade, current_country = None, None
-        grade_id = post.get('grade_id')
-        country_id = post.get('country_id')
-        if grade_id:
-            current_grade = request.env['res.partner.grade'].browse(int(grade_id)).exists()
-        if country_id:
-            current_country = request.env['res.country'].browse(int(country_id)).exists()
-        if partner_id:
-            partner = request.env['res.partner'].sudo().browse(partner_id)
-            is_website_restricted_editor = request.env.user.has_group('website.group_website_restricted_editor')
-            if partner.exists() and (partner.website_published or is_website_restricted_editor):
-                partner_slug = request.env['ir.http']._slug(partner)
-                if partner_slug != current_slug:
-                    return request.redirect('/partners/%s' % partner_slug)
-                values = {
-                    'main_object': partner,
-                    'partner': partner,
-                    'current_grade': current_grade,
-                    'current_country': current_country
-                }
-                return request.render("website_crm_partner_assign.partner", values)
-        raise request.not_found()
+        return request.render("website_crm_partner_assign.index", values)

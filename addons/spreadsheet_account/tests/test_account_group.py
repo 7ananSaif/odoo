@@ -6,6 +6,8 @@ from odoo.tests import tagged
 @tagged('post_install', '-at_install')
 class SpreadsheetAccountGroupTest(AccountTestInvoicingCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     def test_fetch_account_no_group(self):
         self.assertEqual(self.env["account.account"].get_account_group([]), [])
 
@@ -47,3 +49,11 @@ class SpreadsheetAccountGroupTest(AccountTestInvoicingCommon):
         )
         self.assertEqual(o1_codes_1, o2_codes_1)
         self.assertEqual(o1_codes_2, o2_codes_2)
+
+    def test_account_without_code_returns_name(self):
+        self.env['account.account'].create({
+            'name': 'No Code Income Account',
+            'account_type': 'income_other',
+        })
+        result = self.env["account.account"].get_account_group(['income_other'])
+        self.assertIn('No Code Income Account', result[0])

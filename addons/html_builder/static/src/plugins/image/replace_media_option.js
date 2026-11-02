@@ -1,12 +1,12 @@
-import { BaseOptionComponent, useDomState } from "@html_builder/core/utils";
+import { BaseOptionComponent } from "@html_builder/core/base_option_component";
+import { useDomState } from "@html_builder/core/utils";
+import { allowedToCreateLink } from "@html_editor/main/link/link_plugin";
 import { _t } from "@web/core/l10n/translation";
+import { registry } from "@web/core/registry";
 
 export class ReplaceMediaOption extends BaseOptionComponent {
+    static id = "replace_media_option";
     static template = "html_builder.ReplaceMediaOption";
-    static selector = "img, .media_iframe_video, span.fa, i.fa";
-    static exclude =
-        "[data-oe-xpath], a[href^='/website/social/'] > i.fa, a[class*='s_share_'] > i.fa";
-    static name = "replaceMediaOption";
     setup() {
         super.setup();
         this.state = useDomState((editingElement) => ({
@@ -19,7 +19,9 @@ export class ReplaceMediaOption extends BaseOptionComponent {
         return (
             isImageSupportedForStyle(editingElement) &&
             !searchSupportedParentLinkEl(editingElement).matches("a[data-oe-xpath]") &&
-            !editingElement.classList.contains("media_iframe_video")
+            !editingElement.classList.contains("media_iframe_video") &&
+            !editingElement.closest(".s_social_media") &&
+            allowedToCreateLink(editingElement)
         );
     }
     hasHref(editingElement) {
@@ -33,7 +35,7 @@ export class ReplaceMediaOption extends BaseOptionComponent {
         } else if (classes.contains("img")) {
             return _t("Replace Image");
         } else if (
-            classes.contains("fa") ||
+            classes.contains("oi") ||
             Array.from(classes).some((cls) => cls.startsWith("s_share_"))
         ) {
             return _t("Replace Icon");
@@ -42,6 +44,8 @@ export class ReplaceMediaOption extends BaseOptionComponent {
         }
     }
 }
+
+registry.category("builder-options").add(ReplaceMediaOption.id, ReplaceMediaOption);
 
 export function isImageSupportedForStyle(img) {
     if (!img.parentElement) {

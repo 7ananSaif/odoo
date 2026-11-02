@@ -1,23 +1,18 @@
 import { _t } from "@web/core/l10n/translation";
 
-import { Component, useState } from "@odoo/owl";
+import { Component, proxy, t, useProps } from "@odoo/owl";
 
 export class DashboardMobileSearchPanel extends Component {
     static template = "spreadsheet_dashboard.DashboardMobileSearchPanel";
-    static props = {
-        /**
-         * (dashboardId: number) => void
-         */
-        onDashboardSelected: Function,
-        groups: Object,
-        activeDashboard: {
-            type: Object,
-            optional: true,
-        },
-    };
+
+    props = useProps({
+        activeDashboard: t.object().optional(),
+        groups: t.array(t.object()),
+        onDashboardSelected: t.function([t.number()]),
+    });
 
     setup() {
-        this.state = useState({ isOpen: false });
+        this.state = proxy({ isOpen: false });
     }
 
     get searchBarText() {
@@ -26,6 +21,9 @@ export class DashboardMobileSearchPanel extends Component {
             : _t("Choose a dashboard....");
     }
 
+    /**
+     * @param {number} dashboardId
+     */
     onDashboardSelected(dashboardId) {
         this.props.onDashboardSelected(dashboardId);
         this.state.isOpen = false;

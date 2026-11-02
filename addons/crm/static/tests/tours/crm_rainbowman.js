@@ -2,7 +2,6 @@ import { registry } from "@web/core/registry";
 import { stepUtils } from "@web_tour/tour_utils";
 
 registry.category("web_tour.tours").add("crm_rainbowman", {
-    url: "/odoo",
     steps: () => [
         stepUtils.showAppsMenuItem(),
         {
@@ -85,6 +84,10 @@ registry.category("web_tour.tours").add("crm_rainbowman", {
         {
             trigger: ".o_statusbar_status button[data-value='4']",
             content: "move lead to won stage",
+            run: "click",
+        },
+        {
+            trigger: "button.o_form_button_save",
             run: "click",
         },
         {

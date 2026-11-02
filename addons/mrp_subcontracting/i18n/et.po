@@ -3,21 +3,22 @@
 # * mrp_subcontracting
 #
 # Kristina Pešehodko <kristina@avalah.ee>, 2025.
+# Odoo Translation Bot <c3p@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-10-28 13:12+0000\n"
-"Last-Translator: Kristina Pešehodko <kristina@avalah.ee>\n"
-"Language-Team: Estonian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-25 17:38+0000\n"
+"PO-Revision-Date: 2026-10-08 15:33+0000\n"
+"Last-Translator: Odoo Translation Bot <c3p@odoo.com>\n"
+"Language-Team: Estonian <https://translate.odoo.com/projects/odoo-20/"
 "mrp_subcontracting/et/>\n"
 "Language: et\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: mrp_subcontracting
 #. odoo-python
@@ -32,9 +33,20 @@ msgid "%(name)s Sequence subcontracting"
 msgstr "%(name)s Allhanke järjestus"
 
 #. module: mrp_subcontracting
+#. odoo-python
+#: code:addons/mrp_subcontracting/report/mrp_report_bom_structure.py:0
+msgid "%(qty)s To %(route)s"
+msgstr ""
+
+#. module: mrp_subcontracting
 #: model_terms:ir.ui.view,arch_db:mrp_subcontracting.subcontracting_portal
 msgid "/my/productions"
 msgstr "/my/productions"
+
+#. module: mrp_subcontracting
+#: model_terms:ir.ui.view,arch_db:mrp_subcontracting.mrp_production_subcontracting_form_view
+msgid "<span class=\"o_stat_text\">Overview</span>"
+msgstr ""
 
 #. module: mrp_subcontracting
 #. odoo-python
@@ -46,6 +58,12 @@ msgstr "Kõik"
 #: model:ir.model,name:mrp_subcontracting.model_mrp_production_serials
 msgid "Assign serial numbers to production order"
 msgstr "Määra tootmise tellimustele seerianumbreid"
+
+#. module: mrp_subcontracting
+#. odoo-javascript
+#: code:addons/mrp_subcontracting/static/src/components/bom_overview_table/mrp_bom_overview_table.xml:0
+msgid "Availabilities on subcontract location."
+msgstr ""
 
 #. module: mrp_subcontracting
 #: model:ir.model,name:mrp_subcontracting.model_report_mrp_report_bom_structure
@@ -79,12 +97,6 @@ msgid "Change Production Qty"
 msgstr "Muutke tootmiskogust"
 
 #. module: mrp_subcontracting
-#. odoo-javascript
-#: code:addons/mrp_subcontracting/static/src/components/subcontracting_production_form_controller.js:0
-msgid "Check Availability"
-msgstr "Kontrolli saadavust"
-
-#. module: mrp_subcontracting
 #: model:ir.model.fields,help:mrp_subcontracting.field_product_supplierinfo__is_subcontractor
 msgid ""
 "Choose a vendor of type subcontractor if you want to subcontract the product"
@@ -92,8 +104,9 @@ msgstr "Valige tarnija või allhankija tüüp kui tahate toodet allhankida"
 
 #. module: mrp_subcontracting
 #: model:ir.model,name:mrp_subcontracting.model_res_company
-msgid "Companies"
-msgstr "Ettevõtted"
+#, fuzzy
+msgid "Company"
+msgstr "Ettevõte"
 
 #. module: mrp_subcontracting
 #: model_terms:ir.ui.view,arch_db:mrp_subcontracting.mrp_subcontracting_move_tree_view
@@ -149,6 +162,7 @@ msgstr "Detailid"
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_product_product__display_name
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_product_supplierinfo__display_name
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_report_mrp_report_bom_structure__display_name
+#: model:ir.model.fields,field_description:mrp_subcontracting.field_report_mrp_report_mo_overview__display_name
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_res_company__display_name
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_res_partner__display_name
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_location__display_name
@@ -156,8 +170,6 @@ msgstr "Detailid"
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_move_line__display_name
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_picking__display_name
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_quant__display_name
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_return_picking__display_name
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_return_picking_line__display_name
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_rule__display_name
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_warehouse__display_name
 msgid "Display Name"
@@ -171,14 +183,9 @@ msgid "Done"
 msgstr "Tehtud"
 
 #. module: mrp_subcontracting
-#: model_terms:ir.ui.view,arch_db:mrp_subcontracting.portal_my_home_productions
+#: model:portal.entry,description:mrp_subcontracting.portal_manufacturing_orders
 msgid "Follow manufacturing orders you have to fulfill"
 msgstr "Jälgige tootmistellimusi, mida peate täitma"
-
-#. module: mrp_subcontracting
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_mrp_production__subcontracting_has_been_recorded
-msgid "Has been recorded?"
-msgstr "Kas on salvestatud?"
 
 #. module: mrp_subcontracting
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_change_production_qty__id
@@ -188,6 +195,7 @@ msgstr "Kas on salvestatud?"
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_product_product__id
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_product_supplierinfo__id
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_report_mrp_report_bom_structure__id
+#: model:ir.model.fields,field_description:mrp_subcontracting.field_report_mrp_report_mo_overview__id
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_res_company__id
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_res_partner__id
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_location__id
@@ -195,8 +203,6 @@ msgstr "Kas on salvestatud?"
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_move_line__id
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_picking__id
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_quant__id
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_return_picking__id
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_return_picking_line__id
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_rule__id
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_warehouse__id
 msgid "ID"
@@ -219,8 +225,9 @@ msgstr "Sissetulev siire"
 
 #. module: mrp_subcontracting
 #: model:ir.model,name:mrp_subcontracting.model_stock_location
-msgid "Inventory Locations"
-msgstr "Ladude asukohad"
+#, fuzzy
+msgid "Inventory Location"
+msgstr "Inventuuri asukoht"
 
 #. module: mrp_subcontracting
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_quant__is_subcontract
@@ -237,10 +244,20 @@ msgstr ""
 "toodete loendi filtreerimiseks"
 
 #. module: mrp_subcontracting
+#: model:ir.model,name:mrp_subcontracting.model_report_mrp_report_mo_overview
+msgid "MO Overview Report"
+msgstr ""
+
+#. module: mrp_subcontracting
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_res_partner__production_ids
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_res_users__production_ids
 msgid "MRP Productions for which the Partner is the subcontractor"
 msgstr "MRP toodang, mille alltöövõtjaks on Partner"
+
+#. module: mrp_subcontracting
+#: model:ir.module.module,shortdesc:base.module_mrp_subcontracting
+msgid "MRP Subcontracting"
+msgstr ""
 
 #. module: mrp_subcontracting
 #. odoo-python
@@ -258,7 +275,7 @@ msgid "Manufacturing Order"
 msgstr "Tootmistellimus"
 
 #. module: mrp_subcontracting
-#: model_terms:ir.ui.view,arch_db:mrp_subcontracting.portal_my_home_productions
+#: model:portal.entry,name:mrp_subcontracting.portal_manufacturing_orders
 #: model_terms:ir.ui.view,arch_db:mrp_subcontracting.subcontracting_portal_production_form_view
 msgid "Manufacturing Orders"
 msgstr "Tootmistellimused"
@@ -327,8 +344,9 @@ msgstr "Tootmised"
 
 #. module: mrp_subcontracting
 #: model:ir.model,name:mrp_subcontracting.model_stock_quant
-msgid "Quants"
-msgstr "Lao kogused"
+#, fuzzy
+msgid "Quant"
+msgstr "Koguseosa"
 
 #. module: mrp_subcontracting
 #. odoo-python
@@ -348,6 +366,12 @@ msgid "Replenish on Order (MTO)"
 msgstr "Telli nõudluse korral (MTO)"
 
 #. module: mrp_subcontracting
+#. odoo-javascript
+#: code:addons/mrp_subcontracting/static/src/components/subcontracting_production_form_controller.js:0
+msgid "Reserve"
+msgstr ""
+
+#. module: mrp_subcontracting
 #. odoo-python
 #: code:addons/mrp_subcontracting/models/stock_warehouse.py:0
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_warehouse__subcontracting_route_id
@@ -365,16 +389,6 @@ msgstr "Täienda allhankijat nõudluse korral"
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_warehouse__subcontracting_to_resupply
 msgid "Resupply Subcontractors"
 msgstr "Täienda allhankijaid"
-
-#. module: mrp_subcontracting
-#: model:ir.model,name:mrp_subcontracting.model_stock_return_picking
-msgid "Return Picking"
-msgstr "Tagastuskorje"
-
-#. module: mrp_subcontracting
-#: model:ir.model,name:mrp_subcontracting.model_stock_return_picking_line
-msgid "Return Picking Line"
-msgstr "Tagasta siirderida"
 
 #. module: mrp_subcontracting
 #: model_terms:ir.ui.view,arch_db:mrp_subcontracting.portal_my_productions
@@ -414,9 +428,19 @@ msgid "Stock Rule"
 msgstr "Laoreegel"
 
 #. module: mrp_subcontracting
+#: model:ir.module.module,summary:base.module_mrp_subcontracting
+msgid "Subcontract Productions"
+msgstr ""
+
+#. module: mrp_subcontracting
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_product_supplierinfo__is_subcontractor
 msgid "Subcontracted"
 msgstr "Allhangitud"
+
+#. module: mrp_subcontracting
+#: model_terms:ir.ui.view,arch_db:mrp_subcontracting.stock_picking_form_view
+msgid "Subcontracted Productions"
+msgstr ""
 
 #. module: mrp_subcontracting
 #. odoo-python
@@ -470,11 +494,6 @@ msgid "Subcontracting Portal"
 msgstr "Allhanke portaal"
 
 #. module: mrp_subcontracting
-#: model_terms:ir.ui.view,arch_db:mrp_subcontracting.stock_picking_form_view
-msgid "Subcontracting Productions"
-msgstr "Allhanke tootmine"
-
-#. module: mrp_subcontracting
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_warehouse__subcontracting_resupply_type_id
 msgid "Subcontracting Resupply Operation Type"
 msgstr "Allhanke juurdetellimise operatsioonitüüp"
@@ -482,6 +501,7 @@ msgstr "Allhanke juurdetellimise operatsioonitüüp"
 #. module: mrp_subcontracting
 #. odoo-javascript
 #: code:addons/mrp_subcontracting/static/src/components/bom_overview_special_line/mrp_bom_overview_special_line.xml:0
+#, fuzzy
 msgid "Subcontracting:"
 msgstr "Allhange:"
 
@@ -504,6 +524,15 @@ msgstr "Allhankija"
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_res_users__property_stock_subcontractor
 msgid "Subcontractor Location"
 msgstr "Allhanke asukoht"
+
+#. module: mrp_subcontracting
+#. odoo-javascript
+#: code:addons/mrp_subcontracting/static/src/components/bom_overview_table/mrp_bom_overview_table.xml:0
+#: code:addons/mrp_subcontracting/static/src/components/mo_overview/mrp_mo_overview.xml:0
+#: model_terms:ir.ui.view,arch_db:mrp_subcontracting.mo_overview_content
+#: model_terms:ir.ui.view,arch_db:mrp_subcontracting.report_mrp_bom
+msgid "Subcontractor Stock"
+msgstr ""
 
 #. module: mrp_subcontracting
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_mrp_bom__subcontractor_ids
@@ -543,6 +572,12 @@ msgid "There are currently no productions for your account."
 msgstr "Teie kontol pole praegu ühtegi tootmist."
 
 #. module: mrp_subcontracting
+#. odoo-python
+#: code:addons/mrp_subcontracting/report/mrp_report_mo_overview.py:0
+msgid "To Order"
+msgstr ""
+
+#. module: mrp_subcontracting
 #: model_terms:ir.ui.view,arch_db:mrp_subcontracting.mrp_subcontracting_move_form_view
 msgid "Total Consumed"
 msgstr "Kokku tarbitud"
@@ -552,6 +587,11 @@ msgstr "Kokku tarbitud"
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_mrp_production__incoming_picking
 msgid "Transfer"
 msgstr "Siire"
+
+#. module: mrp_subcontracting
+#: model_terms:ir.ui.view,arch_db:mrp_subcontracting.mrp_production_subcontracting_form_view
+msgid "Transfers"
+msgstr ""
 
 #. module: mrp_subcontracting
 #: model:ir.model.fields,help:mrp_subcontracting.field_mrp_production__subcontractor_id
@@ -603,3 +643,12 @@ msgstr "näiteks PO0032"
 #: code:addons/mrp_subcontracting/controllers/portal.py:0
 msgid "state"
 msgstr "staatus"
+
+#~ msgid "Subcontracting Productions"
+#~ msgstr "Allhanke tootmine"
+
+#~ msgid "Check Availability"
+#~ msgstr "Kontrolli saadavust"
+
+#~ msgid "Has been recorded?"
+#~ msgstr "Kas on salvestatud?"

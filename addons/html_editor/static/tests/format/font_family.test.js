@@ -2,16 +2,41 @@ import { test, expect } from "@odoo/hoot";
 import { setupEditor, testEditor } from "../_helpers/editor";
 import { click, queryOne, waitFor } from "@odoo/hoot-dom";
 import { getContent } from "../_helpers/selection";
-import { setFontFamily, undo, redo } from "../_helpers/user_actions";
+import { setFontFamily, undo, redo, insertText, deleteBackward } from "../_helpers/user_actions";
 import { execCommand } from "../_helpers/userCommands";
 import { animationFrame } from "@odoo/hoot-mock";
 import { expandToolbar } from "../_helpers/toolbar";
+import { expectElementCount } from "../_helpers/ui_expectations";
 
 test("should give a few characters a fontFamily", async () => {
     await testEditor({
         contentBefore: `<p>ab[cde]fg</p>`,
         stepFunction: setFontFamily("testFont"),
         contentAfter: `<p>ab<span style="font-family: testFont;">[cde]</span>fg</p>`,
+    });
+});
+
+test("should change the font family inherited from a paragraph", async () => {
+    await testEditor({
+        contentBefore: `<p style="font-family: Arial, sans-serif;">ab[cde]fg</p>`,
+        stepFunction: setFontFamily("Verdana, sans-serif"),
+        contentAfter: `<p style="font-family: Arial, sans-serif;">ab<span style="font-family: Verdana, sans-serif;">[cde]</span>fg</p>`,
+    });
+});
+
+test("should change the font family inherited from an ancestor block", async () => {
+    await testEditor({
+        contentBefore: `<div style="font-family: Arial, sans-serif;"><p>ab[cde]fg</p></div>`,
+        stepFunction: setFontFamily("Verdana, sans-serif"),
+        contentAfter: `<div style="font-family: Arial, sans-serif;"><p>ab<span style="font-family: Verdana, sans-serif;">[cde]</span>fg</p></div>`,
+    });
+});
+
+test("should not add a span for the font family already inherited", async () => {
+    await testEditor({
+        contentBefore: `<p style="font-family: Arial, sans-serif;">ab[cde]fg</p>`,
+        stepFunction: setFontFamily("Arial, sans-serif"),
+        contentAfter: `<p style="font-family: Arial, sans-serif;">ab[cde]fg</p>`,
     });
 });
 
@@ -132,4 +157,81 @@ test("should contain the 5 available font + default", async () => {
             ][i]
         );
     }
+});
+
+test("font-family dropdown item should have corresponding font-family applied", async () => {
+    await setupEditor("<p>ab[cde]fg</p>");
+    await expandToolbar();
+    await click(".btn[name='font_family']");
+    await expectElementCount(".o_font_family_selector_menu", 1);
+    const items = document.querySelectorAll(".o_font_family_selector_menu .o-dropdown-item");
+    for (let i = 0; i < items.length; i++) {
+        expect(items[i].style.fontFamily).toBe(
+            [
+                "", // Default system font
+                "Arial, sans-serif",
+                "Verdana, sans-serif",
+                "Tahoma, sans-serif",
+                '"Trebuchet MS", sans-serif',
+                '"Courier New", monospace',
+            ][i]
+        );
+    }
+});
+
+test("font-family should be preserved when replacing HTML element text", async () => {
+    const { el, editor } = await setupEditor("<p>[test]</p>");
+    await expandToolbar();
+
+    await click(".btn[name='font_family']");
+    await expectElementCount(".o_font_family_selector_menu", 1);
+
+    await click(".o_font_family_selector_menu .o-dropdown-item:nth-child(2)");
+    await animationFrame();
+    expect(el).toBeFocused();
+    expect(getContent(el)).toBe(
+        `<p><span style="font-family: Arial, sans-serif;">[test]</span></p>`
+    );
+
+    await insertText(editor, "a");
+    await animationFrame();
+    expect(getContent(el)).toBe(`<p><span style="font-family: Arial, sans-serif;">a[]</span></p>`);
+});
+
+test.tags("mobile");
+test("should update toolbar font family when applying and removing it on a collapsed selection", async () => {
+    const { el, editor } = await setupEditor("<p>[]<br></p>");
+    await expandToolbar();
+    expect(queryOne(".btn[name='font_family']").textContent).toBe("Default font");
+
+    await click(".btn[name='font_family']");
+    await expectElementCount(".o_font_family_selector_menu", 1);
+    await click(".o_font_family_selector_menu .o-dropdown-item:nth-child(2)");
+    await animationFrame();
+    expect(queryOne(".btn[name='font_family']").textContent).toBe("Arial");
+    expect(getContent(el)).toBe(
+        `<p o-we-hint-text='Type "/" for commands' class="o-we-hint">[]<br></p>`
+    );
+
+    execCommand(editor, "removeFormat");
+    await animationFrame();
+    expect(queryOne(".btn[name='font_family']").textContent).toBe("Default font");
+
+    await click(".btn[name='font_family']");
+    await expectElementCount(".o_font_family_selector_menu", 1);
+    await click(".o_font_family_selector_menu .o-dropdown-item:nth-child(2)");
+    await animationFrame();
+    expect(queryOne(".btn[name='font_family']").textContent).toBe("Arial");
+
+    await insertText(editor, "e");
+    await animationFrame();
+    expect(getContent(el)).toBe('<p><span style="font-family: Arial, sans-serif;">e[]</span></p>');
+    expect(queryOne(".btn[name='font_family']").textContent).toBe("Arial");
+
+    deleteBackward(editor);
+    await animationFrame();
+    expect(getContent(el)).toBe(
+        `<p o-we-hint-text='Type "/" for commands' class="o-we-hint">[]<br></p>`
+    );
+    expect(queryOne(".btn[name='font_family']").textContent).toBe("Arial");
 });

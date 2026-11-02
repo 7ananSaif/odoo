@@ -31,9 +31,11 @@ test("status bar duration field used in form view", async () => {
         stage_id: stageIds[2].id,
         // 7 days, 30 minutes - 3 hours - 2 days, 5 hours
         duration_tracking: {
-            [stageIds[0]]: 7 * 24 * 60 * 60 + 30 * 60,
-            [stageIds[1]]: 3 * 60 * 60,
-            [stageIds[3]]: 24 * 2 * 60 * 60 + 5 * 60 * 60,
+            [stageIds[0]]: 7 * 24 * 60 + 30,
+            [stageIds[1]]: 3 * 60,
+            [stageIds[3]]: 24 * 2 * 60 + 5 * 60,
+            'd': '2026-03-11 05:12:22',
+            's': stageIds[2],
         },
     });
     await start();
@@ -41,9 +43,9 @@ test("status bar duration field used in form view", async () => {
         arch: `<form><field name="stage_id" widget="statusbar_duration"/></form>`,
     });
     await contains("span[title='7 days, 30 minutes']", {
-        parent: [".o_statusbar_status button", { text: "New" }],
+        parent: [".o_statusbar_status button:has(:text('New'))"],
     });
-    await contains("span[title='3 hours']", { parent: ["button", { text: "Qualified" }] });
-    await contains("button", { text: "Proposition" });
-    await contains("span[title='2 days, 5 hours']", { parent: ["button", { text: "Won" }] });
+    await contains("span[title='3 hours']", { parent: ["button:has(:text('Qualified'))"] });
+    await contains("button:text('Proposition')");
+    await contains("span[title='2 days, 5 hours']", { parent: ["button:has(:text('Won'))"] });
 });

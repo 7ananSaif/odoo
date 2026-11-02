@@ -7,13 +7,13 @@ import secrets
 import textwrap
 import time
 from contextlib import closing
-from datetime import timedelta
+from datetime import datetime, timedelta
 from unittest.mock import patch
 
-from freezegun import freeze_time
+import freezegun
 
 from odoo import fields
-from odoo.tests.common import RecordCapturer, TransactionCase
+from odoo.tests.common import RecordCapturer, TransactionCase, tagged, freeze_time
 from odoo.tools import mute_logger
 
 from odoo.addons.base.models.ir_cron import (
@@ -71,13 +71,14 @@ class CronMixinCase:
         return {'name': f'Dummy partner for TestIrCron {unique}'}
 
 
+@tagged('at_install', '-post_install')
 class TestIrCron(TransactionCase, CronMixinCase):
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
 
-        freezer = freeze_time(cls.cr.now())
+        freezer = freezegun.freeze_time(cls.cr.now())
         cls.frozen_datetime = freezer.start()
         cls.addClassCleanup(freezer.stop)
 
@@ -127,7 +128,7 @@ class TestIrCron(TransactionCase, CronMixinCase):
         action_params = action.pop('params')
         self.assertEqual(action, {'type': 'ir.actions.client', 'tag': 'display_exception'})
         self.assertEqual(list(action_params), ['code', 'message', 'data'])
-        self.assertEqual(list(action_params['data']), ['name', 'message', 'arguments', 'context', 'debug'])
+        self.assertEqual(list(action_params['data']), ['name', 'message', 'arguments', 'timestamp', 'context', 'debug'])
 
     def test_cron_no_job_ready(self):
         self.cron.nextcall = fields.Datetime.now() + timedelta(days=1)
@@ -236,9 +237,9 @@ class TestIrCron(TransactionCase, CronMixinCase):
                 state['call_count'] += 1
             return f, state
 
-        def eleven_success(cron):
+        def success_121(cron):
             state = {'call_count': 0}
-            CALL_TARGET = 11
+            CALL_TARGET = 121
             def f(self):
                 frozen_datetime.tick(delta=timedelta(seconds=1))
                 state['call_count'] += 1
@@ -248,7 +249,7 @@ class TestIrCron(TransactionCase, CronMixinCase):
                 )
             return f, state
 
-        def five_success(cron):
+        def success_5(cron):
             state = {'call_count': 0}
             CALL_TARGET = 5
             def f(self):
@@ -306,11 +307,11 @@ class TestIrCron(TransactionCase, CronMixinCase):
             #       callback, curr_failures, trigger, call_count, done_count, fail_count, active,
             (        nothing,             0,   False,          1,          0,          0,  True),
             (        nothing, almost_failed,   False,          1,          0,          0,  True),
-            ( eleven_success,             0,    True,         10,         10,          0,  True),
-            ( eleven_success, almost_failed,    True,         10,         10,          0,  True),
-            (   five_success,             0,   False,          5,          5,          0,  True),
-            (   five_success, almost_failed,   False,          5,          5,          0,  True),
-            (       end_time,             0,    True,          2,         10,          0,  True),
+            (    success_121,             0,    True,        120,        120,          0,  True),
+            (    success_121, almost_failed,    True,        120,        120,          0,  True),
+            (      success_5,             0,   False,          5,          5,          0,  True),
+            (      success_5, almost_failed,   False,          5,          5,          0,  True),
+            (       end_time,             0,    True,          2,        120,          0,  True),
             (        failure,             0,   False,          1,          0,          1,  True),
             (        failure, almost_failed,   False,          1,          0,          0, False),
             (failure_partial,             0,   False,          5,          5,          1,  True),
@@ -373,8 +374,8 @@ class TestIrCron(TransactionCase, CronMixinCase):
             patch.object(self.registry['ir.actions.server'], 'run', mocked_run),
             self.registry.cursor() as cr,
         ):
-            # make each run 2 seconds, so that it is run 10 times, 20 seconds in total
-            mocked_run_state['duration'] = 2
+            # make it run 10 times, 120 seconds in total
+            mocked_run_state['duration'] = 120 / 10
             self.registry['ir.cron']._process_job(
                 cr,
                 {**self.cron.read(load=None)[0], **default_progress_values}
@@ -399,8 +400,8 @@ class TestIrCron(TransactionCase, CronMixinCase):
             patch.object(self.registry['ir.actions.server'], 'run', mocked_run),
             self.registry.cursor() as cr,
         ):
-            # make each run 0.5 seconds, so that it is run 20 times, 10 seconds in total
-            mocked_run_state['duration'] = 0.5
+            # make it run 20 times, 120 seconds in total
+            mocked_run_state['duration'] = 120 / 20
             self.registry['ir.cron']._process_job(
                 cr,
                 {**self.cron.read(load=None)[0], **default_progress_values}
@@ -486,6 +487,50 @@ class TestIrCron(TransactionCase, CronMixinCase):
         self.assertEqual(self.cron.active, True, 'The cron should not have been deactivated due to time constraint')
         self.assertFalse(notify.called)
 
+        self.cron.failure_count = 3
+        self.cron.first_failure_date = fields.Datetime.now() - timedelta(days=10)
+
+        self.cron._trigger()
+        self.env.flush_all()
+        with (
+            self.enter_registry_test_mode(),
+            patch.object(self.registry['ir.cron'], '_callback', side_effect=Exception),
+            patch.object(self.registry['ir.cron'], '_notify_admin') as notify,
+            mute_logger('odoo.addons.base.models.ir_cron'),
+            self.registry.cursor() as cr,
+        ):
+            self.registry['ir.cron']._process_job(
+                cr,
+                {**self.cron.read(load=None)[0], **default_progress}
+            )
+
+        self.env.invalidate_all()
+        self.assertEqual(self.cron.failure_count, 4, 'The cron should have failed one more time but not reset (due to time)')
+        self.assertEqual(self.cron.active, True, 'The cron should not have been deactivated due to fail count constraint')
+        self.assertTrue(notify.called, 'Warning notification should be sent')
+
+        self.cron.failure_count = 9  # next is 10 (see throttling)
+        self.cron.first_failure_date = fields.Datetime.now() - timedelta(days=5)
+
+        self.cron._trigger()
+        self.env.flush_all()
+        with (
+            self.enter_registry_test_mode(),
+            patch.object(self.registry['ir.cron'], '_callback', side_effect=Exception),
+            patch.object(self.registry['ir.cron'], '_notify_admin') as notify,
+            mute_logger('odoo.addons.base.models.ir_cron'),
+            self.registry.cursor() as cr,
+        ):
+            self.registry['ir.cron']._process_job(
+                cr,
+                {**self.cron.read(load=None)[0], **default_progress}
+            )
+
+        self.env.invalidate_all()
+        self.assertEqual(self.cron.failure_count, 10, 'The cron should have failed one more time but not reset (due to time)')
+        self.assertEqual(self.cron.active, True, 'The cron should not have been deactivated due to time constraint')
+        self.assertTrue(notify.called, 'Warning notification should be sent')
+
         self.cron.failure_count = 4
         self.cron.first_failure_date = fields.Datetime.now() - timedelta(days=8)
 
@@ -506,7 +551,7 @@ class TestIrCron(TransactionCase, CronMixinCase):
         self.env.invalidate_all()
         self.assertEqual(self.cron.failure_count, 0, 'The cron should have failed one more time and reset to 0')
         self.assertEqual(self.cron.active, False, 'The cron should have been deactivated after 5 failures')
-        self.assertTrue(notify.called)
+        self.assertTrue(notify.called, "Admin must be notified")
 
     def test_cron_timeout_failure(self):
         self.cron._trigger()
@@ -683,3 +728,67 @@ class TestIrCron(TransactionCase, CronMixinCase):
 
         self.env.invalidate_all()
         self.assertFalse(self.cron.active)
+
+
+COALESCE_WINDOW_MINS = 5
+COALESCE_WINDOW_SECS = COALESCE_WINDOW_MINS * 60
+
+
+@tagged('-at_install', 'post_install')
+@freeze_time("1999-09-30 10:32:00")
+class TestIrCronTriggerCoalescing(TransactionCase, CronMixinCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.cron = cls.env['ir.cron'].create(cls._get_cron_data(cls.env))
+
+    def test_cron_trigger_coalesce_instant(self):
+        with self.capture_triggers(self.cron.id) as capture:
+            self.cron._trigger(coalesce=COALESCE_WINDOW_MINS)
+
+        self.assertEqual(len(capture.records), 1)
+        self.assertEqual(
+            capture.records[0].call_at,
+            datetime(1999, 9, 30, 10, 35),
+        )
+
+    def test_cron_trigger_coalesce_explicit(self):
+        at = datetime.now() + timedelta(minutes=11)
+
+        with self.capture_triggers(self.cron.id) as capture:
+            self.cron._trigger(at=at, coalesce=COALESCE_WINDOW_MINS)
+
+        self.assertEqual(len(capture.records), 1)
+        self.assertEqual(
+            capture.records[0].call_at,
+            datetime(1999, 9, 30, 10, 45),
+        )
+
+    def test_cron_trigger_coalesce_same_window(self):
+        now = datetime.now()
+        t1 = now + timedelta(minutes=1)
+        t2 = now + timedelta(minutes=2)
+
+        with self.capture_triggers(self.cron.id) as capture:
+            self.cron._trigger(at=[t1, t2], coalesce=COALESCE_WINDOW_MINS)
+
+        self.assertEqual(len(capture.records), 2)
+        call_ats = {r.call_at for r in capture.records}
+        self.assertEqual(len(call_ats), 1)
+        self.assertEqual(
+            call_ats.pop(),
+            datetime(1999, 9, 30, 10, 35)
+        )
+
+    def test_cron_trigger_coalesce_different_windows(self):
+        now = datetime.now()
+        t1 = now + timedelta(minutes=2)
+        t2 = now + timedelta(minutes=4)
+
+        with self.capture_triggers(self.cron.id) as capture:
+            self.cron._trigger(at=[t1, t2], coalesce=COALESCE_WINDOW_MINS)
+
+        call_ats = sorted(r.call_at for r in capture.records)
+        self.assertEqual(len(call_ats), 2)
+        self.assertEqual(call_ats[0], datetime(1999, 9, 30, 10, 35))
+        self.assertEqual(call_ats[1], datetime(1999, 9, 30, 10, 40))

@@ -14,22 +14,33 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-27 18:37+0000\n"
-"PO-Revision-Date: 2025-10-08 18:38+0000\n"
-"Last-Translator: \n"
-"Language-Team: \n"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-08-31 19:43+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Uzbek <https://translate.odoo.com/projects/odoo-s19-4/"
+"hr_holidays_attendance/uz/>\n"
 "Language: uz\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: hr_holidays_attendance
-#. odoo-python
-#: code:addons/hr_holidays_attendance/models/hr_leave_type.py:0
-#, fuzzy
-msgid "%s hours available"
-msgstr "%s soat mavjud"
+#: model:ir.module.module,description:base.module_hr_holidays_attendance
+msgid ""
+"\n"
+"Convert employee's extra hours to leave allocations.\n"
+msgstr ""
+
+#. module: hr_holidays_attendance
+#: model_terms:ir.ui.view,arch_db:hr_holidays_attendance.hr_leave_accrual_level_view_form
+msgid ""
+"<span name=\"yearly_gain\" position=\"inside\">\n"
+"                <span invisible=\"frequency != 'worked_hours'\"> (depending "
+"on attendances)</span>\n"
+"            </span>"
+msgstr ""
 
 #. module: hr_holidays_attendance
 #: model:ir.model,name:hr_holidays_attendance.model_hr_leave_accrual_level
@@ -62,16 +73,25 @@ msgid "Archived Employees"
 msgstr "Arxivlangan xodimlar"
 
 #. module: hr_holidays_attendance
-#: model:ir.model,name:hr_holidays_attendance.model_hr_attendance_overtime_line
-#, fuzzy
-msgid "Attendance Overtime Line"
-msgstr "Ish vaqtidan tashqari davomat qatori"
+#: model:ir.model,name:hr_holidays_attendance.model_hr_attendance
+msgid "Attendance"
+msgstr ""
+
+#. module: hr_holidays_attendance
+#: model:ir.module.module,summary:base.module_hr_holidays_attendance
+msgid "Attendance Holidays"
+msgstr ""
 
 #. module: hr_holidays_attendance
 #: model_terms:ir.ui.view,arch_db:hr_holidays_attendance.hr_leave_attendance_report_view_form
 #, fuzzy
 msgid "Attendance Records"
 msgstr "Davomat qaydlari"
+
+#. module: hr_holidays_attendance
+#: model:ir.model.fields,field_description:hr_holidays_attendance.field_res_company__attendance_work_entry_type_id
+msgid "Attendance Time Type"
+msgstr ""
 
 #. module: hr_holidays_attendance
 #: model:ir.model,name:hr_holidays_attendance.model_hr_leave_attendance_report
@@ -86,23 +106,9 @@ msgid "Attendances"
 msgstr "Davomatlar"
 
 #. module: hr_holidays_attendance
-#. odoo-javascript
-#: code:addons/hr_holidays_attendance/static/src/xml/time_off_calendar.xml:0
-#, fuzzy
-msgid "Available"
-msgstr "Mavjud"
-
-#. module: hr_holidays_attendance
-#. odoo-javascript
-#: code:addons/hr_holidays_attendance/static/src/views/extra_hours_list_view.xml:0
-msgid "Balance"
+#: model:ir.model,name:hr_holidays_attendance.model_res_company
+msgid "Company"
 msgstr ""
-
-#. module: hr_holidays_attendance
-#: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_attendance_overtime_line__compensable_as_leave
-#, fuzzy
-msgid "Compensable as Time Off"
-msgstr "Ta'til sifatida qoplanadi"
 
 #. module: hr_holidays_attendance
 #: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_leave_attendance_report__date
@@ -110,20 +116,6 @@ msgstr "Ta'til sifatida qoplanadi"
 #, fuzzy
 msgid "Date"
 msgstr "Sana"
-
-#. module: hr_holidays_attendance
-#. odoo-javascript
-#: code:addons/hr_holidays_attendance/static/src/xml/time_off_calendar.xml:0
-#, fuzzy
-msgid "Days"
-msgstr "Kunlar"
-
-#. module: hr_holidays_attendance
-#: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_leave_type__overtime_deductible
-#: model_terms:ir.ui.view,arch_db:hr_holidays_attendance.hr_employee_view_form_inherit
-#, fuzzy
-msgid "Deduct Extra Hours"
-msgstr "Qo‘shimcha soatlarni ayirish"
 
 #. module: hr_holidays_attendance
 #: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_leave_attendance_report__department_id
@@ -139,21 +131,16 @@ msgid "Difference"
 msgstr "Farq"
 
 #. module: hr_holidays_attendance
-#: model_terms:ir.ui.view,arch_db:hr_holidays_attendance.hr_leave_allocation_overtime_manager_view_form
-#, fuzzy
-msgid "Discard"
-msgstr "Bekor qilish"
-
-#. module: hr_holidays_attendance
-#: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_attendance_overtime_line__display_name
-#: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_attendance_overtime_rule__display_name
+#: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_attendance__display_name
 #: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_employee__display_name
 #: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_leave__display_name
 #: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_leave_accrual_level__display_name
 #: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_leave_allocation__display_name
 #: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_leave_attendance_report__display_name
-#: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_leave_type__display_name
+#: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_time_rule__display_name
+#: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_version__display_name
 #: model:ir.model.fields,field_description:hr_holidays_attendance.field_ir_ui_menu__display_name
+#: model:ir.model.fields,field_description:hr_holidays_attendance.field_res_company__display_name
 #: model:ir.model.fields,field_description:hr_holidays_attendance.field_resource_calendar_leaves__display_name
 #, fuzzy
 msgid "Display Name"
@@ -174,11 +161,9 @@ msgid "Employee"
 msgstr "Xodim"
 
 #. module: hr_holidays_attendance
-#: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_leave__employee_overtime
-#: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_leave_allocation__employee_overtime
-#, fuzzy
-msgid "Employee Overtime"
-msgstr "Xodimning ish vaqtidan tashqari ishi"
+#: model:ir.model,name:hr_holidays_attendance.model_hr_version
+msgid "Employee Contract"
+msgstr ""
 
 #. module: hr_holidays_attendance
 #: model_terms:ir.ui.view,arch_db:hr_holidays_attendance.hr_leave_attendance_report_view_search
@@ -193,41 +178,27 @@ msgid "Expected Hours"
 msgstr "Kutilayotgan soatlar"
 
 #. module: hr_holidays_attendance
-#: model_terms:ir.ui.view,arch_db:hr_holidays_attendance.hr_attendance_holidays_hr_leave_allocation_view_form_inherit
-#: model_terms:ir.ui.view,arch_db:hr_holidays_attendance.hr_leave_view_form
-#, fuzzy
-msgid "Extra Hours Available"
-msgstr "Mavjud qo‘shimcha soatlar"
-
-#. module: hr_holidays_attendance
 #: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_leave_accrual_level__frequency
 #, fuzzy
 msgid "Frequency"
 msgstr "Chastotasi"
 
 #. module: hr_holidays_attendance
-#: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_attendance_overtime_rule__compensable_as_leave
-#, fuzzy
-msgid "Give back as time off"
-msgstr "Ta'til sifatida qaytarish"
+#: model:ir.module.module,shortdesc:base.module_hr_holidays_attendance
+msgid "HR Attendance Holidays"
+msgstr ""
 
 #. module: hr_holidays_attendance
-#. odoo-javascript
-#: code:addons/hr_holidays_attendance/static/src/xml/time_off_calendar.xml:0
-#, fuzzy
-msgid "Hours"
-msgstr "Soatlar"
-
-#. module: hr_holidays_attendance
-#: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_attendance_overtime_line__id
-#: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_attendance_overtime_rule__id
+#: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_attendance__id
 #: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_employee__id
 #: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_leave__id
 #: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_leave_accrual_level__id
 #: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_leave_allocation__id
 #: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_leave_attendance_report__id
-#: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_leave_type__id
+#: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_time_rule__id
+#: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_version__id
 #: model:ir.model.fields,field_description:hr_holidays_attendance.field_ir_ui_menu__id
+#: model:ir.model.fields,field_description:hr_holidays_attendance.field_res_company__id
 #: model:ir.model.fields,field_description:hr_holidays_attendance.field_resource_calendar_leaves__id
 #, fuzzy
 msgid "ID"
@@ -275,38 +246,9 @@ msgid "New Allocation Request"
 msgstr "Yangi ajratish so‘rovi"
 
 #. module: hr_holidays_attendance
-#: model:ir.model.fields,help:hr_holidays_attendance.field_hr_leave_type__overtime_deductible
-#, fuzzy
-msgid ""
-"Once a time off of this type is approved, extra hours in attendances will be "
-"deducted."
+#: model_terms:ir.ui.view,arch_db:hr_holidays_attendance.view_attendance_search_inherit_holidays
+msgid "Overtime Entries"
 msgstr ""
-"Bu turdagi ta'til tasdiqlangach, davomatdagi qo‘shimcha soatlar ayirib "
-"tashlanadi."
-
-#. module: hr_holidays_attendance
-#. odoo-python
-#: code:addons/hr_holidays_attendance/models/hr_leave_allocation.py:0
-#, fuzzy
-msgid ""
-"Only an Officer or Administrator is allowed to edit the allocation duration "
-"in this status."
-msgstr ""
-"Bu holatda faqat mansabdor shaxs yoki administrator ajratish davomiyligini "
-"tahrirlashi mumkin."
-
-#. module: hr_holidays_attendance
-#: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_leave__overtime_deductible
-#: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_leave_allocation__overtime_deductible
-#, fuzzy
-msgid "Overtime Deductible"
-msgstr "Ish vaqtidan tashqari ayiriladigan"
-
-#. module: hr_holidays_attendance
-#: model:ir.model,name:hr_holidays_attendance.model_hr_attendance_overtime_rule
-#, fuzzy
-msgid "Overtime Rule"
-msgstr "Qo‘shimcha vaqt qoidasi"
 
 #. module: hr_holidays_attendance
 #: model:ir.model.fields.selection,name:hr_holidays_attendance.selection__hr_leave_accrual_level__frequency__worked_hours
@@ -315,14 +257,13 @@ msgid "Per Hour Worked"
 msgstr "Ishlangan har soat uchun"
 
 #. module: hr_holidays_attendance
-#. odoo-javascript
-#: code:addons/hr_holidays_attendance/static/src/views/extra_hours_list_view.xml:0
-msgid "Remaining Extra Hours:"
+#: model:ir.model,name:hr_holidays_attendance.model_resource_calendar_leaves
+msgid "Resource Time Off Detail"
 msgstr ""
 
 #. module: hr_holidays_attendance
-#: model:ir.model,name:hr_holidays_attendance.model_resource_calendar_leaves
-msgid "Resource Time Off Detail"
+#: model_terms:ir.ui.view,arch_db:hr_holidays_attendance.view_attendance_overtime_leave_form
+msgid "Rules Outputs"
 msgstr ""
 
 #. module: hr_holidays_attendance
@@ -332,21 +273,9 @@ msgid "Save"
 msgstr "Saqlash"
 
 #. module: hr_holidays_attendance
-#. odoo-python
-#: code:addons/hr_holidays_attendance/models/hr_leave.py:0
-#, fuzzy
-msgid "The employee does not have enough extra hours to request this leave."
+#: model_terms:ir.ui.view,arch_db:hr_holidays_attendance.view_attendance_search_inherit_holidays
+msgid "Source Attendances"
 msgstr ""
-"Xodimda ushbu ta'tilni so‘rash uchun yetarli qo‘shimcha soatlar mavjud emas."
-
-#. module: hr_holidays_attendance
-#. odoo-python
-#: code:addons/hr_holidays_attendance/models/hr_leave_allocation.py:0
-#, fuzzy
-msgid "The employee does not have enough overtime hours to request this leave."
-msgstr ""
-"Xodimda ushbu ta'tilni so‘rash uchun yetarli qo‘shimcha ish vaqti mavjud "
-"emas."
 
 #. module: hr_holidays_attendance
 #: model:ir.model,name:hr_holidays_attendance.model_hr_leave
@@ -368,46 +297,36 @@ msgid "Time Off Ledger"
 msgstr "Ta'til hisoboti"
 
 #. module: hr_holidays_attendance
-#. odoo-javascript
-#: code:addons/hr_holidays_attendance/static/src/views/extra_hours_list_view.xml:0
-msgid "Time Off Taken from Extra Hours:"
-msgstr ""
-
-#. module: hr_holidays_attendance
-#: model:ir.model,name:hr_holidays_attendance.model_hr_leave_type
-#, fuzzy
-msgid "Time Off Type"
-msgstr "Ta'til turi"
-
-#. module: hr_holidays_attendance
-#: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_leave_attendance_report__leave_type_names
-#, fuzzy
-msgid "Time Off Types"
-msgstr "Ta'til turlari"
-
-#. module: hr_holidays_attendance
 #: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_leave_attendance_report__leave_ids
 #, fuzzy
 msgid "Time Offs"
 msgstr "Ta'tillar"
 
 #. module: hr_holidays_attendance
-#. odoo-javascript
-#: code:addons/hr_holidays_attendance/static/src/views/extra_hours_list_view.xml:0
-msgid "Total Compensable Extra Hours:"
+#: model:ir.model,name:hr_holidays_attendance.model_hr_time_rule
+msgid "Time Rule"
 msgstr ""
 
 #. module: hr_holidays_attendance
-#. odoo-javascript
-#: code:addons/hr_holidays_attendance/static/src/views/extra_hours_list_view.xml:0
-msgid "Total Extra Hours Worked:"
+#: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_leave_attendance_report__work_entry_type_names
+msgid "Time Types"
 msgstr ""
 
 #. module: hr_holidays_attendance
-#: model_terms:ir.ui.view,arch_db:hr_holidays_attendance.hr_leave_attendance_report_view_form
-#, fuzzy
-msgid "Worked Extra Hours"
-msgstr "Ortiqcha ishlangan soatlar"
+#: model_terms:ir.ui.view,arch_db:hr_holidays_attendance.view_attendance_overtime_leave_form
+msgid "Time type"
+msgstr ""
+
+#. module: hr_holidays_attendance
+#: model_terms:ir.ui.view,arch_db:hr_holidays_attendance.view_attendance_tree_inherit_holidays
+msgid "Type"
+msgstr ""
+
+#. module: hr_holidays_attendance
+#: model:ir.model.fields,help:hr_holidays_attendance.field_res_company__attendance_work_entry_type_id
+msgid ""
+"Work entry type assigned to attendances and read by the time rule engine."
+msgstr ""
 
 #. module: hr_holidays_attendance
 #: model:ir.model.fields,field_description:hr_holidays_attendance.field_hr_leave_attendance_report__worked_hours
@@ -440,19 +359,92 @@ msgstr ""
 "boshida to‘planadi."
 
 #. module: hr_holidays_attendance
-#. odoo-python
-#: code:addons/hr_holidays_attendance/models/hr_leave.py:0
-#, fuzzy
-msgid "You do not have enough extra hours to request this leave"
-msgstr "Ushbu ta'tilni so‘rash uchun yetarli qo‘shimcha soatingiz yo‘q"
-
-#. module: hr_holidays_attendance
 #. odoo-javascript
 #: code:addons/hr_holidays_attendance/static/src/components/accrual_levels/accrual_levels.xml:0
-#, fuzzy
 msgid "every worked hour."
-msgstr "har bir ishlangan soat uchun."
+msgstr ""
 
 #, fuzzy
-#~ msgid "Total Overtime"
-#~ msgstr "Jami qo‘shimcha ish vaqti"
+#~ msgid "%s hours available"
+#~ msgstr "%s soat mavjud"
+
+#, fuzzy
+#~ msgid "Attendance Overtime Line"
+#~ msgstr "Ish vaqtidan tashqari davomat qatori"
+
+#, fuzzy
+#~ msgid "Available"
+#~ msgstr "Mavjud"
+
+#, fuzzy
+#~ msgid "Compensable as Time Off"
+#~ msgstr "Ta'til sifatida qoplanadi"
+
+#, fuzzy
+#~ msgid "Days"
+#~ msgstr "Kunlar"
+
+#, fuzzy
+#~ msgid "Deduct Extra Hours"
+#~ msgstr "Qo‘shimcha soatlarni ayirish"
+
+#, fuzzy
+#~ msgid "Employee Overtime"
+#~ msgstr "Xodimning ish vaqtidan tashqari ishi"
+
+#, fuzzy
+#~ msgid "Extra Hours Available"
+#~ msgstr "Mavjud qo‘shimcha soatlar"
+
+#, fuzzy
+#~ msgid "Give back as time off"
+#~ msgstr "Ta'til sifatida qaytarish"
+
+#, fuzzy
+#~ msgid "Hours"
+#~ msgstr "Soatlar"
+
+#, fuzzy
+#~ msgid ""
+#~ "Once a time off of this type is approved, extra hours in attendances will "
+#~ "be deducted."
+#~ msgstr ""
+#~ "Bu turdagi ta'til tasdiqlangach, davomatdagi qo‘shimcha soatlar ayirib "
+#~ "tashlanadi."
+
+#, fuzzy
+#~ msgid ""
+#~ "Only an Officer or Administrator is allowed to edit the allocation "
+#~ "duration in this status."
+#~ msgstr ""
+#~ "Bu holatda faqat mansabdor shaxs yoki administrator ajratish "
+#~ "davomiyligini tahrirlashi mumkin."
+
+#, fuzzy
+#~ msgid "Overtime Deductible"
+#~ msgstr "Ish vaqtidan tashqari ayiriladigan"
+
+#, fuzzy
+#~ msgid "Overtime Rule"
+#~ msgstr "Qo‘shimcha vaqt qoidasi"
+
+#, fuzzy
+#~ msgid "The employee does not have enough extra hours to request this leave."
+#~ msgstr ""
+#~ "Xodimda ushbu ta'tilni so‘rash uchun yetarli qo‘shimcha soatlar mavjud "
+#~ "emas."
+
+#, fuzzy
+#~ msgid ""
+#~ "The employee does not have enough overtime hours to request this leave."
+#~ msgstr ""
+#~ "Xodimda ushbu ta'tilni so‘rash uchun yetarli qo‘shimcha ish vaqti mavjud "
+#~ "emas."
+
+#, fuzzy
+#~ msgid "Worked Extra Hours"
+#~ msgstr "Ortiqcha ishlangan soatlar"
+
+#, fuzzy
+#~ msgid "You do not have enough extra hours to request this leave"
+#~ msgstr "Ushbu ta'tilni so‘rash uchun yetarli qo‘shimcha soatingiz yo‘q"

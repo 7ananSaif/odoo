@@ -6,9 +6,10 @@ import * as ProductScreenResto from "@pos_restaurant/../tests/tours/utils/produc
 import * as FloorScreen from "@pos_restaurant/../tests/tours/utils/floor_screen_util";
 import * as DeviceSynchronization from "@pos_restaurant/../tests/tours/utils/devices_synchronization";
 import * as PaymentScreen from "@point_of_sale/../tests/pos/tours/utils/payment_screen_util";
-import * as ReceiptScreen from "@point_of_sale/../tests/pos/tours/utils/receipt_screen_util";
+import * as FeedbackScreen from "@point_of_sale/../tests/pos/tours/utils/feedback_screen_util";
 import * as TicketScreen from "@point_of_sale/../tests/pos/tours/utils/ticket_screen_util";
 import { registry } from "@web/core/registry";
+import { inLeftSide } from "@point_of_sale/../tests/pos/tours/utils/common";
 
 const ProductScreen = { ...ProductScreenPos, ...ProductScreenResto };
 const Chrome = { ...ChromePos, ...ChromeRestaurant };
@@ -62,19 +63,18 @@ registry.category("web_tour.tours").add("test_devices_synchronization", {
             FloorScreen.clickTable("5"),
             ProductScreen.checkTotalAmount(6.6),
             ProductScreen.clickPayButton(false),
-            ProductScreen.discardOrderWarningDialog(),
             PaymentScreen.clickPaymentMethod("Cash"),
             PaymentScreen.clickValidate(),
-            ReceiptScreen.clickNextOrder(),
+            Chrome.closePrintingWarning(),
+            FeedbackScreen.clickNextOrder(),
             Chrome.clickPlanButton(),
             FloorScreen.clickTable("4"),
             ProductScreen.checkTotalAmount(176.0),
             ProductScreen.clickPayButton(false),
-            ProductScreen.discardOrderWarningDialog(),
             PaymentScreen.clickPaymentMethod("Cash"),
             PaymentScreen.clickValidate(),
-            ReceiptScreen.clickNextOrder(),
-
+            Chrome.closePrintingWarning(),
+            FeedbackScreen.clickNextOrder(),
             // product_screen
             // Check if creating an order one same table from two devices
             // is correctly handlded
@@ -114,6 +114,20 @@ registry.category("web_tour.tours").add("OrderSynchronisationTour", {
             TicketScreen.selectFilter("Paid"),
             TicketScreen.checkStatus("device_sync", "Paid"),
             TicketScreen.selectOrder("device_sync"),
-            TicketScreen.confirmRefund(),
+            inLeftSide(ProductScreen.orderLineHas("Coca-Cola", 50)),
+            inLeftSide(ProductScreen.orderLineHas("Water", 30)),
+        ].flat(),
+});
+
+registry.category("web_tour.tours").add("test_guest_count_not_asked_on_other_device", {
+    steps: () =>
+        [
+            Chrome.startPoS(),
+            Dialog.confirm("Open Register"),
+            FloorScreen.clickTable("5"),
+            ProductScreen.orderlineIsToOrder("Coca-Cola"),
+            // The guest count was already entered on the device that created the order.
+            Dialog.isNot(),
+            ProductScreen.guestNumberIs("6"),
         ].flat(),
 });

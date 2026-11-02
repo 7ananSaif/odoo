@@ -1,20 +1,20 @@
 import { useNativeDraggable } from "@html_editor/utils/drag_and_drop";
 import { childNodeIndex, leftPos, nodeSize, rightPos } from "@html_editor/utils/position";
-import { xml } from "@odoo/owl";
 import { Plugin } from "../plugin";
 import { closestElement } from "../utils/dom_traversal";
-import { _t } from "@web/core/l10n/translation";
-import { escape } from "@web/core/utils/strings";
 import { baseContainerGlobalSelector } from "@html_editor/utils/base_container";
 import { getDeepestPosition, isContentEditable } from "@html_editor/utils/dom_info";
+import { removeStyle } from "@html_editor/utils/dom";
 
 /** @typedef {import("plugins").CSSSelector} CSSSelector */
 
 /**
  * @typedef {CSSSelector[]} move_node_blacklist_selectors
  * @typedef {CSSSelector[]} move_node_whitelist_selectors
- * @typedef {((movableElement: HTMLElement) => void)[]} set_movable_element_handlers
- * @typedef {(() => void)[]} unset_movable_element_handlers
+ * @typedef {((position: {top:number, left:number}, movableElement: HTMLElement)
+ *   => {top:number, left:number})[]} move_widget_position_processors
+ * @typedef {((movableElement: HTMLElement) => void)[]} on_movable_element_set_handlers
+ * @typedef {(() => void)[]} on_will_unset_movable_element_handlers
  */
 
 const WIDGET_CONTAINER_WIDTH = 25;
@@ -27,7 +27,7 @@ export class MoveNodePlugin extends Plugin {
     static dependencies = ["baseContainer", "selection", "history", "position", "localOverlay"];
     /** @type {import("plugins").EditorResources} */
     resources = {
-        layout_geometry_change_handlers: () => {
+        on_layout_geometry_change_handlers: () => {
             if (this.currentMovableElement) {
                 this.setMovableElement(this.currentMovableElement);
             }
@@ -46,10 +46,10 @@ export class MoveNodePlugin extends Plugin {
 
         this.elementHookMap = new Map();
 
-        this.addDomListener(this.editable, "mousemove", this.onMousemove, true);
+        this.addDomListener(this.editable, "mousemove", this.onMousemove, true, true);
         this.addDomListener(this.editable, "touchmove", this.onMousemove, true);
         this.addDomListener(this.document, "keydown", this.onDocumentKeydown, true);
-        this.addDomListener(this.document, "mousemove", this.onDocumentMousemove, true);
+        this.addDomListener(this.document, "mousemove", this.onDocumentMousemove, true, true);
         this.addDomListener(this.document, "touchmove", this.onDocumentMousemove, true);
 
         // This container help to add zone into which the mouse can activate the move widget.
@@ -122,12 +122,19 @@ export class MoveNodePlugin extends Plugin {
         }
     }
     updateHooks() {
+        const isRTL = this.config.direction === "rtl";
         const editableStyles = getComputedStyle(this.editable);
         this.editableRect = this.editable.getBoundingClientRect();
-        const paddingLeft = parseInt(editableStyles.paddingLeft, 10) || 0;
-        this.editableRect.x = this.editableRect.x + paddingLeft - (WIDGET_CONTAINER_WIDTH + 5);
-        this.editableRect.width =
-            this.editableRect.width - paddingLeft + (WIDGET_CONTAINER_WIDTH + 5);
+        if (isRTL) {
+            const paddingRight = parseInt(editableStyles.paddingRight, 10) || 0;
+            this.editableRect.width =
+                this.editableRect.width - paddingRight + (WIDGET_CONTAINER_WIDTH + 5);
+        } else {
+            const paddingLeft = parseInt(editableStyles.paddingLeft, 10) || 0;
+            this.editableRect.x = this.editableRect.x + paddingLeft - (WIDGET_CONTAINER_WIDTH + 5);
+            this.editableRect.width =
+                this.editableRect.width - paddingLeft + (WIDGET_CONTAINER_WIDTH + 5);
+        }
         const containerRect = this.widgetHookContainer.getBoundingClientRect();
         const elements = this.getMovableElements();
 
@@ -137,7 +144,7 @@ export class MoveNodePlugin extends Plugin {
             elementsToGarbageCollect.delete(element);
             let hookElement = this.elementHookMap.get(element);
             if (!hookElement) {
-                hookElement = document.createElement("div");
+                hookElement = this.dependencies.localOverlay.createElement("div");
                 this.elementHookMap.set(element, hookElement);
                 hookElement.classList.add("oe-dropzone-hook");
                 hookElement.addEventListener("mouseenter", () => {
@@ -181,7 +188,9 @@ export class MoveNodePlugin extends Plugin {
             let hookBox;
             if (element.tagName === "HR") {
                 hookBox = new DOMRect(
-                    elementRect.x - containerRect.left - WIDGET_CONTAINER_WIDTH,
+                    isRTL
+                        ? elementRect.x - containerRect.left
+                        : elementRect.x - containerRect.left - WIDGET_CONTAINER_WIDTH,
                     elementRect.y - containerRect.top - marginTop,
                     elementRect.width + WIDGET_CONTAINER_WIDTH,
                     elementRect.height + marginTop + marginBottom
@@ -197,7 +206,9 @@ export class MoveNodePlugin extends Plugin {
                 );
             } else {
                 hookBox = new DOMRect(
-                    elementRect.x - containerRect.left - WIDGET_CONTAINER_WIDTH,
+                    isRTL
+                        ? elementRect.right - containerRect.left
+                        : elementRect.x - containerRect.left - WIDGET_CONTAINER_WIDTH,
                     elementRect.y - containerRect.top - marginTop,
                     WIDGET_CONTAINER_WIDTH,
                     elementRect.height + marginTop + marginBottom
@@ -246,29 +257,54 @@ export class MoveNodePlugin extends Plugin {
         }
         return elems;
     }
-    getDroppableElements(draggableNode) {
+    getDroppableElements(draggableNodes) {
         return this.getMovableElements().filter(
-            (node) => !closestElement(node.parentElement, (n) => n === draggableNode)
+            (node) => !closestElement(node.parentElement, (n) => draggableNodes.includes(n))
         );
     }
     setMovableElement(movableElement) {
         this.removeMoveWidget();
         this.currentMovableElement = movableElement;
-        this.dispatchTo("set_movable_element_handlers", movableElement);
+        this.trigger("on_movable_element_set_handlers", movableElement);
 
+        const isRTL = this.config.direction === "rtl";
         const containerRect = this.widgetContainer.getBoundingClientRect();
         const anchorBlockRect = this.currentMovableElement.getBoundingClientRect();
-        const anchorX =
-            this.currentMovableElement.tagName === "LI"
-                ? anchorBlockRect.x - WIDGET_MOVE_SIZE // Prevent overlap bullets.
-                : anchorBlockRect.x;
+        const anchorX = isRTL
+            ? this.currentMovableElement.tagName === "LI"
+                ? anchorBlockRect.right + WIDGET_MOVE_SIZE // Prevent overlap bullets.
+                : anchorBlockRect.right
+            : this.currentMovableElement.tagName === "LI"
+            ? anchorBlockRect.x - WIDGET_MOVE_SIZE // Prevent overlap bullets.
+            : anchorBlockRect.x;
         let anchorY = anchorBlockRect.y;
         if (this.currentMovableElement.tagName.match(/H[1-6]/)) {
             anchorY += (anchorBlockRect.height - WIDGET_MOVE_SIZE) / 2;
         }
 
-        this.moveWidget = this.document.createElement("div");
-        this.moveWidget.className = "oe-sidewidget-move oi oi-draggable";
+        this.moveWidget = this.dependencies.localOverlay.createElement("div");
+        this.moveWidget.className = "oe-sidewidget-move oi";
+        this.moveWidget.dataset.icon = "drag_indicator";
+        const formSheet = this.widgetContainer.closest(".o_form_sheet");
+        // Calculate moveWidget's left pos in advance to avoid layout trashing
+        let moveWidgetLeftPos = isRTL
+            ? anchorX + WIDGET_CONTAINER_WIDTH - WIDGET_MOVE_SIZE
+            : anchorX - WIDGET_CONTAINER_WIDTH;
+        if (formSheet) {
+            const formSheetRect = formSheet.getBoundingClientRect();
+            if (formSheetRect.left > moveWidgetLeftPos) {
+                this.moveWidget.classList.toggle("oe_movewidget_border", true);
+                // Set moveWidget postion with respect to form sheet border
+                const MOVE_WIDGET_OFFSET_FROM_SHEET_BORDER = 5.5;
+                moveWidgetLeftPos = formSheetRect.left - MOVE_WIDGET_OFFSET_FROM_SHEET_BORDER;
+                // Set ::after element width same as offset so the border
+                // perfectly bridges the gap between the widget and the sheet border.
+                this.moveWidget.style.setProperty(
+                    "--after-element-width",
+                    `${MOVE_WIDGET_OFFSET_FROM_SHEET_BORDER}px`
+                );
+            }
+        }
         this.widgetContainer.append(this.moveWidget);
 
         let moveWidgetOffsetTop = 0;
@@ -277,22 +313,20 @@ export class MoveNodePlugin extends Plugin {
             moveWidgetOffsetTop = parseInt(style.marginTop, 10) || 0;
         }
 
+        const moveWidgetPosition = this.processThrough(
+            "move_widget_position_processors",
+            {
+                top: anchorY - containerRect.y - moveWidgetOffsetTop,
+                left: moveWidgetLeftPos - containerRect.x,
+            },
+            movableElement
+        );
+
         this.moveWidget.style.width = `${WIDGET_MOVE_SIZE}px`;
         this.moveWidget.style.height = `${WIDGET_MOVE_SIZE}px`;
-        this.moveWidget.style.top = `${anchorY - containerRect.y - moveWidgetOffsetTop}px`;
-        this.moveWidget.style.left = `${anchorX - containerRect.x - WIDGET_CONTAINER_WIDTH}px`;
-
-        const dragToMoveTooltip = _t("Drag to move");
-        const clickToSelectTooltip = _t("Click to select");
-        this.services.tooltip.add(this.moveWidget, {
-            template: xml`
-                <div class="o-tooltip tooltip-inner text-start px-3">
-                    ${escape(dragToMoveTooltip)}<br/>
-                    ${escape(clickToSelectTooltip)}
-                </div>`,
-            arrow: true,
-        });
-
+        this.moveWidget.style.top = `${moveWidgetPosition.top}px`;
+        this.moveWidget.style.left = `${moveWidgetPosition.left}px`;
+        this.moveWidget.dataset.tooltipTemplate = `html_editor.MoveNodePluginTooltip`;
         this.addDomListener(this.moveWidget, "click", () => {
             const isNodeContentEditable = isContentEditable(movableElement);
             const [anchorNode, anchorOffset] = isNodeContentEditable
@@ -314,24 +348,57 @@ export class MoveNodePlugin extends Plugin {
             this.smoothScrollOnDrag && this.smoothScrollOnDrag.destroy();
             // TODO: This should be made more generic, one hook for the entire
             // editable with each element handled.
+            let movableElements = [movableElement];
             this.smoothScrollOnDrag = useNativeDraggable(simpleDraggableHook, {
-                ref: { el: this.widgetContainer },
+                ref: () => this.widgetContainer,
                 elements: ".oe-sidewidget-move",
-                onDragStart: () => this.startDropzones(movableElement, containerRect),
-                onDragEnd: () => this._stopDropzones(movableElement),
+                onDragStart: () => this.startDropzones(movableElements, containerRect),
+                onDragEnd: () => this._stopDropzones(movableElements),
                 helper: () => {
-                    const container =
-                        movableElement.tagName === "LI"
-                            ? movableElement.parentElement.cloneNode(false)
-                            : document.createElement("div");
-                    if (container.tagName === "OL") {
-                        const originalIndex = childNodeIndex(movableElement) + 1;
-                        container.setAttribute("start", originalIndex);
+                    const selection = this.dependencies.selection.getEditableSelection();
+                    const targetedBlocks = this.getMovableElements().filter(
+                        (el) =>
+                            selection.commonAncestorContainer.contains(el) &&
+                            selection.intersectsNode(el)
+                    );
+                    if (targetedBlocks.includes(movableElement)) {
+                        movableElements = targetedBlocks.filter(
+                            // Exclude nested movable elements
+                            (el, _, arr) =>
+                                !closestElement(el.parentElement, (n) => arr.includes(n))
+                        );
                     }
-                    container.append(movableElement.cloneNode(true));
-                    const style = getComputedStyle(movableElement);
-                    container.style.height = style.height;
-                    container.style.width = style.width;
+                    const container = this.dependencies.localOverlay.createElement("div");
+                    let totalHeight = 0;
+                    // Group consecutive LI elements under their parent list
+                    const processedLists = new Set();
+                    for (const el of movableElements) {
+                        if (el.tagName === "LI") {
+                            const parentList = el.parentElement;
+                            if (processedLists.has(parentList)) {
+                                continue;
+                            }
+                            processedLists.add(parentList);
+                            const selectedItems = movableElements.filter(
+                                (e) => e.tagName === "LI" && e.parentElement === parentList
+                            );
+                            const listClone = parentList.cloneNode(false);
+                            if (parentList.tagName === "OL") {
+                                const firstSelectedIndex = childNodeIndex(selectedItems[0]) + 1;
+                                listClone.setAttribute("start", firstSelectedIndex);
+                            }
+                            for (const item of selectedItems) {
+                                listClone.append(item.cloneNode(true));
+                                totalHeight += item.getBoundingClientRect().height;
+                            }
+                            container.append(listClone);
+                        } else {
+                            container.append(el.cloneNode(true));
+                            totalHeight += el.getBoundingClientRect().height;
+                        }
+                    }
+                    container.style.height = `${totalHeight}px`;
+                    container.style.maxWidth = `${this.editable.offsetWidth}px`;
                     container.style.paddingLeft = "25px";
                     container.style.opacity = "0.4";
                     this.dragHelperContainer.append(container);
@@ -341,14 +408,14 @@ export class MoveNodePlugin extends Plugin {
         }
     }
     removeMoveWidget() {
-        this.dispatchTo("unset_movable_element_handlers");
+        this.trigger("on_will_unset_movable_element_handlers");
         this.moveWidget?.remove();
         this.moveWidget = undefined;
         this.currentMovableElement = undefined;
     }
-    startDropzones(movableElement, containerRect, directions = ["north", "south"]) {
+    startDropzones(movableElements, containerRect, directions = ["north", "south"]) {
         this.removeMoveWidget();
-        const elements = this.getDroppableElements(movableElement);
+        const elements = this.getDroppableElements(movableElements);
 
         this.dropzonesContainer.replaceChildren();
         this.editable.classList.add("oe-editor-dragging");
@@ -361,8 +428,11 @@ export class MoveNodePlugin extends Plugin {
             const marginLeft = parseInt(style.marginLeft, 10);
             const marginRight = parseInt(style.marginRight, 10);
 
+            const isRTL = this.config.direction === "rtl";
             const dropzoneRect = new DOMRect(
-                originalRect.left - marginLeft - WIDGET_CONTAINER_WIDTH,
+                isRTL
+                    ? originalRect.left - marginLeft
+                    : originalRect.left - marginLeft - WIDGET_CONTAINER_WIDTH,
                 originalRect.top - marginTop,
                 originalRect.width + marginLeft + marginRight + WIDGET_CONTAINER_WIDTH,
                 originalRect.height + marginTop + marginBottom
@@ -374,7 +444,7 @@ export class MoveNodePlugin extends Plugin {
                 originalRect.height + marginTop + marginBottom
             );
 
-            const dropzoneBox = document.createElement("div");
+            const dropzoneBox = this.dependencies.localOverlay.createElement("div");
             dropzoneBox.className = `oe-dropzone-box`;
             dropzoneBox.style.top = `${dropzoneRect.top - containerRect.top}px`;
             dropzoneBox.style.left =
@@ -384,7 +454,7 @@ export class MoveNodePlugin extends Plugin {
             dropzoneBox.style.width = `${dropzoneRect.width}px`;
             dropzoneBox.style.height = `${dropzoneRect.height}px`;
 
-            const dropzoneHintBox = document.createElement("div");
+            const dropzoneHintBox = this.dependencies.localOverlay.createElement("div");
             dropzoneHintBox.className = `oe-dropzone-box`;
             dropzoneHintBox.style.top = `${dropzoneHintRect.top - containerRect.top}px`;
             dropzoneHintBox.style.left = `${dropzoneHintRect.left - containerRect.left}px`;
@@ -393,7 +463,7 @@ export class MoveNodePlugin extends Plugin {
 
             const sideElements = {};
             for (const direction of directions) {
-                const sideElement = document.createElement("div");
+                const sideElement = this.dependencies.localOverlay.createElement("div");
                 sideElement.className = `oe-dropzone-box-side oe-dropzone-box-side-${direction}`;
                 sideElements[direction] = sideElement;
                 dropzoneBox.append(sideElement);
@@ -401,7 +471,7 @@ export class MoveNodePlugin extends Plugin {
                     this._currentZone = [direction];
 
                     removeDropHint();
-                    this._currentDropHint = document.createElement("div");
+                    this._currentDropHint = this.dependencies.localOverlay.createElement("div");
                     this._currentDropHint.className = `oe-current-drop-hint`;
                     const currentDropHintSize = 4;
                     const currentDropHintSizeHalf = currentDropHintSize / 2;
@@ -449,7 +519,7 @@ export class MoveNodePlugin extends Plugin {
             this.dropzoneHintContainer.append(dropzoneHintBox);
         }
     }
-    _stopDropzones(movableElement) {
+    _stopDropzones(movableElements) {
         this.editable.classList.remove("oe-editor-dragging");
         this.dropzonesContainer.replaceChildren();
         this.dropzoneHintContainer.replaceChildren();
@@ -458,51 +528,58 @@ export class MoveNodePlugin extends Plugin {
             const cursors = this.dependencies.selection.preserveSelection();
             const [position, focusElelement] = this._currentDropHintElementPosition;
             this._currentDropHintElementPosition = undefined;
-            const previousParent = movableElement.parentElement;
+            const previousParents = new Set();
 
             const isFocusInsideList = ["UL", "OL"].includes(focusElelement?.parentElement?.tagName);
-            if (movableElement.tagName === "LI" && !isFocusInsideList) {
-                // If LI is moved outside a list, wrap it in UL/OL (previous parent)
-                const wrapperList = previousParent.cloneNode(false);
-                wrapperList.appendChild(movableElement);
-                movableElement = wrapperList;
-            } else if (movableElement.tagName !== "LI" && isFocusInsideList) {
-                // If non-LI element is moved into a list, wrap it in a LI
-                const wrapperLI = this.document.createElement("LI");
-                wrapperLI.appendChild(movableElement);
-                movableElement = wrapperLI;
-            }
-            if (position === "top") {
-                focusElelement.before(movableElement);
-            } else if (position === "bottom") {
-                focusElelement.after(movableElement);
-            }
-            if (previousParent.innerHTML.trim() === "") {
-                if (["UL", "OL"].includes(previousParent.tagName)) {
-                    previousParent.remove();
-                } else {
-                    const baseContainer = this.dependencies.baseContainer.createBaseContainer();
-                    const br = document.createElement("br");
-                    baseContainer.append(br);
-                    previousParent.append(baseContainer);
+            for (const i in movableElements) {
+                if (movableElements[i].tagName === "LI") {
+                    // If LI is moved outside a list, wrap it in UL/OL (previous parent)
+                    const previousParent = movableElements[i].parentElement;
+                    previousParents.add(previousParent);
+                    if (!isFocusInsideList) {
+                        const wrapperList = previousParent.cloneNode(false);
+                        wrapperList.appendChild(movableElements[i]);
+                        movableElements[i] = wrapperList;
+                    }
+                } else if (movableElements[i].tagName !== "LI" && isFocusInsideList) {
+                    // If non-LI element is moved into a list, wrap it in a LI
+                    const wrapperLI = this.document.createElement("LI");
+                    wrapperLI.appendChild(movableElements[i]);
+                    movableElements[i] = wrapperLI;
                 }
             }
-            // Preserve the selection if it was inside the moved element,
-            // otherwise place the caret at the start of the moved element.
-            const isSelectionInsideMovedNode =
-                movableElement.contains(cursors.anchor.node) &&
-                movableElement.contains(cursors.focus.node);
-            if (isSelectionInsideMovedNode) {
+            if (position === "top") {
+                focusElelement.before(...movableElements);
+            } else if (position === "bottom") {
+                focusElelement.after(...movableElements);
+            }
+            for (const previousParent of previousParents) {
+                if (previousParent.innerHTML.trim() === "") {
+                    if (["UL", "OL"].includes(previousParent.tagName)) {
+                        previousParent.remove();
+                    } else {
+                        const baseContainer = this.dependencies.baseContainer.createBaseContainer();
+                        previousParent.append(baseContainer);
+                    }
+                }
+            }
+            // Preserve the selection if it was inside the moved elements,
+            // otherwise place the caret at the start of the first moved
+            // element.
+            const isSelectionInsideMovedNodes =
+                movableElements.some((el) => el.contains(cursors.anchor.node)) &&
+                movableElements.some((el) => el.contains(cursors.focus.node));
+            if (isSelectionInsideMovedNodes) {
                 cursors.restore();
             } else {
-                const selectionPosition = getDeepestPosition(movableElement, 0);
+                const selectionPosition = getDeepestPosition(movableElements[0], 0);
                 this.dependencies.selection.setSelection({
                     anchorNode: selectionPosition[0],
                     anchorOffset: selectionPosition[1],
                 });
             }
             this.dependencies.selection.focusEditable();
-            this.dependencies.history.addStep();
+            this.dependencies.history.commit();
         }
     }
     onMousemove(e) {
@@ -568,7 +645,7 @@ const simpleDraggableHook = {
     onDragEnd({ ctx }) {
         ctx.current.element.remove();
         if (document.body.style.cursor === "grabbing") {
-            document.body.style.cursor = "";
+            removeStyle(document.body, "cursor");
         }
         return ctx.current;
     },

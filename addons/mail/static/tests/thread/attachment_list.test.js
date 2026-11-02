@@ -2,16 +2,18 @@ import {
     click,
     contains,
     defineMailModels,
+    inputFiles,
     onRpcBefore,
     openDiscuss,
+    openFormView,
     start,
     startServer,
 } from "@mail/../tests/mail_test_helpers";
 import { describe, expect, test } from "@odoo/hoot";
-import { mockUserAgent } from "@odoo/hoot-mock";
-import { asyncStep, patchWithCleanup, waitForSteps } from "@web/../tests/web_test_helpers";
+import { mockFetch, mockUserAgent } from "@odoo/hoot-mock";
+import { patchWithCleanup, serverState } from "@web/../tests/web_test_helpers";
 
-import { download } from "@web/core/network/download";
+import { downloadFile } from "@web/core/network/download";
 import { getOrigin } from "@web/core/utils/urls";
 import { isMobileOS } from "@web/core/browser/feature_detection";
 
@@ -66,7 +68,7 @@ test("layout with card details and filename and extension", async () => {
     });
     await start();
     await openDiscuss(channelId);
-    await contains(".o-mail-AttachmentContainer", { text: "test.txt" });
+    await contains(".o-mail-AttachmentCard-info:text('test.txt')");
 });
 
 test("link-type attachment should have open button instead of download button", async () => {
@@ -97,8 +99,8 @@ test("link-type attachment should have open button instead of download button", 
     await start();
     await openDiscuss(channelId);
     await contains(".o-mail-AttachmentCard", { count: 2 });
-    await contains(".o-mail-AttachmentCard:eq(0)", { text: "url.example" });
-    await contains(".o-mail-AttachmentCard:eq(1)", { text: "test.txt" });
+    await contains(".o-mail-AttachmentCard:eq(0):text('url.example')");
+    await contains(".o-mail-AttachmentCard:eq(1):text('test.txt')");
     await contains(
         ".o-mail-AttachmentContainer:eq(0) .o-mail-AttachmentButtons a[title='Open Link']"
     );
@@ -129,7 +131,7 @@ test("clicking on the delete attachment button multiple times should do the rpc 
         res_id: channelId,
         message_type: "comment",
     });
-    onRpcBefore("/mail/attachment/delete", () => asyncStep("attachment_unlink"));
+    onRpcBefore("/mail/attachment/delete", () => expect.step("attachment_unlink"));
     await start();
     await openDiscuss(channelId);
     await click(".o-mail-Attachment-unlink");
@@ -137,7 +139,36 @@ test("clicking on the delete attachment button multiple times should do the rpc 
     await click(".modal-footer .btn-primary");
     await click(".modal-footer .btn-primary");
     await contains(".o-mail-Attachment-unlink", { count: 0 });
-    await waitForSteps(["attachment_unlink"]); // The unlink method must be called once
+    await expect.waitForSteps(["attachment_unlink"]); // The unlink method must be called once
+});
+
+test("clicking on the delete attachment button multiple times in composer should do the rpc only once", async () => {
+    const pyEnv = await startServer();
+    const channelId = pyEnv["discuss.channel"].create({
+        channel_type: "channel",
+        name: "channel1",
+    });
+    const text = new File(["hello, world"], "text.txt", { type: "text/plain" });
+    let resolveDelete;
+    const deletePromise = new Promise((resolve) => {
+        resolveDelete = resolve;
+    });
+    onRpcBefore("/mail/attachment/delete", async () => {
+        expect.step("attachment_unlink");
+        await deletePromise;
+    });
+    await start();
+    await openDiscuss(channelId);
+    await inputFiles(".o-mail-Composer .o_input_file", [text]);
+    await contains(
+        ".o-mail-Composer-footer .o-mail-AttachmentList .o-mail-AttachmentContainer:not(.o-isUploading):contains(text.txt)"
+    );
+    await click(".o-mail-Attachment-unlink");
+    await click(".o-mail-Attachment-unlink");
+    resolveDelete();
+    // Let the pending deletion settle, so any extra rpc has been registered.
+    await contains(".o-mail-Attachment-unlink", { count: 0 });
+    await expect.waitForSteps(["attachment_unlink"]); // The unlink method must be called once
 });
 
 test("view attachment", async () => {
@@ -164,6 +195,39 @@ test("view attachment", async () => {
     await contains(".o-FileViewer");
 });
 
+test("triggers GET on download attachment from the file viewer", async () => {
+    const pyEnv = await startServer();
+    const channelId = pyEnv["discuss.channel"].create({
+        channel_type: "channel",
+        name: "channel1",
+    });
+    const attachmentId = pyEnv["ir.attachment"].create({
+        name: "test.png",
+        mimetype: "image/png",
+        res_id: channelId,
+        res_model: "discuss.channel",
+    });
+    pyEnv["mail.message"].create({
+        attachment_ids: [attachmentId],
+        body: "<p>Test</p>",
+        model: "discuss.channel",
+        res_id: channelId,
+        message_type: "comment",
+    });
+    await start();
+    await openDiscuss(channelId);
+    await click(".o-mail-AttachmentImage");
+    await contains(".o-FileViewer");
+    mockFetch((input, init) => {
+        expect.step(`${init.method} ${new URL(input, getOrigin()).pathname}`);
+        return new Blob(["test"], { type: "image/png" });
+    });
+    await click(".o-FileViewer-header [title='Download']");
+    // Attachment routes of discuss channels only allow GET, a POST download
+    // would be rejected with "405 Method Not Allowed".
+    await expect.waitForSteps([`GET /web/image/${attachmentId}`]);
+});
+
 test("can view pdf url", async () => {
     const pyEnv = await startServer();
     const channelId = pyEnv["discuss.channel"].create({
@@ -185,11 +249,11 @@ test("can view pdf url", async () => {
     });
     await start();
     await openDiscuss(channelId);
-    await click(".o-mail-AttachmentContainer", { text: "url.pdf.example" });
+    await click(".o-mail-AttachmentCard-info:text('url.pdf.example')");
     await contains(".o-FileViewer");
     await contains(
         `iframe.o-FileViewer-view[data-src="/web/static/lib/pdfjs/web/viewer.html?file=${encodeURIComponent(
-            `${getOrigin()}/web/content/${attachmentId}?filename=url.pdf.example`
+            `${getOrigin()}/web/content/${attachmentId}?access_token=${attachmentId}&filename=url.pdf.example`
         )}#pagemode=none"]`
     );
 });
@@ -373,8 +437,8 @@ test("should not view attachment from click on non-viewable attachment in list c
     await start();
     await openDiscuss(channelId);
     await contains(".o-mail-AttachmentContainer[title='test.png'].o-viewable");
-    await contains(".o-mail-AttachmentContainer:not(.o-viewable)", { text: "test.odt" });
-    await click(".o-mail-AttachmentContainer", { text: "test.odt" });
+    await contains(".o-mail-AttachmentContainer:not(.o-viewable):has(:text('test.odt'))");
+    await click(".o-mail-AttachmentContainer:has(:text('test.odt'))");
     // weak test, no guarantee that we waited long enough for the potential file viewer to show
     await contains(".o-FileViewer", { count: 0 });
     await click(".o-mail-AttachmentContainer[title='test.png']");
@@ -403,7 +467,7 @@ test("img file has proper src in discuss.channel", async () => {
     await start();
     await openDiscuss(channelId);
     await contains(
-        `.o-mail-AttachmentContainer[title='test.png'] img[data-src*='${getOrigin()}/web/image/${attachmentId}?filename=test.png']`
+        `.o-mail-AttachmentContainer[title='test.png'] img[data-src*='${getOrigin()}/web/image/${attachmentId}?access_token=${attachmentId}&filename=test.png']`
     );
 });
 
@@ -427,14 +491,16 @@ test("download url of non-viewable binary file", async () => {
     });
     await start();
     await openDiscuss(channelId);
-    await contains(".fa-download");
+    await contains("[data-icon='download']");
 
-    patchWithCleanup(download, {
-        _download: (options) => {
-            expect(options.url).toBe(`${getOrigin()}/web/content/${attachmentId}?filename=test.o&download=true`);
+    patchWithCleanup(downloadFile, {
+        _download: (data) => {
+            expect(data).toBe(
+                `${getOrigin()}/web/content/${attachmentId}?access_token=${attachmentId}&filename=test.o&download=true`
+            );
         },
     });
-    await click(".fa-download");
+    await click("[data-icon='download']");
 });
 
 test("check actions in mobile view", async () => {
@@ -459,6 +525,49 @@ test("check actions in mobile view", async () => {
     mockUserAgent("android");
     expect(isMobileOS()).toBe(true);
     await click(".o-mail-AttachmentContainer [title='Actions']");
-    await contains(".dropdown-item", { text: "Remove" });
-    await contains(".dropdown-item", { text: "Download" });
+    await contains(".dropdown-item:text('Remove')");
+    await contains(".dropdown-item:text('Download')");
+});
+
+test("view and play audio attachment", async () => {
+    const pyEnv = await startServer();
+    const channelId = pyEnv["discuss.channel"].create({
+        channel_type: "channel",
+        name: "channel1",
+    });
+    const attachmentId = pyEnv["ir.attachment"].create({
+        name: "test.ogg",
+        mimetype: "audio/ogg",
+    });
+    pyEnv["mail.message"].create({
+        attachment_ids: [attachmentId],
+        body: "<p>Test</p>",
+        model: "discuss.channel",
+        res_id: channelId,
+        message_type: "comment",
+    });
+    await start();
+    await openDiscuss(channelId);
+    await contains(".o-mail-AttachmentCard");
+    await click(".o-mail-AttachmentCard");
+    await contains(".o-FileViewer audio");
+});
+
+test("attachment inlined in the body is not listed", async () => {
+    const pyEnv = await startServer();
+    const [inlinedAttachmentId, attachmentId] = pyEnv["ir.attachment"].create([
+        { mimetype: "image/png", name: "inlined.png" },
+        { mimetype: "image/png", name: "listed.png" },
+    ]);
+    pyEnv["mail.message"].create({
+        attachment_ids: [inlinedAttachmentId, attachmentId],
+        body: `<p><img data-attachment-id="${inlinedAttachmentId}"></p>`,
+        message_type: "comment",
+        model: "res.partner",
+        res_id: serverState.partnerId,
+    });
+    await start();
+    await openFormView("res.partner", serverState.partnerId);
+    await contains(".o-mail-Message .o-mail-AttachmentContainer[title='listed.png']");
+    await contains(".o-mail-Message .o-mail-AttachmentContainer");
 });

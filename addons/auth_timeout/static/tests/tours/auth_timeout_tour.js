@@ -67,14 +67,13 @@ const assertNoRPC = {
     trigger: "body",
     run: async function () {
         await retryUntil(
-            (result) => result?.error?.data?.name === "odoo.addons.auth_timeout.models.ir_http.CheckIdentityException",
+            (result) => result?.error?.data?.name === "odoo.http.session.CheckIdentityException",
             "RPC was allowed unexpectedly",
         );
     },
 };
 
 registry.category("web_tour.tours").add("auth_timeout_tour_lock_timeout_inactivity", {
-    url: "/odoo",
     steps: () => [
         {
             trigger: "body",
@@ -82,7 +81,7 @@ registry.category("web_tour.tours").add("auth_timeout_tour_lock_timeout_inactivi
                 const oldRpc = rpc._rpc;
                 rpc._rpc = function (...args) {
                     return oldRpc(...args).catch((err) => {
-                        if (err.data?.name === "odoo.addons.auth_timeout.models.ir_http.CheckIdentityException") {
+                        if (err.data?.name === "odoo.http.session.CheckIdentityException") {
                             return new Promise(() => {});
                         } else {
                             throw err;
@@ -140,13 +139,15 @@ registry.category("web_tour.tours").add("auth_timeout_tour_lock_timeout_inactivi
             trigger: "form#webauthn button",
             run: "click",
         },
+        {
+            trigger: "body:not(:has(form.o_check_identity_form))",
+        },
         unpatchPasskey,
         assertRPC,
     ],
 });
 
 registry.category("web_tour.tours").add("auth_timeout_tour_lock_timeout_inactivity_2fa", {
-    url: "/odoo",
     steps: () => [
         // Check identity using a passkey, which is 2FA by itself, and check an RPC call works
         assertCheckIdentityForm,
@@ -156,6 +157,9 @@ registry.category("web_tour.tours").add("auth_timeout_tour_lock_timeout_inactivi
             content: "Click Use passkey",
             trigger: "form#webauthn button",
             run: "click",
+        },
+        {
+            trigger: "body:not(:has(form.o_check_identity_form))",
         },
         unpatchPasskey,
         assertRPC,

@@ -68,6 +68,9 @@
                 <search position="attributes">
                     <attribute name="string">Tasks Analysis</attribute>
                 </search>
+                <filter name="groupby_priority" position="before">
+                    <filter string="Creation Date" name="create_date" context="{'group_by': 'create_date'}"/>
+                </filter>
             </field>
         </record>
 
@@ -75,7 +78,7 @@
             <field name="name">Tasks Analysis</field>
             <field name="res_model">report.project.task.user</field>
             <field name="path">tasks-analysis</field>
-            <field name="domain">[('has_template_ancestor', '=', False), ('project_id.is_template', '=', False)]</field>
+            <field name="domain">[('has_template_ancestor', '=', False), ('has_project_template', '=', False)]</field>
             <field name="view_mode">graph,pivot</field>
             <field name="search_view_id" ref="view_task_project_user_search"/>
             <field name="context">{'group_by': [], 'graph_measure': '__count__'}</field>

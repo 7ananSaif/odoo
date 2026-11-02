@@ -25,7 +25,7 @@
                     <sheet>
                     <div class="oe_button_box" name="button_box">
                         <button class="oe_stat_button" name="action_open_related_taxes"
-                                type="object" icon="fa-bars">
+                                type="object" icon="menu">
                             <div class="o_stat_info">
                                 <span class="o_stat_text">
                                     Taxes
@@ -55,14 +55,14 @@
                                 options="{'no_open': True, 'no_create': True}"/>
                             <field name="state_ids" widget="many2many_tags" domain="[('country_id', '=', country_id)]"
                                 invisible="(not auto_apply and not foreign_vat) or not country_id or states_count == 0"/>
-                            <label for="zip_from" string="Zip Range"
-                                invisible="not auto_apply or not country_id"/>
-                            <div invisible="not auto_apply or not country_id">
-                                <span> From </span>
-                                <field name="zip_from" class="oe_inline"/>
-                                <div class="oe_edit_only"/>
-                                <span> To </span>
-                                <field name="zip_to" class="oe_inline"/>
+                            <label for="zip_from" string="Zip Range"/>
+                            <div class="o_row" invisible="not auto_apply or not country_id">
+                                <div>
+                                    From <field name="zip_from" class="oe_inline"/>
+                                </div>
+                                <div>
+                                    To <field name="zip_to" class="oe_inline"/>
+                                </div>
                             </div>
                         </group>
                     </group>
@@ -79,8 +79,10 @@
                                 </form>
                             </field>
                         </page>
+                        <page string="Legal Notes" name="legal_notes">
+                            <field name="note" placeholder="Note to add on invoices using this Fiscal Position."/>
+                        </page>
                     </notebook>
-                    <field name="note" class="oe-bordered-editor" placeholder="Legal Notes..."/>
                     </sheet>
                 </form>
             </field>
@@ -133,7 +135,7 @@
             <field name="priority" eval="5"/>
             <field name="arch" type="xml">
                 <div name="button_box" position="inside">
-                    <button type="object" class="oe_stat_button" icon="fa-pencil-square-o" name="action_view_partner_invoices"
+                    <button type="object" class="oe_stat_button" icon="edit_square" name="action_view_partner_invoices"
                         groups="account.group_account_invoice,account.group_account_readonly"
                         context="{'default_partner_id': id}">
                         <div class="o_form_field o_stat_info">
@@ -149,26 +151,32 @@
                         type="action"
                         name="%(account.res_partner_action_supplier_bills)d"
                         groups="account.group_account_invoice"
-                        icon="fa-pencil-square-o" help="Vendor Bills"
+                        icon="edit_square" help="Vendor Bills"
                         invisible="supplier_invoice_count == 0"
                     >
                         <field string="Vendor Bills" name="supplier_invoice_count" widget="statinfo"/>
                     </button>
                 </div>
 
-                <field name="vat" position="before">
-                    <field name="partner_vat_placeholder" invisible="1"/> <!-- Needed for the placeholder widget -->
-                </field>
+                <label for="vat" position="before">
+                    <field name="partner_vat_placeholder" invisible="1"/>
+                    <field name="country_code" invisible="1"/>
+                </label>
                 <field name="vat" position="attributes">
                     <attribute name="options">{'placeholder_field': 'partner_vat_placeholder'}</attribute>
+                    <attribute name="placeholder"></attribute>
                 </field>
+                <div id="vat_div" position="attributes">
+                    <attribute name="class">o_outlined o_row d-flex</attribute>
+                </div>
 
-                <field name="company_registry" position="before">
-                    <field name="partner_company_registry_placeholder" invisible="1"/> <!-- Needed for the placeholder widget -->
-                </field>
-                <field name="company_registry" position="attributes">
-                    <attribute name="options">{'placeholder_field': 'partner_company_registry_placeholder'}</attribute>
-                </field>
+                <xpath expr=".//page[@name='sales_purchases']//group[@name='misc']" position="inside">
+                    <field name="global_location_number" invisible="type != 'delivery'"/>
+                </xpath>
+                <xpath expr=".//page[@name='contact_addresses']/field[@name='child_ids']/form//field[@name='company_id']" position="after">
+                    <field name="global_location_number" invisible="type != 'delivery'"/>
+                </xpath>
+
             </field>
         </record>
 
@@ -193,17 +201,10 @@
             <field name="name">res.partner.property.form.inherit</field>
             <field name="model">res.partner</field>
             <field name="priority">2</field>
-            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="inherit_id" ref="product.view_partner_property_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='company_id']" position="after">
                     <field name="fiscal_country_codes" invisible="1"/>
-                </xpath>
-                <xpath expr="//sheet" position="before">
-                    <div groups="account.group_account_invoice,account.group_account_readonly" class="alert alert-warning" role="alert"
-                         invisible="not duplicate_bank_partner_ids">
-                        <span>One or more Bank Accounts set on this partner are also used by others:</span>
-                        <field name="duplicate_bank_partner_ids" widget="x2many_buttons" string="Partners with same bank"/>
-                    </div>
                 </xpath>
                 <page name="sales_purchases" position="after">
                     <page string="Invoicing" name="accounting" invisible="not is_company and parent_id" groups="account.group_account_invoice,account.group_account_readonly">
@@ -214,9 +215,10 @@
                                        context="{'default_partner_id': id}"
                                        domain="[('partner_id','=', id)]"
                                        widget="many2many_tags_banks"
-                                       options="{'color_field': 'color', 'allow_out_payment_field': 'allow_out_payment', 'edit_tags': True}"/>
-                                <field name="property_account_receivable_id" required="True" groups="account.group_account_user"/>
-                                <field name="property_account_payable_id" required="True" groups="account.group_account_user"/>
+                                       readonly="not id"
+                                       options="{'color_field': 'color', 'allow_out_payment_field': 'allow_out_payment', 'on_tag_click': 'open_form'}"/>
+                                <field name="property_account_receivable_id" required="True" groups="account.group_account_user" decoration-muted="not property_account_receivable_active"/>
+                                <field name="property_account_payable_id" required="True" groups="account.group_account_user" decoration-muted="not property_account_payable_active"/>
                                 <field name="autopost_bills" groups="account.group_account_user"/>
                                 <field name="ignore_abnormal_invoice_amount" groups="base.group_no_one"/>
                                 <field name="ignore_abnormal_invoice_date" groups="base.group_no_one"/>
@@ -231,6 +233,7 @@
                                        placeholder="XML format"
                                        groups="base.group_no_one"
                                        invisible="not display_invoice_edi_format"/>
+                                <field name="qr_code_method"/>
                                 <field name="invoice_template_pdf_report_id"
                                        invisible="not display_invoice_template_pdf_report_id"
                                        options="{'no_create': True, 'no_edit': True}"/>
@@ -301,6 +304,10 @@
                    <field name="fiscal_country_codes" invisible="1"/>
                    <filter string="Customer Invoices" name="customer" domain="[('customer_rank','>', 0)]"/>
                    <filter string="Vendor Bills" name="supplier" domain="[('supplier_rank','>', 0)]"/>
+                   <separator/>
+                   <filter string="Overdue Invoices"
+                        name="overdue"
+                        domain="[('invoice_ids.invoice_date_due', '&lt;', 'today')]" />
                    <separator/>
                 </xpath>
             </field>

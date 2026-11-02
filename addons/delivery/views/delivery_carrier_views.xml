@@ -5,7 +5,7 @@
         <field name="name">delivery.carrier.list</field>
         <field name="model">delivery.carrier</field>
         <field name="arch" type="xml">
-            <list string="Carrier">
+            <list string="Delivery Method">
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
                 <field name="delivery_type"/>
@@ -19,12 +19,31 @@
         </field>
     </record>
 
+    <record id="view_delivery_carrier_so_list" model="ir.ui.view">
+        <field name="name">delivery.carrier.so.list</field>
+        <field name="model">delivery.carrier</field>
+        <field name="arch" type="xml">
+            <list string="Delivery Method">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="delivery_cost" column_invisible="not context.get('carrier_prices_dumped', False)"/>
+                <field name="delivery_type"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="country_ids" widget="many2many_tags" optional="hide"/>
+                <field name="max_weight" optional="show"/>
+                <field name="max_volume" optional="hide"/>
+                <field name="must_have_tag_ids" widget="many2many_tags" optional="hide"/>
+                <field name="excluded_tag_ids" widget="many2many_tags" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
     <record id="view_delivery_carrier_search" model="ir.ui.view">
         <field name="name">delivery.carrier.search</field>
         <field name="model">delivery.carrier</field>
         <field name="arch" type="xml">
-            <search string="Delivery Carrier">
-                <field name="name" string="Carrier" />
+            <search string="Delivery Method">
+                <field name="name" string="Delivery Method" />
                 <field name="delivery_type"/>
                 <separator/>
                 <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
@@ -39,13 +58,13 @@
         <field name="name">delivery.carrier.form</field>
         <field name="model">delivery.carrier</field>
         <field name="arch" type="xml">
-            <form string="Carrier">
+            <form string="Delivery Method">
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                         <button name="toggle_prod_environment"
                                 invisible="not prod_environment or delivery_type == 'fixed' or delivery_type == 'base_on_rule'"
                                 class="oe_stat_button"
-                                type="object" icon="fa-play">
+                                type="object" icon="play_arrow">
                             <div class="o_stat_info o_field_widget">
                                 <span class="text-success">Production</span>
                                 <span class="o_stat_text">Environment</span>
@@ -55,7 +74,7 @@
                         <button name="toggle_prod_environment"
                                 invisible="prod_environment or delivery_type == 'fixed' or delivery_type == 'base_on_rule'"
                                 class="oe_stat_button"
-                                type="object" icon="fa-stop">
+                                type="object" icon="stop">
                             <div class="o_stat_info o_field_widget">
                                 <span class="o_stat_text o_warning_text fw-bold">Test</span>
                                 <span class="o_stat_text">Environment</span>
@@ -64,7 +83,7 @@
                         <button name="toggle_debug"
                                 invisible="delivery_type == 'fixed' or delivery_type == 'base_on_rule' or debug_logging"
                                 class="oe_stat_button"
-                                type="object" icon="fa-code">
+                                type="object" icon="code">
                             <div class="o_stat_info o_field_widget">
                                 <span class="o_stat_text text-danger">No debug</span>
                             </div>
@@ -72,7 +91,7 @@
                         <button name="toggle_debug"
                                 invisible="delivery_type == 'fixed' or delivery_type == 'base_on_rule' or not debug_logging"
                                 class="oe_stat_button"
-                                type="object" icon="fa-code">
+                                type="object" icon="code">
                             <div class="o_stat_info o_field_widget">
                                 <span class="text-success">Debug requests</span>
                             </div>
@@ -96,7 +115,7 @@
                                 <field name="delivery_type" />
                                 <button string="Install more Providers" name="install_more_provider" type="object" class="oe_link oe_edit_only"/>
                             </div>
-                            <field name="allow_cash_on_delivery"/>
+                            <field name="allow_cash_on_delivery" invisible="not supports_cash_on_delivery"/>
                             <field name="integration_level" widget="radio" invisible="delivery_type == 'fixed' or delivery_type == 'base_on_rule'"/>
                             <field name="company_id" groups="base.group_multi_company" placeholder="Visible to all"/>
                         </group>
@@ -148,7 +167,7 @@
                         <page string="Availability" name="destination">
                             <group col="1">
                                 <p name="availability_description">
-                                    Filling this form allows you to make the shipping method available according to the content of the order or its destination.
+                                    Filling this form allows you to make the delivery method available according to the content of the order or its destination.
                                 </p>
                                 <group>
                                     <group name="country_details" string="Destination">
@@ -192,7 +211,7 @@
                             </group>
                         </page>
                         <page string="Description" name="description">
-                            <field name="carrier_description" placeholder="Shipping method details to be included at bottom sales orders and their confirmation emails. E.g. Instructions for customers to follow."/>
+                            <field name="carrier_description" placeholder="Delivery method details to be included at bottom sales orders and their confirmation emails. E.g. Instructions for customers to follow."/>
                         </page>
                     </notebook>
                 </sheet>
@@ -222,8 +241,9 @@
     </record>
 
     <menuitem id="sale_menu_action_delivery_carrier_form"
+        name="Deliveries"
         action="action_delivery_carrier_form"
-        parent="sale.menu_sales_config"
-        sequence="4"/>
+        parent="sale.menu_sale_config"
+        sequence="25"/>
 
 </odoo>

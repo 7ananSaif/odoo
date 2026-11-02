@@ -8,6 +8,8 @@ from odoo.addons.point_of_sale.tests.common import TestPoSCommon
 @odoo.tests.tagged('post_install', '-at_install')
 class TestPoSSaleMarginReport(TestPoSCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     def setUp(self):
         super(TestPoSSaleMarginReport, self).setUp()
         self.config = self.basic_config
@@ -43,7 +45,7 @@ class TestPoSSaleMarginReport(TestPoSCommon):
         self.assertEqual(reports[0].margin, 100)
 
     def test_pos_sale_margin_report_refund_sign(self):
-        product = self.create_product('Refund Product', self.categ_basic, 150, standard_price=0)
+        product = self.create_product('Refund Product', self.categ_basic, 150, standard_price=75)
 
         self.open_new_session()
         self.env['pos.order'].create({
@@ -56,7 +58,7 @@ class TestPoSSaleMarginReport(TestPoSCommon):
                 'qty': -1.0,
                 'price_subtotal': 150,
                 'price_subtotal_incl': 150,
-                'total_cost': 0,
+                'total_cost': -75,
             })],
             'amount_total': -150.0,
             'amount_tax': 0.0,
@@ -65,4 +67,6 @@ class TestPoSSaleMarginReport(TestPoSCommon):
         })
 
         reports = self.env['sale.report'].sudo().search([('product_id', '=', product.id)], order='id')
-        self.assertEqual(reports[0].margin, -150)
+        self.assertEqual(reports[0].margin, -75)
+        self.assertAlmostEqual(reports[0].margin_percent, 0.5)
+        self.assertEqual(reports[0].purchase_price, -75)

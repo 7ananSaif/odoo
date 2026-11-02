@@ -6,15 +6,15 @@
 # Sergio Zanchetta <primes2h@gmail.com>, 2022
 # Martin Trigaux, 2023
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
-# "Marianna Ciofani (cima)" <cima@odoo.com>, 2025.
+# "Marianna Ciofani (cima)" <cima@odoo.com>, 2025, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-09-23 02:30+0000\n"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-10-19 10:33+0000\n"
 "Last-Translator: \"Marianna Ciofani (cima)\" <cima@odoo.com>\n"
-"Language-Team: Italian <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Italian <https://translate.odoo.com/projects/odoo-20/"
 "base_setup/it/>\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
@@ -22,14 +22,26 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=(n == 1) ? 0 : ((n != 0 && n % 1000000 == "
 "0) ? 1 : 2);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+#: model:ir.module.module,description:base.module_base_setup
 msgid ""
-"<span class=\"fa fa-lg fa-users\" aria-label=\"Number of active users\"/>"
+"\n"
+"This module helps to configure the system at the installation of a new "
+"database.\n"
+"================================================================================\n"
+"\n"
+"Shows you a list of applications features to install from.\n"
+"\n"
 msgstr ""
-"<span class=\"fa fa-lg fa-users\" aria-label=\"Numero di utenti attivi\"/>"
+"\n"
+"Modulo che aiuta a configurare il sistema quando viene installato un nuovo "
+"database.\n"
+"======================================================================================\n"
+"\n"
+"Visualizza un elenco di funzionalità delle applicazioni da installare.\n"
+"\n"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -167,11 +179,6 @@ msgid "Add fun feedback and motivate your employees"
 msgstr "Aggiunge commenti divertenti per motivare i dipendenti"
 
 #. module: base_setup
-#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_mail_plugin
-msgid "Allow integration with the mail plugins"
-msgstr "Permetti l'integrazione con i mail plugin"
-
-#. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_google_calendar
 msgid "Allow the users to synchronize their calendar  with Google Calendar"
 msgstr "Consente agli utenti di sincronizzare i calendari con Google"
@@ -256,15 +263,6 @@ msgstr "Impostazioni di configurazione"
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
 msgid "Configure Document Layout"
 msgstr "Configura struttura documento"
-
-#. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid ""
-"Configure company rules to automatically create SO/PO when one of your "
-"company sells/buys to another of your company."
-msgstr ""
-"Configurazione delle regole aziendali per creare automaticamente OdV/OdA "
-"quando una delle proprie aziende vende/compra da un'altra."
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -362,13 +360,13 @@ msgstr "Geolocalizzazione"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Geolocate your partners"
-msgstr "Geolocalizza i partner"
+msgid "Geolocation"
+msgstr "Geolocalizzazione"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Geolocation"
-msgstr "Geolocalizzazione"
+msgid "Get the latitude and the longitude of your partners"
+msgstr ""
 
 #. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_google_address_autocomplete
@@ -394,9 +392,9 @@ msgid "Import & Export"
 msgstr "Importazione ed esportazione"
 
 #. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Integrate with mail client plugins"
-msgstr "Integrare con i mail client plugin"
+#: model:ir.module.module,shortdesc:base.module_base_setup
+msgid "Initial Setup Tools"
+msgstr "Strumenti per installazione iniziale"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -433,11 +431,6 @@ msgstr "Lingue"
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
 msgid "Layout"
 msgstr "Struttura"
-
-#. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Mail Plugin"
-msgstr "Mail Plugin"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -483,6 +476,11 @@ msgstr "Numero di aziende"
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__language_count
 msgid "Number of Languages"
 msgstr "Numero di lingue"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Number of active users"
+msgstr ""
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -657,51 +655,9 @@ msgstr ""
 msgid "reCAPTCHA"
 msgstr "reCAPTCHA"
 
-#~ msgid "Asterisk (VoIP)"
-#~ msgstr "Asterisk (VoIP)"
-
 #~ msgid ""
-#~ "Automatically generate counterpart documents for orders/invoices between "
-#~ "companies"
+#~ "<span class=\"oi oi-lg oi-filled\" data-icon=\"group\" aria-"
+#~ "label=\"Number of active users\"/>"
 #~ msgstr ""
-#~ "Genera automaticamente i documenti della controparte per ordini/fatture "
-#~ "tra aziende"
-
-#~ msgid ""
-#~ "By default, new users get highest access rights for all installed apps."
-#~ msgstr ""
-#~ "Per impostazione predefinita, i nuovi utenti ottengono i diritti di "
-#~ "accesso più elevati per tutte le app installate."
-
-#~ msgid "Default User Template not found."
-#~ msgstr "Modello utente predefinito non trovato."
-
-#~ msgid "Documentation"
-#~ msgstr "Documentazione"
-
-#~ msgid "Geo Localization"
-#~ msgstr "Geolocalizzazione"
-
-#~ msgid "GeoLocalize your partners"
-#~ msgstr "Geolocalizzazione dei partner"
-
-#~ msgid "Get product pictures using barcode"
-#~ msgstr "Ottieni immagini di prodotti usando il codice a barre"
-
-#~ msgid "Google Calendar"
-#~ msgstr "Calendario Google"
-
-#~ msgid "On Apple Store"
-#~ msgstr "Su Apple Store"
-
-#~ msgid "On Google Play"
-#~ msgstr "Su Google Play"
-
-#~ msgid "Outlook Calendar"
-#~ msgstr "Calendario Outlook"
-
-#~ msgid "Synchronize your calendar with Google Calendar"
-#~ msgstr "Sincronizzazione del calendario con Google Calendar"
-
-#~ msgid "Synchronize your calendar with Outlook"
-#~ msgstr "Sincronizzazione del calendario con Outlook"
+#~ "<span class=\"oi oi-lg oi-filled\" data-icon=\"group\" aria-"
+#~ "label=\"Numero di utenti attivi\"/>"

@@ -16,17 +16,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0beta\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:38+0000\n"
-"PO-Revision-Date: 2025-11-10 13:31+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Estonian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-10-16 17:41+0000\n"
+"PO-Revision-Date: 2026-08-31 19:01+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Estonian <https://translate.odoo.com/projects/odoo-s19-4/"
 "website_hr_recruitment/et/>\n"
 "Language: et\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: website_hr_recruitment
 #. odoo-python
@@ -44,15 +44,14 @@ msgid ""
 msgstr ""
 
 #. module: website_hr_recruitment
-#. odoo-python
-#: code:addons/website_hr_recruitment/controllers/main.py:0
-msgid " In case of issue, contact %(contact_infos)s"
-msgstr " Probleemi korral võtke ühendust %(contact_infos)s"
-
-#. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.index
 msgid "'. Showing results for '"
 msgstr "'. Näidatakse tulemusi päringule '"
+
+#. module: website_hr_recruitment
+#: model:website.page,url:website_hr_recruitment.thankyou
+msgid "/job-thank-you"
+msgstr ""
 
 #. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
@@ -67,23 +66,38 @@ msgid ""
 msgstr ""
 
 #. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.detail
-msgid "<i class=\"fa fa-long-arrow-left text-primary me-2\"/>All Jobs"
-msgstr "<i class=\"fa fa-long-arrow-left text-primary me-2\"/>Kõik ametikohad"
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.dynamic_filter_template_hr_job_card
+msgid ""
+"<i class=\"oi oi-fw\" data-icon=\"account_tree\" title=\"Department\" "
+"role=\"img\" aria-label=\"Department\"/>"
+msgstr ""
 
 #. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.index
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.dynamic_filter_template_hr_job_card
 msgid ""
-"<i class=\"fa fa-suitcase fa-fw\" title=\"Employment type\" role=\"img\" "
-"aria-label=\"Employment type\"/>"
+"<i class=\"oi oi-fw\" data-icon=\"location_on\" title=\"Address\" "
+"role=\"img\" aria-label=\"Address\"/>"
 msgstr ""
-"<i class=\"fa fa-suitcase fa-fw\" title=\"Employment type\" role=\"img\" "
-"aria-label=\"Employment type\"/>"
+
+#. module: website_hr_recruitment
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.dynamic_filter_template_hr_job_card
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_card
+msgid ""
+"<i class=\"oi oi-fw\" data-icon=\"luggage\" title=\"Employment type\" "
+"role=\"img\" aria-label=\"Employment type\"/>"
+msgstr ""
+"<i class=\"oi oi-fw\" data-icon=\"luggage\" title=\"Employment type\" "
+"role=\"img\" aria-label=\"Employment type\"/>"
+
+#. module: website_hr_recruitment
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.detail
+msgid "<i class=\"oi text-primary me-2\" data-icon=\"west\"/>All Jobs"
+msgstr "<i class=\"oi text-primary me-2\" data-icon=\"west\"/>Kõik ametikohad"
 
 #. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.apply
-msgid "<i class=\"oi oi-arrow-left\"/> Job Description"
-msgstr "<i class=\"oi oi-arrow-left\"/> Töö kirjeldus"
+msgid "<i class=\"oi\" data-icon=\"west\"/> Job Description"
+msgstr "<i class=\"oi\" data-icon=\"west\"/> Töö kirjeldus"
 
 #. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.thankyou_ir_ui_view
@@ -95,6 +109,11 @@ msgstr ""
 "<span class=\"h5 fw-light\">Seniks,</span><br/>\n"
 "                                            <span class=\"h3 mt8 mb32 fw-"
 "bold\">Vaata meie veebilehel ringi:</span>"
+
+#. module: website_hr_recruitment
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.apply
+msgid "<span class=\"s_website_form_label_content\">Company</span>"
+msgstr ""
 
 #. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.apply
@@ -183,27 +202,27 @@ msgstr ""
 "<span class=\"text-muted small\">Jaga oma CV või Linkedin profiil</span>"
 
 #. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_rating
 msgid "<strong class=\"s_rating_title\">Administrative Work</strong>"
 msgstr ""
 
 #. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_rating
 msgid "<strong class=\"s_rating_title\">Autonomy</strong>"
 msgstr ""
 
 #. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_rating
 msgid "<strong class=\"s_rating_title\">Customer Relationship</strong>"
 msgstr "<strong class=\"s_rating_title\">Kliendisuhted</strong>"
 
 #. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_rating
 msgid "<strong class=\"s_rating_title\">Personal Evolution</strong>"
 msgstr ""
 
 #. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_rating
 msgid "<strong class=\"s_rating_title\">Technical Expertise</strong>"
 msgstr ""
 
@@ -239,17 +258,15 @@ msgid "All"
 msgstr "Kõik"
 
 #. module: website_hr_recruitment
+#. odoo-javascript
+#: code:addons/website_hr_recruitment/static/src/website_builder/website_hr_recruitment_floating_snippets_plugin.js:0
+msgid "All jobs"
+msgstr ""
+
+#. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.view_hr_job_form_website_published_button
 msgid "All websites"
 msgstr "Kõik veebilehed"
-
-#. module: website_hr_recruitment
-#. odoo-python
-#: code:addons/website_hr_recruitment/controllers/main.py:0
-msgid ""
-"An application already exists for %(value)s. Duplicates might be rejected. %"
-"(recruiter_contact)s"
-msgstr ""
 
 #. module: website_hr_recruitment
 #: model:ir.model,name:website_hr_recruitment.model_hr_applicant
@@ -283,45 +300,14 @@ msgid "Apply for a Job"
 msgstr "Kandideeri töökohale"
 
 #. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
-msgid ""
-"As an employee of our company, you will <b>collaborate with each department\n"
-"                        to create and deploy disruptive products.</b> Come "
-"work at a growing company\n"
-"                        that offers great benefits with opportunities to "
-"moving forward and learn\n"
-"                        alongside accomplished leaders. We're seeking an "
-"experienced and outstanding\n"
-"                        member of staff.\n"
-"                        <br/><br/>\n"
-"                        This position is both <b>creative and rigorous</b> "
-"by nature you need to think\n"
-"                        outside the box. We expect the candidate to be "
-"proactive and have a \"get it done\"\n"
-"                        spirit. To be successful, you will have solid "
-"solving problem skills."
+#: model:ir.model.fields,field_description:website_hr_recruitment.field_hr_job__publish_on
+msgid "Auto publish on"
 msgstr ""
-"Meie ettevõtte töötajana teete <b>koostööd iga osakonnaga\n"
-"                         toodete loomiseks ja juurutamiseks.</b> Tulge tööle "
-"kasvavasse ettevõttesse\n"
-"                         mis pakub suuri eeliseid koos võimalusega edasi "
-"liikuda ja õppida\n"
-"                         kõrvuti edukate juhtidega. Otsime kogenud ja "
-"silmapaistvat inimest\n"
-"                         meeskonnaliiget.\\\n"
-"                         <br/><br/>\n"
-"                         See ametikoht on oma olemuselt nii <b>loov kui ka "
-"range</b>, peate mõtlema\n"
-"                         väljaspool kasti. Ootame kandidaadilt proaktiivset "
-"suhtumist ja \"teen ära\"\n"
-"                         suhtumist. Edu saavutamiseks tulevad kasuks head "
-"probleemide lahendamise oskused."
 
 #. module: website_hr_recruitment
-#. odoo-javascript
-#: code:addons/website_hr_recruitment/static/src/fields/boolean_toggle_labeled_field.js:0
-msgid "Autosave"
-msgstr "Automaatsalvestus"
+#: model:ir.model.fields,help:website_hr_recruitment.field_hr_job__publish_on
+msgid "Automatically publish the page on the chosen date and time."
+msgstr ""
 
 #. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
@@ -337,6 +323,12 @@ msgstr "Võib avalikustada"
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.topbar_customizations
 msgid "Close"
 msgstr "Sulge"
+
+#. module: website_hr_recruitment
+#. odoo-javascript
+#: code:addons/website_hr_recruitment/static/src/js/systray_items/new_content.js:0
+msgid "Company Mismatch"
+msgstr ""
 
 #. module: website_hr_recruitment
 #: model:ir.model.fields,help:website_hr_recruitment.field_hr_job__job_details
@@ -402,12 +394,6 @@ msgid "Departments Filter"
 msgstr "Osakondade filter"
 
 #. module: website_hr_recruitment
-#. odoo-javascript
-#: code:addons/website_hr_recruitment/static/src/website_builder/website_hr_recruitment_searchbar_option_plugin.js:0
-msgid "Description"
-msgstr "Kirjeldus"
-
-#. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
 msgid "Discover our products."
 msgstr "Tutvu meie toodetega."
@@ -419,8 +405,14 @@ msgstr "Tutvu meie toodetega."
 #: model:ir.model.fields,field_description:website_hr_recruitment.field_hr_recruitment_source__display_name
 #: model:ir.model.fields,field_description:website_hr_recruitment.field_website__display_name
 #: model:ir.model.fields,field_description:website_hr_recruitment.field_website_page__display_name
+#: model:ir.model.fields,field_description:website_hr_recruitment.field_website_published_multi_mixin__display_name
 msgid "Display Name"
 msgstr "Kuvatav nimi"
+
+#. module: website_hr_recruitment
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.detail
+msgid "Drag blocks here to add them on all jobs"
+msgstr ""
 
 #. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
@@ -457,11 +449,6 @@ msgid "Experience in writing online content"
 msgstr "Kogemus veebisisu kirjutamisel"
 
 #. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_right_side_bar
-msgid "Facebook"
-msgstr "Facebook"
-
-#. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_filter_base
 msgid "Filter by country"
 msgstr "Filtreeri riigi järgi"
@@ -470,11 +457,6 @@ msgstr "Filtreeri riigi järgi"
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.topbar_customizations
 msgid "Filters"
 msgstr "Filtrid"
-
-#. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_right_side_bar
-msgid "Follow us"
-msgstr "Jälgige meid"
 
 #. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
@@ -538,15 +520,9 @@ msgstr "Ma tunnen end õnnelikuna"
 #: model:ir.model.fields,field_description:website_hr_recruitment.field_hr_recruitment_source__id
 #: model:ir.model.fields,field_description:website_hr_recruitment.field_website__id
 #: model:ir.model.fields,field_description:website_hr_recruitment.field_website_page__id
+#: model:ir.model.fields,field_description:website_hr_recruitment.field_website_published_multi_mixin__id
 msgid "ID"
 msgstr "ID"
-
-#. module: website_hr_recruitment
-#. odoo-javascript
-#: code:addons/website_hr_recruitment/static/src/fields/boolean_toggle_labeled_field.js:0
-msgid ""
-"If checked, the record will be saved immediately when the field is modified."
-msgstr "Kui valitud, siis muudatused salvestatakse koheselt."
 
 #. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_filter_by_industries
@@ -560,7 +536,7 @@ msgid "Industries Filter"
 msgstr ""
 
 #. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.index
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_card
 msgid "Insert a Job Description..."
 msgstr "Sisesta töö kirjeldus..."
 
@@ -606,11 +582,10 @@ msgid "Job not found"
 msgstr "Tööpakkumist ei leitud"
 
 #. module: website_hr_recruitment
-#. odoo-javascript
 #. odoo-python
 #: code:addons/website_hr_recruitment/controllers/main.py:0
+#: code:addons/website_hr_recruitment/models/hr_job.py:0
 #: code:addons/website_hr_recruitment/models/website.py:0
-#: code:addons/website_hr_recruitment/static/src/website_builder/website_hr_recruitment_searchbar_option.xml:0
 #: model:ir.ui.menu,name:website_hr_recruitment.menu_job_pages
 #: model:website.menu,name:website_hr_recruitment.website_menu_jobs
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.apply
@@ -619,9 +594,14 @@ msgstr "Ametikohad"
 
 #. module: website_hr_recruitment
 #. odoo-javascript
-#: code:addons/website_hr_recruitment/static/src/website_builder/website_hr_recruitment_option_plugin.js:0
+#: code:addons/website_hr_recruitment/static/src/website_builder/website_hr_recruitment_option.xml:0
 msgid "Jobs Page"
 msgstr "Tööpakkumiste leht"
+
+#. module: website_hr_recruitment
+#: model:website.snippet.filter,name:website_hr_recruitment.dynamic_filter_latest_job_positions
+msgid "Latest Job Positions"
+msgstr ""
 
 #. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
@@ -629,15 +609,15 @@ msgid "Lead the entire sales cycle"
 msgstr "Juhi kogu müügitsüklit"
 
 #. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_right_side_bar
-msgid "LinkedIn"
-msgstr "LinkedIn"
-
-#. module: website_hr_recruitment
 #. odoo-javascript
-#: code:addons/website_hr_recruitment/static/src/js/website_hr_recruitment_editor.js:0
+#: code:addons/website_hr_recruitment/static/src/js/website_hr_recruitment_editor.edit.js:0
 msgid "LinkedIn Profile"
 msgstr "Linkedin"
+
+#. module: website_hr_recruitment
+#: model:ir.module.module,summary:base.module_website_hr_recruitment
+msgid "Manage your online hiring process"
+msgstr ""
 
 #. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
@@ -676,10 +656,12 @@ msgid ""
 msgstr "Ei raisata aega ettevõtte protsessides, kohustustes ja autonoomias"
 
 #. module: website_hr_recruitment
-#. odoo-javascript
-#: code:addons/website_hr_recruitment/static/src/fields/boolean_toggle_labeled_field.xml:0
-msgid "Not Published"
-msgstr "Avaldamata"
+#. odoo-python
+#: code:addons/website_hr_recruitment/models/website_published_multi_mixin.py:0
+msgid ""
+"No website found for the company. Please create a website for this company "
+"to be able to open the job offer on the website."
+msgstr ""
 
 #. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_filter_by_offices
@@ -693,6 +675,11 @@ msgid "Offices Filter"
 msgstr "Kontorite filter"
 
 #. module: website_hr_recruitment
+#: model:ir.module.module,shortdesc:base.module_website_hr_recruitment
+msgid "Online Jobs"
+msgstr ""
+
+#. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.apply
 msgid "Optional introduction, or any question you might have about the job…"
 msgstr "Kommentaar või mis tahes küsimus, mis teil töö kohta võib tekkida…"
@@ -704,7 +691,7 @@ msgstr "Muud"
 
 #. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.index
-msgid "Our Job Offers"
+msgid "Our Job Opportunities"
 msgstr ""
 
 #. module: website_hr_recruitment
@@ -734,7 +721,7 @@ msgstr "Hüved"
 
 #. module: website_hr_recruitment
 #. odoo-javascript
-#: code:addons/website_hr_recruitment/static/src/js/website_hr_recruitment_editor.js:0
+#: code:addons/website_hr_recruitment/static/src/js/website_hr_recruitment_editor.edit.js:0
 msgid "Phone Number"
 msgstr "Telefoninumber"
 
@@ -755,8 +742,11 @@ msgid "Products"
 msgstr "Tooted"
 
 #. module: website_hr_recruitment
-#. odoo-javascript
-#: code:addons/website_hr_recruitment/static/src/fields/boolean_toggle_labeled_field.xml:0
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.view_hr_job_form_website_published_button
+msgid "Publish On"
+msgstr ""
+
+#. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.hr_job_search_view_inherit
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.hr_job_website_inherit
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.view_hr_job_form_website_published_button
@@ -766,8 +756,8 @@ msgstr "Avalikustatud"
 
 #. module: website_hr_recruitment
 #: model:ir.model.fields,field_description:website_hr_recruitment.field_hr_job__published_date
-msgid "Published Date"
-msgstr "Avalikustamise kuupäev"
+msgid "Published date"
+msgstr ""
 
 #. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
@@ -781,6 +771,8 @@ msgstr "Uued ja huvitavad väljakutsed kiiresti arenevas ettevõttes"
 
 #. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.apply
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.detail
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_card
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_filter_by_offices
 msgid "Remote"
 msgstr "Distantsilt"
@@ -812,6 +804,12 @@ msgid "SEO optimized"
 msgstr "SEO optimeeritud"
 
 #. module: website_hr_recruitment
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.hr_job_website_inherit
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_pages_tree_view
+msgid "Scheduled"
+msgstr ""
+
+#. module: website_hr_recruitment
 #. odoo-javascript
 #: code:addons/website_hr_recruitment/static/src/website_builder/website_hr_recruitment_option.xml:0
 msgid "Search Bar"
@@ -835,15 +833,11 @@ msgstr "Jaga ametikohta"
 
 #. module: website_hr_recruitment
 #. odoo-javascript
-#: code:addons/website_hr_recruitment/static/src/js/website_hr_recruitment_editor.js:0
-msgid "Short Introduction"
-msgstr "Lühitutvustus"
-
-#. module: website_hr_recruitment
 #. odoo-python
 #: code:addons/website_hr_recruitment/controllers/main.py:0
-msgid "Short introduction from applicant"
-msgstr ""
+#: code:addons/website_hr_recruitment/static/src/js/website_hr_recruitment_editor.edit.js:0
+msgid "Short Introduction"
+msgstr "Lühitutvustus"
 
 #. module: website_hr_recruitment
 #. odoo-javascript
@@ -867,6 +861,11 @@ msgid "Strong analytical skills"
 msgstr "Tugev analüüsivõime"
 
 #. module: website_hr_recruitment
+#: model:website.page,name:website_hr_recruitment.thankyou
+msgid "Thank you (Recruitment)"
+msgstr ""
+
+#. module: website_hr_recruitment
 #: model:ir.model.fields,help:website_hr_recruitment.field_hr_job__website_absolute_url
 msgid "The full absolute URL to access the document through the website."
 msgstr ""
@@ -885,8 +884,8 @@ msgstr "Töökuulutuse link on kopeeritud lõikelauale."
 #. module: website_hr_recruitment
 #. odoo-python
 #: code:addons/website_hr_recruitment/models/hr_applicant.py:0
-msgid "The job offer has been closed."
-msgstr "Tööpakkumine ei ole enam aktiivne."
+msgid "The job opportunity has been closed."
+msgstr ""
 
 #. module: website_hr_recruitment
 #. odoo-javascript
@@ -907,8 +906,37 @@ msgstr ""
 
 #. module: website_hr_recruitment
 #. odoo-javascript
-#: code:addons/website_hr_recruitment/static/src/fields/boolean_toggle_labeled_field.js:0
-msgid "ToggleLabeled"
+#: code:addons/website_hr_recruitment/static/src/website_builder/website_hr_recruitment_floating_snippets_plugin.js:0
+msgid "This job"
+msgstr ""
+
+#. module: website_hr_recruitment
+#: model:ir.module.module,description:base.module_website_hr_recruitment
+msgid ""
+"This module allows to publish your available job positions on your website "
+"and keep track of application submissions easily."
+msgstr ""
+
+#. module: website_hr_recruitment
+#. odoo-javascript
+#: code:addons/website_hr_recruitment/static/src/website_builder/website_hr_recruitment_floating_snippets_plugin.js:0
+msgid "This page"
+msgstr ""
+
+#. module: website_hr_recruitment
+#. odoo-javascript
+#: code:addons/website_hr_recruitment/static/src/js/systray_items/new_content.js:0
+msgid ""
+"This website belongs to %(company)s, which isn't one of your active "
+"companies. Switch to it first, then try again."
+msgstr ""
+
+#. module: website_hr_recruitment
+#. odoo-javascript
+#: code:addons/website_hr_recruitment/static/src/js/systray_items/new_content.js:0
+msgid ""
+"This website belongs to a company you don't have access to. Ask your "
+"administrator for access before creating a Job Position here."
 msgstr ""
 
 #. module: website_hr_recruitment
@@ -927,6 +955,11 @@ msgid "Types"
 msgstr "Tüübid"
 
 #. module: website_hr_recruitment
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.view_hr_job_form_website_published_button
+msgid "Unschedule"
+msgstr ""
+
+#. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_filter_base
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_filter_base_mobile
 msgid "Unspecified"
@@ -936,6 +969,11 @@ msgstr "Määramata"
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
 msgid "Valid work permit for Belgium"
 msgstr "Kehtiv tööluba Belgias"
+
+#. module: website_hr_recruitment
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.dynamic_filter_template_hr_job_card
+msgid "View {{0}}"
+msgstr ""
 
 #. module: website_hr_recruitment
 #: model:ir.model.fields,field_description:website_hr_recruitment.field_hr_job__website_published
@@ -956,22 +994,6 @@ msgstr ""
 "äriprobleemide lahendamiseks."
 
 #. module: website_hr_recruitment
-#. odoo-python
-#: code:addons/website_hr_recruitment/controllers/main.py:0
-msgid ""
-"We found a recent application with a similar name, email, phone number. You "
-"can continue if it's not a mistake."
-msgstr ""
-
-#. module: website_hr_recruitment
-#. odoo-python
-#: code:addons/website_hr_recruitment/controllers/main.py:0
-msgid ""
-"We've found a previous closed application in our system within the last 6 "
-"months. Please consider before applying in order not to duplicate efforts."
-msgstr ""
-
-#. module: website_hr_recruitment
 #: model:ir.model,name:website_hr_recruitment.model_website
 #: model:ir.model.fields,field_description:website_hr_recruitment.field_hr_job__website_id
 msgid "Website"
@@ -980,6 +1002,11 @@ msgstr "Veebileht"
 #. module: website_hr_recruitment
 #: model:ir.model.fields,field_description:website_hr_recruitment.field_hr_job__website_absolute_url
 msgid "Website Absolute URL"
+msgstr ""
+
+#. module: website_hr_recruitment
+#: model:ir.model,name:website_hr_recruitment.model_website_published_multi_mixin
+msgid "Website Published Mixin"
 msgstr ""
 
 #. module: website_hr_recruitment
@@ -1018,6 +1045,11 @@ msgid "Website opengraph image"
 msgstr "Veebilehe opengraph pilt"
 
 #. module: website_hr_recruitment
+#: model:ir.model.fields,field_description:website_hr_recruitment.field_hr_job__website_rating
+msgid "Website rating"
+msgstr ""
+
+#. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.default_website_description
 msgid "What We Offer"
 msgstr "Mida me pakume"
@@ -1028,24 +1060,19 @@ msgid "What's great in the job?"
 msgstr "Mis on töös head?"
 
 #. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_right_side_bar
-msgid "X"
-msgstr ""
-
-#. module: website_hr_recruitment
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.thankyou_ir_ui_view
 msgid "Your <b>contact</b> information is:"
 msgstr "Sinu <b>kontakt</b> on:"
 
 #. module: website_hr_recruitment
 #. odoo-javascript
-#: code:addons/website_hr_recruitment/static/src/js/website_hr_recruitment_editor.js:0
+#: code:addons/website_hr_recruitment/static/src/js/website_hr_recruitment_editor.edit.js:0
 msgid "Your Email"
 msgstr "Sinu e-post"
 
 #. module: website_hr_recruitment
 #. odoo-javascript
-#: code:addons/website_hr_recruitment/static/src/js/website_hr_recruitment_editor.js:0
+#: code:addons/website_hr_recruitment/static/src/js/website_hr_recruitment_editor.edit.js:0
 msgid "Your Name"
 msgstr "Sinu nimi"
 
@@ -1067,7 +1094,7 @@ msgstr "navigatsioon"
 #: model_terms:ir.ui.view,arch_db:website_hr_recruitment.view_hr_job_form_inherit_website
 msgid ""
 "e.g. Summarize the position in one or two lines that will be displayed on "
-"the Jobs list page..."
+"the job page and the jobs list page..."
 msgstr ""
 
 #. module: website_hr_recruitment
@@ -1086,113 +1113,18 @@ msgid "job URL"
 msgstr "ametikoha URL"
 
 #. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.index
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.dynamic_filter_template_hr_job_card
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_card
 msgid "open position"
 msgstr "vaba positsioon"
 
 #. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.index
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.dynamic_filter_template_hr_job_card
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_card
 msgid "open positions"
 msgstr "vabad positsioonid"
 
 #. module: website_hr_recruitment
-#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.index
-msgid "unpublished"
-msgstr "avalikustamata"
-
-#~ msgid "+1 (650) 555-0187"
-#~ msgstr "+372 555 0187"
-
-#~ msgid "%s's Application"
-#~ msgstr "%s's Kandideerimisavaldus"
-
-#~ msgid ""
-#~ "<i class=\"fa fa-fw fa-external-link\" role=\"img\"/>\n"
-#~ "                        Job Page"
-#~ msgstr ""
-#~ "<i class=\"fa fa-fw fa-external-link\" role=\"img\"/>\n"
-#~ "                        Tööpakkumiste leht"
-
-#~ msgid "<i class=\"fa fa-globe me-1\" title=\"Website\"/>"
-#~ msgstr "<i class=\"fa fa-globe me-1\" title=\"Website\"/>"
-
-#~ msgid "<small><b>READ</b></small>"
-#~ msgstr "<small><b>LOE</b></small>"
-
-#~ msgid ""
-#~ "<span class=\"text-muted\" style=\"margin-left: 200px; font-size: "
-#~ "0.8rem\">The resume is optional if you have a Linkedin profile</span>"
-#~ msgstr ""
-#~ "<span class=\"text-muted\" style=\"margin-left: 200px; font-size: "
-#~ "0.8rem\">CV ei ole nõutud (valikuline), kui teil on Linkedin'i profiil.</"
-#~ "span>"
-
-#~ msgid "Administrative Work"
-#~ msgstr "Administratiivne töö"
-
-#~ msgid "All Countries"
-#~ msgstr "Kõik riigid"
-
-#~ msgid "All Departments"
-#~ msgstr "Kõik osakonnad"
-
-#~ msgid "All Offices"
-#~ msgstr "Kõik kontorid"
-
-#~ msgid "Autonomy"
-#~ msgstr "Autonoomia"
-
-#~ msgid "Customer Relationship"
-#~ msgstr "Kliendisuhted"
-
-#~ msgid ""
-#~ "Each employee has a chance to see the impact of his work.\n"
-#~ "                You can make a real contribution to the success of the "
-#~ "company.\n"
-#~ "                <br/>\n"
-#~ "                Several activities are often organized all over the year, "
-#~ "such as weekly\n"
-#~ "                sports sessions, team building events, monthly drink, and "
-#~ "much more"
-#~ msgstr ""
-#~ "Igal töötajal on võimalus näha oma töö mõju.\n"
-#~ "                 Saate anda panuse ettevõtte edukuseks.\n"
-#~ "                 <br/>\n"
-#~ "                 Sageli korraldatakse aastaringselt mitmeid tegevusi, "
-#~ "näiteks kord nädalas\n"
-#~ "                 spordiüritused, meeskonnaüritused, igakuised joogiõhtud "
-#~ "ja palju muud"
-
-#~ msgid "Not published"
-#~ msgstr "Avalikustamata"
-
-#~ msgid "Personal Evolution"
-#~ msgstr "Isiklik areng"
-
-#~ msgid "Restrict publishing to this website."
-#~ msgstr "Avalikustage ainult see veebileht"
-
-#~ msgid "SEO Optimized"
-#~ msgstr "SEO optimeeritud"
-
-#~ msgid "Technical Expertise"
-#~ msgstr "Tehniline kogemus"
-
-#~ msgid "The full URL to access the document through the website."
-#~ msgstr "Dokumendile veebisaidi kaudu juurdepääsuks täielik URL."
-
-#~ msgid "Url Parameters"
-#~ msgstr "Url'i parameetrid"
-
-#~ msgid ""
-#~ "You can write here a short description of your Job Description that will "
-#~ "be displayed on the main Jobs' list page."
-#~ msgstr ""
-#~ "Siia saate kirjutada oma ametikoha lühikirjelduse, mida kuvatakse "
-#~ "tööpakkumiste nimekirja lehel. "
-
-#~ msgid "e.g. https://www.linkedin.com/in/fpodoo/"
-#~ msgstr "nt. https://www.linkedin.com/in/fpodoo/"
-
-#~ msgid "share it"
-#~ msgstr "jaga seda"
+#: model_terms:ir.ui.view,arch_db:website_hr_recruitment.job_card
+msgid "scheduled"
+msgstr ""

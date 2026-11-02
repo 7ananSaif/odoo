@@ -3,27 +3,11 @@ import { translatedTermsGlobal } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
 import { clickOnEditAndWaitEditMode } from "@website/js/tours/tour_utils";
 
-function runConfiguratorFlow(industrySearchText, featureOrPageName) {
+const themeSelectionCard =
+    ".o_theme_selection_screen:not(.o_wsale_configurator_screen) .theme_preview .button_area";
+
+function runConfiguratorFlow(industrySearchText) {
     return [
-        // Configurator first screen
-        {
-            content: "Click next",
-            trigger: "button.o_configurator_show",
-            run: "click",
-        },
-        // Make sure "Back" works
-        {
-            content: "Use browser's Back",
-            trigger: "button.o_change_website_type",
-            run() {
-                window.history.back();
-            },
-        },
-        {
-            content: "Return to description screen",
-            trigger: "button.o_configurator_show",
-            run: "click",
-        },
         // Description screen
         {
             content: "Select a website type",
@@ -41,7 +25,7 @@ function runConfiguratorFlow(industrySearchText, featureOrPageName) {
             run: "click",
         },
         {
-            content: "Choose from the objective list",
+            content: "Choose from the positioning list",
             trigger: "button.o_change_website_purpose",
             run: "click",
         },
@@ -51,35 +35,45 @@ function runConfiguratorFlow(industrySearchText, featureOrPageName) {
             trigger: ".palette_card",
             run: "click",
         },
-        // Features screen
         {
-            content: "Select feature or page",
-            trigger: `.card:contains(${featureOrPageName})`,
-            run: "click",
+            content: "Wait for theme selection or loader",
+            trigger: `.o_website_loader_container, .o_configurator_screen:contains(online catalog) .button_area, ${themeSelectionCard}`,
+            timeout: 60000,
         },
         {
-            id: "build_website",
-            content: "Click on build my website",
-            trigger: "button.btn-primary",
+            content: "Choose a theme",
+            trigger: themeSelectionCard,
             run: "click",
+            isActive: [themeSelectionCard],
         },
         {
+            id: "loader",
             content: "Loader should be shown",
             trigger: ".o_website_loader_container",
             expectUnloadPage: true,
         },
         {
-            content: "Wait until the configurator is finished",
+            content: "Wait for the editor to load after redirect",
             trigger: ":iframe [data-view-xmlid='website.homepage']",
-            timeout: 30000,
+        },
+        {
+            content: "Check that the editor, not translation mode, is opened",
+            trigger:
+                ":iframe html[data-editable='1']:not([data-translatable='1'][data-edit_translations='1'])",
         },
     ];
 }
 
 registry.category("web_tour.tours").add("configurator_translation", {
-    url: "/website/configurator",
     steps: () => [
-        ...runConfiguratorFlow("in fr", "Parseltongue_privacy"),
+        {
+            content: "Set the visitor's frontend language to Parseltongue",
+            trigger: "body",
+            run() {
+                document.cookie = "frontend_lang=pa_GB;path=/";
+            },
+        },
+        ...runConfiguratorFlow("in fr"),
         {
             content: "Check if the current interface language is active and monkey patch terms",
             trigger: "body",
@@ -93,9 +87,9 @@ registry.category("web_tour.tours").add("configurator_translation", {
         },
         ...clickOnEditAndWaitEditMode(),
         {
-            // Check the content of the save button to make sure the website is
-            // in Parseltongue. (The editor should be in the website's default
-            // language, which should be parseltongue in this test.)
+            // Check the content of the save button to make sure the website is in
+            // Parseltongue. (The editor should be in the website's default language,
+            // which should be parseltongue in this test.)
             content: "exit edit mode",
             trigger: ".o-snippets-top-actions button.btn-success:contains('Save_Parseltongue')",
             run: "click",
@@ -108,10 +102,9 @@ registry.category("web_tour.tours").add("configurator_translation", {
 });
 
 registry.category("web_tour.tours").add("configurator_page_creation", {
-    url: "/website/configurator",
     steps: () => [
-        ...runConfiguratorFlow("abbey", "Pricing"),
-        // Verify configurator page templates exist in landing pages category.
+        ...runConfiguratorFlow("abbey"),
+        // Verify configurator page templates exist in the About Us category.
         {
             content: "Open create content menu",
             trigger: ".o_new_content_container button",
@@ -123,18 +116,18 @@ registry.category("web_tour.tours").add("configurator_page_creation", {
             run: "click",
         },
         {
-            content: "Click on landing pages category",
-            trigger: "[data-id='landing']",
+            content: "Click on About Us pages category",
+            trigger: ".o_website_page_templates_dialog aside [data-id='about_us']",
             run: "click",
         },
         {
             content: "Check if configurator pages exist",
-            trigger: "[data-id='landing'] .o_page_template[data-configurator-page]",
+            trigger: "#pane_about_us .o_page_template[data-configurator-page]",
         },
         {
-            content: "Configurator pages should appear at the start of the landing category",
+            content: "Configurator pages should appear at the start of the About Us category",
             trigger:
-                "[data-id='landing'] .row > :first-child .o_page_template:first-of-type[data-configurator-page]",
+                "#pane_about_us .row > :first-child .o_page_template:first-of-type[data-configurator-page]",
         },
         {
             content: "Exit dialog",

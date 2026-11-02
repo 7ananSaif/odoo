@@ -6,21 +6,34 @@
 # Martin Trigaux, 2022
 # 稀饭~~ <wangwhai@qq.com>, 2022
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+# "Chloe Wang (chwa)" <chwa@odoo.com>, 2026.
+# 张飞虎 <feihu.zhang@live.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-09-16 15:20+0000\n"
-"Last-Translator: \"Tiffany Chang (tic)\" <tic@odoo.com>\n"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-10-11 06:34+0000\n"
+"Last-Translator: 张飞虎 <feihu.zhang@live.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://translate.odoo.com/"
-"projects/odoo-19/base_geolocalize/zh_Hans/>\n"
+"projects/odoo-20/base_geolocalize/zh_Hans/>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: base_geolocalize
+#: model:ir.module.module,description:base.module_base_geolocalize
+msgid ""
+"\n"
+"Partners Geolocation\n"
+"========================\n"
+msgstr ""
+"\n"
+"合作伙伴地理位置\n"
+"========================\n"
 
 #. module: base_geolocalize
 #: model:ir.model.fields,field_description:base_geolocalize.field_res_config_settings__geoloc_provider_id
@@ -38,11 +51,6 @@ msgstr ""
 "需要用于地理编码（地点）的 API 密钥。\n"
 "有关详细信息，请访问 https://developers.google.com/maps/documentation/"
 "geocoding/get-api-key  。"
-
-#. module: base_geolocalize
-#: model_terms:ir.ui.view,arch_db:base_geolocalize.res_config_settings_view_form
-msgid "API:"
-msgstr "API:"
 
 #. module: base_geolocalize
 #: model_terms:ir.ui.view,arch_db:base_geolocalize.view_crm_partner_geo_form
@@ -99,14 +107,14 @@ msgid "Geo Coder"
 msgstr "地理编码器"
 
 #. module: base_geolocalize
-#: model_terms:ir.ui.view,arch_db:base_geolocalize.view_crm_partner_geo_form
-msgid "Geo Location"
-msgstr "地理位置"
-
-#. module: base_geolocalize
 #: model:ir.model,name:base_geolocalize.model_base_geo_provider
 msgid "Geo Provider"
 msgstr "地理提供商"
+
+#. module: base_geolocalize
+#: model:ir.actions.server,name:base_geolocalize.ir_cron_geolocalize_required_partners_ir_actions_server
+msgid "Geolocalize Partners"
+msgstr "对合作伙伴进行地理定位"
 
 #. module: base_geolocalize
 #: model_terms:ir.ui.view,arch_db:base_geolocalize.view_crm_partner_geo_form
@@ -116,8 +124,8 @@ msgstr "地理位置"
 #. module: base_geolocalize
 #: model:ir.model.fields,field_description:base_geolocalize.field_res_partner__date_localization
 #: model:ir.model.fields,field_description:base_geolocalize.field_res_users__date_localization
-msgid "Geolocation Date"
-msgstr "地理定位日期"
+msgid "Geolocation Updated On"
+msgstr "地理位置更新时间"
 
 #. module: base_geolocalize
 #: model:ir.model.fields,field_description:base_geolocalize.field_res_config_settings__geoloc_provider_googlemap_key
@@ -133,9 +141,17 @@ msgid "ID"
 msgstr "ID"
 
 #. module: base_geolocalize
+#: model:ir.model.fields,help:base_geolocalize.field_res_partner__should_be_geolocalized
+#: model:ir.model.fields,help:base_geolocalize.field_res_users__should_be_geolocalized
+msgid ""
+"Indicates whether the partner's address has changed, so we should "
+"geolocalize them from their new address."
+msgstr "表示合作伙伴的地址是否已更改，若是则应根据其新地址重新进行地理定位。"
+
+#. module: base_geolocalize
 #: model_terms:ir.ui.view,arch_db:base_geolocalize.res_config_settings_view_form
-msgid "Key:"
-msgstr "Key:"
+msgid "Key"
+msgstr "密钥"
 
 #. module: base_geolocalize
 #: model:ir.model.fields,field_description:base_geolocalize.field_base_geo_provider__write_uid
@@ -146,16 +162,6 @@ msgstr "最后更新人"
 #: model:ir.model.fields,field_description:base_geolocalize.field_base_geo_provider__write_date
 msgid "Last Updated on"
 msgstr "上次更新日期"
-
-#. module: base_geolocalize
-#: model_terms:ir.ui.view,arch_db:base_geolocalize.view_crm_partner_geo_form
-msgid "Lat :"
-msgstr "纬度 ："
-
-#. module: base_geolocalize
-#: model_terms:ir.ui.view,arch_db:base_geolocalize.view_crm_partner_geo_form
-msgid "Long:"
-msgstr "经度："
 
 #. module: base_geolocalize
 #: model:ir.model.fields,field_description:base_geolocalize.field_base_geo_provider__name
@@ -180,6 +186,16 @@ msgid "Partner Assignment"
 msgstr "合作伙伴分配"
 
 #. module: base_geolocalize
+#: model:ir.module.module,shortdesc:base.module_base_geolocalize
+msgid "Partners Geolocation"
+msgstr "合作伙伴地理位置"
+
+#. module: base_geolocalize
+#: model_terms:ir.ui.view,arch_db:base_geolocalize.res_config_settings_view_form
+msgid "Provider"
+msgstr "提供商"
+
+#. module: base_geolocalize
 #. odoo-python
 #: code:addons/base_geolocalize/models/base_geocoder.py:0
 msgid "Provider %s is not implemented for geolocation service."
@@ -191,9 +207,10 @@ msgid "Refresh"
 msgstr "刷新"
 
 #. module: base_geolocalize
-#: model_terms:ir.ui.view,arch_db:base_geolocalize.view_crm_partner_geo_form
-msgid "Refresh Localization"
-msgstr "刷新本地化"
+#: model:ir.model.fields,field_description:base_geolocalize.field_res_partner__should_be_geolocalized
+#: model:ir.model.fields,field_description:base_geolocalize.field_res_users__should_be_geolocalized
+msgid "Should Be Geolocalized"
+msgstr "应进行地理定位"
 
 #. module: base_geolocalize
 #: model:ir.model.fields,field_description:base_geolocalize.field_base_geo_provider__tech_name
@@ -229,8 +246,8 @@ msgstr "未知"
 
 #. module: base_geolocalize
 #: model_terms:ir.ui.view,arch_db:base_geolocalize.view_crm_partner_geo_form
-msgid "Updated on:"
-msgstr "更新于："
+msgid "Updated on"
+msgstr "更新于"
 
 #. module: base_geolocalize
 #: model:ir.model.fields,help:base_geolocalize.field_res_config_settings__geoloc_provider_googlemap_key
@@ -246,6 +263,3 @@ msgstr ""
 #: code:addons/base_geolocalize/models/res_partner.py:0
 msgid "Warning"
 msgstr "警告"
-
-#~ msgid "Error with geolocation server:"
-#~ msgstr "地理位置服务器出错："

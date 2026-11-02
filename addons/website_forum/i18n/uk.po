@@ -7,25 +7,31 @@
 # Martin Trigaux, 2022
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
-# Vlad Patenko <vlad.patenko@gmail.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-20 18:37+0000\n"
-"PO-Revision-Date: 2026-04-16 08:26+0000\n"
-"Last-Translator: Vlad Patenko <vlad.patenko@gmail.com>\n"
-"Language-Team: Ukrainian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-11 17:44+0000\n"
+"PO-Revision-Date: 2026-08-31 15:35+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Ukrainian <https://translate.odoo.com/projects/odoo-s19-4/"
 "website_forum/uk/>\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
-"Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n % 10 == 1 && n % 100 != 11 "
-"? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > "
-"14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || (n % "
-"100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
-"X-Generator: Weblate 5.16.2\n"
+"Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n % 10 == 1 && n % 100 != "
+"11 ? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % "
+"100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || "
+"(n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: website_forum
+#: model:ir.module.module,description:base.module_website_forum
+msgid ""
+"\n"
+"Ask questions, get answers, no distractions\n"
+msgstr ""
 
 #. module: website_forum
 #. odoo-javascript
@@ -94,13 +100,7 @@ msgstr "%d карма вимагає закриття чи оновлення п
 
 #. module: website_forum
 #. odoo-python
-#: code:addons/website_forum/models/forum_post.py:0
-msgid "%d karma required to comment."
-msgstr "%d карма вимагає коментування."
-
-#. module: website_forum
-#. odoo-python
-#: code:addons/website_forum/models/forum_post.py:0
+#: code:addons/website_forum/models/forum_post_comment.py:0
 msgid "%d karma required to convert a comment to an answer."
 msgstr "%d карма вимагає конвертувати коментар у відповідь."
 
@@ -112,7 +112,7 @@ msgstr "%d карма вимагає конвертувати відповідь
 
 #. module: website_forum
 #. odoo-python
-#: code:addons/website_forum/models/forum_post.py:0
+#: code:addons/website_forum/models/forum_post_comment.py:0
 msgid "%d karma required to convert your comment to an answer."
 msgstr "%d карма вимагає конвертувати ваш коментар у відповідь."
 
@@ -191,6 +191,12 @@ msgstr "%d карма вимагає від'єднати публікацію."
 
 #. module: website_forum
 #. odoo-python
+#: code:addons/website_forum/models/forum_post.py:0
+msgid "%d karma required to update a flagged post."
+msgstr ""
+
+#. module: website_forum
+#. odoo-python
 #: code:addons/website_forum/models/forum_post_vote.py:0
 msgid "%d karma required to upvote."
 msgstr "%d карма вимагає голосу позитивного голосу."
@@ -200,6 +206,24 @@ msgstr "%d карма вимагає голосу позитивного гол�
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "%d karma required to validate a post."
 msgstr "%d карма вимагає підтвердження публікації."
+
+#. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_post_comment.py:0
+msgid "%i karma required to comment."
+msgstr ""
+
+#. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_post_comment.py:0
+msgid "%i karma required to delete a comment."
+msgstr ""
+
+#. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_post_comment.py:0
+msgid "%i karma required to edit a comment."
+msgstr ""
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_index_tags
@@ -407,12 +431,12 @@ msgstr "<b>У вас вже є публікації в очікуванні.</b>
 #: model_terms:ir.ui.view,arch_db:website_forum.contact
 msgid ""
 "<b>|</b>\n"
-"                    <span class=\"fa fa-trophy o-text-gold ms-2\" "
-"role=\"img\" aria-label=\"Gold badge\" title=\"Gold badge\"/>"
+"                    <span class=\"oi oi-filled o-text-gold ms-2\" data-"
+"icon=\"trophy\" role=\"img\" aria-label=\"Gold badge\" title=\"Gold badge\"/>"
 msgstr ""
 "<b>|</b>\n"
-"                    <span class=\"fa fa-trophy o-text-gold ms-2\" "
-"role=\"img\" aria-label=\"Gold badge\" title=\"Gold badge\"/>"
+"                    <span class=\"oi oi-filled o-text-gold ms-2\" data-"
+"icon=\"trophy\" role=\"img\" aria-label=\"Gold badge\" title=\"Gold badge\"/>"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
@@ -420,240 +444,254 @@ msgid "<br/>by"
 msgstr "<br/>"
 
 #. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.new_question
-msgid "<i class=\"fa fa-angle-left me-2\"/>Back to All Posts"
-msgstr "<i class=\"fa fa-angle-left me-2\"/>Повернутися до всіх публікацій"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.user_votes
-msgid "<i class=\"fa fa-arrow-right\"/> Go To Forums"
-msgstr "<i class=\"fa fa-arrow-right\"/> Перейти до форумів"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.forum_model_nav
-msgid "<i class=\"fa fa-bug me-1\"/>Filter Tool"
-msgstr "<i class=\"fa fa-bug me-1\"/>Інструмент фільтру"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.vote
-msgid ""
-"<i class=\"fa fa-caret-down\" data-bs-toggle=\"tooltip\" data-bs-"
-"placement=\"top\" title=\"Downvote\"/>"
-msgstr ""
-"<i class=\"fa fa-caret-down\" data-bs-toggle=\"tooltip\" data-bs-"
-"placement=\"top\" title=\"Downvote\"/>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.vote
-msgid ""
-"<i class=\"fa fa-caret-up\" data-bs-toggle=\"tooltip\" data-bs-"
-"placement=\"top\" title=\"Upvote\"/>"
-msgstr ""
-"<i class=\"fa fa-caret-up\" data-bs-toggle=\"tooltip\" data-bs-"
-"placement=\"top\" title=\"Upvote\"/>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
-msgid "<i class=\"fa fa-check fa-fw me-1\"/>Accept"
-msgstr "<i class=\"fa fa-check fa-fw me-1\"/>Прийняти"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
-msgid ""
-"<i class=\"fa fa-check fa-fw me-1\"/>Be less specific in your wording for a "
-"wider search result."
-msgstr ""
-"<i class=\"fa fa-check fa-fw me-1\"/>Будьте менш конкретними у своїх "
-"формулюваннях для ширшого результату пошуку."
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
-msgid "<i class=\"fa fa-check fa-fw me-1\"/>Check your spelling and try again."
-msgstr ""
-"<i class=\"fa fa-check fa-fw me-1\"/>Перевірте правопис і повторіть спробу."
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
-msgid ""
-"<i class=\"fa fa-check fa-fw me-1\"/>Try searching for one or two words."
-msgstr ""
-"<i class=\"fa fa-check fa-fw me-1\"/>Спробуйте знайти одне або два слова."
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.display_post_question_block
-msgid "<i class=\"fa fa-check me-1\"/>Solved"
-msgstr "<i class=\"fa fa-check me-1\"/>Вирішено"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.show_flag_validator
-msgid "<i class=\"fa fa-check\"/> Accept"
-msgstr "<i class=\"fa fa-check\"/> Прийняти"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.edit_post
-#: model_terms:ir.ui.view,arch_db:website_forum.new_question
-msgid ""
-"<i class=\"fa fa-check\"/> How to configure TPS and TVQ's canadian taxes?"
-msgstr ""
-"<i class=\"fa fa-check\"/> Як налаштувати канадські податки TPS та TVQ?"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
-msgid "<i class=\"fa fa-check\"/><span class=\"ms-2\">Accept</span>"
-msgstr "<i class=\"fa fa-check\"/><span class=\"ms-2\">Прийняти</span>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_kanban
-msgid "<i class=\"fa fa-comments-o me-1\" title=\"Forum\"/>"
-msgstr "<i class=\"fa fa-comments-o me-1\" title=\"Forum\"/>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_kanban
-msgid "<i class=\"fa fa-eye me-1\" title=\"Views\"/>"
-msgstr "<i class=\"fa fa-eye me-1\" title=\"Views\"/>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
-msgid "<i class=\"fa fa-flag\"/> Country"
-msgstr "<i class=\"fa fa-flag\"/> Країна"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
-msgid "<i class=\"fa fa-font\"/> Text"
-msgstr "<i class=\"fa fa-font\"/> Текст"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.follow
-msgid "<i class=\"fa fa-fw fa-check me-1\"/>Following"
-msgstr "<i class=\"fa fa-fw fa-check me-1\"/>Наступні"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_kanban
-msgid "<i class=\"fa fa-globe me-1\" title=\"Website\"/>"
-msgstr "<i class=\"fa fa-globe me-1\" title=\"Website\"/>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar
-#: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar_mobile
-msgid "<i class=\"fa fa-info-circle fa-fw\"/> About this forum"
-msgstr "<i class=\"fa fa-info-circle fa-fw\"/> Про цей форум"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.post_display
-msgid ""
-"<i class=\"fa fa-pencil\"/>\n"
-"                                Edit<span class=\"d-none d-lg-inline\"> your "
-"answer</span>"
-msgstr ""
-"<i class=\"fa fa-pencil\"/>\n"
-"                                Відредагуйте<span class=\"d-none d-lg-"
-"inline\"> вашу відпоівдь</span>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.display_post
-msgid ""
-"<i class=\"fa fa-reply me-1 d-lg-none\"/>\n"
-"                0"
-msgstr ""
-"<i class=\"fa fa-reply me-1 d-lg-none\"/>\n"
-"                0"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
-#: model_terms:ir.ui.view,arch_db:website_forum.post_display
-msgid "<i class=\"fa fa-reply me-1\"/>Reply"
-msgstr ""
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.post_display
-msgid ""
-"<i class=\"fa fa-share-alt\" data-bs-toggle=\"tooltip\" data-bs-"
-"placement=\"top\" title=\"Share\"/>"
-msgstr ""
-"<i class=\"fa fa-share-alt\" data-bs-toggle=\"tooltip\" data-bs-"
-"placement=\"top\" title=\"Share\"/>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar_body
-msgid "<i class=\"fa fa-shield fa-fw opacity-50\"/> Badges"
-msgstr "<i class=\"fa fa-shield fa-fw opacity-50\"/> Значки"
-
-#. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.user_profile_content
-msgid ""
-"<i class=\"fa fa-thumbs-down text-danger ms-3\" role=\"img\" aria-"
-"label=\"Negative votes\" title=\"Negative votes\"/>"
-msgstr ""
-"<i class=\"fa fa-thumbs-down text-danger ms-3\" role=\"img\" aria-"
-"label=\"Negative votes\" title=\"Negative votes\"/>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.user_profile_content
-msgid ""
-"<i class=\"fa fa-thumbs-up text-success\" role=\"img\" aria-label=\"Positive "
-"votes\" title=\"Positive votes\"/>"
-msgstr ""
-"<i class=\"fa fa-thumbs-up text-success\" role=\"img\" aria-label=\"Positive "
-"votes\" title=\"Positive votes\"/>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
-msgid "<i class=\"fa fa-times fa-fw me-1\"/>Reject"
-msgstr "<i class=\"fa fa-times fa-fw me-1\"/>Відхилити"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.edit_post
-#: model_terms:ir.ui.view,arch_db:website_forum.new_question
-msgid ""
-"<i class=\"fa fa-times\"/> Good morning to all! Please, can someone help "
-"solve my tax computation problem in Canada? Thanks!"
-msgstr ""
-"<i class=\"fa fa-times\"/> Доброго ранку, всі! Чи може хтось допомогти "
-"вирішити проблему з обчисленням податків у Канаді? Дякую!"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.show_flag_validator
-msgid "<i class=\"fa fa-times\"/> Reject"
-msgstr "<i class=\"fa fa-times\"/> Відхилити"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
-msgid "<i class=\"fa fa-times\"/><span class=\"ms-2\">Offensive</span>"
-msgstr "<i class=\"fa fa-times\"/><span class=\"ms-2\">Образливий</span>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
-msgid "<i class=\"fa fa-times\"/><span class=\"ms-2\">Reject</span>"
-msgstr "<i class=\"fa fa-times\"/><span class=\"ms-2\">Відхилити</span>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
-msgid "<i class=\"fa fa-user\"/> User"
-msgstr "<i class=\"fa fa-user\"/> Користувач"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar_body
-msgid "<i class=\"fa fa-users fa-fw opacity-50\"/> People"
-msgstr "<i class=\"fa fa-users fa-fw opacity-50\"/> Люди"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.user_profile_content
-msgid "<i class=\"oi oi-arrow-right d-inline-block\"/> Go to Forums"
-msgstr "<i class=\"oi oi-arrow-right d-inline-block\"/> Перейти на форуми"
+msgid "<i class=\"oi d-inline-block\" data-icon=\"east\"/> Go to Forums"
+msgstr "<i class=\"oi d-inline-block\" data-icon=\"east\"/> Перейти на форуми"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.404
 msgid ""
-"<i class=\"oi oi-arrow-right display-inline-block\"/> Return to questions "
-"list"
+"<i class=\"oi display-inline-block\" data-icon=\"east\"/> Return to "
+"questions list"
 msgstr ""
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.display_post
+msgid ""
+"<i class=\"oi me-1 d-lg-none\" data-icon=\"reply\"/>\n"
+"                0"
+msgstr ""
+"<i class=\"oi me-1 d-lg-none\" data-icon=\"reply\"/>\n"
+"                0"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.forum_model_nav
+msgid "<i class=\"oi me-1\" data-icon=\"bug_report\"/>Filter Tool"
+msgstr "<i class=\"oi me-1\" data-icon=\"bug_report\"/>Інструмент фільтру"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.display_post_question_block
+msgid "<i class=\"oi me-1\" data-icon=\"check\"/>Solved"
+msgstr "<i class=\"oi me-1\" data-icon=\"check\"/>Вирішено"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_kanban
+msgid "<i class=\"oi me-1\" data-icon=\"forum\" title=\"Forum\"/>"
+msgstr "<i class=\"oi me-1\" data-icon=\"forum\" title=\"Forum\"/>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_kanban
+msgid "<i class=\"oi me-1\" data-icon=\"public\" title=\"Website\"/>"
+msgstr "<i class=\"oi me-1\" data-icon=\"public\" title=\"Website\"/>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
+#: model_terms:ir.ui.view,arch_db:website_forum.post_display
+msgid "<i class=\"oi me-1\" data-icon=\"reply\"/>Reply"
+msgstr ""
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_kanban
+msgid "<i class=\"oi me-1\" data-icon=\"visibility\" title=\"Views\"/>"
+msgstr "<i class=\"oi me-1\" data-icon=\"visibility\" title=\"Views\"/>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.new_question
+msgid ""
+"<i class=\"oi me-2\" data-icon=\"keyboard_arrow_left\"/>Back to All Posts"
+msgstr ""
+"<i class=\"oi me-2\" data-icon=\"keyboard_arrow_left\"/>Повернутися до всіх "
+"публікацій"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar_body
+msgid "<i class=\"oi oi-filled oi-fw opacity-50\" data-icon=\"group\"/> People"
+msgstr "<i class=\"oi oi-filled oi-fw opacity-50\" data-icon=\"group\"/> Люди"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.user_profile_content
+msgid ""
+"<i class=\"oi oi-filled text-danger ms-3\" data-icon=\"thumb_down\" "
+"role=\"img\" aria-label=\"Negative votes\" title=\"Negative votes\"/>"
+msgstr ""
+"<i class=\"oi oi-filled text-danger ms-3\" data-icon=\"thumb_down\" "
+"role=\"img\" aria-label=\"Negative votes\" title=\"Negative votes\"/>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.user_profile_content
+msgid ""
+"<i class=\"oi oi-filled text-success\" data-icon=\"thumb_up\" role=\"img\" "
+"aria-label=\"Positive votes\" title=\"Positive votes\"/>"
+msgstr ""
+"<i class=\"oi oi-filled text-success\" data-icon=\"thumb_up\" role=\"img\" "
+"aria-label=\"Positive votes\" title=\"Positive votes\"/>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.post_display
+msgid ""
+"<i class=\"oi oi-filled\" data-icon=\"edit\"/>\n"
+"                                Edit<span class=\"d-none d-lg-inline\"> your "
+"answer</span>"
+msgstr ""
+"<i class=\"oi oi-filled\" data-icon=\"edit\"/>\n"
+"                                Відредагуйте<span class=\"d-none d-lg-"
+"inline\"> вашу відпоівдь</span>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
+msgid "<i class=\"oi oi-filled\" data-icon=\"flag\"/> Country"
+msgstr "<i class=\"oi oi-filled\" data-icon=\"flag\"/> Країна"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
+msgid "<i class=\"oi oi-filled\" data-icon=\"person\"/> User"
+msgstr "<i class=\"oi oi-filled\" data-icon=\"person\"/> Користувач"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
+msgid "<i class=\"oi oi-fw me-1\" data-icon=\"check\"/>Accept"
+msgstr "<i class=\"oi oi-fw me-1\" data-icon=\"check\"/>Прийняти"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
+msgid ""
+"<i class=\"oi oi-fw me-1\" data-icon=\"check\"/>Be less specific in your "
+"wording for a wider search result."
+msgstr ""
+"<i class=\"oi oi-fw me-1\" data-icon=\"check\"/>Будьте менш конкретними у "
+"своїх формулюваннях для ширшого результату пошуку."
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
+msgid ""
+"<i class=\"oi oi-fw me-1\" data-icon=\"check\"/>Check your spelling and try "
+"again."
+msgstr ""
+"<i class=\"oi oi-fw me-1\" data-icon=\"check\"/>Перевірте правопис і "
+"повторіть спробу."
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.follow_button
+msgid "<i class=\"oi oi-fw me-1\" data-icon=\"check\"/>Following"
+msgstr "<i class=\"oi oi-fw me-1\" data-icon=\"check\"/>Наступні"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
+msgid ""
+"<i class=\"oi oi-fw me-1\" data-icon=\"check\"/>Try searching for one or two "
+"words."
+msgstr ""
+"<i class=\"oi oi-fw me-1\" data-icon=\"check\"/>Спробуйте знайти одне або "
+"два слова."
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
+msgid "<i class=\"oi oi-fw me-1\" data-icon=\"close\"/>Reject"
+msgstr "<i class=\"oi oi-fw me-1\" data-icon=\"close\"/>Відхилити"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar_body
+msgid "<i class=\"oi oi-fw opacity-50\" data-icon=\"security\"/> Badges"
+msgstr "<i class=\"oi oi-fw opacity-50\" data-icon=\"security\"/> Значки"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar
+#: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar_mobile
+msgid "<i class=\"oi oi-fw\" data-icon=\"info\"/> About this forum"
+msgstr "<i class=\"oi oi-fw\" data-icon=\"info\"/> Про цей форум"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.vote
+msgid ""
+"<i class=\"oi\" data-icon=\"arrow_drop_down\" data-bs-toggle=\"tooltip\" "
+"data-bs-placement=\"top\" title=\"Downvote\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"arrow_drop_down\" data-bs-toggle=\"tooltip\" "
+"data-bs-placement=\"top\" title=\"Downvote\"/>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.vote
+msgid ""
+"<i class=\"oi\" data-icon=\"arrow_drop_up\" data-bs-toggle=\"tooltip\" data-"
+"bs-placement=\"top\" title=\"Upvote\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"arrow_drop_up\" data-bs-toggle=\"tooltip\" data-"
+"bs-placement=\"top\" title=\"Upvote\"/>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.user_votes
+msgid "<i class=\"oi\" data-icon=\"arrow_forward\"/> Go To Forums"
+msgstr "<i class=\"oi\" data-icon=\"arrow_forward\"/> Перейти до форумів"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.show_flag_validator
+msgid "<i class=\"oi\" data-icon=\"check\"/> Accept"
+msgstr "<i class=\"oi\" data-icon=\"check\"/> Прийняти"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.edit_post
+#: model_terms:ir.ui.view,arch_db:website_forum.new_question
+msgid ""
+"<i class=\"oi\" data-icon=\"check\"/> How to configure TPS and TVQ's "
+"canadian taxes?"
+msgstr ""
+"<i class=\"oi\" data-icon=\"check\"/> Як налаштувати канадські податки TPS "
+"та TVQ?"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
+msgid "<i class=\"oi\" data-icon=\"check\"/><span class=\"ms-2\">Accept</span>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"check\"/><span class=\"ms-2\">Прийняти</span>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.edit_post
+#: model_terms:ir.ui.view,arch_db:website_forum.new_question
+msgid ""
+"<i class=\"oi\" data-icon=\"close\"/> Good morning to all! Please, can "
+"someone help solve my tax computation problem in Canada? Thanks!"
+msgstr ""
+"<i class=\"oi\" data-icon=\"close\"/> Доброго ранку, всі! Чи може хтось "
+"допомогти вирішити проблему з обчисленням податків у Канаді? Дякую!"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.show_flag_validator
+msgid "<i class=\"oi\" data-icon=\"close\"/> Reject"
+msgstr "<i class=\"oi\" data-icon=\"close\"/> Відхилити"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
+msgid ""
+"<i class=\"oi\" data-icon=\"close\"/><span class=\"ms-2\">Offensive</span>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"close\"/><span class=\"ms-2\">Образливий</span>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
+msgid "<i class=\"oi\" data-icon=\"close\"/><span class=\"ms-2\">Reject</span>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"close\"/><span class=\"ms-2\">Відхилити</span>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.post_display
+msgid ""
+"<i class=\"oi\" data-icon=\"family_history\" data-bs-toggle=\"tooltip\" data-"
+"bs-placement=\"top\" title=\"Share\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"family_history\" data-bs-toggle=\"tooltip\" data-"
+"bs-placement=\"top\" title=\"Share\"/>"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_dropdown
 msgid ""
-"<i class=\"oi oi-ellipsis-h\" data-bs-toggle=\"tooltip\" data-bs-"
+"<i class=\"oi\" data-icon=\"more_horiz\" data-bs-toggle=\"tooltip\" data-bs-"
 "placement=\"top\" title=\"More\"/>"
 msgstr ""
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
+msgid "<i class=\"oi\" data-icon=\"text_fields\"/> Text"
+msgstr "<i class=\"oi\" data-icon=\"text_fields\"/> Текст"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.user_profile_content
@@ -669,24 +707,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_all_all_entries
 msgid "<span class=\"badge bg-dark me-1\">Last post:</span>"
 msgstr "<span class=\"badge bg-dark me-1\">Остання публікація:</span>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.contact
-msgid ""
-"<span class=\"fa fa-trophy o-text-bronze ms-2\" role=\"img\" aria-"
-"label=\"Bronze badge\" title=\"Bronze badge\"/>"
-msgstr ""
-"<span class=\"fa fa-trophy o-text-bronze ms-2\" role=\"img\" aria-"
-"label=\"Bronze badge\" title=\"Bronze badge\"/>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.contact
-msgid ""
-"<span class=\"fa fa-trophy o-text-silver ms-2\" role=\"img\" aria-"
-"label=\"Silver badge\" title=\"Silver badge\"/>"
-msgstr ""
-"<span class=\"fa fa-trophy o-text-silver ms-2\" role=\"img\" aria-"
-"label=\"Silver badge\" title=\"Silver badge\"/>"
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
@@ -743,8 +763,8 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:website_forum.edit_post
 #: model_terms:ir.ui.view,arch_db:website_forum.new_question
 msgid ""
-"<span class=\"form-text small text-muted me-1\"><i class=\"fa fa-lightbulb-"
-"o\"/> Tip:</span>"
+"<span class=\"form-text small text-muted me-1\"><i class=\"oi\" data-"
+"icon=\"lightbulb\"/> Tip:</span>"
 msgstr ""
 
 #. module: website_forum
@@ -762,6 +782,24 @@ msgstr "<span class=\"o_stat_text\">Перейти до <br/>Веб-сайту</
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_forum_view_form
 msgid "<span class=\"o_stat_text\">Posts</span>"
 msgstr "<span class=\"o_stat_text\">Публікації</span>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.contact
+msgid ""
+"<span class=\"oi oi-filled o-text-bronze ms-2\" data-icon=\"trophy\" "
+"role=\"img\" aria-label=\"Bronze badge\" title=\"Bronze badge\"/>"
+msgstr ""
+"<span class=\"oi oi-filled o-text-bronze ms-2\" data-icon=\"trophy\" "
+"role=\"img\" aria-label=\"Bronze badge\" title=\"Bronze badge\"/>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.contact
+msgid ""
+"<span class=\"oi oi-filled o-text-silver ms-2\" data-icon=\"trophy\" "
+"role=\"img\" aria-label=\"Silver badge\" title=\"Silver badge\"/>"
+msgstr ""
+"<span class=\"oi oi-filled o-text-silver ms-2\" data-icon=\"trophy\" "
+"role=\"img\" aria-label=\"Silver badge\" title=\"Silver badge\"/>"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.display_activities
@@ -843,8 +881,6 @@ msgstr "У доступі відмовлено"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__message_needaction
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__message_needaction
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__message_needaction
 msgid "Action Needed"
 msgstr "Необхідна дія"
 
@@ -890,6 +926,12 @@ msgid "All"
 msgstr "Всі"
 
 #. module: website_forum
+#. odoo-javascript
+#: code:addons/website_forum/static/src/website_builder/forum_floating_snippets_plugin.js:0
+msgid "All Forums"
+msgstr ""
+
+#. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar_body
 msgid "All Posts"
 msgstr ""
@@ -917,6 +959,7 @@ msgstr "Відповісти %s"
 
 #. module: website_forum
 #. odoo-python
+#: code:addons/website_forum/controllers/website_forum.py:0
 #: code:addons/website_forum/models/forum_post.py:0
 #: model:mail.message.subtype,description:website_forum.mt_answer_edit
 #: model:mail.message.subtype,name:website_forum.mt_answer_edit
@@ -932,6 +975,12 @@ msgstr "Відповідь підтверджена"
 #: model_terms:gamification.badge,description:website_forum.badge_a_6
 msgid "Answer accepted with 15 or more votes"
 msgstr "Відповідь приймається з 15 і більше голосами"
+
+#. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_post.py:0
+msgid "Answer converted to comment in \"%s\""
+msgstr ""
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_gen_answer_downvote
@@ -1105,8 +1154,6 @@ msgstr "Прикріплення"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__message_attachment_count
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__message_attachment_count
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__message_attachment_count
 msgid "Attachment Count"
 msgstr "Підрахунок прикріплення"
 
@@ -1181,10 +1228,15 @@ msgid "Best Answer"
 msgstr "Найкраща відповідь"
 
 #. module: website_forum
+#: model:ir.model.fields,field_description:website_forum.field_forum_post_comment__body
+msgid "Body"
+msgstr ""
+
+#. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/xml/public_templates.xml:0
 msgid "By sharing you answer, you will get additional"
-msgstr "Поділившись відповіддю, ви отримаєте додатково"
+msgstr ""
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__can_accept
@@ -1262,9 +1314,27 @@ msgid "Can View"
 msgstr "Можна переглянути"
 
 #. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_post_comment.py:0
+msgid "Cannot change the post of a comment."
+msgstr ""
+
+#. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_post.py:0
+msgid "Cannot convert a question to a comment"
+msgstr ""
+
+#. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_edit_retag
 msgid "Change question tags"
 msgstr "Змінити теги запитання"
+
+#. module: website_forum
+#. odoo-javascript
+#: code:addons/website_forum/static/src/js/tours/website_forum.js:0
+msgid "Check edit button is there"
+msgstr ""
 
 #. module: website_forum
 #: model:gamification.badge,name:website_forum.badge_p_4
@@ -1276,19 +1346,19 @@ msgstr "Головний коментатор"
 #. odoo-javascript
 #: code:addons/website_forum/static/src/js/tours/website_forum.js:0
 msgid "Click here to accept this answer."
-msgstr "Натисніть тут, щоби прийняти цю відповідь."
+msgstr ""
 
 #. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/js/tours/website_forum.js:0
 msgid "Click to post your answer."
-msgstr "Натисніть, щоб опублікувати вашу відповідь."
+msgstr ""
 
 #. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/js/tours/website_forum.js:0
 msgid "Click to post your question."
-msgstr "Натисніть, щоб опублікувати ваше запитання."
+msgstr ""
 
 #. module: website_forum
 #. odoo-javascript
@@ -1321,6 +1391,18 @@ msgstr "Закрити свої публікації"
 #: model_terms:ir.ui.view,arch_db:website_forum.mark_as_offensive
 msgid "Close post"
 msgstr "Закрити публікацію"
+
+#. module: website_forum
+#. odoo-javascript
+#: code:addons/website_forum/static/src/js/tours/website_forum.js:0
+msgid "Close search bar"
+msgstr ""
+
+#. module: website_forum
+#. odoo-javascript
+#: code:addons/website_forum/static/src/js/tours/website_forum.js:0
+msgid "Close this dialog."
+msgstr ""
 
 #. module: website_forum
 #: model:ir.model.fields.selection,name:website_forum.selection__forum_post__state__close
@@ -1387,6 +1469,11 @@ msgid "Commentator"
 msgstr "Коментатор"
 
 #. module: website_forum
+#: model:ir.model.fields,field_description:website_forum.field_forum_post__comment_ids
+msgid "Comments"
+msgstr ""
+
+#. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_all_oe_structure_forum_all_top
 msgid "Community Forums"
 msgstr "Форуми спільноти"
@@ -1412,6 +1499,11 @@ msgstr "Містить образливі або зловмисні зауваж
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_search
 msgid "Content"
 msgstr "Вміст"
+
+#. module: website_forum
+#: model:ir.model.fields,field_description:website_forum.field_forum_post__write_date_content
+msgid "Content Updated on"
+msgstr ""
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_comment_convert_all
@@ -1463,7 +1555,7 @@ msgstr "Створити новий пост"
 #. odoo-javascript
 #: code:addons/website_forum/static/src/js/tours/website_forum.js:0
 msgid "Create a new post in this forum by clicking on the button."
-msgstr "Створіть новий пост на цьому форумі, натиснувши кнопку."
+msgstr ""
 
 #. module: website_forum
 #: model_terms:ir.actions.act_window,help:website_forum.forum_tag_action
@@ -1496,6 +1588,7 @@ msgstr "Створений тег використовувався у 15 зап�
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__create_uid
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__create_uid
+#: model:ir.model.fields,field_description:website_forum.field_forum_post_comment__create_uid
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_reason__create_uid
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_vote__create_uid
 #: model:ir.model.fields,field_description:website_forum.field_forum_tag__create_uid
@@ -1504,6 +1597,7 @@ msgstr "Створив"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__create_date
+#: model:ir.model.fields,field_description:website_forum.field_forum_post_comment__create_date
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_reason__create_date
 #: model:ir.model.fields,field_description:website_forum.field_forum_tag__create_date
 #: model_terms:ir.ui.view,arch_db:website_forum.display_post
@@ -1522,12 +1616,6 @@ msgstr "Достовірне запитання"
 #: model:gamification.goal.definition,name:website_forum.definition_critic
 msgid "Critic"
 msgstr "Критик"
-
-#. module: website_forum
-#. odoo-javascript
-#: code:addons/website_forum/static/src/website_builder/forum_searchbar_option_plugin.js:0
-msgid "Date"
-msgstr "Дата"
 
 #. module: website_forum
 #. odoo-javascript
@@ -1607,8 +1695,6 @@ msgid "Deleted own post with 3 or more upvotes"
 msgstr "Видалені власні публікації з трьома або більше підвищеними голосами"
 
 #. module: website_forum
-#. odoo-javascript
-#: code:addons/website_forum/static/src/website_builder/forum_searchbar_option_plugin.js:0
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__description
 #: model_terms:ir.ui.view,arch_db:website_forum.edit_post
 #: model_terms:ir.ui.view,arch_db:website_forum.new_question
@@ -1656,12 +1742,15 @@ msgstr "Відхилити повідомлення"
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__display_name
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__display_name
+#: model:ir.model.fields,field_description:website_forum.field_forum_post_comment__display_name
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_reason__display_name
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_vote__display_name
 #: model:ir.model.fields,field_description:website_forum.field_forum_tag__display_name
 #: model:ir.model.fields,field_description:website_forum.field_gamification_challenge__display_name
 #: model:ir.model.fields,field_description:website_forum.field_gamification_karma_tracking__display_name
 #: model:ir.model.fields,field_description:website_forum.field_ir_attachment__display_name
+#: model:ir.model.fields,field_description:website_forum.field_ir_http__display_name
+#: model:ir.model.fields,field_description:website_forum.field_mail_thread__display_name
 #: model:ir.model.fields,field_description:website_forum.field_res_users__display_name
 #: model:ir.model.fields,field_description:website_forum.field_website__display_name
 msgid "Display Name"
@@ -1683,6 +1772,11 @@ msgstr "Пониження голосу"
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "Downvote for posting offensive contents"
 msgstr "Голосуйте проти публікації образливого вмісту"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.header
+msgid "Drag blocks here to add them on all forum"
+msgstr ""
 
 #. module: website_forum
 #: model:forum.post.reason,name:website_forum.reason_1
@@ -1742,6 +1836,11 @@ msgid "Editor Features: image and links"
 msgstr "Функції редактора: зображення та посилання"
 
 #. module: website_forum
+#: model:ir.model,name:website_forum.model_mail_thread
+msgid "Email Thread"
+msgstr ""
+
+#. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
 msgid "Empty box"
 msgstr "Порожня скринька"
@@ -1763,10 +1862,10 @@ msgstr "Просвітлений"
 #: model_terms:ir.ui.view,arch_db:website_forum.new_question
 msgid ""
 "Example\n"
-"                            <i class=\"fa fa-question-circle\"/>"
+"                            <i class=\"oi\" data-icon=\"help\"/>"
 msgstr ""
 "Приклад\n"
-"                            <i class=\"fa fa-question-circle\"/>"
+"                            <i class=\"oi\" data-icon=\"help\"/>"
 
 #. module: website_forum
 #. odoo-javascript
@@ -1882,7 +1981,7 @@ msgid "Flagged by"
 msgstr "Позначено"
 
 #. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.follow
+#: model_terms:ir.ui.view,arch_db:website_forum.follow_button
 msgid "Follow"
 msgstr "Стежити"
 
@@ -1898,15 +1997,13 @@ msgstr "Наступні теги"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__message_follower_ids
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__message_follower_ids
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__message_follower_ids
+#: model:ir.model.fields,field_description:website_forum.field_forum_post__follower_ids
+#: model:ir.model.fields,field_description:website_forum.field_forum_tag__follower_ids
 msgid "Followers"
 msgstr "Підписники"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__message_partner_ids
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__message_partner_ids
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__message_partner_ids
 msgid "Followers (Partners)"
 msgstr "Підписники (Партнери)"
 
@@ -1931,12 +2028,15 @@ msgstr ""
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/controllers/website_forum.py:0
+#: code:addons/website_forum/models/forum_forum.py:0
 #: code:addons/website_forum/models/website.py:0
 #: model:ir.actions.act_url,name:website_forum.action_open_forum
 #: model:ir.model,name:website_forum.model_forum_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__forum_id
+#: model:ir.model.fields,field_description:website_forum.field_forum_post_comment__forum_id
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_vote__forum_id
 #: model:ir.model.fields,field_description:website_forum.field_forum_tag__forum_id
+#: model:ir.module.module,shortdesc:base.module_website_forum
 #: model:ir.ui.menu,name:website_forum.menu_website_forum_global
 #: model:website.menu,name:website_forum.menu_website_forums
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_forum_view_form
@@ -1964,15 +2064,22 @@ msgstr "Назва форуму"
 
 #. module: website_forum
 #. odoo-javascript
-#: code:addons/website_forum/static/src/website_builder/forum_page_option_plugin.js:0
+#: code:addons/website_forum/static/src/website_builder/forum_page_option.xml:0
 msgid "Forum Page"
 msgstr "Сторінка форуму"
 
 #. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_post.py:0
 #: model:ir.model,name:website_forum.model_forum_post
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_form
 msgid "Forum Post"
 msgstr "Публікація форуму"
+
+#. module: website_forum
+#: model:ir.model,name:website_forum.model_forum_post_comment
+msgid "Forum Post Comment"
+msgstr ""
 
 #. module: website_forum
 #: model:ir.actions.act_window,name:website_forum.forum_post_action
@@ -1990,13 +2097,17 @@ msgid "Forum Tag"
 msgstr "Тег форуму"
 
 #. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_tag.py:0
 #: model:ir.actions.act_window,name:website_forum.forum_tag_action
 msgid "Forum Tags"
 msgstr ""
 
 #. module: website_forum
-#. odoo-javascript
-#: code:addons/website_forum/static/src/website_builder/forum_searchbar_option.xml:0
+#. odoo-python
+#: code:addons/website_forum/models/forum_forum.py:0
+#: code:addons/website_forum/models/forum_post.py:0
+#: code:addons/website_forum/models/website.py:0
 #: model:ir.actions.act_window,name:website_forum.forum_forum_action
 #: model:ir.ui.menu,name:website_forum.menu_forum_global
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_forum_view_tree
@@ -2009,12 +2120,12 @@ msgid "Gamification Challenge"
 msgstr "Геміфікація випробування"
 
 #. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.follow
+#: model_terms:ir.ui.view,arch_db:website_forum.follow_button
 msgid "Get notified when there's activity on this post"
 msgstr "Отримуйте сповіщення про активність щодо цієї публікації"
 
 #. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.follow
+#: model_terms:ir.ui.view,arch_db:website_forum.follow_button
 msgid "Get notified when this tag is used"
 msgstr "Отримує споіщення, коли цей тег використовується"
 
@@ -2022,7 +2133,7 @@ msgstr "Отримує споіщення, коли цей тег викорис
 #. odoo-javascript
 #: code:addons/website_forum/static/src/js/tours/website_forum.js:0
 msgid "Give your post title."
-msgstr "Напишіть заголовок у вашій публікації."
+msgstr ""
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
@@ -2097,14 +2208,22 @@ msgid "Guru (15)"
 msgstr "Гуру (15)"
 
 #. module: website_forum
+#: model:ir.model,name:website_forum.model_ir_http
+msgid "HTTP Routing"
+msgstr ""
+
+#. module: website_forum
+#: model:ir.model.fields,field_description:website_forum.field_forum_forum__can_access
+msgid "Has Access"
+msgstr ""
+
+#. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__uid_has_answered
 msgid "Has Answered"
 msgstr "Відповів"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__has_message
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__has_message
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__has_message
 msgid "Has Message"
 msgstr "Є повідомлення"
 
@@ -2132,12 +2251,15 @@ msgstr "Ось таблиця з привілеями та рівнем карм
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__id
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__id
+#: model:ir.model.fields,field_description:website_forum.field_forum_post_comment__id
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_reason__id
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_vote__id
 #: model:ir.model.fields,field_description:website_forum.field_forum_tag__id
 #: model:ir.model.fields,field_description:website_forum.field_gamification_challenge__id
 #: model:ir.model.fields,field_description:website_forum.field_gamification_karma_tracking__id
 #: model:ir.model.fields,field_description:website_forum.field_ir_attachment__id
+#: model:ir.model.fields,field_description:website_forum.field_ir_http__id
+#: model:ir.model.fields,field_description:website_forum.field_mail_thread__id
 #: model:ir.model.fields,field_description:website_forum.field_res_users__id
 #: model:ir.model.fields,field_description:website_forum.field_website__id
 msgid "ID"
@@ -2145,18 +2267,12 @@ msgstr "ID"
 
 #. module: website_forum
 #: model:ir.model.fields,help:website_forum.field_forum_forum__message_needaction
-#: model:ir.model.fields,help:website_forum.field_forum_post__message_needaction
-#: model:ir.model.fields,help:website_forum.field_forum_tag__message_needaction
 msgid "If checked, new messages require your attention."
 msgstr "Якщо позначено, то нові повідомлення будуть потребувати вашої уваги."
 
 #. module: website_forum
 #: model:ir.model.fields,help:website_forum.field_forum_forum__message_has_error
 #: model:ir.model.fields,help:website_forum.field_forum_forum__message_has_sms_error
-#: model:ir.model.fields,help:website_forum.field_forum_post__message_has_error
-#: model:ir.model.fields,help:website_forum.field_forum_post__message_has_sms_error
-#: model:ir.model.fields,help:website_forum.field_forum_tag__message_has_error
-#: model:ir.model.fields,help:website_forum.field_forum_tag__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
 msgstr "Якщо позначено, деякі повідомлення мають помилку доставки."
 
@@ -2247,7 +2363,7 @@ msgstr "Недоречні та неприйнятні заяви"
 #. odoo-javascript
 #: code:addons/website_forum/static/src/js/tours/website_forum.js:0
 msgid "Insert tags related to your question."
-msgstr "Вставте теги, пов'язані з вашим питанням."
+msgstr ""
 
 #. module: website_forum
 #: model:forum.post.reason,name:website_forum.reason_11
@@ -2261,8 +2377,8 @@ msgstr "Це закладка"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__message_is_follower
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__message_is_follower
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__message_is_follower
+#: model:ir.model.fields,field_description:website_forum.field_forum_post__is_follower
+#: model:ir.model.fields,field_description:website_forum.field_forum_tag__is_follower
 msgid "Is Follower"
 msgstr "Стежить"
 
@@ -2353,6 +2469,7 @@ msgstr "Останні оновлення"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__write_uid
+#: model:ir.model.fields,field_description:website_forum.field_forum_post_comment__write_uid
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_reason__write_uid
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_vote__write_uid
 #: model:ir.model.fields,field_description:website_forum.field_forum_tag__write_uid
@@ -2361,6 +2478,7 @@ msgstr "Востаннє оновив"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__write_date
+#: model:ir.model.fields,field_description:website_forum.field_forum_post_comment__write_date
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_reason__write_date
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_vote__write_date
 #: model:ir.model.fields,field_description:website_forum.field_forum_tag__write_date
@@ -2384,11 +2502,6 @@ msgid "Left 10 answers with score of 10 or more"
 msgstr "Залишені 10 відповідей з оцінкою 10 або більше"
 
 #. module: website_forum
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__website_url
-msgid "Link to questions with the tag"
-msgstr "Посилання на питання з тегом"
-
-#. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/xml/public_templates.xml:0
 #: model_terms:ir.ui.view,arch_db:website_forum.post_display
@@ -2400,6 +2513,11 @@ msgstr "LinkedIn"
 #: code:addons/website_forum/static/src/website_builder/forum_page_option.xml:0
 msgid "List"
 msgstr "Список"
+
+#. module: website_forum
+#: model:ir.module.module,summary:base.module_website_forum
+msgid "Manage a forum with FAQ and Q&A"
+msgstr ""
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_display
@@ -2429,15 +2547,11 @@ msgstr ""
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__message_has_error
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__message_has_error
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__message_has_error
 msgid "Message Delivery error"
 msgstr "Помилка доставлення повідомлення"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__message_ids
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__message_ids
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__message_ids
 msgid "Messages"
 msgstr "Повідомлення"
 
@@ -2519,11 +2633,19 @@ msgid "Negative vote"
 msgstr "Негативний голос"
 
 #. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/controllers/website_forum.py:0
 #: model:mail.message.subtype,description:website_forum.mt_answer_new
 #: model:mail.message.subtype,name:website_forum.mt_answer_new
 #: model:mail.message.subtype,name:website_forum.mt_forum_answer_new
 msgid "New Answer"
 msgstr "Нова відповідь"
+
+#. module: website_forum
+#: model:mail.message.subtype,description:website_forum.mt_comment_new
+#: model:mail.message.subtype,name:website_forum.mt_comment_new
+msgid "New Comment"
+msgstr ""
 
 #. module: website_forum
 #: model:ir.actions.act_window,name:website_forum.forum_forum_action_add
@@ -2536,11 +2658,19 @@ msgid "New Post"
 msgstr "Нова публікація"
 
 #. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/controllers/website_forum.py:0
 #: model:mail.message.subtype,description:website_forum.mt_question_new
 #: model:mail.message.subtype,name:website_forum.mt_forum_question_new
 #: model:mail.message.subtype,name:website_forum.mt_question_new
 msgid "New Question"
 msgstr "Нове запитання"
+
+#. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_post_comment.py:0
+msgid "New comment in %s"
+msgstr ""
 
 #. module: website_forum
 #: model:ir.model.fields.selection,name:website_forum.selection__forum_forum__default_order__create_date_desc
@@ -2602,8 +2732,6 @@ msgstr "Помітне запитання"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__message_needaction_counter
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__message_needaction_counter
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__message_needaction_counter
 msgid "Number of Actions"
 msgstr "Кількість дій"
 
@@ -2614,8 +2742,6 @@ msgstr "Кількість публікацій"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__message_has_error_counter
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__message_has_error_counter
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__message_has_error_counter
 msgid "Number of errors"
 msgstr "Кількість помилок"
 
@@ -2626,15 +2752,11 @@ msgstr "Кількість помічених постів"
 
 #. module: website_forum
 #: model:ir.model.fields,help:website_forum.field_forum_forum__message_needaction_counter
-#: model:ir.model.fields,help:website_forum.field_forum_post__message_needaction_counter
-#: model:ir.model.fields,help:website_forum.field_forum_tag__message_needaction_counter
 msgid "Number of messages requiring action"
 msgstr "Кількість повідомлень, які вимагають дії"
 
 #. module: website_forum
 #: model:ir.model.fields,help:website_forum.field_forum_forum__message_has_error_counter
-#: model:ir.model.fields,help:website_forum.field_forum_post__message_has_error_counter
-#: model:ir.model.fields,help:website_forum.field_forum_tag__message_has_error_counter
 msgid "Number of messages with delivery error"
 msgstr "Кількість повідомлень з помилковою дставкою"
 
@@ -2672,7 +2794,7 @@ msgstr "Образливі публікації"
 #. odoo-javascript
 #: code:addons/website_forum/static/src/xml/public_templates.xml:0
 msgid "On average,"
-msgstr "В середньому,"
+msgstr ""
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
@@ -2743,6 +2865,7 @@ msgid "Positive vote"
 msgstr "Позитивний голос"
 
 #. module: website_forum
+#: model:ir.model.fields,field_description:website_forum.field_forum_post_comment__post_id
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_vote__post_id
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_search
 msgid "Post"
@@ -2819,6 +2942,12 @@ msgstr ""
 "Відправлення відповіді на запитання [Видалено] або [Закрито] неможливе."
 
 #. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_post.py:0
+msgid "Posting answer on a [Flagged] question is not possible."
+msgstr ""
+
+#. module: website_forum
 #: model:ir.actions.act_window,name:website_forum.forum_post_action_forum_main
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__post_ids
 #: model:ir.model.fields,field_description:website_forum.field_forum_tag__post_ids
@@ -2859,13 +2988,13 @@ msgstr "Експерт"
 #. odoo-javascript
 #: code:addons/website_forum/static/src/js/tours/website_forum.js:0
 msgid "Put your answer here."
-msgstr "Вставте вашу відповідь сюди."
+msgstr ""
 
 #. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/js/tours/website_forum.js:0
 msgid "Put your question here."
-msgstr "Вставте ваше запитання сюди."
+msgstr ""
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__parent_id
@@ -2880,7 +3009,14 @@ msgid "Question %s"
 msgstr "Запитання %s"
 
 #. module: website_forum
+#: model:mail.message.subtype,description:website_forum.mt_ask_validation
+#: model:mail.message.subtype,name:website_forum.mt_ask_validation
+msgid "Question Ask Validation"
+msgstr ""
+
+#. module: website_forum
 #. odoo-python
+#: code:addons/website_forum/controllers/website_forum.py:0
 #: code:addons/website_forum/models/forum_post.py:0
 #: model:mail.message.subtype,description:website_forum.mt_question_edit
 #: model:mail.message.subtype,name:website_forum.mt_question_edit
@@ -2974,14 +3110,12 @@ msgstr "Звання"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__rating_ids
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__rating_ids
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__rating_ids
 msgid "Ratings"
 msgstr "Оцінювання"
 
 #. module: website_forum
 #. odoo-python
-#: code:addons/website_forum/models/forum_post.py:0
+#: code:addons/website_forum/models/forum_post_comment.py:0
 msgid "Re: %s"
 msgstr "Відповідь: %s"
 
@@ -3104,8 +3238,6 @@ msgstr "Оптимізовано SEO"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__message_has_sms_error
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__message_has_sms_error
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr "Помилка доставки SMS"
 
@@ -3152,15 +3284,15 @@ msgid "Second Relevance Parameter"
 msgstr "Другий параметр відповідності"
 
 #. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.forum_post_template_new_answer
+msgid "See answer"
+msgstr ""
+
+#. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/res_users.py:0
 msgid "See our Forum"
 msgstr "Перегляньте наш форум"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.forum_post_template_new_answer
-msgid "See post"
-msgstr "Побачити публікацію"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_template_new_question
@@ -3171,6 +3303,18 @@ msgstr "Побачити запитання"
 #: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
 msgid "Select All"
 msgstr "Вибрати всі"
+
+#. module: website_forum
+#. odoo-javascript
+#: code:addons/website_forum/static/src/js/tours/website_forum.js:0
+msgid "Select a forum to post your question in."
+msgstr ""
+
+#. module: website_forum
+#. odoo-javascript
+#: code:addons/website_forum/static/src/js/tours/website_forum.js:0
+msgid "Select found select menu item"
+msgstr ""
 
 #. module: website_forum
 #: model:gamification.badge,name:website_forum.badge_a_8
@@ -3264,7 +3408,7 @@ msgstr "На жаль, ми не можемо знайти жодних резу
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
 msgid "Sorry, we could not find any <b>unanswered</b> results"
-msgstr "На жаль, ми не можемо знайти жодного результату <b>без відповідей</b>"
+msgstr "На жаль, ми не можемо знайти жодного результату  <b>без відповідей</b>"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
@@ -3286,7 +3430,7 @@ msgstr "На жаль, ви не можете вибрати власні пуб
 #. odoo-javascript
 #: code:addons/website_forum/static/src/interactions/website_forum.js:0
 msgid "Sorry, you cannot vote for your own posts"
-msgstr "На жаль, ви не можете голосувати за вашу публікацію"
+msgstr "На жаль, ви не можете голосувати за вашу публікацію."
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
@@ -3321,7 +3465,7 @@ msgid "Student"
 msgstr "Студент"
 
 #. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.follow
+#: model_terms:ir.ui.view,arch_db:website_forum.follow_button
 msgid "Subscribe"
 msgstr "Підписатися"
 
@@ -3391,6 +3535,20 @@ msgstr "Дякуємо за публікацію!"
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "The accepted answer is deleted"
 msgstr "Прийнята відповідь видаляється"
+
+#. module: website_forum
+#: model:ir.model.fields,help:website_forum.field_forum_forum__website_absolute_url
+#: model:ir.model.fields,help:website_forum.field_forum_post__website_absolute_url
+#: model:ir.model.fields,help:website_forum.field_forum_tag__website_absolute_url
+msgid "The full absolute URL to access the document through the website."
+msgstr ""
+
+#. module: website_forum
+#: model:ir.model.fields,help:website_forum.field_forum_forum__website_url
+#: model:ir.model.fields,help:website_forum.field_forum_post__website_url
+#: model:ir.model.fields,help:website_forum.field_forum_tag__website_url
+msgid "The full relative URL to access the document through the website."
+msgstr ""
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
@@ -3629,7 +3787,7 @@ msgid "Undelete"
 msgstr "Відновити"
 
 #. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.follow
+#: model_terms:ir.ui.view,arch_db:website_forum.follow_button
 msgid "Unfollow"
 msgstr "Відписатися"
 
@@ -3736,8 +3894,8 @@ msgstr "Перегляд"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_display
-msgid "View my answer <i class=\"oi oi-arrow-right ms-1\"/>"
-msgstr "Переглянути мою відповідь <i class=\"oi oi-arrow-right ms-1\"/>"
+msgid "View my answer <i class=\"oi ms-1\" data-icon=\"east\"/>"
+msgstr "Переглянути мою відповідь <i class=\"oi ms-1\" data-icon=\"east\"/>"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__views
@@ -3786,23 +3944,18 @@ msgid "Website / Forum"
 msgstr "Веб-сайт/Форум"
 
 #. module: website_forum
-#: model:ir.model.fields,field_description:website_forum.field_forum_forum__website_message_ids
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__website_message_ids
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__website_message_ids
-msgid "Website Messages"
-msgstr "Повідомлення з веб-сайту"
+#: model:ir.model.fields,field_description:website_forum.field_forum_forum__website_absolute_url
+#: model:ir.model.fields,field_description:website_forum.field_forum_post__website_absolute_url
+#: model:ir.model.fields,field_description:website_forum.field_forum_tag__website_absolute_url
+msgid "Website Absolute URL"
+msgstr ""
 
 #. module: website_forum
+#: model:ir.model.fields,field_description:website_forum.field_forum_forum__website_url
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__website_url
+#: model:ir.model.fields,field_description:website_forum.field_forum_tag__website_url
 msgid "Website URL"
 msgstr "URL сайту"
-
-#. module: website_forum
-#: model:ir.model.fields,help:website_forum.field_forum_forum__website_message_ids
-#: model:ir.model.fields,help:website_forum.field_forum_post__website_message_ids
-#: model:ir.model.fields,help:website_forum.field_forum_tag__website_message_ids
-msgid "Website communication history"
-msgstr "Історія бесіди на сайті"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__website_meta_description
@@ -3872,6 +4025,12 @@ msgstr "XP"
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_model_nav
 msgid "You already have a pending post"
 msgstr "У вас вже є публікація в очікуванні"
+
+#. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_post.py:0
+msgid "You can post only one answer."
+msgstr ""
 
 #. module: website_forum
 #. odoo-javascript
@@ -4064,21 +4223,19 @@ msgstr "для причини:"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_template_validation
 msgid ""
-"has been posted and require your validation. Click here to access the "
+"has been posted and requires your validation. Click here to access the "
 "question :"
 msgstr ""
-"було опубліковано і вимагає вашої перевірки. Натисніть тут, щоб отримати "
-"доступ до запитання:"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.forum_post_template_new_answer
-msgid "has been posted. Click here to access the post :"
-msgstr "було опубліковано. Натисніть тут, щоб отримати доступ до публікації:"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_template_new_question
 msgid "has been posted. Click here to access the question :"
 msgstr "опубліковано. Натисніть тут, щоб отримати доступ до запитання:"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.forum_post_template_new_answer
+msgid "has been posted. Click here to access the question:"
+msgstr ""
 
 #. module: website_forum
 #. odoo-javascript
@@ -4111,8 +4268,6 @@ msgid ""
 "if your\n"
 "        answer is selected as the right one. See what you can do with karma"
 msgstr ""
-"якщо ваша\n"
-"відповідь вибрана як правильна. Подивіться, що ви можете зробити з кармою"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
@@ -4183,8 +4338,6 @@ msgid ""
 "on social networks get an answer within\n"
 "        5 hours. Questions shared on two social networks have"
 msgstr ""
-"в соціальних мережах отримує відповідь у межах\n"
-"5 годин. Питання, що надсилаються в двох соціальних мережах, є"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_all_all_entries
@@ -4222,7 +4375,7 @@ msgid ""
 "like I do.”"
 msgstr ""
 "немає реальної проблеми, яку потрібно вирішити: \"Мені цікаво, якщо інші "
-"люди відчувають, що я роблю.\""
+"люди відчувають, що я роблю\"."
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.faq_karma
@@ -4278,449 +4431,6 @@ msgid "your biography can be seen as tooltip"
 msgstr "ваша біографія може розглядатися як підказка"
 
 #. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.follow
+#: model_terms:ir.ui.view,arch_db:website_forum.follow_button
 msgid "your email..."
 msgstr "ваш email..."
-
-#~ msgid "%d karma required to unlink a comment."
-#~ msgstr "%d карма вимагає від'єднати коментар."
-
-#~ msgid "&amp;nbsp;and&amp;nbsp;"
-#~ msgstr "&amp;nbsp;and&amp;nbsp;"
-
-#~ msgid ", by"
-#~ msgstr ", від"
-
-#~ msgid ", consider <b>adding an example</b>."
-#~ msgstr ", розгляньте <b>додавання прикладу</b>."
-
-#~ msgid "0 Answers"
-#~ msgstr "0 відповідей"
-
-#~ msgid "<b> [Offensive]</b>"
-#~ msgstr "<b> [Образливо]</b>"
-
-#~ msgid "<b>Tags</b> I Follow"
-#~ msgstr "<b>Теги</b> Я підписуюсь"
-
-#~ msgid ""
-#~ "<b>This forum is empty.</b><br/>\n"
-#~ "                    Be the first one asking a question"
-#~ msgstr ""
-#~ "<b>Цей форум пустий.</b><br/>\n"
-#~ "                    Будьте першим, хто задасть запитання"
-
-#~ msgid "<b>What kinds of questions can I ask here?</b>"
-#~ msgstr "<b>Які запитання я можу тут задавати?</b>"
-
-#~ msgid "<b>What should I avoid in my answers?</b>"
-#~ msgstr "<b>Чого слід уникати у моїх запитаннях?</b>"
-
-#~ msgid "<b>What should I avoid in my questions?</b>"
-#~ msgstr "<b>Чого слід уникати у моїх відповідях?</b>"
-
-#~ msgid "<b>[Answer]</b>"
-#~ msgstr "<b>[Відповідь]</b>"
-
-#~ msgid "<em class=\"d-block mb-2\">or</em>"
-#~ msgstr "<em class=\"d-block mb-2\">або</em>"
-
-#~ msgid "<i class=\"fa fa-bell fa-fw\"/> Followed Posts"
-#~ msgstr "<i class=\"fa fa-bell fa-fw\"/> Додані публікації"
-
-#~ msgid "<i class=\"fa fa-bug\"/> Filter Tool"
-#~ msgstr "<i class=\"fa fa-bug\"/> Інструмент фільтру"
-
-#~ msgid ""
-#~ "<i class=\"fa fa-check text-success d-block display-2\"/>\n"
-#~ "            <b>You've Completely Caught Up!</b><br/>"
-#~ msgstr ""
-#~ "<i class=\"fa fa-check text-success d-block display-2\"/>\n"
-#~ "            <b>Ви повністю наздогнали!</b><br/>"
-
-#~ msgid "<i class=\"fa fa-check-square-o fa-fw\"/> To Validate"
-#~ msgstr "<i class=\"fa fa-check-square-o fa-fw\"/> Підтвердити"
-
-#~ msgid "<i class=\"fa fa-flag fa-fw\"/> Flagged"
-#~ msgstr "<i class=\"fa fa-flag fa-fw\"/> Позначено"
-
-#~ msgid "<i class=\"fa fa-question-circle-o fa-fw\"/> My Posts"
-#~ msgstr "<i class=\"fa fa-question-circle-o fa-fw\"/> Мої публікації"
-
-#~ msgid ""
-#~ "<i class=\"fa fa-share-alt text-muted\"/>\n"
-#~ "                                Share"
-#~ msgstr ""
-#~ "<i class=\"fa fa-share-alt text-muted\"/>\n"
-#~ "                                Поділитися"
-
-#~ msgid "<i class=\"fa fa-star fa-fw\"/> Favourites"
-#~ msgstr "<i class=\"fa fa-star fa-fw\"/> Закладки"
-
-#~ msgid "<i class=\"fa fa-tags fa-fw\"/> Followed Tags"
-#~ msgstr "<i class=\"fa fa-tags fa-fw\"/> Додані теги"
-
-#~ msgid ""
-#~ "<small class=\"text-muted\">\n"
-#~ "                    Flagged\n"
-#~ "                </small>"
-#~ msgstr ""
-#~ "<small class=\"text-muted\">\n"
-#~ "                    Позначено\n"
-#~ "                </small>"
-
-#~ msgid "<span class=\"mx-1 d-none d-sm-inline\">&amp;nbsp;|</span>"
-#~ msgstr "<span class=\"mx-1 d-none d-sm-inline\">&amp;nbsp;|</span>"
-
-#~ msgid "<span class=\"mx-1 text-400 d-none d-lg-block\">|</span>"
-#~ msgstr "<span class=\"mx-1 text-400 d-none d-lg-block\">|</span>"
-
-#~ msgid "<span class=\"mx-1\">|</span>"
-#~ msgstr "<span class=\"mx-1\">|</span>"
-
-#~ msgid ""
-#~ "<span class=\"mx-1\">|</span>\n"
-#~ "                    <i class=\"fa fa-star\"/>"
-#~ msgstr ""
-#~ "<span class=\"mx-1\">|</span>\n"
-#~ "                    <i class=\"fa fa-star\"/>"
-
-#~ msgid "<span class=\"mx-3  mx-lg-2 text-400 d-none d-md-inline\">|</span>"
-#~ msgstr "<span class=\"mx-3  mx-lg-2 text-400 d-none d-md-inline\">|</span>"
-
-#~ msgid "<span>By </span>"
-#~ msgstr "<span>Зроблено </span>"
-
-#~ msgid "A clear, explicit and concise title"
-#~ msgstr "Чітка та лаконічна назва"
-
-#~ msgid "About"
-#~ msgstr "Про"
-
-#~ msgid "All Forums"
-#~ msgstr "Усі форуми"
-
-#~ msgid "All Tags"
-#~ msgstr "Усі теги"
-
-#~ msgid "Allow Bump"
-#~ msgstr "Дозволити зіткнення"
-
-#~ msgid "Amazing! There are no unanswered questions left!"
-#~ msgstr "Дивовижно! Питань без відповідей не залишилося!"
-
-#~ msgid "Answer"
-#~ msgstr "Відповідь"
-
-#~ msgid "Back"
-#~ msgstr "Назад"
-
-#~ msgid "Be less specific in your wording for a wider search result"
-#~ msgstr ""
-#~ "Будьте менш конкретними у своєму формулюванні для більш широкого "
-#~ "результату пошуку"
-
-#~ msgid "Browse All"
-#~ msgstr "Переглянути все"
-
-#~ msgid "Bumped on"
-#~ msgstr "Вдарився об"
-
-#~ msgid ""
-#~ "Check this box to display a popup for posts older than 10 days without "
-#~ "any given answer. The popup will offer to share it on social networks. "
-#~ "When shared, a question is bumped at the top of the forum."
-#~ msgstr ""
-#~ "Позначте це, щоби відобразити спливаюче вікно для повідомлень старше 10 "
-#~ "днів без будь-якої відповіді. Спливаюче вікно запропонує поділитися ним у "
-#~ "соціальних мережах. Коли ділитеся, у верхній частині форуму виникає "
-#~ "запитання."
-
-#~ msgid "Check your spelling and try again"
-#~ msgstr "Перевірте ваш правопис та спробуйте знову"
-
-#~ msgid "Click to answer."
-#~ msgstr "Натисніть, щоби відповісти."
-
-#~ msgid "Close Post"
-#~ msgstr "Закрити публікацію"
-
-#~ msgid "Comment this post..."
-#~ msgstr "Коментувати цю публікацію..."
-
-#~ msgid "Comments"
-#~ msgstr "Коментарі"
-
-#~ msgid "Convert all answers to comments and vice versa"
-#~ msgstr "Перетворіть всі відповіді на коментарі і навпаки"
-
-#~ msgid "Convert as a answer"
-#~ msgstr "Конвертувати у відповідь"
-
-#~ msgid "Convert as a comment"
-#~ msgstr "Конвертувати як коментар"
-
-#~ msgid "Convert own answers to comments and vice versa"
-#~ msgstr "Конвертуйте власні відповіді на коментарі і навпаки"
-
-#~ msgid "Date (high to low)"
-#~ msgstr "Дата (від найвищої до найнижчої)"
-
-#~ msgid "Date (low to high)"
-#~ msgstr "Дата (від найнижчої до найвищої)"
-
-#~ msgid "Edit Forum in Backend"
-#~ msgstr "Редагувати форум на бекенді"
-
-#~ msgid ""
-#~ "Example\n"
-#~ "                        <i class=\"fa fa-question-circle\"/>"
-#~ msgstr ""
-#~ "Приклад\n"
-#~ "                        <i class=\"fa fa-question-circle\"/>"
-
-#~ msgid "Following"
-#~ msgstr "Підписка"
-
-#~ msgid "Group By"
-#~ msgstr "Групувати за"
-
-#~ msgid "Hide Intro"
-#~ msgstr "Сховати вступ"
-
-#~ msgid "I'm <b>Following</b>"
-#~ msgstr "Я <b>підписаний</b>"
-
-#~ msgid "I'm Following"
-#~ msgstr "Я підписаний"
-
-#~ msgid "Karma"
-#~ msgstr "Карма"
-
-#~ msgid "Last Post:"
-#~ msgstr "Остання публікація:"
-
-#~ msgid "Last activity date"
-#~ msgstr "Дата останньої дії"
-
-#~ msgid "Menu"
-#~ msgstr "Меню"
-
-#~ msgid "Moderation"
-#~ msgstr "Модерація"
-
-#~ msgid "More"
-#~ msgstr "Більше"
-
-#~ msgid "Most answered"
-#~ msgstr "Більшість має відповіді"
-
-#~ msgid "Most voted"
-#~ msgstr "Більшість проголосавані"
-
-#~ msgid ""
-#~ "Move this question to the top of the list by sharing it on social "
-#~ "networks."
-#~ msgstr ""
-#~ "Перемістіть це запитання до топу списку, розшарюванням його у соціальні "
-#~ "мережі."
-
-#~ msgid "My <b>Favourites</b>"
-#~ msgstr "Мої <b>Закладки</b>"
-
-#~ msgid "My <b>Posts</b>"
-#~ msgstr "Мої <b>публікації</b>"
-
-#~ msgid "My Favourites"
-#~ msgstr "Мої закладки"
-
-#~ msgid "No activities yet!"
-#~ msgstr "Ще немає жодної дії!"
-
-#~ msgid "No favourite questions in this forum (yet).<br/>"
-#~ msgstr "(Ще) немає найкращих запитань на цьому форумі.<br/>"
-
-#~ msgid "No flagged posts"
-#~ msgstr "Немає позначених публікацій"
-
-#~ msgid "No post to be validated"
-#~ msgstr "Немає публікацій для підтвердження"
-
-#~ msgid "No tags"
-#~ msgstr "Немає тегів"
-
-#~ msgid "No vote given by you yet!"
-#~ msgstr "Ви ще не надали жодного голосу!"
-
-#~ msgid "Number of messages which requires an action"
-#~ msgstr "Кількість повідомлень, які потебують дії"
-
-#~ msgid "Only one answer per question is allowed"
-#~ msgstr "Дозволено лише одну відповідь на запитання"
-
-#~ msgid "Order by"
-#~ msgstr "Замовлено"
-
-#~ msgid "Our forums"
-#~ msgstr "Наші форуми"
-
-#~ msgid "People"
-#~ msgstr "Люди"
-
-#~ msgid "Post Comment"
-#~ msgstr "Опублікуйте коментар"
-
-#~ msgid "Posts:"
-#~ msgstr "Публікації:"
-
-#~ msgid "Question by"
-#~ msgstr "Запитав"
-
-#~ msgid "Read the guidelines to know how to gain karma."
-#~ msgstr "Прочитайте настанови, щоб дізнатися, як тримати карму."
-
-#~ msgid "Read: #{question.name}"
-#~ msgstr "Читати: #{question.name}"
-
-#~ msgid "Register"
-#~ msgstr "Зареєструйтеся"
-
-#~ msgid "Restrict publishing to this website."
-#~ msgstr "Обмеження публікації на цьому веб-сайті."
-
-#~ msgid "Return to the forum."
-#~ msgstr "Поверніться до форуму."
-
-#~ msgid "Return to the question list."
-#~ msgstr "Повернутися до списку запитань."
-
-#~ msgid "Search Tips"
-#~ msgstr "Пошук порад"
-
-#~ msgid "See"
-#~ msgstr "Переглянути"
-
-#~ msgid "Show"
-#~ msgstr "Показати"
-
-#~ msgid "Show Tags Starting By"
-#~ msgstr "Показати теги, які починаються за"
-
-#~ msgid "Sign in"
-#~ msgstr "Увійти"
-
-#~ msgid "Sorry you must be logged in to perform this action"
-#~ msgstr "Вибачте, ви повинні увійти в систему, щоб виконати цю дію"
-
-#~ msgid "Sorry you must be logged to flag a post"
-#~ msgstr "Вибачте, ви повинні бути зареєстровані, щоб позначити публікацію"
-
-#~ msgid "Sorry you must be logged to vote"
-#~ msgstr "Вибачте, ви повинні бути зареєстровані, щоби голосувати"
-
-#~ msgid "Sorry, anonymous users cannot choose correct answer."
-#~ msgstr ""
-#~ "На жаль, анонімні користувачі не можуть вибрати правильну відповідь."
-
-#~ msgid "Sorry, we could not find any <b>%s</b> result <b>%s</b> %s%s%s."
-#~ msgstr ""
-#~ "Вибачте, ми не можемо знайти жодног <b>%s</b> результату <b>%s</b> %s%s%s."
-
-#~ msgid "Tags I Follow"
-#~ msgstr "Теги, за якими я стежу"
-
-#~ msgid "Teaser"
-#~ msgstr "Тизер"
-
-#~ msgid ""
-#~ "Technical field allowing to bump a question. Writing on this field will "
-#~ "trigger a write on write_date and therefore bump the post. Directly "
-#~ "writing on write_date is currently not supported and this field is a "
-#~ "workaround."
-#~ msgstr ""
-#~ "Технічне поле, що дозволяє підняти питання. Написання в цьому полі "
-#~ "призведе до запису на writ_date і, таким чином, призведе до появи "
-#~ "повідомлення. Прямий запис на writ_date в даний час не підтримується, і "
-#~ "це поле є обхідним шляхом."
-
-#~ msgid ""
-#~ "This community is for professional and enthusiast users, partners and "
-#~ "programmers."
-#~ msgstr ""
-#~ "Ця спільнота для професійних користувачів та ентузіастів, партнерів та "
-#~ "програмістів."
-
-#~ msgid "Toggle favorite status"
-#~ msgstr "Перемкнути статус закладки"
-
-#~ msgid "Topics"
-#~ msgstr "Теми"
-
-#~ msgid "Trending"
-#~ msgstr "Тенденції"
-
-#~ msgid "Try searching for one or two words"
-#~ msgstr "Спробуйте пошукати одне чи два слова"
-
-#~ msgid "Unlink all comments"
-#~ msgstr "Роз'єднати всі коментарі"
-
-#~ msgid "Unlink own comments"
-#~ msgstr "Роз'єднати власні коментарі"
-
-#~ msgid "Waiting for validation"
-#~ msgstr "Очікує на підтвердження"
-
-#~ msgid "Waiting post"
-#~ msgstr "Очікування публікації"
-
-#~ msgid "You have no posts in this forum (yet)."
-#~ msgstr "У вас немає дописів на цьому форумі (поки що)."
-
-#~ msgid "You're not following any topic in this forum (yet).<br/>"
-#~ msgstr "Ви не стежите за жодною темою на цьому форумі (досі).<br/>"
-
-#~ msgid "[Closed]"
-#~ msgstr "[Закрито]"
-
-#~ msgid "[Deleted]"
-#~ msgstr "[Видалено]"
-
-#~ msgid "[Offensive]"
-#~ msgstr "[Образливо]"
-
-#~ msgid "activity date"
-#~ msgstr "активна дата"
-
-#~ msgid "in your followed list"
-#~ msgstr "у вашому доданому списку"
-
-#~ msgid "most answered"
-#~ msgstr "має найбільше відповідей"
-
-#~ msgid "most voted"
-#~ msgstr "має більшість голосів"
-
-#~ msgid "newest"
-#~ msgstr "найновіший"
-
-#~ msgid "solved"
-#~ msgstr "вирішено"
-
-#~ msgid "to partecipate"
-#~ msgstr "брати участь"
-
-#~ msgid "trending"
-#~ msgstr "тенденція"
-
-#~ msgid "unanswered"
-#~ msgstr "без відповіді"
-
-#~ msgid "unsolved"
-#~ msgstr "невирішений"
-
-#~ msgid "| Flagged"
-#~ msgstr "| Позначено"
-
-#~ msgid "圾 Text"
-#~ msgstr "圾 Текс"

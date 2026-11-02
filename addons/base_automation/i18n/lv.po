@@ -8,27 +8,43 @@
 # ievaputnina <ievai.putninai@gmail.com>, 2022
 # JanisJanis <jbojars@gmail.com>, 2022
 # Arnis Putniņš <arnis@allegro.lv>, 2022
-# Weblate <noreply-mt-weblate@weblate.org>, 2025.
-# Armīns Jeltajevs <armins.jeltajevs@gmail.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-12-22 09:21+0000\n"
-"Last-Translator: Armīns Jeltajevs <armins.jeltajevs@gmail.com>\n"
-"Language-Team: Latvian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-08-31 19:38+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Latvian <https://translate.odoo.com/projects/odoo-s19-4/"
 "base_automation/lv/>\n"
 "Language: lv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: base_automation
+#: model:ir.module.module,description:base.module_base_automation
+msgid ""
+"\n"
+"This module allows to implement automation rules for any object.\n"
+"================================================================\n"
+"\n"
+"Use automation rules to automatically trigger actions for various screens.\n"
+"\n"
+"**Example:** A lead created by a specific user may be automatically set to a "
+"specific\n"
+"Sales Team, or an opportunity which still has status pending after 14 days "
+"might\n"
+"trigger an automatic reminder email.\n"
+msgstr ""
 
 #. module: base_automation
 #. odoo-javascript
 #: code:addons/base_automation/static/src/base_automation_error_dialog.xml:0
+#, fuzzy
 msgid ""
 "\"\n"
 "                (ID:"
@@ -83,29 +99,34 @@ msgstr ""
 
 #. module: base_automation
 #: model_terms:ir.ui.view,arch_db:base_automation.view_base_automation_form
+#, fuzzy
 msgid ""
 "<code>time</code>, <code>datetime</code>, <code>dateutil</code>, "
 "<code>timezone</code>: useful Python libraries"
 msgstr ""
+"<code>time</code>, <code>datetime</code>, <code>dateutil</code>, "
+"<code>timezone</code>: useful Python libraries"
 
 #. module: base_automation
 #: model_terms:ir.ui.view,arch_db:base_automation.view_base_automation_kanban
-msgid "<i class=\"fa fa-2x fa-arrow-right text-primary\" title=\"Actions\"/>"
+msgid ""
+"<i class=\"oi oi-2x text-primary\" data-icon=\"arrow_forward\" "
+"title=\"Actions\"/>"
 msgstr ""
 
 #. module: base_automation
 #: model_terms:ir.ui.view,arch_db:base_automation.view_base_automation_form
 msgid ""
-"<i class=\"fa fa-info-circle\"/> The default target record getter will work "
-"out-of-the-box for any webhook coming from another Odoo instance."
+"<i class=\"oi\" data-icon=\"info\"/> The default target record getter will "
+"work out-of-the-box for any webhook coming from another Odoo instance."
 msgstr ""
 
 #. module: base_automation
 #: model_terms:ir.ui.view,arch_db:base_automation.view_base_automation_form
 msgid ""
-"<i class=\"fa fa-warning\"/> Automation rules triggered by UI changes will "
-"be executed <em>every time</em> the watched fields change, <em>whether you "
-"save or not</em>."
+"<i class=\"oi\" data-icon=\"warning\"/> Automation rules triggered by UI "
+"changes will be executed <em>every time</em> the watched fields change, "
+"<em>whether you save or not</em>."
 msgstr ""
 
 #. module: base_automation
@@ -120,8 +141,9 @@ msgstr ""
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__message_needaction
+#, fuzzy
 msgid "Action Needed"
-msgstr ""
+msgstr "Nepieciešama darbība"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__action_server_ids
@@ -140,28 +162,39 @@ msgstr "Aktīvs"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__activity_ids
+#, fuzzy
 msgid "Activities"
-msgstr ""
+msgstr "Aktivitātes"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__activity_exception_decoration
+#, fuzzy
 msgid "Activity Exception Decoration"
-msgstr ""
+msgstr "Aktivitātes izņēmuma noformējums"
+
+#. module: base_automation
+#: model:ir.model.fields,field_description:base_automation.field_base_automation__activity_plans_ids
+#, fuzzy
+msgid "Activity Plans"
+msgstr "Aktivitāšu plāni"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__activity_state
+#, fuzzy
 msgid "Activity State"
-msgstr ""
+msgstr "Aktivitātes stāvoklis"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__activity_type_icon
+#, fuzzy
 msgid "Activity Type Icon"
-msgstr ""
+msgstr "Aktivitātes tipa ikona"
 
 #. module: base_automation
 #: model:ir.model.fields.selection,name:base_automation.selection__base_automation__trg_date_range_mode__after
+#, fuzzy
 msgid "After"
-msgstr ""
+msgstr "Pēc"
 
 #. module: base_automation
 #: model:ir.model.fields.selection,name:base_automation.selection__base_automation__trigger__on_time_created
@@ -186,8 +219,9 @@ msgstr "Arhivēts"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__message_attachment_count
+#, fuzzy
 msgid "Attachment Count"
-msgstr ""
+msgstr "Pielikumu skaits"
 
 #. module: base_automation
 #: model_terms:ir.actions.act_window,help:base_automation.base_automation_act
@@ -210,6 +244,7 @@ msgstr ""
 
 #. module: base_automation
 #: model:ir.actions.act_window,name:base_automation.base_automation_act
+#: model:ir.module.module,shortdesc:base.module_base_automation
 #: model:ir.ui.menu,name:base_automation.menu_base_automation_form
 #: model_terms:ir.ui.view,arch_db:base_automation.view_base_automation_kanban
 #: model_terms:ir.ui.view,arch_db:base_automation.view_base_automation_tree
@@ -234,8 +269,9 @@ msgstr ""
 
 #. module: base_automation
 #: model:ir.model.fields.selection,name:base_automation.selection__base_automation__trg_date_range_mode__before
+#, fuzzy
 msgid "Before"
-msgstr ""
+msgstr "Pirms"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__filter_pre_domain
@@ -299,8 +335,9 @@ msgstr "Apraksts"
 #. module: base_automation
 #. odoo-javascript
 #: code:addons/base_automation/static/src/base_automation_error_dialog.xml:0
+#, fuzzy
 msgid "Disable"
-msgstr ""
+msgstr "Atspējot"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__display_name
@@ -312,8 +349,9 @@ msgstr "Parādīt vārdu"
 #. module: base_automation
 #. odoo-javascript
 #: code:addons/base_automation/static/src/base_automation_error_dialog.xml:0
+#, fuzzy
 msgid "Edit"
-msgstr ""
+msgstr "Labot"
 
 #. module: base_automation
 #. odoo-javascript
@@ -342,23 +380,20 @@ msgstr ""
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__message_follower_ids
+#, fuzzy
 msgid "Followers"
-msgstr ""
+msgstr "Sekotāji"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__message_partner_ids
+#, fuzzy
 msgid "Followers (Partners)"
-msgstr ""
+msgstr "Sekotāji (Partneri)"
 
 #. module: base_automation
 #. odoo-python
 #: code:addons/base_automation/models/base_automation.py:0
 msgid "Following child actions have warnings: %(children)s"
-msgstr ""
-
-#. module: base_automation
-#: model:ir.model.fields,help:base_automation.field_base_automation__activity_type_icon
-msgid "Font awesome icon e.g. fa-tasks"
 msgstr ""
 
 #. module: base_automation
@@ -368,8 +403,9 @@ msgstr "Ir sarakste"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__has_message
+#, fuzzy
 msgid "Has Message"
-msgstr ""
+msgstr "Ir ziņojums"
 
 #. module: base_automation
 #: model:ir.model.fields.selection,name:base_automation.selection__base_automation__trg_date_range_type__hour
@@ -385,24 +421,28 @@ msgstr "ID"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__activity_exception_icon
+#, fuzzy
 msgid "Icon"
-msgstr ""
+msgstr "Ikona"
 
 #. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__activity_exception_icon
+#, fuzzy
 msgid "Icon to indicate an exception activity."
-msgstr ""
+msgstr "Ikona izņēmuma aktivitātes identificēšanai."
 
 #. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__message_needaction
+#, fuzzy
 msgid "If checked, new messages require your attention."
-msgstr ""
+msgstr "Ja atzīmēts, jums jāpievērš uzmanība jauniem ziņojumiem."
 
 #. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__message_has_error
 #: model:ir.model.fields,help:base_automation.field_base_automation__message_has_sms_error
+#, fuzzy
 msgid "If checked, some messages have a delivery error."
-msgstr ""
+msgstr "Ja atzīmēts, daži ziņojumi satur piegādes kļūdu."
 
 #. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__filter_domain
@@ -432,8 +472,9 @@ msgstr ""
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__message_is_follower
+#, fuzzy
 msgid "Is Follower"
-msgstr ""
+msgstr "Ir sekotājs"
 
 #. module: base_automation
 #: model_terms:ir.ui.view,arch_db:base_automation.view_base_automation_form
@@ -474,14 +515,21 @@ msgid ""
 msgstr ""
 
 #. module: base_automation
-#: model:ir.model.fields,field_description:base_automation.field_base_automation__message_has_error
-msgid "Message Delivery error"
+#: model:ir.model.fields,help:base_automation.field_base_automation__activity_type_icon
+msgid "Material Symbols icon e.g. checklist"
 msgstr ""
 
 #. module: base_automation
+#: model:ir.model.fields,field_description:base_automation.field_base_automation__message_has_error
+#, fuzzy
+msgid "Message Delivery error"
+msgstr "Ziņojuma piegādes kļūda"
+
+#. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__message_ids
+#, fuzzy
 msgid "Messages"
-msgstr ""
+msgstr "Ziņojumi"
 
 #. module: base_automation
 #: model:ir.model.fields.selection,name:base_automation.selection__base_automation__trg_date_range_type__minutes
@@ -513,28 +561,33 @@ msgstr "Mēneši"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__my_activity_date_deadline
+#, fuzzy
 msgid "My Activity Deadline"
-msgstr ""
+msgstr "Manas aktivitātes izpildes termiņš"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__activity_calendar_event_id
+#, fuzzy
 msgid "Next Activity Calendar Event"
-msgstr ""
+msgstr "Nākamās darbības kalendāra pasākums"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__activity_date_deadline
+#, fuzzy
 msgid "Next Activity Deadline"
-msgstr ""
+msgstr "Nākamās aktivitātes beigu termiņš"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__activity_summary
+#, fuzzy
 msgid "Next Activity Summary"
-msgstr ""
+msgstr "Nākamās darbības kopsavilkums"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__activity_type_id
+#, fuzzy
 msgid "Next Activity Type"
-msgstr ""
+msgstr "Nākamās darbības veids"
 
 #. module: base_automation
 #. odoo-python
@@ -549,23 +602,27 @@ msgstr "Piezīmes"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__message_needaction_counter
+#, fuzzy
 msgid "Number of Actions"
-msgstr ""
+msgstr "Darbību skaits"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__message_has_error_counter
+#, fuzzy
 msgid "Number of errors"
-msgstr ""
+msgstr "Kļūdu skaits"
 
 #. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__message_needaction_counter
+#, fuzzy
 msgid "Number of messages requiring action"
-msgstr ""
+msgstr "Ziņojumu, kuriem nepieciešama darbība, skaits"
 
 #. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__message_has_error_counter
+#, fuzzy
 msgid "Number of messages with delivery error"
-msgstr ""
+msgstr "Ziņojumu, kas satur piegādes kļūdu, skaits"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__on_change_field_ids
@@ -634,8 +691,9 @@ msgstr ""
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__rating_ids
+#, fuzzy
 msgid "Ratings"
-msgstr ""
+msgstr "Reitingi"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__record_getter
@@ -649,24 +707,23 @@ msgstr ""
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__activity_user_id
+#, fuzzy
 msgid "Responsible User"
-msgstr ""
+msgstr "Atbildīgie lietotāji"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__message_has_sms_error
+#, fuzzy
 msgid "SMS Delivery error"
-msgstr ""
+msgstr "Īsziņas piegādes kļūda"
 
 #. module: base_automation
 #. odoo-python
 #: code:addons/base_automation/models/base_automation.py:0
-msgid "Scheduled Action"
-msgstr ""
-
-#. module: base_automation
 #: model:ir.model,name:base_automation.model_ir_cron
-msgid "Scheduled Actions"
-msgstr ""
+#, fuzzy
+msgid "Scheduled Action"
+msgstr "Scheduled Action"
 
 #. module: base_automation
 #: model_terms:ir.ui.view,arch_db:base_automation.view_base_automation_form
@@ -752,12 +809,17 @@ msgstr ""
 
 #. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__activity_state
+#, fuzzy
 msgid ""
 "Status based on activities\n"
 "Overdue: Due date is already passed\n"
 "Today: Activity date is today\n"
 "Planned: Future activities."
 msgstr ""
+"Statuss balstīts uz darbībām\n"
+"Kavēts: termiņš jauy ir pagājis\n"
+"Šodien: darbības datums ir šodien\n"
+"Plānots: nākotnes aktivitātes."
 
 #. module: base_automation
 #: model:ir.model.fields.selection,name:base_automation.selection__base_automation__trigger__on_tag_set
@@ -855,8 +917,9 @@ msgstr ""
 
 #. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__activity_exception_decoration
+#, fuzzy
 msgid "Type of the exception activity on record."
-msgstr ""
+msgstr "Reģistrētās izņēmuma aktivitātes tips."
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__url
@@ -911,16 +974,6 @@ msgstr ""
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__webhook_uuid
 msgid "Webhook UUID"
-msgstr ""
-
-#. module: base_automation
-#: model:ir.model.fields,field_description:base_automation.field_base_automation__website_message_ids
-msgid "Website Messages"
-msgstr ""
-
-#. module: base_automation
-#: model:ir.model.fields,help:base_automation.field_base_automation__website_message_ids
-msgid "Website communication history"
 msgstr ""
 
 #. module: base_automation
@@ -986,26 +1039,10 @@ msgstr ""
 msgid "path"
 msgstr ""
 
-#~ msgid "Action Name"
-#~ msgstr "Darbības Nosaukums"
+#, fuzzy
+msgid "Website Messages"
+msgstr "Tīmekļa lapas ziņojumi"
 
-#~ msgid "Delay after trigger date"
-#~ msgstr "Aizkave pēc trigger datuma"
-
-#~ msgid "Delay type"
-#~ msgstr "Aizkaves tips"
-
-#~ msgid "Email"
-#~ msgstr "E-pasts"
-
-#~ msgid "Type"
-#~ msgstr "Veids"
-
-#~ msgid "URL"
-#~ msgstr "URL"
-
-#~ msgid "Update"
-#~ msgstr "Atjaunināt"
-
-#~ msgid "Weeks"
-#~ msgstr "Weeks"
+#, fuzzy
+msgid "Website communication history"
+msgstr "Tīmekļa lapas komunikācijas vēsture"

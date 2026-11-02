@@ -60,6 +60,7 @@ CREATE TABLE ir_module_module (
     description jsonb,
     application boolean default False,
     demo boolean default False,
+    test_data boolean default False,
     web boolean DEFAULT FALSE,
     license character varying(32),
     sequence integer DEFAULT 100,
@@ -123,7 +124,7 @@ insert into res_currency (id, name, symbol) VALUES (1, 'USD', '$');
 insert into ir_model_data (name, module, model, noupdate, res_id) VALUES ('USD', 'base', 'res.currency', true, 1);
 select setval('res_currency_id_seq', 1);
 
-insert into res_company (id, name, partner_id, currency_id, create_date) VALUES (1, 'My Company', 1, 1, now() at time zone 'UTC');
+insert into res_company (id, name, partner_id, currency_id, sequence, create_date) VALUES (1, 'My Company', 1, 1, 10, now() at time zone 'UTC');
 insert into ir_model_data (name, module, model, noupdate, res_id) VALUES ('main_company', 'base', 'res.company', true, 1);
 select setval('res_company_id_seq', 1);
 

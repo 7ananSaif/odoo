@@ -14,10 +14,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-11-14 15:23+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Lithuanian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 18:27+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Lithuanian <https://translate.odoo.com/projects/odoo-s19-4/"
 "snailmail_account/lt/>\n"
 "Language: lt\n"
 "MIME-Version: 1.0\n"
@@ -26,7 +26,15 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n % 10 == 1 && (n % 100 > 19 || n % 100 < "
 "11) ? 0 : (n % 10 >= 2 && n % 10 <=9) && (n % 100 > 19 || n % 100 < 11) ? "
 "1 : n % 1 != 0 ? 2: 3);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: snailmail_account
+#: model:ir.module.module,description:base.module_snailmail_account
+msgid ""
+"\n"
+"Allows users to send invoices by post\n"
+"=====================================================\n"
+msgstr ""
 
 #. module: snailmail_account
 #. odoo-python
@@ -37,21 +45,11 @@ msgstr ""
 #. module: snailmail_account
 #: model_terms:ir.ui.view,arch_db:snailmail_account.res_config_settings_view_form
 msgid ""
-"<span class=\"fa fa-lg fa-building-o\" title=\"Values set here are company-"
-"specific.\"/>"
+"<span class=\"oi oi-lg\" data-icon=\"business\" title=\"Values set here are "
+"company-specific.\"/>"
 msgstr ""
-"<span class=\"fa fa-lg fa-building-o\" title=\"Values set here are company-"
-"specific.\"/>"
-
-#. module: snailmail_account
-#: model:ir.model,name:snailmail_account.model_account_move_send
-msgid "Account Move Send"
-msgstr "Sąskaitų įrašų siuntimas"
-
-#. module: snailmail_account
-#: model:ir.model,name:snailmail_account.model_account_move_send_batch_wizard
-msgid "Account Move Send Batch Wizard"
-msgstr ""
+"<span class=\"oi oi-lg\" data-icon=\"business\" title=\"Values set here are "
+"company-specific.\"/>"
 
 #. module: snailmail_account
 #. odoo-python
@@ -102,6 +100,21 @@ msgid "Send By Post Stamps"
 msgstr ""
 
 #. module: snailmail_account
+#: model:ir.model,name:snailmail_account.model_account_move_send_batch_wizard
+msgid "Send Invoice Batch Wizard"
+msgstr ""
+
+#. module: snailmail_account
+#: model:ir.model,name:snailmail_account.model_account_move_send
+msgid "Shared Send Invoice Wizard Functions"
+msgstr ""
+
+#. module: snailmail_account
+#: model:ir.module.module,shortdesc:base.module_snailmail_account
+msgid "Snail Mail - Account"
+msgstr ""
+
+#. module: snailmail_account
 #. odoo-python
 #: code:addons/snailmail_account/models/account_move_send.py:0
 msgid ""
@@ -121,12 +134,3 @@ msgstr ""
 #: model:ir.model.fields.selection,name:snailmail_account.selection__res_partner__invoice_sending_method__snailmail
 msgid "by Post"
 msgstr ""
-
-#~ msgid "Companies"
-#~ msgstr "Įmonės"
-
-#~ msgid "Config Settings"
-#~ msgstr "Konfigūracijos nustatymai"
-
-#~ msgid "Send by Post"
-#~ msgstr "Siųsti paštu"

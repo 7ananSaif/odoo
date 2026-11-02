@@ -15,13 +15,25 @@ class PosOrder(models.Model):
         for pos_order in self:
             pos_order.l10n_vn_has_sinvoice_pdf = bool(pos_order.account_move.l10n_vn_edi_sinvoice_pdf_file)
 
+    def _generate_pos_order_invoice(self):
+        # EXTENDS 'point_of_sale'
+        if self.company_id.country_id.code == 'VN' and self.config_id.l10n_vn_auto_send_to_sinvoice:
+            # When auto-sending to SInvoice, we want to skip fetching the SInvoice files
+            # right after sending the invoice to reduce the time spent in the POS checkout flow.
+            # generate_pdf=True ensures _generate_and_send() still runs when use_download_invoice
+            # is disabled (deferred PDF), so the SInvoice submission is not skipped.
+            return super(PosOrder, self.with_context(generate_pdf=True, skip_fetch_sinvoice_files=True))._generate_pos_order_invoice()
+        return super()._generate_pos_order_invoice()
+
     def _prepare_invoice_vals(self):
         vals = super()._prepare_invoice_vals()
 
         if self.company_id.country_id.code != 'VN' or not self.config_id.l10n_vn_auto_send_to_sinvoice:
             return vals
 
-        sinvoice_symbol = self.config_id.l10n_vn_pos_symbol or self.config_id.company_id.l10n_vn_pos_default_symbol
+        # Get the symbol as sudo() as pos users are not allowed to access the field due to the groups setting
+        config_sudo = self.config_id.sudo()
+        sinvoice_symbol = config_sudo.l10n_vn_pos_symbol or config_sudo.company_id.l10n_vn_pos_default_symbol
         if sinvoice_symbol:
             vals['l10n_vn_edi_invoice_symbol'] = sinvoice_symbol.id
 
@@ -35,12 +47,3 @@ class PosOrder(models.Model):
                     vals['ref'] = f"{current_ref}, {reason}"
 
         return vals
-
-    def _create_invoice(self, move_vals):
-        if self.company_id.country_id.code == 'VN' and self.config_id.l10n_vn_auto_send_to_sinvoice:
-            # When auto-sending to SInvoice, we want to skip fetching the SInvoice files
-            # right after sending the invoice to reduce the time spent in the POS checkout flow.
-            # The SInvoice files will be fetched by printing the invoice from the POS order page
-            # or fetched manually in the backend.
-            return super()._create_invoice(move_vals).with_context(skip_fetch_sinvoice_files=True)
-        return super()._create_invoice(move_vals)

@@ -7,6 +7,7 @@ from odoo.tools import email_normalize, formataddr, mute_logger
 
 
 @tagged('mail_thread', 'mail_gateway')
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class NewLeadNotification(TestCrmCommon):
     """ Test mail features support on lead + specific overrides and support """
 
@@ -39,9 +40,6 @@ class NewLeadNotification(TestCrmCommon):
         """ Test '_message_get_suggested_recipients' and its override in lead
         when dealing with various emails. """
         self.maxDiff = None  # to ease assertDictEqual usage
-        company_partner = self.env['res.partner'].create(
-            {'name': 'test_lead_message_get_suggested_recipients_company_partner', 'is_company': True}
-        )
         partner_no_email = self.env['res.partner'].create({'name': 'Test Partner', 'email': False})
         leads = self.env['crm.lead'].create([
             {
@@ -53,11 +51,6 @@ class NewLeadNotification(TestCrmCommon):
                 'email_from': 'new.customer.multi.1@test.example.com, new.customer.2@test.example.com',
                 'name': 'Test Suggestion (email_from multi)',
                 'partner_name': 'Multi Name',
-                'user_id': self.user_sales_leads.id,
-            }, {
-                'email_from': 'new.customer.with.parent@test.example.com',
-                'name': 'Test Suggestion (email_from with matching partner_name)',
-                'partner_name': 'test_lead_message_get_suggested_recipients_company_partner',
                 'user_id': self.user_sales_leads.id,
             }, {
                 'email_from': 'new.customer.simple@test.example.com',
@@ -77,12 +70,7 @@ class NewLeadNotification(TestCrmCommon):
                 'name': 'Test Suggestion (partner no email)',
                 'partner_id': partner_no_email.id,
                 'user_id': self.user_sales_leads.id
-            }, {
-                'name': 'Test Suggestion (partner no email with cc email)',
-                'partner_id': partner_no_email.id,
-                'email_cc': 'test_cc@odoo.com',
-                'user_id': self.user_sales_leads.id
-            }
+            },
         ])
         for lead, expected_suggested in zip(leads, [
             [
@@ -92,11 +80,11 @@ class NewLeadNotification(TestCrmCommon):
                     'email': 'new.customer.format@test.example.com',
                     'partner_id': False,
                     'create_values': {
-                        'company_name': 'Format Name',
-                        'is_company': False,
+                        'parent_name': 'Format Name',
                         'type': 'contact',
                         'user_id': self.user_sales_leads.id,
                     },
+                    'recipient_type': 'to',
                 },
             ], [
                 # here no contact name, just a partner name -> use email and set company_name
@@ -105,29 +93,17 @@ class NewLeadNotification(TestCrmCommon):
                     'email': 'new.customer.multi.1@test.example.com',  # only first found normalized email is kept
                     'partner_id': False,
                     'create_values': {
-                        'company_name': 'Multi Name',
-                        'is_company': False,
+                        'parent_name': 'Multi Name',
                         'type': 'contact',
                         'user_id': self.user_sales_leads.id,
                     },
+                    'recipient_type': 'to',
                 }, {
                     'name': '',
                     'email': 'new.customer.2@test.example.com',  # second found creates another contact
                     'partner_id': False,
                     'create_values': {},  # not targeted as primary lead customer hence no values
-                },
-            ], [
-                # here no contact name, a partner name, but there exists a company with that name -> company
-                {
-                    'name': 'new.customer.with.parent@test.example.com',
-                    'email': 'new.customer.with.parent@test.example.com',
-                    'partner_id': False,
-                    'create_values': {
-                        'is_company': False,
-                        'parent_id': company_partner.id,
-                        'type': 'contact',
-                        'user_id': self.user_sales_leads.id,
-                    },
+                    'recipient_type': 'to',
                 },
             ], [
                 # here contact name -> individual
@@ -136,10 +112,10 @@ class NewLeadNotification(TestCrmCommon):
                     'email': 'new.customer.simple@test.example.com',
                     'partner_id': False,
                     'create_values': {
-                        'is_company': False,
                         'type': 'contact',
                         'user_id': self.user_sales_leads.id,
                     },
+                    'recipient_type': 'to',
                 },
             ], [
                 # here check lang is in create_values
@@ -148,10 +124,10 @@ class NewLeadNotification(TestCrmCommon):
                     'email': 'test.lang@test.example.com',
                     'partner_id': False,
                     'create_values': {
-                        'is_company': False,
                         'lang': 'en_US',
                         'type': 'contact',
                     },
+                    'recipient_type': 'to',
                 },
             ], [
                 {
@@ -159,6 +135,7 @@ class NewLeadNotification(TestCrmCommon):
                     'name': 'Philip J Fry',
                     'email': 'philip.j.fry@test.example.com',
                     'create_values': {},
+                    'recipient_type': 'to',
                 },
             ], [
                 {
@@ -166,6 +143,7 @@ class NewLeadNotification(TestCrmCommon):
                     'name': 'Test Partner',
                     'email': False,
                     'create_values': {},
+                    'recipient_type': 'to',
                 },
             ], [
                 {
@@ -173,11 +151,7 @@ class NewLeadNotification(TestCrmCommon):
                     'email': False,
                     'name': 'Test Partner',
                     'create_values': {},
-                }, {
-                    'name': '',
-                    'email': 'test_cc@odoo.com',
-                    'partner_id': False,
-                    'create_values': {},
+                    'recipient_type': 'to',
                 },
             ],
         ]):
@@ -243,13 +217,6 @@ class NewLeadNotification(TestCrmCommon):
                 self.assertEqual(create_values['comment'], description)  # description -> comment
                 # parent company not created even if partner_name is set
                 self.assertFalse(create_values.get('parent_id'))  # not supported, even if partner_name set
-                # company_name set only for contacts with partner_name (and no contact_name nor name in email)
-                if partner_name:
-                    self.assertEqual(create_values['company_name'], partner_name)  # partner_name -> company_name
-                else:
-                    self.assertFalse('company_name' in create_values)
-                # it will normally never be a company, unless called despite a contact being already present (shouldn't happen)
-                self.assertEqual(create_values['is_company'], False)
 
     def test_new_lead_notification(self):
         """ Test newly create leads like from the website. People and channels
@@ -366,11 +333,8 @@ Content-Transfer-Encoding: quoted-printable
 
 --000000000000a47519057e029630--
 """
-        crm_lead0_id = self.env['mail.thread'].message_process('crm.lead', new_message0)
-        crm_lead1_id = self.env['mail.thread'].message_process('crm.lead', new_message1)
-
-        crm_lead0 = self.env['crm.lead'].browse(crm_lead0_id)
-        crm_lead1 = self.env['crm.lead'].browse(crm_lead1_id)
+        crm_lead0 = self.env['mail.thread'].message_process('crm.lead', new_message0)
+        crm_lead1 = self.env['mail.thread'].message_process('crm.lead', new_message1)
 
         self.assertEqual(crm_lead0.team_id, crm_team0)
         self.assertEqual(crm_lead1.team_id, crm_team1)

@@ -14,15 +14,22 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-10-08 18:39+0000\n"
-"Last-Translator: \n"
-"Language-Team: \n"
+"POT-Creation-Date: 2026-08-28 17:44+0000\n"
+"PO-Revision-Date: 2026-08-31 13:42+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Uzbek <https://translate.odoo.com/projects/odoo-s19-4/"
+"payment_razorpay/uz/>\n"
 "Language: uz\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: payment_razorpay
+#: model:ir.module.module,summary:base.module_payment_razorpay
+msgid "A payment provider covering India."
+msgstr ""
 
 #. module: payment_razorpay
 #: model_terms:ir.ui.view,arch_db:payment_razorpay.payment_provider_form_razorpay
@@ -31,20 +38,15 @@ msgid "Account ID"
 msgstr "Hisob raqami"
 
 #. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_amex
+msgid "American Express"
+msgstr ""
+
+#. module: payment_razorpay
 #: model_terms:ir.ui.view,arch_db:payment_razorpay.authorization_error
 #, fuzzy
 msgid "An error occurred"
 msgstr "Xatolik yuz berdi"
-
-#. module: payment_razorpay
-#. odoo-python
-#: code:addons/payment_razorpay/models/payment_transaction.py:0
-#, fuzzy
-msgid ""
-"An error occurred during the processing of your payment. Please try again."
-msgstr ""
-"To‘lovni amalga oshirishda xatolik yuz berdi. Iltimos, qaytadan urinib "
-"ko‘ring."
 
 #. module: payment_razorpay
 #: model_terms:ir.ui.view,arch_db:payment_razorpay.authorization_error
@@ -63,6 +65,11 @@ msgstr "Rostdan ham uzilishni xohlaysizmi?"
 #, fuzzy
 msgid "Back to the Razorpay provider"
 msgstr "Razorpay provayderiga qaytish"
+
+#. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_card
+msgid "Card"
+msgstr ""
 
 #. module: payment_razorpay
 #: model:ir.model.fields,field_description:payment_razorpay.field_payment_provider__code
@@ -84,6 +91,21 @@ msgid "Could not find Razorpay provider with id %s"
 msgstr "%s identifikatorli Razorpay provayderi topilmadi"
 
 #. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_diners
+msgid "Diners Club International"
+msgstr ""
+
+#. module: payment_razorpay
+#: model_terms:ir.ui.view,arch_db:payment_razorpay.payment_provider_form_razorpay
+msgid "Disconnect"
+msgstr ""
+
+#. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_discover
+msgid "Discover"
+msgstr ""
+
+#. module: payment_razorpay
 #: model:ir.model.fields,field_description:payment_razorpay.field_payment_provider__display_name
 #: model:ir.model.fields,field_description:payment_razorpay.field_payment_token__display_name
 #: model:ir.model.fields,field_description:payment_razorpay.field_payment_transaction__display_name
@@ -92,10 +114,20 @@ msgid "Display Name"
 msgstr "Ko‘rsatiladigan nom"
 
 #. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_emi_india
+msgid "EMI"
+msgstr ""
+
+#. module: payment_razorpay
 #: model_terms:ir.ui.view,arch_db:payment_razorpay.payment_provider_form_razorpay
 #, fuzzy
 msgid "Enable recurring payments on Razorpay"
 msgstr "Razorpayda takroriy to‘lovlarni yoqish"
+
+#. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_fpx
+msgid "FPX"
+msgstr ""
 
 #. module: payment_razorpay
 #: model_terms:ir.ui.view,arch_db:payment_razorpay.payment_provider_form_razorpay
@@ -124,6 +156,21 @@ msgid "Key Secret"
 msgstr "Maxfiy kalit"
 
 #. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_maestro
+msgid "Maestro"
+msgstr ""
+
+#. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_mastercard
+msgid "MasterCard"
+msgstr ""
+
+#. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_netbanking
+msgid "Netbanking"
+msgstr ""
+
+#. module: payment_razorpay
 #. odoo-python
 #: code:addons/payment_razorpay/models/payment_provider.py:0
 #, fuzzy
@@ -131,10 +178,25 @@ msgid "Other Payment Providers"
 msgstr "Boshqa to‘lov provayderlari"
 
 #. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_paylater_india
+msgid "Pay Later"
+msgstr ""
+
+#. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_paynow
+msgid "PayNow"
+msgstr ""
+
+#. module: payment_razorpay
 #: model:ir.model,name:payment_razorpay.model_payment_provider
 #, fuzzy
 msgid "Payment Provider"
 msgstr "To‘lov provayderi"
+
+#. module: payment_razorpay
+#: model:ir.module.module,shortdesc:base.module_payment_razorpay
+msgid "Payment Provider: Razorpay"
+msgstr ""
 
 #. module: payment_razorpay
 #: model:ir.model,name:payment_razorpay.model_payment_token
@@ -180,6 +242,11 @@ msgid "Razorpay Account ID"
 msgstr "Razorpay hisob raqami"
 
 #. module: payment_razorpay
+#: model:ir.model.fields,field_description:payment_razorpay.field_payment_provider__razorpay_is_oauth_supported
+msgid "Razorpay Is Oauth Supported"
+msgstr ""
+
+#. module: payment_razorpay
 #: model:ir.model.fields,field_description:payment_razorpay.field_payment_provider__razorpay_key_id
 #, fuzzy
 msgid "Razorpay Key Id"
@@ -212,13 +279,17 @@ msgstr "Razorpay veb-ilmoq siri"
 #. module: payment_razorpay
 #. odoo-python
 #: code:addons/payment_razorpay/models/payment_provider.py:0
-#, fuzzy
 msgid ""
-"Razorpay credentials are missing. Click the \"Connect\" button to set up "
-"your account."
+"Razorpay credentials are missing. Please fill them to set up your account."
 msgstr ""
-"Razorpay hisob ma'lumotlari mavjud emas. Hisobingizni sozlash uchun "
-"\"Ulanish\" tugmasini bosing."
+
+#. module: payment_razorpay
+#. odoo-python
+#: code:addons/payment_razorpay/models/payment_provider.py:0
+msgid ""
+"Razorpay credentials are missing. Please set the state back to 'Disabled' "
+"and click the \"Connect\" button to set up your account."
+msgstr ""
 
 #. module: payment_razorpay
 #. odoo-python
@@ -260,10 +331,9 @@ msgid "Received incomplete refund data."
 msgstr "To‘liq bo‘lmagan qaytarish ma'lumotlari qabul qilindi."
 
 #. module: payment_razorpay
-#: model_terms:ir.ui.view,arch_db:payment_razorpay.payment_provider_form_razorpay
-#, fuzzy
-msgid "Reset Your Razorpay Account"
-msgstr "Razorpay hisobingizni qayta tiklash"
+#: model:payment.method,name:payment_razorpay.payment_method_rupay
+msgid "RuPay"
+msgstr ""
 
 #. module: payment_razorpay
 #: model:ir.model.fields,help:payment_razorpay.field_payment_provider__razorpay_key_id
@@ -307,6 +377,21 @@ msgstr ""
 "qilib bo‘lmaydi."
 
 #. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_upi
+msgid "UPI"
+msgstr ""
+
+#. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_visa
+msgid "VISA"
+msgstr ""
+
+#. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_wallets_india
+msgid "Wallets India"
+msgstr ""
+
+#. module: payment_razorpay
 #: model_terms:ir.ui.view,arch_db:payment_razorpay.payment_provider_form_razorpay
 #, fuzzy
 msgid "Webhook Secret"
@@ -314,17 +399,13 @@ msgstr "Veb-ilmoq siri"
 
 #. module: payment_razorpay
 #: model_terms:ir.ui.view,arch_db:payment_razorpay.payment_provider_form_razorpay
-#, fuzzy
 msgid ""
 "You are currently connected to Razorpay through the credentials method, "
 "which is\n"
-"                    deprecated. Click the \"Connect\" button below to use "
+"                    deprecated. Click the \"Connect\" button above to use "
 "the recommended OAuth\n"
 "                    method."
 msgstr ""
-"Siz hozirda Razorpayga eskirgan hisob ma'lumotlari usuli orqali ulangansiz. "
-"Tavsiya etilgan OAuth usulidan foydalanish uchun quyidagi \"Ulanish\" "
-"tugmasini bosing."
 
 #. module: payment_razorpay
 #. odoo-python

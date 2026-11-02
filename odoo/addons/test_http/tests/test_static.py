@@ -1,21 +1,21 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-import base64
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from http import HTTPStatus
-from os.path import basename, join as opj
+from os.path import basename
+from os.path import join as opj
 from unittest.mock import patch
 from urllib.parse import urlsplit
 
 from freezegun import freeze_time
 
-from odoo import api, http
-from odoo.tests import new_test_user, tagged, RecordCapturer
-from odoo.tools import config, file_open
+from odoo import api
+from odoo.tests import RecordCapturer, new_test_user, tagged
+from odoo.tools import BinaryBytes, BinaryValue, config, file_open
 from odoo.tools.image import image_process
 from odoo.tools.misc import submap
 
-from .test_common import TestHttpBase, HTTP_DATETIME_FORMAT
+from .test_common import HTTP_DATETIME_FORMAT, TestHttpBase
 
 
 class TestHttpStaticCommon(TestHttpBase):
@@ -33,11 +33,14 @@ class TestHttpStaticCommon(TestHttpBase):
     def assertDownload(
         self, url, headers, assert_status_code, assert_headers, assert_content=None
     ):
+        assert_headers = {header.lower(): value for header, value in assert_headers.items()}
         res = self.db_url_open(url, headers=headers)
         res.raise_for_status()
         self.assertEqual(res.status_code, assert_status_code)
         self.assertEqual(submap(res.headers, assert_headers), assert_headers)
         if assert_content:
+            if isinstance(assert_content, BinaryValue):
+                assert_content = assert_content.content
             self.assertEqual(res.content, assert_content)
         return res
 
@@ -83,15 +86,12 @@ class TestHttpStatic(TestHttpStaticCommon):
             self.assertCacheControl(res, 'public, max-age=604800')
 
     def test_static01_debug_assets(self):
-        session = self.authenticate(None, None)
-        session.debug = 'assets'
-
+        self.authenticate(None, None, session_extra={'debug': 'assets'})
         res = self.assertDownloadGizeh('/test_http/static/src/img/gizeh.png')
         self.assertCacheControl(res, 'no-cache, max-age=0')
 
     def test_static02_not_found(self):
-        session = self.authenticate(None, None)
-        session.db = None
+        self.authenticate(None, None, session_extra={'db': None})
         res = self.nodb_url_open("/test_http/static/i-dont-exist")
         self.assertEqual(res.status_code, 404)
 
@@ -165,11 +165,12 @@ class TestHttpStatic(TestHttpStaticCommon):
             ('glyph_inline', False),
             ('glyph_related', True),
             ('glyph_compute', False),
+            ('glyph_binary_inline', False),
         ):
             with self.subTest(x_sendfile=False):
                 self.assertDownloadGizeh(
                     f'/web/content/test_http.earth?field={field}',
-                    assert_filename='Earth.png'
+                    assert_filename='Earth.png',
                 )
 
             if is_attachment:
@@ -178,7 +179,7 @@ class TestHttpStatic(TestHttpStaticCommon):
                     self.assertDownloadGizeh(
                         f'/web/content/test_http.earth?field={field}',
                         x_sendfile=is_attachment and attachment_path,
-                        assert_filename='Earth.png'
+                        assert_filename='Earth.png',
                     )
 
     def test_static10_filename(self):
@@ -264,7 +265,6 @@ class TestHttpStatic(TestHttpStaticCommon):
             # The file is outside of the filestore, X-Sendfile disabled
             self.assertDownloadPlaceholder(f'/web/image/{att.id}')
 
-
     def test_static14_download_not_found(self):
         res = self.url_open('/web/image/idontexist?download=True')
         self.assertEqual(res.status_code, 404)
@@ -300,13 +300,14 @@ class TestHttpStatic(TestHttpStaticCommon):
             res = self.url_open('/web/content/test_http.earth?field=galaxy_picture')
             self.assertEqual(res.status_code, 404)
 
-    def test_static17_content_missing_checksum(self):
+    def test_static17_content_from_db_datas(self):
+        self.env['ir.config_parameter'].set_str('ir_attachment.location', 'db')
         att = self.env['ir.attachment'].create({
             'name': 'testhttp.txt',
-            'db_datas': 'some data',
+            'raw': b'some data',
             'public': True,
         })
-        self.assertFalse(att.checksum)
+        self.assertFalse(att.store_fname)
         self.assertDownload(
             url=f'/web/content/{att.id}',
             headers={},
@@ -320,15 +321,16 @@ class TestHttpStatic(TestHttpStaticCommon):
             assert_content=b'some data',
         )
 
-    def test_static18_image_missing_checksum(self):
+    def test_static18_image_from_db_datas(self):
+        self.env['ir.config_parameter'].set_str('ir_attachment.location', 'db')
         with file_open('test_http/static/src/img/gizeh.png', 'rb') as file:
             att = self.env['ir.attachment'].create({
                 'name': 'gizeh.png',
-                'db_datas': file.read(),
+                'raw': file.read(),
                 'mimetype': 'image/png',
                 'public': True,
             })
-        self.assertFalse(att.checksum)
+        self.assertFalse(att.store_fname)
         self.assertDownloadGizeh(f'/web/image/{att.id}')
 
     def test_static19_fallback_redirection_loop(self):
@@ -427,7 +429,7 @@ class TestHttpStatic(TestHttpStaticCommon):
         self.authenticate('test user', 'test user')
         earth = env.ref('test_http.earth')
 
-        data = base64.b64encode(b'<html><body><div>Hello World</div></body></html>')
+        data = BinaryBytes(b'<html><body><div>Hello World</div></body></html>')
         for field in ('glyph_attach', 'glyph_inline', 'glyph_related', 'glyph_compute'):
             earth[field] = data
             res = self.url_open(f'/web/image/test_http.stargate/{earth.id}/{field}')
@@ -436,10 +438,9 @@ class TestHttpStatic(TestHttpStaticCommon):
             self.assertEqual(res.headers['Content-Security-Policy'], "default-src 'none'")
 
     def test_static23_remove_cache_control_wkhmtltopdf(self):
-        session = self.authenticate(None, None)
+        self.authenticate(None, None)
         for debug in ('', 'assets'):
-            session.debug = debug
-            http.root.session_store.save(self.session)
+            self.update_session(debug=debug)
             with self.subTest(debug=debug):
                 res = self.db_url_open('/test_http/static/src/img/gizeh.png', headers={
                     'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) '
@@ -466,38 +467,19 @@ class TestHttpStatic(TestHttpStaticCommon):
         self.assertEqual(res.headers['Date'].count(' GMT'), 1,
             "There must be only 1 Date header, not 2")
 
-    def test_static25_binary_non_base64(self):
-        self.authenticate('admin', 'admin')
-
-        # need a Binary(attachment=False) field
-        # TODO: master, add such a field on test_http.stargate
-        record = self.env['ir.mail_server'].create({
-            'name': 'dummy test_http test_static server',
-            'smtp_host': 'localhost',
-        })
-
-        record.smtp_ssl_certificate = b'non base64 value'
-        self.assertDownload(
-            f'/web/content/ir.mail_server/{record.id}/smtp_ssl_certificate',
-            headers={},
-            assert_status_code=200,
-            assert_headers={},
-            assert_content=b'non base64 value',
-        )
-
 
 @tagged('post_install', '-at_install')
 class TestHttpStaticLogo(TestHttpStaticCommon):
     @staticmethod
-    def img_data_to_web_data(img_base_64):
-        return image_process(img_base_64, size=(180, 0))
+    def img_data_to_web_data(img_base):
+        return image_process(img_base, size=(180, 0))
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         ResCompany = cls.env['res.company']
-        cls.default_logo_data = cls.img_data_to_web_data(base64.b64decode(ResCompany._get_logo()))
-        cls.gizeh_data_b64 = base64.encodebytes(cls.gizeh_data)
+        cls.default_logo_data = cls.img_data_to_web_data(ResCompany._get_logo())
+        cls.gizeh_data_value = BinaryBytes(cls.gizeh_data)
         cls.logo_gizeh_data = cls.img_data_to_web_data(cls.gizeh_data)
         with file_open('web/static/img/nologo.png', 'rb') as file:
             cls.logo_no_logo_data = file.read()
@@ -563,7 +545,7 @@ class TestHttpStaticLogo(TestHttpStaticCommon):
         self.assertDownloadLogoDefault(user=self.user_company2)
 
     def test_set_logo_company_of_superuser(self):
-        self.company_of_superuser.logo = self.gizeh_data_b64
+        self.company_of_superuser.logo = self.gizeh_data_value
         self.assertDownloadLogoGizeh()
         self.assertDownloadLogoGizeh(company=self.company_of_superuser)
         self.assertDownloadLogoGizeh(user=self.user_of_company_of_superuser)
@@ -571,7 +553,7 @@ class TestHttpStaticLogo(TestHttpStaticCommon):
         self.assertDownloadLogoDefault(user=self.user_company2)
 
     def test_set_logo_other_company(self):
-        self.company2.logo = self.gizeh_data_b64
+        self.company2.logo = self.gizeh_data_value
         self.assertDownloadLogoDefault()
         self.assertDownloadLogoGizeh(company=self.company2)
         self.assertDownloadLogoGizeh(user=self.user_company2)
@@ -596,7 +578,7 @@ class TestHttpStaticLogo(TestHttpStaticCommon):
 
     def test_company_param_win_on_current_user(self):
         """When company and user are specified, company wins (ex: in an email you see the company logo and not yours)"""
-        self.company_of_superuser.logo = self.gizeh_data_b64
+        self.company_of_superuser.logo = self.gizeh_data_value
         self.assertDownloadLogoGizeh(company=self.company_of_superuser, user=self.user_company2)
         self.assertDownloadLogoDefault(company=self.company2, user=self.user_of_company_of_superuser)
 
@@ -605,7 +587,7 @@ class TestHttpStaticLogo(TestHttpStaticCommon):
 class TestHttpStaticCache(TestHttpStaticCommon):
     @freeze_time(datetime.utcnow())
     def test_static_cache0_standard(self):
-        one_week_away = int((datetime.now(timezone.utc) + timedelta(weeks=1)).timestamp())
+        one_week_away = int((datetime.now(UTC) + timedelta(weeks=1)).timestamp())
 
         res1 = self.nodb_url_open('/test_http/static/src/img/gizeh.png')
         res1.raise_for_status()
@@ -616,13 +598,13 @@ class TestHttpStaticCache(TestHttpStaticCommon):
         self.assertIn('ETag', res1.headers)
 
         res_etag = self.nodb_url_open('/test_http/static/src/img/gizeh.png', headers={
-            'If-None-Match': res1.headers['ETag']
+            'If-None-Match': res1.headers['ETag'],
         })
         res_etag.raise_for_status()
         self.assertEqual(res_etag.status_code, 304, "We should not download the file again.")
 
         res_last_modified = self.nodb_url_open('/test_http/static/src/img/gizeh.png', headers={
-            'If-Modified-Since': datetime.now(timezone.utc).strftime(HTTP_DATETIME_FORMAT),
+            'If-Modified-Since': datetime.now(UTC).strftime(HTTP_DATETIME_FORMAT),
         })
         res_last_modified.raise_for_status()
         self.assertEqual(res_last_modified.status_code, 304, "We should not download the file again.")
@@ -632,7 +614,7 @@ class TestHttpStaticCache(TestHttpStaticCommon):
         # Wed, 21 Oct 2015 07:28:00 GMT
         # The timezone should be %Z (instead of 'GMT' hardcoded) but
         # somehow strftime doesn't set it.
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         one_year_away = int((now + timedelta(days=365)).timestamp())
 
         res1 = self.assertDownloadGizeh('/web/image/test_http.gizeh_png?unique=1')
@@ -642,7 +624,7 @@ class TestHttpStaticCache(TestHttpStaticCommon):
         self.assertIn('ETag', res1.headers)
 
         res_etag = self.db_url_open('/web/image/test_http.gizeh_png?unique=1', headers={
-            'If-None-Match': res1.headers['ETag']
+            'If-None-Match': res1.headers['ETag'],
         })
         res_etag.raise_for_status()
         self.assertEqual(res_etag.status_code, 304, "We should not download the file again.")
@@ -706,7 +688,7 @@ class TestHttpStaticUpload(TestHttpStaticCommon):
                 f'{self.base_url()}/web/binary/upload_attachment',
                 files={'ufile': file},
                 data={
-                    'csrf_token': http.Request.csrf_token(self),
+                    'csrf_token': self.csrf_token(),
                     'model': 'test_http.stargate',
                     'id': self.env.ref('test_http.earth').id,
                 },
@@ -715,7 +697,7 @@ class TestHttpStaticUpload(TestHttpStaticCommon):
 
         self.assertEqual(len(capture.records), 1, "An attachment should have been created")
         self.assertEqual(capture.records.name, 'gizeh.png')
-        self.assertEqual(capture.records.raw, file_content)
+        self.assertEqual(capture.records.raw.content, file_content)
         self.assertEqual(capture.records.mimetype, 'image/png')
 
         self.assertEqual(res.json(), [{
@@ -726,13 +708,11 @@ class TestHttpStaticUpload(TestHttpStaticCommon):
         }])
 
     def test_upload_small_file_without_icp(self):
-        self.env['ir.config_parameter'].sudo().set_param(
-            'web.max_file_upload_size', False,
-        )
+        self.env['ir.config_parameter'].sudo().search([('key', '=', 'web.max_file_upload_size')]).unlink()
         self._test_upload_small_file()
 
     def test_upload_small_file_with_icp(self):
-        self.env['ir.config_parameter'].sudo().set_param(
+        self.env['ir.config_parameter'].sudo().set_int(
             'web.max_file_upload_size', 16386,  # gizen.png is smaller
         )
         self._test_upload_small_file()
@@ -745,14 +725,14 @@ class TestHttpStaticUpload(TestHttpStaticCommon):
              file_open('test_http/static/src/img/gizeh.png', 'rb') as file:
             file_size = file.seek(0, 2)
             file.seek(0)
-            self.env['ir.config_parameter'].sudo().set_param(
+            self.env['ir.config_parameter'].sudo().set_int(
                 'web.max_file_upload_size', file_size - 1,
             )
             res = self.url_open(
                 f'{self.base_url()}/web/binary/upload_attachment',
                 files={'ufile': file},
                 data={
-                    'csrf_token': http.Request.csrf_token(self),
+                    'csrf_token': self.csrf_token(),
                     'model': 'test_http.stargate',
                     'id': self.env.ref('test_http.earth').id,
                     'callback': 'callmemaybe',

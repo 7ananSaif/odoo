@@ -5,7 +5,7 @@ import logging
 
 from odoo import api, exceptions, models, modules, _, release
 from odoo.addons.iap.tools import iap_tools
-from requests.exceptions import HTTPError
+from requests.exceptions import RequestException
 
 _logger = logging.getLogger(__name__)
 
@@ -23,14 +23,14 @@ class IapAutocompleteApi(models.AbstractModel):
         if not account.sudo().account_token:
             raise ValueError(_('No account token'))
         params.update({
-            'db_uuid': self.env['ir.config_parameter'].sudo().get_param('database.uuid'),
+            'db_uuid': self.env['ir.config_parameter'].sudo().get_str('database.uuid'),
             'db_version': release.version,
             'db_lang': self.env.lang,
             'account_token': account.sudo().account_token,
             'country_code': self.env.company.country_id.code,
             'zip': self.env.company.zip,
         })
-        base_url = self.env['ir.config_parameter'].sudo().get_param('iap.partner_autocomplete.endpoint', self._DEFAULT_ENDPOINT)
+        base_url = self.env['ir.config_parameter'].sudo().get_str('iap.partner_autocomplete.endpoint') or self._DEFAULT_ENDPOINT
         return iap_tools.iap_jsonrpc(base_url + local_endpoint + '/' + action, params=params, timeout=timeout)
 
     @api.model
@@ -44,7 +44,7 @@ class IapAutocompleteApi(models.AbstractModel):
             results = self._contact_iap('/api/dnb/1', action, params, timeout=timeout)
         except exceptions.ValidationError:
             return False, 'Insufficient Credit'
-        except (ConnectionError, HTTPError, exceptions.AccessError, exceptions.UserError) as exception:
+        except RequestException as exception:
             _logger.warning('Autocomplete API error: %s', str(exception))
             return False, str(exception)
         except iap_tools.InsufficientCreditError as exception:

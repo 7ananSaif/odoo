@@ -1,9 +1,9 @@
-import { useEffect } from "@odoo/owl";
 import { patch } from "@web/core/utils/patch";
 import { exprToBoolean } from "@web/core/utils/strings";
 import { useDebounced } from "@web/core/utils/timing";
-import { charField, CharField } from "@web/views/fields/char/char_field";
-import { textField, TextField } from "@web/views/fields/text/text_field";
+import { t, useListener } from "@odoo/owl";
+import { charField, CharField, charFieldProps } from "@web/views/fields/char/char_field";
+import { textField, TextField, textFieldProps } from "@web/views/fields/text/text_field";
 
 /**
  * Support a key-based onchange in text fields.
@@ -19,57 +19,46 @@ const onchangeOnKeydownMixin = () => ({
             const input = this.input || this.textareaRef;
 
             const triggerOnChange = useDebounced(
-                this.triggerOnChange,
+                this.triggerOnChange.bind(this),
                 this.props.keydownDebounceDelay
             );
-            useEffect(() => {
-                if (input.el) {
-                    input.el.addEventListener("keydown", triggerOnChange);
-                    return () => {
-                        input.el.removeEventListener("keydown", triggerOnChange);
-                    };
-                }
-            });
+            useListener(input, "keydown", triggerOnChange);
         }
     },
 
     triggerOnChange() {
         const input = this.input || this.textareaRef;
-        input.el.dispatchEvent(new Event("change"));
+        input().dispatchEvent(new Event("change"));
     },
 });
 
 patch(CharField.prototype, onchangeOnKeydownMixin());
 patch(TextField.prototype, onchangeOnKeydownMixin());
 
-CharField.props = {
-    ...CharField.props,
-    onchangeOnKeydown: { type: Boolean, optional: true },
-    keydownDebounceDelay: { type: Number, optional: true },
-};
+Object.assign(charFieldProps, {
+    onchangeOnKeydown: t.boolean().optional(),
+    keydownDebounceDelay: t.number().optional(),
+});
 
-TextField.props = {
-    ...TextField.props,
-    onchangeOnKeydown: { type: Boolean, optional: true },
-    keydownDebounceDelay: { type: Number, optional: true },
-};
+Object.assign(textFieldProps, {
+    onchangeOnKeydown: t.boolean().optional(),
+    keydownDebounceDelay: t.number().optional(),
+});
 
 const charExtractProps = charField.extractProps;
-charField.extractProps = (fieldInfo) => {
-    return Object.assign(charExtractProps(fieldInfo), {
+charField.extractProps = (fieldInfo) =>
+    Object.assign(charExtractProps(fieldInfo), {
         onchangeOnKeydown: exprToBoolean(fieldInfo.attrs.onchange_on_keydown),
         keydownDebounceDelay: fieldInfo.attrs.keydown_debounce_delay
             ? Number(fieldInfo.attrs.keydown_debounce_delay)
             : 2000,
     });
-};
 
 const textExtractProps = textField.extractProps;
-textField.extractProps = (fieldInfo) => {
-    return Object.assign(textExtractProps(fieldInfo), {
+textField.extractProps = (fieldInfo) =>
+    Object.assign(textExtractProps(fieldInfo), {
         onchangeOnKeydown: exprToBoolean(fieldInfo.attrs.onchange_on_keydown),
         keydownDebounceDelay: fieldInfo.attrs.keydown_debounce_delay
             ? Number(fieldInfo.attrs.keydown_debounce_delay)
             : 2000,
     });
-};

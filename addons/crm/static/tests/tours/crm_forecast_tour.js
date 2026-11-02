@@ -3,7 +3,6 @@ import { stepUtils } from "@web_tour/tour_utils";
 const today = luxon.DateTime.now();
 
 registry.category("web_tour.tours").add('crm_forecast', {
-    url: "/odoo",
     steps: () => [
     stepUtils.showAppsMenuItem(),
     {
@@ -52,7 +51,6 @@ registry.category("web_tour.tours").add('crm_forecast', {
     }, {
         trigger: '.o_back_button',
         content: 'navigate back to the kanban view',
-        tooltipPosition: "bottom",
         run: "click"
     }, {
         trigger: ".o_kanban_record:contains('Test Opportunity 1')",
@@ -78,9 +76,11 @@ registry.category("web_tour.tours").add('crm_forecast', {
         content: "win the lead",
         run:"click"
     }, {
+        trigger: ".o_form_view .ribbon:contains('Won')",
+        content: "wait for the lead to be won",
+    }, {
         trigger: '.o_back_button',
         content: 'navigate back to the kanban view',
-        tooltipPosition: "bottom",
         run: "click"
     }, {
         trigger: '.o_column_quick_create.o_quick_create_folded div',

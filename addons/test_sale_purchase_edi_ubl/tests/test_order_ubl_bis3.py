@@ -1,6 +1,5 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo.exceptions import UserError
 from odoo.fields import Command
 from odoo.tests import tagged
 
@@ -10,6 +9,8 @@ from odoo.addons.sale.tests.common import SaleCommon
 
 @tagged('post_install', '-at_install')
 class TestOrderEdiUbl(TestAccountEdiUblCii, SaleCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def get_default_groups(cls):
@@ -78,6 +79,10 @@ class TestOrderEdiUbl(TestAccountEdiUblCii, SaleCommon):
 
     def test_so_fallback_partner(self):
         """ Test partner assignation on a sale order when importing a PO xml. """
+        (self.customer_company.partner_id | self.customer_company.partner_id.child_ids).write({
+            'routing_scheme': False,
+            'routing_endpoint': False,
+        })
 
         # same name and VAT -> same partner
         self.env.user.company_id = self.supplier_company
@@ -103,6 +108,7 @@ class TestOrderEdiUbl(TestAccountEdiUblCii, SaleCommon):
         # wrong name and no VAT -> current user's partner_id with an activity in chatter
         self.customer_company.name = "Esquie's Nest"
         self.customer_company.vat = ""  # we need to remove the VAT before generating a new xml
+        self.customer_company.partner_id.routing_identifier = False  # and no routing endpoint to match on
         xml_attachment_4 = self.get_purchase_xml([])
         self.customer_company.name = "Lumiere LLC"
         self.customer_company.vat = "US14001383"
@@ -113,6 +119,10 @@ class TestOrderEdiUbl(TestAccountEdiUblCii, SaleCommon):
 
     def test_po_fallback_partner(self):
         """ Test partner assignation on a sale order when importing a PO xml. """
+        (self.supplier_company.partner_id | self.supplier_company.partner_id.child_ids).write({
+            'routing_scheme': False,
+            'routing_endpoint': False,
+        })
 
         # same name and VAT -> same partner
         self.env.user.company_id = self.customer_company
@@ -138,6 +148,7 @@ class TestOrderEdiUbl(TestAccountEdiUblCii, SaleCommon):
         # wrong name and no VAT -> current user's partner_id with an activity in chatter
         self.supplier_company.name = "Esquie's Nest"
         self.supplier_company.vat = ""  # we need to remove the VAT before generating a new xml
+        self.supplier_company.partner_id.routing_identifier = False  # and no routing endpoint to match on
         xml_attachment_4 = self.get_sale_xml([])
         self.supplier_company.name = "Gestral Inc."
         self.supplier_company.vat = "US9357841"
@@ -151,14 +162,14 @@ class TestOrderEdiUbl(TestAccountEdiUblCii, SaleCommon):
             {
                 'product_id': self.place_prdct.id,
                 'price_unit': 30.0,
-                'product_uom_id': self.uom_units.id,
+                'uom_id': self.uom_units.id,
                 'product_qty': 10.0,
                 'tax_ids': self.purchase_tax.ids,
                 'discount': 10.0,
             }, {
                 'product_id': self.displace_prdct.id,
                 'price_unit': 30.0,
-                'product_uom_id': self.uom_units.id,
+                'uom_id': self.uom_units.id,
                 'product_qty': 50.0,
                 'tax_ids': self.purchase_tax.ids,
                 'discount': 0.0,
@@ -181,6 +192,7 @@ class TestOrderEdiUbl(TestAccountEdiUblCii, SaleCommon):
         for line in po_line_vals:
             line_product = self.env['product.product'].browse(line['product_id'])
             line['product_uom_qty'] = line.pop('product_qty')
+            line['product_uom_id'] = line.pop('uom_id')
             line['discount'] = 0.0
             # Set sales tax related to purchase tax
             line['tax_ids'] = related_sale_tax.ids
@@ -221,6 +233,7 @@ class TestOrderEdiUbl(TestAccountEdiUblCii, SaleCommon):
         for line in so_line_vals:
             line_product = self.env['product.product'].browse(line['product_id'])
             line['product_qty'] = line.pop('product_uom_qty')
+            line['uom_id'] = line.pop('product_uom_id')
             # Set purchase tax related to sale tax
             line['tax_ids'] = related_purchase_tax.ids
             line['price_unit'] = line_product.list_price
@@ -231,7 +244,7 @@ class TestOrderEdiUbl(TestAccountEdiUblCii, SaleCommon):
         po_line_vals = [{
             'product_id': self.displace_prdct.id,
             'price_unit': 1100.0,
-            'product_uom_id': self.uom_dozens.id,
+            'uom_id': self.uom_dozens.id,
             'product_qty': 5.0,
         }]
         xml_attachment = self.get_purchase_xml(po_line_vals)
@@ -239,10 +252,10 @@ class TestOrderEdiUbl(TestAccountEdiUblCii, SaleCommon):
         # Update lines vals depending on sale order field names
         for line in po_line_vals:
             line_product = self.env['product.product'].browse(line['product_id'])
-            product_uom = self.env['uom.uom'].browse(line['product_uom_id'])
-            line['product_uom_qty'] = line['product_qty']
+            product_uom = self.env['uom.uom'].browse(line['uom_id'])
+            line['product_uom_qty'] = line.pop('product_qty')
+            line['product_uom_id'] = line.pop('uom_id')
             line['price_unit'] = line_product.uom_id._compute_price(line_product.list_price, product_uom)
-            del line['product_qty']
 
         self.assertRecordValues(so.order_line, po_line_vals)
 
@@ -257,6 +270,7 @@ class TestOrderEdiUbl(TestAccountEdiUblCii, SaleCommon):
         po = self.env['purchase.order'].with_context(default_partner_id=self.env.user.partner_id.id)._create_records_from_attachments(xml_attachment)
         # Update lines vals depending on purchase order field names
         for line in so_line_vals:
+            line['uom_id'] = line.pop('product_uom_id')
             line['product_qty'] = line.pop('product_uom_qty')
 
         self.assertRecordValues(po.order_line, so_line_vals)
@@ -265,15 +279,13 @@ class TestOrderEdiUbl(TestAccountEdiUblCii, SaleCommon):
         line_vals = [{
             'product_id': self.displace_prdct.id,
             'price_unit': 80.0,
-            'product_uom_id': self.uom_dozens.id,
+            'uom_id': self.uom_dozens.id,
         }]
         xml_attachment = self.get_purchase_xml(line_vals)
         self.displace_prdct.active = False
         so = self.env['sale.order'].with_context(default_partner_id=self.env.user.partner_id.id)._create_records_from_attachments(xml_attachment)
-        with self.assertRaises(UserError):
-            # Raise user error if line does not have product set
-            so.action_confirm()
         line_vals[0]['product_id'] = False
+        line_vals[0]['product_uom_id'] = line_vals[0].pop('uom_id')
         # Should set other values properly
         self.assertRecordValues(so.order_line, line_vals)
         # Should create an activity if product is not found
@@ -289,6 +301,7 @@ class TestOrderEdiUbl(TestAccountEdiUblCii, SaleCommon):
         self.displace_prdct.active = False
         po = self.env['purchase.order'].with_context(default_partner_id=self.env.user.partner_id.id)._create_records_from_attachments(xml_attachment)
         line_vals[0]['product_id'] = False
+        line_vals[0]['uom_id'] = line_vals[0].pop('product_uom_id')
         # Should set other values properly
         self.assertRecordValues(po.order_line, line_vals)
         # Should create an activity if product is not found
@@ -308,11 +321,34 @@ class TestOrderEdiUbl(TestAccountEdiUblCii, SaleCommon):
         # Should have same payment term as PO
         self.assertEqual(po.payment_term_id, payment_term)
 
+    def test_edi_learning_from_previous_so(self):
+        po_line_vals = [{
+            'product_id': self.displace_prdct.id,
+            'product_qty': 1.0,
+            'price_unit': 100.0,
+        }]
+        xml_attachment = self.get_purchase_xml(po_line_vals)
+        # Archive product for SO import
+        self.displace_prdct.active = False
+        so = self.env['sale.order'].with_context(
+            default_partner_id=self.env.user.partner_id.id,
+        )._create_records_from_attachments(xml_attachment)
+        # Set different product on the SO
+        so.order_line[0].product_id = self.place_prdct.id
+        so.action_confirm()
+        # Again create SO with same PO file
+        new_so = self.env['sale.order'].with_context(
+            default_partner_id=self.env.user.partner_id.id,
+        )._create_records_from_attachments(xml_attachment)
+
+        # New SO should set product from previous SO
+        self.assertEqual(new_so.order_line[0].product_id, self.place_prdct)
+
     def test_so_import_line_allowance_charges(self):
         po_line_vals = [{
             'product_id': self.place_prdct.id,
             'price_unit': 30.0,
-            'product_uom_id': self.uom_units.id,
+            'uom_id': self.uom_units.id,
             'product_qty': 10.0,
             'tax_ids': self.purchase_tax.ids,
             'discount': -10.0,
@@ -341,6 +377,36 @@ class TestOrderEdiUbl(TestAccountEdiUblCii, SaleCommon):
         self.assertRecordValues(po.order_line, [{
             'price_unit': 55.0,
             'product_uom_qty': 10.0,
-            'product_uom_id': self.uom_units.id,
+            'uom_id': self.uom_units.id,
             'discount': 0.0,
         }])
+
+    def test_so_import_line_description(self):
+        self.place_prdct.write({'default_code': 'PLC', 'description_sale': "Sale description"})
+        po_line_vals = [
+            {'product_id': self.place_prdct.id, 'product_qty': 1.0, 'price_unit': 30.0},
+            {'product_id': self.place_prdct.id, 'product_qty': 1.0, 'price_unit': 30.0, 'name': "Custom description"},
+        ]
+        xml_attachment = self.get_purchase_xml(po_line_vals)
+
+        so = self.env['sale.order'].with_context(default_partner_id=self.env.user.partner_id.id)._create_records_from_attachments(xml_attachment)
+        # Without item description from UBL, the line gets the description of the product
+        self.assertRecordValues(so.order_line, [
+            {'product_id': self.place_prdct.id, 'name': "Sale description"},
+            {'product_id': self.place_prdct.id, 'name': "Custom description"},
+        ])
+
+    def test_po_import_line_description(self):
+        self.place_prdct.write({'default_code': 'PLC', 'description_purchase': "Purchase description"})
+        so_line_vals = [
+            {'product_id': self.place_prdct.id, 'product_uom_qty': 1.0},
+            {'product_id': self.place_prdct.id, 'product_uom_qty': 1.0, 'name': "Custom description"},
+        ]
+        xml_attachment = self.get_sale_xml(so_line_vals)
+
+        po = self.env['purchase.order'].with_context(default_partner_id=self.env.user.partner_id.id)._create_records_from_attachments(xml_attachment)
+        # Without item description from UBL, the line gets the description of the product
+        self.assertRecordValues(po.order_line, [
+            {'product_id': self.place_prdct.id, 'name': "Purchase description"},
+            {'product_id': self.place_prdct.id, 'name': "Custom description"},
+        ])

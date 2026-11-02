@@ -1,29 +1,32 @@
-import { Component } from "@odoo/owl";
+import { Component, useProps, t } from "@odoo/owl";
+import { ProductProduct } from "@point_of_sale/app/models/product_product";
+import { ProductTemplate } from "@point_of_sale/app/models/product_template";
+import { formatFloat } from "@web/core/utils/numbers";
 
 export class ProductCard extends Component {
     static template = "point_of_sale.ProductCard";
-    static props = {
-        class: { String, optional: true },
-        name: String,
-        product: Object,
-        productId: Number | String,
-        comboExtraPrice: { String, optional: true },
-        color: { type: [Number, undefined], optional: true },
-        imageUrl: [String, Boolean],
-        onClick: { type: Function, optional: true },
-        showWarning: { type: Boolean, optional: true },
-        productCartQty: { type: [Number, undefined], optional: true },
-        slots: { type: Object, optional: true },
-        isComboPopup: { type: Boolean, optional: true },
-    };
-    static defaultProps = {
-        onClick: () => {},
-        class: "",
-        showWarning: false,
-        isComboPopup: false,
-    };
+    props = useProps({
+        class: t.string().optional(""),
+        name: t.string(),
+        available: t.boolean().optional(true),
+        product: t.or([t.instanceOf(ProductTemplate), t.instanceOf(ProductProduct)]),
+        productId: t.or([t.number(), t.string()]),
+        comboExtraPrice: t.string().optional(),
+        color: t.or([t.number(), t.literal(undefined)]).optional(),
+        imageUrl: t.or([t.string(), t.boolean()]),
+        onClick: t.function().optional(() => () => {}),
+        showWarning: t.boolean().optional(false),
+        productCartQty: t.or([t.number(), t.literal(undefined)]).optional(),
+        isComboPopup: t.boolean().optional(false),
+    });
 
     get productQty() {
-        return this.env.utils.formatProductQty(this.props.productCartQty ?? 0, false);
+        const productUnit = this.props.product.models["decimal.precision"].find(
+            (dp) => dp.name === "Product Unit"
+        );
+        return formatFloat(this.props.productCartQty ?? 0, {
+            digits: [true, productUnit.digits],
+            trailingZeros: false,
+        });
     }
 }

@@ -8,17 +8,24 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-02-17 10:06+0000\n"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-10-12 12:38+0000\n"
 "Last-Translator: Saara Hakanen <sahak@odoo.com>\n"
-"Language-Team: Finnish <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Finnish <https://translate.odoo.com/projects/odoo-20/"
 "event_booth/fi/>\n"
 "Language: fi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: event_booth
+#: model:ir.module.module,description:base.module_event_booth
+msgid ""
+"\n"
+"Create booths for your favorite event.\n"
+msgstr ""
 
 #. module: event_booth
 #: model_terms:ir.ui.view,arch_db:event_booth.event_booth_booked_template
@@ -128,6 +135,11 @@ msgid "Activity Exception Decoration"
 msgstr "Poikkeustoimenpiteen tyyli"
 
 #. module: event_booth
+#: model:ir.model.fields,field_description:event_booth.field_event_booth__activity_plans_ids
+msgid "Activity Plans"
+msgstr "Toimenpidesuunnitelmat"
+
+#. module: event_booth
 #: model:ir.model.fields,field_description:event_booth.field_event_booth__activity_state
 msgid "Activity State"
 msgstr "Toimenpiteen tila"
@@ -135,7 +147,7 @@ msgstr "Toimenpiteen tila"
 #. module: event_booth
 #: model:ir.model.fields,field_description:event_booth.field_event_booth__activity_type_icon
 msgid "Activity Type Icon"
-msgstr "Toimenpiteen ikoni"
+msgstr "Toimenpidetyypin kuvake"
 
 #. module: event_booth
 #: model_terms:ir.ui.view,arch_db:event_booth.event_booth_category_view_form
@@ -348,6 +360,11 @@ msgid "Event booth"
 msgstr "Tapahtuman näyttelyalue"
 
 #. module: event_booth
+#: model:ir.module.module,shortdesc:base.module_event_booth
+msgid "Events Booths"
+msgstr ""
+
+#. module: event_booth
 #: model:ir.model.fields,field_description:event_booth.field_event_booth__message_follower_ids
 msgid "Followers"
 msgstr "Seuraajat"
@@ -356,11 +373,6 @@ msgstr "Seuraajat"
 #: model:ir.model.fields,field_description:event_booth.field_event_booth__message_partner_ids
 msgid "Followers (Partners)"
 msgstr "Seuraajat (kumppanit)"
-
-#. module: event_booth
-#: model:ir.model.fields,help:event_booth.field_event_booth__activity_type_icon
-msgid "Font awesome icon e.g. fa-tasks"
-msgstr "Font awesome -ikoni esim.. fa-tasks"
 
 #. module: event_booth
 #: model:event.booth,name:event_booth.event_booth_20_event_7
@@ -399,7 +411,7 @@ msgstr "Kuvake"
 #. module: event_booth
 #: model:ir.model.fields,help:event_booth.field_event_booth__activity_exception_icon
 msgid "Icon to indicate an exception activity."
-msgstr "Kuvake, joka kertoo poikkeustoiminnosta."
+msgstr "Poikkeustoimenpiteeseen viittaava kuvake."
 
 #. module: event_booth
 #: model:ir.model.fields,help:event_booth.field_event_booth__message_needaction
@@ -462,9 +474,19 @@ msgid "Last Updated on"
 msgstr "Viimeksi päivitetty"
 
 #. module: event_booth
+#: model:ir.module.module,summary:base.module_event_booth
+msgid "Manage event booths"
+msgstr ""
+
+#. module: event_booth
+#: model:ir.model.fields,help:event_booth.field_event_booth__activity_type_icon
+msgid "Material Symbols icon e.g. checklist"
+msgstr "Material Symbols -kuvake, esim. muistilista"
+
+#. module: event_booth
 #: model:ir.model.fields,field_description:event_booth.field_event_booth__message_has_error
 msgid "Message Delivery error"
-msgstr "Ongelma viestin toimituksessa"
+msgstr "Viestin toimitusvirhe"
 
 #. module: event_booth
 #: model:ir.model.fields,field_description:event_booth.field_event_booth__message_ids
@@ -499,7 +521,7 @@ msgstr "Seuraavan toimenpiteen eräpäivä"
 #. module: event_booth
 #: model:ir.model.fields,field_description:event_booth.field_event_booth__activity_summary
 msgid "Next Activity Summary"
-msgstr "Seuraavan toimenpiteen kuvaus"
+msgstr "Seuraavan toimenpiteen yhteenveto"
 
 #. module: event_booth
 #: model:ir.model.fields,field_description:event_booth.field_event_booth__activity_type_id
@@ -580,7 +602,7 @@ msgstr "Premium-näyttelyalue Showbooth 2"
 #. module: event_booth
 #: model:ir.model.fields,field_description:event_booth.field_event_booth__rating_ids
 msgid "Ratings"
-msgstr "Arviointi"
+msgstr "Arvostelut"
 
 #. module: event_booth
 #: model:ir.model.fields,field_description:event_booth.field_event_booth__partner_id
@@ -617,7 +639,7 @@ msgstr "Tekstiviestin toimitusvirhe"
 #. module: event_booth
 #: model:ir.model.fields,field_description:event_booth.field_event_booth_category__sequence
 msgid "Sequence"
-msgstr "Järjestys"
+msgstr "Sekvenssi"
 
 #. module: event_booth
 #: model:event.booth,name:event_booth.event_booth_0_event_2
@@ -651,10 +673,10 @@ msgid ""
 "Today: Activity date is today\n"
 "Planned: Future activities."
 msgstr ""
-"Tila aktiviteetin perusteella\n"
-"Myöhässä: Eräpäivä on menneisyydessä\n"
-"Tänään: Eräpäivä on tänään\n"
-"Suunniteltu: Tulevaisuudessa."
+"Tila toimenpiteiden perusteella\n"
+"Myöhässä: Eräpäivä on jo mennyt\n"
+"Tänään: Toimenpiteen päivämäärä on tänään\n"
+"Suunniteltu: Tulevat toimenpiteet."
 
 #. module: event_booth
 #: model:ir.model.fields,field_description:event_booth.field_event_event__event_booth_count
@@ -664,7 +686,7 @@ msgstr "Näyttelyalueita yhteensä"
 #. module: event_booth
 #: model:ir.model.fields,help:event_booth.field_event_booth__activity_exception_decoration
 msgid "Type of the exception activity on record."
-msgstr "Tietueen poikkeustoiminnon tyyppi."
+msgstr "Kirjatun poikkeustoimenpiteen tyyppi."
 
 #. module: event_booth
 #: model:ir.model.fields.selection,name:event_booth.selection__event_booth__state__unavailable
@@ -683,16 +705,6 @@ msgid "VIP Booth A5"
 msgstr "VIP-näyttelyalue A5"
 
 #. module: event_booth
-#: model:ir.model.fields,field_description:event_booth.field_event_booth__website_message_ids
-msgid "Website Messages"
-msgstr "Verkkosivun ilmoitukset"
-
-#. module: event_booth
-#: model:ir.model.fields,help:event_booth.field_event_booth__website_message_ids
-msgid "Website communication history"
-msgstr "Verkkosivun viestihistoria"
-
-#. module: event_booth
 #: model_terms:ir.ui.view,arch_db:event_booth.event_booth_category_view_form
 msgid "e.g. \"Those stands will be place near the entrance and...\""
 msgstr "esim. \"Nämä näyttelyalueet sijaitsevat sisäänkäynnin lähellä...\""
@@ -709,5 +721,8 @@ msgstr "esim. ensimmäinen näyttelyalueiden kuja"
 msgid "e.g. Premium Booth"
 msgstr "esim. premium-näyttelyalue"
 
-#~ msgid "Group By"
-#~ msgstr "Ryhmittely"
+msgid "Website Messages"
+msgstr "Verkkosivun ilmoitukset"
+
+msgid "Website communication history"
+msgstr "Verkkosivun viestihistoria"

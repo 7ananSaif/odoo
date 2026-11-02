@@ -1,27 +1,32 @@
-import { expect, test } from "@odoo/hoot";
-import { click, press, waitFor, waitForNone, queryOne } from "@odoo/hoot-dom";
-import { animationFrame } from "@odoo/hoot-mock";
+import { base64Img, setupEditor } from "@html_editor/../tests/_helpers/editor";
 import { cleanLinkArtifacts } from "@html_editor/../tests/_helpers/format";
 import { getContent, setContent, setSelection } from "@html_editor/../tests/_helpers/selection";
-import { base64Img, setupEditor } from "@html_editor/../tests/_helpers/editor";
-import {
-    contains,
-    defineModels,
-    onRpc,
-    serverState,
-    patchWithCleanup,
-} from "@web/../tests/web_test_helpers";
+import { insertText } from "@html_editor/../tests/_helpers/user_actions";
+import { HtmlField } from "@html_editor/fields/html_field";
 import {
     click as mailClick,
     mailModels,
     openFormView,
     start,
 } from "@mail/../tests/mail_test_helpers";
-import { insertText } from "@html_editor/../tests/_helpers/user_actions";
-import { HtmlField } from "@html_editor/fields/html_field";
-import { browser } from "@web/core/browser/browser";
+import {
+    animationFrame,
+    click,
+    expect,
+    press,
+    queryOne,
+    test,
+    waitFor,
+    waitForNone,
+} from "@odoo/hoot";
+import { contains, onRpc, patchWithCleanup, serverState } from "@web/../tests/web_test_helpers";
+import { browser, location } from "@web/core/browser/browser";
+import {
+    defineWebsiteModels,
+    setupWebsiteBuilder,
+} from "@website/../tests/builder/website_helpers";
 
-defineModels(mailModels);
+defineWebsiteModels();
 
 test("autocomplete should shown and able to edit the link", async () => {
     onRpc("/website/get_suggested_links", () => {
@@ -172,7 +177,7 @@ test("LinkPopover opens in full composer", async () => {
     await insertText(htmlEditor, "test");
     const node = queryOne(".odoo-editor-editable div");
     setSelection({ anchorNode: node, anchorOffset: 0, focusNode: node, focusOffset: 1 });
-    await mailClick(".o-we-toolbar .fa-link");
+    await mailClick(".o-we-toolbar [data-icon='link']");
     await waitFor(".o-we-linkpopover");
     await animationFrame();
     expect(".o-we-linkpopover").toHaveCount(1);
@@ -225,11 +230,11 @@ test("link redirection should not be prefixed when the current page is not a web
             expect.step("website page url prefixed");
             expect(url.pathname.startsWith("/@")).toBe(true);
         },
-        location: {
-            // simulating being on a non-website page (eg. backend) by using /odoo/ URL
-            href: browser.location.origin + "/odoo/contactus",
-            hostname: browser.location.hostname,
-        },
+    });
+    patchWithCleanup(location, {
+        // simulating being on a non-website page (eg. backend) by using /odoo/ URL
+        href: location.origin + "/odoo/contactus",
+        hostname: location.hostname,
     });
     onRpc("/html_editor/link_preview_internal", () => ({}));
     onRpc("/contactus", () => ({}));
@@ -253,4 +258,130 @@ test("Focus should be on label when adding a new URL", async () => {
     expect(".o-we-linkpopover input.o_we_label_link").toBeFocused({
         message: "should focus label input by default",
     });
+});
+
+test("should open seo advanced popup when gear icon is clicked", async () => {
+    await setupWebsiteBuilder(`
+        <div id="wrapwrap">
+            <p>this is a <a href="http://test.com/">link</a></p>
+        </div>
+    `);
+    const linkText = queryOne(":iframe #wrapwrap a");
+    setSelection({
+        anchorNode: linkText.firstChild,
+        anchorOffset: 1,
+    });
+    await waitFor(".o-we-linkpopover");
+    await contains(".o_we_edit_link").click();
+    await waitFor(".o_we_href_input_link");
+    await contains(".o_we_href_input_link").click();
+    await contains(".o-we-linkpopover [data-icon='settings']").click();
+    expect(".o_advance_option_panel").toHaveCount(1);
+    expect(".o_advance_option_panel .o_seo_option_row").toHaveCount(4);
+});
+
+test("should add rel='nofollow' when checkbox is selected and applied", async () => {
+    await setupWebsiteBuilder(`
+        <div id="wrapwrap">
+            <p>this is a <a href="http://test.com/">link</a></p>
+        </div>
+    `);
+    const linkText = queryOne(":iframe #wrapwrap a");
+    setSelection({
+        anchorNode: linkText.firstChild,
+        anchorOffset: 1,
+    });
+    await waitFor(".o-we-linkpopover");
+    await contains(".o_we_edit_link").click();
+    await waitFor(".o_we_href_input_link");
+    await contains(".o_we_href_input_link").click();
+    await contains(".o-we-linkpopover [data-icon='settings']").click();
+    expect(".o_advance_option_panel").toHaveCount(1);
+    await contains(".o_seo_option_row:nth-of-type(1) input[type='checkbox']").click();
+    await contains(".o_advance_option_panel [data-icon='keyboard_arrow_left']").click();
+    await waitFor(".o-we-linkpopover");
+    await contains(".o_we_apply_link").click();
+    expect(linkText).toHaveAttribute("rel", "nofollow");
+});
+
+test("should add multipule relAttribute in anchor tag when checkbox is selected and applied", async () => {
+    await setupWebsiteBuilder(`
+        <div id="wrapwrap">
+            <p>this is a <a href="http://test.com/">link</a></p>
+        </div>
+    `);
+    const linkText = queryOne(":iframe #wrapwrap a");
+    setSelection({
+        anchorNode: linkText.firstChild,
+        anchorOffset: 1,
+    });
+    await waitFor(".o-we-linkpopover");
+    await contains(".o_we_edit_link").click();
+    await waitFor(".o_we_href_input_link");
+    await contains(".o_we_href_input_link").click();
+    await contains(".o-we-linkpopover [data-icon='settings']").click();
+    expect(".o_advance_option_panel").toHaveCount(1);
+    await contains(".o_seo_option_row:nth-of-type(1) input[type='checkbox']").click();
+    await contains(".o_seo_option_row:nth-of-type(2) input[type='checkbox']").click();
+    await contains(".o_seo_option_row:nth-of-type(3) input[type='checkbox']").click();
+    await contains(".o_advance_option_panel [data-icon='keyboard_arrow_left']").click();
+    await waitFor(".o-we-linkpopover");
+    await contains(".o_we_apply_link").click();
+    expect(linkText).toHaveAttribute("rel", "nofollow noreferrer sponsored");
+});
+
+test("should add _blank attribute on open in a new window is checked", async () => {
+    await setupWebsiteBuilder(`
+        <div id="wrapwrap">
+            <p>this is a <a href="http://test.com/">link</a></p>
+        </div>
+    `);
+    const linkText = queryOne(":iframe #wrapwrap a");
+    setSelection({
+        anchorNode: linkText.firstChild,
+        anchorOffset: 1,
+    });
+    await waitFor(".o-we-linkpopover");
+    await contains(".o_we_edit_link").click();
+    await waitFor(".o_we_href_input_link");
+    await contains(".o_we_href_input_link").click();
+    await contains(".o-we-linkpopover [data-icon='settings']").click();
+    expect(".o_advance_option_panel").toHaveCount(1);
+    await contains(".o_seo_option_row:nth-of-type(4) input[type='checkbox']").click();
+    await contains(".o_seo_option_row:nth-of-type(5) input[type='checkbox']").click();
+    await click(".o_advance_option_panel [data-icon='keyboard_arrow_left']");
+    await waitFor(".o-we-linkpopover");
+    await contains(".o_we_apply_link").click();
+    expect(linkText).toHaveAttribute("target", "_blank");
+    expect(linkText).toHaveAttribute("rel", "noopener");
+});
+
+test("should allow target _blank on custom button", async () => {
+    const { getEditor } = await setupWebsiteBuilder(`
+        <div id="wrapwrap">
+            <p>Hello</p>
+        </div>
+    `);
+    const editor = getEditor();
+    const linkText = editor.editable.querySelector("p");
+    setSelection({
+        anchorNode: linkText.firstChild,
+        anchorOffset: 0,
+        focusOffset: 5,
+    });
+    await waitFor(".o-we-toolbar");
+    await click(".o-we-toolbar [data-icon='link']");
+    await waitFor(".o_we_href_input_link");
+    await contains(".o_we_href_input_link").click();
+    await contains(".o-we-linkpopover input.o_we_href_input_link").edit("http://test.test/", {
+        confirm: false,
+    });
+    await contains(".o-we-linkpopover [data-icon='settings']").click();
+    expect(".o_advance_option_panel").toHaveCount(1);
+    await contains(".o_seo_option_row:nth-of-type(4) input[type='checkbox']").click();
+    await click(".o_advance_option_panel [data-icon='keyboard_arrow_left']");
+    await waitFor(".o-we-linkpopover");
+    await contains(".o_we_apply_link").click();
+    const anchor = editor.editable.querySelector("a");
+    expect(anchor).toHaveAttribute("target", "_blank");
 });

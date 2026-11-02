@@ -22,7 +22,7 @@
                 <app data-string="Website" string="Website" name="website" groups="website.group_website_designer">
                     <setting
                         id="website_creation_settings"
-                        class="bg-secondary"
+                        class="bg-warning"
                         type="header"
                     >
                         <field name="website_id" options="{'no_open': True, 'no_create': True}" title="Settings on this page will apply to this website"/>
@@ -43,14 +43,17 @@
                         <setting string="Languages"
                                  title="Languages available on your website"
                                  documentation="/applications/websites/website/configuration/translate.html">
+                            <div class="text-muted mt-n3 mb16">
+                                <span invisible="website_language_count &lt; 2">Website visitors see the version matching their browser language, or the default if unavailable.</span>
+                                <span invisible="website_language_count &gt;= 2">Install multiple languages to enable translation across your website.</span>
+                            </div>
                             <field name="language_ids" widget="many2many_tags" options="{'no_create': True, 'no_open': True}" required="website_id"/>
                             <div class="row mt8" invisible="website_language_count &lt; 2">
-                                <field name="website_language_count" invisible="1"/>
                                 <label class="col-lg-3" string="Default" for="website_default_lang_id"/>
-                                <field name="website_default_lang_id" options="{'no_open': True, 'no_create': True}" required="website_id"/>
+                                <field name="website_default_lang_id" options="{'no_open': True, 'no_create': True}" required="website_id" domain="[('id', 'in', language_ids)]"/>
                             </div>
                             <div class="mt8">
-                                <button type="action" name="%(base.action_view_base_language_install)d" string="Install new languages" class="btn-link" icon="oi-arrow-right"/>
+                                <button type="action" name="%(base.action_view_base_language_install)d" string="Install new languages" class="btn-link" icon="east"/>
                             </div>
                         </setting>
                         <setting string="Website Identification" help="Set your website's name and favicon, displayed in the browser tab next to the page title.">
@@ -70,8 +73,7 @@
                         </setting>
                         <setting
                             id="shared_user_account_setting"
-                            help="Accounts are usable across all your multiple websites"
-                            info="This setting is common to all websites."
+                            help="Accounts created on this website are usable across all other websites"
                             groups="website.group_multi_website"
                         >
                             <field name="shared_user_account"/>
@@ -80,12 +82,20 @@
                             <field name="auth_signup_uninvited" class="o_light_label" widget="radio" options="{'horizontal': true}" required="True"/>
                             <div class="content-group" invisible="auth_signup_uninvited == 'b2b'">
                                 <div class="mt8">
-                                    <button type="object" name="action_open_template_user" string="Default Access Rights" icon="oi-arrow-right" class="btn-link"/>
+                                    <button type="object" name="action_open_template_user" string="Default Access Rights" icon="east" class="btn-link"/>
                                 </div>
                             </div>
                         </setting>
-                        <setting id="livechat" string="Livechat" help="Allows your visitors to chat with you">
+                        <setting id="livechat" string="Live Chat" help="Allows your visitors to chat with you">
                             <field name="module_website_livechat"/>
+                        </setting>
+                        <setting
+                            id="autocomplete_googleplaces_setting"
+                            string="Google Address Validation"
+                            help="Use Google Places API to validate addresses"
+                            documentation="/applications/websites/website/configuration/address_autocomplete.html"
+                        >
+                            <field name="module_website_address_autocomplete"/>
                         </setting>
                     </block>
                     <block title="Tracking &amp; SEO" id="website_settings" invisible="not website_id">
@@ -113,7 +123,7 @@
                                     name="%(website.backend_dashboard)d"
                                     string=" See Analytics Report"
                                     class="btn-link fw-normal border-0"
-                                    icon="oi-arrow-right d-inline me-auto"
+                                    icon="east"
                                 />
                             </div>
                             <div invisible="not has_plausible_shared_key">
@@ -122,19 +132,19 @@
                                     name="documentation_link"
                                     path="/applications/websites/website/reporting/analytics.html#analytics-plausible"
                                     label=" How to create my Plausible Shared Link"
-                                    icon="oi oi-arrow-right"
+                                    icon="east"
                                 />
                             </div>
                         </setting>
                         <setting
                             id="google_analytics_setting"
-                            help="Track visits using Google Analytics or Google Tag Manager"
-                            documentation="/applications/websites/website/reporting/analytics.html#analytics-google-analytics"
+                            help="Track your users, using Google Analytics or Google Tag Manager"
+                            documentation="/applications/websites/website/reporting/analytics.html#google-tag-manager"
                         >
                             <field name="has_google_analytics"/>
                             <div class="content-group" invisible="not has_google_analytics">
                                 <div class="row mt16">
-                                    <label class="col-lg-3 o_light_label" string="Measurement ID or Tag" for="google_analytics_key"/>
+                                    <label class="col-lg-3 o_light_label" string="Identifier" for="google_analytics_key"/>
                                     <field name="google_analytics_key" placeholder="G-XXXXXXXXXX or GTM-XXXXXXX"
                                         required="has_google_analytics"/>
                                 </div>
@@ -143,9 +153,9 @@
                                 <widget
                                     class="oe_link"
                                     name="documentation_link"
-                                    path="/applications/websites/website/reporting/analytics.html#analytics-google-analytics"
-                                    label=" How to get my Measurement ID"
-                                    icon="oi oi-arrow-right"
+                                    path="/applications/websites/website/reporting/analytics.html#google-tag-manager"
+                                    label=" How does GTM work?"
+                                    icon="east"
                                 />
                             </div>
                         </setting>
@@ -179,7 +189,17 @@
                             groups="base.group_no_one"
                         >
                             <div class="mt4">
-                                <button type="object" name="action_open_robots" string="Edit robots.txt" class="btn-link" icon="fa-android" noSaveDialog="true"/>
+                                <button type="object" name="action_open_robots" string="Edit robots.txt" class="btn-link" icon="oi_android" noSaveDialog="true"/>
+                            </div>
+                        </setting>
+                        <setting
+                            id="llms_setting"
+                            string="LLMs.txt"
+                            help="LLMs.txt: This file tells LLMs how your content should be accessed and used. Write it as a plain text, human-readable markdown document."
+                            documentation="https://llmstxt.org/"
+                        >
+                            <div class="mt4">
+                                <button type="object" name="action_open_llms" string="Edit llms.txt" class="btn-link" icon="oi_android" noSaveDialog="true"/>
                             </div>
                         </setting>
                         <setting
@@ -188,7 +208,17 @@
                             help="If set, replaces the website logo as the default social share image."
                         >
                             <field name="has_default_share_image"/>
-                            <field name="social_default_image" widget="image" class="w-25 mt-2" invisible="not has_default_share_image"/>
+                            <field
+                                name="social_default_image"
+                                widget="image"
+                                class="w-25 mt-2"
+                                invisible="not has_default_share_image"
+                                options="{'accepted_file_extensions': '.png,.jpg,.jpeg,.gif,.webp'}"
+                            />
+                            <div class="text-muted mt-2">
+                                <i class="oi oi-filled me-1" data-icon="info"/>
+                                Supported formats for social share images are PNG, JPG, WEBP, or GIF.
+                            </div>
                         </setting>
                         <setting
                             id="google_console_setting"
@@ -209,7 +239,7 @@
                                     name="documentation_link"
                                     path="/applications/websites/website/configuration/google_search_console.html"
                                     label=" How to?"
-                                    icon="oi oi-arrow-right"
+                                    icon="east"
                                 />
                             </div>
                         </setting>
@@ -232,7 +262,16 @@
                                 <div class="mt4">
                                     <button type="object" name="action_open_blocked_third_party_domains"
                                         string="Add domains to the block list" class="btn-link"
-                                        icon="fa-ban" noSaveDialog="true"/>
+                                        icon="block" noSaveDialog="true"/>
+                                </div>
+                                <div class="content-group" invisible="has_cookie_policy" groups="base.group_no_one">
+                                    <div class="mt16 text-warning"><strong>Save</strong> this page and come back here to choose your Cookie Policy Configuration.</div>
+                                </div>
+                                <div class="content-group" invisible="not has_cookie_policy" groups="base.group_no_one" title="Select your custom cookie policy page">
+                                    <div class="row mt16">
+                                        <label class="col-lg-5 o_light_label" string="Cookie policy page" for="cookie_policy_id"/>
+                                        <field name="cookie_policy_id" options="{'no_create': True}" domain="[('website_id', '=', website_id)]"/>
+                                    </div>
                                 </div>
                             </div>
                         </setting>
@@ -246,7 +285,7 @@
         <field name="name">Settings</field>
         <field name="res_model">res.config.settings</field>
         <field name="view_mode">form</field>
-        <field name="context">{'module' : 'website', 'bin_size': False}</field>
+        <field name="context">{'module' : 'website'}</field>
     </record>
 
     <menuitem id="menu_website_global_configuration" parent="menu_website_configuration"

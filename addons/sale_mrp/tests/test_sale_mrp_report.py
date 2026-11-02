@@ -12,6 +12,8 @@ from odoo.addons.stock.tests.test_report import TestReportsCommon
 @tagged('post_install', '-at_install')
 class TestSaleMrpInvoices(TestSaleCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -68,25 +70,24 @@ class TestSaleMrpInvoices(TestSaleCommon):
         html = self.env['ir.actions.report']._render_qweb_html(
             'account.report_invoice_with_payments', invoice.ids)[0]
         text = html2plaintext(html.decode())
-        self.assertRegex(text, r'Product By Lot\n1.00Units\nLOT0001', "There should be a line that specifies 1 x LOT0001")
+        self.assertRegex(text, r'Product By Lot\n1.00\s+Units\nLOT0001', "There should be a line that specifies 1 x LOT0001")
 
     def test_report_forecast_for_mto_procure_method(self):
         """
         Check that mto moves are not reported as taking from stock in the forecast report
         """
-        mto_route = self.env.ref('stock.route_warehouse0_mto')
+        mto_route = self.warehouse.mto_pull_id.route_id
         mto_route.active = True
-        manufacturing_route = self.env.ref('mrp.route_warehouse0_manufacture')
         product = self.env['product.product'].create({
             'name': 'SuperProduct',
             'is_storable': True,
-            'route_ids': [Command.set((mto_route + manufacturing_route).ids)]
+            'route_ids': [Command.set([mto_route.id])],
         })
 
         product.bom_ids = [Command.create({
             'product_id': product.id,
             'product_tmpl_id': product.product_tmpl_id.id,
-            'product_uom_id': product.uom_id.id,
+            'uom_id': product.uom_id.id,
             'bom_line_ids': [Command.create({
                 'product_id': self.product_by_lot.id,
                 'product_qty': 1,

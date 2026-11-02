@@ -4,6 +4,7 @@ import re
 
 from odoo.exceptions import ValidationError
 from odoo import models, fields, api, _
+from odoo.tools import SQL
 from odoo.tools.misc import formatLang
 from odoo.tools.float_utils import float_repr, float_round
 
@@ -14,8 +15,19 @@ class AccountMove(models.Model):
     _inherit = "account.move"
 
     partner_id_vat = fields.Char(related='partner_id.vat', string='VAT No')
-    l10n_latam_internal_type = fields.Selection(
-        related='l10n_latam_document_type_id.internal_type', string='L10n Latam Internal Type')
+
+    @api.constrains("l10n_latam_document_number")
+    def _check_l10n_latam_document_number_is_numeric(self):
+        for move in self:
+            if (
+                move.company_id.country_id.code == "CL"
+                and move.l10n_latam_use_documents
+                and move.l10n_latam_document_number
+                and not re.fullmatch(r"[0-9]+", move.l10n_latam_document_number)
+            ):
+                raise ValidationError(self.env._(
+                    "The DTE document number (folio) must contain only digits."
+                ))
 
     @api.constrains("l10n_latam_document_number")
     def _check_l10n_latam_document_number_is_numeric(self):
@@ -75,8 +87,8 @@ class AccountMove(models.Model):
             country_id = rec.partner_id.country_id
             latam_document_type_code = rec.l10n_latam_document_type_id.code
             if (rec.journal_id.type == 'purchase' and tax_payer_type == '4' and country_id.code != 'CL' and
-                latam_document_type_code == '61' and
-               '46' in rec.l10n_cl_reference_ids.mapped('l10n_cl_reference_doc_type_selection')):
+                latam_document_type_code == '61' and 'l10n_cl_reference_ids' in rec._fields and
+               '46' in rec.l10n_cl_reference_ids.mapped('l10n_cl_reference_doc_type_id.code')):
                 continue
             if (not tax_payer_type or not vat) and (country_id.code == "CL" and latam_document_type_code
                                                   and latam_document_type_code not in ['35', '38', '39', '41']):
@@ -132,17 +144,20 @@ class AccountMove(models.Model):
         return super()._get_starting_sequence()
 
     def _get_last_sequence_domain(self, relaxed=False):
-        where_string, param = super(AccountMove, self)._get_last_sequence_domain(relaxed)
+        condition = super()._get_last_sequence_domain(relaxed)
         if self.company_id.account_fiscal_country_id.code == "CL" and self.l10n_latam_use_documents:
-            where_string = where_string.replace('journal_id = %(journal_id)s AND', '')
-            where_string += ' AND l10n_latam_document_type_id = %(l10n_latam_document_type_id)s AND ' \
-                            'company_id = %(company_id)s AND move_type IN %(move_type)s'
-
-            param['company_id'] = self.company_id.id or False
-            param['l10n_latam_document_type_id'] = self.l10n_latam_document_type_id.id or 0
-            param['move_type'] = (('in_invoice', 'in_refund') if
-                  self.l10n_latam_document_type_id._is_doc_type_vendor() else ('out_invoice', 'out_refund'))
-        return where_string, param
+            t = condition._sql_tuple
+            code = t[0].replace('journal_id = %s AND', '%s IS NOT NULL AND')
+            condition = SQL(code, *t[1], to_flush=t[2])  # pylint: disable=sql-injection
+            condition = SQL(
+                "%s AND l10n_latam_document_type_id = %s AND company_id = %s AND move_type IN %s",
+                condition,
+                self.l10n_latam_document_type_id.id or 0,
+                self.company_id.id or False,
+                (('in_invoice', 'in_refund') if
+                    self.l10n_latam_document_type_id._is_doc_type_vendor() else ('out_invoice', 'out_refund')),
+            )
+        return condition
 
     def _get_name_invoice_report(self):
         self.ensure_one()
@@ -181,7 +196,7 @@ class AccountMove(models.Model):
         return self.l10n_latam_document_type_id.code in ['39', '41', '110', '111', '112', '34']
 
     def _is_manual_document_number(self):
-        if self.journal_id.company_id.country_id.code == 'CL':
+        if self.journal_id.country_code == 'CL':
             return self.journal_id.type == 'purchase' and not self.l10n_latam_document_type_id._is_doc_type_vendor()
         return super()._is_manual_document_number()
 
@@ -287,7 +302,8 @@ class AccountMove(models.Model):
         # OVERRIDE 'account'
         super()._compute_tax_totals()
         for move in self:
-            if move.tax_totals and move._get_name_invoice_report() == 'l10n_cl.report_invoice_document':
+            if (tax_totals := move.tax_totals) and move._get_name_invoice_report() == 'l10n_cl.report_invoice_document':
                 # Disable the recap of tax totals in company currency at the bottom right of the invoice,
                 # since this info is already present in our custom tax totals grid.
-                move.tax_totals['display_in_company_currency'] = False
+                tax_totals['display_in_company_currency'] = False
+                move.tax_totals = tax_totals

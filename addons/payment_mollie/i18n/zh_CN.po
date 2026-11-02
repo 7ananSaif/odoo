@@ -4,26 +4,63 @@
 #
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# "Chloe Wang (chwa)" <chwa@odoo.com>, 2026.
+# 张飞虎 <feihu.zhang@live.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.1alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-11-10 13:27+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
+"POT-Creation-Date: 2026-08-28 17:44+0000\n"
+"PO-Revision-Date: 2026-10-21 07:04+0000\n"
+"Last-Translator: \"Chloe Wang (chwa)\" <chwa@odoo.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://translate.odoo.com/"
-"projects/odoo-19/payment_mollie/zh_Hans/>\n"
+"projects/odoo-20/payment_mollie/zh_Hans/>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: payment_mollie
+#: model:ir.module.module,summary:base.module_payment_mollie
+msgid "A Dutch payment provider covering several European countries."
+msgstr "覆盖多个欧洲国家的荷兰支付服务商。"
 
 #. module: payment_mollie
 #: model_terms:ir.ui.view,arch_db:payment_mollie.payment_provider_form
 msgid "API Key"
 msgstr "API 密钥"
+
+#. module: payment_mollie
+#: model:payment.method,name:payment_mollie.payment_method_amex
+msgid "American Express"
+msgstr "美国运通"
+
+#. module: payment_mollie
+#: model:payment.method,name:payment_mollie.payment_method_apple_pay
+msgid "Apple Pay"
+msgstr "Apple Pay"
+
+#. module: payment_mollie
+#: model:payment.method,name:payment_mollie.payment_method_blik
+msgid "BLIK"
+msgstr "BLIK"
+
+#. module: payment_mollie
+#: model:payment.method,name:payment_mollie.payment_method_bancontact
+msgid "Bancontact"
+msgstr "Bancontact"
+
+#. module: payment_mollie
+#: model:payment.method,name:payment_mollie.payment_method_bank_transfer
+msgid "Bank Transfer"
+msgstr "银行转账"
+
+#. module: payment_mollie
+#: model:payment.method,name:payment_mollie.payment_method_belfius
+msgid "Belfius"
+msgstr "Belfius"
 
 #. module: payment_mollie
 #. odoo-python
@@ -32,21 +69,73 @@ msgid "Cancelled payment with status: %s"
 msgstr "取消付款，状态为：%s"
 
 #. module: payment_mollie
+#: model:payment.method,name:payment_mollie.payment_method_card
+msgid "Card"
+msgstr "卡片"
+
+#. module: payment_mollie
+#: model:payment.method,name:payment_mollie.payment_method_cartes_bancaires
+msgid "Cartes Bancaires"
+msgstr "Cartes Bancaires"
+
+#. module: payment_mollie
 #: model:ir.model.fields,field_description:payment_mollie.field_payment_provider__code
 msgid "Code"
 msgstr "代码"
 
 #. module: payment_mollie
+#: model:payment.method,name:payment_mollie.payment_method_discover
+msgid "Discover"
+msgstr "Discover 发现卡"
+
+#. module: payment_mollie
 #: model:ir.model.fields,field_description:payment_mollie.field_payment_provider__display_name
+#: model:ir.model.fields,field_description:payment_mollie.field_payment_token__display_name
 #: model:ir.model.fields,field_description:payment_mollie.field_payment_transaction__display_name
 msgid "Display Name"
 msgstr "显示名称"
 
 #. module: payment_mollie
+#: model:payment.method,name:payment_mollie.payment_method_eps
+msgid "EPS"
+msgstr "EPS"
+
+#. module: payment_mollie
+#: model:payment.method,name:payment_mollie.payment_method_google_pay
+msgid "Google Pay"
+msgstr "Google Pay"
+
+#. module: payment_mollie
 #: model:ir.model.fields,field_description:payment_mollie.field_payment_provider__id
+#: model:ir.model.fields,field_description:payment_mollie.field_payment_token__id
 #: model:ir.model.fields,field_description:payment_mollie.field_payment_transaction__id
 msgid "ID"
 msgstr "ID"
+
+#. module: payment_mollie
+#: model:payment.method,name:payment_mollie.payment_method_kbc_cbc
+msgid "KBC/CBC"
+msgstr "KBC/CBC"
+
+#. module: payment_mollie
+#: model:payment.method,name:payment_mollie.payment_method_klarna
+msgid "Klarna"
+msgstr "Klarna"
+
+#. module: payment_mollie
+#: model:payment.method,name:payment_mollie.payment_method_mbway
+msgid "MB WAY"
+msgstr "MB WAY"
+
+#. module: payment_mollie
+#: model:payment.method,name:payment_mollie.payment_method_maestro
+msgid "Maestro"
+msgstr "Maestro"
+
+#. module: payment_mollie
+#: model:payment.method,name:payment_mollie.payment_method_mastercard
+msgid "MasterCard"
+msgstr "万事达卡"
 
 #. module: payment_mollie
 #: model:ir.model.fields.selection,name:payment_mollie.selection__payment_provider__code__mollie
@@ -59,9 +148,39 @@ msgid "Mollie API Key"
 msgstr "Mollie API 密钥"
 
 #. module: payment_mollie
+#: model:ir.model.fields,field_description:payment_mollie.field_payment_token__mollie_customer_id
+msgid "Mollie Customer ID"
+msgstr "Mollie 客户 ID"
+
+#. module: payment_mollie
+#: model:payment.method,name:payment_mollie.payment_method_multibanco
+msgid "Multibanco"
+msgstr "Multibanco"
+
+#. module: payment_mollie
+#: model:payment.method,name:payment_mollie.payment_method_p24
+msgid "P24"
+msgstr "P24"
+
+#. module: payment_mollie
+#: model:payment.method,name:payment_mollie.payment_method_paysafecard
+msgid "PaySafeCard"
+msgstr "PaySafeCard"
+
+#. module: payment_mollie
 #: model:ir.model,name:payment_mollie.model_payment_provider
 msgid "Payment Provider"
 msgstr "支付提供商"
+
+#. module: payment_mollie
+#: model:ir.module.module,shortdesc:base.module_payment_mollie
+msgid "Payment Provider: Mollie"
+msgstr "支付服务商：Mollie"
+
+#. module: payment_mollie
+#: model:ir.model,name:payment_mollie.model_payment_token
+msgid "Payment Token"
+msgstr "付款令牌"
 
 #. module: payment_mollie
 #: model:ir.model,name:payment_mollie.model_payment_transaction
@@ -69,10 +188,20 @@ msgid "Payment Transaction"
 msgstr "付款交易"
 
 #. module: payment_mollie
+#: model:payment.method,name:payment_mollie.payment_method_paypal
+msgid "Paypal"
+msgstr "Paypal"
+
+#. module: payment_mollie
 #. odoo-python
 #: code:addons/payment_mollie/models/payment_transaction.py:0
 msgid "Received data with invalid payment status: %s."
-msgstr ""
+msgstr "收到的数据包含无效的支付状态：%s。"
+
+#. module: payment_mollie
+#: model:payment.method,name:payment_mollie.payment_method_swish
+msgid "Swish"
+msgstr "Swish"
 
 #. module: payment_mollie
 #: model:ir.model.fields,help:payment_mollie.field_payment_provider__mollie_api_key
@@ -84,16 +213,28 @@ msgstr "测试或实时 API 密钥，取决于提供商的配置"
 msgid "The technical code of this payment provider."
 msgstr "该支付提供商的技术代码。"
 
-#~ msgid "Could not establish the connection to the API."
-#~ msgstr "无法建立与API的连接。"
+#. module: payment_mollie
+#: model:payment.method,name:payment_mollie.payment_method_twint
+msgid "Twint"
+msgstr "Twint"
 
-#~ msgid "No transaction found matching reference %s."
-#~ msgstr "没有发现与参考文献%s相匹配的交易。"
+#. module: payment_mollie
+#: model:payment.method,name:payment_mollie.payment_method_visa
+msgid "VISA"
+msgstr "VISA"
 
-#~ msgid "Received data with invalid payment status: %s"
-#~ msgstr "收到的数据为无效的支付状态。%s"
+#. module: payment_mollie
+#: model:payment.method,name:payment_mollie.payment_method_wero_brand
+msgid "Wero"
+msgstr "Wero"
 
-#~ msgid ""
-#~ "The communication with the API failed. Mollie gave us the following "
-#~ "information: %s"
-#~ msgstr "与 API 的通信失败。Mollie提供了以下信息：%s"
+#. module: payment_mollie
+#: model:payment.method,name:payment_mollie.payment_method_ideal
+#: model:payment.method,name:payment_mollie.payment_method_ideal_brand
+msgid "iDEAL"
+msgstr "iDEAL"
+
+#. module: payment_mollie
+#: model:payment.method,name:payment_mollie.payment_method_in3
+msgid "in3"
+msgstr "in3"

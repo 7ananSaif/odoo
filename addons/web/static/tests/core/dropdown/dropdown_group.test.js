@@ -1,6 +1,6 @@
 import { expect, test } from "@odoo/hoot";
 import { click, hover, queryOne } from "@odoo/hoot-dom";
-import { Deferred, animationFrame } from "@odoo/hoot-mock";
+import { animationFrame } from "@odoo/hoot-mock";
 import { Component, xml } from "@odoo/owl";
 
 import { getDropdownMenu, mountWithCleanup } from "@web/../tests/web_test_helpers";
@@ -12,11 +12,10 @@ const DROPDOWN_MENU = ".o-dropdown--menu.dropdown-menu";
 test.tags("desktop");
 test("DropdownGroup: when one Dropdown is open, others with same group name can be toggled on mouse-enter", async () => {
     expect.assertions(16);
-    const beforeOpenProm = new Deferred();
+    const beforeOpenProm = Promise.withResolvers();
 
     class Parent extends Component {
         static components = { Dropdown, DropdownGroup };
-        static props = [];
         static template = xml`
                     <div>
                         <div class="outside">OUTSIDE</div>
@@ -53,7 +52,7 @@ test("DropdownGroup: when one Dropdown is open, others with same group name can 
 
         beforeOpen() {
             expect.step("beforeOpen");
-            return beforeOpenProm;
+            return beforeOpenProm.promise;
         }
     }
     await mountWithCleanup(Parent);
@@ -125,7 +124,6 @@ test("DropdownGroup: when non-sibling Dropdown is open, other must not be toggle
                     </div>
                 `;
         static components = { Dropdown, DropdownGroup };
-        static props = [];
     }
     await mountWithCleanup(Parent);
     // Click on One
@@ -146,7 +144,6 @@ test.tags("desktop");
 test("DropdownGroup: when one is open, then non-sibling toggled, siblings must not be toggled on mouse-enter", async () => {
     class Parent extends Component {
         static components = { Dropdown, DropdownGroup };
-        static props = [];
         static template = xml`
                     <div>
                         <DropdownGroup>
@@ -190,7 +187,6 @@ test.tags("desktop");
 test("DropdownGroup: toggler focused on mouseenter", async () => {
     class Parent extends Component {
         static components = { Dropdown, DropdownGroup };
-        static props = [];
         static template = xml`
             <DropdownGroup>
                 <Dropdown>

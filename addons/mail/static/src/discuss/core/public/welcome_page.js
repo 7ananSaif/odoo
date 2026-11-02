@@ -1,37 +1,80 @@
-import { CallPreview } from "@mail/discuss/call/common/call_preview";
+import { Component, proxy, signal, types, useProps } from "@odoo/owl";
 
-import { Component, useState, useSubEnv } from "@odoo/owl";
+import { CallPreview } from "@mail/discuss/call/common/call_preview";
+import { AvatarStack } from "@mail/discuss/core/common/avatar_stack";
 
 import { browser } from "@web/core/browser/browser";
-import { _t } from "@web/core/l10n/translation";
 import { useService } from "@web/core/utils/hooks";
+import { useLayoutEffect, useSubEnv } from "@web/owl2/utils";
 
 export class WelcomePage extends Component {
-    static props = ["proceed?"];
     static template = "mail.WelcomePage";
-    static components = { CallPreview };
+    static components = { AvatarStack, CallPreview };
+
+    isMediaPermissionsChecked = false;
 
     setup() {
         super.setup();
+        this.props = useProps({ proceed: types.function([]).optional() });
+        this.description = signal();
         this.store = useService("mail.store");
         this.ui = useService("ui");
         this.rtc = useService("discuss.rtc");
         useSubEnv({ inWelcomePage: true });
-        this.state = useState({
-            userName: this.store.self.name || _t("Guest"),
+        this.state = proxy({
+            userName: this.store.discuss.thread.getPersonaName(this.store.self) ?? "",
+            activateCamera: 0,
+            activateMicrophone: 0,
             hasMicrophone: undefined,
             hasCamera: undefined,
+            isDescriptionLong: false,
+            isDescriptionUnfolded: false,
         });
+        useLayoutEffect(
+            (showCallPreview, cameraPermission, microphonePermission) => {
+                if (!showCallPreview) {
+                    return;
+                }
+                if (!this.isMediaPermissionsChecked) {
+                    this.isMediaPermissionsChecked = true;
+                    this.rtc.showMeetingMediaPermissionDialog();
+                }
+                if (cameraPermission === "granted") {
+                    this.state.activateCamera++;
+                }
+                if (microphonePermission === "granted") {
+                    this.state.activateMicrophone++;
+                }
+            },
+            () => [this.showCallPreview, this.rtc.cameraPermission, this.rtc.microphonePermission]
+        );
+        useLayoutEffect(
+            (isDescriptionUnfolded, description) => {
+                const descriptionEl = this.description();
+                this.state.isDescriptionLong =
+                    !isDescriptionUnfolded &&
+                    description &&
+                    descriptionEl?.scrollWidth > descriptionEl?.clientWidth;
+            },
+            () => [this.state.isDescriptionUnfolded, this.channel.description]
+        );
     }
 
     onKeydownInput(ev) {
-        if (ev.key === "Enter") {
+        if (ev.key === "Enter" && this.canJoin) {
             this.joinChannel();
         }
     }
 
+    unfoldDescription() {
+        if (this.state.isDescriptionUnfolded) {
+            return;
+        }
+        this.state.isDescriptionUnfolded = true;
+    }
+
     async joinChannel() {
-        if (!this.store.self_partner) {
+        if (!this.store.self_user) {
             await this.store.self_guest?.updateGuestName(this.state.userName.trim());
         }
         browser.localStorage.setItem("discuss_call_preview_join_mute", !this.state.hasMicrophone);
@@ -42,12 +85,22 @@ export class WelcomePage extends Component {
         this.props.proceed?.();
     }
 
-    getLoggedInAsText() {
-        return _t("Logged in as %s", this.store.self.name);
+    get canJoin() {
+        return (
+            this.store.self_user || (this.state.userName.trim() && this.state.userName.length <= 60)
+        );
     }
 
-    get noActiveParticipants() {
-        return !this.store.discuss.thread.rtc_session_ids.length;
+    get channel() {
+        return this.store.discuss.thread.channel;
+    }
+
+    get showCallPreview() {
+        return this.channel.default_display_mode === "video_full_screen";
+    }
+
+    get shouldShowMoreDescription() {
+        return this.state.isDescriptionLong;
     }
 
     /** @param {{ microphone?: boolean, camera?: boolean }} settings */

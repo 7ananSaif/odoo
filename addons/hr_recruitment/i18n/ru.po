@@ -5,15 +5,15 @@
 # Translators:
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
-# "Anastasiia Koroleva (koan)" <koan@odoo.com>, 2025.
+# "Anastasiia Koroleva (koan)" <koan@odoo.com>, 2025, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:35+0000\n"
-"PO-Revision-Date: 2025-12-25 22:30+0000\n"
+"POT-Creation-Date: 2026-09-11 17:41+0000\n"
+"PO-Revision-Date: 2026-08-31 16:32+0000\n"
 "Last-Translator: \"Anastasiia Koroleva (koan)\" <koan@odoo.com>\n"
-"Language-Team: Russian <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Russian <https://translate.odoo.com/projects/odoo-s19-4/"
 "hr_recruitment/ru/>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
@@ -22,7 +22,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
 "(n%100>=11 && n%100<=14)? 2 : 3);\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_talent_pool__no_of_talents
@@ -88,15 +88,15 @@ msgid ""
 "    <hr width=\"97%\" style=\"background-color: rgb(204,204,204); border: "
 "medium none; clear: both; display: block; font-size: 0px; min-height: 1px; "
 "line-height: 0; margin: 16px 0px 16px 0px;\"/>\n"
-"    <t t-if=\"object.user_id\">\n"
+"    <t t-if=\"object.recruiter_id and object.recruiter_id.user_id\">\n"
 "        <h3 style=\"color:#9A6C8E;\"><strong>Your Contact:</strong></h3>\n"
 "        <p>\n"
-"            <strong t-out=\"object.user_id.name or ''\">Mitchell Admin</"
+"            <strong t-out=\"object.recruiter_id.name or ''\">Mitchell Admin</"
 "strong><br/>\n"
-"            <span>Email: <t t-out=\"object.user_id.email or "
+"            <span>Email: <t t-out=\"object.recruiter_id.work_email or "
 "''\">admin@yourcompany.example.com</t></span><br/>\n"
-"            <span>Phone: <t t-out=\"object.user_id.phone or ''\">+1 "
-"650-123-4567</t></span>\n"
+"            <span>Phone: <t t-out=\"object.recruiter_id.work_phone or "
+"''\">+1 650-123-4567</t></span>\n"
 "        </p>\n"
 "        <hr width=\"97%\" style=\"background-color: rgb(204,204,204); "
 "border: medium none; clear: both; display: block; font-size: 0px; min-"
@@ -180,15 +180,15 @@ msgstr ""
 "    <hr width=\"97%\" style=\"background-color: rgb(204,204,204); border: "
 "medium none; clear: both; display: block; font-size: 0px; min-height: 1px; "
 "line-height: 0; margin: 16px 0px 16px 0px;\"/>\n"
-"    <t t-if=\"object.user_id\">\n"
+"    <t t-if=\"object.recruiter_id and object.recruiter_id.user_id\">\n"
 "        <h3 style=\"color:#9A6C8E;\"><strong>Контактное лицо:</strong></h3>\n"
 "        <p>\n"
-"            <strong t-out=\"object.user_id.name or ''\">Митчелл Админ</"
+"            <strong t-out=\"object.recruiter_id.name or ''\">Митчелл Админ</"
 "strong><br/>\n"
-"            <span>E-mail: <t t-out=\"object.user_id.email or "
+"            <span>E-mail: <t t-out=\"object.recruiter_id.work_email or "
 "''\">admin@yourcompany.example.com</t></span><br/>\n"
-"            <span>Телефон: <t t-out=\"object.user_id.phone or ''\">+1 "
-"650-123-4567</t></span>\n"
+"            <span>Телефон: <t t-out=\"object.recruiter_id.work_phone or "
+"''\">+1 650-123-4567</t></span>\n"
 "        </p>\n"
 "        <hr width=\"97%\" style=\"background-color: rgb(204,204,204); "
 "border: medium none; clear: both; display: block; font-size: 0px; min-"
@@ -199,7 +199,7 @@ msgstr ""
 "strong></h3>\n"
 "    Обычно мы <strong>рассматриваем отклики в течение нескольких дней.</"
 "strong><br/><br/>\n"
-"    Смело <strong>пишите нам, если хотите быстрее получить\n"
+"    Смело <strong>если хотите быстрее получить\n"
 "    обратную связь</strong> или если мы долго\n"
 "    не выходим на связь (просто ответьте на это письмо).\n"
 "\n"
@@ -275,14 +275,14 @@ msgid ""
 "    <br/><br/>\n"
 "    Thank you,\n"
 "    <div style=\"font-size: 11px; color: grey;\">\n"
-"        <t t-if=\"object.user_id\">\n"
+"        <t t-if=\"object.recruiter_id\">\n"
 "            -- <br/>\n"
-"            <strong t-out=\"object.user_id.name or ''\">Mitchell Admin</"
+"            <strong t-out=\"object.recruiter_id.name or ''\">Mitchell Admin</"
 "strong><br/>\n"
-"            Email: <t t-out=\"object.user_id.email or "
+"            Email: <t t-out=\"object.recruiter_id.work_email or "
 "''\">admin@yourcompany.example.com</t><br/>\n"
-"            Phone: <t t-out=\"object.user_id.phone or ''\">+1 650-123-4567</"
-"t>\n"
+"            Phone: <t t-out=\"object.recruiter_id.work_phone or ''\">+1 "
+"650-123-4567</t>\n"
 "        </t>\n"
 "        <t t-else=\"\">\n"
 "            -- <br/>\n"
@@ -294,7 +294,7 @@ msgid ""
 "        "
 msgstr ""
 "<div style=\"font-size: 13px; margin: 0px; padding: 0px;\">\n"
-"    Здравствуйте,<br/><br/>\n"
+"    Здравствуйте!<br/><br/>\n"
 "    Благодарим вас за интерес к команде\n"
 "    <b><t t-out=\"object.company_id.name or ''\">YourCompany</t></b>.  Мы\n"
 "    хотели сообщить вам, что, несмотря на конкурентоспособное\n"
@@ -317,13 +317,13 @@ msgstr ""
 "    <br/><br/>\n"
 "    Спасибо,\n"
 "    <div style=\"font-size: 11px; color: grey;\">\n"
-"        <t t-if=\"object.user_id\">\n"
+"        <t t-if=\"object.recruiter_id\">\n"
 "            -- <br/>\n"
-"            <strong t-out=\"object.user_id.name or ''\">Митчелл Админ</"
+"            <strong t-out=\"object.recruiter_id.name or ''\">Митчелл Админ</"
 "strong><br/>\n"
-"            E-mail: <t t-out=\"object.user_id.email or "
+"            E-mail: <t t-out=\"object.recruiter_id.work_email or "
 "''\">admin@yourcompany.example.com</t><br/>\n"
-"            Телефон: <t t-out=\"object.user_id.phone or ''\">+1 "
+"            Телефон: <t t-out=\"object.recruiter_id.work_phone or ''\">+1 "
 "650-123-4567</t>\n"
 "        </t>\n"
 "        <t t-else=\"\">\n"
@@ -346,13 +346,14 @@ msgid ""
 "        <br/><br/>\n"
 "        Best<br/>\n"
 "        <div style=\"font-size: 11px; color: grey;\">\n"
-"            <t t-if=\"object.user_id\">\n"
+"            <t t-if=\"object.recruiter_id and "
+"object.recruiter_id.user_id\">\n"
 "                -- <br/>\n"
-"                <strong t-out=\"object.user_id.name or ''\">Marc Demo</"
+"                <strong t-out=\"object.recruiter_id.name or ''\">Marc Demo</"
 "strong><br/>\n"
-"                Email: <t t-out=\"object.user_id.email or "
+"                Email: <t t-out=\"object.recruiter_id.work_email or "
 "''\">mark.brown23@example.com</t><br/>\n"
-"                Phone: <t t-out=\"object.user_id.phone or ''\">+1 "
+"                Phone: <t t-out=\"object.recruiter_id.work_phone or ''\">+1 "
 "650-123-4567</t>\n"
 "            </t>\n"
 "            <t t-else=\"\">\n"
@@ -366,33 +367,6 @@ msgid ""
 "</div>\n"
 "        "
 msgstr ""
-"<div style=\"margin: 0px; padding: 0px;\">\n"
-"    <div style=\"font-size: 13px; margin: 0px; padding: 0px;\">\n"
-"        Здравствуйте!<br/><br/>\n"
-"        Благодарим вас за проявленный интерес и уделенное время.<br/>\n"
-"        Желаем вам успехов в ваших дальнейших начинаниях.\n"
-"        <br/><br/>\n"
-"        С уважением,<br/>\n"
-"        <div style=\"font-size: 11px; color: grey;\">\n"
-"            <t t-if=\"object.user_id\">\n"
-"                -- <br/>\n"
-"                <strong t-out=\"object.user_id.name or ''\">Марк Демо</"
-"strong><br/>\n"
-"                E-mail: <t t-out=\"object.user_id.email or "
-"''\">mark.brown23@example.com</t><br/>\n"
-"                Телефон: <t t-out=\"object.user_id.phone or ''\">+1 "
-"650-123-4567</t>\n"
-"            </t>\n"
-"            <t t-else=\"\">\n"
-"                -- <br/>\n"
-"                <t t-out=\"object.company_id.name or ''\">YourCompany</t><br/"
-">\n"
-"                Отдел кадров<br/>\n"
-"            </t>\n"
-"        </div>\n"
-"    </div>\n"
-"</div>\n"
-"        "
 
 #. module: hr_recruitment
 #: model:mail.template,body_html:hr_recruitment.email_template_data_applicant_interest
@@ -418,14 +392,14 @@ msgid ""
 "8px 16px; border-radius: 5px;\">Job Description</a>\n"
 "        </div>\n"
 "\n"
-"        <t t-if=\"object.user_id\">\n"
+"        <t t-if=\"object.recruiter_id and object.recruiter_id.user_id\">\n"
 "            You will soon be contacted by:<br/>\n"
-"            <strong t-out=\"object.user_id.name or ''\">Mitchell Admin</"
+"            <strong t-out=\"object.recruiter_id.name or ''\">Mitchell Admin</"
 "strong><br/>\n"
-"            <span>Email: <t t-out=\"object.user_id.email or "
+"            <span>Email: <t t-out=\"object.recruiter_id.work_email or "
 "''\">admin@yourcompany.example.com</t></span><br/>\n"
-"            <span>Phone: <t t-out=\"object.user_id.phone or ''\">+1 "
-"650-123-4567</t></span>\n"
+"            <span>Phone: <t t-out=\"object.recruiter_id.work_phone or "
+"''\">+1 650-123-4567</t></span>\n"
 "            <br/><br/>\n"
 "        </t>\n"
 "        See you soon,\n"
@@ -522,14 +496,14 @@ msgstr ""
 "8px 16px; border-radius: 5px;\">Описание вакансии</a>\n"
 "        </div>\n"
 "\n"
-"        <t t-if=\"object.user_id\">\n"
+"        <t t-if=\"object.recruiter_id and object.recruiter_id.user_id\">\n"
 "            В ближайшее время с вами свяжется:<br/>\n"
-"            <strong t-out=\"object.user_id.name or ''\">Митчелл Админ</"
+"            <strong t-out=\"object.recruiter_id.name or ''\">Митчелл Админ</"
 "strong><br/>\n"
-"            <span>E-mail: <t t-out=\"object.user_id.email or "
+"            <span>E-mail: <t t-out=\"object.recruiter_id.work_email or "
 "''\">admin@yourcompany.example.com</t></span><br/>\n"
-"            <span>Телефон: <t t-out=\"object.user_id.phone or ''\">+1 "
-"650-123-4567</t></span>\n"
+"            <span>Телефон: <t t-out=\"object.recruiter_id.work_phone or "
+"''\">+1 650-123-4567</t></span>\n"
 "            <br/><br/>\n"
 "        </t>\n"
 "        До скорой встречи,\n"
@@ -620,19 +594,39 @@ msgstr ""
 #. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.view_hr_job_kanban
 msgid ""
-"<i class=\"fa fa-2x fa-clock-o\" role=\"img\" aria-label=\"Activities\"/>"
+"<i class=\"oi oi-2x\" data-icon=\"schedule\" role=\"img\" aria-"
+"label=\"Activities\"/>"
 msgstr ""
-"<i class=\"fa fa-2x fa-clock-o\" role=\"img\" aria-label=\"Activities\"/>"
-
-#. module: hr_recruitment
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_kanban_view_applicant
-msgid "<i class=\"fa fa-paperclip\" role=\"img\" aria-label=\"Documents\"/>"
-msgstr "<i class=\"fa fa-paperclip\" role=\"img\" aria-label=\"Documents\"/>"
+"<i class=\"oi oi-2x\" data-icon=\"schedule\" role=\"img\" aria-"
+"label=\"Activities\"/>"
 
 #. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.view_hr_job_kanban
-msgid "<i class=\"fa fa-user fa-2x\" title=\"new_applications_icon\"/>"
-msgstr "<i class=\"fa fa-user fa-2x\" title=\"new_applications_icon\"/>"
+msgid ""
+"<i class=\"oi oi-filled flex-shrink-0 me-1 text-center\" data-icon=\"mail\" "
+"title=\"Email\"/>"
+msgstr ""
+
+#. module: hr_recruitment
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.view_hr_job_kanban
+msgid ""
+"<i class=\"oi oi-filled\" data-icon=\"person\" "
+"title=\"new_applications_icon\" aria-hidden=\"true\"/>"
+msgstr ""
+
+#. module: hr_recruitment
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_kanban_view_applicant
+msgid ""
+"<i class=\"oi\" data-icon=\"attach_file\" role=\"img\" aria-"
+"label=\"Documents\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"attach_file\" role=\"img\" aria-"
+"label=\"Documents\"/>"
+
+#. module: hr_recruitment
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_employee_view_form_inherit_applicant_button
+msgid "<span class=\"o_stat_text\">Applicant</span>"
+msgstr ""
 
 #. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_form
@@ -640,32 +634,17 @@ msgid "<span class=\"o_stat_text\">Employee</span>"
 msgstr "<span class=\"o_stat_text\">Сотрудник</span>"
 
 #. module: hr_recruitment
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_recruitment_stage_form
+msgid ""
+"<span class=\"oi pe-1\" data-icon=\"warning\"/>\n"
+"                                    All applications will lose their hired "
+"date and hired status."
+msgstr ""
+
+#. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_job_survey
 msgid "<span invisible=\"address_id\" class=\"oe_read_only\">Remote</span>"
 msgstr "<span invisible=\"address_id\" class=\"oe_read_only\">Удаленный</span>"
-
-#. module: hr_recruitment
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_recruitment_stage_form
-msgid ""
-"<span invisible=\"not is_warning_visible\">\n"
-"                                <span class=\"fa fa-exclamation-triangle "
-"text-danger ps-3\">\n"
-"                                </span>\n"
-"                                <span class=\"text-danger\">\n"
-"                                    All applications will lose their hired "
-"date and hired status.\n"
-"                                </span>\n"
-"                            </span>"
-msgstr ""
-"<span invisible=\"not is_warning_visible\">\n"
-"                                <span class=\"fa fa-exclamation-triangle "
-"text-danger ps-3\">\n"
-"                                </span>\n"
-"                                <span class=\"text-danger\">\n"
-"                                    Все заявки потеряют дату приема на "
-"работу и статус \"Принят на работу\".\n"
-"                                </span>\n"
-"                            </span>"
 
 #. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_form
@@ -676,6 +655,11 @@ msgstr "<span invisible=\"not salary_expected_extra\"> + </span>"
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_form
 msgid "<span invisible=\"not salary_proposed_extra\"> + </span>"
 msgstr "<span invisible=\"not salary_proposed_extra\"> + </span>"
+
+#. module: hr_recruitment
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_form
+msgid "<span> / </span>"
+msgstr ""
 
 #. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.view_hr_job_kanban
@@ -708,6 +692,11 @@ msgid "<span>View</span>"
 msgstr "<span>Посмотреть</span>"
 
 #. module: hr_recruitment
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_recruitment_stage_form
+msgid "<span>days</span>"
+msgstr ""
+
+#. module: hr_recruitment
 #: model:ir.model.fields,help:hr_recruitment.field_hr_job__alias_defaults
 msgid ""
 "A Python dictionary that will be evaluated to provide default values when "
@@ -715,6 +704,11 @@ msgid ""
 msgstr ""
 "Словарь Python, который будет оцениваться для получения значений по "
 "умолчанию при создании новых записей для этого псевдонима."
+
+#. module: hr_recruitment
+#: model:ir.model,name:hr_recruitment.model_res_groups
+msgid "Access Groups"
+msgstr ""
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__message_needaction
@@ -733,7 +727,6 @@ msgstr "Активный"
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__activity_ids
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__activity_ids
 #: model:ir.ui.menu,name:hr_recruitment.menu_hr_recruitment_config_activities
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.view_hr_job_kanban
 msgid "Activities"
 msgstr "Активность"
 
@@ -759,6 +752,8 @@ msgid "Activity Plan"
 msgstr "План деятельности"
 
 #. module: hr_recruitment
+#: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__activity_plans_ids
+#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__activity_plans_ids
 #: model:ir.ui.menu,name:hr_recruitment.hr_recruitment_menu_config_activity_plan
 msgid "Activity Plans"
 msgstr "Планы деятельности"
@@ -802,12 +797,6 @@ msgid "Activity type"
 msgstr "Тип дела"
 
 #. module: hr_recruitment
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.crm_case_tree_view_job
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_kanban_view_applicant
-msgid "Add Applicants"
-msgstr "Добавить кандидатов"
-
-#. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.job_add_applicants_view_form
 msgid "Add Applicants to Pool"
 msgstr "Добавить кандидатов в резерв"
@@ -825,6 +814,7 @@ msgstr "Добавить новый этап в процесс найма"
 
 #. module: hr_recruitment
 #: model_terms:ir.actions.act_window,help:hr_recruitment.hr_applicant_category_action
+#: model_terms:ir.actions.act_window,help:hr_recruitment.hr_job_tag_action
 msgid "Add a new tag"
 msgstr "Добавить новый тег"
 
@@ -850,6 +840,12 @@ msgid "Add private notes about this applicant..."
 msgstr "Добавить личные заметки об этом кандидате..."
 
 #. module: hr_recruitment
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.job_add_applicants_view_form
+msgid "Add to New Job"
+msgstr ""
+
+#. module: hr_recruitment
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.crm_case_tree_view_job
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_form
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_kanban_view_applicant
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.talent_pool_add_applicants_view_form
@@ -857,9 +853,20 @@ msgid "Add to Pool"
 msgstr "Добавить в резерв"
 
 #. module: hr_recruitment
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.job_add_applicants_from_job_view_form
+msgid "Add to this Job"
+msgstr ""
+
+#. module: hr_recruitment
 #: model:ir.actions.act_window,name:hr_recruitment.mail_followers_edit_action_from_hr_recruitment
 msgid "Add/Remove Followers"
 msgstr "Добавить / удалить наблюдателей"
+
+#. module: hr_recruitment
+#. odoo-python
+#: code:addons/hr_recruitment/wizard/talent_pool_add_applicants.py:0
+msgid "Added the following talents to %(talent_pools)s: %(talent_names)s."
+msgstr ""
 
 #. module: hr_recruitment
 #: model:res.groups,name:hr_recruitment.group_hr_recruitment_manager
@@ -932,9 +939,12 @@ msgid "Analysis"
 msgstr "Анализ"
 
 #. module: hr_recruitment
+#. odoo-python
+#: code:addons/hr_recruitment/models/hr_employee.py:0
 #: model:ir.actions.act_window,name:hr_recruitment.action_hr_applicant_new
 #: model:ir.model,name:hr_recruitment.model_hr_applicant
 #: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__applicant_ids
+#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_refuse_single__applicant_id
 #: model:ir.model.fields,field_description:hr_recruitment.field_calendar_event__applicant_id
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_form
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search_bis
@@ -954,12 +964,17 @@ msgid "Applicant Hired"
 msgstr "Кандидат принят на работу"
 
 #. module: hr_recruitment
+#: model:ir.model.fields,field_description:hr_recruitment.field_hr_employee__applicant_name
+msgid "Applicant Name"
+msgstr ""
+
+#. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__applicant_notes
 msgid "Applicant Notes"
 msgstr "Заметки по кандидату"
 
 #. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__applicant_properties_definition
+#: model:ir.model.fields,field_description:hr_recruitment.field_res_company__applicant_properties_definition
 msgid "Applicant Properties"
 msgstr "Свойства заявителя"
 
@@ -969,21 +984,18 @@ msgid "Applicant Stage Changed"
 msgstr "Состояние кандидата изменено"
 
 #. module: hr_recruitment
-#: model:mail.message.subtype,description:hr_recruitment.mt_applicant_new
-msgid "Applicant created"
-msgstr "Кандидат создан"
-
-#. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__partner_name
 msgid "Applicant's Name"
 msgstr "Имя кандидата"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__applicant_without_email
+#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_refuse_single__applicant_without_email
 msgid "Applicant(s) not having email"
 msgstr "Соискатели, не имеющие электронной почты"
 
 #. module: hr_recruitment
+#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_refuse_single__applicant_ids
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_employee__applicant_ids
 #: model:ir.model.fields,field_description:hr_recruitment.field_res_partner__applicant_ids
 #: model:ir.model.fields,field_description:hr_recruitment.field_res_users__applicant_ids
@@ -1017,6 +1029,8 @@ msgstr ""
 "                 что позволяет легко выполнять поиск по содержимому."
 
 #. module: hr_recruitment
+#. odoo-python
+#: code:addons/hr_recruitment/models/hr_applicant.py:0
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.view_hr_job_kanban
 msgid "Application"
 msgstr "Приложение"
@@ -1042,13 +1056,12 @@ msgstr "Еmail"
 #: code:addons/hr_recruitment/models/hr_applicant.py:0
 #: model:ir.actions.act_window,name:hr_recruitment.action_hr_job_applications
 #: model:ir.actions.act_window,name:hr_recruitment.crm_case_categ0_act_job
-#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_send_mail__applicant_ids
+#: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__linked_applicant_ids
 #: model:ir.model.fields,field_description:hr_recruitment.field_job_add_applicants__applicant_ids
 #: model:ir.ui.menu,name:hr_recruitment.menu_crm_case_categ0_act_job
 #: model:ir.ui.menu,name:hr_recruitment.menu_hr_recruitment_config_applications
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_form
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_job_survey
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.view_hr_job_kanban
 msgid "Applications"
 msgstr "Приложения"
 
@@ -1073,13 +1086,30 @@ msgid "Applied on"
 msgstr "Применяют на"
 
 #. module: hr_recruitment
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.job_add_applicants_from_job_view_form
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.job_add_applicants_view_form
+msgid "Apply"
+msgstr ""
+
+#. module: hr_recruitment
 #: model:ir.model,website_form_label:hr_recruitment.model_hr_applicant
 msgid "Apply for a Job"
 msgstr "Откликнуться на вакансию"
 
 #. module: hr_recruitment
+#. odoo-python
+#: code:addons/hr_recruitment/models/hr_applicant.py:0
+#: model:ir.actions.server,name:hr_recruitment.action_job_add_applicants
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.crm_case_tree_view_job
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_form
+msgid "Apply to Jobs"
+msgstr ""
+
+#. module: hr_recruitment
 #. odoo-javascript
+#: code:addons/hr_recruitment/static/src/views/recruitment_form_controller.js:0
 #: code:addons/hr_recruitment/static/src/views/recruitment_kanban_view.js:0
+#: code:addons/hr_recruitment/static/src/views/recruitment_list_controller.js:0
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_kanban_view_applicant
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_talent_pool_view_kanban
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.view_hr_job_kanban
@@ -1087,10 +1117,17 @@ msgid "Archive"
 msgstr "Архив"
 
 #. module: hr_recruitment
+#. odoo-javascript
+#: code:addons/hr_recruitment/static/src/views/recruitment_form_controller.js:0
+#: code:addons/hr_recruitment/static/src/views/recruitment_kanban_view.js:0
+#: code:addons/hr_recruitment/static/src/views/recruitment_list_controller.js:0
+msgid "Archive job position"
+msgstr ""
+
+#. module: hr_recruitment
 #: model:ir.model.fields.selection,name:hr_recruitment.selection__hr_applicant__application_status__archived
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_form
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search_bis
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_kanban_view_applicant
 msgid "Archived"
 msgstr "Архивировано"
@@ -1116,11 +1153,6 @@ msgstr ""
 "невозможна."
 
 #. module: hr_recruitment
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.applicant_send_mail_view_form
-msgid "Attach a file"
-msgstr "Прикрепить файл"
-
-#. module: hr_recruitment
 #: model:ir.model,name:hr_recruitment.model_ir_attachment
 msgid "Attachment"
 msgstr "Вложение"
@@ -1133,25 +1165,26 @@ msgstr "Количество вложений"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__attachment_ids
-#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_send_mail__attachment_ids
+#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_refuse_single__attachment_ids
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__attachment_ids
 msgid "Attachments"
 msgstr "Вложения"
 
 #. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_send_mail__author_id
-msgid "Author"
-msgstr "Автор"
-
-#. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__availability
 msgid "Availability"
-msgstr "Наличие"
+msgstr "Готовность приступить к работе"
 
 #. module: hr_recruitment
 #: model:hr.recruitment.degree,name:hr_recruitment.degree_bachelor
 msgid "Bachelor Degree"
 msgstr "Бакалавр"
+
+#. module: hr_recruitment
+#: model:ir.model.fields.selection,name:hr_recruitment.selection__hr_applicant__schedule_pay__biweekly
+#: model:ir.model.fields.selection,name:hr_recruitment.selection__hr_job__payment_interval__biweekly
+msgid "Bi-Week"
+msgstr ""
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__is_blacklisted
@@ -1164,14 +1197,6 @@ msgid "Blacklisted Phone is Phone"
 msgstr "Телефон в черном списке - это телефон"
 
 #. module: hr_recruitment
-#. odoo-python
-#: code:addons/hr_recruitment/models/hr_recruitment_stage.py:0
-#: model:hr.recruitment.stage,legend_blocked:hr_recruitment.stage_job0
-#: model:hr.recruitment.stage,legend_blocked:hr_recruitment.stage_job1
-#: model:hr.recruitment.stage,legend_blocked:hr_recruitment.stage_job2
-#: model:hr.recruitment.stage,legend_blocked:hr_recruitment.stage_job3
-#: model:hr.recruitment.stage,legend_blocked:hr_recruitment.stage_job4
-#: model:hr.recruitment.stage,legend_blocked:hr_recruitment.stage_job5
 #: model:ir.model.fields.selection,name:hr_recruitment.selection__hr_applicant__kanban_state__blocked
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search_bis
 msgid "Blocked"
@@ -1179,7 +1204,7 @@ msgstr "Заблокировано"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__body_has_template_value
-#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_send_mail__body_has_template_value
+#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_refuse_single__body_has_template_value
 msgid "Body content is the same as the template"
 msgstr "Содержание тела соответствует шаблону"
 
@@ -1224,17 +1249,15 @@ msgid "Campaign"
 msgstr "Кампания"
 
 #. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__can_edit_body
-#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_send_mail__can_edit_body
-msgid "Can Edit Body"
-msgstr "Можно редактировать тело"
+#: model:ir.ui.menu,name:hr_recruitment.menu_hr_recruitment_utm_campaigns
+msgid "Campaigns"
+msgstr ""
 
 #. module: hr_recruitment
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.applicant_get_refuse_reason_view_form
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.applicant_send_mail_view_form
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.talent_pool_add_applicants_view_form
-msgid "Cancel"
-msgstr "Отменить"
+#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__can_edit_body
+#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_refuse_single__can_edit_body
+msgid "Can Edit Body"
+msgstr "Можно редактировать тело"
 
 #. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.crm_case_graph_view_job
@@ -1261,21 +1284,24 @@ msgstr "Цвет"
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__color
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant_category__color
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__color
+#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job_tag__color
 msgid "Color Index"
 msgstr "Цветовой индекс"
 
 #. module: hr_recruitment
 #: model:ir.model,name:hr_recruitment.model_res_company
-msgid "Companies"
-msgstr "Компании"
-
-#. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__company_id
+#: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_stage__company_id
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_talent_pool__company_id
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search_bis
 msgid "Company"
 msgstr "Компания"
+
+#. module: hr_recruitment
+#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__company_partner_id
+msgid "Company Partner"
+msgstr ""
 
 #. module: hr_recruitment
 #: model:ir.model,name:hr_recruitment.model_res_config_settings
@@ -1312,7 +1338,7 @@ msgstr "Содержание"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__body
-#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_send_mail__body
+#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_refuse_single__body
 msgid "Contents"
 msgstr "Содержание"
 
@@ -1349,15 +1375,6 @@ msgstr "Счетчик количества отскакивающих писе�
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_job_simple_form
 msgid "Create"
 msgstr "Создать"
-
-#. module: hr_recruitment
-#. odoo-python
-#: code:addons/hr_recruitment/models/hr_applicant.py:0
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.crm_case_tree_view_job
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_form
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.job_add_applicants_view_form
-msgid "Create Applications"
-msgstr "Создать заявки"
 
 #. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_form
@@ -1407,11 +1424,12 @@ msgstr "Создано %(amount)s новых заявок для: %(names)s"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__create_uid
-#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_send_mail__create_uid
+#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_refuse_single__create_uid
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__create_uid
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant_category__create_uid
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant_refuse_reason__create_uid
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_job_platform__create_uid
+#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job_tag__create_uid
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_degree__create_uid
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_source__create_uid
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_stage__create_uid
@@ -1423,10 +1441,11 @@ msgstr "Создано:"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__create_date
-#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_send_mail__create_date
+#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_refuse_single__create_date
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant_category__create_date
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant_refuse_reason__create_date
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_job_platform__create_date
+#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job_tag__create_date
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_degree__create_date
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_source__create_date
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_stage__create_date
@@ -1443,6 +1462,12 @@ msgid "Creation Date"
 msgstr "Дата создания"
 
 #. module: hr_recruitment
+#: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__currency_id
+#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__currency_id
+msgid "Currency"
+msgstr ""
+
+#. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__no_of_employee
 msgid "Current Number of Employees"
 msgstr "Текущее количество сотрудников"
@@ -1451,6 +1476,12 @@ msgstr "Текущее количество сотрудников"
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__alias_bounced_content
 msgid "Custom Bounced Message"
 msgstr "Пользовательское сообщение об отказе"
+
+#. module: hr_recruitment
+#: model:ir.model.fields.selection,name:hr_recruitment.selection__hr_applicant__schedule_pay__daily
+#: model:ir.model.fields.selection,name:hr_recruitment.selection__hr_job__payment_interval__daily
+msgid "Day"
+msgstr ""
 
 #. module: hr_recruitment
 #: model:ir.model.fields,help:hr_recruitment.field_hr_recruitment_stage__rotting_threshold_days
@@ -1532,7 +1563,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_recruitment_degree_form
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_recruitment_degree_tree
 msgid "Degree"
-msgstr "Градус"
+msgstr "Образование"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_degree__name
@@ -1607,6 +1638,11 @@ msgstr ""
 "и электронной почты."
 
 #. module: hr_recruitment
+#: model:hr.recruitment.degree,name:hr_recruitment.degree_diploma
+msgid "Diploma"
+msgstr ""
+
+#. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_form
 msgid "Directly"
 msgstr "Напрямую"
@@ -1617,19 +1653,13 @@ msgid "Directly Available"
 msgstr "Прямой доступ"
 
 #. module: hr_recruitment
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_job_simple_form
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.job_add_applicants_view_form
-msgid "Discard"
-msgstr "Отменить"
-
-#. module: hr_recruitment
 #: model:res.groups,name:hr_recruitment.group_applicant_cv_display
 msgid "Display CV on application form"
 msgstr "Отображение резюме в анкете"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__display_name
-#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_send_mail__display_name
+#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_refuse_single__display_name
 #: model:ir.model.fields,field_description:hr_recruitment.field_calendar_event__display_name
 #: model:ir.model.fields,field_description:hr_recruitment.field_digest_digest__display_name
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__display_name
@@ -1639,6 +1669,7 @@ msgstr "Отображение резюме в анкете"
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_employee__display_name
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__display_name
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_job_platform__display_name
+#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job_tag__display_name
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_degree__display_name
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_source__display_name
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_stage__display_name
@@ -1650,6 +1681,7 @@ msgstr "Отображение резюме в анкете"
 #: model:ir.model.fields,field_description:hr_recruitment.field_mail_activity_schedule__display_name
 #: model:ir.model.fields,field_description:hr_recruitment.field_res_company__display_name
 #: model:ir.model.fields,field_description:hr_recruitment.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:hr_recruitment.field_res_groups__display_name
 #: model:ir.model.fields,field_description:hr_recruitment.field_res_partner__display_name
 #: model:ir.model.fields,field_description:hr_recruitment.field_res_users__display_name
 #: model:ir.model.fields,field_description:hr_recruitment.field_talent_pool_add_applicants__display_name
@@ -1657,13 +1689,6 @@ msgstr "Отображение резюме в анкете"
 #: model:ir.model.fields,field_description:hr_recruitment.field_utm_source__display_name
 msgid "Display Name"
 msgstr "Отображаемое имя"
-
-#. module: hr_recruitment
-#. odoo-python
-#: code:addons/hr_recruitment/models/digest.py:0
-msgid "Do not have access, skip this data for user's digest email"
-msgstr ""
-"Нет доступа. Пропустите эти данные для резюме электронной почты пользователя"
 
 #. module: hr_recruitment
 #: model:hr.recruitment.degree,name:hr_recruitment.degree_bac5
@@ -1705,18 +1730,32 @@ msgstr "Дублировать"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__duplicate_applicant_ids_domain
+#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_refuse_single__duplicate_applicant_ids_domain
 msgid "Duplicate Applicant Ids Domain"
 msgstr "Домен ID дубликатов кандидатов"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__duplicate_applicant_ids
+#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_refuse_single__duplicate_applicant_ids
 msgid "Duplicate Applications"
 msgstr "Дубликаты заявок"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__duplicates_count
+#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_refuse_single__duplicates_count
 msgid "Duplicates Count"
 msgstr "Количество дублей"
+
+#. module: hr_recruitment
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.job_add_applicants_from_job_view_form
+msgid "Duplicates the selected Talent profile(s) for the selected Job Position"
+msgstr ""
+
+#. module: hr_recruitment
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.job_add_applicants_view_form
+msgid ""
+"Duplicates this Applicant/Talent profile for the selected Job Position(s)"
+msgstr ""
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__email_from
@@ -1735,11 +1774,13 @@ msgstr "Псевдоним почты"
 
 #. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.applicant_get_refuse_reason_view_form
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.applicant_refuse_single_view_form
 msgid "Email Body..."
 msgstr "Текст письма..."
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__template_id
+#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_refuse_single__template_id
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant_refuse_reason__template_id
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_stage__template_id
 msgid "Email Template"
@@ -1753,11 +1794,6 @@ msgid ""
 msgstr ""
 "Псевдоним электронной почты для этой вакансии. Новые электронные адреса "
 "будут автоматически создавать новых претендентов на эту вакансию."
-
-#. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__email_cc
-msgid "Email cc"
-msgstr "Электронная почта cc"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,help:hr_recruitment.field_hr_job__alias_domain
@@ -1794,6 +1830,11 @@ msgid "Employee Name"
 msgstr "ФИО сотрудника"
 
 #. module: hr_recruitment
+#: model:ir.ui.menu,name:hr_recruitment.menu_hr_recruitment_contract_type
+msgid "Employee Types"
+msgstr ""
+
+#. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.applicant_hired_template
 msgid "Employee created:"
 msgstr "Сотрудник создан:"
@@ -1808,11 +1849,6 @@ msgstr "Сотрудник, связанный с кандидатом"
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_job_survey
 msgid "Employees"
 msgstr "Сотрудники"
-
-#. module: hr_recruitment
-#: model:ir.ui.menu,name:hr_recruitment.menu_hr_recruitment_contract_type
-msgid "Employment Types"
-msgstr "Виды занятости"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__priority
@@ -1859,9 +1895,9 @@ msgid "Extended Interviewer"
 msgstr "Расширенный интервьюер"
 
 #. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__favorite_user_ids
-msgid "Favorite User"
-msgstr "Любимый пользователь"
+#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__favorite_recruiter_ids
+msgid "Favorite Recruiter"
+msgstr ""
 
 #. module: hr_recruitment
 #: model:ir.model.fields,help:hr_recruitment.field_hr_applicant__phone_sanitized
@@ -1881,6 +1917,11 @@ msgstr "Файл"
 #: model:hr.recruitment.stage,name:hr_recruitment.stage_job2
 msgid "First Interview"
 msgstr "Первое интервью"
+
+#. module: hr_recruitment
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_recruitment_stage_form
+msgid "Fold by Default"
+msgstr ""
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_stage__fold
@@ -1905,10 +1946,9 @@ msgid "Followers (Partners)"
 msgstr "Подписчики"
 
 #. module: hr_recruitment
-#: model:ir.model.fields,help:hr_recruitment.field_hr_applicant__activity_type_icon
-#: model:ir.model.fields,help:hr_recruitment.field_hr_job__activity_type_icon
-msgid "Font awesome icon e.g. fa-tasks"
-msgstr "Шрифт, отличный значок, например. к.-а.-задачи"
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_recruitment_stage_form
+msgid "For all companies"
+msgstr ""
 
 #. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search_bis
@@ -1926,24 +1966,9 @@ msgid "Good"
 msgstr "Хорошо"
 
 #. module: hr_recruitment
-#: model:hr.recruitment.degree,name:hr_recruitment.degree_graduate
-msgid "Graduate"
-msgstr "Выпускник"
-
-#. module: hr_recruitment
 #: model_terms:web_tour.tour,rainbow_man_message:hr_recruitment.hr_recruitment_tour
 msgid "Great job! You hired a new colleague!"
 msgstr "Отлично! Вы наняли нового сотрудника!"
-
-#. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_stage__legend_done
-msgid "Green Kanban Label"
-msgstr "Зеленая метка Kanban"
-
-#. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_stage__legend_normal
-msgid "Grey Kanban Label"
-msgstr "Серая метка Kanban"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_source__has_domain
@@ -1976,13 +2001,14 @@ msgid "Hired Stage"
 msgstr "Этап \"Нанят\""
 
 #. module: hr_recruitment
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search_bis
-msgid "Hiring Date"
-msgstr "Дата приема на работу"
+#: model:ir.model.fields.selection,name:hr_recruitment.selection__hr_applicant__schedule_pay__hourly
+#: model:ir.model.fields.selection,name:hr_recruitment.selection__hr_job__payment_interval__hourly
+msgid "Hour"
+msgstr ""
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__id
-#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_send_mail__id
+#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_refuse_single__id
 #: model:ir.model.fields,field_description:hr_recruitment.field_calendar_event__id
 #: model:ir.model.fields,field_description:hr_recruitment.field_digest_digest__id
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__id
@@ -1992,6 +2018,7 @@ msgstr "Дата приема на работу"
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_employee__id
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__id
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_job_platform__id
+#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job_tag__id
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_degree__id
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_source__id
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_stage__id
@@ -2003,6 +2030,7 @@ msgstr "Дата приема на работу"
 #: model:ir.model.fields,field_description:hr_recruitment.field_mail_activity_schedule__id
 #: model:ir.model.fields,field_description:hr_recruitment.field_res_company__id
 #: model:ir.model.fields,field_description:hr_recruitment.field_res_config_settings__id
+#: model:ir.model.fields,field_description:hr_recruitment.field_res_groups__id
 #: model:ir.model.fields,field_description:hr_recruitment.field_res_partner__id
 #: model:ir.model.fields,field_description:hr_recruitment.field_res_users__id
 #: model:ir.model.fields,field_description:hr_recruitment.field_talent_pool_add_applicants__id
@@ -2111,14 +2139,24 @@ msgstr ""
 "будет получать массовые рассылки смс из любого списка"
 
 #. module: hr_recruitment
-#. odoo-python
-#: code:addons/hr_recruitment/models/hr_recruitment_stage.py:0
-#: model:hr.recruitment.stage,legend_normal:hr_recruitment.stage_job0
-#: model:hr.recruitment.stage,legend_normal:hr_recruitment.stage_job1
-#: model:hr.recruitment.stage,legend_normal:hr_recruitment.stage_job2
-#: model:hr.recruitment.stage,legend_normal:hr_recruitment.stage_job3
-#: model:hr.recruitment.stage,legend_normal:hr_recruitment.stage_job4
-#: model:hr.recruitment.stage,legend_normal:hr_recruitment.stage_job5
+#. odoo-javascript
+#: code:addons/hr_recruitment/static/src/views/recruitment_list_controller.js:0
+msgid ""
+"If you archive these job positions, all their applicants will be archived "
+"too. Are you sure?"
+msgstr ""
+
+#. module: hr_recruitment
+#. odoo-javascript
+#: code:addons/hr_recruitment/static/src/views/recruitment_form_controller.js:0
+#: code:addons/hr_recruitment/static/src/views/recruitment_kanban_view.js:0
+#: code:addons/hr_recruitment/static/src/views/recruitment_list_controller.js:0
+msgid ""
+"If you archive this job position, all its applicants will be archived too. "
+"Are you sure?"
+msgstr ""
+
+#. module: hr_recruitment
 #: model:ir.model.fields.selection,name:hr_recruitment.selection__hr_applicant__kanban_state__normal
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search_bis
 msgid "In Progress"
@@ -2133,11 +2171,8 @@ msgstr "Покупки в приложениях"
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_job_simple_form
 msgid ""
 "Incoming emails create applications automatically. Use it for direct "
-"applications or when posting job offers on LinkedIn, Monster, etc."
+"applications or when posting job opportunities on LinkedIn, Monster, etc."
 msgstr ""
-"Входящие письма автоматически создают заявки. Используйте это для прямого "
-"отклика или при размещении вакансий на сайтах, таких как LinkedIn, Monster и "
-"др."
 
 #. module: hr_recruitment
 #: model:ir.model.fields,help:hr_recruitment.field_hr_applicant__phone_blacklisted
@@ -2187,7 +2222,7 @@ msgstr "Кандидат в резерве"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__is_mail_template_editor
-#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_send_mail__is_mail_template_editor
+#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_refuse_single__is_mail_template_editor
 msgid "Is Editor"
 msgstr "Редактор"
 
@@ -2254,8 +2289,8 @@ msgstr "Страница вакансии"
 
 #. module: hr_recruitment
 #: model:ir.model,name:hr_recruitment.model_hr_job_platform
-msgid "Job Platforms"
-msgstr "Платформы для поиска работы"
+msgid "Job Platform"
+msgstr ""
 
 #. module: hr_recruitment
 #: model:ir.model,name:hr_recruitment.model_hr_job
@@ -2269,7 +2304,6 @@ msgid "Job Position Created"
 msgstr "Созданная должность"
 
 #. module: hr_recruitment
-#: model:mail.message.subtype,description:hr_recruitment.mt_job_new
 #: model:mail.message.subtype,name:hr_recruitment.mt_job_new
 msgid "Job Position created"
 msgstr "Созданная должность"
@@ -2280,6 +2314,7 @@ msgstr "Созданная должность"
 #: model:ir.actions.act_window,name:hr_recruitment.action_hr_job_interviewer
 #: model:ir.model.fields,field_description:hr_recruitment.field_job_add_applicants__job_ids
 #: model:ir.ui.menu,name:hr_recruitment.menu_hr_recruitment_config_jobs
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_recruitment_stage_form
 msgid "Job Positions"
 msgstr "Положения вакансии"
 
@@ -2304,6 +2339,12 @@ msgid "Job Specific"
 msgstr "Конкретная вакансия"
 
 #. module: hr_recruitment
+#: model:ir.actions.act_window,name:hr_recruitment.hr_job_tag_action
+#: model:ir.ui.menu,name:hr_recruitment.menu_hr_job_tag_menu
+msgid "Job Tags"
+msgstr ""
+
+#. module: hr_recruitment
 #: model:hr.applicant.refuse.reason,name:hr_recruitment.refuse_reason_5
 msgid "Job already fulfilled"
 msgstr "Вакансия уже закрыта"
@@ -2319,29 +2360,9 @@ msgid "Jobs - Recruitment Form"
 msgstr "Вакансии - Форма набора"
 
 #. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__legend_blocked
-msgid "Kanban Blocked"
-msgstr "Канбан заблокирован"
-
-#. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__legend_normal
-msgid "Kanban Ongoing"
-msgstr "Текущая работа по системе Канбан"
-
-#. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__kanban_state
 msgid "Kanban State"
 msgstr "Статус канбан"
-
-#. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__legend_done
-msgid "Kanban Valid"
-msgstr "Канбан Действительный"
-
-#. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__legend_waiting
-msgid "Kanban Waiting"
-msgstr "Ожидание в канбане"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_digest_digest__kpi_hr_recruitment_new_colleagues_value
@@ -2350,7 +2371,7 @@ msgstr "Kpi Hr Recruitment Новые коллеги Ценность"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__lang
-#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_send_mail__lang
+#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_refuse_single__lang
 msgid "Language"
 msgstr "Язык"
 
@@ -2373,11 +2394,12 @@ msgstr "Последнее обновление этапа"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__write_uid
-#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_send_mail__write_uid
+#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_refuse_single__write_uid
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__write_uid
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant_category__write_uid
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant_refuse_reason__write_uid
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_job_platform__write_uid
+#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job_tag__write_uid
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_degree__write_uid
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_source__write_uid
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_stage__write_uid
@@ -2389,11 +2411,12 @@ msgstr "Последнее обновление:"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__write_date
-#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_send_mail__write_date
+#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_refuse_single__write_date
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__write_date
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant_category__write_date
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant_refuse_reason__write_date
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_job_platform__write_date
+#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job_tag__write_date
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_degree__write_date
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_source__write_date
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_stage__write_date
@@ -2417,7 +2440,7 @@ msgstr "Давайте создадим вакансию"
 #. odoo-javascript
 #: code:addons/hr_recruitment/static/src/views/recruitment_helper_view.xml:0
 msgid "Let's create a job position."
-msgstr "Давайте создадим вакансию."
+msgstr ""
 
 #. module: hr_recruitment
 #. odoo-javascript
@@ -2461,12 +2484,7 @@ msgstr "Загрузка демонстрационных данных"
 #. odoo-javascript
 #: code:addons/hr_recruitment/static/src/views/recruitment_helper_view.xml:0
 msgid "Load sample data"
-msgstr "Загрузить пример данных"
-
-#. module: hr_recruitment
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.applicant_send_mail_view_form
-msgid "Load template"
-msgstr "Загрузить шаблон"
+msgstr ""
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__alias_incoming_local
@@ -2474,19 +2492,81 @@ msgid "Local-part based incoming detection"
 msgstr "Обнаружение входящих на основе локальных частей"
 
 #. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_send_mail__template_id
-msgid "Mail Template"
-msgstr "Шаблон сообщения"
-
-#. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__message_main_attachment_id
 msgid "Main Attachment"
 msgstr "Основное вложение"
 
 #. module: hr_recruitment
+#: model:ir.module.module,description:base.module_hr_recruitment
+msgid ""
+"Manage Recruitment and Job applications\n"
+"---------------------------------------\n"
+"\n"
+"Publish, promote and organize your job offers with the Odoo\n"
+"<a href=\"https://www.odoo.com/app/recruitment\">Open Source Recruitment "
+"Application</a>.\n"
+"\n"
+"Organize your job board, promote your job announces and keep track of\n"
+"application submissions easily. Follow every applicant and build up a "
+"database\n"
+"of skills and profiles with indexed documents.\n"
+"\n"
+"Post Your Jobs on Best Job Boards\n"
+"---------------------------------\n"
+"\n"
+"Connect automatically to most famous job board websites; linkedIn, Monster,\n"
+"Craigslist, ... Every job position has a new email address automatically\n"
+"assigned to route applications automatically to the right job position.\n"
+"\n"
+"Whether applicants contact you by email or using an online form, you get "
+"all\n"
+"the data indexed automatically (resumes, motivation letter) and you can "
+"answer\n"
+"in just a click, reusing templates of answers.\n"
+"\n"
+"Customize Your Recruitment Process\n"
+"----------------------------------\n"
+"\n"
+"Use the kanban view and customize the steps of your recruitments process;\n"
+"pre-qualification, first interview, second interview, negociaiton, ...\n"
+"\n"
+"Get accurate statistics on your recruitment pipeline. Get reports to "
+"compare\n"
+"the performance of your different investments on external job boards.\n"
+"\n"
+"Streamline Your Recruitment Process\n"
+"-----------------------------------\n"
+"\n"
+"Follow applicants in your recruitment process with the smart kanban view. "
+"Save\n"
+"time by automating some communications with email templates.\n"
+"\n"
+"Documents like resumes and motivation letters are indexed automatically,\n"
+"allowing you to easily find for specific skills and build up a database of\n"
+"profiles.\n"
+msgstr ""
+
+#. module: hr_recruitment
 #: model:hr.recruitment.degree,name:hr_recruitment.degree_licenced
 msgid "Master Degree"
 msgstr "Степень магистра"
+
+#. module: hr_recruitment
+#. odoo-python
+#: code:addons/hr_recruitment/models/hr_job.py:0
+msgid "Matching Talents"
+msgstr ""
+
+#. module: hr_recruitment
+#: model:ir.model.fields,help:hr_recruitment.field_hr_applicant__activity_type_icon
+#: model:ir.model.fields,help:hr_recruitment.field_hr_job__activity_type_icon
+msgid "Material Symbols icon e.g. checklist"
+msgstr ""
+
+#. module: hr_recruitment
+#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__salary_max
+msgid "Maximum Salary"
+msgstr ""
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__medium_id
@@ -2532,9 +2612,16 @@ msgid "Messages"
 msgstr "Сообщения"
 
 #. module: hr_recruitment
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.job_add_applicants_view_form
-msgid "Move to..."
-msgstr "Переместить в..."
+#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__salary_min
+msgid "Minimum Salary"
+msgstr ""
+
+#. module: hr_recruitment
+#: model:ir.model.fields.selection,name:hr_recruitment.selection__hr_applicant__schedule_pay__monthly
+#: model:ir.model.fields.selection,name:hr_recruitment.selection__hr_job__payment_interval__monthly
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_form
+msgid "Month"
+msgstr ""
 
 #. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search_bis
@@ -2564,7 +2651,6 @@ msgstr "Мои рабочие места"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_job_platform__name
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_source__name
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.crm_case_tree_view_job
 msgid "Name"
 msgstr "Имя"
@@ -2650,6 +2736,11 @@ msgid "Next Meeting"
 msgstr "Следующая встреча"
 
 #. module: hr_recruitment
+#: model:res.groups.privilege,placeholder:hr_recruitment.res_groups_privilege_recruitment
+msgid "No"
+msgstr ""
+
+#. module: hr_recruitment
 #. odoo-python
 #: code:addons/hr_recruitment/models/hr_applicant.py:0
 msgid "No Meeting"
@@ -2685,6 +2776,11 @@ msgid "No data yet!"
 msgstr "Пока нет данных!"
 
 #. module: hr_recruitment
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_recruitment_stage_form
+msgid "No email"
+msgstr ""
+
+#. module: hr_recruitment
 #: model_terms:ir.actions.act_window,help:hr_recruitment.action_hr_job_platforms
 msgid "No rules have been defined."
 msgstr "Правила не заданы."
@@ -2693,6 +2789,11 @@ msgstr "Правила не заданы."
 #: model_terms:ir.actions.act_window,help:hr_recruitment.action_hr_talent_pool
 msgid "No talent pools yet"
 msgstr "Кадровые резервы еще не созданы"
+
+#. module: hr_recruitment
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search_bis
+msgid "Non-Linked Talents"
+msgstr ""
 
 #. module: hr_recruitment
 #: model:ir.model.fields.selection,name:hr_recruitment.selection__hr_applicant__priority__0
@@ -2824,7 +2925,7 @@ msgstr ""
 
 #. module: hr_recruitment
 #: model:ir.model.fields,help:hr_recruitment.field_applicant_get_refuse_reason__lang
-#: model:ir.model.fields,help:hr_recruitment.field_applicant_send_mail__lang
+#: model:ir.model.fields,help:hr_recruitment.field_applicant_refuse_single__lang
 msgid ""
 "Optional translation language (ISO code) to select when sending out an "
 "email. If not set, the main partner's language will be used. This should "
@@ -2841,11 +2942,6 @@ msgstr ""
 #: code:addons/hr_recruitment/static/src/js/tours/hr_recruitment.js:0
 msgid "Or talk about this applicant privately with your colleagues."
 msgstr "Или обсудите этого кандидата с коллегами наедине."
-
-#. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_stage__legend_waiting
-msgid "Orange Kanban Label"
-msgstr "Оранжевая метка канбана"
 
 #. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_form
@@ -2948,8 +3044,8 @@ msgstr "Предлагаемая дополнительная зарплата"
 
 #. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.res_config_settings_view_form
-msgid "Publish job offers on your website"
-msgstr "Размещайте вакансии на вашем сайте"
+msgid "Publish job opportunities on your website"
+msgstr ""
 
 #. module: hr_recruitment
 #: model:hr.recruitment.stage,name:hr_recruitment.stage_job1
@@ -2963,15 +3059,11 @@ msgid "Ratings"
 msgstr "Рейтинги"
 
 #. module: hr_recruitment
-#. odoo-python
-#: code:addons/hr_recruitment/models/hr_recruitment_stage.py:0
-#: model:hr.recruitment.stage,legend_done:hr_recruitment.stage_job0
-#: model:hr.recruitment.stage,legend_done:hr_recruitment.stage_job1
-#: model:hr.recruitment.stage,legend_done:hr_recruitment.stage_job2
-#: model:hr.recruitment.stage,legend_done:hr_recruitment.stage_job3
-#: model:hr.recruitment.stage,legend_done:hr_recruitment.stage_job4
-#: model:hr.recruitment.stage,legend_done:hr_recruitment.stage_job5
 #: model:ir.model.fields.selection,name:hr_recruitment.selection__hr_applicant__kanban_state__done
+msgid "Ready"
+msgstr ""
+
+#. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search_bis
 msgid "Ready for Next Stage"
 msgstr "Готовы к следующему этапу"
@@ -2985,6 +3077,7 @@ msgstr "Готовы набирать персонал более эффекти
 
 #. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.applicant_get_refuse_reason_view_form
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.applicant_refuse_single_view_form
 msgid "Reason"
 msgstr "Причина"
 
@@ -2994,12 +3087,18 @@ msgid "Record Thread ID"
 msgstr "Номер цепочки записей"
 
 #. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__user_id
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__user_id
+#: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__recruiter_id
+#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__recruiter_id
 msgid "Recruiter"
 msgstr "Специалист по подбору кадров"
 
 #. module: hr_recruitment
+#: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__recruiter_email
+msgid "Recruiter Work Email"
+msgstr ""
+
+#. module: hr_recruitment
+#: model:ir.module.module,shortdesc:base.module_hr_recruitment
 #: model:ir.ui.menu,name:hr_recruitment.menu_hr_recruitment_root
 #: model:res.groups.privilege,name:hr_recruitment.res_groups_privilege_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.digest_digest_view_form
@@ -3031,8 +3130,8 @@ msgstr "План подбора персонала"
 
 #. module: hr_recruitment
 #: model:ir.model,name:hr_recruitment.model_hr_recruitment_stage
-msgid "Recruitment Stages"
-msgstr "Этапы найма сотрудников"
+msgid "Recruitment Stage"
+msgstr ""
 
 #. module: hr_recruitment
 #: model:mail.template,name:hr_recruitment.email_template_data_applicant_congratulations
@@ -3055,12 +3154,13 @@ msgid "Recruitment: Refuse"
 msgstr "Рекрутинг: Отходы"
 
 #. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_stage__legend_blocked
-msgid "Red Kanban Label"
-msgstr "Красная метка Kanban"
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_form
+msgid "Reference"
+msgstr ""
 
 #. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.applicant_get_refuse_reason_view_form
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.applicant_refuse_single_view_form
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.crm_case_tree_view_job
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_form
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_kanban_view_applicant
@@ -3074,6 +3174,7 @@ msgstr "Дата отклонения предложения"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__duplicates
+#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_refuse_single__duplicates
 msgid "Refuse Duplicate Applications"
 msgstr "Отклонять дубликаты заявок"
 
@@ -3082,8 +3183,10 @@ msgstr "Отклонять дубликаты заявок"
 #: code:addons/hr_recruitment/models/hr_applicant.py:0
 #: model:ir.actions.act_window,name:hr_recruitment.applicant_get_refuse_reason_action
 #: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__refuse_reason_id
+#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_refuse_single__refuse_reason_id
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__refuse_reason_id
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.applicant_get_refuse_reason_view_form
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.applicant_refuse_single_view_form
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_refuse_reason_view_form
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_refuse_reason_view_tree
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search_bis
@@ -3100,6 +3203,11 @@ msgstr "Отказать Причина заявителя"
 #: model:ir.ui.menu,name:hr_recruitment.menu_hr_applicant_refuse_reason
 msgid "Refuse Reasons"
 msgstr "Причины отказа"
+
+#. module: hr_recruitment
+#: model:ir.model,name:hr_recruitment.model_applicant_refuse_single
+msgid "Refuse a single applicant"
+msgstr ""
 
 #. module: hr_recruitment
 #: model:ir.model.fields.selection,name:hr_recruitment.selection__hr_applicant__application_status__refused
@@ -3136,6 +3244,12 @@ msgid "Regex"
 msgstr "Регулярное выражение"
 
 #. module: hr_recruitment
+#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__model
+#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_refuse_single__model
+msgid "Related Document Model"
+msgstr ""
+
+#. module: hr_recruitment
 #. odoo-python
 #: code:addons/hr_recruitment/models/hr_job.py:0
 msgid "Related Employees"
@@ -3148,7 +3262,7 @@ msgstr "Удаленный"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__render_model
-#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_send_mail__render_model
+#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_refuse_single__render_model
 msgid "Rendering Model"
 msgstr "Модель рендеринга"
 
@@ -3188,9 +3302,13 @@ msgstr "Содержание резюме"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__is_rotting
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search_bis
 msgid "Rotting"
 msgstr "Зависшие"
+
+#. module: hr_recruitment
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_recruitment_stage_form
+msgid "Rotting in"
+msgstr ""
 
 #. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search_bis
@@ -3235,6 +3353,11 @@ msgstr ""
 "Заработная плата, предлагаемая организацией, дополнительные преимущества"
 
 #. module: hr_recruitment
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_job_survey
+msgid "Salary Range"
+msgstr ""
+
+#. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__phone_sanitized
 msgid "Sanitized Number"
 msgstr "Санитарный номер"
@@ -3256,9 +3379,20 @@ msgid "Schedule Interview"
 msgstr "Интервью по расписанию"
 
 #. module: hr_recruitment
+#: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__schedule_pay
+msgid "Schedule Pay"
+msgstr ""
+
+#. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__scheduled_date
+#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_refuse_single__scheduled_date
 msgid "Scheduled Date"
 msgstr "Планируемая дата"
+
+#. module: hr_recruitment
+#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__payment_interval
+msgid "Scheduled Pay"
+msgstr ""
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_degree__score
@@ -3286,6 +3420,11 @@ msgid "Second Interview"
 msgstr "Второе интервью"
 
 #. module: hr_recruitment
+#: model:hr.recruitment.degree,name:hr_recruitment.degree_graduate
+msgid "Secondary Education"
+msgstr ""
+
+#. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_form
 msgid "Select the campaign the applicant was part of"
 msgstr "Выберите кампанию, в рамках которой пришел кандидат"
@@ -3310,20 +3449,14 @@ msgid "Select where the applicant comes from"
 msgstr "Укажите источник привлечения кандидата"
 
 #. module: hr_recruitment
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.applicant_send_mail_view_form
-msgid "Send"
-msgstr "Отправить"
-
-#. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_res_config_settings__module_hr_recruitment_extract
 msgid "Send CV to OCR to fill applications"
 msgstr "Отправляйте резюме в OCR для заполнения заявок"
 
 #. module: hr_recruitment
-#. odoo-python
-#: code:addons/hr_recruitment/models/hr_applicant.py:0
-#: model:ir.actions.server,name:hr_recruitment.action_applicant_send_mail
+#: model:ir.actions.act_window,name:hr_recruitment.action_applicant_mass_mail
 #: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__send_mail
+#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_refuse_single__send_mail
 msgid "Send Email"
 msgstr "Отправить Email"
 
@@ -3350,11 +3483,6 @@ msgstr ""
 #: code:addons/hr_recruitment/models/hr_applicant.py:0
 msgid "Send applications to"
 msgstr "Отправьте заявки по адресу"
-
-#. module: hr_recruitment
-#: model:ir.model,name:hr_recruitment.model_applicant_send_mail
-msgid "Send mails to applicants"
-msgstr "Отправляйте письма соискателям"
 
 #. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.res_config_settings_view_form
@@ -3395,6 +3523,11 @@ msgstr "Настройки"
 msgid "Show all records whose next activity date is past"
 msgstr ""
 "Показать все записи, для которых истекла дата выполнения следующего дела"
+
+#. module: hr_recruitment
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_recruitment_stage_form
+msgid "Show for all positions"
+msgstr ""
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__source_id
@@ -3442,7 +3575,7 @@ msgstr "Укажите отклоненных кандидатов..."
 #. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_form
 msgid "Spontaneous application"
-msgstr ""
+msgstr "Отклик без вакансии"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__stage_id
@@ -3456,11 +3589,6 @@ msgstr "Этап"
 #: model:mail.message.subtype,name:hr_recruitment.mt_applicant_stage_changed
 msgid "Stage Changed"
 msgstr "Этап изменён"
-
-#. module: hr_recruitment
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_recruitment_stage_form
-msgid "Stage Definition"
-msgstr "Определение этапа"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_stage__name
@@ -3489,6 +3617,11 @@ msgid "Stages"
 msgstr "Стадии"
 
 #. module: hr_recruitment
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.crm_case_tree_view_job
+msgid "State"
+msgstr ""
+
+#. module: hr_recruitment
 #: model:ir.model.fields,help:hr_recruitment.field_hr_applicant__activity_state
 #: model:ir.model.fields,help:hr_recruitment.field_hr_job__activity_state
 msgid ""
@@ -3509,17 +3642,24 @@ msgstr "Время состояния"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__subject
-#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_send_mail__subject
+#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_refuse_single__subject
 msgid "Subject"
 msgstr "Тема"
 
 #. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.applicant_get_refuse_reason_view_form
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.applicant_refuse_single_view_form
 msgid "Subject..."
 msgstr "Тема…"
 
 #. module: hr_recruitment
+#: model:ir.model,name:hr_recruitment.model_hr_job_tag
+msgid "Tag"
+msgstr ""
+
+#. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant_category__name
+#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job_tag__name
 msgid "Tag Name"
 msgstr "Название тега"
 
@@ -3531,12 +3671,15 @@ msgstr "Название тега уже существует!"
 #. module: hr_recruitment
 #: model:ir.actions.act_window,name:hr_recruitment.hr_applicant_category_action
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__categ_ids
+#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__tag_ids
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_talent_pool__categ_ids
 #: model:ir.model.fields,field_description:hr_recruitment.field_talent_pool_add_applicants__categ_ids
 #: model:ir.ui.menu,name:hr_recruitment.hr_applicant_category_menu
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_category_view_form
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_category_view_tree
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_job_tag_view_form
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_job_tag_view_list
 msgid "Tags"
 msgstr "Теги"
 
@@ -3567,11 +3710,13 @@ msgstr "Описание кадрового резерва"
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__talent_pool_ids
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_form
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search_bis
 msgid "Talent Pools"
 msgstr "Кадровые резервы"
 
 #. module: hr_recruitment
-#: model:mail.message.subtype,description:hr_recruitment.mt_talent_new
+#. odoo-python
+#: code:addons/hr_recruitment/models/hr_applicant.py:0
 msgid "Talent created"
 msgstr "Карточка специалиста создана"
 
@@ -3585,8 +3730,15 @@ msgstr "Кандидат должен относиться как минимум
 #: model:ir.actions.act_window,name:hr_recruitment.action_hr_talent_pool_applications
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search_bis
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_talent_pool_view_kanban
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.job_add_applicants_from_job_view_form
 msgid "Talents"
 msgstr "Специалисты"
+
+#. module: hr_recruitment
+#. odoo-python
+#: code:addons/hr_recruitment/wizard/talent_pool_add_applicants.py:0
+msgid "Talents Added To Talent Pool(s)"
+msgstr ""
 
 #. module: hr_recruitment
 #: model:ir.model.constraint,message:hr_recruitment.constraint_hr_job_platform_email_uniq
@@ -3611,7 +3763,7 @@ msgstr ""
 "рекрутера."
 
 #. module: hr_recruitment
-#: model:ir.model.fields,help:hr_recruitment.field_hr_job__user_id
+#: model:ir.model.fields,help:hr_recruitment.field_hr_job__recruiter_id
 msgid ""
 "The Recruiter will be the default value for all Applicants in this "
 "job             position. The Recruiter is automatically added to all "
@@ -3632,15 +3784,16 @@ msgstr ""
 "процессе найма."
 
 #. module: hr_recruitment
+#: model:ir.model.fields,help:hr_recruitment.field_hr_recruitment_stage__company_id
+msgid ""
+"The company this stage is available to. If not set, it is available to all "
+"companies."
+msgstr ""
+
+#. module: hr_recruitment
 #: model:ir.model.fields,help:hr_recruitment.field_hr_applicant__availability
 msgid "The date at which the applicant will be available to start working"
 msgstr "Дата, когда соискатель сможет приступить к работе"
-
-#. module: hr_recruitment
-#. odoo-python
-#: code:addons/hr_recruitment/wizard/applicant_send_mail.py:0
-msgid "The following applicants are missing an email address: %s."
-msgstr "Следующим кандидатам не хватает адреса электронной почты: %s."
 
 #. module: hr_recruitment
 #: model:ir.model.fields,help:hr_recruitment.field_hr_job__alias_model_id
@@ -3682,15 +3835,6 @@ msgstr ""
 "автоматического заполнения имени кандидата"
 
 #. module: hr_recruitment
-#. odoo-javascript
-#: code:addons/hr_recruitment/static/src/views/recruitment_list_controller.js:0
-msgid ""
-"These job positions and all related applicants will be archived. Are you "
-"sure?"
-msgstr ""
-"Выбранные вакансии и все связанные заявки будут архивированы. Продолжить?"
-
-#. module: hr_recruitment
 #: model:ir.model.fields,help:hr_recruitment.field_hr_applicant__medium_id
 msgid ""
 "This displays how the applicant has reached out, e.g. via Email, LinkedIn, "
@@ -3726,17 +3870,6 @@ msgstr ""
 "списка адресов электронной почты."
 
 #. module: hr_recruitment
-#. odoo-javascript
-#: code:addons/hr_recruitment/static/src/views/recruitment_form_controller.js:0
-#: code:addons/hr_recruitment/static/src/views/recruitment_kanban_view.js:0
-#: code:addons/hr_recruitment/static/src/views/recruitment_list_controller.js:0
-msgid ""
-"This job position and all related applicants will be archived. Are you sure?"
-msgstr ""
-"Эта вакансия и все связанные с ней заявки будут архивированы. Вы уверены, "
-"что хотите продолжить?"
-
-#. module: hr_recruitment
 #: model:ir.model.fields,help:hr_recruitment.field_hr_recruitment_stage__fold
 msgid ""
 "This stage is folded in the kanban view when there are no records in that "
@@ -3761,14 +3894,14 @@ msgid "Today Activities"
 msgstr "Сегодняшние Дела"
 
 #. module: hr_recruitment
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_recruitment_stage_form
-msgid "Tooltips"
-msgstr "Всплывающие подсказки"
-
-#. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__expected_employees
 msgid "Total Forecasted Employees"
 msgstr "Общее количество прогнозируемых сотрудников"
+
+#. module: hr_recruitment
+#: model:ir.module.module,summary:base.module_hr_recruitment
+msgid "Track your recruitment pipeline"
+msgstr ""
 
 #. module: hr_recruitment
 #: model:ir.actions.act_window,name:hr_recruitment.action_hr_job_sources
@@ -3789,8 +3922,8 @@ msgstr "Попробуйте отправить письмо"
 
 #. module: hr_recruitment
 #: model_terms:web_tour.tour,rainbow_man_message:hr_recruitment.hr_recruitment_tour
-msgid "Try the Website app to publish job offers online."
-msgstr "Используйте модуль Вебсайт для публикации вакансий онлайн."
+msgid "Try the Website app to publish job opportunities online."
+msgstr ""
 
 #. module: hr_recruitment
 #: model_terms:ir.actions.act_window,help:hr_recruitment.mail_activity_type_action_config_hr_applicant
@@ -3811,6 +3944,11 @@ msgstr "Тип задачи-исключения в записи."
 #: model:ir.model,name:hr_recruitment.model_utm_campaign
 msgid "UTM Campaign"
 msgstr "Кампания UTM"
+
+#. module: hr_recruitment
+#: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__utm_reference
+msgid "UTM Reference"
+msgstr ""
 
 #. module: hr_recruitment
 #: model:ir.model,name:hr_recruitment.model_utm_source
@@ -3875,11 +4013,6 @@ msgid "User"
 msgstr "Пользователь"
 
 #. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__user_email
-msgid "User Email"
-msgstr "Email пользователя"
-
-#. module: hr_recruitment
 #: model:ir.model.fields.selection,name:hr_recruitment.selection__hr_applicant__priority__2
 msgid "Very Good"
 msgstr "Очень хорошо"
@@ -3890,14 +4023,6 @@ msgid "Visible to all"
 msgstr "Видно всем"
 
 #. module: hr_recruitment
-#. odoo-python
-#: code:addons/hr_recruitment/models/hr_recruitment_stage.py:0
-#: model:hr.recruitment.stage,legend_waiting:hr_recruitment.stage_job0
-#: model:hr.recruitment.stage,legend_waiting:hr_recruitment.stage_job1
-#: model:hr.recruitment.stage,legend_waiting:hr_recruitment.stage_job2
-#: model:hr.recruitment.stage,legend_waiting:hr_recruitment.stage_job3
-#: model:hr.recruitment.stage,legend_waiting:hr_recruitment.stage_job4
-#: model:hr.recruitment.stage,legend_waiting:hr_recruitment.stage_job5
 #: model:ir.model.fields.selection,name:hr_recruitment.selection__hr_applicant__kanban_state__waiting
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search_bis
 msgid "Waiting"
@@ -3909,16 +4034,15 @@ msgid "Want to analyse where applications come from ?"
 msgstr "Хотите проанализировать, откуда приходят кандидаты?"
 
 #. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__website_message_ids
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_talent_pool__website_message_ids
-msgid "Website Messages"
-msgstr "Веб-сайт сообщения"
+#: model:ir.model.fields.selection,name:hr_recruitment.selection__hr_applicant__schedule_pay__weekly
+#: model:ir.model.fields.selection,name:hr_recruitment.selection__hr_job__payment_interval__weekly
+msgid "Week"
+msgstr ""
 
 #. module: hr_recruitment
-#: model:ir.model.fields,help:hr_recruitment.field_hr_applicant__website_message_ids
-#: model:ir.model.fields,help:hr_recruitment.field_hr_talent_pool__website_message_ids
-msgid "Website communication history"
-msgstr "История общений с сайта"
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_recruitment_stage_form
+msgid "What are the requirements to move an applicant to this stage?"
+msgstr ""
 
 #. module: hr_recruitment
 #. odoo-javascript
@@ -3945,35 +4069,16 @@ msgstr ""
 "использоваться тема письма."
 
 #. module: hr_recruitment
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.applicant_send_mail_view_form
-msgid "Write your message here..."
-msgstr "Напишите ваше сообщение здесь ..."
+#: model:ir.model.fields.selection,name:hr_recruitment.selection__hr_applicant__schedule_pay__yearly
+#: model:ir.model.fields.selection,name:hr_recruitment.selection__hr_job__payment_interval__yearly
+msgid "Year"
+msgstr ""
 
 #. module: hr_recruitment
 #. odoo-python
 #: code:addons/hr_recruitment/models/hr_applicant.py:0
 msgid "You are not allowed to perform this action."
 msgstr "Вам не разрешено выполнять это действие."
-
-#. module: hr_recruitment
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_recruitment_stage_form
-msgid ""
-"You can define here the labels that will be displayed for the kanban state "
-"instead\n"
-"                            of the default labels."
-msgstr ""
-"Здесь вы можете задать метки, которые будут отображаться для состояния "
-"kanban вместо\n"
-"                            вместо меток по умолчанию."
-
-#. module: hr_recruitment
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_recruitment_stage_form
-msgid ""
-"You can define the requirements here. They will be displayed when you hover "
-"over the stage title."
-msgstr ""
-"Здесь можно указать требования. Они будут показаны при наведении курсора на "
-"стадию."
 
 #. module: hr_recruitment
 #. odoo-python
@@ -3998,6 +4103,12 @@ msgstr ""
 "Вы не можете удалить эти UTM-источники, поскольку они связаны со следующими "
 "источниками рекрутинга в Recruitment:\n"
 "%(recruitment_sources)s"
+
+#. module: hr_recruitment
+#. odoo-python
+#: code:addons/hr_recruitment/models/hr_applicant.py:0
+msgid "You cannot duplicate the talent(s)."
+msgstr "Нельзя дублировать карточки кандидатов."
 
 #. module: hr_recruitment
 #. odoo-python
@@ -4054,6 +4165,11 @@ msgstr "например, LinkedIn"
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_form
 msgid "e.g. Masters"
 msgstr "например, магистратура"
+
+#. module: hr_recruitment
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_recruitment_stage_form
+msgid "e.g. Qualification"
+msgstr ""
 
 #. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_job_simple_form
@@ -4113,22 +4229,23 @@ msgstr "id"
 
 #. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.view_hr_job_kanban
-msgid "in<br/>progress"
-msgstr "в<br/>процессе"
+msgid "in<br/><span class=\"text-nowrap\">progress</span>"
+msgstr ""
 
 #. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.view_hr_job_kanban
-msgid "new<br/>applications"
-msgstr "новые<br/>заявки"
+msgid "new<br/><span class=\"text-nowrap\">applications</span>"
+msgstr ""
 
 #. module: hr_recruitment
 #. odoo-javascript
 #: code:addons/hr_recruitment/static/src/views/recruitment_helper_view.xml:0
 msgid "or"
-msgstr "или"
+msgstr ""
 
 #. module: hr_recruitment
 #: model:ir.model.fields,help:hr_recruitment.field_applicant_get_refuse_reason__scheduled_date
+#: model:ir.model.fields,help:hr_recruitment.field_applicant_refuse_single__scheduled_date
 msgid ""
 "send emails after that date. This date is considered as being in UTC "
 "timezone."
@@ -4144,909 +4261,5 @@ msgstr "кадровым резервом"
 
 #. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.view_hr_job_kanban
-msgid "to<br/>recruit"
-msgstr "к<br/>найму"
-
-#~ msgid ""
-#~ "<div>Great job! You hired a new colleague!</div><div>Try the Website app "
-#~ "to publish job offers online.</div>"
-#~ msgstr ""
-#~ "<div>Отличная работа! Вы приняли на работу нового коллегу!</"
-#~ "div><div>Попробуйте приложение \"Веб-сайт\", чтобы публиковать "
-#~ "предложения о работе онлайн.</div>"
-
-#~ msgid ""
-#~ "<i class=\"fa fa-building-o\" role=\"img\" aria-label=\"Company\" "
-#~ "title=\"Company\"/>"
-#~ msgstr ""
-#~ "<i class=\"fa fa-building-o\" role=\"img\" aria-label=\"Company\" "
-#~ "title=\"Company\"/>"
-
-#~ msgid ""
-#~ "<i class=\"fa fa-envelope-o\" role=\"img\" aria-label=\"Alias\" "
-#~ "title=\"Alias\"/>"
-#~ msgstr ""
-#~ "<i class=\"fa fa-envelope-o\" role=\"img\" aria-label=\"Alias\" "
-#~ "title=\"Alias\"/>"
-
-#~ msgid ""
-#~ "<i class=\"fa fa-mobile mr4\" role=\"img\" aria-label=\"Mobile\" "
-#~ "title=\"Mobile\"/>"
-#~ msgstr ""
-#~ "<i class=\"fa fa-mobile mr4\" role=\"img\" aria-label=\"Mobile\" "
-#~ "title=\"Mobile\"/>"
-
-#~ msgid "<span class=\"o_stat_text\">Trackers</span>"
-#~ msgstr "<span class=\"o_stat_text\">Трекеры</span>"
-
-#~ msgid "<span class=\"text-bg-success\">Hired</span>"
-#~ msgstr "<span class=\"text-bg-success\">Наемный персонал</span>"
-
-#~ msgid "<span>Folded in Recruitment Pipe: </span>"
-#~ msgstr "<span>Сложенные в воронку найма:</span>"
-
-#~ msgid ""
-#~ "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" "
-#~ "style=\"background-color: white; border-collapse: collapse; margin-left: "
-#~ "20px;\">\n"
-#~ "    <tr>\n"
-#~ "        <td valign=\"top\" style=\"padding: 0px 10px;\">\n"
-#~ "            <div style=\"font-size: 13px; margin: 0px; padding: 0px;\">\n"
-#~ "                Hello,\n"
-#~ "                <br><br>\n"
-#~ "                We confirm we successfully received your application for "
-#~ "the job\n"
-#~ "                \"<a t-att-href=\"hasattr(object.job_id, 'website_url') "
-#~ "and object.job_id.website_url or ''\" style=\"color:#9A6C8E;\"><strong t-"
-#~ "out=\"object.job_id.name or ''\">Experienced Developer</strong></a>\" at "
-#~ "<strong t-out=\"object.company_id.name or ''\">YourCompany</strong>.\n"
-#~ "                <br><br>\n"
-#~ "                We will come back to you shortly.\n"
-#~ "\n"
-#~ "                <div t-if=\"'website_url' in object.job_id and "
-#~ "object.job_id.website_url\" style=\"padding: 16px 8px 16px 8px;\">\n"
-#~ "                    <a t-att-href=\"object.job_id.website_url\" "
-#~ "style=\"background-color: #875a7b; text-decoration: none; color: #fff; "
-#~ "padding: 8px 16px 8px 16px; border-radius: 5px;\">Job Description</a>\n"
-#~ "                </div>\n"
-#~ "\n"
-#~ "                <hr width=\"97%\" style=\"background-color: "
-#~ "rgb(204,204,204); border: medium none; clear: both; display: block; font-"
-#~ "size: 0px; min-height: 1px; line-height: 0; margin: 16px 0px 16px 0px;"
-#~ "\">\n"
-#~ "                <t t-if=\"object.user_id\">\n"
-#~ "                    <h3 style=\"color:#9A6C8E;\"><strong>Your Contact:</"
-#~ "strong></h3>\n"
-#~ "                    <p>\n"
-#~ "                        <strong t-out=\"object.user_id.name or "
-#~ "''\">Mitchell Admin</strong><br>\n"
-#~ "                        <span>Email: <t t-out=\"object.user_id.email or "
-#~ "''\">admin@yourcompany.example.com</t></span><br>\n"
-#~ "                        <span>Phone: <t t-out=\"object.user_id.phone or "
-#~ "''\">+1 650-123-4567</t></span>\n"
-#~ "                    </p>\n"
-#~ "                    <hr width=\"97%\" style=\"background-color: "
-#~ "rgb(204,204,204); border: medium none; clear: both; display: block; font-"
-#~ "size: 0px; min-height: 1px; line-height: 0; margin: 16px 0px 16px 0px;"
-#~ "\">\n"
-#~ "                </t>\n"
-#~ "\n"
-#~ "                <h3 style=\"color:#9A6C8E;\"><strong>What is the next "
-#~ "step?</strong></h3>\n"
-#~ "                We usually <strong>answer applications within a few days."
-#~ "</strong><br><br>\n"
-#~ "                Feel free to <strong>contact us if you want a faster\n"
-#~ "                feedback</strong> or if you don't get news from us\n"
-#~ "                quickly enough (just reply to this email).\n"
-#~ "\n"
-#~ "                <hr width=\"97%\" style=\"background-color: "
-#~ "rgb(204,204,204); border: medium none; clear: both; display: block; font-"
-#~ "size: 0px; min-height: 1px; line-height: 0; margin: 17px 0px 16px 0px;"
-#~ "\">\n"
-#~ "                <t t-set=\"location\" t-value=\"''\"></t>\n"
-#~ "                <t t-if=\"object.job_id.address_id.name\">\n"
-#~ "                    <strong t-out=\"object.job_id.address_id.name or "
-#~ "''\">Teksa SpA</strong><br>\n"
-#~ "                </t>\n"
-#~ "                <t t-if=\"object.job_id.address_id.street\">\n"
-#~ "                    <t t-out=\"object.job_id.address_id.street or "
-#~ "''\">Puerto Madero 9710</t><br>\n"
-#~ "                    <t t-set=\"location\" t-"
-#~ "value=\"object.job_id.address_id.street\"></t>\n"
-#~ "                </t>\n"
-#~ "                <t t-if=\"object.job_id.address_id.street2\">\n"
-#~ "                    <t t-out=\"object.job_id.address_id.street2 or "
-#~ "''\">Of A15, Santiago (RM)</t><br>\n"
-#~ "                    <t t-set=\"location\" t-value=\"'%s, %s' % (location, "
-#~ "object.job_id.address_id.street2)\"></t>\n"
-#~ "                </t>\n"
-#~ "                <t t-if=\"object.job_id.address_id.city\">\n"
-#~ "                    <t t-out=\"object.job_id.address_id.city or "
-#~ "''\">Pudahuel</t>,\n"
-#~ "                    <t t-set=\"location\" t-value=\"'%s, %s' % (location, "
-#~ "object.job_id.address_id.city)\"></t>\n"
-#~ "                </t>\n"
-#~ "                <t t-if=\"object.job_id.address_id.state_id.name\">\n"
-#~ "                    <t t-out=\"object.job_id.address_id.state_id.name or "
-#~ "''\">C1</t>,\n"
-#~ "                    <t t-set=\"location\" t-value=\"'%s, %s' % (location, "
-#~ "object.job_id.address_id.state_id.name)\"></t>\n"
-#~ "                </t>\n"
-#~ "                <t t-if=\"object.job_id.address_id.zip\">\n"
-#~ "                    <t t-out=\"object.job_id.address_id.zip or "
-#~ "''\">98450</t>\n"
-#~ "                    <t t-set=\"location\" t-value=\"'%s, %s' % (location, "
-#~ "object.job_id.address_id.zip)\"></t>\n"
-#~ "                </t>\n"
-#~ "                <br>\n"
-#~ "                <t t-if=\"object.job_id.address_id.country_id.name\">\n"
-#~ "                    <t t-out=\"object.job_id.address_id.country_id.name "
-#~ "or ''\">Argentina</t><br>\n"
-#~ "                    <t t-set=\"location\" t-value=\"'%s, %s' % (location, "
-#~ "object.job_id.address_id.country_id.name)\"></t>\n"
-#~ "                </t>\n"
-#~ "                <br>\n"
-#~ "            </div>\n"
-#~ "        </td>\n"
-#~ "    </tr>\n"
-#~ "</table>"
-#~ msgstr ""
-#~ "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" "
-#~ "style=\"background-color: white; border-collapse: collapse; margin-left: "
-#~ "20px;\">\n"
-#~ "    <tr>\n"
-#~ "        <td valign=\"top\" style=\"padding: 0px 10px;\">\n"
-#~ "            <div style=\"font-size: 13px; margin: 0px; padding: 0px;\">\n"
-#~ "                Здравствуйте,\n"
-#~ "               <br><br>\n"
-#~ "                Мы подтверждаем, что успешно получили вашу заявку на "
-#~ "вакансию\n"
-#~ "                \"<a t-att-href=\"hasattr(object.job_id, 'website_url') "
-#~ "and object.job_id.website_url or ''\" style=\"color:#9A6C8E;\"><strong t-"
-#~ "out=\"object.job_id.name or ''\">Опытный разработчик</strong></a>\" в "
-#~ "<strong t-out=\"object.company_id.name or ''\">компании YourCompany</"
-#~ "strong>.\n"
-#~ "               <br><br>\n"
-#~ "                Мы свяжемся с вами в ближайшее время.\n"
-#~ "\n"
-#~ "                <div t-if=\"'website_url' in object.job_id and "
-#~ "object.job_id.website_url\" style=\"padding: 16px 8px 16px 8px;\">\n"
-#~ "                    <a t-att-href=\"object.job_id.website_url\" "
-#~ "style=\"background-color: #875a7b; text-decoration: none; color: #fff; "
-#~ "padding: 8px 16px 8px 16px; border-radius: 5px;\">Описание работы</a>\n"
-#~ "                </div>\n"
-#~ "\n"
-#~ "               <hr width=\"97%\" style=\"background-color: "
-#~ "rgb(204,204,204); border: medium none; clear: both; display: block; font-"
-#~ "size: 0px; min-height: 1px; line-height: 0; margin: 16px 0px 16px 0px;"
-#~ "\">\n"
-#~ "                <t t-if=\"object.user_id\">\n"
-#~ "                    <h3 style=\"color:#9A6C8E;\"><strong>Ваш контакт:</"
-#~ "strong></h3>\n"
-#~ "                    <p>\n"
-#~ "                        <strong t-out=\"object.user_id.name or "
-#~ "''\">Администратор Митчелл</strong><br>\n"
-#~ "                        <span>Email: <t t-out=\"object.user_id.email or "
-#~ "''\">admin@yourcompany.example.com</t></span><br>\n"
-#~ "                        <span>Телефон: <t t-out=\"object.user_id.phone or "
-#~ "''\">+1 650-123-4567</t></span>\n"
-#~ "                    </p>\n"
-#~ "                    <hr width=\"97%\" style=\"background-color: "
-#~ "rgb(204,204,204); border: medium none; clear: both; display: block; font-"
-#~ "size: 0px; min-height: 1px; line-height: 0; margin: 16px 0px 16px 0px;"
-#~ "\">\n"
-#~ "                </t>\n"
-#~ "\n"
-#~ "                <h3 style=\"color:#9A6C8E;\"><strong>Что делать дальше?</"
-#~ "strong></h3>\n"
-#~ "                Обычно мы <strong>отвечаем на заявки в течение нескольких "
-#~ "дней.</strong><br><br>\n"
-#~ "                Не стесняйтесь <strong>связаться с нами, если вы хотите "
-#~ "получить более быстрый\n"
-#~ "                обратной связи</strong> или если вы не получаете от нас "
-#~ "новостей\n"
-#~ "                (просто ответьте на это письмо).\n"
-#~ "\n"
-#~ "               <hr width=\"97%\" style=\"background-color: "
-#~ "rgb(204,204,204); border: medium none; clear: both; display: block; font-"
-#~ "size: 0px; min-height: 1px; line-height: 0; margin: 17px 0px 16px 0px;"
-#~ "\">\n"
-#~ "                <t t-set=\"location\" t-value=\"''\"></t>\n"
-#~ "                <t t-if=\"object.job_id.address_id.name\">\n"
-#~ "                    <strong t-out=\"object.job_id.address_id.name or "
-#~ "''\">Teksa SpA</strong><br>\n"
-#~ "                </t>\n"
-#~ "                <t t-if=\"object.job_id.address_id.street\">\n"
-#~ "                    <t t-out=\"object.job_id.address_id.street or "
-#~ "''\">Пуэрто-Мадеро 9710</t><br>\n"
-#~ "                    <t t-set=\"location\" t-"
-#~ "value=\"object.job_id.address_id.street\"></t>\n"
-#~ "                </t>\n"
-#~ "                <t t-if=\"object.job_id.address_id.street2\">\n"
-#~ "                    <t t-out=\"object.job_id.address_id.street2 or "
-#~ "''\">Из A15, Сантьяго (RM)</t><br>\n"
-#~ "                    <t t-set=\"location\" t-value=\"'%s, %s' % (location, "
-#~ "object.job_id.address_id.street2)\"></t>\n"
-#~ "                </t>\n"
-#~ "               <t t-if=\"object.job_id.address_id.city\">\n"
-#~ "                   <t t-out=\"object.job_id.address_id.city or "
-#~ "''\">Пудахуэль</t>,\n"
-#~ "                   <t t-set=\"location\" t-value=\"'%s, %s' % (location, "
-#~ "object.job_id.address_id.city)\"></t>\n"
-#~ "               </t>\n"
-#~ "               <t t-if=\"object.job_id.address_id.state_id.name\">\n"
-#~ "                   <t t-out=\"object.job_id.address_id.state_id.name or "
-#~ "''\">C1</t>,\n"
-#~ "                   <t t-set=\"location\" t-value=\"'%s, %s' % (location, "
-#~ "object.job_id.address_id.state_id.name)\"></t>\n"
-#~ "               </t>\n"
-#~ "                <t t-if=\"object.job_id.address_id.zip\">\n"
-#~ "                    <t t-out=\"object.job_id.address_id.zip or "
-#~ "''\">98450</t>\n"
-#~ "                    <t t-set=\"location\" t-value=\"'%s, %s' % (location, "
-#~ "object.job_id.address_id.zip)\"></t>\n"
-#~ "                </t>\n"
-#~ "               <br>\n"
-#~ "                <t t-if=\"object.job_id.address_id.country_id.name\">\n"
-#~ "                    <t t-out=\"object.job_id.address_id.country_id.name "
-#~ "or ''\">Аргентина</t><br>\n"
-#~ "                    <t t-set=\"location\" t-value=\"'%s, %s' % (location, "
-#~ "object.job_id.address_id.country_id.name)\"></t>\n"
-#~ "                </t>\n"
-#~ "               <br>\n"
-#~ "            </div>\n"
-#~ "        </td>\n"
-#~ "    </tr>\n"
-#~ "</table>"
-
-#~ msgid ""
-#~ "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" "
-#~ "style=\"background-color: white; border-collapse: collapse; margin-left: "
-#~ "20px;\">\n"
-#~ "    <tr>\n"
-#~ "        <td valign=\"top\" style=\"padding: 0px 10px;\">\n"
-#~ "            <div style=\"text-align: center\">\n"
-#~ "                <h2>Congratulations!</h2>\n"
-#~ "                <div style=\"color:grey;\">Your resume has been "
-#~ "positively reviewed.</div>\n"
-#~ "            </div>\n"
-#~ "            <div style=\"font-size: 13px; margin: 0px; padding: 0px;\">\n"
-#~ "                We just reviewed your resume, and it caught our\n"
-#~ "                attention. As we think you might be great for the\n"
-#~ "                position, your application has been short listed for a\n"
-#~ "                call or an interview.\n"
-#~ "                <br><br>\n"
-#~ "                <div t-if=\"'website_url' in object.job_id and "
-#~ "object.job_id.website_url\" style=\"padding: 16px 8px 16px 8px;\">\n"
-#~ "                    <a t-att-href=\"object.job_id.website_url\" "
-#~ "style=\"background-color: #875a7b; text-decoration: none; color: #fff; "
-#~ "padding: 8px 16px 8px 16px; border-radius: 5px;\">Job Description</a>\n"
-#~ "                </div>\n"
-#~ "\n"
-#~ "                <t t-if=\"object.user_id\">\n"
-#~ "                    You will soon be contacted by:<br>\n"
-#~ "                    <strong t-out=\"object.user_id.name or ''\">Mitchell "
-#~ "Admin</strong><br>\n"
-#~ "                    <span>Email: <t t-out=\"object.user_id.email or "
-#~ "''\">admin@yourcompany.example.com</t></span><br>\n"
-#~ "                    <span>Phone: <t t-out=\"object.user_id.phone or "
-#~ "''\">+1 650-123-4567</t></span>\n"
-#~ "                    <br><br>\n"
-#~ "                </t>\n"
-#~ "                See you soon,\n"
-#~ "                <div style=\"font-size: 11px; color: grey;\">\n"
-#~ "                    -- <br>\n"
-#~ "                    The HR Team\n"
-#~ "                    <t t-if=\"'website_url' in object.job_id and "
-#~ "hasattr(object.job_id, 'website_url') and object.job_id.website_url\">\n"
-#~ "                        Discover <a href=\"/jobs\" style=\"text-"
-#~ "decoration:none;color:#717188;\">all our jobs</a>.<br>\n"
-#~ "                    </t>\n"
-#~ "                </div>\n"
-#~ "\n"
-#~ "                <hr width=\"97%\" style=\"background-color: "
-#~ "rgb(204,204,204); border: medium none; clear: both; display: block; font-"
-#~ "size: 0px; min-height: 1px; line-height: 0; margin: 16px 0px 16px 0px;"
-#~ "\">\n"
-#~ "                <h3 style=\"color:#9A6C8E;\"><strong>What is the next "
-#~ "step?</strong></h3>\n"
-#~ "                We usually <strong>answer applications within a few days</"
-#~ "strong>.\n"
-#~ "                <br><br>\n"
-#~ "                The next step is either a call or a meeting in our "
-#~ "offices.\n"
-#~ "                <br>\n"
-#~ "                Feel free to <strong>contact us if you want a faster\n"
-#~ "                feedback</strong> or if you don't get news from us\n"
-#~ "                quickly enough (just reply to this email).\n"
-#~ "                <br>\n"
-#~ "\n"
-#~ "                <hr width=\"97%\" style=\"background-color: "
-#~ "rgb(204,204,204); border: medium none; clear: both; display: block; font-"
-#~ "size: 0px; min-height: 1px; line-height: 0; margin: 17px 0px 16px 0px;"
-#~ "\">\n"
-#~ "                <t t-set=\"location\" t-value=\"''\"></t>\n"
-#~ "                <t t-if=\"object.job_id.address_id.name\">\n"
-#~ "                    <strong t-out=\"object.job_id.address_id.name or "
-#~ "''\">Teksa SpA</strong><br>\n"
-#~ "                </t>\n"
-#~ "                <t t-if=\"object.job_id.address_id.street\">\n"
-#~ "                    <t t-out=\"object.job_id.address_id.street or "
-#~ "''\">Puerto Madero 9710</t><br>\n"
-#~ "                    <t t-set=\"location\" t-"
-#~ "value=\"object.job_id.address_id.street\"></t>\n"
-#~ "                </t>\n"
-#~ "                <t t-if=\"object.job_id.address_id.street2\">\n"
-#~ "                    <t t-out=\"object.job_id.address_id.street2 or "
-#~ "''\">Of A15, Santiago (RM)</t><br>\n"
-#~ "                    <t t-set=\"location\" t-value=\"'%s, %s' % (location, "
-#~ "object.job_id.address_id.street2)\"></t>\n"
-#~ "                </t>\n"
-#~ "                <t t-if=\"object.job_id.address_id.city\">\n"
-#~ "                    <t t-out=\"object.job_id.address_id.city or "
-#~ "''\">Pudahuel</t>,\n"
-#~ "                    <t t-set=\"location\" t-value=\"'%s, %s' % (location, "
-#~ "object.job_id.address_id.city)\"></t>\n"
-#~ "                </t>\n"
-#~ "                <t t-if=\"object.job_id.address_id.state_id.name\">\n"
-#~ "                    <t t-out=\"object.job_id.address_id.state_id.name or "
-#~ "''\">C1</t>,\n"
-#~ "                    <t t-set=\"location\" t-value=\"'%s, %s' % (location, "
-#~ "object.job_id.address_id.state_id.name)\"></t>\n"
-#~ "                </t>\n"
-#~ "                <t t-if=\"object.job_id.address_id.zip\">\n"
-#~ "                    <t t-out=\"object.job_id.address_id.zip or "
-#~ "''\">98450</t>\n"
-#~ "                    <t t-set=\"location\" t-value=\"'%s, %s' % (location, "
-#~ "object.job_id.address_id.zip)\"></t>\n"
-#~ "                </t>\n"
-#~ "                <br>\n"
-#~ "                <t t-if=\"object.job_id.address_id.country_id.name\">\n"
-#~ "                    <t t-out=\"object.job_id.address_id.country_id.name "
-#~ "or ''\">Argentina</t><br>\n"
-#~ "                    <t t-set=\"location\" t-value=\"'%s, %s' % (location, "
-#~ "object.job_id.address_id.country_id.name)\"></t>\n"
-#~ "                </t>\n"
-#~ "                <br>\n"
-#~ "            </div>\n"
-#~ "        </td>\n"
-#~ "    </tr>\n"
-#~ "</table>"
-#~ msgstr ""
-#~ "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" "
-#~ "style=\"background-color: white; border-collapse: collapse; margin-left: "
-#~ "20px;\">\n"
-#~ "    <tr>\n"
-#~ "        <td valign=\"top\" style=\"padding: 0px 10px;\">\n"
-#~ "            <div style=\"text-align: center\">\n"
-#~ "                <h2>Поздравляем!</h2>\n"
-#~ "                <div style=\"color:grey;\">Ваше резюме было положительно "
-#~ "рассмотрено.</div>\n"
-#~ "            </div>\n"
-#~ "            <div style=\"font-size: 13px; margin: 0px; padding: 0px;\">\n"
-#~ "                Мы только что просмотрели ваше резюме, и оно привлекло "
-#~ "наше\n"
-#~ "                внимание. Поскольку мы считаем, что вы можете подойти на\n"
-#~ "                на эту должность, ваше резюме было включено в короткий "
-#~ "список для\n"
-#~ "                звонка или собеседования.\n"
-#~ "               <br><br>\n"
-#~ "                <div t-if=\"'website_url' in object.job_id and "
-#~ "object.job_id.website_url\" style=\"padding: 16px 8px 16px 8px;\">\n"
-#~ "                    <a t-att-href=\"object.job_id.website_url\" "
-#~ "style=\"background-color: #875a7b; text-decoration: none; color: #fff; "
-#~ "padding: 8px 16px 8px 16px; border-radius: 5px;\">Описание вакансии</a>\n"
-#~ "                </div>\n"
-#~ "\n"
-#~ "               <t t-if=\"object.user_id\">\n"
-#~ "                    В ближайшее время с вами свяжутся:<br>\n"
-#~ "                   <strong t-out=\"object.user_id.name or ''\">Митчелл "
-#~ "Админ</strong><br>\n"
-#~ "                   <span>Электронная почта: <t t-"
-#~ "out=\"object.user_id.email or ''\">admin@yourcompany.example.com</t></"
-#~ "span><br>\n"
-#~ "                   <span>Телефон: <t t-out=\"object.user_id.phone or "
-#~ "''\">+1 650-123-4567</t></span>\n"
-#~ "                   <br><br>\n"
-#~ "               </t>\n"
-#~ "                До скорой встречи,\n"
-#~ "               <div style=\"font-size: 11px; color: grey;\">\n"
-#~ "                    -- <br>\n"
-#~ "                    Команда HR\n"
-#~ "                   <t t-if=\"'website_url' in object.job_id and "
-#~ "hasattr(object.job_id, 'website_url') and object.job_id.website_url\">\n"
-#~ "                        Узнайте обо <a href=\"/jobs\" style=\"text-"
-#~ "decoration:none;color:#717188;\">всех наших вакансиях</a>.<br>\n"
-#~ "                   </t>\n"
-#~ "               </div>\n"
-#~ "\n"
-#~ "               <hr width=\"97%\" style=\"background-color: "
-#~ "rgb(204,204,204); border: medium none; clear: both; display: block; font-"
-#~ "size: 0px; min-height: 1px; line-height: 0; margin: 16px 0px 16px 0px;"
-#~ "\">\n"
-#~ "                <h3 style=\"color:#9A6C8E;\"><strong>Каков следующий шаг?"
-#~ "</strong></h3>\n"
-#~ "                Обычно мы <strong>отвечаем на заявки в течение нескольких "
-#~ "дней</strong>.\n"
-#~ "               <br><br>\n"
-#~ "                Следующим шагом будет либо звонок, либо встреча в нашем "
-#~ "офисе.\n"
-#~ "               <br>\n"
-#~ "                Не стесняйтесь <strong>обращаться к нам, если вы хотите "
-#~ "получить более быстрый\n"
-#~ "                обратной связи</strong> или если вы не получаете от нас "
-#~ "новостей\n"
-#~ "                (просто ответьте на это письмо).\n"
-#~ "               <br>\n"
-#~ "\n"
-#~ "                <hr width=\"97%\" style=\"background-color: "
-#~ "rgb(204,204,204); border: medium none; clear: both; display: block; font-"
-#~ "size: 0px; min-height: 1px; line-height: 0; margin: 17px 0px 16px 0px;"
-#~ "\">\n"
-#~ "                <t t-set=\"location\" t-value=\"''\"></t>\n"
-#~ "                <t t-if=\"object.job_id.address_id.name\">\n"
-#~ "                    <strong t-out=\"object.job_id.address_id.name or "
-#~ "''\">Teksa SpA</strong><br>\n"
-#~ "                </t>\n"
-#~ "                <t t-if=\"object.job_id.address_id.street\">\n"
-#~ "                    <t t-out=\"object.job_id.address_id.street or "
-#~ "''\">Пуэрто-Мадеро 9710</t><br>\n"
-#~ "                    <t t-set=\"location\" t-"
-#~ "value=\"object.job_id.address_id.street\"></t>\n"
-#~ "                </t>\n"
-#~ "                <t t-if=\"object.job_id.address_id.street2\">\n"
-#~ "                    <t t-out=\"object.job_id.address_id.street2 or "
-#~ "''\">Из A15, Сантьяго (RM)</t><br>\n"
-#~ "                    <t t-set=\"location\" t-value=\"'%s, %s' % (location, "
-#~ "object.job_id.address_id.street2)\"></t>\n"
-#~ "                </t>\n"
-#~ "               <t t-if=\"object.job_id.address_id.city\">\n"
-#~ "                   <t t-out=\"object.job_id.address_id.city or "
-#~ "''\">Пудахуэль</t>,\n"
-#~ "                   <t t-set=\"location\" t-value=\"'%s, %s' % (location, "
-#~ "object.job_id.address_id.city)\"></t>\n"
-#~ "               </t>\n"
-#~ "               <t t-if=\"object.job_id.address_id.state_id.name\">\n"
-#~ "                   <t t-out=\"object.job_id.address_id.state_id.name or "
-#~ "''\">C1</t>,\n"
-#~ "                   <t t-set=\"location\" t-value=\"'%s, %s' % (location, "
-#~ "object.job_id.address_id.state_id.name)\"></t>\n"
-#~ "               </t>\n"
-#~ "                <t t-if=\"object.job_id.address_id.zip\">\n"
-#~ "                    <t t-out=\"object.job_id.address_id.zip or "
-#~ "''\">98450</t>\n"
-#~ "                    <t t-set=\"location\" t-value=\"'%s, %s' % (location, "
-#~ "object.job_id.address_id.zip)\"></t>\n"
-#~ "                </t>\n"
-#~ "               <br>\n"
-#~ "                <t t-if=\"object.job_id.address_id.country_id.name\">\n"
-#~ "                    <t t-out=\"object.job_id.address_id.country_id.name "
-#~ "or ''\">Аргентина</t><br>\n"
-#~ "                    <t t-set=\"location\" t-value=\"'%s, %s' % (location, "
-#~ "object.job_id.address_id.country_id.name)\"></t>\n"
-#~ "                </t>\n"
-#~ "               <br>\n"
-#~ "            </div>\n"
-#~ "        </td>\n"
-#~ "    </tr>\n"
-#~ "</table>"
-
-#~ msgid ""
-#~ "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" "
-#~ "style=\"min-width: 590px; background-color: white; padding: 0px 8px 0px "
-#~ "8px; border-collapse:separate;\">\n"
-#~ "    <tr>\n"
-#~ "        <td valign=\"top\">\n"
-#~ "            <div style=\"font-size: 13px; margin: 0px; padding: 0px;\">\n"
-#~ "                Dear,<br><br>\n"
-#~ "                We would like to thank you for your interest and your "
-#~ "time.<br>\n"
-#~ "                We wish you all the best in your future endeavors.\n"
-#~ "                <br><br>\n"
-#~ "                Best<br>\n"
-#~ "                <div style=\"font-size: 11px; color: grey;\">\n"
-#~ "                    <t t-if=\"object.user_id\">\n"
-#~ "                        -- <br>\n"
-#~ "                        <strong t-out=\"object.user_id.name or ''\">Marc "
-#~ "Demo</strong><br>\n"
-#~ "                        Email: <t t-out=\"object.user_id.email or "
-#~ "''\">mark.brown23@example.com</t><br>\n"
-#~ "                        Phone: <t t-out=\"object.user_id.phone or ''\">+1 "
-#~ "650-123-4567</t>\n"
-#~ "                    </t>\n"
-#~ "                    <t t-else=\"\">\n"
-#~ "                        -- <br>\n"
-#~ "                        <t t-out=\"object.company_id.name or "
-#~ "''\">YourCompany</t><br>\n"
-#~ "                        The HR Team<br>\n"
-#~ "                    </t>\n"
-#~ "                </div>\n"
-#~ "            </div>\n"
-#~ "        </td>\n"
-#~ "    </tr>\n"
-#~ "</table>\n"
-#~ "        "
-#~ msgstr ""
-#~ "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" "
-#~ "style=\"min-width: 590px; background-color: white; padding: 0px 8px 0px "
-#~ "8px; border-collapse:separate;\">\n"
-#~ "    <tr>\n"
-#~ "        <td valign=\"top\">\n"
-#~ "            <div style=\"font-size: 13px; margin: 0px; padding: 0px;\">\n"
-#~ "                Уважаемые,<br><br>\n"
-#~ "                Мы хотели бы поблагодарить вас за проявленный интерес и "
-#~ "уделенное время.<br>\n"
-#~ "                Желаем вам всего наилучшего в ваших будущих начинаниях.\n"
-#~ "               <br><br>\n"
-#~ "                Лучшее<br>\n"
-#~ "                <div style=\"font-size: 11px; color: grey;\">\n"
-#~ "                    <t t-if=\"object.user_id\">\n"
-#~ "                        -- <br>\n"
-#~ "                       <strong t-out=\"object.user_id.name or ''\">Марк "
-#~ "Демо</strong><br>\n"
-#~ "                        Электронная почта: <t t-"
-#~ "out=\"object.user_id.email or ''\">mark.brown23@example.com</t><br>\n"
-#~ "                        Телефон: <t t-out=\"object.user_id.phone or "
-#~ "''\">+1 650-123-4567</t>\n"
-#~ "                    </t>\n"
-#~ "                    <t t-else=\"\">\n"
-#~ "                        -- <br>\n"
-#~ "                       <t t-out=\"object.company_id.name or "
-#~ "''\">YourCompany</t><br>\n"
-#~ "                        Команда HR<br>\n"
-#~ "                    </t>\n"
-#~ "                </div>\n"
-#~ "            </div>\n"
-#~ "        </td>\n"
-#~ "    </tr>\n"
-#~ "</table>\n"
-#~ "        "
-
-#~ msgid ""
-#~ "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" "
-#~ "style=\"min-width: 590px; background-color: white; padding: 0px 8px 0px "
-#~ "8px; border-collapse:separate;\">\n"
-#~ "    <tr>\n"
-#~ "        <td valign=\"top\">\n"
-#~ "            <div style=\"font-size: 13px; margin: 0px; padding: 0px;\">\n"
-#~ "                Hello,<br><br>\n"
-#~ "                Thank you for your interest in joining the\n"
-#~ "                <b><t t-out=\"object.company_id.name or ''\">YourCompany</"
-#~ "t></b> team.  We\n"
-#~ "                wanted to let you know that, although your resume is\n"
-#~ "                competitive, our hiring team reviewed your application\n"
-#~ "                and <b>did not select it for further consideration</b>.\n"
-#~ "                <br><br>\n"
-#~ "                Please note that recruiting is hard, and we can make\n"
-#~ "                mistakes. Do not hesitate to reply to this email if you\n"
-#~ "                think we made a mistake, or if you want more information\n"
-#~ "                about our decision.\n"
-#~ "                <br><br>\n"
-#~ "                We will, however, keep your resume on record and get in\n"
-#~ "                touch with you about future opportunities that may be a\n"
-#~ "                better fit for your skills and experience.\n"
-#~ "                <br><br>\n"
-#~ "                We wish you all the best in your job search and hope we\n"
-#~ "                will have the chance to consider you for another role\n"
-#~ "                in the future.\n"
-#~ "                <br><br>\n"
-#~ "                Thank you,\n"
-#~ "                <div style=\"font-size: 11px; color: grey;\">\n"
-#~ "                    <t t-if=\"object.user_id\">\n"
-#~ "                        -- <br>\n"
-#~ "                        <strong t-out=\"object.user_id.name or "
-#~ "''\">Mitchell Admin</strong><br>\n"
-#~ "                        Email: <t t-out=\"object.user_id.email or "
-#~ "''\">admin@yourcompany.example.com</t><br>\n"
-#~ "                        Phone: <t t-out=\"object.user_id.phone or ''\">+1 "
-#~ "650-123-4567</t>\n"
-#~ "                    </t>\n"
-#~ "                    <t t-else=\"\">\n"
-#~ "                        -- <br>\n"
-#~ "                        <t t-out=\"object.company_id.name or "
-#~ "''\">YourCompany</t><br>\n"
-#~ "                        The HR Team\n"
-#~ "                    </t>\n"
-#~ "                </div>\n"
-#~ "            </div>\n"
-#~ "        </td>\n"
-#~ "    </tr>\n"
-#~ "</table>\n"
-#~ "        "
-#~ msgstr ""
-#~ "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" "
-#~ "style=\"min-width: 590px; background-color: white; padding: 0px 8px 0px "
-#~ "8px; border-collapse:separate;\">\n"
-#~ "    <tr>\n"
-#~ "        <td valign=\"top\">\n"
-#~ "            <div style=\"font-size: 13px; margin: 0px; padding: 0px;\">\n"
-#~ "                Здравствуйте,<br><br>\n"
-#~ "                Благодарим вас за интерес к участию в\n"
-#~ "                <b><t t-out=\"object.company_id.name or ''\">YourCompany</"
-#~ "t></b> команде.  Мы\n"
-#~ "                хотим сообщить вам, что, несмотря на то, что ваше резюме\n"
-#~ "                конкурентоспособным, наша команда по подбору персонала "
-#~ "рассмотрела ваше заявление\n"
-#~ "                и <b>не выбрала его для дальнейшего рассмотрения</b>.\n"
-#~ "               <br><br>\n"
-#~ "                Пожалуйста, учтите, что подбор персонала - дело "
-#~ "непростое, и мы можем совершать\n"
-#~ "                ошибки. Не стесняйтесь ответить на это письмо, если вы\n"
-#~ "                если вы считаете, что мы допустили ошибку, или если вы "
-#~ "хотите получить дополнительную информацию\n"
-#~ "                о нашем решении.\n"
-#~ "               <br><br>\n"
-#~ "                Мы, однако, сохраним ваше резюме и свяжемся с вами\n"
-#~ "                с вами о будущих возможностях, которые могут\n"
-#~ "                которые могут лучше соответствовать вашим навыкам и "
-#~ "опыту.\n"
-#~ "               <br><br>\n"
-#~ "                Мы желаем вам всего наилучшего в поиске работы и "
-#~ "надеемся, что у нас\n"
-#~ "                что у нас будет возможность рассмотреть вашу кандидатуру "
-#~ "на другую должность\n"
-#~ "                в будущем.\n"
-#~ "               <br><br>\n"
-#~ "                Спасибо,\n"
-#~ "                <div style=\"font-size: 11px; color: grey;\">\n"
-#~ "                    <t t-if=\"object.user_id\">\n"
-#~ "                        -- <br>\n"
-#~ "                       <strong t-out=\"object.user_id.name or "
-#~ "''\">Администратор Митчелл</strong><br>\n"
-#~ "                        Email: <t t-out=\"object.user_id.email or "
-#~ "''\">admin@yourcompany.example.com</t><br>\n"
-#~ "                        Телефон: <t t-out=\"object.user_id.phone or "
-#~ "''\">+1 650-123-4567</t>\n"
-#~ "                    </t>\n"
-#~ "                    <t t-else=\"\">\n"
-#~ "                        -- <br>\n"
-#~ "                       <t t-out=\"object.company_id.name or "
-#~ "''\">YourCompany</t><br>\n"
-#~ "                        Команда HR\n"
-#~ "                    </t>\n"
-#~ "                </div>\n"
-#~ "            </div>\n"
-#~ "        </td>\n"
-#~ "    </tr>\n"
-#~ "</table>\n"
-#~ "        "
-
-#~ msgid "Activities Overdue"
-#~ msgstr "Просроченные мероприятия"
-
-#~ msgid "Activities Today"
-#~ msgstr "Деятельность сегодня"
-
-#~ msgid "Applicant Emails"
-#~ msgstr "Электронные письма заявителей"
-
-#~ msgid ""
-#~ "Applicants and their attached CV are created automatically when an email "
-#~ "is sent.\n"
-#~ "                If you install the document management modules, all "
-#~ "resumes are indexed automatically,\n"
-#~ "                so that you can easily search through their content."
-#~ msgstr ""
-#~ "Соискатели и их резюме создаются автоматически после отправки сообщения.\n"
-#~ "                Если у вас установлен модуль управления документами, все "
-#~ "резюме автоматически индексируются\n"
-#~ "                и становятся доступными для поиска по содержанию."
-
-#~ msgid ""
-#~ "Applicants can send resume to this email address,<br/>it will create an "
-#~ "application automatically"
-#~ msgstr ""
-#~ "Соискатели могут прислать резюме на этот адрес электронной почты, <br/> "
-#~ "что автоматически создаст заявку"
-
-#~ msgid "Application Summary"
-#~ msgstr "Резюме приложения"
-
-#~ msgid "Applied Job"
-#~ msgstr "Выполненное заказы"
-
-#~ msgid "Blacklisted Phone Is Mobile"
-#~ msgstr "Телефон, внесенный в черный список, является мобильным"
-
-#~ msgid "CV Digitization (OCR)"
-#~ msgstr "Оцифровка резюме (OCR)"
-
-#~ msgid "CV Display"
-#~ msgstr "Дисплей CV"
-
-#~ msgid "Contact Email"
-#~ msgstr "Почта для связи"
-
-#~ msgid "Contract"
-#~ msgstr "Договор"
-
-#~ msgid "Create new applications by sending an email to"
-#~ msgstr "Создайте новые приложения, отправив письмо по адресу"
-
-#~ msgid "Digitize your CV to extract name and email automatically."
-#~ msgstr ""
-#~ "Оцифруйте свое резюме, чтобы автоматически извлечь имя и электронную "
-#~ "почту."
-
-#~ msgid "Doesn't fit the job requirements"
-#~ msgstr "Не соответствует требованиям работы"
-
-#~ msgid "Email of the applicant is not set, email won't be sent."
-#~ msgstr "Email заявителя не задан, письмо не будет отправлено."
-
-#~ msgid "Email subject for applications sent via email"
-#~ msgstr "Тема письма для заявок, отправленных по электронной почте"
-
-#~ msgid "Email template must be selected to send a mail"
-#~ msgstr "Для отправки письма необходимо выбрать шаблон электронной почты"
-
-#~ msgid "Expected Salary"
-#~ msgstr "Ожидаемая заработная плата"
-
-#~ msgid "Extended Filters"
-#~ msgstr "Расширенные фильтры"
-
-#~ msgid "Extra advantages..."
-#~ msgstr "Дополнительные преимущества..."
-
-#~ msgid "Generate Email"
-#~ msgstr "Создать электронное письмо"
-
-#~ msgid "Green"
-#~ msgstr "Зеленый"
-
-#~ msgid "Grey"
-#~ msgstr "Серый"
-
-#~ msgid "Group Applicant Cv Display"
-#~ msgstr "Отображение резюме соискателя группы"
-
-#~ msgid "Group By"
-#~ msgstr "Группировать по"
-
-#~ msgid ""
-#~ "Indicates if a blacklisted sanitized phone number is a mobile number. "
-#~ "Helps distinguish which number is blacklisted             when there is "
-#~ "both a mobile and phone field in a model."
-#~ msgstr ""
-#~ "Указывает, является ли занесенный в черный список номер телефона "
-#~ "мобильным. Помогает определить, какой номер занесен в черный "
-#~ "список             , если в модели присутствуют поля \"мобильный\" и "
-#~ "\"телефон\"."
-
-#~ msgid "Initial Qualification"
-#~ msgstr "Первоначальная квалификация"
-
-#~ msgid "It will also allow to send surveys and see the resume."
-#~ msgstr "Она также позволит отправлять опросы и просматривать резюме."
-
-#~ msgid "Jobs Sources"
-#~ msgstr "Источники вакансий"
-
-#~ msgid "Language issues"
-#~ msgstr "Языковые проблемы"
-
-#~ msgid "Let's have a look at the applications pipeline."
-#~ msgstr "Давайте посмотрим на воронку."
-
-#~ msgid "Mobile"
-#~ msgstr "Мобильный"
-
-#~ msgid "Motivations..."
-#~ msgstr "Мотивация..."
-
-#~ msgid "No Subject"
-#~ msgstr "Без темы"
-
-#~ msgid "No application found. Let's create one !"
-#~ msgstr "Не найдено ни одного приложения. Давайте создадим его!"
-
-#~ msgid ""
-#~ "Optional translation language (ISO code) to select when sending out an "
-#~ "email. If not set, the english version will be used. This should usually "
-#~ "be a placeholder expression that provides the appropriate language, e.g. "
-#~ "{{ object.partner_id.lang }}."
-#~ msgstr ""
-#~ "Необязательный язык перевода (код ISO) для выбора при отправке сообщения "
-#~ "электронной почты. Если он не задан, будет использоваться английская "
-#~ "версия. Как правило, это должно быть выражение-заполнитель, "
-#~ "обеспечивающее соответствующий язык, например "
-#~ "{{ object.partner_id.lang }}."
-
-#~ msgid "Other applications"
-#~ msgstr "Другие приложения"
-
-#~ msgid "People can also apply by email to save time."
-#~ msgstr ""
-#~ "Чтобы сэкономить время, люди могут подать заявку по электронной почте."
-
-#~ msgid "Phone/Mobile"
-#~ msgstr "Текст над номером в хедере для мобильных"
-
-#~ msgid "Proposed Salary"
-#~ msgstr "Предлагаемая зарплата"
-
-#~ msgid "Publish available jobs on your website"
-#~ msgstr "Опубликуйте вакансии на вашем сайте"
-
-#~ msgid "Recruitment Process"
-#~ msgstr "Процесс найма"
-
-#~ msgid "Recruitments"
-#~ msgstr "Найм сотрудников"
-
-#~ msgid "Red"
-#~ msgstr "Красный"
-
-#~ msgid "Refused by Applicant: better offer"
-#~ msgstr "Отказано заявителем: лучшее предложение"
-
-#~ msgid "Refused by Applicant: don't like job"
-#~ msgstr "Отказ соискателя: не нравится работа"
-
-#~ msgid "Refused by Applicant: salary"
-#~ msgstr "Отказано заявителем: зарплата"
-
-#~ msgid "Reserve"
-#~ msgstr "Резерв"
-
-#~ msgid "Role already fulfilled"
-#~ msgstr "Роль уже выполнена"
-
-#~ msgid "Sanitized Mobile Number"
-#~ msgstr "Санируемый номер мобильного телефона"
-
-#~ msgid "Show all records which has next action date is before today"
-#~ msgstr ""
-#~ "Показать все записи, у которых дата следующего действия наступает до "
-#~ "сегодняшнего дня"
-
-#~ msgid ""
-#~ "Specific jobs that uses this stage. Other jobs will not use this stage."
-#~ msgstr ""
-#~ "Конкретные задания, в которых используется этот этап. Другие задания не "
-#~ "будут использовать этот этап."
-
-#~ msgid "Subject / Application"
-#~ msgstr "Тема / Приложение"
-
-#~ msgid ""
-#~ "The Recruiter will be the default value for all Applicants Recruiter's "
-#~ "field in this job position. The Recruiter is automatically added to all "
-#~ "meetings with the Applicant."
-#~ msgstr ""
-#~ "Рекрутер будет значением по умолчанию для поля Рекрутер всех соискателей "
-#~ "в этой вакансии. Рекрутер автоматически добавляется на все встречи с "
-#~ "соискателем."
-
-#~ msgid ""
-#~ "The email will not be sent to the following applicant(s) as they don't "
-#~ "have email address."
-#~ msgstr ""
-#~ "Письмо не будет отправлено следующим заявителям, так как у них нет адреса "
-#~ "электронной почты."
-
-#~ msgid "This is the method of delivery, e.g. Postcard, Email, or Banner Ad"
-#~ msgstr ""
-#~ "Это способ доставки, например, открытка, электронная почта или баннерная "
-#~ "реклама."
-
-#~ msgid "To Recruit"
-#~ msgstr "Набрать"
-
-#~ msgid "Use OCR to fill data from a picture of the CV or the file itself"
-#~ msgstr ""
-#~ "Используйте OCR для заполнения данных с фотографии резюме или самого файла"
-
-#~ msgid ""
-#~ "You can search into attachment's content, like resumes, with the "
-#~ "searchbar."
-#~ msgstr ""
-#~ "С помощью панели поиска можно искать в содержимом вложений, например в "
-#~ "резюме."
-
-#~ msgid "e.g. Sales Manager 2 year experience"
-#~ msgstr "например, менеджер по продажам с опытом работы 2 года"
-
-#~ msgid "to"
-#~ msgstr "в"
+msgid "to<br/><span class=\"text-nowrap\">recruit</span>"
+msgstr ""

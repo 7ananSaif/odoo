@@ -1,14 +1,14 @@
-# coding: utf-8
 import json
-from base64 import b64decode
+from base64 import b64decode, b64encode
 
 from odoo import Command
 from odoo.tests import tagged
-from odoo.addons.account_edi.tests.common import AccountEdiTestCommon
+from odoo.tools import BinaryBytes
+from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 
 
 @tagged('post_install_l10n', '-at_install', 'post_install')
-class TestSaEdiCommon(AccountEdiTestCommon):
+class TestSaEdiCommon(AccountTestInvoicingCommon):
     """
     Base test class for Saudi Arabia EDI functionality.
 
@@ -18,11 +18,11 @@ class TestSaEdiCommon(AccountEdiTestCommon):
     - Products and taxes
     - XPath templates for XML comparison
     """
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
-    @AccountEdiTestCommon.setup_edi_format('l10n_sa_edi.edi_sa_zatca')
-    @AccountEdiTestCommon.setup_chart_template('sa')
-    @AccountEdiTestCommon.setup_country('sa')
+    @AccountTestInvoicingCommon.setup_chart_template('sa')
+    @AccountTestInvoicingCommon.setup_country('sa')
     def setUpClass(cls):
         super().setUpClass()
 
@@ -87,7 +87,6 @@ class TestSaEdiCommon(AccountEdiTestCommon):
         return cls.env['res.partner'].create({
             'name': 'Saud Ahmed',
             'ref': 'Saudi Aramco',
-            'company_type': 'company',
             'lang': 'en_US',
             # Contact info
             'email': 'saudi.aramco@example.com',
@@ -104,7 +103,7 @@ class TestSaEdiCommon(AccountEdiTestCommon):
             'state_id': cls.riyadh.id,
             'country_id': cls.saudi_arabia.id,
             # Saudi-specific address fields
-            'l10n_sa_edi_building_number': '12300',
+            'l10n_sa_edi_building_number': '1230',
             'l10n_sa_edi_plot_identification': '2323',
         })
 
@@ -114,13 +113,12 @@ class TestSaEdiCommon(AccountEdiTestCommon):
         return cls.env['res.partner'].create({
             'name': 'Mohammed Ali',
             'ref': 'Mohammed Ali',
-            'company_type': 'person',
             'lang': 'en_US',
             'country_id': cls.saudi_arabia.id,
             'state_id': cls.riyadh.id,
             # Simplified invoices use different ID schemes
-            'l10n_sa_edi_additional_identification_scheme': 'MOM',  # Momra License
-            'l10n_sa_edi_additional_identification_number': '3123123213131',
+            'l10n_sa_edi_additional_identification_scheme': 'NAT',
+            'l10n_sa_edi_additional_identification_number': '1076543210',
         })
 
     @classmethod
@@ -148,11 +146,11 @@ class TestSaEdiCommon(AccountEdiTestCommon):
         ], limit=1)
 
         # Load ZATCA demo data (certificates, etc.)
-        cls.customer_invoice_journal._l10n_sa_load_edi_demo_data()
+        cls.customer_invoice_journal._l10n_sa_load_edi_test_data()
         PCSID_Data = json.loads(cls.customer_invoice_journal.l10n_sa_production_csid_json)
         pcsid_certificate = cls.env['certificate.certificate'].create({
             'name': 'PCSID Certificate',
-            'content': b64decode(PCSID_Data['binarySecurityToken']),
+            'content': BinaryBytes(b64decode(b64decode(PCSID_Data['binarySecurityToken']))),
         })
         cls.customer_invoice_journal.l10n_sa_production_csid_certificate_id = pcsid_certificate
 
@@ -363,3 +361,30 @@ class TestSaEdiCommon(AccountEdiTestCommon):
         reversal = move_reversal.reverse_moves()
 
         return self.env['account.move'].browse(reversal['res_id'])
+
+    def _get_invoice_document(self):
+        invoice = self._create_test_invoice(
+            invoice_date='2025-01-15',
+            invoice_date_due='2025-01-15',
+            partner_id=self.partner_sa_simplified,
+            invoice_line_ids=[{
+                'product_id': self.product_burger.id,
+                'price_unit': self.product_burger.standard_price,
+                'tax_ids': self.tax_15.ids,
+            }],
+        )
+        invoice.action_post()
+        return invoice.l10n_sa_edi_document_id
+
+    def _mock_submit_response(self, response_data):
+        """
+        Returns a _l10n_sa_submit_einvoice-compatible mock function that always
+        returns response_data, patching in 'clearedInvoice' for standard invoices
+        when the response represents a successful submission.
+        """
+        def _mock_submit(self_doc, signed_xml, PCSID_data):
+            data = dict(response_data)
+            if not data.get('error') and self_doc.resource.l10n_sa_invoice_type != 'simplified':
+                data.setdefault('clearedInvoice', b64encode(signed_xml).decode())
+            return data
+        return _mock_submit

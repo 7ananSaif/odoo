@@ -2,23 +2,23 @@
 # This file contains the translation of the following modules:
 # * payment_aps
 #
-# "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+# "Tiffany Chang (tic)" <tic@odoo.com>, 2025, 2026.
 # "Marianna Ciofani (cima)" <cima@odoo.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-10-16 09:27+0000\n"
-"Last-Translator: \"Marianna Ciofani (cima)\" <cima@odoo.com>\n"
-"Language-Team: Italian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:44+0000\n"
+"PO-Revision-Date: 2026-08-31 14:33+0000\n"
+"Last-Translator: \"Tiffany Chang (tic)\" <tic@odoo.com>\n"
+"Language-Team: Italian <https://translate.odoo.com/projects/odoo-s19-4/"
 "payment_aps/it/>\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: payment_aps
 #: model:ir.model.fields,field_description:payment_aps.field_payment_provider__aps_access_code
@@ -51,6 +51,21 @@ msgid "Amazon Payment Services"
 msgstr "Servizi di pagamento Amazon"
 
 #. module: payment_aps
+#: model:payment.method,name:payment_aps.payment_method_amex
+msgid "American Express"
+msgstr "American Express"
+
+#. module: payment_aps
+#: model:ir.module.module,summary:base.module_payment_aps
+msgid "An Amazon payment provider covering the MENA region."
+msgstr ""
+
+#. module: payment_aps
+#: model:payment.method,name:payment_aps.payment_method_benefit
+msgid "Benefit"
+msgstr "Benefit"
+
+#. module: payment_aps
 #: model:ir.model.fields,field_description:payment_aps.field_payment_provider__code
 msgid "Code"
 msgstr "Codice"
@@ -68,14 +83,49 @@ msgid "ID"
 msgstr "ID"
 
 #. module: payment_aps
+#: model:payment.method,name:payment_aps.payment_method_knet
+msgid "KNET"
+msgstr "KNET"
+
+#. module: payment_aps
+#: model:payment.method,name:payment_aps.payment_method_mada
+msgid "Mada"
+msgstr "Mada"
+
+#. module: payment_aps
+#: model:payment.method,name:payment_aps.payment_method_mastercard
+msgid "MasterCard"
+msgstr "MasterCard"
+
+#. module: payment_aps
+#: model:payment.method,name:payment_aps.payment_method_meeza
+msgid "Meeza"
+msgstr "Meeza"
+
+#. module: payment_aps
 #: model_terms:ir.ui.view,arch_db:payment_aps.payment_provider_form
 msgid "Merchant Identifier"
 msgstr "Identificativo commerciante"
 
 #. module: payment_aps
+#: model:payment.method,name:payment_aps.payment_method_naps
+msgid "NAPS"
+msgstr "NAPS"
+
+#. module: payment_aps
+#: model:payment.method,name:payment_aps.payment_method_omannet
+msgid "OmanNet"
+msgstr "OmanNet"
+
+#. module: payment_aps
 #: model:ir.model,name:payment_aps.model_payment_provider
 msgid "Payment Provider"
 msgstr "Fornitore di pagamenti"
+
+#. module: payment_aps
+#: model:ir.module.module,shortdesc:base.module_payment_aps
+msgid "Payment Provider: Amazon Payment Services"
+msgstr ""
 
 #. module: payment_aps
 #: model:ir.model,name:payment_aps.model_payment_transaction
@@ -121,8 +171,7 @@ msgstr ""
 msgid "The technical code of this payment provider."
 msgstr "Codice tecnico del fornitore di pagamenti."
 
-#~ msgid "No transaction found matching reference %s."
-#~ msgstr "Nessuna transazione trovata corrispondente al riferimento %s."
-
-#~ msgid "Received data with missing reference %(ref)s."
-#~ msgstr "Dati ricevuti privi di riferimento %(ref)s."
+#. module: payment_aps
+#: model:payment.method,name:payment_aps.payment_method_visa
+msgid "VISA"
+msgstr "VISA"

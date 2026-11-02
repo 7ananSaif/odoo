@@ -4,21 +4,22 @@
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
 # Bren Driesen <brdri@odoo.com>, 2025.
+# "Tiffany Chang (tic)" <tic@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-10-23 09:17+0000\n"
-"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
-"Language-Team: Dutch <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:44+0000\n"
+"PO-Revision-Date: 2026-08-31 13:41+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Dutch <https://translate.odoo.com/projects/odoo-s19-4/"
 "payment_nuvei/nl/>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: payment_nuvei
 #. odoo-python
@@ -27,19 +28,59 @@ msgid "%(payment_method)s requires both a first and last name."
 msgstr "%(payment_method)s vereist zowel een voor- als achternaam."
 
 #. module: payment_nuvei
-#. odoo-python
-#: code:addons/payment_nuvei/models/payment_transaction.py:0
-msgid ""
-"An error occurred during the processing of your payment (%(reason)s). Please "
-"try again."
+#: model:ir.module.module,summary:base.module_payment_nuvei
+msgid "A payment provider covering Latin America."
 msgstr ""
-"Er is een fout opgetreden tijdens de verwerking van je betaling (%"
-"(reason)s). Probeer het opnieuw."
+
+#. module: payment_nuvei
+#: model:payment.method,name:payment_nuvei.payment_method_abitab
+msgid "Abitab"
+msgstr "Abitab"
+
+#. module: payment_nuvei
+#: model:payment.method,name:payment_nuvei.payment_method_amex
+msgid "American Express"
+msgstr "American Express"
+
+#. module: payment_nuvei
+#: model:payment.method,name:payment_nuvei.payment_method_astropay
+msgid "Astropay TEF"
+msgstr "Astropay TEF"
+
+#. module: payment_nuvei
+#: model:payment.method,name:payment_nuvei.payment_method_banco_guayaquil
+msgid "Banco Guayaquil"
+msgstr "Banco Guayaquil"
+
+#. module: payment_nuvei
+#: model:payment.method,name:payment_nuvei.payment_method_banco_pichincha
+msgid "Banco Pichincha"
+msgstr "Banco Pichincha"
+
+#. module: payment_nuvei
+#: model:payment.method,name:payment_nuvei.payment_method_boleto
+msgid "Boleto"
+msgstr "Boleto"
+
+#. module: payment_nuvei
+#: model:payment.method,name:payment_nuvei.payment_method_card
+msgid "Card"
+msgstr "Kaart"
 
 #. module: payment_nuvei
 #: model:ir.model.fields,field_description:payment_nuvei.field_payment_provider__code
 msgid "Code"
 msgstr "Code"
+
+#. module: payment_nuvei
+#: model:payment.method,name:payment_nuvei.payment_method_diners
+msgid "Diners Club International"
+msgstr "Diners Club International"
+
+#. module: payment_nuvei
+#: model:payment.method,name:payment_nuvei.payment_method_discover
+msgid "Discover"
+msgstr "Discover"
 
 #. module: payment_nuvei
 #: model:ir.model.fields,field_description:payment_nuvei.field_payment_provider__display_name
@@ -48,15 +89,35 @@ msgid "Display Name"
 msgstr "Weergavenaam"
 
 #. module: payment_nuvei
+#: model:payment.method,name:payment_nuvei.payment_method_facilito
+msgid "Facilito"
+msgstr "Facilito"
+
+#. module: payment_nuvei
 #: model:ir.model.fields,field_description:payment_nuvei.field_payment_provider__id
 #: model:ir.model.fields,field_description:payment_nuvei.field_payment_transaction__id
 msgid "ID"
 msgstr "ID"
 
 #. module: payment_nuvei
+#: model:payment.method,name:payment_nuvei.payment_method_nuvei_local
+msgid "Local Payments"
+msgstr "Locale betalingen"
+
+#. module: payment_nuvei
+#: model:payment.method,name:payment_nuvei.payment_method_mastercard
+msgid "MasterCard"
+msgstr "MasterCard"
+
+#. module: payment_nuvei
 #: model_terms:ir.ui.view,arch_db:payment_nuvei.payment_provider_form
 msgid "Merchant Identifier"
 msgstr "Handelaars-ID"
+
+#. module: payment_nuvei
+#: model:payment.method,name:payment_nuvei.payment_method_naranja
+msgid "Naranja"
+msgstr "Naranja"
 
 #. module: payment_nuvei
 #: model:ir.model.fields.selection,name:payment_nuvei.selection__payment_provider__code__nuvei
@@ -79,14 +140,40 @@ msgid "Nuvei Site Identifier"
 msgstr "Site-ID Nuvei"
 
 #. module: payment_nuvei
+#: model:payment.method,name:payment_nuvei.payment_method_oxxopay
+msgid "Oxxo Pay"
+msgstr "Oxxo Pay"
+
+#. module: payment_nuvei
+#: model:payment.method,name:payment_nuvei.payment_method_pse
+msgid "PSE"
+msgstr "PSE"
+
+#. module: payment_nuvei
 #: model:ir.model,name:payment_nuvei.model_payment_provider
 msgid "Payment Provider"
 msgstr "Betaalprovider"
 
 #. module: payment_nuvei
+#: model:ir.module.module,shortdesc:base.module_payment_nuvei
+msgid "Payment Provider: Nuvei"
+msgstr ""
+
+#. module: payment_nuvei
 #: model:ir.model,name:payment_nuvei.model_payment_transaction
 msgid "Payment Transaction"
 msgstr "Betalingstransactie"
+
+#. module: payment_nuvei
+#: model:payment.method,name:payment_nuvei.payment_method_pix
+msgid "Pix"
+msgstr "Pix"
+
+#. module: payment_nuvei
+#. odoo-python
+#: code:addons/payment_nuvei/models/payment_transaction.py:0
+msgid "Reason: %s"
+msgstr ""
 
 #. module: payment_nuvei
 #. odoo-python
@@ -101,6 +188,16 @@ msgid "Received invalid transaction status %(status)s and reason '%(reason)s'."
 msgstr "Ongeldige transactiestatus %(status)s en reden '%(reason)s' ontvangen."
 
 #. module: payment_nuvei
+#: model:payment.method,name:payment_nuvei.payment_method_redpagos
+msgid "Redpagos"
+msgstr "Redpagos"
+
+#. module: payment_nuvei
+#: model:payment.method,name:payment_nuvei.payment_method_spei
+msgid "SPEI"
+msgstr "SPEI"
+
+#. module: payment_nuvei
 #: model_terms:ir.ui.view,arch_db:payment_nuvei.payment_provider_form
 msgid "Secret Key"
 msgstr "Geheime sleutel"
@@ -109,6 +206,11 @@ msgstr "Geheime sleutel"
 #: model_terms:ir.ui.view,arch_db:payment_nuvei.payment_provider_form
 msgid "Site Identifier"
 msgstr "Site-ID"
+
+#. module: payment_nuvei
+#: model:payment.method,name:payment_nuvei.payment_method_tarjeta_mercadopago
+msgid "Tarjeta MercadoPago"
+msgstr "Tarjeta MercadoPago"
 
 #. module: payment_nuvei
 #: model:ir.model.fields,help:payment_nuvei.field_payment_provider__nuvei_merchant_identifier
@@ -133,8 +235,17 @@ msgstr ""
 msgid "The technical code of this payment provider."
 msgstr "De technische code van deze betaalprovider."
 
-#~ msgid "No transaction found matching reference %(ref)s."
-#~ msgstr "Geen transactie gevonden die overeenkomt met referentie %(ref)s."
+#. module: payment_nuvei
+#: model:payment.method,name:payment_nuvei.payment_method_unionpay
+msgid "UnionPay"
+msgstr "UnionPay"
 
-#~ msgid "Received data with missing reference."
-#~ msgstr "Gegevens ontvangen met ontbrekende referentie."
+#. module: payment_nuvei
+#: model:payment.method,name:payment_nuvei.payment_method_visa
+msgid "VISA"
+msgstr "VISA"
+
+#. module: payment_nuvei
+#: model:payment.method,name:payment_nuvei.payment_method_webpay
+msgid "WebPay"
+msgstr "WebPay"

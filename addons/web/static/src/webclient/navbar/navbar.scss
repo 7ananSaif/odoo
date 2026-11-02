@@ -4,13 +4,10 @@
 .o_main_navbar {
     @include print-variable(o-navbar-height, $o-navbar-height);
 
-    --Dropdown_menu-margin-y: 0;
-
     display: flex;
     height: var(--o-navbar-height);
     padding-top: $o-navbar-padding-v;
     padding-bottom: $o-navbar-padding-v;
-    border-bottom: $o-navbar-border-bottom;
     background: $o-navbar-background;
     font-size: $o-navbar-font-size;
 
@@ -76,7 +73,8 @@
         // Animate on large screen without 'reduced-motion' only.
         // --------------------------------------------------------------------
         @include media-breakpoint-up(md) {
-            &.hasImage:not(.o_menu_toggle_back) {
+            &.hasImage:not(.o_menu_toggle_back),
+            &.hasFaIcon:not(.o_menu_toggle_back) {
                 .o_menu_toggle_icon {
                     opacity: 0;
                 }
@@ -105,7 +103,8 @@
                     transition: all .1s;
                 }
 
-                &.hasImage:not(.o_menu_toggle_back) {
+                &.hasImage:not(.o_menu_toggle_back),
+                &.hasFaIcon:not(.o_menu_toggle_back) {
                     transform: none;
                     transition: none;
 
@@ -138,8 +137,15 @@
             }
 
             .o_menu_brand_icon {
-                width: calc(var(--o-navbar-height) - #{$o-navbar-padding-v * 2} + #{map-get($spacers, 1)});
+                --MenuBrandIcon-width: calc(var(--o-navbar-height) - #{$o-navbar-padding-v * 2} + #{map-get($spacers, 1)});
+
+                width: var(--MenuBrandIcon-width);
+                font-size: var(--MenuBrandIcon-width);
                 object-fit: cover;
+
+                &:before {
+                    transform: none;
+                }
             }
         }
     }
@@ -150,8 +156,12 @@
         border-color: transparent;
     }
 
-    .o_menu_sections {
-        .o_nav_entry, .dropdown-toggle {
+    .o_menu_sections, .o_menu_systray:where(:not(.o_home_menu_background .o_menu_systray)) {
+        .dropdown-toggle:disabled {
+            --NavBar-entry-color--hover: var(--NavBar-entry-color, #{$o-navbar-entry-color});
+        }
+
+        .o_nav_entry, .dropdown-toggle:not(:disabled, .o-dropdown-toggle-custo) {
             background: var(--NavBar-entry-backgroundColor, #{$o-navbar-background});
             border: $border-width solid transparent;
 
@@ -168,7 +178,7 @@
             }
         }
 
-        .dropdown.show.dropdown-toggle {
+        .dropdown.show.dropdown-toggle:not(.o-dropdown-toggle-custo) {
             border-color: var(--NavBar-entry-borderColor-active, transparent);
             background: var(--NavBar-entry-backgroundColor--active, #{$o-navbar-entry-bg--active});
             color: var(--NavBar-entry-color--active, #{$o-navbar-entry-color--active});
@@ -238,9 +248,13 @@
             font-size: $o-navbar-badge-size;
             color: var(--o-navbar-badge-color, $o-navbar-badge-color);
             text-shadow: var(--o-navbar-badge-text-shadow, #{$o-navbar-badge-text-shadow});
-            transform: translate(-0.6em, -30%);
+            transform: translate(-0.2em, -48%);
         }
     }
+}
+
+.o_more_dropdown_section {
+    border-radius: var(--#{$prefix}dropdown-item-border-radius);
 }
 
 
@@ -249,4 +263,15 @@
 body.o_is_superuser .o_menu_systray {
     border-image: repeating-linear-gradient(135deg, #d9b904, #d9b904 10px, #373435 10px, #373435 20px) 2;
     border-image-width: map-get($border-widths, 2);
+}
+
+.o_app_menu_sidebar .o_burger_menu_content.o_burger_menu_app li {
+    color: $dropdown-link-color;
+    font-weight: 400;
+}
+
+.o-navbar-section {
+    color: $dropdown-header-color;
+    font-weight: 500;
+    @include font-size($font-size-sm);
 }

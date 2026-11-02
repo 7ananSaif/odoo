@@ -4,7 +4,10 @@
 import json
 
 from odoo.http import request, route
-from odoo.addons.website_event.controllers.main import WebsiteEventController
+
+from odoo.addons.website_event_booth.controllers.event_booth import (
+    WebsiteEventBoothController as WebsiteEventController,
+)
 
 
 class WebsiteEventBoothController(WebsiteEventController):
@@ -23,7 +26,7 @@ class WebsiteEventBoothController(WebsiteEventController):
             return json.dumps({'error': error_code})
 
         booth_values = self._prepare_booth_registration_values(event, kwargs)
-        order_sudo = request.cart or request.website._create_cart()
+        order_sudo = request.cart or self.env.website._create_cart()
         if order_sudo._is_anonymous_cart():
             order_sudo._update_address(booth_values['partner_id'], ['partner_id'])
         order_sudo._cart_add(
@@ -36,7 +39,7 @@ class WebsiteEventBoothController(WebsiteEventController):
             return json.dumps({'redirect': '/shop/cart'})
         else:
             order_sudo.action_confirm()
-            request.website.sale_reset()
+            self.env.website.sale_reset()
 
             return self._prepare_booth_registration_success_values(event.name, booth_values)
 

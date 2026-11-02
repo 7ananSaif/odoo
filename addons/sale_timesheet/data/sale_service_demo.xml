@@ -5,25 +5,25 @@
         <record id="job_interior_designer" model="hr.job">
             <field name="name">Interior Designer</field>
             <field name="no_of_recruitment">5</field>
-            <field name="contract_type_id" ref="hr.contract_type_permanent"/>
+            <field name="employee_type_id" ref="hr.contract_type_employee"/>
         </record>
 
         <record id="job_engineer" model="hr.job">
             <field name="name">Site Manager</field>
             <field name="no_of_recruitment">7</field>
-            <field name="contract_type_id" ref="hr.contract_type_permanent"/>
+            <field name="employee_type_id" ref="hr.contract_type_employee"/>
         </record>
 
         <record id="job_labour" model="hr.job">
             <field name="name">Handyman</field>
             <field name="no_of_recruitment">10</field>
-            <field name="contract_type_id" ref="hr.contract_type_permanent"/>
+            <field name="employee_type_id" ref="hr.contract_type_employee"/>
         </record>
 
         <record id="work_contact_jjo" model="res.partner">
             <field name="name">Jessica Johnson</field>
             <field name="email">jessica.johnson45@example.com</field>
-            <field name="image_1920" type="base64" file="sale_timesheet/static/img/employee_jjo-image.jpg"/>
+            <field name="image_1920" type="bytes" file="sale_timesheet/static/img/employee_jjo-image.webp"/>
         </record>
 
         <record id="employee_jjo" model="hr.employee">
@@ -31,19 +31,21 @@
             <field name="parent_id" ref="hr.employee_al"/>
             <field name="job_id" ref="sale_timesheet.job_engineer"/>
             <field name="category_ids" eval="[(6, 0, [ref('hr.employee_category_4')])]"/>
-            <field name="resource_calendar_id" ref="resource.resource_calendar_std_38h"/>
+            <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
             <field name="work_location_id" ref="hr.work_location_1"/>
             <field name="work_phone">(535)-495-4164</field>
             <field name="work_contact_id" ref="sale_timesheet.work_contact_jjo"/>
-            <field name="image_1920" type="base64" file="sale_timesheet/static/img/employee_jjo-image.jpg"/>
+            <field name="image_1920" type="bytes" file="sale_timesheet/static/img/employee_jjo-image.webp"/>
             <field name="create_date">2020-02-02 00:00:00</field>
             <field name="sex">female</field>
+            <field name="hr_responsible_id" ref="base.user_admin"/>
+            <field name="employee_type_id" ref="hr.contract_type_employee"/>
         </record>
 
         <record id="work_contact_awa" model="res.partner">
             <field name="name">Amy Watson</field>
             <field name="email">amy.watson21@example.com</field>
-            <field name="image_1920" type="base64" file="sale_timesheet/static/img/employee_awa-image.jpg"/>
+            <field name="image_1920" type="bytes" file="hr/static/img/employee_awa-image.webp"/>
         </record>
 
         <record id="employee_awa" model="hr.employee">
@@ -54,15 +56,17 @@
             <field name="work_location_id" ref="hr.work_location_1"/>
             <field name="work_phone">(535)-495-4222</field>
             <field name="work_contact_id" ref="sale_timesheet.work_contact_awa"/>
-            <field name="image_1920" type="base64" file="sale_timesheet/static/img/employee_awa-image.jpg"/>
+            <field name="image_1920" type="bytes" file="hr/static/img/employee_awa-image.webp"/>
             <field name="create_date">2020-01-01 00:00:00</field>
             <field name="sex">female</field>
+            <field name="hr_responsible_id" ref="base.user_admin"/>
+            <field name="employee_type_id" ref="hr.contract_type_employee"/>
         </record>
 
         <record id="work_contact_jsm" model="res.partner">
             <field name="name">Justin Smith</field>
             <field name="email">justin.smith57@example.com</field>
-            <field name="image_1920" type="base64" file="sale_timesheet/static/img/employee_jsm-image.jpg"/>
+            <field name="image_1920" type="bytes" file="sale_timesheet/static/img/employee_jsm-image.webp"/>
         </record>
 
         <record id="employee_jsm" model="hr.employee">
@@ -73,9 +77,11 @@
             <field name="work_location_id" ref="hr.work_location_1"/>
             <field name="work_phone">(535)-495-4444</field>
             <field name="work_contact_id" ref="sale_timesheet.work_contact_jsm"/>
-            <field name="image_1920" type="base64" file="sale_timesheet/static/img/employee_jsm-image.jpg"/>
+            <field name="image_1920" type="bytes" file="sale_timesheet/static/img/employee_jsm-image.webp"/>
             <field name="create_date">2020-02-02 00:00:00</field>
             <field name="sex">male</field>
+            <field name="hr_responsible_id" ref="base.user_admin"/>
+            <field name="employee_type_id" ref="hr.contract_type_employee"/>
         </record>
 
         <record id="sale_line_services" model="sale.order.line">
@@ -495,6 +501,7 @@
         <record id="agr_collaborator" model="project.collaborator">
             <field name="project_id" search="[('sale_line_id', '=', ref('sale_line_13'))]"/>
             <field name="partner_id" ref="base.partner_demo_portal"/>
+            <field name="access_mode">advanced_edit</field>
         </record>
 
         <!-- SOL tasks -->
@@ -700,7 +707,7 @@
             <field name="name">Improve</field>
             <field name="employee_id" ref="hr.employee_admin"/>
             <field name="date" eval="(DateTime.now() + relativedelta(days=0)).strftime('%Y-%m-%d')"/>
-            <field name="unit_amount">10.00</field>
+            <field name="unit_amount">2.50</field>
             <field name="task_id" search="[('sale_line_id', '=', ref('sale_line_12'))]"/>
             <field name="project_id" search="[('sale_line_id', '=', ref('sale_line_13'))]"/>
             <field name="so_line" ref="sale_line_12"/>
@@ -836,7 +843,7 @@
             <field name="name">Shifting</field>
             <field name="employee_id" ref="hr.employee_admin"/>
             <field name="date" eval="(DateTime.now() + relativedelta(days=0)).strftime('%Y-%m-%d')"/>
-            <field name="unit_amount">10.00</field>
+            <field name="unit_amount">2.00</field>
             <field name="task_id" search="[('sale_line_id', '=', ref('sale_line_18'))]"/>
             <field name="project_id" search="[('sale_line_id', '=', ref('sale_line_13'))]"/>
             <field name="so_line" ref="sale_line_18"/>
@@ -1080,7 +1087,7 @@
             <field name="date" eval="(DateTime.now() + relativedelta(weekday=1,weeks=-2)).strftime('%Y-%m-%d')"/>
             <field name="unit_amount">4.00</field>
             <field name="task_id" search="[('sale_line_id', '=', ref('sale_line_34'))]"/>
-            <field name="project_id" search="[('sale_line_id', '=', ref('sale_line_32'))]"/>
+            <field name="project_id" search="[('sale_line_id', '=', ref('sale_line_34'))]"/>
             <field name="so_line" ref="sale_line_34"/>
         </record>
         <record id="sale_line_34_task_timesheet_2" model="account.analytic.line">
@@ -1089,7 +1096,7 @@
             <field name="date" eval="(DateTime.now() + relativedelta(weekday=2,weeks=-2)).strftime('%Y-%m-%d')"/>
             <field name="unit_amount">2.00</field>
             <field name="task_id" search="[('sale_line_id', '=', ref('sale_line_34'))]"/>
-            <field name="project_id" search="[('sale_line_id', '=', ref('sale_line_32'))]"/>
+            <field name="project_id" search="[('sale_line_id', '=', ref('sale_line_34'))]"/>
             <field name="so_line" ref="sale_line_34"/>
         </record>
         <record id="sale_line_34_task_timesheet_3" model="account.analytic.line">
@@ -1098,7 +1105,7 @@
             <field name="date" eval="(DateTime.now() + relativedelta(days=0)).strftime('%Y-%m-%d')"/>
             <field name="unit_amount">1.00</field>
             <field name="task_id" search="[('sale_line_id', '=', ref('sale_line_34'))]"/>
-            <field name="project_id" search="[('sale_line_id', '=', ref('sale_line_32'))]"/>
+            <field name="project_id" search="[('sale_line_id', '=', ref('sale_line_34'))]"/>
             <field name="so_line" ref="sale_line_34"/>
         </record>
         <record id="sale_line_34_task_timesheet_4" model="account.analytic.line">
@@ -1107,7 +1114,7 @@
             <field name="date" eval="(DateTime.now() + relativedelta(weekday=4,weeks=-2)).strftime('%Y-%m-%d')"/>
             <field name="unit_amount">2.00</field>
             <field name="task_id" search="[('sale_line_id', '=', ref('sale_line_34'))]"/>
-            <field name="project_id" search="[('sale_line_id', '=', ref('sale_line_32'))]"/>
+            <field name="project_id" search="[('sale_line_id', '=', ref('sale_line_34'))]"/>
             <field name="so_line" ref="sale_line_34"/>
         </record>
 
@@ -2797,6 +2804,14 @@
             <field name="progress" eval="30"/>
             <field name="status">at_risk</field>
         </record>
+
+        <!-- Invoice the sales order of the AGR project -->
+        <function model="sale.order" name="_create_invoices" eval="[[ref('sale_timesheet.sale_order_1')]]"/>
+        <function model="account.move" name="action_post">
+            <value model="account.move"
+                eval="obj().env['sale.order'].browse(ref('sale_timesheet.sale_order_1')).invoice_ids.ids"
+            />
+        </function>
 
         <!-- Change task creation notifications date -->
         <function model="mail.message" name="write">

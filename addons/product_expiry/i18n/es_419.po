@@ -3,23 +3,23 @@
 # * product_expiry
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
-# "Patricia Gutiérrez (pagc)" <pagc@odoo.com>, 2025.
-# "Fernanda Alvarez (mfar)" <mfar@odoo.com>, 2025.
+# "Patricia Gutiérrez (pagc)" <pagc@odoo.com>, 2025, 2026.
+# "Fernanda Alvarez (mfar)" <mfar@odoo.com>, 2025, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-12-22 19:00+0000\n"
-"Last-Translator: \"Patricia Gutiérrez (pagc)\" <pagc@odoo.com>\n"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-10-23 00:33+0000\n"
+"Last-Translator: \"Fernanda Alvarez (mfar)\" <mfar@odoo.com>\n"
 "Language-Team: Spanish (Latin America) <https://translate.odoo.com/projects/"
-"odoo-19/product_expiry/es_419/>\n"
+"odoo-20/product_expiry/es_419/>\n"
 "Language: es_419\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: product_expiry
 #. odoo-python
@@ -32,6 +32,39 @@ msgstr "\t--Vence el %(date)s--"
 #: code:addons/product_expiry/models/production_lot.py:0
 msgid "\t--Expired--"
 msgstr "\t--Vencido--"
+
+#. module: product_expiry
+#: model:ir.module.module,description:base.module_product_expiry
+msgid ""
+"\n"
+"Track different dates on products and production lots.\n"
+"======================================================\n"
+"\n"
+"Following dates can be tracked:\n"
+"-------------------------------\n"
+"    - end of life\n"
+"    - best before date\n"
+"    - removal date\n"
+"    - alert date\n"
+"\n"
+"Also implements the removal strategy First Expiry First Out (FEFO) widely "
+"used, for example, in food industries.\n"
+msgstr ""
+"\n"
+"Lleva seguimiento de diferentes fechas en los productos y lotes de "
+"producción.\n"
+"======================================================================\n"
+"\n"
+"Lleva seguimiento de las siguientes fechas:\n"
+"------------------------------------------\n"
+"    - Fin del ciclo de vida\n"
+"    - Fecha de consumo preferente\n"
+"    - Fecha de remoción\n"
+"    - Fecha de alerta\n"
+"\n"
+"También implementa la estrategia de eliminación Primero en expirar, primero "
+"en salir (FEFO) ampliamente usada, por ejemplo, en la industria "
+"alimentaria.\n"
 
 #. module: product_expiry
 #: model_terms:ir.ui.view,arch_db:product_expiry.view_move_form_expiry
@@ -51,11 +84,11 @@ msgstr ""
 #. module: product_expiry
 #: model_terms:ir.ui.view,arch_db:product_expiry.view_production_lot_view_kanban
 msgid ""
-"<span title=\"Alert\" class=\"fa fa-exclamation-triangle text-danger me-2\" "
+"<span title=\"Alert\" class=\"oi text-danger me-2\" data-icon=\"warning\" "
 "invisible=\"product_qty &lt;= 0 or not product_expiry_alert or not "
 "expiration_date\"/>"
 msgstr ""
-"<span title=\"Alerta\" class=\"fa fa-exclamation-triangle text-danger me-2\" "
+"<span title=\"Alerta\" class=\"oi text-danger me-2\" data-icon=\"warning\" "
 "invisible=\"product_qty &lt;= 0 or not product_expiry_alert or not "
 "expiration_date\"/>"
 
@@ -68,6 +101,11 @@ msgstr "<span> días después de la recepción</span>"
 #: model_terms:ir.ui.view,arch_db:product_expiry.view_product_form_expiry
 msgid "<span> days before expiration date</span>"
 msgstr "<span> días antes de la fecha de caducidad</span>"
+
+#. module: product_expiry
+#: model:ir.model,name:product_expiry.model_res_groups
+msgid "Access Groups"
+msgstr ""
 
 #. module: product_expiry
 #: model:ir.model.fields,field_description:product_expiry.field_product_product__alert_time
@@ -120,6 +158,7 @@ msgstr ""
 
 #. module: product_expiry
 #: model_terms:ir.ui.view,arch_db:product_expiry.report_lot_label_expiry
+#: model_terms:ir.ui.view,arch_db:product_expiry.report_lot_qr_label_expiry
 msgid "B.b."
 msgstr "Consumir preferentemente antes"
 
@@ -127,7 +166,7 @@ msgstr "Consumir preferentemente antes"
 #: model:ir.model.fields,field_description:product_expiry.field_product_product__use_time
 #: model:ir.model.fields,field_description:product_expiry.field_product_template__use_time
 msgid "Best Before Date"
-msgstr "Fecha de consumo preferente"
+msgstr "Consumir preferentemente antes de"
 
 #. module: product_expiry
 #: model_terms:ir.ui.view,arch_db:product_expiry.view_move_form_expiry
@@ -138,6 +177,11 @@ msgstr "Consumir preferentemente antes del"
 #: model:ir.model.fields,field_description:product_expiry.field_stock_lot__use_date
 msgid "Best before Date"
 msgstr "Consumir preferentemente antes de"
+
+#. module: product_expiry
+#: model:ir.model,name:product_expiry.model_lot_label_layout
+msgid "Choose the sheet layout to print lot labels"
+msgstr ""
 
 #. module: product_expiry
 #: model:ir.model,name:product_expiry.model_res_config_settings
@@ -192,21 +236,18 @@ msgid "Description"
 msgstr "Descripción"
 
 #. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.confirm_expiry_view
-msgid "Discard"
-msgstr "Descartar"
-
-#. module: product_expiry
 #: model:ir.model.fields,field_description:product_expiry.field_res_config_settings__group_expiry_date_on_delivery_slip
 msgid "Display Expiration Dates on Delivery Slips"
 msgstr "Mostrar la fecha de caducidad en los recibos de entrega"
 
 #. module: product_expiry
 #: model:ir.model.fields,field_description:product_expiry.field_expiry_picking_confirmation__display_name
+#: model:ir.model.fields,field_description:product_expiry.field_lot_label_layout__display_name
 #: model:ir.model.fields,field_description:product_expiry.field_product_product__display_name
 #: model:ir.model.fields,field_description:product_expiry.field_product_template__display_name
 #: model:ir.model.fields,field_description:product_expiry.field_report_stock_quantity__display_name
 #: model:ir.model.fields,field_description:product_expiry.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:product_expiry.field_res_groups__display_name
 #: model:ir.model.fields,field_description:product_expiry.field_stock_forecasted_product_product__display_name
 #: model:ir.model.fields,field_description:product_expiry.field_stock_lot__display_name
 #: model:ir.model.fields,field_description:product_expiry.field_stock_move__display_name
@@ -214,11 +255,14 @@ msgstr "Mostrar la fecha de caducidad en los recibos de entrega"
 #: model:ir.model.fields,field_description:product_expiry.field_stock_picking__display_name
 #: model:ir.model.fields,field_description:product_expiry.field_stock_quant__display_name
 #: model:ir.model.fields,field_description:product_expiry.field_stock_rule__display_name
+#: model:ir.model.fields,field_description:product_expiry.field_stock_traceability_report__display_name
 msgid "Display Name"
 msgstr "Nombre en pantalla"
 
 #. module: product_expiry
 #: model_terms:ir.ui.view,arch_db:product_expiry.report_lot_label_expiry
+#: model_terms:ir.ui.view,arch_db:product_expiry.report_lot_qr_label_expiry
+#: model_terms:ir.ui.view,arch_db:product_expiry.report_package_barcode_content_inherit_expiry
 msgid "Exp."
 msgstr "Cad."
 
@@ -233,11 +277,14 @@ msgid "Expiration Alerts"
 msgstr "Alertas de caducidad"
 
 #. module: product_expiry
+#. odoo-javascript
+#: code:addons/product_expiry/static/src/stock_traceability_report_backend.xml:0
 #: model:ir.model.fields,field_description:product_expiry.field_product_product__expiration_time
 #: model:ir.model.fields,field_description:product_expiry.field_product_template__expiration_time
 #: model:ir.model.fields,field_description:product_expiry.field_stock_lot__expiration_date
 #: model:ir.model.fields,field_description:product_expiry.field_stock_move_line__expiration_date
 #: model:ir.model.fields,field_description:product_expiry.field_stock_quant__expiration_date
+#: model_terms:ir.ui.view,arch_db:product_expiry.report_stock_body_print
 #: model_terms:ir.ui.view,arch_db:product_expiry.stock_report_delivery_document_inherit_product_expiry
 #: model_terms:ir.ui.view,arch_db:product_expiry.view_product_form_expiry
 msgid "Expiration Date"
@@ -312,10 +359,12 @@ msgstr "Cantidad disponible para uso "
 
 #. module: product_expiry
 #: model:ir.model.fields,field_description:product_expiry.field_expiry_picking_confirmation__id
+#: model:ir.model.fields,field_description:product_expiry.field_lot_label_layout__id
 #: model:ir.model.fields,field_description:product_expiry.field_product_product__id
 #: model:ir.model.fields,field_description:product_expiry.field_product_template__id
 #: model:ir.model.fields,field_description:product_expiry.field_report_stock_quantity__id
 #: model:ir.model.fields,field_description:product_expiry.field_res_config_settings__id
+#: model:ir.model.fields,field_description:product_expiry.field_res_groups__id
 #: model:ir.model.fields,field_description:product_expiry.field_stock_forecasted_product_product__id
 #: model:ir.model.fields,field_description:product_expiry.field_stock_lot__id
 #: model:ir.model.fields,field_description:product_expiry.field_stock_move__id
@@ -323,6 +372,7 @@ msgstr "Cantidad disponible para uso "
 #: model:ir.model.fields,field_description:product_expiry.field_stock_picking__id
 #: model:ir.model.fields,field_description:product_expiry.field_stock_quant__id
 #: model:ir.model.fields,field_description:product_expiry.field_stock_rule__id
+#: model:ir.model.fields,field_description:product_expiry.field_stock_traceability_report__id
 msgid "ID"
 msgstr "ID"
 
@@ -442,9 +492,14 @@ msgid "Product Variant"
 msgstr "Variante del producto"
 
 #. module: product_expiry
+#: model:ir.module.module,shortdesc:base.module_product_expiry
+msgid "Products Expiration Date"
+msgstr ""
+
+#. module: product_expiry
 #: model:ir.model,name:product_expiry.model_stock_quant
-msgid "Quants"
-msgstr "Cantidades"
+msgid "Quant"
+msgstr "Cant"
 
 #. module: product_expiry
 #: model:ir.model.fields,field_description:product_expiry.field_product_product__removal_time
@@ -549,6 +604,11 @@ msgid "To remove on"
 msgstr "Por eliminar el"
 
 #. module: product_expiry
+#: model:ir.model,name:product_expiry.model_stock_traceability_report
+msgid "Traceability Report"
+msgstr "Reporte de trazabilidad"
+
+#. module: product_expiry
 #: model:ir.model,name:product_expiry.model_stock_picking
 msgid "Transfer"
 msgstr "Trasladar"
@@ -602,139 +662,129 @@ msgstr ""
 "¿De verdad quieres continuar?"
 
 #. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-msgid "^A0N,44,33^FDUse by:"
-msgstr "^A0N,44,33^FDConsumir antes de:"
-
-#. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-msgid ""
-"^BCN,100,Y,N,N\n"
-"^FD"
+#: model_terms:ir.ui.view,arch_db:product_expiry.alternative_zpl_lot_label_qr_expiry
+msgid "^A0N,16^TBN,246,23^FH^FD"
 msgstr ""
-"^BCN,100,Y,N,N\n"
-"^FD"
 
 #. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-msgid "^FO100,150"
-msgstr "^FO100,150"
-
-#. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-msgid ""
-"^FO100,150\n"
-"^A0N,44,33^FDBest before:"
+#: model_terms:ir.ui.view,arch_db:product_expiry.alternative_zpl_lot_label_qr_expiry
+msgid "^A0N,16^TBN,246,23^FH^FDB.b."
 msgstr ""
-"^FO100,150\n"
-"^A0N,44,33^FDConsumir preferentemente antes de:"
 
 #. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-msgid ""
-"^FO100,150\n"
-"^A0N,44,33^FDUse by:"
+#: model_terms:ir.ui.view,arch_db:product_expiry.report_lot_label_zpl_expiry
+msgid "^A0N,21,16^FB170,1,0,R^FH^FDExp."
 msgstr ""
-"^FO100,150\n"
-"^A0N,44,33^FDConsumir antes de:"
 
 #. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-msgid "^FO100,200"
-msgstr "^FO100,200"
-
-#. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-msgid ""
-"^FO100,200\n"
-"^A0N,44,33^FDUse by:"
+#: model_terms:ir.ui.view,arch_db:product_expiry.alternative_zpl_lot_label_qr_expiry
+msgid "^FO155,"
 msgstr ""
-"^FO100,200\n"
-"^A0N,44,33^FDConsumir antes de:"
 
 #. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-msgid "^FO100,200^BY3"
-msgstr "^FO100,200^BY3"
-
-#. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-msgid ""
-"^FO100,50\n"
-"^A0N,44,33^FD"
+#: model_terms:ir.ui.view,arch_db:product_expiry.alternative_zpl_lot_label_qr_expiry
+msgid "^FO155,145^A0N,16^TBN,246,23^FH^FDExp."
 msgstr ""
-"^FO100,50\n"
-"^A0N,44,33^FD"
 
 #. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
+#: model_terms:ir.ui.view,arch_db:product_expiry.report_lot_label_zpl_expiry
+msgid "^FO222,22"
+msgstr ""
+
+#. module: product_expiry
+#: model_terms:ir.ui.view,arch_db:product_expiry.report_lot_label_zpl_expiry
+msgid "^FO222,22^A0N,21,16^FB170,1,0,R^FH^FDB.b."
+msgstr ""
+
+#. module: product_expiry
+#: model_terms:ir.ui.view,arch_db:product_expiry.report_lot_label_zpl_expiry
+msgid "^FO222,44"
+msgstr ""
+
+#. module: product_expiry
+#: model_terms:ir.ui.view,arch_db:product_expiry.alternative_zpl_lot_label_qr_expiry
+#: model_terms:ir.ui.view,arch_db:product_expiry.report_lot_label_zpl_expiry
 msgid "^FS"
 msgstr "^FS"
-
-#. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-msgid ""
-"^FS\n"
-"^FO100,100\n"
-"^A0N,44,33^FDLN/SN:"
-msgstr ""
-"^FS\n"
-"^FO100,100\n"
-"^A0N,44,33^FDLN/SN:"
-
-#. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-msgid ""
-"^FS\n"
-"^FO100,200^BY3\n"
-"^BCN,100,Y,N,N\n"
-"^FD"
-msgstr ""
-"^FS\n"
-"^FO100,200^BY3\n"
-"^BCN,100,Y,N,N\n"
-"^FD"
-
-#. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-msgid ""
-"^FS\n"
-"^FO100,250^BY3"
-msgstr ""
-"^FS\n"
-"^FO100,250^BY3"
 
 #. module: product_expiry
 #: model:product.removal,method:product_expiry.removal_fefo
 msgid "fefo"
 msgstr "primero en expirar, primero en salir"
 
-#~ msgid ""
-#~ "<span class=\"badge text-bg-danger\" invisible=\"not "
-#~ "product_expiry_alert\">Expiration Alert</span>"
-#~ msgstr ""
-#~ "<span class=\"badge text-bg-danger\" invisible=\"not "
-#~ "product_expiry_alert\">Alerta de caducidad</span>"
+#~ msgid "Lot Label Report"
+#~ msgstr "Reportes de etiqueta del lote"
+
+#~ msgid "^A0N,44,33^FDUse by:"
+#~ msgstr "^A0N,44,33^FDConsumir antes de:"
 
 #~ msgid ""
-#~ "<span title=\"Alert\" class=\"fa fa-exclamation-triangle text-danger "
-#~ "ms-2\" invisible=\"product_qty &lt;= 0 or not product_expiry_alert or not "
-#~ "expiration_date\"/>"
+#~ "^BCN,100,Y,N,N\n"
+#~ "^FD"
 #~ msgstr ""
-#~ "<span title=\"Alerta\" class=\"fa fa-exclamation-triangle text-danger "
-#~ "ms-2\" invisible=\"product_qty &lt;= 0 or not product_expiry_alert or not "
-#~ "expiration_date\"/>"
+#~ "^BCN,100,Y,N,N\n"
+#~ "^FD"
+
+#~ msgid "^FO100,150"
+#~ msgstr "^FO100,150"
 
 #~ msgid ""
-#~ "Number of days before the Expiration Date after which the goods should be "
-#~ "removed from the stock. It will be computed on the lot/serial number."
+#~ "^FO100,150\n"
+#~ "^A0N,44,33^FDBest before:"
 #~ msgstr ""
-#~ "Número de días antes de la fecha de caducidad después de los cuales los "
-#~ "bienes deben retirarse del inventario. Se calculará en el número de serie "
-#~ "o lote."
+#~ "^FO100,150\n"
+#~ "^A0N,44,33^FDConsumir preferentemente antes de:"
 
-#~ msgid "Proceed except for expired one"
-#~ msgstr "Continuar excepto por el que está caducado"
+#~ msgid ""
+#~ "^FO100,150\n"
+#~ "^A0N,44,33^FDUse by:"
+#~ msgstr ""
+#~ "^FO100,150\n"
+#~ "^A0N,44,33^FDConsumir antes de:"
 
-#~ msgid "Procurement Group"
-#~ msgstr "Grupo de aprovisionamiento"
+#~ msgid "^FO100,200"
+#~ msgstr "^FO100,200"
+
+#~ msgid ""
+#~ "^FO100,200\n"
+#~ "^A0N,44,33^FDUse by:"
+#~ msgstr ""
+#~ "^FO100,200\n"
+#~ "^A0N,44,33^FDConsumir antes de:"
+
+#~ msgid "^FO100,200^BY3"
+#~ msgstr "^FO100,200^BY3"
+
+#~ msgid ""
+#~ "^FO100,50\n"
+#~ "^A0N,44,33^FD"
+#~ msgstr ""
+#~ "^FO100,50\n"
+#~ "^A0N,44,33^FD"
+
+#~ msgid ""
+#~ "^FS\n"
+#~ "^FO100,100\n"
+#~ "^A0N,44,33^FDLN/SN:"
+#~ msgstr ""
+#~ "^FS\n"
+#~ "^FO100,100\n"
+#~ "^A0N,44,33^FDLN/SN:"
+
+#~ msgid ""
+#~ "^FS\n"
+#~ "^FO100,200^BY3\n"
+#~ "^BCN,100,Y,N,N\n"
+#~ "^FD"
+#~ msgstr ""
+#~ "^FS\n"
+#~ "^FO100,200^BY3\n"
+#~ "^BCN,100,Y,N,N\n"
+#~ "^FD"
+
+#~ msgid ""
+#~ "^FS\n"
+#~ "^FO100,250^BY3"
+#~ msgstr ""
+#~ "^FS\n"
+#~ "^FO100,250^BY3"

@@ -2,7 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo.addons.mail.tests.common import mail_new_test_user
-from odoo.tests import Form, TransactionCase
+from odoo.tests import tagged, Form, TransactionCase
 from odoo.exceptions import AccessError, UserError
 
 
@@ -303,7 +303,7 @@ class TestEditableQuant(TransactionCase):
         move_lines = self.env['stock.move.line'].search([('product_id', '=', self.product.id), ('is_inventory', '=', True)])
         self.assertEqual(len(move_lines), 1, "One inventory adjustment move lines should have been created")
         self.assertEqual(self.product.qty_available, 0.4, "Before revert inventory adjustment qty is 0.4")
-        move_lines.action_revert_inventory()
+        move_lines.action_revert()
         self.assertEqual(self.product.qty_available, 0, "After revert inventory adjustment qty is not zero")
 
     def test_multi_revert_inventory_adjustment(self):
@@ -321,8 +321,38 @@ class TestEditableQuant(TransactionCase):
         move_lines = self.env['stock.move.line'].search([('product_id', '=', self.product.id), ('is_inventory', '=', True)])
         self.assertEqual(self.product.qty_available, 150, "Before revert multi inventory adjustment qty is 150")
         self.assertEqual(len(move_lines), 2, "Two inventory adjustment move lines should have been created")
-        move_lines.action_revert_inventory()
+        move_lines.action_revert()
         self.assertEqual(self.product.qty_available, 0, "After revert multi inventory adjustment qty is not zero")
+
+    def test_revert_scrap_move(self):
+        """Try to revert a scrapped move"""
+        default_wh = self.env['stock.warehouse'].search([('company_id', '=', self.env.company.id)], limit=1)
+        default_stock_location = default_wh.lot_stock_id
+        scrap_location = default_wh.company_id.scrap_location_id
+        # Put 1 unit in stock
+        quant = self.Quant.create({
+            'product_id': self.product.id,
+            'location_id': default_stock_location.id,
+            'inventory_quantity': 1,
+        })
+        quant.action_apply_inventory()
+        self.assertEqual(self.product.qty_available, 1)
+        # Scrap the product
+        scrap = self.env['stock.move'].create({
+            'is_scrap': True,
+            'product_id': self.product.id,
+            'location_id': default_stock_location.id,
+            'location_dest_id': scrap_location.id,
+            'quantity': 1,
+            'company_id': self.env.company.id,
+        })
+        scrap._action_scrap()
+        self.assertEqual(self.product.qty_available, 0, "After scrapping, qty should be 0")
+        # Revert the scrap move
+        scrap_move_line = scrap.move_line_ids
+        self.assertEqual(len(scrap_move_line), 1)
+        scrap_move_line.action_revert()
+        self.assertEqual(self.product.qty_available, 1, "After reverting scrap, qty should be restored to 1")
 
     def test_set_inventory_quant_to_zero(self):
         """Try to set inventory quantity to zero and check that the quant is deleted after unlinking zero quants"""
@@ -345,3 +375,24 @@ class TestEditableQuant(TransactionCase):
         quant.flush_recordset()
         quant._unlink_zero_quants()
         self.assertFalse(quant.exists(), "After unlinking zero quants, the quant should be deleted")
+
+    def test_revert_inventory_package_quant(self):
+        """
+        Test Reverting an inventory move line restores the package quant
+        quantity with no negative quants.
+        """
+        package = self.env['stock.package'].create({})
+        quant = self.Quant.create({
+            'product_id': self.product.id,
+            'location_id': self.stock.id,
+            'inventory_quantity': 1,
+            'package_id': package.id,
+        })
+        quant.action_apply_inventory()
+        quant.inventory_quantity = 0
+        quant.action_apply_inventory()
+        domain = quant.action_view_stock_moves()['domain'] + [('is_inventory', '=', True)]
+        self.env['stock.move.line'].search(domain, limit=1).action_revert()
+        self.assertRecordValues(package.quant_ids, [{"quantity": 1}])
+        self.env['stock.move.line'].search(domain, limit=1, order='id asc').action_revert()
+        self.assertFalse(package.quant_ids, 'Reverting creation adjustment should remove the product from the package.')

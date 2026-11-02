@@ -1,27 +1,35 @@
+import {
+    onWillDestroy,
+    Plugin,
+    providePlugins,
+    t,
+    useConfig,
+    usePlugin,
+    useScope,
+} from "@odoo/owl";
+import { DebugModePlugin } from "@web/core/debug_mode_plugin";
+import { registry } from "@web/core/registry";
+import { services } from "@web/core/services";
 import { user } from "@web/core/user";
-import { registry } from "../registry";
 
-import { useEffect, useEnv, useSubEnv } from "@odoo/owl";
 const debugRegistry = registry.category("debug");
 
 const getAccessRights = async () => {
     const rightsToCheck = {
         "ir.ui.view": "write",
-        "ir.rule": "read",
-        "ir.model.access": "read",
+        "ir.access": "read",
     };
-    const proms = Object.entries(rightsToCheck).map(([model, operation]) => {
-        return user.checkAccessRight(model, operation);
-    });
-    const [canEditView, canSeeRecordRules, canSeeModelAccess] = await Promise.all(proms);
-    const accessRights = { canEditView, canSeeRecordRules, canSeeModelAccess };
+    const proms = Object.entries(rightsToCheck).map(([model, operation]) =>
+        user.checkAccessRight(model, operation)
+    );
+    const [canEditView, canSeeAccess] = await Promise.all(proms);
+    const accessRights = { canEditView, canSeeAccess };
     return accessRights;
 };
 
-class DebugContext {
-    constructor(defaultCategories) {
-        this.categories = new Map(defaultCategories.map((cat) => [cat, [{}]]));
-    }
+class DebugContextPlugin extends Plugin {
+    categories = useConfig("categories", t.object().optional(new Map()));
+    scope = useScope();
 
     activateCategory(category, context) {
         const contexts = this.categories.get(category) || new Set();
@@ -39,12 +47,16 @@ class DebugContext {
     async getItems(env) {
         const accessRights = await getAccessRights();
         return [...this.categories.entries()]
-            .flatMap(([category, contexts]) => {
-                return debugRegistry
+            .flatMap(([category, contexts]) =>
+                debugRegistry
                     .category(category)
                     .getAll()
-                    .map((factory) => factory(Object.assign({ env, accessRights }, ...contexts)));
-            })
+                    .map((factory) =>
+                        this.scope.run(() =>
+                            factory(Object.assign({ env, accessRights }, ...contexts))
+                        )
+                    )
+            )
             .filter(Boolean)
             .sort((x, y) => {
                 const xSeq = x.sequence || 1000;
@@ -53,31 +65,22 @@ class DebugContext {
             });
     }
 }
-
-const debugContextSymbol = Symbol("debugContext");
-export function createDebugContext({ categories = [] } = {}) {
-    return { [debugContextSymbol]: new DebugContext(categories) };
-}
+services.add(DebugContextPlugin);
 
 export function useOwnDebugContext({ categories = [] } = {}) {
-    useSubEnv(createDebugContext({ categories }));
+    providePlugins([DebugContextPlugin], {
+        categories: new Map(categories.map((cat) => [cat, [{}]])),
+    });
 }
 
 export function useEnvDebugContext() {
-    const debugContext = useEnv()[debugContextSymbol];
-    if (!debugContext) {
-        throw new Error("There is no debug context available in the current environment.");
-    }
-    return debugContext;
+    return usePlugin(DebugContextPlugin);
 }
 
 export function useDebugCategory(category, context = {}) {
-    const env = useEnv();
-    if (env.debug) {
+    const debugMode = usePlugin(DebugModePlugin);
+    if (debugMode.isActive()) {
         const debugContext = useEnvDebugContext();
-        useEffect(
-            () => debugContext.activateCategory(category, context),
-            () => []
-        );
+        onWillDestroy(debugContext.activateCategory(category, context));
     }
 }

@@ -1,11 +1,13 @@
 import {
     Component,
-    useState,
     onMounted,
     onWillUnmount,
-    useEffect,
-    useRef,
+    proxy,
+    signal,
     status,
+    types,
+    useOnChange,
+    useProps,
 } from "@odoo/owl";
 import { browser } from "@web/core/browser/browser";
 import { useService } from "@web/core/utils/hooks";
@@ -13,13 +15,7 @@ import { url } from "@web/core/utils/urls";
 
 const WAVE_COLOR = "#7775";
 
-/**
- * @typedef {Object} Props
- * @property {import("models").Attachment} attachment
- * @extends {Component<Props, Env>}
- */
 export class VoicePlayer extends Component {
-    static props = ["attachment"];
     static template = "mail.VoicePlayer";
 
     /** @type {number} */
@@ -53,30 +49,35 @@ export class VoicePlayer extends Component {
     waveCtx;
     /** @type {CanvasRenderingContext2D} */
     progressCtx;
+    wrapperRef = signal.ref();
+    drawerRef = signal.ref();
+    waveRef = signal.ref();
+    progressRef = signal.ref();
 
     setup() {
         super.setup();
-        this.wrapperRef = useRef("wrapper");
-        this.drawerRef = useRef("drawer");
-        this.waveRef = useRef("wave");
-        this.progressRef = useRef("progress");
+        this.store = useService("mail.store");
+        this.props = useProps({
+            attachment: types.instanceOf(this.store["ir.attachment"]),
+        });
         /** @type {import("@mail/discuss/voice_message/common/voice_message_service").VoiceMessageService} */
         this.voiceMessageService = useService("discuss.voice_message");
-        this.state = useState({
+        this.state = proxy({
             paused: true,
             playing: false,
             repeat: false,
             visualTime: "-- : --",
         });
-        useEffect(
+        useOnChange(
+            () => [this.state.playing],
             (playing) => {
                 if (playing) {
                     this.addOnAudioProcess();
                 }
-            },
-            () => [this.state.playing]
+            }
         );
-        useEffect(
+        useOnChange(
+            () => [this.props.attachment.uploading],
             (uploading) => {
                 if (uploading) {
                     return;
@@ -85,8 +86,7 @@ export class VoicePlayer extends Component {
                     this.makeAudio();
                 }
                 this.wasUploading = uploading;
-            },
-            () => [this.props.attachment.uploading]
+            }
         );
         onMounted(() => {
             this.initElements();
@@ -317,19 +317,19 @@ export class VoicePlayer extends Component {
     }
 
     initElements() {
-        this.wrapper = this.wrapperRef.el;
-        this.progressWave = this.drawerRef.el;
+        this.wrapper = this.wrapperRef();
+        this.progressWave = this.drawerRef();
         this.progressColor = getComputedStyle(this.wrapper).getPropertyValue("--primary");
         this.width = this.wrapper.clientWidth;
         this.height = this.wrapper.clientHeight;
 
-        const wave = this.waveRef.el;
+        const wave = this.waveRef();
         wave.width = this.width;
         wave.height = this.height;
         this.waveCtx = wave.getContext("2d");
         this.waveCtx.fillStyle = WAVE_COLOR;
 
-        const progress = this.progressRef.el;
+        const progress = this.progressRef();
         progress.width = this.width;
         progress.height = this.height;
         this.progressCtx = progress.getContext("2d");

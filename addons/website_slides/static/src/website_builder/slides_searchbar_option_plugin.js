@@ -2,7 +2,7 @@ import { Plugin } from "@html_editor/plugin";
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
 
-class SlidesSearchbarOptionPlugin extends Plugin {
+export class SlidesSearchbarOptionPlugin extends Plugin {
     static id = "slidesSearchbarOption";
 
     resources = {
@@ -15,18 +15,6 @@ class SlidesSearchbarOptionPlugin extends Plugin {
             {
                 label: _t("Date (new to old)"),
                 orderBy: "slide_last_update desc",
-                dependency: "search_slides_opt",
-            },
-        ],
-        searchbar_option_display_items: [
-            {
-                label: _t("Description"),
-                dataAttribute: "displayDescription",
-                dependency: "search_slides_opt",
-            },
-            {
-                label: _t("Publication Date"),
-                dataAttribute: "displayDetail",
                 dependency: "search_slides_opt",
             },
         ],

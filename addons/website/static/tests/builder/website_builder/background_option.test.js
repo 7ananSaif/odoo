@@ -1,59 +1,64 @@
 import { BackgroundOption } from "@html_builder/plugins/background_option/background_option";
-import { BackgroundPositionOverlay } from "@html_builder/plugins/background_option/background_position_overlay";
+import { addBuilderOption } from "@html_builder/../tests/helpers";
 import { Plugin } from "@html_editor/plugin";
-import { expect, test } from "@odoo/hoot";
+import { t } from "@odoo/owl";
+import {
+    advanceTime,
+    click,
+    edit,
+    expect,
+    mockFetch,
+    queryAttribute,
+    test,
+    waitForNone,
+} from "@odoo/hoot";
 import { animationFrame, queryOne, scroll, waitFor } from "@odoo/hoot-dom";
-import { contains, patchWithCleanup } from "@web/../tests/web_test_helpers";
+import { contains } from "@web/../tests/web_test_helpers";
+import { PLATFORMS } from "@html_editor/main/media/media_dialog/video_selector";
 import {
     addPlugin,
-    addOption,
     defineWebsiteModels,
     setupWebsiteBuilder,
     setupWebsiteBuilderWithSnippet,
+    toggleMobilePreview,
 } from "@website/../tests/builder/website_helpers";
+import { patchDragImage } from "@website/../tests/builder/image_test_helpers";
+
+const RGB_RED = "rgb(255, 0, 0)";
+const RGB_BLUE = "rgb(0, 0, 255)";
+const RGB_GREEN = "rgb(0, 255, 0)";
+const HEX_BLUE = "#0000ff";
+const HEX_GREEN = "#00ff00";
 
 defineWebsiteModels();
 
-test("show and leave the 'BackgroundShapeComponent'", async () => {
-    await setupWebsiteBuilder(`<section>AAAA</section>`);
-    await contains(":iframe section").click();
-    await contains("button[data-action-id='toggleBgShape']").click();
-    await contains("button.o_pager_nav_angle").click();
-    await animationFrame();
-    expect("button[data-action-id='toggleBgShape']").toBeVisible();
-});
-
 test("change the background shape of elements", async () => {
-    addOption({
+    addBuilderOption({
         selector: ".selector",
         applyTo: ".applyTo",
         Component: class TestBackgroundOption extends BackgroundOption {
-            static props = {
-                ...BackgroundOption.props,
-                withColors: { type: Boolean, optional: true },
-                withImages: { type: Boolean, optional: true },
-                withColorCombinations: { type: Boolean, optional: true },
-            };
-            static defaultProps = {
-                withColors: true,
-                withImages: true,
+            static propShape = {
+                withColors: t.boolean().optional(true),
+                withImages: t.boolean().optional(true),
                 // todo: handle with_videos
-                withShapes: true,
-                withColorCombinations: false,
+                withShapes: t.boolean().optional(true),
+                withColorCombinations: t.boolean().optional(false),
             };
         },
     });
     await setupWebsiteBuilder(`
         <div class="selector">
             <div id="first" class="applyTo" data-oe-shape-data='{"shape":"html_builder/Connections/01","flip":[],"showOnMobile":false,"shapeAnimationSpeed":"0"}'>
+                <div class="o_we_shape o_html_builder_Connections_01"></div>
                 AAAA
             </div>
             <div id="second" class="applyTo" data-oe-shape-data='{"shape":"html_builder/Connections/01","flip":[],"showOnMobile":false,"shapeAnimationSpeed":"0"}'>
+                <div class="o_we_shape o_html_builder_Connections_01"></div>
                 BBBB
             </div>
         </div>`);
     await contains(":iframe .selector").click();
-    await contains("[data-label='Shape'] button").click();
+    await contains("div[data-label='Shape'] button.o-hb-btn").click();
     expect(
         ".o_pager_container .o-hb-bg-shape-btn:nth-child(1) .btn.active[data-action-id='setBackgroundShape']"
     ).toHaveCount();
@@ -62,23 +67,24 @@ test("change the background shape of elements", async () => {
     ).click();
     expect(":iframe .selector div#first").toHaveAttribute(
         "data-oe-shape-data",
-        '{"shape":"html_builder/Connections/02","flip":[],"showOnMobile":false,"shapeAnimationSpeed":"0"}'
+        '{"shape":"html_builder/Connections/02","flip":[],"showOnMobile":false,"shapeAnimationSpeed":"0","selectedColor":true}'
     );
     expect(":iframe .selector div#second").toHaveAttribute(
         "data-oe-shape-data",
-        '{"shape":"html_builder/Connections/02","flip":[],"showOnMobile":false,"shapeAnimationSpeed":"0"}'
+        '{"shape":"html_builder/Connections/02","flip":[],"showOnMobile":false,"shapeAnimationSpeed":"0","selectedColor":true}'
     );
 });
 
 test("remove background shape", async () => {
     await setupWebsiteBuilder(`
         <section data-oe-shape-data='{"shape":"html_builder/Connections/01","flip":[],"showOnMobile":false,"shapeAnimationSpeed":"0"}'>
+            <div class="o_we_shape o_html_builder_Connections_01"></div>
             AAAA
         </section>`);
     await contains(":iframe section").click();
-    await contains("button[data-action-id='setBackgroundShape']").click();
+    await contains("div[data-label='Shape'] button[data-action-id='setBackgroundShape']").click();
     expect(":iframe section").not.toHaveAttribute("data-oe-shape-data");
-    expect("button[data-action-id='setBackgroundShape']").not.toHaveCount();
+    expect("div[data-label='Shape'] button[data-action-id='setBackgroundShape']").not.toHaveCount();
 });
 
 test("toggle Show/Hide on mobile of the shape background", async () => {
@@ -109,23 +115,23 @@ test("Check if an element with a background image has necessary classes", async 
 
 test("Change the background position and apply", async () => {
     await dragAndDropBgImage();
-    await contains(".o_we_background_position_overlay .btn-primary").click();
-    expect(".o_we_background_position_overlay").toHaveCount(0);
-    expect("button.fa-undo").toBeEnabled();
+    await contains(".o_we_image_position_overlay .btn-primary").click();
+    expect(".o_we_image_position_overlay").toHaveCount(0);
+    expect("button[data-icon='undo']").toBeEnabled();
 });
 
 test("Change the background position and discard", async () => {
     await dragAndDropBgImage();
-    await contains(".o_we_background_position_overlay .btn-danger").click();
-    expect(".o_we_background_position_overlay").toHaveCount(0);
-    expect("button.fa-undo").not.toBeEnabled();
+    await contains(".o_we_image_position_overlay .btn-danger").click();
+    expect(".o_we_image_position_overlay").toHaveCount(0);
+    expect("button[data-icon='undo']").not.toBeEnabled();
 });
 
 test("Change the background position and click out of the iframe", async () => {
     await dragAndDropBgImage();
     await contains(".o_customize_tab").click();
-    expect(".o_we_background_position_overlay").toHaveCount(0);
-    expect("button.fa-undo").not.toBeEnabled();
+    expect(".o_we_image_position_overlay").toHaveCount(0);
+    expect("button[data-icon='undo']").not.toBeEnabled();
 });
 
 test("Background position overlay layout", async () => {
@@ -141,7 +147,6 @@ test("Background position overlay layout", async () => {
     );
 
     const iframe = getEditor().editable.ownerDocument.defaultView.frameElement;
-    const body = queryOne(":iframe body");
     const section = queryOne(":iframe .container section");
 
     const testLayout = async (mobile) => {
@@ -157,22 +162,22 @@ test("Background position overlay layout", async () => {
         }
         await openBgPositionOverlay(section, waitSidebarUpdated);
 
-        // The overlay should cover exactly the iframe
+        // The overlay should cover the whole builder viewport.
         const iframeRect = iframe.getBoundingClientRect();
-        const bgOverlayRect = queryOne(".o_we_background_position_overlay").getBoundingClientRect();
-        expect(bgOverlayRect.left).toBeCloseTo(iframeRect.left);
-        expect(bgOverlayRect.top).toBeCloseTo(iframeRect.top);
-        expect(bgOverlayRect.width).toBeCloseTo(body.clientWidth * iframeContainerScale);
-        expect(bgOverlayRect.height).toBeCloseTo(body.clientHeight * iframeContainerScale);
+        const bgOverlayRect = queryOne(".o_we_image_position_overlay").getBoundingClientRect();
+        expect(bgOverlayRect.left).toBe(0);
+        expect(bgOverlayRect.top).toBe(0);
+        expect(bgOverlayRect.width).toBe(window.innerWidth);
+        expect(bgOverlayRect.height).toBe(window.innerHeight);
 
         // The content of the overlay should cover the editing element
         const editingElementRect = section.getBoundingClientRect();
         const overlayContentStyle = getComputedStyle(queryOne(".o_we_overlay_content"));
         expect(parseFloat(overlayContentStyle.left)).toBeCloseTo(
-            editingElementRect.left * iframeContainerScale
+            iframeRect.left + editingElementRect.left * iframeContainerScale
         );
         expect(parseFloat(overlayContentStyle.top)).toBeCloseTo(
-            editingElementRect.top * iframeContainerScale
+            iframeRect.top + editingElementRect.top * iframeContainerScale
         );
         expect(parseFloat(overlayContentStyle.width)).toBeCloseTo(
             editingElementRect.width * iframeContainerScale
@@ -186,7 +191,7 @@ test("Background position overlay layout", async () => {
     };
 
     await testLayout(false);
-    await contains("button[data-action=mobile]").click();
+    await toggleMobilePreview();
     await testLayout(true);
 });
 
@@ -195,17 +200,15 @@ test("Background position overlay behavior", async () => {
 
     const movement = 50;
     const positionStartDrag = { x: 100, y: 100 };
-    const { startDrag, endDrag } = patchDragBackground(
-        ".o-overlay-container .o_we_background_dragger",
+    const { startDrag, endDrag } = patchDragImage(
+        ".o-overlay-container .o_we_overlay_dragger",
         positionStartDrag,
         { x: positionStartDrag.x + movement, y: positionStartDrag.y + movement }
     );
 
     const drag = async () => {
         const dragActions = await startDrag();
-        expect(".o-overlay-container .o_we_background_position_overlay").toHaveClass(
-            "o_we_grabbing"
-        );
+        expect(".o-overlay-container .o_we_image_position_overlay").toHaveClass("o_we_grabbing");
         await endDrag(dragActions);
     };
 
@@ -248,22 +251,22 @@ test("Background position overlay behavior", async () => {
     await openBgPositionOverlay(section, waitSidebarUpdated);
 
     // Scrolling on the overlay should scroll the iframe
-    await scroll(queryOne(".o_we_background_position_overlay"), { y: 50 }, { scrollable: false });
+    await scroll(queryOne(".o_we_image_position_overlay"), { y: 50 }, { scrollable: false });
     await animationFrame();
     expect(":iframe body").toHaveProperty("scrollTop", 50);
 
     // The Scroll Effect should be set to "None"
     expect("[data-label='Scroll Effect'] button").toHaveText("None");
     await openBgPositionOverlay(section, waitSidebarUpdated);
-    expect(section).toHaveClass("o_we_background_positioning");
+    expect(section).toHaveClass("o_we_image_positioning");
 
     // Drag and check that the background moves properly
     await drag();
     const sectionRect = section.getBoundingClientRect();
-    // Delta X obtained by applying the formula in getBackgroundDelta of BackgroundPositionOverlay
+    // Delta X obtained by applying the formula in getDelta of BackgroundPositionOptionPlugin
     const deltaX = sectionRect.width - sectionRect.height;
     expect(getBgPosPercent(section).x).toBeCloseTo(
-        // Formula derived from the one in onDragBackgroundMove of BackgroundPositionOverlay
+        // Formula derived from the one in onDragMove of ImagePositionOverlay
         // 50% being the starting position
         50 + (movement / deltaX) * 100,
         {
@@ -278,16 +281,16 @@ test("Background position overlay behavior", async () => {
     await openBgPositionOverlay(section, waitSidebarUpdated);
     // The element with the background is not the section when the Scroll Effect is not "None".
     // However the section (i.e. its parent element) needs to have this class set to hide its content.
-    expect(section).toHaveClass("o_we_background_positioning");
+    expect(section).toHaveClass("o_we_image_positioning");
 
     // Drag and check that the background moves properly
     await drag();
     const iframe = getEditor().editable.ownerDocument.defaultView.frameElement;
     const iframeRect = iframe.getBoundingClientRect();
-    // Delta Y obtained by applying the formula in getBackgroundDelta of BackgroundPositionOverlay
+    // Delta Y obtained by applying the formula in getDelta of BackgroundPositionOptionPlugin
     const deltaY = iframeRect.height - iframeRect.width;
     expect(getBgPosPercent(queryOne(":iframe .s_parallax_bg")).y).toBeCloseTo(
-        // Formula derived from the one in onDragBackgroundMove of BackgroundPositionOverlay
+        // Formula derived from the one in onDragMove of ImagePositionOverlay
         // 50% being the starting position
         50 + (movement / deltaY) * 100,
         {
@@ -330,38 +333,22 @@ async function openBgPositionOverlay(editingElement, waitSidebarUpdated) {
     await contains(editingElement).click();
     await waitSidebarUpdated();
     await contains("button[data-action-id='backgroundPositionOverlay']").click();
-    await waitFor(".o-overlay-container .o_we_background_dragger", { timeout: 2000 });
+    await waitFor(".o-overlay-container .o_we_overlay_dragger", { timeout: 2000 });
 }
 
-function patchDragBackground(el, from, to) {
-    patchWithCleanup(BackgroundPositionOverlay.prototype, {
-        onDragBackgroundMove(ev) {
-            // Mock the movementX and movementY readonly property
-            super.onDragBackgroundMove({
-                preventDefault: () => {},
-                movementX: ev.clientX === to.x ? to.x - from.x : 0,
-                movementY: ev.clientY === to.y ? to.y - from.y : 0,
-            });
-        },
-    });
-    const startDrag = () => contains(el).drag({ position: from });
-    const endDrag = async (dragActions) => {
-        await dragActions.moveTo(el, { position: to });
-        await dragActions.drop();
-    };
-    return { startDrag, endDrag };
-}
-
-async function dragAndDropBgImage() {
-    const { waitSidebarUpdated } = await setupWebsiteBuilder(`
+async function dragAndDropBgImage(builderOptions = {}) {
+    const { waitSidebarUpdated } = await setupWebsiteBuilder(
+        `
         <section style="background-image: url('/web/image/123/transparent.png'); width: 500px; height:500px">
             <div class="o_we_shape o_html_builder_Connections_01">
                 AAAA
             </div>
-        </section>`);
+        </section>`,
+        builderOptions
+    );
     await openBgPositionOverlay(":iframe section", waitSidebarUpdated);
-    const { startDrag, endDrag } = patchDragBackground(
-        ".o-overlay-container .o_we_background_dragger",
+    const { startDrag, endDrag } = patchDragImage(
+        ".o-overlay-container .o_we_overlay_dragger",
         { x: 199, y: 199 },
         { x: 200, y: 200 }
     );
@@ -434,21 +421,29 @@ test("changing shape's background color doesn't hide the shape itself", async ()
         }
     );
     await contains(":iframe section").click();
-    await waitSidebarUpdated();
-    await contains("button[data-action-id='toggleBgShape']").click();
+    await contains("div[data-label='Shape'] button.o-hb-btn").click();
     await contains(
         ".o_pager_container .o-hb-bg-shape-btn [data-action-value='html_builder/Connections/01'][data-action-id='setBackgroundShape']"
     ).click();
+    await waitSidebarUpdated();
     const backgroundImageValue = getComputedStyle(queryOne(":iframe .o_we_shape")).backgroundImage;
-    expect(backgroundImageValue).toMatch(/Connections\/01/);
+    expect(backgroundImageValue).toMatch(/Connections(\/|%2F)01/);
     await contains("[data-label='Colors'] button:nth-child(2)").click();
     await contains(".o_colorpicker_section button[data-color='o-color-1']").click();
     expect(":iframe .o_we_shape").toHaveStyle({ backgroundImage: backgroundImageValue });
 });
 
 test("remove background image removes color filter", async () => {
-    await setupWebsiteBuilderWithSnippet("s_cover");
+    const backgroundImageUrl = "url('/web/image/123/transparent.png')";
+    await setupWebsiteBuilder(`
+        <section>
+        <span class="s_parallax_bg_wrap">
+            <span class='s_parallax_bg oe_img_bg o_bg_img_center' style="background-image: ${backgroundImageUrl} !important;">aaa</span>
+        </span>
+            <div class="o_we_bg_filter bg-black-50"><br></div>
+        </section>`);
     await contains(":iframe section").click();
+    expect(":iframe section .o_we_bg_filter").toHaveCount();
     await contains("[data-action-id='toggleBgImage']").click();
     expect(":iframe section .o_we_bg_filter").not.toHaveCount();
 });
@@ -482,34 +477,37 @@ test("change background size", async () => {
         '[data-action-id="setBackgroundSize"][data-action-param="height"] > input'
     );
 
-    expect(heightInput).toHaveValue("");
+    expect(heightInput).toHaveValue(NaN);
 
     await contains(heightInput).edit("0");
-    expect(heightInput).toHaveValue("1", { message: "minimum value is 1" });
+    await animationFrame();
+    expect(heightInput).toHaveValue(1, { message: "minimum value is 1" });
     expect(section).toHaveStyle("background-size: 100px 1px");
 
     await contains(heightInput).edit("");
-    expect(heightInput).toHaveValue("");
-    expect(section).toHaveStyle("background-size: 100px");
+    expect(heightInput).toHaveValue(NaN);
+    expect(section).toHaveStyle({ "background-size": /^100px/ });
 
     await contains(widthInput).edit("");
-    expect(widthInput).toHaveValue("");
-    expect(heightInput).toHaveValue("", { message: "height input should stay empty" });
+    expect(widthInput).toHaveValue(NaN, { message: "height input should stay empty" });
+    expect(heightInput).toHaveValue(NaN, { message: "height input should stay empty" });
     expect(section).toHaveStyle("background-size: auto");
 
     await contains(widthInput).edit("0");
-    expect(widthInput).toHaveValue("1", { message: "minimum value is 1" });
-    expect(section).toHaveStyle("background-size: 1px");
+    await animationFrame();
+    expect(widthInput).toHaveValue(1, { message: "minimum value is 1" });
+    expect(section).toHaveStyle({ "background-size": /^1px/ });
 });
 
 test("background shape detection is compatible with previous ones (web_editor)", async () => {
     await setupWebsiteBuilder(`
         <section data-oe-shape-data='{"shape":"web_editor/Connections/01","flip":[],"showOnMobile":false,"shapeAnimationSpeed":"0"}'>
+            <div class="o_we_shape o_html_builder_Connections_01"></div>
             AAAA
         </section>`);
     await contains(":iframe section").click();
-    expect("div[data-label='Shape'] button:first-of-type").toHaveText("Connections 01");
-    await contains("div[data-label='Shape'] button:first-of-type").click();
+    expect("div[data-label='Shape'] .btn-group button:first-of-type").toHaveText("Connections 01");
+    await contains("div[data-label='Shape'] .btn-group button:first-of-type").click();
     expect("button.active[data-action-id='setBackgroundShape']").toHaveAttribute(
         "data-action-value",
         "html_builder/Connections/01"
@@ -566,7 +564,7 @@ test("can customize background shape groups", async () => {
 
     await setupWebsiteBuilder(`<section>AAAA</section>`);
     await contains(":iframe section").click();
-    await contains("button[data-action-id='toggleBgShape']").click();
+    await contains("div[data-label='Shape'] button.o-hb-btn").click();
     expect(".o_pager_container").toHaveText(/Custom/);
     expect("button.o-hb-select-pager-tab[data-group-id='extra']").toHaveCount(1);
     expect("[data-action-value='html_builder/Connections/01']").toHaveCount(1);
@@ -574,7 +572,234 @@ test("can customize background shape groups", async () => {
     await contains("[data-action-value='html_builder/Connections/01']").click();
     expect(":iframe section").toHaveAttribute(
         "data-oe-shape-data",
-        '{"shape":"html_builder/Connections/01","flip":[],"showOnMobile":false,"shapeAnimationSpeed":"0"}'
+        '{"shape":"html_builder/Connections/01","flip":[],"showOnMobile":false,"shapeAnimationSpeed":"0","selectedColor":false}'
     );
     expect("div[data-label='Shape'] button:not([data-action-id])").toHaveText("Custom 01");
 });
+
+test("Connections shape updates when neighbor snippet visibility updates", async () => {
+    const { waitSidebarUpdated } = await setupWebsiteBuilder(
+        `
+        <main>
+            <section id="section1" data-snippet="s_snippet"
+                    data-oe-shape-data='{"shape":"html_builder/Connections/01","colors":{"c5":"${RGB_RED}"},"flip":[],"showOnMobile":false,"shapeAnimationSpeed":"0", "selectedColor":false}'>
+                <div class="o_we_shape o_html_builder_Connections_01"></div>
+                Section 1
+            </section>
+            <section id="section2" style="background-color: ${RGB_BLUE};" data-snippet="s_snippet">
+                Section 2
+            </section>
+            <section id="section3" style="background-color: ${RGB_GREEN};" data-snippet="s_snippet">
+                Section 3
+            </section>
+        </main>
+    `,
+        {
+            loadIframeBundles: true,
+        }
+    );
+    await contains(":iframe #section2").click();
+    await contains(
+        "[data-action-id='toggleDeviceVisibility'][data-action-param='no_desktop']"
+    ).click();
+    await waitSidebarUpdated();
+    const shapeData = JSON.parse(queryOne(":iframe #section1").dataset.oeShapeData);
+    expect(shapeData.colors.c5).toBe(HEX_GREEN);
+});
+
+test("Connections shape do not update when switching background color of neighbor invisible element", async () => {
+    const { waitSidebarUpdated } = await setupWebsiteBuilder(
+        `
+        <main>
+            <section id="section1" data-snippet="s_snippet"
+                    data-oe-shape-data='{"shape":"html_builder/Connections/01","colors":{"c5":"${RGB_BLUE}"},"flip":[],"showOnMobile":false,"shapeAnimationSpeed":"0", "selectedColor":false}'>
+                <div class="o_we_shape o_html_builder_Connections_01"></div>
+                Section 1
+            </section>
+            <section id="section2" class="d-lg-none o_snippet_desktop_invisible o_snippet_override_invisible" style="background-color: ${RGB_BLUE};" data-snippet="s_snippet">
+                Section 2
+            </section>
+            <section id="section3" style="background-color: ${RGB_BLUE};" data-snippet="s_snippet">
+                Section 3
+            </section>
+        </main>
+    `,
+        {
+            loadIframeBundles: true,
+        }
+    );
+    await contains(":iframe #section2").click();
+    await contains(".o_we_color_preview").click();
+    await contains(`[data-color='o_cc4']`).click();
+    await waitSidebarUpdated();
+    const shapeData = JSON.parse(queryOne(":iframe #section1").dataset.oeShapeData);
+    expect(shapeData.colors.c5).toBe(HEX_BLUE);
+});
+
+test("Connections shape do not update if it is inside an invisible element", async () => {
+    const { waitSidebarUpdated } = await setupWebsiteBuilder(
+        `
+        <main>
+            <section id="section1" data-snippet="s_snippet"
+                    data-oe-shape-data='{"shape":"html_builder/Connections/01","colors":{"c5":"${RGB_BLUE}"},"flip":[],"showOnMobile":false,"shapeAnimationSpeed":"0", "selectedColor":false}'>
+                <div class="o_we_shape o_html_builder_Connections_01"></div>
+                Section 1
+            </section>
+            <section id="section2" style="background-color: ${RGB_BLUE};" data-snippet="s_snippet">
+                Section 2
+            </section>
+            <section id="section3" style="background-color: ${RGB_GREEN};" data-snippet="s_snippet">
+                Section 3
+            </section>
+        </main>
+    `,
+        {
+            loadIframeBundles: true,
+        }
+    );
+    await contains(":iframe #section1").click();
+    await contains(".overlay [data-icon='keyboard_arrow_down']").click();
+    let shapeData = JSON.parse(queryOne(":iframe #section1").dataset.oeShapeData);
+    expect(shapeData.colors.c5).toBe(HEX_GREEN);
+    await contains(
+        "[data-action-id='toggleDeviceVisibility'][data-action-param='no_desktop']"
+    ).click();
+    await waitSidebarUpdated();
+    await contains(".o_we_invisible_entry").click();
+    await contains(".overlay [data-icon='keyboard_arrow_up']").click();
+    shapeData = JSON.parse(queryOne(":iframe #section1").dataset.oeShapeData);
+    expect(shapeData.colors.c5).toBe(HEX_GREEN);
+});
+
+test("Previewed shape has the correct color when no shape is applied", async () => {
+    const { waitSidebarUpdated } = await setupWebsiteBuilder(
+        `
+        <section id="section1" data-snippet="s_snippet">
+            Section 1
+        </section>
+        <section id="section2" style="background-color: ${RGB_BLUE};" data-snippet="s_snippet">
+            Section 2
+        </section>
+    `,
+        {
+            loadIframeBundles: true,
+        }
+    );
+    await contains(":iframe #section1").click();
+    await contains("[data-label='Shape'] button").click();
+    await waitSidebarUpdated();
+    expect(getComputedStyle(queryOne(".o_html_builder_Connections_01")).backgroundImage).toInclude(
+        encodeURIComponent(HEX_BLUE)
+    );
+});
+
+test("Previewed shape has the correct color and flip when a shape is applied", async () => {
+    const { waitSidebarUpdated } = await setupWebsiteBuilder(
+        `
+        <section id="section1" style="background-color: ${RGB_BLUE};" data-snippet="s_snippet">
+                Section 1
+            </section>
+        <section id="section2" data-snippet="s_snippet"
+                    data-oe-shape-data='{"shape":"html_builder/Connections/01","colors":{"c5":"${RGB_BLUE}"},"flip":["x", "y"],"showOnMobile":false,"shapeAnimationSpeed":"0", "selectedColor":false}'>
+                <div class="o_we_shape o_html_builder_Connections_01"></div>
+            Section 2
+        </section>
+    `,
+        {
+            loadIframeBundles: true,
+        }
+    );
+    await contains(":iframe #section2").click();
+    await contains("[data-label='Shape'] button").click();
+    await waitSidebarUpdated();
+    const shapePreviewStyle = getComputedStyle(
+        queryOne(".o_html_builder_Connections_01")
+    ).backgroundImage;
+    expect(shapePreviewStyle).toInclude(encodeURIComponent(HEX_BLUE));
+    expect(shapePreviewStyle).toInclude("flip=xy");
+});
+
+test("Change the background position when multiple background layer is applied", async () => {
+    await dragAndDropBgImage({ loadIframeBundles: true });
+    const section = await waitFor(":iframe section");
+    await contains(section).click();
+    expect(section).not.toHaveClass("o_bg_img_opt_repeat");
+    expect(section).toHaveStyle("background-size: cover");
+    await contains("[data-label='Background'] .o_we_color_preview").click();
+    await contains(".o_font_color_selector .gradient-tab").click();
+    await contains(".o_colorpicker_sections .o_gradient_color_button").click();
+    await contains("[data-label='Position'] .dropdown-toggle").click();
+    await contains("[data-action-value='repeat-pattern']").click();
+    expect(section).toHaveClass("o_bg_img_opt_repeat");
+    expect(section).toHaveStyle({"background-size": /^100px.+cover$/});
+    expect("[data-action-value='repeat-pattern']").toHaveClass("active");
+});
+
+for (const [platform, platformClass] of Object.entries(PLATFORMS)) {
+    if ("hideControls" in platformClass.optionsConfig) {
+        test(`background video applies hideControls & hideFullscreen options to video selector ${platform}`, async () => {
+            await setupWebsiteBuilderWithSnippet("s_cover");
+            const videoUrl = platformClass.exampleUrls.base;
+
+            mockFetch(() => '{"data": "mockFetch api result data"}');
+
+            await contains(":iframe .s_cover").click();
+            await contains('[data-container-title="Cover"]').click();
+            await contains('[data-action-id="toggleBgVideo"]').click();
+
+            await click("#o_video_text");
+            await edit(videoUrl);
+
+            await advanceTime(100);
+
+            await contains("div.modal .modal-footer button.btn-primary").click();
+            await waitForNone(`div.modal`);
+
+            const videoSrc = queryAttribute(":iframe .o_background_video", "data-bg-video-src");
+            for (const paramName of platformClass.optionsConfig.hideControls.params) {
+                expect(videoSrc).toMatch(`${paramName}=0`);
+            }
+
+            if (platformClass.optionsConfig.hideControls?.linkedParams?.length) {
+                for (const paramName of platformClass.optionsConfig.hideControls.linkedParams) {
+                    expect(videoSrc).toMatch(`${paramName}=0`);
+                }
+            }
+        });
+    }
+}
+
+for (const [platform, platformClass] of Object.entries(PLATFORMS)) {
+    if ("loop" in platformClass.optionsConfig) {
+        test(`background video applies the loop option to video selector ${platform}`, async () => {
+            await setupWebsiteBuilderWithSnippet("s_cover");
+            const videoUrl = platformClass.exampleUrls.base;
+
+            mockFetch(() => '{"data": "mockFetch api result data"}');
+
+            await contains(":iframe .s_cover").click();
+            await contains('[data-container-title="Cover"]').click();
+            await contains('[data-action-id="toggleBgVideo"]').click();
+
+            await click("#o_video_text");
+            await edit(videoUrl);
+
+            await advanceTime(100);
+
+            await contains("div.modal .modal-footer button.btn-primary").click();
+            await waitForNone(`div.modal`);
+
+            const videoSrc = queryAttribute(":iframe .o_background_video", "data-bg-video-src");
+            const loopConfig = platformClass.optionsConfig.loop;
+            const enabledValue = loopConfig.type === Boolean ? "true" : "1";
+            for (const paramName of loopConfig.params) {
+                expect(videoSrc).toMatch(`${paramName}=${enabledValue}`);
+            }
+
+            if (platform === "youtube") {
+                const videoId = platformClass.isValidVideoUrl(videoUrl).groups.id;
+                expect(videoSrc).toMatch(`playlist=${videoId}`);
+            }
+        });
+    }
+}

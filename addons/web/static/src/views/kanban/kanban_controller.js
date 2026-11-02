@@ -1,3 +1,4 @@
+import { render, useLayoutEffect, useSubEnv } from "@web/owl2/utils";
 import { DropdownItem } from "@web/core/dropdown/dropdown_item";
 import { _t } from "@web/core/l10n/translation";
 import { user } from "@web/core/user";
@@ -8,10 +9,12 @@ import { useSetupAction } from "@web/search/action_hook";
 import { ActionMenus, STATIC_ACTIONS_GROUP_NUMBER } from "@web/search/action_menus/action_menus";
 import { Layout } from "@web/search/layout";
 import { usePager } from "@web/search/pager_hook";
+import { OfflineSearchBar } from "@web/search/search_bar/offline_search_bar";
 import { SearchBar } from "@web/search/search_bar/search_bar";
 import { useSearchBarToggler } from "@web/search/search_bar/search_bar_toggler";
 import { session } from "@web/session";
 import { useModelWithSampleData } from "@web/model/model";
+import { OfflineActionHelper } from "@web/views/offline_action_helper";
 import { standardViewProps } from "@web/views/standard_view_props";
 import { MultiRecordViewButton } from "@web/views/view_button/multi_record_view_button";
 import { useViewButtons } from "@web/views/view_button/view_button_hook";
@@ -19,19 +22,22 @@ import { useExportRecords, useDeleteRecords } from "@web/views/view_hook";
 import { addFieldDependencies, extractFieldsFromArchInfo } from "@web/model/relational_model/utils";
 import { KanbanCogMenu } from "./kanban_cog_menu";
 import { KanbanRenderer } from "./kanban_renderer";
-import { useProgressBar } from "./progress_bar_hook";
+import { ProgressBarState, useProgressBar } from "./progress_bar_hook";
 import { SelectionBox } from "@web/views/view_components/selection_box";
 
 import {
     Component,
     onMounted,
     onWillStart,
-    reactive,
+    usePlugin,
+    proxy,
+    signal,
+    t,
     useEffect,
-    useRef,
-    useState,
-    useSubEnv,
+    useProps,
 } from "@odoo/owl";
+import { OfflinePlugin } from "@web/core/offline/offline_plugin";
+import { QuickCreateState } from "./kanban_record_quick_create";
 
 const QUICK_CREATE_FIELD_TYPES = ["char", "boolean", "many2one", "selection", "many2many"];
 
@@ -40,39 +46,40 @@ const QUICK_CREATE_FIELD_TYPES = ["char", "boolean", "many2one", "selection", "m
 export class KanbanController extends Component {
     static template = `web.KanbanView`;
     static components = {
+        OfflineActionHelper,
         ActionMenus,
         DropdownItem,
         Layout,
         KanbanRenderer,
         MultiRecordViewButton,
+        OfflineSearchBar,
         SearchBar,
         CogMenu: KanbanCogMenu,
         SelectionBox,
     };
-    static props = {
+    static ProgressBarStateClass = ProgressBarState;
+    props = useProps({
         ...standardViewProps,
-        editable: { type: Boolean, optional: true },
-        forceGlobalClick: { type: Boolean, optional: true },
-        onSelectionChanged: { type: Function, optional: true },
-        readonly: { type: Boolean, optional: true },
-        showButtons: { type: Boolean, optional: true },
-        Compiler: Function,
-        Model: Function,
-        Renderer: Function,
-        buttonTemplate: String,
-        archInfo: Object,
-    };
+        editable: t.boolean().optional(),
+        forceGlobalClick: t.boolean().optional(false),
+        onSelectionChanged: t.function().optional(),
+        readonly: t.boolean().optional(),
+        Compiler: t.function(),
+        Model: t.function(),
+        Renderer: t.function(),
+        buttonTemplate: t.string(),
+        archInfo: t.object(),
+        createRecord: t.function().optional(() => () => {}),
+        selectRecord: t.function().optional(() => () => {}),
+    });
 
-    static defaultProps = {
-        createRecord: () => {},
-        forceGlobalClick: false,
-        selectRecord: () => {},
-        showButtons: true,
-    };
+    rootRef = signal.ref();
 
     setup() {
         this.actionService = useService("action");
         this.dialog = useService("dialog");
+        this.uiService = useService("ui");
+        this.offlinePlugin = usePlugin(OfflinePlugin);
         const { Model, archInfo } = this.props;
 
         class KanbanSampleModel extends Model {
@@ -104,36 +111,31 @@ export class KanbanController extends Component {
             }
         }
 
-        this.model = useState(
+        this.model = proxy(
             useModelWithSampleData(KanbanSampleModel, this.modelParams, this.modelOptions)
         );
         if (archInfo.progressAttributes) {
             const { activeBars } = this.props.state || {};
             this.progressBarState = useProgressBar(
-                archInfo.progressAttributes,
-                this.model,
-                this.progressBarAggregateFields,
-                activeBars
+                {
+                    progressAttributes: archInfo.progressAttributes,
+                    model: this.model,
+                    aggregateFields: this.progressBarAggregateFields,
+                    activeBars: activeBars,
+                },
+                this.constructor.ProgressBarStateClass
             );
         }
         this.headerButtons = archInfo.headerButtons;
 
-        const self = this;
-        this.quickCreateState = reactive({
-            get groupId() {
-                return this._groupId || false;
-            },
-            set groupId(groupId) {
-                if (self.model.useSampleModel) {
-                    self.model.removeSampleDataInGroups();
-                    self.model.useSampleModel = false;
-                }
-                this._groupId = groupId;
-            },
-            view: archInfo.quickCreateView,
+        this.quickCreateState = new QuickCreateState(archInfo.quickCreateView);
+        useEffect(() => {
+            if (this.quickCreateState.isOpen && this.model.useSampleModel) {
+                this.model.removeSampleDataInGroups();
+                this.model.useSampleModel = false;
+            }
         });
 
-        this.rootRef = useRef("root");
         useViewButtons(this.rootRef, {
             beforeExecuteAction: this.beforeExecuteActionButton.bind(this),
             afterExecuteAction: this.afterExecuteActionButton.bind(this),
@@ -148,10 +150,10 @@ export class KanbanController extends Component {
                     activeBars: this.progressBarState?.activeBars,
                     modelState: this.model.exportState(),
                 };
-                if (this.env.isSmall && this.model.root.isGrouped) {
+                if (this.uiService.isSmall && this.model.root.isGrouped) {
                     const columnScrollTops = [];
                     const sel = ".o_kanban_group:not(.o_column_folded)";
-                    const columnEls = this.rootRef.el.querySelectorAll(sel);
+                    const columnEls = this.rootRef()?.querySelectorAll(sel) ?? [];
                     const groups = this.model.root.groups;
                     for (const columnEl of columnEls) {
                         const scrollTop = columnEl.scrollTop;
@@ -161,27 +163,27 @@ export class KanbanController extends Component {
                         }
                     }
                     state.scrollPositions = {
-                        scrollLeft: this.rootRef.el.querySelector(".o_renderer")?.scrollLeft || 0,
+                        scrollLeft: this.rootRef()?.querySelector(".o_renderer")?.scrollLeft || 0,
                         columnScrollTops,
                     };
                 }
                 return state;
             },
         });
-        useEffect(
+        useLayoutEffect(
             (isReady) => {
                 if (isReady) {
-                    if (this.env.isSmall && this.model.root.isGrouped) {
+                    if (this.uiService.isSmall && this.model.root.isGrouped) {
                         const { scrollPositions } = this.props.state || {};
                         if (scrollPositions) {
                             const { scrollLeft, columnScrollTops } = scrollPositions;
-                            this.rootRef.el.querySelector(".o_renderer").scrollLeft = scrollLeft;
+                            this.rootRef().querySelector(".o_renderer").scrollLeft = scrollLeft;
                             const groups = this.model.root.groups;
                             for (const [serverValue, scrollTop] of columnScrollTops) {
                                 const group = groups.find((g) => g.serverValue === serverValue);
                                 if (group) {
                                     const sel = `.o_kanban_group[data-id=${group.id}]`;
-                                    this.rootRef.el.querySelector(sel).scrollTop = scrollTop;
+                                    this.rootRef().querySelector(sel).scrollTop = scrollTop;
                                 }
                             }
                         }
@@ -190,7 +192,7 @@ export class KanbanController extends Component {
                     }
                 }
             },
-            () => [this.model.isReady]
+            () => [this.model.isReady()]
         );
         usePager(() => {
             const root = this.model.root;
@@ -202,9 +204,8 @@ export class KanbanController extends Component {
                     total: count,
                     onUpdate: async ({ offset, limit }, hasNavigated) => {
                         await this.model.root.load({ offset, limit });
-                        await this.onUpdatedPager();
                         if (hasNavigated) {
-                            this.onPageChangeScroll();
+                            this.onPageChange();
                         }
                     },
                     updateTotal: hasLimitedCount ? () => root.fetchCount() : undefined,
@@ -216,7 +217,7 @@ export class KanbanController extends Component {
         onMounted(() => {
             this.firstLoad = false;
         });
-        useEffect(
+        useLayoutEffect(
             () => {
                 this.onSelectionChanged();
             },
@@ -247,7 +248,7 @@ export class KanbanController extends Component {
             ...this.props.display,
             controlPanel: {
                 ...controlPanel,
-                layoutActions: !this.hasSelectedRecords,
+                actions: !this.hasSelectedRecords,
             },
         };
     }
@@ -319,10 +320,12 @@ export class KanbanController extends Component {
             groupsLimit: Number.MAX_SAFE_INTEGER, // no limit
             countLimit: archInfo.countLimit,
             defaultOrderBy: archInfo.defaultOrder,
+            defaultGroupBy: archInfo.defaultGroupBy,
             maxGroupByDepth: 1,
             activeIdsLimit: session.active_ids_limit,
             hooks: {
                 onRecordSaved: this.onRecordSaved.bind(this),
+                onSavedMulti: this.onSavedMulti.bind(this),
             },
         };
     }
@@ -346,7 +349,7 @@ export class KanbanController extends Component {
     }
 
     get className() {
-        if (this.env.isSmall && this.model.root.isGrouped) {
+        if (this.uiService.isSmall && this.model.root.isGrouped) {
             const classList = (this.props.className || "").split(" ");
             classList.push("o_action_delegate_scroll");
             return classList.join(" ");
@@ -382,21 +385,21 @@ export class KanbanController extends Component {
             export: {
                 isAvailable: () => this.isExportEnable,
                 sequence: 10,
-                icon: "fa fa-upload",
+                icon: "upload",
                 description: _t("Export"),
                 callback: () => this.exportRecords(),
             },
             duplicate: {
                 isAvailable: () => this.props.archInfo.activeActions.duplicate,
                 sequence: 30,
-                icon: "fa fa-clone",
+                icon: "content_copy",
                 description: _t("Duplicate"),
                 callback: () => this.model.root.duplicateRecords(),
             },
             archive: {
                 isAvailable: () => this.archiveEnabled,
                 sequence: 40,
-                icon: "oi oi-archive",
+                icon: "archive",
                 description: _t("Archive"),
                 callback: () =>
                     this.model.root.toggleArchiveWithConfirmation(true, this.archiveDialogProps),
@@ -404,14 +407,15 @@ export class KanbanController extends Component {
             unarchive: {
                 isAvailable: () => this.archiveEnabled,
                 sequence: 45,
-                icon: "oi oi-unarchive",
+                icon: "unarchive",
                 description: _t("Unarchive"),
                 callback: () => this.model.root.toggleArchiveWithConfirmation(false),
             },
             delete: {
                 isAvailable: () => this.props.archInfo.activeActions.delete,
                 sequence: 50,
-                icon: "fa fa-trash-o",
+                icon: "delete",
+                iconClass: "oi-filled",
                 description: _t("Delete"),
                 class: "text-danger",
                 callback: () =>
@@ -448,7 +452,7 @@ export class KanbanController extends Component {
             if (firstGroup.isFolded) {
                 await firstGroup.toggle();
             }
-            this.quickCreateState.groupId = firstGroup.id;
+            await this.quickCreateState.openQuickCreate(firstGroup.id);
         } else if (onCreate && onCreate !== "quick_create") {
             const options = {
                 additionalContext: root.context,
@@ -456,7 +460,7 @@ export class KanbanController extends Component {
                     if (!noReload) {
                         await root.load();
                         this.model.useSampleModel = false;
-                        this.render(true); // FIXME WOWL reactivity
+                        render(this, true); // FIXME WOWL reactivity
                     }
                 },
             };
@@ -470,11 +474,28 @@ export class KanbanController extends Component {
         return this.props.archInfo.activeActions.create;
     }
 
+    get isNewButtonAvailableOffline() {
+        const { onCreate } = this.props.archInfo;
+        if (this.canQuickCreate && onCreate === "quick_create") {
+            return this.offlinePlugin.isAvailableOffline(
+                this.env.config.actionId,
+                "kanban_quick_create",
+                false
+            );
+        }
+
+        if (onCreate && onCreate !== "quick_create") {
+            return false;
+        }
+
+        return this.offlinePlugin.isAvailableOffline(this.env.config.actionId, "form", false);
+    }
+
     get isNewButtonDisabled() {
         const { createGroup } = this.props.archInfo.activeActions;
         const list = this.model.root;
         return (
-            this.model.isReady &&
+            this.model.isReady() &&
             list.isGrouped &&
             list.groupByField.type === "many2one" &&
             list.groups.length === 0 &&
@@ -487,7 +508,7 @@ export class KanbanController extends Component {
         if (!activeActions.quickCreate) {
             return false;
         }
-        if (!this.model.isReady) {
+        if (!this.model.isReady()) {
             return false;
         }
 
@@ -501,19 +522,25 @@ export class KanbanController extends Component {
 
     onRecordSaved(record) {
         if (this.model.root.isGrouped) {
-            const group = this.model.root.groups.find((l) =>
-                l.records.find((r) => r.id === record.id)
-            );
-            this.progressBarState?.updateCounts(group);
+            this.progressBarState?.updateCounts(record.group);
         }
     }
 
-    onPageChangeScroll() {
-        if (this.rootRef && this.rootRef.el) {
-            if (this.env.isSmall) {
-                this.rootRef.el.scrollTop = 0;
+    /**
+     * Records saved together always land in the same group, so one update is enough.
+     */
+    onSavedMulti(records) {
+        if (this.model.root.isGrouped) {
+            this.progressBarState?.updateCounts(records[0].group);
+        }
+    }
+
+    onPageChange() {
+        if (this.rootRef()) {
+            if (this.uiService.isSmall) {
+                this.rootRef().scrollTop = 0;
             } else {
-                this.rootRef.el.querySelector(".o_content").scrollTop = 0;
+                this.rootRef().querySelector(".o_content").scrollTop = 0;
             }
         }
     }
@@ -522,10 +549,8 @@ export class KanbanController extends Component {
 
     async afterExecuteActionButton(clickParams) {}
 
-    async onUpdatedPager() {}
-
     scrollTop() {
-        this.rootRef.el.querySelector(".o_content").scrollTo({ top: 0 });
+        this.rootRef().querySelector(".o_content").scrollTo({ top: 0 });
     }
 
     isQuickCreateField(field) {

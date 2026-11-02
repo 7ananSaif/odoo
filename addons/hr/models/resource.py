@@ -3,10 +3,11 @@
 
 from collections import defaultdict
 from datetime import datetime
-from pytz import timezone
+from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
 from odoo.tools.intervals import Intervals
+from odoo.addons.mail.tools.discuss import Store
 
 
 class ResourceResource(models.Model):
@@ -14,6 +15,7 @@ class ResourceResource(models.Model):
 
     user_id = fields.Many2one(copy=False)
     employee_id = fields.One2many('hr.employee', 'resource_id', check_company=True, context={'active_test': False})
+    tz = fields.Selection(compute='_compute_tz', inverse='_inverse_tz', store=True, readonly=False)
 
     job_title = fields.Char(compute='_compute_job_title', compute_sudo=True)
     department_id = fields.Many2one('hr.department', compute='_compute_department_id', compute_sudo=True)
@@ -22,7 +24,23 @@ class ResourceResource(models.Model):
     work_phone = fields.Char(related='employee_id.work_phone')
     show_hr_icon_display = fields.Boolean(related='employee_id.show_hr_icon_display')
     hr_icon_display = fields.Selection(related='employee_id.hr_icon_display')
-    calendar_id = fields.Many2one(inverse='_inverse_calendar_id')
+    calendar_id = fields.Many2one(compute='_compute_calendar_id', inverse='_inverse_calendar_id', store=True, readonly=False)
+
+    @api.depends('employee_id.current_version_id.tz')
+    def _compute_tz(self):
+        for resource in self.filtered('employee_id.current_version_id'):
+            resource.tz = resource.employee_id.current_version_id.tz
+
+    @api.depends('employee_id.current_version_id.resource_calendar_id')
+    def _compute_calendar_id(self):
+        """Follow the calendar of the employee's current version (the resource keeps its
+        calendar when it has no employee)."""
+        for resource in self.filtered('employee_id.current_version_id'):
+            resource.calendar_id = resource.employee_id.current_version_id.resource_calendar_id
+
+    def _inverse_tz(self):
+        for resource in self.filtered('employee_id'):
+            resource.employee_id.current_version_id.tz = resource.tz
 
     @api.depends('employee_id')
     def _compute_job_title(self):
@@ -36,29 +54,28 @@ class ResourceResource(models.Model):
 
     @api.depends('employee_id')
     def _compute_avatar_128(self):
-        is_hr_user = self.env.user.has_group('hr.group_hr_user')
-        if not is_hr_user:
-            public_employees = self.env['hr.employee.public'].with_context(active_test=False).search([
-                ('resource_id', 'in', self.ids),
-            ])
-            avatar_per_employee_id = {emp.id: emp.avatar_128 for emp in public_employees}
-
         for resource in self:
             employee = resource.employee_id
             if not employee:
                 resource.avatar_128 = False
                 continue
-            if is_hr_user:
-                resource.avatar_128 = employee[0].avatar_128
-            else:
-                resource.avatar_128 = avatar_per_employee_id[employee[0].id]
+            resource.avatar_128 = employee[0].avatar_128
 
     def _inverse_calendar_id(self):
+        """Propagate a calendar written on the resource to its employee (i.e. the employee's current version)."""
         for resource in self:
             if resource.calendar_id != resource.employee_id.resource_calendar_id:
                 resource.employee_id.resource_calendar_id = resource.calendar_id
 
     def _get_resource_without_contract(self):
+        """Return the resources that are not employees, or whose employee never had a contract.
+
+        "Ever": any active version with a ``contract_date_start``, whatever the
+        dates. Such resources keep the plain ``resource`` behavior (their own
+        ``calendar_id`` over the whole period).
+
+        :rtype: resource.resource
+        """
         employee_ids_with_active_contracts = {
             employee.id for [employee] in
             self.env['hr.version']._read_group(
@@ -75,21 +92,49 @@ class ResourceResource(models.Model):
         )
 
     def _get_contracts_valid_periods(self, start, end):
+        """Return, per resource and calendar, the intervals within ``[start, end]`` covered by a version in contract.
+
+        Each version in contract during the period
+        (``hr.employee._get_versions_with_contract_overlap_with_period``)
+        contributes the interval from its ``date_start`` 00:00 to its
+        ``date_end`` 23:59:59 (in the employee's timezone), clipped to
+        ``[start, end]``. Periods out of contract are absent.
+
+        :param datetime.datetime start: timezone-aware start
+        :param datetime.datetime end: timezone-aware end
+        :return: ``{resource_id: {resource.calendar: Intervals}}`` (nested ``defaultdict``)
+        :rtype: dict
+        """
         res = defaultdict(lambda: defaultdict(Intervals))
         timezones = {resource.tz for resource in self}
-        date_start = min(start.astimezone(timezone(tz)).date() for tz in timezones)
-        date_end = max(end.astimezone(timezone(tz)).date() for tz in timezones)
+        date_start = min(start.astimezone(ZoneInfo(tz)).date() for tz in timezones)
+        date_end = max(end.astimezone(ZoneInfo(tz)).date() for tz in timezones)
         contracts = self.employee_id._get_versions_with_contract_overlap_with_period(date_start, date_end)
         for contract in contracts:
-            tz = timezone(contract.employee_id.tz)
+            tz = ZoneInfo(contract.employee_id.tz)
             res[contract.employee_id.resource_id.id][contract.resource_calendar_id] |= Intervals([(
-                tz.localize(datetime.combine(contract.date_start, datetime.min.time())) if contract.date_start > start.astimezone(tz).date() else start,
-                tz.localize(datetime.combine(contract.date_end, datetime.max.time())) if contract.date_end and contract.date_end < end.astimezone(tz).date() else end,
+                datetime.combine(contract.date_start, datetime.min.time(), tzinfo=tz) if contract.date_start > start.astimezone(tz).date() else start,
+                datetime.combine(contract.date_end, datetime.max.time(), tzinfo=tz) if contract.date_end and contract.date_end < end.astimezone(tz).date() else end,
                 self.env['resource.calendar.attendance']
             )])
         return res
 
     def _get_calendars_validity_within_period(self, start, end, default_company=None):
+        """Return the calendars of each resource with their validity intervals, following the employees' contracts.
+
+        Resources of employees who ever had a contract get one entry per
+        calendar used by their versions in contract, valid only while in
+        contract (:meth:`_get_contracts_valid_periods`): out of contract, they
+        have no calendar, hence no work time. Other resources keep the
+        ``resource`` behavior (own calendar, whole period).
+
+        :param datetime.datetime start: timezone-aware start
+        :param datetime.datetime end: timezone-aware end
+        :param default_company: company whose calendar is used when ``self`` is empty
+        :type default_company: res.company or None
+        :return: ``{resource_id: {resource.calendar: Intervals}}``
+        :rtype: dict
+        """
         assert start.tzinfo and end.tzinfo
         if not self:
             return super()._get_calendars_validity_within_period(start, end, default_company=default_company)
@@ -108,6 +153,18 @@ class ResourceResource(models.Model):
         return calendars_within_period_per_resource
 
     def _get_flexible_resources_calendars_validity_within_period(self, start, end):
+        """Same as :meth:`_get_calendars_validity_within_period` for flexible resources.
+
+        The validity intervals are intersected with the resources' default
+        work intervals (``_get_flexible_resources_default_work_intervals``).
+        For resources without contract, fully flexible ones are keyed by
+        ``False`` instead of a calendar.
+
+        :param datetime.datetime start: timezone-aware start
+        :param datetime.datetime end: timezone-aware end
+        :return: ``{resource_id: {resource.calendar or False: Intervals}}``
+        :rtype: dict
+        """
         assert start.tzinfo and end.tzinfo
         resource_default_work_intervals = self._get_flexible_resources_default_work_intervals(start, end)
 
@@ -128,10 +185,35 @@ class ResourceResource(models.Model):
 
         return calendars_within_period_per_resource
 
-    def _get_calendar_at(self, date_target, tz=False):
-        result = super()._get_calendar_at(date_target)
-        resources_with_employee = self.filtered(lambda r: r.employee_id)
+    def _get_calendar_data_at(self, date_target, tz=False):
+        """Return the calendar, hours per week and hours per day of each resource on a given day.
+
+        For employees, the calendar of the version in contract on the day
+        (``date_target`` converted to ``tz``) is used, see
+        ``hr.employee._get_calendars``; other resources use their own calendar.
+
+        :param datetime.datetime date_target: timezone-aware datetime
+        :param tz: timezone in which ``date_target``'s day is evaluated
+        :type tz: zoneinfo.ZoneInfo
+        :return: ``{resource: {'resource_calendar_id': resource.calendar,
+            'hours_per_week': float, 'hours_per_day': float}}``
+        :rtype: dict
+        """
+        result = super()._get_calendar_data_at(date_target)
+        resources_with_employee = self.filtered('employee_id')
         employee_calendars = resources_with_employee.employee_id._get_calendars(date_target.astimezone(tz))
+        employee_hours_per_week = resources_with_employee.employee_id._get_hours_per_week_batch(date_target.astimezone(tz))
+        employee_hours_per_day = resources_with_employee.employee_id._get_hours_per_day_batch(date_target.astimezone(tz))
         for resource in resources_with_employee:
-            result[resource] = employee_calendars[resource.employee_id.id]
+            result[resource] = {
+                'resource_calendar_id': employee_calendars[resource.employee_id.id],
+                'hours_per_week': employee_hours_per_week[resource.employee_id.id],
+                'hours_per_day': employee_hours_per_day[resource.employee_id.id],
+            }
         return result
+
+    def _store_avatar_card_fields(self, res: Store.FieldList):
+        super()._store_avatar_card_fields(res)
+        res.one("department_id", ["name"])
+        # sudo: resource.resource - can access employee information of resource
+        res.one("employee_id", "_store_avatar_card_fields", sudo=True)

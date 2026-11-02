@@ -1,17 +1,20 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import _
-from odoo.http import route, request
+from odoo.http import request
 from odoo.addons.mail.controllers.attachment import AttachmentController
-from odoo.addons.mail.tools.discuss import add_guest_to_context
+from odoo.addons.mail.tools.discuss import mail_route
 
 
 class CloudAttachmentController(AttachmentController):
-    @route()
-    @add_guest_to_context
+    def _make_zip(self, name, attachments):
+        # ZIP files need the attachment bytes rather than a cloud redirect.
+        return super()._make_zip(name, attachments.with_context(cloud_storage_force_download=True))
+
+    @mail_route()
     def mail_attachment_upload(self, ufile, thread_id, thread_model, is_pending=False, **kwargs):
         is_cloud_storage = kwargs.get('cloud_storage')
-        if (is_cloud_storage and not request.env['ir.config_parameter'].sudo().get_param('cloud_storage_provider')):
+        if (is_cloud_storage and not request.env['ir.config_parameter'].sudo().get_str('cloud_storage_provider')):
             return request.make_json_response({
                 'error': _('Cloud storage configuration has been changed. Please refresh the page.')
             })

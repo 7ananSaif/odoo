@@ -1,8 +1,11 @@
-from odoo.tests.common import users
+from odoo.tests.common import tagged, users
 from odoo.exceptions import AccessError
 from odoo.addons.project.tests.test_access_rights import TestAccessRights
 
+
 class TestAccessRightsTodo(TestAccessRights):
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

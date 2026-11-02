@@ -1,4 +1,4 @@
-import { Component } from "@odoo/owl";
+import { Component, t, useProps } from "@odoo/owl";
 import { Dropdown } from "@web/core/dropdown/dropdown";
 import { DropdownItem } from "@web/core/dropdown/dropdown_item";
 
@@ -8,9 +8,10 @@ export class ReportViewMeasures extends Component {
         Dropdown,
         DropdownItem,
     };
-    static props = {
-        measures: true,
-        activeMeasures: { type: Array, optional: true },
-        onMeasureSelected: { type: Function, optional: true },
-    };
+    props = useProps({
+        measures: t.any(),
+        activeMeasures: t.array().optional(),
+        multiSelect: t.boolean().optional(true),
+        onMeasureSelected: t.function().optional(),
+    });
 }

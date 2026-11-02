@@ -1,6 +1,6 @@
+import { useEffect } from "@odoo/owl";
 import { makeContext } from "@web/core/context";
 import { ListRenderer } from "@web/views/list/list_renderer";
-import { useEffect } from "@odoo/owl";
 
 export class SlideCategoryListRenderer extends ListRenderer {
     setup() {
@@ -9,19 +9,14 @@ export class SlideCategoryListRenderer extends ListRenderer {
         this.discriminant = "is_category";
         this.titleField = "name";
 
-        useEffect(
-            (table) => {
-                if (table) {
-                    table.classList.add("o_section_list_view");
-                }
-            },
-            () => [this.tableRef.el]
-        );
+        useEffect(() => {
+            this.tableRef()?.classList.add("o_section_list_view");
+        });
     }
 
     add(params) {
         let editable = false;
-        if (params.context && !this.env.isSmall) {
+        if (params.context && !this.uiService.isSmall) {
             const evaluatedContext = makeContext([params.context]);
             if (evaluatedContext[`default_${this.discriminant}`]) {
                 editable = this.props.editable;

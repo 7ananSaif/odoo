@@ -2,8 +2,9 @@
 
 import { _t } from "@web/core/l10n/translation";
 import { EvaluationError, helpers } from "@odoo/o-spreadsheet";
+import { getFullFieldStringFromPath } from "../data_sources/data_source";
 
-const { isDateOrDatetimeField } = helpers;
+const { isDateOrDatetimeField, parseDimension } = helpers;
 
 /**
  * @typedef {import("@odoo/o-spreadsheet").Token} Token
@@ -21,6 +22,7 @@ const AGGREGATOR_NAMES = {
     min: _t("Minimum"),
     avg: _t("Average"),
     sum: _t("Sum"),
+    sum_currency: _t("Sum (Currency)"),
 };
 
 const NUMBER_AGGREGATORS = ["max", "min", "avg", "sum", "count_distinct", "count"];
@@ -29,7 +31,7 @@ const DATE_AGGREGATORS = ["max", "min", "count_distinct", "count"];
 const AGGREGATORS_BY_FIELD_TYPE = {
     integer: NUMBER_AGGREGATORS,
     float: NUMBER_AGGREGATORS,
-    monetary: NUMBER_AGGREGATORS,
+    monetary: [...NUMBER_AGGREGATORS, "sum_currency"],
     date: DATE_AGGREGATORS,
     datetime: DATE_AGGREGATORS,
     boolean: ["count_distinct", "count", "bool_and", "bool_or"],
@@ -92,13 +94,24 @@ export function domainHasNoRecordAtThisPosition(domain) {
     return domain.some((node) => node.value === "NO_RECORD_AT_THIS_POSITION");
 }
 
+export function addEmptyGranularity(groupBys, fields) {
+    return groupBys.map((g) => {
+        const dimension = parseDimension(g);
+        if (isDateOrDatetimeField(fields[dimension.fieldName])) {
+            return {
+                granularity: "month",
+                ...dimension,
+            };
+        }
+        return dimension;
+    });
+}
+
 export async function getRelationalFieldDefinition(resModel, fieldName, fieldService) {
-    const { modelsInfo, names } = await fieldService.loadPath(resModel, fieldName);
+    const fieldInfo = await fieldService.loadPath(resModel, fieldName);
     return {
-        ...modelsInfo.at(-1).fieldDefs[fieldName.split(".").at(-1)],
-        string: names
-            .map((name, i) => modelsInfo[i].fieldDefs[name]?.string || _t("Unnamed Field"))
-            .join(" > "),
+        ...fieldInfo.modelsInfo.at(-1).fieldDefs[fieldName.split(".").at(-1)],
+        string: getFullFieldStringFromPath(fieldInfo),
         name: fieldName,
     };
 }

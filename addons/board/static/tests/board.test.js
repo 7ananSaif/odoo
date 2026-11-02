@@ -91,7 +91,7 @@ describe("board_desktop", () => {
             };
         });
         onRpc("web_search_read", (args) => {
-            expect(args.kwargs.domain).toEqual([["foo", "!=", "False"]], {
+            expect(args.kwargs.domain).toEqual([["foo", "!=", false]], {
                 message: "the domain should be passed",
             });
             expect(args.kwargs.context.orderedBy).toEqual(
@@ -121,7 +121,7 @@ describe("board_desktop", () => {
                 <form string="My Dashboard" js_class="board">
                     <board style="2-1">
                         <column>
-                            <action context="{&quot;orderedBy&quot;: [{&quot;name&quot;: &quot;foo&quot;, &quot;asc&quot;: True}]}" view_mode="list" string="ABC" name="51" domain="[['foo', '!=', 'False']]"></action>
+                            <action context="{&quot;orderedBy&quot;: [{&quot;name&quot;: &quot;foo&quot;, &quot;asc&quot;: True}]}" view_mode="list" string="ABC" name="51" domain="[['foo', '!=', False]]"></action>
                         </column>
                     </board>
                 </form>`,
@@ -141,11 +141,11 @@ describe("board_desktop", () => {
 
         expect(".o-dashboard-action .o_list_view").toHaveCount(1);
 
-        await contains("h3 i.fa-window-minimize").click();
+        await contains("h3 i[data-icon='minimize']").click();
 
         expect(".o-dashboard-action .o_list_view").toHaveCount(0);
 
-        await contains("h3 i.fa-window-maximize").click();
+        await contains("h3 i[data-icon='fullscreen']").click();
 
         // content is visible again
         expect(".o-dashboard-action .o_list_view").toHaveCount(1);
@@ -184,7 +184,7 @@ describe("board_desktop", () => {
                 <form string="My Dashboard" js_class="board">
                     <board style="2-1">
                         <column>
-                            <action context="{&quot;orderedBy&quot;: [{&quot;name&quot;: &quot;foo&quot;, &quot;asc&quot;: True}]}" view_mode="list" string="ABC" name="51" domain="[['foo', '!=', 'False']]"></action>
+                            <action context="{&quot;orderedBy&quot;: [{&quot;name&quot;: &quot;foo&quot;, &quot;asc&quot;: True}]}" view_mode="list" string="ABC" name="51" domain="[['foo', '!=', False]]"></action>
                         </column>
                     </board>
                 </form>`,
@@ -217,7 +217,7 @@ describe("board_desktop", () => {
                 <form string="My Dashboard" js_class="board">
                     <board style="2-1">
                         <column>
-                            <action context="{&quot;orderedBy&quot;: [{&quot;name&quot;: &quot;foo&quot;, &quot;asc&quot;: True}]}" string="ABC" name="51" domain="[['foo', '!=', 'False']]"></action>
+                            <action context="{&quot;orderedBy&quot;: [{&quot;name&quot;: &quot;foo&quot;, &quot;asc&quot;: True}]}" string="ABC" name="51" domain="[['foo', '!=', False]]"></action>
                         </column>
                     </board>
                 </form>`,
@@ -238,7 +238,7 @@ describe("board_desktop", () => {
                 <form string="My Dashboard" js_class="board">
                     <board style="2-1">
                         <column>
-                            <action context="{&quot;orderedBy&quot;: [{&quot;name&quot;: &quot;foo&quot;, &quot;asc&quot;: True}]}" string="ABC" name="51" domain="[['foo', '!=', 'False']]"></action>
+                            <action context="{&quot;orderedBy&quot;: [{&quot;name&quot;: &quot;foo&quot;, &quot;asc&quot;: True}]}" string="ABC" name="51" domain="[['foo', '!=', False]]"></action>
                         </column>
                     </board>
                 </form>`,
@@ -278,7 +278,7 @@ describe("board_desktop", () => {
                 <form string="My Dashboard" js_class="board">
                     <board style="2-1">
                         <column>
-                            <action context="{&quot;orderedBy&quot;: [{&quot;name&quot;: &quot;foo&quot;, &quot;asc&quot;: True}]}" string="ABC" name="51" domain="[['foo', '!=', 'False']]"></action>
+                            <action context="{&quot;orderedBy&quot;: [{&quot;name&quot;: &quot;foo&quot;, &quot;asc&quot;: True}]}" string="ABC" name="51" domain="[['foo', '!=', False]]"></action>
                         </column>
                     </board>
                 </form>`,
@@ -355,7 +355,7 @@ describe("board_desktop", () => {
                 <form string="My Dashboard" js_class="board">
                     <board style="2-1">
                         <column>
-                            <action context="{&quot;orderedBy&quot;: [{&quot;name&quot;: &quot;foo&quot;, &quot;asc&quot;: True}]}" string="ABC" name="51" domain="[['foo', '!=', 'False']]"></action>
+                            <action context="{&quot;orderedBy&quot;: [{&quot;name&quot;: &quot;foo&quot;, &quot;asc&quot;: True}]}" string="ABC" name="51" domain="[['foo', '!=', False]]"></action>
                         </column>
                     </board>
                 </form>`,
@@ -380,7 +380,7 @@ describe("board_desktop", () => {
                 <form string="My Dashboard" js_class="board">
                     <board style="2-1">
                         <column>
-                            <action context="{&quot;orderedBy&quot;: [{&quot;name&quot;: &quot;foo&quot;, &quot;asc&quot;: True}]}" view_mode="list" string="ABC" name="51" domain="[['foo', '!=', 'False']]"></action>
+                            <action context="{&quot;orderedBy&quot;: [{&quot;name&quot;: &quot;foo&quot;, &quot;asc&quot;: True}]}" view_mode="list" string="ABC" name="51" domain="[['foo', '!=', False]]"></action>
                         </column>
                     </board>
                 </form>`,
@@ -450,7 +450,7 @@ describe("board_desktop", () => {
                 <form string="My Dashboard" js_class="board">
                     <board style="2-1">
                         <column>
-                            <action context="{&quot;orderedBy&quot;: [{&quot;name&quot;: &quot;foo&quot;, &quot;asc&quot;: True}]}" view_mode="list" string="ABC" name="51" domain="[['foo', '!=', 'False']]"></action>
+                            <action context="{&quot;orderedBy&quot;: [{&quot;name&quot;: &quot;foo&quot;, &quot;asc&quot;: True}]}" view_mode="list" string="ABC" name="51" domain="[['foo', '!=', False]]"></action>
                         </column>
                     </board>
                 </form>`,
@@ -458,6 +458,58 @@ describe("board_desktop", () => {
 
         expect("h3 span:contains(ABC)").toHaveCount(1);
         expect(".o-dashboard-action div:contains(Invalid action)").toHaveCount(1);
+    });
+
+    test("saved arch keeps the layout", async () => {
+        onRpc("/web/action/load", () => ({
+            res_model: "partner",
+            views: [[4, "list"]],
+        }));
+        onRpc("/web/view/edit_custom", async (request) => {
+            const { params } = await request.json();
+            const board = new DOMParser()
+                .parseFromString(params.arch, "text/xml")
+                .querySelector("board");
+            expect.step(board.getAttribute("style"));
+            return true;
+        });
+        await mountView({
+            type: "form",
+            resModel: "board",
+            arch: `
+                <form string="My Dashboard" js_class="board">
+                    <board style="2-1">
+                        <column>
+                            <action context="{}" view_mode="list" string="ABC" name="51" domain="[]"></action>
+                        </column>
+                    </board>
+                </form>`,
+        });
+
+        await contains('.o-dashboard-column[data-idx="0"] .o-dashboard-action-header').dragAndDrop(
+            '.o-dashboard-column[data-idx="1"]'
+        );
+        expect.verifySteps(["2-1"]);
+    });
+
+    test("board without layout", async () => {
+        onRpc("/web/action/load", () => ({
+            res_model: "partner",
+            views: [[4, "list"]],
+        }));
+        await mountView({
+            type: "form",
+            resModel: "board",
+            arch: `
+                <form string="My Dashboard" js_class="board">
+                    <board>
+                        <column>
+                            <action context="{}" view_mode="list" string="ABC" name="51" domain="[]"></action>
+                        </column>
+                    </board>
+                </form>`,
+        });
+        expect("div.o-dashboard-layout-2-1").toHaveCount(1);
     });
 
     test(`clicking on a kanban's button should trigger the action`, async () => {
@@ -698,7 +750,7 @@ describe("board_mobile", () => {
                 <form string="My Dashboard" js_class="board">
                     <board style="2-1">
                         <column>
-                            <action context="{&quot;orderedBy&quot;: [{&quot;name&quot;: &quot;foo&quot;, &quot;asc&quot;: True}]}" view_mode="list" string="ABC" name="51" domain="[['foo', '!=', 'False']]"></action>
+                            <action context="{&quot;orderedBy&quot;: [{&quot;name&quot;: &quot;foo&quot;, &quot;asc&quot;: True}]}" view_mode="list" string="ABC" name="51" domain="[['foo', '!=', False]]"></action>
                         </column>
                     </board>
                 </form>`,
@@ -711,7 +763,7 @@ describe("board_mobile", () => {
             message: "The display layout is force to 1",
         });
         expect(".o-dashboard-action .o_control_panel").not.toHaveCount();
-        expect(".o-dashboard-action-header .fa-close").toHaveCount(0, {
+        expect(".o-dashboard-action-header .oi[data-icon='close']").toHaveCount(0, {
             message: "Should not have a close action button",
         });
     });
@@ -730,10 +782,10 @@ describe("board_mobile", () => {
                 <form string="My Dashboard" js_class="board">
                     <board style="2-1">
                         <column>
-                            <action context="{&quot;orderedBy&quot;: [{&quot;name&quot;: &quot;foo&quot;, &quot;asc&quot;: True}]}" view_mode="list" string="ABC" name="51" domain="[['foo', '!=', 'False']]"></action>
+                            <action context="{&quot;orderedBy&quot;: [{&quot;name&quot;: &quot;foo&quot;, &quot;asc&quot;: True}]}" view_mode="list" string="ABC" name="51" domain="[['foo', '!=', False]]"></action>
                         </column>
                         <column>
-                            <action context="{&quot;orderedBy&quot;: [{&quot;name&quot;: &quot;foo&quot;, &quot;asc&quot;: True}]}" view_mode="list" string="ABC" name="51" domain="[['foo', '!=', 'False']]"></action>
+                            <action context="{&quot;orderedBy&quot;: [{&quot;name&quot;: &quot;foo&quot;, &quot;asc&quot;: True}]}" view_mode="list" string="ABC" name="51" domain="[['foo', '!=', False]]"></action>
                         </column>
                     </board>
                 </form>`,

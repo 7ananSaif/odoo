@@ -1,3 +1,4 @@
+import { OverlayPlugin } from "@web/core/overlay/overlay_plugin";
 import { beforeEach, expect, test, describe, getFixture } from "@odoo/hoot";
 import { setSelection } from "./_helpers/selection";
 import { click, hover, queryOne, waitFor, waitForNone } from "@odoo/hoot-dom";
@@ -12,10 +13,8 @@ import {
 import { animationFrame } from "@odoo/hoot-mock";
 import { unformat } from "./_helpers/format";
 import { Plugin } from "@html_editor/plugin";
-import { Component, onMounted, onWillUnmount, xml } from "@odoo/owl";
-import { useService } from "@web/core/utils/hooks";
+import { Component, onMounted, onWillUnmount, usePlugin, xml } from "@odoo/owl";
 import { setupEditor } from "./_helpers/editor";
-import { MAIN_PLUGINS } from "@html_editor/plugin_sets";
 import { parseHTML } from "@html_editor/utils/html";
 import { closestScrollableY } from "@web/core/utils/scrolling";
 import { Wysiwyg } from "@html_editor/wysiwyg";
@@ -407,14 +406,12 @@ test("Toolbar should keep stable while extending down the selection", async () =
 test("overlay don't close when click on child overlay", async () => {
     class MySubOverlay extends Component {
         static template = xml`<button class="my-suboverlay">Overlay</button>`;
-        static props = {};
     }
     class MyOverlay extends Component {
         static template = xml`<div class="my-overlay">Overlay</div>`;
-        static props = {};
 
         setup() {
-            const overlayService = useService("overlay");
+            const overlayService = usePlugin(OverlayPlugin);
             let remove;
             onMounted(() => {
                 remove = overlayService.add(MySubOverlay, {});
@@ -436,7 +433,7 @@ test("overlay don't close when click on child overlay", async () => {
     }
 
     const { editor } = await setupEditor("<div>edit</div>", {
-        config: { Plugins: [...MAIN_PLUGINS, MyPlugin] },
+        config: { includePlugins: [MyPlugin] },
     });
     await waitFor(".my-overlay");
     await contains(".my-suboverlay").click();
@@ -447,7 +444,7 @@ test("overlay don't close when click on child overlay", async () => {
     await animationFrame();
 
     await setupEditor("<div>edit</div>", {
-        config: { Plugins: [...MAIN_PLUGINS, MyPlugin] },
+        config: { includePlugins: [MyPlugin] },
         props: {
             iframe: true,
         },

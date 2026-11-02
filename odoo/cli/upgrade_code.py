@@ -31,12 +31,11 @@ bullets.
 
 import argparse
 import functools
+import importlib.util
 import sys
-
-from importlib.machinery import SourceFileLoader
+from collections.abc import Iterator
 from pathlib import Path
 from types import ModuleType
-from typing import Iterator
 
 ROOT = Path(__file__).parent.parent
 UPGRADE = ROOT / 'upgrade_code'
@@ -74,25 +73,37 @@ except ImportError:
 class FileAccessor:
     addon: Path
     path: Path
-    content: str
+    content: str | None
 
     def __init__(self, path: Path, addon_path: Path) -> None:
         self.path = path
         self.addon = addon_path / path.relative_to(addon_path).parts[0]
-        self._content = None
         self.dirty = False
 
     @property
     def content(self):
-        if self._content is None:
-            self._content = self.path.read_text()
+        if not hasattr(self, '_content'):
+            try:
+                self._content = self.path.read_text()
+            except FileNotFoundError:
+                self._content = None
+            except Exception as e:
+                e.add_note(f"File: {self.path}")
+                raise
         return self._content
 
     @content.setter
     def content(self, value):
-        if self._content != value:
+        if self.content != value:
             self._content = value
             self.dirty = True
+
+    def _save(self):
+        if self.dirty:
+            if self._content is not None:
+                self.path.write_text(self._content)
+            else:
+                self.path.unlink()
 
 
 class FileManager:
@@ -102,14 +113,25 @@ class FileManager:
     def __init__(self, addons_path: list[str], glob: str = '**/*') -> None:
         self.addons_path = addons_path
         self.glob = glob
-        self._files = {
-            str(path): FileAccessor(path, Path(addon_path))
+        self._modules = {
+            addon.name: addon
             for addon_path in addons_path
-            for path in Path(addon_path).glob(glob)
-            if '__pycache__' not in path.parts
+            for addon in Path(addon_path).iterdir()
+            if addon.is_dir() and (addon / '__manifest__.py').exists()
+        }
+        self._files = {
+            str(path): FileAccessor(path, addon_path)
+            for apath in addons_path
+            if (addon_path := Path(apath))
+            for path in addon_path.glob(glob)
             if path.suffix in AVAILABLE_EXT
+            if (parts := path.parts)
+            if '__pycache__' not in parts
+            if '.git' not in parts
             if path.is_file()
         }
+        self._added_files = set()
+        self._summary = []
 
     def __iter__(self) -> Iterator[FileAccessor]:
         return iter(self._files.values())
@@ -117,15 +139,54 @@ class FileManager:
     def __len__(self):
         return len(self._files)
 
-    def get_file(self, path):
-        return self._files.get(str(path))
+    def get_modules(self) -> list[str]:
+        """ Return the list of all modules in the addons-path. """
+        return list(self._modules)
+
+    def get_file(self, module: str, file_name: str) -> FileAccessor:
+        """ Return the given file. """
+        try:
+            addon = self._modules[module]
+            path = addon / file_name
+
+            file = self._files.get(str(path))
+            if file is None:
+                file_path = str(path)
+                file = FileAccessor(path, addon.parent)
+                self._files[file_path] = file
+                self._added_files.add(file_path)
+            return file
+
+        except KeyError:
+            raise ValueError(f"You may not access file {module}/{file_name}")
+
+    def reset(self):
+        """Reset changes in the file manager."""
+        for file in self._added_files:
+            self._files.pop(file)
+        self._added_files.clear()
+        for file in self:
+            if file.dirty:
+                del file._content
+                file.dirty = False
+
+    def add_to_summary(self, message: str) -> None:
+        if message:
+            self._summary.append(message)
 
     if sys.stdout.isatty():
         def print_progress(self, current: int, total: int | None =None, file_name : str | Path = ""):
             total = total or len(self) or 1
             print(f'\033[K{current / total:>4.0%} \033[37m{file_name}\033[0m', end='\r', file=sys.stderr)  # noqa: T201
+
+        def print_summary(self) -> None:
+            if self._summary:
+                print("\n" + "\n".join(self._summary))  # noqa: T201
     else:
         def print_progress(self, current: int, total: int | None =None, file_name : str | Path = ""):
+            pass
+
+        def print_summary(self) -> None:
             pass
 
 
@@ -134,13 +195,15 @@ def get_upgrade_code_scripts(from_version: tuple[int, ...], to_version: tuple[in
     for script_path in sorted(UPGRADE.glob('*.py')):
         version = parse_version(script_path.name.partition('-')[0])
         if from_version <= version <= to_version:
-            module = SourceFileLoader(script_path.name, str(script_path)).load_module()
+            spec = importlib.util.spec_from_file_location(script_path.name, str(script_path))
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
             modules.append((script_path.name, module))
     return modules
 
 
 def migrate(
-    addons_path: list[str],
+    addons_path: list[str] | FileManager,
     glob: str,
     from_version: tuple[int, ...] | None = None,
     to_version: tuple[int, ...] | None = None,
@@ -148,28 +211,39 @@ def migrate(
     dry_run: bool = False,
 ):
     if script:
-        script_path = next(UPGRADE.glob(f'*{script.removesuffix(".py")}*.py'), None)
-        if not script_path:
-            raise FileNotFoundError(script)
+        script_path = Path(script).absolute()
+        if not script_path.is_file():
+            candidate_paths = list(UPGRADE.glob(f'*{script.removesuffix(".py")}*.py'))
+            if len(candidate_paths) == 1:
+                script_path = candidate_paths[0]
+            else:
+                raise FileNotFoundError(script)
         script_path.relative_to(UPGRADE)  # safeguard, prevent going up
-        module = SourceFileLoader(script_path.name, str(script_path)).load_module()
+        spec = importlib.util.spec_from_file_location(script_path.name, str(script_path))
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
         modules = [(script_path.name, module)]
     else:
         modules = get_upgrade_code_scripts(from_version, to_version)
 
-    file_manager = FileManager(addons_path, glob)
+    if isinstance(addons_path, FileManager):
+        file_manager = addons_path
+        assert not glob, "FileManager given with a glob, unsupported"
+    else:
+        file_manager = FileManager(addons_path, glob)
     for (name, module) in modules:
         file_manager.print_progress(0)  # 0%
         module.upgrade(file_manager)
         file_manager.print_progress(len(file_manager))  # 100%
 
-    for file in file_manager:
+    for file in sorted(file_manager, key=lambda file: str(file.path)):
         if file.dirty:
-            print(file.path)  # noqa: T201
+            status = 'deleted' if file.content is None else 'updated'
+            print(f"{status}: {file.path}")  # noqa: T201
             if not dry_run:
-                with file.path.open("w") as f:
-                    f.write(file.content)
+                file._save()
 
+    file_manager.print_summary()
     return any(file.dirty for file in file_manager)
 
 

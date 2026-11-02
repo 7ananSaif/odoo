@@ -18,7 +18,16 @@ export class PosPreset extends models.ServerModel {
             "slots_per_interval",
             "interval_time",
             "attendance_ids",
+            "service_fee",
+            "service_fee_product_id",
+            "service_fee_type",
+            "service_fee_amount",
+            "service_fee_based_on",
         ];
+    }
+
+    _load_pos_data_dependencies() {
+        return ["account.fiscal.position", "product.pricelist", "resource.calendar.attendance"];
     }
 
     _records = [
@@ -58,12 +67,34 @@ export class PosPreset extends models.ServerModel {
             name: "Name Required Preset",
             identification: "name",
             use_timing: false,
+            write_date: "2025-07-03 14:34:07",
         },
         {
             id: 4,
             name: "Address Required Preset",
             identification: "address",
             use_timing: false,
+            write_date: "2025-07-03 14:34:07",
+        },
+        {
+            id: 5,
+            name: "Take Out with Time Slots",
+            pricelist_id: false,
+            fiscal_position_id: false,
+            is_return: false,
+            color: 0,
+            has_image: false,
+            write_date: "2025-07-03 14:34:07",
+            identification: "none",
+            use_timing: true,
+            slots_per_interval: 5,
+            interval_time: 20,
+            attendance_ids: [1, 2, 3, 4, 4, 5, 6, 7, 8, 9, 10],
+            resource_calendar_id: 1,
         },
     ];
+
+    get_available_slots() {
+        return { usage_utc: { "2019-03-12 11:00:00": [1] } };
+    }
 }

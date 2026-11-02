@@ -14,15 +14,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-12 17:35+0000\n"
-"PO-Revision-Date: 2025-10-08 18:37+0000\n"
-"Last-Translator: \n"
-"Language-Team: \n"
+"POT-Creation-Date: 2026-10-16 17:41+0000\n"
+"PO-Revision-Date: 2026-08-31 20:44+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Uzbek <https://translate.odoo.com/projects/odoo-s19-4/hr/uz/"
+">\n"
 "Language: uz\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: hr
 #. odoo-python
@@ -40,10 +42,27 @@ msgstr "# yuborilishi kerak bo‘lgan e-pochta xabarlari"
 
 #. module: hr
 #. odoo-python
-#: code:addons/hr/models/hr_job.py:0
-#, fuzzy
-msgid "%s (copy)"
-msgstr "%s (nusxa)"
+#: code:addons/hr/models/resource_calendar.py:0
+msgid "%(calendar_name)s (%(employee_name)s)"
+msgstr ""
+
+#. module: hr
+#. odoo-python
+#: code:addons/hr/models/mail_activity_plan_template.py:0
+msgid "%(employee_name)s has no manager."
+msgstr ""
+
+#. module: hr
+#. odoo-python
+#: code:addons/hr/models/mail_activity_plan_template.py:0
+msgid "%(employee_name)s has no user."
+msgstr ""
+
+#. module: hr
+#. odoo-python
+#: code:addons/hr/models/mail_activity_plan_template.py:0
+msgid "%(employee_name)s's manager (%(manager_name)s) has no user."
+msgstr ""
 
 #. module: hr
 #. odoo-python
@@ -146,227 +165,162 @@ msgstr ""
 "target=\"_blank\"><small><b>O‘QISH</b></small></a>"
 
 #. module: hr
-#. odoo-python
-#: code:addons/hr/models/hr_employee.py:0
-#, fuzzy
+#: model_terms:ir.ui.view,arch_db:hr.res_users_view_form
 msgid ""
-"<b>Congratulations!</b> May I recommend you to setup an <a "
-"href=\"%s\">onboarding plan?</a>"
+"<i class=\"d-none d-md-inline-flex oi oi-filled oi-fw\" data-icon=\"mail\" "
+"title=\"Work Email\"/>"
 msgstr ""
-"<b>Tabriklaymiz!</b> Sizga <a href=\"%s\">ishga kirish rejasini</a> "
-"sozlashni tavsiya qilsam bo‘ladimi?"
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.res_users_view_form
+msgid ""
+"<i class=\"d-none d-md-inline-flex oi oi-filled oi-fw\" data-icon=\"phone\" "
+"title=\"Work Phone\"/>"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.res_users_view_form_preferences
+msgid ""
+"<i class=\"d-none d-md-inline-flex oi oi-filled\" data-icon=\"mail\" "
+"title=\"Work Email\"/>"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.res_users_view_form_preferences
+msgid ""
+"<i class=\"d-none d-md-inline-flex oi oi-filled\" data-icon=\"phone\" "
+"title=\"Work Phone\"/>"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.res_users_view_form
+msgid ""
+"<i class=\"d-none d-md-inline-flex oi oi-fw\" data-icon=\"smartphone\" "
+"title=\"Work Mobile\"/>"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.res_users_view_form_preferences
+msgid ""
+"<i class=\"d-none d-md-inline-flex oi\" data-icon=\"smartphone\" "
+"title=\"Work Mobile\"/>"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_view_form
+msgid ""
+"<i class=\"oi d-none d-md-block\" data-icon=\"smartphone\" title=\"Work "
+"Mobile\" invisible=\"not mobile_phone\"/>"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
+msgid ""
+"<i class=\"oi d-none d-md-inline-flex\" data-icon=\"sell\" title=\"Tags\"/>"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
+msgid ""
+"<i class=\"oi d-none d-md-inline-flex\" data-icon=\"smartphone\" "
+"title=\"Work Mobile\"/>"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_view_form
+msgid ""
+"<i class=\"oi me-1 mt-1\" data-icon=\"account_tree\"/>\n"
+"                                                        <span class=\"fw-"
+"bolder\">Zoom</span>"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
+msgid ""
+"<i class=\"oi ms-1\" data-icon=\"east\"/>\n"
+"                                            Cancel Departure"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_view_form
+msgid ""
+"<i class=\"oi oi-filled d-none d-md-block\" data-icon=\"mail\" title=\"Work "
+"Email\" invisible=\"not work_email\"/>"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_view_form
+msgid ""
+"<i class=\"oi oi-filled d-none d-md-block\" data-icon=\"phone\" title=\"Work "
+"Phone\" invisible=\"not work_phone\"/>"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
+msgid ""
+"<i class=\"oi oi-filled d-none d-md-inline-flex\" data-icon=\"mail\" "
+"title=\"Work Email\"/>"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
+msgid ""
+"<i class=\"oi oi-filled d-none d-md-inline-flex\" data-icon=\"phone\" "
+"title=\"Work Phone\"/>"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
+msgid ""
+"<i class=\"oi oi-filled oi-rotate-90 ms-1 mt-1\" data-icon=\"share\" "
+"role=\"img\" aria-label=\"Full Chart\"/>\n"
+"                                                Full Chart"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_view_kanban
+#: model_terms:ir.ui.view,arch_db:hr.hr_kanban_view_employees
+msgid ""
+"<i class=\"oi oi-fw me-2 text-primary\" data-icon=\"cake\" "
+"title=\"Birthday\"/>"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.hr_kanban_view_employees
+msgid ""
+"<i class=\"oi oi-fw oi-filled me-2 text-primary\" data-icon=\"contract\" "
+"title=\"Contract\"/>"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_view_kanban
+#: model_terms:ir.ui.view,arch_db:hr.hr_kanban_view_employees
+msgid ""
+"<i class=\"oi oi-fw oi-filled me-2 text-primary\" data-icon=\"mail\" "
+"title=\"Email\"/>"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_view_kanban
+#: model_terms:ir.ui.view,arch_db:hr.hr_kanban_view_employees
+msgid ""
+"<i class=\"oi oi-fw oi-filled me-2 text-primary\" data-icon=\"phone\" "
+"title=\"Phone\"/>"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.hr_kanban_view_employees
+msgid ""
+"<i class=\"oi oi-fw oi-filled me-2 text-primary\" data-icon=\"work\" "
+"title=\"Job Position\"/>"
+msgstr ""
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.hr_department_view_kanban
-#, fuzzy
 msgid ""
-"<i class=\"fa fa-building-o\" role=\"img\" aria-label=\"Company\" "
+"<i class=\"oi\" data-icon=\"business\" role=\"img\" aria-label=\"Company\" "
 "title=\"Company\"/>"
 msgstr ""
-"<i class=\"fa fa-building-o\" role=\"img\" aria-label=\"Company\" "
-"title=\"Company\"/>"
-
-#. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.res_users_view_form
-msgid ""
-"<i class=\"fa fa-envelope fa-fw me-1 text-primary\" title=\"Work Email\" "
-"invisible=\"login == work_email\"/>"
-msgstr ""
-
-#. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_view_form
-#: model_terms:ir.ui.view,arch_db:hr.res_users_view_form_preferences
-#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
-#, fuzzy
-msgid ""
-"<i class=\"fa fa-envelope fa-fw me-1 text-primary\" title=\"Work Email\"/>"
-msgstr ""
-"<i class=\"fa fa-envelope fa-fw me-1 text-primary\" title=\"Ish elektron "
-"pochtasi\"/>"
-
-#. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.res_users_view_form
-msgid ""
-"<i class=\"fa fa-fw fa-envelope me-1 text-primary\" title=\"Login / Email\" "
-"invisible=\"login != work_email\"/>\n"
-"                            <i class=\"fa fa-fw fa-key me-1 text-primary\" "
-"title=\"Login\" invisible=\"login == work_email\"/>"
-msgstr ""
-
-#. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_view_kanban
-#: model_terms:ir.ui.view,arch_db:hr.hr_kanban_view_employees
-#, fuzzy
-msgid ""
-"<i class=\"fa fa-fw me-2 fa-birthday-cake text-primary\" title=\"Birthday\"/>"
-msgstr ""
-"<i class=\"fa fa-fw me-2 fa-birthday-cake text-primary\" title=\"Tug‘ilgan "
-"kun\"/>"
-
-#. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.hr_kanban_view_employees
-#, fuzzy
-msgid ""
-"<i class=\"fa fa-fw me-2 fa-briefcase text-primary\" title=\"Contract\"/>"
-msgstr ""
-"<i class=\"fa fa-fw me-2 fa-briefcase text-primary\" title=\"Shartnoma\"/>"
-
-#. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_view_kanban
-#: model_terms:ir.ui.view,arch_db:hr.hr_kanban_view_employees
-#, fuzzy
-msgid "<i class=\"fa fa-fw me-2 fa-envelope text-primary\" title=\"Email\"/>"
-msgstr ""
-"<i class=\"fa fa-fw me-2 fa-envelope text-primary\" title=\"Elektron "
-"pochta\"/>"
-
-#. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_view_kanban
-#: model_terms:ir.ui.view,arch_db:hr.hr_kanban_view_employees
-#, fuzzy
-msgid "<i class=\"fa fa-fw me-2 fa-phone text-primary\" title=\"Phone\"/>"
-msgstr "<i class=\"fa fa-fw me-2 fa-phone text-primary\" title=\"Telefon\"/>"
-
-#. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.hr_kanban_view_employees
-#, fuzzy
-msgid ""
-"<i class=\"fa fa-fw me-2 fa-suitcase text-primary\" title=\"Job Position\"/>"
-msgstr ""
-"<i class=\"fa fa-fw me-2 fa-suitcase text-primary\" title=\"Lavozim\"/>"
-
-#. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_view_form
-#: model_terms:ir.ui.view,arch_db:hr.res_users_view_form
-#: model_terms:ir.ui.view,arch_db:hr.res_users_view_form_preferences
-#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
-#, fuzzy
-msgid ""
-"<i class=\"fa fa-mobile fa-fw me-1 text-primary\" title=\"Work Mobile\"/>"
-msgstr ""
-"<i class=\"fa fa-mobile fa-fw me-1 text-primary\" title=\"Ish mobil "
-"telefoni\"/>"
-
-#. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_view_form
-#: model_terms:ir.ui.view,arch_db:hr.res_users_view_form
-#: model_terms:ir.ui.view,arch_db:hr.res_users_view_form_preferences
-#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
-#, fuzzy
-msgid "<i class=\"fa fa-phone fa-fw me-1 text-primary\" title=\"Work Phone\"/>"
-msgstr ""
-"<i class=\"fa fa-phone fa-fw me-1 text-primary\" title=\"Ish telefoni\"/>"
-
-#. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
-#, fuzzy
-msgid "<i class=\"fa fa-tags fa-fw me-1 text-primary\" title=\"Tags\"/>"
-msgstr "<i class=\"fa fa-tags fa-fw me-1 text-primary\" title=\"Teglar\"/>"
-
-#. module: hr
-#: model_terms:ir.actions.act_window,help:hr.hr_employee_public_action
-#: model_terms:ir.actions.act_window,help:hr.open_view_employee_list_my
-#, fuzzy
-msgid "<small>AI</small>"
-msgstr "<small>Sun'iy intellekt</small>"
-
-#. module: hr
-#: model_terms:ir.actions.act_window,help:hr.hr_employee_public_action
-#: model_terms:ir.actions.act_window,help:hr.open_view_employee_list_my
-#, fuzzy
-msgid "<small>Dashboard</small>"
-msgstr "<small>Boshqaruv paneli</small>"
-
-#. module: hr
-#: model_terms:ir.actions.act_window,help:hr.hr_employee_public_action
-#: model_terms:ir.actions.act_window,help:hr.open_view_employee_list_my
-#, fuzzy
-msgid "<small>Documents</small>"
-msgstr "<small>Hujjatlar</small>"
-
-#. module: hr
-#: model_terms:ir.actions.act_window,help:hr.hr_employee_public_action
-#: model_terms:ir.actions.act_window,help:hr.open_view_employee_list_my
-#, fuzzy
-msgid "<small>Fleet</small>"
-msgstr "<small>Transport vositalari parki</small>"
-
-#. module: hr
-#: model_terms:ir.actions.act_window,help:hr.hr_employee_public_action
-#: model_terms:ir.actions.act_window,help:hr.open_view_employee_list_my
-#, fuzzy
-msgid "<small>Hiring</small>"
-msgstr "<small>Ishga qabul qilish</small>"
-
-#. module: hr
-#: model_terms:ir.actions.act_window,help:hr.hr_employee_public_action
-#: model_terms:ir.actions.act_window,help:hr.open_view_employee_list_my
-#, fuzzy
-msgid "<small>Leaves</small>"
-msgstr "<small>Ta'tillar</small>"
-
-#. module: hr
-#: model_terms:ir.actions.act_window,help:hr.hr_employee_public_action
-#: model_terms:ir.actions.act_window,help:hr.open_view_employee_list_my
-#, fuzzy
-msgid "<small>Lunch</small>"
-msgstr "<small>Tushlik</small>"
-
-#. module: hr
-#: model_terms:ir.actions.act_window,help:hr.hr_employee_public_action
-#: model_terms:ir.actions.act_window,help:hr.open_view_employee_list_my
-#, fuzzy
-msgid "<small>Payroll</small>"
-msgstr "<small>Ish haqi</small>"
-
-#. module: hr
-#: model_terms:ir.actions.act_window,help:hr.hr_employee_public_action
-#: model_terms:ir.actions.act_window,help:hr.open_view_employee_list_my
-#, fuzzy
-msgid "<small>Performance</small>"
-msgstr "<small>Samaradorlik</small>"
-
-#. module: hr
-#: model_terms:ir.actions.act_window,help:hr.hr_employee_public_action
-#: model_terms:ir.actions.act_window,help:hr.open_view_employee_list_my
-#, fuzzy
-msgid "<small>Planning</small>"
-msgstr "<small>Rejalashtirish</small>"
-
-#. module: hr
-#: model_terms:ir.actions.act_window,help:hr.hr_employee_public_action
-#: model_terms:ir.actions.act_window,help:hr.open_view_employee_list_my
-#, fuzzy
-msgid "<small>Referral</small>"
-msgstr "<small>Tavsiya</small>"
-
-#. module: hr
-#: model_terms:ir.actions.act_window,help:hr.hr_employee_public_action
-#: model_terms:ir.actions.act_window,help:hr.open_view_employee_list_my
-#, fuzzy
-msgid "<small>Sign</small>"
-msgstr "<small>Imzolash</small>"
-
-#. module: hr
-#: model_terms:ir.actions.act_window,help:hr.hr_employee_public_action
-#: model_terms:ir.actions.act_window,help:hr.open_view_employee_list_my
-#, fuzzy
-msgid "<small>Talent</small>"
-msgstr "<small>Iste'dod</small>"
-
-#. module: hr
-#: model_terms:ir.actions.act_window,help:hr.hr_employee_public_action
-#: model_terms:ir.actions.act_window,help:hr.open_view_employee_list_my
-#, fuzzy
-msgid "<small>Trainings</small>"
-msgstr "<small>Treninglar</small>"
-
-#. module: hr
-#: model_terms:ir.actions.act_window,help:hr.hr_employee_public_action
-#: model_terms:ir.actions.act_window,help:hr.open_view_employee_list_my
-#, fuzzy
-msgid "<small>eLearning</small>"
-msgstr "<small>Elektron ta'lim</small>"
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_form
@@ -394,26 +348,6 @@ msgstr "<span class=\"flex-shrink-0 ml8 me-2\">IP manzillar</span>"
 #, fuzzy
 msgid "<span class=\"flex-shrink-0 ml8 me-2\">Sent Emails</span>"
 msgstr "<span class=\"flex-shrink-0 ml8 me-2\">Yuborilgan xatlar</span>"
-
-#. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.hr_departure_wizard_view_form
-#, fuzzy
-msgid ""
-"<span class=\"o_form_label o_hr_form_label cursor-default\">Close "
-"Activities</span>"
-msgstr ""
-"<span class=\"o_form_label o_hr_form_label cursor-default\">Faoliyatlarni "
-"yakunlash</span>"
-
-#. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.hr_departure_wizard_view_form
-#, fuzzy
-msgid ""
-"<span class=\"o_form_label o_hr_form_label cursor-default\">Detailed Reason</"
-"span>"
-msgstr ""
-"<span class=\"o_form_label o_hr_form_label cursor-default\">Batafsil sabab</"
-"span>"
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.res_users_view_form
@@ -468,26 +402,17 @@ msgid "<span class=\"text-muted small\">Time to Answer</span>"
 msgstr "<span class=\"text-muted small\">Javob berish vaqti</span>"
 
 #. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_view_form
+msgid ""
+"<span class=\"text-uppercase fw-bolder\" style=\"font-size: "
+"13px\">Organization Chart</span>"
+msgstr ""
+
+#. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_form
 #, fuzzy
 msgid "<span invisible=\"not contract_date_start\">to</span>"
 msgstr "<span invisible=\"not contract_date_start\">gacha</span>"
-
-#. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.view_partner_bank_form_inherit_hr
-msgid "<span invisible=\"not employee_salary_amount_is_percentage\">%</span>"
-msgstr ""
-
-#. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
-#, fuzzy
-msgid ""
-"<span invisible=\"not user_id or is_user_active\">\n"
-"                                                (User is Inactive)\n"
-"                                            </span>"
-msgstr ""
-"<span invisible=\"not user_id or is_user_active\"> (Foydalanuvchi faol emas) "
-"</span>"
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_form
@@ -515,147 +440,146 @@ msgstr "<span>Ko‘rish</span>"
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.view_hr_job_form
-#, fuzzy
-msgid "<span>new employees</span>"
-msgstr "<span>yangi xodimlar</span>"
+msgid "<span>employees</span>"
+msgstr ""
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_trainee
+#: model_terms:hr.job,website_rating:hr.job_trainee
 #, fuzzy
 msgid "<strong class=\"s_rating_title\">Adaptability</strong>"
 msgstr "<strong class=\"s_rating_title\">Moslashuvchanlik</strong>"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_marketing
+#: model_terms:hr.job,website_rating:hr.job_consultant
+#: model_terms:hr.job,website_rating:hr.job_cto
+#: model_terms:hr.job,website_rating:hr.job_marketing
 #, fuzzy
 msgid "<strong class=\"s_rating_title\">Administrative Work</strong>"
 msgstr "<strong class=\"s_rating_title\">Ma'muriy ishlar</strong>"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
+#: model_terms:hr.job,website_rating:hr.job_developer
+#: model_terms:hr.job,website_rating:hr.job_marketing
+#: model_terms:hr.job,website_rating:hr.job_trainee
 #, fuzzy
 msgid "<strong class=\"s_rating_title\">Autonomy</strong>"
 msgstr "<strong class=\"s_rating_title\">Mustaqillik</strong>"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_trainee
+#: model_terms:hr.job,website_rating:hr.job_trainee
 #, fuzzy
 msgid "<strong class=\"s_rating_title\">Be enthusiastic</strong>"
 msgstr "<strong class=\"s_rating_title\">G‘ayratli bo‘lish</strong>"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_developer
+#: model_terms:hr.job,website_rating:hr.job_developer
 #, fuzzy
 msgid "<strong class=\"s_rating_title\">Client Interaction</strong>"
 msgstr "<strong class=\"s_rating_title\">Mijozlar bilan muloqot</strong>"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_cto
+#: model_terms:hr.job,website_rating:hr.job_cto
 #, fuzzy
 msgid "<strong class=\"s_rating_title\">Collaboration</strong>"
 msgstr "<strong class=\"s_rating_title\">Hamkorlik</strong>"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_hrm
+#: model_terms:hr.job,website_rating:hr.job_hrm
 #, fuzzy
 msgid "<strong class=\"s_rating_title\">Compliance and Regulations</strong>"
 msgstr ""
 "<strong class=\"s_rating_title\">Qonun-qoidalarga rioya qilish</strong>"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_hrm
+#: model_terms:hr.job,website_rating:hr.job_hrm
 #, fuzzy
 msgid "<strong class=\"s_rating_title\">Conflict Resolution</strong>"
 msgstr "<strong class=\"s_rating_title\">Nizolarni hal etish</strong>"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_marketing
+#: model_terms:hr.job,website_rating:hr.job_consultant
+#: model_terms:hr.job,website_rating:hr.job_marketing
 #, fuzzy
 msgid "<strong class=\"s_rating_title\">Customer Relationship</strong>"
 msgstr "<strong class=\"s_rating_title\">Mijozlar bilan munosabat</strong>"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_cto
+#: model_terms:hr.job,website_rating:hr.job_cto
 #, fuzzy
 msgid "<strong class=\"s_rating_title\">Cybersecurity</strong>"
 msgstr "<strong class=\"s_rating_title\">Kiberhavfsizlik</strong>"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_hrm
+#: model_terms:hr.job,website_rating:hr.job_hrm
 #, fuzzy
 msgid "<strong class=\"s_rating_title\">Diversity and Inclusion</strong>"
 msgstr "<strong class=\"s_rating_title\">Xilma-xillik va inkluzivlik</strong>"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_consultant
+#: model_terms:hr.job,website_rating:hr.job_consultant
 #, fuzzy
 msgid "<strong class=\"s_rating_title\">Innovation</strong>"
 msgstr "<strong class=\"s_rating_title\">Innovatsiya</strong>"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_cto
+#: model_terms:hr.job,website_rating:hr.job_cto
 #, fuzzy
 msgid "<strong class=\"s_rating_title\">Leadership</strong>"
 msgstr "<strong class=\"s_rating_title\">Yetakchilik</strong>"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_trainee
+#: model_terms:hr.job,website_rating:hr.job_trainee
 #, fuzzy
 msgid "<strong class=\"s_rating_title\">Learning</strong>"
 msgstr "<strong class=\"s_rating_title\">O‘rganish</strong>"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_developer
+#: model_terms:hr.job,website_rating:hr.job_developer
 #, fuzzy
 msgid "<strong class=\"s_rating_title\">Management</strong>"
 msgstr "<strong class=\"s_rating_title\">Boshqaruv</strong>"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_marketing
+#: model_terms:hr.job,website_rating:hr.job_consultant
+#: model_terms:hr.job,website_rating:hr.job_marketing
 #, fuzzy
 msgid "<strong class=\"s_rating_title\">Personal Evolution</strong>"
 msgstr "<strong class=\"s_rating_title\">Shaxsiy rivojlanish</strong>"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_trainee
+#: model_terms:hr.job,website_rating:hr.job_trainee
 #, fuzzy
 msgid "<strong class=\"s_rating_title\">Problem-Solving</strong>"
 msgstr "<strong class=\"s_rating_title\">Muammolarni hal qilish</strong>"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_developer
+#: model_terms:hr.job,website_rating:hr.job_developer
 #, fuzzy
 msgid "<strong class=\"s_rating_title\">Problem-solving</strong>"
 msgstr "<strong class=\"s_rating_title\">Muammolarni hal qilish</strong>"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_developer
+#: model_terms:hr.job,website_rating:hr.job_developer
 #, fuzzy
 msgid "<strong class=\"s_rating_title\">Skill Development</strong>"
 msgstr "<strong class=\"s_rating_title\">Ko‘nikmalarni rivojlantirish</strong>"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_hrm
+#: model_terms:hr.job,website_rating:hr.job_hrm
 #, fuzzy
 msgid "<strong class=\"s_rating_title\">Talent Acquisition</strong>"
 msgstr "<strong class=\"s_rating_title\">Iste'dodlarni jalb qilish</strong>"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
+#: model_terms:hr.job,website_rating:hr.job_consultant
+#: model_terms:hr.job,website_rating:hr.job_hrm
+#: model_terms:hr.job,website_rating:hr.job_marketing
 #, fuzzy
 msgid "<strong class=\"s_rating_title\">Technical Expertise</strong>"
 msgstr "<strong class=\"s_rating_title\">Texnik bilim</strong>"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_cto
+#: model_terms:hr.job,website_rating:hr.job_cto
 #, fuzzy
 msgid "<strong class=\"s_rating_title\">Technology Strategy</strong>"
 msgstr "<strong class=\"s_rating_title\">Texnologiya strategiyasi</strong>"
@@ -708,12 +632,48 @@ msgid "A good company embraces technological innovation"
 msgstr "Yaxshi kompaniya texnologik innovatsiyalarni qo‘llab-quvvatlaydi"
 
 #. module: hr
+#. odoo-python
+#: code:addons/hr/models/hr_employee.py:0
+msgid ""
+"A portal user already exist with the following login: %(login)s. User Name: %"
+"(user_name)s. You should set another email address on the employee."
+msgstr ""
+
+#. module: hr
+#. odoo-python
+#: code:addons/hr/models/hr_employee.py:0
+msgid "A signup link was sent by email"
+msgstr ""
+
+#. module: hr
+#. odoo-python
+#: code:addons/hr/models/hr_employee.py:0
+msgid ""
+"A user already exist with the following login: %(login)s. User Name: %"
+"(user_name)s. Please link the user instead before sending invitation."
+msgstr ""
+
+#. module: hr
 #: model:ir.model.constraint,message:hr.constraint_hr_employee_user_uniq
 #, fuzzy
 msgid "A user cannot be linked to multiple employees in the same company."
 msgstr ""
 "Foydalanuvchi bitta kompaniyaning bir nechta xodimiga bog‘lanishi mumkin "
 "emas."
+
+#. module: hr
+#. odoo-python
+#: code:addons/hr/models/hr_employee.py:0
+msgid ""
+"A user with the same login (%(login)s) already has an employee in this "
+"company. User Name: %(user_name)s / Employee Name: %(employee)s"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/views/hr_employee_action_helper/onboarding_helper_blocks.xml:0
+msgid "AI"
+msgstr ""
 
 #. module: hr
 #: model_terms:hr.job,website_description:hr.job_consultant
@@ -735,7 +695,7 @@ msgstr "Bir vaqtning o‘zida bir nechta vazifani boshqarish qobiliyati"
 
 #. module: hr
 #. odoo-javascript
-#: code:addons/hr/static/src/components/avatar_card_resource/avatar_card_resource_popover.xml:0
+#: code:addons/hr/static/src/core/web/avatar_card/avatar_card_patch.xml:0
 #: model:ir.model.fields.selection,name:hr.selection__hr_employee__hr_icon_display__presence_absent
 #: model:ir.model.fields.selection,name:hr.selection__hr_employee__hr_presence_state__absent
 #: model:ir.model.fields.selection,name:hr.selection__hr_employee_public__hr_presence_state__absent
@@ -744,7 +704,7 @@ msgid "Absent"
 msgstr "Yo‘q"
 
 #. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_bank_account_allocation_wizard_line__acc_number
+#: model:ir.model.fields,field_description:hr.field_hr_bank_account_allocation_wizard_line__account_number
 #: model_terms:ir.ui.view,arch_db:hr.view_bank_account_allocation_line_list
 #, fuzzy
 msgid "Account Number"
@@ -776,6 +736,7 @@ msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_department__active
+#: model:ir.model.fields,field_description:hr.field_hr_departure_reason__active
 #: model:ir.model.fields,field_description:hr.field_hr_employee__active
 #: model:ir.model.fields,field_description:hr.field_hr_employee_public__active
 #: model:ir.model.fields,field_description:hr.field_hr_job__active
@@ -793,12 +754,22 @@ msgid "Active Employee"
 msgstr "Faol xodim"
 
 #. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.hr_version_search_view
+msgid "Active Employees"
+msgstr ""
+
+#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_department__activity_ids
 #: model:ir.model.fields,field_description:hr.field_hr_employee__activity_ids
 #: model:ir.model.fields,field_description:hr.field_hr_version__activity_ids
 #, fuzzy
 msgid "Activities"
 msgstr "Faoliyatlar"
+
+#. module: hr
+#: model:ir.model,name:hr.model_mail_activity
+msgid "Activity"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_department__activity_exception_decoration
@@ -813,6 +784,13 @@ msgstr "Faoliyat istisnosini belgilash"
 #, fuzzy
 msgid "Activity Plan"
 msgstr "Faoliyat rejasi"
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_department__activity_plans_ids
+#: model:ir.model.fields,field_description:hr.field_hr_employee__activity_plans_ids
+#: model:ir.model.fields,field_description:hr.field_hr_version__activity_plans_ids
+msgid "Activity Plans"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_department__activity_state
@@ -832,7 +810,6 @@ msgstr "Faoliyat turi belgisi"
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.hr_employee_list_activites_view
-#: model_terms:ir.ui.view,arch_db:hr.view_employee_tree
 #, fuzzy
 msgid "Activity by"
 msgstr "Faoliyat bajaruvchisi"
@@ -861,8 +838,8 @@ msgid "Activity schedule plan Wizard"
 msgstr "Faoliyat jadvali rejasi ustasi"
 
 #. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_departure_wizard__departure_description
 #: model:ir.model.fields,field_description:hr.field_hr_employee__departure_description
+#: model:ir.model.fields,field_description:hr.field_hr_employee_departure__departure_description
 #: model:ir.model.fields,field_description:hr.field_hr_version__departure_description
 #, fuzzy
 msgid "Additional Information"
@@ -879,11 +856,16 @@ msgstr "Qo‘shimcha ma'lumot: %(description)s"
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__additional_note
-#: model:ir.model.fields,field_description:hr.field_hr_version__additional_note
 #: model:ir.model.fields,field_description:hr.field_res_users__additional_note
 #, fuzzy
 msgid "Additional Note"
 msgstr "Qo‘shimcha izoh"
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.hr_employee_departure_view_form
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
+msgid "Additional information"
+msgstr ""
 
 #. module: hr
 #: model_terms:hr.job,website_description:hr.job_consultant
@@ -925,6 +907,11 @@ msgid "Advanced presence of employees"
 msgstr "Xodimlarning kengaytirilgan ishtiroki"
 
 #. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__age
+msgid "Age"
+msgstr ""
+
+#. module: hr
 #: model:ir.model.fields,field_description:hr.field_crm_team__alias_contact
 #: model:ir.model.fields,field_description:hr.field_mail_alias__alias_contact
 #: model:ir.model.fields,field_description:hr.field_mail_group__alias_contact
@@ -951,12 +938,6 @@ msgstr "Taqsimotlar"
 #, fuzzy
 msgid "Allowed Country State"
 msgstr "Ruxsat etilgan mamlakat/shtat"
-
-#. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_job__allowed_user_ids
-#, fuzzy
-msgid "Allowed User"
-msgstr "Ruxsat etilgan foydalanuvchi"
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_bank_account_allocation_wizard_line__amount
@@ -989,6 +970,14 @@ msgstr ""
 "versiyalarga ega bo‘lishi mumkin emas."
 
 #. module: hr
+#. odoo-python
+#: code:addons/hr/models/hr_employee.py:0
+msgid ""
+"An inactive user already exist with the following login: %(login)s. User "
+"Name: %(user_name)s."
+msgstr ""
+
+#. module: hr
 #. odoo-javascript
 #: code:addons/hr/static/src/fields/radio_followed_by_element.js:0
 #, fuzzy
@@ -1004,13 +993,27 @@ msgid "Application Settings"
 msgstr "Ilova sozlamalari"
 
 #. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.hr_departure_wizard_view_form
+#: model_terms:ir.ui.view,arch_db:hr.hr_employee_departure_view_form
 #, fuzzy
 msgid "Apply"
 msgstr "Qo‘llash"
 
 #. module: hr
-#: model:hr.contract.type,name:hr.contract_type_apprenticeship
+#: model:ir.model.fields,field_description:hr.field_hr_employee__departure_apply_date
+#: model:ir.model.fields,field_description:hr.field_hr_employee_departure__apply_date
+#: model:ir.model.fields,field_description:hr.field_hr_version__departure_apply_date
+msgid "Apply Date"
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__departure_apply_immediately
+#: model:ir.model.fields,field_description:hr.field_hr_employee_departure__apply_immediately
+#: model:ir.model.fields,field_description:hr.field_hr_version__departure_apply_immediately
+msgid "Apply Immediately"
+msgstr ""
+
+#. module: hr
+#: model:hr.employee.type,name:hr.contract_type_apprenticeship
 #, fuzzy
 msgid "Apprenticeship"
 msgstr "Shogirdlik"
@@ -1022,18 +1025,32 @@ msgid "Approvers"
 msgstr "Tasdiqlovchilar"
 
 #. module: hr
+#: model:ir.model.fields.selection,name:hr.selection__hr_employee__birthday_month__4
+msgid "April"
+msgstr ""
+
+#. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.hr_department_view_kanban
 #, fuzzy
 msgid "Archive"
 msgstr "Arxiv"
 
 #. module: hr
-#: model:ir.model.fields.selection,name:hr.selection__hr_employee__hr_icon_display__presence_archive
-#: model:ir.model.fields.selection,name:hr.selection__hr_employee__hr_presence_state__archive
-#: model:ir.model.fields.selection,name:hr.selection__hr_employee_public__hr_presence_state__archive
+#: model:ir.model.fields,field_description:hr.field_hr_employee__departure_action_date
+#: model:ir.model.fields,field_description:hr.field_hr_employee_departure__action_date
+#: model:ir.model.fields,field_description:hr.field_hr_version__departure_action_date
+#: model_terms:ir.ui.view,arch_db:hr.hr_employee_departure_view_form
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
+msgid "Archive Employee On"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/components/employee_user_status/employee_user_status.js:0
 #: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_view_form
 #: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_view_search
 #: model_terms:ir.ui.view,arch_db:hr.hr_version_search_view
+#: model_terms:ir.ui.view,arch_db:hr.hr_version_search_view_enhanced
 #: model_terms:ir.ui.view,arch_db:hr.view_department_filter
 #: model_terms:ir.ui.view,arch_db:hr.view_department_form
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_filter
@@ -1045,211 +1062,27 @@ msgid "Archived"
 msgstr "Arxivlangan"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_hrm
-#, fuzzy
-msgid ""
-"As a Human Resources Manager at our company, you will<b>work closely with "
-"all\n"
-"                                departments to design and implement HR "
-"initiatives that align with our business\n"
-"                                objectives</b>. Join our expanding "
-"organization, which offers competitive benefits and\n"
-"                                ample opportunities for growth while "
-"collaborating with seasoned professionals.\n"
-"                                <br>\n"
-"                                This role is both <b>strategic and "
-"operational</b>, focusing on recruitment, employee\n"
-"                                engagement, and performance management. We "
-"seek a proactive leader who can effectively\n"
-"                                manage talent acquisition, develop training "
-"programs, and implement retention\n"
-"                                strategies. Success in this position "
-"requires strong analytical skills, in-depth\n"
-"                                knowledge of labor laws, and the ability to "
-"foster a diverse and inclusive workplace\n"
-"                                culture while enhancing employee "
-"satisfaction and productivity."
-msgstr ""
-"Kompaniyamizda inson resurslari menejeri sifatida <b>biznes maqsadlarimizga "
-"mos keladigan HR tashabbuslarini ishlab chiqish va amalga oshirish uchun "
-"barcha bo‘limlar bilan yaqindan hamkorlik qilasiz</b>. Tajribali "
-"mutaxassislar bilan hamkorlikda ishlaydigan, raqobatbardosh imtiyozlar va "
-"o‘sish uchun keng imkoniyatlar taqdim etuvchi rivojlanayotgan "
-"tashkilotimizga qo‘shiling. <br> Bu lavozim <b>ham strategik, ham "
-"operatsion</b> bo‘lib, ishga qabul qilish, xodimlarni jalb etish va "
-"samaradorlikni boshqarishga qaratilgan. Biz iste'dodlarni samarali "
-"boshqaradigan, o‘quv dasturlarini ishlab chiqadigan va xodimlarni saqlab "
-"qolish strategiyalarini amalga oshiradigan tashabbuskor rahbarni izlaymiz. "
-"Ushbu lavozimda muvaffaqiyatga erishish uchun kuchli tahliliy ko‘nikmalar, "
-"mehnat qonunchiligini chuqur bilish, xodimlarning qoniqishi va "
-"samaradorligini oshirish bilan bir qatorda xilma-xil va inkluziv ish "
-"muhitini yaratish qobiliyati talab etiladi."
-
-#. module: hr
-#: model_terms:hr.job,website_description:hr.job_consultant
-#, fuzzy
-msgid ""
-"As a consultant at our company, you will <b>collaborate with diverse "
-"departments to\n"
-"                                assess business needs, design tailored "
-"strategies, and drive successful implementation\n"
-"                                of solutions</b>. Join a forward-thinking "
-"organization that offers competitive benefits\n"
-"                                and opportunities for advancement, working "
-"alongside industry experts. We are looking\n"
-"                                for an accomplished consultant with a strong "
-"background in delivering measurable\n"
-"                                outcomes.\n"
-"                                <br>\n"
-"                                This role demands both <b>creative problem-"
-"solving and strategic analysis</b>,\n"
-"                                requiring you to think critically about "
-"client challenges. We expect candidates to be\n"
-"                                self-motivated, with a strong \"get it "
-"done\" mentality. To thrive in this position, you\n"
-"                                should possess excellent analytical skills, "
-"the ability to translate insights into\n"
-"                                actionable recommendations, and the talent "
-"for building rapport with stakeholders across\n"
-"                                all levels of the organization."
-msgstr ""
-"Kompaniyamizda maslahatchi sifatida siz <b>turli bo‘limlar bilan hamkorlik "
-"qilib, biznes ehtiyojlarini baholaysiz, moslashtirilgan strategiyalarni "
-"ishlab chiqasiz va yechimlarni samarali joriy etishga yordam berasiz</b>. "
-"Raqobatbardosh imtiyozlar va kasbiy o‘sish imkoniyatlarini taqdim etuvchi "
-"zamonaviy tashkilotimizga qo‘shiling va soha mutaxassislari bilan yelkama-"
-"yelka ishlang. Biz o‘lchanadigan natijalarni ta'minlashda kuchli tajribaga "
-"ega bo‘lgan tajribali maslahatchini izlayapmiz. Bu lavozim <b>ham ijodiy "
-"muammolarni hal qilishni, ham strategik tahlil yuritishni</b> talab etadi. "
-"Siz mijozlarning muammolari haqida tanqidiy fikrlashingiz kerak bo‘ladi. Biz "
-"nomzodlardan o‘z-o‘zini rag‘batlantira oladigan, \"ishni oxiriga yetkazish\" "
-"ruhiyatiga ega bo‘lishini kutamiz. Ushbu lavozimda muvaffaqiyatga erishish "
-"uchun siz mukammal tahliliy ko‘nikmalarga, g‘oyalarni amaliy tavsiyalarga "
-"aylantira olish qobiliyatiga va tashkilotning barcha darajalaridagi "
-"manfaatdor tomonlar bilan yaxshi munosabat o‘rnata olish iste'dodiga ega "
-"bo‘lishingiz lozim."
-
-#. module: hr
-#: model_terms:hr.job,website_description:hr.job_developer
-msgid ""
-"As a developer at our company, you will <b>collaborate with product "
-"managers, designers,\n"
-"                                and other engineers to design, develop, and "
-"deploy innovative software solutions</b>.\n"
-"                                Join us at a rapidly growing organization "
-"that offers competitive benefits and\n"
-"                                opportunities for career advancement while "
-"working alongside industry leaders.\n"
-"                                We’re looking for a skilled developer with a "
-"passion for technology and innovation.\n"
-"                                <br>\n"
-"                                In this role, you will be responsible for "
-"<b>writing clean, maintainable code,\n"
-"                                participating in code reviews, and "
-"troubleshooting issues</b>. Your work will involve\n"
-"                                both creative <b>problem-solving and "
-"rigorous analysis</b>, requiring you to think\n"
-"                                outside the box to deliver effective "
-"solutions. We seek a proactive candidate with a\n"
-"                                strong \"get it done\" mentality. Success in "
-"this position hinges on your ability to\n"
-"                                tackle complex challenges and deliver high-"
-"quality results in a fast-paced environment."
+#. odoo-javascript
+#: code:addons/hr/static/src/components/employee_user_status/user_deactivation_dialog.xml:0
+msgid "Are you sure you want to deactivate this user?"
 msgstr ""
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_trainee
-#, fuzzy
-msgid ""
-"As a trainee at our company, you will <b>work with various departments to "
-"assist in\n"
-"                                creating and launching innovative products</"
-"b>. Join our growing team, offering\n"
-"                                excellent benefits and valuable learning "
-"opportunities alongside experienced\n"
-"                                professionals.\n"
-"                                <br>\n"
-"                                This role is both <b>creative and "
-"structured</b>, encouraging out-of-the-box thinking.\n"
-"                                We are looking for a proactive individual "
-"with a strong get it done mindset. Successful\n"
-"                                candidates will have the chance to grow "
-"within the company based on their fit and\n"
-"                                performance."
+#. odoo-python
+#: code:addons/hr/models/hr_employee.py:0
+msgid "As of"
 msgstr ""
-"Kompaniyamizda stajyor sifatida siz <b>innovatsion mahsulotlarni yaratish va "
-"bozorga chiqarishda turli bo‘limlarga ko‘maklashasiz</b>. Tajribali "
-"mutaxassislar bilan hamkorlikda foydali imtiyozlar va qimmatli ta'lim "
-"imkoniyatlarini taqdim etuvchi rivojlanayotgan jamoamizga qo‘shiling. <br>\n"
-"\n"
-"Bu lavozim <b>ham ijodiy, ham tizimli</b> bo‘lib, noan'anaviy fikrlashni "
-"rag‘batlantiradi. Biz \"ishni oxiriga yetkazish\" ruhiyati kuchli bo‘lgan "
-"tashabbuskor shaxsni qidiryapmiz. Muvaffaqiyatli nomzodlar o‘z qobiliyatlari "
-"va samaradorligi asosida kompaniyamizda o‘sish imkoniyatiga ega bo‘ladilar."
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_marketing
-#, fuzzy
-msgid ""
-"As an employee of our company, you will <b>collaborate with each department "
-"to create and deploy\n"
-"                                disruptive products.</b> Come work at a "
-"growing company that offers great benefits with opportunities to\n"
-"                                moving forward and learn alongside "
-"accomplished leaders. We're seeking an experienced and outstanding member of "
-"staff.\n"
-"                                <br><br>\n"
-"                                This position is both <b>creative and "
-"rigorous</b> by nature you need to think outside the box.\n"
-"                                We expect the candidate to be proactive and "
-"have a \"get it done\" spirit. To be successful,\n"
-"                                you will have solid solving problem skills."
+#. odoo-python
+#: code:addons/hr/models/hr_employee.py:0
+msgid "As of %(start)s to %(end)s"
 msgstr ""
-"Kompaniyamizning xodimi sifatida siz <b>har bir bo‘lim bilan hamkorlikda "
-"innovatsion mahsulotlarni yaratish va joriy etish ustida ishlaysiz.</b> "
-"Yuksak imkoniyatlar va katta imtiyozlar taqdim etadigan, rivojlanayotgan "
-"kompaniyamizda tajribali rahbarlar bilan birga o‘sish va yangi bilimlarni "
-"o‘zlashtirish imkoniyatiga ega bo‘lasiz. Biz tajribali va a'lo darajadagi "
-"xodimni izlayapmiz. <br><br> Ushbu lavozim tabiatan <b>ijodiy va jiddiy "
-"yondashuvni</b> talab etadi, siz noan'anaviy fikrlashingiz lozim. Nomzoddan "
-"tashabbuskor bo‘lishi va \"ishni oxiriga yetkazish\" ruhiyatiga ega bo‘lishi "
-"kutiladi. Muvaffaqiyatga erishish uchun sizda muammolarni hal qilishning "
-"mustahkam ko‘nikmalari bo‘lishi zarur."
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_cto
-msgid ""
-"As our Chief Technology Officer, you will <b>work closely with product, "
-"marketing, and\n"
-"                                operations teams to create and launch "
-"innovative technology solutions that set us apart\n"
-"                                in the industry</b>. Join our fast-growing "
-"company, where you’ll enjoy competitive\n"
-"                                benefits and opportunities for professional "
-"growth while collaborating with top experts\n"
-"                                in the field.\n"
-"                                <br>\n"
-"                                In this role, you will <b>define and execute "
-"our technology strategy and roadmap</b>,\n"
-"                                ensuring it aligns with our business goals. "
-"This position is both <b>creative and\n"
-"                                analytical</b>, requiring you to think "
-"outside the box while implementing effective\n"
-"                                solutions. We are looking for a proactive "
-"leader with a strong \"get it done\" mentality\n"
-"                                who can tackle challenges head-on and drive "
-"projects to successful completion.\n"
-"                                <br>\n"
-"                                To excel in this position, you will need "
-"<b>extensive experience in software\n"
-"                                architecture, cloud computing, and data "
-"security</b>, along with a strong background in\n"
-"                                team leadership and agile project "
-"management. Your excellent communication skills will\n"
-"                                be vital for conveying complex technical "
-"ideas to non-technical stakeholders and\n"
-"                                fostering collaboration across all "
-"departments."
+#. odoo-python
+#: code:addons/hr/models/hr_employee.py:0
+msgid "As of %s"
 msgstr ""
 
 #. module: hr
@@ -1271,6 +1104,39 @@ msgid "Assist with daily project tasks"
 msgstr "Kundalik loyiha vazifalarini bajarishda yordam berish"
 
 #. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/core/web/avatar_card/avatar_card_patch.xml:0
+#: model:ir.model.fields.selection,name:hr.selection__hr_employee__hr_icon_display__presence_home
+msgid "At Home"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/core/web/avatar_card/avatar_card_patch.xml:0
+msgid "At Home - Present"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/core/web/avatar_card/avatar_card_patch.xml:0
+#: model:ir.model.fields.selection,name:hr.selection__hr_employee__hr_icon_display__presence_office
+msgid "At Office"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/core/web/avatar_card/avatar_card_patch.xml:0
+msgid "At Office - Present"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/core/web/avatar_card/avatar_card_patch.xml:0
+#: model:ir.model.fields.selection,name:hr.selection__hr_employee__hr_icon_display__presence_other
+msgid "At Other"
+msgstr ""
+
+#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_department__message_attachment_count
 #: model:ir.model.fields,field_description:hr.field_hr_employee__message_attachment_count
 #: model:ir.model.fields,field_description:hr.field_hr_job__message_attachment_count
@@ -1290,6 +1156,11 @@ msgstr "Davomat PIN kodi"
 #, fuzzy
 msgid "Attendance/Point of Sale"
 msgstr "Ishtirokchi/savdo nuqtasi"
+
+#. module: hr
+#: model:ir.model.fields.selection,name:hr.selection__hr_employee__birthday_month__8
+msgid "August"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields.selection,name:hr.selection__mail_alias__alias_contact__employees
@@ -1380,6 +1251,7 @@ msgid "Badge ID"
 msgstr "Guvohnoma ID raqami"
 
 #. module: hr
+#: model:ir.model,name:hr.model_res_partner_bank
 #: model:ir.model.fields,field_description:hr.field_hr_bank_account_allocation_wizard_line__bank_account_id
 #, fuzzy
 msgid "Bank Account"
@@ -1412,30 +1284,11 @@ msgid "Bank Account Allocations"
 msgstr "Bank hisobi ajratmalari"
 
 #. module: hr
-#: model:ir.model,name:hr.model_res_partner_bank
 #: model:ir.model.fields,field_description:hr.field_hr_employee__bank_account_ids
 #: model:ir.model.fields,field_description:hr.field_res_users__bank_account_ids
 #, fuzzy
 msgid "Bank Accounts"
 msgstr "Bank hisoblari"
-
-#. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.view_partner_bank_form_inherit_hr
-#, fuzzy
-msgid "Bank Address"
-msgstr "Bank manzili"
-
-#. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.view_partner_bank_form_inherit_hr
-#, fuzzy
-msgid "Bank Information"
-msgstr "Bank ma'lumotlari"
-
-#. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.view_partner_bank_form_inherit_hr
-#, fuzzy
-msgid "Bank Name"
-msgstr "Bank nomi"
 
 #. module: hr
 #. odoo-python
@@ -1460,7 +1313,7 @@ msgstr "IP manzilga asoslangan"
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_res_company__hr_presence_control_attendance
-#: model:ir.model.fields,field_description:hr.field_res_config_settings__module_hr_attendance
+#: model:ir.model.fields,field_description:hr.field_res_config_settings__hr_presence_control_attendance
 #, fuzzy
 msgid "Based on attendances"
 msgstr "Davomatga asoslangan"
@@ -1498,9 +1351,20 @@ msgstr "Ikkilik fayl"
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__birthday
+#: model:ir.model.fields,field_description:hr.field_res_users__birthday
 #, fuzzy
 msgid "Birthday"
 msgstr "Tug‘ilgan sana"
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__birthday_month
+msgid "Birthday Month"
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__phone_blacklisted
+msgid "Blacklisted Phone is Phone"
+msgstr ""
 
 #. module: hr
 #. odoo-javascript
@@ -1511,16 +1375,39 @@ msgstr ""
 "Tarjima qilinadigan yorliqli radio maydon sifatida mantiqiy ko‘rsatkich"
 
 #. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.view_bank_account_allocation_wizard
-#: model_terms:ir.ui.view,arch_db:hr.view_users_simple_form
-#, fuzzy
+#: model:hr.employee.type,name:hr.contract_type_company_executive
+msgid "Business Leader"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/views/form/multi_version_update_confirmation_dialog.xml:0
 msgid "Cancel"
-msgstr "Bekor qilish"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/js/departure_conflict_dialog.js:0
+msgid "Cancel Departure"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
+msgid "Cancel End of Collaboration"
+msgstr ""
 
 #. module: hr
 #. odoo-python
 #: code:addons/hr/models/hr_version.py:0
 msgid "Cannot archive all the active versions of an employee."
+msgstr ""
+
+#. module: hr
+#. odoo-python
+#: code:addons/hr/models/hr_employee.py:0
+msgid ""
+"Cannot create light user for an employee without login (email address or "
+"related contact)."
 msgstr ""
 
 #. module: hr
@@ -1536,8 +1423,19 @@ msgstr ""
 
 #. module: hr
 #. odoo-python
+#: code:addons/hr/models/hr_employee.py:0
+msgid "Cannot search or group by hr_presence state: too many employees (%s)"
+msgstr ""
+
+#. module: hr
+#. odoo-python
 #: code:addons/hr/models/hr_version.py:0
 msgid "Cannot unassign all the active versions of an employee."
+msgstr ""
+
+#. module: hr
+#: model:ir.module.module,summary:base.module_hr
+msgid "Centralize employee information"
 msgstr ""
 
 #. module: hr
@@ -1553,23 +1451,32 @@ msgid "Challenge the customer idea"
 msgstr "Mijoz g‘oyasiga e'tiroz bildirish"
 
 #. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/views/form/multi_version_update_confirmation_dialog.xml:0
+msgid "Change all"
+msgstr ""
+
+#. module: hr
 #: model:ir.actions.act_window,name:hr.res_users_action_my
 #, fuzzy
 msgid "Change my Preferences"
 msgstr "Sozlamalarimni o‘zgartirish"
 
 #. module: hr
-#. odoo-javascript
-#: code:addons/hr/static/src/components/employee_chat/employee_chat.xml:0
-#, fuzzy
-msgid "Chat"
-msgstr "Chat"
-
-#. module: hr
 #: model:hr.job,name:hr.job_cto
 #, fuzzy
 msgid "Chief Technical Officer"
 msgstr "Bosh texnik direktor"
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee_public__child_all_count
+msgid "Child All Count"
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee_public__child_count
+msgid "Child Count"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_department__child_ids
@@ -1584,17 +1491,19 @@ msgid "Child departments"
 msgstr "Quyi bo‘limlar"
 
 #. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.hr_employee_create_version_wizard_view_form
+msgid "Choose a date"
+msgstr ""
+
+#. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_form
 #, fuzzy
 msgid "Citizenship"
 msgstr "Fuqarolik"
 
 #. module: hr
-#: model:ir.model.fields,field_description:hr.field_account_setup_bank_manual_config__bank_city
-#: model:ir.model.fields,field_description:hr.field_res_partner_bank__bank_city
 #: model_terms:ir.ui.view,arch_db:hr.res_users_view_form_preferences
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_form
-#: model_terms:ir.ui.view,arch_db:hr.view_partner_bank_form_inherit_hr
 #, fuzzy
 msgid "City"
 msgstr "Shahar"
@@ -1602,20 +1511,12 @@ msgstr "Shahar"
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__coach_id
 #: model:ir.model.fields,field_description:hr.field_hr_employee_public__coach_id
-#: model:ir.model.fields.selection,name:hr.selection__mail_activity_plan_template__responsible_type__coach
 #, fuzzy
 msgid "Coach"
 msgstr "Murabbiy"
 
 #. module: hr
-#. odoo-python
-#: code:addons/hr/models/mail_activity_plan_template.py:0
-#, fuzzy
-msgid "Coach of employee %s is not set."
-msgstr "%s xodimining murabbiyi belgilanmagan."
-
-#. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_contract_type__code
+#: model:ir.model.fields,field_description:hr.field_hr_employee_type__code
 #, fuzzy
 msgid "Code"
 msgstr "Kod"
@@ -1649,16 +1550,17 @@ msgid "Color Index"
 msgstr "Rang indeksi"
 
 #. module: hr
-#: model:ir.model,name:hr.model_res_company
 #: model_terms:ir.ui.view,arch_db:hr.view_department_tree
 #, fuzzy
 msgid "Companies"
 msgstr "Kompaniyalar"
 
 #. module: hr
+#: model:ir.model,name:hr.model_res_company
 #: model:ir.model.fields,field_description:hr.field_hr_department__company_id
 #: model:ir.model.fields,field_description:hr.field_hr_employee__company_id
 #: model:ir.model.fields,field_description:hr.field_hr_employee_public__company_id
+#: model:ir.model.fields,field_description:hr.field_hr_employee_type__company_id
 #: model:ir.model.fields,field_description:hr.field_hr_job__company_id
 #: model:ir.model.fields,field_description:hr.field_hr_version__company_id
 #: model:ir.model.fields,field_description:hr.field_hr_work_location__company_id
@@ -1685,6 +1587,11 @@ msgstr "Kompaniya mamlakat kodi"
 #, fuzzy
 msgid "Company Logo"
 msgstr "Kompaniya logotipi"
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_res_config_settings__company_tz
+msgid "Company Timezone"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_res_config_settings__resource_calendar_id
@@ -1730,11 +1637,37 @@ msgid "Configuration"
 msgstr "Konfiguratsiya"
 
 #. module: hr
-#. odoo-python
-#: code:addons/hr/models/hr_employee.py:0
+#. odoo-javascript
+#: code:addons/hr/static/src/components/resource_calendar_form/form_controller.js:0
+#: code:addons/hr/static/src/components/resource_calendar_form/resource_calendar_plugin_patch.js:0
 #, fuzzy
 msgid "Confirm"
 msgstr "Tasdiqlash"
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/components/employee_user_status/user_deactivation_dialog.xml:0
+msgid "Confirmation"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/components/resource_calendar_form/form_controller.js:0
+#: code:addons/hr/static/src/components/resource_calendar_form/resource_calendar_plugin_patch.js:0
+msgid "Confirmation Warning"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/components/employee_user_status/employee_user_status.js:0
+msgid "Confirmed"
+msgstr ""
+
+#. module: hr
+#. odoo-python
+#: code:addons/hr/models/hr_employee.py:0
+msgid "Congratulations!"
+msgstr ""
 
 #. module: hr
 #: model:hr.job,name:hr.job_consultant
@@ -1744,13 +1677,13 @@ msgstr "Maslahatchi"
 
 #. module: hr
 #: model:ir.model,name:hr.model_res_partner
-#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
 #, fuzzy
 msgid "Contact"
 msgstr "Aloqa"
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.res_users_view_form_preferences
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
 #, fuzzy
 msgid "Contact Name"
 msgstr "Aloqa qiluvchi shaxs ismi"
@@ -1771,7 +1704,6 @@ msgstr "Kontaktlar"
 #. module: hr
 #. odoo-javascript
 #: code:addons/hr/static/src/components/versions_timeline/versions_timeline.js:0
-#: model_terms:ir.ui.view,arch_db:hr.hr_departure_wizard_view_form
 #: model_terms:ir.ui.view,arch_db:hr.res_config_settings_view_form
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_form
 #: model_terms:ir.ui.view,arch_db:hr.view_hr_job_form
@@ -1780,11 +1712,14 @@ msgid "Contract"
 msgstr "Shartnoma"
 
 #. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_departure_wizard__departure_date
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_filter
+msgid "Contract End"
+msgstr ""
+
+#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__contract_date_end
 #: model:ir.model.fields,field_description:hr.field_hr_version__contract_date_end
 #: model_terms:ir.ui.view,arch_db:hr.hr_version_search_view
-#: model_terms:ir.ui.view,arch_db:hr.view_employee_filter
 #, fuzzy
 msgid "Contract End Date"
 msgstr "Shartnoma tugash sanasi"
@@ -1809,34 +1744,32 @@ msgid "Contract Overview"
 msgstr "Shartnoma umumiy ko‘rinishi"
 
 #. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.hr_version_list_view_enhanced
+msgid "Contract Period"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_filter
+msgid "Contract Start"
+msgstr ""
+
+#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__contract_date_start
 #: model:ir.model.fields,field_description:hr.field_hr_version__contract_date_start
 #: model_terms:ir.ui.view,arch_db:hr.hr_version_search_view
-#: model_terms:ir.ui.view,arch_db:hr.view_employee_filter
 #, fuzzy
 msgid "Contract Start Date"
 msgstr "Shartnoma boshlanish sanasi"
 
 #. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/components/contract_end_dialog/contract_end_dialog.xml:0
 #: model:ir.model.fields,field_description:hr.field_hr_employee__contract_template_id
 #: model:ir.model.fields,field_description:hr.field_hr_version__contract_template_id
-#: model:ir.model.fields,field_description:hr.field_hr_version_wizard__contract_template_id
 #: model_terms:ir.ui.view,arch_db:hr.hr_contract_template_form_view
 #, fuzzy
 msgid "Contract Template"
 msgstr "Shartnoma shabloni"
-
-#. module: hr
-#: model:ir.actions.act_window,name:hr.hr_version_wizard_action
-#, fuzzy
-msgid "Contract Template Load"
-msgstr "Shartnoma shablonini yuklash"
-
-#. module: hr
-#: model:ir.model,name:hr.model_hr_version_wizard
-#, fuzzy
-msgid "Contract Template Wizard"
-msgstr "Shartnoma shabloni ustasi"
 
 #. module: hr
 #: model:ir.actions.act_window,name:hr.action_hr_contract_templates
@@ -1845,29 +1778,6 @@ msgstr "Shartnoma shabloni ustasi"
 #, fuzzy
 msgid "Contract Templates"
 msgstr "Shartnoma shablonlari"
-
-#. module: hr
-#: model:ir.model,name:hr.model_hr_contract_type
-#: model:ir.model.fields,field_description:hr.field_hr_employee__contract_type_id
-#: model:ir.model.fields,field_description:hr.field_hr_version__contract_type_id
-#: model_terms:ir.ui.view,arch_db:hr.hr_contract_template_form_view
-#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
-#, fuzzy
-msgid "Contract Type"
-msgstr "Shartnoma turi"
-
-#. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.hr_contract_type_view_tree
-#, fuzzy
-msgid "Contract Types"
-msgstr "Shartnoma turlari"
-
-#. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_employee__contract_wage
-#: model:ir.model.fields,field_description:hr.field_hr_version__contract_wage
-#, fuzzy
-msgid "Contract Wage"
-msgstr "Shartnoma bo‘yicha ish haqi"
 
 #. module: hr
 #: model:mail.message.subtype,description:hr.mt_contract_pending
@@ -1889,20 +1799,29 @@ msgid "Contract to Renew"
 msgstr "Yangilanishi kerak bo‘lgan shartnoma"
 
 #. module: hr
-#: model:ir.model.fields.selection,name:hr.selection__hr_version__employee_type__contractor
-#, fuzzy
-msgid "Contractor"
-msgstr "Pudratchi"
+#. odoo-javascript
+#: code:addons/hr/static/src/components/employee_user_status/employee_user_status.js:0
+msgid "Copy Invitation Link"
+msgstr ""
 
 #. module: hr
-#: model:ir.model.fields,field_description:hr.field_account_setup_bank_manual_config__bank_country
-#: model:ir.model.fields,field_description:hr.field_hr_contract_type__country_id
+#. odoo-javascript
+#: code:addons/hr/static/src/components/contract_end_dialog/contract_end_dialog.xml:0
+msgid "Correct terms"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/components/contract_end_dialog/contract_end_dialog.xml:0
+msgid "Correction of contract terms"
+msgstr ""
+
+#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_departure_reason__country_id
+#: model:ir.model.fields,field_description:hr.field_hr_employee_type__country_id
 #: model:ir.model.fields,field_description:hr.field_hr_payroll_structure_type__country_id
-#: model:ir.model.fields,field_description:hr.field_res_partner_bank__bank_country
 #: model_terms:ir.ui.view,arch_db:hr.res_users_view_form_preferences
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_form
-#: model_terms:ir.ui.view,arch_db:hr.view_partner_bank_form_inherit_hr
 #, fuzzy
 msgid "Country"
 msgstr "Mamlakat"
@@ -1910,9 +1829,13 @@ msgstr "Mamlakat"
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_departure_reason__country_code
 #: model:ir.model.fields,field_description:hr.field_hr_employee__country_code
+#: model:ir.model.fields,field_description:hr.field_hr_employee_departure__country_code
 #: model:ir.model.fields,field_description:hr.field_hr_employee_public__country_code
+#: model:ir.model.fields,field_description:hr.field_hr_employee_type__country_code
+#: model:ir.model.fields,field_description:hr.field_hr_job__company_country_code
 #: model:ir.model.fields,field_description:hr.field_hr_payroll_structure_type__country_code
 #: model:ir.model.fields,field_description:hr.field_hr_version__country_code
+#: model:ir.model.fields,field_description:hr.field_hr_work_location__country_code
 #, fuzzy
 msgid "Country Code"
 msgstr "Mamlakat kodi"
@@ -1924,10 +1847,9 @@ msgid "Country of Birth"
 msgstr "Tug‘ilgan mamlakat"
 
 #. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_work_location__location_type
-#, fuzzy
-msgid "Cover Image"
-msgstr "Muqova rasmi"
+#: model_terms:ir.ui.view,arch_db:hr.hr_employee_create_version_wizard_view_form
+msgid "Create"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee_public__create_date
@@ -1942,14 +1864,14 @@ msgid "Create Employee"
 msgstr "Xodim qo‘shish"
 
 #. module: hr
-#. odoo-python
-#: code:addons/hr/models/hr_employee.py:0
-#: model:ir.actions.server,name:hr.action_hr_employee_create_users
-#: model:ir.actions.server,name:hr.action_hr_employee_create_users_confirmation
-#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
-#, fuzzy
-msgid "Create User"
-msgstr "Foydalanuvchi yaratish"
+#: model_terms:ir.ui.view,arch_db:hr.hr_employee_create_version_wizard_view_form
+msgid "Create Employee Records"
+msgstr ""
+
+#. module: hr
+#: model:ir.model,name:hr.model_hr_employee_create_version_wizard
+msgid "Create New Employee Version Wizard"
+msgstr ""
 
 #. module: hr
 #: model:ir.model,website_form_label:hr.model_res_partner
@@ -1972,9 +1894,8 @@ msgstr "Yangi bo‘lim qo‘shish"
 
 #. module: hr
 #: model_terms:ir.actions.act_window,help:hr.hr_contract_type_action
-#, fuzzy
-msgid "Create a new employment type"
-msgstr "Yangi bandlik turini kiritish"
+msgid "Create a new employee type"
+msgstr ""
 
 #. module: hr
 #: model_terms:ir.actions.act_window,help:hr.hr_work_location_action
@@ -1987,6 +1908,20 @@ msgstr "Yangi ish joyini qo‘shish"
 #, fuzzy
 msgid "Create an Activity Plan"
 msgstr "Faoliyat rejasini tuzish"
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/views/hr_employee_action_helper/hr_employee_action_helper.xml:0
+#: model_terms:ir.actions.act_window,help:hr.hr_employee_public_action
+#: model_terms:ir.actions.act_window,help:hr.open_view_employee_list_my
+msgid "Create an employee"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.actions.act_window,help:hr.action_hr_employee_org_chart
+#: model_terms:ir.actions.act_window,help:hr.action_hr_employee_public_org_chart
+msgid "Create an employee."
+msgstr ""
 
 #. module: hr
 #: model_terms:hr.job,website_description:hr.job_consultant
@@ -2008,17 +1943,18 @@ msgstr "Xodim qo‘shish"
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_bank_account_allocation_wizard__create_uid
 #: model:ir.model.fields,field_description:hr.field_hr_bank_account_allocation_wizard_line__create_uid
-#: model:ir.model.fields,field_description:hr.field_hr_contract_type__create_uid
 #: model:ir.model.fields,field_description:hr.field_hr_department__create_uid
 #: model:ir.model.fields,field_description:hr.field_hr_departure_reason__create_uid
-#: model:ir.model.fields,field_description:hr.field_hr_departure_wizard__create_uid
 #: model:ir.model.fields,field_description:hr.field_hr_employee__create_uid
 #: model:ir.model.fields,field_description:hr.field_hr_employee_category__create_uid
+#: model:ir.model.fields,field_description:hr.field_hr_employee_create_version_wizard__create_uid
+#: model:ir.model.fields,field_description:hr.field_hr_employee_departure__create_uid
+#: model:ir.model.fields,field_description:hr.field_hr_employee_location__create_uid
 #: model:ir.model.fields,field_description:hr.field_hr_employee_public__create_uid
+#: model:ir.model.fields,field_description:hr.field_hr_employee_type__create_uid
 #: model:ir.model.fields,field_description:hr.field_hr_job__create_uid
 #: model:ir.model.fields,field_description:hr.field_hr_payroll_structure_type__create_uid
 #: model:ir.model.fields,field_description:hr.field_hr_version__create_uid
-#: model:ir.model.fields,field_description:hr.field_hr_version_wizard__create_uid
 #: model:ir.model.fields,field_description:hr.field_hr_work_location__create_uid
 #, fuzzy
 msgid "Created by"
@@ -2027,16 +1963,17 @@ msgstr "Yaratuvchi"
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_bank_account_allocation_wizard__create_date
 #: model:ir.model.fields,field_description:hr.field_hr_bank_account_allocation_wizard_line__create_date
-#: model:ir.model.fields,field_description:hr.field_hr_contract_type__create_date
 #: model:ir.model.fields,field_description:hr.field_hr_department__create_date
 #: model:ir.model.fields,field_description:hr.field_hr_departure_reason__create_date
-#: model:ir.model.fields,field_description:hr.field_hr_departure_wizard__create_date
 #: model:ir.model.fields,field_description:hr.field_hr_employee__create_date
 #: model:ir.model.fields,field_description:hr.field_hr_employee_category__create_date
+#: model:ir.model.fields,field_description:hr.field_hr_employee_create_version_wizard__create_date
+#: model:ir.model.fields,field_description:hr.field_hr_employee_departure__create_date
+#: model:ir.model.fields,field_description:hr.field_hr_employee_location__create_date
+#: model:ir.model.fields,field_description:hr.field_hr_employee_type__create_date
 #: model:ir.model.fields,field_description:hr.field_hr_job__create_date
 #: model:ir.model.fields,field_description:hr.field_hr_payroll_structure_type__create_date
 #: model:ir.model.fields,field_description:hr.field_hr_version__create_date
-#: model:ir.model.fields,field_description:hr.field_hr_version_wizard__create_date
 #: model:ir.model.fields,field_description:hr.field_hr_work_location__create_date
 #, fuzzy
 msgid "Created on"
@@ -2045,6 +1982,7 @@ msgstr "Yaratilgan sana"
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__currency_id
 #: model:ir.model.fields,field_description:hr.field_hr_version__currency_id
+#: model:ir.model.fields,field_description:hr.field_hr_work_location__currency_id
 #, fuzzy
 msgid "Currency"
 msgstr "Valyuta"
@@ -2057,10 +1995,19 @@ msgid "Currency sign, to be used when printing amounts."
 msgstr "Summalarni chop etishda ishlatiladigan valyuta belgisi"
 
 #. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__exceptional_location_id
+msgid "Current"
+msgstr ""
+
+#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__current_date_version
-#, fuzzy
-msgid "Current Date Version"
-msgstr "Joriy sana versiyasi"
+msgid "Current Date Employee Record"
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__current_version_id
+msgid "Current Employee Record"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_job__no_of_employee
@@ -2069,16 +2016,21 @@ msgid "Current Number of Employees"
 msgstr "Joriy xodimlar soni"
 
 #. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_employee__current_version_id
-#, fuzzy
-msgid "Current Version"
-msgstr "Amaldagi versiya"
-
-#. module: hr
 #: model_terms:hr.job,website_description:hr.job_trainee
 #, fuzzy
 msgid "Currently enrolled in final study years"
 msgstr "Hozirda oxirgi o‘quv yillarida tahsil olayotgan"
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/views/hr_employee_action_helper/onboarding_helper_blocks.xml:0
+msgid "Dashboard"
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee_location__date
+msgid "Date"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__date_end
@@ -2095,17 +2047,63 @@ msgid "Date Start"
 msgstr "Boshlanish sanasi"
 
 #. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_employee__date_version
-#: model:ir.model.fields,field_description:hr.field_hr_version__date_version
-#, fuzzy
-msgid "Date Version"
-msgstr "Versiya sanasi"
+#: model:ir.model.fields,help:hr.field_hr_employee__departure_action_date
+#: model:ir.model.fields,help:hr.field_hr_employee__departure_date
+#: model:ir.model.fields,help:hr.field_hr_employee_departure__action_date
+#: model:ir.model.fields,help:hr.field_hr_employee_departure__departure_date
+#: model:ir.model.fields,help:hr.field_hr_version__departure_action_date
+#: model:ir.model.fields,help:hr.field_hr_version__departure_date
+msgid "Date at which the departure actually takes place."
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields,help:hr.field_hr_employee__dismissal_date
+#: model:ir.model.fields,help:hr.field_hr_employee_departure__dismissal_date
+#: model:ir.model.fields,help:hr.field_hr_version__dismissal_date
+msgid ""
+"Date at which the departure process starts. Differs from the actual "
+"departure date in case of a notice period."
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/js/DynamicMinDateTimeField.js:0
+msgid "Date with Dynamic Minimum Value"
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee_location__day_week_string
+msgid "Day Week String"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/components/employee_user_status/employee_user_status.js:0
+#: code:addons/hr/static/src/components/employee_user_status/user_deactivation_dialog.xml:0
+msgid "Deactivate"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/components/employee_user_status/user_deactivation_dialog.xml:0
+msgid "Deactivate & End Collaboration"
+msgstr ""
+
+#. module: hr
+#: model:hr.departure.reason,name:hr.departure_dead
+msgid "Dead"
+msgstr ""
 
 #. module: hr
 #: model_terms:hr.job,website_description:hr.job_developer
 #, fuzzy
 msgid "Debug and resolve software issues"
 msgstr "Dasturiy ta'minot muammolarini aniqlash va bartaraf etish"
+
+#. module: hr
+#: model:ir.model.fields.selection,name:hr.selection__hr_employee__birthday_month__12
+msgid "December"
+msgstr ""
 
 #. module: hr
 #: model_terms:hr.job,website_description:hr.job_cto
@@ -2140,18 +2138,18 @@ msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,help:hr.field_resource_resource__calendar_id
-#, fuzzy
 msgid ""
-"Define the working schedule of the resource. If not set, the resource will "
-"have fully flexible working hours."
+"Define the working schedule of the resource. Assign a flexible calendar for "
+"fully flexible working hours."
 msgstr ""
-"Resursning ish jadvalini belgilang. Agar belgilanmasa, resurs to‘liq "
-"egiluvchan ish vaqtiga ega bo‘ladi."
 
 #. module: hr
 #. odoo-javascript
-#: code:addons/hr/static/src/components/avatar_card/avatar_card_popover_patch.xml:0
-#: code:addons/hr/static/src/components/avatar_card_resource/avatar_card_resource_popover.xml:0
+#: code:addons/hr/static/src/fields/boolean_radio.js:0
+msgid "Defines which values comes first."
+msgstr ""
+
+#. module: hr
 #: model:ir.model,name:hr.model_hr_department
 #: model:ir.model.fields,field_description:hr.field_hr_employee__department_id
 #: model:ir.model.fields,field_description:hr.field_hr_employee_public__department_id
@@ -2159,9 +2157,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:hr.field_hr_version__department_id
 #: model:ir.model.fields,field_description:hr.field_mail_activity_plan__department_id
 #: model:ir.model.fields,field_description:hr.field_mail_activity_schedule__department_id
+#: model:ir.model.fields,field_description:hr.field_res_users__department_id
 #: model:ir.model.fields,field_description:hr.field_resource_resource__department_id
 #: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_view_search
 #: model_terms:ir.ui.view,arch_db:hr.hr_version_search_view
+#: model_terms:ir.ui.view,arch_db:hr.hr_version_search_view_enhanced
 #: model_terms:ir.ui.view,arch_db:hr.view_department_filter
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_filter
 #: model_terms:ir.ui.view,arch_db:hr.view_job_filter
@@ -2174,6 +2174,12 @@ msgstr "Bo‘lim"
 #, fuzzy
 msgid "Department Assignable"
 msgstr "Tayinlanadigan bo‘lim"
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__department_color
+#: model:ir.model.fields,field_description:hr.field_hr_employee_public__department_color
+msgid "Department Color"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_department__name
@@ -2198,23 +2204,24 @@ msgid "Departments"
 msgstr "Bo‘limlar"
 
 #. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
+#: model:ir.model.fields,field_description:hr.field_hr_employee__departure_id
+#: model:ir.model.fields,field_description:hr.field_hr_version__departure_id
+#: model_terms:ir.ui.view,arch_db:hr.hr_version_search_view_enhanced
 #, fuzzy
 msgid "Departure"
 msgstr "Ishdan ketish"
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__departure_date
+#: model:ir.model.fields,field_description:hr.field_hr_employee_departure__departure_date
 #: model:ir.model.fields,field_description:hr.field_hr_version__departure_date
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_filter
 #, fuzzy
 msgid "Departure Date"
 msgstr "Ishdan ketish sanasi"
 
 #. module: hr
 #: model:ir.model,name:hr.model_hr_departure_reason
-#: model:ir.model.fields,field_description:hr.field_hr_departure_wizard__departure_reason_id
-#: model:ir.model.fields,field_description:hr.field_hr_employee__departure_reason_id
-#: model:ir.model.fields,field_description:hr.field_hr_version__departure_reason_id
 #, fuzzy
 msgid "Departure Reason"
 msgstr "Ishdan ketish sababi"
@@ -2227,20 +2234,18 @@ msgid "Departure Reasons"
 msgstr "Ishdan ketish sabablari"
 
 #. module: hr
-#: model:ir.model,name:hr.model_hr_departure_wizard
-#, fuzzy
-msgid "Departure Wizard"
-msgstr "Ishdan ketish yordamchisi"
+#. odoo-python
+#: code:addons/hr/models/hr_employee.py:0
+msgid "Departure already configured"
+msgstr ""
 
 #. module: hr
 #. odoo-python
-#: code:addons/hr/wizard/hr_departure_wizard.py:0
-#, fuzzy
+#: code:addons/hr/models/hr_employee_departure.py:0
 msgid ""
-"Departure date can't be earlier than the start date of current contract."
+"Departure date is earlier than the start date of the current contract(s) of "
+"%s."
 msgstr ""
-"Ishdan ketish sanasi amaldagi shartnomaning boshlanish sanasidan oldin "
-"bo‘lishi mumkin emas."
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__children
@@ -2274,13 +2279,26 @@ msgid "Develop technology strategy and vision"
 msgstr "Texnologiya strategiyasi va istiqbolini ishlab chiqish"
 
 #. module: hr
-#: model_terms:ir.actions.act_window,help:hr.hr_employee_public_action
-#: model_terms:ir.actions.act_window,help:hr.open_view_employee_list_my
+#. odoo-javascript
+#: code:addons/hr/static/src/views/hr_employee_action_helper/onboarding_helper_blocks.xml:0
 #, fuzzy
 msgid "Development"
 msgstr "Rivojlanish"
 
 #. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__child_count
+msgid "Direct Subordinates Count"
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields,help:hr.field_hr_employee__subordinate_ids
+#: model:ir.model.fields,help:hr.field_hr_employee_public__subordinate_ids
+msgid "Direct and indirect subordinates"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/fields/hr_org_chart.xml:0
 #: model:ir.model.fields,field_description:hr.field_hr_employee__child_ids
 #: model:ir.model.fields,field_description:hr.field_hr_employee_public__child_ids
 #, fuzzy
@@ -2294,8 +2312,13 @@ msgid "Directory"
 msgstr "Katalog"
 
 #. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.hr_departure_wizard_view_form
-#: model_terms:ir.ui.view,arch_db:hr.hr_version_wizard_view_form
+#. odoo-javascript
+#: code:addons/hr/static/src/components/contract_end_dialog/contract_end_dialog.xml:0
+#: code:addons/hr/static/src/components/employee_user_status/user_deactivation_dialog.xml:0
+#: code:addons/hr/static/src/js/departure_conflict_dialog.js:0
+#: code:addons/hr/static/src/xml/contract_template_button.xml:0
+#: model_terms:ir.ui.view,arch_db:hr.hr_employee_create_version_wizard_view_form
+#: model_terms:ir.ui.view,arch_db:hr.hr_employee_departure_view_form
 #, fuzzy
 msgid "Discard"
 msgstr "Bekor qilish"
@@ -2318,28 +2341,38 @@ msgid "Discussion Channel"
 msgstr "Muhokama kanali"
 
 #. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__dismissal_date
+#: model:ir.model.fields,field_description:hr.field_hr_employee_departure__dismissal_date
+#: model:ir.model.fields,field_description:hr.field_hr_version__dismissal_date
+msgid "Dismissal Date"
+msgstr ""
+
+#. module: hr
 #: model:ir.model.fields,field_description:hr.field_discuss_channel__display_name
 #: model:ir.model.fields,field_description:hr.field_hr_bank_account_allocation_wizard__display_name
 #: model:ir.model.fields,field_description:hr.field_hr_bank_account_allocation_wizard_line__display_name
-#: model:ir.model.fields,field_description:hr.field_hr_contract_type__display_name
 #: model:ir.model.fields,field_description:hr.field_hr_department__display_name
 #: model:ir.model.fields,field_description:hr.field_hr_departure_reason__display_name
-#: model:ir.model.fields,field_description:hr.field_hr_departure_wizard__display_name
 #: model:ir.model.fields,field_description:hr.field_hr_employee__display_name
 #: model:ir.model.fields,field_description:hr.field_hr_employee_category__display_name
+#: model:ir.model.fields,field_description:hr.field_hr_employee_create_version_wizard__display_name
+#: model:ir.model.fields,field_description:hr.field_hr_employee_departure__display_name
+#: model:ir.model.fields,field_description:hr.field_hr_employee_location__display_name
 #: model:ir.model.fields,field_description:hr.field_hr_employee_public__display_name
+#: model:ir.model.fields,field_description:hr.field_hr_employee_type__display_name
 #: model:ir.model.fields,field_description:hr.field_hr_job__display_name
 #: model:ir.model.fields,field_description:hr.field_hr_manager_department_report__display_name
 #: model:ir.model.fields,field_description:hr.field_hr_mixin__display_name
 #: model:ir.model.fields,field_description:hr.field_hr_payroll_structure_type__display_name
 #: model:ir.model.fields,field_description:hr.field_hr_version__display_name
-#: model:ir.model.fields,field_description:hr.field_hr_version_wizard__display_name
 #: model:ir.model.fields,field_description:hr.field_hr_work_location__display_name
 #: model:ir.model.fields,field_description:hr.field_ir_ui_menu__display_name
+#: model:ir.model.fields,field_description:hr.field_mail_activity__display_name
 #: model:ir.model.fields,field_description:hr.field_mail_activity_plan__display_name
 #: model:ir.model.fields,field_description:hr.field_mail_activity_plan_template__display_name
 #: model:ir.model.fields,field_description:hr.field_mail_activity_schedule__display_name
 #: model:ir.model.fields,field_description:hr.field_mail_alias__display_name
+#: model:ir.model.fields,field_description:hr.field_publisher_warranty_contract__display_name
 #: model:ir.model.fields,field_description:hr.field_res_company__display_name
 #: model:ir.model.fields,field_description:hr.field_res_config_settings__display_name
 #: model:ir.model.fields,field_description:hr.field_res_partner__display_name
@@ -2380,6 +2413,8 @@ msgid "Document"
 msgstr "Hujjat"
 
 #. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/views/hr_employee_action_helper/onboarding_helper_blocks.xml:0
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_form
 msgid "Documents"
 msgstr ""
@@ -2389,6 +2424,16 @@ msgstr ""
 #, fuzzy
 msgid "Driving License"
 msgstr "Haydovchilik guvohnomasi"
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__driving_license_name
+msgid "Driving License Name"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.resource_calendar_form_view_inherit_hr
+msgid "Duplicate & Edit for Current Employee"
+msgstr ""
 
 #. module: hr
 #. odoo-python
@@ -2443,7 +2488,11 @@ msgid "Education"
 msgstr "Ta'lim"
 
 #. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__date_version
+#: model:ir.model.fields,field_description:hr.field_hr_version__date_version
+#: model_terms:ir.ui.view,arch_db:hr.hr_contract_template_form_view
 #: model_terms:ir.ui.view,arch_db:hr.hr_version_list_view
+#: model_terms:ir.ui.view,arch_db:hr.hr_version_list_view_enhanced
 #, fuzzy
 msgid "Effective Date"
 msgstr "Kuchga kirish sanasi"
@@ -2463,10 +2512,8 @@ msgid "Element to observe"
 msgstr "Kuzatiladigan element"
 
 #. module: hr
-#: model:ir.model.fields,field_description:hr.field_account_setup_bank_manual_config__bank_email
 #: model:ir.model.fields,field_description:hr.field_hr_employee__email
 #: model:ir.model.fields,field_description:hr.field_hr_employee_public__email
-#: model:ir.model.fields,field_description:hr.field_res_partner_bank__bank_email
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_form
 #, fuzzy
 msgid "Email"
@@ -2474,9 +2521,8 @@ msgstr "Elektron pochta"
 
 #. module: hr
 #: model:ir.model,name:hr.model_mail_alias
-#, fuzzy
-msgid "Email Aliases"
-msgstr "Elektron pochta taxalluslari"
+msgid "Email Alias"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__emergency_contact
@@ -2496,12 +2542,15 @@ msgstr "Favqulodda telefon raqami"
 
 #. module: hr
 #. odoo-python
+#: code:addons/hr/models/hr_employee_type.py:0
 #: code:addons/hr/models/res_partner.py:0 code:addons/hr/models/res_users.py:0
-#: model:hr.contract.type,name:hr.contract_type_employee
+#: model:hr.employee.type,name:hr.contract_type_employee
 #: model:ir.model,name:hr.model_hr_employee
 #: model:ir.model.fields,field_description:hr.field_account_setup_bank_manual_config__employee_id
 #: model:ir.model.fields,field_description:hr.field_hr_bank_account_allocation_wizard__employee_id
 #: model:ir.model.fields,field_description:hr.field_hr_employee__employee_id
+#: model:ir.model.fields,field_description:hr.field_hr_employee_departure__employee_id
+#: model:ir.model.fields,field_description:hr.field_hr_employee_location__employee_id
 #: model:ir.model.fields,field_description:hr.field_hr_employee_public__employee_id
 #: model:ir.model.fields,field_description:hr.field_hr_manager_department_report__employee_id
 #: model:ir.model.fields,field_description:hr.field_hr_version__employee_id
@@ -2509,11 +2558,11 @@ msgstr "Favqulodda telefon raqami"
 #: model:ir.model.fields,field_description:hr.field_res_partner_bank__employee_id
 #: model:ir.model.fields,field_description:hr.field_res_users__employee
 #: model:ir.model.fields,field_description:hr.field_resource_resource__employee_id
-#: model:ir.model.fields.selection,name:hr.selection__hr_version__employee_type__employee
 #: model:ir.model.fields.selection,name:hr.selection__mail_activity_plan_template__responsible_type__employee
 #: model:ir.ui.menu,name:hr.menu_config_employee
 #: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_view_form
 #: model_terms:ir.ui.view,arch_db:hr.hr_version_search_view
+#: model_terms:ir.ui.view,arch_db:hr.hr_version_search_view_enhanced
 #: model_terms:ir.ui.view,arch_db:hr.res_users_view_form
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_filter
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_form
@@ -2542,10 +2591,16 @@ msgid "Employee Contract"
 msgstr "Xodim shartnomasi"
 
 #. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee_create_version_wizard__employee_count
 #: model:ir.model.fields,field_description:hr.field_res_users__employee_count
 #, fuzzy
 msgid "Employee Count"
 msgstr "Xodimlar soni"
+
+#. module: hr
+#: model:ir.model,name:hr.model_hr_employee_departure
+msgid "Employee Departure"
+msgstr ""
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.print_employee_badge
@@ -2554,7 +2609,13 @@ msgid "Employee Image"
 msgstr "Xodim surati"
 
 #. module: hr
+#: model:ir.model,name:hr.model_hr_employee_location
+msgid "Employee Location"
+msgstr ""
+
+#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__name
+#: model:ir.model.fields,field_description:hr.field_hr_employee_location__employee_name
 #, fuzzy
 msgid "Employee Name"
 msgstr "Xodim ismi"
@@ -2572,12 +2633,23 @@ msgid "Employee Properties"
 msgstr "Xodim xususiyatlari"
 
 #. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__version_id
+msgid "Employee Record"
+msgstr ""
+
+#. module: hr
 #: model:ir.actions.act_window,name:hr.action_hr_version
+#: model:ir.model.fields,field_description:hr.field_hr_employee__version_ids
 #: model_terms:ir.ui.view,arch_db:hr.hr_version_graph_view
 #: model_terms:ir.ui.view,arch_db:hr.hr_version_pivot_view
 #, fuzzy
 msgid "Employee Records"
 msgstr "Xodim qaydlari"
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__versions_count
+msgid "Employee Records Count"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_account_setup_bank_manual_config__employee_salary_amount_is_percentage
@@ -2595,25 +2667,24 @@ msgid "Employee Tags"
 msgstr "Xodim teglari"
 
 #. module: hr
-#. odoo-javascript
-#: code:addons/hr/static/src/views/archive_employee_hook.js:0
-#, fuzzy
-msgid "Employee Termination"
-msgstr "Xodimni ishdan bo‘shatish"
-
-#. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_employee__employee_type
-#: model:ir.model.fields,field_description:hr.field_hr_version__employee_type
+#: model:ir.model,name:hr.model_hr_employee_type
+#: model:ir.model.fields,field_description:hr.field_hr_employee__employee_type_id
+#: model:ir.model.fields,field_description:hr.field_hr_job__employee_type_id
+#: model:ir.model.fields,field_description:hr.field_hr_version__employee_type_id
+#: model_terms:ir.ui.view,arch_db:hr.hr_contract_template_form_view
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_filter
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
+#: model_terms:ir.ui.view,arch_db:hr.view_job_filter
 #, fuzzy
 msgid "Employee Type"
 msgstr "Xodim turi"
 
 #. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_employee__version_ids
-#, fuzzy
-msgid "Employee Versions"
-msgstr "Xodim versiyalari"
+#: model:ir.actions.act_window,name:hr.hr_contract_type_action
+#: model:ir.ui.menu,name:hr.menu_view_hr_contract_type
+#: model_terms:ir.ui.view,arch_db:hr.hr_contract_type_view_tree
+msgid "Employee Types"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,help:hr.field_hr_employee__bank_account_ids
@@ -2628,6 +2699,14 @@ msgstr "Ish haqini to‘lash uchun xodimlarning bank hisobraqamlari"
 #, fuzzy
 msgid "Employee development is a core focus"
 msgstr "Xodimlarni rivojlantirish asosiy e'tiborni talab qiladi"
+
+#. module: hr
+#. odoo-python
+#: code:addons/hr/models/hr_employee.py:0
+msgid ""
+"Employee is already configured in a Departure process. \n"
+"Cancel it before configurating a new End of Collaboration."
+msgstr ""
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.hr_contract_template_form_view
@@ -2646,10 +2725,14 @@ msgstr "Xodimning bank hisobraqamlari"
 #: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_view_kanban
 #: model_terms:ir.ui.view,arch_db:hr.hr_kanban_view_employees
 #: model_terms:ir.ui.view,arch_db:hr.res_users_view_form_preferences
-#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
 #, fuzzy
 msgid "Employee's Name"
 msgstr "Xodimning ismi"
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
+msgid "Employee's Name (e.g. John Doe, ...)"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_res_users__employee_resource_calendar_id
@@ -2665,26 +2748,33 @@ msgid "Employee's monthly gross wage."
 msgstr "Xodimning oylik yalpi ish haqi"
 
 #. module: hr
+#. odoo-javascript
 #. odoo-python
 #: code:addons/hr/models/hr_department.py:0
+#: code:addons/hr/models/resource_calendar.py:0
+#: code:addons/hr/static/src/views/hr_employee_action_helper/hr_employee_action_helper.js:0
 #: model:ir.actions.act_window,name:hr.hr_employee_public_action
 #: model:ir.actions.act_window,name:hr.open_view_employee_list
 #: model:ir.actions.act_window,name:hr.open_view_employee_list_my
-#: model:ir.model.fields,field_description:hr.field_hr_departure_wizard__employee_ids
 #: model:ir.model.fields,field_description:hr.field_hr_employee_category__employee_ids
+#: model:ir.model.fields,field_description:hr.field_hr_employee_type__employees_count
 #: model:ir.model.fields,field_description:hr.field_hr_job__employee_ids
 #: model:ir.model.fields,field_description:hr.field_res_partner__employee_ids
-#: model:ir.ui.menu,name:hr.menu_hr_employee_payroll
+#: model:ir.module.module,shortdesc:base.module_hr
 #: model:ir.ui.menu,name:hr.menu_hr_root
 #: model:res.groups.privilege,name:hr.res_groups_privilege_employees
+#: model_terms:ir.ui.view,arch_db:hr.hr_contract_type_view_tree
+#: model_terms:ir.ui.view,arch_db:hr.hr_department_hierarchy_view
 #: model_terms:ir.ui.view,arch_db:hr.hr_department_view_kanban
 #: model_terms:ir.ui.view,arch_db:hr.hr_employee_list_activites_view
 #: model_terms:ir.ui.view,arch_db:hr.hr_employee_list_view
 #: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_view_search
 #: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_view_tree
 #: model_terms:ir.ui.view,arch_db:hr.hr_employee_view_activity
+#: model_terms:ir.ui.view,arch_db:hr.hr_version_search_view_enhanced
 #: model_terms:ir.ui.view,arch_db:hr.res_config_settings_view_form
 #: model_terms:ir.ui.view,arch_db:hr.res_partner_view_search
+#: model_terms:ir.ui.view,arch_db:hr.resource_calendar_form_view_inherit_hr
 #: model_terms:ir.ui.view,arch_db:hr.view_department_form
 #: model_terms:ir.ui.view,arch_db:hr.view_department_tree
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_filter
@@ -2696,6 +2786,7 @@ msgstr "Xodimlar"
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_res_partner__employees_count
 #: model:ir.model.fields,field_description:hr.field_res_users__employees_count
+#: model:ir.model.fields,field_description:hr.field_resource_calendar__employees_count
 #, fuzzy
 msgid "Employees Count"
 msgstr "Xodimlar soni"
@@ -2713,20 +2804,6 @@ msgid "Employees profile"
 msgstr ""
 
 #. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_job__contract_type_id
-#: model_terms:ir.ui.view,arch_db:hr.view_job_filter
-#, fuzzy
-msgid "Employment Type"
-msgstr "Ish turi"
-
-#. module: hr
-#: model:ir.actions.act_window,name:hr.hr_contract_type_action
-#: model:ir.ui.menu,name:hr.menu_view_hr_contract_type
-#, fuzzy
-msgid "Employment Types"
-msgstr "Ish turlari"
-
-#. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.hr_version_list_view
 #, fuzzy
 msgid "End"
@@ -2737,6 +2814,13 @@ msgstr "Tugash"
 #, fuzzy
 msgid "End Date"
 msgstr "Tugash sanasi"
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__departure_reason_id
+#: model:ir.model.fields,field_description:hr.field_hr_employee_departure__departure_reason_id
+#: model:ir.model.fields,field_description:hr.field_hr_version__departure_reason_id
+msgid "End Reason"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,help:hr.field_hr_employee__contract_date_end
@@ -2753,11 +2837,31 @@ msgid "End date of the trial period (if there is one)."
 msgstr "Sinov muddatining tugash sanasi (agar mavjud bo‘lsa)"
 
 #. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/components/contract_end_dialog/contract_end_dialog.xml:0
+#: model:ir.actions.server,name:hr.action_hr_employee_departure
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
+msgid "End of Collaboration"
+msgstr ""
+
+#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__trial_date_end
 #: model:ir.model.fields,field_description:hr.field_hr_version__trial_date_end
 #, fuzzy
 msgid "End of Trial Period"
 msgstr "Sinov muddatining tugashi"
+
+#. module: hr
+#. odoo-python
+#: code:addons/hr/models/hr_employee.py:0
+msgid "End of collaboration"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/components/contract_end_dialog/contract_end_dialog.xml:0
+msgid "End of contract?"
+msgstr ""
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.res_config_settings_view_form
@@ -2817,8 +2921,8 @@ msgstr ""
 "xodimlar soni"
 
 #. module: hr
-#: model_terms:ir.actions.act_window,help:hr.hr_employee_public_action
-#: model_terms:ir.actions.act_window,help:hr.open_view_employee_list_my
+#. odoo-javascript
+#: code:addons/hr/static/src/views/hr_employee_action_helper/onboarding_helper_blocks.xml:0
 #, fuzzy
 msgid "Experience"
 msgstr "Tajriba"
@@ -2876,6 +2980,16 @@ msgstr "Muddati o‘tgan shartnomalar"
 #, fuzzy
 msgid "Expires on"
 msgstr "Amal qilish muddati"
+
+#. module: hr
+#: model:ir.model.fields.selection,name:hr.selection__mail_activity__technical_usage__hr_expiring_contract
+msgid "Expiring Contract"
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields.selection,name:hr.selection__mail_activity__technical_usage__hr_expiring_work_permit
+msgid "Expiring Work Permit"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,help:hr.field_hr_employee__share
@@ -2944,11 +3058,9 @@ msgid "Family"
 msgstr "Oila"
 
 #. module: hr
-#: model:ir.model.fields,field_description:hr.field_account_setup_bank_manual_config__bank_state
-#: model:ir.model.fields,field_description:hr.field_res_partner_bank__bank_state
-#, fuzzy
-msgid "Fed. State"
-msgstr "Federal davlat"
+#: model:ir.model.fields.selection,name:hr.selection__hr_employee__birthday_month__2
+msgid "February"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields.selection,name:hr.selection__hr_version__sex__female
@@ -2963,10 +3075,59 @@ msgid "Field of Study"
 msgstr "O‘qish yo‘nalishi"
 
 #. module: hr
+#: model:ir.model.fields,help:hr.field_hr_employee__phone_sanitized
+msgid ""
+"Field used to store sanitized phone number. Helps speeding up searches and "
+"comparisons."
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.actions.act_window,help:hr.hr_employee_public_action
+#: model_terms:ir.actions.act_window,help:hr.open_view_employee_list_my
+msgid "Find all the information on employees"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.actions.act_window,help:hr.action_hr_employee_org_chart
+#: model_terms:ir.actions.act_window,help:hr.action_hr_employee_public_org_chart
+msgid "Find all the information on employees."
+msgstr ""
+
+#. module: hr
 #: model:hr.departure.reason,name:hr.departure_fired
 #, fuzzy
 msgid "Fired"
 msgstr "Ishdan bo‘shatilgan"
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__first_contract_date
+msgid "First Contract Date"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/fields/boolean_radio.js:0
+msgid "First Element"
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__fixed_term
+#: model:ir.model.fields,field_description:hr.field_hr_version__fixed_term
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
+msgid "Fixed Term"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.hr_version_search_view_enhanced
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_filter
+msgid "Fixed-term Contract"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/views/hr_employee_action_helper/onboarding_helper_blocks.xml:0
+msgid "Fleet"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_department__message_follower_ids
@@ -2987,14 +3148,6 @@ msgid "Followers (Partners)"
 msgstr "Obunachilar (hamkorlar)"
 
 #. module: hr
-#: model:ir.model.fields,help:hr.field_hr_department__activity_type_icon
-#: model:ir.model.fields,help:hr.field_hr_employee__activity_type_icon
-#: model:ir.model.fields,help:hr.field_hr_version__activity_type_icon
-#, fuzzy
-msgid "Font awesome icon e.g. fa-tasks"
-msgstr "Font awesome belgisi, masalan fa-tasks"
-
-#. module: hr
 #. odoo-python
 #: code:addons/hr/models/discuss_channel.py:0
 #, fuzzy
@@ -3004,6 +3157,11 @@ msgid ""
 msgstr ""
 "%(channels)s uchun bo‘limga avtomatik obuna bo‘lish uchun kanal_turi "
 "'channel' bo‘lishi kerak."
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee_public__phone_formatted
+msgid "Formatted Number"
+msgstr ""
 
 #. module: hr
 #: model_terms:hr.job,website_description:hr.job_hrm
@@ -3018,10 +3176,15 @@ msgid "Foster innovation and new solutions"
 msgstr "Innovatsiya va yangi yechimlarni rag‘batlantirish"
 
 #. module: hr
-#: model:ir.model.fields.selection,name:hr.selection__hr_version__employee_type__freelance
-#, fuzzy
-msgid "Freelancer"
-msgstr "Mustaqil mutaxassis"
+#: model:ir.model.fields,field_description:hr.field_hr_employee__friday_location_id
+#: model:ir.model.fields,field_description:hr.field_hr_employee_public__friday_location_id
+msgid "Friday"
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_res_users__friday_location_id
+msgid "Fridays"
+msgstr ""
 
 #. module: hr
 #: model_terms:hr.job,website_description:hr.job_consultant
@@ -3032,12 +3195,6 @@ msgstr "Mustaqil mutaxassis"
 #, fuzzy
 msgid "Fruit, coffee and <br>snacks provided."
 msgstr "Meva, qahva va <br>yengil taomlarga ega bo‘lish imkoniyati."
-
-#. module: hr
-#: model:hr.contract.type,name:hr.contract_type_full_time
-#, fuzzy
-msgid "Full-Time"
-msgstr "To‘liq stavka"
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.hr_version_search_view
@@ -3053,24 +3210,10 @@ msgid "Future Contracts"
 msgstr "Kelajakdagi shartnomalar"
 
 #. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_employee__sex
-#: model:ir.model.fields,field_description:hr.field_hr_version__sex
-#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
-#, fuzzy
-msgid "Gender"
-msgstr "Jins"
-
-#. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_form
 #, fuzzy
 msgid "Generate"
 msgstr "Yaratish"
-
-#. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.hr_departure_wizard_view_form
-#, fuzzy
-msgid "Give more details about the reason of archiving the employee."
-msgstr "Xodimni arxivlash sababini batafsil tushuntiring."
 
 #. module: hr
 #. odoo-python
@@ -3137,6 +3280,17 @@ msgid "HR Responsible"
 msgstr "Kadrlar bo‘yicha mas'ul shaxs"
 
 #. module: hr
+#. odoo-python
+#: code:addons/hr/models/hr_version.py:0
+msgid "HR Responsible Update"
+msgstr ""
+
+#. module: hr
+#: model:ir.actions.server,name:hr.ir_cron_apply_departure_ir_actions_server
+msgid "HR: Apply employee departures"
+msgstr ""
+
+#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_manager_department_report__has_department_manager_access
 #, fuzzy
 msgid "Has Department Manager Access"
@@ -3167,8 +3321,8 @@ msgid "Highly creative and autonomous"
 msgstr "Yuqori darajada ijodkor va mustaqil"
 
 #. module: hr
-#: model_terms:ir.actions.act_window,help:hr.hr_employee_public_action
-#: model_terms:ir.actions.act_window,help:hr.open_view_employee_list_my
+#. odoo-javascript
+#: code:addons/hr/static/src/views/hr_employee_action_helper/onboarding_helper_blocks.xml:0
 #, fuzzy
 msgid "Hiring"
 msgstr "Ishga qabul qilish"
@@ -3215,6 +3369,21 @@ msgid "Home-Work Distance unit"
 msgstr "Uy-ish masofasi o‘lchov birligi"
 
 #. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__hourly_cost
+msgid "Hourly Cost"
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee_public__hours_per_day
+msgid "Hours Per Day"
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee_public__hours_per_week
+msgid "Hours Per Week"
+msgstr ""
+
+#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__hr_icon_display
 #: model:ir.model.fields,field_description:hr.field_hr_employee_public__hr_icon_display
 #: model:ir.model.fields,field_description:hr.field_resource_resource__hr_icon_display
@@ -3251,25 +3420,28 @@ msgstr "Inson resurslari bo‘yicha menejer"
 #: model:ir.model.fields,field_description:hr.field_discuss_channel__id
 #: model:ir.model.fields,field_description:hr.field_hr_bank_account_allocation_wizard__id
 #: model:ir.model.fields,field_description:hr.field_hr_bank_account_allocation_wizard_line__id
-#: model:ir.model.fields,field_description:hr.field_hr_contract_type__id
 #: model:ir.model.fields,field_description:hr.field_hr_department__id
 #: model:ir.model.fields,field_description:hr.field_hr_departure_reason__id
-#: model:ir.model.fields,field_description:hr.field_hr_departure_wizard__id
 #: model:ir.model.fields,field_description:hr.field_hr_employee__id
 #: model:ir.model.fields,field_description:hr.field_hr_employee_category__id
+#: model:ir.model.fields,field_description:hr.field_hr_employee_create_version_wizard__id
+#: model:ir.model.fields,field_description:hr.field_hr_employee_departure__id
+#: model:ir.model.fields,field_description:hr.field_hr_employee_location__id
 #: model:ir.model.fields,field_description:hr.field_hr_employee_public__id
+#: model:ir.model.fields,field_description:hr.field_hr_employee_type__id
 #: model:ir.model.fields,field_description:hr.field_hr_job__id
 #: model:ir.model.fields,field_description:hr.field_hr_manager_department_report__id
 #: model:ir.model.fields,field_description:hr.field_hr_mixin__id
 #: model:ir.model.fields,field_description:hr.field_hr_payroll_structure_type__id
 #: model:ir.model.fields,field_description:hr.field_hr_version__id
-#: model:ir.model.fields,field_description:hr.field_hr_version_wizard__id
 #: model:ir.model.fields,field_description:hr.field_hr_work_location__id
 #: model:ir.model.fields,field_description:hr.field_ir_ui_menu__id
+#: model:ir.model.fields,field_description:hr.field_mail_activity__id
 #: model:ir.model.fields,field_description:hr.field_mail_activity_plan__id
 #: model:ir.model.fields,field_description:hr.field_mail_activity_plan_template__id
 #: model:ir.model.fields,field_description:hr.field_mail_activity_schedule__id
 #: model:ir.model.fields,field_description:hr.field_mail_alias__id
+#: model:ir.model.fields,field_description:hr.field_publisher_warranty_contract__id
 #: model:ir.model.fields,field_description:hr.field_res_company__id
 #: model:ir.model.fields,field_description:hr.field_res_config_settings__id
 #: model:ir.model.fields,field_description:hr.field_res_partner__id
@@ -3296,16 +3468,10 @@ msgid "ID used for employee identification."
 msgstr "Xodimni aniqlash uchun foydalaniladigan ID."
 
 #. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_employee__im_status
-#: model:ir.model.fields,field_description:hr.field_hr_employee_public__im_status
-#, fuzzy
-msgid "IM Status"
-msgstr "IM holati"
-
-#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_department__activity_exception_icon
 #: model:ir.model.fields,field_description:hr.field_hr_employee__activity_exception_icon
 #: model:ir.model.fields,field_description:hr.field_hr_version__activity_exception_icon
+#: model:ir.model.fields,field_description:hr.field_hr_work_location__icon
 #, fuzzy
 msgid "Icon"
 msgstr "Belgi"
@@ -3317,6 +3483,11 @@ msgstr "Belgi"
 #, fuzzy
 msgid "Icon to indicate an exception activity."
 msgstr "Istisno holatini ko‘rsatuvchi belgi."
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__id_card_name
+msgid "Id Card Name"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__identification_id
@@ -3348,12 +3519,6 @@ msgid "If checked, some messages have a delivery error."
 msgstr "Belgilansa, ayrim xabarlarda yetkazib berish xatosi mavjud."
 
 #. module: hr
-#: model:ir.model.fields,help:hr.field_hr_departure_wizard__remove_related_user
-#, fuzzy
-msgid "If checked, the related user will be removed from the system."
-msgstr "Belgilansa, tegishli foydalanuvchi tizimdan o‘chiriladi."
-
-#. module: hr
 #: model:ir.model.fields,help:hr.field_hr_employee__active
 #: model:ir.model.fields,help:hr.field_hr_employee__active_employee
 #: model:ir.model.fields,help:hr.field_hr_version__active_employee
@@ -3366,12 +3531,11 @@ msgstr ""
 "yashirish imkonini beradi."
 
 #. module: hr
-#: model:ir.model.fields,help:hr.field_hr_employee__private_car_plate
-#, fuzzy
-msgid "If you have more than one car, just separate the plates by a space."
+#: model:ir.model.fields,help:hr.field_hr_employee__phone_sanitized_blacklisted
+msgid ""
+"If the sanitized phone number is on the blacklist, the contact won't receive "
+"mass mailing sms anymore, from any list"
 msgstr ""
-"Agar sizda bittadan ortiq avtomobil bo‘lsa, raqamlarni bo‘sh joy bilan "
-"ajrating."
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__image_1920
@@ -3409,19 +3573,6 @@ msgid "Image 512"
 msgstr "512 o‘lchamli rasm"
 
 #. module: hr
-#. odoo-python
-#: code:addons/hr/models/hr_employee.py:0
-#, fuzzy
-msgid "Import Template for Employees"
-msgstr "Xodimlar uchun import andozasi"
-
-#. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.view_employee_filter
-#, fuzzy
-msgid "In Contract"
-msgstr "Shartnoma asosida"
-
-#. module: hr
 #: model_terms:hr.job,website_description:hr.job_hrm
 #, fuzzy
 msgid "In-depth knowledge of labor laws"
@@ -3436,16 +3587,61 @@ msgid "Indefinite"
 msgstr "Muddatsiz"
 
 #. module: hr
-#: model:hr.contract.type,name:hr.contract_type_interim
+#: model:ir.model.fields,help:hr.field_hr_employee__phone_blacklisted
+msgid ""
+"Indicates if a blacklisted sanitized phone number is a phone number. Helps "
+"distinguish which number is blacklisted             when there is both a "
+"mobile and phone field in a model."
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields,help:hr.field_hr_employee__split_legal_name
+msgid ""
+"Indicates whether the legal name is split into first and last name fields "
+"based on the employee's country."
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__child_all_count
+msgid "Indirect Subordinates Count"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/fields/hr_org_chart.xml:0
+msgid "Indirect subordinates"
+msgstr ""
+
+#. module: hr
+#: model:hr.employee.type,name:hr.contract_type_interim
 #, fuzzy
 msgid "Interim"
 msgstr "Vaqtinchalik"
 
 #. module: hr
-#: model:hr.contract.type,name:hr.contract_type_intern
+#: model:hr.employee.type,name:hr.contract_type_intern
 #, fuzzy
 msgid "Intern"
 msgstr "Amaliyotchi"
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/components/employee_user_status/employee_user_status.js:0
+msgid "Invitation link copied to clipboard."
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/components/employee_user_status/employee_user_status.js:0
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
+msgid "Invite"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/components/employee_user_status/employee_user_status.js:0
+msgid "Invited"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__is_current
@@ -3462,13 +3658,6 @@ msgid "Is Custom Job Title"
 msgstr "Maxsus lavozim nomi"
 
 #. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_employee__is_flexible
-#: model:ir.model.fields,field_description:hr.field_hr_version__is_flexible
-#, fuzzy
-msgid "Is Flexible"
-msgstr "Moslashuvchan"
-
-#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_department__message_is_follower
 #: model:ir.model.fields,field_description:hr.field_hr_employee__message_is_follower
 #: model:ir.model.fields,field_description:hr.field_hr_job__message_is_follower
@@ -3476,13 +3665,6 @@ msgstr "Moslashuvchan"
 #, fuzzy
 msgid "Is Follower"
 msgstr "Kuzatuvchi"
-
-#. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_employee__is_fully_flexible
-#: model:ir.model.fields,field_description:hr.field_hr_version__is_fully_flexible
-#, fuzzy
-msgid "Is Fully Flexible"
-msgstr "To‘liq moslashuvchan"
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__is_future
@@ -3518,6 +3700,12 @@ msgid "Is Past"
 msgstr "O‘tmishdagi"
 
 #. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__is_subordinate
+#: model:ir.model.fields,field_description:hr.field_hr_employee_public__is_subordinate
+msgid "Is Subordinate"
+msgstr ""
+
+#. module: hr
 #: model:ir.model.fields,field_description:hr.field_res_users__is_system
 #, fuzzy
 msgid "Is System"
@@ -3536,16 +3724,27 @@ msgid "Is User"
 msgstr "Foydalanuvchi"
 
 #. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
+msgid "Issued by Government"
+msgstr ""
+
+#. module: hr
 #: model_terms:hr.job,website_description:hr.job_cto
 #, fuzzy
 msgid "It prioritizes data-driven decision-making"
 msgstr "U ma'lumotlarga asoslangan qaror qabul qilishga ustuvorlik beradi"
 
 #. module: hr
+#: model:ir.model.fields.selection,name:hr.selection__hr_employee__birthday_month__1
+msgid "January"
+msgstr ""
+
+#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__job_id
 #: model:ir.model.fields,field_description:hr.field_hr_employee_public__job_id
 #: model:ir.model.fields,field_description:hr.field_hr_version__job_id
 #: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_view_search
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_tree
 #: model_terms:ir.ui.view,arch_db:hr.view_hr_job_form
 #: model_terms:ir.ui.view,arch_db:hr.view_hr_job_tree
 #, fuzzy
@@ -3563,6 +3762,7 @@ msgstr "Lavozim tavsifi"
 #: model:ir.model.fields,field_description:hr.field_hr_job__name
 #: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_view_form
 #: model_terms:ir.ui.view,arch_db:hr.hr_version_search_view
+#: model_terms:ir.ui.view,arch_db:hr.hr_version_search_view_enhanced
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_filter
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_form
 #: model_terms:ir.ui.view,arch_db:hr.view_job_filter
@@ -3576,12 +3776,6 @@ msgstr "Lavozim"
 #, fuzzy
 msgid "Job Positions"
 msgstr "Lavozimlar"
-
-#. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.view_hr_job_form
-#, fuzzy
-msgid "Job Posting"
-msgstr "Vakansiya e'loni"
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__job_title
@@ -3600,6 +3794,16 @@ msgstr "Lavozim nomi"
 #, fuzzy
 msgid "Jobs"
 msgstr "Ishlar"
+
+#. module: hr
+#: model:ir.model.fields.selection,name:hr.selection__hr_employee__birthday_month__7
+msgid "July"
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields.selection,name:hr.selection__hr_employee__birthday_month__6
+msgid "June"
+msgstr ""
 
 #. module: hr
 #: model_terms:hr.job,website_description:hr.job_hrm
@@ -3628,6 +3832,11 @@ msgid "Last Activity Time"
 msgstr "Oxirgi faoliyat vaqti"
 
 #. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee_departure__last_contract_date_end
+msgid "Last Contract Date End"
+msgstr ""
+
+#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__last_modified_uid
 #: model:ir.model.fields,field_description:hr.field_hr_version__last_modified_uid
 #, fuzzy
@@ -3644,17 +3853,18 @@ msgstr "Oxirgi o‘zgartirilgan sana"
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_bank_account_allocation_wizard__write_uid
 #: model:ir.model.fields,field_description:hr.field_hr_bank_account_allocation_wizard_line__write_uid
-#: model:ir.model.fields,field_description:hr.field_hr_contract_type__write_uid
 #: model:ir.model.fields,field_description:hr.field_hr_department__write_uid
 #: model:ir.model.fields,field_description:hr.field_hr_departure_reason__write_uid
-#: model:ir.model.fields,field_description:hr.field_hr_departure_wizard__write_uid
 #: model:ir.model.fields,field_description:hr.field_hr_employee__write_uid
 #: model:ir.model.fields,field_description:hr.field_hr_employee_category__write_uid
+#: model:ir.model.fields,field_description:hr.field_hr_employee_create_version_wizard__write_uid
+#: model:ir.model.fields,field_description:hr.field_hr_employee_departure__write_uid
+#: model:ir.model.fields,field_description:hr.field_hr_employee_location__write_uid
 #: model:ir.model.fields,field_description:hr.field_hr_employee_public__write_uid
+#: model:ir.model.fields,field_description:hr.field_hr_employee_type__write_uid
 #: model:ir.model.fields,field_description:hr.field_hr_job__write_uid
 #: model:ir.model.fields,field_description:hr.field_hr_payroll_structure_type__write_uid
 #: model:ir.model.fields,field_description:hr.field_hr_version__write_uid
-#: model:ir.model.fields,field_description:hr.field_hr_version_wizard__write_uid
 #: model:ir.model.fields,field_description:hr.field_hr_work_location__write_uid
 #, fuzzy
 msgid "Last Updated by"
@@ -3663,17 +3873,18 @@ msgstr "Oxirgi yangilovchi"
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_bank_account_allocation_wizard__write_date
 #: model:ir.model.fields,field_description:hr.field_hr_bank_account_allocation_wizard_line__write_date
-#: model:ir.model.fields,field_description:hr.field_hr_contract_type__write_date
 #: model:ir.model.fields,field_description:hr.field_hr_department__write_date
 #: model:ir.model.fields,field_description:hr.field_hr_departure_reason__write_date
-#: model:ir.model.fields,field_description:hr.field_hr_departure_wizard__write_date
 #: model:ir.model.fields,field_description:hr.field_hr_employee__write_date
 #: model:ir.model.fields,field_description:hr.field_hr_employee_category__write_date
+#: model:ir.model.fields,field_description:hr.field_hr_employee_create_version_wizard__write_date
+#: model:ir.model.fields,field_description:hr.field_hr_employee_departure__write_date
+#: model:ir.model.fields,field_description:hr.field_hr_employee_location__write_date
 #: model:ir.model.fields,field_description:hr.field_hr_employee_public__write_date
+#: model:ir.model.fields,field_description:hr.field_hr_employee_type__write_date
 #: model:ir.model.fields,field_description:hr.field_hr_job__write_date
 #: model:ir.model.fields,field_description:hr.field_hr_payroll_structure_type__write_date
 #: model:ir.model.fields,field_description:hr.field_hr_version__write_date
-#: model:ir.model.fields,field_description:hr.field_hr_version_wizard__write_date
 #: model:ir.model.fields,field_description:hr.field_hr_work_location__write_date
 #, fuzzy
 msgid "Last Updated on"
@@ -3688,7 +3899,7 @@ msgstr "Kechikkan faoliyatlar"
 
 #. module: hr
 #: model:ir.actions.act_window,name:hr.plan_wizard_action
-#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
+#: model_terms:ir.ui.view,arch_db:hr.hr_kanban_view_employees
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_tree
 #, fuzzy
 msgid "Launch Plan"
@@ -3711,6 +3922,12 @@ msgstr "Butun savdo jarayonini boshqarish"
 #, fuzzy
 msgid "Learn company processes and tools"
 msgstr "Kompaniya jarayonlari va vositalarini o‘rganish"
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/views/hr_employee_action_helper/onboarding_helper_blocks.xml:0
+msgid "Leaves"
+msgstr ""
 
 #. module: hr
 #. odoo-python
@@ -3752,30 +3969,31 @@ msgid "Link an element with the boolean True value."
 msgstr "Elementni mantiqiy \"Rost\" qiymati bilan bog‘lash"
 
 #. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.hr_version_wizard_view_form
-#, fuzzy
-msgid "Load"
-msgstr "Yuklash"
+#. odoo-javascript
+#: code:addons/hr/static/src/xml/contract_template_button.xml:0
+msgid "Load Contract Template"
+msgstr ""
 
 #. module: hr
-#: model:ir.actions.server,name:hr.action_hr_employee_load_demo_data
-#, fuzzy
-msgid "Load Sample Data"
-msgstr "Namunviy ma'lumotlarni yuklash"
+#. odoo-javascript
+#: code:addons/hr/static/src/xml/contract_template_button.xml:0
+msgid "Load Template"
+msgstr ""
 
 #. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
-#, fuzzy
+#. odoo-javascript
+#: code:addons/hr/static/src/xml/contract_template_button.xml:0
 msgid "Load a Template"
-msgstr "Andozani yuklash"
+msgstr ""
 
 #. module: hr
-#: model_terms:ir.actions.act_window,help:hr.open_view_employee_list_my
-#, fuzzy
-msgid "Load sample data."
-msgstr "Namunviy ma'lumotlarni yuklash"
+#. odoo-javascript
+#: code:addons/hr/static/src/views/hr_employee_action_helper/hr_employee_action_helper.xml:0
+msgid "Load sample data"
+msgstr ""
 
 #. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee_location__work_location_id
 #: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_view_form
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_form
 #, fuzzy
@@ -3789,8 +4007,14 @@ msgid "Location Number"
 msgstr "Joylashuv raqami"
 
 #. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.res_users_view_form
-msgid "Login"
+#: model:ir.model.fields,field_description:hr.field_hr_employee_location__work_location_type
+#: model:ir.model.fields,field_description:hr.field_hr_work_location__location_type
+msgid "Location Type"
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee_location__work_location_name
+msgid "Location name"
 msgstr ""
 
 #. module: hr
@@ -3798,6 +4022,12 @@ msgstr ""
 #, fuzzy
 msgid "Long Term Projects"
 msgstr "Uzoq muddatli loyihalar"
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/views/hr_employee_action_helper/onboarding_helper_blocks.xml:0
+msgid "Lunch"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__message_main_attachment_id
@@ -3838,6 +4068,7 @@ msgstr "Texnologiya byudjeti va resurslarini boshqarish"
 
 #. module: hr
 #: model:hr.department,name:hr.dep_management
+#: model:ir.ui.menu,name:hr.menu_hr_employee_payroll
 #, fuzzy
 msgid "Management"
 msgstr "Boshqaruv"
@@ -3854,11 +4085,9 @@ msgid "Manager"
 msgstr "Menejer"
 
 #. module: hr
-#. odoo-python
-#: code:addons/hr/models/mail_activity_plan_template.py:0
-#, fuzzy
-msgid "Manager of employee %s is not set."
-msgstr "%s xodimining menejeri belgilanmagan"
+#: model:ir.model.fields.selection,name:hr.selection__hr_employee__birthday_month__3
+msgid "March"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__marital
@@ -3901,6 +4130,34 @@ msgid "Master demos of our software"
 msgstr "Dasturiy ta'minotimizning asosiy namoyishlarini o‘tkazish"
 
 #. module: hr
+#: model:ir.model.fields,field_description:hr.field_resource_calendar__material_resources_count
+msgid "Material Resources Count"
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields,help:hr.field_hr_department__activity_type_icon
+#: model:ir.model.fields,help:hr.field_hr_employee__activity_type_icon
+#: model:ir.model.fields,help:hr.field_hr_version__activity_type_icon
+msgid "Material Symbols icon e.g. checklist"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.resource_calendar_form_view_inherit_hr
+msgid "Materials"
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields.selection,name:hr.selection__hr_employee__birthday_month__5
+msgid "May"
+msgstr ""
+
+#. module: hr
+#. odoo-python
+#: code:addons/hr/models/hr_employee.py:0
+msgid "May I recommend you to setup an"
+msgstr ""
+
+#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee_public__member_of_department
 #, fuzzy
 msgid "Member Of Department"
@@ -3908,6 +4165,10 @@ msgstr "Bo‘lim a'zosi"
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__member_of_department
+msgid "Member of Department"
+msgstr ""
+
+#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_version__member_of_department
 #, fuzzy
 msgid "Member of department"
@@ -3944,15 +4205,42 @@ msgid "Messages"
 msgstr "Xabarlar"
 
 #. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/js/DynamicMinDateTimeField.js:0
+msgid "Minimum Date Field"
+msgstr ""
+
+#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee_public__mobile_phone
 #, fuzzy
 msgid "Mobile Phone"
 msgstr "Mobil telefon"
 
 #. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee_public__mobile_phone_formatted
+msgid "Mobile Phone Formatted"
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee_public__mobile_phone_sanitized
+msgid "Mobile Phone Sanitized"
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__monday_location_id
+#: model:ir.model.fields,field_description:hr.field_hr_employee_public__monday_location_id
+msgid "Monday"
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_res_users__monday_location_id
+msgid "Mondays"
+msgstr ""
+
+#. module: hr
 #. odoo-javascript
-#: code:addons/hr/static/src/components/versions_timeline/versions_timeline.xml:0
-msgid "More..."
+#: code:addons/hr/static/src/fields/hr_org_chart.xml:0
+msgid "More managers"
 msgstr ""
 
 #. module: hr
@@ -3981,33 +4269,19 @@ msgid "My Activity Deadline"
 msgstr "Mening faoliyatim muddati"
 
 #. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_view_search
-#: model_terms:ir.ui.view,arch_db:hr.view_employee_filter
-#, fuzzy
-msgid "My Department"
-msgstr "Mening bo‘limim"
-
-#. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_view_search
-#: model_terms:ir.ui.view,arch_db:hr.view_employee_filter
-#, fuzzy
-msgid "My Team"
-msgstr "Mening jamoam"
-
-#. module: hr
-#. odoo-javascript
-#: code:addons/hr/static/src/fields/boolean_radio.xml:0
-#, fuzzy
-msgid "NO"
-msgstr "YO‘Q"
-
-#. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_contract_type__name
 #: model:ir.model.fields,field_description:hr.field_hr_employee_public__name
+#: model:ir.model.fields,field_description:hr.field_hr_employee_type__name
 #: model:ir.model.fields,field_description:hr.field_hr_version__name
+#: model_terms:ir.ui.view,arch_db:hr.hr_employee_list_view
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_tree
 #, fuzzy
 msgid "Name"
 msgstr "Ism"
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__nationality_country_code
+msgid "Nationality"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__country_id
@@ -4025,6 +4299,7 @@ msgstr "Muzokara va shartnoma tuzish"
 #. module: hr
 #. odoo-javascript
 #: code:addons/hr/static/src/components/button_new_contract/button_new_contract.xml:0
+#: code:addons/hr/static/src/components/contract_end_dialog/contract_end_dialog.xml:0
 #, fuzzy
 msgid "New Contract"
 msgstr "Yangi shartnoma"
@@ -4037,6 +4312,12 @@ msgid "New Employee Record"
 msgstr "Yangi xodim ma'lumotlari"
 
 #. module: hr
+#: model:ir.actions.act_window,name:hr.action_open_hr_employee_create_version_wizard
+#: model:ir.actions.server,name:hr.action_hr_employee_create_versions
+msgid "New Employee Records"
+msgstr ""
+
+#. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.hr_employee_view_graph
 #: model_terms:ir.ui.view,arch_db:hr.hr_employee_view_pivot
 #, fuzzy
@@ -4046,8 +4327,7 @@ msgstr "Vaqt o‘tishi bilan yangi xodimlar"
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__newly_hired
 #: model:ir.model.fields,field_description:hr.field_hr_employee_public__newly_hired
-#: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_view_search
-#: model_terms:ir.ui.view,arch_db:hr.view_employee_filter
+#: model_terms:ir.ui.view,arch_db:hr.hr_version_search_view_enhanced
 #, fuzzy
 msgid "Newly Hired"
 msgstr "Yangi ishga olingan"
@@ -4094,6 +4374,11 @@ msgstr "Keyingi faoliyat turi"
 #, fuzzy
 msgid "Nice to have"
 msgstr "Qo‘shimcha afzalliklar"
+
+#. module: hr
+#: model:res.groups.privilege,placeholder:hr.res_groups_privilege_employees
+msgid "No"
+msgstr ""
 
 #. module: hr
 #: model_terms:ir.actions.act_window,help:hr.open_view_categ_form
@@ -4147,12 +4432,32 @@ msgid "Not Employed"
 msgstr "Ishsiz"
 
 #. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/components/employee_user_status/employee_user_status.js:0
+msgid "Not Invited"
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields.selection,name:hr.selection__hr_employee__birthday_month__0
+msgid "Not specified"
+msgstr ""
+
+#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_department__note
-#: model_terms:ir.ui.view,arch_db:hr.hr_version_list_view
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_form
 #, fuzzy
 msgid "Note"
 msgstr "Izoh"
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_filter
+msgid "Notice Period"
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields.selection,name:hr.selection__hr_employee__birthday_month__11
+msgid "November"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_department__message_needaction_counter
@@ -4228,8 +4533,127 @@ msgid "Number of new employees you expect to recruit."
 msgstr "Siz yollashni rejalashtirgan yangi xodimlar soni."
 
 #. module: hr
+#: model:hr.employee.type,name:hr.contract_type_seasonal
+msgid "Occasional / Seasonal"
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields.selection,name:hr.selection__hr_employee__birthday_month__10
+msgid "October"
+msgstr ""
+
+#. module: hr
+#: model:ir.module.module,description:base.module_hr
+msgid ""
+"Odoo Human Resources\n"
+"--------------------\n"
+"\n"
+"With Odoo <a href=\"https://www.odoo.com/app/employees\">Human Resources</"
+"a>,\n"
+"manage the most important asset in your company: People\n"
+"\n"
+"Get all your HR operations managed easily: knowledge sharing, recruitments,\n"
+"appraisals, timesheets, contracts, attendances, payroll, etc.\n"
+"\n"
+"Each need is provided by a specific app that you activate on demand.\n"
+"\n"
+"Manage Your Employees\n"
+"---------------------\n"
+"\n"
+"Oversee all important information in your company address book. Some\n"
+"information are restricted to HR managers, others are public to easily look\n"
+"colleagues.\n"
+"\n"
+"Record employee contracts and get alerts when they have to be renewed.\n"
+"\n"
+"Streamline Your Recruitment Process\n"
+"-----------------------------------\n"
+"\n"
+"Index resumes, track applicants, search profiles with <a href=\"https://"
+"www.odoo.com/app/employees\">Odoo HR</a>.\n"
+"\n"
+"Post job offers and keep track of each application received. Follow "
+"applicants\n"
+"in your recruitment process with the smart kanban view.\n"
+"\n"
+"Save time by automating some communications with email templates. Resumes "
+"are\n"
+"indexed automatically, allowing you to easily find for specific profiles.\n"
+"\n"
+"Enterprise Social Network\n"
+"-------------------------\n"
+"\n"
+"Break down information silos. Share knowledge and best practices amongst "
+"all\n"
+"employees. Follow specific people or documents and join groups of interests "
+"to\n"
+"share expertise and documents.\n"
+"\n"
+"Interact with your coworkers in real time with website live chat.\n"
+"\n"
+"Track time and attendances\n"
+"--------------------------\n"
+"\n"
+"Keep track of the time spent by project, client or task. It's easy to "
+"record\n"
+"timesheets or check attendances for each employee. Get your analytic "
+"accounting\n"
+"posted automatically based on time spent on your projects.\n"
+"\n"
+"Time Off Management\n"
+"-------------------\n"
+"\n"
+"Keep track of the vacation days accrued by each employee. Employees enter "
+"their\n"
+"requests (paid time off, sick time off, etc), for managers to approve and\n"
+"validate. It's all done in just a few clicks. The agenda of each employee "
+"is\n"
+"updated accordingly.\n"
+"\n"
+"Keep Track of Employee Expenses\n"
+"-------------------------------\n"
+"\n"
+"Get rid of the paper work and follow employee's expenses directly in Odoo.\n"
+"Don't loose time or money by controlling the full flow: expense validation,\n"
+"reimbursement of employees, posting in the accounting and re-invoicing to\n"
+"customers.\n"
+"\n"
+"Follow Periodic Appraisals\n"
+"--------------------------\n"
+"\n"
+"Set-up appraisals plans and/or surveys for your employees and watch their\n"
+"evolution. Define steps for interviews and Odoo will notify managers or\n"
+"subordinates automatically to prepare appraisals. Keep track of the progress "
+"of\n"
+"your staff periodically.\n"
+"\n"
+"Boost Engagement With Gamification\n"
+"----------------------------------\n"
+"\n"
+"### Define clear objective and provide real time feedback\n"
+"\n"
+"Inspire achievement with challenges, goals and rewards. Define clear "
+"objectives\n"
+"and provide real time feedback and tangible results. Showcase the top\n"
+"performers to the entire channel and publicly recognize a job well done.\n"
+"\n"
+"### Leaderboards\n"
+"\n"
+"Promote leaders and competition amongst Sales Team with performance ratios.\n"
+"\n"
+"### Personal Objectives\n"
+"\n"
+"Assign clear goals to users to align them with the company objectives.\n"
+"\n"
+"### Team Targets\n"
+"\n"
+"Compare revenues with forecasts and budgets in real time.\n"
+"\n"
+msgstr ""
+
+#. module: hr
 #. odoo-javascript
-#: code:addons/hr/static/src/components/avatar_card_resource/avatar_card_resource_popover.xml:0
+#: code:addons/hr/static/src/core/web/avatar_card/avatar_card_patch.xml:0
 #: model:ir.model.fields.selection,name:hr.selection__hr_employee__hr_icon_display__presence_out_of_working_hour
 #: model:ir.model.fields.selection,name:hr.selection__hr_employee__hr_presence_state__out_of_working_hour
 #: model:ir.model.fields.selection,name:hr.selection__hr_employee_public__hr_presence_state__out_of_working_hour
@@ -4266,6 +4690,13 @@ msgstr ""
 "oladi."
 
 #. module: hr
+#: model:ir.model.constraint,message:hr.constraint_hr_employee_location_uniq_exceptional_per_day
+msgid ""
+"Only one default work location and one exceptional work location per day per "
+"employee."
+msgstr ""
+
+#. module: hr
 #. odoo-python
 #: code:addons/hr/models/mail_activity_plan_template.py:0
 #, fuzzy
@@ -4282,10 +4713,15 @@ msgstr ""
 
 #. module: hr
 #. odoo-javascript
-#: code:addons/hr/static/src/core/web/thread_actions.js:0
-#, fuzzy
-msgid "Open Profile"
-msgstr "Profilni ochish"
+#: code:addons/hr/static/src/core/web/avatar_card/avatar_card_patch.xml:0
+msgid "Open Contact Profile"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/core/web/avatar_card/avatar_card_patch.xml:0
+msgid "Open Employee Profile (activates company)"
+msgstr ""
 
 #. module: hr
 #. odoo-python
@@ -4295,10 +4731,20 @@ msgid "Operation not Supported."
 msgstr "Amal qo‘llab-quvvatlanmaydi."
 
 #. module: hr
+#: model:ir.actions.act_window,name:hr.action_hr_employee_org_chart
+#: model:ir.actions.act_window,name:hr.action_hr_employee_public_org_chart
+msgid "Org Chart"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
+msgid "Organization Chart"
+msgstr ""
+
+#. module: hr
 #. odoo-python
 #: code:addons/hr/models/hr_employee.py:0
 #: model:ir.model.fields.selection,name:hr.selection__hr_employee__work_location_type__other
-#: model:ir.model.fields.selection,name:hr.selection__hr_version__sex__other
 #: model:ir.model.fields.selection,name:hr.selection__hr_work_location__location_type__other
 #, fuzzy
 msgid "Other"
@@ -4354,6 +4800,11 @@ msgstr ""
 "almashtirish uchun ishlatiladi."
 
 #. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__parent_company_id
+msgid "Parent Company"
+msgstr ""
+
+#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_department__parent_id
 #, fuzzy
 msgid "Parent Department"
@@ -4364,12 +4815,6 @@ msgstr "Yuqori bo‘lim"
 #, fuzzy
 msgid "Parent Path"
 msgstr "Yuqori bo‘limlar yo‘li"
-
-#. module: hr
-#: model:hr.contract.type,name:hr.contract_type_part_time
-#, fuzzy
-msgid "Part-Time"
-msgstr "To‘liqsiz ish kuni"
 
 #. module: hr
 #: model_terms:hr.job,website_description:hr.job_trainee
@@ -4412,6 +4857,8 @@ msgid "Pay Category"
 msgstr "To‘lov toifasi"
 
 #. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/views/hr_employee_action_helper/onboarding_helper_blocks.xml:0
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_form
 #, fuzzy
 msgid "Payroll"
@@ -4428,6 +4875,12 @@ msgid "Perfect written English"
 msgstr "Mukammal yozma ingliz tili"
 
 #. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/views/hr_employee_action_helper/onboarding_helper_blocks.xml:0
+msgid "Performance"
+msgstr ""
+
+#. module: hr
 #: model_terms:hr.job,website_description:hr.job_consultant
 #: model_terms:hr.job,website_description:hr.job_developer
 #: model_terms:hr.job,website_description:hr.job_hrm
@@ -4438,10 +4891,10 @@ msgid "Perks"
 msgstr "Imtiyozlar"
 
 #. module: hr
-#: model:hr.contract.type,name:hr.contract_type_permanent
-#, fuzzy
-msgid "Permanent"
-msgstr "Doimiy"
+#: model_terms:ir.ui.view,arch_db:hr.hr_version_search_view_enhanced
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_filter
+msgid "Permanent Contract"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,help:hr.field_hr_employee__hr_responsible_id
@@ -4476,14 +4929,27 @@ msgid "Personal information update."
 msgstr "Shaxsiy ma'lumotlarni yangilash"
 
 #. module: hr
-#: model:ir.model.fields,field_description:hr.field_account_setup_bank_manual_config__bank_phone
 #: model:ir.model.fields,field_description:hr.field_hr_employee__phone
 #: model:ir.model.fields,field_description:hr.field_hr_employee_public__phone
-#: model:ir.model.fields,field_description:hr.field_res_partner_bank__bank_phone
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_form
 #, fuzzy
 msgid "Phone"
 msgstr "Telefon"
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__phone_sanitized_blacklisted
+msgid "Phone Blacklisted"
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__phone_mobile_search
+msgid "Phone Number"
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee_public__phone_sanitized
+msgid "Phone Sanitized"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__place_of_birth
@@ -4524,6 +4990,12 @@ msgid ""
 msgstr ""
 "%(template_names)s reja faoliyatlari murabbiy, menejer yoki mas'ul xodimdan "
 "foydalana olmaydi, chunki u faqat xodim rejalari uchun qo‘llaniladi"
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/views/hr_employee_action_helper/onboarding_helper_blocks.xml:0
+msgid "Planning"
+msgstr ""
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.view_department_form
@@ -4572,12 +5044,6 @@ msgid "Preferences"
 msgstr "Moslamalar"
 
 #. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.view_employee_tree
-#, fuzzy
-msgid "Presence"
-msgstr "Mavjudlik"
-
-#. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.res_config_settings_view_form
 #, fuzzy
 msgid "Presence Condition"
@@ -4603,7 +5069,7 @@ msgstr "Mavjudlik hisoboti ekrani, elektron pochta va IP manzil nazorati"
 
 #. module: hr
 #. odoo-javascript
-#: code:addons/hr/static/src/components/avatar_card_resource/avatar_card_resource_popover.xml:0
+#: code:addons/hr/static/src/core/web/avatar_card/avatar_card_patch.xml:0
 #: model:ir.model.fields.selection,name:hr.selection__hr_employee__hr_icon_display__presence_present
 #: model:ir.model.fields.selection,name:hr.selection__hr_employee__hr_presence_state__present
 #: model:ir.model.fields.selection,name:hr.selection__hr_employee_public__hr_presence_state__present
@@ -4644,12 +5110,6 @@ msgid "Private Address"
 msgstr "Shaxsiy manzil"
 
 #. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_employee__private_car_plate
-#, fuzzy
-msgid "Private Car Plate"
-msgstr "Shaxsiy avtomobil raqami"
-
-#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__private_city
 #: model:ir.model.fields,field_description:hr.field_hr_version__private_city
 #: model:ir.model.fields,field_description:hr.field_res_users__private_city
@@ -4681,9 +5141,8 @@ msgstr "Shaxsiy elektron pochta"
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.res_users_view_form_preferences
-#, fuzzy
 msgid "Private Information"
-msgstr "Shaxsiy ma'lumotlar"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__private_phone
@@ -4758,9 +5217,8 @@ msgstr "Innovatsiya sohasida isbotlangan tajriba"
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_form
-#, fuzzy
-msgid "Provide additional information about this version..."
-msgstr "Ushbu versiya haqida qo‘shimcha ma'lumot bering..."
+msgid "Provide additional information about this employee..."
+msgstr ""
 
 #. module: hr
 #: model_terms:hr.job,website_description:hr.job_consultant
@@ -4782,17 +5240,16 @@ msgid "Public Employee"
 msgstr "Davlat xodimi"
 
 #. module: hr
+#: model:ir.model,name:hr.model_publisher_warranty_contract
+msgid "Publisher Warranty Contract"
+msgstr ""
+
+#. module: hr
 #: model_terms:hr.job,website_description:hr.job_developer
 #: model_terms:hr.job,website_description:hr.job_marketing
 #, fuzzy
 msgid "Qualify the customer needs"
 msgstr "Mijoz ehtiyojlarini baholash"
-
-#. module: hr
-#: model:hr.department,name:hr.dep_rd_be
-#, fuzzy
-msgid "R&D USA"
-msgstr "AQSH tadqiqot va ishlanmalar bo‘limi"
 
 #. module: hr
 #. odoo-javascript
@@ -4811,14 +5268,20 @@ msgid "Ratings"
 msgstr "Baholashlar"
 
 #. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/components/employee_user_status/employee_user_status.js:0
+msgid "Reactivate"
+msgstr ""
+
+#. module: hr
 #: model_terms:ir.actions.act_window,help:hr.action_hr_job
 #, fuzzy
 msgid "Ready to recruit more efficiently?"
 msgstr "Yanada samarali ishga qabul qilishga tayyormisiz?"
 
 #. module: hr
-#: model_terms:ir.actions.act_window,help:hr.hr_employee_public_action
-#: model_terms:ir.actions.act_window,help:hr.open_view_employee_list_my
+#. odoo-javascript
+#: code:addons/hr/static/src/views/hr_employee_action_helper/hr_employee_action_helper.xml:0
 #, fuzzy
 msgid "Ready to start your experience?"
 msgstr "Tajribangizni boshlashga tayyormisiz?"
@@ -4836,18 +5299,21 @@ msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_departure_reason__name
+#: model_terms:ir.ui.view,arch_db:hr.hr_employee_departure_view_form
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
 #, fuzzy
 msgid "Reason"
 msgstr "Sabab"
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.hr_version_list_view
+#: model_terms:ir.ui.view,arch_db:hr.hr_version_list_view_enhanced
 #, fuzzy
 msgid "Records"
 msgstr "Yozuvlar"
 
 #. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_job__user_id
+#: model:ir.model.fields,field_description:hr.field_hr_job__recruiter_id
 #, fuzzy
 msgid "Recruiter"
 msgstr "Ishga oluvchi"
@@ -4859,11 +5325,16 @@ msgid "Recruitment"
 msgstr "Ishga qabul qilish"
 
 #. module: hr
-#. odoo-python
-#: code:addons/hr/models/hr_employee.py:0
-#, fuzzy
-msgid "Register Departure"
-msgstr "Jo‘nashni ro‘yxatga olish"
+#. odoo-javascript
+#: code:addons/hr/static/src/js/DynamicMinDateTimeField.js:0
+msgid "Reference another date/datetime field to use as minimum date"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/views/hr_employee_action_helper/onboarding_helper_blocks.xml:0
+msgid "Referral"
+msgstr ""
 
 #. module: hr
 #. odoo-python
@@ -4883,7 +5354,9 @@ msgstr "Tegishli aloqalar"
 
 #. module: hr
 #. odoo-python
+#: code:addons/hr/models/hr_employee_type.py:0
 #: code:addons/hr/models/res_partner.py:0 code:addons/hr/models/res_users.py:0
+#: model:ir.model.fields,field_description:hr.field_hr_employee_type__employee_ids
 #, fuzzy
 msgid "Related Employees"
 msgstr "Tegishli xodimlar"
@@ -4895,10 +5368,7 @@ msgid "Related Partners Count"
 msgstr "Tegishli hamkorlar soni"
 
 #. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_departure_wizard__remove_related_user
-#: model_terms:ir.ui.view,arch_db:hr.hr_departure_wizard_view_form
 #: model_terms:ir.ui.view,arch_db:hr.hr_employee_list_activites_view
-#: model_terms:ir.ui.view,arch_db:hr.view_employee_tree
 #, fuzzy
 msgid "Related User"
 msgstr "Tegishli foydalanuvchi"
@@ -4910,10 +5380,20 @@ msgid "Related employee"
 msgstr "Tegishli xodim"
 
 #. module: hr
+#: model:ir.model.fields,field_description:hr.field_res_users__employee_public_ids
+msgid "Related employee (public)"
+msgstr ""
+
+#. module: hr
 #: model:ir.model.fields,help:hr.field_res_partner__employee_ids
 #, fuzzy
 msgid "Related employees based on their private address"
 msgstr "Shaxsiy manzillari asosida tegishli xodimlar"
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_res_users__all_employee_ids
+msgid "Related employees from all companies"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,help:hr.field_hr_employee__user_id
@@ -4941,12 +5421,25 @@ msgid "Research & Development"
 msgstr "Tadqiqot va ishlanmalar"
 
 #. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/components/employee_user_status/employee_user_status.js:0
+msgid "Resend Invitation"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/components/employee_user_status/employee_user_status.js:0
+msgid "Reset Password"
+msgstr ""
+
+#. module: hr
 #: model:hr.departure.reason,name:hr.departure_resigned
 #, fuzzy
 msgid "Resigned"
 msgstr "Iste'foga chiqqan"
 
 #. module: hr
+#: model:ir.model,name:hr.model_resource_resource
 #: model:ir.model.fields,field_description:hr.field_hr_employee__resource_id
 #: model:ir.model.fields,field_description:hr.field_hr_employee_public__resource_id
 #, fuzzy
@@ -4970,12 +5463,6 @@ msgstr "Resurs ta'tili tafsilotlari"
 #, fuzzy
 msgid "Resource Working Time"
 msgstr "Resursning ish vaqti"
-
-#. module: hr
-#: model:ir.model,name:hr.model_resource_resource
-#, fuzzy
-msgid "Resources"
-msgstr "Resurslar"
 
 #. module: hr
 #: model_terms:hr.job,website_description:hr.job_consultant
@@ -5025,13 +5512,6 @@ msgid "SMS Delivery error"
 msgstr "SMS yetkazib berishda xato"
 
 #. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_employee__ssnid
-#: model:ir.model.fields,field_description:hr.field_hr_version__ssnid
-#, fuzzy
-msgid "SSN No"
-msgstr "Ijtimoiy sug‘urta raqami"
-
-#. module: hr
 #: model:ir.model.fields,field_description:hr.field_account_setup_bank_manual_config__employee_salary_amount
 #: model:ir.model.fields,field_description:hr.field_res_partner_bank__employee_salary_amount
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_form
@@ -5069,6 +5549,22 @@ msgid "Sales"
 msgstr "Sotuvlar"
 
 #. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__phone_sanitized
+msgid "Sanitized Number"
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__saturday_location_id
+#: model:ir.model.fields,field_description:hr.field_hr_employee_public__saturday_location_id
+msgid "Saturday"
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_res_users__saturday_location_id
+msgid "Saturdays"
+msgstr ""
+
+#. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.view_bank_account_allocation_wizard
 #: model_terms:ir.ui.view,arch_db:hr.view_users_simple_form
 #, fuzzy
@@ -5077,27 +5573,26 @@ msgstr "Saqlash"
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.hr_contract_template_form_view
+#: model_terms:ir.ui.view,arch_db:hr.hr_employee_departure_view_form
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_form
 #, fuzzy
 msgid "Schedule"
 msgstr "Jadval"
 
 #. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_employee__study_school
-#, fuzzy
-msgid "School"
-msgstr "Maktab"
+#. odoo-javascript
+#: code:addons/hr/static/src/views/fields/many2many_avatar_employee_field/many2many_avatar_employee_field.js:0
+msgid "Search employee..."
+msgstr ""
 
 #. module: hr
-#: model:hr.contract.type,name:hr.contract_type_seasonal
-#, fuzzy
-msgid "Seasonal"
-msgstr "Mavsumiy"
+#. odoo-javascript
+#: code:addons/hr/static/src/fields/hr_org_chart.xml:0
+msgid "See All"
+msgstr ""
 
 #. module: hr
-#: model:ir.model.fields,help:hr.field_hr_employee__contract_template_id
 #: model:ir.model.fields,help:hr.field_hr_version__contract_template_id
-#: model:ir.model.fields,help:hr.field_hr_version_wizard__contract_template_id
 #, fuzzy
 msgid ""
 "Select a contract template to auto-fill the contract form with predefined "
@@ -5106,6 +5601,12 @@ msgstr ""
 "Shartnoma shaklini oldindan belgilangan qiymatlar bilan avtomatik to‘ldirish "
 "uchun shartnoma shablonini tanlang. Shablonni qo‘llaganingizdan so‘ng ham "
 "kerak bo‘lsa maydonlarni tahrirlashingiz mumkin."
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.hr_contract_template_form_view
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
+msgid "Select employee type"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,help:hr.field_hr_employee__coach_id
@@ -5118,19 +5619,29 @@ msgstr ""
 "hech qanday maxsus huquq va majburiyatlarga ega emas."
 
 #. module: hr
+#: model:ir.actions.act_window,name:hr.action_partner_mass_mail
+msgid "Send Email"
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields.selection,name:hr.selection__hr_employee__birthday_month__9
+msgid "September"
+msgstr ""
+
+#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_bank_account_allocation_wizard_line__sequence
-#: model:ir.model.fields,field_description:hr.field_hr_contract_type__sequence
 #: model:ir.model.fields,field_description:hr.field_hr_departure_reason__sequence
+#: model:ir.model.fields,field_description:hr.field_hr_employee_type__sequence
 #: model:ir.model.fields,field_description:hr.field_hr_job__sequence
 #, fuzzy
 msgid "Sequence"
 msgstr "Ketma-ketlik"
 
 #. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_departure_wizard__set_date_end
-#, fuzzy
-msgid "Set Contract End Date"
-msgstr "Shartnoma tugash sanasini belgilash"
+#. odoo-javascript
+#: code:addons/hr/static/src/fields/hr_org_chart.xml:0
+msgid "Set a manager or reports to show in org chart."
+msgstr ""
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.res_config_settings_view_form
@@ -5141,12 +5652,6 @@ msgstr ""
 "o‘rnating"
 
 #. module: hr
-#: model:ir.model.fields,help:hr.field_hr_departure_wizard__set_date_end
-#, fuzzy
-msgid "Set the end date on the current contract."
-msgstr "Joriy shartnomaning tugash sanasini belgilang."
-
-#. module: hr
 #: model:ir.actions.act_window,name:hr.hr_config_settings_action
 #: model:ir.ui.menu,name:hr.hr_menu_configuration
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_form
@@ -5155,11 +5660,23 @@ msgid "Settings"
 msgstr "Sozlamalar"
 
 #. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__sex
+#: model:ir.model.fields,field_description:hr.field_hr_version__sex
+msgid "Sex"
+msgstr ""
+
+#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__share
 #: model:ir.model.fields,field_description:hr.field_hr_employee_public__share
 #, fuzzy
 msgid "Share User"
 msgstr "Foydalanuvchini ulashish"
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__birthday_public_display
+#: model:ir.model.fields,field_description:hr.field_res_users__birthday_public_display
+msgid "Show Birthday To Employees"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__show_hr_icon_display
@@ -5170,15 +5687,20 @@ msgid "Show Hr Icon Display"
 msgstr "HR belgisini ko‘rsatish"
 
 #. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.res_users_view_form_preferences
+msgid "Show To All Employees"
+msgstr ""
+
+#. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.hr_version_search_view
 msgid "Show all records whose next activity date is past"
 msgstr ""
 
 #. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_employee__birthday_public_display
-#, fuzzy
-msgid "Show to all employees"
-msgstr "Barcha xodimlarga ko‘rsatish"
+#. odoo-javascript
+#: code:addons/hr/static/src/views/hr_employee_action_helper/onboarding_helper_blocks.xml:0
+msgid "Sign"
+msgstr ""
 
 #. module: hr
 #. odoo-python
@@ -5194,18 +5716,30 @@ msgid "Skills Management"
 msgstr "Ko‘nikmalarni boshqarish"
 
 #. module: hr
-#: model:ir.model.fields,help:hr.field_hr_employee__ssnid
-#: model:ir.model.fields,help:hr.field_hr_version__ssnid
-#, fuzzy
-msgid "Social Security Number"
-msgstr "Ijtimoiy ta'minot raqami"
+#. odoo-python
+#: code:addons/hr/models/hr_employee.py:0
+msgid "Some employee already has a work contact"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/views/hr_employee_hierarchy/hr_employee_hierarchy_renderer.xml:0
+msgid ""
+"Some employees are present in a loop.\n"
+"                Click"
+msgstr ""
 
 #. module: hr
 #. odoo-python
 #: code:addons/hr/models/hr_employee.py:0
-#, fuzzy
-msgid "Some employee already have a work contact"
-msgstr "Ba'zi xodimlarning allaqachon ish aloqasi mavjud"
+msgid ""
+"Some of these fields %(field_name)s don't exist on this model (hr.version)."
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__split_legal_name
+msgid "Split Legal Name"
+msgstr ""
 
 #. module: hr
 #: model_terms:hr.job,website_description:hr.job_consultant
@@ -5238,11 +5772,22 @@ msgid "Start"
 msgstr "Boshlash"
 
 #. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.view_employee_filter
+#: model:ir.model.fields,field_description:hr.field_hr_employee_create_version_wizard__date_version
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_form
 #, fuzzy
 msgid "Start Date"
 msgstr "Boshlanish sanasi"
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/components/contract_end_dialog/contract_end_dialog.xml:0
+msgid "Start a new contract"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.hr_employee_create_version_wizard_view_form
+msgid "Start date"
+msgstr ""
 
 #. module: hr
 #. odoo-python
@@ -5257,7 +5802,6 @@ msgstr ""
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.res_users_view_form_preferences
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_form
-#: model_terms:ir.ui.view,arch_db:hr.view_partner_bank_form_inherit_hr
 #, fuzzy
 msgid "State"
 msgstr "Holat"
@@ -5277,22 +5821,8 @@ msgstr ""
 "Faoliyat sanasi bugun Rejalashtirilgan: Kelajakdagi faoliyatlar."
 
 #. module: hr
-#: model:hr.contract.type,name:hr.contract_type_statutory
-#, fuzzy
-msgid "Statutory"
-msgstr "Qonuniy"
-
-#. module: hr
-#: model:ir.model.fields,field_description:hr.field_account_setup_bank_manual_config__bank_street
-#: model:ir.model.fields,field_description:hr.field_res_partner_bank__bank_street
-#, fuzzy
-msgid "Street"
-msgstr "Ko‘cha"
-
-#. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.res_users_view_form_preferences
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_form
-#: model_terms:ir.ui.view,arch_db:hr.view_partner_bank_form_inherit_hr
 #, fuzzy
 msgid "Street 2..."
 msgstr "2-ko‘cha..."
@@ -5300,17 +5830,9 @@ msgstr "2-ko‘cha..."
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.res_users_view_form_preferences
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_form
-#: model_terms:ir.ui.view,arch_db:hr.view_partner_bank_form_inherit_hr
 #, fuzzy
 msgid "Street..."
 msgstr "Ko‘cha..."
-
-#. module: hr
-#: model:ir.model.fields,field_description:hr.field_account_setup_bank_manual_config__bank_street2
-#: model:ir.model.fields,field_description:hr.field_res_partner_bank__bank_street2
-#, fuzzy
-msgid "Street2"
-msgstr "2-ko‘cha"
 
 #. module: hr
 #: model_terms:hr.job,website_description:hr.job_marketing
@@ -5337,17 +5859,33 @@ msgstr ""
 "ma'lumotga ega bo‘ling."
 
 #. module: hr
-#: model:hr.contract.type,name:hr.contract_type_student
-#: model:ir.model.fields.selection,name:hr.selection__hr_version__employee_type__student
+#: model:hr.employee.type,name:hr.contract_type_student
 #, fuzzy
 msgid "Student"
 msgstr "Talaba"
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__subordinate_ids
+#: model:ir.model.fields,field_description:hr.field_hr_employee_public__subordinate_ids
+msgid "Subordinates"
+msgstr ""
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.view_hr_job_form
 #, fuzzy
 msgid "Summary"
 msgstr "Qisqacha ma'lumot"
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__sunday_location_id
+#: model:ir.model.fields,field_description:hr.field_hr_employee_public__sunday_location_id
+msgid "Sunday"
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_res_users__sunday_location_id
+msgid "Sundays"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_account_setup_bank_manual_config__currency_symbol
@@ -5378,16 +5916,33 @@ msgid "Tags"
 msgstr "Teglar"
 
 #. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/views/hr_employee_action_helper/onboarding_helper_blocks.xml:0
+msgid "Talent"
+msgstr ""
+
+#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_job__no_of_recruitment
 #, fuzzy
 msgid "Target"
 msgstr "Maqsad"
 
 #. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/fields/hooks.js:0
+msgid "Team"
+msgstr ""
+
+#. module: hr
 #: model_terms:hr.job,website_description:hr.job_trainee
 #, fuzzy
 msgid "Team-oriented mindset"
 msgstr "Jamoaviy fikrlash"
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_mail_activity__technical_usage
+msgid "Technical Usage"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_res_users__create_employee_id
@@ -5402,27 +5957,21 @@ msgid "Technical field, whether to create an employee"
 msgstr "Texnik maydon, xodim yaratish kerakmi"
 
 #. module: hr
+#: model:ir.model.fields,help:hr.field_mail_activity__technical_usage
+msgid "Technical identifier"
+msgstr ""
+
+#. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.hr_contract_template_form_view
 #, fuzzy
 msgid "Template Name"
 msgstr "Shablon nomi"
 
 #. module: hr
-#: model:hr.contract.type,name:hr.contract_type_temporary
-#, fuzzy
-msgid "Temporary"
-msgstr "Vaqtinchalik"
-
-#. module: hr
 #. odoo-python
 #: code:addons/hr/models/hr_employee.py:0
-#, fuzzy
-msgid ""
-"The Badge ID must be alphanumeric without any accents and no longer than 18 "
-"characters."
+msgid "Template for Employees"
 msgstr ""
-"Nishon ID si hech qanday urg‘usiz faqat harf va raqamlardan iborat bo‘lishi "
-"va 18 ta belgidan oshmasligi kerak."
 
 #. module: hr
 #: model:ir.model.constraint,message:hr.constraint_hr_employee_barcode_uniq
@@ -5434,11 +5983,24 @@ msgstr ""
 "Nishon ID si noyob bo‘lishi kerak, bu allaqachon boshqa xodimga berilgan."
 
 #. module: hr
+#. odoo-python
+#: code:addons/hr/models/hr_employee.py:0
+msgid ""
+"The Badge ID must contain only printable ASCII characters, without spaces, "
+"and be no longer than 18 characters."
+msgstr ""
+
+#. module: hr
 #: model:ir.model.fields,help:hr.field_hr_departure_reason__country_code
 #: model:ir.model.fields,help:hr.field_hr_employee__company_country_code
 #: model:ir.model.fields,help:hr.field_hr_employee__country_code
+#: model:ir.model.fields,help:hr.field_hr_employee__nationality_country_code
+#: model:ir.model.fields,help:hr.field_hr_employee_departure__country_code
+#: model:ir.model.fields,help:hr.field_hr_employee_type__country_code
+#: model:ir.model.fields,help:hr.field_hr_job__company_country_code
 #: model:ir.model.fields,help:hr.field_hr_payroll_structure_type__country_code
 #: model:ir.model.fields,help:hr.field_hr_version__country_code
+#: model:ir.model.fields,help:hr.field_hr_work_location__country_code
 #, fuzzy
 msgid ""
 "The ISO country code in two chars. \n"
@@ -5474,7 +6036,7 @@ msgid "The PIN must be a sequence of digits."
 msgstr "PIN kod faqat raqamlar ketma-ketligi bo‘lishi kerak."
 
 #. module: hr
-#: model:ir.model.fields,help:hr.field_hr_job__user_id
+#: model:ir.model.fields,help:hr.field_hr_job__recruiter_id
 #, fuzzy
 msgid ""
 "The Recruiter will be the default value for all Applicants in this "
@@ -5486,6 +6048,12 @@ msgstr ""
 "avtomatik ravishda qo‘shiladi."
 
 #. module: hr
+#. odoo-python
+#: code:addons/hr/models/hr_employee_departure.py:0
+msgid "The apply date isn't reached yet for the departure of %(emp)s."
+msgstr ""
+
+#. module: hr
 #: model:ir.model.constraint,message:hr.constraint_hr_version_check_contract_start_date_defined
 #, fuzzy
 msgid "The contract must have a start date."
@@ -5494,9 +6062,19 @@ msgstr "Shartnoma boshlanish sanasiga ega bo‘lishi shart."
 #. module: hr
 #. odoo-python
 #: code:addons/hr/models/hr_employee.py:0
-#, fuzzy
-msgid "The contract of %s is about to expire."
-msgstr "%s bilan tuzilgan shartnoma muddati tugash arafasida."
+msgid "The contract of %(employee_name)s is about to expire."
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields,help:hr.field_hr_employee__first_contract_date
+msgid "The date of the first contract of the employee in the company."
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.hr_employee_departure_view_form
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
+msgid "The day after departure"
+msgstr ""
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.hr_contract_template_form_view
@@ -5506,11 +6084,9 @@ msgid "The default working hours are set in configuration."
 msgstr "Standart ish vaqti sozlamalarda belgilangan."
 
 #. module: hr
-#. odoo-python
-#: code:addons/hr/models/mail_activity_plan_template.py:0
-#, fuzzy
-msgid "The employee %s should be linked to a user."
-msgstr "%s xodim foydalanuvchi hisobiga bog‘lanishi kerak."
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
+msgid "The departure process has been completed on"
+msgstr ""
 
 #. module: hr
 #. odoo-python
@@ -5522,6 +6098,12 @@ msgid ""
 msgstr ""
 "Xodim allaqachon %s sanasida shartnoma tuzgan. Iltimos, mavjud shartnomalar "
 "oralig‘idan tashqari sanani tanlang."
+
+#. module: hr
+#: model:ir.model.fields,help:hr.field_hr_employee__legal_name
+msgid ""
+"The employee's official name as per government-issued or legal documents."
+msgstr ""
 
 #. module: hr
 #: model:ir.model.constraint,message:hr.constraint_hr_job_no_of_recruitment_positive
@@ -5542,12 +6124,6 @@ msgstr ""
 
 #. module: hr
 #. odoo-python
-#: code:addons/hr/models/hr_employee.py:0
-msgid "The following employees have the same work email address: %s"
-msgstr ""
-
-#. module: hr
-#. odoo-python
 #: code:addons/hr/models/res_users.py:0
 #, fuzzy
 msgid "The following fields were modified by %s"
@@ -5555,14 +6131,14 @@ msgstr "Quyidagi maydonlar %s tomonidan o‘zgartirildi."
 
 #. module: hr
 #. odoo-python
-#: code:addons/hr/wizard/hr_departure_wizard.py:0
+#: code:addons/hr/models/hr_employee_departure.py:0
 #, fuzzy
 msgid "The following users have been archived: %s"
 msgstr "Quyidagi foydalanuvchilar arxivlandi: %s"
 
 #. module: hr
 #. odoo-python
-#: code:addons/hr/wizard/hr_departure_wizard.py:0
+#: code:addons/hr/models/hr_employee_departure.py:0
 #, fuzzy
 msgid ""
 "The following users have not been archived as they are still linked to "
@@ -5572,24 +6148,10 @@ msgstr ""
 "sababli arxivlanmadi: %s"
 
 #. module: hr
-#. odoo-python
-#: code:addons/hr/models/mail_activity_plan_template.py:0
-#, fuzzy
-msgid "The manager of %s should be linked to a user."
-msgstr "%s ning menejeri foydalanuvchi hisobiga bog‘lanishi kerak."
-
-#. module: hr
 #: model:ir.model.constraint,message:hr.constraint_hr_job_name_company_uniq
 #, fuzzy
 msgid "The name of the job position must be unique per department in company!"
 msgstr "Lavozim nomi kompaniyadagi har bir bo‘lim uchun noyob bo‘lishi shart!"
-
-#. module: hr
-#. odoo-python
-#: code:addons/hr/models/mail_activity_plan_template.py:0
-#, fuzzy
-msgid "The user of %s's coach is not set."
-msgstr "%s ning murabbiysi foydalanuvchi hisobiga bog‘lanmagan."
 
 #. module: hr
 #: model:res.groups,comment:hr.group_hr_user
@@ -5608,24 +6170,58 @@ msgstr ""
 "kirish huquqiga ega bo‘ladi."
 
 #. module: hr
-#. odoo-python
-#: code:addons/hr/models/hr_employee.py:0
-#, fuzzy
-msgid "The work permit of %s is about to expire."
-msgstr "%s ning ish ruxsatnomasi muddati tugamoqda."
+#: model:ir.model.constraint,message:hr.constraint_hr_version_check_wage_positive
+msgid "The wage must be a positive value."
+msgstr ""
 
 #. module: hr
-#: model:hr.contract.type,name:hr.contract_type_thesis
+#. odoo-python
+#: code:addons/hr/models/hr_employee.py:0
+msgid "The work permit of %(employee_name)s is about to expire."
+msgstr ""
+
+#. module: hr
+#. odoo-python
+#: code:addons/hr/models/resource_calendar.py:0
+msgid ""
+"The working schedule '%s' is linked to version(s) not compatible with its "
+"new company."
+msgstr ""
+
+#. module: hr
+#. odoo-python
+#: code:addons/hr/models/hr_employee_departure.py:0
+msgid "There is no valid version starting before the departure date for %s."
+msgstr ""
+
+#. module: hr
+#: model:hr.employee.type,name:hr.contract_type_thesis
 #, fuzzy
 msgid "Thesis"
 msgstr "Dissertatsiya"
 
 #. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
+msgid ""
+"This action will delete the departure entirely. Are you sure you want to "
+"proceed?"
+msgstr ""
+
+#. module: hr
 #. odoo-python
 #: code:addons/hr/models/hr_employee.py:0
-#, fuzzy
-msgid "This employee already has an user."
-msgstr "Bu xodim allaqachon foydalanuvchi hisobiga ega."
+msgid "This employee has no user."
+msgstr ""
+
+#. module: hr
+#. odoo-python
+#: code:addons/hr/models/hr_employee_type.py:0
+msgid ""
+"This employee type is used in another company, you can't modify the country "
+"where it's applicable for now.\n"
+"Change the employee type on the employees of the other company to be able to "
+"modify this."
+msgstr ""
 
 #. module: hr
 #. odoo-python
@@ -5635,7 +6231,6 @@ msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,help:hr.field_hr_employee__tz
-#: model:ir.model.fields,help:hr.field_hr_version__tz
 #, fuzzy
 msgid ""
 "This field is used in order to define in which timezone the resources will "
@@ -5645,11 +6240,17 @@ msgstr ""
 "ishlatiladi."
 
 #. module: hr
+#: model:ir.model.fields,help:hr.field_hr_employee__exceptional_location_id
+msgid "This is the exceptional, non-weekly, location set for today."
+msgstr ""
+
+#. module: hr
 #: model:ir.model.fields,help:hr.field_hr_employee__sex
 #: model:ir.model.fields,help:hr.field_hr_version__sex
-#, fuzzy
-msgid "This is the legal sex recognized by the state."
-msgstr "Bu davlat tomonidan tan olingan rasmiy jinsdir."
+msgid ""
+"This is the legal sex as recognized by the state, used for official and "
+"statutory purposes."
+msgstr ""
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.res_config_settings_view_form
@@ -5660,6 +6261,45 @@ msgstr ""
 "qo‘llaniladi."
 
 #. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/views/form/multi_version_update_confirmation_dialog.xml:0
+msgid "This version"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.hr_employee_create_version_wizard_view_form
+msgid "This will create a new employee record for"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.resource_calendar_form_view_inherit_hr
+msgid ""
+"This will create a new schedule copy and automatically reassign it to the "
+"employee you navigated from. Continue?"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.resource_calendar_form_view_inherit_hr
+msgid "This working schedule is shared across"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/components/resource_calendar_form/form_controller.js:0
+msgid ""
+"This working schedule is used by  employee(s), are you sure you want change "
+"it for all employees?"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/components/resource_calendar_form/resource_calendar_plugin_patch.js:0
+msgid ""
+"This working schedule is used by %s employee(s), are you sure you want "
+"change it for all employees?"
+msgstr ""
+
+#. module: hr
 #. odoo-python
 #: code:addons/hr/models/mail_activity_plan_template.py:0
 #, fuzzy
@@ -5667,9 +6307,26 @@ msgid "Those responsible types are limited to Employee plans."
 msgstr "Bu javobgarlik turlari faqat Xodim rejalari bilan cheklangan."
 
 #. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__thursday_location_id
+#: model:ir.model.fields,field_description:hr.field_hr_employee_public__thursday_location_id
+msgid "Thursday"
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_res_users__thursday_location_id
+msgid "Thursdays"
+msgstr ""
+
+#. module: hr
+#: model:ir.ui.menu,name:hr.menu_config_working_times
+msgid "Time Management"
+msgstr ""
+
+#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__tz
 #: model:ir.model.fields,field_description:hr.field_hr_employee_public__tz
 #: model:ir.model.fields,field_description:hr.field_hr_version__tz
+#: model:ir.model.fields,field_description:hr.field_resource_resource__tz
 #, fuzzy
 msgid "Timezone"
 msgstr "Vaqt mintaqasi"
@@ -5707,6 +6364,18 @@ msgid "Today Activities"
 msgstr "Bugungi faoliyatlar"
 
 #. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__today_location_name
+#: model:ir.model.fields,field_description:hr.field_hr_employee_public__today_location_name
+msgid "Today Location Name"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/fields/hr_org_chart.xml:0
+msgid "Total"
+msgstr ""
+
+#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_job__expected_employees
 #, fuzzy
 msgid "Total Forecasted Employees"
@@ -5730,12 +6399,13 @@ msgstr ""
 
 #. module: hr
 #: model:hr.job,name:hr.job_trainee
-#: model:ir.model.fields.selection,name:hr.selection__hr_version__employee_type__trainee
 #, fuzzy
 msgid "Trainee"
 msgstr "Amaliyotchi"
 
 #. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/views/hr_employee_action_helper/onboarding_helper_blocks.xml:0
 #: model_terms:hr.job,website_description:hr.job_consultant
 #: model_terms:hr.job,website_description:hr.job_developer
 #: model_terms:hr.job,website_description:hr.job_hrm
@@ -5764,6 +6434,17 @@ msgstr "Ishonchli bank hisobi"
 #, fuzzy
 msgid "Trusted"
 msgstr "Ishonilgan"
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__tuesday_location_id
+#: model:ir.model.fields,field_description:hr.field_hr_employee_public__tuesday_location_id
+msgid "Tuesday"
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_res_users__tuesday_location_id
+msgid "Tuesdays"
+msgstr ""
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.view_bank_account_allocation_line_list
@@ -5812,6 +6493,15 @@ msgid "Unread Messages"
 msgstr "O‘qilmagan xabarlar"
 
 #. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/components/hr_presence_status/hr_presence_status.js:0
+#: model_terms:ir.ui.view,arch_db:hr.res_users_view_form
+#: model_terms:ir.ui.view,arch_db:hr.res_users_view_form_preferences
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
+msgid "Unspecified"
+msgstr ""
+
+#. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_form
 #, fuzzy
 msgid "Untrust Bank Account"
@@ -5822,6 +6512,12 @@ msgstr "Ishonchsiz bank hisobi"
 #, fuzzy
 msgid "Update and maintain project documentation"
 msgstr "Loyiha hujjatlarini yangilash va yuritish"
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/components/contract_end_dialog/contract_end_dialog.xml:0
+msgid "Use Employee's current version information"
+msgstr ""
 
 #. module: hr
 #: model_terms:ir.actions.act_window,help:hr.open_view_categ_form
@@ -5841,45 +6537,110 @@ msgstr "Foydalanuvchi"
 
 #. module: hr
 #. odoo-python
-#: code:addons/hr/wizard/hr_departure_wizard.py:0
+#: code:addons/hr/models/hr_employee_departure.py:0
 #, fuzzy
 msgid "User Archive Notification"
 msgstr "Foydalanuvchini arxivlash haqida bildirishnoma"
 
 #. module: hr
-#. odoo-python
-#: code:addons/hr/models/hr_employee.py:0
-#, fuzzy
-msgid "User Creation Notification"
-msgstr "Foydalanuvchi yaratish haqida bildirishnoma"
-
-#. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_departure_wizard__is_user_employee
-#, fuzzy
-msgid "User Employee"
-msgstr "Foydalanuvchi xodimi"
-
-#. module: hr
-#. odoo-python
-#: code:addons/hr/models/hr_employee.py:0
-#, fuzzy
-msgid "User already exists for Those Employees %s"
-msgstr "%s xodimlar uchun foydalanuvchi allaqachon mavjud"
-
-#. module: hr
-#. odoo-python
-#: code:addons/hr/models/hr_employee.py:0
-#, fuzzy
-msgid "User already exists with the same email for Employees %s"
+#: model:ir.model.fields,field_description:hr.field_hr_employee__user_state
+msgid "User Status"
 msgstr ""
-"%s xodimlar uchun xuddi shu elektron pochta manzili bilan foydalanuvchi "
-"allaqachon mavjud"
 
 #. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_employee__is_user_active
-#, fuzzy
-msgid "User's active"
-msgstr "Foydalanuvchi faol"
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
+msgid "User Timezone"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/core/common/im_status_patch.js:0
+msgid "User is at home"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/core/common/im_status_patch.js:0
+msgid "User is at home and busy"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/core/common/im_status_patch.js:0
+msgid "User is at home and idle"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/core/common/im_status_patch.js:0
+msgid "User is at home and offline"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/core/common/im_status_patch.js:0
+msgid "User is at home and online"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/core/common/im_status_patch.js:0
+msgid "User is at other location"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/core/common/im_status_patch.js:0
+msgid "User is at other location and busy"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/core/common/im_status_patch.js:0
+msgid "User is at other location and idle"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/core/common/im_status_patch.js:0
+msgid "User is at other location and offline"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/core/common/im_status_patch.js:0
+msgid "User is at other location and online"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/core/common/im_status_patch.js:0
+msgid "User is at the office"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/core/common/im_status_patch.js:0
+msgid "User is at the office and busy"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/core/common/im_status_patch.js:0
+msgid "User is at the office and idle"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/core/common/im_status_patch.js:0
+msgid "User is at the office and offline"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/core/common/im_status_patch.js:0
+msgid "User is at the office and online"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__user_partner_id
@@ -5889,11 +6650,9 @@ msgid "User's partner"
 msgstr "Foydalanuvchining hamkori"
 
 #. module: hr
-#. odoo-python
-#: code:addons/hr/models/hr_employee.py:0
-#, fuzzy
-msgid "Users %s creation successful"
-msgstr "%s foydalanuvchilar muvaffaqiyatli yaratildi"
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
+msgid "Usual Work Location"
+msgstr ""
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.hr_job_view_kanban
@@ -5920,20 +6679,36 @@ msgid "Valid work permit for Belgium"
 msgstr "Belgiya uchun amaldagi ish ruxsatnomasi"
 
 #. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_employee__version_id
-#, fuzzy
+#: model:ir.model.fields,field_description:hr.field_resource_calendar__version_ids
 msgid "Version"
-msgstr "Versiya"
+msgstr ""
 
 #. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_employee__versions_count
-#, fuzzy
-msgid "Versions Count"
-msgstr "Versiyalar soni"
+#: model:ir.model.fields,field_description:hr.field_hr_employee__version_revision
+msgid "Version Revision"
+msgstr ""
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.hr_version_list_view
 msgid "View"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.hr_contract_type_view_tree
+msgid "View Employees"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/core/web/avatar_card/avatar_card_patch.xml:0
+#: code:addons/hr/static/src/core/web/thread_actions.js:0
+msgid "View Profile"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/fields/hr_org_chart.xml:0
+msgid "View employee"
 msgstr ""
 
 #. module: hr
@@ -5957,7 +6732,6 @@ msgstr "Viza raqami"
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.view_department_form
-#: model_terms:ir.ui.view,arch_db:hr.view_hr_job_form
 #, fuzzy
 msgid "Visible to all"
 msgstr "Barchaga ko‘rinadigan"
@@ -6006,22 +6780,15 @@ msgstr ""
 "mutaxassis kerak."
 
 #. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_department__website_message_ids
-#: model:ir.model.fields,field_description:hr.field_hr_employee__website_message_ids
-#: model:ir.model.fields,field_description:hr.field_hr_job__website_message_ids
-#: model:ir.model.fields,field_description:hr.field_hr_version__website_message_ids
-#, fuzzy
-msgid "Website Messages"
-msgstr "Veb-sayt xabarlari"
+#: model:ir.model.fields,field_description:hr.field_hr_employee__wednesday_location_id
+#: model:ir.model.fields,field_description:hr.field_hr_employee_public__wednesday_location_id
+msgid "Wednesday"
+msgstr ""
 
 #. module: hr
-#: model:ir.model.fields,help:hr.field_hr_department__website_message_ids
-#: model:ir.model.fields,help:hr.field_hr_employee__website_message_ids
-#: model:ir.model.fields,help:hr.field_hr_job__website_message_ids
-#: model:ir.model.fields,help:hr.field_hr_version__website_message_ids
-#, fuzzy
-msgid "Website communication history"
-msgstr "Veb-saytdagi muloqot tarixi"
+#: model:ir.model.fields,field_description:hr.field_res_users__wednesday_location_id
+msgid "Wednesdays"
+msgstr ""
 
 #. module: hr
 #: model_terms:hr.job,website_description:hr.job_consultant
@@ -6045,7 +6812,6 @@ msgid "What's great in the job?"
 msgstr "Ishning qaysi jihatlari ajoyib?"
 
 #. module: hr
-#: model:ir.model.fields,help:hr.field_hr_employee__member_of_department
 #: model:ir.model.fields,help:hr.field_hr_version__member_of_department
 #, fuzzy
 msgid ""
@@ -6061,6 +6827,12 @@ msgstr ""
 #, fuzzy
 msgid "Whether this contact is an Employee."
 msgstr "Ushbu aloqa Xodim ekanligini bildiradi."
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/components/contract_end_dialog/contract_end_dialog.xml:0
+msgid "Why did you change the contract end date?"
+msgstr ""
 
 #. module: hr
 #. odoo-python
@@ -6104,7 +6876,6 @@ msgstr "Ish kontakti"
 #: model:ir.model.fields,field_description:hr.field_res_users__work_email
 #: model:ir.model.fields,field_description:hr.field_resource_resource__work_email
 #: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_view_form
-#: model_terms:ir.ui.view,arch_db:hr.res_users_view_form
 #: model_terms:ir.ui.view,arch_db:hr.res_users_view_form_preferences
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_form
 #, fuzzy
@@ -6112,8 +6883,6 @@ msgid "Work Email"
 msgstr "Ish elektron pochtasi"
 
 #. module: hr
-#. odoo-javascript
-#: code:addons/hr/static/src/components/avatar_card/avatar_card_popover_patch.xml:0
 #: model:ir.model,name:hr.model_hr_work_location
 #: model:ir.model.fields,field_description:hr.field_hr_employee__work_location_id
 #: model:ir.model.fields,field_description:hr.field_hr_employee_public__work_location_id
@@ -6123,6 +6892,7 @@ msgstr "Ish elektron pochtasi"
 #: model:ir.model.fields,field_description:hr.field_resource_resource__work_location_id
 #: model_terms:ir.ui.view,arch_db:hr.hr_work_location_form_view
 #: model_terms:ir.ui.view,arch_db:hr.hr_work_location_tree_view
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_tree
 #, fuzzy
 msgid "Work Location"
 msgstr "Ish joyi"
@@ -6218,10 +6988,19 @@ msgid "Work Phone"
 msgstr "Ish telefoni"
 
 #. module: hr
-#: model:ir.model.fields.selection,name:hr.selection__hr_version__employee_type__worker
-#, fuzzy
-msgid "Worker"
-msgstr "Ishchi"
+#: model:ir.model.fields,field_description:hr.field_hr_employee_public__work_phone_formatted
+msgid "Work Phone Formatted"
+msgstr ""
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee_public__work_phone_sanitized
+msgid "Work Phone Sanitized"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_filter
+msgid "Work location"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__resource_calendar_id
@@ -6232,6 +7011,8 @@ msgid "Working Hours"
 msgstr "Ish soatlari"
 
 #. module: hr
+#. odoo-python
+#: code:addons/hr/models/resource_calendar.py:0
 #: model_terms:ir.ui.view,arch_db:hr.hr_version_search_view
 #, fuzzy
 msgid "Working Schedule"
@@ -6250,18 +7031,11 @@ msgid "Working Time"
 msgstr "Ish vaqti"
 
 #. module: hr
-#. odoo-javascript
-#: code:addons/hr/static/src/fields/boolean_radio.xml:0
-#, fuzzy
-msgid "YES"
-msgstr "HA"
-
-#. module: hr
 #. odoo-python
 #: code:addons/hr/models/hr_employee.py:0
 msgid ""
 "You are not allowed to access \"Employee\" (hr.employee) records.\n"
-"We can redirect you to the public employee list."
+"    We can redirect you to the public employee list."
 msgstr ""
 
 #. module: hr
@@ -6287,7 +7061,7 @@ msgstr ""
 
 #. module: hr
 #. odoo-javascript
-#: code:addons/hr/static/src/store_service_patch.js:0
+#: code:addons/hr/static/src/core/common/store_service_patch.js:0
 #, fuzzy
 msgid "You can only chat with employees that have a dedicated user."
 msgstr ""
@@ -6296,10 +7070,27 @@ msgstr ""
 
 #. module: hr
 #. odoo-python
-#: code:addons/hr/models/hr_department.py:0
-#, fuzzy
-msgid "You cannot create recursive departments."
-msgstr "Rekursiv bo‘limlarni yarata olmaysiz."
+#: code:addons/hr/models/resource_calendar.py:0
+msgid ""
+"You can't change this working schedule, it's used by employees from other "
+"companies you don't have access to. Contact your admin or create a new "
+"working schedule."
+msgstr ""
+
+#. module: hr
+#. odoo-python
+#: code:addons/hr/models/hr_employee.py:0
+msgid ""
+"You can't end the collaboration of an employee without contract, archive it "
+"instead."
+msgstr ""
+
+#. module: hr
+#. odoo-python
+#: code:addons/hr/models/hr_employee.py:0
+msgid ""
+"You can't modify the departure of an employee that has already departed."
+msgstr ""
 
 #. module: hr
 #. odoo-python
@@ -6327,6 +7118,20 @@ msgstr ""
 
 #. module: hr
 #. odoo-python
+#: code:addons/hr/models/hr_work_location.py:0
+msgid "You cannot delete locations that are being used by your employees"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/views/form/multi_version_update_confirmation_dialog.xml:0
+msgid ""
+"You changed an old version of the employee. Do you want to apply the "
+"following changes to future versions too?"
+msgstr ""
+
+#. module: hr
+#. odoo-python
 #: code:addons/hr/models/hr_employee.py:0
 #, fuzzy
 msgid "You do not have access to this document."
@@ -6335,16 +7140,8 @@ msgstr "Sizda bu hujjatga kirish huquqi yo‘q."
 #. module: hr
 #. odoo-python
 #: code:addons/hr/models/hr_employee.py:0
-#, fuzzy
-msgid "You need to set a valid work email address for %s"
-msgstr "%s uchun ishlaydigan elektron pochta manzilini belgilashingiz kerak"
-
-#. module: hr
-#. odoo-python
-#: code:addons/hr/models/hr_employee.py:0
-#, fuzzy
-msgid "You need to set the work email address for %s"
-msgstr "%s uchun ish elektron pochta manzilini belgilashingiz kerak"
+msgid "You do not have the rights to load the Employees sample data."
+msgstr ""
 
 #. module: hr
 #: model_terms:hr.job,description:hr.job_trainee
@@ -6400,32 +7197,16 @@ msgstr ""
 
 #. module: hr
 #. odoo-python
-#: code:addons/hr/models/hr_employee.py:0
-#, fuzzy
-msgid ""
-"You're about to invite new users. %s users will be created with the default "
-"user template's rights. Adding new users may increase your subscription "
-"cost. Do you wish to continue?"
+#: code:addons/hr/models/hr_version.py:0
+msgid "Your HR Responsible has been updated to %s."
 msgstr ""
-"Siz yangi foydalanuvchilarni taklif qilmoqchisiz. %s ta foydalanuvchi "
-"standart foydalanuvchi shabloni huquqlari bilan yaratiladi. Yangi "
-"foydalanuvchilarni qo‘shish obuna narxini oshirishi mumkin. Davom etishni "
-"xohlaysizmi?"
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.res_users_view_form_preferences
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_form
-#: model_terms:ir.ui.view,arch_db:hr.view_partner_bank_form_inherit_hr
 #, fuzzy
 msgid "ZIP"
 msgstr "ZIP"
-
-#. module: hr
-#: model:ir.model.fields,field_description:hr.field_account_setup_bank_manual_config__bank_zip
-#: model:ir.model.fields,field_description:hr.field_res_partner_bank__bank_zip
-#, fuzzy
-msgid "Zip"
-msgstr "Indeks"
 
 #. module: hr
 #. odoo-python
@@ -6470,9 +7251,19 @@ msgstr "doktor"
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_form
+msgid "e.g. 1234"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
 #, fuzzy
 msgid "e.g. Building 2, Remote, etc."
 msgstr "masalan, 2-bino, Masofaviy va boshqalar"
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
+msgid "e.g. Engineering, Commerce, Business Administration, ..."
+msgstr ""
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_form
@@ -6514,17 +7305,32 @@ msgid "e.g. myprivateemail@example.com"
 msgstr "masalan, myprivateemail@example.com"
 
 #. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/views/hr_employee_action_helper/onboarding_helper_blocks.xml:0
+msgid "eLearning"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.hr_employee_create_version_wizard_view_form
+msgid "employees at the selected date."
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.resource_calendar_form_view_inherit_hr
+msgid "employees →"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/views/hr_employee_hierarchy/hr_employee_hierarchy_renderer.xml:0
+msgid "here"
+msgstr ""
+
+#. module: hr
 #: model:ir.model,name:hr.model_hr_mixin
 #, fuzzy
 msgid "hr.mixin"
 msgstr "hr.mixin"
-
-#. module: hr
-#. odoo-python
-#: code:addons/hr/models/res_partner.py:0
-#, fuzzy
-msgid "id"
-msgstr "id"
 
 #. module: hr
 #: model:ir.model.fields.selection,name:hr.selection__hr_version__distance_home_work_unit__kilometers
@@ -6555,9 +7361,33 @@ msgstr "mil"
 #. module: hr
 #. odoo-python
 #: code:addons/hr/models/hr_employee.py:0
+msgid "onboarding plan"
+msgstr ""
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/views/hr_employee_action_helper/hr_employee_action_helper.xml:0
+msgid "or"
+msgstr ""
+
+#. module: hr
+#. odoo-python
+#: code:addons/hr/models/hr_employee.py:0
 #, fuzzy
 msgid "other"
 msgstr "boshqa"
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.hr_employee_hierarchy_view
+#: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_hierarchy_view
+msgid "people"
+msgstr ""
+
+#. module: hr
+#. odoo-python
+#: code:addons/hr/models/resource_calendar.py:0
+msgid "resource_calendar_id"
+msgstr ""
 
 #. module: hr
 #. odoo-python
@@ -6565,6 +7395,18 @@ msgstr "boshqa"
 #, fuzzy
 msgid "restricted to employees"
 msgstr "faqat xodimlar uchun"
+
+#. module: hr
+#. odoo-javascript
+#: code:addons/hr/static/src/views/hr_employee_hierarchy/hr_employee_hierarchy_renderer.xml:0
+msgid "to see those employees."
+msgstr ""
+
+#. module: hr
+#. odoo-python
+#: code:addons/hr/models/resource_calendar.py:0
+msgid "version_ids"
+msgstr ""
 
 #. module: hr
 #. odoo-python
@@ -6585,3 +7427,127 @@ msgstr "ish"
 #, fuzzy
 msgid "work_permit_name"
 msgstr "work_permit_name"
+
+#, fuzzy
+#~ msgid ""
+#~ "The Badge ID must be alphanumeric without any accents and no longer than "
+#~ "18 characters."
+#~ msgstr ""
+#~ "Nishon ID si hech qanday urg‘usiz faqat harf va raqamlardan iborat "
+#~ "bo‘lishi va 18 ta belgidan oshmasligi kerak."
+
+#, fuzzy
+#~ msgid ""
+#~ "Define the working schedule of the resource. If not set, the resource "
+#~ "will have fully flexible working hours."
+#~ msgstr ""
+#~ "Resursning ish jadvalini belgilang. Agar belgilanmasa, resurs to‘liq "
+#~ "egiluvchan ish vaqtiga ega bo‘ladi."
+
+#, fuzzy
+#~ msgid "Is Flexible"
+#~ msgstr "Moslashuvchan"
+
+#, fuzzy
+#~ msgid "Is Fully Flexible"
+#~ msgstr "To‘liq moslashuvchan"
+
+#, fuzzy
+#~ msgid "Chat"
+#~ msgstr "Chat"
+
+#, fuzzy
+#~ msgid "Provide additional information about this version..."
+#~ msgstr "Ushbu versiya haqida qo‘shimcha ma'lumot bering..."
+
+#, fuzzy
+#~ msgid ""
+#~ "<b>Congratulations!</b> May I recommend you to setup an <a "
+#~ "href=\"%s\">onboarding plan?</a>"
+#~ msgstr ""
+#~ "<b>Tabriklaymiz!</b> Sizga <a href=\"%s\">ishga kirish rejasini</a> "
+#~ "sozlashni tavsiya qilsam bo‘ladimi?"
+
+#, fuzzy
+#~ msgid "<small>AI</small>"
+#~ msgstr "<small>Sun'iy intellekt</small>"
+
+#, fuzzy
+#~ msgid "<small>Dashboard</small>"
+#~ msgstr "<small>Boshqaruv paneli</small>"
+
+#, fuzzy
+#~ msgid "<small>Documents</small>"
+#~ msgstr "<small>Hujjatlar</small>"
+
+#, fuzzy
+#~ msgid "<small>Fleet</small>"
+#~ msgstr "<small>Transport vositalari parki</small>"
+
+#, fuzzy
+#~ msgid "<small>Hiring</small>"
+#~ msgstr "<small>Ishga qabul qilish</small>"
+
+#, fuzzy
+#~ msgid "<small>Leaves</small>"
+#~ msgstr "<small>Ta'tillar</small>"
+
+#, fuzzy
+#~ msgid "<small>Lunch</small>"
+#~ msgstr "<small>Tushlik</small>"
+
+#, fuzzy
+#~ msgid "<small>Payroll</small>"
+#~ msgstr "<small>Ish haqi</small>"
+
+#, fuzzy
+#~ msgid "<small>Performance</small>"
+#~ msgstr "<small>Samaradorlik</small>"
+
+#, fuzzy
+#~ msgid "<small>Planning</small>"
+#~ msgstr "<small>Rejalashtirish</small>"
+
+#, fuzzy
+#~ msgid "<small>Referral</small>"
+#~ msgstr "<small>Tavsiya</small>"
+
+#, fuzzy
+#~ msgid "<small>Sign</small>"
+#~ msgstr "<small>Imzolash</small>"
+
+#, fuzzy
+#~ msgid "<small>Talent</small>"
+#~ msgstr "<small>Iste'dod</small>"
+
+#, fuzzy
+#~ msgid "<small>Trainings</small>"
+#~ msgstr "<small>Treninglar</small>"
+
+#, fuzzy
+#~ msgid "<small>eLearning</small>"
+#~ msgstr "<small>Elektron ta'lim</small>"
+
+#, fuzzy
+#~ msgid "In Contract"
+#~ msgstr "Shartnoma asosida"
+
+#, fuzzy
+#~ msgid "Load Sample Data"
+#~ msgstr "Namunviy ma'lumotlarni yuklash"
+
+#, fuzzy
+#~ msgid "Load sample data."
+#~ msgstr "Namunviy ma'lumotlarni yuklash"
+
+#, fuzzy
+#~ msgid "Some employee already have a work contact"
+#~ msgstr "Ba'zi xodimlarning allaqachon ish aloqasi mavjud"
+
+#, fuzzy
+#~ msgid "Website Messages"
+#~ msgstr "Veb-sayt xabarlari"
+
+#, fuzzy
+#~ msgid "Website communication history"
+#~ msgstr "Veb-saytdagi muloqot tarixi"

@@ -2,17 +2,18 @@ import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
 import { fuzzyLookup } from "@web/core/utils/search";
 import { computeAppsAndMenuItems } from "@web/webclient/menus/menu_helpers";
-import { DefaultCommandItem } from "@web/core/commands/command_palette";
-
-import { Component } from "@odoo/owl";
+import { defaultCommandItemProps } from "@web/core/commands/command_palette";
+import { OfflinePlugin } from "@web/core/offline/offline_plugin";
+import { Component, usePlugin, t, useProps } from "@odoo/owl";
+import { useService } from "@web/core/utils/hooks";
 
 class AppIconCommand extends Component {
     static template = "web.AppIconCommand";
-    static props = {
-        webIconData: { type: String, optional: true },
-        webIcon: { type: Object, optional: true },
-        ...DefaultCommandItem.props,
-    };
+    props = useProps({
+        webIconData: t.string().optional(),
+        webIcon: t.object().optional(),
+        ...defaultCommandItemProps,
+    });
 }
 
 const commandCategoryRegistry = registry.category("command_categories");
@@ -29,21 +30,27 @@ commandSetupRegistry.add("/", {
 const commandProviderRegistry = registry.category("command_provider");
 commandProviderRegistry.add("menu", {
     namespace: "/",
-    async provide(env, options) {
+    provide(options) {
+        const offlinePlugin = usePlugin(OfflinePlugin);
         const result = [];
-        const menuService = env.services.menu;
+        const menuService = useService("menu");
         let { apps, menuItems } = computeAppsAndMenuItems(menuService.getMenuAsTree("root"));
+        function isAvailable(menu) {
+            return offlinePlugin.isOffline() && !offlinePlugin.isAvailableOffline(menu.actionID);
+        }
         if (options.searchValue !== "") {
             apps = fuzzyLookup(options.searchValue, apps, (menu) => menu.label);
 
-            fuzzyLookup(options.searchValue, menuItems, (menu) =>
-                (menu.parents + " / " + menu.label).split("/").reverse().join("/")
-            ).forEach((menu) => {
+            fuzzyLookup(options.searchValue, menuItems, (menu) => {
+                const breadcrumb = `${menu.parents} / ${menu.label}`;
+                return [breadcrumb, breadcrumb.split("/").reverse().join("/")];
+            }).forEach((menu) => {
                 result.push({
                     action() {
                         menuService.selectMenu(menu);
                     },
                     category: "menu_items",
+                    className: isAvailable(menu) ? "o_disabled_offline" : "",
                     name: menu.parents + " / " + menu.label,
                     href: menu.href || `#menu_id=${menu.id}&amp;action_id=${menu.actionID}`,
                 });
@@ -53,12 +60,17 @@ commandProviderRegistry.add("menu", {
         apps.forEach((menu) => {
             const props = {};
             if (menu.webIconData) {
-                const prefix = menu.webIconData.startsWith("P")
-                    ? "data:image/svg+xml;base64,"
-                    : "data:image/png;base64,";
-                props.webIconData = menu.webIconData.startsWith("data:image")
-                    ? menu.webIconData
-                    : prefix + menu.webIconData.replace(/\s/g, "");
+                if (
+                    menu.webIconData.startsWith("data:image") ||
+                    menu.webIconData === "/web/static/img/default_icon_app.png"
+                ) {
+                    props.webIconData = menu.webIconData;
+                } else {
+                    const prefix = menu.webIconData.startsWith("P")
+                        ? "data:image/svg+xml;base64,"
+                        : "data:image/png;base64,";
+                    props.webIconData = prefix + menu.webIconData.replace(/\s/g, "");
+                }
             } else {
                 props.webIcon = menu.webIcon;
             }
@@ -68,6 +80,7 @@ commandProviderRegistry.add("menu", {
                     menuService.selectMenu(menu);
                 },
                 category: "apps",
+                className: isAvailable(menu) ? "o_disabled_offline" : "",
                 name: menu.label,
                 href: menu.href || `#menu_id=${menu.id}&amp;action_id=${menu.actionID}`,
                 props,

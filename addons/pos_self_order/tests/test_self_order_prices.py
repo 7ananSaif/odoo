@@ -43,6 +43,7 @@ class TestSelfOrderPrice(SelfOrderCommonTest):
             'pos_categ_ids': [(6, 0, [self.combo_category.id])],
             'available_in_pos': True,
         })
+
         self.small_combo = self.env['product.product'].create({
             'name': 'Small Combo',
             'type': 'combo',
@@ -205,6 +206,7 @@ class TestSelfOrderPrice(SelfOrderCommonTest):
         combo = self.env['product.combo'].create({
             'name': f'Test Combo {name}',
             'qty_max': max,
+            'is_upsell': free == 0,
             'qty_free': free,
         })
         self.env['product.combo.item'].create({
@@ -234,8 +236,8 @@ class TestSelfOrderPrice(SelfOrderCommonTest):
             'company_id': self.env.company.id,
             'item_ids': [
                 Command.create({
-                    'compute_price': 'percentage',
-                    'percent_price': 10.0,
+                    'compute_price': 'discount',
+                    'price_discount': 10.0,
                     'applied_on': '3_global',
                 }),
             ],
@@ -321,9 +323,7 @@ class TestSelfOrderPrice(SelfOrderCommonTest):
 
         session = self.pos_config.current_session_id
         if session and session.state != 'closed':
-            draft_orders = session.order_ids.filtered(lambda o: o.state == 'draft')
-            if draft_orders:
-                draft_orders.action_pos_order_cancel()
+            session.order_ids.unlink()
             session.close_session_from_ui()
 
         self.tax_21.price_include_override = 'tax_excluded'

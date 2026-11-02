@@ -5,9 +5,10 @@ class Partner extends models.Model {
     foo = fields.Char({ default: "My little Foo Value" });
     int_field = fields.Integer({ string: "int_field" });
     qux = fields.Float({ digits: [16, 1] });
+    bar = fields.Float({ string: "Float field" });
     monetary = fields.Monetary({ currency_field: "" });
 
-    _records = [{ id: 1, foo: "yop", int_field: 10, qux: 0.44444, monetary: 9.999999 }];
+    _records = [{ id: 1, foo: "yop", int_field: 10, qux: 0.44444, bar: 9.1, monetary: 9.999999 }];
 }
 
 defineModels([Partner]);
@@ -22,10 +23,10 @@ test("StatInfoField formats decimal precision", async () => {
         resId: 1,
         arch: /* xml */ `
             <form>
-                <button class="oe_stat_button" name="items" icon="fa-gear">
+                <button class="oe_stat_button" name="items" icon="settings" icon_class="oi-filled">
                     <field name="qux" widget="statinfo" />
                 </button>
-                <button class="oe_stat_button" name="money" icon="fa-money">
+                <button class="oe_stat_button" name="money" icon="payments">
                     <field name="monetary" widget="statinfo" />
                 </button>
             </form>
@@ -41,6 +42,25 @@ test("StatInfoField formats decimal precision", async () => {
     });
 });
 
+test("StatInfoField with 'hide_trailing_zeros' option", async () => {
+    await mountView({
+        type: "form",
+        resModel: "partner",
+        resId: 1,
+        arch: /* xml */ `
+            <form>
+                <button class="oe_stat_button" name="items" icon="settings" icon_class="oi-filled">
+                    <field name="bar" widget="statinfo" options="{'hide_trailing_zeros': true}" />
+                </button>
+            </form>
+        `,
+    });
+
+    expect("button.oe_stat_button .o_field_widget .o_stat_value:eq(0)").toHaveText("9.1", {
+        message: "Value would show 9.10 without the option enabled",
+    });
+});
+
 test("StatInfoField widget on a chart fields", async () => {
     await mountView({
         type: "form",
@@ -48,7 +68,7 @@ test("StatInfoField widget on a chart fields", async () => {
         resId: 1,
         arch: /* xml */ `
             <form>
-                <button class="oe_stat_button" name="items" icon="fa-gear">
+                <button class="oe_stat_button" name="items" icon="settings" icon_class="oi-filled">
                     <field name="foo" widget="statinfo" />
                 </button>
             </form>
@@ -66,7 +86,7 @@ test("StatInfoField widget on a char field (unset value)", async () => {
         resId: 1,
         arch: /* xml */ `
             <form>
-                <button class="oe_stat_button" name="items" icon="fa-gear">
+                <button class="oe_stat_button" name="items" icon="settings" icon_class="oi-filled">
                     <field name="foo" widget="statinfo" />
                 </button>
             </form>
@@ -85,7 +105,7 @@ test("StatInfoField widget on a one2many field (one record)", async () => {
         resId: 2,
         arch: /* xml */ `
             <form>
-                <button class="oe_stat_button" name="items" icon="fa-gear">
+                <button class="oe_stat_button" name="items" icon="settings" icon_class="oi-filled">
                     <field name="child_ids" widget="statinfo" />
                 </button>
             </form>
@@ -106,7 +126,7 @@ test("StatInfoField widget on a one2many field (multiple records)", async () => 
         resId: 2,
         arch: /* xml */ `
             <form>
-                <button class="oe_stat_button" name="items" icon="fa-gear">
+                <button class="oe_stat_button" name="items" icon="settings" icon_class="oi-filled">
                     <field name="child_ids" widget="statinfo" />
                 </button>
             </form>
@@ -127,7 +147,7 @@ test("StatInfoField widget on a many2one field", async () => {
         resId: 2,
         arch: /* xml */ `
             <form>
-                <button class="oe_stat_button" name="items" icon="fa-gear">
+                <button class="oe_stat_button" name="items" icon="settings" icon_class="oi-filled">
                     <field name="parent_id" widget="statinfo" />
                 </button>
             </form>
@@ -146,7 +166,7 @@ test("StatInfoField in form view on desktop", async () => {
         arch: /* xml */ `
             <form>
                 <div class="oe_button_box" name="button_box">
-                    <button class="oe_stat_button" name="items" type="object" icon="fa-gear">
+                    <button class="oe_stat_button" name="items" type="object" icon="settings" icon_class="oi-filled">
                         <field name="int_field" widget="statinfo" />
                     </button>
                 </div>
@@ -174,7 +194,7 @@ test("StatInfoField in form view on mobile", async () => {
         arch: /* xml */ `
             <form>
                 <div class="oe_button_box" name="button_box">
-                    <button class="oe_stat_button" name="items" type="object" icon="fa-gear">
+                    <button class="oe_stat_button" name="items" type="object" icon="settings" icon_class="oi-filled">
                         <field name="int_field" widget="statinfo" />
                     </button>
                 </div>
@@ -204,7 +224,7 @@ test("StatInfoField in form view with specific label_field on desktop", async ()
             <form>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button class="oe_stat_button" name="items" type="object" icon="fa-gear">
+                        <button class="oe_stat_button" name="items" type="object" icon="settings" icon_class="oi-filled">
                             <field string="Useful stat button" name="int_field" widget="statinfo" options="{'label_field': 'foo'}" />
                         </button>
                     </div>
@@ -237,7 +257,7 @@ test("StatInfoField in form view with specific label_field on mobile", async () 
             <form>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button class="oe_stat_button" name="items" type="object" icon="fa-gear">
+                        <button class="oe_stat_button" name="items" type="object" icon="settings" icon_class="oi-filled">
                             <field string="Useful stat button" name="int_field" widget="statinfo" options="{'label_field': 'foo'}" />
                         </button>
                     </div>
@@ -271,7 +291,7 @@ test("StatInfoField in form view with no label on desktop", async () => {
             <form>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button class="oe_stat_button" name="items" type="object" icon="fa-gear">
+                        <button class="oe_stat_button" name="items" type="object" icon="settings" icon_class="oi-filled">
                             <field string="Useful stat button" name="int_field" widget="statinfo" nolabel="1" />
                         </button>
                     </div>
@@ -300,7 +320,7 @@ test("StatInfoField in form view with no label on mobile", async () => {
             <form>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button class="oe_stat_button" name="items" type="object" icon="fa-gear">
+                        <button class="oe_stat_button" name="items" type="object" icon="settings" icon_class="oi-filled">
                             <field string="Useful stat button" name="int_field" widget="statinfo" nolabel="1" />
                         </button>
                     </div>

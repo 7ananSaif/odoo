@@ -1,7 +1,11 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import fields, models, api
+from odoo.tools import LazyTranslate
+from odoo.tools.translate import mark_as_copy
 from odoo.addons.mail.tools.discuss import Store
+
+_lt = LazyTranslate(__name__)
 
 
 class MailCannedResponse(models.Model):
@@ -14,6 +18,7 @@ class MailCannedResponse(models.Model):
 
     source = fields.Char(
         "Shortcut", required=True, index="trigram",
+        copy=mark_as_copy('source'),
         help="Canned response that will automatically be substituted with longer content in your messages."
         " Type '::' followed by the name of your shortcut (e.g. ::hello) to use in your messages.",
     )
@@ -27,6 +32,7 @@ class MailCannedResponse(models.Model):
         "res.groups",
         string="Authorized Groups",
         domain=lambda self: [("id", "in", self.env.user.all_group_ids.ids)],
+        falsy_value_label=_lt("🔒 Private"),
     )
     is_shared = fields.Boolean(
         string="Determines if the canned_response is currently shared with other users",
@@ -68,18 +74,17 @@ class MailCannedResponse(models.Model):
         return super().unlink()
 
     def _broadcast(self, /, *, delete=False):
+        stores = Store.Stores()
         for canned_response in self:
-            stores = [Store(bus_channel=group) for group in canned_response.group_ids]
+            targets = list(canned_response.group_ids)
             for user in self.env.user | canned_response.create_uid:
                 if not user.all_group_ids & canned_response.group_ids:
-                    stores.append(Store(bus_channel=user))
-            for store in stores:
-                if delete:
-                    store.delete(canned_response)
-                else:
-                    store.add(canned_response)
-            for store in stores:
-                store.bus_send()
+                    targets.append(user)
+            current_stores = Store.Stores({target: stores[target] for target in targets})
+            if delete:
+                current_stores.delete(canned_response)
+            else:
+                current_stores.add(canned_response, "_store_canned_response_fields")
 
-    def _to_store_defaults(self, target):
-        return ["source", "substitution"]
+    def _store_canned_response_fields(self, res: Store.FieldList):
+        res.extend(["source", "substitution", "last_used"])

@@ -10,7 +10,7 @@ from struct import error as StructError
 
 from odoo import api, models, modules
 from odoo.exceptions import RedirectWarning
-from odoo.tools import groupby
+from odoo.tools import BinaryBytes, BinaryValue, groupby
 from odoo.tools.mimetypes import guess_mimetype
 from odoo.tools.pdf import OdooPdfFileReader, PdfReadError
 
@@ -117,7 +117,7 @@ def extract_pdf_embedded_files(filename, content):
             return []
 
         try:
-            return list(pdf_reader.getAttachments())
+            return list(pdf_reader.get_attachments())
         except (NotImplementedError, StructError, PdfReadError) as e:
             _logger.warning("Unable to access the attachments of %s. Tried to decrypt it, but %s.", filename, e)
             return []
@@ -153,7 +153,7 @@ class AccountDocumentImportMixin(models.AbstractModel):
         # Perform a grouping to determine how many invoices to create
         file_data_groups = grouping_method(files_data)
 
-        records = self.create([{}] * len(file_data_groups))
+        records = self.create([self._create_records_from_attachments_default_create_values()] * len(file_data_groups))
         for record, file_data_group in zip(records, file_data_groups):
             attachment_records = self._from_files_data(file_data_group)
             attachment_records.write({
@@ -174,6 +174,11 @@ class AccountDocumentImportMixin(models.AbstractModel):
                 )
 
         return records
+
+    @api.model
+    def _create_records_from_attachments_default_create_values(self):
+        """ To be overidden in the models inheriting the mixin"""
+        return {}
 
     # --------------------------------------------------------
     # Methods for grouping attachments
@@ -316,21 +321,7 @@ class AccountDocumentImportMixin(models.AbstractModel):
 
         self.ensure_one()
 
-        for file_data in files_data:
-            if 'decoder_info' not in file_data:
-                file_data['decoder_info'] = self._get_edi_decoder(file_data, new=new)
-
-        # Identify the attachment to decode.
-        sorted_files_data = sorted(
-            files_data,
-            key=lambda file_data: (
-                file_data['decoder_info'] is not None,
-                (file_data['decoder_info'] or {}).get('priority', 0),
-            ),
-            reverse=True,
-        )
-
-        file_data = sorted_files_data[0]
+        file_data = self._get_selected_import_file_data(files_data, new=new)
 
         if file_data['decoder_info'] is None or file_data['decoder_info'].get('priority', 0) == 0:
             _logger.info(
@@ -387,31 +378,6 @@ class AccountDocumentImportMixin(models.AbstractModel):
         """ Return a list of fields that should be cleared when an attachment is unattached from the record. """
         return []
 
-    # Deprecated, removed in master
-    def _fix_attachments_on_record(self, attachments):
-        """ Ensure that only attachments of certain types appear in `self`'s attachments.
-
-        This is to provide a consistent behaviour where only certain attachment types
-        appear in the chatter's attachments, to avoid cluttering the attachments view.
-        """
-        self.ensure_one()
-        attachments_to_attach = attachments.filtered(self._should_attach_to_record)
-        if attachments_to_attach:
-            # No need to write to attachments that have the same res_model and res_id
-            attachments_to_write = attachments_to_attach.filtered(lambda a: a.res_model != self._name or a.res_id != self.id)
-            attachments_to_write.write({
-                'res_model': self._name,
-                'res_id': self.id,
-            })
-        attachments_to_unattach = (attachments - attachments_to_attach).filtered(lambda a: a.res_model == self._name and not a.res_field)
-        if attachments_to_unattach:
-            for fname in self._attachment_fields_to_clear():
-                self[fname] -= attachments_to_unattach
-            attachments_to_unattach.write({
-                'res_model': False,
-                'res_id': 0,
-            })
-
     def _fix_attachments_on_record_from_files_data(self, valid_files_data, extra_files_data):
         self.ensure_one()
         valid_attachments = self._from_files_data(valid_files_data).filtered(lambda a: a.res_model != self._name or a.res_id != self.id)
@@ -449,7 +415,7 @@ class AccountDocumentImportMixin(models.AbstractModel):
         for attachment in attachments:
             file_data = {
                 'name': attachment.name,
-                'raw': attachment.raw or b'',
+                'raw': attachment.raw.content,
                 'mimetype': attachment.mimetype,
                 'origin_attachment': attachment,
                 'attachment': attachment,
@@ -466,11 +432,11 @@ class AccountDocumentImportMixin(models.AbstractModel):
             This only returns those elements in `files_data` which correspond to an ir.attachment
             (thus, embedded files that were never turned into ir.attachments are omitted).
         """
-        return self.env['ir.attachment'].union(*(
+        return self.env['ir.attachment'].union(
             file_data['attachment']
             for file_data in files_data
             if file_data.get('attachment')
-        ))
+        )
 
     @api.model
     def _get_import_file_type(self, file_data):
@@ -479,17 +445,44 @@ class AccountDocumentImportMixin(models.AbstractModel):
             return 'pdf'
 
     @api.model
+    def _get_selected_import_file_data(self, files_data, new=False):
+        """
+        Return the file data selected for import according to decoder priority.
+
+        :param list[dict] files_data: The file data dictionaries considered for the
+            import.
+        :param bool new: Whether the import is creating a new business document instead
+            of updating an existing one.
+        :return: The selected file data dictionary.
+        """
+        for file_data in files_data:
+            if 'decoder_info' not in file_data:
+                file_data['decoder_info'] = self._get_edi_decoder(file_data, new=new)
+
+        return sorted(
+            files_data,
+            key=lambda file_data: (
+                file_data['decoder_info'] is not None,
+                (file_data['decoder_info'] or {}).get('priority', 0),
+            ),
+            reverse=True,
+        )[0]
+
+    @api.model
     def _get_xml_tree(self, file_data):
         """ Parse file_data['raw'] into an lxml.etree.ElementTree.
             Can be overridden if custom decoding is needed.
         """
+        data = file_data['raw']
+        if not isinstance(data, BinaryValue):
+            data = BinaryBytes(data)
         if (
             # XML attachments received by mail have a 'text/plain' mimetype.
-            'text/plain' in file_data['mimetype'] and (guess_mimetype(file_data['raw'] or b'').endswith('/xml') or file_data['name'].endswith('.xml'))
+            ('text/plain' in file_data['mimetype'] and (data.mimetype.endswith('/xml') or file_data['name'].endswith('.xml')))
             or file_data['mimetype'].endswith('/xml')
         ):
             try:
-                return etree.fromstring(file_data['raw'], parser=etree.XMLParser(remove_comments=True, resolve_entities=False))
+                return etree.fromstring(data.content, parser=etree.XMLParser(remove_comments=True, resolve_entities=False))
             except etree.ParseError as e:
                 _logger.info('Error when reading the xml file "%s": %s', file_data['name'], e)
 
@@ -519,7 +512,7 @@ class AccountDocumentImportMixin(models.AbstractModel):
             for filename, content in extract_pdf_embedded_files(file_data['name'], file_data['raw']):
                 embedded_file_data = {
                     'name': filename,
-                    'raw': content,
+                    'raw': content or b'',
                     'mimetype': guess_mimetype(content),
                     'attachment': None,
                     'origin_attachment': file_data['origin_attachment'],

@@ -1,11 +1,11 @@
-import { Record } from "@mail/core/common/record";
+import { fields, Record } from "@mail/model/export";
 
 export class CannedResponse extends Record {
     static _name = "mail.canned.response";
-    static id = "id";
 
     /** @type {number} */
     id;
+    last_used = fields.Datetime();
     /** @type {string} */
     source;
     /** @type {string} */

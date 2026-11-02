@@ -4,21 +4,33 @@
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# "Kira Petersen François (peti)" <peti@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-11-15 14:16+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Danish <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-09-09 14:02+0000\n"
+"Last-Translator: \"Kira Petersen François (peti)\" <peti@odoo.com>\n"
+"Language-Team: Danish <https://translate.odoo.com/projects/odoo-master/"
 "web_hierarchy/da/>\n"
 "Language: da\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: web_hierarchy
+#: model:ir.module.module,description:base.module_web_hierarchy
+msgid ""
+"\n"
+"Odoo Web Hierarchy view\n"
+"=======================\n"
+"\n"
+"This module adds a new view called to be able to define a view to display\n"
+"an organization such as an Organization Chart for employees for instance.\n"
+msgstr ""
 
 #. module: web_hierarchy
 #: model:ir.model,name:web_hierarchy.model_ir_actions_act_window_view
@@ -40,13 +52,7 @@ msgstr "Det overordnede element kan ikke ændres, da det forårsager en cyklus."
 #: model:ir.model.fields,field_description:web_hierarchy.field_ir_actions_act_window_view__display_name
 #: model:ir.model.fields,field_description:web_hierarchy.field_ir_ui_view__display_name
 msgid "Display Name"
-msgstr "Vis navn"
-
-#. module: web_hierarchy
-#. odoo-javascript
-#: code:addons/web_hierarchy/static/src/hierarchy_card.xml:0
-msgid "Fold"
-msgstr "Fold"
+msgstr "Visningsnavn"
 
 #. module: web_hierarchy
 #: model:ir.model.fields.selection,name:web_hierarchy.selection__ir_actions_act_window_view__view_mode__hierarchy
@@ -97,7 +103,7 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/web_hierarchy/static/src/hierarchy_controller.xml:0
 msgid "New"
-msgstr "Ny"
+msgstr ""
 
 #. module: web_hierarchy
 #. odoo-javascript
@@ -117,12 +123,6 @@ msgstr ""
 "Det overordnede datasæt kan ikke være det samme som det trukkede datasæt."
 
 #. module: web_hierarchy
-#. odoo-javascript
-#: code:addons/web_hierarchy/static/src/hierarchy_card.xml:0
-msgid "Unfold"
-msgstr "Fold ud"
-
-#. module: web_hierarchy
 #: model:ir.model,name:web_hierarchy.model_ir_ui_view
 msgid "View"
 msgstr "Vis"
@@ -132,3 +132,8 @@ msgstr "Vis"
 #: model:ir.model.fields,field_description:web_hierarchy.field_ir_ui_view__type
 msgid "View Type"
 msgstr "Se type"
+
+#. module: web_hierarchy
+#: model:ir.module.module,shortdesc:base.module_web_hierarchy
+msgid "Web Hierarchy"
+msgstr ""

@@ -8,6 +8,7 @@ from odoo.tests.common import tagged, users
 
 
 @tagged('mail_activity')
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestCrmMailActivity(TestCrmCommon):
 
     @classmethod
@@ -33,6 +34,35 @@ class TestCrmMailActivity(TestCrmCommon):
                 'model': activity_type._name,
                 'res_id': activity_type.id,
             })
+
+    @users('user_sales_leads')
+    def test_create_calendar_event_includes_customer(self):
+        """When creating a calendar event from an activity on a CRM opportunity, both the
+        meeting creator and the opportunity's customer should be included as attendees."""
+        opportunity = self.env['crm.lead'].create({
+            'name': 'Test Opportunity',
+            'type': 'opportunity',
+            'partner_id': self.contact_1.id,
+            'user_id': self.user_sales_leads.id,
+            'team_id': self.sales_team_1.id,
+        })
+        activity = self.env['mail.activity'].create({
+            'activity_type_id': self.activity_type_1.id,
+            'res_id': opportunity.id,
+            'res_model_id': self.env['ir.model']._get_id('crm.lead'),
+            'user_id': self.user_sales_manager.id,
+        })
+
+        action = activity.action_create_calendar_event()
+        event_attendees = self.env['calendar.event'].with_context(action['context']).create({
+            'name': 'Test Meeting',
+        }).attendee_ids.partner_id
+        self.assertEqual(
+            event_attendees,
+            self.contact_1 | self.user_sales_leads.partner_id | self.user_sales_manager.partner_id,
+            "The opportunity's customer, the meeting creator and the activity's assigned user"
+            " should all be automatically added as meeting attendees.",
+        )
 
     @users('user_sales_leads')
     def test_crm_activity_ordering(self):
@@ -131,7 +161,6 @@ class TestCrmMailActivity(TestCrmCommon):
             'res_id': self.lead_1.id,
             'res_model_id': self.env.ref('crm.model_crm_lead').id,
         })
-        activity._onchange_activity_type_id()
         self.assertEqual(self.lead_1.activity_type_id, self.activity_type_1)
         self.assertEqual(self.lead_1.activity_summary, self.activity_type_1.summary)
         # self.assertEqual(self.lead.activity_date_deadline, self.activity_type_1.summary)
@@ -156,23 +185,18 @@ class TestCrmMailActivity(TestCrmCommon):
             'res_id': test_lead.id,
             'res_model_id': lead_model_id,
         })
-        activity._onchange_activity_type_id()
 
         # Check the next activity is correct
         self.assertEqual(test_lead.activity_summary, activity.summary)
         self.assertEqual(test_lead.activity_type_id, activity.activity_type_id)
-        # self.assertEqual(fields.Datetime.from_string(self.lead.activity_date_deadline), datetime.now() + timedelta(days=activity.activity_type_id.days))
 
         activity.write({
             'activity_type_id': self.activity_type_2.id,
-            'summary': '',
             'note': 'Content of the activity to log',
         })
-        activity._onchange_activity_type_id()
 
         self.assertEqual(test_lead.activity_summary, activity.activity_type_id.summary)
         self.assertEqual(test_lead.activity_type_id, activity.activity_type_id)
-        # self.assertEqual(fields.Datetime.from_string(self.lead.activity_date_deadline), datetime.now() + timedelta(days=activity.activity_type_id.days))
 
         self.assertEqual(test_lead.activity_ids, activity)
         activity.action_done()

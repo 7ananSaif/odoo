@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 from odoo import Command, fields
-from odoo.addons.website.tests.test_website_visitor import WebsiteVisitorTestsCommon
-from odoo.tests import new_test_user, tagged
 from odoo.exceptions import AccessError
+from odoo.tests import new_test_user, tagged
+
+from odoo.addons.website.tests.test_website_visitor import WebsiteVisitorTestsCommon
 
 
 @tagged('website_visitor')
@@ -56,9 +56,42 @@ class WebsiteVisitorTestsLivechat(WebsiteVisitorTestsCommon):
         with self.assertRaises(AccessError):
             visitor.with_user(operator).page_ids
 
-    def test_visitor_id_continuity_across_sessions(self):
-        self.set_registry_readonly_mode(False)  # Allow creation of visitors
+    def test_new_visitor_linked_to_guest_livechats(self):
+        operator = self.user_admin
+        livechat_channel = self.env["im_livechat.channel"].create({
+            "name": "Awesome Channel",
+            "user_ids": [Command.set([operator.id])],
+        })
+        self.env["mail.presence"]._update_presence(operator)
+        existing_visitor = self.env["website.visitor"].create({
+            "access_token": self.partner_admin_duplicate.id,
+            "website_id": self.website.id,
+        })
+        existing_channel_id = self.make_jsonrpc_request(
+            "/im_livechat/get_session",
+            {"channel_id": livechat_channel.id},
+        )["channel_id"]
+        existing_channel = self.env["discuss.channel"].browse(existing_channel_id)
+        existing_channel.livechat_visitor_id = existing_visitor
+        new_channel_id = self.make_jsonrpc_request(
+            "/im_livechat/get_session",
+            {"channel_id": livechat_channel.id},
+        )["channel_id"]
+        new_channel = self.env["discuss.channel"].browse(new_channel_id)
+        self.assertFalse(new_channel.livechat_visitor_id)
+        self.make_jsonrpc_request(
+            route="/website/odoo_track",
+            params={
+                "res_model": self.tracked_page._name,
+                "res_id": self.tracked_page.id,
+            },
+        )
+        new_visitor = self._get_last_visitor()
+        self.assertNotEqual(new_visitor, existing_visitor)
+        self.assertEqual(existing_channel.livechat_visitor_id, existing_visitor)
+        self.assertEqual(new_channel.livechat_visitor_id, new_visitor)
 
+    def test_tracking_does_not_logout_authenticated_user_with_guest_cookie(self):
         operator = self.user_admin
         livechat_channel = self.env["im_livechat.channel"].create({
             "name": "Awesome Channel",
@@ -66,36 +99,29 @@ class WebsiteVisitorTestsLivechat(WebsiteVisitorTestsCommon):
         })
         self.env["mail.presence"]._update_presence(operator)
 
-        # Anonymous user
-        self.url_open(self.tracked_page.url)  # visitor created
-        res_1 = self.make_jsonrpc_request(
+        self.make_jsonrpc_request(
             "/im_livechat/get_session",
             {
                 "channel_id": livechat_channel.id,
             },
         )
-        channel_1 = self.env["discuss.channel"].browse(res_1["channel_id"])
-        visitor_1 = self._get_last_visitor()
-        self.assertEqual(channel_1.livechat_visitor_id, visitor_1)
-        channel_1._close_livechat_session()
+        self.assertIn(self.env["mail.guest"]._cookie_name, self.opener.cookies)
 
-        # After login, the same visitor record is retained
-        self._authenticate_via_web(self.user_portal.login, "portal")
-        res_2 = self.make_jsonrpc_request(
-            "/im_livechat/get_session",
-            {
-                "channel_id": livechat_channel.id,
+        self._authenticate_via_web(self.user_admin.login, "admin")
+        self.assertEqual(
+            self.make_jsonrpc_request("/web/session/get_session_info")["uid"],
+            self.user_admin.id,
+        )
+
+        self.make_jsonrpc_request(
+            route="/website/odoo_track",
+            params={
+                "res_model": self.tracked_page._name,
+                "res_id": self.tracked_page.id,
             },
         )
-        channel_2 = self.env["discuss.channel"].browse(res_2["channel_id"])
-        visitor_2 = self._get_last_visitor()
-        self.assertEqual(channel_2.livechat_visitor_id, visitor_2)
-        self.assertEqual(visitor_2, visitor_1)
-        channel_2._close_livechat_session()
 
-        # After logout, a new visitor is created and reassigned to the original session
-        self.url_open("/web/session/logout")
-        self.url_open(self.tracked_page.url)
-        visitor_3 = self._get_last_visitor()
-        self.assertEqual(channel_1.livechat_visitor_id, visitor_3)
-        self.assertNotEqual(visitor_3, visitor_2)
+        self.assertEqual(
+            self.make_jsonrpc_request("/web/session/get_session_info")["uid"],
+            self.user_admin.id,
+        )

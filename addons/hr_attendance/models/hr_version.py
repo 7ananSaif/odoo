@@ -1,40 +1,45 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import api, models, fields
+from odoo import api, fields, models
 
 
 class HrVersion(models.Model):
     _name = 'hr.version'
     _inherit = 'hr.version'
 
-    @api.model
-    def _domain_current_countries(self):
-        return ['|',
-            ('country_id', '=', False),
-            ('country_id', 'in', self.env.companies.country_id.ids),
-        ]
-
-    ruleset_id = fields.Many2one(
-         "hr.attendance.overtime.ruleset",
-         domain=_domain_current_countries,
-         groups="hr.group_hr_manager",
-         tracking=True,
-         default=lambda self: self.env.ref('hr_attendance.hr_attendance_default_ruleset', raise_if_not_found=False),
+    attendance_based = fields.Boolean(
+        string="Attendance Based",
+        help="When enabled, payslips are computed from badge records rather than "
+             "the employee's work schedule. Time off is always accounted for.",
+        groups="hr.group_hr_user",
+        default=lambda self: self.env.company.sudo().attendance_based,
     )
 
     @api.model
+    def _get_whitelist_fields_from_template(self):
+        """Also copy ``attendance_based`` from contract templates."""
+        return super()._get_whitelist_fields_from_template() + ['attendance_based']
+
+    @api.model
     def _get_versions_by_employee_and_date(self, employee_dates):
+        """Return the active version of each employee on each date.
+
+        :param dict employee_dates: ``{employee: iterable of dates}``
+        :return: ``{employee: {date: version}}``; a date before the first version of the
+            employee gets the first version, an employee without version an empty dict
+        :rtype: dict
+        """
         # for `employee_dates` a dict[employee] -> dates
         # Generate a 2 level dict[employee][date] -> version
-        employees = self.env['hr.employee'].union(*employee_dates.keys())
+        employees = self.env['hr.employee'].union(employee_dates.keys())
         all_dates = [date for dates in employee_dates.values() for date in dates]
         if not all_dates:
             return {}
         date_to = max(all_dates)
         all_versions = self.env['hr.version'].search([
             ('employee_id', 'in', employees.ids),
+            ('active', '=', True),
             ('date_version', '<=', date_to),
-            # note: no check on date_from because we don't store the version date end
         ])
         versions_by_employee = all_versions.grouped('employee_id')
         version_by_employee_and_date = {employee: {} for employee in employees}

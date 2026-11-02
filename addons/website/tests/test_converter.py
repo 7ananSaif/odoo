@@ -1,8 +1,6 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-import threading
-import unicodedata
 
-from odoo.tests.common import BaseCase
+from odoo.tests.common import get_db_name, BaseCase
 from odoo.modules.registry import Registry
 
 
@@ -30,7 +28,7 @@ class TestSlugUnslug(BaseCase):
             'foo-1#anchor': ('foo', 1),
         }
 
-        unslug = Registry(threading.current_thread().dbname)['ir.http']._unslug
+        unslug = Registry(get_db_name())['ir.http']._unslug
 
         for slug, expected in tests.items():
             self.assertEqual(unslug(slug), expected, "%r case failed" % slug)
@@ -43,7 +41,7 @@ class TestSlugUnslug(BaseCase):
             '1-2': (2, '1'),
         }
 
-        slug = Registry(threading.current_thread().dbname)['ir.http']._slug
+        slug = Registry(get_db_name())['ir.http']._slug
 
         for expected, value in tests.items():
             self.assertEqual(slug(value), expected, "%r case failed" % (value,))
@@ -56,8 +54,8 @@ class TestTitleToSlug(BaseCase):
     """
 
     def _slugify(self, value):
-        _slugify = Registry(threading.current_thread().dbname)['ir.http']._slugify
-        return _slugify(value)
+        slugify = Registry(get_db_name())['ir.http']._slugify
+        return slugify(value)
 
     def test_spaces(self):
         self.assertEqual(
@@ -67,7 +65,7 @@ class TestTitleToSlug(BaseCase):
 
     def test_unicode(self):
         self.assertEqual(
-            "heterogeneite",
+            "hétérogénéité",
             self._slugify("hétérogénéité")
         )
 
@@ -91,7 +89,7 @@ class TestTitleToSlug(BaseCase):
 
     def test_str_to_unicode(self):
         self.assertEqual(
-            "espana",
+            "españa",
             self._slugify("España")
         )
 
@@ -133,7 +131,7 @@ class TestTitleToSlug(BaseCase):
 
     def test_all(self):
         self.assertEqual(
-            "do-you-know-馬丁娜-a-la-海灘",
+            "do-you-know-馬丁娜-à-la-海灘",
             self._slugify(" Do (YOU) ☞☞ know '馬丁娜 à la 海灘' ? ")
         )
 
@@ -153,4 +151,10 @@ class TestTitleToSlug(BaseCase):
         self.assertEqual(
             "black-chair-premium-with-matte-gold",
             self._slugify("Black chair(Premium, with matte gold)")
+        )
+
+    def test_combining_characters(self):
+        self.assertEqual(
+            "চোখের-হেফাজত-একজন-মুমিনের-চরিত্রের-প্রতিচ্ছবি",
+            self._slugify("চোখের হেফাজত একজন মুমিনের চরিত্রের প্রতিচ্ছবি")
         )

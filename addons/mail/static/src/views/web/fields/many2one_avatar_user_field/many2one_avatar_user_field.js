@@ -1,15 +1,16 @@
 import { useAssignUserCommand } from "@mail/views/web/fields/assign_user_command_hook";
 
-import { Component } from "@odoo/owl";
+import { Component, t, useProps } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { computeM2OProps, Many2One } from "@web/views/fields/many2one/many2one";
 import {
     buildM2OFieldDescription,
     extractM2OFieldProps,
-    Many2OneField,
+    many2OneFieldProps,
 } from "@web/views/fields/many2one/many2one_field";
 import { Avatar } from "../avatar/avatar";
 import { Many2XAvatarUserAutocomplete } from "../avatar_autocomplete/avatar_many2x_autocomplete";
+import { user } from "@web/core/user";
 
 export class Many2OneAvatarUser extends Many2One {
     static components = {
@@ -18,13 +19,15 @@ export class Many2OneAvatarUser extends Many2One {
     };
 }
 
+export const many2OneAvatarUserFieldProps = {
+    ...many2OneFieldProps,
+    withCommand: t.boolean(),
+};
+
 export class Many2OneAvatarUserField extends Component {
     static template = "mail.Many2OneAvatarUserField";
     static components = { Avatar, Many2OneAvatarUser };
-    static props = {
-        ...Many2OneField.props,
-        withCommand: { type: Boolean },
-    };
+    props = useProps(many2OneAvatarUserFieldProps);
 
     setup() {
         if (this.props.withCommand) {
@@ -37,25 +40,30 @@ export class Many2OneAvatarUserField extends Component {
     }
 
     get relation() {
-        // This getter is used by `useAssignUserCommand`
         return this.props.record.fields[this.props.name].relation;
     }
 
     get value() {
         return this.props.record.data[this.props.name];
     }
+
+    get uniqueId() {
+        return this.value?.write_date ? this.value.write_date.toMillis() : undefined;
+    }
 }
 
 export const many2OneAvatarUserField = {
     ...buildM2OFieldDescription(Many2OneAvatarUserField),
     additionalClasses: ["o_field_many2one_avatar"],
+    relatedFields: user.isInternalUser ? [{ name: "write_date", type: "datetime" }] : [],
     extractProps(staticInfo, dynamicInfo) {
         return {
             ...extractM2OFieldProps(staticInfo, dynamicInfo),
             withCommand: ["form", "list"].includes(staticInfo.viewType),
-            canOpen: "no_open" in staticInfo.options
-                ? !staticInfo.options.no_open
-                : staticInfo.viewType === "form",
+            canOpen:
+                "no_open" in staticInfo.options
+                    ? !staticInfo.options.no_open
+                    : staticInfo.viewType === "form",
         };
     },
     listViewWidth: [110],

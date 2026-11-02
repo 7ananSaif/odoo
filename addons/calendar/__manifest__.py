@@ -22,42 +22,53 @@ If you need to manage your meetings, you should install the CRM module.
         'data/calendar_demo.xml'
     ],
     'data': [
-        'security/ir.model.access.csv',
-        'security/calendar_security.xml',
         'data/calendar_cron.xml',
+        'data/mail_templates_chatter.xml',
         'data/mail_template_data.xml',
         'data/calendar_data.xml',
         'data/mail_activity_type_data.xml',
         'data/mail_message_subtype_data.xml',
         'views/mail_activity_views.xml',
+        'views/calendar_calendar_views.xml',
         'views/calendar_templates.xml',
+        'views/calendar_user_views.xml',
         'views/calendar_views.xml',
         'views/res_config_settings_views.xml',
         'views/res_partner_views.xml',
         'views/res_users_views.xml',
-        'wizard/calendar_provider_config.xml',
-        'wizard/calendar_popover_delete_wizard.xml',
+        'wizard/calendar_event_archive_or_unlink_wizard.xml',
+        'wizard/calendar_event_multi_archive_or_unlink_wizard.xml',
         'wizard/mail_activity_schedule_views.xml',
+        'security/ir.access.csv',
     ],
-    'installable': True,
     'application': True,
     'assets': {
         'web.assets_backend': [
+            'calendar/static/src/core/common/**/*',
             'calendar/static/src/**/*',
         ],
         # Unit test files
         'web.assets_unit_tests': [
             'calendar/static/tests/**/*.js',
-            ('remove', 'calendar/static/tests/helpers/**/*'),
             ('remove', 'calendar/static/tests/tours/**/*'),
-        ],
-        'web.qunit_suite_tests': [
-            'calendar/static/tests/helpers/**/*',
         ],
         'web.assets_tests': [
             'calendar/static/tests/tours/**/*',
         ],
+        'im_livechat.embed_assets_unit_tests_setup': [
+            'calendar/static/tests/mock_server/**/*',
+        ],
+        'mail.assets_public': [
+            'calendar/static/src/core/common/**/*',
+        ],
+        'im_livechat.assets_embed_core': [
+            'calendar/static/src/core/common/**/*',
+        ],
+        'portal.assets_chatter_helpers': [
+            'calendar/static/src/core/common/**/*',
+        ],
     },
     'author': 'Odoo S.A.',
     'license': 'LGPL-3',
+    'post_init_hook': 'initialize_primary_calendars',
 }

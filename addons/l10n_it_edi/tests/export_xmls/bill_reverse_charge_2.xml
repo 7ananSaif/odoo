@@ -1,8 +1,11 @@
-<p:FatturaElettronica xmlns:p="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2"
-                      xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
-                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                      xsi:schemaLocation="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2 http://www.fatturapa.gov.it/export/fatturazione/sdi/fatturapa/v1.2/Schema_del_file_xml_FatturaPA_versione_1.2.xsd"
-                      versione="FPR12">
+<?xml version="1.0" encoding="UTF-8"?>
+<p:FatturaElettronica
+    xmlns:ds="___ignore___"
+    xmlns:p="___ignore___"
+    xmlns:xsi="___ignore___"
+    xsi:schemaLocation="___ignore___"
+    versione="FPR12"
+>
     <FatturaElettronicaHeader>
         <DatiTrasmissione>
             <IdTrasmittente>
@@ -67,7 +70,7 @@
         <DatiBeniServizi>
             <DettaglioLinee>
                 <NumeroLinea>1</NumeroLinea>
-                <Descrizione>Product A</Descrizione>
+                <Descrizione>product_a Product A</Descrizione>
                 <Quantita>1.00</Quantita>
                 <PrezzoUnitario>800.40000000</PrezzoUnitario>
                 <PrezzoTotale>800.40000000</PrezzoTotale>
@@ -75,7 +78,7 @@
             </DettaglioLinee>
             <DettaglioLinee>
                 <NumeroLinea>2</NumeroLinea>
-                <Descrizione>Product B, taxed 4% Already in Italy</Descrizione>
+                <Descrizione>product_b Product B, taxed 4% Already in Italy</Descrizione>
                 <Quantita>1.00</Quantita>
                 <PrezzoUnitario>800.40000000</PrezzoUnitario>
                 <PrezzoTotale>800.40000000</PrezzoTotale>
@@ -100,6 +103,8 @@
                 <ModalitaPagamento>MP05</ModalitaPagamento>
                 <DataScadenzaPagamento>2022-03-24</DataScadenzaPagamento>
                 <ImportoPagamento>1600.80</ImportoPagamento>
+                <IstitutoFinanziario>BIG BANK</IstitutoFinanziario>
+                <BIC>BIGGBANQ</BIC>
             </DettaglioPagamento>
         </DatiPagamento>
     </FatturaElettronicaBody>

@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="sale_coupon_result" inherit_id="website_sale.coupon_form">
+    <template id="website_sale_loyalty.sale_coupon_result" inherit_id="website_sale.coupon_form">
         <xpath expr="//form[@name='coupon_code']//input[@name='promo']" position="attributes">
             <attribute name="placeholder">Gift card or discount code...</attribute>
         </xpath>
         <xpath expr="//t[@name='code_not_available']" position="replace"/>
     </template>
 
-    <template id="modify_code_form" inherit_id="website_sale.total" name="Loyalty, coupon, gift card">
-        <xpath expr="//div[contains(@t-attf-class, 'o_cart_total')]//table/tr[last()]" position="after">
+    <template
+        id="website_sale_loyalty.modify_code_form"
+        inherit_id="website_sale.total"
+        name="Loyalty, coupon, gift card"
+    >
+        <table name="cart_total_table" position="inside">
             <tr t-if="not hide_promotions" class="oe_website_sale_gift_card">
                 <td colspan="3" class="text-center text-xl-end border-0 p-0">
                     <span class=''>
@@ -149,10 +153,10 @@
                     </span>
                 </td>
             </tr>
-        </xpath>
+        </table>
     </template>
 
-    <template id="layout" inherit_id="website.layout">
+    <template id="website_sale_loyalty.layout" inherit_id="website.layout">
         <xpath expr="//*[@id='wrapwrap']" position="inside">
             <t t-set="coupon_error" t-value="request.params.get('coupon_error')"/>
             <t t-set="pending_coupon_code" t-value="request.session.get('pending_coupon_code')"/>
@@ -169,29 +173,11 @@
         </xpath>
     </template>
 
-    <template id="cart_discount" name="Show Discount in Subtotal" active="False" inherit_id="website_sale.total">
-        <xpath expr="//tr[@name='o_order_total_untaxed']" position="before">
-            <tr t-if="website_sale_order and website_sale_order.reward_amount">
-            <td class="text-end border-0 text-muted" title="Discounted amount">Discount:</td>
-            <td class="text-xl-end border-0 text-muted">
-                <span t-field="website_sale_order.reward_amount" style="white-space: nowrap;"
-                    class="monetary_field"
-                    t-options='{
-                            "widget": "monetary",
-                            "display_currency": website_sale_order.currency_id,
-                    }'/>
-            </td>
-            </tr>
-        </xpath>
-    </template>
-
-    <template id="reduction_coupon_code" inherit_id="website_sale.reduction_code">
-        <xpath expr="//t[@t-set='force_coupon']" position="after">
-            <t t-set="_placeholder">Discount code or gift card</t>
-        </xpath>
-    </template>
-
-    <template id="cart_summary" name="Payment" inherit_id="website_sale.cart_product_price">
+    <template
+        id="website_sale_loyalty.cart_summary"
+        inherit_id="website_sale.cart_product_price"
+        name="Payment"
+    >
         <xpath expr="//span" position="attributes">
             <attribute name="t-att-data-reward-type">line.reward_id.reward_type</attribute>
         </xpath>
@@ -211,22 +197,62 @@
         </xpath>
     </template>
 
-
-    <template id="cart_line_product_no_link" inherit_id="website_sale.cart_lines">
+    <template id="website_sale_loyalty.cart_line_product_no_link" inherit_id="website_sale.cart_lines">
         <xpath expr="//div[@name='o_wsale_cart_line_button_container']" position="before">
             <t t-if="line.is_reward_line" t-call="sale_loyalty.used_gift_card"/>
         </xpath>
     </template>
 
-    <template id="cart_summary_inherit_website_gift_card_sale" inherit_id="website_sale.cart_summary_content">
+    <template
+        id="website_sale_loyalty.cart_summary_inherit_website_gift_card_sale"
+        inherit_id="website_sale.cart_summary_content"
+    >
         <xpath expr="//td[@name='website_sale_cart_summary_product_name']/span" position="after">
             <t t-call="sale_loyalty.used_gift_card"/>
         </xpath>
     </template>
 
-    <template id="website_sale_purchased_gift_card" inherit_id="website_sale.confirmation" >
-        <xpath expr="//div[@id='oe_structure_website_sale_confirmation_2']" position="after">
+    <template
+        id="website_sale_loyalty.website_sale_purchased_gift_card"
+        inherit_id="website_sale.confirmation"
+    >
+        <t t-call="website_sale.payment_confirmation_status" position="after">
             <t t-call="sale_loyalty.sale_purchased_gift_card"/>
-        </xpath>
+        </t>
+    </template>
+
+    <template
+        id="website_sale_loyalty.promotion_progress_bar"
+        inherit_id="website_sale.total"
+        name="Promotion Progress Bar"
+    >
+        <t name="tax_included_order_tax_lines" position="after">
+            <tr t-if="promotion_progress_bars">
+                <td colspan="3" class="border-0 p-0 pt-2">
+                    <t t-foreach="promotion_progress_bars" t-as="bar">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small
+                                t-attf-class="fw-bold #{bar['progress'] == 100 and 'text-success' or ''}"
+                                t-out="bar['reward_name']"
+                            />
+                            <small
+                                t-out="bar['minimum_amount']"
+                                t-options="{'widget': 'monetary', 'display_currency': website_sale_order.currency_id}"
+                            />
+                        </div>
+                        <div class="progress mb-3" style="height: 8px; border-radius: var(--btn-border-radius);" >
+                            <div
+                                t-attf-class="progress-bar #{bar['progress'] == 100 and 'bg-success' or ''}"
+                                role="progressbar"
+                                t-attf-style="width: #{bar['progress']}%; border-radius: inherit; #{bar['progress'] == 100 and '' or 'color: inherit; background-color: currentColor;'}"
+                                t-att-aria-valuenow="bar['progress']"
+                                aria-valuemin="0"
+                                aria-valuemax="100"
+                            />
+                        </div>
+                    </t>
+                </td>
+            </tr>
+        </t>
     </template>
 </odoo>

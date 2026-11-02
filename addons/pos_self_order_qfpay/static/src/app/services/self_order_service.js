@@ -7,18 +7,12 @@ patch(SelfOrder.prototype, {
         await super.setup(...arguments);
 
         const QFPayPaymentMethod = this.models["pos.payment.method"].find(
-            (p) => p.use_payment_terminal === "qfpay"
+            (p) => p.payment_provider === "qfpay"
         );
 
         if (QFPayPaymentMethod) {
             this.qfpay = new QFPay(this.env, QFPayPaymentMethod, this.handleQFPayError.bind(this));
         }
-    },
-
-    filterPaymentMethods(pms) {
-        const pm = super.filterPaymentMethods(...arguments);
-        const qfpay_pm = pms.filter((rec) => rec.use_payment_terminal === "qfpay");
-        return [...new Set([...pm, ...qfpay_pm])];
     },
 
     handleQFPayError(error, type) {

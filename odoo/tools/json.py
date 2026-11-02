@@ -1,12 +1,12 @@
-# -*- coding: utf-8 -*-
+from collections.abc import Mapping
 from datetime import date, datetime
 import json as json_
 import re
 from collections.abc import Mapping
 
 import markupsafe
+from .binary import BinaryValue
 from .func import lazy
-from .misc import ReadonlyDict
 
 JSON_SCRIPTSAFE_MAPPER = {
     '&': r'\u0026',
@@ -67,12 +67,16 @@ def json_default(obj):
         return fields.Date.to_string(obj)
     if isinstance(obj, lazy):
         return obj._value
-    if isinstance(obj, ReadonlyDict):
+    if isinstance(obj, Mapping):
         return dict(obj)
     if isinstance(obj, bytes):
         return obj.decode()
+    if isinstance(obj, BinaryValue):
+        return obj.content.decode()
     if isinstance(obj, fields.Domain):
         return list(obj)
+    if (as_dict_func := getattr(obj, 'as_dict', None)) and callable(as_dict_func):
+        return as_dict_func()
     return str(obj)
 
 

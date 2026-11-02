@@ -54,12 +54,12 @@ class ProductProduct(models.Model):
         'total_margin', 'expected_margin', 'total_margin_rate', 'expected_margin_rate',
     )}
 
-    def _read_group_select(self, aggregate_spec, query):
+    def _read_group_select(self, table, aggregate_spec):
         # the purpose of this override is to flag the aggregates above as such:
         # field._description_aggregator() should simply not fail
         if aggregate_spec in self._SPECIAL_SUM_AGGREGATES:
             return SQL("NULL")
-        return super()._read_group_select(aggregate_spec, query)
+        return super()._read_group_select(table, aggregate_spec)
 
     @api.model
     def _read_group(self, domain, groupby=(), aggregates=(), having=(), offset=0, limit=None, order=None):
@@ -73,7 +73,7 @@ class ProductProduct(models.Model):
         base_result = super()._read_group(domain, groupby, base_aggregates, having, offset, limit, order)
 
         # Force the compute of all records to bypass the limit compute batching (PREFETCH_MAX)
-        all_records = self.browse().union(*(item[-1] for item in base_result))
+        all_records = self.browse().union(item[-1] for item in base_result)
         # This line will compute all fields having _compute_product_margin_fields_values
         # as compute method.
         self._fields['turnover'].compute_value(all_records)
@@ -97,7 +97,7 @@ class ProductProduct(models.Model):
         base_result = super()._read_grouping_sets(domain, grouping_sets, base_aggregates, order)
 
         # Force the compute of all records to bypass the limit compute batching (PREFETCH_MAX)
-        all_records = self.concat(*(item[-1] for row in base_result for item in row))
+        all_records = self + self.browse().concat(item[-1] for row in base_result for item in row)
         # This line will compute all fields having _compute_product_margin_fields_values
         # as compute method.
         all_records._compute_product_margin_fields_values()
@@ -133,8 +133,8 @@ class ProductProduct(models.Model):
                 'expected_margin': 0.0, 'total_margin_rate': 0.0, 'expected_margin_rate': 0.0}
             for product_id in self.ids
         }
-        states = ()
-        payment_states = ()
+        states = (None,)
+        payment_states = (None,)
         if invoice_state == 'paid':
             states = ('posted',)
             payment_states = ('in_payment', 'paid', 'reversed')
@@ -151,8 +151,10 @@ class ProductProduct(models.Model):
         self.env['account.move.line'].flush_model(['price_unit', 'quantity', 'balance', 'product_id', 'display_type'])
         self.env['account.move'].flush_model(['state', 'payment_state', 'move_type', 'invoice_date', 'company_id'])
         self.env['product.template'].flush_model(['list_price'])
-        sqlstr = """
-                WITH currency_rate AS MATERIALIZED ({})
+
+        def make_query(invoice_types):
+            return SQL("""
+                WITH currency_rate AS MATERIALIZED (%s)
                 SELECT
                     l.product_id as product_id,
                     SUM(
@@ -179,9 +181,17 @@ class ProductProduct(models.Model):
                 AND i.company_id = %s
                 AND l.display_type = 'product'
                 GROUP BY l.product_id
-                """.format(self.env['res.currency']._select_companies_rates())
-        invoice_types = ('out_invoice', 'out_refund')
-        self.env.cr.execute(sqlstr, (tuple(self.ids), states, payment_states, invoice_types, date_from, date_to, company_id))
+                """,
+                self.env['res.currency']._select_companies_rates(),
+                tuple(self.ids),
+                states,
+                payment_states,
+                invoice_types,
+                date_from,
+                date_to,
+                company_id,
+            )
+        self.env.cr.execute(make_query(invoice_types=('out_invoice', 'out_refund')))
         for product_id, avg, qty, total, sale in self.env.cr.fetchall():
             res[product_id]['sale_avg_price'] = avg and avg or 0.0
             res[product_id]['sale_num_invoiced'] = qty and qty or 0.0
@@ -193,10 +203,7 @@ class ProductProduct(models.Model):
             res[product_id]['total_margin_rate'] = res[product_id]['turnover'] and res[product_id]['total_margin'] * 100 / res[product_id]['turnover'] or 0.0
             res[product_id]['expected_margin_rate'] = res[product_id]['sale_expected'] and res[product_id]['expected_margin'] * 100 / res[product_id]['sale_expected'] or 0.0
 
-        ctx = self.env.context.copy()
-        ctx['force_company'] = company_id
-        invoice_types = ('in_invoice', 'in_refund')
-        self.env.cr.execute(sqlstr, (tuple(self.ids), states, payment_states, invoice_types, date_from, date_to, company_id))
+        self.env.cr.execute(make_query(invoice_types=('in_invoice', 'in_refund')))
         for product_id, avg, qty, total, _dummy in self.env.cr.fetchall():
             res[product_id]['purchase_avg_price'] = avg and avg or 0.0
             res[product_id]['purchase_num_invoiced'] = qty and qty or 0.0

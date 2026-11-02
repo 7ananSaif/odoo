@@ -1,35 +1,47 @@
-import { HtmlUpgradeManager } from "@html_editor/html_migrations/html_upgrade_manager";
+import { DYNAMIC_FIELD_PLUGINS } from "@html_editor/backend/dynamic_field/dynamic_field_plugin";
+import { HtmlViewer } from "@html_editor/components/html_viewer/html_viewer";
+import { EditorVersionPlugin } from "@html_editor/core/editor_version_plugin";
+import { isHtmlContentSupported } from "@html_editor/core/selection_plugin";
 import { stripVersion } from "@html_editor/html_migrations/html_migrations_utils";
+import { HtmlUpgradeManager } from "@html_editor/html_migrations/html_upgrade_manager";
+import { extractUnmappedAttachmentsIds } from "@html_editor/main/media/media_plugin";
 import { stripHistoryIds } from "@html_editor/others/collaboration/collaboration_odoo_plugin";
+import {
+    MAIN_EMBEDDINGS,
+    READONLY_MAIN_EMBEDDINGS,
+} from "@html_editor/others/embedded_components/embedding_sets";
 import {
     COLLABORATION_PLUGINS,
     EMBEDDED_COMPONENT_PLUGINS,
     MAIN_PLUGINS,
     NO_EMBEDDED_COMPONENTS_FALLBACK_PLUGINS,
 } from "@html_editor/plugin_sets";
-import { DYNAMIC_PLACEHOLDER_PLUGINS } from "@html_editor/backend/plugin_sets";
-import {
-    MAIN_EMBEDDINGS,
-    READONLY_MAIN_EMBEDDINGS,
-} from "@html_editor/others/embedded_components/embedding_sets";
 import { normalizeHTML } from "@html_editor/utils/html";
+import { withSequence } from "@html_editor/utils/resource";
+import { canRenderAsHTML, fixInvalidHTML, instanceofMarkup } from "@html_editor/utils/sanitize";
 import { Wysiwyg } from "@html_editor/wysiwyg";
-import { Component, markup, status, useRef, useState } from "@odoo/owl";
+import {
+    Component,
+    markup,
+    proxy,
+    signal,
+    status,
+    t,
+    useApp,
+    useEffect,
+    useProps,
+} from "@odoo/owl";
 import { localization } from "@web/core/l10n/localization";
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
 import { Mutex } from "@web/core/utils/concurrency";
 import { useBus, useService } from "@web/core/utils/hooks";
 import { useRecordObserver } from "@web/model/relational_model/utils";
+import "@web/views/fields/html/html_field";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
-import { TranslationButton } from "@web/views/fields/translation_button";
-import { HtmlViewer } from "@html_editor/components/html_viewer/html_viewer";
-import { EditorVersionPlugin } from "@html_editor/core/editor_version_plugin";
-import { withSequence } from "@html_editor/utils/resource";
-import { fixInvalidHTML, instanceofMarkup } from "@html_editor/utils/sanitize";
-import { isHtmlContentSupported } from "@html_editor/core/selection_plugin";
+import { TranslationButton } from "@web/views/fields/translation/translation";
 
-const HTML_FIELD_METADATA_ATTRIBUTES = ["data-last-history-steps"];
+const HTML_FIELD_METADATA_ATTRIBUTES = ["data-last-history-commits"];
 
 /**
  * Check whether the current value contains nodes that would break
@@ -47,35 +59,39 @@ function computeContainsComplexHTML(value) {
     return !!parsedOriginal.head.innerHTML.trim();
 }
 
+export const htmlFieldProps = {
+    ...standardFieldProps,
+    isCollaborative: t.boolean().optional(),
+    collaborativeTrigger: t.string().optional(),
+    dynamicField: t.boolean().optional(false),
+    dynamicFieldReferenceModel: t.string().optional(),
+    migrateHTML: t.boolean().optional(),
+    cssReadonlyAssetId: t.string().optional(),
+    sandboxedPreview: t.boolean().optional(),
+    codeview: t.boolean().optional(),
+    editorConfig: t.object().optional(),
+    embeddedComponents: t.boolean().optional(),
+};
+
 export class HtmlField extends Component {
     static template = "html_editor.HtmlField";
-    static props = {
-        ...standardFieldProps,
-        isCollaborative: { type: Boolean, optional: true },
-        collaborativeTrigger: { type: String, optional: true },
-        dynamicPlaceholder: { type: Boolean, optional: true, default: false },
-        dynamicPlaceholderModelReferenceField: { type: String, optional: true },
-        migrateHTML: { type: Boolean, optional: true },
-        cssReadonlyAssetId: { type: String, optional: true },
-        sandboxedPreview: { type: Boolean, optional: true },
-        codeview: { type: Boolean, optional: true },
-        editorConfig: { type: Object, optional: true },
-        embeddedComponents: { type: Boolean, optional: true },
-    };
-    static defaultProps = {
-        dynamicPlaceholder: false,
-    };
     static components = {
         Wysiwyg,
         HtmlViewer,
         TranslationButton,
     };
 
+    app = useApp();
+    props = useProps(htmlFieldProps);
+    codeViewRef = signal.ref();
+
+    get classList() {
+        return ["o-html-field"];
+    }
+
     setup() {
         this.htmlUpgradeManager = new HtmlUpgradeManager();
         this.mutex = new Mutex();
-
-        this.codeViewRef = useRef("codeView");
 
         const { model } = this.props.record;
         useBus(model.bus, "WILL_SAVE_URGENTLY", () => this.commitChanges({ urgent: true }));
@@ -84,15 +100,17 @@ export class HtmlField extends Component {
         );
         this.busService = this.env.services.bus_service;
         this.ormService = useService("orm");
+        this.pendingAttachmentsService = useService("pending_attachment_service");
 
         this.isDirty = false;
         this.lastChangeId = 0;
-        this.state = useState({
+        this.state = proxy({
             key: 0,
             showCodeView: false,
             containsComplexHTML: computeContainsComplexHTML(
                 this.props.record.data[this.props.name]
             ),
+            forceCodeView: false,
         });
 
         useRecordObserver((record) => {
@@ -100,7 +118,14 @@ export class HtmlField extends Component {
             // Reset Wysiwyg when we discard or onchange value
             const newValue = fixInvalidHTML(record.data[this.props.name]);
             if (!this.isDirty) {
-                const value = normalizeHTML(newValue, this.clearElementToCompare.bind(this));
+                let value;
+                this.state.forceCodeView = !canRenderAsHTML(newValue);
+                if (this.state.forceCodeView) {
+                    value = newValue;
+                    this.state.showCodeView = true;
+                } else {
+                    value = normalizeHTML(newValue, this.clearElementToCompare.bind(this));
+                }
                 if (this.lastValue !== value) {
                     this.state.key++;
                     this.state.containsComplexHTML = computeContainsComplexHTML(newValue);
@@ -112,19 +137,38 @@ export class HtmlField extends Component {
                 this.state.key++;
             }
         });
-        useRecordObserver((record) => {
-            const value = record.data[this.props.dynamicPlaceholderModelReferenceField || "model"];
+        useEffect(() => {
+            const value = this.props.record.data[this.props.dynamicFieldReferenceModel || "model"];
             // update Dynamic Placeholder reference model
-            if (this.props.dynamicPlaceholder && this.editor) {
-                this.editor.shared.dynamicPlaceholder?.updateDphDefaultModel(value);
+            if (this.editor && this.editor.isReady) {
+                this.editor.trigger("on_model_changed_handlers", value);
             }
         });
+
+        const onRecordDiscarded = model.hooks.onRecordDiscarded;
+        const onWillSaveRecord = model.hooks.onWillSaveRecord;
+        const onRecordSaved = model.hooks.onRecordSaved;
+        model.hooks.onRecordDiscarded = (...args) => {
+            if (this.props.record.isNew) {
+                this.pendingAttachmentsService.unlinkPendingAttachments(this.props.record?.resId);
+            }
+            return onRecordDiscarded(...args);
+        };
+        model.hooks.onWillSaveRecord = (...args) => {
+            this.pendingAttachmentsService.addAttachmentsIdsToContext(this.props.record);
+            return onWillSaveRecord(...args);
+        };
+        model.hooks.onRecordSaved = (...args) => {
+            this.pendingAttachmentsService.clearPendingAttachments(false);
+            this.pendingAttachmentsService.clearAttachmentsIdsFromContext(this.props.record);
+            return onRecordSaved(...args);
+        };
     }
 
     get value() {
         const value = this.props.record.data[this.props.name] || "";
         let newVal = fixInvalidHTML(value);
-        if (this.props.migrateHTML) {
+        if (this.props.migrateHTML && !this.state.forceCodeView) {
             newVal = this.htmlUpgradeManager.processForUpgrade(newVal, {
                 containsComplexHTML: this.state.containsComplexHTML,
                 env: this.env,
@@ -150,7 +194,7 @@ export class HtmlField extends Component {
     }
 
     get isTranslatable() {
-        return this.props.record.fields[this.props.name].translate;
+        return this.props.record.isFieldTranslatable(this.props.name);
     }
 
     clearElementToCompare(element) {
@@ -161,7 +205,13 @@ export class HtmlField extends Component {
     }
 
     async updateValue(value, { changeId } = { changeId: this.lastChangeId }) {
-        this.lastValue = normalizeHTML(value, this.clearElementToCompare.bind(this));
+        this.state.forceCodeView = !canRenderAsHTML(value);
+        if (this.state.forceCodeView) {
+            this.lastValue = value;
+            this.state.showCodeView = true;
+        } else {
+            this.lastValue = normalizeHTML(value, this.clearElementToCompare.bind(this));
+        }
         await this.props.record.update({ [this.props.name]: value }).then(
             () => {
                 if (this.lastChangeId === changeId) {
@@ -200,14 +250,19 @@ export class HtmlField extends Component {
         }
         if (this.isDirty) {
             if (this.state.showCodeView) {
-                await this.updateValue(this.codeViewRef.el.value);
+                await this.updateValue(this.codeViewRef().value);
                 return;
             }
             if (urgent) {
                 await this.updateValue(this.editor.getContent());
             }
             const changeId = this.lastChangeId;
+            const editable = this.editor.editable;
             const el = await this.getEditorContent();
+            this.pendingAttachmentsService.addPendingAttachments(
+                this.props.record?.resId,
+                extractUnmappedAttachmentsIds(editable)
+            );
             const content = el.innerHTML;
             this.clearElementToCompare(el);
             const comparisonValue = el.innerHTML;
@@ -234,9 +289,6 @@ export class HtmlField extends Component {
         // Keep track of every change individually to avoid resetting dirtiness
         // after committing a change if another change occurred in the meantime.
         this.lastChangeId++;
-        // Ensure that FormController.beforeLeave is able to save record
-        // changes.
-        this.props.record.setDirty();
         this.props.record.model.bus.trigger("FIELD_IS_DIRTY", true);
     }
 
@@ -246,10 +298,11 @@ export class HtmlField extends Component {
 
     async toggleCodeView() {
         await this.commitChanges();
-        this.state.showCodeView = !this.state.showCodeView;
+        this.state.showCodeView = this.state.forceCodeView || !this.state.showCodeView;
         if (!this.state.showCodeView && this.editor) {
             this.editor.editable.innerHTML = this.value;
-            this.editor.shared.history.addStep();
+            this.editor.processThrough("html_compatibility_processors", this.editor.editable);
+            this.editor.shared.history.commit();
         }
     }
 
@@ -260,7 +313,7 @@ export class HtmlField extends Component {
                 ...(this.props.migrateHTML ? [EditorVersionPlugin] : []),
                 ...MAIN_PLUGINS,
                 ...(this.props.isCollaborative ? COLLABORATION_PLUGINS : []),
-                ...(this.props.dynamicPlaceholder ? DYNAMIC_PLACEHOLDER_PLUGINS : []),
+                ...(this.props.dynamicField ? DYNAMIC_FIELD_PLUGINS : []),
                 ...(this.props.embeddedComponents
                     ? EMBEDDED_COMPONENT_PLUGINS
                     : NO_EMBEDDED_COMPONENTS_FALLBACK_PLUGINS),
@@ -279,17 +332,28 @@ export class HtmlField extends Component {
                 peerId: this.generateId(),
             },
             dropImageAsAttachment: true, // @todo @phoenix always true ?
-            dynamicPlaceholder: this.props.dynamicPlaceholder,
-            dynamicPlaceholderResModel:
-                this.props.record.data[this.props.dynamicPlaceholderModelReferenceField || "model"],
+            dynamicPlaceholder: this.props.dynamicField,
+            dynamicResModel:
+                this.props.record.data[this.props.dynamicFieldReferenceModel || "model"],
             direction: localization.direction || "ltr",
             getRecordInfo: () => {
                 const { resModel, resId, data, fields, id } = this.props.record;
                 return { resModel, resId, data, fields, id };
             },
             resources: {},
+            getPendingAttachmentsIds: () => {
+                this.pendingAttachmentsService.addPendingAttachments(
+                    this.props.record?.resId,
+                    extractUnmappedAttachmentsIds(this.editor.editable)
+                );
+                return this.pendingAttachmentsService.pendingAttachmentIds[
+                    this.props.record?.resId
+                ];
+            },
             ...this.props.editorConfig,
         };
+
+        config.classList = [...(this.classList || []), ...(config.classList || [])];
 
         if (!("baseContainers" in config)) {
             config.baseContainers = ["DIV", "P"];
@@ -297,7 +361,7 @@ export class HtmlField extends Component {
 
         if (this.props.embeddedComponents) {
             config.resources.embedded_components = [...MAIN_EMBEDDINGS];
-            config.embeddedComponentInfo = { app: this.__owl__.app, env: this.env };
+            config.embeddedComponentInfo = { app: this.app, env: this.env };
         }
 
         const { sanitize_tags, sanitize } = this.props.record.fields[this.props.name];
@@ -315,7 +379,7 @@ export class HtmlField extends Component {
                     {
                         id: "codeview",
                         description: _t("Code view"),
-                        icon: "fa-code",
+                        icon: "code",
                         run: this.toggleCodeView.bind(this),
                         isAvailable: isHtmlContentSupported,
                     },
@@ -355,7 +419,7 @@ export const htmlField = {
     component: HtmlField,
     displayName: _t("Html"),
     supportedTypes: ["html"],
-    extractProps({ attrs, options }, dynamicInfo) {
+    extractProps({ attrs, options, viewType }) {
         const editorConfig = {
             mediaModalParams: {
                 useMediaLibrary: true,
@@ -383,6 +447,12 @@ export const htmlField = {
         if ("allowChecklist" in options) {
             editorConfig.allowChecklist = Boolean(options.allowChecklist);
         }
+        if ("allowScrollableTables" in options) {
+            editorConfig.allowScrollableTables = Boolean(options.allowScrollableTables);
+        }
+        if ("saveScrollableTables" in options) {
+            editorConfig.saveScrollableTables = Boolean(options.saveScrollableTables);
+        }
         if ("allowAttachmentCreation" in options) {
             editorConfig.allowImage = Boolean(options.allowAttachmentCreation);
             editorConfig.allowFile = Boolean(options.allowAttachmentCreation);
@@ -401,20 +471,29 @@ export const htmlField = {
         if ("debounceHints" in options) {
             editorConfig.debounceHints = Boolean(options.debounceHints);
         }
-        return {
+        if ("allowWhiteboard" in options) {
+            editorConfig.allowWhiteboard = Boolean(options.allowWhiteboard);
+        }
+
+        const props = {
             editorConfig,
             isCollaborative: options.collaborative,
             collaborativeTrigger: options.collaborative_trigger,
             migrateHTML: "migrateHTML" in options ? Boolean(options.migrateHTML) : true,
-            dynamicPlaceholder: options.dynamic_placeholder,
-            dynamicPlaceholderModelReferenceField:
-                options.dynamic_placeholder_model_reference_field,
+            dynamicField: options.dynamic_placeholder,
+            dynamicFieldReferenceModel: options.dynamic_placeholder_model_reference_field,
             embeddedComponents:
                 "embedded_components" in options ? Boolean(options.embedded_components) : true,
             sandboxedPreview: Boolean(options.sandboxedPreview),
             cssReadonlyAssetId: options.cssReadonly,
             codeview: Boolean(odoo.debug && options.codeview),
         };
+
+        if (viewType === "list") {
+            props.readonly = true;
+        }
+
+        return props;
     },
 };
 
@@ -439,3 +518,43 @@ export function setHtmlFieldMetadata(content, metadata) {
     }
     return contentDocument.body.innerHTML;
 }
+
+const pendingAttachmentsService = {
+    dependencies: ["orm"],
+    start(env, { orm }) {
+        const pendingAttachmentIds = {};
+        async function unlinkPendingAttachments(recordId) {
+            if (pendingAttachmentIds[recordId]?.length) {
+                orm.unlink("ir.attachment", [...new Set(pendingAttachmentIds[recordId])]);
+                clearPendingAttachments(recordId);
+            }
+        }
+        function addPendingAttachments(recordId, ids) {
+            if (!pendingAttachmentIds[recordId]) {
+                pendingAttachmentIds[recordId] = [];
+            }
+            pendingAttachmentIds[recordId].push(...ids);
+        }
+        function clearPendingAttachments(recordId) {
+            delete pendingAttachmentIds[recordId];
+        }
+        function addAttachmentsIdsToContext(record) {
+            if (pendingAttachmentIds[record?.resId]) {
+                record.context["pending_attachment_ids"] = pendingAttachmentIds[record?.resId];
+            }
+        }
+        function clearAttachmentsIdsFromContext(record) {
+            delete record.context["pending_attachment_ids"];
+        }
+        return {
+            unlinkPendingAttachments,
+            addPendingAttachments,
+            clearPendingAttachments,
+            pendingAttachmentIds,
+            addAttachmentsIdsToContext,
+            clearAttachmentsIdsFromContext,
+        };
+    },
+};
+
+registry.category("services").add("pending_attachment_service", pendingAttachmentsService);

@@ -1,22 +1,19 @@
-/* global Carousel */
-
-import { Component, onMounted, onWillStart, onWillUnmount, useRef } from "@odoo/owl";
+import { Component, onWillStart, signal } from "@odoo/owl";
 import { useSelfOrder } from "@pos_self_order/app/services/self_order_service";
 import { useService } from "@web/core/utils/hooks";
 import { LanguagePopup } from "@pos_self_order/app/components/language_popup/language_popup";
-import { session } from "@web/session";
+import { useCarousel } from "@pos_self_order/app/utils/carousel_hook";
 
 export class LandingPage extends Component {
     static template = "pos_self_order.LandingPage";
-    static props = {};
+
+    carouselRef = signal.ref();
 
     setup() {
         this.selfOrder = useSelfOrder();
         this.router = useService("router");
         this.dialog = useService("dialog");
-        this.carouselRef = useRef("carousel");
         this.activeSelected = false;
-        this.carouselInterval = null;
 
         onWillStart(() => {
             if (this.selfOrder.config.self_ordering_mode === "kiosk") {
@@ -29,24 +26,9 @@ export class LandingPage extends Component {
             this.selfOrder.rpcLoading = false;
         });
 
-        onMounted(() => {
-            if (this.selfOrder.config._self_ordering_image_home_ids.length > 1) {
-                // used to init carousel after components mount / unmount
-                const carousel = new Carousel(this.carouselRef.el);
-
-                // prevent traceback when no image is set
-                this.carouselInterval = setInterval(
-                    () => {
-                        carousel.next();
-                    },
-                    session.test_mode ? 100 : 5000
-                );
-            }
-        });
-
-        onWillUnmount(() => {
-            clearInterval(this.carouselInterval);
-        });
+        if (this.selfOrder.config._self_ordering_image_home_ids.length > 1) {
+            useCarousel(this.carouselRef, 5);
+        }
     }
 
     get currentLanguage() {
@@ -85,7 +67,11 @@ export class LandingPage extends Component {
     }
 
     clickMyOrder() {
-        this.router.navigate(this.draftOrder.length > 0 ? "cart" : "orderHistory");
+        if (this.draftOrder.length > 0) {
+            this.router.navigate("cart", {}, { fromLanding: true });
+        } else {
+            this.router.navigate("orderHistory");
+        }
     }
 
     clickCustomLink(link) {
@@ -107,11 +93,18 @@ export class LandingPage extends Component {
         ) {
             return;
         }
-        if (this.selfOrder.hasPresets() && !this.selfOrder.currentOrder.preset_id) {
-            this.router.navigate("location");
-        } else {
-            this.router.navigate("product_list");
+
+        if (this.selfOrder.config.use_presets && !this.selfOrder.currentOrder.preset_id) {
+            const availablePresets = this.selfOrder.availablePresets;
+            if (availablePresets.length === 1) {
+                this.selfOrder.currentOrder.setPreset(availablePresets[0]);
+            } else if (availablePresets.length > 1) {
+                this.router.navigate("location");
+                return;
+            }
         }
+
+        this.router.navigate("product_list");
     }
 
     openLanguages() {

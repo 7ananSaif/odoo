@@ -14,12 +14,20 @@
     <xpath expr="//BuilderRow[@label.translate=&quot;Indicators&quot;]/BuilderSelect" position="attributes">
         <attribute name="action">"toggleControllers"</attribute>
     </xpath>
-    <xpath expr="//BuilderSelect" position="replace">
+    <xpath expr="//BuilderRow[@label.translate=&quot;Control&quot;]/BuilderSelect" position="replace">
         <BuilderSelect applyTo="'.o_horizontal_controllers_row'">
             <BuilderSelectItem classAction="'justify-content-between'">Default</BuilderSelectItem>
             <BuilderSelectItem classAction="'justify-content-between flex-row-reverse'" >Reversed</BuilderSelectItem>
-            <BuilderSelectItem classAction="'justify-content-center'" t-if="isActiveItem('carousel_arrows_hidden_opt') || isActiveItem('carousel_indicators_hidden_opt')">Centered</BuilderSelectItem>
+            <BuilderSelectItem classAction="'justify-content-center'" t-if="this.isActiveItem('carousel_arrows_hidden_opt') || this.isActiveItem('carousel_indicators_hidden_opt')">Centered</BuilderSelectItem>
         </BuilderSelect>
+    </xpath>
+</t>
+
+<t t-inherit="website.BuilderOptions" t-inherit-mode="extension">
+    <xpath expr="//t[@id='snippet_specific_options']" position="after">
+        <carousel_bottom_controllers_option
+            selector="section"
+            applyTo=".s_carousel_intro, .s_quotes_carousel_compact"/>
     </xpath>
 </t>
 

@@ -38,7 +38,7 @@ class AccountMoveSend(models.AbstractModel):
         peppol_formats = set(self.env['res.partner']._get_peppol_formats())
         if peppol_format_moves := moves.filtered(lambda m: moves_data[m]['invoice_edi_format'] in peppol_formats):
             not_configured_company_partners = peppol_format_moves.company_id.partner_id.filtered(
-                lambda partner: not (partner.peppol_eas and partner.peppol_endpoint)
+                lambda partner: not partner.routing_identifier
             )
             if not_configured_company_partners:
                 alerts['account_edi_ubl_cii_configure_company'] = {
@@ -48,7 +48,7 @@ class AccountMoveSend(models.AbstractModel):
                     'action': not_configured_company_partners._get_records_action(),
                 }
             not_configured_partners = peppol_format_moves.partner_id.commercial_partner_id.filtered(
-                lambda partner: not (partner.peppol_eas and partner.peppol_endpoint)
+                lambda partner: not partner.routing_identifier
             )
             if not_configured_partners:
                 alerts['account_edi_ubl_cii_configure_partner'] = {
@@ -76,14 +76,52 @@ class AccountMoveSend(models.AbstractModel):
     # ATTACHMENTS
     # -------------------------------------------------------------------------
 
+    @api.model
+    def _is_xml_embedded_in_pdf(self, move):
+        """ Check if the invoice PDF really contains the Factur-X/ZUGFeRD XML.
+        The PDF isn't regenerated when it already exists so
+        it can be a plain one made before the XML embedding
+        (check _hook_invoice_document_after_pdf_report_render)
+        """
+        pdf = move.invoice_pdf_report_id
+        pdf_content = pdf.raw.content if pdf else b''
+        if b'%PDF-' not in pdf_content[:1024]:
+            return False
+        try:
+            reader = OdooPdfFileReader(io.BytesIO(pdf_content), strict=False)
+            return 'factur-x.xml' in (name.lower() for name, _data in reader.get_attachments())
+        except Exception:  # noqa: BLE001
+            return False
+
     def _get_invoice_extra_attachments(self, move):
+        """ The XML is already embedded in the PDF for those hybrid formats
+        (see _hook_invoice_document_after_pdf_report_render), attaching it a second time as a
+        standalone file makes some recipient systems detect two separate invoices. But if the PDF
+        doesn't contain the XML, the standalone file is the only copy, so we keep it. """
         # EXTENDS 'account'
-        return super()._get_invoice_extra_attachments(move) + move.ubl_cii_xml_id
+        extra_attachments = super()._get_invoice_extra_attachments(move)
+        if (
+            not move.ubl_cii_xml_id
+            or (
+                (comm_partner := move.commercial_partner_id.with_company(move.company_id))
+                and comm_partner.invoice_edi_format in ('facturx', 'zugferd')
+                and self._is_xml_embedded_in_pdf(move)
+            )
+        ):
+            return extra_attachments
+        return extra_attachments + move.ubl_cii_xml_id
 
     def _get_placeholder_mail_attachments_data(self, move, invoice_edi_format=None, extra_edis=None, pdf_report=None):
         # EXTENDS 'account'
         results = super()._get_placeholder_mail_attachments_data(move, invoice_edi_format=invoice_edi_format, extra_edis=extra_edis, pdf_report=pdf_report)
-        if move._need_ubl_cii_xml(invoice_edi_format):
+        if invoice_edi_format in ('facturx', 'zugferd') and (not move.invoice_pdf_report_id or self._is_xml_embedded_in_pdf(move)):
+            # The XML is embedded in the PDF itself and never added as a separate attachment
+            # (see _get_invoice_extra_attachments), so no placeholder for it. If the PDF is already
+            # there without the XML, the XML is sent separately, so the placeholder stays.
+            return results
+
+        sending_method = self.env.context.get('sending_method')
+        if move.with_context(sending_method=sending_method or {})._need_ubl_cii_xml(invoice_edi_format):
             builder = move.partner_id.commercial_partner_id._get_edi_builder(invoice_edi_format)
             filename = builder._export_invoice_filename(move)
             results.append({
@@ -106,7 +144,7 @@ class AccountMoveSend(models.AbstractModel):
     def _get_ubl_available_attachments(self, mail_attachments_widget, invoice_edi_format):
         if not invoice_edi_format or not mail_attachments_widget:
             return self.env['ir.attachment'], self.env['ir.attachment']
-        attachment_ids = [values['id'] for values in mail_attachments_widget if values.get('manual')]
+        attachment_ids = [values['id'] for values in mail_attachments_widget if values.get('manual') or values.get('mail_template_id')]
         attachments = self.env['ir.attachment'].browse(attachment_ids)
 
         ubl_format_info = self.env['res.partner']._get_ubl_cii_formats_info().get(invoice_edi_format, {})
@@ -124,7 +162,7 @@ class AccountMoveSend(models.AbstractModel):
         # EXTENDS 'account'
         super()._hook_invoice_document_before_pdf_report_render(invoice, invoice_data)
 
-        if invoice._need_ubl_cii_xml(invoice_data['invoice_edi_format']):
+        if invoice.with_context(sending_method=invoice_data['sending_methods'])._need_ubl_cii_xml(invoice_data['invoice_edi_format']):
             builder = invoice.partner_id.commercial_partner_id._get_edi_builder(invoice_data['invoice_edi_format'])
             xml_content, errors = (
                 builder
@@ -186,16 +224,17 @@ class AccountMoveSend(models.AbstractModel):
 
         # Post-process.
         writer = OdooPdfFileWriter()
-        writer.cloneReaderDocumentRoot(reader)
+        writer.clone_reader_document_root(reader)
 
-        writer.addAttachment('factur-x.xml', xml_facturx, subtype='text/xml', afrelationship='/Alternative')
+        writer.add_attachment('factur-x.xml', xml_facturx, subtype='text/xml', afrelationship='/Alternative')
 
         # PDF-A.
         if ((invoice_data.get('ubl_cii_xml_options', {}).get('ubl_cii_format') in ('facturx', 'zugferd')
-                or (invoice.commercial_partner_id.country_code in ('FR', 'DE') and invoice.commercial_partner_id.peppol_eas != '0204'))
-                and invoice.country_code in ('FR', 'DE')
-                and not writer.is_pdfa
-            ):
+                or (invoice.commercial_partner_id.country_code in ('FR', 'DE')
+                    and not invoice.commercial_partner_id._get_additional_identifier('DE_LTW')))
+            and invoice.country_code in ('FR', 'DE')
+            and not writer.is_pdfa
+        ):
             try:
                 writer.convert_to_pdfa()
             except Exception:
@@ -237,7 +276,7 @@ class AccountMoveSend(models.AbstractModel):
         Inside CreditNote, the ProjectReference element is not used in xml.
         So we look for OriginatorDocumentReference instead.
         """
-        tree = etree.fromstring(invoice_data['ubl_cii_xml_attachment_values']['raw'])
+        tree = etree.fromstring(bytes(invoice_data['ubl_cii_xml_attachment_values']['raw']))
 
         localname = etree.QName(tree).localname
         anchor_xpath = {
@@ -273,7 +312,7 @@ class AccountMoveSend(models.AbstractModel):
         ] if invoice_data.get('mail_attachments_widget') else []
         attachments_to_embed.append({
             'filename': pdf_values['name'],
-            'raw': pdf_values['raw'],
+            'raw': bytes(pdf_values['raw']),
             'mimetype': pdf_values['mimetype'],
             'document_type_node': doc_type_code_node,
         })
@@ -308,5 +347,5 @@ class AccountMoveSend(models.AbstractModel):
         ]
         if attachments_vals:
             attachments = self.env['ir.attachment'].with_user(SUPERUSER_ID).create(attachments_vals)
-            res_ids = attachments.mapped('res_id')
+            res_ids = [a.res_id for a in attachments if a.res_id]
             self.env['account.move'].browse(res_ids).invalidate_recordset(fnames=['ubl_cii_xml_id', 'ubl_cii_xml_file'])

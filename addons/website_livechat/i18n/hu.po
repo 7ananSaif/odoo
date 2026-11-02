@@ -12,21 +12,22 @@
 # Szabolcs Rádi, 2023
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# Odoo Translation Bot <c3p@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-20 18:37+0000\n"
-"PO-Revision-Date: 2025-11-13 13:13+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Hungarian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 18:33+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Hungarian <https://translate.odoo.com/projects/odoo-s19-4/"
 "website_livechat/hu/>\n"
 "Language: hu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: website_livechat
 #: model:ir.model.fields,field_description:website_livechat.field_website_visitor__session_count
@@ -34,17 +35,8 @@ msgid "# Sessions"
 msgstr ""
 
 #. module: website_livechat
-#. odoo-python
-#: code:addons/website_livechat/models/discuss_channel.py:0
-msgid ""
-"%(visitor)s started a conversation with %(operator)s.\n"
-"The chat request has been cancelled"
-msgstr ""
-
-#. module: website_livechat
-#. odoo-javascript
-#: code:addons/website_livechat/static/src/web/livechat_channel_info_list_patch.js:0
-msgid "(closed on: %(date)s)"
+#: model:ir.module.module,description:base.module_website_livechat
+msgid "Allow website visitors to chat with the collaborators."
 msgstr ""
 
 #. module: website_livechat
@@ -56,6 +48,11 @@ msgstr "Elérhető"
 #: model_terms:ir.ui.view,arch_db:website_livechat.res_config_settings_view_form
 msgid "Channel"
 msgstr "Csatorna"
+
+#. module: website_livechat
+#: model:ir.model,name:website_livechat.model_discuss_channel_member
+msgid "Channel Member"
+msgstr ""
 
 #. module: website_livechat
 #: model_terms:ir.ui.view,arch_db:website_livechat.im_livechat_channel_view_form_add
@@ -73,6 +70,11 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:website_livechat.website_visitor_view_tree
 msgid "Chat"
 msgstr "Csevegés"
+
+#. module: website_livechat
+#: model:ir.module.module,summary:base.module_website_livechat
+msgid "Chat with your website visitors"
+msgstr ""
 
 #. module: website_livechat
 #: model:ir.model,name:website_livechat.model_chatbot_script
@@ -96,6 +98,12 @@ msgid "Config Settings"
 msgstr "Beállítások"
 
 #. module: website_livechat
+#. odoo-javascript
+#: code:addons/website_livechat/static/src/core/web/livechat_channel_info_list_patch.xml:0
+msgid "Conversation ongoing"
+msgstr ""
+
+#. module: website_livechat
 #: model:ir.model,name:website_livechat.model_discuss_channel
 msgid "Discussion Channel"
 msgstr "Kommunikációs csatorna"
@@ -104,6 +112,7 @@ msgstr "Kommunikációs csatorna"
 #: model:ir.model.fields,field_description:website_livechat.field_chatbot_script__display_name
 #: model:ir.model.fields,field_description:website_livechat.field_chatbot_script_step__display_name
 #: model:ir.model.fields,field_description:website_livechat.field_discuss_channel__display_name
+#: model:ir.model.fields,field_description:website_livechat.field_discuss_channel_member__display_name
 #: model:ir.model.fields,field_description:website_livechat.field_im_livechat_channel__display_name
 #: model:ir.model.fields,field_description:website_livechat.field_ir_http__display_name
 #: model:ir.model.fields,field_description:website_livechat.field_res_config_settings__display_name
@@ -122,6 +131,7 @@ msgstr "HTTP irányítás"
 #: model:ir.model.fields,field_description:website_livechat.field_chatbot_script__id
 #: model:ir.model.fields,field_description:website_livechat.field_chatbot_script_step__id
 #: model:ir.model.fields,field_description:website_livechat.field_discuss_channel__id
+#: model:ir.model.fields,field_description:website_livechat.field_discuss_channel_member__id
 #: model:ir.model.fields,field_description:website_livechat.field_im_livechat_channel__id
 #: model:ir.model.fields,field_description:website_livechat.field_ir_http__id
 #: model:ir.model.fields,field_description:website_livechat.field_res_config_settings__id
@@ -134,6 +144,14 @@ msgstr "ID"
 #. module: website_livechat
 #: model_terms:ir.ui.view,arch_db:website_livechat.website_visitor_view_search
 msgid "In Conversation"
+msgstr ""
+
+#. module: website_livechat
+#. odoo-python
+#: code:addons/website_livechat/models/discuss_channel.py:0
+msgid ""
+"Live chat conversation closed automatically: the visitor started a new "
+"conversation with another agent."
 msgstr ""
 
 #. module: website_livechat
@@ -158,24 +176,19 @@ msgid "Operator Avatar"
 msgstr ""
 
 #. module: website_livechat
-#: model:ir.model.fields,field_description:website_livechat.field_website_visitor__livechat_operator_name
-msgid "Operator Name"
-msgstr ""
-
-#. module: website_livechat
 #: model:ir.model,name:website_livechat.model_website_page
 msgid "Page"
 msgstr "Oldal"
 
 #. module: website_livechat
 #. odoo-javascript
-#: code:addons/website_livechat/static/src/web/livechat_channel_info_list_patch.xml:0
+#: code:addons/website_livechat/static/src/core/web/livechat_channel_info_list_patch.xml:0
 msgid "Recent conversations"
 msgstr ""
 
 #. module: website_livechat
 #. odoo-javascript
-#: code:addons/website_livechat/static/src/web/livechat_channel_info_list_patch.xml:0
+#: code:addons/website_livechat/static/src/core/web/livechat_channel_info_list_patch.xml:0
 msgid "Recent page views"
 msgstr ""
 
@@ -203,7 +216,7 @@ msgid "Speaking With"
 msgstr ""
 
 #. module: website_livechat
-#: model:ir.model.fields,field_description:website_livechat.field_website_visitor__livechat_operator_id
+#: model:ir.model.fields,field_description:website_livechat.field_website_visitor__current_livechat_agent_ids
 msgid "Speaking with"
 msgstr ""
 
@@ -214,8 +227,8 @@ msgstr "Tesztelés"
 
 #. module: website_livechat
 #. odoo-python
-#: code:addons/website_livechat/models/discuss_channel.py:0
-msgid "The visitor"
+#: code:addons/website_livechat/controllers/chatbot.py:0
+msgid "Test %s"
 msgstr ""
 
 #. module: website_livechat
@@ -259,7 +272,7 @@ msgstr "Látogatók"
 
 #. module: website_livechat
 #. odoo-javascript
-#: code:addons/website_livechat/static/src/web/livechat_channel_info_list_patch.xml:0
+#: code:addons/website_livechat/static/src/core/web/livechat_channel_info_list_patch.xml:0
 #: model:ir.model,name:website_livechat.model_website
 msgid "Website"
 msgstr "Weboldal"
@@ -268,6 +281,11 @@ msgstr "Weboldal"
 #: model:ir.model.fields,field_description:website_livechat.field_res_config_settings__channel_id
 msgid "Website Live Channel"
 msgstr "Weboldal élő csatorna"
+
+#. module: website_livechat
+#: model:ir.module.module,shortdesc:base.module_website_livechat
+msgid "Website Live Chat"
+msgstr ""
 
 #. module: website_livechat
 #: model:ir.model.fields,field_description:website_livechat.field_website__channel_id
@@ -287,82 +305,3 @@ msgid ""
 "When created from an operator, whether the channel is yet to be opened on "
 "the visitor side."
 msgstr ""
-
-#. module: website_livechat
-#. odoo-python
-#: code:addons/website_livechat/models/discuss_channel.py:0
-msgid "an operator"
-msgstr ""
-
-#~ msgid "Country"
-#~ msgstr "Ország"
-
-#~ msgid "Language"
-#~ msgstr "Nyelv"
-
-#~ msgid "<span>Livechat Channel</span>"
-#~ msgstr "<span>Élő csevegési csatorna</span>"
-
-#~ msgid "Avatar"
-#~ msgstr "Avatár"
-
-#~ msgid "Bad"
-#~ msgstr "Rossz"
-
-#~ msgid "Can Publish"
-#~ msgstr "Publikálhat"
-
-#~ msgid "Description of the channel displayed on the website page"
-#~ msgstr "A csatorna weboldalon megjelenített leírása"
-
-#~ msgid "Happy face"
-#~ msgstr "Boldog arc"
-
-#~ msgid "History"
-#~ msgstr "Előzmények"
-
-#~ msgid "Is Published"
-#~ msgstr "Közzétett"
-
-#~ msgid "Lang"
-#~ msgstr "Nyelv"
-
-#~ msgid "Live Support"
-#~ msgstr "Élő támogatás"
-
-#~ msgid "Livechat Support Channels"
-#~ msgstr "Élő csevegés támogatási csatornák"
-
-#~ msgid "Neutral face"
-#~ msgstr "Semleges arc"
-
-#~ msgid "Okay"
-#~ msgstr "Rendben van"
-
-#~ msgid "Sad face"
-#~ msgstr "Szomorú arc"
-
-#~ msgid "Statistics"
-#~ msgstr "Statisztika"
-
-#~ msgid "The"
-#~ msgstr "A"
-
-#~ msgid "The Team"
-#~ msgstr "A csapat"
-
-#~ msgid "The full URL to access the document through the website."
-#~ msgstr ""
-#~ "A teljes elérési út/URL a dokumentum weboldalon keresztüli eléréséhez."
-
-#~ msgid "Visible on current website"
-#~ msgstr "Látható ezen a weboldalon"
-
-#~ msgid "Website URL"
-#~ msgstr "Weboldal címe"
-
-#~ msgid "Website description"
-#~ msgstr "Weboldal leírása"
-
-#~ msgid "last feedbacks"
-#~ msgstr "legutóbbi visszajelzések"

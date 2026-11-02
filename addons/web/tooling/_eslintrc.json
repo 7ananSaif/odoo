@@ -6,8 +6,7 @@
   },
   "env": {
     "browser": true,
-    "es2022": true,
-    "qunit": true
+    "es2022": true
   },
   "rules": {
     "prettier/prettier": ["error", {
@@ -30,7 +29,18 @@
     "valid-typeof": ["error"],
     "no-unused-vars": ["error", { "vars": "all", "args": "none", "ignoreRestSiblings": false, "caughtErrors": "all" }],
     "curly": ["error", "all"],
-    "no-restricted-syntax": ["error", "PrivateIdentifier"],
+    "no-restricted-syntax": [
+      "error",
+      "PrivateIdentifier",
+      {
+        "selector": "CallExpression[callee.name='useEffect'][arguments.length>1]",
+        "message": "Owl 3 useEffect takes a single callback: the dependency argument is silently ignored. Read the signals inside the callback, or use useOnChange."
+      },
+      {
+        "selector": "CallExpression[callee.name='useEffect'] > :function:first-child[params.length>0]",
+        "message": "Owl 3 calls the useEffect callback without arguments: declared parameters are always undefined."
+      }
+    ],
     "prefer-const": ["error", {
       "destructuring": "all",
       "ignoreReadBeforeAssign": true
@@ -44,7 +54,6 @@
     "Chart": "readonly",
     "fuzzy": "readonly",
     "StackTrace": "readonly",
-    "QUnit": "readonly",
     "luxon": "readonly",
     "py": "readonly",
     "FullCalendar": "readonly",
@@ -57,6 +66,7 @@
     "mocha": "readonly",
     "DOMPurify": "readonly",
     "Prism": "readonly",
+    "SIP": "readonly",
 
     "Alert": "readonly",
     "Collapse": "readonly",

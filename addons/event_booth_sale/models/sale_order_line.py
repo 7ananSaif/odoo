@@ -45,7 +45,10 @@ class SaleOrderLine(models.Model):
     def _search_event_booth_pending_ids(self, operator, value):
         if operator in Domain.NEGATIVE_OPERATORS:
             return NotImplemented
-        return [('event_booth_registration_ids.event_booth_id', operator, value)]
+        domain = Domain('event_booth_registration_ids.event_booth_id', operator, value)
+        if operator == 'in' and False in value:  # relation may be falsy
+            domain |= Domain('event_booth_registration_ids', '=', False)
+        return domain
 
     @api.constrains('event_booth_registration_ids')
     def _check_event_booth_registration_ids(self):
@@ -89,12 +92,6 @@ class SaleOrderLine(models.Model):
         if self.event_booth_pending_ids:
             return self.event_booth_pending_ids._get_booth_multiline_description()
         return super()._get_sale_order_line_multiline_description_sale()
-
-    def _use_template_name(self):
-        """ We do not want configured description to get rewritten by template default"""
-        if self.event_booth_pending_ids:
-            return False
-        return super()._use_template_name()
 
     def _get_display_price(self):
         if self.event_booth_pending_ids and self.event_id:

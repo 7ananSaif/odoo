@@ -10,10 +10,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0beta\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-09-16 22:54+0000\n"
-"Last-Translator: \"Tiffany Chang (tic)\" <tic@odoo.com>\n"
-"Language-Team: Ukrainian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 15:05+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Ukrainian <https://translate.odoo.com/projects/odoo-s19-4/"
 "website_sale_slides/uk/>\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
@@ -23,17 +23,17 @@ msgstr ""
 "11 ? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % "
 "100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || "
 "(n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: website_sale_slides
 #: model_terms:ir.ui.view,arch_db:website_sale_slides.course_option_buy_course_now
-msgid "<i class=\"fa fa-bolt\"/> Buy Now"
-msgstr "<i class=\"fa fa-bolt\"/> Купити зараз"
+msgid "<i class=\"oi\" data-icon=\"flash_on\"/> Buy Now"
+msgstr "<i class=\"oi\" data-icon=\"flash_on\"/> Купити зараз"
 
 #. module: website_sale_slides
 #: model_terms:ir.ui.view,arch_db:website_sale_slides.course_buy_course_button
-msgid "<i class=\"fa fa-shopping-cart\"/> Add to Cart"
-msgstr "<i class=\"fa fa-shopping-cart\"/> Додати до кошика"
+msgid "<i class=\"oi\" data-icon=\"shopping_cart\"/> Add to Cart"
+msgstr "<i class=\"oi\" data-icon=\"shopping_cart\"/> Додати до кошика"
 
 #. module: website_sale_slides
 #. odoo-python
@@ -56,7 +56,7 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/website_sale_slides/static/src/xml/website_sale_slides_quiz.xml:0
 msgid "Buy the course to validate your answers!"
-msgstr "Купіть курс, щоби підтвердити ваші відповіді!"
+msgstr ""
 
 #. module: website_sale_slides
 #. odoo-javascript
@@ -82,7 +82,7 @@ msgstr ""
 
 #. module: website_sale_slides
 #. odoo-javascript
-#: code:addons/website_sale_slides/static/src/website_builder/course_page_option_plugin.js:0
+#: code:addons/website_sale_slides/static/src/website_builder/course_page_option.xml:0
 msgid "Course Page"
 msgstr ""
 
@@ -164,8 +164,6 @@ msgid ""
 "Leaving the course and re-enrolling afterwards means that you'll be charged "
 "again."
 msgstr ""
-"Вихід із курсу та повторне зарахування після цього означає, що з вас знову "
-"стягуватиметься плата."
 
 #. module: website_sale_slides
 #: model_terms:ir.ui.view,arch_db:website_sale_slides.course_buy_course_button
@@ -235,16 +233,31 @@ msgid "Sales Order Line"
 msgstr ""
 
 #. module: website_sale_slides
+#: model:ir.module.module,shortdesc:base.module_website_sale_slides
+msgid "Sell Courses"
+msgstr ""
+
+#. module: website_sale_slides
+#: model:ir.module.module,summary:base.module_website_sale_slides
+msgid "Sell your courses online"
+msgstr ""
+
+#. module: website_sale_slides
+#: model:ir.module.module,description:base.module_website_sale_slides
+msgid "Sell your courses using the e-commerce features of the website."
+msgstr ""
+
+#. module: website_sale_slides
 #. odoo-javascript
 #: code:addons/website_sale_slides/static/src/xml/slide_course_join.xml:0
 msgid "Sign in"
-msgstr "Увійти"
+msgstr ""
 
 #. module: website_sale_slides
 #. odoo-javascript
 #: code:addons/website_sale_slides/static/src/xml/website_sale_slides_quiz.xml:0
 msgid "Sign in and buy the course to take the quiz"
-msgstr "Увійдіть та купіть курс, щоби пройти вікторину"
+msgstr ""
 
 #. module: website_sale_slides
 #: model_terms:ir.ui.view,arch_db:website_sale_slides.course_buy_course_button
@@ -275,7 +288,7 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/website_sale_slides/static/src/xml/website_slides_unsubscribe.xml:0
 msgid "This course is paid."
-msgstr "Цей курс оплачено."
+msgstr ""
 
 #. module: website_sale_slides
 #: model_terms:ir.ui.view,arch_db:website_sale_slides.slide_channel_view_tree_report
@@ -327,20 +340,3 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:website_sale_slides.course_buy_course_link
 msgid "to access resources"
 msgstr ""
-
-#~ msgid ""
-#~ "A storable product is a product for which you manage stock. The Inventory "
-#~ "app has to be installed.\n"
-#~ "A consumable product is a product for which stock is not managed.\n"
-#~ "A service is a non-material product you provide."
-#~ msgstr ""
-#~ "Товар, що зберігається, - це товар, яким ви керуєте на складі. Необхідно "
-#~ "встановити додаток Склад.\n"
-#~ "Витратний товар - це товар, для якого склад не керується.\n"
-#~ "Послуга - це нематеріальний товар, який ви надаєте."
-
-#~ msgid "Product Type"
-#~ msgstr "Тип товару"
-
-#~ msgid "Website"
-#~ msgstr "Веб-сайт"

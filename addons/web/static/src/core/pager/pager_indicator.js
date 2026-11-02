@@ -3,22 +3,21 @@ import { registry } from "../registry";
 import { Transition } from "../transition";
 import { useBus } from "../utils/hooks";
 
-import { Component, useState } from "@odoo/owl";
+import { Component, proxy } from "@odoo/owl";
 import { PAGER_UPDATED_EVENT, pagerBus } from "./pager";
 
 export class PagerIndicator extends Component {
     static template = "web.PagerIndicator";
     static components = { Transition };
-    static props = {};
 
     setup() {
-        this.state = useState({
+        this.state = proxy({
             show: false,
             value: "-",
             total: 0,
         });
         this.startShowTimer = null;
-        useBus(pagerBus, PAGER_UPDATED_EVENT, this.pagerUpdate);
+        useBus(pagerBus, PAGER_UPDATED_EVENT, this.pagerUpdate.bind(this));
     }
 
     pagerUpdate({ detail }) {

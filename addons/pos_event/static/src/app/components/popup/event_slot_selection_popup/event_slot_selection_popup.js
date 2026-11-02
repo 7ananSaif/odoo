@@ -1,7 +1,7 @@
 // Part of Odoo. See LICENSE file for full copyright and licensing details.
 import { AlertDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { Dialog } from "@web/core/dialog/dialog";
-import { Component, useState } from "@odoo/owl";
+import { Component, proxy, useProps, t } from "@odoo/owl";
 import { usePos } from "@point_of_sale/app/hooks/pos_hook";
 import { formatDate } from "@web/core/l10n/dates";
 import { localization } from "@web/core/l10n/localization";
@@ -13,7 +13,12 @@ const { DateTime } = luxon;
 
 export class EventSlotSelectionPopup extends Component {
     static template = "pos_event.EventSlotSelectionPopup";
-    static props = ["getPayload", "close", "event", "availabilityPerSlot"];
+    props = useProps({
+        getPayload: t.function(),
+        close: t.function(),
+        event: t.object(),
+        availabilityPerSlot: t.object(),
+    });
     static components = {
         Dialog,
         NumericInput,
@@ -22,7 +27,7 @@ export class EventSlotSelectionPopup extends Component {
         this.pos = usePos();
         this.dialog = useService("dialog");
         this.slotId = false;
-        this.state = useState({
+        this.state = proxy({
             selectedSlotDisplay: "",
         });
     }
@@ -68,8 +73,8 @@ export class EventSlotSelectionPopup extends Component {
     confirm() {
         if (!this.slotId) {
             this.dialog.add(AlertDialog, {
-                title: "Error",
-                body: "Please select a slot.",
+                title: _t("Error"),
+                body: _t("Please select a slot."),
             });
             return;
         }

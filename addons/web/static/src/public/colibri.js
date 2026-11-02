@@ -15,6 +15,7 @@ export class Colibri {
         this.el = el;
         this.isReady = false;
         this.hasStarted = false;
+        this.startResolvers = Promise.withResolvers();
         this.isUpdating = false;
         this.isDestroyed = false;
         this.dynamicAttrs = [];
@@ -23,8 +24,11 @@ export class Colibri {
         this.listeners = new Map();
         this.dynamicNodes = new Map();
         this.core = core;
-        this.interaction = new I(el, core.env, this);
-        this.setupInteraction();
+        this.scope = core.createInteractionScope();
+        this.scope.run(() => {
+            this.interaction = new I(el, core.env, this);
+            this.setupInteraction();
+        });
     }
 
     setupInteraction() {
@@ -36,6 +40,7 @@ export class Colibri {
             cleanup();
         }
         this.cleanups = [];
+        this.scope.finalize();
         this.interaction.destroy();
     }
 
@@ -45,11 +50,18 @@ export class Colibri {
             this.updateContent();
         }
         this.interaction.start();
+        this.startResolvers.resolve();
+        this.scope.status = 1;
         this.hasStarted = true;
     }
 
     async start() {
-        await this.interaction.willStart();
+        const proms = this.scope.willStart
+            .concat(this.interaction.willStart)
+            .map((f) => f.call(this.interaction));
+        if (proms.length) {
+            await (proms.length === 1 ? proms[0] : Promise.all(proms));
+        }
         if (this.isDestroyed) {
             return;
         }
@@ -67,7 +79,7 @@ export class Colibri {
                 "this.addListener can only be called after the interaction is started. Maybe move the call in the start method."
             );
         }
-        const re = /^(?<event>.*)\.(?<suffix>prevent|stop|capture|once|noUpdate|withTarget)$/;
+        const re = /^(?<event>.*)\.(?<suffix>prevent|stop|capture|once|noUpdate)$/;
         let groups = re.exec(event)?.groups;
         while (groups) {
             fn = {
@@ -98,12 +110,6 @@ export class Colibri {
                     (...args) => {
                         f.call(this.interaction, ...args);
                         return SKIP_IMPLICIT_UPDATE;
-                    },
-                withTarget:
-                    (f) =>
-                    (ev, ...args) => {
-                        const currentTarget = ev.currentTarget;
-                        return f.call(this.interaction, ev, currentTarget, ...args);
                     },
             }[groups.suffix](fn);
             event = groups.event;
@@ -251,19 +257,19 @@ export class Colibri {
     }
 
     getNodes(sel) {
-        const selectors = this.interaction.dynamicSelectors;
-        if (sel in selectors) {
-            const elems = selectors[sel]();
-            if (elems) {
-                if (elems.nodeName && ["FORM", "SELECT"].includes(elems.nodeName)) {
-                    return [elems];
-                }
-                return elems[Symbol.iterator] ? elems : [elems];
-            } else {
-                return [];
-            }
+        const dynamicSelectors = this.interaction.dynamicSelectors;
+        if (!(sel in dynamicSelectors)) {
+            return Array.from(this.interaction.el.querySelectorAll(sel));
         }
-        return this.interaction.el.querySelectorAll(sel);
+        const elems = dynamicSelectors[sel]();
+        if (!elems) {
+            return [];
+        }
+        // Specific condition because forms and selects are iterable.
+        if (elems.nodeName && ["FORM", "SELECT"].includes(elems.nodeName)) {
+            return [elems];
+        }
+        return elems[Symbol.iterator] ? Array.from(elems) : [elems];
     }
 
     processContent(content) {
@@ -399,7 +405,7 @@ export class Colibri {
         if (errors.length) {
             const { attribute, error } = errors[0];
             throw Error(
-                `An error occured while updating dynamic attribute '${attribute}' (in interaction '${this.interaction.constructor.name}')`,
+                `An error occurred while updating dynamic attribute '${attribute}' (in interaction '${this.interaction.constructor.name}')`,
                 { cause: error }
             );
         }

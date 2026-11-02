@@ -19,12 +19,13 @@ class WebsiteRoute(models.Model):
     path = fields.Char('Route')
 
     @api.model
-    def _search_display_name(self, operator, value):
-        # in case we don't have results, refresh before returning the domain
-        domain = super()._search_display_name(operator, value)
-        if not self.search_count(domain, limit=1):
+    @api.readonly
+    def name_search(self, name='', domain=None, operator='ilike', limit=100):
+        result = super().name_search(name, domain=domain, operator=operator, limit=limit)
+        if not result:
             self._refresh()
-        return domain
+            result = super().name_search(name, domain=domain, operator=operator, limit=limit)
+        return result
 
     @api.model
     @api.readonly
@@ -61,10 +62,10 @@ class WebsiteRewrite(models.Model):
     _name = 'website.rewrite'
     _description = "Website rewrite"
 
-    name = fields.Char('Name', required=True)
+    name = fields.Char('Name')
     website_id = fields.Many2one('website', string="Website", ondelete='cascade', index=True)
     active = fields.Boolean(default=True)
-    url_from = fields.Char('URL from', index=True)
+    url_from = fields.Char('URL from', index=True, required=True)
     route_id = fields.Many2one('website.route')
     url_to = fields.Char("URL to")
     redirect_type = fields.Selection([
@@ -72,15 +73,32 @@ class WebsiteRewrite(models.Model):
         ('301', '301 Moved permanently'),
         ('302', '302 Moved temporarily'),
         ('308', '308 Redirect / Rewrite'),
-    ], string='Action', default="302",
+    ], string='Action', default="301", required=True,
         help='''Type of redirect/Rewrite:\n
         301 Moved permanently: The browser will keep in cache the new url.
         302 Moved temporarily: The browser will not keep in cache the new url and ask again the next time the new url.
         404 Not Found: If you want remove a specific page/controller (e.g. Ecommerce is installed, but you don't want /shop on a specific website)
         308 Redirect / Rewrite: If you want rename a controller with a new url. (Eg: /shop -> /garden - Both url will be accessible but /shop will automatically be redirected to /garden)
     ''')
+    is_url_from_exist = fields.Boolean(compute='_compute_is_url_from_exist', default=False)
 
     sequence = fields.Integer()
+
+    @api.depends('url_from', 'redirect_type')
+    def _compute_is_url_from_exist(self):
+        for rewrite in self:
+            exists = False
+            if rewrite.url_from and rewrite.redirect_type in ['301', '302']:
+                url = rewrite.url_from.rstrip('/')
+                exists = self.env['website.page'].search_count([('url', '=', rewrite.url_from)], limit=1) > 0
+                if not exists:
+                    try:
+                        self.env['ir.http']._match(url)
+                        exists = True
+                    except werkzeug.exceptions.NotFound:
+                        exists = False
+
+            rewrite.is_url_from_exist = exists
 
     @api.onchange('route_id')
     def _onchange_route_id(self):
@@ -92,9 +110,7 @@ class WebsiteRewrite(models.Model):
         for rewrite in self:
             if rewrite.redirect_type in ['301', '302', '308']:
                 if not rewrite.url_to:
-                    raise ValidationError(_('"URL to" can not be empty.'))
-                if not rewrite.url_from:
-                    raise ValidationError(_('"URL from" can not be empty.'))
+                    raise ValidationError(_('"URL to" cannot be empty.'))
                 if rewrite.url_to.startswith('#') or rewrite.url_from.startswith('#'):
                     raise ValidationError(_("URL must not start with '#'."))
                 if rewrite.url_to.split('#')[0] == rewrite.url_from.split('#')[0]:
@@ -134,8 +150,23 @@ class WebsiteRewrite(models.Model):
         for rewrite in self:
             rewrite.display_name = f"{rewrite.redirect_type} - {rewrite.name}"
 
+    @staticmethod
+    def _generate_name(url_from, url_to, redirect_type):
+        if redirect_type == '404':
+            return _('%(url)s not found', url=url_from)
+        return _('%(url_from)s to %(url_to)s', url_from=url_from, url_to=url_to)
+
     @api.model_create_multi
     def create(self, vals_list):
+        for vals in vals_list:
+            if not vals.get('redirect_type'):
+                if not vals.get('url_to'):
+                    vals['redirect_type'] = '404'
+                else:
+                    vals['redirect_type'] = '301'
+
+            if not vals.get('name'):
+                vals['name'] = self._generate_name(vals.get('url_from'), vals.get('url_to'), vals.get('redirect_type'))
         rewrites = super().create(vals_list)
         if set(rewrites.mapped('redirect_type')) & {'308', '404'}:
             self._invalidate_routing()
@@ -157,12 +188,12 @@ class WebsiteRewrite(models.Model):
         return res
 
     def _invalidate_routing(self):
-        # Call clear_cache for routing on all workers to reload routing table.
+        # Call invalidate_ormcache for routing on all workers to reload routing table.
         # Note that only 404 and 308 redirection alter the routing map:
         # - 404: remove entry from routing map
         # - 301/302: served as fallback later if path not found in routing map
         # - 308: add "alias" (`redirect_to`) in routing map
-        self.env.registry.clear_cache('routing')
+        self.env.transaction.invalidate_ormcache('routing')
 
     def refresh_routes(self):
         self.env['website.route']._refresh()

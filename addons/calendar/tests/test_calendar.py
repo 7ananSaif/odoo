@@ -1,16 +1,25 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-import base64
 import freezegun
+import logging
 
 from datetime import datetime, timedelta
 
 from odoo import fields, Command
 from odoo.exceptions import AccessError
-from odoo.tests import Form, new_test_user
+from odoo.tests import tagged, Form, new_test_user
 from odoo.addons.base.tests.common import SavepointCaseWithUserDemo
 
+_logger = logging.getLogger(__name__)
 
+try:
+    import vobject
+except ImportError:
+    _logger.warning("`vobject` Python module not found, iCal file generation disabled. Consider installing this module if you want to generate iCal files")
+    vobject = None
+
+
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestCalendar(SavepointCaseWithUserDemo):
 
     def setUp(self):
@@ -117,6 +126,7 @@ class TestCalendar(SavepointCaseWithUserDemo):
         f.name = 'test'
         f.start = '2022-07-07 01:00:00'  # This is in UTC. In NY, it corresponds to the 6th of july at 9pm.
         f.recurrency = True
+        f.end_type = 'count'
         self.assertEqual(f.weekday, 'WED')
         self.assertEqual(f.event_tz, 'America/New_York', "The value should correspond to the user tz")
         self.assertEqual(f.count, 1, "The default value should be displayed")
@@ -153,11 +163,11 @@ class TestCalendar(SavepointCaseWithUserDemo):
                 self.assertEqual(len(extra_attachments), len(attachments_names))
 
         attachments = self.env['ir.attachment'].create([{
-            'datas': base64.b64encode(bytes("Event Attachment", 'utf-8')),
+            'raw': b"Event Attachment",
             'name': 'fileText_attachment.txt',
             'mimetype': 'text/plain'
         }, {
-            'datas': base64.b64encode(bytes("Event Attachment 2", 'utf-8')),
+            'raw': b"Event Attachment 2",
             'name': 'fileText_attachment_2.txt',
             'mimetype': 'text/plain'
         }])
@@ -220,12 +230,14 @@ class TestCalendar(SavepointCaseWithUserDemo):
         partner_ids = [(6, False, [p.id for p in partners])]
         past_event.write({
             'partner_ids': partner_ids,
+            'recurrence_update': 'all_events',
         })
 
         _test_mail_per_attendee(
             self, list(set(partners) - set(partners_added_after_past_date)), target=1
         )
         _test_mail_per_attendee(self, partners_added_after_past_date, target=0)
+
 
         partner_staff, new_partner = self.env['res.partner'].create([{
             'name': 'partner_staff',
@@ -266,6 +278,49 @@ class TestCalendar(SavepointCaseWithUserDemo):
         # internal user can read the attachment without errors
         self.assertEqual(msg.with_user(internal_user).attachment_ids.name, 'invitation.ics')
 
+    @freezegun.freeze_time('2024-01-01 08:00:00')
+    def test_ics_file_videocall_location(self):
+        """ The videocall_location should be exported as a URL property in the invitation.ics
+        attachment sent to attendees, without overriding the physical LOCATION when both are set. """
+        if not vobject:
+            self.skipTest("`vobject` Python module is not installed.")
+
+        cases = [
+            ('no videocall_location', {}, False, False),
+            (
+                'videocall_location only',
+                {'videocall_location': 'https://meet.example.com/test-meeting'},
+                'https://meet.example.com/test-meeting',
+                False,
+            ),
+            (
+                'videocall_location and location',
+                {'location': 'Conference Room A', 'videocall_location': 'https://meet.example.com/room-a'},
+                'https://meet.example.com/room-a',
+                'Conference Room A',
+            ),
+        ]
+        for index, (description, values, expected_url, expected_location) in enumerate(cases):
+            with self.subTest(description=description):
+                partner = self.env['res.partner'].create({
+                    'name': 'Attendee %s' % index,
+                    'email': 'attendee-%s@example.com' % index,
+                })
+                self.env['calendar.event'].create({
+                    'name': 'Test Meeting',
+                    'start': datetime(2024, 1, 1, 10, 0),
+                    'stop': datetime(2024, 1, 1, 11, 0),
+                    'partner_ids': [Command.link(partner.id)],
+                    **values,
+                })
+                msg = self.env['mail.message'].sudo().search([('notified_partner_ids', 'in', partner.id)])
+                attachment = msg.attachment_ids.filtered(lambda a: a.name == 'invitation.ics')
+                self.assertTrue(attachment, "The invitation email should have an invitation.ics attachment")
+
+                vevent = vobject.readOne(attachment.raw.decode('utf-8')).vevent
+                self.assertEqual(vevent.getChildValue('url', False), expected_url)
+                self.assertEqual(vevent.getChildValue('location', False), expected_location)
+
     def test_event_creation_sudo_other_company(self):
         """ Check Access right issue when create event with sudo
 
@@ -300,7 +355,7 @@ class TestCalendar(SavepointCaseWithUserDemo):
     def test_meeting_creation_from_partner_form(self):
         """ When going from a partner to the Calendar and adding a meeting, both current user and partner
          should be attendees of the event """
-        calendar_action = self.partner_demo.schedule_meeting()
+        calendar_action = self.partner_demo.action_schedule_meeting()
         event = self.env['calendar.event'].with_context(calendar_action['context']).create({
             'name': 'Super Meeting',
             'start': datetime(2020, 12, 13, 17),
@@ -310,12 +365,10 @@ class TestCalendar(SavepointCaseWithUserDemo):
         self.assertTrue(self.partner_demo in event.attendee_ids.mapped('partner_id'))
         self.assertTrue(self.env.user.partner_id in event.attendee_ids.mapped('partner_id'))
 
+    @freezegun.freeze_time('2011-04-29 10:00:00')
     def test_discuss_videocall(self):
         self.event_tech_presentation._set_discuss_videocall_location()
-        self.assertFalse(self.event_tech_presentation.videocall_channel_id.id, 'No channel should be set before the route is accessed')
-        # create the first channel
-        self.event_tech_presentation._create_videocall_channel()
-        self.assertNotEqual(self.event_tech_presentation.videocall_channel_id.id, False)
+        self.assertTrue(self.event_tech_presentation.videocall_channel_id)
 
         partner1 = self.env['res.partner'].create({'name': 'Bob', 'email': u'bob@gm.co'})
         partner2 = self.env['res.partner'].create({'name': 'Jack', 'email': u'jack@gm.co'})

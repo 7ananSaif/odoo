@@ -13,9 +13,12 @@ class ResUsers(models.Model):
 
     auth_passkey_key_ids = fields.One2many('auth.passkey.key', 'create_uid')
 
-    @property
-    def SELF_READABLE_FIELDS(self):
-        return super().SELF_READABLE_FIELDS + ['auth_passkey_key_ids']
+    def _get_auth_methods(self):
+        self.ensure_one()
+        auth_methods = []
+        if self.auth_passkey_key_ids:
+            auth_methods.append("webauthn")
+        return auth_methods + super()._get_auth_methods()
 
     @check_identity
     def action_create_passkey(self):

@@ -5,19 +5,19 @@
 # Bone NI <bounkirdni@gmail.com>, 2026.
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0\n"
+"Project-Id-Version: Odoo Server 19.4a1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:40+0000\n"
-"PO-Revision-Date: 2026-06-06 20:17+0000\n"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-10-22 02:33+0000\n"
 "Last-Translator: Bone NI <bounkirdni@gmail.com>\n"
-"Language-Team: Lao <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Lao <https://translate.odoo.com/projects/odoo-20/"
 "website_profile/lo/>\n"
 "Language: lo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.email_validation_banner
@@ -26,12 +26,18 @@ msgid ""
 "            Did not receive it?"
 msgstr ""
 "!<br/>\n"
-"            ບໍ່ໄດ້ຮັບແມ່ນບໍ່?"
+"            ບໍ່ໄດ້ຮັບບໍ?"
+
+#. module: website_profile
+#. odoo-python
+#: code:addons/website_profile/models/res_users.py:0
+msgid "%(company_name)s Profile validation"
+msgstr "ການຢືນຢັນໂປຣໄຟລ໌ %(company_name)s"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_profile_header
 msgid "(not verified)"
-msgstr "(ຍັງບໍ່ທັນຢືນຢັນ)"
+msgstr "(ຍັງບໍ່ທັນໄດ້ຢືນຢັນ)"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.rank_badge_main
@@ -39,52 +45,53 @@ msgid ""
 ". Collect points on the forum or on the eLearning platform. Those points "
 "will make you reach new ranks."
 msgstr ""
-". ສະສົມຄະແນນໃນຟໍຣຳ ຫຼື ໃນລະບົບການຮຽນຮູ້ eLearning. ຄະແນນເຫຼົ່ານັ້ນຈະເຮັດໃຫ້ທ່ານບັນລຸອັນດັບໃໝ່."
+". ສະສົມຄະແນນໃນເວທີສົນທະນາ ຫຼື ໃນລະບົບການຮຽນຮູ້ອອນລາຍ (eLearning). ຄະແນນເຫຼົ່ານັ້ນຈະຊ່ວຍໃຫ້ທ່າ"
+"ນຂຶ້ນສູ່ລະດັບໃໝ່."
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.users_page_content
 msgid ". Try another search."
-msgstr ". ລອງຄົ້ນຫາໃໝ່."
+msgstr ". ລອງຄົ້ນຫາໃໝ່ອີກຄັ້ງ."
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_badges
-msgid "<i class=\"fa fa-arrow-right\"/> Get Badges"
-msgstr "<i class=\"fa fa-arrow-right\"/> ຮັບຫຼຽນກາ"
+msgid "<i class=\"oi me-1\" data-icon=\"east\"/>All Badges"
+msgstr "<i class=\"oi me-1\" data-icon=\"east\"/>ຫຼຽນກາທັງໝົດ"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_profile_header
-msgid "<i class=\"fa fa-pencil me-1\"/>EDIT"
-msgstr "<i class=\"fa fa-pencil me-1\"/>ແກ້ໄຂ"
+msgid "<i class=\"oi oi-filled me-1\" data-icon=\"edit\"/>EDIT"
+msgstr "<i class=\"oi oi-filled me-1\" data-icon=\"edit\"/>ແກ້ໄຂ"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_profile_content
-msgid "<i class=\"fa fa-pencil me-1\"/>Edit"
-msgstr "<i class=\"fa fa-pencil me-1\"/>ແກ້ໄຂ"
+msgid "<i class=\"oi oi-filled me-1\" data-icon=\"edit\"/>Edit"
+msgstr "<i class=\"oi oi-filled me-1\" data-icon=\"edit\"/>ແກ້ໄຂ"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_profile_header
-msgid "<i class=\"fa fa-pencil me-2\"/>EDIT PROFILE"
-msgstr "<i class=\"fa fa-pencil me-2\"/>ແກ້ໄຂໂປຣໄຟລ໌"
+msgid "<i class=\"oi oi-filled me-2\" data-icon=\"edit\"/>EDIT PROFILE"
+msgstr "<i class=\"oi oi-filled me-2\" data-icon=\"edit\"/>ແກ້ໄຂໂປຣໄຟລ໌"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_badges
-msgid "<i class=\"oi oi-arrow-right me-1\"/>All Badges"
-msgstr "<i class=\"oi oi-arrow-right me-1\"/>ຫຼຽນກາທັງໝົດ"
+msgid "<i class=\"oi\" data-icon=\"arrow_forward\"/> Get Badges"
+msgstr "<i class=\"oi\" data-icon=\"arrow_forward\"/> ຮັບຫຼຽນກາ"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_badges
-msgid "<i class=\"oi oi-arrow-right\"/> All Badges"
-msgstr "<i class=\"oi oi-arrow-right\"/> ຫຼຽນກາທັງໝົດ"
+msgid "<i class=\"oi\" data-icon=\"east\"/> All Badges"
+msgstr "<i class=\"oi\" data-icon=\"east\"/> ຫຼຽນກາທັງໝົດ"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.badge_content
 msgid "<i class=\"text-muted\"> awarded users</i>"
-msgstr "<i class=\"text-muted\"> ຜູ້ໃຊ້ທີ່ໄດ້ຮັບລາງວັນ</i>"
+msgstr "<i class=\"text-muted\"> ຜູ້ໃຊ້ທີ່ໄດ້ຮັບຫຼຽນກາ</i>"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_profile_content
 msgid "<small class=\"fw-bold me-2\">Current rank:</small>"
-msgstr "<small class=\"fw-bold me-2\">ອັນດັບປັດຈຸບັນ:</small>"
+msgstr "<small class=\"fw-bold me-2\">ລະດັບປັດຈຸບັນ:</small>"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_profile_content
@@ -122,158 +129,44 @@ msgid ""
 "<span id=\"email_validated_message\">Congratulations! Your email has just "
 "been validated.</span>"
 msgstr ""
-"<span id=\"email_validated_message\">ຂໍສະແດງຄວາມຍິນດີ! ອີເມວຂອງທ່ານໄດ້ຮັບການຢືນຢັນແລ້"
-"ວ.</span>"
+"<span id=\"email_validated_message\">ຂໍສະແດງຄວາມຍິນດີ! ອີເມວຂອງທ່ານໄດ້ຮັບການຢືນຢັນຮຽບຮ້"
+"ອຍແລ້ວ.</span>"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.users_page_header
 msgid "<strong class=\"mb-3 text-white me-2\">Rank by:</strong>"
-msgstr "<strong class=\"mb-3 text-white me-2\">ຈັດອັນດັບໂດຍ:</strong>"
+msgstr "<strong class=\"mb-3 text-white me-2\">ຈັດອັນດັບຕາມ:</strong>"
 
 #. module: website_profile
 #: model:mail.template,body_html:website_profile.validation_email
 msgid ""
-"<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"padding-top: 16px; background-color: #F1F1F1; color: #454748; width: 100%; border-collapse:separate;\"><tr><td align=\"center\">\n"
-"<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" style=\"padding: 16px; background-color: white; color: #454748; border-collapse:separate;\">\n"
-"<tbody>\n"
-"    <!-- HEADER -->\n"
-"    <tr>\n"
-"        <td align=\"center\" style=\"min-width: 590px;\">\n"
-"            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" style=\"min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;\">\n"
-"                <tr>\n"
-"                    <td valign=\"middle\">\n"
-"                        <span style=\"font-size: 20px; font-weight: bold;\">\n"
-"                            <t t-out=\"object.company_id.name or ''\">YourCompany</t> Profile validation\n"
-"                        </span>\n"
-"                    </td>\n"
-"                    <td t-if=\"not user.company_id.uses_default_logo\" valign=\"middle\" align=\"right\">\n"
-"                        <img t-attf-src=\"/logo.png?company={{ user.company_id.id }}\" style=\"padding: 0px; margin: 0px; height: auto; width: 80px;\" t-att-alt=\"user.company_id.name\"/>\n"
-"                    </td>\n"
-"                </tr>\n"
-"                <tr>\n"
-"                    <td colspan=\"2\" style=\"text-align:center;\">\n"
-"                        <hr width=\"100%\" style=\"background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin:16px 0px 16px 0px;\"/>\n"
-"                    </td>\n"
-"                </tr>\n"
-"            </table>\n"
-"        </td>\n"
-"    </tr>\n"
-"    <!-- CONTENT -->\n"
-"    <tr>\n"
-"        <td align=\"center\" style=\"min-width: 590px;\">\n"
-"            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" style=\"min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;\">\n"
-"                <tr>\n"
-"                    <td valign=\"top\" style=\"font-size: 13px;\">\n"
-"                        <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
-"                            Hello <t t-out=\"object.name or ''\">Marc Demo</t>,<br/><br/>\n"
-"                            You have been invited to validate your email in order to get access to \"<t t-out=\"object.company_id.name or ''\">YourCompany</t>\" website.\n"
-"                            To validate your email, please click on the following link:\n"
-"                            </p><div style=\"margin: 16px 0px 16px 0px;\">\n"
-"                                <a t-att-href=\"ctx.get('token_url')\" t-attf-style=\"background-color: {{object.company_id.email_secondary_color or '#875A7B'}}; padding: 8px 16px 8px 16px; text-decoration: none; color: {{object.company_id.email_primary_color or '#FFFFFF'}}; border-radius: 5px; font-size:13px;\">\n"
+"<t>\n"
+"                            Hello <t t-out=\"object.name or ''\">Marc Demo</"
+"t>,<br/><br/>\n"
+"                            You have been invited to validate your email in "
+"order to get access to \"<t t-out=\"object.company_id.name or "
+"''\">YourCompany</t>\" website.\n"
+"                            To validate your email, please click on the "
+"button below:\n"
+"                            <div style=\"margin: 32px 0px 32px 0px;\">\n"
+"                                <a t-att-href=\"ctx.get('token_url')\" t-"
+"attf-style=\"background-color: {{object.company_id.email_secondary_color or "
+"'#875A7B'}}; padding: 8px 16px 8px 16px; text-decoration: none; color: "
+"{{object.company_id.email_primary_color or '#FFFFFF'}}; border-radius: 5px; "
+"font-size:13px;\">\n"
 "                                    Validate my account\n"
 "                                </a>\n"
 "                            </div>\n"
 "                            Thanks for your participation!\n"
-"                        \n"
-"                    </td>\n"
-"                </tr>\n"
-"                <tr>\n"
-"                    <td style=\"text-align:center;\">\n"
-"                        <hr width=\"100%\" style=\"background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;\"/>\n"
-"                    </td>\n"
-"                </tr>\n"
-"            </table>\n"
-"        </td>\n"
-"    </tr>\n"
-"    <!-- FOOTER -->\n"
-"    <tr>\n"
-"        <td align=\"center\" style=\"min-width: 590px;\">\n"
-"            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" style=\" font-family: 'Verdana Regular'; color: #454748; min-width: 590px; background-color: white; font-size: 11px; padding: 0px 8px 0px 8px; border-collapse:separate;\">\n"
-"                <tr>\n"
-"                    <td valign=\"middle\" align=\"left\">\n"
-"                         <t t-out=\"user.company_id.name or ''\">YourCompany</t>\n"
-"                    </td>\n"
-"                    <td valign=\"middle\" align=\"right\" style=\"opacity: 0.7;\">\n"
-"                        <t t-out=\"user.company_id.phone or ''\">+1 650-123-4567</t>\n"
-"                        <t t-if=\"user.company_id.email\">\n"
-"                            | <a t-attf-href=\"'mailto:%s' % {{ user.company_id.email }}\" style=\"text-decoration:none; color: #454748;\" t-out=\"user.company_id.email or ''\">info@yourcompany.com</a>\n"
-"                        </t>\n"
-"                        <t t-if=\"user.company_id.website\">\n"
-"                            | <a t-attf-href=\"{{ user.company_id.website }}\" style=\"text-decoration:none; color: #454748;\" t-out=\"user.company_id.website or ''\">http://www.example.com</a>\n"
-"                        </t>\n"
-"                    </td>\n"
-"                </tr>\n"
-"            </table>\n"
-"        </td>\n"
-"    </tr>\n"
-"</tbody>\n"
-"</table>\n"
-"</td></tr>\n"
-"<!-- POWERED BY -->\n"
-"<tr><td align=\"center\" style=\"min-width: 590px;\">\n"
-"    <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" style=\"min-width: 590px; background-color: #F1F1F1; color: #454748; padding: 8px; border-collapse:separate;\">\n"
-"        <tr><td style=\"text-align: center; font-size: 13px;\">\n"
-"            Powered by <a target=\"_blank\" href=\"https://www.odoo.com?utm_source=db&amp;utm_medium=forum\" t-attf-style=\"color: {{object.company_id.email_secondary_color or '#875A7B'}};\">Odoo</a>\n"
-"        </td></tr>\n"
-"    </table>\n"
-"</td></tr>\n"
-"</table>\n"
-"            "
+"            </t>"
 msgstr ""
-"<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"padding-top: "
-"16px; background-color: #F1F1F1; color: #454748; width: 100%; border-"
-"collapse:separate;\"><tr><td align=\"center\">\n"
-"<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" "
-"style=\"padding: 16px; background-color: white; color: #454748; border-"
-"collapse:separate;\">\n"
-"<tbody>\n"
-"    <!-- ສ່ວນຫົວ -->\n"
-"    <tr>\n"
-"        <td align=\"center\" style=\"min-width: 590px;\">\n"
-"            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" "
-"width=\"590\" style=\"min-width: 590px; background-color: white; padding: "
-"0px 8px 0px 8px; border-collapse:separate;\">\n"
-"                <tr>\n"
-"                    <td valign=\"middle\">\n"
-"                        <span style=\"font-size: 20px; font-weight: bold;\">"
-"\n"
-"                            ການຢືນຢັນໂປຣໄຟລ໌ <t t-out=\"object.company_id.name "
-"or ''\">YourCompany</t>\n"
-"                        </span>\n"
-"                    </td>\n"
-"                    <td t-if=\"not user.company_id.uses_default_logo\" "
-"valign=\"middle\" align=\"right\">\n"
-"                        <img t-attf-src=\"/logo.png?company={{ "
-"user.company_id.id }}\" style=\"padding: 0px; margin: 0px; height: auto; "
-"width: 80px;\" t-att-alt=\"user.company_id.name\"/>\n"
-"                    </td>\n"
-"                </tr>\n"
-"                <tr>\n"
-"                    <td colspan=\"2\" style=\"text-align:center;\">\n"
-"                        <hr width=\"100%\" style=\"background-color:rgb"
-"(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-"
-"height:1px;line-height:0; margin:16px 0px 16px 0px;\"/>\n"
-"                    </td>\n"
-"                </tr>\n"
-"            </table>\n"
-"        </td>\n"
-"    </tr>\n"
-"    <!-- ເນື້ອໃນ -->\n"
-"    <tr>\n"
-"        <td align=\"center\" style=\"min-width: 590px;\">\n"
-"            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" "
-"width=\"590\" style=\"min-width: 590px; background-color: white; padding: "
-"0px 8px 0px 8px; border-collapse:separate;\">\n"
-"                <tr>\n"
-"                    <td valign=\"top\" style=\"font-size: 13px;\">\n"
-"                        <p style=\"margin: 0px; padding: 0px; font-size: "
-"13px;\">\n"
+"<t>\n"
 "                            ສະບາຍດີ <t t-out=\"object.name or ''\">Marc Demo</"
 "t>,<br/><br/>\n"
-"                            ທ່ານໄດ້ຮັບການເຊື້ອເຊີນໃຫ້ຢືນຢັນອີເມວຂອງທ່ານ ເພື່ອເຂົ້າເຖິງເວັບໄຊ "
-"\"<t t-out=\"object.company_id.name or ''\">YourCompany</t>\".\n"
-"                            ເພື່ອຢືນຢັນອີເມວຂອງທ່ານ, ກະລຸນາຄລິກທີ່ລິ້ງລຸ່ມນີ້:\n"
-"                            </p><div style=\"margin: 16px 0px 16px 0px;\">\n"
+"                            ທ່ານໄດ້ຮັບການເຊື້ອເຊີນໃຫ້ຢືນຢັນອີເມວຂອງທ່ານເພື່ອເຂົ້າໃຊ້ງານເວັບໄຊ"
+"ຕ໌ \"<t t-out=\"object.company_id.name or ''\">YourCompany</t>\".\n"
+"                            ເພື່ອກວດສອບຢືນຢັນອີເມວຂອງທ່ານ, ກະລຸນາກົດປຸ່ມຂ້າງລຸ່ມນີ້:\n"
+"                            <div style=\"margin: 32px 0px 32px 0px;\">\n"
 "                                <a t-att-href=\"ctx.get('token_url')\" t-"
 "attf-style=\"background-color: {{object.company_id.email_secondary_color or "
 "'#875A7B'}}; padding: 8px 16px 8px 16px; text-decoration: none; color: {"
@@ -282,73 +175,13 @@ msgstr ""
 "                                    ຢືນຢັນບັນຊີຂອງຂ້ອຍ\n"
 "                                </a>\n"
 "                            </div>\n"
-"                            ຂອບໃຈສຳລັບການເຂົ້າຮ່ວມ!\n"
-"                        \n"
-"                    </td>\n"
-"                </tr>\n"
-"                <tr>\n"
-"                    <td style=\"text-align:center;\">\n"
-"                        <hr width=\"100%\" style=\"background-color:rgb"
-"(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-"
-"height:1px;line-height:0; margin: 16px 0px 16px 0px;\"/>\n"
-"                    </td>\n"
-"                </tr>\n"
-"            </table>\n"
-"        </td>\n"
-"    </tr>\n"
-"    <!-- ສ່ວນທ້າຍ -->\n"
-"    <tr>\n"
-"        <td align=\"center\" style=\"min-width: 590px;\">\n"
-"            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" "
-"width=\"590\" style=\" font-family: 'Verdana Regular'; color: #454748; min-"
-"width: 590px; background-color: white; font-size: 11px; padding: 0px 8px 0px "
-"8px; border-collapse:separate;\">\n"
-"                <tr>\n"
-"                    <td valign=\"middle\" align=\"left\">\n"
-"                         <t t-out=\"user.company_id.name or ''\">"
-"YourCompany</t>\n"
-"                    </td>\n"
-"                    <td valign=\"middle\" align=\"right\" style=\"opacity: "
-"0.7;\">\n"
-"                        <t t-out=\"user.company_id.phone or ''\">+1 650-123-"
-"4567</t>\n"
-"                        <t t-if=\"user.company_id.email\">\n"
-"                            | <a t-attf-href=\"'mailto:%s' % {{ "
-"user.company_id.email }}\" style=\"text-decoration:none; color: #454748;\" t-"
-"out=\"user.company_id.email or ''\">info@yourcompany.com</a>\n"
-"                        </t>\n"
-"                        <t t-if=\"user.company_id.website\">\n"
-"                            | <a t-attf-href=\"{{ user.company_id.website }}"
-"\" style=\"text-decoration:none; color: #454748;\" t-"
-"out=\"user.company_id.website or ''\">http://www.example.com</a>\n"
-"                        </t>\n"
-"                    </td>\n"
-"                </tr>\n"
-"            </table>\n"
-"        </td>\n"
-"    </tr>\n"
-"</tbody>\n"
-"</table>\n"
-"</td></tr>\n"
-"<!-- ພັດທະນາໂດຍ -->\n"
-"<tr><td align=\"center\" style=\"min-width: 590px;\">\n"
-"    <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" "
-"style=\"min-width: 590px; background-color: #F1F1F1; color: #454748; "
-"padding: 8px; border-collapse:separate;\">\n"
-"        <tr><td style=\"text-align: center; font-size: 13px;\">\n"
-"            ພັດທະນາໂດຍ <a target=\"_blank\" href=\"https://"
-"www.odoo.com?utm_source=db&amp;utm_medium=forum\" t-attf-style=\"color: {"
-"{object.company_id.email_secondary_color or '#875A7B'}};\">Odoo</a>\n"
-"        </td></tr>\n"
-"    </table>\n"
-"</td></tr>\n"
-"</table>\n"
-"            "
+"                            ຂອບໃຈສຳລັບການມີສ່ວນຮ່ວມຂອງທ່ານ!\n"
+"            </t>"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.email_validation_banner
 msgid "<u>Correct your email address</u>"
-msgstr "<u>ແກ້ໄຂທີ່ຢູື່ອີເມວຂອງທ່ານ</u>"
+msgstr "<u>ແກ້ໄຂທີ່ຢູ່ອີເມວຂອງທ່ານ</u>"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.email_validation_banner
@@ -366,6 +199,11 @@ msgid "About"
 msgstr "ກ່ຽວກັບ"
 
 #. module: website_profile
+#: model:ir.module.module,summary:base.module_website_profile
+msgid "Access the website profile of the users"
+msgstr "ເຂົ້າເບິ່ງໂປຣໄຟລ໌ເວັບໄຊຕ໌ຂອງຜູ້ໃຊ້ງານ"
+
+#. module: website_profile
 #. odoo-python
 #: code:addons/website_profile/controllers/main.py:0
 msgid "All Courses"
@@ -374,13 +212,32 @@ msgstr "ຫຼັກສູດທັງໝົດ"
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.users_page_header
 msgid "All Users"
-msgstr "ຜູ້ໃຊ້ທັງໝົດ"
+msgstr "ຜູ້ໃຊ້ງານທັງໝົດ"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.all_user_card
 #: model_terms:ir.ui.view,arch_db:website_profile.users_page_header
 msgid "All time"
-msgstr "ທັງໝົດ"
+msgstr "ຕະຫຼອດເວລາ"
+
+#. module: website_profile
+#: model:ir.module.module,description:base.module_website_profile
+msgid ""
+"Allows to access the website profile of the users and see their statistics "
+"(karma, badges, etc..)"
+msgstr ""
+"ອະນຸຍາດໃຫ້ເຂົ້າເບິ່ງໂປຣໄຟລ໌ເວັບໄຊຕ໌ຂອງຜູ້ໃຊ້ງານ ແລະ ເບິ່ງສະຖິຕິຂອງພວກເຂົາ (karma, ຫຼຽນກາ, ແລະ ອື່"
+"ນໆ..)"
+
+#. module: website_profile
+#: model:ir.model.fields,field_description:website_profile.field_gamification_badge__publish_on
+msgid "Auto publish on"
+msgstr "ເຜີຍແຜ່ອັດຕະໂນມັດເມື່ອ"
+
+#. module: website_profile
+#: model:ir.model.fields,help:website_profile.field_gamification_badge__publish_on
+msgid "Automatically publish the page on the chosen date and time."
+msgstr "ເຜີຍແຜ່ໜ້າເວັບໂດຍອັດຕະໂນມັດຕາມວັນທີ ແລະ ເວລາທີ່ກຳນົດ."
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.badge_content
@@ -392,19 +249,20 @@ msgstr "ຫຼຽນກາ"
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_badges
 msgid "Badges are your collection of achievements. Wear them proudly! <br/>"
-msgstr "ຫຼຽນກາແມ່ນການສະສົມຜົນສຳເລັດຂອງທ່ານ. ຈົ່ງພູມໃຈກັບມັນ! <br/>"
+msgstr "ຫຼຽນກາແມ່ນຊຸດສະສົມຜົນງານຂອງທ່ານ. ຈົ່ງພູມໃຈກັບສິ່ງເຫຼົ່ານີ້! <br/>"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.badge_content
 msgid ""
 "Besides gaining reputation with your questions and answers,\n"
-"                        you receive badges for being especially helpful.<br class=\"d-none d-lg-inline-block\"/>Badges\n"
+"                        you receive badges for being especially helpful.<br "
+"class=\"d-none d-lg-inline-block\"/>Badges\n"
 "                        appear on your profile page, and your posts."
 msgstr ""
 "ນອກຈາກການສ້າງຊື່ສຽງດ້ວຍຄຳຖາມ ແລະ ຄຳຕອບຂອງທ່ານແລ້ວ,\n"
-"                        ທ່ານຍັງຈະໄດ້ຮັບຫຼຽນກາສຳລັບການຊ່ວຍເຫຼືອທີ່ດີຢ້ຽມ.<br class=\"d-"
-"none d-lg-inline-block\"/>ຫຼຽນກາ\n"
-"                        ຈະສະແດງຢູ່ໃນໜ້າໂປຣໄຟລ໌ ແລະ ໂພສຂອງທ່ານ."
+"                        ທ່ານຍັງຈະໄດ້ຮັບຫຼຽນກາຈາກການໃຫ້ຄວາມຊ່ວຍເຫຼືອຢ່າງໂດດເດັ່ນ.<br "
+"class=\"d-none d-lg-inline-block\"/>ຫຼຽນກາ\n"
+"                        ຈະສະແດງຢູ່ໃນໜ້າໂປຣໄຟລ໌ ແລະ ໂພສຕ໌ຂອງທ່ານ."
 
 #. module: website_profile
 #. odoo-javascript
@@ -419,20 +277,23 @@ msgid "Can Publish"
 msgstr "ສາມາດເຜີຍແຜ່ໄດ້"
 
 #. module: website_profile
+#. odoo-javascript
 #. odoo-python
 #: code:addons/website_profile/controllers/main.py:0
+#: code:addons/website_profile/static/src/components/profile_dialog/profile_dialog.xml:0
 msgid ""
 "Changing the country is not allowed once document(s) have been issued for "
 "your account. Please contact us directly for this operation."
 msgstr ""
-"ບໍ່ອະນຸຍາດໃຫ້ປ່ຽນປະເທດເມື່ອໄດ້ມີການອອກເອກະສານສຳລັບບັນຊີຂອງທ່ານແລ້ວ. ກະລຸນາຕິດຕໍ່ພວກເຮົາໂດຍກົງສຳລັບ"
-"ການດຳເນີນການນີ້."
+"ບໍ່ອະນຸຍາດໃຫ້ປ່ຽນປະເທດເມື່ອມີການອອກເອກະສານສຳລັບບັນຊີຂອງທ່ານແລ້ວ. ກະລຸນາຕິດຕໍ່ພວກເຮົາໂດຍກົງເພື່ອດຳເ"
+"ນີນການນີ້."
 
 #. module: website_profile
 #. odoo-javascript
 #: code:addons/website_profile/static/src/components/profile_dialog/profile_dialog.xml:0
+#: model:ir.model.fields,field_description:website_profile.field_res_users__city
 msgid "City"
-msgstr "ນະຄອນ/ເມືອງ"
+msgstr "ເມືອງ"
 
 #. module: website_profile
 #. odoo-javascript
@@ -448,6 +309,7 @@ msgstr "ປິດ"
 #. module: website_profile
 #. odoo-javascript
 #: code:addons/website_profile/static/src/components/profile_dialog/profile_dialog.xml:0
+#: model:ir.model.fields,field_description:website_profile.field_res_users__country_id
 msgid "Country"
 msgstr "ປະເທດ"
 
@@ -468,7 +330,7 @@ msgstr "ຍົກເລີກ"
 #: model:ir.model.fields,field_description:website_profile.field_res_users__display_name
 #: model:ir.model.fields,field_description:website_profile.field_website__display_name
 msgid "Display Name"
-msgstr "ຊື່ທີ່ສະແດງ"
+msgstr "ຊື່ສະແດງ"
 
 #. module: website_profile
 #. odoo-javascript
@@ -492,17 +354,17 @@ msgstr "ອີເມວ"
 #. odoo-python
 #: code:addons/website_profile/controllers/main.py:0
 msgid "Forum"
-msgstr "ຟໍຣຳ"
+msgstr "ເວທີສົນທະນາ"
 
 #. module: website_profile
 #: model:mail.template,name:website_profile.validation_email
 msgid "Forum: Email Verification"
-msgstr "ຟໍຣຳ: ການຢືນຢັນອີເມວ"
+msgstr "ເວທີສົນທະນາ: ການຢືນຢັນອີເມວ"
 
 #. module: website_profile
 #: model:ir.model,name:website_profile.model_gamification_badge
 msgid "Gamification Badge"
-msgstr "ຫຼຽນກາເກມມິຟິເຄຊັນ"
+msgstr "ຫຼຽນກາລະບົບເກມ"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.profile_next_rank_card
@@ -517,12 +379,12 @@ msgstr "ໜ້າຫຼັກ"
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.rank_badge_main
 msgid "How do I earn badges?"
-msgstr "ຂ້ອຍຈະໄດ້ຮັບຫຼຽນກາໄດ້ແນວໃດ?"
+msgstr "ຂ້ອຍຈະໄດ້ຮັບຫຼຽນກາແນວໃດ?"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.rank_badge_main
 msgid "How do I score more points?"
-msgstr "ຂ້ອຍຈະເຮັດຄະແນນໃຫ້ຫຼາຍຂຶ້ນໄດ້ແນວໃດ?"
+msgstr "ຂ້ອຍຈະເກັບຄະແນນເພີ່ມຂຶ້ນໄດ້ແນວໃດ?"
 
 #. module: website_profile
 #: model:ir.model.fields,field_description:website_profile.field_gamification_badge__id
@@ -534,22 +396,22 @@ msgstr "ID"
 #. module: website_profile
 #: model:ir.model.fields,field_description:website_profile.field_gamification_badge__is_published
 msgid "Is Published"
-msgstr "ເຜີຍແຜ່ແລ້ວ"
+msgstr "ຖືກເຜີຍແຜ່ແລ້ວ"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.rank_badge_main
 msgid "Keep learning with"
-msgstr "ຮຽນຮູ້ຕໍ່ກັບ"
+msgstr "ຮຽນຮູ້ຕໍ່ໄປກັບ"
 
 #. module: website_profile
 #: model:ir.model.fields,field_description:website_profile.field_website__karma_profile_min
 msgid "Minimal karma to see other user's profile"
-msgstr "ຄະແນນກຳມະ (Karma) ຂັ້ນຕ່ຳເພື່ອເບິ່ງໂປຣໄຟລ໌ຂອງຜູ້ໃຊ້ອື່ນ"
+msgstr "ຄະແນນ karma ຂັ້ນຕ່ຳເພື່ອເບິ່ງໂປຣໄຟລ໌ຂອງຜູ້ໃຊ້ອື່ນ"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_profile_sub_nav
 msgid "Mobile sub-nav"
-msgstr "ແຖບເມນູຍ່ອຍໃນມືຖື"
+msgstr "ເມນູຍ່ອຍເທິງມືຖື"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_profile_content
@@ -570,12 +432,12 @@ msgstr "ແຖບນຳທາງ"
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_profile_content
 msgid "Next rank:"
-msgstr "ອັນດັບຕໍ່ໄປ:"
+msgstr "ລະດັບຕໍ່ໄປ:"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.users_page_main
 msgid "No Leaderboard Yet :("
-msgstr "ຍັງບໍ່ມີຕາຕະລາງຜູ້ນຳ :("
+msgstr "ຍັງບໍ່ມີຕາຕະລາງອັນດັບ :("
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_badges
@@ -591,7 +453,7 @@ msgstr "ບໍ່ພົບຜູ້ໃຊ້ສຳລັບ"
 #. odoo-python
 #: code:addons/website_profile/controllers/main.py:0
 msgid "Not have enough karma to view other users' profile."
-msgstr "ມີຄະແນນກຳມະ (Karma) ບໍ່ພຽງພໍທີ່ຈະເບິ່ງໂປຣໄຟລ໌ຂອງຜູ້ໃຊ້ອື່ນ."
+msgstr "ຄະແນນ karma ບໍ່ພຽງພໍທີ່ຈະເບິ່ງໂປຣໄຟລ໌ຂອງຜູ້ໃຊ້ອື່ນ."
 
 #. module: website_profile
 #. odoo-javascript
@@ -600,20 +462,25 @@ msgid "Public Profile"
 msgstr "ໂປຣໄຟລ໌ສາທາລະນະ"
 
 #. module: website_profile
+#: model:ir.model.fields,field_description:website_profile.field_gamification_badge__published_date
+msgid "Published date"
+msgstr "ວັນທີເຜີຍແຜ່"
+
+#. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.rank_badge_main
 msgid "Ranks"
-msgstr "ອັນດັບ"
+msgstr "ລະດັບ"
 
 #. module: website_profile
 #. odoo-python
 #: code:addons/website_profile/controllers/main.py:0
 msgid "Ranks and Badges"
-msgstr "ອັນດັບ ແລະ ຫຼຽນກາ"
+msgstr "ລະດັບ ແລະ ຫຼຽນກາ"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.profile_access_denied
 msgid "Return to the website."
-msgstr "ກັບຄືນສູ່ເວັບໄຊ."
+msgstr "ກັບຄືນສູ່ເວັບໄຊຕ໌."
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_profile_sub_nav
@@ -628,17 +495,17 @@ msgstr "ຄົ້ນຫາຜູ້ໃຊ້"
 #. module: website_profile
 #: model:mail.template,description:website_profile.validation_email
 msgid "Sent to forum visitors to confirm their mail address"
-msgstr "ສົ່ງໃຫ້ຜູ້ເຂົ້າຊົມຟໍຣຳເພື່ອຢືນຢັນທີ່ຢູື່ອີເມວຂອງພວກເຂົາ"
+msgstr "ສົ່ງໃຫ້ຜູ້ເຂົ້າຊົມເວທີສົນທະນາເພື່ອຢືນຢັນທີ່ຢູ່ອີເມວຂອງພວກເຂົາ"
 
 #. module: website_profile
 #: model:ir.model.fields,help:website_profile.field_gamification_badge__website_absolute_url
 msgid "The full absolute URL to access the document through the website."
-msgstr "URL ສຳບູນເພື່ອເຂົ້າເຖິງເອກະສານຜ່ານເວັບໄຊ."
+msgstr "URL ແບບເຕັມ (Absolute URL) ເພື່ອເຂົ້າເຖິງເອກະສານຜ່ານເວັບໄຊຕ໌."
 
 #. module: website_profile
 #: model:ir.model.fields,help:website_profile.field_gamification_badge__website_url
 msgid "The full relative URL to access the document through the website."
-msgstr "URL ສຳພັນເພື່ອເຂົ້າເຖິງເອກະສານຜ່ານເວັບໄຊ."
+msgstr "URL ແບບສຳພັນ (Relative URL) ເພື່ອເຂົ້າເຖິງເອກະສານຜ່ານເວັບໄຊຕ໌."
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.users_page_header
@@ -657,12 +524,6 @@ msgid "This week"
 msgstr "ອາທິດນີ້"
 
 #. module: website_profile
-#: model_terms:ir.ui.view,arch_db:website_profile.all_user_card
-#: model_terms:ir.ui.view,arch_db:website_profile.top3_user_card
-msgid "Unpublished"
-msgstr "ບໍ່ໄດ້ເຜີຍແຜ່"
-
-#. module: website_profile
 #. odoo-javascript
 #: code:addons/website_profile/static/src/components/profile_dialog/profile_dialog.xml:0
 msgid "Update"
@@ -672,66 +533,82 @@ msgstr "ອັບເດດ"
 #. odoo-javascript
 #: code:addons/website_profile/static/src/components/profile_dialog/profile_dialog.js:0
 msgid "Update failed."
-msgstr "ການອັບເດດລົ້ມເຫຼວ."
+msgstr "ອັບເດດບໍ່ສຳເລັດ."
 
 #. module: website_profile
 #: model:ir.model,name:website_profile.model_res_users
 msgid "User"
-msgstr "ຜູ້ໃຊ້"
+msgstr "ຜູ້ໃຊ້ງານ"
 
 #. module: website_profile
 #. odoo-python
 #: code:addons/website_profile/controllers/main.py:0
 msgid "User Profiles"
-msgstr "ໂປຣໄຟລ໌ຜູ້ໃຊ້"
+msgstr "ໂປຣໄຟລ໌ຜູ້ໃຊ້ງານ"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.top3_user_card
 msgid "User rank"
-msgstr "ອັນດັບຜູ້ໃຊ້"
+msgstr "ລະດັບຜູ້ໃຊ້ງານ"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_profile_sub_nav
 msgid "Users"
-msgstr "ຜູ້ໃຊ້"
+msgstr "ຜູ້ໃຊ້ງານ"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.email_validation_banner
 msgid "Verification Email sent to"
-msgstr "ອີເມວຢືນຢັນຖືກສົ່ງໄປຫາ"
+msgstr "ອີເມວຢືນຢັນໄດ້ຖືກສົ່ງໄປທີ່"
 
 #. module: website_profile
 #: model:ir.model.fields,field_description:website_profile.field_gamification_badge__website_published
+#: model:ir.model.fields,field_description:website_profile.field_res_users__website_published
 msgid "Visible on current website"
-msgstr "ສະແດງຢູ່ໃນເວັບໄຊປັດຈຸບັນ"
+msgstr "ສະແດງຢູ່ໃນເວັບໄຊຕ໌ປັດຈຸບັນ"
 
 #. module: website_profile
 #. odoo-javascript
 #: code:addons/website_profile/static/src/components/profile_dialog/profile_dialog.xml:0
 #: model:ir.model,name:website_profile.model_website
 msgid "Website"
-msgstr "ເວັບໄຊ"
+msgstr "ເວັບໄຊຕ໌"
 
 #. module: website_profile
 #: model:ir.model.fields,field_description:website_profile.field_gamification_badge__website_absolute_url
 msgid "Website Absolute URL"
-msgstr "URL ສຳບູນຂອງເວັບໄຊ"
+msgstr "URL ເວັບໄຊຕ໌ແບບເຕັມ"
+
+#. module: website_profile
+#: model:ir.model.fields,field_description:website_profile.field_res_users__website
+msgid "Website Link"
+msgstr "ລິ້ງຄ໌ເວັບໄຊຕ໌"
+
+#. module: website_profile
+#: model:ir.model.fields,field_description:website_profile.field_res_users__website_description
+msgid "Website Partner Full Description"
+msgstr "ລາຍລະອຽດເຕັມຂອງຄູ່ຮ່ວມງານເທິງເວັບໄຊຕ໌"
 
 #. module: website_profile
 #: model:ir.model.fields,field_description:website_profile.field_gamification_badge__website_url
 msgid "Website URL"
-msgstr "URL ຂອງເວັບໄຊ"
+msgstr "URL ເວັບໄຊຕ໌"
+
+#. module: website_profile
+#: model:ir.module.module,shortdesc:base.module_website_profile
+msgid "Website profile"
+msgstr "ໂປຣໄຟລ໌ເວັບໄຊຕ໌"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.rank_badge_main
 msgid "When you finish a course or reach milestones, you're awarded badges."
-msgstr "ເມື່ອທ່ານຮຽນຈົບຫຼັກສູດ ຫຼື ບັນລຸເປົ້າໝາຍ, ທ່ານຈະໄດ້ຮັບຫຼຽນກາ."
+msgstr "ເມື່ອທ່ານຮຽນຈົບຫຼັກສູດ ຫຼື ບັນລຸເປົ້າໝາຍສຳຄັນ, ທ່ານຈະໄດ້ຮັບຫຼຽນກາ."
 
 #. module: website_profile
 #. odoo-javascript
 #: code:addons/website_profile/static/src/components/profile_dialog/profile_dialog.js:0
 msgid "Write a few words about yourself..."
-msgstr "ຂຽນບາງຢ່າງກ່ຽວກັບຕົວທ່ານເອງ..."
+msgstr "ຂຽນກ່ຽວກັບຕົວທ່ານເອງສອງສາມຄຳ..."
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.all_user_card
@@ -740,14 +617,19 @@ msgid "XP"
 msgstr "XP"
 
 #. module: website_profile
+#. odoo-python
+#: code:addons/website_profile/controllers/main.py:0
+msgid "You are not allowed to edit this user"
+msgstr "ທ່ານບໍ່ໄດ້ຮັບອະນຸຍາດໃຫ້ແກ້ໄຂຜູ້ໃຊ້ນີ້"
+
+#. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.rank_badge_main
 msgid ""
 "You can score more points by answering quizzes at the end of each course "
-"content. Points can also be earned on the forum. Follow this link to the "
-"guidelines of the forum."
+"content. Points can also be earned on the forum."
 msgstr ""
-"ທ່ານສາມາດເຮັດຄະແນນໄດ້ຫຼາຍຂຶ້ນໂດຍການຕອບຄຳຖາມໃນຕອນທ້າຍຂອງແຕ່ລະເນື້ອໃນຫຼັກສູດ. ຄະແນນຍັງສາມາດສະ"
-"ສົມໄດ້ໃນຟໍຣຳ. ຕິດຕາມລິ້ງນີ້ເພື່ອໄປຫາຄຳແນະນຳຂອງຟໍຣຳ."
+"ທ່ານສາມາດເກັບຄະແນນເພີ່ມຂຶ້ນໄດ້ໂດຍການຕອບຄຳຖາມໃນຕອນທ້າຍຂອງແຕ່ລະເນື້ອຫາຫຼັກສູດ. ນອກຈາກນີ້ຍັງສາມາດ"
+"ຮັບຄະແນນໄດ້ໃນເວທີສົນທະນາ."
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.email_validation_banner
@@ -756,18 +638,18 @@ msgid ""
 "            Click"
 msgstr ""
 "ບັນຊີຂອງທ່ານຍັງບໍ່ທັນໄດ້ຮັບການຢືນຢັນເທື່ອ.<br/>\n"
-"            ຄລິກ"
+"            ກົດ"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.email_validation_banner
 msgid "Your account does not have an email set up. Please set it up on"
-msgstr "ບັນຊີຂອງທ່ານຍັງບໍ່ທັນໄດ້ຕັ້ງຄ່າອີເມວ. ກະລຸນາຕັ້ງຄ່າຢູ່ທີ່"
+msgstr "ບັນຊີຂອງທ່ານຍັງບໍ່ທັນໄດ້ຕັ້ງຄ່າອີເມວເທື່ອ. ກະລຸນາຕັ້ງຄ່າໃນ"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.rank_badge_main
 #: model_terms:ir.ui.view,arch_db:website_profile.user_profile_sub_nav
 msgid "breadcrumb"
-msgstr "ເສັ້ນທາງນຳທາງ"
+msgstr "ແຖບນຳທາງ (breadcrumb)"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.email_validation_banner
@@ -782,13 +664,13 @@ msgstr "ຄະແນນ"
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.rank_badge_main
 msgid "s"
-msgstr "ຄະແນນ"
+msgstr "s"
 
 #. module: website_profile
 #. odoo-python
 #: code:addons/website_profile/controllers/main.py:0
 msgid "slides"
-msgstr "ສະໄລ້"
+msgstr "ສະໄລດ໌"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.all_user_card
@@ -832,4 +714,4 @@ msgstr "ການຢືນຢັນໂປຣໄຟລ໌ {{ object.company_id.na
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_profile_sub_nav
 msgid "└ Users"
-msgstr "└ ຜູ້ໃຊ້"
+msgstr "└ ຜູ້ໃຊ້ງານ"

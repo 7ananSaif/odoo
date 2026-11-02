@@ -1,10 +1,12 @@
-import { MAIN_PLUGINS } from "./plugin_sets";
+import { useEnv, useScope } from "@odoo/owl";
+import { MAIN_PLUGINS, TOUCH_EXCLUDED_PLUGINS } from "./plugin_sets";
 import { createBaseContainer, SUPPORTED_BASE_CONTAINER_NAMES } from "./utils/base_container";
-import { fillShrunkPhrasingParent, removeClass } from "./utils/dom";
+import { removeClass } from "./utils/dom";
 import { isEmpty } from "./utils/dom_info";
-import { resourceSequenceSymbol, withSequence } from "./utils/resource";
+import { resourceSequenceSymbol, warnOfNamingConvention, withSequence } from "./utils/resource";
 import { fixInvalidHTML, initElementForEdition } from "./utils/sanitize";
 import { setElementContent } from "@web/core/utils/html";
+import { hasTouch } from "@web/core/browser/feature_detection";
 
 /** @typedef {import("plugins").EditorResources} EditorResources */
 /** @typedef {import("plugins").GlobalResources} GlobalResources */
@@ -47,20 +49,17 @@ import { setElementContent } from "@web/core/utils/html";
  * @property { import("./editor").EditorConfig } config
  * @property { import("services").ServiceFactories } services
  * @property { Editor['getResource'] } getResource
- * @property { Editor['dispatchTo'] } dispatchTo
+ * @property { Editor['trigger'] } trigger
+ * @property { Editor['triggerAsync'] } triggerAsync
  * @property { Editor['delegateTo'] } delegateTo
+ * @property { Editor['processThrough'] } processThrough
  * @property { Editor['checkPredicates'] } checkPredicates
  */
 
 /**
- * @typedef {((arg: {root: EditorContext["editable"]}) => void)[]} clean_for_save_handlers
- * @typedef {(() => void)[]} start_edition_handlers
- */
-
-/**
- * Clean up DOM before taking into account for next history step remaining in
- * edit mode
- * @typedef {((root: EditorContext["editable"] | HTMLElement, stepType?: "original"|"undo"|"redo"|"restore") => void)[]} normalize_handlers
+ * @typedef {((root: HTMLElement = EditorContext["editable"]) => HTMLElement)[]} clean_for_save_processors
+ * @typedef {((root: HTMLElement) => HTMLElement)[]} html_compatibility_processors
+ * @typedef {(() => void)[]} on_editor_started_handlers
  */
 
 /**
@@ -87,24 +86,97 @@ function sortPlugins(plugins) {
         result.push(P);
     }
     if (initialPlugins.size) {
-        const messages = [];
-        for (const P of initialPlugins) {
-            messages.push(
-                `"${P.id}" is missing (${P.dependencies
-                    .filter((d) => !inResult.has(d))
-                    .join(", ")})`
-            );
+        const cycle = findDependencyCycle([...initialPlugins]);
+        if (cycle) {
+            throw new Error(`Circular dependencies: ${cycle.join(" -> ")}`);
+        } else {
+            const messages = [];
+            for (const P of initialPlugins) {
+                messages.push(
+                    `"${P.id}" is missing (${P.dependencies
+                        .filter((d) => !inResult.has(d))
+                        .join(", ")})`
+                );
+            }
+            throw new Error(`Missing dependencies: ${messages.join(", ")}`);
         }
-        throw new Error(`Missing dependencies:  ${messages.join(", ")}`);
     }
     return result;
+}
+
+/**
+ * Finds one circular dependency among the plugins left after sorting with
+ * @see sortPlugins failed.
+ * Returning the first cycle is enough to explain why the plugins cannot be
+ * sorted and avoids enumerating every possible cycle.
+ *
+ * @param {PluginConstructor[]} plugins
+ * @param {string} [id]
+ * @param {Object} [state]
+ * @param {Set<string>} state.visiting
+ * @param {Set<string>} state.visited
+ * @param {string[]} state.path
+ * @returns {string[] | null}
+ */
+function findDependencyCycle(plugins, id, state) {
+    // Base case: try every plugin. Return as soon as a cycle has been found.
+    if (!id) {
+        state = {
+            visiting: new Set(),
+            visited: new Set(),
+            path: [],
+        };
+        for (const P of plugins) {
+            const cycle = findDependencyCycle(plugins, P.id, state);
+            if (cycle) {
+                return cycle;
+            }
+        }
+        return null;
+    }
+
+    // Recursive case.
+    const { visiting, visited, path } = state;
+    path.push(id);
+
+    // Return if a cycle has been found.
+    if (visiting.has(id)) {
+        return path.slice(path.indexOf(id));
+    }
+
+    const P = plugins.find((Plugin) => Plugin.id === id);
+
+    // Ignore fully checked plugins and dependencies that are not among the
+    // plugins under investigation.
+    if (!P || visited.has(id)) {
+        return null;
+    }
+
+    visiting.add(id);
+
+    // Visit the dependencies of the given plugin and return as soon as a cycle
+    // is found.
+    for (const dependencyId of P.dependencies) {
+        const cycle = findDependencyCycle(plugins, dependencyId, state);
+        if (cycle) {
+            return cycle;
+        }
+    }
+
+    // No cycle starts through this plugin, so remove it from the current
+    // branch and prevent later traversals from checking it again.
+    path.pop();
+    visiting.delete(id);
+    visited.add(id);
+    return null;
 }
 
 export class Editor {
     /**
      * @param { EditorConfig } config
      */
-    constructor(config, services) {
+    constructor(scope, config, services) {
+        this.scope = scope;
         this.isReady = false;
         this.isDestroyed = false;
         this.config = config;
@@ -134,13 +206,15 @@ export class Editor {
                     this.config.baseContainers[0],
                     this.document
                 );
-                fillShrunkPhrasingParent(baseContainer);
                 editable.replaceChildren(baseContainer);
             }
         }
         editable.setAttribute("contenteditable", true);
         editable.setAttribute("translate", "no");
-        initElementForEdition(editable, { allowInlineAtRoot: !!this.config.allowInlineAtRoot });
+        initElementForEdition(editable, {
+            allowInlineAtRoot: !!this.config.allowInlineAtRoot,
+            wrapInlinesInBlocks: this.shared.dom.wrapInlinesInBlocks,
+        });
         editable.classList.add("odoo-editor-editable");
         if (this.config.classList) {
             editable.classList.add(...this.config.classList);
@@ -165,29 +239,35 @@ export class Editor {
     }
 
     preparePlugins() {
-        const Plugins = sortPlugins(this.config.Plugins || MAIN_PLUGINS);
+        const pluginList = this.config.Plugins || MAIN_PLUGINS;
+        const filteredPluginList = hasTouch()
+            ? pluginList.filter((p) => !TOUCH_EXCLUDED_PLUGINS.includes(p))
+            : pluginList;
+        const Plugins = sortPlugins(filteredPluginList);
         this.config = Object.assign({}, ...Plugins.map((P) => P.defaultConfig), this.config);
         this.pluginsMap = new Map();
-        for (const P of Plugins) {
-            if (P.id === "") {
-                throw new Error(`Missing plugin id (class ${P.name})`);
-            }
-            if (this.pluginsMap.has(P.id)) {
-                throw new Error(`Duplicate plugin id: ${P.id}`);
-            }
-            this.pluginsMap.set(P.id, P);
-            const plugin = new P(this.getEditorContext(P.dependencies));
-            plugin.__editor = this;
-            this.plugins.push(plugin);
-            const exports = {};
-            for (const h of P.shared) {
-                if (!(h in plugin)) {
-                    throw new Error(`Missing helper implementation: ${h} in plugin ${P.id}`);
+        this.scope.run(() => {
+            for (const P of Plugins) {
+                if (P.id === "") {
+                    throw new Error(`Missing plugin id (class ${P.name})`);
                 }
-                exports[h] = plugin[h].bind(plugin);
+                if (this.pluginsMap.has(P.id)) {
+                    throw new Error(`Duplicate plugin id: ${P.id}`);
+                }
+                this.pluginsMap.set(P.id, P);
+                const plugin = new P(this.getEditorContext(P.dependencies));
+                plugin.__editor = this;
+                this.plugins.push(plugin);
+                const exports = {};
+                for (const h of P.shared) {
+                    if (!(h in plugin)) {
+                        throw new Error(`Missing helper implementation: ${h} in plugin ${P.id}`);
+                    }
+                    exports[h] = plugin[h].bind(plugin);
+                }
+                this.shared[P.id] = exports;
             }
-            this.shared[P.id] = exports;
-        }
+        });
         const resources = this.createResources();
         for (const plugin of this.plugins) {
             plugin._resources = resources;
@@ -196,11 +276,13 @@ export class Editor {
     }
 
     startPlugins() {
-        for (const plugin of this.plugins) {
-            plugin.setup();
-        }
-        this.resources["normalize_handlers"].forEach((cb) => cb(this.editable));
-        this.resources["start_edition_handlers"].forEach((cb) => cb());
+        this.scope.run(() => {
+            for (const plugin of this.plugins) {
+                plugin.setup();
+            }
+        });
+        this.processThrough("html_compatibility_processors", this.editable);
+        this.trigger("on_editor_started_handlers");
     }
 
     getDependencies(dependencies) {
@@ -263,8 +345,10 @@ export class Editor {
             config: this.config,
             services: this.services,
             getResource: this.getResource.bind(this),
-            dispatchTo: this.dispatchTo.bind(this),
+            trigger: this.trigger.bind(this),
+            triggerAsync: this.triggerAsync.bind(this),
             delegateTo: this.delegateTo.bind(this),
+            processThrough: this.processThrough.bind(this),
             checkPredicates: this.checkPredicates.bind(this),
         };
     }
@@ -279,27 +363,63 @@ export class Editor {
     }
 
     /**
-     * Execute the functions registered under resourceId with the given
-     * arguments.
+     * Execute the handler functions registered under resourceId with the given
+     * arguments, and return an array containing all their return values.
      *
      * This function is meant to enhance code readability by clearly expressing
      * its intent.
      *
-     * This function can be thought as an event dispatcher, calling the handlers
-     * with `args` as the payload.
-     *
-     * Example:
+     * Examples:
      * ```js
-     * this.dispatchTo("my_event_handlers", arg1, arg2);
+     * const values = this.trigger("on_my_event_handlers", arg1, arg2);
+     * await Promise.all(this.trigger("on_my_async_event_handlers", arg1, arg2));
      * ```
      *
      * @template {GlobalResourcesId} R
      * @param {R} resourceId
      * @param {Parameters<GlobalResources[R][0]>} args The arguments to pass to the handlers.
+     * @returns {Array<any>}
      */
-    dispatchTo(resourceId, ...args) {
-        this.getResource(resourceId).forEach((handler) => handler(...args));
+    trigger(resourceId, ...args) {
+        if (!resourceId.endsWith("_handlers")) {
+            warnOfNamingConvention("trigger", resourceId, {
+                prefix: "on",
+                suffix: "handlers",
+            });
+        }
+        return this.getResource(resourceId).map((handler) => handler(...args));
     }
+
+    /**
+     * Execute the handler functions registered under resourceId with the given
+     * arguments sequentially, waiting for each call to resolve before calling
+     * the next.
+     *
+     * This function is meant to enhance code readability by clearly expressing
+     * its intent.
+     *
+     * Example:
+     * ```js
+     * await this.triggerAsync("on_my_sequential_async_event_handlers", arg1, arg2);
+     * ```
+     *
+     * @template {GlobalResourcesId} R
+     * @param {R} resourceId
+     * @param {Parameters<GlobalResources[R][0]>} args The arguments to pass to the handlers.
+     * @returns {Promise<void>}
+     */
+    async triggerAsync(resourceId, ...args) {
+        if (!resourceId.endsWith("_handlers")) {
+            warnOfNamingConvention("triggerAsync", resourceId, {
+                prefix: "on",
+                suffix: "handlers",
+            });
+        }
+        for (const handler of this.getResource(resourceId)) {
+            await handler(...args);
+        }
+    }
+
     /**
      * Execute a series of functions until one of them returns a truthy value.
      *
@@ -325,7 +445,42 @@ export class Editor {
      * @returns {boolean} Whether one of the overrides returned a truthy value.
      */
     delegateTo(resourceId, ...args) {
+        if (!resourceId.endsWith("_overrides")) {
+            warnOfNamingConvention("delegateTo", resourceId, { suffix: "overrides" });
+        }
         return this.getResource(resourceId).some((fn) => fn(...args));
+    }
+
+    /**
+     * Execute a series of functions that each process an item, and return its
+     * final value.
+     *
+     * This function is meant to enhance code readability by clearly expressing
+     * its intent.
+     *
+     * An item is processed by each processor in sequence, each processor
+     * returning the new value of the item. Processors mutating the item in
+     * place must return that item.
+     *
+     * Example:
+     * ```js
+     * const processedItem = this.processThrough("my_item_processors", item, arg1, arg2);
+     * ```
+     *
+     * @template {GlobalResourcesId} R
+     * @param {R} resourceId
+     * @param {Parameters<GlobalResources[R][0]>[0]} item The item to process.
+     * @param  {Parameters<GlobalResources[R][0]>} args The other arguments to pass to the processors.
+     * @returns {Parameters<GlobalResources[R][0]>[0]} The processed value of the item.
+     */
+    processThrough(resourceId, item, ...args) {
+        if (!resourceId.endsWith("_processors")) {
+            warnOfNamingConvention("processThrough", resourceId, { suffix: "processors" });
+        }
+        this.getResource(resourceId).forEach((processor) => {
+            item = processor(item, ...args);
+        });
+        return item;
     }
 
     /**
@@ -342,7 +497,7 @@ export class Editor {
      *
      * Example:
      * ```js
-     * const isTrue = this.checkPredicates("my_predicates", arg1, arg2) ?? true;
+     * const isTrue = this.checkPredicates("is_it_true_predicates", arg1, arg2) ?? true;
      * ```
      *
      * @param {string} resourceId
@@ -350,6 +505,9 @@ export class Editor {
      * @returns {boolean | undefined}
      */
     checkPredicates(resourceId, ...args) {
+        if (!resourceId.endsWith("_predicates")) {
+            warnOfNamingConvention("checkPredicates", resourceId, { suffix: "predicates" });
+        }
         const results = this.getResource(resourceId)
             .map((predicate) => predicate(...args))
             .filter((result) => result !== undefined);
@@ -361,9 +519,7 @@ export class Editor {
     }
 
     getElContent() {
-        const el = this.editable.cloneNode(true);
-        this.resources["clean_for_save_handlers"].forEach((cb) => cb({ root: el }));
-        return el;
+        return this.processThrough("clean_for_save_processors", this.editable.cloneNode(true));
     }
 
     destroy(willBeRemoved) {
@@ -384,4 +540,18 @@ export class Editor {
         }
         this.isDestroyed = true;
     }
+}
+
+/**
+ * Creates an Editor scoped to the calling component: its plugins are
+ * constructed and set up inside that scope, so they can use scope-aware
+ * hooks (e.g. `usePlugin`) during their own `setup()`.
+ *
+ * @param { EditorConfig } config
+ * @returns { Editor }
+ */
+export function useEditor(config) {
+    const env = useEnv();
+    const scope = useScope();
+    return new Editor(scope, config, env.services);
 }

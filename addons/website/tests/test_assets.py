@@ -1,9 +1,8 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 import re
+from urllib.parse import urlsplit
 
 import odoo.tests
-
-from odoo.tools import config
 
 
 @odoo.tests.common.tagged('post_install', '-at_install')
@@ -21,10 +20,10 @@ class TestWebsiteAssets(odoo.tests.HttpCase):
         # the test useless
         domain_1 = f"http://127.0.0.1:{self.http_port()}"
         domain_2 = f"http://localhost:{self.http_port()}"
-        Website.browse(1).domain = domain_1
+        self.env.ref('base.default_website').domain = domain_1
 
         self.authenticate('admin', 'admin')
-        self.env['website.assets'].with_context(website_id=1).make_scss_customization(
+        self.env['website.assets'].with_context(website_id=self.ref('base.default_website')).make_scss_customization(
             '/website/static/src/scss/options/colors/user_color_palette.scss',
             {"o-cc1-bg": "'400'"},
         )
@@ -135,6 +134,57 @@ class TestWebsiteAssets(odoo.tests.HttpCase):
         self.assertTrue(website_attach.exists())
         no_website_bundle.css()
         self.assertTrue(website_attach.exists(), 'attachment for website should still exist after generating attachment for no website')
+
+    def test_binary_asset_neutral(self):
+        # Verify that CSS contains link to binary asset
+        css = self.url_open('/web/assets/_______/web.assets_frontend.min.css').text
+        self.assertNotIn('''/web/static/src/libs/fontawesome/fonts/fontawesome-webfont.woff''', css, "Fonts should have been replaced")
+        fontface = re.findall(
+            r'''@font-face{font-family: 'Material Symbols Outlined';[^}]*'''
+            r'''src: url\("/web/assets/\w{7}/web.material_symbols_outlined.min.woff2"\) format\('woff2'\), '''
+            # The WOFF fallback is only there for wkhtmltopdf: it is not part
+            # of any bundle, hence its plain static url.
+            r'''url\('/web/static/src/libs/materialsymbols/material_symbols_backend.woff'\) format\('woff'\);''',
+            css,
+        )
+        self.assertTrue(fontface, "Font should have been replaced")
+        # Verify that links actually return expected binary
+        font = self.url_open('/web/assets/_______/web.material_symbols_outlined.min.woff2')
+        self.assertEqual('font/woff2', font.headers.get('Content-Type'), "Should be woff2")
+        self.assertEqual(b'wOF2', font.content[:4])
+
+        # Verify that links actually return expected binary for latest version
+        old_version = 'aaaaaaa'  # dummy version unrelated to the actual one
+        font = self.url_open(f'/web/assets/{old_version}/web.material_symbols_outlined.min.woff2')
+        self.assertEqual('font/woff2', font.headers.get('Content-Type'), "Should be woff2")
+        self.assertEqual(b'wOF2', font.content[:4])
+        new_version = urlsplit(font.url).path.split("/assets/")[1].split("/")[0]
+        self.assertNotEqual(old_version, new_version)
+
+    def test_binary_asset_website(self):
+        # Make website 1's CSS distinct from base one
+        website_id = self.ref('base.default_website')
+        self.env['website.assets'].with_context(website_id=website_id).make_scss_customization(
+            '/website/static/src/scss/options/colors/user_color_palette.scss',
+            {"o-cc1-bg": "'400'"},
+        )
+
+        # Verify that CSS contains link to binary asset
+        css = self.url_open(f'/web/assets/{website_id}/_______/web.assets_frontend.min.css').text
+        self.assertNotIn('''/web/static/src/libs/fontawesome/fonts/fontawesome-webfont.woff''', css, "Fonts should have been replaced")
+        fontface = re.findall(
+            r'''@font-face{font-family: 'Material Symbols Outlined';[^}]*'''
+            rf'''src: url\("/web/assets/{website_id}/\w{{7}}/web.material_symbols_outlined.min.woff2"\) format\('woff2'\), '''
+            # The WOFF fallback is only there for wkhtmltopdf: it is not part
+            # of any bundle, hence its plain static url.
+            r'''url\('/web/static/src/libs/materialsymbols/material_symbols_backend.woff'\) format\('woff'\);''',
+            css,
+        )
+        self.assertTrue(fontface, "Font should have been replaced")
+        # Verify that links actually return expected binary
+        font = self.url_open(f'/web/assets/{website_id}/_______/web.material_symbols_outlined.min.woff2')
+        self.assertEqual('font/woff2', font.headers.get('Content-Type'), "Should be woff2")
+        self.assertEqual(b'wOF2', font.content[:4])
 
 
 @odoo.tests.tagged('-at_install', 'post_install')

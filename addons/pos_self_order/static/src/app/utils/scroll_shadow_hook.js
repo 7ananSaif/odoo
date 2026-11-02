@@ -1,4 +1,4 @@
-import { useState, onMounted, onWillUnmount, onPatched } from "@odoo/owl";
+import { onMounted, onPatched, onWillUnmount, proxy } from "@odoo/owl";
 import { debounce } from "@web/core/utils/timing";
 
 export function useScrollShadow(scrollContainerRef, options = {}) {
@@ -7,11 +7,11 @@ export function useScrollShadow(scrollContainerRef, options = {}) {
     }
 
     const { threshold = 5 } = options;
-    const shadows = useState({ top: 0, bottom: 0 });
+    const shadows = proxy({ top: 0, bottom: 0 });
 
     const updateShadows = () => {
         try {
-            const el = scrollContainerRef.el;
+            const el = scrollContainerRef();
             if (!el) {
                 return;
             }
@@ -35,8 +35,8 @@ export function useHorizontalScrollShadow(scrollContainerRef, classContainerRef,
 
     const updateShadows = () => {
         try {
-            const scrollEl = scrollContainerRef.el;
-            const classEl = classContainerRef.el;
+            const scrollEl = scrollContainerRef();
+            const classEl = classContainerRef();
 
             if (!scrollEl || !classEl) {
                 return;
@@ -76,7 +76,7 @@ function initScrollShadow(scrollContainerRef, updateFn, options = {}) {
 
     onMounted(() => {
         try {
-            const el = scrollContainerRef.el;
+            const el = scrollContainerRef();
             if (!el) {
                 return;
             }
@@ -92,7 +92,7 @@ function initScrollShadow(scrollContainerRef, updateFn, options = {}) {
 
     onWillUnmount(() => {
         try {
-            scrollContainerRef.el?.removeEventListener("scroll", handleScroll);
+            scrollContainerRef()?.removeEventListener("scroll", handleScroll);
             window.removeEventListener("resize", debouncedResize);
         } catch {
             // Ignore error

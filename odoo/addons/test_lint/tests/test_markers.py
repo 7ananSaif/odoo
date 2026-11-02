@@ -3,14 +3,14 @@
 import logging
 import os
 
-from . import lint_case
+from .common import LintCase
 
 _logger = logging.getLogger(__name__)
 MARKERS = [b'<' * 7, b'>' * 7]
 EXTENSIONS = ('.py', '.js', '.xml', '.less', '.sass')
 
 
-class TestConflictMarkers(lint_case.LintCase):
+class TestConflictMarkers(LintCase):
 
     def check_file(self, fullpath_name):
 

@@ -4,42 +4,33 @@ import { describe, expect, test } from "@odoo/hoot";
 import { animationFrame, click, press, queryAll } from "@odoo/hoot-dom";
 import { advanceTime } from "@odoo/hoot-mock";
 
-setupInteractionWhiteList("website.gallery");
+setupInteractionWhiteList(["website.gallery", "website.base_lightbox"]);
 
 describe.current.tags("interaction_dev");
 
 // TODO Obtain rendering from `website.s_images_wall` template ?
 const defaultGallery = `
     <div id="wrapwrap">
-        <section class="s_image_gallery o_spc-small o_masonry pt24 pb24 o_colored_level" data-vcss="002" data-columns="3" style="overflow: hidden;" data-snippet="s_images_wall" data-name="Images Wall">
+        <section class="s_image_gallery o_spc-small o_masonry pt24 pb24 o_colored_level o_image_popup" data-vcss="002" data-columns="3" style="overflow: hidden;" data-snippet="s_images_wall" data-name="Images Wall">
             <div class="container">
                 <div class="row s_nb_column_fixed">
                     <div class="o_masonry_col o_snippet_not_selectable col-lg-4">
-                        <img class="img img-fluid d-block rounded" src="/web/image/website.library_image_03" data-index="0" data-name="Image" alt="" loading="lazy" data-mimetype="image/webp" data-attachment-id="204" data-original-id="204" data-original-src="/website/static/src/img/library/library_image_03.webp" data-mimetype-before-conversion="image/webp"/>
-                        <img class="img img-fluid d-block rounded" src="/web/image/website.library_image_10" data-index="3" data-name="Image" alt="" loading="lazy" data-mimetype="image/webp" data-attachment-id="211" data-original-id="211" data-original-src="/website/static/src/img/library/library_image_10.webp" data-mimetype-before-conversion="image/webp"/>
+                        <img class="img img-fluid d-block rounded" src="/web/image/website.set_2_square_md_1" data-index="0" data-name="Image" alt="" loading="lazy" data-mimetype="image/webp" data-attachment-id="204" data-original-id="204" data-original-src="/website/static/src/img/snippets_demo/configurator_images/set_2_square_md_1.webp" data-mimetype-before-conversion="image/webp"/>
+                        <img class="img img-fluid d-block rounded" src="/web/image/website.set_2_square_md_3" data-index="3" data-name="Image" alt="" loading="lazy" data-mimetype="image/webp" data-attachment-id="211" data-original-id="211" data-original-src="/website/static/src/img/snippets_demo/configurator_images/set_2_square_md_3.webp" data-mimetype-before-conversion="image/webp"/>
                     </div>
                     <div class="o_masonry_col o_snippet_not_selectable col-lg-4">
-                        <img class="img img-fluid d-block rounded" src="/web/image/website.library_image_13" data-index="1" data-name="Image" alt="" loading="lazy" data-mimetype="image/webp" data-attachment-id="214" data-original-id="214" data-original-src="/website/static/src/img/library/library_image_13.webp" data-mimetype-before-conversion="image/webp"/>
-                        <img class="img img-fluid d-block rounded" src="/web/image/website.library_image_05" data-index="4" data-name="Image" alt="" loading="lazy" data-mimetype="image/webp" data-attachment-id="206" data-original-id="206" data-original-src="/website/static/src/img/library/library_image_05.webp" data-mimetype-before-conversion="image/webp"/>
+                        <img class="img img-fluid d-block rounded" src="/web/image/website.set_1_landscape_md_2" data-index="1" data-name="Image" alt="" loading="lazy" data-mimetype="image/webp" data-attachment-id="214" data-original-id="214" data-original-src="/website/static/src/img/library/library_image_13.webp" data-mimetype-before-conversion="image/webp"/>
+                        <img class="img img-fluid d-block rounded" src="/web/image/website.set_2_square_md_4" data-index="4" data-name="Image" alt="" loading="lazy" data-mimetype="image/webp" data-attachment-id="206" data-original-id="206" data-original-src="/website/static/src/img/snippets_demo/configurator_images/set_2_square_md_4.webp" data-mimetype-before-conversion="image/webp"/>
                     </div>
                     <div class="o_masonry_col o_snippet_not_selectable col-lg-4">
-                        <img class="img img-fluid d-block rounded" src="/web/image/website.library_image_14" data-index="2" data-name="Image" alt="" loading="lazy" data-mimetype="image/webp" data-attachment-id="215" data-original-id="215" data-original-src="/website/static/src/img/library/library_image_14.webp" data-mimetype-before-conversion="image/webp"/>
-                        <img class="img img-fluid d-block rounded" src="/web/image/website.library_image_16" data-index="5" data-name="Image" alt="" loading="lazy" data-mimetype="image/webp" data-attachment-id="217" data-original-id="217" data-original-src="/website/static/src/img/library/library_image_16.webp" data-mimetype-before-conversion="image/webp"/>
+                        <img class="img img-fluid d-block rounded" src="/web/image/website.set_2_square_md_6" data-index="2" data-name="Image" alt="" loading="lazy" data-mimetype="image/webp" data-attachment-id="215" data-original-id="215" data-original-src="/website/static/src/img/snippets_demo/configurator_images/set_2_square_md_6.webp" data-mimetype-before-conversion="image/webp"/>
+                        <img class="img img-fluid d-block rounded" src="/web/image/website.set_2_square_md_2" data-index="5" data-name="Image" alt="" loading="lazy" data-mimetype="image/webp" data-attachment-id="217" data-original-id="217" data-original-src="/website/static/src/img/snippets_demo/configurator_images/set_2_square_md_2.webp" data-mimetype-before-conversion="image/webp"/>
                     </div>
                 </div>
             </div>
         </section>
     </div>
 `;
-
-test("gallery does nothing if there is no non-slideshow s_image_gallery", async () => {
-    const { core } = await startInteractions(`
-        <div id="wrapwrap">
-            <section class="s_image_gallery o_slideshow"/>
-        </div>
-    `);
-    expect(core.interactions).toHaveLength(0);
-});
 
 async function checkLightbox({ next, previous, close }) {
     const { core } = await startInteractions(defaultGallery);
@@ -48,7 +39,7 @@ async function checkLightbox({ next, previous, close }) {
     await click(imgEls[3]);
     await animationFrame();
     await advanceTime(1000);
-    const lightboxEl = document.querySelector(".s_gallery_lightbox");
+    const lightboxEl = document.querySelector(".o_image_lightbox");
     expect(lightboxEl).not.toBe(null);
 
     async function checkActiveImage(expectedIndex) {
@@ -73,7 +64,7 @@ async function checkLightbox({ next, previous, close }) {
     await close(lightboxEl);
     await animationFrame();
     await advanceTime(1000);
-    expect(document.querySelector(".s_gallery_lightbox")).toBe(null);
+    expect(document.querySelector(".o_image_lightbox")).toBe(null);
 }
 
 test("gallery interaction opens lightbox on click, then use keyboard", async () => {

@@ -3,18 +3,19 @@ import { registry } from "@web/core/registry";
 import { exprToBoolean } from "@web/core/utils/strings";
 import { standardFieldProps } from "../standard_field_props";
 
-import { Component } from "@odoo/owl";
+import { Component, t, useProps } from "@odoo/owl";
 const formatters = registry.category("formatters");
 
 export class StatInfoField extends Component {
     static template = "web.StatInfoField";
-    static props = {
+    props = useProps({
         ...standardFieldProps,
-        labelField: { type: String, optional: true },
-        noLabel: { type: Boolean, optional: true },
-        digits: { type: Array, optional: true },
-        string: { type: String, optional: true },
-    };
+        labelField: t.string().optional(),
+        noLabel: t.boolean().optional(),
+        digits: t.array().optional(),
+        string: t.string().optional(),
+        trailingZeros: t.boolean().optional(true),
+    });
 
     get formattedValue() {
         const field = this.props.record.fields[this.props.name];
@@ -22,6 +23,7 @@ export class StatInfoField extends Component {
         return formatter(this.props.record.data[this.props.name], {
             digits: this.props.digits,
             field,
+            trailingZeros: this.props.trailingZeros,
         });
     }
     get label() {
@@ -41,6 +43,12 @@ export const statInfoField = {
             type: "field",
             availableTypes: ["char"],
         },
+        {
+            label: _t("Hide trailing zeros"),
+            name: "hide_trailing_zeros",
+            type: "boolean",
+            help: _t("Hide zeros to the right of the last non-zero digit, e.g. 1.20 becomes 1.2"),
+        },
     ],
     supportedTypes: ["float", "integer", "monetary", "char", "one2many", "many2one"],
     isEmpty: () => false,
@@ -59,6 +67,7 @@ export const statInfoField = {
             labelField: options.label_field,
             noLabel: exprToBoolean(attrs.nolabel),
             string,
+            trailingZeros: !options.hide_trailing_zeros,
         };
     },
 };

@@ -4,61 +4,70 @@
 #
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
 # "Marianna Ciofani (cima)" <cima@odoo.com>, 2025, 2026.
-# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.5a1+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-22 18:19+0000\n"
-"PO-Revision-Date: 2026-04-16 08:13+0000\n"
-"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
-"Language-Team: Italian <https://translate.odoo.com/projects/odoo-19-l10n/"
+"POT-Creation-Date: 2026-10-16 18:29+0000\n"
+"PO-Revision-Date: 2026-10-22 15:33+0000\n"
+"Last-Translator: \"Marianna Ciofani (cima)\" <cima@odoo.com>\n"
+"Language-Team: Italian <https://translate.odoo.com/projects/odoo-20/"
 "l10n_it_edi/it/>\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.16.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: l10n_it_edi
-#: model_terms:ir.ui.view,arch_db:l10n_it_edi.report_invoice_document
-msgid "<b>CIG: </b>"
-msgstr "<b>CIG: </b>"
-
-#. module: l10n_it_edi
-#: model_terms:ir.ui.view,arch_db:l10n_it_edi.report_invoice_document
-msgid "<b>CUP: </b>"
-msgstr "<b>CUP: </b>"
-
-#. module: l10n_it_edi
-#: model_terms:ir.ui.view,arch_db:l10n_it_edi.report_invoice_document
-msgid "<b>Document Date: </b>"
-msgstr "<b>Data documento: </b>"
-
-#. module: l10n_it_edi
-#: model_terms:ir.ui.view,arch_db:l10n_it_edi.report_invoice_document
-msgid "<b>Stamp Duty: </b>"
-msgstr "<b>Imposta di bollo: </b>"
-
-#. module: l10n_it_edi
-#: model_terms:ir.ui.view,arch_db:l10n_it_edi.report_invoice_document
-msgid "<b>Transport Document: </b>"
-msgstr "<b>Documento di trasporto: </b>"
-
-#. module: l10n_it_edi
-#: model_terms:ir.ui.view,arch_db:l10n_it_edi.report_invoice_document
-msgid "<br/><b>Payment Conditions:</b>"
-msgstr "<br/><b>Condizioni di pagamento:</b>"
-
-#. module: l10n_it_edi
-#: model_terms:ir.ui.view,arch_db:l10n_it_edi.account_invoice_form_l10n_it
+#: model:ir.module.module,description:base.module_l10n_it_edi
 msgid ""
-"<i class=\"fa fa-warning\" role=\"img\" title=\"EDI (Italy)\"/><span "
-"class=\"mx-1\">E-invoicing (Italy)</span>"
+"\n"
+"E-invoice implementation\n"
 msgstr ""
-"<i class=\"fa fa-warning\" role=\"img\" title=\"EDI (Italy)\"/><span "
-"class=\"mx-1\">Fatturazione elettronica (Italia)</span>"
+"\n"
+"Implementazione fattura elettronica\n"
+
+#. module: l10n_it_edi
+#: model:ir.model.fields,help:l10n_it_edi.field_account_bank_statement_line__l10n_it_convention_code
+#: model:ir.model.fields,help:l10n_it_edi.field_account_move__l10n_it_convention_code
+msgid ""
+" Used to connect an individual invoice to a broader framework agreement, a "
+"specific project, or a long-term convention."
+msgstr ""
+"Utilizzato per collegare una singola fattura a un accordo quadro più ampio, "
+"a un progetto specifico o a una convenzione a lungo termine."
+
+#. module: l10n_it_edi
+#: model_terms:ir.ui.view,arch_db:l10n_it_edi.report_invoice_document
+msgid "<span class=\"fw-bold\">CIG: </span>"
+msgstr ""
+
+#. module: l10n_it_edi
+#: model_terms:ir.ui.view,arch_db:l10n_it_edi.report_invoice_document
+msgid "<span class=\"fw-bold\">CUP: </span>"
+msgstr ""
+
+#. module: l10n_it_edi
+#: model_terms:ir.ui.view,arch_db:l10n_it_edi.report_invoice_document
+msgid "<span class=\"fw-bold\">Issue Date: </span>"
+msgstr ""
+
+#. module: l10n_it_edi
+#: model_terms:ir.ui.view,arch_db:l10n_it_edi.report_invoice_document
+msgid "<span class=\"fw-bold\">Order or Convention Code: </span>"
+msgstr ""
+
+#. module: l10n_it_edi
+#: model_terms:ir.ui.view,arch_db:l10n_it_edi.report_invoice_document
+msgid "<span class=\"fw-bold\">Transport Document(s): </span>"
+msgstr ""
+
+#. module: l10n_it_edi
+#: model_terms:ir.ui.view,arch_db:l10n_it_edi.report_invoice_document
+msgid "<span class=\"fw-bold\">Via: </span>"
+msgstr ""
 
 #. module: l10n_it_edi
 #: model_terms:ir.ui.view,arch_db:l10n_it_edi.res_config_settings_view_form
@@ -90,9 +99,24 @@ msgstr ""
 "                                </span>"
 
 #. module: l10n_it_edi
+#: model_terms:ir.ui.view,arch_db:l10n_it_edi.report_invoice_document
+msgid "<strong>Fiscal Code: </strong>"
+msgstr ""
+
+#. module: l10n_it_edi
+#: model:ir.model.fields.selection,name:l10n_it_edi.selection__account_move__l10n_it_edi_state__accepted_by_pa_partner
+msgid "Accepted by Partner"
+msgstr "Accettata dal partner"
+
+#. module: l10n_it_edi
+#: model:ir.model.fields.selection,name:l10n_it_edi.selection__account_move__l10n_it_edi_state__accepted_by_pa_partner_after_expiry
+msgid "Accepted without reply"
+msgstr "Accettata senza risposta"
+
+#. module: l10n_it_edi
 #: model:ir.model,name:l10n_it_edi.model_account_chart_template
 msgid "Account Chart Template"
-msgstr ""
+msgstr "Modello piano dei conti"
 
 #. module: l10n_it_edi
 #: model:ir.model,name:l10n_it_edi.model_account_edi_proxy_client_user
@@ -100,9 +124,9 @@ msgid "Account EDI proxy user"
 msgstr "Conto EDI utente proxy"
 
 #. module: l10n_it_edi
-#: model:ir.model,name:l10n_it_edi.model_account_move_send
-msgid "Account Move Send"
-msgstr "Movimento contabile inviato"
+#: model_terms:ir.ui.view,arch_db:l10n_it_edi.report_invoice_document
+msgid "Additional information"
+msgstr ""
 
 #. module: l10n_it_edi
 #: model:ir.model.fields.selection,name:l10n_it_edi.selection__account_move__l10n_it_origin_document_type__agreement
@@ -135,15 +159,23 @@ msgid "Attached file is empty"
 msgstr "Il file allegato è vuoto"
 
 #. module: l10n_it_edi
+#: model:ir.model.fields,field_description:l10n_it_edi.field_account_bank_statement_line__l10n_it_edi_attachment_file
+#: model:ir.model.fields,field_description:l10n_it_edi.field_account_move__l10n_it_edi_attachment_file
+msgid "Attachment File"
+msgstr "File allegato"
+
+#. module: l10n_it_edi
+#. odoo-python
+#: code:addons/l10n_it_edi/models/account_move.py:0
+msgid ""
+"Attachments exceed the 5mb limit. Please resize or remove some attachments."
+msgstr ""
+
+#. module: l10n_it_edi
 #. odoo-python
 #: code:addons/l10n_it_edi/models/account_move.py:0
 msgid "Attachments from XML"
 msgstr "Allegati da XML"
-
-#. module: l10n_it_edi
-#: model:ir.model.fields.selection,name:l10n_it_edi.selection__account_move__l10n_it_edi_state__being_sent
-msgid "Being Sent To SdI"
-msgstr "In invio a SdI"
 
 #. module: l10n_it_edi
 #: model:ir.model.fields,field_description:l10n_it_edi.field_account_bank_statement_line__l10n_it_cig
@@ -219,8 +251,8 @@ msgstr "Il Codice fiscale deve contenere da 11 a 16 caratteri."
 
 #. module: l10n_it_edi
 #: model:ir.model,name:l10n_it_edi.model_res_company
-msgid "Companies"
-msgstr "Aziende"
+msgid "Company"
+msgstr "Azienda"
 
 #. module: l10n_it_edi
 #: model_terms:ir.ui.view,arch_db:l10n_it_edi.res_company_form_l10n_it
@@ -299,12 +331,6 @@ msgid "Data DDT"
 msgstr "Data DDT"
 
 #. module: l10n_it_edi
-#: model:ir.model.fields,field_description:l10n_it_edi.field_account_bank_statement_line__l10n_it_stamp_duty
-#: model:ir.model.fields,field_description:l10n_it_edi.field_account_move__l10n_it_stamp_duty
-msgid "Dati Bollo"
-msgstr "Dati Bollo"
-
-#. module: l10n_it_edi
 #: model_terms:ir.ui.view,arch_db:l10n_it_edi.res_config_settings_view_form
 msgid "Default Purchase Journal"
 msgstr "Diario acquisti predefinito"
@@ -329,6 +355,7 @@ msgstr "Il codice destinatario (SDI) deve avere da 6 a 7 caratteri."
 #: model:ir.model.fields,field_description:l10n_it_edi.field_account_move__display_name
 #: model:ir.model.fields,field_description:l10n_it_edi.field_account_move_send__display_name
 #: model:ir.model.fields,field_description:l10n_it_edi.field_account_payment_method_line__display_name
+#: model:ir.model.fields,field_description:l10n_it_edi.field_account_payment_register__display_name
 #: model:ir.model.fields,field_description:l10n_it_edi.field_account_tax__display_name
 #: model:ir.model.fields,field_description:l10n_it_edi.field_l10n_it_ddt__display_name
 #: model:ir.model.fields,field_description:l10n_it_edi.field_l10n_it_document_type__display_name
@@ -337,6 +364,17 @@ msgstr "Il codice destinatario (SDI) deve avere da 6 a 7 caratteri."
 #: model:ir.model.fields,field_description:l10n_it_edi.field_res_partner__display_name
 msgid "Display Name"
 msgstr "Nome visualizzato"
+
+#. module: l10n_it_edi
+#: model:ir.model.fields,field_description:l10n_it_edi.field_account_bank_statement_line__l10n_it_origin_document_date
+#: model:ir.model.fields,field_description:l10n_it_edi.field_account_move__l10n_it_origin_document_date
+msgid "Document Issue Date"
+msgstr "Data emissione documento"
+
+#. module: l10n_it_edi
+#: model_terms:ir.ui.view,arch_db:l10n_it_edi.account_invoice_form_l10n_it
+msgid "Document Reason"
+msgstr ""
 
 #. module: l10n_it_edi
 #: model_terms:ir.ui.view,arch_db:l10n_it_edi.account_invoice_form_l10n_it
@@ -368,6 +406,7 @@ msgstr "Modalità operativa EDI"
 #: code:addons/l10n_it_edi/models/account_move.py:0
 msgid "ENASARCO tax (type %(wtype)s) has wrong reason %(reason)s"
 msgstr ""
+"L'imposta ENASARCO (tipo %(wtype)s) presenta un motivo errato %(reason)s"
 
 #. module: l10n_it_edi
 #: model:ir.model,name:l10n_it_edi.model_account_tax
@@ -380,7 +419,6 @@ msgid "Economic and Administrative Index"
 msgstr "Indice Economico e Amministrativo"
 
 #. module: l10n_it_edi
-#: model_terms:ir.ui.view,arch_db:l10n_it_edi.account_invoice_form_l10n_it
 #: model_terms:ir.ui.view,arch_db:l10n_it_edi.res_company_form_l10n_it
 msgid "Electronic Invoicing"
 msgstr "Fatturazione elettronica"
@@ -429,14 +467,8 @@ msgstr "Fattura elettronica (Fattura PA)"
 #. module: l10n_it_edi
 #: model:ir.model.fields,field_description:l10n_it_edi.field_account_bank_statement_line__l10n_it_edi_attachment_name
 #: model:ir.model.fields,field_description:l10n_it_edi.field_account_move__l10n_it_edi_attachment_name
-msgid "FatturaPA Attachment"
-msgstr "Allegato FatturaPA"
-
-#. module: l10n_it_edi
-#: model:ir.model.fields,field_description:l10n_it_edi.field_account_bank_statement_line__l10n_it_edi_transaction
-#: model:ir.model.fields,field_description:l10n_it_edi.field_account_move__l10n_it_edi_transaction
-msgid "FatturaPA Transaction"
-msgstr "Transazione FatturaPA"
+msgid "FatturaPA Attachment Name"
+msgstr "Nome allegato FatturaPA"
 
 #. module: l10n_it_edi
 #: model:ir.model.fields,help:l10n_it_edi.field_res_company__l10n_it_codice_fiscale
@@ -444,11 +476,27 @@ msgid "Fiscal code of your company"
 msgstr "Codice fiscale della tua azienda"
 
 #. module: l10n_it_edi
+#: model:ir.model.fields.selection,name:l10n_it_edi.selection__account_move__l10n_it_edi_state__forwarded
+msgid "Forwarded to Partner"
+msgstr "Inoltrata al partner"
+
+#. module: l10n_it_edi
+#: model:ir.model.fields.selection,name:l10n_it_edi.selection__account_move__l10n_it_edi_state__forward_failed
+msgid "Forwarding Failed"
+msgstr "Inoltro fallito"
+
+#. module: l10n_it_edi
+#: model:ir.model.fields.selection,name:l10n_it_edi.selection__account_move__l10n_it_edi_state__forward_attempt
+msgid "Forwarding to Partner"
+msgstr "Inoltro al partner in corso"
+
+#. module: l10n_it_edi
 #: model:ir.model.fields,field_description:l10n_it_edi.field_account_chart_template__id
 #: model:ir.model.fields,field_description:l10n_it_edi.field_account_edi_proxy_client_user__id
 #: model:ir.model.fields,field_description:l10n_it_edi.field_account_move__id
 #: model:ir.model.fields,field_description:l10n_it_edi.field_account_move_send__id
 #: model:ir.model.fields,field_description:l10n_it_edi.field_account_payment_method_line__id
+#: model:ir.model.fields,field_description:l10n_it_edi.field_account_payment_register__id
 #: model:ir.model.fields,field_description:l10n_it_edi.field_account_tax__id
 #: model:ir.model.fields,field_description:l10n_it_edi.field_l10n_it_ddt__id
 #: model:ir.model.fields,field_description:l10n_it_edi.field_l10n_it_document_type__id
@@ -480,6 +528,11 @@ msgstr ""
 "compilati entrambi."
 
 #. module: l10n_it_edi
+#: model_terms:ir.ui.view,arch_db:l10n_it_edi.account_invoice_form_l10n_it
+msgid "Insert your note for sdi here"
+msgstr ""
+
+#. module: l10n_it_edi
 #. odoo-python
 #: code:addons/l10n_it_edi/models/res_partner.py:0
 msgid ""
@@ -497,14 +550,19 @@ msgstr "Riferimento fattura"
 #. module: l10n_it_edi
 #. odoo-python
 #: code:addons/l10n_it_edi/models/account_move.py:0
-msgid "Invoice(s) to check"
-msgstr "Fattura/e da controllare"
+msgid "Invoices must have %(number)s one %(kind)s tax set per line."
+msgstr "Le fatture devono riportare %(number)s un'imposta %(kind)s per riga."
 
 #. module: l10n_it_edi
 #. odoo-python
 #: code:addons/l10n_it_edi/models/account_move.py:0
-msgid "Invoices must have %(number)s one %(kind)s tax set per line."
-msgstr "Le fatture devono riportare %(number)s un'imposta %(kind)s per riga."
+msgid "Invoices to check"
+msgstr ""
+
+#. module: l10n_it_edi
+#: model_terms:ir.ui.view,arch_db:l10n_it_edi.account_invoice_form_l10n_it
+msgid "Issue Date"
+msgstr "Data di emissione"
 
 #. module: l10n_it_edi
 #: model:ir.model.fields,field_description:l10n_it_edi.field_res_company__l10n_it_edi_purchase_journal_id
@@ -533,14 +591,37 @@ msgid "Italian Payment Method"
 msgstr "Metodo di pagamento italiano"
 
 #. module: l10n_it_edi
+#: model:ir.model.fields,field_description:l10n_it_edi.field_account_bank_statement_line__l10n_it_origin_document_name
+#: model:ir.model.fields,field_description:l10n_it_edi.field_account_move__l10n_it_origin_document_name
+msgid "Italian SDI Origin Document Number"
+msgstr "Numero documento di origine SDI in italiano"
+
+#. module: l10n_it_edi
+#: model:ir.model.fields,field_description:l10n_it_edi.field_account_bank_statement_line__l10n_it_origin_document_type
+#: model:ir.model.fields,field_description:l10n_it_edi.field_account_move__l10n_it_origin_document_type
+msgid "Italian SDI Origin Document Type"
+msgstr "Tipo di documento originale SDI in italiano"
+
+#. module: l10n_it_edi
 #: model:ir.model.fields.selection,name:l10n_it_edi.selection__res_partner__invoice_edi_format__it_edi_xml
 msgid "Italy (Factura PA)"
 msgstr "Italia (Fattura PA)"
 
 #. module: l10n_it_edi
+#: model:ir.module.module,shortdesc:base.module_l10n_it_edi
+msgid "Italy - E-invoicing"
+msgstr "Italia - Fatturazione elettronica"
+
+#. module: l10n_it_edi
 #: model:ir.model,name:l10n_it_edi.model_account_move
 msgid "Journal Entry"
 msgstr "Registrazione contabile"
+
+#. module: l10n_it_edi
+#: model:ir.model.fields,field_description:l10n_it_edi.field_account_bank_statement_line__l10n_it_available_document_type_ids
+#: model:ir.model.fields,field_description:l10n_it_edi.field_account_move__l10n_it_available_document_type_ids
+msgid "L10N It Available Document Type"
+msgstr ""
 
 #. module: l10n_it_edi
 #: model:ir.model.fields,field_description:l10n_it_edi.field_account_bank_statement_line__l10n_it_document_type
@@ -549,22 +630,10 @@ msgid "L10N It Document Type"
 msgstr "Tipo documento L10N It"
 
 #. module: l10n_it_edi
-#: model:ir.model.fields,field_description:l10n_it_edi.field_account_bank_statement_line__l10n_it_edi_attachment_file
-#: model:ir.model.fields,field_description:l10n_it_edi.field_account_move__l10n_it_edi_attachment_file
-msgid "L10N It Edi Attachment File"
-msgstr "File allegato L10N It Edi"
-
-#. module: l10n_it_edi
 #: model:ir.model.fields,field_description:l10n_it_edi.field_account_bank_statement_line__l10n_it_edi_button_label
 #: model:ir.model.fields,field_description:l10n_it_edi.field_account_move__l10n_it_edi_button_label
 msgid "L10N It Edi Button Label"
 msgstr "Etichetta pulsante L10N It Edi"
-
-#. module: l10n_it_edi
-#: model:ir.model.fields,field_description:l10n_it_edi.field_account_bank_statement_line__l10n_it_edi_header
-#: model:ir.model.fields,field_description:l10n_it_edi.field_account_move__l10n_it_edi_header
-msgid "L10N It Edi Header"
-msgstr "Intestazione L10N It Edi"
 
 #. module: l10n_it_edi
 #: model:ir.model.fields,field_description:l10n_it_edi.field_account_bank_statement_line__l10n_it_edi_is_self_invoice
@@ -602,7 +671,7 @@ msgstr "L10N It ha rappresentante fiscale"
 #: model:ir.model.fields,field_description:l10n_it_edi.field_account_bank_statement_line__l10n_it_partner_is_public_administration
 #: model:ir.model.fields,field_description:l10n_it_edi.field_account_move__l10n_it_partner_is_public_administration
 msgid "L10N It Partner Is Public Administration"
-msgstr "L10N IT Partner è la Pubblica Amministrazione"
+msgstr "L10N IT Partner è Pubblica Amministrazione"
 
 #. module: l10n_it_edi
 #: model:ir.model.fields,field_description:l10n_it_edi.field_account_bank_statement_line__l10n_it_partner_pa
@@ -783,6 +852,11 @@ msgstr ""
 "effettivamente versato risultante dall'ultimo bilancio"
 
 #. module: l10n_it_edi
+#: model:ir.model.fields,field_description:l10n_it_edi.field_l10n_it_document_type__move_types
+msgid "Move Types"
+msgstr ""
+
+#. module: l10n_it_edi
 #: model:ir.model.fields,help:l10n_it_edi.field_res_partner__l10n_it_pa_index
 #: model:ir.model.fields,help:l10n_it_edi.field_res_users__l10n_it_pa_index
 msgid ""
@@ -807,6 +881,11 @@ msgid "Not a limited liability company"
 msgstr "Non è una società a responsabilità limitata"
 
 #. module: l10n_it_edi
+#: model_terms:ir.ui.view,arch_db:l10n_it_edi.account_invoice_form_l10n_it
+msgid "Number"
+msgstr "Numero"
+
+#. module: l10n_it_edi
 #: model:ir.model.fields,field_description:l10n_it_edi.field_res_company__l10n_it_eco_index_number
 msgid "Number in register of companies"
 msgstr "Numero nel registro delle imprese"
@@ -827,22 +906,10 @@ msgstr ""
 "effettivamente alla Pubblica Amministrazione"
 
 #. module: l10n_it_edi
-#: model:ir.model.fields,field_description:l10n_it_edi.field_account_bank_statement_line__l10n_it_origin_document_date
-#: model:ir.model.fields,field_description:l10n_it_edi.field_account_move__l10n_it_origin_document_date
-msgid "Origin Document Date"
-msgstr "Data documento di origine"
-
-#. module: l10n_it_edi
-#: model:ir.model.fields,field_description:l10n_it_edi.field_account_bank_statement_line__l10n_it_origin_document_name
-#: model:ir.model.fields,field_description:l10n_it_edi.field_account_move__l10n_it_origin_document_name
-msgid "Origin Document Name"
-msgstr "Nome documento di origine"
-
-#. module: l10n_it_edi
-#: model:ir.model.fields,field_description:l10n_it_edi.field_account_bank_statement_line__l10n_it_origin_document_type
-#: model:ir.model.fields,field_description:l10n_it_edi.field_account_move__l10n_it_origin_document_type
-msgid "Origin Document Type"
-msgstr "Tipo documento di origine"
+#: model:ir.model.fields,field_description:l10n_it_edi.field_account_bank_statement_line__l10n_it_convention_code
+#: model:ir.model.fields,field_description:l10n_it_edi.field_account_move__l10n_it_convention_code
+msgid "Order/Convention Code"
+msgstr "Codice ordine/convenzione"
 
 #. module: l10n_it_edi
 #: model:ir.model.fields,field_description:l10n_it_edi.field_res_partner__l10n_it_pec_email
@@ -889,14 +956,25 @@ msgstr ""
 "Paese."
 
 #. module: l10n_it_edi
+#: model:ir.model,name:l10n_it_edi.model_account_payment_register
+msgid "Pay"
+msgstr ""
+
+#. module: l10n_it_edi
 #: model_terms:ir.ui.view,arch_db:l10n_it_edi.account_invoice_form_l10n_it
 msgid "Payment Method"
 msgstr "Metodo di pagamento"
 
 #. module: l10n_it_edi
 #: model:ir.model,name:l10n_it_edi.model_account_payment_method_line
-msgid "Payment Methods"
-msgstr "Metodi di pagamento"
+msgid "Payment Method Line"
+msgstr "Riga metodo di pagamento"
+
+#. module: l10n_it_edi
+#: model:ir.model.fields,field_description:l10n_it_edi.field_account_bank_statement_line__l10n_it_invoice_cause
+#: model:ir.model.fields,field_description:l10n_it_edi.field_account_move__l10n_it_invoice_cause
+msgid "Payment Reason and Notes"
+msgstr ""
 
 #. module: l10n_it_edi
 #. odoo-python
@@ -927,6 +1005,16 @@ msgstr "Più soci"
 
 #. module: l10n_it_edi
 #. odoo-python
+#: code:addons/l10n_it_edi/models/account_move.py:0
+msgid ""
+"Please delete the PDF attachment before sending to the SDI. Odoo will "
+"regenerate the PDF, making sure everything is consistent with the XML."
+msgstr ""
+"Ti chiediamo di eliminare l’allegato PDF prima di inviarlo all’SDI. Odoo "
+"rigenererà il PDF assicurandosi che tutto sia coerente con l’XML."
+
+#. module: l10n_it_edi
+#. odoo-python
 #: code:addons/l10n_it_edi/models/account_edi_proxy_user.py:0
 msgid ""
 "Please fill your codice fiscale to be able to receive invoices from FatturaPA"
@@ -936,6 +1024,11 @@ msgstr "Per poter ricevere fatture da FatturaPA, compilare il Codice Fiscale"
 #: model:ir.model.fields,help:l10n_it_edi.field_res_company__l10n_it_tax_system
 msgid "Please select the Tax system to which you are subjected."
 msgstr "Selezionare il regime fiscale al quale si è soggetti."
+
+#. module: l10n_it_edi
+#: model:ir.model.fields.selection,name:l10n_it_edi.selection__account_move__l10n_it_edi_state__processing
+msgid "Processing"
+msgstr "In elaborazione"
 
 #. module: l10n_it_edi
 #: model:ir.model.fields,field_description:l10n_it_edi.field_res_company__l10n_it_eco_index_office
@@ -960,19 +1053,31 @@ msgid "Public Investment Unique Identifier"
 msgstr "Codice identificativo unico di investimento pubblico"
 
 #. module: l10n_it_edi
-#: model:ir.model.fields.selection,name:l10n_it_edi.selection__l10n_it_document_type__type__purchase
-msgid "Purchase"
-msgstr "Acquisto"
-
-#. module: l10n_it_edi
 #: model:ir.model.fields.selection,name:l10n_it_edi.selection__account_move__l10n_it_origin_document_type__purchase_order
 msgid "Purchase Order"
 msgstr "Ordine d'acquisto"
 
 #. module: l10n_it_edi
-#: model:ir.model.fields.selection,name:l10n_it_edi.selection__account_move__l10n_it_edi_state__requires_user_signature
-msgid "Requires user signature"
-msgstr "Richiede Firma Utente"
+#: model_terms:ir.ui.view,arch_db:l10n_it_edi.account_invoice_form_l10n_it
+#: model_terms:ir.ui.view,arch_db:l10n_it_edi.report_invoice_document
+msgid "Reference Document"
+msgstr "Documento di riferimento"
+
+#. module: l10n_it_edi
+#: model:ir.model.fields.selection,name:l10n_it_edi.selection__account_move__l10n_it_edi_state__rejected
+#: model_terms:ir.ui.view,arch_db:l10n_it_edi.account_invoice_form_l10n_it
+msgid "Rejected"
+msgstr "Rifiutata"
+
+#. module: l10n_it_edi
+#: model:ir.model.fields.selection,name:l10n_it_edi.selection__account_move__l10n_it_edi_state__rejected_by_pa_partner
+msgid "Rejected by Partner"
+msgstr "Rifiutata dal partner"
+
+#. module: l10n_it_edi
+#: model_terms:ir.ui.view,arch_db:l10n_it_edi.account_invoice_form_l10n_it
+msgid "SDI"
+msgstr "SDI"
 
 #. module: l10n_it_edi
 #: model:ir.model.fields,field_description:l10n_it_edi.field_account_bank_statement_line__l10n_it_edi_state
@@ -981,49 +1086,10 @@ msgid "SDI State"
 msgstr "Stato SDI"
 
 #. module: l10n_it_edi
-#: model:ir.model.fields.selection,name:l10n_it_edi.selection__l10n_it_document_type__type__sale
-msgid "Sale"
-msgstr "Vendita"
-
-#. module: l10n_it_edi
-#: model:ir.model.fields.selection,name:l10n_it_edi.selection__account_move__l10n_it_edi_state__accepted_by_pa_partner
-msgid "SdI Accepted, Accepted by the PA Partner"
-msgstr "SdI Accettato, Accettato dal partner PA"
-
-#. module: l10n_it_edi
-#: model:ir.model.fields.selection,name:l10n_it_edi.selection__account_move__l10n_it_edi_state__forward_failed
-msgid "SdI Accepted, Forward to Partner Failed"
-msgstr "SdI Accettato, Inoltro al partner fallito"
-
-#. module: l10n_it_edi
-#: model:ir.model.fields.selection,name:l10n_it_edi.selection__account_move__l10n_it_edi_state__forwarded
-msgid "SdI Accepted, Forwarded to Partner"
-msgstr "SdI Accettato, Inoltrato al partner"
-
-#. module: l10n_it_edi
-#: model:ir.model.fields.selection,name:l10n_it_edi.selection__account_move__l10n_it_edi_state__forward_attempt
-msgid "SdI Accepted, Forwarding to Partner"
-msgstr "SdI Accettato, Inoltro al partner"
-
-#. module: l10n_it_edi
-#: model:ir.model.fields.selection,name:l10n_it_edi.selection__account_move__l10n_it_edi_state__accepted_by_pa_partner_after_expiry
-msgid "SdI Accepted, PA Partner Expired Terms"
-msgstr "SdI Accettato, Termini scaduti per il partner PA"
-
-#. module: l10n_it_edi
-#: model:ir.model.fields.selection,name:l10n_it_edi.selection__account_move__l10n_it_edi_state__rejected_by_pa_partner
-msgid "SdI Accepted, Rejected by the PA Partner"
-msgstr "SdI Accettato, Rifiutato dal partner PA"
-
-#. module: l10n_it_edi
-#: model:ir.model.fields.selection,name:l10n_it_edi.selection__account_move__l10n_it_edi_state__processing
-msgid "SdI Processing"
-msgstr "SdI in elaborazione"
-
-#. module: l10n_it_edi
-#: model:ir.model.fields.selection,name:l10n_it_edi.selection__account_move__l10n_it_edi_state__rejected
-msgid "SdI Rejected"
-msgstr "SdI Rifiutato"
+#: model:ir.model.fields,field_description:l10n_it_edi.field_account_bank_statement_line__l10n_it_edi_transaction
+#: model:ir.model.fields,field_description:l10n_it_edi.field_account_move__l10n_it_edi_transaction
+msgid "SDI Transaction ID"
+msgstr "ID transazione SDI"
 
 #. module: l10n_it_edi
 #. odoo-python
@@ -1052,15 +1118,16 @@ msgstr ""
 "italiana."
 
 #. module: l10n_it_edi
-#: model_terms:ir.ui.view,arch_db:l10n_it_edi.account_invoice_form_l10n_it
-msgid "Send to SDI"
-msgstr ""
-
-#. module: l10n_it_edi
 #. odoo-python
 #: code:addons/l10n_it_edi/models/account_move_send.py:0
-msgid "Send to Tax Agency"
-msgstr "Invia all'Agenzia delle Entrate"
+#: model_terms:ir.ui.view,arch_db:l10n_it_edi.account_invoice_form_l10n_it
+msgid "Send to SDI"
+msgstr "Invia a SDI"
+
+#. module: l10n_it_edi
+#: model:ir.model.fields.selection,name:l10n_it_edi.selection__account_move__l10n_it_edi_state__being_sent
+msgid "Sending"
+msgstr "Invio in corso"
 
 #. module: l10n_it_edi
 #. odoo-python
@@ -1080,9 +1147,44 @@ msgid "Share capital actually paid up"
 msgstr "Capitale sociale effettivamente versato"
 
 #. module: l10n_it_edi
+#: model:ir.model,name:l10n_it_edi.model_account_move_send
+msgid "Shared Send Invoice Wizard Functions"
+msgstr "Funzioni condivise della procedura guidata di invio delle fatture"
+
+#. module: l10n_it_edi
 #: model:ir.model.fields,field_description:l10n_it_edi.field_res_company__l10n_it_eco_index_sole_shareholder
 msgid "Shareholder"
 msgstr "Socio"
+
+#. module: l10n_it_edi
+#. odoo-python
+#: code:addons/l10n_it_edi/models/account_move.py:0
+msgid ""
+"Simplified Invoices (TD07, TD08, TD09) can only be issued for a total amount "
+"of up to 400€. Please issue an ordinary invoice instead."
+msgstr ""
+
+#. module: l10n_it_edi
+#. odoo-python
+#: code:addons/l10n_it_edi/models/res_partner.py:0
+msgid ""
+"Simplified Invoices (TD07, TD08, TD09) can only be used with domestic "
+"partners that do not belong to the Public Administration. Please issue an "
+"ordinary invoice instead."
+msgstr ""
+
+#. module: l10n_it_edi
+#. odoo-python
+#: code:addons/l10n_it_edi/models/account_move.py:0
+msgid ""
+"Simplified Invoices (TD07, TD08, TD09) cannot be used for self-invoices. "
+"Please issue an ordinary invoice instead."
+msgstr ""
+
+#. module: l10n_it_edi
+#: model_terms:ir.ui.view,arch_db:l10n_it_edi.account_invoice_form_l10n_it
+msgid "Sistema di interscambio"
+msgstr "Sistema di interscambio"
 
 #. module: l10n_it_edi
 #: model:ir.model.fields.selection,name:l10n_it_edi.selection__res_company__l10n_it_eco_index_sole_shareholder__su
@@ -1090,14 +1192,15 @@ msgid "Socio unico"
 msgstr "Socio unico"
 
 #. module: l10n_it_edi
-#: model_terms:ir.ui.view,arch_db:l10n_it_edi.report_invoice_document
-msgid "TP01 pagamento a rate"
-msgstr "TP01 pagamento a rate"
+#: model:ir.model.fields,field_description:l10n_it_edi.field_account_bank_statement_line__l10n_it_stamp_duty
+#: model:ir.model.fields,field_description:l10n_it_edi.field_account_move__l10n_it_stamp_duty
+msgid "Stamp Duty"
+msgstr "Imposta di bollo"
 
 #. module: l10n_it_edi
-#: model_terms:ir.ui.view,arch_db:l10n_it_edi.report_invoice_document
-msgid "TP02 pagamento completo"
-msgstr "TP02 pagamento completo"
+#: model_terms:ir.ui.view,arch_db:l10n_it_edi.document_tax_totals_inherit_stamp_duty
+msgid "Stamp duty"
+msgstr ""
 
 #. module: l10n_it_edi
 #. odoo-python
@@ -1172,6 +1275,12 @@ msgstr "Partner rappresentante fiscale"
 #: model:ir.model.fields,help:l10n_it_edi.field_account_move__l10n_it_cig
 msgid "Tender Unique Identifier"
 msgstr "Codice identificativo unico di gara"
+
+#. module: l10n_it_edi
+#. odoo-python
+#: code:addons/l10n_it_edi/models/account_move.py:0
+msgid "The Document Reason can contain up to 600 characters (currently %s)"
+msgstr ""
 
 #. module: l10n_it_edi
 #. odoo-python
@@ -1271,11 +1380,10 @@ msgid ""
 "submit it.\n"
 "%(outcome_description)s"
 msgstr ""
-"Il file della fattura elettronica %(file)s è stato rifiutato da %(partner)s "
-"(Pubblica Amministrazione).\n"
-"Hai 5 giorni di tempo a partire da oggi per emettere un rimborso completo "
-"per questa fattura, quindi contatta il partner PA per crearne una nuova "
-"secondo le loro richieste e inviarla.\n"
+"La fattura elettronica %(file)s è stata rifiutata da %(partner)s "
+"(Amministrazione pubblica).\n"
+"Hai 5 giorni da ora per effettuare il rimborso della fattura e contattare il "
+"partner PA per crearne e inviarne una nuova secondo le richieste.\n"
 "%(outcome_description)s"
 
 #. module: l10n_it_edi
@@ -1473,6 +1581,11 @@ msgid "Total amount from the XML File: %s"
 msgstr "Importo totale dal file XML: %s"
 
 #. module: l10n_it_edi
+#: model_terms:ir.ui.view,arch_db:l10n_it_edi.account_invoice_form_l10n_it
+msgid "Transaction ID"
+msgstr "ID transazione"
+
+#. module: l10n_it_edi
 #: model:ir.actions.act_window,name:l10n_it_edi.action_ddt_account
 #: model:ir.model,name:l10n_it_edi.model_l10n_it_ddt
 msgid "Transport Document"
@@ -1495,7 +1608,7 @@ msgid "Transport informations from XML file:"
 msgstr "Informazioni di trasporto dal file XML:"
 
 #. module: l10n_it_edi
-#: model:ir.model.fields,field_description:l10n_it_edi.field_l10n_it_document_type__type
+#: model_terms:ir.ui.view,arch_db:l10n_it_edi.account_invoice_form_l10n_it
 msgid "Type"
 msgstr "Tipo"
 
@@ -1515,15 +1628,6 @@ msgstr "Errore sconosciuto"
 #: model:ir.model.fields,field_description:l10n_it_edi.field_res_config_settings__use_root_proxy_user
 msgid "Use Root Proxy User"
 msgstr "Usa utente proxy root"
-
-#. module: l10n_it_edi
-#: model:ir.model.fields,help:l10n_it_edi.field_account_bank_statement_line__l10n_it_edi_header
-#: model:ir.model.fields,help:l10n_it_edi.field_account_move__l10n_it_edi_header
-msgid ""
-"User description of the current state, with hints to make the flow progress"
-msgstr ""
-"Descrizione utente dello stato attuale, con suggerimenti per far progredire "
-"il flusso"
 
 #. module: l10n_it_edi
 #. odoo-python
@@ -1560,6 +1664,12 @@ msgstr "Visualizza impostazioni"
 #: code:addons/l10n_it_edi/models/account_move.py:0
 msgid "View invoice(s)"
 msgstr "Visualizza fattura/e"
+
+#. module: l10n_it_edi
+#. odoo-python
+#: code:addons/l10n_it_edi/models/account_move.py:0
+msgid "View invoices"
+msgstr ""
 
 #. module: l10n_it_edi
 #. odoo-python
@@ -1608,6 +1718,14 @@ msgstr "Tipo di ritenuta d'acconto. Solo per EDI contabilità italiana."
 #: code:addons/l10n_it_edi/models/account_move.py:0
 msgid "XML FatturaPA"
 msgstr "XML FatturaPA"
+
+#. module: l10n_it_edi
+#. odoo-python
+#: code:addons/l10n_it_edi/models/account_move.py:0
+msgid ""
+"You cannot reset to draft invoices that were sent to the SdI. If you need to "
+"modify them, you must issue a credit or debit note."
+msgstr ""
 
 #. module: l10n_it_edi
 #. odoo-python
@@ -2120,9 +2238,10 @@ msgstr ""
 
 #. module: l10n_it_edi
 #: model:ir.model.fields.selection,name:l10n_it_edi.selection__account_tax__l10n_it_withholding_reason__w
-msgid "[W] Income from 2015 tinders subject to law art. 25-ter D.P.R. 600/1973"
-msgstr ""
-"[W] Redditi da tinder 2015 soggetti alla legge art. 25-ter D.P.R. 600/1973"
+msgid ""
+"[W] Income from tenders subject to Art. 25-ter of Presidential Decree "
+"600/1973"
+msgstr "[W] Redditi da appalti soggetti all’art. 25-ter del D.P.R. 600/1973"
 
 #. module: l10n_it_edi
 #: model:ir.model.fields.selection,name:l10n_it_edi.selection__account_tax__l10n_it_withholding_reason__x
@@ -2228,6 +2347,109 @@ msgstr "withholding_no_enasarco"
 msgid "zip"
 msgstr "CAP"
 
+#~ msgid "<b>CIG: </b>"
+#~ msgstr "<b>CIG: </b>"
+
+#~ msgid "<b>CUP: </b>"
+#~ msgstr "<b>CUP: </b>"
+
+#~ msgid "<b>Document Date: </b>"
+#~ msgstr "<b>Data documento: </b>"
+
+#~ msgid "<b>Stamp Duty: </b>"
+#~ msgstr "<b>Imposta di bollo: </b>"
+
+#~ msgid "<b>Transport Document: </b>"
+#~ msgstr "<b>Documento di trasporto: </b>"
+
+#~ msgid "<br/><b>Payment Conditions:</b>"
+#~ msgstr "<br/><b>Condizioni di pagamento:</b>"
+
+#~ msgid "Purchase"
+#~ msgstr "Acquisto"
+
+#~ msgid "Sale"
+#~ msgstr "Vendita"
+
+#~ msgid "TP01 pagamento a rate"
+#~ msgstr "TP01 pagamento a rate"
+
+#~ msgid "TP02 pagamento completo"
+#~ msgstr "TP02 pagamento completo"
+
+#~ msgid ""
+#~ "[W] Income from 2015 tinders subject to law art. 25-ter D.P.R. 600/1973"
+#~ msgstr ""
+#~ "[W] Redditi da tinder 2015 soggetti alla legge art. 25-ter D.P.R. 600/1973"
+
+#~ msgid ""
+#~ "<i class=\"fa fa-warning\" role=\"img\" title=\"EDI (Italy)\"/><span "
+#~ "class=\"mx-1\">E-invoicing (Italy)</span>"
+#~ msgstr ""
+#~ "<i class=\"fa fa-warning\" role=\"img\" title=\"EDI (Italy)\"/><span "
+#~ "class=\"mx-1\">Fatturazione elettronica (Italia)</span>"
+
+#~ msgid "Being Sent To SdI"
+#~ msgstr "In invio a SdI"
+
+#~ msgid "Dati Bollo"
+#~ msgstr "Dati Bollo"
+
+#~ msgid "FatturaPA Attachment"
+#~ msgstr "Allegato FatturaPA"
+
+#~ msgid "FatturaPA Transaction"
+#~ msgstr "Transazione FatturaPA"
+
+#~ msgid "L10N It Edi Attachment File"
+#~ msgstr "File allegato L10N It Edi"
+
+#~ msgid "L10N It Edi Header"
+#~ msgstr "Intestazione L10N It Edi"
+
+#~ msgid "Origin Document Date"
+#~ msgstr "Data documento di origine"
+
+#~ msgid "Origin Document Name"
+#~ msgstr "Nome documento di origine"
+
+#~ msgid "Origin Document Type"
+#~ msgstr "Tipo documento di origine"
+
+#~ msgid "Requires user signature"
+#~ msgstr "Richiede Firma Utente"
+
+#~ msgid "SdI Accepted, Accepted by the PA Partner"
+#~ msgstr "SdI Accettato, Accettato dal partner PA"
+
+#~ msgid "SdI Accepted, Forward to Partner Failed"
+#~ msgstr "SdI Accettato, Inoltro al partner fallito"
+
+#~ msgid "SdI Accepted, Forwarded to Partner"
+#~ msgstr "SdI Accettato, Inoltrato al partner"
+
+#~ msgid "SdI Accepted, Forwarding to Partner"
+#~ msgstr "SdI Accettato, Inoltro al partner"
+
+#~ msgid "SdI Accepted, PA Partner Expired Terms"
+#~ msgstr "SdI Accettato, Termini scaduti per il partner PA"
+
+#~ msgid "SdI Accepted, Rejected by the PA Partner"
+#~ msgstr "SdI Accettato, Rifiutato dal partner PA"
+
+#~ msgid "SdI Processing"
+#~ msgstr "SdI in elaborazione"
+
+#~ msgid "SdI Rejected"
+#~ msgstr "SdI Rifiutato"
+
+#~ msgid ""
+#~ "User description of the current state, with hints to make the flow "
+#~ "progress"
+#~ msgstr ""
+#~ "Descrizione utente dello stato attuale, con suggerimenti per far "
+#~ "progredire il flusso"
+
 #~ msgid "Bank account not found, useful informations from XML file:"
 #~ msgstr "Conto bancario non trovato, informazioni utili dal file XML:"
 
@@ -2236,89 +2458,3 @@ msgstr "CAP"
 
 #~ msgid "Payment due date invalid in XML file: %s"
 #~ msgstr "Data scadenza pagamento non valida nel file XML: %s"
-
-#~ msgid "Send Tax Integration"
-#~ msgstr "Invia integrazione fiscale"
-
-#~ msgid ""
-#~ "The e-invoice file %(file)s has been refused by %(partner)s (Public "
-#~ "Administration).\n"
-#~ "You have 5 days from now to issue a full refund for this invoice, then "
-#~ "contact the PA partner to create a new one according to their requests "
-#~ "and submit it."
-#~ msgstr ""
-#~ "Il file di fattura elettronica %(file)s è stato rifiutato da %(partner)s "
-#~ "(Pubblica Amministrazione).\n"
-#~ "Hai 5 giorni per emettere un rimborso completo per questa fattura, quindi "
-#~ "contatta il partner PA per crearne una nuova secondo le loro richieste e "
-#~ "inviala."
-
-#~ msgid "CASAGIT Additional pension fund for journalists"
-#~ msgstr "CASAGIT Cassa mutua integrativa dei giornalisti italiani"
-
-#~ msgid "ENASARCO pension fund for sales agents"
-#~ msgstr "Cassa previdenziale ENASARCO per agenti di commercio"
-
-#~ msgid "ENPAB national pension fund for biologists"
-#~ msgstr "Fondo previdenziale nazionale ENPAB per biologi"
-
-#~ msgid "ENPACL pension fund for labor consultants"
-#~ msgstr "Cassa previdenziale ENPACL per consulenti del lavoro"
-
-#~ msgid "ENPAF pension fund for chemists"
-#~ msgstr "Cassa previdenziale ENPAF per farmacisti"
-
-#~ msgid "ENPAIA pension fund for people working in agriculture"
-#~ msgstr "Cassa previdenziale ENPAIA per persone che lavorano in agricoltura"
-
-#~ msgid "ENPAM pension fund for doctors"
-#~ msgstr "Cassa previdenziale ENPAM per medici"
-
-#~ msgid "ENPAP national pension fund for psychologists"
-#~ msgstr "Fondo previdenziale nazionale ENPAP per psicologi"
-
-#~ msgid "ENPAPI national pension fund for nurses"
-#~ msgstr "Fondo previdenziale nazionale ENPAPI per infermieri"
-
-#~ msgid "ENPAV pension fund for veterinaries"
-#~ msgstr "Cassa previdenziale ENPAV per veterinari"
-
-#~ msgid "EPAP pension fund"
-#~ msgstr "Cassa previdenziale EPAP"
-
-#~ msgid "EPPI pension fund for industrial experts"
-#~ msgstr "Cassa previdenziale EPPI per periti industriali"
-
-#~ msgid "Fattura Electronica (FatturaPA)"
-#~ msgstr "Fattura elettronica (FatturaPA)"
-
-#~ msgid "INPGI pension fund for journalists"
-#~ msgstr "Fondo pensione INPGI per giornalisti"
-
-#~ msgid "INPS national pension fund"
-#~ msgstr "Fondo pensione nazionale INPS"
-
-#~ msgid "National pension fund for associated engineers and architects"
-#~ msgstr "Cassa nazionale di previdenza per ingegneri e architetti associati"
-
-#~ msgid "National pension fund for lawyers and solicitors"
-#~ msgstr "Cassa nazionale di previdenza per avvocati e procuratori"
-
-#~ msgid "National pension fund for notaries"
-#~ msgstr "Cassa nazionale di previdenza per notai"
-
-#~ msgid "ONAOSI fund for sanitary orphans"
-#~ msgstr "Fondo ONAOSI per orfani sanitari"
-
-#~ msgid "Pension fund for accountants with a degree"
-#~ msgstr "Cassa previdenziale per dottori commercialisti"
-
-#~ msgid "Pension fund for accountants without a degree and commercial experts"
-#~ msgstr "Cassa previdenziale per ragionieri e periti commerciali"
-
-#~ msgid "Pension fund for employees in delivery and marine agencies"
-#~ msgstr ""
-#~ "Cassa previdenziale per dipendenti in agenzie di spedizione e marittime"
-
-#~ msgid "Pension fund for surveyors"
-#~ msgstr "Cassa previdenziale per geometri"

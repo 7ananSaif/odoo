@@ -17,7 +17,7 @@
                             </span>
                             <field name="hash_date" placeholder="Not hashed"
                                    class="oe_inline  ms-2"
-                                   options="{'warn_future': true}"/>
+                                   options="{'warning': 'future'}"/>
                             <span class="text-muted ms-2">
                                 <i>inclusive, to make them immutable</i>
                             </span>
@@ -25,7 +25,7 @@
                     </sheet>
                     <footer>
                         <button string="Secure Entries" class="btn-primary" name="action_secure_entries" type="object" data-hotkey="v"/>
-                        <button string="Discard" special="cancel" data-hotkey="z"/>
+                        <button special="cancel" data-hotkey="z"/>
                     </footer>
                 </form>
             </field>

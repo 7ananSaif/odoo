@@ -2,7 +2,7 @@
 import re
 
 from odoo import _, models, fields, api
-from odoo.tools import mod10r
+from odoo.tools.business_data import mod10r
 
 
 class AccountPayment(models.Model):
@@ -10,7 +10,7 @@ class AccountPayment(models.Model):
 
     l10n_ch_reference_warning_msg = fields.Char(compute='_compute_l10n_ch_reference_warning_msg')
 
-    @api.onchange('partner_id', 'memo', 'payment_type')
+    @api.depends('partner_id', 'memo', 'payment_type')
     def _compute_l10n_ch_reference_warning_msg(self):
         for payment in self:
             if payment.payment_type == 'outbound' and\

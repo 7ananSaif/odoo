@@ -6,6 +6,8 @@ from odoo.tests import tagged
 @tagged('post_install', '-at_install')
 class TestTaxesComputation(TestTaxCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     def test_taxes_ordering(self):
         tax_division = self.division_tax(10.0, sequence=1)
         tax_fixed = self.fixed_tax(10.0, sequence=2)
@@ -717,7 +719,7 @@ class TestTaxesComputation(TestTaxCommon):
         # tax2
         # tax3                                          T
         tax1.is_base_affected = True
-        tax2.price_include = False
+        tax2.price_include_override = 'tax_excluded'
         tax2.include_base_amount = False
         self.assert_taxes_computation(
             tax1 + tax2 + tax3,

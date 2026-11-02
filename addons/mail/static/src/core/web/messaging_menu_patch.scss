@@ -1,14 +1,15 @@
-.o-mail-MessagingMenu-headerFilter {
-    border: 1px solid transparent;
+.o-mail-MessagingMenu-failure {
+    border-radius: 0 !important;
 
-    &.o-active {
-        background-color: rgba($o-action, .075);
-        border-color: rgba($o-action, .1);
+    &.o-first {
+        margin-top: map-get($spacers, 2);
+        border-top-left-radius: $border-radius-lg !important;
+        border-top-right-radius: $border-radius-lg !important;
     }
-}
 
-.o_web_client.o-mail-discuss-systray-menu-open .o_main_navbar {
-    @include media-breakpoint-down(md) {
-        background-color: $o-navbar-background !important;
+    &.o-last {
+        margin-bottom: map-get($spacers, 2);
+        border-bottom-left-radius: $border-radius-lg !important;
+        border-bottom-right-radius: $border-radius-lg !important;
     }
 }

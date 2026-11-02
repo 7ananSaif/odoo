@@ -24,7 +24,7 @@
       <TaxIdentification>
         <PersonTypeCode>J</PersonTypeCode>
         <ResidenceTypeCode>R</ResidenceTypeCode>
-        <TaxIdentificationNumber>ES59962470K</TaxIdentificationNumber>
+        <TaxIdentificationNumber>ESF70432075</TaxIdentificationNumber>
       </TaxIdentification>
       <LegalEntity>
         <CorporateName>company_1_data</CorporateName>
@@ -40,20 +40,20 @@
     </SellerParty>
     <BuyerParty>
       <TaxIdentification>
-        <PersonTypeCode>F</PersonTypeCode>
+        <PersonTypeCode>J</PersonTypeCode>
         <ResidenceTypeCode>U</ResidenceTypeCode>
         <TaxIdentificationNumber>BE0477472701</TaxIdentificationNumber>
       </TaxIdentification>
-      <Individual>
-        <Name>UNKNOWN</Name>
-        <FirstSurname>UNKNOWN</FirstSurname>
+      <LegalEntity>
+        <CorporateName>partner_a</CorporateName>
+        <TradeName>partner_a</TradeName>
         <OverseasAddress>
           <Address>Rue de Bruxelles, 15000</Address>
           <PostCodeAndTown>5000 Namur</PostCodeAndTown>
           <Province>Belgium</Province>
           <CountryCode>BEL</CountryCode>
         </OverseasAddress>
-      </Individual>
+      </LegalEntity>
     </BuyerParty>
   </Parties>
   <Invoices>
@@ -105,9 +105,7 @@
       <Items>
         <InvoiceLine>
           <FileDate>2023-01-01</FileDate>
-          <ItemDescription>product_a</ItemDescription>
           <Quantity>1.0</Quantity>
-          <UnitOfMeasure>01</UnitOfMeasure>
           <UnitPriceWithoutTax>1000.00000000</UnitPriceWithoutTax>
           <TotalCost>1000.00</TotalCost>
           <GrossAmount>1000.00</GrossAmount>
@@ -138,9 +136,7 @@
         </InvoiceLine>
         <InvoiceLine>
           <FileDate>2023-01-01</FileDate>
-          <ItemDescription>product_a</ItemDescription>
           <Quantity>1.0</Quantity>
-          <UnitOfMeasure>01</UnitOfMeasure>
           <UnitPriceWithoutTax>-100.00000000</UnitPriceWithoutTax>
           <TotalCost>-100.00</TotalCost>
           <GrossAmount>-100.00</GrossAmount>

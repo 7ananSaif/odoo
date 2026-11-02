@@ -9,6 +9,8 @@ from odoo.tests.common import new_test_user
 @tagged('post_install', 'post_install_l10n', '-at_install')
 class TestProduct(AccountTestInvoicingCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -85,6 +87,20 @@ class TestProduct(AccountTestInvoicingCommon):
 
         self.assertEqual(product.taxes_id, tax_new, "The branch company default tax shouldn't be set if we set a different tax on the product from the parent company.")
 
+    def test_multi_company_combo_product_tax(self):
+        """Ensure a combo product doesn't get the default taxes of the other companies """
+        company_2 = self.setup_other_company()['company']
+        combo_product = self.env['product.template'].with_context(allowed_company_ids=self.env.company.ids).create({
+            'name': 'Combo Product',
+            'type': 'combo',
+            'combo_ids': [Command.create({
+                'name': 'Combo',
+                'combo_item_ids': [Command.create({'product_id': self.product_a.id})],
+            })],
+            'taxes_id': False,
+        })
+        self.assertFalse(combo_product.with_company(company_2).taxes_id)
+
     def test_product_category_parent_account_fallback(self):
         """When no account is set on a product category, accounts should be inherited from parent categories.
         Also covers the case where income and expense are defined at different hierarchy levels.
@@ -129,22 +145,6 @@ class TestProduct(AccountTestInvoicingCommon):
             "Customer invoice line should use grandparent category's income account")
         self.assertEqual(bill.invoice_line_ids.account_id, child_expense,
             "Vendor bill line should use child category's expense account")
-
-    def test_product_category_defaults_after_company_account_change(self):
-        """Ensure new product categories pick up the updated expense and income accounts from settings."""
-        old_expense = self.env.company.expense_account_id
-        old_income = self.env.company.income_account_id
-        new_expense = self.copy_account(old_expense)
-        new_income = self.copy_account(old_income)
-
-        self.env.company.write({
-            'expense_account_id': new_expense.id,
-            'income_account_id': new_income.id,
-        })
-
-        fresh_categ = self.env['product.category'].create({'name': 'Category After Account Change'})
-        self.assertEqual(fresh_categ.with_company(self.env.company).property_account_expense_categ_id, new_expense)
-        self.assertEqual(fresh_categ.with_company(self.env.company).property_account_income_categ_id, new_income)
 
     def test_retrieve_product_by_name(self):
         Product = self.env['product.product']

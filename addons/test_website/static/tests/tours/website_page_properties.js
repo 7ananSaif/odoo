@@ -1,5 +1,4 @@
 import {
-    assertPathName,
     clickOnSave,
     getClientActionUrl,
     registerWebsitePreviewTour,
@@ -28,7 +27,7 @@ const clickOnSaveButtonStep = [
     {
         content: "Wait",
         trigger: "body:not(.modal-open)",
-    }
+    },
 ];
 
 const openCreatePageDialog = [
@@ -79,8 +78,7 @@ function checkIsTemplate(isTemplate, pageTitle = undefined) {
                       content: `Verify custom templates section is empty`,
                       trigger: `.o_website_page_templates_pane:not(:has(.o_page_template))`,
                   },
-              ]
-        ),
+              ]),
         {
             content: "Exit dialog",
             trigger: ".modal-header .btn-close",
@@ -90,7 +88,7 @@ function checkIsTemplate(isTemplate, pageTitle = undefined) {
             content: "Exit new content backdrop",
             trigger: "body",
             run: "press escape",
-        }
+        },
     ];
 }
 
@@ -132,7 +130,7 @@ function testCommonProperties(url, canPublish, modifiedUrl = undefined) {
                 trigger: `:visible :iframe #top_menu a[href="${modifiedUrl}"]`,
             },
             stepUtils.goToUrl(getClientActionUrl("/")),
-            ...assertPageCanonicalUrlIs(modifiedUrl),
+            ...assertPageCanonicalUrlIs("/"),
             stepUtils.goToUrl(getClientActionUrl(modifiedUrl)),
         ],
         teardown: [
@@ -215,18 +213,12 @@ function testWebsitePageProperties() {
         {
             content: "Open redirect type popup",
             trigger: "#redirect_type_0",
-            run: "click"
+            run: "click",
         },
         {
             content: "Set redirect type to temporary",
             trigger: ".o-dropdown-item[data-choice-index='1']",
-            run: "click"
-        },
-        {
-            // TODO: this needs to be tested
-            content: "Change date published",
-            trigger: "#date_publish_0",
-            run: "edit 02/01/2005 01:00:00 && press enter",
+            run: "click",
         },
         {
             content: "Don't index",
@@ -253,21 +245,20 @@ function testWebsitePageProperties() {
             content: "Make it a template",
             trigger: "#is_new_page_template_0",
             run: "check",
-        },
+        }
     );
     steps.check.push(
         {
             content: "Verify page title",
             trigger: ":iframe head:hidden title:contains(/Cool Page/)",
         },
-        ...assertPageCanonicalUrlIs("/cool-page"),
+        ...assertPageCanonicalUrlIs("/"),
         stepUtils.goToUrl(getClientActionUrl("/new-page")),
-        assertPathName("/cool-page", "body"),
         {
             content: "Verify no index",
             trigger: ':iframe head:hidden meta[name="robots"][content="noindex"]',
         },
-        ...checkIsTemplate(true, "Cool Page"),
+        ...checkIsTemplate(true, "Cool Page")
     );
     steps.teardown.unshift(
         {
@@ -279,16 +270,6 @@ function testWebsitePageProperties() {
             content: `Change url back to /new-page`,
             trigger: "#url_0",
             run: `edit new-page && press Enter`,
-        },
-        {
-            content: "Open date published popup",
-            trigger: "#date_publish_0",
-            run: "click",
-        },
-        {
-            content: "Reset date published",
-            trigger: "button[title='Clear']",
-            run: "click",
         },
         {
             content: "Do index",
@@ -309,7 +290,7 @@ function testWebsitePageProperties() {
             content: "Remove from templates",
             trigger: "#is_new_page_template_0",
             run: "uncheck",
-        },
+        }
     );
     steps.checkTorndown.push(
         {
@@ -318,65 +299,50 @@ function testWebsitePageProperties() {
         },
         ...assertPageCanonicalUrlIs("/new-page"),
         stepUtils.goToUrl(getClientActionUrl("/new-page")),
-        assertPathName("/new-page", "body"),
         {
             content: "Verify is indexed",
             trigger: ':iframe head:hidden:not(:has(meta[name="robots"][content="noindex"]))',
         },
-        ...checkIsTemplate(false),
+        ...checkIsTemplate(false)
     );
     return steps;
 }
 
-registerWebsitePreviewTour(
-    "website_page_properties_common",
-    {
-        url: "/test_view",
-    },
-    () => [...testCommonProperties("/test_view", false).finalize()],
-);
+registerWebsitePreviewTour("website_page_properties_common", {}, () => [
+    ...testCommonProperties("/test_view", false).finalize(),
+]);
 
-registerWebsitePreviewTour(
-    "website_page_properties_can_publish",
-    {
-        url: "/test_website/model_item/1",
-    },
-    () => [...testCommonProperties("/test_website/model_item/1", true).finalize()],
-);
+registerWebsitePreviewTour("website_page_properties_can_publish", {}, () => [
+    ...testCommonProperties("/test_website/model_item/1", true).finalize(),
+]);
 
-registerWebsitePreviewTour(
-    "website_page_properties_website_page",
+registerWebsitePreviewTour("website_page_properties_website_page", {}, () => [
+    ...openCreatePageDialog,
     {
-        url: "/",
+        content: "Use blank template",
+        trigger: ".o_website_page_templates_dialog [data-name='add_blank_page']",
+        run: "click",
     },
-    () => [
-        ...openCreatePageDialog,
-        {
-            content: "Use blank template",
-            trigger: ".o_page_template .o_button_area:hidden",
-            run: "click",
-        },
-        {
-            content: "Name page",
-            trigger: ".modal-body input",
-            run: "edit New Page",
-        },
-        {
-            content: "Don't add to menu",
-            trigger: ".modal-body .o_switch",
-            run: "click",
-        },
-        {
-            content: "Click on Create button",
-            trigger: ".modal-footer .btn-primary",
-            run: "click",
-        },
-        {
-            content: "Wait for editor to open",
-            trigger: ":iframe body.editor_enable",
-            timeout: 30000,
-        },
-        ...clickOnSave(),
-        ...testWebsitePageProperties().finalize(),
-    ],
-);
+    {
+        content: "Name page",
+        trigger: ".modal-body input",
+        run: "edit New Page",
+    },
+    {
+        content: "Don't add to menu",
+        trigger: ".modal-body .o_switch",
+        run: "click",
+    },
+    {
+        content: "Click on Create button",
+        trigger: ".modal-footer .btn-primary",
+        run: "click",
+    },
+    {
+        content: "Wait for editor to open",
+        trigger: ":iframe body.editor_enable",
+        timeout: 30000,
+    },
+    ...clickOnSave(),
+    ...testWebsitePageProperties().finalize(),
+]);

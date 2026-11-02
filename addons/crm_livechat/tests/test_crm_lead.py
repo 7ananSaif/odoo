@@ -1,12 +1,13 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+from markupsafe import Markup
+
 from odoo import Command
 from odoo.addons.crm.tests.common import TestCrmCommon
 from odoo.addons.mail.tests.common import mail_new_test_user
-from odoo.tests.common import HttpCase, tagged, users
+from odoo.tests.common import HttpCase, users
 
 
-@tagged("post_install", "-at_install")
 class TestLivechatLead(HttpCase, TestCrmCommon):
 
     @classmethod
@@ -114,3 +115,47 @@ class TestLivechatLead(HttpCase, TestCrmCommon):
         self.assertFalse(channel.lead_ids)
         channel.with_user(bob_operator).execute_command_lead(body="/lead BobLead")
         self.assertEqual(channel.lead_ids.name, "BobLead")
+        self.assertEqual(
+            channel.message_ids[0].body,
+            Markup(
+                '<div class="o_mail_notification" data-oe-type="create-lead">created a new lead: '
+                '<a href="/mail/view?model=crm.lead&amp;res_id=%(id)s" data-oe-model="crm.lead" data-oe-id="%(id)s">'
+                "BobLead</a></div>",
+            ) % {"id": channel.lead_ids.id},
+        )
+
+    def test_convert_whatsapp_visitor_to_lead(self):
+        """Lead created from a WhatsApp channel via /lead command should have
+        the WhatsApp customer populated in the Contact (partner_id) field."""
+
+        if self.env["ir.module.module"]._get("whatsapp").state != "installed":
+            self.skipTest("whatsapp module is not installed")
+
+        wa_partner = self.env["res.partner"].create({
+            "name": "WA Lead Contact",
+            "phone": "+32499123456",
+        })
+        wa_account = self.env["whatsapp.account"].create({  # noqa: OLS03001
+            "name": "WA Account For CRM Livechat Test",
+            "app_uid": "test_crm_livechat_app_uid",
+            "app_secret": "test_crm_livechat_app_secret",
+            "account_uid": "test_crm_livechat_account_uid",
+            "phone_uid": "test_crm_livechat_phone_uid",
+            "token": "test_crm_livechat_token",
+            "notify_user_ids": self.user_sales_leads.ids,
+        })
+        channel = self.env["discuss.channel"].create({
+                "channel_partner_ids": [Command.link(self.user_sales_leads.partner_id.id)],
+                "channel_type": "whatsapp",
+                "name": "Dummy WA Channel",
+                "wa_account_id": wa_account.id,
+                "whatsapp_number": "911234567891",
+                "whatsapp_partner_id": wa_partner.id,
+            })
+        channel.with_user(self.user_sales_leads).execute_command_lead(body="/lead Test WhatsApp Lead")
+        self.assertEqual(channel.lead_ids.name, "Test WhatsApp Lead")
+        self.assertEqual(
+            channel.lead_ids.partner_id,
+            channel.whatsapp_partner_id,
+            "The lead's Contact should be from the whatsapp chat",
+        )

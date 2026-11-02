@@ -42,8 +42,8 @@ class MicrosoftOutlookMixin(models.AbstractModel):
     def _compute_outlook_uri(self):
         Config = self.env['ir.config_parameter'].sudo()
         base_url = self.get_base_url()
-        microsoft_outlook_client_id = Config.get_param('microsoft_outlook_client_id')
-        microsoft_outlook_client_secret = Config.get_param('microsoft_outlook_client_secret')
+        microsoft_outlook_client_id = Config.get_str('microsoft_outlook_client_id')
+        microsoft_outlook_client_secret = Config.get_str('microsoft_outlook_client_secret')
         is_configured = microsoft_outlook_client_id and microsoft_outlook_client_secret
 
         for record in self:
@@ -83,19 +83,19 @@ class MicrosoftOutlookMixin(models.AbstractModel):
             raise UserError(_('Please enter a valid email address.'))
 
         Config = self.env['ir.config_parameter'].sudo()
-        microsoft_outlook_client_id = Config.get_param('microsoft_outlook_client_id')
-        microsoft_outlook_client_secret = Config.get_param('microsoft_outlook_client_secret')
+        microsoft_outlook_client_id = Config.get_str('microsoft_outlook_client_id')
+        microsoft_outlook_client_secret = Config.get_str('microsoft_outlook_client_secret')
         is_configured = microsoft_outlook_client_id and microsoft_outlook_client_secret
 
         if not is_configured:  # use IAP (see '/microsoft_outlook/iap_confirm')
             if release.version_info[-1] != 'e':
                 raise UserError(_('Please configure your Outlook credentials.'))
 
-            outlook_iap_endpoint = self.env['ir.config_parameter'].sudo().get_param(
+            outlook_iap_endpoint = self.env['ir.config_parameter'].sudo().get_str(
                 'mail.server.outlook.iap.endpoint',
                 self._DEFAULT_OUTLOOK_IAP_ENDPOINT,
             )
-            db_uuid = self.env['ir.config_parameter'].sudo().get_param('database.uuid')
+            db_uuid = self.env['ir.config_parameter'].sudo().get_str('database.uuid')
 
             # final callback URL that will receive the token from IAP
             callback_params = url_encode({
@@ -154,8 +154,8 @@ class MicrosoftOutlookMixin(models.AbstractModel):
             access_token, access_token_expiration
         """
         Config = self.env['ir.config_parameter'].sudo()
-        microsoft_outlook_client_id = Config.get_param('microsoft_outlook_client_id')
-        microsoft_outlook_client_secret = Config.get_param('microsoft_outlook_client_secret')
+        microsoft_outlook_client_id = Config.get_str('microsoft_outlook_client_id')
+        microsoft_outlook_client_secret = Config.get_str('microsoft_outlook_client_secret')
         if not microsoft_outlook_client_id or not microsoft_outlook_client_secret:
             return self._fetch_outlook_access_token_iap(refresh_token)
 
@@ -177,8 +177,8 @@ class MicrosoftOutlookMixin(models.AbstractModel):
         """
         Config = self.env['ir.config_parameter'].sudo()
         base_url = self.get_base_url()
-        microsoft_outlook_client_id = Config.get_param('microsoft_outlook_client_id')
-        microsoft_outlook_client_secret = Config.get_param('microsoft_outlook_client_secret')
+        microsoft_outlook_client_id = Config.get_str('microsoft_outlook_client_id')
+        microsoft_outlook_client_secret = Config.get_str('microsoft_outlook_client_secret')
 
         response = requests.post(
             url_join(self._get_microsoft_endpoint(), 'token'),
@@ -211,11 +211,9 @@ class MicrosoftOutlookMixin(models.AbstractModel):
         :return:
             access_token, access_token_expiration
         """
-        outlook_iap_endpoint = self.env['ir.config_parameter'].sudo().get_param(
-            'mail.server.outlook.iap.endpoint',
-            self.env['microsoft.outlook.mixin']._DEFAULT_OUTLOOK_IAP_ENDPOINT,
-        )
-        db_uuid = self.env['ir.config_parameter'].sudo().get_param('database.uuid')
+        outlook_iap_endpoint = self.env['ir.config_parameter'].sudo().get_str(
+            'mail.server.outlook.iap.endpoint') or self.env['microsoft.outlook.mixin']._DEFAULT_OUTLOOK_IAP_ENDPOINT
+        db_uuid = self.env['ir.config_parameter'].sudo().get_str('database.uuid')
 
         response = requests.get(
             url_join(outlook_iap_endpoint, '/api/mail_oauth/1/outlook_access_token'),
@@ -280,7 +278,5 @@ class MicrosoftOutlookMixin(models.AbstractModel):
 
     @api.model
     def _get_microsoft_endpoint(self):
-        return self.env["ir.config_parameter"].sudo().get_param(
-            'microsoft_outlook.endpoint',
-            'https://login.microsoftonline.com/common/oauth2/v2.0/',
-        )
+        return self.env["ir.config_parameter"].sudo().get_str('microsoft_outlook.endpoint') \
+            or 'https://login.microsoftonline.com/common/oauth2/v2.0/'

@@ -1,10 +1,12 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
+import { usePopover } from "@web/core/popover/popover_hook";
 import { Many2XAutocomplete } from "@web/views/fields/relational_utils";
 import {
     Many2ManyTagsField,
     many2ManyTagsField,
 } from "@web/views/fields/many2many_tags/many2many_tags_field";
+import { TaxTagPopup } from "./tax_tag_popover"
 
 export class Many2XTaxTagsAutocomplete extends Many2XAutocomplete {
     static components = {
@@ -47,6 +49,77 @@ export class Many2ManyTaxTagsField extends Many2ManyTagsField {
         ...Many2ManyTagsField.components,
         Many2XAutocomplete: Many2XTaxTagsAutocomplete,
     };
+
+    setup() {
+        super.setup();
+        this.taxPopover = usePopover(TaxTagPopup, {
+            animation: false,
+        });
+    }
+
+    getTagProps(record) {
+        const props = super.getTagProps(record);
+        props.onClick = (ev) => this.onTagClick(ev, record);
+        return props;
+    }
+
+    async onTagClick(ev, record) {
+        const specification = {
+            display_name: {},
+            description: {},
+            invoice_repartition_line_ids: {
+                fields: {
+                    repartition_type: {},
+                    factor_percent: {},
+                    tag_ids: {
+                        fields: {
+                            name: {},
+                        },
+                    },
+                },
+            },
+            refund_repartition_line_ids: {
+                fields: {
+                    repartition_type: {},
+                    factor_percent: {},
+                    tag_ids: {
+                        fields: {
+                            name: {},
+                        },
+                    },
+                },
+            },
+        };
+
+        const [taxData] = await this.orm.webRead("account.tax", [record.resId], { specification });
+
+        taxData.description = taxData.description
+            ? taxData.description.replace(/<[^>]+>/g, "").trim()
+            : "";
+
+        const formatLines = (lines) =>
+            lines.map((line) => ({
+                type: line.repartition_type,
+                factor_percent: Math.abs(line.factor_percent) !== 100 ? line.factor_percent : null,
+                tag_names: (line.tag_ids || []).map((tag) => tag.name),
+            }));
+
+        const invoiceLines = formatLines(taxData.invoice_repartition_line_ids);
+        const refundLines = formatLines(taxData.refund_repartition_line_ids);
+        const hasTags = [...invoiceLines, ...refundLines].some((line) => line.tag_names.length);
+        if (!hasTags) {
+            // The popup is there to explain the tax distribution; without one it
+            // has nothing to show, the description being available elsewhere.
+            return;
+        }
+
+        this.taxPopover.open(ev.target, {
+            description: taxData.description,
+            invoiceLines,
+            refundLines,
+            close: () => this.taxPopover.close(),
+        });
+    }
 }
 
 export const many2ManyTaxTagsField = {

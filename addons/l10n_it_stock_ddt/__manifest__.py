@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 {
     'name': "Italy - Stock DDT",
-    'website': 'https://www.odoo.com',
     'category': 'Accounting/Localizations/EDI',
     'version': '0.1',
     'description': """
@@ -25,6 +23,7 @@ invoice line to export in the FatturaPA XML.
     'depends': ['l10n_it_edi', 'stock_delivery', 'stock_account'],
     'data': [
         'report/l10n_it_ddt_report.xml',
+        'report/report_invoice.xml',
         'views/stock_picking_views.xml',
         'views/account_invoice_views.xml',
         'data/l10n_it_ddt_template.xml',

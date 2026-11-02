@@ -10,10 +10,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-11-17 12:54+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Ukrainian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-25 17:39+0000\n"
+"PO-Revision-Date: 2026-08-31 13:45+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Ukrainian <https://translate.odoo.com/projects/odoo-s19-4/"
 "phone_validation/uk/>\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
@@ -23,7 +23,24 @@ msgstr ""
 "11 ? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % "
 "100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || "
 "(n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: phone_validation
+#: model:ir.module.module,description:base.module_phone_validation
+msgid ""
+"\n"
+"Phone Numbers Validation\n"
+"========================\n"
+"\n"
+"This module adds the feature of validation and formatting phone numbers\n"
+"according to a destination country.\n"
+"\n"
+"It also adds phone blacklist management through a specific model storing\n"
+"blacklisted phone numbers.\n"
+"\n"
+"It adds mail.thread.phone mixin that handles sanitation and blacklist of\n"
+"records numbers. "
+msgstr ""
 
 #. module: phone_validation
 #. odoo-python
@@ -42,6 +59,21 @@ msgstr "Необхідна дія"
 #: model:ir.model.fields,field_description:phone_validation.field_phone_blacklist__active
 msgid "Active"
 msgstr "Активно"
+
+#. module: phone_validation
+#: model:ir.model,name:phone_validation.model_mail_activity
+msgid "Activity"
+msgstr ""
+
+#. module: phone_validation
+#: model:ir.model,name:phone_validation.model_mail_activity_mixin
+msgid "Activity Mixin"
+msgstr ""
+
+#. module: phone_validation
+#: model:ir.model,name:phone_validation.model_mail_activity_schedule
+msgid "Activity schedule plan Wizard"
+msgstr ""
 
 #. module: phone_validation
 #: model_terms:ir.actions.act_window,help:phone_validation.phone_blacklist_action
@@ -138,11 +170,9 @@ msgid "Created on"
 msgstr "Створено"
 
 #. module: phone_validation
-#: model_terms:ir.ui.view,arch_db:phone_validation.phone_blacklist_remove_view_form
-msgid "Discard"
-msgstr "Відмінити"
-
-#. module: phone_validation
+#: model:ir.model.fields,field_description:phone_validation.field_mail_activity__display_name
+#: model:ir.model.fields,field_description:phone_validation.field_mail_activity_mixin__display_name
+#: model:ir.model.fields,field_description:phone_validation.field_mail_activity_schedule__display_name
 #: model:ir.model.fields,field_description:phone_validation.field_mail_thread_phone__display_name
 #: model:ir.model.fields,field_description:phone_validation.field_phone_blacklist__display_name
 #: model:ir.model.fields,field_description:phone_validation.field_phone_blacklist_remove__display_name
@@ -184,6 +214,9 @@ msgid "Has Message"
 msgstr "Є повідомлення"
 
 #. module: phone_validation
+#: model:ir.model.fields,field_description:phone_validation.field_mail_activity__id
+#: model:ir.model.fields,field_description:phone_validation.field_mail_activity_mixin__id
+#: model:ir.model.fields,field_description:phone_validation.field_mail_activity_schedule__id
 #: model:ir.model.fields,field_description:phone_validation.field_mail_thread_phone__id
 #: model:ir.model.fields,field_description:phone_validation.field_phone_blacklist__id
 #: model:ir.model.fields,field_description:phone_validation.field_phone_blacklist_remove__id
@@ -363,6 +396,11 @@ msgid "Phone Blacklisted"
 msgstr "Телефон у чорному списку"
 
 #. module: phone_validation
+#: model:ir.model.fields,field_description:phone_validation.field_mail_activity_schedule__phone_formatted
+msgid "Phone Formatted"
+msgstr ""
+
+#. module: phone_validation
 #: model:ir.model.fields,field_description:phone_validation.field_mail_thread_phone__phone_mobile_search
 #: model:ir.model.fields,field_description:phone_validation.field_phone_blacklist__number
 #: model:ir.model.fields,field_description:phone_validation.field_phone_blacklist_remove__phone
@@ -371,6 +409,11 @@ msgstr "Телефон у чорному списку"
 #: model_terms:ir.ui.view,arch_db:phone_validation.phone_blacklist_remove_view_form
 msgid "Phone Number"
 msgstr "Номер телефону"
+
+#. module: phone_validation
+#: model:ir.module.module,shortdesc:base.module_phone_validation
+msgid "Phone Numbers Validation"
+msgstr ""
 
 #. module: phone_validation
 #. odoo-python
@@ -427,6 +470,11 @@ msgid "User"
 msgstr "Користувач"
 
 #. module: phone_validation
+#: model:ir.module.module,summary:base.module_phone_validation
+msgid "Validate and format phone numbers"
+msgstr ""
+
+#. module: phone_validation
 #. odoo-python
 #: code:addons/phone_validation/models/mail_thread_phone.py:0
 msgid ""
@@ -443,39 +491,3 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:phone_validation.phone_blacklist_remove_view_form
 msgid "phone_blacklist_removal"
 msgstr "phone_blacklist_removal"
-
-#~ msgid " Please correct the number and try again."
-#~ msgstr "Виправте номер та спробуйте ще раз."
-
-#~ msgid "Blacklisted Phone Is Mobile"
-#~ msgstr "Телефон у чорному списку - це мобільний"
-
-#~ msgid "Confirm"
-#~ msgstr "Підтвердити"
-
-#~ msgid "Impossible number %s: probably invalid number of digits."
-#~ msgstr "Неможлива цифра %s: ймовірно, неправильна кількість цифр."
-
-#~ msgid ""
-#~ "Indicates if a blacklisted sanitized phone number is a mobile number. "
-#~ "Helps distinguish which number is blacklisted             when there is "
-#~ "both a mobile and phone field in a model."
-#~ msgstr ""
-#~ "Визначає, чи номер телефону у чорному списку є мобільним номером. "
-#~ "Допомагає розрізнити, який номер у чорному списку, коли в моделі є поле "
-#~ "як мобільного, так і телефону."
-
-#~ msgid "Main Attachment"
-#~ msgstr "Основне прикріплення"
-
-#~ msgid "Number of messages which requires an action"
-#~ msgstr "Кількість повідомлень, які потебують дії"
-
-#~ msgid "Phone/Mobile"
-#~ msgstr "Телефон/мобільний"
-
-#~ msgid ""
-#~ "Please enter at least 3 characters when searching a Phone/Mobile number."
-#~ msgstr ""
-#~ "Будь ласка, введіть принаймні 3 символи під час пошуку номера телефону/"
-#~ "мобільного телефону."

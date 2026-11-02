@@ -1,13 +1,11 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 import io
 import zipfile
-
-from itertools import chain
-
-from odoo import http, _
-from odoo.exceptions import UserError
-from odoo.http import request, content_disposition
+from odoo import _, http
+from odoo.http import request
+from odoo.http.stream import content_disposition
+from odoo.tools import OrderedSet
+from odoo.tools.mimetypes import get_extension
 
 
 def _get_headers(filename, filetype, content):
@@ -23,7 +21,7 @@ def _build_zip_from_data(docs_data):
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, 'w', compression=zipfile.ZIP_DEFLATED) as zipfile_obj:
         for doc_data in docs_data:
-            zipfile_obj.writestr(doc_data['filename'], doc_data['content'])
+            zipfile_obj.writestr(doc_data['filename'], bytes(doc_data['content']))
     return buffer.getvalue()
 
 
@@ -34,12 +32,13 @@ class AccountDocumentDownloadController(http.Controller):
         attachments.check_access('read')
         assert all(attachment.res_id and attachment.res_model == 'account.move' for attachment in attachments)
         if len(attachments) == 1:
-            headers = _get_headers(attachments.name, attachments.mimetype, attachments.raw)
-            return request.make_response(attachments.raw, headers)
+            content = attachments.raw.content
+            headers = _get_headers(attachments.name, attachments.mimetype, content)
+            return request.make_response(content, headers)
         else:
-            inv_ids = attachments.mapped('res_id')
-            if len(set(inv_ids)) == 1:
-                invoice = request.env['account.move'].browse(inv_ids[0])
+            inv_ids = OrderedSet(a.res_id for a in attachments if a.res_id)
+            if len(inv_ids) == 1:
+                invoice = request.env['account.move'].browse(inv_ids)
                 filename = invoice._get_invoice_report_filename(extension='zip')
             else:
                 filename = _('invoices') + '.zip'
@@ -56,17 +55,19 @@ class AccountDocumentDownloadController(http.Controller):
             if filetype == 'all' and (doc_data := invoice._get_invoice_legal_documents_all(allow_fallback=allow_fallback)):
                 docs_data += doc_data
             elif doc_data := invoice._get_invoice_legal_documents(filetype, allow_fallback=allow_fallback):
-                if (errors := doc_data.get('errors')) and len(invoices) == 1:
-                    raise UserError(_("Error while creating XML:\n- %s", '\n- '.join(errors)))
-                docs_data.append(doc_data)
+                # The potential export errors are not raised: like the Print, the documents generated
+                # here are not meant to be legally valid and are never stored on the invoice.
+                docs_data.extend(doc_data)
         if len(docs_data) == 1:
             doc_data = docs_data[0]
-            headers = _get_headers(doc_data['filename'], doc_data['filetype'], doc_data['content'])
-            return request.make_response(doc_data['content'], headers)
+            content = bytes(doc_data['content'])
+            headers = _get_headers(doc_data['filename'], doc_data['filetype'], content)
+            return request.make_response(content, headers)
         if len(docs_data) > 1:
             zip_content = _build_zip_from_data(docs_data)
             headers = _get_headers(_('invoices') + '.zip', 'zip', zip_content)
             return request.make_response(zip_content, headers)
+        return None
 
     @http.route('/account/download_move_attachments/<models("account.move"):moves>', type='http', auth='user')
     def download_move_attachments(self, moves):
@@ -85,8 +86,26 @@ class AccountDocumentDownloadController(http.Controller):
                     seen[new_name] = 0
             return docs
 
-        if docs_data := list(chain.from_iterable(move._get_move_zip_export_docs() for move in moves)):
+        def get_zip_name(moves):
+            move_types = set(moves.mapped('move_type'))
+            if move_types <= {'in_invoice', 'in_refund', 'in_receipt'}:
+                return request.env._("VendorBills")
+            if move_types <= {'out_invoice', 'out_refund', 'out_receipt'}:
+                return request.env._("CustomerInvoices")
+            return request.env._("Documents")
+
+        docs_data = []
+        for move in moves:
+            move_prefix = move.name.replace('/', '_') if move.name else None
+            for doc in move._get_move_zip_export_docs():
+                if move_prefix:
+                    ext = get_extension(doc["filename"])
+                    doc["filename"] = f"{move_prefix}{ext}" if ext else move_prefix
+                docs_data.append(doc)
+
+        if docs_data:
             docs_data = rename_duplicates(docs_data)
             zip_content = _build_zip_from_data(docs_data)
-            headers = _get_headers(request.env._("Invoices") + '.zip', 'zip', zip_content)
+            headers = _get_headers(get_zip_name(moves) + '.zip', 'zip', zip_content)
             return request.make_response(zip_content, headers)
+        return None

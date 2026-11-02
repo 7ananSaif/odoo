@@ -9,6 +9,58 @@ import { animationFrame } from "@odoo/hoot-mock";
 
 defineWebsiteModels();
 
+test("Show an overlay when hovering an element with options", async () => {
+    await setupWebsiteBuilder(`
+        <section>
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-3">
+                        <p>TEST</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    `);
+    expect(".oe_overlay.o_hover_overlay").toHaveCount(0);
+    await contains(":iframe section").hover();
+    expect(".oe_overlay.o_hover_overlay").toHaveCount(1);
+    expect(".oe_overlay.o_hover_overlay").toHaveRect(":iframe section");
+
+    await contains(":iframe .col-lg-3").hover();
+    expect(".oe_overlay.o_hover_overlay").toHaveCount(1);
+    expect(".oe_overlay.o_hover_overlay").toHaveRect(":iframe .col-lg-3");
+});
+
+test("Do not show the hover overlay for an element with another overlay", async () => {
+    await setupWebsiteBuilder(`
+        <section>
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-3">
+                        <p>TEST</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    `);
+    expect(".oe_overlay").toHaveCount(0);
+    await contains(":iframe section").hover();
+    expect(".oe_overlay.o_hover_overlay").toHaveCount(1);
+    await contains(":iframe .col-lg-3").hover();
+    expect(".oe_overlay.o_hover_overlay").toHaveCount(1);
+
+    await contains(":iframe .col-lg-3").click();
+    expect(".oe_overlay.oe_active").toHaveCount(1);
+    expect(".oe_overlay.o_hover_overlay").toHaveCount(0);
+
+    await contains(":iframe section").hover();
+    expect(".oe_overlay.o_hover_overlay").toHaveCount(1);
+    // The size and position is given in the `style` attribute
+    expect(".oe_overlay.o_hover_overlay").toHaveAttribute("style");
+    await contains(":iframe .col-lg-3").hover();
+    expect(".oe_overlay.o_hover_overlay").toHaveCount(0);
+});
+
 test("Toggle the overlays when clicking on an option element", async () => {
     // TODO improve when more options will be defined.
     await setupWebsiteBuilder(`

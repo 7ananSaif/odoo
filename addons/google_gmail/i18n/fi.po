@@ -9,32 +9,35 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-02-02 13:44+0000\n"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-09-09 14:02+0000\n"
 "Last-Translator: Saara Hakanen <sahak@odoo.com>\n"
-"Language-Team: Finnish <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Finnish <https://translate.odoo.com/projects/odoo-master/"
 "google_gmail/fi/>\n"
 "Language: fi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.14.3\n"
-
-#. module: google_gmail
-#: model_terms:ir.ui.view,arch_db:google_gmail.fetchmail_server_view_form
-#: model_terms:ir.ui.view,arch_db:google_gmail.ir_mail_server_view_form
-msgid "<i class=\"fa fa-cog\" title=\"Edit Settings\"/>"
-msgstr "<i class=\"fa fa-cog\" title=\"Muokkaa asetuksia\"/>"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: google_gmail
 #: model_terms:ir.ui.view,arch_db:google_gmail.fetchmail_server_view_form
 #: model_terms:ir.ui.view,arch_db:google_gmail.ir_mail_server_view_form
 msgid ""
-"<i class=\"oi oi-arrow-right\"/>\n"
+"<i class=\"oi oi-filled\" data-icon=\"settings\" title=\"Edit Settings\"/>"
+msgstr ""
+"<i class=\"oi oi-filled\" data-icon=\"settings\" title=\"Muokkaa asetuksia\"/"
+">"
+
+#. module: google_gmail
+#: model_terms:ir.ui.view,arch_db:google_gmail.fetchmail_server_view_form
+#: model_terms:ir.ui.view,arch_db:google_gmail.ir_mail_server_view_form
+msgid ""
+"<i class=\"oi\" data-icon=\"east\"/>\n"
 "                        Connect your Gmail account"
 msgstr ""
-"<i class=\"oi oi-arrow-right\"/>\n"
+"<i class=\"oi\" data-icon=\"east\"/>\n"
 "                        Yhdistä Gmail-tilisi"
 
 #. module: google_gmail
@@ -163,9 +166,19 @@ msgid "Gmail OAuth Authentication"
 msgstr "Gmail OAuth-todennus"
 
 #. module: google_gmail
+#: model:ir.module.module,description:base.module_google_gmail
+msgid "Gmail support for incoming / outgoing mail servers"
+msgstr ""
+
+#. module: google_gmail
 #: model_terms:ir.ui.view,arch_db:google_gmail.google_gmail_oauth_error
 msgid "Go back"
 msgstr "Palaa takaisin"
+
+#. module: google_gmail
+#: model:ir.module.module,shortdesc:base.module_google_gmail
+msgid "Google Gmail"
+msgstr ""
 
 #. module: google_gmail
 #: model:ir.model,name:google_gmail.model_google_gmail_mixin
@@ -226,9 +239,9 @@ msgid ""
 "Oops, you're creating an authorization to send from %(email_login)s but your "
 "address is %(email_server)s. Make sure your addresses match!"
 msgstr ""
-"Oho, olet luomassa valtuutusta lähettää viestejä osoitteesta %"
-"(email_login)s, mutta osoitteesi on %(email_server)s. Varmista, että "
-"osoitteesi ovat samat!"
+"Oho, olet luomassa valtuutusta lähettää viestejä osoitteesta %(email_login)"
+"s, mutta osoitteesi on %(email_server)s. Varmista, että osoitteesi ovat "
+"samat!"
 
 #. module: google_gmail
 #: model:ir.model.fields,field_description:google_gmail.field_res_users__outgoing_mail_server_type
@@ -332,16 +345,3 @@ msgstr "Käyttäjä"
 #: code:addons/google_gmail/tools.py:0
 msgid "You don't have an active subscription"
 msgstr "Sinulla ei ole aktiivista tilausta"
-
-#~ msgid "An error occur during the authentication process."
-#~ msgstr "Todentamisprosessin aikana tapahtui virhe."
-
-#~ msgid "Authorization Code"
-#~ msgstr "Valtuutusavain"
-
-#~ msgid ""
-#~ "Setup your Gmail API credentials in the general settings to link a Gmail "
-#~ "account."
-#~ msgstr ""
-#~ "Määritä Gmailin API-tunnukset yleisissä asetuksissa Gmail-tilin "
-#~ "yhdistämiseksi."

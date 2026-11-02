@@ -7,27 +7,39 @@
 # Boško Stojaković <bluesoft83@gmail.com>, 2018
 # Bole <bole@dajmi5.com>, 2018
 # Odoo Translation Bot <c3p@odoo.com>, 2026.
-# Weblate <noreply-mt-weblate@weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~11.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:40+0000\n"
-"PO-Revision-Date: 2026-06-12 03:28+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Bosnian <https://translate.odoo.com/projects/odoo-19/uom/bs/>"
-"\n"
+"POT-Creation-Date: 2026-09-11 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 20:45+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Bosnian <https://translate.odoo.com/projects/odoo-s19-4/uom/"
+"bs/>\n"
 "Language: bs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: uom
+#: model:ir.module.module,description:base.module_uom
+msgid ""
+"\n"
+"This is the base module for managing Units of measure.\n"
+"========================================================================\n"
+msgstr ""
 
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_uom__factor
 msgid "Absolute Quantity"
+msgstr ""
+
+#. module: uom
+#: model:ir.model,name:uom.model_res_groups
+msgid "Access Groups"
 msgstr ""
 
 #. module: uom
@@ -36,21 +48,19 @@ msgid "Active"
 msgstr "Aktivan"
 
 #. module: uom
-#: model_terms:ir.actions.act_window,help:uom.product_uom_form_action
+#: model_terms:ir.actions.act_window,help:uom.uom_uom_action_list
 msgid "Add a new unit of measure"
 msgstr ""
 
 #. module: uom
 #: model_terms:ir.ui.view,arch_db:uom.uom_uom_view_search
-#, fuzzy
 msgid "Archived"
-msgstr "Arhivirano"
+msgstr ""
 
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_uom__relative_factor
-#, fuzzy
 msgid "Contains"
-msgstr "Sadrži"
+msgstr ""
 
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_uom__create_uid
@@ -64,11 +74,11 @@ msgstr "Kreirano"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_day
-#, fuzzy
 msgid "Days"
-msgstr "Dani"
+msgstr ""
 
 #. module: uom
+#: model:ir.model.fields,field_description:uom.field_res_groups__display_name
 #: model:ir.model.fields,field_description:uom.field_uom_uom__display_name
 msgid "Display Name"
 msgstr "Prikazani naziv"
@@ -80,9 +90,8 @@ msgstr ""
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_hour
-#, fuzzy
 msgid "Hours"
-msgstr "Sati"
+msgstr ""
 
 #. module: uom
 #: model:ir.model.fields,help:uom.field_uom_uom__relative_factor
@@ -92,6 +101,7 @@ msgid ""
 msgstr ""
 
 #. module: uom
+#: model:ir.model.fields,field_description:uom.field_res_groups__id
 #: model:ir.model.fields,field_description:uom.field_uom_uom__id
 msgid "ID"
 msgstr "ID"
@@ -103,9 +113,8 @@ msgstr ""
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_litre
-#, fuzzy
 msgid "L"
-msgstr "L"
+msgstr ""
 
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_uom__write_uid
@@ -124,21 +133,18 @@ msgstr "Upravljanje sa više jedinica mjere"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_minute
-#, fuzzy
 msgid "Minutes"
-msgstr "Minute"
+msgstr ""
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_pack_6
-#, fuzzy
 msgid "Pack of 6"
-msgstr "Pakiranje od 6"
+msgstr ""
 
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_uom__parent_path
-#, fuzzy
 msgid "Parent Path"
-msgstr "Putanja nadređenih"
+msgstr ""
 
 #. module: uom
 #. odoo-javascript
@@ -153,10 +159,9 @@ msgid "Product Unit of Measure"
 msgstr "Jedinica mjere proizvoda"
 
 #. module: uom
-#: model_terms:ir.ui.view,arch_db:uom.product_uom_form_view
-#, fuzzy
+#: model_terms:ir.ui.view,arch_db:uom.uom_uom_view_form
 msgid "Quantity"
-msgstr "Količina"
+msgstr ""
 
 #. module: uom
 #. odoo-javascript
@@ -167,7 +172,7 @@ msgstr ""
 
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_uom__relative_uom_id
-#: model_terms:ir.ui.view,arch_db:uom.product_uom_form_view
+#: model_terms:ir.ui.view,arch_db:uom.uom_uom_view_form
 msgid "Reference Unit"
 msgstr ""
 
@@ -183,20 +188,14 @@ msgid "Related UoMs"
 msgstr ""
 
 #. module: uom
-#: model:ir.model.fields,field_description:uom.field_uom_uom__rounding
-msgid "Rounding Precision"
-msgstr "Preciznost zaokruživanja"
-
-#. module: uom
 #: model_terms:ir.ui.view,arch_db:uom.uom_uom_view_search
 msgid "Search UOM"
 msgstr ""
 
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_uom__sequence
-#, fuzzy
 msgid "Sequence"
-msgstr "Sekvenca"
+msgstr ""
 
 #. module: uom
 #. odoo-python
@@ -226,11 +225,6 @@ msgid ""
 msgstr ""
 
 #. module: uom
-#: model:uom.uom,name:uom.product_uom_ton
-msgid "Ton"
-msgstr ""
-
-#. module: uom
 #: model:ir.model.fields,help:uom.field_uom_uom__active
 msgid ""
 "Uncheck the active field to disable a unit of measure without deleting it."
@@ -238,41 +232,41 @@ msgstr ""
 
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_uom__name
-#, fuzzy
 msgid "Unit Name"
-msgstr "Naziv jedinice"
+msgstr ""
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_unit
-#, fuzzy
 msgid "Units"
-msgstr "Jedinice"
+msgstr ""
 
 #. module: uom
-#: model:ir.actions.act_window,name:uom.product_uom_form_action
-#: model_terms:ir.ui.view,arch_db:uom.product_uom_tree_view
-#, fuzzy
+#: model:ir.actions.act_window,name:uom.uom_uom_action_list
+#: model_terms:ir.ui.view,arch_db:uom.uom_uom_view_list
 msgid "Units & Packagings"
-msgstr "Jedinice i pakiranja"
+msgstr ""
 
 #. module: uom
-#: model_terms:ir.ui.view,arch_db:uom.product_uom_form_view
+#: model_terms:ir.ui.view,arch_db:uom.uom_uom_view_form
 msgid "Units of Measure"
 msgstr "Jedinice mere"
 
 #. module: uom
+#: model:ir.module.module,shortdesc:base.module_uom
+msgid "Units of measure"
+msgstr ""
+
+#. module: uom
 #. odoo-javascript
 #: code:addons/uom/static/src/components/many2one_uom/many2one_uom_field.js:0
-#, fuzzy
 msgid "Unnamed"
-msgstr "Bez imena"
+msgstr ""
 
 #. module: uom
 #. odoo-python
 #: code:addons/uom/models/uom_uom.py:0
-#, fuzzy
 msgid "Warning for %s"
-msgstr "Upozorenje za %s"
+msgstr ""
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_cm
@@ -311,9 +305,8 @@ msgstr ""
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_inch
-#, fuzzy
 msgid "in"
-msgstr "u"
+msgstr ""
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_cubic_inch
@@ -342,9 +335,8 @@ msgstr ""
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_mile
-#, fuzzy
 msgid "mi"
-msgstr "mi"
+msgstr ""
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_milliliter
@@ -377,65 +369,11 @@ msgid "qt (US)"
 msgstr ""
 
 #. module: uom
+#: model:uom.uom,name:uom.product_uom_ton
+msgid "t"
+msgstr ""
+
+#. module: uom
 #: model:uom.uom,name:uom.product_uom_yard
 msgid "yd"
 msgstr ""
-
-#~ msgid "Bigger than the reference Unit of Measure"
-#~ msgstr "Veće od referentne jedinice mjere"
-
-#~ msgid "Category"
-#~ msgstr "Kategorija"
-
-#~ msgid ""
-#~ "Conversion between Units of Measure can only occur if they belong to the "
-#~ "same category. The conversion will be made based on the ratios."
-#~ msgstr ""
-#~ "Konverzija između jedinica mjera može samo da se pojavi ako pripadaju "
-#~ "istoj kategoriji. Konverzija se izvršava na osnovu omjera."
-
-#~ msgid "Last Modified on"
-#~ msgstr "Zadnje mijenjano"
-
-#~ msgid "Length / Distance"
-#~ msgstr "Dužina / Udaljenost"
-
-#~ msgid "Product UoM Categories"
-#~ msgstr "Kategorije jedinica mjera"
-
-#~ msgid "Ratio"
-#~ msgstr "Omjer"
-
-#~ msgid "Reference Unit of Measure for this category"
-#~ msgstr "Referentna jedinica mjere za ovu kategoriju"
-
-#~ msgid "Smaller than the reference Unit of Measure"
-#~ msgstr "Manje od referentne jedinice mjere"
-
-#~ msgid ""
-#~ "The computed quantity will be a multiple of this value. Use 1.0 for a "
-#~ "Unit of Measure that cannot be further split, such as a piece."
-#~ msgstr ""
-#~ "Izračunata količina će biti množioc ove vrijednosti. Koristite 1.0 za "
-#~ "jedinicu mjere koja ne može dalje da se razdvaja, kao što je komad."
-
-#~ msgid "Type"
-#~ msgstr "Tip"
-
-#~ msgid "Unit"
-#~ msgstr "Jedinica"
-
-#~ msgid "Unit of Measure"
-#~ msgstr "Jedinica mjere"
-
-#~ msgid "Units of Measure categories"
-#~ msgstr "Kategorije jedinica mjere"
-
-#~ msgid "Volume"
-#~ msgstr "Volumen"
-
-#~ msgid "Weight"
-#~ msgstr "Težina"
-
-#~ msgid "Working Time"
-#~ msgstr "Radno Vrijeme"

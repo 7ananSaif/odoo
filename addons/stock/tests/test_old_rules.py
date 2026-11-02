@@ -4,10 +4,19 @@ from datetime import timedelta
 
 from odoo import Command
 from odoo.addons.stock.models.stock_rule import StockRule
-from odoo.tests import Form
+from odoo.tests import tagged, Form
 from odoo.addons.stock.tests.common import TestStockCommon
 
+
+@tagged('at_install', '-post_install')  # LEGACY at_install Fails in post install
 class TestOldRules(TestStockCommon):
+
+    _test_user_groups = (
+        'product.group_product_manager',  # FIXME: use base.group_user
+        'stock.group_stock_user',
+    )
+
+    _test_user_name = 'Test Stock User & Product Manager'
 
     @classmethod
     def setUpClass(cls):
@@ -141,7 +150,7 @@ class TestOldRules(TestStockCommon):
         # We alter one rule and we set it to 'mts_else_mto'
         self.warehouse_3_steps.delivery_route_id.rule_ids.filtered(
             lambda r: r.procure_method == "make_to_order"
-        ).procure_method = 'mts_else_mto'
+        ).sudo().procure_method = 'mts_else_mto'
 
         reference = self.env['stock.reference'].create({'name': 'Test-pg-mtso-mto'})
 
@@ -193,7 +202,7 @@ class TestOldRules(TestStockCommon):
         # We alter one rule and we set it to 'mts_else_mto'
         self.warehouse_3_steps.delivery_route_id.rule_ids.filtered(
             lambda r: r.procure_method == "make_to_order"
-        ).procure_method = 'mts_else_mto'
+        ).sudo().procure_method = 'mts_else_mto'
 
         reference_1 = self.env['stock.reference'].create({'name': 'Test-pg-mtso-mts-1'})
         reference_2 = self.env['stock.reference'].create({'name': 'Test-pg-mtso-mts-2'})
@@ -275,14 +284,14 @@ class TestOldRules(TestStockCommon):
             move_A, move_B = self.env['stock.move'].create([{
                 'product_id': self.productA.id,
                 'product_uom_qty': 1,
-                'product_uom': self.productA.uom_id.id,
+                'uom_id': self.productA.uom_id.id,
                 'picking_id': picking.id,
                 'location_id': from_loc.id,
                 'location_dest_id': to_loc.id,
             }, {
                 'product_id': self.productB.id,
                 'product_uom_qty': 1,
-                'product_uom': self.productB.uom_id.id,
+                'uom_id': self.productB.uom_id.id,
                 'picking_id': picking.id,
                 'location_id': from_loc.id,
                 'location_dest_id': to_loc.id,
@@ -327,7 +336,7 @@ class TestOldRules(TestStockCommon):
         ship_move = self.env['stock.move'].create({
             'product_id': prod.id,
             'product_uom_qty': 5.0,
-            'product_uom': prod.uom_id.id,
+            'uom_id': prod.uom_id.id,
             'location_id': self.warehouse_3_steps.wh_output_stock_loc_id.id,
             'location_dest_id': self.customer_location.id,
             'warehouse_id':  self.warehouse_3_steps.id,
@@ -362,7 +371,7 @@ class TestOldRules(TestStockCommon):
         ship_move = self.env['stock.move'].create({
             'product_id': self.product.id,
             'product_uom_qty': 5.0,
-            'product_uom': self.product.uom_id.id,
+            'uom_id': self.product.uom_id.id,
             'location_id': warehouse.wh_output_stock_loc_id.id,
             'location_dest_id': self.customer_location.id,
             'warehouse_id': warehouse.id,
@@ -388,9 +397,34 @@ class TestOldRules(TestStockCommon):
             move_line.product_uom_qty = 15
         receipt = receipt_form.save()
 
-        report = self.env['report.stock.report_reception']
-        report_values = report._get_report_values(docids=[receipt.id])
-        self.assertEqual(len(report_values['sources_to_lines']), 1, "There should only be 1 line (pick move)")
+        report = self.env['stock.allocation.report']
+        report_values = report._get_report_values('stock.picking', receipt.id)
+        product_lines = report_values['product_lines']
+        self.assertEqual(len(product_lines), 1, "There should only be 1 in line (product receipt)")
+        needs = product_lines[0]['needs']
+        self.assertEqual(len(needs), 1, "There should only be 1 out line (pick move)")
+
+    def test_update_picking_origin(self):
+        """ Check that adding new moves to a picking updates its origin without duplicate nor order mismatch
+        """
+        reference = self.env['stock.reference'].create({'name': 'reference'})
+        moves = self.env['stock.move'].create([
+            {
+                'picking_type_id': self.warehouse_1.out_type_id.id,
+                'location_id': self.warehouse_1.lot_stock_id.id,
+                'location_dest_id': self.customer_location.id,
+                'product_id': product.id,
+                'uom_id': product.uom_id.id,
+                'product_uom_qty': 1.0,
+                'origin': origin,
+                'reference_ids': [Command.link(reference.id)],
+            } for product, origin in [(self.productA, 'origin1'), (self.productA, 'origin2'), (self.productB, 'origin2'), (self.productB, 'origin1')]
+        ])
+        moves[0]._action_confirm()
+        receipt = moves.picking_id
+        self.assertEqual(receipt.origin, 'origin1')
+        moves[1:]._action_confirm()
+        self.assertEqual(receipt.origin, 'origin1,origin2')
 
     def test_update_picking_origin(self):
         """ Check that adding new moves to a picking updates its origin without duplicate nor order mismatch
@@ -426,7 +460,7 @@ class TestOldRules(TestStockCommon):
         pick_pack_ship_route = self.warehouse_3_steps.delivery_route_id
         pick_rule = pick_pack_ship_route.rule_ids.filtered(lambda rule: rule.picking_type_id == self.warehouse_3_steps.pick_type_id)
         pack_rule = pick_pack_ship_route.rule_ids.filtered(lambda rule:  rule.picking_type_id == self.warehouse_3_steps.pack_type_id)
-        (pick_rule | pack_rule).propagate_cancel = True
+        (pick_rule | pack_rule).sudo().propagate_cancel = True
         ship_rule = pick_pack_ship_route.rule_ids - (pick_rule | pack_rule)
         self.env['stock.rule'].run([
             self.env['stock.rule'].Procurement(
@@ -454,15 +488,15 @@ class TestOldRules(TestStockCommon):
         is taken from the rule instead of the picking type.
         """
         rule = self.warehouse_1.reception_route_id.rule_ids.filtered(lambda r: r.action == 'pull')
-        new_loc = self.env['stock.location'].create({
+        new_loc = self.env['stock.location'].sudo().create({
             'name': 'Shelf',
             'usage': 'transit',
             'location_id': rule.location_dest_id.id,
         })
-        rule.write({
+        rule.sudo().write({
             'location_dest_id': new_loc.id,
         })
-        rule.location_dest_from_rule = True
+        rule.sudo().location_dest_from_rule = True
         picking = self.env['stock.picking'].create({
             'picking_type_id': rule.picking_type_id.id,
             'location_dest_id': rule.location_dest_id.id,

@@ -16,17 +16,30 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-02-26 11:03+0000\n"
-"Last-Translator: Saara Hakanen <sahak@odoo.com>\n"
-"Language-Team: Finnish <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 15:22+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Finnish <https://translate.odoo.com/projects/odoo-s19-4/"
 "product_email_template/fi/>\n"
 "Language: fi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: product_email_template
+#: model:ir.module.module,description:base.module_product_email_template
+msgid ""
+"\n"
+"Add email templates to products to be sent on invoice confirmation\n"
+"==================================================================\n"
+"\n"
+"With this module, link your products to a template to send complete "
+"information and tools to your customer.\n"
+"For instance when invoicing a training, the training agenda and materials "
+"will automatically be sent to your customers.'\n"
+msgstr ""
 
 #. module: product_email_template
 #: model_terms:ir.ui.view,arch_db:product_email_template.product_template_form_view
@@ -69,8 +82,9 @@ msgstr "Tuote"
 #. module: product_email_template
 #: model:ir.model.fields,field_description:product_email_template.field_product_product__email_template_id
 #: model:ir.model.fields,field_description:product_email_template.field_product_template__email_template_id
+#: model:ir.module.module,shortdesc:base.module_product_email_template
 msgid "Product Email Template"
-msgstr "Tuotteen sähköpostipohja"
+msgstr "Tuotteen sähköpostimalli"
 
 #. module: product_email_template
 #: model_terms:ir.ui.view,arch_db:product_email_template.product_template_form_view
@@ -85,6 +99,6 @@ msgid ""
 "this template. The customer will receive an email for each product linked to "
 "an email template."
 msgstr ""
-"Laskua hyväksyttäessä asiakkaalle lähetetään tähän mallipohjaan perustuva "
-"sähköposti. Asiakas saa sähköpostin jokaisesta sähköpostipohjaan liitetystä "
-"tuotteesta."
+"Laskun hyväksynnän yhteydessä asiakkaalle lähetetään sähköposti perustuen "
+"tähän sähköpostimalliin. Asiakas saa sähköpostin jokaisesta "
+"sähköpostimalliin liitetystä tuotteesta."

@@ -8,7 +8,7 @@
                 <sheet>
                     <widget name="web_ribbon" text="Archived" bg_color="text-bg-danger" invisible="active"/>
                     <div class="oe_button_box" name="button_box">
-                        <button name="action_model_vehicle" type="object" icon="fa-car" class="oe_stat_button">
+                        <button name="action_model_vehicle" type="object" icon="directions_car" class="oe_stat_button">
                             <field
                                 name="vehicle_count"
                                 widget="statinfo"
@@ -26,16 +26,16 @@
                         <h1>
                             <field name="name" placeholder="e.g. Model S"/>
                         </h1>
-                        <label for="brand_id"/>
-                        <h2>
+                        <group>
                             <field name="brand_id" placeholder="e.g. Tesla"/>
-                        </h2>
+                        </group>
                     </div>
                     <group>
                         <group>
                             <field name="active" invisible="1"/>
                             <field name="vehicle_type"/>
                             <field name="category_id" options="{'no_create_edit': True}"/>
+                            <field name="company_id" groups="base.group_multi_company" placeholder="Visible to all" domain="[('id', 'in', allowed_company_ids)]"/>
                         </group>
                     </group>
                     <notebook>
@@ -45,19 +45,23 @@
                                     <field name="model_year"/>
                                     <field name="seats"/>
                                     <field name="doors"/>
-                                    <field name="color"/>
-                                    <field name="trailer_hook"/>
                                 </group>
-                                <group id="vehicle_information" string="Vehicle Information" invisible="vehicle_type != 'bike'">
+                                <group id="vehicle_information" string="Model" invisible="vehicle_type != 'bike'">
+                                    <field name="model_year"/>
                                     <field name="electric_assistance"/>
                                 </group>
-                                <group string="Engine" invisible="vehicle_type != 'car'" name="group_engine">
+                                <group string="Engine" name="group_engine">
                                     <field name="default_fuel_type" required="1"/>
                                     <field name="transmission"/>
                                     <field name="drive_type"/>
                                     <label for="power" invisible="power_unit != 'power'"/>
                                     <div class="o_row" invisible="power_unit != 'power'">
                                         <field name="power"/>
+                                        <field name="power_unit"/>
+                                    </div>
+                                    <label for="horsepower" invisible="power_unit != 'horsepower'"/>
+                                    <div class="o_row" name="horsepower_row" invisible="power_unit != 'horsepower'">
+                                        <field name="horsepower"/>
                                         <field name="power_unit"/>
                                     </div>
                                     <label for="vehicle_range"/>
@@ -71,12 +75,6 @@
                                         <field name="co2_emission_unit"/>
                                     </div>
                                     <field name="co2_standard" placeholder="eg. WLTP, Euro 6, or EPA, ..."/>
-                                    <label for="horsepower" invisible="power_unit != 'horsepower'"/>
-                                    <div class="o_row" invisible="power_unit != 'horsepower'">
-                                        <field name="horsepower"/>
-                                        <field name="power_unit"/>
-                                    </div>
-                                    <field name="horsepower_tax" invisible="power_unit != 'horsepower'"/>
                                 </group>
                             </group>
                         </page>
@@ -185,7 +183,7 @@
             <form string="Model Make">
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button name="action_brand_model" type="object" icon="fa-car" class="oe_stat_button"
+                        <button name="action_brand_model" type="object" icon="directions_car" class="oe_stat_button"
                             invisible="model_count == 0">
                             <field name="model_count" widget="statinfo" string="Models"/>
                         </button>

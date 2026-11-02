@@ -46,8 +46,8 @@
                 &:after {
                     @include o-position-absolute(2px, 3px);
                     display: inline-block;
-                    content: "\f00c";
-                    font-family: FontAwesome;
+                    content: "check";
+                    font-family: var(--icon-font-family, "Material Symbols Outlined");
                     color: white;
                     font-size: 12px;
                 }
@@ -141,6 +141,13 @@
             height: 100%;
             width: 100%;
             object-fit: cover;
+        }
+
+        .o_seo_checks_overlay {
+            @include o-position-absolute(0, 0, 0, 0);
+            z-index: 5;
+            background-color: rgba($o-view-background-color, 0.5);
+            backdrop-filter: blur(1.4px);
         }
     }
     .oe_remove:hover {

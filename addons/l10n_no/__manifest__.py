@@ -12,8 +12,6 @@
 Updated for Odoo 9 by Bringsvor Consulting AS <www.bringsvor.com>
 """,
     'depends': [
-        'base_iban',
-        'base_vat',
         'account',
         'account_edi_ubl_cii',
     ],
@@ -21,8 +19,6 @@ Updated for Odoo 9 by Bringsvor Consulting AS <www.bringsvor.com>
     'data': [
         'data/account_tax_report_data.xml',
         'views/account_tax.xml',
-        'views/res_partner_views.xml',
-        'views/res_company_views.xml',
     ],
     'demo': [
         'demo/demo_company.xml',

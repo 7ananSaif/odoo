@@ -1,17 +1,14 @@
-import base64
 import logging
-import json
+import copy
 import re
 
 from contextlib import contextmanager
 from markupsafe import Markup
 
-from odoo import Command, _, api, fields, models
+from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError, RedirectWarning, UserError
 from odoo.tools.float_utils import json_float_round
 from odoo.tools.image import image_data_uri
-from odoo.tools import float_compare, SQL
-from odoo.tools.date_utils import get_month
 from odoo.addons.l10n_in.models.iap_account import IAP_SERVICE_NAME
 
 EDI_CANCEL_REASON = {
@@ -56,57 +53,24 @@ class AccountMove(models.Model):
     )
     l10n_in_gstin = fields.Char(string="GSTIN")
     # For Export invoice this data is need in GSTR report
-    l10n_in_shipping_bill_number = fields.Char('Shipping bill number')
-    l10n_in_shipping_bill_date = fields.Date('Shipping bill date')
-    l10n_in_shipping_port_code_id = fields.Many2one('l10n_in.port.code', 'Port code')
+    l10n_in_shipping_bill_number = fields.Char('Shipping bill number', tracking=True)
+    l10n_in_shipping_bill_date = fields.Date('Shipping bill date', tracking=True)
+    l10n_in_shipping_port_code_id = fields.Many2one('l10n_in.port.code', 'Port code', tracking=True)
     l10n_in_reseller_partner_id = fields.Many2one(
         comodel_name='res.partner',
         string="Reseller",
-        domain=[('vat', '!=', False)],
+        domain=[('has_vat', '=', True)],
         help="Only Registered Reseller"
     )
     l10n_in_journal_type = fields.Selection(string="Journal Type", related='journal_id.type')
     l10n_in_warning = fields.Json(compute="_compute_l10n_in_warning")
-    l10n_in_is_gst_registered_enabled = fields.Boolean(related='company_id.l10n_in_is_gst_registered')
+    l10n_in_is_gst_registered_enabled = fields.Boolean(compute="_compute_l10n_in_is_gst_registered_enabled")
     l10n_in_tds_deduction = fields.Selection(related='commercial_partner_id.l10n_in_pan_entity_id.tds_deduction', string="TDS Deduction")
 
+    # self - invoice related field
+    l10n_in_is_self_invoice = fields.Boolean(related='journal_id.l10n_in_self_invoice')
+
     # withholding related fields
-    l10n_in_is_withholding = fields.Boolean(
-        string="Is Indian TDS Entry",
-        copy=False,
-        help="Technical field to identify Indian withholding entry"
-    )
-    l10n_in_withholding_ref_move_id = fields.Many2one(
-        comodel_name='account.move',
-        string="Indian TDS Ref Move",
-        readonly=True,
-        index='btree_not_null',
-        copy=False,
-        help="Reference move for withholding entry",
-    )
-    l10n_in_withholding_ref_payment_id = fields.Many2one(
-        comodel_name='account.payment',
-        string="Indian TDS Ref Payment",
-        index='btree_not_null',
-        readonly=True,
-        copy=False,
-        help="Reference Payment for withholding entry",
-    )
-    l10n_in_withhold_move_ids = fields.One2many(
-        'account.move', 'l10n_in_withholding_ref_move_id',
-        string="Indian TDS Entries"
-    )
-    l10n_in_withholding_line_ids = fields.One2many(
-        'account.move.line', 'move_id',
-        string="Indian TDS Lines",
-        compute='_compute_l10n_in_withholding_line_ids',
-    )
-    l10n_in_total_withholding_amount = fields.Monetary(
-        string="Total Indian TDS Amount",
-        compute='_compute_l10n_in_total_withholding_amount',
-        help="Total withholding amount for the move",
-    )
-    l10n_in_display_higher_tcs_button = fields.Boolean(string="Display higher TCS button", compute="_compute_l10n_in_display_higher_tcs_button")
     l10n_in_tds_feature_enabled = fields.Boolean(related='company_id.l10n_in_tds_feature')
     l10n_in_tcs_feature_enabled = fields.Boolean(related='company_id.l10n_in_tcs_feature')
 
@@ -117,6 +81,18 @@ class AccountMove(models.Model):
     )
     l10n_in_show_gstin_status = fields.Boolean(compute="_compute_l10n_in_show_gstin_status")
     l10n_in_gstin_verified_date = fields.Date(compute="_compute_l10n_in_partner_gstin_status_and_date")
+
+    l10n_in_adjustment_type = fields.Selection([
+        ('standard', 'Standard'),
+        ('price_adjustment', 'Price Adjustment'),
+    ],
+        string="Adjustment Type",
+        compute="_compute_l10n_in_adjustment_type",
+        store=True,
+        readonly=False,
+        copy=False,
+        help="""Select 'Standard' when quantity is affected.
+                Select 'Price Adjustment' when quantity is not affected.""")
 
     # -------------------------------------------------------------------------
     # COMPUTE METHODS
@@ -216,7 +192,7 @@ class AccountMove(models.Model):
     def _onchange_name_warning(self):
         if (
             self.country_code == 'IN'
-            and self.company_id.l10n_in_is_gst_registered
+            and self.company_id.l10n_in_gst_registration_type
             and self.journal_id.type == 'sale'
             and self.name
             and (len(self.name) > 16 or not re.match(r'^[a-zA-Z0-9-\/]+$', self.name))
@@ -235,7 +211,9 @@ class AccountMove(models.Model):
         'company_id.l10n_in_hsn_code_digit',
         'invoice_line_ids.tax_ids',
         'commercial_partner_id.l10n_in_pan_entity_id',
-        'invoice_line_ids.price_total'
+        'invoice_line_ids.price_total',
+        'l10n_in_is_self_invoice',
+        'invoice_line_ids.l10n_in_gstr_section',
     )
     def _compute_l10n_in_warning(self):
         indian_invoice = self.filtered(lambda m: m.country_code == 'IN' and m.move_type != 'entry')
@@ -246,42 +224,39 @@ class AccountMove(models.Model):
             company = move.company_id
             action_name = _("Journal Item(s)")
             action_text = _("View Journal Item(s)")
-            if company.l10n_in_tcs_feature or company.l10n_in_tds_feature:
-                invalid_tax_lines = move._get_l10n_in_invalid_tax_lines()
-                if company.l10n_in_tcs_feature and invalid_tax_lines:
-                    warnings['lower_tcs_tax'] = {
-                        'message': _("As the Partner's PAN missing/invalid apply TCS at the higher rate."),
-                        'actions': invalid_tax_lines.with_context(tax_validation=True)._get_records_action(
-                            name=action_name,
-                            views=[(_xmlid_to_res_id("l10n_in.view_move_line_tree_hsn_l10n_in"), "list")],
-                            domain=[('id', 'in', invalid_tax_lines.ids)],
-                        ),
-                        'action_text': action_text,
-                    }
+            invalid_tax_lines = move.invoice_line_ids.filtered(
+                lambda line: line.display_type == 'product'
+                and any(tax.l10n_in_tax_type == 'tcs' for tax in line.tax_ids)
+            )
+            if company.l10n_in_tcs_feature and not move.commercial_partner_id.l10n_in_pan_entity_id and invalid_tax_lines:
+                warnings['lower_tcs_tax'] = {
+                    'message': _("As the Partner's PAN missing/invalid apply TCS at the higher rate."),
+                    'action': invalid_tax_lines.with_context(tax_validation=True)._get_records_action(
+                        name=action_name,
+                        views=[(_xmlid_to_res_id("l10n_in.view_move_line_tree_hsn_l10n_in"), "list")],
+                        domain=[('id', 'in', invalid_tax_lines.ids)],
+                    ),
+                    'action_text': action_text,
+                }
 
-                if applicable_sections := move._get_l10n_in_tds_tcs_applicable_sections():
-                    tds_tcs_applicable_lines = (
-                        move.move_type == 'out_invoice'
-                        and move._get_tcs_applicable_lines(move.invoice_line_ids)
-                        or move.invoice_line_ids
-                    )
-                    warnings['tds_tcs_threshold_alert'] = {
-                        'message': applicable_sections._get_warning_message(),
-                        'action': tds_tcs_applicable_lines.with_context(
-                            default_tax_type_use=True,
-                            move_type=move.move_type == 'in_invoice'
-                        )._get_records_action(
-                            name=action_name,
-                            domain=[('id', 'in', tds_tcs_applicable_lines.ids)],
-                            views=[(_xmlid_to_res_id("l10n_in.view_move_line_list_l10n_in_withholding"), "list")]
-                        ),
-                        'action_text': action_text,
-                    }
+            if move.l10n_in_is_self_invoice and any(
+                line.l10n_in_gstr_section != 'purchase_b2c_rcm'
+                for line in move.invoice_line_ids
+                if line._origin
+            ):
+                warnings['invalid_self_invoice'] = {
+                    'message': _(
+                        "This invoice does not meet the Self Invoice conditions. "
+                        "Please verify before printing.",
+                    ),
+                }
 
             if (
-                company.l10n_in_is_gst_registered
+                company.l10n_in_gst_registration_type == 'regular'
                 and company.l10n_in_hsn_code_digit
                 and (filtered_lines := move.invoice_line_ids.filtered(line_filter_func))
+                and (not company.l10n_in_disable_b2c_hsn_reporting
+                     or move.l10n_in_gst_treatment in self._l10n_in_get_b2b_gst_treatments())
             ):
                 lines = self.env['account.move.line']
                 for line in filtered_lines:
@@ -354,194 +329,85 @@ class AccountMove(models.Model):
                 move.l10n_in_partner_gstin_status = False
                 move.l10n_in_gstin_verified_date = False
 
-    @api.depends('line_ids', 'l10n_in_is_withholding')
-    def _compute_l10n_in_withholding_line_ids(self):
-        # Compute the withholding lines for the move
-        for move in self:
-            if move.l10n_in_is_withholding:
-                move.l10n_in_withholding_line_ids = move.line_ids.filtered('tax_ids')
-            else:
-                move.l10n_in_withholding_line_ids = False
+    @api.depends('move_type')
+    def _compute_l10n_in_adjustment_type(self):
+        # For customer credit / debit notes, keep adjustment type as standard by default
+        standard_moves = self.filtered(lambda m:
+            m.country_code == 'IN'
+            and (
+                m.move_type == 'out_refund'
+                or (m.move_type == 'out_invoice' and m.debit_origin_id)
+        ))
+        standard_moves.l10n_in_adjustment_type = 'standard'
+        (self - standard_moves).l10n_in_adjustment_type = False
 
-    def _compute_l10n_in_total_withholding_amount(self):
-        for move in self:
-            if self.env.company.l10n_in_tds_feature:
-                move.l10n_in_total_withholding_amount = sum(
-                    move.l10n_in_withhold_move_ids.filtered(
-                        lambda m: m.state == 'posted'
-                    ).l10n_in_withholding_line_ids.mapped('l10n_in_withhold_tax_amount')
-                )
-            else:
-                move.l10n_in_total_withholding_amount = 0.0
+    @api.depends('company_id.l10n_in_gst_registration_type')
+    def _compute_l10n_in_is_gst_registered_enabled(self):
+        for record in self:
+            record.l10n_in_is_gst_registered_enabled = bool(record.company_id.l10n_in_gst_registration_type)
 
-    @api.depends('l10n_in_warning')
-    def _compute_l10n_in_display_higher_tcs_button(self):
-        for move in self:
-            if move.company_id.l10n_in_tcs_feature:
-                move.l10n_in_display_higher_tcs_button = (
-                    move.l10n_in_warning
-                    and move.l10n_in_warning.get('lower_tcs_tax')
-                )
-            else:
-                move.l10n_in_display_higher_tcs_button = False
-
-    def action_l10n_in_withholding_entries(self):
+    def _l10n_in_get_invoice_totals_for_self_invoice(self):
+        """
+        Returns a customized tax_totals dictionary for the PDF report.
+        For Self Invoices (Reverse Charge), the net tax is 0. This method injects
+        the positive side of the tax and adjusts the Total so it prints
+        correctly on the PDF, without affecting the actual accounting move.
+        """
         self.ensure_one()
-        return {
-            'name': "TDS Entries",
-            'type': 'ir.actions.act_window',
-            'res_model': 'account.move',
-            'view_mode': 'list,form',
-            'domain': [('id', 'in', self.l10n_in_withhold_move_ids.ids)],
-        }
 
-    def action_l10n_in_apply_higher_tax(self):
+        if not self.tax_totals or not self.l10n_in_is_self_invoice:
+            return self.tax_totals
+
+        tax_totals = copy.deepcopy(self.tax_totals)
+        rc_tax_currency_to_add = 0.0
+        rc_tax_balance_to_add = 0.0
+
+        lines_group_by_tax_group_id = self.line_ids.grouped(lambda line: line.tax_group_id.id)
+
+        for subtotal in tax_totals.get('subtotals', []):
+            for tax_group in subtotal.get('tax_groups', []):
+                tax_lines = lines_group_by_tax_group_id[tax_group['id']]
+
+                if any(tax.l10n_in_reverse_charge for tax in tax_lines.tax_line_id):
+                    # Because it's Reverse Charge, there is a Debit (+100) and Credit (-100).
+                    # We sum only the positive amounts to get the gross tax value to display.
+                    positive_tax_currency = sum(line.amount_currency for line in tax_lines if line.amount_currency > 0)
+                    positive_tax_balance = sum(line.balance for line in tax_lines if line.balance > 0)
+
+                    tax_group['tax_amount_currency'] = positive_tax_currency
+                    tax_group['tax_amount'] = positive_tax_balance
+
+                    rc_tax_currency_to_add += positive_tax_currency
+                    rc_tax_balance_to_add += positive_tax_balance
+
+        tax_totals['total_amount_currency'] += rc_tax_currency_to_add
+        tax_totals['total_amount'] += rc_tax_balance_to_add
+
+        return tax_totals
+
+    def _get_starting_sequence(self):
         self.ensure_one()
-        invalid_lines = self._get_l10n_in_invalid_tax_lines()
-        for line in invalid_lines:
-            updated_tax_ids = []
-            for tax in line.tax_ids:
-                if tax.l10n_in_tax_type == 'tcs':
-                    max_tax = max(
-                        tax.l10n_in_section_id.with_context(active_test=False).l10n_in_section_tax_ids,
-                        key=lambda t: abs(t.amount),
-                    )
-                    updated_tax_ids.append(max_tax.id)
-                else:
-                    updated_tax_ids.append(tax.id)
-            if set(line.tax_ids.ids) != set(updated_tax_ids):
-                line.write({'tax_ids': [Command.clear()] + [Command.set(updated_tax_ids)]})
+        # Override the default starting sequence to keep self-invoice numbers
+        # within the 16-character limit required for GSTR Summary submission.
+        # Format: SELF/25-26/0000
+        if self.l10n_in_is_self_invoice:
+            year_part, _, _ = self._get_sequence_date_info()
+            return f"{self.journal_id.code}/{year_part}/0000"
 
-    def _get_l10n_in_invalid_tax_lines(self):
+        return super()._get_starting_sequence()
+
+    def action_l10n_in_print_self_invoice(self):
         self.ensure_one()
-        if self.country_code == 'IN' and not self.commercial_partner_id.l10n_in_pan_entity_id:
-            lines = self.env['account.move.line']
-            for line in self.invoice_line_ids:
-                for tax in line.tax_ids:
-                    if (
-                        tax.l10n_in_tax_type == 'tcs'
-                        and tax.amount != max(
-                            tax.l10n_in_section_id.with_context(active_test=False).l10n_in_section_tax_ids,
-                            key=lambda t: abs(t.amount),
-                        ).amount
-                    ):
-                        lines |= line._origin
-            return lines
 
-    def _get_sections_aggregate_sum_by_pan(self, section_alert, commercial_partner_id):
-        self.ensure_one()
-        month_start_date, month_end_date = get_month(self.date)
-        company_fiscalyear_dates = self.company_id.sudo().compute_fiscalyear_dates(self.date)
-        fiscalyear_start_date, fiscalyear_end_date = company_fiscalyear_dates['date_from'], company_fiscalyear_dates['date_to']
-        default_domain = [
-            ('account_id.l10n_in_tds_tcs_section_id', '=', section_alert.id),
-            ('move_id.move_type', '!=', 'entry'),
-            ('company_id.l10n_in_tds_feature', '!=', False),
-            ('company_id.l10n_in_tan', '=', self.company_id.l10n_in_tan),
-            ('parent_state', '=', 'posted')
-        ]
-        if commercial_partner_id.l10n_in_pan_entity_id:
-            default_domain += [('move_id.commercial_partner_id.l10n_in_pan_entity_id', '=', commercial_partner_id.l10n_in_pan_entity_id.id)]
-        else:
-            default_domain += [('move_id.commercial_partner_id', '=', commercial_partner_id.id)]
-        frequency_domains = {
-            'monthly': [('date', '>=', month_start_date), ('date', '<=', month_end_date)],
-            'fiscal_yearly': [('date', '>=', fiscalyear_start_date), ('date', '<=', fiscalyear_end_date)],
-        }
-        aggregate_result = {}
-        for frequency, frequency_domain in frequency_domains.items():
-            query = self.env['account.move.line']._search(default_domain + frequency_domain, bypass_access=True, active_test=False)
-            result = self.env.execute_query_dict(SQL(
-                """
-                SELECT COALESCE(sum(account_move_line.balance), 0) as balance,
-                       COALESCE(sum(account_move_line.price_total * am.invoice_currency_rate), 0) as price_total
-                  FROM %s
-                  JOIN account_move AS am ON am.id = account_move_line.move_id
-                 WHERE %s
-                """,
-                query.from_clause,
-                query.where_clause)
-            )
-            aggregate_result[frequency] = result[0]
-        return aggregate_result
+        report = self.env.ref('account.account_invoices')
+        content, _ = report._render_qweb_pdf(report.id, res_ids=self.ids)
 
-    def _l10n_in_is_warning_applicable(self, section_id):
-        self.ensure_one()
-        match section_id.tax_source_type:
-            case 'tcs':
-                return self.company_id.l10n_in_tcs_feature and self.journal_id.type == 'sale'
-            case 'tds':
-                return (
-                    self.company_id.l10n_in_tds_feature
-                    and self.journal_id.type == 'purchase'
-                    and section_id not in self.l10n_in_withhold_move_ids.filtered(lambda m:
-                        m.state == 'posted'
-                    ).mapped('line_ids.tax_ids.l10n_in_section_id')
-                )
-            case _:
-                return False
+        self.message_post(
+            body=self.env._("Self Invoice has been generated and printed."),
+            attachments=[(f"{self.name}.pdf", content)],
+        )
 
-    def _get_l10n_in_tds_tcs_applicable_sections(self):
-        def _group_by_section_alert(invoice_lines):
-            group_by_lines = {}
-            for line in invoice_lines:
-                group_key = line.account_id.sudo().l10n_in_tds_tcs_section_id
-                if group_key and not line.company_currency_id.is_zero(line.price_total):
-                    group_by_lines.setdefault(group_key, [])
-                    group_by_lines[group_key].append(line)
-            return group_by_lines
-
-        def _is_section_applicable(section_alert, threshold_sums, invoice_currency_rate, lines):
-            lines_total = sum(
-                (line.price_total * invoice_currency_rate) if section_alert.consider_amount == 'total_amount' else line.balance
-                for line in lines
-            )
-            if section_alert.is_aggregate_limit:
-                aggregate_period_key = section_alert.consider_amount == 'total_amount' and 'price_total' or 'balance'
-                aggregate_total = threshold_sums.get(section_alert.aggregate_period, {}).get(aggregate_period_key)
-                if self.state == 'draft':
-                    aggregate_total += lines_total
-                if aggregate_total > section_alert.aggregate_limit:
-                    return True
-            return (
-                section_alert.is_per_transaction_limit
-                and lines_total > section_alert.per_transaction_limit
-            )
-
-        if self.country_code == 'IN' and self.move_type in ['in_invoice', 'out_invoice']:
-            warning = set()
-            commercial_partner_id = self.commercial_partner_id
-            if commercial_partner_id.l10n_in_pan_entity_id.tds_deduction == 'no':
-                invoice_lines = self.invoice_line_ids.filtered(lambda l: l.account_id.l10n_in_tds_tcs_section_id.tax_source_type != 'tds')
-            else:
-                invoice_lines = self.invoice_line_ids
-            existing_section = (
-                self.l10n_in_withhold_move_ids.line_ids + self.line_ids
-            ).tax_ids.l10n_in_section_id
-            for section_alert, lines in _group_by_section_alert(invoice_lines).items():
-                if (
-                    (section_alert not in existing_section
-                    or self._get_tcs_applicable_lines(lines))
-                    and self._l10n_in_is_warning_applicable(section_alert)
-                    and _is_section_applicable(
-                        section_alert,
-                        self._get_sections_aggregate_sum_by_pan(
-                            section_alert,
-                            commercial_partner_id
-                        ),
-                        self.invoice_currency_rate,
-                        lines
-                    )
-                ):
-                    warning.add(section_alert.id)
-            return self.env['l10n_in.section.alert'].browse(warning)
-
-    def _get_tcs_applicable_lines(self, lines):
-        tcs_applicable_lines = set()
-        for line in lines:
-            if line.l10n_in_tds_tcs_section_id not in line.tax_ids.l10n_in_section_id:
-                tcs_applicable_lines.add(line.id)
-        return self.env['account.move.line'].browse(tcs_applicable_lines)
+        return report.report_action(self)
 
     def l10n_in_verify_partner_gstin_status(self):
         self.ensure_one()
@@ -558,7 +424,7 @@ class AccountMove(models.Model):
         posted = super()._post(soft)
         gst_treatment_name_mapping = {k: v for k, v in
                              self._fields['l10n_in_gst_treatment']._description_selection(self.env)}
-        for move in posted.filtered(lambda m: m.country_code == 'IN' and m.company_id.l10n_in_is_gst_registered and m.is_sale_document()):
+        for move in posted.filtered(lambda m: m.country_code == 'IN' and m.company_id.l10n_in_gst_registration_type and m.is_sale_document()):
             if move.l10n_in_state_id and not move.l10n_in_state_id.l10n_in_tin:
                 raise UserError(_("Please set a valid TIN Number on the Place of Supply %s", move.l10n_in_state_id.name))
             if not move.company_id.state_id:
@@ -596,13 +462,13 @@ class AccountMove(models.Model):
         self.ensure_one()
         return False
 
-    def _can_be_unlinked(self):
-        self.ensure_one()
-        return (self.country_code != 'IN' or not self.posted_before) and super()._can_be_unlinked()
-
     def _generate_qr_code(self, silent_errors=False):
         self.ensure_one()
-        if self.company_id.country_code == 'IN' and self.company_id.l10n_in_upi_id:
+        if (
+            self.company_id.l10n_in_upi_id
+            and self.amount_residual
+            and self.move_type == 'out_invoice'
+        ):
             payment_url = 'upi://pay?pa=%s&pn=%s&am=%s&tr=%s&tn=%s' % (
                 self.company_id.l10n_in_upi_id,
                 self.company_id.name,
@@ -610,13 +476,23 @@ class AccountMove(models.Model):
                 self.payment_reference or self.name,
                 ("Payment for %s" % self.name))
             barcode = self.env['ir.actions.report'].barcode(barcode_type="QR", value=payment_url, width=120, height=120, quiet=False)
-            return image_data_uri(base64.b64encode(barcode))
+            return image_data_uri(barcode)
         return super()._generate_qr_code(silent_errors)
 
     def _l10n_in_get_hsn_summary_table(self):
         self.ensure_one()
         base_lines, _tax_lines = self._get_rounded_base_and_tax_lines()
         display_uom = self.env.user.has_group('uom.group_uom')
+        if self.l10n_in_is_self_invoice:
+            for base_line in base_lines:
+                taxes_data = base_line.get('tax_details', {}).get('taxes_data', [])
+
+                for tax_data in taxes_data:
+                    # Keep only the positive side of RC taxes
+                    if tax_data['is_reverse_charge']:
+                        tax_data['tax_amount_currency'] = 0.0
+                        tax_data['tax_amount'] = 0.0
+
         return self.env['account.tax']._l10n_in_get_hsn_summary_table(base_lines, display_uom)
 
     def _l10n_in_get_bill_from_irn(self, irn):
@@ -687,6 +563,10 @@ class AccountMove(models.Model):
         return "".join(matches)
 
     @api.model
+    def _l10n_in_get_b2b_gst_treatments(self):
+        return ('regular', 'composition', 'deemed_export', 'uin_holders', 'special_economic_zone')
+
+    @api.model
     def _l10n_in_is_service_hsn(self, hsn_code):
         return self._l10n_in_extract_digits(hsn_code).startswith('99')
 
@@ -746,7 +626,7 @@ class AccountMove(models.Model):
         gst_treatment = self.l10n_in_gst_treatment
         company = self.company_id
         tax_types = set(self.invoice_line_ids.tax_ids.mapped('l10n_in_tax_type'))
-        if company.l10n_in_is_gst_registered and tax_types:
+        if company.l10n_in_gst_registration_type == 'regular' and tax_types:
             if gst_treatment in ['overseas', 'special_economic_zone']:
                 return 'Tax Invoice'
             elif tax_types.issubset(exempt_types):
@@ -755,4 +635,6 @@ class AccountMove(models.Model):
                 return 'Tax Invoice'
             elif gst_treatment in ['unregistered', 'consumer']:
                 return 'Invoice-cum-Bill of Supply'
+        elif company.l10n_in_gst_registration_type == 'composition':
+            return 'Bill of Supply'
         return 'Invoice'

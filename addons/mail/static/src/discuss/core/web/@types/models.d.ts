@@ -1,8 +1,9 @@
 declare module "models" {
+    export interface DiscussChannel {
+        isDisplayedInDiscussAppDesktop: boolean;
+    }
     export interface Store {
-        getSelfImportantChannels: () => Thread[];
-        getSelfRecentChannels: () => Thread[];
-        initChannelsUnreadCounter: number;
-        onClickPartnerMention: (ev: MouseEvent, id: number) => void;
+        getSelfImportantChannels: () => DiscussChannel[];
+        getSelfRecentChannels: () => DiscussChannel[];
     }
 }

@@ -1,15 +1,9 @@
+import { postMessage } from "@im_livechat/../tests/tours/livechat_tour_utils";
+
 import { registry } from "@web/core/registry";
-import { contains, click } from "@web/../tests/utils";
 
 const sendFirstMessageSteps = [
-    {
-        trigger: ".o-livechat-root:shadow .o-mail-Composer-input",
-        run: "edit Hello, I need help!",
-    },
-    {
-        trigger: ".o-livechat-root:shadow .o-mail-Composer-input",
-        run: "press Enter",
-    },
+    ...postMessage("Hello, I need help!"),
     {
         trigger:
             ".o-livechat-root:shadow .o-mail-Thread:not([data-transient]) .o-mail-Message:contains('Hello, I need help!')",
@@ -32,11 +26,10 @@ registry.category("web_tour.tours").add("website_livechat_no_session_with_hide_r
         },
         {
             trigger: ".o-livechat-root:shadow p:contains('Did we correctly answer your question?')",
-            async run() {
-                // Use contains instead of click action to ensure negative
-                // assertion is based on the correct parameters below.
-                await click("button", { target: this.anchor.getRootNode(), text: "New Session" });
-            },
+        },
+        {
+            trigger: ".o-livechat-root:shadow button:contains('New Session')",
+            run: "click",
         },
         ...sendFirstMessageSteps,
         {
@@ -53,15 +46,8 @@ registry.category("web_tour.tours").add("website_livechat_no_session_with_hide_r
             run: "click",
         },
         {
-            trigger: ".o-livechat-root:shadow p:contains('Did we correctly answer your question?')",
-            async run() {
-                await contains("button", { target: this.anchor.getRootNode(), text: "Close" });
-                await contains("button", {
-                    target: this.anchor.getRootNode(),
-                    text: "New Session",
-                    count: 0,
-                });
-            },
+            trigger:
+                ".o-livechat-root:shadow .o-mail-ChatWindow:has(p:contains('Did we correctly answer your question?')):has(button:contains('Close')):not(:has(button:contains('New Session')))",
         },
     ],
 });

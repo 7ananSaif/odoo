@@ -3,16 +3,18 @@
 
 import email.message
 import email.policy
+import smtplib
 
 from unittest.mock import patch
 
 import psycopg2.errors
 
 from odoo import tools
+from odoo.addons.base.models.ir_mail_server import MailDeliveryException
 from odoo.addons.base.tests import mail_examples
 from odoo.addons.base.tests.common import MockSmtplibCase
 from odoo.tests import tagged, users
-from odoo.tests.common import TransactionCase
+from odoo.tests.common import Like, TransactionCase
 from odoo.tools import mute_logger
 from odoo.tools import config
 
@@ -35,6 +37,7 @@ class _FakeSMTP:
 
 
 @tagged('mail_server')
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class EmailConfigCase(TransactionCase):
 
     @patch.dict(config.options, {"email_from": "settings@example.com"})
@@ -48,12 +51,13 @@ class EmailConfigCase(TransactionCase):
 
 
 @tagged('mail_server')
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestIrMailServer(TransactionCase, MockSmtplibCase):
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.env['ir.config_parameter'].sudo().set_param('mail.default.from_filter', False)
+        cls.env['ir.config_parameter'].sudo().set_str('mail.default.from_filter', None)
         cls._init_mail_servers()
 
     def test_assert_base_values(self):
@@ -299,6 +303,25 @@ class TestIrMailServer(TransactionCase, MockSmtplibCase):
                 from_filter=False,
             )
 
+    def test_mail_server_send_email_error_shows_server_name(self):
+        message = self._build_email(mail_from='specific_user@test.mycompany.com')
+
+        with (
+            self.mock_smtplib_connection(),
+            patch.object(self.testing_smtp_session, 'send_message', side_effect=smtplib.SMTPDataError(550, b'failure')),
+            self.assertRaisesRegex(MailDeliveryException, r"User specific server"),
+            self.assertLogs('odoo.addons.base.models.ir_mail_server', 'INFO') as capture,
+        ):
+            self.env['ir.mail_server'].send_email(message, mail_server_id=self.mail_server_user.id)
+
+        self.assertEqual(capture.output, [
+            Like(
+                "INFO:odoo.addons.base.models.ir_mail_server:"
+                "Mail delivery failed via SMTP server 'User specific server'.\n"
+                "SMTPDataError: ..."
+            ),
+        ])
+
     @mute_logger('odoo.models.unlink', 'odoo.addons.base.models.ir_mail_server')
     def test_mail_server_send_email_context_force(self):
         """ Allow to force notifications_email / bounce_address from context
@@ -418,7 +441,7 @@ class TestIrMailServer(TransactionCase, MockSmtplibCase):
                     )
 
         # for from_filter in ICP, overwrite the one from odoo-bin
-        self.env['ir.config_parameter'].sudo().set_param('mail.default.from_filter', 'icp.example.com')
+        self.env['ir.config_parameter'].sudo().set_str('mail.default.from_filter', 'icp.example.com')
 
         # Use an email in the domain of the config parameter "mail.default.from_filter"
         with self.mock_smtplib_connection():
@@ -441,7 +464,7 @@ class TestIrMailServer(TransactionCase, MockSmtplibCase):
         """
         IrMailServer = self.env['ir.mail_server']
         # should be ignored by the mail server
-        self.env['ir.config_parameter'].sudo().set_param('mail.default.from_filter', 'fake.com')
+        self.env['ir.config_parameter'].sudo().set_str('mail.default.from_filter', 'fake.com')
 
         server_other = IrMailServer.create([{
             'name': 'Server No From Filter',
@@ -531,3 +554,74 @@ class TestIrMailServer(TransactionCase, MockSmtplibCase):
             raise AssertionError("Email with non-ASCII .eml attachment could not be serialized") from e
 
         self.assertIsInstance(serialized, bytes)
+
+    def test_mail_add_cc(self):
+        """Check that recipients are added to the "Cc" header when present in X-Msg-Cc-Add."""
+        IrMailServer = self.env['ir.mail_server']
+        mail_from = 'specific_user@test.mycompany.com'
+
+        # Simple use-case: Add a new fake CC recipient
+        with self.mock_smtplib_connection():
+            smtp_session = IrMailServer._connect__(smtp_from=mail_from)
+            message = self._build_email(
+                mail_from=mail_from,
+                email_to=['test-to@ex.com'],
+                email_cc=['test-cc-std@ex.com'],
+                headers={'X-Msg-Cc-Add': 'test-cc-new@ex.com'},
+            )
+            IrMailServer.send_email(message, smtp_session=smtp_session)
+        self.assertSMTPEmailsSent(
+            smtp_from=mail_from,
+            message_from=mail_from,
+            mail_server=self.mail_server_user,
+            # fake Cc is not added to the smtp to list
+            smtp_to_list=['test-to@ex.com', 'test-cc-std@ex.com'],
+            msg_to_lst=['test-to@ex.com'],
+            # Cc header contains original Cc + the fake one
+            msg_cc_lst=['test-cc-std@ex.com', 'test-cc-new@ex.com'],
+        )
+
+        # Additional checks
+        for (email_to, email_cc, email_to_add, email_cc_add), (expected_smtp, expected_msg_to, expected_msg_cc) in (
+                # Pure fake Cc
+                ((['test-to@ex.com'], ['test-cc-std@ex.com'], None, 'test-cc-add@ex.com'),
+                 (['test-to@ex.com', 'test-cc-std@ex.com'],
+                  ['test-to@ex.com'], ['test-cc-std@ex.com', 'test-cc-add@ex.com'])),
+
+                # Pure fake To
+                ((['test-to@ex.com'], ['test-cc@ex.com'], 'test-to-add@ex.com', None),
+                 (['test-to@ex.com', 'test-cc@ex.com'],
+                  ['test-to@ex.com', 'test-to-add@ex.com'], ['test-cc@ex.com'])),
+
+                # Mix both
+                ((['test-to@ex.com'], ['test-cc@ex.com'], 'test-to-add@ex.com', 'test-cc-add@ex.com'),
+                 (['test-to@ex.com', 'test-cc@ex.com'],
+                  ['test-to@ex.com', 'test-to-add@ex.com'], ['test-cc@ex.com', 'test-cc-add@ex.com'])),
+
+                # Avoid duplicate in Cc if address is already in To
+                ((['test-to@ex.com'], ['test-cc@ex.com'], None, 'test-to@ex.com'),
+                 (['test-to@ex.com', 'test-cc@ex.com'],
+                  ['test-to@ex.com'], ['test-cc@ex.com'])),
+
+                # 5. Formatted emails
+                ((['"Formatted To" <test-to@ex.com>'], ['"Formatted Cc" <test-cc@ex.com>'],
+                  None, '"New Cc" <test-cc-add@ex.com>'),
+                 (['test-to@ex.com', 'test-cc@ex.com'],
+                  ['"Formatted To" <test-to@ex.com>'],
+                  ['"Formatted Cc" <test-cc@ex.com>', '"New Cc" <test-cc-add@ex.com>'])),
+        ):
+            with self.subTest(email_to=email_to, email_cc=email_cc, email_to_add=email_to_add,
+                              email_cc_add=email_cc_add):
+                with self.mock_smtplib_connection():
+                    smtp_session = IrMailServer._connect__(smtp_from=mail_from)
+                    headers = {}
+                    if email_to_add:
+                        headers['X-Msg-To-Add'] = email_to_add
+                    if email_cc_add:
+                        headers['X-Msg-Cc-Add'] = email_cc_add
+
+                    message = self._build_email(mail_from, email_to=email_to, email_cc=email_cc, headers=headers)
+                    IrMailServer.send_email(message, smtp_session=smtp_session)
+                self.assertSMTPEmailsSent(
+                    smtp_from=mail_from, message_from=mail_from, mail_server=self.mail_server_user,
+                    smtp_to_list=expected_smtp, msg_to_lst=expected_msg_to, msg_cc_lst=expected_msg_cc)

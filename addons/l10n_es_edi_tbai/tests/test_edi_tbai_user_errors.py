@@ -4,11 +4,13 @@ from odoo import Command
 from odoo.exceptions import UserError
 from odoo.tests import tagged
 
-from .common import TestEsEdiTbaiCommonGipuzkoa
+from .common import TestEsEdiTbaiCommonGipuzkoa, mock_tbai_agency_request
 
 
 @tagged('post_install', '-at_install', 'post_install_l10n')
 class TestTbaiUserErrors(TestEsEdiTbaiCommonGipuzkoa):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):
@@ -100,17 +102,11 @@ class TestTbaiUserErrors(TestEsEdiTbaiCommonGipuzkoa):
             self.assertEqual(second_invoice.l10n_es_tbai_post_document_id.state, 'to_send')
 
         # Post first with success
-        with patch(
-            'odoo.addons.l10n_es_edi_tbai.models.l10n_es_edi_tbai_document.requests.Session.request',
-            return_value=self.mock_response_post_invoice_success,
-        ):
+        with mock_tbai_agency_request(self.mock_response_post_invoice_success):
             first_invoice_send_wizard.action_send_and_print()
 
         # Can now post second with success
-        with patch(
-            'odoo.addons.l10n_es_edi_tbai.models.l10n_es_edi_tbai_document.requests.Session.request',
-            return_value=self.mock_response_post_invoice_success,
-        ):
+        with mock_tbai_agency_request(self.mock_response_post_invoice_success):
             second_invoice_send_wizard.action_send_and_print()
 
         self.assertEqual(first_invoice.l10n_es_tbai_state, 'sent')
@@ -119,7 +115,7 @@ class TestTbaiUserErrors(TestEsEdiTbaiCommonGipuzkoa):
 
     def test_post_tbai_credit_note_before_reversed_invoice(self):
         # We send a first invoice, so the first invoice sent won't be an invoice imported from a previous system
-        invoice_already_sent = self.create_invoice(invoice_line_ids=[{
+        invoice_already_sent = self._create_invoice_es(invoice_line_ids=[{
             'quantity': 5,
             'discount': 20.0,
             'tax_ids': [(6, 0, self._get_tax_by_xml_id('s_iva21b').ids)],
@@ -129,10 +125,7 @@ class TestTbaiUserErrors(TestEsEdiTbaiCommonGipuzkoa):
         invoice_already_sent_wizard = self._get_invoice_send_wizard(invoice_already_sent)
 
         # Can now post second with success
-        with patch(
-            'odoo.addons.l10n_es_edi_tbai.models.l10n_es_edi_tbai_document.requests.Session.request',
-            return_value=self.mock_response_post_invoice_success,
-        ):
+        with mock_tbai_agency_request(self.mock_response_post_invoice_success):
             invoice_already_sent_wizard.action_send_and_print()
 
         move_reversal = (
@@ -140,11 +133,11 @@ class TestTbaiUserErrors(TestEsEdiTbaiCommonGipuzkoa):
             .with_context(active_model="account.move", active_ids=self.invoice_to_send.ids)
             .create({
                 'journal_id': self.invoice_to_send.journal_id.id,
-                'l10n_es_tbai_refund_reason': 'R4',
             })
         )
         credit_note_id = move_reversal.refund_moves()['res_id']
         credit_note = self.env['account.move'].browse(credit_note_id)
+        credit_note.l10n_es_original_invoice_credited = self.invoice_to_send.name or "INV/2026/00001"
         credit_note.action_post()
         credit_note_send_wizard = self._get_invoice_send_wizard(credit_note)
 
@@ -155,17 +148,11 @@ class TestTbaiUserErrors(TestEsEdiTbaiCommonGipuzkoa):
             self.assertEqual(str(e), self.tbai_error_msg + "TicketBAI: Cannot post a reversal document while the source document has not been posted")
 
         # Post the source invoice
-        with patch(
-            'odoo.addons.l10n_es_edi_tbai.models.l10n_es_edi_tbai_document.requests.Session.request',
-            return_value=self.mock_response_post_invoice_success,
-        ):
+        with mock_tbai_agency_request(self.mock_response_post_invoice_success):
             self.invoice_send_wizard.action_send_and_print()
 
         # It is now possible to post the credit note
-        with patch(
-            'odoo.addons.l10n_es_edi_tbai.models.l10n_es_edi_tbai_document.requests.Session.request',
-            return_value=self.mock_response_post_invoice_success,
-        ):
+        with mock_tbai_agency_request(self.mock_response_post_invoice_success):
             credit_note_send_wizard.action_send_and_print()
 
         self.assertEqual(self.invoice_to_send.l10n_es_tbai_state, 'sent')

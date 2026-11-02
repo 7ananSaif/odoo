@@ -1,25 +1,22 @@
-# coding: utf-8
-import base64
-from pytz import timezone
-from datetime import datetime
+from datetime import datetime, UTC
 
-from odoo.tools import misc
-from odoo.addons.account_edi.tests.common import AccountEdiTestCommon
+from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 
 
-def mocked_l10n_es_edi_call_web_service_sign(edi_format, invoices, info_list):
+def mocked_l10n_es_edi_call_web_service_sign(invoices, info_list):
     return {inv: {"success": True} for inv in invoices}
 
 
-class TestEsEdiCommon(AccountEdiTestCommon):
+class TestEsEdiCommon(AccountTestInvoicingCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
-    @AccountEdiTestCommon.setup_edi_format('l10n_es_edi_sii.edi_es_sii')
-    @AccountEdiTestCommon.setup_country('es')
+    @AccountTestInvoicingCommon.setup_country('es')
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.frozen_today = datetime(year=2019, month=1, day=1, hour=0, minute=0, second=0, tzinfo=timezone('utc'))
+        cls.frozen_today = datetime(year=2019, month=1, day=1, hour=0, minute=0, second=0, tzinfo=UTC)
 
         # Allow to see the full result of AssertionError.
         cls.maxDiff = None
@@ -28,8 +25,7 @@ class TestEsEdiCommon(AccountEdiTestCommon):
 
         cls.certificate = cls.env['certificate.certificate'].create({
             'name': 'Test ES certificate',
-            'content': base64.b64encode(
-                misc.file_open("l10n_es_edi_sii/demo/certificates/aeat_1234.p12", 'rb').read()),
+            'content': cls.file_read("l10n_es_edi_sii/demo/certificates/aeat_1234.p12"),
             'pkcs12_password': '1234',
             'scope': 'sii',
             'company_id': cls.company_data['company'].id,
@@ -43,10 +39,6 @@ class TestEsEdiCommon(AccountEdiTestCommon):
             'l10n_es_sii_tax_agency': 'bizkaia',
         })
 
-        # To be sure it is put by default on purchase journals as well (tbai module)
-        cls.company_data['default_journal_purchase'].write({
-            'edi_format_ids': [(6, 0, cls.edi_format.ids)],
-        })
         # ==== Business ====
 
         cls.partner_a.write({
@@ -72,8 +64,8 @@ class TestEsEdiCommon(AccountEdiTestCommon):
         return cls.env.ref(f'account.{cls.env.company.id}_account_tax_template_{trailing_xml_id}')
 
     @classmethod
-    def create_invoice(cls, **kwargs):
-        return cls.env['account.move'].with_context(edi_test_mode=True).create({
+    def _create_invoice_es(cls, **kwargs):
+        return cls.env['account.move'].create({
             'move_type': 'out_invoice',
             'partner_id': cls.partner_a.id,
             'invoice_date': '2019-01-01',

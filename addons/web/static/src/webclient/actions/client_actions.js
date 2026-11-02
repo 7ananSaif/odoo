@@ -1,13 +1,13 @@
-import { browser } from "@web/core/browser/browser";
+import { markup } from "@odoo/owl";
+import { location, browser } from "@web/core/browser/browser";
 import { router } from "@web/core/browser/router";
-import { rpc } from "@web/core/network/rpc";
+import { makeErrorFromResponse, rpc } from "@web/core/network/rpc";
 import { registry } from "@web/core/registry";
+import { useService } from "@web/core/utils/hooks";
 import { htmlSprintf } from "@web/core/utils/html";
 
-import { markup } from "@odoo/owl";
-import { makeErrorFromResponse } from "../../core/network/rpc";
-
 export function displayNotificationAction(env, action) {
+    const notification = useService("notification");
     const params = action.params || {};
     const options = {
         className: params.className || "",
@@ -19,7 +19,7 @@ export function displayNotificationAction(env, action) {
         (link) => markup`<a href="${link.url}" target="_blank">${link.label}</a>`
     );
     const message = htmlSprintf(params.message, ...links);
-    env.services.notification.add(message, options);
+    notification.add(message, options);
     return params.next;
 }
 
@@ -72,8 +72,8 @@ async function home() {
         };
         waitForServer(1000);
     });
-    const url = "/" + (browser.location.search || "");
-    browser.location.assign(url);
+    const url = "/" + (location.search || "");
+    location.assign(url);
 }
 
 registry.category("actions").add("home", home);
@@ -92,10 +92,11 @@ registry.category("actions").add("reload_context", reloadContext);
  * Client action to restore the current controller
  * Serves as a trigger to reload the interface without a full browser reload
  */
-async function softReload(env, action) {
-    const controller = env.services.action.currentController;
+async function softReload() {
+    const action = useService("action");
+    const controller = action.currentController;
     if (controller) {
-        await env.services.action.restore(controller.jsId);
+        await action.restore(controller.jsId);
     }
 }
 

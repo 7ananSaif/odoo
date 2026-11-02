@@ -1,3 +1,4 @@
+import { useLayoutEffect } from "@web/owl2/utils";
 import { _t } from "@web/core/l10n/translation";
 import { deduceURLfromText } from "@html_editor/main/link/utils";
 import { pyToJsLocale, jsToPyLocale } from "@web/core/l10n/utils";
@@ -8,15 +9,19 @@ import { useService, useAutofocus } from "@web/core/utils/hooks";
 import { isVisible } from "@web/core/utils/ui";
 import { CheckBox } from "@web/core/checkbox/checkbox";
 import { MediaDialog } from "@html_editor/main/media/media_dialog/media_dialog";
+import { getMimetype } from "@html_editor/utils/image";
 import { WebsiteDialog } from "./dialog";
 import {
     Component,
     onMounted,
     onWillStart,
-    reactive,
+    onWillUnmount,
+    proxy,
+    signal,
+    t,
+    useApp,
     useEffect,
-    useState,
-    useRef,
+    useProps,
 } from "@odoo/owl";
 import wUtils from "@website/js/utils";
 
@@ -25,7 +30,7 @@ import wUtils from "@website/js/utils";
 const WORD_SEPARATORS_REGEX =
     "([\\u2000-\\u206F\\u2E00-\\u2E7F'!\"#\\$%&\\(\\)\\*\\+,\\-\\.\\/:;<=>\\?¿¡@\\[\\]\\^_`\\{\\|\\}~\\s]+|^|$)";
 
-const seoContext = reactive({
+export const seoContext = proxy({
     description: "",
     keywords: [],
     title: "",
@@ -184,9 +189,37 @@ const getSeo = async (self, onlyKeywords = false) => {
     }
 };
 
+/**
+ * Render the given page with `edit_translations`, which marks the terms whose
+ * translation is delayed, and tell whether it has any.
+ *
+ * @param {string} pageUrl
+ * @returns {Promise<boolean>}
+ */
+async function fetchDelayedTranslations(pageUrl) {
+    const url = new URL(pageUrl);
+    url.searchParams.set("edit_translations", "1");
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`${response.status} ${response.statusText}`);
+        }
+        const doc = new DOMParser().parseFromString(await response.text(), "text/html");
+        return !!doc.querySelector("#wrap .o_delay_translation");
+    } catch (error) {
+        console.warn(`Could not load delayed translations for ${url}`, error);
+        return true;
+    }
+}
+
 class MetaImage extends Component {
     static template = "website.MetaImage";
-    static props = ["active", "src", "custom", "selectImage"];
+    props = useProps({
+        active: t.boolean(),
+        src: t.string(),
+        custom: t.boolean(),
+        selectImage: t.function(),
+    });
 }
 
 class ImageSelector extends Component {
@@ -194,19 +227,20 @@ class ImageSelector extends Component {
     static components = {
         MetaImage,
     };
-    static props = {
-        previewDescription: String,
-        defaultTitle: String,
-        hasSocialDefaultImage: Boolean,
-        pageImages: Array,
-        url: String,
-    };
+    props = useProps({
+        previewDescription: t.string(),
+        defaultTitle: t.string(),
+        hasSocialDefaultImage: t.boolean(),
+        pageImages: t.array(),
+        url: t.string(),
+    });
 
     setup() {
         this.website = useService("website");
         this.dialogs = useService("dialog");
+        this.notification = useService("notification");
 
-        this.seoContext = useState(seoContext);
+        this.seoContext = proxy(seoContext);
 
         const firstImageId = this.props.hasSocialDefaultImage ? "social_default_image" : "logo";
         const firstImageSrc = `/web/image/website/${encodeURIComponent(
@@ -218,7 +252,7 @@ class ImageSelector extends Component {
             custom: false,
         };
 
-        this.state = useState({
+        this.state = proxy({
             images: [
                 firstImage,
                 ...this.props.pageImages.map((src) => ({
@@ -273,9 +307,16 @@ class ImageSelector extends Component {
             onlyImages: true,
             resModel: "ir.ui.view",
             useMediaLibrary: true,
-            save: (image) => {
+            save: async (image) => {
                 let existingImage;
                 const src = image.getAttribute("src");
+                if ((await getMimetype(image)) === "image/svg+xml") {
+                    this.notification.add(
+                        _t("SVG images are not supported. Please select a PNG, JPG, WEBP, or GIF"),
+                        { type: "danger" }
+                    );
+                    return;
+                }
                 this.state.images = this.state.images.map((img) => {
                     img.active = false;
                     if (img.src === src) {
@@ -299,19 +340,19 @@ class ImageSelector extends Component {
 
 class Keyword extends Component {
     static template = "website.Keyword";
-    static props = {
-        language: String,
-        keyword: String,
-        addKeyword: Function,
-        removeKeyword: Function,
-    };
+    props = useProps({
+        language: t.string(),
+        keyword: t.string(),
+        addKeyword: t.function(),
+        removeKeyword: t.function(),
+    });
 
     setup() {
         this.website = useService("website");
 
-        this.seoContext = useState(seoContext);
+        this.seoContext = proxy(seoContext);
 
-        this.state = useState({
+        this.state = proxy({
             suggestions: [],
         });
 
@@ -406,14 +447,14 @@ class MetaKeywords extends Component {
     static components = {
         Keyword,
     };
-    static props = {};
+    props = useProps({});
 
     setup() {
         this.website = useService("website");
 
-        this.seoContext = useState(seoContext);
+        this.seoContext = proxy(seoContext);
 
-        this.state = useState({
+        this.state = proxy({
             language: "",
             keyword: "",
         });
@@ -462,16 +503,16 @@ class MetaKeywords extends Component {
 
 class SEOPreview extends Component {
     static template = "website.SEOPreview";
-    static props = {
-        isIndexed: Boolean,
-        title: String,
-        description: String,
-        url: String,
-    };
+    props = useProps({
+        isIndexed: t.boolean(),
+        title: t.string(),
+        description: t.string(),
+        url: t.string(),
+    });
 
     setup() {
         this.website = useService("website");
-        this.seoContext = useState(seoContext);
+        this.seoContext = proxy(seoContext);
         this.logo = `/web/image/website/${encodeURIComponent(this.website.currentWebsite.id)}/logo`;
     }
 
@@ -541,30 +582,31 @@ class SEOPreview extends Component {
         return this.props.description || "";
     }
 }
-class TitleDescription extends Component {
+export class TitleDescription extends Component {
     static template = "website.TitleDescription";
-    static props = {
-        canEditSeo: Boolean,
-        canEditDescription: Boolean,
-        canEditUrl: Boolean,
-        canEditTitle: Boolean,
-        seoNameHelp: String,
-        seoNameDefault: { optional: true, String },
-        isIndexed: Boolean,
-        defaultTitle: String,
-        previewDescription: String,
-        url: String,
-    };
+    props = useProps({
+        canEditSeo: t.boolean(),
+        canEditDescription: t.boolean(),
+        canEditUrl: t.boolean(),
+        canEditTitle: t.boolean(),
+        seoNameHelp: t.string(),
+        seoNameDefault: t.string().optional(),
+        isIndexed: t.boolean(),
+        defaultTitle: t.string(),
+        previewDescription: t.string(),
+        url: t.string(),
+    });
     static components = {
         SEOPreview,
     };
+    autofocusRef = signal.ref();
 
     setup() {
-        this.seoContext = useState(seoContext);
+        this.seoContext = proxy(seoContext);
         this.website = useService("website");
-        useAutofocus();
+        useAutofocus({ ref: this.autofocusRef });
 
-        this.state = useState({
+        this.state = proxy({
             language: this.getLanguage(),
         });
         this.previousSeoName = this.seoContext.seoName;
@@ -578,7 +620,7 @@ class TitleDescription extends Component {
         );
 
         // Update the title when its input value changes
-        useEffect(
+        useLayoutEffect(
             () => {
                 document.title = this.title;
             },
@@ -586,13 +628,11 @@ class TitleDescription extends Component {
         );
 
         // Restore the original title when unmounting the component
-        useEffect(
-            () => {
-                const initialTitle = document.title;
-                return () => (document.title = initialTitle);
-            },
-            () => []
-        );
+        let initialTitle;
+        onMounted(() => {
+            initialTitle = document.title;
+        });
+        onWillUnmount(() => (document.title = initialTitle));
     }
 
     //--------------------------------------------------------------------------
@@ -672,40 +712,34 @@ class TitleDescription extends Component {
 export class BrokenLink extends Component {
     static template = "website.BrokenLink";
 
-    static props = {
-        link: Object,
-    };
+    props = useProps({ link: t.object() });
+
+    urlInputRef = signal.ref();
 
     setup() {
         this.website = useService("website");
-        this.urlInputRef = useRef("url-input");
         this.link = this.props.link;
 
-        this.state = useState({
+        this.state = proxy({
             checkingLink: false,
         });
 
-        useEffect(
-            (input) => {
-                if (!input) {
-                    return;
-                }
-                const options = {
-                    body: this.website.pageDocument.body,
-                    position: "bottom-fit",
-                    urlChosen: () => {
-                        this.link.newLink = input.value;
-                    },
-                };
-                const unmountAutocompleteWithPages = wUtils.autocompleteWithPages(
-                    input,
-                    options,
-                    this.env
-                );
-                return () => unmountAutocompleteWithPages();
-            },
-            () => [this.urlInputRef.el]
-        );
+        const app = useApp();
+        useEffect(() => {
+            const input = this.urlInputRef();
+            if (!input) {
+                return;
+            }
+            const options = {
+                body: this.website.pageDocument.body,
+                position: "bottom-fit",
+                urlChosen: () => {
+                    this.link.newLink = input.value;
+                },
+            };
+            const unmountAutocompleteWithPages = wUtils.autocompleteWithPages(app, input, options);
+            return () => unmountAutocompleteWithPages();
+        });
     }
 
     async modifyLink(link) {
@@ -755,16 +789,18 @@ export class SeoChecks extends Component {
         CheckBox,
         BrokenLink,
     };
-    static props = {};
+    props = useProps({
+        isDefaultLang: t.boolean(),
+    });
 
     async setup() {
         this.website = useService("website");
-        this.seoContext = useState(seoContext);
+        this.seoContext = proxy(seoContext);
         const {
-            metadata: { mainObject, seoObject },
+            metadata: { mainObject, seoObject, path },
         } = this.website.currentWebsite;
         this.object = seoObject || mainObject;
-        this.state = useState({
+        this.state = proxy({
             altAttributes: [],
             checkingLinks: false,
             checkedLinks: false,
@@ -775,9 +811,14 @@ export class SeoChecks extends Component {
         onWillStart(async () => {
             this.state.altAttributes = await this.getAltAttributes();
             this.seoContext.updatedAlts = [];
+            if (!this.props.isDefaultLang) {
+                this.hasDelayedTranslation = await fetchDelayedTranslations(path);
+            }
         });
         onMounted(() => {
-            this.getBrokenLinks();
+            if (this.props.isDefaultLang) {
+                this.getBrokenLinks();
+            }
         });
     }
 
@@ -867,7 +908,7 @@ export class SeoChecks extends Component {
                     if (imgLinkEl?.src) {
                         label = imgLinkEl.src.split("/").pop();
                         isImageLink = true;
-                    } else if (el.querySelector(".fa")) {
+                    } else if (el.querySelector(".oi")) {
                         label =
                             el.ariaLabel || el.title || el.href.split("/").filter(Boolean).pop();
                         isImageLink = true;
@@ -937,9 +978,9 @@ export class OptimizeSEODialog extends Component {
         SeoChecks,
         BrokenLink,
     };
-    static props = {
-        close: Function,
-    };
+    props = useProps({
+        close: t.function(),
+    });
 
     setup() {
         this.website = useService("website");
@@ -956,7 +997,7 @@ export class OptimizeSEODialog extends Component {
             // from the iframe DOM.
             await this.waitForIframe();
             const {
-                metadata: { mainObject, seoObject, path },
+                metadata: { mainObject, seoObject, path, langName },
             } = this.website.currentWebsite;
             this.object = seoObject || mainObject;
             this.data = await rpc("/website/get_seo_data", {
@@ -964,12 +1005,18 @@ export class OptimizeSEODialog extends Component {
                 res_model: this.object.model,
             });
 
+            if (this.data.multi_lang) {
+                this.title += ` — ${langName || this.data.lang.name}`;
+            }
             this.canEditSeo = this.data.can_edit_seo;
             this.canEditDescription = this.canEditSeo && "website_meta_description" in this.data;
             this.canEditTitle = this.canEditSeo && "website_meta_title" in this.data;
             // The URL must not be customizable if it does not contain an editable slug.
-            const editableSlugPattern = new RegExp(`.*/(${this.data.seo_name || ""}|${this.data.seo_name_default || ""})-\\d+.*`);
-            this.canEditUrl = this.canEditSeo && Boolean(new URL(path).pathname.match(editableSlugPattern));
+            const editableSlugPattern = new RegExp(
+                `.*/(${this.data.seo_name || ""}|${this.data.seo_name_default || ""})-\\d+.*`
+            );
+            this.canEditUrl =
+                this.canEditSeo && Boolean(new URL(path).pathname.match(editableSlugPattern));
             seoContext.title = this.canEditTitle && this.data.website_meta_title;
 
             // If website.page, hide the google preview & tell user his page is currently unindexed
@@ -979,9 +1026,15 @@ export class OptimizeSEODialog extends Component {
             );
             this.previousSeoName = this.canEditUrl && this.data.seo_name;
             seoContext.seoName = this.previousSeoName;
-            this.seoNameDefault = this.canEditUrl && this.data.seo_name_default;
+            if (this.canEditUrl) {
+                this.seoNameDefault = this.data.seo_name_default;
+            }
 
-            seoContext.description = this.getMeta({ name: "description" });
+            const storedDescription = this.canEditDescription
+                ? this.data.website_meta_description
+                : "";
+            this.isDefaultLang = this.data.lang?.code === this.data.default_lang_code;
+            seoContext.description = storedDescription || this.getMeta({ name: "description" });
             this.previewDescription = _t(
                 "Your page description should be between 50 and 160 characters long."
             );
@@ -991,15 +1044,23 @@ export class OptimizeSEODialog extends Component {
 
             seoContext.metaImage =
                 this.data.website_meta_og_img || this.getMeta({ property: "og:image" });
+            this.previousMetaImage = seoContext.metaImage;
 
-            this.pageImages = this.getImages();
+            this.pageImages = await this.getImages();
             this.socialPreviewDescription = _t(
                 "The description will be generated by social media based on page content unless you specify one."
             );
             this.hasSocialDefaultImage = this.data.has_social_default_image;
 
             this.canEditKeywords = "website_meta_keywords" in this.data;
-            seoContext.keywords = this.getMeta({ name: "keywords" });
+            if (this.canEditKeywords) {
+                seoContext.keywords = this.data.website_meta_keywords
+                    .split(",")
+                    .map((el) => el.trim())
+                    .filter(Boolean);
+            } else {
+                seoContext.keywords = [];
+            }
         });
     }
 
@@ -1019,15 +1080,16 @@ export class OptimizeSEODialog extends Component {
         return this.website.pageDocument.documentElement;
     }
 
-    getImages() {
+    async getImages() {
         const imageEls = this.pageDocumentElement.querySelectorAll("#wrap img");
-        return [
-            ...new Set(
-                Array.from(imageEls)
-                    .filter((img) => img.naturalHeight > 200 && img.naturalWidth > 200)
-                    .map((img) => img.getAttribute("src"))
-            ),
-        ];
+        const imageSources = await Promise.all(
+            Array.from(imageEls)
+                .filter((img) => img.naturalHeight > 200 && img.naturalWidth > 200)
+                .map(async (img) =>
+                    (await getMimetype(img)) === "image/svg+xml" ? null : img.getAttribute("src")
+                )
+        );
+        return [...new Set(imageSources.filter(Boolean))];
     }
 
     getMeta({ name, property }) {
@@ -1064,10 +1126,34 @@ export class OptimizeSEODialog extends Component {
                 data.seo_name = seoContext.seoName;
             }
         }
-        data.website_meta_og_img = seoContext.metaImage;
+        if (seoContext.metaImage !== this.previousMetaImage) {
+            data.website_meta_og_img = seoContext.metaImage;
+        }
+
+        const currentLang = this.website.currentWebsite.metadata.lang;
+        const defaultLang = this.data.default_lang_code;
+        // Avoid using translated SEO fields as fallback/base values when the
+        // default language is empty.
+        for (const fieldName of [
+            "website_meta_title",
+            "website_meta_description",
+            "website_meta_keywords",
+        ]) {
+            if (
+                data[fieldName] &&
+                currentLang !== defaultLang &&
+                !this.data[`default_${fieldName}`]
+            ) {
+                data[fieldName] = {
+                    [defaultLang]: "",
+                    [currentLang]: data[fieldName],
+                };
+            }
+        }
+
         await this.orm.write(this.object.model, [this.object.id], data, {
             context: {
-                lang: this.website.currentWebsite.metadata.lang,
+                lang: currentLang,
                 website_id: this.website.currentWebsite.id,
             },
         });
@@ -1084,7 +1170,31 @@ export class OptimizeSEODialog extends Component {
                 })
             );
         }
-        if (seoContext.updatedAlts?.length) {
+        if (!this.isDefaultLang) {
+            const translationsByRecord = {};
+            for (const img of seoContext.updatedAlts || []) {
+                const key = `${img.res_model}::${img.res_id}::${img.field}`;
+                translationsByRecord[key] ??= {
+                    model: img.res_model,
+                    id: img.res_id,
+                    fieldName: img.field,
+                    translations: {},
+                };
+                translationsByRecord[key].translations[img.source_sha] = (img.alt || "").trim();
+            }
+            for (const record of Object.values(translationsByRecord)) {
+                rpcCalls.push(
+                    rpc("/website/field/translation/update", {
+                        model: record.model,
+                        record_id: [record.id],
+                        field_name: record.fieldName,
+                        translations: {
+                            [currentLang]: record.translations,
+                        },
+                    })
+                );
+            }
+        } else if (seoContext.updatedAlts?.length) {
             rpcCalls.push(
                 rpc("/website/update_alt_images", {
                     imgs: seoContext.updatedAlts,
@@ -1095,7 +1205,10 @@ export class OptimizeSEODialog extends Component {
         await Promise.all(rpcCalls);
 
         this.website.goToWebsite({
-            path: this.url.replace(this.previousSeoName || this.seoNameDefault, seoContext.seoName),
+            path: this.url.replace(
+                this.previousSeoName || this.seoNameDefault,
+                seoContext.seoName || this.seoNameDefault
+            ),
         });
     }
 }

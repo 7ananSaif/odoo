@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import base64
 import collections
-import csv
 import datetime
 import enum
 import hashlib
@@ -31,36 +30,31 @@ from contextlib import ContextDecorator, contextmanager
 from difflib import HtmlDiff
 from functools import lru_cache, reduce, wraps
 from itertools import islice, groupby as itergroupby
-from operator import itemgetter
+from types import MappingProxyType
+from zoneinfo import ZoneInfo
 
 import babel
 import babel.dates
 import markupsafe
-import pytz
 from lxml import etree, objectify
 
-# get_encodings, ustr and exception_to_unicode were originally from tools.misc.
-# There are moved to loglevels until we refactor tools.
-from odoo.loglevels import exception_to_unicode, get_encodings, ustr  # noqa: F401
+from odoo.loglevels import exception_to_unicode
 
 from .config import config
 from .float_utils import float_round
 from .which import which
 
-K = typing.TypeVar('K')
-T = typing.TypeVar('T')
 if typing.TYPE_CHECKING:
     from collections.abc import Callable, Collection, Sequence
     from odoo.api import Environment
     from odoo.addons.base.models.res_lang import LangData
-
-    P = typing.TypeVar('P')
 
 __all__ = [
     'DEFAULT_SERVER_DATETIME_FORMAT',
     'DEFAULT_SERVER_DATE_FORMAT',
     'DEFAULT_SERVER_TIME_FORMAT',
     'NON_BREAKING_SPACE',
+    'ROUNDING_UNIT_CHARS',
     'SKIPPED_ELEMENT_TYPES',
     'DotDict',
     'LastOrderedSet',
@@ -69,11 +63,11 @@ __all__ = [
     'babel_locale_parse',
     'clean_context',
     'consteq',
-    'discardattr',
     'exception_to_unicode',
     'file_open',
     'file_open_temporary_directory',
     'file_path',
+    'find_circular_dependency',
     'find_in_path',
     'formatLang',
     'format_amount',
@@ -82,32 +76,27 @@ __all__ = [
     'format_duration',
     'format_time',
     'frozendict',
-    'get_encodings',
-    'get_iso_codes',
     'get_lang',
     'groupby',
-    'hmac',
     'hash_sign',
-    'verify_hash_signed',
+    'hmac',
     'html_escape',
     'human_size',
     'is_list_of',
     'merge_sequences',
-    'mod10r',
     'mute_logger',
     'parse_date',
     'partition',
     'posix_to_ldml',
+    'real_time',
     'remove_accents',
     'replace_exceptions',
     'reverse_enumerate',
     'split_every',
     'str2bool',
-    'street_split',
     'topological_sort',
     'unique',
-    'ustr',
-    'real_time',
+    'verify_hash_signed',
 ]
 
 _logger = logging.getLogger(__name__)
@@ -123,6 +112,11 @@ default_parser.set_element_class_lookup(objectify.ObjectifyElementClassLookup())
 objectify.set_default_parser(default_parser)
 
 NON_BREAKING_SPACE = u'\N{NO-BREAK SPACE}'
+ROUNDING_UNIT_CHARS = {
+    'thousands': 'k',
+    'lakhs': 'L',
+    'millions': 'M',
+}
 
 # ensure we have a non patched time for query times when using freezegun
 real_time = time.time.__call__  # type: ignore
@@ -316,40 +310,7 @@ def file_open_temporary_directory(env: Environment):
 #----------------------------------------------------------
 # iterables
 #----------------------------------------------------------
-def flatten(list):
-    """Flatten a list of elements into a unique list
-    Author: Christophe Simonis (christophe@tinyerp.com)
-
-    Examples::
-    >>> flatten(['a'])
-    ['a']
-    >>> flatten('b')
-    ['b']
-    >>> flatten( [] )
-    []
-    >>> flatten( [[], [[]]] )
-    []
-    >>> flatten( [[['a','b'], 'c'], 'd', ['e', [], 'f']] )
-    ['a', 'b', 'c', 'd', 'e', 'f']
-    >>> t = (1,2,(3,), [4, 5, [6, [7], (8, 9), ([10, 11, (12, 13)]), [14, [], (15,)], []]])
-    >>> flatten(t)
-    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-    """
-    warnings.warn(
-        "deprecated since 18.0",
-        category=DeprecationWarning,
-        stacklevel=2,
-    )
-    r = []
-    for e in list:
-        if isinstance(e, (bytes, str)) or not isinstance(e, collections.abc.Iterable):
-            r.append(e)
-        else:
-            r.extend(flatten(e))
-    return r
-
-
-def reverse_enumerate(lst: Sequence[T]) -> Iterator[tuple[int, T]]:
+def reverse_enumerate[T](lst: Sequence[T]) -> Iterator[tuple[int, T]]:
     """Like enumerate but in the other direction
 
     Usage::
@@ -370,7 +331,7 @@ def reverse_enumerate(lst: Sequence[T]) -> Iterator[tuple[int, T]]:
     return zip(range(len(lst) - 1, -1, -1), reversed(lst))
 
 
-def partition(pred: Callable[[T], bool], elems: Iterable[T]) -> tuple[list[T], list[T]]:
+def partition[T](pred: Callable[[T], bool], elems: Iterable[T]) -> tuple[list[T], list[T]]:
     """ Return a pair equivalent to:
     ``filter(pred, elems), filter(lambda x: not pred(x), elems)`` """
     yes: list[T] = []
@@ -380,7 +341,7 @@ def partition(pred: Callable[[T], bool], elems: Iterable[T]) -> tuple[list[T], l
     return yes, nos
 
 
-def topological_sort(elems: Mapping[T, Collection[T]]) -> list[T]:
+def topological_sort[T](elems: Mapping[T, Collection[T]]) -> list[T]:
     """ Return a list of elements sorted so that their dependencies are listed
     before them in the result.
 
@@ -413,7 +374,40 @@ def topological_sort(elems: Mapping[T, Collection[T]]) -> list[T]:
     return result
 
 
-def merge_sequences(*iterables: Iterable[T]) -> list[T]:
+def find_circular_dependency[T](elems: Mapping[T, Collection[T]]) -> list[T]:
+    """
+    Check for circular dependencies in the given mapping.
+
+    Uses procedural DFS implementation.
+
+    :param elems: Mapping of elements to their dependencies. See also :func:`topological_sort`.
+    :return: List representing the circular dependency chain if found, empty list otherwise
+    """
+    visited: set[T] = set()
+    path: list[T] = []
+    deps_iters = [iter(elems)]
+
+    while True:
+        node = next(deps_iters[-1], SENTINEL)
+
+        if node is SENTINEL:  # Backtrack
+            if not path:
+                return []
+
+            path.pop()
+            deps_iters.pop()
+
+        elif node in visited:
+            if node in path:  # Cycle found
+                return path[path.index(node):] + [node]
+
+        else:  # Traverse
+            visited.add(node)
+            path.append(node)
+            deps_iters.append(iter(elems.get(node, ())))
+
+
+def merge_sequences[T](*iterables: Iterable[T]) -> list[T]:
     """ Merge several iterables into a list. The result is the union of the
         iterables, ordered following the partial order given by the iterables,
         with a bias towards the end for the last iterable::
@@ -440,54 +434,6 @@ def merge_sequences(*iterables: Iterable[T]) -> list[T]:
                 deps[item].append(prev)
             prev = item
     return topological_sort(deps)
-
-
-def get_iso_codes(lang: str) -> str:
-    if lang.find('_') != -1:
-        lang_items = lang.split('_')
-        if lang_items[0] == lang_items[1].lower():
-            lang = lang_items[0]
-    return lang
-
-
-def scan_languages() -> list[tuple[str, str]]:
-    """ Returns all languages supported by OpenERP for translation
-
-    :returns: a list of (lang_code, lang_name) pairs
-    :rtype: [(str, unicode)]
-    """
-    try:
-        # read (code, name) from languages in base/data/res.lang.csv
-        with file_open('base/data/res.lang.csv') as csvfile:
-            reader = csv.reader(csvfile, delimiter=',', quotechar='"')
-            fields = next(reader)
-            code_index = fields.index("code")
-            name_index = fields.index("name")
-            result = [
-                (row[code_index], row[name_index])
-                for row in reader
-            ]
-    except Exception:
-        _logger.error("Could not read res.lang.csv")
-        result = []
-
-    return sorted(result or [('en_US', u'English')], key=itemgetter(1))
-
-
-def mod10r(number: str) -> str:
-    """
-    Input number : account or invoice number
-    Output return: the same number completed with the recursive mod10
-    key
-    """
-    codec=[0,9,4,6,8,2,7,1,3,5]
-    report = 0
-    result=""
-    for digit in number:
-        result += digit
-        if digit.isdigit():
-            report = codec[ (int(digit) + report) % 10 ]
-    return result + str((10 - report) % 10)
 
 
 def str2bool(s: str, default: bool | None = None) -> bool:
@@ -667,21 +613,21 @@ def posix_to_ldml(fmt: str, locale: babel.Locale) -> str:
 
 
 @typing.overload
-def split_every(n: int, iterable: Iterable[T]) -> Iterator[tuple[T, ...]]:
+def split_every[T](n: int, iterable: Iterable[T]) -> Iterator[tuple[T, ...]]:
     ...
 
 
 @typing.overload
-def split_every(n: int, iterable: Iterable[T], piece_maker: type[Collection[T]]) -> Iterator[Collection[T]]:
+def split_every[T](n: int, iterable: Iterable[T], piece_maker: type[Collection[T]]) -> Iterator[Collection[T]]:
     ...
 
 
 @typing.overload
-def split_every(n: int, iterable: Iterable[T], piece_maker: Callable[[Iterable[T]], P]) -> Iterator[P]:
+def split_every[T, P](n: int, iterable: Iterable[T], piece_maker: Callable[[Iterable[T]], P]) -> Iterator[P]:
     ...
 
 
-def split_every(n: int, iterable: Iterable[T], piece_maker=tuple):
+def split_every[T](n: int, iterable: Iterable[T], piece_maker=tuple):
     """Splits an iterable into length-n pieces. The last piece will be shorter
        if ``n`` does not evenly divide the iterable length.
 
@@ -696,13 +642,6 @@ def split_every(n: int, iterable: Iterable[T], piece_maker=tuple):
         yield piece
         piece = piece_maker(islice(iterator, n))
 
-
-def discardattr(obj: object, key: str) -> None:
-    """ Perform a ``delattr(obj, key)`` but without crashing if ``key`` is not present. """
-    try:
-        delattr(obj, key)
-    except AttributeError:
-        pass
 
 # ---------------------------------------------
 # String management
@@ -833,7 +772,7 @@ class MungedTracebackLogRecord(logging.LogRecord):
 
 def stripped_sys_argv(*strip_args):
     """Return sys.argv with some arguments stripped, suitable for reexecution or subprocesses"""
-    strip_args = sorted(set(strip_args) | set(['-s', '--save', '-u', '--update', '-i', '--init', '--i18n-overwrite']))
+    strip_args = sorted(set(strip_args) | {'--save', '-u', '--update', '-i', '--init', '--i18n-overwrite'})
     assert all(config.parser.has_option(s) for s in strip_args)
     takes_value = dict((s, config.parser.get_option(s).takes_value()) for s in strip_args)
 
@@ -850,7 +789,7 @@ def stripped_sys_argv(*strip_args):
     return [x for i, x in enumerate(args) if not strip(args, i)]
 
 
-class ConstantMapping(Mapping[typing.Any, T], typing.Generic[T]):
+class ConstantMapping[T](Mapping[typing.Any, T]):
     """
     An immutable mapping returning the provided value for every single key.
 
@@ -891,6 +830,20 @@ def dumpstacks(sig=None, frame=None, thread_idents=None, log_level=logging.INFO)
             if line:
                 yield "  %s" % (line.strip(),)
 
+    def find_env(stack):
+        from odoo.api import Environment  # noqa: PLC0415
+
+        for frame, _ in traceback.walk_stack(stack):
+            self = frame.f_locals.get('self')
+            if not self:
+                continue
+            if not hasattr(self, 'env'):
+                continue
+            if not isinstance(self.env, Environment):
+                continue
+            return self.env
+        return None
+
     # code from http://stackoverflow.com/questions/132058/getting-stack-trace-from-a-running-python-application#answer-2569696
     # modified for python 2.5 compatibility
     threads_info = {th.ident: {'repr': repr(th),
@@ -919,6 +872,23 @@ def dumpstacks(sig=None, frame=None, thread_idents=None, log_level=logging.INFO)
                          thread_info.get('query_count', 'n/a'),
                          query_time or 'n/a',
                          remaining_time or 'n/a'))
+
+            env = find_env(stack)
+            if env:
+                stopwatches = env.cr.cache.get('base_automation_stopwatches')
+                last_stopwatches = list(env.cr.cache.get('base_automation_last_stopwatches', []))
+                now = time.monotonic()
+                if stopwatches is not None:
+                    for automation_id, start_time in last_stopwatches:
+                        # this automated action is currently running
+                        duration = now - start_time
+                        stopwatches[automation_id] = stopwatches.get(automation_id, 0) + duration
+                    code.append(f"# Base Automations dict[id, duration]: {stopwatches}")
+                    for automation_id, start_time in last_stopwatches:
+                        # this automated action is currently running
+                        duration = now - start_time
+                        stopwatches[automation_id] -= duration
+
             for line in extract_stack(stack):
                 code.append(line)
 
@@ -956,36 +926,7 @@ def clean_context(context: dict[str, typing.Any]) -> dict[str, typing.Any]:
     return {k: v for k, v in context.items() if not k.startswith('default_')}
 
 
-class frozendict(dict[K, T], typing.Generic[K, T]):
-    """ An implementation of an immutable dictionary. """
-    __slots__ = ()
-
-    def __delitem__(self, key):
-        raise NotImplementedError("'__delitem__' not supported on frozendict")
-
-    def __setitem__(self, key, val):
-        raise NotImplementedError("'__setitem__' not supported on frozendict")
-
-    def clear(self):
-        raise NotImplementedError("'clear' not supported on frozendict")
-
-    def pop(self, key, default=None):
-        raise NotImplementedError("'pop' not supported on frozendict")
-
-    def popitem(self):
-        raise NotImplementedError("'popitem' not supported on frozendict")
-
-    def setdefault(self, key, default=None):
-        raise NotImplementedError("'setdefault' not supported on frozendict")
-
-    def update(self, *args, **kwargs):
-        raise NotImplementedError("'update' not supported on frozendict")
-
-    def __hash__(self) -> int:  # type: ignore
-        return hash(frozenset((key, freehash(val)) for key, val in self.items()))
-
-
-class Collector(dict[K, tuple[T, ...]], typing.Generic[K, T]):
+class Collector[K, T](dict[K, tuple[T, ...]]):  # noqa: FURB189
     """ A mapping from keys to tuples.  This implements a relation, and can be
         seen as a space optimization for ``defaultdict(tuple)``.
     """
@@ -1013,7 +954,7 @@ class Collector(dict[K, tuple[T, ...]], typing.Generic[K, T]):
             self[key] = tuple(val for val in vals if val not in excludes)  # type: ignore
 
 
-class StackMap(MutableMapping[K, T], typing.Generic[K, T]):
+class StackMap[K, T](MutableMapping[K, T]):
     """ A stack of mappings behaving as a single mapping, and used to implement
         nested scopes. The lookups search the stack from top to bottom, and
         returns the first value found. Mutable operations modify the topmost
@@ -1054,7 +995,19 @@ class StackMap(MutableMapping[K, T], typing.Generic[K, T]):
         return self._maps.pop()
 
 
-class OrderedSet(MutableSet[T], typing.Generic[T]):
+class LazyDict[K, T](dict[K, T]):
+    """A kind of `defaultdict` where the function accepts the key."""
+    def __init__(self, func: Callable[[K], T]):
+        super().__init__()
+        self._func = func
+
+    def __missing__(self, k: K) -> T:
+        v = self._func(k)
+        self[k] = v
+        return v
+
+
+class OrderedSet[T](MutableSet[T]):
     """ A set collection that remembers the elements first insertion order. """
     __slots__ = ['_map']
 
@@ -1067,8 +1020,18 @@ class OrderedSet(MutableSet[T], typing.Generic[T]):
     def __iter__(self):
         return iter(self._map)
 
+    def __reversed__(self):
+        return reversed(self._map)
+
     def __len__(self):
         return len(self._map)
+
+    def __and__(self, other):
+        # preserve order of this set
+        if not isinstance(other, Iterable):
+            return NotImplemented
+        other = set(other)
+        return self._from_iterable(value for value in self if value in other)
 
     def add(self, elem):
         self._map[elem] = None
@@ -1095,7 +1058,7 @@ class OrderedSet(MutableSet[T], typing.Generic[T]):
         return new_set
 
 
-class LastOrderedSet(OrderedSet[T], typing.Generic[T]):
+class LastOrderedSet[T](OrderedSet[T]):
     """ A set collection that remembers the elements last insertion order. """
     def add(self, elem):
         self.discard(elem)
@@ -1184,7 +1147,7 @@ class Callbacks:
         return len(self._funcs)
 
 
-class ReversedIterable(Reversible[T], typing.Generic[T]):
+class ReversedIterable[T](Reversible[T]):
     """ An iterable implementing the reversal of another iterable. """
     __slots__ = ['iterable']
 
@@ -1198,7 +1161,7 @@ class ReversedIterable(Reversible[T], typing.Generic[T]):
         return iter(self.iterable)
 
 
-def groupby(iterable: Iterable[T], key: Callable[[T], K] = lambda arg: arg) -> Iterable[tuple[K, list[T]]]:
+def groupby[K, T](iterable: Iterable[T], key: Callable[[T], K] = lambda arg: arg) -> Iterable[tuple[K, list[T]]]:
     """ Return a collection of pairs ``(key, elements)`` from ``iterable``. The
         ``key`` is a function computing a key value for each element. This
         function is similar to ``itertools.groupby``, but aggregates all
@@ -1210,7 +1173,7 @@ def groupby(iterable: Iterable[T], key: Callable[[T], K] = lambda arg: arg) -> I
     return groups.items()
 
 
-def unique(it: Iterable[T]) -> Iterator[T]:
+def unique[T](it: Iterable[T]) -> Iterator[T]:
     """ "Uniquifier" for the provided iterable: will output each element of
     the iterable once.
 
@@ -1226,7 +1189,7 @@ def unique(it: Iterable[T]) -> Iterator[T]:
             yield e
 
 
-def submap(mapping: Mapping[K, T], keys: Iterable[K]) -> Mapping[K, T]:
+def submap[K, T](mapping: Mapping[K, T], keys: Iterable[K]) -> Mapping[K, T]:
     """
     Get a filtered copy of the mapping where only some keys are present.
 
@@ -1246,6 +1209,7 @@ class Reverse(object):
     __slots__ = ['val']
 
     def __init__(self, val):
+        warnings.warn("Deprecated since 20.0, unused")
         self.val = val
 
     def __eq__(self, other): return self.val == other.val
@@ -1369,9 +1333,9 @@ def formatLang(
     :param rounding_unit: The rounding unit to be used:
         **decimals** will round to decimals with ``digits`` or ``dp`` precision,
         **units** will round to units without any decimals,
-        **thousands** will round to thousands without any decimals,
-        **lakhs** will round to lakhs without any decimals,
-        **millions** will round to millions without any decimals.
+        **thousands** will round to thousands without any decimals and append 'k',
+        **lakhs** will round to lakhs without any decimals and append 'L',
+        **millions** will round to millions without any decimals and append 'M'.
 
     :returns: The value formatted.
     """
@@ -1400,6 +1364,9 @@ def formatLang(
     rounded_value = float_round(value, precision_digits=digits, rounding_method=rounding_method)
     lang = env['res.lang'].browse(get_lang(env).id)
     formatted_value = lang.format(f'%.{digits}f', rounded_value, grouping=grouping)
+
+    if unit_char := ROUNDING_UNIT_CHARS.get(rounding_unit):
+        formatted_value = f'{formatted_value}{unit_char}'
 
     if currency_obj and currency_obj.symbol:
         arguments = (formatted_value, NON_BREAKING_SPACE, currency_obj.symbol)
@@ -1498,9 +1465,9 @@ def format_datetime(
         timestamp = value
 
     tz_name = tz or env.user.tz or 'UTC'
-    utc_datetime = pytz.utc.localize(timestamp, is_dst=False)
+    utc_datetime = timestamp.replace(tzinfo=datetime.UTC)
     try:
-        context_tz = pytz.timezone(tz_name)
+        context_tz = ZoneInfo(tz_name)
         localized_datetime = utc_datetime.astimezone(context_tz)
     except Exception:
         localized_datetime = utc_datetime
@@ -1553,9 +1520,9 @@ def format_time(
             value = Datetime.from_string(value)
         assert isinstance(value, datetime.datetime)
         tz_name = tz or env.user.tz or 'UTC'
-        utc_datetime = pytz.utc.localize(value, is_dst=False)
+        utc_datetime = value.replace(tzinfo=datetime.UTC)
         try:
-            context_tz = pytz.timezone(tz_name)
+            context_tz = ZoneInfo(tz_name)
             localized_time = utc_datetime.astimezone(context_tz).timetz()
         except Exception:
             localized_time = utc_datetime.timetz()
@@ -1587,6 +1554,7 @@ def _format_time_ago(
     return babel.dates.format_timedelta(-time_delta, add_direction=add_direction, locale=locale)
 
 
+# expose
 def format_decimalized_number(number: float, decimal: int = 1) -> str:
     """Format a number to display to nearest metrics unit next to it.
 
@@ -1639,7 +1607,7 @@ def format_amount(env: Environment, amount: float, currency, lang_code: str | No
     formatted_amount = lang.format(fmt, currency.round(amount), grouping=True)\
         .replace(r' ', u'\N{NO-BREAK SPACE}').replace(r'-', u'-\N{ZERO WIDTH NO-BREAK SPACE}')
 
-    if not trailing_zeroes:
+    if not trailing_zeroes and currency.decimal_places:
         formatted_amount = re.sub(fr'{re.escape(lang.decimal_point)}?0+$', '', formatted_amount)
 
     pre = post = u''
@@ -1668,53 +1636,48 @@ def format_duration(value: float) -> str:
 consteq = hmac_lib.compare_digest
 
 
-class ReadonlyDict(Mapping[K, T], typing.Generic[K, T]):
-    """Helper for an unmodifiable dictionary, not even updatable using `dict.update`.
-
-    This is similar to a `frozendict`, with one drawback and one advantage:
-
-    - `dict.update` works for a `frozendict` but not for a `ReadonlyDict`.
-    - `json.dumps` works for a `frozendict` by default but not for a `ReadonlyDict`.
-
-    This comes from the fact `frozendict` inherits from `dict`
-    while `ReadonlyDict` inherits from `collections.abc.Mapping`.
-
-    So, depending on your needs,
-    whether you absolutely must prevent the dictionary from being updated (e.g., for security reasons)
-    or you require it to be supported by `json.dumps`, you can choose either option.
-
-        E.g.
-          data = ReadonlyDict({'foo': 'bar'})
-          data['baz'] = 'xyz' # raises exception
-          data.update({'baz', 'xyz'}) # raises exception
-          dict.update(data, {'baz': 'xyz'}) # raises exception
+class _HashDict[K, V](dict[K, V]):
+    """ Simple extension of ``dict`` that provides a hash function.
+        For the hash to be correct, one should not modify the dict's content.
     """
-    __slots__ = ('_data__',)
 
-    def __init__(self, data):
-        self._data__ = dict(data)
+    __slots__ = ()
 
-    def __contains__(self, key: K):
-        return key in self._data__
-
-    def __getitem__(self, key: K) -> T:
-        return self._data__[key]
-
-    def __len__(self):
-        return len(self._data__)
-
-    def __iter__(self):
-        return iter(self._data__)
+    def __hash__(self):
+        return hash(frozenset((key, freehash(val)) for key, val in self.items()))
 
 
-class DotDict(dict):
+class frozendict[K, V]:
+    "Immutable dict."
+    def __new__(cls, mapping: Iterable[tuple[K, V]] | Mapping[K, V] = (), /, **kw: V):
+        """ Return an immutable copy of a mapping.
+            This allows the returned proxy mapping to be hashed.
+            The reference to the newly created internal dictionary is not
+            accessible, which guarantees immutability
+        """
+        return MappingProxyType(_HashDict(mapping, **kw))
+
+    def __subclasscheck__(self, subclass):
+        assert False, "cannot subclass frozendict"  # not a real class
+
+
+def ReadonlyDict(mapping=(), /, **kw) -> MappingProxyType:
+    warnings.warn(
+        "ReadonlyDict is deprecated starting Odoo 20, use frozendict",
+        category=DeprecationWarning,
+        stacklevel=2,
+    )
+    return frozendict(mapping, **kw)
+
+
+class DotDict[T](dict[str, T]):
     """Helper for dot.notation access to dictionary attributes
 
         E.g.
           foo = DotDict({'bar': False})
           return foo.bar
     """
-    def __getattr__(self, attrib):
+    def __getattr__(self, attrib) -> DotDict | T | None:
         val = self.get(attrib)
         return DotDict(val) if isinstance(val, dict) else val
 
@@ -1778,7 +1741,55 @@ def get_diff(data_from, data_to, custom_style=False, dark_color_scheme=False):
     return handle_style(diff, custom_style, dark_color_scheme)
 
 
-def hmac(env, scope, message, hash_function=hashlib.sha256):
+def diff_zip(items1: list, items2: list):
+    """ Return pairs of matching items in both lists, which represents the diff
+    between the lists. The elements of the pairs ``(item1, item2)`` are either
+    elements of ``items1`` (resp. ``items2``) or ``None``, where the latter
+    represents a non-matching item.
+    For instance, ``diff_zip(list('abcd'), list('acde'))`` returns the pairs::
+
+        ('a', 'a'), ('b', None), ('c', 'c'), ('d', 'd'), (None, 'e')
+    """
+    size1, size2 = len(items1), len(items2)
+
+    def _iter_block(index1, index2):
+        """ Iterate on coordinates in range(index1, size1) x range(index2, size2)
+        in increasing distance order, the distance being the sum of both indices.
+        The pairs are returned in the following order::
+
+            (index1, index2),
+            (index1 + 1, index2), (index1, index2 + 1),
+            (index1 + 2, index2), (index1 + 1, index2 + 1), (index1, index2 + 2),
+            ...,
+        """
+        dist1, dist2 = size1 - index1, size2 - index2
+        for delta in range(dist1 + dist2 - 1):
+            # delta1 + delta2 == delta
+            for delta2 in range(min(delta + 1, dist2)):
+                if (delta1 := delta - delta2) < dist1:
+                    yield index1 + delta1, index2 + delta2
+
+    index1, index2 = 0, 0  # next indices to match
+    while index1 < size1:
+        # find the closest matching pair from (index1, index2)
+        for current1, current2 in _iter_block(index1, index2):
+            if items1[current1] == items2[current2]:
+                for it in range(index1, current1):
+                    yield (items1[it], None)
+                for it in range(index2, current2):
+                    yield (None, items2[it])
+                yield (items1[current1], items2[current2])
+                index1, index2 = current1 + 1, current2 + 1
+                break
+        else:
+            break
+    for it in range(index1, size1):
+        yield (items1[it], None)
+    for it in range(index2, size2):
+        yield (None, items2[it])
+
+
+def hmac(env, scope, message, hash_function=hashlib.sha256, *, secret=None):
     """Compute HMAC with `database.secret` config parameter as key.
 
     :param env: sudo environment to use for retrieving config parameter
@@ -1786,20 +1797,30 @@ def hmac(env, scope, message, hash_function=hashlib.sha256):
     :param scope: scope of the authentication, to have different signature for the same
         message in different usage
     :param hash_function: hash function to use for HMAC (default: SHA-256)
+    :param secret: secret used for sign, falls back to database.secret when no explicit secret is provided
     """
     if not scope:
         raise ValueError('Non-empty scope required')
 
-    secret = env['ir.config_parameter'].get_param('database.secret')
+    if secret is None:
+        secret = env['ir.config_parameter'].get_str('database.secret')
+    if isinstance(secret, str):
+        secret = secret.encode()
+
+    if not isinstance(secret, bytes):
+        raise TypeError("secret must be a str or bytes")
+    if not secret:
+        raise ValueError("Non-empty secret required")
+
     message = repr((scope, message))
     return hmac_lib.new(
-        secret.encode(),
+        secret,
         message.encode(),
         hash_function,
     ).hexdigest()
 
 
-def hash_sign(env, scope, message_values, expiration=None, expiration_hours=None):
+def hash_sign(env, scope, message_values, expiration=None, expiration_hours=None, *, secret=None):
     """ Generate an urlsafe payload signed with the HMAC signature for an iterable set of data.
     This feature is very similar to JWT, but in a more generic implementation that is inline with out previous hmac implementation.
 
@@ -1809,6 +1830,7 @@ def hash_sign(env, scope, message_values, expiration=None, expiration_hours=None
     :param message_values: values to be encoded inside the payload
     :param expiration: optional, a datetime or timedelta
     :param expiration_hours: optional, a int representing a number of hours before expiration. Cannot be set at the same time as expiration
+    :param secret: secret used for sign, falls back to database.secret when no explicit secret is provided
     :return: the payload that can be used as a token
     """
     assert not (expiration and expiration_hours)
@@ -1821,18 +1843,19 @@ def hash_sign(env, scope, message_values, expiration=None, expiration_hours=None
             expiration = datetime.datetime.now() + expiration
     expiration_timestamp = 0 if not expiration else int(expiration.timestamp())
     message_strings = json.dumps(message_values)
-    hash_value = hmac(env, scope, f'1:{message_strings}:{expiration_timestamp}', hash_function=hashlib.sha256)
+    hash_value = hmac(env, scope, f'1:{message_strings}:{expiration_timestamp}', hash_function=hashlib.sha256, secret=secret)
     token = b"\x01" + expiration_timestamp.to_bytes(8, 'little') + bytes.fromhex(hash_value) + message_strings.encode()
     return base64.urlsafe_b64encode(token).decode().rstrip('=')
 
 
-def verify_hash_signed(env, scope, payload):
+def verify_hash_signed(env, scope, payload, *, secret=None):
     """ Verify and extract data from a given urlsafe  payload generated with hash_sign()
 
     :param env: sudo environment to use for retrieving config parameter
     :param scope: scope of the authentication, to have different signature for the same
         message in different usage
     :param payload: the token to verify
+    :param secret: secret used to verify signature, falls back to database.secret when no explicit secret is provided
     :return: The payload_values if the check was successful, None otherwise.
     """
 
@@ -1843,7 +1866,7 @@ def verify_hash_signed(env, scope, payload):
 
     expiration_value, hash_value, message = token[1:9], token[9:41].hex(), token[41:].decode()
     expiration_value = int.from_bytes(expiration_value, byteorder='little')
-    hash_value_expected = hmac(env, scope, f'1:{message}:{expiration_value}', hash_function=hashlib.sha256)
+    hash_value_expected = hmac(env, scope, f'1:{message}:{expiration_value}', hash_function=hashlib.sha256, secret=secret)
 
     if consteq(hash_value, hash_value_expected) and (expiration_value == 0 or datetime.datetime.now().timestamp() < expiration_value):
         message_values = json.loads(message)
@@ -1910,18 +1933,7 @@ def verify_limited_field_access_token(record, field_name, access_token, *, scope
     ) and datetime.datetime.now() < datetime.datetime.fromtimestamp(int(timestamp, 16))
 
 
-ADDRESS_REGEX = re.compile(r'^(.*?)(\s[0-9][0-9\S]*)?(?: - (.+))?$', flags=re.DOTALL)
-def street_split(street):
-    match = ADDRESS_REGEX.match(street or '')
-    results = match.groups('') if match else ('', '', '')
-    return {
-        'street_name': results[0].strip(),
-        'street_number': results[1].strip(),
-        'street_number2': results[2],
-    }
-
-
-def is_list_of(values, type_: type) -> bool:
+def is_list_of(values, type_: type | tuple[type, ...]) -> bool:
     """Return True if the given values is a list / tuple of the given type.
 
     :param values: The values to check
@@ -1939,21 +1951,8 @@ def has_list_types(values, types: tuple[type, ...]) -> bool:
     """
     return (
         isinstance(values, (list, tuple)) and len(values) == len(types)
-        and all(itertools.starmap(isinstance, zip(values, types)))
+        and all(map(isinstance, values, types))
     )
-
-
-def get_flag(country_code: str) -> str:
-    """Get the emoji representing the flag linked to the country code.
-
-    This emoji is composed of the two regional indicator emoji of the country code.
-    """
-    return "".join(chr(int(f"1f1{ord(c)+165:02x}", base=16)) for c in country_code)
-
-
-def format_frame(frame) -> str:
-    code = frame.f_code
-    return f'{code.co_name} {code.co_filename}:{frame.f_lineno}'
 
 
 def named_to_positional_printf(string: str, args: Mapping) -> tuple[str, tuple]:

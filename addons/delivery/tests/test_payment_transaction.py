@@ -6,21 +6,32 @@ from odoo.tools import mute_logger
 from odoo.addons.delivery.tests.cash_on_delivery_common import CashOnDeliveryCommon
 
 
-@tagged('post_install', '-at_install')
+@tagged("post_install", "-at_install")
 class TestCODPaymentTransaction(CashOnDeliveryCommon):
+    _test_user_groups = None  # FIXME list needed groups
 
     def test_choosing_cod_payment_confirms_order(self):
+        self._disable_post_process_patcher()
         order = self.sale_order
-        self.free_delivery.allow_cash_on_delivery = True
-        order.carrier_id = self.free_delivery
-        tx = self._create_transaction(
-            flow='direct',
-            sale_order_ids=[order.id],
-            state='pending',
-            provider_id=self.cod_provider.id,
-            payment_method_id=self.cod_provider.payment_method_ids.id,
-        )
-        with mute_logger('odoo.addons.sale.models.payment_transaction'):
-            tx._post_process()
+        self._create_cod_transaction()
+        with mute_logger("odoo.addons.sale.models.payment_transaction"):
+            self._run_post_processing()
 
-        self.assertEqual(order.state, 'sale')
+        self.assertEqual(order.state, "sale")
+
+    def test_choosing_cod_payment_keeps_the_transaction_pending(self):
+        """The customer only commits to pay at checkout; the money is collected on delivery."""
+        self._disable_post_process_patcher()
+        order = self.sale_order
+        tx = self._create_cod_transaction()
+        with mute_logger("odoo.addons.sale.models.payment_transaction"):
+            self._run_post_processing()
+
+        self.assertEqual(tx.state, "pending")
+        self.assertEqual(order.state, "sale")
+        self.assertEqual(order.amount_paid, 0, msg="No money has been received yet")
+        self.assertEqual(
+            order.amount_unpaid,
+            order.amount_total,
+            msg="The order must remain payable from the Point of Sale",
+        )

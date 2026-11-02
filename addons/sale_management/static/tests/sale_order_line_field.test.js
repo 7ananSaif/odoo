@@ -1,22 +1,43 @@
-import { defineMailModels } from '@mail/../tests/mail_test_helpers';
 import { expect, test } from '@odoo/hoot';
 import { queryAllTexts } from '@odoo/hoot-dom';
+import { saleManagementModels } from "@sale_management/../tests/sale_management_test_helpers";
 import {
     clickSave,
     contains,
     defineModels,
     fields,
+    models,
     mountView,
     onRpc,
 } from '@web/../tests/web_test_helpers';
-import { saleModels } from '@sale/../tests/sale_test_helpers';
 
-class SaleOrderLine extends saleModels.SaleOrderLine {
+class AccountFiscalPosition extends models.ServerModel {
+    _name = "account.fiscal.position";
+
+    _records = [
+        {
+            id: 1,
+            name: "Test Fiscal Position",
+        },
+    ];
+}
+
+class UomUom extends models.ServerModel {
+    _name = "uom.uom";
+
+    _records = [
+        { id: 1, name: "Units", factor: 1, parent_path: "1/" },
+        { id: 2, name: "Dozens", factor: 12, parent_path: "1/2/" },
+    ];
+}
+
+class SaleOrderLine extends saleManagementModels.SaleOrderLine {
     // for skipping tax setup required for prices computation to run correctly
     price_unit = fields.Float({ default: 3.00 });
     price_total = fields.Float({ default: 3.00 });
     price_subtotal = fields.Float({ default: 3.50 });
     product_uom_qty = fields.Float({ default: 1.00 });
+    section_qty = fields.Float({ default: 0.00 });
 
     _records = [
         { id: 1, name: "r1", sequence: 1 },
@@ -70,6 +91,7 @@ class SaleOrderLine extends saleModels.SaleOrderLine {
             name: "Sec3-sub2",
             sequence: 10,
             display_type: 'line_subsection',
+            section_uom_id: 1,
             product_uom_qty: 0,
             price_unit: 0,
             price_total: 0,
@@ -101,17 +123,23 @@ class SaleOrderLine extends saleModels.SaleOrderLine {
     ];
 }
 
-class SaleOrder extends saleModels.SaleOrder {
+class SaleOrder extends saleManagementModels.SaleOrder {
     _records = [
         {
             id: 1,
             name: "Optional Sections Sale order",
             order_line: SaleOrderLine._records.map(record => record.id),
+            company_id: 1,
+            fiscal_position_id: 1,
+            currency_id: 1,
         },
     ];
     _views = {
         form: `
-            <form>
+            <form js_class="sale_order_form">
+                <field name="company_id" invisible="1"/>
+                <field name="fiscal_position_id" invisible="1"/>
+                <field name="currency_id" invisible="1"/>
                 <field
                     name="order_line"
                     widget="sol_o2m"
@@ -124,8 +152,24 @@ class SaleOrder extends saleModels.SaleOrder {
                             <create name="add_note_control" string="Add a note" context="{'default_display_type': 'line_note'}"/>
                         </control>
                         <field name="sequence" widget="handle"/>
-                        <field name="name"/>
-                        <field name="product_uom_qty"/>
+                        <column name="product_and_description">
+                            <field name="name" invisible="not display_type"/>
+                            <field name="label" invisible="display_type"/>
+                        </column>
+                        <column name="sol_qty">
+                            <field name="product_uom_qty" invisible="display_type"/>
+                            <field
+                                name="section_qty"
+                                invisible="display_type not in ('line_section', 'line_subsection')"
+                            />
+                        </column>
+                        <column name="sol_uom">
+                            <field name="product_uom_id" invisible="display_type"/>
+                            <field
+                                name="section_uom_id"
+                                invisible="display_type not in ('line_section', 'line_subsection')"
+                            />
+                        </column>
                         <field name="price_unit"/>
                         <field name="price_total"/>
                         <field name="price_subtotal"/>
@@ -140,8 +184,13 @@ class SaleOrder extends saleModels.SaleOrder {
     };
 }
 
-defineModels({ SaleOrderLine, SaleOrder });
-defineMailModels();
+defineModels({
+    ...saleManagementModels,
+    SaleOrderLine,
+    SaleOrder,
+    AccountFiscalPosition,
+    UomUom,
+});
 
 const EXPECTED_LINE_RECORDS = [
     "r1",
@@ -168,7 +217,9 @@ test("Can't mark section hidden if optional and vice versa", async () => {
         resId: 1,
     });
 
-    expect(queryAllTexts('.o_data_row .o_list_text')).toEqual(EXPECTED_LINE_RECORDS);
+    expect(queryAllTexts(".o_data_row td[name=product_and_description]")).toEqual(
+        EXPECTED_LINE_RECORDS
+    );
 
     await contains('.o_data_row:contains(Sec1) .o_list_section_options button').click();
     expect('.o-dropdown-item:contains(Set Optional)').toHaveClass('disabled', {
@@ -206,7 +257,9 @@ test("Setting section optional should reset some fields", async () => {
         resId: 1,
     });
 
-    expect(queryAllTexts('.o_data_row .o_list_text')).toEqual(EXPECTED_LINE_RECORDS);
+    expect(queryAllTexts(".o_data_row td[name=product_and_description]")).toEqual(
+        EXPECTED_LINE_RECORDS
+    );
 
     await contains('.o_data_row:contains(Sec3-sub2) .o_list_section_options button').click();
     await contains('.o-dropdown-item:contains(Hide Composition)').click();
@@ -251,7 +304,9 @@ test("Unsetting optional section should reset some fields", async () => {
         resId: 1,
     });
 
-    expect(queryAllTexts('.o_data_row .o_list_text')).toEqual(EXPECTED_LINE_RECORDS);
+    expect(queryAllTexts(".o_data_row td[name=product_and_description]")).toEqual(
+        EXPECTED_LINE_RECORDS
+    );
 
     expect('.o_data_row:contains(Sec3-r1)').toHaveClass('text-primary', {
         message: "Line under optional section should be text-primary"
@@ -298,7 +353,9 @@ test("drag and drop regular line inside optional section resets some fields", as
         resId: 1,
     });
 
-    expect(queryAllTexts('.o_data_row .o_list_text')).toEqual(EXPECTED_LINE_RECORDS);
+    expect(queryAllTexts(".o_data_row td[name=product_and_description]")).toEqual(
+        EXPECTED_LINE_RECORDS
+    );
 
     await contains('.o_data_row:contains(Sec4-r1):first .o_row_handle').dragAndDrop('.o_data_row:contains(Sec3-sub2):first');
     await contains('.o_data_row:contains(Sec3-sub2-r1):first .o_row_handle').dragAndDrop('.o_data_row:contains(Sec4-sub1):first');
@@ -335,7 +392,9 @@ test("Moving Optional Sections to include some lines should set quantity to 0", 
         resId: 1,
     });
 
-    expect(queryAllTexts('.o_data_row .o_list_text')).toEqual(EXPECTED_LINE_RECORDS);
+    expect(queryAllTexts(".o_data_row td[name=product_and_description]")).toEqual(
+        EXPECTED_LINE_RECORDS
+    );
 
     await contains('.o_data_row:contains(Sec4):first .o_row_handle').dragAndDrop('.o_data_row:contains(Sec3-r2):first');
     await clickSave();
@@ -373,9 +432,139 @@ test("Moving Optional Sections to exclude some lines should set quantity to 1", 
         resId: 1,
     });
 
-    expect(queryAllTexts('.o_data_row .o_list_text')).toEqual(EXPECTED_LINE_RECORDS);
+    expect(queryAllTexts(".o_data_row td[name=product_and_description]")).toEqual(
+        EXPECTED_LINE_RECORDS
+    );
 
     await contains('.o_data_row:contains(Sec3):first .o_row_handle').dragAndDrop('.o_data_row:contains(Sec4):first');
     await clickSave();
     await expect.verifySteps(['web_save']);
 })
+
+test("Drag and drop optional subsection under hidden section resets its optional state", async () => {
+    SaleOrderLine._records[7].is_optional = true;
+
+    onRpc("web_save", ({ args }) => {
+        expect.step("web_save");
+
+        expect(args[1].order_line.find((commands) => commands[1] === 8)[2].is_optional).toBe(
+            false,
+            {
+                message: "is_optional should reset to false for subsection Sec3-sub1",
+            }
+        );
+    });
+
+    await mountView({
+        type: "form",
+        resModel: "sale.order",
+        resId: 1,
+    });
+
+    expect(queryAllTexts(".o_data_row td[name=product_and_description]")).toEqual(
+        EXPECTED_LINE_RECORDS
+    );
+
+    await contains(".o_data_row:contains(Sec3-sub1):first .o_row_handle").dragAndDrop(
+        ".o_data_row:contains(Sec3):first"
+    );
+
+    await clickSave();
+    expect.verifySteps(["web_save"]);
+});
+
+test.tags("desktop");
+test("Selecting a section template should append its section and lines to the order", async () => {
+    await mountView({
+        type: "form",
+        resModel: "sale.order",
+        resId: 1,
+    });
+
+    await contains("button:contains(Add Section)").click();
+    expect(".o_section_templates_dropdown").toBeVisible();
+
+    await contains("span.o-dropdown-item:contains(Section Template 1)").click();
+    expect(queryAllTexts(".o_data_row td[name=product_and_description]")).toEqual([
+        ...EXPECTED_LINE_RECORDS,
+        "Section Template 1",
+        "line1",
+        "line2",
+    ]);
+});
+
+test("Editing a subsection's quantity applies the ratio to its line and recomputes its price", async () => {
+    SaleOrderLine._records.find(record => record.name === "Sec3-sub2").section_qty = 2;
+    SaleOrderLine._records.find(record => record.name === "Sec3-sub2-r1").product_uom_qty = 3;
+
+    onRpc("batch_onchange_sol", ({ args }) => {
+        expect.step("batch_onchange_sol");
+        const [sectionLinesData] = args;
+
+        expect(Object.keys(sectionLinesData)).toEqual(["11"], {
+            message: "Only the subsection's own line should be part of the batch onchange call",
+        });
+        expect(sectionLinesData[11].changes.product_uom_qty).toEqual(6, {
+            message: "Sec3-sub2-r1's quantity should be doubled (ratio 4/2 applied to the subsection)",
+        });
+
+        return { 11: { price_subtotal: 42 } };
+    });
+
+    onRpc("web_save", ({ args }) => {
+        expect.step("web_save");
+        const commands = args[1].order_line;
+
+        expect(commands.find(c => c[1] === 10)[2]).toEqual({ section_qty: 4 }, {
+            message: "The subsection's own quantity change should be saved",
+        });
+        expect(commands.find(c => c[1] === 11)[2]).toEqual({ product_uom_qty: 6, price_subtotal: 42 }, {
+            message: "Its line's quantity and recomputed price should both be saved",
+        });
+    });
+
+    await mountView({
+        type: "form",
+        resModel: "sale.order",
+        resId: 1,
+    });
+
+    expect(queryAllTexts(".o_data_row td[name=product_and_description]")).toEqual(
+        EXPECTED_LINE_RECORDS
+    );
+
+    await contains(".o_data_row:contains(Sec3-sub2):first [name=product_and_description]").click();
+    await contains(".o_selected_row [name=section_qty] input", { visible: false }).edit("4");
+    await clickSave();
+
+    expect.verifySteps(["batch_onchange_sol", "web_save"]);
+});
+
+test.tags("desktop");
+test("Changing a section's UoM marks the order as dirty and applies the factor to its lines", async () => {
+    onRpc("batch_onchange_sol", () => ({}));
+    onRpc("web_save", ({ args }) => {
+        expect.step("web_save");
+        const commands = args[1].order_line;
+
+        expect(commands.find((c) => c[1] === 10)[2]).toEqual({ section_uom_id: 2 });
+        expect(commands.find((c) => c[1] === 11)[2]).toEqual({ product_uom_qty: 12 });
+    });
+
+    await mountView({
+        type: "form",
+        resModel: "sale.order",
+        resId: 1,
+    });
+
+    await contains(".o_data_row:contains(Sec3-sub2):first [name=product_and_description]").click();
+    await contains(".o_selected_row [name=section_uom_id] input", { visible: false }).click();
+    await contains(".o-autocomplete--dropdown-item:contains(Dozens)").click();
+
+    expect(".o_form_button_save").toBeVisible({
+        message: "The order should be dirty after changing the section's UoM",
+    });
+    await clickSave();
+
+    expect.verifySteps(["web_save"]);
+});

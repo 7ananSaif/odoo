@@ -3,57 +3,59 @@
 
 # Copyright (c) 2015 ACSONE SA/NV (<http://acsone.eu>)
 
+from odoo.tests import tagged, TransactionCase, Form
+
 from odoo.addons.base.tests.common import SavepointCaseWithUserDemo
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestResPartnerBank(SavepointCaseWithUserDemo):
-    """Tests acc_number
+    """Tests account_number
     """
 
-    def test_sanitized_acc_number(self):
+    def test_sanitized_account_number(self):
         partner_bank_model = self.env['res.partner.bank']
-        acc_number = " BE-001 2518823 03 "
-        vals = partner_bank_model.search([('acc_number', '=', acc_number)])
+        account_number = " BE-001 2518823 03 "
+        vals = partner_bank_model.search([('account_number', '=', account_number)])
         self.assertEqual(0, len(vals))
         partner_bank = partner_bank_model.create({
-            'acc_number': acc_number,
+            'account_number': account_number,
             'partner_id': self.env['res.partner'].create({'name': 'Pepper Test'}).id,
-            'acc_type': 'bank',
         })
-        vals = partner_bank_model.search([('acc_number', '=', acc_number)])
+        vals = partner_bank_model.search([('account_number', '=', account_number)])
         self.assertEqual(1, len(vals))
         self.assertEqual(partner_bank, vals[0])
-        vals = partner_bank_model.search([('acc_number', 'in', [acc_number])])
+        vals = partner_bank_model.search([('account_number', 'in', [account_number])])
         self.assertEqual(1, len(vals))
         self.assertEqual(partner_bank, vals[0])
 
-        self.assertEqual(partner_bank.acc_number, acc_number)
+        self.assertEqual(partner_bank.account_number, account_number)
 
-        # sanitaze the acc_number
-        sanitized_acc_number = 'BE001251882303'
-        self.assertEqual(partner_bank.sanitized_acc_number, sanitized_acc_number)
+        # sanitaze the account_number
+        sanitized_account_number = 'BE001251882303'
+        self.assertEqual(partner_bank.sanitized_account_number, sanitized_account_number)
         vals = partner_bank_model.search(
-            [('acc_number', '=', sanitized_acc_number)])
+            [('account_number', '=', sanitized_account_number)])
         self.assertEqual(1, len(vals))
         self.assertEqual(partner_bank, vals[0])
         vals = partner_bank_model.search(
-            [('acc_number', 'in', [sanitized_acc_number])])
+            [('account_number', 'in', [sanitized_account_number])])
         self.assertEqual(1, len(vals))
         self.assertEqual(partner_bank, vals[0])
-        self.assertEqual(partner_bank.sanitized_acc_number,
-                         sanitized_acc_number)
+        self.assertEqual(partner_bank.sanitized_account_number,
+                         sanitized_account_number)
 
         # search is case insensitive
         vals = partner_bank_model.search(
-            [('acc_number', '=', sanitized_acc_number.lower())])
+            [('account_number', '=', sanitized_account_number.lower())])
         self.assertEqual(1, len(vals))
         vals = partner_bank_model.search(
-            [('acc_number', '=', acc_number.lower())])
+            [('account_number', '=', account_number.lower())])
         self.assertEqual(1, len(vals))
 
-        # updating the sanitized value will also update the acc_number
-        partner_bank.write({'sanitized_acc_number': 'BE001251882303WRONG'})
-        self.assertEqual(partner_bank.acc_number, partner_bank.sanitized_acc_number)
+        # updating the sanitized value will also update the account_number
+        partner_bank.write({'sanitized_account_number': 'BE001251882303WRONG'})
+        self.assertEqual(partner_bank.account_number, partner_bank.sanitized_account_number)
 
     def test_find_or_create_bank_account_create(self):
         partner = self.env['res.partner'].create({'name': 'partner name'})
@@ -64,7 +66,7 @@ class TestResPartnerBank(SavepointCaseWithUserDemo):
         )
         # The bank didn't exist, we should create it
         self.assertRecordValues(found_bank, [{
-            'acc_number': 'account number',
+            'account_number': 'account number',
             'partner_id': partner.id,
             'company_id': False,
             'active': True,
@@ -73,7 +75,7 @@ class TestResPartnerBank(SavepointCaseWithUserDemo):
     def test_find_or_create_bank_account_find_active(self):
         partner = self.env['res.partner'].create({'name': 'partner name'})
         bank = self.env['res.partner.bank'].create({
-            'acc_number': 'account number',
+            'account_number': 'account number',
             'partner_id': partner.id,
             'company_id': False,
             'active': True,
@@ -89,7 +91,7 @@ class TestResPartnerBank(SavepointCaseWithUserDemo):
     def test_find_or_create_bank_account_find_inactive(self):
         partner = self.env['res.partner'].create({'name': 'partner name'})
         self.env['res.partner.bank'].create({
-            'acc_number': 'account number',
+            'account_number': 'account number',
             'partner_id': partner.id,
             'company_id': False,
             'active': False,
@@ -106,7 +108,7 @@ class TestResPartnerBank(SavepointCaseWithUserDemo):
         partner = self.env['res.partner'].create({'name': 'partner name'})
         contact = self.env['res.partner'].create({'name': 'contact', 'parent_id': partner.id})
         partner_bank = self.env['res.partner.bank'].create({
-            'acc_number': 'account number',
+            'account_number': 'account number',
             'partner_id': partner.id,
         })
         # Only the bank on the commercial partner exists
@@ -126,7 +128,7 @@ class TestResPartnerBank(SavepointCaseWithUserDemo):
 
         # Now the bank exists on both partners
         contact_bank = self.env['res.partner.bank'].create({
-            'acc_number': 'account number',
+            'account_number': 'account number',
             'partner_id': contact.id,
         })
         found_bank = self.env['res.partner.bank']._find_or_create_bank_account(
@@ -158,3 +160,11 @@ class TestResPartnerBank(SavepointCaseWithUserDemo):
             company=self.env.company,
         )
         self.assertEqual(contact_bank, found_bank)
+
+
+class TestResPartnerBankForm(TransactionCase):
+    def test_create_res_partner_bank(self):
+        bank_account_form = Form(
+            self.env['res.partner.bank'].with_context(default_partner_id=self.env.user.partner_id.id))
+        bank_account_form.account_number = '11234'
+        bank_account_form.save()

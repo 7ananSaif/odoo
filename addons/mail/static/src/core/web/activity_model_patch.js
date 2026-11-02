@@ -1,5 +1,4 @@
 import { Activity } from "@mail/core/common/activity_model";
-import { fields } from "@mail/core/common/record";
 import { formatDate, formatDateTime } from "@web/core/l10n/dates";
 import { _t } from "@web/core/l10n/translation";
 
@@ -11,11 +10,9 @@ import { patch } from "@web/core/utils/patch";
 patch(Activity.prototype, {
     setup() {
         super.setup(...arguments);
-        this.isNoteEmpty = fields.Attr(true, {
-            compute() {
-                return !this.note || isEmptyBlock(createElementWithContent("div", this.note));
-            },
-        });
+        this.isNoteEmpty = this.computed(
+            () => !this.note || isEmptyBlock(createElementWithContent("div", this.note))
+        );
     },
     get dateDeadlineFormatted() {
         return formatDate(this.date_deadline);
@@ -40,7 +37,7 @@ patch(Activity.prototype, {
                     context: {
                         default_res_model: this.res_model,
                         default_res_id: this.res_id,
-                        dialog_size: "large",
+                        dialog_size: "medium",
                     },
                 },
                 {
@@ -60,7 +57,7 @@ patch(Activity.prototype, {
             payload: { id: this.res_id, model: this.res_model },
         });
     },
-    /** @returns {Promise<import("@web/webclient/actions/action_service").ActionDescription>} */
+    /** @returns {Promise<import("@web/webclient/actions/action_plugin").ActionDescription>} */
     async markAsDoneAndScheduleNext() {
         const action = await this.store.env.services.orm.call(
             "mail.activity",

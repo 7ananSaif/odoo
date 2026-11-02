@@ -3,13 +3,13 @@ import { serializeDate } from "@web/core/l10n/dates";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { standardWidgetProps } from "@web/views/widgets/standard_widget_props";
-import { Component } from "@odoo/owl";
+import { Component, signal, useProps } from "@odoo/owl";
 
 export class ButtonNewContractWidget extends Component {
     static template = "hr.ButtonNewContract";
-    static props = {
-        ...standardWidgetProps,
-    };
+    props = useProps(standardWidgetProps);
+
+    datetimePickerTargetRef = signal.ref();
 
     /** @override **/
     setup() {
@@ -17,7 +17,7 @@ export class ButtonNewContractWidget extends Component {
         this.orm = useService("orm");
 
         this.dateTimePicker = useDateTimePicker({
-            target: `datetime-picker-target-new-contract`,
+            target: this.datetimePickerTargetRef,
             onApply: (date) => {
                 if (date) {
                     this.tryAndCreateContract(serializeDate(date));
@@ -30,7 +30,12 @@ export class ButtonNewContractWidget extends Component {
     }
 
     async onClickNewContractBtn() {
-        await this.props.record.save();
+        this.props.record._skipContractEndDialog = true;
+        try {
+            await this.props.record.save();
+        } finally {
+            this.props.record._skipContractEndDialog = false;
+        }
         await this.orm.call("hr.version", "check_contract_finished", [
             [this.props.record.data.version_id.id],
         ]);

@@ -24,8 +24,9 @@
                         <ram:SellerAssignedID
                             t-if="line.product_id and line.product_id.default_code"
                             t-out="line.product_id.default_code"/>
-                        <ram:Name t-out="line.product_id.name"/>
-                        <ram:Description t-out="line.name" t-if="line.name != line.product_id.name"/>
+                        <t t-set="item_name" t-value="line.product_id.name or line.name"/>
+                        <ram:Name t-out="item_name"/>
+                        <ram:Description t-out="line.name" t-if="item_name != line.name"/>
                     </ram:SpecifiedTradeProduct>
 
                     <!-- Amounts. -->
@@ -69,7 +70,7 @@
                         </t>
 
                         <!-- Billing Period -->
-                        <ram:BillingSpecifiedPeriod t-if="line_vals.get('billing_start') and line_vals.get('billing_end')"> 
+                        <ram:BillingSpecifiedPeriod t-if="line_vals.get('billing_start') and line_vals.get('billing_end')">
                             <ram:StartDateTime>
                                 <udt:DateTimeString format="102" t-out="format_date(line_vals['billing_start'])"/>
                             </ram:StartDateTime>
@@ -82,17 +83,17 @@
                         <t t-foreach="line_vals.get('allowance_charge_vals_list')" t-as="allowance_charge_vals">
                             <ram:SpecifiedTradeAllowanceCharge>
                                 <ram:ChargeIndicator>
-                                    <udt:Indicator t-esc="allowance_charge_vals['indicator']"/>
+                                    <udt:Indicator t-out="allowance_charge_vals['indicator']"/>
                                 </ram:ChargeIndicator>
-                                <ram:ActualAmount t-esc="format_monetary(allowance_charge_vals['amount'], 2)"/>
-                                <ram:ReasonCode t-esc="allowance_charge_vals['reason_code']"/>
-                                <ram:Reason t-esc="allowance_charge_vals['reason']"/>
+                                <ram:ActualAmount t-out="format_monetary(allowance_charge_vals['amount'], 2)"/>
+                                <ram:ReasonCode t-out="allowance_charge_vals['reason_code']"/>
+                                <ram:Reason t-out="allowance_charge_vals['reason']"/>
                             </ram:SpecifiedTradeAllowanceCharge>
                         </t>
 
                         <!-- Subtotal. -->
                         <ram:SpecifiedTradeSettlementLineMonetarySummation>
-                            <ram:LineTotalAmount t-esc="format_monetary(line_vals['line_total_amount'], 2)"/>
+                            <ram:LineTotalAmount t-out="format_monetary(line_vals['line_total_amount'], 2)"/>
                         </ram:SpecifiedTradeSettlementLineMonetarySummation>
 
                     </ram:SpecifiedLineTradeSettlement>
@@ -193,39 +194,43 @@
                         <!-- Seller. -->
                         <ram:SellerTradeParty>
                             <!-- Address. -->
-                            <t t-call="account_edi_ubl_cii.account_invoice_partner_facturx_export_22">
-                                <t t-set="partner" t-value="record.company_id.partner_id"/>
-                                <t t-set="specified_legal_organization_val" t-value="seller_specified_legal_organization"/>
-                            </t>
+                            <t t-call="account_edi_ubl_cii.account_invoice_partner_facturx_export_22"
+                                partner="record.company_id.partner_id"
+                                specified_legal_organization_val="seller_specified_legal_organization"/>
 
-                            <ram:URIUniversalCommunication t-if="record.company_id.partner_id.peppol_eas and record.company_id.partner_id.peppol_endpoint">
-                                <ram:URIID t-att-schemeID="record.company_id.partner_id.peppol_eas" t-out="record.company_id.partner_id.peppol_endpoint"/>
+                            <ram:URIUniversalCommunication t-if="record.company_id.partner_id.routing_scheme and record.company_id.partner_id.routing_endpoint">
+                                <ram:URIID t-att-schemeID="record.company_id.partner_id.routing_scheme" t-out="record.company_id.partner_id.routing_endpoint"/>
                             </ram:URIUniversalCommunication>
 
-                            <!-- VAT. -->
-                            <ram:SpecifiedTaxRegistration t-if="record.fiscal_position_id.foreign_vat">
+                            <!-- VAT (BR-CO-09: '/' is not a valid VAT id). -->
+                            <ram:SpecifiedTaxRegistration t-if="record.fiscal_position_id.foreign_vat and record.fiscal_position_id.foreign_vat not in ('/', 'na', 'NA')">
                                 <ram:ID schemeID="VA" t-out="record.fiscal_position_id.foreign_vat"/>
                             </ram:SpecifiedTaxRegistration>
 
-                            <ram:SpecifiedTaxRegistration t-elif="record.company_id.vat">
+                            <ram:SpecifiedTaxRegistration t-elif="record.company_id.has_vat">
                                 <ram:ID schemeID="VA" t-out="record.company_id.vat"/>
                             </ram:SpecifiedTaxRegistration>
+
+                            <t t-foreach="seller_extra_tax_registrations" t-as="tax_registration">
+                                <ram:SpecifiedTaxRegistration>
+                                    <ram:ID t-att-schemeID="tax_registration['scheme']" t-out="tax_registration['value']"/>
+                                </ram:SpecifiedTaxRegistration>
+                            </t>
                         </ram:SellerTradeParty>
 
                         <!-- Customer. -->
                         <ram:BuyerTradeParty>
                             <!-- Address. -->
-                            <t t-call="account_edi_ubl_cii.account_invoice_partner_facturx_export_22">
-                                <t t-set="partner" t-value="record.partner_id"/>
-                                <t t-set="specified_legal_organization_val" t-value="buyer_specified_legal_organization"/>
-                            </t>
+                            <t t-call="account_edi_ubl_cii.account_invoice_partner_facturx_export_22"
+                                partner="record.partner_id"
+                                specified_legal_organization_val="buyer_specified_legal_organization"/>
 
-                            <ram:URIUniversalCommunication t-if="record.partner_id.peppol_eas and record.partner_id.peppol_endpoint">
-                                <ram:URIID t-att-schemeID="record.partner_id.peppol_eas" t-out="record.partner_id.peppol_endpoint"/>
+                            <ram:URIUniversalCommunication t-if="record.partner_id.routing_scheme and record.partner_id.routing_endpoint">
+                                <ram:URIID t-att-schemeID="record.partner_id.routing_scheme" t-out="record.partner_id.routing_endpoint"/>
                             </ram:URIUniversalCommunication>
 
                             <!-- VAT. -->
-                            <ram:SpecifiedTaxRegistration t-if="record.commercial_partner_id.vat">
+                            <ram:SpecifiedTaxRegistration t-if="record.commercial_partner_id.has_vat">
                                 <ram:ID schemeID="VA" t-out="record.commercial_partner_id.vat"/>
                             </ram:SpecifiedTaxRegistration>
                         </ram:BuyerTradeParty>
@@ -244,11 +249,9 @@
                     <!-- Delivery -->
                     <ram:ApplicableHeaderTradeDelivery>
                         <ram:ShipToTradeParty>
-                            <t t-call="account_edi_ubl_cii.account_invoice_partner_facturx_export_22">
-                                <t t-set="partner"
-                                   t-value="ship_to_trade_party"/>
-                                <t t-set="hide_dtc" t-value="document_context_id == 'urn:cen.eu:en16931:2017#compliant#urn:xoev-de:kosit:standard:xrechnung_2.2'"/>
-                            </t>
+                            <t t-call="account_edi_ubl_cii.account_invoice_partner_facturx_export_22"
+                                partner="ship_to_trade_party"
+                                hide_dtc="document_context_id == 'urn:cen.eu:en16931:2017#compliant#urn:xoev-de:kosit:standard:xrechnung_2.2'"/>
                         </ram:ShipToTradeParty>
 
                         <ram:ActualDeliverySupplyChainEvent t-if="scheduled_delivery_time">
@@ -266,15 +269,15 @@
                         <ram:InvoiceCurrencyCode t-out="currency.name"/>
 
                         <!-- Bank account. -->
-                        <ram:SpecifiedTradeSettlementPaymentMeans t-if="record.partner_bank_id.sanitized_acc_number">
+                        <ram:SpecifiedTradeSettlementPaymentMeans t-if="record.partner_bank_id.sanitized_account_number">
                             <ram:TypeCode t-out="payment_means_code"/>
                             <ram:PayeePartyCreditorFinancialAccount>
                                 <ram:IBANID
-                                    t-if="record.partner_bank_id.acc_type == 'iban'"
-                                    t-out="record.partner_bank_id.sanitized_acc_number"/>
+                                    t-if="record.partner_bank_id.account_type == 'iban'"
+                                    t-out="record.partner_bank_id.sanitized_account_number"/>
                                 <ram:ProprietaryID
-                                    t-if="record.partner_bank_id.acc_type != 'iban'"
-                                    t-out="record.partner_bank_id.sanitized_acc_number"/>
+                                    t-if="record.partner_bank_id.account_type != 'iban'"
+                                    t-out="record.partner_bank_id.sanitized_account_number"/>
                             </ram:PayeePartyCreditorFinancialAccount>
                         </ram:SpecifiedTradeSettlementPaymentMeans>
 
@@ -322,12 +325,12 @@
                         <!-- Summary. -->
                         <ram:SpecifiedTradeSettlementHeaderMonetarySummation>
                             <ram:LineTotalAmount
-                                t-esc="format_monetary(tax_basis_total_amount, 2)"/>
+                                t-out="format_monetary(tax_basis_total_amount, 2)"/>
                             <ram:TaxBasisTotalAmount
-                                t-esc="format_monetary(tax_basis_total_amount, 2)"/>
+                                t-out="format_monetary(tax_basis_total_amount, 2)"/>
                             <ram:TaxTotalAmount
                                 t-att-currencyID="currency.name"
-                                t-esc="format_monetary(tax_total_amount, 2)"/>
+                                t-out="format_monetary(tax_total_amount, 2)"/>
                             <ram:GrandTotalAmount
                                 t-out="format_monetary(record.amount_total, 2)"/>
                             <ram:TotalPrepaidAmount
@@ -414,7 +417,7 @@
                         </pdfaExtension:schemas>
                     </rdf:Description>
                     <rdf:Description xmlns:fx="urn:factur-x:pdfa:CrossIndustryDocument:invoice:1p0#" rdf:about="">
-                        <fx:ConformanceLevel>EXTENDED</fx:ConformanceLevel>
+                        <fx:ConformanceLevel t-translation="off">EXTENDED</fx:ConformanceLevel>
                         <fx:DocumentFileName>factur-x.xml</fx:DocumentFileName>
                         <fx:DocumentType t-translation="off">INVOICE</fx:DocumentType>
                         <fx:Version>1.0</fx:Version>

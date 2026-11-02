@@ -4,54 +4,57 @@ import { _t } from "@web/core/l10n/translation";
 import { usePopover } from "@web/core/popover/popover_hook";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
-import { TagsList } from "@web/core/tags_list/tags_list";
+import { BadgeTag } from "@web/core/tags_list/badge_tag";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
 import { useTagNavigation } from "@web/core/record_selectors/tag_navigation_hook";
 
-import { Component } from "@odoo/owl";
+import { Component, signal, t, useProps } from "@odoo/owl";
+import { range } from "@web/core/utils/numbers";
 
 class PropertyTagsColorListPopover extends Component {
     static template = "web.PropertyTagsColorListPopover";
     static components = {
         ColorList,
     };
-    static props = {
-        colors: Array,
-        tag: Object,
-        switchTagColor: Function,
-        close: Function,
-    };
+    props = useProps({
+        colors: t.array(),
+        tag: t.object(),
+        switchTagColor: t.function(),
+        close: t.function(),
+    });
 }
 
 export class PropertyTags extends Component {
     static template = "web.PropertyTags";
     static components = {
         AutoComplete,
-        TagsList,
+        BadgeTag,
         ColorList,
         Popover: PropertyTagsColorListPopover,
     };
 
-    static props = {
-        id: { type: String, optional: true },
-        selectedTags: {}, // Tags value visible in the tags list
-        tags: {}, // Tags definition visible in the dropdown
+    props = useProps({
+        id: t.string().optional(),
+        selectedTags: t.any(), // Tags value visible in the tags list
+        tags: t.any(), // Tags definition visible in the dropdown
         // Define the behavior of the delete button on the tags, either
         // "value" or "tags". If "value", the delete button will unselect
         // the value, if "tags" the value will be removed from the definition.
-        deleteAction: { type: String },
-        readonly: { type: Boolean, optional: true },
-        canChangeTags: { type: Boolean, optional: true },
+        deleteAction: t.string(),
+        readonly: t.boolean().optional(),
+        canChangeTags: t.boolean().optional(),
         // Select a new value
-        onValueChange: { type: Function, optional: true },
+        onValueChange: t.function().optional(),
         // Change the tags definition (can also receive a second
         // argument to update the current selected value)
-        onTagsChange: { type: Function, optional: true },
-    };
+        onTagsChange: t.function().optional(),
+    });
+    propertyTagsRef = signal.ref();
+
     setup() {
         this.notification = useService("notification");
         this.popover = usePopover(this.constructor.components.Popover);
-        useTagNavigation("propertyTags", {
+        useTagNavigation(this.propertyTagsRef, {
             delete: (index) => this.deleteTagByIndex(index),
         });
     }
@@ -70,7 +73,7 @@ export class PropertyTags extends Component {
     }
 
     /**
-     * Return the list containing tags values and actions for the TagsList component.
+     * Return the list containing tags values and actions for the BadgeTag component.
      *
      * @returns {array}
      */
@@ -97,10 +100,9 @@ export class PropertyTags extends Component {
             return {
                 id: tagId,
                 text: tagLabel,
-                className: this.props.canChangeTags ? "" : "pe-none",
-                colorIndex: tagColorIndex || 0,
+                color: tagColorIndex || 0,
                 onClick: (event) => this.onTagClick(event, tagId, tagColorIndex),
-                onDelete: canDeleteTag && (() => this.onTagDelete(tagId)),
+                onDelete: canDeleteTag ? () => this.onTagDelete(tagId) : undefined,
             };
         });
     }
@@ -269,7 +271,7 @@ export class PropertyTags extends Component {
             return;
         }
         this.popover.open(event.currentTarget, {
-            colors: [...Array(ColorList.COLORS.length).keys()],
+            colors: range(ColorList.COLORS.length),
             tag: { id: tagId, colorIndex: tagColor },
             switchTagColor: this.onTagColorSwitch.bind(this),
         });
@@ -303,7 +305,7 @@ export class PropertyTags extends Component {
 export class PropertyTagsField extends Component {
     static template = "web.PropertyTagsField";
     static components = { PropertyTags };
-    static props = { ...standardFieldProps };
+    props = useProps({ ...standardFieldProps });
 
     get propertyTagsProps() {
         return {

@@ -321,7 +321,7 @@
                                             <div class="col-6">
                                                 <t t-foreach="bs_theme_colors" t-as="color">
                                                     <div t-attf-class="alert alert-#{color[0]} d-flex align-items-center" role="alert">
-                                                        <i class="fa fa-info-circle fa-lg fa-stack d-flex align-items-center justify-content-center me-3 p-2 rounded-1"/>
+                                                        <i class="oi oi-lg oi-stack d-flex align-items-center justify-content-center me-3 p-2 rounded-1" data-icon="info"/>
                                                         <div>
                                                             An example alert with an icon
                                                         </div>
@@ -517,10 +517,10 @@
                                                         <p class="small">Small text. Lorem <b>ipsum dolor sit amet</b>, consectetur adipiscing elit. <i>Integer posuere erat a ante</i>.</p>
                                                     </div>
                                                     <div class="col-5 border-start">
-                                                        <a href="#" class="mb-3 btn-block btn btn-primary">btn-primary</a>
-                                                        <a href="#" class="mb-3 btn-block btn btn-secondary">btn-secondary</a>
-                                                        <a href="#" class="mb-3 btn-block btn btn-outline-primary">btn-outline-primary</a>
-                                                        <a href="#" class="mb-3 btn-block btn btn-outline-secondary">btn-outline-secondary</a>
+                                                        <a href="#" class="mb-3 btn btn-primary">btn-primary</a>
+                                                        <a href="#" class="mb-3 btn btn-secondary">btn-secondary</a>
+                                                        <a href="#" class="mb-3 btn btn-outline-primary">btn-outline-primary</a>
+                                                        <a href="#" class="mb-3 btn btn-outline-secondary">btn-outline-secondary</a>
                                                     </div>
                                                 </div>
                                                 <hr class="my-4"/>
@@ -569,8 +569,8 @@
                                                     </div>
                                                     <div class="col-5 border-start">
                                                         <div t-foreach="['info', 'warning', 'danger', 'success']" t-as="btn">
-                                                            <a href="#" t-attf-class="mb-2 btn-block btn btn-#{btn}" t-out="'btn-' + btn"/>
-                                                            <a href="#" t-attf-class="mb-3 btn-block btn btn-outline-#{btn}" t-out="'btn-outline-' + btn"/>
+                                                            <a href="#" t-attf-class="mb-2 btn btn-#{btn}" t-out="'btn-' + btn"/>
+                                                            <a href="#" t-attf-class="mb-3 btn btn-outline-#{btn}" t-out="'btn-outline-' + btn"/>
                                                         </div>
                                                     </div>
                                                 </div>

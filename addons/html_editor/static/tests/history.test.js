@@ -1,5 +1,4 @@
 import { Plugin } from "@html_editor/plugin";
-import { MAIN_PLUGINS } from "@html_editor/plugin_sets";
 import { parseHTML } from "@html_editor/utils/html";
 import { describe, expect, test } from "@odoo/hoot";
 import { click, pointerDown, pointerUp, press, queryOne, microTick } from "@odoo/hoot-dom";
@@ -7,26 +6,39 @@ import { animationFrame, mockUserAgent, tick } from "@odoo/hoot-mock";
 import { setupEditor, testEditor } from "./_helpers/editor";
 import { getContent, setSelection } from "./_helpers/selection";
 import { expectElementCount } from "./_helpers/ui_expectations";
-import { addStep, deleteBackward, insertText, redo, undo } from "./_helpers/user_actions";
+import {
+    commit,
+    deleteBackward,
+    ensureDistinctHistoryCommit,
+    insertText,
+    redo,
+    splitBlock,
+    undo,
+} from "./_helpers/user_actions";
 import { execCommand } from "./_helpers/userCommands";
+import { nodeToTree } from "@html_editor/core/dom_reference_map_plugin";
+import { HISTORY_COMMIT_TYPES } from "@html_editor/core/history_plugin";
+import { NATIVE_MUTATION_TYPES } from "../src/core/dom_observer_plugin";
 
 describe("reset", () => {
-    test("should not add mutations in the current step from the normalization when calling reset", async () => {
+    test("should not add mutations in the current commit from the normalization when calling reset", async () => {
         const TestPlugin = class extends Plugin {
             static id = "test";
             resources = {
-                normalize_handlers: () => {
+                normalize_processors: () => {
                     this.editable.firstChild.setAttribute("data-test-normalize", "1");
+                    return this.editable;
                 },
             };
         };
         const { el, plugins } = await setupEditor("<p>a</p>", {
-            config: { Plugins: [...MAIN_PLUGINS, TestPlugin] },
+            config: { includePlugins: [TestPlugin] },
         });
         const historyPlugin = plugins.get("history");
         expect(el.firstChild.getAttribute("data-test-normalize")).toBe("1");
-        expect(historyPlugin.steps.length).toBe(1);
-        expect(historyPlugin.currentStep.mutations.length).toBe(0);
+        expect(historyPlugin.commits.length).toBe(1);
+        const domObserverPlugin = plugins.get("domObserver");
+        expect(domObserverPlugin.mutations.length).toBe(0);
     });
 
     test.tags("desktop");
@@ -40,13 +52,13 @@ describe("reset", () => {
         expect(getContent(el)).toBe(
             `<p o-we-hint-text='Type "/" for commands' class="o-we-hint">[]</p>`
         );
-        const historyPlugin = plugins.get("history");
-        expect(historyPlugin.currentStep.mutations.length).toBe(0);
+        const domObserverPlugin = plugins.get("domObserver");
+        expect(domObserverPlugin.mutations.length).toBe(0);
 
         await click(".odoo-editor-editable p");
         await animationFrame();
         await expectElementCount(".o-we-tablepicker", 0);
-        expect(historyPlugin.currentStep.mutations.length).toBe(0);
+        expect(domObserverPlugin.mutations.length).toBe(0);
     });
 });
 
@@ -78,7 +90,7 @@ describe("undo", () => {
         const { el, editor } = await setupEditor(`<p>[]c</p>`);
         const p = el.querySelector("p");
         editor.shared.dom.insert("a");
-        editor.shared.history.addStep();
+        editor.shared.history.commit();
         p.prepend(document.createTextNode("b"));
         undo(editor);
         expect(getContent(el)).toBe(`<p>[]c</p>`);
@@ -132,10 +144,10 @@ describe("redo", () => {
             stepFunction: async (editor) => {
                 deleteBackward(editor); // <p>ab[]cd</p>
                 deleteBackward(editor); // <p>a[]cd</p>
-                undo(editor); // <p>ab[]cd</p>
-                undo(editor); // <p>ab []cd</p>
-                redo(editor); // <p>ab[]cd</p>
-                redo(editor); // <p>a[]cd</p>
+                undo(editor); // <p>ab []cd</p> (grouped the two actions)
+                undo(editor); // <p>ab []cd</p> (nothing to undo)
+                redo(editor); // <p>a[]cd</p> (grouped the two actions)
+                redo(editor); // <p>a[]cd</p> (nothing to redo)
                 redo(editor); // <p>a[]cd</p> (nothing to redo)
             },
             contentAfter: "<p>a[]cd</p>",
@@ -165,8 +177,11 @@ describe("redo", () => {
             contentBefore: "<p>[]</p>",
             stepFunction: async (editor) => {
                 await insertText(editor, "a");
+                await ensureDistinctHistoryCommit();
                 await insertText(editor, "b");
+                await ensureDistinctHistoryCommit();
                 await insertText(editor, "c");
+                await ensureDistinctHistoryCommit();
                 undo(editor);
                 undo(editor);
                 await insertText(editor, "d");
@@ -184,8 +199,11 @@ describe("redo", () => {
             contentBefore: "<p>[]</p>",
             stepFunction: async (editor) => {
                 await insertText(editor, "a");
+                await ensureDistinctHistoryCommit();
                 await insertText(editor, "b");
+                await ensureDistinctHistoryCommit();
                 await insertText(editor, "c");
+                await ensureDistinctHistoryCommit();
                 undo(editor);
                 undo(editor);
                 await insertText(editor, "d");
@@ -218,7 +236,7 @@ describe("redo", () => {
         const { el, editor } = await setupEditor(`<p>[]c</p>`);
         const p = el.querySelector("p");
         editor.shared.dom.insert("a");
-        editor.shared.history.addStep();
+        editor.shared.history.commit();
         undo(editor);
         expect(getContent(el)).toBe(`<p>[]c</p>`);
         p.prepend(document.createTextNode("b"));
@@ -234,9 +252,11 @@ describe("redo", () => {
         editor.shared.selection.setCursorEnd(p1);
         // DO
         await insertText(editor, "A");
+        await ensureDistinctHistoryCommit();
         expect(getContent(el)).toBe("<p>aA[]</p><p>b</p>", { message: "insert A" });
         editor.shared.selection.setCursorEnd(p2);
         await insertText(editor, "B");
+        await ensureDistinctHistoryCommit();
         expect(getContent(el)).toBe("<p>aA</p><p>bB[]</p>", { message: "insert B" });
         // UNDO
         await press(["ctrl", "z"]);
@@ -275,9 +295,10 @@ describe("selection", () => {
         await tick();
         await pointerUp(pElement);
         await tick();
-        const historyPlugin = plugins.get("history");
-        const nodeId = historyPlugin.nodeMap.getId(pElement.firstChild);
-        expect(historyPlugin.currentStep.selection).toEqual({
+        const domReferenceMapPlugin = plugins.get("domReferenceMap");
+        const nodeId = domReferenceMapPlugin.getNodeId(pElement.firstChild);
+        const selectionPlugin = plugins.get("selection");
+        expect(selectionPlugin.currentData.selection).toEqual({
             anchorNodeId: nodeId,
             anchorOffset: 0,
             focusNodeId: nodeId,
@@ -287,14 +308,14 @@ describe("selection", () => {
     });
 });
 
-describe("step", () => {
+describe("commit", () => {
     test('should allow insertion of nested contenteditable="true"', async () => {
         await testEditor({
             contentBefore: `<div contenteditable="false"></div>`,
             stepFunction: async (editor) => {
                 const editable = '<div contenteditable="true">abc</div>';
                 editor.editable.querySelector("div").innerHTML = editable;
-                editor.shared.history.addStep();
+                editor.shared.history.commit();
             },
             contentAfter: `<div contenteditable="false"><div contenteditable="true">abc</div></div>`,
         });
@@ -309,26 +330,27 @@ describe("system classes and attributes", () => {
             system_attributes: ["data-x"],
         };
     }
-    const Plugins = [...MAIN_PLUGINS, TestSystemClassesPlugin];
     test("should prevent system classes to be added", async () => {
         await testEditor({
             contentBefore: `<p>a</p>`,
             stepFunction: async (editor) => {
                 const p = editor.editable.querySelector("p");
                 p.className = "x";
-                editor.shared.history.addStep();
+                editor.shared.history.commit();
                 const history = editor.plugins.find((p) => p.constructor.id === "history");
-                expect(history.steps.length).toBe(1);
+                expect(history.commits.length).toBe(1);
             },
-            config: { Plugins: Plugins },
+            config: { includePlugins: [TestSystemClassesPlugin] },
         });
     });
 
     test("system classes are ignored by history (neither added or removed)", async () => {
-        const { editor, el } = await setupEditor(`<p>a[]</p>`, { config: { Plugins: Plugins } });
+        const { editor, el } = await setupEditor(`<p>a[]</p>`, {
+            config: { includePlugins: [TestSystemClassesPlugin] },
+        });
         const p = editor.editable.querySelector("p");
         p.className = "x y";
-        addStep(editor);
+        commit(editor);
         undo(editor);
         expect(getContent(el)).toBe(`<p class="x">a[]</p>`);
         redo(editor);
@@ -343,21 +365,23 @@ describe("system classes and attributes", () => {
                 p.className = "x";
                 p.textContent = "b";
                 editor.shared.selection.setCursorEnd(p);
-                addStep(editor);
+                commit(editor);
                 undo(editor);
                 redo(editor);
             },
             contentAfter: `<p class="x">b[]</p>`,
-            config: { Plugins: Plugins },
+            config: { includePlugins: [TestSystemClassesPlugin] },
         });
     });
 
     test("system attributes mutations are ignored by history", async () => {
-        const { editor, el } = await setupEditor(`<p>a[]</p>`, { config: { Plugins: Plugins } });
+        const { editor, el } = await setupEditor(`<p>a[]</p>`, {
+            config: { includePlugins: [TestSystemClassesPlugin] },
+        });
         const p = editor.editable.querySelector("p");
         p.setAttribute("data-x", "1");
         p.setAttribute("data-y", "1");
-        addStep(editor);
+        commit(editor);
         undo(editor);
         expect(getContent(el)).toBe(`<p data-x="1">a[]</p>`);
         redo(editor);
@@ -365,21 +389,25 @@ describe("system classes and attributes", () => {
     });
 
     test("should skip the mutations if no changes in state", async () => {
-        const { el, plugins } = await setupEditor(`<p class="y">a</p>`, { config: { Plugins } });
+        const { el, plugins } = await setupEditor(`<p class="y">a</p>`, {
+            config: { includePlugins: [TestSystemClassesPlugin] },
+        });
 
-        /** @type import("../src/core/history_plugin").HistoryPlugin") */
-        const historyPlugin = plugins.get("history");
+        /** @type {import("../src/core/dom_observer_plugin").DomObserverPlugin"} */
+        const domObserverPlugin = plugins.get("domObserver");
         const p = el.querySelector("p");
         p.className = "";
         p.className = "y";
-        historyPlugin.handleObserverRecords();
-        historyPlugin.revertMutations(historyPlugin.currentStep.mutations);
+        domObserverPlugin.stagePendingMutations();
+        domObserverPlugin.revertMutations(domObserverPlugin.mutations);
 
         expect(getContent(el)).toBe(`<p class="y">a</p>`);
     });
 
     test("should not copy system classes when changing a tag name", async () => {
-        const { el, editor } = await setupEditor(`<p class="x">a[]</p>`, { config: { Plugins } });
+        const { el, editor } = await setupEditor(`<p class="x">a[]</p>`, {
+            config: { includePlugins: [TestSystemClassesPlugin] },
+        });
         editor.shared.dom.setBlock({
             tagName: "h1",
         });
@@ -398,15 +426,15 @@ describe("makeSavePoint", () => {
         // If the selection of the editor would be programatically set upon start
         // (like an autofocus feature), it would be the role of the autofocus
         // feature to trigger the stageSelection.
-        editor.shared.history.stageSelection();
+        editor.shared.selection.stageSelection();
         const restore = editor.shared.history.makeSavePoint();
         execCommand(editor, "formatBold");
         restore();
         expect(getContent(el)).toBe(`<p>a[b<span style="color: tomato;">c</span>d]e</p>`);
     });
-    test("makeSavePoint keeps old draft mutations, discards new ones, and does not add an unnecessary step", async () => {
+    test("makeSavePoint keeps old draft mutations, discards new ones, and does not add an unnecessary commit", async () => {
         const { el, editor } = await setupEditor(`<p>[]c</p>`);
-        expect(editor.shared.history.getHistorySteps().length).toBe(1);
+        expect(editor.shared.history.getCommits().length).toBe(1);
         const p = el.querySelector("p");
         // draft to save
         p.append(document.createTextNode("d"));
@@ -417,33 +445,33 @@ describe("makeSavePoint", () => {
         expect(getContent(el)).toBe(`<p>[]cde</p>`);
         savepoint();
         expect(getContent(el)).toBe(`<p>[]cd</p>`);
-        expect(editor.shared.history.getHistorySteps().length).toBe(1);
+        expect(editor.shared.history.getCommits().length).toBe(1);
     });
-    test("applying a makeSavePoint reverses ulterior reversible steps and adds a new restore step, while handling draft mutations", async () => {
+    test("applying a makeSavePoint reverses ulterior reversible commits and adds a new restore commit, while handling draft mutations", async () => {
         const { el, editor, plugins } = await setupEditor(`<p>[]c</p>`);
         const historyPlugin = plugins.get("history");
-        expect(editor.shared.history.getHistorySteps().length).toBe(1);
+        expect(editor.shared.history.getCommits().length).toBe(1);
         const p = el.querySelector("p");
         // draft to save
         p.append(document.createTextNode("d"));
         expect(getContent(el)).toBe(`<p>[]cd</p>`);
         const savepoint = editor.shared.history.makeSavePoint();
-        // step to revert
+        // commit to revert
         editor.shared.dom.insert("z");
-        editor.shared.history.addStep();
-        let steps = editor.shared.history.getHistorySteps();
-        expect(steps.length).toBe(2);
-        const zStep = steps.at(-1);
+        editor.shared.history.commit();
+        let commits = editor.shared.history.getCommits();
+        expect(commits.length).toBe(2);
+        const zCommit = commits.at(-1);
         // draft to discard
         p.append(document.createTextNode("e"));
         expect(getContent(el)).toBe(`<p>z[]cde</p>`);
         savepoint();
         expect(getContent(el)).toBe(`<p>[]cd</p>`);
-        steps = editor.shared.history.getHistorySteps();
-        expect(steps.length).toBe(3);
-        expect(steps.at(-2)).toBe(zStep);
-        expect(historyPlugin.discardedSteps.has(zStep.id)).toBe(true);
-        expect(steps.at(-1).type).toBe("restore");
+        commits = editor.shared.history.getCommits();
+        expect(commits.length).toBe(3);
+        expect(commits.at(-2)).toBe(zCommit);
+        expect(historyPlugin.discardedCommits.has(zCommit.id)).toBe(true);
+        expect(commits.at(-1).type).toBe(HISTORY_COMMIT_TYPES.RESTORE);
         undo(editor);
         expect(getContent(el)).toBe(`<p>[]c</p>`);
         redo(editor);
@@ -451,7 +479,7 @@ describe("makeSavePoint", () => {
         expect(getContent(el)).toBe(`<p>[]c</p>`);
     });
     test.todo("makeSavePoint should correctly revert mutations (2)", async () => {
-        // TODO @phoenix: ensure that this spec also applies to complete steps (with undo/redo).
+        // TODO @phoenix: ensure that this spec also applies to complete commits (with undo/redo).
         // In the meantime, avoid adding observed DOM nodes to disconnected nodes as this is not fully
         // supported.
         // Before, the makeSavePoint method was reverting all the current mutations to finally re-apply
@@ -471,11 +499,11 @@ describe("makeSavePoint", () => {
         // recorded.
         font.appendChild(p.childNodes[0]);
         p.before(font);
-        const numberOfSteps = history.steps.length;
-        const safePoint = history.makeSavePoint();
-        safePoint();
+        const numberOfCommits = history.commits.length;
+        const savePoint = history.makeSavePoint();
+        savePoint();
         expect(getContent(el)).toBe("<font>this is another paragraph with color 2</font><p></p>");
-        expect(history.steps.length).toBe(numberOfSteps);
+        expect(history.commits.length).toBe(numberOfCommits);
     });
     test("makeSavePoint should correctly revert mutations and restore the history", async () => {
         const { el, editor } = await setupEditor(`<p>a[]</p>`);
@@ -495,6 +523,20 @@ describe("makeSavePoint", () => {
         redo(editor);
         expect(getContent(el)).toBe(`<p>ab[]</p>`);
     });
+    test("makeSavePoint restores a selection invalidated by the reverted mutations", async () => {
+        const { el, editor } = await setupEditor(`<p>abc</p>`);
+        setSelection({
+            anchorNode: el.firstChild,
+            anchorOffset: 0,
+            focusNode: el.firstChild,
+            focusOffset: 1,
+        });
+        editor.shared.selection.stageSelection();
+        const restore = editor.shared.history.makeSavePoint();
+        editor.shared.format.requestFormat("underline", { applyStyle: true, commit: false });
+        restore();
+        expect(getContent(el)).toBe(`<p>[abc]</p>`);
+    });
 });
 
 describe("makePreviewableOperation", () => {
@@ -502,35 +544,36 @@ describe("makePreviewableOperation", () => {
         const { plugins } = await setupEditor(`<div id="test"></div>`);
 
         const history = plugins.get("history");
+        const domObserver = plugins.get("domObserver");
         const div = queryOne("#test");
         const previewableAddParagraph = history.makePreviewableOperation((elemId) => {
             const newElem = document.createElement("p");
             newElem.setAttribute("id", elemId);
             div.appendChild(newElem);
         });
-        let numberOfSteps = history.steps.length;
-        const numberOfCurrentMutations = history.currentStep.mutations.length;
+        let numberOfCommits = history.commits.length;
+        const numberOfCurrentMutations = domObserver.mutations.length;
         previewableAddParagraph.preview("first");
-        // step added by the preview
-        numberOfSteps += 1;
+        // commit added by the preview
+        numberOfCommits += 1;
         await animationFrame();
-        expect(history.steps.length).toBe(numberOfSteps);
+        expect(history.commits.length).toBe(numberOfCommits);
         expect("#first").toHaveCount(1);
         previewableAddParagraph.preview("second");
-        // step added by the revert of the first preview and the second preview
-        numberOfSteps += 2;
+        // commit added by the revert of the first preview and the second preview
+        numberOfCommits += 2;
         await animationFrame();
-        expect(history.steps.length).toBe(numberOfSteps);
+        expect(history.commits.length).toBe(numberOfCommits);
         expect("#first").toHaveCount(0);
         expect("#second").toHaveCount(1);
         previewableAddParagraph.revert();
-        // step added by the revert
-        numberOfSteps += 1;
+        // commit added by the revert
+        numberOfCommits += 1;
         await animationFrame();
         expect("#first").toHaveCount(0);
         expect("#second").toHaveCount(0);
-        expect(history.steps.length).toBe(numberOfSteps);
-        expect(history.currentStep.mutations.length).toBe(numberOfCurrentMutations);
+        expect(history.commits.length).toBe(numberOfCommits);
+        expect(domObserver.mutations.length).toBe(numberOfCurrentMutations);
     });
 
     test("makePreviewableOperation correctly commit operation", async () => {
@@ -543,20 +586,20 @@ describe("makePreviewableOperation", () => {
             newElem.setAttribute("id", elemId);
             div.appendChild(newElem);
         });
-        let numberOfSteps = history.steps.length;
+        let numberOfCommits = history.commits.length;
         previewableAddParagraph.preview("first");
-        // step added by the preview
-        numberOfSteps += 1;
+        // commit added by the preview
+        numberOfCommits += 1;
         await animationFrame();
-        expect(history.steps.length).toBe(numberOfSteps);
+        expect(history.commits.length).toBe(numberOfCommits);
         expect("#first").toHaveCount(1);
         previewableAddParagraph.commit("second");
-        // step added by the revert due to the commit and the commit in itself
-        numberOfSteps += 2;
+        // commit added by the revert due to the commit and the commit in itself
+        numberOfCommits += 2;
         await animationFrame();
         expect("#first").toHaveCount(0);
         expect("#second").toHaveCount(1);
-        expect(history.steps.length).toBe(numberOfSteps);
+        expect(history.commits.length).toBe(numberOfCommits);
     });
 });
 
@@ -564,11 +607,20 @@ describe("shortcut", () => {
     test("undo/redo with shortcut", async () => {
         const { editor, el } = await setupEditor(`<p>[]</p>`);
 
-        await insertText(editor, "abc");
+        await insertText(editor, "a");
+        await ensureDistinctHistoryCommit();
+        await insertText(editor, "b");
+        await ensureDistinctHistoryCommit();
+        await insertText(editor, "c");
+        await ensureDistinctHistoryCommit();
         await press(["ctrl", "z"]);
         await press(["cmd", "z"]);
         expect(getContent(el)).toBe("<p>ab[]</p>");
+        await press(["ctrl", "z"]);
+        expect(getContent(el)).toBe("<p>a[]</p>");
 
+        await press(["ctrl", "y"]);
+        expect(getContent(el)).toBe("<p>ab[]</p>");
         await press(["ctrl", "y"]);
         expect(getContent(el)).toBe("<p>abc[]</p>");
 
@@ -580,8 +632,15 @@ describe("shortcut", () => {
         mockUserAgent("mac");
         const { editor, el } = await setupEditor(`<p>[]</p>`);
 
-        await insertText(editor, "abc");
+        await insertText(editor, "a");
+        await ensureDistinctHistoryCommit();
+        await insertText(editor, "b");
+        await ensureDistinctHistoryCommit();
+        await insertText(editor, "c");
+
+        expect(getContent(el)).toBe("<p>abc[]</p>");
         await press(["cmd", "z"]);
+        expect(getContent(el)).toBe("<p>ab[]</p>");
         await press(["cmd", "z"]);
         expect(getContent(el)).toBe("<p>a[]</p>");
 
@@ -615,20 +674,21 @@ describe("shortcut", () => {
         expect(getContent(el)).toBe("<p>b[]</p>");
     });
 
-    test("use handleNewRecords resource", async () => {
+    test("use on_pending_mutations_staged_handlers resource", async () => {
         const onChange = () => {
             expect.step("onchange");
         };
         const resources = {
-            handleNewRecords: () => {
+            on_pending_mutations_staged_handlers: () => {
                 expect.step("handleNewRecords");
             },
-            content_updated_handlers: () => {
+            on_content_updated_handlers: () => {
                 expect.step("contentUpdated");
             },
-            normalize_handlers: (root) => {
+            normalize_processors: (root) => {
                 expect.step("normalize");
                 root.classList.add("test");
+                return root;
             },
         };
         const { editor } = await setupEditor(`<p>[]</p>`, {
@@ -637,9 +697,8 @@ describe("shortcut", () => {
         expect.verifySteps(["normalize"]);
         await insertText(editor, "a");
         expect.verifySteps([
-            // mutations for "a" insertion register new records for the current step
+            // mutations for "a" insertion register new records for the current commit
             "handleNewRecords",
-            "contentUpdated",
             "normalize",
             // mutations for the hint removal are filtered out (no registered record)
             "contentUpdated",
@@ -656,19 +715,22 @@ describe("destroy", () => {
             static dependencies = ["history", "dom"];
             static id = "test";
             resources = {
-                savable_mutation_record_predicates: this.isMutationRecordSavable.bind(this),
+                is_mutation_savable_predicates: this.isMutationSavable.bind(this),
             };
-            isMutationRecordSavable(record) {
+            /**
+             * @param {import("../src/core/dom_observer_plugin").NativeMutation} mutation
+             * @returns {boolean | undefined}
+             */
+            isMutationSavable(mutation) {
                 if (
-                    record.type === "childList" &&
-                    record.addedTrees.length === 1 &&
-                    record.addedTrees[0].node.nodeType === Node.ELEMENT_NODE &&
-                    record.addedTrees[0].node.matches(".test")
+                    mutation.type === NATIVE_MUTATION_TYPES.CHILD_LIST &&
+                    mutation.addedNodes.length === 1 &&
+                    mutation.addedNodes[0].nodeType === Node.ELEMENT_NODE &&
+                    mutation.addedNodes[0].matches(".test")
                 ) {
                     expect.step("dispatch");
                     return false;
                 }
-                return true;
             }
             destroy() {
                 this.dependencies.dom.insert(
@@ -676,9 +738,8 @@ describe("destroy", () => {
                 );
             }
         }
-        const Plugins = [...MAIN_PLUGINS, TestPlugin];
         const { editor } = await setupEditor(`<div class="oe_unbreakable">a[]b</div>`, {
-            config: { Plugins },
+            config: { includePlugins: [TestPlugin] },
         });
         // Ensure dispatch when plugins are alive.
         editor.shared.dom.insert(
@@ -698,7 +759,7 @@ describe("custom mutation", () => {
         const restoreSavePoint = editor.shared.history.makeSavePoint();
         await insertText(editor, "a");
 
-        editor.shared.history.applyCustomMutation({
+        editor.shared.domObserver.applyCustomMutation({
             apply: () => {
                 expect.step("custom apply");
             },
@@ -706,7 +767,7 @@ describe("custom mutation", () => {
                 expect.step("custom revert");
             },
         });
-        editor.shared.history.addStep();
+        editor.shared.history.commit();
         expect.verifySteps(["custom apply"]);
         expect(getContent(el)).toBe(`<p>a[]c</p>`);
 
@@ -738,8 +799,9 @@ describe("custom mutation", () => {
         const { el, editor } = await setupEditor(`<p>[]c</p>`);
         const restoreSavePoint = editor.shared.history.makeSavePoint();
         await insertText(editor, "a");
+        await ensureDistinctHistoryCommit();
 
-        editor.shared.history.applyCustomMutation({
+        editor.shared.domObserver.applyCustomMutation({
             apply: () => {
                 expect.step("custom apply");
             },
@@ -748,6 +810,7 @@ describe("custom mutation", () => {
             },
         });
         await insertText(editor, "b");
+        await ensureDistinctHistoryCommit();
         expect.verifySteps(["custom apply"]);
         expect(getContent(el)).toBe(`<p>ab[]c</p>`);
 
@@ -782,25 +845,25 @@ describe("same text node mutations", () => {
         const p = el.querySelector("p");
         const textNode = editor.document.createTextNode("a");
         p.append(textNode);
-        editor.shared.history.addStep();
+        editor.shared.history.commit();
         expect(getContent(el)).toBe(`<p>[]testa</p>`);
         // Replace text node with a new one with the same content
         p.replaceChild(editor.document.createTextNode("a"), textNode);
-        // addStep returns false when there are no mutations
-        expect(editor.shared.history.addStep()).toBe(false);
+        // `commit` returns false when there are no mutations
+        expect(editor.shared.history.commit()).toBe(false);
     });
     test("same text node mutation should not break history", async () => {
         const { el, editor } = await setupEditor(`<p>[]hello </p>`);
         const p = el.querySelector("p");
         const textNode = editor.document.createTextNode("world");
         p.append(textNode);
-        editor.shared.history.addStep();
+        editor.shared.history.commit();
         expect(getContent(el)).toBe(`<p>[]hello world</p>`);
         // Replace text node with a new one with the same content
         p.replaceChild(editor.document.createTextNode("world"), textNode);
-        // It should not create a step but, the old node should be remapped to
+        // It should not create a commit but, the old node should be remapped to
         // the new one and history keep working
-        expect(editor.shared.history.addStep()).toBe(false);
+        expect(editor.shared.history.commit()).toBe(false);
         editor.shared.history.undo();
         expect(getContent(el)).toBe(`<p>[]hello </p>`);
         editor.shared.history.redo();
@@ -813,7 +876,7 @@ describe("same text node mutations", () => {
         p.append(textNode);
         expect(getContent(el)).toBe(`<p>[]hello world</p>`);
         p.replaceChild(textNode.cloneNode(true), textNode);
-        editor.shared.history.addStep();
+        editor.shared.history.commit();
         expect(getContent(el)).toBe(`<p>[]hello world</p>`);
         editor.shared.history.undo();
         expect(getContent(el)).toBe(`<p>[]hello </p>`);
@@ -823,9 +886,9 @@ describe("same text node mutations", () => {
 });
 
 describe("unobserved mutations", () => {
-    const withAddStep = (editor, callback) => {
+    const withCommit = (editor, callback) => {
         callback();
-        editor.shared.history.addStep();
+        editor.shared.history.commit();
     };
 
     describe("classes", () => {
@@ -833,12 +896,12 @@ describe("unobserved mutations", () => {
             const { editor } = await setupEditor(`<p>test</p>`);
             /** @type {HTMLElement} */
             const p = editor.editable.querySelector("p");
-            withAddStep(editor, () => p.classList.add("a"));
-            editor.shared.history.ignoreDOMMutations(() => p.classList.add("b"));
-            withAddStep(editor, () => p.classList.add("c"));
+            withCommit(editor, () => p.classList.add("a"));
+            editor.shared.domObserver.ignore(() => p.classList.add("b"));
+            withCommit(editor, () => p.classList.add("c"));
             editor.shared.history.undo();
             expect(p.className).toBe("a b");
-            editor.shared.history.ignoreDOMMutations(() => p.classList.remove("b"));
+            editor.shared.domObserver.ignore(() => p.classList.remove("b"));
             editor.shared.history.redo();
             expect(p.className).toBe("a c");
         });
@@ -846,9 +909,9 @@ describe("unobserved mutations", () => {
             const { editor } = await setupEditor(`<p>test</p>`);
             /** @type {HTMLElement} */
             const p = editor.editable.querySelector("p");
-            withAddStep(editor, () => p.classList.add("a"));
-            editor.shared.history.ignoreDOMMutations(() => p.classList.add("b"));
-            withAddStep(editor, () => p.classList.remove("b")); // no-op from a history perspective
+            withCommit(editor, () => p.classList.add("a"));
+            editor.shared.domObserver.ignore(() => p.classList.add("b"));
+            withCommit(editor, () => p.classList.remove("b")); // no-op from a history perspective
             editor.shared.history.undo();
             expect(p.className).toBe("");
         });
@@ -856,19 +919,19 @@ describe("unobserved mutations", () => {
             const { editor } = await setupEditor(`<p class="a b">test</p>`);
             /** @type {HTMLElement} */
             const p = editor.editable.querySelector("p");
-            withAddStep(editor, () => p.classList.remove("a"));
-            editor.shared.history.ignoreDOMMutations(() => p.classList.remove("b"));
-            withAddStep(editor, () => p.classList.add("b")); // no-op from a history perspective
+            withCommit(editor, () => p.classList.remove("a"));
+            editor.shared.domObserver.ignore(() => p.classList.remove("b"));
+            withCommit(editor, () => p.classList.add("b")); // no-op from a history perspective
             editor.shared.history.undo();
             expect(p.className).toBe("b a");
         });
-        describe("fixClassListMutationsForNewStep method", () => {
-            test("should produce mutations in undo step even with no class change", async () => {
+        describe("fixClassListMutationsToEnsureNewMutations method", () => {
+            test("should produce mutations in undo commit even with no class change", async () => {
                 const { editor } = await setupEditor(`<p>test</p>`);
                 /** @type {HTMLElement} */
                 const p = editor.editable.querySelector("p");
-                withAddStep(editor, () => p.classList.add("a"));
-                editor.shared.history.ignoreDOMMutations(() => p.classList.remove("a"));
+                withCommit(editor, () => p.classList.add("a"));
+                editor.shared.domObserver.ignore(() => p.classList.remove("a"));
                 expect(p.className).toBe("");
                 editor.shared.history.undo(); // mutation to be added to history: remove "a"
                 expect(p.className).toBe("");
@@ -877,9 +940,9 @@ describe("unobserved mutations", () => {
             });
             test("should add class 'x' to match oldValue's state", async () => {
                 const { editor, plugins } = await setupEditor(`<p>test</p>`);
-                const historyPlugin = plugins.get("history");
+                const domObserverPlugin = plugins.get("domObserver");
                 const p = editor.editable.querySelector("p");
-                historyPlugin.nodeMap.set("testNodeId", p);
+                editor.shared.domReferenceMap.set(p, "testNodeId");
                 const mutations = [
                     {
                         type: "classList",
@@ -889,14 +952,14 @@ describe("unobserved mutations", () => {
                         value: false,
                     },
                 ];
-                historyPlugin.fixClassListMutationsForNewStep(mutations);
+                domObserverPlugin.fixClassListMutationsToEnsureNewMutations(mutations);
                 expect(p).toHaveClass("x");
             });
             test("should not add class 'x' as state alread matches oldValue", async () => {
                 const { editor, plugins } = await setupEditor(`<p>test</p>`);
-                const historyPlugin = plugins.get("history");
+                const domObserverPlugin = plugins.get("domObserver");
                 const p = editor.editable.querySelector("p");
-                historyPlugin.nodeMap.set("testNodeId", p);
+                editor.shared.domReferenceMap.set(p, "testNodeId");
                 const mutations = [
                     {
                         type: "classList",
@@ -906,14 +969,14 @@ describe("unobserved mutations", () => {
                         value: true,
                     },
                 ];
-                historyPlugin.fixClassListMutationsForNewStep(mutations);
+                domObserverPlugin.fixClassListMutationsToEnsureNewMutations(mutations);
                 expect(p).not.toHaveClass("x");
             });
             test("should not add class 'x' as state alread matches first mutation's oldValue", async () => {
                 const { editor, plugins } = await setupEditor(`<p>test</p>`);
-                const historyPlugin = plugins.get("history");
+                const domObserverPlugin = plugins.get("domObserver");
                 const p = editor.editable.querySelector("p");
-                historyPlugin.nodeMap.set("testNodeId", p);
+                editor.shared.domReferenceMap.set(p, "testNodeId");
                 const mutations = [
                     {
                         type: "classList",
@@ -930,7 +993,7 @@ describe("unobserved mutations", () => {
                         value: false,
                     },
                 ];
-                historyPlugin.fixClassListMutationsForNewStep(mutations);
+                domObserverPlugin.fixClassListMutationsToEnsureNewMutations(mutations);
                 expect(p).not.toHaveClass("x");
             });
         });
@@ -940,9 +1003,9 @@ describe("unobserved mutations", () => {
             const { editor } = await setupEditor(`<p>test</p>`);
             /** @type {HTMLElement} */
             const p = editor.editable.querySelector("p");
-            withAddStep(editor, () => p.setAttribute("data-test", "a"));
-            editor.shared.history.ignoreDOMMutations(() => p.setAttribute("data-test", "b"));
-            withAddStep(editor, () => p.setAttribute("data-test", "c"));
+            withCommit(editor, () => p.setAttribute("data-test", "a"));
+            editor.shared.domObserver.ignore(() => p.setAttribute("data-test", "b"));
+            withCommit(editor, () => p.setAttribute("data-test", "c"));
             editor.shared.history.undo();
             expect(p.getAttribute("data-test")).toBe("a");
         });
@@ -950,19 +1013,19 @@ describe("unobserved mutations", () => {
             const { editor } = await setupEditor(`<p>test</p>`);
             /** @type {HTMLElement} */
             const p = editor.editable.querySelector("p");
-            withAddStep(editor, () => p.setAttribute("data-test", "a"));
-            editor.shared.history.ignoreDOMMutations(() => p.setAttribute("data-test", "b"));
-            editor.shared.history.ignoreDOMMutations(() => p.setAttribute("data-test", "c"));
-            withAddStep(editor, () => p.setAttribute("data-test", "d"));
+            withCommit(editor, () => p.setAttribute("data-test", "a"));
+            editor.shared.domObserver.ignore(() => p.setAttribute("data-test", "b"));
+            editor.shared.domObserver.ignore(() => p.setAttribute("data-test", "c"));
+            withCommit(editor, () => p.setAttribute("data-test", "d"));
             editor.shared.history.undo();
             expect(p.getAttribute("data-test")).toBe("a");
         });
-        test("setting an attribute as first observed step", async () => {
+        test("setting an attribute as first observed commit", async () => {
             const { editor } = await setupEditor(`<p>test</p>`);
             /** @type {HTMLElement} */
             const p = editor.editable.querySelector("p");
-            editor.shared.history.ignoreDOMMutations(() => p.setAttribute("data-test", "a"));
-            withAddStep(editor, () => p.setAttribute("data-test", "b"));
+            editor.shared.domObserver.ignore(() => p.setAttribute("data-test", "a"));
+            withCommit(editor, () => p.setAttribute("data-test", "b"));
             editor.shared.history.undo();
             expect(p.getAttribute("data-test")).toBe(null);
         });
@@ -970,9 +1033,9 @@ describe("unobserved mutations", () => {
             const { editor } = await setupEditor(`<p>test</p>`);
             /** @type {HTMLElement} */
             const p = editor.editable.querySelector("p");
-            withAddStep(editor, () => p.setAttribute("data-test", ""));
-            editor.shared.history.ignoreDOMMutations(() => p.setAttribute("data-test", "a"));
-            withAddStep(editor, () => p.setAttribute("data-test", "b"));
+            withCommit(editor, () => p.setAttribute("data-test", ""));
+            editor.shared.domObserver.ignore(() => p.setAttribute("data-test", "a"));
+            withCommit(editor, () => p.setAttribute("data-test", "b"));
             editor.shared.history.undo();
             expect(p.getAttribute("data-test")).toBe("");
         });
@@ -980,18 +1043,18 @@ describe("unobserved mutations", () => {
             const { editor } = await setupEditor(`<p data-test="a">test</p>`);
             /** @type {HTMLElement} */
             const p = editor.editable.querySelector("p");
-            withAddStep(editor, () => p.setAttribute("data-test", "b"));
-            editor.shared.history.ignoreDOMMutations(() => p.setAttribute("data-test", "c"));
-            withAddStep(editor, () => p.setAttribute("data-test", "b")); // no-op from a history perspective
+            withCommit(editor, () => p.setAttribute("data-test", "b"));
+            editor.shared.domObserver.ignore(() => p.setAttribute("data-test", "c"));
+            withCommit(editor, () => p.setAttribute("data-test", "b")); // no-op from a history perspective
             editor.shared.history.undo();
             expect(p.getAttribute("data-test")).toBe("a");
         });
-        test("should produce a undo step even with no attribute change", async () => {
+        test("should produce a undo commit even with no attribute change", async () => {
             const { editor } = await setupEditor(`<p data-test="a">test</p>`);
             /** @type {HTMLElement} */
             const p = editor.editable.querySelector("p");
-            withAddStep(editor, () => p.setAttribute("data-test", "b"));
-            editor.shared.history.ignoreDOMMutations(() => p.setAttribute("data-test", "a"));
+            withCommit(editor, () => p.setAttribute("data-test", "b"));
+            editor.shared.domObserver.ignore(() => p.setAttribute("data-test", "a"));
             editor.shared.history.undo(); // mutation to be added to history: set "data-test" to "a"
             expect(p.getAttribute("data-test")).toBe("a");
             editor.shared.history.redo();
@@ -1003,9 +1066,10 @@ describe("unobserved mutations", () => {
             const { editor } = await setupEditor(`<p>test</p>`);
             /** @type {HTMLElement} */
             const textNode = editor.editable.querySelector("p").firstChild;
-            withAddStep(editor, () => (textNode.textContent = "a"));
-            editor.shared.history.ignoreDOMMutations(() => (textNode.textContent = "b"));
-            withAddStep(editor, () => (textNode.textContent = "c"));
+            withCommit(editor, () => (textNode.textContent = "a"));
+            await ensureDistinctHistoryCommit();
+            editor.shared.domObserver.ignore(() => (textNode.textContent = "b"));
+            withCommit(editor, () => (textNode.textContent = "c"));
             editor.shared.history.undo();
             expect(textNode.textContent).toBe("a");
         });
@@ -1018,9 +1082,9 @@ describe("unobserved mutations", () => {
             const parent = editor.editable.querySelector("p span");
             const childA = editor.document.createElement("span");
             const childB = editor.document.createElement("span");
-            withAddStep(editor, () => parent.append(childA));
-            editor.shared.history.ignoreDOMMutations(() => parent.append(childB));
-            withAddStep(editor, () => parent.replaceChildren());
+            withCommit(editor, () => parent.append(childA));
+            editor.shared.domObserver.ignore(() => parent.append(childB));
+            withCommit(editor, () => parent.replaceChildren());
             editor.shared.history.undo();
             const childNodes = [...parent.childNodes];
             expect(childNodes.length).toBe(1);
@@ -1031,13 +1095,13 @@ describe("unobserved mutations", () => {
             /** @type {HTMLElement} */
             const parent = editor.editable.querySelector("p span");
             const nodeA = editor.document.createElement("span");
-            withAddStep(editor, () => parent.append(nodeA));
+            withCommit(editor, () => parent.append(nodeA));
             const nodeB = editor.document.createElement("span");
             // B is an unobserved node
-            editor.shared.history.ignoreDOMMutations(() => nodeA.append(nodeB));
+            editor.shared.domObserver.ignore(() => nodeA.append(nodeB));
             const nodeC = editor.document.createElement("span");
-            // addition of C to B should not be observed, thus empty step
-            withAddStep(editor, () => nodeB.append(nodeC));
+            // addition of C to B should not be observed, thus empty commit
+            withCommit(editor, () => nodeB.append(nodeC));
             editor.shared.history.undo();
             // addition of A is reverted
             expect(nodeA.parentNode).toBe(null);
@@ -1048,41 +1112,41 @@ describe("unobserved mutations", () => {
             const nodeA = editor.document.createElement("span");
             const nodeB = editor.document.createElement("span");
             nodeA.append(nodeB);
-            editor.shared.history.ignoreDOMMutations(() => p.append(nodeA));
+            editor.shared.domObserver.ignore(() => p.append(nodeA));
             const nodeC = editor.document.createElement("span");
-            withAddStep(editor, () => nodeB.append(nodeC)); // should be an empty step
-            expect(editor.shared.history.getHistorySteps().length).toBe(1);
+            withCommit(editor, () => nodeB.append(nodeC)); // should be an empty commit
+            expect(editor.shared.history.getCommits().length).toBe(1);
         });
     });
 
-    describe("snapshot step", () => {
-        test("unobserved nodes should be ignored in snapshot step", async () => {
+    describe("snapshot commit", () => {
+        test("unobserved nodes should be ignored in snapshot commit", async () => {
             const { editor, plugins } = await setupEditor(`<p>p1</p>`);
-            const historyPlugin = plugins.get("history");
             const p1 = editor.editable.querySelector("p");
             // Insert unobserved node as direct child of editable
             const p2 = editor.document.createElement("p");
             p2.textContent = "p2";
-            editor.shared.history.ignoreDOMMutations(() => editor.editable.append(p2));
+            editor.shared.domObserver.ignore(() => editor.editable.append(p2));
             expect(getContent(editor.editable)).toBe("<p>p1</p><p>p2</p>");
-            // Only p1 should be present in the snapshot step
-            const snapshotStep = editor.shared.history.makeSnapshotStep();
-            expect(snapshotStep.mutations.length).toBe(1);
-            const childNodeId = snapshotStep.mutations[0].nodeId;
-            expect(historyPlugin.nodeMap.getNode(childNodeId)).toBe(p1);
+            // Only p1 should be present in the snapshot commit
+            const snapshotCommit = editor.shared.history.createSnapshotCommit();
+            expect(snapshotCommit.data.mutations.length).toBe(1);
+            const childNodeId = snapshotCommit.data.mutations[0].nodeId;
+            const domReferenceMapPlugin = plugins.get("domReferenceMap");
+            expect(domReferenceMapPlugin.getNodeById(childNodeId)).toBe(p1);
         });
-        test("unobserved nodes should be ignored in snapshot step (2)", async () => {
+        test("unobserved nodes should be ignored in snapshot commit (2)", async () => {
             const { editor } = await setupEditor(`<p>test</p>`);
             const p = editor.editable.querySelector("p");
             // Insert unobserved node as child of p (thus, not direct child of editable)
             const span = editor.document.createElement("span");
             span.textContent = "unobserved";
-            editor.shared.history.ignoreDOMMutations(() => p.append(span));
+            editor.shared.domObserver.ignore(() => p.append(span));
             expect(getContent(editor.editable)).toBe("<p>test<span>unobserved</span></p>");
-            // Only p and its text node should be present in the snapshot step
-            const snapshotStep = editor.shared.history.makeSnapshotStep();
-            expect(snapshotStep.mutations.length).toBe(1);
-            const serializedNode = snapshotStep.mutations[0].serializedNode;
+            // Only p and its text node should be present in the snapshot commit
+            const snapshotCommit = editor.shared.history.createSnapshotCommit();
+            expect(snapshotCommit.data.mutations.length).toBe(1);
+            const serializedNode = snapshotCommit.data.mutations[0].serializedNode;
             expect(serializedNode.tagName).toBe("P");
             const pChildren = serializedNode.children;
             expect(pChildren.length).toBe(1);
@@ -1107,9 +1171,10 @@ describe("serialization", () => {
 
         await microTick();
 
-        const historyPlugin = plugins.get("history");
-        const mutations = historyPlugin.currentStep.mutations;
-        const idToNode = (id) => historyPlugin.nodeMap.getNode(id);
+        const domObserverPlugin = plugins.get("domObserver");
+        const mutations = domObserverPlugin.mutations;
+        const domReferenceMapPlugin = plugins.get("domReferenceMap");
+        const idToNode = (id) => domReferenceMapPlugin.getNodeById(id);
 
         expect(mutations.length).toBe(3);
 
@@ -1149,9 +1214,10 @@ describe("serialization", () => {
 
         await microTick();
 
-        const historyPlugin = plugins.get("history");
-        const mutations = historyPlugin.currentStep.mutations;
-        const idToNode = (id) => historyPlugin.nodeMap.getNode(id);
+        const domObserverPlugin = plugins.get("domObserver");
+        const domReferenceMapPlugin = plugins.get("domReferenceMap");
+        const mutations = domObserverPlugin.mutations;
+        const idToNode = (id) => domReferenceMapPlugin.getNodeById(id);
 
         expect(mutations.length).toBe(5);
 
@@ -1186,13 +1252,13 @@ describe("serialization", () => {
 
     test("unserialization of text node should not duplicate an existing one", async () => {
         const { el, editor, plugins } = await setupEditor(`<p><br></p>`);
-        const historyPlugin = plugins.get("history");
+        const domReferenceMapPlugin = plugins.get("domReferenceMap");
         const p = el.querySelector("p");
         const textNode = editor.document.createTextNode("test");
         p.prepend(textNode);
-        editor.shared.history.addStep();
-        const serializedNode = historyPlugin.serializeNode(textNode);
-        const unserializedTextNode = historyPlugin.unserializeNode(serializedNode);
+        editor.shared.history.commit();
+        const serializedNode = domReferenceMapPlugin.serializeTree(nodeToTree(textNode));
+        const unserializedTextNode = domReferenceMapPlugin.unserializeNode(serializedNode);
         expect(unserializedTextNode).toBe(textNode);
     });
 });
@@ -1202,11 +1268,54 @@ describe("mutations order", () => {
         const { el, editor } = await setupEditor(`<p>[]<br></p>`);
         const p = el.querySelector("p");
         p.replaceChildren(editor.document.createTextNode("a"), editor.document.createTextNode("b"));
-        editor.shared.history.addStep();
+        editor.shared.history.commit();
+        await ensureDistinctHistoryCommit();
         expect(getContent(el)).toBe(`<p>[]ab</p>`);
         p.replaceChildren();
-        editor.shared.history.addStep();
+        editor.shared.history.commit();
         editor.shared.history.undo();
         expect(getContent(el)).toBe(`<p>[]ab</p>`);
+    });
+});
+
+describe("grouped undo/redo", () => {
+    test("should undo, then redo all changes on common text node", async () => {
+        const { editor, el } = await setupEditor("<p>[]</p>");
+        await insertText(editor, "abc");
+        const abc = getContent(el);
+        await splitBlock(editor);
+        const abc_ = getContent(el);
+        await insertText(editor, "def");
+        const abc_def = getContent(el);
+        await splitBlock(editor);
+        const abc_def_ = getContent(el);
+        await insertText(editor, "ghi");
+        const abc_def_ghi = getContent(el);
+        await splitBlock(editor);
+        const abc_def_ghi_ = getContent(el);
+        await expectElementCount("p", 4);
+        expect(abc_def_ghi_).toBe(
+            `<p>abc</p><p>def</p><p>ghi</p><p o-we-hint-text='Type "/" for commands' class="o-we-hint">[]<br></p>`
+        );
+        await undo(editor);
+        expect(getContent(el)).toBe(abc_def_ghi);
+        await undo(editor);
+        expect(getContent(el)).toBe(abc_def_);
+        await undo(editor);
+        expect(getContent(el)).toBe(abc_def);
+        await undo(editor);
+        expect(getContent(el)).toBe(abc_);
+        await undo(editor);
+        expect(getContent(el)).toBe(abc);
+        await redo(editor);
+        expect(getContent(el)).toBe(abc_);
+        await redo(editor);
+        expect(getContent(el)).toBe(abc_def);
+        await redo(editor);
+        expect(getContent(el)).toBe(abc_def_);
+        await redo(editor);
+        expect(getContent(el)).toBe(abc_def_ghi);
+        await redo(editor);
+        expect(getContent(el)).toBe(abc_def_ghi_);
     });
 });

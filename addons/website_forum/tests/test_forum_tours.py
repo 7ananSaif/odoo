@@ -10,24 +10,31 @@ class TestUi(HttpCaseGamification):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.env['forum.post'].create({
+        post = cls.env['forum.post'].create({
             'name': 'Very Smart Question',
             'forum_id': cls.env.ref('website_forum.forum_help').id,
         })
         cls.env.ref('base.user_admin').write({
             'email': 'mitchell.admin@example.com',
         })
+        cls.forum_id = post.forum_id.id
+        cls.env.ref('website_forum.forum_help').privacy = 'public'
 
     def test_01_admin_forum_tour(self):
-        self.start_tour("/", 'question', login="admin")
+        self.start_tour("/forum", 'question_tour', login="admin")
 
     def test_02_demo_question(self):
         forum = self.env.ref('website_forum.forum_help')
         demo = self.user_demo
         demo.karma = forum.karma_post + 1
-        self.start_tour("/", 'forum_question', login="demo")
+        self.start_tour(f"/forum/help-{self.forum_id}", 'forum_question', login="demo")
         tags = self.env['forum.tag'].search([('name', 'in', ['Tag', 'tag', 'test tag'])])
         self.assertEqual(len(tags), 3)
 
     def test_03_admin_forum_cover_dropzone(self):
-        self.start_tour('/', 'forum_cover_dropzone', login='admin')
+        forum_url = f"/forum/help-{self.forum_id}"
+        self.start_tour(
+            self.env['website'].get_client_action_url(forum_url, True),
+            'forum_cover_dropzone',
+            login='admin',
+        )

@@ -4,7 +4,16 @@ import { parseFloatTime } from "@web/views/fields/parsers";
 import { useInputField } from "@web/views/fields/input_field_hook";
 import { useRecordObserver } from "@web/model/relational_model/utils";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
-import { Component, useState, onWillUpdateProps, onWillStart, onWillDestroy } from "@odoo/owl";
+import {
+    Component,
+    onWillDestroy,
+    proxy,
+    signal,
+    t,
+    untrack,
+    useOnChange,
+    useProps,
+} from "@odoo/owl";
 
 function formatMinutes(value) {
     if (value === false) {
@@ -14,62 +23,70 @@ function formatMinutes(value) {
     if (isNegative) {
         value = Math.abs(value);
     }
-    let min = Math.floor(value);
+    let hour = Math.floor(value / 60);
+    let min = Math.floor(value % 60);
     let sec = Math.round((value % 1) * 60);
-    sec = `${sec}`.padStart(2, "0");
-    min = `${min}`.padStart(2, "0");
-    return `${isNegative ? "-" : ""}${min}:${sec}`;
+    sec = `${sec}`.padStart(1, "0");
+    min = `${min}`.padStart(1, "0");
+    if (hour > 0) {
+        hour = `${hour}`.padStart(1, "0");
+        return `${isNegative ? "-" : ""}${hour}h ${min}m ${sec}s`;
+    }
+    return `${isNegative ? "-" : ""}${min}m ${sec}s`;
 }
 
 export class MrpTimer extends Component {
     static template = "mrp.MrpTimer";
-    static props = {
-        value: { type: Number },
-        ongoing: { type: Boolean, optional: true },
-    };
-    static defaultProps = { ongoing: false };
+    props = useProps({
+        value: t.number(),
+        ongoing: t.boolean().optional(false),
+    });
 
     setup() {
-        this.state = useState({
+        this.state = proxy({
             // duration is expected to be given in minutes
             duration: this.props.value,
         });
         this.lastDateTime = Date.now();
-        this.ongoing = this.props.ongoing;
-        onWillStart(() => {
-            if (this.ongoing) {
+
+        // Runs on mount and whenever the timer is (re)started, the cleanup
+        // stopping the timers as soon as it is no longer ongoing.
+        useOnChange(
+            () => [this.props.ongoing],
+            (ongoing) => {
+                if (!ongoing) {
+                    return;
+                }
+                this.state.duration = this.props.value;
+                // Reset the reference time: the time elapsed before the timer
+                // started must not be mistaken for a sleep period.
+                this.lastDateTime = Date.now();
                 this._runTimer();
                 this._runSleepTimer();
+                return () => this._stopTimers();
             }
-        });
-        onWillUpdateProps((nextProps) => {
-            const rerun = !this.ongoing && nextProps.ongoing;
-            this.ongoing = nextProps.ongoing;
-            if (rerun) {
-                this.state.duration = nextProps.value;
-                this._runTimer();
-                this._runSleepTimer();
-            }
-        });
-        onWillDestroy(() => clearTimeout(this.timer));
+        );
     }
 
     get durationFormatted() {
         return formatMinutes(this.state.duration);
     }
 
+    _stopTimers() {
+        clearTimeout(this.tickTimer);
+        clearTimeout(this.sleepTimer);
+    }
+
     _runTimer() {
-        this.timer = setTimeout(() => {
-            if (this.ongoing) {
-                this.state.duration += 1 / 60;
-                this._runTimer();
-            }
+        this.tickTimer = setTimeout(() => {
+            this.state.duration += 1 / 60;
+            this._runTimer();
         }, 1000);
     }
 
     //updates the time when the computer wakes from sleep mode
     _runSleepTimer() {
-        this.timer = setTimeout(async () => {
+        this.sleepTimer = setTimeout(() => {
             const diff = Date.now() - this.lastDateTime - 10000;
             if (diff > 1000) {
                 this.state.duration += diff / (1000 * 60);
@@ -83,27 +100,28 @@ export class MrpTimer extends Component {
 class MrpTimerField extends Component {
     static template = "mrp.MrpTimerField";
     static components = { MrpTimer };
-    static props = standardFieldProps;
+    props = useProps(standardFieldProps);
+
+    numpadDecimalRef = signal.ref();
 
     setup() {
         this.orm = useService("orm");
         useInputField({
             getValue: () => this.durationFormatted,
-            refName: "numpadDecimal",
+            ref: this.numpadDecimalRef,
             parse: (v) => parseFloatTime(v),
         });
 
         useRecordObserver(async (record) => {
-            if (!this.props.record.model.useSampleModel && record.data.state === "progress") {
-                this.duration = await this.orm.call(
-                    "mrp.workorder",
-                    "get_duration",
-                    [this.props.record.resId]
-                );
+            const useSampleModel = untrack(() => record.model.useSampleModel);
+            if (!useSampleModel && record.data.state === "progress") {
+                this.duration = await this.orm.call("mrp.workorder", "get_duration", [
+                    record.resId,
+                ]);
             } else {
                 this.duration = record.data[this.props.name];
             }
-        })
+        });
 
         onWillDestroy(() => clearTimeout(this.timer));
     }

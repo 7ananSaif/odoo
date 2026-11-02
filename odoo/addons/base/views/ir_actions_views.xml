@@ -13,8 +13,11 @@
                         <field name="name"/>
                         <field name="type"/>
                     </group>
+                    <group string="Explanation">
+                        <field name="explanation" nolabel="1"/>
+                    </group>
                 </sheet>
-                </form>
+            </form>
             </field>
         </record>
         <record id="action_view_tree" model="ir.ui.view">
@@ -47,8 +50,7 @@
             <field name="view_id" ref="action_view_tree"/>
             <field name="search_view_id" ref="action_view_search"/>
         </record>
-        <menuitem id="next_id_6" name="Actions" parent="base.menu_custom" sequence="5"/>
-        <menuitem action="ir_sequence_actions" id="menu_ir_sequence_actions" parent="next_id_6"/>
+
 
         <!-- ir.actions.report -->
 
@@ -57,51 +59,83 @@
             <field name="model">ir.actions.report</field>
             <field name="arch" type="xml">
                 <form string="Report">
+                    <header>
+                        <button name="create_action" type="object"
+                                string="Add to the 'Print' menu"
+                                invisible="binding_model_id"
+                                help="Display an option on related documents to print this report">
+                        </button>
+                        <button name="unlink_action" type="object"
+                                string="Remove from the 'Print' menu"
+                                invisible="not binding_model_id"
+                                help="Remove the contextual action related to this report">
+                        </button>
+                    </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">
-                            <button name="create_action" type="object"
-                                    invisible="binding_model_id" icon="fa-plus-square"
-                                    help="Display an option on related documents to print this report" class="oe_stat_button">
-                                    <div class="o_field_widget o_stat_info">
-                                        <span class="o_stat_text">Add to the 'Print' menu</span>
-                                    </div>
-                            </button>
-                            <button name="unlink_action" type="object"
-                                    invisible="not binding_model_id" icon="fa-minus-square"
-                                    help="Remove the contextual action related to this report" class="oe_stat_button">
-                                    <div class="o_field_widget o_stat_info">
-                                        <span class="o_stat_text">Remove from the 'Print' menu</span>
-                                    </div>
-                            </button>
                             <button name="associated_view" type="object"
-                                    invisible="report_type not in ['qweb-pdf', 'qweb-html', 'qweb-text']" icon='fa-code'
+                                    invisible="'qweb' not in report_type" icon='code'
                                     class="oe_stat_button">
-                                    <div class="o_field_widget o_stat_info">
-                                        <span class="o_stat_text">Qweb Views</span>
-                                    </div>
+                                    <field string="Views" name="linked_view_count" widget="statinfo" invisible="linked_view_count &lt;= 1"/>
+                                    <field string="View" name="linked_view_count" widget="statinfo" invisible="linked_view_count &gt; 1"/>
                             </button>
+                        </div>
+                        <div class="oe_title">
+                            <h1 class="o_outlined">
+                                <field name="name" placeholder="Name in the 'Print' menu..."/>
+                            </h1>
                         </div>
                         <group>
                             <group>
-                                <field name="name"/>
+                                <field name="model" invisible="1"/> <!-- Required field computed with an onchange-->
+                                <field name="model_id" readonly="0" required="1"/>
                                 <field name="report_type"/>
-                                <field name="paperformat_id"
-                                       invisible="report_type != 'qweb-pdf'"/>
-                            </group>
-                            <group>
-                                <field name="model"/>
-                                <field name="report_name"/>
-                                <field name="print_report_name" />
+                                <field name="paperformat_id" invisible="'pdf' not in report_type" placeholder="Defined in the general settings"/>
                             </group>
                         </group>
                         <notebook>
                             <page name="security" string="Visibility">
-                                <field name="group_ids"/>
-                            </page>
-                            <page name='advanced' string="Advanced Properties">
                                 <group>
-                                    <field name="attachment_use"/>
-                                    <field name="attachment"/>
+                                    <group>
+                                        <field name="group_ids" widget="many2many_tags" placeholder="Visible to all groups" options="{'on_tag_click': 'open_form'}"/>
+                                        <field name="domain" placeholder="Visible to all records"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page name='advanced' string="Settings">
+                                <div class="row mt16 o_settings_container">
+                                    <setting string="File Name" help="Set the name of the file that will be saved on the computer">
+                                        <div class="content-group">
+                                            <field name="print_report_name" placeholder="e.g. 'report ' + (object.name) + '.pdf'"/>
+                                        </div>
+                                    </setting>
+
+                                    <setting string="Technical Name" help="Set a technical name to call the report in the code">
+                                        <div class="content-group">
+                                            <field name="report_name" placeholder="e.g. module_name.report_name"/>
+                                        </div>
+                                    </setting>
+                                </div>
+
+                                <div class="row mt16 o_settings_container">
+                                    <setting name="attachment_setting" string="Save as attachment" help="Whether the report is saved as attachment when it is printed">
+                                        <field name="save_as_attachment"/>
+                                        <div class="content-group" invisible="not save_as_attachment">
+                                            <div class="mt16 d-flex">
+                                                <label for="attachment" class="o_light_label mr8"/>
+                                                <field name="attachment" placeholder="e.g. 'report ' + (object.name) + '.pdf'" required="save_as_attachment"/>
+                                            </div>
+                                            <div class="mt16 d-flex">
+                                                <label for="attachment_use" class="o_light_label mr8"/>
+                                                <field name="attachment_use" widget="boolean_toggle" class="oe_inline flex-grow-1"/>
+                                            </div>
+                                        </div>
+                                    </setting>
+                                </div>
+                            </page>
+                            <page name="explanation" string="Notes">
+                                <group>
+                                    <field name="explanation" nolabel="1" placeholder="Keep track of what this report action does and why it exists..."/>
                                 </group>
                             </page>
                         </notebook>
@@ -115,11 +149,9 @@
             <field name="arch" type="xml">
                 <list string="Report xml">
                     <field name="name"/>
-                    <field name="model"/>
-                    <field name="type"/>
-                    <field name="report_name"/>
+                    <field name="model_id"/>
                     <field name="report_type"/>
-                    <field name="attachment"/>
+                    <field name="report_name"/>
                 </list>
             </field>
         </record>
@@ -127,26 +159,28 @@
             <field name="name">ir.actions.report.search</field>
             <field name="model">ir.actions.report</field>
             <field name="arch" type="xml">
-                <search string="Report Xml">
+                <search string="Report Xml">                    
                     <field name="name"
-                        filter_domain="['|', '|', '|', '|', ('name','ilike',self), ('model','ilike',self), ('type','ilike',self), ('report_name','ilike',self), ('report_type','ilike',self)]"
+                        filter_domain="['|', ('name','ilike',self), ('report_name','ilike',self)]"
                         string="Report"/>
-                    <field name="model" filter_domain="[('model','=', self)]" string="Model"/>
-                    <group colspan="4">
-                        <filter string="Report Type" name="report_type" domain="[]" context="{'group_by':'report_type'}"/>
-                        <filter string="Report Model" name="report_model" domain="[]" context="{'group_by':'model'}"/>
+                    <field name="model_id" string="Model"/>
+                    <filter string="PDF" domain="[('report_type', '=', 'qweb-pdf')]" name="report_pdf"/>
+                    <filter string="HTML" domain="[('report_type', '=', 'qweb-html')]" name="report_html"/>
+                    <filter string="Text" domain="[('report_type', '=', 'qweb-text')]" name="report_text"/>
+                    <group>
+                        <filter string="Format" name="report_type" domain="[]" context="{'group_by':'report_type'}"/>
+                        <filter string="Model" name="report_model" domain="[]" context="{'group_by':'model'}"/>
+                        <filter string="Paper Size" name="paperformat_id" domain="[]" context="{'group_by':'paperformat_id'}"/>
                     </group>
                 </search>
             </field>
         </record>
         <record id="ir_action_report" model="ir.actions.act_window">
-            <field name="name">Reports</field>
+            <field name="name">Report Actions</field>
             <field name="res_model">ir.actions.report</field>
             <field name="view_id" ref="act_report_xml_view_tree"/>
             <field name="search_view_id" ref="act_report_xml_search_view"/>
         </record>
-        <menuitem action="ir_action_report" id="menu_ir_action_report" parent="base.next_id_6"/>
-
         <!-- ir.actions.client -->
 
         <record id="view_client_action_form" model="ir.ui.view">
@@ -170,6 +204,9 @@
                         </group>
                         <group name="help" string="Help">
                             <field name="help" nolabel="1" class="oe-bordered-editor"/>
+                        </group>
+                        <group name="explanation" string="Explanation">
+                            <field name="explanation" nolabel="1" class="oe-bordered-editor"/>
                         </group>
                     </sheet>
                 </form>
@@ -285,8 +322,6 @@
             <field name="view_id" ref="view_window_action_form"/>
             <field name="act_window_id" ref="ir_action_window"/>
         </record>
-        <menuitem action="ir_action_window" id="menu_ir_action_window" parent="base.next_id_6"/>
-
         <record id="view_client_action_tree" model="ir.ui.view">
             <field name="name">Client Actions</field>
             <field name="model">ir.actions.client</field>
@@ -303,7 +338,6 @@
             <field name="res_model">ir.actions.client</field>
             <field name="view_id" ref="view_client_action_tree"/>
         </record>
-        <menuitem action="ir_client_actions_report" id="menu_ir_client_actions_report" parent="base.next_id_6"/>
 
         <!-- ir.actions.server -->
 
@@ -323,7 +357,7 @@
                     </div>
                     <footer>
                         <button string="Restore Revision" name="restore_revision" type="object" class="btn-primary" invisible="not code_diff" data-hotkey="q"/>
-                        <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="x" />
+                        <button class="btn-secondary" special="cancel" data-hotkey="x"/>
                     </footer>
                 </form>
             </field>
@@ -357,7 +391,7 @@
                                 name="action_open_parent_action"
                                 invisible="not parent_id"
                                 class="oe_stat_button"
-                                icon="fa-database"
+                                icon="database"
                             >
                                 <div class="o_stat_info">
                                     <span class="o_stat_text">Parent Action</span>
@@ -369,7 +403,7 @@
                                 invisible="not ir_cron_ids or context.key != 'server_action'"
                                 context="{'key': 'ir_cron'}"
                                 class="oe_stat_button"
-                                icon="fa-refresh"
+                                icon="refresh"
                             >
                                 <div class="o_stat_info">
                                     <span class="o_stat_text">Scheduled Action</span>
@@ -392,28 +426,31 @@
                             </group>
                         </group>
                         <t name="action_content" invisible="not model_id">
-                            <field name="allowed_states" invisible="1"/> <!-- Used to filter state using selection_badge_with_filter -->
-                            <div class="d-flex flex-column">
+                            <field name="allowed_states" invisible="1"/> <!-- Used to filter state using badges_selection -->
+                            <div class="d-flex flex-column pb-2">
                                 <label for="state"/>
-                                <field name="state" widget="selection_badge_with_filter" options="{'size': 'sm', 'allowed_selection_field': 'allowed_states'}"/>
+                                <field name="state" widget="badges_selection" options="{'allowed_selection_field': 'allowed_states'}"/>
                             </div>
                             <div class="alert alert-warning" role="alert" invisible="not warning">
-                                <i class="fa fa-warning pe-2" title="Warning"/><field class="d-inline" name="warning" nolabel="1"/>
+                                <i class="oi pe-2" data-icon="warning" title="Warning"/><field class="d-inline" name="warning" nolabel="1"/>
                             </div>
                             <div class="d-flex flex-row flex-wrap gap-2" invisible="state != 'object_write'">
                                 <field name="evaluation_type" class="oe_inline"/>
-                                <field name="update_path" widget="field_selector" class="oe_inline" options="{'model': 'model_name', 'allow_properties': False}" required="state == 'object_write'"/>
+                                <field name="update_property" invisible="True"/> <!-- The field is store=True and readonly=False, in this view we want to save the value from compute/onchange -->
+                                <label for="update_path" string="Select Field:" class="fw-bold ps-2"/>
+                                <field name="update_path" widget="field_selector" class="oe_inline" options="{'model': 'model_name', 'allow_properties': True}" required="state == 'object_write'"/>
                                 <field name="update_field_id" invisible="True"/>  <!-- The field is store=True and readonly=False, in this view we want to save the value from compute/onchange -->
                                 <field name="update_related_model_id" invisible="True"/> <!-- This field is required for 'resource_ref' to compute possible m2m and m2o values -->
-                                <span invisible="evaluation_type != 'value' or update_field_type not in ['one2many', 'many2many']">by</span>
-                                <field name="update_m2m_operation" class="oe_inline" invisible="evaluation_type != 'value' or update_field_type not in ['one2many', 'many2many']" required="update_field_type in ['one2many', 'many2many']"/>
-                                <span invisible="evaluation_type != 'value' or update_field_type in ['one2many', 'many2many']">to</span>
+                                <span invisible="evaluation_type != 'value' or value_field_to_show != 'x2many'">by</span>
+                                <field name="update_m2m_operation" class="oe_inline" invisible="evaluation_type != 'value' or value_field_to_show != 'x2many'" required="value_field_to_show != 'x2many'"/>
+                                <span invisible="evaluation_type != 'value' or value_field_to_show == 'x2many'">to</span>
                                 <span invisible="evaluation_type != 'sequence'">with</span>
                                 <field name="value" class="oe_inline" placeholder="Set a value..." invisible="update_field_id == False or value_field_to_show != 'value' or evaluation_type != 'value'" string="Custom Value"/>
                                 <field name="html_value" class="w-100" placeholder="Set a value..." invisible="update_field_id == False or value_field_to_show != 'html_value' or evaluation_type != 'value'" string="Custom Value"/>
                                 <field name="sequence_id" class="oe_inline" placeholder="Select a sequence..." invisible="evaluation_type != 'sequence'" required="evaluation_type == 'sequence'"/>
-                                <field name="resource_ref" class="oe_inline" placeholder="Choose a value..." string="Custom Value" options="{'model_field': 'update_related_model_id', 'no_create': True, 'no_open': True}" invisible="update_field_id == False or value_field_to_show != 'resource_ref' or evaluation_type == 'equation' or update_m2m_operation == 'clear'"/>
+                                <field name="resource_ref" class="oe_inline" placeholder="Choose a value..." string="Custom Value" options="{'model_field': 'update_related_model_id', 'no_create': True, 'no_open': True}" invisible="update_field_id == False or value_field_to_show not in ['resource_ref', 'x2many'] or evaluation_type == 'equation' or update_m2m_operation == 'clear'"/>
                                 <field name="selection_value" class="oe_inline" placeholder="Choose a value..." options="{'no_create': True, 'no_open': True}" invisible="update_field_id == False or value_field_to_show != 'selection_value' or evaluation_type == 'equation'"/>
+                                <field name="property_selection" widget="property_selection" options="{'property_field_name': 'update_field_name', 'property_name': 'update_property', 'property_model_name': 'model_name'}" class="oe_inline" placeholder="Set a value..." invisible="update_field_id == False or value_field_to_show != 'property_selection' or evaluation_type == 'equation'"/>
                                 <field name="update_boolean_value" class="oe_inline" invisible="evaluation_type != 'value' or value_field_to_show != 'update_boolean_value'" required="value_field_to_show == 'update_boolean_value'"/>
                                 <span invisible="update_field_id != False or evaluation_type != 'value'" class="o_actions_server_set_a_value text-muted">Set a value...</span>
                                 <span invisible="evaluation_type != 'equation'">
@@ -490,7 +527,8 @@
                                         <widget name="documentation_link"
                                                 path="/developer/reference/backend/orm.html"
                                                 label="ORM API Documentation"
-                                                icon="oi oi-fw oi-arrow-right me-1"/>
+                                                icon="east"
+                                                icon_class="oi-fw"/>
                                     </p>
                                     <div >
                                         <p>Example of Python code:</p>
@@ -498,6 +536,9 @@
 env['res.partner'].create({'name': partner_name})
     </pre>
                                     </div>
+                                </page>
+                                <page string="Explanation" name="explanation">
+                                    <field name="explanation" nolabel="1" class="oe-bordered-editor"/>
                                 </page>
                                 <page string="Usage" name="usage" invisible="1"/>
                             </notebook>
@@ -511,7 +552,7 @@ env['res.partner'].create({'name': partner_name})
             <field name="name">Server Actions</field>
             <field name="model">ir.actions.server</field>
             <field name="arch" type="xml">
-                <kanban>
+                <kanban default_order="sequence, name, id">
                     <control>
                         <create string="Add an action" />
                     </control>
@@ -528,26 +569,34 @@ env['res.partner'].create({'name': partner_name})
                             <i
                                 data-name="server_action_icon"
                                 t-att-title="record.state.value"
-                                class="fa fa-fw"
+                                class="oi oi-fw"
                                 t-att-class="{
-                                    'code': 'fa-code',
-                                    'object_create': 'fa-plus-square',
-                                    'object_copy': 'fa-clone',
-                                    'object_write': 'fa-pencil',
-                                    'multi': 'fa-list-ul',
-                                    'mail_post': 'fa-envelope',
-                                    'followers': 'fa-user',
-                                    'remove_followers': 'fa-user-times',
-                                    'next_activity': 'fa-clock-o',
-                                    'sms': 'fa-mobile',
-                                    'webhook': 'fa-paper-plane',
-                                    'whatsapp': 'fa-whatsapp',
-                                    'ai': 'fa-magic',
-                                }[record.state.raw_value] || 'fa-circle-thin'"
+                                    'object_create': 'oi-filled',
+                                    'object_write': 'oi-filled',
+                                    'mail_post': 'oi-filled',
+                                    'followers': 'oi-filled',
+                                    'remove_followers': 'oi-filled',
+                                    'webhook': 'oi-filled',
+                                }[record.state.raw_value]"
+                                t-att-data-icon="{
+                                    'code': 'code',
+                                    'object_create': 'add_box',
+                                    'object_copy': 'content_copy',
+                                    'object_write': 'edit',
+                                    'multi': 'format_list_bulleted',
+                                    'mail_post': 'mail',
+                                    'followers': 'person',
+                                    'remove_followers': 'person_remove',
+                                    'next_activity': 'schedule',
+                                    'sms': 'smartphone',
+                                    'webhook': 'send',
+                                    'whatsapp': 'oi_whatsapp',
+                                    'ai': 'wand_stars',
+                                }[record.state.raw_value] || 'radio_button_unchecked'"
                             />
-                            <i class="fa fa-warning text-warning px-2 m-0" invisible="not warning" t-att-title="record.warning.raw_value"/>
+                            <i class="oi text-warning px-2 m-0" data-icon="warning" invisible="not warning" t-att-title="record.warning.raw_value"/>
                             <field name="name" class="text-truncate" />
-                            <button type="delete" name="delete" class="btn fa fa-trash fa-xl px-3 ms-auto" title="Delete Action" />
+                            <button type="delete" name="delete" class="btn oi oi-filled px-3 ms-auto" data-icon="delete" title="Delete Action" />
                         </t>
                     </templates>
                 </kanban>
@@ -575,7 +624,7 @@ env['res.partner'].create({'name': partner_name})
                     <field name="model_id"/>
                     <field name="state"/>
                     <filter string="Top-level actions" name="toplevel_actions" domain="[('parent_id', '=', False)]"/>
-                    <group colspan="4" col="4">
+                    <group>
                         <filter string="Action Type" name="action_type" domain="[]" context="{'group_by':'state'}"/>
                         <filter string="Model" name="model" domain="[]" context="{'group_by':'model_id'}"/>
                         <filter string="Usage" name="usage" domain="[]" context="{'group_by':'usage'}"/>
@@ -595,8 +644,6 @@ env['res.partner'].create({'name': partner_name})
                 'search_default_toplevel_actions': 1,
             }</field>
         </record>
-        <menuitem action="action_server_action" id="menu_server_action" parent="base.next_id_6"/>
-
         <!-- ir.embedded.actions -->
 
         <record id="embedded_action_form" model="ir.ui.view">
@@ -645,8 +692,6 @@ env['res.partner'].create({'name': partner_name})
             <field name="res_model">ir.embedded.actions</field>
             <field name="view_id" ref="embedded_action_tree"/>
         </record>
-        <menuitem action="ir_embedded_action" id="menu_ir_embedded_action" parent="base.next_id_6"/>
-
         <!-- ir.actions.todo -->
 
         <record id="ir_actions_todo_tree" model="ir.ui.view">
@@ -657,10 +702,10 @@ env['res.partner'].create({'name': partner_name})
                     <field name="sequence" widget='handle'/>
                     <field name="action_id"/>
                     <field name="state" readonly="1"/>
-                    <button name="action_launch" invisible="state != 'open'" string="Launch" type="object" icon="fa-cogs" help="Launch Configuration Wizard"/>
+                    <button name="action_launch" invisible="state != 'open'" string="Launch" type="object" icon="settings_applications" help="Launch Configuration Wizard"/>
                     <button name="action_open" invisible="state != 'done'"
                             string="Todo" type="object" help="Set as Todo"
-                            icon="fa-exchange"/>
+                            icon="swap_horiz"/>
                 </list>
             </field>
         </record>
@@ -672,11 +717,11 @@ env['res.partner'].create({'name': partner_name})
                   <header>
                         <button name="action_launch"
                             invisible="state != 'open'" string="Launch"
-                            type="object" icon="fa-cogs" class="oe_highlight"
+                            type="object" icon="settings_applications" class="oe_highlight"
                             help="Launch Configuration Wizard"/>
                         <button name="action_open" invisible="state != 'done'"
                             string="Set as Todo" type="object"
-                            icon="fa-exchange" class="oe_highlight"/>
+                            icon="swap_horiz" class="oe_highlight"/>
                         <field name="state" widget="statusbar" statusbar_visible="open,done" nolabel="1" readonly="1" />
                   </header>
                   <sheet>
@@ -705,7 +750,6 @@ env['res.partner'].create({'name': partner_name})
             <field name="view_id" ref="ir_actions_todo_tree"/>
             <field name="help">The configuration wizards are used to help you configure a new instance of Odoo. They are launched during the installation of new modules, but you can choose to restart some wizards manually from this menu.</field>
         </record>
-        <menuitem id="menu_ir_actions_todo_form" action="act_ir_actions_todo_form" parent="base.next_id_6"/>
         <record id="action_run_ir_action_todo" model="ir.actions.server">
             <field name="name">Config: Run Remaining Action Todo</field>
             <field name="model_id" ref="model_res_config"/>

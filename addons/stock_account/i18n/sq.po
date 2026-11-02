@@ -1,20 +1,40 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# 	* stock_account
+# * stock_account
 #
+# Translators:
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0\n"
+"Project-Id-Version: Odoo 9.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:38+0000\n"
-"PO-Revision-Date: 2025-12-30 18:36+0000\n"
-"Last-Translator: \n"
-"Language-Team: \n"
-"Language: \n"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2016-03-31 14:10+0000\n"
+"Last-Translator: Martin Trigaux\n"
+"Language-Team: Albanian (http://www.transifex.com/odoo/odoo-9/language/sq/)\n"
+"Language: sq\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
-"Plural-Forms: \n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: stock_account
+#: model:ir.module.module,description:base.module_stock_account
+msgid ""
+"\n"
+"WMS Accounting module\n"
+"======================\n"
+"This module makes the link between the 'stock' and 'account' modules and "
+"allows you to create accounting entries to value your stock movements\n"
+"\n"
+"Key Features\n"
+"------------\n"
+"* Stock Valuation (periodical or automatic)\n"
+"* Invoice from Picking\n"
+"\n"
+"Dashboard / Reports for Warehouse Management includes:\n"
+"------------------------------------------------------\n"
+"* Stock Inventory Value at given date (support dates in the past)\n"
+msgstr ""
 
 #. module: stock_account
 #. odoo-python
@@ -70,6 +90,11 @@ msgstr ""
 #. module: stock_account
 #: model:ir.model,name:stock_account.model_account_chart_template
 msgid "Account Chart Template"
+msgstr ""
+
+#. module: stock_account
+#: model:ir.model.fields,help:stock_account.field_stock_move__cogs_aml_ids
+msgid "Account move lines using this move in order to compute their COGS"
 msgstr ""
 
 #. module: stock_account
@@ -151,7 +176,7 @@ msgstr ""
 
 #. module: stock_account
 #: model:ir.model,name:stock_account.model_account_analytic_plan
-msgid "Analytic Plans"
+msgid "Analytic Plan"
 msgstr ""
 
 #. module: stock_account
@@ -199,6 +224,22 @@ msgid "Bacon"
 msgstr ""
 
 #. module: stock_account
+#: model:ir.model.fields,field_description:stock_account.field_stock_move__cogs_aml_ids
+msgid "COGS lines"
+msgstr ""
+
+#. module: stock_account
+#: model:ir.model.fields,field_description:stock_account.field_account_move_line__cogs_move_ids
+msgid "COGS stock moves"
+msgstr ""
+
+#. module: stock_account
+#: model:ir.model.fields,field_description:stock_account.field_account_bank_statement_line__closing_datetime
+#: model:ir.model.fields,field_description:stock_account.field_account_move__closing_datetime
+msgid "Closing Date"
+msgstr ""
+
+#. module: stock_account
 #. odoo-python
 #: code:addons/stock_account/models/res_company.py:0
 msgid "Closing: Location Reclassification - [%(account)s]"
@@ -223,14 +264,10 @@ msgstr ""
 
 #. module: stock_account
 #: model:ir.model,name:stock_account.model_res_company
-msgid "Companies"
-msgstr ""
-
-#. module: stock_account
 #: model:ir.model.fields,field_description:stock_account.field_product_value__company_id
 #: model:ir.model.fields,field_description:stock_account.field_stock_avco_report__company_id
 msgid "Company"
-msgstr ""
+msgstr "Kompani"
 
 #. module: stock_account
 #: model:ir.model.fields,field_description:stock_account.field_stock_move__company_currency_id
@@ -295,12 +332,12 @@ msgstr ""
 #. module: stock_account
 #: model:ir.model.fields,field_description:stock_account.field_product_value__create_uid
 msgid "Created by"
-msgstr ""
+msgstr "Krijuar nga"
 
 #. module: stock_account
 #: model:ir.model.fields,field_description:stock_account.field_product_value__create_date
 msgid "Created on"
-msgstr ""
+msgstr "Krijuar me"
 
 #. module: stock_account
 #. odoo-javascript
@@ -339,7 +376,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:stock_account.field_product_value__date
 #: model:ir.model.fields,field_description:stock_account.field_stock_avco_report__date
 msgid "Date"
-msgstr ""
+msgstr "Data"
 
 #. module: stock_account
 #: model:ir.model.fields,help:stock_account.field_stock_inventory_adjustment_name__accounting_date
@@ -390,9 +427,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:stock_account.field_stock_picking__display_name
 #: model:ir.model.fields,field_description:stock_account.field_stock_picking_type__display_name
 #: model:ir.model.fields,field_description:stock_account.field_stock_quant__display_name
-#: model:ir.model.fields,field_description:stock_account.field_stock_return_picking_line__display_name
 msgid "Display Name"
-msgstr ""
+msgstr "Emri i paraqitur"
 
 #. module: stock_account
 #: model:res.groups,name:stock_account.group_lot_on_invoice
@@ -416,6 +452,11 @@ msgstr ""
 #. module: stock_account
 #: model:ir.model.fields,field_description:stock_account.field_account_account__account_stock_expense_id
 msgid "Expense Account"
+msgstr ""
+
+#. module: stock_account
+#: model:ir.model.fields,field_description:stock_account.field_account_account__account_stock_expense_active
+msgid "Expense Account Active"
 msgstr ""
 
 #. module: stock_account
@@ -474,9 +515,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:stock_account.field_stock_picking__id
 #: model:ir.model.fields,field_description:stock_account.field_stock_picking_type__id
 #: model:ir.model.fields,field_description:stock_account.field_stock_quant__id
-#: model:ir.model.fields,field_description:stock_account.field_stock_return_picking_line__id
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #. module: stock_account
 #: model:ir.model.fields,help:stock_account.field_product_category__anglo_saxon_accounting
@@ -512,8 +552,14 @@ msgid "Inventory Adjustment Reference / Reason"
 msgstr ""
 
 #. module: stock_account
+#: model:ir.model.fields,field_description:stock_account.field_account_bank_statement_line__inventory_closing
+#: model:ir.model.fields,field_description:stock_account.field_account_move__inventory_closing
+msgid "Inventory Closing"
+msgstr ""
+
+#. module: stock_account
 #: model:ir.model,name:stock_account.model_stock_location
-msgid "Inventory Locations"
+msgid "Inventory Location"
 msgstr ""
 
 #. module: stock_account
@@ -540,6 +586,21 @@ msgid "Inventory Valuation"
 msgstr ""
 
 #. module: stock_account
+#: model:ir.model.fields,help:stock_account.field_account_move_line__cogs_move_ids
+msgid "Inventory moves used to compute COGS values."
+msgstr ""
+
+#. module: stock_account
+#: model:ir.module.module,summary:base.module_stock_account
+msgid "Inventory, Logistic, Valuation, Accounting"
+msgstr ""
+
+#. module: stock_account
+#: model:ir.model.fields,field_description:stock_account.field_stock_move__invoice_line_ids
+msgid "Invoice Line"
+msgstr ""
+
+#. module: stock_account
 #: model:ir.model.fields,field_description:stock_account.field_stock_move__is_dropship
 msgid "Is Dropship"
 msgstr ""
@@ -560,13 +621,8 @@ msgid "Is Valued"
 msgstr ""
 
 #. module: stock_account
-#: model:ir.model.fields,field_description:stock_account.field_stock_location__is_valued_internal
+#: model:ir.model.fields,field_description:stock_account.field_stock_location__is_valued
 msgid "Is valued inside the company"
-msgstr ""
-
-#. module: stock_account
-#: model:ir.model.fields,field_description:stock_account.field_stock_location__is_valued_external
-msgid "Is valued outside the company"
 msgstr ""
 
 #. module: stock_account
@@ -606,12 +662,12 @@ msgstr ""
 #. module: stock_account
 #: model:ir.model.fields,field_description:stock_account.field_product_value__write_uid
 msgid "Last Updated by"
-msgstr ""
+msgstr "Modifikuar per here te fundit nga"
 
 #. module: stock_account
 #: model:ir.model.fields,field_description:stock_account.field_product_value__write_date
 msgid "Last Updated on"
-msgstr ""
+msgstr "Modifikuar per here te fundit me"
 
 #. module: stock_account
 #: model_terms:ir.ui.view,arch_db:stock_account.view_location_form_inherit
@@ -722,9 +778,12 @@ msgstr ""
 
 #. module: stock_account
 #: model:ir.model.fields,field_description:stock_account.field_product_category__property_price_difference_account_id
-#: model:ir.model.fields,field_description:stock_account.field_product_product__property_price_difference_account_id
-#: model:ir.model.fields,field_description:stock_account.field_product_template__property_price_difference_account_id
 msgid "Price Difference Account"
+msgstr ""
+
+#. module: stock_account
+#: model:ir.model.fields,field_description:stock_account.field_product_category__property_price_difference_account_active
+msgid "Price Difference Account Active"
 msgstr ""
 
 #. module: stock_account
@@ -743,7 +802,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:stock_account.field_product_value__product_id
 #: model:ir.model.fields,field_description:stock_account.field_stock_avco_report__product_id
 msgid "Product"
-msgstr ""
+msgstr "Produkti"
 
 #. module: stock_account
 #: model:ir.model,name:stock_account.model_product_category
@@ -779,6 +838,14 @@ msgid "Product Variant"
 msgstr ""
 
 #. module: stock_account
+#. odoo-python
+#: code:addons/stock_account/models/stock_move.py:0
+msgid ""
+"Product should be passed as an argument in order to get the unit price for "
+"moves in a kit."
+msgstr ""
+
+#. module: stock_account
 #: model:ir.model.fields,field_description:stock_account.field_res_company__account_production_wip_account_id
 msgid "Production WIP Account"
 msgstr ""
@@ -790,7 +857,7 @@ msgstr ""
 
 #. module: stock_account
 #: model:ir.model,name:stock_account.model_stock_quant
-msgid "Quants"
+msgid "Quant"
 msgstr ""
 
 #. module: stock_account
@@ -816,11 +883,6 @@ msgstr ""
 #. module: stock_account
 #: model:ir.model.fields,field_description:stock_account.field_stock_avco_report__res_model_name
 msgid "Resource Model Name"
-msgstr ""
-
-#. module: stock_account
-#: model:ir.model,name:stock_account.model_stock_return_picking_line
-msgid "Return Picking Line"
 msgstr ""
 
 #. module: stock_account
@@ -880,6 +942,7 @@ msgstr ""
 #: model:ir.model,name:stock_account.model_stock_move
 #: model:ir.model.fields,field_description:stock_account.field_account_bank_statement_line__stock_move_ids
 #: model:ir.model.fields,field_description:stock_account.field_account_move__stock_move_ids
+#: model:ir.model.fields,field_description:stock_account.field_account_move_line__stock_move_id
 #: model:ir.model.fields.selection,name:stock_account.selection__stock_avco_report__res_model_name__stock_move
 msgid "Stock Move"
 msgstr ""
@@ -904,6 +967,11 @@ msgid "Stock Valuation Account"
 msgstr ""
 
 #. module: stock_account
+#: model:ir.model.fields,field_description:stock_account.field_product_category__property_stock_valuation_account_active
+msgid "Stock Valuation Account Active"
+msgstr ""
+
+#. module: stock_account
 #. odoo-javascript
 #. odoo-python
 #: code:addons/stock_account/report/stock_valuation_report.py:0
@@ -915,6 +983,11 @@ msgstr ""
 #. module: stock_account
 #: model:ir.model.fields,field_description:stock_account.field_product_category__account_stock_variation_id
 msgid "Stock Variation Account"
+msgstr ""
+
+#. module: stock_account
+#: model:ir.model.fields,field_description:stock_account.field_product_category__account_stock_variation_active
+msgid "Stock Variation Account Active"
 msgstr ""
 
 #. module: stock_account
@@ -947,6 +1020,11 @@ msgid ""
 msgstr ""
 
 #. module: stock_account
+#: model_terms:ir.ui.view,arch_db:stock_account.stock_move_view_list
+msgid "Total"
+msgstr ""
+
+#. module: stock_account
 #: model:ir.model.fields,field_description:stock_account.field_stock_avco_report__total_quantity
 msgid "Total Quantity"
 msgstr ""
@@ -966,7 +1044,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:stock_account.field_stock_avco_report__total_value
 #: model:ir.model.fields,field_description:stock_account.field_stock_lot__total_value
 #: model_terms:ir.ui.view,arch_db:stock_account.product_product_stock_tree_inherit_stock_account
-#: model_terms:ir.ui.view,arch_db:stock_account.product_product_view_list_at_date
 #: model_terms:ir.ui.view,arch_db:stock_account.view_stock_quant_tree_editable_inherit
 msgid "Total Value"
 msgstr ""
@@ -978,7 +1055,6 @@ msgstr ""
 
 #. module: stock_account
 #: model:ir.model.fields,help:stock_account.field_stock_move__to_refund
-#: model:ir.model.fields,help:stock_account.field_stock_return_picking_line__to_refund
 msgid ""
 "Trigger a decrease of the delivered/received quantity in the associated Sale "
 "Order/Purchase Order"
@@ -986,7 +1062,6 @@ msgstr ""
 
 #. module: stock_account
 #: model_terms:ir.ui.view,arch_db:stock_account.product_product_stock_tree_inherit_stock_account
-#: model_terms:ir.ui.view,arch_db:stock_account.product_product_view_list_at_date
 #: model_terms:ir.ui.view,arch_db:stock_account.stock_avco_report_view_list
 #: model_terms:ir.ui.view,arch_db:stock_account.stock_move_view_list_valuation
 msgid "Unit Cost"
@@ -999,7 +1074,6 @@ msgstr ""
 
 #. module: stock_account
 #: model:ir.model.fields,field_description:stock_account.field_stock_move__to_refund
-#: model:ir.model.fields,field_description:stock_account.field_stock_return_picking_line__to_refund
 msgid "Update quantities on SO/PO"
 msgstr ""
 
@@ -1041,6 +1115,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:stock_account.field_stock_avco_report__value
 #: model:ir.model.fields,field_description:stock_account.field_stock_move__value
 #: model:ir.model.fields,field_description:stock_account.field_stock_quant__value
+#: model_terms:ir.ui.view,arch_db:stock_account.stock_move_view_list
 msgid "Value"
 msgstr ""
 
@@ -1076,6 +1151,16 @@ msgid "Variation Account"
 msgstr ""
 
 #. module: stock_account
+#: model:ir.model.fields,field_description:stock_account.field_account_account__account_stock_variation_active
+msgid "Variation Account Active"
+msgstr ""
+
+#. module: stock_account
+#: model:ir.module.module,shortdesc:base.module_stock_account
+msgid "WMS Accounting"
+msgstr ""
+
+#. module: stock_account
 #: model:ir.model.fields,help:stock_account.field_product_category__property_stock_valuation_account_id
 msgid ""
 "When automated inventory valuation is enabled on a product, this account "
@@ -1091,8 +1176,6 @@ msgstr ""
 
 #. module: stock_account
 #: model:ir.model.fields,help:stock_account.field_product_category__property_price_difference_account_id
-#: model:ir.model.fields,help:stock_account.field_product_product__property_price_difference_account_id
-#: model:ir.model.fields,help:stock_account.field_product_template__property_price_difference_account_id
 msgid ""
 "With perpetual valuation, this account will hold the price difference "
 "between the standard price and the bill price."
@@ -1102,14 +1185,6 @@ msgstr ""
 #. odoo-python
 #: code:addons/stock_account/models/stock_move.py:0
 msgid "You can only adjust valuation for one move at a time."
-msgstr ""
-
-#. module: stock_account
-#. odoo-python
-#: code:addons/stock_account/models/product.py:0
-msgid ""
-"You can only get the standard price at a given date for products with "
-"'Standard Price' as cost method."
 msgstr ""
 
 #. module: stock_account

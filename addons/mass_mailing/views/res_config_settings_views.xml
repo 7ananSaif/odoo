@@ -30,7 +30,7 @@
                                                 placeholder="Default Server"/>
                                     </div>
                                     <div class="mt8">
-                                        <button type="action" name="base.action_ir_mail_server_list" string="Configure Outgoing Mail Servers" icon="oi-arrow-right" class="oe_link"/>
+                                        <button type="action" name="base.action_ir_mail_server_list" string="Configure Outgoing Mail Servers" icon="east" class="oe_link"/>
                                     </div>
                                 </div>
                             </setting>
@@ -44,6 +44,6 @@
             <field name="name">Settings</field>
             <field name="res_model">res.config.settings</field>
             <field name="view_mode">form</field>
-            <field name="context">{'module' : 'mass_mailing', 'bin_size': False}</field>
+            <field name="context">{'module' : 'mass_mailing'}</field>
         </record>
 </odoo>

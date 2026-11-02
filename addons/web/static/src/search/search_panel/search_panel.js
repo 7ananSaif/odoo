@@ -1,18 +1,9 @@
-import { Dropdown } from "@web/core/dropdown/dropdown";
-import { useBus } from "@web/core/utils/hooks";
-
-import {
-    Component,
-    onMounted,
-    onWillStart,
-    onWillUpdateProps,
-    reactive,
-    useEffect,
-    useRef,
-    useState,
-} from "@odoo/owl";
+import { Component, onWillStart, onWillUpdateProps, proxy, signal, useEffect } from "@odoo/owl";
 import { browser } from "@web/core/browser/browser";
+import { Dropdown } from "@web/core/dropdown/dropdown";
+import { useBus, useService } from "@web/core/utils/hooks";
 import { exprToBoolean } from "@web/core/utils/strings";
+import { render } from "@web/owl2/utils";
 import { useSetupAction } from "@web/search/action_hook";
 
 //-------------------------------------------------------------------------
@@ -47,7 +38,6 @@ const nameOfCheckedValues = (values) => {
  */
 export class SearchPanel extends Component {
     static template = "web.SearchPanel";
-    static props = {};
     static components = {
         Dropdown,
     };
@@ -57,18 +47,21 @@ export class SearchPanel extends Component {
         filtersGroup: "web.SearchPanel.FiltersGroup",
     };
 
+    root = signal.ref();
+
     setup() {
         this.keyExpandSidebar = `search_panel_expanded,${this.env.config.viewId},${this.env.config.actionId}`;
-        this.state = useState({
+        this.state = proxy({
             active: {},
             expanded: {},
             sidebarExpanded: true,
         });
         this.hasImportedState = false;
-        this.root = useRef("root");
         this.scrollTop = 0;
         this.dropdownStates = {};
         this.width = "10px";
+
+        this.uiService = useService("ui");
 
         this.importState(this.env.searchPanelState);
         const sidebarExpandedPreference = browser.localStorage.getItem(this.keyExpandSidebar);
@@ -79,18 +72,16 @@ export class SearchPanel extends Component {
         useBus(this.env.searchModel, "update", async () => {
             await this.env.searchModel.sectionsPromise;
             this.updateActiveValues();
-            this.render();
+            render(this);
         });
 
-        useEffect(
-            (el) => {
-                if (el && this.hasImportedState) {
-                    el.style["min-width"] = this.width;
-                    el.scroll({ top: this.scrollTop });
-                }
-            },
-            () => [this.root.el]
-        );
+        useEffect(() => {
+            const el = this.root();
+            if (el && this.hasImportedState) {
+                el.style["min-width"] = this.width;
+                el.scroll({ top: this.scrollTop });
+            }
+        });
 
         useSetupAction({
             getGlobalState: () => ({
@@ -109,10 +100,6 @@ export class SearchPanel extends Component {
             await this.env.searchModel.sectionsPromise;
             this.updateActiveValues();
         });
-
-        onMounted(() => {
-            this.updateGroupHeadersChecked();
-        });
     }
 
     //---------------------------------------------------------------------
@@ -130,7 +117,7 @@ export class SearchPanel extends Component {
     exportState() {
         const exported = {
             expanded: this.state.expanded,
-            scrollTop: this.root.el?.scrollTop || 0,
+            scrollTop: this.root()?.scrollTop || 0,
             sidebarExpanded: this.state.sidebarExpanded,
             width: this.width,
         };
@@ -153,12 +140,12 @@ export class SearchPanel extends Component {
 
     getDropdownState(sectionId) {
         if (!this.dropdownStates[sectionId]) {
-            const state = reactive({
+            const state = proxy({
                 isOpen: false,
                 open: () => (state.isOpen = true),
                 close: () => (state.isOpen = false),
             });
-            this.dropdownStates[sectionId] = reactive(state);
+            this.dropdownStates[sectionId] = proxy(state);
         }
         return this.dropdownStates[sectionId];
     }
@@ -238,6 +225,7 @@ export class SearchPanel extends Component {
             selection.push({
                 values: orderedCategoryNames,
                 icon: category.icon,
+                iconClass: category.iconClass,
                 color: category.color,
             });
         }
@@ -252,7 +240,7 @@ export class SearchPanel extends Component {
     getFilterSelection() {
         const filters = this.env.searchModel.getSections(isFilter);
         const selection = [];
-        for (const { groups, values, icon, color } of filters) {
+        for (const { groups, values, icon, iconClass, color } of filters) {
             let filterValues;
             if (groups) {
                 filterValues = Object.keys(groups)
@@ -262,7 +250,7 @@ export class SearchPanel extends Component {
                 filterValues = nameOfCheckedValues(values);
             }
             if (filterValues.length) {
-                selection.push({ values: filterValues, icon, color });
+                selection.push({ values: filterValues, icon, iconClass, color });
             }
         }
         return selection;
@@ -316,6 +304,13 @@ export class SearchPanel extends Component {
         }
     }
 
+    onCategoryKeydown(ev, category, value) {
+        if (ev.key === "Enter" || ev.key === " ") {
+            ev.preventDefault();
+            this.toggleCategory(category, value);
+        }
+    }
+
     toggleSidebar() {
         this.state.sidebarExpanded = !this.state.sidebarExpanded;
         browser.localStorage.setItem(this.keyExpandSidebar, this.state.sidebarExpanded);
@@ -345,8 +340,15 @@ export class SearchPanel extends Component {
      */
     toggleFilterValue(filterId, valueId, { currentTarget }) {
         this.state.active[filterId][valueId] = currentTarget.checked;
-        this.updateGroupHeadersChecked();
         this.env.searchModel.toggleFilterValues(filterId, [valueId]);
+    }
+
+    onFilterValueKeydown(ev, filterId, valueId) {
+        if (ev.key === "Enter" || ev.key === " ") {
+            ev.preventDefault();
+            this.state.active[filterId][valueId] = !this.state.active[filterId][valueId];
+            this.env.searchModel.toggleFilterValues(filterId, [valueId]);
+        }
     }
 
     updateActiveValues() {
@@ -375,25 +377,6 @@ export class SearchPanel extends Component {
     }
 
     /**
-     * Updates the "checked" or "indeterminate" state of each of the group
-     * headers according to the state of their values.
-     */
-    updateGroupHeadersChecked() {
-        const groups = document.querySelectorAll(".o_search_panel_filter_group");
-        for (const group of groups) {
-            const header = group.querySelector(":scope .o_search_panel_group_header input");
-            const vals = [...group.querySelectorAll(":scope .o_search_panel_filter_value input")];
-            header.checked = false;
-            header.indeterminate = false;
-            if (vals.every((v) => v.checked)) {
-                header.checked = true;
-            } else if (vals.some((v) => v.checked)) {
-                header.indeterminate = true;
-            }
-        }
-    }
-
-    /**
      * Handles the resize feature on the sidebar
      *
      * @private
@@ -406,7 +389,7 @@ export class SearchPanel extends Component {
         }
 
         const initialX = ev.pageX;
-        const initialWidth = this.root.el.offsetWidth;
+        const initialWidth = this.root().offsetWidth;
         const resizeStoppingEvents = ["keydown", "pointerdown", "pointerup"];
 
         // Pointermove event : resize header
@@ -417,7 +400,7 @@ export class SearchPanel extends Component {
             const delta = ev.pageX - initialX;
             const newWidth = Math.min(maxWidth, Math.max(10, initialWidth + delta));
             this.width = `${newWidth}px`;
-            this.root.el.style["min-width"] = this.width;
+            this.root().style["min-width"] = this.width;
         };
         document.addEventListener("pointermove", resizePanel, true);
 

@@ -1,26 +1,24 @@
+import { assertType, t } from "@odoo/owl";
 import { isVisible } from "@web/core/utils/ui";
 import { delay } from "@web/core/utils/concurrency";
-import { validate } from "@odoo/owl";
 
-const macroSchema = {
-    name: { type: String, optional: true },
-    timeout: { type: Number, optional: true },
-    steps: {
-        type: Array,
-        element: {
-            type: Object,
-            shape: {
-                action: { type: [Function, String], optional: true },
-                timeout: { type: Number, optional: true },
-                trigger: { type: [Function, String], optional: true },
-            },
-            validate: (step) => step.action || step.trigger,
-        },
-    },
-    onComplete: { type: Function, optional: true },
-    onStep: { type: Function, optional: true },
-    onError: { type: Function, optional: true },
-};
+const macroSchema = t.strictObject({
+    name: t.string().optional(),
+    timeout: t.number().optional(),
+    steps: t.array(
+        t.customValidator(
+            t.object({
+                action: t.or([t.function(), t.string()]).optional(),
+                timeout: t.number().optional(),
+                trigger: t.or([t.function(), t.string()]).optional(),
+            }),
+            (step) => step.action || step.trigger
+        )
+    ),
+    onComplete: t.function().optional(),
+    onStep: t.function().optional(),
+    onError: t.function().optional(),
+});
 
 class MacroError extends Error {
     constructor(type, message, options) {
@@ -39,7 +37,7 @@ async function performAction(trigger, action) {
         throw new MacroError(
             "Action",
             error.stack || `ERROR during perform action: ${error.message}`,
-            {cause: error}
+            { cause: error }
         );
     }
 }
@@ -49,7 +47,6 @@ async function waitForTrigger(trigger) {
         return;
     }
     try {
-        await delay(50);
         return await waitUntil(() => {
             if (typeof trigger === "function") {
                 return trigger();
@@ -90,7 +87,7 @@ export class Macro {
     isComplete = false;
     constructor(descr) {
         try {
-            validate(descr, macroSchema);
+            assertType(descr, macroSchema);
         } catch (error) {
             throw new Error(
                 `Error in schema for Macro ${JSON.stringify(descr, null, 4)}\n${error.message}`
@@ -157,82 +154,5 @@ export class Macro {
         } else if (this.currentIndex === this.steps.length) {
             this.onComplete();
         }
-    }
-}
-
-export class MacroMutationObserver {
-    observerOptions = {
-        attributes: true,
-        childList: true,
-        subtree: true,
-        characterData: true,
-    };
-    constructor(callback) {
-        this.callback = callback;
-        this.observer = new MutationObserver((mutationList, observer) => {
-            callback(mutationList);
-            mutationList.forEach((mutationRecord) =>
-                Array.from(mutationRecord.addedNodes).forEach((node) => {
-                    let iframes = [];
-                    if (String(node.tagName).toLowerCase() === "iframe") {
-                        iframes = [node];
-                    } else if (node instanceof HTMLElement) {
-                        iframes = Array.from(node.querySelectorAll("iframe"));
-                    }
-                    iframes.forEach((iframeEl) =>
-                        this.observeIframe(iframeEl, observer, () => callback())
-                    );
-                    this.findAllShadowRoots(node).forEach((shadowRoot) =>
-                        observer.observe(shadowRoot, this.observerOptions)
-                    );
-                })
-            );
-        });
-    }
-    disconnect() {
-        this.observer.disconnect();
-    }
-    findAllShadowRoots(node, shadowRoots = []) {
-        if (node.shadowRoot) {
-            shadowRoots.push(node.shadowRoot);
-            this.findAllShadowRoots(node.shadowRoot, shadowRoots);
-        }
-        node.childNodes.forEach((child) => {
-            this.findAllShadowRoots(child, shadowRoots);
-        });
-        return shadowRoots;
-    }
-    observe(target) {
-        this.observer.observe(target, this.observerOptions);
-        //When iframes already exist at "this.target" initialization
-        target
-            .querySelectorAll("iframe")
-            .forEach((el) => this.observeIframe(el, this.observer, () => this.callback()));
-        //When shadowDom already exist at "this.target" initialization
-        this.findAllShadowRoots(target).forEach((shadowRoot) => {
-            this.observer.observe(shadowRoot, this.observerOptions);
-        });
-    }
-    observeIframe(iframeEl, observer, callback) {
-        const observerOptions = {
-            attributes: true,
-            childList: true,
-            subtree: true,
-            characterData: true,
-        };
-        const observeIframeContent = () => {
-            if (iframeEl.contentDocument) {
-                iframeEl.contentDocument.addEventListener("load", (event) => {
-                    callback();
-                    observer.observe(event.target, observerOptions);
-                });
-                if (!iframeEl.src || iframeEl.contentDocument.readyState === "complete") {
-                    callback();
-                    observer.observe(iframeEl.contentDocument, observerOptions);
-                }
-            }
-        };
-        observeIframeContent();
-        iframeEl.addEventListener("load", observeIframeContent);
     }
 }

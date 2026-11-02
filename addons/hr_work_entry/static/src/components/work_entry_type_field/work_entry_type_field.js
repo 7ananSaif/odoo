@@ -1,86 +1,78 @@
+import { Component, useProps } from "@odoo/owl";
 import { registry } from "@web/core/registry";
-import { buildM2OFieldDescription, Many2OneField } from "@web/views/fields/many2one/many2one_field";
-import { Component, onWillRender, onWillUpdateProps, useState } from "@odoo/owl";
-import { Many2One } from "@web/views/fields/many2one/many2one";
+import { standardFieldProps } from "@web/views/fields/standard_field_props";
+import {
+    buildM2OFieldDescription,
+    many2OneFieldProps,
+} from "@web/views/fields/many2one/many2one_field";
+import { computeM2OProps, Many2One } from "@web/views/fields/many2one/many2one";
 
-export class WorkEntryType extends Component {
-    static template = "hr_work_entry.WorkEntryType";
-    static props = {
-        data: Object,
-        className: { type: String, optional: true },
-    };
-
-    setup() {
-        this.state = useState({ data: this.props.data });
-        onWillUpdateProps((nextProps) => {
-            this.state.data = nextProps.data;
-        });
-    }
+//List View Widget
+export class WorkEntryTypeBadgeField extends Component {
+    static template = "hr_work_entry.WorkEntryTypeBadgeField";
+    props = useProps(standardFieldProps);
 }
 
-function extractData(record) {
-    if (!record) {
-        return null;
-    }
-    let name;
-    if ("display_name" in record) {
-        name = record.display_name;
-    } else if ("name" in record) {
-        name = record.name.id ? record.name.display_name : record.name;
-    }
-    return {
-        id: record.id,
-        display_name: name,
-        display_code: record.display_code,
-        color: record.color,
-    };
-}
+export const workEntryTypeBadgeField = {
+    component: WorkEntryTypeBadgeField,
+    fieldDependencies: [
+        { name: "color", type: "integer" },
+        { name: "display_code", type: "char" },
+        { name: "name", type: "char" },
+    ],
+};
+registry.category("fields").add("work_entry_type_badge", workEntryTypeBadgeField);
 
+//Form View M2O Widget
 export class WorkEntryTypeMany2One extends Many2One {
+    /**
+     * @override
+     */
     get many2XAutocompleteProps() {
         const props = super.many2XAutocompleteProps;
         return {
             ...props,
-            update: (records) => {
-                const idNamePair = records && extractData(records[0]) ? records[0] : false;
-                this.update(idNamePair);
+            update: async (records) => {
+                let record = records?.[0];
+                if (
+                    record?.id &&
+                    (record.display_name === undefined ||
+                        record.display_code === undefined ||
+                        record.color === undefined)
+                ) {
+                    [record] = await this.orm.read(
+                        this.props.relation,
+                        [record.id],
+                        ["display_name", "display_code", "color"]
+                    );
+                }
+                return this.update(record || false);
             },
         };
     }
 }
 
-export class Many2OneWorkEntryTypeField extends Many2OneField {
+export class Many2OneWorkEntryTypeField extends Component {
     static template = "hr_work_entry.Many2OneWorkEntryTypeField";
     static components = {
-        ...Many2OneField.components,
-        Many2One: WorkEntryTypeMany2One,
-        WorkEntryType,
+        WorkEntryTypeMany2One,
     };
-
-    setup() {
-        super.setup();
-        this.state = useState({ data: this.props.record.data });
-        onWillRender(() => {
-            if (this.props.record.data?.work_entry_type_id.color) {
-                this.state.data = this.props.record.data.work_entry_type_id;
-            } else {
-                this.state.data = this.props.record.data;
-            }
-        });
-    }
-
+    props = useProps(many2OneFieldProps);
     get m2oProps() {
-        const props = super.m2oProps;
         return {
-            ...props,
+            ...computeM2OProps(this.props),
             specification: { display_code: 1, color: 1 },
         };
+    }
+
+    get workEntryTypeData() {
+        return this.props.record.data[this.props.name];
     }
 }
 
 export const many2OneWorkEntryTypeField = {
     ...buildM2OFieldDescription(Many2OneWorkEntryTypeField),
-    fieldDependencies: [
+    relatedFields: [
         { name: "display_code", type: "char" },
         { name: "color", type: "char" },
     ],

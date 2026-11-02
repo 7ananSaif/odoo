@@ -62,9 +62,8 @@ export default class DevicesSynchronisation {
      * @param {Object} data.static_records - Records data that need to be synchronized.
      */
     async collect(data) {
-        const { static_records, session_id, device_identifier } = data;
-        const isSameDevice =
-            odoo.pos_session_id != session_id || device_identifier == this.pos.device.identifier;
+        const { static_records, deleted_record_ids, session_id, device_identifier } = data;
+        const isSameDevice = isSamePosDevice(session_id, device_identifier, this.pos);
 
         logPosMessage(
             "Synchronisation",
@@ -79,6 +78,9 @@ export default class DevicesSynchronisation {
 
         if (Object.keys(static_records).length) {
             this.processStaticRecords(static_records);
+        }
+        if (deleted_record_ids && Object.keys(deleted_record_ids).length) {
+            this.processDeletedRecords(deleted_record_ids);
         }
 
         return await this.readDataFromServer();
@@ -125,13 +127,11 @@ export default class DevicesSynchronisation {
 
             this.processStaticRecords(staticR);
             const res = await this.processDynamicRecords(dynamicR);
-            if (res && res["pos.order"]) {
+            if (res && res["pos.order"].length > 0) {
                 const config = this.pos.config;
-                const session = this.models["pos.session"].get(odoo.pos_session_id);
+                const session = this.pos.session;
 
                 for (const order of res["pos.order"]) {
-                    // Clear commands
-                    order.serializeForORM();
                     order.config_id = config;
                     order.session_id = session;
                 }
@@ -242,4 +242,8 @@ export default class DevicesSynchronisation {
 
         return { domain: domainByModel, recordIds: recordIdsByModel };
     }
+}
+
+export function isSamePosDevice(session_id, device_identifier, posStore) {
+    return odoo.pos_session_id != session_id || device_identifier == posStore.device.identifier;
 }

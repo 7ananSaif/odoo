@@ -4,8 +4,8 @@
 <t t-name="website.ProcessStepsOption">
     <BuilderRow label.translate="Connector">
         <BuilderSelect>
-            <t t-foreach="connectorOptionParams" t-as="connectorOptionParam" t-key="connectorOptionParam_index">
-                <BuilderSelectItem action="'changeConnector'" id="getConnectorId(connectorOptionParam.key)" actionParam="connectorOptionParam.key"><t t-out="connectorOptionParam.param"/></BuilderSelectItem>
+            <t t-foreach="this.connectorOptionParams" t-as="connectorOptionParam" t-key="connectorOptionParam_index">
+                <BuilderSelectItem action="'changeConnector'" id="this.getConnectorId(connectorOptionParam.key)" actionParam="connectorOptionParam.key"><t t-out="connectorOptionParam.param"/></BuilderSelectItem>
             </t>
         </BuilderSelect>
         <BuilderColorPicker
@@ -15,6 +15,12 @@
             action="'changeArrowColor'"
             enabledTabs="['solid', 'custom']"/>
     </BuilderRow>
+</t>
+
+<t t-inherit="website.BuilderOptions" t-inherit-mode="extension">
+    <xpath expr="//t[@id='snippet_specific_options']" position="after">
+        <process_steps_option selector=".s_process_steps"/>
+    </xpath>
 </t>
 
 </templates>

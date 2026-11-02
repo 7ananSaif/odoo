@@ -43,7 +43,7 @@ export function logPosMessage(
             log.args = args.toString();
         }
     }
-    posLogger.log(log);
+    posLogger.log(log).catch((error) => console.warn("Failed to save the POS log:", error));
     if (persistToStorage) {
         try {
             const logs = JSON.parse(localStorage.getItem(IDB_ERROR_LOG_KEY) || "[]");
@@ -65,6 +65,25 @@ export function downloadIdbErrors() {
         .toUTC()
         .toFormat("yyyy-LL-dd-HH-mm-ss")}.json`;
     downloadFile(blob, filename);
+}
+
+export function logPosImage(image, size = 30) {
+    if (odoo.debug === "assets") {
+        const url = image.toDataURL();
+        const img = new Image();
+        img.src = url;
+        img.onload = function () {
+            const paddX = (this.height / 100) * size;
+            const paddY = (this.width / 100) * size;
+            const style = [
+                "font-size: 1px;",
+                `padding: ${paddX}px ${paddY}px;`,
+                `background: url("${url}") no-repeat;`,
+                "background-size: contain;",
+            ].join(" ");
+            console.log("%c ", style);
+        };
+    }
 }
 
 export async function downloadPosLogs() {

@@ -1,5 +1,5 @@
 from odoo import models, fields
-from odoo.tools import ormcache, SQL
+from odoo.tools import SQL
 import re
 
 
@@ -21,8 +21,12 @@ class WebsiteTechnicalPage(models.Model):
         """
         return self.env["website"].get_client_action(self.website_url)
 
-    @ormcache(cache='routing')
-    def get_static_routes(self):
+    # We removed the `@ormcache("routing")` here because `list_as_website_content`
+    # can be defined as a callable for shop/extra_info route. when toggling the "Extra Info"
+    # page option, this attribute calls a method and the available
+    # routes need to be recomputed immediately. Keeping the cache would prevent
+    # the updated route list from being reflected without restarting the server.
+    def _get_static_routes(self):
         """
         Returns a set of website content static routes.
         """
@@ -30,26 +34,42 @@ class WebsiteTechnicalPage(models.Model):
         routes = set()
         for rule in self.env["ir.http"].routing_map().iter_rules():
             endpoint = rule.endpoint.routing
-            route_title = endpoint.get("list_as_website_content")
-            if route_title:
+            route_data = endpoint.get("list_as_website_content")
+            if not route_data:
+                continue
+            # CASE 1: callable returns structured data
+            if callable(route_data):
+                items = route_data(self.env) or []
+                for item in items:
+                    route_title = item.get("route_title")
+                    route_url = item.get("route_url")
+                    if route_title and route_url and not dynamic_route_re.search(route_url):
+                        routes.add((str(route_title), route_url))
+            # CASE 2: static title
+            else:
                 last_static_route = next(
-                    r for r in reversed(endpoint.get("routes", []))
-                    if not dynamic_route_re.search(r)
+                    (
+                        r for r in reversed(endpoint.get("routes", []))
+                        if not dynamic_route_re.search(r)
+                    ),
+                    None,
                 )
-                routes.add((str(route_title), last_static_route))
+                if last_static_route:
+                    routes.add((str(route_data), last_static_route))
+
         return routes
 
     @property
-    def _table_query(self):
-        routes = self.get_static_routes()
+    def _table_sql(self):
+        routes = self._get_static_routes()
         values = SQL(", ").join(
             SQL('(%s, %s)', route_title, route_path)
             for route_title, route_path in routes
         )
 
-        return SQL("""
-            SELECT row_number() OVER () AS id,
+        return SQL("""(
+            SELECT row_number() OVER (ORDER BY UPPER(column1) ASC) AS id,
                 column1 AS name,
                 column2 AS website_url
             FROM (VALUES %s) AS t(column1, column2)
-        """, values)
+        )""", values)

@@ -1,7 +1,13 @@
-import { registry } from "@web/core/registry";
+import { Component, computed, t, useProps } from "@odoo/owl";
 import { usePopover } from "@web/core/popover/popover_hook";
-import { Component } from "@odoo/owl";
+import { registry } from "@web/core/registry";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
+
+export const popoverComponentProps = {
+    msg: t.string().optional(),
+    popoverTemplate: t.string().optional(),
+    title: t.string().optional(),
+};
 
 /**
  * Extend this to add functionality to Popover (custom methods etc.)
@@ -9,14 +15,15 @@ import { standardFieldProps } from "@web/views/fields/standard_field_props";
  */
 export class PopoverComponent extends Component {
     static template = "stock.popoverContent";
-    static props = ["record", "*"];
+
+    props = useProps(popoverComponentProps);
 }
 
 /**
  * Widget Popover for JSON field (char), renders a popover above an icon button on click
  * {
  *  'msg': '<CONTENT OF THE POPOVER>' required if not 'popoverTemplate' is given,
- *  'icon': '<FONT AWESOME CLASS>' default='fa-info-circle',
+ *  'icon': '<MATERIAL SYMBOLS NAME>' default='info',
  *  'color': '<COLOR CLASS OF ICON>' default='text-primary',
  *  'position': <POSITION OF THE POPOVER> default='top',
  *  'popoverTemplate': '<TEMPLATE OF THE POPOVER>' default='stock.popoverContent'
@@ -28,24 +35,31 @@ export class PopoverComponent extends Component {
 export class PopoverWidgetField extends Component {
     static template = "stock.popoverButton";
     static components = { Popover: PopoverComponent };
-    static props = {...standardFieldProps};
-    setup(){
-        let fieldValue = this.props.record.data[this.props.name];
-        this.jsonValue = JSON.parse(fieldValue || "{}");
-        const position = this.jsonValue.position || "top";
-        this.popover = usePopover(this.constructor.components.Popover, { position });
-        this.color = this.jsonValue.color || 'text-primary';
-        this.icon = this.jsonValue.icon || 'fa-info-circle';
+
+    props = useProps(standardFieldProps);
+
+    jsonValue = computed(() => JSON.parse(this.props.record.data[this.props.name] || "{}"));
+    color = computed(() => this.jsonValue().color || "text-primary");
+    icon = computed(() => this.jsonValue().icon || "info");
+
+    setup() {
+        this.popover = usePopover(this.constructor.components.Popover, {
+            position: this.getPosition(),
+        });
     }
 
-    showPopup(ev){
-        this.popover.open(ev.currentTarget, { ...this.jsonValue, record: this.props.record });
+    getPosition() {
+        return this.jsonValue().position || "top";
+    }
+
+    showPopup(ev) {
+        this.popover.open(ev.currentTarget, this.jsonValue());
     }
 }
 
 export const popoverWidgetField = {
     component: PopoverWidgetField,
-    supportedTypes: ['char'],
+    supportedTypes: ["char"],
 };
 
 registry.category("fields").add("popover_widget", popoverWidgetField);

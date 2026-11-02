@@ -2,17 +2,20 @@ import { BuilderAction } from "@html_builder/core/builder_action";
 import { Plugin } from "@html_editor/plugin";
 import { registry } from "@web/core/registry";
 import { convertCSSColorToRgba } from "@web/core/utils/colors";
+import { isImageCorsProtected } from "@html_editor/utils/image";
+import { loadImageInfo } from "@html_editor/utils/image_processing";
 
 /**
  * @typedef { Object } ImageHoverShared
  * @property { ImageHoverPlugin['setHoverEffect'] } setHoverEffect
+ * @property { ImageHoverPlugin['getHoverEffectUpdate'] } getHoverEffectUpdate
  * @property { ImageHoverPlugin['removeHoverEffect'] } removeHoverEffect
  */
 
 export class ImageHoverPlugin extends Plugin {
     static id = "imageHover";
-    static shared = ["setHoverEffect", "removeHoverEffect"];
-    static dependencies = ["imagePostProcess", "imageToolOption"];
+    static shared = ["setHoverEffect", "getHoverEffectUpdate", "removeHoverEffect"];
+    static dependencies = ["imagePostProcess", "imageShapeOption", "imageToolOption"];
 
     /** @type {import("plugins").WebsiteResources} */
     resources = {
@@ -23,9 +26,9 @@ export class ImageHoverPlugin extends Plugin {
             SetHoverEffectStrokeWidthAction,
         },
         system_attributes: ["data-original-src-before-hover"],
-        default_shape_handlers: (dataset) =>
+        default_shape_providers: (dataset) =>
             dataset.hoverEffect && "html_builder/geometric/geo_square",
-        post_compute_shape_listeners: async (svg, params) => {
+        on_shape_computed_handlers: async (svg, params) => {
             let rgba = null;
             let rbg = null;
             let opacity = null;
@@ -139,17 +142,26 @@ export class ImageHoverPlugin extends Plugin {
                 }
             }
         },
-        remove_hover_effect_handlers: this.removeHoverEffect.bind(this),
-        set_hover_effect_handlers: this.setHoverEffect.bind(this),
+        on_hover_animation_mode_cleaned_handlers: this.removeHoverEffect.bind(this),
+        on_hover_animation_mode_applied_handlers: this.setHoverEffect.bind(this),
+        can_have_hover_effect_predicates: (el, dataset) => this.canHaveHoverEffect(el, dataset),
+        hover_effect_image_dataset_providers: async (imgEl) => ({
+            ...Object.assign({}, imgEl.dataset, await loadImageInfo(imgEl)),
+            isCorsProtected: await isImageCorsProtected(imgEl),
+        }),
     };
 
     defaultHoverEffectIntensity = 20;
 
-    async setHoverEffect(imgEl, hoverEffectId = "overlay") {
-        const updateAttributes = await this.dependencies.imagePostProcess.processImage({
+    async getHoverEffectUpdate(imgEl, hoverEffectId = "overlay") {
+        return this.dependencies.imagePostProcess.processImage({
             img: imgEl,
             newDataset: this.getDefaultValue(hoverEffectId),
         });
+    }
+
+    async setHoverEffect(imgEl, hoverEffectId = "overlay") {
+        const updateAttributes = await this.getHoverEffectUpdate(imgEl, hoverEffectId);
         updateAttributes();
     }
 
@@ -203,6 +215,15 @@ export class ImageHoverPlugin extends Plugin {
             hoverEffect: hoverEffectId,
         };
     }
+    canHaveHoverEffect(imgEl, dataset) {
+        return (
+            imgEl.tagName === "IMG" &&
+            !dataset.isCorsProtected &&
+            !(this.dependencies.imageShapeOption.getShapeCategory(imgEl) === "devices") &&
+            !this.dependencies.imageShapeOption.isAnimableShape(dataset.shape) &&
+            !!dataset.isImageSupportedForShapes
+        );
+    }
 }
 export class SetHoverEffectAction extends BuilderAction {
     static id = "setHoverEffect";
@@ -211,8 +232,11 @@ export class SetHoverEffectAction extends BuilderAction {
     isApplied({ editingElement, value: hoverEffectId }) {
         return editingElement.dataset.hoverEffect === hoverEffectId;
     }
-    async apply({ editingElement, value: hoverEffectId, isPreviewing }) {
-        await this.dependencies.imageHover.setHoverEffect(editingElement, hoverEffectId);
+    async load({ editingElement, value: hoverEffectId }) {
+        return this.dependencies.imageHover.getHoverEffectUpdate(editingElement, hoverEffectId);
+    }
+    apply({ editingElement, loadResult: updateAttributes, isPreviewing }) {
+        updateAttributes();
         if (isPreviewing) {
             // Wait a tick to ensure the interactions are restarted.
             // Simulate a mouseenter event to trigger the hover effect. (See

@@ -11,6 +11,8 @@ from odoo.tests import tagged
 @tagged('post_install_l10n', 'post_install', '-at_install')
 class TestMyUBLPint(AccountTestInvoicingCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     @AccountTestInvoicingCommon.setup_country('my')
     def setUpClass(cls):
@@ -25,8 +27,7 @@ class TestMyUBLPint(AccountTestInvoicingCommon):
             'street': 'that one street, 5',
             'city': 'Main city',
             'phone': '+60123456789',
-            'peppol_eas': '0230',
-            'peppol_endpoint': 'C2584563200',
+            'routing_identifier': '0230:C2584563200',
         })
         cls.partner_a.write({
             'vat': 'C2584563201',
@@ -35,8 +36,7 @@ class TestMyUBLPint(AccountTestInvoicingCommon):
             'street': 'that other street, 3',
             'city': 'Main city',
             'phone': '+60123456786',
-            'peppol_eas': '0230',
-            'peppol_endpoint': 'C2584563201',
+            'routing_identifier': '0230:C2584563201',
         })
 
         cls.fakenow = datetime(2024, 7, 15, 10, 00, 00)

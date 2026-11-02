@@ -4,14 +4,12 @@
     'website': 'https://www.odoo.com/documentation/latest/applications/finance/fiscal_localizations.html',
     'icon': '/account/static/description/l10n.png',
     'countries': ['bg'],
-    'version': '1.0',
     'category': 'Accounting/Localizations/Account Charts',
     'description': """
 Chart accounting and taxes for Bulgaria
     """,
     'depends': [
         'account',
-        'base_vat',
     ],
     'auto_install': ['account'],
     'data': [

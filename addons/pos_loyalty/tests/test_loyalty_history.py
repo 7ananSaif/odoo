@@ -9,6 +9,8 @@ from odoo.addons.point_of_sale.tests.test_frontend import TestPointOfSaleHttpCom
 @tagged('post_install', '-at_install')
 class TestPOSLoyaltyHistory(TestPointOfSaleHttpCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     def test_pos_loyalty_history(self):
         partner_aaa = self.env['res.partner'].create({'name': 'AAA Test Partner'})
         self.whiteboard_pen.product_variant_ids.write({'lst_price': 10})
@@ -61,63 +63,68 @@ class TestPOSLoyaltyHistory(TestPointOfSaleHttpCommon):
         })
 
         self.main_pos_config.open_ui()
+        ewallet_product = self.env.ref('loyalty.ewallet_product_50')
+
+        def check_coupon(points, history_count):
+            created_card = self.env['loyalty.card'].search([('program_id', '=', ewallet_program.id), ('partner_id', '=', test_partner.id)])
+            self.assertEqual(created_card.points, points, "The coupon should have %s points, got %s." % (points, created_card.points))
+            self.assertEqual(len(created_card.history_ids), history_count, "The history should have %s entrie(s), got %s." % (history_count, len(created_card.history_ids)))
+
+        card_id = self.env['loyalty.card']._get_or_create_pos_card(
+            ewallet_program, test_partner.id,
+        ).id
         pos_order = self.env['pos.order'].create({
             'config_id': self.main_pos_config.id,
             'session_id': self.main_pos_config.current_session_id.id,
             'partner_id': test_partner.id,
+            'lines': [Command.create({
+                'product_id': ewallet_product.id,
+                'price_unit': 50,
+                'qty': 1,
+                'price_subtotal': 50.0,
+                'price_subtotal_incl': 50.0,
+                'card_id': card_id,
+            })],
             'amount_paid': 50,
             'amount_return': 0,
             'amount_tax': 0,
             'amount_total': 50,
         })
-
-        coupon_data = {
-            -1: {
-                'points': 50,
-                'program_id': ewallet_program.id,
-                'coupon_id': -1,
-                'barcode': '',
-                'partner_id': test_partner.id,
-            }
-        }
-        pos_order.confirm_coupon_programs(coupon_data)
-
-        def check_coupon(points, history_count):
-            created_card = self.env['loyalty.card'].search([('program_id', '=', ewallet_program.id), ('partner_id', '=', test_partner.id)])
-            self.assertEqual(created_card.points, points, "The coupon should have 50 points after the first confirmation.")
-            self.assertEqual(len(created_card.history_ids), history_count, "The history should have one entry after the first confirmation.")
+        pos_order._process_loyalty()
 
         check_coupon(50, 1)
-        # Confirm the coupon again
-        pos_order.confirm_coupon_programs(coupon_data)
+        # Re-processing the same order must not credit the card again.
+        pos_order._process_loyalty()
         check_coupon(50, 1)
 
+        # Spend 10 points: a reward line references the eWallet card and _process_loyalty
+        # debits its points_cost.
+        reward = ewallet_program.reward_ids[:1]
         new_pos_order = self.env['pos.order'].create({
             'config_id': self.main_pos_config.id,
             'session_id': self.main_pos_config.current_session_id.id,
             'partner_id': test_partner.id,
+            'lines': [Command.create({
+                'product_id': reward.discount_line_product_id.id,
+                'price_unit': -10,
+                'qty': 1,
+                'price_subtotal': -10.0,
+                'price_subtotal_incl': -10.0,
+                'is_reward_line': True,
+                'reward_id': reward.id,
+                'card_id': card_id,
+                'points_cost': 10,
+            })],
             'amount_paid': 0,
             'amount_return': 0,
             'amount_tax': 0,
             'amount_total': 0,
         })
-
-        loyalty_card = self.env['loyalty.card'].search([('program_id', '=', ewallet_program.id), ('partner_id', '=', test_partner.id)])
-        coupon_data = {
-            loyalty_card.id: {
-                'points': -10,
-                'program_id': ewallet_program.id,
-                'coupon_id': loyalty_card.id,
-                'barcode': '',
-                'partner_id': test_partner.id,
-            }
-        }
-
-        new_pos_order.confirm_coupon_programs(coupon_data)
+        new_pos_order._process_loyalty()
         # Check that the coupon points are reduced correctly
         check_coupon(40, 2)
-        # Confirm the coupon again
-        new_pos_order.confirm_coupon_programs(coupon_data)
+        # Re-processing the same order must not debit the card again.
+        new_pos_order._process_loyalty()
         check_coupon(40, 2)
 
     def test_programs_loaded(self):
@@ -166,17 +173,23 @@ class TestPOSLoyaltyHistory(TestPointOfSaleHttpCommon):
         loyalty_card = self.env['loyalty.card'].create({
             'program_id': loyalty_program.id,
             'partner_id': partner_aaa.id,
-            'points': 5,
         })
+        loyalty_card._adjust_points(5, description="Initial balance")
         self.main_pos_config.with_user(self.pos_user).open_ui()
         self.start_pos_tour("test_loyalty_history_earn_and_spend")
 
         loyalty_card.invalidate_recordset()
-        history = loyalty_card.history_ids
-        self.assertEqual(len(history), 1, "One history entry should be created for the order")
+        order_history = loyalty_card.history_ids.filtered(lambda h: h.order_id)
+        self.assertEqual(
+            len(order_history), 2, "One issuing and one consuming entry should be created"
+        )
         # $10 product → 10 pts earned; 10% discount reward → 5 pts spent
-        self.assertEqual(history.issued, 10.0, "Issued should be 10 (gross earned), not the net")
-        self.assertEqual(history.used, 5.0, "Used should be 5 (gross spent), not the net")
+        self.assertEqual(
+            sum(order_history.mapped("issued")), 10.0, "Issued should be 10 (gross earned)"
+        )
+        self.assertEqual(
+            sum(order_history.mapped("used")), 5.0, "Used should be 5 (gross spent), not the net"
+        )
 
     def test_gift_card_partner(self):
         """ Test that the gift card's partner is correctly set as the customer who bought it."""
@@ -188,32 +201,8 @@ class TestPOSLoyaltyHistory(TestPointOfSaleHttpCommon):
         )
         gift_card_program.pos_report_print_id = self.env.ref('loyalty.report_gift_card')
         self.main_pos_config.open_ui()
-        pos_order = self.env['pos.order'].create({
-            'config_id': self.main_pos_config.id,
-            'session_id': self.main_pos_config.current_session_id.id,
-            'partner_id': test_partner.id,
-            'lines': [Command.create({
-                'product_id': self.env.ref('loyalty.gift_card_product_50').id,
-                'price_unit': 50,
-                'discount': 0,
-                'qty': 1,
-                'price_subtotal': 10.00,
-                'price_subtotal_incl': 10.00,
-            })],
-            'amount_paid': 50.0,
-            'amount_total': 50.0,
-            'amount_tax': 0.0,
-            'amount_return': 0.0,
-        })
-        coupon_data = {
-            '-1': {
-                'points': 50,
-                'program_id': gift_card_program.id,
-                'coupon_id': -1,
-                'product_id': self.env.ref('loyalty.gift_card_product_50').id,
-                'code': 'test-code'
-            }
-        }
-        pos_order.confirm_coupon_programs(coupon_data)
+        self.env['loyalty.card']._get_or_create_pos_card(
+            gift_card_program, test_partner.id, 'test-code',
+        )
         loyalty_card = self.env['loyalty.card'].search([('code', '=', 'test-code')])
         self.assertEqual(loyalty_card.partner_id, test_partner)

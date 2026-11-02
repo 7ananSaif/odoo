@@ -1,6 +1,6 @@
 import { describe, expect, test } from "@odoo/hoot";
 import { queryAll, queryAllTexts, queryText } from "@odoo/hoot-dom";
-import { animationFrame, Deferred } from "@odoo/hoot-mock";
+import { animationFrame } from "@odoo/hoot-mock";
 import { Component, onMounted, xml } from "@odoo/owl";
 import {
     contains,
@@ -265,7 +265,7 @@ describe("new", () => {
         expect.verifySteps(["/web/webclient/translations", "/web/webclient/load_menus"]);
         await getService("action").doAction(4);
         expect.verifySteps(["/web/action/load", "get_views", "onchange"]);
-        await contains(`.o_cp_action_menus button:has(.fa-cog)`).click();
+        await contains(`.o_cp_action_menus button:has([data-icon="more_vert"])`).click();
         await contains(`button[name="5"]`).click();
         expect.verifySteps(["web_save", "/web/action/load", "get_views", "onchange"]);
         expect(".modal").toHaveCount(1);
@@ -382,7 +382,6 @@ describe("new", () => {
 
         class ErrorClientAction extends Component {
             static template = xml`<div/>`;
-            static props = ["*"];
             setup() {
                 throw new Error("my error");
             }
@@ -391,16 +390,14 @@ describe("new", () => {
 
         class ClientActionTargetNew extends Component {
             static template = xml`<div class="my_action_new" />`;
-            static props = ["*"];
         }
         registry.category("actions").add("clientActionNew", ClientActionTargetNew);
 
         class ClientAction extends Component {
             static template = xml`
-                <div class="my_action" t-on-click="onClick">
+                <div class="my_action" t-on-click="this.onClick">
                     My Action
                 </div>`;
-            static props = ["*"];
             setup() {
                 this.action = useService("action");
             }
@@ -411,14 +408,14 @@ describe("new", () => {
                         { onClose: () => expect.step("failing dialog closed") }
                     );
                 } catch (e) {
-                    expect(e.cause.message).toBe("my error");
+                    expect(e.message).toBe("my error");
                     throw e;
                 }
             }
         }
         registry.category("actions").add("clientAction", ClientAction);
 
-        const errorDialogOpened = new Deferred();
+        const errorDialogOpened = Promise.withResolvers();
         patchWithCleanup(ClientErrorDialog.prototype, {
             setup() {
                 super.setup(...arguments);
@@ -429,10 +426,11 @@ describe("new", () => {
         await mountWithCleanup(WebClient);
         await getService("action").doAction({ type: "ir.actions.client", tag: "clientAction" });
         await contains(".my_action").click();
-        await errorDialogOpened;
+        await errorDialogOpened.promise;
         expect(".modal").toHaveCount(1);
 
         await contains(".modal-body button.btn-link").click();
+        await contains(".modal-body summary.link-info").click();
         expect(queryText(".modal-body .o_error_detail")).toInclude("my error");
         expect.verifyErrors(["my error"]);
 
@@ -466,6 +464,30 @@ describe("new", () => {
             views: [[false, "list"]],
         });
         expect(".modal .o_breadcrumb").toHaveCount(0);
+    });
+
+    test('no view switcher in actions in target="new"', async () => {
+        await mountWithCleanup(WebClient);
+
+        // execute an action in target="current"
+        await getService("action").doAction(4);
+        expect(".o_cp_switch_buttons").toHaveCount(1);
+
+        // execute an action in target="new" with several views (s.t. there could
+        // be a view switcher), even though switching view isn't supported
+        await getService("action").doAction({
+            xml_id: "action_5",
+            name: "Create a Partner",
+            res_model: "partner",
+            target: "new",
+            type: "ir.actions.act_window",
+            views: [
+                [false, "list"],
+                [false, "kanban"],
+            ],
+        });
+        expect(".modal .o_list_view").toHaveCount(1);
+        expect(".modal .o_cp_switch_buttons").toHaveCount(0);
     });
 
     test('call switchView in an action in target="new"', async () => {
@@ -518,6 +540,27 @@ describe("new", () => {
 
         await getService("action").doAction({ ...action, context: { dialog_size: "extra-large" } });
         expect(".o_dialog .modal-dialog").toHaveClass("modal-xl");
+    });
+
+    test("action in target='new' with 'dialog_size' attribute on the view's arch", async () => {
+        Partner._views["form,2"] = `
+            <form dialog_size="sm">
+                <group>
+                    <field name="display_name"/>
+                </group>
+            </form>`;
+        const action = {
+            name: "Some Action",
+            res_model: "partner",
+            type: "ir.actions.act_window",
+            target: "new",
+            views: [[2, "form"]],
+        };
+        await mountWithCleanup(WebClient);
+
+        // the arch attribute takes precedence over the 'dialog_size' context key
+        await getService("action").doAction({ ...action, context: { dialog_size: "large" } });
+        expect(".o_dialog .modal-dialog").toHaveClass("modal-sm");
     });
 
     test('click on record in list view action in target="new"', async () => {
@@ -661,7 +704,7 @@ describe("fullscreen", () => {
             </form>`;
         Partner._views["form,666"] = `
             <form>
-                <button type="action" name="15" icon="fa-star" context="{'default_partner': id}" class="oe_stat_button"/>
+                <button type="action" name="15" icon="star" icon_class="oi-filled" context="{'default_partner': id}" class="oe_stat_button"/>
             </form>`;
 
         await mountWithCleanup(WebClient);
@@ -678,10 +721,50 @@ describe("fullscreen", () => {
         await animationFrame(); // wait for the webclient template to be re-rendered
         expect("nav.o_main_navbar").toHaveCount(0);
 
-        await contains(queryAll(".breadcrumb li a")[1]).click();
+        await contains(queryAll(".breadcrumb li a")[0]).click();
         await animationFrame(); // wait for the webclient template to be re-rendered
         expect("nav .o_menu_brand").toHaveCount(1);
         expect("nav .o_menu_brand").toHaveText("MAIN APP");
+    });
+
+    test("hide navbar during empty transition for fullscreen actions", async () => {
+        const slowRpcDef = Promise.withResolvers();
+        onRpc("web_search_read", () => slowRpcDef.promise);
+
+        await mountWithCleanup(WebClient);
+
+        getService("action").doAction(15, { clearBreadcrumbs: true });
+        await animationFrame();
+
+        // Navbar is hidden during transition before action loads
+        expect(".o_main_navbar").toHaveCount(0);
+
+        slowRpcDef.resolve();
+        await animationFrame();
+
+        expect(".o_kanban_view").toHaveCount(1);
+        expect(".o_main_navbar").toHaveCount(0);
+    });
+
+    test("keep navbar visible on current action when navigating to a fullscreen action", async () => {
+        await mountWithCleanup(WebClient);
+        await getService("action").doAction(1);
+        expect(".o_main_navbar").toHaveCount(1);
+
+        const slowRpcDef = Promise.withResolvers();
+        onRpc("web_search_read", () => slowRpcDef.promise);
+
+        getService("action").doAction(15);
+        await animationFrame();
+
+        // Navbar stays visible while current view is displayed and next action is loading
+        expect(".o_main_navbar").toHaveCount(1);
+
+        slowRpcDef.resolve();
+        await animationFrame();
+
+        expect(".o_kanban_view").toHaveCount(1);
+        expect(".o_main_navbar").toHaveCount(0);
     });
 });
 

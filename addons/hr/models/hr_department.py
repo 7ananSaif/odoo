@@ -4,7 +4,6 @@ import ast
 import re
 
 from odoo import api, fields, models, _
-from odoo.exceptions import ValidationError
 from odoo.fields import Domain
 
 
@@ -112,11 +111,6 @@ class HrDepartment(models.Model):
         for department in self:
             department.plans_count = plans_count.get(department.id, 0) + plans_count.get(False, 0)
 
-    @api.constrains('parent_id')
-    def _check_parent_id(self):
-        if self._has_cycle():
-            raise ValidationError(_('You cannot create recursive departments.'))
-
     @api.model_create_multi
     def create(self, vals_list):
         return super(HrDepartment, self.with_context(mail_create_nosubscribe=True)).create(vals_list)
@@ -127,8 +121,9 @@ class HrDepartment(models.Model):
             self.company_id = self.parent_id.company_id
 
     def write(self, vals):
-        """ If updating manager of a department, we need to update all the employees
-            of department hierarchy, and subscribe the new manager.
+        """Write on departments; a new ``manager_id`` becomes the manager of the department's employees.
+
+        See :meth:`_update_employee_manager`.
         """
         if 'manager_id' in vals:
             manager_id = vals.get("manager_id")
@@ -137,6 +132,15 @@ class HrDepartment(models.Model):
         return super().write(vals)
 
     def _update_employee_manager(self, manager_id):
+        """Set ``manager_id`` as ``parent_id`` of the department members who were managed by the previous manager.
+
+        Only direct members of each department whose ``parent_id`` is the
+        department's current manager are updated (not child departments, and
+        not employees with another manager); the new manager is skipped.
+
+        :param manager_id: id of the new manager (``hr.employee``), or ``False``
+        :type manager_id: int or bool
+        """
         employees = self.env['hr.employee']
         for department in self:
             employees = employees | self.env['hr.employee'].search([
@@ -146,8 +150,8 @@ class HrDepartment(models.Model):
             ])
         employees.write({'parent_id': manager_id})
 
-    def get_formview_action(self, access_uid=None):
-        res = super().get_formview_action(access_uid=access_uid)
+    def get_record_default_action(self, access_uid=None):
+        res = super().get_record_default_action(access_uid=access_uid)
         if (not self.env.user.has_group('hr.group_hr_user') and
            self.env.context.get('open_employees_kanban', False)):
             res.update({
@@ -203,6 +207,10 @@ class HrDepartment(models.Model):
         }
 
     def get_children_department_ids(self):
+        """Return the departments and all their descendants (``child_of``), ``self`` included.
+
+        :rtype: hr.department
+        """
         return self.env['hr.department'].search([('id', 'child_of', self.ids)])
 
     def action_open_view_child_departments(self):
@@ -216,6 +224,13 @@ class HrDepartment(models.Model):
         }
 
     def get_department_hierarchy(self):
+        """Return the department with its parent and direct children, for the hierarchy widget.
+
+        :return: ``{'parent': node or False, 'self': node, 'children': [node, ...]}``
+            where a node is ``{'id', 'name', 'employees'}`` (``employees`` being
+            ``total_employee``); ``{}`` for an empty recordset
+        :rtype: dict
+        """
         if not self:
             return {}
 

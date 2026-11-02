@@ -2,21 +2,6 @@
 /// This file regroups the website design rules.
 ///
 
-$-seen-urls: ();
-@each $alias, $key in $o-font-aliases-to-keys {
-    $-url: o-get-font-info($alias, 'url');
-    @if $-url and index($-seen-urls, $-url) == null {
-        $-seen-urls: append($-seen-urls, $-url);
-        @import url("https://fonts.googleapis.com/css?family=#{unquote($-url)}&display=swap");
-    } @else {
-        $-name: o-get-font-info($alias, 'name');
-        $-attachment: o-get-font-info($alias, 'attachment');
-        @if $-attachment {
-            @import url("/web/content/#{$-attachment}/google-font-#{unquote($-name)}");
-        }
-    }
-}
-
 :root {
     // Border color
     // Let borders color adapt according to body and CCs. Also, set a fallback
@@ -46,7 +31,7 @@ $-seen-urls: ();
     // 3) The values in the $colors map are also printed by Bootstrap. However,
     // we have color variables which can contain a reference to a color
     // combination and that is the info we want in that case.
-    @each $key in ('menu', 'header-sales_one', 'header-sales_two', 'header-sales_three', 'header-sales_four', 'footer', 'copyright') {
+    @each $key in ('menu', 'header-sales_one', 'header-sales_two', 'header-sales_three', 'header-sales_four', 'footer', 'breadcrumb', 'copyright', 'portal-card') {
         $-value: map-get($o-color-palette, $key);
         @if type-of($-value) == 'number' {
             @include print-variable($key, $-value);
@@ -128,6 +113,17 @@ $-seen-urls: ();
     @include print-variable('display-4-margin-bottom', $display-4-margin-bottom);
 
     @include print-variable('set-buttons-font', o-get-font-info('buttons'));
+
+    @include print-variable('font-weight-normal', o-website-value('font-weight-normal'));
+    @include print-variable('lead-font-weight', o-website-value('lead-font-weight'));
+    @include print-variable('font-weight-bolder', o-website-value('font-weight-bolder'));
+    @include print-variable('headings-font-weight', o-website-value('headings-font-weight'));
+    @include print-variable('headings-font-weight-bold', o-website-value('headings-font-weight-bold'));
+    @include print-variable('display-font-weight', o-website-value('display-font-weight'));
+    @include print-variable('display-font-weight-bold', o-website-value('display-font-weight-bold'));
+    @include print-variable('btn-font-weight', o-website-value('btn-font-weight'));
+    @include print-variable('btn-font-weight-bold', o-website-value('btn-font-weight-bold'));
+
     @include print-variable('btn-padding-y', $btn-padding-y);
     @include print-variable('btn-padding-x', $btn-padding-x);
     @include print-variable('btn-font-size', $btn-font-size);
@@ -142,6 +138,22 @@ $-seen-urls: ();
     @include print-variable('btn-border-radius-sm', $btn-border-radius-sm);
     @include print-variable('btn-border-radius-lg', $btn-border-radius-lg);
 
+    @include print-variable('box-shadow-color', $box-shadow-color);
+    @include print-variable('box-shadow-offset-x', $box-shadow-offset-x);
+    @include print-variable('box-shadow-offset-y', $box-shadow-offset-y);
+    @include print-variable('box-shadow-blur-radius', $box-shadow-blur-radius);
+    @include print-variable('box-shadow-spread-radius', $box-shadow-spread-radius);
+    @include print-variable('box-shadow-sm-color', $box-shadow-sm-color);
+    @include print-variable('box-shadow-sm-offset-x', $box-shadow-sm-offset-x);
+    @include print-variable('box-shadow-sm-offset-y', $box-shadow-sm-offset-y);
+    @include print-variable('box-shadow-sm-blur-radius', $box-shadow-sm-blur-radius);
+    @include print-variable('box-shadow-sm-spread-radius', $box-shadow-sm-spread-radius);
+    @include print-variable('box-shadow-lg-color', $box-shadow-lg-color);
+    @include print-variable('box-shadow-lg-offset-x', $box-shadow-lg-offset-x);
+    @include print-variable('box-shadow-lg-offset-y', $box-shadow-lg-offset-y);
+    @include print-variable('box-shadow-lg-blur-radius', $box-shadow-lg-blur-radius);
+    @include print-variable('box-shadow-lg-spread-radius', $box-shadow-lg-spread-radius);
+
     @include print-variable('input-padding-y', $input-padding-y);
     @include print-variable('input-padding-x', $input-padding-x);
     @include print-variable('input-font-size', $input-font-size);
@@ -152,6 +164,10 @@ $-seen-urls: ();
     @include print-variable('input-padding-x-lg', $input-padding-x-lg);
     @include print-variable('input-font-size-lg', $input-font-size-lg);
     @include print-variable('input-border-width', $input-border-width);
+    @include print-variable('input-border-top-width', $input-border-top-width or $input-border-width);
+    @include print-variable('input-border-right-width', $input-border-right-width or $input-border-width);
+    @include print-variable('input-border-bottom-width', $input-border-bottom-width or $input-border-width);
+    @include print-variable('input-border-left-width', $input-border-left-width or $input-border-width);
     @include print-variable('input-border-radius', $input-border-radius);
     @include print-variable('input-border-radius-sm', $input-border-radius-sm);
     @include print-variable('input-border-radius-lg', $input-border-radius-lg);
@@ -170,15 +186,29 @@ $-seen-urls: ();
 
 @mixin body-image-bg-style() {
     background-image: url("#{str-slice(o-website-value('body-image'), 1)}");
-    background-position: center;
     background-attachment: fixed;
     @if o-website-value('body-image-type') == 'pattern' {
-        background-size: auto;
+        $pattern-width: o-website-value('body-image-pattern-width');
+        $pattern-height: o-website-value('body-image-pattern-height');
+        $pattern-size: auto;
+
+        @if $pattern-width and $pattern-height {
+            $pattern-size: $pattern-width $pattern-height;
+        } @else if $pattern-width {
+            $pattern-size: $pattern-width;
+        } @else if $pattern-height {
+            $pattern-size: auto $pattern-height;
+        }
+
+        background-size: $pattern-size;
         background-repeat: repeat;
     } @else {
         background-size: cover;
         background-repeat: no-repeat;
     }
+
+    background-position: o-website-value('body-image-background-position') or center;
+
 };
 
 // Manage custom offcanvas such as the one used for mobile mega menu nav
@@ -216,9 +246,76 @@ body {
     }
 }
 
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+    b, strong {
+        font-weight: o-website-value('headings-font-weight-bold') !important;
+    }
+}
+
+// Keep display-5/6 covered for Bootstrap/custom markup, even though the editor
+// only exposes display-1 through display-4.
+.display-1, .display-2, .display-3, .display-4, .display-5, .display-6 {
+    b, strong {
+        font-weight: o-website-value('display-font-weight-bold') !important;
+    }
+}
+
+.btn {
+    b, strong {
+        font-weight: o-website-value('btn-font-weight-bold') !important;
+    }
+}
+
+// The position of this rule is important: it ensures that manually set
+// background gradients on elements take precedence over the color preset
+// gradients.
+@for $index from 1 through 5 {
+    .o_cc#{$index} {
+        @include o-add-gradient('o-cc#{$index}-bg-gradient')
+    }
+}
+
 #wrapwrap {
     @if o-website-value('body-image') {
         @include body-image-bg-style();
+    }
+
+    > main:not(.o_breadcrumb_overlay) {
+        div.o_page_breadcrumb {
+            nav {
+                @include o-apply-colors('breadcrumb');
+                @include o-apply-colors('breadcrumb-custom');
+                @include o-add-gradient('breadcrumb-gradient');
+            }
+            a, .breadcrumb-item, li::before {
+                color: inherit !important;
+            }
+        }
+    }
+
+    &.o_header_overlay div.o_page_breadcrumb {
+        @include o-position-absolute(auto, auto, auto, auto);
+        z-index: 1 !important;
+        width: 100%;
+    }
+
+    > main.o_breadcrumb_overlay {
+        div.o_page_breadcrumb {
+            @include o-position-absolute(auto, auto, auto, auto);
+            z-index: 1 !important;
+            width: 100%;
+            a, .breadcrumb-item, li::before {
+                color: inherit !important;
+            }
+            nav {
+                @include o-apply-colors(1);
+                background-color: transparent !important;
+                background-image: none !important;
+                border-color: transparent;
+                color: inherit;
+            }
+        }
     }
 
     @if o-website-value('layout') != 'full' {
@@ -314,10 +411,20 @@ body {
             }
         }
     }
+
+    #footer {
+        & + .o_cookie_policy_link_container {
+            margin-top: 1rem;
+        }
+
+        & ~ .o_cookie_policy_link_container:last-of-type {
+            margin-bottom: 1rem;
+        }
+    }
 }
 
 // We don't want the area to be visible in edit mode when we edit the popup that
-// is shared on all pages, otherwise the .o_editable area has a minimum height
+// is shared on all pages, otherwise the .o_savable area has a minimum height
 // when it is focused.
 #o_shared_blocks {
     min-height: 0px;
@@ -438,14 +545,17 @@ $-navbar-mobile-bg-color: o-color('menu-custom') or o-color('menu');
 @mixin accordion-style-vertical-menu {
     .top_menu > .accordion {
         ul > li > a.nav-link {
-            background-color: inherit;
+            &:where(:not(.active)) {
+                // Needed when header is dark
+                background-color: inherit;
+            }
 
             &.active {
-                color: var(--navbar-active-color);
+                color: var(--header-link-style-accordion-color, var(--navbar-active-color));
             }
 
             &:hover {
-                color: var(--nav-link-hover-color);
+                color: var(--header-link-style-accordion-color, var(--nav-link-hover-color));
             }
         }
 
@@ -463,8 +573,8 @@ $-navbar-mobile-bg-color: o-color('menu-custom') or o-color('menu');
             &:after {
                 height: 100%;
                 background: none;
-                font-family: 'odoo_ui_icons';
-                content: '\e839';
+                font-family: var(--icon-font-family, "Material Symbols Outlined");
+                content: 'keyboard_arrow_down';
             }
         }
     }
@@ -543,12 +653,6 @@ $-header-nav-link-height: $nav-link-height;
         @include o-apply-colors('copyright', $background: $-footer-color);
         @include o-apply-colors('copyright-custom', $background: $-footer-color);
         @include o-add-gradient('copyright-gradient');
-    }
-}
-
-@for $index from 1 through 5 {
-    .o_cc#{$index} {
-        @include o-add-gradient('o-cc#{$index}-bg-gradient')
     }
 }
 
@@ -652,13 +756,6 @@ p {
     margin-top: $paragraph-margin-top;
 }
 
-.o_line_clamp {
-    display: -webkit-box;
-    -webkit-line-clamp: var(--lines-clamp, 2);
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
 font[style*='background']:not(.text-gradient),
 font[class*='bg-'] {
     // Not adding any horizontal padding is important as it ensures that several
@@ -676,11 +773,13 @@ font[class*='bg-'] {
     padding: MAX($-base-padding, 1px) 0 MAX(($-bottom-factor * $-base-padding), ($-bottom-factor * 1px));
 }
 
+// Images as Icons
+.social_media_img {
+    object-fit: cover;
+}
 // Icons
-.fa {
+.oi, .social_media_img {
     $-size: map-get($spacers, 5);
-
-    font-family: "FontAwesome" !important;
 
     &.rounded-circle,
     &.rounded,
@@ -691,18 +790,21 @@ font[class*='bg-'] {
         display: inline-block;
         vertical-align: middle;
         text-align: center;
-        // fa-1x is not ouput
+        // oi-1x is not ouput
         width: $-size;
         height: $-size;
         line-height: $-size;
         @for $i from 2 through 5 {
-            &.fa-#{$i}x {
+            &.oi-#{$i}x {
                 width: $-size + $i;
                 height: $-size + $i;
                 line-height: $-size + $i;
             }
         }
-        // Default, if no background-color already selected
+        // Default, if no color or background-color already selected
+        &:where(:not([class*='bg-'])) {
+            color: $gray-900;
+        }
         background-color: $gray-100;
     }
     &.img-thumbnail {
@@ -716,17 +818,11 @@ font[class*='bg-'] {
         @extend .rounded-circle;
         border-width: ceil(1.4 * $border-width);
         border-style: solid;
+        color: unset;
         background: transparent;
     }
     &.border {
         box-sizing: content-box;
-    }
-}
-// Smaller container
-.o_container_small {
-    @extend .container;
-    @include media-breakpoint-up(lg) {
-        max-width: map-get($container-max-widths, md);
     }
 }
 
@@ -751,9 +847,9 @@ font[class*='bg-'] {
 }
 
 .btn-close {
-    // Most components with an integrated .btn-close (o_notification, modals, offcanvas)
-    // use $body-bg by default, which is why we check it here.
-    @if (lightness($body-bg) < 50) {
+    // Most components with an integrated .btn-close (o_notification, modals,
+    // offcanvas, ...) use $body-bg by default, which is why we check it here.
+    @if lightness($body-bg) < 50 {
         @include btn-close-white();
     }
 }
@@ -802,10 +898,9 @@ font[class*='bg-'] {
 
         $-color: nth($o-colors, $-size);
 
-        $-is-website-palette-dark: color-contrast($body-color) == $color-contrast-dark;
-        $-bg-lightness-adjusted: if($-is-website-palette-dark, -40%, 0%);
+        $-bg-lightness-adjusted: if($o-website-palette-is-dark, -40%, 0%);
 
-        $-background-color: if($-is-website-palette-dark, adjust-color($-color, $lightness: $-bg-lightness-adjusted, $saturation: 5%), tint-color($-color, 90%));
+        $-background-color: if($o-website-palette-is-dark, adjust-color($-color, $lightness: $-bg-lightness-adjusted, $saturation: 5%), tint-color($-color, 90%));
 
         --background-color: #{$-background-color};
         --color: #{increase-contrast($-color, $-background-color)};
@@ -834,12 +929,91 @@ font[class*='bg-'] {
     }
 }
 
+// Prevent nested snippets from inheriting the blur values of their parents.
+@property --o-bg-blur {
+    syntax: "<number>";
+    inherits: false;
+    initial-value: 0;
+}
+
+@property --o-bg-blur-enhance {
+    syntax: "<number>";
+    inherits: false;
+    initial-value: 1.25;
+}
+
+// Background blur option
+@mixin o-bg-blur-option {
+    --o-blur-factor: MIN(calc(1 + var(--o-bg-blur) * .05), var(--o-bg-blur-enhance, 1.25));
+    backdrop-filter: contrast(var(--o-blur-factor)) brightness(var(--o-blur-factor)) blur(calc(var(--o-bg-blur, 0) * 1px));
+}
+
+.o_bg_blur_option {
+    @include o-bg-blur-option;
+}
+
+.o_bg_blur_option.o_bg_blur_no_enhance {
+    --o-bg-blur-enhance: 1;
+}
+
+@if o-website-value('header-bg-blur') != 0 {
+    header {
+        $-header-blur-navbar-selector: "nav.navbar";
+        @if o-website-value('header-template') == 'sidebar' {
+            $-header-blur-navbar-selector: "nav.navbar.o_header_mobile";
+        }
+
+        // Apply the configured header blur to the nav blur layer and mobile navbar.
+        #{$-header-blur-navbar-selector}::before, .o_navbar_mobile {
+            --o-bg-blur: #{o-website-value('header-bg-blur')};
+        }
+
+        #{$-header-blur-navbar-selector} {
+            position: relative;
+
+            &::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                z-index: 0;
+                border-radius: inherit;
+                pointer-events: none;
+
+                @include o-bg-blur-option;
+            }
+
+            .o_main_nav {
+                position: relative;
+                z-index: 1;
+            }
+        }
+
+        &.o_header_sidebar > nav.navbar:not(.o_header_mobile) {
+            @include media-breakpoint-up(lg) {
+                --o-bg-blur: #{o-website-value('header-bg-blur')};
+                @include o-bg-blur-option;
+            }
+        }
+
+        .o_navbar_mobile {
+            @include o-bg-blur-option;
+        }
+    }
+}
+
 // Background videos
 .o_bg_video_container {
     @extend %o-we-background-layer;
 }
 .o_bg_video_iframe {
     position: relative;
+    pointer-events: none !important;
+}
+.o_bg_video_file {
+    @include o-position-absolute(0, 0, 0, 0);
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
     pointer-events: none !important;
 }
 .o_bg_video_loading {
@@ -898,25 +1072,15 @@ table.table_desc tr td {
 }
 
 .o_full_screen_height {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    min-height: 100vh !important;
+    @include o_full_screen_height;
     // See JS: this is overridden for multiple reasons, including the fact that
     // Arc browser does not support this correctly at the moment.
     min-height: 100svh !important;
 }
-.o_half_screen_height {
-    @extend .o_full_screen_height;
-    min-height: 55vh !important;
-}
 
-// TODO remove cover_full and cover_mid classes (kept for compatibility for now)
-.cover_full {
-    @extend .o_full_screen_height;
-}
-.cover_mid {
-    @extend .o_half_screen_height;
+.o_three_quarter_height {
+    @include o_full_screen_height;
+    min-height: 75vh !important;
 }
 
 // Allows custom border radius without contents overflowing.
@@ -976,15 +1140,23 @@ $-o-carousel-controllers-size: var(--CarouselControllers-size, #{map-get($spacer
             min-width: 0;
             margin: 0;
         }
-        .carousel-control-prev, .carousel-control-next {
+        .carousel-control-prev, .carousel-control-next, .o_carousel_pause {
             position: relative;
             width: auto;
+        }
+
+        .o_carousel_pause {
+            padding-block: 0;
+
+            .o_carousel_pause_icon {
+                height: auto;
+            }
         }
     }
 
     // Allow clicks to pass through the carousel control's wrapper, while
     // keeping the control buttons/indicators clickable.
-    .carousel-indicators > *, .carousel-control-prev, .carousel-control-next {
+    .carousel-indicators > *, .carousel-control-prev, .carousel-control-next, .o_carousel_pause {
         pointer-events: auto;
     }
 
@@ -1020,7 +1192,7 @@ $-o-carousel-controllers-size: var(--CarouselControllers-size, #{map-get($spacer
         background-image: none;
         color: $body-color;
         &:before {
-            font-family: "FontAwesome";
+            font-family: var(--icon-font-family, "Material Symbols Outlined");
             display: inline-block;
             background-color: #fff;
         }
@@ -1048,8 +1220,8 @@ $-o-carousel-controllers-size: var(--CarouselControllers-size, #{map-get($spacer
     // Default
     &.s_carousel_default {
         // Controls - chevron
-        .carousel-control-prev-icon:before { content: "\f053" #{"/*rtl:'\f054'*/"}; margin-left: 1.5rem; }
-        .carousel-control-next-icon:before { content: "\f054" #{"/*rtl:'\f053'*/"}; margin-right: 1.5rem; }
+        .carousel-control-prev-icon:before { content: "chevron_left" #{"/*rtl:'chevron_right'*/"}; margin-left: 1.5rem; }
+        .carousel-control-next-icon:before { content: "chevron_right" #{"/*rtl:'chevron_left'*/"}; margin-right: 1.5rem; }
         .carousel-control-prev-icon:before,
         .carousel-control-next-icon:before {
             background-color: rgba(0,0,0,0);
@@ -1074,8 +1246,8 @@ $-o-carousel-controllers-size: var(--CarouselControllers-size, #{map-get($spacer
             border: 0.5rem solid rgba(0,0,0,0);
         }
         // Controls - caret
-        .carousel-control-prev-icon:before { content: "\f0d9"; }
-        .carousel-control-next-icon:before { content: "\f0da"; }
+        .carousel-control-prev-icon:before { content: "arrow_left"; }
+        .carousel-control-next-icon:before { content: "arrow_right"; }
         .carousel-control-prev-icon:before,
         .carousel-control-next-icon:before {
             width: 2rem;
@@ -1100,8 +1272,8 @@ $-o-carousel-controllers-size: var(--CarouselControllers-size, #{map-get($spacer
         // Controls - arrow
         .carousel-control-prev { margin-left: 1.5rem; }
         .carousel-control-next { margin-right: 1.5rem; }
-        .carousel-control-prev-icon:before { content: "\f060"; }
-        .carousel-control-next-icon:before { content: "\f061"; }
+        .carousel-control-prev-icon:before { content: "arrow_back"; }
+        .carousel-control-next-icon:before { content: "arrow_forward"; }
         .carousel-control-prev-icon:before,
         .carousel-control-next-icon:before {
             width: 4rem;
@@ -1133,8 +1305,8 @@ $-o-carousel-controllers-size: var(--CarouselControllers-size, #{map-get($spacer
         }
         .carousel-control-prev { margin-left: 3rem; }
         .carousel-control-next { margin-right: 3rem; }
-        .carousel-control-prev-icon:before { content: "\f104"; }
-        .carousel-control-next-icon:before { content: "\f105"; }
+        .carousel-control-prev-icon:before { content: "keyboard_arrow_left"; }
+        .carousel-control-next-icon:before { content: "keyboard_arrow_right"; }
         .carousel-control-prev-icon:before,
         .carousel-control-next-icon:before {
             width: 2rem;
@@ -1156,10 +1328,17 @@ $-o-carousel-controllers-size: var(--CarouselControllers-size, #{map-get($spacer
 // This style is shared by the new versions of carousels
 // 001 for s_carousel & 002 for s_quotes_carousel
 %s_carousel_variants {
+    // Before media-breakpoint-down so that it's overridden.
+    .o_carousel_pause {
+        width: $carousel-control-width;
+        padding-block: map-get($spacers, 3);
+    }
+
     // Controllers in Mobile
     @include media-breakpoint-down(md) {
         .carousel-control-prev,
-        .carousel-control-next {
+        .carousel-control-next,
+        .o_carousel_pause {
             top: auto;
             bottom: map-get($spacers, 3);
             height: $-o-carousel-controllers-size;
@@ -1167,17 +1346,43 @@ $-o-carousel-controllers-size: var(--CarouselControllers-size, #{map-get($spacer
             margin: 0 map-get($spacers, 3);
         }
 
-        &:not(.s_carousel_arrows_hidden) .carousel-indicators {
-            $-margin-x: calc(#{map-get($spacers, 3)} * 2 + #{$-o-carousel-controllers-size});
+        .o_carousel_pause {
+            left: 0;
+            padding: 0;
 
-            min-height: $-o-carousel-controllers-size;
+            .o_carousel_pause_icon {
+                height: auto;
+            }
+        }
+        &:not(.o_carousel_pause_btn_hidden, .s_carousel_controllers_indicators_outside),
+        &.s_carousel_controllers_indicators_outside:has(.s_carousel_indicators_hidden) {
+            .carousel-control-prev {
+                left: calc(#{$-o-carousel-controllers-size} + 1rem);
+            }
+        }
+
+        $-margin-x: calc(#{map-get($spacers, 3)} * 2 + #{$-o-carousel-controllers-size});
+
+        &:not(.s_carousel_arrows_hidden), &:not(.o_carousel_pause_btn_hidden) {
+            .carousel-indicators {
+                min-height: $-o-carousel-controllers-size;
+            }
+        }
+        &.o_carousel_pause_btn_hidden:not(.s_carousel_arrows_hidden) .carousel-indicators {
             margin: 0 $-margin-x map-get($spacers, 3);
+        }
+        &.s_carousel_arrows_hidden:not(.o_carousel_pause_btn_hidden) .carousel-indicators {
+            margin: 0 0 map-get($spacers, 3) $-margin-x;
+        }
+        &:not(.s_carousel_arrows_hidden, .o_carousel_pause_btn_hidden) .carousel-indicators {
+            margin: 0 $-margin-x map-get($spacers, 3) calc(#{$-margin-x} + #{map-get($spacers, 5)});
         }
     }
 
     .carousel-control-prev,
     .carousel-control-next,
-    .carousel-indicators {
+    .carousel-indicators,
+    .o_carousel_pause {
         position: absolute;
     }
 
@@ -1186,6 +1391,28 @@ $-o-carousel-controllers-size: var(--CarouselControllers-size, #{map-get($spacer
             .carousel-control-prev-icon, .carousel-control-next-icon {
                 box-shadow: inset 0 0 0 2px white, inset 0 0 0 4px black;
             }
+        }
+    }
+
+    .o_carousel_pause {
+        display: grid;
+        justify-content: center;
+        color: $carousel-control-color;
+        opacity: $carousel-control-opacity;
+        transition: $carousel-control-transition;
+
+        &:hover, &:focus-visible {
+            opacity: $carousel-control-hover-opacity;
+        }
+        &:focus-visible {
+            box-shadow: inset 0 0 0 2px black, inset 0 0 0 4px white;
+        }
+        &:active {
+            border-color: transparent;
+        }
+
+        .o_carousel_pause_icon {
+            align-content: center;
         }
     }
 
@@ -1198,21 +1425,35 @@ $-o-carousel-controllers-size: var(--CarouselControllers-size, #{map-get($spacer
         }
     }
 
-    .carousel-control-prev-icon, .carousel-control-next-icon {
+    .carousel-control-prev-icon, .carousel-control-next-icon, .o_carousel_pause_icon {
         width: $-o-carousel-controllers-size;
         height: $-o-carousel-controllers-size;
+    }
+
+    .carousel-control-prev-icon, .carousel-control-next-icon {
         background-size: 50%;
     }
 
+    &.carousel-dark:not(.s_carousel_controllers_indicators_outside),
+    &.carousel-dark.s_carousel_controllers_indicators_outside:has(.s_carousel_indicators_hidden) {
+        .o_carousel_pause_icon {
+            filter: $carousel-dark-control-icon-filter;
+        }
+    }
+
     &.s_carousel_default {
-        .carousel-control-prev, .carousel-control-next {
+        .o_carousel_pause {
+            border-radius: 0;
+        }
+
+        .carousel-control-prev, .carousel-control-next, .o_carousel_pause {
             &:hover {
                 background: rgba($carousel-dark-indicator-active-bg, .2);
             }
         }
 
         &.carousel-dark {
-            .carousel-control-prev, .carousel-control-next {
+            .carousel-control-prev, .carousel-control-next, .o_carousel_pause {
                 &:hover {
                     background: rgba($carousel-indicator-active-bg, .2);
                 }
@@ -1236,13 +1477,19 @@ $-o-carousel-controllers-size: var(--CarouselControllers-size, #{map-get($spacer
     }
 
     &.s_carousel_rounded {
-        .carousel-control-prev-icon, .carousel-control-next-icon {
+        .carousel-control-prev-icon, .carousel-control-next-icon, .o_carousel_pause_icon {
             border-radius: $border-radius-pill;
         }
     }
 
     &.s_carousel_arrows_hidden {
         .carousel-control-prev, .carousel-control-next {
+            display: none;
+        }
+    }
+
+    &.o_carousel_pause_btn_hidden {
+        .o_carousel_pause {
             display: none;
         }
     }
@@ -1402,9 +1649,24 @@ $-o-carousel-controllers-size: var(--CarouselControllers-size, #{map-get($spacer
             }
         }
 
+        .o_carousel_pause {
+            margin-bottom: 0;
+            border: 0;
+
+            &:not(:has(~ .s_carousel_indicators_hidden)) {
+                bottom: 0;
+                padding: 0;
+                color: inherit;
+            }
+
+            &:hover {
+                background-color: transparent;
+            }
+        }
+
         .carousel-indicators {
             position: relative;
-            margin-bottom: 0;
+            margin-bottom: 0 !important;
 
             &:not(.s_carousel_indicators_numbers) button {
                 background-color: currentColor;
@@ -1431,6 +1693,18 @@ $-o-carousel-controllers-size: var(--CarouselControllers-size, #{map-get($spacer
                 }
             }
         }
+    }
+}
+
+// Defines shared height behavior for carousels in full and three-quarter screen
+// sections. This placeholder is also applied to `s_carousel_intro` and
+// `s_quotes_carousel`.
+%carousel_screen_height {
+    .carousel, .carousel-inner, .carousel-item {
+        min-height: inherit;
+    }
+    .carousel-item {
+        align-content: center;
     }
 }
 
@@ -1504,13 +1778,14 @@ $-o-carousel-controllers-size: var(--CarouselControllers-size, #{map-get($spacer
 
 // Multiple visible items configuration for carousels
 .carousel.o_carousel_multi_items {
-    --o-carousel-item-width-percentage: 25%;
+    --o-carousel-gap: #{map-get($spacers, 3)};
 
     @include media-breakpoint-up(md) {
         .carousel-inner {
             // Display the carousel items in a row
             display: flex;
             flex-wrap: nowrap;
+            gap: var(--o-carousel-gap);
 
             // Slide right animation
             .carousel-item.active,
@@ -1524,8 +1799,8 @@ $-o-carousel-controllers-size: var(--CarouselControllers-size, #{map-get($spacer
             }
             .active.carousel-item-end + .carousel-item-prev.carousel-item-end,
             .carousel-item-prev.carousel-item-end ~ .carousel-item {
-                right: var(--o-carousel-item-width-percentage);
-                transform: translateX(100%);
+                right: calc(var(--o-carousel-item-width-percentage) + var(--o-carousel-gap));
+                transform: translateX(calc(100% + var(--o-carousel-gap)));
                 display: block;
                 margin-right: 0;
             }
@@ -1534,7 +1809,7 @@ $-o-carousel-controllers-size: var(--CarouselControllers-size, #{map-get($spacer
             .carousel-item-start.active,
             .carousel-item-start:not(.active),
             .carousel-item-start:not(.active) ~ .carousel-item {
-                transform: translateX(-100%);
+                transform: translateX(calc(-100% - var(--o-carousel-gap)));
             }
             .carousel-item.active:not(.carousel-item-start):not(.carousel-item-end),
             .carousel-item.active:not(.carousel-item-start):not(.carousel-item-end) ~ .carousel-item {
@@ -1549,14 +1824,18 @@ $-o-carousel-controllers-size: var(--CarouselControllers-size, #{map-get($spacer
 }
 
 // Parallax
+// ".parallax > .s_parallax_bg" selector are kept for compatibility.
 .parallax {
-    // TODO this introduces a limitation: no dropdown will be able to
-    // overflow. Maybe there is a better way to find.
-    &:not(.s_parallax_no_overflow_hidden) {
+    // Kept for compatibility. Before "s_parallax_bg" was wrapped by an
+    // intermediate parent element to clip it ("s_parallax_bg_wrap"), its direct
+    // parent was the section with the "parallax" class, which had the CSS rule
+    // "overflow: hidden". That was not the right solution because it introduced
+    // a limitation: no dropdown could overflow, for example.
+    &:where(:not(.s_parallax_no_overflow_hidden):not(:has(> .s_parallax_bg_wrap))) {
         overflow: hidden;
     }
 
-    > .s_parallax_bg {
+    > .s_parallax_bg, > .s_parallax_bg_wrap > .s_parallax_bg, > .s_parallax_bg_wrap {
         @extend %o-we-background-layer;
     }
     @include media-breakpoint-up(xl) {
@@ -1564,8 +1843,10 @@ $-o-carousel-controllers-size: var(--CarouselControllers-size, #{map-get($spacer
         // which is not a big deal but, on some of them (iOS...), defining the
         // background as fixed breaks the background-size/position props.
         // So we enable this only for >= XL devices.
-        &.s_parallax_is_fixed > .s_parallax_bg {
-            background-attachment: fixed;
+        &.s_parallax_is_fixed {
+            > .s_parallax_bg, > .s_parallax_bg_wrap > .s_parallax_bg {
+                background-attachment: fixed;
+            }
         }
     }
 }
@@ -1651,9 +1932,6 @@ $-transition-duration: 200ms;
             width: 100%;
             flex: auto;
         }
-        > .o_mega_menu_container_size {
-            transform: unset;
-        }
     }
 }
 
@@ -1725,7 +2003,12 @@ header {
             // first value of the variable 'menu-border-width' to behave as if
             // the input only accepted one number.
             $-menu-border-bottom-width: nth($-menu-border-width, 1);
-            border: o-website-value('menu-border-style') o-color('menu-border-color') !important;
+            // When no 'menu-border-color' is set, `o-color` returns null and the
+            // border color falls back to a full-opacity `currentColor`. Default
+            // it instead to a faded `currentColor` (like the generic
+            // `--o-border-color`), so the border stays subtle out of the box.
+            $-menu-border-color: o-color('menu-border-color') or $border-color;
+            border: o-website-value('menu-border-style') $-menu-border-color !important;
             border-width: 0 0 $-menu-border-bottom-width 0 !important;
 
             &.o_border_right_only {
@@ -1736,7 +2019,17 @@ header {
             }
         }
         border-radius: o-website-value('menu-border-radius') !important;
-        box-shadow: o-website-value('menu-box-shadow') !important;
+
+        @if o-website-value('menu-shadow-class') == 'shadow' {
+            box-shadow: var(--box-shadow) !important;
+        } @else if o-website-value('menu-shadow-class') == 'shadow-sm' {
+            box-shadow: var(--box-shadow-sm) !important;
+        } @else if o-website-value('menu-shadow-class') == 'shadow-lg' {
+            box-shadow: var(--box-shadow-lg) !important;
+        } @else if o-website-value('menu-shadow-class') == 'o-shadow-custom' {
+            box-shadow: o-website-value('menu-box-shadow-style') !important;
+        }
+
 
         &.o_header_force_no_radius {
             border-radius: 0 !important;
@@ -1826,6 +2119,10 @@ header {
                 }
             }
         }
+    }
+    #wrapwrap > header .s_headline {
+        // Hide header disclaimer since it is not compatible with sidebar layout
+        display: none;
     }
 } @else if o-website-value('header-template') == 'stretch' {
     #wrapwrap > header input::placeholder {
@@ -1917,10 +2214,11 @@ header {
     }
 
     .container, .container-fluid {
-        // Need to reforce those because they are removed since its a container
-        // inside another container (the one in the navbar)
-        padding-left: $grid-gutter-width / 2;
-        padding-right: $grid-gutter-width / 2;
+        // Mega menu layout containers are nested in the navbar's `.container`.
+        // Override `%o-double-container-no-padding` from `portal.scss` to keep
+        // their grid gutter.
+        padding-left: $grid-gutter-width * .5;
+        padding-right: $grid-gutter-width * .5;
     }
 }
 
@@ -1975,9 +2273,9 @@ header {
     }
 
     .o_mega_menu_toggle::after {
-        content: '\e83b';
+        content: 'chevron_forward';
         border: none;
-        font-family: 'odoo_ui_icons';
+        font-family: var(--icon-font-family, "Material Symbols Outlined");
     }
 
     .o_mega_menu_left .o_mega_menu {
@@ -1985,23 +2283,20 @@ header {
     }
 }
 
-.dropdown-menu.o_mega_menu_container_size {
-    $-header-template: o-website-value('header-template');
-    @if not index(('sidebar', 'hamburger'), $-header-template) {
-        $bp: if($-header-template == 'minimalist', md, lg);
-        @include media-breakpoint-up($bp) {
-            left: 50%;
-            transform: translateX(-50%);
+@if not index(('hamburger', 'sidebar'), o-website-value('header-template')) {
+    body:not(.editor_enable) {
+        header.o_hoverable_dropdown .navbar:not(.o_header_mobile) {
+            .o_mega_menu_toggle.show {
+                &::before {
+                    content: "";
+                    @include o-position-absolute($right: 0, $bottom: 0, $left: 0);
+                    z-index: 1000; // Same as --bs-dropdown-zindex.
+                    height: var(--o-mega-menu-bridge-height);
+                    cursor: auto;
+                }
+            }
         }
     }
-
-    $-mm-max-widths: ();
-    @each $k, $v in $container-max-widths {
-        $-mm-max-widths: map-merge($-mm-max-widths, (
-            #{$k}: $v - $grid-gutter-width,
-        ));
-    }
-    @include make-container-max-widths($-mm-max-widths);
 }
 
 // The design of some of the new mega menu templates required a column with
@@ -2077,10 +2372,12 @@ header {
 // Navbar Links Styles
 @mixin active-link-border-color {
     $header-text-color: o-website-value('header-text-color');
+
     @if $header-text-color {
         border-color: format-color($header-text-color);
     } @else {
         border-color: var(--#{$variable-prefix}nav-active-color);
+
         &:hover {
             border-color: var(--#{$variable-prefix}nav-link-color);
         }
@@ -2096,16 +2393,19 @@ header {
         }
     }
 }
+
 :where(header#top) .navbar-nav:where([role="menu"]) {
-    .nav-link:not(.o_nav-link_secondary) {
-        // Desktop Only
-        @include media-breakpoint-up(lg) {
+    .nav-link:not(.o_mega_menu *, .o_mega_nav *) {
+        &:not(.o_nav-link_secondary) {
+            --#{$prefix}accordion-btn-padding-y: var(--#{$prefix}nav-link-padding-y);
+            --#{$prefix}accordion-btn-padding-x: var(--#{$prefix}nav-link-padding-x);
+
             @if o-website-value('header-links-style') == 'outline' {
                 // Need to force the padding in this case so that it stays in mobile
                 padding-right: $navbar-nav-link-padding-x;
                 padding-left: $navbar-nav-link-padding-x;
                 border: $border-width solid transparent;
-                @include border-radius($nav-pills-border-radius);
+                border-radius: $nav-pills-border-radius;
             } @else if o-website-value('header-links-style') == 'block' {
                 // There is no way to control navbar links vertical padding in BS4
                 // independently from nav ones, just double them here instead
@@ -2127,24 +2427,86 @@ header {
                 }
             }
         }
-    }
 
-    .nav-link.active, .show > .nav-link {
-        // Desktop Only
-        @include media-breakpoint-up(lg) {
+        &.active, .show > & {
             @if index(('outline', 'border-bottom'), o-website-value('header-links-style')) {
                 @include active-link-border-color;
             }
-        }
-        // Available in Mobile
-        @if o-website-value('header-links-style') == 'underline' {
-            @include active-link-border-color;
-            span {
-                border-bottom: 0.125em solid;
+
+            @if o-website-value('header-links-style') == 'underline' {
+                @include active-link-border-color;
+                span {
+                    border-bottom: 0.125em solid;
+                }
+            }
+
+            @if o-website-value('header-links-style') == 'bold' {
+                font-weight: bold !important;
             }
         }
-        @if o-website-value('header-links-style') == 'bold' {
-            font-weight: bold !important;
+    }
+}
+
+// Vertical headers specific links style tweaks
+:where(header#top.o_header_sidebar, header#top .o_navbar_mobile) {
+    @if index(('fill', 'pills', 'outline'), o-website-value('header-links-style')) {
+        $-accordion-link-radius: if(o-website-value('header-links-style') == 'pills', $border-radius-pill, $border-radius-sm);
+
+        .nav-item:not(.o_mega_menu *) {
+            --border-width: 0;
+
+            padding: map-get($spacers, 1) map-get($spacers, 3) !important;
+
+            .accordion-collapse li:not(.o_mega_menu *) {
+                padding-block: map-get($spacers, 1);
+            }
+
+            .nav-link:not(.o_mega_menu *, .o_mega_nav *):not(.accordion-collapse .nav-link) {
+                padding: map-get($spacers, 1) * 3 !important;
+            }
+
+            .accordion-item .nav-link:not(.o_mega_menu *) {
+                padding-block: map-get($spacers, 2);
+                border-radius: $-accordion-link-radius !important;
+
+                &.active {
+                    --header-link-style-accordion-color: var(--#{$prefix}nav-pills-link-active-color);
+                }
+            }
+        }
+    }
+
+    @if o-website-value('header-links-style') == 'outline' {
+        .accordion-item .nav-link.active:not(.o_mega_menu *) {
+            border: $border-width solid currentColor !important;
+            background-color: transparent !important;
+        }
+    }
+
+    @if o-website-value('header-links-style') == 'block' {
+        .accordion-item .nav-link.active:not(.o_mega_menu *) {
+            --header-link-style-accordion-color: var(--#{$prefix}nav-pills-link-active-color);
+        }
+    }
+
+    @if o-website-value('header-links-style') == 'border-bottom' {
+        .nav-item:not(.o_mega_menu *) {
+            .nav-link:not(.o_mega_menu *, .o_mega_nav *) {
+                padding-bottom: map-get($spacers, 3) - $nav-link-padding-y !important;
+            }
+        }
+
+        .accordion-button:not(.o_mega_menu *) {
+            --accordion-border-width: 0;
+        }
+
+        .accordion-item .nav-link:not(.o_mega_menu *) {
+            padding-bottom: map-get($spacers, 2) - $nav-link-padding-y !important;
+            border-bottom: $nav-link-padding-y solid var(--header-border-bottom-links-border-color, transparent) !important;
+
+            &.active {
+                --header-border-bottom-links-border-color: currentColor;
+            }
         }
     }
 }
@@ -2283,29 +2645,45 @@ span.list-inline-item.o_add_language:last-child {
 .o_scroll_button {
     @include o-position-absolute(auto, 0, 0, 0);
     display: flex;
-    width: 50px;
-    height: 50px;
-    animation: o-anim-heartbeat 2.6s ease-in-out 1s infinite;
+    outline: none;
+    box-shadow: none;
+    // Need to update button size based on icon size.
+    @for $i from 1 through 5 {
+        &:has(i.oi-#{$i}x) {
+            width: #{$i}em;
+            height: #{$i}em;
+        }
+    }
+    & > .oi::before {
+        vertical-align: middle;
+    }
 
     &, &:hover {
         text-decoration: none;
     }
-    &:focus {
-        outline: none;
-    }
-    &:hover {
-        animation-iteration-count: 1;
+
+    &:focus-visible {
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--color) 50%, transparent), 0 0 0 6px color-mix(in srgb, var(--background-color) 50%, transparent);
     }
 }
 
-// Attention keeper for the "scroll down" top-banner button
-@keyframes o-anim-heartbeat {
-    0%, 14%, 35% {
-        transform: scale(1);
+.anim-heartbeat {
+    animation: o-anim-heartbeat 2.6s ease-in-out 1s infinite;
+    opacity: 0.8;
+
+    &:hover {
+        animation-iteration-count: 1;
     }
-    7%, 21% {
-        transform: scale(1.3);
-        background-color: rgba(map-get($theme-colors, 'primary'), 0.8);
+    // Attention keeper for the "scroll down" top-banner button
+    @keyframes o-anim-heartbeat {
+        0%, 14%, 35% {
+            transform: scale(1);
+            opacity: 0.8;
+        }
+        7%, 21% {
+            transform: scale(1.3);
+            opacity: 1;
+        }
     }
 }
 
@@ -2349,20 +2727,132 @@ $ribbon-padding: 100px;
 #website_cookies_bar {
     min-height: 0px;
     height: 0px;
+
+    .modal-sm {
+        .row {
+            @include row-cols(1);
+        }
+    }
 }
 
-.o_cookies_bar_toggle {
-    inset-inline-end: 1rem;
-    inset-block-end: var(--cookies-bar-toggle-inset-block-end, 1rem);
-    z-index: $zindex-modal + 1; // Over the modal backdrop.
+.modal[id^='o_search_modal'] {
+    .modal-content:where(:has(.s_searchbar_input.show, .o_dropdown_menu.show)) {
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 0;
+    }
 }
+
+
+.o_searchbar_form {
+    $o-searchbar-muted-color: color-mix(in srgb, color-contrast($light) 60%, transparent);
+
+    .form-control {
+        &::placeholder {
+            color: $o-searchbar-muted-color;
+        }
+    }
+
+    .oe_search_button {
+        padding-right: $input-padding-x;
+        padding-left: $input-padding-x;
+
+        &:where(:not(:hover, :disabled)) {
+            text-decoration: underline;
+            text-decoration-color: var(--btn-color);
+        }
+
+        &:disabled {
+            --btn-disabled-opacity: 1;
+            --btn-disabled-bg: var(--btn-bg);
+            --btn-disabled-color:#{$o-searchbar-muted-color};
+        }
+    }
+
+    .oe_search_box:focus, .oe_search_button:focus {
+        z-index: 1;
+        box-shadow: none !important;
+    }
+
+    &.o_keyboard_navigation {
+        .oe_search_box:focus, .oe_search_button:focus {
+            outline: $border-width * 2 solid $primary;
+            outline-offset: -(map-get($spacers, 2));
+        }
+    }
+
+    &:where(:has(.o_dropdown_menu.show):not(.o_search_radius_pill)) {
+        .oe_search_box, .oe_search_button {
+            border-bottom-right-radius: 0 !important; // !important for input-group
+            border-bottom-left-radius: 0;
+        }
+    }
+
+    &.o_search_radius_pill .o_dropdown_menu {
+        margin-top: map-get($spacers, 1);
+    }
+
+    &:not(.o_search_radius_pill) .o_dropdown_menu {
+        border-top-right-radius: 0;
+        border-top-left-radius: 0;
+    }
+}
+
 
 // Search results
-.o_search_result_item_detail {
-    flex: 1;
+.o_searchbar_form .o_dropdown_menu, .o_searchbar_result {
+    container-type: inline-size;
+    container-name: search-results;
+}
 
-    button:disabled {
-        color: inherit;
+.o_search_result_item {
+    .o_search_result_image {
+        width: 32px;
+        height: 32px;
+        object-fit: cover;
+        background-color: color-mix(in srgb, $text-muted 12%, transparent);
+    }
+
+    .o_search_result_content {
+        flex-direction: var(--o-search-result-content-flex-direction, column);
+        justify-content: var(--o-search-result-content-justify-content, center);
+    }
+
+    .o_search_tags_highlight {
+        margin-top: var(--o-search-tags-highlight-margin-top, map-get($spacers, 1));
+    }
+
+    &:not(.o_search_result_item_placeholder):hover,
+    & .o_search_result_link:focus-visible {
+        background-color: $dropdown-link-hover-bg;
+    }
+
+    .o_search_result_link:focus-visible {
+        outline: $border-width * 2 solid $primary;
+        outline-offset: -($border-width * 2);
+    }
+
+    @container search-results (min-width: #{map-get($grid-breakpoints, md)}) {
+        --o-search-result-content-flex-direction: row;
+        --o-search-result-content-justify-content: space-between;
+        --o-search-tags-highlight-margin-top: 0;
+
+        .o_search_result_link {
+            align-items: center;
+        }
+
+        .o_search_tags_highlight {
+            justify-content: flex-end;
+        }
+
+        .o_search_result_content {
+            justify-content: space-between;
+            gap: map-get($spacers, 2);
+        }
+
+        .o_search_result_description {
+            max-width: 50%;
+            text-align: end;
+        }
     }
 }
 
@@ -2400,20 +2890,11 @@ ul.o_checklist > li.o_checked::after {
 input[value*="data-oe-translation-source-sha"] {
     @extend .o_text_content_invisible;
 }
-[data-oe-translation-source-sha] {
-    > .o_translation_select {
-        border: $input-border-width solid $input-border-color;
-        @include border-radius($input-border-radius, 0);
 
-        // Hide translatable `<select/>`s since we use `.o_translation_select`
-        // elements to handle translations.
-        + select {
-            display: none !important;
-        }
-        > div:not(:last-child) {
-            border-bottom: inherit;
-        }
-    }
+.o_translation_select + select {
+    // Hide translatable `<select/>`s since we use `.o_translation_select`
+    // elements to handle translations.
+    display: none !important;
 }
 
 // Offcanvas menu for in page filters (e.g. product list)
@@ -3277,4 +3758,112 @@ input[value*="data-oe-translation-source-sha"] {
     div.media_iframe_video {
       width: 100%;
     }
+}
+
+.s_social_media, .s_share {
+    $-size: map-get($spacers, 5);
+    a {
+        .oi, .social_media_img {
+            &.o_cc {
+                color: var(--color);
+                background-color: var(--o-cc-bg);
+            }
+        }
+        text-decoration: none;
+        &:hover {
+            text-decoration: none;
+        }
+    }
+    &[data-icon-underline="hover"] a {
+        text-decoration: none;
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+    &[data-icon-underline="always"] a {
+        text-decoration: underline;
+    }
+    .small_social_icon {
+        width: $-size - 1rem;
+        height: $-size - 1rem;
+        font-size: 0.875em;
+    }
+    a {
+        .oi-stack {
+            /*
+            Ensures consistent size and padding around icons when the
+            layout is set to "none" and the size is "huge" or "large".
+            For "small", this is handled above, and for "medium",
+            it is handled in the respective SCSS files (@see
+            s_social_media/000.scss and s_share/000.scss).
+            */
+            @for $i from 2 through 3 {
+                &.oi-#{$i}x {
+                    width: $-size + $i;
+                    height: $-size + $i;
+                    line-height: $-size + $i;
+                }
+            }
+        }
+    }
+
+    &:not(.no_icon_color) {
+        a {
+            .oi, .social_media_img {
+                // Removes the default color so the icon inherits its parent’s
+                // color, where the icon’s official brand color is defined.
+                color: unset;
+            }
+        }
+    }
+    &.no_icon_color {
+        a {
+            // Unless a color is defined on the icon itself, as the icons with a
+            // background, it inherits the snippet’s text color.
+            color: inherit !important;
+        }
+    }
+}
+
+// Cursor pointer for image's that open in lightbox popup
+img.o_image_popup {
+    cursor: pointer;
+}
+
+.slide:not(.carousel-instant) {
+    --transition-duration: 600ms;
+    .carousel-item {
+        transition-duration: var(--transition-duration);
+    }
+}
+
+.carousel-instant {
+    .carousel-item {
+        transition: none;
+    }
+}
+
+/*
+The modal title has the fs-3 class, which results
+in a huge font size since it isn’t redefined for the frontend.
+*/
+.modal .modal-content .modal-header .modal-title.fs-3 {
+    font-size: 1.35rem !important;
+}
+
+*:has(> .stretched-link:focus-visible) {
+    outline: auto;
+    outline-color: black;
+    outline-offset: 2px;
+}
+
+// Specific styles for the BottomSheet component when it is used in the frontend
+body.bottom-sheet-open {
+    --BottomSheetStatusBar__entry-background--active: #{$primary-bg-subtle};
+    --BottomSheetStatusBar__entry-color--active: #{$primary-text-emphasis};
+    --BottomSheetStatusBar__entry-caret--active: var(--BottomSheetStatusBar__entry-color--active);
+
+    // Prevent the page from being scrollable when a bottom sheet is open.
+    // (mimics the overflow: hidden applied to o_action_manager in the backend)
+    overflow: hidden;
 }

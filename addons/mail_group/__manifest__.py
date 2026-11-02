@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
@@ -18,8 +17,6 @@ Manage your mailing lists from Odoo.
         'data/mail_template_data.xml',
         'data/mail_template_email_layouts.xml',
         'data/res_groups.xml',
-        'security/ir.model.access.csv',
-        'security/mail_group_security.xml',
         'wizard/mail_group_message_reject_views.xml',
         'views/mail_compose_message_views.xml',
         'views/mail_group_member_views.xml',
@@ -28,6 +25,7 @@ Manage your mailing lists from Odoo.
         'views/mail_group_views.xml',
         'views/mail_group_menus.xml',
         'views/portal_templates.xml',
+        'security/ir.access.csv',
     ],
     'demo': [
         'data/mail_group_demo.xml',

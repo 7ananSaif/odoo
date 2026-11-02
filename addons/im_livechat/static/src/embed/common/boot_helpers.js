@@ -63,7 +63,11 @@ export async function loadAssets(styleTarget) {
     const document = styleTarget.ownerDocument;
     await Promise.all([
         loadStyle(styleTarget),
-        loadFont("FontAwesome", url("/im_livechat/font-awesome"), document),
+        loadFont(
+            "Material Symbols Outlined",
+            url("/im_livechat/material_symbols_outlined"),
+            document
+        ),
         loadFont("odoo_ui_icons", url("/im_livechat/odoo_ui_icons"), document),
     ]);
 }
@@ -73,7 +77,7 @@ export async function loadAssets(styleTarget) {
  * the fonts.
  *
  * @param {HTMLElement} root
- * @returns {ShadowRoot}
+ * @returns {Promise<ShadowRoot>}
  */
 export async function makeShadow(root) {
     const shadow = root.attachShadow({ mode: "open" });

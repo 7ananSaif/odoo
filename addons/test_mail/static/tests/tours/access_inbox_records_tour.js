@@ -3,7 +3,11 @@ import { registry } from "@web/core/registry";
 registry.category("web_tour.tours").add("access_inbox_records_tour", {
     steps: () => [
         {
-            trigger: ".o-mail-DiscussSystray-class .fa-comments",
+            trigger: ".o-mail-DiscussSystray-class [data-icon='forum']",
+            run: "click",
+        },
+        {
+            trigger: ".o-mail-MessagingMenu-tab:has(:text('Notifications'))",
             run: "click",
         },
         {
@@ -11,13 +15,14 @@ registry.category("web_tour.tours").add("access_inbox_records_tour", {
             run: "click",
         },
         {
-            trigger: ".o-mail-DiscussContent-threadName[title='Inbox']",
+            trigger: ".o_dialog .o-mail-Message-body:text(Message in inaccessible record)",
         },
         {
-            trigger: ".o-mail-Message-body:text(Message in inaccessible record)",
+            trigger: ".o_dialog .btn-close",
+            run: "click",
         },
         {
-            trigger: ".o-mail-DiscussSystray-class .fa-comments",
+            trigger: ".o-mail-DiscussSystray-class [data-icon='forum']",
             run: "click",
         },
         {

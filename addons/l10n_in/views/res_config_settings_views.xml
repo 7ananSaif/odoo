@@ -3,7 +3,7 @@
     <record id="res_config_settings_view_form_inherit_l10n_in" model="ir.ui.view">
         <field name="name">res.config.settings.form.inherit.l10n_in</field>
         <field name="model">res.config.settings</field>
-        <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+        <field name="inherit_id" ref="l10n_account_withholding_tax.res_config_settings_form"/>
         <field name="arch" type="xml">
             <block id="invoicing_settings" position="inside">
                 <setting help="Use this if setup with Reseller(E-Commerce)." name="ecommerce_reseller_setting" title="Manage Reseller(E-Commerce)" invisible="country_code != 'IN'">
@@ -14,7 +14,7 @@
                 <div id="india_integration_section">
                     <block title="Indian Integration" id="india_localization" invisible="country_code != 'IN'">
                         <setting name="l10n_in_tds"
-                                 help="Enable this to activate the Tax Deducted at Source (TDS) feature and the account-based TDS section suggestion."
+                                 help="Enable this to activate the Tax Deducted at Source (TDS) feature."
                                  company_dependent="1"
                                  string="TDS"
                                  documentation="/applications/finance/fiscal_localizations/india.html">
@@ -26,29 +26,35 @@
                                 </div>
                             </div>
                         </setting>
+                        <setting name="l10n_in_boe"
+                                 help="This feature allows you to manage Indian imports by recording Bill of Entry details, linking stock receipts, and accounting for custom duties via landed costs."
+                                 string="Bill of Entry (BOE)">
+                            <field name="module_l10n_in_boe"/>
+                        </setting>
                         <setting name="l10n_in_tcs"
-                                 help="Enable this to activate the Tax Collected at Source (TCS) feature and the account-based TCS section suggestion."
+                                 help="Enable this to activate the Tax Collected at Source (TCS) feature."
                                  company_dependent="1"
                                  string="TCS"
                                  documentation="/applications/finance/fiscal_localizations/india.html">
                             <field name="l10n_in_tcs_feature"/>
                         </setting>
-                        <setting string="Registered Under GST"
+                        <setting string="GST Registration Details"
                                  company_dependent="1"
-                                 help="Enable this if you have GST number except composition scheme.">
-                            <field name="l10n_in_is_gst_registered"/>
-                            <div invisible="not l10n_in_is_gst_registered">
-                                <div id="india_gst_number" class="row">
-                                    <label string="GST Number" for="l10n_in_gstin" class="col-lg-4 o_light_label"/>
-                                    <field name="l10n_in_gstin" required="l10n_in_is_gst_registered"/>
-                                </div>
+                                 help="Select the company's GST registration type (Regular or Composition). Leave empty for Unregistered.">
+                            <div id="india_gst_number" class="row">
+                                <label string="Registration Type" for="l10n_in_gst_registration_type" class="col-lg-4 o_light_label"/>
+                                <field name="l10n_in_gst_registration_type" required="l10n_in_gstin and country_code =='IN'" placeholder="Unregistered"/>
+                                <label string="GST Number" for="l10n_in_gstin" class="col-lg-4 o_light_label" invisible="not l10n_in_gst_registration_type"/>
+                                <field name="l10n_in_gstin" required="l10n_in_gst_registration_type and country_code =='IN'" invisible="not l10n_in_gst_registration_type"/>
+                                <label string="Tax Rate" for="l10n_in_composition_tax_rate" class="col-lg-4 o_light_label" invisible="l10n_in_gst_registration_type != 'composition'"/>
+                                <field name="l10n_in_composition_tax_rate" required="l10n_in_gst_registration_type == 'composition' and country_code =='IN'" invisible="l10n_in_gst_registration_type != 'composition'"/>
                             </div>
                         </setting>
-                        <t invisible="not l10n_in_is_gst_registered">
+                        <t invisible="not l10n_in_gst_registration_type">
                             <setting id="gsp_selection" string="GSP" help="Select BVM as GSP Tera is Deprecated" documentation="/applications/finance/fiscal_localizations/india.html">
                                 <div class="text-muted">
                                     Changes to this configuration will be automatically applied to all Indian companies.
-                                    Please refer to the <a href="https://www.odoo.com/documentation/16.0/applications/finance/fiscal_localizations/india.html#nic-e-invoice-registration">documentation</a> for detailed guidance on accurate configuration.
+                                    Please refer to the <a href="https://www.odoo.com/documentation/latest/applications/finance/fiscal_localizations/india.html#nic-e-invoice-registration">documentation</a> for detailed guidance on accurate configuration.
                                     <div class="text-warning" invisible="l10n_in_gsp == 'bvm'">
                                         The current GSP is scheduled for deprecation soon.
                                         We strongly recommend switching to BVM GSP at the earliest to ensure uninterrupted service.
@@ -70,7 +76,7 @@
                                     invisible="not l10n_in_edi_production_env or (not module_l10n_in_edi and not l10n_in_gstin_status_feature and not module_l10n_in_ewaybill and not l10n_in_gst_efiling_feature)">
                                     <button name="l10n_in_edi_buy_iap"
                                             title="Costs 1 credit per transaction. Free 200 credits will be available for the first time."
-                                            icon="fa-arrow-right"
+                                            icon="arrow_forward"
                                             type="object"
                                             string="Buy credits"
                                             class="btn-link"/>
@@ -80,7 +86,8 @@
                                      help="Connect to NIC (National Informatics Center) to submit invoices on posting."
                                      company_dependent="1"
                                      string="E-Invoicing"
-                                     documentation="/applications/finance/fiscal_localizations/india.html#india-e-invoicing">
+                                     documentation="/applications/finance/fiscal_localizations/india.html#india-e-invoicing"
+                                     invisible="l10n_in_gst_registration_type == 'composition'">
                                 <field name="module_l10n_in_edi"/>
                                 <div class="content-group" invisible="not module_l10n_in_edi">
                                     <div class="text-warning mt16 mb4">
@@ -101,7 +108,7 @@
                                 </div>
                             </setting>
                             <setting name="india_gstr"
-                                     help="Connect to GST portal to submit GSTR-1 and get GSTR-2B"
+                                     help="Enable to access GST Reports &amp; return filing process"
                                      company_dependent="1"
                                      documentation="/applications/finance/fiscal_localizations/india.html#india-gstr">
                                 <field name="l10n_in_gst_efiling_feature" widget="upgrade_boolean"/>
@@ -115,12 +122,23 @@
                             </setting>
                             <setting name="india_gstr_api"
                                      help="This feature helps you to quickly create draft vendor bills using the data your vendor submitted during E-invoicing on the GST portal."
-                                     company_dependent="1">
+                                     company_dependent="1"
+                                     invisible="l10n_in_gst_registration_type == 'composition'">
                                 <field name="l10n_in_fetch_vendor_edi_feature" widget="upgrade_boolean"/>
+                            </setting>
+                            <setting string="Disable B2C HSN Reporting"
+                                     company_dependent="1"
+                                     help="Select this option to exclude HSN details from B2C supplies.
+                                           This is allowed only if your aggregate turnover in the preceding
+                                           financial year did not exceed ₹5 crore, in accordance
+                                           with Notification No. 78/2020 – Central Tax."
+                                     invisible="l10n_in_gst_registration_type == 'composition'">
+                                <field name="l10n_in_disable_b2c_hsn_reporting"/>
                             </setting>
                             <setting string="HSN/SAC Validation"
                                      help="HSN/SAC Digit Validation for GST Compliance based on your Aggregate Annual Turnover (AATO)."
-                                     company_dependent="1">
+                                     company_dependent="1"
+                                     invisible="l10n_in_gst_registration_type == 'composition'">
                                 <field name="l10n_in_hsn_code_digit"/>
                             </setting>
                         </t>
@@ -135,18 +153,24 @@
                     <field name="l10n_in_enet_vendor_batch_payment_feature" widget="upgrade_boolean"/>
                 </setting>
             </block>
-            <block id="default_accounts" position="inside">
-                <setting string="India TDS Control:" invisible="not l10n_in_tds_feature">
-                    <div class="content-group">
-                        <div class="row mt8">
-                            <label for="l10n_in_withholding_journal_id" class="col-lg-5 o_light_label" string="Journal"/>
-                            <field name="l10n_in_withholding_journal_id" domain="[('type', '=', 'general')]"/>
-                        </div>
-                        <div class="row mt8">
-                            <label for="l10n_in_withholding_account_id" class="col-lg-5 o_light_label" string="Account"/>
-                            <field name="l10n_in_withholding_account_id"/>
-                        </div>
-                    </div>
+            <xpath expr="//block[@id='default_accounts']//setting[@id='withholding']" position="attributes">
+                <attribute name="invisible" separator="or" add="country_code == 'IN' and not l10n_in_tds_feature"/>
+            </xpath>
+            <xpath expr="//label[@for='withholding_tax_base_account_id']" position="before">
+                <div invisible="country_code != 'IN'">
+                    <label for="l10n_in_withholding_journal_id" class="col-lg-5 o_light_label"/>
+                    <field name="l10n_in_withholding_journal_id" domain="[('type', '=', 'general')]"/>
+                </div>
+            </xpath>
+            <xpath expr="//setting[@id='qr_code_invoices']" position="attributes">
+                <attribute name="invisible" separator="or" add="country_code == 'IN'"/>
+            </xpath>
+            <block id="pay_invoice_online_setting_container" position="inside">
+                <setting string="UPI ID"
+                         help="Add a payment QR-code to your invoices."
+                         company_dependent="1"
+                         invisible="country_code != 'IN'">
+                    <field name="l10n_in_upi_id" placeholder="Add UPI ID"/>
                 </setting>
             </block>
             <xpath expr="//block[@id='account_reports_settings']//setting" position="attributes">
@@ -157,6 +181,9 @@
                     Once enabled, the Audit Trail cannot be disabled for companies in India,
                     in accordance with the requirements of the Ministry of Corporate Affairs, Government of India.
                 </div>
+            </xpath>
+            <xpath expr="//div[@id='sale_tax']" position="attributes">
+                <attribute name="invisible" separator="or" add="l10n_in_gst_registration_type == 'composition'"/>
             </xpath>
         </field>
     </record>

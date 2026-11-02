@@ -12,6 +12,7 @@
                             <field name="type"/>
                             <field name="model_id"/>
                             <field name="priority"/>
+                            <field name="technical_usage"/>
                             <field name="active" widget="boolean_toggle"/>
                         </group>
                         <group groups="base.group_no_one">
@@ -49,6 +50,9 @@
                                 </list>
                             </field>
                         </page>
+                        <page name="notes" string="Notes">
+                            <field name="notes" placeholder="Keep track of what this view does and why it exists"/>
+                        </page>
                     </notebook>
                   </sheet>
                 </form>
@@ -65,6 +69,7 @@
                     <field name="model"/>
                     <field name="xml_id" groups="base.group_no_one"/>
                     <field name="inherit_id"/>
+                    <field name="technical_usage" optional="hide"/>
                 </list>
             </field>
         </record>
@@ -78,6 +83,7 @@
                     <field name="model"/>
                     <field name="inherit_id"/>
                     <field name="type"/>
+                    <field name="technical_usage" string="Usage"/>
                     <field name="arch_db" string="View Architecture"/>
                     <filter string="Form" name="form" domain="[('type', '=','form')]"/>
                     <filter string="List" name="list" domain="[('type', '=', 'list')]"/>
@@ -93,6 +99,7 @@
                         <filter string="Model" name="object" domain="[]" context="{'group_by':'model'}"/>
                         <filter string="Type" name="type" domain="[]" context="{'group_by':'type'}"/>
                         <filter string="Inherit" name="inherit" domain="[]" context="{'group_by':'inherit_id'}"/>
+                        <filter string="Technical Usage" name="filter_technical_usage" domain="[]" context="{'group_by': 'technical_usage'}"/>
                     </group>
                 </search>
             </field>
@@ -102,11 +109,9 @@
             <field name="name">Views</field>
             <field name="res_model">ir.ui.view</field>
             <field name="view_id" ref="view_view_tree"/>
-            <field name="context">{'search_default_active': 1}</field>
+            <field name="context">{'search_default_active': 1, 'check_translations': 1}</field>
             <field name="help">Views allows you to personalize each view of Odoo. You can add new fields, move fields, rename them or delete the ones that you do not need.</field>
         </record>
-
-        <menuitem action="action_ui_view" id="menu_action_ui_view" parent="base.next_id_2" sequence="2"/>
 
         <!-- Reset view wizard -->
         <record id="reset_view_arch_wizard_view" model="ir.ui.view">
@@ -133,7 +138,7 @@
                     </div>
                     <footer>
                         <button string="Reset View" name="reset_view_button" type="object" class="btn-primary" invisible="not has_diff" data-hotkey="q"/>
-                        <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="x" />
+                        <button class="btn-secondary" special="cancel" data-hotkey="x"/>
                     </footer>
                 </form>
             </field>
@@ -190,7 +195,5 @@
             <field name="res_model">ir.ui.view.custom</field>
             <field name="help" type="html"><p class="o_view_nocontent_smiling_face">Create a customized view</p><p>Customized views are used when users reorganize the content of their dashboard views (via web client)</p></field>
         </record>
-
-        <menuitem id="menu_action_ui_view_custom" action="action_ui_view_custom" parent="base.next_id_2" sequence="3"/>
 
 </odoo>

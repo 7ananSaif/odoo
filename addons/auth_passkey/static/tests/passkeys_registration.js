@@ -5,11 +5,10 @@ import * as passkeyLib from "../lib/simplewebauthn";
 let unpatchPasskeyRegistration;
 
 registry.category("web_tour.tours").add('passkeys_tour_registration', {
-    url: '/odoo',
     steps: () => [
         {
             content: 'Open user account menu',
-            trigger: '.o_user_menu .dropdown-toggle',
+            trigger: '.o_user_menu',
             run: 'click',
         }, {
             content: "Open preferences / profile screen",
@@ -17,7 +16,7 @@ registry.category("web_tour.tours").add('passkeys_tour_registration', {
             run: 'click',
         }, {
             content: "Switch to security tab",
-            trigger: 'a[role=tab]:contains("Security")',
+            trigger: 'button[role=tab]:contains("Security")',
             run: 'click',
         }, {
             content: "Ensure there are no passkeys already",
@@ -34,7 +33,7 @@ registry.category("web_tour.tours").add('passkeys_tour_registration', {
             run: 'click',
         }, {
             content: "Check that we have to enter enhanced security mode",
-            trigger: ".modal div:contains(Enter your current password)",
+            trigger: ".modal div:contains(Enter your own password)",
         }, {
             content: "Input password",
             trigger: '.modal [name=password] input',
@@ -84,7 +83,7 @@ registry.category("web_tour.tours").add('passkeys_tour_registration', {
             run: "click",
         }, {
             content: 'Open user account menu',
-            trigger: '.o_user_menu .dropdown-toggle',
+            trigger: '.o_user_menu',
             run: 'click',
         }, {
             content: "Return startRegistration to original state",
@@ -102,7 +101,7 @@ registry.category("web_tour.tours").add('passkeys_tour_registration', {
             trigger: 'label:contains("Email Signature")',
         }, {
             content: "Switch to security tab",
-            trigger: 'a[role=tab]:contains("Security")',
+            trigger: 'button[role=tab]:contains("Security")',
             run: 'click',
         }, {
             content: "Ensure there is one passkey",

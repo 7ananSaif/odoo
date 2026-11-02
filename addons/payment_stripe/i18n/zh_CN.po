@@ -7,21 +7,93 @@
 # liAnGjiA <liangjia@qq.com>, 2019
 # inspur qiuguodong <qiuguodong@inspur.com>, 2019
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+# 张飞虎 <feihu.zhang@live.com>, 2026.
+# "Chloe Wang (chwa)" <chwa@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~12.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-09-16 15:27+0000\n"
-"Last-Translator: \"Tiffany Chang (tic)\" <tic@odoo.com>\n"
+"POT-Creation-Date: 2026-09-11 17:44+0000\n"
+"PO-Revision-Date: 2026-10-21 07:04+0000\n"
+"Last-Translator: \"Chloe Wang (chwa)\" <chwa@odoo.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://translate.odoo.com/"
-"projects/odoo-19/payment_stripe/zh_Hans/>\n"
+"projects/odoo-20/payment_stripe/zh_Hans/>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_ach_direct_debit
+msgid "ACH Direct Debit"
+msgstr "ACH 直接借记"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_acss_direct_debit
+msgid "ACSS direct debit"
+msgstr "ACSS 直接借记"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_affirm
+msgid "Affirm"
+msgstr "Affirm"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_afterpay
+msgid "Afterpay"
+msgstr "AfterPay"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_alipay
+msgid "Alipay"
+msgstr "支付宝"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_alma
+msgid "Alma"
+msgstr "Alma"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_amazon_pay
+msgid "Amazon Pay"
+msgstr "Amazon Pay"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_amex
+msgid "American Express"
+msgstr "American Express"
+
+#. module: payment_stripe
+#: model:ir.module.module,summary:base.module_payment_stripe
+msgid "An Irish-American payment provider covering the US and many others."
+msgstr "一家爱尔兰裔美国支付提供商，业务覆盖美国及许多其他国家。"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_apple_pay
+msgid "Apple Pay"
+msgstr "Apple Pay"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_bacs_direct_debit
+msgid "BACS Direct Debit"
+msgstr "BACS 直接扣款"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_becs_direct_debit
+msgid "BECS Direct Debit"
+msgstr "BECS 直接扣账"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_bancontact
+msgid "Bancontact"
+msgstr "Bancontact"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_boleto
+msgid "Boleto"
+msgstr "Boleto"
 
 #. module: payment_stripe
 #. odoo-javascript
@@ -30,20 +102,50 @@ msgid "Cannot display the payment form"
 msgstr "无法显示付款表单"
 
 #. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_card
+msgid "Card"
+msgstr "卡"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_cartes_bancaires
+msgid "Cartes Bancaires"
+msgstr "Cartes Bancaires"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_cash_app_pay
+msgid "Cash App Pay"
+msgstr "Cash App 支付"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_clearpay
+msgid "Clearpay"
+msgstr "Clearpay"
+
+#. module: payment_stripe
 #: model:ir.model.fields,field_description:payment_stripe.field_payment_provider__code
 msgid "Code"
 msgstr "代码"
 
 #. module: payment_stripe
 #: model_terms:ir.ui.view,arch_db:payment_stripe.payment_provider_form
-msgid "Connect Stripe"
-msgstr "连接 Stripe"
+msgid "Connect"
+msgstr "连接"
 
 #. module: payment_stripe
 #. odoo-javascript
 #: code:addons/payment_stripe/static/src/interactions/express_checkout.js:0
 msgid "Delivery"
 msgstr "交货"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_diners
+msgid "Diners Club International"
+msgstr "大来卡国际"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_discover
+msgid "Discover"
+msgstr "Discover 发现卡"
 
 #. module: payment_stripe
 #: model:ir.model.fields,field_description:payment_stripe.field_payment_provider__display_name
@@ -53,9 +155,24 @@ msgid "Display Name"
 msgstr "显示名称"
 
 #. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_eps
+msgid "EPS"
+msgstr "EPS"
+
+#. module: payment_stripe
 #: model_terms:ir.ui.view,arch_db:payment_stripe.payment_provider_form
 msgid "Enable Apple Pay"
 msgstr "启用 Apple Pay"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_unknown
+msgid "Express Checkout"
+msgstr "快捷结账"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_fpx
+msgid "FPX"
+msgstr "FPX"
 
 #. module: payment_stripe
 #. odoo-javascript
@@ -72,6 +189,16 @@ msgstr "生成您的webhook"
 #: model_terms:ir.ui.view,arch_db:payment_stripe.payment_provider_form
 msgid "Get your Secret and Publishable keys"
 msgstr "获得您的Secret和可发布的密钥"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_google_pay
+msgid "Google Pay"
+msgstr "Google Pay"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_grabpay
+msgid "GrabPay"
+msgstr "GrabPay"
 
 #. module: payment_stripe
 #: model:ir.model.fields,field_description:payment_stripe.field_payment_provider__id
@@ -96,15 +223,55 @@ msgid "Incorrect payment details"
 msgstr "付款信息不正确"
 
 #. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_jcb
+msgid "JCB"
+msgstr "JCB"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_klarna
+msgid "Klarna"
+msgstr "Klarna"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_mastercard
+msgid "MasterCard"
+msgstr "MasterCard"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_mobile_pay
+msgid "MobilePay"
+msgstr "MobilePay"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_multibanco
+msgid "Multibanco"
+msgstr "Multibanco"
+
+#. module: payment_stripe
 #. odoo-python
 #: code:addons/payment_stripe/models/payment_provider.py:0
 msgid "Other Payment Providers"
 msgstr "其他支付提供商"
 
 #. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_p24
+msgid "P24"
+msgstr "P24"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_paynow
+msgid "PayNow"
+msgstr "PayNow"
+
+#. module: payment_stripe
 #: model:ir.model,name:payment_stripe.model_payment_provider
 msgid "Payment Provider"
 msgstr "支付提供商"
+
+#. module: payment_stripe
+#: model:ir.module.module,shortdesc:base.module_payment_stripe
+msgid "Payment Provider: Stripe"
+msgstr "付款提供商：Stripe"
 
 #. module: payment_stripe
 #: model:ir.actions.act_window,name:payment_stripe.action_payment_provider_onboarding
@@ -128,10 +295,25 @@ msgid "Payment processing failed"
 msgstr "付款处理失败"
 
 #. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_paypal
+msgid "Paypal"
+msgstr "Paypal"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_pix
+msgid "Pix"
+msgstr "Pix"
+
+#. module: payment_stripe
 #. odoo-python
 #: code:addons/payment_stripe/models/payment_provider.py:0
 msgid "Please use live credentials to enable Apple Pay."
 msgstr "请使用实时登录资讯启用 Apple Pay。"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_promptpay
+msgid "Prompt Pay"
+msgstr "Prompt Pay"
 
 #. module: payment_stripe
 #: model:ir.model.fields,field_description:payment_stripe.field_payment_provider__stripe_publishable_key
@@ -142,13 +324,28 @@ msgstr "公共的密钥"
 #. odoo-python
 #: code:addons/payment_stripe/models/payment_transaction.py:0
 msgid "Received data with invalid intent status: %s."
-msgstr ""
+msgstr "收到的数据中支付意图状态无效：%s。"
 
 #. module: payment_stripe
 #. odoo-python
 #: code:addons/payment_stripe/models/payment_transaction.py:0
 msgid "Received data with missing intent status."
 msgstr "收到的数据有缺失的意向性状态。"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_revolut_pay
+msgid "Revolut Pay"
+msgstr "Revolut Pay"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_sepa_direct_debit
+msgid "SEPA Direct Debit"
+msgstr "单一欧元支付区（SEPA）直接借记"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_satispay
+msgid "Satispay"
+msgstr "Satispay"
 
 #. module: payment_stripe
 #: model:ir.model.fields,field_description:payment_stripe.field_payment_provider__stripe_secret_key
@@ -179,6 +376,11 @@ msgid "Stripe Payment Method ID"
 msgstr "Stripe 付款方式 ID"
 
 #. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_swish
+msgid "Swish"
+msgstr "Swish"
+
+#. module: payment_stripe
 #. odoo-python
 #: code:addons/payment_stripe/models/payment_transaction.py:0
 msgid "The customer left the payment page."
@@ -203,15 +405,45 @@ msgid "The technical code of this payment provider."
 msgstr "该支付提供商的技术代码。"
 
 #. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_twint
+msgid "Twint"
+msgstr "Twint"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_upi
+msgid "UPI"
+msgstr "UPI"
+
+#. module: payment_stripe
 #. odoo-python
 #: code:addons/payment_stripe/models/payment_token.py:0
 msgid "Unable to convert payment token to new API."
 msgstr "无法将支付令牌转换为新的API。"
 
 #. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_unionpay
+msgid "UnionPay"
+msgstr "银联"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_visa
+msgid "VISA"
+msgstr "VISA"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_wechat_pay
+msgid "WeChat Pay"
+msgstr "微信支付"
+
+#. module: payment_stripe
 #: model:ir.model.fields,field_description:payment_stripe.field_payment_provider__stripe_webhook_secret
 msgid "Webhook Signing Secret"
 msgstr "Webhook签名Secret"
+
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_wero_brand
+msgid "Wero"
+msgstr "Wero"
 
 #. module: payment_stripe
 #. odoo-python
@@ -230,17 +462,17 @@ msgstr "如果您的Stripe密匙没有设置，您就不能创建一个Stripe We
 #. odoo-python
 #: code:addons/payment_stripe/models/payment_provider.py:0
 msgid ""
-"You cannot set the provider state to Enabled until your onboarding to Stripe "
-"is completed."
-msgstr "完成 Stripe 新手简介之前，无法将提供商状态设置为“已启用”。"
+"You cannot set the provider to live mode until your onboarding to Stripe is "
+"completed."
+msgstr "在完成 Stripe 入驻流程之前，无法将提供商设为正式模式。"
 
 #. module: payment_stripe
 #. odoo-python
 #: code:addons/payment_stripe/models/payment_provider.py:0
 msgid ""
-"You cannot set the provider to Test Mode while it is linked with your Stripe "
+"You cannot set the provider to test mode while it is linked with your Stripe "
 "account."
-msgstr "当提供商连接至您的 Stripe 账户时，不能将其设置为测试模式。"
+msgstr "在与您的 Stripe 账户关联期间，无法将提供商设为测试模式。"
 
 #. module: payment_stripe
 #. odoo-python
@@ -260,8 +492,26 @@ msgstr "您的订单"
 msgid "Your web domain was successfully verified."
 msgstr "您的网域已成功验证。"
 
-#~ msgid "Payment Acquirer"
-#~ msgstr "付款收单单位"
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_zip
+msgid "Zip"
+msgstr "邮编"
 
-#~ msgid "Provider"
-#~ msgstr "供应商"
+#. module: payment_stripe
+#: model:payment.method,name:payment_stripe.payment_method_ideal
+#: model:payment.method,name:payment_stripe.payment_method_ideal_brand
+msgid "iDEAL"
+msgstr "iDEAL"
+
+#~ msgid "Connect Stripe"
+#~ msgstr "连接 Stripe"
+
+#~ msgid ""
+#~ "You cannot set the provider state to Enabled until your onboarding to "
+#~ "Stripe is completed."
+#~ msgstr "完成 Stripe 新手简介之前，无法将提供商状态设置为“已启用”。"
+
+#~ msgid ""
+#~ "You cannot set the provider to Test Mode while it is linked with your "
+#~ "Stripe account."
+#~ msgstr "当提供商连接至您的 Stripe 账户时，不能将其设置为测试模式。"

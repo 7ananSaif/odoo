@@ -48,12 +48,12 @@ class CalendarEvent extends models.Model {
 
 class CalendarFilter extends models.Model {
     _records = [
-        { id: 3, user_id: serverState.userId, partner_id: 4, partner_checked: true },
+        { id: 3, active: true, user_id: serverState.userId, partner_id: 4 },
     ];
 
+    active = fields.Boolean();
     user_id = fields.Many2one({ relation: "users" });
     partner_id = fields.Many2one({ relation: "partner" });
-    partner_checked = fields.Boolean();
 }
 
 class Partner extends models.Model {
@@ -79,11 +79,14 @@ class Users extends models.Model {
 defineModels([CalendarEvent, CalendarFilter, Partner, Users]);
 defineMailModels();
 
-onRpc("/calendar/check_credentials", async () => ({ microsoft_calendar: true }));
 onRpc("/microsoft_calendar/sync_data", () => ({ status: "no_new_event_from_microsoft" }));
-onRpc("check_synchronization_status", async () => ({ microsoft_calendar: "sync_active" }));
 onRpc("get_attendee_detail", () => []);
-onRpc("get_default_duration", () => 3.25);
+onRpc("res.users", "get_calendar_model_data", () => ({
+    credential_status: { microsoft_calendar: true },
+    sync_status: { microsoft_calendar: "sync_active" },
+    sync_email: false,
+    default_duration: 3.25,
+}))
 
 beforeEach(() => {
     mockDate("2016-12-12 08:00:00");
@@ -121,5 +124,5 @@ test(`component is destroyed while sync microsoft calendar`, async () => {
 
     deferred.resolve();
     await animationFrame();
-    expect.verifySteps(["search_read"]);
+    await expect.waitForSteps(["search_read"]);
 });

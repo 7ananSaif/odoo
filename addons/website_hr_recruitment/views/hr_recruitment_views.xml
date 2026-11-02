@@ -20,7 +20,14 @@
                 <field name="is_published" widget="website_redirect_button"/>
             </div>
             <label name="no_of_recruitment_label" position="before">
-                <field name="website_published" string="Published" widget="boolean_toggle"/>
+                <field name="publish_on" invisible="1"/> <!-- Needed for next fields and elements -->
+                <label for="website_published" string="Published"/>
+                <div class="o_row">
+                    <field string="Published" name="website_published" widget="boolean_toggle" readonly="publish_on"></field>
+                    <field name="publish_on" widget="datetime" options="{'min_date': datetime.datetime.now().to_utc().strftime('%Y-%m-%d %H:%M:%S')}"
+                        invisible="website_published" placeholder="Publish On"/>
+                    <button name="action_unschedule" type="object" invisible="not publish_on">Unschedule</button>
+                </div>
             </label>
             <group name="hiring_process" position="inside">
                 <field name="website_id" placeholder="All websites" options="{'no_create': True}" domain="['|', ('company_id', '=', company_id), ('company_id', '=', False)]" groups="website.group_multi_website"/>
@@ -34,7 +41,7 @@
         <field name="inherit_id" ref="hr.view_hr_job_form"/>
         <field name="arch" type="xml">
             <field name="description" position="attributes">
-                <attribute name="placeholder">e.g. Summarize the position in one or two lines that will be displayed on the Jobs list page...</attribute>
+                <attribute name="placeholder">e.g. Summarize the position in one or two lines that will be displayed on the job page and the jobs list page...</attribute>
             </field>
         </field>
     </record>
@@ -48,7 +55,7 @@
                 <field name="website_id" groups="website.group_multi_website" optional="hide"/>
             </field>
             <xpath expr="//field[@name='alias_id']" position="before">
-                <field name="is_published" string="Published"/>
+                <field name="is_published" string="Published" optional="hide"/>
             </xpath>
         </field>
     </record>

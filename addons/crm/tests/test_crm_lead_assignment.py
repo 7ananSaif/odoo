@@ -1,15 +1,16 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+import contextlib
 import random
 
 from ast import literal_eval
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
-from freezegun import freeze_time
 from unittest.mock import patch
 
 from odoo import fields
+from odoo.addons.crm.models.crm_lead import CrmLead
+from odoo.addons.crm.models.crm_team import CrmTeam
 from odoo.addons.crm.tests.common import TestLeadConvertCommon
 from odoo.tests.common import tagged
 from odoo.tools import mute_logger
@@ -35,8 +36,8 @@ class TestLeadAssignCommon(TestLeadConvertCommon):
         with mute_logger('odoo.models.unlink'):
             cls.env['crm.lead'].with_context(active_test=False).search(['|', ('team_id', '=', False), ('user_id', 'in', cls.sales_teams.member_ids.ids)]).unlink()
         cls.bundle_size = 50
-        cls.env['ir.config_parameter'].set_param('crm.assignment.commit.bundle', '%s' % cls.bundle_size)
-        cls.env['ir.config_parameter'].set_param('crm.assignment.delay', '0')
+        cls.env['ir.config_parameter'].set_int('crm.assignment.commit.bundle', '%s' % cls.bundle_size)
+        cls.env['ir.config_parameter'].set_float('crm.assignment.delay', 0)
 
     def assertInitialData(self):
         self.assertEqual(self.sales_team_1.assignment_max, 75)
@@ -67,7 +68,7 @@ class TestLeadAssign(TestLeadAssignCommon):
     def test_assign_configuration(self):
         now_patch = datetime(2020, 11, 2, 10, 0, 0)
 
-        with patch.object(fields.Datetime, 'now', return_value=now_patch):
+        with self.mock_datetime_and_now(now_patch):
             config = self.env['res.config.settings'].create({
                 'crm_use_auto_assignment': True,
                 'crm_auto_assignment_action': 'auto',
@@ -161,8 +162,8 @@ class TestLeadAssign(TestLeadAssignCommon):
         self.members.invalidate_model(['lead_month_count'])
         self.assertEqual(self.sales_team_1_m3.lead_month_count, 12)
 
-        # sales_team_1_m2 is opt-out (new field in 14.3) -> even with max, no lead assigned
-        self.sales_team_1_m2.update({'assignment_max': 45, 'assignment_optout': True})
+        # assignment_max = 0 means opt-out -> no leads should be assigned
+        self.sales_team_1_m2.update({'assignment_max': 0})
         self.sales_team_1_m3.update({'assignment_max': 45})
         with self.with_user('user_sales_manager'):
             teams_data, members_data = self.sales_team_1._action_assign_leads(force_quota=True)
@@ -309,6 +310,123 @@ class TestLeadAssign(TestLeadAssignCommon):
         self.assertMemberAssign(self.sales_team_1_m3, 1)  # 15 max on one month -> 1 daily
         self.assertMemberAssign(self.sales_team_convert_m1, 1)  # 30 max on one month -> 1 daily
         self.assertMemberAssign(self.sales_team_convert_m2, 2)  # 60 max on one month -> 2 daily
+
+    @mute_logger('odoo.models.unlink')
+    def test_assign_iterative(self):
+        """ Test iterative process and logs on assign """
+        # fix the seed and avoid randomness
+        random.seed(1618)
+
+        test_bundle_size = 5
+        self.env['ir.config_parameter'].set_int('crm.assignment.commit.bundle', test_bundle_size)
+
+        sales_teams = self.sales_teams
+
+        leads = self._create_leads_batch(
+            lead_type='lead',
+            user_ids=[False],
+            partner_ids=[False, False, False, self.contact_1.id],
+            probabilities=[30],
+            count=20,
+            suffix='Initial',
+        )
+        # commit probability and related fields
+        leads.flush_recordset()
+        self.assertInitialData()
+
+        crm_team_auto_commit_if_not_test = CrmTeam._auto_commit_if_not_test
+        with patch.object(CrmTeam, '_auto_commit_if_not_test',
+                          autospec=True, side_effect=crm_team_auto_commit_if_not_test) as mock_team_commit, \
+             self.with_user('user_sales_manager'), \
+             self.assertLogs() as cm:
+            self.env['crm.team'].browse(sales_teams.ids)._action_assign_leads()
+        self.assertEqual(mock_team_commit.call_count, 8), '5 during team phase, 3 during lead phase'
+        checkpoint_logs = [l for l in cm.output if '-checkpoint-' in l]
+        self.assertEqual(len(checkpoint_logs), 7, 'Should have 7 intermediate commits and logs')
+
+    @mute_logger('odoo.models.unlink')
+    def test_assign_iterative_crash_allocate(self):
+        """ Test defensive behavior when allocation crashes (memory error, other
+        unexpected issue, ...) """
+        # fix the seed and avoid randomness
+        random.seed(1618)
+
+        test_bundle_size = 5
+        self.env['ir.config_parameter'].set_int('crm.assignment.commit.bundle', '%s' % test_bundle_size)
+
+        sales_teams = self.sales_teams
+
+        leads = self._create_leads_batch(
+            lead_type='lead',
+            user_ids=[False],
+            partner_ids=[False, False, False, self.contact_1.id],
+            probabilities=[30],
+            count=10,
+            suffix='Initial',
+        )
+        # commit probability and related fields
+        leads.flush_recordset()
+        self.assertInitialData()
+
+        original_allocate_leads_deduplicate = CrmTeam._allocate_leads_deduplicate
+
+        def _mock_allocate_leads_deduplicate(records, assign_leads, duplicates_cache=None):
+            if assign_leads == leads[0]:
+                raise MemoryError("My Error Message")
+            return original_allocate_leads_deduplicate(records, assign_leads, duplicates_cache)
+
+        with patch.object(CrmTeam, '_allocate_leads_deduplicate',
+                          autospec=True, side_effect=_mock_allocate_leads_deduplicate) as _mock_team_assign_dedup, \
+             self.with_user('user_sales_manager'), \
+             self.assertLogs() as cm:
+            with contextlib.suppress(Exception):
+                self.env['crm.team'].browse(sales_teams.ids)._action_assign_leads()
+        error_log = [l for l in cm.output if 'Error while assigning' in l]
+        self.assertEqual(len(error_log), 1)
+        self.assertIn(f'Error while assigning lead {leads[0].id}', error_log[0], 'Should log error + some stats')
+        self.assertIn('Error: My Error Message', error_log[0], 'Should log error + some stats')
+
+    @mute_logger('odoo.models.unlink')
+    def test_assign_iterative_crash_assign(self):
+        """ Test defensive behavior when assign / convert crashes (memory error, other
+        unexpected issue, ...) """
+        # fix the seed and avoid randomness
+        random.seed(1618)
+
+        test_bundle_size = 5
+        self.env['ir.config_parameter'].set_int('crm.assignment.commit.bundle', '%s' % test_bundle_size)
+
+        sales_teams = self.sales_teams
+
+        leads = self._create_leads_batch(
+            lead_type='lead',
+            user_ids=[False],
+            partner_ids=[False, False, False, self.contact_1.id],
+            probabilities=[30],
+            count=10,
+            suffix='Initial',
+        )
+        # commit probability and related fields
+        leads.flush_recordset()
+        self.assertInitialData()
+
+        original_convert_opportunity = CrmLead.convert_opportunity
+
+        def _mock_convert_opportunity(records, partner, user_ids=False, team_id=False):
+            if records[0] == leads[2]:
+                raise MemoryError("My Error Message")
+            return original_convert_opportunity(records, partner, user_ids=user_ids, team_id=team_id)
+
+        with patch.object(CrmLead, 'convert_opportunity',
+                          autospec=True, side_effect=_mock_convert_opportunity) as _mock_team_assign_dedup, \
+             self.with_user('user_sales_manager'), \
+             self.assertLogs() as cm:
+            with contextlib.suppress(Exception):
+                self.env['crm.team'].browse(sales_teams.ids)._action_assign_leads()
+        error_log = [l for l in cm.output if 'Error while assigning' in l]
+        self.assertEqual(len(error_log), 1)
+        self.assertIn(f'Error while assigning lead {leads[2].id}', error_log[0], 'Should log error + some stats')
+        self.assertIn('Error: My Error Message', error_log[0], 'Should log error + some stats')
 
     @mute_logger('odoo.models.unlink')
     def test_assign_populated(self):
@@ -461,6 +579,58 @@ class TestLeadAssign(TestLeadAssignCommon):
         self.assertMemberAssign(test_sales_team_m1, 5)
         self.assertMemberAssign(test_sales_team_m2, 3)
         self.assertMemberAssign(test_sales_team_m3, 3)
+
+    def test_assign_preferred_and_probability(self):
+        random.seed(1914)
+        preferred_tag = self.env['crm.tag'].create({'name': 'preferred'})
+        leads = self._create_leads_batch(
+            lead_type='lead',
+            user_ids=[False],
+            count=10,
+        )
+        for proba, lead in enumerate(leads[:5]):
+            lead.write({
+                'tag_ids': [(6, 0, preferred_tag.ids)],
+                'probability': proba,
+            })
+
+        for proba, lead in enumerate(leads[5:]):
+            lead.write({
+                'probability': proba,
+            })
+            proba += 1
+
+        leads.flush_recordset()
+
+        test_sales_team = self.env['crm.team'].create({
+            'name': 'Sales Team 5',
+            'sequence': 15,
+            'alias_name': False,
+            'use_leads': True,
+            'use_opportunities': True,
+            'company_id': False,
+            'user_id': False,
+        })
+        test_sales_team_m1 = self.env['crm.team.member'].create({
+            'user_id': self.user_sales_manager.id,
+            'crm_team_id': test_sales_team.id,
+            'assignment_max': 180,
+            'assignment_domain': False,
+            'assignment_domain_preferred': "[('tag_ids', 'in', %s)]" % preferred_tag.ids,
+        })
+
+        test_sales_team._action_assign_leads()
+
+        member_leads = self.env['crm.lead'].search([
+            ('user_id', '=', test_sales_team_m1.user_id.id),
+            ('team_id', '=', test_sales_team_m1.crm_team_id.id),
+            ('date_open', '>=', Datetime.now() - timedelta(hours=24)),
+        ])
+        self.assertEqual(
+                len(member_leads.filtered_domain(literal_eval(test_sales_team_m1.assignment_domain_preferred))),
+                3
+            )
+        self.assertMemberAssign(test_sales_team_m1, 6)
 
     def test_assign_quota(self):
         """ Test quota computation """
@@ -646,7 +816,7 @@ class TestLeadAssign(TestLeadAssignCommon):
         base_time = datetime(2026, 1, 1, 8, 0, 0)
         for run in range(30):
             now = base_time + timedelta(hours=25) * run  # 25 hours to be outside of lead_day_count
-            with freeze_time(now), patch.object(self.env.cr, 'now', lambda: now):
+            with self.mock_datetime_and_now(now):
                 self.env['crm.lead'].create({
                     'name': f'TestLead_{run}',
                     'type': 'lead',

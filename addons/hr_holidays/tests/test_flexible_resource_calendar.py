@@ -1,10 +1,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-import pytz
-from datetime import datetime, date
+from datetime import datetime, date, UTC
 
-from odoo.tests.common import TransactionCase
-
-UTC = pytz.timezone('UTC')
+from odoo.tests.common import tagged, TransactionCase
 
 
 class TestFlexibleResourceCalendar(TransactionCase):
@@ -12,20 +9,26 @@ class TestFlexibleResourceCalendar(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.calendar_40h_flex = cls.env['resource.calendar'].create({
-            'name': 'Flexible 40h/week',
-            'tz': 'UTC',
+        cls.calendar_flex, cls.calendar_fully_flex = cls.env['resource.calendar'].create([{
+            'name': 'Flexible Calendar',
+            'calendar_type': 'undefined',
+            'attendance_ids': [],
+            'hours_per_week': 40,
             'hours_per_day': 8.0,
-            'flexible_hours': True,
-        })
+        }, {
+            'name': 'Fully Flexible Calendar',
+            'calendar_type': 'undefined',
+            'attendance_ids': [],
+        }])
+
         cls.flex_resource, cls.fully_flex_resource = cls.env['resource.resource'].create([{
             'name': 'Flex',
             'tz': 'UTC',
-            'calendar_id': cls.calendar_40h_flex.id,
+            'calendar_id': cls.calendar_flex.id,
         }, {
             'name': 'fully flex',
             'tz': 'UTC',
-            'calendar_id': False,
+            'calendar_id': cls.calendar_fully_flex.id,
         }])
 
         cls.flex_employee, cls.fully_flex_employee = cls.env['hr.employee'].create([{
@@ -33,14 +36,14 @@ class TestFlexibleResourceCalendar(TransactionCase):
             'date_version': date(2025, 1, 1),
             'contract_date_start': date(2025, 1, 1),
             'wage': 10,
-            'resource_calendar_id': cls.calendar_40h_flex.id,
+            'resource_calendar_id': cls.calendar_flex.id,
             'resource_id': cls.flex_resource.id,
         }, {
             'name': "fully flexible employee",
             'date_version': date(2025, 1, 1),
             'contract_date_start': date(2025, 1, 1),
             'wage': 10,
-            'resource_calendar_id': False,
+            'resource_calendar_id': cls.calendar_fully_flex.id,
             'resource_id': cls.fully_flex_resource.id,
         }])
 
@@ -55,19 +58,25 @@ class TestFlexibleResourceCalendar(TransactionCase):
             'date_to': datetime(2025, 8, 1, 17),
         }])
 
-        custom_leave, half_day_leave = self.env['hr.leave.type'].create([{
+        custom_leave, half_day_leave = self.env['hr.work.entry.type'].create([{
             'name': 'Custom Leave',
+            'count_as': 'absence',
+            'code': 'Custom Leave',
             'requires_allocation': False,
             'request_unit': 'hour',
+            'unit_of_measure': 'hour',
         }, {
             'name': 'Half day',
+            'count_as': 'absence',
+            'code': 'Half day',
             'requires_allocation': False,
             'request_unit': 'half_day',
+            'unit_of_measure': 'day',
         }])
 
-        self.env['hr.leave'].with_context(mail_create_nolog=True, mail_notrack=True).create([{
+        self.env['hr.leave'].create([{
             'name': 'Half 1',
-            'holiday_status_id': half_day_leave.id,
+            'work_entry_type_id': half_day_leave.id,
             'employee_id': self.flex_employee.id,
             'request_date_from': date(2025, 7, 28),
             'request_date_to': date(2025, 7, 28),
@@ -75,7 +84,7 @@ class TestFlexibleResourceCalendar(TransactionCase):
             'request_date_to_period': 'am',
         }, {
             'name': 'Half 2',
-            'holiday_status_id': half_day_leave.id,
+            'work_entry_type_id': half_day_leave.id,
             'employee_id': self.flex_employee.id,
             'request_date_from': date(2025, 7, 30),
             'request_date_to': date(2025, 7, 30),
@@ -83,7 +92,7 @@ class TestFlexibleResourceCalendar(TransactionCase):
             'request_date_to_period': 'pm',
         }, {
             'name': 'Custom',
-            'holiday_status_id': custom_leave.id,
+            'work_entry_type_id': custom_leave.id,
             'employee_id': self.flex_employee.id,
             'request_date_from': date(2025, 7, 29),
             'request_date_to': date(2025, 7, 29),
@@ -91,7 +100,7 @@ class TestFlexibleResourceCalendar(TransactionCase):
             'request_hour_to': 16.0,
         }, {
             'name': 'Half 1',
-            'holiday_status_id': half_day_leave.id,
+            'work_entry_type_id': half_day_leave.id,
             'employee_id': self.fully_flex_employee.id,
             'request_date_from': date(2025, 7, 28),
             'request_date_to': date(2025, 7, 28),
@@ -99,7 +108,7 @@ class TestFlexibleResourceCalendar(TransactionCase):
             'request_date_to_period': 'am',
         }, {
             'name': 'Half 2',
-            'holiday_status_id': half_day_leave.id,
+            'work_entry_type_id': half_day_leave.id,
             'employee_id': self.fully_flex_employee.id,
             'request_date_from': date(2025, 7, 30),
             'request_date_to': date(2025, 7, 30),
@@ -107,13 +116,13 @@ class TestFlexibleResourceCalendar(TransactionCase):
             'request_date_to_period': 'pm',
         }, {
             'name': 'Custom',
-            'holiday_status_id': custom_leave.id,
+            'work_entry_type_id': custom_leave.id,
             'employee_id': self.fully_flex_employee.id,
             'request_date_from': date(2025, 7, 29),
             'request_date_to': date(2025, 7, 29),
             'request_hour_from': 11.0,
             'request_hour_to': 16.0,
-        }]).action_approve()
+        }])
 
         start_dt = datetime(2025, 7, 28).astimezone(UTC)
         end_dt = datetime(2025, 8, 3, 17).astimezone(UTC)
@@ -148,3 +157,119 @@ class TestFlexibleResourceCalendar(TransactionCase):
             (2025, 32): 40.0,
         }, "week 31 (27/07 -> 02/08): 2 days off 31 & 01 (-16 hours), half day on 28 and 30 (-8 hours), 5 hours off on day 29 / hours = 40-(16+8+5) = 11 hours, no timeoff on week 32")
         self.assertTrue(self.fully_flex_resource.id not in hours_per_week)
+
+    def test_get_unusal_days_for_fully_flexible_employees(self):
+        """
+        Test that _get_unusual_days return correct value for
+        fully flexible employees.
+        """
+        self.env['resource.calendar.leaves'].create({
+            'name': '2 day holiday', 'calendar_id': False,
+            'date_from': datetime(2025, 1, 2), 'date_to': datetime(2025, 1, 3),
+        })
+
+        start = str(datetime(2025, 1, 1))
+        end = str(datetime(2025, 1, 7))
+
+        unusual_days = self.fully_flex_employee._get_unusual_days(start, end)
+
+        self.assertDictEqual(
+            unusual_days,
+            {
+                '2025-01-01': False,
+                '2025-01-02': True,
+                '2025-01-03': True,
+                '2025-01-04': False,
+                '2025-01-05': False,
+                '2025-01-06': False,
+                '2025-01-07': False,
+            },
+            "Employee should have unusual days on 2nd and 3rd January",
+        )
+
+    def test_create_leave_fully_flexible_employee(self):
+        """
+        Test that creating a leave for a fully flexible employee works as expected.
+        """
+        test_leave_type = self.env['hr.work.entry.type'].create({
+            'name': 'Test Leave Type',
+            'count_as': 'absence',
+            'code': "FLEXITEST",
+            'requires_allocation': False,
+            'request_unit': 'day',
+            'unit_of_measure': 'day',
+        })
+
+        self.env['hr.leave'].create({
+            'name': 'Test Leave',
+            'work_entry_type_id': test_leave_type.id,
+            'employee_id': self.fully_flex_employee.id,
+            'request_date_from': date(2025, 2, 4),
+            'request_date_to': date(2025, 2, 6),
+        }).action_approve()
+
+        start = str(datetime(2025, 2, 1))
+        end = str(datetime(2025, 2, 7))
+
+        unusual_days = self.fully_flex_employee._get_unusual_days(start, end)
+
+        self.assertDictEqual(
+            unusual_days,
+            {
+                '2025-02-01': False,
+                '2025-02-02': False,
+                '2025-02-03': False,
+                '2025-02-04': True,
+                '2025-02-05': True,
+                '2025-02-06': True,
+                '2025-02-07': False,
+            },
+            "Employee should have unusual days on 4th, 5th and 6th February",
+        )
+
+    def test_flexible_resource_work_intervals_with_public_holiday(self):
+        leave_type = self.env['hr.work.entry.type'].create({
+            'name': 'Test Hourly Time Off',
+            'count_as': 'absence',
+            'requires_allocation': False,
+            'request_unit': 'hour',
+            'code': 'LEAVE018',
+        })
+
+        self.env['resource.calendar.leaves'].create({
+            'name': 'Test Public Holiday',
+            'calendar_id': False,
+            'date_from': datetime(2026, 8, 14, 0),
+            'date_to': datetime(2026, 8, 15, 0),
+            'work_entry_type_id': leave_type.id,
+        })
+
+        # Leave is automatically approved during creation.
+        self.env['hr.leave'].with_context(mail_create_nolog=True, mail_notrack=True).create({
+            'name': 'Test Hourly Time Off',
+            'work_entry_type_id': leave_type.id,
+            'employee_id': self.flex_employee.id,
+            'request_date_from': date(2026, 8, 10),
+            'request_date_to': date(2026, 8, 15),
+            'request_hour_from': 8.0,
+            'request_hour_to': 17.0,
+        })
+
+        start = datetime(2026, 8, 13, tzinfo=UTC)
+        end = datetime(2026, 8, 16, tzinfo=UTC)
+
+        # Overlapping employee leave and public holiday raise an Expected singleton without the fix.
+        # After the fix, _format_leave() correctly filters the employee leave and returns the remaining work interval.
+        work_intervals, _, _ = (
+            self.flex_resource._get_flexible_resource_valid_work_intervals(
+                start,
+                end,
+            )
+        )
+
+        intervals = list(work_intervals[self.flex_resource.id])
+
+        self.assertEqual(len(intervals), 1)
+        self.assertEqual(intervals[0][:2],
+            (datetime(2026, 8, 15, 17, 0, tzinfo=UTC), datetime(2026, 8, 15, 23, 59, 59, 999999, tzinfo=UTC))
+        )

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, test } from "@odoo/hoot";
 import { queryAllTexts } from "@odoo/hoot-dom";
-import { Deferred, animationFrame } from "@odoo/hoot-mock";
-import { Component, onMounted, xml } from "@odoo/owl";
+import { animationFrame } from "@odoo/hoot-mock";
+import { Component, onMounted, useProps, xml } from "@odoo/owl";
 import {
     contains,
     defineActions,
@@ -17,7 +17,7 @@ import {
     validateSearch,
 } from "@web/../tests/web_test_helpers";
 
-import { browser } from "@web/core/browser/browser";
+import { location, browser } from "@web/core/browser/browser";
 import { router } from "@web/core/browser/router";
 import { registry } from "@web/core/registry";
 import { redirect } from "@web/core/utils/urls";
@@ -156,10 +156,10 @@ defineModels([Partner, Pony, User]);
 class TestClientAction extends Component {
     static template = xml`
         <div class="test_client_action">
-            ClientAction_<t t-esc="props.action.params?.description"/>
+            ClientAction_<t t-out="this.props.action.params?.description"/>
         </div>
     `;
-    static props = ["*"];
+    props = useProps();
 
     setup() {
         onMounted(() => {
@@ -172,7 +172,7 @@ onRpc("has_group", () => true);
 
 beforeEach(() => {
     actionRegistry.add("__test__client__action__", TestClientAction);
-    patchWithCleanup(browser.location, {
+    patchWithCleanup(location, {
         origin: "http://example.com",
     });
     redirect("/odoo");
@@ -180,36 +180,33 @@ beforeEach(() => {
 
 test(`basic action as App`, async () => {
     await mountWithCleanup(WebClient);
-    expect(browser.location.href).toBe("http://example.com/odoo");
+    expect(location.href).toBe("http://example.com/odoo");
     expect(router.current).toEqual({});
 
     await contains(`.o_navbar_apps_menu button`).click();
     await contains(`.o-dropdown-item:eq(2)`).click();
-    await animationFrame();
-    await animationFrame();
+    await animationFrame(); // one render for the blank component, one for the client action
     expect(router.current.action).toBe(1002);
-    expect(browser.location.href).toBe("http://example.com/odoo/action-1002");
+    expect(location.href).toBe("http://example.com/odoo/action-1002");
     expect(`.test_client_action`).toHaveText("ClientAction_Id 2");
     expect(`.o_menu_brand`).toHaveText("App2");
 });
 
 test(`do action keeps menu in url`, async () => {
     await mountWithCleanup(WebClient);
-    expect(browser.location.href).toBe("http://example.com/odoo");
+    expect(location.href).toBe("http://example.com/odoo");
     expect(router.current).toEqual({});
 
     await contains(`.o_navbar_apps_menu button`).click();
     await contains(`.o-dropdown-item:eq(2)`).click();
-    await animationFrame();
-    await animationFrame();
-    expect(browser.location.href).toBe("http://example.com/odoo/action-1002");
+    await animationFrame(); // one render for the blank component, one for the client action
+    expect(location.href).toBe("http://example.com/odoo/action-1002");
     expect(router.current.action).toBe(1002);
     expect(`.test_client_action`).toHaveText("ClientAction_Id 2");
     expect(`.o_menu_brand`).toHaveText("App2");
 
     await getService("action").doAction(1001, { clearBreadcrumbs: true });
-    await animationFrame();
-    expect(browser.location.href).toBe("http://example.com/odoo/action-1001");
+    expect(location.href).toBe("http://example.com/odoo/action-1001");
     expect(router.current.action).toBe(1001);
     expect(`.test_client_action`).toHaveText("ClientAction_Id 1");
     expect(`.o_menu_brand`).toHaveText("App2");
@@ -218,11 +215,11 @@ test(`do action keeps menu in url`, async () => {
 test(`actions can push state`, async () => {
     class ClientActionPushes extends Component {
         static template = xml`
-            <div class="test_client_action" t-on-click="_actionPushState">
-                ClientAction_<t t-esc="props.params and props.params.description"/>
+            <div class="test_client_action" t-on-click="this._actionPushState">
+                ClientAction_<t t-out="this.props.params and this.props.params.description"/>
             </div>
         `;
-        static props = ["*"];
+        props = useProps();
 
         _actionPushState() {
             router.pushState({ arbitrary: "actionPushed" });
@@ -231,20 +228,18 @@ test(`actions can push state`, async () => {
     actionRegistry.add("client_action_pushes", ClientActionPushes);
 
     await mountWithCleanup(WebClient);
-    expect(browser.location.href).toBe("http://example.com/odoo");
+    expect(location.href).toBe("http://example.com/odoo");
     expect(browser.history.length).toBe(1);
     expect(router.current).toEqual({});
 
     await getService("action").doAction("client_action_pushes");
-    await animationFrame();
-    expect(browser.location.href).toBe("http://example.com/odoo/client_action_pushes");
+    expect(location.href).toBe("http://example.com/odoo/client_action_pushes");
     expect(browser.history.length).toBe(2);
     expect(router.current.action).toBe("client_action_pushes");
     expect(router.current.menu_id).toBe(undefined);
 
     await contains(`.test_client_action`).click();
-    await animationFrame();
-    expect(browser.location.href).toBe(
+    expect(location.href).toBe(
         "http://example.com/odoo/client_action_pushes?arbitrary=actionPushed"
     );
     expect(browser.history.length).toBe(3);
@@ -255,11 +250,11 @@ test(`actions can push state`, async () => {
 test(`actions override previous state`, async () => {
     class ClientActionPushes extends Component {
         static template = xml`
-            <div class="test_client_action" t-on-click="_actionPushState">
-                ClientAction_<t t-esc="props.params and props.params.description"/>
+            <div class="test_client_action" t-on-click="this._actionPushState">
+                ClientAction_<t t-out="this.props.params and this.props.params.description"/>
             </div>
         `;
-        static props = ["*"];
+        props = useProps();
 
         _actionPushState() {
             router.pushState({ arbitrary: "actionPushed" });
@@ -268,15 +263,13 @@ test(`actions override previous state`, async () => {
     actionRegistry.add("client_action_pushes", ClientActionPushes);
 
     await mountWithCleanup(WebClient);
-    expect(browser.location.href).toBe("http://example.com/odoo");
+    expect(location.href).toBe("http://example.com/odoo");
     expect(browser.history.length).toBe(1);
     expect(router.current).toEqual({});
 
     await getService("action").doAction("client_action_pushes");
-    await animationFrame(); // wait for pushState because it's unrealistic to click before it
     await contains(`.test_client_action`).click();
-    await animationFrame();
-    expect(browser.location.href).toBe(
+    expect(location.href).toBe(
         "http://example.com/odoo/client_action_pushes?arbitrary=actionPushed"
     );
     expect(browser.history.length).toBe(3); // Two history entries
@@ -284,8 +277,7 @@ test(`actions override previous state`, async () => {
     expect(router.current.arbitrary).toBe("actionPushed");
 
     await getService("action").doAction(1001);
-    await animationFrame();
-    expect(browser.location.href).toBe("http://example.com/odoo/action-1001", {
+    expect(location.href).toBe("http://example.com/odoo/action-1001", {
         message: "client_action_pushes removed from url because action 1001 is in target main",
     });
     expect(browser.history.length).toBe(4);
@@ -296,11 +288,11 @@ test(`actions override previous state`, async () => {
 test(`actions override previous state from menu click`, async () => {
     class ClientActionPushes extends Component {
         static template = xml`
-            <div class="test_client_action" t-on-click="_actionPushState">
-                ClientAction_<t t-esc="props.params and props.params.description"/>
+            <div class="test_client_action" t-on-click="this._actionPushState">
+                ClientAction_<t t-out="this.props.params and this.props.params.description"/>
             </div>
         `;
-        static props = ["*"];
+        props = useProps();
 
         _actionPushState() {
             router.pushState({ arbitrary: "actionPushed" });
@@ -309,16 +301,15 @@ test(`actions override previous state from menu click`, async () => {
     actionRegistry.add("client_action_pushes", ClientActionPushes);
 
     await mountWithCleanup(WebClient);
-    expect(browser.location.href).toBe("http://example.com/odoo");
+    expect(location.href).toBe("http://example.com/odoo");
     expect(router.current).toEqual({});
 
     await getService("action").doAction("client_action_pushes");
     await contains(`.test_client_action`).click();
     await contains(`.o_navbar_apps_menu button`).click();
     await contains(`.o-dropdown-item:eq(2)`).click();
-    await animationFrame();
-    await animationFrame();
-    expect(browser.location.href).toBe("http://example.com/odoo/action-1002");
+    await animationFrame(); // one render for the blank component, one for the client action
+    expect(location.href).toBe("http://example.com/odoo/action-1002");
     expect(router.current.action).toBe(1002);
 });
 
@@ -340,14 +331,13 @@ test(`action in target new do not push state`, async () => {
     });
 
     await mountWithCleanup(WebClient);
-    expect(browser.location.href).toBe("http://example.com/odoo");
+    expect(location.href).toBe("http://example.com/odoo");
     expect(browser.history.length).toBe(1);
 
     await getService("action").doAction(2001);
     expect(`.modal .test_client_action`).toHaveCount(1);
 
-    await animationFrame();
-    expect(browser.location.href).toBe("http://example.com/odoo", {
+    expect(location.href).toBe("http://example.com/odoo", {
         message: "url did not change",
     });
     expect(browser.history.length).toBe(1, { message: "did not create a history entry" });
@@ -356,12 +346,11 @@ test(`action in target new do not push state`, async () => {
 
 test(`properly push state`, async () => {
     await mountWithCleanup(WebClient);
-    expect(browser.location.href).toBe("http://example.com/odoo");
+    expect(location.href).toBe("http://example.com/odoo");
     expect(browser.history.length).toBe(1);
 
     await getService("action").doAction(4);
-    await animationFrame();
-    expect(browser.location.href).toBe("http://example.com/odoo/action-4");
+    expect(location.href).toBe("http://example.com/odoo/action-4");
     expect(browser.history.length).toBe(2);
     expect(router.current).toEqual({
         action: 4,
@@ -375,8 +364,7 @@ test(`properly push state`, async () => {
     });
 
     await getService("action").doAction(8);
-    await animationFrame();
-    expect(browser.location.href).toBe("http://example.com/odoo/action-4/action-8");
+    expect(location.href).toBe("http://example.com/odoo/action-4/action-8");
     expect(browser.history.length).toBe(3);
     expect(router.current).toEqual({
         action: 8,
@@ -395,8 +383,7 @@ test(`properly push state`, async () => {
     });
 
     await contains(`tr .o_data_cell:first`).click();
-    await animationFrame();
-    expect(browser.location.href).toBe("http://example.com/odoo/action-4/action-8/4");
+    expect(location.href).toBe("http://example.com/odoo/action-4/action-8/4");
     expect(browser.history.length).toBe(4);
     expect(router.current).toEqual({
         action: 8,
@@ -423,25 +410,22 @@ test(`properly push state`, async () => {
 });
 
 test(`push state after action is loaded, not before`, async () => {
-    const def = new Deferred();
-    onRpc("get_views", () => def);
+    const def = Promise.withResolvers();
+    onRpc("get_views", () => def?.promise);
 
     await mountWithCleanup(WebClient);
-    expect(browser.location.href).toBe("http://example.com/odoo");
+    expect(location.href).toBe("http://example.com/odoo");
     expect(browser.history.length).toBe(1);
 
     getService("action").doAction(4);
-    await animationFrame();
-    await animationFrame();
 
-    expect(browser.location.href).toBe("http://example.com/odoo");
+    expect(location.href).toBe("http://example.com/odoo");
     expect(browser.history.length).toBe(1);
     expect(router.current).toEqual({});
 
     def.resolve();
     await animationFrame();
-    await animationFrame();
-    expect(browser.location.href).toBe("http://example.com/odoo/action-4");
+    expect(location.href).toBe("http://example.com/odoo/action-4");
     expect(browser.history.length).toBe(2);
     expect(router.current).toEqual({
         action: 4,
@@ -459,12 +443,11 @@ test(`do not push state when action fails`, async () => {
     onRpc("read", () => Promise.reject());
 
     await mountWithCleanup(WebClient);
-    expect(browser.location.href).toBe("http://example.com/odoo");
+    expect(location.href).toBe("http://example.com/odoo");
     expect(browser.history.length).toBe(1);
 
     await getService("action").doAction(8);
-    await animationFrame();
-    expect(browser.location.href).toBe("http://example.com/odoo/action-8");
+    expect(location.href).toBe("http://example.com/odoo/action-8");
     expect(browser.history.length).toBe(2);
     expect(router.current).toEqual({
         action: 8,
@@ -483,8 +466,7 @@ test(`do not push state when action fails`, async () => {
         message: "there should still be a list view in dom",
     });
 
-    await animationFrame(); // wait for possible debounced pushState
-    expect(browser.location.href).toBe("http://example.com/odoo/action-8");
+    expect(location.href).toBe("http://example.com/odoo/action-8");
     expect(browser.history.length).toBe(2);
     expect(router.current).toEqual({
         action: 8,
@@ -500,12 +482,11 @@ test(`do not push state when action fails`, async () => {
 
 test(`view_type is in url when not the default one`, async () => {
     await mountWithCleanup(WebClient);
-    expect(browser.location.href).toBe("http://example.com/odoo");
+    expect(location.href).toBe("http://example.com/odoo");
     expect(browser.history.length).toBe(1);
 
     await getService("action").doAction(3);
-    await animationFrame();
-    expect(browser.location.href).toBe("http://example.com/odoo/action-3");
+    expect(location.href).toBe("http://example.com/odoo/action-3");
     expect(browser.history.length).toBe(2);
     expect(router.current).toEqual({
         action: 3,
@@ -520,8 +501,7 @@ test(`view_type is in url when not the default one`, async () => {
     expect(`.breadcrumb`).toHaveCount(0);
 
     await getService("action").doAction(3, { viewType: "kanban" });
-    await animationFrame();
-    expect(browser.location.href).toBe("http://example.com/odoo/action-3?view_type=kanban");
+    expect(location.href).toBe("http://example.com/odoo/action-3?view_type=kanban");
     expect(browser.history.length).toBe(3, { message: "created a history entry" });
     expect(`.breadcrumb`).toHaveCount(1, {
         message: "created a breadcrumb entry",
@@ -546,12 +526,11 @@ test(`view_type is in url when not the default one`, async () => {
 
 test(`switchView pushes the stat but doesn't add to the breadcrumbs`, async () => {
     await mountWithCleanup(WebClient);
-    expect(browser.location.href).toBe("http://example.com/odoo");
+    expect(location.href).toBe("http://example.com/odoo");
     expect(browser.history.length).toBe(1);
 
     await getService("action").doAction(3);
-    await animationFrame();
-    expect(browser.location.href).toBe("http://example.com/odoo/action-3");
+    expect(location.href).toBe("http://example.com/odoo/action-3");
     expect(browser.history.length).toBe(2);
     expect(router.current).toEqual({
         action: 3,
@@ -566,8 +545,7 @@ test(`switchView pushes the stat but doesn't add to the breadcrumbs`, async () =
     expect(`.breadcrumb`).toHaveCount(0);
 
     await getService("action").switchView("kanban");
-    await animationFrame();
-    expect(browser.location.href).toBe("http://example.com/odoo/action-3?view_type=kanban");
+    expect(location.href).toBe("http://example.com/odoo/action-3?view_type=kanban");
     expect(browser.history.length).toBe(3, { message: "created a history entry" });
     expect(`.breadcrumb`).toHaveCount(0, { message: "didn't create a breadcrumb entry" });
     expect(router.current).toEqual({
@@ -585,12 +563,11 @@ test(`switchView pushes the stat but doesn't add to the breadcrumbs`, async () =
 
 test(`properly push globalState`, async () => {
     await mountWithCleanup(WebClient);
-    expect(browser.location.href).toBe("http://example.com/odoo");
+    expect(location.href).toBe("http://example.com/odoo");
     expect(browser.history.length).toBe(1);
 
     await getService("action").doAction(4);
-    await animationFrame();
-    expect(browser.location.href).toBe("http://example.com/odoo/action-4");
+    expect(location.href).toBe("http://example.com/odoo/action-4");
     expect(browser.history.length).toBe(2);
     expect(router.current).toEqual({
         action: 4,
@@ -610,26 +587,8 @@ test(`properly push globalState`, async () => {
 
     //open record
     await contains(".o_kanban_record").click();
-
-    // Add the globalState on the state before leaving the kanban
-    expect(router.current).toEqual({
-        action: 4,
-        actionStack: [
-            {
-                action: 4,
-                displayName: "Partners Action 4",
-                view_type: "kanban",
-            },
-        ],
-        globalState: {
-            searchModel: `{"nextGroupId":2,"nextGroupNumber":1,"nextId":2,"query":[{"searchItemId":1,"autocompleteValue":{"label":"blip","operator":"ilike","value":"blip"}}],"searchItems":{"1":{"type":"field","fieldName":"foo","fieldType":"char","description":"Foo","groupId":1,"id":1}},"searchPanelInfo":{"className":"","viewTypes":["kanban","list"],"loaded":false,"shouldReload":true},"sections":[]}`,
-        },
-    });
-
-    // pushState is defered
-    await animationFrame();
     expect(".o_form_view").toHaveCount(1);
-    expect(browser.location.href).toBe("http://example.com/odoo/action-4/2");
+    expect(location.href).toBe("http://example.com/odoo/action-4/2");
     expect(router.current).toEqual({
         action: 4,
         actionStack: [
@@ -654,20 +613,5 @@ test(`properly push globalState`, async () => {
 
     // The search Model should be restored
     expect(queryAllTexts(".o_facet_value")).toEqual(["blip"]);
-    expect(browser.location.href).toBe("http://example.com/odoo/action-4");
-
-    // The global state is restored on the state
-    expect(router.current).toEqual({
-        action: 4,
-        actionStack: [
-            {
-                action: 4,
-                displayName: "Partners Action 4",
-                view_type: "kanban",
-            },
-        ],
-        globalState: {
-            searchModel: `{"nextGroupId":2,"nextGroupNumber":1,"nextId":2,"query":[{"searchItemId":1,"autocompleteValue":{"label":"blip","operator":"ilike","value":"blip"}}],"searchItems":{"1":{"type":"field","fieldName":"foo","fieldType":"char","description":"Foo","groupId":1,"id":1}},"searchPanelInfo":{"className":"","viewTypes":["kanban","list"],"loaded":false,"shouldReload":true},"sections":[]}`,
-        },
-    });
+    expect(location.href).toBe("http://example.com/odoo/action-4");
 });

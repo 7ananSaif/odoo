@@ -1,5 +1,4 @@
-import { renderToElement } from "@web/core/utils/render";
-import { useDebounced } from "@web/core/utils/timing";
+import { browser } from "@web/core/browser/browser";
 import {
     formatDate,
     formatDateTime,
@@ -7,16 +6,11 @@ import {
     toLocaleDateTimeString,
 } from "@web/core/l10n/dates";
 import { localization } from "@web/core/l10n/localization";
+import { utils } from "@web/core/ui/ui_utils";
+import { renderToElement } from "@web/core/utils/render";
+import { useDebounced } from "@web/core/utils/timing";
 
-import {
-    onMounted,
-    onWillUnmount,
-    status,
-    useComponent,
-    useEffect,
-    useExternalListener,
-    xml,
-} from "@odoo/owl";
+import { onMounted, onPatched, onWillUnmount, useListener, useScope, xml } from "@odoo/owl";
 
 // This file defines a hook that encapsulates the column width logic of the list view. This logic
 // aims at optimizing the available space between columns and, once computed, at freezing the table
@@ -106,6 +100,37 @@ export const FIELD_WIDTHS = Object.freeze({
     text: [80, 1200],
 });
 
+/**
+ * @typedef {Object} Widths
+ * @property {number} min - The min width
+ * @property {number} [max] - The max width
+ */
+/**
+ * Parses the value of the `width` attribute set on columns in list view archs.
+ * The value can be either:
+ *   - a fixed width, e.g. `width="100px"`,
+ *   - a min width, e.g. `width="[100px]"`,
+ *   - a min and a max widths, e.g. `width="[100px,200px]"`.
+ * Note: the value is always in px, so in all cases above, "px" can be omitted (e.g. `width="100"`).
+ *
+ * @param {string} attr
+ * @returns Widths
+ */
+export function parseWidthAttribute(attr) {
+    const widths = {};
+    const widthAttr = attr.replaceAll("px", "");
+    const match = /\[(?<minWidth>\d+)(,(?<maxWidth>\d+))?\]/.exec(widthAttr);
+    if (match) {
+        widths.min = parseInt(match.groups.minWidth, 10);
+        if (match.groups.maxWidth) {
+            widths.max = parseInt(match.groups.maxWidth, 10);
+        }
+    } else {
+        widths.min = widths.max = parseInt(widthAttr, 10);
+    }
+    return widths;
+}
+
 export function resetDateFieldWidths() {
     // useful for tests
     _dateWidths = null;
@@ -152,9 +177,9 @@ function computeOptimalDateWidths() {
 
     const template = xml`
         <div class="invisible" style="font-variant-numeric: tabular-nums;">
-            <div t-foreach="Object.keys(values)" t-as="key" t-key="key" t-att-class="key">
-                <div t-foreach="values[key]" t-as="value" t-key="value_index">
-                    <span t-esc="value"/>
+            <div t-foreach="Object.keys(this.values)" t-as="key" t-key="key" t-att-class="key">
+                <div t-foreach="this.values[key]" t-as="value" t-key="value_index">
+                    <span t-out="value"/>
                 </div>
             </div>
         </div>`;
@@ -235,12 +260,15 @@ function computeWidths(table, state, allowedWidth, startingWidths) {
         // Case 1: table overflows its parent => shrink some columns
         const shrinkableColumns = [];
         let totalAvailableSpace = 0; // total space we can gain by shrinking columns
+        // In mobile, we don't want to shrink columns more than 80% of the viewport
+        const minShrinkWidth = utils.isSmall() ? browser.innerWidth * 0.8 : null;
         for (let columnIndex = 0; columnIndex < columns.length; columnIndex++) {
             const thIndex = columnIndex + columnOffset;
             const { minWidth, canShrink } = columnWidthSpecs[columnIndex];
-            if (_columnWidths[thIndex] > minWidth && canShrink) {
-                shrinkableColumns.push({ thIndex, minWidth });
-                totalAvailableSpace += _columnWidths[thIndex] - minWidth;
+            const targetWidth = minShrinkWidth || minWidth;
+            if (_columnWidths[thIndex] > targetWidth && canShrink) {
+                shrinkableColumns.push({ thIndex, minWidth: targetWidth });
+                totalAvailableSpace += _columnWidths[thIndex] - targetWidth;
             }
         }
         if (diff > totalAvailableSpace) {
@@ -316,21 +344,24 @@ function getWidthSpecs(columns) {
         let minWidth;
         let maxWidth;
         if (column.attrs && column.attrs.width) {
-            minWidth = maxWidth = parseInt(column.attrs.width.split("px")[0]);
+            const { min, max } = parseWidthAttribute(column.attrs.width);
+            minWidth = min;
+            maxWidth = max;
         } else {
             let width;
-            if (column.type === "field") {
-                if (column.field.listViewWidth) {
-                    width = column.field.listViewWidth;
+            if (column.type === "field" || column.type === "column_group") {
+                const fieldCol = column.type === "column_group" ? column.fields[0] : column;
+                if (fieldCol.field.listViewWidth) {
+                    width = fieldCol.field.listViewWidth;
                     if (typeof width === "function") {
                         width = width({
-                            type: column.fieldType,
-                            hasLabel: column.hasLabel,
-                            options: column.options,
+                            type: fieldCol.fieldType,
+                            hasLabel: fieldCol.hasLabel,
+                            options: fieldCol.options,
                         });
                     }
                 } else {
-                    width = FIELD_WIDTHS[column.widget || column.fieldType];
+                    width = FIELD_WIDTHS[fieldCol.widget || fieldCol.fieldType];
                 }
             } else if (column.type === "widget") {
                 width = column.widget.listViewWidth;
@@ -342,7 +373,11 @@ function getWidthSpecs(columns) {
                 minWidth = DEFAULT_MIN_WIDTH;
             }
         }
-        return { minWidth, maxWidth, canShrink: column.type === "field" };
+        return {
+            minWidth,
+            maxWidth,
+            canShrink: column.type === "field" || column.type === "column_group",
+        };
     });
 }
 
@@ -357,8 +392,7 @@ function getHorizontalPadding(el) {
     return parseFloat(paddingLeft) + parseFloat(paddingRight);
 }
 
-export function useMagicColumnWidths(tableRef, getState) {
-    const renderer = useComponent();
+export function useMagicColumnWidths(tableRef, canUseMagicColumnWidths, getState) {
     let columnWidths = null;
     let allowedWidth = 0;
     let hasAlwaysBeenEmpty = true;
@@ -374,7 +408,7 @@ export function useMagicColumnWidths(tableRef, getState) {
      * render + patch which would occur on the next frame and cause flickering.
      */
     function forceColumnWidths() {
-        const table = tableRef.el;
+        const table = tableRef();
         const headers = [...table.querySelectorAll("thead th")];
         const state = getState();
 
@@ -423,11 +457,14 @@ export function useMagicColumnWidths(tableRef, getState) {
      * Unsets the widths. After next patch, ideal widths will be recomputed.
      */
     function unsetWidths() {
+        if (!tableRef()) {
+            return;
+        }
         columnWidths = null;
         // Unset widths that might have been set on the table by resizing a column
-        tableRef.el.style.width = null;
+        tableRef().style.width = null;
         if (parentWidthFixed) {
-            tableRef.el.parentElement.style.width = null;
+            tableRef().parentElement.style.width = null;
         }
     }
 
@@ -439,7 +476,7 @@ export function useMagicColumnWidths(tableRef, getState) {
      */
     function onStartResize(ev) {
         _resizing = true;
-        const table = tableRef.el;
+        const table = tableRef();
         const th = ev.target.closest("th");
         table.style.width = `${Math.floor(table.getBoundingClientRect().width)}px`;
         const thPosition = [...th.parentNode.children].indexOf(th);
@@ -449,7 +486,7 @@ export function useMagicColumnWidths(tableRef, getState) {
         const initialX = ev.clientX;
         const initialWidth = th.getBoundingClientRect().width;
         const initialTableWidth = table.getBoundingClientRect().width;
-        const resizeStoppingEvents = ["keydown", "pointerdown", "pointerup"];
+        const resizeStoppingEvents = ["keydown", "pointerdown", "pointerup", "pointercancel"];
 
         // Fix the width so that if the resize overflows, it doesn't affect the layout of the parent
         if (!table.parentElement.style.width) {
@@ -511,6 +548,7 @@ export function useMagicColumnWidths(tableRef, getState) {
         // - pointerdown (e.g. pressing right click)
         // - pointerup : logical flow of the resizing feature (drag & drop)
         // - keydown : (e.g. pressing 'Alt' + 'Tab' or 'Windows' key)
+        // - pointercancel : the browser takes over the gesture (e.g. touch scroll on tablets)
         for (const eventType of resizeStoppingEvents) {
             window.addEventListener(eventType, stopResize);
         }
@@ -525,37 +563,34 @@ export function useMagicColumnWidths(tableRef, getState) {
     }
 
     // Side effects
-    if (renderer.constructor.useMagicColumnWidths) {
-        useEffect(forceColumnWidths);
+    if (canUseMagicColumnWidths) {
+        onMounted(forceColumnWidths);
+        onPatched(forceColumnWidths);
         // Forget computed widths (and potential manual column resize) on window resize
-        useExternalListener(window, "resize", unsetWidths);
+        useListener(window, "resize", unsetWidths);
         // Listen to width changes on the parent node of the table, to recompute ideal widths
         // Note: we compute the widths once, directly, and once after parent width stabilization.
         // The first call is only necessary to avoid an annoying flickering when opening form views
         // with an x2many list and a chatter (when it is displayed below the form) as it may happen
         // that the display of chatter messages introduces a vertical scrollbar, thus reducing the
         // available width.
-        const component = useComponent();
+        const scope = useScope();
         let parentWidth;
         const debouncedForceColumnWidths = useDebounced(
-            () => {
-                if (status(component) !== "destroyed") {
-                    forceColumnWidths();
-                }
-            },
+            () => !scope.isDestroyed() && forceColumnWidths(),
             200,
             { immediate: true, trailing: true }
         );
         const resizeObserver = new ResizeObserver(() => {
-            const newParentWidth = tableRef.el.parentNode.clientWidth;
+            const newParentWidth = tableRef().parentNode.clientWidth;
             if (newParentWidth !== parentWidth) {
                 parentWidth = newParentWidth;
                 debouncedForceColumnWidths();
             }
         });
         onMounted(() => {
-            parentWidth = tableRef.el.parentNode.clientWidth;
-            resizeObserver.observe(tableRef.el.parentNode);
+            parentWidth = tableRef().parentNode.clientWidth;
+            resizeObserver.observe(tableRef().parentNode);
         });
         onWillUnmount(() => resizeObserver.disconnect());
     }

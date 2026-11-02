@@ -1,9 +1,11 @@
 .product {
     --btn-border-color: #{$o-gray-200};
 
-    &:hover {
-        border: $border-width solid $border-color;
-        --btn-hover-bg: #{$o-view-background-color};
+    @media (hover: hover) {
+        &:hover {
+            border: $border-width solid $border-color;
+            --btn-hover-bg: #{$o-view-background-color};
+        }
     }
 
     @at-root .rightpane .product {
@@ -26,26 +28,20 @@
 
 .pos-receipt {
     .product-name {
-        -webkit-line-clamp: unset;
+        --lines-clamp: none;
         overflow-wrap: anywhere;
     }
 }
 
-
 .product-name {
-
     box-sizing: border-box;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
 
     &.no-image {
-        -webkit-line-clamp: 7;
         aspect-ratio: 16 / 9;
     }
 
     > .qty {
-        min-width: 2.5rem;
+        min-width: 1.5rem;
     }
 }
 

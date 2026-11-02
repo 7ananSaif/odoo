@@ -1,12 +1,11 @@
 import { registry } from "@web/core/registry";
 import { stepUtils } from "@web_tour/tour_utils";
 import configuratorTourUtils from "@sale/js/tours/product_configurator_tour_utils";
-import tourUtils from "@sale/js/tours/tour_utils";
+import * as tourUtils from "@sale/js/tours/tour_utils";
 
 let optionVariantImage;
 
 registry.category("web_tour.tours").add('sale_product_configurator_advanced_tour', {
-    url: '/odoo',
     steps: () => [
         ...stepUtils.goToAppSteps("sale.sale_menu_root", "Go to the Sales App"),
         ...tourUtils.createNewSalesOrder(),
@@ -43,6 +42,7 @@ registry.category("web_tour.tours").add('sale_product_configurator_advanced_tour
             }
         },
         ...configuratorTourUtils.saveConfigurator(),
+        ...tourUtils.clickSomewhereElse(),
         tourUtils.checkSOLDescriptionContains(
             "Customizable Desk (TEST) (Custom, White, PAV9, PAV5, PAV1)",
             "PA5: PAV1\nPA7: PAV1\nPA8: PAV1\nLegs: Custom: Custom 1\nPA1: PAV9: Custom 2\nPA4: PAV9: Custom 3",

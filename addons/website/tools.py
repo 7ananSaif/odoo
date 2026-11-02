@@ -1,10 +1,13 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
+import colorsys
 import re
+from urllib.parse import urlsplit
 
 import werkzeug.urls
-from lxml import etree
+from lxml import etree, html
 
 from odoo.tools.misc import hmac
+from odoo.tools.urls import urljoin
 
 
 def distance(s1="", s2="", limit=4):
@@ -93,6 +96,82 @@ def text_from_html(html_fragment, collapse_whitespace=False):
     return content
 
 
+def _is_dark_rgb(red, green, blue, alpha, lightness_threshold):
+    rgb = tuple(map(int, (red, green, blue)))
+    _, lightness, _ = colorsys.rgb_to_hls(*(channel / 255 for channel in rgb))
+    return (not alpha or float(alpha) > 0) and lightness < lightness_threshold
+
+
+def adapt_dark_palette_content(root):
+    """Keep text and carousel controls readable with dark palettes."""
+    for element in root.iter():
+        class_names = element.get('class', '').split()
+        if 'carousel-dark' in class_names:
+            class_names.remove('carousel-dark')
+            element.set('class', ' '.join(class_names))
+        # Blurred backgrounds inherit text colors from their closest preset.
+        # Dark translucent backgrounds need `o_cc1` to keep text visible.
+        if 'o_bg_blur_option' in class_names:
+            color_match = re.search(
+                r'background-color:\s*rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)'
+                r'(?:\s*,\s*([\d.]+))?\s*\)',
+                element.get('style', ''),
+            )
+            if color_match:
+                red, green, blue, alpha = color_match.groups()
+                if _is_dark_rgb(red, green, blue, alpha, 0.5):
+                    color_preset_el = element
+                    while color_preset_el is not None:
+                        color_preset_classes = color_preset_el.get('class', '').split()
+                        if 'o_cc' in color_preset_classes:
+                            if 'o_cc5' in color_preset_classes:
+                                color_preset_classes[color_preset_classes.index('o_cc5')] = 'o_cc1'
+                                color_preset_el.set('class', ' '.join(color_preset_classes))
+                            break
+                        color_preset_el = color_preset_el.getparent()
+        if 'o_cc1' not in class_names and 'o_cc5' not in class_names:
+            continue
+        for child_el in element:
+            child_class_names = child_el.get('class', '').split()
+            if 'o_we_bg_filter' not in child_class_names:
+                continue
+            # Current custom filters use gradients with a visible dark stop.
+            has_dark_gradient = False
+            for red, green, blue, alpha in re.findall(
+                r'rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*([\d.]+))?\s*\)',
+                child_el.get('style', ''),
+            ):
+                # The 65% threshold keeps text light over all theme gradient
+                # filters (e.g. the `s_cover` filter from `theme_monglia`,
+                # which contains a color with 61% lightness).
+                if _is_dark_rgb(red, green, blue, alpha, 0.65):
+                    has_dark_gradient = True
+                    break
+            if any(name.startswith('bg-black-') for name in child_class_names) or has_dark_gradient:
+                source_class, target_class = 'o_cc5', 'o_cc1'
+            elif any(name.startswith('bg-white-') for name in child_class_names):
+                source_class, target_class = 'o_cc1', 'o_cc5'
+            else:
+                continue
+            if source_class in class_names:
+                class_names[class_names.index(source_class)] = target_class
+                element.set('class', ' '.join(class_names))
+            break
+
+
+def images_from_html(html_fragment, base_url):
+    if not html_fragment or not html_fragment.strip():
+        return []
+    tree = html.fromstring(html_fragment)
+    # urljoin only accepts URLs of base_url, but images may be hosted elsewhere
+    seen = dict.fromkeys(
+        src if urlsplit(src).netloc else urljoin(base_url, src)
+        for img in tree.xpath('//img[@src]')
+        if (src := img.get('src')) and not src.startswith('data:')
+    )
+    return list(seen)
+
+
 def get_base_domain(url, strip_www=False):
     """
     Returns the domain of a given url without the scheme and the www. and the
@@ -128,12 +207,7 @@ def add_form_signature(html_fragment, env_sudo):
             continue
 
         email_to_value = form_values['email_to'].attrib.get('value')
-        if (not email_to_value
-            or (email_to_value == 'info@yourcompany.example.com'
-                and html_fragment.xpath('//span[@data-for="contactus_form"]')
-                and html_fragment.xpath('//form[@id="contactus_form"]'))):
-            # This means that the mail will be sent to the value of the dataFor
-            # which is the company email.
+        if not email_to_value:
             email_to_value = env_sudo.company.email or ''
 
         has_cc = {'email_cc', 'email_bcc'} & form_values.keys()

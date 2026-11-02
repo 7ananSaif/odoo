@@ -10,7 +10,7 @@
         <BuilderButton
             title.translate="Company Logo"
             className="'flex-grow-1'"
-            actionParam="websiteLogoParams"
+            actionParam="this.websiteLogoParams"
             iconImg="'/website/static/src/img/snippets_options/header_extra_element_logo.svg'"
         />
         <BuilderButton
@@ -36,16 +36,20 @@
     <BuilderRow label.translate="Actions" action="'websiteConfig'">
         <BuilderButton
             title.translate="Search Bar"
-            className="'fa fa-search flex-grow-1'"
+            className="'flex-grow-1'"
+            icon="'search'"
             actionParam="{
                 views: ['website.header_search_box'],
                 resetViewArch: true,
             }"
         />
-        <t t-set="language_ids" t-value="env.services.website.currentWebsite.language_ids || []"/>
+        <t t-set="language_ids" t-value="this.env.services.website.currentWebsite.language_ids || []"/>
         <BuilderButton t-if="language_ids.length > 1"
+            id="'header_language_selector_opt'"
             title.translate="Language Selector"
-            className="'fa fa-flag flex-grow-1'"
+            className="'flex-grow-1'"
+            icon="'flag'"
+            iconClass="'oi-filled'"
             actionParam="{
                 views: ['website.header_language_selector'],
                 resetViewArch: true,
@@ -53,7 +57,8 @@
         />
         <BuilderButton
             title.translate="Sign In"
-            className="'fa fa-sign-in flex-grow-1'"
+            className="'flex-grow-1'"
+            icon="'login'"
             actionParam="{
                 views: ['portal.user_sign_in'],
                 resetViewArch: true,

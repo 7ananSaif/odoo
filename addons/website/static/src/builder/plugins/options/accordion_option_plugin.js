@@ -1,35 +1,20 @@
 import { Plugin } from "@html_editor/plugin";
 import { registry } from "@web/core/registry";
-import { withSequence } from "@html_editor/utils/resource";
-import { SNIPPET_SPECIFIC } from "@html_builder/utils/option_sequence";
 import { BuilderAction } from "@html_builder/core/builder_action";
-import { BaseOptionComponent } from "@html_builder/core/utils";
 
-export class AccordionOption extends BaseOptionComponent {
-    static template = "website.AccordionOption";
-    static selector = ".s_accordion";
-}
-
-export class AccordionItemOption extends BaseOptionComponent {
-    static template = "website.AccordionItemOption";
-    static selector = ".s_accordion .accordion-item";
-}
-
-class accordionOptionPlugin extends Plugin {
+export class accordionOptionPlugin extends Plugin {
     static id = "accordionOptionPlugin";
     /** @type {import("plugins").WebsiteResources} */
     resources = {
-        builder_options: [
-            withSequence(SNIPPET_SPECIFIC, AccordionOption),
-            withSequence(SNIPPET_SPECIFIC, AccordionItemOption),
-        ],
-        so_content_addition_selector: [".s_accordion"],
+        so_content_addition_selectors: [".s_accordion"],
         builder_actions: {
             DefineCustomIconAction,
             CustomAccordionIconAction,
         },
         content_not_editable_selectors: [".accordion-button"],
         content_editable_selectors: [".accordion-button span"],
+        auto_unfold_container_providers: { selector: ".accordion-item", target: ".s_accordion" },
+        anchor_allowed_selectors: ".accordion-item",
     };
 }
 
@@ -37,21 +22,21 @@ export class DefineCustomIconAction extends BuilderAction {
     static id = "defineCustomIcon";
     static dependencies = ["media"];
     async load() {
-        let selectedIconClass;
+        let selectedIcon;
         await new Promise((resolve) => {
             const onClose = this.dependencies.media.openMediaDialog({
                 visibleTabs: ["ICONS"],
                 save: (icon) => {
-                    selectedIconClass = icon.className;
+                    selectedIcon = { className: icon.className, name: icon.dataset.icon };
                     resolve();
                 },
             });
             onClose.then(resolve);
         });
-        return selectedIconClass;
+        return selectedIcon;
     }
-    apply({ editingElement, params, loadResult: customClass }) {
-        if (!customClass) {
+    apply({ editingElement, params, loadResult: selectedIcon }) {
+        if (!selectedIcon) {
             return;
         }
         const isActiveIcon = params.isActiveIcon;
@@ -64,12 +49,13 @@ export class DefineCustomIconAction extends BuilderAction {
         const iconsEls = isActiveIcon ? activeIconsEls : inactiveIconsEls;
         iconsEls.forEach((iconEl) => {
             iconEl.removeAttribute("class");
-            iconEl.classList.add(...customClass.split(" "));
+            iconEl.classList.add(...selectedIcon.className.split(" "));
+            iconEl.dataset.icon = selectedIcon.name;
         });
         if (iconsEls === activeIconsEls) {
-            editingElement.dataset.activeCustomIcon = customClass;
+            editingElement.dataset.activeCustomIcon = selectedIcon.name;
         } else {
-            editingElement.dataset.inactiveCustomIcon = customClass;
+            editingElement.dataset.inactiveCustomIcon = selectedIcon.name;
         }
     }
 }
@@ -79,8 +65,8 @@ export class CustomAccordionIconAction extends BuilderAction {
         const accordionButtonEls = editingElement.querySelectorAll(
             ":scope > .accordion-item > .accordion-button"
         );
-        const activeCustomIcon = editingElement.dataset.activeCustomIcon || "fa fa-arrow-up";
-        const inactiveCustomIcon = editingElement.dataset.inactiveCustomIcon || "fa fa-arrow-down";
+        const activeCustomIcon = editingElement.dataset.activeCustomIcon || "arrow_upward";
+        const inactiveCustomIcon = editingElement.dataset.inactiveCustomIcon || "arrow_downward";
         if (value) {
             if (value === "custom") {
                 editingElement.dataset.activeCustomIcon = activeCustomIcon;
@@ -107,14 +93,16 @@ export class CustomAccordionIconAction extends BuilderAction {
                 customIconActiveEl.className = customIconsClasses;
                 customIconActiveEl.classList.add("o_custom_icon_active");
                 const customIconActiveIEl = document.createElement("i");
-                customIconActiveIEl.className = activeCustomIcon;
+                customIconActiveIEl.className = "oi";
+                customIconActiveIEl.dataset.icon = activeCustomIcon;
                 customIconActiveEl.appendChild(customIconActiveIEl);
                 el.appendChild(customIconActiveEl);
                 const customIconInactiveEl = document.createElement("span");
                 customIconInactiveEl.className = customIconsClasses;
                 customIconInactiveEl.classList.add("o_custom_icon_inactive");
                 const customIconInactiveIEl = document.createElement("i");
-                customIconInactiveIEl.className = inactiveCustomIcon;
+                customIconInactiveIEl.className = "oi";
+                customIconInactiveIEl.dataset.icon = inactiveCustomIcon;
                 customIconInactiveEl.appendChild(customIconInactiveIEl);
                 el.appendChild(customIconInactiveEl);
             });

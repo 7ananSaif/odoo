@@ -13,10 +13,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:38+0000\n"
-"PO-Revision-Date: 2026-04-02 13:40+0000\n"
+"POT-Creation-Date: 2026-09-18 17:38+0000\n"
+"PO-Revision-Date: 2026-10-12 10:34+0000\n"
 "Last-Translator: \"Malaz Siddig Elsayed Abuidris (msea)\" <msea@odoo.com>\n"
-"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-20/"
 "purchase_stock/ar/>\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
@@ -24,12 +24,12 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 5.16.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.purchase_order_view_form_inherit
-msgid "% On-Time Delivery"
-msgstr "نسبة التوصيل في الوقت المحدد"
+msgid "% On Time"
+msgstr ""
 
 #. module: purchase_stock
 #. odoo-python
@@ -41,24 +41,36 @@ msgstr "%(otd)s %%"
 #. odoo-python
 #: code:addons/purchase_stock/models/stock_move.py:0
 msgid "%(value)s for %(quantity)s %(unit)s from %(bills)s"
-msgstr ""
+msgstr "%(value)s لـ %(quantity)s %(unit)s من %(bills)s"
 
 #. module: purchase_stock
 #. odoo-python
 #: code:addons/purchase_stock/models/stock_move.py:0
 msgid "%(value)s for %(quantity)s %(unit)s from %(quotation)s (not billed)"
 msgstr ""
+"%(value)s مقابل %(quantity)s %(unit)s بقيمة %(quotation)s (لم يتم إصدار "
+"فاتورة بها)"
 
 #. module: purchase_stock
 #. odoo-python
 #: code:addons/purchase_stock/models/stock_rule.py:0
-msgid "+ %d day(s)"
-msgstr "+ %d يوم (أيام)"
+msgid "+ %d days"
+msgstr ""
 
 #. module: purchase_stock
 #. odoo-python
 #: code:addons/purchase_stock/models/stock_rule.py:0
-msgid "+ %s day(s)"
+msgid "+ %s days"
+msgstr ""
+
+#. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_kanban_catalog_purchase_only
+msgid "<small class=\"text-muted ms-1\"> / month</small>"
+msgstr ""
+
+#. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_kanban_catalog_purchase_only
+msgid "<small class=\"text-muted\">Demand: </small>"
 msgstr ""
 
 #. module: purchase_stock
@@ -79,22 +91,12 @@ msgstr "<span class=\"o_stat_value\">%</span>"
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_kanban_catalog_purchase_only
 msgid "<span class=\"text-info fw-bold fs-5 me-1\">Suggest</span>"
-msgstr ""
-
-#. module: purchase_stock
-#: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_kanban_catalog_purchase_only
-msgid "<span class=\"text-muted small me-1\">Monthly Demand:</span>"
-msgstr ""
+msgstr "<span class=\"text-info fw-bold fs-5 me-1\">اقتراح</span>"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_kanban_catalog_purchase_only
 msgid "<span class=\"text-muted small ms-1\">Forecasted</span>"
-msgstr ""
-
-#. module: purchase_stock
-#: model_terms:ir.ui.view,arch_db:purchase_stock.purchase_order_view_form_inherit
-msgid "<span invisible=\"on_time_rate &gt;= 0\">No data yet</span>"
-msgstr "<span invisible=\"on_time_rate &gt;= 0\">لا توجد بيانات بعد</span>"
+msgstr "<span class=\"text-muted small ms-1\">المتوقع</span>"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_kanban_catalog_purchase_only
@@ -111,12 +113,6 @@ msgstr "<span> أيام</span>"
 #: model_terms:ir.ui.view,arch_db:purchase_stock.report_purchasequotation_document
 msgid "<strong class=\"d-block mt-3\">Shipping address</strong>"
 msgstr "<strong class=\"d-block mt-3\">عنوان الشحن</strong>"
-
-#. module: purchase_stock
-#: model_terms:ir.ui.view,arch_db:purchase_stock.report_purchaseorder_document
-#: model_terms:ir.ui.view,arch_db:purchase_stock.report_purchasequotation_document
-msgid "<strong>Incoterm:</strong>"
-msgstr "<strong>شرط التجارة الدولي:</strong>"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.report_purchasequotation_document
@@ -150,13 +146,13 @@ msgstr "إجراء"
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/product_catalog/search/search_panel.xml:0
 msgid "Add All"
-msgstr ""
+msgstr "إضافة الكل"
 
 #. module: purchase_stock
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/product_catalog/search/search_panel.js:0
 msgid "After next month last year"
-msgstr ""
+msgstr "بعد الشهر التالي من العام الماضي"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.res_config_settings_view_form_purchase
@@ -175,7 +171,7 @@ msgstr "دائمًا"
 #. module: purchase_stock
 #: model:ir.model.fields,help:purchase_stock.field_stock_warehouse_orderpoint__available_vendor
 msgid "Any vendor on the product's pricelist"
-msgstr ""
+msgstr "أي بائع مدرج في قائمة أسعار المنتج"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_order__effective_date
@@ -185,7 +181,7 @@ msgstr "الوصول"
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_warehouse_orderpoint__available_vendor
 msgid "Available Vendor"
-msgstr ""
+msgstr "الموردون المتاحون"
 
 #. module: purchase_stock
 #. odoo-javascript
@@ -214,13 +210,13 @@ msgstr "الشراء لإعادة التزويد"
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_res_company
-msgid "Companies"
-msgstr "الشركات"
+msgid "Company"
+msgstr ""
 
 #. module: purchase_stock
 #: model:ir.model.fields,help:purchase_stock.field_purchase_order__effective_date
-msgid "Completion date of the first receipt order."
-msgstr "تاريخ إكمال أول أمر تسليم."
+msgid "Completion date of the last receipt order."
+msgstr ""
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_res_config_settings
@@ -257,6 +253,13 @@ msgstr "وصف مخصص"
 #: model:ir.model.fields.selection,name:purchase_stock.selection__res_partner__group_rfq__day
 msgid "Daily"
 msgstr "يوميًا"
+
+#. module: purchase_stock
+#: model:ir.model.fields,help:purchase_stock.field_purchase_order__date_promised
+msgid ""
+"Date promised by the vendor for at least 1 or more products to be delivered "
+"by."
+msgstr ""
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_picking__days_to_arrive
@@ -317,9 +320,16 @@ msgid "Deliver To"
 msgstr "التوصيل إلى"
 
 #. module: purchase_stock
+#: model:ir.model.fields,help:purchase_stock.field_purchase_order_line__date_promised
+msgid ""
+"Delivery Date promised by the vendor. If the vendor delivers products after "
+"this date, their On-Time rate will be negatively impacted."
+msgstr ""
+
+#. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.product_supplierinfo_replenishment_tree_view
 msgid "Delivery Time"
-msgstr ""
+msgstr "وقت التوصيل"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_order__default_location_dest_id_usage
@@ -327,7 +337,6 @@ msgid "Destination Location Type"
 msgstr "نوع الموقع الوجهة"
 
 #. module: purchase_stock
-#: model:ir.model.fields,field_description:purchase_stock.field_account_move__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_account_move_line__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_product_product__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_product_replenish__display_name
@@ -340,6 +349,7 @@ msgstr "نوع الموقع الوجهة"
 #: model:ir.model.fields,field_description:purchase_stock.field_res_company__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_res_config_settings__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_res_partner__display_name
+#: model:ir.model.fields,field_description:purchase_stock.field_stock_allocation_report__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_forecasted_product_product__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_lot__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_move__display_name
@@ -348,7 +358,6 @@ msgstr "نوع الموقع الوجهة"
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_replenish_mixin__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_replenishment_info__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_replenishment_option__display_name
-#: model:ir.model.fields,field_description:purchase_stock.field_stock_return_picking__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_route__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_rule__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_warehouse__display_name
@@ -391,7 +400,7 @@ msgstr "الأيام الفعلية حتى الوصول"
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_warehouse_orderpoint__effective_vendor_id
 msgid "Effective Vendor"
-msgstr ""
+msgstr "المورد النشط"
 
 #. module: purchase_stock
 #: model:ir.model.fields,help:purchase_stock.field_stock_warehouse_orderpoint__effective_vendor_id
@@ -424,7 +433,7 @@ msgstr "تقرير التوقعات"
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/product_catalog/search/search_panel.js:0
 msgid "Forecasted"
-msgstr ""
+msgstr "المتوقعة"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_order_line__forecasted_issue
@@ -432,14 +441,14 @@ msgid "Forecasted Issue"
 msgstr "المشكلة المتوقعة"
 
 #. module: purchase_stock
+#: model:ir.model.fields,field_description:purchase_stock.field_purchase_order_line__forecasted_location_id
+msgid "Forecasted Location"
+msgstr ""
+
+#. module: purchase_stock
 #: model:ir.model.fields.selection,name:purchase_stock.selection__res_partner__group_on__5
 msgid "Friday"
 msgstr "الجمعة"
-
-#. module: purchase_stock
-#: model:ir.model.fields.selection,name:purchase_stock.selection__purchase_order__receipt_status__full
-msgid "Fully Received"
-msgstr "تم الاستلام كلياً"
 
 #. module: purchase_stock
 #. odoo-javascript
@@ -470,19 +479,12 @@ msgid "Go back to the purchase order to generate the vendor bill."
 msgstr "العودة إلى أمر الشراء لإنشاء فاتورة المورّد."
 
 #. module: purchase_stock
-#. odoo-javascript
-#: code:addons/purchase_stock/static/src/stock_valuation/stock_valuation_report.js:0
-msgid "Goods Received Not Invoiced"
-msgstr ""
-
-#. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_res_partner__group_rfq
 #: model:ir.model.fields,field_description:purchase_stock.field_res_users__group_rfq
 msgid "Group RFQ"
-msgstr ""
+msgstr "تجميع طلبات عروض الأسعار"
 
 #. module: purchase_stock
-#: model:ir.model.fields,field_description:purchase_stock.field_account_move__id
 #: model:ir.model.fields,field_description:purchase_stock.field_account_move_line__id
 #: model:ir.model.fields,field_description:purchase_stock.field_product_product__id
 #: model:ir.model.fields,field_description:purchase_stock.field_product_replenish__id
@@ -495,6 +497,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:purchase_stock.field_res_company__id
 #: model:ir.model.fields,field_description:purchase_stock.field_res_config_settings__id
 #: model:ir.model.fields,field_description:purchase_stock.field_res_partner__id
+#: model:ir.model.fields,field_description:purchase_stock.field_stock_allocation_report__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_forecasted_product_product__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_lot__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_move__id
@@ -503,7 +506,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_replenish_mixin__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_replenishment_info__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_replenishment_option__id
-#: model:ir.model.fields,field_description:purchase_stock.field_stock_return_picking__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_route__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_rule__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_warehouse__id
@@ -523,14 +525,9 @@ msgid "Incoming Shipments"
 msgstr "الشحنات الواردة"
 
 #. module: purchase_stock
-#: model:ir.model.fields,field_description:purchase_stock.field_purchase_order__incoterm_location
-msgid "Incoterm Location"
-msgstr "موقع شروط التجارة الدولية"
-
-#. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_stock_route
-msgid "Inventory Routes"
-msgstr "مسارات المخزون"
+msgid "Inventory Route"
+msgstr ""
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_order__is_shipped
@@ -543,11 +540,6 @@ msgid "Is the Sale Module Installed"
 msgstr "تطبيق المبيعات مثبت"
 
 #. module: purchase_stock
-#: model:ir.model,name:purchase_stock.model_account_move
-msgid "Journal Entry"
-msgstr "قيد اليومية"
-
-#. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_account_move_line
 msgid "Journal Item"
 msgstr "عنصر اليومية"
@@ -556,25 +548,25 @@ msgstr "عنصر اليومية"
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/product_catalog/search/search_panel.js:0
 msgid "Last 12 months"
-msgstr ""
+msgstr "آخر 12 شهراً"
 
 #. module: purchase_stock
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/product_catalog/search/search_panel.js:0
 msgid "Last 3 months"
-msgstr ""
+msgstr "آخر 3 شهور"
 
 #. module: purchase_stock
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/product_catalog/search/search_panel.js:0
 msgid "Last 30 days"
-msgstr ""
+msgstr "آخر 30 يوم"
 
 #. module: purchase_stock
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/product_catalog/search/search_panel.js:0
 msgid "Last 7 days"
-msgstr ""
+msgstr "آخر 7 أيام"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_product_supplierinfo__last_purchase_date
@@ -585,12 +577,12 @@ msgstr "آخر شراء"
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/product_catalog/search/search_panel.js:0
 msgid "Last year quarter"
-msgstr ""
+msgstr "ربع السنة الماضي"
 
 #. module: purchase_stock
-#: model:ir.model.fields,field_description:purchase_stock.field_purchase_order_line__location_final_id
-msgid "Location from procurement"
-msgstr "الموقع من الشراء"
+#: model:ir.model.fields,help:purchase_stock.field_purchase_order_line__forecasted_location_id
+msgid "Location used in the computation of the forecast."
+msgstr ""
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.res_config_settings_view_form_purchase
@@ -613,6 +605,12 @@ msgid "Minimum Inventory Rule"
 msgstr "قاعدة إعادة الطلب"
 
 #. module: purchase_stock
+#. odoo-python
+#: code:addons/purchase_stock/models/stock.py:0
+msgid "Missing products in receipt"
+msgstr ""
+
+#. module: purchase_stock
 #: model:ir.model.fields.selection,name:purchase_stock.selection__res_partner__group_on__1
 msgid "Monday"
 msgstr "الاثنين"
@@ -626,7 +624,7 @@ msgstr "الطلب الشهري"
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/product_catalog/search/search_panel.js:0
 msgid "Next month last year"
-msgstr ""
+msgstr "الشهر التالي من العام الماضي"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.exception_on_po
@@ -637,7 +635,7 @@ msgstr "الشحنة (الشحنات) التالية المتأثرة:"
 #. odoo-python
 #: code:addons/purchase_stock/models/stock_rule.py:0
 msgid "No Vendor Found"
-msgstr ""
+msgstr "لم يتم العثور على مورّد"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.purchase_help_message_template
@@ -651,25 +649,20 @@ msgid "No supplier has been found to replenish"
 msgstr "لم يتم العثور على مورِّد لتجديد موارد المخزون"
 
 #. module: purchase_stock
-#: model:ir.model.fields.selection,name:purchase_stock.selection__purchase_order__receipt_status__pending
-msgid "Not Received"
-msgstr "لم يتم الاستلام"
-
-#. module: purchase_stock
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/purchase_dashboard/purchase_dashboard.xml:0
 msgid "OTD"
 msgstr "التوصيل في الوقت المحدد"
 
 #. module: purchase_stock
-#: model_terms:ir.ui.view,arch_db:purchase_stock.res_partner_view_purchase_buttons_inherit
+#: model_terms:ir.ui.view,arch_db:purchase_stock.purchase_order_view_form_inherit
 msgid "On"
 msgstr "في"
 
 #. module: purchase_stock
 #: model:ir.model.fields.selection,name:purchase_stock.selection__res_partner__group_rfq__default
 msgid "On Order"
-msgstr ""
+msgstr "عند الطلب "
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.vendor_delay_report_view_graph
@@ -701,6 +694,11 @@ msgid "On-time Rate"
 msgstr "معدل الوقت المحدد"
 
 #. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.exception_on_picking
+msgid "Only"
+msgstr ""
+
+#. module: purchase_stock
 #. odoo-python
 #: code:addons/purchase_stock/models/stock_rule.py:0
 msgid "Order Deadline"
@@ -728,11 +726,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:purchase_stock.field_product_product__purchase_order_line_ids
 msgid "PO Lines"
 msgstr "بنود أمر الشراء"
-
-#. module: purchase_stock
-#: model:ir.model.fields.selection,name:purchase_stock.selection__purchase_order__receipt_status__partial
-msgid "Partially Received"
-msgstr "تم الاستلام جزئياً"
 
 #. module: purchase_stock
 #. odoo-javascript
@@ -767,6 +760,12 @@ msgid "Product Variant"
 msgstr "متغير المنتج"
 
 #. module: purchase_stock
+#: model:ir.model.fields,field_description:purchase_stock.field_purchase_order__date_promised
+#: model:ir.model.fields,field_description:purchase_stock.field_purchase_order_line__date_promised
+msgid "Promised Date"
+msgstr ""
+
+#. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_order_line__propagate_cancel
 msgid "Propagate cancellation"
 msgstr "إلغاء التكرار"
@@ -789,8 +788,6 @@ msgid "Purchase Order Line"
 msgstr "بند أمر الشراء"
 
 #. module: purchase_stock
-#. odoo-javascript
-#: code:addons/purchase_stock/static/src/stock_valuation/stock_valuation_report.js:0
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_lot__purchase_order_ids
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_picking__purchase_id
 #: model_terms:ir.ui.view,arch_db:purchase_stock.purchase_help_message_template
@@ -799,9 +796,19 @@ msgid "Purchase Orders"
 msgstr "أوامر الشراء"
 
 #. module: purchase_stock
+#: model:ir.module.module,summary:base.module_purchase_stock
+msgid "Purchase Orders, Receipts, Vendor Bills for Stock"
+msgstr ""
+
+#. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_purchase_report
 msgid "Purchase Report"
 msgstr "تقرير الشراء"
+
+#. module: purchase_stock
+#: model:ir.module.module,shortdesc:base.module_purchase_stock
+msgid "Purchase Stock"
+msgstr ""
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_lot__purchase_order_count
@@ -831,12 +838,7 @@ msgstr "الإيصال"
 #. odoo-python
 #: code:addons/purchase_stock/models/stock_rule.py:0
 msgid "Receipt Date"
-msgstr ""
-
-#. module: purchase_stock
-#: model:ir.model.fields,field_description:purchase_stock.field_purchase_order__receipt_status
-msgid "Receipt Status"
-msgstr "حالة الإيصال"
+msgstr "تاريخ الاستلام"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.purchase_order_view_form_inherit
@@ -855,25 +857,19 @@ msgid "Received Qty Method"
 msgstr "طريقة الكمية المستلمة"
 
 #. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.exception_on_picking
+msgid "Received quantity is less than the expected quantity for transfer"
+msgstr ""
+
+#. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_order__picking_ids
 msgid "Receptions"
 msgstr "الاستلامات"
 
 #. module: purchase_stock
-#: model:ir.model.fields,help:purchase_stock.field_purchase_order__receipt_status
-msgid ""
-"Red: Late\n"
-"            Orange: To process today\n"
-"            Green: On time"
-msgstr ""
-"أحمر: متأخر\n"
-"            برتقالي: يجب معالجته اليوم\n"
-"            أخضر: في الموعد"
-
-#. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_stock_reference
 msgid "Reference between stock documents"
-msgstr ""
+msgstr "المرجع بين مستندات المخزون"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_order__reference_ids
@@ -895,7 +891,7 @@ msgstr "اطلب من مورديك التوصيل لعملائك"
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/purchase_stock_forecasted/forecasted_details.xml:0
 msgid "Requests for quotation :"
-msgstr ""
+msgstr "طلبات عرض السعر :"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_order_line__move_ids
@@ -903,15 +899,10 @@ msgid "Reservation"
 msgstr "الحجز"
 
 #. module: purchase_stock
-#: model:ir.model,name:purchase_stock.model_stock_return_picking
-msgid "Return Picking"
-msgstr "إرجاع الشحنة المنتقاة"
-
-#. module: purchase_stock
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/product_catalog/search/search_panel.js:0
 msgid "Same month last year"
-msgstr ""
+msgstr "نفس الشهر من العام الماضي"
 
 #. module: purchase_stock
 #: model:ir.model.fields.selection,name:purchase_stock.selection__res_partner__group_on__6
@@ -937,12 +928,17 @@ msgstr "إظهار المورّد"
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_replenishment_info__show_vendor_tab
 msgid "Show Vendor Tab"
-msgstr ""
+msgstr "عرض علامة تبويب \"المورّد\""
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_warehouse_orderpoint__show_supplier
 msgid "Show supplier column"
 msgstr "إظهار عمود المزوّد"
+
+#. module: purchase_stock
+#: model:ir.model,name:purchase_stock.model_stock_allocation_report
+msgid "Stock Allocation Report"
+msgstr ""
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_stock_move
@@ -966,14 +962,14 @@ msgid "Stock Rule"
 msgstr "قاعدة المخزون"
 
 #. module: purchase_stock
+#: model:ir.model,name:purchase_stock.model_stock_replenishment_info
+msgid "Stock delivery time information"
+msgstr ""
+
+#. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_report_stock_report_stock_rule
 msgid "Stock rule report"
 msgstr "تقرير قاعدة بضاعة المخزون"
-
-#. module: purchase_stock
-#: model:ir.model,name:purchase_stock.model_stock_replenishment_info
-msgid "Stock supplier replenishment information"
-msgstr "معلومات تجديد مخزون المزوّد"
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_stock_replenishment_option
@@ -990,24 +986,24 @@ msgstr "اقتراح"
 #: model:ir.model.fields,field_description:purchase_stock.field_res_partner__suggest_based_on
 #: model:ir.model.fields,field_description:purchase_stock.field_res_users__suggest_based_on
 msgid "Suggest Based On"
-msgstr ""
+msgstr "اقتراح بناءً على"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_res_partner__suggest_days
 #: model:ir.model.fields,field_description:purchase_stock.field_res_users__suggest_days
 msgid "Suggest Days"
-msgstr ""
+msgstr "الأيام المقترحة"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_product_product__suggest_estimated_price
 msgid "Suggest Estimated Price"
-msgstr ""
+msgstr "اقترح سعرًا تقديريًّا"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_res_partner__suggest_percent
 #: model:ir.model.fields,field_description:purchase_stock.field_res_users__suggest_percent
 msgid "Suggest Percent"
-msgstr ""
+msgstr "النسبة المئوية المقترحة"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_search_catalog
@@ -1017,7 +1013,7 @@ msgstr "مقترحة"
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_product_product__suggested_qty
 msgid "Suggested Qty"
-msgstr ""
+msgstr "الكمية المقترحة"
 
 #. module: purchase_stock
 #: model:ir.model.fields.selection,name:purchase_stock.selection__res_partner__group_on__7
@@ -1025,9 +1021,14 @@ msgid "Sunday"
 msgstr "الأحد"
 
 #. module: purchase_stock
+#: model:ir.model.fields,field_description:purchase_stock.field_product_replenish__partner_id
+msgid "Supplier"
+msgstr ""
+
+#. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_warehouse_orderpoint__supplier_id_placeholder
 msgid "Supplier Id Placeholder"
-msgstr ""
+msgstr "مكان مخصص لمعرّف المُورّد"
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_product_supplierinfo
@@ -1077,6 +1078,15 @@ msgstr ""
 "المستودع الخاص بنوع العملية (%(operation_type)s) غير متوافق مع الموقع (%"
 "(location)s) الخاص بقاعدة إعادة الطلب (%(reordering_rule)s) للمنتج %"
 "(product)s. قم بتغيير نوع العملية أو إلغاء طلب عرض السعر."
+
+#. module: purchase_stock
+#. odoo-python
+#: code:addons/purchase_stock/models/purchase_order_line.py:0
+msgid ""
+"There is a mismatch between the company the Vendor is restricted to and the "
+"company receiving the purchased products. Please ensure the company is the "
+"same or that the Contact has no company restriction set."
+msgstr ""
 
 #. module: purchase_stock
 #. odoo-python
@@ -1162,6 +1172,12 @@ msgid "To Order"
 msgstr "بحاجة إلى الطلب"
 
 #. module: purchase_stock
+#. odoo-javascript
+#: code:addons/purchase_stock/static/src/product_catalog/search/search_panel.xml:0
+msgid "Total"
+msgstr ""
+
+#. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_vendor_delay_report__qty_total
 msgid "Total Quantity"
 msgstr "إجمالي الكمية"
@@ -1180,11 +1196,6 @@ msgstr "تحويل"
 #: model:ir.model.fields.selection,name:purchase_stock.selection__res_partner__group_on__2
 msgid "Tuesday"
 msgstr "الثلاثاء"
-
-#. module: purchase_stock
-#: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_kanban_catalog_purchase_only
-msgid "Units"
-msgstr ""
 
 #. module: purchase_stock
 #. odoo-javascript
@@ -1228,6 +1239,11 @@ msgstr "قائمة أسعار المورّدين"
 #: model_terms:ir.ui.view,arch_db:purchase_stock.view_stock_replenishment_info_stock_purchase_inherit
 msgid "Vendors"
 msgstr "الموردين"
+
+#. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.product_product_tree_view_stock
+msgid "View Forecast"
+msgstr ""
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_stock_warehouse
@@ -1276,9 +1292,14 @@ msgstr ""
 
 #. module: purchase_stock
 #. odoo-python
-#: code:addons/purchase_stock/models/purchase_order.py:0
-msgid "You must set a Vendor Location for this partner %s"
-msgstr "عليك تعيين موقع مورّد لهذا الشريك %s"
+#: code:addons/purchase_stock/models/purchase_order_line.py:0
+msgid "You must set a Vendor Location for partner %(partner_name)s"
+msgstr ""
+
+#. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.exception_on_picking
+msgid "and no backorder is planned. Manual action may be needed."
+msgstr ""
 
 #. module: purchase_stock
 #. odoo-javascript
@@ -1287,6 +1308,7 @@ msgid "day(s)"
 msgstr "يوم"
 
 #. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.exception_on_picking
 #: model_terms:ir.ui.view,arch_db:purchase_stock.exception_on_po
 msgid "of"
 msgstr "من"
@@ -1297,153 +1319,38 @@ msgid "ordered instead of"
 msgstr "تم طلبه عوضاً عن"
 
 #. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.exception_on_picking
+msgid "received in contrast to the expected"
+msgstr ""
+
+#. module: purchase_stock
 #. odoo-python
 #: code:addons/purchase_stock/models/stock_rule.py:0
 msgid "this product should be manually replenished."
 msgstr "يجب أن يتم تجديد المخزون لهذا المنتج يدوياً."
 
 #. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_kanban_catalog_purchase_only
+msgid "units"
+msgstr ""
+
+#. module: purchase_stock
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/product_catalog/search/search_panel.xml:0
 msgid "x"
-msgstr ""
+msgstr "x"
+
+#~ msgid "Journal Entry"
+#~ msgstr "قيد اليومية"
+
+#~ msgid "<strong>Incoterm:</strong>"
+#~ msgstr "<strong>شرط التجارة الدولي:</strong>"
+
+#~ msgid "Incoterm Location"
+#~ msgstr "موقع شروط التجارة الدولية"
+
+#~ msgid "Location from procurement"
+#~ msgstr "الموقع من الشراء"
 
 #~ msgid "Stock Valuation"
 #~ msgstr "تقييم المخزون"
-
-#~ msgid ""
-#~ "Define if RFQ should be grouped         together based on expected "
-#~ "arrival.\n"
-#~ "         On Order: Replenishment needs will be grouped together except "
-#~ "for MTO.\n"
-#~ "         Daily: Replenishment needs will be grouped if the expected "
-#~ "arrival is the same day\n"
-#~ "         Weekly: Replenishment needs will be grouped if the expected "
-#~ "arrival is the same week or week day\n"
-#~ "         Always: Replenishment needs will always be grouped."
-#~ msgstr ""
-#~ "حدد ما إذا كان يجب تجميع طلبات عروض الأسعار         معًا بناءً على موعد "
-#~ "الوصول المتوقع.\n"
-#~ "         عند الطلب: سيتم تجميع طلبات التزويد معًا باستثناء طلبات التزويد "
-#~ "عند الطلب (MTO).\n"
-#~ "         يوميًا: سيتم تجميع طلبات التزويد إذا كان موعد الوصول المتوقع هو "
-#~ "نفس اليوم.\n"
-#~ "         أسبوعيًا: سيتم تجميع طلبات التزويد إذا كان موعد الوصول المتوقع هو "
-#~ "نفس الأسبوع أو يوم الأسبوع.\n"
-#~ "         دائمًا: سيتم تجميع طلبات التزويد دائمًا."
-
-#~ msgid "<span class=\"text-muted small\"> Forecasted</span>"
-#~ msgstr "<span class=\"text-muted small\"> الكمية المتوقعة</span>"
-
-#~ msgid "<span class=\"text-muted small\">Monthly Demand: </span>"
-#~ msgstr "<span class=\"text-muted small\">الطلب شهرياً: </span>"
-
-#~ msgid "Requests for quotation"
-#~ msgstr "طلبات عرض السعر"
-
-#~ msgid ""
-#~ "<span attrs=\"{'invisible': [('on_time_rate', '&gt;=', 0)]}\">No On-time "
-#~ "Delivery Data</span>"
-#~ msgstr ""
-#~ "<span attrs=\"{'invisible': [('on_time_rate', '&gt;=', 0)]}\">لا توجد "
-#~ "بيانات للتوصيل في الوقت المحدد</span> "
-
-#~ msgid "<strong>Shipping address:</strong>"
-#~ msgstr "<strong>عنوان الشحن:</strong>"
-
-#~ msgid "Currency exchange rate difference"
-#~ msgstr "الفرق في سعر صرف العملة "
-
-#~ msgid ""
-#~ "Depending on the modules installed, this will allow you to define the "
-#~ "route of the product: whether it will be bought, manufactured, "
-#~ "replenished on order, etc."
-#~ msgstr ""
-#~ "بناءً على التطبيقات المثبتة، سيتيح لك ذلك تحديد مسار المنتج: ما إذا كان "
-#~ "سيتم شراؤه أو تصنيعه أو تجديد المخزون حسب الطلب أو غير ذلك. "
-
-#~ msgid ""
-#~ "For the product %s, the warehouse of the operation type (%s) is "
-#~ "inconsistent with the location (%s) of the reordering rule (%s). Change "
-#~ "the operation type or cancel the request for quotation."
-#~ msgstr ""
-#~ "للمنتج %s، يكون مستودع نوع العملية (%s) متسقاً مع الموقع (%s) لقاعدة إعادة "
-#~ "الطلب (%s). قم بتغيير نوع العملية أو إلغاء طلب عرض السعر. "
-
-#~ msgid "Incoterm"
-#~ msgstr "شرط تجاري"
-
-#~ msgid ""
-#~ "International Commercial Terms are a series of predefined commercial "
-#~ "terms used in international transactions."
-#~ msgstr ""
-#~ "الشروط التجارية الدولية هي مجموعة من الشروط والأحكام مسبقة الإعداد، "
-#~ "وتستخدم عادة في المعاملات الدولية."
-
-#~ msgid ""
-#~ "Margin of error for vendor lead times. When the system generates Purchase "
-#~ "Orders for reordering products,they will be scheduled that many days "
-#~ "earlier to cope with unexpected vendor delays."
-#~ msgstr ""
-#~ "هامش الخطأ في مهلة تسليم المورد. عند إنشاء النظام لأوامر الشراء لإعادة "
-#~ "ترتيب المنتجات، ستتم جدولة الأوامر مع إضافة هذا الهامش للتعامل مع أي "
-#~ "تأخير طارئ من قبل المورد."
-
-#~ msgid "Move forward expected request creation date by"
-#~ msgstr "تقديم تاريخ إنشاء الطلب المتوقع "
-
-#~ msgid "No data yet"
-#~ msgstr "لا توجد أي بيانات بعد "
-
-#~ msgid ""
-#~ "Odoo is not able to generate the anglo saxon entries. The total valuation "
-#~ "of %s is zero."
-#~ msgstr ""
-#~ "لم يتمكن أودو من إنشاء القيود الأنجلو ساكسونية. التقييم الإجمالي لـ %s هو "
-#~ "صفر. "
-
-#~ msgid ""
-#~ "Over the past 12 months; the number of products received on time divided "
-#~ "by the number of ordered products."
-#~ msgstr ""
-#~ "خلال الـ12 شهراً الأخيرة، عدد المنتجات التي تم استلامها في الوقت المحدد "
-#~ "مقسوماً على عدد المنتجات التي تم طلبها. "
-
-#~ msgid "Procurement Group"
-#~ msgstr "مجموعة الشراء "
-
-#~ msgid "Product Supplier"
-#~ msgstr "مزوّد المنتج "
-
-#~ msgid "Purchase Security Lead Time"
-#~ msgstr "مهلة أمان الشراء "
-
-#~ msgid "Purchase Visibility Days"
-#~ msgstr "أيام ظهور المشتريات "
-
-#~ msgid "Receive Products"
-#~ msgstr "استلام المنتجات"
-
-#~ msgid "Routes"
-#~ msgstr "المسارات "
-
-#~ msgid "Schedule request for quotations earlier to avoid delays"
-#~ msgstr "جدولة طلب عروض الأسعار في وقت سابق لتجنب التأخير"
-
-#~ msgid ""
-#~ "Unable to cancel purchase order %s as some receptions have already been "
-#~ "done."
-#~ msgstr "تعذّر إلغاء أمر الشراء %s لأن بعض الاستلامات قد تمت بالفعل."
-
-#~ msgid "Visibility Days applied on the purchase routes."
-#~ msgstr "أيام الظهور المطبقة على مسارات الشراء. "
-
-#~ msgid ""
-#~ "You cannot decrease the ordered quantity below the received quantity.\n"
-#~ "Create a return first."
-#~ msgstr ""
-#~ "لا يمكنك جعل الكمية المطلوبة أقل من الكمية المستلمة.\n"
-#~ "قم بإنشاء أمر إرجاع أولاً. "
-
-#~ msgid "days"
-#~ msgstr "يوم"

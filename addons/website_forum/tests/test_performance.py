@@ -3,6 +3,8 @@
 from odoo import Command
 
 from odoo.addons.mail.tests.common import mail_new_test_user
+from odoo.tests import tagged
+
 from odoo.addons.website.tests.test_performance import UtilPerf
 
 
@@ -29,10 +31,10 @@ class TestForumPerformance(UtilPerf):
         })
 
     def test_perf_sql_forum_standard_data(self):
-        number_of_queries = self._get_url_hot_query(self.forum._compute_website_url())
+        number_of_queries = self._get_url_hot_query(self.forum.website_url)
         self.assertLessEqual(number_of_queries, 28)
         number_of_queries = self._get_url_hot_query(self.post.website_url)
-        self.assertLessEqual(number_of_queries, 25)
+        self.assertLessEqual(number_of_queries, 26)
 
     def test_perf_sql_forum_scaling_answers(self):
         self.env['forum.tag'].create([
@@ -41,6 +43,7 @@ class TestForumPerformance(UtilPerf):
                 'name': f'Forum Post Test Tag {i}',
             } for i in range(20)
         ])
+        self.forum.mode = 'discussions'
         answers = self.env['forum.post'].create([
             {
                 'content': "You",
@@ -59,7 +62,7 @@ class TestForumPerformance(UtilPerf):
         ])
         self.env.flush_all()
         number_of_queries = self._get_url_hot_query(self.post.website_url)
-        self.assertLessEqual(number_of_queries, 28)
+        self.assertLessEqual(number_of_queries, 29)
 
     def test_perf_sql_forum_scaling_posts(self):
         self.env['forum.post'].create([
@@ -76,5 +79,5 @@ class TestForumPerformance(UtilPerf):
             } for i in range(100)
         ])
         self.env.flush_all()
-        number_of_queries = self._get_url_hot_query(self.forum._compute_website_url())
+        number_of_queries = self._get_url_hot_query(self.forum.website_url)
         self.assertLessEqual(number_of_queries, 29)

@@ -12,7 +12,7 @@
             >
                 <attribute name="readonly" separator=" or " add="gelato_template_ref"/>
             </xpath>
-            <group name="description" position="after">
+            <group name="sale" position="inside">
                 <group string="Gelato" invisible="type not in ['product', 'consu']">
                     <field
                         string="Template Reference"
@@ -33,24 +33,21 @@
                             string="Print Images"
                             name="gelato_image_ids"
                             widget="many2many_tags"
-                            options="{
-                                'no_create': True,
-                                'no_quick_create': True,
-                                'no_open': True,
-                                'edit_tags': True,
-                            }"
+                            options="{'on_tag_click': 'open_form'}"
                             context="{'form_view_ref': 'sale_gelato.product_document_form'}"
                             force_save="True"
                         />
                         <i
                             title="All print images are set"
                             invisible="gelato_missing_images"
-                            class="fa fa-check-circle text-success fs-3 me-3"
+                            class="oi oi-filled text-success fs-3 me-3"
+                            data-icon="check_circle"
                         />
                         <i
                             title="Some print images are missing"
                             invisible="not gelato_missing_images"
-                            class="fa fa-question-circle text-danger fs-3 me-3"
+                            class="oi text-danger fs-3 me-3"
+                            data-icon="help"
                         />
                     </div>
                     <button

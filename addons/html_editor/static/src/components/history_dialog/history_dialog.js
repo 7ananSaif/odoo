@@ -1,59 +1,70 @@
 import { Dialog } from "@web/core/dialog/dialog";
-import { Notebook } from "@web/core/notebook/notebook";
-import { formatDateTime } from "@web/core/l10n/dates";
 import { useService } from "@web/core/utils/hooks";
+import { useHotkey } from "@web/core/hotkeys/hotkey_hook";
 import { memoize } from "@web/core/utils/functions";
-import { Component, onMounted, useState, markup, onWillStart, onWillDestroy } from "@odoo/owl";
+import {
+    Component,
+    onMounted,
+    markup,
+    onWillStart,
+    useProps,
+    proxy,
+    signal,
+    t,
+    usePlugin,
+} from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
 import { user } from "@web/core/user";
 import { HtmlViewer } from "@html_editor/components/html_viewer/html_viewer";
 import { READONLY_MAIN_EMBEDDINGS } from "@html_editor/others/embedded_components/embedding_sets";
-import { browser } from "@web/core/browser/browser";
+import { location } from "@web/core/browser/browser";
 import { cookie } from "@web/core/browser/cookie";
 import { loadBundle } from "@web/core/assets";
 import { htmlReplaceAll } from "@web/core/utils/html";
+import { scrollTo } from "@web/core/utils/scrolling";
+import { DebugModePlugin } from "@web/core/debug_mode_plugin";
 
 const { DateTime } = luxon;
 
 export class HistoryDialog extends Component {
     static template = "html_editor.HistoryDialog";
-    static components = { Dialog, HtmlViewer, Notebook };
-    static props = {
-        recordId: Number,
-        recordModel: String,
-        close: Function,
-        restoreRequested: Function,
-        historyMetadata: Array,
-        versionedFieldName: String,
-        title: { String, optional: true },
-        noContentHelper: { String, optional: true }, //Markup
-        embeddedComponents: { Array, optional: true },
-    };
+    static components = { Dialog, HtmlViewer };
+    props = useProps({
+        recordId: t.number(),
+        recordModel: t.string(),
+        close: t.function(),
+        restoreRequested: t.function(),
+        historyMetadata: t.array(),
+        versionedFieldName: t.string(),
+        title: t.string().optional(_t("History")),
+        noContentHelper: t.string().optional(markup("")), //Markup
+        embeddedComponents: t.array().optional([...READONLY_MAIN_EMBEDDINGS]),
+    });
 
     DEFAULT_AVATAR = "/mail/static/src/img/smiley/avatar.jpg";
+    listboxRef = signal.ref();
 
-    static defaultProps = {
-        title: _t("History"),
-        noContentHelper: markup(""),
-        embeddedComponents: [...READONLY_MAIN_EMBEDDINGS],
-    };
-
-    state = useState({
+    state = proxy({
         revisionsData: [],
         currentView: "content", // "content" or "comparison"
         isComparisonSplit: false, // true for side-by-side, false for unified diff
         revisionContent: null,
         revisionComparison: null,
         revisionId: null,
-        revisionLoading: true,
-        cssMaxHeight: 400,
+        isLoading: true,
+        size: "xl",
+        mobileActiveTab: "revisions",
     });
 
+    debugMode = usePlugin(DebugModePlugin);
+
     setup() {
-        this.size = "fullscreen";
         this.title = this.props.title;
         this.orm = useService("orm");
-        this.resizeObserver = null;
+        this.toggleFullscreen = this.toggleFullscreen.bind(this);
+
+        useHotkey("ArrowUp", () => this.navigateRevisions("PREV"), { allowRepeat: true });
+        useHotkey("ArrowDown", () => this.navigateRevisions("NEXT"), { allowRepeat: true });
 
         onWillStart(async () => {
             // We include the current document version as the first revision,
@@ -72,29 +83,43 @@ export class HistoryDialog extends Component {
             );
             revisionData.push({
                 revision_id: revisionId,
-                create_date: DateTime.fromFormat(
-                    record[0]["create_date"],
-                    "yyyy-MM-dd HH:mm:ss",
-                    { zone: "utc" }
-                ).toISO(),
+                create_date: DateTime.fromFormat(record[0]["create_date"], "yyyy-MM-dd HH:mm:ss", {
+                    zone: "utc",
+                }).toISO(),
                 create_uid: record[0]["create_uid"][0],
                 create_user_name: record[0]["create_uid"][1],
             });
 
             this.state.revisionsData = revisionData;
-            this.resizeObserver = new ResizeObserver(this.resize.bind(this));
-            this.resizeObserver.observe(document.body);
         });
         onMounted(() => this.init());
-        onWillDestroy(() => {
-            this.resizeObserver?.disconnect();
-        });
     }
 
-    resize() {
-        const dialogContainer = document.querySelector(".html-history-dialog-container");
-        const computedStyle = getComputedStyle(dialogContainer);
-        this.state.cssMaxHeight = parseInt(computedStyle.height.replace("px", "")) - 160;
+    toggleFullscreen() {
+        this.state.size = this.state.size === "xl" ? "fullscreen" : "xl";
+    }
+
+    toggleComparison() {
+        this.state.currentView = this.state.currentView === "comparison" ? "content" : "comparison";
+    }
+
+    setComparisonUnified() {
+        this.state.isComparisonSplit = false;
+    }
+
+    setComparisonSplit() {
+        this.state.isComparisonSplit = true;
+    }
+
+    setMobileTab(tab) {
+        this.state.mobileActiveTab = tab;
+    }
+
+    onRevisionKeydown(revisionId, ev) {
+        if (ev.key === "Enter" || ev.key === " ") {
+            ev.preventDefault();
+            this.updateCurrentRevision(revisionId);
+        }
     }
 
     getConfig(value) {
@@ -106,23 +131,31 @@ export class HistoryDialog extends Component {
 
     async init() {
         // Load diff2html only in debug mode, as the side-by-side comparison is only available in debug mode.
-        if (this.env.debug) {
+        if (this.debugMode.isActive()) {
             await loadBundle("html_editor.assets_history_diff");
         }
         await this.updateCurrentRevision(this.state.revisionsData[0]["revision_id"]);
-        this.resize();
     }
 
     async updateCurrentRevision(revisionId) {
         if (this.state.revisionId === revisionId) {
             return;
         }
-        this.state.revisionLoading = true;
+        this.state.isLoading = true;
         this.state.revisionId = revisionId;
         this.state.revisionContent = await this.getRevisionContent(revisionId);
         this.state.revisionComparison = await this.getRevisionComparison(revisionId);
         this.state.revisionComparisonSplit = await this.getRevisionComparisonSplit(revisionId);
-        this.state.revisionLoading = false;
+        this.state.isLoading = false;
+        this.state.mobileActiveTab = "content";
+    }
+
+    get isMobileActiveTab() {
+        return (tab) => this.state.mobileActiveTab === tab;
+    }
+
+    get userTZ() {
+        return user.tz || "local";
     }
 
     getRevisionComparison = memoize(
@@ -141,7 +174,7 @@ export class HistoryDialog extends Component {
 
     getRevisionComparisonSplit = memoize(
         async function getRevisionComparisonSplit(revisionId) {
-            if (!this.env.debug || revisionId === -1) {
+            if (!this.debugMode.isActive() || revisionId === -1) {
                 return "";
             }
             let unifiedDiffString = await this.orm.call(
@@ -196,7 +229,7 @@ export class HistoryDialog extends Component {
 
     _removeExternalBlockHtml(baseHtml) {
         const filteringRegex = /<[a-z ]+data-embedded="(?:(?!<).)+<\/[a-z]+>/gim;
-        const placeholderHtml = markup`<div class="embedded-history-dialog-placeholder">${_t(
+        const placeholderHtml = markup`<div class="embedded-history-dialog-placeholder d-flex align-items-center justify-content-center gap-2 p-4 my-2 bg-100 rounded text-muted fw-medium small">${_t(
             "Dynamic element"
         )}</div>`;
         return htmlReplaceAll(baseHtml, filteringRegex, () => placeholderHtml);
@@ -209,14 +242,94 @@ export class HistoryDialog extends Component {
         if (!revision || !revision["create_date"]) {
             return "--";
         }
-        const userTZ = user.tz || "local";
-        return formatDateTime(
-            DateTime.fromISO(revision["create_date"], { zone: "utc" }).setZone(userTZ),
-            { showSeconds: false }
+        const revisionDate = DateTime.fromISO(revision["create_date"], { zone: "utc" }).setZone(
+            this.userTZ
         );
+        const now = DateTime.now().setZone(this.userTZ);
+        const diffInMinutes = now.diff(revisionDate, "minutes").minutes;
+        const diffInHours = now.diff(revisionDate, "hours").hours;
+
+        if (diffInMinutes < 1 && diffInMinutes >= 0) {
+            return "Just now";
+        }
+
+        if (diffInMinutes < 60 && diffInMinutes >= 1) {
+            const minutes = Math.floor(diffInMinutes);
+            return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
+        }
+
+        if (diffInHours < 24 && revisionDate.hasSame(now, "day")) {
+            const hours = Math.floor(diffInHours);
+            return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+        }
+
+        if (revisionDate.hasSame(now, "day")) {
+            return `Today at ${revisionDate.toFormat("h:mm a")}`;
+        }
+
+        if (revisionDate.plus({ days: 1 }).hasSame(now, "day")) {
+            return `Yesterday at ${revisionDate.toFormat("h:mm a")}`;
+        }
+
+        if (revisionDate.hasSame(now, "year")) {
+            return revisionDate.toFormat("MMM d 'at' h:mm a");
+        }
+
+        return revisionDate.toFormat("MMM d, yyyy");
     }
+
+    getRevisionFullDate(revision) {
+        if (!revision || !revision["create_date"]) {
+            return "--";
+        }
+        const revisionDate = DateTime.fromISO(revision["create_date"], { zone: "utc" }).setZone(
+            this.userTZ
+        );
+        return revisionDate.toFormat("MMM d, yyyy 'at' h:mm:ss a");
+    }
+
+    isRevisionSelected(revision) {
+        return this.currentRevision?.revision_id === revision.revision_id;
+    }
+
+    navigateRevisions(direction) {
+        if (!this.state.revisionsData.length) {
+            return;
+        }
+
+        const currentIndex = this.state.revisionsData.findIndex(
+            (rev) => rev.revision_id === this.state.revisionId
+        );
+
+        if (currentIndex === -1) {
+            this.updateCurrentRevision(this.state.revisionsData[0].revision_id);
+            return;
+        }
+
+        let nextIndex;
+        if (direction === "NEXT") {
+            nextIndex = currentIndex < this.state.revisionsData.length - 1 ? currentIndex + 1 : 0;
+        } else if (direction === "PREV") {
+            nextIndex = currentIndex > 0 ? currentIndex - 1 : this.state.revisionsData.length - 1;
+        }
+
+        const nextRevision = this.state.revisionsData[nextIndex];
+        this.updateCurrentRevision(nextRevision.revision_id);
+
+        const el = this.listboxRef();
+        if (el) {
+            const revisionElement = el.querySelector(
+                `[data-revision-id="${nextRevision.revision_id}"]`
+            );
+            if (revisionElement) {
+                revisionElement.focus();
+                scrollTo(revisionElement, { scrollable: el });
+            }
+        }
+    }
+
     getRevisionClasses(revision) {
-        let classesStr = "btn";
+        let classesStr = "list-group-item";
 
         if (
             this.state.revisionId !== -1 &&
@@ -233,7 +346,7 @@ export class HistoryDialog extends Component {
         if (!revision || !revision["create_uid"]) {
             return this.DEFAULT_AVATAR;
         }
-        return `${browser.location.origin}/web/image?model=res.users&field=avatar_128&id=${revision["create_uid"]}`;
+        return `${location.origin}/web/image?model=res.users&field=avatar_128&id=${revision["create_uid"]}`;
     }
 
     get currentRevision() {

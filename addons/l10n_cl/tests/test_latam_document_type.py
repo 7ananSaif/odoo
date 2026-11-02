@@ -1,3 +1,4 @@
+from odoo import Command
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 from odoo.tests import tagged, Form
 
@@ -5,26 +6,25 @@ from odoo.tests import tagged, Form
 @tagged('post_install_l10n', 'post_install', '-at_install')
 class TestClLatamDocumentType(AccountTestInvoicingCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     @AccountTestInvoicingCommon.setup_country('cl')
     def setUpClass(cls):
         super().setUpClass()
 
         country_cl = cls.env.ref('base.cl')
-        rut_id_type = cls.env.ref('l10n_cl.it_RUT')
 
         cls.cl_partner_a, cls.cl_partner_b = cls.env['res.partner'].create([
             {
                 'name': 'Chilean Partner A',
                 'country_id': country_cl.id,
-                'l10n_latam_identification_type_id': rut_id_type.id,
                 'vat': '76201224-3',
                 'l10n_cl_sii_taxpayer_type': '1',
             },
             {
                 'name': 'Chilean Partner B',
                 'country_id': country_cl.id,
-                'l10n_latam_identification_type_id': rut_id_type.id,
                 'vat': '76201224-3',
                 'l10n_cl_sii_taxpayer_type': '1',
             },
@@ -89,3 +89,24 @@ class TestClLatamDocumentType(AccountTestInvoicingCommon):
             'journal_id': self.env['account.journal'].search([('type', '=', 'general')], limit=1).id,
             'l10n_latam_document_number': 'ABC123',
         })
+
+    def test_demo_data_skips_moves_of_partners_without_taxpayer_type(self):
+        """ Test that the chilean demo data does not post moves whose partner is not set up
+            for Chile, as other modules may add such demo moves to the chilean company.
+        """
+        foreign_partner = self.env['res.partner'].create({
+            'name': 'Foreign Partner',
+            'country_id': self.env.ref('base.us').id,
+        })
+        invoice = self.env['account.move'].create({
+            'move_type': 'out_invoice',
+            'partner_id': foreign_partner.id,
+            'journal_id': self.company_data['default_journal_sale'].id,
+            'invoice_date': '2026-01-01',
+            'invoice_line_ids': [Command.create({'name': 'test line', 'price_unit': 100.0})],
+        })
+        self.assertTrue(invoice.l10n_latam_use_documents)
+
+        self.env['account.chart.template']._post_load_demo_data('cl')
+
+        self.assertEqual(invoice.state, 'draft')

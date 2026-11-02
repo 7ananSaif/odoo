@@ -3,21 +3,33 @@
 # * partnership
 #
 # "Abe Manyo (abem)" <abem@odoo.com>, 2025, 2026.
+# "Nurul Aini Akrima Sabila (nuaas)" <nuaas@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-01-06 08:44+0000\n"
-"Last-Translator: \"Abe Manyo (abem)\" <abem@odoo.com>\n"
-"Language-Team: Indonesian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-09-04 05:11+0000\n"
+"Last-Translator: \"Nurul Aini Akrima Sabila (nuaas)\" <nuaas@odoo.com>\n"
+"Language-Team: Indonesian <https://translate.odoo.com/projects/odoo-s19-4/"
 "partnership/id/>\n"
 "Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: partnership
+#: model:ir.module.module,description:base.module_partnership
+msgid ""
+"\n"
+"This module allows you to manage all operations for managing memberships and "
+"partnerships.\n"
+"==========================================================================================\n"
+"\n"
+"You can easily assign grade to members/partners, with a specific pricelist.\n"
+msgstr ""
 
 #. module: partnership
 #: model:ir.model.fields,field_description:partnership.field_res_partner_grade__active
@@ -60,10 +72,6 @@ msgstr "Perunggu"
 
 #. module: partnership
 #: model:ir.model,name:partnership.model_res_company
-msgid "Companies"
-msgstr "Perusahaan-Perusahaan"
-
-#. module: partnership
 #: model:ir.model.fields,field_description:partnership.field_res_partner_grade__company_id
 msgid "Company"
 msgstr "Perusahaan"
@@ -92,12 +100,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:partnership.field_product_product__service_tracking
 #: model:ir.model.fields,field_description:partnership.field_product_template__service_tracking
 msgid "Create on Order"
-msgstr "Buat pada Pesanan"
+msgstr "Buat pada Pesan"
 
 #. module: partnership
 #: model:ir.model.fields,field_description:partnership.field_res_partner_grade__create_uid
 msgid "Created by"
-msgstr "Dibuat pada"
+msgstr "Dibuat oleh"
 
 #. module: partnership
 #: model:ir.model.fields,field_description:partnership.field_res_partner_grade__create_date
@@ -107,7 +115,7 @@ msgstr "Dibuat pada"
 #. module: partnership
 #: model:ir.model.fields,field_description:partnership.field_res_partner_grade__default_pricelist_id
 msgid "Default Pricelist"
-msgstr "Daftar Harga Default"
+msgstr "Pricelist Default"
 
 #. module: partnership
 #: model:ir.model.fields,field_description:partnership.field_product_pricelist__display_name
@@ -144,7 +152,7 @@ msgstr "Terakhir Diupdate oleh"
 #. module: partnership
 #: model:ir.model.fields,field_description:partnership.field_res_partner_grade__write_date
 msgid "Last Updated on"
-msgstr "Update Terakhir pada"
+msgstr "Terakhir Diupdate pada"
 
 #. module: partnership
 #: model_terms:ir.ui.view,arch_db:partnership.view_partner_grade_form
@@ -168,7 +176,7 @@ msgstr "Level"
 #: code:addons/partnership/models/res_company.py:0
 #: model:ir.ui.menu,name:partnership.crm_menu_partners
 msgid "Members"
-msgstr "Anggota-Anggota"
+msgstr "Anggota"
 
 #. module: partnership
 #: model:ir.actions.act_window,name:partnership.action_grade_partners
@@ -226,6 +234,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:partnership.field_res_partner_grade__partners_count
 msgid "Partners Count"
 msgstr "Jumlah Partner"
+
+#. module: partnership
+#: model:ir.module.module,shortdesc:base.module_partnership
+msgid "Partnership / Membership"
+msgstr ""
 
 #. module: partnership
 #: model:ir.model.fields,field_description:partnership.field_product_pricelist__partners_label

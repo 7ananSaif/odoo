@@ -3,18 +3,23 @@ import { describe, expect, test, beforeEach } from "@odoo/hoot";
 import { mockDate } from "@odoo/hoot-mock";
 import {
     getDateDomain,
-    getRelativeDateFromTo,
+    getDateRange,
     dateFilterValueToString,
     getNextDateFilterValue,
     getPreviousDateFilterValue,
     getFacetInfo,
-    RELATIVE_PERIODS,
+    globalFilterDateRegistry,
 } from "@spreadsheet/global_filters/helpers";
 import {
     getDateDomainDurationInDays,
     assertDateDomainEqual,
 } from "@spreadsheet/../tests/helpers/date_domain";
-import { makeMockEnv, allowTranslations } from "@web/../tests/web_test_helpers";
+import {
+    getMockEnv,
+    makeTestApp,
+    allowTranslations,
+    mockService,
+} from "@web/../tests/web_test_helpers";
 import { getOperatorLabel } from "@web/core/tree_editor/tree_editor_operator_editor";
 
 import { defineSpreadsheetModels } from "../helpers/data";
@@ -32,7 +37,7 @@ beforeEach(() => {
 });
 
 function getRelativeDateDomain(now, offset, period, fieldName, fieldType) {
-    const { from, to } = getRelativeDateFromTo(now, offset, period);
+    const { from, to } = getDateRange({ type: "relative", period }, offset, now);
     return getDateDomain(from, to, fieldName, fieldType);
 }
 
@@ -230,11 +235,6 @@ test("dateFilterValueToString > range", function () {
 test("dateFilterValueToString > all time", function () {
     expect(valueToString({ type: undefined })).toBe("All time");
     expect(valueToString({})).toBe("All time");
-});
-
-test("dateFilterValueToString > invalid value", function () {
-    expect(valueToString({ type: "invalid" })).toBe("All time");
-    expect(valueToString(undefined)).toBe("All time");
 });
 
 describe("getNextDateFilterValue", () => {
@@ -502,13 +502,24 @@ test("getFacetInfo for date values", async () => {
         id: "1",
     };
     const env = {};
-    for (const [period, label] of Object.entries(RELATIVE_PERIODS)) {
+    const relativeFilterTypes = [
+        "today",
+        "yesterday",
+        "last_7_days",
+        "last_30_days",
+        "last_90_days",
+        "month_to_date",
+        "last_month",
+        "year_to_date",
+        "last_12_months",
+    ];
+    for (const period of relativeFilterTypes) {
         expect(await getFacetInfo(env, filter, { type: "relative", period })).toEqual({
             title: "Date Filter",
             id: "1",
             separator: "or",
             operator: "",
-            values: [label],
+            values: [globalFilterDateRegistry.get(period).label.toString()],
         });
     }
     expect(
@@ -563,22 +574,18 @@ test("getFacetInfo for relation values", async () => {
         label: "Relation Filter",
         id: "1",
     };
-    const nameService = {
-        loadDisplayNames: (resModel, ids) => ids.map((id) => `Name ${id}`),
-    };
-    const env = await makeMockEnv({
-        services: {
-            name: nameService,
-        },
+    mockService("name", {
+        loadDisplayNames: (_resModel, ids) => ids.map((id) => `Name ${id}`),
     });
-    expect(await getFacetInfo(env, filter, { operator: "in", ids: [1] })).toEqual({
+    await makeTestApp();
+    expect(await getFacetInfo(getMockEnv(), filter, { operator: "in", ids: [1] })).toEqual({
         title: "Relation Filter",
         id: "1",
         separator: "or",
         operator: "",
         values: ["Name 1"],
     });
-    expect(await getFacetInfo(env, filter, { operator: "in", ids: [1, 2] })).toEqual({
+    expect(await getFacetInfo(getMockEnv(), filter, { operator: "in", ids: [1, 2] })).toEqual({
         title: "Relation Filter",
         id: "1",
         separator: "or",
@@ -596,18 +603,21 @@ test("getFacetInfo for selection values", async () => {
         resModel: "res.currency",
         selectionField: "position",
     };
-    const env = await makeMockEnv();
-    expect(await getFacetInfo(env, filter, { operator: "in", selectionValues: ["after"] })).toEqual(
-        {
-            title: "Selection Filter",
-            id: "42",
-            separator: "or",
-            operator: "",
-            values: ["A"],
-        }
-    );
+    await makeTestApp();
     expect(
-        await getFacetInfo(env, filter, { operator: "in", selectionValues: ["after", "before"] })
+        await getFacetInfo(getMockEnv(), filter, { operator: "in", selectionValues: ["after"] })
+    ).toEqual({
+        title: "Selection Filter",
+        id: "42",
+        separator: "or",
+        operator: "",
+        values: ["A"],
+    });
+    expect(
+        await getFacetInfo(getMockEnv(), filter, {
+            operator: "in",
+            selectionValues: ["after", "before"],
+        })
     ).toEqual({
         title: "Selection Filter",
         id: "42",

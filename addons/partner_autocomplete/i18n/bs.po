@@ -10,16 +10,30 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~11.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2018-10-02 10:06+0000\n"
-"Last-Translator: Bole <bole@dajmi5.com>, 2018\n"
-"Language-Team: Bosnian (https://www.transifex.com/odoo/teams/41243/bs/)\n"
+"POT-Creation-Date: 2026-09-11 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 14:34+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Bosnian <https://translate.odoo.com/projects/odoo-s19-4/"
+"partner_autocomplete/bs/>\n"
 "Language: bs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: partner_autocomplete
+#: model:ir.module.module,description:base.module_partner_autocomplete
+msgid ""
+"\n"
+"Auto-complete partner companies' data\n"
+msgstr ""
+
+#. module: partner_autocomplete
+#: model:ir.module.module,summary:base.module_partner_autocomplete
+msgid "Auto-complete partner companies' data"
+msgstr ""
 
 #. module: partner_autocomplete
 #: model:iap.service,description:partner_autocomplete.iap_service_partner_autocomplete
@@ -29,13 +43,13 @@ msgstr ""
 #. module: partner_autocomplete
 #. odoo-javascript
 #: code:addons/partner_autocomplete/static/src/xml/partner_autocomplete.xml:0
-msgid "Buy more credits"
+msgid "Buy"
 msgstr ""
 
 #. module: partner_autocomplete
 #: model:ir.model,name:partner_autocomplete.model_res_company
-msgid "Companies"
-msgstr "Kompanije"
+msgid "Company"
+msgstr ""
 
 #. module: partner_autocomplete
 #: model:ir.model,name:partner_autocomplete.model_res_config_settings
@@ -62,8 +76,19 @@ msgid "Display Name"
 msgstr "Prikazani naziv"
 
 #. module: partner_autocomplete
+#: model:ir.actions.server,name:partner_autocomplete.model_res_partner_enrich
+msgid "Enrich"
+msgstr ""
+
+#. module: partner_autocomplete
 #: model:ir.model.fields,field_description:partner_autocomplete.field_res_company__iap_enrich_auto_done
 msgid "Enrich Done"
+msgstr ""
+
+#. module: partner_autocomplete
+#. odoo-python
+#: code:addons/partner_autocomplete/models/res_partner.py:0
+msgid "Enrich notification"
 msgstr ""
 
 #. module: partner_autocomplete
@@ -103,6 +128,13 @@ msgstr ""
 
 #. module: partner_autocomplete
 #. odoo-python
+#: code:addons/partner_autocomplete/models/res_partner.py:0
+msgid ""
+"It seems that we didn't found some information for the following partners: %s"
+msgstr ""
+
+#. module: partner_autocomplete
+#. odoo-python
 #: code:addons/partner_autocomplete/models/iap_autocomplete_api.py:0
 msgid "No account token"
 msgstr ""
@@ -114,6 +146,12 @@ msgid "Not enough credits for Partner Autocomplete"
 msgstr ""
 
 #. module: partner_autocomplete
+#: model:iap.service,name:partner_autocomplete.iap_service_partner_autocomplete
+#: model:ir.module.module,shortdesc:base.module_partner_autocomplete
+msgid "Partner Autocomplete"
+msgstr ""
+
+#. module: partner_autocomplete
 #. odoo-javascript
 #: code:addons/partner_autocomplete/static/src/xml/partner_autocomplete.xml:0
 msgid "Search Worldwide 🌎"
@@ -121,6 +159,7 @@ msgstr ""
 
 #. module: partner_autocomplete
 #. odoo-javascript
+#: code:addons/partner_autocomplete/static/src/js/partner_autocomplete_additional_identifiers_list.js:0
 #: code:addons/partner_autocomplete/static/src/js/partner_autocomplete_fieldchar.js:0
 #: code:addons/partner_autocomplete/static/src/js/partner_autocomplete_many2one.js:0
 msgid "Searching Autocomplete..."
@@ -134,6 +173,12 @@ msgstr ""
 
 #. module: partner_autocomplete
 #. odoo-python
+#: code:addons/partner_autocomplete/models/res_partner.py:0
+msgid "Some errors occurred during the enrich: %s"
+msgstr ""
+
+#. module: partner_autocomplete
+#. odoo-python
 #: code:addons/partner_autocomplete/models/iap_autocomplete_api.py:0
 msgid "Test mode"
 msgstr ""
@@ -143,18 +188,3 @@ msgstr ""
 #: code:addons/partner_autocomplete/models/res_partner.py:0
 msgid "Unable to enrich company (no credit was consumed)."
 msgstr ""
-
-#~ msgid "Created by"
-#~ msgstr "Kreirao"
-
-#~ msgid "Created on"
-#~ msgstr "Kreirano"
-
-#~ msgid "Last Updated by"
-#~ msgstr "Zadnji ažurirao"
-
-#~ msgid "Last Updated on"
-#~ msgstr "Zadnje ažurirano"
-
-#~ msgid "Partner"
-#~ msgstr "Partner"

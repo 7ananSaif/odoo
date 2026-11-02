@@ -10,17 +10,31 @@
                         <div class="oe_button_box" name="button_box">
                             <button name="action_view_all_routes"
                                     string="Routes"
-                                    icon="fa-refresh"
+                                    icon="cached"
                                     class="oe_stat_button"
                                     type="object">
                                     <div class="o_stat_info">
                                         <span class="o_stat_text">Routes</span>
                                     </div>
                             </button>
+                            <button name="action_open_internal_locations"
+                                    string="Locations"
+                                    icon="grid_view"
+                                    class="oe_stat_button"
+                                    type="object"
+                                    groups="stock.group_stock_multi_locations">
+                                    <div class="o_stat_info">
+                                        <span class="o_stat_text">Locations</span>
+                                    </div>
+                            </button>
                         </div>
                         <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
-                        <label for="name"/>
-                        <h1><field name="name" placeholder="e.g. Central Warehouse" class="w-100"/></h1>
+                        <group>
+                            <label for="name" class="d-md-none"/>
+                            <h1>
+                                <field name="name" placeholder="e.g. Central Warehouse" class="w-100"/>
+                            </h1>
+                        </group>
                         <group>
                             <group>
                                 <field name="active" invisible="1"/>
@@ -28,7 +42,7 @@
                                 <field name="code" placeholder="e.g. CW"/>
                             </group>
                             <group>
-                                <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                                <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}" readonly="id"/>
                                 <field name="partner_id"/>
                             </group>
                         </group>
@@ -39,8 +53,8 @@
                                         <field name="reception_steps" widget='radio'/>
                                         <field name="delivery_steps" widget='radio'/>
                                     </group>
-                                    <group name="group_resupply" string="Resupply" groups="stock.group_stock_multi_warehouses">
-                                        <field name="resupply_wh_ids" domain="[('id', '!=', id), ('company_id', '=', company_id)]" widget="many2many_checkboxes" groups="stock.group_stock_multi_warehouses"/>
+                                    <group name="group_resupply" string="Resupply" groups="stock.group_stock_multi_warehouses,base.group_multi_company">
+                                        <field name="resupply_wh_ids" domain="[('id', '!=', id)]" widget="many2many_checkboxes"/>
                                     </group>
                                 </group>
                             </page>

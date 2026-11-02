@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
@@ -24,10 +23,8 @@ Dashboard / Reports for Warehouse Management includes:
     'sequence': 16,
     'data': [
         'security/stock_account_security.xml',
-        'security/ir.model.access.csv',
         'data/stock_account_data.xml',
-        'views/account_account_views.xml',
-        'views/stock_account_views.xml',
+        'views/account_move_views.xml',
         'views/res_config_settings_views.xml',
         'views/report_invoice.xml',
         'views/stock_quant_views.xml',
@@ -35,14 +32,12 @@ Dashboard / Reports for Warehouse Management includes:
         'views/product_value_views.xml',
         'views/stock_location_views.xml',
         'views/stock_lot_views.xml',
-        'views/stock_picking_views.xml',
         'views/stock_move_views.xml',
         'wizard/stock_inventory_adjustment_name_views.xml',
         'report/account_invoice_report_view.xml',
         'report/stock_avco_audit_report_views.xml',
-        'report/stock_valuation_report.xml',
+        'security/ir.access.csv',
     ],
-    'installable': True,
     'auto_install': True,
     'post_init_hook': '_post_init_hook',
     'assets': {

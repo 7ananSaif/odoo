@@ -1,11 +1,17 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+import logging
+
 from odoo import models
-from odoo.http import request, SessionExpiredException
+from odoo.http import request
+from odoo.http.session import check
 from odoo.tools.misc import OrderedSet
-from odoo.service import security
-from ..models.bus import dispatch
-from ..websocket import wsrequest
+
+from odoo.addons.bus.bus_dispatcher import dispatch
+from odoo.addons.bus.models.bus import channel_with_db
+from odoo.addons.bus.websocket import wsrequest
+
+_logger = logging.getLogger(__name__)
 
 
 class IrWebsocket(models.AbstractModel):
@@ -25,6 +31,7 @@ class IrWebsocket(models.AbstractModel):
         channels.extend(self.env.user.all_group_ids)
         if req.session.uid:
             channels.append(self.env.user.partner_id)
+            channels.append(self.env.user)
         return channels
 
     def _serve_ir_websocket(self, event_name, data):
@@ -54,19 +61,39 @@ class IrWebsocket(models.AbstractModel):
         :raise ValueError: If the list of channels is not a list of strings.
         """
         if not all(isinstance(c, str) for c in channels):
-            raise ValueError("bus.Bus only string channels are allowed.")
+            e = "bus.Bus only string channels are allowed."
+            raise ValueError(e)
         # sudo - bus.bus: reading non-sensitive last bus id.
-        last = 0 if last > self.env["bus.bus"].sudo()._bus_last_id() else last
-        return {"channels": OrderedSet(self._build_bus_channel_list(list(channels))), "last": last}
-
-    def _after_subscribe_data(self, data):
-        """Function invoked after subscribe data have been processed.
-        Modules can override this method to add custom behavior."""
+        bus_last_id = self.env["bus.bus"].sudo()._bus_last_id()
+        if not isinstance(last, int) or isinstance(last, bool):
+            _logger.warning(
+                "Missing or invalid last_id provided on subscribe: notifications created between "
+                "the data fetch and the first subscription may be missed. Pass the `last_id` "
+                "of the time the data was collected to avoid this gap. See `_get_bus_session_info`",
+            )
+            last = bus_last_id
+        elif last > bus_last_id:
+            last = bus_last_id
+        return {
+            "channels": OrderedSet(
+                channel_with_db(self.env.cr.dbname, c)
+                for c in self._build_bus_channel_list(list(channels))
+            ),
+            "last": last,
+        }
 
     def _subscribe(self, og_data):
         data = self._prepare_subscribe_data(og_data["channels"], og_data["last"])
-        dispatch.subscribe(data["channels"], data["last"], self.env.registry.db_name, wsrequest.ws)
-        self._after_subscribe_data(data)
+        # sudo - bus.bus: checking if last received notification still exists is acceptable.
+        if og_data["check_outdated"] and not self.env["bus.bus"].sudo().search(
+            [("id", "=", og_data["last"])],
+        ):
+            wsrequest.ws.send_worker_internal_message("bus/subscription_outdated")
+        if og_data["last"] != data["last"]:
+            # Last was outdated, ask the worker to update its local state to the last
+            # known server id.
+            wsrequest.ws.send_worker_internal_message("bus/last_id_reset", data["last"])
+        dispatch.subscribe(data["channels"], data["last"], wsrequest.ws)
 
     def _on_websocket_closed(self, cookies):
         """Function invoked upon WebSocket termination.
@@ -75,9 +102,7 @@ class IrWebsocket(models.AbstractModel):
     @classmethod
     def _authenticate(cls):
         if wsrequest.session.uid is not None:
-            if not security.check_session(wsrequest.session, wsrequest.env, wsrequest):
-                wsrequest.session.logout(keep_db=True)
-                raise SessionExpiredException()
+            check(wsrequest.session, wsrequest)
         else:
             public_user = wsrequest.env.ref('base.public_user')
             wsrequest.update_env(user=public_user.id)

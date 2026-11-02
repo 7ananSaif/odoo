@@ -1,8 +1,9 @@
-import { Component } from "@odoo/owl";
+import { Component, t, useProps } from "@odoo/owl";
 import { SelectMenu } from "@web/core/select_menu/select_menu";
 import { ImportDataColumnError } from "../import_data_column_error/import_data_column_error";
 import { ImportDataOptions } from "../import_data_options/import_data_options";
 import { _t } from "@web/core/l10n/translation";
+import { user } from "@web/core/user";
 
 export class ImportDataContent extends Component {
     static template = "ImportDataContent";
@@ -11,19 +12,28 @@ export class ImportDataContent extends Component {
         ImportDataOptions,
         SelectMenu,
     };
-    static props = {
-        columns: { type: Array },
-        isFieldSet: { type: Function },
-        onOptionChanged: { type: Function },
-        onFieldChanged: { type: Function },
-        options: { type: Object },
-        importMessages: { type: Object },
-        previewError: { type: String, optional: true },
-    };
+
+    props = useProps({
+        columns: t.array(),
+        importMessages: t.array(t.object()),
+        isFieldSet: t.function(),
+        languagesInstalled: t.array(),
+        onFieldChanged: t.function(),
+        onFieldLanguageChanged: t.function(),
+        onOptionChanged: t.function(),
+        options: t.object(),
+        previewError: t.string().optional(),
+    });
+
+    setup() {
+        this.hasMultipleLanguages = this.props.languagesInstalled.length > 1;
+        this.userLanguage = user.lang.replace("-", "_");
+    }
 
     getGroups(column) {
         const groups = [
             { choices: this.makeChoices(column.fields.basic) },
+            { choices: this.makeChoices(column.fields.required), label: _t("Required Fields") },
             { choices: this.makeChoices(column.fields.suggested), label: _t("Suggested Fields") },
             {
                 choices: this.makeChoices(column.fields.additional),
@@ -82,11 +92,27 @@ export class ImportDataContent extends Component {
     onFieldChanged(column, fieldPath) {
         const fields = [
             ...column.fields.basic,
+            ...column.fields.required,
             ...column.fields.suggested,
             ...column.fields.additional,
             ...column.fields.relational,
         ];
         const fieldInfo = fields.find((f) => f.fieldPath === fieldPath);
         this.props.onFieldChanged(column, fieldInfo);
+    }
+
+    getLanguages() {
+        return this.props.languagesInstalled.map((val) => ({
+            value: val[0],
+            label: val[1],
+        }));
+    }
+
+    getLanguagesLabel(value) {
+        return this.props.languagesInstalled.find((val) => val[0] === value)?.[1];
+    }
+
+    setLanguage(column, language) {
+        this.props.onFieldLanguageChanged(column, language);
     }
 }

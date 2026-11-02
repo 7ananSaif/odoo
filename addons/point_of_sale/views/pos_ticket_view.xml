@@ -3,10 +3,17 @@
 
     <!-- This is the "validation" screen. Recap the ticket info, warn the user to check/set his address and eventually set localization fields if needed. -->
     <template id="ticket_validation_screen">
-        <t t-call="portal.portal_layout">
-            <t t-set="no_breadcrumbs" t-value="True"/>
+        <t t-call="portal.portal_layout" no_breadcrumbs="True">
             <div class="row justify-content-md-center o_customer_address_fill">
-                <form method="post" target="_self" t-att-action="'/pos/ticket/validate'" onsubmit="$('button:submit').attr('disabled', 'disabled')" class="address_autoformat">
+                <form
+                    class="address_autoformat"
+                    method="post"
+                    onsubmit="this.querySelector('#get_my_invoice > button').setAttribute('disabled', 'disabled')"
+                    t-att-action="'/pos/ticket/validate'"
+                    t-att-data-company-country-code="res_company.country_id.code"
+                    t-att-data-default-required-fields="','.join(required_fields)"
+                    target="_self"
+                >
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                     <input type="hidden" name="access_token" t-att-value="access_token"/>
                     <div class="col-12 col-md-6 mt-4 offset-md-3">
@@ -36,7 +43,7 @@
                                 <strong>Amounting to:</strong> <t t-out="format_amount(env, pos_order.amount_total, pos_order.currency_id)"/>
                             </div>
                         </div>
-                        <t t-if="user_is_connected">
+                        <t t-if="user_is_connected and not has_order_partner">
                             <div class="row mt-4">
                                 <div class="col-12">
                                     <h4>Billing address:</h4>
@@ -44,7 +51,7 @@
                             </div>
                             <div t-if="error_message" class="alert alert-danger" role="alert">
                                 <div class="col-lg-12">
-                                    <t t-foreach="error_message" t-as="err"><t t-esc="err"/><br /></t>
+                                    <t t-foreach="error_message" t-as="err"><t t-out="err"/><br /></t>
                                 </div>
                             </div>
                             <t t-if="not partner_address">
@@ -55,13 +62,13 @@
                                 <div class="row">
                                     <div class="col-12">
                                         <t t-out="partner.name"/>
-                                        <t t-if="partner.company_name">
-                                            , <t t-out="partner.company_name"/>
+                                        <t t-if="partner.parent_name">
+                                            , <t t-out="partner.parent_name"/>
                                         </t><br />
                                         <t id="partner_vat" t-if="partner.vat">
                                             <t t-out="partner.vat" /><br />
                                         </t>
-                                        <t t-out="partner_address"/> <a role="button" t-att-href="address_url" class="btn btn-sm btn-link"><i class="fa fa-pencil"/> Edit</a>
+                                        <t t-out="partner_address"/> <a role="button" t-att-href="address_url" class="btn btn-sm btn-link"><i class="oi oi-filled" data-icon="edit"/> Edit</a>
                                     </div>
                                 </div>
                             </t>
@@ -119,7 +126,7 @@
                         </t>
                         <div class="row mt-4">
                             <div class="col-12 col-md-4" id="get_my_invoice">
-                                <t t-if="user_is_connected and not partner_address">
+                                <t t-if="user_is_connected and not partner_address and not has_order_partner">
                                     <button class="btn btn-primary btn-lg lh-lg w-100" disabled="True">Get my invoice</button>
                                 </t>
                                 <t t-else="">
@@ -134,8 +141,7 @@
     </template>
 
     <template id="ticket_request_with_code" name="Invoice Request">
-        <t t-call="portal.portal_layout">
-            <t t-set="no_breadcrumbs" t-value="True"/>
+        <t t-call="portal.portal_layout" no_breadcrumbs="True">
             <div class="row justify-content-md-center">
                 <form method="post" target="_self" t-att-action="'/pos/ticket'">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
@@ -143,7 +149,7 @@
                         <div class="row">
                             <div t-if="banner_error" class="alert alert-danger" role="alert">
                                 <div class="col-lg-12">
-                                    <t t-esc="banner_error"/>
+                                    <t t-out="banner_error"/>
                                 </div>
                             </div>
                             <h2>Invoice Request</h2>

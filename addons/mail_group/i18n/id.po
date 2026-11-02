@@ -4,22 +4,29 @@
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
 # "Abe Manyo (abem)" <abem@odoo.com>, 2025, 2026.
-# Weblate <noreply-mt-weblate@weblate.org>, 2026.
+# "Nurul Aini Akrima Sabila (nuaas)" <nuaas@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:39+0000\n"
-"PO-Revision-Date: 2026-06-13 04:41+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Indonesian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-04 17:45+0000\n"
+"PO-Revision-Date: 2026-08-31 17:09+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Indonesian <https://translate.odoo.com/projects/odoo-s19-4/"
 "mail_group/id/>\n"
 "Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: mail_group
+#: model:ir.module.module,description:base.module_mail_group
+msgid ""
+"\n"
+"Manage your mailing lists from Odoo.\n"
+msgstr ""
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_group_view_list
@@ -57,7 +64,6 @@ msgstr "<br/> Anda akan dinotifikasi saat konten baru dipost."
 
 #. module: mail_group
 #: model:mail.template,body_html:mail_group.mail_template_list_subscribe
-#, fuzzy
 msgid ""
 "<div style=\"margin: 0px; padding: 0px;\">\n"
 "                Hello,<br/><br/>\n"
@@ -89,7 +95,6 @@ msgstr ""
 
 #. module: mail_group
 #: model:mail.template,body_html:mail_group.mail_template_list_unsubscribe
-#, fuzzy
 msgid ""
 "<div style=\"margin: 0px; padding: 0px;\">\n"
 "                Hello,<br/><br/>\n"
@@ -121,7 +126,6 @@ msgstr ""
 
 #. module: mail_group
 #: model:mail.template,body_html:mail_group.mail_template_guidelines
-#, fuzzy
 msgid ""
 "<div>\n"
 "                <p>Hello <t t-out=\"object.partner_id.name or ''\"/>,</p>\n"
@@ -142,103 +146,101 @@ msgstr ""
 "        "
 
 #. module: mail_group
+#: model_terms:ir.ui.view,arch_db:mail_group.mail_groups
+msgid ""
+"<i class=\"oi me-1\" data-icon=\"mail\" role=\"img\" aria-label=\"Alias\" "
+"title=\"Alias\"/>"
+msgstr ""
+"<i class=\"oi me-1\" data-icon=\"mail\" role=\"img\" aria-label=\"Alias\" "
+"title=\"Alias\"/>"
+
+#. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.message_footer
 msgid ""
-"<i class=\"fa fa-calendar\" role=\"img\" aria-label=\"Date\" title=\"Date\"/>"
+"<i class=\"oi oi-filled\" data-icon=\"calendar_today\" role=\"img\" aria-"
+"label=\"Date\" title=\"Date\"/>"
 msgstr ""
-"<i class=\"fa fa-calendar\" role=\"img\" aria-label=\"Date\" "
-"title=\"Tanggal\"/>"
+"<i class=\"oi oi-filled\" data-icon=\"calendar_today\" role=\"img\" aria-"
+"label=\"Date\" title=\"Tanggal\"/>"
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_groups
 msgid ""
-"<i class=\"fa fa-envelope-o me-1\" role=\"img\" aria-label=\"Alias\" "
-"title=\"Alias\"/>"
+"<i class=\"oi oi-fw oi-filled\" data-icon=\"person\" role=\"img\" aria-"
+"label=\"Recipients\" title=\"Recipients\"/>"
 msgstr ""
-"<i class=\"fa fa-envelope-o me-1\" role=\"img\" aria-label=\"Alias\" "
-"title=\"Alias\"/>"
-
-#. module: mail_group
-#: model_terms:ir.ui.view,arch_db:mail_group.group_name
-msgid ""
-"<i class=\"fa fa-envelope-o\" role=\"img\" aria-label=\"Alias\" "
-"title=\"Alias\"/>"
-msgstr ""
-"<i class=\"fa fa-envelope-o\" role=\"img\" aria-label=\"Alias\" "
-"title=\"Alias\"/>"
+"<i class=\"oi oi-fw oi-filled\" data-icon=\"person\" role=\"img\" aria-"
+"label=\"Recipients\" title=\"Penerima\"/>"
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_groups
-#, fuzzy
 msgid ""
-"<i class=\"fa fa-fw fa-envelope-o\" role=\"img\" aria-label=\"Traffic\" "
+"<i class=\"oi oi-fw\" data-icon=\"mail\" role=\"img\" aria-label=\"Traffic\" "
 "title=\"Traffic\"/>"
 msgstr ""
-"<i class=\"fa fa-fw fa-envelope-o\" role=\"img\" aria-label=\"Traffic\" "
-"title=\"Traffic\"/>"
-
-#. module: mail_group
-#: model_terms:ir.ui.view,arch_db:mail_group.mail_groups
-msgid ""
-"<i class=\"fa fa-fw fa-user\" role=\"img\" aria-label=\"Recipients\" "
-"title=\"Recipients\"/>"
-msgstr ""
-"<i class=\"fa fa-fw fa-user\" role=\"img\" aria-label=\"Recipients\" "
-"title=\"Penerima\"/>"
-
-#. module: mail_group
-#: model_terms:ir.ui.view,arch_db:mail_group.group_message
-msgid ""
-"<i class=\"oi oi-arrow-left\" role=\"img\" aria-label=\"Previous message\" "
-"title=\"Previous message\"/>"
-msgstr ""
-"<i class=\"oi oi-arrow-left\" role=\"img\" aria-label=\"Previous message\" "
-"title=\"Pesan sebelumnya\"/>"
-
-#. module: mail_group
-#: model_terms:ir.ui.view,arch_db:mail_group.group_message
-msgid ""
-"<i class=\"oi oi-arrow-right\" role=\"img\" aria-label=\"Next message\" "
-"title=\"Next message\"/>"
-msgstr ""
-"<i class=\"oi oi-arrow-right\" role=\"img\" aria-label=\"Next message\" "
-"title=\"Pesan berikutnya\"/>"
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.message_attachments
 msgid ""
-"<i class=\"oi oi-chevron-down\" role=\"img\" aria-label=\"Show attachments\" "
-"title=\"Show attachments\"/>"
-msgstr ""
-"<i class=\"oi oi-chevron-down\" role=\"img\" aria-label=\"Show attachments\" "
-"title=\"Tunjukkan lampiran\"/>"
-
-#. module: mail_group
-#: model_terms:ir.ui.view,arch_db:mail_group.messages_short
-msgid ""
-"<i class=\"oi oi-chevron-down\" role=\"img\" aria-label=\"Show replies\" "
-"title=\"Show replies\"/>"
-msgstr ""
-"<i class=\"oi oi-chevron-down\" role=\"img\" aria-label=\"Show replies\" "
-"title=\"Tunjukkan balasan\"/>"
-
-#. module: mail_group
-#: model_terms:ir.ui.view,arch_db:mail_group.message_attachments
-msgid ""
-"<i class=\"oi oi-chevron-right\" role=\"img\" aria-label=\"Hide "
+"<i class=\"oi\" data-icon=\"chevron_forward\" role=\"img\" aria-label=\"Hide "
 "attachments\" title=\"Hide attachments\"/>"
 msgstr ""
-"<i class=\"oi oi-chevron-right\" role=\"img\" aria-label=\"Hide "
+"<i class=\"oi\" data-icon=\"chevron_forward\" role=\"img\" aria-label=\"Hide "
 "attachments\" title=\"Sembunyikan lampiran\"/>"
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.messages_short
 msgid ""
-"<i class=\"oi oi-chevron-right\" role=\"img\" aria-label=\"Hide replies\" "
-"title=\"Hide replies\"/>"
+"<i class=\"oi\" data-icon=\"chevron_forward\" role=\"img\" aria-label=\"Hide "
+"replies\" title=\"Hide replies\"/>"
 msgstr ""
-"<i class=\"oi oi-chevron-right\" role=\"img\" aria-label=\"Hide replies\" "
-"title=\"Sembunyikan balasan\"/>"
+"<i class=\"oi\" data-icon=\"chevron_forward\" role=\"img\" aria-label=\"Hide "
+"replies\" title=\"Sembunyikan balasan\"/>"
+
+#. module: mail_group
+#: model_terms:ir.ui.view,arch_db:mail_group.group_message
+msgid ""
+"<i class=\"oi\" data-icon=\"east\" role=\"img\" aria-label=\"Next message\" "
+"title=\"Next message\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"east\" role=\"img\" aria-label=\"Next message\" "
+"title=\"Pesan berikutnya\"/>"
+
+#. module: mail_group
+#: model_terms:ir.ui.view,arch_db:mail_group.message_attachments
+msgid ""
+"<i class=\"oi\" data-icon=\"keyboard_arrow_down\" role=\"img\" aria-"
+"label=\"Show attachments\" title=\"Show attachments\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"keyboard_arrow_down\" role=\"img\" aria-"
+"label=\"Show attachments\" title=\"Tunjukkan lampiran\"/>"
+
+#. module: mail_group
+#: model_terms:ir.ui.view,arch_db:mail_group.messages_short
+msgid ""
+"<i class=\"oi\" data-icon=\"keyboard_arrow_down\" role=\"img\" aria-"
+"label=\"Show replies\" title=\"Show replies\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"keyboard_arrow_down\" role=\"img\" aria-"
+"label=\"Show replies\" title=\"Tunjukkan balasan\"/>"
+
+#. module: mail_group
+#: model_terms:ir.ui.view,arch_db:mail_group.group_name
+msgid ""
+"<i class=\"oi\" data-icon=\"mail\" role=\"img\" aria-label=\"Alias\" "
+"title=\"Alias\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"mail\" role=\"img\" aria-label=\"Alias\" "
+"title=\"Alias\"/>"
+
+#. module: mail_group
+#: model_terms:ir.ui.view,arch_db:mail_group.group_message
+msgid ""
+"<i class=\"oi\" data-icon=\"west\" role=\"img\" aria-label=\"Previous "
+"message\" title=\"Previous message\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"west\" role=\"img\" aria-label=\"Previous "
+"message\" title=\"Pesan sebelumnya\"/>"
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.messages_short
@@ -498,9 +500,8 @@ msgstr "Pilih atau konfigurasikan domain kustom"
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_group_view_form
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_group_view_kanban
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_groups
-#, fuzzy
 msgid "Closed"
-msgstr "Ditutup"
+msgstr ""
 
 #. module: mail_group
 #: model:ir.model.fields,help:mail_group.field_mail_group__is_closed
@@ -572,11 +573,6 @@ msgstr "Nilai Baku"
 #: model:ir.model.fields,field_description:mail_group.field_mail_group__description
 msgid "Description"
 msgstr "Deskripsi"
-
-#. module: mail_group
-#: model_terms:ir.ui.view,arch_db:mail_group.mail_group_message_reject_form
-msgid "Discard"
-msgstr "Buang"
 
 #. module: mail_group
 #: model:ir.model.fields,field_description:mail_group.field_mail_group__display_name
@@ -702,7 +698,6 @@ msgstr "Halo"
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.email_template_mail_group_closed
-#, fuzzy
 msgid ""
 "Hello there,\n"
 "    <br/><br/>\n"
@@ -711,12 +706,6 @@ msgid ""
 "    <br/><br/>\n"
 "    Kind Regards,"
 msgstr ""
-"Halo,\n"
-"    <br/><br/>\n"
-"    Mailing list yang Anda coba cari telah ditutup, dan tidak akan menerima "
-"pesan baru.\n"
-"    <br/><br/>\n"
-"    Salam hangat,"
 
 #. module: mail_group
 #: model:ir.model.fields,field_description:mail_group.field_mail_group__id
@@ -836,6 +825,7 @@ msgstr "Local-part based incoming detection"
 
 #. module: mail_group
 #: model:ir.model,name:mail_group.model_mail_group
+#: model:ir.module.module,shortdesc:base.module_mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_group_view_form
 msgid "Mail Group"
 msgstr "Kelompok Email"
@@ -912,6 +902,11 @@ msgid "Mailing-List:"
 msgstr "Mailing-List:"
 
 #. module: mail_group
+#: model:ir.module.module,summary:base.module_mail_group
+msgid "Manage your mailing lists"
+msgstr ""
+
+#. module: mail_group
 #: model:ir.actions.act_window,name:mail_group.mail_group_member_action
 #: model:ir.model.fields,field_description:mail_group.field_mail_group__member_ids
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_group_view_form
@@ -972,7 +967,7 @@ msgstr "Pesan yang membutuhkan action"
 #. module: mail_group
 #: model:ir.model.fields,field_description:mail_group.field_mail_group__moderation
 msgid "Moderate"
-msgstr "Moderasi"
+msgstr "Moderat"
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_group_notify_moderation
@@ -1061,11 +1056,13 @@ msgstr "Nama"
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_groups
 msgid ""
-"Need to unsubscribe? <br/>It's right here! <span class=\"oi fa-2x oi-arrow-"
-"down float-end\" role=\"img\" aria-label=\"\" title=\"Read this !\"/>"
+"Need to unsubscribe? <br/>It's right here! <span class=\"oi oi-2x float-"
+"end\" data-icon=\"south\" role=\"img\" aria-label=\"\" title=\"Read this !\"/"
+">"
 msgstr ""
-"Ingin membatalkan langganan? <br/>Tepat di sini!<span class=\"oi fa-2x oi-"
-"arrow-down float-end\" role=\"img\" aria-label=\"\" title=\"Read this !\"/>"
+"Ingin membatalkan langganan? <br/>Tepat di sini!<span class=\"oi oi-2x float-"
+"end\" data-icon=\"south\" role=\"img\" aria-label=\"\" title=\"Read this !\"/"
+">"
 
 #. module: mail_group
 #: model:ir.model.fields,help:mail_group.field_mail_group__moderation_guidelines
@@ -1134,9 +1131,8 @@ msgstr ""
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.messages_short
-#, fuzzy
 msgid "Oops, there are no messages here."
-msgstr "Oops, tidak ada pesan di sini."
+msgstr ""
 
 #. module: mail_group
 #: model:ir.model.fields,help:mail_group.field_mail_group__alias_force_thread_id
@@ -1295,16 +1291,9 @@ msgid "Rejected"
 msgstr "Ditolak"
 
 #. module: mail_group
-#: model_terms:ir.ui.view,arch_db:mail_group.mail_group_message_view_form
-#: model_terms:ir.ui.view,arch_db:mail_group.mail_group_message_view_list
-msgid "Remove message with explanation"
-msgstr "Hapus pesan dengan penjelasan"
-
-#. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_group_view_form
-#, fuzzy
 msgid "Responsibles"
-msgstr "Penanggungjawab"
+msgstr ""
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_group_message_view_search
@@ -1328,9 +1317,8 @@ msgstr "Cari List Moderasi"
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_group_view_form
-#, fuzzy
 msgid "Select users"
-msgstr "Pilih user"
+msgstr ""
 
 #. module: mail_group
 #: model:ir.model.fields.selection,name:mail_group.selection__mail_group__access_mode__groups
@@ -1619,9 +1607,8 @@ msgstr "contoh \"Buletin\""
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_group_view_form
-#, fuzzy
 msgid "e.g. \"This group is about ...\""
-msgstr "contoh. \"Kelompok ini mengenai ...\""
+msgstr ""
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_group_view_form
@@ -1630,9 +1617,8 @@ msgstr "contoh. mycompany.com"
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_group_view_form
-#, fuzzy
 msgid "e.g.\"Please be polite and ...\""
-msgstr "contoh. \"Mohon sopan dan ...\""
+msgstr ""
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_group_message_view_search
@@ -1646,9 +1632,8 @@ msgstr "telah"
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_groups
-#, fuzzy
 msgid "members<br/>"
-msgstr "anggota<br/>"
+msgstr ""
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_groups
@@ -1657,9 +1642,8 @@ msgstr "pesan / bulan"
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_group_view_kanban
-#, fuzzy
 msgid "messages to review"
-msgstr "pesan untuk ditinjau"
+msgstr ""
 
 #. module: mail_group
 #: model_terms:ir.ui.view,arch_db:mail_group.messages_short
@@ -1690,9 +1674,3 @@ msgstr "berhenti langganan dari"
 #: model_terms:ir.ui.view,arch_db:mail_group.mail_groups
 msgid "your email..."
 msgstr "email anda..."
-
-#~ msgid "_______________________________________________"
-#~ msgstr "_______________________________________________"
-
-#~ msgid "Group By"
-#~ msgstr "Dikelompokkan berdasarkan"

@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
     'name': 'Automation Rules',
-    'version': '1.0',
     'category': 'Sales/Sales',
     'description': """
 This module allows to implement automation rules for any object.
@@ -17,11 +15,11 @@ trigger an automatic reminder email.
     """,
     'depends': ['base', 'digest', 'resource', 'mail', 'sms'],
     'data': [
-        'security/ir.model.access.csv',
         'data/base_automation_data.xml',
         'data/digest_data.xml',
         'views/base_automation_views.xml',
         'views/ir_actions_server_views.xml',
+        'security/ir.access.csv',
     ],
     'assets': {
         'web.assets_backend': [

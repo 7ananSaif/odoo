@@ -3,7 +3,7 @@ import { registry } from "@web/core/registry";
 import { isMediaElement } from "@html_editor/utils/dom_info";
 import { selectElements } from "@html_editor/utils/dom_traversal";
 
-class CompanyTeamPlugin extends Plugin {
+export class CompanyTeamPlugin extends Plugin {
     static id = "companyTeam";
     /** @type {import("plugins").WebsiteResources} */
     resources = {
@@ -12,8 +12,8 @@ class CompanyTeamPlugin extends Plugin {
 
     getEditableEls(rootEl) {
         // To fix db in stable
-        const contentEditableEls = [...selectElements(rootEl, ".s_company_team .o_not_editable *")];
-        return contentEditableEls.filter((el) => isMediaElement(el) || el.tagName === "IMG");
+        const contentEditableEls = selectElements(rootEl, ".s_company_team .o_not_editable *");
+        return contentEditableEls.filter((el) => isMediaElement(el));
     }
 }
 

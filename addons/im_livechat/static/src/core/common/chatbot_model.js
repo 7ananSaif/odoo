@@ -1,55 +1,53 @@
-import { AND, fields, Record } from "@mail/core/common/record";
-import { rpc } from "@web/core/network/rpc";
+import { AND, fields, Record } from "@mail/model/export";
+import { rpc, ConnectionAbortedError, ConnectionLostError, RPCError } from "@web/core/network/rpc";
 import { browser } from "@web/core/browser/browser";
 import { debounce } from "@web/core/utils/timing";
 import { expirableStorage } from "@im_livechat/core/common/expirable_storage";
 
 export class Chatbot extends Record {
-    static id = AND("script", "thread");
+    static id = AND("script", "channel_id");
     static MESSAGE_DELAY = 400;
     static TYPING_DELAY = 500;
     // Time to wait without user input before considering a multi line step as
     // completed.
     static MULTILINE_STEP_DEBOUNCE_DELAY = 10000;
 
-    forwarded;
+    /**
+     * Pair identifying this chatbot for the python store index.
+     *
+     * @type {[number, number]|undefined}
+     */
+    id;
     isTyping = false;
     isProcessingAnswer = false;
+    /** @type {number|undefined} */
+    nextStepTimeout;
     script = fields.One("chatbot.script");
-    currentStep = fields.One("ChatbotStep", {
-        onUpdate() {
-            if (this.currentStep?.operatorFound) {
-                this.forwarded = true;
-            }
-        },
-    });
+    currentStep = fields.One("ChatbotStep");
     steps = fields.Many("ChatbotStep");
-    thread = fields.One("Thread", {
+    channel_id = fields.One("discuss.channel", {
         inverse: "chatbot",
         onDelete() {
             this.delete();
         },
     });
     tmpAnswer = "";
-    typingMessage = fields.One("mail.message", {
-        compute() {
-            if (this.isTyping && this.thread) {
-                return {
-                    id: -0.1 - this.thread.id,
-                    thread: this.thread,
-                    author_id: this.script.operator_partner_id,
-                };
-            }
-        },
+    typingMessage = this.computed(() => {
+        if (this.isTyping && this.channel_id) {
+            return this.store["mail.message"].insert({
+                id: -0.1 - this.channel_id.id,
+                thread: this.channel_id.thread,
+                author_id: this.script.operator_partner_id,
+            });
+        }
+        return undefined;
     });
     /**
      * @type {(message: import("models").Message) => Promise<void>}
      */
-    _processAnswerDebounced = fields.Attr(null, {
-        compute() {
-            return debounce(this._processAnswer, Chatbot.MULTILINE_STEP_DEBOUNCE_DELAY);
-        },
-    });
+    _processAnswerDebounced = this.computed(() =>
+        debounce(this._processAnswer, Chatbot.MULTILINE_STEP_DEBOUNCE_DELAY)
+    );
 
     /**
      * Start the chatbot. Either from the beginning if the user just started the
@@ -60,8 +58,8 @@ export class Chatbot extends Record {
         if (this.completed) {
             return;
         }
-        if (this.thread.isLastMessageFromCustomer) {
-            await this.processAnswer(this.thread.newestPersistentOfAllMessage);
+        if (this.channel_id.isLastCommentFromVisitor) {
+            await this.processAnswer(this.channel_id.newestPersistentCommentOfAllMessages);
         }
         if (!this.currentStep?.expectAnswer || this.currentStep?.completed) {
             this._runUntilUserInputStep();
@@ -77,12 +75,12 @@ export class Chatbot extends Record {
             return;
         }
         const { store_data, message_id } = await rpc("/chatbot/restart", {
-            channel_id: this.thread.id,
+            channel_id: this.channel_id.id,
             chatbot_script_id: this.script.id,
         });
         this.store.insert(store_data);
-        this.thread.messages.add(message_id);
-        this.thread.livechat_end_dt = false;
+        this.channel_id.messages.add(message_id);
+        this.channel_id.livechat_end_dt = false;
         if (this.currentStep) {
             this.currentStep.isLast = false;
         }
@@ -93,8 +91,8 @@ export class Chatbot extends Record {
      */
     async processAnswer(message) {
         if (
-            this.forwarded ||
-            this.thread.notEq(message.thread) ||
+            this.channel_id.livechat_agent_history_ids.length ||
+            this.channel_id.notEq(message.thread.channel) ||
             !this.currentStep?.expectAnswer
         ) {
             return;
@@ -112,59 +110,80 @@ export class Chatbot extends Record {
             await this._simulateTyping();
         }
         await this._goToNextStep();
-        if (!this.currentStep || this.currentStep.completed || !this.thread) {
+        if (!this.currentStep || this.currentStep.completed || !this.channel_id) {
             return;
         }
-        if (this.thread.isTransient) {
-            // Thread is not persisted thus messages do not exist on the server,
+        if (this.channel_id.isTransient) {
+            // Channel is not persisted thus messages do not exist on the server,
             // create them now on the client side.
             this.currentStep.message = this.store["mail.message"].insert({
                 id: this.store.getNextTemporaryId(),
                 author_id: this.script.operator_partner_id,
                 body: this.currentStep.scriptStep.message,
-                thread: this.thread,
+                thread: this.channel_id.thread,
             });
         }
         if (this.currentStep.message) {
-            this.thread.messages.add(this.currentStep.message);
+            this.channel_id.messages.add(this.currentStep.message);
         }
     }
 
     get completed() {
         return (
             this.currentStep?.isLast ||
-            this.currentStep?.operatorFound ||
-            this.thread.livechat_end_dt
+            this.currentStep?.operatorFoundEver ||
+            this.channel_id.livechat_end_dt ||
+            this.channel_id.livechat_agent_history_ids.length > 0
         );
     }
 
     get canRestart() {
-        return this.currentStep?.isLast && !this.currentStep.operatorFound;
+        return this.currentStep?.isLast && !this.currentStep.operatorFoundEver;
     }
 
     /**
      * Go to the next step of the chatbot, fetch it if needed.
      */
     async _goToNextStep() {
-        if (!this.thread) {
+        if (!this.channel_id) {
             return;
         }
         if (this.steps.at(-1)?.eq(this.currentStep)) {
             const dataRequest = this.store.DataResponse.createRequest();
-            await rpc("/chatbot/step/trigger", {
-                channel_id: this.thread.id,
-                chatbot_script_id: this.script.id,
-                data_id: dataRequest.id,
-            });
-            await dataRequest._resultDef;
-            if (this.currentStep.isLast) {
-                return;
+            try {
+                await rpc("/chatbot/step/trigger", {
+                    channel_id: this.channel_id.id,
+                    chatbot_script_id: this.script.id,
+                    data_id: dataRequest.id,
+                });
+                await dataRequest._resultResolvers.promise;
+                if (this.currentStep.isLast || !dataRequest.chatbot_step) {
+                    return;
+                }
+                this.steps.push(dataRequest.chatbot_step);
+            } catch (error) {
+                if (
+                    error instanceof ConnectionAbortedError ||
+                    error instanceof ConnectionLostError ||
+                    error instanceof RPCError
+                ) {
+                    if (!this.channel_id.chatbot_current_step_id) {
+                        return;
+                    }
+                    this.channel_id.chatbotTriggerFailedError = error;
+                } else {
+                    throw error;
+                }
             }
-            this.steps.push(dataRequest.chatbot_step);
         } else {
             const nextStepIndex = this.steps.lastIndexOf(this.currentStep) + 1;
             this.currentStep = this.steps[nextStepIndex];
             this.currentStep.selectedAnswer = null;
+            // The latch below only guards against stale server writes: replaying a
+            // step is a client-side decision, no write can bring the answer back.
+            this.currentStep.selectedAnswerEver = null;
+            // Welcome steps are reused across sessions, reset their completion state.
+            this.currentStep.completed = false;
         }
     }
 
@@ -177,7 +196,8 @@ export class Chatbot extends Record {
         if (
             !this.currentStep ||
             this.completed ||
-            (this.currentStep.expectAnswer && !this.currentStep.completed)
+            (this.currentStep.expectAnswer && !this.currentStep.completed) ||
+            this.channel_id.chatbotTriggerFailedError
         ) {
             return;
         }
@@ -203,15 +223,15 @@ export class Chatbot extends Record {
     async _processAnswer(message) {
         if (
             this.currentStep.step_type === "free_input_multi" &&
-            this.thread.composer.composerText &&
-            this.tmpAnswer !== this.thread.composer.composerText
+            this.channel_id.composer.composerText &&
+            this.tmpAnswer !== this.channel_id.composer.composerText
         ) {
             return await this._delayThenProcessAnswerAgain(message);
         }
         this.tmpAnswer = "";
         let stepCompleted = true;
-        if (this.currentStep.step_type === "question_email") {
-            stepCompleted = await this._processAnswerQuestionEmail();
+        if (["question_email", "question_phone"].includes(this.currentStep.step_type)) {
+            stepCompleted = await this._processAnswerContactInfo();
         } else if (this.currentStep.step_type === "question_selection") {
             stepCompleted = await this._processAnswerQuestionSelection(message);
         }
@@ -222,7 +242,7 @@ export class Chatbot extends Record {
     }
 
     async _delayThenProcessAnswerAgain(message) {
-        this.tmpAnswer = this.thread.composer.composerText;
+        this.tmpAnswer = this.channel_id.composer.composerText;
         await Promise.resolve(); // Ensure that it's properly debounced when called again
         return this._processAnswerDebounced(message);
     }
@@ -234,7 +254,7 @@ export class Chatbot extends Record {
      * @returns {Promise<boolean>} Whether the script is ready to go to the next step.
      */
     async _processAnswerQuestionSelection(message) {
-        const answer = this.currentStep.selectedAnswer;
+        const answer = this.currentStep.selectedAnswerEver;
         if (!answer?.redirect_link) {
             return true;
         }
@@ -258,22 +278,27 @@ export class Chatbot extends Record {
             ONE_DAY_TTL
         );
         if (!redirectionAlreadyDone) {
-            browser.location.assign(answer.redirect_link);
+            this.redirect(answer.redirect_link);
         } else if (this.store.env.services.ui.isSmall) {
             await this.store.chatHub.initPromise;
-            this.store.ChatWindow.get({ thread: this.thread })?.fold();
+            this.channel_id.channel.chatWindow?.fold();
         }
         return redirectionAlreadyDone || !isRedirecting;
     }
 
+    /** @param {string} url */
+    redirect(url) {
+        browser.open(url, "_blank");
+    }
+
     /**
-     * Process the user answer for a question email step.
+     * Process the user answer for a question email and question phone step.
      *
      * @returns {Promise<boolean>} Whether the script is ready to go to the next step.
      */
-    async _processAnswerQuestionEmail() {
-        const { success, data } = await rpc("/chatbot/step/validate_email", {
-            channel_id: this.thread.id,
+    async _processAnswerContactInfo() {
+        const { success, data } = await rpc("/chatbot/step/validate_contact_info", {
+            channel_id: this.channel_id.id,
         });
         this.store.insert(data);
         return success;

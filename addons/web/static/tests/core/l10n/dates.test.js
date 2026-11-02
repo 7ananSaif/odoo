@@ -2,7 +2,7 @@ import { beforeEach, expect, test } from "@odoo/hoot";
 import { mockDate, mockTimeZone } from "@odoo/hoot-mock";
 import {
     defineParams,
-    makeMockEnv,
+    makeTestApp,
     allowTranslations,
     patchWithCleanup,
 } from "@web/../tests/web_test_helpers";
@@ -12,12 +12,14 @@ import {
     deserializeDateTime,
     formatDate,
     formatDateTime,
+    formatLocalWeekRange,
     getLocalYearAndWeek,
     parseDate,
     parseDateTime,
     serializeDate,
     serializeDateTime,
     strftimeToLuxonFormat,
+    toLocaleDateTimeString,
 } from "@web/core/l10n/dates";
 import { localization } from "@web/core/l10n/localization";
 
@@ -35,18 +37,39 @@ beforeEach(() => {
 });
 
 test("getLocalYearAndWeek", async () => {
-    patchWithCleanup(localization, { weekStart: 1, });
+    patchWithCleanup(localization, { weekStart: 1 });
     const dates_expected = {
-        "2026-12-25": {year: 2026, week: 52, startDate: "2026-12-21"},
-        "2026-12-31": {year: 2026, week: 53, startDate: "2026-12-28"},
-        "2027-01-01": {year: 2026, week: 53, startDate: "2026-12-28"},
-        "2027-01-04": {year: 2027, week: 1, startDate: "2027-01-04"},
-    }
-    for (let key in dates_expected) {
-        const date_actual = getLocalYearAndWeek(new Date(key))
-        date_actual.startDate = date_actual.startDate.toISODate()
+        "2026-12-25": { year: 2026, week: 52, startDate: "2026-12-21" },
+        "2026-12-31": { year: 2026, week: 53, startDate: "2026-12-28" },
+        "2027-01-01": { year: 2026, week: 53, startDate: "2026-12-28" },
+        "2027-01-04": { year: 2027, week: 1, startDate: "2027-01-04" },
+    };
+    for (const key in dates_expected) {
+        const date_actual = getLocalYearAndWeek(new Date(key));
+        date_actual.startDate = date_actual.startDate.toISODate();
         expect(date_actual).toEqual(dates_expected[key]);
     }
+});
+
+test("formatLocalWeekRange", async () => {
+    mockDate("2026-08-07T13:00:00");
+    patchWithCleanup(localization, { weekStart: 1 });
+    const weekRange = (isoDate) => formatLocalWeekRange(DateTime.fromISO(isoDate).setLocale("en"));
+
+    expect(weekRange("2026-08-07")).toBe("Week 32, Aug 3 - Aug 9");
+    // a week straddling both years belongs to the one holding its 4th day
+    expect(weekRange("2027-01-01")).toBe("Week 53, Dec 28 - Jan 3");
+    expect(weekRange("2027-03-01")).toBe("Week 9, Mar 1 - Mar 7 2027");
+});
+
+test("formatLocalWeekRange with different numbering system", async () => {
+    mockDate("2026-08-07T13:00:00");
+    patchWithCleanup(localization, { weekStart: 1 });
+    patchWithCleanup(Settings, { defaultNumberingSystem: "arab" });
+    const weekRange = (isoDate) => formatLocalWeekRange(DateTime.fromISO(isoDate).setLocale("en"));
+
+    expect(weekRange("2026-08-07")).toBe("Week ٣٢, Aug ٣ - Aug ٩");
+    expect(weekRange("2027-03-01")).toBe("Week ٩, Mar ١ - Mar ٧ ٢٠٢٧");
 });
 
 test("formatDate/formatDateTime specs", async () => {
@@ -104,7 +127,7 @@ test("formatDateTime in different timezone", async () => {
 });
 
 test("parseDate(Time) outputs DateTime objects in local TZ", async () => {
-    await makeMockEnv();
+    await makeTestApp();
     mockTimeZone(+1);
     expect(parseDate("01/13/2019").toISO()).toBe("2019-01-13T00:00:00.000+01:00");
     expect(parseDateTime("01/13/2019 10:05:45").toISO()).toBe("2019-01-13T10:05:45.000+01:00");
@@ -119,7 +142,7 @@ test("parseDate(Time) outputs DateTime objects in local TZ", async () => {
 });
 
 test("parseDateTime in different timezone", async () => {
-    await makeMockEnv();
+    await makeTestApp();
     mockTimeZone(+1);
     expect(parseDateTime("01/13/2019 10:05:45").toISO()).toBe("2019-01-13T10:05:45.000+01:00");
     expect(parseDateTime("01/13/2019 10:05:45", { tz: "Asia/Kolkata" }).toISO()).toBe(
@@ -168,7 +191,7 @@ test("parseDateTime (norwegian locale)", async () => {
             time_format: "%H:%M:%S",
         },
     });
-    await makeMockEnv();
+    await makeTestApp();
 
     expect(parseDateTime("16. des 2019 10:05:45").toISO()).toBe("2019-12-16T10:05:45.000+01:00", {
         message: "Day/month inverted + month i18n",
@@ -176,7 +199,7 @@ test("parseDateTime (norwegian locale)", async () => {
 });
 
 test("parseDate", async () => {
-    await makeMockEnv();
+    await makeTestApp();
     expect(parseDate("07/21/2022").toISO()).toBe("2022-07-21T00:00:00.000+01:00");
     expect(parseDate("07/22/2022").toISO()).toBe("2022-07-22T00:00:00.000+01:00");
 });
@@ -424,6 +447,17 @@ test("deserializeDateTime with different numbering system", async () => {
 test("deserializeDateTime with different timezone", async () => {
     const date = DateTime.utc(2022, 2, 21, 16, 11, 42).setZone("Europe/Brussels");
     expect(deserializeDateTime("2022-02-21 16:11:42", { tz: "Europe/Brussels" }).c).toEqual(date.c);
+});
+
+test("toLocaleDateTimeString: showWeekday", async () => {
+    mockTimeZone(0);
+    const value = DateTime.fromISO("2022-01-07T15:30:00");
+
+    expect(toLocaleDateTimeString(value, {})).toBe("Jan 7, 2022, 3:30 PM");
+    expect(toLocaleDateTimeString(value, { showWeekday: true })).toBe("Fri, Jan 7, 2022, 3:30 PM");
+    expect(toLocaleDateTimeString(value, { showWeekday: true, showDate: false })).toBe(
+        "Fri 3:30 PM"
+    );
 });
 
 test("parseDate with short notations", async () => {
@@ -695,7 +729,7 @@ test("parseDateTime: arab locale, latin numbering system as input", async () => 
             time_format: "%H:%M:%S",
         },
     });
-    await makeMockEnv();
+    await makeTestApp();
 
     // Check it works with arab
     expect(parseDateTime("١٥ يوليو, ٢٠٢٠ ١٢:٣٠:٤٣").toISO().split(".")[0]).toBe(

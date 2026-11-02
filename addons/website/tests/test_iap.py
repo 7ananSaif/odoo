@@ -2,6 +2,8 @@
 from unittest.mock import patch
 
 import odoo.tests
+from odoo.tests import tagged
+
 from odoo import modules
 
 

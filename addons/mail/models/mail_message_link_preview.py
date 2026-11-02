@@ -20,25 +20,23 @@ class MessageMailLinkPreview(models.Model):
 
     _unique_message_link_preview = models.UniqueIndex("(message_id, link_preview_id)")
 
-    def _bus_channel(self):
-        return self.message_id._bus_channel()
+    def _bus_channels(self):
+        return self.message_id._bus_channels()
 
     def _hide_and_notify(self):
         if not self:
             return
         self.is_hidden = True
         for message_link_preview in self:
-            Store(bus_channel=self._bus_channel()).delete(message_link_preview).bus_send()
+            Store(bus_channel=self).delete(message_link_preview)
 
     def _unlink_and_notify(self):
         if not self:
             return
         for message_link_preview in self:
-            Store(bus_channel=self._bus_channel()).delete(message_link_preview).bus_send()
+            Store(bus_channel=self).delete(message_link_preview)
         self.unlink()
 
-    def _to_store_defaults(self, target):
-        return [
-            Store.One("link_preview_id", sudo=True),
-            Store.One("message_id", [], sudo=True),
-        ]
+    def _store_message_link_preview_fields(self, res: Store.FieldList):
+        res.one("link_preview_id", "_store_link_preview_fields", sudo=True)
+        res.one("message_id", [], sudo=True)

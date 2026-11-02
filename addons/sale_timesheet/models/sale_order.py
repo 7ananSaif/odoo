@@ -51,10 +51,9 @@ class SaleOrder(models.Model):
         if field.name != 'invoice_status' or self.env.context.get('mail_activity_automation_skip'):
             return super()._compute_field_value(field)
 
-        # Get SOs which their state is not equal to upselling and if at least a SOL has warning prepaid service upsell set to True and the warning has not already been displayed
+        # Get SOs which can have upsellable lines and if at least a SOL has warning prepaid service upsell set to True and the warning has not already been displayed
         upsellable_orders = self.filtered(lambda so:
             so.state == 'sale'
-            and so.invoice_status != 'upselling'
             and so.id
             and (so.user_id or so.partner_id.user_id)  # salesperson needed to assign upsell activity
         )
@@ -122,7 +121,6 @@ class SaleOrder(models.Model):
         default_sale_line = next((sale_line for sale_line in self.order_line if sale_line.is_service and sale_line.product_id.service_policy in ['ordered_prepaid', 'delivered_timesheet']), self.env['sale.order.line'])
         context = {
             'search_default_billable_timesheet': True,
-            'default_is_so_line_edited': True,
             'default_so_line': default_sale_line.id,
         }  # erase default filters
 
@@ -155,11 +153,7 @@ class SaleOrder(models.Model):
             if line.has_displayed_warning_upsell and line.product_uom_id and float_compare(line.qty_delivered, line.product_uom_qty, precision_digits=precision) == 0:
                 line.has_displayed_warning_upsell = False
 
-    def _create_invoices(self, grouped=False, final=False, date=None):
-        """Link timesheets to the created invoices. Date interval is injected in the
-        context in sale_make_invoice_advance_inv wizard.
-        """
-        moves = super()._create_invoices(grouped=grouped, final=final, date=date)
-        moves._link_timesheets_to_invoice(self.env.context.get("timesheet_start_date"), self.env.context.get("timesheet_end_date"))
+    def _create_invoices(self, *args, **kwargs):
+        moves = super()._create_invoices(*args, **kwargs)
         self._reset_has_displayed_warning_upsell_order_lines()
         return moves

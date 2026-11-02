@@ -11,7 +11,7 @@ from odoo.fields import Domain
 class HrIndividualSkillMixin(models.AbstractModel):
     _name = 'hr.individual.skill.mixin'
     _description = "Skill level"
-    _order = "skill_type_id, skill_level_id"
+    _order = "skill_type_id, skill_level_id desc"
     _rec_name = "skill_id"
 
     def _linked_field_name(self):
@@ -47,13 +47,13 @@ class HrIndividualSkillMixin(models.AbstractModel):
     skill_id = fields.Many2one('hr.skill', compute='_compute_skill_id', store=True,
         domain="[('skill_type_id', '=', skill_type_id)]", readonly=False, required=True, ondelete='cascade')
     skill_level_id = fields.Many2one('hr.skill.level', compute='_compute_skill_level_id',
-        domain="[('skill_type_id', '=', skill_type_id)]", store=True, readonly=False, required=True, ondelete='cascade')
+        domain="[('skill_type_id', '=', skill_type_id)]", store=True, readonly=False, required=True, index=True, ondelete='cascade')
     skill_type_id = fields.Many2one('hr.skill.type',
                                     default=_default_skill_type_id,
-                                    required=True, ondelete='cascade')
+                                    required=True, index=True, ondelete='cascade')
     level_progress = fields.Integer(related='skill_level_id.level_progress')
     color = fields.Integer(related="skill_type_id.color")
-    valid_from = fields.Date(string="Validity Start", default=fields.Date.today())
+    valid_from = fields.Date(string="Validity Start", default=fields.Date.context_today)
     valid_to = fields.Date(string="Validity Stop")
     levels_count = fields.Integer(related="skill_type_id.levels_count")
     certification_skill_type_count = fields.Integer(compute="_compute_certification_skill_type_count",
@@ -61,6 +61,7 @@ class HrIndividualSkillMixin(models.AbstractModel):
     is_certification = fields.Boolean(related="skill_type_id.is_certification",
         export_string_translation=False)  # if is_certification change the model will not trigger the constrains
     display_warning_message = fields.Boolean()
+    certificate_file = fields.Binary(string="Certificate")
 
     @api.constrains(lambda self: [
         'valid_from', 'valid_to', 'skill_id', 'skill_type_id', 'skill_level_id', self._linked_field_name()
@@ -224,7 +225,7 @@ class HrIndividualSkillMixin(models.AbstractModel):
     #  To reset the validity period if the skill become certified or uncertified
     @api.onchange('is_certification')
     def _onchange_is_certification(self):
-        self.valid_from = fields.Date.today()
+        self.valid_from = fields.Date.context_today(self)
         if not self.is_certification:
             self.valid_to = False
 
@@ -266,7 +267,7 @@ class HrIndividualSkillMixin(models.AbstractModel):
         output: [[1, id('English A2'), {'valid_to': yesterday}]]
         @return {List[COMMANDS]} List of WRITE, UNLINK commands
         """
-        yesterday = fields.Date.today() - relativedelta(days=1)
+        yesterday = fields.Date.context_today(self) - relativedelta(days=1)
         to_remove = self.env[self._name]
         to_archive = self.env[self._name]
         for individual_skill in self:
@@ -323,7 +324,7 @@ class HrIndividualSkillMixin(models.AbstractModel):
         validity_domain = Domain.OR(
             [
                 Domain("valid_to", "=", False),
-                Domain("valid_to", ">=", fields.Date.today()),
+                Domain("valid_to", ">=", "today"),
             ]
         )
 
@@ -432,6 +433,7 @@ class HrIndividualSkillMixin(models.AbstractModel):
         result_command = []
         create_vals = []
         remove_from_expire = self.env[self._name]
+        today = fields.Date.context_today(self)
 
         def _get_passive_field_value(field, skill):
             """
@@ -469,11 +471,13 @@ class HrIndividualSkillMixin(models.AbstractModel):
                 **passive_vals,
             }
             skill_type = self.env['hr.skill.type'].browse(new_vals['skill_type_id'])
-            valid_from = vals.get('valid_from', ind_skill.valid_from if skill_type.is_certification else fields.Date.today())
+            valid_from = vals.get('valid_from', ind_skill.valid_from if skill_type.is_certification else today)
             valid_to = vals.get('valid_to', ind_skill.valid_to if skill_type.is_certification else False)
+            certificate_file = vals.get('certificate_file', ind_skill.certificate_file)
             new_vals.update({
                 'valid_from': valid_from,
                 'valid_to': valid_to,
+                'certificate_file': certificate_file,
             })
             create_vals.append(new_vals)
         return result_command + (self - remove_from_expire)._expire_individual_skills() + self.env[self._name]._create_individual_skills(create_vals)

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 {
     'name': "Sales - Project",
@@ -12,8 +11,6 @@ This module allows to generate a project/task from sales orders.
     'depends': ['sale_management', 'sale_service', 'project_account'],
     'auto_install': ['sale_management', 'project_account'],
     'data': [
-        'security/ir.model.access.csv',
-        'security/sale_project_security.xml',
         'views/product_views.xml',
         'views/project_task_views.xml',
         'views/sale_order_line_views.xml',
@@ -25,13 +22,17 @@ This module allows to generate a project/task from sales orders.
         'views/project_task_type_views.xml',
         'data/sale_project_data.xml',
         'wizard/project_template_create_wizard.xml',
+        'report/account_analytic_line_views.xml',
+        'report/sale_report_views.xml',
+        'views/project_menus.xml',
+        'security/ir.access.csv',
     ],
     'demo': [
         'data/sale_project_demo.xml',
     ],
     'assets': {
         'web.assets_backend': [
-            'sale_project/static/src/components/**/*',
+            'sale_project/static/src/fields/**/*',
             'sale_project/static/src/core/**/*',
             'sale_project/static/src/views/**/*',
         ],

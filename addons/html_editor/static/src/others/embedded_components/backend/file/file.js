@@ -1,29 +1,32 @@
+import { proxy, signal } from "@odoo/owl";
+import { useLayoutEffect } from "@web/owl2/utils";
 import {
     applyObjectPropertyDifference,
     getEmbeddedProps,
     StateChangeManager,
     useEmbeddedState,
 } from "@html_editor/others/embedded_component_utils";
-import { useEffect, useRef, useState } from "@odoo/owl";
 import { ReadonlyEmbeddedFileComponent } from "@html_editor/others/embedded_components/core/file/readonly_file";
 
 export class EmbeddedFileComponent extends ReadonlyEmbeddedFileComponent {
     static template = "html_editor.EmbeddedFile";
+
+    nameInput = signal.ref();
 
     setup() {
         super.setup();
         // override the state by an embedded state.
         this.state = useEmbeddedState(this.props.host);
         this.fileModel.state = this.state;
-        this.localState = useState({
+        this.localState = proxy({
             editFileName: false,
         });
-        this.nameInput = useRef("nameInput");
-        useEffect(
+        useLayoutEffect(
             () => {
                 if (this.localState.editFileName) {
-                    this.nameInput.el.focus();
-                    this.nameInput.el.select();
+                    const nameInput = this.nameInput();
+                    nameInput?.focus();
+                    nameInput?.select();
                 }
             },
             () => [this.localState.editFileName]
@@ -52,7 +55,7 @@ export class EmbeddedFileComponent extends ReadonlyEmbeddedFileComponent {
     }
 
     renameFile() {
-        let newName = this.nameInput.el.value;
+        let newName = this.nameInput()?.value || "";
         if (!newName.length) {
             return false;
         }

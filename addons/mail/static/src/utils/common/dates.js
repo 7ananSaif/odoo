@@ -1,35 +1,22 @@
-const { DateTime } = luxon;
+import { _t } from "@web/core/l10n/translation";
+import { localization } from "@web/core/l10n/localization";
+
+export function resolveTimeZoneName(tz) {
+    return tz === "localtime" ? "local" : tz;
+}
 
 /**
- * @param {luxon.DateTime} datetime
+ * @param {string} partnerTz resolved, and different from the current user one
+ * @param {string} currentUserTz resolved
+ * @param {import("luxon").DateTime<true>} now
+ * @returns the local time of the partner, translated
  */
-export function computeDelay(datetime) {
-    if (!datetime) {
-        return 0;
-    }
-    const today = DateTime.now().startOf("day");
-    return datetime.diff(today, "days").days;
-}
-
-export function getMsToTomorrow() {
-    const now = new Date();
-    const night = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate() + 1, // the next day
-        0,
-        0,
-        0 // at 00:00:00 hours
-    );
-    return night.getTime() - now.getTime();
-}
-
-export function isToday(datetime) {
-    if (!datetime) {
-        return false;
-    }
-    return (
-        datetime.toLocaleString(DateTime.DATE_FULL) ===
-        DateTime.now().toLocaleString(DateTime.DATE_FULL)
-    );
+export function formatLocalDateTime(partnerTz, currentUserTz, now) {
+    const partnerDateTime = now.setZone(partnerTz);
+    const currentUserDateTime = now.setZone(currentUserTz);
+    const format = currentUserDateTime.hasSame(partnerDateTime, "day")
+        ? localization.timeFormat.replace(":ss", "")
+        : localization.dateTimeFormat.replace(":ss", "");
+    const datetime = partnerDateTime.toFormat(format);
+    return _t("%(datetime)s local time", { datetime });
 }

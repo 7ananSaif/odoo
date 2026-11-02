@@ -74,7 +74,7 @@ class MailLinkPreview(models.Model):
                 len(message_link_previews_ok)
                 + len(message_link_previews_values)
                 + len(link_previews_values)
-                > 5
+                > 4
             ):
                 break
         new_link_preview_by_url = {
@@ -98,24 +98,20 @@ class MailLinkPreview(models.Model):
             ]
         )
         (message.sudo().message_link_preview_ids - message_link_previews_ok)._unlink_and_notify()
-        Store(
-            bus_channel=message._bus_channel(),
-        ).add(message, "message_link_preview_ids").bus_send()
+        Store(bus_channel=message).add(message, "_store_message_link_previews_fields")
 
     @api.model
     def _is_link_preview_enabled(self):
-        link_preview_throttle = int(self.env['ir.config_parameter'].sudo().get_param('mail.link_preview_throttle', 99))
+        link_preview_throttle = self.env['ir.config_parameter'].sudo().get_int('mail.link_preview_throttle', 99)
         return link_preview_throttle > 0
 
     def _is_domain_thottled(self, url):
         domain = urlparse(url).netloc
-        date_interval = fields.Datetime.to_string((datetime.now() - relativedelta(seconds=10)))
+        date_interval = fields.Datetime.to_string(datetime.now() - relativedelta(seconds=10))
         call_counter = self.env["mail.link.preview"].search_count(
             [("source_url", "ilike", domain), ("create_date", ">", date_interval)]
         )
-        link_preview_throttle = int(
-            self.env["ir.config_parameter"].get_param("mail.link_preview_throttle", 99)
-        )
+        link_preview_throttle = self.env["ir.config_parameter"].get_int("mail.link_preview_throttle", 99)
         return call_counter > link_preview_throttle
 
     @api.model
@@ -131,14 +127,6 @@ class MailLinkPreview(models.Model):
             preview = self.env['mail.link.preview'].create(preview_values)
         return preview
 
-    def _to_store_defaults(self, target):
-        return [
-            "image_mimetype",
-            "og_description",
-            "og_image",
-            "og_mimetype",
-            "og_site_name",
-            "og_title",
-            "og_type",
-            "source_url",
-        ]
+    def _store_link_preview_fields(self, res: Store.FieldList):
+        res.extend(["image_mimetype", "og_description", "og_image", "og_mimetype", "og_site_name"])
+        res.extend(["og_title", "og_type", "source_url"])

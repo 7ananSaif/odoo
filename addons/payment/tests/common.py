@@ -1,13 +1,14 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import logging
-
+from contextlib import nullcontext
 from unittest.mock import patch
 
 from lxml import objectify
 
 from odoo.fields import Command, Domain
 from odoo.tools.misc import hmac as hmac_tool
+from odoo.tools.misc import mute_logger
 
 from odoo.addons.base.tests.common import BaseCommon
 
@@ -15,36 +16,37 @@ _logger = logging.getLogger(__name__)
 
 
 class PaymentCommon(BaseCommon):
+    _test_user_groups = None
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.currency_euro = cls._enable_currency('EUR')
-        cls.currency_usd = cls._enable_currency('USD')
+        cls.currency_euro = cls._enable_currency("EUR")
+        cls.currency_usd = cls._enable_currency("USD")
 
-        cls.country_belgium = cls.quick_ref('base.be')
-        cls.country_france = cls.quick_ref('base.fr')
-        cls.europe = cls.quick_ref('base.europe')
+        cls.country_belgium = cls.quick_ref("base.be")
+        cls.country_france = cls.quick_ref("base.fr")
+        cls.europe = cls.quick_ref("base.europe")
 
-        cls.admin_user = cls.quick_ref('base.user_admin')
+        cls.admin_user = cls.quick_ref("base.user_admin")
         cls.internal_user = cls._create_new_internal_user()
         cls.portal_user = cls._create_new_portal_user()
-        cls.public_user = cls.quick_ref('base.public_user')
+        cls.public_user = cls.quick_ref("base.public_user")
 
         cls.admin_partner = cls.admin_user.partner_id
         cls.internal_partner = cls.internal_user.partner_id
         cls.portal_partner = cls.portal_user.partner_id
-        cls.default_partner = cls.env['res.partner'].create({
-            'name': 'Norbert Buyer',
-            'lang': 'en_US',
-            'email': 'norbert.buyer@example.com',
-            'street': 'Huge Street',
-            'street2': '2/543',
-            'phone': '0032 12 34 56 78',
-            'city': 'Sin City',
-            'zip': '1000',
-            'country_id': cls.country_belgium.id,
+        cls.default_partner = cls.env["res.partner"].create({
+            "name": "Norbert Buyer",
+            "lang": "en_US",
+            "email": "norbert.buyer@example.com",
+            "street": "Huge Street",
+            "street2": "2/543",
+            "phone": "0032 12 34 56 78",
+            "city": "Sin City",
+            "zip": "1000",
+            "country_id": cls.country_belgium.id,
         })
 
         # Create a dummy provider to allow basic tests without any specific provider implementation
@@ -54,29 +56,32 @@ class PaymentCommon(BaseCommon):
             <input type="hidden" name="user_id" t-att-value="user_id.id"/>
         </form>
         """  # We exploit the default values `viewid` and `user_id` from QWeb's rendering context
-        redirect_form = cls.env['ir.ui.view'].create({
-            'name': "Dummy Redirect Form",
-            'type': 'qweb',
-            'arch': arch,
+        redirect_form = cls.env["ir.ui.view"].create({
+            "name": "Dummy Redirect Form",
+            "type": "qweb",
+            "arch": arch,
         })
 
-        cls.pm_unknown = cls.quick_ref('payment.payment_method_unknown')
-        cls.dummy_provider = cls.env['payment.provider'].create({
-            'name': "Dummy Provider",
-            'code': 'none',
-            'state': 'test',
-            'is_published': True,
-            'payment_method_ids': [Command.set([cls.pm_unknown.id])],
-            'allow_tokenization': True,
-            'redirect_form_view_id': redirect_form.id,
-            'available_currency_ids': [Command.set(
-                (cls.currency_euro + cls.currency_usd + cls.env.company.currency_id).ids
-            )],
+        cls.dummy_provider = cls.env["payment.provider"].create({
+            "name": "Dummy Provider",
+            "code": "none",
+            "is_published": True,
+            "allow_tokenization": True,
+            "redirect_form_view_id": redirect_form.id,
+            "available_currency_ids": [
+                Command.set(
+                    (cls.currency_euro + cls.currency_usd + cls.env.company.currency_id).ids
+                )
+            ],
         })
-        # Activate pm
-        cls.pm_unknown.write({
-            'active': True,
-            'support_tokenization': True,
+        cls.dummy_payment_method = cls.env["payment.method"].create({
+            "name": "Dummy Payment Method",
+            "code": "dummy",
+            "active": True,
+            "support_tokenization": True,
+            "support_manual_capture": "partial",
+            "support_refund": "partial",
+            "provider_id": cls.dummy_provider.id,
         })
 
         cls.provider = cls.dummy_provider
@@ -91,25 +96,53 @@ class PaymentCommon(BaseCommon):
         cls.partner = cls.default_partner
         cls.reference = "Test Transaction"
 
-        account_payment_module = cls.env['ir.module.module']._get('account_payment')
-        cls.account_payment_installed = account_payment_module.state in ('installed', 'to upgrade')
+        account_payment_module = cls.env["ir.module.module"]._get("account_payment")
+        cls.account_payment_installed = account_payment_module.state in ("installed", "to upgrade")
+        cls.enable_process_patcher = True
         cls.enable_post_process_patcher = True
 
     def setUp(self):
         super().setUp()
-        if self.account_payment_installed and self.enable_post_process_patcher:
-            # disable account payment generation if account_payment is installed
-            # because the accounting setup of providers is not managed in this common
-            self.post_process_patcher = patch(
-                'odoo.addons.account_payment.models.payment_transaction.PaymentTransaction._post_process',
+        PaymentTransaction = self.registry["payment.transaction"]
+        self.process_mock = self.post_process_mock = None
+        self._process_patcher = self._post_process_patcher = None
+        if self.enable_process_patcher:
+            # Skip the processing business logic
+            self._process_patcher = patch.object(PaymentTransaction, "_process", autospec=True)
+            self.process_mock = self._process_patcher.start()
+            self.addCleanup(self._disable_process_patcher)
+        if self.enable_post_process_patcher:
+            # Skip the post-processing business logic (e.g., account payment generation).
+            # Transactions are still flagged as post-processed so users can be redirected from
+            # /payment/status to the landing page.
+            self._post_process_patcher = patch.object(
+                PaymentTransaction,
+                "_post_process",
+                autospec=True,
+                side_effect=lambda txs: txs.with_context(payment_safe_write=True).write({
+                    "is_post_processed": True
+                }),
             )
-            self.startPatcher(self.post_process_patcher)
+            self.post_process_mock = self._post_process_patcher.start()
+            self.addCleanup(self._disable_post_process_patcher)
 
-    #=== Utils ===#
+    def _disable_process_patcher(self):
+        """Restore the real `_process` to test its business logic."""
+        if self._process_patcher:
+            self._process_patcher.stop()
+            self._process_patcher = None
+
+    def _disable_post_process_patcher(self):
+        """Restore the real `_post_process` to test its business logic."""
+        if self._post_process_patcher:
+            self._post_process_patcher.stop()
+            self._post_process_patcher = None
+
+    # === Utils ===#
 
     @classmethod
     def _prepare_provider(cls, code, company=None, update_values=None, **kwargs):
-        """ Prepare and return the first active provider matching the given code and company.
+        """Prepare and return the first installed provider matching the given code and company.
 
         All other providers belonging to the same company are disabled to avoid any interferences.
 
@@ -120,26 +153,46 @@ class PaymentCommon(BaseCommon):
         :return: The provider to prepare, if found
         :rtype: recordset of `payment.provider`
         """
-        assert code != 'none', "Code 'none' should not be passed to _prepare_provider"
+        assert code != "none", "Code 'none' should not be passed to _prepare_provider"
 
         company = company or cls.env.company
         update_values = update_values or {}
         provider_domain = cls._get_provider_domain(code, **kwargs)
 
-        provider = cls.env['payment.provider'].sudo().search(
-            Domain.AND([provider_domain, [('company_id', '=', company.id)]]), limit=1
+        provider = (
+            cls
+            .env["payment.provider"]
+            .sudo()
+            .search(Domain.AND([provider_domain, [("company_id", "=", company.id)]]), limit=1)
         )
         if not provider:
             _logger.error("No payment.provider found for code %s in company %s", code, company.name)
-            return cls.env['payment.provider']
+            return cls.env["payment.provider"]
 
-        update_values['state'] = 'test'
         provider.write(update_values)
         return provider
 
     @classmethod
-    def _get_provider_domain(cls, code, **kwargs):
-        return [('code', '=', code)]
+    def _get_provider_domain(cls, code, **_kwargs):
+        return [("code", "=", code)]
+
+    def _patch_provider_feature_support(self, **feature_values):
+        """Patch computed feature-support fields on all providers for the duration of the test.
+
+        Call this method to persist the given feature-support values on the providers after a cache
+        invalidation (typically triggered by a cron job).
+
+        :param dict feature_values: The feature-support field values to patch
+        :rtype: None
+        """
+
+        def _patched_compute(providers):
+            og_compute(providers)
+            providers.update(feature_values)
+
+        PaymentProvider = self.registry["payment.provider"]
+        og_compute = PaymentProvider._compute_feature_support_fields
+        self.patch(PaymentProvider, "_compute_feature_support_fields", _patched_compute)
 
     @classmethod
     def _prepare_user(cls, user, group_xmlid):
@@ -151,34 +204,47 @@ class PaymentCommon(BaseCommon):
 
     def _create_transaction(self, flow, sudo=True, **values):
         default_values = {
-            'payment_method_id': self.payment_method_id,
-            'amount': self.amount,
-            'currency_id': self.currency.id,
-            'provider_id': self.provider.id,
-            'reference': self.reference,
-            'operation': f'online_{flow}',
-            'partner_id': self.partner.id,
+            "payment_method_id": self.payment_method_id,
+            "amount": self.amount,
+            "currency_id": self.currency.id,
+            "provider_id": self.provider.id,
+            "reference": self.reference,
+            "operation": f"online_{flow}",
+            "partner_id": self.partner.id,
         }
-        return self.env['payment.transaction'].sudo(sudo).create(dict(default_values, **values))
+        return self.env["payment.transaction"].sudo(sudo).create(dict(default_values, **values))
+
+    def _update_transaction(self, transaction, **values):
+        """Update a transaction while bypassing the write guard.
+
+        Use this method to condition a transaction before testing business logic, where the write
+        guard is only relevant for the business logic but not for the test setup. It must not be
+        used as a mock for business logic that must be safeguarded against concurrent writes.
+
+        :param payment.transaction transaction: The transaction to update
+        :param dict values: The values to update the transaction with
+        :return: The updated transaction with its original context restored
+        :rtype: payment.transaction
+        """
+        transaction.with_context(payment_safe_write=True).write(values)
+        return transaction
 
     def _create_token(self, sudo=True, **values):
         default_values = {
-            'provider_id': self.provider.id,
-            'payment_method_id': self.payment_method_id,
-            'payment_details': "1234",
-            'partner_id': self.partner.id,
-            'provider_ref': "provider Ref (TEST)",
-            'active': True,
+            "provider_id": self.provider.id,
+            "payment_method_id": self.payment_method_id,
+            "payment_details": "1234",
+            "partner_id": self.partner.id,
+            "provider_ref": "provider Ref (TEST)",
+            "active": True,
         }
-        return self.env['payment.token'].sudo(sudo).create(dict(default_values, **values))
+        return self.env["payment.token"].sudo(sudo).create(dict(default_values, **values))
 
     def _get_tx(self, reference):
-        return self.env['payment.transaction'].sudo().search([
-            ('reference', '=', reference),
-        ])
+        return self.env["payment.transaction"].sudo().search([("reference", "=", reference)])
 
     def _generate_test_access_token(self, *values):
-        """ Generate an access token based on the provided values for testing purposes.
+        """Generate an access token based on the provided values for testing purposes.
 
         This methods returns a token identical to that generated by
         payment.utils.generate_access_token but uses the test class environment rather than the
@@ -190,30 +256,59 @@ class PaymentCommon(BaseCommon):
         :return: The generated access token
         :rtype: str
         """
-        token_str = '|'.join(str(val) for val in values)
-        access_token = hmac_tool(self.env(su=True), 'generate_access_token', token_str)
-        return access_token
+        token_str = "|".join(str(val) for val in values)
+        return hmac_tool(self.env(su=True), "generate_access_token", token_str)
 
     def _extract_values_from_html_form(self, html_form):
-        """ Extract the transaction rendering values from an HTML form.
+        """Extract the transaction rendering values from an HTML form.
 
         :param str html_form: The HTML form
         :return: The extracted information (action & inputs)
         :rtype: dict[str:str]
         """
         html_tree = objectify.fromstring(html_form)
-        if hasattr(html_tree, 'input'):
-            inputs = {input_.get('name'): input_.get('value') for input_ in html_tree.input}
+        if hasattr(html_tree, "input"):
+            inputs = {input_.get("name"): input_.get("value") for input_ in html_tree.input}
         else:
             inputs = {}
         return {
-            'action': html_tree.get('action'),
-            'method': html_tree.get('method'),
-            'inputs': inputs,
+            "action": html_tree.get("action"),
+            "method": html_tree.get("method"),
+            "inputs": inputs,
         }
 
+    def _run_processing(self):
+        """Run the processing of all transactions with pending payment data.
+
+        Use this method to apply updates sent to a controller, or after passing them to `_record()`.
+
+        By running the processing through the cron, this method bypasses the write guard.
+
+        :rtype: None
+        """
+        self._run_cron_job("payment.processing_cron")
+
+    def _run_post_processing(self):
+        """Run the post-processing of all transactions that have not been post-processed yet.
+
+        By running the post-processing through the cron, this method bypasses the write guard.
+
+        :rtype: None
+        """
+        self._run_cron_job("payment.post_processing_cron")
+
+    @mute_logger("odoo.addons.base.models.ir_cron")
+    def _run_cron_job(self, cron_xml_id):
+        """Directly trigger the cron with the given XML ID while preserving test isolation.
+
+        :param str cron_xml_id: The XMLID of the cron to run
+        :rtype: None
+        """
+        with nullcontext() if self._registry_patched else self.registry_test_mode():
+            self.env(su=True).ref(cron_xml_id).method_direct_trigger()
+
     def _assert_does_not_raise(self, exception_class, func, *args, **kwargs):
-        """ Fail if an exception of the provided class is raised when calling the function.
+        """Fail if an exception of the provided class is raised when calling the function.
 
         If an exception of any other class is raised, it is caught and silently ignored.
 
@@ -230,10 +325,10 @@ class PaymentCommon(BaseCommon):
             func(*args, **kwargs)
         except exception_class:
             self.fail(f"{func.__name__} should not raise error of class {exception_class.__name__}")
-        except Exception:
+        except Exception:  # noqa: BLE001
             pass  # Any exception whose class is not monitored is caught and ignored.
 
     def _skip_if_account_payment_is_not_installed(self):
-        """ Skip current test if `account_payment` module is not installed. """
+        """Skip current test if `account_payment` module is not installed."""
         if not self.account_payment_installed:
             self.skipTest("account_payment module is not installed")

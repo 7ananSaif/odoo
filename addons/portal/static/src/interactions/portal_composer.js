@@ -1,9 +1,9 @@
-import { Interaction } from "@web/public/interaction";
-import { registry } from "@web/core/registry";
+import { markup } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
 import { post } from "@web/core/network/http_service";
-import { Component, markup } from "@odoo/owl";
 import { rpc, RPCError } from "@web/core/network/rpc";
+import { registry } from "@web/core/registry";
+import { Interaction } from "@web/public/interaction";
 
 /**
  * Display the composer (according to access right)
@@ -19,10 +19,10 @@ export class PortalComposer extends Interaction {
             "t-on-click": this.onAttachmentButtonClick,
         },
         ".o_portal_chatter_attachment_delete": {
-            "t-on-click.prevent.stop.withTarget": this.locked(this.onAttachmentDeleteClick, true),
+            "t-on-click.prevent.stop": this.locked(this.onAttachmentDeleteClick, true),
         },
         ".o_portal_chatter_composer_btn": {
-            "t-on-click.prevent.withTarget": this.locked(this.onSubmitButtonClick, true),
+            "t-on-click.prevent": this.locked(this.onSubmitButtonClick, true),
         },
     };
 
@@ -77,9 +77,9 @@ export class PortalComposer extends Interaction {
         this.fileInputEl.click();
     }
 
-    async onAttachmentDeleteClick(ev, currentTargetEl) {
+    async onAttachmentDeleteClick(ev) {
         const attachmentId = parseInt(
-            currentTargetEl.closest(".o_portal_chatter_attachment").dataset.id
+            ev.currentTarget.closest(".o_portal_chatter_attachment").dataset.id
         );
         const accessToken = this.attachments.find(
             (attachment) => attachment.id === attachmentId
@@ -169,7 +169,7 @@ export class PortalComposer extends Interaction {
         };
     }
 
-    async onSubmitButtonClick(ev, currentTargetEl) {
+    async onSubmitButtonClick(ev) {
         const error = this.onSubmitCheckContent();
         if (error) {
             this.inputTextareaEl.classList.add("border-danger");
@@ -178,7 +178,7 @@ export class PortalComposer extends Interaction {
             errorEl.classList.remove("d-none");
             return Promise.reject();
         } else {
-            return this.chatterPostMessage(currentTargetEl.dataset.action);
+            return this.chatterPostMessage(ev.currentTarget.dataset.action);
         }
     }
 
@@ -211,7 +211,7 @@ export class PortalComposer extends Interaction {
     async chatterPostMessage(route) {
         const result = await this.waitFor(rpc(route, this.prepareMessageData()));
         const res = result.store_data || result;
-        Component.env.bus.trigger("reload_chatter_content", res);
+        this.env.bus.trigger("reload_chatter_content", res);
         return res;
     }
 }

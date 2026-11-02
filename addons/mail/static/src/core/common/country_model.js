@@ -1,7 +1,6 @@
-import { Record } from "@mail/core/common/record";
+import { Record } from "@mail/model/export";
 
 export class Country extends Record {
-    static id = "id";
     static _name = "res.country";
 
     /** @type {string} */
@@ -9,7 +8,11 @@ export class Country extends Record {
     /** @type {number} */
     id;
     /** @type {string} */
+    image_url;
+    /** @type {string} */
     name;
+    /** @type {number} */
+    phone_code;
 
     get flagUrl() {
         if (!this.code) {

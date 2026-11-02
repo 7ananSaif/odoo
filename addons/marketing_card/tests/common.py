@@ -1,10 +1,9 @@
 import base64
 from contextlib import contextmanager
-from freezegun import freeze_time
 from unittest.mock import patch
 
 from odoo.tests import BaseCase, TransactionCase
-from odoo.addons.base.models.ir_actions_report import IrActionsReport
+from odoo.tools import BinaryBytes
 from odoo.addons.mail.tests.common import mail_new_test_user
 
 
@@ -23,12 +22,12 @@ class MockImageRender(BaseCase):
     def mock_image_renderer(self, collect_params=True):
         self._wkhtmltoimage_bodies = []
 
-        def _ir_actions_report_build_run_wkhtmltoimage(model, bodies, width, height, image_format="jpg"):
+        def _ir_actions_report_build_run_image_engine(engine_name, model, bodies, width, height, image_format="jpg"):
             if collect_params:
                 self._wkhtmltoimage_bodies.extend(bodies)
             return [VALID_JPEG] * len(bodies)
 
-        with patch.object(IrActionsReport, '_run_wkhtmltoimage', _ir_actions_report_build_run_wkhtmltoimage):
+        with patch.object(type(self.env['ir.actions.report']), '_run_image_engine', _ir_actions_report_build_run_image_engine):
             yield
 
 
@@ -37,6 +36,9 @@ class MarketingCardCommon(TransactionCase, MockImageRender):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+
+        cls.env['res.lang']._activate_lang('fr_FR')
+        cls.env['res.lang']._activate_lang('nl_NL')
 
         cls.company = cls.env['res.company'].create({
             'country_id': cls.env.ref("base.be").id,
@@ -76,9 +78,9 @@ class MarketingCardCommon(TransactionCase, MockImageRender):
         cls.partners = cls.env['res.partner'].create([
             {'name': 'John', 'email': 'john93@trombino.scope'},
             {'name': 'Bob', 'email': 'bob@justbob.me',
-             'phone': '+32 123 446 789', 'image_1920': base64.b64encode(VALID_JPEG),
+             'phone': '+32 123 446 789', 'image_1920': BinaryBytes(VALID_JPEG),
              },
-        ])
+        ] + [{'name': f'Part{n}', 'email': f'partn{n}@test.lan'} for n in range(18)])
 
         cls.card_template = cls.env['card.template'].create({
             'name': 'Test Template',
@@ -92,15 +94,15 @@ class MarketingCardCommon(TransactionCase, MockImageRender):
         </style>
     </head>
     <body>
-    <div id="body" t-attf-style="background-image: url('data:image/png;base64,{{card_campaign.content_background or card_campaign.card_template_id.default_background}}');">
+    <div id="body" t-attf-style="background-image: url('data:image/png;base64,{{(card_campaign.content_background or card_campaign.card_template_id.default_background).to_base64()}}');">
                 <span id="header" t-out="values['header']" t-att-style="'color: %s;' % card_campaign.content_header_color"/>
                 <span id="subheader" t-out="values['sub_header']" t-att-style="'color: %s;' % card_campaign.content_sub_header_color"/>
                 <span id="button" t-out="card_campaign.content_button">Button</span>
                 <span id="section" t-out="values['section']"/>
                 <span id="sub_section1" t-out="values['sub_section1']"/>
                 <span id="sub_section2" t-out="values['sub_section2']"/>
-                <img id="image1" t-if="values['image1']" t-attf-src="data:image/png;base64,{{values['image1']}}"/>
-                <img id="image2" t-if="values['image2']" t-attf-src="data:image/png;base64,{{values['image2']}}"/>
+                <img id="image1" t-if="values['image1']" t-attf-src="data:image/png;base64,{{values['image1'].to_base64()}}"/>
+                <img id="image2" t-if="values['image2']" t-attf-src="data:image/png;base64,{{values['image2'].to_base64()}}"/>
     </div>
     </body>
 </html>
@@ -135,8 +137,5 @@ class MarketingCardCommon(TransactionCase, MockImageRender):
             'target_url': cls.env['card.campaign'].get_base_url(),
         })
 
-    @contextmanager
-    def mock_datetime_and_now(self, mock_dt):
-        with freeze_time(mock_dt), \
-                patch.object(self.env.cr, 'now', lambda: mock_dt):
-            yield
+        (cls.campaign + cls.static_campaign).with_context(lang='fr_FR').content_header = "Mon Titre Francais"
+        (cls.campaign + cls.static_campaign).with_context(lang='nl_NL').content_header = "Mijn Nederlands Titel"

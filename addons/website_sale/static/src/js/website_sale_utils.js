@@ -1,65 +1,9 @@
-import { markup } from '@odoo/owl';
 import { browser } from '@web/core/browser/browser';
 import { _t } from '@web/core/l10n/translation';
-import { setElementContent } from '@web/core/utils/html';
-
-function animateClone($cart, $elem, offsetTop, offsetLeft) {
-    if (!$cart.length) {
-        return Promise.resolve();
-    }
-    $cart.removeClass('d-none').find('.o_animate_blink').addClass('o_red_highlight o_shadow_animation').delay(500).queue(function () {
-        $(this).removeClass("o_shadow_animation").dequeue();
-    }).delay(2000).queue(function () {
-        $(this).removeClass("o_red_highlight").dequeue();
-    });
-    return new Promise(function (resolve, reject) {
-        if(!$elem) resolve();
-        var $imgtodrag = $elem.find('img').eq(0);
-        if ($imgtodrag.length) {
-            var $imgclone = $imgtodrag.clone()
-                .offset({
-                    top: $imgtodrag.offset().top,
-                    left: $imgtodrag.offset().left
-                })
-                .removeClass()
-                .addClass('o_website_sale_animate')
-                .appendTo(document.body)
-                .css({
-                    // Keep the same size on cloned img.
-                    width: $imgtodrag.width(),
-                    height: $imgtodrag.height(),
-                })
-                .animate({
-                    top: $cart.offset().top + offsetTop,
-                    left: $cart.offset().left + offsetLeft,
-                    width: 75,
-                    height: 75,
-                }, 500);
-
-            $imgclone.animate({
-                width: 0,
-                height: 0,
-            }, function () {
-                resolve();
-                $(this).detach();
-            });
-        } else {
-            resolve();
-        }
-    });
-}
-
-/**
- * Returns the closest product form to a given element if exists.
- * Required for product pages with full-width or no images where the "Add to cart" button can be 
- * outside of the form.
- *
- * @param { HTMLElement } element - Reference to an HTML element in the DOM.
- * @returns { HTMLFormElement|undefined }
- */
-function getClosestProductForm(element){
-    return element.closest('form') ?? element.closest('.js_product')?.querySelector('form');
-}
+import { rpc } from "@web/core/network/rpc";
+import { createElementWithContent, setElementContent } from '@web/core/utils/html';
+import { redirect } from '@web/core/utils/urls';
+import { markup } from "@odoo/owl";
 
 /**
  * Updates both navbar cart
@@ -85,16 +29,13 @@ function updateCartNavBar(data) {
         }
     }
 
-    $(".js_cart_lines").first().before(data['website_sale.cart_lines']).end().remove();
+    const cartLines = document.querySelectorAll('.js_cart_lines');
+    cartLines[0]?.insertAdjacentHTML('beforebegin', data['website_sale.cart_lines']);
+    cartLines.forEach(el => el.remove());
 
     updateCartSummary(data);
 
-    // Adjust the cart's left column width to accommodate the cart summary (right column). The left
-    // column of an empty cart initially takes the full width, but adding products (e.g. via quick 
-    // reorder) enables the cart summary on the right.
-    document.querySelector('.oe_cart').classList.toggle('col-lg-7', !!data.cart_quantity);
-
-    if (data.cart_ready) {
+    if (!data.cart_has_blocking_alerts) {
         document.querySelector("a[name='website_sale_main_button']")?.classList.remove('disabled');
     } else {
         document.querySelector("a[name='website_sale_main_button']")?.classList.add('disabled');
@@ -110,7 +51,13 @@ function updateCartNavBar(data) {
 function updateCartSummary(data) {
     if (data['website_sale.shorter_cart_summary']) {
         const shorterCartSummaryEl = document.querySelector('.o_wsale_shorter_cart_summary');
-        setElementContent(shorterCartSummaryEl, markup(data['website_sale.shorter_cart_summary']));
+        const newShorterCartSummaryWrapperEl = createElementWithContent(
+            'div', data['website_sale.shorter_cart_summary'],
+        );
+        const newShorterCartSummaryEl = newShorterCartSummaryWrapperEl.querySelector('.o_wsale_shorter_cart_summary');
+        // Update the existing cart summary
+        shorterCartSummaryEl.className = newShorterCartSummaryEl.className;
+        shorterCartSummaryEl.replaceChildren(...newShorterCartSummaryEl.childNodes);
     }
     if (data['website_sale.total']) {
         document.querySelectorAll('div.o_cart_total').forEach(
@@ -142,25 +89,124 @@ function updateQuickReorderSidebar(data) {
 }
 
 /**
- * Displays `message` in an alert box at the top of the page if it's a
- * non-empty string.
+ * Replace the content of the current element with the content of the element
+ * matching `selector` inside `newRoot`. No-op if either side of the swap
+ * can't be found.
  *
- * @param {string | null} message
+ * @param {Element} newRoot - root element containing the freshly fetched markup
+ * @param {string} selector - selector of the element to read from `newRoot`
+ * @param {Object} [optionalParams={}]
+ * @param {function(Element): void} [optionalParams.postUpdate] - callback to
+ *  alter the current element once its content has been updated.
+ * @param {string} [optionalParams.currSelector] - selector of the current
+ *  element, if different from `selector`
+ * @return {void}
  */
-function showWarning(message) {
-    if (!message) {
-        return;
+function updateElementContent(
+    newRoot,
+    selector,
+    { postUpdate = () => {}, currSelector = null } = {},
+) {
+    let newEl = newRoot.querySelector(selector);
+    const currentSelector = currSelector ?? selector;
+    const currentEl = document.querySelector(currentSelector);
+    if (newEl && currentEl) {
+        currentEl.replaceChildren(...newEl.childNodes);
+        postUpdate(currentEl);
     }
-    var $page = $('.oe_website_sale');
-    var cart_alert = $page.children('#data_warning');
-    if (!cart_alert.length) {
-        cart_alert = $(
-            '<div class="alert alert-danger alert-dismissible" role="alert" id="data_warning">' +
-                '<button type="button" class="btn-close" data-bs-dismiss="alert"></button> ' +
-                '<span></span>' +
-            '</div>').prependTo($page);
+}
+
+/**
+ * Re-apply the "expanded" state of the accordion buttons that were open before the update.
+ *
+ * @param {Element} sidebar
+ * @param {Set<string>} expandedTargets - set of previously expanded accordion target
+ * @return {void}
+ */
+function restoreExpandedAccordions(sidebar, expandedTargets) {
+    sidebar.style.marginTop = "0.3rem"; // margin is needed to avoid sidebar flicker.
+    const buttonsToExpand = [...sidebar.querySelectorAll(".accordion-button")].filter(
+        (button) => expandedTargets.has(button.dataset.bsTarget)
+    );
+    for (const button of buttonsToExpand) {
+        button.ariaExpanded = true;
+        button.classList.remove("collapsed");
+        sidebar.querySelector(button.dataset.bsTarget)?.classList.add("show");
     }
-    cart_alert.children('span:last-child').text(message);
+}
+
+async function updateShopContent(interaction, {
+    url,
+    searchParams,
+}) {
+    const targetUrl = `${url.pathname}?${searchParams.toString()}`;
+    const expandedTargets = new Set(
+        [...document.querySelectorAll(".accordion-item .accordion-button[aria-expanded=true]")]
+            .map((el) => el.dataset.bsTarget)
+    );
+    const productGridWrapper = document.querySelector('.o_wsale_products_grid_table_wrapper');
+    productGridWrapper?.classList?.add('opacity-50');
+
+    try {
+        const paramsObject = Object.fromEntries(searchParams.entries());
+        const headerEl = document.querySelector("#o_wsale_products_header");
+        if (headerEl){
+            paramsObject.category = headerEl.dataset.categoryId;
+        }
+        const data = await interaction.waitFor(rpc('/shop/reload', paramsObject));
+        const updatedShopPage = createElementWithContent("div", markup(data.html));
+        const shopPageEl = document.querySelector('.o_wsale_products_page');
+        interaction.services['public.interactions'].stopInteractions(shopPageEl);
+
+        updateElementContent(
+            updatedShopPage,
+            "#products_grid_before",
+            {
+                postUpdate: (el) => restoreExpandedAccordions(el, expandedTargets)
+            }
+        );
+
+        updateElementContent(updatedShopPage, "#o_wsale_products_header");
+        updateElementContent(updatedShopPage, "#o_wsale_floating_bar");
+
+        const productGridSelector = ".o_wsale_products_grid_table_wrapper";
+        const emptyGridSelector = ".o_wsale_empty_products_grid";
+        const isEmptyGrid = updatedShopPage.querySelector(emptyGridSelector);
+        const wasEmptyGrid = document.querySelector(emptyGridSelector);
+        const gridSelector = isEmptyGrid ? emptyGridSelector : productGridSelector;
+        const currSelector = wasEmptyGrid ? emptyGridSelector : productGridSelector;;
+        const adjustClasses = (el) => {
+            if (isEmptyGrid) {
+                el.classList.add("o_wsale_empty_products_grid", "text-center", "mt128", "mb256");
+                el.classList.remove("o_wsale_products_grid_table_wrapper");
+            } else {
+                el.classList.add("o_wsale_products_grid_table_wrapper");
+                el.classList.remove("o_wsale_empty_products_grid", "text-center", "mt128", "mb256");
+            }
+        };
+        updateElementContent(
+            updatedShopPage,
+            gridSelector,
+            { postUpdate: adjustClasses, currSelector },
+        );
+
+        updateElementContent(updatedShopPage, ".products_pager");
+        updateElementContent(
+            updatedShopPage,
+            ".o_website_offcanvas",
+            { postUpdate: (el) => restoreExpandedAccordions(el, expandedTargets) },
+        );
+
+        const applyBtn = document.querySelector('#o_wsale_offcanvas_product_count');
+        if (applyBtn) {
+            setElementContent(applyBtn, data.product_count)
+        }
+        history.pushState({}, '', targetUrl);
+        interaction.services['public.interactions'].startInteractions(shopPageEl);
+        productGridWrapper?.classList.remove('opacity-50');
+    } catch {
+        redirect(targetUrl);
+    }
 }
 
 /**
@@ -174,11 +220,70 @@ function getSelectedAttributeValues(container) {
     )).map(el => parseInt(el.value));
 }
 
+/**
+ * Return a record ID from a slug.
+ *
+ * @param {string} slug - The slug to parse.
+ * @return {undefined|number} - The record ID extracted from the slug, if any.
+ */
+function unslug(slug) {
+    if (!slug) return undefined;
+    return parseInt(slug.split('-').at(-1)) || undefined;
+}
+
+/**
+ * Convert the provided attribute value slugs into search params.
+ *
+ * @param {string[]} attributeValueSlugs - The attribute value slugs to convert.
+ * @return {URLSearchParams} - The search params representing the attribute values.
+ */
+function getAttributeValueParams(attributeValueSlugs) {
+    const attributeValues = new Map();
+    for (const slug of attributeValueSlugs) {
+        // Group attribute values by attribute.
+        const [attribute, attributeValue] = slug.split('/');
+        const values = attributeValues.get(attribute) ?? new Set();
+        values.add(attributeValue);
+        attributeValues.set(attribute, values);
+    }
+    // Aggregate all attribute values belonging to the same attribute into a single search param.
+    return new URLSearchParams(Array.from(attributeValues.entries()).map(
+        ([attribute, values]) => [attribute, [...values].join(',')]
+    ));
+}
+
+/**
+ * Filter out any attribute value params from the provided search params.
+ *
+ * @param {URLSearchParams} searchParams - The search params to filter.
+ * @return {URLSearchParams} - The filtered search params.
+ */
+function clearAttributeValueParams(searchParams) {
+    return new URLSearchParams(Array.from(searchParams.entries()).filter(
+        ([attribute, _]) => !unslug(attribute)
+    ));
+}
+
+/**
+ * Dispatch a GA4 tracking event to the `.oe_website_sale` element.
+ *
+ * @param {string} eventName
+ * @param {Object} detail
+ * @return {void}
+ */
+function dispatchTrackingEvent(eventName, detail) {
+    document.querySelector(".oe_website_sale")?.dispatchEvent(
+        new CustomEvent(eventName, { detail })
+    );
+}
+
 export default {
-    animateClone: animateClone,
-    getClosestProductForm: getClosestProductForm,
     updateCartNavBar: updateCartNavBar,
-    showWarning: showWarning,
     getSelectedAttributeValues: getSelectedAttributeValues,
     updateQuickReorderSidebar: updateQuickReorderSidebar,
+    unslug: unslug,
+    getAttributeValueParams: getAttributeValueParams,
+    clearAttributeValueParams: clearAttributeValueParams,
+    updateShopContent: updateShopContent,
+    dispatchTrackingEvent: dispatchTrackingEvent,
 };

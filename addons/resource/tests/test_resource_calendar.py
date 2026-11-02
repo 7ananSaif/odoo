@@ -1,11 +1,13 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-import pytz
-from datetime import datetime
+from datetime import datetime, UTC
+from zoneinfo import ZoneInfo
 
+from odoo.exceptions import UserError
 from odoo.tests import Form
-from odoo.tests.common import TransactionCase
+from odoo.tests.common import tagged, TransactionCase
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestResourceCalendar(TransactionCase):
 
     def test_fully_flexible_attendance_interval_duration(self):
@@ -14,25 +16,29 @@ class TestResourceCalendar(TransactionCase):
         """
         calendar = self.env['resource.calendar'].create({
             'name': 'Standard Calendar',
-            'two_weeks_calendar': False,
+            'attendance_ids': [(0, 0, {
+                'dayofweek': '2',  # Wednesday
+                'hour_from': 14,   # 18:00 UTC
+                'hour_to': 17,     # 21:00 UTC
+            })],
+        })
+        fully_flex_calendar = self.env['resource.calendar'].create({
+            'name': 'Fully Flexible Calendar',
+            'calendar_type': 'undefined',
+            'attendance_ids': [],
         })
         resource = self.env['resource.resource'].create({
             'name': 'Wade Wilson',
-            'calendar_id': False,  # Fully-flexible because no calendar is set
+            'calendar_id': fully_flex_calendar.id,  # Fully-flexible: flexible calendar, no hours target
             'tz': 'America/New_York',  # -04:00 UTC offset in the summer
         })
-        self.env['resource.calendar.attendance'].create({
-            'name': 'TEMP',
-            'calendar_id': calendar.id,
-            'dayofweek': '2',  # Wednesday
-            'hour_from': 14,   # 18:00 UTC
-            'hour_to': 17,     # 21:00 UTC
-        })
-        UTC = pytz.timezone('UTC')
         start_dt = datetime(2025, 6, 4, 18, 0, 0).astimezone(UTC)
         end_dt = datetime(2025, 6, 4, 21, 0, 0).astimezone(UTC)
+        resources_per_tz = {
+            ZoneInfo('America/New_York'): resource
+        }
         result_per_resource_id = calendar._attendance_intervals_batch(
-            start_dt, end_dt, resource
+            start_dt, end_dt, resources_per_tz
         )
         start, end, attendance = result_per_resource_id[resource.id]._items[0]
         # For a flexible resource, we expect the output times to match the
@@ -42,18 +48,21 @@ class TestResourceCalendar(TransactionCase):
         self.assertEqual(start, start_dt, "Output start time should match the input start time")
         self.assertEqual(end, end_dt, "Output end time should match the input end time")
         self.assertEqual(attendance.duration_hours, 3.0, "Attendance duration should be 3 hours")
-        self.assertEqual(attendance.duration_days, 0.125, "Attendance duration should be 0.125 days (3 hours)")
 
     def test_flexible_calendar_attendance_interval_duration(self):
         """
         Test that the duration of an attendance interval for flexible calendar is correctly computed.
         """
-        flexible_calendar = self.env['resource.calendar'].create({
+        flex_calendar = self.env['resource.calendar'].create({
             'name': 'Flexible Calendar',
+            'calendar_type': 'undefined',
+            'attendance_ids': [],
+            'hours_per_week': 30.0,
             'hours_per_day': 7.0,
-            'hours_per_week': 30,
-            'full_time_required_hours': 30,
-            'flexible_hours': True,
+        })
+        flex_resource = self.env['resource.resource'].create({
+            'name': 'Test FlexResource',
+            'calendar_id': flex_calendar.id,
             'tz': 'UTC',
         })
 
@@ -61,23 +70,26 @@ class TestResourceCalendar(TransactionCase):
         # Expected: 7-7-7-7-2 (30 hours total)
         expected_hours = [7, 7, 7, 7, 2]
 
-        start_dt = datetime(2025, 6, 2, 0, 0, 0).astimezone(pytz.UTC)
-        end_dt = datetime(2025, 6, 7, 23, 59, 59).astimezone(pytz.UTC)
-        result_per_resource_id = flexible_calendar._attendance_intervals_batch(
-            start_dt, end_dt
+        start_dt = datetime(2025, 6, 2, 0, 0, 0).astimezone(UTC)
+        end_dt = datetime(2025, 6, 7, 23, 59, 59).astimezone(UTC)
+        resources_per_tz = {
+            UTC: flex_resource
+        }
+        result_per_resource_id = self.env['resource.calendar']._attendance_intervals_batch(
+            start_dt, end_dt, resources_per_tz=resources_per_tz
         )
-        self.assertEqual(expected_hours, [(end - start).total_seconds() / 3600 for start, end, dummy_attendance in result_per_resource_id[0]._items])
-        self.assertEqual(expected_hours, [dummy_attendance.duration_hours for start, end, dummy_attendance in result_per_resource_id[0]._items])
+        self.assertEqual(expected_hours, [(end - start).total_seconds() / 3600 for start, end, dummy_attendance in result_per_resource_id[flex_resource.id]._items])
+        self.assertEqual(expected_hours, [dummy_attendance.duration_hours for start, end, dummy_attendance in result_per_resource_id[flex_resource.id]._items])
 
         # Case 2: check attendances are all contained between start_dt and end_dt
-        start_dt = datetime(2025, 6, 2, 11, 0, 0).astimezone(pytz.UTC)
-        end_dt = datetime(2025, 6, 7, 13, 0, 0).astimezone(pytz.UTC)
-        result_per_resource_id = flexible_calendar._attendance_intervals_batch(
-            start_dt, end_dt
+        start_dt = datetime(2025, 6, 2, 11, 0, 0).astimezone(UTC)
+        end_dt = datetime(2025, 6, 7, 13, 0, 0).astimezone(UTC)
+        result_per_resource_id = self.env['resource.calendar']._attendance_intervals_batch(
+            start_dt, end_dt, resources_per_tz=resources_per_tz
         )
 
-        self.assertTrue(start_dt <= result_per_resource_id[0]._items[0][0], "First attendance interval should not start before start_dt")
-        self.assertTrue(end_dt >= result_per_resource_id[0]._items[4][1], "Last attendance interval should not end after end_dt")
+        self.assertTrue(start_dt <= result_per_resource_id[flex_resource.id]._items[0][0], "First attendance interval should not start before start_dt")
+        self.assertTrue(end_dt >= result_per_resource_id[flex_resource.id]._items[4][1], "Last attendance interval should not end after end_dt")
 
     def test_public_holiday_calendar_no_company(self):
         self.env['resource.calendar.leaves'].create([{
@@ -86,16 +98,24 @@ class TestResourceCalendar(TransactionCase):
             'date_from': datetime(2019, 5, 29, 0, 0, 0),
             'date_to': datetime(2019, 5, 30, 0, 0, 0),
             'resource_id': False,
-            'time_type': "leave",
+            'count_as': "absence",
         }])
         calendar = self.env['resource.calendar'].create({
             'name': '40 hours/week',
             'hours_per_day': 8,
             'full_time_required_hours': 40,
+            'attendance_ids': [(5, 0, 0),
+                (0, 0, {'dayofweek': '0', 'duration_hours': 8, 'hour_from': 0, 'hour_to': 0}),
+                (0, 0, {'dayofweek': '1', 'duration_hours': 8, 'hour_from': 0, 'hour_to': 0}),
+                (0, 0, {'dayofweek': '2', 'duration_hours': 8, 'hour_from': 0, 'hour_to': 0}),
+                (0, 0, {'dayofweek': '3', 'duration_hours': 8, 'hour_from': 0, 'hour_to': 0}),
+                (0, 0, {'dayofweek': '4', 'duration_hours': 8, 'hour_from': 0, 'hour_to': 0}),
+            ],
+            'company_id': False,
         })
-        calendar.company_id = False
-        date_from = datetime(2019, 5, 27, 0, 0, 0).astimezone(pytz.UTC)
-        date_to = datetime(2019, 5, 31, 23, 59, 59).astimezone(pytz.UTC)
+        self.assertFalse(calendar.company_id)
+        date_from = datetime(2019, 5, 27, 0, 0, 0).astimezone(UTC)
+        date_to = datetime(2019, 5, 31, 23, 59, 59).astimezone(UTC)
         days = calendar._get_unusual_days(date_from, date_to, self.env.company)
         expected_res = {
             '2019-05-27': False,
@@ -110,27 +130,10 @@ class TestResourceCalendar(TransactionCase):
         calendar = self.env['resource.calendar'].create({
             'name': 'Test calendar',
             'attendance_ids': [(5, 0, 0),
-                               (0, 0, {
-                                   'name': 'Monday',
-                                   'hour_from': 8,
-                                   'hour_to': 16,
-                                   'day_period': 'full_day',
-                                   'dayofweek': '0',
-                               }),
-                               (0, 0, {
-                                   'name': 'Tuesday',
-                                   'hour_from': 8,
-                                   'hour_to': 16,
-                                   'day_period': 'full_day',
-                                   'dayofweek': '1',
-                               }),
-                               (0, 0, {
-                                   'name': 'Wednesday',
-                                   'hour_from': 8,
-                                   'hour_to': 16,
-                                   'day_period': 'full_day',
-                                   'dayofweek': '2',
-                               })],
+                (0, 0, {'dayofweek': '0', 'hour_from': 8, 'hour_to': 16, 'day_period': 'full_day'}),
+                (0, 0, {'dayofweek': '1', 'hour_from': 8, 'hour_to': 16, 'day_period': 'full_day'}),
+                (0, 0, {'dayofweek': '2', 'hour_from': 8, 'hour_to': 16, 'day_period': 'full_day'}),
+            ],
         })
         calendar_form = Form(calendar)
 
@@ -153,29 +156,11 @@ class TestResourceCalendar(TransactionCase):
         calendar = self.env['resource.calendar'].create({
             'name': 'Test calendar',
             'attendance_ids': [(5, 0, 0),
-                               (0, 0, {
-                                   'name': 'Monday',
-                                   'hour_from': 8,
-                                   'hour_to': 16,
-                                   'day_period': 'full_day',
-                                   'dayofweek': '0',
-                               }),
-                               (0, 0, {
-                                   'name': 'Tuesday',
-                                   'hour_from': 8,
-                                   'hour_to': 16,
-                                   'day_period': 'full_day',
-                                   'dayofweek': '1',
-                               }),
-                               (0, 0, {
-                                   'name': 'Wednesday',
-                                   'hour_from': 8,
-                                   'hour_to': 16,
-                                   'day_period': 'full_day',
-                                   'dayofweek': '2',
-                               })],
+                (0, 0, {'dayofweek': '0', 'hour_from': 8, 'hour_to': 16, 'day_period': 'full_day', 'duration_based': True}),
+                (0, 0, {'dayofweek': '1', 'hour_from': 8, 'hour_to': 16, 'day_period': 'full_day', 'duration_based': True}),
+                (0, 0, {'dayofweek': '2', 'hour_from': 8, 'hour_to': 16, 'day_period': 'full_day', 'duration_based': True}),
+            ],
         })
-        calendar.duration_based = True
         calendar_form = Form(calendar)
 
         self.assertEqual(calendar_form.hours_per_day, 8)
@@ -193,33 +178,179 @@ class TestResourceCalendar(TransactionCase):
         self.assertEqual(calendar.hours_per_day, 7)
         self.assertEqual(calendar.hours_per_week, 21)
 
+    def test_attendance_intervals_duration_based_domain_filter(self):
+        calendar = self.env['resource.calendar'].create({
+            'name': 'Test calendar',
+            'attendance_ids': [(5, 0, 0),
+                (0, 0, {'dayofweek': '0', 'duration_hours': 2}),
+                (0, 0, {'dayofweek': '0', 'duration_hours': 4}),
+                (0, 0, {'dayofweek': '0', 'duration_hours': 6}),
+            ]
+        })
+        att_2h, att_4h, att_6h = sorted(calendar.attendance_ids, key=lambda att: att.duration_hours)
+
+        start_dt = datetime(2026, 1, 5, 0, 0, 0, tzinfo=UTC)
+        end_dt = datetime(2026, 1, 5, 23, 59, 59, tzinfo=UTC)
+
+        intervals = calendar._attendance_intervals_batch(start_dt, end_dt, domain=[('duration_hours', '>', 3)])[False]
+
+        intervals_by_attendance = {att: (start, end) for start, end, att in intervals}
+        self.assertEqual(len(intervals_by_attendance), 2, "Only the 4h and 6h attendances match the domain; the 2h one is filtered out")
+        self.assertNotIn(att_2h, intervals_by_attendance, "The 2h attendance is filtered out by the domain")
+
+        self.assertEqual(
+            intervals_by_attendance[att_4h],
+            (datetime(2026, 1, 5, 8, 0, tzinfo=UTC), datetime(2026, 1, 5, 12, 0, tzinfo=UTC)),
+            "The 4h interval must stay at 08:00-12:00 (after the filtered-out 2h line)",
+        )
+        self.assertEqual(
+            intervals_by_attendance[att_6h],
+            (datetime(2026, 1, 5, 12, 0, tzinfo=UTC), datetime(2026, 1, 5, 18, 0, tzinfo=UTC)),
+            "The 6h interval must stay at 12:00-18:00",
+        )
+
     def test_duration_based_average_hours(self):
         """Checks that the average hours for days and weeks are correctly computed when the option Define Amount of
-        Hours per Day has been checked."""
+        Hours per Day has been checked. In 19.2, for an attendance to be duration based, we simply create an attendance
+        without hour_from and hour_to."""
         calendar = self.env['resource.calendar'].create({
             'name': 'Duration based Calendar',
             'attendance_ids': False,
-            'duration_based': True,
         })
         with Form(calendar) as form:
             with form.attendance_ids.new() as monday_attendance:
-                monday_attendance.name = 'Mon'
                 monday_attendance.dayofweek = '0'
-                monday_attendance.day_period = 'full_day'
                 monday_attendance.duration_hours = 4.0
 
             with form.attendance_ids.new() as tuesday_attendance:
-                tuesday_attendance.name = 'Tue'
                 tuesday_attendance.dayofweek = '1'
-                tuesday_attendance.day_period = 'full_day'
                 tuesday_attendance.duration_hours = 4.0
 
             with form.attendance_ids.new() as wednesday_attendance:
-                wednesday_attendance.name = 'Wed'
                 wednesday_attendance.dayofweek = '2'
-                wednesday_attendance.day_period = 'full_day'
                 wednesday_attendance.duration_hours = 4.0
+
             self.assertEqual(
                 (form.hours_per_week, form.hours_per_day),
                 (12, 4),
             )
+
+    def test_attendance_intervals_without_calendar_nor_resource(self):
+        """Computing attendance intervals without calendar requires resources."""
+        start_dt = datetime(2026, 1, 5, tzinfo=UTC)
+        end_dt = datetime(2026, 1, 10, tzinfo=UTC)
+        with self.assertRaises(UserError):
+            self.env['resource.calendar']._attendance_intervals_batch(start_dt, end_dt)
+
+    def test_unusual_days_working_time_leave(self):
+        """Only leaves counted as absence make a day unusual."""
+        calendar = self.env['resource.calendar'].create({
+            'name': 'Morning Calendar',
+            'attendance_ids': [
+                (0, 0, {'dayofweek': str(day), 'hour_from': 8, 'hour_to': 12})
+                for day in range(5)
+            ],
+        })
+        self.env['resource.calendar.leaves'].create([{
+            'name': 'Training',
+            'calendar_id': calendar.id,
+            'date_from': datetime(2026, 1, 7, 8),
+            'date_to': datetime(2026, 1, 7, 12),
+            'count_as': 'working_time',
+        }, {
+            'name': 'Holiday',
+            'calendar_id': calendar.id,
+            'date_from': datetime(2026, 1, 8, 8),
+            'date_to': datetime(2026, 1, 8, 12),
+        }])
+        unusual_days = calendar._get_unusual_days(datetime(2026, 1, 6), datetime(2026, 1, 8))
+        self.assertEqual(unusual_days, {
+            '2026-01-06': False,
+            '2026-01-07': False,
+            '2026-01-08': True,
+        })
+        unusual_days = calendar._get_unusual_days(datetime(2026, 1, 6), datetime(2026, 1, 8), company_id=self.env.company)
+        self.assertEqual(unusual_days['2026-01-07'], False)
+
+    def test_fully_flexible_work_duration_until_midnight(self):
+        """Intervals are split per day at midnight: an interval ending at midnight does not
+        count the next day, and no time is lost at the day boundaries."""
+        fully_flex_calendar = self.env['resource.calendar'].create({
+            'name': 'Fully Flexible Calendar',
+            'calendar_type': 'undefined',
+            'attendance_ids': [],
+            'hours_per_week': 0,
+            'hours_per_day': 0,
+        })
+        self.assertEqual(
+            fully_flex_calendar.get_work_duration_data(datetime(2026, 1, 5, tzinfo=UTC), datetime(2026, 1, 6, tzinfo=UTC)),
+            {'days': 1.0, 'hours': 24.0},
+        )
+        self.assertEqual(
+            fully_flex_calendar.get_work_duration_data(datetime(2026, 1, 5, tzinfo=UTC), datetime(2026, 1, 8, tzinfo=UTC)),
+            {'days': 3.0, 'hours': 72.0},
+        )
+        empty_interval = [(datetime(2026, 1, 5, tzinfo=UTC), datetime(2026, 1, 5, tzinfo=UTC), self.env['resource.calendar.attendance'])]
+        self.assertEqual(
+            fully_flex_calendar._get_attendance_intervals_days_data(empty_interval),
+            {'days': 0, 'hours': 0},
+        )
+
+@tagged('post_install', '-at_install')
+class TestResourceCalendarReference(TransactionCase):
+
+    def test_reference_calendar_of_other_company(self):
+        """ A calendar created for another company than the current one must not get the calendar of the
+        current company as reference: its full time follows the default calendar of its own company. """
+        self.env.company.resource_calendar_id.attendance_ids.filtered(lambda a: a.dayofweek == '4').unlink()
+        company_b = self.env['res.company'].create({'name': 'Company B'})
+        self.assertFalse(company_b.resource_calendar_id.reference_calendar_id)
+        self.assertEqual(company_b.resource_calendar_id.full_time_required_hours, 40)
+
+        half_time = self.env['resource.calendar'].create({
+            'name': 'Half time B',
+            'company_id': company_b.id,
+            'attendance_ids': [(5, 0, 0)] + [
+                (0, 0, {'dayofweek': day, 'hour_from': 8, 'hour_to': 12}) for day in '01234'
+            ],
+        })
+        self.assertFalse(half_time.reference_calendar_id)
+        self.assertRecordValues(half_time, [{'full_time_required_hours': 40, 'work_time_rate': 0.5, 'is_fulltime': False}])
+
+        # The full time follows the default calendar of the company
+        company_b.resource_calendar_id.attendance_ids.filtered(lambda a: a.dayofweek == '4').unlink()
+        self.assertRecordValues(half_time, [{'full_time_required_hours': 32, 'work_time_rate': 0.625}])
+
+        # Without company, the calendar is its own reference
+        no_company = self.env['resource.calendar'].create({
+            'name': 'Half time without company',
+            'company_id': False,
+            'attendance_ids': [(5, 0, 0)] + [
+                (0, 0, {'dayofweek': day, 'hour_from': 8, 'hour_to': 12}) for day in '01234'
+            ],
+        })
+        self.assertFalse(no_company.reference_calendar_id)
+        self.assertRecordValues(no_company, [{'full_time_required_hours': 20, 'is_fulltime': True}])
+
+    def test_copy_calendar_rates(self):
+        """ The rates of a fixed calendar are computed from the attendances of the copy, those of a
+        variable calendar are kept. """
+        calendar = self.env['resource.calendar'].create({
+            'name': 'Full time',
+            'attendance_ids': [(5, 0, 0)] + [
+                (0, 0, {'dayofweek': day, 'hour_from': 8, 'hour_to': 16}) for day in '01234'
+            ],
+        })
+        self.assertRecordValues(calendar, [{'days_per_week': 5, 'hours_per_week': 40, 'hours_per_day': 8}])
+        three_days = calendar.copy({
+            'attendance_ids': [(0, 0, {'dayofweek': day, 'hour_from': 8, 'hour_to': 14}) for day in '012'],
+        })
+        self.assertRecordValues(three_days, [{'days_per_week': 3, 'hours_per_week': 18, 'hours_per_day': 6}])
+
+        variable = self.env['resource.calendar'].create({
+            'name': 'Variable',
+            'calendar_type': 'variable',
+            'days_per_week': 4,
+            'hours_per_week': 30,
+        })
+        self.assertRecordValues(variable.copy(), [{'days_per_week': 4, 'hours_per_week': 30, 'hours_per_day': 7.5}])

@@ -1,17 +1,19 @@
 import { useService } from "@web/core/utils/hooks";
 import { formatFloat } from "@web/views/fields/formatters";
-import { Component, markup } from "@odoo/owl";
+import { Component, markup, t, useProps } from "@odoo/owl";
 
 export class ForecastedHeader extends Component {
     static template = "stock.ForecastedHeader";
-    static props = { docs: Object, openView: Function };
+    props = useProps({
+        docs: t.object(),
+        openView: t.function(),
+    });
 
     setup(){
         this.orm = useService("orm");
         this.action = useService("action");
-        this.tooltip = useService("tooltip");
 
-        this._formatFloat = (num) => formatFloat(num, { digits: this.props.docs.precision });
+        this._formatFloat = (num) => formatFloat(num, { digits: [0, this.props.docs.precision] });
     }
 
     async _onClickInventory(){
@@ -48,7 +50,7 @@ export class ForecastedHeader extends Component {
     }
 
     get leadTimeShort() {
-        let short = " " + (this.leadTime.total_delay) + " day(s)";
+        let short = " " + (this.leadTime.total_delay) + " days";
         if (this.leadTime.total_delay != 0) {
             short += " (" + this.leadTime.earliestPossibleArrival + ")";
         }

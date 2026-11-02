@@ -10,10 +10,16 @@ $o-search-bar-menu-max-width: calc(100vw - #{map-get($spacers, 3) * 2 });
         min-width: 200px;
     }
 
-    .o_accordion_values .o_input {
-        max-width: 17ch;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+    .o_dropdown_title_icon {
+        width: $dropdown-item-padding-x;
+    }
+
+    @include media-breakpoint-up(md) {
+        .o_accordion_values .o_input {
+            max-width: 17ch;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
     }
 
     .o_favorite_item {
@@ -22,7 +28,6 @@ $o-search-bar-menu-max-width: calc(100vw - #{map-get($spacers, 3) * 2 });
         }
 
         i {
-            display: block !important;
             visibility: var(--show-on-hover, hidden);
         }
     }
@@ -31,5 +36,15 @@ $o-search-bar-menu-max-width: calc(100vw - #{map-get($spacers, 3) * 2 });
         .o_dropdown_container {
             max-width: calc(#{$o-search-bar-menu-max-width} / 6);
         }
+    }
+}
+
+.o_searchview_dropdown_toggler {
+    --#{$prefix}btn-hover-border-color: var(--btn-border-color);
+    --#{$prefix}btn-disabled-border-color: #{$input-border-color};
+    --#{$prefix}btn-disabled-opacity: 1;
+
+    &.o-dropdown.btn-outline-secondary.show {
+        --#{$prefix}btn-active-border-color: #{$input-focus-border-color};
     }
 }

@@ -12,6 +12,8 @@ from psycopg2.errors import NotNullViolation
 @tagged('post_install', '-at_install')
 class TestSoLineMilestones(TestSaleCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -239,6 +241,35 @@ class TestSoLineMilestones(TestSaleCommon):
         self.assertEqual({m.quantity_percentage for m in project.milestone_ids}, {0.25}, "All milestones of the generated project should have a quantity percentage of 25%.")
         self.assertTrue(project.allow_milestones, "The project should allow milestones as it was created from a product configured to create milestones.")
 
+    def test_project_template_with_custom_milestones(self):
+        """
+        If a milestone product has a project template with configured milestones, and each milestone has
+        a custom quantity percentage, use those instead of setting a quantity equally for all milestones.
+        """
+        project_template = self.env['project.project'].create({
+            'name': 'Project Template',
+            'allow_milestones': True,
+        })
+        self.env['project.milestone'].create([{
+            'project_id': project_template.id,
+            'name': str(i),
+            'quantity_percentage': round(0.1 * (i + 1), 2),
+        } for i in range(4)])
+        self.product_delivery_milestones1.project_template_id = project_template.id
+
+        sale_order = self.env['sale.order'].create({
+            'partner_id': self.partner_a.id,
+        })
+        self.env['sale.order.line'].create({
+            'product_id': self.product_delivery_milestones1.id,
+            'product_uom_qty': 20,
+            'order_id': sale_order.id,
+        })
+        sale_order.action_confirm()
+
+        project = sale_order.project_ids
+        self.assertEqual({m.quantity_percentage for m in project.milestone_ids}, {0.1, 0.2, 0.3, 0.4}, "All milestones of the generated project should have a custom quantity percentage.")
+
     def test_project_template_with_milestones_multiple_products(self):
         """
         If multiple products use the same project template, which has configured milestones, use the first product
@@ -318,3 +349,62 @@ class TestSoLineMilestones(TestSaleCommon):
         self.assertEqual(tasks[0].sale_line_id,
                          tasks[0].project_id.sale_line_id,
                          "Task should have the correct sale line based on project.")
+
+    def test_milestone_handling_task_global_project(self):
+        """Test milestone is set on task for task_global_project tracking."""
+        project2 = self.env['project.project'].create({'name': 'Test Project 2', 'allow_milestones': True})
+        (self.product_delivery_milestones1 | self.product_delivery_milestones2).write({
+            'service_tracking': 'task_global_project',
+        })
+        self.product_delivery_milestones1.project_id = self.project
+        self.product_delivery_milestones2.project_id = project2
+
+        sale_order = self.env['sale.order'].create({
+            'partner_id': self.partner_a.id,
+            'order_line': [Command.create({'product_id': p.id, 'product_uom_qty': 10})
+                          for p in [self.product_delivery_milestones1, self.product_delivery_milestones2]],
+        })
+        sale_order.action_confirm()
+
+        for sol in sale_order.order_line:
+            self.assertEqual(sol.task_id.milestone_id.sale_line_id, sol)
+
+    def test_milestone_handling_mixed_project_configuration(self):
+        """Test milestone handling when product has no project (falls back to SO project)."""
+        (self.product_delivery_milestones1 | self.product_delivery_milestones2).write({
+            'service_tracking': 'task_global_project',
+        })
+        self.product_delivery_milestones1.project_id = self.project
+        self.product_delivery_milestones2.project_id = False
+
+        sale_order = self.env['sale.order'].create({
+            'partner_id': self.partner_a.id,
+            'order_line': [Command.create({'product_id': p.id, 'product_uom_qty': 10})
+                          for p in [self.product_delivery_milestones1, self.product_delivery_milestones2]],
+        })
+        sale_order.action_confirm()
+
+        for sol in sale_order.order_line:
+            self.assertEqual(sol.task_id.milestone_id.sale_line_id, sol)
+
+    def test_milestone_not_overridden_when_task_template_has_milestone(self):
+        """Test that task template milestone is preserved."""
+        task_template = self.env['project.task'].create({
+            'name': 'Task Template',
+            'project_id': self.project.id,
+            'is_template': True,
+            'milestone_id': self.milestone1.id,
+        })
+        self.product_delivery_milestones1.write({
+            'service_tracking': 'task_global_project',
+            'project_id': self.project.id,
+            'task_template_id': task_template.id,
+        })
+
+        sale_order = self.env['sale.order'].create({
+            'partner_id': self.partner_a.id,
+            'order_line': [Command.create({'product_id': self.product_delivery_milestones1.id, 'product_uom_qty': 10})],
+        })
+        sale_order.action_confirm()
+
+        self.assertEqual(sale_order.order_line.task_id.milestone_id, self.milestone1)

@@ -1,28 +1,40 @@
 import * as spreadsheet from "@odoo/o-spreadsheet";
-import { getFirstListFunction } from "../list_helpers";
+import { getFirstListFunction, getListFunctions } from "../list_helpers";
 import { Domain } from "@web/core/domain";
 import { ListDataSource } from "../list_data_source";
-import { OdooCoreViewPlugin } from "@spreadsheet/plugins";
+import { OdooEvaluationPlugin } from "@spreadsheet/plugins";
+import { isDataSourceUrl, parseDataSourceUrl } from "../../data_sources/data_source_link";
+import { computeFormatFromCurrency } from "@spreadsheet/currency/helpers";
 
-const { astToFormula } = spreadsheet;
-const { isEvaluationError } = spreadsheet.helpers;
+const {
+    astToFormula,
+    NotAvailableError,
+    CircularDependencyError,
+    invalidateEvaluationCommands,
+    isCoreCommand,
+} = spreadsheet;
+const { isMarkdownLink, parseMarkdownLink } = spreadsheet.links;
+const { unquote, isMatrix, isEvaluationError, PositionMap } = spreadsheet.helpers;
 
 /**
  * @typedef {import("./list_core_plugin").SpreadsheetList} SpreadsheetList
  */
 
-export class ListCoreViewPlugin extends OdooCoreViewPlugin {
+export class ListCoreViewPlugin extends OdooEvaluationPlugin {
     static getters = /** @type {const} */ ([
         "getListComputedDomain",
         "getListHeaderValue",
         "getListIdFromPosition",
+        "isDynamicList",
         "getListFieldFromPosition",
         "getListSortDirection",
+        "getListFieldSortDirection",
         "isSortableListHeader",
         "getListCellValueAndFormat",
         "getListDataSource",
         "getAsyncListDataSource",
         "isListUnused",
+        "getListValuesAndFormats",
     ]);
     constructor(config) {
         super(config);
@@ -34,14 +46,17 @@ export class ListCoreViewPlugin extends OdooCoreViewPlugin {
 
         this.custom = config.custom;
         this._pendingAddDomains = false;
+        this.listPositionCache = new PositionMap();
+        this.shouldInvalidateCache = false;
     }
 
     beforeHandle(cmd) {
         switch (cmd.type) {
             case "START":
                 for (const listId of this.getters.getListIds()) {
-                    this._setupListDataSource(listId, 0);
+                    this._setupList(listId, 0);
                 }
+                this._addDomains();
                 break;
         }
     }
@@ -51,14 +66,23 @@ export class ListCoreViewPlugin extends OdooCoreViewPlugin {
      * @param {Object} cmd Command
      */
     handle(cmd) {
+        if (isCoreCommand(cmd) || cmd.type === "UNDO" || cmd.type === "REDO") {
+            this.unusedLists = undefined;
+        }
+        if (invalidateEvaluationCommands.has(cmd.type)) {
+            this.shouldInvalidateCache = true;
+        }
+        if (cmd.type === "UPDATE_CELL" && !this.shouldInvalidateCache) {
+            this.shouldInvalidateCache = true;
+        }
         switch (cmd.type) {
             case "INSERT_ODOO_LIST": {
-                const { id, linesNumber } = cmd;
-                this._setupListDataSource(id, linesNumber);
+                const { listId, linesNumber } = cmd;
+                this._setupList(listId, linesNumber);
                 break;
             }
             case "DUPLICATE_ODOO_LIST": {
-                this._setupListDataSource(cmd.newListId, 0);
+                this._setupList(cmd.newListId, 0);
                 break;
             }
             case "REFRESH_ALL_DATA_SOURCES":
@@ -72,21 +96,14 @@ export class ListCoreViewPlugin extends OdooCoreViewPlugin {
                 break;
             case "UPDATE_ODOO_LIST":
             case "UPDATE_ODOO_LIST_DOMAIN": {
-                const listDefinition = this.getters.getListModelDefinition(cmd.listId);
-                const dataSourceId = this._getListDataSourceId(cmd.listId);
-                this.lists[dataSourceId] = new ListDataSource(this.custom, listDefinition);
+                const listDefinition = this._getListModelDefinition(cmd.listId);
+                this.lists[cmd.listId].definition = listDefinition;
+                this.lists[cmd.listId].dataSource.onDefinitionChange(listDefinition);
                 this._addDomain(cmd.listId);
                 break;
             }
-            case "DELETE_SHEET":
-                this.unusedLists = undefined;
-                break;
-            case "UPDATE_CELL":
-                this.unusedLists = undefined;
-                break;
             case "UNDO":
             case "REDO": {
-                this.unusedLists = undefined;
                 if (
                     cmd.commands.find((command) =>
                         [
@@ -110,9 +127,9 @@ export class ListCoreViewPlugin extends OdooCoreViewPlugin {
                         continue;
                     }
 
-                    const listDefinition = this.getters.getListModelDefinition(cmd.listId);
-                    const dataSourceId = this._getListDataSourceId(cmd.listId);
-                    this.lists[dataSourceId] = new ListDataSource(this.custom, listDefinition);
+                    const listDefinition = this._getListModelDefinition(cmd.listId);
+                    this.lists[cmd.listId].definition = listDefinition;
+                    this.lists[cmd.listId].dataSource.onDefinitionChange(listDefinition);
                     this._addDomain(cmd.listId);
                 }
                 break;
@@ -121,6 +138,10 @@ export class ListCoreViewPlugin extends OdooCoreViewPlugin {
     }
 
     finalize() {
+        if (this.shouldInvalidateCache) {
+            this.listPositionCache = new PositionMap();
+            this.shouldInvalidateCache = false;
+        }
         if (this._pendingAddDomains) {
             this._addDomains();
             this._pendingAddDomains = false;
@@ -131,11 +152,15 @@ export class ListCoreViewPlugin extends OdooCoreViewPlugin {
     // Handlers
     // -------------------------------------------------------------------------
 
-    _setupListDataSource(listId, limit, definition) {
-        const dataSourceId = this._getListDataSourceId(listId);
-        definition = definition || this.getters.getListModelDefinition(listId);
-        if (!(dataSourceId in this.lists)) {
-            this.lists[dataSourceId] = new ListDataSource(this.custom, { ...definition, limit });
+    _setupList(listId, limit) {
+        if (!(listId in this.lists)) {
+            const definition = this._getListModelDefinition(listId);
+            const dataSource = new ListDataSource(this.custom, { ...definition, limit });
+            this.lists[listId] = {
+                id: listId,
+                definition,
+                dataSource,
+            };
         }
         this._addDomain(listId);
     }
@@ -156,7 +181,7 @@ export class ListCoreViewPlugin extends OdooCoreViewPlugin {
             domainList.push(this.getters.getGlobalFilterDomain(filterId, fieldMatch));
         }
         const domain = Domain.combine(domainList, "AND").toString();
-        this.getters.getListDataSource(listId).addDomain(domain);
+        this.lists[listId].dataSource.addDomain(domain);
     }
 
     /**
@@ -172,24 +197,12 @@ export class ListCoreViewPlugin extends OdooCoreViewPlugin {
     }
 
     /**
-     * Refresh the cache of a list
-     * @param {string} listId Id of the list
-     */
-    _refreshOdooList(listId) {
-        this.getters.getListDataSource(listId).load({ reload: true });
-    }
-
-    /**
      * Refresh the cache of all the lists
      */
     _refreshOdooLists() {
         for (const listId of this.getters.getListIds()) {
-            this._refreshOdooList(listId);
+            this.lists[listId].dataSource.load({ reload: true });
         }
-    }
-
-    _getListDataSourceId(listId) {
-        return `list-${listId}`;
     }
 
     _getUnusedLists() {
@@ -197,21 +210,93 @@ export class ListCoreViewPlugin extends OdooCoreViewPlugin {
             return this.unusedLists;
         }
         const unusedLists = new Set(this.getters.getListIds());
+
+        for (const formula of this.getters.getAllFormulas()) {
+            for (const listId of this.getListIdsFromFormula(formula)) {
+                unusedLists.delete(listId);
+                if (!unusedLists.size) {
+                    this.unusedLists = [];
+                    return this.unusedLists;
+                }
+            }
+        }
+
         for (const sheetId of this.getters.getSheetIds()) {
-            for (const cellId in this.getters.getCells(sheetId)) {
-                const position = this.getters.getCellPosition(cellId);
-                const listId = this.getListIdFromPosition(position);
-                if (listId) {
-                    unusedLists.delete(listId);
-                    if (!unusedLists.size) {
-                        this.unusedLists = [];
-                        return this.unusedLists;
+            for (const cell of this.getters.getCells(sheetId)) {
+                if (isMarkdownLink(cell.content)) {
+                    const { url } = parseMarkdownLink(cell.content);
+                    if (isDataSourceUrl(url)) {
+                        const [type, id] = parseDataSourceUrl(url);
+                        if (type === "list") {
+                            unusedLists.delete(id);
+                            if (!unusedLists.size) {
+                                this.unusedLists = [];
+                                return this.unusedLists;
+                            }
+                        }
                     }
                 }
             }
         }
         this.unusedLists = [...unusedLists];
         return this.unusedLists;
+    }
+
+    _getListModelDefinition(id) {
+        const definition = this.getters.getListDefinition(id);
+        return {
+            metaData: {
+                resModel: definition.model,
+            },
+            searchParams: {
+                domain: definition.domain,
+                context: definition.context,
+                orderBy: definition.orderBy,
+            },
+            name: definition.name,
+            columns: definition.columns,
+        };
+    }
+
+    _computeCellValue(listId, column, position) {
+        const formula = this.getters.getListCompiledColumnFormula(listId, column.name);
+        const getSymbolValue = (symbol) => {
+            symbol = unquote(symbol, "'");
+            const symbolColumn = this.lists[listId].definition.columns.find(
+                (col) => col.name === symbol
+            );
+            if (!symbolColumn) {
+                return new NotAvailableError(`There is no '${symbol}' column in the list.`);
+            } else if (symbolColumn.name === column.name) {
+                return new CircularDependencyError();
+            }
+            if (symbolColumn && symbolColumn.computedBy) {
+                return this._computeCellValue(listId, symbolColumn, position);
+            }
+            return this._getListCellValueAndFormat(listId, position, symbolColumn.name);
+        };
+        let result = this.getters.evaluateCompiledFormula(
+            column.computedBy.sheetId,
+            formula,
+            getSymbolValue
+        );
+        if (isMatrix(result)) {
+            result = result[0][0];
+        }
+        return result;
+    }
+
+    _getListCellValueAndFormat(listId, position, path) {
+        const list = this.lists[listId];
+        // shortcut to pre-fill the fetch list (spares a round of server call)
+        list.dataSource.addFieldPathToFetch(path);
+        const value = list.dataSource.getListCellValue(position, path);
+        if (typeof value === "object" && isEvaluationError(value.value)) {
+            return value;
+        }
+        const field = list.dataSource.getFieldFromFieldPath(path);
+        const format = this._getListFormat(listId, position, path, field);
+        return { value, format };
     }
 
     _getListFormat(listId, position, path, field) {
@@ -222,11 +307,15 @@ export class ListCoreViewPlugin extends OdooCoreViewPlugin {
             case "float":
                 return "#,##0.00";
             case "monetary": {
-                const currency = this.getListCurrency(listId, position, path, field.currency_field);
+                const currency = this.lists[listId].dataSource.getListCurrency(
+                    position,
+                    path,
+                    field.currency_field
+                );
                 if (!currency) {
                     return "#,##0.00";
                 }
-                return this.getters.computeFormatFromCurrency(currency);
+                return computeFormatFromCurrency(currency);
             }
             case "date":
                 return locale.dateFormat;
@@ -263,30 +352,61 @@ export class ListCoreViewPlugin extends OdooCoreViewPlugin {
      * @returns {string|undefined}
      */
     getListIdFromPosition(position) {
-        const cell = this.getters.getCorrespondingFormulaCell(position);
-        const sheetId = position.sheetId;
-        if (cell && cell.isFormula) {
-            const listFunction = getFirstListFunction(cell.compiledFormula.tokens);
-            if (listFunction) {
-                const content = astToFormula(listFunction.args[0]);
-                return this.getters.evaluateFormula(sheetId, content)?.toString();
+        if (!this.listPositionCache.has(position)) {
+            const cell = this.getters.getCorrespondingFormulaCell(position);
+            if (cell && cell.isFormula) {
+                const listIds = this.getListIdsFromFormula(cell.compiledFormula);
+                this.listPositionCache.set(position, listIds);
             }
         }
-        return undefined;
+        return this.listPositionCache.get(position)?.[0] || undefined;
+    }
+
+    isDynamicList(position) {
+        const cell = this.getters.getCorrespondingFormulaCell(position);
+        if (cell && cell.isFormula) {
+            const listFunction = getFirstListFunction(cell.compiledFormula, this.getters);
+            if (listFunction) {
+                return listFunction.functionName === "ODOO.LIST";
+            }
+        }
+        return false;
+    }
+
+    getListIdsFromFormula(compiledFormula) {
+        const listFunctions = getListFunctions(compiledFormula, this.getters);
+        return listFunctions.map((listFunction) => {
+            const content = astToFormula(listFunction.args[0]);
+            return this.getters.evaluateFormula(compiledFormula.sheetId, content)?.toString();
+        });
     }
 
     getListFieldFromPosition(position) {
-        const listId = this.getters.getListIdFromPosition(position);
+        const listId = this.getListIdFromPosition(position);
         if (listId === undefined) {
             return undefined;
         }
-        const cell = this.getters.getCell(position);
+        const cell = this.getters.getCorrespondingFormulaCell(position);
         if (!cell?.isFormula) {
             return undefined;
         }
-        const { functionName, args } = getFirstListFunction(cell.compiledFormula.tokens);
-        const fieldArg = functionName === "ODOO.LIST.HEADER" ? args[1] : args[2];
+        const { functionName, args } = getFirstListFunction(cell.compiledFormula, this.getters);
         const dataSource = this.getters.getListDataSource(listId);
+        if (functionName === "ODOO.LIST") {
+            const mainCell = this.getters.getCorrespondingFormulaCell(position);
+            const mainPosition = this.getters.getCellPosition(mainCell.id);
+            const colOffset = position.col - mainPosition.col;
+            const fields = this.getters
+                .getListDefinition(listId)
+                .columns.filter((col) => !col.hidden);
+            const fieldName = fields[colOffset]?.name;
+            if (!fieldName) {
+                return undefined;
+            }
+            return dataSource.getFields()[fieldName];
+        }
+        // ODOO.LIST.HEADER or ODOO.LIST.VALUE
+        const fieldArg = functionName === "ODOO.LIST.HEADER" ? args[1] : args[2];
         if (!fieldArg || !dataSource.isValid()) {
             return undefined;
         }
@@ -297,7 +417,7 @@ export class ListCoreViewPlugin extends OdooCoreViewPlugin {
     }
 
     getListSortDirection(position) {
-        const listId = this.getters.getListIdFromPosition(position);
+        const listId = this.getListIdFromPosition(position);
         if (!listId) {
             return "none";
         }
@@ -309,22 +429,49 @@ export class ListCoreViewPlugin extends OdooCoreViewPlugin {
         return orderBy.asc ? "asc" : "desc";
     }
 
+    getListFieldSortDirection(position) {
+        const listId = this.getListIdFromPosition(position);
+        if (!listId) {
+            return "none";
+        }
+        const field = this.getters.getListFieldFromPosition(position);
+        if (!field) {
+            return "none";
+        }
+        const definition = this.getters.getListDefinition(listId);
+        const orderBy = definition.orderBy.find((order) => order.name === field.name);
+        return orderBy ? (orderBy.asc ? "asc" : "desc") : "none";
+    }
+
     isSortableListHeader(position) {
-        const listId = this.getters.getListIdFromPosition(position);
+        const listId = this.getListIdFromPosition(position);
         if (!listId) {
             return false;
         }
         const cell = this.getters.getCell(position);
-        if (!cell?.isFormula) {
+        const mainCell = this.getters.getCorrespondingFormulaCell(position);
+        if (!cell?.isFormula && !mainCell?.isFormula) {
             return false;
         }
-        const { functionName } = getFirstListFunction(cell.compiledFormula.tokens);
-        const dataSource = this.getters.getListDataSource(listId);
-        return (
-            functionName === "ODOO.LIST.HEADER" &&
-            dataSource.isMetaDataLoaded() &&
-            this.getters.getListFieldFromPosition(position)?.sortable
-        );
+
+        const dataSource = this.getListDataSource(listId);
+        if (
+            !(
+                dataSource &&
+                dataSource.isMetaDataLoaded() &&
+                this.getListFieldFromPosition(position)?.sortable
+            )
+        ) {
+            return false;
+        }
+        const { functionName } = getFirstListFunction(mainCell.compiledFormula, this.getters);
+
+        if (functionName === "ODOO.LIST") {
+            const mainPosition = this.getters.getCellPosition(mainCell.id);
+            const rowOffset = position.row - mainPosition.row;
+            return rowOffset === 0;
+        }
+        return functionName === "ODOO.LIST.HEADER";
     }
 
     /**
@@ -334,7 +481,16 @@ export class ListCoreViewPlugin extends OdooCoreViewPlugin {
      * @param {string} path
      */
     getListHeaderValue(listId, path) {
-        return this.getters.getListDataSource(listId).getListHeaderValue(path);
+        const list = this.lists[listId];
+        const columnDef = list.definition.columns.find((col) => col.name === path);
+
+        if (columnDef?.string) {
+            if (this.getters.getListDefinition(listId).translateHeaders) {
+                return { value: this.getters.dynamicTranslate(columnDef.string) };
+            }
+            return { value: columnDef.string };
+        }
+        return list.dataSource.getListHeaderValue(path);
     }
 
     /**
@@ -346,42 +502,95 @@ export class ListCoreViewPlugin extends OdooCoreViewPlugin {
      * @returns {string|undefined}
      */
     getListCellValueAndFormat(listId, position, path) {
-        const dataSource = this.getters.getListDataSource(listId);
-        const value = dataSource.getListCellValue(position, path);
-        if (typeof value === "object" && isEvaluationError(value.value)) {
-            return value;
+        const column = this.lists[listId].definition.columns.find((col) => col.name === path) || {
+            name: path,
+        };
+        if (column && column.computedBy) {
+            return this._computeCellValue(listId, column, position);
         }
-        const field = dataSource.getFieldFromFieldPath(path);
-        const format = this._getListFormat(listId, position, path, field);
-        return { value, format };
+        return this._getListCellValueAndFormat(listId, position, column.name);
     }
 
     getListCurrency(listId, position, path, currentFieldName) {
-        return this.getters
-            .getListDataSource(listId)
-            .getListCurrency(position, path, currentFieldName);
+        return this.lists[listId].dataSource.getListCurrency(position, path, currentFieldName);
     }
 
     /**
-     * @param {string} id
+     * @param {string} listId
      * @returns {import("@spreadsheet/list/list_data_source").default|undefined}
      */
-    getListDataSource(id) {
-        const dataSourceId = this._getListDataSourceId(id);
-        return this.lists[dataSourceId];
+    getListDataSource(listId) {
+        return this.lists[listId]?.dataSource;
     }
 
     /**
-     * @param {string} id
+     * @param {string} listId
      * @returns {Promise<import("@spreadsheet/list/list_data_source").ListDataSource>}
      */
-    async getAsyncListDataSource(id) {
-        const dataSource = this.getListDataSource(id);
+    async getAsyncListDataSource(listId) {
+        const dataSource = this.getListDataSource(listId);
         await dataSource.load();
         return dataSource;
     }
 
     isListUnused(listId) {
-        return this._getUnusedLists().includes(listId);
+        return (
+            this._getUnusedLists().includes(listId) &&
+            !this.getters.isDataSourceLinkedToChart("list", listId)
+        );
+    }
+
+    getListValuesAndFormats(listId, rowCount) {
+        if (rowCount === undefined) {
+            throw new Error("The number of rows to fetch must be specified");
+        }
+        const list = this.lists[listId];
+        const columns = list.definition.columns.filter((col) => !col.hidden);
+
+        if (columns.length === 0) {
+            return { value: this.getters.getListDisplayName(listId) };
+        }
+
+        const computedColumns = columns.filter((col) => !!col.computedBy);
+
+        const symbolsInComputed = new Set(
+            computedColumns.flatMap(
+                (col) => this.getters.getListCompiledColumnFormula(listId, col.name).symbols
+            )
+        );
+
+        const columnToFetch = [];
+        for (const col of list.definition.columns) {
+            if ((!col.hidden || symbolsInComputed.has(col.name)) && !col.computedBy) {
+                columnToFetch.push(col);
+            }
+        }
+
+        if (columnToFetch.length) {
+            columnToFetch.forEach((col) => list.dataSource.addFieldPathToFetch(col.name));
+            // triggers the fetch of the list values up to `rowCount` to fill the datasource cache (if not already done)
+            list.dataSource.getListCellValue(rowCount, columnToFetch[0]?.name);
+        }
+
+        const numberRecordsToLoad = Math.min(list.dataSource.data.length, rowCount);
+        const valuesAndFormats = [];
+        for (const column of columns) {
+            if (column.hidden) {
+                continue;
+            }
+            const currentColumn = [];
+            currentColumn.push(this.getListHeaderValue(listId, column.name));
+            for (let position = 0; position < numberRecordsToLoad; position++) {
+                if (column && column.computedBy) {
+                    currentColumn.push(this._computeCellValue(listId, column, position));
+                } else {
+                    currentColumn.push(
+                        this._getListCellValueAndFormat(listId, position, column.name)
+                    );
+                }
+            }
+            valuesAndFormats.push(currentColumn);
+        }
+        return valuesAndFormats;
     }
 }

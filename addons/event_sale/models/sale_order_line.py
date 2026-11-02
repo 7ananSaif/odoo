@@ -50,7 +50,9 @@ class SaleOrderLine(models.Model):
             if so_line.service_tracking != 'event':
                 continue
 
-            for _count in range(int(so_line.product_uom_qty) - len(so_line.registration_ids)):
+            for _count in range(
+                int(so_line.product_uom_qty) - len(so_line.registration_ids.filtered(lambda reg: reg.state != 'cancel')),
+            ):
                 values = {
                     'sale_order_line_id': so_line.id,
                     'sale_order_id': so_line.order_id.id,
@@ -96,6 +98,18 @@ class SaleOrderLine(models.Model):
         """
         super()._compute_name()
 
+    @api.depends('event_ticket_id')
+    def _compute_label(self):
+        super()._compute_label()
+
+    def _get_product_display_name(self):
+        """Override of sale to add ticket's display_name as product's display_name for event ticket
+        SOL."""
+        self.ensure_one()
+        if self.event_ticket_id:
+            return self.event_ticket_id.name
+        return super()._get_product_display_name()
+
     def _get_sale_order_line_multiline_description_sale(self):
         """ We override this method because we decided that:
                 The default description of a sales order line containing a ticket must be different than the default description when no ticket is present.
@@ -108,12 +122,6 @@ class SaleOrderLine(models.Model):
                 self._get_sale_order_line_multiline_description_variants()
         else:
             return super()._get_sale_order_line_multiline_description_sale()
-
-    def _use_template_name(self):
-        """ We do not want configured description to get rewritten by template default"""
-        if self.event_ticket_id:
-            return False
-        return super()._use_template_name()
 
     def _get_display_price(self):
         if self.event_ticket_id and self.event_id:

@@ -14,47 +14,49 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-10-08 18:38+0000\n"
-"Last-Translator: \n"
-"Language-Team: \n"
+"POT-Creation-Date: 2026-10-23 17:41+0000\n"
+"PO-Revision-Date: 2026-08-31 15:15+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Uzbek <https://translate.odoo.com/projects/odoo-s19-4/"
+"microsoft_calendar/uz/>\n"
 "Language: uz\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: microsoft_calendar
 #. odoo-python
-#: code:addons/microsoft_calendar/models/calendar.py:0
+#: code:addons/microsoft_calendar/models/calendar_event.py:0
 #, fuzzy
 msgid "%(reminder_type)s - %(duration)s Days"
 msgstr "%(reminder_type)s - %(duration)s kun"
 
 #. module: microsoft_calendar
 #. odoo-python
-#: code:addons/microsoft_calendar/models/calendar.py:0
+#: code:addons/microsoft_calendar/models/calendar_event.py:0
 #, fuzzy
 msgid "%(reminder_type)s - %(duration)s Hours"
 msgstr "%(reminder_type)s - %(duration)s soat"
 
 #. module: microsoft_calendar
 #. odoo-python
-#: code:addons/microsoft_calendar/models/calendar.py:0
+#: code:addons/microsoft_calendar/models/calendar_event.py:0
 #, fuzzy
 msgid "%(reminder_type)s - %(duration)s Minutes"
 msgstr "%(reminder_type)s - %(duration)s daqiqa"
 
 #. module: microsoft_calendar
 #. odoo-python
-#: code:addons/microsoft_calendar/models/calendar.py:0
+#: code:addons/microsoft_calendar/models/calendar_event.py:0
 #, fuzzy
 msgid "%s - At time of event"
 msgstr "%s - Tadbir vaqtida"
 
 #. module: microsoft_calendar
 #. odoo-python
-#: code:addons/microsoft_calendar/models/calendar.py:0
+#: code:addons/microsoft_calendar/models/calendar_event.py:0
 #, fuzzy
 msgid "(No title)"
 msgstr "(Sarlavhasiz)"
@@ -106,22 +108,16 @@ msgid "Calendar Event"
 msgstr "Taqvim tadbiri"
 
 #. module: microsoft_calendar
-#: model_terms:ir.ui.view,arch_db:microsoft_calendar.microsoft_calendar_reset_account_view_form
-#, fuzzy
-msgid "Cancel"
-msgstr "Bekor qilish"
+#. odoo-python
+#: code:addons/microsoft_calendar/models/calendar_event.py:0
+msgid "Calendar Event imported from Outlook"
+msgstr ""
 
 #. module: microsoft_calendar
 #: model_terms:ir.ui.view,arch_db:microsoft_calendar.res_config_settings_view_form
 #, fuzzy
 msgid "Client ID"
 msgstr "Mijoz ID"
-
-#. module: microsoft_calendar
-#: model_terms:ir.ui.view,arch_db:microsoft_calendar.res_config_settings_view_form
-#, fuzzy
-msgid "Client Secret"
-msgstr "Mijoz siri"
 
 #. module: microsoft_calendar
 #: model:ir.model,name:microsoft_calendar.model_res_config_settings
@@ -145,9 +141,8 @@ msgstr "Sozlash"
 
 #. module: microsoft_calendar
 #: model_terms:ir.ui.view,arch_db:microsoft_calendar.microsoft_calendar_reset_account_view_form
-#, fuzzy
-msgid "Confirm"
-msgstr "Tasdiqlash"
+msgid "Continue"
+msgstr ""
 
 #. module: microsoft_calendar
 #: model:ir.model.fields,field_description:microsoft_calendar.field_microsoft_calendar_account_reset__create_uid
@@ -162,29 +157,14 @@ msgid "Created on"
 msgstr "Yaratilgan sana"
 
 #. module: microsoft_calendar
-#: model:ir.model.fields.selection,name:microsoft_calendar.selection__microsoft_calendar_account_reset__delete_policy__delete_odoo
-#, fuzzy
-msgid "Delete from Odoo"
-msgstr "Odoo‘dan o‘chirish"
+#: model:ir.model.fields,field_description:microsoft_calendar.field_microsoft_calendar_account_reset__delete_events
+msgid "Delete synced events from Odoo"
+msgstr ""
 
 #. module: microsoft_calendar
-#: model:ir.model.fields.selection,name:microsoft_calendar.selection__microsoft_calendar_account_reset__delete_policy__delete_both
-#, fuzzy
-msgid "Delete from both"
-msgstr "Ikkala tizimdan o‘chirish"
-
-#. module: microsoft_calendar
-#: model:ir.model.fields.selection,name:microsoft_calendar.selection__microsoft_calendar_account_reset__delete_policy__delete_microsoft
-#, fuzzy
-msgid "Delete from the current Microsoft Calendar account"
-msgstr "Joriy Microsoft Taqvim hisobidan o‘chirish"
-
-#. module: microsoft_calendar
-#. odoo-javascript
-#: code:addons/microsoft_calendar/static/src/views/microsoft_calendar/microsoft_calendar_controller.js:0
-#, fuzzy
-msgid "Discard"
-msgstr "Bekor qilish"
+#: model:ir.actions.act_window,name:microsoft_calendar.microsoft_calendar_reset_account_action
+msgid "Disconnect Outlook Calendar"
+msgstr ""
 
 #. module: microsoft_calendar
 #: model:ir.model.fields,field_description:microsoft_calendar.field_calendar_alarm_manager__display_name
@@ -202,7 +182,7 @@ msgstr "Ko‘rsatiladigan nom"
 
 #. module: microsoft_calendar
 #. odoo-python
-#: code:addons/microsoft_calendar/models/calendar.py:0
+#: code:addons/microsoft_calendar/models/calendar_event.py:0
 #, fuzzy
 msgid ""
 "Due to an Outlook Calendar limitation, recurrence updates must be done "
@@ -213,7 +193,7 @@ msgstr ""
 
 #. module: microsoft_calendar
 #. odoo-python
-#: code:addons/microsoft_calendar/models/calendar.py:0
+#: code:addons/microsoft_calendar/models/calendar_event.py:0
 #, fuzzy
 msgid ""
 "Due to an Outlook Calendar limitation, recurrence updates must be done "
@@ -227,7 +207,7 @@ msgstr ""
 
 #. module: microsoft_calendar
 #. odoo-python
-#: code:addons/microsoft_calendar/models/calendar.py:0
+#: code:addons/microsoft_calendar/models/calendar_event.py:0
 #, fuzzy
 msgid ""
 "Due to an Outlook Calendar limitation, recurrent events must be created "
@@ -250,7 +230,7 @@ msgstr "Tadbir takrorlanish qoidasi"
 
 #. module: microsoft_calendar
 #. odoo-python
-#: code:addons/microsoft_calendar/models/calendar.py:0
+#: code:addons/microsoft_calendar/models/calendar_event.py:0
 #, fuzzy
 msgid ""
 "For a correct synchronization between Odoo and Outlook Calendar, all "
@@ -268,7 +248,7 @@ msgstr ""
 
 #. module: microsoft_calendar
 #. odoo-python
-#: code:addons/microsoft_calendar/models/calendar.py:0
+#: code:addons/microsoft_calendar/models/calendar_event.py:0
 #, fuzzy
 msgid ""
 "For having a different organizer in your event, it is necessary that the "
@@ -311,7 +291,7 @@ msgstr ""
 
 #. module: microsoft_calendar
 #. odoo-python
-#: code:addons/microsoft_calendar/models/calendar.py:0
+#: code:addons/microsoft_calendar/models/calendar_event.py:0
 #, fuzzy
 msgid ""
 "It is necessary adding the proposed organizer as attendee before saving the "
@@ -353,17 +333,16 @@ msgid "Last synchronization date with Outlook Calendar"
 msgstr "Outlook taqvimi bilan oxirgi sinxronlash sanasi"
 
 #. module: microsoft_calendar
-#: model:ir.model.fields.selection,name:microsoft_calendar.selection__microsoft_calendar_account_reset__delete_policy__dont_delete
-#, fuzzy
-msgid "Leave them untouched"
-msgstr "Ularga tegmang"
-
-#. module: microsoft_calendar
-#: model:ir.actions.act_window,name:microsoft_calendar.microsoft_calendar_reset_account_action
 #: model:ir.model,name:microsoft_calendar.model_microsoft_calendar_account_reset
 #, fuzzy
 msgid "Microsoft Calendar Account Reset"
 msgstr "Microsoft taqvim hisobini qayta o‘rnatish"
+
+#. module: microsoft_calendar
+#: model:ir.model.fields,field_description:microsoft_calendar.field_res_users__microsoft_account_email
+#: model:ir.model.fields,field_description:microsoft_calendar.field_res_users_settings__microsoft_account_email
+msgid "Microsoft Calendar Email"
+msgstr ""
 
 #. module: microsoft_calendar
 #: model:ir.model.fields,field_description:microsoft_calendar.field_res_config_settings__cal_microsoft_client_id
@@ -391,6 +370,11 @@ msgid "Microsoft Recurrence Master Id"
 msgstr "Microsoft takrorlanish asosiy identifikatori"
 
 #. module: microsoft_calendar
+#: model:ir.model.fields,field_description:microsoft_calendar.field_calendar_event__microsoft_sync_active
+msgid "Microsoft Sync Active"
+msgstr ""
+
+#. module: microsoft_calendar
 #: model:ir.model.fields,field_description:microsoft_calendar.field_res_config_settings__cal_microsoft_sync_paused
 #, fuzzy
 msgid "Microsoft Synchronization Paused"
@@ -411,14 +395,8 @@ msgid "Next Sync Token"
 msgstr "Keyingi sinxronlash belgisi"
 
 #. module: microsoft_calendar
-#: model:ir.model.fields,field_description:microsoft_calendar.field_microsoft_calendar_account_reset__sync_policy
-#, fuzzy
-msgid "Next Synchronization"
-msgstr "Keyingi sinxronlash"
-
-#. module: microsoft_calendar
 #. odoo-python
-#: code:addons/microsoft_calendar/models/calendar.py:0
+#: code:addons/microsoft_calendar/models/calendar_event.py:0
 #, fuzzy
 msgid "Notification"
 msgstr "Bildirishnoma"
@@ -439,10 +417,16 @@ msgid "Outlook"
 msgstr "Outlook"
 
 #. module: microsoft_calendar
+#: model:ir.module.module,shortdesc:base.module_microsoft_calendar
 #: model_terms:ir.ui.view,arch_db:microsoft_calendar.view_users_form
 #, fuzzy
 msgid "Outlook Calendar"
 msgstr "Outlook taqvimi"
+
+#. module: microsoft_calendar
+#: model_terms:ir.ui.view,arch_db:microsoft_calendar.calendar_calendar_view_form_inherit_microsoft_calendar
+msgid "Outlook Sync"
+msgstr ""
 
 #. module: microsoft_calendar
 #: model:ir.model.fields,field_description:microsoft_calendar.field_res_users__microsoft_synchronization_stopped
@@ -453,7 +437,7 @@ msgstr "Outlook sinxronizatsiyasi to‘xtatildi"
 
 #. module: microsoft_calendar
 #. odoo-python
-#: code:addons/microsoft_calendar/models/calendar.py:0
+#: code:addons/microsoft_calendar/models/calendar_event.py:0
 #, fuzzy
 msgid ""
 "Outlook limitation: in a recurrence, an event cannot be moved to or before "
@@ -477,6 +461,16 @@ msgid "Pause Synchronization"
 msgstr "Sinxronlashni to‘xtatish"
 
 #. module: microsoft_calendar
+#: model_terms:ir.ui.view,arch_db:microsoft_calendar.view_microsoft_calendar_event_form
+msgid "Recurring events can only be edited from Outlook."
+msgstr ""
+
+#. module: microsoft_calendar
+#: model_terms:ir.ui.view,arch_db:microsoft_calendar.view_microsoft_calendar_event_form
+msgid "Recurring events must be created directly in Outlook Calendar."
+msgstr ""
+
+#. module: microsoft_calendar
 #: model_terms:ir.ui.view,arch_db:microsoft_calendar.view_users_form
 #, fuzzy
 msgid "Refresh Token"
@@ -489,28 +483,10 @@ msgid "Reset Account"
 msgstr "Hisobni qayta o‘rnatish"
 
 #. module: microsoft_calendar
-#: model_terms:ir.ui.view,arch_db:microsoft_calendar.microsoft_calendar_reset_account_view_form
-#, fuzzy
-msgid "Reset Outlook Calendar Account"
-msgstr "Outlook taqvim hisobini qayta o‘rnatish"
-
-#. module: microsoft_calendar
 #: model:ir.model,name:microsoft_calendar.model_microsoft_calendar_sync
 #, fuzzy
 msgid "Synchronize a record with Microsoft Calendar"
 msgstr "Yozuvni Microsoft taqvimi bilan sinxronlash"
-
-#. module: microsoft_calendar
-#: model:ir.model.fields.selection,name:microsoft_calendar.selection__microsoft_calendar_account_reset__sync_policy__all
-#, fuzzy
-msgid "Synchronize all existing events"
-msgstr "Barcha mavjud tadbirlarni sinxronlash"
-
-#. module: microsoft_calendar
-#: model:ir.model.fields.selection,name:microsoft_calendar.selection__microsoft_calendar_account_reset__sync_policy__new
-#, fuzzy
-msgid "Synchronize only new events"
-msgstr "Faqat yangi tadbirlarni sinxronlash"
 
 #. module: microsoft_calendar
 #. odoo-javascript
@@ -524,7 +500,7 @@ msgstr ""
 "sozlashni xohlaysizmi?"
 
 #. module: microsoft_calendar
-#: model:ir.model.fields,help:microsoft_calendar.field_microsoft_calendar_account_reset__delete_policy
+#: model:ir.model.fields,help:microsoft_calendar.field_microsoft_calendar_account_reset__delete_events
 #, fuzzy
 msgid "This will only affect events for which the user is the owner"
 msgstr "Bu faqat foydalanuvchi egasi bo‘lgan tadbir/hodisalarga ta'sir qiladi"
@@ -563,7 +539,55 @@ msgid "User Token"
 msgstr "Foydalanuvchi belgisi"
 
 #. module: microsoft_calendar
-#: model:ir.model.fields,field_description:microsoft_calendar.field_microsoft_calendar_account_reset__delete_policy
+#: model_terms:ir.ui.view,arch_db:microsoft_calendar.res_config_settings_view_form
+msgid "Value"
+msgstr ""
+
+#. module: microsoft_calendar
+#: model_terms:ir.ui.view,arch_db:microsoft_calendar.microsoft_calendar_reset_account_view_form
+msgid "What should happen to previously synced events?"
+msgstr ""
+
 #, fuzzy
-msgid "User's Existing Events"
-msgstr "Foydalanuvchining mavjud tadbir/hodisalari"
+#~ msgid "Client Secret"
+#~ msgstr "Mijoz siri"
+
+#, fuzzy
+#~ msgid "Confirm"
+#~ msgstr "Tasdiqlash"
+
+#, fuzzy
+#~ msgid "Delete from Odoo"
+#~ msgstr "Odoo‘dan o‘chirish"
+
+#, fuzzy
+#~ msgid "Delete from both"
+#~ msgstr "Ikkala tizimdan o‘chirish"
+
+#, fuzzy
+#~ msgid "Delete from the current Microsoft Calendar account"
+#~ msgstr "Joriy Microsoft Taqvim hisobidan o‘chirish"
+
+#, fuzzy
+#~ msgid "Leave them untouched"
+#~ msgstr "Ularga tegmang"
+
+#, fuzzy
+#~ msgid "Next Synchronization"
+#~ msgstr "Keyingi sinxronlash"
+
+#, fuzzy
+#~ msgid "Reset Outlook Calendar Account"
+#~ msgstr "Outlook taqvim hisobini qayta o‘rnatish"
+
+#, fuzzy
+#~ msgid "Synchronize all existing events"
+#~ msgstr "Barcha mavjud tadbirlarni sinxronlash"
+
+#, fuzzy
+#~ msgid "Synchronize only new events"
+#~ msgstr "Faqat yangi tadbirlarni sinxronlash"
+
+#, fuzzy
+#~ msgid "User's Existing Events"
+#~ msgstr "Foydalanuvchining mavjud tadbir/hodisalari"

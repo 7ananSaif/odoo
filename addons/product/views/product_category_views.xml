@@ -5,12 +5,12 @@
         <field name="name">product.category.form</field>
         <field name="model">product.category</field>
         <field name="arch" type="xml">
-            <form class="oe_form_configuration">
+            <form>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                         <button class="oe_stat_button"
                             name="%(product_template_action_all)d"
-                            icon="fa-th-list"
+                            icon="view_list"
                             type="action"
                             context="{'search_default_categ_id': id, 'default_categ_id': id, 'group_expand': True}">
                             <div class="o_field_widget o_stat_info">
@@ -24,8 +24,10 @@
                         <h1><field name="name" placeholder="e.g. Lamps"/></h1>
                     </div>
                     <group name="first" col="2">
-                        <field name="parent_id" class="oe_inline"/>
+                        <field name="parent_id" class="oe_inline" string="Parent" placeholder="None"/>
+                        <field name="company_id" groups="base.group_multi_company" class="oe_inline" placeholder="All Companies"/>
                     </group>
+                    <notebook/>
                 </sheet>
                 <chatter/>
             </form>
@@ -39,6 +41,7 @@
         <field name="arch" type="xml">
             <list string="Product Categories">
                 <field name="display_name" string="Product Category"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
             </list>
         </field>
     </record>
@@ -50,6 +53,9 @@
             <search string="Product Categories">
                 <field name="name" string="Product Categories"/>
                 <field name="parent_id"/>
+                <group>
+                    <filter name="group_by_company" string="Company" context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
+                </group>
             </search>
         </field>
     </record>
@@ -60,6 +66,11 @@
         <field name="path">product-categories</field>
         <field name="search_view_id" ref="product_category_search_view"/>
         <field name="view_id" ref="product_category_list_view"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new product category
+            </p>
+        </field>
     </record>
 
 </odoo>

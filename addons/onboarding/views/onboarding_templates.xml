@@ -3,20 +3,20 @@
     <template id="onboarding_panel">
         <t t-call="onboarding.onboarding_container">
             <t t-foreach="steps" t-as="step">
-                <t t-call="onboarding.onboarding_step">
-                    <t t-set="title" t-value="step.title"/>
-                    <t t-set="description" t-value="step.description"/>
-                    <t t-set="done_icon" t-value="step.done_icon"/>
-                    <t t-set="btn_text" t-value="step.button_text"/>
-                    <t t-set="done_text" t-value="step.done_text"/>
-                    <t t-set="image" t-value="'/web/image/onboarding.onboarding.step/'+str(step.id)+'/step_image'"/>
-                    <t t-set="alt" t-value="step.step_image_alt"/>
+                <t t-call="onboarding.onboarding_step"
+                    title="step.title"
+                    description="step.description"
+                    done_icon="step.done_icon"
+                    btn_text="step.button_text"
+                    done_text="step.done_text"
+                    image="'/web/image/onboarding.onboarding.step/'+str(step.id)+'/step_image'"
+                    alt="step.step_image_alt"
+                    method="step.panel_step_open_action_name"
+                    model.translate="onboarding.onboarding.step"
+                    state="state.get(step.id)">
                     <!-- Model/method used by JS implementation of banners for each step-->
-                    <t t-set="method" t-value="step.panel_step_open_action_name"/>
-                    <t t-set="model">onboarding.onboarding.step</t>
                     <!-- to mimic first implementation of onboarding, the 'state' queried holds
                     a rendering state for all steps. See _get_and_update_onboarding_state -->
-                    <t t-set="state" t-value="state.get(step.id)"/>
                 </t>
             </t>
         </t>
@@ -39,21 +39,21 @@
                         >
                             Get them out of my sight!
                         </a>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Discard</button>
                     </div>
                 </div>
             </div>
         </div>
         <div class="o_onboarding_main d-print-none position-relative border-bottom overflow-hidden">
             <div class="o_onboarding_wrap py-3 py-lg-4">
-                <a href="#" data-bs-toggle="modal" data-bs-target=".o_onboarding_modal" class="o_onboarding_btn_close position-absolute top-0 end-0 py-2 px-3 h2" title="Close the onboarding panel"><i class="oi oi-close"/></a>
+                <a href="#" data-bs-toggle="modal" data-bs-target=".o_onboarding_modal" class="o_onboarding_btn_close position-absolute top-0 end-0 py-2 px-3 h2" title="Close the onboarding panel"><i class="oi" data-icon="close_small"/></a>
                 <div class="o_onboarding_steps d-flex" t-out="0"/>
 
                 <div t-if="state.get('onboarding_state') == 'just_done'"
                         t-att-state="state.get('onboarding_state')"
                         class="o_onboarding_completed_message position-absolute end-0 start-0 border-bottom py-4 bg-white d-flex align-items-center justify-content-center">
                     <span class="h3 m-0">
-                        <i class="fa fa-check text-success me-3" />
+                        <i class="oi text-success me-3" data-icon="check"/>
                         <t t-if="text_completed" t-out="text_completed" />
                     </span>
                     <a type="action" class="btn btn-primary ms-4" t-att-data-model="close_model" t-att-data-method="close_method">
@@ -88,7 +88,11 @@
                 </a>
                 <a t-else="" class="o_onboarding_step_action__done btn" type="action" data-reload-on-close="true" role="button" t-att-data-method="method" t-att-data-model="model">
                     <span>
-                        <i t-attf-class="p-1 me-1 fa #{done_icon if done_icon else 'fa-check'} rounded-circle" />
+                        <i
+                            class="oi me-1 rounded-circle p-1"
+                            t-att-class="{'oi-filled': done_icon}"
+                            t-attf-data-icon="#{done_icon if done_icon else 'check'}"
+                        />
                         <t t-if="done_text" t-out="done_text" />
                         <t t-else="">All done!</t>
                     </span>

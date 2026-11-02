@@ -1,30 +1,46 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-import base64
 import io
 import re
-from PIL import Image
 from unittest.mock import patch
+
+from PIL import Image
+
 import odoo
 from odoo.fields import Command
 from odoo.tests import tagged
+from odoo.tools import BinaryBytes
+
 from odoo.addons.website.tests.test_performance import TestWebsitePerformanceCommon
 from odoo.addons.website_sale.tests.common import WebsiteSaleCommon
-from odoo.addons.website_sale.tests.test_website_sale_pricelist import TestWebsitePriceList
+from odoo.addons.website_sale.tests.test_pricelist import TestWebsitePriceList
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestWebsiteAllPerformance(TestWebsitePerformanceCommon, TestWebsitePriceList, WebsiteSaleCommon):
+
+    _test_user_groups = (
+        'base.group_user',
+        'product.group_product_manager',
+        'sales_team.group_sale_manager',  # FIXME: use sales_team.group_sale_salesman
+        'website.group_website_designer',  # FIXME: use base.group_user
+    )
+
+    _test_user_name = 'Test Sales & Product Manager'
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+
+        # Activate the price filter when testing the performance
+        cls.env.ref('website_sale.filter_products_price').active = True
 
         # Attachment needed for the replacement of images
         cls.env['ir.attachment'].create({
             'public': True,
             'name': 's_default_image.jpg',
             'type': 'url',
-            'url': f'{cls.base_url()}/web/image/website.s_banner_default_image.jpg',
+            'url': f'{cls.base_url()}/web/image/website.landscape_md_1.jpg',
         })
 
         cats = cls.env['product.public.category'].create([{
@@ -68,13 +84,13 @@ class TestWebsiteAllPerformance(TestWebsitePerformanceCommon, TestWebsitePriceLi
         f = io.BytesIO()
         Image.new('RGB', (1920, 1080), '#4169E1').save(f, 'JPEG')
         f.seek(0)
-        blue_image = base64.b64encode(f.read())
+        blue_image = BinaryBytes(f.read())
 
         # second image (red) for the variant 1
         f = io.BytesIO()
         Image.new('RGB', (800, 500), '#FF69E1').save(f, 'JPEG')
         f.seek(0)
-        red_image = base64.b64encode(f.read())
+        red_image = BinaryBytes(f.read())
 
         cls.productA = cls.env['product.product'].create({
             'name': 'Product A',
@@ -107,13 +123,14 @@ class TestWebsiteAllPerformance(TestWebsitePerformanceCommon, TestWebsitePriceLi
             'sale_ok': True,
             'website_published': True,
         })
-        cls.product_images = cls.env['product.image'].with_context(default_product_tmpl_id=cls.productC.product_tmpl_id.id).create([{
+        cls.product_images = cls.env['product.image'].create([{
             'name': 'Template image',
             'image_1920': blue_image,
+            'product_tmpl_id': cls.productC.product_tmpl_id.id,
         }, {
-            'name': 'Variant image',
+            'name': 'Template image 2',
             'image_1920': red_image,
-            'product_variant_id': cls.productC.id,
+            'product_tmpl_id': cls.productC.product_tmpl_id.id,
         }])
 
         for i in range(20):
@@ -139,12 +156,16 @@ class TestWebsiteAllPerformance(TestWebsitePerformanceCommon, TestWebsitePriceLi
             images = [{
                 'name': 'Template image',
                 'image_1920': blue_image,
+                'product_tmpl_id': template.id,
             }]
             if i % 2:
                 images.append({
                     'name': 'Variant image',
                     'image_1920': red_image,
-                    'product_variant_id': variant.id,
+                    'attribute_value_ids': [
+                        Command.link(value) for value in variant.product_template_attribute_value_ids.ids
+                    ],
+                    'product_tmpl_id': template.id,
                 })
             cls.env['product.image'].create(images)
 
@@ -165,7 +186,7 @@ class TestWebsiteAllPerformance(TestWebsitePerformanceCommon, TestWebsitePriceLi
                 'product_tmpl_id': cls.templateC.id,
                 'price_discount': 20,
                 'min_quantity': 2,
-                'compute_price': 'formula',
+                'compute_price': 'discount',
             })],
         })
         tax_group = cls.env['account.tax.group'].create({'name': 'Test 6%'})
@@ -224,10 +245,7 @@ class TestWebsiteAllPerformance(TestWebsitePerformanceCommon, TestWebsitePriceLi
 
         select_tables_perf = {
             # website queries
-            'orm_signaling_registry': 1,
             'ir_attachment': 1,
-            # website_livechat _post_process_response_from_cache queries
-            'website': 1,
             # website_crm_iap_reveal _serve_page queries
             'website_visitor': 1,
         }
@@ -242,7 +260,7 @@ class TestWebsiteAllPerformance(TestWebsitePerformanceCommon, TestWebsitePriceLi
                 "product_template_id": self.productC.product_tmpl_id.id,
                 "product_id": self.productC.id,
                 "quantity": 1,
-                "uom_id": 1,
+                "uom_id": self.productC.uom_id.id,
                 "product_custom_attribute_values": [],
                 "no_variant_attribute_value_ids": [],
                 "linked_products": []
@@ -251,10 +269,7 @@ class TestWebsiteAllPerformance(TestWebsitePerformanceCommon, TestWebsitePriceLi
         self.assertEqual(self._get_cart_quantity(), 1)
         select_tables_perf = {
             # website queries
-            'orm_signaling_registry': 1,
             'ir_attachment': 1,
-            # website_livechat _post_process_response_from_cache queries
-            'website': 1,
             # website_crm_iap_reveal _serve_page queries
             'website_visitor': 1,
         }
@@ -275,10 +290,7 @@ class TestWebsiteAllPerformance(TestWebsitePerformanceCommon, TestWebsitePriceLi
         self.assertEqual(self._get_cart_quantity(), 0)
         select_tables_perf = {
             # website queries
-            'orm_signaling_registry': 1,
             'ir_attachment': 1,
-            # website_livechat _post_process_response_from_cache queries
-            'website': 1,
             # website_crm_iap_reveal _serve_page queries
             'website_visitor': 1,
         }
@@ -287,34 +299,28 @@ class TestWebsiteAllPerformance(TestWebsitePerformanceCommon, TestWebsitePriceLi
 
     def _get_queries_shop(self):
         html = self.url_open('/shop').text
-        self.assertIn(f'<img src="/web/image/product.product/{self.productC.id}/', html)
+        self.assertIn(f'<img src="/web/image/product.image/{self.productC.product_template_image_ids.ids[0]}/', html)
         self.assertIn(f'<img src="/web/image/product.template/{self.productA.product_tmpl_id.id}/', html)
-        self.assertIn(f'<img src="/web/image/product.image/{self.product_images.ids[1]}/', html)
+        self.assertIn(f'<img src="/web/image/product.image/{self.product_images.ids[0]}/', html)
 
-        query_count = 45  # To increase this number you must ask the permission to al
+        # To add queries here you must ask the permission to al
         queries = {
-            'orm_signaling_registry': 1,
-            'website': 2,
             'res_company': 2,
-            'product_pricelist': 4,
+            'product_pricelist': 3,
             'product_template': 3,
             'product_tag': 1,
             'product_public_category': 2,
             'product_product': 1,
-            'product_template_attribute_line': 3,
-            'res_users': 1,
-            'res_partner': 2,
+            'product_template_attribute_line': 2,
             'product_category': 1,
-            'product_pricelist_item': 2,
+            'product_pricelist_item': 1,
             'account_tax': 1,
             'res_currency': 1,
-            'account_account_tag': 1,
             'product_ribbon': 1,
             'product_attribute_value': 3,
             'product_attribute': 1,
-            'ir_attachment': 4,
-            'product_image': 3,
-            'product_template_attribute_value': 1,
+            'ir_attachment': 2,
+            'product_image': 2,
             'ir_ui_view': 2,
             'website_menu': 1,
             'website_page': 1,
@@ -322,60 +328,70 @@ class TestWebsiteAllPerformance(TestWebsitePerformanceCommon, TestWebsitePriceLi
 
         addons = tuple(self.env.registry._init_modules) + (self.env.context.get('install_module'),)
         if 'website_helpdesk' in addons:
-            query_count += 1
             queries['helpdesk_team'] = 1
-        if 'website_sale_subscription' in addons:
-            query_count += 1
-            queries['product_product'] += 1
 
-        tax = self.env.ref('account.1_sale_tax_template', raise_if_not_found=False)
+        tax = self.env.ref(f'account.{self.env.company.id}_sale_tax_template', raise_if_not_found=False)
         if tax and tax.name == '15%':
-            query_count += 2
             queries['account_tax_repartition_line'] = 2
 
         if self._has_demo_data():
-            query_count += 4
             queries['product_product'] += 2
-            queries['ir_attachment'] += 1
             queries['product_ribbon'] += 1
-        else:
-            query_count += 3
-            queries['product_template_attribute_value'] += 3
+            queries['res_company'] += 1
 
-        # To increase the query count you must ask the permission to al
-        return query_count, queries
+        if self.env['res.groups']._is_feature_enabled('uom.group_uom'):
+            queries['uom_uom'] = 1
+
+        # To add queries count you must ask the permission to al
+        return queries
 
     def _has_demo_data(self):
         return bool(self.env['ir.module.module'].search_count([('demo', '=', True)]))
 
     def test_perf_sql_queries_shop(self):
         # To increase the query count you must ask the permission to al
-        query_count, queries = self._get_queries_shop()
+        queries = self._get_queries_shop()
+
+        if self.env["res.groups"]._is_feature_enabled("product.group_show_uom_price"):
+            queries += 1
+            queries['product_product'] += 1
 
         if self._has_demo_data():
-            query_count += 5
             queries['account_tax'] += 1
-            queries['account_account_tag'] += 2
-            queries['product_template_attribute_value'] += 2
+            queries['account_account_tag'] = 1
+            queries['res_users'] = 1
+            queries['res_partner'] = 1
+            queries['product_ribbon'] += -1
+            queries['product_template_attribute_value'] = 2
 
-        self.assertEqual(sum(queries.values()), query_count, 'Please learn to count.')
-        self._check_url_hot_query('/shop', query_count, queries)
+        self._check_url_hot_query('/shop', sum(queries.values()), queries)
 
 
 @tagged('post_install', '-at_install')
 class TestWebsiteAllPerformanceShop(TestWebsiteAllPerformance):
 
+    _test_user_groups = (
+        'base.group_user',
+        'product.group_product_manager',
+        'sales_team.group_sale_manager',  # FIXME: use sales_team.group_sale_salesman
+    )
+
+    _test_user_name = 'Test Sales & Product Manager'
+
     def test_perf_sql_queries_shop(self):
         # To increase the query count you must ask the permission to al
-        query_count, queries = self._get_queries_shop()
+        queries = self._get_queries_shop()
 
-        query_count += 3
         queries['account_tax'] += 1
-        queries['account_account_tag'] += 2
+        queries['account_account_tag'] = 2
+        queries['res_users'] = 1
+        queries['res_partner'] = 1
+
+        if self.env['res.groups']._is_feature_enabled('uom.group_uom'):
+            queries['uom_uom'] += 1
 
         if self._has_demo_data():
-            query_count += 2
-            queries['product_template_attribute_value'] += 2
+            queries['ir_attachment'] += -1
+            queries['product_template_attribute_value'] = 2
 
-        self.assertEqual(sum(queries.values()), query_count, 'Please learn to count.')
-        self._check_url_hot_query('/shop', query_count, queries)
+        self._check_url_hot_query('/shop', sum(queries.values()), queries)

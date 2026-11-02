@@ -1,12 +1,11 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 import logging
-import time
-from datetime import datetime, timedelta
+from datetime import date
+from dateutil.relativedelta import relativedelta
 
-from odoo import api, models, Command
+from odoo import Command, api, fields, models
 from odoo.exceptions import UserError, ValidationError
-from odoo.tools.misc import file_open
+from odoo.addons.account.models.chart_template import template
 
 _logger = logging.getLogger(__name__)
 
@@ -15,42 +14,30 @@ class AccountChartTemplate(models.AbstractModel):
     _inherit = "account.chart.template"
 
     @api.model
-    def _get_demo_data(self, company=False):
-        demo_data = {}
-        if company.account_fiscal_country_id.code == "IN":
-            if company.state_id:
-                company.write({
-                    'l10n_in_is_gst_registered': True,
-                    'l10n_in_tcs_feature': True,
-                    'l10n_in_tds_feature': True,
-                    'l10n_in_edi_production_env': False,
-                })
-                demo_data = {
-                    'res.partner.category': self._get_demo_data_res_partner_category(company),
-                    'res.partner': self._get_demo_data_partner(),
-                    'account.move': self._get_demo_data_move(company),
-                    'res.config.settings': self._get_demo_data_config_settings(company),
-                    'ir.attachment': self._get_demo_data_attachment(company),
-                    'mail.message': self._get_demo_data_mail_message(company),
-                }
-            else:
-                _logger.warning('Error while loading Indian-Accounting demo data in the company "%s".State is not set in the company.', company.name)
-        else:
-            demo_data = super()._get_demo_data(company)
-        return demo_data
+    def _install_demo(self, companies):
+        if not isinstance(companies, models.BaseModel):
+            companies = self.env['res.company'].browse(companies)
+        in_without_state = companies.filtered(lambda c: c.chart_template == "in" and not c.state_id)
+        if in_without_state:
+            _logger.warning('Error while loading Indian-Accounting demo data in the companies "%s". State is not set in the company.', companies.mapped('name'))
+        return super()._install_demo(companies - in_without_state)
 
-    @api.model
-    def _get_demo_data_config_settings(self, company=False):
-        return{
-            'sales_credit_limit':{
+    @template(template='in', model='res.company', demo=True)
+    def _l10n_in_res_company_demo(self):
+        return {
+            self.env.company.id: {
                 'account_use_credit_limit': True,
-                'account_default_credit_limit': '10000'
-            }
+                'account_credit_limit': 10000,
+                'l10n_in_gst_registration_type': 'regular',
+                'l10n_in_tcs_feature': True,
+                'l10n_in_tds_feature': True,
+                'l10n_in_edi_production_env': False,
+            },
         }
 
-    @api.model
-    def _get_demo_data_res_partner_category(self, company=False):
-        return{
+    @template(template='in', model='res.partner.category', demo=True)
+    def _l10n_in_res_partner_category_demo(self):
+        return {
             'res_partner_category_registered': {
                 'name': 'Registered',
                 'color': 2,
@@ -61,18 +48,16 @@ class AccountChartTemplate(models.AbstractModel):
             },
         }
 
-    @api.model
-    def _get_demo_data_partner(self):
+    @template(template='in', model='res.partner', demo=True)
+    def _l10n_in_res_partner_demo(self):
         company = self.env.company
-        if company.account_fiscal_country_id.code != "IN" or not company.state_id:
-            return super()._get_demo_data_partner()
         inter_state_ref = 'base.state_in_ts'
         intra_state_ref = 'base.state_in_gj'
-        default_partner_dict = {'country_id': 'base.in', 'is_company': True, 'company_id': company.id}
-        return{
+        default_partner_dict = {'country_id': 'base.in', 'company_id': company.id}
+        return {
             'res_partner_registered_customer': {
                 **default_partner_dict,
-                'name': 'B2B Customer Intra State',
+                'name': 'B2B Customer (Within State)',
                 'category_id': 'res_partner_category_registered',
                 'l10n_in_gst_treatment': 'regular',
                 'street': '201, Second Floor, IT Tower 4',
@@ -84,7 +69,7 @@ class AccountChartTemplate(models.AbstractModel):
             },
             'res_partner_registered_customer_inter_state': {
                 **default_partner_dict,
-                'name': 'B2B Customer Inter State',
+                'name': 'B2B Customer (Outside State)',
                 'category_id': 'res_partner_category_registered',
                 'l10n_in_gst_treatment': 'regular',
                 'street': 'floor-1, Maddikunta-Ankanpally Village',
@@ -96,7 +81,7 @@ class AccountChartTemplate(models.AbstractModel):
             },
             'res_partner_unregistered_customer':{
                 **default_partner_dict,
-                'name': 'B2C Customer Intra State',
+                'name': 'B2C Customer (Within State)',
                 'category_id': 'res_partner_category_unregistered',
                 'l10n_in_gst_treatment': 'unregistered',
                 'street': 'B105, yogeshwar Tower',
@@ -106,7 +91,7 @@ class AccountChartTemplate(models.AbstractModel):
             },
             'res_partner_unregistered_customer_inter_state':{
                 **default_partner_dict,
-                'name': 'B2C Customer Inter State',
+                'name': 'B2C Customer (Outside State)',
                 'category_id': 'res_partner_category_unregistered',
                 'l10n_in_gst_treatment': 'unregistered',
                 'street': '80, Sarojini Devi Road',
@@ -138,486 +123,606 @@ class AccountChartTemplate(models.AbstractModel):
                 'zip': '500014',
                 'vat': '36AACCT6304M1ZB',
             },
-            'res_partner_overseas': {
-                'name': 'Supplier Overseas',
-                'l10n_in_gst_treatment': 'overseas',
-                'street': '142 Street, Rigas building',
-                'street2': 'Survey Road,',
-                'city': 'City',
-                'zip': '000000',
-                'state_id': 'base.state_us_5',
-                'country_id': 'base.us',
-                'is_company': True,
-                'company_id': company.id,
+            'res_partner_sez': {
+                'name': 'Coolware SEZ Unit',
+                'l10n_in_gst_treatment': 'special_economic_zone',
+                'street': 'Plot 102',
+                'street2': 'Gift City',
+                'city': 'Gandhinagar',
+                'zip': '382335',
+                'state_id': intra_state_ref,
+                'country_id': 'base.in',
+                'vat': '24AAACC1234F1Z7',
             },
         }
 
-    @api.model
-    def _get_demo_data_move(self, company=False):
-        cid = company.id or self.env.company.id
-        def _get_tax_by_id(tax_id):
-            tax = self.env.ref('account.%s_%s'%((cid), (tax_id)))
-            return tax.id
-        if company.account_fiscal_country_id.code == "IN":
-            sale_journal = self.env['account.journal'].search(
-                domain=[
-                    *self.env['account.journal']._check_company_domain(cid),
-                    ('type', '=', 'sale'),
-                ], limit=1)
+    @template(model='account.move', demo=True)
+    def _get_demo_data_move(self, template_code):
+        if template_code == "in":
+            # We set every invoice to previous month's date because we want to align it with default return period of GSTR-1
+            previous_month_date = fields.Date.context_today(self) - relativedelta(months=1)
             return {
+                # Demo for GSTR-1
                 # Demo of B2B (business-to-business) Taxable supplies made to other registered person.
-                self.company_xmlid('demo_invoice_b2b_1'): {
+                self.company_xmlid('demo_invoice_b2b_sec_4a_1'): {
                     'move_type': 'out_invoice',
                     'partner_id': 'res_partner_registered_customer',
                     'invoice_user_id': 'base.user_demo',
-                    'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
-                    'invoice_date': datetime.now(),
-                    'l10n_in_gst_treatment': 'regular',
-                    'journal_id': sale_journal.id,
+                    'invoice_date_due': previous_month_date,
+                    'invoice_date': previous_month_date,
+                    'journal_id': 'sale',
                     'invoice_line_ids': [
                         Command.create({
-                            'product_id': 'product.product_product_8',
+                            'product_id': 'product.consu_delivery_01',
+                            'quantity': 5,
+                            'price_unit': 50000.0,
+                            'tax_ids': [Command.set(['sgst_sale_18'])],
+                        }),
+                        Command.create({
+                            'product_id': 'product.consu_delivery_02',
                             'quantity': 2,
                             'price_unit': 40000.0,
-                            'tax_ids': [Command.set([_get_tax_by_id('sgst_sale_28')])],
-                        }),
-                        Command.create({
-                            'product_id': 'product.product_product_9',
-                            'quantity': 3,
-                            'price_unit': 400.0,
-                            'tax_ids': [Command.set([_get_tax_by_id('sgst_sale_28'), _get_tax_by_id('cess_5_plus_1591_sale')])],
-                        }),
-                        Command.create({
-                            'product_id': 'product.product_product_10',
-                            'quantity': 4,
-                            'price_unit': 300.0,
-                            'tax_ids':[Command.set([_get_tax_by_id('sgst_sale_18')])],
+                            'tax_ids': [Command.set(['sgst_sale_18'])],
                         }),
                     ],
                 },
-                self.company_xmlid('demo_invoice_b2b_2'): {
+                self.company_xmlid('demo_invoice_b2b_sec_4b_1'): {
                     'move_type': 'out_invoice',
                     'partner_id': 'res_partner_registered_customer_inter_state',
                     'invoice_user_id': 'base.user_demo',
-                    'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
-                    'invoice_date': datetime.now(),
-                    'l10n_in_gst_treatment': 'regular',
-                    'journal_id': sale_journal.id,
+                    'invoice_payment_term_id': 'account.account_payment_term_15days',
+                    'invoice_date': previous_month_date,
+                    'journal_id': 'sale',
                     'invoice_line_ids': [
                         Command.create({
-                            'product_id': 'product.product_product_9',
-                            'quantity': 2,
-                            'price_unit': 4000.0,
-                            'tax_ids': [Command.set([_get_tax_by_id('igst_sale_5')])],
+                            'product_id': 'product.consu_delivery_01',
+                            'quantity': 1,
+                            'price_unit': 50000.0,
+                            'tax_ids': [Command.set(['igst_sale_18_rc'])],
                         }),
                         Command.create({
-                            'product_id': 'product.product_product_10',
-                            'quantity': 3,
-                            'price_unit': 300.0,
-                            'tax_ids': [Command.set([_get_tax_by_id('igst_sale_5')])],
+                            'product_id': 'product.consu_delivery_02',
+                            'quantity': 1,
+                            'price_unit': 40000.0,
+                            'tax_ids': [Command.set(['igst_sale_18_rc'])],
                         }),
                     ],
                 },
-                self.company_xmlid('demo_bill_b2b_1'): {
-                    'ref': 'INV/001',
-                    'move_type': 'in_invoice',
-                    'partner_id': 'res_partner_registered_supplier_2',
+                # This invoice is reversed later.
+                self.company_xmlid('demo_invoice_b2b_sec_4a_2'): {
+                    'move_type': 'out_invoice',
+                    'partner_id': 'res_partner_registered_customer',
                     'invoice_user_id': 'base.user_demo',
-                    'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
-                    'invoice_date': datetime.now(),
+                    'invoice_date_due': previous_month_date,
+                    'invoice_date': previous_month_date,
+                    'journal_id': 'sale',
                     'invoice_line_ids': [
                         Command.create({
                             'product_id': 'product.consu_delivery_01',
-                            'quantity': 1,
-                            'price_unit': 1000.0,
-                            'tax_ids': [Command.set([_get_tax_by_id('igst_purchase_18')])],
-                        }),
-                        Command.create({
-                            'product_id': 'product.consu_delivery_03',
-                            'quantity': 1,
-                            'price_unit': 2000.0,
-                            'tax_ids': [Command.set([_get_tax_by_id('igst_purchase_18')])],
-                        }),
-                    ]
-                },
-                self.company_xmlid('demo_bill_b2b_2'): {
-                    'ref': 'INV/002',
-                    'move_type': 'in_invoice',
-                    'partner_id': 'res_partner_registered_supplier_2',
-                    'invoice_user_id': 'base.user_demo',
-                    'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
-                    'invoice_date': datetime.now(),
-                    'invoice_line_ids': [
-                        Command.create({
-                            'product_id': 'product.consu_delivery_01',
-                            'quantity': 4,
-                            'price_unit': 1000.0,
-                            'tax_ids': [Command.set([_get_tax_by_id('sgst_purchase_18')])],
-                        }),
-                        Command.create({
-                            'product_id': 'product.consu_delivery_03',
                             'quantity': 3,
-                            'price_unit': 2000.0,
-                            'tax_ids': [Command.set([_get_tax_by_id('sgst_purchase_18')])],
-                        }),
-                    ]
-                },
-                self.company_xmlid('demo_bill_b2b_3'): {
-                    'ref': 'INV/003',
-                    'move_type': 'in_invoice',
-                    'partner_id': 'res_partner_registered_supplier_1',
-                    'invoice_user_id': 'base.user_demo',
-                    'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
-                    'invoice_date': datetime.now(),
-                    'invoice_line_ids': [
-                        Command.create({
-                            'product_id': 'product.consu_delivery_01',
-                            'quantity': 2,
-                            'price_unit': 1000.0,
-                            'tax_ids': [Command.set([_get_tax_by_id('sgst_purchase_18')])],
-                        }),
-                        Command.create({
-                            'product_id': 'product.consu_delivery_03',
-                            'quantity': 3,
-                            'price_unit': 2000.0,
-                            'tax_ids': [Command.set([_get_tax_by_id('sgst_purchase_18')])],
-                        }),
-                    ]
-                },
-                self.company_xmlid('demo_invoice_to_extract'): {
-                    'move_type': 'in_invoice',
-                    'message_main_attachment_id': 'ir_attachment_in_invoice_1',
-                },
-                self.company_xmlid('demo_invoice_service'): {
-                    'ref': 'MYS-91021146',
-                    'move_type': 'in_invoice',
-                    'partner_id': 'res_partner_registered_supplier_2',
-                    'invoice_user_id': False,
-                    'invoice_date': datetime.now(),
-                    'invoice_line_ids': [
-                        Command.create({
-                            'name': 'Integrated Managed Infrastructure Service',
-                            'quantity': 1,
-                            'price_unit': 69132.78,
-                            'tax_ids': [Command.set([_get_tax_by_id('sgst_purchase_18')])],
+                            'price_unit': 50000.0,
+                            'tax_ids': [Command.set(['sgst_sale_18'])],
                         }),
                     ],
-                    'message_main_attachment_id': 'ir_attachment_in_invoice_2',
                 },
-                # Demo of IMP(Import) of supplies.
-                self.company_xmlid('demo_bill_imp'): {
-                    'ref': 'BOE/123',
-                    'move_type': 'in_invoice',
-                    'partner_id': 'res_partner_overseas',
-                    'invoice_user_id': 'base.user_demo',
-                    'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
-                    'invoice_date': datetime.now(),
-                    'invoice_line_ids': [
-                        Command.create({
-                            'product_id': 'product.product_product_4',
-                            'quantity': 30,
-                            'price_unit': 9000.0,
-                            'tax_ids': [Command.set([_get_tax_by_id('sgst_purchase_18')])],
-                        }),
-                    ]
-                },
-                # Demo of cdnr(Credit/ Debit Note for registered business). Create credit note for demo b2b bill.
-                self.company_xmlid('demo_bill_cdnr_1'): {
-                    'ref': 'CR/001',
-                    'move_type': 'in_refund',
-                    'partner_id': 'res_partner_registered_supplier_2',
-                    'invoice_user_id': 'base.user_demo',
-                    'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
-                    'invoice_date': datetime.now() - timedelta(days=1),
-                    'l10n_in_gst_treatment': 'regular',
-                    'invoice_line_ids': [
-                        Command.create({
-                            'product_id': 'product.consu_delivery_01',
-                            'quantity': 1,
-                            'price_unit': 1000.0,
-                            'tax_ids': [Command.set([_get_tax_by_id('sgst_purchase_18')])],
-                        }),
-                        Command.create({
-                            'product_id': 'product.consu_delivery_03',
-                            'quantity': 1,
-                            'price_unit': 2000.0,
-                            'tax_ids': [Command.set([_get_tax_by_id('sgst_purchase_18')])],
-                        }),
-                    ]
-                },
-                self.company_xmlid('demo_bill_cdnr_2'): {
-                        'ref': '000072',
-                        'move_type': 'in_refund',
-                        'partner_id': 'res_partner_registered_supplier_1',
-                        'invoice_user_id': 'base.user_demo',
-                        'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
-                        'invoice_date': datetime.now(),
-                        'l10n_in_gst_treatment': 'regular',
-                        'invoice_line_ids': [
-                            Command.create({
-                                'product_id': 'product.consu_delivery_01',
-                                'quantity': 1,
-                                'price_unit': 1000.0,
-                                'tax_ids': [Command.set([_get_tax_by_id('igst_purchase_18')])],
-                            }),
-                        ]
-                    },
-                # Demo of B2CS (business to consumer small) Taxable supplies made to other unregistered Person and below INR 2.5 lakhs invoice value.
-                self.company_xmlid('demo_invoice_b2cs'): {
+                #  Demo of B2CL (business to consumer - Large) Taxable supplies made to other unregistered Person and invoice value is more than INR 1 lakh.
+                self.company_xmlid('demo_invoice_b2cl_1'): {
                     'move_type': 'out_invoice',
                     'partner_id': 'res_partner_unregistered_customer_inter_state',
                     'invoice_user_id': 'base.user_demo',
-                    'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
-                    'invoice_date': datetime.now(),
-                    'l10n_in_gst_treatment': 'consumer',
-                    'journal_id': sale_journal.id,
-                    'invoice_line_ids': [
-                        Command.create({
-                            'product_id': 'product.product_product_16',
-                            'quantity': 1,
-                            'price_unit': 1500.0,
-                            'tax_ids': [Command.set([_get_tax_by_id('igst_sale_18')])],
-                        }),
-                        Command.create({
-                            'product_id': 'product.product_product_20',
-                            'quantity': 1,
-                            'price_unit': 2300.0,
-                            'tax_ids': [Command.set([_get_tax_by_id('igst_sale_18')])],
-                        }),
-                        Command.create({
-                            'product_id': 'product.product_product_22',
-                            'quantity': 1,
-                            'price_unit': 2600.0,
-                            'tax_ids': [Command.set([_get_tax_by_id('igst_sale_18')])],
-                        }),
-                        Command.create({
-                            'product_id': 'product.product_product_24',
-                            'quantity': 2,
-                            'price_unit': 1655.0,
-                            'tax_ids': [Command.set([_get_tax_by_id('igst_sale_5')])],
-                        }),
-                    ]
-                },
-                #  Demo of B2CL (business to consumer - Large) Taxable supplies made to other unregistered Person and invoice value is more than INR 2.5 lakhs.
-                self.company_xmlid('demo_invoice_b2cl'): {
-                    'move_type': 'out_invoice',
-                    'partner_id': 'res_partner_unregistered_customer',
-                    'invoice_user_id': 'base.user_demo',
-                    'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
-                    'invoice_date': datetime.now(),
-                    'l10n_in_gst_treatment': 'consumer',
-                    'journal_id': sale_journal.id,
+                    'invoice_payment_term_id': 'account.account_payment_term_30days',
+                    'invoice_date': previous_month_date,
+                    'journal_id': 'sale',
                     'invoice_line_ids': [
                         Command.create({
                             'product_id': 'product.consu_delivery_01',
-                            'quantity': 3,
-                            'price_unit': 90000.0,
-                            'tax_ids': [Command.set([_get_tax_by_id('sgst_sale_18')])],
+                            'quantity': 2,
+                            'price_unit': 50000.0,
+                            'tax_ids': [Command.set(['igst_sale_18'])],
                         }),
-                    ]
+                        Command.create({
+                            'product_id': 'product.consu_delivery_02',
+                            'quantity': 3,
+                            'price_unit': 40000.0,
+                            'tax_ids': [Command.set(['igst_sale_18'])],
+                        }),
+                    ],
                 },
-                # Demo of EXP(Export) supplies including supplies to SEZ/SEZ Developer or deemed exports.
-                self.company_xmlid('demo_invoice_exp'): {
+                self.company_xmlid('demo_invoice_b2cl_2'): {
+                    'move_type': 'out_invoice',
+                    'partner_id': 'res_partner_unregistered_customer_inter_state',
+                    'invoice_user_id': 'base.user_demo',
+                    'invoice_date_due': previous_month_date,
+                    'invoice_date': previous_month_date,
+                    'l10n_in_gst_treatment': 'consumer',
+                    'journal_id': 'sale',
+                    'invoice_line_ids': [
+                        Command.create({
+                            'product_id': 'product.consu_delivery_02',
+                            'quantity': 3,
+                            'price_unit': 40000.0,
+                            'tax_ids': [Command.set(['igst_sale_18'])],
+                        }),
+                    ],
+                },
+                # Demo of Exports, SEZ/SEZ and deemed exports.
+                self.company_xmlid('demo_invoice_export'): {
                     'move_type': 'out_invoice',
                     'partner_id': 'base.res_partner_3',
                     'invoice_user_id': 'base.user_demo',
                     'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
-                    'invoice_date': datetime.now(),
-                    'l10n_in_gst_treatment': 'overseas',
+                    'invoice_date': previous_month_date,
                     'l10n_in_shipping_bill_number': '999704',
-                    'l10n_in_shipping_bill_date': time.strftime('%Y-%m-02'),
+                    'l10n_in_shipping_bill_date': previous_month_date,
                     'l10n_in_shipping_port_code_id': 'l10n_in.port_code_inixy1',
-                    'journal_id': sale_journal.id,
-                    'invoice_line_ids': [
-                        Command.create({
-                            'product_id': 'product.product_product_4',
-                            'quantity': 30,
-                            'price_unit': 8000.0,
-                            'tax_ids': [Command.set([_get_tax_by_id('igst_sale_18_sez_exp')])],
-                        }),
-                    ]
-                },
-                # Demo of exempt(Nil Rated, Exempted and Non GST supplies). Set Nill rated and Exempted tax in line.
-                self.company_xmlid('demo_invoice_nill'): {
-                    'move_type': 'out_invoice',
-                    'partner_id': 'res_partner_registered_customer',
-                    'invoice_user_id': 'base.user_demo',
-                    'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
-                    'invoice_date': datetime.now(),
-                    'l10n_in_gst_treatment': 'regular',
-                    'journal_id': sale_journal.id,
-                    'invoice_line_ids': [
-                        Command.create({
-                            'product_id': 'product.product_product_1',
-                            'quantity': 2,
-                            'price_unit': 25000.0,
-                            'tax_ids': [Command.set([_get_tax_by_id('exempt_sale')])],
-                        }),
-                        Command.create({
-                            'product_id': 'product.product_product_5',
-                            'quantity': 1,
-                            'price_unit': 400.0,
-                            'tax_ids': [Command.set([_get_tax_by_id('nil_rated_sale')])],
-                        }),
-                    ]
-                },
-                # Demo of cdnr(Credit/ Debit Note for registered person). Create credit note for demo b2b invoice.
-                self.company_xmlid('demo_invoice_cdnr_1'): {
-                    'move_type': 'out_refund',
-                    'partner_id': 'res_partner_registered_customer',
-                    'invoice_user_id': 'base.user_demo',
-                    'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
-                    'invoice_date': datetime.now(),
-                    'l10n_in_gst_treatment': 'regular',
-                    'reversed_entry_id': 'demo_invoice_b2b_1',
-                    'journal_id': sale_journal.id,
-                    'invoice_line_ids': [
-                        Command.create({
-                            'product_id': 'product.product_product_8',
-                            'quantity': 2,
-                            'price_unit': 40000.0,
-                            'tax_ids': [Command.set([_get_tax_by_id('sgst_sale_28')])],
-                        }),
-                        Command.create({
-                            'product_id': 'product.product_product_9',
-                            'quantity': 3,
-                            'price_unit': 400.0,
-                            'tax_ids': [Command.set([_get_tax_by_id('sgst_sale_28'), _get_tax_by_id('cess_5_plus_1591_sale')])],
-                        }),
-                        Command.create({
-                            'product_id': 'product.product_product_10',
-                            'quantity': 4,
-                            'price_unit': 300.0,
-                            'tax_ids': [Command.set([_get_tax_by_id('sgst_sale_18')])],
-                        }),
-                    ]
-                },
-                self.company_xmlid('demo_invoice_cdnr_2'): {
-                    'move_type': 'out_refund',
-                    'partner_id': 'res_partner_registered_customer',
-                    'invoice_user_id': 'base.user_demo',
-                    'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
-                    'invoice_date': datetime.now(),
-                    'l10n_in_gst_treatment': 'regular',
-                    'journal_id': sale_journal.id,
+                    'journal_id': 'sale',
                     'invoice_line_ids': [
                         Command.create({
                             'product_id': 'product.consu_delivery_01',
-                            'quantity': 1,
-                            'price_unit': 1000.0,
-                            'tax_ids': [Command.set([_get_tax_by_id('sgst_sale_18')])],
+                            'quantity': 2,
+                            'price_unit': 50000.0,
+                            'tax_ids': [Command.set(['igst_sale_18_exp'])],
                         }),
                         Command.create({
-                            'product_id': 'product.consu_delivery_03',
-                            'quantity': 1,
-                            'price_unit': 2000.0,
-                            'tax_ids': [Command.set([_get_tax_by_id('sgst_sale_18')])],
+                            'product_id': 'product.consu_delivery_02',
+                            'quantity': 5,
+                            'price_unit': 40000.0,
+                            'tax_ids': [Command.set(['igst_sale_18_exp'])],
                         }),
                     ]
                 },
-                # Demo of cdnr(Credit/ Debit Note for unregistered person). Create credit note for demo b2cl invoice.
-                self.company_xmlid('demo_invoice_cdnur'): {
-                    'move_type': 'out_refund',
+                self.company_xmlid('demo_invoice_sez'): {
+                    'move_type': 'out_invoice',
+                    'partner_id': 'res_partner_sez',
+                    'invoice_user_id': 'base.user_demo',
+                    'invoice_payment_term_id': 'account.account_payment_term_21days',
+                    'invoice_date': previous_month_date,
+                    'journal_id': 'sale',
+                    'invoice_line_ids': [
+                        Command.create({
+                            'product_id': 'product.consu_delivery_01',
+                            'quantity': 2,
+                            'price_unit': 50000.0,
+                            'tax_ids': [Command.set(['igst_sale_18'])],
+                        }),
+                        Command.create({
+                            'product_id': 'product.consu_delivery_02',
+                            'quantity': 1,
+                            'price_unit': 40000.0,
+                            'tax_ids': [Command.set(['igst_sale_18'])],
+                        }),
+                    ]
+                },
+                self.company_xmlid('demo_invoice_deemed_exp'): {
+                    'move_type': 'out_invoice',
+                    'partner_id': 'res_partner_registered_customer_inter_state',
+                    'invoice_user_id': 'base.user_demo',
+                    'invoice_date_due': previous_month_date,
+                    'invoice_date': previous_month_date,
+                    'l10n_in_gst_treatment': 'deemed_export',
+                    'journal_id': 'sale',
+                    'invoice_line_ids': [
+                        Command.create({
+                            'product_id': 'product.consu_delivery_01',
+                            'quantity': 4,
+                            'price_unit': 50000.0,
+                            'tax_ids': [Command.set(['igst_sale_18'])],
+                        }),
+                        Command.create({
+                            'product_id': 'product.consu_delivery_02',
+                            'quantity': 1,
+                            'price_unit': 40000.0,
+                            'tax_ids': [Command.set(['igst_sale_18'])],
+                        }),
+                    ],
+                },
+                # Demo of B2CS (business to consumer small) Taxable supplies made to other unregistered Person and below INR 1 lakh invoice value.
+                self.company_xmlid('demo_invoice_b2cs'): {
+                    'move_type': 'out_invoice',
                     'partner_id': 'res_partner_unregistered_customer',
                     'invoice_user_id': 'base.user_demo',
-                    'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
-                    'invoice_date': datetime.now(),
+                    'invoice_date_due': previous_month_date,
+                    'invoice_date': previous_month_date,
                     'l10n_in_gst_treatment': 'consumer',
-                    'reversed_entry_id': 'demo_invoice_b2cl',
-                    'journal_id': sale_journal.id,
+                    'journal_id': 'sale',
+                    'invoice_line_ids': [
+                        Command.create({
+                            'product_id': 'product.consu_delivery_01',
+                            'quantity': 1,
+                            'price_unit': 50000.0,
+                            'tax_ids': [Command.set(['sgst_sale_18'])],
+                        }),
+                    ],
+                },
+                # Demo of Nil Rated, Exempted and Non GST supplies.
+                self.company_xmlid('demo_invoice_nil_rated'): {
+                    'move_type': 'out_invoice',
+                    'partner_id': 'res_partner_unregistered_customer_inter_state',
+                    'invoice_user_id': 'base.user_demo',
+                    'invoice_date_due': previous_month_date,
+                    'invoice_date': previous_month_date,
+                    'l10n_in_gst_treatment': 'consumer',
+                    'journal_id': 'sale',
+                    'invoice_line_ids': [
+                        Command.create({
+                            'name': self.env._('Clay Lamps'),
+                            'quantity': 1,
+                            'price_unit': 65000.0,
+                            'tax_ids': [Command.set(['nil_rated_sale'])],
+                        }),
+                    ]
+                },
+                self.company_xmlid('demo_invoice_exempt'): {
+                    'move_type': 'out_invoice',
+                    'partner_id': 'res_partner_unregistered_customer_inter_state',
+                    'invoice_user_id': 'base.user_demo',
+                    'invoice_payment_term_id': 'account.account_payment_term_15days',
+                    'invoice_date': previous_month_date,
+                    'l10n_in_gst_treatment': 'consumer',
+                    'journal_id': 'sale',
+                    'invoice_line_ids': [
+                        Command.create({
+                            'name': self.env._('Fire Wood'),
+                            'quantity': 1,
+                            'price_unit': 52000.0,
+                            'tax_ids': [Command.set(['exempt_sale'])],
+                        }),
+                    ]
+                },
+                self.company_xmlid('demo_invoice_ngst'): {
+                    'move_type': 'out_invoice',
+                    'partner_id': 'res_partner_unregistered_customer_inter_state',
+                    'invoice_user_id': 'base.user_demo',
+                    'invoice_date_due': previous_month_date,
+                    'invoice_date': previous_month_date,
+                    'journal_id': 'sale',
+                    'invoice_line_ids': [
+                        Command.create({
+                            'name': self.env._('NON-GST'),
+                            'quantity': 1,
+                            'price_unit': 75000.0,
+                            'tax_ids': [Command.set(['non_gst_supplies_sale'])],
+                        }),
+                    ]
+                },
+                # Demo of credit note for registered person (b2b).
+                self.company_xmlid('demo_invoice_cdnr'): {
+                    'move_type': 'out_refund',
+                    'partner_id': 'res_partner_registered_customer',
+                    'invoice_user_id': 'base.user_demo',
+                    'invoice_date_due': previous_month_date,
+                    'invoice_date': previous_month_date,
+                    'reversed_entry_id': 'demo_invoice_b2b_sec_4a_2',
+                    'journal_id': 'sale',
                     'invoice_line_ids': [
                         Command.create({
                             'product_id': 'product.consu_delivery_01',
                             'quantity': 3,
-                            'price_unit': 90000.0,
-                            'tax_ids': [Command.set([_get_tax_by_id('sgst_sale_18')])],
+                            'price_unit': 50000.0,
+                            'tax_ids': [Command.set(['sgst_sale_18'])],
                         }),
                     ]
                 },
-            }
-        else:
-            return super()._get_demo_data_move(company)
-
-    @api.model
-    def _get_demo_data_attachment(self, company=False):
-        if company.account_fiscal_country_id.code == "IN":
-            return{
-                'ir_attachment_in_invoice_1': {
-                    'type': 'binary',
-                    'name': 'in_invoice_demo_1.pdf',
-                    'res_model': 'account.move',
-                    'res_id': 'demo_invoice_to_extract',
-                    'raw': file_open(
-                        'l10n_in/static/demo/in_invoice_demo_1.pdf', 'rb'
-                    ).read()
+                # Demo of credit note for unregistered person (b2c).
+                self.company_xmlid('demo_invoice_cdnur'): {
+                    'move_type': 'out_refund',
+                    'partner_id': 'res_partner_unregistered_customer_inter_state',
+                    'invoice_user_id': 'base.user_demo',
+                    'invoice_date_due': previous_month_date,
+                    'invoice_date': previous_month_date,
+                    'l10n_in_gst_treatment': 'consumer',
+                    'reversed_entry_id': 'demo_invoice_b2cl_2',
+                    'journal_id': 'sale',
+                    'invoice_line_ids': [
+                        Command.create({
+                            'product_id': 'product.consu_delivery_02',
+                            'quantity': 3,
+                            'price_unit': 40000.0,
+                            'tax_ids': [Command.set(['igst_sale_18'])],
+                        }),
+                    ]
                 },
-                'ir_attachment_in_invoice_2': {
-                    'type': 'binary',
-                    'name': 'in_invoice_demo_2.pdf',
-                    'res_model': 'account.move',
-                    'res_id': 'demo_invoice_service',
-                    'raw': file_open(
-                        'l10n_in/static/demo/in_invoice_demo_2.pdf', 'rb'
-                    ).read()
-                }
-            }
-        else:
-            return super()._get_demo_data_attachment(company)
-
-
-    @api.model
-    def _get_demo_data_mail_message(self, company=False):
-        if company.account_fiscal_country_id.code == "IN":
-            return {
-                'mail_message_in_invoice_1': {
-                    'model': 'account.move',
-                    'res_id': 'demo_invoice_to_extract',
-                    'body': 'Vendor Bill attachment',
-                    'message_type': 'comment',
-                    'author_id': 'base.partner_demo',
-                    'attachment_ids': [Command.set([
-                        'ir_attachment_in_invoice_1',
-                    ])]
+                # Demo data for GSTR-2B
+                # Demo of Purchase Received From Registered Taxpayers
+                self.company_xmlid('demo_bill_b2b_1'): {
+                    'move_type': 'in_invoice',
+                    'partner_id': 'res_partner_registered_supplier_1',
+                    'invoice_user_id': 'base.user_demo',
+                    'invoice_payment_term_id': 'account.account_payment_term_immediate',
+                    'invoice_date': previous_month_date,
+                    'invoice_line_ids': [
+                        Command.create({
+                            'product_id': 'product.consu_delivery_01',
+                            'quantity': 10,
+                            'price_unit': 20000.0,
+                            'tax_ids': [Command.set(['sgst_purchase_18'])],
+                        }),
+                        Command.create({
+                            'product_id': 'product.consu_delivery_02',
+                            'quantity': 5,
+                            'price_unit': 22000.0,
+                            'tax_ids': [Command.set(['sgst_purchase_18'])],
+                        }),
+                    ]
                 },
-                'mail_message_in_invoice_2': {
-                    'model': 'account.move',
-                    'res_id': 'demo_invoice_service',
-                    'body': 'Vendor Bill attachment',
-                    'message_type': 'comment',
-                    'author_id': 'base.partner_demo',
-                    'attachment_ids': [Command.set([
-                        'ir_attachment_in_invoice_2',
-                    ])]
+                self.company_xmlid('demo_bill_b2b_2'): {
+                    'move_type': 'in_invoice',
+                    'partner_id': 'res_partner_registered_supplier_2',
+                    'invoice_user_id': 'base.user_demo',
+                    'invoice_payment_term_id': 'account.account_payment_term_15days',
+                    'invoice_date': previous_month_date,
+                    'invoice_line_ids': [
+                        Command.create({
+                            'product_id': 'product.consu_delivery_01',
+                            'quantity': 7,
+                            'price_unit': 20000.0,
+                            'tax_ids': [Command.set(['igst_purchase_18'])],
+                        }),
+                        Command.create({
+                            'product_id': 'product.consu_delivery_02',
+                            'quantity': 5,
+                            'price_unit': 22000.0,
+                            'tax_ids': [Command.set(['igst_purchase_18'])],
+                        }),
+                    ]
+                },
+                self.company_xmlid('demo_bill_b2b_3'): {
+                    'move_type': 'in_invoice',
+                    'partner_id': 'res_partner_registered_supplier_1',
+                    'invoice_user_id': 'base.user_demo',
+                    'invoice_date_due': previous_month_date,
+                    'invoice_date': previous_month_date,
+                    'invoice_line_ids': [
+                        Command.create({
+                            'product_id': 'product.consu_delivery_01',
+                            'quantity': 5,
+                            'price_unit': 20000.0,
+                            'tax_ids': [Command.set(['igst_purchase_18'])],
+                        }),
+                        Command.create({
+                            'product_id': 'product.consu_delivery_02',
+                            'quantity': 2,
+                            'price_unit': 22000.0,
+                            'tax_ids': [Command.set(['igst_purchase_18'])],
+                        }),
+                    ]
+                },
+                self.company_xmlid('demo_bill_b2b_4'): {
+                    'move_type': 'in_invoice',
+                    'partner_id': 'res_partner_registered_supplier_2',
+                    'invoice_user_id': 'base.user_demo',
+                    'invoice_date_due': previous_month_date,
+                    'invoice_date': previous_month_date,
+                    'invoice_line_ids': [
+                        Command.create({
+                            'product_id': 'product.consu_delivery_01',
+                            'quantity': 6,
+                            'price_unit': 20000.0,
+                            'tax_ids': [Command.set(['sgst_purchase_18'])],
+                        }),
+                        Command.create({
+                            'product_id': 'product.consu_delivery_02',
+                            'quantity': 2,
+                            'price_unit': 22000.0,
+                            'tax_ids': [Command.set(['sgst_purchase_18'])],
+                        }),
+                    ]
+                },
+                # Details of Credit/Debit Notes for Registered Taxpayers
+                self.company_xmlid('demo_bill_cdnr'): {
+                    'move_type': 'in_refund',
+                    'partner_id': 'res_partner_registered_supplier_1',
+                    'invoice_user_id': 'base.user_demo',
+                    'invoice_date_due': previous_month_date,
+                    'invoice_date': previous_month_date,
+                    'invoice_line_ids': [
+                        Command.create({
+                            'product_id': 'product.consu_delivery_01',
+                            'quantity': 5,
+                            'price_unit': 20000.0,
+                            'tax_ids': [Command.set(['igst_purchase_18'])],
+                        }),
+                        Command.create({
+                            'product_id': 'product.consu_delivery_02',
+                            'quantity': 2,
+                            'price_unit': 22000.0,
+                            'tax_ids': [Command.set(['igst_purchase_18'])],
+                        }),
+                    ]
+                },
+                self.company_xmlid('demo_bill_dbnr'): {
+                    'move_type': 'in_invoice',
+                    'partner_id': 'res_partner_registered_supplier_1',
+                    'invoice_user_id': 'base.user_demo',
+                    'invoice_date_due': previous_month_date,
+                    'invoice_date': previous_month_date,
+                    'debit_origin_id': 'demo_bill_b2b_4',
+                    'invoice_line_ids': [
+                        Command.create({
+                            'product_id': 'product.consu_delivery_01',
+                            'quantity': 2,
+                            'price_unit': 20000.0,
+                            'tax_ids': [Command.set(['sgst_purchase_18'])],
+                        }),
+                        Command.create({
+                            'product_id': 'product.consu_delivery_02',
+                            'quantity': 1,
+                            'price_unit': 22000.0,
+                            'tax_ids': [Command.set(['sgst_purchase_18'])],
+                        }),
+                    ]
+                },
+                # Supplies received from compounding dealer and exempt/nil/non GST Supplies
+                self.company_xmlid('demo_bill_exempt'): {
+                    'move_type': 'in_invoice',
+                    'partner_id': 'res_partner_registered_customer',
+                    'invoice_user_id': 'base.user_demo',
+                    'invoice_date_due': previous_month_date,
+                    'invoice_date': previous_month_date,
+                    'invoice_line_ids': [
+                        Command.create({
+                            'name': self.env._('Fire Wood'),
+                            'quantity': 1,
+                            'price_unit': 32000.0,
+                            'tax_ids': [Command.set(['exempt_sale'])],
+                        }),
+                    ]
+                },
+                self.company_xmlid('demo_bill_nil_rated'): {
+                    'move_type': 'in_invoice',
+                    'partner_id': 'res_partner_unregistered_customer_inter_state',
+                    'invoice_user_id': 'base.user_demo',
+                    'invoice_date_due': previous_month_date,
+                    'invoice_date': previous_month_date,
+                    'invoice_line_ids': [
+                        Command.create({
+                            'name': self.env._('Clay Lamps'),
+                            'quantity': 1,
+                            'price_unit': 30000.0,
+                            'tax_ids': [Command.set(['nil_rated_sale'])],
+                        }),
+                    ]
+                },
+                # Demo of IMP(Import) of supplies.
+                self.company_xmlid('demo_bill_imp_of_supplies'): {
+                    'move_type': 'in_invoice',
+                    'partner_id': 'base.res_partner_3',
+                    'invoice_user_id': 'base.user_demo',
+                    'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
+                    'invoice_date': previous_month_date,
+                    'invoice_line_ids': [
+                        Command.create({
+                            'product_id': 'product.consu_delivery_01',
+                            'quantity': 10,
+                            'price_unit': 20000.0,
+                            'tax_ids': [Command.set(['igst_purchase_18'])],
+                        }),
+                    ]
+                },
+                # Demo bill with TDS entry
+                self.company_xmlid('demo_bill_with_tds_entry'): {
+                    'ref': 'MYS-91021146',
+                    'move_type': 'in_invoice',
+                    'partner_id': 'res_partner_registered_supplier_2',
+                    'invoice_user_id': False,
+                    'invoice_date': previous_month_date,
+                    'invoice_line_ids': [
+                        Command.create({
+                            'name': self.env._('Integrated Managed Infrastructure Service'),
+                            'quantity': 1,
+                            'account_id': 'p2112',
+                            'price_unit': 69132.78,
+                            'tax_ids': [Command.set(['sgst_purchase_18', 'tds_10_us_393_1_6_iii_b'])],
+                        }),
+                    ],
                 },
             }
-        else:
-            return super()._get_demo_data_mail_message(company)
+        return super()._get_demo_data_move(template_code)
 
-    def _post_load_demo_data(self, company=False):
-        if company.account_fiscal_country_id.code == "IN":
-            if company.state_id:
-                invoices = (
-                    self.ref('demo_invoice_b2b_1')
-                    + self.ref('demo_invoice_b2b_2')
-                    + self.ref('demo_invoice_b2cs')
-                    + self.ref('demo_invoice_b2cl')
-                    + self.ref('demo_invoice_exp')
-                    + self.ref('demo_invoice_nill')
-                    + self.ref('demo_invoice_cdnr_1')
-                    + self.ref('demo_invoice_cdnr_2')
-                    + self.ref('demo_invoice_cdnur')
-                    + self.ref('demo_bill_b2b_1')
-                    + self.ref('demo_bill_b2b_2')
-                    + self.ref('demo_bill_b2b_3')
-                    + self.ref('demo_bill_imp')
-                    + self.ref('demo_bill_cdnr_1')
-                    + self.ref('demo_bill_cdnr_2')
-                    + self.ref('demo_invoice_service')
-                )
-                for move in invoices:
-                    try:
-                        move.action_post()
-                    except (UserError, ValidationError):
-                        _logger.exception('Error while posting demo data')
+    @template(model='account.bank.statement', demo=True)
+    def _get_demo_data_statement(self, template_code):
+        return {} if template_code == 'in' else super()._get_demo_data_statement(template_code)
+
+    @template(model='account.bank.statement.line', demo=True)
+    def _get_demo_data_transactions(self, template_code):
+        if template_code != 'in':
+            return super()._get_demo_data_transactions(template_code)
+        last_day = int(self.env.company.fiscalyear_last_day)
+        last_month = int(self.env.company.fiscalyear_last_month)
+        move_date = fields.Date.context_today(self) - relativedelta(months=1)  # This date is set for all moves
+        if move_date > date(move_date.year, last_month, last_day):
+            fiscal_year = "%s-%s" % (move_date.strftime('%y'), (move_date + relativedelta(years=1)).strftime('%y'))
         else:
-            return super()._post_load_demo_data(company)
+            fiscal_year = "%s-%s" % ((move_date + relativedelta(years=-1)).strftime('%y'), move_date.strftime('%y'))
+        return {
+            'demo_bank_statement_line_0': {
+                'journal_id': 'bank',
+                'payment_ref': 'Capital',
+                'amount': 100000.00,
+            },
+            'demo_bank_statement_line_1': {
+                'journal_id': 'bank',
+                'payment_ref': f'INV/{fiscal_year}/0001',
+                'amount': 200000.00,
+            },
+            'demo_bank_statement_line_2': {
+                'journal_id': 'bank',
+                'payment_ref': f'INV/{fiscal_year}/0002',
+                'amount': 90000.00,
+            },
+            'demo_bank_statement_line_3': {
+                'journal_id': 'bank',
+                'payment_ref': 'Rent',
+                'amount': -20000.00,
+            },
+            'demo_bank_statement_line_4': {
+                'journal_id': 'bank',
+                'payment_ref': f'BILL/{fiscal_year}/{move_date.month:02}/0001',
+                'amount': -110000.00,
+            },
+            'demo_bank_statement_line_5': {
+                'journal_id': 'bank',
+                'payment_ref': f'INV/{fiscal_year}/0009',
+                'amount': 59000.00,
+            },
+            'demo_bank_statement_line_6': {
+                'journal_id': 'bank',
+                'payment_ref': 'Bank Charges',
+                'amount': -5400.00,
+            },
+            'demo_bank_statement_line_7': {
+                'journal_id': 'bank',
+                'payment_ref': f'BILL/{fiscal_year}/{move_date.month:02}/0005',
+                'amount': -32000.00,
+            },
+        }
+
+    @template(model='mail.activity', demo=True)
+    def _get_demo_data_mail_activity(self, template_code):
+        return {} if template_code == 'in' else super()._get_demo_data_mail_activity(template_code)
+
+    def _post_load_demo_data(self, template_code):
+        if template_code == "in":
+            # here the order of inv post is reversed so that we get correct order in UI
+            invoices = (
+                self.ref('demo_invoice_cdnur'),
+                self.ref('demo_invoice_cdnr'),
+                self.ref('demo_invoice_ngst'),
+                self.ref('demo_invoice_exempt'),
+                self.ref('demo_invoice_nil_rated'),
+                self.ref('demo_invoice_b2cs'),
+                self.ref('demo_invoice_deemed_exp'),
+                self.ref('demo_invoice_sez'),
+                self.ref('demo_invoice_export'),
+                self.ref('demo_invoice_b2cl_2'),
+                self.ref('demo_invoice_b2cl_1'),
+                self.ref('demo_invoice_b2b_sec_4a_2'),
+                self.ref('demo_invoice_b2b_sec_4b_1'),
+                self.ref('demo_invoice_b2b_sec_4a_1'),
+                self.ref('demo_bill_b2b_1'),
+                self.ref('demo_bill_b2b_2'),
+                self.ref('demo_bill_b2b_3'),
+                self.ref('demo_bill_b2b_4'),
+                self.ref('demo_bill_cdnr'),
+                self.ref('demo_bill_dbnr'),
+                self.ref('demo_bill_exempt'),
+                self.ref('demo_bill_nil_rated'),
+                self.ref('demo_bill_imp_of_supplies'),
+                self.ref('demo_bill_with_tds_entry'),
+            )
+            for move in invoices:
+                try:
+                    move.action_post()
+                except (UserError, ValidationError):
+                    _logger.exception('Error while posting demo data')
+            if (bill := self.ref('demo_bill_with_tds_entry')).state == 'posted':
+                try:
+                    wizard = self.env['account.payment.register'].with_context(
+                        active_model='account.move',
+                        active_ids=bill.ids,
+                    ).create({})
+                    wizard._create_payments()
+                except (UserError, ValidationError):
+                    _logger.exception('Error while creating TDS Entry for demo data')
+        else:
+            super()._post_load_demo_data(template_code)

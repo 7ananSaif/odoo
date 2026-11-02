@@ -3,27 +3,45 @@
 # * pos_pine_labs
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
-# "Junko Augias (juau)" <juau@odoo.com>, 2025.
+# "Junko Augias (juau)" <juau@odoo.com>, 2025, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~18.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-12-11 13:01+0000\n"
-"Last-Translator: \"Junko Augias (juau)\" <juau@odoo.com>\n"
-"Language-Team: Japanese <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-08-31 17:28+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Japanese <https://translate.odoo.com/projects/odoo-s19-4/"
 "pos_pine_labs/ja/>\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: pos_pine_labs
+#: model:ir.module.module,description:base.module_pos_pine_labs
+msgid ""
+"\n"
+"Allow Pine Labs POS payments\n"
+"==============================\n"
+"\n"
+"This module is available only for companies that use INR currency.\n"
+"It enables customers to pay for their orders using debit/credit cards and "
+"UPI through Pine Labs POS terminals.\n"
+"A Pine Labs merchant account is required to process transactions.\n"
+"Features include:\n"
+"\n"
+"* Quick payments by swiping, scanning, or tapping your credit/debit card or "
+"UPI QR code at the payment terminal.\n"
+"* Supported cards: Visa, MasterCard, RuPay.\n"
+msgstr ""
 
 #. module: pos_pine_labs
 #: model:ir.model.fields,help:pos_pine_labs.field_pos_payment_method__pine_labs_client
 msgid "A client id issued directly to the merchant by Pine Labs."
-msgstr "Pine Labs が販売者に直接発行するクライアントID 。"
+msgstr "Pine Labs が販売者に直接発行するClient ID 。"
 
 #. module: pos_pine_labs
 #: model:ir.model.fields,help:pos_pine_labs.field_pos_payment_method__pine_labs_merchant
@@ -74,6 +92,21 @@ msgid "ID"
 msgstr "ID"
 
 #. module: pos_pine_labs
+#: model:ir.module.module,summary:base.module_pos_pine_labs
+msgid "Integrate your POS with Pine Labs payment terminals"
+msgstr ""
+
+#. module: pos_pine_labs
+#: model:ir.module.module,shortdesc:base.module_pos_pine_labs
+msgid "POS Pine Labs"
+msgstr ""
+
+#. module: pos_pine_labs
+#: model_terms:ir.ui.view,arch_db:pos_pine_labs.pos_payment_method_view_form_inherit_pos_pine_labs
+msgid "Pine Labs"
+msgstr "Pine Labs"
+
+#. module: pos_pine_labs
 #: model:ir.model.fields,field_description:pos_pine_labs.field_pos_payment_method__pine_labs_allowed_payment_mode
 msgid "Pine Labs Allowed Payment Modes"
 msgstr "Pine Labsで利用可能な支払方法"
@@ -81,7 +114,7 @@ msgstr "Pine Labsで利用可能な支払方法"
 #. module: pos_pine_labs
 #: model:ir.model.fields,field_description:pos_pine_labs.field_pos_payment_method__pine_labs_client
 msgid "Pine Labs Client ID"
-msgstr "Pine LabsクライアントID"
+msgstr "Pine Labs Client ID"
 
 #. module: pos_pine_labs
 #. odoo-javascript
@@ -140,14 +173,14 @@ msgid "PineLabs Transaction ID"
 msgstr "PineLabs取引ID"
 
 #. module: pos_pine_labs
-#: model:ir.model,name:pos_pine_labs.model_pos_payment_method
-msgid "Point of Sale Payment Methods"
-msgstr "POS支払い方法"
+#: model:ir.model,name:pos_pine_labs.model_pos_payment
+msgid "Point of Sale Payment"
+msgstr "POS支払"
 
 #. module: pos_pine_labs
-#: model:ir.model,name:pos_pine_labs.model_pos_payment
-msgid "Point of Sale Payments"
-msgstr "POS支払い"
+#: model:ir.model,name:pos_pine_labs.model_pos_payment_method
+msgid "Point of Sale Payment Method"
+msgstr "POS支払方法"
 
 #. module: pos_pine_labs
 #. odoo-javascript
@@ -196,6 +229,3 @@ msgstr "無効のため取引に失敗しました。"
 #: model:ir.model.fields.selection,name:pos_pine_labs.selection__pos_payment_method__pine_labs_allowed_payment_mode__upi
 msgid "Upi"
 msgstr "Upi"
-
-#~ msgid "Pine Labs PlutusTransactionReferenceID"
-#~ msgstr "Pine Labs PlutusTransactionReferenceID"

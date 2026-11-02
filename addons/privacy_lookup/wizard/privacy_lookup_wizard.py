@@ -41,6 +41,9 @@ class PrivacyLookupWizard(models.TransientModel):
             'discuss.channel.member',
             # Special case for direct messages
             'mail.message',
+            # Special case for accounting
+            'account.return.type',
+            'account.report',
         ]
 
     def _get_query(self):
@@ -136,9 +139,9 @@ class PrivacyLookupWizard(models.TransientModel):
                     model._field_to_sql(table_name, field_name),
                 )
                 for field_name, field in model._fields.items()
+                if field.type == 'many2one'
                 if field.comodel_name == 'res.partner'
                 if field.store
-                if field.type == 'many2one'
                 if field.ondelete != 'cascade'
             )
 
@@ -165,8 +168,7 @@ class PrivacyLookupWizard(models.TransientModel):
         self.ensure_one()
         query = self._get_query()
         self.env.flush_all()
-        self.env.cr.execute(query)
-        results = self.env.cr.dictfetchall()
+        results = self.env.execute_query_dict(query)
         self.line_ids = [(5, 0, 0)] + [(0, 0, reference) for reference in results]
         return self.action_open_lines()
 

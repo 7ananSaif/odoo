@@ -1,33 +1,44 @@
-import { Component, onWillDestroy, useChildSubEnv, useRef, useState } from "@odoo/owl";
-import { sortBy } from "@web/core/utils/arrays";
+import {
+    Component,
+    onWillDestroy,
+    Plugin,
+    signal,
+    t,
+    usePlugin,
+    useProps,
+    useScope,
+} from "@odoo/owl";
+import { useSubEnv } from "@web/owl2/utils";
 import { ErrorHandler } from "@web/core/utils/components";
+import { services } from "@web/core/services";
+import { registry } from "@web/core/registry";
+import { OverlayPlugin } from "@web/core/overlay/overlay_plugin";
 
 const OVERLAY_ITEMS = [];
 export const OVERLAY_SYMBOL = Symbol("Overlay");
 
 class OverlayItem extends Component {
     static template = "web.OverlayContainer.Item";
-    static components = {};
-    static props = {
-        component: { type: Function },
-        props: { type: Object },
-        env: { type: Object, optional: true },
-    };
+
+    componentClass = useProps.static("component", t.component());
+    componentProps = useProps.static("props", t.object());
+    parentScope = useProps.static("scope", t.object().optional());
+
+    rootRef = signal.ref();
 
     setup() {
-        this.rootRef = useRef("rootRef");
-
         OVERLAY_ITEMS.push(this);
         onWillDestroy(() => {
             const index = OVERLAY_ITEMS.indexOf(this);
             OVERLAY_ITEMS.splice(index, 1);
         });
 
-        if (this.props.env) {
-            this.__owl__.childEnv = this.props.env;
+        if (this.parentScope) {
+            const currentScope = useScope();
+            currentScope.pluginManager = this.parentScope.pluginManager;
         }
 
-        useChildSubEnv({
+        useSubEnv({
             [OVERLAY_SYMBOL]: {
                 contains: (target) => this.contains(target),
             },
@@ -40,8 +51,8 @@ class OverlayItem extends Component {
 
     contains(target) {
         return (
-            this.rootRef.el?.contains(target) ||
-            this.subOverlays.some((oi) => oi.rootRef.el?.contains(target))
+            this.rootRef()?.contains(target) ||
+            this.subOverlays.some((oi) => oi.rootRef()?.contains(target))
         );
     }
 }
@@ -49,17 +60,9 @@ class OverlayItem extends Component {
 export class OverlayContainer extends Component {
     static template = "web.OverlayContainer";
     static components = { ErrorHandler, OverlayItem };
-    static props = { overlays: Object };
 
-    setup() {
-        this.root = useRef("root");
-        /** @deprecated */
-        this.state = useState({ rootEl: null });
-    }
-
-    get sortedOverlays() {
-        return sortBy(Object.values(this.props.overlays), (overlay) => overlay.sequence);
-    }
+    overlayPlugin = usePlugin(OverlayPlugin);
+    root = signal.ref();
 
     isVisible(overlay) {
         return overlay.rootId === this.env?.rootId;
@@ -72,3 +75,17 @@ export class OverlayContainer extends Component {
         });
     }
 }
+
+export class OverlayManagerPlugin extends Plugin {
+    setup() {
+        registry
+            .category("main_components")
+            .add(OverlayContainer.name, { Component: OverlayContainer });
+
+        onWillDestroy(() => {
+            registry.category("main_components").remove(OverlayContainer.name);
+        });
+    }
+}
+
+services.add(OverlayManagerPlugin);

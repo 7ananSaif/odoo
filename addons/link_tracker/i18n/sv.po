@@ -12,23 +12,29 @@
 # Chrille Hedberg <hedberg.chrille@gmail.com>, 2022
 # Simon S, 2022
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
-# symbiotech <symbiotech3@gmail.com>, 2026.
 # Hanna Kharraziha <hakha@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~14.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-30 18:36+0000\n"
-"PO-Revision-Date: 2026-03-27 07:49+0000\n"
-"Last-Translator: Hanna Kharraziha <hakha@odoo.com>\n"
-"Language-Team: Swedish <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-04 17:45+0000\n"
+"PO-Revision-Date: 2026-08-31 16:54+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Swedish <https://translate.odoo.com/projects/odoo-s19-4/"
 "link_tracker/sv/>\n"
 "Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.16.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: link_tracker
+#: model:ir.module.module,description:base.module_link_tracker
+msgid ""
+"\n"
+"Shorten URLs and use them to track clicks and UTMs\n"
+msgstr ""
 
 #. module: link_tracker
 #: model_terms:ir.ui.view,arch_db:link_tracker.link_tracker_view_tree
@@ -38,9 +44,9 @@ msgstr "# Klick"
 #. module: link_tracker
 #: model_terms:ir.ui.view,arch_db:link_tracker.utm_campaign_view_kanban
 msgid ""
-"<i class=\"fa fa-fw fa-mouse-pointer\" aria-label=\"Clicks\" role=\"img\"/>"
+"<i class=\"oi oi-fw\" data-icon=\"arrow_selector_tool\" aria-"
+"label=\"Clicks\" role=\"img\"/>"
 msgstr ""
-"<i class=\"fa fa-fw fa-mouse-pointer\" aria-label=\"Clicks\" role=\"img\"/>"
 
 #. module: link_tracker
 #: model_terms:ir.ui.view,arch_db:link_tracker.link_tracker_view_form
@@ -91,15 +97,11 @@ msgstr "Koder"
 #. odoo-python
 #: code:addons/link_tracker/models/link_tracker.py:0
 msgid ""
-"Combinations of Link Tracker values (URL, campaign, medium, source, and "
-"label) must be unique.\n"
+"Combinations of Link Tracker values (URL, campaign, medium, source, "
+"reference, and label) must be unique.\n"
 "The following combinations are already used: \n"
 "- %(error_lines)s"
 msgstr ""
-"Kombinationer av länkspårningsvärden (URL, kampanj, medium, källa och "
-"etikett) måste vara unika.\n"
-"Följande kombinationer används redan:\n"
-"- %(error_lines)s"
 
 #. module: link_tracker
 #: model:ir.model.fields,field_description:link_tracker.field_link_tracker_click__country_id
@@ -146,6 +148,11 @@ msgstr "Det går inte att skapa en länkspårare utan URL"
 #: model:ir.model.fields,field_description:link_tracker.field_utm_campaign__display_name
 msgid "Display Name"
 msgstr "Visningsnamn"
+
+#. module: link_tracker
+#: model_terms:ir.ui.view,arch_db:link_tracker.link_tracker_view_form
+msgid "Download QR Code"
+msgstr ""
 
 #. module: link_tracker
 #: model:ir.model.fields,field_description:link_tracker.field_link_tracker__short_url_host
@@ -201,9 +208,9 @@ msgstr "Länkklickningar"
 #. module: link_tracker
 #: model:ir.actions.act_window,name:link_tracker.link_tracker_action
 #: model:ir.model,name:link_tracker.model_link_tracker
+#: model:ir.module.module,shortdesc:base.module_link_tracker
 #: model:ir.ui.menu,name:link_tracker.link_tracker_menu_main
 #: model_terms:ir.ui.view,arch_db:link_tracker.link_tracker_view_form
-#: model_terms:ir.ui.view,arch_db:link_tracker.link_tracker_view_search
 #: model_terms:ir.ui.view,arch_db:link_tracker.link_tracker_view_tree
 msgid "Link Tracker"
 msgstr "Länkspårning"
@@ -242,6 +249,11 @@ msgid "Medium"
 msgstr "Medium"
 
 #. module: link_tracker
+#: model_terms:ir.ui.view,arch_db:link_tracker.link_tracker_view_form
+msgid "New Link Tracker"
+msgstr ""
+
+#. module: link_tracker
 #: model_terms:ir.actions.act_window,help:link_tracker.link_tracker_click_action_statistics
 msgid "No data yet!"
 msgstr "Ingen data ännu!"
@@ -271,6 +283,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:link_tracker.field_link_tracker__redirected_url
 msgid "Redirected URL"
 msgstr "URL för omdirigering"
+
+#. module: link_tracker
+#: model_terms:ir.ui.view,arch_db:link_tracker.link_tracker_view_form
+msgid "Reference"
+msgstr ""
 
 #. module: link_tracker
 #: model:ir.model.fields,field_description:link_tracker.field_link_tracker_code__code
@@ -341,7 +358,7 @@ msgid ""
 "short URLs."
 msgstr ""
 "Spårare används för att samla statistik om konvertering för länkar och att "
-"generera korta URL:er."
+"generera korta URL:er"
 
 #. module: link_tracker
 #: model_terms:ir.ui.view,arch_db:link_tracker.link_tracker_view_form
@@ -353,6 +370,11 @@ msgstr "UTM"
 #: model:ir.model.fields,field_description:link_tracker.field_link_tracker_click__campaign_id
 msgid "UTM Campaign"
 msgstr "UTM kampanj"
+
+#. module: link_tracker
+#: model:ir.model.fields,field_description:link_tracker.field_link_tracker__utm_reference
+msgid "UTM Reference"
+msgstr ""
 
 #. module: link_tracker
 #: model_terms:ir.ui.view,arch_db:link_tracker.link_tracker_view_form
@@ -378,11 +400,9 @@ msgstr ""
 "“%s” är inte en giltig länk, länkar kan inte omdirigera till den aktuella "
 "sidan."
 
-#~ msgid "Group By"
-#~ msgstr "Gruppera efter"
-
-#~ msgid "Title and URL"
-#~ msgstr "Titel och URL"
-
-#~ msgid "URL"
-#~ msgstr "URL"
+msgid ""
+"<i class=\"oi oi-fw\" data-icon=\"mouse\" aria-label=\"Clicks\" role=\"img\"/"
+">"
+msgstr ""
+"<i class=\"oi oi-fw\" data-icon=\"mouse\" aria-label=\"Clicks\" role=\"img\"/"
+">"

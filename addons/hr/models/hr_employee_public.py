@@ -1,16 +1,17 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from datetime import timedelta
-from pytz import timezone, UTC
+from datetime import timedelta, UTC
+from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models, tools
-from odoo.tools import format_time
+from odoo.tools import SQL, format_time
+from odoo.addons.mail.tools.discuss import Store
 
 
 class HrEmployeePublic(models.Model):
     _name = 'hr.employee.public'
     _description = 'Public Employee'
-    _order = 'name'
+    _order = 'name, id'
     _auto = False
     _log_access = True  # Include magic fields
 
@@ -21,15 +22,20 @@ class HrEmployeePublic(models.Model):
     department_id = fields.Many2one('hr.department', readonly=True)
     member_of_department = fields.Boolean(compute='_compute_member_of_department', search='_search_part_of_department')
     job_id = fields.Many2one('hr.job', readonly=True)
-    job_title = fields.Char(related='employee_id.job_title')
+    job_title = fields.Char(readonly=True)
     company_id = fields.Many2one('res.company', readonly=True)
     address_id = fields.Many2one('res.partner', readonly=True)
     mobile_phone = fields.Char(readonly=True)
     work_phone = fields.Char(readonly=True)
+    phone_sanitized = fields.Char(readonly=True)
+    phone_formatted = fields.Char(related='employee_id.phone_formatted')
+    work_phone_sanitized = fields.Char(related='employee_id.work_phone_sanitized')
+    work_phone_formatted = fields.Char(related='employee_id.work_phone_formatted')
+    mobile_phone_sanitized = fields.Char(related='employee_id.mobile_phone_sanitized')
+    mobile_phone_formatted = fields.Char(related='employee_id.mobile_phone_formatted')
     work_email = fields.Char(readonly=True)
     share = fields.Boolean(related='employee_id.share')
     phone = fields.Char(related='employee_id.phone')
-    im_status = fields.Char(related='employee_id.im_status')
     email = fields.Char(related='employee_id.email')
     work_contact_id = fields.Many2one('res.partner', readonly=True)
     work_location_id = fields.Many2one('hr.work.location', readonly=True)
@@ -42,7 +48,6 @@ class HrEmployeePublic(models.Model):
     hr_presence_state = fields.Selection([
         ('present', 'Present'),
         ('absent', 'Absent'),
-        ('archive', 'Archived'),
         ('out_of_working_hour', 'Off-Hours')], compute='_compute_presence_state', default='out_of_working_hour')
     hr_icon_display = fields.Selection(
         selection='_get_selection_hr_icon_display',
@@ -51,6 +56,9 @@ class HrEmployeePublic(models.Model):
     last_activity = fields.Date(compute="_compute_last_activity")
     last_activity_time = fields.Char(compute="_compute_last_activity")
     resource_calendar_id = fields.Many2one('resource.calendar', readonly=True)
+    hours_per_week = fields.Float(compute="_compute_hours_per_week")
+    hours_per_day = fields.Float(compute="_compute_hours_per_day")
+
     country_code = fields.Char(compute='_compute_country_code')
 
     # Manager-only fields
@@ -60,6 +68,11 @@ class HrEmployeePublic(models.Model):
     employee_id = fields.Many2one('hr.employee', 'Employee', readonly=True)
     # hr.employee.public specific fields
     child_ids = fields.One2many('hr.employee.public', 'parent_id', string='Direct subordinates', readonly=True)
+    child_count = fields.Integer(compute='_compute_child_count')
+    subordinate_ids = fields.One2many(related='employee_id.subordinate_ids', compute_sudo=True)
+    is_subordinate = fields.Boolean(related='employee_id.is_subordinate')
+    child_all_count = fields.Integer(compute='_compute_child_all_count')
+    department_color = fields.Integer(compute='_compute_department_color')
     image_1920 = fields.Image("Image", related='employee_id.image_1920', compute_sudo=True)
     image_1024 = fields.Image("Image 1024", related='employee_id.image_1024', compute_sudo=True)
     image_512 = fields.Image("Image 512", related='employee_id.image_512', compute_sudo=True)
@@ -77,10 +90,27 @@ class HrEmployeePublic(models.Model):
 
     newly_hired = fields.Boolean('Newly Hired', compute='_compute_newly_hired', search='_search_newly_hired')
 
+    monday_location_id = fields.Many2one('hr.work.location', string='Monday')
+    tuesday_location_id = fields.Many2one('hr.work.location', string='Tuesday')
+    wednesday_location_id = fields.Many2one('hr.work.location', string='Wednesday')
+    thursday_location_id = fields.Many2one('hr.work.location', string='Thursday')
+    friday_location_id = fields.Many2one('hr.work.location', string='Friday')
+    saturday_location_id = fields.Many2one('hr.work.location', string='Saturday')
+    sunday_location_id = fields.Many2one('hr.work.location', string='Sunday')
+    today_location_name = fields.Char()
+
     def _get_selection_hr_icon_display(self):
         return self.env['hr.employee']._fields['hr_icon_display']._description_selection(self.env)
 
     def _compute_from_employee(self, field_names):
+        """Copy the values of ``field_names`` from the corresponding ``hr.employee`` records (read in sudo).
+
+        Helper for computed fields of the public employee that mirror a
+        non-stored employee field.
+
+        :param field_names: field name(s), identical on both models
+        :type field_names: str or list[str]
+        """
         if isinstance(field_names, str):
             field_names = [field_names]
         employees_sudo = self.sudo().env['hr.employee'].browse(self.ids)
@@ -93,12 +123,13 @@ class HrEmployeePublic(models.Model):
     @api.depends('user_id')
     def _compute_last_activity(self):
         for employee in self:
+            today = fields.Date.context_today(self)
             tz = employee.tz
             # sudo: res.users - can access presence of accessible user
             if last_presence := employee.user_id.sudo().presence_ids.last_presence:
-                last_activity_datetime = last_presence.replace(tzinfo=UTC).astimezone(timezone(tz)).replace(tzinfo=None)
+                last_activity_datetime = last_presence.replace(tzinfo=UTC).astimezone(ZoneInfo(tz)).replace(tzinfo=None)
                 employee.last_activity = last_activity_datetime.date()
-                if employee.last_activity == fields.Date.today():
+                if employee.last_activity == today:
                     employee.last_activity_time = format_time(self.env, last_presence, time_format='short')
                 else:
                     employee.last_activity_time = False
@@ -108,6 +139,15 @@ class HrEmployeePublic(models.Model):
 
     def _compute_country_code(self):
         self._compute_from_employee('country_code')
+
+    def _compute_child_all_count(self):
+        self._compute_from_employee('child_all_count')
+
+    def _compute_department_color(self):
+        self._compute_from_employee('department_color')
+
+    def _compute_child_count(self):
+        self._compute_from_employee('child_count')
 
     @api.depends_context('uid')
     @api.depends('parent_id')
@@ -133,6 +173,14 @@ class HrEmployeePublic(models.Model):
         self._compute_from_employee('member_of_department')
 
     def _get_manager_only_fields(self):
+        """Return the fields only visible on public employees managed by the current user.
+
+        Hook for modules (e.g. ``hr_appraisal``): such fields must be computed
+        by :meth:`_compute_manager_only_fields`, which reads them in sudo on the
+        employee when ``is_manager`` is set (``False`` otherwise).
+
+        :rtype: list[str]
+        """
         return []
 
     def _search_part_of_department(self, operator, value):
@@ -145,6 +193,12 @@ class HrEmployeePublic(models.Model):
         return [('department_id', 'child_of', user_employee.department_id.ids)]
 
     def _get_valid_employee_for_user(self):
+        """Return the employee of the current user, preferably in the current company.
+
+        Same as ``hr.version._get_valid_employee_for_user``.
+
+        :rtype: hr.employee
+        """
         user = self.env.user
         # retrieve the employee of the current active company for the user
         employee = user.employee_id
@@ -159,6 +213,11 @@ class HrEmployeePublic(models.Model):
 
     @api.depends_context('uid')
     def _compute_manager_only_fields(self):
+        """Compute the :meth:`_get_manager_only_fields` from the employee, for managers only.
+
+        ``is_manager`` is set on the current user's own employee and all
+        employees below it in the ``parent_id`` hierarchy.
+        """
         manager_fields = self._get_manager_only_fields()
         for employee in self:
             if employee.is_manager:
@@ -181,25 +240,53 @@ class HrEmployeePublic(models.Model):
         ])
         return [('id', operator, new_hires.ids)]
 
+    def _compute_hours_per_week(self):
+        for employee in self:
+            employee.hours_per_week = employee.sudo().resource_calendar_id.hours_per_week
+
+    def _compute_hours_per_day(self):
+        for employee in self:
+            employee.hours_per_day = employee.sudo().resource_calendar_id.hours_per_day
+
     @api.model
     def _get_fields(self):
+        """Yield the SQL column expressions of the ``hr_employee_public`` view.
+
+        Every stored field declared on this model becomes a column of the view,
+        taken from the current version (alias ``v``) if it is a stored
+        ``hr.version`` field, from the employee (alias ``e``) otherwise. To
+        expose a new stored field publicly, declare it on ``hr.employee.public``
+        with the same name; no SQL is needed.
+
+        :rtype: Iterator[SQL]
+        """
+        yield SQL('e.id')
+        yield SQL("e.id AS employee_id")
+        yield SQL("e.name")
+        yield SQL("e.active")
         base_fields = ('id', 'employee_id', 'name', 'active')
-        version_fields = self.env['hr.version']._fields
-        return 'e.id AS id,e.id AS employee_id,e.name AS name,e.active AS active,' + ','.join(
-            (f'v.{name}' if name in version_fields and version_fields[name].store else f'e.{name}')
-            for name, field in self._fields.items()
-            if name not in base_fields and field.store and field.column_type
-        )
+        for name, field in self._fields.items():
+            if field.store and field.column_type and name not in base_fields:
+                alias = 'v' if name in self.env['hr.version']._fields and self.env['hr.version']._fields[name].store else 'e'
+                yield SQL.identifier(alias, name)
 
     def init(self):
+        """(Re)create the SQL view: ``hr_employee`` joined with its current ``hr_version``.
+
+        ``hr.employee.public`` is a read-only view exposing the non-sensitive
+        employee data to all internal users (``hr.employee`` itself is
+        restricted to HR officers). Its ids are the employee ids. Archived
+        employees are included (filtered by the ``active`` column).
+        """
         tools.drop_view_if_exists(self.env.cr, self._table)
-        self.env.cr.execute("""CREATE or REPLACE VIEW %s as (
+        self.env.cr.execute(SQL("""CREATE or REPLACE VIEW %s as (
             SELECT
                 %s
             FROM hr_employee e
             JOIN hr_version v
               ON v.id = e.current_version_id
-        )""" % (self._table, self._get_fields()))
+        )""", SQL.identifier(self._table), SQL(", ").join(self._get_fields())))
 
-    def get_avatar_card_data(self, fields):
-        return self.read(fields)
+    def _store_avatar_card_fields(self, res: Store.FieldList):
+        # sudo: hr.public.employee - reading _store_avatar_card_fields of accessible public employee is acceptable
+        res.one("employee_id", "_store_avatar_card_fields", sudo=True)

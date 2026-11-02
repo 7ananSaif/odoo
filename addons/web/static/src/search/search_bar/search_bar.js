@@ -1,18 +1,19 @@
+import { Component, proxy, signal, status, t, usePlugin, useProps } from "@odoo/owl";
+import { hasTouch } from "@web/core/browser/feature_detection";
 import { Domain } from "@web/core/domain";
+import { useDropdownState } from "@web/core/dropdown/dropdown_hooks";
+import { DropdownItem } from "@web/core/dropdown/dropdown_item";
 import { serializeDate, serializeDateTime } from "@web/core/l10n/dates";
+import { _t } from "@web/core/l10n/translation";
+import { useNavigation } from "@web/core/navigation/navigation";
+import { OfflinePlugin } from "@web/core/offline/offline_plugin";
 import { registry } from "@web/core/registry";
 import { KeepLast } from "@web/core/utils/concurrency";
-import { useAutofocus, useBus, useChildRef, useService } from "@web/core/utils/hooks";
-import { DomainSelectorDialog } from "@web/core/domain_selector_dialog/domain_selector_dialog";
+import { useAutofocus, useBus, useService } from "@web/core/utils/hooks";
 import { fuzzyTest } from "@web/core/utils/search";
-import { _t } from "@web/core/l10n/translation";
-import { SearchBarMenu } from "../search_bar_menu/search_bar_menu";
-import { Component, status, useRef, useState } from "@odoo/owl";
-import { useDropdownState } from "@web/core/dropdown/dropdown_hooks";
-import { hasTouch } from "@web/core/browser/feature_detection";
-import { Dropdown } from "@web/core/dropdown/dropdown";
-import { DropdownItem } from "@web/core/dropdown/dropdown_item";
-import { useNavigation } from "@web/core/navigation/navigation";
+import { render } from "@web/owl2/utils";
+import { SearchBarDropdown } from "@web/search/search_bar_dropdown";
+import { SearchBarMenu } from "@web/search/search_bar_menu/search_bar_menu";
 
 const parsers = registry.category("parsers");
 
@@ -46,50 +47,46 @@ export class SearchBar extends Component {
     static template = "web.SearchBar";
     static components = {
         SearchBarMenu,
-        Dropdown,
+        SearchBarDropdown,
         DropdownItem,
     };
-    static props = {
-        autofocus: { type: Boolean, optional: true },
-        slots: {
-            type: Object,
-            optional: true,
-            shape: {
-                default: { optional: true },
-                "search-bar-additional-menu": { optional: true },
-            },
-        },
-        toggler: {
-            type: Object,
-            optional: true,
-        },
-    };
-    static defaultProps = {
-        autofocus: true,
-    };
+    props = useProps({
+        autofocus: t.boolean().optional(true),
+        slots: t
+            .object({
+                default: t.any().optional(),
+                "search-bar-additional-menu": t.any().optional(),
+            })
+            .optional(),
+        toggler: t.object().optional(),
+    });
+    root = signal.ref();
+    facetContainerRef = signal.ref();
+    // The input element is either owned by the parent (`inputRef` prop, e.g. so it can
+    // focus it itself once mounted) or local, like `Dropdown.menuRef`.
+    inputRef = useProps.static("inputRef", t.signal(t.ref()).optional(() => signal.ref()));
 
     setup() {
         this.dialogService = useService("dialog");
+        this.offlinePlugin = usePlugin(OfflinePlugin);
         this.fields = this.env.searchModel.searchViewFields;
         this.searchItemsFields = this.env.searchModel.getSearchItems((f) => f.type === "field");
-        this.root = useRef("root");
         this.ui = useService("ui");
 
-        this.visibilityState = useState(this.props.toggler?.state || { showSearchBar: true });
+        this.visibilityState = proxy(this.props.toggler?.state || { showSearchBar: true });
 
         // core state
-        this.state = useState({
+        this.state = proxy({
             expanded: [],
             query: "",
             subItemsLimits: {},
         });
 
         // derived state
-        this.items = useState([]);
+        this.items = proxy([]);
         this.subItems = {};
 
-        this.facetContainerRef = useRef("facetContainerRef");
-        this.menuRef = useChildRef();
+        this.menuRef = signal.ref();
         this.setupFacetNavigation();
         this.inputDropdownState = useDropdownState();
         this.inputDropdownNavOptions = this.getDropdownNavigation();
@@ -100,16 +97,21 @@ export class SearchBar extends Component {
 
         this.keepLast = new KeepLast();
 
-        this.inputRef =
-            this.env.config.disableSearchBarAutofocus || !this.props.autofocus
-                ? useRef("autofocus")
-                : useAutofocus({ mobile: this.ui.isSmall }); // only force the focus on touch devices on small screens
+        if (!(this.env.config.disableSearchBarAutofocus || !this.props.autofocus)) {
+            // only force the focus on touch devices on small screens
+            useAutofocus({ ref: this.inputRef, mobile: this.ui.isSmall });
+        }
+
+        this.popoverWillCloseOnClickAway = (target) => {
+            const inputEl = this.inputRef();
+            return !(inputEl && (inputEl === target || inputEl.contains(target)));
+        };
 
         useBus(this.env.searchModel, "focus-search", () => {
-            this.inputRef.el.focus();
+            this.inputRef().focus();
         });
 
-        useBus(this.env.searchModel, "update", this.render);
+        useBus(this.env.searchModel, "update", () => render(this));
     }
 
     /**
@@ -158,7 +160,7 @@ export class SearchBar extends Component {
         this.state.query = query;
         this.subItems = subItems;
 
-        this.inputRef.el.value = query;
+        this.inputRef().value = query;
 
         const trimmedQuery = this.state.query.trim();
 
@@ -387,7 +389,7 @@ export class SearchBar extends Component {
      * @param {number} [index]
      */
     focusFacet(index) {
-        const facets = this.root.el.getElementsByClassName("o_searchview_facet");
+        const facets = this.root().getElementsByClassName("o_searchview_facet");
         if (facets.length) {
             if (index === undefined) {
                 facets[facets.length - 1].focus();
@@ -402,14 +404,14 @@ export class SearchBar extends Component {
      */
     removeFacet(facet) {
         this.env.searchModel.deactivateGroup(facet.groupId);
-        this.inputRef.el.focus();
+        this.inputRef().focus();
     }
 
     resetState(options = { focus: true }) {
         this.state.subItemsLimits = {};
         this.computeState({ expanded: [], query: "", subItems: [] });
         if (options.focus) {
-            this.inputRef.el.focus();
+            this.inputRef().focus();
         }
     }
 
@@ -483,21 +485,15 @@ export class SearchBar extends Component {
         useNavigation(this.facetContainerRef, {
             shouldFocusChildInput: false,
             getItems: () => {
-                if (this.root.el && this.inputRef.el) {
+                if (this.root() && this.inputRef()) {
                     return [
-                        ...this.root.el.querySelectorAll(":scope .o_searchview_facet"),
-                        this.inputRef.el,
+                        ...this.root().querySelectorAll(":scope .o_searchview_facet"),
+                        this.inputRef(),
                     ];
                 }
                 return [];
             },
             hotkeys: {
-                tab: {
-                    isAvailable: () => false,
-                },
-                "shift+tab": {
-                    isAvailable: () => false,
-                },
                 enter: {
                     isAvailable: () => !this.inputDropdownState.isOpen,
                     callback: () => this.env.searchModel.search() /** @todo keep this thing ?*/,
@@ -527,8 +523,8 @@ export class SearchBar extends Component {
                         isFacet(target) || target.selectionStart === this.state.query.length,
                     callback: (navigator) => {
                         navigator.next();
-                        if (navigator.activeItem.el === this.inputRef.el) {
-                            this.inputRef.el.setSelectionRange(0, 0);
+                        if (navigator.activeItem.el === this.inputRef()) {
+                            this.inputRef().setSelectionRange(0, 0);
                         }
                     },
                 },
@@ -537,9 +533,9 @@ export class SearchBar extends Component {
                     isAvailable: ({ target }) => isFacet(target) || target.selectionStart === 0,
                     callback: (navigator) => {
                         navigator.previous();
-                        if (navigator.activeItem.el === this.inputRef.el) {
-                            const inputLength = this.inputRef.el.value.length;
-                            this.inputRef.el.setSelectionRange(inputLength, inputLength);
+                        if (navigator.activeItem.el === this.inputRef()) {
+                            const inputLength = this.inputRef().value.length;
+                            this.inputRef().setSelectionRange(inputLength, inputLength);
                         }
                     },
                 },
@@ -565,10 +561,10 @@ export class SearchBar extends Component {
 
         return {
             virtualFocus: true,
-            getItems: () => this.menuRef.el?.querySelectorAll(":scope .o-dropdown-item") ?? [],
+            getItems: () => this.menuRef()?.querySelectorAll(":scope .o-dropdown-item") ?? [],
             isNavigationAvailable: ({ navigator, target }) =>
                 this.inputDropdownState.isOpen &&
-                (this.facetContainerRef.el?.contains(target) || navigator.contains(target)),
+                (this.facetContainerRef()?.contains(target) || navigator.contains(target)),
             onUpdated: (navigator) => (this.navigator = navigator),
             onItemActivated: (itemEl) => (this.lastActiveItemId = parseInt(itemEl.id, 10)),
             hotkeys: {
@@ -609,7 +605,7 @@ export class SearchBar extends Component {
                             navigator.items[findIndex(item.searchItemId)]?.setActive();
                         } else if (item && item.isFieldProperty) {
                             navigator.items[findIndex(item.propertyItemId)]?.setActive();
-                        } else if (this.inputRef.el.selectionStart === 0) {
+                        } else if (this.inputRef().selectionStart === 0) {
                             navigator.items[this.env.searchModel.facets.length - 1]?.setActive();
                         }
                     },
@@ -622,30 +618,26 @@ export class SearchBar extends Component {
     // Handlers
     //---------------------------------------------------------------------
 
-    onFacetLabelClick(target, facet) {
-        const { domain, groupId } = facet;
-        if (this.env.searchModel.canOrderByCount && facet.type === "groupBy") {
+    onFacetLabelClick(facet) {
+        const clickToOrder = this.env.searchModel.canOrderByCount && facet.type === "groupBy";
+        if (clickToOrder) {
             this.env.searchModel.switchGroupBySort();
             return;
-        } else if (!domain) {
+        } else if (!facet.domain || facet.type === "relative") {
             return;
         }
-        const { resModel } = this.env.searchModel;
-        this.dialogService.add(DomainSelectorDialog, {
-            resModel,
-            domain,
-            context: this.env.searchModel.domainEvalContext,
-            onConfirm: (nextDomain) => {
-                if (nextDomain !== domain) {
-                    this.env.searchModel.splitAndAddDomain(nextDomain, groupId);
-                }
-            },
-            disableConfirmButton: (domain) => domain === `[]`,
-            title: _t("Custom Filter"),
-            confirmButtonText: _t("Search"),
-            discardButtonText: _t("Discard"),
-            isDebugMode: this.env.searchModel.isDebugMode,
+        this.env.searchModel.spawnCustomFilterDialog({
+            domain: facet.domain,
+            groupId: facet.groupId,
         });
+    }
+
+    onPrevDateFacetClick(facet) {
+        this.env.searchModel.shiftRelativeFilter(facet.groupId, -1);
+    }
+
+    onNextDateFacetClick(facet) {
+        this.env.searchModel.shiftRelativeFilter(facet.groupId, 1);
     }
 
     /**
@@ -657,7 +649,7 @@ export class SearchBar extends Component {
 
     onSearchClick() {
         if (!hasTouch()) {
-            if (!this.inputRef.el.value.length) {
+            if (!this.inputRef().value.length) {
                 this.searchBarDropdownState.open();
             } else {
                 this.inputDropdownState.open();

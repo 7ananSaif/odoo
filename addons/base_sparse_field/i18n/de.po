@@ -7,21 +7,39 @@
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
 # "Larissa Manderfeld (lman)" <lman@odoo.com>, 2025, 2026.
+# Odoo Translation Bot <c3p@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~14.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-04-24 11:59+0000\n"
-"Last-Translator: \"Larissa Manderfeld (lman)\" <lman@odoo.com>\n"
-"Language-Team: German <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-10-08 08:41+0000\n"
+"Last-Translator: Odoo Translation Bot <c3p@odoo.com>\n"
+"Language-Team: German <https://translate.odoo.com/projects/odoo-20/"
 "base_sparse_field/de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: base_sparse_field
+#: model:ir.module.module,description:base.module_base_sparse_field
+msgid ""
+"\n"
+"The purpose of this module is to implement \"sparse\" fields, i.e., fields\n"
+"that are mostly null. This implementation circumvents the PostgreSQL\n"
+"limitation on the number of columns in a table. The values of all sparse\n"
+"fields are stored in a \"serialized\" field in the form of a JSON mapping.\n"
+msgstr ""
+"\n"
+"Der Zweck dieses Moduls ist die Implementierung von dünnbesetzten Feldern,\n"
+"d. h. Feldern, die meist null sind. Diese Implementierung umgeht die "
+"PostgreSQL-Beschränkung\n"
+"der Anzahl der Spalten in einer Tabelle. Die Werte aller dünnbesetzten "
+"Felder werden\n"
+"in einem „serialisierten“ Feld als JSON-Zuordnung gespeichert.\n"
 
 #. module: base_sparse_field
 #: model:ir.model,name:base_sparse_field.model_base
@@ -37,7 +55,7 @@ msgstr "Boolesch"
 #. odoo-python
 #: code:addons/base_sparse_field/models/models.py:0
 msgid "Changing the storing system for field \"%s\" is not allowed."
-msgstr "Das Speichersystem für das Feld „%s“ darf nicht geändert werden."
+msgstr "Die Speicherungstechnik für Feld „%s“ darf nicht verändert werden."
 
 #. module: base_sparse_field
 #: model:ir.model.fields,field_description:base_sparse_field.field_sparse_fields_test__char
@@ -66,19 +84,19 @@ msgid "Display Name"
 msgstr "Anzeigename"
 
 #. module: base_sparse_field
+#: model:ir.model,name:base_sparse_field.model_ir_model_fields
+msgid "Field"
+msgstr "Feld"
+
+#. module: base_sparse_field
 #: model:ir.model.fields,field_description:base_sparse_field.field_ir_model_fields__ttype
 msgid "Field Type"
 msgstr "Feldtyp"
 
 #. module: base_sparse_field
-#: model:ir.model,name:base_sparse_field.model_ir_model_fields
-msgid "Fields"
-msgstr "Felder"
-
-#. module: base_sparse_field
 #: model:ir.model.fields,field_description:base_sparse_field.field_sparse_fields_test__float
 msgid "Float"
-msgstr "Gleitkommazahl"
+msgstr "Textumlauf"
 
 #. module: base_sparse_field
 #: model:ir.model.fields,field_description:base_sparse_field.field_ir_model_fields__id
@@ -93,9 +111,14 @@ msgid ""
 "serialization field, instead of having its own database column. This cannot "
 "be changed after creation."
 msgstr ""
-"Wenn festgelegt, wird dieses Feld in einer zusätzlichen Struktur des "
-"Serialisierungsfeldes gespeichert, statt in einer eigenen Spalte in der "
-"Datenbank. Dies kann nach der Erstellung nicht mehr geändert werden."
+"Wenn gesetzt, wird dieses Feld in einer zusätzlichen Struktur des "
+"Serialisierungsfeldes gespeichert anstelle einer eigenen Spalte in der "
+"Datenbank. Dies kann nach Erstellung nicht mehr geändert werden."
+
+#. module: base_sparse_field
+#: model:ir.module.module,summary:base.module_base_sparse_field
+msgid "Implementation of sparse fields."
+msgstr "Implementierung von dünnbesetzten Feldern."
 
 #. module: base_sparse_field
 #: model:ir.model.fields,field_description:base_sparse_field.field_sparse_fields_test__integer
@@ -149,6 +172,11 @@ msgstr ""
 "(sparse_field)s nicht gefunden!"
 
 #. module: base_sparse_field
+#: model:ir.module.module,shortdesc:base.module_base_sparse_field
+msgid "Sparse Fields"
+msgstr "Dünnbesetzte Felder"
+
+#. module: base_sparse_field
 #: model:ir.model,name:base_sparse_field.model_sparse_fields_test
 msgid "Sparse fields Test"
 msgstr "Test des dünnbesetzten Feldes"
@@ -162,9 +190,3 @@ msgstr "Zwei"
 #: model:ir.model.fields.selection,name:base_sparse_field.selection__ir_model_fields__ttype__serialized
 msgid "serialized"
 msgstr "serialisiert"
-
-#~ msgid "Last Modified on"
-#~ msgstr "Letzte Änderung am"
-
-#~ msgid "Serialization field %r not found for sparse field %s!"
-#~ msgstr "Serialisierungsfeld %r für Sparse-Feld %s nicht gefunden!"

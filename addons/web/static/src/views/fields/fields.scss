@@ -48,7 +48,7 @@
 //------------------------------------------------------------------------------
 
 .o_input {
-    border:$input-border-width solid var(--o-input-border-color);
+    border: $input-border-width solid var(--o-input-border-color);
     border-width: 0 0 $input-border-width 0;
     padding: $o-input-padding-y $o-input-padding-x;
     background-color: var(--o-input-background-color, #{$input-bg});
@@ -93,7 +93,17 @@
     // Default display and alignment of widget and internal <input/>
     text-align: inherit;
     display: var(--fieldWidget-display, inline-block);
-    margin-bottom: var(--fieldWidget-margin-bottom);
+
+    &:not(.o_form_label .o_field_widget.o_readonly_modifier, h1 .o_field_widget, h2 .o_field_widget):not(.alert *) {
+        margin-bottom: var(--fieldWidget-margin-bottom);
+    }
+
+    &.o_field_border_visible {
+        .o_input, textarea, select, [contenteditable] {
+            border-width: $input-border-width !important;
+            border-color: var(--o-input-border-color) !important;
+        }
+    }
 
     textarea.o_input,
     input.o_input {
@@ -108,7 +118,7 @@
         }
 
         .o_dropdown_button, .o_datepicker_button {
-            @include o-position-absolute($o-input-padding-y, $o-input-padding-x, $input-border-width);
+            @include o-position-absolute($o-input-padding-y, $o-input-padding-x, var($input-border-width));
             pointer-events: none;
 
             &:after {
@@ -151,18 +161,6 @@
         white-space: pre-wrap;
     }
 
-    // Monetary
-    &.o_field_monetary, &.o_field_float_percentage {
-        &.o_input {
-            align-items: baseline;
-
-            > input {
-                width: 100px;
-                flex: 1 0 auto;
-            }
-        }
-    }
-
     // Many2One
     &.o_field_many2one {
         flex-direction: column;
@@ -170,17 +168,17 @@
 
     .o_field_many2one_selection {
         display: flex;
-        width: 100%;
     }
 
     .o_external_button {
+        align-self: center;
         padding-top: 0;
         padding-bottom: 0;
     }
 
     // Handle widget
     .o_row_handle {
-        @include o-grab-cursor;
+        cursor: grab;
         color: #adb5bd;
         text-align: center;
         width: 100%;
@@ -222,7 +220,7 @@
     }
 
     // Ace editor
-    &.o_ace_view_editor {
+    .o_ace_view_editor {
         width: 100%;
         .ace-view-editor {
             height: 300px;
@@ -244,12 +242,12 @@
             transition: opacity ease 400ms;
             min-width: 35px;
 
-            > button.fa {
+            > button.oi {
                 border: none;
                 background-color: transparent;
             }
 
-            > .fa {
+            > .oi {
                 padding: 4px;
                 margin: 5px;
                 cursor: pointer;
@@ -259,7 +257,7 @@
             .o_form_image_controls{
                 position: initial;
                 opacity: 1;
-                > .fa{
+                > .oi {
                     width: 50%;
                     padding: 6px;
                     margin: 0px;

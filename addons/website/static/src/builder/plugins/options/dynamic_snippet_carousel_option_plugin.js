@@ -1,9 +1,13 @@
 import { Plugin } from "@html_editor/plugin";
-import { withSequence } from "@html_editor/utils/resource";
 import { registry } from "@web/core/registry";
-import { DynamicSnippetCarouselOption } from "./dynamic_snippet_carousel_option";
-import { DYNAMIC_SNIPPET, setDatasetIfUndefined } from "./dynamic_snippet_option_plugin";
+import { patch } from "@web/core/utils/patch";
 import { BuilderAction } from "@html_builder/core/builder_action";
+import {
+    setDatasetIfUndefined,
+    SetSectionTitlePositionAction,
+} from "./dynamic_snippet_option_plugin";
+import { SetContainerWidthAction } from "../content_width_option_plugin";
+import { updateDynamicCarouselNumberOfElements } from "@website/utils/dynamic_snippets";
 
 /**
  * @typedef { Object } DynamicSnippetCarouselOptionShared
@@ -12,9 +16,7 @@ import { BuilderAction } from "@html_builder/core/builder_action";
  * @property { DynamicSnippetCarouselOptionPlugin['getModelNameFilter'] } getModelNameFilter
  */
 
-export const DYNAMIC_SNIPPET_CAROUSEL = DYNAMIC_SNIPPET;
-
-class DynamicSnippetCarouselOptionPlugin extends Plugin {
+export class DynamicSnippetCarouselOptionPlugin extends Plugin {
     static id = "dynamicSnippetCarouselOption";
     static shared = [
         "setOptionsDefaultValues",
@@ -28,15 +30,14 @@ class DynamicSnippetCarouselOptionPlugin extends Plugin {
         builder_actions: {
             SetCarouselSliderSpeedAction,
         },
-        builder_options: withSequence(DYNAMIC_SNIPPET_CAROUSEL, DynamicSnippetCarouselOption),
-        dynamic_snippet_template_updated: this.onTemplateUpdated.bind(this),
+        on_dynamic_snippet_template_updated_handlers: this.onTemplateUpdated.bind(this),
         on_snippet_dropped_handlers: this.onSnippetDropped.bind(this),
     };
     getModelNameFilter() {
         return this.modelNameFilter;
     }
     onTemplateUpdated({ el, template }) {
-        if (el.matches(DynamicSnippetCarouselOption.selector)) {
+        if (el.matches(".s_dynamic_snippet_carousel")) {
             this.updateTemplateSnippetCarousel(el, template);
         }
     }
@@ -46,14 +47,9 @@ class DynamicSnippetCarouselOptionPlugin extends Plugin {
         } else {
             delete el.dataset.rowPerSlide;
         }
-        if (template.arrowPosition) {
-            el.dataset.arrowPosition = template.arrowPosition;
-        } else {
-            delete el.dataset.arrowPosition;
-        }
     }
     async onSnippetDropped({ snippetEl }) {
-        if (snippetEl.matches(DynamicSnippetCarouselOption.selector)) {
+        if (snippetEl.matches(".s_dynamic_snippet_carousel")) {
             await this.setOptionsDefaultValues(snippetEl, this.modelNameFilter);
         }
     }
@@ -78,6 +74,20 @@ export class SetCarouselSliderSpeedAction extends BuilderAction {
             : editingElement.dataset.carouselInterval / 1000;
     }
 }
+
+patch(SetContainerWidthAction.prototype, {
+    apply({ editingElement: el }) {
+        super.apply(...arguments);
+        updateDynamicCarouselNumberOfElements(el);
+    },
+});
+
+patch(SetSectionTitlePositionAction.prototype, {
+    apply({ editingElement: el }) {
+        super.apply(...arguments);
+        updateDynamicCarouselNumberOfElements(el);
+    },
+});
 
 registry
     .category("website-plugins")

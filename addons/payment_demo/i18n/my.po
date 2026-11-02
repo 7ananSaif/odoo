@@ -1,40 +1,23 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# 	* payment_demo
+# * payment_demo
 #
+# Odoo Translation Bot <c3p@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-03 18:39+0000\n"
-"PO-Revision-Date: 2024-09-26 08:56+0000\n"
-"Last-Translator: \n"
-"Language-Team: \n"
-"Language: \n"
+"POT-Creation-Date: 2026-08-28 17:44+0000\n"
+"PO-Revision-Date: 2026-10-08 15:33+0000\n"
+"Last-Translator: Odoo Translation Bot <c3p@odoo.com>\n"
+"Language-Team: Burmese <https://translate.odoo.com/projects/odoo-20/"
+"payment_demo/my/>\n"
+"Language: my\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
-"Plural-Forms: \n"
-
-#. module: payment_demo
-#: model_terms:ir.ui.view,arch_db:payment_demo.payment_details
-msgid ""
-"<select id=\"simulated_payment_state\" class=\"form-select\">\n"
-"                    <option value=\"done\" title=\"Successful payment\">\n"
-"                        Successful\n"
-"                    </option>\n"
-"                    <option value=\"pending\" title=\"Payment processing\">\n"
-"                        Pending\n"
-"                    </option>\n"
-"                    <option value=\"cancel\" title=\"Payment cancelled by "
-"customer\">\n"
-"                        Cancelled\n"
-"                    </option>\n"
-"                    <option value=\"error\" title=\"Processing error\">\n"
-"                        Error\n"
-"                    </option>\n"
-"                </select>"
-msgstr ""
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: payment_demo
 #: model_terms:ir.ui.view,arch_db:payment_demo.express_inline_form
@@ -82,6 +65,19 @@ msgid "<small>Street 2</small>"
 msgstr ""
 
 #. module: payment_demo
+#: model_terms:ir.ui.view,arch_db:payment_demo.express_checkout_form
+msgid ""
+"<span class=\"badge rounded-pill text-bg-warning ms-1\">\n"
+"                                Test Mode\n"
+"                            </span>"
+msgstr ""
+
+#. module: payment_demo
+#: model:ir.module.module,summary:base.module_payment_demo
+msgid "A payment provider for running fake payment flows for demo purposes."
+msgstr ""
+
+#. module: payment_demo
 #: model_terms:ir.ui.view,arch_db:payment_demo.payment_transaction_form
 msgid "Authorize"
 msgstr ""
@@ -93,52 +89,52 @@ msgstr ""
 
 #. module: payment_demo
 #: model_terms:ir.ui.view,arch_db:payment_demo.payment_transaction_form
+#, fuzzy
 msgid "Cancel"
-msgstr ""
+msgstr "ပယ်ဖျက်"
 
 #. module: payment_demo
 #: model:ir.model.fields.selection,name:payment_demo.selection__payment_token__demo_simulated_state__cancel
+#, fuzzy
 msgid "Canceled"
-msgstr ""
+msgstr "ပယ်ပြီး"
 
 #. module: payment_demo
-#: model:ir.model.fields,field_description:payment_demo.field_payment_transaction__capture_manually
-msgid "Capture Amount Manually"
-msgstr ""
-
-#. module: payment_demo
-#: model:ir.model.fields,help:payment_demo.field_payment_transaction__capture_manually
-msgid ""
-"Capture the amount from Odoo, when the delivery is completed.\n"
-"Use this if you want to charge your customers cards only when\n"
-"you are sure you can ship the goods to them."
-msgstr ""
+#: model_terms:ir.ui.view,arch_db:payment_demo.payment_details
+#, fuzzy
+msgid "Cancelled"
+msgstr "ဖကြျသိမျးခဲ့သညျ"
 
 #. module: payment_demo
 #: model_terms:ir.ui.view,arch_db:payment_demo.express_checkout_form
+#, fuzzy
 msgid "Close"
-msgstr ""
+msgstr "ပိတ်"
 
 #. module: payment_demo
 #: model:ir.model.fields,field_description:payment_demo.field_payment_provider__code
+#, fuzzy
 msgid "Code"
-msgstr ""
+msgstr "ကုဒ်"
 
 #. module: payment_demo
 #: model_terms:ir.ui.view,arch_db:payment_demo.payment_transaction_form
+#, fuzzy
 msgid "Confirm"
-msgstr ""
+msgstr "အတည်ပြု"
 
 #. module: payment_demo
 #: model:ir.model.fields.selection,name:payment_demo.selection__payment_token__demo_simulated_state__done
+#, fuzzy
 msgid "Confirmed"
-msgstr ""
+msgstr "အတည်ပြုပြီး"
 
 #. module: payment_demo
 #: model:ir.model.fields.selection,name:payment_demo.selection__payment_provider__code__demo
 #: model:payment.method,name:payment_demo.payment_method_demo
+#, fuzzy
 msgid "Demo"
-msgstr ""
+msgstr "ဒီမို"
 
 #. module: payment_demo
 #: model_terms:ir.ui.view,arch_db:payment_demo.express_checkout_form
@@ -148,27 +144,36 @@ msgstr ""
 #. module: payment_demo
 #. odoo-python
 #: code:addons/payment_demo/models/payment_provider.py:0
-msgid "Demo providers should never be enabled."
+msgid "Demo providers must never be set in live mode."
 msgstr ""
 
 #. module: payment_demo
 #: model:ir.model.fields,field_description:payment_demo.field_payment_provider__display_name
 #: model:ir.model.fields,field_description:payment_demo.field_payment_token__display_name
 #: model:ir.model.fields,field_description:payment_demo.field_payment_transaction__display_name
+#, fuzzy
 msgid "Display Name"
-msgstr ""
+msgstr "ပြသသော အမည်"
 
 #. module: payment_demo
 #: model:ir.model.fields.selection,name:payment_demo.selection__payment_token__demo_simulated_state__error
+#: model_terms:ir.ui.view,arch_db:payment_demo.payment_details
+#, fuzzy
 msgid "Error"
+msgstr "အယ်ရာ"
+
+#. module: payment_demo
+#: model:payment.method,name:payment_demo.payment_method_unknown
+msgid "Express Checkout"
 msgstr ""
 
 #. module: payment_demo
 #: model:ir.model.fields,field_description:payment_demo.field_payment_provider__id
 #: model:ir.model.fields,field_description:payment_demo.field_payment_token__id
 #: model:ir.model.fields,field_description:payment_demo.field_payment_transaction__id
+#, fuzzy
 msgid "ID"
-msgstr ""
+msgstr "အိုင်ဒီ"
 
 #. module: payment_demo
 #. odoo-javascript
@@ -178,8 +183,9 @@ msgstr ""
 
 #. module: payment_demo
 #: model_terms:ir.ui.view,arch_db:payment_demo.express_checkout_form
+#, fuzzy
 msgid "Pay"
-msgstr ""
+msgstr "ပေး"
 
 #. module: payment_demo
 #: model_terms:ir.ui.view,arch_db:payment_demo.express_checkout_form
@@ -188,17 +194,35 @@ msgstr ""
 
 #. module: payment_demo
 #: model:ir.model,name:payment_demo.model_payment_provider
+#, fuzzy
 msgid "Payment Provider"
+msgstr "ပေးချေမှူ ဝန်ဆောင်သူ"
+
+#. module: payment_demo
+#: model:ir.module.module,shortdesc:base.module_payment_demo
+msgid "Payment Provider: Demo"
 msgstr ""
 
 #. module: payment_demo
 #: model:ir.model,name:payment_demo.model_payment_token
+#, fuzzy
 msgid "Payment Token"
-msgstr ""
+msgstr "ပေးချေမှူ တိုကင်"
 
 #. module: payment_demo
 #: model:ir.model,name:payment_demo.model_payment_transaction
+#, fuzzy
 msgid "Payment Transaction"
+msgstr "ပေးချေမှူ မှတ်တမ်း"
+
+#. module: payment_demo
+#: model_terms:ir.ui.view,arch_db:payment_demo.payment_details
+msgid "Payment cancelled by customer"
+msgstr ""
+
+#. module: payment_demo
+#: model_terms:ir.ui.view,arch_db:payment_demo.payment_details
+msgid "Payment processing"
 msgstr ""
 
 #. module: payment_demo
@@ -233,7 +257,13 @@ msgstr ""
 
 #. module: payment_demo
 #: model:ir.model.fields.selection,name:payment_demo.selection__payment_token__demo_simulated_state__pending
+#: model_terms:ir.ui.view,arch_db:payment_demo.payment_details
 msgid "Pending"
+msgstr ""
+
+#. module: payment_demo
+#: model_terms:ir.ui.view,arch_db:payment_demo.payment_details
+msgid "Processing error"
 msgstr ""
 
 #. module: payment_demo
@@ -253,8 +283,14 @@ msgid "Simulated State"
 msgstr ""
 
 #. module: payment_demo
-#: model_terms:ir.ui.view,arch_db:payment_demo.express_checkout_form
-msgid "Test Mode"
+#: model_terms:ir.ui.view,arch_db:payment_demo.payment_details
+#, fuzzy
+msgid "Successful"
+msgstr "အောင်မြင်"
+
+#. module: payment_demo
+#: model_terms:ir.ui.view,arch_db:payment_demo.payment_details
+msgid "Successful payment"
 msgstr ""
 
 #. module: payment_demo

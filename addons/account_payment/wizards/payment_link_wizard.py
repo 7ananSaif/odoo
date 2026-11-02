@@ -1,7 +1,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import _, api, fields, models
-from odoo.tools import format_date, formatLang, str2bool
+from odoo.tools import format_date, formatLang
 
 from odoo.addons.payment import utils as payment_utils
 
@@ -11,8 +11,8 @@ class PaymentLinkWizard(models.TransientModel):
 
     invoice_amount_due = fields.Monetary(
         string="Amount Due",
-        compute='_compute_invoice_amount_due',
-        currency_field='currency_id'
+        currency_field='currency_id',
+        readonly=True,
     )
     open_installments = fields.Json(export_string_translation=False)
     open_installments_preview = fields.Html(
@@ -29,13 +29,8 @@ class PaymentLinkWizard(models.TransientModel):
     def _compute_warning_message(self):
         super()._compute_warning_message()
         for wizard in self:
-            if not wizard.warning_message and not str2bool(self.env['ir.config_parameter'].sudo().get_param('account_payment.enable_portal_payment')):
+            if not wizard.warning_message and not self.env['ir.config_parameter'].sudo().get_bool('account_payment.enable_portal_payment'):
                 wizard.warning_message = _("Online payment option is not enabled in Configuration.")
-
-    @api.depends('amount_max')
-    def _compute_invoice_amount_due(self):
-        for wizard in self:
-            wizard.invoice_amount_due = wizard.amount_max
 
     @api.depends('open_installments')
     def _compute_open_installments_preview(self):

@@ -12,12 +12,13 @@ class WebsiteForm(form.WebsiteForm):
     def insert_record(self, request, model_sudo, values, custom, meta=None):
         model_name = model_sudo.model
         if model_name == 'project.task':
-            visitor_sudo = request.env['website.visitor']._get_visitor_from_request()
+            visitor_sudo = request.env['ir.http']._get_visitor_from_request()
             visitor_partner = visitor_sudo.partner_id
             if visitor_partner:
                 values['partner_id'] = visitor_partner.id
             # When a task is created from the web editor, if the key 'user_ids' is not present, the user_ids is filled with the odoo bot. We set it to False to ensure it is not.
             values.setdefault('user_ids', False)
+            values.setdefault('partner_id', False)
 
         res = super().insert_record(request, model_sudo, values, custom, meta=meta)
         if model_name != 'project.task':
@@ -51,15 +52,17 @@ class WebsiteForm(form.WebsiteForm):
             data['record']['email_from'] = values['email_from']
             if partner:
                 data['record']['partner_id'] = partner.id
+                custom_fields = ['partner_name', 'partner_company_name']
+                if request.env.user._is_public() or partner != request.env.user.partner_id:
+                    custom_fields.append('partner_phone')
                 custom = [
                    (field, data['record'].pop(field))
-                   for field in ['partner_name', 'partner_phone', 'partner_company_name']
+                   for field in custom_fields
                    if data['record'].get(field)
                 ]
                 data['custom'] += "\n" + "\n".join(["%s : %s" % c for c in custom])
             else:
                 data['record']['partner_id'] = False
-                data['record']['email_cc'] = values['email_from']
                 if values.get('partner_phone'):
                     data['record']['partner_phone'] = values['partner_phone']
                 if values.get('partner_name'):

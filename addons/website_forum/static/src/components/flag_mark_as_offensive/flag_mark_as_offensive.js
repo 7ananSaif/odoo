@@ -1,34 +1,21 @@
-import { Component, useEffect } from "@odoo/owl";
-import { useChildRef } from "@web/core/utils/hooks";
+import { Component, signal, t, useListener, useProps } from "@odoo/owl";
 import { Dialog } from "@web/core/dialog/dialog";
 
 export class FlagMarkAsOffensiveDialog extends Component {
     static template = "website_forum.FlagMarkAsOffensiveDialog";
     static components = { Dialog };
-    static props = {
-        title: String,
-        body: String,
-        close: Function,
-    };
+    props = useProps({
+        title: t.string(),
+        body: t.string(),
+        close: t.function(),
+    });
 
     setup() {
-        this.modalRef = useChildRef();
+        this.modalRef = signal.ref();
 
-        const onClickDiscard = (ev) => {
+        useListener(() => this.modalRef()?.querySelector(".btn-link"), "click", (ev) => {
             ev.preventDefault();
             this.props.close();
-        };
-
-        useEffect(
-            (discardButton) => {
-                if (discardButton) {
-                    discardButton.addEventListener("click", onClickDiscard);
-                    return () => {
-                        discardButton.removeEventListener("click", onClickDiscard);
-                    };
-                }
-            },
-            () => [this.modalRef.el?.querySelector(".btn-link")]
-        );
+        });
     }
 }

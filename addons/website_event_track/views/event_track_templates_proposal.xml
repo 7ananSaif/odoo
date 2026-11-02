@@ -2,9 +2,8 @@
 <odoo>
 
 <template id="event_track_proposal">
-    <t t-call="website_event.layout">
-        <t t-set="hide_submenu" t-value="True"/>
-        <div class="oe_structure" id="oe_structure_website_event_track_proposal_1" data-editor-message.translate="DROP BUILDING BLOCKS HERE TO MAKE THEM AVAILABLE ACROSS ALL PROPOSAL PAGES OF ALL EVENTS"/>
+    <t t-call="website_event.layout" hide_submenu="True">
+        <div class="oe_structure" id="oe_structure_website_event_track_proposal_1" data-editor-message.translate="Drag blocks here to add them on all event proposal pages"/>
         <div class="container">
             <t t-call="website_event.navbar"/>
 
@@ -113,13 +112,13 @@
                             <div class="o_form_buttons col-12 d-flex align-items-center pt16 pb48">
                                 <button type="submit" class="btn btn-primary o_wetrack_proposal_submit_button">Submit Proposal</button>
                                 <span class="o_wetrack_proposal_error_section text-danger d-none ml8">
-                                    <i class="fa fa-close mr4" role="img" aria-label="Error" title="Error"/>
+                                    <i class="oi mr4" data-icon="close" role="img" aria-label="Error" title="Error"/>
                                     <span class="o_wetrack_proposal_error_message"/>
                                 </span>
                             </div>
                         </form>
                     </section>
-                    <div class="oe_structure" id="oe_structure_website_event_track_proposal_2" data-editor-message.translate="DROP BUILDING BLOCKS HERE TO MAKE THEM AVAILABLE ACROSS ALL PROPOSAL PAGES OF ALL EVENTS"/>
+                    <div class="oe_structure" id="oe_structure_website_event_track_proposal_2" data-editor-message.translate="Drag blocks here to add them on all event proposal pages"/>
                 </div> <!-- Close main column -->
 
                 <!-- Sidebar: visible if proposals are allowed only -->
@@ -151,14 +150,15 @@
                 </aside>
             </div>
         </div>
-        <div class="oe_structure" id="oe_structure_website_event_track_proposal_3" data-editor-message.translate="DROP BUILDING BLOCKS HERE TO MAKE THEM AVAILABLE ACROSS ALL PROPOSAL PAGES OF ALL EVENTS"/>
+        <div class="oe_structure" id="oe_structure_website_event_track_proposal_3" data-editor-message.translate="Drag blocks here to add them on all event proposal pages"/>
     </t>
 </template>
 
 <template id="event_track_proposal_contact_details">
     <div id="event_track_proposal_additional_contact_section" class="col-12">
         <div class="mb-3">
-            <input name="add_contact_information" type= "checkbox" class="o_wetrack_add_contact_information_checkbox"/>
+            <input name="add_contact_information"
+                type="checkbox" class="o_wetrack_add_contact_information_checkbox"/>
             <label class="fw-normal" for="add_contact_information">Contact me through a different email/phone</label>
         </div>
         <div class="o_wetrack_contact_information d-none">

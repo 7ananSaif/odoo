@@ -3,7 +3,6 @@ import { insertSnippet, registerWebsitePreviewTour } from "@website/js/tours/tou
 registerWebsitePreviewTour(
     "snippet_image",
     {
-        url: "/",
         edition: true,
     },
     () => [
@@ -38,7 +37,7 @@ registerWebsitePreviewTour(
         },
         {
             content: "Click on the 'undo' button",
-            trigger: ".o-snippets-top-actions button.fa-undo",
+            trigger: ".o-snippets-top-actions button[data-icon='undo']",
             run: "click",
         },
         {

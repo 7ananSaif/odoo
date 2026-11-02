@@ -4,6 +4,7 @@
 import datetime
 from dateutil.relativedelta import relativedelta
 from odoo import api, fields, models
+from odoo.tools import SQL
 
 DEFAULT_REVEAL_VIEW_WEEKS_VALID = 5
 
@@ -25,11 +26,7 @@ class CrmRevealView(models.Model):
     @api.model
     def _clean_reveal_views(self):
         """ Remove old views (> 1 month) """
-        weeks_valid = self.env['ir.config_parameter'].sudo().get_param('reveal.view_weeks_valid', DEFAULT_REVEAL_VIEW_WEEKS_VALID)
-        try:
-            weeks_valid = int(weeks_valid)
-        except ValueError:
-            weeks_valid = DEFAULT_REVEAL_VIEW_WEEKS_VALID
+        weeks_valid = self.env['ir.config_parameter'].sudo().get_int('reveal.view_weeks_valid') or DEFAULT_REVEAL_VIEW_WEEKS_VALID
         domain = []
         domain.append(('reveal_state', '=', 'not_found'))
         domain.append(('create_date', '<', fields.Datetime.to_string(datetime.date.today() - relativedelta(weeks=weeks_valid))))
@@ -39,15 +36,14 @@ class CrmRevealView(models.Model):
         # we are avoiding reveal if reveal_view already created for this IP
         rules = self.env['crm.reveal.rule']._match_url(website_id, url, country_code, state_code, rules_excluded)
         if rules:
-            query = """
+            rule_ids = [rule['id'] for rule in rules]
+            query = SQL("""
                     INSERT INTO crm_reveal_view (reveal_ip, reveal_rule_id, reveal_state, create_date)
-                    VALUES (%s, %s, 'to_process', now() at time zone 'UTC')
+                    SELECT %s, n.rule_id, 'to_process', now() at time zone 'UTC'
+                    FROM UNNEST(%s) AS n(rule_id)
                     ON CONFLICT DO NOTHING;
-                    """ * len(rules)
-            params = []
-            for rule in rules:
-                params += [ip_address, rule['id']]
-                rules_excluded.append(str(rule['id']))
-            self.env.cr.execute(query, params)
+                    """, ip_address, rule_ids)
+            self.env.execute_query(query)
+            rules_excluded.extend(map(str, rule_ids))
             return rules_excluded
         return False

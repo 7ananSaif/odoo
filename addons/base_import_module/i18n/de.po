@@ -7,21 +7,41 @@
 # Stefan Reisich <nafex@gmx.net>, 2023
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
 # "Larissa Manderfeld (lman)" <lman@odoo.com>, 2025, 2026.
+# Odoo Translation Bot <c3p@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~12.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-04-24 12:00+0000\n"
-"Last-Translator: \"Larissa Manderfeld (lman)\" <lman@odoo.com>\n"
-"Language-Team: German <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-11 17:42+0000\n"
+"PO-Revision-Date: 2026-10-08 09:46+0000\n"
+"Last-Translator: Odoo Translation Bot <c3p@odoo.com>\n"
+"Language-Team: German <https://translate.odoo.com/projects/odoo-20/"
 "base_import_module/de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: base_import_module
+#: model:ir.module.module,description:base.module_base_import_module
+msgid ""
+"\n"
+"Import a custom data module\n"
+"===========================\n"
+"\n"
+"This module allows authorized users to import a custom data module (.xml "
+"files and static assests)\n"
+"for customization purpose.\n"
+msgstr ""
+"\n"
+"Import eines benutzerdefinierten Datenmoduls\n"
+"=======================================\n"
+"\n"
+"Dieses Modul ermöglicht es autorisierten Benutzern, ein benutzerdefiniertes "
+"Datenmodul zu importieren (z. B. XML-Dateien und statische Objekte) für "
+"Anpassungszwecke.\n"
 
 #. module: base_import_module
 #. odoo-python
@@ -35,9 +55,9 @@ msgid ""
 msgstr ""
 "\n"
 "Für die Installation des Datenmoduls benötigen Sie möglicherweise die "
-"Enterprise-Version. Weitere Informationen finden Sie unter https://"
-"www.odoo.com/pricing-plan.\n"
-"Wenn Sie Website-Designmotive benötigen, können Sie diese unter https://"
+"Enterprise-Version. Bitte besuchen Sie https://www.odoo.com/pricing-plan für "
+"weitere Informationen.\n"
+"Wenn Sie Website-Designmotive benötigen, können Sie diese von https://"
 "github.com/odoo/design-themes herunterladen.\n"
 
 #. module: base_import_module
@@ -54,9 +74,9 @@ msgid "Apps"
 msgstr "Apps"
 
 #. module: base_import_module
-#: model_terms:ir.ui.view,arch_db:base_import_module.view_base_module_import
-msgid "Cancel"
-msgstr "Abbrechen"
+#: model:ir.module.module,shortdesc:base.module_base_import_module
+msgid "Base import module"
+msgstr "Basisimportmodul"
 
 #. module: base_import_module
 #: model_terms:ir.ui.view,arch_db:base_import_module.view_base_module_import
@@ -69,7 +89,7 @@ msgstr "Schließen"
 msgid ""
 "Connection to %(url)s failed, the module %(module)s cannot be downloaded."
 msgstr ""
-"Verbindung mit %(url)s fehlgeschlagen. Das Modul %(module)s kann nicht "
+"Verbindung mit %(url)s fehlgeschlagen, das Modul %(module)s kann nicht "
 "heruntergeladen werden."
 
 #. module: base_import_module
@@ -77,14 +97,14 @@ msgstr ""
 #: code:addons/base_import_module/models/ir_module.py:0
 msgid "Connection to %s failed The list of industry modules cannot be fetched"
 msgstr ""
-"Verbindung mit %s fehlgeschlagen. Die Liste der Branchenmodule kann nicht "
+"Verbindung mit %s fehlgeschlagen. Die Liste der Industrie-Module kann nicht "
 "abgerufen werden"
 
 #. module: base_import_module
 #. odoo-python
 #: code:addons/base_import_module/controllers/main.py:0
 msgid "Could not select database '%s'"
-msgstr "Die Datenbank „%s“ konnte nicht ausgewählt werden"
+msgstr "Datenbank „%s“ konnte nicht ausgewählt werden"
 
 #. module: base_import_module
 #: model:ir.model.fields,field_description:base_import_module.field_base_import_module__create_uid
@@ -98,7 +118,6 @@ msgstr "Erstellt am"
 
 #. module: base_import_module
 #: model:ir.model.fields,field_description:base_import_module.field_base_import_module__display_name
-#: model:ir.model.fields,field_description:base_import_module.field_base_module_uninstall__display_name
 #: model:ir.model.fields,field_description:base_import_module.field_ir_http__display_name
 #: model:ir.model.fields,field_description:base_import_module.field_ir_module_module__display_name
 #: model:ir.model.fields,field_description:base_import_module.field_ir_ui_view__display_name
@@ -118,6 +137,11 @@ msgstr ""
 "\n"
 " %(error_message)s \n"
 "\n"
+
+#. module: base_import_module
+#: model:ir.model.fields,field_description:base_import_module.field_ir_module_module__total_lines_of_code
+msgid "Extra lines of Code"
+msgstr "Zusätzliche Codezeilen"
 
 #. module: base_import_module
 #. odoo-python
@@ -144,7 +168,6 @@ msgstr "HTTP-Routing"
 
 #. module: base_import_module
 #: model:ir.model.fields,field_description:base_import_module.field_base_import_module__id
-#: model:ir.model.fields,field_description:base_import_module.field_base_module_uninstall__id
 #: model:ir.model.fields,field_description:base_import_module.field_ir_http__id
 #: model:ir.model.fields,field_description:base_import_module.field_ir_module_module__id
 #: model:ir.model.fields,field_description:base_import_module.field_ir_ui_view__id
@@ -228,17 +251,12 @@ msgstr "Modul"
 #. module: base_import_module
 #: model:ir.model.fields,field_description:base_import_module.field_base_import_module__module_file
 msgid "Module .ZIP file"
-msgstr ".ZIP-Datei des Moduls"
+msgstr "Modul .ZIP-Datei"
 
 #. module: base_import_module
 #: model:ir.model.fields,field_description:base_import_module.field_ir_module_module__module_type
 msgid "Module Type"
 msgstr "Modultyp"
-
-#. module: base_import_module
-#: model:ir.model,name:base_import_module.model_base_module_uninstall
-msgid "Module Uninstall"
-msgstr "Modul deinstallieren"
 
 #. module: base_import_module
 #: model_terms:ir.ui.view,arch_db:base_import_module.view_base_module_import
@@ -271,7 +289,18 @@ msgid ""
 "assets)"
 msgstr ""
 "Hinweis: Sie können nur Datenmodule (.xml-Dateien, i18n-Dateien und "
-"statische Assets) importieren"
+"statische Assets) importieren."
+
+#. module: base_import_module
+#: model:ir.model.fields,help:base_import_module.field_ir_module_module__total_lines_of_code
+msgid ""
+"Number of lines of code that may be billed under an Enterprise subscription. "
+"For exact pricing details, please contact your account manager or visit "
+"odoo.com/pricing."
+msgstr ""
+"Anzahl der Codezeilen, die im Rahmen eines Enterprise-Abonnements in "
+"Rechnung gestellt werden können. Für genaue Preisangaben wenden Sie sich "
+"bitte an Ihren Kundenbetreuer oder besuchen Sie odoo.com/pricing."
 
 #. module: base_import_module
 #: model:ir.model.fields.selection,name:base_import_module.selection__ir_module_module__module_type__official
@@ -294,7 +323,7 @@ msgstr "Nur Administratoren können ein Modul hochladen"
 #. odoo-python
 #: code:addons/base_import_module/models/ir_module.py:0
 msgid "Only zip files are supported."
-msgstr "Es werden nur ZIP-Dateien unterstützt."
+msgstr "Nur ZIP-Dateien werden unterstützt."
 
 #. module: base_import_module
 #: model:ir.model.fields,field_description:base_import_module.field_base_import_module__state
@@ -333,8 +362,8 @@ msgstr ""
 msgid ""
 "The list of industry applications cannot be fetched. Please try again later"
 msgstr ""
-"Die Liste der Branchenapps kann nicht abgerufen werden. Bitte versuchen Sie "
-"es später noch einmal"
+"Die Liste der Industrie-Apps kann nicht abgerufen werden. Bitte versuchen "
+"Sie es später noch einmal"
 
 #. module: base_import_module
 #. odoo-python
@@ -369,35 +398,5 @@ msgstr "erledigt"
 msgid "init"
 msgstr "init"
 
-#~ msgid "Import App"
-#~ msgstr "App importieren"
-
-#~ msgid "Import module"
-#~ msgstr "Modul importieren"
-
-#~ msgid "Last Modified on"
-#~ msgstr "Letzte Änderung am"
-
-#~ msgid ""
-#~ "Note: you can only import data modules (.xml files and static assets)"
-#~ msgstr ""
-#~ "Hinweis: Sie können nur Datenmodule (XML-Dateien und statische Assets) "
-#~ "importieren."
-
-#~ msgid "Open Modules"
-#~ msgstr "Öffne Module"
-
-#~ msgid "Select module package to import (.zip file):"
-#~ msgstr "Wählen Sie das Module (zip Datei) für den Import"
-
-#~ msgid "Studio customizations require Studio"
-#~ msgstr "Studio-Anpassungen erfordern Studio"
-
-#~ msgid ""
-#~ "Unmet module dependencies: \n"
-#~ "\n"
-#~ " - %s"
-#~ msgstr ""
-#~ "Nicht erfüllte Modulabhängigkeiten: \n"
-#~ "\n"
-#~ " - %s"
+#~ msgid "Module Uninstall"
+#~ msgstr "Modul deinstallieren"

@@ -8,13 +8,13 @@ from . import test_project_embedded_action_settings
 from . import test_project_flow
 from . import test_project_mail_features
 from . import test_project_milestone
-from . import test_project_profitability
 from . import test_project_recurrence
 from . import test_project_sharing
 from . import test_project_sharing_portal_access
 from . import test_project_sharing_ui
 from . import test_project_stage_multicompany
 from . import test_project_subtasks
+from . import test_project_tags
 from . import test_project_tags_filter
 from . import test_project_task_type
 from . import test_project_template
@@ -32,6 +32,7 @@ from . import test_task_templates
 from . import test_task_templates_ui
 from . import test_task_tracking
 from . import test_project_report
+from . import test_project_time_by_stage_report
 from . import test_project_task_quick_create
 from . import test_task_state
 from . import test_project_task_mail_tracking_duration

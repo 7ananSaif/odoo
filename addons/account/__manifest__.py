@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 {
     'name': 'Invoicing',
-    'version': '1.4',
+    'version': '1.6',
     'summary': 'Invoices & Payments',
     'sequence': 10,
     'description': """
@@ -17,7 +16,6 @@ You could use this simplified accounting in case you work with an (external) acc
     'depends': ['base_setup', 'onboarding', 'product', 'analytic', 'portal', 'digest'],
     'data': [
         'security/account_security.xml',
-        'security/ir.model.access.csv',
         'data/account_data.xml',
         'data/digest_data.xml',
         'views/account_report.xml',
@@ -26,6 +24,7 @@ You could use this simplified accounting in case you work with an (external) acc
         'data/account_tour.xml',
         'data/ir_sequence.xml',
         'data/res_country_group.xml',
+        'data/portal_entry_data.xml',
         'views/account_payment_view.xml',
         'wizard/account_automatic_entry_wizard_views.xml',
         'wizard/account_autopost_bills_wizard.xml',
@@ -36,7 +35,6 @@ You could use this simplified accounting in case you work with an (external) acc
         'views/account_move_views.xml',
         'wizard/setup_wizards_view.xml',
         'views/account_account_views.xml',
-        'views/account_group_views.xml',
         'views/account_journal_views.xml',
         'views/account_account_tag_views.xml',
         'views/account_bank_statement_views.xml',
@@ -73,6 +71,7 @@ You could use this simplified accounting in case you work with an (external) acc
         'wizard/account_move_send_wizard.xml',
         'wizard/account_move_send_batch_wizard.xml',
         'report/account_hash_integrity_templates.xml',
+        'report/account_stock_valuation_report.xml',
         'views/res_currency.xml',
         'views/res_country_group_view.xml',
         'views/account_menuitem.xml',
@@ -88,11 +87,12 @@ You could use this simplified accounting in case you work with an (external) acc
         'views/report_templates.xml',
         'wizard/account_merge_wizard_views.xml',
         'data/ir_config_parameter_data.xml',
+        'security/ir.access.csv',
     ],
     'demo': [
         'demo/account_demo.xml',
+        'demo/res_partner_bank_demo.xml',
     ],
-    'installable': True,
     'application': True,
     'post_init_hook': '_account_post_init',
     'assets': {
@@ -110,12 +110,18 @@ You could use this simplified accounting in case you work with an (external) acc
             'account/static/src/scss/account_reconcile_model.scss',
             'account/static/src/scss/account_multi_ledger.scss',
             'account/static/src/scss/account_move_send_wizard.scss',
+            'account/static/src/scss/account_type_selection.scss',
             'account/static/src/components/**/*',
             'account/static/src/services/*.js',
             'account/static/src/views/**/*',
             'account/static/src/js/tours/*',
             'account/static/src/js/search/search_bar/search_bar.js',
             'account/static/src/helpers/*.js',
+            'account/static/src/webclient/**/*',
+            ('remove', 'account/static/src/**/*.dark.scss'),
+        ],
+        'web.assets_web_dark': [
+            'account/static/src/**/*.dark.scss',
         ],
         # Unit test files
         'web.assets_unit_tests': [

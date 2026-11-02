@@ -1,5 +1,5 @@
 .o_cw_popover_link {
-    margin-top: 2px;
+    margin-top: 6px;
 
     &[class*="o_calendar_color_"] {
         --o-bg-opacity: 1;
@@ -19,7 +19,7 @@
 
             &:before {
                 margin-right: map-get($spacers, 1);
-                font-family: FontAwesome;
+                font-family: 'Material Symbols Outlined';
                 font-size: $o-font-size-base-smaller;
                 color: var(--o-cw-popover-color, #{$info});
                 content: '\f111';

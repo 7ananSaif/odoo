@@ -7,10 +7,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~18.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:35+0000\n"
-"PO-Revision-Date: 2025-11-08 22:03+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Romanian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-08-31 20:25+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Romanian <https://translate.odoo.com/projects/odoo-s19-4/"
 "marketing_card/ro/>\n"
 "Language: ro\n"
 "MIME-Version: 1.0\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
 "20)) ? 1 : 2;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: marketing_card
 #. odoo-python
@@ -29,20 +29,28 @@ msgstr "Expedieri %(card_campaign_name)s"
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_view_kanban
 msgid ""
-"<i class=\"fa fa-fw fa-mouse-pointer\" aria-label=\"Clicks\" role=\"img\" "
+"<i class=\"oi oi-fw\" data-icon=\"mouse\" aria-label=\"Clicks\" role=\"img\" "
 "title=\"Clicks\"/>"
 msgstr ""
-"<i class=\"fa fa-fw fa-mouse-pointer\" aria-label=\"Click-uri\" role=\"img\" "
-"title=\"Click-uri\"/>"
+"<i class=\"oi oi-fw\" data-icon=\"mouse\" aria-label=\"Click-uri\" "
+"role=\"img\" title=\"Click-uri\"/>"
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_view_kanban
 msgid ""
-"<i class=\"fa fa-fw fa-share\" aria-label=\"Shares\" role=\"img\" "
+"<i class=\"oi oi-fw\" data-icon=\"share\" aria-label=\"Shares\" role=\"img\" "
 "title=\"Shares\"/>"
 msgstr ""
-"<i class=\"fa fa-fw fa-share\" aria-label=\"Partajări\" role=\"img\" "
-"title=\"Partajări\"/>"
+"<i class=\"oi oi-fw\" data-icon=\"share\" aria-label=\"Partajări\" "
+"role=\"img\" title=\"Partajări\"/>"
+
+#. module: marketing_card
+#: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_linkedin_share_composer
+msgid ""
+"<i class=\"oi\" data-icon=\"warning\"/>\n"
+"                    <span>We were not able to get an authorization to post "
+"in your stead.</span>"
+msgstr ""
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_preview
@@ -126,6 +134,11 @@ msgid "Activity Exception Decoration"
 msgstr "Decorare excepție activitate"
 
 #. module: marketing_card
+#: model:ir.model.fields,field_description:marketing_card.field_card_campaign__activity_plans_ids
+msgid "Activity Plans"
+msgstr ""
+
+#. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__activity_state
 msgid "Activity State"
 msgstr "Stare activitate"
@@ -139,7 +152,7 @@ msgstr "Iconiță tip activitate"
 #. odoo-python
 #: code:addons/marketing_card/models/card_campaign.py:0
 msgid ""
-"An error occured while rendering a card for %(record_name)s. Try again or "
+"An error occurred while rendering a card for %(record_name)s. Try again or "
 "check the server logs for more details."
 msgstr ""
 
@@ -227,6 +240,11 @@ msgid "Card Count"
 msgstr "Număr carduri"
 
 #. module: marketing_card
+#: model:ir.model.fields,field_description:marketing_card.field_mailing_mailing__card_lang
+msgid "Card Language"
+msgstr ""
+
+#. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_view_form
 msgid "Card Layout"
 msgstr "Structură card"
@@ -254,6 +272,13 @@ msgid "Card Template"
 msgstr "Șablon card"
 
 #. module: marketing_card
+#. odoo-python
+#: code:addons/marketing_card/models/card_campaign.py:0
+#: model:card.campaign,content_header:marketing_card.card_campaign_campaign_1
+msgid "Card Title"
+msgstr ""
+
+#. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.mailing_mailing_view_form_inherit_marketing_card
 msgid "Cards"
 msgstr "Carduri"
@@ -262,6 +287,11 @@ msgstr "Carduri"
 #: model:card.template,name:marketing_card.card_template_user_image
 msgid "Center"
 msgstr "Centru"
+
+#. module: marketing_card
+#: model_terms:card.campaign,reward_message:marketing_card.card_campaign_campaign_1
+msgid "Check out odoo.com for more!"
+msgstr ""
 
 #. module: marketing_card
 #: model:card.template,name:marketing_card.card_template_circles
@@ -326,13 +356,20 @@ msgstr "Fundal implicit"
 
 #. module: marketing_card
 #: model:ir.model.fields,help:marketing_card.field_card_campaign__post_suggestion
-msgid "Description below the card and default text when sharing on X"
-msgstr "Descriere sub card și text implicit la partajare pe X"
+msgid ""
+"Description below the card and default text when sharing on X and LinkedIn"
+msgstr ""
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__card_template_id
 msgid "Design"
 msgstr "Proiectare"
+
+#. module: marketing_card
+#. odoo-python
+#: code:addons/marketing_card/models/card_campaign.py:0
+msgid "Details"
+msgstr ""
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__display_name
@@ -367,14 +404,44 @@ msgid "Dynamic Image 2"
 msgstr "Imagine dinamică 2"
 
 #. module: marketing_card
-#: model:ir.model.constraint,message:marketing_card.constraint_card_card_campaign_record_unique
-msgid "Each record should be unique for a campaign"
-msgstr "Fiecare înregistrare trebuie să fie unică pentru o campanie"
+#: model:ir.model.constraint,message:marketing_card.constraint_card_card_campaign_record_lang_unique
+msgid "Each record should be unique for a campaign and language"
+msgstr ""
 
 #. module: marketing_card
 #: model:ir.model,name:marketing_card.model_mail_compose_message
 msgid "Email composition wizard"
 msgstr "Asistent de compunere email-uri"
+
+#. module: marketing_card
+#. odoo-python
+#: code:addons/marketing_card/utils/linkedin_api.py:0
+msgid "Error on generating an authorization url: %(iap_error_string)s"
+msgstr ""
+
+#. module: marketing_card
+#. odoo-python
+#: code:addons/marketing_card/utils/linkedin_api.py:0
+msgid "Error when fetching user info"
+msgstr ""
+
+#. module: marketing_card
+#. odoo-python
+#: code:addons/marketing_card/utils/linkedin_api.py:0
+msgid "Error when posting an image"
+msgstr ""
+
+#. module: marketing_card
+#. odoo-python
+#: code:addons/marketing_card/utils/linkedin_api.py:0
+msgid "Error when registering an image upload"
+msgstr ""
+
+#. module: marketing_card
+#. odoo-python
+#: code:addons/marketing_card/utils/linkedin_api.py:0
+msgid "Error when uploading an image"
+msgstr ""
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__message_follower_ids
@@ -387,9 +454,9 @@ msgid "Followers (Partners)"
 msgstr "Urmăritori (Parteneri)"
 
 #. module: marketing_card
-#: model:ir.model.fields,help:marketing_card.field_card_campaign__activity_type_icon
-msgid "Font awesome icon e.g. fa-tasks"
-msgstr "Iconiță Font Awesome, ex: fa-tasks"
+#: model:ir.module.module,summary:base.module_marketing_card
+msgid "Generate dynamic shareable cards"
+msgstr ""
 
 #. module: marketing_card
 #: model:card.template,name:marketing_card.card_template_geometric
@@ -419,19 +486,19 @@ msgstr "Cale antet"
 #. module: marketing_card
 #. odoo-python
 #: code:addons/marketing_card/models/card_campaign.py:0
-msgid "Hello everyone"
-msgstr ""
-
-#. module: marketing_card
-#. odoo-python
-#: code:addons/marketing_card/models/card_campaign.py:0
 msgid "Help us share the news"
 msgstr "Ajută-ne să împărtășim noutățile"
 
 #. module: marketing_card
 #. odoo-python
 #: code:addons/marketing_card/models/card_campaign.py:0
-msgid "Here's the link to advertise your participation."
+msgid "Hi everyone!"
+msgstr ""
+
+#. module: marketing_card
+#. odoo-python
+#: code:addons/marketing_card/models/card_campaign.py:0
+msgid "Home page"
 msgstr ""
 
 #. module: marketing_card
@@ -514,8 +581,15 @@ msgstr "Vino cu mine la acest eveniment!"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__lang
+#: model:ir.model.fields,field_description:marketing_card.field_card_card__lang
+#: model_terms:ir.ui.view,arch_db:marketing_card.card_card_view_search
 msgid "Language"
 msgstr "Limba"
+
+#. module: marketing_card
+#: model:ir.model.fields,help:marketing_card.field_mailing_mailing__card_lang
+msgid "Language in which the cards will be rendered"
+msgstr ""
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__write_uid
@@ -564,13 +638,8 @@ msgid "Mailing Count"
 msgstr "Număr expedieri"
 
 #. module: marketing_card
-#. odoo-python
-#: code:addons/marketing_card/models/card_campaign.py:0
-msgid "Many thanks"
-msgstr ""
-
-#. module: marketing_card
 #: model:ir.model,name:marketing_card.model_card_card
+#: model:ir.module.module,shortdesc:base.module_marketing_card
 #: model:ir.ui.menu,name:marketing_card.card_menu
 #: model:ir.ui.menu,name:marketing_card.marketing_card_menu_technical
 #: model:res.groups.privilege,name:marketing_card.res_groups_privilege_marketing_card
@@ -608,6 +677,11 @@ msgid "Mass Mailing"
 msgstr "Emailuri în masă"
 
 #. module: marketing_card
+#: model:ir.model.fields,help:marketing_card.field_card_campaign__activity_type_icon
+msgid "Material Symbols icon e.g. checklist"
+msgstr ""
+
+#. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__message_has_error
 msgid "Message Delivery error"
 msgstr "Eroare la livrarea mesajului"
@@ -616,6 +690,25 @@ msgstr "Eroare la livrarea mesajului"
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__message_ids
 msgid "Messages"
 msgstr "Mesaje"
+
+#. module: marketing_card
+#. odoo-python
+#: code:addons/marketing_card/utils/linkedin_api.py:0
+msgid "Missing LinkedIn app credentials."
+msgstr ""
+
+#. module: marketing_card
+#. odoo-python
+#: code:addons/marketing_card/models/mailing_mailing.py:0
+msgid ""
+"Missing target language for card campaign mailings:\n"
+"\t- %(mailing_names)s"
+msgstr ""
+
+#. module: marketing_card
+#: model:ir.model,name:marketing_card.model_ir_model
+msgid "Model"
+msgstr ""
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__res_model
@@ -630,11 +723,6 @@ msgid ""
 "Model of campaign %(campaign)s may not be changed as it already has cards"
 msgstr ""
 "Modelul campaniei %(campaign)s nu poate fi schimbat deoarece are deja carduri"
-
-#. module: marketing_card
-#: model:ir.model,name:marketing_card.model_ir_model
-msgid "Models"
-msgstr "Modele"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__my_activity_date_deadline
@@ -672,6 +760,11 @@ msgstr "Rezumatul următoarei activități"
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__activity_type_id
 msgid "Next Activity Type"
 msgstr "Următorul tip de activitate"
+
+#. module: marketing_card
+#: model:res.groups.privilege,placeholder:marketing_card.res_groups_privilege_marketing_card
+msgid "No"
+msgstr ""
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_view_form
@@ -737,6 +830,16 @@ msgid "Post Suggestion"
 msgstr "Sugestie postare"
 
 #. module: marketing_card
+#: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_linkedin_share_composer
+msgid "Post Text"
+msgstr ""
+
+#. module: marketing_card
+#: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_linkedin_share_composer
+msgid "Post on LinkedIn"
+msgstr ""
+
+#. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_preview
 msgid "Powered By"
 msgstr "Realizat de"
@@ -798,14 +901,16 @@ msgid "Recipients"
 msgstr "Destinatari"
 
 #. module: marketing_card
-#: model:ir.model.fields,field_description:marketing_card.field_mailing_mailing__mailing_model_id
-msgid "Recipients Model"
-msgstr "Modelul destinatarilor"
-
-#. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_card__res_id
 msgid "Record ID"
 msgstr "ID Înregistrare"
+
+#. module: marketing_card
+#: model:ir.model.fields,help:marketing_card.field_card_campaign__target_url
+msgid ""
+"Redirection link for clicks on the cards, defaults to the relevant record or "
+"the home page."
+msgstr ""
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__render_model
@@ -925,6 +1030,11 @@ msgid "Share Template"
 msgstr "Partajare șablon"
 
 #. module: marketing_card
+#: model:card.campaign,request_title:marketing_card.card_campaign_campaign_1
+msgid "Share the news with your community"
+msgstr ""
+
+#. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_preview
 msgid "Share with your community!"
 msgstr "Partajează cu comunitatea ta!"
@@ -934,6 +1044,11 @@ msgstr "Partajează cu comunitatea ta!"
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_card_view_search
 msgid "Shared"
 msgstr "Partajat"
+
+#. module: marketing_card
+#: model_terms:ir.ui.view,arch_db:marketing_card.card_card_view_search
+msgid "Status"
+msgstr ""
 
 #. module: marketing_card
 #: model:ir.model.fields,help:marketing_card.field_card_campaign__activity_state
@@ -995,9 +1110,31 @@ msgid "Tags may not reuse existing names."
 msgstr "Etichetele nu pot reutiliza nume existente."
 
 #. module: marketing_card
+#: model:ir.model.fields,field_description:marketing_card.field_card_campaign__target_url_placeholder
+msgid "Target Url Placeholder"
+msgstr ""
+
+#. module: marketing_card
+#. odoo-python
+#: code:addons/marketing_card/models/card_campaign.py:0
+msgid "Target record (if published) or Home page"
+msgstr ""
+
+#. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__reward_message
 msgid "Thank You Message"
 msgstr "Mesaj de mulțumire"
+
+#. module: marketing_card
+#. odoo-python
+#: code:addons/marketing_card/models/card_campaign.py:0
+msgid "Thanks for your support."
+msgstr ""
+
+#. module: marketing_card
+#: model:card.campaign,request_description:marketing_card.card_campaign_campaign_1
+msgid "That will help us"
+msgstr ""
 
 #. module: marketing_card
 #. odoo-python
@@ -1008,6 +1145,17 @@ msgid ""
 msgstr ""
 "Sursa UTM '%s' nu poate fi ștearsă deoarece este folosită pentru promovarea "
 "campaniilor de carduri de marketing."
+
+#. module: marketing_card
+#. odoo-python
+#: code:addons/marketing_card/utils/linkedin_api.py:0
+msgid "The image is too large: %(image_size_human_readable)s"
+msgstr ""
+
+#. module: marketing_card
+#: model:card.campaign,content_section:marketing_card.card_campaign_campaign_1
+msgid "This section is static"
+msgstr ""
 
 #. module: marketing_card
 #: model:ir.model.fields,help:marketing_card.field_card_campaign__activity_exception_decoration
@@ -1041,14 +1189,25 @@ msgid "Waves"
 msgstr ""
 
 #. module: marketing_card
-#: model:ir.model.fields,field_description:marketing_card.field_card_campaign__website_message_ids
-msgid "Website Messages"
-msgstr "Mesaje website"
+#. odoo-python
+#: code:addons/marketing_card/models/card_campaign.py:0
+msgid ""
+"We'd love your help in getting the word out. Feel free to post these on your "
+"social channels!"
+msgstr ""
 
 #. module: marketing_card
-#: model:ir.model.fields,help:marketing_card.field_card_campaign__website_message_ids
-msgid "Website communication history"
-msgstr "Istoric comunicare website"
+#. odoo-python
+#: code:addons/marketing_card/models/card_campaign.py:0
+msgid ""
+"We've created these personalized cards to make it easy for you to share your "
+"involvement with your network."
+msgstr ""
+
+#. module: marketing_card
+#: model:card.campaign,content_sub_header:marketing_card.card_campaign_campaign_1
+msgid "Welcome to Odoo"
+msgstr ""
 
 #. module: marketing_card
 #: model:ir.model.fields,help:marketing_card.field_card_card__requires_sync
@@ -1062,6 +1221,17 @@ msgid "World Map"
 msgstr "Harta lumii"
 
 #. module: marketing_card
+#: model_terms:card.campaign,reward_message:marketing_card.card_campaign_campaign_1
+msgid "You just leveled up your exposure!"
+msgstr ""
+
+#. module: marketing_card
+#. odoo-python
+#: code:addons/marketing_card/utils/linkedin_api.py:0
+msgid "You must be authentified with LinkedIn to do this."
+msgstr ""
+
+#. module: marketing_card
 #. odoo-python
 #: code:addons/marketing_card/models/mailing_mailing.py:0
 msgid ""
@@ -1069,17 +1239,6 @@ msgid ""
 msgstr ""
 "Ar trebui să actualizați toate cardurile pentru %(mailing)s înainte de a "
 "programa o expediere."
-
-#. module: marketing_card
-#: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_view_form
-msgid "Your Home Page"
-msgstr "Pagina ta de start"
-
-#. module: marketing_card
-#. odoo-python
-#: code:addons/marketing_card/models/card_campaign.py:0
-msgid "Your help with this promotion would be greatly appreciated!"
-msgstr ""
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.template_2

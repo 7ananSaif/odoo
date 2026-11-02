@@ -6,15 +6,15 @@
 # Martin Trigaux, 2022
 # Sergio Zanchetta <primes2h@gmail.com>, 2022
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
-# "Marianna Ciofani (cima)" <cima@odoo.com>, 2025.
+# "Marianna Ciofani (cima)" <cima@odoo.com>, 2025, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~12.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-09-23 02:30+0000\n"
+"POT-Creation-Date: 2026-09-11 17:42+0000\n"
+"PO-Revision-Date: 2026-10-19 10:33+0000\n"
 "Last-Translator: \"Marianna Ciofani (cima)\" <cima@odoo.com>\n"
-"Language-Team: Italian <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Italian <https://translate.odoo.com/projects/odoo-20/"
 "base_import_module/it/>\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
@@ -22,7 +22,26 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=(n == 1) ? 0 : ((n != 0 && n % 1000000 == "
 "0) ? 1 : 2);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: base_import_module
+#: model:ir.module.module,description:base.module_base_import_module
+msgid ""
+"\n"
+"Import a custom data module\n"
+"===========================\n"
+"\n"
+"This module allows authorized users to import a custom data module (.xml "
+"files and static assests)\n"
+"for customization purpose.\n"
+msgstr ""
+"\n"
+"Importa un modulo di dati personalizzate\n"
+"===========================\n"
+"\n"
+"Questo modulo consente agli utenti autorizzati di importare un modulo di "
+"dati personalizzate (file .xml e assets statici)\n"
+"con uno scopo di personalizzazione.\n"
 
 #. module: base_import_module
 #. odoo-python
@@ -55,9 +74,9 @@ msgid "Apps"
 msgstr "Applicazioni"
 
 #. module: base_import_module
-#: model_terms:ir.ui.view,arch_db:base_import_module.view_base_module_import
-msgid "Cancel"
-msgstr "Annulla"
+#: model:ir.module.module,shortdesc:base.module_base_import_module
+msgid "Base import module"
+msgstr "Modulo di importazione di base"
 
 #. module: base_import_module
 #: model_terms:ir.ui.view,arch_db:base_import_module.view_base_module_import
@@ -99,7 +118,6 @@ msgstr "Data creazione"
 
 #. module: base_import_module
 #: model:ir.model.fields,field_description:base_import_module.field_base_import_module__display_name
-#: model:ir.model.fields,field_description:base_import_module.field_base_module_uninstall__display_name
 #: model:ir.model.fields,field_description:base_import_module.field_ir_http__display_name
 #: model:ir.model.fields,field_description:base_import_module.field_ir_module_module__display_name
 #: model:ir.model.fields,field_description:base_import_module.field_ir_ui_view__display_name
@@ -119,6 +137,11 @@ msgstr ""
 "\n"
 " %(error_message)s \n"
 "\n"
+
+#. module: base_import_module
+#: model:ir.model.fields,field_description:base_import_module.field_ir_module_module__total_lines_of_code
+msgid "Extra lines of Code"
+msgstr "Righe di codice aggiuntive"
 
 #. module: base_import_module
 #. odoo-python
@@ -145,7 +168,6 @@ msgstr "Instradamento HTTP"
 
 #. module: base_import_module
 #: model:ir.model.fields,field_description:base_import_module.field_base_import_module__id
-#: model:ir.model.fields,field_description:base_import_module.field_base_module_uninstall__id
 #: model:ir.model.fields,field_description:base_import_module.field_ir_http__id
 #: model:ir.model.fields,field_description:base_import_module.field_ir_module_module__id
 #: model:ir.model.fields,field_description:base_import_module.field_ir_ui_view__id
@@ -236,11 +258,6 @@ msgid "Module Type"
 msgstr "Tipo di modulo"
 
 #. module: base_import_module
-#: model:ir.model,name:base_import_module.model_base_module_uninstall
-msgid "Module Uninstall"
-msgstr "Disinstallazione modulo"
-
-#. module: base_import_module
 #: model_terms:ir.ui.view,arch_db:base_import_module.view_base_module_import
 msgid "Module file (.zip)"
 msgstr "File del modulo (.zip)"
@@ -272,6 +289,17 @@ msgid ""
 msgstr ""
 "Nota: puoi importare solo moduli dati (file .xml, file i18n e risorse "
 "statiche)"
+
+#. module: base_import_module
+#: model:ir.model.fields,help:base_import_module.field_ir_module_module__total_lines_of_code
+msgid ""
+"Number of lines of code that may be billed under an Enterprise subscription. "
+"For exact pricing details, please contact your account manager or visit "
+"odoo.com/pricing."
+msgstr ""
+"Numero di righe di codice che possono essere fatturate con un abbonamento "
+"Enterprise. Per i dettagli esatti sui prezzi, contatta il tuo Account "
+"manager o visita odoo.com/pricing."
 
 #. module: base_import_module
 #: model:ir.model.fields.selection,name:base_import_module.selection__ir_module_module__module_type__official
@@ -369,34 +397,5 @@ msgstr "completata"
 msgid "init"
 msgstr "inizializzazione"
 
-#~ msgid "Import App"
-#~ msgstr "Importa App"
-
-#~ msgid "Import module"
-#~ msgstr "Importa Modulo"
-
-#~ msgid "Last Modified on"
-#~ msgstr "Ultima modifica il"
-
-#~ msgid ""
-#~ "Note: you can only import data modules (.xml files and static assets)"
-#~ msgstr ""
-#~ "Nota: è possibile importare solo moduli dati (file .xml e asset statici)"
-
-#~ msgid "Open Modules"
-#~ msgstr "Apri Moduli"
-
-#~ msgid "Select module package to import (.zip file):"
-#~ msgstr "Seleziona il pacchetto per il modulo da importare (.zip file):"
-
-#~ msgid "Studio customizations require Studio"
-#~ msgstr "Le personalizzazioni Studio richiede Studio"
-
-#~ msgid ""
-#~ "Unmet module dependencies: \n"
-#~ "\n"
-#~ " - %s"
-#~ msgstr ""
-#~ "Dipendenze del modulo non soddisfatte: \n"
-#~ "\n"
-#~ " - %s"
+#~ msgid "Module Uninstall"
+#~ msgstr "Disinstallazione modulo"

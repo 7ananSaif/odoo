@@ -1,15 +1,12 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-import logging
 from http import HTTPStatus
 
-import odoo.http
-from odoo.tests import tagged, get_db_name
-from odoo.tests.common import new_test_user, Like
+from odoo.tests import tagged
+from odoo.tests.common import Like, new_test_user
 from odoo.tools import mute_logger
-from odoo.tools.misc import submap
-from odoo.addons.test_http.utils import HtmlTokenizer
 
 from .test_common import TestHttpBase
+from odoo.addons.test_http.utils import HtmlTokenizer
 
 
 @tagged('post_install', '-at_install')
@@ -38,7 +35,7 @@ class TestHttpModels(TestHttpBase):
                     <li><a href="/test_http/1/2">Abydos (P2X-125)</a></li>
                     <li><a href="/test_http/1/3">Dakara (P5C-113)</a></li>
                 </ul>
-                ''')
+                '''),
             )
 
     @mute_logger('odoo.http')
@@ -75,12 +72,10 @@ class TestHttpModels(TestHttpBase):
 
     def test_models4_stargate_setname(self):
         milky_way = self.env.ref('test_http.milky_way')
-
-
         milky_way.invalidate_recordset()
         res = self.url_open(f'/test_http/{milky_way.id}/setname?readonly=0', {
             'name': "Wilky May",
-            'csrf_token': odoo.http.Request.csrf_token(self),
+            'csrf_token': self.csrf_token(),
         })
         res.raise_for_status()
 
@@ -96,7 +91,7 @@ class TestHttpModels(TestHttpBase):
              self.assertLogs('odoo.sql_db', 'WARNING') as capture_sql_db:
             res = self.url_open(f'/test_http/{milky_way.id}/setname?readonly=1', {
                 'name': "Wilky May",
-                'csrf_token': odoo.http.Request.csrf_token(self),
+                'csrf_token': self.csrf_token(),
             })
             res.raise_for_status()
 
@@ -113,36 +108,6 @@ class TestHttpModels(TestHttpBase):
 
     def test_models5_max_upload_too_large(self):
         res = self.url_open('/test_http/1/setname', {
-            'name': "too much data" * 1000  # 1.3kB
+            'name': "too much data" * 1000,  # 1.3kB
         })
         self.assertEqual(res.status_code, HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
-
-    def test_models6_rpc_path_poisoning(self):
-        with self.assertLogs('werkzeug', logging.INFO) as capture:
-            with mute_logger('odoo.addons.rpc.controllers.xmlrpc'):
-                self.xmlrpc_object.execute_kw(
-                    get_db_name(), self.jackoneill.id, 'jackoneill',
-                   'res.users', 'read', [self.jackoneill.id, ['login']]
-                )
-            res = self.url_open('/test_http/wsgi_environ')
-            res.raise_for_status()
-
-        self.assertEqual(capture.output, [
-            Like('..."POST /xmlrpc/2/object#res.users.read HTTP/...'),
-            Like('..."GET /test_http/wsgi_environ HTTP/...'),
-        ], "there must be two requests, the first with a fragment, the second without")
-
-        environ = {
-            "PATH_INFO": "/test_http/wsgi_environ",
-            "QUERY_STRING": "",
-            "REQUEST_URI": "/test_http/wsgi_environ",
-            "RAW_URI": "/test_http/wsgi_environ",
-        }
-        self.assertEqual(
-            submap(res.json(), environ.keys()),
-            environ,
-            "the fragment must not leak in the next request")
-        self.assertNotIn(
-            '#res.users/read',
-            res.text,
-            "the fragment must not leak in the next request")

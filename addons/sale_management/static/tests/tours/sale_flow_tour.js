@@ -1,13 +1,13 @@
 import { registry } from "@web/core/registry";
 import { stepUtils } from "@web_tour/tour_utils";
-import tourUtils from "@sale/js/tours/tour_utils";
+import * as tourUtils from "@sale/js/tours/tour_utils";
 
 registry.category("web_tour.tours").add("test_basic_sale_flow_with_minimal_access_rights", {
     steps: () => [
         ...stepUtils.goToAppSteps("sale.sale_menu_root", "Open the sales app"),
         {
             content: "Check that at least one quotation is present in the view",
-            trigger: ".o_sale_onboarding_list_view .o_data_row",
+            trigger: ".o_data_row",
         },
         ...tourUtils.createNewSalesOrder(),
         ...tourUtils.selectCustomer("partner_a"),
@@ -15,6 +15,10 @@ registry.category("web_tour.tours").add("test_basic_sale_flow_with_minimal_acces
         {
             content: "Wait for the tax to be set by the onchange",
             trigger: ".o_field_many2many_tags[name=tax_ids] .o_tag",
+        },
+        {
+            content: "Wait for the UoM to be set by the onchange",
+            trigger: "td[name=sol_uom] input:value('Dozens')",
         },
         {
             trigger: "button[name=action_confirm]",

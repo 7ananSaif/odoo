@@ -22,3 +22,6 @@ from . import ir_attachment
 from . import ir_ui_menu
 from . import mail_activity_plan
 from . import hr_job_platform
+from . import hr_job_tag
+
+from . import res_groups

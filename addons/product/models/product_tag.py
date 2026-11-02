@@ -52,10 +52,6 @@ class ProductTag(models.Model):
         for tag in self:
             tag.product_ids = tag.product_template_ids.product_variant_ids | tag.product_product_ids
 
-    def copy_data(self, default=None):
-        vals_list = super().copy_data(default=default)
-        return [dict(vals, name=self.env._("%s (copy)", tag.name)) for tag, vals in zip(self, vals_list)]
-
     def _search_product_ids(self, operator, operand):
         if operator in Domain.NEGATIVE_OPERATORS:
             return NotImplemented

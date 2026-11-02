@@ -12,17 +12,25 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-06-06 13:21+0000\n"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 14:32+0000\n"
 "Last-Translator: Bren Driesen <brdri@odoo.com>\n"
-"Language-Team: Dutch <https://translate.odoo.com/projects/odoo-19/digest/nl/>"
-"\n"
+"Language-Team: Dutch <https://translate.odoo.com/projects/odoo-s19-4/digest/"
+"nl/>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: digest
+#: model:ir.module.module,description:base.module_digest
+msgid ""
+"\n"
+"Send KPI Digests periodically\n"
+"=============================\n"
+msgstr ""
 
 #. module: digest
 #: model_terms:ir.ui.view,arch_db:digest.digest_mail_main
@@ -56,7 +64,12 @@ msgstr "Geactiveerd"
 msgid "Add new users as recipient of a periodic email with key metrics"
 msgstr ""
 "Voeg nieuwe gebruikers toe als ontvanger van een periodieke e-mail met "
-"belangrijke metrics"
+"belangrijke statistieken"
+
+#. module: digest
+#: model_terms:ir.ui.view,arch_db:digest.digest_mail_main
+msgid "All Companies"
+msgstr "Alle bedrijven"
 
 #. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_tip__group_id
@@ -114,12 +127,14 @@ msgstr "Verbonden gebruikers"
 
 #. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_digest__create_uid
+#: model:ir.model.fields,field_description:digest.field_digest_test__create_uid
 #: model:ir.model.fields,field_description:digest.field_digest_tip__create_uid
 msgid "Created by"
 msgstr "Aangemaakt door"
 
 #. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_digest__create_date
+#: model:ir.model.fields,field_description:digest.field_digest_test__create_date
 #: model:ir.model.fields,field_description:digest.field_digest_tip__create_date
 msgid "Created on"
 msgstr "Aangemaakt op"
@@ -146,12 +161,14 @@ msgstr "Deactiveren"
 
 #. module: digest
 #: model:ir.model.fields.selection,name:digest.selection__digest_digest__state__deactivated
+#: model_terms:ir.ui.view,arch_db:digest.digest_digest_view_form
 #: model_terms:ir.ui.view,arch_db:digest.digest_digest_view_search
 msgid "Deactivated"
 msgstr "Gedeactiveerd"
 
 #. module: digest
 #: model:ir.model,name:digest.model_digest_digest
+#: model:ir.model.fields,field_description:digest.field_digest_test__digest_id
 msgid "Digest"
 msgstr "Samenvatting"
 
@@ -175,8 +192,12 @@ msgid "Digest Subscriptions"
 msgstr "Samenvatting Abonnementen"
 
 #. module: digest
-#: model:ir.actions.act_window,name:digest.digest_tip_action
 #: model:ir.model,name:digest.model_digest_tip
+msgid "Digest Tip"
+msgstr "Samenvatting Tip"
+
+#. module: digest
+#: model:ir.actions.act_window,name:digest.digest_tip_action
 #: model:ir.ui.menu,name:digest.digest_tip_menu
 msgid "Digest Tips"
 msgstr "Samenvattingstips"
@@ -187,12 +208,37 @@ msgid "Digest Title"
 msgstr "Titel samenvatting"
 
 #. module: digest
+#. odoo-python
+#: code:addons/digest/models/digest.py:0
+msgid "Digest sent!"
+msgstr "Samenvatting verzonden!"
+
+#. module: digest
+#: model:ir.model.fields,field_description:digest.field_res_users__digest_ids
+msgid "Digests"
+msgstr "Samenvattingen"
+
+#. module: digest
+#: model_terms:ir.ui.view,arch_db:digest.digest_test_view_form
+msgid "Discard"
+msgstr "Annuleren"
+
+#. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_digest__display_name
+#: model:ir.model.fields,field_description:digest.field_digest_test__display_name
 #: model:ir.model.fields,field_description:digest.field_digest_tip__display_name
 #: model:ir.model.fields,field_description:digest.field_res_config_settings__display_name
 #: model:ir.model.fields,field_description:digest.field_res_users__display_name
 msgid "Display Name"
-msgstr "Schermnaam"
+msgstr "Weergavenaam"
+
+#. module: digest
+#. odoo-python
+#: code:addons/digest/models/digest.py:0
+msgid "Do not have access, skip this data for user's digest email"
+msgstr ""
+"Geen toegang. Sla deze gegevens over voor de samenvattingsmail van de "
+"gebruiker"
 
 #. module: digest
 #: model_terms:ir.ui.view,arch_db:digest.digest_digest_view_form
@@ -223,6 +269,7 @@ msgstr ""
 
 #. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_digest__id
+#: model:ir.model.fields,field_description:digest.field_digest_test__id
 #: model:ir.model.fields,field_description:digest.field_digest_tip__id
 #: model:ir.model.fields,field_description:digest.field_res_config_settings__id
 #: model:ir.model.fields,field_description:digest.field_res_users__id
@@ -255,6 +302,11 @@ msgstr "KPI-samenvattingstip"
 #: model_terms:ir.ui.view,arch_db:digest.digest_tip_view_tree
 msgid "KPI Digest Tips"
 msgstr "KPI-samenvattingstips"
+
+#. module: digest
+#: model:ir.module.module,shortdesc:base.module_digest
+msgid "KPI Digests"
+msgstr ""
 
 #. module: digest
 #: model_terms:ir.ui.view,arch_db:digest.digest_digest_view_form
@@ -291,12 +343,14 @@ msgstr "Laatste 7 dagen"
 
 #. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_digest__write_uid
+#: model:ir.model.fields,field_description:digest.field_digest_test__write_uid
 #: model:ir.model.fields,field_description:digest.field_digest_tip__write_uid
 msgid "Last Updated by"
 msgstr "Laatst bijgewerkt door"
 
 #. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_digest__write_date
+#: model:ir.model.fields,field_description:digest.field_digest_test__write_date
 #: model:ir.model.fields,field_description:digest.field_digest_tip__write_date
 msgid "Last Updated on"
 msgstr "Laatst bijgewerkt op"
@@ -328,7 +382,7 @@ msgstr ""
 #. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_digest__next_run_date
 msgid "Next Mailing Date"
-msgstr "Volgende mailingdatum"
+msgstr "Volgende verzenddatum"
 
 #. module: digest
 #: model_terms:ir.ui.view,arch_db:digest.digest_section_mobile
@@ -368,6 +422,7 @@ msgstr "Per kwartaal"
 
 #. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_digest__user_ids
+#: model:ir.model.fields,field_description:digest.field_digest_test__user_ids
 #: model:ir.model.fields,field_description:digest.field_digest_tip__user_ids
 #: model_terms:ir.ui.view,arch_db:digest.digest_digest_view_form
 msgid "Recipients"
@@ -379,9 +434,29 @@ msgid "Run your business from anywhere with <b>Odoo Mobile</b>."
 msgstr "Run je bedrijf overal met <b>Odoo Mobiel</b>."
 
 #. module: digest
+#: model:ir.model,name:digest.model_digest_test
+msgid "Sample Digest Wizard"
+msgstr "Wizard voor voorbeeldsamenvatting"
+
+#. module: digest
+#: model_terms:ir.ui.view,arch_db:digest.digest_test_view_form
+msgid "Select Recipients..."
+msgstr "Selecteer ontvangers..."
+
+#. module: digest
+#: model_terms:ir.ui.view,arch_db:digest.digest_test_view_form
+msgid "Send Digest"
+msgstr "Samenvatting verzenden"
+
+#. module: digest
 #: model_terms:ir.ui.view,arch_db:digest.digest_digest_view_form
 msgid "Send Now"
 msgstr "Nu verzenden"
+
+#. module: digest
+#: model_terms:ir.ui.view,arch_db:digest.digest_test_view_form
+msgid "Send a Sample Digest"
+msgstr "Een voorbeeldsamenvatting verzenden"
 
 #. module: digest
 #: model_terms:ir.ui.view,arch_db:digest.digest_mail_main
@@ -403,6 +478,22 @@ msgstr "Status"
 #: code:addons/digest/models/digest.py:0
 msgid "Switch to weekly Digests"
 msgstr "Schakel over naar wekelijkse samenvattingen"
+
+#. module: digest
+#: model_terms:ir.ui.view,arch_db:digest.res_config_settings_view_form
+msgid "Template"
+msgstr ""
+
+#. module: digest
+#: model_terms:ir.ui.view,arch_db:digest.digest_digest_view_form
+msgid "Test"
+msgstr "Test"
+
+#. module: digest
+#. odoo-python
+#: code:addons/digest/models/digest.py:0
+msgid "Test Digest"
+msgstr "Samenvatting testen"
 
 #. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_tip__tip_description
@@ -479,12 +570,11 @@ msgstr "Titel"
 #. module: digest
 #: model_terms:digest.tip,tip_description:digest.digest_tip_digest_3
 msgid ""
-"Type \"@\" to notify someone in a message, or \"#\" to link to a channel. "
-"Try to notify @OdooBot to test the feature."
+"Type \"@\" to notify someone in a message. Try to notify @OdooBot to test "
+"the feature."
 msgstr ""
-"Typ \"@\" om iemand in een bericht op de hoogte te stellen, of \"#\" om naar "
-"een kanaal te linken. Probeer @OdooBot op de hoogte te stellen om de functie "
-"te testen."
+"Typ \"@\" om iemand in een bericht te vermelden. Probeer @OdooBot te "
+"vermelden om de functie te testen."
 
 #. module: digest
 #: model:ir.model.fields,help:digest.field_digest_tip__sequence
@@ -587,15 +677,10 @@ msgstr "per kwartaal"
 msgid "weekly"
 msgstr "wekelijks"
 
-#~ msgid "<span class=\"button\" id=\"button_open_report\">Open Report</span>"
-#~ msgstr ""
-#~ "<span class=\"button\" id=\"button_open_report\">Open rapport</span>"
-
-#~ msgid "<span style=\"color: #8f8f8f;\">Unsubscribe</span>"
-#~ msgstr "<span style=\"color: #8f8f8f;\">Afmelden</span>"
-
-#~ msgid "Group by"
-#~ msgstr "Groepeer op"
-
-#~ msgid "Statistics"
-#~ msgstr "Statistieken"
+msgid ""
+"Type \"@\" to notify someone in a message, or \"#\" to link to a channel. "
+"Try to notify @OdooBot to test the feature."
+msgstr ""
+"Typ \"@\" om iemand in een bericht op de hoogte te stellen, of \"#\" om naar "
+"een kanaal te linken. Probeer @OdooBot op de hoogte te stellen om de functie "
+"te testen."

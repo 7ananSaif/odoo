@@ -1,46 +1,110 @@
-// = Icons
+// Icons
 // ============================================================================
 
+// ================================
+// SCSS VARIABLES
+// ================================
 
-// Sizes
-// ----------------------------------------------------------------------------
-
-$oi-default-size: 1em;   // Normally 13px
+$ms-font-family: 'Material Symbols Outlined';
+$oi-font-family: 'odoo_ui_icons';
+// Icon sizing map
+$icon-sizes: (
+    'sm': 0.8em,
+    'lg': 1.25em,
+    '2x': 2em,
+    '3x': 3em,
+    '4x': 4em,
+    '5x': 5em,
+    '6x': 6em,
+    '7x': 7em,
+    '8x': 8em,
+    '9x': 9em,
+    '10x': 10em,
+);
+$oi-default-size: 1em;   // Normally 14px
 $oi-fw-ratio: 1.28571429; // Matches .fa-fw
 
-$oi-sizes: (
-    'small': (
-        'font-size': .769em,    // ~ 10px
-        'vertical-align': 10%,
-    ),
-    'normal': (
-        'font-size': $oi-default-size,
-    ),
-    'large': (
-        'font-size': 1.315em,   // ~ 17px
-        'vertical-align': -6%,
-    ),
-    'larger': (
-        'font-size': 1.462em,   // ~ 19px
-        'vertical-align': -10%,
-    ),
-);
+// ================================
+// MIXINS
+// ================================
 
-// Force font-weight to normal
-// ----------------------------------------------------------------------------
-.oi, .fa {
-    font-weight: $font-weight-normal;
+@mixin material-icon-base {
+    display: inline-block;
+    font-family: var(--icon-font-family, #{$ms-font-family}) !important;
+    font-style: normal;
+    font-size: var(--oi-font-size, #{$oi-default-size});
+    font-weight: 400 !important;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    white-space: nowrap;
+    word-wrap: normal;
+    /*rtl:ignore*/
+    direction: ltr;
+    speak: never;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    &:before {
+        display: inline-block;
+        content: attr(data-icon);
+        // Geometric precision necessary for WebKit to apply icon ligatures
+        text-rendering: geometricPrecision;
+        // WebKit splits the run at `-`, breaking the ligature
+        word-break: keep-all;
+    }
+
+    &.oi-filled {
+        -webkit-font-variation-settings: 'FILL' 1;
+        font-variation-settings: 'FILL' 1;
+    }
 }
 
-// Define base-classes' properties using CSS variables.
-// Allows to dinamically update rules according to the context and eventual
-// utility classes.
-// ----------------------------------------------------------------------------
-.oi, .fa {
-    &:before {
-        font-size: var(--oi-font-size, $oi-default-size);
-        vertical-align: var(--oi-vertical-align, 0);
-        text-rendering: geometricPrecision;
+// ================================
+// BASE CLASSES
+// ================================
+
+// Generic class for Material Symbols and OI extended library icons.
+.oi {
+    @include material-icon-base;
+    &[data-icon^="oi_"] {
+        --icon-font-family: #{$oi-font-family};
+    }
+    &[data-icon="oi_twitter"]:before {
+        content: "oi_x";
+    }
+    &[data-icon="oi_twitter-square"]:before {
+        content: "oi_x-square";
+    }
+}
+
+.o_rtl .oi {
+    $rtl-selectors: ();
+    @each $icon in $oi-custom-rtl-icons {
+        $rtl-selectors: append($rtl-selectors, unquote('&[data-icon="oi_#{$icon}"]'), comma);
+    }
+    @each $icon in $ms-rtl-icons {
+        $rtl-selectors: append($rtl-selectors, unquote('&[data-icon="#{$icon}"]'), comma);
+    }
+    
+    #{$rtl-selectors} {
+        transform: scaleX(-1);
+    }
+}
+
+
+// ================================
+// UTILITY CLASSES & ADVANCED FEATURES
+// ================================
+
+// Dynamic size generation using SCSS loops
+@each $name, $size in $icon-sizes {
+    .oi-#{$name} {
+        font-size: $size;
+
+        @if $name == 'lg' {
+            vertical-align: middle;
+        }
     }
 }
 
@@ -49,49 +113,66 @@ $oi-sizes: (
     text-align: center;
 }
 
-// Print CSS variables for each size/breakpoint
-// ----------------------------------------------------------------------------
-@each $breakpoint in map-keys($grid-breakpoints) {
-    @include media-breakpoint-up($breakpoint) {
-        $-infix: breakpoint-infix($breakpoint, $grid-breakpoints);
-
-        @each $-key, $-values in $oi-sizes {
-            .oi#{$-infix}-#{$-key} {
-                @each $-rule, $-value in $-values {
-                    @include print-variable('oi-#{$-rule}', $-value);
-                }
-            }
-        }
-    }
+.oi-stack {
+    position: relative;
+    display: inline-block;
+    width: 2em;
+    height: 2em;
+    line-height: 2em;
+    vertical-align: middle;
 }
 
-// Rely on animations already defined by FontAwesome
-// ----------------------------------------------------------------------------
+.oi-stack-1x, .oi-stack-2x {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    text-align: center;
+}
+
+.oi-stack-1x {
+    line-height: inherit;
+}
+
+.oi-stack-2x {
+    font-size: 2em;
+}
+
+// Rotation classes using mixin
+.oi-rotate-90 {
+    transform: rotate(90deg);
+}
+
+.oi-rotate-180 {
+    transform: rotate(180deg);
+}
+
+.oi-rotate-270 {
+    transform: rotate(270deg);
+}
+
+// Flipping classes using mixin
+.oi-flip-horizontal {
+    transform: scaleX(-1);
+}
+
+.oi-flip-vertical {
+    transform: scaleY(-1);
+}
+
+// Spinning animation
 .oi-spin {
-    animation: fa-spin 2s infinite linear;
+    animation: oi-spin 2s infinite linear;
 }
 
 .oi-pulse {
-    animation: fa-spin 1s infinite steps(8);
+    animation: oi-spin 1s infinite steps(8);
 }
 
-.o_barcode {
-    -webkit-mask: url('/web/static/img/barcode.svg') center/contain no-repeat;
-    mask: url('/web/static/img/barcode.svg') center/contain no-repeat;
-    background-color: $o-brand-primary;
-}
-
-.o_fa_stack {
-    display: grid;
-    align-items: baseline;
-    justify-items: center;
-
-    > * {
-        grid-column: 1/-1;
-        grid-row: 1/-1;
+@keyframes oi-spin {
+    0% {
+        transform: rotate(0deg);
     }
-
-    > :first-child {
-        font-size: 2em;
+    100% {
+        transform: rotate(359deg);
     }
 }

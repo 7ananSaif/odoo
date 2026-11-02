@@ -9,16 +9,29 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~11.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-05 19:29+0000\n"
-"PO-Revision-Date: 2018-09-21 13:17+0000\n"
-"Last-Translator: Boško Stojaković <bluesoft83@gmail.com>, 2018\n"
-"Language-Team: Bosnian (https://www.transifex.com/odoo/teams/41243/bs/)\n"
+"POT-Creation-Date: 2026-10-09 17:40+0000\n"
+"PO-Revision-Date: 2026-08-31 17:25+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Bosnian <https://translate.odoo.com/projects/odoo-s19-4/"
+"project_timesheet_holidays/bs/>\n"
 "Language: bs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: project_timesheet_holidays
+#: model:ir.module.module,description:base.module_project_timesheet_holidays
+msgid ""
+"\n"
+"Bridge module to integrate leaves in timesheet\n"
+"================================================\n"
+"\n"
+"This module allows to automatically log timesheets when employees are\n"
+"on leaves. Project and task can be configured company-wide.\n"
+msgstr ""
 
 #. module: project_timesheet_holidays
 #: model:ir.model,name:project_timesheet_holidays.model_account_analytic_line
@@ -32,8 +45,8 @@ msgstr "Retci analitike"
 
 #. module: project_timesheet_holidays
 #: model:ir.model,name:project_timesheet_holidays.model_res_company
-msgid "Companies"
-msgstr "Kompanije"
+msgid "Company"
+msgstr ""
 
 #. module: project_timesheet_holidays
 #: model:ir.model,name:project_timesheet_holidays.model_res_config_settings
@@ -48,6 +61,7 @@ msgstr ""
 #. module: project_timesheet_holidays
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_account_analytic_line__display_name
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_hr_employee__display_name
+#: model:ir.model.fields,field_description:project_timesheet_holidays.field_hr_employee_departure__display_name
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_hr_leave__display_name
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_project_task__display_name
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_res_company__display_name
@@ -62,8 +76,14 @@ msgid "Employee"
 msgstr ""
 
 #. module: project_timesheet_holidays
+#: model:ir.model,name:project_timesheet_holidays.model_hr_employee_departure
+msgid "Employee Departure"
+msgstr ""
+
+#. module: project_timesheet_holidays
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_account_analytic_line__id
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_hr_employee__id
+#: model:ir.model.fields,field_description:project_timesheet_holidays.field_hr_employee_departure__id
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_hr_leave__id
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_project_task__id
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_res_company__id
@@ -94,6 +114,11 @@ msgid "Resource Time Off Detail"
 msgstr ""
 
 #. module: project_timesheet_holidays
+#: model:ir.module.module,summary:base.module_project_timesheet_holidays
+msgid "Schedule timesheet when on time off"
+msgstr ""
+
+#. module: project_timesheet_holidays
 #: model:ir.model,name:project_timesheet_holidays.model_project_task
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_account_analytic_line__task_id
 #: model_terms:ir.ui.view,arch_db:project_timesheet_holidays.res_config_settings_view_form
@@ -104,15 +129,14 @@ msgstr "Zadatak"
 #: model:ir.model.fields,help:project_timesheet_holidays.field_res_config_settings__internal_project_id
 msgid ""
 "The default project used when automatically generating timesheets via time "
-"off requests. You can specify another project on each time off type "
-"individually."
+"off requests. You can specify another project on each time type individually."
 msgstr ""
 
 #. module: project_timesheet_holidays
 #: model:ir.model.fields,help:project_timesheet_holidays.field_res_config_settings__leave_timesheet_task_id
 msgid ""
 "The default task used when automatically generating timesheets via time off "
-"requests. You can specify another task on each time off type individually."
+"requests. You can specify another task on each time type individually."
 msgstr ""
 
 #. module: project_timesheet_holidays
@@ -139,13 +163,32 @@ msgstr ""
 
 #. module: project_timesheet_holidays
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_project_task__leave_types_count
-msgid "Time Off Types Count"
+msgid "Time Types Count"
+msgstr ""
+
+#. module: project_timesheet_holidays
+#: model:ir.module.module,shortdesc:base.module_project_timesheet_holidays
+msgid "Timesheet when on Time Off"
+msgstr ""
+
+#. module: project_timesheet_holidays
+#. odoo-python
+#: code:addons/project_timesheet_holidays/models/account_analytic.py:0
+msgid "Timesheets linked to public holidays cannot be deleted."
 msgstr ""
 
 #. module: project_timesheet_holidays
 #. odoo-python
 #: code:addons/project_timesheet_holidays/models/account_analytic.py:0
 msgid "Timesheets linked to public holidays cannot be modified."
+msgstr ""
+
+#. module: project_timesheet_holidays
+#. odoo-python
+#: code:addons/project_timesheet_holidays/models/account_analytic.py:0
+msgid ""
+"Timesheets related to time off cannot be created or modified. Please manage "
+"your requests in the Time Off app instead."
 msgstr ""
 
 #. module: project_timesheet_holidays
@@ -174,30 +217,8 @@ msgstr ""
 #. odoo-python
 #: code:addons/project_timesheet_holidays/models/account_analytic.py:0
 msgid ""
-"You cannot create timesheets for a task that is linked to a time off type. "
-"Please use the Time Off application to request new time off instead."
-msgstr ""
-
-#. module: project_timesheet_holidays
-#. odoo-python
-#: code:addons/project_timesheet_holidays/models/account_analytic.py:0
-msgid "You cannot delete timesheets that are linked to global time off."
-msgstr ""
-
-#. module: project_timesheet_holidays
-#. odoo-python
-#: code:addons/project_timesheet_holidays/models/account_analytic.py:0
-msgid ""
 "You cannot delete timesheets that are linked to time off requests. Please "
 "cancel your time off request from the Time Off application instead."
-msgstr ""
-
-#. module: project_timesheet_holidays
-#. odoo-python
-#: code:addons/project_timesheet_holidays/models/account_analytic.py:0
-msgid ""
-"You cannot modify timesheets that are linked to time off requests. Please "
-"use the Time Off application to modify your time off requests instead."
 msgstr ""
 
 #. module: project_timesheet_holidays

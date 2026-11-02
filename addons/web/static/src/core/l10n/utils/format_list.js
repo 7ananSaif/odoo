@@ -5,7 +5,7 @@ import { user } from "@web/core/user";
  */
 
 /**
- * Convert Unicode TR35-49 list pattern types to ES Intl.ListFormat options
+ * Maps Unicode UTS-35 list pattern types to Intl.ListFormat options
  */
 const LIST_STYLES = {
     standard: {
@@ -16,6 +16,10 @@ const LIST_STYLES = {
         type: "conjunction",
         style: "short",
     },
+    "standard-narrow": {
+        type: "conjunction",
+        style: "narrow",
+    },
     or: {
         type: "disjunction",
         style: "long",
@@ -23,6 +27,10 @@ const LIST_STYLES = {
     "or-short": {
         type: "disjunction",
         style: "short",
+    },
+    "or-narrow": {
+        type: "disjunction",
+        style: "narrow",
     },
     unit: {
         type: "unit",
@@ -42,18 +50,24 @@ const LIST_STYLES = {
  * Format the items in `values` as a list in a locale-dependent manner with the
  * chosen style.
  *
- * The available styles are defined in the Unicode TR35-49 spec:
+ * The available styles are defined in the Unicode Technical Standard 35:
  * * standard:
  *   A typical "and" list for arbitrary placeholders.
  *   e.g. "January, February, and March"
  * * standard-short:
  *   A short version of an "and" list, suitable for use with short or abbreviated placeholder values.
  *   e.g. "Jan., Feb., and Mar."
+ * * standard-narrow:
+ *   A yet shorter version of a short 'and' list (where possible)
+ *   e.g. "Jan., Feb., Mar."
  * * or:
  *   A typical "or" list for arbitrary placeholders.
  *   e.g. "January, February, or March"
  * * or-short:
  *   A short version of an "or" list.
+ *   e.g. "Jan., Feb., or Mar."
+ * * or-narrow:
+ *   A yet shorter version of a short 'or' list (where possible)
  *   e.g. "Jan., Feb., or Mar."
  * * unit:
  *   A list suitable for wide units.
@@ -67,7 +81,7 @@ const LIST_STYLES = {
  *
  * @see https://www.unicode.org/reports/tr35/tr35-general.html#ListPatterns for more details.
  *
- * @param {Iterable<string>} values values to format into a list.
+ * @param {Iterable<TranslatedString>} values values to format into a list.
  * @param {{
  *  localeCode?: string;
  *  style?: FormatListStyle;

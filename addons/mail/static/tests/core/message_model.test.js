@@ -13,12 +13,12 @@ test("Message model properties", async () => {
     await start();
     const store = getService("mail.store");
     store.Store.insert({
-        self_partner: { id: serverState.partnerId },
+        self_user: { id: serverState.userId, partner_id: serverState.partnerId },
     });
-    store.Thread.insert({
+    store["mail.thread"].insert({
         id: serverState.partnerId,
         model: "res.partner",
-        name: "general",
+        display_name: "general",
     });
     store["ir.attachment"].insert({
         id: 750,
@@ -31,7 +31,7 @@ test("Message model properties", async () => {
         body: markup`<p>Test</p>`,
         date: deserializeDateTime("2019-05-05 10:00:00"),
         id: 4000,
-        starred: true,
+        is_bookmarked: true,
         model: "res.partner",
         thread: { id: serverState.partnerId, model: "res.partner" },
         res_id: serverState.partnerId,
@@ -41,7 +41,7 @@ test("Message model properties", async () => {
     expect(message.id).toBe(4000);
     expect(message.attachment_ids[0].name).toBe("test.txt");
     expect(message.thread.id).toBe(serverState.partnerId);
-    expect(message.thread.name).toBe("general");
+    expect(message.thread.display_name).toBe("general");
     expect(message.author_id.id).toBe(5);
     expect(message.author_id.name).toBe("Demo");
 });

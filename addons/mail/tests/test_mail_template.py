@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 from lxml.etree import LIBXML_VERSION
 from markupsafe import Markup
@@ -11,13 +10,14 @@ from odoo.tools import convert_file, mute_logger
 
 
 @tagged('mail_template')
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestMailTemplate(MailCommon):
 
     @classmethod
     def setUpClass(cls):
         super(TestMailTemplate, cls).setUpClass()
         # Enable the Jinja rendering restriction
-        cls.env['ir.config_parameter'].set_param('mail.restrict.template.rendering', True)
+        cls.env['ir.config_parameter'].set_bool('mail.restrict.template.rendering', True)
         cls.user_employee.group_ids -= cls.env.ref('mail.group_mail_template_editor')
         cls.test_partner = cls.env['res.partner'].create({
             'email': 'test.rendering@test.example.com',
@@ -213,19 +213,19 @@ class TestMailTemplate(MailCommon):
                 employee_template.body_html = '<p t-out="%s"></p>' % expression
 
             with self.assertRaises(AccessError):
-                employee_template.body_html = '<p t-esc="%s"></p>' % expression
+                employee_template.body_html = '<p t-out="%s"></p>' % expression
 
             # try to cheat with the context
             with self.assertRaises(AccessError):
                 employee_template.with_context(raise_on_forbidden_code=False).email_to = '{{ %s }}' % expression
             with self.assertRaises(AccessError):
-                employee_template.with_context(raise_on_forbidden_code=False).body_html = '<p t-esc="%s"></p>' % expression
+                employee_template.with_context(raise_on_forbidden_code=False).body_html = '<p t-out="%s"></p>' % expression
 
             # check that an admin can use the expression
             mail_template.with_user(self.user_admin).email_to = '{{ %s }}' % expression
             mail_template.with_user(self.user_admin).email_to = '{{ %s ||| Bob }}' % expression
             mail_template.with_user(self.user_admin).body_html = '<p t-out="%s">Default</p>' % expression
-            mail_template.with_user(self.user_admin).body_html = '<p t-esc="%s">Default</p>' % expression
+            mail_template.with_user(self.user_admin).body_html = '<p t-out="%s">Default</p>' % expression
 
         # hide qweb code in t-inner-content
         code = '''<t t-inner-content="<p t-out='1+11'>Test</p>"></t>'''
@@ -237,7 +237,7 @@ class TestMailTemplate(MailCommon):
 
         forbidden_qweb_expressions = (
             '<p t-out="partner_id.name"></p>',
-            '<p t-esc="partner_id.name"></p>',
+            '<p t-out="partner_id.name"></p>',
             '<p t-debug=""></p>',
             '<p t-set="x" t-value="object.name"></p>',
             '<p t-set="x" t-value="object.name"></p>',
@@ -291,13 +291,13 @@ class TestMailTemplate(MailCommon):
             self.assertTrue(unsafe_eval.called)
 
         employee_template.email_to = 'Test {{ object.name }}'
-        with patch('odoo.tools.safe_eval.unsafe_eval', side_effect=eval) as unsafe_eval:
+        with patch('odoo.tools.safe_eval.evaluation.unsafe_eval', side_effect=eval) as unsafe_eval:
             employee_template._render_field('email_to', record.ids)
             self.assertFalse(unsafe_eval.called)
 
         # double check that we can detect the eval call
         mail_template.email_to = 'Test {{ 1+1 }}'
-        with patch('odoo.tools.safe_eval.unsafe_eval', side_effect=eval) as unsafe_eval:
+        with patch('odoo.tools.safe_eval.evaluation.unsafe_eval', side_effect=eval) as unsafe_eval:
             mail_template._render_field('email_to', record.ids)
             self.assertTrue(unsafe_eval.called)
 
@@ -351,9 +351,9 @@ class TestMailTemplate(MailCommon):
 
         # cannot write dynamic code on mail_template translation for employee without the group mail_template_editor.
         with self.assertRaises(AccessError):
-            employee_template.with_context(lang='fr_FR').body_html = '<t t-esc="foo"/>'
+            employee_template.with_context(lang='fr_FR').body_html = '<t t-out="foo"/>'
 
-        employee_template.with_context(lang='fr_FR').sudo().body_html = '<t t-esc="foo"/>'
+        employee_template.with_context(lang='fr_FR').sudo().body_html = '<t t-out="foo"/>'
 
         # reset the body_html to static
         employee_template.body_html = False
@@ -453,8 +453,8 @@ class TestMailTemplate(MailCommon):
         self.assertEqual(original_attachments.mapped('res_id'), self.mail_template.ids * 2)
         self.assertEqual(original_attachments.mapped('res_model'), [self.mail_template._name] * 2)
 
-    def test_mail_template_parse_partner_to(self):
-        for partner_to, expected in [
+    def test_mail_template_parse_partner_list_ids(self):
+        for partner_list_ids, expected in [
             ('1', [1]),
             ('1,2,3', [1, 2, 3]),
             ('1, 2,  3', [1, 2, 3]),  # remove spaces
@@ -464,8 +464,8 @@ class TestMailTemplate(MailCommon):
             ('(1, "wrong", 2, "partner_name", "3")', [1, 2, 3]),  # fault tolerant
             ('res.partner(1, 2, 3)', [2]),  # invalid input but avoid crash
         ]:
-            with self.subTest(partner_to=partner_to):
-                parsed = self.mail_template._parse_partner_to(partner_to)
+            with self.subTest(partner_to=partner_list_ids):
+                parsed = self.mail_template._parse_partner_list_ids(partner_list_ids)
                 self.assertListEqual(parsed, expected)
 
     def test_server_archived_usage_protection(self):
@@ -485,6 +485,7 @@ class TestMailTemplate(MailCommon):
 
 
 @tagged('mail_template')
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestMailTemplateReset(MailCommon):
 
     def _load(self, module, filepath):
@@ -568,15 +569,15 @@ class TestMailTemplateReset(MailCommon):
         self.assertEqual(mail_template.with_context(lang='fr_FR').name, 'Mail: Test Mail Template FR')
 
 
-@tagged("mail_template", "-at_install", "post_install")
+@tagged("mail_template")
 class TestMailTemplateUI(HttpCase):
 
-    def test_mail_template_dynamic_placeholder_tour(self):
+    def test_mail_template_dynamic_field_tour(self):
         # keep debug for technical fields visibility
-        self.start_tour('/odoo?debug=1', 'mail_template_dynamic_placeholder_tour', login='admin')
+        self.start_tour('/odoo?debug=1', 'mail_template_dynamic_field_tour', login='admin')
 
 
-@tagged("mail_template", "-at_install", "post_install")
+@tagged("mail_template")
 class TestTemplateConfigRestrictEditor(MailCommon):
 
     def test_switch_icp_value(self):
@@ -591,14 +592,14 @@ class TestTemplateConfigRestrictEditor(MailCommon):
         self.assertIn(group, self.user_employee.all_group_ids)
         self.assertNotIn(group, self.user_employee.group_ids)
 
-        self.env['ir.config_parameter'].set_param('mail.restrict.template.rendering', True)
+        self.env['ir.config_parameter'].set_bool('mail.restrict.template.rendering', True)
         self.assertFalse(self.user_employee.has_group('mail.group_mail_template_editor'))
 
-        self.env['ir.config_parameter'].set_param('mail.restrict.template.rendering', False)
+        self.env['ir.config_parameter'].set_bool('mail.restrict.template.rendering', False)
         self.assertTrue(self.user_employee.has_group('mail.group_mail_template_editor'))
 
 
-@tagged("mail_template", "-at_install", "post_install")
+@tagged("mail_template")
 class TestSearchTemplateCategory(MailCommon):
 
     @classmethod

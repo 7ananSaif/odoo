@@ -10,12 +10,12 @@ describe.current.tags("desktop");
 
 const dropzone = (hovered = false) => {
     const highlightClass = hovered ? " o_dropzone_highlighted" : "";
-    return `<div class="oe_drop_zone oe_insert${highlightClass}" data-editor-message-default="true" data-editor-message="DRAG BUILDING BLOCKS HERE"></div>`;
+    return `<div class="oe_drop_zone oe_insert${highlightClass}" data-editor-message-default="true" data-editor-message="Drag blocks here"></div>`;
 };
 
-test("wrapper element has the 'DRAG BUILDING BLOCKS HERE' message", async () => {
+test("wrapper element has the 'Drag blocks here' message", async () => {
     const { contentEl } = await setupHTMLBuilder("");
-    expect(contentEl).toHaveAttribute("data-editor-message", "DRAG BUILDING BLOCKS HERE");
+    expect(contentEl).toHaveAttribute("data-editor-message", "Drag blocks here");
 });
 
 test("drop beside dropzone inserts the snippet", async () => {
@@ -38,7 +38,7 @@ test("drop beside dropzone inserts the snippet", async () => {
 
 test("snippets cannot be dropped next to elements inside excluded parent", async () => {
     const snippetContent = [
-        `<div name="Image" data-oe-thumbnail="image.svg" data-snippet="s_image">
+        `<div name="Image" data-snippet="s_image">
             <img src="/web/image/test.png" data-snippet="s_image" alt="Test Image"/>
         </div>`,
     ];

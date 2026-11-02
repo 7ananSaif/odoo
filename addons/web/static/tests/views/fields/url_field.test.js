@@ -9,7 +9,7 @@ import {
     models,
     mountView,
     onRpc,
-} from "../../web_test_helpers";
+} from "@web/../tests/web_test_helpers";
 
 class Product extends models.Model {
     url = fields.Char();

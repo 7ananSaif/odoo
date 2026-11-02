@@ -52,7 +52,7 @@ patch(Checkout.prototype, {
      * @return {void}
      */
     _adaptDeliveryTitles() {
-        const checkedRadio = document.querySelector('input[name="o_delivery_radio"]:checked');
+        const checkedRadio = this._getSelectedDeliveryRadio();
         if (!checkedRadio || !this.deliveryAddressTitle || !this.useDeliveryAsBillingLabel) {
             return;
         }
@@ -66,16 +66,41 @@ patch(Checkout.prototype, {
     },
 
     /**
-     * Remove a warning if available pickup location is selected.
+     * Add country selector specific data to location selector.
      *
      * @override method from `@website_sale/interactions/checkout`
      */
-    _updatePickupLocation(button, location, jsonLocation) {
+    _prepareLocationDialogData(dataset) {
+        const {
+            countryCode,
+            deliveryMethodId,
+            deliveryMethodType,
+        } = dataset;
+        const superDialogData = super._prepareLocationDialogData(dataset);
+        if (deliveryMethodType === 'in_store') {
+            return {
+                ...superDialogData,
+                countryCode: countryCode,
+                deliveryMethodId: parseInt(deliveryMethodId),
+                deliveryMethodType: deliveryMethodType,
+            };
+        }
+        return superDialogData;
+
+    },
+
+    /**
+     * Reload the page after setting the pickup location if the delivery method is in_store to
+     * update the warning message.
+     *
+     * @override method from `@website_sale/interactions/checkout`
+     */
+    _updatePickupLocation(button, locationData, jsonLocation) {
         super._updatePickupLocation(...arguments);
         const dmContainer = this._getDeliveryMethodContainer(button);
         const radio = dmContainer.querySelector('[name="o_delivery_radio"]');
         if (radio.dataset.deliveryType === 'in_store') {
-            dmContainer.querySelector('[name="unavailable_products_warning"]')?.remove();
+            location.reload();
         }
     },
 
@@ -89,7 +114,7 @@ patch(Checkout.prototype, {
         if (this.dmRadios.length === 0) { // If there are no delivery methods.
             return super._isDeliveryMethodReady(...arguments); // Skip override.
         }
-        const checkedRadio = this.el.querySelector('input[name="o_delivery_radio"]:checked');
+        const checkedRadio = this._getSelectedDeliveryRadio();
         let hasWarning = false;
         if (checkedRadio) {
             const deliveryContainer = this._getDeliveryMethodContainer(checkedRadio);

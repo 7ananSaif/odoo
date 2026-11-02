@@ -1,33 +1,42 @@
-import { Component, onMounted, onWillUnmount, useState } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount, proxy, types, usePlugin, useProps } from "@odoo/owl";
 
 import { browser } from "@web/core/browser/browser";
 import { _t } from "@web/core/l10n/translation";
+import { rpc } from "@web/core/network/rpc";
 import { useService } from "@web/core/utils/hooks";
 
 import { CONNECTION_TYPES } from "@mail/discuss/call/common/rtc_service";
+import { DebugModePlugin } from "@web/core/debug_mode_plugin";
 
 const PROTOCOLS_TEXT = { host: "HOST", srflx: "STUN", prflx: "STUN", relay: "TURN" };
 
 export class CallContextMenu extends Component {
-    static props = ["rtcSession", "close?"];
     static template = "discuss.CallContextMenu";
+
+    debugMode = usePlugin(DebugModePlugin);
 
     updateStatsTimeout;
     rtcConnectionTypes = CONNECTION_TYPES;
+    /** @type {import("models").Rtc} */
+    rtc;
 
     setup() {
         super.setup();
         this.store = useService("mail.store");
+        this.ui = useService("ui");
+        this.props = useProps({
+            rtcSession: types.instanceOf(this.store["discuss.channel.rtc.session"]),
+        });
         this.rtc = useService("discuss.rtc");
-        this.state = useState({
+        this.state = proxy({
             downloadStats: {},
             uploadStats: {},
             producerStats: {},
             peerStats: {},
-            rangeVolume: this.volume,
+            rangeVolume: this.props.rtcSession.getEffectiveVolume(),
         });
         onMounted(() => {
-            if (!this.env.debug) {
+            if (!this.debugMode.isActive()) {
                 return;
             }
             this.updateStats();
@@ -40,9 +49,58 @@ export class CallContextMenu extends Component {
         return this.rtc.selfSession?.eq(this.props.rtcSession);
     }
 
+    get channel() {
+        return this.props.rtcSession.channel;
+    }
+
+    /** @returns {boolean} whether this participant is pinned to the main window. */
+    get isPinned() {
+        return this.props.rtcSession.eq(this.channel?.pinnedRtcSession);
+    }
+
+    /** @returns {boolean} whether this participant is muted locally, for the current user only. */
+    get isLocallyMuted() {
+        return this.props.rtcSession.isLocallyMuted;
+    }
+
+    /** @returns label for the volume-icon mute toggle, reflecting the current state. */
+    get muteLabel() {
+        return this.isLocallyMuted ? _t("Unmute") : _t("Mute");
+    }
+
+    /**
+     * @returns {boolean} whether the current user may remove other participants from the call, i.e.
+     *  is the channel owner/admin or a system administrator.
+     */
+    get canModerate() {
+        const role = this.channel?.self_member_id?.channel_role;
+        return Boolean(this.store.self_user?.is_admin || role === "owner" || role === "admin");
+    }
+
+    onClickRemoveFromCall() {
+        const channelId = this.channel.id;
+        const memberId = this.props.rtcSession.channel_member_id.id;
+        rpc("/mail/rtc/channel/remove_member_from_call", {
+            channel_id: channelId,
+            member_id: memberId,
+        });
+    }
+
+    togglePin() {
+        if (this.isPinned) {
+            this.channel?.unpin();
+        } else {
+            this.channel?.pin(this.props.rtcSession);
+        }
+    }
+
+    toggleLocallyMute() {
+        this.props.rtcSession.isLocallyMuted = !this.props.rtcSession.isLocallyMuted;
+    }
+
     get inboundConnectionTypeText() {
         const candidateType =
-            this.rtc.state.connectionType === CONNECTION_TYPES.SERVER
+            this.rtc.connectionType === CONNECTION_TYPES.SERVER
                 ? this.state.downloadStats.remoteCandidateType
                 : this.state.peerStats.remoteCandidateType;
         return this.formatProtocol(candidateType);
@@ -50,19 +108,15 @@ export class CallContextMenu extends Component {
 
     get outboundConnectionTypeText() {
         const candidateType =
-            this.rtc.state.connectionType === CONNECTION_TYPES.SERVER
+            this.rtc.connectionType === CONNECTION_TYPES.SERVER
                 ? this.state.uploadStats.localCandidateType
                 : this.state.peerStats.localCandidateType;
         return this.formatProtocol(candidateType);
     }
 
-    get volume() {
-        return this.store.settings.getVolume(this.props.rtcSession);
-    }
-
     /**
      * @param {string} candidateType
-     * @returns {string} a formatted string that describes the connection type e.g: "prflx (STUN)"
+     * @returns a formatted string that describes the connection type e.g: "prflx (STUN)"
      */
     formatProtocol(candidateType) {
         if (!candidateType) {

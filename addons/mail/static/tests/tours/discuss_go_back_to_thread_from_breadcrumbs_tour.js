@@ -2,10 +2,15 @@ import { registry } from "@web/core/registry";
 
 registry.category("web_tour.tours").add("discuss_go_back_to_thread_from_breadcrumbs.js", {
     steps: () => [
-        { trigger: ".o-mail-DiscussContent-threadName[title='Inbox']" },
-        { trigger: ".o-mail-DiscussSidebar-item:contains('Starred messages')", run: "click" },
-        { trigger: "button[title='View or join channels']:not(:visible)", run: "click" },
-        { trigger: ".breadcrumb-item:contains('Starred messages')", run: "click" },
-        { trigger: ".o-mail-DiscussContent-threadName[title='Starred messages']" },
+        { trigger: ".o-mail-DiscussContent-threadName[title='Channel A']" },
+        {
+            trigger:
+                ".o-mail-MessagingMenuItem:has(:text('Channel B')) button[title='Channel Actions']:not(:visible)",
+            run: "click",
+        },
+        { trigger: ".o-dropdown-item:text('Advanced Settings')", run: "click" },
+        { trigger: ".o_last_breadcrumb_item:text('Channel B')" },
+        { trigger: ".breadcrumb-item:text('Channel A')", run: "click" },
+        { trigger: ".o-mail-DiscussContent-threadName[title='Channel A']" },
     ],
 });

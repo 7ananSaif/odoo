@@ -5,7 +5,7 @@ import { isLoadingError } from "@spreadsheet/o_spreadsheet/errors";
 import { OdooSpreadsheetModel } from "@spreadsheet/model";
 import { OdooDataProvider } from "@spreadsheet/data_sources/odoo_data_provider";
 
-const { formatValue, isDefined, toCartesian, toXC } = helpers;
+const { formatValue, isDefined, toCartesian, toXC, addStyleToWorkbookData } = helpers;
 import {
     isMarkdownViewUrl,
     isMarkdownIrMenuIdUrl,
@@ -59,6 +59,7 @@ export async function waitForOdooSources(model) {
  * @returns {Promise<void>}
  */
 export async function waitForDataLoaded(model) {
+    await model.getters.loadUsedGeoJsonFeatures();
     await waitForOdooSources(model);
     const odooDataProvider = model.config.custom.odooDataProvider;
     if (!odooDataProvider) {
@@ -93,7 +94,8 @@ function containsLinkToOdoo(link) {
  */
 export async function freezeOdooData(model) {
     await waitForDataLoaded(model);
-    const data = model.exportData();
+    const data = model._exportData(false);
+    //TODO: rewrite with normal export and squished positions ?
     for (const sheet of Object.values(data.sheets)) {
         sheet.formats ??= {};
         for (const [xc, content] of Object.entries(sheet.cells)) {
@@ -102,6 +104,7 @@ export async function freezeOdooData(model) {
             const position = { sheetId, col, row };
             const evaluatedCell = model.getters.getEvaluatedCell(position);
             if (containsOdooFunction(content)) {
+                freezeDynamicTable(model, position, data);
                 const pivotId = model.getters.getPivotIdFromPosition(position);
                 if (pivotId && model.getters.getPivotCoreDefinition(pivotId).type !== "ODOO") {
                     continue;
@@ -136,7 +139,7 @@ export async function freezeOdooData(model) {
         for (const figure of sheet.figures) {
             if (
                 figure.tag === "chart" &&
-                (figure.data.type.startsWith("odoo_") || figure.data.type === "geo")
+                (figure.data.dataSource?.type === "odoo" || figure.data.type === "geo")
             ) {
                 const img = odooChartToImage(model, figure, figure.data.chartId);
                 figure.tag = "image";
@@ -151,7 +154,8 @@ export async function freezeOdooData(model) {
                     }
                     const chartDefinition = model.getters.getChartDefinition(item.chartId);
                     return (
-                        chartDefinition.type.startsWith("odoo_") || chartDefinition.type === "geo"
+                        chartDefinition.dataSource?.type === "odoo" ||
+                        chartDefinition.type === "geo"
                     );
                 });
                 if (hasImageChart) {
@@ -191,7 +195,7 @@ function exportGlobalFiltersToSheet(model, data) {
     model.getters.exportSheetWithActiveFilters(data);
     const locale = model.getters.getLocale();
     for (const filter of data.globalFilters) {
-        const content = model.getters.getFilterDisplayValue(filter.label);
+        const content = model.getters.getFilterDisplayValue(filter);
         filter["value"] = content
             .flat()
             .filter(isDefined)
@@ -313,3 +317,40 @@ const backgroundColorPlugin = {
         ctx.restore();
     },
 };
+
+function freezeDynamicTable(model, position, data) {
+    const sheetId = position.sheetId;
+    const coreTable = model.getters.getCoreTable(position);
+    const table = model.getters.getTable(position);
+    if (!table || (coreTable?.type !== "dynamic" && !table.isPivotTable)) {
+        return;
+    }
+    const tableZone = table.range.zone;
+    const xc = toXC(tableZone.left, tableZone.top);
+
+    const sheetData = data.sheets.find((sheet) => sheet.id === sheetId);
+    const tableIndex = sheetData?.tables?.findIndex((t) => t.range === xc);
+    if (!sheetData) {
+        return;
+    }
+    // Pivot tables won't have a table in the data
+    if (sheetData.tables && tableIndex !== -1) {
+        sheetData.tables.splice(tableIndex, 1);
+    }
+
+    const { left, right, top, bottom } = table.range.zone;
+    for (let row = top; row <= bottom; row++) {
+        for (let col = left; col <= right; col++) {
+            const position = { sheetId, col, row };
+
+            const style = {
+                ...model.getters.getCellTableStyle(position),
+                ...model.getters.getCell(position)?.style,
+            };
+            addStyleToWorkbookData(data, "styles", position, style);
+
+            const border = model.getters.getCellComputedBorder(position);
+            addStyleToWorkbookData(data, "borders", position, border);
+        }
+    }
+}

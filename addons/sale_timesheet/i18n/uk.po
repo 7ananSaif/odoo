@@ -3,29 +3,29 @@
 # * sale_timesheet
 #
 # Translators:
-# Alina Lisnenko <alina.lisnenko@erp.co.ua>, 2023, 2026.
+# Alina Lisnenko <alina.lisnenko@erp.co.ua>, 2023
 # Martin Trigaux, 2023
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
-# Lohushchenko <nadiia.lohushchenko@self-erp.com>, 2026.
+# Odoo Translation Bot <c3p@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2026-04-01 09:33+0000\n"
-"Last-Translator: Alina Lisnenko <alina.lisnenko@erp.co.ua>\n"
-"Language-Team: Ukrainian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-10-09 17:40+0000\n"
+"PO-Revision-Date: 2026-08-31 19:49+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Ukrainian <https://translate.odoo.com/projects/odoo-s19-4/"
 "sale_timesheet/uk/>\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
-"Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n % 10 == 1 && n % 100 != 11 "
-"? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > "
-"14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || (n % "
-"100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
-"X-Generator: Weblate 5.16.2\n"
+"Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n % 10 == 1 && n % 100 != "
+"11 ? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % "
+"100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || "
+"(n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: sale_timesheet
 #. odoo-python
@@ -79,8 +79,20 @@ msgstr ""
 "            "
 
 #. module: sale_timesheet
+#: model:ir.module.module,description:base.module_sale_timesheet
+msgid ""
+"\n"
+"Allows to sell timesheets in your sales order\n"
+"=============================================\n"
+"\n"
+"This module set the right product on all timesheet lines\n"
+"according to the order/contract you work on. This allows to\n"
+"have real delivered quantities in sales orders.\n"
+msgstr ""
+
+#. module: sale_timesheet
 #. odoo-python
-#: code:addons/sale_timesheet/models/hr_timesheet.py:0
+#: code:addons/sale_timesheet/models/account_analytic_line.py:0
 msgid ""
 "'%(missing_plan_names)s' analytic plan(s) required on the analytic "
 "distribution of the sale order item '%(so_line_name)s' linked to the "
@@ -88,9 +100,9 @@ msgid ""
 msgstr ""
 
 #. module: sale_timesheet
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_sale_page
-msgid "- Timesheet product"
-msgstr "- Товар табеля"
+#: model:ir.actions.report,print_report_name:sale_timesheet.timesheet_report_account_move
+msgid "('%s Timesheets' % (object.name))"
+msgstr ""
 
 #. module: sale_timesheet
 #: model_terms:hr.job,job_details:sale_timesheet.job_engineer
@@ -149,21 +161,13 @@ msgstr ""
 #. module: sale_timesheet
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.project_project_view_form
 msgid ""
-"<i class=\"fa fa-lightbulb-o\"/>\n"
+"<i class=\"oi\" data-icon=\"lightbulb\"/>\n"
 "                        <span>\n"
 "                            Define the rate at which an employee's time is "
 "billed based on their expertise, skills, or experience.\n"
 "                            To bill the same service at a different rate, "
 "create separate sales order items.\n"
 "                        </span>"
-msgstr ""
-
-#. module: sale_timesheet
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.hr_timesheet_line_form_inherit
-msgid ""
-"<span class=\"fa fa-exclamation-triangle text-warning\" title=\"The sales "
-"order associated with this timesheet entry has been cancelled.\" "
-"invisible=\"sale_order_state != 'cancel'\"/>"
 msgstr ""
 
 #. module: sale_timesheet
@@ -181,6 +185,14 @@ msgstr "<span class=\"o_stat_text\">Записано</span>"
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.hr_timesheet_line_form_inherit
 msgid "<span class=\"o_stat_text\">Sales Order</span>"
 msgstr "<span class=\"o_stat_text\">Замовлення на продаж</span>"
+
+#. module: sale_timesheet
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.hr_timesheet_line_form_inherit
+msgid ""
+"<span class=\"oi text-warning\" data-icon=\"warning\" title=\"The sales "
+"order associated with this timesheet entry has been cancelled.\" "
+"invisible=\"sale_order_state != 'cancel'\"/>"
+msgstr ""
 
 #. module: sale_timesheet
 #: model_terms:hr.job,job_details:sale_timesheet.job_engineer
@@ -204,37 +216,49 @@ msgid "<span class=\"text-muted small\">Time to Answer</span>"
 msgstr "<span class=\"text-muted small\">Час на відповідь</span>"
 
 #. module: sale_timesheet
-#: model_terms:hr.job,website_description:sale_timesheet.job_engineer
-#: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
-#: model_terms:hr.job,website_description:sale_timesheet.job_labour
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.project_project_view_form
+msgid ""
+"<span class=\"text-muted\">Timesheets without a sales order item are "
+"reported as </span>"
+msgstr ""
+
+#. module: sale_timesheet
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.report_timesheet_sale_timesheet
+msgid "<span>Sales Order Item: </span>"
+msgstr ""
+
+#. module: sale_timesheet
+#: model_terms:hr.job,website_rating:sale_timesheet.job_engineer
+#: model_terms:hr.job,website_rating:sale_timesheet.job_interior_designer
+#: model_terms:hr.job,website_rating:sale_timesheet.job_labour
 msgid "<strong class=\"s_rating_title\">Administrative Work</strong>"
 msgstr ""
 
 #. module: sale_timesheet
-#: model_terms:hr.job,website_description:sale_timesheet.job_engineer
-#: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
-#: model_terms:hr.job,website_description:sale_timesheet.job_labour
+#: model_terms:hr.job,website_rating:sale_timesheet.job_engineer
+#: model_terms:hr.job,website_rating:sale_timesheet.job_interior_designer
+#: model_terms:hr.job,website_rating:sale_timesheet.job_labour
 msgid "<strong class=\"s_rating_title\">Autonomy</strong>"
 msgstr ""
 
 #. module: sale_timesheet
-#: model_terms:hr.job,website_description:sale_timesheet.job_engineer
-#: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
-#: model_terms:hr.job,website_description:sale_timesheet.job_labour
+#: model_terms:hr.job,website_rating:sale_timesheet.job_engineer
+#: model_terms:hr.job,website_rating:sale_timesheet.job_interior_designer
+#: model_terms:hr.job,website_rating:sale_timesheet.job_labour
 msgid "<strong class=\"s_rating_title\">Customer Relationship</strong>"
 msgstr ""
 
 #. module: sale_timesheet
-#: model_terms:hr.job,website_description:sale_timesheet.job_engineer
-#: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
-#: model_terms:hr.job,website_description:sale_timesheet.job_labour
+#: model_terms:hr.job,website_rating:sale_timesheet.job_engineer
+#: model_terms:hr.job,website_rating:sale_timesheet.job_interior_designer
+#: model_terms:hr.job,website_rating:sale_timesheet.job_labour
 msgid "<strong class=\"s_rating_title\">Personal Evolution</strong>"
 msgstr ""
 
 #. module: sale_timesheet
-#: model_terms:hr.job,website_description:sale_timesheet.job_engineer
-#: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
-#: model_terms:hr.job,website_description:sale_timesheet.job_labour
+#: model_terms:hr.job,website_rating:sale_timesheet.job_engineer
+#: model_terms:hr.job,website_rating:sale_timesheet.job_interior_designer
+#: model_terms:hr.job,website_rating:sale_timesheet.job_labour
 msgid "<strong class=\"s_rating_title\">Technical Expertise</strong>"
 msgstr ""
 
@@ -259,7 +283,7 @@ msgid "<strong>Sales Order:</strong>"
 msgstr "<strong>Замовлення на продаж:</strong>"
 
 #. module: sale_timesheet
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.portal_timesheet_table_inherit
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.portal_timesheet_table_with_total_inherit
 msgid "<strong>Time Remaining on SO: </strong>"
 msgstr ""
 
@@ -279,21 +303,8 @@ msgid ""
 "  - Analytic From expenses: the quantity is the quantity sum from posted "
 "expenses\n"
 "  - Timesheet: the quantity is the sum of hours recorded on tasks linked to "
-"this sale line\n"
+"this line\n"
 "  - Stock Moves: the quantity comes from confirmed pickings\n"
-msgstr ""
-"Відповідно до налаштування товару, доставлена кількість може автоматично "
-"обчислюватися за допомогою одного з механізмів:\n"
-"- Вручну: кількість встановлюється вручну на рядку\n"
-"- Аналітика з витрат: кількість - сума від проведених витрат\n"
-"- Табель: кількість - це сума годин, записаних на завданні, пов'язаному з "
-"цим рядком продажу\n"
-"- Складські переміщення: кількість надходить від підтверджених "
-"комплектувань\n"
-
-#. module: sale_timesheet
-#: model:ir.model,name:sale_timesheet.model_account_move_reversal
-msgid "Account Move Reversal"
 msgstr ""
 
 #. module: sale_timesheet
@@ -341,25 +352,23 @@ msgid "Analytic lines"
 msgstr "Рядки аналітики"
 
 #. module: sale_timesheet
-#: model_terms:hr.job,website_description:sale_timesheet.job_engineer
-#: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
-#: model_terms:hr.job,website_description:sale_timesheet.job_labour
+#: model_terms:hr.job,description:sale_timesheet.job_engineer
+#: model_terms:hr.job,description:sale_timesheet.job_interior_designer
+#: model_terms:hr.job,description:sale_timesheet.job_labour
 msgid ""
 "As an employee of our company, you will <b>collaborate with each department\n"
-"                        to create and deploy disruptive products.</b> Come "
-"work at a growing company\n"
-"                        that offers great benefits with opportunities to "
-"moving forward and learn\n"
-"                        alongside accomplished leaders. We're seeking an "
-"experienced and outstanding\n"
-"                        member of staff.\n"
-"                        <br><br>\n"
-"                        This position is both <b>creative and rigorous</b> "
-"by nature you need to think\n"
-"                        outside the box. We expect the candidate to be "
-"proactive and have a \"get it done\"\n"
-"                        spirit. To be successful, you will have solid "
-"solving problem skills."
+"to create and deploy disruptive products.</b> Come work at a growing "
+"company\n"
+"that offers great benefits with opportunities to moving forward and learn\n"
+"alongside accomplished leaders. We're seeking an experienced and "
+"outstanding\n"
+"member of staff.\n"
+"<br><br>\n"
+"This position is both <b>creative and rigorous</b> by nature you need to "
+"think\n"
+"outside the box. We expect the candidate to be proactive and have a \"get it "
+"done\"\n"
+"spirit. To be successful, you will have solid solving problem skills."
 msgstr ""
 
 #. module: sale_timesheet
@@ -377,6 +386,7 @@ msgstr "На основі табелів"
 
 #. module: sale_timesheet
 #: model:ir.model.fields,field_description:sale_timesheet.field_account_analytic_line__allow_billable
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_view_search
 msgid "Billable"
 msgstr "Виставляється у рахунку"
 
@@ -386,42 +396,9 @@ msgid "Billable Time"
 msgstr "Оплачуваний час"
 
 #. module: sale_timesheet
-#: model:ir.model.fields,field_description:sale_timesheet.field_account_analytic_line__timesheet_invoice_type
-#: model:ir.model.fields,field_description:sale_timesheet.field_timesheets_analysis_report__timesheet_invoice_type
+#: model:ir.model.fields,field_description:sale_timesheet.field_timesheets_analysis_report__billable_type
 msgid "Billable Type"
 msgstr "Оплачуваний тип"
-
-#. module: sale_timesheet
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__account_analytic_line__timesheet_invoice_type__billable_manual
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__timesheets_analysis_report__timesheet_invoice_type__billable_manual
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_view_search
-msgid "Billed Manually"
-msgstr "Виставлення рахунку вручну"
-
-#. module: sale_timesheet
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_view_search
-msgid "Billed at a Fixed Price"
-msgstr "Виставлено рахунок на фіксовану ціну"
-
-#. module: sale_timesheet
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__account_analytic_line__timesheet_invoice_type__billable_fixed
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__timesheets_analysis_report__timesheet_invoice_type__billable_fixed
-msgid "Billed at a Fixed price"
-msgstr "Виставлено рахунок на фіксовану ціну"
-
-#. module: sale_timesheet
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__account_analytic_line__timesheet_invoice_type__billable_milestones
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__timesheets_analysis_report__timesheet_invoice_type__billable_milestones
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_view_search
-msgid "Billed on Milestones"
-msgstr "Виставлення рахунку по віхам"
-
-#. module: sale_timesheet
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__account_analytic_line__timesheet_invoice_type__billable_time
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__timesheets_analysis_report__timesheet_invoice_type__billable_time
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_view_search
-msgid "Billed on Timesheets"
-msgstr "Виставлено рахунок на табелях"
 
 #. module: sale_timesheet
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.res_config_settings_view_form
@@ -497,11 +474,6 @@ msgid "Customer Care (Prepaid Hours)"
 msgstr "Обслуговування клієнтів (Передплачені години)"
 
 #. module: sale_timesheet
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.project_project_view_kanban_inherit_sale_timesheet
-msgid "Customer Ratings"
-msgstr "Оцінювання клієнта"
-
-#. module: sale_timesheet
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.portal_my_timesheets_inherit
 msgid "Days Ordered,"
 msgstr "Замовлені дні,"
@@ -523,7 +495,9 @@ msgstr "Дізнайтеся більше про наші товари."
 #: model:ir.model.fields,field_description:sale_timesheet.field_account_move__display_name
 #: model:ir.model.fields,field_description:sale_timesheet.field_account_move_line__display_name
 #: model:ir.model.fields,field_description:sale_timesheet.field_account_move_reversal__display_name
+#: model:ir.model.fields,field_description:sale_timesheet.field_account_move_send__display_name
 #: model:ir.model.fields,field_description:sale_timesheet.field_hr_employee__display_name
+#: model:ir.model.fields,field_description:sale_timesheet.field_hr_employee_departure__display_name
 #: model:ir.model.fields,field_description:sale_timesheet.field_product_product__display_name
 #: model:ir.model.fields,field_description:sale_timesheet.field_product_template__display_name
 #: model:ir.model.fields,field_description:sale_timesheet.field_project_project__display_name
@@ -580,6 +554,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:sale_timesheet.field_project_sale_line_employee_map__employee_id
 msgid "Employee"
 msgstr "Співробітник"
+
+#. module: sale_timesheet
+#: model:ir.model,name:sale_timesheet.model_hr_employee_departure
+msgid "Employee Departure"
+msgstr ""
 
 #. module: sale_timesheet
 #: model:ir.model.fields.selection,name:sale_timesheet.selection__project_project__pricing_type__employee_rate
@@ -673,7 +652,9 @@ msgstr "Годин залишилось)"
 #: model:ir.model.fields,field_description:sale_timesheet.field_account_move__id
 #: model:ir.model.fields,field_description:sale_timesheet.field_account_move_line__id
 #: model:ir.model.fields,field_description:sale_timesheet.field_account_move_reversal__id
+#: model:ir.model.fields,field_description:sale_timesheet.field_account_move_send__id
 #: model:ir.model.fields,field_description:sale_timesheet.field_hr_employee__id
+#: model:ir.model.fields,field_description:sale_timesheet.field_hr_employee_departure__id
 #: model:ir.model.fields,field_description:sale_timesheet.field_product_product__id
 #: model:ir.model.fields,field_description:sale_timesheet.field_product_template__id
 #: model:ir.model.fields,field_description:sale_timesheet.field_project_project__id
@@ -701,12 +682,11 @@ msgstr ""
 #. module: sale_timesheet
 #. odoo-python
 #: code:addons/sale_timesheet/controllers/portal.py:0
-#: code:addons/sale_timesheet/models/hr_timesheet.py:0
-#: model:ir.model.fields,field_description:sale_timesheet.field_account_analytic_line__timesheet_invoice_id
-#: model:ir.model.fields,field_description:sale_timesheet.field_timesheets_analysis_report__timesheet_invoice_id
+#: code:addons/sale_timesheet/models/account_analytic_line.py:0
+#: model:ir.model.fields,field_description:sale_timesheet.field_timesheets_analysis_report__reinvoice_move_id
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.portal_my_timesheets_inherit
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.report_timesheet_account_move
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_view_search
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_sale_page
 msgid "Invoice"
 msgstr "Рахунок"
 
@@ -722,8 +702,7 @@ msgid "Invoice based on timesheets (delivered quantity)."
 msgstr ""
 
 #. module: sale_timesheet
-#: model:ir.model.fields,help:sale_timesheet.field_account_analytic_line__timesheet_invoice_id
-#: model:ir.model.fields,help:sale_timesheet.field_timesheets_analysis_report__timesheet_invoice_id
+#: model:ir.model.fields,help:sale_timesheet.field_timesheets_analysis_report__reinvoice_move_id
 msgid "Invoice created from the timesheet"
 msgstr "Рахунок, створений з табелю"
 
@@ -752,6 +731,11 @@ msgstr "Чи відредаговано вручну рядок замовлен
 #: model:ir.model,name:sale_timesheet.model_account_move
 msgid "Journal Entry"
 msgstr "Запис у журналі"
+
+#. module: sale_timesheet
+#: model:ir.model,name:sale_timesheet.model_account_move_reversal
+msgid "Journal Entry Reversal"
+msgstr ""
 
 #. module: sale_timesheet
 #: model:ir.model,name:sale_timesheet.model_account_move_line
@@ -821,12 +805,6 @@ msgid "Master demos of our software"
 msgstr "Помічник демо нашого програмного забезпечення"
 
 #. module: sale_timesheet
-#. odoo-python
-#: code:addons/sale_timesheet/models/project_project.py:0
-msgid "Materials"
-msgstr "Матеріали"
-
-#. module: sale_timesheet
 #: model:ir.model.fields,field_description:sale_timesheet.field_sale_order_line__qty_delivered_method
 msgid "Method to update delivered qty"
 msgstr "Метод оновлення доставленої кількості"
@@ -835,6 +813,11 @@ msgstr "Метод оновлення доставленої кількості"
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.product_template_view_search_sale_timesheet
 msgid "Milestone services"
 msgstr "Сервісні центри"
+
+#. module: sale_timesheet
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.hr_timesheet_line_search
+msgid "Mine"
+msgstr ""
 
 #. module: sale_timesheet
 #: model_terms:hr.job,website_description:sale_timesheet.job_engineer
@@ -896,8 +879,6 @@ msgstr ""
 "Не витрачайте час на корпоративні процеси, реальні обов'язки та автономність"
 
 #. module: sale_timesheet
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__account_analytic_line__timesheet_invoice_type__non_billable
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__timesheets_analysis_report__timesheet_invoice_type__non_billable
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_view_search
 msgid "Non-Billable"
 msgstr "Не виставляється у рахунок"
@@ -923,6 +904,13 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.portal_my_timesheets_inherit
 msgid "Not Billed"
 msgstr "Не у рахунку"
+
+#. module: sale_timesheet
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.view_product_timesheet_form
+msgid ""
+"Notify the salesperson about an upsell opportunity when completed work "
+"exceeds"
+msgstr ""
 
 #. module: sale_timesheet
 #: model:ir.model.fields,help:sale_timesheet.field_timesheets_analysis_report__timesheet_revenues
@@ -955,21 +943,9 @@ msgstr ""
 "виставлені в рахунки без різниці."
 
 #. module: sale_timesheet
-#: model:ir.model.fields,field_description:sale_timesheet.field_account_analytic_line__order_id
-msgid "Order Reference"
-msgstr "Посилання на замовлення"
-
-#. module: sale_timesheet
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__account_analytic_line__timesheet_invoice_type__other_costs
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__timesheets_analysis_report__timesheet_invoice_type__other_costs
-msgid "Other costs"
-msgstr "Інші витрати"
-
-#. module: sale_timesheet
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__account_analytic_line__timesheet_invoice_type__other_revenues
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__timesheets_analysis_report__timesheet_invoice_type__other_revenues
-msgid "Other revenues"
-msgstr "Інші доходи"
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_sale_page
+msgid "Order"
+msgstr ""
 
 #. module: sale_timesheet
 #: model_terms:hr.job,website_description:sale_timesheet.job_engineer
@@ -1024,6 +1000,7 @@ msgstr "Ціноутворення"
 
 #. module: sale_timesheet
 #: model:ir.model,name:sale_timesheet.model_product_template
+#: model:ir.model.fields,field_description:sale_timesheet.field_account_analytic_line__product_id
 msgid "Product"
 msgstr "Товар"
 
@@ -1103,11 +1080,6 @@ msgid "Roofing"
 msgstr ""
 
 #. module: sale_timesheet
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_sale_page
-msgid "S0001"
-msgstr "S0001"
-
-#. module: sale_timesheet
 #: model:ir.model,name:sale_timesheet.model_sale_advance_payment_inv
 msgid "Sales Advance Payment Invoice"
 msgstr "Рахунок на попередню оплату замовлення"
@@ -1115,7 +1087,7 @@ msgstr "Рахунок на попередню оплату замовлення
 #. module: sale_timesheet
 #. odoo-python
 #: code:addons/sale_timesheet/controllers/portal.py:0
-#: code:addons/sale_timesheet/models/hr_timesheet.py:0
+#: code:addons/sale_timesheet/models/account_analytic_line.py:0
 #: model:ir.model,name:sale_timesheet.model_sale_order
 #: model:ir.model.fields,field_description:sale_timesheet.field_project_task__sale_order_id
 #: model:ir.model.fields,field_description:sale_timesheet.field_timesheets_analysis_report__order_id
@@ -1133,6 +1105,7 @@ msgstr "Замовлення на продаж"
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.portal_my_timesheets_inherit
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.portal_timesheet_table_inherit
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.report_timesheet_sale_order
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.report_timesheet_sale_timesheet
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_view_search
 msgid "Sales Order Item"
 msgstr "Елемент замовлення на продаж"
@@ -1143,9 +1116,14 @@ msgid "Sales Order Line"
 msgstr "Рядок замовлення"
 
 #. module: sale_timesheet
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.project_project_view_kanban_inherit_sale_timesheet_so_button
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.project_project_view_card_inherit_sale_timesheet_so_button
 msgid "Sales Orders"
 msgstr "Замовлення на продаж"
+
+#. module: sale_timesheet
+#: model:ir.module.module,shortdesc:base.module_sale_timesheet
+msgid "Sales Timesheet"
+msgstr ""
 
 #. module: sale_timesheet
 #: model:ir.model.fields,help:sale_timesheet.field_project_project__sale_line_employee_ids
@@ -1203,6 +1181,11 @@ msgid "Search in Sales Order Item"
 msgstr "Пошук в елементі замовлення на продаж"
 
 #. module: sale_timesheet
+#: model:ir.module.module,summary:base.module_sale_timesheet
+msgid "Sell based on timesheets"
+msgstr ""
+
+#. module: sale_timesheet
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.res_config_settings_view_form
 msgid "Sell services and invoice time spent"
 msgstr "Продаж послуг та витрати на рахунки-фактури"
@@ -1211,12 +1194,6 @@ msgstr "Продаж послуг та витрати на рахунки-фак
 #: model:product.template,name:sale_timesheet.product_service_deliver_timesheet_1_product_template
 msgid "Senior Architect (Invoice on Timesheets)"
 msgstr "Старший архітектор (рахунок-фактура на табелях)"
-
-#. module: sale_timesheet
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__account_analytic_line__timesheet_invoice_type__service_revenues
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__timesheets_analysis_report__timesheet_invoice_type__service_revenues
-msgid "Service Revenues"
-msgstr "Доходи від послуг"
 
 #. module: sale_timesheet
 #: model:product.template,name:sale_timesheet.time_product_product_template
@@ -1240,6 +1217,11 @@ msgstr ""
 #: model:project.project,label_tasks:sale_timesheet.project_support
 msgid "Services"
 msgstr "Послуги"
+
+#. module: sale_timesheet
+#: model:ir.model,name:sale_timesheet.model_account_move_send
+msgid "Shared Send Invoice Wizard Functions"
+msgstr ""
 
 #. module: sale_timesheet
 #: model:hr.job,name:sale_timesheet.job_engineer
@@ -1336,18 +1318,13 @@ msgstr ""
 "налаштуваннях відділу кадрів працівника"
 
 #. module: sale_timesheet
-#. odoo-python
-#: code:addons/sale_timesheet/models/project_project.py:0
-msgid "This project is current linked to timesheet."
-msgstr ""
-
-#. module: sale_timesheet
 #: model:ir.model.fields,field_description:sale_timesheet.field_product_product__service_upsell_threshold
 #: model:ir.model.fields,field_description:sale_timesheet.field_product_template__service_upsell_threshold
 msgid "Threshold"
 msgstr "Порогове значення"
 
 #. module: sale_timesheet
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.project_project_view_form
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.res_config_settings_view_form
 msgid "Time Billing"
 msgstr "Оплата часу"
@@ -1403,8 +1380,6 @@ msgstr "Звіт табелів"
 
 #. module: sale_timesheet
 #: model:ir.model.fields,field_description:sale_timesheet.field_timesheets_analysis_report__timesheet_revenues
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__account_analytic_line__timesheet_invoice_type__timesheet_revenues
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__timesheets_analysis_report__timesheet_invoice_type__timesheet_revenues
 msgid "Timesheet Revenues"
 msgstr "Дохід по табелю"
 
@@ -1423,6 +1398,7 @@ msgstr "Загальна тривалість табелю"
 #: model:ir.actions.report,name:sale_timesheet.timesheet_report_account_move
 #: model:ir.actions.report,name:sale_timesheet.timesheet_report_sale_order
 #: model:ir.model.fields.selection,name:sale_timesheet.selection__sale_order_line__qty_delivered_method__timesheet
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_sale_page
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheets_analysis_report_graph_invoice_type
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.view_hr_timesheet_line_pivot_billing_rate
 msgid "Timesheets"
@@ -1430,32 +1406,32 @@ msgstr "Табелі"
 
 #. module: sale_timesheet
 #. odoo-python
-#: code:addons/sale_timesheet/models/project_project.py:0
-msgid "Timesheets (Billed Manually)"
-msgstr "Табелі (Виставляється в рахунку вручну)"
-
-#. module: sale_timesheet
-#. odoo-python
-#: code:addons/sale_timesheet/models/project_project.py:0
-msgid "Timesheets (Billed on Milestones)"
-msgstr "Табелі (Виставляється в рахунку по віхам)"
-
-#. module: sale_timesheet
-#. odoo-python
-#: code:addons/sale_timesheet/models/project_project.py:0
-msgid "Timesheets (Billed on Timesheets)"
-msgstr "Табелі (Виставляється в рахунку по табелям)"
-
-#. module: sale_timesheet
-#. odoo-python
-#: code:addons/sale_timesheet/models/project_project.py:0
+#: code:addons/sale_timesheet/models/account_analytic_line.py:0
 msgid "Timesheets (Fixed Price)"
-msgstr "Табелі (Фіксована ціна)"
+msgstr ""
 
 #. module: sale_timesheet
 #. odoo-python
-#: code:addons/sale_timesheet/models/project_project.py:0
+#: code:addons/sale_timesheet/models/account_analytic_line.py:0
+msgid "Timesheets (Manual)"
+msgstr ""
+
+#. module: sale_timesheet
+#. odoo-python
+#: code:addons/sale_timesheet/models/account_analytic_line.py:0
+msgid "Timesheets (Milestones)"
+msgstr ""
+
+#. module: sale_timesheet
+#. odoo-python
+#: code:addons/sale_timesheet/models/account_analytic_line.py:0
 msgid "Timesheets (Non-Billable)"
+msgstr ""
+
+#. module: sale_timesheet
+#. odoo-python
+#: code:addons/sale_timesheet/models/account_analytic_line.py:0
+msgid "Timesheets (Time & Materials)"
 msgstr ""
 
 #. module: sale_timesheet
@@ -1479,11 +1455,6 @@ msgid "Timesheets by Billing Type"
 msgstr "Табелі за типом виставлення рахунку"
 
 #. module: sale_timesheet
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_sale_page
-msgid "Timesheets for the"
-msgstr "Табелі для"
-
-#. module: sale_timesheet
 #. odoo-python
 #: code:addons/sale_timesheet/models/project_project.py:0
 msgid "Timesheets of %s"
@@ -1493,12 +1464,6 @@ msgstr "Табелі %s"
 #: model:ir.model.fields.selection,name:sale_timesheet.selection__product_template__service_type__timesheet
 msgid "Timesheets on project (one fare per SO/Project)"
 msgstr "Табель на проекті (одна ціна за ЗНП/проект)"
-
-#. module: sale_timesheet
-#. odoo-python
-#: code:addons/sale_timesheet/models/project_project.py:0
-msgid "Timesheets revenues"
-msgstr "Дохід по табелям"
 
 #. module: sale_timesheet
 #: model:ir.model.fields,help:sale_timesheet.field_timesheets_analysis_report__margin
@@ -1516,11 +1481,6 @@ msgid "Timesheets taken when invoicing time spent"
 msgstr ""
 "Табель обліку робочого часу, що складається при виставленні рахунку за "
 "витрачений час"
-
-#. module: sale_timesheet
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.project_project_view_form
-msgid "Timesheets without a sales order item are reported as"
-msgstr ""
 
 #. module: sale_timesheet
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheets_analysis_report_list_inherited
@@ -1601,12 +1561,6 @@ msgid "View Timesheets"
 msgstr "Переглянути табелі"
 
 #. module: sale_timesheet
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.view_product_timesheet_form
-msgid "Warn the salesperson for an upsell when work done exceeds"
-msgstr ""
-"Попередьте продавця про додатковий продаж, коли виконана робота перевищує"
-
-#. module: sale_timesheet
 #: model_terms:hr.job,website_description:sale_timesheet.job_engineer
 #: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
 #: model_terms:hr.job,website_description:sale_timesheet.job_labour
@@ -1642,15 +1596,15 @@ msgstr ""
 
 #. module: sale_timesheet
 #. odoo-python
-#: code:addons/sale_timesheet/models/hr_timesheet.py:0
-msgid "You cannot modify timesheets that are already invoiced."
-msgstr "Ви не можете змінити табелі, що вже виставлені у рахунку."
+#: code:addons/sale_timesheet/models/account_analytic_line.py:0
+msgid "You cannot modify timsheets that are already invoiced."
+msgstr ""
 
 #. module: sale_timesheet
 #. odoo-python
-#: code:addons/sale_timesheet/models/hr_timesheet.py:0
-msgid "You cannot remove a timesheet that has already been invoiced."
-msgstr "Ви не можете видалити табель, який вже виствлений у рахунок."
+#: code:addons/sale_timesheet/models/account_analytic_line.py:0
+msgid "You cannot remove timsheets that are already invoiced."
+msgstr ""
 
 #. module: sale_timesheet
 #: model:ir.model.fields.selection,name:sale_timesheet.selection__project_project__billing_type__manually
@@ -1670,420 +1624,23 @@ msgstr "не виставляється у рахунку"
 
 #. module: sale_timesheet
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.view_product_timesheet_form
-msgid "of hours sold."
-msgstr "проданих годин."
+msgid "of the hours sold."
+msgstr ""
 
 #. module: sale_timesheet
 #. odoo-python
 #: code:addons/sale_timesheet/models/account_move.py:0
 msgid "project_id"
-msgstr "project_id"
+msgstr ""
 
-#. module: sale_timesheet
-#. odoo-python
-#: code:addons/sale_timesheet/models/sale_order_line.py:0
-msgid "remaining"
-msgstr "нагадування"
+#~ msgid "Service Revenues"
+#~ msgstr "Доходи від послуг"
 
-#~ msgid " Candidate Orders"
-#~ msgstr "Замовлення кандидата"
+#~ msgid "- Timesheet product"
+#~ msgstr "- Товар табеля"
 
-#~ msgid ""
-#~ "% of timesheets that are billable compared to the total number of "
-#~ "timesheets linked to the AA of the project, rounded to the unit."
-#~ msgstr ""
-#~ "% табелю, що підлягає оплаті, порівняно із загальною кількістю табелів "
-#~ "пов’язаних з AA проекту, округленої до одиниці."
+#~ msgid "S0001"
+#~ msgstr "S0001"
 
-#~ msgid "%(amount)s %(label)s will be added to the new Sales Order."
-#~ msgstr "%(amount)s %(label)s буде додано до нового Замовлення на продаж."
-
-#~ msgid ", for a revenue of"
-#~ msgstr ", для доходу"
-
-#~ msgid ", leading to a"
-#~ msgstr ", належить до"
-
-#~ msgid "<strong>To invoice:</strong>"
-#~ msgstr "<strong>Виставити у рахунок:</strong>"
-
-#~ msgid "<u>Profitability</u>"
-#~ msgstr "<u>Рентабельність</u>"
-
-#~ msgid "About us"
-#~ msgstr "Про нас"
-
-#~ msgid "Allocated Hours"
-#~ msgstr "Розподілені години"
-
-#~ msgid "Amount to invoice"
-#~ msgstr "Сума до виставлення в рахунку"
-
-#~ msgid ""
-#~ "As a leading professional services firm,\n"
-#~ "                                we know that success is all about the\n"
-#~ "                                commitment we put on strong services."
-#~ msgstr ""
-#~ "Як провідна компанія професійних послуг,\n"
-#~ "                                ми знаємо, що успіх - це про\n"
-#~ "                                зобов'язання, які ми надаємо із сильними "
-#~ "послугами."
-
-#~ msgid "At least one line should be filled."
-#~ msgstr "Необхідно заповнити принаймні один рядок."
-
-#~ msgid "Billable Hours"
-#~ msgstr "Оплачувані години"
-
-#~ msgid "Billable Percentage"
-#~ msgstr "Відсоток того, що виставляється у рахунку"
-
-#~ msgid "Choose the Sales Order to invoice"
-#~ msgstr "Виберіть замовлення на продаж для виставлення рахунку"
-
-#~ msgid "Commercial Entity"
-#~ msgstr "Юридична особа"
-
-#~ msgid "Company"
-#~ msgstr "Компанія"
-
-#~ msgid "Cost Currency"
-#~ msgstr "Валюта вартості"
-
-#~ msgid "Create Invoice"
-#~ msgstr "Створити рахунок"
-
-#~ msgid "Create Invoice from project"
-#~ msgstr "Створіть рахунок-фактуру з проекту"
-
-#~ msgid "Create SO Line from project"
-#~ msgstr "Створіть рядок замовлення на продаж з проекту"
-
-#~ msgid "Create SO from project"
-#~ msgstr "Створіть замовлення на продаж з проекту"
-
-#~ msgid "Create Sales Order"
-#~ msgstr "Створіть замовлення на продаж"
-
-#~ msgid "Create Sales Order from Project"
-#~ msgstr "Створіть замовлення на продаж з проекту"
-
-#~ msgid "Create a Sales Order"
-#~ msgstr "Створіть замовлення на продаж"
-
-#~ msgid "Customer of the sales order"
-#~ msgstr "Клієнт замовлення на продаж"
-
-#~ msgid "Display Create Order"
-#~ msgstr "Відобразити створення замовлення"
-
-#~ msgid "Employee that has timesheets on the project."
-#~ msgstr "Співробітник, який має табелі на проекті."
-
-#~ msgid ""
-#~ "Great quotation templates will significantly\n"
-#~ "                                <strong>boost your success rate</strong>. "
-#~ "The\n"
-#~ "                                first section is usually about your "
-#~ "company,\n"
-#~ "                                your references, your methodology or\n"
-#~ "                                guarantees, your team, SLA, terms and "
-#~ "conditions, etc."
-#~ msgstr ""
-#~ "Великі шаблони комерційних пропозицій будуть значно\n"
-#~ "                                <strong>підвищувати ваш рівень успіху</"
-#~ "strong>. \n"
-#~ "                               Перша частина, як правило, стосується "
-#~ "вашої компанії,\n"
-#~ "                                ваших посилань, вашої методології або\n"
-#~ "                                гарантій, вашої команди, SLA, правил та "
-#~ "умов тощо."
-
-#~ msgid "Has Displayed Warning Upsell"
-#~ msgstr "Відображено попередження про продаж"
-
-#~ msgid ""
-#~ "If you edit a quotation from the 'Preview' of a quotation, you will\n"
-#~ "                        update that quotation only. If you edit the "
-#~ "quotation\n"
-#~ "                        template (from the Configuration menu), all "
-#~ "future quotations will\n"
-#~ "                        use this modified template."
-#~ msgstr ""
-#~ "Якщо ви редагуєте комерційну пропозицію з \"Попереднього перегляду\" "
-#~ "пропозиції,\n"
-#~ " ви оновлюватимете її. Якщо ви редагуєте шаблон\n"
-#~ " пропозиції (з меню Налаштування), усі майбутні пропозиції\n"
-#~ " використовуватимуть цей змінений шаблон."
-
-#~ msgid "Info Invoice"
-#~ msgstr "Інформація рахунку"
-
-#~ msgid ""
-#~ "Invoice based on timesheets (delivered quantity) on projects or tasks "
-#~ "you'll create later on."
-#~ msgstr ""
-#~ "Рахунок-фактура на основі табелів обліку робочого часу (поставленої "
-#~ "кількості) проектів або завдань, які ви створите пізніше."
-
-#~ msgid ""
-#~ "Invoice based on timesheets (delivered quantity), and create a project "
-#~ "for the order with a task for each sales order line to track the time "
-#~ "spent."
-#~ msgstr ""
-#~ "Виставте рахунок-фактуру на основі табелів  (кількість доставлених голин) "
-#~ "та створіть проект для замовлення із завданням для кожного рядка "
-#~ "замовлення на продаж для відстеження витраченого часу."
-
-#~ msgid ""
-#~ "Invoice based on timesheets (delivered quantity), and create a task in an "
-#~ "existing project to track the time spent."
-#~ msgstr ""
-#~ "Виставляйте рахунок-фактуру на основі табелів (кількість доставленого "
-#~ "часу) та створюйте завдання в існуючому проекті для відстеження "
-#~ "витраченого часу."
-
-#~ msgid ""
-#~ "Invoice based on timesheets (delivered quantity), and create an empty "
-#~ "project for the order to track the time spent."
-#~ msgstr ""
-#~ "Виставте рахунок-фактуру на основі табелів (кількість доставленого часу) "
-#~ "і створіть порожній проект для замовлення для відстеження витраченого "
-#~ "часу."
-
-#~ msgid "Invoice your time and material to customers"
-#~ msgstr "Виставте у рахунку клієнту ваш час та матеріали"
-
-#~ msgid "Invoiced"
-#~ msgstr "Виставлено рахунок"
-
-#~ msgid "Invoicing Timesheet Enabled"
-#~ msgstr "Увімкнене виставлення у рахунки табелів"
-
-#~ msgid "Is Cost Manually Changed"
-#~ msgstr "Чи змінюється вартість вручну"
-
-#~ msgid "Lines"
-#~ msgstr "Рядки"
-
-#~ msgid "No Sales Order"
-#~ msgstr "Немає замовлень на продаж"
-
-#~ msgid "Non Billable Tasks"
-#~ msgstr "Завдання без оплати"
-
-#~ msgid "Number of timesheets"
-#~ msgstr "Кількість табелів"
-
-#~ msgid "Operation not supported"
-#~ msgstr "Операція не підтримується"
-
-#~ msgid "Ordered,"
-#~ msgstr "Замовлено,"
-
-#~ msgid "Our Offer"
-#~ msgstr "Наша пропозиція"
-
-#~ msgid "Our Quality"
-#~ msgstr "Наша якість"
-
-#~ msgid "Our Service"
-#~ msgstr "Наш сервіс"
-
-#~ msgid "Price"
-#~ msgstr "Ціна"
-
-#~ msgid ""
-#~ "Product of the sales order item. Must be a service invoiced based on "
-#~ "timesheets on tasks."
-#~ msgstr ""
-#~ "Товар елементу замовлення на продаж. Повинно бути службовим рахунком, "
-#~ "який виставляється на основі табелів завдань."
-
-#~ msgid ""
-#~ "Product quality is the foundation we\n"
-#~ "                                stand on; we build it with a relentless\n"
-#~ "                                focus on fabric, performance and "
-#~ "craftsmanship."
-#~ msgstr ""
-#~ "Якість продукції є нашою основою;\n"
-#~ " ми будуємо її з невпинним фокусом на виробництві,\n"
-#~ " продуктивності та майстерності."
-
-#~ msgid "Project Update"
-#~ msgstr "Оновлення проекту"
-
-#~ msgid "Project for which we are creating a sales order"
-#~ msgstr "Проект, для якого ми створюємо замовлення на продаж"
-
-#~ msgid "Project to make billable"
-#~ msgstr "Проект, щоб зробити оплату"
-
-#~ msgid "Remaining"
-#~ msgstr "Залишилось"
-
-#~ msgid "Remaining Days on SO"
-#~ msgstr "Дні що залишилися на SO"
-
-#~ msgid "Remaining Hours on SO"
-#~ msgstr "Години, що залишилися на SO"
-
-#~ msgid "Remaining)"
-#~ msgstr "Залишилось)"
-
-#~ msgid "Sale Order"
-#~ msgstr "Замовлення на продаж"
-
-#~ msgid "Sale Order Analytic Account"
-#~ msgstr "Аналітичний рахунок замовлення на продаж"
-
-#~ msgid "Sale line/Employee map"
-#~ msgstr "Рядок продажу/зіставлення співробітника"
-
-#~ msgid "Sales order to which the project is linked."
-#~ msgstr "Замовлення на продаж, до якого належить цей проект."
-
-#~ msgid "Search in Sales Order"
-#~ msgstr "Пошук у замовленні на продаж"
-
-#~ msgid "Select a non billable project on which tasks can be created."
-#~ msgstr ""
-#~ "Виберіть проект, який не виставляється у рахунку, на якому можна "
-#~ "створювати завдання."
-
-#~ msgid "Service"
-#~ msgstr "Послуга"
-
-#~ msgid "Service Upsell Threshold Ratio"
-#~ msgstr "Пороговий коефіцієнт збільшення продажів послуг"
-
-#~ msgid "Sold"
-#~ msgstr "Продано"
-
-#~ msgid "Task Recurrence"
-#~ msgstr "Повторення завдання"
-
-#~ msgid "Tasks"
-#~ msgstr "Завдання"
-
-#~ msgid ""
-#~ "The %s product is required by the Timesheets app and cannot be archived "
-#~ "nor deleted."
-#~ msgstr ""
-#~ "Товар %s необхідний для модуля Табелі і не може бути заархівованим або "
-#~ "видаленим."
-
-#~ msgid ""
-#~ "The Sales Order cannot be created because you did not enter some "
-#~ "employees that entered timesheets on this project. Please list all the "
-#~ "relevant employees before creating the Sales Order.\n"
-#~ "Missing employee(s): %s"
-#~ msgstr ""
-#~ "Замовлення на продаж не може бути створене, оскільки ви не ввели деяких "
-#~ "співробітників, які ввійшли в табелі для цього проекту. Будь ласка, "
-#~ "перерахуйте всіх відповідних працівників, перш ніж створювати замовлення "
-#~ "на продаж.\n"
-#~ "Відсутні співробітники: %s"
-
-#~ msgid "The cost of the project is now at"
-#~ msgstr "Вартість проекту зараз становить"
-
-#~ msgid "The project has already a sale order."
-#~ msgstr "Проект вже має замовлення на продаж."
-
-#~ msgid "The project is already linked to a sales order item."
-#~ msgstr "Проект вже пов'язаний з елементом замовлення на продаж."
-
-#~ msgid ""
-#~ "The sales order cannot be created because some timesheets of this project "
-#~ "are already linked to another sales order."
-#~ msgstr ""
-#~ "Замовлення на продаж не може бути створене, оскільки деякі графіки цього "
-#~ "проекту вже пов'язані з іншим замовленням на продаж."
-
-#~ msgid "The selected Sales Order should contain something to invoice."
-#~ msgstr "Вибране замовлення на продаж має містити щось для рахунку-фактури."
-
-#~ msgid ""
-#~ "This is a <strong>sample quotation template</strong>. You should\n"
-#~ "                                customize it to fit your own needs from "
-#~ "the <i>Sales</i>\n"
-#~ "                                application, using the menu: "
-#~ "Configuration /\n"
-#~ "                                Quotation Templates."
-#~ msgstr ""
-#~ "Це <strong>шаблон комерційної пропозиції</strong>. Вам необхідно\n"
-#~ "                               налаштувати його відповідно до ваших "
-#~ "власних потреб з додатку<i>Продажі</i>\n"
-#~ "                               використовуючи меню: Налаштування /\n"
-#~ "                                Шаблони комерційної пропозиції."
-
-#~ msgid "Timesheet Encoding Unit"
-#~ msgstr "Одиниця кодування табеля"
-
-#~ msgid "Timesheet activities"
-#~ msgstr "Дії по табелю"
-
-#~ msgid ""
-#~ "Total amount to invoice on the sales order, including all items "
-#~ "(services, storables, expenses, ...)"
-#~ msgstr ""
-#~ "Загальна сума рахунка-фактури на замовленні на продаж, включаючи всі "
-#~ "товари (послуги, запаси, витрати, ...)"
-
-#~ msgid "Total:"
-#~ msgstr "Разом:"
-
-#~ msgid "Unit price of the sales order item."
-#~ msgstr "Ціна за одиницю елемента замовлення на продаж."
-
-#~ msgid "Value does not exist in the pricing type"
-#~ msgstr "Значення не існує у типі ціни"
-
-#~ msgid "Warning Employee Rate"
-#~ msgstr "Попередження ставки співробітника"
-
-#~ msgid ""
-#~ "We always ensure that our products are\n"
-#~ "                                set at a fair price so that you will be\n"
-#~ "                                happy to buy them."
-#~ msgstr ""
-#~ "Ми завжди гарантуємо, що наші товари\n"
-#~ "                                 встановлені за справедливою ціною, так "
-#~ "що ви будете\n"
-#~ "                                 раді їх купити."
-
-#~ msgid "Wizard"
-#~ msgstr "Помічник"
-
-#~ msgid ""
-#~ "You can <strong>set a description per product</strong>. Odoo will\n"
-#~ "                        automatically create a quotation using the "
-#~ "descriptions\n"
-#~ "                        of all products in the proposal. The table of "
-#~ "content\n"
-#~ "                        on the left is generated automatically using the "
-#~ "styles you\n"
-#~ "                        used in your description (heading 1, heading "
-#~ "2, ...)"
-#~ msgstr ""
-#~ "Ви можете <strong>встановити опис на товар</strong>. Odoo буде\n"
-#~ "                        автоматично редагувати комерційну пропозицію, "
-#~ "використовуючи описи\n"
-#~ "                        усіх товарів у пропозиції. Таблиця вмісту\n"
-#~ "                        зліва генерується автоматично, використовуючи "
-#~ "стилі, які ви\n"
-#~ "                        використовували у вашому описі (заголовок 1, "
-#~ "заголовок 2, ...)"
-
-#~ msgid "You can only apply this action from a project."
-#~ msgstr "Цю дію можна застосувати лише з проекту."
-
-#~ msgid "days"
-#~ msgstr "дні"
-
-#~ msgid "hours"
-#~ msgstr "годин"
-
-#~ msgid "margin ("
-#~ msgstr "маржа ("
+#~ msgid "Timesheets for the"
+#~ msgstr "Табелі для"

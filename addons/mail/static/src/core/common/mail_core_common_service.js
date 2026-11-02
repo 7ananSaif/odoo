@@ -1,4 +1,4 @@
-import { reactive } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 
 import { registry } from "@web/core/registry";
 
@@ -32,22 +32,18 @@ export class MailCoreCommon {
                 message.delete();
             }
         });
-        this.busService.subscribe("mail.message/toggle_star", (payload, metadata) =>
-            this._handleNotificationToggleStar(payload, metadata)
-        );
-        this.busService.subscribe("res.users.settings", (payload) => {
-            if (payload) {
-                this.store.settings.update(payload);
-            }
-        });
         this.busService.subscribe("mail.record/insert", (payload) => {
             this.store.insert(payload);
         });
-    }
-
-    _handleNotificationToggleStar(payload, metadata) {
-        const { message_ids: messageIds, starred } = payload;
-        this.store["mail.message"].insert(messageIds.map((id) => ({ id, starred })));
+        this.env.bus.addEventListener(
+            "discuss.channel/new_message",
+            ({ detail: { channel, message, silent } }) => {
+                if (this.env.services.ui.isSmall || message.isSelfAuthored || silent) {
+                    return;
+                }
+                channel.notifyMessageToUser(message);
+            }
+        );
     }
 }
 
@@ -58,7 +54,7 @@ export const mailCoreCommon = {
      * @param {import("services").ServiceFactories} services
      */
     start(env, services) {
-        const mailCoreCommon = reactive(new MailCoreCommon(env, services));
+        const mailCoreCommon = proxy(new MailCoreCommon(env, services));
         mailCoreCommon.setup();
         return mailCoreCommon;
     },

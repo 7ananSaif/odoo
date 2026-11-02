@@ -1,6 +1,4 @@
-from odoo import fields, models, api, _
-from odoo.exceptions import UserError
-
+from odoo import fields, models
 
 EXEMPTION_REASON_CODES = [
     ('VATEX-SA-29', 'VATEX-SA-29 Financial services mentioned in Article 29 of the VAT Regulations.'),
@@ -20,23 +18,24 @@ EXEMPTION_REASON_CODES = [
     ('VATEX-SA-OOS', 'VATEX-SA-OOS Not subject to VAT.')
 ]
 
+REQUIRED_EXEMPTION_CODES = {'AE', 'E', 'G', 'O', 'K', 'Z'}
+NO_EXEMPTION_REASON_CODES = {'Z', 'E'}
+
 
 class AccountTax(models.Model):
     _inherit = 'account.tax'
 
-    l10n_sa_is_retention = fields.Boolean("Is Retention", default=False,
-                                          help="Determines whether or not a tax counts as a Withholding Tax")
+    ubl_cii_tax_exemption_reason_code = fields.Selection(selection_add=EXEMPTION_REASON_CODES)
+    l10n_sa_show_exemption_reason = fields.Boolean(compute="_compute_l10n_sa_show_exemption_reason")
 
-    l10n_sa_exemption_reason_code = fields.Selection(string="Exemption Reason Code",
-                                                     selection=EXEMPTION_REASON_CODES, help="Tax Exemption Reason Code (ZATCA)")
+    def _compute_ubl_cii_requires_exemption_reason(self):
+        super()._compute_ubl_cii_requires_exemption_reason()
+        for record in self.filtered(lambda rec: rec.company_id.account_fiscal_country_id.code == 'SA'):
+            record.ubl_cii_requires_exemption_reason = record.ubl_cii_tax_category_code in REQUIRED_EXEMPTION_CODES
 
-    @api.onchange('amount')
-    def onchange_amount(self):
-        super().onchange_amount()
-        self.l10n_sa_is_retention = False
-
-    @api.constrains("l10n_sa_is_retention", "amount", "type_tax_use")
-    def _l10n_sa_constrain_is_retention(self):
+    def _compute_l10n_sa_show_exemption_reason(self):
         for tax in self:
-            if tax.amount >= 0 and tax.l10n_sa_is_retention and tax.type_tax_use == 'sale':
-                raise UserError(_("The tax is unable to be set as Retention as the Amount is greater than or equal to 0."))
+            tax.l10n_sa_show_exemption_reason = (
+                tax.company_id.account_fiscal_country_id.code != 'SA'
+                or tax.ubl_cii_tax_category_code not in NO_EXEMPTION_REASON_CODES
+            )

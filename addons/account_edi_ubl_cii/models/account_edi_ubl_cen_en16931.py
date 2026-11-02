@@ -12,45 +12,87 @@ class AccountEdiUBLCenEn16931(models.AbstractModel):
     # EXPORT: NODES
     # -------------------------------------------------------------------------
 
-    def _ubl_add_line_allowance_charge_nodes(self, vals):
-        super()._ubl_add_line_allowance_charge_nodes(vals)
+    def _ubl_add_notes_nodes(self, vals):
+        super()._ubl_add_notes_nodes(vals)
 
-        # Discount.
-        self._ubl_add_line_allowance_charge_nodes_for_discount(vals)
+        # [BR-FR-MAP-18] EN16931 caps the Note (BT-22) to 1024 characters.
+        for note in vals['document_node']['cbc:Note']:
+            if isinstance(note['_text'], str):
+                note['_text'] = note['_text'][:1024]
 
-        # Recycling contribution taxes.
-        self._ubl_add_line_allowance_charge_nodes_for_recycling_contribution_taxes(vals)
+    def _ubl_get_partner_address_node(self, vals, partner):
+        # EXTENDS account.edi.ubl
+        node = super()._ubl_get_partner_address_node(vals, partner)
 
-        # Excise taxes.
-        self._ubl_add_line_allowance_charge_nodes_for_excise_taxes(vals)
+        # [BR-FR-MAP-17/BR-FR-MAP-19] EN16931 caps these address lines to 255 characters (postal code: 10).
+        for field in ('cbc:StreetName', 'cbc:AdditionalStreetName', 'cbc:CityName', 'cbc:CountrySubentity'):
+            if isinstance(node[field]['_text'], str):
+                node[field]['_text'] = node[field]['_text'][:255]
+
+        if (
+            (postal_zone_node := node['cbc:PostalZone'])
+            and isinstance(postal_zone_node['_text'], str)
+        ):
+            postal_zone_node['_text'] = postal_zone_node['_text'][:10]
+
+        return node
+
+    def _ubl_add_line_item_name_description_nodes(self, vals):
+        # EXTENDS account.edi.ubl
+        super()._ubl_add_line_item_name_description_nodes(vals)
+
+        # [BR-FR-MAP-17] EN16931 caps the Item name (BT-153) to 255 characters.
+        item_name_node = vals['item_node'].get('cbc:Name')
+        if item_name_node and isinstance(item_name_node['_text'], str):
+            item_name_node['_text'] = item_name_node['_text'][:255]
+
+    def _ubl_get_allowance_charge_early_payment_node(self, vals, early_payment_values):
+        # EXTENDS account.edi.ubl
+        node = super()._ubl_get_allowance_charge_early_payment_node(vals, early_payment_values)
+        self._ubl_truncate_allowance_charge_reason(node)
+        return node
+
+    def _ubl_get_allowance_charge_global_discount_node(self, vals, global_discount_values):
+        # EXTENDS account.edi.ubl
+        node = super()._ubl_get_allowance_charge_global_discount_node(vals, global_discount_values)
+        self._ubl_truncate_allowance_charge_reason(node)
+        return node
+
+    def _ubl_truncate_allowance_charge_reason(self, node):
+        # [BR-FR-MAP-18] EN16931 caps the document level allowance/charge reason (BT-120, BT-127) to 1024 characters.
+
+        if (
+            (allowance_charge_reason_node := node['cbc:AllowanceChargeReason'])
+            and isinstance(allowance_charge_reason_node['_text'], str)
+        ):
+            allowance_charge_reason_node['_text'] = allowance_charge_reason_node['_text'][:1024]
 
     def _line_nodes_filter_base_lines(self, vals, filter_function=None):
         # Early payment discount lines should not appear as lines but as allowances/charges.
         # Cash rounding lines should not appear as lines but in PayableRoundingAmount.
         def new_filter_function(base_line):
-            if any([
-                self._ubl_is_early_payment_base_line(base_line),
-                self._ubl_is_global_discount_base_line(base_line),
-                self._ubl_is_cash_rounding_base_line(base_line),
-            ]):
+            if (
+                self._ubl_is_early_payment_base_line(base_line)
+                or self._ubl_is_global_discount_base_line(base_line)
+                or self._ubl_is_cash_rounding_base_line(base_line)
+            ):
                 return False
             return not filter_function or filter_function(base_line)
 
         return super()._line_nodes_filter_base_lines(vals, filter_function=new_filter_function)
 
-    def _ubl_add_party_tax_scheme_nodes(self, vals):
-        super()._ubl_add_party_tax_scheme_nodes(vals)
-
+    def _need_party_tax_scheme_nodes(self, vals):
         # [BR-O-03]/[BR-O-04]/[BR-O-05] no party tax scheme with "Not subject to VAT" VAT Category Code
-        base_lines = vals['base_lines']
-        vals['no_party_tax_scheme'] = (
+        if (
             'ubl_cii_tax_category_code' in self.env['account.tax']._fields
             and any(
                 tax_data['tax'].ubl_cii_tax_category_code == 'O'
-                for base_line in base_lines
+                for base_line in vals['base_lines']
                 for tax_data in base_line['tax_details']['taxes_data']
             )
-        )
+        ):
+            return False
+        return super()._need_party_tax_scheme_nodes(vals)
 
     def _ubl_add_allowance_charge_nodes(self, vals):
         super()._ubl_add_allowance_charge_nodes(vals)
@@ -190,6 +232,22 @@ class AccountEdiUBLCenEn16931(models.AbstractModel):
             and dict_to_xml(document_node['cac:Delivery']['cac:DeliveryLocation']['cac:Address']['cac:Country']['cbc:IdentificationCode'], nsmap=nsmap, tag='cbc:IdentificationCode') is None
         ):
             constraints['cen_en16931_delivery_address'] = self._check_required_fields(invoice.partner_shipping_id, 'country_id')
+
+        if self.env.context.get('from_peppol'):
+            # [PEPPOL-EN16931-R010]
+            if not vals['document_node']['cac:AccountingCustomerParty']['cac:Party']['cbc:EndpointID']['_text']:
+                constraints['ubl_peppol_en16931-r010'] = _(
+                    "[PEPPOL-EN16931-R010] An electronic address (EAS) must be provided on the customer '%s'.",
+                    vals['customer'].display_name,
+                )
+
+            # [PEPPOL-EN16931-R020]
+            if not vals['document_node']['cac:AccountingSupplierParty']['cac:Party']['cbc:EndpointID']['_text']:
+                constraints['ubl_peppol_en16931-r020'] = _(
+                    "[PEPPOL-EN16931-R020] An electronic address (EAS) must be provided on the company '%s'.",
+                    vals['supplier'].display_name,
+                )
+
         return constraints
 
     def _init_invoice_export_values(self, invoice):

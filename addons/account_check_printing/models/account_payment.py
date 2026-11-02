@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError, RedirectWarning
 from odoo.tools.misc import formatLang, format_date
-from odoo.tools.sql import column_exists, create_column
 
 INV_LINES_PER_STUB = 9
 
@@ -24,6 +22,7 @@ class AccountPayment(models.Model):
         copy=False,
         compute='_compute_check_number',
         inverse='_inverse_check_number',
+        init_storage=lambda model: None,  # skip initialization OOM on large databases
         help="The selected journal is configured to print check numbers. If your pre-printed check paper already has numbers "
              "or if the current numbering is wrong, you can change it in the journal configuration page.",
     )
@@ -49,16 +48,6 @@ class AccountPayment(models.Model):
         for payment_check in self.filtered('check_number'):
             if not payment_check.check_number.isdecimal():
                 raise ValidationError(_('Check numbers can only consist of digits'))
-
-    def _auto_init(self):
-        """
-        Create compute stored field check_number
-        here to avoid MemoryError on large databases.
-        """
-        if not column_exists(self.env.cr, 'account_payment', 'check_number'):
-            create_column(self.env.cr, 'account_payment', 'check_number', 'varchar')
-
-        return super()._auto_init()
 
     @api.constrains('check_number', 'journal_id')
     def _constrains_check_number_unique(self):
@@ -216,7 +205,7 @@ class AccountPayment(models.Model):
         if not report_action:
             msg = _("Something went wrong with Check Layout, please select another layout in Invoicing/Accounting Settings and try again.")
             raise RedirectWarning(msg, redirect_action.id, _('Go to the configuration panel'))
-        self.write({'is_sent': 'True'})
+        self.write({'is_sent': True})
         return report_action.report_action(self)
 
     #######################
@@ -259,7 +248,7 @@ class AccountPayment(models.Model):
         """
         self.ensure_one()
 
-        def prepare_vals(invoice, partials=None, current_amount=0):
+        def prepare_vals(invoice, partials=None, current_amount=0, allocated_gross=0.0):
             invoice_name = invoice.name or '/'
             number = ' - '.join([invoice_name, invoice.ref] if invoice.ref else [invoice_name])
 
@@ -275,20 +264,47 @@ class AccountPayment(models.Model):
                 amount_residual_str = '-'
             else:
                 amount_residual_str = formatLang(self.env, invoice_sign * amount_residual, currency_obj=invoice.currency_id)
-            amount_paid = current_amount if current_amount else sum(partials.mapped(partial_field))
 
-            return {
+            amount_paid = current_amount if current_amount else sum(partials.mapped(partial_field))
+            amount_discount = 0
+            amount_writeoff = 0
+            if partials and invoice.payment_state in ('in_payment', 'paid'):
+                payment_term_line, cash_discount_account = invoice._get_payment_term_epd_info()
+                if invoice._is_early_payment_discount_applied(
+                    self.move_id, invoice.amount_total, payment_term_line, cash_discount_account,
+                ):
+                    cash_paid = self.currency_id.round(amount_paid * payment_term_line.discount_amount_currency / payment_term_line.amount_currency)
+                    amount_discount = amount_paid - cash_paid
+                    amount_paid = cash_paid
+                else:
+                    prev_writeoff = self.currency_id.round(allocated_gross * writeoff_ratio)
+                    allocated_gross += amount_paid
+                    amount_writeoff = self.currency_id.round(allocated_gross * writeoff_ratio) - prev_writeoff
+                    amount_paid -= amount_writeoff
+
+            vals = {
                 'due_date': format_date(self.env, invoice.invoice_date_due),
                 'number': number,
                 'amount_total': formatLang(self.env, invoice_sign * invoice.amount_total, currency_obj=invoice.currency_id),
                 'amount_residual': amount_residual_str,
                 'amount_paid': formatLang(self.env, invoice_sign * amount_paid, currency_obj=self.currency_id),
+                'amount_discount': formatLang(self.env, invoice_sign * amount_discount, currency_obj=self.currency_id) if amount_discount else None,
+                'amount_writeoff': formatLang(self.env, invoice_sign * amount_writeoff, currency_obj=self.currency_id) if amount_writeoff else None,
                 'currency': invoice.currency_id,
             }
+            return vals, allocated_gross
 
         if self.move_id:
             # Decode the reconciliation to keep only invoices.
             term_lines = self.move_id.line_ids.filtered(lambda line: line.account_id.account_type in ('asset_receivable', 'liability_payable'))
+            total_paid = sum(term_lines.mapped('amount_currency'))
+            has_epd = any(
+                invoice._is_early_payment_discount_applied(
+                    self.move_id, invoice.amount_total, *invoice._get_payment_term_epd_info()
+                )
+                for invoice in self.reconciled_invoice_ids | self.reconciled_bill_ids
+            )
+            writeoff_ratio = (total_paid - self.amount) / total_paid if total_paid and not has_epd else 0
             invoices = (term_lines.matched_debit_ids.debit_move_id.move_id + term_lines.matched_credit_ids.credit_move_id.move_id)\
                 .filtered(lambda x: x.is_outbound(include_receipts=True))
 
@@ -307,6 +323,7 @@ class AccountPayment(models.Model):
             remaining = self.amount
 
         stub_lines = []
+        allocated_gross = 0.0
         type_groups = {
             ('in_invoice', 'in_receipt'): _("Bills"),
             ('out_refund',): _("Refunds"),
@@ -317,17 +334,17 @@ class AccountPayment(models.Model):
             if len(invoices_grouped) > 1:
                 stub_lines += [{'header': True, 'name': type_groups[type_group]}]
             if self.move_id:
-                stub_lines += [
-                    prepare_vals(invoice, partials=invoice_map[invoice])
-                    for invoice in invoices
-                ]
+                for invoice in invoices:
+                    vals, allocated_gross = prepare_vals(invoice, partials=invoice_map[invoice], allocated_gross=allocated_gross)
+                    stub_lines.append(vals)
             else:
                 while remaining and (invoice := next(invoices, None)):
                     current_amount = min(remaining, invoice.currency_id._convert(
                         from_amount=invoice.amount_residual,
                         to_currency=self.currency_id,
                     ))
-                    stub_lines += [prepare_vals(invoice, current_amount=current_amount)]
+                    vals, _gross = prepare_vals(invoice, current_amount=current_amount)
+                    stub_lines.append(vals)
                     remaining -= current_amount
 
         # Crop the stub lines or split them on multiple pages

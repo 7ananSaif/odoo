@@ -1,20 +1,23 @@
-import { ActionSwiper } from "@web/core/action_swiper/action_swiper";
-
-import { Component, useState, useRef, useEffect } from "@odoo/owl";
-import { browser } from "@web/core/browser/browser";
-import { Deferred } from "@web/core/utils/concurrency";
+import { Component, computed, proxy, signal, t, useProps } from "@odoo/owl";
+import { location } from "@web/core/browser/browser";
+import { Dropdown } from "@web/core/dropdown/dropdown";
+import { DropdownItem } from "@web/core/dropdown/dropdown_item";
+import { useService } from "@web/core/utils/hooks";
+import { useLayoutEffect } from "@web/owl2/utils";
 
 export class SettingsPage extends Component {
     static template = "web.SettingsPage";
-    static components = { ActionSwiper };
-    static props = {
-        modules: Array,
-        anchors: Array,
-        initialTab: { type: String, optional: 1 },
-        slots: Object,
-    };
+    static components = { Dropdown, DropdownItem };
+    props = useProps({
+        modules: t.array(),
+        anchors: t.array(),
+        initialTab: t.string().optional(),
+        slots: t.object(),
+    });
+    settingsRef = signal.ref();
     setup() {
-        this.state = useState({
+        this.uiService = useService("ui");
+        this.state = proxy({
             selectedTab: "",
             search: this.env.searchState,
         });
@@ -22,8 +25,8 @@ export class SettingsPage extends Component {
         if (this.props.modules) {
             let selectedTab = this.props.initialTab || this.props.modules[0].key;
 
-            if (browser.location.hash) {
-                const hash = browser.location.hash.substring(1);
+            if (location.hash) {
+                const hash = location.hash.substring(1);
                 if (this.props.modules.map((m) => m.key).includes(hash)) {
                     selectedTab = hash;
                 } else {
@@ -37,10 +40,8 @@ export class SettingsPage extends Component {
             this.state.selectedTab = selectedTab;
         }
 
-        this.settingsRef = useRef("settings");
-        this.settingsTabRef = useRef("settings_tab");
         this.scrollMap = Object.create(null);
-        useEffect(
+        useLayoutEffect(
             (settingsEl, currentTab) => {
                 if (!settingsEl) {
                     return;
@@ -50,54 +51,36 @@ export class SettingsPage extends Component {
                 settingsEl.scrollTop = scrollTop;
                 this.tabChangeProm?.resolve();
             },
-            () => [this.settingsRef.el, this.state.selectedTab]
+            () => [this.settingsRef(), this.state.selectedTab]
         );
     }
 
-    getCurrentIndex() {
-        return this.props.modules.findIndex((object) => {
-            return object.key === this.state.selectedTab;
-        });
+    selectedModule = computed(() =>
+        this.props.modules.find((module) => module.key === this.state.selectedTab)
+    );
+
+    get invalidApps() {
+        const invalidApps = [];
+        for (const anchor of this.props.anchors) {
+            if (
+                anchor.fieldNames.some((fieldName) => this.env.model.root.isFieldInvalid(fieldName))
+            ) {
+                invalidApps.push(anchor.app);
+            }
+        }
+        return invalidApps;
     }
 
-    hasRightSwipe() {
-        return (
-            this.env.isSmall && this.state.search.value.length === 0 && this.getCurrentIndex() !== 0
-        );
-    }
-    hasLeftSwipe() {
-        return (
-            this.env.isSmall &&
-            this.state.search.value.length === 0 &&
-            this.getCurrentIndex() !== this.props.modules.length - 1
-        );
-    }
-    async onRightSwipe() {
-        this.tabChangeProm = new Deferred();
-        this.state.selectedTab = this.props.modules[this.getCurrentIndex() - 1].key;
-        await this.tabChangeProm;
-        this.scrollToSelectedTab();
-    }
-    async onLeftSwipe() {
-        this.tabChangeProm = new Deferred();
-        this.state.selectedTab = this.props.modules[this.getCurrentIndex() + 1].key;
-        await this.tabChangeProm;
-        this.scrollToSelectedTab();
-    }
-
-    scrollToSelectedTab() {
-        const key = this.state.selectedTab;
-        this.settingsTabRef.el
-            .querySelector(`[data-key='${key}']`)
-            .scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-    }
-
-    onSettingTabClick(key) {
-        if (this.settingsRef.el) {
-            const { scrollTop } = this.settingsRef.el;
+    onSettingTabClick(key, updateUrl = false) {
+        const el = this.settingsRef();
+        if (el) {
+            const { scrollTop } = el;
             this.scrollMap[this.state.selectedTab] = { scrollTop };
         }
         this.state.selectedTab = key;
-        this.env.searchState.value = "";
+        if (updateUrl) {
+            location.hash = key;
+        }
+        this.env.searchState.clearSearch();
     }
 }

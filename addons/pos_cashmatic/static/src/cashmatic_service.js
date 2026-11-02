@@ -1,4 +1,4 @@
-import { reactive } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
 
 export class CashmaticError extends Error {
@@ -27,7 +27,7 @@ export class CashmaticService {
         this.password = password;
         this.forceHttp = forceHttp;
         this.token = null;
-        this.state = reactive({ amountInserted: 0, amountDispensed: 0 });
+        this.state = proxy({ amountInserted: 0, amountDispensed: 0 });
     }
 
     async _sendRequest(operation, params) {

@@ -4,21 +4,49 @@
 #
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
 # "Malaz Siddig Elsayed Abuidris (msea)" <msea@odoo.com>, 2025.
+# Burkay Yıldızhan <seyil@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~18.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-11-28 12:50+0000\n"
-"Last-Translator: \"Malaz Siddig Elsayed Abuidris (msea)\" <msea@odoo.com>\n"
-"Language-Team: Turkish <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-10-14 07:33+0000\n"
+"Last-Translator: Burkay Yıldızhan <seyil@odoo.com>\n"
+"Language-Team: Turkish <https://translate.odoo.com/projects/odoo-20/"
 "account_edi/tr/>\n"
 "Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: account_edi
+#: model:ir.module.module,description:base.module_account_edi
+msgid ""
+"\n"
+"Electronic Data Interchange\n"
+"=======================================\n"
+"EDI is the electronic interchange of business information using a "
+"standardized format.\n"
+"\n"
+"This is the base module for import and export of invoices in various EDI "
+"formats, and the\n"
+"the transmission of said documents to various parties involved in the "
+"exchange (other company,\n"
+"governements, etc.)\n"
+msgstr ""
+"\n"
+"Elektronik Veri Değişimi\n"
+"=======================================\n"
+"EDI, standartlaştırılmış bir format kullanarak iş bilgilerinin elektronik "
+"değişimidir.\n"
+"\n"
+"Bu, faturaların çeşitli EDI formatlarında içe ve dışa aktarımı ile bu "
+"belgelerin\n"
+"değişimde yer alan çeşitli taraflara (diğer şirket, hükümetler vb.) "
+"iletilmesi\n"
+"için temel modüldür.\n"
 
 #. module: account_edi
 #. odoo-python
@@ -49,11 +77,6 @@ msgstr "EDI'nin iptali talep edildi."
 #: code:addons/account_edi/models/account_move.py:0
 msgid "A request for cancellation of the EDI has been called off."
 msgstr "EDI'nin iptali talebi iptal edildi."
-
-#. module: account_edi
-#: model:ir.model,name:account_edi.model_account_move_send
-msgid "Account Move Send"
-msgstr "Hesap Hareketi Yollandı"
 
 #. module: account_edi
 #: model_terms:ir.ui.view,arch_db:account_edi.view_move_form_inherit
@@ -290,6 +313,11 @@ msgid "ID"
 msgstr "ID"
 
 #. module: account_edi
+#: model:ir.module.module,shortdesc:base.module_account_edi
+msgid "Import/Export Invoices From XML/PDF"
+msgstr ""
+
+#. module: account_edi
 #: model:ir.model.fields.selection,name:account_edi.selection__account_edi_document__blocking_level__info
 #: model:ir.model.fields.selection,name:account_edi.selection__account_move__edi_blocking_level__info
 msgid "Info"
@@ -380,6 +408,11 @@ msgstr "XML / EDI faturaları gönder"
 #: model:ir.model.fields.selection,name:account_edi.selection__account_move__edi_state__sent
 msgid "Sent"
 msgstr "Gönderildi"
+
+#. module: account_edi
+#: model:ir.model,name:account_edi.model_account_move_send
+msgid "Shared Send Invoice Wizard Functions"
+msgstr ""
 
 #. module: account_edi
 #: model:ir.model.fields,field_description:account_edi.field_account_edi_document__state

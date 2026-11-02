@@ -6,28 +6,35 @@ from odoo.tests import tagged, Form
 from odoo.tests.common import new_test_user
 
 
+@tagged('-post_install', 'at_install')  # test_resupply_route breaks post install
 class TestWarehouse(TestStockCommon):
 
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.partner = cls.env['res.partner'].create({'name': 'Acme Corporation'})
+    _test_user_groups = (
+        'product.group_product_manager',  # FIXME: use base.group_user
+        'stock.group_stock_manager',  # FIXME: use base.group_stock_user
+        # FIXME: warehouse configuration writes res.groups (base.group_user.implied_ids)
+        # without sudo in stock.warehouse._check_multiwarehouse_group (stock/models/
+        # stock_warehouse.py) and creates res.company for multi-company scenarios.
+        'base.group_erp_manager',
+    )
+
+    _test_user_name = 'Test Stock & Product Manager'
 
     def test_inventory_product(self):
         self.product_1.is_storable = True
+
         product_1_quant = self.env['stock.quant'].with_context(inventory_mode=True).create({
             'product_id': self.product_1.id,
             'inventory_quantity': 50.0,
             'location_id': self.warehouse_1.lot_stock_id.id,
         })
         product_1_quant.action_apply_inventory()
-
         # Make sure the inventory was successful
         move_in_id = self.env['stock.move'].search([('is_inventory', '=', True), ('product_id', '=', self.product_1.id)])
         self.assertEqual(len(move_in_id), 1)
         self.assertEqual(move_in_id.product_qty, 50.0)
         self.assertEqual(product_1_quant.quantity, 50.0)
-        self.assertEqual(move_in_id.product_uom, self.product_1.uom_id)
+        self.assertEqual(move_in_id.uom_id, self.product_1.uom_id)
         self.assertEqual(move_in_id.state, 'done')
 
         # Update the inventory, set to 35
@@ -59,7 +66,7 @@ class TestWarehouse(TestStockCommon):
         When updating product quantity, new quant should have its location set
         to the stock location of the top warehouse.
         """
-        warehouse = self.env['stock.warehouse'].create({
+        warehouse = self.env['stock.warehouse'].sudo().create({
             'name': 'Mixed locations',
             'code': 'TEST',
             'sequence': 0,
@@ -80,7 +87,7 @@ class TestWarehouse(TestStockCommon):
         product = self.product_3.with_user(self.user_stock_manager)
         product.is_storable = True
         picking_out = self.env['stock.picking'].create({
-            'partner_id': self.partner.id,
+            'partner_id': self.partner_1.id,
             'picking_type_id': self.picking_type_out.id,
             'location_id': self.warehouse_1.lot_stock_id.id,
             'location_dest_id': self.customer_location.id,
@@ -88,14 +95,14 @@ class TestWarehouse(TestStockCommon):
         customer_move = self.env['stock.move'].create({
             'product_id': product.id,
             'product_uom_qty': 5,
-            'product_uom': product.uom_id.id,
+            'uom_id': product.uom_id.id,
             'picking_id': picking_out.id,
             'location_id': self.warehouse_1.lot_stock_id.id,
             'location_dest_id': self.customer_location.id,
         })
         # simulate create + onchange
         # test move values
-        self.assertEqual(customer_move.product_uom, product.uom_id)
+        self.assertEqual(customer_move.uom_id, product.uom_id)
         self.assertEqual(customer_move.location_id, self.warehouse_1.lot_stock_id)
         self.assertEqual(customer_move.location_dest_id, self.customer_location)
 
@@ -141,7 +148,7 @@ class TestWarehouse(TestStockCommon):
 
         # Create a picking out and force availability
         picking_out = self.env['stock.picking'].create({
-            'partner_id': self.partner.id,
+            'partner_id': self.partner_1.id,
             'picking_type_id': self.picking_type_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
@@ -149,7 +156,7 @@ class TestWarehouse(TestStockCommon):
         self.env['stock.move'].create({
             'product_id': productA.id,
             'product_uom_qty': 1,
-            'product_uom': productA.uom_id.id,
+            'uom_id': productA.uom_id.id,
             'picking_id': picking_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
@@ -161,17 +168,10 @@ class TestWarehouse(TestStockCommon):
 
         quant = self.env['stock.quant'].search([('product_id', '=', productA.id), ('location_id', '=', self.stock_location.id)])
         self.assertEqual(len(quant), 1)
-        stock_return_picking_form = Form(self.env['stock.return.picking']
-            .with_context(active_ids=picking_out.ids, active_id=picking_out.ids[0],
-            active_model='stock.picking'))
-        stock_return_picking = stock_return_picking_form.save()
-        stock_return_picking.product_return_moves.quantity = 1.0
-        stock_return_picking_action = stock_return_picking.action_create_returns()
-        return_pick = self.env['stock.picking'].browse(stock_return_picking_action['res_id'])
+        return_pick = picking_out._create_return()
+        return_pick.move_ids.product_uom_qty = 1.0
         return_pick.action_assign()
-        return_pick.move_ids.quantity = 1
-        return_pick.move_ids.picked = True
-        return_pick._action_done()
+        return_pick.button_validate()
 
         quant = self.env['stock.quant'].search([('product_id', '=', productA.id), ('location_id', '=', self.stock_location.id)])
         self.assertEqual(sum(quant.mapped('quantity')), 0)
@@ -183,7 +183,7 @@ class TestWarehouse(TestStockCommon):
 
         # Create a picking out and force availability
         picking_out = self.env['stock.picking'].create({
-            'partner_id': self.partner.id,
+            'partner_id': self.partner_1.id,
             'picking_type_id': self.picking_type_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
@@ -191,7 +191,7 @@ class TestWarehouse(TestStockCommon):
         self.env['stock.move'].create({
             'product_id': productA.id,
             'product_uom_qty': 1,
-            'product_uom': productA.uom_id.id,
+            'uom_id': productA.uom_id.id,
             'picking_id': picking_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
@@ -230,20 +230,20 @@ class TestWarehouse(TestStockCommon):
         Create the move from Shop to Customer and ensure that all the pull
         rules are triggered in order to complete the move chain to Stock.
         """
-        warehouse_stock = self.env['stock.warehouse'].create({
+        warehouse_stock = self.env['stock.warehouse'].sudo().create({
             'name': 'Stock.',
             'code': 'STK',
         })
 
         distribution_partner = self.env['res.partner'].create({'name': 'Distribution Center'})
-        warehouse_distribution = self.env['stock.warehouse'].create({
+        warehouse_distribution = self.env['stock.warehouse'].sudo().create({
             'name': 'Dist.',
             'code': 'DIST',
             'resupply_wh_ids': [Command.set([warehouse_stock.id])],
             'partner_id': distribution_partner.id,
         })
 
-        warehouse_shop = self.env['stock.warehouse'].create({
+        warehouse_shop = self.env['stock.warehouse'].sudo().create({
             'name': 'Shop',
             'code': 'SHOP',
             'resupply_wh_ids': [Command.set([warehouse_distribution.id])],
@@ -270,7 +270,7 @@ class TestWarehouse(TestStockCommon):
         })
 
         picking_out = self.env['stock.picking'].create({
-            'partner_id': self.partner.id,
+            'partner_id': self.partner_1.id,
             'picking_type_id': self.picking_type_out.id,
             'location_id': warehouse_shop.lot_stock_id.id,
             'location_dest_id': self.customer_location.id,
@@ -278,7 +278,7 @@ class TestWarehouse(TestStockCommon):
         self.env['stock.move'].create({
             'product_id': product.id,
             'product_uom_qty': 1,
-            'product_uom': product.uom_id.id,
+            'uom_id': product.uom_id.id,
             'picking_id': picking_out.id,
             'location_id': warehouse_shop.lot_stock_id.id,
             'location_dest_id': self.customer_location.id,
@@ -314,23 +314,23 @@ class TestWarehouse(TestStockCommon):
         """
         customer_location = self.customer_location
 
-        warehouse_distribution_wavre = self.env['stock.warehouse'].create({
+        warehouse_distribution_wavre = self.env['stock.warehouse'].sudo().create({
             'name': 'Stock Wavre.',
             'code': 'WV',
         })
 
-        warehouse_shop_wavre = self.env['stock.warehouse'].create({
+        warehouse_shop_wavre = self.env['stock.warehouse'].sudo().create({
             'name': 'Shop Wavre',
             'code': 'SHWV',
             'resupply_wh_ids': [Command.set([warehouse_distribution_wavre.id])],
         })
 
-        warehouse_distribution_namur = self.env['stock.warehouse'].create({
+        warehouse_distribution_namur = self.env['stock.warehouse'].sudo().create({
             'name': 'Stock Namur.',
             'code': 'NM',
         })
 
-        warehouse_shop_namur = self.env['stock.warehouse'].create({
+        warehouse_shop_namur = self.env['stock.warehouse'].sudo().create({
             'name': 'Shop Namur',
             'code': 'SHNM',
             'resupply_wh_ids': [Command.set([warehouse_distribution_namur.id])],
@@ -356,7 +356,7 @@ class TestWarehouse(TestStockCommon):
         # Create the move for the shop Namur. Should create a resupply from
         # distribution warehouse Namur.
         picking_out_namur = self.env['stock.picking'].create({
-            'partner_id': self.partner.id,
+            'partner_id': self.partner_1.id,
             'picking_type_id': self.picking_type_out.id,
             'location_id': warehouse_shop_namur.lot_stock_id.id,
             'location_dest_id': customer_location.id,
@@ -365,7 +365,7 @@ class TestWarehouse(TestStockCommon):
         self.env['stock.move'].create({
             'product_id': product.id,
             'product_uom_qty': 1,
-            'product_uom': product.uom_id.id,
+            'uom_id': product.uom_id.id,
             'picking_id': picking_out_namur.id,
             'location_id': warehouse_shop_namur.lot_stock_id.id,
             'location_dest_id': customer_location.id,
@@ -403,7 +403,7 @@ class TestWarehouse(TestStockCommon):
         # Create the move for the shop Wavre. Should create a resupply from
         # distribution warehouse Wavre.
         picking_out_wavre = self.env['stock.picking'].create({
-            'partner_id': self.partner.id,
+            'partner_id': self.partner_1.id,
             'picking_type_id': self.picking_type_out.id,
             'location_id': warehouse_shop_wavre.lot_stock_id.id,
             'location_dest_id': customer_location.id,
@@ -412,7 +412,7 @@ class TestWarehouse(TestStockCommon):
         self.env['stock.move'].create({
             'product_id': product.id,
             'product_uom_qty': 1,
-            'product_uom': product.uom_id.id,
+            'uom_id': product.uom_id.id,
             'picking_id': picking_out_wavre.id,
             'location_id': warehouse_shop_wavre.lot_stock_id.id,
             'location_dest_id': customer_location.id,
@@ -450,7 +450,7 @@ class TestWarehouse(TestStockCommon):
     def test_add_resupply_warehouse_one_by_one(self):
         """ Checks that selecting a warehouse as a resupply warehouse one after another correctly sets the routes as well.
         """
-        warehouse_A, warehouse_B, warehouse_C = self.env['stock.warehouse'].create([{
+        warehouse_A, warehouse_B, warehouse_C = self.env['stock.warehouse'].sudo().create([{
             'name': code,
             'code': code,
         } for code in ['WH_A', 'WH_B', 'WH_C']])
@@ -469,11 +469,11 @@ class TestWarehouse(TestStockCommon):
     def test_toggle_resupply_warehouse(self):
         """ Checks that selecting then unselecting a warehouse as resupply correctly archives/unarchives the related route.
         """
-        warehouse_A = self.env['stock.warehouse'].create({
+        warehouse_A = self.env['stock.warehouse'].sudo().create({
             'name': 'Warehouse A',
             'code': 'WH_A',
         })
-        warehouse_B = self.env['stock.warehouse'].create({
+        warehouse_B = self.env['stock.warehouse'].sudo().create({
             'name': 'Warehouse B',
             'code': 'WH_B',
             'resupply_wh_ids': [Command.set(warehouse_A.ids)],
@@ -498,12 +498,12 @@ class TestWarehouse(TestStockCommon):
         - A reordering rule is set on the product to fill the second warehouse
         Ensure that the product can move all the way from the first to the second warehouse.
         """
-        warehouse_A = self.env['stock.warehouse'].create({
+        warehouse_A = self.env['stock.warehouse'].sudo().create({
             'name': 'Warehouse A',
             'code': 'WH_A',
             'delivery_steps': 'pick_pack_ship',
         })
-        warehouse_B = self.env['stock.warehouse'].create({
+        warehouse_B = self.env['stock.warehouse'].sudo().create({
             'name': 'Warehouse B',
             'code': 'WH_B',
             'reception_steps': 'three_steps',
@@ -518,10 +518,11 @@ class TestWarehouse(TestStockCommon):
         self.assertEqual(self.env['stock.quant']._get_available_quantity(self.product_3, warehouse_A.lot_stock_id), 1)
         self.assertEqual(self.env['stock.quant']._get_available_quantity(self.product_3, warehouse_B.lot_stock_id), 0)
 
-        orderpoint = self.env['stock.warehouse.orderpoint'].create({
+        orderpoint = self.env['stock.warehouse.orderpoint'].with_user(self.user_stock_manager).create({
             'location_id': warehouse_B.lot_stock_id.id,
             'product_id': self.product_3.id,
             'qty_to_order': 1.0,
+            'trigger': 'manual',
         })
         orderpoint.action_replenish()
         # Check that the orderpoint generated the source move from the furthest location.
@@ -550,48 +551,39 @@ class TestWarehouse(TestStockCommon):
         self.assertEqual(self.env['stock.quant']._get_available_quantity(self.product_3, warehouse_B.lot_stock_id), 1)
 
     def test_change_delivery_step_resupply_warehouse(self):
-        """ Verifies that when changing the delivery steps of a warehouse, it correctly adds/removes the extra rule
-        that is required to resupply the Output location.
+        """ Verifies that when changing the delivery steps of a warehouse, it correctly edits the rules to initiate the resupply.
         """
-        warehouse_A = self.env['stock.warehouse'].create({
+        warehouse_A = self.env['stock.warehouse'].sudo().create({
             'name': 'Warehouse X',
             'code': 'WH_X',
         })
-        warehouse_B = self.env['stock.warehouse'].create({
+        warehouse_B = self.env['stock.warehouse'].sudo().create({
             'name': 'Warehouse Y',
             'code': 'WH_Y',
             'resupply_wh_ids': [Command.link(warehouse_A.id)],
         })
         resupply_rules = warehouse_B.resupply_route_ids.rule_ids
-        self.assertEqual(len(resupply_rules), 2)
-        stock_A_to_transit = resupply_rules.filtered(lambda r: r.location_dest_id == self.env.company.internal_transit_location_id)
+        self.assertEqual(len(resupply_rules), 3)
+        stock_A_to_transit = resupply_rules.filtered(lambda r: r.location_dest_id == self.env.company.internal_transit_location_id and r.action == 'pull')
         self.assertEqual(stock_A_to_transit.location_src_id, warehouse_A.lot_stock_id)
+        self.assertEqual(stock_A_to_transit.picking_type_id, warehouse_A.out_type_id)
 
-        # Set Warehouse A to 3 steps, a new rule should be created to resupply Output.
+        # Set Warehouse A to 3 steps, the picking type should be updated to use PICK
         warehouse_A.delivery_steps = 'pick_pack_ship'
-        new_resupply_rules = warehouse_B.resupply_route_ids.rule_ids
-        self.assertEqual(len(new_resupply_rules), 3)
-        self.assertEqual(stock_A_to_transit.location_src_id, warehouse_A.wh_output_stock_loc_id)
-        stock_to_output = new_resupply_rules - resupply_rules
-        self.assertEqual(stock_to_output.location_src_id, warehouse_A.lot_stock_id)
-        self.assertEqual(stock_to_output.location_dest_id, warehouse_A.wh_output_stock_loc_id)
+        self.assertEqual(len(warehouse_B.resupply_route_ids.rule_ids), 3)
+        self.assertEqual(stock_A_to_transit.location_src_id, warehouse_A.lot_stock_id)
+        self.assertEqual(stock_A_to_transit.picking_type_id, warehouse_A.pick_type_id)
 
         # Set Warehouse A to 2 steps, no change should have been made.
         warehouse_A.delivery_steps = 'pick_ship'
-        self.assertEqual(warehouse_B.resupply_route_ids.rule_ids, new_resupply_rules)
-        self.assertEqual(stock_A_to_transit.location_src_id, warehouse_A.wh_output_stock_loc_id)
-        self.assertEqual(stock_to_output.location_dest_id, warehouse_A.wh_output_stock_loc_id)
-
-        # Set Warehouse A to 1 step, the rule to resupply Output should be archived.
-        warehouse_A.delivery_steps = 'ship_only'
-        self.assertEqual(warehouse_B.resupply_route_ids.rule_ids, resupply_rules)
+        self.assertEqual(len(warehouse_B.resupply_route_ids.rule_ids), 3)
         self.assertEqual(stock_A_to_transit.location_src_id, warehouse_A.lot_stock_id)
-        self.assertFalse(stock_to_output.active, "The intermediate rule should have been archived.")
+        self.assertEqual(stock_A_to_transit.picking_type_id, warehouse_A.pick_type_id)
 
-        # Set Warehouse A back to 2 steps, the rule to resupply Output should be unarchived.
-        warehouse_A.delivery_steps = 'pick_ship'
-        self.assertTrue(stock_to_output.active, "The intermediate rule should have been unarchived.")
-        self.assertEqual(warehouse_B.resupply_route_ids.rule_ids, new_resupply_rules, "No new rule should have been created.")
+        # Set Warehouse A to 1 step, the picking type should be updated back to OUT
+        warehouse_A.delivery_steps = 'ship_only'
+        self.assertEqual(stock_A_to_transit.location_src_id, warehouse_A.lot_stock_id)
+        self.assertEqual(stock_A_to_transit.picking_type_id, warehouse_A.out_type_id)
 
     def test_noleak(self):
         # non-regression test to avoid company_id leaking to other warehouses (see blame)
@@ -600,7 +592,9 @@ class TestWarehouse(TestStockCommon):
             'name': 'My Company (Chicago)1',
             'currency_id': self.ref('base.USD')
         })
-        self.env['stock.warehouse'].create({
+        self.env.user.sudo().company_ids += company
+        self.env = self.env(context=dict(self.env.context, allowed_company_ids=[self.env.company.id, company.id]))
+        self.env['stock.warehouse'].sudo().create({
             'name': 'Chicago Warehouse2',
             'company_id': company.id,
             'code': 'Chic2',
@@ -769,15 +763,26 @@ class TestWarehouse(TestStockCommon):
 
         wh = Form(warehouse)
         wh.code = 'CH'
-        wh.save()
+        warehouse = wh.save()
         self.assertEqual(warehouse.int_type_id.barcode, 'CHINT')
         self.assertEqual(warehouse.int_type_id.sequence_id.prefix, 'CH/INT/')
+
+        previous_address = warehouse.partner_id
+        warehouse.resupply_wh_ids = [Command.set([self.warehouse_1.id])]
+        rule_to_wh = warehouse.resupply_route_ids.rule_ids.filtered(lambda r: r.action == 'pull_push')
+        self.assertIn(f'("partner_id", "in", [{warehouse.partner_id.id}])', rule_to_wh.push_domain)
+        self.assertEqual(rule_to_wh.partner_address_id, self.warehouse_1.partner_id)
+        # Updating warehouse partner should also update resupply rule push_domain
+        warehouse.partner_id = self.partner_1
+        self.assertIn(f'("partner_id", "in", [{self.partner_1.id}])', rule_to_wh.push_domain)
+        self.warehouse_1.partner_id = previous_address
+        self.assertEqual(rule_to_wh.partner_address_id, previous_address)
 
     def test_location_warehouse(self):
         """ Check that the closest warehouse is selected
         in a warehouse within warehouse situation
         """
-        wh = self.env['stock.warehouse'].create({
+        wh = self.env['stock.warehouse'].sudo().create({
             'name': 'Main Test Warehouse',
             'code': 'MTWH',
         })
@@ -797,18 +802,18 @@ class TestWarehouse(TestStockCommon):
         self.assertEqual(location.warehouse_id, test_warehouse)
 
     def test_location_updates_wh(self):
-        warehouse_A = self.env['stock.warehouse'].create({
+        warehouse_A = self.env['stock.warehouse'].sudo().create({
             'name': 'Warehouse X',
             'code': 'WH_X',
             'delivery_steps': 'pick_pack_ship'
         })
-        warehouse_B = self.env['stock.warehouse'].create({
+        warehouse_B = self.env['stock.warehouse'].sudo().create({
             'name': 'Warehouse Y',
             'code': 'WH_Y',
             'delivery_steps': 'pick_pack_ship'
         })
         picking_out = self.env['stock.picking'].create({
-            'partner_id': self.partner.id,
+            'partner_id': self.partner_1.id,
             'picking_type_id': warehouse_A.pick_type_id.id,
             'location_id': warehouse_A.lot_stock_id.id,
             'location_dest_id': self.customer_location.id,
@@ -816,7 +821,7 @@ class TestWarehouse(TestStockCommon):
         customer_move = self.env['stock.move'].create({
             'product_id': self.product.id,
             'product_uom_qty': 1,
-            'product_uom': self.product.uom_id.id,
+            'uom_id': self.product.uom_id.id,
             'picking_id': picking_out.id,
             'location_id': warehouse_A.lot_stock_id.id,
             'location_dest_id': self.customer_location.id,
@@ -838,7 +843,8 @@ class TestWarehouse(TestStockCommon):
             {'name': 'COMP1'},
             {'name': 'COMP2'},
         ])
-        warehouses = self.env['stock.warehouse'].create([
+        self.env.user.sudo().company_ids += companies
+        warehouses = self.env['stock.warehouse'].sudo().create([
             {
                 'name': 'Warehouse 1',
                 'company_id': companies.ids[0],
@@ -853,8 +859,8 @@ class TestWarehouse(TestStockCommon):
         warehouse = warehouses[0]
         warehouse.delivery_steps = 'pick_ship'
         user = new_test_user(self.env, login='bub', groups='stock.group_stock_user', company_id=companies.ids[1], company_ids=[Command.set(companies.ids)])
-        pick = self.env['stock.picking'].with_user(user).create({
-            'partner_id': self.partner.id,
+        pick = self.env['stock.picking'].with_context(allowed_company_ids=companies.ids).with_user(user).create({
+            'partner_id': self.partner_1.id,
             'picking_type_id': warehouse.pick_type_id.id,
             'location_id': warehouse.lot_stock_id.id,
             'location_dest_id': warehouse.wh_output_stock_loc_id.id,
@@ -862,7 +868,7 @@ class TestWarehouse(TestStockCommon):
             'move_ids': [Command.create({
                 'product_id': self.product.id,
                 'product_uom_qty': 1,
-                'product_uom': self.product.uom_id.id,
+                'uom_id': self.product.uom_id.id,
                 'company_id': companies.ids[0],
                 'location_id': warehouse.lot_stock_id.id,
                 'location_dest_id': warehouse.wh_output_stock_loc_id.id,
@@ -879,7 +885,7 @@ class TestWarehouse(TestStockCommon):
         out_type = self.warehouse_1.out_type_id
         sequence = out_type.sequence_id
         end_of_prefix = 'LOREM/'
-        sequence.prefix += end_of_prefix
+        sequence.sudo().prefix += end_of_prefix
         self.warehouse_1.delivery_steps = 'pick_ship'
         self.assertTrue(sequence.prefix.endswith(end_of_prefix))
 
@@ -891,9 +897,10 @@ class TestWarehouse(TestStockCommon):
           one duplicate for each call _find_or_create_global_route.
         """
         company_2 = self.env["res.company"].create({"name": "Company 2"})
+        self.env.user.sudo().company_ids += company_2
 
         mto_route = self.warehouse_1.mto_pull_id.route_id
-        mto_route.rule_ids.unlink()  # Quick patch to be able to set a company on the route
+        mto_route.sudo().rule_ids.unlink()  # Quick patch to be able to set a company on the route
         mto_route.write({"name": "New Name (MTO)", "company_id": self.warehouse_1.company_id.id})
 
         self.env["stock.warehouse"].with_company(company_2).create({"name": "Warehouse 2", "code": "2"})
@@ -954,12 +961,19 @@ class TestWarehouse(TestStockCommon):
 
 @tagged('-at_install', 'post_install')
 class TestWarehousePostInstall(TestStockCommon):
+    _test_user_groups = (
+        'product.group_product_manager',  # FIXME: use base.group_user
+        'stock.group_stock_manager',
+    )
+
+    _test_user_name = 'Test Product Manager'
+
     def test_manual_resupply_from_wh_partner_propagation(self):
         """
         Check that the warehouse destination is set as delivery address
         when a product is manually resupplied from an other warehouse.
         """
-        warehouse_2 = self.env['stock.warehouse'].create({
+        warehouse_2 = self.env['stock.warehouse'].sudo().create({
             'name': 'Warehouse 2',
             'company_id': self.env.company.id,
             'code': 'WHC2',
@@ -970,7 +984,7 @@ class TestWarehousePostInstall(TestStockCommon):
         product_replenish = Form(self.env['product.replenish'].with_context(default_product_id=self.product.id))
         product_replenish.warehouse_id = warehouse_2
         product_replenish.save().launch_replenishment()
-        replenishment_pickings = self.env['stock.picking'].search([('origin', '=', 'Manual Replenishment'), ('product_id', '=', self.product.ids)]).sorted('id')
+        replenishment_pickings = self.env['stock.picking'].search([('origin', '=', 'Manual Replenishment'), ('product_id', 'in', self.product.ids)]).sorted('id')
         self.assertRecordValues(replenishment_pickings, [
             {
                 'picking_type_id': self.warehouse_1.out_type_id.id,

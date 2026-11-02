@@ -14,15 +14,24 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-10-08 18:39+0000\n"
-"Last-Translator: \n"
-"Language-Team: \n"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 15:36+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Uzbek <https://translate.odoo.com/projects/odoo-s19-4/utm/uz/"
+">\n"
 "Language: uz\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: utm
+#: model:ir.module.module,description:base.module_utm
+msgid ""
+"\n"
+"Enable management of UTM trackers: campaign, medium, source.\n"
+msgstr ""
 
 #. module: utm
 #. odoo-python
@@ -93,6 +102,11 @@ msgstr "Auditoriyaga yo‘naltirilgan jarayon"
 #, fuzzy
 msgid "Automatically Generated Campaign"
 msgstr "Avtomatik tarzda yaratilgan kampaniya"
+
+#. module: utm
+#: model:utm.campaign,title:utm.utm_campaign_black_friday
+msgid "Black Friday Sales"
+msgstr ""
 
 #. module: utm
 #: model:ir.model.fields,field_description:utm.field_utm_mixin__campaign_id
@@ -265,7 +279,6 @@ msgstr "Dizayn"
 #: model:ir.model.fields,field_description:utm.field_utm_medium__display_name
 #: model:ir.model.fields,field_description:utm.field_utm_mixin__display_name
 #: model:ir.model.fields,field_description:utm.field_utm_source__display_name
-#: model:ir.model.fields,field_description:utm.field_utm_source_mixin__display_name
 #: model:ir.model.fields,field_description:utm.field_utm_stage__display_name
 #: model:ir.model.fields,field_description:utm.field_utm_tag__display_name
 #, fuzzy
@@ -284,18 +297,6 @@ msgstr "Bajarildi"
 #, fuzzy
 msgid "Edit"
 msgstr "Tahrirlash"
-
-#. module: utm
-#: model:utm.campaign,title:utm.utm_campaign_email_campaign_products
-#, fuzzy
-msgid "Email Campaign - Products"
-msgstr "Elektron pochta kampaniyasi - Mahsulotlar"
-
-#. module: utm
-#: model:utm.campaign,title:utm.utm_campaign_email_campaign_services
-#, fuzzy
-msgid "Email Campaign - Services"
-msgstr "Elektron pochta kampaniyasi - Xizmatlar"
 
 #. module: utm
 #. odoo-javascript
@@ -334,7 +335,6 @@ msgstr "HTTP yo‘naltirish"
 #: model:ir.model.fields,field_description:utm.field_utm_medium__id
 #: model:ir.model.fields,field_description:utm.field_utm_mixin__id
 #: model:ir.model.fields,field_description:utm.field_utm_source__id
-#: model:ir.model.fields,field_description:utm.field_utm_source_mixin__id
 #: model:ir.model.fields,field_description:utm.field_utm_stage__id
 #: model:ir.model.fields,field_description:utm.field_utm_tag__id
 #, fuzzy
@@ -422,7 +422,6 @@ msgid "My Campaigns"
 msgstr "Mening kampaniyalarim"
 
 #. module: utm
-#: model:ir.model.fields,field_description:utm.field_utm_source_mixin__name
 #: model:ir.model.fields,field_description:utm.field_utm_stage__name
 #: model:ir.model.fields,field_description:utm.field_utm_tag__name
 #: model_terms:ir.ui.view,arch_db:utm.utm_campaign_view_tree
@@ -452,6 +451,14 @@ msgid ""
 msgstr ""
 "Kechirasiz, '%s' mediumini o‘chira olmaysiz. Buni qilish yuk ko‘taruvchi "
 "devorni buzishga o‘xshaydi — bu yaxshi g‘oya emas."
+
+#. module: utm
+#. odoo-python
+#: code:addons/utm/models/utm_source.py:0
+msgid ""
+"Oops, you can't delete the Source '%s'.\n"
+"Doing so would be like tearing down a load-bearing wall — not the best idea."
+msgstr ""
 
 #. module: utm
 #. odoo-javascript
@@ -515,12 +522,6 @@ msgid "Running"
 msgstr "Faol"
 
 #. module: utm
-#: model:utm.campaign,title:utm.utm_campaign_fall_drive
-#, fuzzy
-msgid "Sale"
-msgstr "Sotish"
-
-#. module: utm
 #: model:utm.stage,name:utm.campaign_stage_1
 #, fuzzy
 msgid "Schedule"
@@ -569,7 +570,6 @@ msgstr "Yumshoq ishga tushirish jarayoni"
 
 #. module: utm
 #: model:ir.model.fields,field_description:utm.field_utm_mixin__source_id
-#: model:ir.model.fields,field_description:utm.field_utm_source_mixin__source_id
 #: model_terms:ir.ui.view,arch_db:utm.utm_source_view_form
 #: model_terms:ir.ui.view,arch_db:utm.utm_source_view_tree
 #, fuzzy
@@ -741,16 +741,15 @@ msgid "UTM Mixin"
 msgstr "UTM aralashmasi"
 
 #. module: utm
+#: model:ir.model.fields,field_description:utm.field_utm_mixin__utm_reference
+msgid "UTM Reference"
+msgstr ""
+
+#. module: utm
 #: model:ir.model,name:utm.model_utm_source
 #, fuzzy
 msgid "UTM Source"
 msgstr "UTM manbasi"
-
-#. module: utm
-#: model:ir.model,name:utm.model_utm_source_mixin
-#, fuzzy
-msgid "UTM Source Mixin"
-msgstr "UTM manba aralashmasi"
 
 #. module: utm
 #: model_terms:ir.actions.act_window,help:utm.utm_source_action
@@ -775,6 +774,11 @@ msgid "UTM Tag"
 msgstr "UTM tegi"
 
 #. module: utm
+#: model:ir.module.module,shortdesc:base.module_utm
+msgid "UTM Trackers"
+msgstr ""
+
+#. module: utm
 #: model:ir.ui.menu,name:utm.marketing_utm
 #, fuzzy
 msgid "UTMs"
@@ -786,24 +790,6 @@ msgstr "UTMlar"
 #, fuzzy
 msgid "Use This For My Campaigns"
 msgstr "Mening kampaniyalarim uchun buni ishlatishingiz mumkin"
-
-#. module: utm
-#. odoo-python
-#: code:addons/utm/models/utm_source.py:0
-#, fuzzy
-msgid "You cannot delete the 'Referral' UTM source record."
-msgstr "\"Referral\" UTM manba yozuvini o‘chirib bo‘lmaydi."
-
-#. module: utm
-#. odoo-python
-#: code:addons/utm/models/utm_source.py:0
-#, fuzzy
-msgid ""
-"You cannot update multiple records with the same name. The name should be "
-"unique!"
-msgstr ""
-"Bir xil nomdagi bir nechta yozuvni yangilab bo‘lmaydi. Nom takrorlanmas "
-"bo‘lishi shart!"
 
 #. module: utm
 #: model_terms:ir.ui.view,arch_db:utm.utm_stage_view_form

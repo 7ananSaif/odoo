@@ -1,12 +1,13 @@
 
 .o_switch_company_menu_dropdown {
     min-width: 20rem;
+    
+    .o-checkbox .form-check-input {
+        margin-top: 0
+    }
 }
 
 .o_switch_company_menu_items {
-    max-height: 20rem;
-    overflow-x: auto;
-
     .o_switch_company_item {
         height: 33px;
 
@@ -21,24 +22,6 @@
 
         .disabled {
             cursor: default;
-        }
-    }
-}
-
-.o_switch_company_menu_buttons {
-    .btn-primary {
-        $color-theme: map-get($o-btns-bs-override, "primary");
-        $background: map-get($color-theme, "background");
-        color: color-contrast($background);
-    }
-
-    .focus {
-        &.btn-primary {
-            outline: 2px solid var(--o-cc1-text);
-        }
-
-        &.btn-secondary {
-            outline: 2px solid var(--o-cc1-text);
         }
     }
 }

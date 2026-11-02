@@ -1,32 +1,50 @@
 /** @odoo-module alias=@web/../tests/mobile/core/action_swiper_tests default=false */
 
-import { beforeEach, expect, test } from "@odoo/hoot";
-import { hover, queryFirst } from "@odoo/hoot-dom";
-import { advanceTime, animationFrame, mockTouch } from "@odoo/hoot-mock";
-import { Component, onPatched, xml } from "@odoo/owl";
+import { beforeEach, expect, hover, mockTouch, queryFirst, test } from "@odoo/hoot";
+import { Component, xml } from "@odoo/owl";
 import {
     contains,
     defineParams,
     mountWithCleanup,
-    patchWithCleanup,
     swipeLeft,
     swipeRight,
 } from "@web/../tests/web_test_helpers";
 import { ActionSwiper } from "@web/core/action_swiper/action_swiper";
-import { Deferred } from "@web/core/utils/concurrency";
+import { patch } from "@web/core/utils/patch";
 
-beforeEach(() => mockTouch(true));
+beforeEach(() => {
+    mockTouch(true);
+    patch(ActionSwiper, {
+        animationLength: 0,
+    });
+});
 
 // Tests marked as will fail on browsers that don't support
 // TouchEvent by default. It might be an option to activate on some browser.
 
 test("render only its target if no props is given", async () => {
     class Parent extends Component {
-        static props = ["*"];
         static components = { ActionSwiper };
         static template = xml`
                 <div class="d-flex">
                     <ActionSwiper>
+                        <div class="target-component"/>
+                    </ActionSwiper>
+                </div>
+            `;
+    }
+    await mountWithCleanup(Parent);
+    expect("div.o_actionswiper").toHaveCount(0);
+    expect("div.target-component").toHaveCount(1);
+});
+
+test("render only its target on non-touch devices", async () => {
+    mockTouch(false);
+    class Parent extends Component {
+        static components = { ActionSwiper };
+        static template = xml`
+                <div class="d-flex">
+                    <ActionSwiper onLeftSwipe="{action: () => {}, icon: 'circle', iconClass: 'oi-filled', bgColor: 'bg-warning'}">
                         <div class="target-component"/>
                     </ActionSwiper>
                 </div>
@@ -42,7 +60,8 @@ test("only render the necessary divs", async () => {
         props: {
             onRightSwipe: {
                 action: () => {},
-                icon: "fa-circle",
+                icon: "circle",
+                iconClass: "oi-filled",
                 bgColor: "bg-warning",
             },
             slots: {},
@@ -54,7 +73,8 @@ test("only render the necessary divs", async () => {
         props: {
             onLeftSwipe: {
                 action: () => {},
-                icon: "fa-circle",
+                icon: "circle",
+                iconClass: "oi-filled",
                 bgColor: "bg-warning",
             },
             slots: {},
@@ -66,13 +86,13 @@ test("only render the necessary divs", async () => {
 
 test("render with the height of its content", async () => {
     class Parent extends Component {
-        static props = ["*"];
         static components = { ActionSwiper };
         static template = xml`
                 <div class="o-container d-flex" style="width: 200px; height: 200px; overflow: auto">
                     <ActionSwiper onRightSwipe = "{
                         action: () => this.onRightSwipe(),
-                        icon: 'fa-circle',
+                        icon: 'circle',
+                        iconClass: 'oi-filled',
                         bgColor: 'bg-warning'
                     }">
                         <div class="target-component" style="height: 800px">This element is very high and
@@ -97,13 +117,13 @@ test("render with the height of its content", async () => {
 
 test("can perform actions by swiping to the right", async () => {
     class Parent extends Component {
-        static props = ["*"];
         static components = { ActionSwiper };
         static template = xml`
             <div class="d-flex">
                 <ActionSwiper onRightSwipe = "{
                     action: () => this.onRightSwipe(),
-                    icon: 'fa-circle',
+                    icon: 'circle',
+                    iconClass: 'oi-filled',
                     bgColor: 'bg-warning'
                 }">
                     <div class="target-component" style="width: 200px; height: 80px">Test</div>
@@ -133,20 +153,19 @@ test("can perform actions by swiping to the right", async () => {
         message: "target has translateX",
     });
 
-    // Touch ends before the half of the distance has been reached
+    // Touch ends before the fourth of the distance has been reached
     await dragHelper.moveTo(swiper, {
         position: {
-            clientX: swiper.clientWidth / 2 - 1,
+            clientX: swiper.clientWidth / 4 - 1,
             clientY: 0,
         },
     });
     await dragHelper.drop();
-    await animationFrame();
     expect(targetContainer.style.transform).not.toInclude("translateX", {
         message: "target does not have a translate value",
     });
 
-    // Touch ends once the half of the distance has been crossed
+    // Touch ends once the fourth of the distance has been crossed
     await swipeRight(".o_actionswiper");
     // The action is performed AND the component is reset
     expect(targetContainer.style.transform).not.toInclude("translateX", {
@@ -159,19 +178,18 @@ test("can perform actions by swiping to the right", async () => {
 test("can perform actions by swiping in both directions", async () => {
     expect.assertions(5);
     class Parent extends Component {
-        static props = ["*"];
         static components = { ActionSwiper };
         static template = xml`
                     <div class="d-flex">
                         <ActionSwiper
                             onRightSwipe = "{
                                 action: () => this.onRightSwipe(),
-                                icon: 'fa-circle',
+                                iconClass: 'oi-filled',
                                 bgColor: 'bg-warning'
                             }"
                             onLeftSwipe = "{
                                 action: () => this.onLeftSwipe(),
-                                icon: 'fa-check',
+                                icon: 'check',
                                 bgColor: 'bg-success'
                             }">
                                 <div class="target-component" style="width: 250px; height: 80px">Swipe in both directions</div>
@@ -203,10 +221,10 @@ test("can perform actions by swiping in both directions", async () => {
     expect(targetContainer.style.transform).toInclude("translateX", {
         message: "target has translateX",
     });
-    // Touch ends before the half of the distance has been reached to the left
+    // Touch ends before the fourth of the distance has been reached to the left
     await dragHelper.moveTo(swiper, {
         position: {
-            clientX: -swiper.clientWidth / 2 + 1,
+            clientX: -swiper.clientWidth / 4 + 1,
             clientY: 0,
         },
     });
@@ -217,10 +235,10 @@ test("can perform actions by swiping in both directions", async () => {
         message: "target does not have a translate value",
     });
 
-    // Touch ends once the half of the distance has been crossed to the left
+    // Touch ends once the fourth of the distance has been crossed to the left
     await swipeLeft(".o_actionswiper");
     expect.verifySteps(["onLeftSwipe"]);
-    // Touch ends once the half of the distance has been crossed to the right
+    // Touch ends once the fourth of the distance has been crossed to the right
     await swipeRight(".o_actionswiper");
 
     expect(targetContainer.style.transform).not.toInclude("translateX", {
@@ -237,19 +255,19 @@ test("invert the direction of swipes when language is rtl", async () => {
         },
     });
     class Parent extends Component {
-        static props = ["*"];
         static components = { ActionSwiper };
         static template = xml`
                     <div class="d-flex">
                         <ActionSwiper
                             onRightSwipe = "{
                                 action: () => this.onRightSwipe(),
-                                icon: 'fa-circle',
+                                icon: 'circle',
+                                iconClass: 'oi-filled',
                                 bgColor: 'bg-warning'
                             }"
                             onLeftSwipe = "{
                                 action: () => this.onLeftSwipe(),
-                                icon: 'fa-check',
+                                icon: 'check',
                                 bgColor: 'bg-success'
                             }">
                                 <div class="target-component" style="width: 250px; height: 80px">Swipe in both directions</div>
@@ -266,11 +284,9 @@ test("invert the direction of swipes when language is rtl", async () => {
     await mountWithCleanup(Parent);
     // Touch ends once the half of the distance has been crossed to the left
     await swipeLeft(".o_actionswiper");
-    await advanceTime(500);
     // In rtl languages, actions are permuted
     expect.verifySteps(["onRightSwipe"]);
     await swipeRight(".o_actionswiper");
-    await advanceTime(500);
     // In rtl languages, actions are permuted
     expect.verifySteps(["onLeftSwipe"]);
 });
@@ -279,19 +295,18 @@ test("swiping when the swiper contains scrollable areas", async () => {
     expect.assertions(7);
 
     class Parent extends Component {
-        static props = ["*"];
         static components = { ActionSwiper };
         static template = xml`
             <div class="d-flex">
                 <ActionSwiper
                     onRightSwipe = "{
                         action: () => this.onRightSwipe(),
-                        icon: 'fa-circle',
+                        iconClass: 'oi-filled',
                         bgColor: 'bg-warning'
                     }"
                     onLeftSwipe = "{
                         action: () => this.onLeftSwipe(),
-                        icon: 'fa-check',
+                        icon: 'check',
                         bgColor: 'bg-success'
                     }">
                         <div class="target-component" style="width: 200px; height: 300px">
@@ -330,6 +345,7 @@ test("swiping when the swiper contains scrollable areas", async () => {
             clientX: 0,
             clientY: 0,
         },
+        initialPointerMoveDistance: 0
     });
     await dragHelper.moveTo(swiper, {
         position: {
@@ -353,6 +369,7 @@ test("swiping when the swiper contains scrollable areas", async () => {
             clientX: scrollable.clientLeft,
             clientY: clientYMiddleScrollBar,
         },
+        initialPointerMoveDistance: 0,
     });
     await dragHelper.moveTo(largeText, {
         position: {
@@ -378,6 +395,7 @@ test("swiping when the swiper contains scrollable areas", async () => {
             clientX: scrollable.clientLeft,
             clientY: clientYMiddleScrollBar,
         },
+        initialPointerMoveDistance: 0,
     });
     await dragHelper.moveTo(largeText, {
         position: {
@@ -390,7 +408,6 @@ test("swiping when the swiper contains scrollable areas", async () => {
             "the swiper has swiped to the right because the scrollable element couldn't scroll anymore to the left",
     });
     await dragHelper.drop();
-    await advanceTime(500);
     expect.verifySteps(["onRightSwipe"]);
 
     dragHelper = await contains(largeText).drag({
@@ -398,6 +415,7 @@ test("swiping when the swiper contains scrollable areas", async () => {
             clientX: scrollable.clientWidth,
             clientY: clientYMiddleScrollBar,
         },
+        initialPointerMoveDistance: 0,
     });
     await dragHelper.moveTo(largeText, {
         position: {
@@ -436,7 +454,6 @@ test("swiping when the swiper contains scrollable areas", async () => {
             "the swiper has swiped to the left because the scrollable element couldn't scroll anymore to the right",
     });
     await dragHelper.drop();
-    await advanceTime(500);
     expect.verifySteps(["onLeftSwipe"]);
 });
 
@@ -449,19 +466,18 @@ test("preventing swipe on scrollable areas when language is rtl", async () => {
     });
 
     class Parent extends Component {
-        static props = ["*"];
         static components = { ActionSwiper };
         static template = xml`
             <div class="d-flex">
                 <ActionSwiper
                     onRightSwipe="{
                         action: () => this.onRightSwipe(),
-                        icon: 'fa-circle',
+                        iconClass: 'oi-filled',
                         bgColor: 'bg-warning'
                     }"
                     onLeftSwipe="{
                         action: () => this.onLeftSwipe(),
-                        icon: 'fa-check',
+                        icon: 'check',
                         bgColor: 'bg-success'
                     }">
                         <div class="target-component" style="width: 200px; height: 300px">
@@ -499,6 +515,7 @@ test("preventing swipe on scrollable areas when language is rtl", async () => {
             clientX: scrollable.clientLeft,
             clientY: scrollableMiddleClientY,
         },
+        initialPointerMoveDistance: 0,
     });
     await dragHelper.moveTo(largeText, {
         position: {
@@ -526,6 +543,7 @@ test("preventing swipe on scrollable areas when language is rtl", async () => {
             clientX: scrollable.clientLeft,
             clientY: scrollableMiddleClientY,
         },
+        initialPointerMoveDistance: 0,
     });
     await dragHelper.moveTo(largeText, {
         position: {
@@ -538,7 +556,6 @@ test("preventing swipe on scrollable areas when language is rtl", async () => {
             "the swiper has swiped to the right because the scrollable element couldn't scroll anymore to the left",
     });
     await dragHelper.drop();
-    await advanceTime(500);
     // In rtl languages, actions are permuted
     expect.verifySteps(["onLeftSwipe"]);
     // LEFT => RIGHT trigger
@@ -553,6 +570,7 @@ test("preventing swipe on scrollable areas when language is rtl", async () => {
             clientX: scrollable.clientWidth,
             clientY: scrollableMiddleClientY,
         },
+        initialPointerMoveDistance: 0,
     });
     await dragHelper.moveTo(largeText, {
         position: {
@@ -578,6 +596,7 @@ test("preventing swipe on scrollable areas when language is rtl", async () => {
             clientX: scrollable.clientWidth,
             clientY: scrollableMiddleClientY,
         },
+        initialPointerMoveDistance: 0,
     });
     await dragHelper.moveTo(largeText, {
         position: {
@@ -590,71 +609,21 @@ test("preventing swipe on scrollable areas when language is rtl", async () => {
             "the swiper has swiped to the left because the scrollable element couldn't scroll anymore to the right",
     });
     await dragHelper.drop();
-    await advanceTime(500);
 
     // In rtl languages, actions are permuted
     expect.verifySteps(["onRightSwipe"]);
 });
 
-test("swipeInvalid prop prevents swiping", async () => {
-    expect.assertions(2);
+test("an async action is awaited before being executed", async () => {
+    const prom = Promise.withResolvers();
 
     class Parent extends Component {
-        static props = ["*"];
-        static components = { ActionSwiper };
-        static template = xml`
-                <div class="d-flex">
-                    <ActionSwiper onRightSwipe = "{
-                        action: () => this.onRightSwipe(),
-                        icon: 'fa-circle',
-                        bgColor: 'bg-warning',
-                    }" swipeInvalid = "swipeInvalid">
-                        <div class="target-component" style="width: 200px; height: 80px">Test</div>
-                    </ActionSwiper>
-                </div>
-            `;
-        onRightSwipe() {
-            expect.step("onRightSwipe");
-        }
-        swipeInvalid() {
-            expect.step("swipeInvalid");
-            return true;
-        }
-    }
-    await mountWithCleanup(Parent);
-    const targetContainer = queryFirst(".o_actionswiper_target_container");
-    // Touch ends once the half of the distance has been crossed
-    await swipeRight(".o_actionswiper");
-
-    expect(targetContainer.style.transform).not.toInclude("translateX", {
-        message: "target doesn't have translateX after action is performed",
-    });
-    expect.verifySteps(["swipeInvalid"]);
-});
-
-test("action should be done before a new render", async () => {
-    let executingAction = false;
-    const prom = new Deferred();
-
-    patchWithCleanup(ActionSwiper.prototype, {
-        setup() {
-            super.setup();
-            onPatched(() => {
-                if (executingAction) {
-                    expect.step("ActionSwiper patched");
-                }
-            });
-        },
-    });
-
-    class Parent extends Component {
-        static props = [];
         static components = { ActionSwiper };
         static template = xml`
                 <div class="d-flex">
                    <ActionSwiper animationType="'forwards'" onRightSwipe = "{
                        action: () => this.onRightSwipe(),
-                       icon: 'fa-circle',
+                       iconClass: 'oi-filled',
                        bgColor: 'bg-warning',
                    }">
                        <span>test</span>
@@ -663,16 +632,15 @@ test("action should be done before a new render", async () => {
             `;
 
         async onRightSwipe() {
-            await animationFrame();
+            expect.step("action started");
+            await prom.promise;
             expect.step("action done");
-            prom.resolve();
         }
     }
 
     await mountWithCleanup(Parent);
     await swipeRight(".o_actionswiper");
-    executingAction = true;
-    await prom;
-    await animationFrame();
-    expect.verifySteps(["action done", "ActionSwiper patched"]);
+    expect.verifySteps(["action started"]);
+    prom.resolve();
+    await expect.waitForSteps(["action done"]);
 });

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
@@ -22,7 +21,6 @@ The module adds following features:
     Access to download the mandatory Certificate of Conformity delivered by Odoo SA (only for Odoo Enterprise users)
 """,
     'depends': ['l10n_fr_account', 'point_of_sale'],
-    'installable': True,
     'auto_install': True,
     'data': [
         'views/pos_views.xml',
@@ -31,8 +29,8 @@ The module adds following features:
         'views/res_config_settings_views.xml',
         'report/pos_hash_integrity.xml',
         'data/account_sale_closure_cron.xml',
-        'security/ir.model.access.csv',
-        'security/account_closing_intercompany.xml',
+        'receipt/pos_order_receipt.xml',
+        'security/ir.access.csv',
     ],
     'post_init_hook': '_setup_inalterability',
     'assets': {

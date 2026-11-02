@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-from odoo import fields, models, api, _
+from odoo import _, api, fields, models
 from odoo.tools import plaintext2html
 
 
@@ -12,6 +12,20 @@ class PosSession(models.Model):
         help="The employee who currently uses the cash register",
         tracking=True,
     )
+    logged_employee_ids = fields.Many2many(
+        'hr.employee',
+        string="Logged In Cashiers",
+        store=True,
+        compute='_compute_logged_employee_ids',
+        help="All employees who have logged into this session",
+    )
+
+    @api.depends('employee_id')
+    def _compute_logged_employee_ids(self):
+        for session in self:
+            employee = session.employee_id
+            if employee and employee.id not in session.logged_employee_ids.ids:
+                session.logged_employee_ids |= employee
 
     @api.model
     def _load_pos_data_models(self, config):
@@ -22,23 +36,15 @@ class PosSession(models.Model):
 
     def _set_opening_control_data(self, cashbox_value: int, notes: str):
         super()._set_opening_control_data(cashbox_value, notes)
-        if author_id := self._get_message_author():
-            self.message_post(body=plaintext2html(_('Opened register')), author_id=author_id.id)
-
-    def post_close_register_message(self):
-        if author_id := self._get_message_author():
-            self.message_post(body=plaintext2html(_('Closed Register')), author_id=author_id.id)
-        else:
-            return super().post_close_register_message()
+        if self.employee_id:
+            self.message_post(body=plaintext2html(_('Opened register')), author_id=self._get_message_author().id)
 
     def _get_message_author(self):
-        if not self.employee_id:
-            return None
-        
-        if related_partners := self.employee_id._get_related_partners():
-            return related_partners[0]
-        
-        return self.user_id.partner_id
+        if self.employee_id:
+            if related_partners := self.employee_id._get_related_partners():
+                return related_partners[0]
+
+        return super()._get_message_author()
 
     def _aggregate_payments_amounts_by_employee(self, all_payments):
         payments_by_employee = []
@@ -58,7 +64,7 @@ class PosSession(models.Model):
 
     def _aggregate_moves_by_employee(self):
         moves_per_employee = {}
-        for employee, moves in self.sudo().statement_line_ids.grouped('employee_id').items():
+        for employee, moves in self.sudo().bank_statement_line_ids.grouped('employee_id').items():
             moves_per_employee[employee.id] = {
                 'id': employee.id,
                 'name': employee.name,
@@ -86,17 +92,11 @@ class PosSession(models.Model):
 
         return data
 
-    def _prepare_account_bank_statement_line_vals(self, session, sign, amount, reason, partner_id, extras):
-        vals = super()._prepare_account_bank_statement_line_vals(session, sign, amount, reason, partner_id, extras)
-        if extras.get('employee_id'):
-            vals['employee_id'] = extras['employee_id']
-        return vals
+    def try_cash_in_out(self, _type, amount, reason, partner_id, **kwargs):
+        super().try_cash_in_out(_type, amount, reason, partner_id)
+        if employee_id := kwargs.get('employee_id', False):
+            last_line = self.bank_statement_line_ids[:1]
+            last_line.employee_id = employee_id
 
-    def get_cash_in_out_list(self):
-        cash_in_out_list = super().get_cash_in_out_list()
-        if self.config_id.module_pos_hr:
-            for cash_in_out in cash_in_out_list:
-                cash_move = self.env['account.bank.statement.line'].browse(cash_in_out['id'])
-                if cash_move.employee_id:
-                    cash_in_out['cashier_name'] = cash_move.partner_id.name
-        return cash_in_out_list
+    def _get_cash_move_cashier_name(self, cash_move):
+        return cash_move.employee_id.name or super()._get_cash_move_cashier_name(cash_move)

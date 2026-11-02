@@ -11,11 +11,12 @@ from odoo.addons.sale_purchase.tests.common import TestCommonSalePurchaseNoChart
 @tagged('post_install', '-at_install')
 class TestLeadTime(TestCommonSalePurchaseNoChart):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super(TestLeadTime, cls).setUpClass()
 
-        cls.buy_route = cls.env.ref('purchase_stock.route_warehouse0_buy')
         cls.mto_route = cls.env.ref('stock.route_warehouse0_mto')
         cls.mto_route.active = True
         cls.vendor = cls.env['res.partner'].create({'name': 'The Emperor'})
@@ -34,7 +35,7 @@ class TestLeadTime(TestCommonSalePurchaseNoChart):
                 'price': 10,
                 'date_start': fields.Date.today() - timedelta(days=1),
             })],
-            'route_ids': [Command.set((cls.mto_route + cls.buy_route).ids)],
+            'route_ids': [Command.set([cls.mto_route.id])],
         })
 
     def test_supplier_lead_time(self):

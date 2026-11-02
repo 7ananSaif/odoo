@@ -1,18 +1,15 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import tests, _
-from odoo.addons.base.tests.common import HttpCaseWithUserDemo
 from odoo.addons.website_livechat.tests.common import TestLivechatCommon
+from odoo.tests import HttpCase
 
 
-@tests.tagged('post_install', '-at_install')
-class TestLivechatUI(HttpCaseWithUserDemo, TestLivechatCommon):
+class TestLivechatUI(HttpCase, TestLivechatCommon):
     def setUp(self):
         super().setUp()
         self.visitor_tour = self.env['website.visitor'].create({
             'access_token': 'f9d2e784d3d96a904fca2f5e2a559a19',
-            'website_id': self.env.ref('website.default_website').id,
+            'website_id': self.env.ref('base.default_website').id,
         })
         self.target_visitor = self.visitor_tour
 

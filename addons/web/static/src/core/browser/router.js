@@ -1,7 +1,7 @@
 import { EventBus } from "@odoo/owl";
 import { omit, pick } from "../utils/objects";
 import { compareUrls, objectToUrlEncodedString } from "../utils/urls";
-import { browser } from "./browser";
+import { location, browser } from "./browser";
 import { isDisplayStandalone } from "@web/core/browser/feature_detection";
 import { slidingWindow } from "@web/core/utils/arrays";
 import { isNumeric } from "@web/core/utils/strings";
@@ -12,7 +12,7 @@ export const PATH_KEYS = ["resId", "action", "active_id", "model"];
 export const routerBus = new EventBus();
 
 function isScopedApp() {
-    return browser.location.href.includes("/scoped_app") && isDisplayStandalone();
+    return location.href.includes("/scoped_app") && isDisplayStandalone();
 }
 
 /**
@@ -129,17 +129,32 @@ function stateToUrl(state) {
     const actionStack = (state.actionStack || [state]).map((a) => ({ ...a }));
     if (actionStack.at(-1)?.action !== "menu") {
         for (const [prevAct, currentAct] of slidingWindow(actionStack, 2).reverse()) {
-            const { action: prevAction, resId: prevResId, active_id: prevActiveId } = prevAct;
-            const { action: currentAction, active_id: currentActiveId } = currentAct;
+            const {
+                action: prevAction,
+                model: prevModel,
+                resId: prevResId,
+                active_id: prevActiveId,
+            } = prevAct;
+            const {
+                action: currentAction,
+                model: currentModel,
+                active_id: currentActiveId,
+            } = currentAct;
             // actions would typically map to a path like `active_id/action/res_id`
             if (currentActiveId === prevResId) {
                 // avoid doubling up when the active_id is the same as the previous action's res_id
                 delete currentAct.active_id;
             }
-            if (prevAction === currentAction && !prevResId && currentActiveId === prevActiveId) {
-                //avoid doubling up the action and the active_id when a single-record action is preceded by a multi-record action
-                delete currentAct.action;
-                delete currentAct.active_id;
+            if (!prevResId && currentActiveId === prevActiveId) {
+                if (prevAction && currentAction && prevAction === currentAction) {
+                    //avoid doubling up the action and the active_id when a single-record action is preceded by a multi-record action
+                    delete currentAct.action;
+                    delete currentAct.active_id;
+                } else if (prevModel && currentModel && prevModel === currentModel) {
+                    //avoid doubling up the mmodel and the active_id when a single-record model is preceded by a multi-record model
+                    delete currentAct.model;
+                    delete currentAct.active_id;
+                }
             }
         }
         const pathSegments = actionStack.map(pathFromActionState).filter(Boolean);
@@ -179,7 +194,7 @@ function urlToState(urlObj) {
             delete sanitizedHash.view_type;
         }
         Object.assign(state, sanitizedHash);
-        const url = browser.location.origin + router.stateToUrl(state);
+        const url = location.origin + router.stateToUrl(state);
         urlObj.href = url;
     }
 
@@ -232,11 +247,26 @@ function urlToState(urlObj) {
         }
         if (prefix === "scoped_app" && !isDisplayStandalone()) {
             // make sure /scoped_app are redirected to /odoo when using the browser instead of the PWA
-            const url = browser.location.origin + router.stateToUrl(state);
+            const url = location.origin + router.stateToUrl(state);
             urlObj.href = url;
         }
     }
     return state;
+}
+
+async function shareUrl() {
+    // avoid exposing /scoped_app urls to the user and replace them with /odoo when possible
+    const url = location.href.replace("/scoped_app", "/odoo");
+    await browser.navigator
+        .share({
+            url,
+            title: document.title,
+        })
+        .catch((e) => {
+            if (!(e instanceof DOMException && e.name === "AbortError")) {
+                throw e;
+            }
+        });
 }
 
 let state;
@@ -246,10 +276,10 @@ let _lockedKeys;
 let _hiddenKeysFromUrl = new Set();
 
 export function startRouter() {
-    const url = new URL(browser.location);
+    const url = new URL(location);
     state = router.urlToState(url);
     // ** url-retrocompatibility **
-    if (browser.location.pathname === "/web") {
+    if (location.pathname === "/web") {
         // Change the url of the current history entry to the canonical url.
         // This change should be done only at the first load, and not when clicking on old style internal urls.
         // Or when clicking back/forward on the browser.
@@ -261,8 +291,11 @@ export function startRouter() {
         reload: false,
         state: {},
     };
-    _lockedKeys = new Set(["debug", "lang"]);
+    _lockedKeys = new Set(["cache", "debug", "lang"]);
     _hiddenKeysFromUrl = new Set([...PATH_KEYS, "actionStack"]);
+    if (browser.navigator.share) {
+        router.shareUrl = shareUrl;
+    }
 }
 
 /**
@@ -276,10 +309,10 @@ browser.addEventListener("popstate", (ev) => {
     if (!ev.state) {
         // We are coming from a click on an anchor.
         // Add the current state to the history entry so that a future loadstate behaves as expected.
-        browser.history.replaceState({ nextState: state }, "", browser.location.href);
+        browser.history.replaceState({ nextState: state }, "", location.href);
         return;
     }
-    state = ev.state?.nextState || router.urlToState(new URL(browser.location));
+    state = ev.state?.nextState || router.urlToState(new URL(location));
     // Some client actions want to handle loading their own state. This is a ugly hack to allow not
     // reloading the webclient's state when they manipulate history.
     if (!ev.state?.skipRouteChange && !router.skipLoad) {
@@ -321,8 +354,8 @@ browser.addEventListener("click", (ev) => {
             return;
         }
         if (
-            browser.location.host === url.host &&
-            browser.location.pathname.startsWith("/odoo") &&
+            location.host === url.host &&
+            location.pathname.startsWith("/odoo") &&
             (["/web", "/odoo"].includes(url.pathname) || url.pathname.startsWith("/odoo/")) &&
             a.target !== "_blank"
         ) {
@@ -343,8 +376,8 @@ function makeDebouncedPush(mode) {
     function doPush() {
         // Calculates new route based on aggregated search and options
         const nextState = computeNextState(pushArgs.state, pushArgs.replace);
-        const url = browser.location.origin + router.stateToUrl(nextState);
-        if (!compareUrls(url + browser.location.hash, browser.location.href)) {
+        const url = location.origin + router.stateToUrl(nextState);
+        if (!compareUrls(url + location.hash, location.href)) {
             // If the route changed: pushes or replaces browser state
             if (mode === "push") {
                 // Because doPush is delayed, the history entry will have the wrong name.
@@ -360,11 +393,11 @@ function makeDebouncedPush(mode) {
             }
         } else {
             // URL didn't change but state might have, update it in place
-            browser.history.replaceState({ nextState }, "", browser.location.href);
+            browser.history.replaceState({ nextState }, "", location.href);
         }
         state = nextState;
         if (pushArgs.reload) {
-            browser.location.reload();
+            location.reload();
         }
     }
     /**
@@ -378,13 +411,27 @@ function makeDebouncedPush(mode) {
         Object.assign(pushArgs.state, state);
         browser.clearTimeout(pushTimeout);
         const push = () => {
-            doPush();
-            pushTimeout = null;
-            pushArgs = {
-                replace: false,
-                reload: false,
-                state: {},
-            };
+            try {
+                doPush();
+            } catch (e) {
+                // Firefox error: NS_ERROR_ILLEGAL_VALUE
+                // Firefox has a strict hard limit of 640,000 characters for history serialization.
+                // Chrome and Safari error: DataCloneError
+                // Reported (not officially documented) limits: ~500MB on Chrome/Blink, ~64MB on
+                // Safari/WebKit. See https://bugzilla.mozilla.org/show_bug.cgi?id=1522706
+                if (e.name === "NS_ERROR_ILLEGAL_VALUE" || e.name === "DataCloneError") {
+                    console.error(e);
+                } else {
+                    throw e;
+                }
+            } finally {
+                pushTimeout = null;
+                pushArgs = {
+                    replace: false,
+                    reload: false,
+                    state: {},
+                };
+            }
         };
         if (options.sync) {
             push();

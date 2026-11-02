@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 # pylint: disable=unbalanced-tuple-unpacking
 
@@ -8,18 +7,20 @@ import re
 from odoo import tools
 from odoo.modules import get_resource_from_path
 
-from . import lint_case
+from .common import LintCase
 
 _logger = logging.getLogger(__name__)
 
-TSTRING_RE = re.compile(r'_t\(\s*`.*?\s*`\s*\)', re.DOTALL)
+TSTRING_RE = re.compile(r'_t\(\s*`(?:\\.|[^`\\])*`', re.DOTALL)
 EXPRESSION_RE = re.compile(r'\$\{.+?\}')
 UNDERSCORE_RE = re.compile(r'\b_\(\s*[\'"]')
 
-class TestJsTranslations(lint_case.LintCase):
+
+class TestJsTranslations(LintCase):
 
     def check_text(self, text):
         """ Search for translation errors in the text
+
 
         :param text: The js text to search
         :return: A list of tuple with line number and invalid template string,
@@ -65,6 +66,41 @@ class TestJsTranslations(lint_case.LintCase):
         [(line, template_string)] = error_list
         self.assertEqual(line, 2)
         self.assertIn('foo ${this + is(a, very) - long == expression}', template_string)
+
+    def test_regular_expression_second_argument(self):
+        bad_js = """
+        const foo = _t(`a ${b}`, { c });
+        """
+        error_list = self.check_text(bad_js)
+        self.assertEqual(len(error_list), 1)
+        [(line, template_string)] = error_list
+        self.assertEqual(line, 2)
+        self.assertIn('a ${b}', template_string)
+
+    def test_regular_expression_second_argument_valid(self):
+        valid_js = """
+        const foo = _t(`a`, { c });
+        const route = `/web/dataset/call_kw/${this.resModel}/web_save`;
+        fetch(`${route}`);
+        """
+        self.assertEqual(self.check_text(valid_js), [])
+
+    def test_regular_expression_escaped_backtick(self):
+        bad_js = r"""
+        const foo = _t(`it\`s ${x}`);
+        """
+        error_list = self.check_text(bad_js)
+        self.assertEqual(len(error_list), 1)
+        [(line, template_string)] = error_list
+        self.assertEqual(line, 2)
+        self.assertIn('${x}', template_string)
+
+    def test_regular_expression_escaped_backtick_valid(self):
+        valid_js = r"""
+        const foo = _t(`prout \`big\` prout`);
+        const route = `/web/${this.resModel}`;
+        """
+        self.assertEqual(self.check_text(valid_js), [])
 
     def test_matches_underscore(self):
         bad_js = """

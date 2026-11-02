@@ -1,12 +1,32 @@
-import { Deferred } from "@web/core/utils/concurrency";
 import { IDBQuotaExceededError, IndexedDB } from "@web/core/utils/indexed_db";
+import { router } from "../browser/router";
 import { deepCopy } from "../utils/objects";
+import { Crypto, CRYPTO_ALGO } from "../crypto";
+
+/**
+ * The rpc cache can be turned off for the current browsing session by putting
+ * `cache=0` in the url (see the "Disable RPC Cache" debug menu item). This is
+ * useful to check whether a bug comes from stale cached data.
+ *
+ * Note that the router serializes falsy values as an empty string, so a `cache`
+ * key kept in the url by a previous navigation reads as `cache=`, which must be
+ * understood as disabled as well.
+ *
+ * @returns {boolean}
+ */
+export function isRPCCacheDisabled() {
+    return [0, "", "false"].includes(router.current.cache);
+}
 
 /**
  * @typedef {{
  * callback?: function;
  * type?: "ram" | "disk";
  * update?: "once" | "always";
+ * maxAge?: number; // Max age in milliseconds.
+ *                  // Defines the validity of a new entry created by this call.
+ *                  // On read, the entry is checked against last stored expiry time; if expired, it is ignored.
+ * noCache?: boolean;
  * }} RPCCacheSettings
  */
 
@@ -23,55 +43,8 @@ function validateSettings({ type, update }) {
     }
 }
 
-const CRYPTO_ALGO = "AES-GCM";
+const ONE_YEAR = luxon.Duration.fromObject({ years: 1 }).toMillis();
 const MAX_STORAGE_SIZE = 2 * 1024 * 1024 * 1024; // 2Gb
-
-class Crypto {
-    constructor(secret) {
-        this._cryptoKey = null;
-        this._ready = window.crypto.subtle
-            .importKey(
-                "raw",
-                new Uint8Array(secret.match(/../g).map((h) => parseInt(h, 16))).buffer,
-                CRYPTO_ALGO,
-                false,
-                ["encrypt", "decrypt"]
-            )
-            .then((encryptedKey) => {
-                this._cryptoKey = encryptedKey;
-            });
-    }
-
-    async encrypt(value) {
-        await this._ready;
-        // The iv must never be reused with a given key.
-        const iv = window.crypto.getRandomValues(new Uint8Array(12));
-        const ciphertext = await window.crypto.subtle.encrypt(
-            {
-                name: CRYPTO_ALGO,
-                iv,
-                length: 64, // length of the counter in bits
-            },
-            this._cryptoKey,
-            new TextEncoder().encode(JSON.stringify(value)) // encoded Data
-        );
-        return { ciphertext, iv };
-    }
-
-    async decrypt({ ciphertext, iv }) {
-        await this._ready;
-        const decrypted = await window.crypto.subtle.decrypt(
-            {
-                name: CRYPTO_ALGO,
-                iv,
-                length: 64,
-            },
-            this._cryptoKey,
-            ciphertext
-        );
-        return JSON.parse(new TextDecoder().decode(decrypted));
-    }
-}
 
 class RamCache {
     constructor() {
@@ -130,27 +103,45 @@ export class RPCCache {
      * @param {function} fallback
      * @param {RPCCacheSettings} settings
      */
-    read(table, key, fallback, { callback = () => {}, type = "ram", update = "once" } = {}) {
+    read(
+        table,
+        key,
+        fallback,
+        {
+            callback = () => {},
+            type = "ram",
+            update = "once",
+            maxAge = ONE_YEAR,
+            noCache = false,
+        } = {}
+    ) {
         validateSettings({ type, update });
 
-        let ramValue = this.ramCache.read(table, key);
+        const ramEntry = !noCache ? this.ramCache.read(table, key) : null;
+        const isExpired = ramEntry?.expires && ramEntry?.expires < Date.now();
+        let ramValue = !isExpired ? ramEntry?.data : null;
 
         const requestKey = `${table}/${key}`;
-        const hasPendingRequest = requestKey in this.pendingRequests;
-        if (hasPendingRequest) {
-            // never do the same call multiple times in parallel => return the same value for all
-            // those calls, but store their callback to call them when/if the real value is obtained
-            this.pendingRequests[requestKey].callbacks.push(callback);
-            return ramValue.then((result) => deepCopy(result));
+        const pendingRequest = this.pendingRequests[requestKey];
+        if (pendingRequest) {
+            if (!noCache) {
+                // never do the same call multiple times in parallel => return the same value for all
+                // those calls, but store their callback to call them when/if the real value is obtained
+                pendingRequest.callbacks.push(callback);
+                return ramValue.then((result) => deepCopy(result));
+            } else {
+                pendingRequest.invalidated = true;
+            }
         }
 
         if (!ramValue || update === "always") {
             const request = { callbacks: [callback], invalidated: false };
             this.pendingRequests[requestKey] = request;
+            const now = Date.now();
 
             // execute the fallback and write the result in the caches
             const prom = new Promise((resolve, reject) => {
-                const fromCache = new Deferred();
+                const fromCache = Promise.withResolvers();
                 let fromCacheValue;
                 const onFullfilled = (result) => {
                     resolve(result);
@@ -162,10 +153,19 @@ export class RPCCache {
                     }
                     delete this.pendingRequests[requestKey];
                     // update the ram and optionally the disk caches with the latest data
-                    this.ramCache.write(table, key, Promise.resolve(result));
+                    this.ramCache.write(table, key, {
+                        data: Promise.resolve(result),
+                        timestamp: now,
+                        expires: now + maxAge,
+                    });
                     if (type === "disk") {
                         this.crypto.encrypt(result).then((encryptedResult) => {
-                            this.indexedDB.write(table, key, encryptedResult).catch((e) => {
+                            const diskEntry = {
+                                data: encryptedResult,
+                                timestamp: now,
+                                expires: now + maxAge,
+                            };
+                            this.indexedDB.write(table, key, diskEntry).catch((e) => {
                                 if (e instanceof IDBQuotaExceededError) {
                                     this.indexedDB.deleteDatabase();
                                 } else {
@@ -177,7 +177,7 @@ export class RPCCache {
                     return result;
                 };
                 const onRejected = async (error) => {
-                    await fromCache;
+                    await fromCache.promise;
                     if (!request.invalidated) {
                         delete this.pendingRequests[requestKey];
                         if (!fromCacheValue) {
@@ -203,14 +203,17 @@ export class RPCCache {
                         fromCacheValue = value;
                         fromCache.resolve();
                     });
-                } else if (type === "disk") {
+                } else if (type === "disk" && !noCache) {
                     this.indexedDB
                         .read(table, key)
                         .then(async (result) => {
                             if (result) {
+                                if (result.expires < now) {
+                                    return;
+                                }
                                 let decrypted;
                                 try {
-                                    decrypted = await this.crypto.decrypt(result);
+                                    decrypted = await this.crypto.decrypt(result.data);
                                 } catch {
                                     // Do nothing ! The cryptoKey is probably different.
                                     // The data will be updated with the new cryptoKey.
@@ -225,7 +228,7 @@ export class RPCCache {
                     fromCache.resolve(); // fromCacheValue will remain undefined
                 }
             });
-            this.ramCache.write(table, key, prom);
+            this.ramCache.write(table, key, { data: prom, timestamp: now, expires: now + maxAge });
             ramValue = prom;
         }
 

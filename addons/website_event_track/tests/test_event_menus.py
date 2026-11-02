@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 
 from odoo import fields
 from odoo.addons.website_event.tests.common import OnlineEventCase
-from odoo.tests.common import users
+from odoo.tests.common import tagged, users
 
 
 class TestEventWebsiteTrack(OnlineEventCase):

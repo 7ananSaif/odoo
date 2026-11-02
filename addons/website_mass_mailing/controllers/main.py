@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+import werkzeug.exceptions
+
 from odoo import tools, _
 from odoo.exceptions import UserError
 from odoo.http import route, request
@@ -11,6 +13,17 @@ class MassMailController(main.MassMailController):
 
     @route('/website_mass_mailing/is_subscriber', type='jsonrpc', website=True, auth='public')
     def is_subscriber(self, list_id, subscription_type, **post):
+        """Tell whether the visitor is already subscribed to a mailing list.
+
+        :param int list_id: the `mailing.list` to check.
+        :param str subscription_type: contact field the subscription is based on, e.g. 'email'.
+        :return: dict with `is_subscriber`, the `value` identifying the visitor (their email
+            address for instance) and `warn_missing_list`, set when the list is gone.
+        :rtype: dict
+        """
+        mailing_list_su = request.env['mailing.list'].browse(int(list_id)).sudo()
+        if request.env.user._is_internal() and not mailing_list_su.exists().active:
+            return {'is_subscriber': False, 'value': '', 'warn_missing_list': True}
         value = self._get_value(subscription_type)
         fname = self._get_fname(subscription_type)
         is_subscriber = False
@@ -19,7 +32,7 @@ class MassMailController(main.MassMailController):
                 [('list_id', 'in', [int(list_id)]), (f'contact_id.{fname}', '=', value), ('opt_out', '=', False)])
             is_subscriber = contacts_count > 0
 
-        return {'is_subscriber': is_subscriber, 'value': value}
+        return {'is_subscriber': is_subscriber, 'value': value, 'warn_missing_list': False}
 
     def _get_value(self, subscription_type):
         value = None
@@ -35,6 +48,14 @@ class MassMailController(main.MassMailController):
 
     @route('/website_mass_mailing/subscribe', type='jsonrpc', website=True, auth='public')
     def subscribe(self, list_id, value, subscription_type, **post):
+        """Subscribe an email or phone number to a mailing list (newsletter signup).
+
+        :param int list_id: id of the `mailing.list` to subscribe to.
+        :param str value: the email address or phone number to subscribe.
+        :param str subscription_type: 'email' or 'mobile', matching the type of `value`.
+        :return: {'toast_type': 'success'|'danger', 'toast_content': message to show}
+        :rtype: dict
+        """
         try:
             request.env['ir.http']._verify_request_recaptcha_token('website_mass_mailing_subscribe')
         except UserError as e:
@@ -54,22 +75,46 @@ class MassMailController(main.MassMailController):
     def subscribe_to_newsletter(subscription_type, value, list_id, fname, address_name=None):
         ContactSubscription = request.env['mailing.subscription'].sudo()
         Contacts = request.env['mailing.contact'].sudo()
+        MailingList = request.env['mailing.list'].sudo()
+
         if subscription_type == 'email':
             name, value = tools.parse_contact_from_email(value)
             if not name:
                 name = address_name
+            fname_normalized = 'email_normalized'
         elif subscription_type == 'mobile':
             name = value
+            fname_normalized = 'phone_sanitized'
+        else:
+            raise werkzeug.exceptions.BadRequest(_('Invalid subscription type'))
+
+        # add field to session
+        request.session[f'mass_mailing_{fname}'] = value
+
+        mailing_list = MailingList.browse(int(list_id)).exists()
+        if mailing_list and not request.env.user._is_internal() and not mailing_list.is_public:
+            return {
+                'toast_type': 'danger',
+                'toast_content': _("Invalid mailing list."),
+            }
 
         subscription = ContactSubscription.search(
-            [('list_id', '=', int(list_id)), (f'contact_id.{fname}', '=', value)], limit=1)
+            [('list_id', '=', mailing_list.id), (f'contact_id.{fname}', '=', value)], limit=1)
         if not subscription:
-            # inline add_to_list as we've already called half of it
-            contact_id = Contacts.search([(fname, '=', value)], limit=1)
+            if not request.env.user.is_public and request.env.user.partner_id[fname_normalized] == value:
+                partner_id = request.env.user.partner_id.id
+                contacts = mailing_list.sudo()._update_subscription_from_email(value, opt_out=False)
+                contact_id = contacts[:1]
+                if contact_id:
+                    if not contact_id.partner_id:
+                        contact_id.partner_id = partner_id
+                    return
+            else:
+                contact_id = Contacts.search([(fname, '=', value)], limit=1)
+                partner_id = False
             if not contact_id:
-                contact_id = Contacts.create({'name': name, fname: value})
-            ContactSubscription.create({'contact_id': contact_id.id, 'list_id': int(list_id)})
+                contact_id = Contacts.create({'name': name, fname: value, 'partner_id': partner_id})
+            if mailing_list:
+                ContactSubscription.create({'contact_id': contact_id.id, 'list_id': mailing_list.id})
         elif subscription.opt_out:
             subscription.opt_out = False
-        # add email to session
-        request.session[f'mass_mailing_{fname}'] = value

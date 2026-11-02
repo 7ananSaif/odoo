@@ -69,6 +69,22 @@ test("radio field on a many2one in a new record", async () => {
     expect("input.o_radio_input:checked").toHaveCount(0);
 });
 
+test("[Offline] radio field on a many2one", async () => {
+    Partner._records[0].product_id = 37;
+    onRpc("product", "web_search_read", () => new Response("", { status: 502 }));
+    await mountView({
+        type: "form",
+        resModel: "partner",
+        resId: 1,
+        arch: /* xml */ `<form><field name="product_id" widget="radio"/></form>`,
+    });
+
+    expect("div.o_radio_item").toHaveCount(1);
+    expect("input.o_radio_input").toHaveCount(1);
+    expect(".o_field_radio:first").toHaveText("xphone");
+    expect("input.o_radio_input:checked").toHaveCount(1);
+});
+
 test("required radio field on a many2one", async () => {
     await mountView({
         type: "form",
@@ -168,6 +184,7 @@ test("two radio field with same selection", async () => {
     expect("[name='color_2'] input.o_radio_input[data-value=red]").toBeChecked();
 });
 
+test.tags("desktop");
 test("radio field has o_horizontal or o_vertical class", async () => {
     Partner._fields.color2 = Partner._fields.color;
 

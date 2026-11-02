@@ -5,6 +5,15 @@ from odoo.addons.pos_restaurant.tests.test_frontend import TestFrontendCommon
 
 @tagged("post_install", "-at_install")
 class TestUi(TestPosHrHttpCommon, TestFrontendCommon):
+    _test_user_groups = None  # FIXME list needed groups
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        admin = cls.pos_admin.employee_id or cls.pos_admin.action_create_employee()
+        admin.name = "Mitchell Admin"
+        cls.main_pos_config.manager_employee_ids |= admin
+
     def test_post_login_default_screen_tables(self):
         self.main_pos_config.default_screen = "tables"
         self.main_pos_config.with_user(self.pos_admin).open_ui()
@@ -21,7 +30,6 @@ class TestUi(TestPosHrHttpCommon, TestFrontendCommon):
         the message in the chatter created with the track order setting
         will reflect this change and not keep the old employee
         """
-        self.main_pos_config.order_edit_tracking = True
         self.main_pos_config.open_ui()
         self.start_tour(
             "/pos/ui?config_id=%d" % self.main_pos_config.id,
@@ -31,4 +39,4 @@ class TestUi(TestPosHrHttpCommon, TestFrontendCommon):
         order = self.env['pos.order'].search([
             ('config_id', '=', self.main_pos_config.id)
         ], order='id desc', limit=1)
-        self.assertIn("Test Employee 3", order.message_ids[0].body)
+        self.assertNotIn("Mitchell Admin", order.message_ids[0].body)

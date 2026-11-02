@@ -1,51 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-<data>
-<template id="report_lot_label">
-    <t t-call="web.basic_layout">
-        <t t-set='nRows' t-value='12'/>
-        <t t-set='nCols' t-value='4'/>
-        <div class="oe_structure"></div>
-        <div t-foreach="[docs[x:x + nRows * nCols] for x in range(0, len(docs), nRows * nCols)]" t-as="page_docs" class="o_label_sheet" t-att-style="'padding: 20mm 8mm'">
-            <table class="my-0 table table-sm table-borderless">
-                <t t-foreach="range(nRows)" t-as="row">
-                    <tr>
-                        <t t-foreach="range(nCols)" t-as="col">
-                            <t t-set="barcode_index" t-value="(row * nCols + col)"/>
-                            <t t-if="barcode_index &lt; len(page_docs)">
-                                <t t-set="o" t-value="page_docs[barcode_index]"/>
-                            </t>
-                            <t t-else="">
-                                <t t-set="o" t-value="page_docs[0]"/>
-                            </t>
-                            <td t-att-style="barcode_index &gt;= len(page_docs) and 'visibility:hidden'">
-                                <div t-att-style="'position:relative; width:43mm; height:19mm; border: 1px solid %s;' % (o.env.user.company_id.primary_color or 'black')">
-                                    <t t-set="final_barcode" t-value="''"/>
-                                    <t t-if="env.user.has_group('stock.group_stock_lot_print_gs1')">
-                                        <t t-if="o.product_id.valid_ean" t-set="final_barcode" t-value="'01' + '0' * (14 - len(o.product_id.barcode)) + o.product_id.barcode"/>
-                                        <t name="gs1_datamatrix_lot" t-if="o.product_id.tracking == 'lot'" t-set="final_barcode" t-value="(final_barcode or '') + '10' + o.name"/>
-                                        <t t-elif="o.product_id.tracking == 'serial'" t-set="final_barcode" t-value="(final_barcode or '') + '21' + o.name"/>
-                                    </t>
-                                    <div class="o_label_4x12" t-if="o.product_id.default_code" t-att-style="'width:22mm' if final_barcode else ''">[<t t-out="o.product_id.default_code"/>]</div>
-                                    <div class="o_label_4x12" t-field="o.product_id.name" t-att-style="'width:22mm' if final_barcode else ''">Demo Product</div>
-                                    <div class="o_label_4x12" name="lot_name" t-field="o.name" t-att-style="'width:22mm' if final_barcode else ''">Demo Lot/SN</div>
-                                    <t t-if="env.user.has_group('stock.group_stock_lot_print_gs1')">
-                                        <div t-if="final_barcode" t-att-style="'position:absolute; right:.5px; bottom:.5px'">
-                                            <span t-out="final_barcode" t-options="{'widget': 'barcode', 'symbology': 'ECC200DataMatrix', 'img_style': 'width:17mm; height:17mm'}">12345678901</span>
-                                        </div>
-                                    </t>
-                                    <t t-else="">
-                                        <span t-field="o.name" t-options="{'widget': 'barcode', 'img_style': 'width:100%; height:35%'}">Demo Lot/SN</span>
-                                    </t>
+    <data>
+        <template id="lot_barcode_4x12_label">
+            <td t-att-style="label['invisible'] and 'visibility:hidden;'">
+                <div class="o_label_full o_label_4x12">
+                    <t t-if="not label.get('invisible')">
+                        <t t-call="product.report_label_contour_marks"/>
+                        <div class="o_label_centering_table">
+                            <div class="o_label_centered_content">
+                                <div class="o_label_table o_label_header">
+                                    <div class="o_label_name_block">
+                                        <div class="o_label_name" t-out="label['name']"/>
+                                    </div>
                                 </div>
-                            </td>
-                        </t>
-                    </tr>
-                </t>
-            </table>
-            <div class="oe_structure"></div>
-        </div>
-    </t>
-</template>
-</data>
+                                <div class="o_label_content">
+                                    <div class="o_label_barcode_block">
+                                        <t t-call="product.report_label_barcode" barcode_size="'width:100%;height:6mm'"/>
+                                    </div>
+                                    <div class="o_label_table o_label_footer">
+                                        <div class="o_label_barcode_text">
+                                            <t t-if="label['barcode_value']" t-out="label['barcode_text']"/>
+                                            <t t-else="">&amp;nbsp;</t>
+                                        </div>
+                                        <div class="o_label_reference_block">
+                                            <div class="o_label_reference" t-out="label['reference']"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+            </td>
+        </template>
+
+        <template id="lot_qr_4x12_label">
+            <td t-att-style="label['invisible'] and 'visibility:hidden;'">
+                <div class="o_label_full o_label_4x12_gs1">
+                    <t t-if="not label.get('invisible')">
+                        <t t-call="product.report_label_contour_marks"/>
+                        <div class="o_label_table">
+                            <div class="o_label_barcode_side">
+                                <div class="o_label_barcode_block">
+                                    <t t-call="product.report_label_barcode"
+                                       barcode_size="'width:100%;height:16mm'"
+                                       symbology="'ECC200DataMatrix'"/>
+                                </div>
+                            </div>
+                            <div class="o_label_info_side">
+                                <div class="o_label_info_frame">
+                                    <div class="o_label_info_top">
+                                        <div class="o_label_name" t-out="label['name']"/>
+                                        <div class="o_label_reference_block">
+                                            <div class="o_label_reference" t-out="label['reference']"/>
+                                        </div>
+                                    </div>
+                                    <div class="o_label_info_bottom">
+                                        <div class="o_label_barcode_text" t-out="label['barcode_text']"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+            </td>
+        </template>
+
+    </data>
 </odoo>

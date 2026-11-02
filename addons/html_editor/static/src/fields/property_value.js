@@ -8,20 +8,23 @@ import { HtmlUpgradeManager } from "@html_editor/html_migrations/html_upgrade_ma
 import { normalizeHTML } from "@html_editor/utils/html";
 import { Wysiwyg } from "@html_editor/wysiwyg";
 import { user } from "@web/core/user";
-import { useState, onWillStart, onWillUpdateProps } from "@odoo/owl";
+import { onWillStart, proxy, useEffect, usePlugin } from "@odoo/owl";
+import { DebugModePlugin } from "@web/core/debug_mode_plugin";
 
 patch(PropertyValue.prototype, {
     setup() {
+        this.debugMode = usePlugin(DebugModePlugin);
+
         this.htmlUpgradeManager = new HtmlUpgradeManager();
         this.lastHtmlValue = this.propertyValue?.toString();
         onWillStart(async () => {
             this.htmlState.isPortalUser = await user.hasGroup("base.group_portal");
         });
-        this.htmlState = useState({ isPortalUser: false, key: 0 });
+        this.htmlState = proxy({ isPortalUser: false, key: 0 });
 
-        onWillUpdateProps((newProps) => {
-            const newValueStr = newProps.value?.toString();
-            if (newProps.type === "html" && newValueStr !== this.lastHtmlValue) {
+        useEffect(() => {
+            const newValueStr = this.props.value?.toString();
+            if (this.props.type === "html" && newValueStr !== this.lastHtmlValue) {
                 this.htmlState.key += 1;
                 this.lastHtmlValue = newValueStr;
             }
@@ -70,7 +73,7 @@ patch(PropertyValue.prototype, {
 
         return {
             content: this.propertyValue,
-            debug: !!this.env.debug,
+            debug: this.debugMode.isActive(),
             direction: localization.direction || "ltr",
             onChange: this.onWysiwygChange.bind(this),
             placeholder: this.props.placeholder,

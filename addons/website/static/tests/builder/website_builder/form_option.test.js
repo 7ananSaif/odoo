@@ -1,17 +1,54 @@
-import { redo, undo } from "@html_editor/../tests/_helpers/user_actions";
-import { expect, test } from "@odoo/hoot";
-import { animationFrame, edit, press } from "@odoo/hoot-dom";
-import { contains, defineModels, models, onRpc, webModels } from "@web/../tests/web_test_helpers";
-import { registry } from "@web/core/registry";
+import {
+    bold,
+    deleteBackward,
+    insertText,
+    redo,
+    setColor,
+    undo,
+} from "@html_editor/../tests/_helpers/user_actions";
+import { expectElementCount } from "@html_editor/../tests/_helpers/ui_expectations";
+import {
+    beforeEach,
+    describe,
+    expect,
+    press,
+    queryAllTexts,
+    queryOne,
+    test,
+    waitFor,
+} from "@odoo/hoot";
+import { animationFrame } from "@odoo/hoot-dom";
+import {
+    contains,
+    defineModels,
+    fields,
+    MockServer,
+    models,
+    onRpc,
+    patchWithCleanup,
+    webModels,
+} from "@web/../tests/web_test_helpers";
 import { patch } from "@web/core/utils/patch";
 import {
     defineWebsiteModels,
     setupWebsiteBuilder,
     setupWebsiteBuilderWithSnippet,
 } from "@website/../tests/builder/website_helpers";
+import { formSelectXml } from "@website/../tests/interactions/snippets/helpers";
+import { BuilderList } from "@html_builder/core/building_blocks/builder_list";
+import {
+    confirmAddSnippet,
+    dummyBase64Img,
+    getDragHelper,
+    unfoldAllOptionsGroups,
+    waitForEndOfOperation,
+} from "@html_builder/../tests/helpers";
+import { setSelection } from "@html_editor/../tests/_helpers/selection";
 
 class HrJob extends models.Model {
     _name = "hr.job";
+    name = fields.Char();
+    _records = [{ id: 42, name: "Test job" }];
 }
 defineModels([HrJob]);
 
@@ -45,38 +82,127 @@ patch(webModels.IrModel.prototype, {
 
 defineWebsiteModels();
 
-test("change action of form changes available options", async () => {
+describe("Form action options", () => {
     // reduced version of form_editor_actions
-    registry
-        .category("website.form_editor_actions")
-        .add("apply_job", {
-            formFields: [
-                { type: "char", name: "partner_name", fillWith: "name", string: "Your Name" },
-            ],
-            fields: [
-                { name: "job_id", type: "many2one", relation: "hr.job", string: "Applied Job" },
-            ],
-            successPage: "/job-thank-you",
-        })
-        .add("create_customer", {
-            formFields: [{ type: "char", name: "name", fillWith: "name", string: "Your Name" }],
+    function withIframeRegistry(registry) {
+        registry
+            .category("website.form_editor_actions")
+            .add("apply_job", {
+                formFields: [
+                    { type: "char", name: "partner_name", fillWith: "name", string: "Your Name" },
+                ],
+                fields: [
+                    { name: "job_id", type: "many2one", relation: "hr.job", string: "Applied Job" },
+                ],
+                successPage: "/job-thank-you",
+            })
+            .add("create_customer", {
+                formFields: [
+                    { type: "char", name: "name", fillWith: "name", string: "Your Name" },
+                    { type: "many2many", name: "job_ids", relation: "hr.job", string: "Jobs" },
+                ],
+                fields: [
+                    {
+                        name: "job_id",
+                        type: "many2one",
+                        relation: "hr.job",
+                        string: "Preferred Job",
+                        required: true,
+                    },
+                    { name: "ref", type: "char", string: "Reference" },
+                ],
+            });
+    }
+
+    test("change action of form changes available options", async () => {
+        onRpc("get_authorized_fields", () => ({}));
+        await setupWebsiteBuilderWithSnippet("s_website_form", { withIframeRegistry });
+
+        await contains(":iframe section").click();
+        await contains("[data-label='Action'] button:contains('Send an E-mail')").click();
+        await contains("div.o-dropdown-item:contains('Apply for a Job')").click();
+
+        await animationFrame();
+        expect("span:contains('Applied Job')").toHaveCount(1);
+        expect("[data-label='URL'] input").toHaveValue("/job-thank-you");
+
+        await contains("[data-label='Action'] button:contains('Apply for a Job')").click();
+        await contains("div.o-dropdown-item:contains('Create a Customer')").click();
+
+        expect("span:contains('Applied Job')").toHaveCount(0);
+        expect("[data-label='URL'] input").toHaveValue("/contactus-thank-you");
+    });
+
+    test("selecting a form action field record doesn't prefetch all records", async () => {
+        onRpc("hr.job", "search_read", () => {
+            expect.step("search_read"); // shouldn't be called.
         });
+        onRpc("hr.job", "name_search", ({ kwargs }) => {
+            expect.step(`name_search: limit ${kwargs.limit}`);
+        });
+        onRpc("get_authorized_fields", () => ({}));
 
-    await setupWebsiteBuilderWithSnippet("s_website_form");
+        await setupWebsiteBuilderWithSnippet("s_website_form", { withIframeRegistry });
 
-    await contains(":iframe section").click();
-    await contains("div:has(>span:contains('Action')) + div button").click();
-    await contains("div.o-dropdown-item:contains('Apply for a Job')").click();
+        await contains(":iframe section").click();
+        await contains("[data-label='Action'] button:contains('Send an E-mail')").click();
+        await contains("div.o-dropdown-item:contains('Apply for a Job')").click();
 
-    await animationFrame();
-    expect("span:contains('Applied Job')").toHaveCount(1);
-    expect("div:has(>span:contains('URL')) + div input").toHaveValue("/job-thank-you");
+        await contains("[data-label='Applied Job'] button:contains('Choose a record...')").click();
+        expect.verifySteps([`name_search: limit 6`]);
+        await contains("span.o-dropdown-item:contains('Test job')").click();
+        expect(":iframe form .s_website_form_field.s_website_form_dnone").toHaveCount(1);
+        expect(":iframe form .s_website_form_field.s_website_form_dnone input").toHaveAttribute(
+            "name",
+            "job_id"
+        );
+        expect(":iframe form .s_website_form_field.s_website_form_dnone input").toHaveValue("42");
 
-    await contains("div:has(>span:contains('Action')) + div button").click();
-    await contains("div.o-dropdown-item:contains('Create a Customer')").click();
+        await contains("[data-label='Applied Job'] button[aria-label='Unselect']").click();
+        expect(":iframe form .s_website_form_field.s_website_form_dnone").toHaveCount(0);
+    });
 
-    expect("span:contains('Applied Job')").toHaveCount(0);
-    expect("div:has(>span:contains('URL')) + div input").toHaveValue("/contactus-thank-you");
+    test("relational form fields of a form action are rendered with their records", async () => {
+        onRpc("get_authorized_fields", () => ({}));
+        await setupWebsiteBuilderWithSnippet("s_website_form", { withIframeRegistry });
+
+        await contains(":iframe section").click();
+        await contains("[data-label='Action'] button:contains('Send an E-mail')").click();
+        await contains("div.o-dropdown-item:contains('Create a Customer')").click();
+
+        expect(":iframe form [data-name='job_ids'] input[type='checkbox']").toHaveCount(1);
+        expect(":iframe form [data-name='job_ids'] input[type='checkbox']").toHaveAttribute(
+            "value",
+            "42"
+        );
+    });
+
+    test("required form action field can't be unselected", async () => {
+        onRpc("get_authorized_fields", () => ({}));
+        await setupWebsiteBuilderWithSnippet("s_website_form", { withIframeRegistry });
+
+        await contains(":iframe section").click();
+        await contains("[data-label='Action'] button:contains('Send an E-mail')").click();
+        await contains("div.o-dropdown-item:contains('Create a Customer')").click();
+
+        await contains("[data-label='Preferred Job'] button:contains('Choose a record...')").click();
+        await contains("span.o-dropdown-item:contains('Test job')").click();
+        expect(":iframe form .s_website_form_dnone input[name='job_id']").toHaveValue("42");
+        expect("[data-label='Preferred Job'] button[aria-label='Unselect']").toHaveCount(0);
+    });
+
+    test("char form action field keeps its raw value", async () => {
+        onRpc("get_authorized_fields", () => ({}));
+        await setupWebsiteBuilderWithSnippet("s_website_form", { withIframeRegistry });
+
+        await contains(":iframe section").click();
+        await contains("[data-label='Action'] button:contains('Send an E-mail')").click();
+        await contains("div.o-dropdown-item:contains('Create a Customer')").click();
+
+        await contains("[data-label='Reference'] input").edit("REF-1");
+        expect(":iframe form .s_website_form_dnone input[name='ref']").toHaveValue("REF-1");
+        expect("[data-label='Reference'] input").toHaveValue("REF-1");
+    });
 });
 
 test("'Author' field's type stays selected when you modify the option list", async () => {
@@ -108,13 +234,13 @@ test("'Author' field's type stays selected when you modify the option list", asy
     );
 
     await contains(":iframe section span:contains(Author)").click();
-    await contains(".hb-row[data-label='Type'] button.o-dropdown-caret:contains('Author')").click();
-    expect(".o_popover [data-action-value='author_id']").toHaveClass("active");
-    await contains(".hb-row button.o-dropdown-caret:contains('Add')").click();
-    await contains(".o_popover .o-hb-select-dropdown-item").click();
+    await contains(".hb-row[data-label='Type'] button:contains('Author')").click();
+    expect(".o_popover [data-choice-index]:contains('Author')").toHaveClass("selected");
+    await contains(".o_select_menu button.o-hb-selectMany2X-toggle:contains('Add')").click();
+    await contains(".o_select_menu_menu .o-dropdown-item").click();
     // check that the author is still marked as selected
-    await contains(".hb-row[data-label='Type'] button.o-dropdown-caret:contains('Author')").click();
-    expect(".o_popover [data-action-value='author_id']").toHaveClass("active");
+    await contains(".hb-row[data-label='Type'] button:contains('Author')").click();
+    expect(".o_popover [data-choice-index]:contains('Author')").toHaveClass("selected");
 });
 
 test("undo redo add form field", async () => {
@@ -126,7 +252,8 @@ test("undo redo add form field", async () => {
                 <div class="s_website_form_label"/>
                 <a>Submit</a>
             </div>
-        </form></section>`
+        </form></section>`,
+        { loadIframeBuilderTemplates: true }
     );
     const editor = getEditor();
 
@@ -169,18 +296,64 @@ test("empty placeholder selection input for selection field", async () => {
                 <div class="s_website_form_label"/>
                 <a>Submit</a>
             </div>
-        </form></section>`
+        </form></section>`,
+        { loadIframeBuilderTemplates: true }
     );
     getEditor();
     expect(":iframe select option").toHaveCount(3);
-    await contains(":iframe .s_website_form_field[data-type='many2one'").click();
-    await contains(".o_we_table_wrapper input[type='checkbox']").click();
+
+    await contains(":iframe .s_website_form_field[data-type='many2one']").click();
+    await contains("div[data-action-id='toggleAllowEmpty'] .form-switch").click();
     expect(":iframe select option").toHaveCount(4);
-    expect(":iframe select option:eq(0)").toHaveText("");
+    expect(".o_we_table_wrapper tr").toHaveCount(3);
+    expect(":iframe select option:eq(0)").toHaveText("Please choose any one option");
+
+    await contains("div[data-action-id='setEmptyPlaceholder'] input").edit("test");
+    expect(":iframe select option:eq(0)").toHaveText("test");
+});
+
+test("selection field discards empty entries", async () => {
+    onRpc("get_authorized_fields", () => ({}));
+    const { getEditor } = await setupWebsiteBuilder(
+        `<section class="s_website_form"><form data-model_name="mail.mail">
+            <div data-name="Field" class="s_website_form_field mb-3 col-12 s_website_form_custom" data-type="many2one">
+                <div class="row s_col_no_resize s_col_no_bgcolor">
+                    <label class="col-form-label col-sm-auto s_website_form_label" for="ozp7022vqhe">
+                        <span class="s_website_form_label_content">Selection Field</span>
+                    </label>
+                    <div class="col-sm">
+                        <select class="form-select s_website_form_input" name="Phone Number" id="ozp7022vqhe">
+                            <option id="ozp7022vqhe0" value="Option 1">Option 1</option>
+                            <option id="ozp7022vqhe1" value="Option 2">Option 2</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="s_website_form_submit">
+                <div class="s_website_form_label"/>
+                <a>Submit</a>
+            </div>
+        </form></section>`,
+        { loadIframeBuilderTemplates: true }
+    );
+    getEditor();
+    await contains(":iframe .s_website_form_field[data-type='many2one']").click();
+    expect(".o_row_draggable").toHaveCount(2);
+
+    // If the entry is empty, it is dropped
+    await contains(".o_we_table_wrapper input[type='text']").clear();
+    await press("enter");
+    expect(".o_row_draggable").toHaveCount(1);
+
+    // If the entry is empty, but it is the last one, it is not dropped
+    await contains(".o_we_table_wrapper input[type='text']").clear();
+    await press("enter");
+    expect(".o_row_draggable").toHaveCount(1);
 });
 
 test("Set 'Message' as form success action and show/hide the message preview", async () => {
-    await setupWebsiteBuilderWithSnippet("s_website_form");
+    onRpc("get_authorized_fields", () => ({}));
+    await setupWebsiteBuilderWithSnippet("s_website_form", { loadIframeBuilderTemplates: true });
     await contains(":iframe section.s_website_form").click();
     expect(".options-container[data-container-title='Form']").toHaveCount(1);
 
@@ -192,6 +365,27 @@ test("Set 'Message' as form success action and show/hide the message preview", a
     expect(":iframe .o_show_form_success_message").toHaveCount(2);
     await contains(".options-container [data-action-id='toggleEndMessage']").click();
     expect(":iframe .o_show_form_success_message").toHaveCount(0);
+});
+
+test("Undo change of default value of a text field", async () => {
+    onRpc("get_authorized_fields", () => ({}));
+    const builder = await setupWebsiteBuilderWithSnippet("s_website_form");
+
+    const questionInputSelector = ":iframe .s_website_form_field:contains(Your Question) textarea";
+    expect(questionInputSelector).toHaveProperty("value", "");
+    await contains(questionInputSelector).click();
+    await contains('[data-label="Default Value"] input').fill("hello");
+    expect(questionInputSelector).toHaveProperty("value", "hello");
+    undo(builder.getEditor());
+    expect(questionInputSelector).toHaveProperty("value", "");
+
+    const subjectInputSelector = ":iframe .s_website_form_field:contains(Subject) input";
+    expect(subjectInputSelector).toHaveProperty("value", "");
+    await contains(subjectInputSelector).click();
+    await contains('[data-label="Default Value"] input').fill("hello");
+    expect(subjectInputSelector).toHaveProperty("value", "hello");
+    undo(builder.getEditor());
+    expect(subjectInputSelector).toHaveProperty("value", "");
 });
 
 const formWithCondition = `
@@ -223,23 +417,31 @@ const formWithCondition = `
 </form></section>
 `;
 
+function setSelectionOnNodeContent(el) {
+    setSelection({ anchorNode: el, anchorOffset: 0, focusOffset: el.childNodes.length });
+}
+
 test("Remove visibility dependency on field unavailable (change first)", async () => {
     onRpc("get_authorized_fields", () => ({}));
     const { getEditor } = await setupWebsiteBuilder(formWithCondition);
-    getEditor();
-    await contains(":iframe input[name=a]").click();
-    await contains("[data-label=Label] input").click();
-    await contains("[data-label=Label] input").edit("b");
+    const editor = getEditor();
+    expect(":iframe .s_website_form_field:not([data-visibility-dependency])").toHaveCount(1);
+    const aLabelEl = queryOne(":iframe .s_website_form_label_content:contains(a)");
+    await contains(aLabelEl).click();
+    setSelectionOnNodeContent(aLabelEl);
+    await insertText(editor, "b");
     expect(":iframe .s_website_form_field:not([data-visibility-dependency])").toHaveCount(2);
 });
 
 test("Remove visibility dependency on field unavailable (change second)", async () => {
     onRpc("get_authorized_fields", () => ({}));
     const { getEditor } = await setupWebsiteBuilder(formWithCondition);
-    getEditor();
-    await contains(":iframe input[name=b]").click();
-    await contains("[data-label=Label] input").click();
-    await contains("[data-label=Label] input").edit("a");
+    const editor = getEditor();
+    expect(":iframe .s_website_form_field:not([data-visibility-dependency])").toHaveCount(1);
+    const aLabelEl = queryOne(":iframe .s_website_form_label_content:contains(b)");
+    await contains(aLabelEl).click();
+    setSelectionOnNodeContent(aLabelEl);
+    await insertText(editor, "a");
     expect(":iframe .s_website_form_field:not([data-visibility-dependency])").toHaveCount(2);
 });
 
@@ -296,7 +498,7 @@ const changeFieldAndCheckDependency = async (
     fieldDependencyName = "Option 1"
 ) => {
     onRpc("get_authorized_fields", () => ({}));
-    await setupWebsiteBuilder(formWithConditionOnChexbox);
+    await setupWebsiteBuilder(formWithConditionOnChexbox, { loadIframeBuilderTemplates: true });
     await contains(":iframe input[value='Option 2']").click();
     await changeFieldAction();
     await contains(":iframe input[name='b']").click();
@@ -331,6 +533,59 @@ test("Correctly set field dependency name at selected field rename", async () =>
     expect(`.o-main-components-container  .o-dropdown-item:contains('${newName}')`).toHaveCount(1);
 });
 
+test("Visibility dependency on radio field with 'Add other' option", async (fieldDependencyName = "Option 1") => {
+    onRpc("get_authorized_fields", () => ({}));
+    await setupWebsiteBuilder(`
+<section class="s_website_form"><form data-model_name="mail.mail">
+    <div data-name="Field" class="s_website_form_field mb-3 col-12 s_website_form_custom" data-type="one2many">
+        <div class="row s_col_no_resize s_col_no_bgcolor">
+            <label class="col-sm-auto s_website_form_label" style="width: 200px" for="oradio01">
+                <span class="s_website_form_label_content">Custom Text</span>
+            </label>
+            <div class="col-sm">
+                <div class="row s_col_no_resize s_col_no_bgcolor s_website_form_multiple" data-name="Custom Text" data-display="horizontal">
+                    <div class="radio col-12 col-lg-4 col-md-6">
+                        <div class="form-check">
+                            <input type="radio" class="s_website_form_input form-check-input" id="oradio0" name="Custom Text" value="Option 1">
+                            <label class="form-check-label s_website_form_check_label" for="oradio0">Option 1</label>
+                        </div>
+                    </div>
+                    <div class="radio col-12 col-lg-4 col-md-6">
+                        <div class="form-check">
+                            <input type="radio" class="s_website_form_input form-check-input" id="oradio1" name="Custom Text" value="Option 2">
+                            <label class="form-check-label s_website_form_check_label" for="oradio1">Option 2</label>
+                        </div>
+                    </div>
+                    <div class="radio col-12 col-lg-4 col-md-6" contenteditable="false">
+                        <div class="form-check">
+                            <input type="radio" class="s_website_form_input form-check-input" id="oradio_other" name="Custom Text" value="_other">
+                            <label class="form-check-label s_website_form_check_label" for="oradio_other">Other</label>
+                        </div>
+                    </div>
+                </div>
+                <input type="text" name="Custom Text" placeholder="" class="form-control s_website_form_input o_other_input mt-3"/>
+            </div>
+        </div>
+    </div>
+    <div data-name="Field" class="s_website_form_field mb-3 col-12 s_website_form_custom s_website_form_field_hidden_if d-none" data-type="char" data-visibility-dependency="Custom Text" data-visibility-comparator="selected">
+        <div class="row s_col_no_resize s_col_no_bgcolor">
+            <label class="col-form-label col-sm-auto s_website_form_label" style="width: 200px" for="second">
+                <span class="s_website_form_label_content">b</span>
+            </label>
+            <div class="col-sm">
+                <input class="form-control s_website_form_input" type="text" name="b" id="second"/>
+            </div>
+        </div>
+    </div>
+</form></section>
+    `);
+    await contains(":iframe input[name='b']").click();
+    await contains(`#hidden_condition_no_text_opt:contains(${fieldDependencyName})`).click();
+    expect(".o-main-components-container .o-dropdown-item:contains('Option 1')").toHaveCount(1);
+    expect(".o-main-components-container .o-dropdown-item:contains('Option 2')").toHaveCount(1);
+    expect(".o-main-components-container .o-dropdown-item:contains('Other')").toHaveCount(1);
+});
+
 test("Changing max files number option updates file input 'multiple' attribute", async () => {
     onRpc("get_authorized_fields", () => ({}));
     await setupWebsiteBuilder(`
@@ -361,9 +616,80 @@ test("Changing max files number option updates file input 'multiple' attribute",
     expect(":iframe input[type=file]").not.toHaveAttribute("multiple");
 });
 
+test("Form using the Outgoing Mails model includes hidden email_to field", async () => {
+    onRpc("get_authorized_fields", () => ({}));
+    onRpc("res.company", "read", () => [{ email: "company@mail.com" }]);
+    await setupWebsiteBuilder(
+        `<section class="s_website_form">
+            <form data-model_name="mail.mail">
+                <div class="s_website_form_submit">
+                    <div class="s_website_form_label"/>
+                    <a>Submit</a>
+                </div>
+            </form>
+        </section>`,
+        { loadIframeBuilderTemplates: true }
+    );
+
+    await contains(":iframe section").click();
+    await contains(".hb-row[data-label='Action'] button").click();
+    await contains("div.o-dropdown-item:contains('Send an E-mail')").click();
+
+    expect(":iframe input[type='hidden'][name='email_to']").toHaveCount(1);
+    expect(":iframe input[type='hidden'][name='email_to']").toHaveValue("company@mail.com");
+});
+
+test("Saving outgoing mail form without company email uses editor email fallback", async () => {
+    onRpc("get_authorized_fields", () => ({}));
+    onRpc("formbuilder_whitelist", () => true);
+    onRpc("res.company", "read", () => [{ email: "" }]);
+    onRpc("res.users", "read", () => [{ email: "user@mail.com" }]);
+    onRpc("ir.ui.view", "save", ({ args }) => {
+        const savedView = args[1];
+        expect(savedView).toInclude(`name="email_to"`);
+        expect(savedView).toInclude(`value="user@mail.com"`);
+        return true;
+    });
+    await setupWebsiteBuilder(
+        `<section class="s_website_form">
+            <form data-model_name="mail.mail">
+                <div class="s_website_form_submit">
+                    <div class="s_website_form_label"/>
+                    <a>Submit</a>
+                </div>
+            </form>
+        </section>`,
+        { loadIframeBuilderTemplates: true }
+    );
+
+    await contains(":iframe section").click();
+    await contains(".hb-row[data-label='Action'] button").click();
+    await contains("div.o-dropdown-item:contains('Send an E-mail')").click();
+
+    expect(":iframe input[type='hidden'][name='email_to']").toHaveValue("user@mail.com");
+
+    await contains(".o-snippets-top-actions button:contains(Save)").click();
+});
+
+test("dropping a snippet containing a form applies the default recipient email", async () => {
+    onRpc("get_authorized_fields", () => ({}));
+    onRpc("res.company", "read", () => [{ email: "company@mail.com" }]);
+    await setupWebsiteBuilder("", { loadIframeBuilderTemplates: true });
+
+    await contains("[data-snippet-group='contact_and_forms'] .o_snippet_thumbnail_area").click();
+    await confirmAddSnippet("s_website_form_info");
+    await waitForEndOfOperation();
+
+    await contains(":iframe .s_website_form_info .s_website_form").click();
+
+    expect(":iframe .s_website_form_info input[name='email_to']").toHaveValue("company@mail.com");
+    expect(".hb-row[data-label='Recipient Emails'] input").toHaveValue("company@mail.com");
+});
+
 test("Last list entry cannot be removed", async () => {
     onRpc("get_authorized_fields", () => ({}));
-    await setupWebsiteBuilder(`
+    await setupWebsiteBuilder(
+        `
 <section class="s_website_form" data-vcss="001" data-snippet="s_website_form" data-name="Form">
     <form data-model_name="mail.mail">
         <div class="s_website_form_rows">
@@ -399,7 +725,9 @@ test("Last list entry cannot be removed", async () => {
 	    </div>
     </form>
 </section>
-        `);
+        `,
+        { loadIframeBuilderTemplates: true }
+    );
     await contains(":iframe .s_website_form_field").click();
     expect(".options-container .builder_list_remove_item").toHaveCount(3);
     await contains(
@@ -414,7 +742,994 @@ test("Last list entry cannot be removed", async () => {
     expect(".options-container .builder_list_remove_item").toHaveCount(2);
 });
 
-test("Form using the Outgoing Mails model includes hidden email_to field", async () => {
+class ResCountryState extends models.Model {
+    _name = "res.country.state";
+    name = fields.Char({ string: "Name" });
+    _records = [
+        { id: 1, name: "State 1 (A)" },
+        { id: 2, name: "State 2 (B)" },
+    ];
+}
+const countryAndStateField = {
+    country_id: {
+        name: "country_id",
+        relation: "res.country",
+        string: "Country",
+        type: "many2one",
+    },
+    state_id: {
+        name: "state_id",
+        relation: "res.country.state",
+        string: "State",
+        type: "many2one",
+    },
+};
+test("Can link states to a country", async () => {
+    defineModels([ResCountryState]);
+    onRpc("get_authorized_fields", () => countryAndStateField);
+    await setupWebsiteBuilder(
+        `<section class="s_website_form"><form data-model_name="mail.mail">
+            <div data-name="Country" class="s_website_form_field" data-type="many2one">
+                <div>
+                    <label class="s_website_form_label" for="country">
+                        <span class="s_website_form_label_content">Country</span>
+                    </label>
+                    <div>
+                        <select class="form-select s_website_form_input" name="country_id" id="country">
+                            <option value=""></option>
+                            <option value="1" selected="selected">Country 1 (A)</option>
+                            <option value="2">Country 2 (B)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div data-name="State" class="s_website_form_field" data-type="many2one">
+                <div>
+                    <label class="s_website_form_label" for="state">
+                        <span class="s_website_form_label_content">State</span>
+                    </label>
+                    <div>
+                        <select class="form-select s_website_form_input" name="state_id" id="state">
+                            <option value=""></option>
+                            <option data-country-id="1" value="s1">State 1 (A)</option>
+                            <option data-country-id="2" value="s2">State 2 (B)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </form></section>`,
+        { loadIframeBuilderTemplates: true }
+    );
+    await contains(":iframe select[name='state_id']").click();
+    expect(".options-container .hb-row [data-action-id='linkStateToCountry']").toHaveCount(1);
+    expect(
+        ".options-container .hb-row [data-action-id='linkStateToCountry'] input"
+    ).not.toBeChecked();
+    expect(".options-container .hb-row p:contains('Option List')").toHaveCount(1);
+
+    await contains(
+        ".options-container .hb-row [data-action-id='linkStateToCountry'] input"
+    ).click();
+
+    expect(".options-container .hb-row [data-action-id='linkStateToCountry'] input").toBeChecked();
+    expect(".options-container .hb-row :contains('Option List')").toHaveCount(0);
+    expect(":iframe select[name='state_id']").toHaveAttribute("data-link-state-to-country", "true");
+});
+
+test("Shouldn't have the 'Link to country' option if there's no country field", async () => {
+    defineModels([ResCountryState]);
+    onRpc("get_authorized_fields", () => countryAndStateField);
+    await setupWebsiteBuilder(
+        `<section class="s_website_form"><form data-model_name="mail.mail">
+            <div data-name="State" class="s_website_form_field" data-type="many2one">
+                <div>
+                    <label class="s_website_form_label" for="state">
+                        <span class="s_website_form_label_content">State</span>
+                    </label>
+                    <div>
+                        <select class="form-select s_website_form_input" name="state_id" id="state">
+                            <option value=""></option>
+                            <option data-country-id="1" value="s1">State 1 (A)</option>
+                            <option data-country-id="2" value="s2">State 2 (B)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </form></section>`
+    );
+    await contains(":iframe select[name='state_id']").click();
+    expect(".options-container .hb-row[data-action-id='linkStateToCountry']").toHaveCount(0);
+});
+
+test("Min and max character limits should not contradict one another.", async () => {
+    onRpc("get_authorized_fields", () => ({}));
+    await setupWebsiteBuilder(
+        `<section class="s_website_form" data-snippet="s_website_form" data-name="Form">
+            <div class="container-fluid">
+            <form action="/website/form/" method="post" class="o_mark_required" data-model_name="mail.mail">
+                <div class="s_website_form_rows">
+                    <div data-name="Field" class="s_website_form_field mb-3 col-12 s_website_form_custom s_website_form_required" data-type="char">
+                        <div class="row s_col_no_resize s_col_no_bgcolor">
+                            <label class="col-form-label col-sm-auto s_website_form_label" style="width: 200px" for="ok0ney2v8rwf">
+                                <span class="s_website_form_label_content">name</span>
+                                <span class="s_website_form_mark"> *</span>
+                            </label>
+                            <div class="col-sm">
+                                <input class="form-control s_website_form_input" type="text" name="name" required="" value="" placeholder="" id="ok0ney2v8rwf" data-fill-with="name">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            </div>
+        </section>`
+    );
+    await contains(':iframe [data-name="Field"]').click();
+    await contains('[data-action-id="toggleCharacterLimit"] input').click();
+    // By default, minlength is 0 and maxlength is 100.
+    expect("[data-attribute-action='minlength'] input").toHaveValue(0);
+    expect("[data-attribute-action='maxlength'] input").toHaveValue(100);
+
+    await contains("[data-attribute-action='minlength'] input").edit("10", { confirm: "enter" });
+    expect("[data-attribute-action='minlength'] input").toHaveValue(10);
+    expect(":iframe input[name='name']").toHaveAttribute("minlength", 10);
+
+    await contains("[data-attribute-action='maxlength'] input").edit("110", { confirm: "enter" });
+    expect("[data-attribute-action='maxlength'] input").toHaveValue(110);
+    expect(":iframe input[name='name']").toHaveAttribute("maxlength", 110);
+
+    // Ensure constraint: minlength <= maxlength and maxlength >= minlength.
+    await contains("[data-attribute-action='minlength'] input").edit("120", { confirm: "enter" });
+    expect("[data-attribute-action='minlength'] input").toHaveValue(110);
+    expect(":iframe input[name='name']").toHaveAttribute("minlength", 110);
+
+    await contains("[data-attribute-action='maxlength'] input").edit("50", { confirm: "enter" });
+    expect("[data-attribute-action='maxlength'] input").toHaveValue(110);
+    expect(":iframe input[name='name']").toHaveAttribute("maxlength", 110);
+});
+
+test("Only state fields have data-link-state-to-country attr", async () => {
+    defineModels([ResCountryState]);
+    onRpc("get_authorized_fields", () => countryAndStateField);
+    await setupWebsiteBuilder(
+        `<section class="s_website_form"><form data-model_name="mail.mail">
+            <div data-name="Country" class="s_website_form_field" data-type="many2one">
+                <div>
+                    <label class="s_website_form_label" for="country">
+                        <span class="s_website_form_label_content">Country</span>
+                    </label>
+                    <div>
+                        <select class="form-select s_website_form_input" name="country_id" id="country">
+                            <option value="1" selected="selected">Country 1 (A)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div data-name="State" class="s_website_form_field" data-type="many2one">
+                <div>
+                    <label class="s_website_form_label" for="state">
+                        <span class="s_website_form_label_content">State</span>
+                    </label>
+                    <div>
+                        <select class="form-select s_website_form_input" name="state_id" id="state">
+                            <option data-country-id="1" value="s1">State 1 (A)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </form></section>`,
+        { loadIframeBuilderTemplates: true }
+    );
+    await contains(":iframe select[name='state_id']").click();
+    await contains(
+        ".options-container .hb-row [data-action-id='linkStateToCountry'] input"
+    ).click();
+    expect(":iframe select[name='state_id']").toHaveAttribute("data-link-state-to-country", "true");
+
+    // Other 'select' elements shouldn't have this attribute
+    await contains(".options-container .btn[title='Add a new field after this one']").click();
+    await contains(".hb-row[data-label='Type'] .dropdown-toggle").click();
+    await contains(".o_popover [data-choice-index]:contains('Selection')").click();
+    expect(":iframe .s_website_form_field:last-child select").not.toHaveAttribute(
+        "data-link-state-to-country"
+    );
+});
+
+test("Checkbox default value option stays visible when changing label position", async () => {
+    onRpc("get_authorized_fields", () => ({}));
+    await setupWebsiteBuilder(
+        `<section class="s_website_form" data-snippet="s_website_form" data-name="Form">
+            <div class="container-fluid">
+                <form action="/website/form/" method="post" class="o_mark_required" data-model_name="mail.mail">
+                    <div class="s_website_form_rows">
+                        <div data-name="Field" class="s_website_form_field s_website_form_custom" data-type="boolean">
+                            <label class="s_website_form_label" for="opftfejmju">
+                                <span class="s_website_form_label_content">My Field</span>
+                            </label>
+                            <div class="form-check">
+                                <input type="checkbox" value="Yes" class="s_website_form_input form-check-input" name="My field" id="opftfejmju">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>`
+    );
+
+    await contains(":iframe section span:contains('My Field')").click();
+    expect("[data-attribute-action='checked']").toHaveCount(1);
+    await contains("[data-container-title='Form'] button").click();
+    await contains("[data-action-value='right']").click();
+    expect("[data-attribute-action='checked']").toHaveCount(1);
+});
+
+test("Checkbox description position none persists after multiple clicks", async () => {
+    onRpc("get_authorized_fields", () => ({}));
+    await setupWebsiteBuilder(
+        `<section class="s_website_form" data-snippet="s_website_form" data-name="Form">
+            <div class="container-fluid">
+                <form action="/website/form/" method="post" class="o_mark_required" data-model_name="mail.mail">
+                    <div class="s_website_form_rows">
+                        <div data-name="Field" class="s_website_form_field s_website_form_custom" data-type="boolean">
+                            <label class="s_website_form_label" for="opftfejmju">
+                                <span class="s_website_form_label_content">My Field</span>
+                            </label>
+                            <div class="form-check">
+                                <input type="checkbox" value="Yes" class="s_website_form_input form-check-input" name="My field" id="opftfejmju">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>`,
+        { loadIframeBuilderTemplates: true }
+    );
+
+    await contains(":iframe section span:contains('My Field')").click();
+    expect("[data-label='Description'] button").toHaveText("None");
+    await contains("[data-label='Description'] button").click();
+    await contains("[data-action-value='none']").click();
+    expect("[data-label='Description'] button").toHaveText("None");
+    await contains("[data-label='Description'] button").click();
+    await contains("[data-action-value='stacked']").click();
+    expect("[data-label='Description'] button").toHaveText("Stacked");
+    await contains("[data-label='Description'] button").click();
+    await contains("[data-action-value='none']").click();
+    expect("[data-label='Description'] button").toHaveText("None");
+    await contains("[data-label='Description'] button").click();
+    await contains("[data-action-value='none']").click();
+    expect("[data-label='Description'] button").toHaveText("None");
+});
+
+test("multiple conditional visibility value for 'contains'", async () => {
+    onRpc("get_authorized_fields", () => ({}));
+    await setupWebsiteBuilder(
+        `<section class="s_website_form">
+            <form data-model_name="mail.mail">
+                <div data-name="Field" class="s_website_form_field mb-3 col-12 s_website_form_custom" data-type="one2many">
+                    <div class="row s_col_no_resize s_col_no_bgcolor">
+                        <label class="col-sm-auto s_website_form_label" style="width: 200px" for="ofwe8fyqws37">
+                            <span class="s_website_form_label_content">Custom Text</span>
+                        </label>
+                        <div class="col-sm">
+                            <div class="row s_col_no_resize s_col_no_bgcolor s_website_form_multiple" data-name="Custom Text" data-display="horizontal">
+                                <div class="checkbox col-12 col-lg-4 col-md-6">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="s_website_form_input form-check-input" id="ofwe8fyqws370" name="Custom Text" value="Option 1" data-fill-with="undefined">
+                                        <label class="form-check-label s_website_form_check_label" for="ofwe8fyqws370">Option 1</label>
+                                    </div>
+                                </div>
+                                <div class="checkbox col-12 col-lg-4 col-md-6">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="s_website_form_input form-check-input" id="ofwe8fyqws371" name="Custom Text" value="Option 2">
+                                        <label class="form-check-label s_website_form_check_label" for="ofwe8fyqws371">Option 2</label>
+                                    </div>
+                                </div>
+                                <div class="checkbox col-12 col-lg-4 col-md-6">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="s_website_form_input form-check-input" id="ofwe8fyqws372" name="Custom Text" value="Option 3">
+                                        <label class="form-check-label s_website_form_check_label" for="ofwe8fyqws372">Option 3</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div data-name="Field" class="s_website_form_field mb-3 col-12 s_website_form_custom d-none" data-type="char">
+                    <div class="row s_col_no_resize s_col_no_bgcolor">
+                        <label class="col-form-label col-sm-auto s_website_form_label" style="width: 200px" for="second">
+                            <span class="s_website_form_label_content">b</span>
+                        </label>
+                        <div class="col-sm">
+                            <input class="form-control s_website_form_input" type="text" name="b" id="second"/>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </section>`
+    );
+
+    const fieldB = ":iframe .s_website_form_field:has(input[name=b])";
+    await contains(fieldB).click();
+    // Change visibility condition to "contains".
+    await contains("[data-label='Visibility Rule'] button").click();
+    await contains("[data-action-value='conditional']").click();
+    await contains("button[id='hidden_condition_no_text_opt']").click();
+    await contains(".o_popover .dropdown-item:contains(Contains)").click();
+    expect(fieldB).toHaveAttribute("data-visibility-condition", "Option 1");
+
+    await contains(".form-switch input[data-id='1']").click();
+    expect(fieldB).toHaveAttribute("data-visibility-condition", '["Option 1","Option 2"]');
+});
+
+test("contains conditional visibility value for 'record' field", async () => {
+    onRpc("get_authorized_fields", () => ({}));
+    onRpc("hr.job", "search_read", () => [
+        {
+            id: "1",
+            display_name: "Option 1",
+        },
+        {
+            id: "2",
+            display_name: "Option 2",
+        },
+        {
+            id: "3",
+            display_name: "Option 3",
+        },
+    ]);
+    await setupWebsiteBuilder(
+        `<section class="s_website_form">
+            <form data-model_name="mail.mail">
+                <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_dnone" data-type="record" data-model="hr.job">
+                    <div class="row s_col_no_resize s_col_no_bgcolor">
+                        <label class="col-4 col-sm-auto s_website_form_label" style="width: 200px" for="recruitment7">
+                            <span class="s_website_form_label_content">Job</span>
+                        </label>
+                        <div class="col-sm">
+                            <input id="recruitment7" type="hidden" class="form-control s_website_form_input" name="id" value="3">
+                        </div>
+                    </div>
+                </div>
+                <div data-name="Field" class="s_website_form_field mb-3 col-12 s_website_form_custom d-none" data-type="char">
+                    <div class="row s_col_no_resize s_col_no_bgcolor">
+                        <label class="col-form-label col-sm-auto s_website_form_label" style="width: 200px" for="second">
+                            <span class="s_website_form_label_content">b</span>
+                        </label>
+                        <div class="col-sm">
+                            <input class="form-control s_website_form_input" type="text" name="b" id="second"/>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </section>`
+    );
+
+    const fieldB = ":iframe .s_website_form_field:has(input[name=b])";
+    await contains(fieldB).click();
+    // Change visibility condition to "contains".
+    await contains("[data-label='Visibility Rule'] button").click();
+    await contains("[data-action-value='conditional']").click();
+    await contains("button[id='hidden_condition_no_text_opt']").click();
+    await contains(".o_popover .dropdown-item:contains(Contains)").click();
+    expect(".form-switch input[data-id]").toHaveCount(3);
+    expect(fieldB).toHaveAttribute("data-visibility-condition", "1");
+
+    await contains(".form-switch input[data-id='1']").click();
+    expect(fieldB).toHaveAttribute("data-visibility-condition", '["1","2"]');
+});
+
+describe("Many2one Field", () => {
+    const addRecordButtonSelector =
+        ".we-bg-options-container [title='Add a record to the list'] button.o-hb-selectMany2X-toggle";
+    let records;
+
+    beforeEach(async () => {
+        onRpc("get_authorized_fields", () => ({
+            country_id: {
+                name: "country_id",
+                relation: "res.country",
+                string: "Country",
+                type: "many2one",
+            },
+        }));
+        await setupWebsiteBuilder(
+            `
+            <section class="s_website_form" data-snippet="s_website_form" data-name="Form">
+                <div class="container-fluid">
+                    <form action="/website/form/" method="post" class="o_mark_required" data-model_name="res.partner">
+                        <div class="s_website_form_rows">
+                            <div data-name="Field" class="s_website_form_field s_website_form_required" data-type="many2one">
+                                <div class="row">
+                                    <label class="s_website_form_label" for="oyeqnysxh10b">
+                                        <span class="s_website_form_label_content">Country</span>
+                                    </label>
+                                    <select class="form-select s_website_form_input" required="" id="oyeqnysxh10b" name="country_id" >
+                                        <option selected="selected" id="oyeqnysxh10b0" value="1">Belgium</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        `,
+            { loadIframeBuilderTemplates: true }
+        );
+        const env = MockServer.env;
+        records = [
+            env["res.country"].create({ name: "Belgium" }),
+            env["res.country"].create({ name: "Spain" }),
+            env["res.country"].create({ name: "India" }),
+            env["res.country"].create({ name: "Mexico" }),
+            env["res.country"].create({ name: "Kenya" }),
+            env["res.country"].create({ name: "US" }),
+            env["res.country"].create({ name: "UAE" }),
+            env["res.country"].create({ name: "Brazil" }),
+        ];
+
+        await contains(":iframe section span:contains(Country)").click();
+    });
+
+    test("At beginning", () => {
+        // There should be only one option, and it should be selected
+        expect(".o_we_table_wrapper table tr").toHaveCount(1);
+        expect(".o_we_table_wrapper table tr input[type=checkbox]").toHaveProperty("checked");
+        expect(":iframe select option").toHaveCount(1);
+        expect(":iframe select option[selected]").toHaveText("Belgium");
+    });
+
+    test("No record record selected by default", async () => {
+        // Disable selected
+        await contains(".o_we_table_wrapper table tr input[type=checkbox]").click();
+        expect(":iframe select option").toHaveCount(2, {
+            message: "Disabling Belgium as selected item should add an empty item selected",
+        });
+        expect(":iframe select option[selected]").toHaveText("Please choose any one option");
+
+        // Select it back
+        await contains(".o_we_table_wrapper table tr input[type=checkbox]").click();
+        expect(":iframe select option[selected]").toHaveText("Belgium");
+        expect(":iframe select option").toHaveCount(1, {
+            message: "Select Belgium back should remove the empty item",
+        });
+    });
+
+    test("SelectMenu to add records", async () => {
+        await unfoldAllOptionsGroups();
+        await contains(addRecordButtonSelector).click();
+        await expectElementCount(".o_select_menu_menu .o_select_menu_item", records.length - 1);
+        expect(queryOne(".o_select_menu_menu").getBoundingClientRect().top).toBeLessThan(
+            queryOne(addRecordButtonSelector).getBoundingClientRect().top,
+            {
+                message:
+                    "The menu should be rendered above the Add button because it's too tall to be below.",
+            }
+        );
+        expect(".o_select_menu_menu .o-dropdown-item:first").toHaveText("Brazil", {
+            message:
+                "Since we already added 'Belgium' the first alphabetical suggestion should be 'Brazil'",
+        });
+        expect(".o_select_menu_menu .o-dropdown-item:nth-of-type(2)").toHaveText("India");
+        await contains(".o_select_menu_menu .o-dropdown-item:nth-of-type(2)").click();
+        await contains(addRecordButtonSelector).click();
+        await contains(".o_select_menu_menu .o-dropdown-item:first").click();
+
+        expect(".o_we_table_wrapper table tr:first input[name=display_name]").toHaveValue(
+            "Belgium"
+        );
+        expect(".o_we_table_wrapper table tr:first input[type=checkbox]").toBeChecked();
+        expect(".o_we_table_wrapper table tr:nth-of-type(2) input[name=display_name]").toHaveValue(
+            "India"
+        );
+        expect(".o_we_table_wrapper table tr:nth-of-type(3) input[name=display_name]").toHaveValue(
+            "Brazil"
+        );
+
+        expect(":iframe select option").toHaveCount(3);
+        expect(":iframe select option:first[selected]").toHaveText("Belgium");
+        expect(":iframe select option:nth-of-type(2)").toHaveText("India");
+        expect(":iframe select option:nth-of-type(3)").toHaveText("Brazil");
+    });
+
+    test("Update button", async () => {
+        await contains(".we-bg-options-container [data-icon='refresh']").click();
+        expect(addRecordButtonSelector).toHaveProperty("disabled", true, {
+            message: "Add button should be disabled when all records are included",
+        });
+        expect(".o_we_table_wrapper table tr").toHaveCount(records.length);
+        expect(".o_we_table_wrapper table tr:first input[type=checkbox]").toBeChecked();
+        expect(".o_we_table_wrapper table tr:nth-of-type(2) input[name=display_name]").toHaveValue(
+            "Brazil",
+            {
+                message:
+                    "Brazil should be the second element as the list should be ordered alphabetically after update",
+            }
+        );
+
+        expect(":iframe select option").toHaveCount(records.length);
+        expect(":iframe select option[selected]").toHaveText("Belgium");
+    });
+
+    describe("Dialog", () => {
+        const dialogButtonSelector = ".we-bg-options-container [data-icon='settings']";
+
+        test("Add all and remove all", async () => {
+            await contains(dialogButtonSelector).click();
+            // Add all
+            await contains(".modal-dialog .o_left_panel [data-icon='add']").click();
+            await expectElementCount(".modal-dialog .o_left_panel .o_list_item", 0);
+            await expectElementCount(".modal-dialog .o_right_panel .o_list_item", records.length);
+            // Remove all
+            await contains(".modal-dialog .o_right_panel [data-icon='remove']").click();
+            await expectElementCount(".modal-dialog .o_right_panel .o_list_item", 0);
+            await expectElementCount(".modal-dialog .o_left_panel .o_list_item", records.length);
+
+            expect(".modal-dialog .btn-primary").toHaveProperty("disabled");
+
+            // Add Belgium back
+            await contains(".modal-dialog .o_left_panel .o_list_item").click();
+            await contains(".modal-dialog .btn-primary").click();
+            expect(".o_we_table_wrapper table tr").toHaveCount(1);
+            expect(".o_we_table_wrapper table tr input[name=display_name]").toHaveValue("Belgium", {
+                message: "Belgium should be the first record of the dialog and the only one added",
+            });
+
+            // Belgium should still be selected
+            expect(":iframe select option").toHaveCount(1);
+            expect(":iframe select option[selected]").toHaveText("Belgium");
+        });
+
+        test("List order", async () => {
+            await contains(addRecordButtonSelector).click();
+            await contains(".o_select_menu_menu .o-dropdown-item:contains(India)").click();
+            await contains(addRecordButtonSelector).click();
+            await contains(".o_select_menu_menu .o-dropdown-item:contains(Brazil)").click();
+            await contains(dialogButtonSelector).click();
+
+            expect(".modal-dialog .o_left_panel .o_list_item").toHaveCount(records.length - 3);
+            expect(".modal-dialog .o_right_panel .o_list_item").toHaveCount(3);
+
+            expect(".modal-dialog .o_right_panel .o_list_item:last-child").toHaveText("Brazil", {
+                message: "The right list should be ordered like it is in the sidebar",
+            });
+            await contains(".modal-dialog .o_left_panel .o_list_item").click();
+            expect(".modal-dialog .o_right_panel .o_list_item:last-child").toHaveText("Kenya", {
+                message:
+                    "Kenya should have been the first of the left list and the last of the right list after being added",
+            });
+            await contains(".modal-dialog .btn-primary").click();
+            expect(".o_we_table_wrapper table tr").toHaveCount(4);
+            expect(".o_we_table_wrapper table tr:last-child input[name=display_name]").toHaveValue(
+                "Kenya"
+            );
+
+            expect(":iframe select option").toHaveCount(4);
+        });
+
+        test("Search", async () => {
+            await contains(dialogButtonSelector).click();
+
+            // The search bar should focus automatically
+            await waitFor("input[type=search]:focus");
+            await press("m");
+            await press("e");
+            await animationFrame();
+
+            expect(".modal-dialog .o_left_panel .o_list_item").toHaveText("Mexico");
+            expect(".modal-dialog .o_right_panel .o_list_item").toHaveCount(0);
+
+            await contains(".modal-dialog .o_left_panel .o_list_item").click();
+            expect(".modal-dialog .o_left_panel .o_list_item").toHaveCount(0);
+            expect(".modal-dialog .o_right_panel .o_list_item").toHaveText("Mexico");
+
+            await contains("input[type=search]").click();
+            await press("Backspace");
+            await press("Backspace");
+            await animationFrame();
+
+            expect(".modal-dialog .o_left_panel .o_list_item").toHaveCount(records.length - 2);
+            expect(".modal-dialog .o_right_panel .o_list_item").toHaveCount(2);
+        });
+    });
+});
+
+test("other option attributes are preserved when switching between radio and select, removed for other field types", async () => {
+    onRpc("get_authorized_fields", () => ({}));
+    await setupWebsiteBuilder(formSelectXml, { loadIframeBuilderTemplates: true });
+    await contains(":iframe .s_website_form_field").click();
+    expect(":iframe .s_website_form_field").toHaveAttribute("data-other-option-allowed", "true");
+    expect(":iframe .s_website_form_field").toHaveAttribute("data-other-option-label");
+    expect(":iframe .s_website_form_field").toHaveAttribute("data-other-option-placeholder");
+
+    await contains(".hb-row[data-label='Type'] .dropdown-toggle").click();
+    await contains(".o_popover [data-choice-index]:contains('Selection')").click();
+    expect(":iframe .s_website_form_field").toHaveAttribute("data-other-option-allowed", "true");
+    expect(":iframe .s_website_form_field").toHaveAttribute("data-other-option-label");
+    expect(":iframe .s_website_form_field").toHaveAttribute("data-other-option-placeholder");
+
+    await contains(".hb-row[data-label='Type'] .dropdown-toggle").click();
+    await contains(".o_popover [data-choice-index]:contains('Selection')").click();
+    await contains(".options-container [data-label='Type'] button").click();
+    await contains(".o_popover [data-choice-index]:contains('Multiple Checkboxes')").click();
+    expect(":iframe .s_website_form_field").not.toHaveAttribute("data-other-option-allowed");
+    expect(":iframe .s_website_form_field").not.toHaveAttribute("data-other-option-label");
+    expect(":iframe .s_website_form_field").not.toHaveAttribute("data-other-option-placeholder");
+});
+
+test("label's markup is preserved when switching between field's type", async () => {
+    onRpc("get_authorized_fields", () => ({}));
+    const { getEditor } = await setupWebsiteBuilderWithSnippet("s_website_form", {
+        loadIframeBuilderTemplates: true,
+    });
+    setSelectionOnNodeContent(
+        queryOne(":iframe .s_website_form_label_content:contains(Your Name)")
+    );
+    bold(getEditor());
+    expect(":iframe .s_website_form_label_content:contains(Your Name)").toHaveInnerHTML(
+        "<strong>Your Name</strong>"
+    );
+
+    await contains(":iframe .s_website_form_field:contains(Your Name)").click();
+    await contains(".hb-row[data-label='Type'] .dropdown-toggle").click();
+    await contains("[data-action-value='selection']").click();
+
+    expect(":iframe .s_website_form_label_content:contains(Your Name)").toHaveInnerHTML(
+        "<strong>Your Name</strong>"
+    );
+});
+
+test("tool to add a link is not available in <label>", async () => {
+    onRpc("get_authorized_fields", () => ({}));
+    await setupWebsiteBuilder("<label><span>text</span></label>");
+    setSelectionOnNodeContent(queryOne(":iframe label span"));
+    await waitFor(".o-we-toolbar");
+    expect(".o-we-toolbar .btn[name='link']").toHaveCount(0);
+});
+
+test("powerbox tools that add links are not available in <label>", async () => {
+    onRpc("get_authorized_fields", () => ({}));
+    const { getEditor } = await setupWebsiteBuilder(
+        `<span class="out-label">text</span><label><span class="in-label">text</span></label>`
+    );
+    const items = ["Link", "Button", "Upload a file", "Media"];
+
+    setSelection({ anchorNode: queryOne(":iframe span.out-label"), anchorOffset: 0 });
+    await insertText(getEditor(), "/");
+    await animationFrame();
+    for (const item of items) {
+        expect(queryAllTexts(".o-we-command-name")).toInclude(item);
+    }
+
+    setSelection({ anchorNode: queryOne(":iframe span.in-label"), anchorOffset: 0 });
+    await insertText(getEditor(), "/");
+    await animationFrame();
+    for (const item of items) {
+        expect(queryAllTexts(".o-we-command-name")).not.toInclude(item);
+    }
+});
+
+test("img in label should not have the option for link of click", async () => {
+    onRpc("get_authorized_fields", () => ({}));
+    const { waitSidebarUpdated } = await setupWebsiteBuilder(
+        `<img src="${dummyBase64Img}" class="out-label"/><label><img src="${dummyBase64Img}" class="in-label"/></label>`
+    );
+
+    await contains(":iframe img.out-label").click();
+    await waitSidebarUpdated();
+    expect("[data-action-id='setLink']").toHaveCount(1);
+    expect("[data-class-action='o_image_popup']").toHaveCount(1);
+
+    await contains(":iframe img.in-label").click();
+    await waitSidebarUpdated();
+    expect("[data-action-id='setLink']").toHaveCount(0);
+    expect("[data-class-action='o_image_popup']").toHaveCount(0);
+});
+
+test("builderList re-renders when the field type changes (custom fields)", async () => {
+    onRpc("get_authorized_fields", () => ({}));
+    patchWithCleanup(BuilderList.prototype, {
+        setup() {
+            super.setup();
+            expect.step("setup");
+        },
+    });
+    await setupWebsiteBuilder(formSelectXml, { loadIframeBuilderTemplates: true });
+
+    await contains(":iframe .s_website_form_field").click();
+    expect.verifySteps(["setup", "setup"]);
+    await contains(".options-container [data-label='Type'] button").click();
+    await contains(".o_popover [data-action-value='one2many']").click();
+    expect.verifySteps(["setup"]);
+});
+
+test("builderList re-renders when the field type changes (existing fields)", async () => {
+    class ResCountry extends models.Model {
+        _name = "res.country";
+        name = fields.Char();
+        _records = [
+            {
+                id: 1,
+                name: "Belgium",
+            },
+        ];
+    }
+    defineModels([ResCountry]);
+    onRpc("get_authorized_fields", () => ({
+        author_id: {
+            name: "author_id",
+            relation: "res.partner",
+            string: "Author",
+            type: "many2one",
+        },
+        country_id: {
+            name: "country_id",
+            relation: "res.country",
+            string: "Country",
+            type: "many2one",
+        },
+    }));
+    patchWithCleanup(BuilderList.prototype, {
+        setup() {
+            super.setup();
+            expect.step("setup");
+        },
+    });
+    await setupWebsiteBuilder(
+        `<section class="s_website_form" data-snippet="s_website_form" data-name="Form">
+            <div class="container-fluid">
+            <form action="/website/form/" method="post" class="o_mark_required" data-model_name="mail.mail">
+                <div class="s_website_form_rows">
+                    <div data-name="Field" class="s_website_form_field s_website_form_required" data-type="many2one">
+                        <div class="row">
+                            <label class="s_website_form_label" for="oyeqnysxh10b">
+                                <span class="s_website_form_label_content">Author</span>
+                            </label>
+                        <select class="form-select s_website_form_input" required="" id="oyeqnysxh10b" name="author_id" />
+                        </div>
+                    </div>
+                </div>
+            </form>
+            </div>
+        </section>`,
+        { loadIframeBuilderTemplates: true }
+    );
+
+    await contains(":iframe .s_website_form_field").click();
+    expect.verifySteps(["setup", "setup"]);
+    await contains(".options-container [data-label='Type'] button").click();
+    await contains(".o_popover [data-action-value='country_id']").click();
+    expect.verifySteps(["setup"]);
+});
+
+test("inner snippets are individually wrapped in a div when dropped in forms", async () => {
+    await setupWebsiteBuilderWithSnippet(["s_website_form"]);
+
+    // Check that the wrapping happens
+    const dragUtils = await contains("#snippet_content [name='Alert'] .o_snippet_thumbnail").drag();
+    await dragUtils.moveTo(":iframe .s_website_form_rows > .oe_drop_zone");
+    await dragUtils.drop(getDragHelper());
+    await waitForEndOfOperation();
+    expect(
+        ":iframe .s_website_form_rows > div.s_website_form_inner_content > .s_alert"
+    ).toHaveCount(1);
+
+    // Check that no dropzones appear as direct children of the wrapper
+    await contains("#snippet_content [name='Alert'] .o_snippet_thumbnail").drag();
+    expect(":iframe div.s_website_form_inner_content > .oe_drop_zone").toHaveCount(0);
+});
+
+test("snippets that can't be dropped in forms", async () => {
+    await setupWebsiteBuilderWithSnippet(["s_website_form"]);
+
+    // First, drop an inner snippet, so the test will cover also for dropzones
+    // generated around or inside the inner snippet wrapper.
+    let dragUtils = await contains("#snippet_content [name='Alert'] .o_snippet_thumbnail").drag();
+    await dragUtils.moveTo(":iframe .s_website_form_rows > .oe_drop_zone");
+    await dragUtils.drop(getDragHelper());
+    await waitForEndOfOperation();
+
+    // Check that snippet can't be dropped.
+    dragUtils = await contains(
+        "#snippet_groups [data-snippet-group='intro'] .o_snippet_thumbnail"
+    ).drag();
+    expect(":iframe .s_website_form .oe_drop_zone").toHaveCount(0);
+    await dragUtils.cancel();
+
+    // Certain inner snippets are blocked too. The blocking logic is the same
+    // for all of them, so we just test one.
+    dragUtils = await contains("#snippet_content [name='Countdown'] .o_snippet_thumbnail").drag();
+    expect(":iframe .s_website_form_rows .oe_drop_zone").toHaveCount(0);
+    await dragUtils.cancel();
+});
+
+test("default for label when user deletes its content, and use it on save", async () => {
+    onRpc("get_authorized_fields", () => ({}));
+    const { getEditor, getEditableContent } = await setupWebsiteBuilderWithSnippet(
+        "s_website_form"
+    );
+    expect(getEditableContent()).not.toMatch("Custom Field");
+    const labelEl = queryOne(":iframe .s_website_form_label_content:contains(Your Name)");
+    setSelectionOnNodeContent(labelEl);
+    expect(labelEl).not.toHaveAttribute("data-show-default-label");
+    expect(labelEl).not.toHaveAttribute("data-default-label-content");
+    setColor("rgb(255, 0, 0)", "color")(getEditor());
+    setSelectionOnNodeContent(labelEl.querySelector("font"));
+    deleteBackward(getEditor());
+    expect(labelEl).toHaveAttribute("data-show-default-label", "true");
+    expect(labelEl).toHaveAttribute("data-default-label-content", "Custom Field");
+
+    onRpc("formbuilder_whitelist", () => true);
+    onRpc("ir.ui.view", "save", ({ args }) => {
+        expect.step("save");
+        expect(args[1]).toMatch("Custom Field");
+        return true;
+    });
+    await contains(".o-snippets-top-actions button:contains(Save)").click();
+    expect.verifySteps(["save"]);
+});
+
+test("Changing field type removes data-fill-with attribute", async () => {
+    onRpc("get_authorized_fields", () => ({
+        cc: {
+            name: "cc",
+            relation: "res.partner",
+            string: "CC",
+            type: "char",
+        },
+    }));
+
+    await setupWebsiteBuilder(
+        `
+        <form data-model_name="mail.mail">
+            <div class="s_website_form_field" data-type="char">
+                <label class="s_website_form_label" for="field">
+                    <span class="s_website_form_label_content">Company</span>
+                </label>
+                <input id="field" class="s_website_form_input" type="text" data-fill-with="commercial_company_name"/>
+            </div>
+            <div class="s_website_form_field" data-type="char">
+                <label class="s_website_form_label" for="field1">
+                    <span class="s_website_form_label_content">Phone Number</span>
+                </label>
+                <input id="field1" class="s_website_form_input" type="tel" data-fill-with="phone"/>
+            </div>
+        </form>
+    `,
+        { loadIframeBuilderTemplates: true }
+    );
+
+    // Change the field type to custom field.
+    await contains(":iframe input[type='text'][data-fill-with='commercial_company_name']").click();
+    await contains(".options-container [data-label='Type'] button").click();
+    await contains(".o_popover [data-action-value='email']").click();
+    expect(":iframe input[type='email']").not.toHaveAttribute("data-fill-with");
+
+    // Change the field type to existing field.
+    await contains(":iframe input[type='tel'][data-fill-with='phone']").click();
+    await contains(".options-container [data-label='Type'] button").click();
+    await contains(".o_popover [data-action-value='cc']").click();
+    expect(":iframe input[name='cc']").not.toHaveAttribute("data-fill-with");
+});
+
+test("Changing field type to existing field removes custom label", async () => {
+    onRpc("get_authorized_fields", () => ({
+        cc: {
+            name: "cc",
+            relation: "res.partner",
+            string: "CC",
+            type: "char",
+        },
+    }));
+
+    await setupWebsiteBuilder(
+        `
+        <form data-model_name="mail.mail">
+            <div class="s_website_form_field" data-type="char">
+                <label class="s_website_form_label" for="field">
+                    <span class="s_website_form_label_content">Company</span>
+                </label>
+                <input id="field" class="s_website_form_input" type="text"/>
+            </div>
+        </form>
+        `,
+        { loadIframeBuilderTemplates: true }
+    );
+
+    // Change the field type to custom field.
+    await contains(":iframe input[type='text']").click();
+    await contains(".options-container [data-label='Type'] button").click();
+    await contains(".o_popover [data-action-value='cc']").click();
+    expect(":iframe label").toHaveText("CC");
+});
+
+test("incomplete field requirements are discarded on save", async () => {
+    onRpc("get_authorized_fields", () => ({}));
+    onRpc("formbuilder_whitelist", () => true);
+    onRpc("ir.ui.view", "save", ({ args }) => {
+        expect(args[1]).not.toInclude("data-requirement-comparator");
+        expect(args[1]).not.toInclude("data-requirement-condition");
+        return true;
+    });
+    await setupWebsiteBuilder(`
+        <section class="s_website_form">
+            <form data-model_name="mail.mail">
+                <div class="s_website_form_field" data-requirement-comparator="greater">
+                    <input class="s_website_form_input" type="number"/>
+                </div>
+                <div class="s_website_form_field"
+                    data-requirement-comparator="between" data-requirement-condition="10">
+                    <input class="s_website_form_input" type="number"/>
+                </div>
+            </form>
+        </section>
+    `);
+
+    queryOne(":iframe .s_website_form").classList.add("o_dirty");
+    await contains(".o-snippets-top-actions button:contains(Save)").click();
+});
+
+test("only known model fields are whitelisted on save", async () => {
+    // The save pipeline may fire the whitelist RPC more than once: assert on
+    // the sent names, not on the call count.
+    const whitelistCalls = [];
+    onRpc("get_authorized_fields", () => ({
+        email_from: { name: "email_from", string: "Email", type: "char" },
+    }));
+    onRpc("formbuilder_whitelist", ({ args }) => {
+        whitelistCalls.push(args[1]);
+        return true;
+    });
+    onRpc("ir.ui.view", "save", () => true);
+    await setupWebsiteBuilder(`
+        <section class="s_website_form">
+            <form data-model_name="mail.mail">
+                <div class="s_website_form_field">
+                    <input class="s_website_form_input" type="email" name="email_from"/>
+                </div>
+                <div class="s_website_form_field">
+                    <input class="s_website_form_input" type="text" name="unknown_field_1"/>
+                </div>
+                <div class="s_website_form_field">
+                    <input class="s_website_form_input" type="text" name=""/>
+                </div>
+            </form>
+        </section>
+    `);
+
+    queryOne(":iframe .s_website_form").classList.add("o_dirty");
+    await contains(".o-snippets-top-actions button:contains(Save)").click();
+    expect(whitelistCalls.length).toBeGreaterThan(0);
+    for (const names of whitelistCalls) {
+        expect(names).toEqual(["email_from"]);
+    }
+});
+
+test("change action of form to a model without registered fields adds the model's required fields", async () => {
+    patchWithCleanup(webModels.IrModel.prototype, {
+        get_compatible_form_models() {
+            return [
+                {
+                    id: 999,
+                    model: "x_custom.model",
+                    name: "Custom Model",
+                    website_form_label: "Create a Custom Record",
+                },
+                {
+                    id: 184,
+                    model: "mail.mail",
+                    name: "Outgoing Mails",
+                    website_form_label: "Send an E-mail",
+                    website_form_key: "send_mail",
+                },
+            ];
+        },
+    });
+    onRpc("get_authorized_fields", () => ({
+        name: { name: "name", string: "Name", type: "char", required: true },
+        email: { name: "email", string: "Email", type: "char" },
+    }));
+
     await setupWebsiteBuilder(
         `<section class="s_website_form">
             <form data-model_name="mail.mail">
@@ -423,113 +1738,182 @@ test("Form using the Outgoing Mails model includes hidden email_to field", async
                     <a>Submit</a>
                 </div>
             </form>
-        </section>`
+        </section>`,
+        { loadIframeBuilderTemplates: true }
     );
 
     await contains(":iframe section").click();
-    await contains("div:has(>span:contains('Action')) + div button").click();
-    await contains("div.o-dropdown-item:contains('Send an E-mail')").click();
+    await contains(".hb-row[data-label='Action'] button").click();
+    await contains("div.o-dropdown-item:contains('Create a Custom Record')").click();
 
-    expect(":iframe input[type='hidden'][name='email_to']").toHaveCount(1);
-    expect(":iframe input[type='hidden'][name='email_to']").toHaveValue("info@yourcompany.example.com");
+    expect(":iframe form").toHaveAttribute("data-model_name", "x_custom.model");
+    // Only the fields required by the model are added, flagged as
+    // model-required so that they cannot be removed.
+    expect(":iframe .s_website_form_field").toHaveCount(1);
+    expect(":iframe .s_website_form_field").toHaveClass("s_website_form_model_required");
+    expect(":iframe .s_website_form_field .s_website_form_label_content").toHaveText("Name");
+    expect(":iframe input[name='name']").toHaveAttribute("required");
+    expect(":iframe input[name='email']").toHaveCount(0);
 });
 
-test("Label falls back to default value (data-translated-name) when removed", async () => {
-    onRpc("get_authorized_fields", () => ({}));
+test("single-choice field is displayed as a dropdown when it has more than five options", async () => {
+    const makeSelection = (count) =>
+        Array.from({ length: count }, (_, i) => [`value_${i}`, `Value ${i}`]);
+    onRpc("get_authorized_fields", () => ({
+        author_id: {
+            name: "author_id",
+            relation: "res.partner",
+            string: "Author",
+            type: "many2one",
+        },
+        short_selection: {
+            name: "short_selection",
+            string: "Short Selection",
+            type: "selection",
+            selection: makeSelection(5),
+        },
+        long_selection: {
+            name: "long_selection",
+            string: "Long Selection",
+            type: "selection",
+            selection: makeSelection(6),
+        },
+    }));
     await setupWebsiteBuilder(
         `<section class="s_website_form" data-snippet="s_website_form" data-name="Form">
             <div class="container-fluid">
             <form action="/website/form/" method="post" class="o_mark_required" data-model_name="mail.mail">
                 <div class="s_website_form_rows">
-                    <div data-name="Field" data-translated-name="Default value" class="s_website_form_field s_website_form_required" data-type="text">
+                    <div data-name="Field" class="s_website_form_field" data-type="many2one">
                         <div class="row">
                             <label class="s_website_form_label" for="oyeqnysxh10b">
-                                <span class="s_website_form_label_content">My Field</span>
+                                <span class="s_website_form_label_content">Author</span>
                             </label>
-                        <select class="form-select s_website_form_input" required="" id="oyeqnysxh10b" name="field" />
+                        <select class="form-select s_website_form_input" id="oyeqnysxh10b" name="author_id" />
                         </div>
                     </div>
                 </div>
             </form>
             </div>
-        </section>`
+        </section>`,
+        { loadIframeBuilderTemplates: true }
     );
 
-    await contains(":iframe section span:contains('My Field')").click();
-    await contains("[data-action-id='setLabelText'] input").click();
-    expect("[data-action-id='setLabelText'] input").toHaveValue("My Field");
-    await edit("");
-    await press("Tab");
-    expect("[data-action-id='setLabelText'] input").toHaveValue("Default value");
-    expect(":iframe section [data-translated-name='Default value'] label").toHaveText(
-        "Default value"
-    );
+    await contains(":iframe .s_website_form_field").click();
+
+    // Five options or less: the selection keeps its radio buttons.
+    await contains(".options-container [data-label='Type'] button").click();
+    await contains(".o_popover [data-action-value='short_selection']").click();
+    expect(":iframe .s_website_form_field").toHaveAttribute("data-type", "selection");
+    expect(":iframe input[type='radio'][name='short_selection']").toHaveCount(5);
+    expect(":iframe select").toHaveCount(0);
+
+    // More than five options: the selection is turned into a dropdown.
+    await contains(".options-container [data-label='Type'] button").click();
+    await contains(".o_popover [data-action-value='long_selection']").click();
+    expect(":iframe .s_website_form_field").toHaveAttribute("data-type", "many2one");
+    expect(":iframe input[type='radio']").toHaveCount(0);
+    expect(":iframe select[name='long_selection'] option").toHaveCount(6);
 });
 
-test("Option list input editing is disabled for non-custom forms", async () => {
+test("field added by the form action is displayed as a dropdown when it has more than five options", async () => {
+    const makeSelection = (count) =>
+        Array.from({ length: count }, (_, i) => [`value_${i}`, `Value ${i}`]);
     onRpc("get_authorized_fields", () => ({}));
-    const { getEditor } = await setupWebsiteBuilder(
-        `<section class="s_website_form"><form data-model_name="mail.mail">
-            <div data-name="Field" class="s_website_form_field mb-3 col-12" data-type="many2one">
-                <div class="row s_col_no_resize s_col_no_bgcolor">
-                    <label class="col-form-label col-sm-auto s_website_form_label" for="ozp7023vqhe">
-                        <span class="s_website_form_label_content">Selection Field</span>
-                    </label>
-                    <div class="col-sm">
-                        <select class="form-select s_website_form_input" name="Phone Number" id="ozp7023vqhe">
-                            <option id="ozp7023vqhe0" value="Option 1">Option 1</option>
-                            <option id="ozp7023vqhe1" value="Option 2">Option 2</option>
-                            <option id="ozp7023vqhe2" value="Option 3">Option 3</option>
-                        </select>
-                    </div>
+    function withIframeRegistry(registry) {
+        registry.category("website.form_editor_actions").add("apply_job", {
+            formFields: [
+                {
+                    type: "selection",
+                    name: "short_selection",
+                    string: "Short Selection",
+                    selection: makeSelection(5),
+                },
+                {
+                    type: "selection",
+                    name: "long_selection",
+                    string: "Long Selection",
+                    selection: makeSelection(6),
+                },
+            ],
+        });
+    }
+    await setupWebsiteBuilder(
+        `<section class="s_website_form">
+            <form data-model_name="mail.mail">
+                <div class="s_website_form_submit">
+                    <div class="s_website_form_label"/>
+                    <a>Submit</a>
                 </div>
-            </div>
-            <div class="s_website_form_submit">
-                <div class="s_website_form_label"/>
-                <a>Submit</a>
-            </div>
-        </form></section>`
+            </form>
+        </section>`,
+        { withIframeRegistry }
     );
-    getEditor();
-    await contains(":iframe .s_website_form_field").click();
-    expect(".options-container[data-container-title='Field'] .we-bg-options-container").toHaveCount(1);
 
-    const inputs = [...document.querySelectorAll('.hb-row')]
-        .find(el => el.textContent.includes('Option List'))
-        .querySelectorAll('.o-hb-input-base');
-    expect([...inputs].every(input => input.disabled)).toBe(true);
+    await contains(":iframe section").click();
+    await contains(".hb-row[data-label='Action'] button").click();
+    await contains("div.o-dropdown-item:contains('Apply for a Job')").click();
+
+    // Five options or less: the selection keeps its radio buttons.
+    expect(":iframe .s_website_form_field[data-type='selection']").toHaveCount(1);
+    expect(":iframe input[type='radio'][name='short_selection']").toHaveCount(5);
+    // More than five options: the selection is turned into a dropdown.
+    expect(":iframe .s_website_form_field[data-type='many2one']").toHaveCount(1);
+    expect(":iframe select[name='long_selection'] option").toHaveCount(6);
 });
 
-test("Option list input editing is enabled for custom forms", async () => {
+test("Changing field type from date to datetime removes value property (and attribute)", async () => {
     onRpc("get_authorized_fields", () => ({}));
-    const { getEditor } = await setupWebsiteBuilder(
-        `<section class="s_website_form"><form data-model_name="mail.mail">
-            <div data-name="Field" class="s_website_form_field mb-3 col-12 s_website_form_custom" data-type="many2one">
-                <div class="row s_col_no_resize s_col_no_bgcolor">
-                    <label class="col-form-label col-sm-auto s_website_form_label" for="ozp7023vqhe">
-                        <span class="s_website_form_label_content">Selection Field</span>
-                    </label>
-                    <div class="col-sm">
-                        <select class="form-select s_website_form_input" name="Phone Number" id="ozp7023vqhe">
-                            <option id="ozp7023vqhe0" value="Option 1">Option 1</option>
-                            <option id="ozp7023vqhe1" value="Option 2">Option 2</option>
-                            <option id="ozp7023vqhe2" value="Option 3">Option 3</option>
-                        </select>
-                    </div>
+
+    await setupWebsiteBuilder(
+        `<form class="s_website_form" data-model_name="mail.mail">
+            <div class="s_website_form_field" data-type="date">
+                <label class="s_website_form_label" for="field">
+                    <span class="s_website_form_label_content">Date</span>
+                </label>
+                <div class="s_website_form_date">
+                    <input id="field" class="datetimepicker-input s_website_form_input" type="text"/>
                 </div>
             </div>
-            <div class="s_website_form_submit">
-                <div class="s_website_form_label"/>
-                <a>Submit</a>
-            </div>
-        </form></section>`
+        </form>`,
+        { loadIframeBuilderTemplates: true }
     );
-    getEditor();
-    await contains(":iframe .s_website_form_field").click();
-    expect(".options-container[data-container-title='Field'] .we-bg-options-container").toHaveCount(1);
 
-    const inputs = [...document.querySelectorAll('.hb-row')]
-        .find(el => el.textContent.includes('Option List'))
-        .querySelectorAll('.o-hb-input-base');
-    expect([...inputs].every(input => input.disabled)).toBe(false);
+    // Set a default date.
+    await contains(":iframe input#field").click();
+    await contains(".hb-row[data-label='Default Value'] input").fill("08/20/2026");
+
+    expect(":iframe input#field").toHaveAttribute("value", "1787180400");
+    expect(":iframe input#field").toHaveProperty("value", "08/20/2026");
+
+    await contains(".options-container [data-label='Type'] button").click();
+    await contains(".o_popover [data-action-value='datetime']").click();
+
+    expect(":iframe input#field").toHaveAttribute("value", "");
+    expect(":iframe input#field").toHaveProperty("value", "");
+});
+
+test("Don't crash when current form model is not allowed", async () => {
+    onRpc("get_authorized_fields", () => ({}));
+
+    // Set one form model to still see the dropdown while not being the default
+    // current form model.
+    patchWithCleanup(webModels.IrModel.prototype, {
+        get_compatible_form_models() {
+            return [
+                {
+                    id: 687,
+                    model: "hr.applicant",
+                    name: "Applicant",
+                    website_form_label: "Apply for a Job",
+                    website_form_key: "apply_job",
+                },
+            ];
+        },
+    });
+
+    await setupWebsiteBuilderWithSnippet("s_website_form");
+    await contains(":iframe section").click();
+    await contains("[data-label='Action'] button:contains('None')").click();
+    await contains("[data-action-id='selectAction']:contains('Apply for a Job')").click();
 });

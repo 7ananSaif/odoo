@@ -8,13 +8,6 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='job_id']" position="after">
                 <field name="employee_skill_ids"/>
-                <field name="resume_line_ids" string="Resume" filter_domain="
-                    ['|',
-                        ('version_ids.job_title', 'ilike', self),
-                        '|',
-                            ('resume_line_ids.name', 'ilike', self),
-                            ('resume_line_ids.description', 'ilike', self),
-                    ]"/>
             </xpath>
         </field>
     </record>
@@ -26,13 +19,6 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='job_id']" position="after">
                 <field name="employee_skill_ids"/>
-                <field name="resume_line_ids" string="Resume" filter_domain="
-                    ['|',
-                        ('version_ids.job_title', 'ilike', self),
-                        '|',
-                            ('resume_line_ids.name', 'ilike', self),
-                            ('resume_line_ids.description', 'ilike', self),
-                    ]"/>
             </xpath>
         </field>
     </record>
@@ -44,7 +30,7 @@
         <field name="arch" type="xml">
             <form string="Resume">
                 <sheet>
-                    <field name="line_type_id" widget="selection_badge"/>
+                    <field name="line_type_id" widget="badges_many2one"/>
                     <div class="oe_title">
                         <label for="name" string="Title"/>
                         <h1>
@@ -60,7 +46,7 @@
                             <label id="date_start_label" for="date_start" string="Duration" invisible="is_course"/>
                             <div class="o_row" invisible="is_course">
                                 <field name="date_start"/>
-                                <i class="fa fa-long-arrow-right mx-2" aria-label="Arrow icon" title="Arrow"/>
+                                <i class="oi mx-2" data-icon="east" aria-label="Arrow icon" title="Arrow"/>
                                 <field name="date_end" placeholder="Forever"/>
                             </div>
                             <label for="date_start" string="Date" invisible="not is_course"/>
@@ -69,8 +55,7 @@
                             <span invisible="not is_course">
                                 <field name="duration" style="width: 4ch;"/> hours
                             </span>
-                            <field name="certificate_filename" invisible="1"/>
-                            <field name="certificate_file" filename="certificate_filename"/>
+                            <field name="certificate_file" />
                         </group>
                     </group>
                     <field name="resume_line_properties"/>
@@ -108,7 +93,7 @@
                     Adding fields in the list arch below makes them accessible to the widget
                 -->
                 <widget name="internal_resume_lines"/>
-                <field mode="list" nolabel="1" name="resume_line_ids" widget="resume_one2many">
+                <field mode="list" nolabel="1" name="resume_line_ids" widget="resume_one2many" context="{'default_employee_id': employee_id}">
                     <list>
                         <field name="line_type_id"/>
                         <field name="name"/>
@@ -154,6 +139,7 @@
                                     'warning': 'valid_to and valid_to &lt;= (context_today() + relativedelta(months=3)).strftime(\'%Y-%m-%d\') and valid_to &gt; (context_today() + relativedelta(days=7)).strftime(\'%Y-%m-%d\')'
                                 }
                             }"/>
+                            <field name="certificate_file" widget="binary"/>
                         </list>
                     </field>
                 </page>
@@ -175,7 +161,7 @@
                             Adding fields in the list arch below makes them accessible to the widget
                         -->
                         <widget name="internal_resume_lines"/>
-                        <field mode="list" nolabel="1" name="resume_line_ids" widget="resume_one2many">
+                        <field mode="list" nolabel="1" name="resume_line_ids" widget="resume_one2many" context="{'default_employee_id': employee_id}">
                             <list>
                                 <field name="line_type_id"/>
                                 <field name="name"/>
@@ -208,7 +194,7 @@
             </page>
             <page name="resume" position="after">
                 <page name="certification" string="Certifications">
-                    <field name="certification_ids" mode="list" nolabel="1" readonly="1">
+                    <field name="certification_ids" mode="list" nolabel="1" readonly="1" invisible="not certification_ids">
                         <list
                             no_open="1"
                             decoration-muted="valid_to and valid_to &lt; context_today().strftime('%Y-%m-%d')">
@@ -225,6 +211,11 @@
                             }"/>
                         </list>
                     </field>
+                    <div class="o_view_nocontent position-relative" invisible="certification_ids">
+                        <div class="o_nocontent_help">
+                            <p class="o_view_nocontent_empty_folder fs-4 fw-normal">No certifications found.</p>
+                        </div>
+                    </div>
                 </page>
             </page>
         </field>
@@ -260,8 +251,7 @@
                 <field name="date_start" string="Date"/>
                 <field name="course_type" string="Type" column_invisible="1"/>
                 <field name="line_type_id" string="Resume Section" optional="show" required="1" domain="[('is_course', '=', True)]"/>
-                <field name="certificate_filename" column_invisible="1"/>
-                <field name="certificate_file" filename="certificate_filename" widget="binary"/>
+                <field name="certificate_file" widget="binary"/>
                 <field name="duration" string="Number of Hours" optional="hide"/>
                 <field name="external_url" optional="hide" column_invisible="1"/>
                 <field name="description" optional="hide"/>
@@ -314,8 +304,8 @@
         <field name="arch" type="xml">
             <search string="Resume Lines">
                 <searchpanel view_types="list,kanban">
-                    <field name="company_id" groups="base.group_multi_company" icon="fa-building" enable_counters="1"/>
-                    <field name="department_id" icon="fa-users" enable_counters="1"/>
+                    <field name="company_id" groups="base.group_multi_company" icon="business" icon_class="oi-filled" enable_counters="1"/>
+                    <field name="department_id" icon="group" icon_class="oi-filled" enable_counters="1"/>
                 </searchpanel>
             </search>
         </field>
@@ -363,7 +353,7 @@
         <field name="arch" type="xml">
             <list string="Skill Levels" class="o_skill_level_tree" editable="bottom" default_order="level_progress desc">
                 <field name="name"/>
-                <field name="level_progress" widget="progressbar" options="{'editable': true}" width="250"/>
+                <field name="level_progress" widget="progressbar" width="250"/>
                 <field name="default_level" widget="boolean_toggle_load"/>
                 <field name="technical_is_new_default" column_invisible="1"/> <!-- needs to be here to be accessible for the front-end -->
             </list>
@@ -404,22 +394,26 @@
                 <sheet>
                     <group>
                         <field name="employee_id" widget="many2one_avatar_employee" invisible="not context.get('show_employee', False)"/>
-                        <field name="skill_type_id" widget="selection_badge" string="Category"/>
-                        <field name="skill_id" widget="selection_badge"
+                        <field name="skill_type_id" widget="badges_many2one" string="Category"/>
+                        <field name="skill_id" widget="badges_many2one"
                             context="{'default_skill_type_id': skill_type_id}"
                             domain="[('skill_type_id', '=', skill_type_id)]"
                             invisible="not skill_type_id"/>
                         <field name="skill_level_id"
-                            readonly="not skill_id" widget="selection_badge"
+                            readonly="not skill_id" widget="badges_many2one"
                             invisible="levels_count &lt;= 1"
-                            options="{'no_open': True, 'no_create': True}"
                             context="{'default_skill_type_id': skill_type_id}"/>
                         <label for="valid_from" string="Validity" class="me-1" invisible="not is_certification"/>
                         <div class="d-flex flex-row" invisible="not is_certification">
-                            <field name="valid_from" nolabel="1" class="w-25" required="is_certification"/>
+                            <field name="valid_from" nolabel="1" class="w-25" required="is_certification" default_focus="1"/>
                             <label for="valid_to" string="To" class="mx-1"/>
                             <field name="valid_to" placeholder="indefinite" nolabel="1" class="w-25"/>
                         </div>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="certificate_file" string="Certificate" invisible="not is_certification"/>
+                        </group>
                     </group>
                     <div class="alert alert-warning ps-3" role="alert" invisible="not display_warning_message">
                         The end date must be after the start date.
@@ -495,7 +489,7 @@
                 <field name="sequence" widget="handle"/>
                 <field name="display_name" string="Skill Types"/>
                 <field name="color" widget="color_picker" optional="show"/>
-                <field name="skill_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                <field name="skill_ids" widget="many2many_tags" options="{'color_field': 'color', 'on_tag_click': 'edit_color'}"/>
                 <field name="skill_level_ids" widget="many2many_tags_skills"/>
             </list>
         </field>
@@ -517,7 +511,7 @@
                         </h1>
                         <group name="name">
                             <field name="color" widget="color_picker"/>
-                            <field name="is_certification" widget="boolean_toggle" options="{'autosave': False}"/>
+                            <field name="is_certification" widget="boolean_toggle"/>
                         </group>
                     </div>
                     <group string="Skills">
@@ -549,14 +543,16 @@
                 decoration-danger="valid_to and valid_to &lt;= (context_today() + relativedelta(days=7)).strftime('%Y-%m-%d') and valid_to &gt; context_today().strftime('%Y-%m-%d')"
                 decoration-warning="valid_to and valid_to &lt;= (context_today() + relativedelta(months=3)).strftime('%Y-%m-%d') and valid_to &gt; (context_today() + relativedelta(days=7)).strftime('%Y-%m-%d')">
                 <header>
-                    <button name="open_hr_employee_skill_modal" string="New" type="object" class="btn-primary" display="always"/>
+                    <button name="open_hr_employee_skill_modal" string="New" type="object" class="btn-primary" display="always" invisible="not context.get('show_certificate')"/>
                 </header>
                 <field name="employee_id" widget="many2one_avatar_employee"/>
                 <field name="skill_id" string="Certification"/>
                 <field name="skill_level_id" optional="hide"/>
                 <field name="skill_type_id" optional="hide"/>
+                <field name="company_id" optional="hide"/>
                 <field name="valid_from" string="From" widget="formatted_date" options="{'month_format': 'short'}" width="300"/>
                 <field name="valid_to" string="To" widget="formatted_date" options="{'month_format': 'short'}" width="300"/>
+                <field name="certificate_file" widget="binary" optional="hidden"/>
             </list>
         </field>
     </record>
@@ -581,12 +577,21 @@
         </field>
     </record>
 
+    <record id="action_server_hr_employee_skill_certification" model="ir.actions.server">
+        <field name="name">Certifications</field>
+        <field name="model_id" ref="model_hr_employee_skill"/>
+        <field name="state">code</field>
+        <field name="code">
+            action = model.action_hr_employee_skill_certification()
+        </field>
+    </record>
+
     <record id="action_hr_employee_skill_certification" model="ir.actions.act_window">
         <field name="name">Certifications</field>
         <field name="res_model">hr.employee.skill</field>
         <field name="path">certifications</field>
-        <field name="domain">[('is_certification', '=', True)]</field>
-        <field name="context">{'show_employee': True, 'search_default_group_by_type': 1}</field>
+        <field name="domain">[('is_certification', '=', True), ('company_id', 'in', allowed_company_ids)]</field>
+        <field name="context">{'show_employee': True}</field>
         <field name="view_mode">list,form</field>
         <field name="view_ids" eval="[(5, 0, 0),
             (0, 0, {'view_mode': 'list', 'view_id': False}),
@@ -601,12 +606,6 @@
         sequence="7"
         groups="hr.group_hr_user"/>
 
-        <menuitem
-        id="hr_employee_skill_report_menu"
-        name="Skills"
-        parent="hr.hr_menu_hr_reports"
-        sequence="15"/>
-
     <menuitem
         id="hr_skill_learning_menu"
         name="Learning"
@@ -618,7 +617,7 @@
             id="hr_certification_menu"
             name="Certifications"
             parent="hr_skill_learning_menu"
-            action="action_hr_employee_skill_certification"
+            action="action_server_hr_employee_skill_certification"
             sequence="94"/>
 
         <menuitem

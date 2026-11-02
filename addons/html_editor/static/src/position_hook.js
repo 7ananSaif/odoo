@@ -1,7 +1,7 @@
+import { useOnChange } from "@odoo/owl";
 import { ancestors } from "@html_editor/utils/dom_traversal";
-import { throttleForAnimation } from "@web/core/utils/timing";
 import { couldBeScrollableX, couldBeScrollableY } from "@web/core/utils/scrolling";
-import { useComponent, useEffect } from "@odoo/owl";
+import { throttleForAnimation } from "@web/core/utils/timing";
 
 /**
  * This hook has the same job as the PositionPlugin, but for Components.
@@ -11,40 +11,39 @@ import { useComponent, useEffect } from "@odoo/owl";
  * the positioning logic so that both the plugin and the hook can use it.
  */
 export function usePositionHook(containerRef, document, callback) {
-    const comp = useComponent();
-    const onLayoutGeometryChange = throttleForAnimation(callback.bind(comp));
+    const onLayoutGeometryChange = throttleForAnimation(callback);
     const resizeObserver = new ResizeObserver(onLayoutGeometryChange);
     const cleanups = [];
     const addDomListener = (target, eventName, capture) => {
         target.addEventListener(eventName, onLayoutGeometryChange, capture);
         cleanups.push(() => target.removeEventListener(eventName, onLayoutGeometryChange, capture));
     };
-    useEffect(
-        () => {
-            if (containerRef.el) {
+    useOnChange(
+        () => [containerRef()],
+        (containerEl) => {
+            if (containerEl) {
                 resizeObserver.observe(document.body);
-                resizeObserver.observe(containerRef.el);
+                resizeObserver.observe(containerEl);
                 addDomListener(window, "resize");
                 if (document.defaultView !== window) {
                     addDomListener(document.defaultView, "resize");
                 }
                 addDomListener(document, "scroll");
-                const scrollableElements = [containerRef.el, ...ancestors(containerRef.el)].filter(
+                const scrollableElements = [containerEl, ...ancestors(containerEl)].filter(
                     (node) => couldBeScrollableX(node) || couldBeScrollableY(node)
                 );
                 for (const scrollableElement of scrollableElements) {
                     addDomListener(scrollableElement, "scroll");
                     resizeObserver.observe(scrollableElement);
                 }
+                return () => {
+                    resizeObserver.disconnect();
+                    for (const cleanup of cleanups.toReversed()) {
+                        cleanup();
+                        cleanups.pop();
+                    }
+                };
             }
-            return () => {
-                resizeObserver.disconnect();
-                for (const cleanup of cleanups.toReversed()) {
-                    cleanup();
-                    cleanups.pop();
-                }
-            };
-        },
-        () => [containerRef.el]
+        }
     );
 }

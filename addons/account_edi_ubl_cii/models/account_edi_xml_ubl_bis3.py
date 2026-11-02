@@ -1,11 +1,13 @@
 from markupsafe import Markup
 from typing import Literal
+from stdnum.no import mva
+from stdnum.be import vat as be_vat
 
 from odoo import _, api, models
 
-from stdnum.no import mva
-from stdnum.be import vat as be_vat
-CHORUS_PRO_PEPPOL_ID = "0009:11000201100044"
+from odoo.addons.account_edi_ubl_cii.models.account_edi_xml_ubl_20 import UBL_NAMESPACES
+
+CHORUS_PRO_SIRET = "11000201100044"
 
 
 class AccountEdiXmlUBLBIS3(models.AbstractModel):
@@ -20,9 +22,9 @@ class AccountEdiXmlUBLBIS3(models.AbstractModel):
     * Official doc for EHF Billing 3.0 is the OpenPeppol BIS 3 doc +
       https://anskaffelser.dev/postaward/g3/spec/current/billing-3.0/norway/
 
-        "Based on work done in PEPPOL BIS Billing 3.0, Difi has included Norwegian rules in PEPPOL BIS Billing 3.0 and
+        "Based on work done in Peppol BIS Billing 3.0, Difi has included Norwegian rules in Peppol BIS Billing 3.0 and
         does not see a need to implement a different CIUS targeting the Norwegian market. Implementation of EHF Billing
-        3.0 is therefore done by implementing PEPPOL BIS Billing 3.0 without extensions or extra rules."
+        3.0 is therefore done by implementing Peppol BIS Billing 3.0 without extensions or extra rules."
 
     Thus, EHF 3 and Bis 3 are actually the same format. The specific rules for NO defined in Bis 3 are added in Bis 3.
 
@@ -32,7 +34,7 @@ class AccountEdiXmlUBLBIS3(models.AbstractModel):
 
     @api.model
     def _is_customer_behind_chorus_pro(self, customer):
-        return customer.peppol_eas and customer.peppol_endpoint and f"{customer.peppol_eas}:{customer.peppol_endpoint}" == CHORUS_PRO_PEPPOL_ID
+        return customer.routing_scheme and customer.routing_endpoint and f"{customer.routing_scheme}:{customer.routing_endpoint}" == f'0009:{CHORUS_PRO_SIRET}'
 
     # -------------------------------------------------------------------------
     # EXPORT
@@ -44,6 +46,7 @@ class AccountEdiXmlUBLBIS3(models.AbstractModel):
     # -------------------------------------------------------------------------
     # EXPORT: BIS3 LAYER
     # -------------------------------------------------------------------------
+
     def _can_export_selfbilling(self):
         return bool(self._get_customization_id(process_type='selfbilling'))
 
@@ -241,6 +244,57 @@ class AccountEdiXmlUBLBIS3(models.AbstractModel):
         elif vals['document_type'] == 'credit_note':
             self._ubl_add_credit_note_line_nodes(sub_vals)
 
+    def _ubl_add_delivery_party_endpoint_id_node(self, vals):
+        # EXTENDS account.edi.ubl
+        super()._ubl_add_delivery_party_endpoint_id_node(vals)
+        if not vals.get('invoice'):
+            return
+
+        vals['party_node']['cbc:EndpointID'] = {
+            '_text': None,
+            'schemeID': None,
+        }
+
+    def _ubl_add_delivery_party_identification_nodes(self, vals):
+        # EXTENDS account.edi.ubl
+        super()._ubl_add_delivery_party_identification_nodes(vals)
+        if not vals.get('invoice'):
+            return
+
+        vals['party_node']['cac:PartyIdentification'] = []
+
+    def _ubl_add_delivery_party_postal_address_node(self, vals):
+        # EXTENDS account.edi.ubl
+        super()._ubl_add_delivery_party_postal_address_node(vals)
+        if not vals.get('invoice'):
+            return
+
+        vals['party_node']['cac:PostalAddress'] = None
+
+    def _ubl_add_delivery_party_tax_scheme_nodes(self, vals):
+        # EXTENDS account.edi.ubl
+        super()._ubl_add_delivery_party_tax_scheme_nodes(vals)
+        if not vals.get('invoice'):
+            return
+
+        vals['party_node']['cac:PartyTaxScheme'] = []
+
+    def _ubl_add_delivery_party_legal_entity_nodes(self, vals):
+        # EXTENDS account.edi.ubl
+        super()._ubl_add_delivery_party_legal_entity_nodes(vals)
+        if not vals.get('invoice'):
+            return
+
+        vals['party_node']['cac:PartyLegalEntity'] = []
+
+    def _ubl_add_delivery_party_contact_node(self, vals):
+        # EXTENDS account.edi.ubl
+        super()._ubl_add_delivery_party_contact_node(vals)
+        if not vals.get('invoice'):
+            return
+
+        vals['party_node']['cac:Contact'] = None
+
     def _add_invoice_header_nodes(self, document_node, vals):
         # OVERRIDE
         sub_vals = {
@@ -294,6 +348,7 @@ class AccountEdiXmlUBLBIS3(models.AbstractModel):
     # -------------------------------------------------------------------------
 
     def _export_invoice_constraints(self, invoice, vals):
+        # EXTENDS account.edi.xml.ubl_21
         constraints = super()._export_invoice_constraints(invoice, vals)
         constraints.update(self._export_document_node_constraints(vals))
 
@@ -321,7 +376,7 @@ class AccountEdiXmlUBLBIS3(models.AbstractModel):
         constraints = {}
 
         if vals['supplier'].country_id.code == 'NO':
-            vat = vals['supplier'].vat
+            vat = vals['document_node']['cac:AccountingSupplierParty']['cac:Party']['cac:PartyTaxScheme'][0]['cbc:CompanyID']['_text']
             constraints.update({
                 # NO-R-001: For Norwegian suppliers, a VAT number MUST be the country code prefix NO followed by a
                 # valid Norwegian organization number (nine numbers) followed by the letters MVA.
@@ -331,18 +386,43 @@ class AccountEdiXmlUBLBIS3(models.AbstractModel):
                 ) if not mva.is_valid(vat) or len(vat) != 14 or vat[:2] != 'NO' or vat[-3:] != 'MVA' else "",
             })
 
-        if vals['supplier'].country_id.code == 'BE' and vals['supplier'].company_registry:
-            if not be_vat.is_valid(vals['supplier'].company_registry):
+        if vals['supplier'].country_id.code == 'BE' and (be_en := vals['supplier']._get_additional_identifier('BE_EN')):
+            if not be_vat.is_valid(be_en):
                 constraints.update({
-                    'PEPPOL-COMMON-R043_supplier': _('%s should have a valid KBO/BCE number in the Company ID field', vals['supplier'].display_name),
+                    'PEPPOL-COMMON-R043_supplier': _('%s should have a valid KBO/BCE number set as additional identifier (BE_EN).', vals['supplier'].display_name),
                 })
 
-        if vals['customer'].country_id.code == 'BE' and vals['customer'].company_registry:
-            if not be_vat.is_valid(vals['customer'].company_registry):
+        if vals['customer'].country_id.code == 'BE' and (be_en := vals['customer']._get_additional_identifier('BE_EN')):
+            if not be_vat.is_valid(be_en):
                 constraints.update({
-                    'PEPPOL-COMMON-R043_customer': _('%s should have a valid KBO/BCE number in the Company ID field', vals['customer'].display_name),
+                    'PEPPOL-COMMON-R043_customer': _('%s should have a valid KBO/BCE number set as additional identifier (BE_EN).', vals['customer'].display_name),
                 })
         return constraints
+
+    # -------------------------------------------------------------------------
+    # IMPORT
+    # -------------------------------------------------------------------------
+
+    def _import_retrieve_partner_vals(self, tree, role):
+        # EXTENDS account.edi.xml.ubl_20
+        partner_vals = super()._import_retrieve_partner_vals(tree, role)
+        endpoint_node = tree.find(f'.//cac:{role}Party/cac:Party/cbc:EndpointID', UBL_NAMESPACES)
+        if endpoint_node is not None:
+            ResPartner = self.env['res.partner']
+            scheme = endpoint_node.attrib.get('schemeID')
+            value = endpoint_node.text
+            if scheme and value:
+                meta = ResPartner._get_all_identifiers_metadata_by_scheme().get(scheme)
+                # Skip an endpoint whose value is malformed.
+                if not meta or ResPartner._validate_identifier(meta['key'], value)['valid']:
+                    partner_vals['routing_scheme'] = scheme
+                    partner_vals['routing_endpoint'] = value
+                    if meta and meta['key'] in ResPartner._get_all_additional_identifiers_metadata():
+                        partner_vals.setdefault('additional_identifiers', {})[meta['key']] = value
+                elif partner_vals.get('vat') == value:
+                    # VAT is malformed: clear that bogus vat
+                    partner_vals['vat'] = None
+        return partner_vals
 
     # -------------------------------------------------------------------------
     # Sale/Purchase Order: Import

@@ -28,7 +28,7 @@
                     <field name="sequence" widget="handle"/>
                     <field name="name" optional="show"/>
                     <field name="code" optional="show"/>
-                    <field name="tag_ids" widget="many2many_tags" options="{'no_create': True, 'color_field': 'color'}" optional="show"/>
+                    <field name="tag_ids" widget="many2many_tags" options="{'no_create': True, 'color_field': 'color', 'on_tag_click': 'edit_color'}" optional="show"/>
                     <field name="alternative_workcenter_ids" widget="many2many_tags" optional="show"/>
                     <field name="productive_time" optional="hide"/>
                     <field name="costs_hour" optional="show"/>
@@ -64,7 +64,7 @@
             <field name="arch" type="xml">
                 <graph string="Workcenter Productivity" type="pie" sample="1">
                     <field name="loss_id"/>
-                    <field name="duration" type="measure" string="Duration (minutes)"/>
+                    <field name="duration" type="measure" string="Duration"/>
                 </graph>
             </field>
         </record>
@@ -102,11 +102,6 @@
             <field name="res_model">mrp.workorder</field>
             <field name="domain">[('workcenter_id','=', active_id),('state','=','done')]</field>
             <field name="view_mode">graph,pivot,list,form</field>
-            <field name="help" type="html">
-              <p class="o_view_nocontent_smiling_face">
-                Create a new work orders performance
-              </p>
-            </field>
         </record>
 
         <record model="ir.actions.act_window" id="mrp_workorder_report">
@@ -120,20 +115,37 @@
                                    'search_default_progress': True,}</field>
             <field name="view_mode">graph,pivot,list,form</field>
             <field name="search_view_id" ref="view_mrp_production_work_order_search"/>
-            <field name="help" type="html">
-              <p class="o_view_nocontent_smiling_face">
-                Create a new work orders performance
-              </p>
-            </field>
         </record>
 
         <!-- Workcenter Kanban view-->
+
+        <record id="mrp_workcenter_workorders_kanban" model="ir.actions.act_window">
+            <field name="name">Work Orders</field>
+            <field name="res_model">mrp.workorder</field>
+            <field name="domain">[('state', 'not in', ('draft', 'done', 'cancel'))]</field>
+            <field name="views" eval="[(False, 'list')]"/>
+            <field name="search_view_id" ref="view_mrp_production_workorder_form_view_filter"/>
+            <field name="context">{'search_default_workcenter_id': active_id
+                                   'search_default_ready': True,
+                                   'search_default_blocked': True,
+                                   'search_default_filter_to_plan': True,
+                                   'workcenter_to_plan_on': active_id}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No work orders to do!
+                </p><p>
+                    Work orders are operations to do as part of a manufacturing order.
+                    Operations are defined in the bill of materials or added in the manufacturing order directly.
+                </p>
+            </field>
+        </record>
+
         <record model="ir.ui.view" id="mrp_workcenter_kanban">
             <field name="name">mrp.workcenter.kanban</field>
             <field name="model">mrp.workcenter</field>
             <field name="arch" type="xml">
                 <kanban highlight_color="color" class="o_workcenter_kanban" create="0" can_open="0" sample="0">
-                    <field name="workorder_count"/>
+                    <field name="workorder_blocked_count"/>
                     <field name="working_state"/>
                     <field name="oee_target"/>
                     <templates>
@@ -145,7 +157,10 @@
                                             <span>Actions</span>
                                         </h5>
                                         <div role="menuitem" name="plan_order">
-                                            <a name="action_work_order" type="object">Plan Orders</a>
+                                            <a name="%(mrp_workcenter_workorders_kanban)d" type="action">Plan Orders</a>
+                                        </div>
+                                        <div role="menuitem" name="planning">
+                                            <a name="action_work_order" type="object" context="{'search_default_ready': 1, 'search_default_progress': 1, 'search_default_blocked': 1, 'desktop_list_view': 1, 'search_default_workcenter_id': id, 'view_mode':'gantt'}">Planning</a>
                                         </div>
                                     </div>
                                     <div class="col-6">
@@ -160,9 +175,6 @@
                                                 Performance
                                             </a>
                                         </div>
-                                        <div role="menuitem">
-                                            <a name="action_work_order" type="object" context="{'search_default_waiting': 1}">Waiting Availability</a>
-                                        </div>
                                     </div>
                                 </div>
 
@@ -171,7 +183,7 @@
                                         <field name="color" widget="kanban_color_picker"/>
                                     </div>
                                     <div role="menuitem" class="col-4">
-                                        <a type="open">Settings</a>
+                                        <a type="open">Configuration</a>
                                     </div>
                                 </div>
                             </div>
@@ -197,11 +209,11 @@
                             <div class="row mt-3 pb-3">
                                 <div class="col-6">
                                     <div class="btn-group p-1" name="o_wo">
-                                        <button t-if="record.workorder_count.raw_value &gt; 0" class="btn btn-primary" name="action_work_order" type="object" context="{'search_default_ready': 1, 'search_default_progress': 1, 'desktop_list_view': 1, 'search_default_workcenter_id': id}">
+                                        <button t-if="record.workorder_ready_count.raw_value + record.workorder_progress_count.raw_value + record.workorder_blocked_count.raw_value == 0" class="btn btn-secondary" name="action_work_order" type="object" context="{'search_default_ready': 1, 'search_default_progress': 1, 'search_default_blocked': 1, 'desktop_list_view': 1, 'search_default_workcenter_id': id}">
                                             <span>WORK ORDERS</span>
                                         </button>
-                                        <button t-if="record.workorder_count.raw_value &lt;= 0" class="btn btn-warning" name="action_work_order_alternatives" type="object">
-                                            <span>PLAN ORDERS</span>
+                                        <button t-else="" class="btn btn-primary" name="action_work_order" type="object" context="{'search_default_ready': 1, 'search_default_progress': 1, 'search_default_blocked': 1, 'desktop_list_view': 1, 'search_default_workcenter_id': id}">
+                                            <span>WORK ORDERS</span>
                                         </button>
                                     </div>
                                 </div>
@@ -257,24 +269,24 @@
                                 name="action_show_operations"
                                 invisible="not has_routing_lines"
                                 context="{'default_workcenter_id': id}"
-                                class="oe_stat_button" icon="fa-cog">
+                                class="oe_stat_button" icon="settings" icon_class="oi-filled">
                                 <div class="o_stat_info">
                                     <span class="o_stat_text">Operations</span>
                                 </div>
                             </button>
-                            <button name="%(mrp_workcenter_productivity_report_oee)d" type="action" class="oe_stat_button" icon="fa-pie-chart">
+                            <button name="%(mrp_workcenter_productivity_report_oee)d" type="action" class="oe_stat_button" icon="pie_chart">
                                 <div class="o_field_widget o_stat_info">
                                     <span class="o_stat_value"><field name="oee" nolabel="1"/>%</span>
                                     <span class="o_stat_text">OEE</span>
                                 </div>
                             </button>
-                            <button name="%(mrp_workcenter_productivity_report_blocked)d" type="action" class="oe_stat_button" icon="fa-bar-chart">
+                            <button name="%(mrp_workcenter_productivity_report_blocked)d" type="action" class="oe_stat_button" icon="bar_chart">
                                 <div class="o_field_widget o_stat_info">
                                     <span class="o_stat_value"><field name="blocked_time" nolabel="1"/> Hours</span>
                                     <span class="o_stat_text">Lost</span>
                                 </div>
                             </button>
-                            <button name="%(action_mrp_workcenter_load_report_graph)d" type="action" class="oe_stat_button" icon="fa-bar-chart"
+                            <button name="%(action_mrp_workcenter_load_report_graph)d" type="action" class="oe_stat_button" icon="bar_chart"
                                 context="{'search_default_workcenter_id': id,
                                           'search_default_ready': True,
                                           'search_default_waiting': True,
@@ -285,7 +297,7 @@
                                     <span class="o_stat_text">Load</span>
                                 </div>
                             </button>
-                            <button name="%(mrp_workorder_report)d" type="action" class="oe_stat_button" icon="fa-bar-chart" context="{'search_default_workcenter_id': id, 'search_default_thisyear': True}">
+                            <button name="%(mrp_workorder_report)d" type="action" class="oe_stat_button" icon="bar_chart" context="{'search_default_workcenter_id': id, 'search_default_thisyear': True}">
                                 <div class="o_field_widget o_stat_info">
                                     <span class="o_stat_value"><field name="performance" nolabel="1"/>%</span>
                                     <span class="o_stat_text">Performance</span>
@@ -298,7 +310,7 @@
                                 <field name="active" invisible="1"/>
                                 <field name="company_id" invisible="1"/>
                                 <field name="name" string="Work Center Name" required="True"/>
-                                <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                                <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color', 'on_tag_click': 'edit_color'}"/>
                                 <field
                                     name="alternative_workcenter_ids"
                                     widget="many2many_tags"
@@ -315,26 +327,20 @@
                                 <group>
                                     <group string="Production Information" name="capacity">
                                         <label for="time_efficiency"/>
-                                        <div class="o_row">
-                                            <field name="time_efficiency"/> %
+                                        <div>
+                                            <field name="time_efficiency" class="oe_inline"/>%
                                         </div>
                                         <label for="oee_target"/>
-                                        <div class="o_row">
-                                            <field name="oee_target"/> %
-                                        </div>
-                                        <label for="time_start"/>
                                         <div>
-                                            <field name="time_start" widget="float_time" class="oe_inline"/> minutes
+                                            <field name="oee_target" class="oe_inline"/>%
                                         </div>
-                                        <label for="time_stop"/>
-                                        <div>
-                                            <field name="time_stop" widget="float_time" class="oe_inline"/> minutes
-                                        </div>
+                                        <field name="time_start" widget="float_time" options="{'unit': 'minutes', 'show_seconds': True}"/>
+                                        <field name="time_stop" widget="float_time" options="{'unit': 'minutes', 'show_seconds': True}"/>
                                     </group>
                                     <group string="Costing Information" name="costing">
                                         <label for="costs_hour"/>
                                         <div id="costs_hour">
-                                            <field name="costs_hour" widget="monetary" class="oe_inline"/> per workcenter
+                                            <field name="costs_hour" class="oe_inline" widget="monetary"/>per workcenter
                                         </div>
                                     </group>
                                 </group>
@@ -346,9 +352,9 @@
                                     <list editable="bottom">
                                         <field name="product_id" widget="stock.forced_placeholder" placeholder="All Products" decoration-it="not product_id"/>
                                         <field name="capacity"/>
-                                        <field name="product_uom_id" groups="uom.group_uom" widget="many2one_uom" readonly="product_id != False"/>
-                                        <field name="time_start" widget="float_time"/>
-                                        <field name="time_stop" widget="float_time"/>
+                                        <field name="uom_id" groups="uom.group_uom" widget="many2one_uom" readonly="product_id != False"/>
+                                        <field name="time_start" widget="float_time" options="{'unit': 'minutes', 'show_seconds': True}"/>
+                                        <field name="time_stop" widget="float_time" options="{'unit': 'minutes', 'show_seconds': True}"/>
                                     </list>
                                 </field>
                             </page>
@@ -388,8 +394,9 @@
               <p class="o_view_nocontent_smiling_face">
                 Create a new work center
               </p><p>
-                Manufacturing operations are processed at Work Centers. A Work Center can be composed of
-                workers and/or machines, they are used for costing, scheduling, capacity planning, etc.
+                Manufacturing operations are processed at work centers. A work center can
+                represent workers and/or machines. They are used for costing, scheduling, capacity planning, etc.
+                In the Shop Floor application, you can choose the work centers you want to manage at your work station.
               </p>
             </field>
         </record>
@@ -405,8 +412,9 @@
               <p class="o_view_nocontent_smiling_face">
                 Create a new work center
               </p><p>
-                Manufacturing operations are processed at Work Centers. A Work Center can be composed of
-                workers and/or machines, they are used for costing, scheduling, capacity planning, etc.
+                Manufacturing operations are processed at work centers. A work center can
+                represent workers and/or machines. They are used for costing, scheduling, capacity planning, etc.
+                In the Shop Floor application, you can choose the work centers you want to manage at your work station.
                 They can be defined via the configuration menu.
               </p>
             </field>
@@ -536,7 +544,7 @@
                 <field name="workcenter_id"/>
                 <field name="user_id"/>
                 <field name="loss_id"/>
-                <field name="duration" string="Duration (minutes)" sum="Duration"/>
+                <field name="duration" string="Duration" sum="Duration"/>
                 <field name="company_id" groups="base.group_multi_company"/>
             </list>
         </field>
@@ -549,7 +557,7 @@
             <graph string="Workcenter Productivity" sample="1">
                 <field name="workcenter_id"/>
                 <field name="loss_id"/>
-                <field name="duration" type="measure" string="Duration (minutes)"/>
+                <field name="duration" type="measure" string="Duration"/>
             </graph>
         </field>
     </record>
@@ -561,7 +569,7 @@
             <pivot string="Workcenter Productivity" sample="1">
                 <field name="date_start" type="row" interval="day"/>
                 <field name="loss_type" type="col"/>
-                <field name="duration" type="measure" string="Duration (minutes)"/>
+                <field name="duration" type="measure" string="Duration"/>
             </pivot>
         </field>
     </record>

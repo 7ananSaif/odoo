@@ -1,4 +1,4 @@
-import { after, expect, test } from "@odoo/hoot";
+import { after, animationFrame, expect, press, test } from "@odoo/hoot";
 import { Component, xml } from "@odoo/owl";
 import {
     defineModels,
@@ -58,7 +58,6 @@ test("save filter", async () => {
     class TestComponent extends Component {
         static components = { SearchBarMenu };
         static template = xml`<div><SearchBarMenu/></div>`;
-        static props = ["*"];
         setup() {
             useSetupAction({
                 getContext: () => ({ someKey: "foo" }),
@@ -93,7 +92,6 @@ test("save and edit filter", async () => {
     class TestComponent extends Component {
         static components = { SearchBarMenu };
         static template = xml`<div><SearchBarMenu/></div>`;
-        static props = ["*"];
         setup() {
             useSetupAction({
                 getContext: () => ({ someKey: "foo" }),
@@ -221,4 +219,46 @@ test("undefined name for filter shows notification and not error", async () => {
     await toggleSaveFavorite();
     await saveFavorite();
     expect.verifySteps(["notification"]);
+});
+
+test("save custom favorite filter on enter", async () => {
+    class TestComponent extends Component {
+        static components = { SearchBar };
+        static template = xml`<div><SearchBar/></div>`;
+
+        setup() {
+            useSetupAction({
+                getContext: () => ({ someKey: "foo" }),
+            });
+        }
+    }
+
+    onRpc("create_filter", ({ args, route }) => {
+        expect.step(route);
+
+        const irFilter = args[0];
+        expect(irFilter.context).toEqual({
+            group_by: [],
+            someKey: "foo",
+        });
+
+        return 7;
+    });
+
+    await mountWithSearch(TestComponent, {
+        resModel: "foo",
+        searchMenuTypes: ["favorite"],
+        searchViewId: false,
+    });
+
+    await toggleSearchBarMenu();
+    await toggleSaveFavorite();
+
+    await editFavoriteName("aaa");
+    await press("Enter");
+    await animationFrame();
+
+    expect(getFacetTexts()).toEqual(["aaa"]);
+
+    expect.verifySteps(["/web/dataset/call_kw/ir.filters/create_filter"]);
 });

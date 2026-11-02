@@ -2,13 +2,13 @@ import { Plugin } from "@html_editor/plugin";
 import { closestBlock, isBlock } from "@html_editor/utils/blocks";
 import { isProtecting } from "@html_editor/utils/dom_info";
 import { closestElement } from "@html_editor/utils/dom_traversal";
-import { browser } from "@web/core/browser/browser";
+import { location } from "@web/core/browser/browser";
 import { _t } from "@web/core/l10n/translation";
 import { user } from "@web/core/user";
 
 /**
  * @typedef {Object} SelectionInfo
- * @property {import("@html_editor/core/history_plugin").SerializedSelection} selection
+ * @property {import("@html_editor/core/selection_plugin").SerializedSelection} selection
  * @property {string} color
  * @property {string} peerId
  * @property {string} peerName
@@ -21,16 +21,16 @@ export const AVATAR_SIZE = 25;
 
 export class CollaborationSelectionAvatarPlugin extends Plugin {
     static id = "collaborationSelectionAvatar";
-    static dependencies = ["history", "position", "localOverlay", "collaborationOdoo"];
+    static dependencies = ["domReferenceMap", "position", "localOverlay", "collaborationOdoo"];
     /** @type {import("plugins").EditorResources} */
     resources = {
         /** Handlers */
-        collaboration_notification_handlers: this.handleCollaborationNotification.bind(this),
-        external_history_step_handlers: this.refreshSelection.bind(this),
-        layout_geometry_change_handlers: this.refreshSelection.bind(this),
-        set_movable_element_handlers: this.disableAvatarForElement.bind(this),
-        unset_movable_element_handlers: this.enableAvatars.bind(this),
-        collaborative_selection_update_handlers: this.updateSelection.bind(this),
+        on_collaboration_notification_handlers: this.handleCollaborationNotification.bind(this),
+        on_remote_history_commits_applied_handlers: this.refreshSelection.bind(this),
+        on_layout_geometry_change_handlers: this.refreshSelection.bind(this),
+        on_movable_element_set_handlers: this.disableAvatarForElement.bind(this),
+        on_will_unset_movable_element_handlers: this.enableAvatars.bind(this),
+        on_collaborative_selection_updated_handlers: this.updateSelection.bind(this),
 
         collaboration_peer_metadata_providers: () => ({ avatarUrl: this.avatarUrl }),
     };
@@ -44,7 +44,7 @@ export class CollaborationSelectionAvatarPlugin extends Plugin {
             "oe-avatars-counters-overlay"
         );
         this.avatarUrl = `${
-            browser.location.origin
+            location.origin
         }/web/image?model=res.users&field=avatar_128&id=${encodeURIComponent(user.userId)}`;
     }
     handleCollaborationNotification({ notificationName, notificationPayload }) {
@@ -76,8 +76,8 @@ export class CollaborationSelectionAvatarPlugin extends Plugin {
             return;
         }
         const { avatarUrl, peerName = _t("Anonymous") } = peerMetadata;
-        const anchorNode = this.dependencies.history.getNodeById(selection.anchorNodeId);
-        const focusNode = this.dependencies.history.getNodeById(selection.focusNodeId);
+        const anchorNode = this.dependencies.domReferenceMap.getNodeById(selection.anchorNodeId);
+        const focusNode = this.dependencies.domReferenceMap.getNodeById(selection.focusNodeId);
         if (!anchorNode || !focusNode || !anchorNode.isConnected || !focusNode.isConnected) {
             return;
         }
@@ -100,10 +100,10 @@ export class CollaborationSelectionAvatarPlugin extends Plugin {
         // Draw user avatar.
         let avatarElement = selectionInfo.avatarElement;
         if (!avatarElement) {
-            avatarElement = this.document.createElement("div");
+            avatarElement = this.dependencies.localOverlay.createElement("div");
             avatarElement.className = "oe-collaboration-caret-avatar";
             avatarElement.style.display = "none";
-            const image = this.document.createElement("img");
+            const image = this.dependencies.localOverlay.createElement("img");
             avatarElement.append(image);
             image.onload = () => avatarElement.style.removeProperty("display");
             image.setAttribute("src", avatarUrl);
@@ -142,11 +142,11 @@ export class CollaborationSelectionAvatarPlugin extends Plugin {
             const size = infos.size;
             if (size > 1) {
                 const [left, top] = overlapKey.split("|").map((n) => parseInt(n, 10));
-                const div = document.createElement("div");
+                const div = this.dependencies.localOverlay.createElement("div");
                 div.className = "oe-overlapping-counter";
                 div.style.left = left + 10 + "px";
                 div.style.top = top + 10 + "px";
-                div.innerText = size;
+                div.textContent = size;
                 this.avatarsCountersOverlay.append(div);
             }
         }

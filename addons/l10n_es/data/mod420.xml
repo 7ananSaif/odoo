@@ -5,7 +5,6 @@
             <field name="name">Tax Report (Mod 420) Canary Islands</field>
             <field name="name@es">Informe de impuestos Canarias (Mod 420)</field>
             <field name="sequence">420</field>
-            <field name="filter_analytic" eval="False"/>
             <field name="filter_date_range" eval="True"/>
             <field name="filter_period_comparison" eval="True"/>
             <field name="filter_unfold_all" eval="True"/>
@@ -13,6 +12,7 @@
             <field name="country_id" ref="base.es"/>
             <field name="filter_multi_company">tax_units</field>
             <field name="root_report_id" ref="account.generic_tax_report"/>
+            <field name="active_fallback" eval="False"/>
             <field name="column_ids">
                 <record id="mod_420_column_base" model="account.report.column">
                     <field name="name">Base</field>
@@ -37,7 +37,6 @@
                             <field name="name@es">[1] 0 %</field>
                             <field name="code">atc_mod_420_1_3</field>
                             <field name="groupby">account_id</field>
-                            <field name="foldable" eval="True"/>
                             <field name="expression_ids">
                                 <record id="mod_420_casilla_1_base" model="account.report.expression">
                                     <field name="label">base</field>
@@ -51,7 +50,6 @@
                             <field name="name@es">[4]-[6] 3 % / 5 %</field>
                             <field name="code">atc_mod_420_4_6</field>
                             <field name="groupby">account_id</field>
-                            <field name="foldable" eval="True"/>
                             <field name="expression_ids">
                                 <record id="mod_420_casilla_4" model="account.report.expression">
                                     <field name="label">base</field>
@@ -70,7 +68,6 @@
                             <field name="name@es">[7]-[9] 7 %</field>
                             <field name="code">atc_mod_420_7_9</field>
                             <field name="groupby">account_id</field>
-                            <field name="foldable" eval="True"/>
                             <field name="expression_ids">
                                 <record id="mod_420_casilla_7" model="account.report.expression">
                                     <field name="label">base</field>
@@ -89,7 +86,6 @@
                             <field name="name@es">[10]-[12] 9,5 %</field>
                             <field name="code">atc_mod_420_10_12</field>
                             <field name="groupby">account_id</field>
-                            <field name="foldable" eval="True"/>
                             <field name="expression_ids">
                                 <record id="mod_420_casilla_10" model="account.report.expression">
                                     <field name="label">base</field>
@@ -108,7 +104,6 @@
                             <field name="name@es">[13]-[15] 15 %</field>
                             <field name="code">atc_mod_420_13_15</field>
                             <field name="groupby">account_id</field>
-                            <field name="foldable" eval="True"/>
                             <field name="expression_ids">
                                 <record id="mod_420_casilla_13" model="account.report.expression">
                                     <field name="label">base</field>
@@ -127,7 +122,6 @@
                             <field name="name@es">[16]-[18] 20 %</field>
                             <field name="code">atc_mod_420_16_18</field>
                             <field name="groupby">account_id</field>
-                            <field name="foldable" eval="True"/>
                             <field name="expression_ids">
                                 <record id="mod_420_casilla_16" model="account.report.expression">
                                     <field name="label">base</field>
@@ -146,7 +140,6 @@
                             <field name="name@es">[19]-[20] ISP</field>
                             <field name="code">atc_mod_420_isp</field>
                             <field name="groupby">account_id</field>
-                            <field name="foldable" eval="True"/>
                             <field name="expression_ids">
                                 <record id="mod_420_casilla_19" model="account.report.expression">
                                     <field name="label">base</field>
@@ -165,7 +158,6 @@
                             <field name="name@es">[21]-[22] Modificación de bases y cuotas</field>
                             <field name="code">atc_mod_420_modif</field>
                             <field name="groupby">account_id</field>
-                            <field name="foldable" eval="True"/>
                             <field name="expression_ids">
                                 <record id="mod_420_casilla_21" model="account.report.expression">
                                     <field name="label">base</field>
@@ -184,7 +176,6 @@
                             <field name="name@es">[23]-[24] Cuotas devueltas en régimen de viajeros</field>
                             <field name="code">atc_mod_420_reav</field>
                             <field name="groupby">account_id</field>
-                            <field name="foldable" eval="True"/>
                             <field name="expression_ids">
                                 <record id="mod_420_casilla_23" model="account.report.expression">
                                     <field name="label">base</field>
@@ -225,7 +216,6 @@
                             <field name="name@es">[26]-[27] Operaciones interiores bienes y servicios corrientes</field>
                             <field name="code">atc_mod_420_deduc</field>
                             <field name="groupby">account_id</field>
-                            <field name="foldable" eval="True"/>
                             <field name="expression_ids">
                                 <record id="mod_420_casilla_26" model="account.report.expression">
                                     <field name="label">base</field>
@@ -244,7 +234,6 @@
                             <field name="name@es">[28]-[29] Operaciones interiores bienes de inversión</field>
                             <field name="code">atc_mod_420_deduc_inv</field>
                             <field name="groupby">account_id</field>
-                            <field name="foldable" eval="True"/>
                             <field name="expression_ids">
                                 <record id="mod_420_casilla_28" model="account.report.expression">
                                     <field name="label">base</field>
@@ -263,7 +252,6 @@
                             <field name="name@es">[30]-[31] Importaciones de bienes corrientes</field>
                             <field name="code">atc_mod_420_deduc_imp</field>
                             <field name="groupby">account_id</field>
-                            <field name="foldable" eval="True"/>
                             <field name="expression_ids">
                                 <record id="mod_420_casilla_30" model="account.report.expression">
                                     <field name="label">base</field>
@@ -282,7 +270,6 @@
                             <field name="name@es">[32]-[33] Importaciones de bienes de inversión</field>
                             <field name="code">atc_mod_420_deduc_imp_inv</field>
                             <field name="groupby">account_id</field>
-                            <field name="foldable" eval="True"/>
                             <field name="expression_ids">
                                 <record id="mod_420_casilla_32" model="account.report.expression">
                                     <field name="label">base</field>
@@ -301,7 +288,6 @@
                             <field name="name@es">[34]-[35] Rectificación de deducciones</field>
                             <field name="code">atc_mod_420_deduc_modif</field>
                             <field name="groupby">account_id</field>
-                            <field name="foldable" eval="True"/>
                             <field name="expression_ids">
                                 <record id="mod_420_casilla_34" model="account.report.expression">
                                     <field name="label">base</field>

@@ -9,7 +9,7 @@ class AccountMoveReversal(models.TransientModel):
     Account move reversal wizard, it cancel an account move by reversing it.
     """
     _name = 'account.move.reversal'
-    _description = 'Account Move Reversal'
+    _description = 'Journal Entry Reversal'
     _check_company_auto = True
 
     move_ids = fields.Many2many('account.move', 'account_move_reversal_move', 'reversal_id', 'move_id', domain=[('state', '=', 'posted')])
@@ -60,7 +60,7 @@ class AccountMoveReversal(models.TransientModel):
     @api.constrains('journal_id', 'move_ids')
     def _check_journal_type(self):
         for record in self:
-            if record.journal_id.type not in record.move_ids.journal_id.mapped('type'):
+            if record.move_ids and record.journal_id.type not in record.move_ids.journal_id.mapped('type'):
                 raise UserError(_('Journal should be the same type as the reversed entry.'))
 
     @api.model
@@ -87,7 +87,12 @@ class AccountMoveReversal(models.TransientModel):
             move_ids = record.move_ids._origin
             record.residual = len(move_ids) == 1 and move_ids.amount_residual or 0
             record.currency_id = len(move_ids.currency_id) == 1 and move_ids.currency_id or False
-            record.move_type = move_ids.move_type if len(move_ids) == 1 else (any(move.move_type in ('in_invoice', 'out_invoice') for move in move_ids) and 'some_invoice' or False)
+            record.move_type = (
+                move_ids.move_type if len(move_ids) == 1
+                else 'entry' if all(m.move_type == 'entry' for m in move_ids)
+                else 'some_invoice' if any(m.move_type in ('in_invoice', 'out_invoice') for m in move_ids)
+                else False
+            )
 
     def _prepare_default_reversal(self, move):
         reverse_date = self.date
@@ -105,6 +110,7 @@ class AccountMoveReversal(models.TransientModel):
             'invoice_user_id': move.invoice_user_id.id,
             'auto_post': 'at_date' if reverse_date > fields.Date.context_today(self) else 'no',
             'invoice_origin': move.invoice_origin,
+            'invoice_currency_rate': move.invoice_currency_rate,
         }
 
     def reverse_moves(self, is_modify=False):
@@ -136,7 +142,16 @@ class AccountMoveReversal(models.TransientModel):
             new_moves = moves._reverse_moves(default_values_list, cancel=is_cancel_needed)
             new_moves._compute_partner_bank_id()
             moves._message_log_batch(
-                bodies={move.id: move.env._('This entry has been %s', reverse._get_html_link(title=move.env._("reversed"))) for move, reverse in zip(moves, new_moves)}
+                bodies={
+                    move.id: move.env._(
+                        'This entry has been reversed by %s',
+                        reverse._get_html_link(title=reverse.name),
+                    ) if reverse.name and reverse.name != '/' else move.env._(
+                        'This entry has been %s',
+                        reverse._get_html_link(title=move.env._("reversed")),
+                    )
+                    for move, reverse in zip(moves, new_moves)
+                }
             )
 
             if is_modify:

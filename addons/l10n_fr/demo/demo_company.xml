@@ -6,13 +6,12 @@
         <field name="street">Rue Abbé Huet</field>
         <field name="city">Rennes</field>
         <field name="country_id" ref="base.fr"/>
-        <field name="company_registry">96851575905808</field>
+        <field name="additional_identifiers" eval="{'FR_SIRET': '96851575905808'}"/>
 
         <field name="zip">35043</field>
         <field name="phone">+33 6 12 34 56 78</field>
         <field name="email">info@company.frexample.com</field>
         <field name="website">www.frexample.com</field>
-        <field name="is_company" eval="True"/>
     </record>
 
     <record id="base.demo_company_fr" model="res.company" forcecreate="1">
@@ -21,7 +20,7 @@
     </record>
 
     <record id="base.demo_bank_fr" model="res.partner.bank" forcecreate="1">
-        <field name="acc_number">FR5730003000507963949549B56</field>
+        <field name="account_number">FR5730003000507963949549B56</field>
         <field name="partner_id" ref="base.partner_demo_company_fr"/>
         <field name="company_id" ref="base.demo_company_fr"/>
         <field name="allow_out_payment" eval="True"/>

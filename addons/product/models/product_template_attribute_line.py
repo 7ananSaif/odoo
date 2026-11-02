@@ -11,7 +11,7 @@ class ProductTemplateAttributeLine(models.Model):
 
     _name = 'product.template.attribute.line'
     _rec_name = 'attribute_id'
-    _rec_names_search = ['attribute_id', 'value_ids']
+    _rec_names_search = ('attribute_id', 'value_ids')
     _description = "Product Template Attribute Line"
     _order = 'sequence, attribute_id, id'
 
@@ -269,13 +269,12 @@ class ProductTemplateAttributeLine(models.Model):
     def action_open_attribute_values(self):
         return {
             'type': 'ir.actions.act_window',
-            'name': _("Product Variant Values"),
+            'name': self.attribute_id.name,
             'res_model': 'product.template.attribute.value',
             'view_mode': 'list,form',
             'domain': [('id', 'in', self.product_template_value_ids.ids)],
             'views': [
                 (self.env.ref('product.product_template_attribute_value_view_tree').id, 'list'),
-                (self.env.ref('product.product_template_attribute_value_view_form').id, 'form'),
             ],
             'context': {
                 'search_default_active': 1,

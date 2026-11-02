@@ -8,21 +8,68 @@
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
 # Adrian Böttcher <boettcher@top-arbeitsschutz.de>, 2025.
 # "Larissa Manderfeld (lman)" <lman@odoo.com>, 2025, 2026.
+# Odoo Translation Bot <c3p@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-04-24 12:05+0000\n"
-"Last-Translator: \"Larissa Manderfeld (lman)\" <lman@odoo.com>\n"
-"Language-Team: German <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-10-08 09:46+0000\n"
+"Last-Translator: Odoo Translation Bot <c3p@odoo.com>\n"
+"Language-Team: German <https://translate.odoo.com/projects/odoo-20/"
 "base_import/de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: base_import
+#: model:ir.module.module,description:base.module_base_import
+msgid ""
+"\n"
+"New extensible file import for Odoo\n"
+"======================================\n"
+"\n"
+"Re-implement Odoo's file import system:\n"
+"\n"
+"* Server side, the previous system forces most of the logic into the\n"
+"  client which duplicates the effort (between clients), makes the\n"
+"  import system much harder to use without a client (direct RPC or\n"
+"  other forms of automation) and makes knowledge about the\n"
+"  import/export system much harder to gather as it is spread over\n"
+"  3+ different projects.\n"
+"\n"
+"* In a more extensible manner, so users and partners can build their\n"
+"  own front-end to import from other file formats (e.g. OpenDocument\n"
+"  files) which may be simpler to handle in their work flow or from\n"
+"  their data production sources.\n"
+"\n"
+"* In a module, so that administrators and users of Odoo who do not\n"
+"  need or want an online import can avoid it being available to users.\n"
+msgstr ""
+"\n"
+"Neuer erweiterbarer Datei-Import für Odoo\n"
+"======================================\n"
+"\n"
+"Neuimplementierung des Datei-Import-Systems von Odoo: \n"
+"\n"
+"* Auf der Server-Seite zwingt das Vorgängersystem die meiste Logik in den "
+"Client, was den Aufwand zwischen Clients dupliziert, wodurch das Import-"
+"System ohne Client (direktes RPC oder andere Formen der Automatisierung) "
+"viel schwieriger zu verwenden ist und das Wissen über das Import-/Export-"
+"System viel schwieriger zu erfassen ist, da es über mehr als 3 "
+"unterschiedliche Projekte verteilt ist.\n"
+"\n"
+"* Auf erweiterbare Weise können Benutzer und Partner ihr eigenes Frontend "
+"zum Import von anderen Dateiformaten entwickeln (z. B. OpenDocument-Dateien)"
+", deren Handhabung im Arbeitsablauf einfacher sein kann, oder von ihren "
+"Datenproduktionsquellen.\n"
+"\n"
+"* In einem Modul, damit Administratoren und Benutzer von Odoo, die keinen "
+"Online-Import benötigen oder möchten, verhindern können, dass er für sie "
+"verfügbar ist.\n"
 
 #. module: base_import
 #. odoo-javascript
@@ -66,27 +113,6 @@ msgstr "Weitere Felder"
 
 #. module: base_import
 #. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid "Advanced"
-msgstr "Erweitert"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_model.js:0
-msgid ""
-"After each batch import, this delay is applied to avoid unthrottled calls"
-msgstr ""
-"Nach einem Stapelimport wird diese Verzögerung angewendet, um nicht "
-"gedrosselte Anrufe zu vermeiden"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid "Allow matching with subfields"
-msgstr "Übereinstimmung mit Unterfeldern zulassen"
-
-#. module: base_import
-#. odoo-javascript
 #: code:addons/base_import/static/src/import_model.js:0
 msgid ""
 "An unknown issue occurred during import (possibly lost connection, data "
@@ -99,6 +125,12 @@ msgstr ""
 "überschritten). Bitte versuchen Sie es erneut, falls das Problem nur "
 "vorübergehend besteht. Wenn das Problem weiterhin besteht, versuchen Sie, "
 "die Datei zu teilen, anstatt sie sofort zu importieren."
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
+msgid "Attachments"
+msgstr "Dateianhänge"
 
 #. module: base_import
 #: model:ir.model,name:base_import.model_base
@@ -116,6 +148,11 @@ msgid "Base Import Mapping"
 msgstr "Basisimportzuordnung"
 
 #. module: base_import
+#: model:ir.module.module,shortdesc:base.module_base_import
+msgid "Base import"
+msgstr "Basis-Import"
+
+#. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_progress/import_data_progress.xml:0
 msgid "Batch"
@@ -124,26 +161,20 @@ msgstr "Stapel"
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid "Batch Import"
-msgstr "Stapelimport"
+msgid "Batch interval"
+msgstr "Stapelintervall"
 
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid "Batch limit"
-msgstr "Stapellimit"
+msgid "Batch max size"
+msgstr "Maximale Stapelgröße"
 
 #. module: base_import
 #. odoo-javascript
-#: code:addons/base_import/static/src/import_action/import_action.xml:0
-msgid "But, you can also use .csv files"
-msgstr "Aber Sie können auch .csv-Dateien verwenden"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_action/import_action.xml:0
-msgid "Cancel"
-msgstr "Abbrechen"
+#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
+msgid "Batch size"
+msgstr "Stapelgröße"
 
 #. module: base_import
 #. odoo-javascript
@@ -181,12 +212,6 @@ msgid "Comma"
 msgstr "Komma"
 
 #. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_data_content/import_data_content.xml:0
-msgid "Comments"
-msgstr "Kommentare"
-
-#. module: base_import
 #. odoo-python
 #: code:addons/base_import/models/base_import.py:0
 msgid ""
@@ -214,12 +239,6 @@ msgid "Created on"
 msgstr "Erstellt am"
 
 #. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid "Data to import"
-msgstr "Zu importierende Daten"
-
-#. module: base_import
 #. odoo-python
 #: code:addons/base_import/models/base_import.py:0
 msgid "Database ID"
@@ -228,33 +247,48 @@ msgstr "Datenbank-ID"
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_model.js:0
-msgid "Date Format:"
-msgstr "Datumsformat:"
+msgid "Date Format"
+msgstr "Datumsformat"
 
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_model.js:0
-msgid "Datetime Format:"
-msgstr "Datums/Zeit-Format:"
+msgid "Datetime Format"
+msgstr "Datums/Zeit-Format"
 
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_model.js:0
-msgid "Decimals Separator:"
-msgstr "Dezimaltrennzeichen:"
+msgid "Decimals Separator"
+msgstr "Dezimaltrennzeichen"
 
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_model.js:0
-msgid "Defines how many megabytes can be imported in each batch import"
+msgid "Defines how many megabytes can be imported in each batch"
+msgstr "Bestimmt, wie viele Megabytes in jedem Stapel importiert werden können"
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.js:0
+msgid ""
+"Defines the number of records that will be imported in one transaction. "
+"Reduce the batch size in case of heavy imports"
 msgstr ""
-"Bestimmt, wie viele Megabytes in jedem Stapelimport importiert werden können"
+"Legt die Anzahl der Datensätze fest, die in einer Transaktion importiert "
+"werden. Verringern Sie die Stapelgröße bei umfangreichen Importen"
 
 #. module: base_import
 #. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid "Delay after each batch"
-msgstr "Verzögerung nach jedem Stapel"
+#: code:addons/base_import/static/src/import_model.js:0
+msgid "Delay applied after each batch to prevent unthrottled calls"
+msgstr "Verzögerung nach jedem Stapel, um unbegrenzte Aufrufe zu verhindern"
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_model.js:0
+msgid "Delimiter"
+msgstr "Trennzeichen"
 
 #. module: base_import
 #: model:ir.model.fields,field_description:base_import.field_base_import_import__display_name
@@ -262,6 +296,13 @@ msgstr "Verzögerung nach jedem Stapel"
 #: model:ir.model.fields,field_description:base_import.field_res_users__display_name
 msgid "Display Name"
 msgstr "Anzeigename"
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_action/import_action.xml:0
+#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
+msgid "Documentation"
+msgstr "Dokumentation"
 
 #. module: base_import
 #. odoo-javascript
@@ -278,15 +319,9 @@ msgstr "Herunterladen"
 
 #. module: base_import
 #. odoo-javascript
-#: code:addons/base_import/static/src/import_action/import_action.xml:0
-msgid "Drop or upload a file to import"
-msgstr "Eine zu importierende Datei ablegen oder hochladen"
-
-#. module: base_import
-#. odoo-javascript
 #: code:addons/base_import/static/src/import_model.js:0
-msgid "Encoding:"
-msgstr "Codierung:"
+msgid "Encoding"
+msgstr "Codierung"
 
 #. module: base_import
 #. odoo-python
@@ -335,23 +370,10 @@ msgid "Everything seems valid."
 msgstr "Alles scheint gültig zu sein."
 
 #. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_action/import_action.xml:0
-msgid "Excel files are recommended as formatting is automatic."
-msgstr ""
-"Excel-Dateien werden empfohlen, da die Formatierung automatisch erfolgt."
-
-#. module: base_import
 #. odoo-python
 #: code:addons/base_import/models/base_import.py:0
 msgid "External ID"
 msgstr "Externe ID"
-
-#. module: base_import
-#. odoo-python
-#: code:addons/base_import/models/base_import.py:0
-msgid "Field '%(field)s' does not accept date/time values."
-msgstr "Das Feld „%(field)s“ akzeptiert keine Wert vom Typ Datum/Uhrzeit."
 
 #. module: base_import
 #: model:ir.model.fields,field_description:base_import.field_base_import_mapping__field_name
@@ -387,20 +409,14 @@ msgstr "Dateigröße überschreitet konfiguriertes Maximum (%s bytes)"
 
 #. module: base_import
 #: model:ir.model.fields,help:base_import.field_base_import_import__file
-msgid "File to check and/or import, raw binary (not base64)"
-msgstr "Zu prüfende Datei und/oder Import, roh binär (nicht base64))"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid "Files to import"
-msgstr "Zu importierende Dateien"
+msgid "File to check and/or import"
+msgstr "Zu prüfende und/oder zu importierende Datei"
 
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_progress/import_data_progress.xml:0
 msgid "Finalizing current batch before interrupting..."
-msgstr "Abschluss des aktuellen Stapels vor Unterbrechung..."
+msgstr "Abschluss des aktuellen Stapels vor Unterbrechung …"
 
 #. module: base_import
 #. odoo-javascript
@@ -429,12 +445,6 @@ msgstr ""
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid "Go to Import FAQ"
-msgstr "FAQ importieren"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
 msgid "Help"
 msgstr "Hilfe"
 
@@ -453,6 +463,25 @@ msgstr "ID"
 
 #. module: base_import
 #. odoo-javascript
+#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.js:0
+msgid ""
+"If checked, the changes are tracked in the chatter and notifications can be "
+"sent to followers, which could slow down the import"
+msgstr ""
+"Wenn diese Option aktiviert ist, werden die Änderungen im Chatter "
+"nachverfolgt und Benachrichtigungen können an Follower gesendet werden, was "
+"den Import verlangsamen könnte"
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.js:0
+msgid "If checked, the first row of the sheet will not be imported"
+msgstr ""
+"Wenn diese Option aktiviert ist, wird die erste Zeile des Blattes nicht "
+"importiert"
+
+#. module: base_import
+#. odoo-javascript
 #: code:addons/base_import/static/src/import_data_content/import_data_content.xml:0
 msgid ""
 "If the file contains\n"
@@ -467,41 +496,17 @@ msgstr ""
 
 #. module: base_import
 #. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid ""
-"If the model uses openchatter, history tracking will set up subscriptions "
-"and send notifications during the import, but lead to a slower import."
-msgstr ""
-"Wenn das Modell openchatter verwendet, richtet die Historienverfolgung "
-"während des Imports Abonnements ein und sendet Benachrichtigungen, führt "
-"aber zu einem langsameren Import."
-
-#. module: base_import
-#. odoo-python
-#: code:addons/base_import/models/base_import.py:0
-msgid ""
-"Image size excessive, imported images must be smaller than 42 million pixel"
-msgstr ""
-"Bildgröße zu groß, importierte Bilder müssen kleiner als 42 Millionen Pixel "
-"sein"
-
-#. module: base_import
-#. odoo-javascript
+#: code:addons/base_import/static/src/import_action/import_action.js:0
 #: code:addons/base_import/static/src/import_action/import_action.xml:0
+#: code:addons/base_import/static/src/import_records/import_records.xml:0
 msgid "Import"
 msgstr "Importieren"
 
 #. module: base_import
 #. odoo-javascript
-#: code:addons/base_import/static/src/import_action/import_action.xml:0
-msgid "Import FAQ"
-msgstr "FAQ zum Import"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_action/import_action.js:0
-msgid "Import a File"
-msgstr "Eine Datei importieren"
+#: code:addons/base_import/static/src/import_model.js:0
+msgid "Import failed: see errors below"
+msgstr "Import fehlgeschlagen: Fehler sind unten aufgeführt"
 
 #. module: base_import
 #. odoo-python
@@ -514,12 +519,6 @@ msgstr "Importdatei hat keinen Inhalt oder ist korrupt"
 #: code:addons/base_import/static/src/import_data_content/import_data_content.xml:0
 msgid "Import preview failed due to: \""
 msgstr "Import der Vorschau fehlgeschlagen wegen: „"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_records/import_records.xml:0
-msgid "Import records"
-msgstr "Datensätze importieren"
 
 #. module: base_import
 #. odoo-javascript
@@ -552,6 +551,18 @@ msgstr ""
 "Ungültiger Zellenwert in der Zeile %(row)s, Spalte %(col)s: %(cell_value)s"
 
 #. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_data_content/import_data_content.xml:0
+msgid "Lang:"
+msgstr "Sprache:"
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_data_content/import_data_content.xml:0
+msgid "Language"
+msgstr "Sprache"
+
+#. module: base_import
 #: model:ir.model.fields,field_description:base_import.field_base_import_import__write_uid
 #: model:ir.model.fields,field_description:base_import.field_base_import_mapping__write_uid
 msgid "Last Updated by"
@@ -565,12 +576,6 @@ msgstr "Zuletzt aktualisiert am"
 
 #. module: base_import
 #. odoo-javascript
-#: code:addons/base_import/static/src/import_action/import_action.xml:0
-msgid "Load Data File"
-msgstr "Datei laden"
-
-#. module: base_import
-#. odoo-javascript
 #: code:addons/base_import/static/src/import_action/import_action.js:0
 msgid "Loading file..."
 msgstr "Datei wird geladen..."
@@ -580,12 +585,6 @@ msgstr "Datei wird geladen..."
 #: code:addons/base_import/static/src/import_block_ui.xml:0
 msgid "Loading..."
 msgstr "Lädt …"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid "Max size per batch"
-msgstr "Maximale Größe pro Stapel"
 
 #. module: base_import
 #. odoo-javascript
@@ -606,15 +605,21 @@ msgstr "Mehrere Fehler sind aufgetreten"
 
 #. module: base_import
 #. odoo-javascript
-#: code:addons/base_import/static/src/import_action/import_action.xml:0
-msgid "Need Help?"
-msgstr "Brauchen Sie Hilfe?"
+#: code:addons/base_import/static/src/import_model.js:0
+msgid "No Separator"
+msgstr "Kein Trennzeichen"
 
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_model.js:0
-msgid "No Separator"
-msgstr "Kein Trennzeichen"
+msgid "No date detected"
+msgstr "Kein Datum erkannt"
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_model.js:0
+msgid "No datetime detected"
+msgstr "Kein Datum/Uhrzeit erkannt"
 
 #. module: base_import
 #. odoo-javascript
@@ -633,6 +638,12 @@ msgstr "Keine passenden Datensätze gefunden für den folgenden Namen"
 #: code:addons/base_import/static/src/import_data_content/import_data_content.xml:0
 msgid "Odoo Field"
 msgstr "Odoo-Feld"
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_model.js:0
+msgid "Other"
+msgstr "Andere"
 
 #. module: base_import
 #. odoo-javascript
@@ -668,15 +679,21 @@ msgstr "Fortschrittsbalken"
 
 #. module: base_import
 #. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid "Reimport"
-msgstr "Erneut importieren"
+#: code:addons/base_import/static/src/import_action/import_action.xml:0
+msgid "Re-Upload"
+msgstr "Erneut hochladen"
 
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_content/import_data_content.js:0
 msgid "Relation Fields"
 msgstr "Beziehungsfelder"
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_data_content/import_data_content.js:0
+msgid "Required Fields"
+msgstr "Erforderliche Felder"
 
 #. module: base_import
 #: model:ir.model.fields,field_description:base_import.field_base_import_mapping__res_model
@@ -694,6 +711,12 @@ msgstr "Fortsetzen"
 #: code:addons/base_import/static/src/import_data_content/import_data_content.xml:0
 msgid "Search a field..."
 msgstr "Ein Feld suchen ..."
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_data_content/import_data_content.xml:0
+msgid "Search a language..."
+msgstr "Eine Sprache suchen …"
 
 #. module: base_import
 #. odoo-javascript
@@ -716,8 +739,8 @@ msgstr "Semikolon"
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_model.js:0
-msgid "Separator:"
-msgstr "Trennzeichen:"
+msgid "Separator"
+msgstr "Trennzeichen"
 
 #. module: base_import
 #. odoo-javascript
@@ -769,12 +792,6 @@ msgstr "Standardfelder"
 
 #. module: base_import
 #. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid "Start at line"
-msgstr "Start bei Zeile"
-
-#. module: base_import
-#. odoo-javascript
 #: code:addons/base_import/static/src/import_data_progress/import_data_progress.xml:0
 msgid "Stop Import"
 msgstr "Import stoppen"
@@ -802,24 +819,6 @@ msgstr "Test"
 #: code:addons/base_import/static/src/import_action/import_action.js:0
 msgid "Testing"
 msgstr "Testen"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_model.js:0
-msgid "Text Delimiter:"
-msgstr "Textbegrenzer:"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_model.js:0
-msgid "The file contains blocking errors (see below)"
-msgstr "Die Datei enthällt blockierende Fehler (Siehe unten)"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid "The file will be imported by batches"
-msgstr "Die Datei wird stapelweise importiert"
 
 #. module: base_import
 #. odoo-python
@@ -852,8 +851,8 @@ msgstr "Diese Spalte wird mit dem folgenden Feld verknüpft"
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_model.js:0
-msgid "Thousands Separator:"
-msgstr "Tausendertrennzeichen:"
+msgid "Thousands Separator"
+msgstr "Tausendertrennzeichen"
 
 #. module: base_import
 #. odoo-javascript
@@ -870,8 +869,8 @@ msgstr "Feld auswählen, um zu importieren ..."
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid "Track history during import"
-msgstr "Historie während des Imports verfolgen"
+msgid "Track changes in chatter"
+msgstr "Änderungen in Chatter nachverfolgen"
 
 #. module: base_import
 #. odoo-python
@@ -900,14 +899,19 @@ msgstr "Ohne Titel"
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_action/import_action.xml:0
-msgid "Upload Data File"
-msgstr "Datei hochladen"
+#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
+msgid "Upload"
+msgstr "Hochladen"
 
 #. module: base_import
 #. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid "Upload your files"
-msgstr "Ihre Dateien hochladen"
+#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.js:0
+msgid ""
+"Upload attachments such as images or files that can be mapped with imported "
+"data"
+msgstr ""
+"Laden Sie Anhänge wie Bilder oder Dateien hoch, die mit importierten Daten "
+"verknüpft werden können"
 
 #. module: base_import
 #. odoo-javascript
@@ -943,19 +947,19 @@ msgid "Use first row as header"
 msgstr "1. Zeile als Kopfzeile verwenden"
 
 #. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_model.js:0
+msgid ""
+"Use unique key across objects for External ID's, for example \"lead_1\" "
+"instead of \"1\""
+msgstr ""
+"Verwenden Sie für externe IDs einen eindeutigen Schlüssel über alle Objekte "
+"hinweg, zum Beispiel „lead_1“ statt „1“"
+
+#. module: base_import
 #: model:ir.model,name:base_import.model_res_users
 msgid "User"
 msgstr "Benutzer"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid ""
-"Warning: ignores the labels line, empty lines and lines composed only of "
-"empty cells"
-msgstr ""
-"Achtung: ignoriert die Beschriftungszeile, leere Zeilen und Zeilen, die nur "
-"aus leeren Zellen bestehen"
 
 #. module: base_import
 #. odoo-javascript
@@ -1015,7 +1019,13 @@ msgstr "Minuten"
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_column_error/import_data_column_error.xml:0
 msgid "more"
-msgstr "mehr"
+msgstr "weitere"
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_action/import_action.xml:0
+msgid "or drag a file"
+msgstr "oder eine Datei ablegen"
 
 #. module: base_import
 #. odoo-javascript
@@ -1035,41 +1045,3 @@ msgstr "Sekunden"
 #: code:addons/base_import/models/base_import.py:0
 msgid "unknown error code %s"
 msgstr "unbekannter Fehlercode %s"
-
-#~ msgid "Column %s contains incorrect values (value: %s)"
-#~ msgstr "Spalte %s enthält fehlerhafte Werte (Wert: %s)"
-
-#~ msgid "Column %s contains incorrect values. Error in line %d: %s"
-#~ msgstr "Spalte %s enthält fehlerhafte Werte. Fehler in der Zeile %d: %s"
-
-#~ msgid "Error Parsing Date [%s:L%d]: %s"
-#~ msgstr "Fehler bei der Analyse des Datums [%s:L%d]: %s"
-
-#~ msgid ""
-#~ "Import timed out. Please retry. If you still encounter this issue, the "
-#~ "file may be too big for the system's configuration, try to split it "
-#~ "(import less records per file)."
-#~ msgstr ""
-#~ "Zeitüberschreitung beim Import. Bitte erneut versuchen. Wenn dieses "
-#~ "Problem weiterhin auftritt, ist die Datei möglicherweise zu groß für die "
-#~ "Systemkonfiguration. Versuchen Sie, sie zu teilen (importieren Sie "
-#~ "weniger Datensätze pro Datei)."
-
-#~ msgid "Imported file"
-#~ msgstr "Importierte Datei"
-
-#~ msgid "Load File"
-#~ msgstr "Datei Laden"
-
-#~ msgid "Upload File"
-#~ msgstr "Datei hochladen"
-
-#~ msgid "Upload an Excel or CSV file to import"
-#~ msgstr "Excel oder CSV Datei zum Import hochladen"
-
-#~ msgid ""
-#~ "You can not import images via URL, check with your administrator or "
-#~ "support for the reason."
-#~ msgstr ""
-#~ "Sie können keine Bilder über eine URL importieren. Fragen Sie Ihren "
-#~ "Administrator oder den Support nach dem Grund."

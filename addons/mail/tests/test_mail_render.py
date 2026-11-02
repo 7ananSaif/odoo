@@ -57,7 +57,7 @@ class TestMailRenderCommon(common.MailCommon):
         # some qweb templates, their views and their xml ids
         cls.base_qweb_bits = [
             '<p>Hello</p>',
-            '<p>Hello <t t-esc="object.name"/></p>',
+            '<p>Hello <t t-out="object.name"/></p>',
             """<p>
     <span t-if="object.lang == 'en_US'">English Speaker</span>
     <span t-else="">Other Speaker</span>
@@ -65,7 +65,7 @@ class TestMailRenderCommon(common.MailCommon):
         ]
         cls.base_qweb_bits_fr = [
             '<p>Bonjour</p>',
-            '<p>Bonjour <t t-esc="object.name"/></p>',
+            '<p>Bonjour <t t-out="object.name"/></p>',
             """<p>
     <span t-if="object.lang == 'en_US'">Narrateur Anglais</span>
     <span t-else="">Autre Narrateur</span>
@@ -140,7 +140,7 @@ class TestMailRenderCommon(common.MailCommon):
         })
 
         # Enable group-based template management
-        cls.env['ir.config_parameter'].set_param('mail.restrict.template.rendering', True)
+        cls.env['ir.config_parameter'].set_bool('mail.restrict.template.rendering', True)
 
         # User without the group "mail.group_mail_template_editor"
         cls.user_rendering_restricted = common.mail_new_test_user(
@@ -227,7 +227,7 @@ class TestMailRender(TestMailRenderCommon):
         partner = self.render_object.with_env(self.env)
         for res_ids in ([], (), [False], [''], [None], [False, partner.id]):  # various corner cases
             for fname, expected_obj, expected_void in zip(['subject', 'body_html'], self.base_rendered, self.base_rendered_void):
-                with self.subTest():
+                with self.subTest(res_ids=res_ids, fname=fname):
                     rendered_all = template._render_field(
                         fname,
                         res_ids,
@@ -415,6 +415,7 @@ class TestMailRender(TestMailRenderCommon):
 
 
 @tagged('mail_render', 'regex_render')
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestRegexRendering(common.MailCommon):
 
     def test_qweb_regex_rendering(self):
@@ -451,13 +452,13 @@ class TestRegexRendering(common.MailCommon):
         )
         o_qweb_render = self.env['ir.qweb']._render
         for template, expected in static_templates:
-            with (patch('odoo.addons.base.models.ir_qweb.IrQweb._render', side_effect=o_qweb_render) as qweb_render,
+            with (patch.object(self.registry['ir.qweb'], '_render', side_effect=o_qweb_render) as qweb_render,
                 patch('odoo.addons.base.models.ir_qweb.unsafe_eval', side_effect=eval) as unsafe_eval):
                 self.assertEqual(render(template), expected)
                 self.assertFalse(qweb_render.called)
                 self.assertFalse(unsafe_eval.called)
 
-        with (patch('odoo.addons.base.models.ir_qweb.IrQweb._render', side_effect=o_qweb_render) as qweb_render,
+        with (patch.object(self.registry['ir.qweb'], '_render', side_effect=o_qweb_render) as qweb_render,
                 patch('odoo.addons.base.models.ir_qweb.unsafe_eval', side_effect=eval) as unsafe_eval):
             self.assertNotIn("<55", render('''<55 t-out="object.name"></55>'''))
             self.assertFalse(qweb_render.called)
@@ -475,7 +476,7 @@ class TestRegexRendering(common.MailCommon):
             ('''<p t-out="'<h1>test</h1>'"/>''', '<p>&lt;h1&gt;test&lt;/h1&gt;</p>'),
         )
         for template, expected in non_static_templates:
-            with (patch('odoo.addons.base.models.ir_qweb.IrQweb._render', side_effect=o_qweb_render) as qweb_render,
+            with (patch.object(self.registry['ir.qweb'], '_render', side_effect=o_qweb_render) as qweb_render,
                 patch('odoo.addons.base.models.ir_qweb.unsafe_eval', side_effect=eval) as unsafe_eval):
                 rendered = render(template)
                 self.assertTrue(isinstance(rendered, Markup))
@@ -496,7 +497,7 @@ class TestRegexRendering(common.MailCommon):
             ('''{{object.contact_name ||| Default}}''', 'Default'),
         )
         for template, expected in static_templates:
-            with patch('odoo.tools.safe_eval.unsafe_eval', side_effect=eval) as unsafe_eval:
+            with patch('odoo.tools.safe_eval.evaluation.unsafe_eval', side_effect=eval) as unsafe_eval:
                 self.assertEqual(render(template), expected)
                 self.assertFalse(unsafe_eval.called)
                 self.assertFalse(self.env['mail.render.mixin']._has_unsafe_expression_template_inline_template(template, 'res.partner'))
@@ -507,13 +508,14 @@ class TestRegexRendering(common.MailCommon):
             ('''{{object.env.context.get('test')}}''', ''),
         )
         for template, expected in non_static_templates:
-            with patch('odoo.tools.safe_eval.unsafe_eval', side_effect=eval) as unsafe_eval:
+            with patch('odoo.tools.safe_eval.evaluation.unsafe_eval', side_effect=eval) as unsafe_eval:
                 self.assertEqual(render(template), expected)
                 self.assertTrue(unsafe_eval.called)
                 self.assertTrue(self.env['mail.render.mixin']._has_unsafe_expression_template_inline_template(template, 'res.partner'))
 
 
 @tagged('mail_render')
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestMailRenderSecurity(TestMailRenderCommon):
     """ Test security of rendering, based on qweb finding + restricted rendering
     group usage. """

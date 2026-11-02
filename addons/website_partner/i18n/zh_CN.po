@@ -6,23 +6,34 @@
 # Martin Trigaux, 2022
 # Jeffery CHEN <jeffery9@gmail.com>, 2022
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
-# "Chloe Wang (chwa)" <chwa@odoo.com>, 2025.
+# "Chloe Wang (chwa)" <chwa@odoo.com>, 2025, 2026.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# 张飞虎 <feihu.zhang@live.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~14.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-11-18 12:20+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-10-11 13:33+0000\n"
+"Last-Translator: 张飞虎 <feihu.zhang@live.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://translate.odoo.com/"
-"projects/odoo-19/website_partner/zh_Hans/>\n"
+"projects/odoo-20/website_partner/zh_Hans/>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: website_partner
+#: model:ir.module.module,description:base.module_website_partner
+msgid ""
+"\n"
+"This is a base module. It holds website-related stuff for Contact model "
+"(res.partner).\n"
+msgstr ""
+"\n"
+"这是一个基础模块，包含联系人模型（res.partner）的网站相关功能。\n"
 
 #. module: website_partner
 #: model:ir.model,name:website_partner.model_res_partner
@@ -35,14 +46,20 @@ msgid "Create a Customer"
 msgstr "创建客户"
 
 #. module: website_partner
-#: model_terms:ir.ui.view,arch_db:website_partner.partner_page
-msgid "DROP BUILDING BLOCKS HERE TO MAKE THEM AVAILABLE ACROSS ALL PARTNERS"
-msgstr "将内容方块拖放至此处，使其适用于所有合作伙伴"
-
-#. module: website_partner
 #: model:ir.model.fields,field_description:website_partner.field_res_partner__display_name
 msgid "Display Name"
 msgstr "显示名称"
+
+#. module: website_partner
+#: model_terms:ir.ui.view,arch_db:website_partner.partner_page
+msgid "Drag blocks here to add them on all partners"
+msgstr "将块拖拽至此处，即可将其添加到所有合作伙伴中"
+
+#. module: website_partner
+#. odoo-python
+#: code:addons/website_partner/models/res_partner.py:0
+msgid "Find Resellers"
+msgstr "查找经销商"
 
 #. module: website_partner
 #: model:ir.model.fields,field_description:website_partner.field_res_partner__id
@@ -58,22 +75,33 @@ msgstr "已发布"
 #. module: website_partner
 #: model:mail.message.subtype,description:website_partner.mt_partner_published
 msgid "Partner Published"
-msgstr ""
+msgstr "合作伙伴已发布"
 
 #. module: website_partner
 #: model:mail.message.subtype,description:website_partner.mt_partner_unpublished
 msgid "Partner Unpublished"
-msgstr ""
+msgstr "合作伙伴未发布"
+
+#. module: website_partner
+#: model:ir.module.module,summary:base.module_website_partner
+msgid "Partner module for website"
+msgstr "网站合作伙伴模块"
 
 #. module: website_partner
 #: model:mail.message.subtype,name:website_partner.mt_partner_published
 msgid "Partner published"
-msgstr ""
+msgstr "合作伙伴已发布"
 
 #. module: website_partner
 #: model:mail.message.subtype,name:website_partner.mt_partner_unpublished
 msgid "Partner unpublished"
-msgstr ""
+msgstr "合作伙伴未发布"
+
+#. module: website_partner
+#. odoo-python
+#: code:addons/website_partner/models/res_partner.py:0
+msgid "Resellers"
+msgstr "经销商"
 
 #. module: website_partner
 #: model:ir.model.fields,field_description:website_partner.field_res_partner__is_seo_optimized
@@ -84,6 +112,11 @@ msgstr "SEO优化"
 #: model:ir.model.fields,field_description:website_partner.field_res_partner__seo_name
 msgid "Seo name"
 msgstr "Seo 名称"
+
+#. module: website_partner
+#: model:ir.module.module,shortdesc:base.module_website_partner
+msgid "Website Partner"
+msgstr "网站合作伙伴"
 
 #. module: website_partner
 #: model:ir.model.fields,field_description:website_partner.field_res_partner__website_description
@@ -116,6 +149,3 @@ msgstr "网站标题meta元素"
 #: model:ir.model.fields,field_description:website_partner.field_res_partner__website_meta_og_img
 msgid "Website opengraph image"
 msgstr "网站opengraph图像"
-
-#~ msgid "Short Description for List View"
-#~ msgstr "列表视图简短说明"

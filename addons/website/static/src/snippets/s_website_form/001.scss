@@ -17,6 +17,43 @@
 }
 
 .s_website_form[data-vcss="001"] {
+    %o-inline-description-field {
+        display: grid;
+        grid-template-columns: fit-content(0px) fit-content(100%);
+    }
+    @mixin s_website_form_field_description_position($position) {
+        @if $position == wrap {
+            .s_website_form_label {
+                display: block;
+            }
+            .s_website_form_field_description {
+                display: inline;
+            }
+            .form-check {
+                margin: 0;
+                float: inline-start;
+            }
+        } @else {
+            &:not(:has(div.col-sm)) {
+                @extend %o-inline-description-field;
+                align-items: $position;
+                .s_website_form_label {
+                    grid-column: 1 / -1;
+                }
+            }
+            .s_website_form_label + div.col-sm {
+                @extend %o-inline-description-field;
+                align-items: $position;
+            }
+            .s_website_form_field_description {
+                margin: auto 0;
+            }
+            .form-check {
+                margin: 0
+            }
+        }
+    };
+
     .s_website_form_label {
         @include media-breakpoint-down(sm) {
             width: auto !important;
@@ -30,13 +67,14 @@
     span.s_website_form_mark {
         @include font-size(0.85em);
         font-weight: 400;
+        color: var(--form-label-required-mark-color);
     }
 
     .s_website_form_dnone {
         display: none;
     }
 
-    .s_website_form_submit, .s_website_form_recaptcha {
+    .s_website_form_submit {
         .s_website_form_label {
             float: left;
             height: 1px;
@@ -46,6 +84,9 @@
         .s_website_form_label {
             display: none;
         }
+    }
+    .s_website_form_field_description {
+        display: block;
     }
 
     // File blocks.
@@ -83,11 +124,40 @@
             background-color: darken($o-gray-200, 4.5%);
         }
     }
+    // Set a marker (*) to the checkbox description when "required"
+    // and its label is hidden.
+    .s_website_form_field[data-type="boolean"] {
+        &.s_website_form_required, &.s_website_form_model_required {
+            &:has(.s_website_form_label.d-none, .s_website_form_label.invisible) {
+                .s_website_form_field_description::after {
+                    content: attr(data-description-mark);
+                }
+            }
+        }
+    }
+    // Field description layout style (currently used for checkbox fields). 
+    .s_website_form_description_top {
+        @include s_website_form_field_description_position(start);
+    }
+    .s_website_form_description_center {
+        @include s_website_form_field_description_position(center);
+    }
+    .s_website_form_description_wrap {
+        @include s_website_form_field_description_position(wrap);
+    }
     @include media-breakpoint-down(md) {
         .datetimepicker-input{
             caret-color: transparent;
         }
     }
+}
+
+.o_datetime_picker {
+    --DateTimePicker__day-week-cell-bg: #{fade-currentColor(6%)};
+    --DateTimePicker__day-selected-color: #{$primary-text-emphasis};
+    --DateTimePicker__day-selected-bg: #{$primary-bg-subtle};
+    --DateTimePicker__day-range-bg: #{mix($primary, $primary-bg-subtle, 25%)};
+    --DateTimePicker__date-cell-border-color-active: #{fade-currentColor(60%)};
 }
 
 body:not(.editor_enable) .s_website_form[data-vcss="001"] {

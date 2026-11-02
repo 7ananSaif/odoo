@@ -18,6 +18,8 @@
                 <filter name="completed" string="Completed" domain="[('state', '=', 'done')]"/>
                 <separator/>
                 <filter string="Quiz passed" name="scoring_success" domain="[('scoring_success','=', True)]"/>
+                <filter string="Certified" name="certified" invisible="1"
+                        domain="[('scoring_success','=', True), ('survey_id.certification','=', True)]"/>
                 <separator/>
                 <filter string="Tests Only" name="test" domain="[('test_entry','=', True)]"/>
                 <filter string="Exclude Tests" name="not_test" domain="[('test_entry','=', False)]"/>
@@ -49,7 +51,7 @@
                             type="object"
                             class="oe_stat_button"
                             invisible="attempts_count == 1"
-                            icon="fa-files-o">
+                            icon="content_copy">
                             <field string="Attempts" name="attempts_count" widget="statinfo"/>
                         </button>
                     </div>
@@ -96,9 +98,9 @@
                                     <field name="page_id" optional="hidden"/>
                                     <field name="question_id"/>
                                     <field name="answer_type" optional="hidden"/>
-                                    <field name="skipped" hide="1"/>
+                                    <field name="skipped" width="[70]" hide="1"/>
                                     <field name="display_name" string="Answer"/>
-                                    <field name="answer_is_correct"/>
+                                    <field name="answer_is_correct" width="[70]"/>
                                     <field name="answer_score" sum="Score"/>
                                 </list>
                             </field>
@@ -164,6 +166,23 @@
                 No answers yet!
             </p><p>
                 You can share your links through different means: email, invite shortcut, live presentation, ...
+            </p>
+        </field>
+    </record>
+
+    <record id="survey_user_input_action_certified" model="ir.actions.act_window">
+        <field name="name">Certified Participants</field>
+        <field name="res_model">survey.user_input</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="view_id" ref="survey_user_input_view_tree"></field>
+        <field name="search_view_id" ref="survey_user_input_view_search"/>
+        <field name="context">{
+            'search_default_group_by_survey': True,
+            'search_default_certified': True,
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">
+                No certified participant yet!
             </p>
         </field>
     </record>

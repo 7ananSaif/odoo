@@ -2,6 +2,7 @@
 
 import logging
 import requests
+from odoo.addons.microsoft_account.models.microsoft_service import TIMEOUT
 from odoo.addons.microsoft_calendar.models.microsoft_sync import microsoft_calendar_token
 from datetime import datetime, timedelta
 
@@ -10,7 +11,6 @@ from odoo.exceptions import UserError
 from odoo.loglevels import exception_to_unicode
 from odoo.addons.microsoft_account.models import microsoft_service
 from odoo.addons.microsoft_calendar.utils.microsoft_calendar import InvalidSyncToken
-from odoo.tools import str2bool
 
 _logger = logging.getLogger(__name__)
 
@@ -18,6 +18,7 @@ _logger = logging.getLogger(__name__)
 class ResUsers(models.Model):
     _inherit = 'res.users'
 
+    microsoft_account_email = fields.Char(related='res_users_settings_id.microsoft_account_email', readonly=False, groups='base.group_system')
     microsoft_calendar_sync_token = fields.Char(related='res_users_settings_id.microsoft_calendar_sync_token', groups='base.group_system')
     microsoft_synchronization_stopped = fields.Boolean(related='res_users_settings_id.microsoft_synchronization_stopped', readonly=False, groups='base.group_system')
     microsoft_last_sync_date = fields.Datetime(related='res_users_settings_id.microsoft_last_sync_date', readonly=False, groups='base.group_system')
@@ -40,11 +41,14 @@ class ResUsers(models.Model):
     def _refresh_microsoft_calendar_token(self, service='calendar'):
         self.ensure_one()
         try:
-            access_token, ttl = self.env['microsoft.service']._refresh_microsoft_token('calendar', self.sudo().microsoft_calendar_rtoken)
-            self.sudo().write({
+            access_token, ttl, new_rtoken = self.env['microsoft.service']._refresh_microsoft_token('calendar', self.sudo().microsoft_calendar_rtoken)
+            vals = {
                 'microsoft_calendar_token': access_token,
                 'microsoft_calendar_token_validity': fields.Datetime.now() + timedelta(seconds=ttl),
-            })
+            }
+            if new_rtoken:
+                vals['microsoft_calendar_rtoken'] = new_rtoken
+            self.sudo().write(vals)
         except requests.HTTPError as error:
             if error.response.status_code in (400, 401):  # invalid grant or invalid client
                 # Delete refresh token and make sure it's commited
@@ -68,7 +72,7 @@ class ResUsers(models.Model):
     def _get_microsoft_sync_status(self):
         """ Returns the calendar synchronization status (active, paused or stopped). """
         status = "sync_active"
-        if str2bool(self.env['ir.config_parameter'].sudo().get_param("microsoft_calendar_sync_paused"), default=False):
+        if self.env['ir.config_parameter'].sudo().get_bool("microsoft_calendar_sync_paused"):
             status = "sync_paused"
         elif self.sudo().microsoft_calendar_token and not self.sudo().microsoft_synchronization_stopped:
             status = "sync_active"
@@ -123,23 +127,28 @@ class ResUsers(models.Model):
                 _logger.exception("[%s] Calendar Synchro - Exception : %s!", user, exception_to_unicode(e))
                 self.env.cr.rollback()
 
+    @api.model
     def stop_microsoft_synchronization(self):
-        self.ensure_one()
-        self.sudo().microsoft_synchronization_stopped = True
-        self.sudo().microsoft_last_sync_date = None
+        self.env.user.microsoft_synchronization_stopped = True
+        self.env.user.microsoft_last_sync_date = None
+        self.env.user._set_microsoft_auth_tokens(False, False, 0)
+        self.env.user.sudo().write({
+            'microsoft_calendar_sync_token': False,
+            'microsoft_last_sync_date': False
+        })
 
+    @api.model
     def restart_microsoft_synchronization(self):
-        self.ensure_one()
-        self.sudo().microsoft_last_sync_date = datetime.now()
-        self.sudo().microsoft_synchronization_stopped = False
+        self.env.user.microsoft_last_sync_date = datetime.now()
+        self.env.user.microsoft_synchronization_stopped = False
         self.env['calendar.recurrence']._restart_microsoft_sync()
         self.env['calendar.event']._restart_microsoft_sync()
 
     def unpause_microsoft_synchronization(self):
-        self.env['ir.config_parameter'].sudo().set_param("microsoft_calendar_sync_paused", False)
+        self.env['ir.config_parameter'].sudo().set_bool("microsoft_calendar_sync_paused", False)
 
     def pause_microsoft_synchronization(self):
-        self.env['ir.config_parameter'].sudo().set_param("microsoft_calendar_sync_paused", True)
+        self.env['ir.config_parameter'].sudo().set_bool("microsoft_calendar_sync_paused", True)
 
     @api.model
     def _has_setup_microsoft_credentials(self):
@@ -148,6 +157,10 @@ class ResUsers(models.Model):
         client_id = self.env['microsoft.service']._get_microsoft_client_id('calendar')
         client_secret = microsoft_service._get_microsoft_client_secret(ICP_sudo, 'calendar')
         return bool(client_id and client_secret)
+
+    @api.model
+    def get_calendar_sync_email(self):
+        return self.env.user.microsoft_account_email or super().get_calendar_sync_email()
 
     @api.model
     def check_calendar_credentials(self):
@@ -187,7 +200,7 @@ class ResUsers(models.Model):
         created Odoo events and thus avoid spamming invitations for those events.
         """
         ICP = self.env['ir.config_parameter'].sudo()
-        first_synchronization_date = ICP.get_param('microsoft_calendar.sync.first_synchronization_date')
+        first_synchronization_date = ICP.get_str('microsoft_calendar.sync.first_synchronization_date')
 
         if not first_synchronization_date:
             # Check if any calendar has synchronized before by checking the user's tokens.
@@ -199,4 +212,19 @@ class ResUsers(models.Model):
             # Check if any user synchronized its calendar before by saving the date token.
             # Add one minute of time diff for avoiding write time delay conflicts with the next sync methods.
             if not any_calendar_synchronized:
-                ICP.set_param('microsoft_calendar.sync.first_synchronization_date', now - timedelta(minutes=1))
+                ICP.set_str('microsoft_calendar.sync.first_synchronization_date', now - timedelta(minutes=1))
+
+    def _set_microsoft_auth_tokens(self, access_token, refresh_token, ttl):
+        super()._set_microsoft_auth_tokens(access_token, refresh_token, ttl)
+        self.microsoft_account_email = self._get_email_from_outlook(access_token) if access_token else False
+
+    def _get_email_from_outlook(self, token, timeout=TIMEOUT):
+        url = '/v1.0/me'
+        headers = {'Content-type': 'application/json', 'Authorization': 'Bearer %s' % token}
+        try:
+            status, user_info, _ = self.env["microsoft.service"]._do_request(url, {}, headers, method='GET', timeout=timeout)
+        except requests.exceptions.HTTPError as e:
+            _logger.error('Error getting outlook email: %s', e)
+        else:
+            return user_info.get('mail') or user_info.get('userPrincipalName') if status == 200 else False
+        return False

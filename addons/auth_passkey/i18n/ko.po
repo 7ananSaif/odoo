@@ -8,17 +8,28 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~18.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-11-20 07:05+0000\n"
-"Last-Translator: \"Kwanghee Park (kwpa)\" <kwpa@odoo.com>\n"
-"Language-Team: Korean <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-08-31 16:17+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Korean <https://translate.odoo.com/projects/odoo-s19-4/"
 "auth_passkey/ko/>\n"
 "Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: auth_passkey
+#: model:ir.module.module,description:base.module_auth_passkey
+msgid ""
+"\n"
+"The implementation of Passkeys using the webauthn protocol.\n"
+"===========================================================\n"
+"\n"
+"Passkeys are a secure alternative to a username and a password.\n"
+"When a user logs in with a Passkey, MFA will not be required.\n"
+msgstr ""
 
 #. module: auth_passkey
 #: model_terms:ir.ui.view,arch_db:auth_passkey.auth_passkey_users_form
@@ -52,12 +63,6 @@ msgstr "인증 방법"
 #: model:ir.model.fields,field_description:auth_passkey.field_res_users__auth_passkey_key_ids
 msgid "Auth Passkey Key"
 msgstr "인증 패스키"
-
-#. module: auth_passkey
-#: model_terms:ir.ui.view,arch_db:auth_passkey.auth_passkey_key_create_view_form
-#: model_terms:ir.ui.view,arch_db:auth_passkey.auth_passkey_key_rename
-msgid "Cancel"
-msgstr "취소"
 
 #. module: auth_passkey
 #: model_terms:ir.ui.view,arch_db:auth_passkey.auth_passkey_key_create_view_form
@@ -150,6 +155,11 @@ msgid "Last used:"
 msgstr "최근 사용:"
 
 #. module: auth_passkey
+#: model:ir.module.module,summary:base.module_auth_passkey
+msgid "Log in with a Passkey"
+msgstr ""
+
+#. module: auth_passkey
 #: model:ir.model.fields,field_description:auth_passkey.field_auth_passkey_key__name
 #: model:ir.model.fields,field_description:auth_passkey.field_auth_passkey_key_create__name
 msgid "Name"
@@ -161,12 +171,15 @@ msgid "Or choose a different method:"
 msgstr "또는 다른 방법을 선택합니다:"
 
 #. module: auth_passkey
+#. odoo-javascript
+#: code:addons/auth_passkey/static/src/services/check_identity/check_identity.xml:0
 #: model:ir.model,name:auth_passkey.model_auth_passkey_key
 #: model:ir.model.fields.selection,name:auth_passkey.selection__res_users_identitycheck__auth_method__webauthn
 msgid "Passkey"
 msgstr "패스키"
 
 #. module: auth_passkey
+#: model:ir.module.module,shortdesc:base.module_auth_passkey
 #: model_terms:ir.ui.view,arch_db:auth_passkey.auth_passkey_users_form
 #: model_terms:ir.ui.view,arch_db:auth_passkey.auth_passkey_users_preferences
 msgid "Passkeys"
@@ -231,21 +244,29 @@ msgid "Use a Passkey"
 msgstr "패스키 사용"
 
 #. module: auth_passkey
+#. odoo-javascript
+#: code:addons/auth_passkey/static/src/services/check_identity/check_identity.xml:0
+msgid "Use passkey"
+msgstr ""
+
+#. module: auth_passkey
 #: model_terms:ir.ui.view,arch_db:auth_passkey.res_users_identitycheck_view_form_passkey
 msgid "Use password"
 msgstr "비밀번호 사용"
+
+#. module: auth_passkey
+#. odoo-javascript
+#: code:addons/auth_passkey/static/src/services/check_identity/check_identity.xml:0
+msgid "Use your passkey"
+msgstr ""
 
 #. module: auth_passkey
 #: model:ir.model,name:auth_passkey.model_res_users
 msgid "User"
 msgstr "사용자"
 
-#~ msgid "Created:"
-#~ msgstr "생성:"
-
-#~ msgid ""
-#~ "Passkeys are a replacement for your username and password, offering a "
-#~ "more secure way of logging in."
-#~ msgstr ""
-#~ "패스키는 사용자 아이디와 비밀번호를 대체하여 보다 안전하게 로그인할 수 있"
-#~ "는 방법입니다."
+#. module: auth_passkey
+#. odoo-javascript
+#: code:addons/auth_passkey/static/src/services/check_identity/check_identity.xml:0
+msgid "When you are ready, authenticate using the button below."
+msgstr ""

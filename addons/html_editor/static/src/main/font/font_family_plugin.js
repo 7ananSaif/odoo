@@ -1,10 +1,12 @@
+import { proxy } from "@odoo/owl";
 import { Plugin } from "@html_editor/plugin";
 import { _t } from "@web/core/l10n/translation";
 import { FontFamilySelector } from "@html_editor/main/font/font_family_selector";
-import { reactive } from "@odoo/owl";
 import { closestElement } from "../../utils/dom_traversal";
+import { removeStyle } from "@html_editor/utils/formatting";
 import { READ, withSequence } from "@html_editor/utils/resource";
 import { isHtmlContentSupported } from "@html_editor/core/selection_plugin";
+import { isStylable } from "@html_editor/utils/dom_info";
 
 export const defaultFontFamily = {
     name: "Default system font",
@@ -30,10 +32,34 @@ export const fontFamilyItems = [
 
 export class FontFamilyPlugin extends Plugin {
     static id = "fontFamily";
-    static dependencies = ["split", "selection", "dom", "format", "font"];
-    fontFamily = reactive({ displayName: defaultFontFamily.nameShort });
+    static dependencies = ["split", "selection", "dom", "format"];
+    fontFamily = proxy({ displayName: defaultFontFamily.nameShort });
     /** @type {import("plugins").EditorResources} */
     resources = {
+        format_specs: [
+            {
+                id: "fontFamily",
+                isFormatted: (node, props) => {
+                    const fontFamily = closestElement(node, (el) => el.style["font-family"])?.style[
+                        "font-family"
+                    ];
+                    return props?.fontFamily ? fontFamily === props.fontFamily : !!fontFamily;
+                },
+                hasStyle: (node) => node.style && node.style["font-family"],
+                getFormatProps: (node) => {
+                    if (node.style?.["font-family"]) {
+                        return { fontFamily: node.style["font-family"] };
+                    }
+                },
+                addStyle: (node, props) => {
+                    removeStyle(node, "font-family");
+                    if (props.fontFamily) {
+                        node.style["font-family"] = props.fontFamily;
+                    }
+                },
+                removeStyle: (node) => removeStyle(node, "font-family"),
+            },
+        ],
         toolbar_items: [
             withSequence(15, {
                 id: "font-family",
@@ -43,34 +69,42 @@ export class FontFamilyPlugin extends Plugin {
                 props: {
                     fontFamilyItems: fontFamilyItems,
                     currentFontFamily: this.fontFamily,
+                    focusEditable: () => this.dependencies.selection.focusEditable(),
                     onSelected: (item) => {
-                        this.dependencies.format.formatSelection("fontFamily", {
+                        this.dependencies.format.requestFormat("fontFamily", {
                             applyStyle: item.fontFamily !== false,
                             formatProps: item,
                         });
-                        this.fontFamily.displayName = item.nameShort;
+                        this.updateCurrentFontFamily();
                     },
                 },
+                isDisabled: (sel, nodes) => nodes.some((node) => !isStylable(node)),
                 isAvailable: (selection) =>
                     isHtmlContentSupported(selection) && (this.config.allowFontFamily ?? true),
             }),
         ],
         /** Handlers */
-        selectionchange_handlers: withSequence(READ, this.updateCurrentFontFamily.bind(this)),
-        post_undo_handlers: this.updateCurrentFontFamily.bind(this),
-        post_redo_handlers: this.updateCurrentFontFamily.bind(this),
+        on_selectionchange_handlers: withSequence(READ, this.updateCurrentFontFamily.bind(this)),
+        on_history_commit_undone_handlers: this.updateCurrentFontFamily.bind(this),
+        on_history_commit_redone_handlers: this.updateCurrentFontFamily.bind(this),
+        on_collapsed_formats_removed_handlers: this.updateCurrentFontFamily.bind(this),
     };
 
     updateCurrentFontFamily(ev) {
-        const selelectionData = this.dependencies.selection.getSelectionData();
-        if (!selelectionData.documentSelectionIsInEditable) {
-            return;
+        const pendingIntent = this.dependencies.format.getPendingIntents()["fontFamily"];
+        let currentFontFamily = pendingIntent?.applyStyle && pendingIntent.formatProps?.fontFamily;
+        if (!currentFontFamily) {
+            const selectionData = this.dependencies.selection.getSelectionData();
+            if (!selectionData.documentSelectionIsInEditable) {
+                return;
+            }
+
+            const anchorElement = closestElement(selectionData.editableSelection.anchorNode);
+            currentFontFamily = getComputedStyle(anchorElement).fontFamily;
         }
-        const anchorElement = closestElement(selelectionData.editableSelection.anchorNode);
-        const anchorElementFontFamily = getComputedStyle(anchorElement).fontFamily;
         const currentFontItem =
-            anchorElementFontFamily &&
-            fontFamilyItems.find((item) => item.fontFamily === anchorElementFontFamily);
+            currentFontFamily &&
+            fontFamilyItems.find((item) => item.fontFamily === currentFontFamily);
 
         this.fontFamily.displayName = (currentFontItem || defaultFontFamily).nameShort;
     }

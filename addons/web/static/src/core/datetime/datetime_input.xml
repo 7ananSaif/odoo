@@ -3,13 +3,15 @@
     <t t-name="web.DateTimeInput">
         <input
             type="text"
-            t-ref="start-date"
-            t-att-id="props.id"
-            class="o_datetime_input o_input cursor-pointer"
-            t-att-class="props.class"
+            t-ref="this.startDateRef"
+            t-att-id="this.props.id"
+            style="field-sizing: content;"
+            class="o_datetime_input o_input cursor-pointer user-select-none"
+            t-att-class="this.props.class"
             autocomplete="off"
-            t-att-placeholder="props.placeholder"
-            t-att-disabled="props.disabled"
+            inputmode="none"
+            t-att-placeholder="this.props.placeholder"
+            t-att-disabled="this.props.disabled"
         />
     </t>
 </templates>

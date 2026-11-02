@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 from odoo.exceptions import UserError
 from odoo.tests import tagged, users
 from odoo import fields, Command
@@ -12,12 +11,14 @@ from odoo.exceptions import UserError
 from odoo.tests import tagged, Form
 from odoo.tests.common import Like
 
-from odoo.addons.account.tests.common import AccountTestInvoicingCommon
+from odoo.addons.account.tests.common import AccountTestInvoicingWithBanksCommon
 from odoo.addons.payment.tests.common import PaymentCommon
 
 
 @tagged('post_install', '-at_install')
-class TestAccountPaymentRegister(AccountTestInvoicingCommon, PaymentCommon):
+class TestAccountPaymentRegister(AccountTestInvoicingWithBanksCommon, PaymentCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):
@@ -26,7 +27,7 @@ class TestAccountPaymentRegister(AccountTestInvoicingCommon, PaymentCommon):
         cls.current_year = fields.Date.today().year
 
         cls.other_currency = cls.setup_other_currency('EUR')
-        cls.other_currency_2 = cls.setup_other_currency('CAD', rates=[('2016-01-01', 3.0), ('2017-01-01', 0.01)])
+        cls.other_currency_2 = cls.setup_other_currency('CAD', rates=[('2015-12-31', 3.0), ('2016-12-31', 0.01)])
 
         cls.payment_debit_account_id = cls.copy_account(cls.inbound_payment_method_line.payment_account_id)
         cls.payment_credit_account_id = cls.copy_account(cls.outbound_payment_method_line.payment_account_id)
@@ -56,29 +57,6 @@ class TestAccountPaymentRegister(AccountTestInvoicingCommon, PaymentCommon):
                 Command.create({'value': 'percent', 'value_amount': 30.0, 'nb_days': 5}),
                 Command.create({'value': 'percent', 'value_amount': 60.0, 'nb_days': 10}),
             ],
-        })
-
-        cls.partner_bank_account1 = cls.env['res.partner.bank'].create({
-            'acc_number': "0123456789",
-            'partner_id': cls.partner_a.id,
-            'acc_type': 'bank',
-        })
-        cls.partner_bank_account2 = cls.env['res.partner.bank'].create({
-            'acc_number': "9876543210",
-            'partner_id': cls.partner_a.id,
-            'acc_type': 'bank',
-        })
-        cls.comp_bank_account1 = cls.env['res.partner.bank'].create({
-            'acc_number': "985632147",
-            'partner_id': cls.env.company.partner_id.id,
-            'acc_type': 'bank',
-            'allow_out_payment': True,
-        })
-        cls.comp_bank_account2 = cls.env['res.partner.bank'].create({
-            'acc_number': "741258963",
-            'partner_id': cls.env.company.partner_id.id,
-            'acc_type': 'bank',
-            'allow_out_payment': True,
         })
 
         # Customer invoices sharing the same batch.
@@ -186,6 +164,25 @@ class TestAccountPaymentRegister(AccountTestInvoicingCommon, PaymentCommon):
             ],
             'company_id': cls.branch.id,
             'company_ids': [Command.set(cls.branch.ids)],
+        })
+
+        # Commercial partner with an invoice-typed child contact, used to exercise
+        # how the wizard batches and addresses payments when bills target the child.
+        cls.commercial_partner = cls.env['res.partner'].create({
+            'name': 'Ready Mat',
+            'is_company': True,
+            'property_account_receivable_id': cls.company_data['default_account_receivable'].id,
+            'property_account_payable_id': cls.company_data['default_account_payable'].id,
+        })
+        cls.invoice_contact = cls.env['res.partner'].create({
+            'name': 'Billy Fox',
+            'type': 'invoice',
+            'parent_id': cls.commercial_partner.id,
+        })
+        cls.other_invoice_contact = cls.env['res.partner'].create({
+            'name': 'Jane Fox',
+            'type': 'invoice',
+            'parent_id': cls.commercial_partner.id,
         })
 
     @classmethod
@@ -610,12 +607,12 @@ class TestAccountPaymentRegister(AccountTestInvoicingCommon, PaymentCommon):
     def test_register_payment_multiple_batch_grouped_with_credit_note(self):
         ''' Do not batch payments if multiple partner_bank_id '''
         bank1 = self.env['res.partner.bank'].create({
-            'acc_number': 'BE43798822936101',
+            'account_number': 'BE43798822936101',
             'partner_id': self.partner_a.id,
             'allow_out_payment': True,
         })
         bank2 = self.env['res.partner.bank'].create({
-            'acc_number': 'BE85812541345906',
+            'account_number': 'BE85812541345906',
             'partner_id': self.partner_a.id,
             'allow_out_payment': True,
         })
@@ -758,9 +755,8 @@ class TestAccountPaymentRegister(AccountTestInvoicingCommon, PaymentCommon):
         '''
         partner_b = self.partner_b.copy({'property_account_position_id': False})
         partner_b_bank_account = self.env['res.partner.bank'].create({
-            'acc_number': "123454321",
+            'account_number': "123454321",
             'partner_id': partner_b.id,
-            'acc_type': 'bank',
         })
         invoice_1 = self.in_invoice_1
         invoice_2 = invoice_1.copy({
@@ -883,6 +879,26 @@ class TestAccountPaymentRegister(AccountTestInvoicingCommon, PaymentCommon):
             },
         ])
 
+    def test_cannot_register_payment_on_blocked_invoices(self):
+        blocked_invoice = self.init_invoice('out_invoice', products=self.product_a, post=True)
+        blocked_invoice.action_toggle_block_payment()
+
+        invoice_1 = self.init_invoice('out_invoice', products=self.product_a, post=True)
+        invoice_2 = self.init_invoice('out_invoice', products=self.product_a, post=True)
+
+        with self.assertRaisesRegex(UserError, "blocked invoices"):
+            blocked_invoice.action_force_register_payment()
+
+        with self.assertRaisesRegex(UserError, "blocked invoices"):
+            (blocked_invoice + invoice_1 + invoice_2).action_force_register_payment()
+
+        receivable_lines = (blocked_invoice + invoice_1 + invoice_2).line_ids.filtered(
+            lambda line: line.account_type == 'asset_receivable'
+        )
+
+        with self.assertRaisesRegex(UserError, "blocked invoices"):
+            Form.from_action(self.env, receivable_lines.action_register_payment())
+
     def test_register_payment_constraints(self):
         # Test to register a payment for an already fully reconciled journal entry.
         self.env['account.payment.register']\
@@ -898,7 +914,8 @@ class TestAccountPaymentRegister(AccountTestInvoicingCommon, PaymentCommon):
         ''' When registering a payment manually with a payment register,
         we shouldn't sent email notification automatically.
         '''
-        self.env['ir.config_parameter'].set_param('sale.automatic_invoice', True)
+        if self.env['ir.module.module']._get('sale').state == 'installed':
+            self.env.company.sale_automatic_invoice = True
         if self.env['ir.module.module']._get('payment_demo').state == 'installed':
             payment_token = self._create_token(provider_id=self._prepare_provider(code='demo').id,
                                                demo_simulated_state='done')
@@ -1213,7 +1230,6 @@ class TestAccountPaymentRegister(AccountTestInvoicingCommon, PaymentCommon):
             'code': 'cash.basis.transfer.account',
             'name': 'cash_basis_transfer_account',
             'account_type': 'income',
-            'reconcile': True,
         })
         default_tax.tax_exigibility = 'on_payment'
 
@@ -2247,3 +2263,176 @@ class TestAccountPaymentRegister(AccountTestInvoicingCommon, PaymentCommon):
 
         self.assertRecordValues(payment_a, [{'amount': 1100.0, 'partner_id': self.partner_a.id}])
         self.assertRecordValues(payment_b, [{'amount': 3000.0, 'partner_id': self.partner_b.id}])
+
+    def test_payment_from_branch_with_bank_account(self):
+        """
+        Test payment from branch company on parent company journal with a bank account
+        """
+        def assert_payment():
+            branch_invoice = self.init_invoice('out_invoice', products=self.product_a, company=self.branch)
+            branch_invoice.action_post()
+
+            with self.with_user('user_branch'):
+                wizard = (
+                    self.env['account.payment.register']
+                    .with_context({'active_ids': branch_invoice.ids, 'active_model': 'account.move'})
+                    .create({
+                        'journal_id': parent_bank_journal.id,
+                        'payment_method_line_id': parent_bank_journal.inbound_payment_method_line_ids[0].id,
+                    })
+                )
+                action = wizard.action_create_payments()
+                payment = self.env['account.payment'].browse(action['res_id'])
+                self.assertRecordValues(payment, [{
+                    'company_id': self.branch.id,
+                    'journal_id': parent_bank_journal.id,
+                    'partner_bank_id': bank_account.id,
+                }])
+
+        parent_company = self.branch.parent_id
+        bank_account = parent_company.bank_ids[0]
+        # Set a bank account without company on the journal
+        bank_account.company_id = False
+        parent_bank_journal = parent_company.bank_journal_ids[0]
+        parent_bank_journal.bank_account_id = bank_account
+        assert_payment()
+
+        # Set the parent company as company of the bank account
+        bank_account.company_id = parent_company
+        assert_payment()
+
+    def test_payment_register_groups_by_commercial(self):
+        """ Two bills for the same commercial partner are batched into a single payment
+        addressed to that commercial.
+        """
+        bills = self._create_invoice(move_type='in_invoice', partner_id=self.commercial_partner) \
+              | self._create_invoice(move_type='in_invoice', partner_id=self.commercial_partner)
+        bills.action_post()
+        payments = self._register_payment(bills)
+        self.assertEqual(len(payments), 1)
+        self.assertEqual(payments.partner_id, self.commercial_partner)
+
+    def test_payment_register_groups_by_invoice_contact(self):
+        """ Two bills whose partner_id is the same invoice contact are
+        batched into a single payment addressed to that child contact.
+        """
+        bills = self._create_invoice(move_type='in_invoice', partner_id=self.invoice_contact) \
+              | self._create_invoice(move_type='in_invoice', partner_id=self.invoice_contact)
+        bills.action_post()
+        payments = self._register_payment(bills)
+        self.assertEqual(len(payments), 1)
+        self.assertEqual(payments.partner_id, self.invoice_contact)
+        self.assertEqual(payments.commercial_partner_id, self.commercial_partner)
+
+    def test_payment_register_ungrouped_keeps_invoice_contact(self):
+        """ Two bills to the same invoice contact, paid one-by-one
+        (group_payment=False), still address each payment to the contact
+        rather than collapsing to the commercial partner.
+        """
+        bills = self._create_invoice(move_type='in_invoice', partner_id=self.invoice_contact) \
+              | self._create_invoice(move_type='in_invoice', partner_id=self.invoice_contact)
+        bills.action_post()
+        payments = self._register_payment(bills, group_payment=False)
+        self.assertEqual(len(payments), 2)
+        self.assertEqual(payments.partner_id, self.invoice_contact)
+        self.assertEqual(payments.commercial_partner_id, self.commercial_partner)
+
+    def test_payment_register_mixed_contacts_collapses_to_commercial(self):
+        """ Two bills under the same commercial but addressed to different
+        invoice contacts are batched into a single payment that falls back
+        to the commercial partner.
+        """
+        bills = self._create_invoice(move_type='in_invoice', partner_id=self.invoice_contact) \
+              | self._create_invoice(move_type='in_invoice', partner_id=self.other_invoice_contact)
+        bills.action_post()
+        payments = self._register_payment(bills)
+        self.assertEqual(len(payments), 1)
+        self.assertEqual(payments.partner_id, self.commercial_partner)
+        self.assertEqual(payments.commercial_partner_id, self.commercial_partner)
+
+    def test_payment_register_exchange_rate_precision(self):
+        """ Ensure exchange_rate on account.payment.register is not rounded to 6 decimal places,
+        avoiding precision loss when inverted in the widget (e.g., 1 / 3194.44).
+        """
+        foreign_currency = self.setup_other_currency('COP', rates=[('2019-01-01', 1 / 3194.44)])
+        invoice = self.env['account.move'].create({
+            'move_type': 'out_invoice',
+            'partner_id': self.partner_a.id,
+            'currency_id': foreign_currency.id,
+            'invoice_date': '2019-01-01',
+            'date': '2019-01-01',
+            'invoice_line_ids': [
+                Command.create({
+                    'name': 'line',
+                    'price_unit': 100.0,
+                }),
+            ],
+        })
+        invoice.action_post()
+        wizard = self.env['account.payment.register'].with_context(
+            active_model='account.move',
+            active_ids=invoice.ids,
+        ).create({})
+
+        self.assertEqual(wizard.exchange_rate, invoice.invoice_currency_rate)
+        self.assertAlmostEqual(1 / wizard.exchange_rate, 3194.44, places=2)
+
+    def test_register_payments_multi_partner_same_currency(self):
+        """ Verify registering payment for multiple vendors with identical invoice
+        currencies retains the invoice currency on the wizard.
+        """
+        in_invoice_multi_1 = self.env['account.move'].create({
+            'move_type': 'in_invoice',
+            'date': '2017-01-01',
+            'invoice_date': '2017-01-01',
+            'partner_id': self.partner_a.id,
+            'currency_id': self.other_currency.id,
+            'invoice_line_ids': [Command.create({'product_id': self.product_a.id, 'price_unit': 500.0, 'tax_ids': []})],
+        })
+        in_invoice_multi_2 = self.env['account.move'].create({
+            'move_type': 'in_invoice',
+            'date': '2017-01-01',
+            'invoice_date': '2017-01-01',
+            'partner_id': self.partner_b.id,
+            'currency_id': self.other_currency.id,
+            'invoice_line_ids': [Command.create({'product_id': self.product_a.id, 'price_unit': 800.0, 'tax_ids': []})],
+        })
+        moves = in_invoice_multi_1 | in_invoice_multi_2
+        moves.action_post()
+
+        register_wizard = self.env['account.payment.register'].with_context(
+            active_model='account.move',
+            active_ids=moves.ids,
+        ).create({})
+
+        self.assertEqual(register_wizard.currency_id, self.other_currency)
+
+    def test_register_payments_multi_partner_different_currencies(self):
+        """ Verify registering payment for multiple vendors with differing invoice
+        currencies falls back to the company currency on the wizard.
+        """
+        in_invoice_multi_1 = self.env['account.move'].create({
+            'move_type': 'in_invoice',
+            'date': '2017-01-01',
+            'invoice_date': '2017-01-01',
+            'partner_id': self.partner_a.id,
+            'currency_id': self.other_currency.id,
+            'invoice_line_ids': [Command.create({'product_id': self.product_a.id, 'price_unit': 500.0, 'tax_ids': []})],
+        })
+        in_invoice_multi_2 = self.env['account.move'].create({
+            'move_type': 'in_invoice',
+            'date': '2017-01-01',
+            'invoice_date': '2017-01-01',
+            'partner_id': self.partner_b.id,
+            'currency_id': self.company_data['currency'].id,
+            'invoice_line_ids': [Command.create({'product_id': self.product_a.id, 'price_unit': 800.0, 'tax_ids': []})],
+        })
+        moves = in_invoice_multi_1 | in_invoice_multi_2
+        moves.action_post()
+
+        register_wizard = self.env['account.payment.register'].with_context(
+            active_model='account.move',
+            active_ids=moves.ids,
+        ).create({})
+
+        self.assertEqual(register_wizard.currency_id, self.company_data['currency'])

@@ -12,6 +12,7 @@ class AccountPayment(models.Model):
         string="Payment Transaction",
         comodel_name='payment.transaction',
         readonly=True,
+        index=True,
         bypass_search_access=True,  # No access rule bypass since access to payments means access to txs too
     )
     payment_token_id = fields.Many2one(
@@ -76,7 +77,7 @@ class AccountPayment(models.Model):
                 payment.suitable_payment_token_ids = self.env['payment.token'].sudo().search([
                     *self.env['payment.token']._check_company_domain(payment.company_id),
                     ('provider_id.capture_manually', '=', False),
-                    ('partner_id', '=', payment.partner_id.id),
+                    ('partner_id', '=', payment.commercial_partner_id.id),
                     ('provider_id', '=', payment.payment_method_line_id.payment_provider_id.id),
                 ])
             else:
@@ -103,18 +104,25 @@ class AccountPayment(models.Model):
         for payment in self:
             payment.refunds_count = data.get(payment.id, 0)
 
+    @api.depends('payment_transaction_id')
+    def _compute_transaction_uuid(self):
+        super()._compute_transaction_uuid()
+        for payment in self:
+            if payment.payment_transaction_id:
+                payment.transaction_uuid = payment.payment_transaction_id.provider_reference
+
     #=== ONCHANGE METHODS ===#
 
     @api.onchange('partner_id', 'payment_method_line_id', 'journal_id')
     def _onchange_set_payment_token_id(self):
         codes = [key for key in dict(self.env['payment.provider']._fields['code']._description_selection(self.env))]
-        if not (self.payment_method_code in codes and self.partner_id and self.journal_id):
+        if not (self.payment_method_code in codes and self.commercial_partner_id and self.journal_id):
             self.payment_token_id = False
             return
 
         self.payment_token_id = self.env['payment.token'].sudo().search([
             *self.env['payment.token']._check_company_domain(self.company_id),
-            ('partner_id', '=', self.partner_id.id),
+            ('partner_id', '=', self.commercial_partner_id.id),
             ('provider_id.capture_manually', '=', False),
             ('provider_id', '=', self.payment_method_line_id.payment_provider_id.id),
          ], limit=1)  # In sudo mode to read the provider fields.
@@ -122,8 +130,9 @@ class AccountPayment(models.Model):
     #=== ACTION METHODS ===#
 
     def action_post(self):
-        # Post the payments "normally" if no transactions are needed.
-        # If not, let the provider update the state.
+        # Post the payments "normally" even if a transaction is needed; payments for failed
+        # transactions will be canceled during their post-processing.
+        res = super().action_post()
 
         payments_need_tx = self.filtered(
             lambda p: p.payment_token_id and not p.payment_transaction_id
@@ -131,22 +140,8 @@ class AccountPayment(models.Model):
         # creating the transaction require to access data on payment providers, not always accessible to users
         # able to create payments
         transactions = payments_need_tx.sudo()._create_payment_transaction()
-
-        res = super(AccountPayment, self - payments_need_tx).action_post()
-
         for tx in transactions:  # Process the transactions with a payment by token
             tx._charge_with_token()
-
-        # Post payments for issued transactions
-        transactions._post_process()
-        payments_tx_done = payments_need_tx.filtered(
-            lambda p: p.payment_transaction_id.state == 'done'
-        )
-        super(AccountPayment, payments_tx_done).action_post()
-        payments_tx_not_done = payments_need_tx.filtered(
-            lambda p: p.payment_transaction_id.state not in ('done', 'pending', 'authorized')
-        )
-        payments_tx_not_done.action_cancel()
 
         return res
 
@@ -200,12 +195,6 @@ class AccountPayment(models.Model):
 
     def _prepare_payment_transaction_vals(self, **extra_create_values):
         self.ensure_one()
-        if self.env.context.get('active_model', '') == 'account.move':
-            invoice_ids = self.env.context.get('active_ids', [])
-        elif self.env.context.get('active_model', '') == 'account.move.line':
-            invoice_ids = self.env['account.move.line'].browse(self.env.context.get('active_ids')).move_id.ids
-        else:
-            invoice_ids = []
         return {
             'provider_id': self.payment_token_id.provider_id.id,
             'payment_method_id': self.payment_token_id.payment_method_id.id,
@@ -218,7 +207,10 @@ class AccountPayment(models.Model):
             'token_id': self.payment_token_id.id,
             'operation': 'offline',
             'payment_id': self.id,
-            'invoice_ids': [Command.set(invoice_ids)],
+            **({'invoice_ids': [Command.set(self.env.context.get('active_ids', []))]}
+                if self.env.context.get('active_model') == 'account.move'
+                else {}),
+            **extra_create_values,
         }
 
     def _get_payment_refund_wizard_values(self):

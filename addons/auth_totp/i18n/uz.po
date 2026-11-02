@@ -14,15 +14,35 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-10-08 18:37+0000\n"
-"Last-Translator: \n"
-"Language-Team: \n"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-08-31 14:00+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Uzbek <https://translate.odoo.com/projects/odoo-s19-4/"
+"auth_totp/uz/>\n"
 "Language: uz\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: auth_totp
+#: model:ir.module.module,description:base.module_auth_totp
+msgid ""
+"\n"
+"Two-Factor Authentication (TOTP)\n"
+"================================\n"
+"Allows users to configure two-factor authentication on their user account\n"
+"for extra security, using time-based one-time passwords (TOTP).\n"
+"\n"
+"Once enabled, the user will need to enter a 6-digit code as provided\n"
+"by their authenticator app before being granted access to the system.\n"
+"All popular authenticator apps are supported.\n"
+"\n"
+"Note: logically, two-factor prevents password-based RPC access for users\n"
+"where it is enabled. In order to be able to execute RPC scripts, the user\n"
+"can setup API keys to replace their main password.\n"
+msgstr ""
 
 #. module: auth_totp
 #. odoo-python
@@ -45,29 +65,23 @@ msgid "2-Factor authentication is now enabled."
 msgstr "2-omilli tasdiqlash yoqildi."
 
 #. module: auth_totp
-#: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_field
 #: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_form
-#, fuzzy
 msgid ""
-"<i class=\"fa fa-check text-success\"/>\n"
-"                        <span class=\"fw-bold ms-1 me-2\">\n"
-"                            Enabled\n"
-"                        </span>"
-msgstr ""
-"<i class=\"fa fa-check text-success\"/> <span class=\"fw-bold ms-1 me-2\"> "
-"Yoqilgan </span>"
-
-#. module: auth_totp
-#: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_form
-#, fuzzy
-msgid ""
-"<i class=\"fa fa-remove text-danger\"/>\n"
+"<i class=\"oi text-danger\" data-icon=\"close\"/>\n"
 "                        <span class=\"fw-bold ms-1\">\n"
 "                            Disabled\n"
 "                        </span>"
 msgstr ""
-"<i class=\"fa fa-remove text-danger\"/> <span class=\"fw-bold ms-1\"> "
-"O‘chirilgan </span>"
+
+#. module: auth_totp
+#: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_field
+#: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_form
+msgid ""
+"<i class=\"oi text-success\" data-icon=\"check\"/>\n"
+"                        <span class=\"fw-bold ms-1 me-2\">\n"
+"                            Enabled\n"
+"                        </span>"
+msgstr ""
 
 #. module: auth_totp
 #: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_field
@@ -88,16 +102,16 @@ msgid "Add this key in your Authenticator app"
 msgstr "Bu kalitni Autentifikator ilovangizga qo‘shing"
 
 #. module: auth_totp
-#: model_terms:ir.ui.view,arch_db:auth_totp.auth_totp_form
-#, fuzzy
-msgid "Authentication Code"
-msgstr "Tasdiqlash kodi"
-
-#. module: auth_totp
 #: model:ir.model,name:auth_totp.model_auth_totp_device
 #, fuzzy
 msgid "Authentication Device"
 msgstr "Tasdiqlash qurilmasi"
+
+#. module: auth_totp
+#. odoo-javascript
+#: code:addons/auth_totp/static/src/services/check_identity/check_identity.xml:0
+msgid "Authentication code"
+msgstr ""
 
 #. module: auth_totp
 #: model_terms:ir.ui.view,arch_db:auth_totp.auth_totp_form
@@ -110,6 +124,13 @@ msgstr "Bekor qilish"
 #, fuzzy
 msgid "Cannot scan it?"
 msgstr "Skanerlash imkonsizmi?"
+
+#. module: auth_totp
+#: model_terms:ir.ui.view,arch_db:auth_totp.auth_totp_form
+msgid ""
+"Check your Authenticator app for your code.\n"
+"                        <br/>"
+msgstr ""
 
 #. module: auth_totp
 #: model:ir.model.fields.selection,name:auth_totp.selection__auth_totp_rate_limit_log__limit_type__code_check
@@ -157,15 +178,10 @@ msgid "Disable two-factor authentication"
 msgstr "Ikki omilli tasdiqlashni o‘chirish"
 
 #. module: auth_totp
-#: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_wizard
-#, fuzzy
-msgid "Discard"
-msgstr "Bekor qilish"
-
-#. module: auth_totp
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_device__display_name
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_rate_limit_log__display_name
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_wizard__display_name
+#: model:ir.model.fields,field_description:auth_totp.field_ir_http__display_name
 #: model:ir.model.fields,field_description:auth_totp.field_res_users__display_name
 #, fuzzy
 msgid "Display Name"
@@ -191,15 +207,31 @@ msgid "Enable Two-Factor Authentication"
 msgstr "Ikki omilli tasdiqlashni yoqish"
 
 #. module: auth_totp
+#: model_terms:ir.ui.view,arch_db:auth_totp.auth_totp_form
+msgid "Enter code"
+msgstr ""
+
+#. module: auth_totp
+#: model_terms:ir.ui.view,arch_db:auth_totp.auth_totp_form
+msgid "Enter verification code"
+msgstr ""
+
+#. module: auth_totp
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_device__expiration_date
 #, fuzzy
 msgid "Expiration Date"
 msgstr "Amal qilish muddati"
 
 #. module: auth_totp
+#: model:ir.model,name:auth_totp.model_ir_http
+msgid "HTTP Routing"
+msgstr ""
+
+#. module: auth_totp
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_device__id
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_rate_limit_log__id
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_wizard__id
+#: model:ir.model.fields,field_description:auth_totp.field_ir_http__id
 #: model:ir.model.fields,field_description:auth_totp.field_res_users__id
 #, fuzzy
 msgid "ID"
@@ -233,12 +265,6 @@ msgid "Last Updated on"
 msgstr "Oxirgi yangilangan sana"
 
 #. module: auth_totp
-#: model_terms:ir.ui.view,arch_db:auth_totp.auth_totp_form
-#, fuzzy
-msgid "Learn More"
-msgstr "Batafsil ma'lumot"
-
-#. module: auth_totp
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_rate_limit_log__limit_type
 #, fuzzy
 msgid "Limit Type"
@@ -249,6 +275,14 @@ msgstr "Cheklash turi"
 #, fuzzy
 msgid "Log in"
 msgstr "Kirish"
+
+#. module: auth_totp
+#. odoo-javascript
+#: code:addons/auth_totp/static/src/services/check_identity/check_identity.xml:0
+msgid ""
+"Open your two-factor authenticator (TOTP) app or browser extension to view "
+"your authentication code."
+msgstr ""
 
 #. module: auth_totp
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_wizard__qrcode
@@ -294,17 +328,6 @@ msgid "The verification code should only contain numbers"
 msgstr "Tasdiqlash kodi faqat raqamlardan iborat bo‘lishi kerak"
 
 #. module: auth_totp
-#: model_terms:ir.ui.view,arch_db:auth_totp.auth_totp_form
-#, fuzzy
-msgid ""
-"To login, enter below the six-digit authentication code provided by your "
-"Authenticator app.\n"
-"                        <br/>"
-msgstr ""
-"Kirish uchun Autentifikator ilovangiz taqdim etgan olti xonali tasdiqlash "
-"kodini quyida kiriting. <br/>"
-
-#. module: auth_totp
 #: model:ir.model.fields,field_description:auth_totp.field_res_users__totp_last_counter
 #, fuzzy
 msgid "Totp Last Counter"
@@ -323,6 +346,11 @@ msgid "Trusted Devices"
 msgstr "Ishonchli qurilmalar"
 
 #. module: auth_totp
+#: model:ir.module.module,shortdesc:base.module_auth_totp
+msgid "Two-Factor Authentication (TOTP)"
+msgstr ""
+
+#. module: auth_totp
 #. odoo-python
 #: code:addons/auth_totp/models/res_users.py:0
 #, fuzzy
@@ -330,7 +358,6 @@ msgid "Two-Factor Authentication Activation"
 msgstr "Ikki omilli tasdiqlashni faollashtirish"
 
 #. module: auth_totp
-#: model_terms:ir.ui.view,arch_db:auth_totp.auth_totp_form
 #: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_field
 #: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_form
 #, fuzzy
@@ -385,6 +412,12 @@ msgid "Url"
 msgstr "Url"
 
 #. module: auth_totp
+#. odoo-javascript
+#: code:addons/auth_totp/static/src/services/check_identity/check_identity.xml:0
+msgid "Use your authenticator app"
+msgstr ""
+
+#. module: auth_totp
 #: model:ir.model,name:auth_totp.model_res_users
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_device__user_id
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_rate_limit_log__user_id
@@ -422,10 +455,22 @@ msgstr ""
 "Tasdiqlash amalga oshmadi, iltimos eng so‘nggi 6 raqamli kodni kiriting"
 
 #. module: auth_totp
+#. odoo-javascript
+#: code:addons/auth_totp/static/src/services/check_identity/check_identity.xml:0
+msgid "Verify"
+msgstr ""
+
+#. module: auth_totp
 #: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_wizard
 #, fuzzy
 msgid "Write the code given by your app"
 msgstr "Ilovangiz tomonidan berilgan kodni kiriting"
+
+#. module: auth_totp
+#. odoo-javascript
+#: code:addons/auth_totp/static/src/services/check_identity/check_identity.xml:0
+msgid "XXXXXX"
+msgstr ""
 
 #. module: auth_totp
 #. odoo-python
@@ -449,8 +494,23 @@ msgstr ""
 "Hisobingiz uchun kod tasdiqlash urinishlari chegarasiga yetdingiz, iltimos "
 "keyinroq qayta urinib ko‘ring"
 
-#. module: auth_totp
-#: model_terms:ir.ui.view,arch_db:auth_totp.auth_totp_form
 #, fuzzy
-msgid "e.g. 123456"
-msgstr "masalan, 123456"
+#~ msgid "Authentication Code"
+#~ msgstr "Tasdiqlash kodi"
+
+#, fuzzy
+#~ msgid "Learn More"
+#~ msgstr "Batafsil ma'lumot"
+
+#, fuzzy
+#~ msgid ""
+#~ "To login, enter below the six-digit authentication code provided by your "
+#~ "Authenticator app.\n"
+#~ "                        <br/>"
+#~ msgstr ""
+#~ "Kirish uchun Autentifikator ilovangiz taqdim etgan olti xonali tasdiqlash "
+#~ "kodini quyida kiriting. <br/>"
+
+#, fuzzy
+#~ msgid "e.g. 123456"
+#~ msgstr "masalan, 123456"

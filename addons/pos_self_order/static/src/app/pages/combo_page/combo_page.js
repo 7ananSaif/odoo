@@ -1,20 +1,24 @@
-import { Component, onWillUnmount, useState, useSubEnv, useRef, onMounted } from "@odoo/owl";
+import { useSubEnv } from "@web/owl2/utils";
+import { Component, proxy, useProps, t } from "@odoo/owl";
 import { useSelfOrder } from "@pos_self_order/app/services/self_order_service";
 import { useService } from "@web/core/utils/hooks";
+import { AttributeSelectionHelper } from "@pos_self_order/app/components/attribute_selection/attribute_selection_helper";
 import { AttributeSelection } from "@pos_self_order/app/components/attribute_selection/attribute_selection";
-import { ProductNameWidget } from "@pos_self_order/app/components/product_name_widget/product_name_widget";
-import { ComboStepper } from "@pos_self_order/app/components/combo_stepper/combo_stepper";
+import { ProductCard } from "@pos_self_order/app/components/product_card/product_card";
+import { Stepper } from "@pos_self_order/app/components/combo_stepper/combo_stepper";
 import { computeTotalComboPrice } from "../../services/card_utils";
-import { useScrollShadow } from "../../utils/scroll_shadow_hook";
 import { formatProductName, shouldShowMissingDetails } from "../../utils";
+import { ProductTemplate } from "@point_of_sale/app/models/product_template";
+import { ProductInterface } from "@pos_self_order/app/components/product_interface/product_interface";
 
 export class ComboPage extends Component {
     static template = "pos_self_order.ComboPage";
-    static props = ["productTemplate"];
+    props = useProps({ productTemplate: t.instanceOf(ProductTemplate) });
     static components = {
         AttributeSelection,
-        ComboStepper,
-        ProductNameWidget,
+        Stepper,
+        ProductCard,
+        ProductInterface,
     };
 
     setup() {
@@ -25,44 +29,18 @@ export class ComboPage extends Component {
         }
         useSubEnv({ selectedValues: {} });
         this.selfOrder = useSelfOrder();
-        this.state = useState({
+        this.state = proxy({
             selectedChoiceIndex: 0,
             choices: [],
             showResume: false,
             qty: 1,
             selectedValues: this.env.selectedValues,
-            comboPrice: 0,
-            topShadowOpacity: 0,
-            bottomShadowOpacity: 1,
         });
         this.onAttributeSelection = this.onAttributeSelection.bind(this);
 
-        this.productNameRef = useRef("productName");
-        this.scrollContainerRef = useRef("scrollContainer");
-        this.scrollShadow = useScrollShadow(this.scrollContainerRef);
-
-        onMounted(() => {
-            const productNameEl = this.productNameRef.el;
-            if (productNameEl) {
-                this.observer = new IntersectionObserver(
-                    ([entry]) => {
-                        this.state.showStickyTitle = !entry.isIntersecting;
-                    },
-                    {
-                        root: null,
-                        threshold: 0,
-                    }
-                );
-                this.observer.observe(productNameEl);
-            }
-            this.resetScrollPosition();
-        });
-
-        onWillUnmount(() => {
-            if (this.observer) {
-                this.observer.unobserve(this.productNameRef.el);
-            }
-        });
+        if (history.state?.selectedCombos?.length) {
+            this.applyPreselectedCombos(history.state.selectedCombos);
+        }
     }
 
     get currentCombo() {
@@ -85,25 +63,123 @@ export class ComboPage extends Component {
     }
 
     get comboItems() {
-        return this.selectedChoice.combo_item_ids;
+        return this.selectedChoice.combo_item_ids.filter(
+            (item) => item.product_id.self_order_available
+        );
     }
 
     get currentChoiceState() {
         return (this.state.choices[this.state.selectedChoiceIndex] ??= {});
     }
 
+    getSelectionHelper(product) {
+        return (this.state.selectedValues[product.id] ??= new AttributeSelectionHelper(
+            this.selfOrder,
+            product.attribute_line_ids.filter(
+                (attribute) =>
+                    attribute.attribute_id.create_variant === "no_variant" &&
+                    attribute.product_template_value_ids.some(
+                        (value) => !this.selfOrder.kioskMode || !value.is_custom
+                    )
+            )
+        ));
+    }
+
+    getProductCardClasses(state) {
+        const classes = `combo_product_box btn btn-light position-relative d-flex
+            flex-row-reverse flex-md-column align-items-center w-100 py-2 px-3
+            p-md-0 rounded-4 shadow-sm overflow-hidden border-2 text-md-center text-start`;
+        const borderClass = state.selected ? "border-primary" : "border-transparent";
+        return [classes, borderClass].join(" ");
+    }
+
+    getAttributeByValue(product, attributeValue) {
+        return product.attribute_line_ids.find((line) =>
+            line.product_template_value_ids.some((value) => value.id === attributeValue.id)
+        );
+    }
+
+    applyPreselectedAttributeValue(product, selectionHelper, attributeValueId) {
+        const attributeValue =
+            this.selfOrder.models["product.template.attribute.value"].get(attributeValueId);
+        if (!attributeValue) {
+            return;
+        }
+        const attribute = this.getAttributeByValue(product, attributeValue);
+        if (attribute) {
+            selectionHelper.selectAttribute(attribute, attributeValue);
+        }
+    }
+
+    applyPreselectedCustomValue(product, selectionHelper, customValue) {
+        const attributeValueId = customValue.custom_product_template_attribute_value_id;
+        const attributeValue =
+            this.selfOrder.models["product.template.attribute.value"].get(attributeValueId);
+        if (!attributeValue) {
+            return;
+        }
+        const attribute = this.getAttributeByValue(product, attributeValue);
+        if (!attribute) {
+            return;
+        }
+        const customSelection = selectionHelper.getCustomValue(attribute, attributeValue);
+        if (customSelection) {
+            customSelection.custom_value = customValue.custom_value || "";
+        }
+    }
+
+    // Apply the combo choices preselected in the combo suggestion popup during an upsell flow.
+    applyPreselectedCombos(selectedCombos) {
+        for (const comboValue of selectedCombos) {
+            const comboItem = this.selfOrder.models["product.combo.item"].get(
+                comboValue.combo_item_id
+            );
+            if (!comboItem) {
+                continue;
+            }
+            const choiceIndex = this.comboChoices.findIndex(
+                (choice) => choice.id === comboItem.combo_id.id
+            );
+
+            if (choiceIndex === -1) {
+                continue;
+            }
+
+            const choiceState = (this.state.choices[choiceIndex] ??= {});
+            const selectedItems = (choiceState.selectedItems ??= {});
+            const selectedItemsOrder = (choiceState.selectedItemsOrder ??= []);
+            const itemSelection = (selectedItems[comboItem.id] ??= {
+                item: comboItem,
+                qty: 0,
+            });
+            itemSelection.item = comboItem;
+            itemSelection.qty += comboValue.qty || 1;
+            for (let i = 0; i < (comboValue.qty || 1); i++) {
+                selectedItemsOrder.push(comboItem.id);
+            }
+
+            const product = comboItem.product_id;
+            const selectionHelper = this.getSelectionHelper(product);
+            for (const attributeValueId of comboValue.configuration?.attribute_value_ids || []) {
+                this.applyPreselectedAttributeValue(product, selectionHelper, attributeValueId);
+            }
+
+            for (const customValue of Object.values(
+                comboValue.configuration?.attribute_custom_values || {}
+            )) {
+                this.applyPreselectedCustomValue(product, selectionHelper, customValue);
+            }
+        }
+    }
+
     shouldShowMissingDetails() {
         const product = this.currentChoiceState.displayAttributesOfItem?.product_id;
-        return shouldShowMissingDetails(
-            product,
-            this.state.selectedValues,
-            this.scrollContainerRef
-        );
+        return shouldShowMissingDetails(product, this.state.selectedValues);
     }
 
     selectItem(item) {
         const product = item.product_id;
-        if (!product.self_order_available) {
+        if (this.selfOrder.isProductSnoozed(product.product_tmpl_id)) {
             return;
         }
 
@@ -439,8 +515,9 @@ export class ComboPage extends Component {
         // Ensure the section below the large image is visible to minimize excessive scrolling for the user
         setTimeout(() => {
             const el = window.document.getElementById("k-combo-scroll-target");
+            const scrollContainerEl = document.getElementById("o-self-scroll-container");
             if (el) {
-                this.scrollContainerRef.el?.scrollTo({ top: el.offsetTop - 20 });
+                scrollContainerEl?.scrollTo({ top: el.offsetTop - 20 });
             }
         }, 1);
     }
@@ -511,15 +588,27 @@ export class ComboPage extends Component {
     }
 
     addToCart() {
+        const productTemplate = this.props.productTemplate;
         this.selfOrder.addToCart(
-            this.props.productTemplate,
+            productTemplate,
             this.state.qty,
             "",
             {},
             {},
             this.getComboSelection()
         );
+        this.selfOrder.applyPendingComboConversion();
+        const historyState = history.state || {};
+        if (productTemplate.pos_optional_product_ids.length && !historyState.redirectPage) {
+            this.router.navigate("optional_product", { id: productTemplate.id });
+            return;
+        }
 
+        const optionalProductQtys = historyState.state?.optionalProductQtys;
+        if (optionalProductQtys) {
+            optionalProductQtys[productTemplate.id] =
+                (optionalProductQtys[productTemplate.id] || 0) + this.state.qty;
+        }
         this.goBack();
     }
 
@@ -533,6 +622,13 @@ export class ComboPage extends Component {
     }
 
     goBack() {
+        if (this.selfOrder.pendingComboConversion) {
+            this.selfOrder.pendingComboConversion = null;
+        }
+        if (history.state?.redirectPage) {
+            const { redirectPage, params, state } = history.state;
+            return this.router.navigate(redirectPage, params, state);
+        }
         this.router.navigate("product_list");
     }
 
@@ -550,15 +646,4 @@ export class ComboPage extends Component {
     formatProductName(product) {
         return formatProductName(product);
     }
-
-    /*
-     // TODO
-     get editableProductLine() {
-        const order = this.selfOrder.currentOrder;
-        return !(
-            this.selfOrder.editedLine &&
-            this.selfOrder.editedLine.uuid &&
-            order.lastChangesSent[this.selfOrder.editedLine.uuid]
-        );
-    }*/
 }

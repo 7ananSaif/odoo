@@ -1,20 +1,27 @@
-import { BaseOptionComponent } from "@html_builder/core/utils";
-import { useState } from "@odoo/owl";
+import { BaseOptionComponent } from "@html_builder/core/base_option_component";
+import { registry } from "@web/core/registry";
+import { onWillStart, useProps, t } from "@odoo/owl";
 
 export class FooterTemplateOption extends BaseOptionComponent {
+    static id = "footer_template_option";
     static template = "website.FooterTemplateOption";
     static dependencies = ["footerOption"];
-    static selector = "#wrapwrap > footer";
-    static editableOnly = false;
-    static groups = ["website.group_website_designer"];
 
     setup() {
         super.setup();
-        this.footerTemplates = useState(this.dependencies.footerOption.getFooterTemplates());
+        onWillStart(async () => {
+            this.footerTemplates = await this.dependencies.footerOption.getFooterTemplates();
+        });
     }
 }
+registry.category("website-options").add(FooterTemplateOption.id, FooterTemplateOption);
 
 export class FooterTemplateChoice extends BaseOptionComponent {
     static template = "website.FooterTemplateChoice";
-    static props = { title: String, view: String, varName: String, imgSrc: String };
+    props = useProps({
+        title: t.string(),
+        view: t.string(),
+        varName: t.string(),
+        imgSrc: t.string(),
+    });
 }

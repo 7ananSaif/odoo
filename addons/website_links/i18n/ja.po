@@ -8,22 +8,33 @@
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
 # "Junko Augias (juau)" <juau@odoo.com>, 2025, 2026.
-# Weblate <noreply-mt-weblate@weblate.org>, 2025, 2026.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-05 19:30+0000\n"
-"PO-Revision-Date: 2026-06-13 04:39+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Japanese <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 14:01+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Japanese <https://translate.odoo.com/projects/odoo-s19-4/"
 "website_links/ja/>\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: website_links
+#: model:ir.module.module,description:base.module_website_links
+msgid ""
+"\n"
+"Generate short links with analytics trackers (UTM) to share your pages "
+"through marketing campaigns.\n"
+"Those trackers can be used in Google Analytics to track clicks and visitors, "
+"or in Odoo reports to analyze the efficiency of those campaigns in terms of "
+"lead generation, related revenues (sales orders), recruitment, etc.\n"
+msgstr ""
 
 #. module: website_links
 #. odoo-javascript
@@ -35,15 +46,31 @@ msgstr "クリック数"
 #: model_terms:ir.ui.view,arch_db:website_links.create_shorten_url
 msgid ""
 "<a class=\"copy-to-clipboard btn btn-success text-nowrap "
-"o_translate_inline\"><i class=\"fa fa-copy me-2\"/>Copy</a>"
+"o_translate_inline\"><i class=\"oi me-2\" data-icon=\"content_copy\"/>Copy</"
+"a>\n"
+"                                        <a class=\"download-qr-code btn btn-"
+"info text-nowrap o_translate_inline\"><i class=\"oi align-middle me-2\" data-"
+"icon=\"qr_code\"/>Download QR Code</a>"
 msgstr ""
 "<a class=\"copy-to-clipboard btn btn-success text-nowrap "
-"o_translate_inline\"><i class=\"fa fa-copy me-2\"/>コピー</a>"
+"o_translate_inline\"><i class=\"oi me-2\" data-icon=\"content_copy\"/>コピー"
+"</a>\n"
+"                                        <a class=\"download-qr-code btn btn-"
+"info text-nowrap o_translate_inline\"><i class=\"oi align-middle me-2\" data-"
+"icon=\"qr_code\"/>QRコードをダウンロード</a>"
 
 #. module: website_links
 #: model_terms:ir.ui.view,arch_db:website_links.graphs
-msgid "<i class=\"fa fa-copy me-2\"/>Copy"
-msgstr "<i class=\"fa fa-copy me-2\"/>コピー"
+msgid ""
+"<i class=\"oi align-middle me-2\" data-icon=\"qr_code\"/>Download QR Code"
+msgstr ""
+"<i class=\"oi align-middle me-2\" data-icon=\"qr_code\"/>QRコードをダウンロー"
+"ド"
+
+#. module: website_links
+#: model_terms:ir.ui.view,arch_db:website_links.graphs
+msgid "<i class=\"oi me-2\" data-icon=\"content_copy\"/>Copy"
+msgstr "<i class=\"oi me-2\" data-icon=\"content_copy\"/>コピー"
 
 #. module: website_links
 #: model_terms:ir.ui.view,arch_db:website_links.graphs
@@ -68,7 +95,6 @@ msgstr ""
 
 #. module: website_links
 #: model_terms:ir.ui.view,arch_db:website_links.create_shorten_url
-#, fuzzy
 msgid ""
 "<span class=\"o_website_links_short_url d-flex align-items-center text-"
 "nowrap text-truncate\" id=\"short_url\"><span id=\"short-url-host\" "
@@ -92,8 +118,8 @@ msgstr ""
 "class=\"o_website_links_ok_edit btn btn-sm btn-primary o_translate_inline\" "
 "href=\"#\"> ok</a> または\n"
 "                                           <a "
-"class=\"o_website_links_cancel_edit o_translate_inline\" href=\"#\"> "
-"キャンセル</a>\n"
+"class=\"o_website_links_cancel_edit o_translate_inline\" href=\"#\"> キャンセ"
+"ル</a>\n"
 "                                        </span>"
 
 #. module: website_links
@@ -185,6 +211,11 @@ msgid "Generate Link Tracker"
 msgstr "リンクトラッカー生成"
 
 #. module: website_links
+#: model:ir.module.module,summary:base.module_website_links
+msgid "Generate trackable & short URLs"
+msgstr ""
+
+#. module: website_links
 #: model:ir.model.fields,field_description:website_links.field_link_tracker__id
 msgid "ID"
 msgstr "ID"
@@ -213,6 +244,7 @@ msgstr "リンクをコピーしました!"
 
 #. module: website_links
 #: model:ir.model,name:website_links.model_link_tracker
+#: model:ir.module.module,shortdesc:base.module_website_links
 #: model:ir.ui.menu,name:website_links.menu_link_tracker
 #: model_terms:ir.ui.view,arch_db:website_links.graphs
 msgid "Link Tracker"
@@ -371,80 +403,3 @@ msgstr "例: LinkedIn, Facebook, リード ..."
 #: model_terms:ir.ui.view,arch_db:website_links.create_shorten_url
 msgid "e.g. https://www.odoo.com/contactus"
 msgstr "例: https://www.odoo.com/contactus"
-
-#~ msgid ""
-#~ "<span class=\"o_website_links_short_url d-flex align-items-center text-"
-#~ "nowrap text-truncate\" id=\"short_url\"><span id=\"short-url-host\" "
-#~ "class=\"text-truncate\"/><span id=\"o_website_links_code\"/></span>\n"
-#~ "                                        <span "
-#~ "class=\"o_website_links_edit_tools text-nowrap\" style=\"display:none;"
-#~ "\">\n"
-#~ "                                            <a role=\"button\" "
-#~ "class=\"o_website_links_ok_edit btn btn-sm btn-primary "
-#~ "o_translate_inline\" href=\"#\">ok</a> or\n"
-#~ "                                            <a "
-#~ "class=\"o_website_links_cancel_edit o_translate_inline\" "
-#~ "href=\"#\">cancel</a>\n"
-#~ "                                        </span>"
-#~ msgstr ""
-#~ "<span class=\"o_website_links_short_url d-flex align-items-center text-"
-#~ "nowrap text-truncate\" id=\"short_url\"><span id=\"short-url-host\" "
-#~ "class=\"text-truncate\"/><span id=\"o_website_links_code\"/></span>\n"
-#~ "                                        <span "
-#~ "class=\"o_website_links_edit_tools text-nowrap\" style=\"display:none;"
-#~ "\">\n"
-#~ "                                            <a role=\"button\" "
-#~ "class=\"o_website_links_ok_edit btn btn-sm btn-primary "
-#~ "o_translate_inline\" href=\"#\">ok</a> または\n"
-#~ "                                            <a "
-#~ "class=\"o_website_links_cancel_edit o_translate_inline\" href=\"#\">キャン"
-#~ "セル</a>\n"
-#~ "                                        </span>"
-
-#~ msgid ""
-#~ "<a class=\"copy-to-clipboard btn btn-sm btn-primary o_translate_inline\" "
-#~ "t-att-data-clipboard-text=\"short_url\"><i class=\"fa fa-copy me-2\"/"
-#~ ">Copy</a>"
-#~ msgstr ""
-#~ "<a class=\"copy-to-clipboard btn btn-sm btn-primary o_translate_inline\" "
-#~ "t-att-data-clipboard-text=\"short_url\"><i class=\"fa fa-copy me-2\"/>コ"
-#~ "ピー</a>"
-
-#~ msgid "Copied"
-#~ msgstr "複製対象"
-
-#~ msgid "Generating link..."
-#~ msgstr "リンクを生成中..."
-
-#~ msgid "Icon"
-#~ msgstr "アイコン"
-
-#~ msgid "Most Clicked"
-#~ msgstr "最多クリックされている"
-
-#~ msgid "Recently Used"
-#~ msgstr "最近利用された"
-
-#~ msgid "Stats"
-#~ msgstr "統計"
-
-#~ msgid "URL"
-#~ msgstr "URL"
-
-#~ msgid "Unable to get recent links"
-#~ msgstr "最近のリンクを取得できません"
-
-#~ msgid "You don't have any recent links."
-#~ msgstr "最近のリンクはありません。"
-
-#~ msgid "cancel"
-#~ msgstr "取消"
-
-#~ msgid "copy"
-#~ msgstr "コピー"
-
-#~ msgid "ok"
-#~ msgstr "ok"
-
-#~ msgid "or"
-#~ msgstr "または"

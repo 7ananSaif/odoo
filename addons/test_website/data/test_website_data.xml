@@ -2,14 +2,6 @@
 <odoo>
     <data noupdate="1">
 
-        <record id="test_model_publish" model="ir.rule">
-            <field name="name">Public user: read only website published</field>
-            <field name="model_id" ref="test_website.model_test_model"/>
-            <field name="groups" eval="[(4, ref('base.group_public'))]"/>
-            <field name="domain_force">[('website_published','=', True)]</field>
-            <field name="perm_read" eval="True"/>
-        </record>
-
         <!-- SOME DEFAULT TEST.MODEL RECORDS WITH DIFFERENT WEBSITE_ID -->
         <record id="test_tag_generic" model="test.tag">
             <field name="name">Test Tag</field>
@@ -34,7 +26,7 @@
         </record>
         <record id="test_model_multi_website_1" model="test.model.multi.website">
             <field name="name">Test Multi Model Website 1</field>
-            <field name="website_id" ref="website.default_website"/>
+            <field name="website_id" ref="base.default_website"/>
         </record>
 
         <!-- RECORDS FOR RESET VIEWS TESTS -->
@@ -42,8 +34,9 @@
             <field name="name">Test View</field>
             <field name="type">qweb</field>
             <field name="key">test_website.test_view</field>
+            <field name="priority">29</field>
             <field name="arch" type="xml">
-                <t name="Test View" priority="29" t-name="test_website.test_view">
+                <t name="Test View" t-name="test_website.test_view">
                     <t t-call="website.layout">
                         <p>Test View</p>
                         <p>placeholder</p>
@@ -55,8 +48,9 @@
             <field name="name">Test Page View</field>
             <field name="type">qweb</field>
             <field name="key">test_website.test_page_view</field>
+            <field name="priority">29</field>
             <field name="arch" type="xml">
-                <t name="Test Page View" priority="29" t-name="test_website.test_page_view">
+                <t name="Test Page View" t-name="test_website.test_page_view">
                     <t t-call="website.layout">
                         <div id="oe_structure_test_website_page" class="oe_structure oe_empty"/>
                         <p>Test Page View</p>
@@ -111,8 +105,9 @@
             <field name="name">Test View To Be t-called</field>
             <field name="type">qweb</field>
             <field name="key">test_website.test_view_to_be_t_called</field>
+            <field name="priority">29</field>
             <field name="arch" type="xml">
-                <t name="Test View To Be t-called" priority="29" t-name="test_website.test_view_to_be_t_called">
+                <t name="Test View To Be t-called" t-name="test_website.test_view_to_be_t_called">
                     <p>Test View To Be t-called</p>
                     <p>placeholder</p>
                 </t>
@@ -136,9 +131,9 @@
         <!-- RECORDS FOR REDIRECT TESTS -->
         <template id="test_redirect_view">
             <t t-out="country.name"/>
-            <t t-if="not request.env.user._is_public()" t-out="'Logged In'"/>
+            <t t-if="not env.user._is_public()" t-out="'Logged In'"/>
             <!-- `href` is send through `url_for` for non editor users -->
-            <a href="/test_website/country/andorra-1">I am a link</a>
+            <a t-attf-href="/test_website/country/andorra-{{ env.ref('base.ad').id }}">I am a link</a>
         </template>
         <template id="test_redirect_view_qs">
             <a href="/empty_controller_test?a=a">Home</a>

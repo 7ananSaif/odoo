@@ -3,19 +3,19 @@ import { ProductPricelistItem } from "@point_of_sale/../tests/unit/data/product_
 ProductPricelistItem._records = [
     ...ProductPricelistItem._records,
     {
-        id: 3,
+        id: 101,
         fixed_price: 15.0,
         compute_price: "fixed",
-        pricelist_id: 4,
-        product_tmpl_id: 19,
-        product_id: 19,
+        pricelist_id: 101,
+        product_tmpl_id: 101,
+        product_id: 101,
     },
     {
-        id: 4,
+        id: 102,
         fixed_price: 20.0,
         compute_price: "fixed",
-        pricelist_id: 4,
-        product_tmpl_id: 19,
-        product_id: 20,
+        pricelist_id: 101,
+        product_tmpl_id: 101,
+        product_id: 102,
     },
 ];

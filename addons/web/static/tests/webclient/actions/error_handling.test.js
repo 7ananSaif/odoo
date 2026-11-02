@@ -1,3 +1,4 @@
+import { render } from "@web/owl2/utils";
 import { expect, test } from "@odoo/hoot";
 import { queryAllTexts } from "@odoo/hoot-dom";
 import { animationFrame, mockFetch, runAllTimers } from "@odoo/hoot-mock";
@@ -16,6 +17,7 @@ import {
     webModels,
 } from "@web/../tests/web_test_helpers";
 
+import { Dialog } from "@web/core/dialog/dialog";
 import { registry } from "@web/core/registry";
 import { BooleanField } from "@web/views/fields/boolean/boolean_field";
 import { FormController } from "@web/views/form/form_controller";
@@ -63,8 +65,7 @@ defineActions([
 test("error in a client action (at rendering)", async () => {
     expect.assertions(9);
     class Boom extends Component {
-        static template = xml`<div><t t-esc="a.b.c"/></div>`;
-        static props = ["*"];
+        static template = xml`<div><t t-out="this.a.b.c"/></div>`;
     }
     actionRegistry.add("Boom", Boom);
     onRpc("web_search_read", () => {
@@ -81,7 +82,7 @@ test("error in a client action (at rendering)", async () => {
     try {
         await getService("action").doAction("Boom");
     } catch (e) {
-        expect(e.cause).toBeInstanceOf(TypeError);
+        expect(e).toBeInstanceOf(TypeError);
     }
     await animationFrame();
     expect(".o_kanban_view").toHaveCount(1);
@@ -90,16 +91,37 @@ test("error in a client action (at rendering)", async () => {
     expect.verifySteps(["web_search_read"]);
 });
 
+test("dialog opened while an action fails is not closed", async () => {
+    class CustomDialog extends Component {
+        static components = { Dialog };
+        static template = xml`<Dialog title="'Access Error'">content</Dialog>`;
+    }
+    class Boom extends Component {
+        static template = xml`<div><t t-out="this.a.b.c"/></div>`;
+    }
+    actionRegistry.add("Boom", Boom);
+
+    await mountWithCleanup(WebClient);
+    await getService("action").doAction(1);
+    expect(".o_kanban_view").toHaveCount(1);
+
+    await getService("action")
+        .doAction("Boom")
+        .catch(() => getService("dialog").add(CustomDialog));
+    await animationFrame();
+    expect(".o_dialog").toHaveCount(1);
+    expect(".o_kanban_view").toHaveCount(1);
+});
+
 test("error in a client action (after the first rendering)", async () => {
     expect.errors(1);
 
     class Boom extends Component {
         static template = xml`
             <div>
-                <t t-if="boom" t-esc="a.b.c"/>
-                <button t-else="" class="my_button" t-on-click="onClick">Click Me</button>
+                <t t-if="this.boom" t-out="this.a.b.c"/>
+                <button t-else="" class="my_button" t-on-click="this.onClick">Click Me</button>
             </div>`;
-        static props = ["*"];
         setup() {
             this.boom = false;
         }
@@ -109,7 +131,7 @@ test("error in a client action (after the first rendering)", async () => {
         }
         onClick() {
             this.boom = true;
-            this.render();
+            render(this);
         }
     }
     actionRegistry.add("Boom", Boom);
@@ -145,8 +167,6 @@ test("connection lost when opening form view from kanban", async () => {
     });
     await contains(".o_kanban_record").click();
     expect(".o_kanban_view").toHaveCount(1);
-    expect(".o_notification").toHaveCount(1);
-    expect(".o_notification").toHaveText("Connection lost. Trying to reconnect...");
     expect.verifySteps([
         "/web/webclient/translations",
         "/web/webclient/load_menus",
@@ -204,8 +224,6 @@ test("connection lost when coming back to kanban from form", async () => {
     expect(".o_kanban_view").toHaveCount(1);
     expect(".o_kanban_view .o_kanban_renderer").toHaveCount(1);
     expect(".o_kanban_view .o_kanban_record:not(.o_kanban_ghost)").toHaveCount(2);
-    expect(".o_notification").toHaveCount(1);
-    expect(".o_notification").toHaveText("Connection lost. Trying to reconnect...");
     expect.verifySteps([
         "/web/webclient/load_menus",
         "/web/action/load",

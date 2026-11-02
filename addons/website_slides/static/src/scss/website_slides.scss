@@ -12,27 +12,13 @@ $o-wslides-color-dark2: #1f262d;
 $o-wslides-color-dark3: #101216;
 $o-wslides-fs-side-width: 300px;
 
-// Truncate text descriptions to a specific number of lines.
-// If '-webkit-line-clamp' is not supported, a less effective
-// 'line-height' fallback will be used instead.
-$truncate-limits: 2, 3, 10;
-$line-height-truncate: 1.5em;
-
-@each $limit in $truncate-limits {
-    .o_wslides_desc_truncate_#{$limit} {
-        max-height: $limit * $line-height-truncate;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: normal;
-        line-height: $line-height-truncate;
-        display: -webkit-box;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: $limit;
-    }
-    .o_wslides_desc_truncate_#{$limit}_badges {
-        @extend .o_wslides_desc_truncate_#{$limit};
-        max-height: $limit * $line-height-truncate * 1.2;
-    }
+:root {
+    // Border color
+    // Let borders color adapt according to body and CCs. Also, set a fallback
+    // value for browsers that don't support the color-mix function (used by
+    // 'fade-currentColor').
+    --o-border-color: #{o-color('300')};
+    --o-border-color: #{fade-currentColor()};
 }
 
 // Common to new slides pages
@@ -54,7 +40,7 @@ $line-height-truncate: 1.5em;
     .o_wslides_js_slide_like_down {
         user-select: none;
         min-width: 2rem;
-        > i.fa {
+        > i.oi {
             min-width: 1rem;
         }
         &:not(.disabled) {
@@ -88,7 +74,7 @@ $line-height-truncate: 1.5em;
         .list-group-item  {
             @include font-size(1rem);
 
-            input:checked + i.fa-circle {
+            input:checked + i[data-icon="circle"] {
                 color: $primary !important;
             }
         }
@@ -105,7 +91,7 @@ $line-height-truncate: 1.5em;
 
     a.o_wslides_js_quiz_is_correct {
         color: black;
-        input:checked + i.fa-check-circle-o {
+        input:checked + i[data-icon="check_circle"]:not(.oi-filled) {
             color: $success !important;
         }
     }
@@ -175,73 +161,6 @@ $line-height-truncate: 1.5em;
         margin-left: auto;
         margin-right: auto;
     }
-
-    // Temporary workaround addresses a scenario where the user might add a link
-    // in the description. Since a card is enclosed within an `<a>` tag, inserting
-    // another `<a>` tag inside would disrupt the HTML   structure, leading to a
-    // broken layout. The following rules adapt that said broken layout to visually
-    // resemble a card.
-
-    // TODO: Address the issue on master by wrapping in `<a>` tag only the image
-    div:has(> .card + .card-body) {
-        --card-cap-padding-x: #{$card-cap-padding-x};
-        --card-cap-padding-y: #{$card-cap-padding-y};
-        --card-spacer-x: #{$card-spacer-x};
-        --card-spacer-y: #{$card-spacer-y};
-        --card-cap-bg: #{$card-cap-bg};
-        --card-border-width: #{$card-border-width};
-        --card-border-color: #{$card-border-color};
-        --card-inner-border-radius: #{$card-inner-border-radius};
-
-        flex-direction: column;
-
-        // Link wrapping the course cover
-        > .o_wslides_course_card {
-            --card-border-radius: #{$card-border-radius} #{$card-border-radius} 0 0;
-
-            height: auto !important;
-            border-bottom: 0;
-        }
-
-        // Links in the description field
-        .card-text .o_wslides_course_card {
-            display: inline;
-            border: 0;
-        }
-
-        .card-body {
-            border-width: 0 var(--card-border-width) 0 var(--card-border-width) !important;
-
-            // Link wrapping the course title + unpublished badge
-            & > .o_wslides_course_card {
-                display: inline;
-                border: 0;
-                height: auto !important;
-            }
-
-            // Restore card-body/card-footer properties as they're not in a .card anymore
-            &, & + .card-footer {
-                border: var(--card-border-width) solid var(--card-border-color);
-            }
-
-            // Hide empty links rendered above/inside the description field
-            // except those wrapped in a <p> tag
-            .card-text {
-                > .o_wslides_course_card, .o_wslides_course_card:empty {
-                    display: none;
-                }
-            }
-        }
-    }
-}
-
-// Courses Card
-// **************************************************
-// Move the opacity to the container to ensure opacity is applied even if the card
-// is not wrapped in a <a> tag
-
-div:has(> .o_wslides_course_unpublished + .card-body, > .o_wslides_course_unpublished > .card-body) {
-    opacity: 0.5;
 }
 
 // New course page
@@ -255,16 +174,16 @@ div:has(> .o_wslides_course_unpublished + .card-body, > .o_wslides_course_unpubl
     }
 
     .o_wslides_js_channel_unsubscribe {
-        > .fa-times {
+        > [data-icon="close"] {
             display: none;
         }
 
         &:hover {
-            > .fa-check {
+            > [data-icon="check"] {
                 display: none;
             }
 
-            > .fa-times {
+            > [data-icon="close"] {
                 display: inline-block;
             }
         }
@@ -324,22 +243,6 @@ div:has(> .o_wslides_course_unpublished + .card-body, > .o_wslides_course_unpubl
 .o_wslides_course_nav {
     @include o-position-absolute(0,0,auto,0);
     border-width: 1px 0;
-
-    &, .o_wslides_course_nav_search {
-        background-color: rgba(white, 0.05);
-        border-color: rgba(white, 0.1);
-        border-style: solid;
-    }
-
-    .o_wslides_course_nav_search {
-        border-width: 0 1px;
-
-        button, button:hover, input, input::placeholder {
-            // Resolves into the color chosen for slide channel description through cover customization
-            color: inherit;
-            opacity: 0.8;
-        }
-    }
 
     .breadcrumb-item {
         --max-lines: 2;
@@ -546,7 +449,7 @@ div:has(> .o_wslides_course_unpublished + .card-body, > .o_wslides_course_unpubl
 
         .o_wslides_lesson_aside_list_links i {
             padding-right: 10px;
-            &.fa-flag {
+            &[data-icon="flag"] {
                 padding-right: 6px;
             }
         }
@@ -609,10 +512,10 @@ div:has(> .o_wslides_course_unpublished + .card-body, > .o_wslides_course_unpubl
 }
 
 .o_wslides_fs_sidebar_section {
-    a[aria-expanded="true"] i.fa-caret-left{
+    a[aria-expanded="true"] i[data-icon="arrow_left"]{
         display: none;
     }
-    a[aria-expanded="false"] i.fa-caret-down{
+    a[aria-expanded="false"] i[data-icon="arrow_drop_down"]{
         display: none;
     }
 }

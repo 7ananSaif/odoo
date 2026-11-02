@@ -2,6 +2,31 @@
 <odoo>
     <data>
 
+        <record id="res_config_settings_view_form_sfu_client_source" model="ir.ui.view">
+            <field name="name">res.config.settings.view.form.sfu.client.source</field>
+            <field name="model">res.config.settings</field>
+            <field name="arch" type="xml">
+                <form string="SFU Client Bundle">
+                    <field
+                        name="sfu_client_source"
+                        widget="code"
+                        options="{'mode': 'javascript'}"
+                        nolabel="1"
+                        required="1"
+                    />
+                    <footer>
+                        <button
+                            name="action_save_sfu_client_asset"
+                            type="object"
+                            string="Save"
+                            class="btn-primary"
+                        />
+                        <button string="Discard" special="cancel" class="btn-secondary"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
         <record id="res_config_settings_view_form" model="ir.ui.view">
             <field name="name">res.config.settings.view.form.inherit.mail</field>
             <field name="model">res.config.settings</field>
@@ -16,12 +41,12 @@
                                     <div class="mt8">
                                         <button type="action"
                                         name="%(action_email_server_tree)d"
-                                        string="Incoming Email Servers" icon="oi-arrow-right" class="btn-link"/>
+                                        string="Incoming Email Servers" icon="east" class="btn-link"/>
                                     </div>
                                     <div class="mt8">
                                         <button type="action"
                                         name="%(base.action_ir_mail_server_list)d"
-                                        string="Outgoing Email Servers" icon="oi-arrow-right" class="btn-link"/>
+                                        string="Outgoing Email Servers" icon="east" class="btn-link"/>
                                     </div>
                                 </div>
                             </div>
@@ -59,55 +84,95 @@
                             <field name="restrict_template_rendering"/>
                         </setting>
                     </block>
-                    <block title="Discuss" id="discuss">
-                        <setting id="activities_setting" string="Activities" help="Configure your activity types">
-                            <div class="content-group">
-                                <div class="mt8">
-                                    <button name="%(mail.mail_activity_type_action)d" string="Activity Types" type="action" class="oe_link" icon="oi-arrow-right"/>
+                    <div id="discuss_setting">
+                        <block title="Discuss" id="discuss">
+                            <setting id="activities_setting" string="Activities" help="Set up activity types and use activity plans to assign multiple activities">
+                                <div class="content-group">
+                                    <div class="mt8">
+                                        <button name="%(mail.mail_activity_type_action)d" string="Activity Types" type="action" class="oe_link" icon="east"/>
+                                    </div>
+                                    <div class="mt8">
+                                        <button name="%(mail.mail_activity_plan_action)d" string="Activity Plans" type="action" class="oe_link" icon="east"/>
+                                    </div>
+                                    <div class="mt8">
+                                        <button name="%(mail.res_role_action)d" string="Roles" type="action" class="btn-link" icon="east"/>
+                                    </div>
                                 </div>
-                            </div>
-                        </setting>
-                        <setting string="Custom ICE Server with Twilio"
-                                 help="Set up your own server for small group calls using peer-to-peer connections"
-                                 documentation="https://www.odoo.com/documentation/latest/applications/productivity/discuss/ice_servers.html">
-                            <field name="use_twilio_rtc_servers"/>
-                            <div class="content-group" invisible="not use_twilio_rtc_servers">
-                                <div class="row mt16" id="mail_twilio_sid">
-                                    <label for="twilio_account_sid" class="col-lg-3"/>
-                                    <field name="twilio_account_sid" string="Account SID" placeholder="e.g. ACd5543a0b450ar4c7t95f1b6e8a39t543"/>
+                            </setting>
+                            <setting id="tenor_api_key" string="Send GIFs" help="Share GIFs in your conversations using the Klipy API." documentation="https://docs.klipy.com/getting-started">
+                                <field name="use_tenor_api"/>
+                                <label for="tenor_api_key" string="API Key" invisible="not use_tenor_api" class="col-lg-2 o_light_label me-2"/>
+                                <field name="tenor_api_key" invisible="not use_tenor_api" placeholder="e.g. AIabCd5543a0b450ar4c7t95f1b6e8" required="1"/>
+                            </setting>
+                            <setting id="message_translation_setting" string="Translate Messages" help="Translate customer messages using the Google Translate API" documentation="https://cloud.google.com/translate/docs/setup">
+                                <field name="use_google_translate_api"/>
+                                <label for="google_translate_api_key" string="API Key" invisible="not use_google_translate_api" class="col-lg-2 o_light_label me-2"/>
+                                <field name="google_translate_api_key" invisible="not use_google_translate_api" placeholder="e.g. ACzb1d3455b0aar4c7t95f1b6e8" required="1"/>
+                            </setting>
+                            <setting string="Custom Call Servers" help="Use your own SFU or ICE servers for video calls">
+                                <field name="use_call_server"/>
+                            </setting>
+                            <setting
+                                string="Custom ICE Servers"
+                                help="Use your own servers for calls to manage heavy traffic and ensure reliability if Twilio is unavailable"
+                                documentation="/applications/productivity/discuss/ice_servers.html#define-a-list-of-custom-ice-servers"
+                                invisible="not use_call_server"
+                            >
+                                <div class="content-group">
+                                    <button type="action" name="%(mail.action_ice_servers)d" string="Configure ICE Servers" icon="east" class="btn-link"/>
                                 </div>
-                                <div class="row mt16" id="mail_twilio_auth_token">
-                                    <label for="twilio_account_token" class="col-lg-3"/>
-                                    <field name="twilio_account_token" string="Account Auth Token" placeholder="e.g. 65ea4f9e948b693N5156F350256bd152"/>
+                            </setting>
+                            <setting string="Custom SFU Server" help="Set up your own server for large group calls by routing connections centrally" invisible="not use_call_server">
+                                <field name="use_sfu_server"/>
+                                <div class="content-group" invisible="not use_sfu_server">
+                                    <div class="row mt16">
+                                        <label for="sfu_server_url" string="URL" class="col-lg-3 o_light_label"/>
+                                        <field name="sfu_server_url"/>
+                                    </div>
+                                    <div class="row mt16">
+                                        <label for="sfu_server_key" string="Key" class="col-lg-3 o_light_label"/>
+                                        <field name="sfu_server_key"/>
+                                    </div>
                                 </div>
-                            </div>
-                        </setting>
-                        <setting string="Custom SFU Server" help="Set up your own server for large group calls by routing connections centrally">
-                            <field name="use_sfu_server"/>
-                            <div class="content-group" invisible="not use_sfu_server">
-                                <div class="row mt16">
-                                    <label for="sfu_server_url" string="URL" class="col-lg-3"/>
-                                    <field name="sfu_server_url"/>
+                            </setting>
+                            <setting
+                                string="Custom SFU Bundle"
+                                help="Replace the default SFU client bundle, it should be compatible with the SFU server you are using"
+                                groups="base.group_no_one"
+                                invisible="not use_call_server or not use_sfu_server"
+                            >
+                                <field name="use_custom_sfu_client"/>
+                                <div class="content-group" invisible="not use_custom_sfu_client">
+                                    <button
+                                        name="action_open_sfu_client_source"
+                                        type="object"
+                                        string="Edit Client Bundle"
+                                        icon="east"
+                                        class="btn-link"
+                                        noSaveDialog="true"
+                                    />
                                 </div>
-                                <div class="row mt16">
-                                    <label for="sfu_server_key" string="Key" class="col-lg-3"/>
-                                    <field name="sfu_server_key"/>
+                            </setting>
+                            <setting
+                                string="Custom ICE Server with Twilio"
+                                help="Set up your own server for small group calls using peer-to-peer connections"
+                                documentation="/applications/productivity/discuss/ice_servers.html"
+                                invisible="not use_call_server"
+                            >
+                                <field name="use_twilio_rtc_servers"/>
+                                <div class="content-group" invisible="not use_twilio_rtc_servers">
+                                    <div class="row mt16" id="mail_twilio_sid">
+                                        <label for="twilio_account_sid" class="col-lg-3 o_light_label"/>
+                                        <field name="twilio_account_sid" string="SID" placeholder="e.g. ACd5543a0b450ar4c7t95f1b6e8a39t543"/>
+                                    </div>
+                                    <div class="row mt16" id="mail_twilio_auth_token">
+                                        <label for="twilio_account_token" class="col-lg-3 o_light_label"/>
+                                        <field name="twilio_account_token" string="Token" placeholder="e.g. 65ea4f9e948b693N5156F350256bd152"/>
+                                    </div>
                                 </div>
-                            </div>
-                        </setting>
-                        <setting string="Custom ICE Servers" help="Use your own servers for calls to manage heavy traffic and ensure reliability if Twilio is unavailable"
-                                 documentation="https://www.odoo.com/documentation/latest/applications/productivity/discuss/ice_servers.html#define-a-list-of-custom-ice-servers">
-                                 <div class="content-group">
-                                        <button type="action" name="%(mail.action_ice_servers)d" string="Configure ICE Servers" icon="oi-arrow-right" class="btn-link"/>
-                                 </div>
-                        </setting>
-                        <setting id="tenor_api_key" string="Klipy GIF API key" help="Add a Klipy GIF API key to enable GIFs support. If you were using a Tenor GIF API key (service shutdown on June 30, 2026), please replace it here with a Klipy GIF API key" documentation="https://docs.klipy.com/getting-started">
-                            <field name="tenor_api_key" placeholder="Paste your API key"/>
-                        </setting>
-                        <setting string="Message Translation" help="Google Translate Integration" id="message_translation_setting" documentation="https://cloud.google.com/translate/docs/setup">
-                            <field name="google_translate_api_key" placeholder="Paste your API key"/>
-                        </setting>
-                    </block>
+                            </setting>
+                        </block>
+                    </div>
                 </div>
                 <setting id="document_layout_setting" position="after">
                     <setting string="Email Templates" help="Customize the look and feel of automated emails" id="mail_templates_setting" groups="mail.group_mail_template_editor,base.group_system" company_dependent="1">
@@ -119,11 +184,11 @@
                             <span class="d-block w-75 py-2">Button Color</span>
                             <field name="email_secondary_color" class="d-block w-25 p-0 m-0" widget="color"/>
                         </div>
-                        <button name="open_email_layout" icon="oi-arrow-right"
+                        <button name="open_email_layout" icon="east"
                             type="object" string="Update Mail Layout"
                             groups="base.group_no_one" class="btn-link"/>
                         <br groups="base.group_no_one"/>
-                        <button name="open_mail_templates" icon="oi-arrow-right" type="object" string="Review All Templates" class="btn-link"/>
+                        <button name="open_mail_templates" icon="east" type="object" string="Review All Templates" class="btn-link"/>
                     </setting>
                 </setting>
             </field>

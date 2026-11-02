@@ -20,10 +20,26 @@
             <field name="model">account.move</field>
             <field name="inherit_id" ref="account.view_account_invoice_filter"/>
             <field name="arch" type="xml">
+                <xpath expr="//search" position="inside">
+                    <field name="l10n_es_edi_verifactu_state"/>
+                </xpath>
                 <xpath expr="//filter[@name='status']" position="inside">
                     <filter string="Veri*Factu State"
                             name="l10n_es_edi_verifactu_state"
                             context="{'group_by': 'l10n_es_edi_verifactu_state'}"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_account_move_filter_vf_rejected" model="ir.ui.view">
+            <field name="name">account.invoice.vf.select</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_account_invoice_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//filter[@name='late']" position="after">
+                    <filter string="Veri*Factu Error(s)"
+                            name="l10n_es_edi_verifactu_state_rejected"
+                            domain="[('l10n_es_edi_verifactu_state', 'in', ('rejected', 'invalid'))]"/>
                 </xpath>
             </field>
         </record>
@@ -79,12 +95,11 @@
                         <field class="d-inline-block" name="l10n_es_edi_verifactu_warning"/>
                     </div>
                 </xpath>
-                <xpath expr="//button[@name='button_cancel']" position="after">
-                    <button name="l10n_es_edi_verifactu_button_cancel"
-                            string="Request Veri*Factu Cancellation"
-                            type="object"
-                            groups="account.group_account_invoice"
-                            invisible="not l10n_es_edi_verifactu_show_cancel_button"/>
+                <xpath expr="//field[@name='l10n_es_regime_code']" position="attributes">
+                    <attribute name="invisible" separator="or" add="l10n_es_edi_verifactu_required" />
+                </xpath>
+                <xpath expr="//field[@name='l10n_es_regime_code_additional']" position="attributes">
+                    <attribute name="invisible" separator="or" add="l10n_es_edi_verifactu_required" />
                 </xpath>
                 <xpath expr="//notebook" position="inside">
                     <page
@@ -93,16 +108,8 @@
                         invisible="not l10n_es_edi_verifactu_required and not l10n_es_edi_verifactu_document_ids"
                     >
                         <group>
-                            <field name="l10n_es_edi_verifactu_refund_reason"
-                                   invisible="move_type == 'out_invoice' and not l10n_es_edi_verifactu_substituted_entry_id"
-                                   readonly="state != 'draft'"/>
                             <field name="l10n_es_edi_verifactu_substituted_entry_id" invisible="not l10n_es_edi_verifactu_substituted_entry_id"/>
                             <field name="reversed_entry_id" invisible="not reversed_entry_id"/>
-                            <field name="l10n_es_edi_verifactu_available_clave_regimens" invisible="1"/> <!--needed for the dynamic_selection widget-->
-                            <field name="l10n_es_edi_verifactu_clave_regimen"
-                                   readonly="state != 'draft'"
-                                   widget="dynamic_selection"
-                                   options="{'available_field': 'l10n_es_edi_verifactu_available_clave_regimens'}"/>
                             <field name="l10n_es_edi_verifactu_state"
                                    invisible="not l10n_es_edi_verifactu_required and not l10n_es_edi_verifactu_state"/>
                         </group>
@@ -118,11 +125,28 @@
                                            decoration-danger="state not in ('accepted', 'registered_with_errors')"
                                            decoration-warning="state == 'registered_with_errors'"
                                            decoration-success="state == 'accepted'"/>
+                                    <button name="action_download_xml"
+                                        class="btn btn-primary"
+                                        string="Download XML"
+                                        type="object"
+                                        invisible="not json_attachment_id"/>
                                 </list>
                             </field>
                         </group>
                     </page>
                 </xpath>
+            </field>
+        </record>
+
+        <record model="ir.actions.server" id="action_l10n_es_edi_verifactu_button_cancel">
+            <field name="name">Request Veri*Factu Cancellation</field>
+            <field name="model_id" ref="l10n_es_edi_verifactu.model_account_move"/>
+            <field name="group_ids" eval="[Command.link(ref('account.group_account_invoice'))]"/>
+            <field name="binding_model_id" ref="l10n_es_edi_verifactu.model_account_move" />
+            <field name="state">code</field>
+            <field name="binding_view_types">form</field>
+            <field name="code">
+                record.l10n_es_edi_verifactu_button_cancel()
             </field>
         </record>
     </data>

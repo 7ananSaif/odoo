@@ -1,6 +1,6 @@
-import { Discuss } from "@mail/core/public_web/discuss";
+import { Discuss } from "@mail/core/public_web/discuss_app/discuss_app";
 
-import { onWillStart, onWillUpdateProps, useEffect, useState } from "@odoo/owl";
+import { asyncComputed, proxy, useOnChange } from "@odoo/owl";
 
 import { useService } from "@web/core/utils/hooks";
 import { FormRenderer } from "@web/views/form/form_renderer";
@@ -14,36 +14,20 @@ export class LivechatSessionFormRenderer extends FormRenderer {
 
     setup() {
         super.setup();
-        this.store = useState(useService("mail.store"));
-        useEffect(
-            (thread) => {
-                if (thread) {
-                    thread.shadowedBySelf++;
-                    return () => thread.shadowedBySelf--;
-                }
-            },
-            () => [this.thread]
+        this.store = proxy(useService("mail.store"));
+        this.channel = asyncComputed(() =>
+            this.store["discuss.channel"].getOrFetch(this.props.record.resId)
         );
-        onWillStart(() => this.getChannel(this.props));
-        onWillUpdateProps(async (nextProps) => {
-            if (nextProps.record.resId === this.props.record.resId) {
-                return;
+        useOnChange(
+            () => [this.channel()],
+            (channel) => {
+                if (!channel) {
+                    return;
+                }
+                channel.shadowedBySelf++;
+                return () => channel.shadowedBySelf--;
             }
-            await this.getChannel(nextProps);
-        });
-    }
-
-    /**
-     * Restore the discuss thread according to record id in the props if
-     * necessary.
-     *
-     * @param {Props} props
-     */
-    async getChannel(props) {
-        this.thread = await this.store.Thread.getOrFetch({
-            model: "discuss.channel",
-            id: props.record.resId,
-        });
+        );
     }
 
     redirectToSessions() {

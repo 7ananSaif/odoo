@@ -37,6 +37,13 @@
     .form-select + .o_select_menu_caret {
         display: none;
     }
+
+    .badge {
+        .o_badge_text, .o_tag_badge_text {
+            @include o-text-overflow(inline-block);
+            max-width: var(--Tag-max-width, 200px);
+        }
+    }
 }
 
 .o_select_menu_menu {
@@ -44,8 +51,7 @@
 
     .o_select_menu_searchbox {
         background-color: $dropdown-bg;
-        position: sticky;
-        top: $dropdown-padding-y * -1;
+        position: relative;
         padding: 5px;
 
         input {
@@ -55,18 +61,28 @@
         }
 
         &:before {
-            @include o-position-absolute($top: 50%);
+            @include o-position-absolute($top: 50%, $left: map-get($spacers, 2));
             transform: translateY(-50%);
-            content: "\f002";
-            font-family: 'FontAwesome';
+            content: "search";
+            font-family: 'Material Symbols Outlined';
+            line-height: 1;
+            opacity: .75;
         }
     }
 
     .o_select_menu_group {
         background-color: $dropdown-bg;
-        top: $input-height;
-        &:not(.o_select_menu_searchable_group) {
-            top: $dropdown-padding-y * -1;
+        top: calc(var(--border-width) * -1);
+    }
+
+    .o_select_menu-choices {
+        padding: var(--SelectMenu-padding, 0);
+
+        > *:first-child {
+            margin-top: var(--SelectMenuItem-margin-y, 0.5rem);
+        }
+        > *:last-child {
+            margin-bottom: var(--SelectMenuItem-margin-y, 0.5rem);
         }
     }
 
@@ -76,6 +92,11 @@
         .o-dropdown-item:before {
             display: none;
         }
+    }
+
+    .o_filtered_text {
+        background: var(--SelectMenu__filteredText-bg-color, none);
+        color: var(--SelectMenu__filteredText-color, #{map-get($theme-colors, "primary")});
     }
 }
 

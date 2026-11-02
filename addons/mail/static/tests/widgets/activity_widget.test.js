@@ -9,14 +9,8 @@ import {
     waitStoreFetch,
 } from "@mail/../tests/mail_test_helpers";
 import { describe, expect, test } from "@odoo/hoot";
-import { Deferred, tick } from "@odoo/hoot-dom";
-import {
-    asyncStep,
-    onRpc,
-    patchWithCleanup,
-    serverState,
-    waitForSteps,
-} from "@web/../tests/web_test_helpers";
+import { tick } from "@odoo/hoot-dom";
+import { mockService, onRpc, serverState } from "@web/../tests/web_test_helpers";
 import { serializeDate } from "@web/core/l10n/dates";
 
 defineMailModels();
@@ -37,11 +31,10 @@ test("list activity widget with no activity", async () => {
             offset: 0,
             order: "",
             limit: 80,
-            context: { bin_size: true },
             count_limit: 10001,
             domain: [],
         });
-        asyncStep("web_search_read");
+        expect.step("web_search_read");
     });
     listenStoreFetch("init_messaging");
     await start();
@@ -49,46 +42,59 @@ test("list activity widget with no activity", async () => {
     await openListView("res.users", {
         arch: `<list><field name="activity_ids" widget="list_activity"/></list>`,
     });
-    await waitForSteps(["web_search_read"]);
-    await contains(".o-mail-ActivityButton i.fa-clock-o");
-    await contains(".o-mail-ListActivity-summary", { text: "" });
+    await expect.waitForSteps(["web_search_read"]);
+    await contains(".o-mail-ActivityButton i[data-icon='schedule']");
+    await contains(".o-mail-ListActivity-summary", { textContent: "" });
 });
 
 test("list activity widget with activities", async () => {
     const pyEnv = await startServer();
     const [activityTypeId_1, activityTypeId_2] = pyEnv["mail.activity.type"].create([
-        { name: "Type 1", icon: "fa-phone" },
+        { name: "Type 1", icon: "phone" },
         { name: "Type 2" },
     ]);
-    const [activityId_1, activityId_2] = pyEnv["mail.activity"].create([
-        { activity_type_id: activityTypeId_1, summary: "Call with Al" },
-        { activity_type_id: activityTypeId_2 },
+    const user2Id = pyEnv["res.users"].create({});
+    const [activityId_1, activityId_2, activityId_3] = pyEnv["mail.activity"].create([
+        {
+            activity_type_id: activityTypeId_1,
+            summary: "Call with Al",
+            res_model: "res.users",
+            res_id: serverState.userId,
+        },
+        {
+            activity_type_id: activityTypeId_2,
+            res_model: "res.users",
+            res_id: serverState.userId,
+        },
+        {
+            activity_type_id: activityTypeId_2,
+            res_model: "res.users",
+            res_id: user2Id,
+        },
     ]);
-    pyEnv["res.partner"].write([serverState.partnerId], {
+    pyEnv["res.users"].write([serverState.userId], {
         activity_ids: [activityId_1, activityId_2],
         activity_state: "today",
     });
-    pyEnv["res.users"].write([serverState.userId], { activity_ids: [activityId_1, activityId_2] });
-    pyEnv["res.users"].create({
-        partner_id: pyEnv["res.partner"].create({
-            activity_ids: [activityId_2],
-            activity_state: "planned",
-        }),
+    pyEnv["res.users"].write([user2Id], {
+        activity_ids: [activityId_3],
+        activity_state: "planned",
     });
+    pyEnv["res.users"]._applyComputesAndValidate();
     await start();
     await openListView("res.users", {
         arch: "<list><field name='activity_ids' widget='list_activity'/></list>",
     });
     await contains(":nth-child(1 of .o_data_row)", {
         contains: [
-            [".o-mail-ActivityButton i.text-warning.fa-phone"],
-            [".o-mail-ListActivity-summary", { text: "Call with Al" }],
+            [".o-mail-ActivityButton i.text-warning[data-icon='phone']"],
+            [".o-mail-ListActivity-summary:text('Call with Al')"],
         ],
     });
     await contains(":nth-child(2 of .o_data_row)", {
         contains: [
-            [".o-mail-ActivityButton i.text-success.fa-tasks"],
-            [".o-mail-ListActivity-summary", { text: "Type 2" }],
+            [".o-mail-ActivityButton i.text-success[data-icon='checklist']"],
+            [".o-mail-ListActivity-summary:text('Type 2')"],
         ],
     });
 });
@@ -98,22 +104,24 @@ test("list activity widget with exception", async () => {
     const activityId = pyEnv["mail.activity"].create({
         summary: "Call with Al",
         activity_type_id: pyEnv["mail.activity.type"].create({
-            icon: "fa-warning",
+            icon: "warning",
         }),
+        res_model: "res.users",
+        res_id: serverState.userId,
     });
-    pyEnv["res.partner"].write([serverState.partnerId], {
+    pyEnv["res.users"].write([serverState.userId], {
         activity_ids: [activityId],
         activity_state: "today",
         activity_exception_decoration: "warning",
-        activity_exception_icon: "fa-warning",
+        activity_exception_icon: "warning",
     });
-    pyEnv["res.users"].write([serverState.userId], { activity_ids: [activityId] });
+    pyEnv["res.users"]._applyComputesAndValidate();
     await start();
     await openListView("res.users", {
         arch: "<list><field name='activity_ids' widget='list_activity'/></list>",
     });
-    await contains(".o-mail-ActivityButton i.text-warning.fa-warning");
-    await contains(".o-mail-ListActivity-summary", { text: "Warning" });
+    await contains(".o-mail-ActivityButton i.text-warning[data-icon='warning']");
+    await contains(".o-mail-ListActivity-summary:text('Warning')");
 });
 
 test("list activity widget: open dropdown", async () => {
@@ -128,6 +136,8 @@ test("list activity widget: open dropdown", async () => {
             user_id: serverState.userId,
             create_uid: serverState.userId,
             activity_type_id: activityTypeId_1,
+            res_model: "res.users",
+            res_id: serverState.userId,
         },
         {
             summary: "Meet FP",
@@ -137,46 +147,41 @@ test("list activity widget: open dropdown", async () => {
             user_id: serverState.userId,
             create_uid: serverState.userId,
             activity_type_id: activityTypeId_2,
+            res_model: "res.users",
+            res_id: serverState.userId,
         },
     ]);
-    pyEnv["res.partner"].write([serverState.partnerId], {
+    pyEnv["res.users"].write([serverState.userId], {
         activity_ids: [activityId_1, activityId_2],
         activity_state: "today",
         activity_type_id: activityTypeId_2,
     });
-    pyEnv["res.users"].write([serverState.userId], {
-        activity_type_id: activityTypeId_2,
-    });
-    onRpc("mail.activity", "activity_format", (params) => {
-        expect(params.args).toEqual([[activityId_1, activityId_2]]);
-        asyncStep("activity_format");
-    });
+    pyEnv["res.users"]._applyComputesAndValidate();
+
+    listenStoreFetch("mail.activity");
     onRpc("mail.activity", "action_feedback", (params) => {
-        pyEnv["res.partner"].write([serverState.partnerId], {
+        pyEnv["res.users"].write([serverState.userId], {
             activity_ids: [activityId_2],
             activity_state: "planned",
             activity_summary: "Meet FP",
             activity_type_id: activityTypeId_1,
         });
-        pyEnv["res.users"].write([serverState.userId], {
-            activity_type_id: activityTypeId_2,
-        });
         expect(params.args).toEqual([[activityId_1]]);
-        asyncStep("action_feedback");
+        expect.step("action_feedback");
     });
     await start();
     await openListView("res.users", {
         arch: "<list><field name='name'/><field name='activity_ids' widget='list_activity'/></list>",
     });
-    await contains(".o-mail-ListActivity-summary", { text: "Call with Al" });
+    await contains(".o-mail-ListActivity-summary:text('Call with Al')");
     await click(".o-mail-ActivityButton");
-    await waitForSteps(["activity_format"]);
+    await waitStoreFetch("mail.activity");
     await click(
         ":nth-child(1 of .o-mail-ActivityListPopoverItem) .o-mail-ActivityListPopoverItem-markAsDone"
     );
     await click(".o-mail-ActivityMarkAsDone button[aria-label='Done']");
-    await waitForSteps(["action_feedback"]);
-    await contains(".o-mail-ListActivity-summary", { text: "Meet FP" });
+    await expect.waitForSteps(["action_feedback"]);
+    await contains(".o-mail-ListActivity-summary:text('Meet FP')");
 });
 
 test("list activity widget: batch selection from list", async (assert) => {
@@ -191,16 +196,16 @@ test("list activity widget: batch selection from list", async (assert) => {
         { name: "Matilde" },
         { name: "Alexander" },
     ]);
-    const env = await start();
+    await start();
     let scheduleWizardContext = null;
-    let wizardOpened = new Deferred();
-    patchWithCleanup(env.services.action, {
+    let { promise: wizardOpened, resolve: resolveWizardOpened } = Promise.withResolvers();
+    mockService("action", {
         doAction(action, options) {
             if (action.res_model === "mail.activity.schedule") {
                 scheduleWizardContext = action.context;
-                asyncStep("do_action_activity");
+                expect.step("do_action_activity");
                 options.onClose();
-                wizardOpened.resolve();
+                resolveWizardOpened();
                 return true;
             }
             return super.doAction(action);
@@ -230,29 +235,31 @@ test("list activity widget: batch selection from list", async (assert) => {
         active_id: matildeId,
         active_model: "res.partner",
     });
-    await waitForSteps(["do_action_activity"]);
+    await expect.waitForSteps(["do_action_activity"]);
     // We select 2 among the 3 partners created above and click on the clock of one of them
     await click(".o_list_record_selector .o-checkbox", { target: matildeRow });
     await click(".o_list_record_selector .o-checkbox", { target: marioRow });
-    await contains(".o_selection_box", { text: "2 selected" });
+    await contains(".o_selection_box:text('2 selected')");
     await click(".o-mail-ActivityButton", { target: matildeRow });
-    await contains(".o-mail-ActivityListPopover button", {
-        text: "Schedule an activity on selected records",
-    });
-    await contains(".o-mail-ActivityListPopover button", {
-        text: "Schedule an activity on selected records",
-    });
+    await contains(
+        ".o-mail-ActivityListPopover button:text('Schedule an activity on selected records')"
+    );
+    await contains(
+        ".o-mail-ActivityListPopover button:text('Schedule an activity on selected records')"
+    );
     await click(".o-mail-ActivityListPopover button");
     await wizardOpened;
     expect(scheduleWizardContext).toEqual({
-        active_ids: [matildeId, marioId],
-        active_id: matildeId,
+        // res.partner is ordered "complete_name ASC" so Mario sorts before Matilde, and active_id
+        // is the first selected record (resIds[0]).
+        active_ids: [marioId, matildeId],
+        active_id: marioId,
         active_model: "res.partner",
     });
     // But when clicking on the clock of one of the non-selected row, it applies to only that row
-    wizardOpened = new Deferred();
+    ({ promise: wizardOpened, resolve: resolveWizardOpened } = Promise.withResolvers());
     await click(".o-mail-ActivityButton", { target: alexanderRow });
-    await contains(".o-mail-ActivityListPopover button", { text: "Schedule an activity" });
+    await contains(".o-mail-ActivityListPopover button:text('Schedule an activity')");
     await contains(
         ".o-mail-ActivityListPopover button:not(:contains('Schedule an activity on selected records'))"
     );
@@ -264,27 +271,35 @@ test("list activity widget: batch selection from list", async (assert) => {
         active_model: "res.partner",
     });
     // We now check that when clicking on the clock of the other selected row, it applies to both row
-    wizardOpened = new Deferred();
+    ({ promise: wizardOpened, resolve: resolveWizardOpened } = Promise.withResolvers());
     await click(".o-mail-ActivityButton", { target: marioRow });
-    await contains(".o-mail-ActivityListPopover", {
-        text: "Schedule an activity on selected records",
-    });
-    await contains(".o-mail-ActivityListPopover button", {
-        text: "Schedule an activity on selected records",
-    });
+    await contains(
+        ".o-mail-ActivityListPopover button:text('Schedule an activity on selected records')"
+    );
+    await contains(
+        ".o-mail-ActivityListPopover button:text('Schedule an activity on selected records')"
+    );
     await click(".o-mail-ActivityListPopover button");
     await wizardOpened;
     expect(scheduleWizardContext).toEqual({
-        active_ids: [matildeId, marioId],
-        active_id: matildeId,
+        // res.partner is ordered "complete_name ASC" so Mario sorts before Matilde, and active_id
+        // is the first selected record (resIds[0]).
+        active_ids: [marioId, matildeId],
+        active_id: marioId,
         active_model: "res.partner",
     });
-    await waitForSteps(["do_action_activity", "do_action_activity", "do_action_activity"]);
+    await expect.waitForSteps(["do_action_activity", "do_action_activity", "do_action_activity"]);
 });
 
 test("list activity exception widget with activity", async () => {
     const pyEnv = await startServer();
     const [activityTypeId_1, activityTypeId_2] = pyEnv["mail.activity.type"].create([{}, {}]);
+    const user2Id = pyEnv["res.users"].create({
+        message_attachment_count: 3,
+        display_name: "second user",
+        message_follower_ids: [],
+        message_ids: [],
+    });
     const [activityId_1, activityId_2] = pyEnv["mail.activity"].create([
         {
             display_name: "An activity",
@@ -294,6 +309,8 @@ test("list activity exception widget with activity", async () => {
             user_id: serverState.userId,
             create_uid: serverState.userId,
             activity_type_id: activityTypeId_1,
+            res_model: "res.users",
+            res_id: serverState.userId,
         },
         {
             display_name: "An exception activity",
@@ -303,21 +320,20 @@ test("list activity exception widget with activity", async () => {
             user_id: serverState.userId,
             create_uid: serverState.userId,
             activity_type_id: activityTypeId_2,
+            res_model: "res.users",
+            res_id: user2Id, // Target the second user
         },
     ]);
-
-    pyEnv["res.partner"].write([serverState.partnerId], { activity_ids: [activityId_1] });
-    pyEnv["res.users"].create({
-        message_attachment_count: 3,
-        display_name: "second partner",
-        message_follower_ids: [],
-        message_ids: [],
-        partner_id: pyEnv["res.partner"].create({
-            activity_ids: [activityId_2],
-            activity_exception_decoration: "warning",
-            activity_exception_icon: "fa-warning",
-        }),
+    pyEnv["res.users"].write([serverState.userId], {
+        activity_ids: [activityId_1],
     });
+    pyEnv["res.users"].write([user2Id], {
+        activity_ids: [activityId_2],
+        activity_exception_decoration: "warning",
+        activity_exception_icon: "warning",
+    });
+    pyEnv["res.users"]._applyComputesAndValidate();
+
     await start();
     await openListView("res.users", {
         arch: `

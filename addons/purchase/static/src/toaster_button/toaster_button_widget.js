@@ -1,15 +1,16 @@
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
-import { Component } from "@odoo/owl";
+import { Component, t, useProps } from "@odoo/owl";
 import { standardWidgetProps } from "@web/views/widgets/standard_widget_props";
 
 class ButtonWithNotification extends Component {
     static template = "purchase.ButtonWithNotification";
-    static props = {
+    props = useProps({
         ...standardWidgetProps,
-        method: String,
-        title: String,
-    };
+        additionalClasses: t.string(),
+        method: t.string(),
+        title: t.string(),
+    });
     setup() {
         this.orm = useService("orm");
         this.notification = useService("notification");
@@ -26,11 +27,10 @@ class ButtonWithNotification extends Component {
 
 export const buttonWithNotification = {
     component: ButtonWithNotification,
-    extractProps: ({ attrs }) => {
-        return {
-            method: attrs.button_name,
-            title: attrs.title,
-        };
-    },
+    extractProps: ({ attrs }) => ({
+        additionalClasses: attrs.additionalClasses,
+        method: attrs.button_name,
+        title: attrs.title,
+    }),
 };
 registry.category("view_widgets").add("toaster_button", buttonWithNotification);

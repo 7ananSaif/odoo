@@ -9,6 +9,8 @@ from freezegun import freeze_time
 @tagged('post_install', '-at_install')
 class TestAccountAccount(TestAccountMergeCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -38,9 +40,8 @@ class TestAccountAccount(TestAccountMergeCommon):
             [{'code': '180001', 'company_ids': company_2.ids}]
         )
 
-        # Test that adding a company to an account fails if the code is not defined for that account and that company.
-        with self.assertRaises(ValidationError):
-            account.write({'company_ids': [Command.link(company_1.id)]})
+        # Test that adding a company to an account does not fail if the code is not defined for that account and that company.
+        account.write({'company_ids': [Command.link(company_1.id)]})
 
         # Test that you can add a company to an account if you add the code at the same time
         account.write({
@@ -239,126 +240,6 @@ class TestAccountAccount(TestAccountMergeCommon):
         with self.assertRaises(UserError):
             self.company_data['default_account_revenue'].company_ids = self.company_data_2['company']
 
-    def test_toggle_reconcile(self):
-        ''' Test the feature when the user sets an account as reconcile/not reconcile with existing journal entries. '''
-        account = self.company_data['default_account_revenue']
-
-        move = self.env['account.move'].create({
-            'move_type': 'entry',
-            'date': '2019-01-01',
-            'line_ids': [
-                (0, 0, {
-                    'account_id': account.id,
-                    'currency_id': self.other_currency.id,
-                    'debit': 100.0,
-                    'credit': 0.0,
-                    'amount_currency': 200.0,
-                }),
-                (0, 0, {
-                    'account_id': account.id,
-                    'currency_id': self.other_currency.id,
-                    'debit': 0.0,
-                    'credit': 100.0,
-                    'amount_currency': -200.0,
-                }),
-            ],
-        })
-        move.action_post()
-        self.env['account.move.line'].flush_model()
-
-        self.assertRecordValues(move.line_ids, [
-            {'reconciled': False, 'amount_residual': 0.0, 'amount_residual_currency': 0.0},
-            {'reconciled': False, 'amount_residual': 0.0, 'amount_residual_currency': 0.0},
-        ])
-
-        # Set the account as reconcile and fully reconcile something.
-        account.reconcile = True
-        self.env.invalidate_all()
-
-        self.assertRecordValues(move.line_ids, [
-            {'reconciled': False, 'amount_residual': 100.0, 'amount_residual_currency': 200.0},
-            {'reconciled': False, 'amount_residual': -100.0, 'amount_residual_currency': -200.0},
-        ])
-
-        move.line_ids.reconcile()
-        self.assertRecordValues(move.line_ids, [
-            {'reconciled': True, 'amount_residual': 0.0, 'amount_residual_currency': 0.0},
-            {'reconciled': True, 'amount_residual': 0.0, 'amount_residual_currency': 0.0},
-        ])
-
-        # Set back to a not reconcile account and check the journal items.
-        move.line_ids.remove_move_reconcile()
-        account.reconcile = False
-        self.env.invalidate_all()
-
-        self.assertRecordValues(move.line_ids, [
-            {'reconciled': False, 'amount_residual': 0.0, 'amount_residual_currency': 0.0},
-            {'reconciled': False, 'amount_residual': 0.0, 'amount_residual_currency': 0.0},
-        ])
-
-    def test_toggle_reconcile_with_partials(self):
-        ''' Test the feature when the user sets an account as reconcile/not reconcile with partial reconciliation. '''
-        account = self.company_data['default_account_revenue']
-
-        move = self.env['account.move'].create({
-            'move_type': 'entry',
-            'date': '2019-01-01',
-            'line_ids': [
-                (0, 0, {
-                    'account_id': account.id,
-                    'currency_id': self.other_currency.id,
-                    'debit': 100.0,
-                    'credit': 0.0,
-                    'amount_currency': 200.0,
-                }),
-                (0, 0, {
-                    'account_id': account.id,
-                    'currency_id': self.other_currency.id,
-                    'debit': 0.0,
-                    'credit': 50.0,
-                    'amount_currency': -100.0,
-                }),
-                (0, 0, {
-                    'account_id': self.company_data['default_account_expense'].id,
-                    'currency_id': self.other_currency.id,
-                    'debit': 0.0,
-                    'credit': 50.0,
-                    'amount_currency': -100.0,
-                }),
-            ],
-        })
-        move.action_post()
-
-        # Set the account as reconcile and partially reconcile something.
-        account.reconcile = True
-
-        move.line_ids.filtered(lambda line: line.account_id == account).reconcile()
-
-        # Try to set the account as a not-reconcile one.
-        with self.assertRaises(UserError):
-            account.reconcile = False
-
-    def test_remove_account_from_account_group(self):
-        """Test if an account is well removed from account group"""
-        group = self.env['account.group'].create({
-            'name': 'test_group',
-            'code_prefix_start': 401000,
-            'code_prefix_end': 402000,
-            'company_id': self.env.company.id
-        })
-
-        account_1 = self.company_data['default_account_revenue'].copy({'code': 401000})
-        account_2 = self.company_data['default_account_revenue'].copy({'code': 402000})
-
-        self.assertRecordValues(account_1 + account_2, [{'group_id': group.id}] * 2)
-
-        group.code_prefix_end = 401000
-
-        # Because group_id must depend on the group start and end, but there is no way of making this dependency explicit.
-        (account_1 | account_2).invalidate_recordset(fnames=['group_id'])
-
-        self.assertRecordValues(account_1 + account_2, [{'group_id': group.id}, {'group_id': False}])
-
     def test_name_create(self):
         """name_create should only be possible when importing
            Code and Name should be split
@@ -390,6 +271,19 @@ class TestAccountAccount(TestAccountMergeCommon):
         alternate_code = self.env['account.account']._search_new_account_code(alternate_account.code)
         new_account.code = alternate_code
         self.assertEqual(new_account.account_type, existing_account.account_type)
+
+    def test_compute_account_type_on_code_change(self):
+        """ Changing the code should recompute account_type and reconcile too, since reconcile depends on it. """
+        receivable_account = self.company_data['default_account_receivable']
+
+        new_code = self.env['account.account']._search_new_account_code(receivable_account.code)
+        with Form(self.env['account.account']) as account_form:
+            account_form.name = "A new account"
+            account_form.code = new_code
+
+        account = account_form.record
+        self.assertEqual(account.account_type, 'asset_receivable')
+        self.assertTrue(account.reconcile)
 
     def test_get_closest_parent_account(self):
         self.env['account.account'].create({
@@ -514,13 +408,6 @@ class TestAccountAccount(TestAccountMergeCommon):
         self.assertEqual(account.code, "314159")
         self.assertEqual(account.name, "A new account")
 
-        # name split is only possible through name_create, so an error should be raised
-        with self.assertRaises(ValidationError):
-            account = self.env['account.account'].create({
-                'name': '314159 A new account',
-                'account_type': 'expense',
-            })
-
         # it doesn't matter whether the account name contains numbers or not
         account = self.env['account.account'].create({
             'code': '31415',
@@ -582,9 +469,8 @@ class TestAccountAccount(TestAccountMergeCommon):
 
         account_form.code = False
         account_form.name = "Only letters"
-        # saving a form without a code should not be possible
-        with self.assertRaises(ValidationError):
-            account_form.save()
+        # saving a form without a code should be possible
+        account_form.save()
 
     @freeze_time('2023-09-30')
     def test_generate_account_suggestions(self):
@@ -599,12 +485,13 @@ class TestAccountAccount(TestAccountMergeCommon):
         """
         partner = self.env['res.partner'].create({'name': 'partner_test_generate_account_suggestions'})
         account = self.company_data['default_account_revenue']
-        self.env['account.move'].create({
+        move = self.env['account.move'].create({
             'move_type': 'out_invoice',
             'partner_id': partner.id,
             'invoice_date': '2023-09-30',
             'line_ids': [Command.create({'price_unit': 100, 'account_id': account.id})]
         })
+        move.action_post()
 
         results_1 = self.env['account.account']._get_most_frequent_accounts_for_partner(
             company_id=self.env.company.id,
@@ -759,6 +646,108 @@ class TestAccountAccount(TestAccountMergeCommon):
             {'account_id': account.id,              'balance': 1000.0,  'amount_currency': 2000.0},
             {'account_id': account.id,              'balance': -1000.0, 'amount_currency': -2000.0},
         ])
+        account.action_validate_opening_move()
+        self.assertTrue(company.account_opening_move_id.posted_before)
+
+    def test_create_opening_balance_bank_statements(self):
+        """ Posting the company's opening move should create an 'Opening Balance'
+        bank statement for each liquidity journal whose default account has a
+        non zero opening balance, with the unaffected earnings account as counterpart.
+        """
+        def get_lines(amounts_payment_ref, journal_id):
+            return [{
+                'payment_ref': name[0] if name else 'Opening balance',
+                'amount': amount,
+                'journal_id': journal_id,
+            } for (amount, *name) in amounts_payment_ref]
+
+        company = self.env.company
+        statement = self.env['account.bank.statement']
+
+        bank_journal = self.company_data['default_journal_bank']
+        bank_account = bank_journal.default_account_id
+        unaffected_earnings_account = company.get_unaffected_earnings_account()
+
+        bank_account.opening_debit = 1000.0
+        self.cr.flush()
+
+        opening_move = company.account_opening_move_id
+        self.assertRecordValues(opening_move.line_ids.sorted(), [
+            {'account_id': bank_account.id, 'balance': 1000.0},
+            {'account_id': unaffected_earnings_account.id, 'balance': -1000.0},
+        ])
+
+        # No statement should exist before the opening move is posted.
+        self.assertFalse(statement.search([('journal_id', '=', bank_journal.id)]))
+
+        # Posting the opening move creates the opening balance statement.
+        opening_move.action_post()
+
+        statement = statement.search([('journal_id', '=', bank_journal.id)])
+        self.assertRecordValues(statement, [{
+            'name': 'Opening Balance',
+            'date': opening_move.date,
+            'journal_id': bank_journal.id,
+        }])
+        self.assertRecordValues(statement.line_ids, get_lines([(1000.0,)], bank_journal.id))
+
+        # The statement line's counterpart is the unaffected earnings account.
+        counterpart_line = statement.line_ids.move_id.line_ids.filtered(lambda line: line.account_id != bank_account)
+        self.assertEqual(counterpart_line.account_id, unaffected_earnings_account)
+
+        # The unaffected earnings account is not a liquidity journal's default account,
+        # so no statement is created for it.
+        self.assertFalse(statement.search([('journal_id.default_account_id', '=', unaffected_earnings_account.id)]))
+
+        # Resetting the opening move to draft and posting it again shouldn't create a duplicate opening statement
+        opening_move.button_draft()
+        bank_account.opening_debit = 2000.0  # update to make sure everything is balanced at the end
+        self.cr.flush()
+        opening_move.action_post()
+
+        # Previous statement should have been deleted
+        self.assertFalse(statement.exists())
+
+        statement = statement.search([('journal_id', '=', bank_journal.id)])
+        self.assertRecordValues(statement, [{
+            'name': 'Opening Balance',
+            'date': opening_move.date,
+            'journal_id': bank_journal.id,
+        }])
+        self.assertRecordValues(statement.line_ids, get_lines([(2000.0,)], bank_journal.id))
+
+        # Even when another statement was recorded on the journal, only the opening should be deleted and re-created
+        self.env['account.bank.statement'].create({
+            'name': 'statement_1',
+            'balance_start': 0.0,
+            'balance_end_real': 600.0,
+            'line_ids': [
+                Command.create({'payment_ref': 'line_1', 'amount': 600.0, 'journal_id': bank_journal.id}),
+            ],
+        })
+
+        opening_move.button_draft()
+        bank_account.opening_debit = 5000.0
+        self.cr.flush()
+        opening_move.action_post()
+        statement = statement.search([('journal_id', '=', bank_journal.id)])
+        self.assertRecordValues(statement.line_ids.sorted('amount'), get_lines([(600.0, 'line_1'), (5000.0,)], bank_journal.id))
+
+        # But if there's another statement line with the same payment_ref, none should be deleted and a new one should be created
+        self.env['account.bank.statement'].create({
+            'name': 'statement_2',
+            'balance_start': 0.0,
+            'balance_end_real': 450.0,
+            'line_ids': [
+                Command.create({'payment_ref': 'Opening balance', 'amount': 450.0, 'journal_id': bank_journal.id}),
+            ],
+        })
+        opening_move.button_draft()
+        bank_account.opening_debit = 999.0
+        self.cr.flush()
+        opening_move.action_post()
+        statement = statement.search([('journal_id', '=', bank_journal.id)])
+        self.assertRecordValues(statement.line_ids.sorted('amount'), get_lines([(450.0,), (600.0, 'line_1'), (999.0,), (5000.0,)], bank_journal.id))
 
     def test_unmerge(self):
         company_1 = self.company_data['company']
@@ -857,6 +846,67 @@ class TestAccountAccount(TestAccountMergeCommon):
         self.assertEqual(self.env['account.chart.template'].ref('test_account_1'), account_to_unmerge)
         self.assertEqual(self.env['account.chart.template'].with_company(company_2).ref('test_account_2'), new_account)
 
+    def test_set_code_after_merging_accounts_with_no_code(self):
+        company_1 = self.company_data['company']
+        company_2 = self.company_data_2['company']
+
+        accounts = self.env['account.account']._load_records([
+            {
+                'xml_id': f'account.{company_1.id}_test_account_1',
+                'values': {
+                    'name': 'My First Account',
+                    'account_type': 'asset_receivable',
+                    'company_ids': [Command.link(company_1.id)],
+                },
+            },
+            {
+                'xml_id': f'account.{company_2.id}_test_account_2',
+                'values': {
+                    'name': 'My Second Account',
+                    'account_type': 'asset_receivable',
+                    'company_ids': [Command.link(company_2.id)],
+                },
+            },
+        ])
+        wizard = self._create_account_merge_wizard(accounts)
+        wizard.action_merge()
+
+        merged_account = accounts[0]
+        # should set the code with no errors
+        merged_account.code = '112233'
+
+    def test_unmerge_after_merging_accounts_with_no_code(self):
+        company_1 = self.company_data['company']
+        company_2 = self.company_data_2['company']
+
+        accounts = self.env['account.account']._load_records([
+            {
+                'xml_id': f'account.{company_1.id}_test_account_1',
+                'values': {
+                    'name': 'My First Account',
+                    'account_type': 'asset_receivable',
+                    'company_ids': [Command.link(company_1.id)],
+                },
+            },
+            {
+                'xml_id': f'account.{company_2.id}_test_account_2',
+                'values': {
+                    'name': 'My Second Account',
+                    'account_type': 'asset_receivable',
+                    'company_ids': [Command.link(company_2.id)],
+                },
+            },
+        ])
+        wizard = self._create_account_merge_wizard(accounts)
+        wizard.action_merge()
+
+        merged_account = accounts[0]
+        # should unmerge with no errors
+        merged_account.with_context({
+            'account_unmerge_confirm': True,
+            'allowed_company_ids': [company_1.id, company_2.id],
+        })._action_unmerge()
+
     def test_account_code_mapping(self):
         company_3 = self.env['res.company'].create({'name': 'company_3'})
         account = self.env['account.account'].create({
@@ -935,90 +985,6 @@ class TestAccountAccount(TestAccountMergeCommon):
         self.assertRecordValues(account.with_company(self.company_data_2['company'].id), [{'code': 'test2'}])
         self.assertRecordValues(account.with_company(company_3.id), [{'code': 'test3'}])
 
-    def test_account_group_hierarchy_consistency(self):
-        """ Test if the hierarchy of account groups is consistent when creating, deleting and recreating an account group """
-        def create_account_group(name, code_prefix, company):
-            return self.env['account.group'].create({
-                'name': name,
-                'code_prefix_start': code_prefix,
-                'code_prefix_end': code_prefix,
-                'company_id': company.id
-            })
-
-        group_1 = create_account_group('group_1', 1, self.env.company)
-        group_10 = create_account_group('group_10', 10, self.env.company)
-        group_100 = create_account_group('group_100', 100, self.env.company)
-        group_101 = create_account_group('group_101', 101, self.env.company)
-
-        self.assertEqual(len(group_1.parent_id), 0)
-        self.assertEqual(group_10.parent_id, group_1)
-        self.assertEqual(group_100.parent_id, group_10)
-        self.assertEqual(group_101.parent_id, group_10)
-
-        # Delete group_101 and recreate it
-        group_101.unlink()
-        group_101 = create_account_group('group_101', 101, self.env.company)
-
-        self.assertEqual(len(group_1.parent_id), 0)
-        self.assertEqual(group_10.parent_id, group_1)
-        self.assertEqual(group_100.parent_id, group_10)
-        self.assertEqual(group_101.parent_id, group_10)
-
-        # The root becomes a child and vice versa
-        group_3 = create_account_group('group_3', 3, self.env.company)
-        group_31 = create_account_group('group_31', 31, self.env.company)
-        group_3.code_prefix_start = 312
-        self.assertEqual(len(group_31.parent_id), 0)
-        self.assertEqual(group_3.parent_id, group_31)
-
-    def test_muticompany_account_groups(self):
-        """
-            Ensure that account groups are always in a root company
-            Ensure that accounts and account groups from a same company tree match
-        """
-
-        branch_company = self.env['res.company'].create({
-            'name': 'Branch Company',
-            'parent_id': self.env.company.id,
-        })
-
-        parent_group = self.env['account.group'].create({
-            'name': 'Parent Group',
-            'code_prefix_start': '123',
-            'code_prefix_end': '124'
-        })
-        child_group = self.env['account.group'].with_company(branch_company).create({
-            'name': 'Child Group',
-            'code_prefix_start': '125',
-            'code_prefix_end': '126',
-        })
-        self.assertEqual(
-            child_group.company_id,
-            child_group.company_id.root_id,
-            "company_id should never be a branch company"
-        )
-
-        branch_account = self.env['account.account'].with_company(branch_company).create({
-            'name': 'Branch Account',
-            'code': '1234',
-        })
-        self.assertEqual(
-            branch_account.group_id,
-            parent_group,
-            "group_id computation should work for accounts that are not in the root company"
-        )
-
-        parent_account = self.env['account.account'].create({
-            'name': 'Parent Account',
-            'code': '1235'
-        })
-        parent_account.with_company(branch_company).code = '1256'
-        self.assertEqual(
-            parent_account.with_company(branch_company).group_id,
-            child_group,
-            "group_id computation should work if company_id is not in self.env.companies"
-        )
-
     def test_compute_account(self):
         account_sale = self.company_data['default_account_revenue'].copy()
 
@@ -1074,6 +1040,76 @@ class TestAccountAccount(TestAccountMergeCommon):
         accounts = self.env['account.account'].with_user(branch_user.id).search([('company_ids', 'parent_of', [branch.id])])
         self.assertEqual(len(accounts), 1, "Branch user should have access to the accounts of the parent company")
 
+    def test_accounts_with_parents_search_and_order(self):
+        company = self.env['res.company'].create([{'name': 'Account Parents Company'}])
+
+        a1, a2, a3, a0 = self.env['account.account'].with_company(company).create([
+            {'name': 'Account 1', 'code': '1', 'account_type': 'asset_current', 'active': False},
+            {'name': 'Account 2', 'code': '2', 'account_type': 'asset_current', 'active': False},
+            {'name': 'Account 3', 'code': '3', 'account_type': 'asset_current', 'active': True},
+            {'name': 'Account 0', 'account_type': 'asset_current', 'active': True},
+        ])
+
+        self.env['account.account'].with_company(company).create([
+            {'name': 'Account 1.1', 'code': '1.1', 'account_type': 'asset_current', 'parent_id': a1.id, 'active': False},
+            {'name': 'Account 1.2', 'code': '1.2', 'account_type': 'expense', 'parent_id': a1.id, 'active': False},
+            {'name': 'Account 2.1', 'code': '2.1', 'account_type': 'asset_current', 'parent_id': a2.id, 'active': True},
+            {'name': 'Account 2.2', 'code': '2.2', 'account_type': 'asset_current', 'parent_id': a2.id, 'active': False},
+            {'name': 'Account 3.1', 'code': '3.1', 'account_type': 'asset_current', 'parent_id': a3.id, 'active': False},
+            {'name': 'Account 3.2', 'code': '3.2', 'account_type': 'asset_current', 'parent_id': a3.id, 'active': False},
+            {'name': 'Account 01', 'account_type': 'asset_current', 'parent_id': a0.id, 'active': True},
+            {'name': 'Account 02', 'account_type': 'asset_current', 'parent_id': a0.id, 'active': False},
+        ])
+
+        self.assertRecordValues(
+            self.env['account.account'].with_context(include_inactive_account_parents=True).with_company(company).search([('company_ids', '=', company.id)]),
+            [
+                {'name': 'Account 2', 'code': '2', 'account_type': 'asset_current', 'parent_id': False, 'active': False},
+                {'name': 'Account 2.1', 'code': '2.1', 'account_type': 'asset_current', 'parent_id': a2.id, 'active': True},
+                {'name': 'Account 3', 'code': '3', 'account_type': 'asset_current', 'parent_id': False, 'active': True},
+                {'name': 'Account 0', 'code': False, 'account_type': 'asset_current', 'parent_id': False, 'active': True},
+                {'name': 'Account 01', 'code': False, 'account_type': 'asset_current', 'parent_id': a0.id, 'active': True},
+            ],
+        )
+
+        self.assertRecordValues(
+            self.env['account.account'].with_company(company).search([('company_ids', '=', company.id)]),
+            [
+                {'name': 'Account 2.1', 'code': '2.1', 'account_type': 'asset_current', 'parent_id': a2.id, 'active': True},
+                {'name': 'Account 3', 'code': '3', 'account_type': 'asset_current', 'parent_id': False, 'active': True},
+                {'name': 'Account 0', 'code': False, 'account_type': 'asset_current', 'parent_id': False, 'active': True},
+                {'name': 'Account 01', 'code': False, 'account_type': 'asset_current', 'parent_id': a0.id, 'active': True},
+            ],
+        )
+
+        self.assertRecordValues(
+            self.env['account.account'].with_context(include_inactive_account_parents=True).with_company(company).search([('company_ids', '=', company.id), ('active', '=', False)]),
+            [
+                {'name': 'Account 1', 'code': '1', 'account_type': 'asset_current', 'parent_id': False, 'active': False},
+                {'name': 'Account 1.1', 'code': '1.1', 'account_type': 'asset_current', 'parent_id': a1.id, 'active': False},
+                {'name': 'Account 1.2', 'code': '1.2', 'account_type': 'expense', 'parent_id': a1.id, 'active': False},
+                {'name': 'Account 2', 'code': '2', 'account_type': 'asset_current', 'parent_id': False, 'active': False},
+                {'name': 'Account 2.2', 'code': '2.2', 'account_type': 'asset_current', 'parent_id': a2.id, 'active': False},
+                {'name': 'Account 3.1', 'code': '3.1', 'account_type': 'asset_current', 'parent_id': a3.id, 'active': False},
+                {'name': 'Account 3.2', 'code': '3.2', 'account_type': 'asset_current', 'parent_id': a3.id, 'active': False},
+                {'name': 'Account 02', 'code': False, 'account_type': 'asset_current', 'parent_id': a0.id, 'active': False},
+            ],
+        )
+
+        self.assertRecordValues(
+            self.env['account.account'].with_company(company).search([('company_ids', '=', company.id), ('active', '=', False)]),
+            [
+                {'name': 'Account 1', 'code': '1', 'account_type': 'asset_current', 'parent_id': False, 'active': False},
+                {'name': 'Account 1.1', 'code': '1.1', 'account_type': 'asset_current', 'parent_id': a1.id, 'active': False},
+                {'name': 'Account 1.2', 'code': '1.2', 'account_type': 'expense', 'parent_id': a1.id, 'active': False},
+                {'name': 'Account 2', 'code': '2', 'account_type': 'asset_current', 'parent_id': False, 'active': False},
+                {'name': 'Account 2.2', 'code': '2.2', 'account_type': 'asset_current', 'parent_id': a2.id, 'active': False},
+                {'name': 'Account 3.1', 'code': '3.1', 'account_type': 'asset_current', 'parent_id': a3.id, 'active': False},
+                {'name': 'Account 3.2', 'code': '3.2', 'account_type': 'asset_current', 'parent_id': a3.id, 'active': False},
+                {'name': 'Account 02', 'code': False, 'account_type': 'asset_current', 'parent_id': a0.id, 'active': False},
+            ],
+        )
+
     def test_search_account_with_existing_code(self):
         """ Ensure that we can properly search records by code, even if they are inactive """
         example_account = self.env["account.account"].search([], limit=1)
@@ -1086,20 +1122,53 @@ class TestAccountAccount(TestAccountMergeCommon):
         self.assertEqual(found, example_account)
         self.assertFalse(not_found)
 
-    def test_no_multi_company_on_bank_cash_accounts(self):
-        """Ensure multiple companies cannot be selected on bank and cash accounts."""
-        parent_company = self.env['res.company'].create([{
-            'name': "Parent Company",
-        }])
-        branch = self.env['res.company'].create([{
-            'name': "Branch Company",
-            'parent_id': parent_company.id,
-        }])
-        account = self.env['account.account'].create({
-            'code': 'TE1000',
-            'name': 'Bank Account Test',
+    def test_create_default_journals(self):
+        """ Creating an account of type 'asset_cash' or 'liability_credit_card' should
+        automatically create a matching journal, while other account types should not,
+        and no duplicate journal should be created if one already points to the account.
+        """
+        Journal = self.env['account.journal']
+
+        # A bank account creates a 'bank' journal.
+        bank_account = self.env['account.account'].create({
+            'code': '123',
+            'name': 'My Bank Account',
             'account_type': 'asset_cash',
-            'company_ids': [Command.link(parent_company.id)],
         })
-        with self.assertRaisesRegex(ValidationError, "Bank & Cash accounts cannot be shared between companies."):
-            account.write({'company_ids': [Command.link(branch.id)]})
+        bank_journals = Journal.search([('default_account_id', '=', bank_account.id)])
+        self.assertRecordValues(bank_journals, [{
+            'type': 'bank',
+            'name': 'My Bank Account',
+            'default_account_id': bank_account.id,
+            'company_id': self.env.company.id,
+        }])
+
+        # A credit card account creates a 'credit' journal.
+        credit_card_account = self.env['account.account'].create({
+            'code': '1234',
+            'name': 'My Credit Card Account',
+            'account_type': 'liability_credit_card',
+        })
+        credit_journals = Journal.search([('default_account_id', '=', credit_card_account.id)])
+        self.assertRecordValues(credit_journals, [{
+            'type': 'credit',
+            'name': 'My Credit Card Account',
+            'default_account_id': credit_card_account.id,
+        }])
+
+        # Other account types do not create any journal.
+        expense_account = self.env['account.account'].create({
+            'code': '12345',
+            'name': 'My Expense Account',
+            'account_type': 'expense',
+        })
+        self.assertFalse(Journal.search([('default_account_id', '=', expense_account.id)]))
+
+        # Calling _create_default_journals again for an account that already has a
+        # journal must not create a duplicate
+        bank_account._create_default_journals()
+        self.assertEqual(
+            Journal.search_count([('default_account_id', '=', bank_account.id)]),
+            1,
+            "No extra journal should be created for an account already used as a journal default account.",
+        )

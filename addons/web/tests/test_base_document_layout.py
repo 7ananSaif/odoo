@@ -1,10 +1,11 @@
 import os
+import re
 from PIL import Image
 from functools import partial
 
 from odoo.tests import TransactionCase, tagged, Form
-from odoo.tools import frozendict
-from odoo.tools.image import image_to_base64, hex_to_rgb
+from odoo.tools import BinaryBytes, frozendict
+from odoo.tools.image import image_apply_opt, hex_to_rgb
 
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -54,16 +55,17 @@ class TestBaseDocumentLayoutHelpers(TransactionCase):
             fname_split = fname.split('.')
             if not fname_split[0] in _file_cache:
                 with Image.open(os.path.join(dir_path, fname), 'r') as img:
-                    base64_img = image_to_base64(img, 'PNG')
-                    primary, secondary = self.env['base.document.layout'].extract_image_primary_secondary_colors(base64_img)
-                    _img = frozendict({
-                        'img': base64_img,
+                    img_bin = image_apply_opt(img, 'PNG')
+                    img_val = BinaryBytes(img_bin)
+                    primary, secondary = self.env['base.document.layout'].extract_image_primary_secondary_colors(img_val)
+                    img_dict = frozendict({
+                        'img': img_val,
                         'colors': {
                             'primary_color': primary,
                             'secondary_color': secondary,
                         },
                     })
-                    _file_cache[fname_split[0]] = _img
+                    _file_cache[fname_split[0]] = img_dict
         self.company_imgs = frozendict(_file_cache)
 
     def _set_templates_and_layouts(self):
@@ -174,7 +176,7 @@ class TestBaseDocumentLayout(TestBaseDocumentLayoutHelpers):
 
         with Form(self.env['base.document.layout']) as doc_layout:
             self.assertColors(doc_layout, self.company)
-            doc_layout.logo = self.company_imgs['odoo']['img']
+            doc_layout.logo = self.company_imgs['odoo']['img'].to_base64()
             self.assertColors(doc_layout, self.company_imgs['odoo']['colors'])
 
     # Layout change tests
@@ -203,8 +205,8 @@ class TestBaseDocumentLayout(TestBaseDocumentLayoutHelpers):
         })
         with Form(self.env['base.document.layout']) as doc_layout:
             with Image.open(os.path.join(dir_path, 'logo_ci.png'), 'r') as img:
-                base64_img = image_to_base64(img, 'PNG')
-                doc_layout.logo = base64_img
+                img_bin = image_apply_opt(img, 'PNG')
+                doc_layout.logo = BinaryBytes(img_bin)
             self.assertNotEqual(None, doc_layout.primary_color)
 
 
@@ -237,3 +239,38 @@ class TestBaseDocumentLayout(TestBaseDocumentLayoutHelpers):
         self.company.write({'street2': 'street_2_detail'})
         doc_layout_2 = self.env['base.document.layout'].create({'company_id': self.company.id})
         self.assertTrue('street_2_detail' in doc_layout_2.company_details)
+
+    def test_extract_primary_secondary_on_svg(self):
+        svg = BinaryBytes(b'<svg xmlns="http://www.w3.org/2000/svg"/>')
+        primary, secondary = self.env['base.document.layout'].extract_image_primary_secondary_colors(svg)
+
+        self.assertFalse(primary)
+        self.assertFalse(secondary)
+
+    def _get_company_report_styles(self, styles, company):
+        company_marker = f'.o_company_{company.id}_layout'
+        match = re.search(
+            rf'{re.escape(company_marker)}.*?(?=\n\s*\.o_company_\d+_layout|\Z)',
+            styles,
+            re.S,
+        )
+        return match.group() if match else ''
+
+    def test_report_tables_id_change_updates_company_report_styles(self):
+        """Test that changing only the table design must refresh report table colors."""
+        primary_color = '#ff0080'
+        attachment = self.env.ref('web.asset_styles_company_report')
+        self.company.write({
+            'primary_color': primary_color,
+            'report_tables_id': 'light',
+        })
+        styles = (attachment.raw or b'').decode()
+        company_styles = self._get_company_report_styles(styles, self.company)
+        self.assertNotIn('o_report_layout_bubble', company_styles)
+
+        self.company.write({'report_tables_id': 'bubble'})
+        styles = (attachment.raw or b'').decode()
+        company_styles = self._get_company_report_styles(styles, self.company)
+        self.assertIn('o_report_layout_bubble', company_styles)
+        self.assertIn('thead th', company_styles)
+        self.assertIn(primary_color, company_styles)

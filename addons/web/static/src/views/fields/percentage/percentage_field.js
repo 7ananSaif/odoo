@@ -6,14 +6,17 @@ import { useInputField } from "../input_field_hook";
 import { useNumpadDecimal } from "../numpad_decimal_hook";
 import { standardFieldProps } from "../standard_field_props";
 
-import { Component } from "@odoo/owl";
+import { Component, signal, t, useProps } from "@odoo/owl";
 
 export class PercentageField extends Component {
     static template = "web.PercentageField";
-    static props = {
+    props = useProps({
         ...standardFieldProps,
-        digits: { type: Array, optional: true },
-    };
+        digits: t.array().optional(),
+        noSymbol: t.boolean().optional(),
+    });
+
+    numpadDecimalRef = signal.ref();
 
     setup() {
         useInputField({
@@ -23,15 +26,16 @@ export class PercentageField extends Component {
                     noSymbol: true,
                     field: this.props.record.fields[this.props.name],
                 }),
-            refName: "numpadDecimal",
+            ref: this.numpadDecimalRef,
             parse: (v) => parsePercentage(v),
         });
-        useNumpadDecimal();
+        useNumpadDecimal(this.numpadDecimalRef);
     }
 
     get formattedValue() {
         return formatPercentage(this.props.record.data[this.props.name], {
             digits: this.props.digits,
+            noSymbol: this.props.noSymbol,
             field: this.props.record.fields[this.props.name],
         });
     }
@@ -51,8 +55,11 @@ export const percentageField = {
             digits = options.digits;
         }
 
+        const noSymbol = options.no_symbol || false;
+
         return {
             digits,
+            noSymbol,
         };
     },
 };

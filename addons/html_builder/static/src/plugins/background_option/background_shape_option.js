@@ -1,30 +1,34 @@
-import { BaseOptionComponent, useDomState } from "@html_builder/core/utils";
-import { toRatio } from "@html_builder/utils/utils";
+import { BaseOptionComponent } from "@html_builder/core/base_option_component";
+import { useDomState } from "@html_builder/core/utils";
 import { getBgImageURLFromEl } from "@html_builder/utils/utils_css";
 import { _t } from "@web/core/l10n/translation";
+import { BackgroundShapeSelector } from "./background_shape_selector";
+import { ratioValueConverter } from "@html_builder/utils/utils";
 
 export class BackgroundShapeOption extends BaseOptionComponent {
     static template = "html_builder.BackgroundShapeOption";
     static dependencies = ["backgroundShapeOption"];
+    static components = { BackgroundShapeSelector };
     setup() {
         super.setup();
         this.backgroundShapePlugin = this.dependencies.backgroundShapeOption;
-        this.toRatio = toRatio;
+        this.ratioValueConverter = ratioValueConverter();
         this.state = useDomState((editingElement) => {
             const shapeData = this.backgroundShapePlugin.getShapeData(editingElement);
             const shapeInfo = this.backgroundShapePlugin.getBackgroundShapes()[shapeData.shape];
             return {
+                hasShape: !!shapeInfo,
                 shapeName: shapeInfo?.selectLabel || _t("None"),
                 isAnimated: shapeInfo?.animated,
+                shapeColorNames: Object.keys(getDefaultColors(editingElement)),
             };
         });
     }
-    showBackgroundShapes() {
-        this.backgroundShapePlugin.showBackgroundShapes(this.env.getEditingElements());
+    getBackgroundShapeGroups() {
+        return this.backgroundShapePlugin.getBackgroundShapeGroups();
     }
-    getDefaultColorNames() {
-        const editingEl = this.env.getEditingElement();
-        return Object.keys(getDefaultColors(editingEl));
+    getShapeStyleUrl(shapeId) {
+        return this.backgroundShapePlugin.getShapeStyleUrl(shapeId);
     }
 }
 
@@ -36,7 +40,7 @@ export class BackgroundShapeOption extends BaseOptionComponent {
  */
 export function getDefaultColors(editingElement) {
     const shapeContainerEl = editingElement.querySelector(":scope > .o_we_shape");
-    if (!shapeContainerEl) {
+    if (!shapeContainerEl || !editingElement.ownerDocument.defaultView) {
         return {};
     }
     const shapeContainerClonedEl = shapeContainerEl.cloneNode(true);

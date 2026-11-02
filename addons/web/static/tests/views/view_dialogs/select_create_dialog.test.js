@@ -1,3 +1,4 @@
+import { registry } from "@web/core/registry";
 import { renderToMarkup } from "@web/core/utils/render";
 import { useSetupAction } from "@web/search/action_hook";
 import { listView } from "@web/views/list/list_view";
@@ -5,7 +6,7 @@ import { kanbanView } from "@web/views/kanban/kanban_view";
 import { SelectCreateDialog } from "@web/views/view_dialogs/select_create_dialog";
 import { WebClient } from "@web/webclient/webclient";
 
-import { xml } from "@odoo/owl";
+import { Component, xml } from "@odoo/owl";
 
 import {
     clickModalButton,
@@ -377,7 +378,7 @@ test("SelectCreateDialog cascade x2many in create mode on desktop", async () => 
         `,
     });
 
-    await contains(".o_field_x2many_list_row_add a").click();
+    await contains(".o_field_x2many_list_row_add button").click();
     await contains(".o_field_widget[name=instrument] input").edit("ABC", { confirm: false });
     await runAllTimers();
     await contains(
@@ -386,7 +387,7 @@ test("SelectCreateDialog cascade x2many in create mode on desktop", async () => 
 
     expect(".modal .modal-lg").toHaveCount(1);
 
-    await contains(".modal .o_field_x2many_list_row_add a").click();
+    await contains(".modal .o_field_x2many_list_row_add button").click();
 
     expect(".modal .modal-lg").toHaveCount(2);
 
@@ -454,7 +455,7 @@ test("SelectCreateDialog cascade x2many in create mode on mobile", async () => {
         `,
     });
 
-    await contains(".o_field_x2many_list_row_add a").click();
+    await contains(".o_field_x2many_list_row_add button").click();
 
     click(".o_field_widget[name=instrument] input");
     await animationFrame();
@@ -464,7 +465,7 @@ test("SelectCreateDialog cascade x2many in create mode on mobile", async () => {
     expect(".modal .modal-lg").toHaveCount(2);
 
     await contains(".modal .o_field_char[name=name] input").edit("ABC");
-    await contains(".modal .o_field_x2many_list_row_add a").click();
+    await contains(".modal .o_field_x2many_list_row_add button").click();
 
     expect(".modal .modal-lg").toHaveCount(3);
     await contains(
@@ -798,6 +799,23 @@ test("SelectCreateDialog empty list, default no content helper", async () => {
         </div>`
     );
 });
+
+test.tags("desktop");
+test("SelectCreateDialog doesn't display the cog menu", async () => {
+    class CogItem extends Component {
+        static template = xml`<span class="test-cog"/>`;
+    }
+    registry.category("cogMenu").add("test-cog", { Component: CogItem, isDisplayed: () => true });
+    Partner._views["list"] = /* xml */ `<list><field name="name"/></list>`;
+
+    await mountWithCleanup(WebClient);
+    getService("dialog").add(SelectCreateDialog, { resModel: "partner" });
+    await animationFrame();
+
+    expect(".o_dialog .o_list_view").toHaveCount(1);
+    expect(".o_dialog .o_cp_action_menus").toHaveCount(0);
+});
+
 test.tags("mobile");
 test("SelectCreateDialog empty kanban, default no content helper", async () => {
     Partner._records = [];
@@ -866,6 +884,13 @@ test("SelectCreateDialog with open action", async () => {
             expect.step(`execute_action: ${name}`, params);
         },
     });
+
+    let searchLimit;
+    onRpc("instrument", "name_search", ({ kwargs }) => {
+        expect.step("name_search");
+        searchLimit = kwargs.limit;
+    });
+
     Instrument._views["list"] = /* xml */ `
         <list action="test_action" type="object">
             <field name="name"/>
@@ -884,10 +909,23 @@ test("SelectCreateDialog with open action", async () => {
     await contains(`.o_field_widget[name="instrument"] .dropdown input`).click();
     await contains(`.o_field_widget[name="instrument"] .o_m2o_dropdown_option_search_more`).click();
     await contains(
-        `.o_list_renderer .o_data_row .o_field_cell.o_list_char[data-tooltip="Instrument 10"]`
+        `.o_list_renderer .o_data_row .o_field_cell.o_list_char:text("Instrument 10")`
     ).click();
     expect("input").toHaveValue("Instrument 10");
     expect.verifySteps([]);
+
+    await contains(".o_field_widget[name=instrument] input").edit("Instrument", { confirm: false });
+    await runAllTimers();
+    await contains(`.o_field_widget[name="instrument"] .o_m2o_dropdown_option_search_more`).click();
+    expect.verifySteps(["name_search"]);
+    expect(searchLimit).toBe(1000, {
+        message: "The name_search should have been called with a limit of 1000",
+    });
+
+    expect(".modal .modal-lg").toHaveCount(1);
+    expect(".modal .modal-lg .o_data_row").toHaveCount(25, {
+        message: "should contain 25 records",
+    });
 });
 
 test.tags("mobile");
@@ -1070,4 +1108,37 @@ test("SelectCreateDialog list: control panel stays visible when list overflows",
     expect(renderer.scrollHeight).toBeGreaterThan(renderer.clientHeight, {
         message: "Scroll belongs to the renderer (doesn't include the control panel)",
     });
+});
+
+test.tags("mobile");
+test("dropdown menu is hidden in SelectCreateDialog", async () => {
+    Product._views["kanban"] = /* xml */ `
+        <kanban>
+            <templates>
+                <t t-name="menu">
+                    <a role="menuitem" type="open" class="dropdown-item">Open</a>
+                </t>
+                <t t-name="card">
+                    <field name="name"/>
+                </t>
+            </templates>
+        </kanban>
+    `;
+    Product._views["search"] = /* xml */ `<search/>`;
+
+    await mountView({
+        type: "form",
+        resModel: "sale_order_line",
+        arch: `
+            <form>
+                <field name="product_id"/>
+            </form>`,
+    });
+
+    await contains('.o_field_widget[name="product_id"] input').click();
+
+    expect(".o_dialog").toHaveCount(1);
+    expect(".o_dialog .o_kanban_view .o_kanban_record:not(.o_kanban_ghost)").toHaveCount(1);
+
+    expect(".o_kanban_record:eq(0) .o_dropdown_kanban .dropdown-toggle").toHaveCount(0);
 });

@@ -76,7 +76,7 @@ ul.flex-column > li > a {
 
 // Link without text but an icon
 a, .btn-link {
-    &.fa:hover {
+    &.oi:hover {
         text-decoration: $o-theme-btn-icon-hover-decoration;
     }
 }
@@ -172,7 +172,6 @@ img, .media_iframe_video, .o_image {
     background: rgba(150, 150, 220, 0.3);
 }
 .oe_search_box {
-    padding-right: 23px;
     text-overflow: ellipsis;
 }
 
@@ -331,6 +330,21 @@ img, .media_iframe_video, .o_image {
     }
 }
 
+.o_portal_profile_card {
+    .btn {
+        background-color: rgba(255, 255, 255, 0.5);
+        width: 2rem;
+        height: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:hover {
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+    }
+}
+
 .o_portal_address {
     span[itemprop="name"] {
         display: inline-block;
@@ -346,7 +360,7 @@ img, .media_iframe_video, .o_image {
             margin-bottom: 0.3em;
         }
 
-        .fa {
+        .oi {
             line-height: $line-height-base;
             color: $o-gray-500;
 
@@ -365,7 +379,7 @@ img, .media_iframe_video, .o_image {
         gap: map-get($spacers, 2);
     }
 
-    span[itemprop="streetAddress"] {
+    span[itemprop="streetAddress"], .o_address_card_vat {
         color: var(--#{$prefix}secondary-color);
     }
 }
@@ -380,9 +394,17 @@ img, .media_iframe_video, .o_image {
     @include o-position-absolute(45%, 0, auto, 0);
 }
 
+.o_portal_sidebar .o_portal_html_view iframe {
+    transform-origin: top left;
+}
+
 .o_portal_sidebar .o_portal_sidebar_content span.oe_currency_value {
     word-break: break-word !important;
     white-space: normal !important;
+}
+
+.o_portal_contact_details .o_avatar {
+    --Avatar-size: 2.5rem;
 }
 
 // ------------------------------------------------------------

@@ -22,13 +22,12 @@ class TestSMSComposerComment(SMSCommon, TestSMSRecipients):
         super(TestSMSComposerComment, cls).setUpClass()
         cls._test_body = 'VOID CONTENT'
 
-        cls.test_record = cls.env['mail.test.sms'].with_context(**cls._test_context).create({
+        cls.test_record = cls.env['mail.test.sms'].create({
             'name': 'Test',
             'customer_id': cls.partner_1.id,
             'mobile_nbr': cls.test_numbers[0],
             'phone_nbr': cls.test_numbers[1],
         })
-        cls.test_record = cls._reset_mail_context(cls.test_record)
 
         cls.sms_template = cls.env['sms.template'].create({
             'name': 'Test Template',
@@ -125,7 +124,17 @@ class TestSMSComposerComment(SMSCommon, TestSMSRecipients):
             with self.mockSMSGateway():
                 messages = composer._action_send_sms()
 
-        self.assertSMSNotification([{'partner': self.test_record.customer_id, 'number': self.test_record.mobile_nbr}], 'Dear %s this is an SMS.' % self.test_record.display_name, messages)
+        self.assertSMSNotification(
+            [
+                {'partner': self.test_record.customer_id, 'number': self.test_record.mobile_nbr}
+            ],
+            'Dear %s this is an SMS.' % self.test_record.display_name,
+            messages,
+            mail_message_values={
+                'message_type': 'sms',
+                'source_sms_template_id': self.sms_template,
+            }
+        )
 
     def test_composer_comment_invalid_field(self):
         """ Test the Send Message in SMS Composer when a Model does not contain a number field name """
@@ -295,6 +304,7 @@ class TestSMSComposerComment(SMSCommon, TestSMSRecipients):
 
 
 @tagged('sms_composer')
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestSMSComposerBatch(SMSCommon):
 
     @classmethod
@@ -347,6 +357,7 @@ class TestSMSComposerBatch(SMSCommon):
 
 
 @tagged('sms_composer', 'twilio')
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestSMSComposerBatchTwilio(SMSCommon, MockSmsTwilioApi):
 
     @classmethod
@@ -381,6 +392,7 @@ class TestSMSComposerBatchTwilio(SMSCommon, MockSmsTwilioApi):
 
 
 @tagged('sms_composer')
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestSMSComposerMass(SMSCommon):
 
     @classmethod
@@ -592,7 +604,10 @@ class TestSMSComposerMass(SMSCommon):
                 record.customer_id, None,
                 content='Dear %s this is an SMS.' % record.display_name
             )
-            self.assertSMSLogged(record, 'Dear %s this is an SMS.' % record.display_name)
+            self.assertSMSLogged(
+                record, 'Dear %s this is an SMS.' % record.display_name,
+                message_values={'source_sms_template_id': self.sms_template}
+            )
 
     def test_composer_template_context_action(self):
         """ Test the context action from a SMS template (Add context action button)
@@ -670,6 +685,7 @@ class TestSMSComposerMass(SMSCommon):
 
 
 @tagged('sms_composer', 'twilio')
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestSMSComposerMassTwilio(SMSCommon, MockSmsTwilioApi):
 
     @classmethod

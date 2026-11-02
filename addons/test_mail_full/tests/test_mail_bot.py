@@ -7,12 +7,17 @@ from odoo.tools import mute_logger
 
 
 @tagged("odoobot")
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestOdoobot(MailCommon, TestRecipients):
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.test_record = cls.env['mail.test.simple'].with_context(cls._test_context).create({'name': 'Test', 'email_from': 'ignasse@example.com'})
+        cls.test_record = cls.env['mail.test.simple'].create({'name': 'Test', 'email_from': 'ignasse@example.com'})
+        cls.canned_response = cls.env['mail.canned.response'].create({
+            'source': 'hello',
+            'substitution': 'Hello, how may I help you?',
+        })
 
         cls.odoobot = cls.env.ref("base.partner_root")
         cls.message_post_default_kwargs = {
@@ -55,14 +60,8 @@ class TestOdoobot(MailCommon, TestRecipients):
         channel = self.user_employee.with_user(self.user_employee)._init_odoobot()
 
         kwargs['body'] = 'tagada 😊'
-        last_message = self.assertNextMessage(
-            channel.message_post(**kwargs),
-            sender=self.odoobot,
-            answer=("help",)
-        )
-        channel.execute_command_help()
         self.assertNextMessage(
-            last_message,  # no message will be post with command help, use last odoobot message instead
+            channel.message_post(**kwargs),
             sender=self.odoobot,
             answer=("@OdooBot",)
         )
@@ -73,18 +72,33 @@ class TestOdoobot(MailCommon, TestRecipients):
             sender=self.odoobot,
             answer=("attachment",)
         )
-        kwargs['body'] = ''
         attachment = self.env['ir.attachment'].with_user(self.user_employee).create({
-            'datas': 'bWlncmF0aW9uIHRlc3Q=',
+            'raw': b'migration test',
             'name': 'picture_of_your_dog.doc',
             'res_model': 'mail.compose.message',
         })
         kwargs['attachment_ids'] = [attachment.id]
-        # For the end of the flow, we only test that the state changed, but not to which
-        # one since it depends on the intalled apps, which can add more steps (like livechat)
         channel.message_post(**kwargs)
         self.assertNotEqual(self.user_employee.odoobot_state, 'onboarding_attachement')
-
+        kwargs['attachment_ids'] = []
+        kwargs['body'] = 'Thanks'
+        last_message = self.assertNextMessage(
+            self.assertNextMessage(
+                channel.with_context(canned_response_ids=[self.canned_response.id]).message_post(**kwargs),
+                sender=self.odoobot,
+                answer=("canned responses",)
+            ),
+            sender=self.odoobot,
+            answer=("/help",)
+        )
+        # The 'help' command is the last step of the onboarding flow
+        # (which can be extended by other apps like livechat).
+        channel.execute_command_help()
+        self.assertNextMessage(
+            last_message,  # No message is posted with 'help' command, so use the last odoobot message instead.
+            sender=self.odoobot,
+            answer=("close this conversation",)
+        )
         # Test miscellaneous messages
         self.user_employee.odoobot_state = "idle"
         kwargs['partner_ids'] = []
@@ -117,7 +131,7 @@ class TestOdoobot(MailCommon, TestRecipients):
         )
 
     def assertNextMessage(self, message, answer=None, sender=None):
-        last_message = self.env['mail.message'].search([('id', '=', message.id + 1)])
+        last_message = self.env['mail.message'].search([('id', '>', message.id)], order='id', limit=1)
         if last_message:
             body = last_message.body.replace('<p>', '').replace('</p>', '')
         else:

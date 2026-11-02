@@ -4,7 +4,7 @@ import { tick } from "@odoo/hoot-mock";
 import { testEditor } from "../_helpers/editor";
 import { insertText, splitBlock } from "../_helpers/user_actions";
 import { unformat } from "../_helpers/format";
-import { EMBEDDED_COMPONENT_PLUGINS, MAIN_PLUGINS } from "@html_editor/plugin_sets";
+import { EMBEDDED_COMPONENT_PLUGINS } from "@html_editor/plugin_sets";
 import { QWebPlugin } from "@html_editor/others/qweb_plugin";
 import { findInSelection } from "@html_editor/utils/selection";
 import {
@@ -130,7 +130,7 @@ describe("Selection collapsed", () => {
                         []<t t-out="World"></t>
                     </h1>
                 `),
-                config: { Plugins: [...MAIN_PLUGINS, QWebPlugin] },
+                config: { includePlugins: [QWebPlugin] },
             });
         });
     });
@@ -138,7 +138,7 @@ describe("Selection collapsed", () => {
     describe("Pre", () => {
         describe("with syntax highlighting", () => {
             const configWithEmbeddings = {
-                Plugins: [...MAIN_PLUGINS, ...EMBEDDED_COMPONENT_PLUGINS],
+                includePlugins: EMBEDDED_COMPONENT_PLUGINS,
                 resources: { embedded_components: MAIN_EMBEDDINGS },
             };
             const testEnterInCodeBlock = (selectionStart) => async (editor) => {
@@ -545,7 +545,7 @@ describe("Selection collapsed", () => {
             // skipping these tests cause with the link isolation the cursor can be put
             // inside/outside the link so the user can choose where to insert the line break
             // see `anchor.nodeName === "A" && brEls.includes(anchor.firstChild)` in line_break_plugin.js
-            test("should insert line breaks outside the edges of an anchor in unbreakable (1)", async () => {
+            test("should insert line breaks outside the edges of an anchor in unsplittable (1)", async () => {
                 await testEditor({
                     contentBefore: `<div class="oe_unbreakable">ab<a href="http://test.test/">[]cd</a></div>`,
                     stepFunction: splitBlockA,
@@ -553,7 +553,7 @@ describe("Selection collapsed", () => {
                 });
             });
 
-            test("should insert line breaks outside the edges of an anchor in unbreakable (2)", async () => {
+            test("should insert line breaks outside the edges of an anchor in unsplittable (2)", async () => {
                 await testEditor({
                     contentBefore: `<div class="oe_unbreakable"><a href="http://test.test/">a[]b</a></div>`,
                     stepFunction: splitBlockA,
@@ -561,7 +561,7 @@ describe("Selection collapsed", () => {
                 });
             });
 
-            test("should insert line breaks outside the edges of an anchor in unbreakable (3)", async () => {
+            test("should insert line breaks outside the edges of an anchor in unsplittable (3)", async () => {
                 await testEditor({
                     contentBefore: `<div class="oe_unbreakable"><a href="http://test.test/">ab[]</a></div>`,
                     stepFunction: splitBlockA,
@@ -569,7 +569,7 @@ describe("Selection collapsed", () => {
                 });
             });
 
-            test("should insert line breaks outside the edges of an anchor in unbreakable (4)", async () => {
+            test("should insert line breaks outside the edges of an anchor in unsplittable (4)", async () => {
                 await testEditor({
                     contentBefore: `<div class="oe_unbreakable"><a href="http://test.test/">ab[]</a>cd</div>`,
                     stepFunction: splitBlockA,
@@ -577,7 +577,7 @@ describe("Selection collapsed", () => {
                 });
             });
 
-            test("should insert line breaks outside the edges of an anchor in unbreakable (5)", async () => {
+            test("should insert line breaks outside the edges of an anchor in unsplittable (5)", async () => {
                 await testEditor({
                     contentBefore: `<div class="oe_unbreakable"><a href="http://test.test/" style="display: block;">ab[]</a></div>`,
                     stepFunction: splitBlockA,
@@ -728,7 +728,7 @@ describe("Selection collapsed", () => {
                 await testEditor({
                     contentBefore: '<p><span style="font-size: 36px;">abc[]</span></p>',
                     stepFunction: splitBlock,
-                    contentAfterEdit: `<p><span style="font-size: 36px;">abc</span></p><p o-we-hint-text='Type "/" for commands' class="o-we-hint"><span style="font-size: 36px;" data-oe-zws-empty-inline="">[]\u200b</span></p>`,
+                    contentAfterEdit: `<p><span style="font-size: 36px;">abc</span></p><p><span style="font-size: 36px;" data-oe-zws-empty-inline="">[]\u200b</span></p>`,
                     contentAfter: `<p><span style="font-size: 36px;">abc</span></p><p>[]<br></p>`,
                 });
             });
@@ -737,8 +737,7 @@ describe("Selection collapsed", () => {
 });
 
 describe("Selection not collapsed", () => {
-    test("should delete the first half of a paragraph, then split it (1)", async () => {
-        // Forward selection
+    test("should delete the first half of a paragraph, then split it", async () => {
         await testEditor({
             contentBefore: "<p>[ab]cd</p>",
             stepFunction: splitBlock,
@@ -746,17 +745,7 @@ describe("Selection not collapsed", () => {
         });
     });
 
-    test("should delete the first half of a paragraph, then split it (2)", async () => {
-        // Backward selection
-        await testEditor({
-            contentBefore: "<p>]ab[cd</p>",
-            stepFunction: splitBlock,
-            contentAfter: "<p><br></p><p>[]cd</p>",
-        });
-    });
-
-    test("should delete part of a paragraph, then split it (1)", async () => {
-        // Forward selection
+    test("should delete part of a paragraph, then split it", async () => {
         await testEditor({
             contentBefore: "<p>a[bc]d</p>",
             stepFunction: splitBlock,
@@ -764,17 +753,7 @@ describe("Selection not collapsed", () => {
         });
     });
 
-    test("should delete part of a paragraph, then split it (2)", async () => {
-        // Backward selection
-        await testEditor({
-            contentBefore: "<p>a]bc[d</p>",
-            stepFunction: splitBlock,
-            contentAfter: "<p>a</p><p>[]d</p>",
-        });
-    });
-
-    test("should delete the last half of a paragraph, then split it (1)", async () => {
-        // Forward selection
+    test("should delete the last half of a paragraph, then split it", async () => {
         await testEditor({
             contentBefore: "<p>ab[cd]</p>",
             stepFunction: splitBlock,
@@ -782,28 +761,9 @@ describe("Selection not collapsed", () => {
         });
     });
 
-    test("should delete the last half of a paragraph, then split it (2)", async () => {
-        // Backward selection
-        await testEditor({
-            contentBefore: "<p>ab]cd[</p>",
-            stepFunction: splitBlock,
-            contentAfter: "<p>ab</p><p>[]<br></p>",
-        });
-    });
-
-    test("should delete all contents of a paragraph, then split it (1)", async () => {
-        // Forward selection
+    test("should delete all contents of a paragraph, then split it", async () => {
         await testEditor({
             contentBefore: "<p>[abcd]</p>",
-            stepFunction: splitBlock,
-            contentAfter: "<p><br></p><p>[]<br></p>",
-        });
-    });
-
-    test("should delete all contents of a paragraph, then split it (2)", async () => {
-        // Backward selection
-        await testEditor({
-            contentBefore: "<p>]abcd[</p>",
             stepFunction: splitBlock,
             contentAfter: "<p><br></p><p>[]<br></p>",
         });
@@ -821,8 +781,7 @@ describe("Selection not collapsed", () => {
 });
 
 describe("Table", () => {
-    test("should remove all contents of an anchor td and split paragraph on forward selection", async () => {
-        // Forward selection
+    test("should remove all contents of an anchor td and split paragraph", async () => {
         await testEditor({
             contentBefore: `
                 <table>
@@ -855,18 +814,18 @@ describe("Table", () => {
                         </tr>
                     </tbody>
                 </table>`,
+            testInBothDirections: false,
         });
     });
-    test("should remove all contents of an anchor td and split paragraph on backward selection", async () => {
-        // Backward selection
+    test("should remove all contents of an anchor td and split paragraph (reversed selection)", async () => {
         await testEditor({
             contentBefore: `
                 <table>
                     <tbody>
                         <tr>
-                            <td><p>]ab</p></td>
+                            <td><p>]abc</p><p>def</p></td>
                             <td><p>abcd</p></td>
-                            <td><p>abc</p><p>def[</p></td>
+                            <td><p>ab[</p></td>
                         </tr>
                         <tr>
                             <td><p><br></p></td>
@@ -880,7 +839,7 @@ describe("Table", () => {
                 <table>
                     <tbody>
                         <tr>
-                            <td><p>ab</p></td>
+                            <td><p>abc</p><p>def</p></td>
                             <td><p>abcd</p></td>
                             <td><p><br></p><p>[]<br></p></td>
                         </tr>
@@ -891,6 +850,7 @@ describe("Table", () => {
                         </tr>
                     </tbody>
                 </table>`,
+            testInBothDirections: false,
         });
     });
     test("remove selected text and insert paragraph tag within a table cell and enter key is pressed", async () => {

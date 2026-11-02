@@ -4,7 +4,7 @@ import logging
 
 from odoo.addons.point_of_sale.tests.test_frontend import TestPointOfSaleHttpCommon
 
-from odoo.cli.populate import Populate
+from odoo.cli.duplicate import Duplicate
 from odoo.tests.common import tagged
 from odoo.tools import mute_logger
 
@@ -21,13 +21,14 @@ class TestPosPerformance(TestPointOfSaleHttpCommon):
     Example:
         --test-tags pos_performance.test_pos_session_open_product_performance
     """
+    _test_user_groups = None  # FIXME list needed groups
 
     def __populate_model(self, model_name, total_count):
         before_count = self.env[model_name].search_count([])
-        if not before_count:
+        if not before_count or before_count >= total_count:
             return False
         populate_count = round(total_count / before_count) - 1
-        Populate.populate(self.env, {model_name: populate_count}, 1)
+        Duplicate.duplicate(self.env, {model_name: populate_count}, 1)
 
         after_count = self.env[model_name].search_count([])
         _logger.info("\n\nBefore %s Count: %s\nAfter %s Count: %s\n\n", model_name, before_count, model_name, after_count)
@@ -35,7 +36,7 @@ class TestPosPerformance(TestPointOfSaleHttpCommon):
 
     @mute_logger('odoo.models.unlink', 'odoo.cli.populate', 'odoo.tools.populate', 'odoo.tests.common', 'werkzeug')
     def test_pos_session_open_product_performance(self):
-        self.env['ir.config_parameter'].sudo().set_param('point_of_sale.limited_product_count', 20000)
+        self.env['ir.config_parameter'].sudo().set_int('point_of_sale.limited_product_count', 20000)
         if not self.__populate_model('product.template', 20000):
             _logger.warning("The product.template model must contain at least one record before it can be populated.")
             return

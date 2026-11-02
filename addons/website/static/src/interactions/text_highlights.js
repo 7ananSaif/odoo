@@ -9,7 +9,7 @@ import {
 } from "@website/js/highlight_utils";
 
 export class TextHighlight extends Interaction {
-    static selector = "#wrapwrap, .o_wslides_fs_content";
+    static selector = "#wrapwrap";
     dynamicContent = {
         _root: {
             "t-on-text_highlight_added": ({ target }) => this.onTextHighlightAdded(target),
@@ -50,7 +50,7 @@ export class TextHighlight extends Interaction {
             if (hasSvg) {
                 continue;
             }
-            closestToObserves.add(this.closestToObserve(target));
+            closestToObserves.add(closestToObserve(target, this.el));
         }
         for (const closestToObserve of closestToObserves) {
             for (const el of closestToObserve.querySelectorAll(".o_text_highlight")) {
@@ -68,23 +68,6 @@ export class TextHighlight extends Interaction {
             }
         }
     }
-    /**
-     * TODO: Remove in master (left in stable for compatibility)
-     *
-     * @param {HTMLElement} el
-     */
-    closestToObserve(el) {
-        return closestToObserve(el, this.el);
-    }
-
-    /**
-     * TODO: Remove in master (left in stable for compatibility)
-     *
-     * @param {HTMLElement} el
-     */
-    getObservedEls(el) {
-        return getObservedEls(el);
-    }
 
     /**
      * @param {HTMLElement} el
@@ -95,11 +78,11 @@ export class TextHighlight extends Interaction {
         // units (`.o_text_highlight_item`) as long as the width of the entire
         // `.o_text_highlight` element remains the same, so we need to observe
         // each one of them and do the adjustment only once for the whole text.
-        for (const elToObserve of this.getObservedEls(el)) {
+        for (const elToObserve of getObservedEls(el)) {
             this.resizeObserver.observe(elToObserve);
         }
-        const closestToObserve = this.closestToObserve(el);
-        this.mutationObserver.observe(closestToObserve, {
+        const closestToObserveEl = closestToObserve(el, this.el);
+        this.mutationObserver.observe(closestToObserveEl, {
             childList: true,
             characterData: true,
             subtree: true,

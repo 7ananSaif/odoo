@@ -2,7 +2,6 @@ import { registry } from "@web/core/registry";
 import { stepUtils } from "@web_tour/tour_utils";
 
 registry.category("web_tour.tours").add('snippets_mailing_menu_tabs', {
-    url: '/odoo',
     steps: () => [
     stepUtils.showAppsMenuItem(), {
         content: "Select the 'Email Marketing' app.",
@@ -16,7 +15,7 @@ registry.category("web_tour.tours").add('snippets_mailing_menu_tabs', {
     },
     {
         content: "Click on the 'Start From Scratch' template.",
-        trigger: '.o_mailing_template_preview_wrapper [data-name="empty"]',
+        trigger: ':iframe .o_mailing_template_preview_wrapper [data-name="empty"]',
         run: "click",
     },
     {

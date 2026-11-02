@@ -1,19 +1,17 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-import base64
 import logging
 
 from dateutil.relativedelta import relativedelta
 from unittest.mock import patch
 
-from odoo import http, tests
+from odoo import tests
 from odoo.addons.base.tests.common import HttpCaseWithUserPortal
+from odoo.addons.base.tests.files import JPG_RAW, PDF_RAW
 from odoo.addons.gamification.tests.common import HttpCaseGamification
 from odoo.addons.mail.models.mail_message import MailMessage
 from odoo.fields import Command, Datetime
-from odoo.tools import mute_logger
-from odoo.tools.misc import file_open
-import unittest
+from odoo.tools import BinaryBytes, mute_logger
 
 _logger = logging.getLogger(__name__)
 
@@ -34,10 +32,6 @@ class TestUICommon(HttpCaseGamification, HttpCaseWithUserPortal):
                 <img class="ms-3 img img-fluid" style="max-height: 72px;" src="/gamification/static/img/rank_misc_mug.png"/>
             </div>"""
 
-        # Load pdf and img contents
-        pdf_content = base64.b64encode(file_open('website_slides/static/src/img/presentation.pdf', "rb").read())
-        img_content = base64.b64encode(file_open('website_slides/static/src/img/slide_demo_gardening_1.jpg', "rb").read())
-
         self.channel = self.env['slide.channel'].create({
             'name': 'Basics of Gardening - Test',
             'user_id': self.env.ref('base.user_admin').id,
@@ -52,26 +46,26 @@ class TestUICommon(HttpCaseGamification, HttpCaseWithUserPortal):
                 (0, 0, {
                     'name': 'Gardening: The Know-How',
                     'sequence': 1,
-                    'binary_content': pdf_content,
+                    'binary_content': BinaryBytes(PDF_RAW),
                     'slide_category': 'document',
                     'is_published': True,
                     'is_preview': True,
                 }), (0, 0, {
                     'name': 'Home Gardening',
                     'sequence': 2,
-                    'image_1920': img_content,
+                    'image_1920': BinaryBytes(JPG_RAW),
                     'slide_category': 'infographic',
                     'is_published': True,
                 }), (0, 0, {
                     'name': 'Mighty Carrots',
                     'sequence': 3,
-                    'image_1920': img_content,
+                    'image_1920': BinaryBytes(JPG_RAW),
                     'slide_category': 'infographic',
                     'is_published': True,
                 }), (0, 0, {
                     'name': 'How to Grow and Harvest The Best Strawberries | Basics',
                     'sequence': 4,
-                    'binary_content': pdf_content,
+                    'binary_content': BinaryBytes(PDF_RAW),
                     'slide_category': 'document',
                     'is_published': True,
                 }), (0, 0, {
@@ -117,7 +111,7 @@ class TestUICommon(HttpCaseGamification, HttpCaseWithUserPortal):
 @tests.common.tagged('post_install', '-at_install')
 class TestUi(TestUICommon):
 
-    @mute_logger("odoo.http", "odoo.addons.base.models.ir_rule", "werkzeug")
+    @mute_logger("odoo.http", "odoo.addons.base.models.ir_access", "werkzeug")
     def test_course_access_fail_redirection(self):
         """Test that the user is redirected to /slides with en error displayed instead of the standard error page."""
         self.channel.visibility = "members"
@@ -261,6 +255,18 @@ class TestUi(TestUICommon):
             },
         )
 
+    def test_slides_review_highlight(self):
+        message = self.env["mail.message"].create(
+            {
+                "author_id": self.user_admin.partner_id.id,
+                "body": "Test Message",
+                "model": self.channel._name,
+                "res_id": self.channel.id,
+                "subtype_id": self.ref("mail.mt_comment"),
+            }
+        )
+        self.start_tour(f"/mail/message/{message.id}", "slides_review_highlight_tour", login="portal")
+
     def test_course_review_modification(self):
         self.user_portal.karma = 20
         self.start_tour("/slides", "course_review_modification", login=self.user_portal.login)
@@ -314,7 +320,7 @@ class TestUi(TestUICommon):
             'html_content': "<section class=\"s_text_block\" data-snippet=\"s_text_block\"><p>Hello World!</p></section>"
         })
 
-        self.start_tour("/slides", 'fullscreen_slide_text_highlights', login='admin')
+        self.start_tour(self.env["website"].get_client_action_url("/slides"), 'fullscreen_slide_text_highlights', login='admin')
 
 
 @tests.common.tagged('post_install', '-at_install')
@@ -323,9 +329,7 @@ class TestUiPublisher(HttpCaseGamification):
     def fetch_proxy(self, url):
         if url.endswith('ThreeTimeAKCGoldWinnerPembrookeWelshCorgi.jpg'):
             _logger.info('External chrome request during tests: Sending dummy image for %s', url)
-            with file_open('base/tests/odoo.jpg', 'rb') as f:
-                content = f.read()
-            return self.make_fetch_proxy_response(content)
+            return self.make_fetch_proxy_response(JPG_RAW)
         return super().fetch_proxy(url)
 
     def test_course_publisher_elearning_manager(self):
@@ -394,8 +398,9 @@ class TestUiPublisherYoutube(HttpCaseGamification):
             'group_ids': [(5, 0), (4, self.env.ref('base.group_user').id)]
         })
         self.env.ref('website_slides.slide_channel_demo_3_furn0')._remove_membership(self.env.ref('base.partner_demo').ids)
+        self.env.ref('website_slides.slide_slide_demo_3_1').url += '&start=260'
 
-        self.start_tour('/slides', 'course_member_youtube', login=user_demo.login)
+        self.start_tour(self.env['website'].get_client_action_url('/slides'), 'course_member_youtube', login=user_demo.login)
 
     def test_course_publisher_elearning_manager(self):
         user_demo = self.user_demo

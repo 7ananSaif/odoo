@@ -1,148 +1,201 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# * bus
+# 	* bus
 #
-# Bone NI <bounkirdni@gmail.com>, 2026.
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 10.saas~18\n"
+"Project-Id-Version: Odoo Server 19.4a1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-16 13:49+0000\n"
-"PO-Revision-Date: 2026-06-06 14:00+0000\n"
-"Last-Translator: Bone NI <bounkirdni@gmail.com>\n"
-"Language-Team: Lao <https://translate.odoo.com/projects/odoo-19/bus/lo/>\n"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-08-31 19:04+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Lao <https://translate.odoo.com/projects/odoo-s19-4/bus/lo/>\n"
 "Language: lo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: bus
-#: model:ir.model.fields.selection,name:bus.selection__bus_presence__status__away
-msgid "Away"
-msgstr "ບໍ່ຢູ່"
+#: model:ir.model,name:bus.model_res_groups
+msgid "Access Groups"
+msgstr ""
+
+#. module: bus
+#: model:ir.model,name:bus.model_ir_attachment
+msgid "Attachment"
+msgstr ""
+
+#. module: bus
+#. odoo-javascript
+#: code:addons/bus/static/src/debug/bus_logs_menu_item.js:0
+msgid ""
+"Bus logs contain confidential information and must only be shared with "
+"trusted recipients."
+msgstr ""
+
+#. module: bus
+#: model:ir.model,name:bus.model_bus_listener_mixin
+msgid "Can send messages via bus.bus"
+msgstr ""
 
 #. module: bus
 #: model:ir.model.fields,field_description:bus.field_bus_bus__channel
 msgid "Channel"
-msgstr "ຊ່ອງທາງ"
+msgstr ""
 
 #. module: bus
 #: model:ir.model,name:bus.model_bus_bus
 msgid "Communication Bus"
-msgstr "ບັດສ໌ການສື່ສານ"
+msgstr ""
 
 #. module: bus
 #: model:ir.model,name:bus.model_res_partner
 msgid "Contact"
-msgstr "ຜູ້ຕິດຕໍ່"
+msgstr ""
+
+#. module: bus
+#: model:ir.model.fields,field_description:bus.field_bus_bus__create_date
+msgid "Create Date"
+msgstr ""
+
+#. module: bus
+#: model:ir.model,website_form_label:bus.model_res_partner
+msgid "Create a Customer"
+msgstr ""
 
 #. module: bus
 #: model:ir.model.fields,field_description:bus.field_bus_bus__create_uid
 msgid "Created by"
-msgstr "ສ້າງໂດຍ"
-
-#. module: bus
-#: model:ir.model.fields,field_description:bus.field_bus_bus__create_date
-msgid "Created on"
-msgstr "ສ້າງເມື່ອ"
+msgstr ""
 
 #. module: bus
 #: model:ir.model.fields,field_description:bus.field_bus_bus__display_name
-#: model:ir.model.fields,field_description:bus.field_bus_presence__display_name
+#: model:ir.model.fields,field_description:bus.field_bus_listener_mixin__display_name
+#: model:ir.model.fields,field_description:bus.field_ir_attachment__display_name
+#: model:ir.model.fields,field_description:bus.field_ir_http__display_name
+#: model:ir.model.fields,field_description:bus.field_ir_model__display_name
+#: model:ir.model.fields,field_description:bus.field_ir_qweb__display_name
+#: model:ir.model.fields,field_description:bus.field_ir_websocket__display_name
+#: model:ir.model.fields,field_description:bus.field_res_groups__display_name
+#: model:ir.model.fields,field_description:bus.field_res_partner__display_name
+#: model:ir.model.fields,field_description:bus.field_res_users__display_name
+#: model:ir.model.fields,field_description:bus.field_res_users_settings__display_name
 msgid "Display Name"
-msgstr "ຊື່ທີ່ສະແດງ"
+msgstr ""
+
+#. module: bus
+#. odoo-javascript
+#: code:addons/bus/static/src/debug/bus_logs_menu_item.js:0
+msgid "Download"
+msgstr ""
+
+#. module: bus
+#. odoo-javascript
+#: code:addons/bus/static/src/debug/bus_logs_menu_item.xml:0
+msgid "Download logs"
+msgstr ""
+
+#. module: bus
+#. odoo-javascript
+#: code:addons/bus/static/src/debug/bus_logs_menu_item.xml:0
+msgid "Enable Bus Logging"
+msgstr ""
+
+#. module: bus
+#: model:ir.model,name:bus.model_ir_http
+msgid "HTTP Routing"
+msgstr ""
 
 #. module: bus
 #: model:ir.model.fields,field_description:bus.field_bus_bus__id
-#: model:ir.model.fields,field_description:bus.field_bus_presence__id
+#: model:ir.model.fields,field_description:bus.field_bus_listener_mixin__id
+#: model:ir.model.fields,field_description:bus.field_ir_attachment__id
+#: model:ir.model.fields,field_description:bus.field_ir_http__id
+#: model:ir.model.fields,field_description:bus.field_ir_model__id
+#: model:ir.model.fields,field_description:bus.field_ir_qweb__id
+#: model:ir.model.fields,field_description:bus.field_ir_websocket__id
+#: model:ir.model.fields,field_description:bus.field_res_groups__id
+#: model:ir.model.fields,field_description:bus.field_res_partner__id
+#: model:ir.model.fields,field_description:bus.field_res_users__id
+#: model:ir.model.fields,field_description:bus.field_res_users_settings__id
 msgid "ID"
-msgstr "ໄອດີ"
+msgstr ""
 
 #. module: bus
-#: model:ir.model.fields,field_description:bus.field_bus_presence__status
-#: model:ir.model.fields,field_description:bus.field_res_partner__im_status
-#: model:ir.model.fields,field_description:bus.field_res_users__im_status
-msgid "IM Status"
-msgstr "ສະຖານະ IM"
+#: model:ir.module.module,shortdesc:base.module_bus
+msgid "IM Bus"
+msgstr ""
 
 #. module: bus
-#: model:ir.model.fields,field_description:bus.field_bus_presence__last_poll
-msgid "Last Poll"
-msgstr "ການກວດສອບຄັ້ງລ້າສຸດ"
-
-#. module: bus
-#: model:ir.model.fields,field_description:bus.field_bus_presence__last_presence
-msgid "Last Presence"
-msgstr "ການປາກົດຕົວຄັ້ງລ້າສຸດ"
+#: model:ir.module.module,description:base.module_bus
+msgid "Instant Messaging Bus allow you to send messages to users, in live."
+msgstr ""
 
 #. module: bus
 #: model:ir.model.fields,field_description:bus.field_bus_bus__write_uid
 msgid "Last Updated by"
-msgstr "ແກ້ໄຂລ້າສຸດໂດຍ"
+msgstr ""
 
 #. module: bus
 #: model:ir.model.fields,field_description:bus.field_bus_bus__write_date
 msgid "Last Updated on"
-msgstr "ແກ້ໄຂລ້າສຸດເມື່ອ"
+msgstr ""
 
 #. module: bus
 #: model:ir.model.fields,field_description:bus.field_bus_bus__message
 msgid "Message"
-msgstr "ຂໍ້ຄວາມ"
+msgstr ""
 
 #. module: bus
 #: model:ir.model,name:bus.model_ir_model
-msgid "Models"
-msgstr "ໂມເດວ"
+msgid "Model"
+msgstr ""
 
 #. module: bus
-#: model:ir.model.fields.selection,name:bus.selection__bus_presence__status__offline
-msgid "Offline"
-msgstr "ອອຟລາຍ"
-
-#. module: bus
-#: model:ir.model.fields.selection,name:bus.selection__bus_presence__status__online
-msgid "Online"
-msgstr "ອອນລາຍ"
+#: model:ir.model,name:bus.model_ir_qweb
+msgid "Qweb"
+msgstr ""
 
 #. module: bus
 #. odoo-javascript
-#: code:addons/bus/static/src/services/assets_watchdog_service.js:0
+#: code:addons/bus/static/src/services/assets_watchdog_plugin.js:0
 msgid "Refresh"
-msgstr "ໂຫຼດໃໝ່"
+msgstr ""
 
 #. module: bus
 #. odoo-javascript
-#: code:addons/bus/static/src/services/assets_watchdog_service.js:0
+#: code:addons/bus/static/src/services/assets_watchdog_plugin.js:0
 msgid "The page appears to be out of date."
-msgstr "ໜ້ານີ້ເບິ່ງຄືວ່າຈະບໍ່ແມ່ນຂໍ້ມູນລ້າສຸດ."
+msgstr ""
 
 #. module: bus
 #: model:ir.model,name:bus.model_res_users
 msgid "User"
-msgstr "ຜູ້ໃຊ້"
+msgstr ""
 
 #. module: bus
-#: model:ir.model,name:bus.model_bus_presence
-msgid "User Presence"
-msgstr "ການປາກົດຕົວຂອງຜູ້ໃຊ້"
+#: model:ir.model,name:bus.model_res_users_settings
+msgid "User Settings"
+msgstr ""
 
 #. module: bus
-#: model:ir.model.fields,field_description:bus.field_bus_presence__user_id
-msgid "Users"
-msgstr "ຜູ້ໃຊ້"
+#. odoo-javascript
+#: code:addons/bus/static/src/debug/bus_logs_menu_item.js:0
+msgid "You're about to download the bus logs"
+msgstr ""
 
 #. module: bus
 #. odoo-python
 #: code:addons/bus/controllers/home.py:0
-msgid "Your password is the default (admin)! If this system is exposed to untrusted users it is important to change it immediately for security reasons. I will keep nagging you about it!"
+msgid ""
+"Your password is the default (admin)! If this system is exposed to untrusted "
+"users it is important to change it immediately for security reasons. I will "
+"keep nagging you about it!"
 msgstr ""
-"ລະຫັດຜ່ານຂອງທ່ານແມ່ນຄ່າເລີ່ມຕົ້ນ (admin)! ຫາກລະບົບນີ້ຖືກເປີດໃຫ້ຜູ້ໃຊ້ທີ່ບໍ່ໜ້າເຊື່ອຖືເຂົ້າເຖິງໄດ້ ມັນຈຳເປັນຢ່າ"
-"ງຍິ່ງທີ່ຈະຕ້ອງປ່ຽນມັນທັນທີເພື່ອເຫດຜົນດ້ານຄວາມປອດໄພ. ຂ້ອຍຈະຕິດຕາມເຕືອນເຈົ້າເລື້ອຍໆກ່ຽວກັບເລື່ອງນີ້!"
 
 #. module: bus
 #: model:ir.model,name:bus.model_ir_websocket
 msgid "websocket message handling"
-msgstr "ການຈັດການຂໍ້ຄວາມ websocket"
+msgstr ""

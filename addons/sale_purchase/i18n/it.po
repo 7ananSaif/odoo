@@ -6,14 +6,15 @@
 # Martin Trigaux, 2022
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Marianna Ciofani (cima)" <cima@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-09-14 21:12+0000\n"
-"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
-"Language-Team: Italian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-10-20 12:34+0000\n"
+"Last-Translator: \"Marianna Ciofani (cima)\" <cima@odoo.com>\n"
+"Language-Team: Italian <https://translate.odoo.com/projects/odoo-20/"
 "sale_purchase/it/>\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
@@ -21,7 +22,22 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=(n == 1) ? 0 : ((n != 0 && n % 1000000 == "
 "0) ? 1 : 2);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: sale_purchase
+#: model:ir.module.module,description:base.module_sale_purchase
+msgid ""
+"\n"
+"Allows the outsourcing of services. This module allows one to sell services "
+"provided\n"
+"by external providers and will automatically generate purchase orders "
+"directed to the service seller.\n"
+msgstr ""
+"\n"
+"Consente l'esternalizzazione di servizi. Questo modulo permette di vendere "
+"servizi\n"
+"in dotazione a fornitori esterni generando automaticamente ordini di "
+"acquisto per il rivenditore.\n"
 
 #. module: sale_purchase
 #: model_terms:ir.ui.view,arch_db:sale_purchase.exception_purchase_on_sale_cancellation
@@ -39,6 +55,12 @@ msgid "<span class=\"o_stat_text\">Sale</span>"
 msgstr "<span class=\"o_stat_text\">Vendita</span>"
 
 #. module: sale_purchase
+#: model:ir.model.fields,field_description:sale_purchase.field_product_product__service_tracking
+#: model:ir.model.fields,field_description:sale_purchase.field_product_template__service_tracking
+msgid "Create on Order"
+msgstr "Crea dall'ordine"
+
+#. module: sale_purchase
 #: model:ir.model.fields,field_description:sale_purchase.field_product_template__display_name
 #: model:ir.model.fields,field_description:sale_purchase.field_purchase_order__display_name
 #: model:ir.model.fields,field_description:sale_purchase.field_purchase_order_line__display_name
@@ -46,6 +68,17 @@ msgstr "<span class=\"o_stat_text\">Vendita</span>"
 #: model:ir.model.fields,field_description:sale_purchase.field_sale_order_line__display_name
 msgid "Display Name"
 msgstr "Nome visualizzato"
+
+#. module: sale_purchase
+#. odoo-python
+#: code:addons/sale_purchase/models/product_template.py:0
+msgid ""
+"Each time you sell this product through a SO, a RfQ is automatically created "
+"to buy the product. Tip: don't forget to set a vendor on the product."
+msgstr ""
+"Ogni volta che vendi questo prodotto con un ordine di vendita, viene creata "
+"automaticamente una richiesta di preventivo per acquistare il prodotto. "
+"Suggerimento: non dimenticare di impostare un fornitore sul prodotto."
 
 #. module: sale_purchase
 #: model_terms:ir.ui.view,arch_db:sale_purchase.exception_sale_on_purchase_cancellation
@@ -78,18 +111,6 @@ msgstr "Righe di acquisto generate"
 #: model:ir.model.fields,field_description:sale_purchase.field_sale_order_line__id
 msgid "ID"
 msgstr "ID"
-
-#. module: sale_purchase
-#: model:ir.model.fields,help:sale_purchase.field_product_product__service_to_purchase
-#: model:ir.model.fields,help:sale_purchase.field_product_template__service_to_purchase
-msgid ""
-"If ticked, each time you sell this product through a SO, a RfQ is "
-"automatically created to buy the product. Tip: don't forget to set a vendor "
-"on the product."
-msgstr ""
-"Se selezionata, ogni volta che il prodotto viene venduto tramite un OdV, "
-"viene creata in modo automatico una RdP per acquistarlo. Suggerimento: non "
-"dimenticarsi di impostare un fornitore per il prodotto."
 
 #. module: sale_purchase
 #: model_terms:ir.ui.view,arch_db:sale_purchase.exception_purchase_on_sale_quantity_decreased
@@ -137,12 +158,6 @@ msgid "Product"
 msgstr "Prodotto"
 
 #. module: sale_purchase
-#. odoo-python
-#: code:addons/sale_purchase/models/product_template.py:0
-msgid "Product that is not a service can not create RFQ."
-msgstr "Impossibile creare una RdP se il prodotto non è un servizio."
-
-#. module: sale_purchase
 #: model_terms:ir.ui.view,arch_db:sale_purchase.sale_order_inherited_form_purchase
 msgid "Purchase"
 msgstr "Acquisti"
@@ -173,14 +188,19 @@ msgstr ""
 "dopo l'incremento della quantità."
 
 #. module: sale_purchase
-#: model_terms:ir.ui.view,arch_db:sale_purchase.product_template_form_view_inherit
-msgid "Reordering"
-msgstr "Riordini"
-
-#. module: sale_purchase
 #: model:ir.model.fields,field_description:sale_purchase.field_purchase_order_line__sale_order_id
 msgid "Sale Order"
 msgstr "Ordine di vendita"
+
+#. module: sale_purchase
+#: model:ir.module.module,shortdesc:base.module_sale_purchase
+msgid "Sale Purchase"
+msgstr ""
+
+#. module: sale_purchase
+#: model:ir.module.module,summary:base.module_sale_purchase
+msgid "Sale based on service outsourcing."
+msgstr ""
 
 #. module: sale_purchase
 #: model:ir.model,name:sale_purchase.model_sale_order
@@ -199,10 +219,9 @@ msgid "Sources Sale Orders %s"
 msgstr "Ordini di vendita alla fonte %s"
 
 #. module: sale_purchase
-#: model:ir.model.fields,field_description:sale_purchase.field_product_product__service_to_purchase
-#: model:ir.model.fields,field_description:sale_purchase.field_product_template__service_to_purchase
-msgid "Subcontract Service"
-msgstr "Subappalto"
+#: model:ir.model.fields.selection,name:sale_purchase.selection__product_template__service_tracking__subcontract
+msgid "Subcontracting RFQ"
+msgstr "Richiesta di preventivo per subappalto"
 
 #. module: sale_purchase
 #: model:ir.model.fields,field_description:sale_purchase.field_purchase_order__has_sale_order
@@ -246,9 +265,3 @@ msgstr "di"
 #: model_terms:ir.ui.view,arch_db:sale_purchase.exception_purchase_on_sale_quantity_decreased
 msgid "ordered instead of"
 msgstr "ordinati al posto di"
-
-#~ msgid "<span class=\"o_stat_text\">Purchase</span>"
-#~ msgstr "<span class=\"o_stat_text\">Acquisto</span>"
-
-#~ msgid "Sales Order Cancel"
-#~ msgstr "Annullamento ordine di vendita"

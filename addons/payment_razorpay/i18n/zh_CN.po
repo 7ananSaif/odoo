@@ -3,23 +3,29 @@
 # * payment_razorpay
 #
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
-# "Chloe Wang (chwa)" <chwa@odoo.com>, 2025.
+# "Chloe Wang (chwa)" <chwa@odoo.com>, 2025, 2026.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# 张飞虎 <feihu.zhang@live.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-11-13 13:20+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
+"POT-Creation-Date: 2026-08-28 17:44+0000\n"
+"PO-Revision-Date: 2026-10-21 07:04+0000\n"
+"Last-Translator: \"Chloe Wang (chwa)\" <chwa@odoo.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://translate.odoo.com/"
-"projects/odoo-19/payment_razorpay/zh_Hans/>\n"
+"projects/odoo-20/payment_razorpay/zh_Hans/>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: payment_razorpay
+#: model:ir.module.module,summary:base.module_payment_razorpay
+msgid "A payment provider covering India."
+msgstr "覆盖印度的支付提供商。"
 
 #. module: payment_razorpay
 #: model_terms:ir.ui.view,arch_db:payment_razorpay.payment_provider_form_razorpay
@@ -27,16 +33,14 @@ msgid "Account ID"
 msgstr "账户识别码"
 
 #. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_amex
+msgid "American Express"
+msgstr "美国运通"
+
+#. module: payment_razorpay
 #: model_terms:ir.ui.view,arch_db:payment_razorpay.authorization_error
 msgid "An error occurred"
 msgstr "发生了错误"
-
-#. module: payment_razorpay
-#. odoo-python
-#: code:addons/payment_razorpay/models/payment_transaction.py:0
-msgid ""
-"An error occurred during the processing of your payment. Please try again."
-msgstr "在处理您的付款过程中发生了一个错误。请再试一次。"
 
 #. module: payment_razorpay
 #: model_terms:ir.ui.view,arch_db:payment_razorpay.authorization_error
@@ -52,6 +56,11 @@ msgstr "确定要断开连接吗？"
 #: model_terms:ir.ui.view,arch_db:payment_razorpay.authorization_error
 msgid "Back to the Razorpay provider"
 msgstr "返回 Razorpay 服务商"
+
+#. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_card
+msgid "Card"
+msgstr "银行卡"
 
 #. module: payment_razorpay
 #: model:ir.model.fields,field_description:payment_razorpay.field_payment_provider__code
@@ -70,6 +79,21 @@ msgid "Could not find Razorpay provider with id %s"
 msgstr "找不到 Razorpay 服务商符合识别码 %s"
 
 #. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_diners
+msgid "Diners Club International"
+msgstr "大来国际卡"
+
+#. module: payment_razorpay
+#: model_terms:ir.ui.view,arch_db:payment_razorpay.payment_provider_form_razorpay
+msgid "Disconnect"
+msgstr "中断连接"
+
+#. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_discover
+msgid "Discover"
+msgstr "发现卡"
+
+#. module: payment_razorpay
 #: model:ir.model.fields,field_description:payment_razorpay.field_payment_provider__display_name
 #: model:ir.model.fields,field_description:payment_razorpay.field_payment_token__display_name
 #: model:ir.model.fields,field_description:payment_razorpay.field_payment_transaction__display_name
@@ -77,9 +101,19 @@ msgid "Display Name"
 msgstr "显示名称"
 
 #. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_emi_india
+msgid "EMI"
+msgstr "EMI"
+
+#. module: payment_razorpay
 #: model_terms:ir.ui.view,arch_db:payment_razorpay.payment_provider_form_razorpay
 msgid "Enable recurring payments on Razorpay"
 msgstr "在 Razorpay 上启用重复付款"
+
+#. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_fpx
+msgid "FPX"
+msgstr "FPX"
 
 #. module: payment_razorpay
 #: model_terms:ir.ui.view,arch_db:payment_razorpay.payment_provider_form_razorpay
@@ -104,15 +138,45 @@ msgid "Key Secret"
 msgstr "密钥"
 
 #. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_maestro
+msgid "Maestro"
+msgstr "Maestro"
+
+#. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_mastercard
+msgid "MasterCard"
+msgstr "万事达卡"
+
+#. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_netbanking
+msgid "Netbanking"
+msgstr "网银"
+
+#. module: payment_razorpay
 #. odoo-python
 #: code:addons/payment_razorpay/models/payment_provider.py:0
 msgid "Other Payment Providers"
 msgstr "其他支付提供商"
 
 #. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_paylater_india
+msgid "Pay Later"
+msgstr "先买后付"
+
+#. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_paynow
+msgid "PayNow"
+msgstr "PayNow"
+
+#. module: payment_razorpay
 #: model:ir.model,name:payment_razorpay.model_payment_provider
 msgid "Payment Provider"
 msgstr "支付提供商"
+
+#. module: payment_razorpay
+#: model:ir.module.module,shortdesc:base.module_payment_razorpay
+msgid "Payment Provider: Razorpay"
+msgstr "支付提供商：Razorpay"
 
 #. module: payment_razorpay
 #: model:ir.model,name:payment_razorpay.model_payment_token
@@ -151,6 +215,11 @@ msgid "Razorpay Account ID"
 msgstr "Razorpay 账户识别码"
 
 #. module: payment_razorpay
+#: model:ir.model.fields,field_description:payment_razorpay.field_payment_provider__razorpay_is_oauth_supported
+msgid "Razorpay Is Oauth Supported"
+msgstr "Razorpay 是否支持 OAuth"
+
+#. module: payment_razorpay
 #: model:ir.model.fields,field_description:payment_razorpay.field_payment_provider__razorpay_key_id
 msgid "Razorpay Key Id"
 msgstr "Razorpay 密钥 ID"
@@ -179,9 +248,17 @@ msgstr "Razorpay Webhook 密钥"
 #. odoo-python
 #: code:addons/payment_razorpay/models/payment_provider.py:0
 msgid ""
-"Razorpay credentials are missing. Click the \"Connect\" button to set up "
-"your account."
+"Razorpay credentials are missing. Please fill them to set up your account."
+msgstr "缺少 Razorpay 凭据。请填写这些信息以设置您的账户。"
+
+#. module: payment_razorpay
+#. odoo-python
+#: code:addons/payment_razorpay/models/payment_provider.py:0
+msgid ""
+"Razorpay credentials are missing. Please set the state back to 'Disabled' "
+"and click the \"Connect\" button to set up your account."
 msgstr ""
+"缺少 Razorpay 凭据。请将状态改回“已禁用”，然后点击“连接”按钮以设置您的账户。"
 
 #. module: payment_razorpay
 #. odoo-python
@@ -216,9 +293,9 @@ msgid "Received incomplete refund data."
 msgstr "收到不完整的退款数据。"
 
 #. module: payment_razorpay
-#: model_terms:ir.ui.view,arch_db:payment_razorpay.payment_provider_form_razorpay
-msgid "Reset Your Razorpay Account"
-msgstr "重置您的 Razorpay 账户"
+#: model:payment.method,name:payment_razorpay.payment_method_rupay
+msgid "RuPay"
+msgstr "RuPay"
 
 #. module: payment_razorpay
 #: model:ir.model.fields,help:payment_razorpay.field_payment_provider__razorpay_key_id
@@ -254,6 +331,21 @@ msgid "Transactions processed by Razorpay can't be manually voided from Odoo."
 msgstr "由 Razorpay 处理的交易无法在 Odoo 中手动取消。"
 
 #. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_upi
+msgid "UPI"
+msgstr "UPI"
+
+#. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_visa
+msgid "VISA"
+msgstr "VISA"
+
+#. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_wallets_india
+msgid "Wallets India"
+msgstr "印度钱包"
+
+#. module: payment_razorpay
 #: model_terms:ir.ui.view,arch_db:payment_razorpay.payment_provider_form_razorpay
 msgid "Webhook Secret"
 msgstr "Webhook 密钥"
@@ -263,13 +355,13 @@ msgstr "Webhook 密钥"
 msgid ""
 "You are currently connected to Razorpay through the credentials method, "
 "which is\n"
-"                    deprecated. Click the \"Connect\" button below to use "
+"                    deprecated. Click the \"Connect\" button above to use "
 "the recommended OAuth\n"
 "                    method."
 msgstr ""
-"您目前使用需要凭证的方法连接 Razorpay，但该方法已被弃用。\n"
-"                    请点选下方的 “连接” 按钮，以使用建议的 OAuth \n"
-"                    方法。"
+"您当前通过凭据方式连接到 Razorpay，该方式\n"
+"                    已弃用。请点击上方的“连接”按钮，改用推荐的 OAuth\n"
+"                    方式。"
 
 #. module: payment_razorpay
 #. odoo-python
@@ -291,19 +383,4 @@ msgstr "您的 Razorpay 网络钩子已成功设置！"
 msgid ""
 "Your last payment %s will soon be processed. Please wait up to 24 hours "
 "before trying again, or use another payment method."
-msgstr ""
-
-#~ msgid "Could not establish the connection to the API."
-#~ msgstr "无法建立与API的连接。"
-
-#~ msgid "No transaction found matching reference %s."
-#~ msgstr "没有发现与参考文献%s相匹配的交易。"
-
-#~ msgid "Razorpay gave us the following information: '%s'"
-#~ msgstr "Razorpay 给出了以下信息：'%s'"
-
-#~ msgid "Received data with missing reference."
-#~ msgstr "收到的数据缺少参考编号。"
-
-#~ msgid "The transaction is not linked to a token."
-#~ msgstr "该交易没有与令牌挂钩。"
+msgstr "您上一次付款 %s 即将处理。请等待最多 24 小时后再试，或改用其他付款方式。"

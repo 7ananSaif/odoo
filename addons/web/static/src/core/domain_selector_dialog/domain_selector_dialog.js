@@ -1,5 +1,5 @@
 import { _t } from "@web/core/l10n/translation";
-import { Component, useRef, useState } from "@odoo/owl";
+import { Component, proxy, signal, t, useProps } from "@odoo/owl";
 import { Dialog } from "@web/core/dialog/dialog";
 import { Domain } from "@web/core/domain";
 import { DomainSelector } from "@web/core/domain_selector/domain_selector";
@@ -13,33 +13,29 @@ export class DomainSelectorDialog extends Component {
         Dialog,
         DomainSelector,
     };
-    static props = {
-        close: Function,
-        onConfirm: Function,
-        resModel: String,
-        className: { type: String, optional: true },
-        defaultConnector: { type: [{ value: "&" }, { value: "|" }], optional: true },
-        domain: String,
-        isDebugMode: { type: Boolean, optional: true },
-        readonly: { type: Boolean, optional: true },
-        text: { type: String, optional: true },
-        confirmButtonText: { type: String, optional: true },
-        disableConfirmButton: { type: Function, optional: true },
-        discardButtonText: { type: String, optional: true },
-        title: { type: String, optional: true },
-        context: { type: Object, optional: true },
-    };
-    static defaultProps = {
-        isDebugMode: false,
-        readonly: false,
-        context: {},
-    };
+    props = useProps({
+        close: t.function(),
+        onConfirm: t.function(),
+        resModel: t.string(),
+        className: t.string().optional(),
+        defaultConnector: t.selection(["&", "|"]).optional(),
+        domain: t.string(),
+        isDebugMode: t.boolean().optional(false),
+        readonly: t.boolean().optional(false),
+        text: t.string().optional(),
+        confirmButtonText: t.string().optional(),
+        disableConfirmButton: t.function().optional(),
+        discardButtonText: t.string().optional(),
+        title: t.string().optional(),
+        context: t.object().optional({}),
+    });
+
+    confirmButtonRef = signal.ref();
 
     setup() {
         this.notification = useService("notification");
         this.orm = useService("orm");
-        this.state = useState({ domain: this.props.domain });
-        this.confirmButtonRef = useRef("confirm");
+        this.state = proxy({ domain: this.props.domain });
     }
 
     get confirmButtonText() {
@@ -76,7 +72,10 @@ export class DomainSelectorDialog extends Component {
     }
 
     async onConfirm() {
-        this.confirmButtonRef.el.disabled = true;
+        const confirmEl = this.confirmButtonRef();
+        if (confirmEl) {
+            confirmEl.disabled = true;
+        }
         let domain;
         let isValid;
         try {
@@ -92,8 +91,9 @@ export class DomainSelectorDialog extends Component {
             });
         }
         if (!isValid) {
-            if (this.confirmButtonRef.el) {
-                this.confirmButtonRef.el.disabled = false;
+            const el = this.confirmButtonRef();
+            if (el) {
+                el.disabled = false;
             }
             this.notification.add(_t("Domain is invalid. Please correct it"), {
                 type: "danger",

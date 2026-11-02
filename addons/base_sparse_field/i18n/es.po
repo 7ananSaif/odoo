@@ -10,10 +10,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~14.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-09-14 21:17+0000\n"
-"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
-"Language-Team: Spanish <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-08-31 14:13+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Spanish <https://translate.odoo.com/projects/odoo-s19-4/"
 "base_sparse_field/es/>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
@@ -21,7 +21,17 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=(n == 1) ? 0 : ((n != 0 && n % 1000000 == "
 "0) ? 1 : 2);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: base_sparse_field
+#: model:ir.module.module,description:base.module_base_sparse_field
+msgid ""
+"\n"
+"The purpose of this module is to implement \"sparse\" fields, i.e., fields\n"
+"that are mostly null. This implementation circumvents the PostgreSQL\n"
+"limitation on the number of columns in a table. The values of all sparse\n"
+"fields are stored in a \"serialized\" field in the form of a JSON mapping.\n"
+msgstr ""
 
 #. module: base_sparse_field
 #: model:ir.model,name:base_sparse_field.model_base
@@ -67,14 +77,14 @@ msgid "Display Name"
 msgstr "Nombre para mostrar"
 
 #. module: base_sparse_field
+#: model:ir.model,name:base_sparse_field.model_ir_model_fields
+msgid "Field"
+msgstr ""
+
+#. module: base_sparse_field
 #: model:ir.model.fields,field_description:base_sparse_field.field_ir_model_fields__ttype
 msgid "Field Type"
 msgstr "Tipo de campo"
-
-#. module: base_sparse_field
-#: model:ir.model,name:base_sparse_field.model_ir_model_fields
-msgid "Fields"
-msgstr "Campos"
 
 #. module: base_sparse_field
 #: model:ir.model.fields,field_description:base_sparse_field.field_sparse_fields_test__float
@@ -97,6 +107,11 @@ msgstr ""
 "Si está configurado así, este campo se almacenará en la estructura del campo "
 "de serialización en lugar de tener su propia columna en la base de datos. No "
 "se puede modificar después de crearlo."
+
+#. module: base_sparse_field
+#: model:ir.module.module,summary:base.module_base_sparse_field
+msgid "Implementation of sparse fields."
+msgstr ""
 
 #. module: base_sparse_field
 #: model:ir.model.fields,field_description:base_sparse_field.field_sparse_fields_test__integer
@@ -150,6 +165,11 @@ msgstr ""
 "campo disperso %(sparse_field)s."
 
 #. module: base_sparse_field
+#: model:ir.module.module,shortdesc:base.module_base_sparse_field
+msgid "Sparse Fields"
+msgstr ""
+
+#. module: base_sparse_field
 #: model:ir.model,name:base_sparse_field.model_sparse_fields_test
 msgid "Sparse fields Test"
 msgstr "Prueba de campos dispersos"
@@ -163,10 +183,3 @@ msgstr "Dos"
 #: model:ir.model.fields.selection,name:base_sparse_field.selection__ir_model_fields__ttype__serialized
 msgid "serialized"
 msgstr "serializado"
-
-#~ msgid "Last Modified on"
-#~ msgstr "Última modificación el"
-
-#~ msgid "Serialization field %r not found for sparse field %s!"
-#~ msgstr ""
-#~ "¡No se encontró el campo de serialización %r para el campo disperso %s!"

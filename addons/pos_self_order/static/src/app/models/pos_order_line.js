@@ -19,7 +19,7 @@ patch(PosOrderline.prototype, {
         }
 
         const diff = {
-            qty: this.qty !== change.qty ? this.qty - change.qty : false,
+            qty: this.getPendingQtyDelta() || false,
             customer_note:
                 this.customer_note !== change.customer_note ? change.customer_note : false,
             attribute_value_ids:
@@ -35,12 +35,24 @@ patch(PosOrderline.prototype, {
         };
         return diff;
     },
+    /** Qty delta since the last sync for this line, or 0 if unchanged or never synced. */
+    getPendingQtyDelta() {
+        const lastSynced = this.order_id?.uiState.lineChanges[this.uuid]?.qty;
+        return lastSynced !== undefined ? this.qty - lastSynced : 0;
+    },
     isLotTracked() {
         return false;
     },
-    getDisplayPriceWithQty(qty) {
-        const prices = this.order_id._constructPriceData({ baseLineOpts: { quantity: qty } })
+    get isDeliveryLine() {
+        const deliveryProductId = this.order_id.preset_id?.delivery_product_id?.id;
+        return deliveryProductId && this.product_id?.id === deliveryProductId;
+    },
+    getPriceDetailsWithQty(qty) {
+        return this.order_id._constructPriceData({ baseLineOpts: { quantity: qty } })
             .baseLineByLineUuids[this.uuid].tax_details;
+    },
+    getDisplayPriceWithQty(qty) {
+        const prices = this.getPriceDetailsWithQty(qty);
 
         if (this.config.iface_tax_included === "total") {
             return prices.total_included;

@@ -2,9 +2,8 @@ import * as Order from "@point_of_sale/../tests/generic_helpers/order_widget_uti
 import * as ProductScreen from "@point_of_sale/../tests/pos/tours/utils/product_screen_util";
 import * as TextInputPopup from "@point_of_sale/../tests/generic_helpers/text_input_popup_util";
 import * as PaymentScreen from "@point_of_sale/../tests/pos/tours/utils/payment_screen_util";
-import * as ReceiptScreen from "@point_of_sale/../tests/pos/tours/utils/receipt_screen_util";
+import * as FeedbackScreen from "@point_of_sale/../tests/pos/tours/utils/feedback_screen_util";
 import * as Dialog from "@point_of_sale/../tests/generic_helpers/dialog_util";
-import { negate } from "@point_of_sale/../tests/generic_helpers/utils";
 import * as Chrome from "@point_of_sale/../tests/pos/tours/utils/chrome_util";
 
 export function selectRewardLine(rewardName) {
@@ -27,9 +26,6 @@ export function enterCode(code) {
         TextInputPopup.inputText(code),
         Dialog.confirm(),
     ];
-}
-export function clickEWalletButton(text = "eWallet") {
-    return [{ trigger: ProductScreen.controlButtonTrigger(text), run: "click" }];
 }
 export function claimReward(rewardName) {
     return [
@@ -66,24 +62,28 @@ export function hasRewardLine(rewardName, amount, qty) {
         quantity: qty,
     });
 }
+export function doesNotHaveRewardLine(rewardName) {
+    return Order.doesNotHaveLine({
+        withClass: ".fst-italic",
+        productName: rewardName,
+    });
+}
 export function orderTotalIs(total_str) {
     return [...Order.hasTotal(total_str)];
 }
 export function isRewardButtonHighlighted(isHighlighted, closeModal = true) {
     const steps = [
         ...ProductScreen.clickControlButtonMore(),
+        Dialog.is({ title: "Actions" }),
         {
             trigger: isHighlighted
-                ? '.control-buttons button.highlight:contains("Reward")'
+                ? '.control-buttons button.active:contains("Reward")'
                 : '.control-buttons button.disabled:contains("Reward")',
         },
     ];
     if (closeModal) {
-        steps.push({
-            content: "Close modal after checked if reward button is highlighted",
-            trigger: ".modal header .btn-close",
-            run: "click",
-        });
+        steps.push(Dialog.cancel({ title: "actions" }));
+        steps.push(Dialog.isNot());
     }
     return steps;
 }
@@ -133,8 +133,8 @@ export function pointsAwardedAre(points_str) {
 export function pointsTotalIs(points_str) {
     return [
         {
-            content: "loyalty points awarded " + points_str,
-            trigger: '.loyalty-points-totaltext-end:contains("' + points_str + '")',
+            content: "loyalty points total " + points_str,
+            trigger: '.loyalty-points-total:contains("' + points_str + '")',
         },
     ];
 }
@@ -144,11 +144,12 @@ export function finalizeOrder(paymentMethod, amount) {
         ...PaymentScreen.clickPaymentMethod(paymentMethod),
         ...PaymentScreen.clickNumpad([...amount].join(" ")),
         ...PaymentScreen.clickValidate(),
-        ...ReceiptScreen.clickNextOrder(),
+        ...FeedbackScreen.isShown(),
+        ...FeedbackScreen.clickNextOrder(),
     ];
 }
 export function removeRewardLine(name) {
-    return [selectRewardLine(name), ProductScreen.clickNumpad("⌫"), Dialog.confirm()].flat();
+    return [selectRewardLine(name), ProductScreen.clickNumpad("⌫")].flat();
 }
 
 export function checkAddedLoyaltyPoints(points) {
@@ -172,20 +173,19 @@ export function useExistingLoyaltyCard(code, valid = true) {
         },
         {
             content: "Not loading",
-            trigger: negate(".gift-card-loading"),
+            trigger: `.modal:not(:has(.gift-card-loading))`,
         },
     ];
 
     if (!valid) {
-        steps.push(Dialog.confirm("Ok"));
-        steps.push(Dialog.cancel());
+        steps.push(Dialog.proceed({ title: "invalid gift card code", button: "Ok" }));
+        steps.push(Dialog.cancel({ title: "sell/manage physical gift card" }));
         steps.push({
             trigger: `a:contains("Sell physical gift card?")`,
-            run: () => {},
         });
     } else {
         steps.push(...Chrome.waitRequest());
-        steps.push(Dialog.confirm());
+        steps.push(Dialog.proceed({ button: "add existing gift card" }));
     }
 
     return steps;
@@ -201,6 +201,13 @@ export function createManualGiftCard(code, amount, date = false) {
             content: `Input code '${code}'`,
             trigger: `input[id="code"]`,
             run: `edit ${code}`,
+        },
+        {
+            content: "Editing the code involves verifications",
+            trigger: `.modal:has(.gift-card-loading)`,
+        },
+        {
+            trigger: `.modal input[id="code"]:value(${code})`,
         },
         {
             content: `Input amount '${amount}'`,
@@ -257,11 +264,5 @@ export function isMoreControlButtonActive(active) {
         trigger: active
             ? ".control-buttons .more-btn.active"
             : ".control-buttons:not(:has(.more-btn.active))",
-    };
-}
-export function isLoyaltyPointsAvailable() {
-    return {
-        content: "Loyalty Points are visible on the receipt",
-        trigger: ".pos-receipt .loyalty",
     };
 }

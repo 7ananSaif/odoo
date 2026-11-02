@@ -1,21 +1,51 @@
-import { useService } from "@web/core/utils/hooks";
-import { registry } from '@web/core/registry';
-import { listView } from '@web/views/list/list_view';
+import { userHasEmployeeInCurrentCompany } from "@hr_holidays/utils";
+import { exportTimeOffRecords } from "@hr_holidays/views/hr_leave_export";
+import { HrHolidaysSearchModel } from "@hr_holidays/search/hr_holidays_search_model";
+import { onWillStart } from "@odoo/owl";
+import { _t } from "@web/core/l10n/translation";
+import { registry } from "@web/core/registry";
+import { useBus, useService } from "@web/core/utils/hooks";
 import { ListController } from "@web/views/list/list_controller";
-import { useSubEnv } from "@odoo/owl";
+import { listView } from "@web/views/list/list_view";
+import {
+    provideViewButtonHandler,
+    useViewButtonHandler,
+} from "@web/views/view_button/view_button_hook";
 
 export class HolidaysListController extends ListController {
     static template = "hr_holidays.HolidaysListView";
 
     setup() {
+        useBus(this.env.searchModel, "direct-export-data", (ev) => {
+            ev.stopImmediatePropagation();
+            exportTimeOffRecords({
+                resModel: this.model.root.resModel,
+                domain: this.model.root.domain,
+                context: this.model.root.context,
+            });
+        });
         super.setup();
         this.orm = useService("orm");
 
         // Store reference to original button click handler for fallback
-        this.onClickViewButton = this.env.onClickViewButton;
+        this.onClickViewButton = useViewButtonHandler();
+        provideViewButtonHandler(this.handleViewButtonClick.bind(this));
 
-        useSubEnv({
-            onClickViewButton: (params) => this.handleViewButtonClick(params),
+        onWillStart(async () => {
+            const hasEmployee = await userHasEmployeeInCurrentCompany(this.orm);
+            const ignoreActions = [
+                "hr_holidays.hr_leave_action_action_approve_department",
+                "hr_holidays.hr_leave_allocation_action_approve_department",
+            ];
+            const ignoreHasEmployee = ignoreActions.includes(this.env.config.actionXmlId);
+            if (!hasEmployee && !ignoreHasEmployee) {
+                this.env.services.notification.add(
+                    _t(
+                        "You are not linked to an employee in the current company, so you cannot create requests for yourself."
+                    ),
+                    { type: "warning" }
+                );
+            }
         });
     }
 
@@ -42,7 +72,10 @@ export class HolidaysListController extends ListController {
         const filter = this.actionFilters[actionName];
         if (filter) {
             const eligibleRecords = this.model.root.selection.filter(filter);
-            if (eligibleRecords.length) {
+            if (actionName === "action_adjust_corresponding_payslip") {
+                return this.onClickViewButton(params);
+            }
+            else if (eligibleRecords.length) {
                 this.executeAction(actionName, eligibleRecords);
             } else {
                 this.onClickViewButton(params);
@@ -75,11 +108,9 @@ export class HolidaysListController extends ListController {
      * @param {Array} records - Array of record objects to process
      */
     async executeAction(functionName, records) {
-        await this.orm.call(
-            this.props.resModel,
-            functionName,
-            [records.map((record) => record.resId)],
-        );
+        await this.orm.call(this.props.resModel, functionName, [
+            records.map((record) => record.resId),
+        ]);
         await this.actionService.doAction({
             type: "ir.actions.client",
             tag: "soft_reload",
@@ -90,6 +121,7 @@ export class HolidaysListController extends ListController {
 export const holidaysListView = {
     ...listView,
     Controller: HolidaysListController,
+    SearchModel: HrHolidaysSearchModel,
 };
 
-registry.category('views').add('hr_holidays_payslip_list', holidaysListView)
+registry.category("views").add("hr_holidays_payslip_list", holidaysListView);

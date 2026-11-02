@@ -4,10 +4,11 @@
         <field name="name">mailing.contact.view.search</field>
         <field name="model">mailing.contact</field>
         <field name="arch" type="xml">
-           <search string="Mailing List Contacts">
+           <search string="Mailing Contacts">
                 <field name="name"
                     filter_domain="['|', '|', ('name','ilike',self), ('company_name','ilike',self), ('email_normalized','ilike',self)]"
                     string="Name / Email"/>
+                <field name="partner_id"/>
                 <field name="tag_ids"/>
                 <field name="list_ids"/>
                 <field name="properties"/>
@@ -44,23 +45,38 @@
         <field name="model">mailing.contact</field>
         <field name="priority">10</field>
         <field name="arch" type="xml">
-            <list string="Mailing List Contacts" sample="1" multi_edit="1">
+            <list string="Mailing Contacts" sample="1" multi_edit="1">
                 <header>
-                    <button name="action_import" string="Import" type="object" display="always"
+                    <button name="action_import" string="Paste" type="object" display="always"
                         context="{'from_mailing_list_ids': context.get('active_ids') if context.get('active_model') == 'mailing.list' else False}"/>
+                    <button name="action_open_base_import" string="Upload" type="object" display="always"/>
                     <button name="action_add_to_mailing_list" string="Add to List" type="object"/>
                 </header>
-                <field name="create_date" optional="show"/>
+                <field name="create_date" string="Create Date" optional="show"/>
+                <field name="partner_id" optional="hide"/>
                 <field name="name" optional="show" readonly="1"/>
-                <field name="company_name"/>
+                <field name="company_name" optional="hide"/>
                 <field name="email" readonly="1"/>
-                <field name="is_blacklisted" string="Email Blacklisted"/>
+                <field name="is_blacklisted" string="&#x2709; Blacklisted"/>
+                <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}" optional="hide"/>
                 <field name="country_id" optional="hide"/>
-                <field name="message_bounce" sum="Total Bounces" readonly="1"/>
+                <field name="message_bounce" sum="Total Bounces" readonly="1" optional="hide"/>
                 <field name="opt_out" readonly="1" column_invisible="'default_list_ids' not in context"/>
-                <field name="list_ids" widget="many2many_tags" optional="hide"/>
+                <field name="list_ids" widget="many2many_tags" options="{'color_field': 'color'}" optional="hide"/>
                 <field name="properties" optional="hide"/>
             </list>
+        </field>
+    </record>
+
+    <record id="mailing_contact_view_list_from_filter" model="ir.ui.view">
+        <field name="name">mailing.contact.view.list.from.filter</field>
+        <field name="model">mailing.contact</field>
+        <field name="mode">primary</field>
+        <field name="priority">20</field>
+        <field name="inherit_id" ref="mailing_contact_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header/button[@name='action_import']" position="replace"/>
+            <xpath expr="//header/button[@name='action_open_base_import']" position="replace"/>
         </field>
     </record>
 
@@ -75,14 +91,12 @@
                 </header>
                 <templates>
                     <t t-name="card">
-                        <div class="d-flex">
-                            <field name="name" class="fw-bolder fs-5"/>
-                            <div class="badge rounded-pill ms-auto" title="Number of bounced email.">
-                                <i class="fa fa-exclamation-triangle" role="img" aria-label="Warning" title="Warning"/> <field name="message_bounce"/>
-                            </div>
+                        <field name="name" class="fw-bolder fs-5 mb-1"/>
+                        <div name="contact_email" invisible="not email">
+                            <i class="oi oi-filled text-primary me-2" data-icon="mail" title="Email"/>
+                            <field name="email"/>
                         </div>
-                        <field name="tag_ids"/>
-                        <field name="email" class="fw-bolder"/>
+                        <field name="tag_ids" class="mb-1" options="{'color_field': 'color'}"/>
                         <field name="company_name" class="ms-auto"/>
                         <field name="properties" widget="properties"/>
                     </t>
@@ -96,9 +110,37 @@
         <field name="model">mailing.contact</field>
         <field name="priority">10</field>
         <field name="arch" type="xml">
-            <form string="Mailing List Contacts">
+            <form string="Mailing Contacts">
                 <field name="id" invisible="1"/>
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_mailings"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="mail">
+                            <field name="mailing_count" string="Mailings" widget="statinfo"/>
+                        </button>
+                         <button name="action_view_received"
+                            type="object"
+                            class="oe_stat_button">
+                            <field name="received_ratio" string="Received" widget="percentpie"/>
+                        </button>
+                        <button name="action_view_opened"
+                            type="object"
+                            class="oe_stat_button">
+                            <field name="opened_ratio" string="Opened" widget="percentpie"/>
+                        </button>
+                        <button name="action_view_clicked"
+                            type="object"
+                            class="oe_stat_button">
+                            <field name="clicks_ratio" string="Clicked" widget="percentpie"/>
+                        </button>
+                        <button name="action_view_replied"
+                            type="object"
+                            class="oe_stat_button">
+                            <field name="replied_ratio" string="Replied" widget="percentpie"/>
+                        </button>
+                    </div>
                     <div class="oe_title">
                         <label for="name" string="Contact Name"/>
                         <h1>
@@ -107,23 +149,24 @@
                     </div>
                     <group>
                         <group>
+                            <field name="partner_id"/>
                             <label for="email" class="oe_inline"/>
                             <div class="o_row o_row_readonly" name="email_details">
-                                 <button name="mail_action_blacklist_remove" class="fa fa-ban text-danger"
+                                 <button name="mail_action_blacklist_remove" class="oi text-danger" data-icon="block"
                                     title="This email is blacklisted for mass mailings. Click to unblacklist."
                                     type="object" context="{'default_email': email}" groups="base.group_user"
                                     invisible="not is_blacklisted"/>
                                 <field name="email" widget="email"/>
                                 <field name="is_blacklisted" invisible="1"/>
                             </div>
-                            <field name="company_name"/>
-                            <field name="country_id" options="{'no_open': True, 'no_create': True}"/>
+                            <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color', 'on_tag_click': 'edit_color'}"
+                                   placeholder="e.g. Roadshow"/>
                         </group>
                         <group>
-                            <field name="create_date" readonly="1" invisible="not id"/>
-                            <field name="message_bounce" readonly="1" invisible="not id"/>
-                            <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"
-                                   placeholder="e.g. &quot;VIP&quot;, &quot;Roadshow&quot;, ..." style="width: 100%"/>
+                            <field name="company_name" placeholder="e.g. Azure Interior"/>
+                            <field name="country_id" options="{'no_open': True, 'no_create': True}"/>
+                            <field name="create_date" string="Create Date" readonly="1" invisible="not id"/>
+                            <field name="message_bounce" readonly="1" invisible="message_bounce == 0"/>
                         </group>
                     </group>
                     <div class="d-flex">
@@ -134,10 +177,10 @@
                             <field name="subscription_ids">
                                 <list editable="bottom">
                                     <field name="list_id"/>
-                                    <field name="opt_out_datetime" readonly="1"/>
-                                    <field name="opt_out"/>
-                                    <field name="opt_out_reason_id"/>
                                     <field name="create_date" string="Subscription Date"/>
+                                    <field name="opt_out_datetime" readonly="1"/>
+                                    <field name="opt_out" optional="hide"/>
+                                    <field name="opt_out_reason_id" optional="hide"/>
                                 </list>
                             </field>
                         </page>
@@ -153,7 +196,7 @@
         <field name="model">mailing.contact</field>
         <field name="priority">10</field>
         <field name="arch" type="xml">
-            <pivot string="Mailing List Contacts" stacked="1" sample="1">
+            <pivot string="Mailing Contacts" stacked="1" sample="1">
                 <field name="create_date" type="row"/>
             </pivot>
         </field>
@@ -164,14 +207,14 @@
         <field name="model">mailing.contact</field>
         <field name="priority">10</field>
         <field name="arch" type="xml">
-            <graph string="Mailing List Contacts" sample="1">
+            <graph string="Mailing Contacts" sample="1">
                 <field name="create_date"/>
             </graph>
         </field>
     </record>
 
     <record model="ir.actions.act_window" id="action_view_mass_mailing_contacts">
-        <field name="name">Mailing List Contacts</field>
+        <field name="name">Mailing Contacts</field>
         <field name="res_model">mailing.contact</field>
         <field name="view_mode">list,kanban,form,graph,pivot</field>
         <field name="context">{'search_default_filter_not_email_bl': 1}</field>
@@ -217,7 +260,7 @@
             <xpath expr="//group/label[@for='email']" position="before">
                 <field name="first_name" placeholder="e.g. &quot;John&quot;"/>
             </xpath>
-            <xpath expr="//group/field[@name='create_date']" position="before">
+            <xpath expr="//group/field[@name='country_id']" position="before">
                 <field name="last_name" placeholder="e.g. &quot;Smith&quot;"/>
             </xpath>
         </field>

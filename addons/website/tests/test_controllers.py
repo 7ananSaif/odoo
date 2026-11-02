@@ -1,14 +1,17 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import json
+from urllib.parse import parse_qs
 
+from urllib3.util import parse_url
 from werkzeug.test import EnvironBuilder
 from werkzeug.urls import url_encode
 
-from unittest.mock import patch, Mock
 from odoo import tests
+from odoo.tests.common import MockHTTPClient
 from odoo.tools.misc import mute_logger, submap
 from odoo.addons.website.controllers.main import Website
+from odoo.addons.website.controllers.backend import WebsiteBackend
 from odoo.addons.http_routing.tests.common import MockRequest
 
 
@@ -20,7 +23,7 @@ class TestControllers(tests.HttpCase):
         self.authenticate("admin", "admin")
         Page = self.env['website.page']
         last_5_url_edited = []
-        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        base_url = self.env['ir.config_parameter'].sudo().get_str('web.base.url')
         suggested_links_url = base_url + '/website/get_suggested_links'
 
         old_pages = Page
@@ -75,7 +78,7 @@ class TestControllers(tests.HttpCase):
     def test_03_website_image(self):
         attachment = self.env['ir.attachment'].create({
             'name': 'one_pixel.png',
-            'datas': 'iVBORw0KGgoAAAANSUhEUgAAAAYAAAAGCAYAAADgzO9IAAAAJElEQVQI'
+            'raw': 'iVBORw0KGgoAAAANSUhEUgAAAAYAAAAGCAYAAADgzO9IAAAAJElEQVQI'
                      'mWP4/b/qPzbM8Pt/1X8GBgaEAJTNgFcHXqOQMV4dAMmObXXo1/BqAAAA'
                      'AElFTkSuQmCC',
             'public': True,
@@ -85,13 +88,13 @@ class TestControllers(tests.HttpCase):
         res.raise_for_status()
 
         headers = {
-            'Content-Length': '93',
-            'Content-Type': 'image/png',
-            'Content-Disposition': 'attachment; filename=one_pixel.png',
-            'Cache-Control': 'public, max-age=31536000, immutable',
+            'content-length': '93',
+            'content-type': 'image/png',
+            'content-disposition': 'attachment; filename=one_pixel.png',
+            'cache-control': 'public, max-age=31536000, immutable',
         }
         self.assertEqual(submap(res.headers, headers.keys()), headers)
-        self.assertEqual(res.content, attachment.raw)
+        self.assertEqual(res.content, attachment.raw.content)
 
     def test_04_website_partner_avatar(self):
         partner = self.env['res.partner'].create({'name': "Jack O'Neill"})
@@ -116,8 +119,7 @@ class TestControllers(tests.HttpCase):
                 "Public user shouldn't access record fields with a `groups` even if published"
             )
 
-    @patch('requests.get')
-    def test_05_seo_suggest_language_regex(self, mock_get):
+    def test_05_seo_suggest_language_regex(self):
         """
         Test the seo_suggest method to verify it properly handles different
         language inputs, sends correct parameters ('hl' for host language and
@@ -129,18 +131,15 @@ class TestControllers(tests.HttpCase):
           'zh_CN@pinyin')
         - Empty string input to handle default case
         """
-
-        # Mocking the response from Google API to simulate what would be
-        # returned by the seo_suggest method.
-        mock_response = Mock()
-        mock_response.content = '''<?xml version="1.0"?>
-        <toplevel>
-            <CompleteSuggestion>
-                <suggestion data="test suggestion"/>
-            </CompleteSuggestion>
-        </toplevel>'''
-        mock_get.return_value = mock_response
-
+        mock_get = MockHTTPClient(
+            method='GET',
+            return_body='''<?xml version="1.0"?>
+                <toplevel>
+                    <CompleteSuggestion>
+                        <suggestion data="test suggestion"/>
+                    </CompleteSuggestion>
+                </toplevel>'''
+        )
         # Test cases with different language inputs and expected hl and gl
         # values.
         test_cases = [
@@ -156,20 +155,19 @@ class TestControllers(tests.HttpCase):
         for lang_input, expected_output in test_cases:
             # subTest creates an isolated context for each test case, allowing
             # failures to be reported separately.
-            with self.subTest(lang=lang_input):
+            with self.subTest(lang=lang_input), mock_get:
                 result = Website.seo_suggest(self, keywords="test", lang=lang_input)
 
                 # Extract the parameters that were passed in the mock
-                # requests.get call.
-                called_params = mock_get.call_args[1]['params']
+                qs = parse_qs(parse_url(mock_get.calls[0].url).query)
 
                 # Verify that the 'hl' parameter (host language) matches the
                 # expected output
-                self.assertEqual(called_params['hl'], expected_output[0])
+                self.assertEqual(qs['hl'], [expected_output[0]])
 
                 # Verify that the 'gl' parameter (geolocation) matches the
                 # expected output
-                self.assertEqual(called_params['gl'], expected_output[1])
+                self.assertEqual(qs.get('gl', ['']), [expected_output[1]])
 
                 # Verify that the returned result contains the expected
                 # suggestion "test suggestion"
@@ -216,7 +214,7 @@ class TestControllers(tests.HttpCase):
         })
         models = [{"model": "ir.ui.view", "id": test_view.id, "field": "arch"}]
 
-        with MockRequest(self.env, website=self.env.ref('website.default_website')):
+        with MockRequest(self.env, website=self.env.ref('base.default_website')):
             result = Website().get_alt_images(models)
             parsed_result = json.loads(result)
 
@@ -243,3 +241,54 @@ class TestControllers(tests.HttpCase):
                 redirect.headers['Location'],
                 f'{self.base_url()}/website/force/{website.id}?isredir=1&path=%2F%3Fa%3Db%26c%3Dd'
             )
+
+    def test_website_fetch_dashboard_data(self):
+        """
+        Test that /website/fetch_dashboard_data defaults to the base.default_website
+        """
+        default_website = self.env.ref('base.default_website')
+        alternative_website = self.env['website'].create({
+            'name': 'Alternative Website',
+        })
+        with MockRequest(self.env):
+            dashboard_data = WebsiteBackend().fetch_dashboard_data(None)
+        # dashboard_data should contain at least default and alternative
+        # website, and only the default one should be selected
+        data_per_website = {
+            website["id"]: website
+            for website in dashboard_data["websites"]
+        }
+        default_website_dashboard = data_per_website[default_website.id]
+        alternative_website_dashboard = data_per_website[alternative_website.id]
+        self.assertTrue(default_website_dashboard.get('selected'))
+        self.assertFalse(alternative_website_dashboard.get('selected'))
+
+    def test_llms_txt(self):
+        """Verify /llms.txt returns 404 when empty and serves content when configured."""
+        website = self.env['website'].search([], limit=1)
+        # No content -> return 404
+        res = self.url_open('/llms.txt')
+        self.assertEqual(res.status_code, 404)
+
+        # Configure llms.txt
+        content = "test: adding content to llms.txt"
+        website.llms_txt = content
+
+        # Content should now be available
+        res = self.url_open('/llms.txt')
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.text, content)
+
+    def test_robots_and_meta(self):
+        # 1. Check robots.txt content
+        res = self.url_open('/robots.txt')
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('Disallow: /web/login', res.text)
+        self.assertIn('Disallow: /web/signup', res.text)
+        self.assertIn('Disallow: /web/reset_password', res.text)
+        self.assertIn('Disallow: /my/', res.text)
+
+        # 2. Check that the login page does not contain the noindex meta tag
+        res_login = self.url_open('/web/login')
+        self.assertEqual(res_login.status_code, 200)
+        self.assertNotIn('meta name="robots" content="noindex', res_login.text)

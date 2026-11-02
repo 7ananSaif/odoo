@@ -1,4 +1,4 @@
-import { describe, expect, test, Deferred } from "@odoo/hoot";
+import { describe, expect, test } from "@odoo/hoot";
 import { animationFrame, mockDate } from "@odoo/hoot-mock";
 import {
     defineSpreadsheetActions,
@@ -16,6 +16,7 @@ import {
 
 import {
     addGlobalFilter,
+    setGlobalFilterValueWithoutReload,
     setCellContent,
     updatePivot,
     updatePivotMeasureDisplay,
@@ -41,6 +42,7 @@ import { Model } from "@odoo/o-spreadsheet";
 import * as spreadsheet from "@odoo/o-spreadsheet";
 import { waitForDataLoaded } from "@spreadsheet/helpers/model";
 import { Partner, Product } from "../../helpers/data";
+import { createSheet, deleteSheet } from "../../helpers/commands";
 const { toZone } = spreadsheet.helpers;
 const { pivotRegistry, pivotNormalizationValueRegistry } = spreadsheet.registries;
 
@@ -128,7 +130,7 @@ test("can get a pivotId from cell formula where the id is a reference", async fu
 test("can get a Pivot from cell formula where the id is a reference in an inactive sheet", async function () {
     const { model } = await createSpreadsheetWithPivot();
     const firstSheetId = model.getters.getActiveSheetId();
-    model.dispatch("CREATE_SHEET", { sheetId: "2" });
+    createSheet(model, { sheetId: "2" });
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: firstSheetId, sheetIdTo: "2" });
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", '=PIVOT.VALUE(A1,"probability")');
@@ -625,8 +627,8 @@ test("concurrently load the same pivot twice", async function () {
 });
 
 test("display loading while data is not fully available", async function () {
-    const metadataPromise = new Deferred();
-    const dataPromise = new Deferred();
+    const metadataPromise = Promise.withResolvers();
+    const dataPromise = Promise.withResolvers();
     const spreadsheetData = {
         sheets: [
             {
@@ -651,11 +653,11 @@ test("display loading while data is not fully available", async function () {
     };
     onRpc("partner", "fields_get", async ({ method, model }) => {
         expect.step(`${model}/${method}`);
-        await metadataPromise;
+        await metadataPromise.promise;
     });
     onRpc("partner", "formatted_read_grouping_sets", async ({ kwargs, method, model }) => {
         expect.step(`${model}/${method}`);
-        await dataPromise;
+        await dataPromise.promise;
     });
     onRpc("product", "read", () => {
         throw new Error("should not be called because data is put in cache");
@@ -696,15 +698,27 @@ test("pivot grouped by char field which represents numbers", async function () {
                 </pivot>`,
         pivotType: "static",
     });
-    expect(getCell(model, "A3").content).toBe('=PIVOT.HEADER(1,"name","000111")');
-    expect(getCell(model, "A4").content).toBe('=PIVOT.HEADER(1,"name","111")');
-    expect(getCell(model, "A5").content).toBe('=PIVOT.HEADER(1,"name","14.0")');
+    expect(getCell(model, "A3").compiledFormula.toFormulaString(model.getters)).toBe(
+        '=PIVOT.HEADER(1,"name","000111")'
+    );
+    expect(getCell(model, "A4").compiledFormula.toFormulaString(model.getters)).toBe(
+        '=PIVOT.HEADER(1,"name","111")'
+    );
+    expect(getCell(model, "A5").compiledFormula.toFormulaString(model.getters)).toBe(
+        '=PIVOT.HEADER(1,"name","14.0")'
+    );
     expect(getEvaluatedCell(model, "A3").value).toBe("000111");
     expect(getEvaluatedCell(model, "A4").value).toBe("111");
     expect(getEvaluatedCell(model, "A5").value).toBe("14.0");
-    expect(getCell(model, "B3").content).toBe('=PIVOT.VALUE(1,"probability:avg","name","000111")');
-    expect(getCell(model, "B4").content).toBe('=PIVOT.VALUE(1,"probability:avg","name","111")');
-    expect(getCell(model, "B5").content).toBe('=PIVOT.VALUE(1,"probability:avg","name","14.0")');
+    expect(getCell(model, "B3").compiledFormula.toFormulaString(model.getters)).toBe(
+        '=PIVOT.VALUE(1,"probability:avg","name","000111")'
+    );
+    expect(getCell(model, "B4").compiledFormula.toFormulaString(model.getters)).toBe(
+        '=PIVOT.VALUE(1,"probability:avg","name","111")'
+    );
+    expect(getCell(model, "B5").compiledFormula.toFormulaString(model.getters)).toBe(
+        '=PIVOT.VALUE(1,"probability:avg","name","14.0")'
+    );
     expect(getEvaluatedCell(model, "B3").value).toBe(15);
     expect(getEvaluatedCell(model, "B4").value).toBe(11);
     expect(getEvaluatedCell(model, "B5").value).toBe(16);
@@ -1068,10 +1082,10 @@ test("pivot grouped by ID in a chain displays values correctly", async () => {
 });
 
 test("Can group by many2one_reference field ", async () => {
-    onRpc("partner", "formatted_read_grouping_sets", ({ kwargs }) => {
+    onRpc("partner", "formatted_read_grouping_sets", ({ kwargs }) =>
         // The mock server doesn't support well many2one_reference.
         // It is fixed in master/saas-19.1, but for now we have to mock the correct output ourselves.
-        return [
+        [
             [{ __count: 3, "probability:avg": 11, __extra_domain: [] }],
             [
                 {
@@ -1092,9 +1106,9 @@ test("Can group by many2one_reference field ", async () => {
                     __count: 1,
                     "probability:avg": 13,
                 },
-            ]
-        ];
-    });
+            ],
+        ]
+    );
     Partner._fields = {
         ...Partner._fields,
         res_id: fields.Many2oneReference({
@@ -1145,10 +1159,10 @@ test("Can group by many2one_reference field ", async () => {
 });
 
 test("Can group by reference field ", async () => {
-    onRpc("partner", "formatted_read_grouping_sets", ({ kwargs }) => {
+    onRpc("partner", "formatted_read_grouping_sets", ({ kwargs }) =>
         // The mock server doesn't support well reference.
         // It is fixed in master/saas-19.1, but for now we have to mock the correct output ourselves.
-        return [
+        [
             [{ __count: 3, "probability:avg": 11, __extra_domain: [] }],
             [
                 {
@@ -1169,9 +1183,9 @@ test("Can group by reference field ", async () => {
                     __count: 1,
                     "probability:avg": 13,
                 },
-            ]
-        ];
-    });
+            ],
+        ]
+    );
     Partner._fields = {
         ...Partner._fields,
         ref: fields.Reference({
@@ -1260,6 +1274,31 @@ test("PIVOT functions can accept spreadsheet dates", async function () {
         '=PIVOT.VALUE(1, "probability:avg", "date:quarter",DATE(2016, 4, 2))'
     );
     expect(getCellValue(model, "A1")).toBe(10);
+});
+
+test("PIVOT.VALUE running total carries forward for month granularity", async function () {
+    const { model, pivotId } = await createSpreadsheetWithPivot({
+        arch: /* xml */ `
+            <pivot>
+                <field name="date" interval="month" type="row"/>
+                <field name="foo" type="measure"/>
+            </pivot>`,
+    });
+    updatePivot(model, pivotId, {
+        rows: [{ fieldName: "date", granularity: "month", order: "asc" }],
+    });
+    await waitForDataLoaded(model);
+
+    setCellContent(model, "A1", '=PIVOT.VALUE(1,"foo:sum","date:month",DATE(2016,11,1))');
+    expect(getCellValue(model, "A1")).toBe("");
+
+    updatePivotMeasureDisplay(model, pivotId, "foo:sum", {
+        type: "running_total",
+        fieldNameWithGranularity: "date:month",
+    });
+    await waitForDataLoaded(model);
+
+    expect(getCellValue(model, "A1")).toBe(13);
 });
 
 test("PIVOT formulas are correctly formatted at evaluation", async function () {
@@ -1970,8 +2009,8 @@ test("isPivotUnused getter", async () => {
     const sheetId = model.getters.getActiveSheetId();
     expect(model.getters.isPivotUnused(pivotId)).toBe(false);
 
-    model.dispatch("CREATE_SHEET", { sheetId: "2" });
-    model.dispatch("DELETE_SHEET", { sheetId: sheetId });
+    createSheet(model, { sheetId: "2" });
+    deleteSheet(model, sheetId);
     expect(model.getters.isPivotUnused(pivotId)).toBe(true);
 
     setCellContent(model, "A1", "=PIVOT.HEADER(1)");
@@ -1988,6 +2027,12 @@ test("isPivotUnused getter", async () => {
 
     setCellContent(model, "A1", "=PIVOT(1)");
     expect(model.getters.isPivotUnused(pivotId)).toBe(false);
+
+    model.dispatch("REQUEST_UNDO", {});
+    expect(model.getters.isPivotUnused(pivotId)).toBe(true);
+
+    setCellContent(model, "A2", "[ds](odoo-data-source://pivot/1)");
+    expect(model.getters.isListUnused("1")).toBe(false);
 });
 
 test("Data are fetched with the correct aggregator", async () => {
@@ -2315,6 +2360,20 @@ test("pivot.getPossibleFieldValues do not throw when the pivot is error", async 
     ]);
 });
 
+test("pivot.definition updates dimensions synchronously", async function () {
+    const { model, pivotId } = await createSpreadsheetWithPivot();
+    const pivot = model.getters.getPivot(pivotId);
+    expect(pivot.definition.rows.map((r) => r.fieldName)).toEqual(["bar"]);
+    expect(pivot.definition.columns.map((r) => r.fieldName)).toEqual(["foo"]);
+
+    updatePivot(model, pivotId, {
+        rows: [{ fieldName: "foo" }],
+        columns: [{ fieldName: "bar" }],
+    });
+    expect(pivot.definition.rows.map((r) => r.fieldName)).toEqual(["foo"]);
+    expect(pivot.definition.columns.map((c) => c.fieldName)).toEqual(["bar"]);
+});
+
 test("Can change display type of a measure", async function () {
     const { model } = await createSpreadsheetWithPivot({
         arch: /* xml */ `
@@ -2579,6 +2638,13 @@ test("`getPivotCellFromPosition` should not throw on missing company default cur
     }).not.toThrow();
 });
 
+test("Pivot normalization of many2one is a string in case of account.root", () => {
+    const normalizer = pivotNormalizationValueRegistry.get("many2one");
+    expect(normalizer({ value: 1 }, { relation: "account.root" })).toBe("1");
+    expect(normalizer({ value: "01" }, { relation: "account.root" })).toBe("01");
+    expect(normalizer({ value: "coucou" }, { relation: "account.root" })).toBe("coucou");
+});
+
 test("Groupable fields in pivot", async function () {
     const groupableFieldTypes = [
         "boolean",
@@ -2627,4 +2693,39 @@ test("Groupable fields in pivot", async function () {
             message: `Field ${fieldType} should not be normalizable`,
         });
     }
+});
+
+test("REFRESH_PIVOT properly invalidates a pivot table", async function () {
+    const { model } = await createSpreadsheetWithPivot({ pivotType: "dynamic" });
+    const position = { sheetId: model.getters.getActiveSheetId(), col: 0, row: 0 };
+    expect(model.getters.getCellTableBorder(position)).not.toBe(undefined);
+    model.dispatch("REFRESH_PIVOT", { id: model.getters.getPivotIds()[0] });
+    expect(model.getters.getCellTableBorder(position)).toBe(undefined);
+    await waitForDataLoaded(model);
+    expect(model.getters.getCellTableBorder(position)).not.toBe(undefined);
+});
+
+test("Setting a date global filter does not crash while recomputing a loading pivot table", async function () {
+    mockDate("2016-12-16 00:00:00");
+    const { model, pivotId } = await createSpreadsheetWithPivot({ pivotType: "dynamic" });
+    const position = { sheetId: model.getters.getActiveSheetId(), col: 0, row: 0 };
+    const filter = {
+        id: "date_filter",
+        type: "date",
+        label: "Date",
+    };
+
+    await addGlobalFilter(model, filter, {
+        pivot: { [pivotId]: { chain: "date", type: "date", offset: -1 } },
+    });
+    expect(model.getters.getCellTableBorder(position)).not.toBe(undefined);
+
+    setGlobalFilterValueWithoutReload(model, {
+        id: filter.id,
+        value: { type: "relative", period: "last_7_days" },
+    });
+    expect(model.getters.getCellTableBorder(position)).toBe(undefined);
+
+    await waitForDataLoaded(model);
+    expect(model.getters.getCellTableBorder(position)).not.toBe(undefined);
 });

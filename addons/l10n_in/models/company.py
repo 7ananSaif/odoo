@@ -1,4 +1,5 @@
 from odoo import Command, api, fields, models
+from odoo.fields import Domain
 
 
 class ResCompany(models.Model):
@@ -51,11 +52,6 @@ class ResCompany(models.Model):
         recursive=True,
         store=True,
     )
-    l10n_in_withholding_account_id = fields.Many2one(
-        comodel_name='account.account',
-        string="TDS Account",
-        check_company=True,
-    )
     l10n_in_withholding_journal_id = fields.Many2one(
         comodel_name='account.journal',
         string="TDS Journal",
@@ -63,14 +59,47 @@ class ResCompany(models.Model):
     )
 
     # GST settings
-    l10n_in_is_gst_registered = fields.Boolean(
-        string="Registered Under GST",
+    l10n_in_gst_registration_type = fields.Selection(
+        selection=[
+            ('regular', 'Regular Scheme'),
+            ('composition', 'Composition Scheme'),
+        ],
         compute="_compute_l10n_in_parent_based_features",
-        inverse="_inverse_l10n_in_is_gst_registered",
-        recursive=True,
+        inverse="_inverse_l10n_in_gst_registration_type",
+        string="GST Registration Type",
         store=True,
+        recursive=True,
+    )
+    l10n_in_composition_tax_rate = fields.Selection(
+        selection=[
+            ('1', '1% for Manufacturers and Traders'),
+            ('5', '5% for Restaurants'),
+            ('6', '6% for Service Providers'),
+        ],
+        string="Composition Tax Rate"
     )
     l10n_in_gstin_status_feature = fields.Boolean(string="Check GST Number Status")
+    l10n_in_disable_b2c_hsn_reporting = fields.Boolean(string="Disable B2C HSN Reporting")
+
+    def _get_gst_group_refs(self):
+        return [
+            'sgst_group',
+            'cgst_group',
+            'igst_group',
+            'cess_group',
+            'gst_group',
+            'exempt_group',
+            'nil_rated_group',
+            'non_gst_supplies_group',
+        ]
+
+    @api.depends('l10n_in_upi_id')
+    def _compute_qr_code(self):
+        # EXTENDS 'account'
+        indian_companies = self.filtered(lambda c: c.country_code == 'IN')
+        for company in indian_companies:
+            company.qr_code = bool(company.l10n_in_upi_id)
+        super(ResCompany, self - indian_companies)._compute_qr_code()
 
     def _inverse_l10n_in_tds_feature(self):
         for company in self:
@@ -80,25 +109,19 @@ class ResCompany(models.Model):
         for company in self:
             self._activate_l10n_in_taxes(['tcs_it_act_25_group'], company, company.l10n_in_tcs_feature)
 
-    def _inverse_l10n_in_is_gst_registered(self):
+    def _inverse_l10n_in_gst_registration_type(self):
         for company in self:
-            gst_group_refs = [
-                'sgst_group',
-                'cgst_group',
-                'igst_group',
-                'cess_group',
-                'gst_group',
-                'exempt_group',
-                'nil_rated_group',
-                'non_gst_supplies_group',
-            ]
-            if company.l10n_in_is_gst_registered:
-                self._activate_l10n_in_taxes(gst_group_refs, company, True)
+            self._update_l10n_in_gst_taxes(company)
+            if company.l10n_in_gst_registration_type:
                 # Set sale and purchase tax accounts when user registered under GST.
-                company.account_sale_tax_id = self.env['account.chart.template'].with_company(company).ref('sgst_sale_5', raise_if_not_found=False)
-                company.account_purchase_tax_id = self.env['account.chart.template'].with_company(company).ref('sgst_purchase_5', raise_if_not_found=False)
+                ChartTemplate = self.env['account.chart.template'].with_company(company)
+                if company.l10n_in_gst_registration_type == 'regular':
+                    company.account_sale_tax_id = ChartTemplate.ref('sgst_sale_5', raise_if_not_found=False)
+                    company.account_purchase_tax_id = ChartTemplate.ref('sgst_purchase_5', raise_if_not_found=False)
+                elif company.l10n_in_gst_registration_type == 'composition':
+                    company.account_sale_tax_id = False
+                    company.account_purchase_tax_id = ChartTemplate.ref('sgst_purchase_5_composition', raise_if_not_found=False)
             else:
-                self._activate_l10n_in_taxes(gst_group_refs, company, False)
                 company.account_sale_tax_id = False
                 company.account_purchase_tax_id = False
 
@@ -109,32 +132,27 @@ class ResCompany(models.Model):
             if company.country_code == 'IN':
                 company.force_restrictive_audit_trail = company.root_id._existing_accounting()
 
-    @api.depends('parent_id.l10n_in_tds_feature', 'parent_id.l10n_in_tcs_feature', 'parent_id.l10n_in_is_gst_registered')
+    @api.depends('parent_id.l10n_in_tds_feature', 'parent_id.l10n_in_tcs_feature', 'parent_id.l10n_in_gst_registration_type')
     def _compute_l10n_in_parent_based_features(self):
         for company in self:
             if company.parent_id:
                 company.l10n_in_tds_feature = company.parent_id.l10n_in_tds_feature
                 company.l10n_in_tcs_feature = company.parent_id.l10n_in_tcs_feature
-                company.l10n_in_is_gst_registered = company.parent_id.l10n_in_is_gst_registered
+                company.l10n_in_gst_registration_type = company.parent_id.l10n_in_gst_registration_type
 
     def _activate_l10n_in_taxes(self, group_refs, company, active=True):
-        tax_group_ids = [
-            tax_group.id
-            for group_ref in group_refs
-            if (tax_group := self.env['account.chart.template'].with_company(company).ref(group_ref, raise_if_not_found=False))
-        ]
-
+        tax_group_ids = self._get_l10n_in_tax_group_ids(group_refs, company)
         if tax_group_ids:
             taxes = self.env['account.tax'].with_company(company).with_context(active_test=False).search([
                 ('tax_group_id', 'in', tax_group_ids),
-                ('active', '!=', active)
+                ('active', '!=', active),
             ])
             taxes.write({'active': active})
 
-    @api.depends('vat')
+    @api.depends('has_vat')
     def _compute_l10n_in_hsn_code_digit(self):
         for record in self:
-            if record.country_code == "IN" and record.vat:
+            if record.country_code == "IN" and record.has_vat:
                 record.l10n_in_hsn_code_digit = "4"
             else:
                 record.l10n_in_hsn_code_digit = False
@@ -152,16 +170,13 @@ class ResCompany(models.Model):
 
     def write(self, vals):
         res = super().write(vals)
-        if vals.get('vat'):
-            # Enable GST(l10n_in_is_gst_registered) when a valid GSTIN(vat) is applied.
-            self._update_l10n_in_is_gst_registered()
-        if (vals.get('state_id') or vals.get('country_id')) and not self.env.context.get('delay_account_group_sync'):
+        if vals.get('state_id') or vals.get('country_id'):
             # Update Fiscal Positions for companies setting up state for the first time
             self._update_l10n_in_fiscal_position()
         return res
 
     def _update_l10n_in_fiscal_position(self):
-        companies_need_update_fp = self.filtered(lambda c: c.parent_ids[0].chart_template == 'in')
+        companies_need_update_fp = self.filtered(lambda c: (c.parent_ids[0].chart_template or '').startswith('in'))
         for company in companies_need_update_fp:
             ChartTemplate = self.env['account.chart.template'].with_company(company)
             fiscal_position_data = ChartTemplate._get_in_account_fiscal_position()
@@ -173,11 +188,59 @@ class ResCompany(models.Model):
                 ])]
             ChartTemplate._load_data({'account.fiscal.position': fiscal_position_data})
 
-    def _update_l10n_in_is_gst_registered(self):
+    def _update_l10n_in_gst_registration_type(self):
         for company in self:
-            if company.country_code == "IN" and company.vat:
-                company.l10n_in_is_gst_registered = company.partner_id.check_vat_in(company.vat)
+            if company.country_code == "IN" and company.vat and not company.l10n_in_gst_registration_type and company.id in self.env.user._get_company_ids():
+                company.l10n_in_gst_registration_type = 'regular' if company.partner_id.check_vat_in(company.vat) else False
 
     def action_update_state_as_per_gstin(self):
         self.ensure_one()
         self.partner_id.action_update_state_as_per_gstin()
+
+    def _get_l10n_in_tax_group_ids(self, group_refs, company):
+        ChartTemplate = self.env['account.chart.template'].with_company(company)
+        return [
+            tax_group.id
+            for group_ref in group_refs
+            if (tax_group := ChartTemplate.ref(group_ref, raise_if_not_found=False))
+        ]
+
+    def _update_l10n_in_gst_taxes(self, company):
+        """Activate the GST taxes that match the company's registration type and deactivate the rest:
+
+        - regular:      standard GST and 0% taxes on, No ITC taxes off
+        - composition:  No ITC + purchase reverse charge + 0% taxes on, other GST taxes off
+        - unregistered: No ITC + purchase-side 0% taxes on, standard GST and sale 0% taxes off
+        """
+        tax_group_ids = self._get_l10n_in_tax_group_ids(self._get_gst_group_refs(), company)
+        if tax_group_ids:
+            taxes = self.env['account.tax'].with_company(company).with_context(active_test=False).search([
+                ('tax_group_id', 'in', tax_group_ids),
+            ])
+            no_itc_tax_ids = self.env['ir.model.data'].search([
+                ('model', '=', 'account.tax'),
+                ('module', '=', 'account'),
+                ('name', '=like', f'{company.id}_%_purchase_%_composition'),
+            ]).mapped('res_id')
+            if company.l10n_in_gst_registration_type == 'regular':
+                activate_domain = [('id', 'not in', no_itc_tax_ids)]
+            elif company.l10n_in_gst_registration_type == 'composition':
+                activate_domain = Domain.OR([
+                    [
+                        ('type_tax_use', '=', 'purchase'),
+                        ('l10n_in_reverse_charge', '=', True),
+                    ],
+                    [('id', 'in', no_itc_tax_ids)],
+                    [('l10n_in_tax_type', 'in', ['nil_rated', 'exempt', 'non_gst'])],
+                ])
+            else:  # unregistered
+                activate_domain = Domain.OR([
+                    [('id', 'in', no_itc_tax_ids)],
+                    [
+                        ('type_tax_use', '=', 'purchase'),
+                        ('l10n_in_tax_type', 'in', ['nil_rated', 'exempt', 'non_gst']),
+                    ],
+                ])
+            taxes_to_activate = taxes.filtered_domain(activate_domain)
+            taxes_to_activate.active = True
+            (taxes - taxes_to_activate).active = False

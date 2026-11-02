@@ -10,9 +10,6 @@ class AccountChartTemplate(models.AbstractModel):
     def _get_do_template_data(self):
         return {
             'code_digits': '8',
-            'property_account_receivable_id': 'l10n_do_11030201',
-            'property_account_payable_id': 'l10n_do_21010200',
-            'property_stock_valuation_account_id': 'l10n_do_11050100',
         }
 
     @template('do', 'res.company')
@@ -29,11 +26,19 @@ class AccountChartTemplate(models.AbstractModel):
                 'expense_currency_exchange_account_id': 'l10n_do_61070800',
                 'account_journal_early_pay_discount_loss_account_id': 'l10n_do_61081000',
                 'account_journal_early_pay_discount_gain_account_id': 'l10n_do_42040400',
-                'default_cash_difference_income_account_id': 'l10n_do_42040400',
-                'default_cash_difference_expense_account_id': 'l10n_do_61081000',
+                'default_cash_difference_income_account_id': 'l10n_do_42040300',
+                'default_cash_difference_expense_account_id': 'l10n_do_61080100',
                 'account_sale_tax_id': 'tax_18_sale',
                 'account_purchase_tax_id': 'tax_18_purch',
+                'deferred_expense_account_id': 'l10n_do_12090200',
+                'deferred_revenue_account_id': 'l10n_do_22030300',
                 'income_account_id': 'l10n_do_41010100',
                 'expense_account_id': 'l10n_do_51010100',
+                'receivable_account_id': 'l10n_do_11030201',
+                'payable_account_id': 'l10n_do_21010200',
+                'downpayment_account_id': 'l10n_do_22030100',
+                'account_stock_valuation_id': 'l10n_do_11050100',
+                'account_production_wip_account_id': 'l10n_do_13010100',
+                'account_production_wip_overhead_account_id': 'l10n_do_51020300',
             },
         }

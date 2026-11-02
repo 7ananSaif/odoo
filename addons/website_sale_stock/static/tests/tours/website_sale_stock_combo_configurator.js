@@ -5,10 +5,9 @@ import stockConfiguratorTourUtils from '@website_sale_stock/js/tours/combo_confi
 
 registry
     .category('web_tour.tours')
-    .add('website_sale_stock_combo_configurator', {
-        url: '/shop?search=Combo product',
+    .add('website_sale_stock.combo_configurator', {
         steps: () => [
-            ...wsTourUtils.addToCart({ productName: "Combo product", search: false, expectUnloadPage: true }),
+            ...wsTourUtils.addToCartFromProductPage(),
             configuratorTourUtils.assertQuantity(1),
             // Assert that it's impossible to add less than 1 product.
             configuratorTourUtils.setQuantity(0),
@@ -38,7 +37,7 @@ registry
                 `,
             },
         ],
-   });
+    });
 
 registry.category("web_tour.tours").add("test_website_sale_stock_max_combo", {
     steps: () => [
@@ -52,20 +51,12 @@ registry.category("web_tour.tours").add("test_website_sale_stock_max_combo", {
             content: "VariantMixin has set the maximum",
             trigger: "input[name=add_qty][data-max='2']",
         },
-        {
-            content: "Add one quantity",
-            trigger: ".css_quantity_plus",
-            run: "click",
-        },
+        wsTourUtils.increaseProductPageQuantity(),
         {
             content: "One quantity should be added",
             trigger: "input[name=add_qty]:value(2)",
         },
-        {
-            content: "Try to add one quantity",
-            trigger: ".css_quantity_plus",
-            run: "click",
-        },
+        wsTourUtils.increaseProductPageQuantity(),
         {
             content: "No quantity should be added",
             trigger: "input[name=add_qty]:value(2)",

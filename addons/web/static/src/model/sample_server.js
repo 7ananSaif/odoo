@@ -4,7 +4,7 @@ import {
     serializeDate,
     serializeDateTime,
 } from "@web/core/l10n/dates";
-import { ORM } from "@web/core/orm_service";
+import { ORM } from "@web/core/orm_plugin";
 import { registry } from "@web/core/registry";
 import { cartesian, sortBy as arraySortBy, unique } from "@web/core/utils/arrays";
 import { parseServerValue } from "./relational_model/utils";
@@ -84,6 +84,7 @@ export class SampleServer {
                         display_name: { type: "char" },
                         id: { type: "integer" },
                         color: { type: "integer" },
+                        write_date: { type: "datetime" },
                     },
                     records: [],
                 };
@@ -235,11 +236,16 @@ export class SampleServer {
     _generateFieldValue(modelName, fieldName, id) {
         const field = this.data[modelName].fields[fieldName];
         switch (field.type) {
+            case "binary":
+                if (["avatar_128", "image_128"].includes(fieldName)) {
+                    return getSampleFromId(id, SampleServer.SAMPLE_AVATARS);
+                }
+                return false;
             case "boolean":
                 return fieldName === "active" ? true : this._getRandomBool();
             case "char":
             case "text":
-                if (["display_name", "name"].includes(fieldName)) {
+                if (["complete_name", "display_name", "name"].includes(fieldName)) {
                     if (SampleServer.PEOPLE_MODELS.includes(modelName)) {
                         return getSampleFromId(id, SampleServer.SAMPLE_PEOPLE);
                     } else if (modelName === "res.country") {
@@ -265,7 +271,7 @@ export class SampleServer {
                 return false;
             case "date":
             case "datetime": {
-                const datetime = this._getRandomDate();
+                const datetime = this._getRandomDate(fieldName === "write_date");
                 return field.type === "date"
                     ? serializeDate(datetime)
                     : serializeDateTime(datetime);
@@ -322,10 +328,12 @@ export class SampleServer {
 
     /**
      * @private
+     * @param {boolean} [past=false] if set to true, the generated date will be in the past
      * @returns {DateTime}
      */
-    _getRandomDate() {
-        const delta = Math.floor((Math.random() - Math.random()) * SampleServer.DATE_DELTA);
+    _getRandomDate(past = false) {
+        const factor = (past ? 0 : Math.random()) - Math.random();
+        const delta = Math.floor(factor * SampleServer.DATE_DELTA);
         return luxon.DateTime.local().plus({ hours: delta });
     }
 
@@ -588,29 +596,26 @@ export class SampleServer {
         // populate many2one and x2many values
         for (const fieldName in params.specification) {
             const field = this.data[params.model].fields[fieldName];
-            if (field.type === "many2one") {
-                for (const record of result.records) {
-                    record[fieldName] = record[fieldName]
-                        ? {
-                              id: record[fieldName][0],
-                              display_name: record[fieldName][1],
-                          }
-                        : false;
-                }
+            if (!["many2one", "one2many", "many2many"].includes(field.type)) {
+                continue;
             }
-            if (field.type === "one2many" || field.type === "many2many") {
-                const relFields = Object.keys(params.specification[fieldName].fields || {});
-                if (relFields.length) {
-                    const relIds = result.records.map((r) => r[fieldName]).flat();
-                    const relRecords = {};
-                    const _relRecords = this._mockRead({
-                        model: field.relation,
-                        args: [relIds, relFields],
-                    });
-                    for (const relRecord of _relRecords) {
-                        relRecords[relRecord.id] = relRecord;
-                    }
-                    for (const record of result.records) {
+            const relFields = Object.keys(params.specification[fieldName].fields || {});
+            if (relFields.length) {
+                let relIds;
+                if (field.type === "many2one") {
+                    relIds = result.records.filter((r) => r[fieldName]).map((r) => r[fieldName][0]);
+                } else {
+                    relIds = result.records.map((r) => r[fieldName]).flat();
+                }
+                const _relRecords = this._mockRead({
+                    model: field.relation,
+                    args: [relIds, relFields],
+                });
+                const relRecords = Object.fromEntries(_relRecords.map((r) => [r.id, r]));
+                for (const record of result.records) {
+                    if (field.type === "many2one") {
+                        record[fieldName] = relRecords[record[fieldName][0]] || false;
+                    } else {
                         record[fieldName] = record[fieldName].map((resId) => relRecords[resId]);
                     }
                 }
@@ -643,7 +648,7 @@ export class SampleServer {
             groups = this._mockFormattedReadGroup({ ...params, aggregates });
         }
         // Don't care another params - and no subgroup:
-        // order / opening_info / unfold_read_default_limit / groupby_read_specification
+        // order / opening_info / unfold_read_default_limit
         const openAllGroups = params.auto_unfold && !this.existingGroups;
         let nbOpenedGroup = 0;
         if (params.unfold_read_specification) {
@@ -662,6 +667,32 @@ export class SampleServer {
                     }
                 }
                 delete group["id:array_agg"];
+            }
+        }
+        // Handle groupby_read_specification to fetch related field values for group headers
+        if (params.groupby_read_specification && params.groupby.length > 0) {
+            const primaryGroupBy = params.groupby[0].split(":")[0];
+            const readSpec = params.groupby_read_specification[params.groupby[0]];
+            const field = this.data[params.model].fields[primaryGroupBy];
+
+            if (readSpec && field && field.relation) {
+                for (const group of groups) {
+                    const groupbyValue = group[primaryGroupBy];
+
+                    if (Array.isArray(groupbyValue)) {
+                        const id = groupbyValue[0];
+                        const fieldSpecification = readSpec.fields || {};
+                        const result = this._mockWebSearchReadUnity({
+                            model: field.relation,
+                            specification: fieldSpecification,
+                            recordIds: [id],
+                        });
+
+                        group.__values = result.records.length ? result.records[0] : { id: false };
+                    } else {
+                        group.__values = { id: false };
+                    }
+                }
             }
         }
 
@@ -841,6 +872,13 @@ SampleServer.PEOPLE_MODELS = [
     "hr.employee",
     "mail.followers",
     "mailing.contact",
+];
+SampleServer.SAMPLE_AVATARS = [
+    "PD94bWwgdmVyc2lvbj0nMS4wJyBlbmNvZGluZz0nVVRGLTgnID8+PHN2ZyBoZWlnaHQ9JzE4MCcgd2lkdGg9JzE4MCcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB4bWxuczp4bGluaz0naHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayc+PHJlY3QgZmlsbD0naHNsKDM0OSwgNDglLCA0NSUpJyBoZWlnaHQ9JzE4MCcgd2lkdGg9JzE4MCcvPjx0ZXh0IGZpbGw9JyNmZmZmZmYnIGZvbnQtc2l6ZT0nOTYnIHRleHQtYW5jaG9yPSdtaWRkbGUnIHg9JzkwJyB5PScxMjUnIGZvbnQtZmFtaWx5PSdzYW5zLXNlcmlmJz5BPC90ZXh0Pjwvc3ZnPg==",
+    "PD94bWwgdmVyc2lvbj0nMS4wJyBlbmNvZGluZz0nVVRGLTgnID8+PHN2ZyBoZWlnaHQ9JzE4MCcgd2lkdGg9JzE4MCcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB4bWxuczp4bGluaz0naHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayc+PHJlY3QgZmlsbD0naHNsKDIxNiwgNjklLCA0NSUpJyBoZWlnaHQ9JzE4MCcgd2lkdGg9JzE4MCcvPjx0ZXh0IGZpbGw9JyNmZmZmZmYnIGZvbnQtc2l6ZT0nOTYnIHRleHQtYW5jaG9yPSdtaWRkbGUnIHg9JzkwJyB5PScxMjUnIGZvbnQtZmFtaWx5PSdzYW5zLXNlcmlmJz5CPC90ZXh0Pjwvc3ZnPg==",
+    "PD94bWwgdmVyc2lvbj0nMS4wJyBlbmNvZGluZz0nVVRGLTgnID8+PHN2ZyBoZWlnaHQ9JzE4MCcgd2lkdGg9JzE4MCcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB4bWxuczp4bGluaz0naHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayc+PHJlY3QgZmlsbD0naHNsKDI3MiwgNDElLCA0NSUpJyBoZWlnaHQ9JzE4MCcgd2lkdGg9JzE4MCcvPjx0ZXh0IGZpbGw9JyNmZmZmZmYnIGZvbnQtc2l6ZT0nOTYnIHRleHQtYW5jaG9yPSdtaWRkbGUnIHg9JzkwJyB5PScxMjUnIGZvbnQtZmFtaWx5PSdzYW5zLXNlcmlmJz5DPC90ZXh0Pjwvc3ZnPg==",
+    "PD94bWwgdmVyc2lvbj0nMS4wJyBlbmNvZGluZz0nVVRGLTgnID8+PHN2ZyBoZWlnaHQ9JzE4MCcgd2lkdGg9JzE4MCcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB4bWxuczp4bGluaz0naHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayc+PHJlY3QgZmlsbD0naHNsKDEwNCwgNTclLCA0NSUpJyBoZWlnaHQ9JzE4MCcgd2lkdGg9JzE4MCcvPjx0ZXh0IGZpbGw9JyNmZmZmZmYnIGZvbnQtc2l6ZT0nOTYnIHRleHQtYW5jaG9yPSdtaWRkbGUnIHg9JzkwJyB5PScxMjUnIGZvbnQtZmFtaWx5PSdzYW5zLXNlcmlmJz5EPC90ZXh0Pjwvc3ZnPg==",
+    "PD94bWwgdmVyc2lvbj0nMS4wJyBlbmNvZGluZz0nVVRGLTgnID8+PHN2ZyBoZWlnaHQ9JzE4MCcgd2lkdGg9JzE4MCcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB4bWxuczp4bGluaz0naHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayc+PHJlY3QgZmlsbD0naHNsKDYyLCA0NCUsIDQ1JSknIGhlaWdodD0nMTgwJyB3aWR0aD0nMTgwJy8+PHRleHQgZmlsbD0nI2ZmZmZmZicgZm9udC1zaXplPSc5NicgdGV4dC1hbmNob3I9J21pZGRsZScgeD0nOTAnIHk9JzEyNScgZm9udC1mYW1pbHk9J3NhbnMtc2VyaWYnPkU8L3RleHQ+PC9zdmc+",
 ];
 
 SampleServer.UnimplementedRouteError = UnimplementedRouteError;

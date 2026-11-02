@@ -1,6 +1,11 @@
-import { fields, Record } from "@mail/core/common/record";
+import { fields, Record } from "@mail/model/export";
 
-import { Deferred } from "@web/core/utils/concurrency";
+/**
+ * @template T
+ * @typedef {{
+ *   [K in keyof T as T[K] extends Function ? never : K]: T[K]
+ * }} InstanceFields
+ */
 
 /**
  * This class represents a specific and unique request coming from the client to the server, and it
@@ -13,11 +18,32 @@ import { Deferred } from "@web/core/utils/concurrency";
  * they are resolved with their data. This class should not be used directly under typical use.
  */
 export class DataResponse extends Record {
-    static id = "id";
     static _lastId = 0;
 
+    /** @returns {import("models").DataResponse} */
     static createRequest() {
         return this.insert({ id: ++this._lastId });
+    }
+
+    setup() {
+        super.setup(...arguments);
+        this.onChange(
+            () => [this._resolve],
+            function onChangeResolve(_resolve) {
+                if (!_resolve) {
+                    return;
+                }
+                const result = { ...this };
+                for (const [name, value] of Object.entries(result)) {
+                    if (Array.isArray(value)) {
+                        result[name] = [...value];
+                    }
+                }
+                this._resultResolvers.resolve(result);
+                this.delete();
+            },
+            { immediate: true }
+        );
     }
 
     /** @type {number} */
@@ -29,24 +55,17 @@ export class DataResponse extends Record {
      */
     _autoResolve = false;
     /**
-     * Promise that is resolved with the data when the data request is complete.
-     */
-    _resultDef = new Deferred();
-    /**
      * When set to true, resolves this data request with the current values of the fields as data,
      * and then deletes the data request.
      *
      * @type {boolean}
      */
-    _resolve = fields.Attr(undefined, {
-        /** @this {import("models").DataResponse} */
-        onUpdate() {
-            if (this._resolve) {
-                this._resultDef.resolve({ ...this });
-                this.delete();
-            }
-        },
-    });
+    _resolve = undefined;
+    /**
+     * Promise that is resolved with the data when the data request is complete.
+     * @type {PromiseWithResolvers<InstanceFields<DataResponse>>}
+     */
+    _resultResolvers = Promise.withResolvers();
     /*
      * Fields are contextual to each data request. They are generically added here to benefit from
      * fields behavior as well as auto-complete, but their meaning depends on each data request.
@@ -54,11 +73,14 @@ export class DataResponse extends Record {
      * other fields can be added if necessary.
      */
     attachments = fields.Many("ir.attachment");
-    channel = fields.One("Thread");
-    channels = fields.Many("Thread");
+    channel = fields.One("discuss.channel");
+    channels = fields.Many("discuss.channel");
     /** @type {number} */
     count;
+    /** @type {boolean} */
+    is_fully_loaded;
     message = fields.One("mail.message");
+    messages = fields.Many("mail.message");
     partners = fields.Many("res.partner");
 }
 

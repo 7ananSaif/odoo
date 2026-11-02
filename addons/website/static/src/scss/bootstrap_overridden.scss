@@ -72,6 +72,7 @@ $spacers: (
 // grep: BOXED_BODY_BG_ODOO
 $body-bg: o-color('o-cc1-bg') !default;
 $body-color: o-color('o-cc1-text') or color-contrast($body-bg) !default;
+$o-website-palette-is-dark: color-contrast($body-color) == $color-contrast-dark;
 
 // Bootstrap's default value on hover on some components eg. dropdown-item.
 $body-tertiary-bg: mix(color-contrast($body-bg), $body-bg, 10%) !default;
@@ -91,8 +92,23 @@ $link-hover-decoration: if(o-website-value('link-underline') != 'never', underli
 //
 // For higher contrast text. Not applicable for backgrounds.
 
-// Increase contrast when needed, otherwise fallback to BS default
-$primary-text-emphasis: if(not has-enough-contrast(o-color('primary'), $body-bg), increase-contrast(o-color('primary'), $body-bg), null) !default;
+// Adapt Bootstrap's emphasis text to the website palette.
+$primary-text-emphasis: if(
+    $o-website-palette-is-dark,
+    tint-color(o-color('primary'), 40%),
+    if(
+        not has-enough-contrast(o-color('primary'), $body-bg),
+        increase-contrast(o-color('primary'), $body-bg),
+        null
+    )
+) !default;
+
+// Subtle backgrounds
+$primary-bg-subtle: if(
+    $o-website-palette-is-dark,
+    shade-color(o-color('primary'), 70%),
+    tint-color(o-color('primary'), 80%)
+) !default;
 
 // Grid
 $grid-gutter-width: 30px !default;
@@ -192,10 +208,13 @@ $display-4-margin-bottom: o-website-value('display-4-margin-bottom') or $heading
 $headings-color: o-color('o-cc1-headings') !default;
 
 $lead-font-size: $font-size-base * $o-lead-ratio !default;
-// Note that we currently load only 700 for Google fonts, we may consider trying
-// to load more or this one only instead. Meanwhile, this fallbacks on 700
-// if 600 is not available anyway.
-$font-weight-bold: 600 !default;
+
+$lead-font-weight: o-website-value('lead-font-weight') !default;
+$font-weight-normal: o-website-value('font-weight-normal') !default;
+$font-weight-bolder: o-website-value('font-weight-bolder') !default;
+$headings-font-weight: o-website-value('headings-font-weight') !default;
+$display-font-weight: o-website-value('display-font-weight') !default;
+$btn-font-weight: o-website-value('btn-font-weight') !default;
 
 $text-muted: mute-color($body-color) !default;
 
@@ -278,6 +297,11 @@ $form-check-input-border-radius: if($input-border-radius != null, min($input-bor
 //   (a disabled range should have its *active* part with a different color).
 $form-range-track-bg: $input-disabled-bg !default;
 
+$input-border-top-width: o-website-value('input-border-top-width') !default;
+$input-border-right-width: o-website-value('input-border-right-width') !default;
+$input-border-bottom-width: o-website-value('input-border-bottom-width') !default;
+$input-border-left-width: o-website-value('input-border-left-width') !default;
+
 // Dropdowns
 $dropdown-border-color: $border-color !default;
 
@@ -348,9 +372,27 @@ $popover-arrow-outer-color: $border-color !default;
 $badge-border-radius: $border-radius-pill !default;
 
 // Shadows
-$box-shadow: 0px 4px 16px rgba($black, 0.12) !default;
-$box-shadow-sm: 0px 1px 3px rgba($black, .1) !default;
-$box-shadow-lg: 0px 12px 32px rgba($black, .175) !default;
+$box-shadow-color: o-website-value('box-shadow-color') !default;
+$box-shadow-offset-x: o-website-value('box-shadow-offset-x') !default;
+$box-shadow-offset-y: o-website-value('box-shadow-offset-y') !default;
+$box-shadow-blur-radius: o-website-value('box-shadow-blur-radius') !default;
+$box-shadow-spread-radius: o-website-value('box-shadow-spread-radius') !default;
+
+$box-shadow-sm-color: o-website-value('box-shadow-sm-color') !default;
+$box-shadow-sm-offset-x: o-website-value('box-shadow-sm-offset-x') !default;
+$box-shadow-sm-offset-y: o-website-value('box-shadow-sm-offset-y') !default;
+$box-shadow-sm-blur-radius: o-website-value('box-shadow-sm-blur-radius') !default;
+$box-shadow-sm-spread-radius: o-website-value('box-shadow-sm-spread-radius') !default;
+
+$box-shadow-lg-color: o-website-value('box-shadow-lg-color') !default;
+$box-shadow-lg-offset-x: o-website-value('box-shadow-lg-offset-x') !default;
+$box-shadow-lg-offset-y: o-website-value('box-shadow-lg-offset-y') !default;
+$box-shadow-lg-blur-radius: o-website-value('box-shadow-lg-blur-radius') !default;
+$box-shadow-lg-spread-radius: o-website-value('box-shadow-lg-spread-radius') !default;
+
+$box-shadow: var(--box-shadow-offset-x) var(--box-shadow-offset-y) var(--box-shadow-blur-radius) var(--box-shadow-spread-radius) var(--box-shadow-color) !default;
+$box-shadow-sm: var(--box-shadow-sm-offset-x) var(--box-shadow-sm-offset-y) var(--box-shadow-sm-blur-radius) var(--box-shadow-sm-spread-radius) var(--box-shadow-sm-color) !default;
+$box-shadow-lg: var(--box-shadow-lg-offset-x) var(--box-shadow-lg-offset-y) var(--box-shadow-lg-blur-radius) var(--box-shadow-lg-spread-radius) var(--box-shadow-lg-color) !default;
 
 // Cards
 $card-border-color: $border-color !default;
@@ -392,8 +434,19 @@ $offcanvas-horizontal-width: $o-offcanvas-horizontal-width !default;
 // Bootstrap paddings and margins. See FIXED_TEXT_COLUMNS.
 $--enable-no-overflow-of-text-columns: false !default;
 
-.carousel-instant {
-  .carousel-item {
-    transition-duration: 200ms !important;
-  }
+// A side-specific "form field border width" is only applied if it differs
+// from the global border width that applies to all sides.
+.form-control {
+    @if $input-border-top-width != $input-border-width {
+        border-top-width: $input-border-top-width !important;
+    }
+    @if $input-border-right-width != $input-border-width {
+        border-right-width: $input-border-right-width !important;
+    }
+    @if $input-border-bottom-width != $input-border-width {
+        border-bottom-width: $input-border-bottom-width !important;
+    }
+    @if $input-border-left-width != $input-border-width {
+        border-left-width: $input-border-left-width !important;
+    }
 }

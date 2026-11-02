@@ -1,4 +1,4 @@
-import { Component, onMounted, useState } from "@odoo/owl";
+import { Component, onMounted, proxy, t, useProps } from "@odoo/owl";
 import { Dialog } from "@web/core/dialog/dialog";
 import { DropdownItem } from "@web/core/dropdown/dropdown_item";
 import { redirect } from "@web/core/utils/urls";
@@ -20,11 +20,11 @@ export class SlideUploadDialog extends Component {
         installModuleData: null,
     };
     static categoryData = {
-        document: { icon: "fa-file-pdf-o", label: _t("Presentation / Doc") },
-        infographic: { icon: "fa-file-image-o", label: _t("Image") },
-        article: { icon: "fa-file-text", label: _t("Article") },
-        video: { icon: "fa-file-video-o", label: _t("Video") },
-        quiz: { icon: "fa-question-circle", label: _t("Quiz") },
+        document: { icon: "picture_as_pdf", label: _t("Presentation / Doc") },
+        infographic: { icon: "image", label: _t("Image") },
+        article: { icon: "article", iconClass: "oi-filled", label: _t("Article") },
+        video: { icon: "movie", label: _t("Video") },
+        quiz: { icon: "help", label: _t("Quiz") },
     };
     static components = {
         Dialog,
@@ -45,25 +45,26 @@ export class SlideUploadDialog extends Component {
         video: "website_slides.SlideCategoryTutorial.Video",
         quiz: "website_slides.SlideCategoryTutorial.Quiz",
     };
-    static props = {
-        canPublish: Boolean,
-        canUpload: Boolean,
-        categoryId: { type: String, optional: true },
-        channelId: Number,
-        close: Function,
-        modulesToInstall: { type: Array, optional: true },
-        openModal: { type: String, optional: true },
-    };
     static template = "website_slides.SlideUploadDialog";
 
+    props = useProps({
+        canPublish: t.boolean(),
+        canUpload: t.boolean(),
+        categoryId: t.number().optional(),
+        channelId: t.number(),
+        close: t.function(),
+        modulesToInstall: t.array().optional(),
+        openModal: t.string().optional(),
+    });
+
     setup() {
-        this.defaultCategoryID = parseInt(this.props.categoryId, 10);
+        this.defaultCategoryID = this.props.categoryId;
         this.modulesToInstallStatus = null;
         this.dialog = useService("dialog");
         this.orm = useService("orm");
         this.pagesTemplates = this.constructor.pagesTemplates;
         this.slideCategoryData = this.constructor.categoryData;
-        this.state = useState({ ...this.constructor.baseSettings });
+        this.state = proxy({ ...this.constructor.baseSettings });
         onMounted(() => {
             if (this.props.openModal && this.props.openModal in this.slideCategoryData) {
                 // Sets the appropriate category's upload template if one has to be opened on load.

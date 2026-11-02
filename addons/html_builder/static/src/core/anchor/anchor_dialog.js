@@ -1,26 +1,27 @@
-import { Component, useRef, useState } from "@odoo/owl";
+import { Component, proxy, signal, useProps, t } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
 import { Dialog } from "@web/core/dialog/dialog";
 
 export class AnchorDialog extends Component {
     static template = "html_builder.AnchorDialog";
     static components = { Dialog };
-    static props = {
-        currentAnchorName: { type: String },
-        renameAnchor: { type: Function },
-        deleteAnchor: { type: Function },
-        formatAnchor: { type: Function },
-        close: { type: Function },
-    };
+    props = useProps({
+        currentAnchorName: t.string(),
+        renameAnchor: t.function(),
+        deleteAnchor: t.function(),
+        formatAnchor: t.function(),
+        close: t.function(),
+    });
+
+    inputRef = signal.ref();
 
     setup() {
         this.title = _t("Link Anchor");
-        this.inputRef = useRef("anchor-input");
-        this.state = useState({ isValid: true });
+        this.state = proxy({ isValid: true });
     }
 
     async onConfirmClick() {
-        const newAnchorName = this.props.formatAnchor(this.inputRef.el.value);
+        const newAnchorName = this.props.formatAnchor(this.inputRef().value);
         if (newAnchorName === this.props.currentAnchorName) {
             this.props.close();
         }

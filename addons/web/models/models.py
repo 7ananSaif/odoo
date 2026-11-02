@@ -1,48 +1,42 @@
 from __future__ import annotations
 
-import base64
+import datetime
 import itertools
 import json
 import typing
 from collections import defaultdict
 from typing import Any
+from zoneinfo import ZoneInfo
 
 import babel
 import babel.dates
-import datetime
-import pytz
+import psycopg2
 
 from odoo import api, models
 from odoo.fields import Command, Date, Domain
 from odoo.api import NewId
 from odoo.models import regex_order, READ_GROUP_DISPLAY_FORMAT, READ_GROUP_NUMBER_GRANULARITY, READ_GROUP_TIME_GRANULARITY, BaseModel
-from odoo.tools import DEFAULT_SERVER_DATE_FORMAT, DEFAULT_SERVER_DATETIME_FORMAT, date_utils, get_lang, unique, OrderedSet
-from odoo.exceptions import AccessError, UserError
+from odoo.tools import DEFAULT_SERVER_DATE_FORMAT, DEFAULT_SERVER_DATETIME_FORMAT, BinaryBytes, BinaryValue, date_utils, get_lang, unique, OrderedSet
+from odoo.exceptions import AccessError, UserError, ValidationError
+from odoo.tools.date_utils import all_timezones
+from odoo.tools.misc import LazyDict
 from odoo.tools.translate import LazyTranslate
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
-    from odoo.orm.types import DomainType
+    from odoo.api import DomainType, ValuesType
 
 _lt = LazyTranslate(__name__)
 SEARCH_PANEL_ERROR_MESSAGE = _lt("Too many items to display.")
 MAX_NUMBER_OPENED_GROUPS = 10
+PENDING_ATTACHMENTS_KEY = "pending_attachment_ids"
 
 
-class lazymapping(defaultdict):
-    def __missing__(self, key):
-        value = self.default_factory(key)
-        self[key] = value
-        return value
-
-
-def AND(domains):
-    return list(Domain.AND(domains))
-
-
-def OR(domains):
-    return list(Domain.OR(domains))
-
+class UnlinkBlockedError(ValidationError):
+    """ Raised by :meth:`~.Base.web_unlink`. Its dotted name is what makes the
+    web client show `UnlinkBlockedErrorDialog` (see
+    `@web/core/errors/error_dialogs`), which reads the ``context`` below, so
+    no delete flow has to handle this error itself. """
 
 
 class Base(models.AbstractModel):
@@ -50,25 +44,133 @@ class Base(models.AbstractModel):
 
     @api.model
     @api.readonly
-    def web_name_search(self, name, specification, domain=None, operator='ilike', limit=100):
+    def web_name_search(
+        self,
+        name: str,
+        specification: dict[str, dict],
+        domain: DomainType | None = None,
+        operator: str = 'ilike',
+        limit: int = 100
+    ) -> list[dict]:
+        """
+        Search for records that have a display name matching the given
+        ``name`` pattern when compared with the given ``operator``, while also
+        matching the optional search domain (``domain``).
+        The result is a dictionnary formatted according to the given
+        ``specification``.
+
+        Unlike the standard ``name_search()`` method, ``web_name_search()``
+        can traverse relational fields to fetch nested field values in a
+        single call.
+
+        Example::
+
+            records.web_name_search(
+                name = "Note",
+                operator = "ilike",
+                specification = {
+                    'display_name': {},
+                    'author_id': {
+                        'fields': {
+                            'display_name': {}
+                        }
+                    },
+                    'line_ids': {
+                        'fields': {
+                            'name': {}
+                        },
+                        'limit': 5,
+                        'order': 'sequence asc'
+                    }
+                }
+            )
+
+            >>> [{
+                'id': 1,
+                'display_name': 'Note G',
+                'author_id': {
+                    'id': 42,
+                    'display_name': 'Ada Lovelace'
+                },
+                'line_ids': [
+                    {'id': 10, 'name': 'Intro'},
+                    {'id': 11, 'name': 'Body'}
+                ],
+                '__formatted_display_name': "Note G"
+            }]
+
+        :param name: the name pattern to match
+        :param domain: search domain specifying further restrictions
+        :param operator: domain operator for matching ``name``, such as
+            ``'like'`` or ``'='``.
+        :param limit: max number of records to return
+        :param specification: A dictionary defining the fields to read.
+            The keys are field names, and the values are configuration dictionaries.
+            Passing an empty dictionary as a value simply reads the field's value.
+
+            Supported keys inside a field's configuration dictionary:
+
+            * ``fields`` (dict): Nested specification for relational or property fields.
+            * ``context`` (dict): Context to apply when evaluating the relational field.
+            * ``limit`` (int): Maximum number of records to fetch (for x2many fields).
+            * ``order`` (str): Sorting order to apply (for x2many fields).
+
+        :return: A list of dictionaries representing the requested records.
+        """
         id_name_pairs = self.name_search(name, domain, operator, limit)
         records = self.browse([id for id, _ in id_name_pairs])
-        if len(specification) == 1 and 'display_name' in specification:
-            return [{
-                'id': record.id,
-                'display_name': record.display_name,
-                '__formatted_display_name': record.with_context(formatted_display_name=True).display_name,
-            } for record in records]
-        return records.web_read(specification)
+        read_vals_list = records.web_read(specification)
+        if 'display_name' in specification:
+            for read_vals, record in zip(read_vals_list, records):
+                read_vals['__formatted_display_name'] = record.with_context(formatted_display_name=True).display_name
+        return read_vals_list
 
     @api.model
     @api.readonly
-    def web_search_read(self, domain, specification, offset=0, limit=None, order=None, count_limit=None):
-        records = self.search_fetch(domain, specification.keys(), offset=offset, limit=limit, order=order)
+    def web_search_read(
+        self,
+        domain: DomainType,
+        specification: dict[str, dict],
+        offset: int = 0,
+        limit: int | None = None,
+        order: str | None = None,
+        count_limit: int | None = None
+    ) -> dict[str, int | list[dict]]:
+        """
+        Perform a search followed by a structured read.
+        Unlike the standard :meth:`search_read()`, ``web_search_read()`` can traverse
+        relational fields to fetch nested field values in a single call.
+
+        :param domain: search domain specifying further restrictions
+        :param offset: number of results to ignore (default: none)
+        :param limit: maximum number of records to return (default: all)
+        :param order: sort string
+        :param specification: A dictionary defining the fields to read.
+            The keys are field names, and the values are configuration dictionaries.
+            Passing an empty dictionary as a value simply reads the field's value.
+
+            Supported keys inside a field's configuration dictionary:
+
+            * ``fields`` (dict): Nested specification for relational or property fields.
+            * ``context`` (dict): Context to apply when evaluating the relational field.
+            * ``limit`` (int): Maximum number of records to fetch (for x2many fields).
+            * ``order`` (str): Sorting order to apply (for x2many fields).
+
+        :return: A dictionary containing a 'length' key containing the number of records
+            and a 'records' key containing a list of records.
+        """
+        records = self.search_fetch(domain, list(specification), offset=offset, limit=limit, order=order)
         values_records = records.web_read(specification)
         return self._format_web_search_read_results(domain, values_records, offset, limit, count_limit)
 
-    def _format_web_search_read_results(self, domain, records, offset=0, limit=None, count_limit=None):
+    def _format_web_search_read_results(
+        self,
+        domain: DomainType,
+        records: list[dict],
+        offset: int = 0,
+        limit: int | None = None,
+        count_limit: int | None = None
+    ) -> dict[str, int | list[dict]]:
         if not records:
             return {
                 'length': 0,
@@ -87,26 +189,181 @@ class Base(models.AbstractModel):
             'records': records,
         }
 
-    def web_save(self, vals, specification: dict[str, dict], next_id=None) -> list[dict]:
-        if self:
-            self.write(vals)
+    def web_save(self, vals: ValuesType, specification: dict[str, dict], next_id=None) -> list[dict]:
+        """
+        Save the provided values to the current recordset, either by updating
+        existing records or creating a new one if the recordset is empty. After
+        saving, fetch and return the requested fields based on the provided
+        specification.
+
+        :param vals: fields to update and the value to set on them
+        :param specification: A dictionary defining the fields to read.
+            The keys are field names, and the values are configuration dictionaries.
+            Passing an empty dictionary as a value simply reads the field's value.
+
+            Supported keys inside a field's configuration dictionary:
+
+            * ``fields`` (dict): Nested specification for relational or property fields.
+            * ``context`` (dict): Context to apply when evaluating the relational field.
+            * ``limit`` (int): Maximum number of records to fetch (for x2many fields).
+            * ``order`` (str): Sorting order to apply (for x2many fields).
+        :param next_id: An optional record ID to browse and return instead of the
+            currently saved record.
+        :return: A list of dictionaries representing the requested records.
+        """
+        ctx = self.env.context
+        attachments = self.env['ir.attachment'].browse(ctx.get(PENDING_ATTACHMENTS_KEY, ()))
+        if attachments:
+            attachments.check_access('read')
+            ctx = {k: v for k, v in ctx.items() if k != PENDING_ATTACHMENTS_KEY}
+        record = self.with_context(ctx)
+        if record:
+            record.write(vals)
         else:
-            self = self.create(vals)
+            record = record.create(vals)
+
+        if attachments and len(record) == 1:
+            attachments.filtered(lambda a: not a.res_id).write({
+                'res_model': record._name,
+                'res_id': record.id,
+            })
         if next_id:
-            self = self.browse(next_id)
-        return self.with_context(bin_size=True).web_read(specification)
+            record = record.browse(next_id)
+        return record.web_read(specification)
 
     def web_save_multi(self, vals_list: list[dict], specification: dict[str, dict]) -> list[dict]:
+        """
+        Save the provided list of values to the current recordset, either by updating
+        existing records or creating a new one if the recordset is empty. After
+        saving, fetch and return the requested fields based on the provided
+        specification.
+
+        :param vals_list: values for the model's fields, as a list of dictionaries
+        :param specification: A dictionary defining the fields to read.
+            The keys are field names, and the values are configuration dictionaries.
+            Passing an empty dictionary as a value simply reads the field's value.
+
+            Supported keys inside a field's configuration dictionary:
+
+            * ``fields`` (dict): Nested specification for relational or property fields.
+            * ``context`` (dict): Context to apply when evaluating the relational field.
+            * ``limit`` (int): Maximum number of records to fetch (for x2many fields).
+            * ``order`` (str): Sorting order to apply (for x2many fields).
+        :return: A list of dictionaries representing the requested records.
+        """
         if len(self) != len(vals_list):
             raise ValueError("Each record must have a corresponding vals entry.")
 
         for record, val in zip(self, vals_list):
             record.write(val)
 
-        return self.with_context(bin_size=True).web_read(specification)
+        return self.web_read(specification)
+
+    def web_unlink(self) -> typing.Literal[True]:
+        """ Delete the records in ``self``, the way the web client's own
+        delete flows do it.
+
+        This is deliberately a separate method from :meth:`~.unlink`, called
+        only by the web client, so that the error-recovery below never runs
+        for internal ``unlink()`` calls made by other server-side code.
+
+        If deleting ``self`` in one go is blocked by a foreign key/RESTRICT
+        violation, pinpoint exactly which records of ``self`` are the actual
+        problem by retrying the deletion record by record (each attempt
+        rolled back regardless of its outcome, so nothing is ever partially
+        deleted), then raise a :class:`UnlinkBlockedError` enriched with that
+        information - the blocking model's display name, whether the records
+        can be archived instead, and which of them are actually blocked.
+        """
+        try:
+            with self.env.cr.savepoint():
+                return self.unlink()
+        except (psycopg2.errors.RestrictViolation, psycopg2.errors.ForeignKeyViolation) as e:
+            blocking_model = next(
+                (rclass._name for rclass in self.env.registry.values() if rclass._table == e.diag.table_name),
+                None,
+            )
+            if not blocking_model:
+                raise
+            blocked_ids = []
+            with self.env.cr.savepoint() as sp:
+                for record in self:
+                    try:
+                        record.unlink()
+                    except (psycopg2.errors.RestrictViolation, psycopg2.errors.ForeignKeyViolation):
+                        blocked_ids.append(record.id)
+                    finally:
+                        sp.rollback()
+            if not blocked_ids:
+                raise
+            blocking_model_name = self.env['ir.model']._get(blocking_model).name or blocking_model
+            error = UnlinkBlockedError(self.env._(
+                "The operation cannot be completed: %s",
+                self.env._("this record is used by %(model_name)s", model_name=blocking_model_name),
+            ))
+            error.context = {
+                'archivable': bool(self._active_name),
+                'model_name': blocking_model_name,
+                'res_model': self._name,
+                # the whole selection, which "Archive" acts on
+                'res_ids': self.ids,
+                'blocked_ids': blocked_ids,
+            }
+            raise error from None
 
     @api.readonly
     def web_read(self, specification: dict[str, dict]) -> list[dict]:
+        """
+        Read the requested fields for the records in ``self``, returning their values
+        as a list of dicts according to the provided specification.
+
+        Unlike the standard :meth:`read()` method, ``web_read()`` can traverse relational
+        fields to fetch nested field values in a single call.
+
+        Example::
+
+            records.web_read({
+                'display_name': {},
+                'author_id': {
+                    'fields': {
+                        'display_name': {}
+                    }
+                },
+                'line_ids': {
+                    'fields': {
+                        'name': {}
+                    },
+                    'limit': 5,
+                    'order': 'sequence asc'
+                }
+            })
+
+            >>> [{
+                'id': 1,
+                'display_name': 'Note G',
+                'author_id': {
+                    'id': 42,
+                    'display_name': 'Ada Lovelace'
+                },
+                'line_ids': [
+                    {'id': 10, 'name': 'Intro'},
+                    {'id': 11, 'name': 'Body'}
+                ]
+            }]
+
+        :param specification: A dictionary defining the fields to read.
+            The keys are field names, and the values are configuration dictionaries.
+            Passing an empty dictionary as a value simply reads the field's value.
+
+            Supported keys inside a field's configuration dictionary:
+
+            * ``fields`` (dict): Nested specification for relational or property fields.
+            * ``context`` (dict): Context to apply when evaluating the relational field.
+            * ``limit`` (int): Maximum number of records to fetch (for x2many fields).
+            * ``order`` (str): Sorting order to apply (for x2many fields).
+
+        :return: A list of dictionaries representing the requested records.
+        """
         fields_to_read = list(specification) or ['id']
 
         if fields_to_read == ['id']:
@@ -114,7 +371,7 @@ class Base(models.AbstractModel):
             # this also avoid a call to read on the co-model that might have different access rules
             values_list = [{'id': id_} for id_ in self._ids]
         else:
-            values_list: list[dict] = self.read(fields_to_read, load=None)
+            values_list: list[dict] = self.read(fields_to_read, load='web')
 
         if not values_list:
             return values_list
@@ -165,64 +422,25 @@ class Base(models.AbstractModel):
 
                 co_records = self[field_name]
 
-                field_spec_order = field_spec.get('order')
-                field_spec_has_fields = 'fields' in field_spec
-                has_co_records = any(co_records.ids)
-                has_model_read_access = (
-                    has_co_records
-                    and co_records.env['ir.model.access'].check(
-                        co_records._name, 'read', raise_exception=False,
-                    )
-                )
-
-                # Filter out co-records the user cannot read (cache may keep
-                # inaccessible ids after a sudo write/read).
-                if field_spec_order and has_co_records:
-                    if not has_model_read_access:
-                        # If the comodel is not readable, keep the x2many empty.
-                        co_records = co_records.browse()
-                    else:
-                        try:
-                            co_records = co_records.with_context(active_test=False).search(
-                                [('id', 'in', co_records.ids)], order=field_spec_order,
-                            ).with_context(co_records.env.context)  # Reapply previous context
-                        # Keep UserError if the model does not accept the search
-                        # (e.g. account.code.mapping).
-                        except (AccessError, UserError):
-                            co_records = co_records.browse()
-
-                elif field_spec_has_fields and has_model_read_access:
-                    # Filter co-records only if the user can read the comodel.
-                    # Some x2many fields have models that are not directly
-                    # readable by the user (e.g. hr.employee from hr.appraisal for a
-                    # base.group_user). In that case, keep the relation ids unchanged.
-                    co_records = co_records.with_context(
-                        active_test=False,
-                    )._filtered_access('read').with_context(
-                        co_records.env.context
-                    )
-
-                if has_co_records and (field_spec_order or field_spec_has_fields):
-                    co_records_ids = set(co_records.ids)
-
-                    for values in values_list:
-                        # filter out inaccessible corecords in case of "cache pollution"
-                        values[field_name] = [id_ for id_ in values[field_name] if id_ in co_records_ids]
-
-                if field_spec_order:
+                if 'order' in field_spec and field_spec['order']:
+                    co_records = co_records.with_context(active_test=False).search(
+                        [('id', 'in', co_records.ids)], order=field_spec['order'],
+                    ).with_context(co_records.env.context)  # Reapply previous context
                     order_key = {
                         co_record.id: index
                         for index, co_record in enumerate(co_records)
                     }
                     for values in values_list:
+                        # filter out inaccessible corecords in case of "cache pollution"
+                        values[field_name] = [id_ for id_ in values[field_name] if id_ in order_key]
                         values[field_name] = sorted(values[field_name], key=order_key.__getitem__)
 
                 if 'context' in field_spec:
                     co_records = co_records.with_context(**field_spec['context'])
 
-                if field_spec_has_fields:
-                    limit = field_spec.get('limit')
-                    if limit is not None:
+                if 'fields' in field_spec:
+                    if field_spec.get('limit') is not None:
+                        limit = field_spec['limit']
                         ids_to_read = OrderedSet(
                             id_
                             for values in values_list
@@ -320,7 +538,7 @@ class Base(models.AbstractModel):
         return values_list
 
     def web_resequence(self, specification: dict[str, dict], field_name: str = 'sequence', offset: int = 0) -> list[dict]:
-        """ Re-sequences a number of records in the model, by their ids.
+        """ Re-sequence a number of records in the model, by their ids.
 
         The re-sequencing starts at the first record of ``ids``, the
         sequence number starts at ``offset`` and is incremented by one
@@ -362,7 +580,7 @@ class Base(models.AbstractModel):
         groupby_read_specification: dict[str, dict] | None = None,
     ) -> dict[str, int | list]:
         """
-        Serves as the primary method for loading grouped data in list and kanban views.
+        Serve as the primary method for loading grouped data in list and kanban views.
 
         This method wraps :meth:`~.formatted_read_group` to return both the grouped
         data and the total number of groups matching the search domain. It also
@@ -413,12 +631,22 @@ class Base(models.AbstractModel):
             for records within the group.
 
         """
-        assert isinstance(groupby, (list, tuple)) and groupby
+        assert isinstance(groupby, (list, tuple))
+        if not groupby:
+            raise ValueError(self.env._("Need at least one item to groupby"))
 
         aggregates = list(aggregates)
         if '__count' not in aggregates:  # Used for computing length of sublevel groups
             aggregates.append('__count')
-        domain = Domain(domain).optimize(self)
+
+        # If the domain contains a condition on the active field, we need to disable
+        # the active test to ensure that we can read all records, including inactive ones.
+        # Because optimizing the domain may remove the condition on the active field, and
+        # only active records will get returned in the default case
+        domain = Domain(domain)
+        if any(cond.field_expr == self._active_name for cond in domain.iter_conditions()):
+            domain &= Domain(self._active_name, 'in', [True, False])
+        domain = domain.optimize(self)
 
         # dict to help creating order compatible with _read_group and for search
         dict_order: dict[str, str] = {}  # {fname_and_property: "<direction> <nulls>"}
@@ -437,7 +665,7 @@ class Base(models.AbstractModel):
         # First level of grouping
         first_groupby = [groupby[0]]
         read_group_order = self._get_read_group_order(dict_order, first_groupby, aggregates)
-        groups, length = self._formatted_read_group_with_length(
+        groups, length = self.with_context(formatted_display_name=True)._formatted_read_group_with_length(
             domain, first_groupby, aggregates, offset=offset, limit=limit, order=read_group_order,
         )
 
@@ -486,7 +714,7 @@ class Base(models.AbstractModel):
                 for sub_search in records_opening_info
             ]
 
-            all_records = self.browse().union(*recordset_groups)
+            all_records = self.browse().union(recordset_groups)
             record_mapped = dict(zip(
                 all_records._ids,
                 all_records.web_read(unfold_read_specification or {}),
@@ -698,7 +926,7 @@ class Base(models.AbstractModel):
         aggregates: Sequence[str] = (),
         *,
         order: str | None = None,
-    ):
+    ) -> list[list[dict]]:
         """
         A method similar to :meth:`_read_grouping_set` but with all the
         formatting needed by the webclient.
@@ -1059,8 +1287,8 @@ class Base(models.AbstractModel):
             first_week_day = int(get_lang(self.env).week_start) - 1
             days_offset = first_week_day and 7 - first_week_day
         tz = False
-        if field.type == 'datetime' and self.env.context.get('tz') in pytz.all_timezones_set:
-            tz = pytz.timezone(self.env.context['tz'])
+        if field.type == 'datetime' and self.env.context.get('tz') in all_timezones:
+            tz = ZoneInfo(self.env.context['tz'])
 
         # existing non null date(time)
         existing = sorted(group_value for group in groups if (group_value := group[0])) or [None]
@@ -1070,14 +1298,14 @@ class Base(models.AbstractModel):
             fill_from = Date.to_date(fill_from)
             fill_from = date_utils.start_of(fill_from, granularity) - datetime.timedelta(days=days_offset)
             if tz:
-                fill_from = tz.localize(fill_from)
+                fill_from = fill_from.replace(tzinfo=tz)
         elif existing_from:
             fill_from = existing_from
         if fill_to:
             fill_to = Date.to_date(fill_to)
             fill_to = date_utils.start_of(fill_to, granularity) - datetime.timedelta(days=days_offset)
             if tz:
-                fill_to = tz.localize(fill_to)
+                fill_to = fill_to.replace(tzinfo=tz)
         elif existing_to:
             fill_to = existing_to
 
@@ -1149,7 +1377,7 @@ class Base(models.AbstractModel):
 
         # Reconstruct groups domain part
         for dict_group in result:
-            dict_group['__extra_domain'] = AND(dict_group.pop('__extra_domains'))
+            dict_group['__extra_domain'] = list(Domain.AND(dict_group.pop('__extra_domains')) or [])
 
         for aggregate_spec, values in zip(aggregates, column_iterator, strict=True):
             for value, dict_group in zip(values, result, strict=True):
@@ -1171,8 +1399,8 @@ class Base(models.AbstractModel):
             def formatter_follow_many2one(value):
                 value, domain = sub_formatter(value)
                 if not value:
-                    return value, ['|', (field_name, 'not any', []), (field_name, 'any', domain)]
-                return value, [(field_name, 'any', domain)]
+                    return value, Domain(field_name, 'not any', []) | Domain(field_name, 'any', domain)
+                return value, Domain(field_name, 'any', domain)
 
             return formatter_follow_many2one
 
@@ -1183,7 +1411,7 @@ class Base(models.AbstractModel):
                 if not value:
                     return False, [(field_name, 'not any', [])]
                 id_ = value.id
-                return (id_, value.sudo().display_name), [(field_name, '=', id_)]
+                return (id_, value.sudo().display_name), Domain(field_name, '=', id_)
 
             return formatter_many2many
 
@@ -1193,7 +1421,7 @@ class Base(models.AbstractModel):
                 if not value:
                     return False, [(field_name, '=', False)]
                 id_ = value.id
-                return (id_, value.sudo().display_name), [(field_name, '=', id_)]
+                return (id_, value.sudo().display_name), Domain(field_name, '=', id_)
 
             return formatter_many2one
 
@@ -1212,11 +1440,11 @@ class Base(models.AbstractModel):
                     range_end = value + interval
                     if field.type == 'datetime':
                         tzinfo = None
-                        if self.env.context.get('tz') in pytz.all_timezones_set:
-                            tzinfo = pytz.timezone(self.env.context['tz'])
-                            range_start = tzinfo.localize(range_start).astimezone(pytz.utc)
+                        if self.env.context.get('tz') in all_timezones:
+                            tzinfo = ZoneInfo(self.env.context['tz'])
+                            range_start = range_start.replace(tzinfo=tzinfo).astimezone(datetime.UTC)
                             # take into account possible hour change between start and end
-                            range_end = tzinfo.localize(range_end).astimezone(pytz.utc)
+                            range_end = range_end.replace(tzinfo=tzinfo).astimezone(datetime.UTC)
 
                         label = babel.dates.format_datetime(
                             range_start, format=READ_GROUP_DISPLAY_FORMAT[granularity],
@@ -1237,10 +1465,10 @@ class Base(models.AbstractModel):
                         )
                         label = f"W{week} {year:04}"
 
-                    additional_domain = ['&',
-                        (field_name, '>=', range_start.strftime(fmt)),
-                        (field_name, '<', range_end.strftime(fmt)),
-                    ]
+                    additional_domain = (
+                        Domain(field_name, '>=', range_start.strftime(fmt))
+                        & Domain(field_name, '<', range_end.strftime(fmt))
+                    )
                     # TODO: date label should be created by the webclient.
                     return (range_start.strftime(fmt), label), additional_domain
 
@@ -1251,7 +1479,7 @@ class Base(models.AbstractModel):
                 def formatter_date_number_granularity(value):
                     if value is None:
                         return [(field_name, '=', value)]
-                    return value, [(f"{field_name}.{granularity}", '=', value)]
+                    return value, Domain(f"{field_name}.{granularity}", '=', value)
 
                 return formatter_date_number_granularity
 
@@ -1260,7 +1488,7 @@ class Base(models.AbstractModel):
         if field.type == "properties":
             return self._web_read_group_groupby_properties_formatter(groupby_spec, values)
 
-        return lambda value: (value, [(field_name, '=', value)])
+        return lambda value: (value, Domain(field_name, '=', value))
 
     def _web_read_group_groupby_properties_formatter(self, groupby_spec, values):
         if '.' not in groupby_spec:
@@ -1278,7 +1506,7 @@ class Base(models.AbstractModel):
                     # can not do ('selection', '=', False) because we might have
                     # option in database that does not exist anymore
                     return value, ['|', (fullname, '=', False), (fullname, 'not in', options)]
-                return value, [(fullname, '=', value)]
+                return value, Domain(fullname, '=', value)
 
             return formatter_property_selection
 
@@ -1292,7 +1520,7 @@ class Base(models.AbstractModel):
                     # record in database that does not exist anymore
                     return value, ['|', (fullname, '=', False), (fullname, 'not in', all_groups)]
                 record = self.env[comodel].browse(value).with_prefetch(all_groups)
-                return (value, record.display_name), [(fullname, '=', value)]
+                return (value, record.display_name), Domain(fullname, '=', value)
 
             return formatter_property_many2one
 
@@ -1302,12 +1530,11 @@ class Base(models.AbstractModel):
 
             def formatter_property_many2many(value):
                 if not value:
-                    return value, OR([
-                        [(fullname, '=', False)],
-                        AND([[(fullname, 'not in', group)] for group in all_groups]),
-                    ]) if all_groups else []
+                    return value, ['|', (fullname, '=', False), *Domain.AND(
+                        Domain(fullname, 'not in', group) for group in all_groups
+                    )] if all_groups else []
                 record = self.env[comodel].browse(value).with_prefetch(all_groups)
-                return (value, record.display_name), [(fullname, 'in', value)]
+                return (value, record.display_name), Domain(fullname, 'in', value)
 
             return formatter_property_many2many
 
@@ -1317,51 +1544,52 @@ class Base(models.AbstractModel):
 
             def formatter_property_tags(value):
                 if not value:
-                    return value, OR([
-                        [(fullname, '=', False)],
-                        AND([[(fullname, 'not in', tag)] for tag in tags]),
-                    ]) if tags else []
+                    return value, ['|', (fullname, '=', False), *Domain.AND(
+                        Domain(fullname, 'not in', tag) for tag in tags
+                    )] if tags else []
 
                 # replace tag raw value with tuple of raw value, label and color
-                return tags.get(value), [(fullname, 'in', value)]
+                return tags.get(value), Domain(fullname, 'in', value)
 
             return formatter_property_tags
 
         if property_type in ('date', 'datetime'):
+            interval = READ_GROUP_TIME_GRANULARITY[func]
+            # Date / Datetime are not JSONifiable, so they are stored as raw text
+            fmt = DEFAULT_SERVER_DATE_FORMAT if property_type == 'date' else DEFAULT_SERVER_DATETIME_FORMAT
 
             def formatter_property_datetime(value):
                 if not value:
-                    return False, [(fullname, '=', False)]
-
-                # Date / Datetime are not JSONifiable, so they are stored as raw text
-                db_format = '%Y-%m-%d' if property_type == 'date' else '%Y-%m-%d %H:%M:%S'
-                fmt = DEFAULT_SERVER_DATE_FORMAT if property_type == 'date' else DEFAULT_SERVER_DATETIME_FORMAT
+                    return False, Domain(fullname, '=', False)
 
                 if func == 'week':
                     # the value is the first day of the week (based on local)
-                    start = value.strftime(db_format)
-                    end = (value + datetime.timedelta(days=7)).strftime(db_format)
+                    start = value
                 else:
-                    start = (date_utils.start_of(value, func)).strftime(db_format)
-                    end = (date_utils.end_of(value, func) + datetime.timedelta(minutes=1)).strftime(db_format)
+                    start = date_utils.start_of(value, func)
+                end = start + interval
 
                 label = babel.dates.format_date(
                     value,
                     format=READ_GROUP_DISPLAY_FORMAT[func],
                     locale=get_lang(self.env).code,
                 )
-                return (value.strftime(fmt), label), [(fullname, '>=', start), (fullname, '<', end)]
+                return (value.strftime(fmt), label), Domain(fullname, '>=', start.strftime(fmt)) & Domain(fullname, '<', end.strftime(fmt))
 
             return formatter_property_datetime
 
-        return lambda value: (value, [(fullname, '=', value)])
-
+        return lambda value: (value, Domain(fullname, '=', value))
 
     @api.model
     @api.readonly
-    def read_progress_bar(self, domain, group_by, progress_bar):
+    def read_progress_bar(
+        self,
+        domain: DomainType,
+        group_by: str,
+        progress_bar: dict[str, str | dict]
+    ) -> dict[str, dict]:
         """
-        Gets the data needed for all the kanban column progressbars.
+        Get the data needed for all the kanban column progressbars.
         These are fetched alongside read_group operation.
 
         :param domain: the domain used in the kanban view to filter records
@@ -1369,7 +1597,7 @@ class Base(models.AbstractModel):
             kanban columns
         :param progress_bar: the ``<progressbar/>`` declaration
             attributes (field, colors, sum)
-        :return: a dictionnary mapping group_by values to dictionnaries mapping
+        :return: a dictionary mapping group_by values to dictionaries mapping
             progress bar field values to the related number of records
         """
         def adapt(value):
@@ -1423,9 +1651,9 @@ class Base(models.AbstractModel):
 
         enable_counters = kwargs.get('enable_counters')
         only_counters = kwargs.get('only_counters')
-        extra_domain = Domain(kwargs.get('extra_domain', []))
+        extra_domain = Domain(kwargs.get('extra_domain', Domain.TRUE))
         no_extra = extra_domain.is_true()
-        model_domain = Domain(kwargs.get('model_domain', []))
+        model_domain = Domain(kwargs.get('model_domain', Domain.TRUE))
         count_domain = model_domain & extra_domain
 
         limit = kwargs.get('limit')
@@ -1436,7 +1664,7 @@ class Base(models.AbstractModel):
 
         model_domain_image = self._search_panel_domain_image(field_name, model_domain,
                             enable_counters and no_extra,
-                            set_limit and limit,
+                            limit if set_limit else None,
                         )
         if enable_counters and not no_extra:
             count_domain_image = self._search_panel_domain_image(field_name, count_domain, True)
@@ -1447,7 +1675,7 @@ class Base(models.AbstractModel):
         return model_domain_image
 
     @api.model
-    def _search_panel_domain_image(self, field_name, domain, set_count=False, limit=False):
+    def _search_panel_domain_image(self, field_name, domain, set_count=False, limit=None):
         """
         Return the values in the image of the provided domain by field_name.
 
@@ -1476,15 +1704,15 @@ class Base(models.AbstractModel):
             def group_id_name(value):
                 return value, field_name_selection[value]
 
-        domain = AND([
-            domain,
-            [(field_name, '!=', False)],
-        ])
+        domain = Domain(domain) & Domain(field_name, '!=', False)
         groups = self.with_context(read_group_expand=True).formatted_read_group(
             domain, [field_name], ['__count'], limit=limit)
 
         domain_image = {}
         for group in groups:
+            if not group[field_name]:
+                # value hidden by a record rule or archived
+                continue
             id_, display_name = group_id_name(group[field_name])
             values = {
                 'id': id_,
@@ -1495,7 +1723,6 @@ class Base(models.AbstractModel):
             domain_image[id_] = values
 
         return domain_image
-
 
     @api.model
     def _search_panel_global_counters(self, values_range, parent_name):
@@ -1515,7 +1742,7 @@ class Base(models.AbstractModel):
                 }
         :param parent_name: string, indicates which key determines the parent
         """
-        local_counters = lazymapping(lambda id: values_range[id]['__count'])
+        local_counters = LazyDict(lambda id: values_range[id]['__count'])
 
         for id in values_range:
             values = values_range[id]
@@ -1604,8 +1831,6 @@ class Base(models.AbstractModel):
             with key ``'__count'`` set if ``enable_counters`` is
             ``True``.
         """
-
-
         enable_counters = kwargs.get('enable_counters')
         expand = kwargs.get('expand')
 
@@ -1632,7 +1857,7 @@ class Base(models.AbstractModel):
 
 
     @api.model
-    def search_panel_select_range(self, field_name, **kwargs):
+    def search_panel_select_range(self, field_name: str, **kwargs) -> dict[str, str | typing.Literal[False] | list[str]]:
         """
         Return possible values of the field field_name (case select="one"),
         possibly with counters, and the parent field (if any and required)
@@ -1675,7 +1900,7 @@ class Base(models.AbstractModel):
             or an object with an error message when limit is defined and is reached.
         """
         field = self._fields[field_name]
-        supported_types = ['many2one', 'selection']
+        supported_types = ['many2one', 'selection', 'many2many']
         if field.type not in supported_types:
             types = dict(self.env["ir.model.fields"]._fields["ttype"]._description_selection(self.env))
             raise UserError(self.env._(
@@ -1684,11 +1909,11 @@ class Base(models.AbstractModel):
                 field_type=types[field.type],
             ))
 
-        model_domain = kwargs.get('search_domain', [])
-        extra_domain = AND([
-            kwargs.get('category_domain', []),
-            kwargs.get('filter_domain', []),
-        ])
+        true = Domain.TRUE
+        model_domain = Domain(kwargs.get('search_domain', true))
+        extra_domain = Domain(kwargs.get('category_domain', true)) & Domain(kwargs.get('filter_domain', true))
+        model_domain = model_domain.optimize(self)
+        extra_domain = extra_domain.optimize(self)
 
         if field.type == 'selection':
             return {
@@ -1712,7 +1937,7 @@ class Base(models.AbstractModel):
         else:
             hierarchize = False
 
-        comodel_domain = kwargs.get('comodel_domain', [])
+        comodel_domain = Domain(kwargs.get('comodel_domain', true))
         enable_counters = kwargs.get('enable_counters')
         expand = kwargs.get('expand')
         limit = kwargs.get('limit')
@@ -1736,10 +1961,10 @@ class Base(models.AbstractModel):
         if not expand:
             image_element_ids = list(domain_image.keys())
             if hierarchize:
-                condition = [('id', 'parent_of', image_element_ids)]
+                condition = Domain('id', 'parent_of', image_element_ids)
             else:
-                condition = [('id', 'in', image_element_ids)]
-            comodel_domain = AND([comodel_domain, condition])
+                condition = Domain('id', 'in', image_element_ids)
+            comodel_domain &= condition
         comodel_records = Comodel.search_read(comodel_domain, field_names, limit=limit)
 
         if hierarchize:
@@ -1773,7 +1998,7 @@ class Base(models.AbstractModel):
 
 
     @api.model
-    def search_panel_select_multi_range(self, field_name, **kwargs):
+    def search_panel_select_multi_range(self, field_name: str, **kwargs) -> dict[str, str | list[dict]]:
         """
         Return possible values of the field field_name (case select="multi"),
         possibly with counters and groups.
@@ -1825,17 +2050,20 @@ class Base(models.AbstractModel):
                 'Only types %(supported_types)s are supported for filter (found type %(field_type)s)',
                 supported_types=supported_types, field_type=field.type))
 
-        model_domain = kwargs.get('search_domain', [])
-        extra_domain = AND([
-            kwargs.get('category_domain', []),
-            kwargs.get('filter_domain', []),
-        ])
+        true = Domain.TRUE
+        model_domain = Domain(kwargs.get('search_domain', true))
+        extra_domain = (Domain(kwargs.get('category_domain', true)) & Domain(kwargs.get('filter_domain', true)))
+        model_domain = model_domain.optimize(self)
+        extra_domain = extra_domain.optimize(self)
 
         if field.type == 'selection':
             return {
-                'values': self._search_panel_selection_range(field_name, model_domain=model_domain,
-                                extra_domain=extra_domain, **kwargs
-                            )
+                'values': self._search_panel_selection_range(
+                    field_name,
+                    model_domain=model_domain,
+                    extra_domain=extra_domain,
+                    **kwargs
+                )
             }
 
         Comodel = self.env.get(field.comodel_name).with_context(hierarchical_naming=False)
@@ -1863,18 +2091,14 @@ class Base(models.AbstractModel):
                 def group_id_name(value):
                     return (value, value) if value else (False, self.env._("Not Set"))
 
-        comodel_domain = kwargs.get('comodel_domain', [])
+        comodel_domain = Domain(kwargs.get('comodel_domain', true))
         enable_counters = kwargs.get('enable_counters')
         expand = kwargs.get('expand')
 
         if field.type == 'many2many':
             if not expand:
                 domain_image = self._search_panel_domain_image(field_name, model_domain, limit=limit)
-                image_element_ids = list(domain_image.keys())
-                comodel_domain = AND([
-                    comodel_domain,
-                    [('id', 'in', image_element_ids)],
-                ])
+                comodel_domain &= Domain('id', 'in', list(domain_image))
 
             comodel_records = Comodel.search_read(comodel_domain, field_names, limit=limit)
             if limit and len(comodel_records) == limit:
@@ -1894,20 +2118,9 @@ class Base(models.AbstractModel):
                     values['group_name'] = group_name
 
                 if enable_counters:
-                    search_domain = AND([
-                            model_domain,
-                            [(field_name, 'in', record_id)],
-                        ])
-                    local_extra_domain = extra_domain
+                    search_count_domain = model_domain & Domain(field_name, 'in', record_id) & extra_domain
                     if group_by and group_domain:
-                        local_extra_domain = AND([
-                            local_extra_domain,
-                            group_domain.get(json.dumps(group_id), []),
-                        ])
-                    search_count_domain = AND([
-                        search_domain,
-                        local_extra_domain
-                    ])
+                        search_count_domain &= Domain(group_domain.get(json.dumps(group_id), true))
                     values['__count'] = self.search_count(search_count_domain)
                 field_range.append(values)
 
@@ -1915,15 +2128,15 @@ class Base(models.AbstractModel):
 
         if field.type == 'many2one':
             if enable_counters or not expand:
-                extra_domain = AND([
-                    extra_domain,
-                    kwargs.get('group_domain', []),
-                ])
-                domain_image = self._search_panel_field_image(field_name,
-                                    model_domain=model_domain, extra_domain=extra_domain,
-                                    only_counters=expand,
-                                    set_limit=limit and not (expand or group_by or comodel_domain), **kwargs
-                                )
+                extra_domain &= Domain(kwargs.get('group_domain', true))
+                domain_image = self._search_panel_field_image(
+                    field_name,
+                    model_domain=model_domain,
+                    extra_domain=extra_domain,
+                    only_counters=expand,
+                    set_limit=limit and not (expand or group_by or comodel_domain),
+                    **kwargs
+                )
 
             if not (expand or group_by or comodel_domain):
                 values = list(domain_image.values())
@@ -1932,11 +2145,7 @@ class Base(models.AbstractModel):
                 return {'values': values, }
 
             if not expand:
-                image_element_ids = list(domain_image.keys())
-                comodel_domain = AND([
-                    comodel_domain,
-                    [('id', 'in', image_element_ids)],
-                ])
+                comodel_domain &= Domain('id', 'in', list(domain_image))
             comodel_records = Comodel.search_read(comodel_domain, field_names, limit=limit)
             if limit and len(comodel_records) == limit:
                 return {'error_msg': str(SEARCH_PANEL_ERROR_MESSAGE)}
@@ -1961,6 +2170,21 @@ class Base(models.AbstractModel):
                 field_range.append(values)
 
             return { 'values': field_range, }
+
+        assert False, "unreachable"
+
+    @api.model
+    def onchange_batch(self, values_list: list[dict], field_names: list[str], fields_spec: dict) -> list[dict]:
+        """
+        Apply onchange to a batch of new records.
+        This method only supports new records, so ``self`` must be empty.
+        """
+        assert not self, "self must be empty"
+
+        return [
+            self.onchange(values, field_names, fields_spec)
+            for values in values_list
+        ]
 
     def onchange(self, values: dict, field_names: list[str], fields_spec: dict):
         """
@@ -2000,12 +2224,7 @@ class Base(models.AbstractModel):
         env = self.env
         first_call = not field_names
 
-        if not (self and self._name == 'res.users'):
-            # res.users defines SELF_WRITEABLE_FIELDS to give access to the user
-            # to modify themselves, we skip the check in that case because the
-            # user does not have write permission on themselves
-            # TODO update res.users
-            self.check_access('write' if self else 'create')
+        self.check_access('write' if self else 'create')
 
         if any(fname not in self._fields for fname in field_names):
             return {}
@@ -2149,8 +2368,10 @@ class Base(models.AbstractModel):
         # process names in order
         while todo:
             # apply field-specific onchange methods
+            visited_onchanges = set()
             for field_name in todo:
-                record._apply_onchange_methods(field_name, result)
+                record._apply_onchange_methods(field_name, result, visited_onchanges)
+                visited_onchanges.update(self._onchange_methods.get(field_name, ()))
                 done.add(field_name)
 
             if not env.context.get('recursive_onchanges', True):
@@ -2184,7 +2405,7 @@ class Base(models.AbstractModel):
 
         return result
 
-    def web_override_translations(self, values):
+    def web_override_translations(self, values: dict[str, str]) -> None:
         """
         This method is used to override all the modal translations of the given fields
         with the provided value for each field.
@@ -2193,12 +2414,12 @@ class Base(models.AbstractModel):
             ex: ``{ "field_name": "new_value" }``
         """
         self.ensure_one()
-        for field_name in values:
+        for field_name, new_value in values.items():
             field = self._fields[field_name]
             if field.translate is True:
                 translations = {lang: False for lang, _ in self.env['res.lang'].get_installed()}
-                translations['en_US'] = values[field_name]
-                translations[self.env.lang or 'en_US'] = values[field_name]
+                translations['en_US'] = new_value
+                translations[self.env.lang or 'en_US'] = new_value
                 self.update_field_translations(field_name, translations)
 
 
@@ -2208,35 +2429,35 @@ class ResCompany(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         companies = super().create(vals_list)
-        style_fields = {'external_report_layout_id', 'font', 'primary_color', 'secondary_color'}
+        style_fields = {'external_report_layout_id', 'font', 'primary_color', 'secondary_color', 'report_tables_id'}
         if any(not style_fields.isdisjoint(values) for values in vals_list):
             self._update_asset_style()
         return companies
 
     def write(self, vals):
         res = super().write(vals)
-        style_fields = {'external_report_layout_id', 'font', 'primary_color', 'secondary_color'}
+        style_fields = {'external_report_layout_id', 'font', 'primary_color', 'secondary_color', 'report_tables_id'}
         if not style_fields.isdisjoint(vals):
             self._update_asset_style()
         return res
 
-    def _get_asset_style_b64(self):
+    def _get_asset_style_raw(self) -> BinaryValue:
         # One bundle for everyone, so this method
         # necessarily updates the style for every company at once
         company_ids = self.sudo().search([])
         company_styles = self.env['ir.qweb']._render('web.styles_company_report', {
                 'company_ids': company_ids,
             }, raise_if_not_found=False)
-        return base64.b64encode(company_styles.encode())
+        return BinaryBytes(company_styles.encode())
 
     def _update_asset_style(self):
         asset_attachment = self.env.ref('web.asset_styles_company_report', raise_if_not_found=False)
         if not asset_attachment:
             return
         asset_attachment = asset_attachment.sudo()
-        b64_val = self._get_asset_style_b64()
-        if b64_val != asset_attachment.datas:
-            asset_attachment.write({'datas': b64_val})
+        data = self._get_asset_style_raw()
+        if data.content != asset_attachment.raw.content:
+            asset_attachment.raw = data
 
 
 class RecordSnapshot(dict):

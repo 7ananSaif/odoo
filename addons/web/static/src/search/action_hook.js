@@ -1,4 +1,6 @@
-import { onMounted, useComponent, useEffect, useExternalListener } from "@odoo/owl";
+import { onMounted, onWillUnmount, untrack, useListener, useProps, useScope } from "@odoo/owl";
+import { useService } from "@web/core/utils/hooks";
+import { useEnv } from "../owl2/utils";
 
 export const scrollSymbol = Symbol("scroll");
 
@@ -38,27 +40,24 @@ export class CallbackRecorder {
  * @param {Function} callback
  */
 export function useCallbackRecorder(callbackRecorder, callback) {
-    const component = useComponent();
-    useEffect(
-        () => {
-            callbackRecorder.add(component, callback);
-            return () => callbackRecorder.remove(component);
-        },
-        () => []
-    );
+    const scope = useScope();
+    onMounted(() => callbackRecorder.add(scope, callback));
+    onWillUnmount(() => callbackRecorder.remove(scope));
 }
 
 /**
  */
 export function useSetupAction(params = {}) {
-    const component = useComponent();
+    const env = useEnv();
+    const props = useProps();
+    const ui = useService("ui");
     const {
         __beforeLeave__,
         __getGlobalState__,
         __getLocalState__,
         __getContext__,
         __getOrderBy__,
-    } = component.env;
+    } = env;
 
     const {
         beforeVisibilityChange,
@@ -70,11 +69,11 @@ export function useSetupAction(params = {}) {
     } = params;
 
     if (beforeVisibilityChange) {
-        useExternalListener(document, "visibilitychange", beforeVisibilityChange);
+        useListener(document, "visibilitychange", beforeVisibilityChange);
     }
 
     if (beforeUnload) {
-        useExternalListener(window, "beforeunload", beforeUnload);
+        useListener(window, "beforeunload", beforeUnload);
     }
     if (__beforeLeave__ && beforeLeave) {
         useCallbackRecorder(__beforeLeave__, beforeLeave);
@@ -89,19 +88,23 @@ export function useSetupAction(params = {}) {
         });
     }
 
+    const getRootEl = () => untrack(rootRef);
+
     function setScrollFromState() {
-        const { state } = component.props;
+        const { state } = props;
         const scrolling = state && state[scrollSymbol];
         if (scrolling) {
-            if (component.env.isSmall) {
-                rootRef.el.scrollTop = (scrolling.root && scrolling.root.top) || 0;
-                rootRef.el.scrollLeft = (scrolling.root && scrolling.root.left) || 0;
+            const rootEl = getRootEl();
+            if (!rootEl) {
+                return;
+            }
+            if (ui.isSmall) {
+                rootEl.scrollTop = (scrolling.root && scrolling.root.top) || 0;
+                rootEl.scrollLeft = (scrolling.root && scrolling.root.left) || 0;
             } else if (scrolling.content) {
                 const contentEl =
-                    rootRef.el.querySelector(
-                        ".o_component_with_search_panel > .o_renderer_with_searchpanel," +
-                            ".o_component_with_search_panel > .o_renderer"
-                    ) || rootRef.el.querySelector(".o_content");
+                    rootEl.querySelector(".o_component_with_search_panel > .o_renderer") ||
+                    rootEl.querySelector(".o_content");
                 if (contentEl) {
                     contentEl.scrollTop = scrolling.content.top || 0;
                     contentEl.scrollLeft = scrolling.content.left || 0;
@@ -116,16 +119,18 @@ export function useSetupAction(params = {}) {
                 Object.assign(state, getLocalState());
             }
             if (rootRef) {
-                if (component.env.isSmall) {
+                const rootEl = getRootEl();
+                if (!rootEl) {
+                    return state;
+                }
+                if (ui.isSmall) {
                     state[scrollSymbol] = {
-                        root: { left: rootRef.el.scrollLeft, top: rootRef.el.scrollTop },
+                        root: { left: rootEl.scrollLeft, top: rootEl.scrollTop },
                     };
                 } else {
                     const contentEl =
-                        rootRef.el.querySelector(
-                            ".o_component_with_search_panel > .o_renderer_with_searchpanel," +
-                                ".o_component_with_search_panel > .o_renderer"
-                        ) || rootRef.el.querySelector(".o_content");
+                        rootEl.querySelector(".o_component_with_search_panel > .o_renderer") ||
+                        rootEl.querySelector(".o_content");
                     if (contentEl) {
                         state[scrollSymbol] = {
                             content: { left: contentEl.scrollLeft, top: contentEl.scrollTop },

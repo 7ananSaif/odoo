@@ -130,21 +130,17 @@
             </DatosFactura>
             <TipoDesglose t-if="is_emission">
                 <DesgloseFactura t-if="'DesgloseFactura' in invoice_info">
-                    <t t-call="l10n_es_edi_tbai.template_invoice_desglose">
-                        <t t-set="desglose" t-value="invoice_info['DesgloseFactura']"/>
-                    </t>
+                    <t t-call="l10n_es_edi_tbai.template_invoice_desglose"
+                        desglose="invoice_info['DesgloseFactura']"/>
                 </DesgloseFactura>
                 <DesgloseTipoOperacion t-else="">
                     <t t-set="invoice_info" t-value="invoice_info['DesgloseTipoOperacion']"/>
                     <PrestacionServicios t-if="invoice_info.get('PrestacionServicios')">
-                        <t t-call="l10n_es_edi_tbai.template_invoice_desglose">
-                            <t t-set="desglose" t-value="invoice_info['PrestacionServicios']"/>
-                        </t>
+                        <t t-call="l10n_es_edi_tbai.template_invoice_desglose"
+                            desglose="invoice_info['PrestacionServicios']"/>
                     </PrestacionServicios>
                     <Entrega t-if="invoice_info.get('Entrega')">
-                        <t t-call="l10n_es_edi_tbai.template_invoice_desglose">
-                            <t t-set="desglose" t-value="invoice_info['Entrega']"/>
-                        </t>
+                        <t t-call="l10n_es_edi_tbai.template_invoice_desglose" desglose="invoice_info['Entrega']"/>
                     </Entrega>
                 </DesgloseTipoOperacion>
             </TipoDesglose>
@@ -177,6 +173,8 @@
                         <DesgloseIVA>
                             <DetalleIVA t-foreach="desglose['S2']" t-as="detalle">
                                 <BaseImponible t-out="format_float(detalle['BaseImponible'])"/>
+                                <TipoImpositivo t-out="format_float(detalle['TipoImpositivo'])"/>
+                                <CuotaImpuesto t-out="format_float(detalle['CuotaRepercutida'])"/>
                             </DetalleIVA>
                         </DesgloseIVA>
                     </DetalleNoExenta>
@@ -190,14 +188,14 @@
                         'OT' if 'the' ClaveRegimenIvaOpTrascendencia == 10
                         'RL' if 'some' ClaveRegimenIvaOpTrascendencia == 08
                     BUT those are not supported yet-->
-                    <Importe t-out="no_sujeta.get('ImportePorArticulos7_14_Otros')"/>
-                    <Importe t-out="no_sujeta.get('ImporteTAIReglasLocalizacion')"/>
+                    <Importe t-if="'ImportePorArticulos7_14_Otros' in no_sujeta" t-out="format_float(no_sujeta['ImportePorArticulos7_14_Otros'])"/>
+                    <Importe t-if="'ImporteTAIReglasLocalizacion' in no_sujeta" t-out="format_float(no_sujeta['ImporteTAIReglasLocalizacion'])"/>
                 </DetalleNoSujeta>
             </NoSujeta>
         </template>
 
         <template id="template_digital_signature">
-            <ds:Signature t-att-Id="dsig['signature_id']" xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+            <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#" t-att-Id="dsig['signature_id']">
                 <ds:SignedInfo>
                     <ds:CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
                     <ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>

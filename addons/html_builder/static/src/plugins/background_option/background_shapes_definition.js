@@ -99,6 +99,16 @@ export const backgroundShapesDefinition = {
                     "html_builder/Floats/06": { selectLabel: _t("Blob 16"), animated: true },
                 },
             },
+            geometric: {
+                label: _t("Geometric"),
+                shapes: {
+                    "html_builder/Geometric/01": { selectLabel: _t("Geometric 01") },
+                    "html_builder/Geometric/02": { selectLabel: _t("Geometric 02") },
+                    "html_builder/Geometric/03": { selectLabel: _t("Geometric 03") },
+                    "html_builder/Geometric/04": { selectLabel: _t("Geometric 04") },
+                    "html_builder/Geometric/05": { selectLabel: _t("Geometric 05") },
+                },
+            },
         },
     },
     linear: {
@@ -134,6 +144,21 @@ export const backgroundShapesDefinition = {
                     "html_builder/Grids/06": { selectLabel: _t("Grid 06") },
                     "html_builder/Grids/07": { selectLabel: _t("Grid 07") },
                     "html_builder/Grids/08": { selectLabel: _t("Grid 08") },
+                    "html_builder/Grids/09": { selectLabel: _t("Grid 09") },
+                    "html_builder/Grids/10": { selectLabel: _t("Grid 10") },
+                },
+            },
+            lines: {
+                label: _t("Lines"),
+                shapes: {
+                    "html_builder/Lines/01": { selectLabel: _t("Line 01") },
+                    "html_builder/Lines/02": { selectLabel: _t("Line 02") },
+                    "html_builder/Lines/03": { selectLabel: _t("Line 03") },
+                    "html_builder/Lines/04": { selectLabel: _t("Line 04") },
+                    "html_builder/Lines/05": { selectLabel: _t("Line 05") },
+                    "html_builder/Lines/06": { selectLabel: _t("Line 06") },
+                    "html_builder/Lines/07": { selectLabel: _t("Line 07") },
+                    "html_builder/Lines/08": { selectLabel: _t("Line 08") },
                 },
             },
         },
@@ -161,6 +186,12 @@ export const backgroundShapesDefinition = {
                     "html_builder/Blurry/04": { selectLabel: _t("Blurry 04") },
                     "html_builder/Blurry/05": { selectLabel: _t("Blurry 05") },
                     "html_builder/Blurry/06": { selectLabel: _t("Blurry 06") },
+                    "html_builder/Blurry/07": { selectLabel: _t("Blurry 07") },
+                    "html_builder/Blurry/08": { selectLabel: _t("Blurry 08") },
+                    "html_builder/Blurry/09": { selectLabel: _t("Blurry 09"), animated: true },
+                    "html_builder/Blurry/10": { selectLabel: _t("Blurry 10"), animated: true },
+                    "html_builder/Blurry/11": { selectLabel: _t("Blurry 11"), animated: true },
+                    "html_builder/Blurry/12": { selectLabel: _t("Blurry 12"), animated: true },
                 },
             },
 
@@ -200,6 +231,32 @@ export const backgroundShapesDefinition = {
                     "html_builder/Rainy/09_001": { selectLabel: _t("Rainy 09") },
                 },
             },
+            nature: {
+                label: _t("Nature"),
+                shapes: {
+                    "html_builder/Nature/01": { selectLabel: _t("Nature 01") },
+                    "html_builder/Nature/02": { selectLabel: _t("Nature 02") },
+                    "html_builder/Nature/03": { selectLabel: _t("Nature 03") },
+                    "html_builder/Nature/04": { selectLabel: _t("Nature 04") },
+                    "html_builder/Nature/05": { selectLabel: _t("Nature 05") },
+                    "html_builder/Nature/06": { selectLabel: _t("Nature 06") },
+                    "html_builder/Nature/07": { selectLabel: _t("Nature 07") },
+                    "html_builder/Nature/08": { selectLabel: _t("Nature 08") },
+                },
+            },
+            travel: {
+                label: _t("Travel"),
+                shapes: {
+                    "html_builder/Travel/01": { selectLabel: _t("Travel 01") },
+                    "html_builder/Travel/02": { selectLabel: _t("Travel 02") },
+                    "html_builder/Travel/03": { selectLabel: _t("Travel 03") },
+                    "html_builder/Travel/04": { selectLabel: _t("Travel 04") },
+                    "html_builder/Travel/05": { selectLabel: _t("Travel 05") },
+                    "html_builder/Travel/06": { selectLabel: _t("Travel 06") },
+                    "html_builder/Travel/07": { selectLabel: _t("Travel 07") },
+                    "html_builder/Travel/08": { selectLabel: _t("Travel 08") },
+                },
+            },
             miscellaneous: {
                 label: _t("Miscellaneous"),
                 shapes: {
@@ -234,6 +291,21 @@ export const backgroundShapesDefinition = {
                     "html_builder/Zigs/01_001": {
                         selectLabel: _t("Miscellaneous 08"),
                         animated: true,
+                    },
+                    "html_builder/Miscellaneous/01": {
+                        selectLabel: _t("Miscellaneous 09"),
+                    },
+                    "html_builder/Miscellaneous/02": {
+                        selectLabel: _t("Miscellaneous 10"),
+                    },
+                    "html_builder/Miscellaneous/03": {
+                        selectLabel: _t("Miscellaneous 11"),
+                    },
+                    "html_builder/Miscellaneous/04": {
+                        selectLabel: _t("Miscellaneous 12"),
+                    },
+                    "html_builder/Miscellaneous/05": {
+                        selectLabel: _t("Miscellaneous 13"),
                     },
                 },
             },

@@ -3,25 +3,19 @@ import { registry } from "@web/core/registry";
 import { _t } from "@web/core/l10n/translation";
 import { getCommonAncestor, selectElements } from "@html_editor/utils/dom_traversal";
 import { BuilderAction } from "@html_builder/core/builder_action";
-import { BaseOptionComponent } from "@html_builder/core/utils";
 
-export class FacebookOption extends BaseOptionComponent {
-    static template = "website.FacebookOption";
-    static selector = ".o_facebook_page";
-}
-
-class FacebookOptionPlugin extends Plugin {
+export class FacebookOptionPlugin extends Plugin {
     static id = "facebookOption";
-    static dependencies = ["history"];
+    static dependencies = ["domObserver"];
     /** @type {import("plugins").WebsiteResources} */
     resources = {
-        builder_options: [FacebookOption],
-        so_content_addition_selector: [".o_facebook_page"],
+        so_content_addition_selectors: [".o_facebook_page"],
         builder_actions: {
             DataAttributeListAction,
             CheckFacebookLinkAction,
         },
-        normalize_handlers: this.normalize.bind(this),
+        normalize_processors: this.normalize.bind(this),
+        content_not_editable_selectors: ".o_facebook_page",
     };
 
     normalize(root) {
@@ -39,10 +33,11 @@ class FacebookOptionPlugin extends Plugin {
             }
         }
 
-        const nodes = [...selectElements(root, ".o_facebook_page:not([data-href])")];
+        const nodes = selectElements(root, ".o_facebook_page:not([data-href])");
         if (nodes.length) {
             this.loadAndSetEmptyLink(nodes);
         }
+        return root;
     }
 
     async loadAndSetEmptyLink(nodes) {
@@ -51,24 +46,22 @@ class FacebookOptionPlugin extends Plugin {
             this.setEmptyLink(nodes);
             return;
         }
-        // Fetches the default url for facebook page from website config
+        // Fetches the default url for facebook page from company config
         const res = await this.services.orm.read(
-            "website",
-            [this.services.website.currentWebsite.id],
+            "res.company",
+            [this.services.website.currentWebsite.company_id],
             ["social_facebook"]
         );
         if (res) {
             this.facebookUrl = res[0].social_facebook || "https://www.facebook.com/Odoo";
 
-            // WARNING: the call to ignoreDOMMutations is very dangerous,
+            // WARNING: the call to ignore is very dangerous,
             // and should be avoided in most cases (if you think you need those, ask html_editor team)
-            const hasChanged = this.dependencies.history.ignoreDOMMutations(() =>
-                this.setEmptyLink(nodes)
-            );
+            const hasChanged = this.dependencies.domObserver.ignore(() => this.setEmptyLink(nodes));
 
             if (hasChanged) {
                 const commonAncestor = getCommonAncestor(nodes, this.editable);
-                this.dispatchTo("content_manually_updated_handlers", commonAncestor);
+                this.trigger("on_content_manually_updated_handlers", commonAncestor);
                 this.config.onChange({ isPreviewing: false });
             }
         }

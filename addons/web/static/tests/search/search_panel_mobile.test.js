@@ -91,7 +91,6 @@ test("basic search panel rendering", async () => {
     class Parent extends Component {
         static components = { SearchPanel };
         static template = xml`<SearchPanel/>`;
-        static props = ["*"];
     }
 
     await mountWithSearch(Parent, {
@@ -119,7 +118,6 @@ test("Dropdown closes on category selection", async () => {
     class Parent extends Component {
         static components = { SearchPanel };
         static template = xml`<SearchPanel/>`;
-        static props = ["*"];
     }
 
     await mountWithSearch(Parent, {

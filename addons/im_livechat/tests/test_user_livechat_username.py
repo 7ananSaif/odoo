@@ -1,9 +1,9 @@
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
 from odoo import fields
-from odoo.tests.common import tagged
 from odoo.addons.im_livechat.tests.common import TestGetOperatorCommon
 
 
-@tagged("post_install", "-at_install")
 class TestUserLivechatUsername(TestGetOperatorCommon):
     def test_user_livechat_username_channel_invite_notification(self):
         john = self._create_operator("fr_FR")
@@ -22,7 +22,7 @@ class TestUserLivechatUsername(TestGetOperatorCommon):
         channel._add_members(users=john)
         self.assertEqual(
             channel.message_ids[-1].body,
-            f'<div class="o_mail_notification" data-oe-type="channel-joined">invited <a href="#" data-oe-model="res.partner" data-oe-id="{john.partner_id.id}">@ELOPERADOR</a> to the channel</div>',
+            f'<div class="o_mail_notification" data-oe-type="channel-joined">invited <a href="#" data-oe-model="res.partner" data-oe-id="{john.partner_id.id}" class="o_mail_redirect">@ELOPERADOR</a> to the conversation</div>',
         )
 
     def test_user_livechat_username_reactions(self):
@@ -69,11 +69,14 @@ class TestUserLivechatUsername(TestGetOperatorCommon):
             {
                 "name": "Livechat session",
                 "channel_type": "livechat",
-                "livechat_operator_id": operator.partner_id.id,
                 "livechat_channel_id": livechat_channel.id,
             }
         )
-        data = operator.partner_id.with_user(operator).search_for_channel_invite("fr_FR", channel.id)["store_data"]
+        data = (
+            operator.partner_id.with_user(operator)
+            .search_for_channel_invite("fr_FR", channel.id)["store_data"]
+            ._build_result()
+        )
         john_data = next(filter(lambda partner: partner["id"] == john.partner_id.id, data["res.partner"]))
         self.assertEqual(
             john_data["user_livechat_username"],

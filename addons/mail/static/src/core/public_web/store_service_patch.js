@@ -1,5 +1,5 @@
 import { Store, storeService } from "@mail/core/common/store_service";
-import { fields } from "@mail/core/common/record";
+import { fields } from "@mail/model/export";
 import { router } from "@web/core/browser/router";
 import { patch } from "@web/core/utils/patch";
 
@@ -7,21 +7,16 @@ patch(Store.prototype, {
     setup() {
         super.setup(...arguments);
         this.discuss = fields.One("DiscussApp");
-        /** @type {number|undefined} */
-        this.action_discuss_id;
+        this.messagingMenu = this.computed(() => this.MessagingMenu.insert({}));
+        this.showPushPermissionRequest = this.computed(
+            () =>
+                this.env.services["mail.notification.permission"]?.permission === "prompt" &&
+                !this.isNotificationPermissionDismissed
+        );
     },
     onStarted() {
         super.onStarted(...arguments);
-        this.discuss = { activeTab: "notification" };
-        this.env.bus.addEventListener(
-            "discuss.channel/new_message",
-            ({ detail: { channel, message, silent } }) => {
-                if (this.env.services.ui.isSmall || message.isSelfAuthored || silent) {
-                    return;
-                }
-                channel.notifyMessageToUser(message);
-            }
-        );
+        this.discuss = {};
     },
 });
 
@@ -33,12 +28,6 @@ patch(storeService, {
             discussActionIds.push(store.action_discuss_id);
         }
         store.discuss.isActive ||= discussActionIds.includes(router.current.action);
-        services.ui.bus.addEventListener("resize", () => {
-            store.discuss.activeTab = "notification";
-            if (services.ui.isSmall && store.discuss.thread?.channel_type) {
-                store.discuss.activeTab = store.discuss.thread.channel_type;
-            }
-        });
         return store;
     },
 });

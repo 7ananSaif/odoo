@@ -1,10 +1,11 @@
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
 from odoo import Command
-from odoo.tests import HttpCase, tagged
+from odoo.tests import HttpCase
 from odoo.addons.website_livechat.tests.common import TestLivechatCommon
 from odoo.addons.im_livechat.tests.chatbot_common import ChatbotCase
 
 
-@tagged("post_install", "-at_install")
 class TestFwOperator(ChatbotCase, HttpCase, TestLivechatCommon):
     def setUp(self):
         super().setUp()
@@ -50,7 +51,7 @@ class TestFwOperator(ChatbotCase, HttpCase, TestLivechatCommon):
                 "user_ids": [self.operator.id],
             }
         )
-        default_website = self.env.ref("website.default_website")
+        default_website = self.env.ref("base.default_website")
         default_website.channel_id = self.livechat_channel.id
 
     def test_chatbot_removed_after_forward_to_operator(self):
@@ -58,7 +59,7 @@ class TestFwOperator(ChatbotCase, HttpCase, TestLivechatCommon):
         channel = self.env["discuss.channel"].search(
             [("livechat_channel_id", "=", self.livechat_channel.id)]
         )
-        self.assertEqual(channel.livechat_operator_id, self.operator.partner_id)
+        self.assertEqual(self.operator.partner_id, channel.livechat_agent_partner_ids)
         self.assertNotIn(
             self.chatbot_fw_script.operator_partner_id, channel.channel_member_ids.partner_id
         )
@@ -71,7 +72,7 @@ class TestFwOperator(ChatbotCase, HttpCase, TestLivechatCommon):
         channel = self.env["discuss.channel"].browse(data["channel_id"])
         self.assertEqual(channel.chatbot_current_step_id.step_type, "question_selection")
         self._post_answer_and_trigger_next_step(channel, self.fw_to_operator_answer.id)
-        self.assertEqual(channel.livechat_operator_id, self.operator.partner_id)
+        self.assertEqual(self.operator.partner_id, channel.livechat_agent_partner_ids)
         self.assertEqual(channel.chatbot_current_step_id.step_type, "forward_operator")
         next_step_data = self.make_jsonrpc_request("/chatbot/step/trigger", {"channel_id": channel.id})
         self.assertFalse(next_step_data)

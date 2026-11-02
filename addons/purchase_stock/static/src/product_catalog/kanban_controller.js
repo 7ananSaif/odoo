@@ -1,5 +1,5 @@
+import { useEnv, useSubEnv } from "@web/owl2/utils";
 import { ProductCatalogKanbanController } from "@product/product_catalog/kanban_controller";
-import { useSubEnv, useEnv } from "@odoo/owl";
 import { useDebounced } from "@web/core/utils/timing";
 
 export class PurchaseSuggestCatalogKanbanController extends ProductCatalogKanbanController {
@@ -35,17 +35,16 @@ export class PurchaseSuggestCatalogKanbanController extends ProductCatalogKanban
     /** Add all suggested products to the purchase order */
     async onAddAll() {
         const { searchModel } = this.env;
-        const { sectionId } = searchModel.selectedSection;
-        const lineCountChange = await this.model.orm.call(
+        const subtotalDelta = await this.model.orm.call(
             "purchase.order",
             "action_purchase_order_suggest",
             [this.props.context.product_catalog_order_id],
             { context: searchModel.globalContext }
         );
         searchModel.toggleFilters(["suggested", "products_in_purchase_order"], true);
-        searchModel.trigger("section-line-count-change", {
-            sectionId,
-            lineCountChange,
+        searchModel.trigger("section-subtotal-change", {
+            sectionId: searchModel.selectedSectionId,
+            subtotalDelta: subtotalDelta,
         });
     }
 

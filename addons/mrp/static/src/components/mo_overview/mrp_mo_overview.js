@@ -1,8 +1,9 @@
-import { Component, EventBus, onWillStart, useSubEnv, useState } from "@odoo/owl";
+import { useSubEnv } from "@web/owl2/utils";
+import { Component, EventBus, onWillStart, proxy, useProps } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useBus, useService } from "@web/core/utils/hooks";
 import { Layout } from "@web/search/layout";
-import { standardActionServiceProps } from "@web/webclient/actions/action_service";
+import { standardActionServiceProps } from "@web/webclient/actions/action_plugin";
 import { MoOverviewLine } from "../mo_overview_line/mrp_mo_overview_line";
 import { MoOverviewDisplayFilter } from "../mo_overview_display_filter/mrp_mo_overview_display_filter";
 import { MoOverviewComponentsBlock } from "../mo_overview_components_block/mrp_mo_overview_components_block";
@@ -15,7 +16,7 @@ export class MoOverview extends Component {
         MoOverviewDisplayFilter,
         MoOverviewComponentsBlock,
     };
-    static props = { ...standardActionServiceProps };
+    props = useProps(standardActionServiceProps);
 
     static template = "mrp.MoOverview";
 
@@ -25,7 +26,7 @@ export class MoOverview extends Component {
         this.unfoldedIds = new Set();
         this.context = {};
 
-        this.state = useState({
+        this.state = proxy({
             data: {},
             showOptions: this.getDefaultConfig(),
         });
@@ -46,18 +47,12 @@ export class MoOverview extends Component {
             [this.activeId],
         );
         this.state.data = reportValues.data;
-        if (this.isProductionStarted) {
-            this.state.showOptions.bomCosts = false;
-        } else {
-            this.state.showOptions.realCosts = false;
-        }
         if (this.isProductionDone) {
-            // Hide Availabilities / Receipts / Status / MO Cost columns when the MO is done.
+            // Hide Availabilities / Receipts / Status columns when the MO is done.
             this.state.showOptions.availabilities = false;
             this.state.showOptions.receipts = false;
             this.state.showOptions.replenishments = false;
             this.state.showOptions.unitCosts = true;
-            this.state.showOptions.moCosts = false;
         }
         this.state.showOptions.uom = reportValues.context.show_uom;
         this.context = reportValues.context;
@@ -87,7 +82,6 @@ export class MoOverview extends Component {
             type: "ir.actions.report",
             report_type: "qweb-pdf",
             report_name: this.reportName,
-            report_file: "mrp.report_mo_overview",
         });
     }
 
@@ -100,18 +94,13 @@ export class MoOverview extends Component {
     getDefaultConfig() {
         return {
             uom: false,
+            toReplenish: false,
             replenishments: true,
             availabilities: true,
             receipts: true,
             unitCosts: false,
             moCosts: true,
-            bomCosts: true,
-            realCosts: true,
         };
-    }
-
-    getColorClass(decorator) {
-        return decorator ? `text-${decorator}` : "";
     }
 
     formatCost(cost) {
@@ -148,28 +137,12 @@ export class MoOverview extends Component {
         return this.state.showOptions.moCosts;
     }
 
-    get showBomCosts() {
-        return this.state.showOptions.bomCosts;
-    }
-
-    get showRealCosts() {
-        return this.state.showOptions.realCosts;
-    }
-
-    get hasBom() {
-        return this.state.data?.summary?.has_bom;
-    }
-
-    get isProductionStarted() {
-        return !["draft", "confirmed"].includes(this.state.data?.summary?.state);
-    }
-
-    get isProductionDraft() {
-        return this.state.data?.summary?.state === "draft";
-    }
-
     get isProductionDone() {
         return this.state.data?.summary?.state === "done";
+    }
+
+    get isProductionCancelled() {
+        return this.state.data?.summary?.state === "cancel";
     }
 
     get hasOperations() {
@@ -181,25 +154,35 @@ export class MoOverview extends Component {
     }
 
     get totalColspan() {
-        let colspan = 2;  // Name & Quantity
-        if (this.showReplenishments) colspan++;
-        if (this.showAvailabilities) colspan += 2;  // Free to use / On Hand & Reserved
-        if (this.showUom) colspan++;
-        if (this.showReceipts) colspan++;
-        if (this.showUnitCosts) colspan++;
+        let colspan = 2; // Name & Quantity
+        if (this.showReplenishments) {
+            colspan++;
+        }
+        if (this.showAvailabilities) {
+            colspan += 2; // Free to use / On Hand & Consumed
+        }
+        if (this.showUom) {
+            colspan++;
+        }
+        if (this.showReceipts) {
+            colspan++;
+        }
+        if (this.showUnitCosts) {
+            colspan++;
+        }
         return colspan;
     }
 
     get reportName() {
-        return `mrp.report_mo_overview?docids=${this.activeId}`
-            + `&replenishments=${+this.state.showOptions.replenishments}`
-            + `&availabilities=${+this.state.showOptions.availabilities}`
-            + `&receipts=${+this.state.showOptions.receipts}`
-            + `&unitCosts=${+this.state.showOptions.unitCosts}`
-            + `&moCosts=${+this.state.showOptions.moCosts}`
-            + `&bomCosts=${+this.state.showOptions.bomCosts}`
-            + `&realCosts=${+this.state.showOptions.realCosts}`
-            + `&unfoldedIds=${JSON.stringify(Array.from(this.unfoldedIds))}`;
+        return (
+            `mrp.report_mo_overview?docids=${this.activeId}` +
+            `&replenishments=${+this.state.showOptions.replenishments}` +
+            `&availabilities=${+this.state.showOptions.availabilities}` +
+            `&receipts=${+this.state.showOptions.receipts}` +
+            `&unitCosts=${+this.state.showOptions.unitCosts}` +
+            `&moCosts=${+this.state.showOptions.moCosts}` +
+            `&unfoldedIds=${JSON.stringify(Array.from(this.unfoldedIds))}`
+        );
     }
 }
 

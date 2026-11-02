@@ -9,6 +9,8 @@ from odoo.tests import common, Form
 @common.tagged('post_install', '-at_install')
 class TestSaleMrpFlow(test_sale_mrp_flow.TestSaleMrpFlowCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     def test_kit_cost_calculation(self):
         """ Check that the average cost price is computed correctly after SO confirmation:
             BOM 1:
@@ -86,7 +88,7 @@ class TestSaleMrpFlow(test_sale_mrp_flow.TestSaleMrpFlowCommon):
             },
             {
                 'product_tmpl_id': kit.product_tmpl_id.id,
-                'product_uom_id': kit.uom_id.id,
+                'uom_id': kit.uom_id.id,
                 'product_qty': 1.0,
                 'type': 'phantom',
                 'bom_line_ids': [
@@ -156,7 +158,7 @@ class TestSaleMrpFlow(test_sale_mrp_flow.TestSaleMrpFlowCommon):
                     Command.create({
                         'product_id': self.component_a.id,
                         'product_qty': 1.0,
-                        'product_uom_id': self.uom_unit.id,
+                        'uom_id': self.uom_unit.id,
                     }),
                 ],
             }

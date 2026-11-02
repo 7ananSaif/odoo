@@ -1,8 +1,8 @@
 import { children } from "@html_editor/utils/dom_traversal";
 import { parseHTML } from "@html_editor/utils/html";
-import { markup } from "@odoo/owl";
+import { getInnerHtml } from "@mail/utils/common/html";
 import { registry } from "@web/core/registry";
-import { Deferred } from "@web/core/utils/concurrency";
+import { htmlTrim } from "@web/core/utils/html";
 import { Reactive } from "@web/core/utils/reactive";
 import { renderToMarkup } from "@web/core/utils/render";
 
@@ -25,17 +25,22 @@ export class ThemeModel extends Reactive {
         super();
         this.orm = services.orm;
         this.loadedAssets = new Set();
-        this.loadedThemes = new Map();
-        this.loadingPromise = new Deferred();
+        // Shared themes written by Odoo
+        this.commonThemes = new Map();
+        // Blank slate themes (text-only or empty)
+        this.simpleThemes = new Map();
+        this.loadingPromise = Promise.withResolvers();
     }
 
     computeThemesTemplates(themesEl) {
         for (const theme of children(themesEl)) {
             this.preProcessImages(theme);
             const themeOptions = {
-                className: getClassName(theme.dataset.name),
+                className: [getClassName(theme.dataset.name), theme.dataset.layoutClass]
+                    .filter(Boolean)
+                    .join(" "),
                 hideFromMobile: hasDataOption(theme, "hide-from-mobile"),
-                html: markup(theme.innerHTML.trim()),
+                html: htmlTrim(getInnerHtml(theme)),
                 imgPath: theme.dataset.img || "",
                 layoutStyles: theme.dataset.layoutStyles || "",
                 name: theme.dataset.name,
@@ -64,7 +69,11 @@ export class ThemeModel extends Reactive {
             }
             // Wrap the Theme `html` with a technical layout.
             themeOptions.html = renderToMarkup("mass_mailing.ThemeLayout", themeOptions);
-            this.loadedThemes.set(themeOptions.name, themeOptions);
+            if (["basic", "empty"].includes(themeOptions.name)) {
+                this.simpleThemes.set(themeOptions.name, themeOptions);
+            } else {
+                this.commonThemes.set(themeOptions.name, themeOptions);
+            }
         }
     }
 
@@ -82,8 +91,13 @@ export class ThemeModel extends Reactive {
         return themeClass && getNameFromClass(themeClass);
     }
 
-    getThemes() {
-        return this.loadedThemes;
+    getCommonThemes() {
+        return this.commonThemes;
+    }
+
+    // The simple themes (basic, empty) are separated as they are displayed separately
+    getSimpleThemes() {
+        return this.simpleThemes;
     }
 
     async load(asset = "mass_mailing.email_designer_themes") {
@@ -98,7 +112,7 @@ export class ThemeModel extends Reactive {
             this.loadedAssets.add(asset);
             this.loadingPromise.resolve();
         }
-        return this.loadingPromise;
+        return this.loadingPromise.promise;
     }
 }
 

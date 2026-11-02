@@ -7,32 +7,38 @@ from ast import literal_eval
 from dateutil.relativedelta import relativedelta
 
 from odoo import api, fields, models, _
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
 from odoo.fields import Domain
+from odoo.tools.translate import LazyTranslate
 
 from odoo.addons.base.models.ir_mail_server import MailDeliveryException
 from odoo.addons.auth_signup.models.res_partner import SignupError
 
 _logger = logging.getLogger(__name__)
+_lt = LazyTranslate(__name__)
 
 
 class ResUsers(models.Model):
     _inherit = 'res.users'
 
     state = fields.Selection(compute='_compute_state', search='_search_state', string='Status',
-                 selection=[('new', 'Invited'), ('active', 'Confirmed')])
+                 selection=[('new', 'Invited'), ('active', 'Confirmed'), ('inactive', 'Inactive')], tracking=4)
 
     def _search_state(self, operator, value):
         if operator != 'in':
             return NotImplemented
-        if len(value) > 1:
-            return Domain.TRUE
-        in_log = 'active' in value
-        return Domain('log_ids', '!=' if in_log else '=', False)
+        # Note: matching 'inactive' (archived) users requires active_test=False.
+        domains_by_state = {
+            'new': Domain('active', '=', True) & Domain('log_ids', '=', False),
+            'active': Domain('active', '=', True) & Domain('log_ids', '!=', False),
+            'inactive': Domain('active', '=', False),
+        }
+        return Domain.OR([domains_by_state[v] for v in value if v in domains_by_state])
 
+    @api.depends('active', 'login_date')
     def _compute_state(self):
         for user in self:
-            user.state = 'active' if user.login_date else 'new'
+            user.state = 'inactive' if not user.active else 'active' if user.login_date else 'new'
 
     @api.model
     def signup(self, values, token=None):
@@ -86,7 +92,7 @@ class ResUsers(models.Model):
 
     @api.model
     def _get_signup_invitation_scope(self):
-        return self.env['ir.config_parameter'].sudo().get_param('auth_signup.invitation_scope', 'b2b')
+        return self.env['ir.config_parameter'].sudo().get_str('auth_signup.invitation_scope') or 'b2b'
 
     @api.model
     def _signup_create_user(self, values):
@@ -109,7 +115,7 @@ class ResUsers(models.Model):
             )
 
     def _create_user_from_template(self, values):
-        template_user_id = literal_eval(self.env['ir.config_parameter'].sudo().get_param('base.template_portal_user_id', 'False'))
+        template_user_id = self.env['ir.config_parameter'].sudo().get_int('base.template_portal_user_id')
         template_user = self.browse(template_user_id)
         if not template_user.exists():
             raise ValueError(_('Signup: invalid template user'))
@@ -152,6 +158,20 @@ class ResUsers(models.Model):
                 raise UserError(_("Could not contact the mail server, please check your outgoing email server configuration")) from mde
             else:
                 raise UserError(_("There was an error when trying to deliver your Email, please check your configuration")) from mde
+
+    def get_reset_password_link(self):
+        """ Generate a new valid link to reset the password. """
+        self.ensure_one()
+
+        if not self.env.is_admin:
+            raise AccessError(_("Only administrators can generate reset password link."))
+        if self.id == self.env.user.id:
+            raise UserError(_("You cannot perform this action on your own user."))
+        if not self.active:
+            raise UserError(_("You cannot perform this action on an archived user."))
+
+        self.partner_id.signup_prepare(signup_type='reset')
+        return self.partner_id._get_signup_url()
 
     def _action_reset_password(self, signup_type="reset"):
         """ create signup token for each user, and send their signup url by email """
@@ -197,19 +217,34 @@ class ResUsers(models.Model):
                 is_internal = user._is_internal()
                 account_created_template = internal_account_created_template if is_internal else portal_account_created_template
                 if account_created_template:
-                    account_created_template.send_mail(
-                        user.id, force_send=True,
-                        raise_exception=True, email_values=email_values)
+                    account_created_template.with_context(
+                        email_notification_force_header=True,
+                        email_notification_force_footer=True,
+                        email_notification_subtitles=[_lt("Welcome to Odoo"), user.name or ''],
+                    ).send_mail_batch(
+                        user.ids, force_send=True,
+                        raise_exception=True, email_values=email_values,
+                        email_layout_xmlid='mail.mail_notification_layout')
                 else:
                     user_lang = user.lang or self.env.lang or 'en_US'
                     body = self.env['mail.render.mixin'].with_context(lang=user_lang)._render_template(
                         self.env.ref('auth_signup.reset_password_email'),
                         model='res.users', res_ids=user.ids,
                         engine='qweb_view', options={'post_process': True})[user.id]
+                    body_html = self.env['mail.render.mixin'].with_context(lang=user_lang)._render_encapsulate(
+                        'mail.mail_notification_layout', body, context_record=user,
+                        add_context={
+                            'email_add_signature': True,
+                            'email_notification_force_header': True,
+                            'email_notification_force_footer': True,
+                            'signature': self.env.user.signature,
+                            'subtitles': [_lt('Your Account'), user.display_name],
+                        })
                     mail = self.env['mail.mail'].sudo().create({
                         'subject': self.with_context(lang=user_lang).env._('Password reset'),
                         'email_from': user.company_id.email_formatted or user.email_formatted,
-                        'body_html': body,
+                        'body': body,
+                        'body_html': body_html,
                         **email_values,
                     })
                     mail.send()
@@ -218,12 +253,11 @@ class ResUsers(models.Model):
                 message = _('A reset password link was sent by email')
             else:
                 _logger.info("Signup email sent for user <%s> to <%s>", user.login, user.email)
-                message = _('A signup link was sent by email')
+                message = _('Sign-up link sent by email!')
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
-                'title': 'Notification',
                 'message': message,
                 'sticky': False
             }
@@ -252,7 +286,7 @@ class ResUsers(models.Model):
         for user, invited_users in invited_by_users.items():
             invited_user_emails = [f"{u.name} ({u.login})" for u in invited_users]
             template = email_template.with_context(dbname=self.env.cr.dbname, invited_users=invited_user_emails)
-            template.send_mail(user.id, email_layout_xmlid='mail.mail_notification_light', force_send=False)
+            template.send_mail(user.id, email_layout_xmlid='mail.mail_notification_layout', force_send=False)
             if not self.env['ir.cron']._commit_progress(len(invited_users)):
                 _logger.info("send_unregistered_user_reminder: timeout reached, stopping")
                 break

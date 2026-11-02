@@ -19,7 +19,7 @@ class HrResumeLine(models.Model):
     date_end = fields.Date()
     duration = fields.Integer(string="Duration")
     description = fields.Html(string="Description", translate=True)
-    line_type_id = fields.Many2one('hr.resume.line.type', string="Type")
+    line_type_id = fields.Many2one('hr.resume.line.type', string="Type", index=True)
     is_course = fields.Boolean(related='line_type_id.is_course')
     course_type = fields.Selection(
         string="Course Type",
@@ -29,7 +29,6 @@ class HrResumeLine(models.Model):
     )
     color = fields.Char(compute='_compute_color', default='#000000')
     external_url = fields.Char(string="External URL", compute='_compute_external_url', store=True, readonly=False)
-    certificate_filename = fields.Char()
     certificate_file = fields.Binary(string="Certificate")
     resume_line_properties = fields.Properties(
         'Properties',

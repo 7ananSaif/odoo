@@ -1,9 +1,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 import uuid
-import base64
 import logging
 
-from collections import defaultdict
 from odoo import api, fields, models, _
 from odoo.addons.base.models.res_partner import _tz_get
 from odoo.exceptions import UserError
@@ -34,11 +32,11 @@ class CalendarAttendee(models.Model):
     event_id = fields.Many2one('calendar.event', 'Meeting linked', required=True, index=True, ondelete='cascade')
     recurrence_id = fields.Many2one('calendar.recurrence', related='event_id.recurrence_id')
     # attendee
-    partner_id = fields.Many2one('res.partner', 'Attendee', required=True, readonly=True, ondelete='cascade')
+    partner_id = fields.Many2one('res.partner', 'Attendee', required=True, index=True, readonly=True, ondelete='cascade')
     email = fields.Char('Email', related='partner_id.email')
     phone = fields.Char('Phone', related='partner_id.phone')
     common_name = fields.Char('Common name', compute='_compute_common_name', store=True)
-    access_token = fields.Char('Invitation Token', default=_default_access_token)
+    access_token = fields.Char('Invitation Token', default=_default_access_token, groups="base.group_system")
     mail_tz = fields.Selection(_tz_get, compute='_compute_mail_tz', help='Timezone used for displaying time in the mail template')
     # state
     state = fields.Selection(STATE_SELECTION, string='Status', default='needsAction')
@@ -97,6 +95,7 @@ class CalendarAttendee(models.Model):
             "email_from": "{{ (object.event_id.user_id.email_formatted or user.email_formatted or '') }}",
             "email_to": False,
             "partner_to": False,
+            "partner_cc": False,
             "lang": "{{ object.partner_id.lang }}",
             "use_default_to": True,
         }
@@ -121,16 +120,17 @@ class CalendarAttendee(models.Model):
             force_send=True,
         )
 
-    def _notify_attendees(self, mail_template, notify_author=False, force_send=False):
+    def _notify_attendees(self, mail_template, notify_author=False, force_send=False, completion_log_message=False):
         """ Notify attendees about event main changes (invite, cancel, ...) based
         on template.
 
         :param mail_template: a mail.template record
         :param force_send: if set to True, the mail(s) will be sent immediately (instead of the next queue processing)
+        :param completion_log_message: if set, the value is used as message body in the calendar.event log.
         """
         # TDE FIXME: check this
         if force_send:
-            force_send_limit = int(self.env['ir.config_parameter'].sudo().get_param('mail.mail_force_send_limit', 100))
+            force_send_limit = self.env['ir.config_parameter'].sudo().get_int('mail.mail_force_send_limit', 100)
         notified_attendees_ids = set(self.ids)
         for event, attendees in self.grouped('event_id').items():
             if event._skip_send_mail_status_update():
@@ -138,7 +138,7 @@ class CalendarAttendee(models.Model):
         notified_attendees = self.browse(notified_attendees_ids)
         if isinstance(mail_template, str):
             raise ValueError('Template should be a template record, not an XML ID anymore.')
-        if self.env['ir.config_parameter'].sudo().get_param('calendar.block_mail') or self.env.context.get("no_mail_to_attendees"):
+        if self.env['ir.config_parameter'].sudo().get_bool('calendar.block_mail') or self.env.context.get("no_mail_to_attendees"):
             return False
         if not mail_template:
             _logger.warning("No template passed to %s notification process. Skipped.", self)
@@ -160,8 +160,9 @@ class CalendarAttendee(models.Model):
             attendee_id_attachment_id_map = dict(zip(self.ids, split_every(template_attachment_count, attendee_attachment_ids, list)))
 
         mail_messages = self.env['mail.message']
+        events_to_notify = self.env['calendar.event']
         for attendee in notified_attendees:
-            if attendee.email and attendee._should_notify_attendee(notify_author=notify_author):
+            if attendee.email and (notify_author or attendee.partner_id != self.env.user.partner_id):
                 event_id = attendee.event_id.id
                 ics_file = ics_files.get(event_id)
 
@@ -174,7 +175,7 @@ class CalendarAttendee(models.Model):
                         'no_document': True,  # An ICS file must not create a document
                     }
                     attachment_ids += self.env['ir.attachment'].with_context(context).create({
-                        'datas': base64.b64encode(ics_file),
+                        'raw': ics_file,
                         'description': 'invitation.ics',
                         'mimetype': 'text/calendar',
                         'res_id': 0,
@@ -204,19 +205,13 @@ class CalendarAttendee(models.Model):
                     attachment_ids=attachment_ids,
                     force_send=False,
                 )
+                if completion_log_message:
+                    events_to_notify |= attendee.event_id
+
         # batch sending at the end
         if force_send and len(notified_attendees) < force_send_limit:
             mail_messages.sudo().mail_ids.send_after_commit()
-
-    def _should_notify_attendee(self, notify_author=False):
-        """ Utility method that determines if the attendee should be notified.
-            By default, we do not want to notify (aka no message and no mail) the current user
-            if he is part of the attendees. But for reminders, mail_notify_author could be forced
-            (Override in appointment to ignore that rule and notify all attendees if it's an appointment)
-        """
-        self.ensure_one()
-        partner_not_sender = self.partner_id != self.env.user.partner_id
-        return partner_not_sender or notify_author
+            events_to_notify._message_log_batch(bodies={event.id: completion_log_message for event in events_to_notify})
 
     # ------------------------------------------------------------
     # STATE MANAGEMENT

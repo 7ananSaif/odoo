@@ -2,7 +2,7 @@ import { after, describe, expect, test } from "@odoo/hoot";
 import { on } from "@odoo/hoot-dom";
 import { microTick } from "@odoo/hoot-mock";
 import { Component, xml } from "@odoo/owl";
-import { getService, makeMockEnv, mountWithCleanup, onRpc } from "@web/../tests/web_test_helpers";
+import { getService, makeTestApp, mountWithCleanup, onRpc } from "@web/../tests/web_test_helpers";
 
 import { rpc, rpcBus } from "@web/core/network/rpc";
 import { useService } from "@web/core/utils/hooks";
@@ -29,8 +29,8 @@ test("add user context to a simple read request", async () => {
         return false; // Don't want to call the actual read method
     });
 
-    const { services } = await makeMockEnv();
-    await services.orm.read("res.partner", [3], ["id", "descr"]);
+    await makeTestApp();
+    await getService("orm").read("res.partner", [3], ["id", "descr"]);
 
     expect.verifySteps(["/web/dataset/call_kw/res.partner/read"]);
 });
@@ -55,8 +55,8 @@ test("context is combined with user context in read request", async () => {
         return false;
     });
 
-    const { services } = await makeMockEnv();
-    await services.orm.read("res.partner", [3], ["id", "descr"], {
+    await makeTestApp();
+    await getService("orm").read("res.partner", [3], ["id", "descr"], {
         context: {
             earth: "isfucked",
         },
@@ -85,8 +85,8 @@ test("basic method call of model", async () => {
         return false;
     });
 
-    const { services } = await makeMockEnv();
-    await services.orm.call("res.partner", "test", [], { context: { a: 1 } });
+    await makeTestApp();
+    await getService("orm").call("res.partner", "test", [], { context: { a: 1 } });
 
     expect.verifySteps(["/web/dataset/call_kw/res.partner/test"]);
 });
@@ -110,8 +110,8 @@ test("create method: one record", async () => {
         return false;
     });
 
-    const { services } = await makeMockEnv();
-    await services.orm.create("res.partner", [{ color: "red" }]);
+    await makeTestApp();
+    await getService("orm").create("res.partner", [{ color: "red" }]);
 
     expect.verifySteps(["/web/dataset/call_kw/res.partner/create"]);
 });
@@ -135,8 +135,8 @@ test("create method: several records", async () => {
         return false;
     });
 
-    const { services } = await makeMockEnv();
-    await services.orm.create("res.partner", [{ color: "red" }, { color: "green" }]);
+    await makeTestApp();
+    await getService("orm").create("res.partner", [{ color: "red" }, { color: "green" }]);
 
     expect.verifySteps(["/web/dataset/call_kw/res.partner/create"]);
 });
@@ -165,8 +165,8 @@ test("read method", async () => {
         return false;
     });
 
-    const { services } = await makeMockEnv();
-    await services.orm.read("sale.order", [2, 5], ["name", "amount"], {
+    await makeTestApp();
+    await getService("orm").read("sale.order", [2, 5], ["name", "amount"], {
         load: "none",
         context: { abc: 3 },
     });
@@ -193,8 +193,8 @@ test("unlink method", async () => {
         return false;
     });
 
-    const { services } = await makeMockEnv();
-    await services.orm.unlink("res.partner", [43]);
+    await makeTestApp();
+    await getService("orm").unlink("res.partner", [43]);
 
     expect.verifySteps(["/web/dataset/call_kw/res.partner/unlink"]);
 });
@@ -218,8 +218,8 @@ test("write method", async () => {
         return false;
     });
 
-    const { services } = await makeMockEnv();
-    await services.orm.write("res.partner", [43, 14], { active: false });
+    await makeTestApp();
+    await getService("orm").write("res.partner", [43, 14], { active: false });
 
     expect.verifySteps(["/web/dataset/call_kw/res.partner/write"]);
 });
@@ -247,8 +247,8 @@ test("webReadGroup method", async () => {
         return { length: 0, groups: [] };
     });
 
-    const { services } = await makeMockEnv();
-    await services.orm.webReadGroup(
+    await makeTestApp();
+    await getService("orm").webReadGroup(
         "sale.order",
         [["user_id", "=", 2]],
         ["date_order:month"],
@@ -280,8 +280,8 @@ test("search_read method", async () => {
         return false;
     });
 
-    const { services } = await makeMockEnv();
-    await services.orm.searchRead("sale.order", [["user_id", "=", 2]], ["amount_total"]);
+    await makeTestApp();
+    await getService("orm").searchRead("sale.order", [["user_id", "=", 2]], ["amount_total"]);
 
     expect.verifySteps(["/web/dataset/call_kw/sale.order/search_read"]);
 });
@@ -305,8 +305,8 @@ test("search_count method", async () => {
         return false;
     });
 
-    const { services } = await makeMockEnv();
-    await services.orm.searchCount("sale.order", [["user_id", "=", 2]]);
+    await makeTestApp();
+    await getService("orm").searchCount("sale.order", [["user_id", "=", 2]]);
 
     expect.verifySteps(["/web/dataset/call_kw/sale.order/search_count"]);
 });
@@ -332,8 +332,8 @@ test("webRead method", async () => {
         return false;
     });
 
-    const { services } = await makeMockEnv();
-    await services.orm.webRead("sale.order", [2, 5], {
+    await makeTestApp();
+    await getService("orm").webRead("sale.order", [2, 5], {
         specification: { name: {}, amount: {} },
         context: { abc: 3 },
     });
@@ -362,8 +362,8 @@ test("webSearchRead method", async () => {
         return false;
     });
 
-    const { services } = await makeMockEnv();
-    await services.orm.webSearchRead("sale.order", [["user_id", "=", 2]], {
+    await makeTestApp();
+    await getService("orm").webSearchRead("sale.order", [["user_id", "=", 2]], {
         specification: { amount_total: {} },
     });
 
@@ -371,10 +371,9 @@ test("webSearchRead method", async () => {
 });
 
 test("orm is specialized for component", async () => {
-    await makeMockEnv();
+    onRpc(() => false);
 
     class MyComponent extends Component {
-        static props = {};
         static template = xml`<div />`;
         setup() {
             this.orm = useService("orm");
@@ -384,6 +383,10 @@ test("orm is specialized for component", async () => {
     const component = await mountWithCleanup(MyComponent);
 
     expect(component.orm).not.toBe(getService("orm"));
+
+    const promise = component.orm.call("res.partner", "partner_method");
+    expect(typeof promise.abort).toBe("function");
+    await promise;
 });
 
 test("silent mode", async () => {
@@ -392,19 +395,19 @@ test("silent mode", async () => {
         return false;
     });
 
-    const { services } = await makeMockEnv();
     after(
         on(rpcBus, "RPC:RESPONSE", (ev) =>
             expect.step(`response${ev.detail.settings.silent ? " (silent)" : ""}`)
         )
     );
 
-    await services.orm.call("res.partner", "partner_method");
-    await services.orm.silent.call("res.partner", "partner_method");
-    await services.orm.call("res.partner", "partner_method");
-    await services.orm.read("res.partner", [1], []);
-    await services.orm.silent.read("res.partner", [1], []);
-    await services.orm.read("res.partner", [1], []);
+    await makeTestApp();
+    await getService("orm").call("res.partner", "partner_method");
+    await getService("orm").silent.call("res.partner", "partner_method");
+    await getService("orm").call("res.partner", "partner_method");
+    await getService("orm").read("res.partner", [1], []);
+    await getService("orm").silent.read("res.partner", [1], []);
+    await getService("orm").read("res.partner", [1], []);
 
     expect.verifySteps([
         "/web/dataset/call_kw/res.partner/partner_method",
@@ -425,13 +428,12 @@ test("silent mode", async () => {
 test("validate some obviously wrong calls", async () => {
     expect.assertions(2);
 
-    const { services } = await makeMockEnv();
-
-    expect(() => services.orm.read(false, [3], ["id", "descr"])).toThrow(
+    await makeTestApp();
+    expect(() => getService("orm").read(false, [3], ["id", "descr"])).toThrow(
         "Invalid model name: false"
     );
-    expect(() => services.orm.read("res.res.partner", false, ["id", "descr"])).toThrow(
-        "Invalid ids list: false"
+    expect(() => getService("orm").read("res.res.partner", false, ["id", "descr"])).toThrow(
+        "Invalid ids"
     );
 });
 
@@ -441,18 +443,17 @@ test("optimize read and unlink if no ids", async () => {
         return false;
     });
 
-    const { services } = await makeMockEnv();
-
-    await services.orm.read("res.partner", [1], []);
+    await makeTestApp();
+    await getService("orm").read("res.partner", [1], []);
     expect.verifySteps(["/web/dataset/call_kw/res.partner/read"]);
 
-    await services.orm.read("res.partner", [], []);
+    await getService("orm").read("res.partner", [], []);
     expect.verifySteps([]);
 
-    await services.orm.unlink("res.partner", [1], {});
+    await getService("orm").unlink("res.partner", [1], {});
     expect.verifySteps(["/web/dataset/call_kw/res.partner/unlink"]);
 
-    await services.orm.unlink("res.partner", [], {});
+    await getService("orm").unlink("res.partner", [], {});
     expect.verifySteps([]);
 });
 
@@ -469,11 +470,10 @@ test("Cache: can cache a simple orm call", async () => {
         return { name: 123 };
     });
 
-    const { services } = await makeMockEnv();
-
-    expect(await services.orm.cache().read("res.partner", [1], [])).toEqual({ name: 123 });
-    expect(await services.orm.cache().read("res.partner", [1], [])).toEqual({ name: 123 });
-    expect(await services.orm.cache().read("res.partner", [1], [])).toEqual({ name: 123 });
+    await makeTestApp();
+    expect(await getService("orm").cache().read("res.partner", [1], [])).toEqual({ name: 123 });
+    expect(await getService("orm").cache().read("res.partner", [1], [])).toEqual({ name: 123 });
+    expect(await getService("orm").cache().read("res.partner", [1], [])).toEqual({ name: 123 });
     expect.verifySteps(["Fetch"]);
 });
 
@@ -492,10 +492,9 @@ test("Cache: can cache and update a orm call", async () => {
         return { name: response[i++] };
     });
 
-    const { services } = await makeMockEnv();
-
+    await makeTestApp();
     expect(
-        await services.orm
+        await getService("orm")
             .cache({
                 callback: (result, hasChanged) => {
                     expect.step(
@@ -507,7 +506,7 @@ test("Cache: can cache and update a orm call", async () => {
     ).toEqual({ name: 123 });
     await microTick();
     expect(
-        await services.orm
+        await getService("orm")
             .cache({
                 update: "always",
                 callback: (result, hasChanged) => {

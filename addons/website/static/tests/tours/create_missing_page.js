@@ -8,7 +8,6 @@ import {
 registerWebsitePreviewTour(
     "create_missing_page",
     {
-        url: "/",
         edition: true,
     },
     () => [
@@ -26,11 +25,11 @@ registerWebsitePreviewTour(
         },
         {
             content: "Check if the 'url' input is correctly slugified.",
-            trigger: ".modal-dialog .o_website_dialog input:eq(1):value('zoe-s-diner')",
+            trigger: ".modal-dialog .o_website_dialog input:eq(2):value('zoé-s-diner')",
         },
         {
             content: "Edit the 'url' input",
-            trigger: ".modal-dialog .o_website_dialog input:eq(1)",
+            trigger: ".modal-dialog .o_website_dialog input:eq(2)",
             run: "edit /contactus",
         },
         {
@@ -41,8 +40,8 @@ registerWebsitePreviewTour(
         {
             content:
                 "Edit the 'url' input again (with a character that will be ignored at creation)",
-            trigger: ".modal-dialog .o_website_dialog input:eq(1)",
-            run: "edit zoe-s-di,ner",
+            trigger: ".modal-dialog .o_website_dialog input:eq(2)",
+            run: "edit zoé-s-di,ner",
         },
         {
             content: "Check that the page is not found.",
@@ -58,14 +57,17 @@ registerWebsitePreviewTour(
         // the tour fails when the new menu is in the extra menu.
         {
             content: "Drag the new menu item at the top",
-            trigger: '.oe_menu_editor li:contains("Zoé’s Diner") .oi-draggable',
+            trigger: '.oe_menu_editor li:contains("Zoé’s Diner") [data-icon="drag_indicator"]',
             run(helpers) {
-                return helpers.drag_and_drop('.oe_menu_editor li:contains("Home") .oi-draggable', {
-                    position: {
-                        top: 20,
-                    },
-                    relative: true,
-                });
+                return helpers.drag_and_drop(
+                    '.oe_menu_editor li:contains("Home") [data-icon="drag_indicator"]',
+                    {
+                        position: {
+                            top: 20,
+                        },
+                        relative: true,
+                    }
+                );
             },
         },
         {
@@ -75,12 +77,16 @@ registerWebsitePreviewTour(
         },
         {
             content: "Click on 'Blank Page'",
-            trigger: ".o_page_template .o_button_area:not(:visible)",
+            trigger: "button[data-name='add_blank_page']",
             run: "click",
         },
         {
-            content: "Wait to land on '/zoe-s-di-ner' page",
-            trigger: ':iframe a[href="/zoe-s-di-ner"].nav-link.active',
+            trigger: "body:not(:has(.modal))",
+            timeout: 30000,
+        },
+        {
+            content: "Wait to land on '/zoé-s-di-ner' page",
+            trigger: ':iframe a[href="/zoé-s-di-ner"].nav-link.active',
         },
         {
             content: "Wait edit mode",
@@ -108,8 +114,12 @@ registerWebsitePreviewTour(
             run: "click",
         },
         {
+            trigger: "body:not(:has(.modal))",
+            timeout: 30000,
+        },
+        {
             content: "Check that we are on the new page.",
-            trigger: ":iframe a[href='/zoe-s-di-ner'].nav-link.active",
+            trigger: ":iframe a[href='/zoé-s-di-ner'].nav-link.active",
         },
         {
             content: "Check that it is not a 404 page.",
@@ -121,7 +131,7 @@ registerWebsitePreviewTour(
         },
         {
             content: "Click on the 'Zoé’s Diner' link.",
-            trigger: ":iframe a[href='/zoe-s-di-ner'].nav-link.active span",
+            trigger: ":iframe a[href='/zoé-s-di-ner'].nav-link.active span",
             run: "click",
         },
         {
@@ -141,7 +151,7 @@ registerWebsitePreviewTour(
         },
         {
             content: "Edit the 'url' input",
-            trigger: ".modal-dialog .o_website_dialog input:eq(1)",
+            trigger: ".modal-dialog .o_website_dialog input:eq(2)",
             run: "edit sea-hotel",
         },
         {
@@ -154,10 +164,10 @@ registerWebsitePreviewTour(
         // the tour fails when the new menu is in the extra menu.
         {
             content: "Drag the new menu item at the top",
-            trigger: '.oe_menu_editor li:contains("The Sea Hotel") .oi-draggable',
+            trigger: '.oe_menu_editor li:contains("The Sea Hotel") [data-icon="drag_indicator"]',
             run(helpers) {
                 return helpers.drag_and_drop(
-                    '.oe_menu_editor li:contains("Zoé’s Diner") .oi-draggable',
+                    '.oe_menu_editor li:contains("Zoé’s Diner") [data-icon="drag_indicator"]',
                     {
                         position: {
                             top: 20,
@@ -172,6 +182,10 @@ registerWebsitePreviewTour(
             trigger: ".modal-footer .btn-primary",
             run: "click",
         },
+        {
+            trigger: "body:not(:has(.modal))",
+            timeout: 30000,
+        },
         ...clickOnSave(),
         {
             content: "Click on the 'The Sea Hotel' link.",
@@ -185,7 +199,7 @@ registerWebsitePreviewTour(
         },
         {
             content: "Click on 'Blank Page'",
-            trigger: ".o_page_template .o_button_area:not(:visible)",
+            trigger: "button[data-name='add_blank_page']",
             run: "click",
         },
         {

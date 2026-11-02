@@ -1,10 +1,13 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+import re
 import logging
-from datetime import timedelta
+from datetime import datetime, timedelta
+from lxml import etree
+from markupsafe import Markup
 
 from odoo import _, api, fields, models, modules, tools
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 from odoo.tools import format_list
 from odoo.addons.account_edi_proxy_client.models.account_edi_proxy_user import AccountEdiProxyError
@@ -15,11 +18,18 @@ from odoo.addons.account_peppol.tools.peppol_iap_connector import PEPPOL_PROXY_U
 _logger = logging.getLogger(__name__)
 BATCH_SIZE = 50
 
+REMOVE_EMBEDDED_DOCUMENT_BINARY_OBJECT_RE = re.compile(
+    rb'(<(?P<tag>(?:[A-Za-z_][A-Za-z0-9_.-]*:)?EmbeddedDocumentBinaryObject)\b[^<>]*>)'
+    rb'(?P<data>.*?)'
+    rb'(</(?P=tag)\s*>)',
+    re.DOTALL,
+)
+
 
 class Account_Edi_Proxy_ClientUser(models.Model):
     _inherit = 'account_edi_proxy_client.user'
 
-    proxy_type = fields.Selection(selection_add=[('peppol', 'PEPPOL')], ondelete={'peppol': 'cascade'})
+    proxy_type = fields.Selection(selection_add=[('peppol', 'Peppol')], ondelete={'peppol': 'cascade'})
 
     # -------------------------------------------------------------------------
     # HELPER METHODS
@@ -42,12 +52,7 @@ class Account_Edi_Proxy_ClientUser(models.Model):
         if not proxy_type:
             self.ensure_one()
             proxy_type = self.proxy_type
-        return f"/api/{proxy_type}/{endpoint}"
-
-    @api.model
-    def _get_peppol_error_message(self, error_vals):
-        # DEPRECATED - to remove in master
-        return get_peppol_error_message(self.env, error_vals)
+        return f"/api/{proxy_type}/{endpoint.lstrip('/')}"
 
     @handle_demo
     def _call_peppol_proxy(self, endpoint, params=None):
@@ -186,17 +191,144 @@ class Account_Edi_Proxy_ClientUser(models.Model):
         edi_users = self.search([('company_id.account_peppol_proxy_state', 'in', ['sender', 'receiver'])])
         edi_users._peppol_reset_webhook()
 
+    def _cron_peppol_auto_register_services(self):
+        # This cron is only useful for the upgrade from saas-19.3 to saas-19.4, as the Application Response
+        # handling was added to account_peppol in saas-19.4. We thus need to update the services support for
+        # all Peppol users upgrading to saas-19.4
+        # The difference witht the install hook, is to use _peppol_supported_document_types and not a module parameter to just send all services to IAP,
+        # which already does a filtering on existing document types. This way, there is no need to try to keep track of what
+        # IAP knows about the Peppol user: we just send every services we want to support.
+        receivers = self.search([
+            ('proxy_type', '=', 'peppol'),
+            ('company_id.account_peppol_proxy_state', '=', 'receiver'),
+        ])
+        supported_identifiers = set(self.env['res.company']._peppol_supported_document_types())
+        supported_identifiers_wo_responses = {
+            identifier
+            for identifier in self.env['res.company']._peppol_supported_document_types()
+            if identifier != 'urn:oasis:names:specification:ubl:schema:xsd:ApplicationResponse-2::ApplicationResponse##urn:fdc:peppol.eu:poacc:trns:invoice_response:3::2.1'
+        }
+        failed = False
+        for receiver in receivers:
+            document_identifiers = supported_identifiers if bool(receiver.company_id.peppol_purchase_journal_id) else supported_identifiers_wo_responses
+            try:
+                iap_stored_services = receiver._call_peppol_proxy(
+                    receiver._get_peppol_proxy_endpoint('2/get_services'),
+                )
+                if set(iap_stored_services['services']) == document_identifiers:
+                    continue
+                if doc_ids_to_add := [doc_id for doc_id in document_identifiers if doc_id not in iap_stored_services['services']]:
+                    receiver._call_peppol_proxy(
+                        receiver._get_peppol_proxy_endpoint('2/add_services'),
+                        params={'document_identifiers': doc_ids_to_add},
+                    )
+                if doc_ids_to_remove := [doc_id for doc_id in iap_stored_services['services'] if doc_id not in document_identifiers]:
+                    receiver._call_peppol_proxy(
+                        receiver._get_peppol_proxy_endpoint('2/remove_services'),
+                        params={'document_identifiers': doc_ids_to_remove},
+                    )
+            # Broad exception case, so as not to block execution of the rest of the _post_init hook.
+            except (AccountEdiProxyError, UserError) as exception:
+                _logger.error(
+                    'Auto registration of peppol services for module: account_peppol failed on the user: %s, with exception: %s',
+                    receiver.edi_identification, exception,
+                )
+                failed = True
+        if failed:
+            if registering_cron := self.env.ref('account_peppol.ir_cron_peppol_auto_register_services', raise_if_not_found=False):
+                registering_cron._trigger(at=datetime.now() + timedelta(hours=4))
+
     # -------------------------------------------------------------------------
     # BUSINESS ACTIONS
     # -------------------------------------------------------------------------
 
     def _get_proxy_identification(self, company, proxy_type):
         if proxy_type == 'peppol':
-            if not company.peppol_eas or not company.peppol_endpoint:
+            if not company.partner_id.routing_identifier:
                 raise UserError(
-                    _("Please fill in the EAS code and the Participant ID code."))
-            return f'{company.peppol_eas}:{company.peppol_endpoint}'
+                    _("Please fill in the company's routing identification."))
+            return company.partner_id.routing_identifier
         return super()._get_proxy_identification(company, proxy_type)
+
+    @api.model
+    def _peppol_extract_response_info(self, document):
+        doc_tree = etree.fromstring(document)
+        blr_status = doc_tree.find('{*}DocumentResponse/{*}Response/{*}ResponseCode').text
+        clarifications = self.env['account.peppol.clarification'].search([])
+        clarification_messages = {'OPStatusReason': [], 'OPStatusAction': [], 'other': []}
+        for status in doc_tree.findall('.//{*}Response/{*}Status'):
+            status_reason_code = status.find('{*}StatusReasonCode')
+            status_reason = status.find('{*}StatusReason')
+
+            if status_reason_code is not None and status_reason is not None:
+                # It is not mandatory in Peppol to have both (the reason code and the reason name/description) but at least one is required
+                if status_reason_code.attrib['listID'] in {'OPStatusReason', 'OPStatusAction'}:
+                    clarification_messages[status_reason_code.attrib['listID']].append(status_reason.text)
+            elif status_reason_code is not None:
+                if status_reason_code.attrib['listID'] in {'OPStatusReason', 'OPStatusAction'}:
+                    clarification = clarifications.filtered(lambda c: c.list_identifier == status_reason_code.attrib['listID'] and c.code == status_reason_code.text)
+                    clarification_messages[status_reason_code.attrib['listID']].append(clarification.name if clarification else status_reason_code.text)
+            else:
+                clarification = clarifications.filtered(lambda c: status_reason in (c.name, c.description))
+                clarification_messages[clarification.list_identifier if clarification else 'other'].append(status_reason.text)
+
+        rejection_message = ''
+        if clarification_messages['OPStatusReason']:
+            rejection_message = Markup('<b>{title}</b><br>{reasons}').format(
+                title=self.env._("Reasons:"),
+                reasons=format_list(self.env, clarification_messages['OPStatusReason']),
+            )
+        if clarification_messages['OPStatusAction']:
+            rejection_message += (Markup('<br/>') if rejection_message else '') + Markup('<b>{title}</b><br>{actions}').format(
+                title=self.env._("Suggested actions:"),
+                actions=format_list(self.env, clarification_messages['OPStatusAction']),
+            )
+        if clarification_messages['other']:
+            rejection_message += (Markup('<br/>') if rejection_message else '') + Markup('<b>{title}</b><br>{other}').format(
+                title=self.env._('Miscellaneous:'),
+                other=format_list(self.env, clarification_messages['other']),
+            )
+
+        return blr_status, rejection_message
+
+    def _peppol_import_response(self, uuid, content, decoded_document, origin_moves):
+        blr_status, rejection_message = self._peppol_extract_response_info(decoded_document)
+        origin_move = origin_moves.get(content['origin_message_uuid'])
+        if origin_move and blr_status in self.env['account.peppol.response']._fields['response_code']._selection:
+            self.env['account.peppol.response'].create({
+                'peppol_message_uuid': uuid,
+                'response_code': blr_status,
+                'peppol_state': content['state'],
+                'move_id': origin_move.id,
+            })
+            # We only really support the AB, AP and RE codes for now,
+            # which are the only mandatory codes to support in order to correctly handle PEPPOL Business Responses.
+            # We still store the others.
+            if content['state'] == 'done':
+                if blr_status == 'RE':
+                    origin_move._message_log(
+                        body=self.env._(
+                            "The Peppol receiver of this document has rejected it with the following information:%(br)s%(rejection_message)s",
+                            br=Markup("<br/>"),
+                            rejection_message=rejection_message,
+                        ),
+                    )
+                elif blr_status in {'AB', 'AP'}:
+                    origin_move._message_log(
+                        body=self.env._(
+                            "The Peppol receiver of this document replied that he has received it.",
+                        ) if blr_status == 'AB' else self.env._(
+                            "The Peppol receiver of this document replied that he has accepted it.",
+                        ),
+                    )
+
+    def _get_type_code(self, files_data):
+        file_data = files_data[0]
+        # Fallback to avoid issues with large EmbeddedDocumentBinaryObject
+        if file_data['xml_tree'] is None:
+            file_data['raw'] = REMOVE_EMBEDDED_DOCUMENT_BINARY_OBJECT_RE.sub(b'', file_data['raw'])
+            file_data['xml_tree'] = self.env['account.move']._get_xml_tree(file_data)
+        return file_data['xml_tree'].findtext('.//{*}InvoiceTypeCode') or file_data['xml_tree'].findtext('.//{*}CreditNoteTypeCode')
 
     def _peppol_import_invoice(self, attachment, peppol_state, uuid, journal=None):
         """Save new documents in an accounting journal, when one is specified on the company.
@@ -209,15 +341,17 @@ class Account_Edi_Proxy_ClientUser(models.Model):
         """
         self.ensure_one()
 
-        file_data = self.env['account.move']._to_files_data(attachment)[0]
-
-        # Self-billed invoices are invoices which your customer creates on your behalf and sends you via Peppol.
-        # In this case, the invoice needs to be created as an out_invoice in a sale journal.
-        # 329/527: Self-billing invoice; 261: Self-billing credit note
         is_self_billed = False
-        if file_data['xml_tree'].findtext('.//{*}InvoiceTypeCode') in ['389', '527'] or file_data['xml_tree'].findtext('.//{*}CreditNoteTypeCode') == '261':
-            is_self_billed = True
-
+        files_data = self.env['account.move']._to_files_data(attachment)
+        try:
+            # Self-billed invoices are invoices which your customer creates on your behalf and sends you via Peppol.
+            # In this case, the invoice needs to be created as an out_invoice in a self-billing sale journal.
+            # If no self-billing sale journal was found, the invoice will be created in a regular sale journal.
+            # 389/527: Self-billing invoice; 261: Self-billing credit note
+            type_code = self._get_type_code(files_data)
+            is_self_billed = type_code in ['389', '527', '261']
+        except Exception:
+            _logger.exception("The Peppol XML file is invalid or empty for attachment ID %s", attachment.id)
         if not is_self_billed:
             journal = journal or self.company_id.peppol_purchase_journal_id
             move_type = 'in_invoice'
@@ -225,15 +359,20 @@ class Account_Edi_Proxy_ClientUser(models.Model):
                 return {}
 
         else:
+            sale_journal_domain = [
+                *self.env['account.journal']._check_company_domain(self.company_id),
+                ('type', '=', 'sale'),
+            ]
             journal = (
                 journal
                 or self.env['account.journal'].search(
                     [
-                        *self.env['account.journal']._check_company_domain(self.company_id),
-                        ('type', '=', 'sale'),
+                        *sale_journal_domain,
+                        ('is_self_billing', '=', True),
                     ],
-                    limit=1
+                    limit=1,
                 )
+                or self.env['account.journal'].search(sale_journal_domain, limit=1)
             )
             move_type = 'out_invoice'
             if not journal:
@@ -249,12 +388,22 @@ class Account_Edi_Proxy_ClientUser(models.Model):
             move.is_in_extractable_state = False
 
         try:
-            move._extend_with_attachments([file_data], new=True)
+            move._extend_with_attachments(files_data, new=True)
             move._autopost_bill()
         except Exception:
             _logger.exception("Unexpected error occurred during the import of bill with id %s", move.id)
         attachment.write({'res_model': 'account.move', 'res_id': move.id})
         return {'uuid': uuid, 'move': move}
+
+    def _peppol_get_duplicate_message_uuids(self, message_uuids):
+        self.ensure_one()
+        return set(
+            self.env['account.move'].search([
+                ('peppol_message_uuid', 'in', message_uuids),
+                ('company_id', '=', self.company_id.id),
+            ])
+            .mapped('peppol_message_uuid')
+        )
 
     def _peppol_get_new_documents(self, skip_no_journal=False):
         # Context added to not break stable policy: useful to tweak on databases processing large invoices
@@ -264,7 +413,8 @@ class Account_Edi_Proxy_ClientUser(models.Model):
             'domain': {
                 'direction': 'incoming',
                 'errors': False,
-            }
+            },
+            'limit': job_count,
         }
         for edi_user in self:
             edi_user = edi_user.with_company(edi_user.company_id)
@@ -287,15 +437,28 @@ class Account_Edi_Proxy_ClientUser(models.Model):
                     'Error while receiving the document from Peppol Proxy: %s', e.message)
                 continue
 
+            has_more = messages.get('has_more', False)
             message_uuids = [
                 message['uuid']
                 for message in messages.get('messages', [])
             ]
+            # remove the duplicates
+            if duplicate_message_uuids := list(edi_user._peppol_get_duplicate_message_uuids(message_uuids)):
+                message_uuids = list(set(message_uuids) - set(duplicate_message_uuids))
+                # acknowledge the duplicates on IAP side.
+                edi_user._call_peppol_proxy(
+                    endpoint=edi_user._get_peppol_proxy_endpoint('1/ack'),
+                    params={'message_uuids': duplicate_message_uuids},
+                )
+                _logger.info(
+                    "Messages with UUID %s could not be imported because they are identified as duplicates",
+                    ', '.join(duplicate_message_uuids)
+                )
+
             if not message_uuids:
                 continue
 
-            need_retrigger = need_retrigger or len(message_uuids) > job_count
-            message_uuids = message_uuids[:job_count]
+            need_retrigger = need_retrigger or has_more
 
             # retrieve attachments for filtered messages
             all_messages = edi_user._call_peppol_proxy(
@@ -329,30 +492,42 @@ class Account_Edi_Proxy_ClientUser(models.Model):
         self.ensure_one()
         processed_uuids = []
         moves = self.env['account.move']
+        origin_message_uuids = [content['origin_message_uuid'] for content in messages.values()]
+        origin_moves = self.env['account.move'].search([
+            ('peppol_message_uuid', 'in', origin_message_uuids),
+            ('company_id', '=', self.company_id.id),
+        ]).grouped('peppol_message_uuid')
         for uuid, content in messages.items():
             fileextension, mimetype = self._peppol_get_filetype(content)
-            filename = content["filename"] or 'attachment'  # default to attachment, which should not usually happen
             decoded_document = self._peppol_get_decoded_document(content)
-            attachment = self.env["ir.attachment"].create({
-                "name": f"{filename}.{fileextension}",
-                "raw": decoded_document,
-                "type": "binary",
-                "mimetype": mimetype,
-            })
-            try:
-                if uuid_move := self._peppol_import_invoice(attachment, content['state'], uuid):
-                    # Only acknowledge when we saved the document somewhere
-                    processed_uuids.append(uuid)
-                    moves += uuid_move.get('move', self.env['account.move'])
-            except Exception as e:  # noqa: BLE001
-                _logger.error('Error while processing the Peppol document with uuid %s: %s', uuid, e)
+            if content['document_type'] == 'ApplicationResponse':
+                self._peppol_import_response(uuid, content, decoded_document, origin_moves)
+                processed_uuids.append(uuid)
+            else:
+                filename = content["filename"] or 'attachment'  # default to attachment, which should not usually happen
+                attachment = self.env["ir.attachment"].create({
+                    "name": f"{filename}.{fileextension}",
+                    "raw": decoded_document,
+                    "type": "binary",
+                    "mimetype": mimetype,
+                })
+                try:
+                    if uuid_move := self._peppol_import_invoice(attachment, content['state'], uuid):
+                        # Only acknowledge when we saved the document somewhere
+                        processed_uuids.append(uuid)
+                        moves += uuid_move.get('move', self.env['account.move'])
+                except Exception as e:  # noqa: BLE001
+                    _logger.error('Error while processing the Peppol document with uuid %s: %s', uuid, e)
         return processed_uuids, moves
 
     def _peppol_post_process_new_messages(self, moves):
         self.ensure_one()
-        self.company_id.peppol_purchase_journal_id._notify_einvoices_received(moves)
+        if peppol_journal := self.company_id.peppol_purchase_journal_id:
+            peppol_journal._notify_einvoices_received(moves)
         for partner in moves.partner_id.filtered(lambda partner: partner.peppol_verification_state in ('not_verified', False)):
             partner.button_account_peppol_check_partner_endpoint()
+
+        self._peppol_send_response(moves, 'AB')
 
     def _peppol_get_message_status(self):
         # Context added to not break stable policy: useful to tweak on databases processing large invoices
@@ -360,11 +535,13 @@ class Account_Edi_Proxy_ClientUser(models.Model):
         need_retrigger = False
         for edi_user in self:
             edi_user = edi_user.with_company(edi_user.company_id)
-            documents = edi_user._peppol_get_documents_for_status(job_count)
-            if not documents:
+            uuid_to_record = edi_user._peppol_get_documents_for_status(job_count + 1)
+            if not uuid_to_record:
                 continue
-            need_retrigger = need_retrigger or len(documents) > job_count
-            uuid_to_record = {document.peppol_message_uuid: document for document in documents[:job_count]}
+            if len(uuid_to_record) > job_count:
+                need_retrigger = True
+                uuid_to_record.popitem()
+
             messages_to_process = edi_user._call_peppol_proxy(
                 endpoint=edi_user._get_peppol_proxy_endpoint('1/get_document'),
                 params={'message_uuids': list(uuid_to_record)},
@@ -384,35 +561,79 @@ class Account_Edi_Proxy_ClientUser(models.Model):
 
     def _peppol_get_documents_for_status(self, batch_size):
         self.ensure_one()
+        uuid_to_record = {}
         edi_user_moves = self.env['account.move'].search(
             [
                 ('peppol_move_state', '=', 'processing'),
                 ('company_id', '=', self.company_id.id),
             ],
-            limit=batch_size + 1,
+            limit=batch_size,
         )
-        return list(edi_user_moves)
+        uuid_to_record.update(edi_user_moves.grouped('peppol_message_uuid'))
+        if len(uuid_to_record) == batch_size:
+            return uuid_to_record
+
+        edi_user_responses = self.env['account.peppol.response'].search(
+            [
+                ('peppol_state', '=', 'processing'),
+                ('company_id', '=', self.company_id.id),
+            ],
+            limit=batch_size - len(edi_user_moves),
+        )
+        uuid_to_record.update(edi_user_responses.grouped('peppol_message_uuid'))
+
+        return uuid_to_record
+
+    def _peppol_process_error_status(self, content, record):
+        ''' Process the eventual errors sent by IAP.
+            Returns True if the error is final, False if it has to be fetched again.
+        '''
+        if content['error'].get('code') == 702:
+            # "Peppol request not ready" error:
+            # thrown when the IAP is still processing the message
+            return False
+        if record._name == 'account.peppol.response':
+            # In case of an error, IAP doesn't return the document_type, so we fall back on the record's name
+            if content['error'].get('code') == 207:
+                record.peppol_state = 'not_serviced'
+            else:
+                record.peppol_state = 'error'
+                record.move_id._message_log(
+                    body=self.env._("Peppol business response error: %s", content['error'].get('data', {}).get('message') or content['error']['message']),
+                )
+            return True
+
+        # Invoice
+        record.peppol_move_state = 'error'
+        record._message_log(body=self._peppol_get_message_status_error_body(record, content['error']))
+        return True
 
     def _peppol_process_messages_status(self, messages, uuid_to_record):
         self.ensure_one()
         processed_message_uuids = []
         for uuid, content in messages.items():
-            move = uuid_to_record[uuid]
-            if error_vals := content.get('error'):
-                if error_vals.get('code') == 702:
-                    # "Peppol request not ready" error:
-                    # thrown when the IAP is still processing the message
-                    continue
-                error_message = get_peppol_error_message(self.env, error_vals)
-                move._message_log(body=error_message)
-                move.peppol_move_state = 'error'
-                processed_message_uuids.append(uuid)
+            record = uuid_to_record[uuid]
+            if content.get('error'):
+                if self._peppol_process_error_status(content, record):
+                    processed_message_uuids.append(uuid)
                 continue
 
-            move.peppol_move_state = content['state']
-            move._message_log(body=self.env._('Peppol status update: %s', content['state']))
+            if content['document_type'] == 'ApplicationResponse':
+                record.peppol_state = content['state']
+            else:
+                # Invoice
+                record.peppol_move_state = content['state']
+                record._message_log(body=self._peppol_get_message_status_update_body(record, content))
             processed_message_uuids.append(uuid)
         return processed_message_uuids
+
+    def _peppol_get_message_status_error_body(self, move, error):
+        self.ensure_one()
+        return get_peppol_error_message(self.env, error, move)
+
+    def _peppol_get_message_status_update_body(self, move, content):
+        self.ensure_one()
+        return self.env._('Peppol status update: %s', content['state'])
 
     def _peppol_process_participant_status(self, proxy_user):
         self.ensure_one()
@@ -431,6 +652,73 @@ class Account_Edi_Proxy_ClientUser(models.Model):
             self.company_id.account_peppol_proxy_state = local_state
         else:
             _logger.warning("Received unknown Peppol state '%s' for EDI proxy user id=%s", proxy_user.get('peppol_state'), self.id)
+
+    def _peppol_send_response(self, reference_moves, status, clarifications=None):
+        self.ensure_one()
+        clarifications = clarifications or []
+        reference_moves = reference_moves.filtered(lambda rm: rm.peppol_message_uuid and rm.peppol_can_send_response)
+        if not reference_moves:
+            return
+
+        assert status in {'AB', 'AP', 'RE'}
+        if status == 'RE' and (
+            not clarifications
+            or not any(clarification['list_identifier'] == 'OPStatusReason' for clarification in clarifications)
+        ):
+            raise ValidationError(self.env._('At least one reason must be given when rejecting a Peppol invoice.'))
+
+        try:
+            response = self._call_peppol_proxy(
+                self._get_peppol_proxy_endpoint('1/send_response'),
+                params={
+                    'reference_uuids': reference_moves.mapped('peppol_message_uuid'),
+                    'status': status,
+                    'clarifications': clarifications,
+                },
+            )
+        except UserError as e:
+            log_message = self.env._(
+                "An error occurred while responding to this invoice's expeditor.%(br)sStatus: %(status)s - %(error)s",
+                br=Markup('<br/>'),
+                status=status,
+                error=str(e),
+            )
+            reference_moves._message_log_batch(
+                bodies={move.id: log_message for move in reference_moves},
+            )
+        else:
+            response_info = dict(zip(reference_moves, response.get('messages')))
+            responses = self.env['account.peppol.response'].create([{
+                    'peppol_message_uuid': message['message_uuid'],
+                    'response_code': status,
+                    'peppol_state': 'processing',
+                    'move_id': move.id,
+                }
+                for move, message in response_info.items()
+                if message.get('message_uuid')
+            ])
+
+            sent_moves = responses.move_id
+            unsent_moves = reference_moves - sent_moves
+
+            status_string = (
+                self.env._('received') if status == 'AB'
+                else self.env._('accepted') if status == 'AP'
+                else self.env._('rejected')
+            )
+            sent_message = self.env._(
+                "A Peppol response was sent to the Peppol Access Point declaring you %(status)s this document.",
+                status=status_string,
+            )
+            unsent_message = self.env._(
+                "A Peppol response declaring you %(status)s this document could not be sent to the Peppol Access Point.",
+                status=status_string,
+            )
+            message_bodies = {
+                **{move.id: sent_message for move in sent_moves},
+                **{move.id: unsent_message + (Markup('<br/>') + error if (error := response_info.get(move, {}).get('error', {}).get('message')) else "") for move in unsent_moves},
+            }
+            reference_moves._message_log_batch(bodies=message_bodies)
 
     def _peppol_get_participant_status(self):
         for edi_user in self:
@@ -461,15 +749,6 @@ class Account_Edi_Proxy_ClientUser(models.Model):
     # -------------------------------------------------------------------------
     # BUSINESS ACTIONS
     # -------------------------------------------------------------------------
-
-    def _get_company_details(self):
-        # DEPRECATED - to remove in master
-        self.ensure_one()
-        return self.env['peppol.registration']._get_company_details(self.company_id)
-
-    def _peppol_register_sender(self, peppol_external_provider=None):
-        # DEPRECATED - to remove in master
-        self.ensure_one()
 
     def _peppol_register_sender_as_receiver(self):
         self.ensure_one()
@@ -545,38 +824,6 @@ class Account_Edi_Proxy_ClientUser(models.Model):
         self._call_peppol_proxy(endpoint=self._get_peppol_proxy_endpoint('1/unregister_to_sender'))
         self.company_id.account_peppol_proxy_state = 'sender'
 
-    @api.model
-    def _peppol_auto_register_services(self, module):
-        # DEPRECATED - to remove in master
-        pass
-
-    @api.model
-    def _peppol_auto_deregister_services(self, module):
-        """Unregister a set of document types for all recipient users.
-
-        This function should be run in the uninstall hook of any module that extends the supported
-        document types.
-
-        :param module: Module from which this function is being called, allows us to determine which
-            document types are no longer supported.
-        """
-        receivers = self.search([
-            ('proxy_type', 'in', self._get_peppol_proxy_types()),
-            ('company_id.account_peppol_proxy_state', '=', 'receiver')
-        ])
-        unsupported_identifiers = list(self.env['res.company']._peppol_modules_document_types().get(module, {}))
-        for receiver in receivers:
-            try:
-                receiver._call_peppol_proxy(
-                    receiver._get_peppol_proxy_endpoint('2/remove_services'),
-                    params={'document_identifiers': unsupported_identifiers},
-                )
-            except (AccountEdiProxyError, UserError) as exception:
-                _logger.error(
-                    'Auto deregistration of peppol services for module: %s failed on the user: %s, with exception: %s',
-                    module, receiver.edi_identification, exception,
-                )
-
     def _peppol_get_services(self):
         """Get information from the IAP regarding the Peppol services."""
         self.ensure_one()
@@ -603,14 +850,35 @@ class Account_Edi_Proxy_ClientUser(models.Model):
             company = self.env['res.company'].browse(id).exists()
             if company and company.account_peppol_edi_user:
                 return company.account_peppol_edi_user
-            if edi_user := self.browse(id).exists():
-                # Legacy fallback: we no longer generate the token based on the proxy_user, as it does
-                # not exists yet with the new creation flow.
-                # This can be safely removed after beginning of March 2026 (webhooks TTL = 30 days).
-                return edi_user
-            return None
 
     def _peppol_reset_webhook(self):
         for edi_user in self:
             endpoint = edi_user._get_peppol_proxy_endpoint('2/set_webhook')
             edi_user._call_peppol_proxy(endpoint, params={'webhook_url': edi_user.company_id._get_peppol_webhook_endpoint(), 'token': self._generate_webhook_token(edi_user.company_id)})
+
+    @api.model
+    def _peppol_auto_deregister_services(self, module):
+        """Unregister a set of document types for all recipient users.
+
+        This function should be run in the uninstall hook of any module that extends the supported
+        document types.
+
+        :param module: Module from which this function is being called, allows us to determine which
+            document types are no longer supported.
+        """
+        receivers = self.search([
+            ('proxy_type', 'in', self._get_peppol_proxy_types()),
+            ('company_id.account_peppol_proxy_state', '=', 'receiver'),
+        ])
+        unsupported_identifiers = list(self.env['res.company']._peppol_modules_document_types().get(module, {}))
+        for receiver in receivers:
+            try:
+                receiver._call_peppol_proxy(
+                    receiver._get_peppol_proxy_endpoint('2/remove_services'),
+                    params={'document_identifiers': unsupported_identifiers},
+                )
+            except (AccountEdiProxyError, UserError) as exception:
+                _logger.error(
+                    'Auto deregistration of peppol services for module: %s failed on the user: %s, with exception: %s',
+                    module, receiver.edi_identification, exception,
+                )

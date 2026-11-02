@@ -22,10 +22,10 @@
                         <t t-if="sol.remaining_hours_available">
                             <span class="text-muted fw-normal">
                                 <t t-if="is_uom_day">
-                                    (<span t-esc="timesheets._timesheet_convert_sol_uom(sol, 'uom.product_uom_day')" t-options='{"widget": "timesheet_uom"}'></span> Days Ordered, <span t-esc="timesheets._convert_hours_to_days(sol.remaining_hours)" t-options='{"widget": "timesheet_uom"}'></span> Days Remaining)
+                                    (<span t-out="timesheets._timesheet_convert_sol_uom(sol, 'uom.product_uom_day')" t-options='{"widget": "timesheet_uom"}'></span> Days Ordered, <span t-out="timesheets._convert_hours_to_days(sol.remaining_hours)" t-options='{"widget": "timesheet_uom"}'></span> Days Remaining)
                                 </t>
                                 <t t-else="">
-                                    (<span t-esc="timesheets._timesheet_convert_sol_uom(sol, 'uom.product_uom_hour')" t-options='{"widget": "float_time"}'></span> Hours Ordered, <span t-esc="sol.remaining_hours" t-options='{"widget": "float_time"}'></span> Hours Remaining)
+                                    (<span t-out="timesheets._format_portal_hours(timesheets._timesheet_convert_sol_uom(sol, 'uom.product_uom_hour'))"></span> Hours Ordered, <span t-out="timesheets._format_portal_hours(sol.remaining_hours)"></span> Hours Remaining)
                                 </t>
                             </span>
                         </t>
@@ -46,8 +46,8 @@
                     </t>
                 </th>
             </t>
-            <t t-elif="groupby == 'timesheet_invoice_id'">
-                <t t-set="invoice" t-value="timesheets.timesheet_invoice_id"/>
+            <t t-elif="groupby == 'reinvoice_move_id'">
+                <t t-set="invoice" t-value="timesheets.reinvoice_move_id"/>
                 <th colspan="6">
                     <t t-if="invoice">
                         <span t-field="invoice.display_name"/>
@@ -60,14 +60,14 @@
         </xpath>
         <th name="t_label" position="before">
             <th t-if="not groupby == 'so_line'">Sales Order Item</th>
-            <th t-if="not groupby == 'timesheet_invoice_id'">Invoice</th>
+            <th t-if="not groupby == 'reinvoice_move_id'">Invoice</th>
         </th>
         <xpath expr="//tbody//td[hasclass('text-end')]" position="before">
             <td t-if="not groupby == 'so_line' and timesheets[0].env['account.analytic.line']._show_portal_timesheets()">
                 <span t-if="timesheet.so_line" t-field="timesheet.so_line" t-att-title="timesheet.so_line.display_name"></span>
                 <span t-else="" class="text-muted">Non-billable</span>
             </td>
-            <td t-if="not groupby == 'timesheet_invoice_id'"><span t-field="timesheet.timesheet_invoice_id" t-att-title="timesheet.timesheet_invoice_id.display_name"></span></td>
+            <td t-if="not groupby == 'reinvoice_move_id'"><span t-field="timesheet.reinvoice_move_id" t-att-title="timesheet.reinvoice_move_id.display_name"></span></td>
         </xpath>
     </template>
 
@@ -94,10 +94,10 @@
                         <t t-if="invoice_line.id in invoices_accessible">
                             <a t-attf-href="/my/invoices/{{ invoice_line.id }}">
                                 <i t-if="invoice_line.state == 'draft'">Draft Invoice</i>
-                                <t t-else="" t-esc="invoice_line.name"/></a>
+                                <t t-else="" t-out="invoice_line.name"/></a>
                             <span t-if="not invoice_line_last">,</span>
                         </t>
-                        <t t-else=""><span t-esc="invoice_line.name"></span><span t-if="not invoice_line_last">,</span></t>
+                        <t t-else=""><span t-out="invoice_line.name"></span><span t-if="not invoice_line_last">,</span></t>
                     </span>
                 </div>
                 <div t-if="task.sale_line_id.untaxed_amount_invoiced > 0"><strong>Invoiced:</strong>
@@ -107,6 +107,12 @@
                     <span t-field="task.sale_line_id.untaxed_amount_to_invoice"/>
                 </div>
             </t>
+        </xpath>
+    </template>
+
+    <template id="portal_timesheet_table_inherit" inherit_id="hr_timesheet.portal_timesheet_table">
+        <xpath expr="//t[@id='timesheet_line']" position="attributes">
+            <attribute name="invisible">sale_order_state != 'sale'</attribute>
         </xpath>
     </template>
 

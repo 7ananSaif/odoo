@@ -26,6 +26,7 @@ export class ResCurrency extends webModels.ResCurrency {
             rate: 1.0,
             decimal_places: 2,
             iso_numeric: 840,
+            write_date: "2025-01-01 10:00:00",
         },
         {
             id: 125,
@@ -33,10 +34,10 @@ export class ResCurrency extends webModels.ResCurrency {
             symbol: "€",
             position: "after",
             rounding: 0.01,
-            rate: 1.0,
+            rate: 0.87,
             decimal_places: 2,
             iso_numeric: 978,
         },
-        ...webModels.ResCurrency._records.filter((record) => record.id !== 1),
+        ...webModels.ResCurrency._records.filter((record) => ![1, 2].includes(record.id)),
     ];
 }

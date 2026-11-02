@@ -33,7 +33,7 @@ class AccountEdiProxyClientUser(models.Model):
         urls['l10n_my_edi'] = {
             'demo': False,
             'prod': 'https://l10n-my-edi.api.odoo.com',
-            'test': self.env['ir.config_parameter'].sudo().get_param('l10n_my_edi_test_server_url', 'https://l10n-my-edi.test.odoo.com'),
+            'test': self.env['ir.config_parameter'].sudo().get_str('l10n_my_edi_test_server_url') or 'https://l10n-my-edi.test.odoo.com',
         }
         return urls
 
@@ -47,6 +47,15 @@ class AccountEdiProxyClientUser(models.Model):
                         company_name=company.display_name,
                     )
                 )
+            if company.l10n_my_edi_is_sole_proprietor:
+                if company.l10n_my_identification_type != 'BRN' or not company.l10n_my_identification_number:
+                    raise UserError(
+                        company.env._(
+                            'Please fill the Business Registration Number of company "%(company_name)s" before enabling the integration with MyInvois.',
+                            company_name=company.display_name,
+                        )
+                    )
+                return f"{company.vat}:{company.l10n_my_identification_number}"
             return company.vat
         return super()._get_proxy_identification(company, proxy_type)
 
@@ -61,8 +70,13 @@ class AccountEdiProxyClientUser(models.Model):
                 url=url_join(self._get_server_url(), endpoint),
                 params=params,
             )
-        except AccountEdiProxyError as _error:
+        except AccountEdiProxyError as error:
+            if error.code == 'proxy_rate_limit_exceeded':
+                raise UserError(self.env._(
+                    "You have reached the maximum number of requests allowed in a short period of time. "
+                    "Please wait a few minutes before trying again."
+                ))
             # Request error while contacting the IAP server. We assume it is a temporary error.
-            raise UserError(self.env._("Failed to contact the E-Invoicing service. Please try again later."))
+            raise UserError(self.env._("The MyInvois server is temporarily unreachable. Please try again later."))
 
         return response

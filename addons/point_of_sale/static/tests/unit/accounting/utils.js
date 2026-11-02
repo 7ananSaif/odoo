@@ -44,8 +44,8 @@ export const prepareRoundingVals = (store, roundingAmount, roundingMethod, onlyC
     const config = store.config;
     const product1 = store.models["product.template"].get(15);
     const product2 = store.models["product.template"].get(16);
-    const cashPm = store.models["pos.payment.method"].find((pm) => pm.is_cash_count);
-    const cardPm = store.models["pos.payment.method"].find((pm) => !pm.is_cash_count);
+    const cashPm = store.models["pos.payment.method"].find((pm) => pm.type === "cash");
+    const cardPm = store.models["pos.payment.method"].find((pm) => pm.type === "bank");
 
     // Changes prices to have a non rounded change
     product1.list_price = 15.73;
@@ -63,4 +63,33 @@ export const prepareRoundingVals = (store, roundingAmount, roundingMethod, onlyC
     });
 
     return { config, cashPm, cardPm };
+};
+
+export const getSingleProductOrder = async (
+    store,
+    productName,
+    price,
+    taxes = [],
+    options = {}
+) => {
+    const order = store.addNewOrder();
+    const product = store.models["product.template"].get(15);
+    product.update({
+        name: productName,
+        display_name: productName,
+        list_price: price,
+        taxes_id: taxes,
+    });
+    product.product_variant_ids[0].update({
+        display_name: productName,
+        lst_price: price,
+    });
+    order.pricelist_id = false;
+
+    await store.addLineToOrder({ product_tmpl_id: product }, order);
+    if (options.isRefund) {
+        order.is_refund = true;
+        order.lines.map((line) => line.setQuantity(-line.qty));
+    }
+    return order;
 };

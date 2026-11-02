@@ -10,8 +10,6 @@ class AccountChartTemplate(models.AbstractModel):
     @template('dk')
     def _get_dk_template_data(self):
         return {
-            'property_account_receivable_id': 'dk_coa_6190',
-            'property_account_payable_id': 'dk_coa_7440',
             'code_digits': '6',
         }
 
@@ -29,12 +27,14 @@ class AccountChartTemplate(models.AbstractModel):
                 'expense_currency_exchange_account_id': 'dk_coa_3610',
                 'account_journal_early_pay_discount_loss_account_id': 'dk_coa_36901',
                 'account_journal_early_pay_discount_gain_account_id': 'dk_coa_35301',
-                'default_cash_difference_income_account_id': 'dk_coa_2720',
-                'default_cash_difference_expense_account_id': 'dk_coa_2720',
                 'account_sale_tax_id': 'tax_s1',
                 'account_purchase_tax_id': 'tax_k1',
+                'default_cash_difference_income_account_id': 'dk_coa_2720',
+                'default_cash_difference_expense_account_id': 'dk_coa_2720',
                 'expense_account_id': 'dk_coa_1610',
                 'income_account_id': 'dk_coa_1010',
+                'receivable_account_id': 'dk_coa_6190',
+                'payable_account_id': 'dk_coa_7440',
                 'restrictive_audit_trail': True,
             },
         }

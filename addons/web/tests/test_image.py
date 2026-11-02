@@ -1,15 +1,12 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-
-import io
-import base64
 
 from datetime import datetime, timedelta
 from freezegun import freeze_time
-from PIL import Image
 from werkzeug.urls import url_unquote_plus
 
+from odoo.addons.base.tests.files import GIF_RAW
 from odoo.tests.common import HttpCase, new_test_user, tagged
+from odoo.tools.image import binary_to_image
 from odoo.tools.misc import limited_field_access_token
 
 
@@ -22,38 +19,38 @@ class TestImage(HttpCase):
         # CASE: resize placeholder, given size but original ratio is always kept
         response = self.url_open('/web/image/0/200x150')
         response.raise_for_status()
-        image = Image.open(io.BytesIO(response.content))
+        image = binary_to_image(response.content)
         self.assertEqual(image.size, (150, 150))
 
         # CASE: resize placeholder to 128
         response = self.url_open('/web/image/fake/0/image_128')
         response.raise_for_status()
-        image = Image.open(io.BytesIO(response.content))
+        image = binary_to_image(response.content)
         self.assertEqual(image.size, (128, 128))
 
         # CASE: resize placeholder to 256
         response = self.url_open('/web/image/fake/0/image_256')
         response.raise_for_status()
-        image = Image.open(io.BytesIO(response.content))
+        image = binary_to_image(response.content)
         self.assertEqual(image.size, (256, 256))
 
         # CASE: resize placeholder to 1024 (but placeholder image is too small)
         response = self.url_open('/web/image/fake/0/image_1024')
         response.raise_for_status()
-        image = Image.open(io.BytesIO(response.content))
+        image = binary_to_image(response.content)
         self.assertEqual(image.size, (256, 256))
 
         # CASE: no size found, use placeholder original size
         response = self.url_open('/web/image/fake/0/image_no_size')
         response.raise_for_status()
-        image = Image.open(io.BytesIO(response.content))
+        image = binary_to_image(response.content)
         self.assertEqual(image.size, (256, 256))
 
     def test_02_content_image_Etag_304(self):
         """This test makes sure that the 304 response is properly returned if the ETag is properly set"""
 
         attachment = self.env['ir.attachment'].create({
-            'datas': b"R0lGODdhAQABAIAAAP///////ywAAAAAAQABAAACAkQBADs=",
+            'raw': GIF_RAW,
             'name': 'testEtag.gif',
             'public': True,
             'mimetype': 'image/gif',
@@ -61,7 +58,7 @@ class TestImage(HttpCase):
         response = self.url_open('/web/image/%s' % attachment.id, timeout=None)
         response.raise_for_status()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(base64.b64encode(response.content), attachment.datas)
+        self.assertEqual(response.content, attachment.raw.content)
 
         etag = response.headers.get('ETag')
 
@@ -74,7 +71,7 @@ class TestImage(HttpCase):
         """This test makes sure the Content-Disposition header matches the given filename"""
 
         att = self.env['ir.attachment'].create({
-            'datas': b'R0lGODdhAQABAIAAAP///////ywAAAAAAQABAAACAkQBADs=',
+            'raw': GIF_RAW,
             'name': 'testFilename.gif',
             'public': True,
             'mimetype': 'image/gif'
@@ -99,7 +96,7 @@ class TestImage(HttpCase):
         """This test makes sure the Content-Disposition header matches the given filename"""
 
         att = self.env['ir.attachment'].create({
-            'datas': b'R0lGODdhAQABAIAAAP///////ywAAAAAAQABAAACAkQBADs=',
+            'raw': GIF_RAW,
             'name': """fô☺o-l'éb \n a"!r".gif""",
             'public': True,
             'mimetype': 'image/gif',
@@ -169,7 +166,7 @@ class TestImage(HttpCase):
 
         attachment = self.env["ir.attachment"].create(
             {
-                "datas": b"R0lGODdhAQABAIAAAP///////ywAAAAAAQABAAACAkQBADs=",
+                "raw": GIF_RAW,
                 "name": "test.gif",
                 "mimetype": "image/gif",
             }
@@ -202,14 +199,17 @@ class TestImage(HttpCase):
             res = self.url_open(f"/web/image/{attachment.id}?access_token={token}")
             res.raise_for_status()
             self.assertEqual(res.headers["Content-Disposition"], "inline; filename=placeholder.png")
+
         # within a 14-days period, the same token is generated
         start_of_period = datetime(2021, 2, 18, 0, 0, 0)  # 14-days period 2021-02-18 to 2021-03-04
         base_result = datetime(2021, 3, 24, 15, 25, 40)
+        attachment2, attachment3 = attachment.browse([2, 3])  # hardcoded ids for access token jitter
         for i in range(14):
             with freeze_time(start_of_period + timedelta(days=i, hours=i % 24, minutes=i % 60)):
                 self.assertEqual(
-                    get_datetime_from_token(self.env["ir.attachment"].browse(2)._get_raw_access_token()),
+                    get_datetime_from_token(attachment2._get_raw_access_token()),
                     base_result,
+                    f"Token regenerated for day {i}",
                 )
         # on each following 14-days period another token is generated, valid for exactly 14 extra
         # days from the previous token
@@ -219,7 +219,7 @@ class TestImage(HttpCase):
             ):
                 self.assertEqual(
                     get_datetime_from_token(
-                        self.env["ir.attachment"].browse(2)._get_raw_access_token()
+                        attachment2._get_raw_access_token()
                     ),
                     base_result + timedelta(days=14 * i),
                 )
@@ -227,21 +227,21 @@ class TestImage(HttpCase):
             # at the same time...
             self.assertEqual(
                 get_datetime_from_token(
-                    self.env["ir.attachment"].browse(2)._get_raw_access_token()
+                    attachment2._get_raw_access_token()
                 ),
                 base_result,
             )
             # a different record generates a different token
-            record_res = self.env["ir.attachment"].browse(3)._get_raw_access_token()
+            record_res = attachment3._get_raw_access_token()
             self.assertNotIn(record_res, [base_result])
             # a different field generates a different token
             field_res = get_datetime_from_token(
-                limited_field_access_token(self.env["ir.attachment"].browse(3), "datas", scope="binary")
+                limited_field_access_token(attachment3, "mimetype", scope="binary")
             )
             self.assertNotIn(field_res, [base_result, record_res])
             # a different model generates a different token
             model_res = get_datetime_from_token(
-                limited_field_access_token(self.env["res.partner"].browse(3), "raw", scope="binary")
+                limited_field_access_token(attachment3, "raw", scope="binary")
             )
             self.assertNotIn(model_res, [base_result, record_res, field_res])
 
@@ -257,26 +257,26 @@ class TestImage(HttpCase):
         attachments = self.env["ir.attachment"].create(
             [
                 {
-                    "datas": b"R0lGODdhAQABAIAAAP///////ywAAAAAAQABAAACAkQBADs=",
+                    "raw": GIF_RAW,
                     "description": "restricted attachment",
                     "name": "test.gif",
                     "res_id": restricted_record.id,
                     "res_model": restricted_record._name,
                 },
                 {
-                    "datas": b"R0lGODdhAQABAIAAAP///////ywAAAAAAQABAAACAkQBADs=",
+                    "raw": GIF_RAW,
                     "description": "restricted attachment",
                     "name": "test.gif",
                     "res_id": accessible_record.id,
                     "res_model": accessible_record._name,
                 },
                 {
-                    "datas": b"R0lGODdhAQABAIAAAP///////ywAAAAAAQABAAACAkQBADs=",
+                    "raw": GIF_RAW,
                     "description": "standalone attachment",
                     "name": "test.gif",
                 },
                 {
-                    "datas": b"R0lGODdhAQABAIAAAP///////ywAAAAAAQABAAACAkQBADs=",
+                    "raw": GIF_RAW,
                     "description": "public attachment",
                     "name": "test.gif",
                     "public": True,

@@ -1,31 +1,36 @@
 import { removeClass } from "@html_editor/utils/dom";
-import { markup, onMounted, useExternalListener } from "@odoo/owl";
+import { markup, onMounted, useProps, t, useListener } from "@odoo/owl";
 import { BASIC_PLUGINS, FULL_EDIT_PLUGINS } from "../../plugins/plugin_sets";
 import { useResizer } from "./resizer_hook";
 import { Wysiwyg } from "@html_editor/wysiwyg";
 
 export class WebsiteForumWysiwyg extends Wysiwyg {
     static template = "website_forum.WebsiteForumWysiwyg";
-    static props = {
-        ...super.props,
-        textareaEl: HTMLElement,
-        fullEdit: Boolean,
-        getRecordInfo: Function,
-        resizable: { type: Boolean, optional: true },
-        height: { type: String, optional: true },
-    };
-    static defaultProps = {
-        ...super.defaultProps,
-        class: "odoo-editor",
-        contentClass: "note-editable",
-    };
+    props = useProps({
+        // Inlined from Wysiwyg (html_editor), which is not yet converted to
+        // the owl3 props schema.
+        config: t.object().optional(),
+        class: t.string().optional("odoo-editor"),
+        contentClass: t.string().optional("note-editable"), // on editable element
+        style: t.string().optional(),
+        iframe: t.boolean().optional(),
+        copyCss: t.boolean().optional(),
+        onLoad: t.function().optional(() => () => {}),
+        onBlur: t.function().optional(() => () => {}),
+        dynamicPlaceholder: t.boolean().optional(),
+        textareaEl: t.instanceOf(HTMLElement),
+        fullEdit: t.boolean(),
+        getRecordInfo: t.function(),
+        resizable: t.boolean().optional(),
+        height: t.string().optional(),
+    });
 
     /** @override */
     setup() {
         super.setup();
         if (this.props.resizable) {
             // Event listener added on template.
-            this.onResizerMouseDown = useResizer("content");
+            this.onResizerMouseDown = useResizer(this.contentRef);
         }
         const form = this.props.textareaEl.closest("form");
         // Prevent form submission behavior of buttons inside the form
@@ -33,7 +38,7 @@ export class WebsiteForumWysiwyg extends Wysiwyg {
             form.querySelectorAll(".o-wysiwyg button").forEach((btn) => (btn.type = "button"))
         );
         this.submitButton = form.querySelector("button[type=submit]");
-        useExternalListener(this.submitButton, "click", this.onSubmitButtonClick.bind(this));
+        useListener(this.submitButton, "click", this.onSubmitButtonClick.bind(this));
         this.readyToSubmit = false;
 
         const postReplyWrapper = form.closest("#post_reply");
@@ -45,12 +50,12 @@ export class WebsiteForumWysiwyg extends Wysiwyg {
             // Clear the selection to close any overlay dependent on an uncollapsed
             // selection (like the toolbar).
             const discardButton = postReplyWrapper.querySelector(".o_wforum_discard_btn");
-            useExternalListener(discardButton, "click", clearSelection);
+            useListener(discardButton, "click", clearSelection);
 
             // Expanding to full view changes the editable's position.
             // Clear the selection to close overlays.
             const toggleExpandButton = postReplyWrapper.querySelector(".o_wforum_expand_toggle");
-            useExternalListener(toggleExpandButton, "click", clearSelection);
+            useListener(toggleExpandButton, "click", clearSelection);
         }
     }
 
@@ -63,12 +68,11 @@ export class WebsiteForumWysiwyg extends Wysiwyg {
             Plugins: this.props.fullEdit ? FULL_EDIT_PLUGINS : BASIC_PLUGINS,
             content: this.getTextAreaContent(),
             resources: {
-                start_edition_handlers: () => this.cleanImageClasses(this.editor.editable),
-                clean_for_save_handlers: ({ root }) => this.cleanImageClasses(root),
+                on_editor_started_handlers: () => this.cleanImageClasses(this.editor.editable),
+                clean_for_save_processors: (root) => this.cleanImageClasses(root),
             },
             defaultLinkAttributes: { rel: "ugc noreferrer noopener", target: "_blank" },
             dropImageAsAttachment: true,
-            allowImageTransform: false,
             height: this.props.height,
             allowImageResize: false,
         };
@@ -78,6 +82,7 @@ export class WebsiteForumWysiwyg extends Wysiwyg {
         // float-start class messes up the post layout OPW 769721
         const classNames = ["o_we_selected_image", "float-start"];
         root.querySelectorAll("img").forEach((img) => removeClass(img, ...classNames));
+        return root;
     }
 
     getTextAreaContent() {

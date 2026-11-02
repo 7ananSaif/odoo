@@ -12,6 +12,8 @@ from odoo.addons.product.tests.test_product_attribute_value_config import (
 @tagged('post_install', '-at_install')
 class TestWebsiteSaleMrpAvailability(HttpCase, AccountTestInvoicingCommon, TestProductAttributeValueCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -20,7 +22,7 @@ class TestWebsiteSaleMrpAvailability(HttpCase, AccountTestInvoicingCommon, TestP
         cls.company = cls.env['res.company'].create({'name': 'Kit Company'})
         cls.env = cls.env['base'].with_company(cls.company).env
         cls.env.user.company_id = cls.company
-        cls.website = cls.env.ref('website.default_website')
+        cls.website = cls.env.ref('base.default_website')
         cls.website.company_id = cls.env.company
         cls.warehouse = cls.env['stock.warehouse'].search([('company_id', '=', cls.company.id)], limit=1)
 

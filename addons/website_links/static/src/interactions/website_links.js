@@ -1,3 +1,4 @@
+import { usePlugin } from "@odoo/owl";
 import { Interaction } from "@web/public/interaction";
 import { registry } from "@web/core/registry";
 import { _t } from "@web/core/l10n/translation";
@@ -5,6 +6,7 @@ import { rpc } from "@web/core/network/rpc";
 import { addLoadingEffect } from "@web/core/utils/ui";
 import { browser } from "@web/core/browser/browser";
 import { WebsiteLinksTagsWrapper } from "@website_links/components/website_links_tags_wrapper";
+import { BootstrapInstance } from "@web/core/utils/bootstrap_plugin";
 
 class WebsiteLinks extends Interaction {
     static selector = ".o_website_links_create_tracked_url";
@@ -51,6 +53,7 @@ class WebsiteLinks extends Interaction {
     };
 
     setup() {
+        this.bootstrap = usePlugin(BootstrapInstance);
         this.linkEls = [];
         this.urls = new Set();
         this.notificationEls = new Map();
@@ -64,7 +67,7 @@ class WebsiteLinks extends Interaction {
 
     onCopyShortURL(event) {
         const copyBtnEl = event.currentTarget;
-        const tooltip = window.Tooltip.getOrCreateInstance(copyBtnEl, {
+        const tooltip = this.bootstrap.getOrCreateInstance(window.Tooltip, copyBtnEl, {
             title: _t("Link Copied!"),
             trigger: "manual",
             placement: "top",
@@ -146,11 +149,13 @@ class WebsiteLinks extends Interaction {
         } else {
             // Link generated, clean the form and show the link
             const link = result[0];
-
             this.el.querySelector("#generated_tracked_link").classList.remove("d-none");
             this.el.querySelector("input#url").disabled = "disabled";
             this.el.querySelector("#btn_shorten_url").classList.add("d-none");
             this.el.querySelector(".copy-to-clipboard").dataset.clipboardText = link.short_url;
+            this.el.querySelector(".download-qr-code").href = `/report/barcode/QR/${encodeURIComponent(
+                link.short_url
+            )}?width=500&height=500&download=1`;
             this.el.querySelector("#short-url-host").textContent = link.short_url_host;
             this.el.querySelector("#o_website_links_code").textContent = link.code;
 

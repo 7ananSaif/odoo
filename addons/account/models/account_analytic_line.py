@@ -2,6 +2,7 @@
 
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
+from odoo.tools import SQL
 
 
 class AccountAnalyticLine(models.Model):
@@ -20,7 +21,8 @@ class AccountAnalyticLine(models.Model):
         string='Financial Account',
         ondelete='restrict',
         check_company=True,
-        compute='_compute_general_account_id', store=True, readonly=False
+        compute='_compute_general_account_id', store=True, readonly=False,
+        index='btree_not_null',
     )
     journal_id = fields.Many2one(
         'account.journal',
@@ -45,6 +47,31 @@ class AccountAnalyticLine(models.Model):
     code = fields.Char(size=8)
     ref = fields.Char(string='Ref.')
     category = fields.Selection(selection_add=[('invoice', 'Customer Invoice'), ('vendor_bill', 'Vendor Bill')])
+    allowed_uom_ids = fields.Many2many('uom.uom', compute='_compute_allowed_uom_ids')
+    analytic_profitability = fields.Selection(
+        string='Profitability',
+        selection=[
+            ('uncategorized', 'Uncategorized'),
+            ('revenue', 'Revenue'),
+            ('loss', 'Loss'),
+        ],
+        compute='_compute_analytic_profitability',
+        compute_sql='_compute_sql_analytic_profitability',
+        compute_sudo=False,
+    )
+
+    @api.depends('product_id')
+    def _compute_product_uom_id(self):
+        super()._compute_product_uom_id()
+        for line in self:
+            if (
+                line.product_id
+                and (
+                    not line.product_uom_id
+                    or line.product_uom_id not in line.allowed_uom_ids
+                )
+            ):
+                line.product_uom_id = line.product_id.uom_id
 
     @api.depends('move_line_id')
     def _compute_general_account_id(self):
@@ -61,6 +88,52 @@ class AccountAnalyticLine(models.Model):
     def _compute_partner_id(self):
         for line in self:
             line.partner_id = line.move_line_id.partner_id or line.partner_id
+
+    @api.depends('product_id')
+    def _compute_allowed_uom_ids(self):
+        for line in self:
+            line.allowed_uom_ids = line.product_id._get_available_uoms()
+
+    @api.depends('general_account_id', 'category', 'amount')
+    def _compute_analytic_profitability(self):
+        # Please keep this method aligned with _field_to_sql
+        for line in self:
+            account_type = line.general_account_id.account_type or ''
+            if (
+                account_type.split('_')[0] == 'expense'
+                or account_type in ['asset_current', 'asset_non_current', 'asset_fixed']
+                or (not account_type and line.category not in ['invoice', 'other'])
+                or (not account_type and line.category == 'other' and line.amount < 0)
+            ):
+                line.analytic_profitability = 'loss'
+            elif (
+                account_type.split('_')[0] == 'income'
+                or (not account_type and line.category == 'other' and line.amount > 0)
+            ):
+                line.analytic_profitability = 'revenue'
+            else:
+                line.analytic_profitability = 'uncategorized'
+
+    def _compute_sql_analytic_profitability(self, table):
+        return SQL("""
+            CASE
+                WHEN (
+                    SPLIT_PART(%(account_type)s, '_', 1) = 'expense'
+                    OR %(account_type)s IN ('asset_current', 'asset_non_current', 'asset_fixed')
+                    OR (%(account_type)s IS NULL AND %(analytic_line_category)s NOT IN ('invoice', 'other'))
+                    OR (%(account_type)s IS NULL AND %(analytic_line_category)s = 'other' AND %(analytic_line_amount)s < 0)
+                ) THEN 'loss'
+                WHEN (
+                    SPLIT_PART(%(account_type)s, '_', 1) = 'income'
+                    OR (%(account_type)s IS NULL AND %(analytic_line_category)s = 'other' AND %(analytic_line_amount)s > 0)
+                ) THEN 'revenue'
+                ELSE 'uncategorized'
+            END
+        """,
+            account_type=table.general_account_id.account_type,
+            analytic_line_category=table.category,
+            analytic_line_amount=table.amount,
+        )
 
     @api.onchange('product_id', 'product_uom_id', 'unit_amount', 'currency_id')
     def on_change_unit_amount(self):

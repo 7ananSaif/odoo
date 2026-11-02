@@ -19,14 +19,16 @@ class SmsTracker(models.Model):
     _name = 'sms.tracker'
     _description = "Link SMS to mailing/sms tracking models"
 
-    SMS_STATE_TO_NOTIFICATION_STATUS = {
-        'canceled': 'canceled',
-        'process': 'process',
-        'error': 'exception',
-        'outgoing': 'ready',
-        'sent': 'sent',
-        'pending': 'pending',
-    }
+    @property
+    def SMS_STATE_TO_NOTIFICATION_STATUS(self):
+        return {
+            'canceled': 'canceled',
+            'process': 'process',
+            'error': 'exception',
+            'outgoing': 'ready',
+            'sent': 'sent',
+            'pending': 'pending',
+        }
 
     sms_uuid = fields.Char('SMS uuid', required=True)
     mail_notification_id = fields.Many2one('mail.notification', ondelete='cascade', index='btree_not_null')
@@ -36,13 +38,12 @@ class SmsTracker(models.Model):
         'A record for this UUID already exists',
     )
 
-    def _action_update_from_provider_error(self, provider_error):
+    def _action_update_from_provider_error(self, provider_error, failure_reason=False):
         """
         :param str provider_error: value returned by SMS service provider (IAP) or any string.
             If provided, notification values will be derived from it.
             (see ``_get_tracker_values_from_provider_error``)
         """
-        failure_reason = self.env.context.get("sms_known_failure_reason")  # TODO RIGR in master: pass as param instead of context
         failure_type = f'sms_{provider_error}'
         error_status = None
         if failure_type not in self.env['sms.sms'].DELIVERY_ERRORS:
@@ -56,7 +57,22 @@ class SmsTracker(models.Model):
 
     def _action_update_from_sms_state(self, sms_state, failure_type=False, failure_reason=False):
         notification_status = self.SMS_STATE_TO_NOTIFICATION_STATUS[sms_state]
+        self._update_sms_sms(sms_state, failure_type=failure_type, failure_reason=failure_reason)
         self._update_sms_notifications(notification_status, failure_type=failure_type, failure_reason=failure_reason)
+
+    def _update_sms_sms(self, sms_state, failure_type=False, failure_reason=False):
+        """ Update SMS state based on externdal update (provider, IAP). Currently
+        only updates pending sms that are sent to correctly mark them as done
+        until potential deletion. """
+        if sms_state == 'sent':
+            if unsent := self.env['sms.sms'].sudo().search([
+                ('state', '!=', 'sent'),
+                ('uuid', 'in', self.mapped('sms_uuid')),
+            ]):
+                unsent.write({
+                    'failure_type': failure_type,
+                    'state': sms_state,
+                })
 
     def _update_sms_notifications(self, notification_status, failure_type=False, failure_reason=False):
         # canceled is a state which means that the SMS sending order should not be sent to the SMS service.

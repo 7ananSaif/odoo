@@ -1,37 +1,39 @@
-import { markup } from "@odoo/owl";
-import { createElementWithContent } from "@web/core/utils/html";
-import { fields, Record } from "@mail/core/common/record";
+import { ImStatusMixin } from "@mail/core/common/im_status_mixin";
 
-export class ResUsers extends Record {
+import { createElementWithContent } from "@web/core/utils/html";
+import { fields } from "@mail/model/export";
+import { getOuterHtml } from "@mail/utils/common/html";
+
+import { imageUrl } from "@web/core/utils/urls";
+
+export class ResUsers extends ImStatusMixin {
     static _name = "res.users";
-    static id = "id";
+    static _inherits = { "res.partner": "partner_id" };
 
     /** @type {number} */
     id;
     company_id = fields.One("res.company");
-    /** @type {string} */
-    get email() {
-        return this.partner_id?.email;
-    }
-    /** @type {string} */
-    im_status;
     /** @type {boolean} */
     is_admin;
-    /** @type {string} */
-    get name() {
-        return this.partner_id?.name;
-    }
+    /** @type {boolean} */
+    is_public;
     /** @type {"email" | "inbox"} */
     notification_type;
-    partner_id = fields.One("res.partner");
-    /** @type {string} */
-    get phone() {
-        return this.partner_id?.phone;
-    }
+    partner_id = fields.One("res.partner", { inverse: "user_ids" });
+    res_users_settings_id = fields.One("res.users.settings");
     /** @type {boolean} false when the user is an internal user, true otherwise */
     share;
+    /** @type {boolean} */
+    active;
     /** @type {ReturnType<import("@odoo/owl").markup>|string|undefined} */
     signature = fields.Html(undefined);
+
+    get avatarUrl() {
+        if (this.partner_id) {
+            return this.partner_id.avatarUrl;
+        }
+        return imageUrl("res.users", this.id, "avatar_128", { unique: this.write_date });
+    }
 
     /**
      * Get the signature with its typical layout when inserted in html
@@ -47,7 +49,11 @@ export class ResUsers extends Record {
             document.createElement("br"),
             ...createElementWithContent("div", this.signature).childNodes
         );
-        return markup(divElement.outerHTML);
+        return getOuterHtml(divElement);
+    }
+
+    _computeMonitorPresence() {
+        return super._computeMonitorPresence() && !this.is_public;
     }
 }
 

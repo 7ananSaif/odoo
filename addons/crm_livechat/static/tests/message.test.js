@@ -27,14 +27,13 @@ test("Can open lead from internal link", async () => {
             Command.create({ guest_id: guestId, livechat_member_type: "visitor" }),
         ],
         channel_type: "livechat",
-        livechat_operator_id: serverState.partnerId,
     });
     await start();
     await openDiscuss(channelId);
     await insertText(".o-mail-Composer-input", "/lead My Lead");
     await click(".o-mail-Composer button[title='Send']:enabled");
     await contains(".o-mail-ChatWindow", { count: 0 });
-    await click('.o_mail_notification a[data-oe-model="crm.lead"]');
+    await click('.o-mail-NotificationMessage a[data-oe-model="crm.lead"]');
     await contains(".o-mail-ChatWindow-header", { text: "Visitor" });
     await contains(".o_form_view .o_last_breadcrumb_item span", { text: "My Lead" });
 });

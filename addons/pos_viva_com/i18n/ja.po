@@ -8,17 +8,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~18.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-17 18:37+0000\n"
-"PO-Revision-Date: 2026-05-23 09:44+0000\n"
-"Last-Translator: \"Junko Augias (juau)\" <juau@odoo.com>\n"
-"Language-Team: Japanese <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-10-23 17:40+0000\n"
+"PO-Revision-Date: 2026-08-31 17:54+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Japanese <https://translate.odoo.com/projects/odoo-s19-4/"
 "pos_viva_com/ja/>\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: pos_viva_com
 #: model:ir.model.fields,field_description:pos_viva_com.field_pos_payment_method__viva_com_api_key
@@ -40,12 +40,18 @@ msgstr "支払方法が更新できません。データを確認して更新し
 #. module: pos_viva_com
 #: model:ir.model.fields,field_description:pos_viva_com.field_pos_payment_method__viva_com_client_id
 msgid "Client ID"
-msgstr "クライアントID"
+msgstr "Client ID"
 
 #. module: pos_viva_com
 #: model:ir.model.fields,field_description:pos_viva_com.field_pos_payment_method__viva_com_client_secret
 msgid "Client secret"
-msgstr "クライアントシークレット"
+msgstr "Client Secret"
+
+#. module: pos_viva_com
+#. odoo-javascript
+#: code:addons/pos_viva_com/static/src/app/screens/payment_screen/payment_lines/payment_lines.js:0
+msgid "Continue on Viva app"
+msgstr "Vivaアプリで続行"
 
 #. module: pos_viva_com
 #. odoo-javascript
@@ -68,6 +74,21 @@ msgstr "表示名"
 #: model:ir.model.fields,field_description:pos_viva_com.field_pos_payment_method__id
 msgid "ID"
 msgstr "ID"
+
+#. module: pos_viva_com
+#: model:ir.module.module,summary:base.module_pos_viva_com
+msgid "Integrate your PoS with a Viva.com payment terminal"
+msgstr ""
+
+#. module: pos_viva_com
+#. odoo-javascript
+#: code:addons/pos_viva_com/static/src/app/screens/payment_screen/payment_screen.js:0
+msgid ""
+"Is the vivawallet application installed on your device? If so, the payment "
+"will initialize directly from it."
+msgstr ""
+"デバイスに Viva Wallet アプリはインストールされていますか?インストールされて"
+"いる場合は、支払いはそのアプリから直接開始されます。"
 
 #. module: pos_viva_com
 #. odoo-python
@@ -107,8 +128,20 @@ msgstr "Viva.comからのメッセージ: %s"
 
 #. module: pos_viva_com
 #. odoo-javascript
+#: code:addons/pos_viva_com/static/src/app/screens/payment_screen/payment_screen.js:0
+msgid "No"
+msgstr "いいえ"
+
+#. module: pos_viva_com
+#. odoo-javascript
 #: code:addons/pos_viva_com/static/src/app/payment_viva_com.js:0
 msgid "No internet connection. Waiting for recovery to confirm the payment..."
+msgstr "通信が途切れています。復旧次第、決済を確定します…"
+
+#. module: pos_viva_com
+#. odoo-javascript
+#: code:addons/pos_viva_com/static/src/app/hooks/use_viva_app.js:0
+msgid "Oh snap !"
 msgstr ""
 
 #. module: pos_viva_com
@@ -137,14 +170,55 @@ msgid "Only 'group_pos_user' are allowed to send a Viva.com refund request"
 msgstr "'group_pos_user' のみがViva.com返金要求を送信できます。"
 
 #. module: pos_viva_com
-#: model:ir.model,name:pos_viva_com.model_pos_payment_method
-msgid "Point of Sale Payment Methods"
-msgstr "POS支払い方法"
+#. odoo-javascript
+#: code:addons/pos_viva_com/static/src/app/screens/payment_screen/payment_lines/payment_lines.js:0
+msgid "Pay with the Viva Wallet application"
+msgstr ""
+
+#. module: pos_viva_com
+#. odoo-javascript
+#: code:addons/pos_viva_com/static/src/app/hooks/use_viva_app.js:0
+msgid ""
+"Please note that your order has not been finalized, try again or choose "
+"another payment method."
+msgstr ""
+"注文はまだ確定しておりません。再度お試しいただくか、別の支払い方法をお選びく"
+"ださい。"
+
+#. module: pos_viva_com
+#. odoo-javascript
+#: code:addons/pos_viva_com/static/src/app/hooks/use_viva_app.js:0
+msgid ""
+"Please note that your order has not been finalized, try again or choose "
+"another payment method. (%s)"
+msgstr ""
+
+#. module: pos_viva_com
+#: model:ir.module.module,shortdesc:base.module_pos_viva_com
+msgid "PoS Viva.com"
+msgstr ""
 
 #. module: pos_viva_com
 #: model:ir.model,name:pos_viva_com.model_pos_payment
-msgid "Point of Sale Payments"
-msgstr "POS支払い"
+msgid "Point of Sale Payment"
+msgstr "POS支払"
+
+#. module: pos_viva_com
+#: model:ir.model,name:pos_viva_com.model_pos_payment_method
+msgid "Point of Sale Payment Method"
+msgstr "POS支払方法"
+
+#. module: pos_viva_com
+#. odoo-javascript
+#: code:addons/pos_viva_com/static/src/app/screens/payment_screen/payment_lines/payment_lines.js:0
+msgid "Reset Integration"
+msgstr "連携をリセット"
+
+#. module: pos_viva_com
+#. odoo-javascript
+#: code:addons/pos_viva_com/static/src/app/screens/payment_screen/payment_lines/payment_lines.js:0
+msgid "Reset Viva Integration"
+msgstr "Viva統合のリセット"
 
 #. module: pos_viva_com
 #: model:ir.model.fields,help:pos_viva_com.field_pos_payment_method__viva_com_test_mode
@@ -171,6 +245,12 @@ msgstr "テストモード"
 #. module: pos_viva_com
 #. odoo-python
 #: code:addons/pos_viva_com/models/pos_payment_method.py:0
+msgid "There are some issues between us and Viva.com, try again later."
+msgstr ""
+
+#. module: pos_viva_com
+#. odoo-python
+#: code:addons/pos_viva_com/models/pos_payment_method.py:0
 msgid "There are some issues between us and Viva.com, try again later. %s"
 msgstr ""
 "Viva.comとの間で問題が発生しました。もう少し後になってからお試しください。%s"
@@ -189,18 +269,24 @@ msgid ""
 "Unable to retrieve Viva.com Bearer Token: Please verify that the Client ID "
 "and Client Secret are correct"
 msgstr ""
-"Viva.comベアラートークンを取得できません: クライアントIDとクライアントシーク"
-"レットが正しいことを確認して下さい。"
+"Viva.comベアラートークンを取得できません: Client IDとClient Secretが正しいこ"
+"とを確認して下さい。"
+
+#. module: pos_viva_com
+#. odoo-javascript
+#: code:addons/pos_viva_com/static/src/app/screens/payment_screen/payment_lines/payment_lines.js:0
+msgid "Use Viva app"
+msgstr ""
+
+#. module: pos_viva_com
+#: model_terms:ir.ui.view,arch_db:pos_viva_com.pos_payment_method_view_form_inherit_pos_viva_com
+msgid "Viva Com"
+msgstr "Viva Com"
 
 #. module: pos_viva_com
 #: model:ir.model.fields,field_description:pos_viva_com.field_pos_payment_method__viva_com_bearer_token
 msgid "Viva Com Bearer Token"
 msgstr "Viva Comベアラートークン"
-
-#. module: pos_viva_com
-#: model:ir.model.fields,field_description:pos_viva_com.field_pos_payment_method__viva_com_latest_response
-msgid "Viva Com Latest Response"
-msgstr "Viva Com最新のレスポンス"
 
 #. module: pos_viva_com
 #: model:ir.model.fields,field_description:pos_viva_com.field_pos_payment__viva_com_session_id
@@ -219,9 +305,27 @@ msgstr "Viva Com Webhook検証キー"
 
 #. module: pos_viva_com
 #. odoo-javascript
+#: code:addons/pos_viva_com/static/src/app/screens/payment_screen/payment_screen.js:0
+msgid "Viva Wallet Application"
+msgstr "Viva Wallet アプリケーション"
+
+#. module: pos_viva_com
+#. odoo-javascript
+#: code:addons/pos_viva_com/static/src/app/hooks/use_viva_app.js:0
+msgid "Viva Wallet Payment Error"
+msgstr "Viva Wallet 支払いエラー"
+
+#. module: pos_viva_com
+#. odoo-javascript
 #: code:addons/pos_viva_com/static/src/app/payment_viva_com.js:0
 msgid "Viva.com Error"
 msgstr "Viva.com エラー"
+
+#. module: pos_viva_com
+#. odoo-javascript
+#: code:addons/pos_viva_com/static/src/app/screens/payment_screen/payment_screen.js:0
+msgid "Yes"
+msgstr "はい"
 
 #. module: pos_viva_com
 #. odoo-python

@@ -1,6 +1,7 @@
 import { Plugin, isValidTargetForDomListener } from "../plugin";
-import { closestBlock } from "@html_editor/utils/blocks";
 import { leftLeafOnlyNotBlockPath } from "@html_editor/utils/dom_state";
+import { omit } from "@web/core/utils/objects";
+import { escapeRegExp } from "@web/core/utils/strings";
 
 /**
  * @typedef {Object} Shortcut
@@ -27,7 +28,7 @@ import { leftLeafOnlyNotBlockPath } from "@html_editor/utils/dom_state";
 
 /**
  * @typedef {{
- *     pattern: RegExp;
+ *     literals: string[];
  *     commandId: string;
  *     commandParams?: object;
  * }[]} shorthands
@@ -35,11 +36,37 @@ import { leftLeafOnlyNotBlockPath } from "@html_editor/utils/dom_state";
 
 export class ShortCutPlugin extends Plugin {
     static id = "shortcut";
-    static dependencies = ["userCommand", "selection", "delete"];
+    static dependencies = ["userCommand", "selection", "split", "dom", "history", "delete"];
 
     /** @type {import("plugins").EditorResources} */
     resources = {
-        input_handlers: this.onInput.bind(this),
+        on_input_handlers: this.onInput.bind(this),
+        user_commands: [
+            {
+                id: "replaceSymbol",
+                run: ({ symbol }) => this.replaceSymbol(symbol),
+            },
+        ],
+        shorthands: [
+            {
+                literals: ["->"],
+                commandId: "replaceSymbol",
+                commandParams: { symbol: "\u2192" }, //→
+                inline: true,
+            },
+            {
+                literals: ["<-"],
+                commandId: "replaceSymbol",
+                commandParams: { symbol: "\u2190" }, //←
+                inline: true,
+            },
+            {
+                literals: ["=>"],
+                commandId: "replaceSymbol",
+                commandParams: { symbol: "\u2B95" }, //⮕
+                inline: true,
+            },
+        ],
     };
 
     setup() {
@@ -82,7 +109,15 @@ export class ShortCutPlugin extends Plugin {
                 }
             );
         }
-        this.shorthands = this.getResource("shorthands");
+        this.shorthands = this.getResource("shorthands").map((shorthand) => {
+            const pattern = `${shorthand.inline ? "" : "^"}(${shorthand.literals
+                .map(escapeRegExp)
+                .join("|")})$`;
+            return {
+                ...omit(shorthand, "literals"),
+                pattern: new RegExp(pattern),
+            };
+        });
     }
 
     destroy() {
@@ -93,15 +128,27 @@ export class ShortCutPlugin extends Plugin {
     addShortcut(hotkey, action, { isAvailable, global }) {
         this._cleanups.push(
             this.services.hotkey.add(hotkey, action, {
-                area: () => this.editable,
                 bypassEditableProtection: true,
                 allowRepeat: true,
-                isAvailable: (target) =>
-                    (!isAvailable ||
-                        isAvailable(this.dependencies.selection.getEditableSelection())) &&
-                    (global || isValidTargetForDomListener(target)),
+                isAvailable: (target) => {
+                    // Shortcuts are available when focus is in the editable or the toolbar
+                    const isFocusInAvailableArea =
+                        this.editable.contains(target) ||
+                        !!target?.closest(".o-we-toolbar[data-namespace], .o-we-toolbar-dropdown");
+                    return (
+                        isFocusInAvailableArea &&
+                        (!isAvailable ||
+                            isAvailable(this.dependencies.selection.getEditableSelection())) &&
+                        (global || isValidTargetForDomListener(target))
+                    );
+                },
             })
         );
+    }
+
+    replaceSymbol(symbol) {
+        this.dependencies.dom.insert(symbol + "\u00A0");
+        this.dependencies.history.commit();
     }
 
     onInput(ev) {
@@ -109,31 +156,48 @@ export class ShortCutPlugin extends Plugin {
             return;
         }
         const selection = this.dependencies.selection.getEditableSelection();
-        if (!(this.checkPredicates("are_shorthands_available", selection.anchorNode) ?? true)) {
+        if (!(this.checkPredicates("are_shorthands_available_predicates", selection.anchorNode) ?? true)) {
             return;
         }
-        const blockEl = closestBlock(selection.anchorNode);
         const leftDOMPath = leftLeafOnlyNotBlockPath(selection.anchorNode);
         let spaceOffset = selection.anchorOffset;
+        let lineBreak;
+        let lineOffset = 0;
         let leftLeaf = leftDOMPath.next().value;
+        let textContent = selection.anchorNode.textContent;
         while (leftLeaf) {
             // Calculate spaceOffset by adding lengths of previous text nodes
             // to correctly find offset position for selection within inline
             // elements. e.g. <p>ab<strong>cd []e</strong></p>
-            spaceOffset += leftLeaf.length;
+            spaceOffset += leftLeaf.length || 0;
+            // Similarly, calculate lineOffset to find the beginning of the line
+            // by adding lengths of previous nodes from the moment a line break
+            // is found.
+            if (lineBreak) {
+                lineOffset += leftLeaf.length || 0;
+            } else if (leftLeaf.nodeName === "BR") {
+                lineBreak = leftLeaf;
+            }
+            textContent = leftLeaf.textContent + textContent;
             leftLeaf = leftDOMPath.next().value;
         }
-        const precedingText = blockEl.textContent.substring(0, spaceOffset - 1);
-        const matchedShortcut = this.shorthands.find(({ pattern }) => pattern.test(precedingText));
+        const precedingText = textContent.substring(lineOffset, spaceOffset - 1);
+        const matchedShortcut = this.shorthands.find(({ pattern }) =>
+            pattern.test(precedingText.trimStart())
+        );
         if (matchedShortcut) {
             const command = this.dependencies.userCommand.getCommand(matchedShortcut.commandId);
-            if (command && command.isAvailable(selection)) {
-                this.dependencies.selection.setSelection({
-                    anchorNode: blockEl.firstChild,
-                    anchorOffset: 0,
-                    focusNode: selection.focusNode,
-                    focusOffset: selection.focusOffset,
-                });
+            if (command && (!command.isAvailable || command.isAvailable(selection))) {
+                if (lineBreak && !matchedShortcut.inline) {
+                    this.dependencies.split.splitBlockSegments();
+                }
+                // Set selection to the matched string with space
+                let offset =
+                    matchedShortcut.pattern.exec(precedingText.trimStart())?.[0].length + 1;
+                while (offset > 0) {
+                    this.dependencies.selection.modifySelection("extend", "backward", "character");
+                    offset--;
+                }
                 this.dependencies.delete.deleteSelection();
                 command.run(matchedShortcut.commandParams);
             }

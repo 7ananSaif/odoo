@@ -1,28 +1,25 @@
-.o_field_widget {
-    &.o_priority, & .o_priority {
-        display: inline-block;
-        padding: 0;
-        margin: 0;
-        vertical-align: baseline;
-        white-space: nowrap;
-        > .o_priority_star {
-            display: inline-block;
-            font-size: var(--Priority-font-size, 1.35em);
-            &:hover, &:focus {
-                text-decoration: none;
-                outline: none;
-            }
+.o_field_widget .o_priority {
+    @media (pointer: coarse) {
+        gap: 0.5em;
+    }
 
-            + .o_priority_star {
-                padding-left: 0.2em;
-            }
+    > .o_priority_star {
+        font-size: 1.25em !important;
+        &[data-icon="star"] {
+            color: $o-main-color-muted;
 
-            &.fa-star-o {
-                color: $o-main-color-muted;
-            }
-            &.fa-star {
+            &.oi-filled {
                 color: $o-main-favorite-color;
             }
+        }
+    }
+}
+
+@media (pointer: fine) {
+    .o_list_view .o_field_widget .o_priority:not(:hover):not(:focus-within) > {
+        .o_priority_star:not(.oi-filled):first-child ~ [data-icon="star"],
+        .o_priority_star.oi-filled ~ .o_priority_star:not(.oi-filled) {
+            opacity: 0 !important;
         }
     }
 }

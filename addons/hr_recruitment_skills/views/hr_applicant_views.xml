@@ -26,24 +26,40 @@
                                     </list>
                                 </field>
                             </group>
-                            <group>
-                                <field name="matching_score" invisible="is_pool_applicant" nolabel="1" widget="skill_match_gauge_field" options="{'max_value': 100}" />
+                            <group class="m-0 p-0">
+                                <!-- both invisible fields are needed for the widget -->
+                                <field name="degree_score" invisible="1"/>
+                                <field name="skills_score" invisible="1"/>
+                                <widget
+                                    name="gauge_chart"
+                                    invisible="is_pool_applicant"
+                                    score_fields="skills_score,degree_score"
+                                    max_value="100"
+                                    title="Job Position Matching"
+                                />
+                                <group class="w-100 mt-3">
+                                    <label for="matching_skill_ids" invisible="is_pool_applicant"/>
+                                    <div>
+                                        <field name="matching_skill_ids" widget="many2many_tags" options="{'color_field': 'color'}"
+                                            invisible="is_pool_applicant or not matching_skill_ids" nolabel="1"/>
+                                        <field name="type_id" nolabel="1" readonly="1" class="o_badge badge rounded-pill o_tag o_tag_color_7 w-auto mt-1 mt-sm-0"
+                                            invisible="not type_id or is_pool_applicant" options="{'no_open': True}"/>
+                                    </div>
+                                    <label for="missing_skill_ids" invisible="is_pool_applicant"/>
+                                    <div>
+                                        <field name="missing_skill_ids" widget="many2many_tags" options="{'color_field': 'color'}"
+                                            invisible="is_pool_applicant or not missing_skill_ids" nolabel="1"/>
+                                        <field name="job_expected_degree" nolabel="1" readonly="1" class="o_badge badge rounded-pill o_tag o_tag_color_7 w-auto mt-1 mt-sm-0"
+                                            invisible="is_degree_score_matching or not job_expected_degree or is_pool_applicant"
+                                            options="{'no_open': True}"/>
+                                    </div>
+                                </group>
                             </group>
                         </group>
                     </div>
                 </page>
             </notebook>
         </field>
-    </record>
-
-    <record id="action_find_matching_job" model="ir.actions.act_window">
-        <field name="name">Matching Positions</field>
-        <field name="res_model">hr.job</field>
-        <field name="view_mode">list</field>
-        <field name="target">current</field>
-        <field name="binding_model_id" ref="hr_recruitment.model_hr_applicant"/>
-        <field name="binding_view_types">form</field>
-        <field name="context">{'active_applicant_id': active_id,}</field>
     </record>
 
     <record id="hr_applicant_view_search_bis" model="ir.ui.view">
@@ -54,6 +70,22 @@
             <xpath expr="//field[@name='email_from']" position="after">
                 <field name="applicant_skill_ids"/>
             </xpath>
+            <xpath expr="//filter[@name='talent_pool']" position="after">
+                <filter string="Skills" name="skill_ids" context="{'group_by': 'skill_ids'}"/>
+            </xpath>
+            <xpath expr="//filter[@name='blocked']" position="after">
+                <separator/>
+                <filter string="Matching Score" name="matching_score">
+                    <filter string="≥ 80%" name="filter_score_80"
+                        domain="[('matching_score', '&gt;=', 80)]"/>
+                    <filter string="≥ 70%" name="filter_score_70"
+                        domain="[('matching_score', '&gt;=', 70)]"/>
+                    <filter string="≥ 60%" name="filter_score_60"
+                        domain="[('matching_score', '&gt;=', 60)]"/>
+                    <filter string="≥ 50%" name="filter_score_50"
+                        domain="[('matching_score', '&gt;=', 50)]"/>
+                </filter>
+            </xpath>
         </field>
     </record>
 
@@ -62,7 +94,7 @@
         <field name="model">hr.applicant</field>
         <field name="inherit_id" ref="hr_recruitment.hr_applicant_view_search"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='user_id']" position="after">
+            <xpath expr="//field[@name='recruiter_id']" position="after">
                 <field name="applicant_skill_ids"/>
             </xpath>
             <filter name="stage" position="after">
@@ -77,8 +109,36 @@
         <field name="inherit_id" ref="hr_recruitment.crm_case_tree_view_job"/>
         <field name="mode">extension</field>
         <field name="arch" type="xml">
-            <field name="stage_id" position="after">
-                <field name="matching_score" string="Matching" widget="progressbar" options="{'overflow_class': 'bg-success'}" invisible="not matching_score"/>
+            <field name="create_date" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </field>
+            <field name="email_from" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </field>
+            <field name="partner_phone" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </field>
+            <field name="priority" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </field>
+            <field name="job_id" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </field>
+            <field name="categ_ids" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </field>
+            <field name="availability" position="attributes">
+                <attribute name="optional">show</attribute>
+            </field>
+            <field name="kanban_state" position="after">
+                <field name="matching_score" string="Matching Score" widget="progressbar" options="{'overflow_class': 'bg-success'}" invisible="not matching_score" column_invisible="context.get('default_talent_pool_ids', False)"/>
+            </field>
+            <xpath expr="//list" position="inside">
+                <field name="current_applicant_skill_ids" widget="many2many_tags" options="{'color_field': 'color'}" optional="hide" string="Skills"/>
+            </xpath>
+            <field name="priority" position="after">
+                <field name="matching_skill_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                <field name="missing_skill_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
             </field>
         </field>
     </record>
@@ -91,6 +151,7 @@
         <field name="arch" type="xml">
             <xpath expr="//list" position="attributes">
                 <attribute name="class" add="o_search_matching_applicant" separator=" "/>
+                <attribute name="default_order">sequence</attribute>
             </xpath>
             <xpath expr="//list" position="inside">
                 <header>
@@ -98,6 +159,18 @@
                 </header>
             </xpath>
             <field name="application_status" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </field>
+            <field name="create_date" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </field>
+            <field name="job_id" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </field>
+            <field name="stage_id" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </field>
+            <field name="email_from" position="attributes">
                 <attribute name="optional">hide</attribute>
             </field>
             <field name="priority" position="attributes">
@@ -109,10 +182,16 @@
             <field name="categ_ids" position="attributes">
                 <attribute name="optional">hide</attribute>
             </field>
+            <field name="kanban_state" position="attributes">
+                <attribute name="optional">show</attribute>
+            </field>
             <field name="partner_name" position="after">
                 <xpath expr="//field[@name='matching_score']" position="move"/>
                 <field name="matching_skill_ids" widget="many2many_tags"/>
                 <field name="missing_skill_ids" widget="many2many_tags"/>
+            </field>
+            <field name="recruiter_id" position="after">
+                <xpath expr="//field[@name='kanban_state']" position="move"/>
             </field>
         </field>
     </record>

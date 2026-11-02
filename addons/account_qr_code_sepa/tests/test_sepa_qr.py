@@ -9,6 +9,7 @@ from odoo import fields
 class TestSEPAQRCode(AccountTestInvoicingCommon):
     """ Tests the generation of Swiss QR-codes on invoices
     """
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):
@@ -16,13 +17,13 @@ class TestSEPAQRCode(AccountTestInvoicingCommon):
 
         cls.company_data['company'].qr_code = True
         cls.acc_sepa_iban = cls.env['res.partner.bank'].create({
-            'acc_number': 'BE15001559627230',
+            'account_number': 'BE15001559627230',
             'partner_id': cls.company_data['company'].partner_id.id,
             'allow_out_payment': True,
         })
 
         cls.acc_non_sepa_iban = cls.env['res.partner.bank'].create({
-            'acc_number': 'SA4420000001234567891234',
+            'account_number': 'SA4420000001234567891234',
             'partner_id': cls.company_data['company'].partner_id.id,
         })
 

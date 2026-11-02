@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+import json
+import uuid
+
 import odoo.tests
 
-from odoo import Command, fields
+from odoo import Command
 from odoo.addons.mail.tests.common import mail_new_test_user
 from odoo.addons.point_of_sale.tests.common import archive_products
 
@@ -167,7 +170,11 @@ class SelfOrderCommonTest(odoo.tests.HttpCase):
 
         self.bank_payment_method = self.env['pos.payment.method'].create({
             'name': 'Bank',
+            'type': 'bank',
             'journal_id': self.bank_journal.id,
+            'outstanding_account_id': self.env['account.chart.template'].with_context(
+                allowed_company_ids=self.env.company.root_id.ids,
+            ).ref('account_journal_payment_debit_account_id', raise_if_not_found=False).id,
         })
 
         self.delivery_preset = self.env['pos.preset'].create({
@@ -224,9 +231,7 @@ class SelfOrderCommonTest(odoo.tests.HttpCase):
             'table_number': 1,
             'floor_id': self.pos_main_floor.id,
             'seats': 4,
-            'shape': 'square',
-            'position_h': 150,
-            'position_v': 100,
+            'floor_plan_layout': {'top': 100, 'left': 150, 'width': 100, 'height': 100, 'color': 'green'},
         })
 
         # we need a default tax fixed at 15% to all product because in the test prices are based on this tax.
@@ -237,62 +242,119 @@ class SelfOrderCommonTest(odoo.tests.HttpCase):
         # This is important in the test because the added tax should not be used in the tour.
         self._add_tax_to_product_from_different_company()
 
-    def create_backend_pos_order(self, data):
-        pos_config = data.get('pos_config', self.pos_config)
-        order_data = data.get('order_data', {})
-        line_product_ids = [line_data['product_id'] for line_data in data.get('line_data', [])]
-        product_by_id = {p.id: p for p in self.env['product.product'].browse(line_product_ids)}
-        refund = False
+    def make_request_to_controller(self, url, params):
+        response = self.url_open(
+            url,
+            json.dumps({'jsonrpc': '2.0', 'params': params}),
+            method='POST',
+            headers={'Content-Type': 'application/json'},
+        )
+        return response.json().get('result')
 
-        if not pos_config.current_session_id:
-            pos_config.open_ui()
+    def _create_order_data(self, lines=None, *, product=None, qty=1, price_unit=None,
+                           price_subtotal_incl=0, payments=None, preset=None, table=None,
+                           device_type=None, **order_values):
+        """Build a payload for the self-order process-order endpoint.
 
-        order = self.env['pos.order'].create({
-            'amount_total': 0,
-            'amount_paid': 0,
-            'amount_tax': 0,
-            'amount_return': 0,
-            'date_order': fields.Datetime.to_string(fields.Datetime.now()),
-            'company_id': self.env.company.id,
-            'session_id': pos_config.current_session_id.id,
-            'lines': [
-                Command.create({
-                    'price_unit': product_by_id[line_data['product_id']].lst_price,
-                    'price_subtotal': product_by_id[line_data['product_id']].lst_price,
-                    'tax_ids': [(6, 0, product_by_id[line_data['product_id']].taxes_id.ids)],
+        ``lines`` supports products, attributes, and combo children. ``preset`` and
+        ``table`` are optional; the configuration defaults are used when omitted.
+        The returned payload includes the configuration access token and the order
+        data expected by the mobile or kiosk controller.
+        """
+        if lines is None:
+            lines = [{
+                'product': product,
+                'qty': qty,
+                'price_unit': price_unit if price_unit is not None else product.lst_price,
+                'price_subtotal_incl': price_subtotal_incl,
+            }]
+
+        device_type = device_type or self.pos_config.self_ordering_mode
+        if device_type not in ('mobile', 'kiosk'):
+            raise ValueError('A mobile or kiosk self-ordering mode is required')
+
+        # A scanned table only authorizes the request; the controller derives the
+        # self_ordering_table_id from it and deliberately ignores client table_id.
+        if table is None and device_type == 'mobile' and self.pos_config.self_ordering_service_mode == 'table':
+            table = self.pos_table_1
+        preset = preset if preset is not None else (
+            self.pos_config.default_preset_id if self.pos_config.use_presets else False
+        )
+
+        order_lines = []
+        relation_mapping = {}
+        for line in lines:
+            product = line['product']
+            qty = line.get('qty', 1)
+            attribute_value_ids = line.get('attribute_value_ids', [])
+            price_extra = line.get('price_extra')
+            if price_extra is None:
+                price_extra = sum(
+                    self.env['product.template.attribute.value']
+                    .browse(attribute_value_ids)
+                    .filtered(lambda ptav: ptav.attribute_id.create_variant != 'always')
+                    .mapped('price_extra')
+                )
+            parent_uuid = uuid.uuid4().hex
+            order_lines.append([Command.CREATE, 0, {
+                'uuid': parent_uuid,
+                'product_id': product.id,
+                'qty': qty,
+                'price_unit': line.get('price_unit', product.lst_price),
+                'price_extra': price_extra,
+                'price_subtotal': line.get('price_subtotal', 0),
+                'price_subtotal_incl': line.get('price_subtotal_incl', 0),
+                'tax_ids': product.taxes_id._filter_taxes_by_company(self.env.company).ids,
+                'attribute_value_ids': attribute_value_ids,
+                'combo_id': line.get('combo_id'),
+            }])
+            for child in line.get('combo_children', []):
+                child_uuid = uuid.uuid4().hex
+                order_lines.append([Command.CREATE, 0, {
+                    'uuid': child_uuid,
+                    'product_id': child['product'].id,
+                    'qty': child.get('qty', qty),
+                    'price_unit': child.get('price_unit', 0),
+                    'price_subtotal': 0,
                     'price_subtotal_incl': 0,
-                    **line_data,
-                }) for line_data in data.get('line_data', [])
-            ],
-            **order_data,
-        })
+                    'combo_item_id': child['combo_item_id'],
+                    'attribute_value_ids': child.get('attribute_value_ids', []),
+                }])
+                relation_mapping[child_uuid] = {'combo_parent_id': parent_uuid}
 
-        # Re-trigger prices computation
-        order.lines._onchange_amount_line_all()
-        order._compute_prices()
+        order = {
+            'id': None,
+            'uuid': uuid.uuid4().hex,
+            'session_id': self.pos_config.current_session_id.id,
+            'state': order_values.pop('state', 'draft'),
+            'preset_id': preset.id if preset else False,
+            'amount_total': order_values.pop('amount_total', price_subtotal_incl),
+            'amount_paid': order_values.pop('amount_paid', 0),
+            'amount_tax': order_values.pop('amount_tax', 0),
+            'amount_return': order_values.pop('amount_return', 0),
+            'lines': order_lines,
+            'payment_ids': payments or [],
+            **order_values,
+        }
+        if relation_mapping:
+            order['relations_uuid_mapping'] = {'pos.order.line': relation_mapping}
+        return {
+            'access_token': self.pos_config.access_token,
+            'table_identifier': table.identifier if table else None,
+            'order': order,
+        }
 
-        if data.get('payment_data'):
-            payment_context = {"active_ids": order.ids, "active_id": order.id}
-            for payment in data['payment_data']:
-                make_payment = {'payment_method_id': payment['payment_method_id']}
-                if payment.get('amount'):
-                    make_payment['amount'] = payment['amount']
-                order_payment = self.env['pos.make.payment'].with_context(**payment_context).create(make_payment)
-                order_payment.with_context(**payment_context).check()
-
-        if data.get('refund_data'):
-            refund_action = order.refund()
-            refund = self.env['pos.order'].browse(refund_action['res_id'])
-            payment_context = {"active_ids": refund.ids, "active_id": refund.id}
-
-            if data.get('order_data') and data['order_data'].get('to_invoice', False):
-                refund.to_invoice = True
-
-            for refund_data in data['refund_data']:
-                make_refund = {'payment_method_id': refund_data['payment_method_id']}
-                if refund_data.get('amount'):
-                    make_refund['amount'] = refund_data['amount']
-                refund_payment = self.env['pos.make.payment'].with_context(**payment_context).create(make_refund)
-                refund_payment.with_context(**payment_context).check()
-
-        return order, refund
+    def process_self_order(self, lines, *, preset=None, table=None, device_type=None, **order_values):
+        """Submit an order through the public self-order endpoint and return it."""
+        device_type = device_type or self.pos_config.self_ordering_mode
+        order_data = self._create_order_data(
+            lines,
+            preset=preset,
+            table=table,
+            device_type=device_type,
+            **order_values,
+        )
+        data = self.make_request_to_controller(
+            f'/pos-self-order/process-order/{device_type}', order_data,
+        )
+        return self.env['pos.order'].browse(data['pos.order'][0]['id'])

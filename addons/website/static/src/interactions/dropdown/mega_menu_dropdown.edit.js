@@ -35,12 +35,19 @@ const MegaMenuDropdownEdit = (I) =>
             this.registerCleanup(() => {
                 const megaMenuToggleEls = this.el.querySelectorAll(".o_mega_menu_toggle.show");
                 for (const megaMenuToggleEl of megaMenuToggleEls) {
-                    const bsDropdown = window.Dropdown.getOrCreateInstance(megaMenuToggleEl);
-                    bsDropdown.hide();
-                    bsDropdown.dispose();
+                    this.bootstrap.getOrCreateInstance(window.Dropdown, megaMenuToggleEl).hide();
                 }
             });
         }
+
+        /**
+         * Skips setting the hover bridge height in edit mode since no hover
+         * bridge is needed as the dropdown does not close when the cursor
+         * leaves the toggle or mega menu.
+         *
+         * @override
+         */
+        setHoverBridgeHeight() {}
     };
 
 registry.category("public.interactions.edit").add("website.mega_menu_dropdown", {

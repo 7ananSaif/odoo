@@ -30,6 +30,21 @@ body {
 
     .footer > .o_footer_content {
         padding-bottom: $o-default-report-margins;
+
+        .o_footer_pager, p {
+            // Condensed footer spacing
+            margin-bottom: map-get($spacers, 1);
+        }
+    }
+}
+
+.o_body_html {
+    .header {
+        min-height: 52mm + $o-default-report-margins;
+    }
+
+    .o_footer_content {
+        max-height: 38mm;
     }
 }
 
@@ -101,31 +116,29 @@ li.oe-nested {
     }
 }
 
-.o_report_layout_background {
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
+.o_company_logo_xs {
+    max-height: 3rem;
+    max-width: 9rem;
+}
+
+.o_company_logo_small {
+    max-height: 4rem;
+    max-width: 11rem;
 }
 
 .o_company_logo {
     max-height: 6rem;
     max-width: 12rem;
-
-    &_small {
-        max-height: 4rem;
-        max-width: 11rem;
-    }
-
-    &_big {
-        max-height: 8rem;
-        max-width: 16rem;
-    }
 }
 
-.o_shape_bubble_1 ~ table .o_company_logo {
-    margin-bottom: map-get($spacers, 1) !important;
-    max-height: 3rem;
-    max-width: 9rem;
+.o_company_logo_mid {
+    max-height: 7rem;
+    max-width: 14rem;
+}
+
+.o_company_logo_big {
+    max-height: 8rem;
+    max-width: 16rem;
 }
 
 .o_company_tagline p {
@@ -146,7 +159,7 @@ div[name=comment] p, div[name=address] p {
         padding-top: $o-snailmail-address-padding-top;
 
         div[name="address"] > address {
-            margin-bottom: $spacer !important;
+            margin-bottom: 28px !important;
         }
     }
 

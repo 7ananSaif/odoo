@@ -56,12 +56,11 @@ export { on } from "./helpers/events";
 export {
     animationFrame,
     cancelAllTimers,
-    Deferred,
     delay,
     freezeTime,
     unfreezeTime,
     microTick,
-    setFrameRate,
+    _setFrameRate as setFrameRate,
     tick,
     waitUntil,
 } from "./helpers/time";

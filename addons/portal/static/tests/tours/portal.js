@@ -1,13 +1,16 @@
 import { registry } from "@web/core/registry";
 
 registry.category("web_tour.tours").add("portal_load_homepage", {
-    url: "/my",
     steps: () => [
         {
             content: "Check portal is loaded",
             trigger: 'a[href*="/my/account"]:contains("Edit"):first',
             run: "click",
             expectUnloadPage: true,
+        },
+        {
+            content: "Wait for frontend JavaScript to be ready",
+            trigger: "body[is-ready='true']",
         },
         {
             content: "Load my account details",

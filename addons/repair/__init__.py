@@ -2,8 +2,8 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from . import models
-from . import wizard
 from . import report
+from . import wizard
 
 
 def _create_warehouse_data(env):

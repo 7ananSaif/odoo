@@ -4,22 +4,23 @@
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
 # "Fernanda Alvarez (mfar)" <mfar@odoo.com>, 2025, 2026.
-# "Patricia Gutiérrez (pagc)" <pagc@odoo.com>, 2025.
+# "Patricia Gutiérrez (pagc)" <pagc@odoo.com>, 2025, 2026.
+# Odoo Translation Bot <c3p@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~18.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:37+0000\n"
-"PO-Revision-Date: 2026-05-16 09:36+0000\n"
+"POT-Creation-Date: 2026-10-23 17:40+0000\n"
+"PO-Revision-Date: 2026-10-16 21:33+0000\n"
 "Last-Translator: \"Fernanda Alvarez (mfar)\" <mfar@odoo.com>\n"
 "Language-Team: Spanish (Latin America) <https://translate.odoo.com/projects/"
-"odoo-19/purchase/es_419/>\n"
+"odoo-20/purchase/es_419/>\n"
 "Language: es_419\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: purchase
 #: model:ir.actions.report,print_report_name:purchase.action_report_purchase_order
@@ -43,6 +44,39 @@ msgstr "N.° de facturas de proveedores"
 #: model:ir.model.fields,field_description:purchase.field_purchase_report__nbr_lines
 msgid "# of Lines"
 msgstr "Número de líneas"
+
+#. module: purchase
+#. odoo-python
+#: code:addons/purchase/models/account_invoice.py:0
+msgid "%(added_lines_count)s PO lines added to the bill."
+msgstr ""
+"%(added_lines_count)s líneas de la orden de compra agregadas a la factura."
+
+#. module: purchase
+#. odoo-python
+#: code:addons/purchase/models/account_invoice.py:0
+msgid ""
+"%(matched_lines_count)s bill lines matched, %(unmatched_lines_count)s "
+"unmatched remaining."
+msgstr ""
+"%(matched_lines_count)s líneas de la factura conciliadas, %"
+"(unmatched_lines_count)s sin conciliar."
+
+#. module: purchase
+#. odoo-python
+#: code:addons/purchase/wizard/accrued_orders.py:0
+msgid ""
+"%(order)s - %(order_line)s; %(quantity_billed)s Billed, %"
+"(quantity_received)s Received at %(unit_price)s each"
+msgstr ""
+"%(order)s - %(order_line)s; %(quantity_billed)s facturado, %"
+"(quantity_received)s recibido a %(unit_price)s cada uno"
+
+#. module: purchase
+#. odoo-python
+#: code:addons/purchase/wizard/accrued_orders.py:0
+msgid "%(order)s - %(order_line)s; price difference for %(product)s"
+msgstr "%(order)s - %(order_line)s; diferencia de precio para %(product)s"
 
 #. module: purchase
 #. odoo-python
@@ -81,6 +115,12 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:purchase.track_po_line_template
 msgid "-&gt;"
 msgstr "-&gt;"
+
+#. module: purchase
+#. odoo-python
+#: code:addons/purchase/models/account_invoice.py:0
+msgid "0 bill lines matched with this PO."
+msgstr "0 líneas de la factura conciliadas con esta orden de compra."
 
 #. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.res_config_settings_view_form_purchase
@@ -124,12 +164,10 @@ msgid ""
 "color: #875A7B; border: 1px solid #875A7B; border-radius: 3px\">\n"
 "            Acknowledge</a>\n"
 "        <br/><br/>\n"
-"        <t t-if=\"not is_html_empty(object.user_id.signature)\" data-o-mail-"
-"quote-container=\"1\">\n"
+"        <t t-if=\"not is_html_empty(object.user_id.signature)\">\n"
 "            <br/><br/>\n"
 "            <div data-o-mail-quote=\"1\">--<br data-o-mail-quote=\"1\"/><t t-"
-"out=\"object.user_id.signature or ''\" data-o-mail-quote=\"1\">Mitchell "
-"Admin</t></div>\n"
+"out=\"object.user_id.signature or ''\">Mitchell Admin</t></div>\n"
 "        </t>\n"
 "        <br/><br/>\n"
 "    </p>\n"
@@ -165,12 +203,10 @@ msgstr ""
 "color: #875A7B; border: 1px solid #875A7B; border-radius: 3px\">\n"
 "            Confirmar</a>\n"
 "        <br/><br/>\n"
-"        <t t-if=\"not is_html_empty(object.user_id.signature)\" data-o-mail-"
-"quote-container=\"1\">\n"
+"        <t t-if=\"not is_html_empty(object.user_id.signature)\">\n"
 "            <br/><br/>\n"
 "            <div data-o-mail-quote=\"1\">--<br data-o-mail-quote=\"1\"/><t t-"
-"out=\"object.user_id.signature or ''\" data-o-mail-quote=\"1\">Mitchell "
-"Admin</t></div>\n"
+"out=\"object.user_id.signature or ''\">Mitchell Admin</t></div>\n"
 "        </t>\n"
 "        <br/><br/>\n"
 "    </p>\n"
@@ -209,12 +245,10 @@ msgid ""
 "color: #875A7B; border: 1px solid #875A7B; border-radius: 3px\">\n"
 "                Acknowledge</a>\n"
 "        </t>\n"
-"        <t t-if=\"not is_html_empty(object.user_id.signature)\" data-o-mail-"
-"quote-container=\"1\">\n"
+"        <t t-if=\"not is_html_empty(object.user_id.signature)\">\n"
 "            <br/><br/>\n"
 "            <div data-o-mail-quote=\"1\">--<br data-o-mail-quote=\"1\"/><t t-"
-"out=\"object.user_id.signature or ''\" data-o-mail-quote=\"1\">Mitchell "
-"Admin</t></div>\n"
+"out=\"object.user_id.signature or ''\">Mitchell Admin</t></div>\n"
 "        </t>\n"
 "        <br/><br/>\n"
 "    </p>\n"
@@ -251,12 +285,10 @@ msgstr ""
 "color: #875A7B; border: 1px solid #875A7B; border-radius: 3px\">\n"
 "                Confirmar</a>\n"
 "        </t>\n"
-"        <t t-if=\"not is_html_empty(object.user_id.signature)\" data-o-mail-"
-"quote-container=\"1\">\n"
+"        <t t-if=\"not is_html_empty(object.user_id.signature)\">\n"
 "            <br/><br/>\n"
 "            <div data-o-mail-quote=\"1\">--<br data-o-mail-quote=\"1\"/><t t-"
-"out=\"object.user_id.signature or ''\" data-o-mail-quote=\"1\">Mitchell "
-"Admin</t></div>\n"
+"out=\"object.user_id.signature or ''\">Mitchell Admin</t></div>\n"
 "        </t>\n"
 "        <br/><br/>\n"
 "    </p>\n"
@@ -284,12 +316,10 @@ msgid ""
 "        If you have any questions, please do not hesitate to contact us.\n"
 "        <br/><br/>\n"
 "        Best regards,\n"
-"        <t t-if=\"not is_html_empty(object.user_id.signature)\" data-o-mail-"
-"quote-container=\"1\">\n"
+"        <t t-if=\"not is_html_empty(object.user_id.signature)\">\n"
 "            <br/><br/>\n"
 "            <div data-o-mail-quote=\"1\">--<br data-o-mail-quote=\"1\"/><t t-"
-"out=\"object.user_id.signature or ''\" data-o-mail-quote=\"1\">Mitchell "
-"Admin</t></div>\n"
+"out=\"object.user_id.signature or ''\">Mitchell Admin</t></div>\n"
 "        </t>\n"
 "    </p>\n"
 "</div>"
@@ -314,64 +344,64 @@ msgstr ""
 "        Contáctenos en caso de que tenga alguna pregunta.\n"
 "        <br/><br/>\n"
 "        Saludos,\n"
-"        <t t-if=\"not is_html_empty(object.user_id.signature)\" data-o-mail-"
-"quote-container=\"1\">\n"
+"        <t t-if=\"not is_html_empty(object.user_id.signature)\">\n"
 "            <br/><br/>\n"
 "            <div data-o-mail-quote=\"1\">--<br data-o-mail-quote=\"1\"/><t t-"
-"out=\"object.user_id.signature or ''\" data-o-mail-quote=\"1\">Mitchell "
-"Admin</t></div>\n"
+"out=\"object.user_id.signature or ''\">Mitchell Admin</t></div>\n"
 "        </t>\n"
 "    </p>\n"
 "</div>"
 
 #. module: purchase
-#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_portal_content
-msgid "<i class=\"fa fa-fw fa-check\"/>Paid"
-msgstr "<i class=\"fa fa-fw fa-check\"/>Pagado"
-
-#. module: purchase
-#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_portal_content
-msgid "<i class=\"fa fa-fw fa-check\"/>Reversed"
-msgstr "<i class=\"fa fa-fw fa-check\"/>Revertida"
-
-#. module: purchase
-#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_portal_content
-msgid "<i class=\"fa fa-fw fa-clock-o\"/>Waiting Payment"
-msgstr "<i class=\"fa fa-fw fa-clock-o\"/>En espera de pago"
+#: model_terms:ir.ui.view,arch_db:purchase.portal_my_purchase_order
+msgid "<i class=\"oi me-1\" data-icon=\"print\"/>Download / Print"
+msgstr "<i class=\"oi me-1\" data-icon=\"print\"/>Descargar/imprimir"
 
 #. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.portal_my_purchase_orders
 msgid ""
-"<i class=\"fa fa-fw fa-file-text\" role=\"img\" aria-label=\"Waiting for "
-"Bill\" title=\"Waiting for Bill\"/><span class=\"d-none d-md-inline\"> "
-"Waiting for Bill</span>"
+"<i class=\"oi oi-fw oi-filled\" data-icon=\"article\" role=\"img\" aria-"
+"label=\"Waiting for Bill\" title=\"Waiting for Bill\"/><span class=\"d-none "
+"d-md-inline\"> Waiting for Bill</span>"
 msgstr ""
-"<i class=\"fa fa-fw fa-file-text\" role=\"img\" aria-label=\"Esperando "
-"factural\" title=\"Esperando factura\"/><span class=\"d-none d-md-inline\"> "
-"Esperando factura</span>"
+"<i class=\"oi oi-fw oi-filled\" data-icon=\"article\" role=\"img\" aria-"
+"label=\"Esperando factural\" title=\"Esperando factura\"/><span class=\"d-"
+"none d-md-inline\"> Esperando factura</span>"
+
+#. module: purchase
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_portal_content
+msgid "<i class=\"oi oi-fw\" data-icon=\"check\"/>Paid"
+msgstr "<i class=\"oi oi-fw\" data-icon=\"check\"/>Pagado"
+
+#. module: purchase
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_portal_content
+msgid "<i class=\"oi oi-fw\" data-icon=\"check\"/>Reversed"
+msgstr "<i class=\"oi oi-fw\" data-icon=\"check\"/>Revertida"
 
 #. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.portal_my_purchase_orders
 msgid ""
-"<i class=\"fa fa-fw fa-remove\" role=\"img\" aria-label=\"Cancelled\" "
-"title=\"Cancelled\"/><span class=\"d-none d-md-inline\"> Cancelled</span>"
+"<i class=\"oi oi-fw\" data-icon=\"close\" role=\"img\" aria-"
+"label=\"Cancelled\" title=\"Cancelled\"/><span class=\"d-none d-md-inline\"> "
+"Cancelled</span>"
 msgstr ""
-"<i class=\"fa fa-fw fa-remove\" role=\"img\" aria-label=\"Cancelado\" "
-"title=\"Cancelado\"/><span class=\"d-none d-md-inline\"> Cancelado</span>"
+"<i class=\"oi oi-fw\" data-icon=\"close\" role=\"img\" aria-"
+"label=\"Cancelado\" title=\"Cancelado\"/><span class=\"d-none d-md-inline\"> "
+"Cancelado</span>"
+
+#. module: purchase
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_portal_content
+msgid "<i class=\"oi oi-fw\" data-icon=\"schedule\"/>Waiting Payment"
+msgstr "<i class=\"oi oi-fw\" data-icon=\"schedule\"/>En espera de pago"
 
 #. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_form
 msgid ""
-"<i class=\"fa fa-lock\"/>\n"
+"<i class=\"oi\" data-icon=\"lock\"/>\n"
 "                        Locked"
 msgstr ""
-"<i class=\"fa fa-lock\"/>\n"
+"<i class=\"oi\" data-icon=\"lock\"/>\n"
 "                        Bloqueada"
-
-#. module: purchase
-#: model_terms:ir.ui.view,arch_db:purchase.portal_my_purchase_order
-msgid "<i class=\"fa fa-print me-1\"/>Download / Print"
-msgstr "<i class=\"fa fa-print me-1\"/>Descargar/imprimir"
 
 #. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.portal_my_purchase_orders
@@ -406,29 +436,19 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_form
 msgid ""
 "<span class=\"o_form_label\" invisible=\"state not in ('draft', 'sent')"
-"\">Request for Quotation </span>\n"
+"\">Request for Quotation</span>\n"
 "                        <span class=\"o_form_label\" invisible=\"state in "
-"('draft', 'sent')\">Purchase Order </span>"
+"('draft', 'sent')\">Purchase Order</span>"
 msgstr ""
 "<span class=\"o_form_label\" invisible=\"state not in ('draft', 'sent')"
-"\">Solicitud de cotización </span>\n"
+"\">Solicitud de cotización</span>\n"
 "                        <span class=\"o_form_label\" invisible=\"state in "
-"('draft', 'sent')\">Orden de compra </span>"
-
-#. module: purchase
-#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_form
-msgid "<span class=\"o_stat_text\">Bill Matching</span>"
-msgstr "<span class=\"o_stat_text\">Conciliación de factura</span>"
+"('draft', 'sent')\">Orden de compra</span>"
 
 #. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_form
 msgid "<span class=\"o_stat_text\">Price Comparison</span>"
 msgstr "<span class=\"o_stat_text\">Comparación de precios</span>"
-
-#. module: purchase
-#: model_terms:ir.ui.view,arch_db:purchase.view_move_form_inherit_purchase
-msgid "<span class=\"o_stat_text\">Purchase Matching</span>"
-msgstr "<span class=\"o_stat_text\">Conciliación de compra</span>"
 
 #. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.product_normal_form_view_inherit_purchase
@@ -437,9 +457,21 @@ msgid "<span class=\"o_stat_text\">Purchased</span>"
 msgstr "<span class=\"o_stat_text\">Comprado</span>"
 
 #. module: purchase
-#: model_terms:ir.ui.view,arch_db:purchase.view_partner_property_form
-msgid "<span> day(s) before</span>"
-msgstr "<span> día(s) antes</span>"
+#: model_terms:ir.ui.view,arch_db:purchase.product_normal_form_view_inherit_purchase
+#: model_terms:ir.ui.view,arch_db:purchase.view_product_template_purchase_buttons_from
+msgid ""
+"<span class=\"o_stat_value text-muted\">\n"
+"                                    Incoming\n"
+"                                </span>"
+msgstr ""
+"<span class=\"o_stat_value text-muted\">\n"
+"                                    Entrante\n"
+"                                </span>"
+
+#. module: purchase
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_form
+msgid "<span invisible=\"not receipt_reminder_email\">day(s) before</span>"
+msgstr "<span invisible=\"not receipt_reminder_email\">día(s) antes</span>"
 
 #. module: purchase
 #: model_terms:web_tour.tour,rainbow_man_message:purchase.purchase_tour
@@ -452,11 +484,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_portal_content
 msgid "<span>Amount</span>"
 msgstr "<span>Importe</span>"
-
-#. module: purchase
-#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_form
-msgid "<span>Ask confirmation</span>"
-msgstr "<span>Solicitar confirmación</span>"
 
 #. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_portal_content
@@ -480,16 +507,15 @@ msgid "<strong class=\"d-block mb-1\">Invoices</strong>"
 msgstr "<strong class=\"d-block mb-1\">Facturas</strong>"
 
 #. module: purchase
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_portal_content
+msgid "<strong class=\"d-block mb-1\">Shipping address:</strong>"
+msgstr "<strong class=\"d-block mb-1\">Dirección de envío:</strong>"
+
+#. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.report_purchaseorder_document
 #: model_terms:ir.ui.view,arch_db:purchase.report_purchasequotation_document
 msgid "<strong class=\"d-block mt-3\">Shipping address</strong>"
 msgstr "<strong class=\"d-block mt-3\">Dirección de envío</strong>"
-
-#. module: purchase
-#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_portal_content
-#: model_terms:ir.ui.view,arch_db:purchase.report_purchaseorder_document
-msgid "<strong class=\"mr16\">Subtotal</strong>"
-msgstr "<strong class=\"mr16\">Subtotal</strong>"
 
 #. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.report_purchaseorder_document
@@ -526,6 +552,12 @@ msgstr "<strong>Llegada esperada:</strong>"
 #: model_terms:ir.ui.view,arch_db:purchase.report_purchasequotation_document
 msgid "<strong>Expected Date</strong>"
 msgstr "<strong>Fecha prevista</strong>"
+
+#. module: purchase
+#: model_terms:ir.ui.view,arch_db:purchase.report_purchaseorder_document
+#: model_terms:ir.ui.view,arch_db:purchase.report_purchasequotation_document
+msgid "<strong>Incoterm:</strong>"
+msgstr "<strong>Incoterm:</strong>"
 
 #. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_portal_content
@@ -570,11 +602,6 @@ msgid "<strong>Taxes</strong>"
 msgstr "<strong>Impuestos</strong>"
 
 #. module: purchase
-#: model_terms:ir.ui.view,arch_db:purchase.track_po_line_template
-msgid "<strong>The ordered quantity has been updated.</strong>"
-msgstr "<strong>Se actualizó la cantidad ordenada.</strong>"
-
-#. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.track_po_line_qty_received_template
 msgid "<strong>The received quantity has been updated.</strong>"
 msgstr "<strong>Se actualizó la cantidad recibida.</strong>"
@@ -612,6 +639,11 @@ msgid "A warning can be set on a product or a customer (Purchase)"
 msgstr "Puede establecer una advertencia en un producto o cliente (Compra)"
 
 #. module: purchase
+#: model:ir.model,name:purchase.model_res_groups
+msgid "Access Groups"
+msgstr "Grupos de acceso"
+
+#. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_purchase_order__access_warning
 msgid "Access warning"
 msgstr "Advertencia de acceso"
@@ -636,9 +668,57 @@ msgid "Account Move"
 msgstr "Movimiento de cuenta"
 
 #. module: purchase
-#: model:ir.actions.act_window,name:purchase.action_accrued_expense_entry
+#: model:ir.model.fields,help:purchase.field_product_category__property_account_billed_not_received_id
+msgid ""
+"Account holding the accrued value of the goods billed but not received yet. "
+"With perpetual valuation, it counterbalances the stock valuation account at "
+"closing."
+msgstr ""
+"Cuenta que registra el valor devengado de los bienes facturados, pero que "
+"aún no han sido recibidos. Con la valuación perpetua, compensa la cuenta de "
+"valuación de existencias al cierre."
+
+#. module: purchase
+#: model:ir.model.fields,help:purchase.field_product_category__property_account_bills_to_receive_id
+msgid ""
+"Account holding the accrued value of the goods received but not billed yet. "
+"With perpetual valuation, it counterbalances the stock valuation account at "
+"closing."
+msgstr ""
+"Cuenta que registra el valor devengado de los bienes recibidos, pero aún no "
+"han sido facturados. Con la valuación perpetua, compensa la cuenta de "
+"valuación de existencias al cierre."
+
+#. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_purchase_order_line__accrual_move_ids
+msgid "Accrual Entries"
+msgstr "Asientos de devengo"
+
+#. module: purchase
+#: model:ir.model.fields,help:purchase.field_purchase_order_line__accrual_move_ids
+msgid ""
+"Accrual entries generated for this line, so it isn't accrued again while one "
+"is still standing (posted, not yet reversed or cancelled)."
+msgstr ""
+"Asientos de devengo generados para esta línea, para evitar que se vuelva a "
+"devengar mientras haya uno vigente (registrado, pero aún no revertido ni "
+"cancelado)."
+
+#. module: purchase
+#: model:ir.actions.server,name:purchase.action_accrued_expense_entry_purchase_order_line
 msgid "Accrued Expense Entry"
 msgstr "Asiento de gastos devengados"
+
+#. module: purchase
+#: model:ir.model,name:purchase.model_account_accrued_orders_wizard
+msgid "Accrued Orders Wizard"
+msgstr "Asistente de órdenes devengadas"
+
+#. module: purchase
+#. odoo-python
+#: code:addons/purchase/wizard/accrued_orders.py:0
+msgid "Accrued total"
+msgstr "Total devengado"
 
 #. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_form
@@ -669,6 +749,11 @@ msgstr "Actividades de"
 #: model:ir.model.fields,field_description:purchase.field_purchase_order__activity_exception_decoration
 msgid "Activity Exception Decoration"
 msgstr "Decoración de la actividad de excepción"
+
+#. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_purchase_order__activity_plans_ids
+msgid "Activity Plans"
+msgstr "Planes de actividad"
 
 #. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_purchase_order__activity_state
@@ -709,6 +794,21 @@ msgstr "Agregar un producto"
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_form
 msgid "Add a section"
 msgstr "Agregar una sección"
+
+#. module: purchase
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_form
+msgid "Add note"
+msgstr "Agregar nota"
+
+#. module: purchase
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_form
+msgid "Add product"
+msgstr "Agregar producto"
+
+#. module: purchase
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_form
+msgid "Add section"
+msgstr "Agregar sección"
 
 #. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.res_config_settings_view_form_purchase
@@ -788,6 +888,11 @@ msgid "All Sent RFQs"
 msgstr "Todas las solicitudes de cotización enviadas"
 
 #. module: purchase
+#: model_terms:ir.ui.view,arch_db:purchase.product_supplierinfo_tree_view2
+msgid "All variants"
+msgstr "Todas las variantes"
+
+#. module: purchase
 #: model:ir.model.fields,help:purchase.field_res_config_settings__group_send_reminder
 msgid "Allow automatically send email to remind your vendor the receipt date"
 msgstr ""
@@ -865,6 +970,11 @@ msgstr ""
 "seleccionadas?"
 
 #. module: purchase
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_form
+msgid "Arrival Confirmation"
+msgstr "Confirmación de llegada"
+
+#. module: purchase
 #. odoo-python
 #: code:addons/purchase/models/product.py:0
 msgid ""
@@ -895,12 +1005,6 @@ msgstr "Atributos"
 #. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.view_move_form_inherit_purchase
 msgid "Auto-Complete"
-msgstr "Autocompletar"
-
-#. module: purchase
-#: model:ir.model.fields,field_description:purchase.field_account_bank_statement_line__purchase_vendor_bill_id
-#: model:ir.model.fields,field_description:purchase.field_account_move__purchase_vendor_bill_id
-msgid "Auto-complete"
 msgstr "Autocompletar"
 
 #. module: purchase
@@ -956,15 +1060,31 @@ msgid "Bill Lines"
 msgstr "Líneas de factura"
 
 #. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_purchase_order__bill_matched_ratio
+msgid "Bill Matched Ratio"
+msgstr "Proporción de facturas conciliadas"
+
+#. module: purchase
 #. odoo-python
 #: code:addons/purchase/models/purchase_order.py:0
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_form
 msgid "Bill Matching"
 msgstr "Conciliación de factura"
+
+#. module: purchase
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_bill_line_match_tree
+msgid "Bill Qty"
+msgstr "Cantidad facturada"
 
 #. module: purchase
 #: model:ir.model,name:purchase.model_bill_to_po_wizard
 msgid "Bill to Purchase Order"
 msgstr "Facturar a la orden de compra"
+
+#. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_purchase_order_line__bill_to_receive
+msgid "Bill to Receive"
+msgstr "Facturas de proveedor por recibir"
 
 #. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_purchase_order_line__qty_invoiced_at_date
@@ -977,6 +1097,17 @@ msgstr "Facturado"
 #: model:ir.model.fields,field_description:purchase.field_purchase_bill_line_match__billed_amount_untaxed
 msgid "Billed Amount Untaxed"
 msgstr "Subtotal facturado"
+
+#. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_product_category__property_account_billed_not_received_id
+#: model:ir.model.fields,field_description:purchase.field_res_company__account_billed_not_received_id
+msgid "Billed Not Received Account"
+msgstr "Cuenta de facturado pero no recibido"
+
+#. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_product_category__property_account_billed_not_received_active
+msgid "Billed Not Received Account Active"
+msgstr "Cuenta de facturado pero no recibido activa"
 
 #. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_purchase_order_line__qty_invoiced
@@ -1000,6 +1131,7 @@ msgstr "Estado de facturación"
 
 #. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_purchase_order__invoice_ids
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_bill_line_match_search
 msgid "Bills"
 msgstr "Facturas"
 
@@ -1007,6 +1139,17 @@ msgstr "Facturas"
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_view_search
 msgid "Bills Received"
 msgstr "Facturas recibidas"
+
+#. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_product_category__property_account_bills_to_receive_id
+#: model:ir.model.fields,field_description:purchase.field_res_company__account_bills_to_receive_id
+msgid "Bills to Receive Account"
+msgstr "Cuenta de facturas por cobrar"
+
+#. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_product_category__property_account_bills_to_receive_active
+msgid "Bills to Receive Account Active"
+msgstr "Cuenta de facturas por cobrar activa"
 
 #. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_purchase_order__user_id
@@ -1074,16 +1217,7 @@ msgid "Commercial Entity"
 msgstr "Entidad comercial"
 
 #. module: purchase
-#: model_terms:ir.ui.view,arch_db:purchase.portal_my_purchase_order
-msgid "Communication history"
-msgstr "Historial de comunicación"
-
-#. module: purchase
 #: model:ir.model,name:purchase.model_res_company
-msgid "Companies"
-msgstr "Empresas"
-
-#. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_purchase_bill_line_match__company_id
 #: model:ir.model.fields,field_description:purchase.field_purchase_bill_union__company_id
 #: model:ir.model.fields,field_description:purchase.field_purchase_order__company_id
@@ -1133,21 +1267,21 @@ msgstr "Confirmar órdenes de compra en un solo paso"
 #. module: purchase
 #. odoo-javascript
 #: code:addons/purchase/static/src/js/tours/purchase.js:0
+msgid "Confirm the price."
+msgstr "Confirma el precio."
+
+#. module: purchase
+#. odoo-javascript
+#: code:addons/purchase/static/src/js/tours/purchase.js:0
 msgid "Confirm your purchase."
 msgstr "Confirme su compra."
 
 #. module: purchase
-#: model:ir.model.fields,field_description:purchase.field_purchase_order__date_approve
 #: model:ir.model.fields,field_description:purchase.field_purchase_order_line__date_approve
 #: model:ir.model.fields,field_description:purchase.field_purchase_report__date_approve
 #: model_terms:ir.ui.view,arch_db:purchase.view_purchase_order_search
 msgid "Confirmation Date"
 msgstr "Fecha de confirmación"
-
-#. module: purchase
-#: model_terms:ir.ui.view,arch_db:purchase.view_purchase_order_search
-msgid "Confirmation Date Last Year"
-msgstr "Fecha de confirmación el año pasado"
 
 #. module: purchase
 #: model:ir.model.fields.selection,name:purchase.selection__res_company__po_lock__lock
@@ -1164,6 +1298,11 @@ msgstr "Conéctese con su software"
 #: model_terms:ir.ui.view,arch_db:purchase.report_purchasequotation_document
 msgid "Connect your software"
 msgstr "Conecte su software"
+
+#. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_purchase_order_line__consolidation_currency_id
+msgid "Consolidation Currency"
+msgstr "Moneda de consolidación"
 
 #. module: purchase
 #: model:ir.model,name:purchase.model_res_partner
@@ -1195,11 +1334,6 @@ msgstr "Crear facturas"
 #: model:ir.model,website_form_label:purchase.model_res_partner
 msgid "Create a Customer"
 msgstr "Crear un cliente"
-
-#. module: purchase
-#: model_terms:ir.actions.act_window,help:purchase.product_product_action
-msgid "Create a new product variant"
-msgstr "Crear una nueva variante de producto"
 
 #. module: purchase
 #. odoo-javascript
@@ -1241,7 +1375,10 @@ msgid "Customer Portal URL"
 msgstr "URL del portal de cliente"
 
 #. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_purchase_bill_line_match__date
 #: model:ir.model.fields,field_description:purchase.field_purchase_bill_union__date
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_bill_line_match_search
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_line_list_invoice
 msgid "Date"
 msgstr "Fecha"
 
@@ -1321,15 +1458,6 @@ msgstr ""
 "fecha actual."
 
 #. module: purchase
-#: model:ir.model.fields,help:purchase.field_purchase_order__date_planned
-msgid ""
-"Delivery date promised by vendor. This date is used to determine expected "
-"arrival of products."
-msgstr ""
-"Fecha de entrega prometida por el proveedor. Se utiliza para determinar la "
-"llegada esperada de los productos."
-
-#. module: purchase
 #: model:ir.model.fields,help:purchase.field_purchase_order__date_order
 #: model:ir.model.fields,help:purchase.field_purchase_order_line__date_order
 msgid ""
@@ -1340,11 +1468,24 @@ msgstr ""
 "convertirse en una orden de compra."
 
 #. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_purchase_bill_line_match__description
 #: model:ir.model.fields,field_description:purchase.field_purchase_order_line__name
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_bill_line_match_search
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_bill_line_match_tree
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_line_search
 msgid "Description"
 msgstr "Descripción"
 
 #. module: purchase
+#: model:ir.model.fields,help:purchase.field_purchase_bill_line_match__qty_to_invoice_raw
+msgid ""
+"Difference between demand and quantity but not affected by invoice policy"
+msgstr ""
+"Diferencia entre la demanda y la cantidad, pero que no se ve afectada por la "
+"política de facturación"
+
+#. module: purchase
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_history_tree
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_form
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_portal_content
 msgid "Disc.%"
@@ -1361,6 +1502,18 @@ msgid "Discount:"
 msgstr "Descuento:"
 
 #. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_account_bank_statement_line__display_auto_complete_field
+#: model:ir.model.fields,field_description:purchase.field_account_move__display_auto_complete_field
+msgid "Display Auto Complete Field"
+msgstr "Mostrar campo de autocompletado"
+
+#. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_purchase_bill_line_match__display_matching_tag
+msgid "Display Matching Tag"
+msgstr "Mostrar etiqueta correspondiente"
+
+#. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_account_accrued_orders_wizard__display_name
 #: model:ir.model.fields,field_description:purchase.field_account_analytic_account__display_name
 #: model:ir.model.fields,field_description:purchase.field_account_analytic_applicability__display_name
 #: model:ir.model.fields,field_description:purchase.field_account_move__display_name
@@ -1368,6 +1521,7 @@ msgstr "Descuento:"
 #: model:ir.model.fields,field_description:purchase.field_account_tax__display_name
 #: model:ir.model.fields,field_description:purchase.field_bill_to_po_wizard__display_name
 #: model:ir.model.fields,field_description:purchase.field_ir_actions_report__display_name
+#: model:ir.model.fields,field_description:purchase.field_product_category__display_name
 #: model:ir.model.fields,field_description:purchase.field_product_product__display_name
 #: model:ir.model.fields,field_description:purchase.field_product_supplierinfo__display_name
 #: model:ir.model.fields,field_description:purchase.field_product_template__display_name
@@ -1378,6 +1532,7 @@ msgstr "Descuento:"
 #: model:ir.model.fields,field_description:purchase.field_purchase_report__display_name
 #: model:ir.model.fields,field_description:purchase.field_res_company__display_name
 #: model:ir.model.fields,field_description:purchase.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:purchase.field_res_groups__display_name
 #: model:ir.model.fields,field_description:purchase.field_res_partner__display_name
 msgid "Display Name"
 msgstr "Nombre en pantalla"
@@ -1391,6 +1546,12 @@ msgstr "Tipo de visualización"
 #: model:ir.model.fields,field_description:purchase.field_purchase_order_line__distribution_analytic_account_ids
 msgid "Distribution Analytic Account"
 msgstr "Cuenta analítica de distribución"
+
+#. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_purchase_order__document_tax_mode
+#: model:ir.model.fields,field_description:purchase.field_purchase_order_line__document_tax_mode
+msgid "Document Tax Mode"
+msgstr "Modo de impuestos del documento"
 
 #. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_account_analytic_applicability__business_domain
@@ -1444,10 +1605,23 @@ msgid "Duplicated Order"
 msgstr "Orden duplicada"
 
 #. module: purchase
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_form
+msgid "Enter a Description..."
+msgstr "Escribe una descripción..."
+
+#. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_purchase_order__date_planned
 #: model:ir.model.fields,field_description:purchase.field_purchase_order_line__date_planned
 msgid "Expected Arrival"
 msgstr "Entrega esperada"
+
+#. module: purchase
+#: model:ir.model.fields,help:purchase.field_purchase_order__date_planned
+msgid ""
+"Expected delivery date of goods by the vendor based on the latest information"
+msgstr ""
+"Fecha de entrega esperada de los bienes por proveedor según la información "
+"más reciente"
 
 #. module: purchase
 #. odoo-python
@@ -1462,12 +1636,12 @@ msgid "Fiscal Position"
 msgstr "Posición fiscal"
 
 #. module: purchase
-#: model_terms:ir.ui.view,arch_db:purchase.portal_my_home_purchase
+#: model:portal.entry,description:purchase.portal_purchase_orders
 msgid "Follow orders you have to fulfill"
 msgstr "Monitoree las órdenes que debe cumplir"
 
 #. module: purchase
-#: model_terms:ir.ui.view,arch_db:purchase.portal_my_home_purchase
+#: model:portal.entry,description:purchase.portal_rfq
 msgid "Follow your Requests for Quotation"
 msgstr "Siga sus solicitudes de cotización"
 
@@ -1482,14 +1656,15 @@ msgid "Followers (Partners)"
 msgstr "Seguidores (contactos)"
 
 #. module: purchase
-#: model:ir.model.fields,help:purchase.field_purchase_order__activity_type_icon
-msgid "Font awesome icon e.g. fa-tasks"
-msgstr "Icono de Font Awesome, por ejemplo, fa-tasks"
-
-#. module: purchase
 #: model:ir.model.constraint,message:purchase.constraint_purchase_order_line_non_accountable_null_fields
 msgid "Forbidden values on non-accountable purchase order line"
 msgstr "Valores prohibidos en una línea de orden de compra no contable"
+
+#. module: purchase
+#: model_terms:ir.ui.view,arch_db:purchase.product_product_purchase_tree_view
+#: model_terms:ir.ui.view,arch_db:purchase.product_template_purchase_tree_view
+msgid "Forecasted"
+msgstr "Pronosticado"
 
 #. module: purchase
 #. odoo-python
@@ -1507,6 +1682,11 @@ msgstr "De documentos electrónicos"
 #: model:ir.model.fields.selection,name:purchase.selection__purchase_order__invoice_status__invoiced
 msgid "Fully Billed"
 msgstr "Totalmente facturado"
+
+#. module: purchase
+#: model:ir.model.fields.selection,name:purchase.selection__purchase_order__receipt_status__full
+msgid "Fully Received"
+msgstr "Recibido totalmente"
 
 #. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_view_search
@@ -1555,6 +1735,7 @@ msgid "Hide cancelled lines"
 msgstr "Ocultar líneas canceladas"
 
 #. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_account_accrued_orders_wizard__id
 #: model:ir.model.fields,field_description:purchase.field_account_analytic_account__id
 #: model:ir.model.fields,field_description:purchase.field_account_analytic_applicability__id
 #: model:ir.model.fields,field_description:purchase.field_account_move__id
@@ -1562,6 +1743,7 @@ msgstr "Ocultar líneas canceladas"
 #: model:ir.model.fields,field_description:purchase.field_account_tax__id
 #: model:ir.model.fields,field_description:purchase.field_bill_to_po_wizard__id
 #: model:ir.model.fields,field_description:purchase.field_ir_actions_report__id
+#: model:ir.model.fields,field_description:purchase.field_product_category__id
 #: model:ir.model.fields,field_description:purchase.field_product_product__id
 #: model:ir.model.fields,field_description:purchase.field_product_supplierinfo__id
 #: model:ir.model.fields,field_description:purchase.field_product_template__id
@@ -1572,6 +1754,7 @@ msgstr "Ocultar líneas canceladas"
 #: model:ir.model.fields,field_description:purchase.field_purchase_report__id
 #: model:ir.model.fields,field_description:purchase.field_res_company__id
 #: model:ir.model.fields,field_description:purchase.field_res_config_settings__id
+#: model:ir.model.fields,field_description:purchase.field_res_groups__id
 #: model:ir.model.fields,field_description:purchase.field_res_partner__id
 msgid "ID"
 msgstr "ID"
@@ -1617,18 +1800,6 @@ msgstr ""
 
 #. module: purchase
 #. odoo-python
-#: code:addons/purchase/models/product.py:0
-msgid "Import Template for Products"
-msgstr "Plantilla de importación para productos"
-
-#. module: purchase
-#. odoo-python
-#: code:addons/purchase/models/purchase_order.py:0
-msgid "Import Template for Requests for Quotation"
-msgstr "Plantilla de importación para solicitudes de cotización"
-
-#. module: purchase
-#. odoo-python
 #: code:addons/purchase/models/purchase_order.py:0
 msgid "In order to delete a purchase order, you must cancel it first."
 msgstr "Primero debe cancelar la orden de compra para poder eliminarla."
@@ -1651,8 +1822,15 @@ msgstr "En la orden"
 
 #. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_purchase_order__incoterm_id
+#: model_terms:ir.ui.view,arch_db:purchase.view_partner_property_form
 msgid "Incoterm"
 msgstr "Incoterm"
+
+#. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_purchase_order__incoterm_location
+#: model_terms:ir.ui.view,arch_db:purchase.view_partner_property_form
+msgid "Incoterm Location"
+msgstr "Ubicación del incoterm"
 
 #. module: purchase
 #. odoo-javascript
@@ -1671,6 +1849,8 @@ msgstr ""
 
 #. module: purchase
 #: model:ir.model.fields,help:purchase.field_purchase_order__incoterm_id
+#: model:ir.model.fields,help:purchase.field_res_partner__purchase_incoterm_id
+#: model:ir.model.fields,help:purchase.field_res_users__purchase_incoterm_id
 msgid ""
 "International Commercial Terms are a series of predefined commercial terms "
 "used in international transactions."
@@ -1700,11 +1880,6 @@ msgid "Is Follower"
 msgstr "Es un seguidor"
 
 #. module: purchase
-#: model:ir.model.fields,field_description:purchase.field_product_product__is_in_purchase_order
-msgid "Is In Purchase Order"
-msgstr "Está en la orden de compra"
-
-#. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_purchase_order__is_late
 msgid "Is Late"
 msgstr "Está atrasado"
@@ -1731,6 +1906,11 @@ msgstr "Asiento contable"
 #: model:ir.model,name:purchase.model_account_move_line
 msgid "Journal Item"
 msgstr "Apunte contable"
+
+#. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_purchase_order_line__label
+msgid "Label"
+msgstr "Etiqueta"
 
 #. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_bill_to_po_wizard__write_uid
@@ -1816,6 +1996,11 @@ msgid "Line Uom"
 msgstr "Unidad de medida de la línea"
 
 #. module: purchase
+#: model_terms:ir.ui.view,arch_db:purchase.res_config_settings_view_form_purchase
+msgid "Link RFQs together and compare them."
+msgstr "Vincula solicitudes de cotización y compáralas."
+
+#. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_form
 msgid "Lock"
 msgstr "Bloquear"
@@ -1865,6 +2050,34 @@ msgstr "Cantidad manual recibida"
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_bill_line_match_tree
 msgid "Match"
 msgstr "Conciliar"
+
+#. module: purchase
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_bill_line_match_search
+msgid "Matched"
+msgstr "Conciliada"
+
+#. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_purchase_order_line__matched_invoice_count
+msgid "Matched Invoices Count"
+msgstr "Número de facturas conciliadas"
+
+#. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_purchase_bill_line_match__matching_id
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_bill_line_match_search
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_bill_line_match_tree
+msgid "Matching"
+msgstr "Conciliando"
+
+#. module: purchase
+#. odoo-python
+#: code:addons/purchase/models/purchase_order_line.py:0
+msgid "Matching Invoices"
+msgstr "Facturas coincidentes"
+
+#. module: purchase
+#: model:ir.model.fields,help:purchase.field_purchase_order__activity_type_icon
+msgid "Material Symbols icon e.g. checklist"
+msgstr "Icono de Material Symbols, por ejemplo, checklist"
 
 #. module: purchase
 #: model:ir.actions.server,name:purchase.action_merger
@@ -2031,6 +2244,11 @@ msgid "Next Activity Type"
 msgstr "Siguiente tipo de actividad"
 
 #. module: purchase
+#: model:res.groups.privilege,placeholder:purchase.res_groups_privilege_purchase
+msgid "No"
+msgstr "No"
+
+#. module: purchase
 #. odoo-javascript
 #: code:addons/purchase/static/src/product_catalog/kanban_renderer.xml:0
 msgid "No Products for the selected Vendor."
@@ -2068,6 +2286,11 @@ msgid "No request for quotation found. Let's create one!"
 msgstr "No se encontró ninguna solicitud de cotización. ¡Creemos una!"
 
 #. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_purchase_order_line__non_deductible_tax
+msgid "Non Deductible Tax"
+msgstr "Impuesto no deducible"
+
+#. module: purchase
 #: model:ir.model.fields.selection,name:purchase.selection__purchase_order__priority__0
 msgid "Normal"
 msgstr "Normal"
@@ -2078,6 +2301,16 @@ msgstr "Normal"
 #: model_terms:ir.ui.view,arch_db:purchase.view_purchase_order_filter
 msgid "Not Acknowledged"
 msgstr "No reconocido"
+
+#. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_purchase_order_line__qty_to_invoice_raw
+msgid "Not Invoiced Quantity"
+msgstr "Cantidad no facturada"
+
+#. module: purchase
+#: model:ir.model.fields.selection,name:purchase.selection__purchase_order__receipt_status__pending
+msgid "Not Received"
+msgstr "Sin recibir"
 
 #. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.portal_my_purchase_order
@@ -2134,6 +2367,168 @@ msgid "Odoo"
 msgstr "Odoo"
 
 #. module: purchase
+#: model:ir.module.module,description:base.module_purchase
+msgid ""
+"Odoo Supply Chain\n"
+"-----------------\n"
+"\n"
+"Automate requisition-to-pay, control invoicing with the Odoo\n"
+"<a href=\"https://www.odoo.com/app/purchase\">Open Source Supply Chain</a>.\n"
+"\n"
+"Automate procurement propositions, launch request for quotations, track\n"
+"purchase orders, manage vendors' information, control products reception "
+"and\n"
+"check vendors' invoices.\n"
+"\n"
+"Automated Procurement Propositions\n"
+"----------------------------------\n"
+"\n"
+"Reduce inventory level with procurement rules. Get the right purchase\n"
+"proposition at the right time to reduce your inventory level. Improve your\n"
+"purchase and inventory performance with procurement rules depending on "
+"stock\n"
+"levels, logistic rules, sales orders, forecasted manufacturing orders, etc.\n"
+"\n"
+"Send requests for quotations or purchase orders to your vendor in one "
+"click.\n"
+"Get access to product receptions and invoices from your purchase order.\n"
+"\n"
+"Purchase Tenders\n"
+"----------------\n"
+"\n"
+"Launch purchase tenders, integrate vendor's answers in the process and\n"
+"compare propositions. Choose the best offer and send purchase orders "
+"easily.\n"
+"Use reporting to analyse the quality of your vendors afterwards.\n"
+"\n"
+"\n"
+"Email integrations\n"
+"------------------\n"
+"\n"
+"Integrate all vendor's communications on the purchase orders (or RfQs) to "
+"get\n"
+"a strong traceability on the negotiation or after sales service issues. Use "
+"the\n"
+"claim management module to track issues related to vendors.\n"
+"\n"
+"Standard Price, Average Price, FIFO\n"
+"-----------------------------------\n"
+"\n"
+"Use the costing method that reflects your business: standard price, average\n"
+"price, fifo or lifo. Get your accounting entries and the right inventory\n"
+"valuation in real-time; Odoo manages everything for you, transparently.\n"
+"\n"
+"Import Vendor Pricelists\n"
+"--------------------------\n"
+"\n"
+"Take smart purchase decisions using the best prices.  Easily import "
+"vendor's\n"
+"pricelists to make smarter purchase decisions based on promotions, prices\n"
+"depending on quantities and special contract conditions. You can even base "
+"your\n"
+"sale price depending on your vendor's prices.\n"
+"\n"
+"Control Products and Invoices\n"
+"-----------------------------\n"
+"\n"
+"No product or order is left behind, the inventory control allows you to "
+"manage\n"
+"back orders, refunds, product reception and quality control. Choose the "
+"right\n"
+"control method according to your need.\n"
+"\n"
+"Control vendor bills with no effort. Choose the right method according to\n"
+"your need: pre-generate draft invoices based on purchase orders, on "
+"products\n"
+"receptions, create invoices manually and import lines from purchase orders,\n"
+"etc.\n"
+"\n"
+msgstr ""
+"Cadena de suministro de Odoo\n"
+"-----------------\n"
+"\n"
+"Automatiza las solicitudes de pago y controla la facturación con la \n"
+"<a href=\"https://www.odoo.com/app/purchase\">cadena de suministro de código "
+"abierto</a> de Odoo.\n"
+"\n"
+"Automatiza las propuestas de aprovisionamiento, envía solicitudes de "
+"cotización, lleva registro\n"
+"de tus órdenes de compra, gestiona la información de los proveedores, "
+"controla la recepción de los productos y\n"
+"revisa las facturas de los proveedores.\n"
+"\n"
+"Propuestas de aprovisionamiento automatizadas\n"
+"----------------------------------\n"
+"\n"
+"Reduce el nivel del inventario con las reglas de aprovisionamiento. Obtén la "
+"propuesta de compra\n"
+"correcta en el momento indicado para reducir tu nivel de inventario. Mejora "
+"el\n"
+"rendimiento de tus compras y el inventario a través de reglas de "
+"aprovisionamiento que dependan de los niveles\n"
+"de inventario, reglas de logística, órdenes de venta, órdenes de fabricación "
+"pronosticadas, etc.\n"
+"\n"
+"Envía solicitudes de cotización u órdenes de compra a tu proveedor con un "
+"solo clic.\n"
+"Obtén acceso a las recepciones de productos y las facturas desde tu orden de "
+"compra.\n"
+"\n"
+"Licitaciones\n"
+"----------------\n"
+"\n"
+"Envía licitaciones, integra las respuestas de los proveedores al proceso y\n"
+"compara las propuestas. Elige la mejor oferta y envía órdenes de compra con "
+"facilidad.\n"
+"Usa los reportes para analizar la calidad de tus proveedores al final.\n"
+"\n"
+"\n"
+"Integración con correo electrónico\n"
+"------------------\n"
+"\n"
+"Integra toda la comunicación con los proveedores en las órdenes de compra (o "
+"las solicitudes de cotización) para obtener\n"
+"una buena trazabilidad de las negociaciones o de los problemas de servicio "
+"posventa. Usa el módulo\n"
+"de gestión de reclamaciones para dar seguimiento a los problemas "
+"relacionados con los proveedores.\n"
+"\n"
+"Precio estándar, precio promedio, PEPS\n"
+"-----------------------------------\n"
+"\n"
+"Usa el mejor método de costos para tu negocio: precio estándar, precio\n"
+"promedio, PEPS o UEPS. Obtén tus asientos contables y la valuación correcta\n"
+"del inventario en tiempo real. Odoo gestiona todo por ti con transparencia.\n"
+"\n"
+"Importa las listas de precios de los proveedores\n"
+"--------------------------\n"
+"\n"
+"Toma mejores decisiones de compra con los mejores precios. Importa las "
+"listas de precios\n"
+"de tus proveedores con facilidad para tomar decisiones de compra más "
+"inteligentes según las promociones, precios\n"
+"por cantidad y condiciones especiales de los contratos. Incluso puedes basar "
+"tu\n"
+"precio de venta en los precios de tus proveedores.\n"
+"\n"
+"Controla productos y facturas\n"
+"-----------------------------\n"
+"\n"
+"No dejes ningún producto u orden pendiente. El control de inventario te "
+"permite gestionar\n"
+"las órdenes pendientes, los reembolsos, la recepción de productos y el "
+"control de calidad.\n"
+"Elige el método de control adecuado según tus necesidades.\n"
+"\n"
+"Controla las facturas de proveedores con facilidad. Elige el método correcto "
+"de acuerdo a\n"
+"tus necesidades: genera facturas preliminares en borrador a partir de las "
+"órdenes de compra y recepciones de productos, \n"
+"crea facturas de forma manual e importa líneas de las órdenes de compra,\n"
+"etc.\n"
+"\n"
+
+#. module: purchase
 #: model:ir.model.fields.selection,name:purchase.selection__product_template__purchase_method__purchase
 msgid "On ordered quantities"
 msgstr "Sobre cantidades ordenadas"
@@ -2184,25 +2579,27 @@ msgid "Order"
 msgstr "Orden"
 
 #. module: purchase
-#: model:ir.model.fields,field_description:purchase.field_purchase_order_line__date_order
-#: model:ir.model.fields,field_description:purchase.field_purchase_report__date_order
-#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_line_search
-#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_view_search
-#: model_terms:ir.ui.view,arch_db:purchase.view_purchase_order_filter
-#: model_terms:ir.ui.view,arch_db:purchase.view_purchase_order_search
+#: model:ir.model.fields,field_description:purchase.field_purchase_order__date_approve
 msgid "Order Date"
 msgstr "Fecha de la orden"
 
 #. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_line_search
-msgid "Order Date: Last 365 Days"
-msgstr "Fecha de la orden: últimos 365 días"
+msgid "Order DeadLine: Last 365 Days"
+msgstr "Fecha límite de la orden: Últimos 365 días"
 
 #. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_purchase_order__date_order
+#: model:ir.model.fields,field_description:purchase.field_purchase_order_line__date_order
+#: model:ir.model.fields,field_description:purchase.field_purchase_report__date_order
 #: model_terms:ir.ui.view,arch_db:purchase.portal_my_purchase_rfqs
 msgid "Order Deadline"
 msgstr "Fecha límite de la orden"
+
+#. module: purchase
+#: model_terms:ir.ui.view,arch_db:purchase.view_purchase_order_search
+msgid "Order Deadline: Last 365 Days"
+msgstr "Fecha límite de la orden: Últimos 365 días"
 
 #. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_purchase_order__order_line
@@ -2222,8 +2619,18 @@ msgid "Ordered Quantity:"
 msgstr "Cantidad ordenada:"
 
 #. module: purchase
+#: model:ir.model.fields,help:purchase.field_purchase_order_line__qty_to_invoice_raw
+msgid ""
+"Ordered quantity not invoiced. This may or may not include quantities that "
+"won't be invoiced, depending on the product's Control Policy."
+msgstr ""
+"Cantidad ordenada sin facturar. Puede incluir o no cantidades que no se "
+"facturarán, según la política de control del producto."
+
+#. module: purchase
 #: model:ir.ui.menu,name:purchase.menu_procurement_management
 #: model_terms:ir.ui.view,arch_db:purchase.res_config_settings_view_form_purchase
+#: model_terms:ir.ui.view,arch_db:purchase.view_purchase_order_search
 msgid "Orders"
 msgstr "Órdenes"
 
@@ -2235,18 +2642,33 @@ msgstr "Orden para el %(date)s"
 
 #. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_form
-msgid "Other Information"
+msgid "Other Info"
 msgstr "Otra información"
 
 #. module: purchase
-#: model_terms:ir.ui.view,arch_db:purchase.portal_my_home_purchase
+#: model:portal.entry,name:purchase.portal_purchase_orders
 msgid "Our Orders"
 msgstr "Nuestras órdenes"
+
+#. module: purchase
+#: model_terms:ir.ui.view,arch_db:purchase.view_move_form_inherit_purchase
+msgid "PO Matching"
+msgstr "Coincidencia de órdenes de compra"
+
+#. module: purchase
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_bill_line_match_tree
+msgid "PO Qty"
+msgstr "Cantidad de la orden de compra"
 
 #. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_purchase_order_line__parent_id
 msgid "Parent Section Line"
 msgstr "Línea de la sección principal"
+
+#. module: purchase
+#: model:ir.model.fields.selection,name:purchase.selection__purchase_order__receipt_status__partial
+msgid "Partially Received"
+msgstr "Recibido parcialmente"
 
 #. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_bill_to_po_wizard__partner_id
@@ -2297,13 +2719,18 @@ msgid "Portal Access URL"
 msgstr "URL de acceso al portal"
 
 #. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_purchase_order_line__prepaid_expense
+msgid "Prepaid Expense"
+msgstr "Gasto prepagado"
+
+#. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_form
 msgid "Preview the reminder email by sending it to yourself."
 msgstr ""
 "Envíese el correo electrónico con el recordatorio para previsualizarlo."
 
 #. module: purchase
-#: model_terms:ir.ui.view,arch_db:purchase.purchase_bill_line_match_tree
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_bill_line_match_search
 msgid "Price"
 msgstr "Precio"
 
@@ -2328,6 +2755,7 @@ msgstr "Prioridad"
 #: model:ir.model.fields,field_description:purchase.field_purchase_order__product_id
 #: model:ir.model.fields,field_description:purchase.field_purchase_order_line__product_id
 #: model:ir.model.fields,field_description:purchase.field_purchase_report__product_id
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_bill_line_match_search
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_line_search
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_portal_content
 #: model_terms:ir.ui.view,arch_db:purchase.view_purchase_order_search
@@ -2335,15 +2763,11 @@ msgid "Product"
 msgstr "Producto"
 
 #. module: purchase
+#: model:ir.model,name:purchase.model_product_category
 #: model:ir.model.fields,field_description:purchase.field_purchase_report__category_id
 #: model_terms:ir.ui.view,arch_db:purchase.view_purchase_order_search
 msgid "Product Category"
 msgstr "Categoría del producto"
-
-#. module: purchase
-#: model_terms:ir.ui.view,arch_db:purchase.purchase_bill_line_match_tree
-msgid "Product Description"
-msgstr "Descripción del producto"
 
 #. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_purchase_report__product_tmpl_id
@@ -2366,15 +2790,14 @@ msgid "Product Uom Qty"
 msgstr "Cantidad de UdM del producto"
 
 #. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_purchase_bill_line_match__product_uom_qty_to_invoice
+msgid "Product Uom Qty To Invoice"
+msgstr "Cantidad del producto por facturar en la UdM"
+
+#. module: purchase
 #: model:ir.model,name:purchase.model_product_product
 msgid "Product Variant"
 msgstr "Variante del producto"
-
-#. module: purchase
-#: model:ir.actions.act_window,name:purchase.product_product_action
-#: model:ir.ui.menu,name:purchase.product_product_menu
-msgid "Product Variants"
-msgstr "Variantes de producto"
 
 #. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_purchase_order_line__product_no_variant_attribute_value_ids
@@ -2399,10 +2822,10 @@ msgid "Provide a double validation mechanism for purchases"
 msgstr "Proporcione un mecanismo de doble validación para las compras"
 
 #. module: purchase
+#: model:ir.module.module,shortdesc:base.module_purchase
 #: model:ir.ui.menu,name:purchase.menu_purchase_root
 #: model:ir.ui.menu,name:purchase.purchase_report
 #: model:res.groups.privilege,name:purchase.res_groups_privilege_purchase
-#: model_terms:ir.ui.view,arch_db:purchase.product_template_search_view_purchase
 #: model_terms:ir.ui.view,arch_db:purchase.res_config_settings_view_form_purchase
 msgid "Purchase"
 msgstr "Compras"
@@ -2411,6 +2834,11 @@ msgstr "Compras"
 #: model:ir.model.fields,field_description:purchase.field_res_config_settings__module_purchase_requisition
 msgid "Purchase Agreements"
 msgstr "Contratos de compra"
+
+#. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_res_config_settings__module_purchase_alternative
+msgid "Purchase Alternative"
+msgstr "Alternativas de compras"
 
 #. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_purchase_bill_line_match__purchase_amount_untaxed
@@ -2466,10 +2894,21 @@ msgstr ""
 "proveedor"
 
 #. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_account_bank_statement_line__purchase_matched_ratio
+#: model:ir.model.fields,field_description:purchase.field_account_move__purchase_matched_ratio
+msgid "Purchase Matched Ratio"
+msgstr "Proporción de coincidencia de compras"
+
+#. module: purchase
 #. odoo-python
 #: code:addons/purchase/models/account_invoice.py:0
 msgid "Purchase Matching"
 msgstr "Conciliación de compra"
+
+#. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_account_move_line__purchase_matching_issue_msg
+msgid "Purchase Matching Issue Msg"
+msgstr "Mensaje de problema de coincidencia de compras"
 
 #. module: purchase
 #. odoo-python
@@ -2494,6 +2933,7 @@ msgstr "Conciliación de compra"
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_tree
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_view_activity
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_view_tree
+#: model_terms:ir.ui.view,arch_db:purchase.view_move_form_inherit_purchase
 msgid "Purchase Order"
 msgstr "Orden de compra"
 
@@ -2520,13 +2960,16 @@ msgstr "Número de órdenes de compra"
 #: model:ir.actions.act_window,name:purchase.action_purchase_history
 #: model:ir.model,name:purchase.model_purchase_order_line
 #: model:ir.model.fields,field_description:purchase.field_account_move_line__purchase_line_id
+#: model:ir.model.fields,field_description:purchase.field_account_tax__purchase_order_line_ids
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_form
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_line_form2
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_line_view_form_invoice
 msgid "Purchase Order Line"
 msgstr "Línea de la orden de compra"
 
 #. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_form
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_line_list_invoice
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_line_tree
 msgid "Purchase Order Lines"
 msgstr "Líneas de la orden de compra"
@@ -2579,6 +3022,12 @@ msgid "Purchase Report"
 msgstr "Reporte de compras"
 
 #. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_account_bank_statement_line__purchase_vendor_bill_id
+#: model:ir.model.fields,field_description:purchase.field_account_move__purchase_vendor_bill_id
+msgid "Purchase Vendor Bill"
+msgstr "Factura de proveedor de compra"
+
+#. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_account_bank_statement_line__purchase_warning_text
 #: model:ir.model.fields,field_description:purchase.field_account_move__purchase_warning_text
 #: model:ir.model.fields,field_description:purchase.field_purchase_order__purchase_warning_text
@@ -2599,6 +3048,11 @@ msgstr "Órdenes de compra que se han facturado."
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_view_search
 msgid "Purchase orders that include lines not invoiced."
 msgstr "Órdenes de compra que incluyen líneas sin facturar."
+
+#. module: purchase
+#: model:ir.module.module,summary:base.module_purchase
+msgid "Purchase orders, tenders and agreements"
+msgstr "Órdenes de compra, licitaciones y contratos"
 
 #. module: purchase
 #: model:ir.actions.server,name:purchase.purchase_send_reminder_mail_ir_actions_server
@@ -2629,19 +3083,26 @@ msgstr "Compras: recordatorio de proveedor"
 #. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_product_product__purchased_product_qty
 #: model:ir.model.fields,field_description:purchase.field_product_template__purchased_product_qty
+#: model_terms:ir.ui.view,arch_db:purchase.product_normal_form_view_inherit_purchase
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_bill_line_match_tree
+#: model_terms:ir.ui.view,arch_db:purchase.view_product_template_purchase_buttons_from
 msgid "Purchased"
 msgstr "Comprado"
 
 #. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.product_normal_form_view_inherit_purchase
 #: model_terms:ir.ui.view,arch_db:purchase.view_product_template_purchase_buttons_from
-msgid "Purchased in the last 365 days"
-msgstr "Comprado en los últimos 365 días"
+msgid ""
+"Purchased in the last 365 days. Incoming represents confirmed purchase "
+"orders not received, or partially received"
+msgstr ""
+"Comprado en los últimos 365 días. Las entradas representan las órdenes de "
+"compra confirmadas sin recibir o recibidas de forma parcial"
 
 #. module: purchase
 #. odoo-python
 #: code:addons/purchase/models/res_partner.py:0
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_bill_line_match_search
 #: model_terms:ir.ui.view,arch_db:purchase.res_partner_view_purchase_buttons
 #: model_terms:ir.ui.view,arch_db:purchase.view_move_form_inherit_purchase
 msgid "Purchases"
@@ -2682,22 +3143,42 @@ msgid "Qty Received"
 msgstr "Cant. recibida"
 
 #. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_purchase_bill_line_match__qty_to_invoice_raw
+msgid "Qty not invoiced"
+msgstr "Cantidad sin facturar"
+
+#. module: purchase
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_line_list_invoice
+msgid "Qty to Invoice"
+msgstr "Cantidad por facturar"
+
+#. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_purchase_report__qty_to_be_billed
 msgid "Qty to be Billed"
 msgstr "Cant. a facturar"
 
 #. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_purchase_bill_line_match__qty_to_invoice
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_bill_line_match_tree
 msgid "Qty to invoice"
 msgstr "Cant. a facturar"
 
 #. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_purchase_order_line__product_qty
-#: model_terms:ir.ui.view,arch_db:purchase.purchase_bill_line_match_tree
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_history_tree
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_line_list_invoice
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_portal_content
 msgid "Quantity"
 msgstr "Cantidad"
+
+#. module: purchase
+#: model_terms:ir.ui.view,arch_db:purchase.view_product_supplier_inherit
+msgid ""
+"Quantity on hand minus outgoing quantity from Sales Orders plus incoming "
+"quantity from Purchase Orders"
+msgstr ""
+"Cantidad a la mano menos la cantidad saliente de las órdenes de venta más la "
+"cantidad entrante de las órdenes de compra"
 
 #. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_form
@@ -2747,6 +3228,11 @@ msgid "RFQs and Purchases"
 msgstr "Solicitudes de cotización y compras"
 
 #. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_purchase_order_line__consolidation_rate
+msgid "Rate"
+msgstr "Tasa"
+
+#. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_purchase_order__rating_ids
 msgid "Ratings"
 msgstr "Calificaciones"
@@ -2757,6 +3243,7 @@ msgid "Read the documentation"
 msgstr "Consulte la documentación"
 
 #. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_purchase_order__receipt_reminder_email
 #: model:ir.model.fields,field_description:purchase.field_res_config_settings__group_send_reminder
 #: model:ir.model.fields,field_description:purchase.field_res_partner__receipt_reminder_email
 #: model:ir.model.fields,field_description:purchase.field_res_users__receipt_reminder_email
@@ -2764,9 +3251,15 @@ msgid "Receipt Reminder"
 msgstr "Recordatorio de entrega"
 
 #. module: purchase
-#: model:ir.model.fields,field_description:purchase.field_purchase_order__receipt_reminder_email
-msgid "Receipt Reminder Email"
-msgstr "Correo electrónico del recordatorio de la entrega"
+#: model:ir.model.fields,field_description:purchase.field_purchase_order__receipt_status
+msgid "Receipt Status"
+msgstr "Estado de entrega"
+
+#. module: purchase
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_form
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_view_tree
+msgid "Receive"
+msgstr "Recibir"
 
 #. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_purchase_order_line__qty_received_at_date
@@ -2791,7 +3284,6 @@ msgstr "Cantidad recibida"
 
 #. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.track_po_line_qty_received_template
-#: model_terms:ir.ui.view,arch_db:purchase.track_po_line_template
 msgid "Received Quantity:"
 msgstr "Cantidad recibida:"
 
@@ -2811,12 +3303,13 @@ msgid "Reference"
 msgstr "Referencia"
 
 #. module: purchase
+#: model_terms:ir.ui.view,arch_db:purchase.view_purchase_bill_union_list_invoice
 #: model_terms:ir.ui.view,arch_db:purchase.view_purchase_bill_union_tree
 msgid "Reference Document"
 msgstr "Documento de referencia"
 
 #. module: purchase
-#: model:ir.model.fields,field_description:purchase.field_purchase_report__product_uom_id
+#: model:ir.model.fields,field_description:purchase.field_purchase_report__uom_id
 msgid "Reference Unit of Measure"
 msgstr "Unidad de medida de referencia"
 
@@ -2880,8 +3373,8 @@ msgstr "Solicitudes de cotización"
 #: model:ir.actions.act_window,name:purchase.action_rfq_form
 #: model:ir.actions.act_window,name:purchase.purchase_rfq
 #: model:ir.ui.menu,name:purchase.menu_purchase_rfq
+#: model:portal.entry,name:purchase.portal_rfq
 #: model_terms:ir.ui.view,arch_db:purchase.portal_my_home_menu_purchase
-#: model_terms:ir.ui.view,arch_db:purchase.portal_my_home_purchase
 #: model_terms:ir.ui.view,arch_db:purchase.view_purchase_order_search
 msgid "Requests for Quotation"
 msgstr "Solicitudes de cotización"
@@ -2900,6 +3393,17 @@ msgstr ""
 "estas se confirmarán y se convertirán en órdenes de compra."
 
 #. module: purchase
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_form
+msgid ""
+"Reset to today's date to recompute expected arrival based on available lead "
+"time                                     and previous information from the "
+"RFQ."
+msgstr ""
+"Restablecer a la fecha de hoy para volver a calcular la fecha esperada según "
+"el plazo de entrega disponible                                     e "
+"información previa de la solicitud de cotización."
+
+#. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_purchase_order__activity_user_id
 msgid "Responsible User"
 msgstr "Usuario responsable"
@@ -2908,6 +3412,12 @@ msgstr "Usuario responsable"
 #: model:ir.model.fields,field_description:purchase.field_purchase_order__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr "Error en el envío del SMS"
+
+#. module: purchase
+#. odoo-javascript
+#: code:addons/purchase/static/src/js/tours/purchase.js:0
+msgid "Save the line."
+msgstr "Guarda la línea."
 
 #. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_portal_content
@@ -2925,12 +3435,6 @@ msgstr "Buscar orden de compra"
 #: model_terms:ir.ui.view,arch_db:purchase.view_purchase_bill_union_filter
 msgid "Search Reference Document"
 msgstr "Buscar documento de referencia"
-
-#. module: purchase
-#. odoo-javascript
-#: code:addons/purchase/static/src/js/tours/purchase.js:0
-msgid "Search a vendor name, or create one on the fly."
-msgstr "Busque el nombre de un proveedor o cree uno al instante."
 
 #. module: purchase
 #: model:ir.model.fields.selection,name:purchase.selection__purchase_order_line__display_type__line_section
@@ -2955,15 +3459,20 @@ msgstr ""
 "Seleccione las líneas de la factura para agregarlas a una orden de compra"
 
 #. module: purchase
-#. odoo-javascript
-#: code:addons/purchase/static/src/js/tours/purchase.js:0
-msgid "Select a product, or create a new one on the fly."
-msgstr "Seleccione un producto o cree uno nuevo al instante."
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_form
+msgid "Select a Product"
+msgstr "Selecciona un producto"
 
 #. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.view_move_form_inherit_purchase
 msgid "Select a purchase document"
 msgstr "Selecciona un documento de compra"
+
+#. module: purchase
+#. odoo-javascript
+#: code:addons/purchase/static/src/js/tours/purchase.js:0
+msgid "Select price"
+msgstr "Selecciona el precio"
 
 #. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_purchase_order_line__selected_seller_id
@@ -2996,6 +3505,11 @@ msgid "Send an automatic reminder email to confirm delivery"
 msgstr ""
 "Envíe un correo electrónico de recordatorio automático para confirmar la "
 "entrega"
+
+#. module: purchase
+#: model:ir.actions.act_window,name:purchase.action_purchase_order_mass_mail
+msgid "Send by mail"
+msgstr "Enviar por correo"
 
 #. module: purchase
 #. odoo-javascript
@@ -3052,6 +3566,11 @@ msgstr "Compartir"
 #: model:ir.model.fields,field_description:purchase.field_purchase_order__show_comparison
 msgid "Show Comparison"
 msgstr "Mostrar comparación"
+
+#. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_purchase_order__show_receive_button
+msgid "Show Receive Button"
+msgstr "Mostrar botón \"Recibir\""
 
 #. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_view_search
@@ -3176,6 +3695,16 @@ msgid "Tax Country"
 msgstr "País del impuesto"
 
 #. module: purchase
+#: model:ir.model.fields.selection,name:purchase.selection__purchase_order__document_tax_mode__tax_excluded
+msgid "Tax Excl."
+msgstr "Impuestos excl."
+
+#. module: purchase
+#: model:ir.model.fields.selection,name:purchase.selection__purchase_order__document_tax_mode__tax_included
+msgid "Tax Incl."
+msgstr "Impuestos incl."
+
+#. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_purchase_order__tax_totals
 msgid "Tax Totals"
 msgstr "Total de impuestos"
@@ -3234,6 +3763,18 @@ msgstr ""
 "generar esta línea."
 
 #. module: purchase
+#. odoo-python
+#: code:addons/purchase/models/product.py:0
+msgid "Template for Products"
+msgstr "Plantilla para productos"
+
+#. module: purchase
+#. odoo-python
+#: code:addons/purchase/models/purchase_order.py:0
+msgid "Template for Requests for Quotation"
+msgstr "Plantilla para solicitudes de cotización"
+
+#. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_portal_content
 msgid "Terms &amp; Conditions"
 msgstr "Términos y condiciones"
@@ -3258,6 +3799,32 @@ msgid "The Price of one unit of the product's Unit of Measure"
 msgstr "El precio de una unidad de la unidad de medida del producto"
 
 #. module: purchase
+#. odoo-python
+#: code:addons/purchase/models/purchase_order.py:0
+msgid ""
+"The following purchase orders %(invalid_orders)s can't be received. "
+"Cancelled all receptions."
+msgstr ""
+"No puedes recibir las siguientes órdenes de compra %(invalid_orders)s. Todas "
+"las recepciones están canceladas."
+
+#. module: purchase
+#: model_terms:ir.ui.view,arch_db:purchase.track_po_line_template
+msgid "The ordered quantity and unit price have been updated."
+msgstr "Se actualizaron la cantidad y el precio unitario."
+
+#. module: purchase
+#: model_terms:ir.ui.view,arch_db:purchase.track_po_line_template
+msgid "The ordered quantity has been updated."
+msgstr "Se actualizó la cantidad ordenada."
+
+#. module: purchase
+#. odoo-python
+#: code:addons/purchase/models/res_partner.py:0
+msgid "The partner cannot be deleted because it is used as a dropship address"
+msgstr ""
+
+#. module: purchase
 #: model_terms:ir.actions.act_window,help:purchase.act_res_partner_2_purchase_order
 msgid ""
 "The request for quotation is the first step of the purchases flow. Once\n"
@@ -3269,6 +3836,11 @@ msgstr ""
 "                    de convertirla en una orden de compra, podrá controlar "
 "la recepción\n"
 "                    de los productos y la factura del proveedor."
+
+#. module: purchase
+#: model_terms:ir.ui.view,arch_db:purchase.track_po_line_template
+msgid "The unit price has been updated."
+msgstr "Se actualizó el precio unitario."
 
 #. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.portal_my_purchase_orders
@@ -3351,6 +3923,12 @@ msgid "To Approve"
 msgstr "Por aprobar"
 
 #. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_purchase_order_line__price_subtotal_to_invoice
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_line_list_invoice
+msgid "To Invoice"
+msgstr "Por facturar"
+
+#. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_purchase_order_line__qty_to_invoice
 msgid "To Invoice Quantity"
 msgstr "Cantidad a facturar"
@@ -3377,6 +3955,12 @@ msgid "Total Billed"
 msgstr "Total facturado"
 
 #. module: purchase
+#: model_terms:ir.ui.view,arch_db:purchase.product_product_purchase_tree_view
+#: model_terms:ir.ui.view,arch_db:purchase.product_template_purchase_tree_view
+msgid "Total Forecasted"
+msgstr "Total pronosticado"
+
+#. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_bill_line_match_tree
 msgid "Total Purchased"
 msgstr "Total comprado"
@@ -3393,6 +3977,7 @@ msgstr "Cantidad total"
 
 #. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_history_tree
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_line_list_invoice
 msgid "Total Untaxed"
 msgstr "Total libre de impuestos"
 
@@ -3419,11 +4004,6 @@ msgstr "Total en moneda"
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_history_pivot
 msgid "Total purchased amount"
 msgstr "Importe total comprado"
-
-#. module: purchase
-#: model:ir.model.fields,field_description:purchase.field_purchase_order_line__translated_product_name
-msgid "Translated Product Name"
-msgstr "Nombre del producto traducido"
 
 #. module: purchase
 #. odoo-javascript
@@ -3456,13 +4036,15 @@ msgstr ""
 
 #. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_purchase_bill_line_match__product_uom_id
-#: model:ir.model.fields,field_description:purchase.field_purchase_order_line__product_uom_id
+#: model:ir.model.fields,field_description:purchase.field_purchase_order_line__uom_id
 msgid "Unit"
 msgstr "Unidad"
 
 #. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_purchase_order_line__price_unit
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_bill_line_match_tree
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_history_tree
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_line_list_invoice
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_portal_content
 msgid "Unit Price"
 msgstr "Precio unitario"
@@ -3479,6 +4061,7 @@ msgstr "Precio unitario de la unidad de medida del producto"
 
 #. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_form
+#: model_terms:ir.ui.view,arch_db:purchase.track_po_line_template
 msgid "Unit Price:"
 msgstr "Precio unitario:"
 
@@ -3492,6 +4075,16 @@ msgstr "Unidades y embalajes"
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_form
 msgid "Unlock"
 msgstr "Desbloquear"
+
+#. module: purchase
+#: model:ir.actions.server,name:purchase.action_unmatch_lines
+msgid "Unmatch"
+msgstr "Desvincular"
+
+#. module: purchase
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_bill_line_match_search
+msgid "Unmatched"
+msgstr "Sin coincidencia"
 
 #. module: purchase
 #. odoo-python
@@ -3515,6 +4108,12 @@ msgstr "Subtotal"
 #: model:ir.model.fields,field_description:purchase.field_purchase_report__untaxed_total
 msgid "Untaxed Total"
 msgstr "Subtotal"
+
+#. module: purchase
+#. odoo-python
+#: code:addons/purchase/models/account_invoice.py:0
+msgid "Update"
+msgstr "Actualizar"
 
 #. module: purchase
 #. odoo-javascript
@@ -3553,13 +4152,16 @@ msgid "Variant Grid Entry"
 msgstr "Entrada de la tabla de variante"
 
 #. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_product_product__sold_by_vendor_id
 #: model:ir.model.fields,field_description:purchase.field_purchase_bill_union__partner_id
 #: model:ir.model.fields,field_description:purchase.field_purchase_order__partner_id
 #: model:ir.model.fields,field_description:purchase.field_purchase_report__partner_id
 #: model_terms:ir.ui.view,arch_db:purchase.product_template_search_view_purchase
-#: model_terms:ir.ui.view,arch_db:purchase.product_view_search_catalog
+#: model_terms:ir.ui.view,arch_db:purchase.product_view_search_catalog_inherit
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_bill_line_match_search
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_bill_line_match_tree
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_history_tree
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_line_list_invoice
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_line_search
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_line_tree
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_view_search
@@ -3583,6 +4185,7 @@ msgstr ""
 #. module: purchase
 #: model:ir.actions.act_window,name:purchase.act_res_partner_2_supplier_invoices
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_form
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_line_view_form_invoice
 #: model_terms:ir.ui.view,arch_db:purchase.view_purchase_bill_union_filter
 msgid "Vendor Bills"
 msgstr "Facturas de proveedores"
@@ -3593,12 +4196,25 @@ msgid "Vendor Country"
 msgstr "País del proveedor"
 
 #. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_res_partner__purchase_incoterm_id
+#: model:ir.model.fields,field_description:purchase.field_res_users__purchase_incoterm_id
+msgid "Vendor Incoterm"
+msgstr "Incoterm del proveedor"
+
+#. module: purchase
+#: model:ir.model.fields,field_description:purchase.field_res_partner__purchase_incoterm_location
+#: model:ir.model.fields,field_description:purchase.field_res_users__purchase_incoterm_location
+msgid "Vendor Incoterm Location"
+msgstr "Ubicación del Incoterm del proveedor"
+
+#. module: purchase
 #: model:ir.ui.menu,name:purchase.menu_product_pricelist_action2_purchase
 msgid "Vendor Pricelists"
 msgstr "Listas de precios de proveedores"
 
 #. module: purchase
 #: model:ir.model.fields,field_description:purchase.field_purchase_order__partner_ref
+#: model_terms:ir.ui.view,arch_db:purchase.view_purchase_bill_union_list_invoice
 msgid "Vendor Reference"
 msgstr "Referencia de proveedor"
 
@@ -3679,16 +4295,6 @@ msgid "Warnings"
 msgstr "Advertencias"
 
 #. module: purchase
-#: model:ir.model.fields,field_description:purchase.field_purchase_order__website_message_ids
-msgid "Website Messages"
-msgstr "Mensajes del sitio web"
-
-#. module: purchase
-#: model:ir.model.fields,help:purchase.field_purchase_order__website_message_ids
-msgid "Website communication history"
-msgstr "Historial de comunicación del sitio web"
-
-#. module: purchase
 #: model_terms:digest.tip,tip_description:purchase.digest_tip_purchase_0
 msgid ""
 "When creating a purchase order, have a look at the vendor's <i>On Time "
@@ -3751,15 +4357,6 @@ msgid "You don't use a good CRM software?"
 msgstr "¿No utiliza un buen CRM?"
 
 #. module: purchase
-#: model_terms:ir.actions.act_window,help:purchase.product_product_action
-msgid ""
-"You must define a product for everything you sell or purchase,\n"
-"                whether it's a storable product, a consumable or a service."
-msgstr ""
-"Debe definir un producto para todo lo que vende o compra, ya sea un producto "
-"almacenable, uno consumible o un servicio."
-
-#. module: purchase
 #: model_terms:ir.actions.act_window,help:purchase.product_normal_action_puchased
 msgid ""
 "You must define a product for everything you sell or purchase,\n"
@@ -3781,20 +4378,21 @@ msgstr ""
 #. odoo-python
 #: code:addons/purchase/models/purchase_order.py:0
 msgid ""
-"Your quotation contains products from company %(product_company)s whereas "
-"your quotation belongs to company %(quote_company)s. \n"
-" Please change the company of your quotation or remove the products from "
-"other companies (%(bad_products)s)."
+"Your RFQ contains products from company %(product_company)s whereas your RFQ "
+"belongs to company %(quote_company)s. \n"
+" Please change the company of your RFQ or remove the products from other "
+"companies (%(bad_products)s)."
 msgstr ""
-"Su cotización incluye productos de la empresa%(product_company)s pero la "
-"cotización pertenece a la empresa %(quote_company)s. \n"
-"Cambie la empresa de su cotización o elimine los productos que pertenecen a "
-"otras empresas (%(bad_products)s)."
+"Tu solicitud de cotización incluye productos de la empresa %"
+"(product_company)s, pero la solicitud cotización pertenece a la empresa %"
+"(quote_company)s. \n"
+"Cambia la empresa de tu solicitud de cotización o elimina los productos que "
+"pertenecen a otras empresas (%(bad_products)s)."
 
 #. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.purchase_order_form
-msgid "day(s) before"
-msgstr "día(s) antes"
+msgid "billing"
+msgstr "facturación"
 
 #. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.view_product_supplier_inherit
@@ -3808,16 +4406,20 @@ msgstr ""
 "Por ejemplo, Este proveedor estará de vacaciones hasta finales de agosto."
 
 #. module: purchase
+#. odoo-python
+#: code:addons/purchase/models/purchase_order_line.py:0
+msgid "id"
+msgstr "id"
+
+#. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.bill_to_po_wizard_form
 msgid "or create new"
 msgstr "o cree un nuevo"
 
 #. module: purchase
-#. odoo-python
-#: code:addons/purchase/models/account_invoice.py:0
-#: code:addons/purchase/models/purchase_order.py:0
-msgid "partner_id"
-msgstr "partner_id"
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_form
+msgid "purchase"
+msgstr "compra"
 
 #. module: purchase
 #. odoo-python
@@ -3849,55 +4451,30 @@ msgid "to learn all the ways to connect your software with"
 msgstr "para conocer todas las formas de conectar su software con"
 
 #. module: purchase
+#: model_terms:ir.ui.view,arch_db:purchase.purchase_order_form
+msgid "tracking"
+msgstr "seguimiento"
+
+#. module: purchase
 #: model_terms:ir.ui.view,arch_db:purchase.report_purchaseorder_document
 #: model_terms:ir.ui.view,arch_db:purchase.report_purchasequotation_document
 msgid "with"
 msgstr "con"
 
 #. module: purchase
-#: model:mail.template,subject:purchase.email_template_edi_purchase
 #: model:mail.template,subject:purchase.email_template_edi_purchase_done
 #: model:mail.template,subject:purchase.email_template_edi_purchase_reminder
 msgid "{{ object.company_id.name }} Order (Ref {{ object.name or 'n/a' }})"
 msgstr "{{ object.company_id.name }} Orden (Ref {{ object.name or 'n/a' }})"
 
-#~ msgid "Auto-complete from a past bill / purchase order."
-#~ msgstr "Autocompletar con una factura u orden de compra anterior."
+#. module: purchase
+#: model:mail.template,subject:purchase.email_template_edi_purchase
+msgid ""
+"{{ object.company_id.name }} Request for Quotation (Ref {{ object.name or 'n/"
+"a' }})"
+msgstr ""
+"Solicitud de cotización de {{ object.company_id.name }} (Ref. {{ object.name "
+"or 'n/a' }})"
 
-#~ msgid "Extended Filters"
-#~ msgstr "Filtros avanzados"
-
-#~ msgid "Group By"
-#~ msgstr "Agrupar por"
-
-#~ msgid ""
-#~ "Margin of error for vendor lead times. When the system generates Purchase "
-#~ "Orders for procuring products, they will be scheduled that many days "
-#~ "earlier to cope with unexpected vendor delays."
-#~ msgstr ""
-#~ "Margen de error para los plazos de entrega del proveedor. Cuando el "
-#~ "sistema genera órdenes de compra para adquirir productos, se programarán "
-#~ "con estos días de anticipación en caso de que haya demoras inesperadas."
-
-#~ msgid ""
-#~ "Margin of error for vendor lead times. When the system generates Purchase "
-#~ "Orders for reordering products,they will be scheduled that many days "
-#~ "earlier to cope with unexpected vendor delays."
-#~ msgstr ""
-#~ "Margen de error para los plazos de entrega del proveedor. Cuando el "
-#~ "sistema genera órdenes de compra para reordenar productos, se programarán "
-#~ "con estos días de anticipación en caso de que haya demoras inesperadas."
-
-#~ msgid "Purchase Lead Time"
-#~ msgstr "Plazo de entrega de compra"
-
-#~ msgid "Security Lead Time for Purchase"
-#~ msgstr "Plazo de seguridad para compras"
-
-#~ msgid "Select a purchase order or an old bill"
-#~ msgstr "Seleccione una orden de compra o una factura antigua"
-
-#~ msgid "You can't select lines from multiple Vendor Bill to do the matching."
-#~ msgstr ""
-#~ "No puede seleccionar líneas de varias facturas de proveedor para realizar "
-#~ "la conciliación."
+#~ msgid "Translated Product Name"
+#~ msgstr "Nombre del producto traducido"

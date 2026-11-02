@@ -4,14 +4,15 @@
 #
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Malaz Siddig Elsayed Abuidris (msea)" <msea@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-10-13 12:17+0000\n"
-"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
-"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-10-22 07:33+0000\n"
+"Last-Translator: \"Malaz Siddig Elsayed Abuidris (msea)\" <msea@odoo.com>\n"
+"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-20/"
 "sale_project_stock/ar/>\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
@@ -19,28 +20,47 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: sale_project_stock
+#: model:ir.module.module,description:base.module_sale_project_stock
+#: model:ir.module.module,summary:base.module_sale_project_stock
+msgid ""
+"Adds a full traceability of inventory operations on the profitability report."
+msgstr ""
+
+#. module: sale_project_stock
+#: model:ir.model,name:sale_project_stock.model_account_analytic_line
+msgid "Analytic Line"
+msgstr "البند التحليلي"
+
+#. module: sale_project_stock
+#: model:ir.model.fields,field_description:sale_project_stock.field_account_analytic_line__display_name
 #: model:ir.model.fields,field_description:sale_project_stock.field_project_project__display_name
-#: model:ir.model.fields,field_description:sale_project_stock.field_sale_order_line__display_name
 #: model:ir.model.fields,field_description:sale_project_stock.field_stock_move__display_name
 #: model:ir.model.fields,field_description:sale_project_stock.field_stock_picking__display_name
 msgid "Display Name"
 msgstr "اسم العرض"
 
 #. module: sale_project_stock
+#: model:ir.model.fields,field_description:sale_project_stock.field_account_analytic_line__id
 #: model:ir.model.fields,field_description:sale_project_stock.field_project_project__id
-#: model:ir.model.fields,field_description:sale_project_stock.field_sale_order_line__id
 #: model:ir.model.fields,field_description:sale_project_stock.field_stock_move__id
 #: model:ir.model.fields,field_description:sale_project_stock.field_stock_picking__id
 msgid "ID"
 msgstr "المُعرف"
 
 #. module: sale_project_stock
-#: model_terms:ir.actions.act_window,help:sale_project_stock.stock_move_per_sale_order_line_action
-msgid "No stock move found"
-msgstr "لم يتم العثور على حركة مخزون"
+#. odoo-python
+#: code:addons/sale_project_stock/models/account_analytic_line.py:0
+msgid "Inventory Transfers (Costs)"
+msgstr "عمليات نقل المخزون (التكاليف)"
+
+#. module: sale_project_stock
+#. odoo-python
+#: code:addons/sale_project_stock/models/account_analytic_line.py:0
+msgid "Inventory Transfers (Revenue)"
+msgstr "عمليات نقل المخزون (الإيرادات)"
 
 #. module: sale_project_stock
 #: model:ir.model,name:sale_project_stock.model_project_project
@@ -48,9 +68,9 @@ msgid "Project"
 msgstr "المشروع"
 
 #. module: sale_project_stock
-#: model:ir.model,name:sale_project_stock.model_sale_order_line
-msgid "Sales Order Line"
-msgstr "بند أمر المبيعات"
+#: model:ir.module.module,shortdesc:base.module_sale_project_stock
+msgid "Sale Project - Sale Stock"
+msgstr ""
 
 #. module: sale_project_stock
 #: model:ir.model,name:sale_project_stock.model_stock_move
@@ -90,23 +110,6 @@ msgstr ""
 "الانتقاء من المخزون."
 
 #. module: sale_project_stock
-#: model_terms:ir.actions.act_window,help:sale_project_stock.stock_move_per_sale_order_line_action
-msgid ""
-"This menu gives you the full traceability of inventory\n"
-"                operations on a specific product. You can filter on the "
-"product\n"
-"                to see all the past or future movements for the product."
-msgstr ""
-"تمنحك هذه القائمة  قابلية تتبع عمليات المخزون بشكل كامل\n"
-"                لمنتج محدد. بإمكانك التصفية حسب المنتج لرؤية \n"
-"                كافة التحركات السابقة للمنتج."
-
-#. module: sale_project_stock
 #: model:ir.model,name:sale_project_stock.model_stock_picking
 msgid "Transfer"
 msgstr "تحويل"
-
-#. module: sale_project_stock
-#: model:ir.actions.act_window,name:sale_project_stock.stock_move_per_sale_order_line_action
-msgid "Transfers"
-msgstr "التحويلات"

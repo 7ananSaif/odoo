@@ -1,23 +1,33 @@
-import { useService } from "@web/core/utils/hooks";
-import { Component, onWillStart, onWillUpdateProps } from "@odoo/owl";
+import { Component, onWillStart, usePlugin, proxy } from "@odoo/owl";
+import { ORM } from "@web/core/orm_plugin";
 
 export class PurchaseDashBoard extends Component {
     static template = "purchase.PurchaseDashboard";
-    static props = { list: { type: Object, optional: true } };
-    setup() {
-        this.orm = useService("orm");
-        this.action = useService("action");
 
+    orm = usePlugin(ORM);
+
+    setup() {
+        this.state = proxy({
+            purchaseData: {},
+            multiuser: false,
+        });
         onWillStart(async () => {
-            await this.updateDashboardState();
+            const update = (data) => {
+                this.state.purchaseData = data;
+                this.state.multiuser = JSON.stringify(data.global) !== JSON.stringify(data.my);
+            };
+            const cache = {
+                type: "disk",
+                update: "always",
+                callback(freshData, hasChanged) {
+                    if (hasChanged) {
+                        update(freshData);
+                    }
+                },
+            };
+            const data = await this.orm.cache(cache).call("purchase.order", "retrieve_dashboard");
+            update(data);
         });
-        onWillUpdateProps(async () => {
-            await this.updateDashboardState();
-        });
-    }
-    async updateDashboardState() {
-        this.purchaseData = await this.orm.call("purchase.order", "retrieve_dashboard");
-        this.multiuser = JSON.stringify(this.purchaseData.global) !== JSON.stringify(this.purchaseData.my);
     }
 
     /**
@@ -30,7 +40,7 @@ export class PurchaseDashBoard extends Component {
         const searchItems = this.env.searchModel.getSearchItems((item) =>
             filters.includes(item.name)
         );
-        this.env.searchModel.query = [];
+        this.env.searchModel.query.length = 0;
         for (const item of searchItems) {
             this.env.searchModel.toggleSearchItem(item.id);
         }

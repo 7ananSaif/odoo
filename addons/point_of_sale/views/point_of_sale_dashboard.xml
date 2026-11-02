@@ -64,6 +64,7 @@
                 <field name="pos_session_duration"/>
                 <field name="currency_id"/>
                 <field name="statistics_for_current_session" />
+                <field name="kanban_dashboard_graph"/>
                 <templates>
                     <t t-name="menu">
                         <div class="container dropdown-pos-config">
@@ -96,24 +97,28 @@
                             </div>
                         </div>
                     </t>
-                    <t t-name="card">
-                        <div name="card_title" class="mb-4 ms-2">
-                            <field name="name" class="fw-bold fs-4 d-block"/>
-                            <div t-if="!record.current_session_id.raw_value &amp;&amp; record.pos_session_username.value" class="badge text-bg-info d-inline-block">Opened by <field name="pos_session_username"/></div>
-                            <div t-if="record.pos_session_state.raw_value == 'opening_control'" class="badge text-bg-info d-inline-block">Opening Control</div>
-                            <div t-if="record.pos_session_state.raw_value == 'closing_control'" class="badge text-bg-info d-inline-block">Closing Control</div>
-                            <div t-if="record.pos_session_state.raw_value == 'opened' and record.pos_session_duration.raw_value > 1" t-attf-class="badge bg-#{record.pos_session_duration.raw_value > 3 and 'danger' or 'warning'} d-inline-block"
-                                    title="The session has been opened for an unusually long period. Please consider closing.">
-                                    To Close
+                    <t t-name="card" class="d-flex flex-column">
+                        <div name="card_title" class="mb-1 ms-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <field name="name" class="fw-bold fs-4 text-truncate"/>
+                                <div t-if="record.pos_session_state.raw_value == 'opening_control'" class="badge rounded text-bg-info flex-shrink-0 m-auto">Opening Control</div>
+                                <div t-if="!record.current_session_id.raw_value &amp;&amp; record.pos_session_username.value" class="badge rounded text-bg-info text-truncate">Opened by <field name="pos_session_username"/></div>
+                                <div t-if="record.pos_session_state.raw_value == 'closing_control'" class="badge rounded text-bg-info flex-shrink-0 m-auto">Closing Control</div>
+                                <div t-if="record.pos_session_state.raw_value == 'opened' and record.pos_session_duration.raw_value > 1" t-attf-class="badge rounded bg-#{record.pos_session_duration.raw_value > 3 and 'danger' or 'warning'} flex-shrink-0 m-auto"
+                                        title="The session has been opened for an unusually long period. Please consider closing.">
+                                        To Close
+                                </div>
                             </div>
                         </div>
-                        <div class="row g-0 pb-4 ms-2 mt-auto">
-                            <div name="card_left" class="col-12 col-md-6 d-flex flex-wrap align-items-center gap-2 mb-2 mb-md-0">
-                                <button t-if="record.current_session_state.raw_value != 'closing_control'" class="btn btn-primary" name="open_ui" type="object">
-                                    <t t-if="record.current_session_state.raw_value === 'opened'">Continue Selling</t>
-                                    <t t-else="">Open Register</t>
-                                </button>
-                                <button t-else="" class="btn btn-secondary" name="open_existing_session_cb" type="object">Close</button>
+                        <div class="row g-0 pb-2 ms-2 mt-4">
+                            <div name="card_left" class="col-12 col-md-6 d-flex flex-wrap align-items-start gap-2 mb-2 mb-md-0">
+                                <div class="d-flex flex-column gap-2">
+                                    <div t-if="record.current_session_state.raw_value != 'closing_control'">
+                                        <widget name="pos_open_ui_button" action="action_open_ui"/>
+                                    </div>
+                                    <button t-else="" class="btn btn-secondary" name="open_existing_session_cb" type="object">Close</button>
+                                    <field class="mt-2" name="current_user_id" widget="many2one_avatar_user" />
+                                </div>
                             </div>
                             <div class="col-12 col-md-6">
                                 <t t-set="statistics" t-value="record.statistics_for_current_session.raw_value" />
@@ -122,25 +127,25 @@
                                         <div class="col-5">
                                             <span>Date</span>
                                         </div>
-                                        <span t-esc="statistics.date.start_date" class="col-7"/>
+                                        <span t-out="statistics.date.start_date" class="col-7"/>
                                     </div>
                                     <div class="row">
                                         <div class="col-5">
                                             <span>Opening</span>
                                         </div>
-                                        <span name="opening_cash" t-esc="statistics.cash.opening_cash" class="col-7"/>
+                                        <span name="opening_cash" t-out="statistics.cash.opening_cash" class="col-7"/>
                                     </div>
                                     <div t-if="statistics.orders.paid.display" class="row">
                                         <div class="col-5">
                                             <span>Sold</span>
                                         </div>
-                                        <span name="paid_orders" t-esc="statistics.orders.paid.display" class="col-7"/>
+                                        <span name="paid_orders" t-out="statistics.orders.paid.display" class="col-7"/>
                                     </div>
                                     <div t-if="statistics.orders.draft.display" class="row">
                                         <div class="col-5">
                                             <span>Ongoing</span>
                                         </div>
-                                        <span name="draft_orders" t-esc="statistics.orders.draft.display" class="col-7"/>
+                                        <span name="draft_orders" t-out="statistics.orders.draft.display" class="col-7"/>
                                     </div>
                                 </t>
 
@@ -149,22 +154,20 @@
                                         <div class="col-6">
                                             <span>Closing</span>
                                         </div>
-                                        <field name="last_session_closing_date" class="col-6"/>
+                                        <field name="last_session_closing_date" class="col-6 p-0"/>
                                     </div>
-                                    <div class="row" invisible="not cash_control">
+                                    <div class="row">
                                         <div class="col-6">
                                             <span>Balance</span>
                                         </div>
-                                        <field name="last_session_closing_cash" widget="monetary" class="col-6"/>
+                                        <field name="current_cash_register_balance" class="col-6 p-0" widget="monetary"/>
                                     </div>
                                 </t>
-                                
-                                <a t-if="record.number_of_rescue_session.value &gt; 0" class="col-12" name="open_opened_rescue_session_form" type="object">
-                                    <field name="number_of_rescue_session" /> outstanding rescue session
-                                </a>
                             </div>
                         </div>
-                        <field name="current_user_id" widget="many2one_avatar_user" class="mt-auto ms-auto"/>
+                        <div class="row mt-auto">
+                            <field name="kanban_dashboard_graph" widget="dashboard_graph" graph_type="line"/>
+                        </div>
                     </t>
                 </templates>
             </kanban>

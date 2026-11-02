@@ -2,14 +2,13 @@
 import * as PosLoyalty from "@pos_loyalty/../tests/tours/utils/pos_loyalty_util";
 import * as ProductScreen from "@point_of_sale/../tests/pos/tours/utils/product_screen_util";
 import * as TicketScreen from "@point_of_sale/../tests/pos/tours/utils/ticket_screen_util";
-import * as ReceiptScreen from "@point_of_sale/../tests/pos/tours/utils/receipt_screen_util";
+import * as FeedbackScreen from "@point_of_sale/../tests/pos/tours/utils/feedback_screen_util";
 import * as SelectionPopup from "@point_of_sale/../tests/generic_helpers/selection_popup_util";
 import * as PartnerList from "@point_of_sale/../tests/pos/tours/utils/partner_list_util";
 import * as Dialog from "@point_of_sale/../tests/generic_helpers/dialog_util";
 import * as Chrome from "@point_of_sale/../tests/pos/tours/utils/chrome_util";
 import * as PaymentScreen from "@point_of_sale/../tests/pos/tours/utils/payment_screen_util";
 import * as Notification from "@point_of_sale/../tests/generic_helpers/notification_util";
-import * as Utils from "@point_of_sale/../tests/generic_helpers/utils";
 import { registry } from "@web/core/registry";
 import { scan_barcode } from "@point_of_sale/../tests/generic_helpers/utils";
 
@@ -51,7 +50,6 @@ registry.category("web_tour.tours").add("PosLoyaltyTour1", {
             PosLoyalty.enterCode("invalid_code"),
             Notification.has("invalid_code"),
             PosLoyalty.enterCode("1234"),
-            PosLoyalty.hasRewardLine("Free Product - Desk Organizer", "-15.30"),
             PosLoyalty.finalizeOrder("Cash", "50"),
 
             // Use coupon but eventually remove the reward
@@ -62,9 +60,10 @@ registry.category("web_tour.tours").add("PosLoyaltyTour1", {
             PosLoyalty.hasRewardLine("90% on the cheapest product", "-4.59"),
             PosLoyalty.orderTotalIs("62.43"),
             PosLoyalty.enterCode("5678"),
-            PosLoyalty.hasRewardLine("Free Product - Desk Organizer", "-15.30"),
-            PosLoyalty.orderTotalIs("47.13"),
+            PosLoyalty.hasRewardLine("Free Product - Desk Organizer", "0", "3.00"),
+            PosLoyalty.orderTotalIs("62.43"),
             PosLoyalty.removeRewardLine("Free Product"),
+            PosLoyalty.doesNotHaveRewardLine("Free Product"),
             PosLoyalty.orderTotalIs("62.43"),
             PosLoyalty.finalizeOrder("Cash", "90"),
 
@@ -122,18 +121,18 @@ registry.category("web_tour.tours").add("PosLoyaltyTour2", {
             // the discount should change after having free products
             // it should go back to cheapest discount as it is higher
             PosLoyalty.enterCode("5678"),
-            PosLoyalty.hasRewardLine("Free Product - Desk Organizer", "-20.40"),
+            PosLoyalty.hasRewardLine("Free Product - Desk Organizer", "0"),
             PosLoyalty.hasRewardLine("90% on the cheapest product", "-4.59"),
             // set quantity to 18
             // free qty stays the same since the amount of points on the card only allows for 4 free products
             //TODO: The following step should works with ProductScreen.clickNumpad("⌫", "8"),
             ProductScreen.clickNumpad("⌫", "⌫", "1", "8"),
-            PosLoyalty.hasRewardLine("10% on your order", "-6.68"),
-            PosLoyalty.hasRewardLine("Free Product - Desk Organizer", "-20.40"),
+            PosLoyalty.hasRewardLine("10% on your order", "-8.72"),
+            PosLoyalty.hasRewardLine("Free Product - Desk Organizer", "0"),
             // scan the code again and check notification
             PosLoyalty.enterCode("5678"),
-            PosLoyalty.orderTotalIs("60.13"),
-            PosLoyalty.finalizeOrder("Cash", "65"),
+            PosLoyalty.orderTotalIs("78.49"),
+            PosLoyalty.finalizeOrder("Cash", "80"),
 
             // Specific products discount (with promocode) and free product (1357)
             // Applied programs:
@@ -145,7 +144,9 @@ registry.category("web_tour.tours").add("PosLoyaltyTour2", {
             PosLoyalty.enterCode("promocode"),
             PosLoyalty.hasRewardLine("50% on specific products", "-15.30"),
             PosLoyalty.enterCode("1357"),
-            PosLoyalty.hasRewardLine("Free Product - Desk Organizer", "-10.20"),
+            PosLoyalty.hasRewardLine("Free Product - Desk Organizer", "0"),
+            ProductScreen.clickLine("Desk Organizer", "6"),
+            ProductScreen.clickNumpad("4"),
             PosLoyalty.hasRewardLine("50% on specific products", "-10.20"),
             PosLoyalty.orderTotalIs("10.20"),
             PosLoyalty.finalizeOrder("Cash", "20"),
@@ -163,8 +164,10 @@ registry.category("web_tour.tours").add("PosLoyaltyTour2", {
             PosLoyalty.removeRewardLine("90% on the cheapest product"),
             PosLoyalty.hasRewardLine("10% on your order", "-1.91"),
             PosLoyalty.orderTotalIs("17.23"),
-            ProductScreen.clickControlButton("Reset Programs"),
+            PosLoyalty.claimReward("90% on the cheapest product"),
             PosLoyalty.hasRewardLine("90% on the cheapest product", "-2.87"),
+            PosLoyalty.orderTotalIs("14.64"),
+            PosLoyalty.removeRewardLine("10% on your order"),
             PosLoyalty.orderTotalIs("16.27"),
             PosLoyalty.finalizeOrder("Cash", "20"),
         ].flat(),
@@ -216,11 +219,11 @@ registry.category("web_tour.tours").add("PosCouponTour5", {
             ProductScreen.clickPartnerButton(),
             ProductScreen.clickCustomer("AAAA"),
             ProductScreen.addOrderline("Test Product 1", "1", "100"),
-            PosLoyalty.pointsAwardedAre("115"),
+            PosLoyalty.pointsAwardedAre("100"),
             PosLoyalty.clickDiscountButton(),
             Dialog.confirm(),
-            ProductScreen.totalAmountIs("92.00"),
-            PosLoyalty.pointsAwardedAre("92"),
+            ProductScreen.totalAmountIs("80.00"),
+            PosLoyalty.pointsAwardedAre("80"),
             Chrome.endTour(),
         ].flat(),
 });
@@ -242,11 +245,14 @@ registry.category("web_tour.tours").add("PosLoyaltyTour6", {
             ProductScreen.clickPayButton(),
             PaymentScreen.clickPaymentMethod("Cash"),
             PaymentScreen.clickValidate(),
-            ReceiptScreen.isShown(),
-            PosLoyalty.isLoyaltyPointsAvailable(),
-            Utils.refresh(),
-            ReceiptScreen.isShown(),
-            PosLoyalty.isLoyaltyPointsAvailable(),
+            FeedbackScreen.isContinueEnabled(),
+            FeedbackScreen.checkTicketData({
+                cssRules: [
+                    {
+                        css: ".loyalty",
+                    },
+                ],
+            }),
         ].flat(),
 });
 
@@ -270,6 +276,8 @@ registry.category("web_tour.tours").add("PosLoyaltyTour8", {
             Dialog.confirm("Open Register"),
 
             ProductScreen.clickDisplayedProduct("Product B"),
+            PosLoyalty.claimReward('Add "Free Product - Product A"'),
+            PosLoyalty.hasRewardLine("Free Product - Product A", "0", "1.00"),
             ProductScreen.clickDisplayedProduct("Product A"),
             ProductScreen.totalAmountIs("50.00"),
         ].flat(),
@@ -319,12 +327,13 @@ registry.category("web_tour.tours").add("PosLoyaltyTour10", {
             ProductScreen.selectedOrderlineHas("Product Test", "1"),
             PosLoyalty.isRewardButtonHighlighted(true),
             PosLoyalty.claimReward("Free Product B"),
+            Dialog.is({ title: "Please select a product for this reward" }),
             {
                 content: `click on reward item`,
-                trigger: `.selection-item:contains("Free Product B")`,
+                trigger: `.modal .selection-item:contains("Free Product B")`,
                 run: "click",
             },
-            PosLoyalty.hasRewardLine("Free Product B", "-1.00"),
+            PosLoyalty.hasRewardLine("Free Product B", "0"),
             ProductScreen.totalAmountIs("1.00"),
             PosLoyalty.isRewardButtonHighlighted(false),
         ].flat(),
@@ -358,7 +367,7 @@ registry.category("web_tour.tours").add("PosLoyaltyTour11.2", {
             PosLoyalty.enterCode("123456"),
             PosLoyalty.isRewardButtonHighlighted(true),
             PosLoyalty.claimReward("Free Product"),
-            PosLoyalty.hasRewardLine("Free Product", "-3.00"),
+            PosLoyalty.hasRewardLine("Free Product", "0.00", "3"),
             PosLoyalty.isRewardButtonHighlighted(false),
             ProductScreen.totalAmountIs("50.00"),
             PosLoyalty.finalizeOrder("Cash", "50"),
@@ -392,18 +401,26 @@ registry.category("web_tour.tours").add("PosLoyaltyTour12", {
             Dialog.confirm("Open Register"),
             ProductScreen.addOrderline("Free Product A", "2"),
             ProductScreen.clickDisplayedProduct("Free Product A"),
-            ProductScreen.totalAmountIs("2.00"),
-            PosLoyalty.hasRewardLine("Free Product", "-1.00"),
+            ProductScreen.totalAmountIs("3.00"),
+            PosLoyalty.claimReward("Free Product - [Free Product A, Free Product B]"),
+            Dialog.is({ title: "Please select a product for this reward" }),
+            SelectionPopup.has("Free Product B"),
+            SelectionPopup.has("Free Product A", { run: "click" }),
+            Dialog.isNot(),
+            PosLoyalty.hasRewardLine("Free Product - Free Product A", "0.00", "1"),
+            ProductScreen.totalAmountIs("3.00"),
             ProductScreen.addOrderline("Free Product B", "2"),
             ProductScreen.clickDisplayedProduct("Free Product B"),
-            ProductScreen.totalAmountIs("12.00"),
-            PosLoyalty.hasRewardLine("Free Product", "-5.00"),
-            ProductScreen.clickDisplayedProduct("Free Product B"),
-            ProductScreen.clickDisplayedProduct("Free Product B"),
-            ProductScreen.clickDisplayedProduct("Free Product B"),
-            ProductScreen.selectedOrderlineHas("Free Product B", "6"),
-            ProductScreen.totalAmountIs("22.00"),
-            PosLoyalty.hasRewardLine("Free Product", "-10.00"),
+            ProductScreen.totalAmountIs("18.00"),
+            PosLoyalty.hasRewardLine("Free Product - Free Product A", "0.00", "3"),
+            PosLoyalty.selectRewardLine("Free Product - Free Product A"),
+            ProductScreen.clickNumpad("⌫"),
+            PosLoyalty.claimReward("Free Product - [Free Product A, Free Product B]"),
+            Dialog.is({ title: "Please select a product for this reward" }),
+            SelectionPopup.has("Free Product B", { run: "click" }),
+            Dialog.isNot(),
+            PosLoyalty.hasRewardLine("Free Product - Free Product B", "0.00", "3"),
+            ProductScreen.totalAmountIs("18.00"),
         ].flat(),
 });
 
@@ -472,6 +489,13 @@ registry.category("web_tour.tours").add("PosLoyaltyArchivedRewardProductsInactiv
         [
             Chrome.startPoS(),
             Dialog.confirm("Open Register"),
+
+            // Order 1: give points on AAAA's card. The program only applies on future orders,
+            // so the reward can't be claimed until the next order.
+            ProductScreen.clickDisplayedProduct("Test Product A"),
+            ProductScreen.clickPartnerButton(),
+            ProductScreen.clickCustomer("AAAA"),
+            PosLoyalty.finalizeOrder("Cash", "100"),
 
             ProductScreen.clickDisplayedProduct("Test Product A"),
             ProductScreen.clickPartnerButton(),
@@ -564,6 +588,7 @@ registry.category("web_tour.tours").add("PosRewardProductScanGS1", {
     steps: () =>
         [
             Chrome.startPoS(),
+            ProductScreen.isShown(),
             scan_barcode("0195412427100283"),
             ProductScreen.selectedOrderlineHas("product_a", "1", "1,150.00"),
             PosLoyalty.hasRewardLine("50% on your order", "-575.00"),
@@ -579,7 +604,7 @@ registry.category("web_tour.tours").add("PosLoyaltyPromocodePricelist", {
             Dialog.confirm("Open Register"),
             ProductScreen.addOrderline("Test Product 1", "1"),
             PosLoyalty.enterCode("hellopromo"),
-            PosLoyalty.orderTotalIs("25.87"),
+            PosLoyalty.orderTotalIs("25.88"),
         ].flat(),
 });
 
@@ -591,7 +616,6 @@ registry.category("web_tour.tours").add("RefundRulesProduct", {
             ProductScreen.clickDisplayedProduct("product_a"),
             ProductScreen.clickDisplayedProduct("Gift Card"),
             ProductScreen.clickDisplayedProduct("Top-up eWallet"),
-            ProductScreen.clickPartnerButton(),
             PartnerList.clickPartner("AAAAAAA"),
             PosLoyalty.finalizeOrder("Cash", "1000"),
             ProductScreen.isShown(),
@@ -599,7 +623,6 @@ registry.category("web_tour.tours").add("RefundRulesProduct", {
             TicketScreen.filterIs("Paid"),
             TicketScreen.selectOrder("001"),
             ProductScreen.clickNumpad("1"),
-            ProductScreen.clickLine("Gift Card"),
             ProductScreen.clickNumpad("1"),
             {
                 content: "Notification: not allowed to refund this product",
@@ -652,7 +675,6 @@ registry.category("web_tour.tours").add("test_refund_does_not_decrease_points", 
             ProductScreen.clickRefund(),
             TicketScreen.selectOrder("001"),
             ProductScreen.clickNumpad("1"),
-            ProductScreen.clickLine("$ 1 per point on your order"),
             ProductScreen.clickNumpad("1"),
             TicketScreen.confirmRefund(),
             PaymentScreen.totalIs("-200.00"),
@@ -692,9 +714,48 @@ registry.category("web_tour.tours").add("test_min_qty_points_awarded", {
             ProductScreen.clickCustomer("AA Partner"),
             ProductScreen.clickDisplayedProduct("Whiteboard Pen"),
             PosLoyalty.claimReward("Free Product"),
+            ProductScreen.clickNumpad("2"),
             PosLoyalty.pointsTotalIs("90"),
-            PosLoyalty.orderTotalIs("0.0"),
-            PosLoyalty.finalizeOrder("Cash", "0.0"),
+            PosLoyalty.orderTotalIs("3.20"),
+            PosLoyalty.finalizeOrder("Cash", "3.20"),
+        ].flat(),
+});
+
+registry.category("web_tour.tours").add("PosOrderAwardLoyaltyPointsToCustomer", {
+    steps: () =>
+        [
+            Chrome.startPoS(),
+            Dialog.confirm("Open Register"),
+            ProductScreen.clickPartnerButton(),
+            ProductScreen.clickCustomer("AA Partner"),
+            ProductScreen.clickDisplayedProduct("Whiteboard Pen"),
+            PosLoyalty.pointsAwardedAre("+3.2"),
+            PosLoyalty.pointsTotalIs("3.2"),
+            PosLoyalty.orderTotalIs("3.2"),
+            PosLoyalty.finalizeOrder("Cash", "3.2"),
+        ].flat(),
+});
+
+registry.category("web_tour.tours").add("PosOrderRefundLoyaltyPoints", {
+    steps: () =>
+        [
+            Chrome.startPoS(),
+            ...ProductScreen.clickRefund(),
+            TicketScreen.filterIs("Paid"),
+            TicketScreen.selectOrder("001"),
+            ProductScreen.clickNumpad("1"),
+            TicketScreen.confirmRefund(),
+            PaymentScreen.isShown(),
+            PaymentScreen.clickBack(),
+            ProductScreen.isShown(),
+            PosLoyalty.pointsAwardedAre("-3.2"),
+            PosLoyalty.pointsTotalIs("0"),
+            PosLoyalty.orderTotalIs("3.2"),
+            ProductScreen.clickPayButton(),
+            PaymentScreen.clickPaymentMethod("Cash"),
+            PaymentScreen.clickValidate(),
+            FeedbackScreen.isShown(),
+            FeedbackScreen.clickNextOrder(),
         ].flat(),
 });
 
@@ -714,24 +775,10 @@ registry.category("web_tour.tours").add("test_confirm_coupon_programs_one_by_one
                             (p) => p.name === "Desk Pad"
                         );
                         const pm = posmodel.models["pos.payment.method"].getFirst();
-                        const program = posmodel.models["loyalty.program"].find(
-                            (p) => p.program_type === "gift_card"
-                        );
-
                         await posmodel.addLineToOrder({ product_tmpl_id: product }, order);
                         posmodel.addPendingOrder([order.id]);
                         order.addPaymentline(pm);
                         order.state = "paid";
-
-                        // Create fake coupon point changes to simulate coupons to be confirmed
-                        order.uiState.couponPointChanges = [
-                            {
-                                points: 124.2,
-                                program_id: program.id,
-                                coupon_id: -(i + 1),
-                                barcode: "",
-                            },
-                        ];
                     }
                 },
             },
@@ -740,7 +787,9 @@ registry.category("web_tour.tours").add("test_confirm_coupon_programs_one_by_one
             ProductScreen.clickPayButton(),
             PaymentScreen.clickPaymentMethod("Bank"),
             PaymentScreen.clickValidate(),
-            ReceiptScreen.isShown(),
+            FeedbackScreen.isShown(),
+            FeedbackScreen.clickNextOrder(),
+            Chrome.isSynced(),
         ].flat(),
 });
 
@@ -831,7 +880,23 @@ registry.category("web_tour.tours").add("test_discount_count_sale_report", {
             ProductScreen.addOrderline("Test Product 1", "1"),
             ProductScreen.totalAmountIs("57.50"),
             ProductScreen.clickNumpad("%", "5"),
-            ProductScreen.totalAmountIs("54.62"),
-            PosLoyalty.finalizeOrder("Cash", "54.62"),
+            ProductScreen.totalAmountIs("54.63"),
+            PosLoyalty.finalizeOrder("Cash", "54.63"),
+            Chrome.endTour(),
+        ].flat(),
+});
+
+registry.category("web_tour.tours").add("test_reward_line_tax_grouping_key", {
+    steps: () =>
+        [
+            Chrome.startPoS(),
+            Dialog.confirm("Open Register"),
+            ProductScreen.addOrderline("Test Product 1", "1.00"),
+            ProductScreen.totalAmountIs("82.78"),
+            ProductScreen.checkTaxAmount("14.37"),
+            ProductScreen.clickPayButton(),
+            PaymentScreen.clickPaymentMethod("Cash"),
+            PaymentScreen.clickValidate(),
+            FeedbackScreen.isShown(),
         ].flat(),
 });

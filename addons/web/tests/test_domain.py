@@ -42,3 +42,31 @@ class DomainTest(HttpCaseWithUserDemo):
             data=json.dumps({'params': {'model':'res.users', 'domain':[('hop')]}}),
         )
         self.assertEqual(resp.json()['result'], False)
+
+        resp = self.url_open(
+            '/web/domain/validate',
+            headers={'Content-Type': 'application/json'},
+            data=json.dumps({'params': {'model': 'res.users', 'domain': [('', '=', 1)]}}),
+        )
+        self.assertEqual(resp.json()['result'], False)
+
+        resp = self.url_open(
+            '/web/domain/validate',
+            headers={'Content-Type': 'application/json'},
+            data=json.dumps({'params': {'model': 'res.users', 'domain': [('accesses_count', '>', 10)]}}),
+        )
+        self.assertEqual(resp.json()['result'], False)
+
+        resp = self.url_open(
+            '/web/domain/validate',
+            headers={'Content-Type': 'application/json'},
+            data=json.dumps({'params': {'model': 'res.currency', 'domain': [('iso_numeric', '=', 10)]}}),
+        )
+        self.assertEqual(resp.json()['result'], True)
+
+        resp = self.url_open(
+            '/web/domain/validate',
+            headers={'Content-Type': 'application/json'},
+            data=json.dumps({'params': {'model': 'res.currency', 'domain': [('iso_numeric', '=', 'dfd')]}}),
+        )
+        self.assertEqual(resp.json()['result'], False)

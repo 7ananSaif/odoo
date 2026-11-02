@@ -1,16 +1,19 @@
 import { Dialog } from "@web/core/dialog/dialog";
-import { Component, useState } from "@odoo/owl";
+import { Component, proxy, useProps, t } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { usePos } from "@point_of_sale/app/hooks/pos_hook";
 
 export class TourSelectorPopup extends Component {
     static components = { Dialog };
     static template = "point_of_sale.TourSelectorPopup";
-    static props = ["close", "getPayload"];
+    props = useProps({
+        close: t.function(),
+        getPayload: t.function(),
+    });
 
     setup() {
         this.pos = usePos();
-        this.state = useState({
+        this.state = proxy({
             selectedTours: new Set(),
         });
     }

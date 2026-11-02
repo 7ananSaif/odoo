@@ -7,21 +7,47 @@
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
 # "Thi Huong Nguyen (thng)" <thng@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-12-04 17:50+0000\n"
-"Last-Translator: \"Thi Huong Nguyen (thng)\" <thng@odoo.com>\n"
-"Language-Team: Vietnamese <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-08-31 14:12+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Vietnamese <https://translate.odoo.com/projects/odoo-s19-4/"
 "base_import/vi/>\n"
 "Language: vi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: base_import
+#: model:ir.module.module,description:base.module_base_import
+msgid ""
+"\n"
+"New extensible file import for Odoo\n"
+"======================================\n"
+"\n"
+"Re-implement Odoo's file import system:\n"
+"\n"
+"* Server side, the previous system forces most of the logic into the\n"
+"  client which duplicates the effort (between clients), makes the\n"
+"  import system much harder to use without a client (direct RPC or\n"
+"  other forms of automation) and makes knowledge about the\n"
+"  import/export system much harder to gather as it is spread over\n"
+"  3+ different projects.\n"
+"\n"
+"* In a more extensible manner, so users and partners can build their\n"
+"  own front-end to import from other file formats (e.g. OpenDocument\n"
+"  files) which may be simpler to handle in their work flow or from\n"
+"  their data production sources.\n"
+"\n"
+"* In a module, so that administrators and users of Odoo who do not\n"
+"  need or want an online import can avoid it being available to users.\n"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
@@ -65,27 +91,6 @@ msgstr "Trường bổ sung"
 
 #. module: base_import
 #. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid "Advanced"
-msgstr "Nâng cao"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_model.js:0
-msgid ""
-"After each batch import, this delay is applied to avoid unthrottled calls"
-msgstr ""
-"Sau mỗi lần nhập theo lô, độ trễ này được áp dụng để tránh các lệnh gọi "
-"không được điều tiết"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid "Allow matching with subfields"
-msgstr "Cho phép khớp với trường con"
-
-#. module: base_import
-#. odoo-javascript
 #: code:addons/base_import/static/src/import_model.js:0
 msgid ""
 "An unknown issue occurred during import (possibly lost connection, data "
@@ -97,6 +102,13 @@ msgstr ""
 "kết nối, vượt quá giới hạn dữ liệu hoặc vượt quá giới hạn bộ nhớ). Vui lòng "
 "thử lại trong trường hợp vấn đề là nhất thời. Nếu sự cố vẫn xảy ra, hãy thử "
 "chia nhỏ tệp thay vì nhập cùng một lúc."
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
+#, fuzzy
+msgid "Attachments"
+msgstr "Tệp đính kèm"
 
 #. module: base_import
 #: model:ir.model,name:base_import.model_base
@@ -114,34 +126,34 @@ msgid "Base Import Mapping"
 msgstr "Mapping nhập cơ sở"
 
 #. module: base_import
+#: model:ir.module.module,shortdesc:base.module_base_import
+msgid "Base import"
+msgstr ""
+
+#. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_progress/import_data_progress.xml:0
+#, fuzzy
 msgid "Batch"
 msgstr "Lô"
 
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid "Batch Import"
-msgstr "Nhập theo lô"
+msgid "Batch interval"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid "Batch limit"
-msgstr "Giới hạn lô"
+msgid "Batch max size"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
-#: code:addons/base_import/static/src/import_action/import_action.xml:0
-msgid "But, you can also use .csv files"
-msgstr "Nhưng bạn cũng có thể sử dụng tệp .csv"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_action/import_action.xml:0
-msgid "Cancel"
-msgstr "Hủy"
+#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
+msgid "Batch size"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
@@ -176,12 +188,6 @@ msgid "Comma"
 msgstr "Dấy phẩy"
 
 #. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_data_content/import_data_content.xml:0
-msgid "Comments"
-msgstr "Bình luận"
-
-#. module: base_import
 #. odoo-python
 #: code:addons/base_import/models/base_import.py:0
 msgid ""
@@ -209,12 +215,6 @@ msgid "Created on"
 msgstr "Được tạo vào"
 
 #. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid "Data to import"
-msgstr "Dữ liệu cần nhập"
-
-#. module: base_import
 #. odoo-python
 #: code:addons/base_import/models/base_import.py:0
 msgid "Database ID"
@@ -223,32 +223,47 @@ msgstr "ID Cơ sở dữ liệu"
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_model.js:0
-msgid "Date Format:"
-msgstr "Định dạng Ngày:"
+#, fuzzy
+msgid "Date Format"
+msgstr "Định dạng Ngày"
 
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_model.js:0
-msgid "Datetime Format:"
-msgstr "Định dạng Ngày giờ"
+msgid "Datetime Format"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_model.js:0
-msgid "Decimals Separator:"
-msgstr "Dấu thập phân"
+msgid "Decimals Separator"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_model.js:0
-msgid "Defines how many megabytes can be imported in each batch import"
-msgstr "Xác định số lượng megabyte có thể được nhập trong mỗi lần nhập"
+msgid "Defines how many megabytes can be imported in each batch"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid "Delay after each batch"
-msgstr "Độ trễ sau mỗi lô"
+#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.js:0
+msgid ""
+"Defines the number of records that will be imported in one transaction. "
+"Reduce the batch size in case of heavy imports"
+msgstr ""
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_model.js:0
+msgid "Delay applied after each batch to prevent unthrottled calls"
+msgstr ""
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_model.js:0
+msgid "Delimiter"
+msgstr ""
 
 #. module: base_import
 #: model:ir.model.fields,field_description:base_import.field_base_import_import__display_name
@@ -256,6 +271,14 @@ msgstr "Độ trễ sau mỗi lô"
 #: model:ir.model.fields,field_description:base_import.field_res_users__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_action/import_action.xml:0
+#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
+#, fuzzy
+msgid "Documentation"
+msgstr "Tài liệu"
 
 #. module: base_import
 #. odoo-javascript
@@ -272,15 +295,10 @@ msgstr "Tải xuống"
 
 #. module: base_import
 #. odoo-javascript
-#: code:addons/base_import/static/src/import_action/import_action.xml:0
-msgid "Drop or upload a file to import"
-msgstr "Thả hoặc tải lên một tệp để nhập"
-
-#. module: base_import
-#. odoo-javascript
 #: code:addons/base_import/static/src/import_model.js:0
-msgid "Encoding:"
-msgstr "Mã hoá:"
+#, fuzzy
+msgid "Encoding"
+msgstr "Mã hoá"
 
 #. module: base_import
 #. odoo-python
@@ -326,22 +344,10 @@ msgid "Everything seems valid."
 msgstr "Mọi thứ dường như hợp lệ."
 
 #. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_action/import_action.xml:0
-msgid "Excel files are recommended as formatting is automatic."
-msgstr "Khuyên dùng tệp Excel vì định dạng tự động."
-
-#. module: base_import
 #. odoo-python
 #: code:addons/base_import/models/base_import.py:0
 msgid "External ID"
 msgstr "ID bên ngoài"
-
-#. module: base_import
-#. odoo-python
-#: code:addons/base_import/models/base_import.py:0
-msgid "Field '%(field)s' does not accept date/time values."
-msgstr ""
 
 #. module: base_import
 #: model:ir.model.fields,field_description:base_import.field_base_import_mapping__field_name
@@ -377,18 +383,13 @@ msgstr "Tập tin vượt quá dung lượng tối đa (%s bytes)"
 
 #. module: base_import
 #: model:ir.model.fields,help:base_import.field_base_import_import__file
-msgid "File to check and/or import, raw binary (not base64)"
-msgstr "Tập tin để kiểm tra và/hoặc nhập, raw binary (không phải là base64)"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid "Files to import"
-msgstr "Tệp cần nhập"
+msgid "File to check and/or import"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_progress/import_data_progress.xml:0
+#, fuzzy
 msgid "Finalizing current batch before interrupting..."
 msgstr "Đang hoàn thiện đợt hiện tại trước khi ngắt..."
 
@@ -417,12 +418,6 @@ msgstr ""
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid "Go to Import FAQ"
-msgstr "Đi tới nhập câu hỏi thường gặp"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
 msgid "Help"
 msgstr "Hỗ trợ"
 
@@ -441,7 +436,22 @@ msgstr "ID"
 
 #. module: base_import
 #. odoo-javascript
+#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.js:0
+msgid ""
+"If checked, the changes are tracked in the chatter and notifications can be "
+"sent to followers, which could slow down the import"
+msgstr ""
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.js:0
+msgid "If checked, the first row of the sheet will not be imported"
+msgstr ""
+
+#. module: base_import
+#. odoo-javascript
 #: code:addons/base_import/static/src/import_data_content/import_data_content.xml:0
+#, fuzzy
 msgid ""
 "If the file contains\n"
 "                    the column names, Odoo can try auto-detecting the\n"
@@ -455,38 +465,17 @@ msgstr ""
 
 #. module: base_import
 #. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid ""
-"If the model uses openchatter, history tracking will set up subscriptions "
-"and send notifications during the import, but lead to a slower import."
-msgstr ""
-"Nếu mô hình sử dụng openchatter, theo dõi lịch sử sẽ thiết lập đăng ký và "
-"gửi thông báo trong quá trình nhập, nhưng sẽ kéo dài thời gian nhập."
-
-#. module: base_import
-#. odoo-python
-#: code:addons/base_import/models/base_import.py:0
-msgid ""
-"Image size excessive, imported images must be smaller than 42 million pixel"
-msgstr "Kích cỡ ảnh quá lớn, ảnh được nhập phải nhỏ hơn 42 triệu pixel."
-
-#. module: base_import
-#. odoo-javascript
+#: code:addons/base_import/static/src/import_action/import_action.js:0
 #: code:addons/base_import/static/src/import_action/import_action.xml:0
+#: code:addons/base_import/static/src/import_records/import_records.xml:0
 msgid "Import"
 msgstr "Nhập"
 
 #. module: base_import
 #. odoo-javascript
-#: code:addons/base_import/static/src/import_action/import_action.xml:0
-msgid "Import FAQ"
-msgstr "Import FAQ"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_action/import_action.js:0
-msgid "Import a File"
-msgstr "Nhập một tệp"
+#: code:addons/base_import/static/src/import_model.js:0
+msgid "Import failed: see errors below"
+msgstr ""
 
 #. module: base_import
 #. odoo-python
@@ -497,14 +486,9 @@ msgstr "Tệp nhập không có nội dung hoặc bị hỏng"
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_content/import_data_content.xml:0
+#, fuzzy
 msgid "Import preview failed due to: \""
 msgstr "Xem trước nội dung nhập không thành công do: \""
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_records/import_records.xml:0
-msgid "Import records"
-msgstr "Nhập bản ghi"
 
 #. module: base_import
 #. odoo-javascript
@@ -536,6 +520,18 @@ msgid "Invalid cell value at row %(row)s, column %(col)s: %(cell_value)s"
 msgstr "Giá trị ô không hợp lệ tại hàng %(row)s, cột %(col)s: %(cell_value)s"
 
 #. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_data_content/import_data_content.xml:0
+msgid "Lang:"
+msgstr ""
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_data_content/import_data_content.xml:0
+msgid "Language"
+msgstr ""
+
+#. module: base_import
 #: model:ir.model.fields,field_description:base_import.field_base_import_import__write_uid
 #: model:ir.model.fields,field_description:base_import.field_base_import_mapping__write_uid
 msgid "Last Updated by"
@@ -546,12 +542,6 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:base_import.field_base_import_mapping__write_date
 msgid "Last Updated on"
 msgstr "Cập nhật lần cuối vào"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_action/import_action.xml:0
-msgid "Load Data File"
-msgstr "Tải tệp dữ liệu"
 
 #. module: base_import
 #. odoo-javascript
@@ -568,12 +558,6 @@ msgstr "Đang tải..."
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid "Max size per batch"
-msgstr "Kích thước tối đa cho mỗi lô"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
 msgid "Mb"
 msgstr "Mb"
 
@@ -585,20 +569,27 @@ msgstr "Mô hình"
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_column_error/import_data_column_error.xml:0
+#, fuzzy
 msgid "Multiple errors occurred"
 msgstr "Đã xảy ra nhiều lỗi"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_action/import_action.xml:0
-msgid "Need Help?"
-msgstr "Cần giúp đỡ?"
 
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_model.js:0
 msgid "No Separator"
 msgstr "Không có dấu phân cách"
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_model.js:0
+msgid "No date detected"
+msgstr ""
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_model.js:0
+msgid "No datetime detected"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
@@ -609,6 +600,7 @@ msgstr "Không có tệp nào được chọn"
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_column_error/import_data_column_error.xml:0
+#, fuzzy
 msgid "No matching records found for the following name"
 msgstr "Không tìm thấy bản ghi trùng khớp cho tên sau"
 
@@ -617,6 +609,13 @@ msgstr "Không tìm thấy bản ghi trùng khớp cho tên sau"
 #: code:addons/base_import/static/src/import_data_content/import_data_content.xml:0
 msgid "Odoo Field"
 msgstr "Trường Odoo"
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_model.js:0
+#, fuzzy
+msgid "Other"
+msgstr "Khác"
 
 #. module: base_import
 #. odoo-javascript
@@ -650,15 +649,21 @@ msgstr "Thanh tiến độ"
 
 #. module: base_import
 #. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid "Reimport"
-msgstr "Nhập lại"
+#: code:addons/base_import/static/src/import_action/import_action.xml:0
+msgid "Re-Upload"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_content/import_data_content.js:0
 msgid "Relation Fields"
 msgstr "Các trường Quan hệ"
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_data_content/import_data_content.js:0
+msgid "Required Fields"
+msgstr ""
 
 #. module: base_import
 #: model:ir.model.fields,field_description:base_import.field_base_import_mapping__res_model
@@ -679,7 +684,14 @@ msgstr "Tìm kiếm một trường..."
 
 #. module: base_import
 #. odoo-javascript
+#: code:addons/base_import/static/src/import_data_content/import_data_content.xml:0
+msgid "Search a language..."
+msgstr ""
+
+#. module: base_import
+#. odoo-javascript
 #: code:addons/base_import/static/src/import_data_column_error/import_data_column_error.xml:0
+#, fuzzy
 msgid "See possible values"
 msgstr "Xem các giá trị có khả năng"
 
@@ -698,8 +710,9 @@ msgstr "Dấu chẩm phẩy"
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_model.js:0
-msgid "Separator:"
-msgstr "Phân cách:"
+#, fuzzy
+msgid "Separator"
+msgstr "Phân cách"
 
 #. module: base_import
 #. odoo-javascript
@@ -751,12 +764,6 @@ msgstr "Trường tiêu chuẩn"
 
 #. module: base_import
 #. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid "Start at line"
-msgstr "Bắt đầu tại dòng"
-
-#. module: base_import
-#. odoo-javascript
 #: code:addons/base_import/static/src/import_data_progress/import_data_progress.xml:0
 msgid "Stop Import"
 msgstr "Dừng nhập"
@@ -786,24 +793,6 @@ msgid "Testing"
 msgstr "Kiểm tra"
 
 #. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_model.js:0
-msgid "Text Delimiter:"
-msgstr "Dấu phân cách văn bản:"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_model.js:0
-msgid "The file contains blocking errors (see below)"
-msgstr "Tệp chứa lỗi đang chặn (xem dưới đây)"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid "The file will be imported by batches"
-msgstr "Tệp sẽ được nhập theo đợt"
-
-#. module: base_import
 #. odoo-python
 #: code:addons/base_import/models/base_import.py:0
 msgid ""
@@ -828,8 +817,9 @@ msgstr "Cột này sẽ được nối trong trường"
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_model.js:0
-msgid "Thousands Separator:"
-msgstr "Dấu phân cách hàng nghìn:"
+#, fuzzy
+msgid "Thousands Separator"
+msgstr "Dấu phân cách hàng nghìn"
 
 #. module: base_import
 #. odoo-javascript
@@ -846,8 +836,8 @@ msgstr "Để nhập, chọn một trường..."
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid "Track history during import"
-msgstr "Theo dõi lịch sử trong quá trình nhập"
+msgid "Track changes in chatter"
+msgstr ""
 
 #. module: base_import
 #. odoo-python
@@ -876,14 +866,18 @@ msgstr "Không có tiêu đề"
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_action/import_action.xml:0
-msgid "Upload Data File"
-msgstr "Tải tệp dữ liệu lên"
+#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
+#, fuzzy
+msgid "Upload"
+msgstr "Tải lên"
 
 #. module: base_import
 #. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid "Upload your files"
-msgstr "Tải lên tệp của bạn"
+#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.js:0
+msgid ""
+"Upload attachments such as images or files that can be mapped with imported "
+"data"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
@@ -914,21 +908,22 @@ msgstr ""
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
+#, fuzzy
 msgid "Use first row as header"
 msgstr "Dùng hàng đầu làm phần header"
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_model.js:0
+msgid ""
+"Use unique key across objects for External ID's, for example \"lead_1\" "
+"instead of \"1\""
+msgstr ""
 
 #. module: base_import
 #: model:ir.model,name:base_import.model_res_users
 msgid "User"
 msgstr "Người dùng"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-msgid ""
-"Warning: ignores the labels line, empty lines and lines composed only of "
-"empty cells"
-msgstr "Cảnh báo: bỏ qua dòng nhãn, dòng trống và dòng chỉ chứa các ô trống"
 
 #. module: base_import
 #. odoo-javascript
@@ -961,18 +956,21 @@ msgstr "Bạn phải cấu hình ít nhất một trường để nhập"
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_column_error/import_data_column_error.xml:0
+#, fuzzy
 msgid "at multiple rows"
 msgstr "ở nhiều hàng"
 
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_column_error/import_data_column_error.xml:0
+#, fuzzy
 msgid "at row"
 msgstr "ở hàng"
 
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_column_error/import_data_column_error.xml:0
+#, fuzzy
 msgid "in field"
 msgstr "trong trường"
 
@@ -985,12 +983,20 @@ msgstr "phút"
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_column_error/import_data_column_error.xml:0
+#, fuzzy
 msgid "more"
 msgstr "thêm"
 
 #. module: base_import
 #. odoo-javascript
+#: code:addons/base_import/static/src/import_action/import_action.xml:0
+msgid "or drag a file"
+msgstr ""
+
+#. module: base_import
+#. odoo-javascript
 #: code:addons/base_import/static/src/import_data_progress/import_data_progress.xml:0
+#, fuzzy
 msgid "out of"
 msgstr "trong số"
 
@@ -1006,42 +1012,3 @@ msgstr "giây"
 #: code:addons/base_import/models/base_import.py:0
 msgid "unknown error code %s"
 msgstr "mã lỗi không xác định %s"
-
-#~ msgid "Column %s contains incorrect values (value: %s)"
-#~ msgstr ""
-#~ "Cột %s chứa giá trị không hợp lệ (giá trị: %s không đáp ứng định dạng "
-#~ "ngày tháng"
-
-#~ msgid "Column %s contains incorrect values. Error in line %d: %s"
-#~ msgstr "Cột %s chứa giá trị không hợp lệ. Lỗi ở dòng %d: %s)"
-
-#~ msgid "Error Parsing Date [%s:L%d]: %s"
-#~ msgstr "Lỗi xử lý Ngày [%s:L%d]: %s"
-
-#~ msgid ""
-#~ "Import timed out. Please retry. If you still encounter this issue, the "
-#~ "file may be too big for the system's configuration, try to split it "
-#~ "(import less records per file)."
-#~ msgstr ""
-#~ "Đã hết thời gian nhập. Hãy thử lại. Nếu bạn vẫn gặp phải sự cố này, tệp "
-#~ "có thể quá lớn so với cấu hình của hệ thống, hãy thử tách nó (nhập ít bản "
-#~ "ghi hơn cho mỗi tệp)."
-
-#~ msgid "Imported file"
-#~ msgstr "Tệp đã nhập"
-
-#~ msgid "Load File"
-#~ msgstr "Nạp tập tin"
-
-#~ msgid "Upload File"
-#~ msgstr "Tải lên tệp"
-
-#~ msgid "Upload an Excel or CSV file to import"
-#~ msgstr "Tải lên tệp Excel hoặc CSV để nhập"
-
-#~ msgid ""
-#~ "You can not import images via URL, check with your administrator or "
-#~ "support for the reason."
-#~ msgstr ""
-#~ "Không thể nạp hình ảnh thông qua URL, liên hệ với quản trị hoặc người hỗ "
-#~ "trợ để biết được nguyên nhân."

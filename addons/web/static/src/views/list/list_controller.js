@@ -1,85 +1,87 @@
+import {
+    Component,
+    onWillPatch,
+    onWillStart,
+    usePlugin,
+    proxy,
+    signal,
+    t,
+    useProps,
+} from "@odoo/owl";
+import { DropdownItem } from "@web/core/dropdown/dropdown_item";
 import { _t } from "@web/core/l10n/translation";
-import { evaluateExpr, evaluateBooleanExpr } from "@web/core/py_js/py";
+import { OfflinePlugin } from "@web/core/offline/offline_plugin";
+import { evaluateBooleanExpr, evaluateExpr } from "@web/core/py_js/py";
 import { user } from "@web/core/user";
 import { useService } from "@web/core/utils/hooks";
 import { omit } from "@web/core/utils/objects";
+import { useModelWithSampleData } from "@web/model/model";
+import { DynamicRecordList } from "@web/model/relational_model/dynamic_record_list";
+import { extractFieldsFromArchInfo } from "@web/model/relational_model/utils";
+import { onWillRender, render, useLayoutEffect, useSubEnv } from "@web/owl2/utils";
 import { useSetupAction } from "@web/search/action_hook";
 import { ActionMenus, STATIC_ACTIONS_GROUP_NUMBER } from "@web/search/action_menus/action_menus";
 import { Layout } from "@web/search/layout";
 import { usePager } from "@web/search/pager_hook";
-import { useModelWithSampleData } from "@web/model/model";
-import { DynamicRecordList } from "@web/model/relational_model/dynamic_record_list";
-import { extractFieldsFromArchInfo } from "@web/model/relational_model/utils";
+import { OfflineSearchBar } from "@web/search/search_bar/offline_search_bar";
+import { SearchBar } from "@web/search/search_bar/search_bar";
+import { useSearchBarToggler } from "@web/search/search_bar/search_bar_toggler";
+import { session } from "@web/session";
+import { OfflineActionHelper } from "@web/views/offline_action_helper";
 import { standardViewProps } from "@web/views/standard_view_props";
 import { MultiRecordViewButton } from "@web/views/view_button/multi_record_view_button";
 import { ViewButton } from "@web/views/view_button/view_button";
 import { executeButtonCallback, useViewButtons } from "@web/views/view_button/view_button_hook";
-import { ListConfirmationDialog } from "./list_confirmation_dialog";
-import { SearchBar } from "@web/search/search_bar/search_bar";
-import { useSearchBarToggler } from "@web/search/search_bar/search_bar_toggler";
-import { session } from "@web/session";
-import { ListCogMenu } from "./list_cog_menu";
-import { DropdownItem } from "@web/core/dropdown/dropdown_item";
 import { SelectionBox } from "@web/views/view_components/selection_box";
-import { useExportRecords, useDeleteRecords } from "@web/views/view_hook";
-
-import {
-    Component,
-    onWillPatch,
-    onWillRender,
-    onWillStart,
-    useEffect,
-    useRef,
-    useState,
-    useSubEnv,
-} from "@odoo/owl";
+import { useDeleteRecords, useExportRecords } from "@web/views/view_hook";
+import { ListCogMenu } from "./list_cog_menu";
+import { ListConfirmationDialog } from "./list_confirmation_dialog";
 
 // -----------------------------------------------------------------------------
 
 export class ListController extends Component {
     static template = `web.ListView`;
     static components = {
+        OfflineActionHelper,
         ActionMenus,
         Layout,
         ViewButton,
         MultiRecordViewButton,
         SearchBar,
+        OfflineSearchBar,
         CogMenu: ListCogMenu,
         DropdownItem,
         SelectionBox,
     };
-    static props = {
+    props = useProps({
         ...standardViewProps,
-        allowSelectors: { type: Boolean, optional: true },
-        onSelectionChanged: { type: Function, optional: true },
-        readonly: { type: Boolean, optional: true },
-        showButtons: { type: Boolean, optional: true },
-        allowOpenAction: { type: Boolean, optional: true },
-        Model: Function,
-        Renderer: Function,
-        buttonTemplate: String,
-        archInfo: Object,
-    };
-    static defaultProps = {
-        allowSelectors: true,
-        createRecord: () => {},
-        selectRecord: () => {},
-        showButtons: true,
-        allowOpenAction: true,
-    };
+        allowSelectors: t.boolean().optional(true),
+        onSelectionChanged: t.function().optional(),
+        readonly: t.boolean().optional(),
+        allowOpenAction: t.boolean().optional(true),
+        Model: t.function(),
+        Renderer: t.function(),
+        buttonTemplate: t.string(),
+        archInfo: t.object(),
+        createRecord: t.function().optional(() => () => {}),
+        selectRecord: t.function().optional(() => () => {}),
+    });
+
+    rootRef = signal.ref();
 
     setup() {
         this.actionService = useService("action");
         this.dialogService = useService("dialog");
+        this.uiService = useService("ui");
         this.orm = useService("orm");
-        this.rootRef = useRef("root");
+        this.offlinePlugin = usePlugin(OfflinePlugin);
 
         this.archInfo = this.props.archInfo;
         this.activeActions = this.archInfo.activeActions;
         this.onOpenFormView = this.openRecord.bind(this);
         this.editable = (!this.props.readonly && this.archInfo.editable) || false;
         this.hasOpenFormViewButton = this.editable ? this.archInfo.openFormView : false;
-        this.model = useState(
+        this.model = proxy(
             useModelWithSampleData(this.props.Model, this.modelParams, this.modelOptions)
         );
 
@@ -121,7 +123,7 @@ export class ListController extends Component {
             beforeLeave: this.beforeLeave.bind(this),
             beforeUnload: this.beforeUnload.bind(this),
             getLocalState: () => {
-                const renderer = this.rootRef.el.querySelector(".o_list_renderer");
+                const renderer = this.rootRef()?.querySelector(".o_list_renderer");
                 return {
                     modelState: this.model.exportState(),
                     rendererScrollPositions: {
@@ -131,24 +133,31 @@ export class ListController extends Component {
                 };
             },
             getOrderBy: () => this.model.root.orderBy,
+            getContext: () => {
+                const optionalShow = Object.keys(this.optionalActiveFields).filter(
+                    (name) => this.optionalActiveFields[name]
+                );
+                return optionalShow.length ? { list_optional_show: optionalShow } : {};
+            },
         });
 
-        useEffect(
+        useLayoutEffect(
             (isReady) => {
-                if (isReady) {
-                    if (this.env.isSmall) {
-                        setScrollFromState();
-                    } else {
-                        const { rendererScrollPositions } = this.props.state || {};
-                        if (rendererScrollPositions) {
-                            const renderer = this.rootRef.el.querySelector(".o_list_renderer");
-                            renderer.scrollLeft = rendererScrollPositions.left;
-                            renderer.scrollTop = rendererScrollPositions.top;
-                        }
+                if (!isReady) {
+                    return;
+                }
+                if (this.uiService.isSmall) {
+                    setScrollFromState();
+                } else {
+                    const { rendererScrollPositions } = this.props.state || {};
+                    if (rendererScrollPositions) {
+                        const renderer = this.rootRef().querySelector(".o_list_renderer");
+                        renderer.scrollLeft = rendererScrollPositions.left;
+                        renderer.scrollTop = rendererScrollPositions.top;
                     }
                 }
             },
-            () => [this.model.isReady]
+            () => [this.model.isReady()]
         );
 
         usePager(() => {
@@ -168,7 +177,7 @@ export class ListController extends Component {
                     }
                     await this.model.root.load({ limit, offset });
                     if (hasNavigated) {
-                        this.onPageChangeScroll();
+                        this.onPageChange();
                     }
                 },
                 updateTotal:
@@ -176,7 +185,7 @@ export class ListController extends Component {
             };
         });
 
-        useEffect(
+        useLayoutEffect(
             () => {
                 this.onSelectionChanged();
             },
@@ -220,6 +229,7 @@ export class ListController extends Component {
             limit: this.archInfo.limit || this.props.limit,
             countLimit: this.archInfo.countLimit,
             defaultOrderBy: this.archInfo.defaultOrder,
+            defaultGroupBy: this.archInfo.defaultGroupBy,
             groupsLimit: this.archInfo.groupsLimit,
             multiEdit: !this.props.readonly && this.archInfo.multiEdit,
             activeIdsLimit: session.active_ids_limit,
@@ -230,6 +240,7 @@ export class ListController extends Component {
                 onAskMultiSaveConfirmation: this.onAskMultiSaveConfirmation.bind(this),
                 onWillSetInvalidField: this.onWillSetInvalidField.bind(this),
             },
+            useSendBeaconToSaveUrgently: true,
         };
     }
 
@@ -264,6 +275,17 @@ export class ListController extends Component {
 
     get deleteConfirmationDialogProps() {
         return {};
+    }
+
+    get isNewButtonAvailableOffline() {
+        if (this.archInfo.editable && !this.model.root.isGrouped) {
+            return this.offlinePlugin.isAvailableOffline(
+                this.env.config.actionId,
+                "list_quick_create",
+                false
+            );
+        }
+        return this.offlinePlugin.isAvailableOffline(this.env.config.actionId, "form", false);
     }
 
     getExportableFields() {
@@ -333,10 +355,10 @@ export class ListController extends Component {
     async onWillSaveRecord(record) {}
 
     async createRecord({ group } = {}) {
-        if (!this.model.isReady && !this.model.config.groupBy.length && this.editable) {
+        if (!this.model.isReady() && !this.model.config.groupBy.length && this.editable) {
             // If the view isn't grouped and the list is editable, a new record row will be added,
             // in edition. In this situation, we must wait for the model to be ready.
-            await this.model.whenReady;
+            await this.model.whenReady.promise;
         }
         const list = (group && group.list) || this.model.root;
         if (this.editable && !list.isGrouped) {
@@ -347,7 +369,7 @@ export class ListController extends Component {
             if (!list.editedRecord) {
                 await (group || list).addNewRecord(this.editable === "top");
             }
-            this.render();
+            render(this);
         } else {
             await this.props.createRecord();
         }
@@ -382,17 +404,17 @@ export class ListController extends Component {
     }
 
     async onClickCreate() {
-        return executeButtonCallback(this.rootRef.el, () => this.createRecord());
+        return executeButtonCallback(this.rootRef(), () => this.createRecord());
     }
 
     async onClickDiscard() {
-        return executeButtonCallback(this.rootRef.el, () =>
+        return executeButtonCallback(this.rootRef(), () =>
             this.model.root.leaveEditMode({ discard: true })
         );
     }
 
     async onClickSave() {
-        return executeButtonCallback(this.rootRef.el, async () => {
+        return executeButtonCallback(this.rootRef(), async () => {
             const saved = await this.editedRecord.save();
             if (saved) {
                 await this.model.root.leaveEditMode();
@@ -417,12 +439,12 @@ export class ListController extends Component {
         );
     }
 
-    onPageChangeScroll() {
-        if (this.rootRef && this.rootRef.el) {
-            if (this.env.isSmall) {
-                this.rootRef.el.scrollTop = 0;
+    onPageChange() {
+        if (this.rootRef()) {
+            if (this.uiService.isSmall) {
+                this.rootRef().scrollTop = 0;
             } else {
-                this.rootRef.el.querySelector(".o_content .o_list_renderer").scrollTop = 0;
+                this.rootRef().querySelector(".o_content .o_list_renderer").scrollTop = 0;
             }
         }
     }
@@ -432,36 +454,40 @@ export class ListController extends Component {
             export: {
                 isAvailable: () => this.isExportEnable,
                 sequence: 10,
-                icon: "fa fa-upload",
+                icon: "upload",
                 description: _t("Export"),
                 callback: () => this.exportRecords(),
             },
             duplicate: {
                 isAvailable: () => this.activeActions.duplicate,
                 sequence: 30,
-                icon: "fa fa-clone",
+                icon: "content_copy",
                 description: _t("Duplicate"),
                 callback: () => this.model.root.duplicateRecords(),
             },
             archive: {
                 isAvailable: () => this.archiveEnabled,
+                availableOffline: true,
                 sequence: 40,
-                icon: "oi oi-archive",
+                icon: "archive",
                 description: _t("Archive"),
                 callback: () =>
                     this.model.root.toggleArchiveWithConfirmation(true, this.archiveDialogProps),
             },
             unarchive: {
                 isAvailable: () => this.archiveEnabled,
+                availableOffline: true,
                 sequence: 45,
-                icon: "oi oi-unarchive",
+                icon: "unarchive",
                 description: _t("Unarchive"),
                 callback: () => this.model.root.toggleArchiveWithConfirmation(false),
             },
             delete: {
                 isAvailable: () => this.activeActions.delete,
+                availableOffline: true,
                 sequence: 50,
-                icon: "fa fa-trash-o",
+                icon: "delete",
+                iconClass: "oi-filled",
                 description: _t("Delete"),
                 class: "text-danger",
                 callback: () => this.onDeleteSelectedRecords(),
@@ -512,7 +538,7 @@ export class ListController extends Component {
             ...this.props.display,
             controlPanel: {
                 ...controlPanel,
-                layoutActions: !this.hasSelectedRecords,
+                actions: !this.hasSelectedRecords,
             },
         };
     }

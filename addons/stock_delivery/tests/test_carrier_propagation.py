@@ -3,7 +3,7 @@
 from unittest.mock import patch, DEFAULT
 from odoo import Command
 from odoo.exceptions import UserError
-from odoo.tests import Form, tagged
+from odoo.tests import tagged, Form
 from odoo.tests.common import TransactionCase
 
 
@@ -45,7 +45,7 @@ class TestCarrierPropagation(TransactionCase):
             'name': 'Super Product',
             'invoice_policy': 'delivery',
         })
-        mto_route = cls.env.ref('stock.route_warehouse0_mto')
+        mto_route = cls.warehouse.mto_pull_id.route_id
         mto_route.active = True
         cls.warehouse.mto_pull_id.procure_method = "make_to_stock"
         cls.mto_product = cls.ProductProduct.create({
@@ -149,7 +149,7 @@ class TestCarrierPropagation(TransactionCase):
     def test_route_based_on_carrier_delivery(self):
         """
             Check that the route on the sale order line is selected as per the first priority even if route on shipping mehod is present
-            Also, Check that the route on the shipping method is selected if there is no route selected on sale order line
+            Also, Check that the route on the delivery method is selected if there is no route selected on sale order line
         """
         route1 = self.env['stock.route'].create({
             'name': 'Route1',
@@ -324,7 +324,6 @@ class TestCarrierPropagation(TransactionCase):
         self.assertEqual(ship.carrier_tracking_ref, "123")
 
 
-@tagged('post_install', '-at_install')
 class TestCarrierPropagationPostInstall(TestCarrierPropagation):
 
     def test_carrier_propagation_two_step_incoming_multi_so(self):
@@ -339,15 +338,14 @@ class TestCarrierPropagationPostInstall(TestCarrierPropagation):
         push_rule = self.warehouse.reception_route_id.rule_ids.filtered(lambda r: r.action == 'push')
         push_rule.propagate_carrier = True
 
-        buy_route = self.env.ref('purchase_stock.route_warehouse0_buy')
-        mto_route = self.env.ref('stock.route_warehouse0_mto')
+        mto_route = self.warehouse.mto_pull_id.route_id
         mto_route.rule_ids.procure_method = 'make_to_order'
 
         express_delivery = self.normal_delivery.copy({'name': 'Express Delivery'})
         vendor = self.env['res.partner'].create({'name': 'Grouping Vendor', 'group_rfq': 'all'})
         self.super_product.write({
             'is_storable': True,
-            'route_ids': [Command.set((mto_route + buy_route).ids)],
+            'route_ids': [Command.link(mto_route.id)],
             'seller_ids': [Command.create({'partner_id': vendor.id})],
         })
 

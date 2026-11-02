@@ -3,21 +3,60 @@
 # * account_debit_note
 #
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+# "Chloe Wang (chwa)" <chwa@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~18.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-09-16 15:34+0000\n"
-"Last-Translator: \"Tiffany Chang (tic)\" <tic@odoo.com>\n"
+"POT-Creation-Date: 2026-09-25 17:37+0000\n"
+"PO-Revision-Date: 2026-10-20 07:25+0000\n"
+"Last-Translator: \"Chloe Wang (chwa)\" <chwa@odoo.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://translate.odoo.com/"
-"projects/odoo-19/account_debit_note/zh_Hans/>\n"
+"projects/odoo-20/account_debit_note/zh_Hans/>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: account_debit_note
+#: model:ir.module.module,description:base.module_account_debit_note
+msgid ""
+"\n"
+"In a lot of countries, a debit note is used as an increase of the amounts of "
+"an existing invoice\n"
+"or in some specific cases to cancel a credit note.\n"
+"It is like a regular invoice, but we need to keep track of the link with the "
+"original invoice.\n"
+"The wizard used is similar as the one for the credit note.\n"
+msgstr ""
+"\n"
+"在许多国家，借项通知单用于增加已有发票的金额，\n"
+"或在部分特定场景下用于冲销贷项通知单。\n"
+"它与普通发票类似，但需要保留与原始发票的关联记录。\n"
+"所使用的向导与贷项通知单的向导相似。\n"
+
+#. module: account_debit_note
+#: model_terms:ir.ui.view,arch_db:account_debit_note.view_move_form_debit
+msgid ""
+"<span class=\"o_stat_text\" invisible=\"debit_origin_move_type != "
+"'out_invoice'\">Invoice</span>\n"
+"                        <span class=\"o_stat_text\" "
+"invisible=\"debit_origin_move_type != 'in_invoice'\">Vendor Bill</span>\n"
+"                        <span class=\"o_stat_text\" "
+"invisible=\"debit_origin_move_type != 'out_refund'\">Credit Note</span>\n"
+"                        <span class=\"o_stat_text\" "
+"invisible=\"debit_origin_move_type != 'in_refund'\">Refund</span>"
+msgstr ""
+"<span class=\"o_stat_text\" invisible=\"debit_origin_move_type != "
+"'out_invoice'\">发票</span>\n"
+"                        <span class=\"o_stat_text\" "
+"invisible=\"debit_origin_move_type != 'in_invoice'\">供应商账单</span>\n"
+"                        <span class=\"o_stat_text\" "
+"invisible=\"debit_origin_move_type != 'out_refund'\">贷项通知单</span>\n"
+"                        <span class=\"o_stat_text\" "
+"invisible=\"debit_origin_move_type != 'in_refund'\">退款</span>"
 
 #. module: account_debit_note
 #: model_terms:ir.ui.view,arch_db:account_debit_note.view_move_form_debit
@@ -25,14 +64,39 @@ msgid "<span class=\"o_stat_text\">Debit Notes</span>"
 msgstr "<span class=\"o_stat_text\">借记单</span>"
 
 #. module: account_debit_note
+#: model_terms:ir.ui.view,arch_db:account_debit_note.report_invoice_document_inherit_debit_note
+msgid "<strong>Debit Note Date</strong>"
+msgstr "<strong>借记单日期</strong>"
+
+#. module: account_debit_note
+#: model_terms:ir.ui.view,arch_db:account_debit_note.report_invoice_document_inherit_debit_note
+msgid "<strong>Invoice Date</strong>"
+msgstr "<strong>发票日期</strong>"
+
+#. module: account_debit_note
 #: model:ir.model,name:account_debit_note.model_account_debit_note
 msgid "Add Debit Note wizard"
 msgstr "添加借记单向导"
 
 #. module: account_debit_note
-#: model_terms:ir.ui.view,arch_db:account_debit_note.view_account_debit_note
-msgid "Cancel"
-msgstr "取消"
+#: model_terms:ir.ui.view,arch_db:account_debit_note.report_invoice_document_inherit_debit_note
+msgid "Cancelled Debit Note"
+msgstr "已取消借记单"
+
+#. module: account_debit_note
+#: model_terms:ir.ui.view,arch_db:account_debit_note.report_invoice_document_inherit_debit_note
+msgid "Cancelled Invoice"
+msgstr "已取消发票"
+
+#. module: account_debit_note
+#: model_terms:ir.ui.view,arch_db:account_debit_note.report_invoice_document_inherit_debit_note
+msgid "Cancelled Proforma Debit Note"
+msgstr "已取消形式借记单"
+
+#. module: account_debit_note
+#: model_terms:ir.ui.view,arch_db:account_debit_note.report_invoice_document_inherit_debit_note
+msgid "Cancelled Proforma Invoice"
+msgstr "已取消形式发票"
 
 #. module: account_debit_note
 #: model:ir.model.fields,help:account_debit_note.field_account_journal__debit_sequence
@@ -68,6 +132,7 @@ msgid "Created on"
 msgstr "创建日期"
 
 #. module: account_debit_note
+#: model_terms:ir.ui.view,arch_db:account_debit_note.report_invoice_document_inherit_debit_note
 #: model_terms:ir.ui.view,arch_db:account_debit_note.view_account_move_filter_debit
 #: model_terms:ir.ui.view,arch_db:account_debit_note.view_account_move_line_filter_debit
 #: model_terms:ir.ui.view,arch_db:account_debit_note.view_move_form_debit
@@ -86,9 +151,17 @@ msgstr "借记单日期"
 #: code:addons/account_debit_note/wizard/account_debit_note.py:0
 #: model:ir.model.fields,field_description:account_debit_note.field_account_bank_statement_line__debit_note_ids
 #: model:ir.model.fields,field_description:account_debit_note.field_account_move__debit_note_ids
+#: model:ir.module.module,shortdesc:base.module_account_debit_note
+#: model:ir.module.module,summary:base.module_account_debit_note
 #: model_terms:ir.ui.view,arch_db:account_debit_note.view_account_invoice_filter_debit
 msgid "Debit Notes"
 msgstr "借记单"
+
+#. module: account_debit_note
+#: model:ir.model.fields,field_description:account_debit_note.field_account_bank_statement_line__debit_origin_move_type
+#: model:ir.model.fields,field_description:account_debit_note.field_account_move__debit_origin_move_type
+msgid "Debit Origin Move Type"
+msgstr "借记来源分录类型"
 
 #. module: account_debit_note
 #: model:ir.model.fields,field_description:account_debit_note.field_account_journal__debit_sequence
@@ -101,6 +174,26 @@ msgstr "专用借记单序列"
 #: model:ir.model.fields,field_description:account_debit_note.field_account_move__display_name
 msgid "Display Name"
 msgstr "显示名称"
+
+#. module: account_debit_note
+#: model_terms:ir.ui.view,arch_db:account_debit_note.report_invoice_document_inherit_debit_note
+msgid "Draft Debit Note"
+msgstr "草稿借记单"
+
+#. module: account_debit_note
+#: model_terms:ir.ui.view,arch_db:account_debit_note.report_invoice_document_inherit_debit_note
+msgid "Draft Invoice"
+msgstr "草稿发票"
+
+#. module: account_debit_note
+#: model_terms:ir.ui.view,arch_db:account_debit_note.report_invoice_document_inherit_debit_note
+msgid "Draft Proforma Debit Note"
+msgstr "草稿形式借记单"
+
+#. module: account_debit_note
+#: model_terms:ir.ui.view,arch_db:account_debit_note.report_invoice_document_inherit_debit_note
+msgid "Draft Proforma Invoice"
+msgstr "草稿形式发票"
 
 #. module: account_debit_note
 #: model:ir.model.fields,field_description:account_debit_note.field_account_debit_note__id
@@ -122,6 +215,17 @@ msgid ""
 msgstr ""
 "如果您需要对每行进行更正，复制它们会很方便。 我们不会从借记单中复制退款通"
 "知。 "
+
+#. module: account_debit_note
+#: model_terms:ir.ui.view,arch_db:account_debit_note.report_invoice_document_inherit_debit_note
+msgid "Invoice"
+msgstr "发票"
+
+#. module: account_debit_note
+#. odoo-python
+#: code:addons/account_debit_note/models/account_move.py:0
+msgid "Invoices"
+msgstr "发票"
 
 #. module: account_debit_note
 #: model:ir.model,name:account_debit_note.model_account_journal
@@ -171,6 +275,16 @@ msgid "Original Invoice Debited"
 msgstr "原始结算单借记"
 
 #. module: account_debit_note
+#: model_terms:ir.ui.view,arch_db:account_debit_note.report_invoice_document_inherit_debit_note
+msgid "Proforma Debit Note"
+msgstr "形式借记单"
+
+#. module: account_debit_note
+#: model_terms:ir.ui.view,arch_db:account_debit_note.report_invoice_document_inherit_debit_note
+msgid "Proforma Invoice"
+msgstr "形式发票"
+
+#. module: account_debit_note
 #: model:ir.model.fields,field_description:account_debit_note.field_account_debit_note__reason
 msgid "Reason"
 msgstr "原因"
@@ -191,15 +305,15 @@ msgid "The debit notes created for this invoice"
 msgstr "为此结算单创建的借记单"
 
 #. module: account_debit_note
-#. odoo-python
-#: code:addons/account_debit_note/models/account_move.py:0
-msgid "This debit note was created from: %s"
-msgstr "借记单创建于：%s"
-
-#. module: account_debit_note
 #: model:ir.model.fields,field_description:account_debit_note.field_account_debit_note__journal_id
 msgid "Use Specific Journal"
 msgstr "使用特定日记账"
+
+#. module: account_debit_note
+#. odoo-python
+#: code:addons/account_debit_note/models/account_move.py:0
+msgid "Vendor Bills"
+msgstr "供应商账单"
 
 #. module: account_debit_note
 #. odoo-python
@@ -223,8 +337,19 @@ msgid ""
 "note."
 msgstr "不能为已链接至应收账单的发票制作退款账单。"
 
-#. module: account_debit_note
-#. odoo-python
-#: code:addons/account_debit_note/models/account_move.py:0
-msgid "debit_origin_id"
-msgstr "debit_origin_id"
+#~ msgid ""
+#~ "<span class=\"o_stat_text\" invisible=\"debit_origin_move_type != "
+#~ "'out_invoice'\">Invoice</span>\n"
+#~ "                        <span class=\"o_stat_text\" "
+#~ "invisible=\"debit_origin_move_type != 'in_invoice'\">Vendor Bill</span>"
+#~ msgstr ""
+#~ "<span class=\"o_stat_text\" invisible=\"debit_origin_move_type != "
+#~ "'out_invoice'\">发票</span>\n"
+#~ "                        <span class=\"o_stat_text\" "
+#~ "invisible=\"debit_origin_move_type != 'in_invoice'\">供应商账单</span>"
+
+#~ msgid "This debit note was created from: %s"
+#~ msgstr "借记单创建于：%s"
+
+#~ msgid "debit_origin_id"
+#~ msgstr "debit_origin_id"

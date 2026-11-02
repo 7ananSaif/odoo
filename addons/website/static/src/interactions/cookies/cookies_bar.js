@@ -4,7 +4,6 @@ import { registry } from "@web/core/registry";
 import { cookie } from "@web/core/browser/cookie";
 import { _t } from "@web/core/l10n/translation";
 import { isVisible } from "@web/core/utils/ui";
-import { cloneContentEls } from "@website/js/utils";
 import { setUtmsHtmlDataset } from "@website/utils/misc";
 
 // Extending the Popup class with cookiebar functionality.
@@ -22,7 +21,9 @@ export class CookiesBar extends Popup {
             "t-on-cookiesBar.show": this.onShowCookiesBar,
             "t-on-cookiesBar.toggle": this.onToggleCookiesBar,
         },
-        "#cookies-consent-essential, #cookies-consent-all": { "t-on-click": this.onAcceptClick },
+        "#cookies-consent-essential, #cookies-consent-all, .o_cookies_bar_close": {
+            "t-on-click": this.onAcceptClick,
+        },
         // Override to avoid side effects on hide.
         ".js_close_popup": { "t-on-click": () => {} },
         ".btn-primary": { "t-on-click": () => {} },
@@ -39,7 +40,6 @@ export class CookiesBar extends Popup {
 
     setup() {
         super.setup();
-        this.showToggle();
     }
 
     start() {
@@ -109,25 +109,18 @@ export class CookiesBar extends Popup {
 
     showPopup() {
         super.showPopup();
-        if (this.toggleEl) {
+
+        const cookiePolicyUrl = this.el.dataset.cookiePolicyUrl;
+        if (
+            cookiePolicyUrl &&
+            window.location.pathname === new URL(cookiePolicyUrl, window.location.origin).pathname
+        ) {
             this.onToggleCookiesBar();
         }
     }
 
-    showToggle() {
-        const policyLinkEl = this.el.querySelector(".o_cookies_bar_text_policy");
-        if (policyLinkEl && window.location.pathname === new URL(policyLinkEl.href).pathname) {
-            this.toggleEl = cloneContentEls(`
-            <button class="o_cookies_bar_toggle btn btn-info btn-sm rounded-circle d-flex gap-2 align-items-center position-fixed pe-auto">
-                <i class="fa fa-eye" alt="" aria-hidden="true"></i> <span class="o_cookies_bar_toggle_label"></span>
-            </button>
-            `).firstElementChild;
-            this.insert(this.toggleEl, this.el, "beforebegin");
-        }
-    }
-
     onToggleCookiesBar() {
-        this.bsModal.toggle();
+        this.bootstrap.getOrCreateInstance(window.Modal, this.modalEl).toggle();
         // As we're using Bootstrap's events, the Popup class prevents the modal
         // from being shown after hiding it: override that behavior.
         this.popupAlreadyShown = false;
@@ -144,8 +137,7 @@ export class CookiesBar extends Popup {
         } else {
             document.dispatchEvent(new Event("optionalCookiesDenied"));
         }
-        this.bsModal.hide();
-        this.services.website_cookies.bus.trigger("cookiesBar.discard");
+        this.bootstrap.getOrCreateInstance(window.Modal, this.modalEl).hide();
     }
 
     onHideModal() {
@@ -161,6 +153,7 @@ export class CookiesBar extends Popup {
             utm_campaign: "odoo_utm_campaign",
             utm_source: "odoo_utm_source",
             utm_medium: "odoo_utm_medium",
+            utm_reference: "odoo_utm_reference",
         };
         for (const [key, value] of params) {
             if (key in trackingFields) {
@@ -179,7 +172,7 @@ export class CookiesBar extends Popup {
         if ((currCookie && JSON.parse(currCookie).optional) || !this.popupAlreadyShown) {
             return;
         }
-        this.bsModal.show();
+        this.bootstrap.getOrCreateInstance(window.Modal, this.modalEl).show();
 
         // The cookies bar remains hidden, most probably because of the browser
         // or an extension: notify the user because "nothing happens when I

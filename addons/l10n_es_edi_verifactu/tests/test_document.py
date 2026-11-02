@@ -1,4 +1,6 @@
+import copy
 import datetime
+import json
 from freezegun import freeze_time
 from unittest import mock
 
@@ -12,11 +14,20 @@ from .common import TestL10nEsEdiVerifactuCommon
 @tagged('post_install_l10n', 'post_install', '-at_install')
 class TestL10nEsEdiVerifactuDocument(TestL10nEsEdiVerifactuCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         cls.fakenow = datetime.datetime(2024, 12, 5)
         cls.startClassPatcher(freeze_time(cls.fakenow))
+
+    @property
+    def _company_issuer(self):
+        return self.env['l10n_es_edi_verifactu.issuer'].sudo().search([
+            ('company_id', '=', self.company.id),
+            ('obligado_partner_id', '=', self.company.partner_id.id),
+        ], limit=1)
 
     def test_record_identifier(self):
         invoice = self._create_dummy_invoice(name='INV/2019/00006', invoice_date='2024-12-11')
@@ -47,14 +58,14 @@ class TestL10nEsEdiVerifactuDocument(TestL10nEsEdiVerifactuCommon):
 
         expected_document_values = {
             'document_type': 'submission',
-            'state': False,
+            'state': 'invalid',
             'errors': self._mock_format_document_generation_errors(mock_errors),
             'response_csv': False,
         }
         self.assertRecordValues(document, [expected_document_values])
 
         expected_record_values = {
-            'l10n_es_edi_verifactu_state': False,
+            'l10n_es_edi_verifactu_state': 'invalid',
             'l10n_es_edi_verifactu_warning': expected_document_values['errors'],
             'l10n_es_edi_verifactu_warning_level': 'danger',
         }
@@ -78,9 +89,9 @@ class TestL10nEsEdiVerifactuDocument(TestL10nEsEdiVerifactuCommon):
         with self._mock_last_document(None):
             credit_note._l10n_es_edi_verifactu_create_documents()
 
-        errors = ["There is no Veri*Factu document for the refunded record.", "The refund reason is not specified."]
+        errors = ["There is no Veri*Factu document for the refunded record."]
         expected_record_values = {
-            'l10n_es_edi_verifactu_state': False,
+            'l10n_es_edi_verifactu_state': 'invalid',
             'l10n_es_edi_verifactu_warning': self._mock_format_document_generation_errors(errors),
             'l10n_es_edi_verifactu_warning_level': 'danger',
         }
@@ -114,7 +125,7 @@ class TestL10nEsEdiVerifactuDocument(TestL10nEsEdiVerifactuCommon):
         substitution_move._l10n_es_edi_verifactu_create_documents()
         errors = ["There is no Veri*Factu document for the substituted record.", "There is no Veri*Factu document for the reversal of the substituted record."]
         expected_record_values = {
-            'l10n_es_edi_verifactu_state': False,
+            'l10n_es_edi_verifactu_state': 'invalid',
             'l10n_es_edi_verifactu_warning': self._mock_format_document_generation_errors(errors),
             'l10n_es_edi_verifactu_warning_level': 'danger',
         }
@@ -129,7 +140,7 @@ class TestL10nEsEdiVerifactuDocument(TestL10nEsEdiVerifactuCommon):
         substitution_move._l10n_es_edi_verifactu_create_documents()
         errors = ["There is no Veri*Factu document for the reversal of the substituted record."]
         expected_record_values = {
-            'l10n_es_edi_verifactu_state': False,
+            'l10n_es_edi_verifactu_state': 'invalid',
             'l10n_es_edi_verifactu_warning': self._mock_format_document_generation_errors(errors),
             'l10n_es_edi_verifactu_warning_level': 'danger',
         }
@@ -155,7 +166,7 @@ class TestL10nEsEdiVerifactuDocument(TestL10nEsEdiVerifactuCommon):
         }
         self.assertDictEqual(info, expected_response_info | info)
 
-        self.assertFalse(self.company.l10n_es_edi_verifactu_next_batch_time)
+        self.assertFalse(self._company_issuer.next_batch_time)
 
         expected_document_values = {
             'document_type': 'submission',
@@ -194,7 +205,7 @@ class TestL10nEsEdiVerifactuDocument(TestL10nEsEdiVerifactuCommon):
         }
         self.assertDictEqual(info, expected_response_info | info)
 
-        self.assertFalse(self.company.l10n_es_edi_verifactu_next_batch_time)
+        self.assertFalse(self._company_issuer.next_batch_time)
 
         expected_document_values = {
             'document_type': 'submission',
@@ -232,7 +243,7 @@ class TestL10nEsEdiVerifactuDocument(TestL10nEsEdiVerifactuCommon):
         }
         self.assertDictEqual(info, expected_response_info | info)
 
-        self.assertEqual(self.company.l10n_es_edi_verifactu_next_batch_time,
+        self.assertEqual(self._company_issuer.next_batch_time,
                          datetime.datetime(2024, 12, 5, 0, 1, 0))
 
         expected_document_values = {
@@ -276,7 +287,7 @@ class TestL10nEsEdiVerifactuDocument(TestL10nEsEdiVerifactuCommon):
         }
         self.assertDictEqual(info, expected_response_info | info)
 
-        self.assertEqual(self.company.l10n_es_edi_verifactu_next_batch_time,
+        self.assertEqual(self._company_issuer.next_batch_time,
                          datetime.datetime(2024, 12, 5, 0, 1, 0))
 
         expected_document_values = {
@@ -319,7 +330,7 @@ class TestL10nEsEdiVerifactuDocument(TestL10nEsEdiVerifactuCommon):
         }
         self.assertDictEqual(info, expected_response_info | info)
 
-        self.assertEqual(self.company.l10n_es_edi_verifactu_next_batch_time,
+        self.assertEqual(self._company_issuer.next_batch_time,
                          datetime.datetime(2024, 12, 5, 0, 1, 0))
 
         expected_document_values = {
@@ -361,7 +372,7 @@ class TestL10nEsEdiVerifactuDocument(TestL10nEsEdiVerifactuCommon):
         }
         self.assertDictEqual(info, expected_response_info | info)
 
-        self.assertEqual(self.company.l10n_es_edi_verifactu_next_batch_time,
+        self.assertEqual(self._company_issuer.next_batch_time,
                          datetime.datetime(2024, 12, 5, 0, 1, 0))
 
         expected_document_values = {
@@ -404,7 +415,7 @@ class TestL10nEsEdiVerifactuDocument(TestL10nEsEdiVerifactuCommon):
         }
         self.assertDictEqual(info, expected_response_info | info)
 
-        self.assertEqual(self.company.l10n_es_edi_verifactu_next_batch_time,
+        self.assertEqual(self._company_issuer.next_batch_time,
                          datetime.datetime(2024, 12, 5, 0, 1, 0))
 
         expected_document_values = {
@@ -451,7 +462,7 @@ class TestL10nEsEdiVerifactuDocument(TestL10nEsEdiVerifactuCommon):
         }
         self.assertDictEqual(info, expected_response_info | info)
 
-        self.assertEqual(self.company.l10n_es_edi_verifactu_next_batch_time,
+        self.assertEqual(self._company_issuer.next_batch_time,
                          datetime.datetime(2024, 12, 5, 0, 1, 0))
 
         expected_document_values = {
@@ -493,7 +504,7 @@ class TestL10nEsEdiVerifactuDocument(TestL10nEsEdiVerifactuCommon):
         self.assertDictEqual(info, expected_response_info | info)
 
         # Since we received a "waiting time" we still update the time for the next batch
-        self.assertEqual(self.company.l10n_es_edi_verifactu_next_batch_time,
+        self.assertEqual(self._company_issuer.next_batch_time,
                          datetime.datetime(2024, 12, 5, 0, 1, 0))
 
         errors = [_("We could not find any information about the record in the linked batch document.")]
@@ -513,9 +524,57 @@ class TestL10nEsEdiVerifactuDocument(TestL10nEsEdiVerifactuCommon):
         }
         self.assertRecordValues(invoice, [expected_record_values])
 
+    def test_get_state_distinguishes_invalid_from_rejected(self):
+        """A document that could never be generated (local error, no chain_index) must not be
+        confused with a document that was actually sent and rejected by the AEAT: they are
+        surfaced under different `l10n_es_edi_verifactu_state` values, but both should be
+        reachable through the same dashboard/search domain.
+        """
+        rejected_invoice = self._create_dummy_invoice(name='INV/2019/00006', invoice_date='2024-12-11')
+        with self._mock_last_document(None):
+            rejected_document = rejected_invoice._l10n_es_edi_verifactu_create_documents()[rejected_invoice]
+        with self._mock_zeep_registration_operation('l10n_es_edi_verifactu/tests/responses/batch_single_rejected_registration.json'):
+            rejected_document._send_as_batch()
+
+        check_function_path = 'odoo.addons.l10n_es_edi_verifactu.models.verifactu_document.L10nEsEdiVerifactuDocument._check_record_values'
+        invalid_invoice = self._create_dummy_invoice(name='INV/2019/00007', invoice_date='2024-12-17')
+        with self._mock_last_document(None), mock.patch(check_function_path, return_value=["Problem"]):
+            invalid_document = invalid_invoice._l10n_es_edi_verifactu_create_documents()[invalid_invoice]
+
+        self.assertFalse(invalid_document.chain_index)
+        self.assertEqual(invalid_document.state, 'invalid')
+        self.assertRecordValues(rejected_invoice, [{'l10n_es_edi_verifactu_state': 'rejected'}])
+        self.assertRecordValues(invalid_invoice, [{'l10n_es_edi_verifactu_state': 'invalid'}])
+
+        dashboard_domain = [('l10n_es_edi_verifactu_state', 'in', ('rejected', 'invalid'))]
+        moves_with_errors = self.env['account.move'].search(dashboard_domain)
+        self.assertIn(rejected_invoice, moves_with_errors)
+        self.assertIn(invalid_invoice, moves_with_errors)
+
+    def test_generation_error_does_not_trigger_rejected_before(self):
+        """A local generation error (nothing was ever sent to the AEAT) must not be treated as a
+        previous rejection: the next submission attempt must not carry `Subsanacion: 'S'` /
+        `RechazoPrevio: 'X'`, which are reserved for records that the AEAT actually rejected.
+        """
+        check_function_path = 'odoo.addons.l10n_es_edi_verifactu.models.verifactu_document.L10nEsEdiVerifactuDocument._check_record_values'
+        invoice = self._create_dummy_invoice(name='INV/2019/00006', invoice_date='2024-12-11')
+        with self._mock_last_document(None), mock.patch(check_function_path, return_value=["Problem"]):
+            invoice._l10n_es_edi_verifactu_create_documents()
+
+        self.assertEqual(invoice.l10n_es_edi_verifactu_state, 'invalid')
+
+        with self._mock_last_document(None):
+            document = invoice._l10n_es_edi_verifactu_create_documents()[invoice]
+        with self._mock_zeep_registration_operation_certificate_issue():
+            batch_dict, _info = document._send_as_batch()
+
+        registro_alta = batch_dict['RegistroFactura'][0]['RegistroAlta']
+        self.assertEqual(registro_alta['Subsanacion'], 'N')
+        self.assertNotIn('RechazoPrevio', registro_alta)
+
     def test_mark_for_next_batch(self):
         # Check that we can send immediately
-        self.assertFalse(self.company.l10n_es_edi_verifactu_next_batch_time)
+        self.assertFalse(self._company_issuer.next_batch_time)
         mock_accept = self._mock_zeep_registration_operation('l10n_es_edi_verifactu/tests/responses/batch_single_accepted_registration.json')
 
         invoice = self._create_dummy_invoice(name='INV/2019/00026', invoice_date='2024-12-30')
@@ -540,7 +599,7 @@ class TestL10nEsEdiVerifactuDocument(TestL10nEsEdiVerifactuCommon):
 
         # The last response indicated a waiting time of 60 seconds.
         # So the next batch should only be sent at self.fakenow + 60s
-        self.assertEqual(self.company.l10n_es_edi_verifactu_next_batch_time,
+        self.assertEqual(self._company_issuer.next_batch_time,
                          datetime.datetime(2024, 12, 5, 0, 1, 0))
 
         # Try to send another invoice. Now we should not be able to send immediately.
@@ -564,7 +623,7 @@ class TestL10nEsEdiVerifactuDocument(TestL10nEsEdiVerifactuCommon):
 
     def test_response_issue(self):
         # We can send immediately
-        self.assertFalse(self.company.l10n_es_edi_verifactu_next_batch_time)
+        self.assertFalse(self._company_issuer.next_batch_time)
 
         # Note: The record identifier of `invoice` is different than the one found in the response
         invoice = self._create_dummy_invoice(name='INV/2019/00500', invoice_date='2024-12-17')
@@ -575,7 +634,7 @@ class TestL10nEsEdiVerifactuDocument(TestL10nEsEdiVerifactuCommon):
 
         # We failed to send the document and there was no waiting time in the response since we got an access denied error
         self.assertFalse(document.state)
-        self.assertFalse(self.company.l10n_es_edi_verifactu_next_batch_time)
+        self.assertFalse(self._company_issuer.next_batch_time)
         # So the cron has to be retriggered
         self.assertEqual(cron_trigger_result_dict['at'], datetime.datetime(2024, 12, 5, 0, 1, 0))
 
@@ -591,10 +650,133 @@ class TestL10nEsEdiVerifactuDocument(TestL10nEsEdiVerifactuCommon):
 
     def test_verifactu_sequence_with_prefix(self):
         """Ensure a non-numeric sequence value surfaces a user-friendly error."""
-        sequence = self.env.company._l10n_es_edi_verifactu_get_chain_sequence()
+        issuer = self.env['l10n_es_edi_verifactu.issuer']._get_or_create(
+            self.env.company, self.env.company.partner_id
+        )
+        sequence = issuer._get_chain_sequence()
 
         sequence.sudo().write({'prefix': 'F2T', 'suffix': False, 'padding': 6})
         invoice = self._create_dummy_invoice(name='INV/2019/00027', invoice_date='2024-12-30')
         document = invoice._l10n_es_edi_verifactu_create_documents()[invoice]
         self.assertFalse(document.chain_index)
+        self.assertEqual(document.state, 'invalid')
         self.assertIn("prefix or suffix", document.errors)
+
+    # -----------------------------------------------------------------------
+    # Self-billing / mixed-obligado batch splitting
+    # -----------------------------------------------------------------------
+
+    def test_trigger_next_batch_mixed_obligados(self):
+        """Regression: when pending documents have different ObligadoEmision (e.g. one
+        INV and one self-billing BILL), trigger_next_batch must send them in separate SOAP
+        submissions — one per obligado — in strict chain_index order.
+
+        Before the fix, both documents were bundled in a single SOAP call using the
+        ObligadoEmision of self[0], causing the AEAT to reject whichever record had a
+        different IDEmisorFactura.
+        """
+        if self._company_issuer:
+            self._company_issuer.sudo().next_batch_time = False
+
+        # Create INV (obligado = company) and BILL (obligado = partner_b / vendor)
+        inv = self._create_dummy_invoice(name='INV/2019/00030')
+        bill = self._create_dummy_self_billing_invoice()
+
+        with self._mock_last_document(None):
+            doc_inv = inv._l10n_es_edi_verifactu_create_documents()[inv]
+            doc_bill = bill._l10n_es_edi_verifactu_create_documents()[bill]
+
+        # Each document must be the first in its own SIF chain.
+        # Cross-SIF chain_index comparison is meaningless: each SIF has an
+        # independent sequence, so both can be 1.
+        self.assertTrue(doc_inv.chain_index, "INV must have been chained")
+        self.assertTrue(doc_bill.chain_index, "BILL must have been chained")
+        self.assertNotEqual(
+            doc_inv.obligado_partner_id, doc_bill.obligado_partner_id,
+            "INV and BILL must belong to different SIFs (different obligado)",
+        )
+
+        # Mock the SOAP register call:
+        #   • capture the Cabecera of each call (to verify correct ObligadoEmision)
+        #   • return a no-wait 'accepted' response adapted to the submitted document
+        soap_calls = []
+        base_response = json.loads(
+            self.file_read('l10n_es_edi_verifactu/tests/responses/batch_single_accepted_registration.json').content
+        )
+        base_response['TiempoEsperaEnvio'] = '0'  # no waiting time so the second group is sent immediately
+
+        def _mock_register(cabecera, registro_factura):
+            resp = copy.deepcopy(base_response)
+            # Adapt the response IDFactura to match the submitted document so that
+            # _send_batch can match the RespuestaLinea to the document record.
+            submitted_id = registro_factura[0]['RegistroAlta']['IDFactura']
+            resp['RespuestaLinea'][0]['IDFactura'].update(submitted_id)
+            soap_calls.append({'cabecera': cabecera, 'registro_factura': registro_factura})
+            return resp
+
+        with self._mock_get_zeep_operation(registration_return_value=_mock_register):
+            self.env['l10n_es_edi_verifactu.document'].trigger_next_batch()
+
+        # Two separate SOAP calls must have been made (one per obligado)
+        self.assertEqual(len(soap_calls), 2, "Expected two separate SOAP submissions (one per ObligadoEmision)")
+
+        company_nif = self.company.partner_id._l10n_es_edi_verifactu_get_values()['NIF']
+        vendor_nif = self.partner_b._l10n_es_edi_verifactu_get_values()['NIF']
+
+        # First submission: INV → company is the obligado
+        first_obligado = soap_calls[0]['cabecera']['ObligadoEmision']['NIF']
+        self.assertEqual(first_obligado, company_nif,
+                         f"First submission must use company NIF ({company_nif!r}) as ObligadoEmision, got {first_obligado!r}")
+
+        # Second submission: BILL (self-billing) → vendor (partner_b) is the obligado
+        second_obligado = soap_calls[1]['cabecera']['ObligadoEmision']['NIF']
+        self.assertEqual(second_obligado, vendor_nif,
+                         f"Second submission must use vendor NIF ({vendor_nif!r}) as ObligadoEmision, got {second_obligado!r}")
+
+        # Both documents must have been accepted
+        self.assertEqual(doc_inv.state, 'accepted')
+        self.assertEqual(doc_bill.state, 'accepted')
+
+    def test_oss_invoice(self):
+        """ For OSS taxes, the tax amount should not be reported. """
+        if not self.env['ir.module.module'].search([
+            ('name', '=', 'l10n_eu_oss'),
+            ('state', '=', 'installed'),
+        ]):
+            self.skipTest("l10n_eu_oss is not installed")
+
+        self.company.sudo()._map_eu_taxes()
+        self.partner_a.sudo().vat = False
+        invoice = self.env['account.move'].create({
+            'move_type': 'out_invoice',
+            'invoice_date': '2019-01-30',
+            'date': '2019-01-30',
+            'partner_id': self.partner_a.id,
+            'invoice_line_ids': [
+                Command.create({
+                    'product_id': self.product_1.id,
+                    'price_unit': 1000.0,
+                }),
+            ],
+        })
+        invoice.action_post()
+        tax = invoice.invoice_line_ids.tax_ids
+        self.assertTrue(tax, "The invoice should have taxes applied after fiscal position mapping.")
+        self.assertEqual(tax.l10n_es_type, 'no_sujeto_loc')
+        self.assertEqual(tax.l10n_es_applicability, '01')
+
+        with self._mock_last_document(None):
+            document = invoice._l10n_es_edi_verifactu_create_documents()[invoice]
+
+        self.assertFalse(document.errors)
+
+        registro = document._get_document_dict()['RegistroAlta']
+        desglose = registro['Desglose']['DetalleDesglose'][0]
+
+        self.assertEqual(desglose['ClaveRegimen'], '17')
+        self.assertEqual(desglose['CalificacionOperacion'], 'N2')
+        self.assertEqual(desglose['Impuesto'], '01')
+        self.assertEqual(registro['CuotaTotal'], '0.00')
+        self.assertEqual(registro['ImporteTotal'], desglose['BaseImponibleOimporteNoSujeto'])
+        self.assertNotIn('TipoImpositivo', desglose)
+        self.assertNotIn('CuotaRepercutida', desglose)

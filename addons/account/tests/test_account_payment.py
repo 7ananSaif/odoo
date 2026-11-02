@@ -1,15 +1,18 @@
+# -*- coding: utf-8 -*-
 from contextlib import contextmanager
 
 from odoo import Command, fields
+from odoo.addons.account.tests.common import AccountTestInvoicingWithBanksCommon
 from odoo.exceptions import UserError
-from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 from odoo.addons.mail.tests.common import MailCommon
 from odoo.tests import Form, tagged
 from unittest.mock import patch
 
 
 @tagged('post_install', '-at_install')
-class TestAccountPayment(AccountTestInvoicingCommon, MailCommon):
+class TestAccountPayment(AccountTestInvoicingWithBanksCommon, MailCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):
@@ -22,29 +25,6 @@ class TestAccountPayment(AccountTestInvoicingCommon, MailCommon):
 
         cls.bank_journal_1 = cls.company_data['default_journal_bank']
         cls.bank_journal_2 = cls.company_data['default_journal_bank'].copy()
-
-        cls.partner_bank_account1 = cls.env['res.partner.bank'].create({
-            'acc_number': "0123456789",
-            'partner_id': cls.partner_a.id,
-            'acc_type': 'bank',
-        })
-        cls.partner_bank_account2 = cls.env['res.partner.bank'].create({
-            'acc_number': "9876543210",
-            'partner_id': cls.partner_a.id,
-            'acc_type': 'bank',
-        })
-        cls.comp_bank_account1 = cls.env['res.partner.bank'].create({
-            'acc_number': "985632147",
-            'partner_id': cls.env.company.partner_id.id,
-            'acc_type': 'bank',
-            'allow_out_payment': True,
-        })
-        cls.comp_bank_account2 = cls.env['res.partner.bank'].create({
-            'acc_number': "741258963",
-            'partner_id': cls.env.company.partner_id.id,
-            'acc_type': 'bank',
-            'allow_out_payment': True,
-        })
 
         cls.pay_term_epd = cls.env['account.payment.term'].create([{
             'name': "test",
@@ -59,6 +39,24 @@ class TestAccountPayment(AccountTestInvoicingCommon, MailCommon):
                 }),
             ],
         }])
+
+        cls.commercial_partner = cls.env['res.partner'].create({
+            'name': 'Ready Mat',
+            'is_company': True,
+            'property_account_receivable_id': cls.company_data['default_account_receivable'].id,
+            'property_account_payable_id': cls.company_data['default_account_payable'].id,
+        })
+        cls.invoice_contact = cls.env['res.partner'].create({
+            'name': 'Billy Fox',
+            'type': 'invoice',
+            'parent_id': cls.commercial_partner.id,
+            'email': 'billy@readymat.example',
+        })
+        cls.other_contact = cls.env['res.partner'].create({
+            'name': 'Jane Fox',
+            'type': 'contact',
+            'parent_id': cls.commercial_partner.id,
+        })
 
     def test_payment_move_sync_create_write(self):
         copy_receivable = self.copy_account(self.company_data['default_account_receivable'])
@@ -472,6 +470,9 @@ class TestAccountPayment(AccountTestInvoicingCommon, MailCommon):
         """ Ensure the 'partner_bank_id' is well computed on payments. When the payment is inbound, the money must be
         received by a bank account linked to the company. In case of outbound payment, the bank account must be found
         on the partner.
+
+        The 'return_partner_bank_id' must be computed the other way around: for an outbound payment it must be a
+        bank account of the company, while for an inbound payment it must be a bank account of the partner.
         """
         payment = self.env['account.payment'].create({
             'journal_id': self.bank_journal_1.id,
@@ -483,12 +484,16 @@ class TestAccountPayment(AccountTestInvoicingCommon, MailCommon):
         self.assertRecordValues(payment, [{
             'available_partner_bank_ids': self.partner_a.bank_ids.ids,
             'partner_bank_id': self.partner_bank_account1.id,
+            'available_return_partner_bank_ids': [],
+            'return_partner_bank_id': False,
         }])
 
         payment.payment_type = 'inbound'
         self.assertRecordValues(payment, [{
             'available_partner_bank_ids': [],
             'partner_bank_id': False,
+            'available_return_partner_bank_ids': self.partner_a.bank_ids.ids,
+            'return_partner_bank_id': self.partner_bank_account1.id,
         }])
 
         self.bank_journal_2.bank_account_id = self.comp_bank_account2
@@ -498,6 +503,8 @@ class TestAccountPayment(AccountTestInvoicingCommon, MailCommon):
         self.assertRecordValues(payment, [{
             'available_partner_bank_ids': self.comp_bank_account2.ids,
             'partner_bank_id': self.comp_bank_account2.id,
+            'available_return_partner_bank_ids': self.partner_a.bank_ids.ids,
+            'return_partner_bank_id': self.partner_bank_account1.id,
         }])
 
     def test_reconciliation_with_old_oustanding_account(self):
@@ -639,7 +646,7 @@ class TestAccountPayment(AccountTestInvoicingCommon, MailCommon):
                     active_ids=move.ids
                 ).create({'amount': amount})._create_payments()
 
-                self.assertEqual(payment.state, 'paid' if is_community else 'in_process')
+                self.assertEqual(payment.state, 'reconciled' if is_community else 'paid')
 
         # Remove the outstanding account on the payment method line to avoid generating a journal entry on the payment
         self.company_data['default_journal_bank'].inbound_payment_method_line_ids.payment_account_id = self.env['account.account']
@@ -662,6 +669,33 @@ class TestAccountPayment(AccountTestInvoicingCommon, MailCommon):
         invoice_2.action_post()
         register_payment_and_assert_state(invoice_2, 100.0, is_community=False)
         self.assertFalse(invoice_2.reconciled_payment_ids.move_id)
+
+    def test_payment_is_matched_when_bill_reconciled_afterwards(self):
+        """ Ensure the is_matched field of the payment is updated when the bill is reconciled """
+        with patch.object(self.env.registry['account.move'], '_get_invoice_in_payment_state', return_value='in_payment'):
+            # Set the outbound payment method line to have no outstanding account, so the payment has no journal entry
+            self.company_data['default_journal_bank'].outbound_payment_method_line_ids.payment_account_id = False
+            bill = self.init_invoice('in_invoice', post=True, amounts=[10], taxes=[])
+            payment = self.env['account.payment.register'] \
+                .with_context(active_model='account.move', active_ids=bill.ids) \
+                .create({})._create_payments()
+            self.assertFalse(payment.move_id)
+            self.assertRecordValues(payment, [{'state': 'paid', 'is_matched': False}])
+
+            # Invalidate to force the state to be recomputed, as in a new request
+            self.env.invalidate_all()
+            payable_account = self.company_data['default_account_payable']
+            counterpart = self.env['account.move'].create({
+                'line_ids': [
+                    Command.create({'account_id': payable_account.id, 'balance': 10}),
+                    Command.create({'account_id': self.company_data['default_account_expense'].id, 'balance': -10}),
+                ],
+            })
+            counterpart.action_post()
+            (bill + counterpart).line_ids.filtered(lambda line: line.account_id == payable_account).reconcile()
+
+            self.assertEqual(bill.payment_state, 'paid')
+            self.assertRecordValues(payment, [{'state': 'reconciled', 'is_matched': True}])
 
     def test_payment_confirmation_with_bank_outstanding_account(self):
         """ Ensures that when the outstanding account of the payment method is set to a bank,
@@ -704,7 +738,6 @@ class TestAccountPayment(AccountTestInvoicingCommon, MailCommon):
             'code': '209.01.01',
             'name': 'Bank Account',
             'account_type': 'asset_cash',
-            'reconcile': False,
         })
         self.company_data['default_journal_bank'].outbound_payment_method_line_ids.payment_account_id = unreconciliable_account
         invoice = self.init_invoice(move_type='out_invoice', amounts=[10], post=True)
@@ -900,10 +933,12 @@ class TestAccountPayment(AccountTestInvoicingCommon, MailCommon):
             (False, 'partial', 'partial'),
             (False, 'in_payment', 'in_payment'),
             (False, 'paid', 'paid'),
+            (False, 'blocked', 'blocked'),
             (True, 'partial', 'partial'),
             (True, 'in_payment', 'in_payment'),
             (True, 'paid', 'paid'),
             (True, 'reversed', 'reversed'),
+            (True, 'blocked', 'blocked'),
         ]:
             invoice = create_invoice(post=post, kwargs={'payment_state': payment_state})
             self.assertEqual(invoice.status_in_payment, expected)
@@ -942,3 +977,58 @@ class TestAccountPayment(AccountTestInvoicingCommon, MailCommon):
         payment.action_draft()
         with self.assertRaises(UserError):
             payment.amount = 300.0
+
+    def test_payment_communication_on_child_accounting_on_commercial(self):
+        """ When partner_id is set to a child contact, the payment move displays the child
+        (used for checks/receipts/emails) but every journal item is posted on the commercial
+        partner so reporting and reconciliation stay aggregated at the legal entity.
+        """
+        payment = self.init_payment(-100.0, partner=self.invoice_contact, post=True)
+
+        self.assertEqual(payment.partner_id, self.invoice_contact)
+        self.assertEqual(payment.commercial_partner_id, self.commercial_partner)
+        self.assertEqual(payment.move_id.partner_id, self.commercial_partner)
+        self.assertTrue(all(line.partner_id == self.commercial_partner for line in payment.move_id.line_ids))
+        self.assertEqual(
+            payment.destination_account_id,
+            self.commercial_partner.property_account_payable_id,
+        )
+
+    def test_payment_bank_account_from_commercial(self):
+        """ Outbound bank list for a payment on a child contact comes from the commercial partner. """
+        bank = self.env['res.partner.bank'].create({
+            'account_number': 'NL00COMM0000000001',
+            'partner_id': self.commercial_partner.id,
+        })
+        payment = self.init_payment(-100.0, partner=self.invoice_contact)
+        self.assertIn(bank, payment.available_partner_bank_ids)
+
+    def test_payment_destination_account_from_commercial(self):
+        """ property_account_*_id looked up on the commercial partner, not the child. """
+        payment = self.init_payment(-100.0, partner=self.invoice_contact)
+        self.assertEqual(
+            payment.destination_account_id,
+            self.commercial_partner.property_account_payable_id,
+        )
+
+    def test_payment_domain_accepts_child_contact(self):
+        """ The partner_id field accepts child contacts. """
+        payment = self.init_payment(-50.0, partner=self.invoice_contact)
+        self.assertEqual(payment.partner_id, self.invoice_contact)
+        self.assertEqual(payment.commercial_partner_id, self.commercial_partner)
+
+    def test_payment_duplicate_detection_same_partner(self):
+        """ Two payments on the same partner with identical amount/date are
+        flagged as duplicates.
+        """
+        payment1 = self.init_payment(-100.0, partner=self.commercial_partner, date='2025-01-15')
+        payment2 = self.init_payment(-100.0, partner=self.commercial_partner, date='2025-01-15')
+        self.assertIn(payment2, payment1.duplicate_payment_ids)
+
+    def test_payment_duplicate_detection_across_contacts(self):
+        """ Two payments sharing the same commercial but using different child contacts are
+        still flagged as duplicates of each other.
+        """
+        payment1 = self.init_payment(-100.0, partner=self.invoice_contact, date='2025-01-15')
+        payment2 = self.init_payment(-100.0, partner=self.other_contact, date='2025-01-15')
+        self.assertIn(payment2, payment1.duplicate_payment_ids)

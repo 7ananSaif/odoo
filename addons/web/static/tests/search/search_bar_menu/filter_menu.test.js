@@ -1,11 +1,13 @@
 import { expect, test } from "@odoo/hoot";
-import { queryAll, queryAllTexts, queryFirst } from "@odoo/hoot-dom";
+import { queryAll, queryAllTexts, queryFirst, queryOne } from "@odoo/hoot-dom";
 import { animationFrame, mockDate } from "@odoo/hoot-mock";
 import {
     addNewRule,
     clickOnButtonAddBranch,
     clickOnButtonAddRule,
+    getCurrentOperator,
     getCurrentPath,
+    getCurrentValue,
     label,
     openModelFieldSelectorPopover,
     selectOperator,
@@ -114,7 +116,6 @@ test("filter by a date field using period works", async () => {
         context: { search_default_date_field: 1 },
     });
     await toggleSearchBarMenu();
-    await toggleMenuItem("Date");
 
     // default filter should be activated with the global default period 'this_month'
     expect(searchBar.env.searchModel.domain).toEqual([
@@ -125,6 +126,11 @@ test("filter by a date field using period works", async () => {
     expect(isItemSelected("Date")).toBe(true);
     expect(isOptionSelected("Date", "March")).toBe(true);
     expect(queryAllTexts`.o-dropdown--menu .o_item_option`).toEqual([
+        "Today",
+        "This Week",
+        "This Month",
+        "This Quarter",
+        "This Year",
         "March",
         "February",
         "January",
@@ -232,6 +238,7 @@ test("filter by a date field using period works", async () => {
     expect(searchBar.env.searchModel.domain).toEqual([]);
     expect(getFacetTexts()).toEqual([]);
 
+    await toggleMenuItem("Date");
     await toggleMenuItemOption("Date", "2017");
     expect(searchBar.env.searchModel.domain).toEqual([
         "&",
@@ -317,82 +324,9 @@ test("filter by a date field using period works even in January", async () => {
     expect(getFacetTexts()).toEqual(["Date: December 2016"]);
 
     await toggleSearchBarMenu();
-    await toggleMenuItem("Date");
     expect(isItemSelected("Date")).toBe(true);
     expect(isOptionSelected("Date", "December")).toBe(true);
     expect(isOptionSelected("Date", "2016")).toBe(true);
-});
-
-test("filter by a date field using period works even with an endYear in the past", async () => {
-    mockDate("2017-01-07T03:00:00");
-
-    const searchBar = await mountWithSearch(SearchBar, {
-        resModel: "foo",
-        searchViewId: false,
-        searchMenuTypes: ["filter"],
-        searchViewArch: `
-            <search>
-                <filter string="Date" name="some_filter" date="date_field" start_year="-4" end_year="-2"/>
-            </search>
-        `,
-        context: { search_default_some_filter: 1 },
-    });
-    expect(searchBar.env.searchModel.domain).toEqual([
-        "&",
-        ["date_field", ">=", "2015-01-01"],
-        ["date_field", "<=", "2015-01-31"],
-    ]);
-    expect(getFacetTexts()).toEqual(["Date: January 2015"]);
-
-    await toggleSearchBarMenu();
-    await toggleMenuItem("Date");
-    expect(isItemSelected("Date")).toBe(true);
-    expect(isOptionSelected("Date", "January")).toBe(true);
-    expect(isOptionSelected("Date", "2015")).toBe(true);
-
-    await toggleMenuItemOption("Date", "2015");
-    expect(isOptionSelected("Date", "January")).toBe(false);
-
-    await toggleMenuItemOption("Date", "December");
-    expect(isItemSelected("Date")).toBe(true);
-    expect(isOptionSelected("Date", "December")).toBe(true);
-    expect(isOptionSelected("Date", "2014")).toBe(true);
-});
-
-test("filter by a date field using period works even with a startYear in the future", async () => {
-    mockDate("2017-01-07T03:00:00");
-
-    const searchBar = await mountWithSearch(SearchBar, {
-        resModel: "foo",
-        searchViewId: false,
-        searchMenuTypes: ["filter"],
-        searchViewArch: `
-            <search>
-                <filter string="Date" name="some_filter" date="date_field" start_year="2" end_year="4"/>
-            </search>
-        `,
-        context: { search_default_some_filter: 1 },
-    });
-    expect(searchBar.env.searchModel.domain).toEqual([
-        "&",
-        ["date_field", ">=", "2019-01-01"],
-        ["date_field", "<=", "2019-01-31"],
-    ]);
-    expect(getFacetTexts()).toEqual(["Date: January 2019"]);
-
-    await toggleSearchBarMenu();
-    await toggleMenuItem("Date");
-    expect(isItemSelected("Date")).toBe(true);
-    expect(isOptionSelected("Date", "January")).toBe(true);
-    expect(isOptionSelected("Date", "2019")).toBe(true);
-
-    await toggleMenuItemOption("Date", "2019");
-    expect(isOptionSelected("Date", "January")).toBe(false);
-
-    await toggleMenuItemOption("Date", "December");
-    expect(isItemSelected("Date")).toBe(true);
-    expect(isOptionSelected("Date", "December")).toBe(true);
-    expect(isOptionSelected("Date", "2019")).toBe(true);
 });
 
 test("`context` key in <filter> is used", async () => {
@@ -463,7 +397,6 @@ test("filter with multiple values in default_period date attribute set as search
         context: { search_default_date_field: true },
     });
     await toggleSearchBarMenu();
-    await toggleMenuItem("Date");
     expect(isItemSelected("Date")).toBe(true);
     expect(isOptionSelected("Date", "2019")).toBe(true);
     expect(isOptionSelected("Date", "2018")).toBe(true);
@@ -479,16 +412,15 @@ test("date filter with custom option set as default_period", async () => {
         searchViewArch: `
             <search>
                 <filter string="Date" name="date_field" date="date_field" default_period="custom_date_field_today">
-                    <filter name="date_field_today" string="Today" domain="[('date_field', '=', context_today().strftime('%Y-%m-%d'))]"/>
+                    <filter name="date_field_today" string="Now" domain="[('date_field', '=', context_today().strftime('%Y-%m-%d'))]"/>
                 </filter>
             </search>
         `,
         context: { search_default_date_field: true },
     });
     await toggleSearchBarMenu();
-    await toggleMenuItem("Date");
     expect(isItemSelected("Date")).toBe(true);
-    expect(isOptionSelected("Date", "Today")).toBe(true);
+    expect(isOptionSelected("Date", "Now")).toBe(true);
     expect(searchBarMenu.env.searchModel.domain).toEqual([["date_field", "=", "2019-07-31"]]);
 });
 
@@ -499,17 +431,9 @@ test("date filter with default_period in the context", async () => {
         resModel: "foo",
         searchViewId: false,
         searchMenuTypes: ["filter"],
-        searchViewArch: `
-            <search>
-                <filter string="Date" name="date_field" date="date_field" default_period="custom_date_field_today">
-                    <filter name="date_field_today" string="Today" domain="[('date_field', '=', context_today().strftime('%Y-%m-%d'))]"/>
-                </filter>
-            </search>
-        `,
         context: { search_default_date_field: "year-1,month-1" },
     });
     await toggleSearchBarMenu();
-    await toggleMenuItem("Date");
     expect(isItemSelected("Date")).toBe(true);
     expect(isOptionSelected("Date", "June")).toBe(true);
     expect(isOptionSelected("Date", "2018")).toBe(true);
@@ -525,19 +449,323 @@ for (const contextValue of ["True", "1"]) {
             searchViewArch: `
                 <search>
                     <filter string="Date" name="date_field" date="date_field" default_period="custom_date_field_today">
-                        <filter name="date_field_today" string="Today" domain="[('date_field', '=', context_today().strftime('%Y-%m-%d'))]"/>
+                        <filter name="date_field_today" string="Now" domain="[('date_field', '=', context_today().strftime('%Y-%m-%d'))]"/>
                     </filter>
                 </search>
             `,
             context: { search_default_date_field: contextValue },
         });
         await toggleSearchBarMenu();
-        await toggleMenuItem("Date");
         expect(isItemSelected("Date")).toBe(true);
-        expect(isOptionSelected("Date", "Today")).toBe(true);
+        expect(isOptionSelected("Date", "Now")).toBe(true);
         expect(searchBarMenu.env.searchModel.domain).toEqual([["date_field", "=", "2019-07-31"]]);
     });
 }
+
+test("date filter with a relative option set as default_period", async () => {
+    mockDate("2017-03-22T01:00:00"); // Wednesday
+
+    const searchBar = await mountWithSearch(SearchBar, {
+        resModel: "foo",
+        searchViewId: false,
+        searchMenuTypes: ["filter"],
+        searchViewArch: `
+            <search>
+                <filter string="Date" name="date_field" date="date_field" default_period="today"/>
+            </search>
+        `,
+        context: { search_default_date_field: true },
+    });
+    await toggleSearchBarMenu();
+
+    // The relative option is active, and no period option was activated alongside it.
+    expect(isOptionSelected("Date", "Today")).toBe(true);
+    expect(isOptionSelected("Date", "March")).toBe(false);
+    expect(isOptionSelected("Date", "2017")).toBe(false);
+    expect(getFacetTexts()).toEqual(["Date: Mar 22"]);
+    expect(searchBar.env.searchModel.domain).toEqual([
+        "&",
+        ["date_field", ">=", "today"],
+        ["date_field", "<", "today +1d"],
+    ]);
+});
+
+test("date filter with a relative option as search_default value in the context", async () => {
+    mockDate("2017-03-22T01:00:00"); // Wednesday
+
+    const searchBar = await mountWithSearch(SearchBar, {
+        resModel: "foo",
+        searchViewId: false,
+        searchMenuTypes: ["filter"],
+        searchViewArch: `
+            <search>
+                <filter string="Date" name="date_field" date="date_field"/>
+            </search>
+        `,
+        context: { search_default_date_field: "this_week" },
+    });
+    await toggleSearchBarMenu();
+
+    expect(isOptionSelected("Date", "This Week")).toBe(true);
+    expect(isOptionSelected("Date", "March")).toBe(false);
+    expect(getFacetTexts()).toEqual(["Date: Week 12, Mar 19 - Mar 25"]);
+    expect(searchBar.env.searchModel.domain).toEqual([
+        "&",
+        ["date_field", ">=", "today =week_start"],
+        ["date_field", "<", "today =week_start +1w"],
+    ]);
+
+    // Should also be able to navigate
+    await contains(`.o_searchview_facet [aria-label="Previous period"]`).click();
+    expect(getFacetTexts()).toEqual(["Date: Week 11, Mar 12 - Mar 18"]);
+    expect(searchBar.env.searchModel.domain).toEqual([
+        "&",
+        ["date_field", ">=", "today =week_start -1w"],
+        ["date_field", "<", "today =week_start"],
+    ]);
+});
+
+test("relative option wins over the period options declared with it", async () => {
+    mockDate("2017-03-22T01:00:00"); // Wednesday
+
+    const searchBar = await mountWithSearch(SearchBar, {
+        resModel: "foo",
+        searchViewId: false,
+        searchMenuTypes: ["filter"],
+        searchViewArch: `
+            <search>
+                <filter string="Date" name="date_field" date="date_field"/>
+            </search>
+        `,
+        context: { search_default_date_field: "year-1,this_month" },
+    });
+    await toggleSearchBarMenu();
+
+    expect(isOptionSelected("Date", "This Month")).toBe(true);
+    expect(isOptionSelected("Date", "2016")).toBe(false);
+    expect(getFacetTexts()).toEqual(["Date: March"]);
+    expect(searchBar.env.searchModel.domain).toEqual([
+        "&",
+        ["date_field", ">=", "today =1d"],
+        ["date_field", "<", "today =1d +1m"],
+    ]);
+});
+
+test("filter by a date field using relative smart dates works", async () => {
+    mockDate("2017-03-22T01:00:00"); // Wednesday
+
+    const searchBar = await mountWithSearch(SearchBar, {
+        resModel: "foo",
+        searchViewId: false,
+        searchMenuTypes: ["filter"],
+        searchViewArch: `
+            <search>
+                <filter string="Date" name="date_field" date="date_field"/>
+            </search>
+        `,
+    });
+    await toggleSearchBarMenu();
+    await toggleMenuItem("Date");
+
+    // Relative options appear before the period options
+    expect(queryAllTexts`.o-dropdown--menu .o_item_option`.slice(0, 5)).toEqual([
+        "Today",
+        "This Week",
+        "This Month",
+        "This Quarter",
+        "This Year",
+    ]);
+
+    // Select "This Month" → relative smart-date range anchored on the month start
+    await toggleMenuItemOption("Date", "This Month");
+    expect(isOptionSelected("Date", "This Month")).toBe(true);
+    expect(getFacetTexts()).toEqual(["Date: March"]);
+    expect(searchBar.env.searchModel.domain).toEqual([
+        "&",
+        ["date_field", ">=", "today =1d"],
+        ["date_field", "<", "today =1d +1m"],
+    ]);
+
+    // Switching to "This Week" replaces "This Month" (exclusive within relative group)
+    await toggleMenuItemOption("Date", "This Week");
+    expect(isOptionSelected("Date", "This Month")).toBe(false);
+    expect(isOptionSelected("Date", "This Week")).toBe(true);
+    expect(getFacetTexts()).toEqual(["Date: Week 12, Mar 19 - Mar 25"]);
+    expect(searchBar.env.searchModel.domain).toEqual([
+        "&",
+        ["date_field", ">=", "today =week_start"],
+        ["date_field", "<", "today =week_start +1w"],
+    ]);
+
+    // Deselect "This Week" → no filter
+    await toggleMenuItemOption("Date", "This Week");
+    expect(isOptionSelected("Date", "This Week")).toBe(false);
+    expect(getFacetTexts()).toEqual([]);
+    expect(searchBar.env.searchModel.domain).toEqual([]);
+});
+
+test("period and relative options of a date filter are mutually exclusive", async () => {
+    mockDate("2017-03-22T01:00:00"); // Wednesday
+
+    const searchBar = await mountWithSearch(SearchBar, {
+        resModel: "foo",
+        searchViewId: false,
+        searchMenuTypes: ["filter"],
+        searchViewArch: `
+            <search>
+                <filter string="Date" name="date_field" date="date_field"/>
+            </search>
+        `,
+    });
+    await toggleSearchBarMenu();
+    await toggleMenuItem("Date");
+
+    // Select a period option (a month auto-selects its year).
+    await toggleMenuItemOption("Date", "March");
+    expect(isOptionSelected("Date", "March")).toBe(true);
+    expect(isOptionSelected("Date", "2017")).toBe(true);
+    expect(getFacetTexts()).toEqual(["Date: March 2017"]);
+
+    // Activating a relative option clears the period selection.
+    await toggleMenuItemOption("Date", "This Month");
+    expect(isOptionSelected("Date", "This Month")).toBe(true);
+    expect(isOptionSelected("Date", "March")).toBe(false);
+    expect(isOptionSelected("Date", "2017")).toBe(false);
+    expect(getFacetTexts()).toEqual(["Date: March"]);
+    expect(searchBar.env.searchModel.domain).toEqual([
+        "&",
+        ["date_field", ">=", "today =1d"],
+        ["date_field", "<", "today =1d +1m"],
+    ]);
+
+    // Activating a period option again clears the relative selection.
+    await toggleMenuItemOption("Date", "March");
+    expect(isOptionSelected("Date", "March")).toBe(true);
+    expect(isOptionSelected("Date", "This Month")).toBe(false);
+    expect(getFacetTexts()).toEqual(["Date: March 2017"]);
+});
+
+test("filter by a date range matches the records overlapping the period", async () => {
+    mockDate("2017-03-22T01:00:00"); // Wednesday
+
+    const searchBar = await mountWithSearch(SearchBar, {
+        resModel: "foo",
+        searchViewId: false,
+        searchMenuTypes: ["filter"],
+        searchViewArch: `
+            <search>
+                <filter string="Date" name="date_field" date="date_field" end_date="date_field_end"/>
+            </search>
+        `,
+    });
+    await toggleSearchBarMenu();
+    await toggleMenuItem("Date");
+
+    // A record without an end date ends when it starts.
+    await toggleMenuItemOption("Date", "March");
+    expect(getFacetTexts()).toEqual(["Date: March 2017"]);
+    expect(searchBar.env.searchModel.domain).toEqual([
+        "&",
+        ["date_field", "<=", "2017-03-31"],
+        "|",
+        ["date_field_end", ">=", "2017-03-01"],
+        "&",
+        ["date_field_end", "=", false],
+        ["date_field", ">=", "2017-03-01"],
+    ]);
+
+    await toggleMenuItemOption("Date", "This Week");
+    expect(getFacetTexts()).toEqual(["Date: Week 12, Mar 19 - Mar 25"]);
+    expect(searchBar.env.searchModel.domain).toEqual([
+        "&",
+        ["date_field", "<", "today =week_start +1w"],
+        "|",
+        ["date_field_end", ">=", "today =week_start"],
+        "&",
+        ["date_field_end", "=", false],
+        ["date_field", ">=", "today =week_start"],
+    ]);
+
+    // The relative option can still be shifted from its facet.
+    await contains(`.o_searchview_facet [aria-label="Previous period"]`).click();
+    expect(getFacetTexts()).toEqual(["Date: Week 11, Mar 12 - Mar 18"]);
+    expect(searchBar.env.searchModel.domain).toEqual([
+        "&",
+        ["date_field", "<", "today =week_start"],
+        "|",
+        ["date_field_end", ">=", "today =week_start -1w"],
+        "&",
+        ["date_field_end", "=", false],
+        ["date_field", ">=", "today =week_start -1w"],
+    ]);
+});
+
+test("Inner filter: toggle", async () => {
+    const searchBarMenu = await mountWithSearch(SearchBarMenu, {
+        resModel: "foo",
+        searchViewId: false,
+        searchMenuTypes: ["filter"],
+        searchViewArch: `
+            <search>
+                <filter string="Foo">
+                    <filter string="Abcd" name="abcd" domain="[('foo', '=', 'abcd')]"/>
+                    <filter string="Qsdf" name="qsdf" domain="[('foo', '=', 'qsdf')]"/>
+                </filter>
+            </search>
+        `,
+    });
+    await toggleSearchBarMenu();
+    await toggleMenuItem("Foo");
+    expect(isItemSelected("Foo")).toBe(false);
+    expect(`.o_item_option`).toHaveCount(2);
+
+    await contains(`.o_item_option:eq(1)`).click();
+    expect(isItemSelected("Foo")).toBe(true);
+    expect(searchBarMenu.env.searchModel.domain).toEqual([["foo", "=", "qsdf"]]);
+
+    await contains(`.o_item_option:eq(0)`).click();
+    expect(isItemSelected("Foo")).toBe(true);
+    expect(searchBarMenu.env.searchModel.domain).toEqual([
+        "|",
+        ["foo", "=", "abcd"],
+        ["foo", "=", "qsdf"],
+    ]);
+});
+
+test("Inner filter: domain is correctly combined with other filters", async () => {
+    const searchBarMenu = await mountWithSearch(SearchBarMenu, {
+        resModel: "foo",
+        searchViewId: false,
+        searchMenuTypes: ["filter"],
+        searchViewArch: `
+            <search>
+                <filter string="Foo">
+                    <filter string="Abcd" name="abcd" domain="[('foo', '=', 'abcd')]"/>
+                    <filter string="Qsdf" name="qsdf" domain="[('foo', '=', 'qsdf')]"/>
+                </filter>
+                <filter string="Bar" name="bar" domain="[('bar', '=', 'meow')]"/>
+            </search>
+        `,
+    });
+    await toggleSearchBarMenu();
+    await toggleMenuItem("Foo");
+    await contains(`.o_item_option:eq(0)`).click();
+    await contains(`.o_menu_item:eq(1)`).click();
+    expect(isItemSelected("Foo")).toBe(true);
+    expect(isItemSelected("Bar")).toBe(true);
+    expect(searchBarMenu.env.searchModel.domain).toEqual([
+        "|",
+        ["foo", "=", "abcd"],
+        ["bar", "=", "meow"],
+    ]);
+
+    await contains(`.o_menu_item:eq(1)`).click();
+    await toggleMenuItem("Foo");
+    expect(`.o_item_option`).toHaveCount(0);
+    expect(isItemSelected("Foo")).toBe(true);
+    expect(isItemSelected("Bar")).toBe(false);
+    expect(searchBarMenu.env.searchModel.domain).toEqual([["foo", "=", "abcd"]]);
+});
 
 test("filter domains are correcly combined by OR and AND", async () => {
     const searchBar = await mountWithSearch(SearchBar, {
@@ -818,6 +1046,49 @@ test("display of (not) set in facets", async () => {
     expect(searchBar.env.searchModel.domain).toEqual([["boolean", "=", false]]);
 });
 
+test("relative date and datetime fields facets display", async () => {
+    serverState.debug = "1";
+    onRpc("/web/domain/validate", () => true);
+    const searchBar = await mountWithSearch(SearchBar, {
+        resModel: "foo",
+        searchMenuTypes: ["filter"],
+        searchViewId: false,
+        searchViewArch: `<search/>`,
+    });
+    expect(getFacetTexts()).toEqual([]);
+    expect(searchBar.env.searchModel.domain).toEqual([]);
+
+    // Pick a datetime field and select relative range option
+    await toggleSearchBarMenu();
+    await openAddCustomFilterDialog();
+    await openModelFieldSelectorPopover();
+    await contains(".o_model_field_selector_popover_item_name:contains(create_date)").click();
+    await selectValue("relativeRange");
+
+    // First test -5 months labels
+    await contains(`${SELECTORS.valueEditor} input[type="number"]`).edit(-5, { instantly: true });
+    await contains(`${SELECTORS.valueEditor} select:last`).select('"month"');
+    await contains(".modal footer button").click();
+    expect(getFacetTexts()).toEqual(["Created on is in last 5 months"]);
+    expect(searchBar.env.searchModel.domain).toEqual([
+        "&",
+        ["create_date", ">=", "today -5m"],
+        ["create_date", "<", "today"],
+    ]);
+
+    // Then test +6 weeks weeks labels
+    await contains(".o_searchview_facet_label").click();
+    await contains(`${SELECTORS.valueEditor} input[type="number"]`).edit(6, { instantly: true });
+    await contains(`${SELECTORS.valueEditor} select:last`).select('"week"');
+    await contains(".modal footer button").click();
+    expect(getFacetTexts()).toEqual(["Created on is in next 6 weeks"]);
+    expect(searchBar.env.searchModel.domain).toEqual([
+        "&",
+        ["create_date", ">", "today +1d"],
+        ["create_date", "<=", "today +6w +1d"],
+    ]);
+});
+
 test("Add a custom filter: notification on invalid domain", async () => {
     serverState.debug = "1";
     mockService("notification", {
@@ -867,7 +1138,7 @@ test("display names in facets", async () => {
 
     expect(getFacetTexts()).toEqual([
         "Bar = John",
-        "Bar = David or Inaccessible/missing record ID: 5555",
+        "Bar = David or Missing record",
         `Bar ${label("set")}`,
         "Id = 2",
     ]);
@@ -1049,7 +1320,7 @@ test(`"in range" facets`, async () => {
         ".o_model_field_selector_popover .o_model_field_selector_popover_item_name:contains(Birthday)"
     ).click();
     await addNewRule();
-    await selectValue("custom range");
+    await selectValue("dateRange");
     await contains(".modal footer button").click();
     expect(getFacetTexts()).toEqual([
         "Birthday between 03/11/2019 and 03/11/2019 or Birthday is in Today",
@@ -1085,4 +1356,300 @@ test(`Custom filter with "&"" as value`, async function () {
     await contains(".modal footer button").click();
     expect(getFacetTexts()).toEqual([`Foo contains &`]);
     expect(searchBar.env.searchModel.domain).toEqual([["foo", "ilike", "&"]]);
+});
+
+test("lazy selection filter", async () => {
+    const searchBar = await mountWithSearch(SearchBarMenu, {
+        resModel: "foo",
+        searchViewId: false,
+        searchMenuTypes: ["filter"],
+        searchViewArch: `
+            <search>
+                <filter string="Selection" name="selection_filter">
+                    <field name="selection"/>
+                </filter>
+            </search>
+        `,
+    });
+    await toggleSearchBarMenu();
+    expect(`.o_menu_item`).toHaveCount(2);
+    expect(`.o_accordion_toggle`).toHaveText("Selection");
+    await contains(`.o_accordion_toggle`).click();
+    expect(`.o_accordion_values .o_item_option`).toHaveCount(3);
+    expect(queryAllTexts(`.o_accordion_values .o_item_option`)).toEqual(["ABC", "DEF", "GHI"]);
+    await toggleMenuItemOption("Selection", "ABC");
+    expect(searchBar.env.searchModel.domain).toEqual([["selection", "=", "abc"]]);
+});
+
+test("lazy many2one filter", async () => {
+    Partner._records = [
+        { id: 1, name: "John" },
+        { id: 2, name: "David" },
+        { id: 3, name: "Bertrand" },
+        { id: 4, name: "Christophe" },
+        { id: 5, name: "Jean-Edouard" },
+        { id: 6, name: "Serge" },
+        { id: 7, name: "Amelie" },
+        { id: 8, name: "Sarah" },
+        { id: 9, name: "Tristan" },
+        { id: 10, name: "Paul" },
+    ];
+    onRpc("partner", "web_search_read", ({ kwargs }) => {
+        expect(kwargs.specification).toEqual({
+            display_name: {},
+            id: {},
+        });
+        expect(kwargs.domain).toEqual([["bar", "!=", false]]);
+        expect.step(`web_search_read ${kwargs.limit} partners`);
+    });
+    const searchBar = await mountWithSearch(SearchBarMenu, {
+        resModel: "foo",
+        searchViewId: false,
+        searchMenuTypes: ["filter"],
+        searchViewArch: `
+            <search>
+                <filter string="Bar" name="m2o">
+                    <field name="bar" domain="[('bar', '!=', False)]"/>
+                </filter>
+            </search>
+        `,
+    });
+    expect.verifySteps([]);
+    await toggleSearchBarMenu();
+    expect(`.o_menu_item`).toHaveCount(2);
+    expect(`.o_accordion_toggle`).toHaveText("Bar");
+    await contains(`.o_accordion_toggle`).click();
+    expect.verifySteps(["web_search_read 8 partners"]);
+    expect(`.o_accordion_values .o_item_option`).toHaveCount(9);
+    expect(queryAllTexts(`.o_accordion_values .o_item_option`)).toEqual([
+        "John",
+        "David",
+        "Bertrand",
+        "Christophe",
+        "Jean-Edouard",
+        "Serge",
+        "Amelie",
+        "Sarah",
+        "More...",
+    ]);
+    await toggleMenuItemOption("Bar", "Christophe");
+    expect(searchBar.env.searchModel.domain).toEqual([["bar", "=", 4]]);
+    await toggleMenuItemOption("Bar", "More...");
+    expect.verifySteps(["web_search_read 16 partners"]);
+    expect(`.o_accordion_values .o_item_option`).toHaveCount(10);
+    expect(queryAllTexts(`.o_accordion_values .o_item_option`)).toEqual([
+        "John",
+        "David",
+        "Bertrand",
+        "Christophe",
+        "Jean-Edouard",
+        "Serge",
+        "Amelie",
+        "Sarah",
+        "Tristan",
+        "Paul",
+    ]);
+});
+
+test("Date filters have 'Custom Date...' option, that opens prefilled domain editor", async () => {
+    await mountWithSearch(SearchBarMenu, {
+        resModel: "foo",
+        searchMenuTypes: ["filter"],
+        searchViewId: false,
+        searchViewArch: `
+            <search>
+                <filter string="Date" name="date" date="date_field"/>
+            </search>
+        `,
+    });
+
+    await toggleSearchBarMenu();
+    await toggleMenuItem("Date");
+
+    // "Custom Date..." appears at the bottom of the accordion
+    expect(".o_accordion_values .o_add_custom_filter").toHaveText("Custom Date...");
+    await contains(".o_accordion_values .o_add_custom_filter").click();
+
+    expect(".modal").toHaveCount(1);
+    expect(".modal header").toHaveText("Custom Filter");
+    expect(".modal .o_domain_selector").toHaveCount(1);
+
+    // Domain selector is pre-filled with the date field "is in" "Today"
+    expect(getCurrentPath()).toBe("Date");
+    expect(getCurrentOperator()).toBe("is in");
+    expect(getCurrentValue()).toBe("Today");
+});
+
+test("'Custom Date...' of a date range filter is prefilled with today's bounds", async () => {
+    mockDate("2017-03-22T01:00:00");
+
+    await mountWithSearch(SearchBarMenu, {
+        resModel: "foo",
+        searchMenuTypes: ["filter"],
+        searchViewId: false,
+        searchViewArch: `
+            <search>
+                <filter string="Date" name="date" date="date_field" end_date="date_field_end"/>
+            </search>
+        `,
+    });
+
+    await toggleSearchBarMenu();
+    await toggleMenuItem("Date");
+    await contains(".o_accordion_values .o_add_custom_filter").click();
+
+    // The overlap cannot be expressed with the relative "is in" operator, which
+    // works on a single field: the dialog gets the bounds of the current day,
+    // as actual dates the value editors can read back.
+    expect(".modal .o_domain_selector").toHaveCount(1);
+    expect(getCurrentPath(0)).toBe("Date");
+    expect(getCurrentValue(0)).toBe("03/22/2017");
+    expect(getCurrentPath(1)).toBe("End Date");
+    expect(getCurrentValue(1)).toBe("03/22/2017");
+});
+
+test("lazy many2one filter with multiple domains", async () => {
+    Partner._records = [
+        { id: 1, name: "John" },
+        { id: 2, name: "David" },
+    ];
+    onRpc("partner", "web_search_read", ({ kwargs }) => {
+        expect(kwargs.domain).toEqual([["bar", "!=", false]]);
+        expect.step(`web_search_read`);
+    });
+    const searchBar = await mountWithSearch(SearchBarMenu, {
+        resModel: "foo",
+        searchViewId: false,
+        searchMenuTypes: ["filter"],
+        searchViewArch: `
+            <search>
+                <filter string="Bar" name="m2o" domain="[('foo', '!=', 'a')]">
+                    <field name="bar" domain="[('bar', '!=', False)]"/>
+                </filter>
+            </search>
+        `,
+    });
+    expect.verifySteps([]);
+    await toggleSearchBarMenu();
+    expect(`.o_menu_item`).toHaveCount(2);
+    expect(`.o_accordion_toggle`).toHaveText("Bar");
+    await contains(`.o_accordion_toggle`).click();
+    expect.verifySteps(["web_search_read"]);
+    expect(`.o_accordion_values .o_item_option`).toHaveCount(2);
+    expect(queryAllTexts(`.o_accordion_values .o_item_option`)).toEqual(["John", "David"]);
+    await toggleMenuItemOption("Bar", "David");
+    expect(searchBar.env.searchModel.domain).toEqual(["&", ["foo", "!=", "a"], ["bar", "=", 2]], {
+        message:
+            "domain on filter is combined with the option, field domain is applied to the option search",
+    });
+});
+
+test("an active relative filter keeps its accordion state when reopening the menu", async () => {
+    // This feature is well tested with default filter in other test, here we test only user interactions
+    mockDate("2017-03-22T01:00:00"); // Wednesday
+    await mountWithSearch(SearchBar, {
+        resModel: "foo",
+        searchViewId: false,
+        searchMenuTypes: ["filter"],
+        searchViewArch: `
+            <search>
+                <filter string="Date" name="date_field" date="date_field"/>
+                <separator/>
+                <filter string="Birthday" name="birthday" date="birthday"/>
+            </search>
+        `,
+    });
+    const dateRoot = () => queryOne`.o_menu_item:text(Date)`.parentElement;
+    const dateOptions = () => queryAllTexts(".o_item_option", { root: dateRoot() });
+    const birthdayOptions = () =>
+        queryAll(".o_item_option", { root: queryOne`.o_menu_item:text(Birthday)`.parentElement });
+
+    // Nothing is active yet: both date accordions are collapsed on open.
+    await toggleSearchBarMenu();
+    expect(dateOptions()).toHaveLength(0);
+    expect(birthdayOptions()).toHaveLength(0);
+
+    // Unfold "Date" and activate a relative option.
+    await toggleMenuItem("Date");
+    await toggleMenuItemOption("Date", "This Week");
+    expect(isOptionSelected("Date", "This Week")).toBe(true);
+
+    // Close and reopen the whole menu. Because a relative option is active, the
+    // "Date" accordion should comes back unfolded, while "Birthday" stays collapsed.
+    await toggleSearchBarMenu(); // close
+    await toggleSearchBarMenu(); // reopen
+    expect(isOptionSelected("Date", "This Week")).toBe(true);
+    expect(dateOptions().slice(0, 5)).toEqual([
+        "Today",
+        "This Week",
+        "This Month",
+        "This Quarter",
+        "This Year",
+    ]);
+    expect(birthdayOptions()).toHaveLength(0);
+
+    // A manual collapse only lasts for the current menu session and does not
+    // deactivate the filter (the facet stays).
+    await toggleMenuItem("Date"); // collapse
+    expect(dateOptions()).toHaveLength(0);
+    expect(getFacetTexts()).toEqual(["Date: Week 12, Mar 19 - Mar 25"]);
+
+    // Reopening re-mounts the accordions and forgets that manual collapse, so
+    // the still-active relative filter unfolds "Date" again on its own.
+    await toggleSearchBarMenu(); // close
+    await toggleSearchBarMenu(); // reopen
+    expect(dateOptions().slice(0, 5)).toEqual([
+        "Today",
+        "This Week",
+        "This Month",
+        "This Quarter",
+        "This Year",
+    ]);
+    expect(isOptionSelected("Date", "This Week")).toBe(true);
+
+    // Deactivate the filter
+    await toggleMenuItemOption("Date", "This Week");
+    await toggleSearchBarMenu(); // close
+    await toggleSearchBarMenu(); // reopen
+    expect(dateOptions()).toHaveLength(0); // Should not open with deactivated filter
+    expect(birthdayOptions()).toHaveLength(0);
+});
+
+test("menu items keep reflecting a restored search state", async () => {
+    // Switching view imports the exported state into a new search model, in
+    // which the menu must stay in sync. The filter only comes from that state.
+    const searchModel = JSON.stringify({
+        nextGroupId: 2,
+        nextGroupNumber: 2,
+        nextId: 2,
+        query: [],
+        searchItems: {
+            1: {
+                id: 1,
+                type: "filter",
+                name: "foo",
+                description: "Foo",
+                domain: `[('foo', '=', 'qsdf')]`,
+                groupId: 1,
+                groupNumber: 1,
+            },
+        },
+        sections: [],
+    });
+    await mountWithSearch(SearchBar, {
+        resModel: "foo",
+        searchViewId: false,
+        searchMenuTypes: ["filter"],
+        searchViewArch: `<search/>`,
+        globalState: { searchModel },
+    });
+
+    await toggleSearchBarMenu();
+    await toggleMenuItem("Foo");
+    expect(getFacetTexts()).toEqual(["Foo"]);
+    expect(isItemSelected("Foo")).toBe(true);
+
+    await toggleMenuItem("Foo");
+    expect(getFacetTexts()).toEqual([]);
+    expect(isItemSelected("Foo")).toBe(false);
 });

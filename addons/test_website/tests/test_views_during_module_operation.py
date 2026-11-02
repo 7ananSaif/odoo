@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo.addons.http_routing.tests.common import MockRequest
 from odoo.tests import standalone
 
 
@@ -55,7 +53,7 @@ def test_01_cow_views_unlink_on_module_update(env):
     })
 
     # Trigger COW on child view
-    update_module_child_view.with_context(website_id=1).write({'name': 'Child View (W1)'})
+    update_module_child_view.with_context(website_id=env.ref('base.default_website').id).write({'name': 'Child View (W1)'})
 
     # Ensure views are correctly setup
     msg = "View '%s' does not exist!"
@@ -70,7 +68,6 @@ def test_01_cow_views_unlink_on_module_update(env):
     # Upgrade the module
     test_website_module = env['ir.module.module'].search([('name', '=', 'test_website')])
     test_website_module.button_immediate_upgrade()
-    env.transaction.reset()     # clear the set of environments
 
     # Ensure generic views got removed
     view = env.ref('test_website.update_module_view_to_be_t_called', raise_if_not_found=False)
@@ -115,8 +112,8 @@ def test_02_copy_ids_views_unlink_on_module_update(env):
     ThemeView = env['theme.ir.ui.view']
     Imd = env['ir.model.data']
 
-    website_1 = env['website'].browse(1)
-    website_2 = env['website'].browse(2)
+    website_1 = env.ref('base.default_website')
+    website_2 = website_1.search([('id', '>', website_1.id)], order='id', limit=1).ensure_one()
     theme_default = env.ref('base.module_theme_default')
 
     # Install theme_default on website 1 and website 2
@@ -164,7 +161,7 @@ def test_02_copy_ids_views_unlink_on_module_update(env):
             ('website_id', 'in', (website_1 + website_2).ids),
         ])
         assert (
-            set((view_website_1 + view_website_2)).issubset(theme_child_view.copy_ids)
+            set(view_website_1 + view_website_2).issubset(theme_child_view.copy_ids)
             and view_website_1.website_id == website_1
             and view_website_2.website_id == website_2
         ), "Theme View should have been copied to the website."
@@ -181,7 +178,6 @@ def test_02_copy_ids_views_unlink_on_module_update(env):
 
     # Upgrade the module
     theme_default.button_immediate_upgrade()
-    env.transaction.reset()  # clear the set of environments
 
     # Beware: records do not belong to the correct registry anymore
     assert env.registry is not old_registry
@@ -190,8 +186,8 @@ def test_02_copy_ids_views_unlink_on_module_update(env):
     ThemeView = env['theme.ir.ui.view']
     Imd = env['ir.model.data']
 
-    website_1 = env['website'].browse(1)
-    website_2 = env['website'].browse(2)
+    website_1 = env.ref('base.default_website')
+    website_2 = website_1.search([('id', '>', website_1.id)], order='id', limit=1).ensure_one()
     theme_default = env.ref('base.module_theme_default')
 
     # Ensure the theme.ir.ui.view got removed (since there is an IMD but not
@@ -213,9 +209,7 @@ def test_02_copy_ids_views_unlink_on_module_update(env):
     view_website_1, view_website_2, theme_child_view = _simulate_xml_view()
 
     # Upgrade the module
-    with MockRequest(env, website=website_1):
-        theme_default.button_immediate_upgrade()
-    env.transaction.reset()  # clear the set of environments
+    theme_default.with_context(website_id=website_1.id).button_immediate_upgrade()
 
     # Ensure the theme.ir.ui.view got removed (since there is an IMD but not
     # present in XML files)

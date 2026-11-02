@@ -1,45 +1,66 @@
-import { ImStatus } from "@mail/core/common/im_status";
+import { useSubEnv } from "@web/owl2/utils";
+import { DiscussAvatar } from "@mail/core/common/discuss_avatar";
+import { optionType } from "@mail/core/common/suggestion_hook";
 import { onExternalClick } from "@mail/utils/common/hooks";
 import { markEventHandled, isEventHandled } from "@web/core/utils/misc";
 
-import { Component, useEffect, useExternalListener, useRef, useState } from "@odoo/owl";
+import { Component, proxy, signal, t, useListener, useOnChange, useProps } from "@odoo/owl";
 
-import { getActiveHotkey } from "@web/core/hotkeys/hotkey_service";
+import { getActiveHotkey } from "@web/core/hotkeys/hotkey_utils";
 import { usePosition } from "@web/core/position/position_hook";
 import { useService } from "@web/core/utils/hooks";
 
+/**
+ * Returns a string representation of the options, to tell a new set of options
+ * apart from the same set rebuilt at the next render. Every field is taken into
+ * account because `label` is optional (an option can be rendered by an
+ * arbitrary `optionTemplate`), and records are identified by their local id.
+ *
+ * @param {Object[]} options
+ * @returns {string}
+ */
+function optionsToString(options) {
+    return options
+        .map((option) =>
+            Object.entries(option)
+                .map(([name, value]) => `${name}:${value?.localId ?? value}`)
+                .join(",")
+        )
+        .join("\n");
+}
+
 export class NavigableList extends Component {
-    static components = { ImStatus };
+    static components = { DiscussAvatar };
     static template = "mail.NavigableList";
-    static props = {
-        anchorRef: { optional: true },
-        class: { type: String, optional: true },
-        onSelect: { type: Function },
-        options: { type: Array },
-        optionTemplate: { type: String, optional: true },
-        position: { type: String, optional: true },
-        closeOnSelect: { type: Boolean, optional: true },
-        isLoading: { type: Boolean, optional: true },
-    };
-    static defaultProps = {
-        position: "bottom",
-        closeOnSelect: true,
-        isLoading: false,
-    };
+
+    rootRef = signal.ref();
 
     setup() {
         super.setup();
-        this.rootRef = useRef("root");
-        this.state = useState({
+        this.store = useService("mail.store");
+        const option = optionType(this.store);
+        this.props = useProps({
+            anchorRef: t.signal(t.instanceOf(HTMLElement)).optional(),
+            class: t.string().optional(),
+            closeOnSelect: t.boolean().optional(true),
+            isLoading: t.boolean().optional(false),
+            onClose: t.function([]).optional(),
+            onSelect: t.function([t.instanceOf(Event), option]),
+            options: t.array(option),
+            optionTemplate: t.string().optional(),
+            position: t.string().optional("bottom"),
+            rememberPosition: t.boolean().optional(),
+        });
+        useSubEnv({ inNavigableList: true });
+        this.state = proxy({
             activeIndex: null,
             open: false,
             showLoading: false,
         });
         this.hotkey = useService("hotkey");
         this.hotkeysToRemove = [];
-
-        useExternalListener(window, "keydown", this.onKeydown, true);
-        onExternalClick("root", async (ev) => {
+        useListener(this.env.pipWindow || window, "keydown", (ev) => this.onKeydown(ev), true);
+        onExternalClick(this.rootRef, async (ev) => {
             // Let event be handled by bubbling handlers first.
             await new Promise(setTimeout);
             if (isEventHandled(ev, "composer.onClickTextarea")) {
@@ -48,23 +69,31 @@ export class NavigableList extends Component {
             this.close();
         });
         // position and size
-        usePosition("root", () => this.props.anchorRef, { position: this.props.position });
-        useEffect(
-            () => {
-                this.open();
-            },
-            () => [this.props]
+        usePosition(this.rootRef, () => this.props.anchorRef?.(), {
+            position: this.props.position,
+            rememberPosition: this.props.rememberPosition,
+        });
+        useOnChange(
+            // Open on mount and when a new set of options arrives. In particular,
+            // do not re-open on unrelated re-renders after the user closed the
+            // list (Escape, click away): the options are then the same.
+            () => [optionsToString(this.props.options)],
+            () => this.open()
         );
-        useEffect(
-            () => {
-                if (!this.props.isLoading) {
-                    clearTimeout(this.loadingTimeoutId);
-                    this.state.showLoading = false;
-                } else if (!this.loadingTimeoutId) {
-                    this.loadingTimeoutId = setTimeout(() => (this.state.showLoading = true), 2000);
+        useOnChange(
+            () => [this.props.isLoading],
+            (isLoading) => {
+                if (isLoading) {
+                    const loadingTimeoutId = setTimeout(
+                        () => (this.state.showLoading = true),
+                        2000
+                    );
+                    return () => {
+                        clearTimeout(loadingTimeoutId);
+                        this.state.showLoading = false;
+                    };
                 }
-            },
-            () => [this.props.isLoading]
+            }
         );
     }
 
@@ -86,11 +115,17 @@ export class NavigableList extends Component {
         if (this.props.closeOnSelect) {
             this.state.open = false;
             this.state.activeIndex = null;
+            if (this.props.options.length) {
+                this.props.onClose?.();
+            }
         }
     }
 
-    selectOption(ev, index, params = {}) {
-        const option = this.props.options[index];
+    /**
+     * @param {Event} ev
+     * @param {import("@mail/core/common/suggestion_hook").Option} option
+     */
+    selectOption(ev, option) {
         if (!option) {
             return;
         }
@@ -98,9 +133,7 @@ export class NavigableList extends Component {
             this.close();
             return;
         }
-        this.props.onSelect(ev, option, {
-            ...params,
-        });
+        this.props.onSelect(ev, option);
         this.close();
     }
 
@@ -144,12 +177,15 @@ export class NavigableList extends Component {
         const hotkey = getActiveHotkey(ev);
         switch (hotkey) {
             case "enter":
-                markEventHandled(ev, "NavigableList.select");
                 if (this.state.activeIndex === null) {
+                    // Nothing is selectable (e.g. list is open but still loading
+                    // with no options yet). Let Enter propagate so the composer
+                    // can send the message instead of being swallowed.
                     this.close();
                     return;
                 }
-                this.selectOption(ev, this.state.activeIndex);
+                markEventHandled(ev, "NavigableList.select");
+                this.selectOption(ev, this.props.options[this.state.activeIndex]);
                 break;
             case "escape":
                 markEventHandled(ev, "NavigableList.close");

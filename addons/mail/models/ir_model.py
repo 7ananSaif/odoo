@@ -19,55 +19,25 @@ class IrModel(models.Model):
         string="Has Mail Blacklist", default=False,
     )
 
-    def unlink(self):
+    @api.ondelete(at_uninstall=False)
+    def _unlink_related_mail_data(self):
         """ Delete mail data (followers, messages, activities) associated with
         the models being deleted.
         """
-        if not self:
-            return True
-
-        # Delete followers, messages and attachments for models that will be unlinked.
-        mail_models = self.search([
-            ('model', 'in', ('mail.activity', 'mail.activity.type', 'mail.followers', 'mail.message'))
-        ], order='id')
-
-        if not (self & mail_models):
-            models = tuple(self.mapped('model'))
-            model_ids = tuple(self.ids)
-
-            query = "DELETE FROM mail_activity WHERE res_model_id IN %s"
-            self.env.cr.execute(query, [model_ids])
-
-            query = "DELETE FROM mail_activity_type WHERE res_model IN %s"
-            self.env.cr.execute(query, [models])
-
-            query = "DELETE FROM mail_followers WHERE res_model IN %s"
-            self.env.cr.execute(query, [models])
-
-            query = "DELETE FROM mail_message WHERE model in %s"
-            self.env.cr.execute(query, [models])
-
-        # Get files attached solely to the models being deleted (and none other)
         models = tuple(self.mapped('model'))
-        query = """
-            SELECT DISTINCT store_fname
-            FROM ir_attachment
-            WHERE res_model IN %s
-            EXCEPT
-            SELECT store_fname
-            FROM ir_attachment
-            WHERE res_model not IN %s;
-        """
-        self.env.cr.execute(query, [models, models])
-        fnames = self.env.cr.fetchall()
+        model_ids = tuple(self.ids)
 
-        query = """DELETE FROM ir_attachment WHERE res_model in %s"""
+        query = "DELETE FROM mail_activity WHERE res_model_id IN %s"
+        self.env.cr.execute(query, [model_ids])
+
+        query = "DELETE FROM mail_activity_type WHERE res_model IN %s"
         self.env.cr.execute(query, [models])
 
-        for (fname,) in fnames:
-            self.env['ir.attachment']._file_delete(fname)
+        query = "DELETE FROM mail_followers WHERE res_model IN %s"
+        self.env.cr.execute(query, [models])
 
-        return super(IrModel, self).unlink()
+        query = "DELETE FROM mail_message WHERE model in %s"
+        self.env.cr.execute(query, [models])
 
     def write(self, vals):
         if self and ('is_mail_thread' in vals or 'is_mail_activity' in vals or 'is_mail_blacklist' in vals):
@@ -120,8 +90,8 @@ class IrModel(models.Model):
     def _get_definitions(self, model_names):
         model_definitions = super()._get_definitions(model_names)
         for model_name, model_definition in model_definitions.items():
-            model = self.env[model_name]
-            tracked_field_names = model._track_get_fields() if 'mail.thread' in model._inherit else []
+            inherit_mail_thread = issubclass(self.env.registry[model_name], self.env.registry['mail.thread'])
+            tracked_field_names = self.env[model_name]._track_get_fields() if inherit_mail_thread else []
             for fname in tracked_field_names:
                 if fname in model_definition["fields"]:
                     model_definition["fields"][fname]["tracking"] = True
@@ -132,8 +102,8 @@ class IrModel(models.Model):
     def _get_model_definitions(self, model_names_to_fetch):
         model_definitions = super()._get_model_definitions(model_names_to_fetch)
         for model_name, model_definition in model_definitions.items():
-            model = self.env[model_name]
-            tracked_field_names = model._track_get_fields() if 'mail.thread' in model._inherit else []
+            inherit_mail_thread = issubclass(self.env.registry[model_name], self.env.registry['mail.thread'])
+            tracked_field_names = self.env[model_name]._track_get_fields() if inherit_mail_thread else []
             for fname, field in model_definition["fields"].items():
                 if fname in tracked_field_names:
                     field['tracking'] = True

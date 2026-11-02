@@ -3,13 +3,15 @@ from datetime import datetime
 
 from freezegun import freeze_time
 
-from odoo import Command, fields
+from odoo import Command
 
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 from odoo.addons.mail.tests.common import mail_new_test_user
 
 
 class TestExpenseCommon(AccountTestInvoicingCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):
@@ -56,7 +58,7 @@ class TestExpenseCommon(AccountTestInvoicingCommon):
             'work_contact_id': cls.expense_user_employee.partner_id.id,
             'bank_account_ids': [
                 Command.create({
-                    'acc_number': 'BE68539007547034',
+                    'account_number': 'BE68539007547034',
                     'allow_out_payment': True,
                     'partner_id': cls.expense_user_employee.partner_id.id,
             })]
@@ -128,15 +130,17 @@ class TestExpenseCommon(AccountTestInvoicingCommon):
             create_values.append(value_dict)
         return cls.env['hr.expense'].create(create_values).sorted()
 
-    @classmethod
-    def post_expenses_with_wizard(cls, expenses, journal=None, date=None):
-        action = expenses.action_post()
-        if action:
-            wizard = expenses.env['hr.expense.post.wizard'].with_context(action['context']).browse(action['res_id'])
-            if journal:
-                wizard.employee_journal_id = journal.id
-            wizard.accounting_date = date or fields.Date.context_today(expenses)
-            wizard.action_post_entry()
+    def post_expenses(self, expenses):
+        """
+        Helper to "post" expenses (it actually post draft moves related to expenses),
+        whether it's company or employee paid expenses
+        """
+        company_expenses = expenses.filtered(lambda expense: expense.payment_mode == 'company_account')
+        if company_expenses:
+            # post through payment to post both payment and move
+            company_expenses.account_move_id.origin_payment_id.action_post()
+        if employee_expenses := expenses - company_expenses:
+            employee_expenses.account_move_id.action_post()
 
     def get_new_payment(self, expenses, amount):
         """ Helper to create payments """

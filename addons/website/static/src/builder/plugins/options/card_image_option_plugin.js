@@ -1,8 +1,10 @@
 import { BuilderAction } from "@html_builder/core/builder_action";
 import { ClassAction } from "@html_builder/core/core_builder_action_plugin";
 import { Plugin } from "@html_editor/plugin";
+import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { renderToElement } from "@web/core/utils/render";
+import { ImagePositionOverlay } from "@html_builder/plugins/image/image_position_overlay";
+import { onceAllImagesLoaded } from "@website/utils/images";
 
 /**
  * @typedef { Object } CardImageOptionShared
@@ -26,20 +28,31 @@ const imageRelatedClasses = [
 const imageRelatedStyles = [
     "--card-img-aspect-ratio",
     "--card-img-size-h",
-    "--card-img-ratio-align",
+    "--card-img-ratio-align", // kept for compatibility
 ];
+const cardImageSelector = ".o_card_img_wrapper > .o_card_img";
 
-class CardImageOptionPlugin extends Plugin {
+export class CardImageOptionPlugin extends Plugin {
     static id = "cardImageOption";
     static dependencies = ["remove", "history", "builderOptions"];
-    static shared = ["adaptRatio"];
+    static shared = ["adaptRatio", "getDelta"];
     /** @type {import("plugins").WebsiteResources} */
     resources = {
+        clone_disabled_reason_providers: (el) => {
+            if (el.matches(cardImageSelector)) {
+                return _t("You cannot duplicate this image.");
+            }
+        },
+        is_node_removable_predicates: (node) => {
+            if (node.matches?.(cardImageSelector)) {
+                return false;
+            }
+        },
         builder_actions: {
             SetCoverImagePositionAction,
             RemoveCoverImageAction,
             AddCoverImageAction,
-            AlignCoverImageAction,
+            CoverImagePositionOverlayAction,
         },
     };
 
@@ -70,6 +83,21 @@ class CardImageOptionPlugin extends Plugin {
             }
         }
     }
+
+    getDelta(imageEl) {
+        const naturalWidth = imageEl.naturalWidth;
+        const naturalHeight = imageEl.naturalHeight;
+        const { width, height, paddingLeft, paddingRight, paddingTop, paddingBottom } =
+            getComputedStyle(imageEl);
+        const imageElWidth = parseFloat(width) - parseFloat(paddingLeft) - parseFloat(paddingRight);
+        const imageElHeight =
+            parseFloat(height) - parseFloat(paddingTop) - parseFloat(paddingBottom);
+        const renderRatio = Math.max(imageElWidth / naturalWidth, imageElHeight / naturalHeight);
+        return {
+            x: Math.round(imageElWidth - renderRatio * naturalWidth),
+            y: Math.round(imageElHeight - renderRatio * naturalHeight),
+        };
+    }
 }
 
 export class SetCoverImagePositionAction extends BuilderAction {
@@ -87,7 +115,7 @@ export class SetCoverImagePositionAction extends BuilderAction {
 }
 export class RemoveCoverImageAction extends BuilderAction {
     static id = "removeCoverImage";
-    static dependencies = ["history", "builderOptions", "remove"];
+    static dependencies = ["builderOptions", "remove"];
     apply({ editingElement }) {
         const imageWrapperEl = editingElement.querySelector(".o_card_img_wrapper");
         imageWrapperEl.remove();
@@ -98,18 +126,52 @@ export class RemoveCoverImageAction extends BuilderAction {
 }
 export class AddCoverImageAction extends BuilderAction {
     static id = "addCoverImage";
+    static dependencies = ["websiteBridge"];
     apply({ editingElement }) {
-        const imageWrapper = renderToElement("website.s_card.imageWrapper");
+        const imageWrapper = this.dependencies.websiteBridge.renderToElement(
+            "website.s_card.imageWrapper"
+        );
         editingElement.prepend(imageWrapper);
         editingElement.classList.add("o_card_img_top");
     }
 }
-export class AlignCoverImageAction extends BuilderAction {
-    static id = "alignCoverImage";
-    apply({ editingElement, params: { mainParam: direction } }) {
-        const imgWrapper = editingElement.querySelector(".o_card_img_wrapper");
-        imgWrapper.classList.toggle("o_card_img_adjust_v", direction === "vertical");
-        imgWrapper.classList.toggle("o_card_img_adjust_h", direction === "horizontal");
+export class CoverImagePositionOverlayAction extends BuilderAction {
+    static id = "coverImagePositionOverlay";
+    static dependencies = ["overlayButtons", "history", "cardImageOption"];
+    setup() {
+        this.withLoadingEffect = false;
+    }
+    async load({ editingElement }) {
+        const imageEl = editingElement.querySelector(".o_card_img");
+        await onceAllImagesLoaded(imageEl);
+        this.dependencies.overlayButtons.hideOverlayButtonsUi();
+        return new Promise((resolve) => {
+            const removeOverlay = this.services.overlay.add(
+                ImagePositionOverlay,
+                {
+                    targetEl: imageEl,
+                    close: (position) => {
+                        removeOverlay();
+                        resolve(position);
+                    },
+                    onDrag: (percentPosition) => {
+                        imageEl.style.objectPosition = `${percentPosition.left}% ${percentPosition.top}%`;
+                    },
+                    getDelta: () => this.dependencies.cardImageOption.getDelta(imageEl),
+                    getPosition: () => getComputedStyle(imageEl).objectPosition,
+                    editable: this.editable,
+                    history: {
+                        makeSavePoint: this.dependencies.history.makeSavePoint,
+                    },
+                },
+                { onRemove: () => this.dependencies.overlayButtons.showOverlayButtonsUi() }
+            );
+        });
+    }
+    apply({ editingElement, loadResult }) {
+        if (loadResult) {
+            editingElement.querySelector(".o_card_img").style.objectPosition = loadResult;
+        }
     }
 }
 

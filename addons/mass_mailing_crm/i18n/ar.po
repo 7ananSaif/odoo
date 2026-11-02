@@ -10,10 +10,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~15.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-09-16 13:40+0000\n"
-"Last-Translator: \"Tiffany Chang (tic)\" <tic@odoo.com>\n"
-"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 14:18+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-s19-4/"
 "mass_mailing_crm/ar/>\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
@@ -21,7 +21,7 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: mass_mailing_crm
 #: model_terms:ir.ui.view,arch_db:mass_mailing_crm.mailing_mailing_view_form
@@ -34,6 +34,11 @@ msgstr ""
 "span>\n"
 "                        <span class=\"o_stat_text\" "
 "invisible=\"use_leads\">الفرص</span>"
+
+#. module: mass_mailing_crm
+#: model:ir.module.module,summary:base.module_mass_mailing_crm
+msgid "Add lead / opportunities UTM info on mass mailing"
+msgstr ""
 
 #. module: mass_mailing_crm
 #: model:ir.model,website_form_label:mass_mailing_crm.model_crm_lead
@@ -68,6 +73,12 @@ msgstr "عميل مهتم"
 #. module: mass_mailing_crm
 #. odoo-python
 #: code:addons/mass_mailing_crm/models/mailing_mailing.py:0
+msgid "Lead Recall"
+msgstr ""
+
+#. module: mass_mailing_crm
+#. odoo-python
+#: code:addons/mass_mailing_crm/models/mailing_mailing.py:0
 #: model:ir.model.fields.selection,name:mass_mailing_crm.selection__utm_campaign__ab_testing_winner_selection__crm_lead_count
 msgid "Leads"
 msgstr "العملاء المهتمين"
@@ -84,9 +95,28 @@ msgid "Leads/Opportunities Count"
 msgstr "عدد العملاء المهتمين/الفرص"
 
 #. module: mass_mailing_crm
+#. odoo-python
+#: code:addons/mass_mailing_crm/models/mailing_mailing.py:0
+msgid "Learn More"
+msgstr ""
+
+#. module: mass_mailing_crm
+#. odoo-python
+#: code:addons/mass_mailing_crm/models/mailing_mailing.py:0
+msgid ""
+"Looking to turn your mailings into leads? Use your sales team's email as the "
+"reply-to address."
+msgstr ""
+
+#. module: mass_mailing_crm
 #: model:ir.model,name:mass_mailing_crm.model_mailing_mailing
 msgid "Mass Mailing"
 msgstr "المراسلات الجماعية"
+
+#. module: mass_mailing_crm
+#: model:ir.module.module,shortdesc:base.module_mass_mailing_crm
+msgid "Mass mailing on lead / opportunities"
+msgstr ""
 
 #. module: mass_mailing_crm
 #. odoo-python
@@ -121,6 +151,11 @@ msgid "UTM Campaign"
 msgstr "حملة UTM"
 
 #. module: mass_mailing_crm
+#: model:ir.module.module,description:base.module_mass_mailing_crm
+msgid "UTM and mass mailing on lead / opportunities"
+msgstr ""
+
+#. module: mass_mailing_crm
 #: model:ir.model.fields,field_description:mass_mailing_crm.field_mailing_mailing__use_leads
 msgid "Use Leads"
 msgstr "استخدم بيانات العملاء المهتمين"
@@ -129,17 +164,3 @@ msgstr "استخدم بيانات العملاء المهتمين"
 #: model:ir.model.fields,field_description:mass_mailing_crm.field_utm_campaign__ab_testing_winner_selection
 msgid "Winner Selection"
 msgstr "اختيار الفائز"
-
-#~ msgid ""
-#~ "<span class=\"o_stat_text\" attrs=\"{'invisible': [('use_leads', '=', "
-#~ "False)]}\">Leads</span>\n"
-#~ "                        <span class=\"o_stat_text\" attrs=\"{'invisible': "
-#~ "[('use_leads', '=', True)]}\">Opportunities</span>"
-#~ msgstr ""
-#~ "<span class=\"o_stat_text\" attrs=\"{'invisible': [('use_leads', '=', "
-#~ "False)]}\">العملاء المهتمين</span>\n"
-#~ "                        <span class=\"o_stat_text\" attrs=\"{'invisible': "
-#~ "[('use_leads', '=', True)]}\">الفرص</span> "
-
-#~ msgid "Lead/Opportunity"
-#~ msgstr "عميل مهتم/فرصة "

@@ -12,6 +12,8 @@ from odoo.addons.sale.tests.common import TestSaleCommon
 @tagged('post_install', '-at_install')
 class TestStockMoveInvoice(TestSaleCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -108,7 +110,17 @@ class TestStockMoveInvoice(TestSaleCommon):
         serial_numbers = self.env['stock.lot'].create([{
             'name': str(x),
             'product_id': self.product_cable_management_box.id,
-        } for x in range(5)])
+        } for x in range(2)])
+
+        # Add stock for the serial numbers
+        warehouse = self.env['stock.warehouse'].search([('company_id', '=', self.env.company.id)], limit=1)
+        for lot in serial_numbers:
+            self.env['stock.quant']._update_available_quantity(
+                self.product_cable_management_box,
+                warehouse.lot_stock_id,
+                1,
+                lot_id=lot
+            )
 
         self.sale_prepaid = self.SaleOrder.create({
             'partner_id': self.partner_18.id,
@@ -185,7 +197,7 @@ class TestStockMoveInvoice(TestSaleCommon):
         self.assertEqual(so.invoice_status, 'no', 'The status should still be "Nothing To Invoice"')
 
     def test_delivery_carrier_from_confirmed_so(self):
-        """Test if adding shipping method in sale order after confirmation
+        """Test if adding delivery method in sale order after confirmation
            will add it in pickings too"""
 
         sale_order = self.SaleOrder.create({
@@ -205,11 +217,9 @@ class TestStockMoveInvoice(TestSaleCommon):
         sale_order.picking_ids.button_validate()
 
         # Return picking
-        return_form = Form(self.env["stock.return.picking"].with_context(active_id=sale_order.picking_ids.id, active_model="stock.picking"))
-        return_wizard = return_form.save()
-        return_wizard.product_return_moves.quantity = 2
-        action = return_wizard.action_create_returns()
-        return_picking = self.env["stock.picking"].browse(action["res_id"])
+        return_picking = sale_order.picking_ids._create_return()
+        return_picking.move_ids.product_uom_qty = 2
+        return_picking.action_assign()
 
         # add new product so new picking is created
         sale_order.write({
@@ -231,11 +241,11 @@ class TestStockMoveInvoice(TestSaleCommon):
 
         # Check the carrier in picking after confirm sale order
         delivery_for_product_11 = sale_order.picking_ids.filtered(lambda p: self.product_11 in p.move_ids.product_id)
-        self.assertEqual(delivery_for_product_11.carrier_id, self.normal_delivery, "The shipping method should be set in pending deliveries.")
+        self.assertEqual(delivery_for_product_11.carrier_id, self.normal_delivery, "The delivery method should be set in pending deliveries.")
 
         done_delivery = sale_order.picking_ids.filtered(lambda p: p.state == "done")
-        self.assertFalse(done_delivery.carrier_id.id, "The shipping method should not be set in done deliveries.")
-        self.assertFalse(return_picking.carrier_id.id, "The shipping method should not set in return pickings")
+        self.assertFalse(done_delivery.carrier_id.id, "The delivery method should not be set in done deliveries.")
+        self.assertFalse(return_picking.carrier_id.id, "The delivery method should not set in return pickings")
 
     def test_picking_weight(self):
         """Test if the picking weight is correctly computed when the product of the move changes."""

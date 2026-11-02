@@ -8,16 +8,16 @@
 # Leonardo J. Caballero G. <leonardocaballero@gmail.com>, 2022
 # Pedro M. Baeza <pedro.baeza@tecnativa.com>, 2023
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
-# "Noemi Pla Garcia (nopl)" <nopl@odoo.com>, 2025.
+# "Noemi Pla Garcia (nopl)" <nopl@odoo.com>, 2025, 2026.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0beta\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-12-31 08:14+0000\n"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-09-21 11:33+0000\n"
 "Last-Translator: \"Noemi Pla Garcia (nopl)\" <nopl@odoo.com>\n"
-"Language-Team: Spanish <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Spanish <https://translate.odoo.com/projects/odoo-20/"
 "sales_team/es/>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
@@ -25,7 +25,15 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=(n == 1) ? 0 : ((n != 0 && n % 1000000 == "
 "0) ? 1 : 2);\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: sales_team
+#: model:ir.module.module,description:base.module_sales_team
+msgid ""
+"\n"
+"Using this application you can manage Sales Teams with CRM and/or Sales\n"
+"=======================================================================\n"
+msgstr ""
 
 #. module: sales_team
 #. odoo-python
@@ -40,32 +48,48 @@ msgid "%(user_names)s already in other teams (%(team_names)s)."
 msgstr "%(user_names)s ya está en otros equipos (%(team_names)s)."
 
 #. module: sales_team
-#: model_terms:ir.ui.view,arch_db:sales_team.crm_team_member_view_kanban
+#: model_terms:ir.ui.view,arch_db:sales_team.crm_team_member_view_form
+msgid ""
+"<i class=\"d-none d-md-block oi oi-filled\" data-icon=\"business\" "
+"title=\"Company\"/>"
+msgstr ""
+
+#. module: sales_team
+#: model_terms:ir.ui.view,arch_db:sales_team.crm_team_member_view_form
+msgid ""
+"<i class=\"d-none d-md-block oi oi-filled\" data-icon=\"group\" "
+"title=\"Sales Team\"/>"
+msgstr ""
+
+#. module: sales_team
+#: model_terms:ir.ui.view,arch_db:sales_team.crm_team_member_view_form
+msgid ""
+"<i class=\"d-none d-md-block oi oi-filled\" data-icon=\"mail\" "
+"title=\"Email\"/>"
+msgstr ""
+
+#. module: sales_team
+#: model_terms:ir.ui.view,arch_db:sales_team.crm_team_member_view_form
+msgid ""
+"<i class=\"d-none d-md-block oi oi-filled\" data-icon=\"phone\" "
+"title=\"Phone\"/>"
+msgstr ""
+
+#. module: sales_team
 #: model_terms:ir.ui.view,arch_db:sales_team.crm_team_view_form
 msgid ""
-"<i class=\"fa fa-envelope me-1\" role=\"img\" aria-label=\"Email\" "
-"title=\"Email\"/>"
+"<i class=\"oi oi-filled me-1\" data-icon=\"mail\" role=\"img\" aria-"
+"label=\"Email\" title=\"Email\"/>"
 msgstr ""
-"<i class=\"fa fa-envelope me-1\" role=\"img\" aria-label=\"Email\" "
-"title=\"Email\"/>"
+"<i class=\"oi oi-filled me-1\" data-icon=\"mail\" role=\"img\" aria-"
+"label=\"Email\" title=\"Email\"/>"
 
 #. module: sales_team
-#: model_terms:ir.ui.view,arch_db:sales_team.crm_team_member_view_form
-msgid "<i class=\"fa fa-fw me-1 fa-building text-primary\" title=\"Company\"/>"
+#: model_terms:ir.ui.view,arch_db:sales_team.crm_team_member_view_kanban
+msgid ""
+"<i class=\"oi oi-fw oi-filled me-1 text-primary\" data-icon=\"group\" "
+"title=\"Sales Team\"/>"
 msgstr ""
-"<i class=\"fa fa-fw me-1 fa-building text-primary\" title=\"Compañía\"/>"
-
-#. module: sales_team
-#: model_terms:ir.ui.view,arch_db:sales_team.crm_team_member_view_form
-msgid "<i class=\"fa fa-fw me-1 fa-envelope text-primary\" title=\"Email\"/>"
-msgstr ""
-"<i class=\"fa fa-fw me-1 fa-envelope text-primary\" title=\"Correo "
-"electrónico\"/>"
-
-#. module: sales_team
-#: model_terms:ir.ui.view,arch_db:sales_team.crm_team_member_view_form
-msgid "<i class=\"fa fa-fw me-1 fa-phone text-primary\" title=\"Phone\"/>"
-msgstr "<i class=\"fa fa-fw me-1 fa-phone text-primary\" title=\"Teléfono\"/>"
 
 #. module: sales_team
 #: model_terms:ir.ui.view,arch_db:sales_team.crm_team_view_kanban_dashboard
@@ -234,7 +258,6 @@ msgstr "Botón del tablero"
 
 #. module: sales_team
 #: model_terms:ir.actions.act_window,help:sales_team.crm_team_action_pipeline
-#: model_terms:ir.actions.act_window,help:sales_team.crm_team_action_sales
 msgid "Define a new sales team"
 msgstr "Definir un nuevo equipo de ventas"
 
@@ -253,6 +276,7 @@ msgstr "Nombre para mostrar"
 
 #. module: sales_team
 #: model:ir.model.fields,field_description:sales_team.field_crm_team_member__email
+#: model_terms:ir.ui.view,arch_db:sales_team.crm_team_member_view_form
 msgid "Email"
 msgstr "Correo electrónico"
 
@@ -414,6 +438,11 @@ msgid "Name"
 msgstr "Nombre"
 
 #. module: sales_team
+#: model:res.groups.privilege,placeholder:sales_team.res_groups_privilege_sales
+msgid "No"
+msgstr ""
+
+#. module: sales_team
 #: model:ir.model.fields,field_description:sales_team.field_crm_team__message_needaction_counter
 #: model:ir.model.fields,field_description:sales_team.field_crm_team_member__message_needaction_counter
 msgid "Number of Actions"
@@ -444,6 +473,7 @@ msgstr "Otro"
 
 #. module: sales_team
 #: model:ir.model.fields,field_description:sales_team.field_crm_team_member__phone
+#: model_terms:ir.ui.view,arch_db:sales_team.crm_team_member_view_form
 msgid "Phone"
 msgstr "Teléfono"
 
@@ -489,6 +519,7 @@ msgstr "Comercial"
 #: model:ir.model,name:sales_team.model_crm_team
 #: model:ir.model.fields,field_description:sales_team.field_crm_team__name
 #: model:ir.model.fields,field_description:sales_team.field_crm_team_member__crm_team_id
+#: model_terms:ir.ui.view,arch_db:sales_team.crm_team_member_view_form
 #: model_terms:ir.ui.view,arch_db:sales_team.crm_team_member_view_search
 #: model_terms:ir.ui.view,arch_db:sales_team.crm_team_view_form
 #: model_terms:ir.ui.view,arch_db:sales_team.crm_team_view_tree
@@ -513,8 +544,9 @@ msgstr "Miembros del equipo de ventas (incluidos los inactivos)"
 
 #. module: sales_team
 #: model:ir.actions.act_window,name:sales_team.crm_team_action_config
-#: model:ir.actions.act_window,name:sales_team.crm_team_action_sales
 #: model:ir.model.fields,field_description:sales_team.field_res_users__crm_team_ids
+#: model:ir.module.module,shortdesc:base.module_sales_team
+#: model:ir.module.module,summary:base.module_sales_team
 msgid "Sales Teams"
 msgstr "Equipos de ventas"
 
@@ -636,8 +668,8 @@ msgstr "Formación"
 msgid ""
 "UX: Give users not to add in the currently chosen team to avoid duplicates"
 msgstr ""
-"Experiencia de usuario: dar a los usuarios la posibilidad de no añadir en el "
-"equipo elegido para evitar duplicados."
+"Experiencia de usuario: muestra únicamente a los usuarios que aún no "
+"pertenecen al equipo seleccionado para evitar duplicados"
 
 #. module: sales_team
 #: model:ir.model.fields,help:sales_team.field_crm_team__member_company_ids
@@ -656,7 +688,6 @@ msgstr ""
 
 #. module: sales_team
 #: model_terms:ir.actions.act_window,help:sales_team.crm_team_action_pipeline
-#: model_terms:ir.actions.act_window,help:sales_team.crm_team_action_sales
 msgid ""
 "Use Sales Teams to organize your sales departments.\n"
 "                Each team will work with a separate pipeline."
@@ -781,72 +812,3 @@ msgid ""
 msgstr ""
 "el usuario tendrá acceso a la configuración de ventas así como a los "
 "informes estadísticos."
-
-#~ msgid ""
-#~ "Adding %(user_name)s in this team would remove him/her from its current "
-#~ "team %(team_name)s."
-#~ msgstr ""
-#~ "Añadir %(user_name)s a este equipo lo sacaría de su equipo actual %"
-#~ "(team_name)s."
-
-#~ msgid ""
-#~ "Adding %(user_name)s in this team would remove him/her from its current "
-#~ "teams %(team_names)s."
-#~ msgstr ""
-#~ "Añadir %(user_name)s a este equipo lo sacaría de sus equipos actuales %"
-#~ "(team_names)s."
-
-#~ msgid ""
-#~ "Adding %(user_names)s in this team would remove them from their current "
-#~ "teams (%(team_names)s)."
-#~ msgstr ""
-#~ "Añadir %(user_names)s a este equipo lo sacaría de sus equipos actuales (%"
-#~ "(team_names)s)."
-
-#~ msgid "Contact"
-#~ msgstr "Contacto"
-
-#~ msgid "Dashboard Graph Data"
-#~ msgstr "Datos gráficos del tablero"
-
-#~ msgid ""
-#~ "Follow this salesteam to automatically track the events associated to "
-#~ "users of this team."
-#~ msgstr ""
-#~ "Seguir a este equipo de ventas para rastrear automáticamente los eventos "
-#~ "asociados a los usuarios de este equipo."
-
-#~ msgid "Group By"
-#~ msgstr "Agrupar por"
-
-#~ msgid "Group By..."
-#~ msgstr "Agrupar por..."
-
-#~ msgid ""
-#~ "If set, this Sales Team will be used for sales and assignments related to "
-#~ "this partner"
-#~ msgstr ""
-#~ "Si está configurado, este equipo de ventas será usado para las ventas y "
-#~ "asignaciones relacionadas a este partner."
-
-#~ msgid "Mobile"
-#~ msgstr "Celular"
-
-#~ msgid "Number of messages which requires an action"
-#~ msgstr "Número de mensajes que requieren una acción"
-
-#~ msgid "Sample data"
-#~ msgstr "Datos ejemplo"
-
-#~ msgid ""
-#~ "To add a Salesperson into multiple Teams, activate the Multi-Team option "
-#~ "in settings."
-#~ msgstr ""
-#~ "Para añadir un vendedor a varios equipos, active la opción Multiequipo en "
-#~ "los ajustes."
-
-#~ msgid "Undefined graph model for Sales Team: %s"
-#~ msgstr "Modelo de gráficos indefinido para el equipo de ventas: %s"
-
-#~ msgid "eBay"
-#~ msgstr "eBay"

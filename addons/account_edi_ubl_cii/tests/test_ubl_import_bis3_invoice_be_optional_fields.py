@@ -7,6 +7,8 @@ from odoo.tests import tagged
 @tagged('post_install_l10n', 'post_install', '-at_install')
 class TestUblImportBis3InvoiceBEOptionalFields(TestUblImportBis3InvoiceBE):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -28,7 +30,7 @@ class TestUblImportBis3InvoiceBEOptionalFields(TestUblImportBis3InvoiceBE):
         model_id = self.env["ir.model"]._get_id("account.move.line")
         self.env["ir.model.fields"].create([{
                 "name": field_name,
-                "model": "account.move",
+                "model": "account.move.line",
                 "model_id": model_id,
                 "ttype": field_config['supported_types'][0],
                 "state": "manual",
@@ -75,7 +77,7 @@ class TestUblImportBis3InvoiceBEOptionalFields(TestUblImportBis3InvoiceBE):
         model_id = self.env["ir.model"]._get_id("account.move.line")
         self.env["ir.model.fields"].create([{
                 "name": field_name,
-                "model": "account.move",
+                "model": "account.move.line",
                 "model_id": model_id,
                 "ttype": field_config['supported_types'][0],
                 "state": "manual",

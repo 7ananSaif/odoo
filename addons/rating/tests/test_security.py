@@ -8,6 +8,7 @@ from odoo.tools import mute_logger
 
 
 @tagged('security')
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestAccessRating(common.TransactionCase):
 
     @classmethod
@@ -38,8 +39,7 @@ class TestAccessRating(common.TransactionCase):
             "name": "Partner to Rate :("
         })
 
-
-    @mute_logger('odoo.addons.base.models.ir_model')
+    @mute_logger('odoo.addons.base.models.ir_access')
     def test_rating_access(self):
         """ Security test : only a employee (user group) can create and write rating object """
         # Public and portal user can't Access direclty to the ratings

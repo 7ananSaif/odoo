@@ -1,13 +1,12 @@
 import logging
-import pytz
+import zoneinfo
 import re
 
 from odoo import api, models, fields
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import SQL
-from odoo.tools.sql import column_exists, create_column
 
-from ..tools import (
+from odoo.addons.l10n_hr_edi.tools.api import (
     _mer_api_mark_paid,
     _mer_api_query_document_process_status_inbox,
     _mer_api_query_document_process_status_outbox,
@@ -45,6 +44,7 @@ class AccountMove(models.Model):
         store=True,
         readonly=False,
         copy=False,
+        init_storage=lambda model: None,
     )
     l10n_hr_customer_defined_process_name = fields.Char(
         string="Custom Process Name",
@@ -79,11 +79,6 @@ class AccountMove(models.Model):
     # MojEracun integration fields
     l10n_hr_mer_document_eid = fields.Char(related='l10n_hr_edi_addendum_id.mer_document_eid')
     l10n_hr_mer_document_status = fields.Selection(related='l10n_hr_edi_addendum_id.mer_document_status')
-
-    def _auto_init(self):
-        if not column_exists(self.env.cr, 'account_move', 'l10n_hr_process_type'):
-            create_column(self.env.cr, 'account_move', 'l10n_hr_process_type', 'varchar')
-        return super()._auto_init()
 
     @api.depends('l10n_hr_edi_addendum_id.payment_reported_amount', 'amount_residual', 'amount_total')
     def _compute_l10n_hr_payment_unreported(self):
@@ -258,7 +253,7 @@ class AccountMove(models.Model):
                     response = _mer_api_mark_paid(
                         move.company_id,
                         move.l10n_hr_mer_document_eid,
-                        fields.Datetime.now(pytz.timezone('Europe/Zagreb')).strftime('%Y-%m-%dT%H:%M:%S'),
+                        fields.Datetime.now(zoneinfo.ZoneInfo('Europe/Zagreb')).strftime('%Y-%m-%dT%H:%M:%S'),
                         amount_to_report,
                         move.l10n_hr_payment_method_type,
                     )

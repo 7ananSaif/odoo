@@ -6,21 +6,22 @@
 # "Junko Augias (juau)" <juau@odoo.com>, 2025, 2026.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
 # Ryoko Tsuda <ryoko@quartile.co>, 2026.
+# "Tiffany Chang (tic)" <tic@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-06-08 11:11+0000\n"
-"Last-Translator: Ryoko Tsuda <ryoko@quartile.co>\n"
-"Language-Team: Japanese <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 16:25+0000\n"
+"Last-Translator: \"Tiffany Chang (tic)\" <tic@odoo.com>\n"
+"Language-Team: Japanese <https://translate.odoo.com/projects/odoo-s19-4/"
 "crm_iap_mine/ja/>\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: crm_iap_mine
 #. odoo-python
@@ -33,9 +34,10 @@ msgstr ""
 "す。"
 
 #. module: crm_iap_mine
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.enrich_company
-msgid "<b>Contacts</b>"
-msgstr "<b>連絡先</b>"
+#. odoo-python
+#: code:addons/crm_iap_mine/models/crm_iap_lead_helpers.py:0
+msgid "%s's opportunity"
+msgstr "%sの案件"
 
 #. module: crm_iap_mine
 #: model:mail.template,body_html:crm_iap_mine.lead_generation_no_credits
@@ -61,35 +63,50 @@ msgstr ""
 #. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.enrich_company
 msgid ""
-"<i class=\"fa fa-fw me-2 fa-address-book text-primary\"/>\n"
-"                    <b>Address</b>"
-msgstr ""
-
-#. module: crm_iap_mine
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.enrich_company
-msgid ""
-"<i class=\"fa fa-fw me-2 fa-cube text-primary\"/>\n"
+"<i class=\"oi oi-fw me-2 text-primary\" data-icon=\"deployed_code\"/>\n"
 "                    <b>Industries</b>"
 msgstr ""
+"<i class=\"oi oi-fw me-2 text-primary\" data-icon=\"deployed_code\"/>\n"
+"                    <b>業種</b>"
 
 #. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.enrich_company
 msgid ""
-"<i class=\"fa fa-fw me-2 fa-globe text-primary\"/>\n"
+"<i class=\"oi oi-fw me-2 text-primary\" data-icon=\"public\"/>\n"
 "                    <b>Website</b>"
 msgstr ""
+"<i class=\"oi oi-fw me-2 text-primary\" data-icon=\"public\"/>\n"
+"                    <b>ウェブサイト</b>"
 
 #. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.enrich_company
 msgid ""
-"<i class=\"fa fa-fw me-2 fa-solid fa-id-card text-primary\"/>\n"
+"<i class=\"oi oi-fw oi-filled me-2 text-primary\" data-icon=\"badge\"/>\n"
 "                    <b>Tax ID</b>"
 msgstr ""
+"<i class=\"oi oi-fw oi-filled me-2 text-primary\" data-icon=\"badge\"/>\n"
+"                    <b>納税者番号</b>"
+
+#. module: crm_iap_mine
+#: model_terms:ir.ui.view,arch_db:crm_iap_mine.enrich_company
+msgid ""
+"<i class=\"oi oi-fw oi-filled me-2 text-primary\" data-icon=\"contact_page\"/"
+">\n"
+"                    <b>Address</b>"
+msgstr ""
+"<i class=\"oi oi-fw oi-filled me-2 text-primary\" data-icon=\"contact_page\"/"
+">\n"
+"                    <b>住所</b>"
 
 #. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
-msgid "<span class=\"col-md-6\">Extra contacts per Company</span>"
-msgstr "<span class=\"col-md-6\">会社ごとの追加の連絡先</span>"
+msgid "<span class=\"fw-normal o_stat_text o_translate_inline\">Leads</span>"
+msgstr "<span class=\"fw-normal o_stat_text o_translate_inline\">リード</span>"
+
+#. module: crm_iap_mine
+#: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
+msgid "<span class=\"o_form_label fw-normal\">employees</span>"
+msgstr "<span class=\"o_form_label fw-normal\">従業員</span>"
 
 #. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
@@ -111,9 +128,44 @@ msgstr ""
 "レジットは使用されていません)いくつかのフィルタを解除してみて下さい。</span>"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_238
-msgid "Automobiles & Components"
-msgstr "自動車・部品"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_96
+msgid "Administration Of Economic Programs"
+msgstr "経済プログラムの管理"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_07
+msgid "Agricultural Services"
+msgstr "農業関連サービス"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry.division,name:crm_iap_mine.crm_iap_mine_division_a
+msgid "Agriculture, Forestry & Fishing"
+msgstr "農業、林業、漁業"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_45
+msgid "Air Transportation"
+msgstr "航空輸送"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_56
+msgid "Apparel and Accessory Stores"
+msgstr "アパレル・アクセサリー店"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_23
+msgid "Apparel and Similar Products"
+msgstr "アパレルおよび類似プロダクト"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_55
+msgid "Auto Dealers and Gas Stations"
+msgstr "自動車販売店およびガソリンスタンド"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_75
+msgid "Automotive Repair and Parking"
+msgstr "自動車の修理と駐車"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__available_state_ids
@@ -121,9 +173,19 @@ msgid "Available State"
 msgstr "利用可能なステータス"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_69_157
-msgid "Banks & Insurance"
-msgstr "銀行・保険"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_15
+msgid "Building Construction"
+msgstr "建設業"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_52
+msgid "Building Materials and Garden Retail"
+msgstr "建材・ガーデニング用品販売"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_73
+msgid "Business Services"
+msgstr "ビジネスサービス"
 
 #. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
@@ -141,19 +203,30 @@ msgid "CRM IAP Lead Industry"
 msgstr "CRM IAPリード業界"
 
 #. module: crm_iap_mine
+#: model:ir.model,name:crm_iap_mine.model_crm_iap_lead_industry_division
+msgid "CRM IAP Lead Industry Division"
+msgstr "CRM IAP リードインダストリー部門"
+
+#. module: crm_iap_mine
 #: model:ir.model,name:crm_iap_mine.model_crm_iap_lead_mining_request
 msgid "CRM Lead Mining Request"
 msgstr "CRMリード発掘リクエスト"
 
 #. module: crm_iap_mine
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
-msgid "Cancel"
-msgstr "キャンセル"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_28
+msgid "Chemicals"
+msgstr "化学"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_162
-msgid "Capital Goods"
-msgstr "資本財"
+#. odoo-javascript
+#: code:addons/crm_iap_mine/static/src/js/tours/crm_iap_lead.js:0
+msgid "Click here to generate some leads."
+msgstr "ここをクリックしてリードを生成してください。"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_12
+msgid "Coal Mining"
+msgstr "石炭鉱業"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__color
@@ -162,24 +235,10 @@ msgid "Color Index"
 msgstr "カラーインデクス"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_163
-msgid "Commercial & Professional Services"
-msgstr "商業・専門サービス"
-
-#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_48
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_2
 msgid "Communications"
 msgstr "通信"
-
-#. module: crm_iap_mine
-#: model:ir.model.fields.selection,name:crm_iap_mine.selection__crm_iap_lead_mining_request__search_type__companies
-msgid "Companies"
-msgstr "会社"
-
-#. module: crm_iap_mine
-#: model:ir.model.fields.selection,name:crm_iap_mine.selection__crm_iap_lead_mining_request__search_type__people
-msgid "Companies and their Contacts"
-msgstr "会社と連絡先"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__company_size_max
@@ -187,34 +246,14 @@ msgid "Company Size Max"
 msgstr "最大企業規模"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_167
-msgid "Construction Materials"
-msgstr "建設資材"
+#: model:crm.iap.lead.industry.division,name:crm_iap_mine.crm_iap_mine_division_c
+msgid "Construction"
+msgstr "建設"
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_3
 msgid "Consulting"
 msgstr "コンサルティング"
-
-#. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_30_155
-msgid "Consumer Discretionary"
-msgstr "一般消費財"
-
-#. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_239
-msgid "Consumer Durables & Apparel"
-msgstr "耐久消費財・アパレル"
-
-#. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_150_151
-msgid "Consumer Services"
-msgstr "消費者向けサービス"
-
-#. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_33
-msgid "Consumer Staples"
-msgstr "生活必需品"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__country_ids
@@ -230,11 +269,12 @@ msgstr "リード発掘リクエストを作成"
 #. module: crm_iap_mine
 #: model:ir.model,website_form_label:crm_iap_mine.model_crm_lead
 msgid "Create an Opportunity"
-msgstr "案件作成"
+msgstr "案件を作成"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_helpers__create_uid
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__create_uid
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry_division__create_uid
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__create_uid
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_role__create_uid
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_seniority__create_uid
@@ -244,11 +284,17 @@ msgstr "作成者"
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_helpers__create_date
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__create_date
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry_division__create_date
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__create_date
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_role__create_date
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_seniority__create_date
 msgid "Created on"
 msgstr "作成日"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_01
+msgid "Crop Farming"
+msgstr "作物栽培"
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_4
@@ -261,8 +307,14 @@ msgid "Default Tags"
 msgstr "デフォルトタグ"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_60
+msgid "Depository Institutions"
+msgstr "預金取扱機関"
+
+#. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_helpers__display_name
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__display_name
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry_division__display_name
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__display_name
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_role__display_name
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_seniority__display_name
@@ -271,9 +323,20 @@ msgid "Display Name"
 msgstr "表示名"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_158_159
-msgid "Diversified Financials & Financial Services"
-msgstr "様々な金融・金融サービス"
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry_division__code
+msgid "Division Code"
+msgstr "区分コード"
+
+#. module: crm_iap_mine
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry_division__name
+msgid "Division Name"
+msgstr "部門名"
+
+#. module: crm_iap_mine
+#: model:ir.model.fields,help:crm_iap_mine.field_crm_iap_lead_industry_division__code
+msgid ""
+"Division code as per SIC indicating the higher-level industry classification."
+msgstr "SICに基づく区分コードで、上位レベルの業種分類を示します。"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields.selection,name:crm_iap_mine.selection__crm_iap_lead_mining_request__state__done
@@ -288,24 +351,34 @@ msgid "Draft"
 msgstr "ドラフト"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_50
+msgid "Durable Goods Wholesale"
+msgstr "耐久消費財の卸売"
+
+#. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_5
 msgid "Education"
 msgstr "教育"
 
 #. module: crm_iap_mine
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.enrich_company
-msgid "Email"
-msgstr "メール"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_82
+msgid "Educational Services"
+msgstr "教育サービス"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_138_156
-msgid "Energy & Utilities "
-msgstr "エネルギー・公共事業 "
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_36
+msgid "Electronic and Electrical Equipment"
+msgstr "電子・電気機器"
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_6
 msgid "Engineering"
 msgstr "エンジニアリング"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_95
+msgid "Environmental and Housing Administration"
+msgstr "環境・住宅管理局"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields.selection,name:crm_iap_mine.selection__crm_iap_lead_mining_request__state__error
@@ -319,9 +392,9 @@ msgid "Error Type"
 msgstr "エラータイプ"
 
 #. module: crm_iap_mine
-#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__contact_filter_type
-msgid "Filter on"
-msgstr "フィルター"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_34
+msgid "Fabricated Metal Products"
+msgstr "金属加工プロダクト"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__filter_on_size
@@ -334,9 +407,29 @@ msgid "Finance"
 msgstr "財務"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_153_154
-msgid "Food, Beverage & Tobacco"
-msgstr "食品・飲料・タバコ"
+#: model:crm.iap.lead.industry.division,name:crm_iap_mine.crm_iap_mine_division_h
+msgid "Finance, Insurance & Real Estate"
+msgstr "金融、保険、不動産"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_09
+msgid "Fishing and Hunting"
+msgstr "釣り・狩猟"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_20
+msgid "Food Products"
+msgstr "食品プロダクト"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_54
+msgid "Food Stores"
+msgstr "食料品店"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_08
+msgid "Forestry"
+msgstr "林業"
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_8
@@ -344,20 +437,41 @@ msgid "Founder"
 msgstr "設立者"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_42
+msgid "Freight and Warehousing"
+msgstr "貨物・倉庫"
+
+#. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
 msgid "From"
 msgstr "from"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_25
+msgid "Furniture and Fixtures"
+msgstr "家具・インテリア"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_91
+msgid "General Government"
+msgstr "官公庁 / 政府・自治体"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_53
+msgid "General Merchandise Stores"
+msgstr "総合小売店"
+
+#. module: crm_iap_mine
 #. odoo-python
 #: code:addons/crm_iap_mine/models/crm_iap_lead_mining_request.py:0
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_case_kanban_view_leads
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_lead_view_tree_lead
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_lead_view_tree_opportunity
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.view_crm_lead_kanban
 msgid "Generate Leads"
 msgstr "リード生成"
+
+#. module: crm_iap_mine
+#: model:ir.module.module,summary:base.module_crm_iap_mine
+msgid "Generate Leads/Opportunities based on country, industries, size, etc."
+msgstr ""
 
 #. module: crm_iap_mine
 #. odoo-python
@@ -371,14 +485,19 @@ msgid "Generated Lead / Opportunity"
 msgstr "作成されたリード/案件"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_160
-msgid "Health Care Equipment & Services"
-msgstr "ヘルスケア機器・サービス"
-
-#. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_9
 msgid "Health Professional"
 msgstr "医療専門家"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_80
+msgid "Health Services"
+msgstr "医療サービス"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_16
+msgid "Heavy Construction"
+msgstr "重建設"
 
 #. module: crm_iap_mine
 #: model:ir.model,name:crm_iap_mine.model_crm_iap_lead_helpers
@@ -386,14 +505,34 @@ msgid "Helper methods for crm_iap_mine modules"
 msgstr "crm_iap_mine モジュール用ヘルパーメソッド"
 
 #. module: crm_iap_mine
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
-msgid "How many leads would you like?"
-msgstr "ご希望のリード数は？"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_67
+msgid "Holding and Investment Offices"
+msgstr "持株会社・投資業"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_57
+msgid "Home Furnishings Stores"
+msgstr "家具店"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_70
+msgid "Hotels and Lodging"
+msgstr "ホテル・宿泊施設"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_94
+msgid "Human Resource Administration"
+msgstr "人事管理"
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_10
 msgid "Human Resources"
 msgstr "人事"
+
+#. module: crm_iap_mine
+#: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
+msgid "I want to order"
+msgstr "注文したい"
 
 #. module: crm_iap_mine
 #: model:mail.template,name:crm_iap_mine.lead_generation_no_credits
@@ -404,17 +543,13 @@ msgstr "IAP リード生成通知"
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_helpers__id
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__id
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry_division__id
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__id
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_role__id
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_seniority__id
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_lead__id
 msgid "ID"
 msgstr "ID"
-
-#. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_168
-msgid "Independent Power and Renewable Electricity Producers"
-msgstr "独立系電力および再生可能エネルギー発電事業者"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__industry_ids
@@ -427,9 +562,19 @@ msgid "Industry"
 msgstr "インダストリー"
 
 #. module: crm_iap_mine
+#: model:ir.model.constraint,message:crm_iap_mine.constraint_crm_iap_lead_industry_division_name_uniq
+msgid "Industry Division already exists!"
+msgstr "業界区分名はすでに存在します!"
+
+#. module: crm_iap_mine
 #: model:ir.model.constraint,message:crm_iap_mine.constraint_crm_iap_lead_industry_name_uniq
 msgid "Industry name already exists!"
 msgstr "業界名がすでに存在しています"
+
+#. module: crm_iap_mine
+#: model:ir.model.fields,help:crm_iap_mine.field_crm_iap_lead_industry__sic_group
+msgid "Industry's Major Group Code as per SIC"
+msgstr "SIC主産業グループコード"
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_11
@@ -437,13 +582,34 @@ msgid "Information Technology"
 msgstr "情報技術"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_38
+msgid "Instruments and Optical Goods"
+msgstr "精密機器・光学機器"
+
+#. module: crm_iap_mine
 #: model:ir.model.fields.selection,name:crm_iap_mine.selection__crm_iap_lead_mining_request__error_type__credits
 msgid "Insufficient Credits"
 msgstr "クレジット残高不足"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_64
+msgid "Insurance Agents and Brokers"
+msgstr "保険代理店・保険ブローカー"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_63
+msgid "Insurance Carriers"
+msgstr "保険会社"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_92
+msgid "Justice and Public Safety"
+msgstr "司法・公務安全"
+
+#. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_helpers__write_uid
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__write_uid
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry_division__write_uid
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__write_uid
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_role__write_uid
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_seniority__write_uid
@@ -453,6 +619,7 @@ msgstr "最終更新者"
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_helpers__write_date
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__write_date
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry_division__write_date
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__write_date
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_role__write_date
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_seniority__write_date
@@ -465,16 +632,12 @@ msgid "Lead"
 msgstr "リード"
 
 #. module: crm_iap_mine
-#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__lead_contacts_credits
-msgid "Lead Contacts Credits"
-msgstr "リード連絡先クレジット"
-
-#. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__lead_credits
 msgid "Lead Credits"
 msgstr "リードクレジット"
 
 #. module: crm_iap_mine
+#: model:ir.module.module,shortdesc:base.module_crm_iap_mine
 #: model:ir.ui.menu,name:crm_iap_mine.crm_menu_lead_generation
 msgid "Lead Generation"
 msgstr "リード生成"
@@ -492,20 +655,30 @@ msgid "Lead Mining Requests"
 msgstr "リード発掘リクエスト"
 
 #. module: crm_iap_mine
-#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__lead_total_credits
-msgid "Lead Total Credits"
-msgstr "リード合計クレジット"
-
-#. module: crm_iap_mine
 #: model:ir.model.fields.selection,name:crm_iap_mine.selection__crm_iap_lead_mining_request__lead_type__lead
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_search
 msgid "Leads"
 msgstr "リード"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_31
+msgid "Leather"
+msgstr "皮革・皮革製品"
+
+#. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_12
 msgid "Legal"
 msgstr "法務"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_81
+msgid "Legal Services"
+msgstr "法務サービス"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_02
+msgid "Livestock and Animal Production"
+msgstr "畜産業・畜産物生産"
 
 #. module: crm_iap_mine
 #. odoo-javascript
@@ -515,23 +688,67 @@ msgstr ""
 "より多くの案件をお探しですか？<br><b>リード作成</b>ツールをお試し下さい。"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_35
+msgid "Machinery and Computer Equipment"
+msgstr "機械・コンピュータ機器"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry.division,name:crm_iap_mine.crm_iap_mine_division_d
+msgid "Manufacturing"
+msgstr "製造"
+
+#. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_13
 msgid "Marketing"
 msgstr "マーケティング"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_148
-msgid "Materials"
-msgstr "マテリアル"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_86
+msgid "Membership Organizations"
+msgstr "会員組織"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_86
-msgid "Media"
-msgstr "メディア"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_10
+msgid "Metal Mining"
+msgstr "金属鉱業"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry.division,name:crm_iap_mine.crm_iap_mine_division_b
+msgid "Mining"
+msgstr "鉱業・採石業"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_39
+msgid "Miscellaneous Manufacturing Industries"
+msgstr "その他製造業"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_76
+msgid "Miscellaneous Repair Services"
+msgstr "その他修理サービス"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_59
+msgid "Miscellaneous Retail"
+msgstr "その他小売"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_89
+msgid "Miscellaneous Services"
+msgstr "その他サービス"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_78
+msgid "Motion Pictures"
+msgstr "映画・映像制作"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_84
+msgid "Museums and Botanical Gardens"
+msgstr "美術館・植物園"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_seniority__name
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.enrich_company
 msgid "Name"
 msgstr "名称"
 
@@ -539,6 +756,11 @@ msgstr "名称"
 #: model:ir.model.constraint,message:crm_iap_mine.constraint_crm_iap_lead_seniority_name_uniq
 msgid "Name already exists!"
 msgstr "名前はすでに存在します！"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_97
+msgid "National Security"
+msgstr "国家安全保障"
 
 #. module: crm_iap_mine
 #. odoo-python
@@ -558,15 +780,30 @@ msgid "No Result"
 msgstr "該当結果なし"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_61
+msgid "Non-Depository Credit"
+msgstr "非預金取扱信用機関"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_51
+msgid "Non-Durable Goods Wholesale"
+msgstr "非耐久消費財の卸売"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_99
+msgid "Nonclassifiable Establishments"
+msgstr "その他分類不能"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_14
+msgid "Nonmetallic Mineral Mining"
+msgstr "非金属鉱業"
+
+#. module: crm_iap_mine
 #. odoo-javascript
 #: code:addons/crm_iap_mine/static/src/js/tours/crm_iap_lead.js:0
 msgid "Now, just let the magic happen!"
 msgstr "さあ、魔法を待ちましょう！"
-
-#. module: crm_iap_mine
-#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__contact_number
-msgid "Number of Contacts"
-msgstr "連絡先数"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__lead_count
@@ -578,6 +815,11 @@ msgstr "作成されたリード数"
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_tree
 msgid "Number of Leads"
 msgstr "リード数"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_13
+msgid "Oil and Gas Extraction"
+msgstr "石油・天然ガス採取業"
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_14
@@ -597,14 +839,14 @@ msgid "Opportunity created by Odoo Lead Generation"
 msgstr "Odooリード作成によって作成された案件"
 
 #. module: crm_iap_mine
-#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__role_ids
-msgid "Other Roles"
-msgstr "他の役職"
-
-#. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_15
 msgid "Owner"
 msgstr "オーナー"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_26
+msgid "Paper Products"
+msgstr "紙製品"
 
 #. module: crm_iap_mine
 #: model:ir.model,name:crm_iap_mine.model_crm_iap_lead_role
@@ -617,14 +859,14 @@ msgid "People Seniority"
 msgstr "人員の職位レベル"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_161
-msgid "Pharmaceuticals, Biotechnology & Life Sciences"
-msgstr "医薬品・バイオテクノロジー・ライフサイエンス"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_72
+msgid "Personal Services"
+msgstr "パーソナルサービス"
 
 #. module: crm_iap_mine
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.enrich_company
-msgid "Phone"
-msgstr "電話"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_29
+msgid "Petroleum Refining"
+msgstr "石油精製業"
 
 #. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
@@ -632,9 +874,9 @@ msgid "Pick States..."
 msgstr "ステイタスを選択..."
 
 #. module: crm_iap_mine
-#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__preferred_role_id
-msgid "Preferred Role"
-msgstr "ターゲットとする役職"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_46
+msgid "Pipelines, Except Natural Gas"
+msgstr "パイプライン(天然ガスを除く)"
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_16
@@ -642,9 +884,39 @@ msgid "President"
 msgstr "代表取締役"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_33
+msgid "Primary Metal Industries"
+msgstr "一次金属製造業"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_27
+msgid "Printing and Publishing"
+msgstr "印刷・出版"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_88
+msgid "Private Households"
+msgstr "家事サービス業"
+
+#. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_17
 msgid "Product"
 msgstr "プロダクト"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_87
+msgid "Professional Services"
+msgstr "プロフェッショナルサービス"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry.division,name:crm_iap_mine.crm_iap_mine_division_j
+msgid "Public Administration"
+msgstr "行政"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_93
+msgid "Public Finance and Taxation"
+msgstr "財政・税務"
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_18
@@ -652,10 +924,20 @@ msgid "Public Relations"
 msgstr "広報"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_114
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_40
+msgid "Railroad Transportation"
+msgstr "鉄道輸送業"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_65
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_19
 msgid "Real Estate"
 msgstr "不動産"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_79
+msgid "Recreation Services"
+msgstr "レジャー・娯楽サービス業"
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_20
@@ -673,8 +955,13 @@ msgid "Research"
 msgstr "研究"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_152
-msgid "Retailing"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_58
+msgid "Restaurants and Bars"
+msgstr "レストラン・バー"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry.division,name:crm_iap_mine.crm_iap_mine_division_g
+msgid "Retail Trade"
 msgstr "小売業"
 
 #. module: crm_iap_mine
@@ -683,16 +970,10 @@ msgid "Retry"
 msgstr "再試行"
 
 #. module: crm_iap_mine
-#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__reveal_ids
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_role__reveal_id
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_seniority__reveal_id
 msgid "Reveal"
 msgstr "明らかにする"
-
-#. module: crm_iap_mine
-#: model:ir.model.fields.selection,name:crm_iap_mine.selection__crm_iap_lead_mining_request__contact_filter_type__role
-msgid "Role"
-msgstr "役職"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_role__name
@@ -703,6 +984,21 @@ msgstr "役職名"
 #: model:ir.model.constraint,message:crm_iap_mine.constraint_crm_iap_lead_role_name_uniq
 msgid "Role name already exists!"
 msgstr "役職名はすでに存在します！"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_30
+msgid "Rubber and Plastics"
+msgstr "ゴム・プラスチック製品製造業"
+
+#. module: crm_iap_mine
+#: model:ir.model.fields,help:crm_iap_mine.field_crm_iap_lead_industry__division_id
+msgid "SIC Division code to which Major Group belongs."
+msgstr "SICの主要グループが属する区分のコード。"
+
+#. module: crm_iap_mine
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__sic_group
+msgid "SIC Group"
+msgstr "SICグループ"
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_22
@@ -722,15 +1018,26 @@ msgid "Salesperson"
 msgstr "販売担当者"
 
 #. module: crm_iap_mine
-#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__seniority_id
-#: model:ir.model.fields.selection,name:crm_iap_mine.selection__crm_iap_lead_mining_request__contact_filter_type__seniority
-msgid "Seniority"
-msgstr "職位レベル"
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__division_id
+#: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_industry_view_search
+msgid "Sector"
+msgstr "セクター"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_62
+msgid "Securities and Commodity Services"
+msgstr "証券・商品取引サービス"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__sequence
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry_division__sequence
 msgid "Sequence"
 msgstr "シーケンス"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry.division,name:crm_iap_mine.crm_iap_mine_division_i
+msgid "Services"
+msgstr "サービス"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__company_size_min
@@ -738,9 +1045,14 @@ msgid "Size"
 msgstr "規模"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_165
-msgid "Software & Services"
-msgstr "ソフトウエア・サービス"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_83
+msgid "Social Services"
+msgstr "社会福祉サービス"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_17
+msgid "Specialty Contractors"
+msgstr "専門工事業者"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__state_ids
@@ -753,6 +1065,11 @@ msgid "Status"
 msgstr "ステータス"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_32
+msgid "Stone, Clay, Glass and Concrete"
+msgstr "石材・粘土・ガラス・コンクリート製造業"
+
+#. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
 msgid "Submit"
 msgstr "実行"
@@ -763,30 +1080,34 @@ msgid "Tags"
 msgstr "タグ"
 
 #. module: crm_iap_mine
-#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__search_type
-msgid "Target"
-msgstr "ターゲット"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_22
+msgid "Textile Mill Products"
+msgstr "繊維製品製造業"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_166
-msgid "Technology Hardware & Equipment"
-msgstr "テクノロジーハードウエア・機器"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_21
+msgid "Tobacco Products"
+msgstr "たばこ製造業"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_149
-msgid "Telecommunication Services"
-msgstr "通信サービス"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_41
+msgid "Transit and Passenger Transport"
+msgstr "旅客輸送業"
 
 #. module: crm_iap_mine
-#. odoo-python
-#: code:addons/crm_iap_mine/models/crm_iap_lead_mining_request.py:0
-msgid "This makes a total of %d credits for this request."
-msgstr "これにより、このリクエスト用のクレジットは合計%dとなります。"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_37
+msgid "Transportation Equipment"
+msgstr "輸送用機器製造業"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_136
-msgid "Transportation"
-msgstr "輸送"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_47
+msgid "Transportation Services"
+msgstr "運輸サービス業"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry.division,name:crm_iap_mine.crm_iap_mine_division_e
+msgid "Transportation, Communication, Energy & Sanitation"
+msgstr "運輸・通信・エネルギー・環境衛生事業"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__lead_type
@@ -795,20 +1116,35 @@ msgid "Type"
 msgstr "タイプ"
 
 #. module: crm_iap_mine
-#. odoo-python
-#: code:addons/crm_iap_mine/models/crm_iap_lead_mining_request.py:0
-msgid ""
-"Up to %(credit_count)d additional credits will be consumed to identify %"
-"(contact_count)d contacts per company."
-msgstr ""
-"最大%(credit_count)dの追加クレジットが、1社あたり%(contact_count)d連絡先を識"
-"別するために消費されます。"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_43
+msgid "United States Postal Service"
+msgstr "米国郵便公社"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_49
+msgid "Utilities and Sanitary Services"
+msgstr "電気・ガス・水道・環境衛生業"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_44
+msgid "Water Transportation"
+msgstr "水上輸送業"
 
 #. module: crm_iap_mine
 #. odoo-javascript
 #: code:addons/crm_iap_mine/static/src/js/tours/crm_iap_lead.js:0
 msgid "Which Industry do you want to target?"
 msgstr "どの業界をターゲットにしたいですか？"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry.division,name:crm_iap_mine.crm_iap_mine_division_f
+msgid "Wholesale Trade"
+msgstr "卸売業"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_24
+msgid "Wood Products"
+msgstr "木製品製造業"
 
 #. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
@@ -827,11 +1163,6 @@ msgid "director"
 msgstr "取締役"
 
 #. module: crm_iap_mine
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
-msgid "employees"
-msgstr "従業員"
-
-#. module: crm_iap_mine
 #: model:crm.iap.lead.seniority,name:crm_iap_mine.crm_iap_mine_seniority_2
 msgid "executive"
 msgstr "幹部"
@@ -845,6 +1176,3 @@ msgstr "マネージャー"
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
 msgid "to"
 msgstr "to"
-
-#~ msgid "Group By"
-#~ msgstr "グループ化"

@@ -1,9 +1,51 @@
+import { untrack } from "@odoo/owl";
 import { clamp } from "@web/core/utils/numbers";
 import { omit } from "@web/core/utils/objects";
 import { closestScrollableX, closestScrollableY } from "@web/core/utils/scrolling";
 import { setRecurringAnimationFrame } from "@web/core/utils/timing";
 import { browser } from "../browser/browser";
 import { hasTouch, isBrowserFirefox, isIOS } from "../browser/feature_detection";
+
+function translatePoint(point, vector) {
+    return {
+        x: point.x + vector.x,
+        y: point.y + vector.y,
+    };
+}
+function scaleVector(vector, scaleX = 1, scaleY = scaleX) {
+    return {
+        x: vector.x * scaleX,
+        y: vector.y * scaleY,
+    };
+}
+
+function getIframeOffsetVector(el) {
+    const vector = { x: 0, y: 0 };
+    while (el) {
+        const frameElement =
+            "frameElement" in el ? el.frameElement : el.ownerDocument.defaultView?.frameElement;
+        if (frameElement) {
+            const iRect = frameElement.getBoundingClientRect();
+            vector.x += iRect.x;
+            vector.y += iRect.y;
+            el = frameElement;
+            continue;
+        }
+        break;
+    }
+    return vector;
+}
+
+function pointerInsideElementOffset(pointer, elementRect) {
+    const pointerView = pointer.view || window;
+    if (pointerView === elementRect.view) {
+        return translatePoint(pointer, scaleVector(elementRect, -1));
+    }
+    const pointerIframeVector = getIframeOffsetVector(pointerView);
+    const pointerInMain = translatePoint(pointer, pointerIframeVector);
+    const elementInMain = translatePoint(elementRect, elementRect.iframeOffset);
+    return translatePoint(pointerInMain, scaleVector(elementInMain, -1));
+}
 
 /**
  * @typedef {ReturnType<typeof makeCleanupManager>} CleanupManager
@@ -18,8 +60,8 @@ import { hasTouch, isBrowserFirefox, isIOS } from "../browser/feature_detection"
  * @property {Record<string, any>} [defaultParams]
  * Setup hooks
  * @property {{
- *  addListener: typeof import("@odoo/owl")["useExternalListener"];
- *  setup: typeof import("@odoo/owl")["useEffect"];
+ *  addListener: typeof import("@odoo/owl")["useListener"];
+ *  setup: typeof import("@odoo/owl")["useLayoutEffect"];
  *  teardown: typeof import("@odoo/owl")["onWillUnmount"];
  *  throttle: typeof import("./timing")["useThrottleForAnimation"];
  *  wrapState: typeof import("@odoo/owl")["reactive"];
@@ -34,7 +76,7 @@ import { hasTouch, isBrowserFirefox, isIOS } from "../browser/feature_detection"
  * @property {(params: DraggableBuildHandlerParams) => any} onWillStartDrag
  *
  * @typedef DraggableHookContext
- * @property {{ el: HTMLElement | null }} ref
+ * @property {import("@web/core/utils/hooks").Ref} ref the container ref.
  * @property {string | null} [elementSelector=null]
  * @property {string | null} [ignoreSelector=null]
  * @property {string | null} [fullSelector=null]
@@ -67,6 +109,14 @@ import { hasTouch, isBrowserFirefox, isIOS } from "../browser/feature_detection"
  * @property {number} [speed=10]
  * @property {number} [threshold=20]
  * @property {"horizontal"|"vertical"} [direction]
+ * @property {HTMLElement} [scrollingElement]
+ * @property {EdgeScrollingOffsets} [offsets]
+ *
+ * @typedef EdgeScrollingOffsets
+ * @property {number} [offsetLeft=0]
+ * @property {number} [offsetRight=0]
+ * @property {number} [offsetTop=0]
+ * @property {number} [offsetBottom=0]
  *
  * @typedef Position
  * @property {number} x
@@ -89,7 +139,7 @@ const DEFAULT_ACCEPTED_PARAMS = {
     allowDisconnected: [Boolean], // do not use, introduced for stable versions, to challenge in master
     enable: [Boolean, Function],
     preventDrag: [Function],
-    ref: [Object],
+    ref: [Function],
     elements: [String],
     handle: [String, Function],
     ignore: [String, Function],
@@ -99,6 +149,7 @@ const DEFAULT_ACCEPTED_PARAMS = {
     tolerance: [Number],
     touchDelay: [Number],
     iframeWindow: [Object, Function],
+    iframeSelector: [String],
 };
 const DEFAULT_DEFAULT_PARAMS = {
     allowDisconnected: false,
@@ -223,7 +274,11 @@ function makeDOMHelpers(cleanup) {
         const { noAddedStyle } = options;
         delete options.noAddedStyle;
         el.addEventListener(event, callback, options);
-        if (!noAddedStyle && /mouse|pointer|touch/.test(event)) {
+        if (
+            !noAddedStyle &&
+            /mouse|pointer|touch/.test(event) &&
+            el.nodeType === Node.ELEMENT_NODE
+        ) {
             // Restore pointer events on elements listening on mouse/pointer/touch events.
             addStyle(el, { pointerEvents: "auto" });
         }
@@ -277,6 +332,7 @@ function makeDOMHelpers(cleanup) {
             rect.width -= pl + pr;
             rect.height -= pt + pb;
         }
+        rect.view = el.ownerDocument.defaultView;
         return rect;
     };
 
@@ -425,6 +481,12 @@ export function makeDraggableHook(hookParams) {
             if (prop in params) {
                 if (prop === "enable") {
                     computedParams[prop] = toFunction(params[prop]);
+                } else if (prop === "ref") {
+                    // Resolve the ref with `untrack` so this dependency never subscribes
+                    // the host component's render to the ref signal. Otherwise
+                    // `getReturnValue` would call the signal in a tracked context,
+                    // causing an extra re-render when the ref is set on mount.
+                    computedParams[prop] = untrack(params[prop]);
                 } else if (
                     allAcceptedParams[prop].length === 1 &&
                     allAcceptedParams[prop][0] === Function
@@ -505,26 +567,26 @@ export function makeDraggableHook(hookParams) {
                 state.willDrag = false;
 
                 // Compute scrollable parent
+                const scrollingElement =
+                    ctx.edgeScrolling.scrollingElement || ctx.current.container;
                 const isDocumentScrollingElement =
-                    ctx.current.container === ctx.current.container.ownerDocument.scrollingElement;
+                    scrollingElement === scrollingElement.ownerDocument.scrollingElement;
                 // If the container is the "ownerDocument.scrollingElement",
                 // there is no need to get the scroll parent as it is the
                 // scrollable element itself.
                 // TODO: investigate if "getScrollParents" should not consider
                 // the "ownerDocument.scrollingElement" directly.
                 [ctx.current.scrollParentX, ctx.current.scrollParentY] = isDocumentScrollingElement
-                    ? [ctx.current.container, ctx.current.container]
-                    : getScrollParents(ctx.current.container);
+                    ? [scrollingElement, scrollingElement]
+                    : getScrollParents(scrollingElement);
 
                 updateRects();
-                const { x, y, width, height } = ctx.current.elementRect;
-
+                const { width, height } = ctx.current.elementRect;
                 // Adjusts the offset
-                ctx.current.offset = {
-                    x: ctx.current.initialPosition.x - x,
-                    y: ctx.current.initialPosition.y - y,
-                };
-
+                ctx.current.offset = pointerInsideElementOffset(
+                    ctx.current.initialPosition,
+                    ctx.current.elementRect
+                );
                 if (ctx.followCursor) {
                     dom.addStyle(ctx.current.element, {
                         width: `${width}px`,
@@ -540,13 +602,10 @@ export function makeDraggableHook(hookParams) {
                 }
 
                 dom.addClass(document.body, "pe-none", "user-select-none");
-                if (params.iframeWindow) {
-                    for (const iframe of document.getElementsByTagName("iframe")) {
-                        if (iframe.contentWindow === params.iframeWindow) {
-                            dom.addClass(iframe, "pe-none", "user-select-none");
-                        }
-                    }
+                for (const iframe of getIframes(ctx.ref())) {
+                    dom.addClass(iframe, "pe-none", "user-select-none");
                 }
+
                 // FIXME: adding pe-none and cursor on the same element makes
                 // no sense as pe-none prevents the cursor to be displayed.
                 if (ctx.cursor) {
@@ -592,6 +651,15 @@ export function makeDraggableHook(hookParams) {
                 cleanup.cleanup();
             };
 
+            function* getIframes(el) {
+                const iframes =
+                    el && params.iframeSelector ? el.querySelectorAll(params.iframeSelector) : [];
+                yield* iframes;
+                if (params.iframeWindow && el === ctx.ref()) {
+                    yield params.iframeWindow.frameElement;
+                }
+            }
+
             /**
              * Applies scroll to the container if the current element is near
              * the edge of the container.
@@ -611,28 +679,34 @@ export function makeDraggableHook(hookParams) {
                     yRect.y += scrollParentYEl.scrollTop;
                 }
 
-                const { direction, speed, threshold } = ctx.edgeScrolling;
+                const { direction, speed, threshold, offsets } = ctx.edgeScrolling;
+                const {
+                    offsetLeft = 0,
+                    offsetRight = 0,
+                    offsetTop = 0,
+                    offsetBottom = 0,
+                } = offsets || {};
                 const correctedSpeed = (speed / 16) * deltaTime;
 
                 const diff = {};
                 ctx.current.scrollingEdge = null;
                 if (xRect) {
                     const maxWidth = xRect.x + xRect.width;
-                    if (pointerX - xRect.x < threshold) {
-                        diff.x = [pointerX - xRect.x, -1];
+                    if (pointerX - xRect.x < threshold + offsetLeft) {
+                        diff.x = [pointerX - xRect.x - offsetLeft, -1];
                         ctx.current.scrollingEdge = "left";
-                    } else if (maxWidth - pointerX < threshold) {
-                        diff.x = [maxWidth - pointerX, 1];
+                    } else if (maxWidth - pointerX < threshold + offsetRight) {
+                        diff.x = [maxWidth - pointerX - offsetRight, 1];
                         ctx.current.scrollingEdge = "right";
                     }
                 }
                 if (yRect) {
                     const maxHeight = yRect.y + yRect.height;
-                    if (pointerY - yRect.y < threshold) {
-                        diff.y = [pointerY - yRect.y, -1];
+                    if (pointerY - yRect.y < threshold + offsetTop) {
+                        diff.y = [pointerY - yRect.y - offsetTop, -1];
                         ctx.current.scrollingEdge = "top";
-                    } else if (maxHeight - pointerY < threshold) {
-                        diff.y = [maxHeight - pointerY, 1];
+                    } else if (maxHeight - pointerY < threshold + offsetBottom) {
+                        diff.y = [maxHeight - pointerY - offsetBottom, 1];
                         ctx.current.scrollingEdge = "bottom";
                     }
                 }
@@ -680,6 +754,20 @@ export function makeDraggableHook(hookParams) {
              */
             const onPointerCancel = () => {
                 dragEnd(null);
+            };
+
+            /**
+             * Document "visibilitychange" event handler.
+             * Cancels the drag sequence as soon as the tab is no longer visible:
+             * pointer and keyboard states (e.g. "Control" being released) cannot
+             * be tracked while the document is hidden, which would lead to
+             * inconsistent behaviors when returning to the tab.
+             * @param {Event} ev
+             */
+            const onVisibilityChange = (ev) => {
+                if (ev.target.visibilityState === "hidden") {
+                    dragEnd(null);
+                }
             };
 
             /**
@@ -822,10 +910,18 @@ export function makeDraggableHook(hookParams) {
                 const { width: ew, height: eh } = elementRect;
                 const { x: cx, y: cy, width: cw, height: ch } = containerRect;
 
-                // Updates the position of the dragged element.
+                let pointer = ctx.pointer;
+                const pointerView = ctx.pointer.view || window;
+                if (pointerView === window && pointerView !== elementRect.view) {
+                    // We know here that the element's coordinates are relative to the
+                    // iframe. Convert the pointer's position in terms of that referential
+                    pointer = translatePoint(pointer, scaleVector(elementRect.iframeOffset, -1));
+                }
+
+                const pointerTranslated = translatePoint(pointer, scaleVector(offset, -1));
                 dom.addStyle(element, {
-                    left: `${clamp(ctx.pointer.x - offset.x, cx, cx + cw - ew)}px`,
-                    top: `${clamp(ctx.pointer.y - offset.y, cy, cy + ch - eh)}px`,
+                    left: `${clamp(pointerTranslated.x, cx, cx + cw - ew)}px`,
+                    top: `${clamp(pointerTranslated.y, cy, cy + ch - eh)}px`,
                 });
             };
 
@@ -836,6 +932,7 @@ export function makeDraggableHook(hookParams) {
             const updatePointerPosition = (ev) => {
                 ctx.pointer.x = ev.clientX;
                 ctx.pointer.y = ev.clientY;
+                ctx.pointer.view = ev.view;
             };
 
             const updateRects = () => {
@@ -857,8 +954,14 @@ export function makeDraggableHook(hookParams) {
                     current.containerRect.y += iframeOffsetY;
                 }
                 // Adjust container rect according to its overflowing size
+                const isContainerRTL = getComputedStyle(container).direction === "rtl";
+                const containerBoxLeft = current.containerRect.x;
+                const containerBoxRight = current.containerRect.x + current.containerRect.width;
                 current.containerRect.width = container.scrollWidth;
                 current.containerRect.height = container.scrollHeight;
+                if (isContainerRTL) {
+                    current.containerRect.x = containerBoxRight - container.scrollWidth;
+                }
                 // ScrollParent rect
                 current.scrollParentXRect = null;
                 current.scrollParentYRect = null;
@@ -868,10 +971,10 @@ export function makeDraggableHook(hookParams) {
                         current.scrollParentXRect = dom.getRect(scrollParentX, { adjust: true });
                         current.scrollParentXRect.x += iframeOffsetX;
                         current.scrollParentXRect.y += iframeOffsetY;
-                        const right = Math.min(
-                            current.containerRect.left + container.scrollWidth,
-                            current.scrollParentXRect.right
-                        );
+                        const containerRight = isContainerRTL
+                            ? containerBoxRight
+                            : containerBoxLeft + container.scrollWidth;
+                        const right = Math.min(containerRight, current.scrollParentXRect.right);
                         current.containerRect.x = Math.max(
                             current.containerRect.x,
                             current.scrollParentXRect.x
@@ -896,6 +999,7 @@ export function makeDraggableHook(hookParams) {
 
                 // Element rect
                 ctx.current.elementRect = dom.getRect(element);
+                ctx.current.elementRect.iframeOffset = getIframeOffsetVector(element);
             };
 
             /**
@@ -903,7 +1007,7 @@ export function makeDraggableHook(hookParams) {
              */
             const willStartDrag = (target) => {
                 ctx.current.element = target.closest(ctx.elementSelector);
-                ctx.current.container = ctx.ref.el;
+                ctx.current.container = ctx.ref();
 
                 cleanup.add(() => (ctx.current = {}));
                 state.willDrag = true;
@@ -916,8 +1020,8 @@ export function makeDraggableHook(hookParams) {
                         passive: false,
                         noAddedStyle: true,
                     });
-                    if (params.iframeWindow) {
-                        dom.addListener(params.iframeWindow, "touchmove", safePrevent, {
+                    for (const iframe of getIframes(ctx.ref())) {
+                        dom.addListener(iframe.contentWindow, "touchmove", safePrevent, {
                             passive: false,
                             noAddedStyle: true,
                         });
@@ -966,7 +1070,7 @@ export function makeDraggableHook(hookParams) {
                 fullSelector: null,
                 followCursor: true,
                 cursor: null,
-                pointer: { x: 0, y: 0 },
+                pointer: { x: 0, y: 0, view: window },
                 edgeScrolling: { enabled: true },
                 get dragging() {
                     return state.dragging;
@@ -990,7 +1094,7 @@ export function makeDraggableHook(hookParams) {
                         };
                     }
 
-                    if (!ctx.ref.el) {
+                    if (!ctx.ref()) {
                         return;
                     }
 
@@ -1038,49 +1142,85 @@ export function makeDraggableHook(hookParams) {
             // nicely when they happen from within the iframe. To work around
             // this, we use mouse events instead of pointer events.
             const useMouseEvents = isBrowserFirefox() && !hasTouch() && params.iframeWindow;
-            // Effect depending on the `ref.el` to add triggering pointer events listener.
+            const throttledOnPointerMove = setupHooks.throttle(onPointerMove);
+            function initWindow(_window, addListener) {
+                addListener(
+                    _window,
+                    useMouseEvents ? "mousemove" : "pointermove",
+                    throttledOnPointerMove,
+                    { passive: false }
+                );
+                addListener(_window, useMouseEvents ? "mouseup" : "pointerup", onPointerUp);
+                addListener(_window, "pointercancel", onPointerCancel);
+                addListener(_window, "keydown", onKeyDown, { capture: true });
+                addListener(_window.document, "visibilitychange", onVisibilityChange);
+            }
+
+            function initEl(el, addListener) {
+                const event = useMouseEvents ? "mousedown" : "pointerdown";
+                addListener(el, event, onPointerDown, { noAddedStyle: true });
+                addListener(el, "click", onClick);
+                if (hasTouch()) {
+                    addListener(el, "contextmenu", safePrevent);
+                    // Adds a non-passive listener on touchstart: this allows
+                    // the subsequent "touchmove" events to be cancelable
+                    // and thus prevent parasitic "touchcancel" events to
+                    // be fired. Note that we DO NOT want to prevent touchstart
+                    // events since they're responsible of the native swipe
+                    // scrolling.
+                    addListener(el, "touchstart", () => {}, {
+                        passive: false,
+                        noAddedStyle: true,
+                    });
+                }
+            }
+            // Effect depending on the container element to add triggering pointer events listener.
             setupHooks.setup(
                 (el) => {
                     if (el) {
                         const { add, cleanup } = makeCleanupManager();
                         const { addListener } = makeDOMHelpers({ add });
-                        const event = useMouseEvents ? "mousedown" : "pointerdown";
-                        addListener(el, event, onPointerDown, { noAddedStyle: true });
-                        addListener(el, "click", onClick);
-                        if (hasTouch()) {
-                            addListener(el, "contextmenu", safePrevent);
-                            // Adds a non-passive listener on touchstart: this allows
-                            // the subsequent "touchmove" events to be cancelable
-                            // and thus prevent parasitic "touchcancel" events to
-                            // be fired. Note that we DO NOT want to prevent touchstart
-                            // events since they're responsible of the native swipe
-                            // scrolling.
-                            addListener(el, "touchstart", () => {}, {
-                                passive: false,
-                                noAddedStyle: true,
-                            });
-                        }
+                        initEl(el, addListener);
                         return cleanup;
                     }
                 },
-                () => [ctx.ref.el]
+                () => [untrack(ctx.ref)]
             );
-            const addWindowListener = (type, listener, options) => {
-                if (params.iframeWindow) {
-                    setupHooks.addListener(params.iframeWindow, type, listener, options);
-                }
-                setupHooks.addListener(window, type, listener, options);
-            };
-            // Other global event listeners.
-            const throttledOnPointerMove = setupHooks.throttle(onPointerMove);
-            addWindowListener(
-                useMouseEvents ? "mousemove" : "pointermove",
-                throttledOnPointerMove,
-                { passive: false }
+
+            setupHooks.setup(
+                () => {
+                    const { add, cleanup } = makeCleanupManager();
+                    const { addListener } = makeDOMHelpers({ add });
+                    initWindow(window, addListener);
+                    return cleanup;
+                },
+                () => []
             );
-            addWindowListener(useMouseEvents ? "mouseup" : "pointerup", onPointerUp);
-            addWindowListener("pointercancel", onPointerCancel);
-            addWindowListener("keydown", onKeyDown, { capture: true });
+
+            if (params.iframeWindow || params.iframeSelector) {
+                setupHooks.setup(
+                    (...iframes) => {
+                        const { add, cleanup } = makeCleanupManager();
+                        const { addListener } = makeDOMHelpers({ add });
+                        for (const iframe of iframes) {
+                            // Fun fact: the iframe has a contentWindow and a contentDocument from the moment the iframe is in the dom.
+                            // However, when the iframe is loaded, the contentDocument changes.
+                            const { contentWindow, contentDocument } = iframe;
+                            const body = contentDocument.body;
+                            initEl(body, addListener);
+                            initWindow(contentWindow, addListener);
+                            addListener(iframe, "load", () => {
+                                if (iframe.contentDocument.body !== body) {
+                                    initEl(iframe.contentDocument.body, addListener);
+                                }
+                            });
+                        }
+                        return cleanup;
+                    },
+                    () => [...getIframes(untrack(ctx.ref))]
+                );
+            }
+
             setupHooks.teardown(() => dragEnd(null));
 
             return state;

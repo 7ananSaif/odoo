@@ -1,9 +1,9 @@
-    import { registry } from "@web/core/registry";
-    import { stepUtils } from "@web_tour/tour_utils";
+import { registry } from "@web/core/registry";
+import { stepUtils } from "@web_tour/tour_utils";
 
-    registry.category("web_tour.tours").add('hr_expense_test_tour', {
-        url: "/odoo",
-        steps: () => [stepUtils.showAppsMenuItem(),
+registry.category("web_tour.tours").add("hr_expense_test_tour", {
+    steps: () => [
+        stepUtils.showAppsMenuItem(),
         {
             content: "Go to Expense",
             trigger: '.o_app[data-menu-xmlid="hr_expense.menu_hr_expense_root"]',
@@ -16,13 +16,7 @@
         },
         {
             content: "Check Upload Button",
-            trigger: '.o_button_upload_expense',
-            run() {
-                const button = document.querySelector('.o_button_upload_expense');
-                if(!button) {
-                    console.error('Missing Upload button in My Expenses > List View');
-                }
-            }
+            trigger: ".o_button_upload_expense",
         },
         {
             content: "Create a new expense",
@@ -30,7 +24,7 @@
             run: "click",
         },
         {
-            content: "Enter category for new expense in Many2One field",
+            content: "Enter product for new expense in Many2One field",
             trigger: ".o_field_widget.o_field_many2one[name=product_id] input",
             run: "edit [COMM] Communication",
         },
@@ -57,12 +51,10 @@
         {
             content: "Check Upload Button",
             trigger: "button.o_switch_view.o_kanban.active",
-            run() {
-                const button = document.querySelector('.o_button_upload_expense');
-                if(!button) {
-                    console.error('Missing Upload button in My Expenses > Kanban View');
-                }
-            }
+        },
+        {
+            content: "Missing Upload button in My Expenses > Kanban View",
+            trigger: ".o_button_upload_expense",
         },
         {
             content: "Go to Reporting",
@@ -82,18 +74,17 @@
         {
             content: "Check Upload Button",
             trigger: "button.o_switch_view.o_list.active",
-            run() {
-                const button = document.querySelector('.o_button_upload_expense');
-                if(!button) {
-                    console.error('Missing Upload button in Expenses Analysis > List View');
-                }
-            }
         },
-    ]});
+        {
+            content: "Missing Upload button in Expenses Analysis > List View",
+            trigger: ".o_button_upload_expense",
+        },
+    ],
+});
 
-    registry.category("web_tour.tours").add('hr_expense_access_rights_test_tour', {
-        url: "/odoo",
-        steps: () => [stepUtils.showAppsMenuItem(),
+registry.category("web_tour.tours").add("hr_expense_access_rights_test_tour", {
+    steps: () => [
+        stepUtils.showAppsMenuItem(),
         {
             content: "Go to Expense",
             trigger: '.o_app[data-menu-xmlid="hr_expense.menu_hr_expense_root"]',
@@ -106,16 +97,17 @@
         },
         {
             content: "Go to First Expense for employee",
-            trigger: 'td[data-tooltip="First Expense for employee"]',
+            trigger: '.o_data_cell:text(First Expense for employee)',
             run: "click",
         },
         {
             content: "Click Submit to Manager Button",
-            trigger: '.o_expense_submit',
+            trigger: ".o_expense_submit",
             run: "click",
         },
         {
-            content: 'Verify the expense is submitted',
+            content: "Verify the expense is submitted",
             trigger: '.o_arrow_button_current:contains("Submitted")',
         },
-    ]});
+    ],
+});

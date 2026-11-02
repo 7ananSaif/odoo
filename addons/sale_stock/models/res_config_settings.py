@@ -7,15 +7,15 @@ from odoo import api, fields, models
 class ResConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
 
-    security_lead = fields.Float(related='company_id.security_lead', string="Security Lead Time", readonly=False)
+    allow_spontaneous_returns = fields.Boolean(
+        related="company_id.allow_spontaneous_returns", readonly=False
+    )
+    return_validity_days = fields.Integer(related="company_id.return_validity_days", readonly=False)
+    security_lead = fields.Integer(related='company_id.security_lead', string="Security Lead Time", readonly=False)
     use_security_lead = fields.Boolean(
         string="Security Lead Time for Sales",
         config_parameter='sale_stock.use_security_lead',
         help="Margin of error for dates promised to customers. Products will be scheduled for delivery that many days earlier than the actual promised date, to cope with unexpected delays in the supply chain.")
-    default_picking_policy = fields.Selection([
-        ('direct', 'Ship products as soon as available, with back orders'),
-        ('one', 'Ship all products at once')
-        ], "Picking Policy", default='direct', default_model="sale.order", required=True)
 
     @api.onchange('use_security_lead')
     def _onchange_use_security_lead(self):

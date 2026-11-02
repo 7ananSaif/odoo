@@ -1,7 +1,18 @@
 import { models } from "@web/../tests/web_test_helpers";
+import { isIterable } from "@web/core/utils/arrays";
+
+const { DateTime } = luxon;
 
 export class PosOrderLine extends models.ServerModel {
     _name = "pos.order.line";
+
+    create() {
+        const orderLine = super.create(...arguments);
+        this.write(isIterable(orderLine) ? orderLine : [orderLine], {
+            write_date: DateTime.now().toFormat("yyyy-MM-dd HH:mm:ss"),
+        });
+        return orderLine;
+    }
 
     _load_pos_data_fields() {
         return [
@@ -14,11 +25,11 @@ export class PosOrderLine extends models.ServerModel {
             "price_subtotal_incl",
             "order_id",
             "note",
+            "prep_line_ids",
             "price_type",
             "product_id",
             "discount",
             "tax_ids",
-            "pack_lot_ids",
             "customer_note",
             "refunded_qty",
             "price_extra",
@@ -31,5 +42,9 @@ export class PosOrderLine extends models.ServerModel {
             "extra_tax_data",
             "write_date",
         ];
+    }
+
+    _load_pos_data_dependencies() {
+        return ["pos.order"];
     }
 }

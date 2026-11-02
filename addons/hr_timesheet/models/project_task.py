@@ -7,8 +7,8 @@ from collections import defaultdict
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, RedirectWarning
 from odoo.tools import SQL
-from odoo.addons.rating.models.rating_data import OPERATOR_MAPPING
-
+from odoo.fields import Domain
+from odoo.addons.rating.models.rating_data import OPERATOR_MAPPING, OPMAP
 
 PROJECT_TASK_READABLE_FIELDS = {
     'allow_timesheets',
@@ -17,10 +17,12 @@ PROJECT_TASK_READABLE_FIELDS = {
     'encode_uom_in_days',
     'allocated_hours',
     'progress',
+    'portal_timesheet_ids',
     'overtime',
     'remaining_hours',
     'subtask_effective_hours',
     'subtask_allocated_hours',
+    'show_portal_timesheets',
     'timesheet_ids',
     'total_hours_spent',
 }
@@ -28,6 +30,10 @@ PROJECT_TASK_READABLE_FIELDS = {
 
 class ProjectTask(models.Model):
     _inherit = "project.task"
+
+    @api.model
+    def _get_portal_timesheet_domain(self):
+        return Domain('project_id', '!=', False)
 
     project_id = fields.Many2one(domain="['|', ('company_id', '=', False), ('company_id', '=?',  company_id), ('is_internal_project', '=', False), ('is_template', 'in', [is_template, False])]")
     analytic_account_active = fields.Boolean("Active Analytic Account", related='project_id.analytic_account_active', export_string_translation=False)
@@ -43,6 +49,7 @@ class ProjectTask(models.Model):
     overtime = fields.Float(compute='_compute_progress_hours', store=True)
     subtask_effective_hours = fields.Float("Time Spent on Sub-tasks", compute='_compute_subtask_effective_hours', recursive=True, store=True, help="Time spent on the sub-tasks (and their own sub-tasks) of this task.")
     timesheet_ids = fields.One2many('account.analytic.line', 'task_id', 'Timesheets', export_string_translation=False)
+    portal_timesheet_ids = fields.One2many('account.analytic.line', 'task_id', domain=lambda self: self._get_portal_timesheet_domain(), export_string_translation=False)
     encode_uom_in_days = fields.Boolean(compute='_compute_encode_uom_in_days', default=lambda self: self._uom_in_days(), export_string_translation=False)
     display_name = fields.Char(help="""Use these keywords in the title to set new tasks:\n
         30h Allocate 30 hours to the task
@@ -53,13 +60,15 @@ class ProjectTask(models.Model):
         !!! Set the task a urgent priority\n
         Make sure to use the right format and order e.g. Improve the configuration screen 5h #feature #v16 @Mitchell !""",
     )
+    show_portal_timesheets = fields.Boolean(default=lambda self: self.env['account.analytic.line']._show_portal_timesheets(), store=False)
+
     @property
     def TASK_PORTAL_READABLE_FIELDS(self):
         return super().TASK_PORTAL_READABLE_FIELDS | PROJECT_TASK_READABLE_FIELDS
 
     @api.constrains('project_id')
     def _check_project_root(self):
-        private_tasks = self.filtered(lambda t: not t.project_id)
+        private_tasks = self.filtered(lambda t: not t.project_id and not t.is_template)
         if private_tasks and self.env['account.analytic.line'].sudo().search_count([('task_id', 'in', private_tasks.ids)], limit=1):
             raise UserError(_("This task cannot be private because there are some timesheets linked to it."))
 
@@ -69,15 +78,23 @@ class ProjectTask(models.Model):
     def _compute_encode_uom_in_days(self):
         self.encode_uom_in_days = self._uom_in_days()
 
-    @api.depends('project_id.allow_timesheets')
+    @api.depends('project_id.allow_timesheets', 'is_template')
     def _compute_allow_timesheets(self):
         for task in self:
-            task.allow_timesheets = task.project_id.allow_timesheets
+            task.allow_timesheets = task.project_id.allow_timesheets if task.project_id else task.is_template
 
     def _search_allow_timesheets(self, operator, value):
         query = self.env['project.project'].sudo()._search([
             ('allow_timesheets', operator, value),
         ])
+        if value:
+            return [
+                '|',
+                    ('project_id', 'in', query),
+                    '&',
+                        ('project_id', '=', False),
+                        ('is_template', '=', True),
+            ]
         return [('project_id', 'in', query)]
 
     @api.depends('timesheet_ids.unit_amount')
@@ -86,10 +103,13 @@ class ProjectTask(models.Model):
             for task in self:
                 task.effective_hours = sum(task.timesheet_ids.mapped('unit_amount'))
             return
-        timesheet_read_group = self.env['account.analytic.line']._read_group([('task_id', 'in', self.ids)], ['task_id'], ['unit_amount:sum'])
+        timesheet_read_group = self.env['account.analytic.line']._read_group(self._get_domain_effective_hours(), ['task_id'], ['unit_amount:sum'])
         timesheets_per_task = {task.id: amount for task, amount in timesheet_read_group}
         for task in self:
             task.effective_hours = timesheets_per_task.get(task.id, 0.0)
+
+    def _get_domain_effective_hours(self):
+        return [('task_id', 'in', self.ids)]
 
     @api.depends('effective_hours', 'subtask_effective_hours', 'allocated_hours')
     def _compute_progress_hours(self):
@@ -121,13 +141,13 @@ class ProjectTask(models.Model):
              WHERE remaining_hours > 0
                AND allocated_hours > 0
                AND remaining_hours / allocated_hours %s %s
-        )""", SQL.identifier(self._table), SQL(operator), value)
+        )""", SQL.identifier(self._table), OPMAP[operator], value)
         return [('id', 'in', sql)]
 
-    @api.depends('effective_hours', 'subtask_effective_hours', 'allocated_hours')
+    @api.depends('effective_hours', 'subtask_effective_hours', 'allocated_hours', 'parent_id.allocated_hours', 'project_id.allocated_hours')
     def _compute_remaining_hours(self):
         for task in self:
-            if not task.allocated_hours:
+            if not task.allocated_hours and (task.parent_id or task.project_id).allocated_hours <= 0.0:
                 task.remaining_hours = 0.0
             else:
                 task.remaining_hours = task.allocated_hours - task.effective_hours - task.subtask_effective_hours
@@ -201,6 +221,19 @@ class ProjectTask(models.Model):
         })
         return action
 
+    def action_print_timesheets(self):
+        if not self.timesheet_ids:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'message': self.env._('There are no timesheets to print for this task'),
+                    'type': 'warning',
+                    'sticky': False,
+                }
+            }
+        return self.env.ref('hr_timesheet.timesheet_report_task').report_action(self)
+
     def _get_timesheet(self):
         # Is override in sale_timesheet
         return self.timesheet_ids
@@ -221,7 +254,7 @@ class ProjectTask(models.Model):
             'timesheets_per_task': timesheets_per_task,
         }
 
-    @api.depends_context('hr_timesheet_display_remaining_hours')
+    @api.depends_context('hr_timesheet_display_remaining_hours', 'formatted_display_name')
     def _compute_display_name(self):
         super()._compute_display_name()
         if self.env.context.get('hr_timesheet_display_remaining_hours'):
@@ -230,14 +263,11 @@ class ProjectTask(models.Model):
                     days_left = _("(%s days remaining)", task._convert_hours_to_days(task.remaining_hours))
                     task.display_name = task.display_name + "\u00A0" + days_left
                 elif task.allow_timesheets and task.allocated_hours > 0:
-                    hours, mins = (str(int(duration)).rjust(2, '0') for duration in divmod(abs(task.remaining_hours) * 60, 60))
-                    hours_left = _(
-                        "(%(sign)s%(hours)s:%(minutes)s remaining)",
-                        sign='-' if task.remaining_hours < 0 else '',
-                        hours=hours,
-                        minutes=mins,
-                    )
-                    task.display_name = task.display_name + "\u00A0" + hours_left
+                    hours_left = self.env['account.analytic.line']._format_portal_hours(task.remaining_hours)
+                    if self.env.context.get('formatted_display_name'):
+                        task.display_name = f"{task.display_name} \t --{hours_left}--"
+                    else:
+                        task.display_name = task.display_name + "\u00A0" + hours_left
 
     @api.ondelete(at_uninstall=False)
     def _unlink_except_contains_entries(self):
@@ -288,3 +318,10 @@ class ProjectTask(models.Model):
             'allocated_hours': sum(tasks_for_total.mapped('allocated_hours')),
             'effective_hours': sum(tasks_for_total.mapped('total_hours_spent')),
         }
+
+    def _get_template_field_blacklist(self):
+        fields = super()._get_template_field_blacklist()
+        project_id = self.env.context.get('default_project_id')
+        if project_id and not self.env['project.project'].browse(project_id).allow_timesheets:
+            fields.append('allocated_hours')
+        return fields

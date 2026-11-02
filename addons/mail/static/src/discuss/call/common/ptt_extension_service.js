@@ -1,6 +1,7 @@
-import { markup, reactive } from "@odoo/owl";
-
 import { parseVersion } from "@mail/utils/common/misc";
+
+import { markup, proxy } from "@odoo/owl";
+
 import { browser } from "@web/core/browser/browser";
 import { registry } from "@web/core/registry";
 import { _t } from "@web/core/l10n/translation";
@@ -22,7 +23,7 @@ export const pttExtensionHookService = {
             window.chrome?.runtime
                 ?.sendMessage(EXT_ID, { type: "ask-version" })
                 .catch(() => "1.0.0.0") ?? Promise.resolve("1.0.0.0");
-        const self = reactive({
+        const self = proxy({
             isEnabled: undefined,
             voiceActivated: undefined,
             notifyIsTalking(isTalking) {
@@ -38,7 +39,7 @@ export const pttExtensionHookService = {
             downloadURL: `https://chromewebstore.google.com/detail/discuss-push-to-talk/${EXT_ID}`,
             get downloadText() {
                 return _t(
-                    "The Push-to-Talk feature is only accessible within tab focus. To enable the Push-to-Talk functionality outside of this tab, we recommend downloading our %(anchor_start)sextension%(anchor_end)s.",
+                    "Push-to-Talk works only while this tab is in focus. To use it outside this tab, we recommend installing our %(anchor_start)sextension%(anchor_end)s.",
                     {
                         anchor_start: markup`<a href="${this.downloadURL}" target="_blank" class="text-reset text-decoration-underline">`,
                         anchor_end: markup`</a>`,
@@ -52,7 +53,7 @@ export const pttExtensionHookService = {
             if (
                 source !== window ||
                 origin !== location.origin ||
-                data.from !== "discuss-push-to-talk" ||
+                data?.from !== "discuss-push-to-talk" ||
                 (!rtc && data.type !== "answer-is-enabled")
             ) {
                 return;

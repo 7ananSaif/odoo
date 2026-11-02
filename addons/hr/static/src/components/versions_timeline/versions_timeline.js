@@ -4,9 +4,12 @@ import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { statusBarField, StatusBarField } from "@web/views/fields/statusbar/statusbar_field";
 import { _t } from "@web/core/l10n/translation";
+import { signal } from "@odoo/owl";
 
 export class VersionsTimeline extends StatusBarField {
     static template = "hr.VersionsTimeline";
+
+    datetimePickerTargetRef = signal.ref();
 
     /** @override **/
     setup() {
@@ -15,7 +18,7 @@ export class VersionsTimeline extends StatusBarField {
         this.orm = useService("orm");
 
         this.dateTimePicker = useDateTimePicker({
-            target: `datetime-picker-target-version`,
+            target: this.datetimePickerTargetRef,
             onApply: (date) => {
                 if (date) {
                     this.createVersion(date);
@@ -37,14 +40,28 @@ export class VersionsTimeline extends StatusBarField {
 
     /** @override **/
     getFieldNames(props) {
-        const fieldNames = super.getFieldNames(props);
-        fieldNames.push("contract_type_id", "contract_date_start", "contract_date_end");
-        return fieldNames.filter((fName) => fName in props.record.fields);
+        const contractFields = [
+            "employee_type_id",
+            "contract_date_start",
+            "contract_date_end",
+        ].filter((fName) => fName in props.record.fields);
+        return [...super.getFieldNames(props), ...contractFields];
     }
 
     displayContractLines() {
-        return ["contract_type_id", "contract_date_start", "contract_date_end"].every(
+        return ["employee_type_id", "contract_date_start", "contract_date_end"].every(
             (fieldName) => fieldName in this.props.record.fields
+        );
+    }
+
+    isContractLineContinued(index) {
+        const item = this.items.inline[index];
+        const nextItem = this.items.inline[index + 1];
+        return Boolean(
+            item?.isInContract &&
+                item.isCurrentContract &&
+                nextItem?.isInContract &&
+                nextItem.isCurrentContract
         );
     }
 
@@ -85,7 +102,7 @@ export class VersionsTimeline extends StatusBarField {
             return luxon.DateTime.fromISO(dateString).toFormat("MMM dd, yyyy");
         }
         const items = super.getAllItems();
-        if (!this.displayContractLines) {
+        if (!this.displayContractLines()) {
             return items;
         }
         const dataById = new Map(this.specialData.data.map((d) => [d.id, d]));
@@ -98,9 +115,9 @@ export class VersionsTimeline extends StatusBarField {
             const contractDateStart = itemSpecialData.contract_date_start;
             let contractDateEnd = itemSpecialData.contract_date_end;
             contractDateEnd = contractDateEnd ? format(contractDateEnd) : _t("Indefinite");
-            const contractType = itemSpecialData.contract_type_id?.[1] ?? _t("Contract");
+            const employeeType = itemSpecialData.employee_type_id?.[1] ?? _t("Contract");
             const toolTip = contractDateStart
-                ? `${contractType}: ${format(contractDateStart)} - ${contractDateEnd}`
+                ? `${employeeType}: ${format(contractDateStart)} - ${contractDateEnd}`
                 : _t("No contract");
 
             return {
@@ -111,12 +128,26 @@ export class VersionsTimeline extends StatusBarField {
             };
         });
     }
+
+    /** @override **/
+    getSortedItems() {
+        const sorted = super.getSortedItems();
+
+        sorted.inline.sort((a, b) => {
+            const dateA = luxon.DateTime.fromFormat(a.label, "MMM d, yyyy");
+            const dateB = luxon.DateTime.fromFormat(b.label, "MMM d, yyyy");
+
+            return dateB.toMillis() - dateA.toMillis();
+        });
+
+        return sorted;
+    }
 }
 
 export const versionsTimeline = {
     ...statusBarField,
     component: VersionsTimeline,
-    additionalClasses: ["o_field_statusbar", "d-flex", "gap-1"],
+    additionalClasses: ["o_field_statusbar", "o_records_timeline", "d-flex", "gap-1"],
 };
 
 registry.category("fields").add("versions_timeline", versionsTimeline);

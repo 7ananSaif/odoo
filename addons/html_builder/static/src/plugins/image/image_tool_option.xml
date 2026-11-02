@@ -2,53 +2,52 @@
 <templates xml:space="preserve">
 
 <t t-name="html_builder.ImageToolOption">
-    <t t-if="!state.isDynamicSVG">
-        <ImageShapeOption />
+    <t t-if="!this.state.isGridMode and !this.state.isSocialMediaImg and !this.state.isImageBinaryField">
+        <MediaSizeOption level="1"/>
     </t>
-    <BuilderRow label.translate="Description" t-if="!state.isImageBinaryField"
-        tooltip.translate="'Alt tag' specifies an alternate text for an image, if the image cannot be displayed (slow connection, missing image, screen reader ...).">
-        <BuilderTextInput
-            action="'alt'"
-            placeholder.translate="Alt tag"
-            />
+    <BuilderRow label.translate="Transform" level="1" preview="false">
+        <div class="btn-group o-hb-button-group">
+            <BuilderButton t-if="this.state.showCropTool" title.translate="Crop image" action="'cropImage'" icon="'crop'" id="'cropImage'" />
+            <BuilderButton title.translate="Reset crop" action="'resetCrop'" t-if="this.state.showCropTool and this.isActiveItem('cropImage')" icon="'close_small'" className="'btn-danger-color-hover border-start-0 rounded-start-0 m-0 py-0 flex-grow-0'" />
+        </div>
+        <ImageTransformOption t-if="!this.state.isImageAnimated and !this.state.isSocialMediaImg and !this.state.isImageBinaryField" />
     </BuilderRow>
-    <BuilderRow label.translate="Tooltip" t-if="!state.isImageBinaryField"
-        tooltip.translate="'Title tag' is shown as a tooltip when you hover the picture.">
-        <BuilderTextInput
-            attributeAction="'title'"
-            placeholder.translate="Title tag" />
-    </BuilderRow>
-    <BuilderRow label.translate="Transform" preview="false">
-        <BuilderButton t-if="state.showCropTool" title.translate="Crop image" action="'cropImage'" icon="'fa-crop'" id="'cropImage'" />
-        <BuilderButton title.translate="Reset crop" action="'resetCrop'" t-if="this.state.showCropTool and this.isActiveItem('cropImage')">Reset</BuilderButton>
-        <ImageTransformOption t-if="!state.isImageAnimated and !state.isImageBinaryField" />
-    </BuilderRow>
-    <ImageFilterOption />
-    <BuilderRow label.translate="Size" t-if="!state.isImageBinaryField">
-        <BuilderButtonGroup styleAction="'width'">
-            <BuilderButton styleActionValue="''" title.translate="Resize Default">Default</BuilderButton>
-            <BuilderButton styleActionValue="'25%'" title.translate="Resize Quarter">25%</BuilderButton>
-            <BuilderButton styleActionValue="'50%'" title.translate="Resize Half">50%</BuilderButton>
-            <BuilderButton styleActionValue="'100%'" title.translate="Resize Full">100%</BuilderButton>
-        </BuilderButtonGroup>
-    </BuilderRow>
-    <ImageFormatOption />
+    <ImageFilterOption level="1"/>
+    <ImageFormatOption level="1"/>
+    <t t-if="!this.state.isSocialMediaImg">
+        <t t-if="!this.state.isDynamicSVG">
+            <ImageShapeOption />
+        </t>
+        <BuilderRow label.translate="Description" t-if="!this.state.isImageBinaryField"
+            tooltip.translate="'Alt tag' specifies an alternate text for an image, if the image cannot be displayed (slow connection, missing image, screen reader ...).">
+            <BuilderTextInput
+                action="'alt'"
+                placeholder.translate="Alt tag"
+                />
+        </BuilderRow>
+        <BuilderRow label.translate="Tooltip" t-if="!this.state.isImageBinaryField"
+            tooltip.translate="'Title tag' is shown as a tooltip when you hover the picture.">
+            <BuilderTextInput
+                attributeAction="'title'"
+                placeholder.translate="Title tag" />
+        </BuilderRow>
+    </t>
 </t>
 
 <t t-name="html_builder.ImageAndFaOption">
     <BuilderRow label.translate="Alignment">
-        <BuilderSelect>
-            <BuilderSelectItem action="'imageAlignClassAction'" actionParam="''" title.translate="Unalign">None</BuilderSelectItem>
-            <BuilderSelectItem action="'imageAlignClassAction'" actionParam="'me-auto float-start'" title.translate="Align Left">Left</BuilderSelectItem>
-            <BuilderSelectItem action="'imageAlignClassAction'" actionParam="'mx-auto d-block'" title.translate="Align Center">Center</BuilderSelectItem>
-            <BuilderSelectItem action="'imageAlignClassAction'" actionParam="'ms-auto float-end'" title.translate="Align Right">Right</BuilderSelectItem>
+        <BuilderSelect action="'imageAlignClassAction'">
+            <BuilderSelectItem actionParam="''" title.translate="Unalign">None</BuilderSelectItem>
+            <BuilderSelectItem ltrRtlMapping="'left-right'" actionParam="'me-auto float-start'" title.translate="Align Left">Left</BuilderSelectItem>
+            <BuilderSelectItem actionParam="'mx-auto d-block'" title.translate="Align Center">Center</BuilderSelectItem>
+            <BuilderSelectItem ltrRtlMapping="'left-right'" actionParam="'ms-auto float-end'" title.translate="Align Right">Right</BuilderSelectItem>
         </BuilderSelect>
     </BuilderRow>
     <BuilderRow label.translate="Style">
-        <BuilderButton icon="'fa-square'" classAction="'rounded'" title.translate="Shape: Rounded"/>
-        <BuilderButton icon="'fa-circle-o'" classAction="'rounded-circle'" title.translate="Shape: Circle"/>
-        <BuilderButton icon="'fa-sun-o'" classAction="'shadow'" title.translate="Shadow"/>
-        <BuilderButton icon="'fa-picture-o'" classAction="'img-thumbnail'" title.translate="Shape: Thumbnail"/>
+        <BuilderButton icon="'square'" classAction="'rounded'" title.translate="Shape: Rounded"/>
+        <BuilderButton icon="'circle'" classAction="'rounded-circle'" title.translate="Shape: Circle"/>
+        <BuilderButton icon="'shadow'" classAction="'shadow'" title.translate="Shadow"/>
+        <BuilderButton icon="'image'" classAction="'img-thumbnail'" title.translate="Shape: Thumbnail"/>
     </BuilderRow>
 
     <BuilderRow label.translate="Padding">

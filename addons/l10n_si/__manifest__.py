@@ -11,13 +11,11 @@ Chart of accounts and taxes for Slovenia.
     """,
     'depends': [
         'account',
-        'base_vat',
         'account_edi_ubl_cii',
     ],
     'auto_install': ['account'],
     'data': [
         'data/res_country_data.xml',
-        'data/account_account_tag.xml',
         'data/account_tax_report_data.xml',
         'data/account_tax_report_ir_data.xml',
         'data/account_tax_report_pd_data.xml',

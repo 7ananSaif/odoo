@@ -10,11 +10,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2026-04-24 16:29+0000\n"
+"POT-Creation-Date: 2026-09-18 17:40+0000\n"
+"PO-Revision-Date: 2026-08-31 14:44+0000\n"
 "Last-Translator: \"Anastasiia Koroleva (koan)\" <koan@odoo.com>\n"
-"Language-Team: Russian <https://translate.odoo.com/projects/odoo-19/portal/"
-"ru/>\n"
+"Language-Team: Russian <https://translate.odoo.com/projects/odoo-s19-4/"
+"portal/ru/>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -22,7 +22,21 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
 "(n%100>=11 && n%100<=14)? 2 : 3);\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: portal
+#: model:ir.module.module,description:base.module_portal
+msgid ""
+"\n"
+"This module adds required base code for a fully integrated customer portal.\n"
+"It contains the base controller class and base templates. Business addons\n"
+"will add their specific templates and controllers to extend the customer\n"
+"portal.\n"
+"\n"
+"This module contains most code coming from odoo v10 website_portal. Purpose\n"
+"of this module is to allow the display of a customer portal without having\n"
+"a dependency towards website editing and customization capabilities."
+msgstr ""
 
 #. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.portal_my_security
@@ -31,9 +45,38 @@ msgstr "\", чтобы подтвердить свое действие."
 
 #. module: portal
 #. odoo-javascript
+#: code:addons/portal/static/src/xml/portal_security.xml:0
+msgid "\"Authorization\": f\"bearer {mcp_key}\","
+msgstr ""
+
+#. module: portal
+#. odoo-javascript
+#: code:addons/portal/static/src/xml/portal_security.xml:0
+msgid "\"Content-Type\": \"application/json\","
+msgstr ""
+
+#. module: portal
+#. odoo-javascript
+#: code:addons/portal/static/src/xml/portal_security.xml:0
+msgid "# Store the API key securely, not in the code."
+msgstr ""
+
+#. module: portal
+#. odoo-python
+#: code:addons/portal/wizard/portal_share.py:0
+msgid "%(model_name)s shared with %(partner_names)s"
+msgstr ""
+
+#. module: portal
+#. odoo-javascript
 #: code:addons/portal/static/src/interactions/sidebar.js:0
 msgid "%s days overdue"
 msgstr "%s дней просрочки"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_docs_entry
+msgid "'Icon for %s' % entry.name"
+msgstr ""
 
 #. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.portal_my_security
@@ -50,148 +93,101 @@ msgstr ""
 "                                        копирования своего логина ("
 
 #. module: portal
-#: model_terms:ir.ui.view,arch_db:portal.my_account_link
-msgid ""
-"<i class=\"fa fa-fw fa-id-card-o me-1 small text-primary-emphasis\"/> My "
-"Account"
-msgstr ""
-"<i class=\"fa fa-fw fa-id-card-o me-1 small text-primary-emphasis\"/> Моя "
-"учетная запись"
-
-#. module: portal
-#: model_terms:ir.ui.view,arch_db:portal.user_dropdown
-msgid ""
-"<i class=\"fa fa-fw fa-sign-out me-1 small text-primary-emphasis\"/> Logout"
-msgstr ""
-"<i class=\"fa fa-fw fa-sign-out me-1 small text-primary-emphasis\"/> Выход"
-
-#. module: portal
-#: model_terms:ir.ui.view,arch_db:portal.user_dropdown
-msgid "<i class=\"fa fa-fw fa-th me-1 small text-primary-emphasis\"/> Apps"
-msgstr ""
-"<i class=\"fa fa-fw fa-th me-1 small text-primary-emphasis\"/> Приложения"
-
-#. module: portal
-#: model_terms:ir.ui.view,arch_db:portal.side_content
-msgid "<i class=\"fa fa-pencil\"/> Edit information"
-msgstr "<i class=\"fa fa-pencil\"/> Редактировать информацию"
-
-#. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.address_footer
-msgid "<i class=\"fw-light fa fa-angle-left me-2\"/>Discard"
-msgstr "<i class=\"fw-light fa fa-angle-left me-2\"/>Отменить"
-
-#. module: portal
-#: model_terms:ir.ui.view,arch_db:portal.portal_back_in_edit_mode
-msgid "<i class=\"oi oi-arrow-right me-1\"/>Back to edit mode"
-msgstr "<i class=\"oi oi-arrow-right me-1\"/>Вернуться в режим редактирования"
-
-#. module: portal
-#: model_terms:ir.ui.view,arch_db:portal.record_pager
 msgid ""
-"<i class=\"oi oi-chevron-left\" role=\"img\" aria-label=\"Previous\" "
-"title=\"Previous\"/>"
+"<i class=\"fw-light oi me-2\" data-icon=\"keyboard_arrow_left\"/>Discard"
 msgstr ""
-"<i class=\"oi oi-chevron-left\" role=\"img\" aria-label=\"Предыдущий\" "
-"title=\"Предыдущий\"/>"
+"<i class=\"fw-light oi me-2\" data-icon=\"keyboard_arrow_left\"/>Отменить"
 
 #. module: portal
-#: model_terms:ir.ui.view,arch_db:portal.record_pager
+#: model_terms:ir.ui.view,arch_db:portal.portal_my_contact
 msgid ""
-"<i class=\"oi oi-chevron-right\" role=\"img\" aria-label=\"Next\" "
-"title=\"Next\"/>"
+"<i class=\"oi m-auto ms-auto me-3\" data-icon=\"mail\" role=\"img\" aria-"
+"label=\"Send Message\"/>"
 msgstr ""
-"<i class=\"oi oi-chevron-right\" role=\"img\" aria-label=\"Следующий\" "
-"title=\"Следующий\"/>"
 
 #. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.my_addresses
-msgid "<i class=\"oi oi-plus me-2\"/>Add Address"
-msgstr "<i class=\"oi oi-plus me-2\"/>Добавить адрес"
+msgid "<i class=\"oi me-1\" data-icon=\"add\"/>Add"
+msgstr ""
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_back_in_edit_mode
+msgid "<i class=\"oi me-1\" data-icon=\"east\"/>Back to edit mode"
+msgstr ""
+"<i class=\"oi me-1\" data-icon=\"east\"/>Вернуться в режим редактирования"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.side_content
+msgid "<i class=\"oi oi-filled\" data-icon=\"edit\"/> Edit information"
+msgstr ""
+"<i class=\"oi oi-filled\" data-icon=\"edit\"/> Редактировать информацию"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.my_account_link
+msgid ""
+"<i class=\"oi oi-fw me-1 small text-primary-emphasis\" data-icon=\"badge\"/> "
+"My Account"
+msgstr ""
+"<i class=\"oi oi-fw me-1 small text-primary-emphasis\" data-icon=\"badge\"/> "
+"Моя учетная запись"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.user_dropdown
+msgid ""
+"<i class=\"oi oi-fw me-1 small text-primary-emphasis\" data-"
+"icon=\"grid_view\"/> Apps"
+msgstr ""
+"<i class=\"oi oi-fw me-1 small text-primary-emphasis\" data-"
+"icon=\"grid_view\"/> Приложения"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.user_dropdown
+msgid ""
+"<i class=\"oi oi-fw small text-primary-emphasis\" data-icon=\"logout\"/> "
+"Logout"
+msgstr ""
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.record_pager
+msgid ""
+"<i class=\"oi\" data-icon=\"chevron_backward\" role=\"img\" aria-"
+"label=\"Previous\" title=\"Previous\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"chevron_backward\" role=\"img\" aria-"
+"label=\"Предыдущий\" title=\"Предыдущий\"/>"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.record_pager
+msgid ""
+"<i class=\"oi\" data-icon=\"chevron_forward\" role=\"img\" aria-"
+"label=\"Next\" title=\"Next\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"chevron_forward\" role=\"img\" aria-"
+"label=\"Следующий\" title=\"Следующий\"/>"
 
 #. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.portal_my_security
 msgid ""
-"<i title=\"Documentation\" class=\"fa fa-fw o_button_icon fa-info-circle\"/>"
+"<i title=\"Documentation\" class=\"oi oi-fw o_button_icon\" data-"
+"icon=\"info\"/>"
 msgstr ""
-"<i title=\"Документация\" class=\"fa fa-fw o_button_icon fa-info-circle\"/>"
-
-#. module: portal
-#: model_terms:ir.ui.view,arch_db:portal.address_form_fields
-msgid "<option value=\"\">Country...</option>"
-msgstr "<option value=\"\">Страна...</option>"
-
-#. module: portal
-#: model_terms:ir.ui.view,arch_db:portal.address_form_fields
-msgid "<option value=\"\">State / Province...</option>"
-msgstr "<option value=\"\">Штат / Провинция...</option>"
-
-#. module: portal
-#: model_terms:ir.ui.view,arch_db:portal.address_form_fields
-msgid ""
-"<small class=\"form-text text-muted\">\n"
-"                            Changing VAT number is not allowed once "
-"document(s) have\n"
-"                            been issued for your account. Please contact us "
-"directly for this\n"
-"                            operation.\n"
-"                        </small>"
-msgstr ""
-"<small class=\"form-text text-muted\">\n"
-"                            Изменение ИНН недоступно, так как по вашему "
-"аккаунту\n"
-"                            уже были выставлены документы. Пожалуйста, "
-"свяжитесь с нами напрямую для\n"
-"                            выполнения этой \n"
-"                        операции.\n"
-"</small>"
-
-#. module: portal
-#: model_terms:ir.ui.view,arch_db:portal.address_form_fields
-msgid ""
-"<small class=\"form-text text-muted\">\n"
-"                            The VAT number can only be updated on the "
-"company account.\n"
-"                        </small>"
-msgstr ""
-"<small class=\"form-text text-muted\">\n"
-"                            ИНН можно обновить только в профиле компании.\n"
-"                        </small>"
-
-#. module: portal
-#: model_terms:ir.ui.view,arch_db:portal.address_form_fields
-msgid ""
-"<small class=\"form-text text-muted\">\n"
-"                    Changing country is not allowed once document(s) have\n"
-"                    been issued for your account. Please contact us directly "
-"for this\n"
-"                    operation.\n"
-"                </small>"
-msgstr ""
-"<small class=\"form-text text-muted\">\n"
-"                    Изменение страны недоступно, так как по вашему аккаунту\n"
-"                    уже были выставлены документы. Пожалуйста, свяжитесь с "
-"нами напрямую для выполнения этой\n"
-"                    операции.\n"
-"                </small>"
+"<i title=\"Документация\" class=\"oi oi-fw o_button_icon\" data-"
+"icon=\"info\"/>"
 
 #. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.pager
 msgid ""
-"<span class=\"oi oi-chevron-left\" role=\"img\" aria-label=\"Previous\" "
-"title=\"Previous\"/>"
+"<span class=\"oi\" data-icon=\"chevron_backward\" role=\"img\" aria-"
+"label=\"Previous\" title=\"Previous\"/>"
 msgstr ""
-"<span class=\"oi oi-chevron-left\" role=\"img\" aria-label=\"Previous\" "
-"title=\"Назад\"/>"
 
 #. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.pager
 msgid ""
-"<span class=\"oi oi-chevron-right\" role=\"img\" aria-label=\"Next\" "
-"title=\"Next\"/>"
+"<span class=\"oi\" data-icon=\"chevron_forward\" role=\"img\" aria-"
+"label=\"Next\" title=\"Next\"/>"
 msgstr ""
-"<span class=\"oi oi-chevron-right\" role=\"img\" aria-label=\"Next\" "
-"title=\"Вперед\"/>"
 
 #. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.address_footer
@@ -212,6 +208,11 @@ msgstr "<span class=\"small me-1 navbar-text\">Группа по:</span>"
 #: model_terms:ir.ui.view,arch_db:portal.portal_searchbar
 msgid "<span class=\"small me-1 navbar-text\">Sort By:</span>"
 msgstr "<span class=\"small me-1 navbar-text\">Сортировать по:</span>"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_my_contact
+msgid "<span class=\"small text-muted\">Your Contact</span>"
+msgstr ""
 
 #. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.portal_share_template
@@ -240,6 +241,12 @@ msgstr "Принять и подписать"
 #: model:ir.model.fields,field_description:portal.field_portal_share__access_warning
 msgid "Access warning"
 msgstr "Предупреждение о доступе"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_breadcrumbs
+#: model_terms:ir.ui.view,arch_db:portal.portal_my_details
+msgid "Account Details"
+msgstr ""
 
 #. module: portal
 #. odoo-python
@@ -274,7 +281,7 @@ msgid "Add extra content to display in the email"
 msgstr "Добавить дополнительный контент для отображения в письме"
 
 #. module: portal
-#: model_terms:ir.ui.view,arch_db:portal.portal_my_home
+#: model:portal.entry,description:portal.portal_entry_addresses
 msgid "Add, remove or modify your addresses"
 msgstr "Добавляйте, удаляйте или изменяйте свои адреса"
 
@@ -289,8 +296,8 @@ msgid "Address Management"
 msgstr "Управление адресами"
 
 #. module: portal
+#: model:portal.entry,name:portal.portal_entry_addresses
 #: model_terms:ir.ui.view,arch_db:portal.portal_breadcrumbs
-#: model_terms:ir.ui.view,arch_db:portal.portal_my_home
 msgid "Addresses"
 msgstr "Адреса"
 
@@ -298,6 +305,18 @@ msgstr "Адреса"
 #: model:ir.model.fields.selection,name:portal.selection__portal_wizard_user__email_state__exist
 msgid "Already Registered"
 msgstr "Уже зарегистрирован"
+
+#. module: portal
+#. odoo-python
+#: code:addons/portal/wizard/portal_share.py:0
+msgid "An email invitation has been sent to the selected users."
+msgstr ""
+
+#. module: portal
+#. odoo-javascript
+#: code:addons/portal/static/src/interactions/portal_profile_editor.js:0
+msgid "An error occurred while saving your profile."
+msgstr ""
 
 #. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.address_form_fields
@@ -322,15 +341,18 @@ msgstr "Адреса для счетов"
 
 #. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.address_management
-#: model_terms:ir.ui.view,arch_db:portal.my_addresses
 msgid "Billing address"
 msgstr "Платежный адрес"
 
 #. module: portal
-#: model_terms:ir.ui.view,arch_db:portal.portal_my_security
-#: model_terms:ir.ui.view,arch_db:portal.portal_share_wizard
-msgid "Cancel"
-msgstr "Отменить"
+#: model_terms:ir.ui.view,arch_db:portal.my_addresses
+msgid "Billing addresses"
+msgstr ""
+
+#. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_entry__category
+msgid "Category"
+msgstr ""
 
 #. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.portal_my_security
@@ -341,11 +363,17 @@ msgstr "Изменить пароль"
 #. odoo-python
 #: code:addons/portal/controllers/portal.py:0
 msgid ""
-"Changing VAT number is not allowed once document(s) have been issued for "
-"your account. Please contact us directly for this operation."
+"Changing %(field_description)s is not allowed once document(s) have been "
+"issued for your account. Please contact us directly for this operation."
 msgstr ""
-"Не допускается изменение номера НДС после оформления документов для вашей "
-"учетной записи. Пожалуйста, свяжитесь с нами."
+
+#. module: portal
+#. odoo-python
+#: code:addons/portal/controllers/portal.py:0
+msgid ""
+"Changing country is not allowed once document(s) have been issued for your "
+"account. Please contact us directly for this operation."
+msgstr ""
 
 #. module: portal
 #. odoo-python
@@ -370,6 +398,11 @@ msgid "City"
 msgstr "Город"
 
 #. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.address_form_fields
+msgid "City..."
+msgstr ""
+
+#. module: portal
 #. odoo-javascript
 #: code:addons/portal/static/src/signature_form/signature_form.xml:0
 msgid "Click here to see your document."
@@ -385,9 +418,19 @@ msgid "Close"
 msgstr "Закрыть"
 
 #. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.message_thread
+msgid "Communication History"
+msgstr ""
+
+#. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.address_form_fields
-msgid "Company Name"
-msgstr "Название компании"
+msgid "Company"
+msgstr ""
+
+#. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_entry__is_config_card
+msgid "Config Card"
+msgstr ""
 
 #. module: portal
 #: model:ir.model,name:portal.model_res_config_settings
@@ -395,15 +438,9 @@ msgid "Config Settings"
 msgstr "Настройки конфигурации"
 
 #. module: portal
-#: model_terms:ir.ui.view,arch_db:portal.portal_my_home
+#: model:portal.entry,description:portal.portal_entry_base
 msgid "Configure your connection parameters"
 msgstr "Настройте параметры подключения"
-
-#. module: portal
-#. odoo-javascript
-#: code:addons/portal/static/src/interactions/portal_security.js:0
-msgid "Confirm"
-msgstr "Подтвердить"
 
 #. module: portal
 #. odoo-javascript
@@ -412,7 +449,11 @@ msgid "Confirm Password"
 msgstr "Подтвердить пароль"
 
 #. module: portal
-#: model_terms:ir.ui.view,arch_db:portal.portal_my_home
+#: model:portal.entry,name:portal.portal_entry_base
+msgid "Connection & Security"
+msgstr ""
+
+#. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.portal_my_security
 msgid "Connection &amp; Security"
 msgstr "Соединение &amp; Безопасность"
@@ -427,14 +468,15 @@ msgid "Contact"
 msgstr "Контакт"
 
 #. module: portal
-#: model_terms:ir.ui.view,arch_db:portal.portal_my_details
-msgid "Contact Details"
-msgstr "Контактные данные"
-
-#. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.wizard_view
 msgid "Contacts"
 msgstr "Контакты"
+
+#. module: portal
+#. odoo-javascript
+#: code:addons/portal/static/src/interactions/portal_security.js:0
+msgid "Copied to clipboard"
+msgstr ""
 
 #. module: portal
 #. odoo-javascript
@@ -443,9 +485,21 @@ msgid "Could not save file %s"
 msgstr "Не удалось сохранить файл %s"
 
 #. module: portal
+#: model:ir.model,name:portal.model_res_country
 #: model_terms:ir.ui.view,arch_db:portal.address_form_fields
 msgid "Country"
 msgstr "Страна"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.address_form_fields
+msgid "Country..."
+msgstr ""
+
+#. module: portal
+#. odoo-javascript
+#: code:addons/portal/static/src/interactions/portal_security.js:0
+msgid "Create Key"
+msgstr ""
 
 #. module: portal
 #: model:ir.model,website_form_label:portal.model_res_partner
@@ -453,6 +507,7 @@ msgid "Create a Customer"
 msgstr "Создать клиента"
 
 #. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_entry__create_uid
 #: model:ir.model.fields,field_description:portal.field_portal_share__create_uid
 #: model:ir.model.fields,field_description:portal.field_portal_wizard__create_uid
 #: model:ir.model.fields,field_description:portal.field_portal_wizard_user__create_uid
@@ -460,6 +515,7 @@ msgid "Created by"
 msgstr "Создано:"
 
 #. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_entry__create_date
 #: model:ir.model.fields,field_description:portal.field_portal_share__create_date
 #: model:ir.model.fields,field_description:portal.field_portal_wizard__create_date
 #: model:ir.model.fields,field_description:portal.field_portal_wizard_user__create_date
@@ -470,6 +526,12 @@ msgstr "Дата создания:"
 #: model:ir.model.fields,field_description:portal.field_res_config_settings__portal_allow_api_keys
 msgid "Customer API Keys"
 msgstr "Ключи API клиента"
+
+#. module: portal
+#: model:ir.module.module,shortdesc:base.module_portal
+#: model:ir.module.module,summary:base.module_portal
+msgid "Customer Portal"
+msgstr ""
 
 #. module: portal
 #: model:ir.model.fields,help:portal.field_portal_mixin__access_url
@@ -504,14 +566,23 @@ msgstr "Адрес доставки"
 
 #. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.address_management
-#: model_terms:ir.ui.view,arch_db:portal.my_addresses
 msgid "Delivery address"
 msgstr "Адрес доставки"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.my_addresses
+msgid "Delivery addresses"
+msgstr ""
 
 #. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.portal_my_security
 msgid "Description"
 msgstr "Описание"
+
+#. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_entry__description
+msgid "Description of Card"
+msgstr ""
 
 #. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.portal_breadcrumbs
@@ -528,17 +599,22 @@ msgstr "Ключи API разработчика"
 msgid ""
 "Disable your account, preventing any further login.<br/>\n"
 "                                        <b>\n"
-"                                            <i class=\"fa fa-exclamation-"
-"triangle text-danger\"/>\n"
+"                                            <i class=\"oi text-danger\" data-"
+"icon=\"warning\"/>\n"
 "                                            This action cannot be undone.\n"
 "                                        </b>"
 msgstr ""
 "Отключите свою учетную запись, чтобы предотвратить дальнейший вход.<br/>\n"
 "                                        <b>\n"
-"                                            <i class=\"fa fa-exclamation-"
-"triangle text-danger\"/>\n"
+"                                            <i class=\"oi text-danger\" data-"
+"icon=\"warning\"/>\n"
 "                                            Это действие нельзя отменить.\n"
 "                                        </b>"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_my_security
+msgid "Discard"
+msgstr ""
 
 #. module: portal
 #: model:ir.model.fields,field_description:portal.field_ir_http__display_name
@@ -546,11 +622,13 @@ msgstr ""
 #: model:ir.model.fields,field_description:portal.field_ir_ui_view__display_name
 #: model:ir.model.fields,field_description:portal.field_mail_message__display_name
 #: model:ir.model.fields,field_description:portal.field_mail_thread__display_name
+#: model:ir.model.fields,field_description:portal.field_portal_entry__display_name
 #: model:ir.model.fields,field_description:portal.field_portal_mixin__display_name
 #: model:ir.model.fields,field_description:portal.field_portal_share__display_name
 #: model:ir.model.fields,field_description:portal.field_portal_wizard__display_name
 #: model:ir.model.fields,field_description:portal.field_portal_wizard_user__display_name
 #: model:ir.model.fields,field_description:portal.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:portal.field_res_country__display_name
 #: model:ir.model.fields,field_description:portal.field_res_partner__display_name
 #: model:ir.model.fields,field_description:portal.field_res_users_apikeys_description__display_name
 msgid "Display Name"
@@ -590,12 +668,6 @@ msgid "Email Thread"
 msgstr "Цепочка email"
 
 #. module: portal
-#. odoo-javascript
-#: code:addons/portal/static/src/xml/portal_security.xml:0
-msgid "Enter a description of and purpose for the key."
-msgstr "Введите описание и назначение ключа."
-
-#. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.portal_my_security
 msgid "Expiration Date"
 msgstr "Дата истечения срока"
@@ -603,14 +675,14 @@ msgstr "Дата истечения срока"
 #. module: portal
 #. odoo-javascript
 #: code:addons/portal/static/src/xml/portal_security.xml:0
-msgid "Forgot password?"
-msgstr "Забыли пароль?"
+msgid "Expires"
+msgstr ""
 
 #. module: portal
 #. odoo-javascript
 #: code:addons/portal/static/src/xml/portal_security.xml:0
-msgid "Give a duration for the key's validity"
-msgstr "Укажите срок действия ключа"
+msgid "Forgot password?"
+msgstr "Забыли пароль?"
 
 #. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.portal_my_security
@@ -639,16 +711,6 @@ msgid "HTTP Routing"
 msgstr "Маршрутизация HTTP"
 
 #. module: portal
-#. odoo-javascript
-#: code:addons/portal/static/src/xml/portal_security.xml:0
-msgid ""
-"Here is your new API key, use it instead of a password for RPC access.\n"
-"                Your login is still necessary for interactive usage."
-msgstr ""
-"Вот ваш новый ключ API, используйте его вместо пароля для доступа к RPC.\n"
-"                Ваш логин все еще необходим для интерактивного использования."
-
-#. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.portal_breadcrumbs
 msgid "Home"
 msgstr "Главная"
@@ -659,11 +721,13 @@ msgstr "Главная"
 #: model:ir.model.fields,field_description:portal.field_ir_ui_view__id
 #: model:ir.model.fields,field_description:portal.field_mail_message__id
 #: model:ir.model.fields,field_description:portal.field_mail_thread__id
+#: model:ir.model.fields,field_description:portal.field_portal_entry__id
 #: model:ir.model.fields,field_description:portal.field_portal_mixin__id
 #: model:ir.model.fields,field_description:portal.field_portal_share__id
 #: model:ir.model.fields,field_description:portal.field_portal_wizard__id
 #: model:ir.model.fields,field_description:portal.field_portal_wizard_user__id
 #: model:ir.model.fields,field_description:portal.field_res_config_settings__id
+#: model:ir.model.fields,field_description:portal.field_res_country__id
 #: model:ir.model.fields,field_description:portal.field_res_partner__id
 #: model:ir.model.fields,field_description:portal.field_res_users_apikeys_description__id
 msgid "ID"
@@ -684,13 +748,12 @@ msgstr ""
 #. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.address_form_fields
 msgid "If you want to modify it, update"
-msgstr "Если вы хотите изменить это, обновите"
+msgstr ""
 
 #. module: portal
-#. odoo-javascript
-#: code:addons/portal/static/src/xml/portal_security.xml:0
-msgid "Important:"
-msgstr "Важно:"
+#: model:ir.model.fields,field_description:portal.field_portal_entry__image
+msgid "Image"
+msgstr ""
 
 #. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.wizard_view
@@ -744,14 +807,11 @@ msgstr "Портал"
 #. module: portal
 #. odoo-javascript
 #: code:addons/portal/static/src/xml/portal_security.xml:0
-msgid ""
-"It is very important that this description be clear\n"
-"                and complete,"
+msgid "Key Name — your only way to identify that key"
 msgstr ""
-"Очень важно, чтобы это описание было четким\n"
-"                и полным,"
 
 #. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_entry__write_uid
 #: model:ir.model.fields,field_description:portal.field_portal_share__write_uid
 #: model:ir.model.fields,field_description:portal.field_portal_wizard__write_uid
 #: model:ir.model.fields,field_description:portal.field_portal_wizard_user__write_uid
@@ -759,6 +819,7 @@ msgid "Last Updated by"
 msgstr "Последнее обновление:"
 
 #. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_entry__write_date
 #: model:ir.model.fields,field_description:portal.field_portal_share__write_date
 #: model:ir.model.fields,field_description:portal.field_portal_wizard__write_date
 #: model:ir.model.fields,field_description:portal.field_portal_wizard_user__write_date
@@ -823,10 +884,9 @@ msgid "My addresses"
 msgstr "Мои адреса"
 
 #. module: portal
-#. odoo-javascript
-#: code:addons/portal/static/src/xml/portal_security.xml:0
-msgid "Name your key"
-msgstr "Назовите свой ключ"
+#: model_terms:ir.ui.view,arch_db:portal.address_form_fields
+msgid "Name"
+msgstr ""
 
 #. module: portal
 #. odoo-javascript
@@ -867,7 +927,6 @@ msgstr "Только внутренние и портальные пользов
 #: code:addons/portal/static/src/xml/portal_chatter.xml:0
 msgid "Oops! Something went wrong. Try to reload the page and log in."
 msgstr ""
-"Ой! Что-то пошло не так. Попробуйте перезагрузить страницу и войти снова."
 
 #. module: portal
 #: model:ir.model.fields,field_description:portal.field_portal_wizard__partner_ids
@@ -895,6 +954,11 @@ msgid "Phone"
 msgstr "Телефон"
 
 #. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_entry__placeholder_count
+msgid "Placeholder Count"
+msgstr ""
+
+#. module: portal
 #. odoo-javascript
 #: code:addons/portal/static/src/xml/portal_security.xml:0
 msgid "Please enter your password to confirm you own this account"
@@ -912,6 +976,11 @@ msgstr "Управление доступом к порталу"
 #: model:ir.model.fields,field_description:portal.field_portal_mixin__access_url
 msgid "Portal Access URL"
 msgstr "URL доступа к порталу"
+
+#. module: portal
+#: model:ir.model,name:portal.model_portal_entry
+msgid "Portal Entry"
+msgstr ""
 
 #. module: portal
 #: model:ir.model,name:portal.model_portal_mixin
@@ -1002,6 +1071,8 @@ msgid "Save Address"
 msgstr "Сохранить адрес"
 
 #. module: portal
+#. odoo-javascript
+#: code:addons/portal/static/src/xml/portal_security.xml:0
 #: model_terms:ir.ui.view,arch_db:portal.portal_my_security
 msgid "Scope"
 msgstr "Область действия"
@@ -1050,20 +1121,26 @@ msgid "Send"
 msgstr "Отправить"
 
 #. module: portal
-#: model_terms:ir.ui.view,arch_db:portal.portal_my_contact
-msgid "Send message"
-msgstr "Отправить сообщение"
-
-#. module: portal
 #: model:ir.actions.act_window,name:portal.portal_share_action
 #: model_terms:ir.ui.view,arch_db:portal.portal_share_wizard
 msgid "Share Document"
 msgstr "Поделиться документом"
 
 #. module: portal
+#. odoo-python
+#: code:addons/portal/wizard/portal_share.py:0
+msgid "Shared successfully"
+msgstr ""
+
+#. module: portal
 #: model:ir.model.fields,field_description:portal.field_ir_ui_view__customize_show
 msgid "Show As Optional Inherit"
 msgstr "Показать как необязательное наследование"
+
+#. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_entry__show_in_portal
+msgid "Show in Portal"
+msgstr ""
 
 #. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.user_sign_in
@@ -1097,6 +1174,11 @@ msgid "State / Province"
 msgstr "Штат / Провинция"
 
 #. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.address_form_fields
+msgid "State / Province..."
+msgstr ""
+
+#. module: portal
 #: model:ir.model.fields,field_description:portal.field_portal_wizard_user__email_state
 msgid "Status"
 msgstr "Статус"
@@ -1107,6 +1189,11 @@ msgid "Street and Number"
 msgstr "Улица и номер"
 
 #. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_entry__url
+msgid "Target URL"
+msgstr ""
+
+#. module: portal
 #. odoo-javascript
 #: code:addons/portal/static/src/signature_form/signature_form.xml:0
 msgid "Thank You!"
@@ -1115,15 +1202,14 @@ msgstr "Спасибо!"
 #. module: portal
 #. odoo-python
 #: code:addons/portal/controllers/portal.py:0
-msgid "The %(field_name)s is managed on your company account."
-msgstr "Поле %(field_name)s управляется через учетную запись вашей компании."
+msgid "The %(field_description)s is managed on your company account."
+msgstr ""
 
 #. module: portal
 #. odoo-python
 #: code:addons/portal/controllers/portal.py:0
-msgid "The %(field_name)s is managed on your main account address."
+msgid "The %(field_description)s is managed on your main account address."
 msgstr ""
-"Поле %(field_name)s управляется через основной адрес вашей учетной записи."
 
 #. module: portal
 #. odoo-python
@@ -1147,7 +1233,14 @@ msgid ""
 msgstr "Вложение не существует или у вас нет прав доступа к нему."
 
 #. module: portal
-#: model_terms:ir.ui.view,arch_db:portal.address_form_fields
+#. odoo-python
+#: code:addons/portal/controllers/portal.py:0
+msgid "The company billing details can only be updated on the company account."
+msgstr ""
+
+#. module: portal
+#. odoo-python
+#: code:addons/portal/controllers/portal.py:0
 msgid ""
 "The company name and VAT number can only be updated on your main account."
 msgstr ""
@@ -1165,18 +1258,6 @@ msgstr "У контакта \"%s\" отсутствует действитель
 #: code:addons/portal/wizard/portal_wizard.py:0
 msgid "The contact \"%s\" has the same email as an existing user"
 msgstr "У контакта \"%s\" тот же email, что и у существующего пользователя"
-
-#. module: portal
-#. odoo-javascript
-#: code:addons/portal/static/src/xml/portal_security.xml:0
-msgid "The key cannot be retrieved later and provides"
-msgstr "Ключ нельзя будет восстановить позже, и он предоставляет"
-
-#. module: portal
-#. odoo-javascript
-#: code:addons/portal/static/src/xml/portal_security.xml:0
-msgid "The key will be deleted once this period has elapsed."
-msgstr "Ключ будет удален после истечения этого срока."
 
 #. module: portal
 #. odoo-python
@@ -1225,6 +1306,14 @@ msgid "This is a preview of the customer portal."
 msgstr "Это предварительный просмотр портала клиента."
 
 #. module: portal
+#. odoo-javascript
+#: code:addons/portal/static/src/xml/portal_security.xml:0
+msgid ""
+"This key won't be shown again. Please copy it and store it securely. Treat "
+"it like a password, it grants full access to your account."
+msgstr ""
+
+#. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.wizard_view
 msgid ""
 "This partner is linked to an internal User and already has access to the "
@@ -1246,9 +1335,28 @@ msgstr ""
 "Этот текст включается в письмо, отправляемое новым пользователям портала."
 
 #. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_entry__name
+msgid "Title of Card"
+msgstr ""
+
+#. module: portal
+#. odoo-javascript
+#: code:addons/portal/static/src/xml/portal_security.xml:0
+msgid "To login, use the following parameters (Python):"
+msgstr ""
+
+#. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.portal_searchbar
 msgid "Toggle filters"
 msgstr "Переключить фильтры"
+
+#. module: portal
+#. odoo-python
+#: code:addons/portal/controllers/portal.py:0
+msgid ""
+"Updating VAT number is not allowed once document(s) have been issued for "
+"your account. Please contact us directly for this operation."
+msgstr ""
 
 #. module: portal
 #: model:ir.model.fields,field_description:portal.field_portal_wizard_user__user_id
@@ -1268,7 +1376,7 @@ msgstr "Пользователи"
 
 #. module: portal
 #. odoo-python
-#: code:addons/portal/controllers/portal.py:0
+#: code:addons/portal/models/res_country.py:0
 msgid "VAT"
 msgstr "НДС"
 
@@ -1293,88 +1401,6 @@ msgid "View"
 msgstr "Вид"
 
 #. module: portal
-#: model:ir.model.fields,field_description:portal.field_account_analytic_account__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_calendar_event__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_crm_team__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_crm_team_member__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_discuss_channel__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_fleet_vehicle__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_fleet_vehicle_log_contract__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_fleet_vehicle_log_services__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_fleet_vehicle_model__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_gamification_badge__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_gamification_badge_user__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_gamification_challenge__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_iap_account__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_ir_actions_server__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_ir_cron__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_lunch_supplier__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_mail_blacklist__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_mail_thread__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_mail_thread_blacklist__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_mail_thread_cc__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_mail_thread_main_attachment__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_mail_thread_phone__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_mail_tracking_duration_mixin__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_maintenance_equipment__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_maintenance_request__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_maintenance_team__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_phone_blacklist__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_product_category__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_product_pricelist__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_product_product__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_product_template__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_rating_mixin__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_res_partner__website_message_ids
-#: model:ir.model.fields,field_description:portal.field_res_users__website_message_ids
-msgid "Website Messages"
-msgstr "Сообщения с сайта"
-
-#. module: portal
-#: model:ir.model.fields,help:portal.field_account_analytic_account__website_message_ids
-#: model:ir.model.fields,help:portal.field_calendar_event__website_message_ids
-#: model:ir.model.fields,help:portal.field_crm_team__website_message_ids
-#: model:ir.model.fields,help:portal.field_crm_team_member__website_message_ids
-#: model:ir.model.fields,help:portal.field_discuss_channel__website_message_ids
-#: model:ir.model.fields,help:portal.field_fleet_vehicle__website_message_ids
-#: model:ir.model.fields,help:portal.field_fleet_vehicle_log_contract__website_message_ids
-#: model:ir.model.fields,help:portal.field_fleet_vehicle_log_services__website_message_ids
-#: model:ir.model.fields,help:portal.field_fleet_vehicle_model__website_message_ids
-#: model:ir.model.fields,help:portal.field_gamification_badge__website_message_ids
-#: model:ir.model.fields,help:portal.field_gamification_badge_user__website_message_ids
-#: model:ir.model.fields,help:portal.field_gamification_challenge__website_message_ids
-#: model:ir.model.fields,help:portal.field_iap_account__website_message_ids
-#: model:ir.model.fields,help:portal.field_ir_actions_server__website_message_ids
-#: model:ir.model.fields,help:portal.field_ir_cron__website_message_ids
-#: model:ir.model.fields,help:portal.field_lunch_supplier__website_message_ids
-#: model:ir.model.fields,help:portal.field_mail_blacklist__website_message_ids
-#: model:ir.model.fields,help:portal.field_mail_thread__website_message_ids
-#: model:ir.model.fields,help:portal.field_mail_thread_blacklist__website_message_ids
-#: model:ir.model.fields,help:portal.field_mail_thread_cc__website_message_ids
-#: model:ir.model.fields,help:portal.field_mail_thread_main_attachment__website_message_ids
-#: model:ir.model.fields,help:portal.field_mail_thread_phone__website_message_ids
-#: model:ir.model.fields,help:portal.field_mail_tracking_duration_mixin__website_message_ids
-#: model:ir.model.fields,help:portal.field_maintenance_equipment__website_message_ids
-#: model:ir.model.fields,help:portal.field_maintenance_request__website_message_ids
-#: model:ir.model.fields,help:portal.field_maintenance_team__website_message_ids
-#: model:ir.model.fields,help:portal.field_phone_blacklist__website_message_ids
-#: model:ir.model.fields,help:portal.field_product_category__website_message_ids
-#: model:ir.model.fields,help:portal.field_product_pricelist__website_message_ids
-#: model:ir.model.fields,help:portal.field_product_product__website_message_ids
-#: model:ir.model.fields,help:portal.field_product_template__website_message_ids
-#: model:ir.model.fields,help:portal.field_rating_mixin__website_message_ids
-#: model:ir.model.fields,help:portal.field_res_partner__website_message_ids
-#: model:ir.model.fields,help:portal.field_res_users__website_message_ids
-msgid "Website communication history"
-msgstr "История общений с сайта"
-
-#. module: portal
-#. odoo-javascript
-#: code:addons/portal/static/src/xml/portal_security.xml:0
-msgid "What's this key for?"
-msgstr "Для чего этот ключ?"
-
-#. module: portal
 #: model:ir.model.fields,field_description:portal.field_portal_wizard_user__wizard_id
 msgid "Wizard"
 msgstr "Мастер"
@@ -1387,7 +1413,7 @@ msgstr "Напишите сообщение..."
 
 #. module: portal
 #. odoo-javascript
-#: code:addons/portal/static/src/chatter/core/composer_patch.js:0
+#: code:addons/portal/static/src/chatter/portal/composer_patch.js:0
 msgid "Write a message…"
 msgstr "Напишите сообщение…"
 
@@ -1411,6 +1437,12 @@ msgstr "Вы не можете архивировать свой основно�
 #. module: portal
 #. odoo-python
 #: code:addons/portal/controllers/portal.py:0
+msgid "You cannot edit another user's profile."
+msgstr ""
+
+#. module: portal
+#. odoo-python
+#: code:addons/portal/controllers/portal.py:0
 msgid "You cannot leave any password empty."
 msgstr "Вы не можете оставить пароль пустым."
 
@@ -1418,7 +1450,7 @@ msgstr "Вы не можете оставить пароль пустым."
 #. odoo-javascript
 #: code:addons/portal/static/src/xml/portal_chatter.xml:0
 msgid "You must be"
-msgstr "Вы должны быть"
+msgstr ""
 
 #. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.portal_my_security
@@ -1432,14 +1464,15 @@ msgid "You should first grant the portal access to the partner \"%s\"."
 msgstr "Сначала необходимо предоставить доступ к порталу партнеру \"%s\"."
 
 #. module: portal
+#. odoo-python
+#: code:addons/portal/wizard/portal_wizard.py:0
+msgid "Your Account"
+msgstr ""
+
+#. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.portal_contact
 msgid "Your contact"
 msgstr "Ваш контакт"
-
-#. module: portal
-#: model_terms:ir.ui.view,arch_db:portal.address_form_fields
-msgid "Your name"
-msgstr "Ваше имя"
 
 #. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.address_form_fields
@@ -1449,8 +1482,8 @@ msgstr "Почтовый индекс"
 #. module: portal
 #. odoo-javascript
 #: code:addons/portal/static/src/xml/portal_security.xml:0
-msgid "full access"
-msgstr "полный доступ"
+msgid "e.g. \"Odoo MCP\""
+msgstr ""
 
 #. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.portal_share_template
@@ -1460,12 +1493,14 @@ msgstr "приглашает вас получить доступ к следу�
 #. module: portal
 #. odoo-javascript
 #: code:addons/portal/static/src/xml/portal_security.xml:0
-msgid ""
-"it will be the only way to\n"
-"                identify the key once created"
+msgid "headers = {"
 msgstr ""
-"это будет единственным способом\n"
-"                идентифицировать ключ после его создания"
+
+#. module: portal
+#. odoo-javascript
+#: code:addons/portal/static/src/xml/portal_security.xml:0
+msgid "import requests"
+msgstr ""
 
 #. module: portal
 #. odoo-javascript
@@ -1474,416 +1509,85 @@ msgid "logged in"
 msgstr "войти"
 
 #. module: portal
+#. odoo-javascript
+#: code:addons/portal/static/src/xml/portal_security.xml:0
+msgid "mcp_key = os.environ[\"ODOO_MCP_KEY\"]"
+msgstr ""
+
+#. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.portal_record_sidebar
 msgid "odoo"
 msgstr "odoo"
 
 #. module: portal
-#: model_terms:ir.ui.view,arch_db:portal.portal_my_security
-msgid "password"
-msgstr "пароль"
+#: model:ir.model.fields,field_description:portal.field_portal_entry__sequence
+msgid "sequence"
+msgstr ""
 
 #. module: portal
 #. odoo-javascript
 #: code:addons/portal/static/src/xml/portal_chatter.xml:0
 msgid "to post a comment."
-msgstr "опубликовать комментарий."
+msgstr ""
 
 #. module: portal
 #. odoo-javascript
 #: code:addons/portal/static/src/xml/portal_security.xml:0
-msgid "to your user account, it is very important to store it securely."
-msgstr "к вашей учетной записи, очень важно хранить его в безопасности."
+msgid "url = \""
+msgstr ""
 
 #. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.address_form_fields
 msgid "your account details"
 msgstr "данные вашей учетной записи"
 
+#~ msgid "Confirm"
+#~ msgstr "Подтвердить"
+
+#~ msgid "Enter a description of and purpose for the key."
+#~ msgstr "Введите описание и назначение ключа."
+
+#~ msgid "Important:"
+#~ msgstr "Важно:"
+
+#~ msgid "Name your key"
+#~ msgstr "Назовите свой ключ"
+
+#~ msgid "What's this key for?"
+#~ msgstr "Для чего этот ключ?"
+
+#~ msgid "full access"
+#~ msgstr "полный доступ"
+
 #~ msgid ""
-#~ "<i class=\"fa fa-fw fa-id-card-o me-1 small text-primary\"/> My Account"
+#~ "it will be the only way to\n"
+#~ "                identify the key once created"
 #~ msgstr ""
-#~ "<i class=\"fa fa-fw fa-id-card-o me-1 small text-primary\"/> Мой счет"
-
-#~ msgid "<i class=\"fa fa-fw fa-sign-out me-1 small text-primary\"/> Logout"
-#~ msgstr ""
-#~ "<i class=\"fa fa-fw fa-sign-out me-1 small text-primary\"/> Выход из "
-#~ "системы"
-
-#~ msgid "<i class=\"fa fa-fw fa-th me-1 small text-primary\"/> Apps"
-#~ msgstr "<i class=\"fa fa-fw fa-th me-1 small text-primary\"/> Приложения"
-
-#~ msgid "<option value=\"\">select...</option>"
-#~ msgstr "<option value=\"\">выберите...</option>"
+#~ "это будет единственным способом\n"
+#~ "                идентифицировать ключ после его создания"
 
 #~ msgid ""
 #~ "<small class=\"form-text text-muted\">\n"
-#~ "                Company name, VAT Number and country can not be changed "
-#~ "once document(s) have been issued for your account.\n"
-#~ "                <br/>Please contact us directly for that operation.\n"
-#~ "            </small>"
+#~ "                    Changing country is not allowed once document(s) "
+#~ "have\n"
+#~ "                    been issued for your account. Please contact us "
+#~ "directly for this\n"
+#~ "                    operation.\n"
+#~ "                </small>"
 #~ msgstr ""
 #~ "<small class=\"form-text text-muted\">\n"
-#~ "                Название компании, номер НДС и страна не могут быть "
-#~ "изменены после выдачи документа(ов) для вашего счета.\n"
-#~ "               <br/>Пожалуйста, свяжитесь с нами напрямую для этой "
-#~ "операции.\n"
-#~ "            </small>"
+#~ "                    Изменение страны недоступно, так как по вашему "
+#~ "аккаунту\n"
+#~ "                    уже были выставлены документы. Пожалуйста, свяжитесь "
+#~ "с нами напрямую для выполнения этой\n"
+#~ "                    операции.\n"
+#~ "                </small>"
 
-#~ msgid ""
-#~ "<span class=\"fa fa-chevron-left\" role=\"img\" aria-label=\"Previous\" "
-#~ "title=\"Previous\"/>"
-#~ msgstr ""
-#~ "<span class=\"fa fa-chevron-left\" role=\"img\" aria-label=\"Previous\" "
-#~ "title=\"Previous\"/>"
+#~ msgid "Company Name"
+#~ msgstr "Название компании"
 
-#~ msgid ""
-#~ "<span class=\"fa fa-chevron-right\" role=\"img\" aria-label=\"Next\" "
-#~ "title=\"Next\"/>"
-#~ msgstr ""
-#~ "<span class=\"fa fa-chevron-right\" role=\"img\" aria-label=\"Next\" "
-#~ "title=\"Next\"/>"
+#~ msgid "Contact Details"
+#~ msgstr "Контактные данные"
 
-#~ msgid ""
-#~ "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"padding-"
-#~ "top: 16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-"
-#~ "serif; color: #454748; width: 100%; border-collapse:separate;\"><tr><td "
-#~ "align=\"center\">\n"
-#~ "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" "
-#~ "style=\"padding: 16px; background-color: white; color: #454748; border-"
-#~ "collapse:separate;\">\n"
-#~ "<tbody>\n"
-#~ "    <!-- HEADER -->\n"
-#~ "    <tr>\n"
-#~ "        <td align=\"center\" style=\"min-width: 590px;\">\n"
-#~ "            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" "
-#~ "width=\"590\" style=\"min-width: 590px; background-color: white; padding: "
-#~ "0px 8px 0px 8px; border-collapse:separate;\">\n"
-#~ "                <tr><td valign=\"middle\">\n"
-#~ "                    <span style=\"font-size: 10px;\">Your Account</"
-#~ "span><br>\n"
-#~ "                    <span style=\"font-size: 20px; font-weight: bold;\" t-"
-#~ "out=\"object.user_id.name or ''\">Marc Demo</span>\n"
-#~ "                </td><td valign=\"middle\" align=\"right\" t-if=\"not "
-#~ "object.user_id.company_id.uses_default_logo\">\n"
-#~ "                    <img t-attf-src=\"/logo.png?"
-#~ "company={{ object.user_id.company_id.id }}\" style=\"padding: 0px; "
-#~ "margin: 0px; height: auto; width: 80px;\" t-att-"
-#~ "alt=\"object.user_id.company_id.name\">\n"
-#~ "                </td></tr>\n"
-#~ "                <tr><td colspan=\"2\" style=\"text-align:center;\">\n"
-#~ "                  <hr width=\"100%\" style=\"background-"
-#~ "color:rgb(204,204,204);border:medium none;clear:both;display:block;font-"
-#~ "size:0px;min-height:1px;line-height:0; margin:16px 0px 16px 0px;\">\n"
-#~ "                </td></tr>\n"
-#~ "            </table>\n"
-#~ "        </td>\n"
-#~ "    </tr>\n"
-#~ "    <!-- CONTENT -->\n"
-#~ "    <tr>\n"
-#~ "        <td align=\"center\" style=\"min-width: 590px;\">\n"
-#~ "            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" "
-#~ "width=\"590\" style=\"min-width: 590px; background-color: white; padding: "
-#~ "0px 8px 0px 8px; border-collapse:separate;\">\n"
-#~ "                <tr><td valign=\"top\" style=\"font-size: 13px;\">\n"
-#~ "                    <div>\n"
-#~ "                        Dear <t t-out=\"object.user_id.name or ''\">Marc "
-#~ "Demo</t>,<br> <br>\n"
-#~ "                        Welcome to <t t-"
-#~ "out=\"object.user_id.company_id.name\">YourCompany</t>'s Portal!<br><br>\n"
-#~ "                        An account has been created for you with the "
-#~ "following login: <t t-out=\"object.user_id.login\">demo</t><br><br>\n"
-#~ "                        Click on the button below to pick a password and "
-#~ "activate your account.\n"
-#~ "                        <div style=\"margin: 16px 0px 16px 0px; text-"
-#~ "align: center;\">\n"
-#~ "                            <a t-att-href=\"object.user_id.signup_url\" "
-#~ "style=\"display: inline-block; padding: 10px; text-decoration: none; font-"
-#~ "size: 12px; background-color: #875A7B; color: #fff; border-radius: 5px;"
-#~ "\">\n"
-#~ "                                <strong>Activate Account</strong>\n"
-#~ "                            </a>\n"
-#~ "                        </div>\n"
-#~ "                        <t t-out=\"object.wizard_id.welcome_message or "
-#~ "''\">Welcome to our company's portal.</t>\n"
-#~ "                    </div>\n"
-#~ "                </td></tr>\n"
-#~ "                <tr><td style=\"text-align:center;\">\n"
-#~ "                  <hr width=\"100%\" style=\"background-"
-#~ "color:rgb(204,204,204);border:medium none;clear:both;display:block;font-"
-#~ "size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;\">\n"
-#~ "                </td></tr>\n"
-#~ "            </table>\n"
-#~ "        </td>\n"
-#~ "    </tr>\n"
-#~ "    <!-- FOOTER -->\n"
-#~ "    <tr>\n"
-#~ "        <td align=\"center\" style=\"min-width: 590px;\">\n"
-#~ "            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" "
-#~ "width=\"590\" style=\"min-width: 590px; background-color: white; font-"
-#~ "size: 11px; padding: 0px 8px 0px 8px; border-collapse:separate;\">\n"
-#~ "                <tr><td valign=\"middle\" align=\"left\">\n"
-#~ "                    <t t-out=\"object.user_id.company_id.name or "
-#~ "''\">YourCompany</t>\n"
-#~ "                </td></tr>\n"
-#~ "                <tr><td valign=\"middle\" align=\"left\" style=\"opacity: "
-#~ "0.7;\">\n"
-#~ "                    <t t-out=\"object.user_id.company_id.phone or ''\">+1 "
-#~ "650-123-4567</t>\n"
-#~ "                    <t t-if=\"object.user_id.company_id.email\">\n"
-#~ "                        | <a t-attf-href=\"'mailto:%s' % "
-#~ "{{ object.user_id.company_id.email }}\" style=\"text-decoration:none; "
-#~ "color: #454748;\" t-out=\"object.user_id.company_id.email or "
-#~ "''\">info@yourcompany.com</a>\n"
-#~ "                    </t>\n"
-#~ "                    <t t-if=\"object.user_id.company_id.website\">\n"
-#~ "                        | <a t-attf-href=\"'%s' % "
-#~ "{{ object.user_id.company_id.website }}\" style=\"text-decoration:none; "
-#~ "color: #454748;\" t-out=\"object.user_id.company_id.website or "
-#~ "''\">http://www.example.com</a>\n"
-#~ "                    </t>\n"
-#~ "                </td></tr>\n"
-#~ "            </table>\n"
-#~ "        </td>\n"
-#~ "    </tr>\n"
-#~ "</tbody>\n"
-#~ "</table>\n"
-#~ "</td></tr>\n"
-#~ "<!-- POWERED BY -->\n"
-#~ "<tr><td align=\"center\" style=\"min-width: 590px;\">\n"
-#~ "    <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" "
-#~ "style=\"min-width: 590px; background-color: #F1F1F1; color: #454748; "
-#~ "padding: 8px; border-collapse:separate;\">\n"
-#~ "      <tr><td style=\"text-align: center; font-size: 13px;\">\n"
-#~ "        Powered by <a target=\"_blank\" href=\"https://www.odoo.com?"
-#~ "utm_source=db&amp;utm_medium=portalinvite\" style=\"color: #875A7B;"
-#~ "\">Odoo</a>\n"
-#~ "      </td></tr>\n"
-#~ "    </table>\n"
-#~ "</td></tr>\n"
-#~ "</table>\n"
-#~ "            "
-#~ msgstr ""
-#~ "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"padding-"
-#~ "top: 16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-"
-#~ "serif; color: #454748; width: 100%; border-collapse:separate;\"><tr><td "
-#~ "align=\"center\">\n"
-#~ "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" "
-#~ "style=\"padding: 16px; background-color: white; color: #454748; border-"
-#~ "collapse:separate;\">\n"
-#~ "<tbody>\n"
-#~ "    <!-- HEADER -->\n"
-#~ "    <tr>\n"
-#~ "        <td align=\"center\" style=\"min-width: 590px;\">\n"
-#~ "            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" "
-#~ "width=\"590\" style=\"min-width: 590px; background-color: white; padding: "
-#~ "0px 8px 0px 8px; border-collapse:separate;\">\n"
-#~ "                <tr><td valign=\"middle\">\n"
-#~ "                    <span style=\"font-size: 10px;\">Ваш счет</span><br>\n"
-#~ "                    <span style=\"font-size: 20px; font-weight: bold;\" t-"
-#~ "out=\"object.user_id.name or ''\">Марк Демо</span>\n"
-#~ "                </td><td valign=\"middle\" align=\"right\" t-if=\"not "
-#~ "object.user_id.company_id.uses_default_logo\">\n"
-#~ "                    <img t-attf-src=\"/logo.png?"
-#~ "company={{ object.user_id.company_id.id }}\" style=\"padding: 0px; "
-#~ "margin: 0px; height: auto; width: 80px;\" t-att-"
-#~ "alt=\"object.user_id.company_id.name\">\n"
-#~ "                </td></tr>\n"
-#~ "                <tr><td colspan=\"2\" style=\"text-align:center;\">\n"
-#~ "                  <hr width=\"100%\" style=\"background-"
-#~ "color:rgb(204,204,204);border:medium none;clear:both;display:block;font-"
-#~ "size:0px;min-height:1px;line-height:0; margin:16px 0px 16px 0px;\">\n"
-#~ "                </td></tr>\n"
-#~ "            </table>\n"
-#~ "        </td>\n"
-#~ "    </tr>\n"
-#~ "    <!-- CONTENT -->\n"
-#~ "    <tr>\n"
-#~ "        <td align=\"center\" style=\"min-width: 590px;\">\n"
-#~ "            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" "
-#~ "width=\"590\" style=\"min-width: 590px; background-color: white; padding: "
-#~ "0px 8px 0px 8px; border-collapse:separate;\">\n"
-#~ "                <tr><td valign=\"top\" style=\"font-size: 13px;\">\n"
-#~ "                    <div>\n"
-#~ "                        Уважаемый <t t-out=\"object.user_id.name or "
-#~ "''\">Марк Демо</t>,<br> <br>\n"
-#~ "                        Добро пожаловать на портал <t t-"
-#~ "out=\"object.user_id.company_id.name\">YourCompany</t>!<br><br>\n"
-#~ "                        Для вас создана учетная запись со следующим "
-#~ "логином: <t t-out=\"object.user_id.login\">demo</t><br><br>\n"
-#~ "                        Нажмите на кнопку ниже, чтобы выбрать пароль и "
-#~ "активировать свою учетную запись.\n"
-#~ "                        <div style=\"margin: 16px 0px 16px 0px; text-"
-#~ "align: center;\">\n"
-#~ "                            <a t-att-href=\"object.user_id.signup_url\" "
-#~ "style=\"display: inline-block; padding: 10px; text-decoration: none; font-"
-#~ "size: 12px; background-color: #875A7B; color: #fff; border-radius: 5px;"
-#~ "\">\n"
-#~ "                                <strong>Активировать учетную запись</"
-#~ "strong>\n"
-#~ "                            </a>\n"
-#~ "                        </div>\n"
-#~ "                       <t t-out=\"object.wizard_id.welcome_message or "
-#~ "''\">Добро пожаловать на портал нашей компании.</t>\n"
-#~ "                    </div>\n"
-#~ "                </td></tr>\n"
-#~ "                <tr><td style=\"text-align:center;\">\n"
-#~ "                  <hr width=\"100%\" style=\"background-"
-#~ "color:rgb(204,204,204);border:medium none;clear:both;display:block;font-"
-#~ "size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;\">\n"
-#~ "                </td></tr>\n"
-#~ "            </table>\n"
-#~ "        </td>\n"
-#~ "    </tr>\n"
-#~ "    <!-- FOOTER -->\n"
-#~ "    <tr>\n"
-#~ "        <td align=\"center\" style=\"min-width: 590px;\">\n"
-#~ "            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" "
-#~ "width=\"590\" style=\"min-width: 590px; background-color: white; font-"
-#~ "size: 11px; padding: 0px 8px 0px 8px; border-collapse:separate;\">\n"
-#~ "                <tr><td valign=\"middle\" align=\"left\">\n"
-#~ "                    <t t-out=\"object.user_id.company_id.name or "
-#~ "''\">YourCompany</t>\n"
-#~ "                </td></tr>\n"
-#~ "                <tr><td valign=\"middle\" align=\"left\" style=\"opacity: "
-#~ "0.7;\">\n"
-#~ "                    <t t-out=\"object.user_id.company_id.phone or ''\">+1 "
-#~ "650-123-4567</t>\n"
-#~ "                    <t t-if=\"object.user_id.company_id.email\">\n"
-#~ "                        | <a t-attf-href=\"'mailto:%s' % "
-#~ "{{ object.user_id.company_id.email }}\" style=\"text-decoration:none; "
-#~ "color: #454748;\" t-out=\"object.user_id.company_id.email or "
-#~ "''\">info@yourcompany.com</a>\n"
-#~ "                    </t>\n"
-#~ "                    <t t-if=\"object.user_id.company_id.website\">\n"
-#~ "                        | <a t-attf-href=\"'%s' % "
-#~ "{{ object.user_id.company_id.website }}\" style=\"text-decoration:none; "
-#~ "color: #454748;\" t-out=\"object.user_id.company_id.website or "
-#~ "''\">http://www.example.com</a>\n"
-#~ "                    </t>\n"
-#~ "                </td></tr>\n"
-#~ "            </table>\n"
-#~ "        </td>\n"
-#~ "    </tr>\n"
-#~ "</tbody>\n"
-#~ "</table>\n"
-#~ "</td></tr>\n"
-#~ "<!-- POWERED BY -->\n"
-#~ "<tr><td align=\"center\" style=\"min-width: 590px;\">\n"
-#~ "    <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" "
-#~ "style=\"min-width: 590px; background-color: #F1F1F1; color: #454748; "
-#~ "padding: 8px; border-collapse:separate;\">\n"
-#~ "      <tr><td style=\"text-align: center; font-size: 13px;\">\n"
-#~ "        Работает на <a target=\"_blank\" href=\"https://www.odoo.com?"
-#~ "utm_source=db&amp;utm_medium=portalinvite\" style=\"color: #875A7B;"
-#~ "\">Odoo</a>\n"
-#~ "      </td></tr>\n"
-#~ "    </table>\n"
-#~ "</td></tr>\n"
-#~ "</table>\n"
-#~ "            "
-
-#~ msgid ""
-#~ "Changing company name is not allowed once document(s) have been issued "
-#~ "for your account. Please contact us directly for this operation."
-#~ msgstr ""
-#~ "Изменение названия компании не допускается после выдачи документа(ов) для "
-#~ "вашего счета. Пожалуйста, свяжитесь с нами напрямую для выполнения этой "
-#~ "операции."
-
-#~ msgid ""
-#~ "Changing the country is not allowed once document(s) have been issued for "
-#~ "your account. Please contact us directly for this operation."
-#~ msgstr ""
-#~ "Изменение страны не допускается после выдачи документа(ов) для вашего "
-#~ "счета. Пожалуйста, свяжитесь с нами напрямую для этой операции."
-
-#~ msgid "Could not save file <strong>%s</strong>"
-#~ msgstr "Не удалось сохранить файл <strong>%s</strong>"
-
-#~ msgid ""
-#~ "Currently available to everyone viewing this document, click to restrict "
-#~ "to internal employees."
-#~ msgstr ""
-#~ "В настоящее время доступен всем, кто просматривает этот документ, "
-#~ "нажмите, чтобы ограничить доступ для внутренних сотрудников."
-
-#~ msgid ""
-#~ "Currently restricted to internal employees, click to make it available to "
-#~ "everyone viewing this document."
-#~ msgstr ""
-#~ "В настоящее время он доступен только для внутренних сотрудников, нажмите, "
-#~ "чтобы сделать его доступным для всех, кто просматривает этот документ."
-
-#~ msgid "Discard"
-#~ msgstr "Отменить"
-
-#~ msgid "Internal Note"
-#~ msgstr "Внутренняя заметка"
-
-#~ msgid "Internal notes are only displayed to internal users."
-#~ msgstr ""
-#~ "Внутренние заметки отображаются только для внутренних пользователей."
-
-#~ msgid "Invitation email to contacts to create a user account"
-#~ msgstr ""
-#~ "Письмо с приглашением для контактов создать учетную запись пользователя"
-
-#~ msgid "Log out from all devices?"
-#~ msgstr "Выйти из системы со всех устройств?"
-
-#~ msgid "Name"
-#~ msgstr "Имя"
-
-#~ msgid "No Documents to display"
-#~ msgstr "Нет документов для отображения"
-
-#~ msgid "Portal: User Invite"
-#~ msgstr "Портал: Приглашение пользователя"
-
-#~ msgid "Public"
-#~ msgstr "Публичный"
-
-#~ msgid "Published on"
-#~ msgstr "Опубликовано"
-
-#~ msgid "Save"
-#~ msgstr "Сохранить"
-
-#~ msgid "Street"
-#~ msgstr "Улица"
-
-#~ msgid ""
-#~ "The document does not exist or you do not have the rights to access it."
-#~ msgstr "Документ не существует или у вас нет прав на доступ к нему."
-
-#~ msgid "There are no comments for now."
-#~ msgstr "На данный момент комментарии отсутствуют."
-
-#~ msgid "Type in your password to confirm :"
-#~ msgstr "Введите пароль для подтверждения:"
-
-#~ msgid "VAT Number"
-#~ msgstr "Номер НДС"
-
-#~ msgid ""
-#~ "You are about to log out from all devices that currently have access to "
-#~ "this user's account."
-#~ msgstr ""
-#~ "Вы собираетесь выйти из системы со всех устройств, которые в данный "
-#~ "момент имеют доступ к учетной записи этого пользователя."
-
-#~ msgid "Your account at {{ object.user_id.company_id.name }}"
-#~ msgstr "Ваш счет в {{ object.user_id.company_id.name }}"
-
-#~ msgid "Zip / Postal Code"
-#~ msgstr "Почтовый индекс"
-
-#~ msgid "avatar"
-#~ msgstr "аватар"
-
-#~ msgid "comment"
-#~ msgstr "комментарий"
-
-#~ msgid "comments"
-#~ msgstr "комментарии"
+#~ msgid "Your name"
+#~ msgstr "Ваше имя"

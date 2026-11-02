@@ -46,11 +46,28 @@
             </field>
         </record>
 
+        <record id="view_bank_statement_kanban" model="ir.ui.view">
+            <field name="name">account.bank.statement.kanban</field>
+            <field name="model">account.bank.statement</field>
+            <field name="arch" type="xml">
+                <kanban>
+                    <templates>
+                        <t t-name="card">
+                            <field name="currency_id" invisible="1"/> <!-- Needed for monetary widget -->
+                            <div><field name="date"/> - <field name="name"/></div>
+                            <div><field name="journal_id"/> - <field name="company_id"/></div>
+                            <div class="text-end mt-3">Starting <field name="balance_start"/> - Ending <field name="balance_end_real"/></div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
 
         <record id="action_bank_statement_tree" model="ir.actions.act_window">
             <field name="name">Bank Statements</field>
             <field name="res_model">account.bank.statement</field>
-            <field name="view_mode">list,pivot,graph,form</field>
+            <field name="view_mode">list,kanban,pivot,graph,form</field>
             <field name="domain">[('journal_id.type', '=', 'bank')]</field>
             <field name="context">{'journal_type':'bank'}</field>
             <field name="search_view_id" ref="view_bank_statement_search"/>
@@ -62,7 +79,7 @@
                 occurring over a given period of time on a bank account. You
                 should receive this periodically from your bank.
               </p><p>
-                Odoo allows you to reconcile a statement line directly with
+                Odoo allows you to reconcile a transaction directly with
                 the related sale or purchase invoices.
               </p>
             </field>
@@ -71,7 +88,7 @@
         <record id="action_credit_statement_tree" model="ir.actions.act_window">
             <field name="name">Credit Statements</field>
             <field name="res_model">account.bank.statement</field>
-            <field name="view_mode">list,pivot,graph</field>
+            <field name="view_mode">list,pivot,graph,form</field>
             <field name="domain">[('journal_id.type', '=', 'credit')]</field>
             <field name="context">{'journal_type': 'credit'}</field>
             <field name="search_view_id" ref="view_bank_statement_search"/>
@@ -83,7 +100,7 @@
                 occurring over a given period of time on a credit account. You
                 should receive this periodically from your bank.
               </p><p>
-                Odoo allows you to reconcile a statement line directly with
+                Odoo allows you to reconcile a transaction directly with
                 the related sale or purchase invoices.
               </p>
             </field>
@@ -120,11 +137,63 @@
             </field>
          </record>
 
+        <!-- Cashflow Analysis -->
+        <record id="account_bank_statement_line_view_graph_cashflow" model="ir.ui.view">
+            <field name="name">account.bank.statement.line.graph.cashflow</field>
+            <field name="model">account.bank.statement.line</field>
+            <field name="arch" type="xml">
+                <graph string="Cashflow Analysis" type="line" cumulated="1" sample="1">
+                    <field name="date" interval="day"/>
+                    <field name="journal_id"/>
+                    <field name="amount" type="measure"/>
+                </graph>
+            </field>
+        </record>
+
+        <record id="account_bank_statement_line_view_pivot_cashflow" model="ir.ui.view">
+            <field name="name">account.bank.statement.line.pivot.cashflow</field>
+            <field name="model">account.bank.statement.line</field>
+            <field name="arch" type="xml">
+                <pivot string="Cashflow Analysis" sample="1">
+                    <field name="journal_id" type="row"/>
+                    <field name="currency_id" type="col"/>
+                    <field name="amount" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+
+        <record id="account_bank_statement_line_view_search_cashflow" model="ir.ui.view">
+            <field name="name">account.bank.statement.line.cashflow.search</field>
+            <field name="model">account.bank.statement.line</field>
+            <field name="priority">999</field>
+            <field name="arch" type="xml">
+                <search string="Cashflow Analysis">
+                    <field name="journal_id"/>
+                    <filter string="Cash In" name="cash_in" domain="[('amount', '&gt;', 0.0)]"/>
+                    <filter string="Cash Out" name="cash_out" domain="[('amount', '&lt;', 0.0)]"/>
+                    <separator/>
+                    <filter string="Bank" name="bank" domain="[('journal_id.type', '=', 'bank')]"/>
+                    <filter string="Cash" name="cash" domain="[('journal_id.type', '=', 'cash')]"/>
+                    <filter string="Credit" name="credit" domain="[('journal_id.type', '=', 'credit')]"/>
+                    <separator/>
+                    <filter string="Date" name="date" date="date"/>
+                    <filter string="Last 12 Months" name="last_12_months"
+                        domain="[('date', '&gt;=', 'today -12m')]"/>
+                    <group>
+                        <filter string="Currency" name="group_by_currency_id" context="{'group_by': 'currency_id'}"/>
+                        <filter string="Company" name="group_by_company_id" context="{'group_by': 'company_id'}"/>
+                        <filter string="Journal" name="group_by_journal" context="{'group_by': 'journal_id'}"/>
+                        <filter string="Date" name="group_by_date" context="{'group_by': 'date:day'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
         <record id="action_view_bank_statement_tree" model="ir.actions.act_window">
-            <field name="name">Cash Registers</field>
+            <field name="name">Statements</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">account.bank.statement</field>
-            <field name="view_mode">list,pivot,graph</field>
+            <field name="view_mode">list,pivot,graph,form</field>
             <field name="view_id" ref="view_bank_statement_tree"/>
             <field name="search_view_id" ref="view_bank_statement_search"/>
             <field name="domain">[('journal_id.type', '=', 'cash')]</field>
@@ -138,6 +207,21 @@
                 payments on a daily basis.
               </p>
             </field>
+        </record>
+
+        <record id="action_account_cashflow_analysis" model="ir.actions.act_window">
+            <field name="name">Cashflow Analysis</field>
+            <field name="res_model">account.bank.statement.line</field>
+            <field name="view_mode">graph,pivot</field>
+            <field name="path">cashflow-analysis</field>
+            <field name="domain">[('journal_id.type', 'in', ('bank', 'cash', 'credit'))]</field>
+            <field name="context">{'search_default_last_12_months': 1, 'fill_temporal': False}</field>
+            <field name="search_view_id" ref="account_bank_statement_line_view_search_cashflow"/>
+            <field name="view_ids" eval="[
+                Command.clear(),
+                Command.create({'view_mode': 'graph', 'view_id': ref('account.account_bank_statement_line_view_graph_cashflow')}),
+                Command.create({'view_mode': 'pivot', 'view_id': ref('account.account_bank_statement_line_view_pivot_cashflow')})
+            ]"/>
         </record>
 
     </data>

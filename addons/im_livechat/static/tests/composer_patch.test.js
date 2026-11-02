@@ -7,14 +7,8 @@ import {
     startServer,
 } from "@mail/../tests/mail_test_helpers";
 import { withGuest } from "@mail/../tests/mock_server/mail_mock_server";
-import { describe, test } from "@odoo/hoot";
-import {
-    asyncStep,
-    Command,
-    onRpc,
-    serverState,
-    waitForSteps,
-} from "@web/../tests/web_test_helpers";
+import { describe, expect, test } from "@odoo/hoot";
+import { Command, onRpc, serverState } from "@web/../tests/web_test_helpers";
 import { defineLivechatModels } from "./livechat_test_helpers";
 
 import { rpc } from "@web/core/network/rpc";
@@ -31,17 +25,16 @@ test("Can execute help command on livechat channels", async () => {
             Command.create({ guest_id: guestId, livechat_member_type: "visitor" }),
         ],
         channel_type: "livechat",
-        livechat_operator_id: serverState.partnerId,
     });
     onRpc("discuss.channel", "execute_command_help", () => {
-        asyncStep("execute_command_help");
+        expect.step("execute_command_help");
         return true;
     });
     await start();
     await openDiscuss(channelId);
     await insertText(".o-mail-Composer-input", "/help");
     await click(".o-mail-Composer button[title='Send']:enabled");
-    await waitForSteps(["execute_command_help"]);
+    await expect.waitForSteps(["execute_command_help"]);
 });
 
 test('Receives visitor typing status "is typing"', async () => {
@@ -53,7 +46,6 @@ test('Receives visitor typing status "is typing"', async () => {
             Command.create({ guest_id: guestId, livechat_member_type: "visitor" }),
         ],
         channel_type: "livechat",
-        livechat_operator_id: serverState.partnerId,
     });
     await start();
     await openDiscuss(channelId);

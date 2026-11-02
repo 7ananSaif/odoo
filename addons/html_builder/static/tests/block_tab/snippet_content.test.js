@@ -4,27 +4,21 @@ import {
     waitForEndOfOperation,
 } from "@html_builder/../tests/helpers";
 import { BuilderOptionsPlugin } from "@html_builder/core/builder_options_plugin";
+import { BuilderSelectionRestrictionPlugin } from "@html_builder/core/builder_selection_restriction_plugin";
 import { Operation } from "@html_builder/core/operation";
 import { describe, expect, test } from "@odoo/hoot";
-import {
-    animationFrame,
-    click,
-    Deferred,
-    queryAll,
-    queryAllTexts,
-    queryOne,
-    waitFor,
-} from "@odoo/hoot-dom";
+import { animationFrame, click, queryAll, queryAllTexts, queryOne, waitFor } from "@odoo/hoot-dom";
 import { contains, patchWithCleanup } from "@web/../tests/web_test_helpers";
 import { loadBundle } from "@web/core/assets";
 
 describe.current.tags("desktop");
 
+// This test asserts on the thumbnail URLs, so use existing static images.
 const snippetContent = [
-    `<div name="Button A" data-oe-thumbnail="buttonA.svg" data-oe-snippet-id="123">
+    `<div name="Button A" data-oe-thumbnail="/web/static/img/logo.png" data-oe-snippet-id="123">
         <a class="btn btn-primary" href="#" data-snippet="s_button">Button A</a>
     </div>`,
-    `<div name="Button B" data-oe-thumbnail="buttonB.svg" data-oe-snippet-id="123">
+    `<div name="Button B" data-oe-thumbnail="/web/static/img/logo2.png" data-oe-snippet-id="123">
         <a class="btn btn-primary" href="#" data-snippet="s_button">Button B</a>
     </div>`,
 ];
@@ -47,7 +41,10 @@ test("Display inner content snippet", async () => {
     const thumbnailImgUrls = queryAll(
         `${snippetInnerContentSelector} .o_snippet_thumbnail_img`
     ).map((thumbnail) => thumbnail.style.backgroundImage);
-    expect(thumbnailImgUrls).toEqual(['url("buttonA.svg")', 'url("buttonB.svg")']);
+    expect(thumbnailImgUrls).toEqual([
+        'url("/web/static/img/logo.png")',
+        'url("/web/static/img/logo2.png")',
+    ]);
 });
 
 test("Drag & drop inner content block", async () => {
@@ -56,7 +53,7 @@ test("Drag & drop inner content block", async () => {
         dropzoneSelectors,
     });
     expect(contentEl).toHaveInnerHTML(`<div><p>Text</p></div>`);
-    expect(".o-website-builder_sidebar .fa-undo").not.toBeEnabled();
+    expect(".o-website-builder_sidebar [data-icon='undo']").not.toBeEnabled();
 
     const { moveTo, drop } = await contains(
         ".o-website-builder_sidebar [name='Button A'] .o_snippet_thumbnail"
@@ -64,11 +61,11 @@ test("Drag & drop inner content block", async () => {
     expect(":iframe .oe_drop_zone:nth-child(1)").toHaveCount(1);
     expect(":iframe .oe_drop_zone:nth-child(3)").toHaveCount(1);
 
-    expect(".o-website-builder_sidebar .fa-undo").not.toBeEnabled();
+    expect(".o-website-builder_sidebar [data-icon='undo']").not.toBeEnabled();
 
     await moveTo(":iframe .oe_drop_zone");
     expect(":iframe .oe_drop_zone.invisible:nth-child(1)").toHaveCount(1);
-    expect(".o-website-builder_sidebar .fa-undo").not.toBeEnabled();
+    expect(".o-website-builder_sidebar [data-icon='undo']").not.toBeEnabled();
 
     await drop(getDragHelper());
     await waitForEndOfOperation();
@@ -76,7 +73,7 @@ test("Drag & drop inner content block", async () => {
     expect(contentEl).toHaveInnerHTML(
         `<div>\ufeff<a class="btn btn-primary" href="#" data-snippet="s_button" data-name="Button A">\ufeffButton A\ufeff</a>\ufeff<p>Text</p></div>`
     );
-    expect(".o-website-builder_sidebar .fa-undo").toBeEnabled();
+    expect(".o-website-builder_sidebar [data-icon='undo']").toBeEnabled();
 });
 
 test("Drag & drop inner content block + undo/redo", async () => {
@@ -85,10 +82,10 @@ test("Drag & drop inner content block + undo/redo", async () => {
         dropzoneSelectors,
     });
     expect(contentEl).toHaveInnerHTML(`<div><p>Text</p></div>`);
-    expect(".o-website-builder_sidebar .fa-undo").not.toBeEnabled();
-    expect(".o-website-builder_sidebar .fa-repeat").not.toBeEnabled();
+    expect(".o-website-builder_sidebar [data-icon='undo']").not.toBeEnabled();
+    expect(".o-website-builder_sidebar [data-icon='redo']").not.toBeEnabled();
 
-    await click(".o-website-builder_sidebar .fa-undo");
+    await click(".o-website-builder_sidebar [data-icon='undo']");
     const { moveTo, drop } = await contains(
         ".o-website-builder_sidebar [name='Button A'] .o_snippet_thumbnail"
     ).drag();
@@ -99,14 +96,14 @@ test("Drag & drop inner content block + undo/redo", async () => {
     expect(contentEl).toHaveInnerHTML(
         `<div>\ufeff<a class="btn btn-primary" href="#" data-snippet="s_button" data-name="Button A">\ufeffButton A\ufeff</a>\ufeff<p>Text</p></div>`
     );
-    expect(".o-website-builder_sidebar .fa-undo").toBeEnabled();
-    expect(".o-website-builder_sidebar .fa-repeat").not.toBeEnabled();
+    expect(".o-website-builder_sidebar [data-icon='undo']").toBeEnabled();
+    expect(".o-website-builder_sidebar [data-icon='redo']").not.toBeEnabled();
 
-    await click(".o-website-builder_sidebar .fa-undo");
+    await click(".o-website-builder_sidebar [data-icon='undo']");
     await animationFrame();
     expect(contentEl).toHaveInnerHTML(`<div><p>Text</p></div>`);
-    expect(".o-website-builder_sidebar .fa-undo").not.toBeEnabled();
-    expect(".o-website-builder_sidebar .fa-repeat").toBeEnabled();
+    expect(".o-website-builder_sidebar [data-icon='undo']").not.toBeEnabled();
+    expect(".o-website-builder_sidebar [data-icon='redo']").toBeEnabled();
 });
 
 test("Drag inner content and drop it outside of a dropzone", async () => {
@@ -140,7 +137,7 @@ test("A snippet should appear disabled if there is nowhere to drop it", async ()
 
 test.tags("desktop");
 test("click just after drop is redispatched in next operation", async () => {
-    const nextDef = new Deferred();
+    const nextDef = Promise.withResolvers();
     patchWithCleanup(Operation.prototype, {
         next(fn, ...args) {
             const originalFn = fn;
@@ -154,13 +151,15 @@ test("click just after drop is redispatched in next operation", async () => {
         },
     });
     patchWithCleanup(BuilderOptionsPlugin.prototype, {
-        async onClick(ev) {
-            expect.step("onClick");
-            super.onClick(ev);
-        },
         updateContainers(...args) {
             expect.step("updateContainers");
             super.updateContainers(...args);
+        },
+    });
+    patchWithCleanup(BuilderSelectionRestrictionPlugin.prototype, {
+        async onClick(ev) {
+            expect.step("onClick");
+            super.onClick(ev);
         },
     });
     await setupHTMLBuilder("", {
@@ -192,8 +191,8 @@ test("click just after drop is redispatched in next operation", async () => {
     await waitFor(":iframe .o_loading_screen");
     await click(":iframe", { position: { x: 200, y: 50 }, relative: true });
     expect.verifySteps(["next"]); // On click
-    await nextDef;
-    expect.verifySteps(["updateContainers"]); // End of drop, on addStep()
+    await nextDef.promise;
+    expect.verifySteps(["updateContainers"]); // End of drop, on commit()
     await animationFrame();
     expect.verifySteps(["onClick", "next", "updateContainers"]); // On click redispatched
     await animationFrame();

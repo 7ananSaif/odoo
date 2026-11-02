@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
@@ -10,9 +9,13 @@
     'category': 'Accounting/Localizations/Account Charts',
     'description': """
     """,
-    'depends': ['base'],
+    'depends': ['base', 'base_address_extended'],
     'data': [
+        'security/ir.access.csv',
+        'data/l10n_us.res.county.csv',
+        'data/res.city.csv',
         'data/res_company_data.xml',
+        'views/res_city_views.xml',
         'views/res_partner_bank_views.xml'
     ],
     'demo': [

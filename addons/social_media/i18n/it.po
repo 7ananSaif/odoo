@@ -6,14 +6,15 @@
 # Martin Trigaux, 2022
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Marianna Ciofani (cima)" <cima@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~14.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-09-14 21:16+0000\n"
-"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
-"Language-Team: Italian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-10-20 12:33+0000\n"
+"Last-Translator: \"Marianna Ciofani (cima)\" <cima@odoo.com>\n"
+"Language-Team: Italian <https://translate.odoo.com/projects/odoo-20/"
 "social_media/it/>\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
@@ -21,12 +22,24 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=(n == 1) ? 0 : ((n != 0 && n % 1000000 == "
 "0) ? 1 : 2);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: social_media
+#: model:ir.module.module,description:base.module_social_media
+msgid ""
+"\n"
+"The purpose of this technical module is to provide a front for\n"
+"social media configuration for any other module that might need it.\n"
+msgstr ""
+"\n"
+"Lo scopo di questo modulo tecnico è quello di fornire una interfaccia\n"
+"per la configurazione dei social network per qualsiasi altro modulo che "
+"potrebbe averne bisogno.\n"
 
 #. module: social_media
 #: model:ir.model,name:social_media.model_res_company
-msgid "Companies"
-msgstr "Aziende"
+msgid "Company"
+msgstr "Azienda"
 
 #. module: social_media
 #: model:ir.model.fields,field_description:social_media.field_res_company__social_discord
@@ -64,9 +77,15 @@ msgid "LinkedIn Account"
 msgstr "Account LinkedIn"
 
 #. module: social_media
+#: model:ir.module.module,shortdesc:base.module_social_media
 #: model_terms:ir.ui.view,arch_db:social_media.view_company_form_inherit_social_media
 msgid "Social Media"
 msgstr "Social media"
+
+#. module: social_media
+#: model:ir.module.module,summary:base.module_social_media
+msgid "Social media connectors for company settings."
+msgstr ""
 
 #. module: social_media
 #: model:ir.model.fields,field_description:social_media.field_res_company__social_tiktok
@@ -82,6 +101,3 @@ msgstr "Account X"
 #: model:ir.model.fields,field_description:social_media.field_res_company__social_youtube
 msgid "Youtube Account"
 msgstr "Account YouTube"
-
-#~ msgid "Twitter Account"
-#~ msgstr "Account Twitter"

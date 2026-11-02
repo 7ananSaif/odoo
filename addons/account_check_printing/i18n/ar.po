@@ -11,10 +11,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-01-06 10:37+0000\n"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-10-22 13:33+0000\n"
 "Last-Translator: \"Malaz Siddig Elsayed Abuidris (msea)\" <msea@odoo.com>\n"
-"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-20/"
 "account_check_printing/ar/>\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
@@ -22,7 +22,24 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: account_check_printing
+#: model:ir.module.module,description:base.module_account_check_printing
+msgid ""
+"\n"
+"This module offers the basic functionalities to make payments by printing "
+"checks.\n"
+"It must be used as a dependency for modules that provide country-specific "
+"check templates.\n"
+"The check settings are located in the accounting journals configuration "
+"page.\n"
+msgstr ""
+"\n"
+"يمنحك هذا التطبيق الوظائف الأساسية للدفع عن طريق طباعة الشيكات.\n"
+"يجب استخدامه كتطبيق معتمد على تطبيق آخر، للتطبيقات التي توفر قوالب شيكات "
+"خاصة بالدولة.\n"
+"إعدادات الشيك موجودة في صفحة تهيئة دفاتر اليومية المحاسبية.\n"
 
 #. module: account_check_printing
 #. odoo-python
@@ -65,11 +82,6 @@ msgid "Bills"
 msgstr "الفواتير"
 
 #. module: account_check_printing
-#: model_terms:ir.ui.view,arch_db:account_check_printing.print_pre_numbered_checks_view
-msgid "Cancel"
-msgstr "إلغاء"
-
-#. module: account_check_printing
 #: model:ir.model.fields,field_description:account_check_printing.field_account_journal__bank_check_printing_layout
 #: model:ir.model.fields,field_description:account_check_printing.field_res_company__account_check_printing_layout
 #: model:ir.model.fields,field_description:account_check_printing.field_res_config_settings__account_check_printing_layout
@@ -93,6 +105,11 @@ msgid "Check Printing"
 msgstr "طباعة الشيك"
 
 #. module: account_check_printing
+#: model:ir.module.module,shortdesc:base.module_account_check_printing
+msgid "Check Printing Base"
+msgstr "أساس طباعة الشيكات "
+
+#. module: account_check_printing
 #: model:ir.model.fields,field_description:account_check_printing.field_res_config_settings__account_check_printing_margin_right
 msgid "Check Right Margin"
 msgstr "الهامش الأيمن للشيك"
@@ -113,6 +130,11 @@ msgstr "الهامش العلوي للشيك"
 #: code:addons/account_check_printing/models/account_payment.py:0
 msgid "Check numbers can only consist of digits"
 msgstr "تتكون أرقام الشيكات من أرقام فقط"
+
+#. module: account_check_printing
+#: model:ir.module.module,summary:base.module_account_check_printing
+msgid "Check printing basic features"
+msgstr "الخصائص الأساسية لطباعة الشيكات"
 
 #. module: account_check_printing
 #: model:ir.model.fields,help:account_check_printing.field_account_journal__check_manual_sequencing
@@ -151,8 +173,8 @@ msgstr "شيكات بانتظار الطباعة"
 
 #. module: account_check_printing
 #: model:ir.model,name:account_check_printing.model_res_company
-msgid "Companies"
-msgstr "الشركات"
+msgid "Company"
+msgstr "الشركة "
 
 #. module: account_check_printing
 #: model:ir.model,name:account_check_printing.model_res_config_settings
@@ -294,19 +316,15 @@ msgid "None"
 msgstr "لا شيء"
 
 #. module: account_check_printing
-#: model:ir.model.fields,field_description:account_check_printing.field_account_payment__payment_method_line_id
-msgid "Payment Method"
-msgstr "طريقة الدفع"
+#: model:ir.model,name:account_check_printing.model_account_payment
+msgid "Payment"
+msgstr ""
 
 #. module: account_check_printing
 #: model:ir.model,name:account_check_printing.model_account_payment_method
-msgid "Payment Methods"
-msgstr "طرق الدفع"
-
-#. module: account_check_printing
-#: model:ir.model,name:account_check_printing.model_account_payment
-msgid "Payments"
-msgstr "الدفعات"
+#: model:ir.model.fields,field_description:account_check_printing.field_account_payment__payment_method_line_id
+msgid "Payment Method"
+msgstr "طريقة الدفع"
 
 #. module: account_check_printing
 #. odoo-python
@@ -375,11 +393,6 @@ msgid ""
 msgstr ""
 "قم باختيار تنسيق دفتر الشيكات الذي ستقوم بطباعة شيكاتك عليه.\n"
 "لإلغاء تفعيل خاصية الطباعة، اختر 'لا شيء'."
-
-#. module: account_check_printing
-#: model_terms:ir.ui.view,arch_db:account_check_printing.view_account_payment_form_inherited
-msgid "Sent"
-msgstr "تم الإرسال"
 
 #. module: account_check_printing
 #: model:ir.model.fields,help:account_check_printing.field_account_journal__check_next_number
@@ -506,50 +519,5 @@ msgstr "out_refund"
 msgid "sep"
 msgstr "sep"
 
-#~ msgid "Contact"
-#~ msgstr "جهة الاتصال"
-
-#~ msgid "Journal Entry"
-#~ msgstr "قيد اليومية"
-
-#~ msgid ""
-#~ "Manual: Pay or Get paid by any method outside of Odoo.\n"
-#~ "Payment Providers: Each payment provider has its own Payment Method. "
-#~ "Request a transaction on/to a card thanks to a payment token saved by the "
-#~ "partner when buying or subscribing online.\n"
-#~ "Check: Pay bills by check and print it from Odoo.\n"
-#~ "Batch Deposit: Collect several customer checks at once generating and "
-#~ "submitting a batch deposit to your bank. Module account_batch_payment is "
-#~ "necessary.\n"
-#~ "SEPA Credit Transfer: Pay in the SEPA zone by submitting a SEPA Credit "
-#~ "Transfer file to your bank. Module account_sepa is necessary.\n"
-#~ "SEPA Direct Debit: Get paid in the SEPA zone thanks to a mandate your "
-#~ "partner will have granted to you. Module account_sepa is necessary.\n"
-#~ msgstr ""
-#~ "يدوي: ادفع أو تقاضى المال بأي وسيلة دفع خارج أودو.\n"
-#~ "مزودو الدفع: لكل مزود دفع طريقته الخاصة. تمكّن من طلب معاملة على/إلى "
-#~ "بطاقة، بفضل رمز الدفع الذي يتم حفظه من قِبَل الشريك عند الشراء أو الاشتراك "
-#~ "عبر الإنترنت.\n"
-#~ "شيك: تمكن من دفع الفواتير عن طريق الشيكات وقم بطباعتها من أودو.\n"
-#~ "إيداع مجمّع: قم بتحصيل شيكات متعددة للعملاء دفعة واحدة وقم بتسليم إيداع "
-#~ "مجمّع إلى مصرفك. يُعد تطبيق account_batch_payment ضرورياً.\n"
-#~ "تحويل الرصيد في SEPA: تمكن من الدفع في منطقة SEPA عن طريق تسليم ملف تحويل "
-#~ "الرصيد في SEPA لمصرفك. يُعد تطبيق account_sepa ضرورياً.\n"
-#~ "الخصم المباشر في SEPA: تقاضى المال في منطقة SEPA بفضل التوكيل الذي سوف "
-#~ "يمنحك إياه شريكك. يُعد تطبيق account_sepa ضرورياً.\n"
-
-#~ msgid "Preferred Payment Method"
-#~ msgstr "طريقة الدفع المفضلة "
-
-#~ msgid ""
-#~ "Preferred payment method when paying this vendor. This is used to filter "
-#~ "vendor bills by preferred payment method to register payments in mass. "
-#~ "Use cases: create bank files for batch wires, check runs."
-#~ msgstr ""
-#~ "طريقة الدفع المفضلة عند الدفع لهذا لمورد. يُستخدَم ذلك لتصفية فواتير "
-#~ "الموردين حسب طريقة الدفع المفضلة لتسجيل المدفوعات دفعة واحدة. حالات "
-#~ "الاستخدام: إنشاء ملفات بنكية لشبكات الاتصال السلكية بين الوحدات المصرفية "
-#~ "وطباعة الشيكات. "
-
-#~ msgid "Register Payment"
-#~ msgstr "تسجيل دفعة"
+#~ msgid "Sent"
+#~ msgstr "تم الإرسال"

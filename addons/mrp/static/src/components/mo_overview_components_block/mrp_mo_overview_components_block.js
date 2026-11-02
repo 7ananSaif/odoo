@@ -1,4 +1,4 @@
-import { Component, onWillUpdateProps, useState } from "@odoo/owl";
+import { Component, proxy, t, useOnChange, useProps } from "@odoo/owl";
 import { useBus } from "@web/core/utils/hooks";
 import { MoOverviewLine } from "../mo_overview_line/mrp_mo_overview_line";
 import { MoOverviewOperationsBlock } from "../mo_overview_operations_block/mrp_mo_overview_operations_block";
@@ -12,35 +12,29 @@ export class MoOverviewComponentsBlock extends Component {
         MoOverviewByproductsBlock,
         MoOverviewComponentsBlock,
     };
-    static props = {
-        unfoldAll: { type: Boolean, optional: true },
-        components: { type: Array, optional: true },
-        operations: {
-            type: Object,
-            shape: {
-                summary: Object,
-                details: Array,
-            },
-            optional: true,
-        },
-        byproducts: {
-            type: Object,
-            shape: {
-                summary: Object,
-                details: Array,
-            },
-            optional: true,
-        },
+    props = useProps({
+        unfoldAll: t.boolean().optional(false),
+        summary: t.object().optional(),     // Used in an override in stock_account
+        components: t.array().optional(),
+        operations: t
+            .object({
+                summary: t.object(),
+                details: t.array(),
+            })
+            .optional(),
+        byproducts: t
+            .object({
+                summary: t.object(),
+                details: t.array(),
+            })
+            .optional(),
         showOptions: SHOW_OPTIONS,
-    };
-    static defaultProps = {
-        unfoldAll: false,
-    };
+    });
 
     static template = "mrp.MoOverviewComponentsBlock";
 
     setup() {
-        this.state = useState({
+        this.state = proxy({
             fold: this.getIndexStates(this.props),
             unfoldAll: this.props.unfoldAll || false,
         });
@@ -51,10 +45,14 @@ export class MoOverviewComponentsBlock extends Component {
 
         useBus(this.env.overviewBus, "unfold-all", () => this.unfoldAll());
 
-        onWillUpdateProps(newProps => {
-            // Update the fold indexes so it matches the newly added lines.
-            this.state.fold = { ...this.getIndexStates(newProps), ...this.state.fold };
-        });
+        useOnChange(
+            () => Object.keys(this.getIndexStates(this.props)),
+            () => {
+                // Update the fold indexes so it matches the newly added lines.
+                this.state.fold = { ...this.getIndexStates(this.props), ...this.state.fold };
+            },
+            { initialRun: false }
+        );
     }
 
     //---- Handlers ----
@@ -106,5 +104,31 @@ export class MoOverviewComponentsBlock extends Component {
 
     hasComponentsBlock(replenishment) {
         return this.hasComponents(replenishment) && !this.state.fold[replenishment?.summary.index];
+    }
+
+    filterComponentsToReplenish(components) {
+        return components.flatMap((component) => {
+            const replenishments = (component.replenishments ?? []).flatMap((replenishment) => {
+                const nestedComponents = this.filterComponentsToReplenish(
+                    replenishment.components ?? []
+                );
+                if (replenishment.summary?.model === "to_order" || nestedComponents.length) {
+                    return [{ ...replenishment, components: nestedComponents }];
+                }
+                return [];
+            });
+            if (component.summary?.state === "to_order" || replenishments.length) {
+                return [{ ...component, replenishments }];
+            }
+            return [];
+        });
+    }
+
+    get components() {
+        const components = this.props.components ?? [];
+        if (this.props.showOptions.toReplenish) {
+            return this.filterComponentsToReplenish(components);
+        }
+        return components;
     }
 }

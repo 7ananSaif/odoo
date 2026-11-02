@@ -2,6 +2,8 @@ import { browser } from "../browser/browser";
 import { registry } from "../registry";
 import { completeUncaughtError, getErrorTechnicalName } from "./error_utils";
 import { isBrowserFirefox, isBrowserChrome } from "@web/core/browser/feature_detection";
+import { usePlugin, useScope } from "@odoo/owl";
+import { DebugModePlugin } from "@web/core/debug_mode_plugin";
 
 export class HTMLElementLoadingError extends Error {
     static message = "Error loading an HTML Element";
@@ -48,6 +50,8 @@ export class ThirdPartyScriptError extends UncaughtError {
 
 export const errorService = {
     start(env) {
+        const debugMode = usePlugin(DebugModePlugin);
+        const scope = useScope();
         function handleError(uncaughtError, retry = true) {
             function shouldLogError() {
                 // Only log errors that are relevant business-wise, following the heuristics:
@@ -64,22 +68,31 @@ export const errorService = {
             while (originalError instanceof Error && "cause" in originalError) {
                 originalError = originalError.cause;
             }
-            for (const [name, handler] of registry.category("error_handlers").getEntries()) {
-                try {
-                    if (handler(env, uncaughtError, originalError)) {
-                        break;
+            const runHandlers = () => {
+                for (const [name, handler] of registry.category("error_handlers").getEntries()) {
+                    try {
+                        if (handler(env, uncaughtError, originalError)) {
+                            break;
+                        }
+                    } catch (e) {
+                        if (shouldLogError()) {
+                            uncaughtError.event.preventDefault();
+                            console.error(
+                                `@web/core/error_service: handler "${name}" failed with "${
+                                    e.cause || e
+                                }" while trying to handle:\n` + uncaughtError.traceback
+                            );
+                        }
+                        return;
                     }
-                } catch (e) {
-                    if (shouldLogError()) {
-                        uncaughtError.event.preventDefault();
-                        console.error(
-                            `@web/core/error_service: handler "${name}" failed with "${
-                                e.cause || e
-                            }" while trying to handle:\n` + uncaughtError.traceback
-                        );
-                    }
-                    return;
                 }
+            };
+            try {
+                scope.run(runHandlers);
+            } catch {
+                // The error service scope may already be dead (e.g. an error is
+                // handled while the app is being torn down).
+                // it is not safe to run handlers in this case, so we just return
             }
             if (shouldLogError()) {
                 // Log the full traceback instead of letting the browser log the incomplete one
@@ -107,7 +120,7 @@ export const errorService = {
                 // Firefox doesn't hide details of errors occuring in third-party scripts, check origin explicitly
                 (isBrowserFirefox() && new URL(filename).origin !== window.location.origin);
             // Don't display error dialogs for third party script errors unless we are in debug mode
-            if (isThirdPartyScriptError && !odoo.debug) {
+            if (isThirdPartyScriptError && !debugMode.isActive()) {
                 return;
             }
             let uncaughtError;
@@ -122,7 +135,7 @@ export const errorService = {
                 uncaughtError.event = ev;
                 if (error instanceof Error) {
                     error.errorEvent = ev;
-                    const annotated = env.debug && env.debug.includes("assets");
+                    const annotated = debugMode.isActive("assets");
                     await completeUncaughtError(uncaughtError, error, annotated);
                 }
             }
@@ -133,6 +146,11 @@ export const errorService = {
         browser.addEventListener("unhandledrejection", async (ev) => {
             let error = ev.reason;
 
+            if (error && error.name === "AbortError") {
+                // abort errors are normal and expected, we don't want to do anything
+                ev.preventDefault();
+                return;
+            }
             if (error && error.type === "error" && "eventPhase" in error) {
                 // https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/error_event
                 // See also MDN's img, script and iframe docs. The error Event *doesn't* bubble.
@@ -162,12 +180,12 @@ export const errorService = {
                 // to have extension's errors in the main business page.
                 // We want to ignore those errors as they are not produced by us, and are parasiting
                 // the navigation. We do this according to the heuristic expressed in the if.
-                if (!odoo.debug) {
+                if (!debugMode.isActive()) {
                     return;
                 }
                 traceback =
                     `Uncaught unknown Error\n` +
-                    `An unknown error occured. This may be due to a Chrome extension meddling with Odoo.\n` +
+                    `An unknown error occurred. This may be due to a Chrome extension meddling with Odoo.\n` +
                     `(Opening your browser console might give you a hint on the error.)`;
             }
             const uncaughtError = new UncaughtPromiseError();
@@ -176,7 +194,7 @@ export const errorService = {
             uncaughtError.traceback = traceback;
             if (error instanceof Error) {
                 error.errorEvent = ev;
-                const annotated = env.debug && env.debug.includes("assets");
+                const annotated = debugMode.isActive("assets");
                 await completeUncaughtError(uncaughtError, error, annotated);
             }
             uncaughtError.cause = error;

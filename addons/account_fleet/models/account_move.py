@@ -1,10 +1,18 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import fields, models, _
+from odoo import api, fields, models, _
+from odoo.tools import SQL
 
 
 class AccountMove(models.Model):
     _inherit = 'account.move'
+
+    service_count = fields.Integer(compute="_compute_service_count", string='Services')
+
+    @api.depends("line_ids.vehicle_log_service_ids")
+    def _compute_service_count(self):
+        for record in self:
+            record.service_count = len(record.line_ids.vehicle_log_service_ids)
 
     def _post(self, soft=True):
         vendor_bill_service = self.env.ref('account_fleet.data_fleet_service_type_vendor_bill', raise_if_not_found=False)
@@ -28,6 +36,18 @@ class AccountMove(models.Model):
             log_service_id.message_post(body=log)
         return posted
 
+    def action_show_services(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _("Services"),
+            'res_model': 'fleet.vehicle.log.services',
+            'domain': [
+                ('account_move_line_id', 'in', self.line_ids.ids),
+            ],
+            "view_mode": "list,form",
+        }
+
 
 class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'
@@ -38,8 +58,25 @@ class AccountMoveLine(models.Model):
     vehicle_log_service_ids = fields.One2many(export_string_translation=False,
         comodel_name='fleet.vehicle.log.services', inverse_name='account_move_line_id')  # One2one
 
+    @api.depends("account_id")
     def _compute_need_vehicle(self):
-        self.need_vehicle = False
+        for line in self:
+            line.need_vehicle = line.account_id.is_vehicle_account
+
+    @api.model
+    def _get_extra_query_base_tax_line_mapping(self) -> SQL:
+        """Override to add vehicle_id matching condition for tax details query.
+        This ensures that tax lines are matched with base lines having the same vehicle_id when
+        both are set, while allowing the match when either side has no vehicle_id. This avoids
+        inconsistencies when a single tax line is shared across base lines with mixed vehicle
+        assignments (one set, one NULL).
+        """
+        query = super()._get_extra_query_base_tax_line_mapping()
+        return SQL("%s AND (base_line.vehicle_id = tax_line.vehicle_id OR tax_line.vehicle_id IS NULL)", query)
+
+    @api.model
+    def _get_query_tax_details_aml_fields(self):
+        return (*super()._get_query_tax_details_aml_fields(), 'vehicle_id')
 
     def _prepare_fleet_log_service(self):
         vendor_bill_service = self.env.ref('account_fleet.data_fleet_service_type_vendor_bill', raise_if_not_found=False)

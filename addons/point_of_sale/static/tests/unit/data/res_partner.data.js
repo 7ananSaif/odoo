@@ -21,9 +21,8 @@ export class ResPartner extends MailResPartner {
             "write_date",
             "property_product_pricelist",
             "parent_name",
-            "pos_contact_address",
+            "address",
             "invoice_emails",
-            "company_type",
             "fiscal_position_id",
         ];
     }
@@ -47,12 +46,9 @@ export class ResPartner extends MailResPartner {
             write_date: "2025-07-03 12:38:12",
             property_product_pricelist: false,
             parent_name: false,
-            pos_contact_address: "\n\n  \n",
+            address: "\n\n  \n",
             invoice_emails: "",
-            company_type: "person",
             fiscal_position_id: false,
-            credit_limit: 0.0,
-            use_partner_credit_limit: false,
         },
         {
             id: 4,
@@ -71,12 +67,9 @@ export class ResPartner extends MailResPartner {
             write_date: "2025-08-03 12:12:12",
             property_product_pricelist: false,
             parent_name: false,
-            pos_contact_address: "\n\n  \n",
+            address: "\n\n  \n",
             invoice_emails: "",
-            company_type: "person",
             fiscal_position_id: false,
-            credit_limit: 0.0,
-            use_partner_credit_limit: false,
         },
     ];
 }

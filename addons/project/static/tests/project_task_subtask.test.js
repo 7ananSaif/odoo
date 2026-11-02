@@ -1,7 +1,23 @@
-import { beforeEach, describe, destroy, expect, test } from "@odoo/hoot";
-import { animationFrame } from "@odoo/hoot-mock";
-import { click, edit, queryOne } from "@odoo/hoot-dom";
-import { Command, mountView, MockServer, mockService, onRpc } from "@web/../tests/web_test_helpers";
+import {
+    animationFrame,
+    beforeEach,
+    click,
+    describe,
+    edit,
+    expect,
+    queryOne,
+    test,
+} from "@odoo/hoot";
+import {
+    Command,
+    defineActions,
+    getService,
+    MockServer,
+    mountView,
+    mountWithCleanup,
+    onRpc,
+} from "@web/../tests/web_test_helpers";
+import { WebClient } from "@web/webclient/webclient";
 
 import { defineProjectModels, ProjectTask } from "./project_models";
 
@@ -77,7 +93,7 @@ beforeEach(() => {
             subtask_count: 0,
             child_ids: [],
             state: "01_in_progress",
-            user_ids: [7],
+            user_ids: [7, 8],
         },
         {
             id: 8,
@@ -162,6 +178,11 @@ test("project.task (kanban): check subtask list", async () => {
         message:
             "Each of the list's rows should display the subtask's name, thus we are looking for 3 in total",
     });
+    expect(
+        ".subtask_list_row:has(.subtask_name_col:contains('Task 7 (Project 1)')) .subtask_user_widget_col img.o_m2m_avatar"
+    ).toHaveCount(2, {
+        message: "All inherited assignees should be displayed on the subtask kanban row",
+    });
 
     await click(".subtask_list_button");
     await animationFrame();
@@ -190,7 +211,7 @@ test("project.task (kanban): check closed subtask count update", async () => {
     const inProgressStatesSelector = `
         .subtask_list
         .o_field_widget.o_field_project_task_state_selection.subtask_state_widget_col
-        .o_status:not(.o_status_green,.o_status_bubble)
+        [title="In Progress"] .o_status:not(.o_status_green,.o_status_bubble)
     `;
     expect(inProgressStatesSelector).toHaveCount(1, {
         message: "The state of the subtask should be in progress",
@@ -198,16 +219,12 @@ test("project.task (kanban): check closed subtask count update", async () => {
 
     await click(inProgressStatesSelector);
     await animationFrame();
-    await click(".project_task_state_selection_menu .fa-check-circle");
+    await click(".project_task_state_selection_menu [data-icon='check_circle']");
     await animationFrame();
     expect(inProgressStatesSelector).toHaveCount(0, {
         message: "The state of the subtask should no longer be in progress",
     });
-    expect.verifySteps([
-        "project.task/web_read",
-        "project.task/onchange",
-        "project.task/web_save",
-    ]);
+    expect.verifySteps(["project.task/web_read", "project.task/onchange", "project.task/web_save"]);
 });
 
 test("project.task (kanban): check subtask creation", async () => {
@@ -251,11 +268,7 @@ test("project.task (kanban): check subtask creation", async () => {
         message:
             "The subtasks list should now display the subtask created on the card, thus we are looking for 4 in total",
     });
-    expect.verifySteps([
-        "project.task/web_read",
-        "project.task/create",
-        "project.task/web_read",
-    ]);
+    expect.verifySteps(["project.task/web_read", "project.task/create", "project.task/web_read"]);
 });
 
 test("project.task (form): check that the subtask of another project can be added", async () => {
@@ -265,7 +278,7 @@ test("project.task (form): check that the subtask of another project can be adde
         type: "form",
     });
 
-    await click(".o_field_x2many_list_row_add a");
+    await click(".o_field_x2many_list_row_add button");
     await animationFrame();
     await click(".o_field_project input");
     await animationFrame();
@@ -284,7 +297,7 @@ test("project.task (form): check focus on new subtask's name", async () => {
         type: "form",
     });
 
-    await click(".o_field_x2many_list_row_add a");
+    await click(".o_field_x2many_list_row_add button");
     await animationFrame();
     expect(".o_field_char input").toBeFocused({
         message: "Upon clicking on 'Add a line', the new subtask's name should be focused.",
@@ -316,30 +329,23 @@ test("project.task (kanban): check subtask creation when input is empty", async 
 });
 
 test("project.task: Parent id is set when creating new task from subtask form's 'View' button", async () => {
-    mockService("action", {
-        doAction(params) {
-            return mountView({
-                resModel: params.res_model,
-                resId: params.res_id,
-                type: "form",
-                context: params.context,
-            });
+    defineActions([
+        {
+            id: 1,
+            name: "Action 1",
+            res_id: 1,
+            res_model: "project.task",
+            views: [[false, "form"]],
+            search_view_id: [false, "search"],
         },
-    });
+    ]);
+    await mountWithCleanup(WebClient);
+    await getService("action").doAction(1);
 
-    const taskFormView = await mountView({
-        resModel: "project.task",
-        resId: 1,
-        type: "form",
-    });
     await click("tbody .o_data_row:nth-child(1) .o_list_record_open_form_view button.btn-link");
-    // Destroying this view for sanicity of display
-    destroy(taskFormView);
-    await animationFrame();
-
     await click(".o_form_view .o_form_button_create");
     await animationFrame();
     expect("div[name='parent_id'] input").toHaveValue(
-        MockServer.current._models[ProjectTask._name].find((rec) => rec.id === 1).name
+        MockServer.env["project.task"].browse(1)[0].name
     );
 });

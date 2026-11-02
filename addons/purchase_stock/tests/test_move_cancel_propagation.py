@@ -5,7 +5,10 @@ from odoo.tests import tagged
 from .common import PurchaseTestCommon
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestMoveCancelPropagation(PurchaseTestCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):
@@ -14,7 +17,6 @@ class TestMoveCancelPropagation(PurchaseTestCommon):
         product = cls.env['product.product'].create({
             'name': 'Geyser',
             'is_storable': True,
-            'route_ids': [Command.set([cls.route_mto.id, cls.route_buy.id])],
             'seller_ids': [Command.create({
                 'partner_id': cls.customer.id,
                 'price': 100.0,
@@ -29,7 +31,7 @@ class TestMoveCancelPropagation(PurchaseTestCommon):
         cls.move = cls.env['stock.move'].create({
             'product_id': product.id,
             'product_uom_qty': 10,
-            'product_uom': product.uom_id.id,
+            'uom_id': product.uom_id.id,
             'picking_id': cls.picking_out.id,
             'location_id': cls.picking_type_out.default_location_src_id.id,
             'location_dest_id': cls.customer_location.id,
@@ -109,7 +111,7 @@ class TestMoveCancelPropagation(PurchaseTestCommon):
         self.move.write({
             'picking_id': False,
             'picking_type_id': self.warehouse.pick_type_id.id,
-            'location_final_id': self.customer_location.id,
+            'forecasted_location_id': self.customer_location.id,
         })
         self.move._action_confirm()
         self.assertEqual(self.move.picking_id.state, 'waiting')
@@ -140,7 +142,7 @@ class TestMoveCancelPropagation(PurchaseTestCommon):
         self.move.write({
             'picking_id': False,
             'picking_type_id': self.warehouse.pick_type_id.id,
-            'location_final_id': self.customer_location.id,
+            'forecasted_location_id': self.customer_location.id,
         })
         self.move._action_confirm()
         self.assertEqual(self.move.picking_id.state, 'waiting')
@@ -175,7 +177,7 @@ class TestMoveCancelPropagation(PurchaseTestCommon):
         self.move.write({
             'picking_id': False,
             'picking_type_id': self.warehouse.pick_type_id.id,
-            'location_final_id': self.customer_location.id,
+            'forecasted_location_id': self.customer_location.id,
         })
         self.move._action_confirm()
         self.assertEqual(self.move.picking_id.state, 'waiting')
@@ -206,7 +208,7 @@ class TestMoveCancelPropagation(PurchaseTestCommon):
         self.move.write({
             'picking_id': False,
             'picking_type_id': self.warehouse.pick_type_id.id,
-            'location_final_id': self.customer_location.id,
+            'forecasted_location_id': self.customer_location.id,
         })
         self.move._action_confirm()
         self.assertEqual(self.move.picking_id.state, 'waiting')
@@ -238,12 +240,8 @@ class TestMoveCancelPropagation(PurchaseTestCommon):
         product_car = self.env['product.product'].create({
             'name': 'Car',
             'is_storable': True,
-            'route_ids': [
-                Command.link(self.route_mto.id),
-                Command.link(self.route_buy.id),
-            ],
             'seller_ids': [Command.create({
-                'product_uom_id': self.env.ref('uom.product_uom_unit').id,
+                'uom_id': self.env.ref('uom.product_uom_unit').id,
                 'partner_id': partner.id,
                 'price': 10.0,
             })],
@@ -258,7 +256,7 @@ class TestMoveCancelPropagation(PurchaseTestCommon):
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
             'product_id': product_car.id,
-            'product_uom': product_car.uom_id.id,
+            'uom_id': product_car.uom_id.id,
             'product_uom_qty': 10.0,
             'procure_method': 'make_to_order',
             'picking_id': customer_picking.id,

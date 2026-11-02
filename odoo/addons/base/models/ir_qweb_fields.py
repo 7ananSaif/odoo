@@ -1,23 +1,18 @@
-# -*- coding: utf-8 -*-
-import base64
-import binascii
 from datetime import time
 import logging
 import math
 import re
-from io import BytesIO
 
-import babel
 import babel.dates
 from markupsafe import Markup, escape, escape_silent
 from PIL import Image
 from lxml import etree, html
 
 from odoo import api, fields, models, tools
-from odoo.tools import posix_to_ldml, float_is_zero, float_utils, format_date, format_duration
+from odoo.tools import BinaryBytes, BinaryValue, posix_to_ldml, float_is_zero, float_utils, format_date, format_duration
+from odoo.tools.image import binary_to_image, image_data_uri
 from odoo.tools.mail import safe_attrs
 from odoo.tools.misc import get_lang, babel_locale_parse
-from odoo.tools.mimetypes import guess_mimetype
 from odoo.tools.translate import _, LazyTranslate
 
 _lt = LazyTranslate(__name__)
@@ -154,8 +149,10 @@ class IrQwebField(models.AbstractModel):
         """
         if value is None or value is False:
             return ''
+        if isinstance(value, (bytes, BinaryValue)):
+            value = value.decode()
 
-        return escape(value.decode() if isinstance(value, bytes) else value)
+        return escape(value)
 
     @api.model
     def record_to_html(self, record, field_name, options):
@@ -222,18 +219,20 @@ class IrQwebFieldFloat(models.AbstractModel):
         if 'decimal_precision' in options:
             precision = self.env['decimal.precision'].precision_get(options['decimal_precision'])
         elif options.get('precision') is None:
-            int_digits = int(math.log10(abs(value))) + 1 if value != 0 else 1
-            # Within 15 digits, we have a float with no parasite digits.
-            # 14 is chosen here, as float_round will add a digit when performing its computations.
-            max_dec_digits = max(14 - int_digits, 0)
-            # We display maximum 6 decimal digits or the number of significant decimal digits if it's lower
-            precision = min(6, max_dec_digits)
-            min_precision = min_precision or 1
+            # We display maximum 6 decimal digits
+            precision = 6
+            if min_precision is None:
+                min_precision = 1
         else:
             precision = options['precision']
 
+        # We use the precision or the maximum of relevant decimal digits if it's lower
+        int_digits = int(math.log10(abs(value))) + 1 if value != 0 else 1
+        max_dec_digits = max(14 - int_digits, 0)
+        precision = min(precision, max_dec_digits)
+
         fmt = f'%.{precision}f'
-        if min_precision and min_precision < precision:
+        if min_precision is not None and min_precision < precision:
             _, dec_part = float_utils.float_split_str(value, precision)
             digits_count = len(dec_part.rstrip('0'))
             if digits_count < min_precision:
@@ -344,6 +343,12 @@ class IrQwebFieldText(models.AbstractModel):
         """
         return nl2br(value) if value else ''
 
+    @api.model
+    def attributes(self, record, field_name, options, values=None):
+        attrs = super().attributes(record, field_name, options, values)
+        attrs['dir'] = 'auto'
+        return attrs
+
 
 class IrQwebFieldSelection(models.AbstractModel):
     _name = 'ir.qweb.field.selection'
@@ -420,16 +425,19 @@ class IrQwebFieldHtml(models.AbstractModel):
     _description = 'Qweb Field HTML'
     _inherit = ['ir.qweb.field']
 
+    def _post_processing_att(self, tag, attrib):
+        self.env['ir.qweb']._remove_translate_suffix(attrib)
+        return self.env['ir.qweb']._post_processing_att(tag, attrib)
+
     @api.model
     def value_to_html(self, value, options):
-        irQweb = self.env['ir.qweb']
         # wrap value inside a body and parse it as HTML
         body = etree.fromstring("<body>%s</body>" % value, etree.HTMLParser(encoding='utf-8'))[0]
         # use pos processing for all nodes with attributes
         for element in body.iter():
             if element.attrib:
                 attrib = dict(element.attrib)
-                attrib = irQweb._post_processing_att(element.tag, attrib)
+                attrib = self._post_processing_att(element.tag, attrib)
                 element.attrib.clear()
                 element.attrib.update(attrib)
         return Markup(etree.tostring(body, encoding='unicode', method='html')[6:-7])
@@ -449,18 +457,17 @@ class IrQwebFieldImage(models.AbstractModel):
     _inherit = ['ir.qweb.field']
 
     @api.model
-    def _get_src_data_b64(self, value, options):
-        try:
-            img_b64 = base64.b64decode(value)
-        except binascii.Error:
-            raise ValueError("Invalid image content") from None
-
-        mimetype = guess_mimetype(img_b64, '') if img_b64 else None
+    def _get_src_data_b64(self, value, options) -> str:
+        if not isinstance(value, BinaryValue):
+            value = BinaryBytes(value)
+        if not value:
+            return ""
+        mimetype = value.mimetype
         if mimetype == 'image/webp':
             return self.env["ir.qweb"]._get_converted_image_data_uri(value)
         elif mimetype != "image/svg+xml":
             try:
-                image = Image.open(BytesIO(img_b64))
+                image = binary_to_image(value)
                 image.verify()
                 mimetype = Image.MIME[image.format]
             except OSError as exc:
@@ -468,7 +475,7 @@ class IrQwebFieldImage(models.AbstractModel):
             except Exception as exc:  # noqa: BLE001
                 raise ValueError("Invalid image content") from exc
 
-        return "data:%s;base64,%s" % (mimetype, value.decode('ascii'))
+        return image_data_uri(value)
 
     @api.model
     def value_to_html(self, value, options):
@@ -512,8 +519,8 @@ class IrQwebFieldMonetary(models.AbstractModel):
         options.update(
             from_currency=dict(type='model', params='res.currency', string=_('Original currency')),
             display_currency=dict(type='model', params='res.currency', string=_('Display currency'), required="value_to_html"),
-            date=dict(type='date', string=_('Date'), description=_('Date used for the original currency (only used for t-esc). by default use the current date.')),
-            company_id=dict(type='model', params='res.company', string=_('Company'), description=_('Company used for the original currency (only used for t-esc). By default use the user company')),
+            date=dict(type='date', string=_('Date'), description=_('Date used for the original currency (only used for t-out). by default use the current date.')),
+            company_id=dict(type='model', params='res.company', string=_('Company'), description=_('Company used for the original currency (only used for t-out). By default use the user company')),
         )
         return options
 
@@ -532,7 +539,7 @@ class IrQwebFieldMonetary(models.AbstractModel):
         fmt = "%.{0}f".format(options.get('decimal_places', display_currency.decimal_places))
 
         if options.get('from_currency'):
-            date = options.get('date') or fields.Date.today()
+            date = options.get('date')
             company_id = options.get('company_id')
             if company_id:
                 company = self.env['res.company'].browse(company_id)
@@ -814,7 +821,7 @@ class IrQwebFieldBarcode(models.AbstractModel):
                 img_element.set(k[4:], v)
         if not img_element.get('alt'):
             img_element.set('alt', _('Barcode %s', value))
-        img_element.set('src', 'data:image/png;base64,%s' % base64.b64encode(barcode).decode())
+        img_element.set('src', image_data_uri(barcode))
         return Markup(html.tostring(img_element, encoding='unicode'))
 
 

@@ -9,9 +9,7 @@
     'auto_install': ['account'],
     'data': [
         'data/ir_config_parameter.xml',
-
-        'security/ir.model.access.csv',
-        'security/ir_rules.xml',
+        'data/portal_entry_data.xml',
 
         'views/account_payment_menus.xml',
         'views/account_portal_templates.xml',
@@ -26,10 +24,10 @@
         'wizards/payment_link_wizard_views.xml',
         'wizards/payment_refund_wizard_views.xml',
         'wizards/res_config_settings_views.xml',
+        'security/ir.access.csv',
     ],
     'assets': {
         'web.assets_unit_tests': [
-            'web/static/src/legacy/js/public/minimal_dom.js',
             'account_payment/static/src/interactions/**/*',
             'account_payment/static/tests/interactions/**/*',
         ],

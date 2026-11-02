@@ -13,22 +13,22 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:38+0000\n"
-"PO-Revision-Date: 2026-06-06 20:03+0000\n"
+"POT-Creation-Date: 2026-09-18 17:38+0000\n"
+"PO-Revision-Date: 2026-08-31 17:26+0000\n"
 "Last-Translator: Bren Driesen <brdri@odoo.com>\n"
-"Language-Team: Dutch <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Dutch <https://translate.odoo.com/projects/odoo-s19-4/"
 "purchase_stock/nl/>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.purchase_order_view_form_inherit
-msgid "% On-Time Delivery"
-msgstr "% Op tijd geleverd"
+msgid "% On Time"
+msgstr "% Op tijd"
 
 #. module: purchase_stock
 #. odoo-python
@@ -52,14 +52,24 @@ msgstr ""
 #. module: purchase_stock
 #. odoo-python
 #: code:addons/purchase_stock/models/stock_rule.py:0
-msgid "+ %d day(s)"
-msgstr "+ %d dag(en)"
+msgid "+ %d days"
+msgstr ""
 
 #. module: purchase_stock
 #. odoo-python
 #: code:addons/purchase_stock/models/stock_rule.py:0
-msgid "+ %s day(s)"
-msgstr "+ %s dag(en)"
+msgid "+ %s days"
+msgstr ""
+
+#. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_kanban_catalog_purchase_only
+msgid "<small class=\"text-muted ms-1\"> / month</small>"
+msgstr "<small class=\"text-muted ms-1\"> / maand</small>"
+
+#. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_kanban_catalog_purchase_only
+msgid "<small class=\"text-muted\">Demand: </small>"
+msgstr "<small class=\"text-muted\">Vraag: </small>"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.res_partner_view_purchase_buttons_inherit
@@ -83,18 +93,8 @@ msgstr "<span class=\"text-info fw-bold fs-5 me-1\">Voorstellen</span>"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_kanban_catalog_purchase_only
-msgid "<span class=\"text-muted small me-1\">Monthly Demand:</span>"
-msgstr "<span class=\"text-muted small me-1\">Maandelijkse vraag:</span>"
-
-#. module: purchase_stock
-#: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_kanban_catalog_purchase_only
 msgid "<span class=\"text-muted small ms-1\">Forecasted</span>"
 msgstr "<span class=\"text-muted small ms-1\">Voorspeld</span>"
-
-#. module: purchase_stock
-#: model_terms:ir.ui.view,arch_db:purchase_stock.purchase_order_view_form_inherit
-msgid "<span invisible=\"on_time_rate &gt;= 0\">No data yet</span>"
-msgstr "<span invisible=\"on_time_rate &gt;= 0\">Nog geen gegevens</span>"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_kanban_catalog_purchase_only
@@ -111,12 +111,6 @@ msgstr "<span> dagen</span>"
 #: model_terms:ir.ui.view,arch_db:purchase_stock.report_purchasequotation_document
 msgid "<strong class=\"d-block mt-3\">Shipping address</strong>"
 msgstr "<strong class=\"d-block mt-3\">Afleveradres</strong>"
-
-#. module: purchase_stock
-#: model_terms:ir.ui.view,arch_db:purchase_stock.report_purchaseorder_document
-#: model_terms:ir.ui.view,arch_db:purchase_stock.report_purchasequotation_document
-msgid "<strong>Incoterm:</strong>"
-msgstr "<strong>Incoterm:</strong>"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.report_purchasequotation_document
@@ -215,13 +209,13 @@ msgstr "Kopen voor bevoorrading"
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_res_company
-msgid "Companies"
-msgstr "Bedrijven"
+msgid "Company"
+msgstr "Bedrijf"
 
 #. module: purchase_stock
 #: model:ir.model.fields,help:purchase_stock.field_purchase_order__effective_date
-msgid "Completion date of the first receipt order."
-msgstr "Voltooiïngsdatum van de eerste ontvangstopdracht."
+msgid "Completion date of the last receipt order."
+msgstr "Voltooiingsdatum van de laatste ontvangstorder."
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_res_config_settings
@@ -258,6 +252,15 @@ msgstr "Aangepaste omschrijving"
 #: model:ir.model.fields.selection,name:purchase_stock.selection__res_partner__group_rfq__day
 msgid "Daily"
 msgstr "Dagelijks"
+
+#. module: purchase_stock
+#: model:ir.model.fields,help:purchase_stock.field_purchase_order__date_promised
+msgid ""
+"Date promised by the vendor for at least 1 or more products to be delivered "
+"by."
+msgstr ""
+"Datum waarvoor de leverancier belooft ten minste 1 of meer producten te "
+"leveren."
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_picking__days_to_arrive
@@ -320,6 +323,15 @@ msgid "Deliver To"
 msgstr "Leveren aan"
 
 #. module: purchase_stock
+#: model:ir.model.fields,help:purchase_stock.field_purchase_order_line__date_promised
+msgid ""
+"Delivery Date promised by the vendor. If the vendor delivers products after "
+"this date, their On-Time rate will be negatively impacted."
+msgstr ""
+"Door de leverancier beloofde leverdatum. Als de leverancier producten na "
+"deze datum levert, heeft dit een negatieve invloed op zijn tijdigheidsscore."
+
+#. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.product_supplierinfo_replenishment_tree_view
 msgid "Delivery Time"
 msgstr "Levertijd"
@@ -330,7 +342,6 @@ msgid "Destination Location Type"
 msgstr "Bestemmingslocatie soort"
 
 #. module: purchase_stock
-#: model:ir.model.fields,field_description:purchase_stock.field_account_move__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_account_move_line__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_product_product__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_product_replenish__display_name
@@ -343,6 +354,7 @@ msgstr "Bestemmingslocatie soort"
 #: model:ir.model.fields,field_description:purchase_stock.field_res_company__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_res_config_settings__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_res_partner__display_name
+#: model:ir.model.fields,field_description:purchase_stock.field_stock_allocation_report__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_forecasted_product_product__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_lot__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_move__display_name
@@ -351,7 +363,6 @@ msgstr "Bestemmingslocatie soort"
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_replenish_mixin__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_replenishment_info__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_replenishment_option__display_name
-#: model:ir.model.fields,field_description:purchase_stock.field_stock_return_picking__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_route__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_rule__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_warehouse__display_name
@@ -437,14 +448,14 @@ msgid "Forecasted Issue"
 msgstr "Prognoseprobleem"
 
 #. module: purchase_stock
+#: model:ir.model.fields,field_description:purchase_stock.field_purchase_order_line__forecasted_location_id
+msgid "Forecasted Location"
+msgstr "Voorspelde locatie"
+
+#. module: purchase_stock
 #: model:ir.model.fields.selection,name:purchase_stock.selection__res_partner__group_on__5
 msgid "Friday"
 msgstr "Vrijdag"
-
-#. module: purchase_stock
-#: model:ir.model.fields.selection,name:purchase_stock.selection__purchase_order__receipt_status__full
-msgid "Fully Received"
-msgstr "Volledig ontvangen"
 
 #. module: purchase_stock
 #. odoo-javascript
@@ -477,19 +488,12 @@ msgid "Go back to the purchase order to generate the vendor bill."
 msgstr "Ga terug naar de inkooporder om de leveranciersfactuur te genereren."
 
 #. module: purchase_stock
-#. odoo-javascript
-#: code:addons/purchase_stock/static/src/stock_valuation/stock_valuation_report.js:0
-msgid "Goods Received Not Invoiced"
-msgstr "Niet gefactureerde ontvangen goederen"
-
-#. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_res_partner__group_rfq
 #: model:ir.model.fields,field_description:purchase_stock.field_res_users__group_rfq
 msgid "Group RFQ"
 msgstr "Offerteaanvragen groeperen"
 
 #. module: purchase_stock
-#: model:ir.model.fields,field_description:purchase_stock.field_account_move__id
 #: model:ir.model.fields,field_description:purchase_stock.field_account_move_line__id
 #: model:ir.model.fields,field_description:purchase_stock.field_product_product__id
 #: model:ir.model.fields,field_description:purchase_stock.field_product_replenish__id
@@ -502,6 +506,7 @@ msgstr "Offerteaanvragen groeperen"
 #: model:ir.model.fields,field_description:purchase_stock.field_res_company__id
 #: model:ir.model.fields,field_description:purchase_stock.field_res_config_settings__id
 #: model:ir.model.fields,field_description:purchase_stock.field_res_partner__id
+#: model:ir.model.fields,field_description:purchase_stock.field_stock_allocation_report__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_forecasted_product_product__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_lot__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_move__id
@@ -510,7 +515,6 @@ msgstr "Offerteaanvragen groeperen"
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_replenish_mixin__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_replenishment_info__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_replenishment_option__id
-#: model:ir.model.fields,field_description:purchase_stock.field_stock_return_picking__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_route__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_rule__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_warehouse__id
@@ -530,14 +534,9 @@ msgid "Incoming Shipments"
 msgstr "Ontvangsten"
 
 #. module: purchase_stock
-#: model:ir.model.fields,field_description:purchase_stock.field_purchase_order__incoterm_location
-msgid "Incoterm Location"
-msgstr "Incotermlocatie"
-
-#. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_stock_route
-msgid "Inventory Routes"
-msgstr "Voorraad routes"
+msgid "Inventory Route"
+msgstr "Voorraadroute"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_order__is_shipped
@@ -548,11 +547,6 @@ msgstr "Is verzonden"
 #: model:ir.model.fields,field_description:purchase_stock.field_res_config_settings__is_installed_sale
 msgid "Is the Sale Module Installed"
 msgstr "Is de verkoop module geïnstalleerd"
-
-#. module: purchase_stock
-#: model:ir.model,name:purchase_stock.model_account_move
-msgid "Journal Entry"
-msgstr "Boeking"
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_account_move_line
@@ -595,9 +589,9 @@ msgid "Last year quarter"
 msgstr "Laatste kwartaal"
 
 #. module: purchase_stock
-#: model:ir.model.fields,field_description:purchase_stock.field_purchase_order_line__location_final_id
-msgid "Location from procurement"
-msgstr "Locatie vanuit de aanbestedingen"
+#: model:ir.model.fields,help:purchase_stock.field_purchase_order_line__forecasted_location_id
+msgid "Location used in the computation of the forecast."
+msgstr "Locatie gebruikt bij de berekening van de voorspelling."
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.res_config_settings_view_form_purchase
@@ -618,6 +612,12 @@ msgstr "Handmatige acties zijn mogelijk nodig."
 #: model:ir.model,name:purchase_stock.model_stock_warehouse_orderpoint
 msgid "Minimum Inventory Rule"
 msgstr "Minimale voorraadregel"
+
+#. module: purchase_stock
+#. odoo-python
+#: code:addons/purchase_stock/models/stock.py:0
+msgid "Missing products in receipt"
+msgstr "Ontbrekende producten bij ontvangst"
 
 #. module: purchase_stock
 #: model:ir.model.fields.selection,name:purchase_stock.selection__res_partner__group_on__1
@@ -658,18 +658,13 @@ msgid "No supplier has been found to replenish"
 msgstr "Er is geen leverancier gevonden om dit product aan te vullen"
 
 #. module: purchase_stock
-#: model:ir.model.fields.selection,name:purchase_stock.selection__purchase_order__receipt_status__pending
-msgid "Not Received"
-msgstr "Niet ontvangen"
-
-#. module: purchase_stock
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/purchase_dashboard/purchase_dashboard.xml:0
 msgid "OTD"
 msgstr "OTD"
 
 #. module: purchase_stock
-#: model_terms:ir.ui.view,arch_db:purchase_stock.res_partner_view_purchase_buttons_inherit
+#: model_terms:ir.ui.view,arch_db:purchase_stock.purchase_order_view_form_inherit
 msgid "On"
 msgstr "Aan"
 
@@ -708,6 +703,11 @@ msgid "On-time Rate"
 msgstr "Tijdigheidspercentage"
 
 #. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.exception_on_picking
+msgid "Only"
+msgstr "Enkel"
+
+#. module: purchase_stock
 #. odoo-python
 #: code:addons/purchase_stock/models/stock_rule.py:0
 msgid "Order Deadline"
@@ -735,11 +735,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:purchase_stock.field_product_product__purchase_order_line_ids
 msgid "PO Lines"
 msgstr "Inkooporderregels"
-
-#. module: purchase_stock
-#: model:ir.model.fields.selection,name:purchase_stock.selection__purchase_order__receipt_status__partial
-msgid "Partially Received"
-msgstr "Gedeeltelijk ontvangen"
 
 #. module: purchase_stock
 #. odoo-javascript
@@ -774,6 +769,12 @@ msgid "Product Variant"
 msgstr "Productvariant"
 
 #. module: purchase_stock
+#: model:ir.model.fields,field_description:purchase_stock.field_purchase_order__date_promised
+#: model:ir.model.fields,field_description:purchase_stock.field_purchase_order_line__date_promised
+msgid "Promised Date"
+msgstr "Beloofde datum"
+
+#. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_order_line__propagate_cancel
 msgid "Propagate cancellation"
 msgstr "Annuleren doorgeven"
@@ -796,8 +797,6 @@ msgid "Purchase Order Line"
 msgstr "Inkooporderregel"
 
 #. module: purchase_stock
-#. odoo-javascript
-#: code:addons/purchase_stock/static/src/stock_valuation/stock_valuation_report.js:0
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_lot__purchase_order_ids
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_picking__purchase_id
 #: model_terms:ir.ui.view,arch_db:purchase_stock.purchase_help_message_template
@@ -806,9 +805,19 @@ msgid "Purchase Orders"
 msgstr "Inkooporders"
 
 #. module: purchase_stock
+#: model:ir.module.module,summary:base.module_purchase_stock
+msgid "Purchase Orders, Receipts, Vendor Bills for Stock"
+msgstr ""
+
+#. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_purchase_report
 msgid "Purchase Report"
 msgstr "Inkooprapport"
+
+#. module: purchase_stock
+#: model:ir.module.module,shortdesc:base.module_purchase_stock
+msgid "Purchase Stock"
+msgstr ""
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_lot__purchase_order_count
@@ -841,11 +850,6 @@ msgid "Receipt Date"
 msgstr "Ontvangstdatum"
 
 #. module: purchase_stock
-#: model:ir.model.fields,field_description:purchase_stock.field_purchase_order__receipt_status
-msgid "Receipt Status"
-msgstr "Ontvangst status"
-
-#. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.purchase_order_view_form_inherit
 msgid "Receive"
 msgstr "Ontvangen"
@@ -862,20 +866,16 @@ msgid "Received Qty Method"
 msgstr "Ontvangen hoeveelheid methode"
 
 #. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.exception_on_picking
+msgid "Received quantity is less than the expected quantity for transfer"
+msgstr ""
+"De ontvangen hoeveelheid is minder dan de verwachte hoeveelheid voor de "
+"verplaatsing"
+
+#. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_order__picking_ids
 msgid "Receptions"
 msgstr "Ontvangsten"
-
-#. module: purchase_stock
-#: model:ir.model.fields,help:purchase_stock.field_purchase_order__receipt_status
-msgid ""
-"Red: Late\n"
-"            Orange: To process today\n"
-"            Green: On time"
-msgstr ""
-"Rood: Te laat\n"
-"            Oranje: Vandaag verwerken\n"
-"            Groen: Op tijd"
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_stock_reference
@@ -908,11 +908,6 @@ msgstr "Offerteaanvragen:"
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_order_line__move_ids
 msgid "Reservation"
 msgstr "Reservering"
-
-#. module: purchase_stock
-#: model:ir.model,name:purchase_stock.model_stock_return_picking
-msgid "Return Picking"
-msgstr "Retour boeken"
 
 #. module: purchase_stock
 #. odoo-javascript
@@ -952,6 +947,11 @@ msgid "Show supplier column"
 msgstr "Leverancierkolom weergeven"
 
 #. module: purchase_stock
+#: model:ir.model,name:purchase_stock.model_stock_allocation_report
+msgid "Stock Allocation Report"
+msgstr "Rapport voorraadtoewijzing"
+
+#. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_stock_move
 msgid "Stock Move"
 msgstr "Voorraadverplaatsing"
@@ -973,14 +973,14 @@ msgid "Stock Rule"
 msgstr "Voorraadregel"
 
 #. module: purchase_stock
+#: model:ir.model,name:purchase_stock.model_stock_replenishment_info
+msgid "Stock delivery time information"
+msgstr ""
+
+#. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_report_stock_report_stock_rule
 msgid "Stock rule report"
 msgstr "Voorraadregelrapportage"
-
-#. module: purchase_stock
-#: model:ir.model,name:purchase_stock.model_stock_replenishment_info
-msgid "Stock supplier replenishment information"
-msgstr "Informatie over het aanvullen van voorraadleveranciers"
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_stock_replenishment_option
@@ -1030,6 +1030,11 @@ msgstr "Voorgestelde hoeveelheid"
 #: model:ir.model.fields.selection,name:purchase_stock.selection__res_partner__group_on__7
 msgid "Sunday"
 msgstr "Zondag"
+
+#. module: purchase_stock
+#: model:ir.model.fields,field_description:purchase_stock.field_product_replenish__partner_id
+msgid "Supplier"
+msgstr "Leverancier"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_warehouse_orderpoint__supplier_id_placeholder
@@ -1085,6 +1090,15 @@ msgstr ""
 "Het magazijn met de bewerkingsoort (%(operation_type)s) stemt niet overeen "
 "met de locatie (%(location)s) van de aanvulregel (%(reordering_rule)s) voor "
 "product %(product)s. Wijzig de bewerkingsoort of annuleer de inkoopofferte."
+
+#. module: purchase_stock
+#. odoo-python
+#: code:addons/purchase_stock/models/purchase_order_line.py:0
+msgid ""
+"There is a mismatch between the company the Vendor is restricted to and the "
+"company receiving the purchased products. Please ensure the company is the "
+"same or that the Contact has no company restriction set."
+msgstr ""
 
 #. module: purchase_stock
 #. odoo-python
@@ -1175,6 +1189,12 @@ msgid "To Order"
 msgstr "Te bestellen"
 
 #. module: purchase_stock
+#. odoo-javascript
+#: code:addons/purchase_stock/static/src/product_catalog/search/search_panel.xml:0
+msgid "Total"
+msgstr "Totaal"
+
+#. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_vendor_delay_report__qty_total
 msgid "Total Quantity"
 msgstr "Totale aantal"
@@ -1193,11 +1213,6 @@ msgstr "Verplaatsing"
 #: model:ir.model.fields.selection,name:purchase_stock.selection__res_partner__group_on__2
 msgid "Tuesday"
 msgstr "Dinsdag"
-
-#. module: purchase_stock
-#: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_kanban_catalog_purchase_only
-msgid "Units"
-msgstr "stuk(s)"
 
 #. module: purchase_stock
 #. odoo-javascript
@@ -1241,6 +1256,11 @@ msgstr "Leveranciersprijslijst"
 #: model_terms:ir.ui.view,arch_db:purchase_stock.view_stock_replenishment_info_stock_purchase_inherit
 msgid "Vendors"
 msgstr "Leveranciers"
+
+#. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.product_product_tree_view_stock
+msgid "View Forecast"
+msgstr ""
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_stock_warehouse
@@ -1291,9 +1311,15 @@ msgstr ""
 
 #. module: purchase_stock
 #. odoo-python
-#: code:addons/purchase_stock/models/purchase_order.py:0
-msgid "You must set a Vendor Location for this partner %s"
-msgstr "Stel een leverancierslocatie in voor deze partner %s"
+#: code:addons/purchase_stock/models/purchase_order_line.py:0
+msgid "You must set a Vendor Location for partner %(partner_name)s"
+msgstr ""
+"Je moet een leverancierslocatie instellen voor de partner %(partner_name)s"
+
+#. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.exception_on_picking
+msgid "and no backorder is planned. Manual action may be needed."
+msgstr "en er is geen backorder gepland. Handmatige actie kan nodig zijn."
 
 #. module: purchase_stock
 #. odoo-javascript
@@ -1302,6 +1328,7 @@ msgid "day(s)"
 msgstr "dag(en)"
 
 #. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.exception_on_picking
 #: model_terms:ir.ui.view,arch_db:purchase_stock.exception_on_po
 msgid "of"
 msgstr "of"
@@ -1312,10 +1339,20 @@ msgid "ordered instead of"
 msgstr "besteld in plaats van"
 
 #. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.exception_on_picking
+msgid "received in contrast to the expected"
+msgstr "ontvangen in tegenstelling tot de verwachte"
+
+#. module: purchase_stock
 #. odoo-python
 #: code:addons/purchase_stock/models/stock_rule.py:0
 msgid "this product should be manually replenished."
 msgstr "dit product moet handmatig worden aangevuld."
+
+#. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_kanban_catalog_purchase_only
+msgid "units"
+msgstr "eenheden"
 
 #. module: purchase_stock
 #. odoo-javascript
@@ -1323,172 +1360,20 @@ msgstr "dit product moet handmatig worden aangevuld."
 msgid "x"
 msgstr "x"
 
-#~ msgid ""
-#~ "<span class=\"text-info fw-bold fs-5 me-1\" groups=\"!"
-#~ "uom.group_uom\">Units</span>"
-#~ msgstr ""
-#~ "<span class=\"text-info fw-bold fs-5 me-1\" groups=\"!"
-#~ "uom.group_uom\">Eenheden</span>"
+#~ msgid "Goods Received Not Invoiced"
+#~ msgstr "Niet gefactureerde ontvangen goederen"
 
-#~ msgid ""
-#~ "<span class=\"text-muted small ms-1\" groups=\"!uom.group_uom\">Units</"
-#~ "span>"
-#~ msgstr ""
-#~ "<span class=\"text-muted small ms-1\" groups=\"!uom.group_uom\">Eenheden</"
-#~ "span>"
+#~ msgid "Journal Entry"
+#~ msgstr "Boeking"
+
+#~ msgid "<strong>Incoterm:</strong>"
+#~ msgstr "<strong>Incoterm:</strong>"
+
+#~ msgid "Incoterm Location"
+#~ msgstr "Incotermlocatie"
+
+#~ msgid "Location from procurement"
+#~ msgstr "Locatie vanuit de aanbestedingen"
 
 #~ msgid "Stock Valuation"
 #~ msgstr "Voorraadwaardering"
-
-#~ msgid ""
-#~ "Define if RFQ should be grouped         together based on expected "
-#~ "arrival.\n"
-#~ "         On Order: Replenishment needs will be grouped together except "
-#~ "for MTO.\n"
-#~ "         Daily: Replenishment needs will be grouped if the expected "
-#~ "arrival is the same day\n"
-#~ "         Weekly: Replenishment needs will be grouped if the expected "
-#~ "arrival is the same week or week day\n"
-#~ "         Always: Replenishment needs will always be grouped."
-#~ msgstr ""
-#~ "Definieer of offerteaanvragen gegroepeerd moeten worden op basis van "
-#~ "verwachte aankomst.\n"
-#~ "         Bij bestelling: Aanvullingsbehoeften worden gegroepeerd, behalve "
-#~ "voor MTO.\n"
-#~ "         Dagelijks: Aanvullingsbehoeften worden gegroepeerd als de "
-#~ "verwachte aankomst dezelfde dag is\n"
-#~ "         Wekelijks: Aanvullingbehoeften worden gegroepeerd als de "
-#~ "verwachte aankomst dezelfde week of weekdag is\n"
-#~ "         Altijd: Aanvullingsbehoeften worden altijd gegroepeerd."
-
-#~ msgid "<span class=\"text-info fw-bold fs-5 me-1\">units</span>"
-#~ msgstr "<span class=\"text-info fw-bold fs-5 me-1\">eenheden</span>"
-
-#~ msgid "<span class=\"text-info fw-bold fs-5\"> Suggest </span>"
-#~ msgstr "<span class=\"text-info fw-bold fs-5\"> Voorstellen </span>"
-
-#~ msgid "<span class=\"text-info fw-bold fs-5\"> units </span>"
-#~ msgstr "<span class=\"text-info fw-bold fs-5\"> eenheden </span>"
-
-#~ msgid "<span class=\"text-muted small\"> Forecasted</span>"
-#~ msgstr "<span class=\"text-muted small\"> Verwacht</span>"
-
-#~ msgid "<span class=\"text-muted small\">Monthly Demand: </span>"
-#~ msgstr "<span class=\"text-muted small\">Maandelijkse vraag: </span>"
-
-#~ msgid "Requests for quotation"
-#~ msgstr "Inkoopofferte"
-
-#~ msgid ""
-#~ "<span attrs=\"{'invisible': [('on_time_rate', '&gt;=', 0)]}\">No On-time "
-#~ "Delivery Data</span>"
-#~ msgstr ""
-#~ "<span attrs=\"{'invisible': [('on_time_rate', '&gt;=', 0)]}\">Geen "
-#~ "gegevens over leverbetrouwbaarheid</span>"
-
-#~ msgid "<strong>Shipping address:</strong>"
-#~ msgstr "<strong>Afleveradres:</strong>"
-
-#~ msgid "Currency exchange rate difference"
-#~ msgstr "Verschil wisselkoers"
-
-#~ msgid ""
-#~ "Depending on the modules installed, this will allow you to define the "
-#~ "route of the product: whether it will be bought, manufactured, "
-#~ "replenished on order, etc."
-#~ msgstr ""
-#~ "Afhankelijk van de geïnstalleerde modules geeft je dit de mogelijkheid om "
-#~ "de route van het product aan te geven: waar het gekocht worden, gemaakt "
-#~ "wordt, aangevuld wordt op de order, enz."
-
-#~ msgid ""
-#~ "For the product %s, the warehouse of the operation type (%s) is "
-#~ "inconsistent with the location (%s) of the reordering rule (%s). Change "
-#~ "the operation type or cancel the request for quotation."
-#~ msgstr ""
-#~ "Voor het product %s is het magazijn van het bewerkingstype (%s) niet "
-#~ "consistent met de locatie (%s) van de aanvulregel (%s). Wijzig het type "
-#~ "bewerking of annuleer de inkoop offerteaanvraag."
-
-#~ msgid "Incoterm"
-#~ msgstr "Leveringscondities"
-
-#~ msgid ""
-#~ "International Commercial Terms are a series of predefined commercial "
-#~ "terms used in international transactions."
-#~ msgstr ""
-#~ "International Commercial Terms (INCOTERMS) zijn een set van "
-#~ "voorgedefinieerde commerciële voorwaarden, die worden gebruikt bij "
-#~ "internationaal transport."
-
-#~ msgid ""
-#~ "Margin of error for vendor lead times. When the system generates Purchase "
-#~ "Orders for reordering products,they will be scheduled that many days "
-#~ "earlier to cope with unexpected vendor delays."
-#~ msgstr ""
-#~ "Foutmarge voor doorlooptijden van leveranciers. Wanneer het systeem "
-#~ "inkooporders aanmaakt voor het nabestellen van producten, dan zullen de "
-#~ "inkooporders zoveel dagen eerder worden aangemaakt, rekening houdende met "
-#~ "onverwachte vertragingen."
-
-#~ msgid "Move forward expected request creation date by"
-#~ msgstr "Verplaats de verwachte aanmaakdatum van het verzoek met"
-
-#~ msgid "No data yet"
-#~ msgstr "Nog geen gegevens"
-
-#~ msgid ""
-#~ "Odoo is not able to generate the anglo saxon entries. The total valuation "
-#~ "of %s is zero."
-#~ msgstr ""
-#~ "Odoo kan de Angelsaksische inzendingen niet genereren. De totale "
-#~ "waardering van %s is nul."
-
-#~ msgid ""
-#~ "Over the past 12 months; the number of products received on time divided "
-#~ "by the number of ordered products."
-#~ msgstr ""
-#~ "In de afgelopen 12 maanden; het aantal op tijd ontvangen producten "
-#~ "gedeeld door het aantal bestelde producten."
-
-#~ msgid "Procurement Group"
-#~ msgstr "Aanvulgroep"
-
-#~ msgid "Product Supplier"
-#~ msgstr "Productleverancier:"
-
-#~ msgid "Purchase Security Lead Time"
-#~ msgstr "Beveiliging doorlooptijd voor inkopen"
-
-#~ msgid "Purchase Visibility Days"
-#~ msgstr "Inkoop Zichtbaarheidsdagen"
-
-#~ msgid "Receive Products"
-#~ msgstr "Ontvangen"
-
-#~ msgid "Routes"
-#~ msgstr "Routes"
-
-#~ msgid "Schedule request for quotations earlier to avoid delays"
-#~ msgstr "Offerteaanvragen eerder plannen om vertragingen te voorkomen"
-
-#~ msgid ""
-#~ "Unable to cancel purchase order %s as some receptions have already been "
-#~ "done."
-#~ msgstr ""
-#~ "Onmogelijk om inkooporder %s te annuleren omdat sommige ontvangsten al "
-#~ "voltooid zijn."
-
-#~ msgid "Visibility Days applied on the purchase routes."
-#~ msgstr "Zichtbaarheidsdagen toegepast op de inkooproutes."
-
-#~ msgid ""
-#~ "You cannot decrease the ordered quantity below the received quantity.\n"
-#~ "Create a return first."
-#~ msgstr ""
-#~ "Je kunt de bestelde hoeveelheid niet verminderen onder de ontvangen "
-#~ "hoeveelheid.\n"
-#~ "Maak eerst een retour aan."
-
-#~ msgid "days"
-#~ msgstr "dagen"

@@ -1,5 +1,4 @@
 from odoo import api, fields, models
-from odoo.addons.l10n_es_edi_tbai.models.account_move import TBAI_REFUND_REASONS
 from odoo.exceptions import UserError
 
 
@@ -26,7 +25,7 @@ class PosOrder(models.Model):
 
     l10n_es_tbai_post_file = fields.Binary(
         string="TicketBAI Post File",
-        related='l10n_es_tbai_post_document_id.xml_attachment_id.datas',
+        related='l10n_es_tbai_post_document_id.xml_attachment_id.raw',
     )
     l10n_es_tbai_post_file_name = fields.Char(
         string="TicketBAI Post Attachment Name",
@@ -38,13 +37,17 @@ class PosOrder(models.Model):
         related="company_id.l10n_es_tbai_is_enabled",
     )
 
-    l10n_es_tbai_refund_reason = fields.Selection(
-        selection=TBAI_REFUND_REASONS,
+    l10n_es_invoice_type = fields.Selection(
+        selection="_l10n_es_refund_reason_selection",
         string="Invoice Refund Reason Code (TicketBai)",
-        help="BOE-A-1992-28740. Ley 37/1992, de 28 de diciembre, del Impuesto sobre el "
-        "Valor Añadido. Artículo 80. Modificación de la base imponible.",
+        help="BOE-A-1992-28740. Law 37/1992, of 28 December, on Value Added Tax. Article "
+        "80. Modification of the taxable base.",
         copy=False,
     )
+
+    @api.model
+    def _l10n_es_refund_reason_selection(self):
+        return self.env['account.move']._l10n_es_refund_reason_selection()
 
     # -------------------------------------------------------------------------
     # COMPUTE METHODS
@@ -104,10 +107,10 @@ class PosOrder(models.Model):
         if len(set(mapped_tbai_req)) > 1:
             raise UserError(self.env._("You cannot mix orders that require TicketBAI with those that don't."))
         if mapped_tbai_req[0]:
-            refund_reasons = set(self.mapped('l10n_es_tbai_refund_reason'))
+            refund_reasons = set(self.mapped('l10n_es_invoice_type'))
             if len(refund_reasons) > 1:
                 raise UserError(self.env._("You cannot consolidate orders with different TicketBAI refund reasons."))
-            vals['l10n_es_tbai_refund_reason'] = refund_reasons.pop()
+            vals['l10n_es_invoice_type'] = refund_reasons.pop()
 
         return vals
 
@@ -156,9 +159,7 @@ class PosOrder(models.Model):
 
     def _l10n_es_tbai_get_document_name(self):
         self.ensure_one()
-        if not self.refunded_order_id:
-            return self.name
-        return self._get_order_name_from_pos_reference()
+        return self.pos_reference
 
     def _l10n_es_tbai_create_edi_document(self, cancel=False):
         return self.sudo().env['l10n_es_edi_tbai.document'].create({
@@ -172,16 +173,29 @@ class PosOrder(models.Model):
     # XML VALUES
     # -------------------------------------------------------------------------
 
+    def _l10n_es_tbai_get_regime_code(self):
+        # No own `l10n_es_regime_code` on POS orders: read it off the first tax that has one,
+        # falling back to the company's special VAT regime (default '01').
+        self.ensure_one()
+        AccountTax = self.env['account.tax']
+        taxes = self.lines.tax_ids.flatten_taxes_hierarchy()
+        for tax in taxes:
+            if tax.l10n_es_regime_code:
+                return AccountTax._l10n_es_regime_code_aeat(tax.l10n_es_regime_code)
+        special_regime_code = self.company_id._l10n_es_special_vat_regime_codes().get(
+            self.company_id.l10n_es_special_vat_regime, '01')
+        return AccountTax._l10n_es_regime_code_aeat(special_regime_code)
+
     def _l10n_es_tbai_get_values(self):
         self.ensure_one()
 
-        base_lines = self.lines._prepare_tax_base_line_values()
+        base_lines = self.lines._prepare_base_lines_for_taxes_computation()
         for base_line in base_lines:
             base_line['name'] = base_line['record'].name
         self.env['l10n_es_edi_tbai.document']._add_base_lines_tax_amounts(base_lines, self.company_id)
 
         for base_line in base_lines:
-            sign = base_line['is_refund'] and -1 or 1
+            sign = base_line['sign']
             base_line['gross_price_unit'] = sign * base_line['gross_price_unit']
             base_line['discount_amount'] = sign * base_line['discount_amount']
             base_line['price_total'] = sign * base_line['price_total']
@@ -195,6 +209,7 @@ class PosOrder(models.Model):
             **self._l10n_es_tbai_get_credit_note_values(),
             'origin': 'manual',
             'taxes': self.lines.tax_ids,
+            'regime_code': self._l10n_es_tbai_get_regime_code(),
             'rate': self.currency_rate,
             'base_lines': base_lines,
         }
@@ -212,5 +227,5 @@ class PosOrder(models.Model):
             'refund_reason': 'R5',
             'refunded_doc': self.refunded_order_id.l10n_es_tbai_post_document_id,
             'refunded_doc_invoice_date': self.refunded_order_id.date_order if self.refunded_order_id else False,
-            'refunded_name': self.refunded_order_id.name,
+            'refunded_name': self.refunded_order_id._l10n_es_tbai_get_document_name() if self.refunded_order_id else False,
         }

@@ -4,8 +4,7 @@
     'name': "POS - Repair",
     'category': "Technical",
     'summary': 'Link module between Point of Sale and Repair',
-    'depends': ['point_of_sale', 'repair'],
-    'installable': True,
+    'depends': ['pos_stock', 'repair'],
     'auto_install': True,
     'assets': {
         'point_of_sale._assets_pos': [

@@ -5,49 +5,61 @@
 # Bone NI <bounkirdni@gmail.com>, 2026.
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0\n"
+"Project-Id-Version: Odoo Server 19.4a1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2026-06-08 11:14+0000\n"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-10-22 02:33+0000\n"
 "Last-Translator: Bone NI <bounkirdni@gmail.com>\n"
-"Language-Team: Lao <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Lao <https://translate.odoo.com/projects/odoo-20/"
 "website_customer/lo/>\n"
 "Language: lo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: website_customer
+#: model:ir.module.module,description:base.module_website_customer
+msgid ""
+"\n"
+"Publish your customers as business references on your website to attract new "
+"potential prospects.\n"
+msgstr ""
+"\n"
+"ເຜີຍແຜ່ລູກຄ້າຂອງທ່ານເປັນບ່ອນອ້າງອີງທາງທຸລະກິດໃນເວັບໄຊ ເພື່ອດຶງດູດກຸ່ມເປົ້າໝາຍໃໝ່ທີ່ມີທ່າແຮງ.\n"
+
+#. module: website_customer
+#: model_terms:ir.ui.view,arch_db:website_customer.details
+msgid "<i class=\"oi me-2\" data-icon=\"chevron_backward\"/>Back to references"
+msgstr ""
+"<i class=\"oi me-2\" data-icon=\"chevron_backward\"/>ກັບຄືນໄປຫາບ່ອນອ້າງອີງ"
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.index
 msgid ""
-"<i class=\"fa fa-info-circle me-2\"/>\n"
-"                        There are no matching customers found for the selected country. Displaying results across all countries instead."
+"<i class=\"oi me-2\" data-icon=\"info\"/>\n"
+"                        There are no matching customers found for the "
+"selected country. Displaying results across all countries instead."
 msgstr ""
-"<i class=\"fa fa-info-circle me-2\"/>\n"
-"                        ບໍ່ພົບລູກຄ້າທີ່ກົງກັນສຳລັບປະເທດທີ່ເລືອກ. ລະບົບຈະສະແດງຜົນການຄົ້ນຫາຈາກທຸກ"
-"ປະເທດແທນ."
+"<i class=\"oi me-2\" data-icon=\"info\"/>\n"
+"                        ບໍ່ພົບລູກຄ້າທີ່ກົງກັນສຳລັບປະເທດທີ່ເລືອກ. ສະແດງຜົນການຄົ້ນຫາຈາກທຸກໆປະເທດ"
+"ແທນ."
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.opt_country
 msgid ""
-"<i class=\"fa fa-map-marker\" role=\"img\" aria-label=\"Open map\" "
-"title=\"Open map\"/>"
+"<i class=\"oi\" data-icon=\"location_on\" role=\"img\" aria-label=\"Open "
+"map\" title=\"Open map\"/>"
 msgstr ""
-"<i class=\"fa fa-map-marker\" role=\"img\" aria-label=\"ເປີດແຜນທີ່\" title=\"ເປີດ"
-"ແຜນທີ່\"/>"
-
-#. module: website_customer
-#: model_terms:ir.ui.view,arch_db:website_customer.details
-msgid "<i class=\"oi oi-chevron-left me-2\"/>Back to references"
-msgstr "<i class=\"oi oi-chevron-left me-2\"/>ກັບຄືນໄປຫາຂໍ້ມູນອ້າງອີງ"
+"<i class=\"oi\" data-icon=\"location_on\" role=\"img\" aria-label=\"ເປີດແຜນ"
+"ທີ່\" title=\"ເປີດແຜນທີ່\"/>"
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.index
 #: model_terms:ir.ui.view,arch_db:website_customer.opt_tag_list
-msgid "<span class=\"fa fa-1x fa-tags\"/> All"
-msgstr "<span class=\"fa fa-1x fa-tags\"/> ທັງໝົດ"
+msgid "<span class=\"oi oi-1x\" data-icon=\"sell\"/> All"
+msgstr "<span class=\"oi oi-1x\" data-icon=\"sell\"/> ທັງໝົດ"
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.implemented_by_block
@@ -74,17 +86,27 @@ msgstr "ທຸກຂະແໜງອຸດສາຫະກຳ"
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.res_partner_tag_view_search
 msgid "Archived"
-msgstr "ເກັບຖາວອນ"
+msgstr "ຈັດເກັບແລ້ວ"
+
+#. module: website_customer
+#: model:ir.model.fields,field_description:website_customer.field_res_partner_tag__publish_on
+msgid "Auto publish on"
+msgstr "ເຜີຍແຜ່ອັດຕະໂນມັດເມື່ອ"
+
+#. module: website_customer
+#: model:ir.model.fields,help:website_customer.field_res_partner_tag__publish_on
+msgid "Automatically publish the page on the chosen date and time."
+msgstr "ເຜີຍແຜ່ໜ້າເວັບໂດຍອັດຕະໂນມັດໃນວັນທີ ແລະ ເວລາທີ່ກຳນົດ."
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.details
 msgid "Back to references list"
-msgstr "ກັບຄືນໄປຫາລາຍການຂໍ້ມູນອ້າງອີງ"
+msgstr "ກັບຄືນໄປຫາລາຍການອ້າງອີງ"
 
 #. module: website_customer
 #: model:ir.model.fields,help:website_customer.field_res_partner_tag__classname
 msgid "Bootstrap class to customize the color"
-msgstr "Bootstrap class ສຳລັບກຳນົດສີດ້ວຍຕົນເອງ"
+msgstr "ຄຼາດ Bootstrap ສຳລັບປັບແຕ່ງສີ"
 
 #. module: website_customer
 #: model:ir.model.fields,field_description:website_customer.field_res_partner_tag__can_publish
@@ -99,7 +121,7 @@ msgstr "ຊື່ໝວດໝູ່"
 #. module: website_customer
 #: model:ir.model.fields,field_description:website_customer.field_res_partner_tag__classname
 msgid "Class"
-msgstr "ຄລາດ (Class)"
+msgstr "ຄຼາດ"
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.index
@@ -116,7 +138,7 @@ msgstr "ຜູ້ຕິດຕໍ່"
 #. odoo-javascript
 #: code:addons/website_customer/static/src/website_builder/customer_filter_option.xml:0
 msgid "Countries Filter"
-msgstr "ຕົວຕອງປະເທດ"
+msgstr "ຕົວກັ່ນຕອງປະເທດ"
 
 #. module: website_customer
 #: model:ir.model,website_form_label:website_customer.model_res_partner
@@ -126,7 +148,7 @@ msgstr "ສ້າງລູກຄ້າ"
 #. module: website_customer
 #: model_terms:ir.actions.act_window,help:website_customer.action_partner_tag_form
 msgid "Create a new contact tag"
-msgstr "ສ້າງແທັກຜູ້ຕິດຕໍ່ໃໝ່"
+msgstr "ສ້າງປ້າຍກຳກັບຜູ້ຕິດຕໍ່ໃໝ່"
 
 #. module: website_customer
 #: model:ir.model.fields,field_description:website_customer.field_res_partner_tag__create_uid
@@ -139,6 +161,11 @@ msgid "Created on"
 msgstr "ສ້າງເມື່ອ"
 
 #. module: website_customer
+#: model:ir.module.module,shortdesc:base.module_website_customer
+msgid "Customer References"
+msgstr "ບ່ອນອ້າງອີງລູກຄ້າ"
+
+#. module: website_customer
 #. odoo-python
 #: code:addons/website_customer/controllers/main.py:0
 msgid "Customers"
@@ -146,14 +173,9 @@ msgstr "ລູກຄ້າ"
 
 #. module: website_customer
 #. odoo-javascript
-#: code:addons/website_customer/static/src/website_builder/customer_filter_option.js:0
+#: code:addons/website_customer/static/src/website_builder/customer_filter_option.xml:0
 msgid "Customers Page"
 msgstr "ໜ້າລູກຄ້າ"
-
-#. module: website_customer
-#: model_terms:ir.ui.view,arch_db:website_customer.details
-msgid "DROP BUILDING BLOCKS HERE TO MAKE THEM AVAILABLE ACROSS ALL CUSTOMERS"
-msgstr "ວາງບລັອກສ້າງເວັບໄຊທ໌ຢູ່ບ່ອນນີ້ ເພື່ອໃຫ້ສາມາດໃຊ້ໄດ້ກັບລູກຄ້າທັງໝົດ"
 
 #. module: website_customer
 #: model:ir.model.fields,field_description:website_customer.field_res_partner__display_name
@@ -163,45 +185,50 @@ msgid "Display Name"
 msgstr "ຊື່ທີ່ສະແດງ"
 
 #. module: website_customer
+#: model_terms:ir.ui.view,arch_db:website_customer.details
+msgid "Drag blocks here to add them on all customers"
+msgstr "ລາກບລັອກມາວາງບ່ອນນີ້ ເພື່ອເພີ່ມໃສ່ລູກຄ້າທັງໝົດ"
+
+#. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.index
 msgid "Enter a short description"
-msgstr "ໃສ່ຄຳອະທິບາຍສັ້ນໆ"
+msgstr "ປ້ອນຄຳອະທິບາຍສັ້ນໆ"
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.index
 msgid "Filter by Country"
-msgstr "ຕອງຕາມປະເທດ"
+msgstr "ກັ່ນຕອງຕາມປະເທດ"
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.index
 msgid "Filter by Industry"
-msgstr "ຕອງຕາມຂະແໜງອຸດສາຫະກຳ"
+msgstr "ກັ່ນຕອງຕາມຂະແໜງອຸດສາຫະກຳ"
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.index
 msgid "Filter by Tags"
-msgstr "ຕອງຕາມແທັກ"
+msgstr "ກັ່ນຕອງຕາມປ້າຍກຳກັບ"
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.opt_country_list
 msgid "Filter by country"
-msgstr "ຕອງຕາມປະເທດ"
+msgstr "ກັ່ນຕອງຕາມປະເທດ"
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.opt_industry_list
 msgid "Filter by industry"
-msgstr "ຕອງຕາມຂະແໜງອຸດສາຫະກຳ"
+msgstr "ກັ່ນຕອງຕາມຂະແໜງອຸດສາຫະກຳ"
 
 #. module: website_customer
 #: model:ir.model.fields,help:website_customer.field_res_partner__website_tag_ids
 #: model:ir.model.fields,help:website_customer.field_res_users__website_tag_ids
 msgid "Filter published customers on the .../customers website page"
-msgstr "ຕອງລູກຄ້າທີ່ເຜີຍແຜ່ແລ້ວໃນໜ້າເວັບໄຊທ໌ .../customers"
+msgstr "ກັ່ນຕອງລູກຄ້າທີ່ເຜີຍແຜ່ແລ້ວໃນໜ້າເວັບໄຊ .../customers"
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.index
 msgid "Filters"
-msgstr "ຕົວຕອງ"
+msgstr "ຕົວກັ່ນຕອງ"
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.index
@@ -213,13 +240,13 @@ msgstr "ໄປຫາລູກຄ້າ"
 #: model:ir.model.fields,field_description:website_customer.field_res_partner_tag__id
 #: model:ir.model.fields,field_description:website_customer.field_website__id
 msgid "ID"
-msgstr "ໄອດີ (ID)"
+msgstr "ID"
 
 #. module: website_customer
 #. odoo-javascript
 #: code:addons/website_customer/static/src/website_builder/customer_filter_option.xml:0
 msgid "Industry Filter"
-msgstr "ຕົວຕອງຂະແໜງອຸດສາຫະກຳ"
+msgstr "ຕົວກັ່ນຕອງຂະແໜງອຸດສາຫະກຳ"
 
 #. module: website_customer
 #: model:ir.model.fields,field_description:website_customer.field_res_partner_tag__is_published
@@ -229,12 +256,12 @@ msgstr "ເຜີຍແຜ່ແລ້ວ"
 #. module: website_customer
 #: model:ir.model.fields,field_description:website_customer.field_res_partner_tag__write_uid
 msgid "Last Updated by"
-msgstr "ອັບເດດລ້າສຸດໂດຍ"
+msgstr "ອັບເດດລ່າສຸດໂດຍ"
 
 #. module: website_customer
 #: model:ir.model.fields,field_description:website_customer.field_res_partner_tag__write_date
 msgid "Last Updated on"
-msgstr "ອັບເດດລ້າສຸດເມື່ອ"
+msgstr "ອັບເດດລ່າສຸດເມື່ອ"
 
 #. module: website_customer
 #: model_terms:ir.actions.act_window,help:website_customer.action_partner_tag_form
@@ -242,7 +269,7 @@ msgid ""
 "Manage contact tags to better classify them for tracking and analysis "
 "purposes."
 msgstr ""
-"ຈັດການແທັກຜູ້ຕິດຕໍ່ເພື່ອແບ່ງປະເພດໃຫ້ດີຂຶ້ນ ສຳລັບການຕິດຕາມ ແລະ ການວິເຄາະ."
+"ຈັດການປ້າຍກຳກັບຜູ້ຕິດຕໍ່ ເພື່ອຈັດໝວດໝູ່ໃຫ້ດີຂຶ້ນ ສຳລັບການຕິດຕາມ ແລະ ການວິເຄາະ."
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.index
@@ -252,12 +279,12 @@ msgstr "ບໍ່ພົບຜົນການຄົ້ນຫາສຳລັບ \"
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.index
 msgid "Our references"
-msgstr "ຂໍ້ມູນອ້າງອີງຂອງພວກເຮົາ"
+msgstr "ບ່ອນອ້າງອີງຂອງພວກເຮົາ"
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.view_partner_tag_form
 msgid "Partner Tag"
-msgstr "ແທັກຄູ່ຄ້າ"
+msgstr "ປ້າຍກຳກັບຄູ່ຮ່ວມຄ້າ"
 
 #. module: website_customer
 #: model:ir.model,name:website_customer.model_res_partner_tag
@@ -265,19 +292,29 @@ msgid ""
 "Partner Tags - These tags can be used on website to find customers by "
 "sector, or ..."
 msgstr ""
-"ແທັກຄູ່ຄ້າ - ແທັກເຫຼົ່ານີ້ສາມາດໃຊ້ໃນເວັບໄຊທ໌ເພື່ອຄົ້ນຫາລູກຄ້າຕາມຂະແໜງການ, ຫຼື ..."
+"ປ້າຍກຳກັບຄູ່ຮ່ວມຄ້າ - ປ້າຍກຳກັບເຫຼົ່ານີ້ສາມາດນຳໃຊ້ໃນເວັບໄຊ ເພື່ອຄົ້ນຫາລູກຄ້າຕາມຂະແໜງການ, ຫຼື ..."
 
 #. module: website_customer
 #: model:ir.model.fields,field_description:website_customer.field_res_partner_tag__partner_ids
 msgid "Partners"
-msgstr "ຄູ່ຄ້າ"
+msgstr "ຄູ່ຮ່ວມຄ້າ"
+
+#. module: website_customer
+#: model:ir.module.module,summary:base.module_website_customer
+msgid "Publish your customer references"
+msgstr "ເຜີຍແຜ່ບ່ອນອ້າງອີງລູກຄ້າຂອງທ່ານ"
+
+#. module: website_customer
+#: model:ir.model.fields,field_description:website_customer.field_res_partner_tag__published_date
+msgid "Published date"
+msgstr "ວັນທີເຜີຍແຜ່"
 
 #. module: website_customer
 #. odoo-python
 #: code:addons/website_customer/models/website.py:0
 #: model_terms:ir.ui.view,arch_db:website_customer.references_block
 msgid "References"
-msgstr "ຂໍ້ມູນອ້າງອີງ"
+msgstr "ບ່ອນອ້າງອີງ"
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.index
@@ -287,7 +324,7 @@ msgstr "ຄົ້ນຫາ"
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.res_partner_tag_view_search
 msgid "Search Partner Tag"
-msgstr "ຄົ້ນຫາແທັກຄູ່ຄ້າ"
+msgstr "ຄົ້ນຫາປ້າຍກຳກັບຄູ່ຮ່ວມຄ້າ"
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.index
@@ -297,12 +334,12 @@ msgstr "ເບິ່ງລູກຄ້າທັງໝົດ"
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.index
 msgid "See countries filters"
-msgstr "ເບິ່ງຕົວຕອງປະເທດ"
+msgstr "ເບິ່ງຕົວກັ່ນຕອງປະເທດ"
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.index
 msgid "See industries filters"
-msgstr "ເບິ່ງຕົວຕອງຂະແໜງອຸດສາຫະກຳ"
+msgstr "ເບິ່ງຕົວກັ່ນຕອງຂະແໜງອຸດສາຫະກຳ"
 
 #. module: website_customer
 #. odoo-javascript
@@ -314,32 +351,32 @@ msgstr "ສະແດງແຜນທີ່"
 #. odoo-javascript
 #: code:addons/website_customer/static/src/website_builder/customer_filter_option.xml:0
 msgid "Tags Filter"
-msgstr "ຕົວຕອງແທັກ"
+msgstr "ຕົວກັ່ນຕອງປ້າຍກຳກັບ"
 
 #. module: website_customer
 #: model:ir.model.fields,help:website_customer.field_res_partner_tag__website_absolute_url
 msgid "The full absolute URL to access the document through the website."
-msgstr "URL ສົມບູນແບບເຕັມເພື່ອເຂົ້າເຖິງເອກະສານຜ່ານທາງເວັບໄຊທ໌."
+msgstr "URL ແບບເຕັມ (Absolute URL) ເພື່ອເຂົ້າເຖິງເອກະສານຜ່ານເວັບໄຊ."
 
 #. module: website_customer
 #: model:ir.model.fields,help:website_customer.field_res_partner_tag__website_url
 msgid "The full relative URL to access the document through the website."
-msgstr "URL ສຳພັດແບບເຕັມເພື່ອເຂົ້າເຖິງເອກະສານຜ່ານທາງເວັບໄຊທ໌."
+msgstr "URL ແບບສຳພັນ (Relative URL) ເພື່ອເຂົ້າເຖິງເອກະສານຜ່ານເວັບໄຊ."
 
 #. module: website_customer
 #: model:ir.model.fields,field_description:website_customer.field_res_partner_tag__website_published
 msgid "Visible on current website"
-msgstr "ສະແດງໃຫ້ເຫັນໃນເວັບໄຊທ໌ປັດຈຸບັນ"
+msgstr "ສະແດງໃຫ້ເຫັນໃນເວັບໄຊປັດຈຸບັນ"
 
 #. module: website_customer
 #: model:ir.model,name:website_customer.model_website
 msgid "Website"
-msgstr "ເວັບໄຊທ໌"
+msgstr "ເວັບໄຊ"
 
 #. module: website_customer
 #: model:ir.model.fields,field_description:website_customer.field_res_partner_tag__website_absolute_url
 msgid "Website Absolute URL"
-msgstr "URL ສົມບູນຂອງເວັບໄຊທ໌"
+msgstr "URL ແບບເຕັມຂອງເວັບໄຊ"
 
 #. module: website_customer
 #: model:ir.actions.act_window,name:website_customer.action_partner_tag_form
@@ -347,18 +384,18 @@ msgstr "URL ສົມບູນຂອງເວັບໄຊທ໌"
 #: model_terms:ir.ui.view,arch_db:website_customer.view_partner_tag_list
 #: model_terms:ir.ui.view,arch_db:website_customer.view_partners_form_website
 msgid "Website Tags"
-msgstr "ແທັກເວັບໄຊທ໌"
+msgstr "ປ້າຍກຳກັບເວັບໄຊ"
 
 #. module: website_customer
 #: model:ir.model.fields,field_description:website_customer.field_res_partner_tag__website_url
 msgid "Website URL"
-msgstr "URL ຂອງເວັບໄຊທ໌"
+msgstr "URL ເວັບໄຊ"
 
 #. module: website_customer
 #: model:ir.model.fields,field_description:website_customer.field_res_partner__website_tag_ids
 #: model:ir.model.fields,field_description:website_customer.field_res_users__website_tag_ids
 msgid "Website tags"
-msgstr "ແທັກເວັບໄຊທ໌"
+msgstr "ປ້າຍກຳກັບເວັບໄຊ"
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.opt_country

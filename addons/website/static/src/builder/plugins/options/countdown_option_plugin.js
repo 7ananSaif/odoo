@@ -1,34 +1,58 @@
 import { BuilderAction } from "@html_builder/core/builder_action";
-import { BaseOptionComponent } from "@html_builder/core/utils";
-import { before, SNIPPET_SPECIFIC_END } from "@html_builder/utils/option_sequence";
+import { BaseOptionComponent } from "@html_builder/core/base_option_component";
+import { ClassAction, StyleAction } from "@html_builder/core/core_builder_action_plugin";
 import { getElementsWithOption } from "@html_builder/utils/utils";
 import { Plugin } from "@html_editor/plugin";
+import { closestElement } from "@html_editor/utils/dom_traversal";
 import { withSequence } from "@html_editor/utils/resource";
 import { registry } from "@web/core/registry";
-import { renderToElement } from "@web/core/utils/render";
+import { SelectTemplateAction } from "../customize_website_plugin";
 
 export class CountdownOption extends BaseOptionComponent {
+    static id = "countdown_option";
     static template = "website.CountdownOption";
-    static selector = ".s_countdown";
+    static dependencies = ["versionError"];
     static cleanForSave = (editingEl) => {
         editingEl.classList.remove("s_countdown_enable_preview");
     };
+    setup() {
+        super.setup();
+        this.dependencies.versionError.checkNotifyOutdatedSnippet(this.env.getEditingElement());
+    }
 }
 
-class CountdownOptionPlugin extends Plugin {
+registry.category("website-options").add(CountdownOption.id, CountdownOption);
+
+export class CountdownOptionPlugin extends Plugin {
     static id = "CountdownOption";
     /** @type {import("plugins").WebsiteResources} */
     resources = {
-        builder_options: [withSequence(before(SNIPPET_SPECIFIC_END), CountdownOption)],
-        so_content_addition_selector: [".s_countdown"],
+        so_content_addition_selectors: [".s_countdown"],
+        before_insert_processors: (container, block) => {
+            if (block.closest(".s_countdown_metrics")) {
+                container.innerHTML = "";
+            }
+            return container;
+        },
         builder_actions: {
-            // TODO AGAU: update after merging generalized restart interactions
-            //  remove this and xml BuilderContext
-            ReloadCountdownAction,
             SetEndActionAction,
             PreviewEndMessageAction,
-            SetLayoutAction,
+            SetCountdownTitlePositionAction,
+            SelectCountdownTemplateAction,
+            SetColorInlineCountdownAction,
         },
+        toolbar_namespace_providers: [
+            withSequence(85, (targetedNodes) => {
+                if (
+                    targetedNodes.length &&
+                    targetedNodes.some((node) =>
+                        closestElement(node, ".s_countdown .s_countdown_metrics")
+                    )
+                ) {
+                    return "text";
+                }
+            }),
+        ],
         on_cloned_handlers: ({ cloneEl }) => {
             const countdownEls = getElementsWithOption(cloneEl, ".s_countdown");
             for (const countdownEl of countdownEls) {
@@ -40,6 +64,7 @@ class CountdownOptionPlugin extends Plugin {
 
 export class BaseCountdownAction extends BuilderAction {
     static id = "baseCountdown";
+    static dependencies = ["websiteBridge"];
     /**
      * Used to preserve modified end messages through end action changes. This
      * allows the user to test options without losing their progress while in
@@ -71,7 +96,10 @@ export class BaseCountdownAction extends BuilderAction {
             if (!endMessageEl) {
                 const existingEndMessage = this.editingElEndMessages.get(editingElement);
                 editingElement.appendChild(
-                    existingEndMessage || renderToElement("website.s_countdown.end_message")
+                    existingEndMessage ||
+                        this.dependencies.websiteBridge.renderToElement(
+                            "website.s_countdown.end_message"
+                        )
                 );
             }
         } else {
@@ -86,48 +114,12 @@ export class BaseCountdownAction extends BuilderAction {
         return editingElement.dataset.endAction === value;
     }
 
-    setLayout({ editingElement, value }) {
-        switch (value) {
-            case "circle":
-                editingElement.dataset.progressBarStyle = "disappear";
-                editingElement.dataset.progressBarWeight = "thin";
-                editingElement.dataset.layoutBackground = "none";
-                break;
-            case "boxes":
-                editingElement.dataset.progressBarStyle = "none";
-                editingElement.dataset.layoutBackground = "plain";
-                break;
-            case "clean":
-                editingElement.dataset.progressBarStyle = "none";
-                editingElement.dataset.layoutBackground = "none";
-                break;
-            case "text":
-                editingElement.dataset.progressBarStyle = "none";
-                editingElement.dataset.layoutBackground = "none";
-                break;
-        }
-        editingElement.dataset.layout = value;
-    }
-
-    isLayoutApplied({ editingElement, value }) {
-        return editingElement.dataset.layout === value;
-    }
-
     isEndMessagePreviewed({ editingElement }) {
         return !!editingElement?.classList.contains("s_countdown_enable_preview");
     }
 
     toggleEndMessagePreview(editingElement, doShow) {
         editingElement?.classList.toggle("s_countdown_enable_preview", doShow === true);
-    }
-}
-
-// TODO AGAU: update after merging generalized restart interactions
-//  remove this and xml BuilderContext
-export class ReloadCountdownAction extends BaseCountdownAction {
-    static id = "reloadCountdown";
-    apply({ editingElement }) {
-        return this.dispatchTo("update_interactions", editingElement);
     }
 }
 
@@ -158,13 +150,64 @@ export class PreviewEndMessageAction extends BaseCountdownAction {
     }
 }
 
-export class SetLayoutAction extends BaseCountdownAction {
-    static id = "setLayout";
-    apply(context) {
-        return this.setLayout(context);
-    }
-    isApplied(context) {
-        return this.isLayoutApplied(context);
+export class SelectCountdownTemplateAction extends SelectTemplateAction {
+    static id = "selectCountdownTemplate";
+    static dependencies = [...super.dependencies, "edit_interaction"];
+
+    apply(action) {
+        const countdownEl = action.editingElement.closest(".s_countdown");
+        countdownEl.dataset.layoutBackground = "none";
+        if (action.params.view === "website.s_countdown_circle_template") {
+            countdownEl.dataset.progressBarStyle = "disappear";
+            countdownEl.dataset.progressBarWeight = "thin";
+            countdownEl.dataset.layout = "circle";
+        } else {
+            countdownEl.dataset.progressBarStyle = "none";
+            countdownEl.dataset.layoutBackground = "none";
+            countdownEl.dataset.layout = "text";
+        }
+        super.apply(action);
+        // Reset the monospace font option if we select a template that doesn't provide it.
+        if (["o_template_bordered_text", "o_template_text"].includes(action.params.templateClass)) {
+            action.editingElement
+                .closest(".o_count_monospace")
+                ?.classList.remove("o_count_monospace");
+        }
     }
 }
+
+export class SetColorInlineCountdownAction extends StyleAction {
+    static id = "setColorInlineCountdown";
+
+    apply(context) {
+        super.apply(context);
+        context.editingElement.classList.toggle("o_countdown_no_bg_color", !context.value);
+    }
+}
+
+class SetCountdownTitlePositionAction extends ClassAction {
+    static id = "setCountdownTitlePosition";
+    static dependencies = ["websiteBridge"];
+
+    apply({ editingElement }) {
+        super.apply(...arguments);
+        // Compatibility for old snippets (without a title element).
+        if (!editingElement.querySelector(".s_countdown_title")) {
+            const wrapperEl = editingElement.querySelector(".s_countdown_canvas_wrapper");
+            const titleEl = this.dependencies.websiteBridge.renderToElement(
+                "website.s_countdown.title"
+            );
+            wrapperEl.insertAdjacentElement("beforebegin", titleEl);
+        }
+    }
+
+    isApplied({ editingElement }) {
+        // Compatibility for old snippets: no title is considered as hidden.
+        if (!editingElement.querySelector(".s_countdown_title")) {
+            return "s_countdown_title_hidden";
+        }
+        return super.isApplied(...arguments);
+    }
+}
+
 registry.category("website-plugins").add(CountdownOptionPlugin.id, CountdownOptionPlugin);

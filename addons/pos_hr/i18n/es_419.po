@@ -3,24 +3,52 @@
 # * pos_hr
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
-# "Patricia Gutiérrez (pagc)" <pagc@odoo.com>, 2025.
-# "Fernanda Alvarez (mfar)" <mfar@odoo.com>, 2025.
+# "Patricia Gutiérrez (pagc)" <pagc@odoo.com>, 2025, 2026.
+# "Fernanda Alvarez (mfar)" <mfar@odoo.com>, 2025, 2026.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# Odoo Translation Bot <c3p@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-12-20 09:51+0000\n"
+"POT-Creation-Date: 2026-10-16 17:42+0000\n"
+"PO-Revision-Date: 2026-10-23 00:33+0000\n"
 "Last-Translator: \"Fernanda Alvarez (mfar)\" <mfar@odoo.com>\n"
 "Language-Team: Spanish (Latin America) <https://translate.odoo.com/projects/"
-"odoo-19/pos_hr/es_419/>\n"
+"odoo-20/pos_hr/es_419/>\n"
 "Language: es_419\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: pos_hr
+#: model:ir.module.module,description:base.module_pos_hr
+msgid ""
+"\n"
+"This module allows Employees (and not users) to log in to the Point of Sale "
+"application using a barcode, a PIN number or both.\n"
+"The actual till still requires one user but an unlimited number of employees "
+"can log on to that till and process sales.\n"
+msgstr ""
+"\n"
+"Este módulo permite que los empleados (y no los usuarios) inicien sesión en "
+"la aplicación Punto de venta mediante un código de barras, un NIP o ambos.\n"
+"La caja registradora sigue necesitando un usuario, pero un número ilimitado "
+"de empleados puede iniciar sesión en ella y procesar ventas.\n"
+
+#. module: pos_hr
+#: model:ir.model.fields,help:pos_hr.field_res_config_settings__pos_manager_employee_ids
+msgid " Full access, including reporting, cash management, and session close."
+msgstr ""
+
+#. module: pos_hr
+#: model:ir.model.fields,help:pos_hr.field_res_config_settings__pos_cashier_employee_ids
+msgid ""
+" Full register access. Can process sales, discounts, refunds, and close out "
+"payments."
+msgstr ""
 
 #. module: pos_hr
 #: model_terms:ir.ui.view,arch_db:pos_hr.single_employee_sales_report
@@ -28,38 +56,44 @@ msgid "Abigal Peterson"
 msgstr "Abigal Peterson"
 
 #. module: pos_hr
-#. odoo-javascript
-#: code:addons/pos_hr/static/src/app/screens/product_screen/order_summary/order_summary.js:0
-msgid "Access Denied"
-msgstr "Acceso denegado"
-
-#. module: pos_hr
 #: model:ir.model.fields,field_description:pos_hr.field_pos_daily_sales_reports_wizard__add_report_per_employee
 msgid "Add a report per each employee"
 msgstr "Agregue un reporte para cada empleado"
 
 #. module: pos_hr
-#: model_terms:ir.ui.view,arch_db:pos_hr.pos_config_form_view_inherit
-#: model_terms:ir.ui.view,arch_db:pos_hr.res_config_settings_view_form
-msgid "Advanced rights"
-msgstr "Permisos avanzados"
+#: model:ir.model.fields,help:pos_hr.field_pos_config__logged_employee_ids
+msgid "All employees who have logged into the current session"
+msgstr "Todos los empleados que han iniciado sesión en la sesión actual"
 
 #. module: pos_hr
-#: model_terms:ir.ui.view,arch_db:pos_hr.pos_config_form_view_inherit
-#: model_terms:ir.ui.view,arch_db:pos_hr.res_config_settings_view_form
-msgid "All Employees"
-msgstr "Todos los empleados"
+#: model:ir.model.fields,help:pos_hr.field_pos_session__logged_employee_ids
+msgid "All employees who have logged into this session"
+msgstr "Todos los empleados que han iniciado sesión en esta sesión"
 
 #. module: pos_hr
 #: model:ir.model,name:pos_hr.model_account_bank_statement_line
-msgid "Bank Statement Line"
-msgstr "Línea de un estado de cuenta bancario"
+msgid "Bank Transaction"
+msgstr ""
 
 #. module: pos_hr
-#: model_terms:ir.ui.view,arch_db:pos_hr.pos_config_form_view_inherit
-#: model_terms:ir.ui.view,arch_db:pos_hr.res_config_settings_view_form
-msgid "Basic rights"
-msgstr "Permisos básicos"
+#: model:ir.model.fields,help:pos_hr.field_pos_config__restrictive_employee_ids
+#: model:ir.model.fields,help:pos_hr.field_res_config_settings__pos_restrictive_employee_ids
+msgid ""
+"Can process sales and close payments, but not apply discounts, refunds, or "
+"cancel orders."
+msgstr ""
+
+#. module: pos_hr
+#: model:ir.model.fields,help:pos_hr.field_pos_config__supervised_employee_ids
+msgid ""
+"Can process sales, but a higher level must approve before payment is closed"
+msgstr ""
+
+#. module: pos_hr
+#: model:ir.model.fields,help:pos_hr.field_res_config_settings__pos_supervised_employee_ids
+msgid ""
+"Can process sales, but a higher level must approve before payment is closed."
+msgstr ""
 
 #. module: pos_hr
 #: model_terms:ir.ui.view,arch_db:pos_hr.view_pos_daily_sales_reports_wizard
@@ -80,7 +114,9 @@ msgstr "Entrada y salida de efectivo"
 #: model:ir.model.fields,field_description:pos_hr.field_pos_order__employee_id
 #: model:ir.model.fields,field_description:pos_hr.field_pos_payment__employee_id
 #: model:ir.model.fields,field_description:pos_hr.field_pos_session__employee_id
+#: model_terms:ir.ui.view,arch_db:pos_hr.pos_config_form_view_inherit
 #: model_terms:ir.ui.view,arch_db:pos_hr.pos_order_list_select_inherit
+#: model_terms:ir.ui.view,arch_db:pos_hr.res_config_settings_view_form
 msgid "Cashier"
 msgstr "Cajero"
 
@@ -96,21 +132,25 @@ msgid "Cashier name"
 msgstr "Nombre del cajero"
 
 #. module: pos_hr
-#. odoo-python
-#: code:addons/pos_hr/models/pos_session.py:0
-msgid "Closed Register"
-msgstr "Caja registradora cerrada"
-
-#. module: pos_hr
 #: model:ir.model,name:pos_hr.model_res_config_settings
 msgid "Config Settings"
 msgstr "Ajustes de configuración"
+
+#. module: pos_hr
+#: model:ir.model,name:pos_hr.model_res_partner
+msgid "Contact"
+msgstr ""
 
 #. module: pos_hr
 #. odoo-javascript
 #: code:addons/pos_hr/static/src/app/components/popups/closing_popup/closing_popup.xml:0
 msgid "Counted"
 msgstr "Contado"
+
+#. module: pos_hr
+#: model:ir.model,website_form_label:pos_hr.model_res_partner
+msgid "Create a Customer"
+msgstr ""
 
 #. module: pos_hr
 #. odoo-javascript
@@ -130,12 +170,14 @@ msgstr "Descartar"
 #: model:ir.model.fields,field_description:pos_hr.field_pos_config__display_name
 #: model:ir.model.fields,field_description:pos_hr.field_pos_daily_sales_reports_wizard__display_name
 #: model:ir.model.fields,field_description:pos_hr.field_pos_order__display_name
+#: model:ir.model.fields,field_description:pos_hr.field_pos_order_receipt__display_name
 #: model:ir.model.fields,field_description:pos_hr.field_pos_payment__display_name
 #: model:ir.model.fields,field_description:pos_hr.field_pos_session__display_name
 #: model:ir.model.fields,field_description:pos_hr.field_product_product__display_name
 #: model:ir.model.fields,field_description:pos_hr.field_report_pos_hr_single_employee_sales_report__display_name
 #: model:ir.model.fields,field_description:pos_hr.field_report_pos_order__display_name
 #: model:ir.model.fields,field_description:pos_hr.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:pos_hr.field_res_partner__display_name
 msgid "Display Name"
 msgstr "Mostrar nombre"
 
@@ -159,38 +201,33 @@ msgid "Employee:"
 msgstr "Empleado:"
 
 #. module: pos_hr
-#. odoo-python
-#: code:addons/pos_hr/models/hr_employee.py:0
-msgid "Employee: %(employee)s - PoS Config(s): %(config_list)s \n"
-msgstr "Empleado: %(employee)s - Configuración del PdV: %(config_list)s \n"
+#: model_terms:ir.ui.view,arch_db:pos_hr.view_pos_session_form_inherit_pos_hr
+msgid "Employees"
+msgstr "Empleados"
 
 #. module: pos_hr
-#: model:ir.model.fields,help:pos_hr.field_pos_config__advanced_employee_ids
-#: model:ir.model.fields,help:pos_hr.field_res_config_settings__pos_advanced_employee_ids
-msgid ""
-"Employees linked to users with the PoS Manager role are automatically added "
-"to this list"
+#: model:ir.model.fields,field_description:pos_hr.field_pos_config__cashier_employee_ids
+#: model:ir.model.fields,field_description:pos_hr.field_res_config_settings__pos_cashier_employee_ids
+msgid "Employees with cashier level access"
 msgstr ""
-"Los empleados vinculados a usuarios con el rol de gerente de PdV forman "
-"parte de esta lista de manera automática"
 
 #. module: pos_hr
-#: model:ir.model.fields,field_description:pos_hr.field_pos_config__basic_employee_ids
-#: model:ir.model.fields,field_description:pos_hr.field_res_config_settings__pos_basic_employee_ids
-msgid "Employees with basic access"
-msgstr "Empleados con acceso básico"
+#: model:ir.model.fields,field_description:pos_hr.field_pos_config__manager_employee_ids
+#: model:ir.model.fields,field_description:pos_hr.field_res_config_settings__pos_manager_employee_ids
+msgid "Employees with manager level access"
+msgstr ""
 
 #. module: pos_hr
-#: model:ir.model.fields,field_description:pos_hr.field_pos_config__advanced_employee_ids
-#: model:ir.model.fields,field_description:pos_hr.field_res_config_settings__pos_advanced_employee_ids
-msgid "Employees with manager access"
-msgstr "Empleados con acceso de gerente"
+#: model:ir.model.fields,field_description:pos_hr.field_pos_config__restrictive_employee_ids
+#: model:ir.model.fields,field_description:pos_hr.field_res_config_settings__pos_restrictive_employee_ids
+msgid "Employees with restrictive level access"
+msgstr ""
 
 #. module: pos_hr
-#: model:ir.model.fields,field_description:pos_hr.field_pos_config__minimal_employee_ids
-#: model:ir.model.fields,field_description:pos_hr.field_res_config_settings__pos_minimal_employee_ids
-msgid "Employees with minimal access"
-msgstr "Empleados con acceso mínimo"
+#: model:ir.model.fields,field_description:pos_hr.field_pos_config__supervised_employee_ids
+#: model:ir.model.fields,field_description:pos_hr.field_res_config_settings__pos_supervised_employee_ids
+msgid "Employees with supervised level access"
+msgstr ""
 
 #. module: pos_hr
 #. odoo-javascript
@@ -199,27 +236,38 @@ msgid "Enter your PIN"
 msgstr "Escriba su NIP"
 
 #. module: pos_hr
+#: model:ir.model.fields,help:pos_hr.field_pos_config__manager_employee_ids
+msgid "Full access, including reporting, cash management, and session close."
+msgstr ""
+
+#. module: pos_hr
+#: model:ir.model.fields,help:pos_hr.field_pos_config__cashier_employee_ids
+msgid ""
+"Full register access. Can process sales, discounts, refunds, and close out "
+"payments."
+msgstr ""
+
+#. module: pos_hr
 #: model:ir.model.fields,field_description:pos_hr.field_account_bank_statement_line__id
 #: model:ir.model.fields,field_description:pos_hr.field_hr_employee__id
 #: model:ir.model.fields,field_description:pos_hr.field_pos_config__id
 #: model:ir.model.fields,field_description:pos_hr.field_pos_daily_sales_reports_wizard__id
 #: model:ir.model.fields,field_description:pos_hr.field_pos_order__id
+#: model:ir.model.fields,field_description:pos_hr.field_pos_order_receipt__id
 #: model:ir.model.fields,field_description:pos_hr.field_pos_payment__id
 #: model:ir.model.fields,field_description:pos_hr.field_pos_session__id
 #: model:ir.model.fields,field_description:pos_hr.field_product_product__id
 #: model:ir.model.fields,field_description:pos_hr.field_report_pos_hr_single_employee_sales_report__id
 #: model:ir.model.fields,field_description:pos_hr.field_report_pos_order__id
 #: model:ir.model.fields,field_description:pos_hr.field_res_config_settings__id
+#: model:ir.model.fields,field_description:pos_hr.field_res_partner__id
 msgid "ID"
 msgstr "ID"
 
 #. module: pos_hr
-#: model:ir.model.fields,help:pos_hr.field_pos_config__basic_employee_ids
-#: model:ir.model.fields,help:pos_hr.field_pos_config__minimal_employee_ids
-#: model:ir.model.fields,help:pos_hr.field_res_config_settings__pos_basic_employee_ids
-#: model:ir.model.fields,help:pos_hr.field_res_config_settings__pos_minimal_employee_ids
-msgid "If left empty, all employees can log in to PoS"
-msgstr "Si se deja vacío, todos los empleados pueden acceder al PdV"
+#: model:ir.module.module,summary:base.module_pos_hr
+msgid "Link module between Point of Sale and HR"
+msgstr ""
 
 #. module: pos_hr
 #. odoo-javascript
@@ -229,14 +277,26 @@ msgid "Lock"
 msgstr "Bloquear"
 
 #. module: pos_hr
+#: model:ir.model.fields,field_description:pos_hr.field_pos_config__logged_employee_ids
+#: model:ir.model.fields,field_description:pos_hr.field_pos_session__logged_employee_ids
+msgid "Logged In Cashiers"
+msgstr "Cajeros con sesión iniciada"
+
+#. module: pos_hr
 #: model_terms:ir.ui.view,arch_db:pos_hr.pos_config_form_view_inherit
 #: model_terms:ir.ui.view,arch_db:pos_hr.res_config_settings_view_form
-msgid "Minimal rights"
-msgstr "Permisos mínimos"
+msgid "Manager"
+msgstr ""
 
 #. module: pos_hr
 #. odoo-javascript
-#: code:addons/pos_hr/static/src/app/utils/select_cashier_mixin.js:0
+#: code:addons/pos_hr/static/src/app/components/popups/cashier_selection_popup/cashier_selection_popup.xml:0
+msgid "More..."
+msgstr "Más…"
+
+#. module: pos_hr
+#. odoo-javascript
+#: code:addons/pos_hr/static/src/app/services/pos_store.js:0
 msgid "No Cashiers"
 msgstr "Sin cajeros"
 
@@ -276,13 +336,19 @@ msgstr "Otros"
 
 #. module: pos_hr
 #. odoo-javascript
-#: code:addons/pos_hr/static/src/app/utils/select_cashier_mixin.js:0
+#: code:addons/pos_hr/static/src/app/plugins/access_right_plugin.js:0
+#: code:addons/pos_hr/static/src/app/services/pos_store.js:0
 msgid "PIN not found"
 msgstr "No se encontró el NIP"
 
 #. module: pos_hr
+#: model:ir.module.module,shortdesc:base.module_pos_hr
+msgid "POS - HR"
+msgstr ""
+
+#. module: pos_hr
 #. odoo-javascript
-#: code:addons/pos_hr/static/src/app/utils/select_cashier_mixin.js:0
+#: code:addons/pos_hr/static/src/app/plugins/access_right_plugin.js:0
 msgid "Password?"
 msgstr "¿Contraseña?"
 
@@ -304,8 +370,13 @@ msgstr "Reporte diario del Punto de venta"
 
 #. module: pos_hr
 #: model:ir.model,name:pos_hr.model_pos_order
-msgid "Point of Sale Orders"
-msgstr "Órdenes del punto de venta"
+msgid "Point of Sale Order"
+msgstr "Orden del punto de venta"
+
+#. module: pos_hr
+#: model:ir.model,name:pos_hr.model_pos_order_receipt
+msgid "Point of Sale Order Receipt Generator"
+msgstr "Generador de recibos de órdenes del punto de venta"
 
 #. module: pos_hr
 #: model:ir.model,name:pos_hr.model_report_pos_order
@@ -314,8 +385,8 @@ msgstr "Reporte de órdenes del punto de venta"
 
 #. module: pos_hr
 #: model:ir.model,name:pos_hr.model_pos_payment
-msgid "Point of Sale Payments"
-msgstr "Pagos en punto de venta"
+msgid "Point of Sale Payment"
+msgstr "Pago en el punto de venta"
 
 #. module: pos_hr
 #: model:ir.model,name:pos_hr.model_pos_session
@@ -326,6 +397,12 @@ msgstr "Sesión de punto de venta"
 #: model:ir.model,name:pos_hr.model_product_product
 msgid "Product Variant"
 msgstr "Variante del producto"
+
+#. module: pos_hr
+#: model_terms:ir.ui.view,arch_db:pos_hr.pos_config_form_view_inherit
+#: model_terms:ir.ui.view,arch_db:pos_hr.res_config_settings_view_form
+msgid "Restrictive"
+msgstr ""
 
 #. module: pos_hr
 #. odoo-javascript
@@ -345,6 +422,12 @@ msgid "Session sales details for a single employee"
 msgstr "Detalles de las ventas de la sesión para un solo empleado"
 
 #. module: pos_hr
+#: model_terms:ir.ui.view,arch_db:pos_hr.pos_config_form_view_inherit
+#: model_terms:ir.ui.view,arch_db:pos_hr.res_config_settings_view_form
+msgid "Supervised"
+msgstr ""
+
+#. module: pos_hr
 #: model:ir.model.fields,help:pos_hr.field_pos_session__employee_id
 msgid "The employee who currently uses the cash register"
 msgstr "El empleado que utiliza la caja registradora en este momento"
@@ -362,7 +445,7 @@ msgstr "El empleado que usa la caja registradora."
 
 #. module: pos_hr
 #. odoo-javascript
-#: code:addons/pos_hr/static/src/app/utils/select_cashier_mixin.js:0
+#: code:addons/pos_hr/static/src/app/services/pos_store.js:0
 msgid "There is no cashier available."
 msgstr "No hay cajeros disponibles."
 
@@ -374,50 +457,69 @@ msgstr "Desbloquear caja registradora"
 
 #. module: pos_hr
 #. odoo-javascript
-#: code:addons/pos_hr/static/src/app/utils/select_cashier_mixin.js:0
+#: code:addons/pos_hr/static/src/app/plugins/access_right_plugin.js:0
+#: code:addons/pos_hr/static/src/app/services/pos_store.js:0
 msgid "Wrong PIN"
 msgstr "NIP incorrecto"
-
-#. module: pos_hr
-#. odoo-javascript
-#: code:addons/pos_hr/static/src/app/screens/product_screen/order_summary/order_summary.js:0
-msgid "You are not allowed to change the price of a product."
-msgstr "No tiene permitido cambiar el precio de un producto."
 
 #. module: pos_hr
 #. odoo-python
 #: code:addons/pos_hr/models/hr_employee.py:0
 msgid ""
-"You cannot delete an employee that may be used in an active PoS session, "
-"close the session(s) first: \n"
+"You cannot delete an employee that may be used in an active PoS session. "
+"Close the session(s) first:\n"
+"Employee: %(employee)s - PoS Config(s): %(config_list)s"
 msgstr ""
-"No puede eliminar un empleado que puede estar en uso en una sesión activa de "
-"PdV, primero cierre las sesiones: \n"
 
-#~ msgid "If left empty, only Odoo users have extended rights in PoS"
-#~ msgstr ""
-#~ "Si está vacío, solo los usuarios de Odoo tendrán permisos adicionales en "
-#~ "el PdV"
+#~ msgid "Bank Statement Line"
+#~ msgstr "Línea de un estado de cuenta bancario"
 
-#~ msgid "A collection of single session reports. One for each employee"
-#~ msgstr ""
-#~ "Una colección de reportes de una sola sesión. Uno para cada empleado"
+#~ msgid "Access Denied"
+#~ msgstr "Acceso denegado"
+
+#~ msgid "Advanced rights"
+#~ msgstr "Permisos avanzados"
+
+#~ msgid "All Employees"
+#~ msgstr "Todos los empleados"
+
+#~ msgid "Basic rights"
+#~ msgstr "Permisos básicos"
+
+#~ msgid "Employee: %(employee)s - PoS Config(s): %(config_list)s \n"
+#~ msgstr "Empleado: %(employee)s - Configuración del PdV: %(config_list)s \n"
 
 #~ msgid ""
-#~ "Can't generate a report per employee! as selected session has no orders "
-#~ "associated with any employee."
+#~ "Employees linked to users with the PoS Manager role are automatically "
+#~ "added to this list"
 #~ msgstr ""
-#~ "No es posible generar un reporte por empleado. La sesión seleccionada no "
-#~ "tiene órdenes asociadas con ningún empleado."
+#~ "Los empleados vinculados a usuarios con el rol de gerente de PdV forman "
+#~ "parte de esta lista de manera automática"
 
-#~ msgid "Change Cashier"
-#~ msgstr "Cambiar cajero"
+#~ msgid "Employees with basic access"
+#~ msgstr "Empleados con acceso básico"
 
-#~ msgid "Employee Sales Details"
-#~ msgstr "Detalles de ventas de empleados"
+#~ msgid "Employees with manager access"
+#~ msgstr "Empleados con acceso de gerente"
 
-#~ msgid "Payments in %(paymentMethod)s"
-#~ msgstr "Pagos en %(paymentMethod)s"
+#~ msgid "Employees with minimal access"
+#~ msgstr "Empleados con acceso mínimo"
 
-#~ msgid "Print"
-#~ msgstr "Imprimir"
+#~ msgid "If left empty, all employees can log in to PoS"
+#~ msgstr "Si se deja vacío, todos los empleados pueden acceder al PdV"
+
+#~ msgid "Minimal rights"
+#~ msgstr "Permisos mínimos"
+
+#~ msgid "You are not allowed to change the price of a product."
+#~ msgstr "No tiene permitido cambiar el precio de un producto."
+
+#~ msgid ""
+#~ "You cannot delete an employee that may be used in an active PoS session, "
+#~ "close the session(s) first: \n"
+#~ msgstr ""
+#~ "No puede eliminar un empleado que puede estar en uso en una sesión activa "
+#~ "de PdV, primero cierre las sesiones: \n"
+
+#~ msgid "Closed Register"
+#~ msgstr "Caja registradora cerrada"

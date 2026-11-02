@@ -7,18 +7,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-11-08 19:07+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
+"POT-Creation-Date: 2026-09-11 17:44+0000\n"
+"PO-Revision-Date: 2026-08-31 19:00+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Serbian (Latin script) <https://translate.odoo.com/projects/"
-"odoo-19/website_slides_survey/sr_Latn/>\n"
+"odoo-s19-4/website_slides_survey/sr_Latn/>\n"
 "Language: sr@latin\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_slide_channel__members_certified_count
@@ -30,15 +30,6 @@ msgstr "# Sertifikovani učesnici"
 #: code:addons/website_slides_survey/models/survey_survey.py:0
 msgid "- %(certification)s (Courses - %(courses)s)"
 msgstr "- %(certification)s (Kursevi - %(courses)s)"
-
-#. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_survey_view_kanban
-msgid ""
-"<br/>\n"
-"                        <span class=\"text-muted\">Courses</span>"
-msgstr ""
-"<br/>\n"
-"                        <span class=\"text-muted\">Kursevi</span>"
 
 #. module: website_slides_survey
 #: model:mail.template,body_html:website_slides_survey.mail_template_user_input_certification_failed
@@ -68,58 +59,68 @@ msgid ""
 msgstr ""
 
 #. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
-msgid "<i class=\"fa fa-arrow-right\"/> Get Certified"
-msgstr "<i class=\"fa fa-arrow-right\"/> Sertifikuj se"
-
-#. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
-msgid ""
-"<i class=\"fa fa-download\" aria-label=\"Download certification\" "
-"title=\"Download Certification\"/>"
-msgstr ""
-"<i class=\"fa fa-download\" aria-label=\"Preuzmi sertifikat\" "
-"title=\"Preuzmi sertifikat\"/>"
-
-#. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.slide_content_detailed
-msgid ""
-"<i class=\"fa fa-fw fa-trophy\" role=\"img\" aria-label=\"Download "
-"certification\" title=\"Download certification\"/> Download certification"
-msgstr ""
-"<i class=\"fa fa-fw fa-trophy\" role=\"img\" aria-label=\"Preuzmi "
-"sertifikat\" title=\"Preuzmi sertifikat\"/> Preuzmi sertifikat"
+msgid "<i class=\"oi me-1\" data-icon=\"east\"/>Add Questions to this Survey"
+msgstr "<i class=\"oi me-1\" data-icon=\"east\"/>Dodaj pitanja ovoj anketi"
+
+#. module: website_slides_survey
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
+msgid "<i class=\"oi me-1\" data-icon=\"east\"/>All Certifications"
+msgstr "<i class=\"oi me-1\" data-icon=\"east\"/>Sve sertifikacije"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_fill_form_done_inherit_website_slides
 msgid ""
-"<i class=\"fa fa-share-alt\" aria-label=\"Share certification\" "
-"title=\"Share certification\"/>\n"
-"                        Share your certification"
+"<i class=\"oi me-2\" data-icon=\"chevron_backward\" aria-hidden=\"true\"/>Go "
+"back to course"
 msgstr ""
-"<i class=\"fa fa-share-alt\" aria-label=\"Share certification\" "
-"title=\"Share certification\"/>\n"
-"                        Podeli svoju sertifikaciju"
 
 #. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
-msgid "<i class=\"fa fa-share-alt\" aria-label=\"Share\" title=\"Share\"/>"
-msgstr "<i class=\"fa fa-share-alt\" aria-label=\"Podeli\" title=\"Podeli\"/>"
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_fill_form_done_inherit_website_slides
+msgid ""
+"<i class=\"oi oi-filled d-none d-md-inline\" data-icon=\"share\" aria-"
+"label=\"Share certification\" title=\"Share certification\"/>\n"
+"                        <span class=\"d-md-none\">Share certification</span>"
+msgstr ""
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.slide_content_detailed
-msgid "<i class=\"oi oi-arrow-right me-1\"/>Add Questions to this Survey"
-msgstr "<i class=\"oi oi-arrow-right me-1\"/>Dodaj pitanja ovoj anketi"
+msgid ""
+"<i class=\"oi oi-fw oi-filled\" data-icon=\"trophy\" role=\"img\" aria-"
+"label=\"Download certification\" title=\"Download certification\"/> Download "
+"certification"
+msgstr ""
+"<i class=\"oi oi-fw oi-filled\" data-icon=\"trophy\" role=\"img\" aria-"
+"label=\"Preuzmi sertifikat\" title=\"Preuzmi sertifikat\"/> Preuzmi "
+"sertifikat"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
-msgid "<i class=\"oi oi-arrow-right me-1\"/>All Certifications"
-msgstr "<i class=\"oi oi-arrow-right me-1\"/>Sve sertifikacije"
+msgid "<i class=\"oi\" data-icon=\"arrow_forward\"/> Get Certified"
+msgstr "<i class=\"oi\" data-icon=\"arrow_forward\"/> Sertifikuj se"
+
+#. module: website_slides_survey
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
+msgid ""
+"<i class=\"oi\" data-icon=\"download\" aria-label=\"Download certification\" "
+"title=\"Download Certification\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"download\" aria-label=\"Preuzmi sertifikat\" "
+"title=\"Preuzmi sertifikat\"/>"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.user_profile_content
-msgid "<i class=\"oi oi-arrow-right\"/> See Certifications"
-msgstr "<i class=\"oi oi-arrow-right\"/> Pogledaj sertifikacije"
+msgid "<i class=\"oi\" data-icon=\"east\"/> See Certifications"
+msgstr "<i class=\"oi\" data-icon=\"east\"/> Pogledaj sertifikacije"
+
+#. module: website_slides_survey
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
+msgid ""
+"<i class=\"oi\" data-icon=\"family_history\" aria-label=\"Share\" "
+"title=\"Share\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"family_history\" aria-label=\"Podeli\" "
+"title=\"Podeli\"/>"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.badge_content
@@ -147,11 +148,18 @@ msgid "<span class=\"text-muted\">Certifications</span>"
 msgstr "<span class=\"text-muted\">Sertifikacije</span>"
 
 #. module: website_slides_survey
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_survey_view_kanban
+msgid "<span>Courses</span>"
+msgstr ""
+
+#. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.course_main
 msgid ""
-"<span>Start Now</span><i class=\"oi oi-chevron-right ms-2 align-middle\"/>"
+"<span>Start Now</span><i class=\"oi ms-2 align-middle\" data-"
+"icon=\"chevron_forward\"/>"
 msgstr ""
-"<span>Počni odmah</span><i class=\"oi oi-chevron-right ms-2 align-middle\"/>"
+"<span>Počni odmah</span><i class=\"oi ms-2 align-middle\" data-"
+"icon=\"chevron_forward\"/>"
 
 #. module: website_slides_survey
 #: model:ir.model.constraint,message:website_slides_survey.constraint_slide_slide_check_survey_id
@@ -174,12 +182,17 @@ msgstr "Dodaj sertifikaciju"
 #. odoo-javascript
 #: code:addons/website_slides_survey/static/src/xml/website_slides_fullscreen.xml:0
 msgid "Add Questions to this Survey"
-msgstr "Dodaj pitanja ovoj anketi"
+msgstr ""
 
 #. module: website_slides_survey
 #: model_terms:ir.actions.act_window,help:website_slides_survey.slide_slide_action_certification
 msgid "Add a new certification"
 msgstr "Dodaj novu sertifikaciju"
+
+#. module: website_slides_survey
+#: model:ir.module.module,summary:base.module_website_slides_survey
+msgid "Add certification capabilities to your courses"
+msgstr ""
 
 #. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_slide_slide__is_preview
@@ -348,6 +361,11 @@ msgid "Course"
 msgstr "Kurs"
 
 #. module: website_slides_survey
+#: model:ir.module.module,shortdesc:base.module_website_slides_survey
+msgid "Course Certifications"
+msgstr ""
+
+#. module: website_slides_survey
 #. odoo-python
 #: code:addons/website_slides_survey/models/survey_survey.py:0
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_survey_view_form
@@ -405,11 +423,6 @@ msgstr "Nameštaj"
 #: model:survey.survey,title:website_slides_survey.furniture_certification
 msgid "Furniture Creation Certification"
 msgstr "Sertifikacija za izradu nameštaja"
-
-#. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_fill_form_done_inherit_website_slides
-msgid "Go back to course"
-msgstr "Nazad na kurs"
 
 #. module: website_slides_survey
 #. odoo-javascript
@@ -534,6 +547,11 @@ msgid "Shelf"
 msgstr "Polica"
 
 #. module: website_slides_survey
+#: model:ir.model,name:website_slides_survey.model_slide_slide
+msgid "Slide"
+msgstr ""
+
+#. module: website_slides_survey
 #: model:ir.model,name:website_slides_survey.model_slide_slide_partner
 msgid "Slide / Partner decorated m2m"
 msgstr "Slajd / partner uređen m2m"
@@ -547,11 +565,6 @@ msgstr "Vrsta slajda"
 #: model:ir.model.fields,help:website_slides_survey.field_survey_user_input__slide_partner_id
 msgid "Slide membership information for the logged in user"
 msgstr "Informacije o članstvu kursa za prijavljenog korisnika"
-
-#. module: website_slides_survey
-#: model:ir.model,name:website_slides_survey.model_slide_slide
-msgid "Slides"
-msgstr "Slajdovi"
 
 #. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_survey_user_input__slide_partner_id
@@ -635,6 +648,13 @@ msgid "The slides this survey is linked to through the e-learning application"
 msgstr "Kursevi sa kojima je ova anketa povezana kroz e-learning aplikaciju"
 
 #. module: website_slides_survey
+#: model:ir.module.module,description:base.module_website_slides_survey
+msgid ""
+"This module lets you use the full power of certifications within your "
+"courses."
+msgstr ""
+
+#. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_slide_slide__name
 msgid "Title"
 msgstr "Naslov"
@@ -694,3 +714,10 @@ msgstr "Pali ste na kursu: {{ object.slide_partner_id.channel_id.name }}"
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.user_profile_content
 msgid "You have not taken any certification yet."
 msgstr "Do sada niste položili nijednu sertifikaciju."
+
+#~ msgid ""
+#~ "<br/>\n"
+#~ "                        <span class=\"text-muted\">Courses</span>"
+#~ msgstr ""
+#~ "<br/>\n"
+#~ "                        <span class=\"text-muted\">Kursevi</span>"

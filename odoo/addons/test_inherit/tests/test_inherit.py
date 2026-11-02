@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+from unittest.mock import patch
+
 from odoo.addons.base.tests.common import TransactionCaseWithUserDemo
-from odoo.tests import common
+from odoo.tests import tagged, common
+from odoo.tools.sql import column_exists
 from ..models.mother_inherit_4 import TestInheritMother
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class test_inherits(common.TransactionCase):
 
     def test_10_access_from_child_to_parent_model(self):
@@ -63,14 +67,14 @@ class test_inherits(common.TransactionCase):
 
         # the extra values are added, both in the field and the column
         self.assertEqual(mother._fields['state'].selection,
-                         [('a', 'A'), ('d', 'D'), ('b', 'B'), ('c', 'C'), ('e', 'E')])
+                         (('a', 'A'), ('d', 'D'), ('b', 'B'), ('c', 'C'), ('e', 'E')))
 
     def test_41_selection_extension(self):
         """ check that attribute selection_add=... extends selection on fields. """
         model = self.env['test_orm.selection']
         field = model._fields['other']
         self.assertIsInstance(field.selection, str)
-        self.assertEqual(field._description_selection(self.env), [('baz', 'Baz')])
+        self.assertEqual(field._description_selection(self.env), (('baz', 'Baz'),))
 
     def test_51_define_model_inherit(self):
         model = self.env['test_inherit_parent']
@@ -79,30 +83,32 @@ class test_inherits(common.TransactionCase):
     def test_60_inherit_with_python(self):
         self.assertEqual(self.env['test.inherit.mother'].foo(), 42)
         self.assertEqual(self.env[TestInheritMother._name].foo(), 42)
-        self.assertEqual(self.env['test.inherit.mother'].browse(1).surname, 'Mother A')
+        self.assertEqual(self.env.ref('test_inherit.mother_a').surname, 'Mother A')
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class test_inherits_demo(TransactionCaseWithUserDemo):
 
     def test_50_search_one2many(self):
         """ check search on one2many field based on inherited many2one field. """
         # create a daughter record attached to partner Demo
-        partner_demo = self.partner_demo
+        partner_demo = self.env['test.inherit.partner'].create({'name': 'Partner'})
         daughter = self.env['test_inherit_daughter'].create({'partner_id': partner_demo.id})
         self.assertEqual(daughter.partner_id, partner_demo)
         self.assertIn(daughter, partner_demo.daughter_ids)
 
         # search the partner from the daughter record
-        partners = self.env['res.partner'].search([('daughter_ids', 'like', 'not existing daugther')])
+        partners = self.env['test.inherit.partner'].search([('daughter_ids', 'like', 'not existing daugther')])
         self.assertFalse(partners)
-        partners = self.env['res.partner'].search([('daughter_ids', 'not like', 'not existing daugther')])
+        partners = self.env['test.inherit.partner'].search([('daughter_ids', 'not like', 'not existing daugther')])
         self.assertIn(partner_demo, partners)
-        partners = self.env['res.partner'].search([('daughter_ids', '!=', False)])
+        partners = self.env['test.inherit.partner'].search([('daughter_ids', '!=', False)])
         self.assertIn(partner_demo, partners)
-        partners = self.env['res.partner'].search([('daughter_ids', 'in', daughter.ids)])
+        partners = self.env['test.inherit.partner'].search([('daughter_ids', 'in', daughter.ids)])
         self.assertIn(partner_demo, partners)
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class test_override_property(common.TransactionCase):
 
     def test_override_with_normal_field(self):
@@ -121,6 +127,7 @@ class test_override_property(common.TransactionCase):
         self.assertFalse(type(record).property_bar.company_dependent)
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestInherit(common.TransactionCase):
     def test_ir_model_inherit(self):
         imi = self.env['ir.model.inherit'].search(
@@ -156,28 +163,83 @@ class TestInherit(common.TransactionCase):
         self.assertEqual(len(child._constraint_methods), 1)
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestXMLIDS(common.TransactionCase):
     def test_xml_ids(self):
         """ check XML ids of selection fields. """
         field = self.env['test_orm.selection']._fields['state']
-        self.assertEqual(field.selection, [('foo', 'Foo'), ('bar', 'Bar'), ('baz', 'Baz')])
+        self.assertEqual(field.selection, (('foo', 'Foo'), ('bar', 'Bar'), ('baz', 'Baz')))
 
         ir_field = self.env['ir.model.fields']._get('test_orm.selection', 'state')
         xml_ids = ir_field._get_external_ids()
         self.assertCountEqual(xml_ids.get(ir_field.id), [
-            'test_orm.field_test_orm_selection__state',
+            'test_base.field_test_orm_selection__state',
             'test_inherit.field_test_orm_selection__state',
         ])
 
         foo, bar, baz = ir_field.selection_ids
         xml_ids = (foo + bar + baz)._get_external_ids()
         self.assertCountEqual(xml_ids.get(foo.id), [
-            'test_orm.selection__test_orm_selection__state__foo',
+            'test_base.selection__test_orm_selection__state__foo',
         ])
         self.assertCountEqual(xml_ids.get(bar.id), [
-            'test_orm.selection__test_orm_selection__state__bar',
+            'test_base.selection__test_orm_selection__state__bar',
             'test_inherit.selection__test_orm_selection__state__bar',
         ])
         self.assertCountEqual(xml_ids.get(baz.id), [
             'test_inherit.selection__test_orm_selection__state__baz',
         ])
+
+    def _process_end_without(self, module, xmlid):
+        """ Run the update cleanup of ``module`` as if every one of its XML ids
+        but ``xmlid`` had been loaded during the update.
+        """
+        loaded = set(self.env['ir.model.data'].search([('module', '=', module)]).mapped('complete_name'))
+        loaded.discard(xmlid)
+        with patch.object(self.registry, 'loaded_xmlids', loaded), \
+                patch.object(self.registry, 'ready', False):
+            self.env['ir.model.data']._process_end([module])
+
+    def test_process_end_keeps_inherited_field(self):
+        """ A field that a module adds by inheritance is not reflected for that
+        module on the models of modules loaded after it during a partial update
+        (e.g. a stored field added on 'base'). The update cleanup must not drop
+        it, nor its column, as the module still defines it.
+        """
+        ir_field = self.env['ir.model.fields']._get('test_orm.selection', 'other')
+        xmlid = 'test_inherit.field_test_orm_selection__other'
+        # only the module that adds the field gives it an XML id, like for a
+        # field added on 'base' and a model whose module was not updated since
+        self.env['ir.model.data'].search([
+            ('model', '=', 'ir.model.fields'),
+            ('res_id', '=', ir_field.id),
+            ('module', '!=', 'test_inherit'),
+        ]).unlink()
+        self.assertEqual(ir_field._get_external_ids()[ir_field.id], [xmlid])
+
+        self._process_end_without('test_inherit', xmlid)
+
+        self.assertTrue(ir_field.exists())
+        self.assertTrue(column_exists(self.env.cr, 'test_orm_selection', 'other'))
+        self.assertEqual(ir_field._get_external_ids()[ir_field.id], [xmlid])
+
+    def test_process_end_drops_field_not_defined_by_module(self):
+        """ The update cleanup still drops a field its module does not define. """
+        ir_field = self.env['ir.model.fields'].create({
+            'model_id': self.env['ir.model']._get_id('test_orm.selection'),
+            'name': 'x_gone',
+            'ttype': 'char',
+            'state': 'manual',
+        })
+        self.env['ir.model.data'].create({
+            'module': 'test_inherit',
+            'name': 'field_test_orm_selection__x_gone',
+            'model': 'ir.model.fields',
+            'res_id': ir_field.id,
+        })
+        self.assertTrue(column_exists(self.env.cr, 'test_orm_selection', 'x_gone'))
+
+        self._process_end_without('test_inherit', 'test_inherit.field_test_orm_selection__x_gone')
+
+        self.assertFalse(ir_field.exists())
+        self.assertFalse(column_exists(self.env.cr, 'test_orm_selection', 'x_gone'))

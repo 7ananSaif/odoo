@@ -70,13 +70,13 @@ class IrConfig_Parameter(models.Model):
     #   * 'mail.chat_from_token': allow chat from token;
 
     # Configuration keys
-    #   * 'mail.google_translate_api_key': key used to fetch translations using
-    #     google translate;
+    #   * 'mail.use_google_translate_api', 'mail.google_translate_api_key':
+    #     used to fetch translations using google translate;
     #   * 'mail.web_push_vapid_private_key' and 'mail.web_push_vapid_public_key':
     #     configuration parameters when using web push notifications;
-    #   * 'mail.use_twilio_rtc_servers', 'mail.use_sfu_server', 'mail.sfu_server_url' and 'mail.
-    #     sfu_server_key': rtc server usage and configuration;
-    #   * 'discuss.klipy_api_key': used for gif fetch service;
+    #   * 'mail.use_call_server', 'mail.use_twilio_rtc_servers', 'mail.use_sfu_server',
+    #     'mail.sfu_server_url' and 'mail.sfu_server_key': rtc server usage and configuration;
+    #   * 'discuss.use_klipy_api', 'discuss.klipy_api_key': used for gif fetch service;
     #   * 'mail.server.outlook.iap.endpoint': URL of the IAP endpoint
     #     for outlook oauth server
     #   * 'mail.server.gmail.iap.endpoint': URL of the IAP endpoint
@@ -85,7 +85,7 @@ class IrConfig_Parameter(models.Model):
     _inherit = 'ir.config_parameter'
 
     @api.model
-    def set_param(self, key, value):
+    def set_bool(self, key, value):
         if key == 'mail.restrict.template.rendering':
             group_user = self.env.ref('base.group_user')
             group_mail_template_editor = self.env.ref('mail.group_mail_template_editor')
@@ -97,11 +97,15 @@ class IrConfig_Parameter(models.Model):
                 # remove existing users, including inactive template user
                 # admin will regain the right via implied_ids on group_system
                 group_user._remove_group(group_mail_template_editor)
+        return super().set_bool(key, value)
+
+    @api.model
+    def set_str(self, key, value):
         # sanitize and normalize allowed catchall domains
-        elif key == 'mail.catchall.domain.allowed' and value:
+        if key == 'mail.catchall.domain.allowed' and value:
             value = self.env['mail.alias']._sanitize_allowed_domains(value)
 
-        return super().set_param(key, value)
+        return super().set_str(key, value)
 
     def _sanitize_param_value(self, key, value):
         """ Dispatcher for sanitization logic """

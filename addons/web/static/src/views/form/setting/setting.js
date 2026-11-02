@@ -1,7 +1,24 @@
-import { Component } from "@odoo/owl";
+import { Component, t, useProps } from "@odoo/owl";
 import { FormLabel } from "../form_label";
 import { DocumentationLink } from "@web/views/widgets/documentation_link/documentation_link";
 import { user } from "@web/core/user";
+
+export const settingProps = {
+    id: t.string().optional(),
+    info: t.string().optional(),
+    title: t.string().optional(),
+    fieldId: t.string().optional(),
+    help: t.string().optional(),
+    fieldName: t.string().optional(),
+    fieldInfo: t.object().optional(),
+    class: t.string().optional(),
+    record: t.object().optional(),
+    documentation: t.string().optional(),
+    string: t.string().optional(),
+    addLabel: t.boolean(),
+    companyDependent: t.boolean().optional(),
+    slots: t.object().optional(),
+};
 
 export class Setting extends Component {
     static template = "web.Setting";
@@ -9,22 +26,7 @@ export class Setting extends Component {
         FormLabel,
         DocumentationLink,
     };
-    static props = {
-        id: { type: String, optional: 1 },
-        info: { type: String, optional: 1 },
-        title: { type: String, optional: 1 },
-        fieldId: { type: String, optional: 1 },
-        help: { type: String, optional: 1 },
-        fieldName: { type: String, optional: 1 },
-        fieldInfo: { type: Object, optional: 1 },
-        class: { type: String, optional: 1 },
-        record: { type: Object, optional: 1 },
-        documentation: { type: String, optional: 1 },
-        string: { type: String, optional: 1 },
-        addLabel: { type: Boolean },
-        companyDependent: { type: Boolean, optional: 1 },
-        slots: { type: Object, optional: 1 },
-    };
+    props = useProps(settingProps);
 
     setup() {
         if (this.props.fieldName) {

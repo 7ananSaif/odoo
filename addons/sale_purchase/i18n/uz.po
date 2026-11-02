@@ -14,15 +14,27 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-10-08 18:38+0000\n"
-"Last-Translator: \n"
-"Language-Team: \n"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 16:59+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Uzbek <https://translate.odoo.com/projects/odoo-s19-4/"
+"sale_purchase/uz/>\n"
 "Language: uz\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: sale_purchase
+#: model:ir.module.module,description:base.module_sale_purchase
+msgid ""
+"\n"
+"Allows the outsourcing of services. This module allows one to sell services "
+"provided\n"
+"by external providers and will automatically generate purchase orders "
+"directed to the service seller.\n"
+msgstr ""
 
 #. module: sale_purchase
 #: model_terms:ir.ui.view,arch_db:sale_purchase.exception_purchase_on_sale_cancellation
@@ -40,6 +52,12 @@ msgid "<span class=\"o_stat_text\">Sale</span>"
 msgstr "<span class=\"o_stat_text\">Sotish</span>"
 
 #. module: sale_purchase
+#: model:ir.model.fields,field_description:sale_purchase.field_product_product__service_tracking
+#: model:ir.model.fields,field_description:sale_purchase.field_product_template__service_tracking
+msgid "Create on Order"
+msgstr ""
+
+#. module: sale_purchase
 #: model:ir.model.fields,field_description:sale_purchase.field_product_template__display_name
 #: model:ir.model.fields,field_description:sale_purchase.field_purchase_order__display_name
 #: model:ir.model.fields,field_description:sale_purchase.field_purchase_order_line__display_name
@@ -48,6 +66,14 @@ msgstr "<span class=\"o_stat_text\">Sotish</span>"
 #, fuzzy
 msgid "Display Name"
 msgstr "Ko‘rsatish nomi"
+
+#. module: sale_purchase
+#. odoo-python
+#: code:addons/sale_purchase/models/product_template.py:0
+msgid ""
+"Each time you sell this product through a SO, a RfQ is automatically created "
+"to buy the product. Tip: don't forget to set a vendor on the product."
+msgstr ""
 
 #. module: sale_purchase
 #: model_terms:ir.ui.view,arch_db:sale_purchase.exception_sale_on_purchase_cancellation
@@ -85,19 +111,6 @@ msgstr "Yaratilgan xarid qatorlari"
 #, fuzzy
 msgid "ID"
 msgstr "ID"
-
-#. module: sale_purchase
-#: model:ir.model.fields,help:sale_purchase.field_product_product__service_to_purchase
-#: model:ir.model.fields,help:sale_purchase.field_product_template__service_to_purchase
-#, fuzzy
-msgid ""
-"If ticked, each time you sell this product through a SO, a RfQ is "
-"automatically created to buy the product. Tip: don't forget to set a vendor "
-"on the product."
-msgstr ""
-"Agar belgilansa, har safar bu mahsulotni SO orqali sotganingizda, mahsulotni "
-"sotib olish uchun avtomatik ravishda RfQ yaratiladi. Maslahat: mahsulotga "
-"sotuvchini belgilashni unutmang."
 
 #. module: sale_purchase
 #: model_terms:ir.ui.view,arch_db:sale_purchase.exception_purchase_on_sale_quantity_decreased
@@ -154,13 +167,6 @@ msgid "Product"
 msgstr "Mahsulot"
 
 #. module: sale_purchase
-#. odoo-python
-#: code:addons/sale_purchase/models/product_template.py:0
-#, fuzzy
-msgid "Product that is not a service can not create RFQ."
-msgstr "Xizmat bo‘lmagan mahsulot RFQ yarata olmaydi."
-
-#. module: sale_purchase
 #: model_terms:ir.ui.view,arch_db:sale_purchase.sale_order_inherited_form_purchase
 #, fuzzy
 msgid "Purchase"
@@ -196,16 +202,20 @@ msgstr ""
 "tomonidan yaratilgan xarid qatori."
 
 #. module: sale_purchase
-#: model_terms:ir.ui.view,arch_db:sale_purchase.product_template_form_view_inherit
-#, fuzzy
-msgid "Reordering"
-msgstr "Qayta buyurtma berish"
-
-#. module: sale_purchase
 #: model:ir.model.fields,field_description:sale_purchase.field_purchase_order_line__sale_order_id
 #, fuzzy
 msgid "Sale Order"
 msgstr "Sotish buyurtmasi"
+
+#. module: sale_purchase
+#: model:ir.module.module,shortdesc:base.module_sale_purchase
+msgid "Sale Purchase"
+msgstr ""
+
+#. module: sale_purchase
+#: model:ir.module.module,summary:base.module_sale_purchase
+msgid "Sale based on service outsourcing."
+msgstr ""
 
 #. module: sale_purchase
 #: model:ir.model,name:sale_purchase.model_sale_order
@@ -227,11 +237,9 @@ msgid "Sources Sale Orders %s"
 msgstr "%s manba sotish buyurtmalari"
 
 #. module: sale_purchase
-#: model:ir.model.fields,field_description:sale_purchase.field_product_product__service_to_purchase
-#: model:ir.model.fields,field_description:sale_purchase.field_product_template__service_to_purchase
-#, fuzzy
-msgid "Subcontract Service"
-msgstr "Subpudrat xizmati"
+#: model:ir.model.fields.selection,name:sale_purchase.selection__product_template__service_tracking__subcontract
+msgid "Subcontracting RFQ"
+msgstr ""
 
 #. module: sale_purchase
 #: model:ir.model.fields,field_description:sale_purchase.field_purchase_order__has_sale_order

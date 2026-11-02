@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 
 {
     'name': 'Restaurant',
-    'version': '1.0',
     'category': 'Sales/Point of Sale',
     'sequence': 6,
     'summary': 'Restaurant extensions for the Point of Sale ',
@@ -19,18 +17,30 @@ This module adds several features to the Point of Sale that are specific to rest
     'depends': ['point_of_sale'],
     'website': 'https://www.odoo.com/app/point-of-sale-restaurant',
     'data': [
-        'security/ir.model.access.csv',
         'data/scenarios/restaurant_preset.xml',
+        'views/pos_category_view.xml',
+        'views/pos_course_views.xml',
         'views/pos_order_views.xml',
         'views/pos_restaurant_views.xml',
         'views/pos_preset_views.xml',
         'views/res_config_settings_views.xml',
+        'receipt/pos_order_receipt.xml',
+        'receipt/pos_order_change_receipt.xml',
+        'security/ir.access.csv',
     ],
     'demo': [
         'data/demo_data.xml',
     ],
-    'installable': True,
+    'other_files': [
+        'data/scenarios/bar_category_data.xml',
+        'data/scenarios/bar_demo_data.xml',
+        'data/scenarios/restaurant_category_data.xml',
+        'data/scenarios/restaurant_demo_data.xml',
+        'data/scenarios/restaurant_demo_session.xml',
+        'data/scenarios/restaurant_floor.xml',
+    ],
     'application': True,
+    'post_init_hook': '_auto_install_pos_urban_piper_with_demo',
     'assets': {
         'point_of_sale._assets_pos': [
             'pos_restaurant/static/src/**/*',
@@ -51,4 +61,5 @@ This module adds several features to the Point of Sale that are specific to rest
     },
     'author': 'Odoo S.A.',
     'license': 'LGPL-3',
+    'uninstall_hook': 'uninstall_hook',
 }

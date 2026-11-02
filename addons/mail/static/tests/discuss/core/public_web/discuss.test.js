@@ -1,13 +1,22 @@
 import { waitUntilSubscribe } from "@bus/../tests/bus_test_helpers";
+import { WebsocketWorker } from "@bus/workers/websocket_worker";
 import {
     contains,
     defineMailModels,
+    MENU_ACTIVE_IDS,
     openDiscuss,
     start,
     startServer,
 } from "@mail/../tests/mail_test_helpers";
 import { describe, expect, test } from "@odoo/hoot";
-import { Command, mockService, patchWithCleanup, withUser } from "@web/../tests/web_test_helpers";
+import { mockDate } from "@odoo/hoot-mock";
+import {
+    Command,
+    mockService,
+    patchWithCleanup,
+    serverState,
+    withUser,
+} from "@web/../tests/web_test_helpers";
 
 import { rpc } from "@web/core/network/rpc";
 
@@ -16,19 +25,23 @@ defineMailModels();
 
 test("open channel in discuss from push notification", async () => {
     const pyEnv = await startServer();
-    const channelId = pyEnv["discuss.channel"].create({ name: "General" });
+    const [generalId, salesId] = pyEnv["discuss.channel"].create([
+        { name: "General" },
+        { name: "Sales" },
+    ]);
     await start();
-    await openDiscuss("mail.box_inbox");
-    await contains(".o-mail-DiscussContent-threadName[title='Inbox']");
+    await openDiscuss(salesId);
+    await contains(".o-mail-DiscussContent-threadName[title='Sales']");
     navigator.serviceWorker.dispatchEvent(
         new MessageEvent("message", {
-            data: { action: "OPEN_CHANNEL", data: { id: channelId } },
+            data: { action: "OPEN_CHANNEL", data: { id: generalId } },
         })
     );
     await contains(".o-mail-DiscussContent-threadName[title='General']");
 });
 
 test("notify message to user as non member", async () => {
+    patchWithCleanup(WebsocketWorker, { OUTGOING_BATCH_DELAY: 500 });
     patchWithCleanup(window, {
         Notification: class Notification {
             static get permission() {
@@ -57,6 +70,64 @@ test("notify message to user as non member", async () => {
             thread_model: "discuss.channel",
         })
     );
-    await contains(".o-mail-Message", { text: "Hello!" });
+    await contains(".o-mail-Message:has(:text('Hello!'))");
     expect.verifySteps(["push notification"]);
+});
+
+test("show correspondent local time in DM header when timezones differ", async () => {
+    mockDate("2026-01-01 12:00:00");
+    const pyEnv = await startServer();
+    pyEnv["res.partner"].write([serverState.partnerId], { tz: "Europe/Brussels" });
+    const partnerId = pyEnv["res.partner"].create({ name: "Demo", tz: "Asia/Kolkata" });
+    const channelId = pyEnv["discuss.channel"].create({
+        channel_member_ids: [
+            Command.create({ partner_id: serverState.partnerId }),
+            Command.create({ partner_id: partnerId }),
+        ],
+        channel_type: "chat",
+    });
+    await start();
+    await openDiscuss(channelId);
+    await contains(".o-mail-DiscussContent-header:has(:text('17:30 local time'))");
+});
+
+test("discard push notification of already seen channel message", async () => {
+    const pyEnv = await startServer();
+    const channelId = pyEnv["discuss.channel"].create({ name: "General" });
+    const [seenMessageId, unseenMessageId] = pyEnv["mail.message"].create([
+        { body: "Seen", model: "discuss.channel", res_id: channelId },
+        { body: "Unseen", model: "discuss.channel", res_id: channelId },
+    ]);
+    const [memberId] = pyEnv["discuss.channel.member"].search([
+        ["channel_id", "=", channelId],
+        ["partner_id", "=", serverState.partnerId],
+    ]);
+    pyEnv["discuss.channel.member"].write([memberId], { seen_message_id: seenMessageId });
+    patchWithCleanup(navigator.serviceWorker, {
+        controller: {
+            postMessage: ({ type, payload }) => expect.step(`${type} ${payload.correlationId}`),
+        },
+    });
+    await start();
+    await openDiscuss(MENU_ACTIVE_IDS.CHANNEL);
+    await contains(".o-mail-MessagingMenuItem:has(:text('General'))");
+    for (const [correlationId, messageId] of [
+        ["unseen", unseenMessageId],
+        ["seen", seenMessageId],
+    ]) {
+        navigator.serviceWorker.dispatchEvent(
+            new MessageEvent("message", {
+                data: {
+                    type: "notification-display-request",
+                    payload: {
+                        correlationId,
+                        model: "discuss.channel",
+                        res_id: channelId,
+                        message_id: messageId,
+                    },
+                },
+            })
+        );
+    }
+    await expect.waitForSteps(["notification-display-response seen"]);
 });

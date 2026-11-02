@@ -1,73 +1,74 @@
-import { BorderConfigurator } from "../plugins/border_configurator_option";
-import { ShadowOption } from "../plugins/shadow_option";
 import { getSnippetName, useOptionsSubEnv } from "@html_builder/utils/utils";
-import { onWillStart, onWillUpdateProps } from "@odoo/owl";
+import { asyncComputed, onMounted, onWillStart, useProps, signal, t, useListener } from "@odoo/owl";
+import { browser } from "@web/core/browser/browser";
 import { user } from "@web/core/user";
+import { uniqueId } from "@web/core/utils/functions";
 import { useService } from "@web/core/utils/hooks";
+import { BaseOptionComponent } from "../core/base_option_component";
 import { useOperation } from "../core/operation_plugin";
-import {
-    BaseOptionComponent,
-    useApplyVisibility,
-    useDomState,
-    useGetItemValue,
-    useVisibilityObserver,
-} from "../core/utils";
-import { isRemovable } from "@html_builder/core/remove_plugin";
+import { useApplyVisibility, useGetItemValue, useVisibilityObserver } from "../core/utils";
+
+const HIGHLIGHT_DURATION = 2000;
 
 export class OptionsContainer extends BaseOptionComponent {
     static template = "html_builder.OptionsContainer";
-    static dependencies = ["builderOptions", "overlayButtons", "builderOverlay", "remove", "clone"];
-    static components = {
-        BorderConfigurator,
-        ShadowOption,
-    };
-    static props = {
-        snippetModel: { type: Object },
-        options: { type: Array },
-        editingElement: true, // HTMLElement from iframe
-        isRemovable: false,
-        removeDisabledReason: { type: String, optional: true },
-        isClonable: false,
-        cloneDisabledReason: { type: String, optional: true },
-        optionTitleComponents: { type: Array, optional: true },
-        containerTopButtons: { type: Array },
-        containerTitle: { type: Object, optional: true },
-        headerMiddleButtons: { type: Array, optional: true },
-    };
-    static defaultProps = {
-        containerTitle: {},
-        headerMiddleButtons: [],
-        optionTitleComponents: [],
-    };
+    static dependencies = ["builderOptions", "remove", "clone"];
+    props = useProps({
+        toggleOverlayPreview: t.function().optional(() => () => {}),
+        options: t.array(),
+        editingElement: t.any(), // HTMLElement from iframe
+        isRemovable: t.boolean().optional(false),
+        toggleFold: t.function().optional(),
+        folded: t.boolean().optional(),
+        removeDisabledReason: t.string().optional(),
+        isClonable: t.boolean().optional(false),
+        cloneDisabledReason: t.string().optional(),
+        optionTitleComponents: t.array().optional([]),
+        containerTopButtons: t.array(),
+        containerTitle: t.object().optional({}),
+        headerMiddleButtons: t.array().optional([]),
+        highlight: t.boolean().optional(false),
+    });
+    rootRef = signal.ref();
+    contentRef = signal.ref();
 
     setup() {
         useOptionsSubEnv(() => [this.props.editingElement]);
         super.setup();
+        this.containerId = uniqueId("option-container-");
         this.notification = useService("notification");
         this.getItemValue = useGetItemValue();
-        useVisibilityObserver("content", useApplyVisibility("root"));
+        useVisibilityObserver(this.contentRef, useApplyVisibility(this.rootRef));
+
+        useListener(browser, "focusin", this.updateOverlayPreview.bind(this));
+        useListener(browser, "pointermove", this.updateOverlayPreview.bind(this));
+        useListener(this.document, "pointermove", this.updateOverlayPreview.bind(this));
+        this.showingOverlayPreview = false;
 
         this.callOperation = useOperation();
 
-        this.domState = useDomState((editingElement) => ({
-            isRemovable: isRemovable(editingElement),
-            removeDisabledReason:
-                this.dependencies.builderOptions.getRemoveDisabledReason(editingElement),
-            isClonable: this.dependencies.builderOptions.isClonable(editingElement),
-            cloneDisabledReason:
-                this.dependencies.builderOptions.getCloneDisabledReason(editingElement),
-        }));
-
         this.hasGroup = {};
-        onWillStart(async () => {
-            await this.updateAccessGroup(this.props.options);
+        this.options = asyncComputed(() => this.filterAccessGroup(this.props.options), {
+            initial: [],
         });
-        onWillUpdateProps(async (nextProps) => {
-            await this.updateAccessGroup(nextProps.options);
+        onWillStart(() => this.options.currentPromise());
+        onMounted(() => {
+            const rootEl = this.rootRef();
+            if (this.props.highlight && rootEl) {
+                rootEl.scrollIntoView({ behavior: "smooth", block: "center" });
+                rootEl.classList.add("o-options-container-highlight");
+                // The highlight animation runs on sibling option containers, so
+                // the highlight class is removed here instead of using an
+                // "animation-end" event listener.
+                setTimeout(
+                    () => rootEl.classList.remove("o-options-container-highlight"),
+                    HIGHLIGHT_DURATION
+                );
+            }
         });
     }
 
-    async updateAccessGroup(options) {
+    async filterAccessGroup(options) {
         const proms = [];
         const groups = [...new Set(options.flatMap((o) => o.groups || []))];
         for (const group of groups) {
@@ -78,6 +79,7 @@ export class OptionsContainer extends BaseOptionComponent {
             );
         }
         await Promise.all(proms);
+        return options.filter((option) => this.hasAccess(option.groups));
     }
 
     hasAccess(groups) {
@@ -89,11 +91,7 @@ export class OptionsContainer extends BaseOptionComponent {
 
     get title() {
         let title;
-        for (const option of this.props.options) {
-            if (option.getSnippetTitle) {
-                title = option.getSnippetTitle.call(this);
-                continue;
-            }
+        for (const option of this.options()) {
             title = option.title || title;
         }
         const titleExtraInfo = this.props.containerTitle.getTitleExtraInfo
@@ -103,26 +101,14 @@ export class OptionsContainer extends BaseOptionComponent {
         return (title || getSnippetName(this.env.getEditingElement())) + titleExtraInfo;
     }
 
-    selectElement() {
-        this.dependencies.builderOptions.updateContainers(this.props.editingElement);
-    }
-
-    toggleOverlayPreview(el, show) {
-        if (show) {
-            this.dependencies.overlayButtons.hideOverlayButtons();
-            this.dependencies.builderOverlay.showOverlayPreview(el);
-        } else {
-            this.dependencies.overlayButtons.showOverlayButtons();
-            this.dependencies.builderOverlay.hideOverlayPreview(el);
+    /** @param {PointerEvent | FocusEvent} ev */
+    updateOverlayPreview(ev) {
+        const shouldShow = this.rootRef()?.contains(ev.target);
+        if (shouldShow === this.showingOverlayPreview) {
+            return;
         }
-    }
-
-    onPointerEnter() {
-        this.toggleOverlayPreview(this.props.editingElement, true);
-    }
-
-    onPointerLeave() {
-        this.toggleOverlayPreview(this.props.editingElement, false);
+        this.props.toggleOverlayPreview(this.props.editingElement, shouldShow);
+        this.showingOverlayPreview = shouldShow;
     }
 
     // Actions of the buttons in the title bar.
@@ -138,9 +124,5 @@ export class OptionsContainer extends BaseOptionComponent {
                 activateClone: false,
             });
         });
-    }
-
-    isLegacyOption(option) {
-        return typeof option === "object";
     }
 }

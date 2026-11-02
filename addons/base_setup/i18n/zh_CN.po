@@ -8,27 +8,41 @@
 # Martin Trigaux, 2023
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# "Chloe Wang (chwa)" <chwa@odoo.com>, 2026.
+# 张飞虎 <feihu.zhang@live.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-11-15 11:28+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-10-11 06:35+0000\n"
+"Last-Translator: 张飞虎 <feihu.zhang@live.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://translate.odoo.com/"
-"projects/odoo-19/base_setup/zh_Hans/>\n"
+"projects/odoo-20/base_setup/zh_Hans/>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+#: model:ir.module.module,description:base.module_base_setup
 msgid ""
-"<span class=\"fa fa-lg fa-users\" aria-label=\"Number of active users\"/>"
-msgstr "<span class=\"fa fa-lg fa-users\" aria-label=\"有效用户数量\"/>"
+"\n"
+"This module helps to configure the system at the installation of a new "
+"database.\n"
+"================================================================================\n"
+"\n"
+"Shows you a list of applications features to install from.\n"
+"\n"
+msgstr ""
+"\n"
+"本模块帮助在新数据库安装时配置系统。\n"
+"================================================================================\n"
+"\n"
+"为您显示可安装的应用程序功能列表。\n"
+"\n"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -155,11 +169,6 @@ msgid "Add fun feedback and motivate your employees"
 msgstr "增加有趣的反馈并激励员工"
 
 #. module: base_setup
-#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_mail_plugin
-msgid "Allow integration with the mail plugins"
-msgstr "允许与邮件插件集成"
-
-#. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_google_calendar
 msgid "Allow the users to synchronize their calendar  with Google Calendar"
 msgstr "允许用户同步谷歌日历"
@@ -243,13 +252,6 @@ msgstr "配置设置"
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
 msgid "Configure Document Layout"
 msgstr "设置文档外观"
-
-#. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid ""
-"Configure company rules to automatically create SO/PO when one of your "
-"company sells/buys to another of your company."
-msgstr "配置公司规则，当您的公司向另一个公司销售/购买产品时，自动创建SO/PO。"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -343,13 +345,13 @@ msgstr "地理定位"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Geolocate your partners"
-msgstr "定位合作伙伴地理位置"
+msgid "Geolocation"
+msgstr "地理位置"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Geolocation"
-msgstr "地理位置"
+msgid "Get the latitude and the longitude of your partners"
+msgstr "获取合作伙伴的纬度和经度"
 
 #. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_google_address_autocomplete
@@ -375,9 +377,9 @@ msgid "Import & Export"
 msgstr "导入和 导出"
 
 #. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Integrate with mail client plugins"
-msgstr "与邮件客户端插件集成"
+#: model:ir.module.module,shortdesc:base.module_base_setup
+msgid "Initial Setup Tools"
+msgstr "初始设置工具"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -397,7 +399,7 @@ msgstr "是母公司"
 #. module: base_setup
 #: model:ir.model,name:base_setup.model_kpi_provider
 msgid "KPI Provider"
-msgstr ""
+msgstr "指标提供者"
 
 #. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_auth_ldap
@@ -414,11 +416,6 @@ msgstr "语言"
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
 msgid "Layout"
 msgstr "布局"
-
-#. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Mail Plugin"
-msgstr "邮件插件"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -464,6 +461,11 @@ msgstr "公司数量"
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__language_count
 msgid "Number of Languages"
 msgstr "语言数量"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Number of active users"
+msgstr "活跃用户数量"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -524,7 +526,7 @@ msgstr "使用 CF Turnstile 保护您的表单。"
 #. odoo-javascript
 #: code:addons/base_setup/static/src/views/module_views.xml:0
 msgid "Reset Updating States"
-msgstr ""
+msgstr "重置更新状态"
 
 #. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_sms
@@ -634,47 +636,9 @@ msgstr "您必须安装 Discuss 应用程序才能使用此功能。"
 msgid "reCAPTCHA"
 msgstr "验证码"
 
-#~ msgid "Asterisk (VoIP)"
-#~ msgstr "Asterisk (开源VoIP平台)"
-
 #~ msgid ""
-#~ "Automatically generate counterpart documents for orders/invoices between "
-#~ "companies"
-#~ msgstr "自动产生公司间订单/结算单的对应文档"
-
-#~ msgid ""
-#~ "By default, new users get highest access rights for all installed apps."
-#~ msgstr "默认情况下，新用户获得所有安装的应用程序的最高访问权限。"
-
-#~ msgid "Default User Template not found."
-#~ msgstr "没有找到默认的用户模板。"
-
-#~ msgid "Documentation"
-#~ msgstr "文档"
-
-#~ msgid "Geo Localization"
-#~ msgstr "地理定位"
-
-#~ msgid "GeoLocalize your partners"
-#~ msgstr "定位您的合作伙伴"
-
-#~ msgid "Get product pictures using barcode"
-#~ msgstr "使用条形码获取产品图片"
-
-#~ msgid "Google Calendar"
-#~ msgstr "Google日历"
-
-#~ msgid "On Apple Store"
-#~ msgstr "在苹果应用商店"
-
-#~ msgid "On Google Play"
-#~ msgstr "在谷歌应用市场"
-
-#~ msgid "Outlook Calendar"
-#~ msgstr "Outlook日历"
-
-#~ msgid "Synchronize your calendar with Google Calendar"
-#~ msgstr "将日历与Google日历同步"
-
-#~ msgid "Synchronize your calendar with Outlook"
-#~ msgstr "将日历与 Outlook 同步"
+#~ "<span class=\"oi oi-lg oi-filled\" data-icon=\"group\" aria-"
+#~ "label=\"Number of active users\"/>"
+#~ msgstr ""
+#~ "<span class=\"oi oi-lg oi-filled\" data-icon=\"group\" aria-label=\"有效用"
+#~ "户数量\"/>"

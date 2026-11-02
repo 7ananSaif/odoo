@@ -1,3 +1,9 @@
+[data-text-truncate-tooltip] {
+    @include text-truncate();
+    // Prevent Chrome from revealing truncated text on click.
+    user-select: none;
+}
+
 .o-tooltip {
     --#{$variable-prefix}tooltip-max-width: #{$tooltip-max-width};
     --#{$variable-prefix}tooltip-padding-x: #{$tooltip-padding-x};
@@ -33,13 +39,15 @@
         margin: map-get($spacers, 1) map-get($spacers, 2) map-get($spacers, 2);
     }
 
+    white-space: pre-line;
+
     .o-tooltip--help {
-        white-space: pre-line;
         padding: 0 map-get($spacers, 2);
     }
 
     .o-tooltip--technical {
         padding-left: 1.3em;
+        line-height: $o-line-height-sm;
         font-family: $o-font-family-monospace;
         font-size: $o-font-size-base-smaller;
         list-style-type: disc;

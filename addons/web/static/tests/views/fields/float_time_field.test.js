@@ -1,4 +1,5 @@
 import { expect, test } from "@odoo/hoot";
+import { press } from "@odoo/hoot-dom";
 import {
     clickSave,
     contains,
@@ -7,19 +8,22 @@ import {
     models,
     mountView,
     onRpc,
+    webModels,
 } from "@web/../tests/web_test_helpers";
 
-class Partner extends models.Model {
+const { ResCompany, ResUsers, ResPartner } = webModels;
+
+class Foo extends models.Model {
     qux = fields.Float();
 
     _records = [{ id: 5, qux: 9.1 }];
 }
 
-defineModels([Partner]);
+defineModels([Foo, ResPartner, ResCompany, ResUsers]);
 
 test("FloatTimeField in form view", async () => {
     expect.assertions(4);
-    onRpc("partner", "web_save", ({ args }) => {
+    onRpc("foo", "web_save", ({ args }) => {
         // 48 / 60 = 0.8
         expect(args[1].qux).toBe(-11.8, {
             message: "the correct float value should be saved",
@@ -28,18 +32,18 @@ test("FloatTimeField in form view", async () => {
 
     await mountView({
         type: "form",
-        resModel: "partner",
+        resModel: "foo",
         arch: `
             <form>
                 <sheet>
-                    <field name="qux" widget="float_time"/>
+                    <field name="qux" widget="float_time" options="{ 'numeric': true }"/>
                 </sheet>
             </form>`,
         resId: 5,
     });
 
     // 9 + 0.1 * 60 = 9.06
-    expect(".o_field_float_time[name=qux] input").toHaveValue("09:06", {
+    expect(".o_field_float_time[name=qux] input").toHaveValue("9:06", {
         message: "The value should be rendered correctly in the input.",
     });
 
@@ -55,15 +59,15 @@ test("FloatTimeField in form view", async () => {
 });
 
 test("FloatTimeField value formatted on blur", async () => {
-    expect.assertions(4);
-    onRpc("partner", "web_save", ({ args }) => {
+    expect.assertions(5);
+    onRpc("foo", "web_save", ({ args }) => {
         expect(args[1].qux).toBe(9.5, {
             message: "the correct float value should be saved",
         });
     });
     await mountView({
         type: "form",
-        resModel: "partner",
+        resModel: "foo",
         arch: `
             <form>
                 <field name="qux" widget="float_time"/>
@@ -71,17 +75,18 @@ test("FloatTimeField value formatted on blur", async () => {
         resId: 5,
     });
 
-    expect(".o_field_widget input").toHaveValue("09:06", {
+    expect(".o_field_widget input").toHaveValue("9h 6m", {
         message: "The formatted time value should be displayed properly.",
     });
 
     await contains(".o_field_float_time[name=qux] input").edit("9.5");
-    expect(".o_field_float_time[name=qux] input").toHaveValue("09:30", {
+    expect(".o_duration_popover").toHaveText("9h 30m");
+    expect(".o_field_float_time[name=qux] input").toHaveValue("9h 30m", {
         message: "The new value should be displayed properly in the input.",
     });
 
     await clickSave();
-    expect(".o_field_widget input").toHaveValue("09:30", {
+    expect(".o_field_widget input").toHaveValue("9h 30m", {
         message: "The new value should be saved and displayed properly.",
     });
 });
@@ -89,7 +94,7 @@ test("FloatTimeField value formatted on blur", async () => {
 test("FloatTimeField with invalid value", async () => {
     await mountView({
         type: "form",
-        resModel: "partner",
+        resModel: "foo",
         arch: `
             <form>
                 <field name="qux" widget="float_time"/>
@@ -97,21 +102,79 @@ test("FloatTimeField with invalid value", async () => {
     });
 
     await contains(".o_field_float_time[name=qux] input").edit("blabla");
-    await clickSave();
-    expect(".o_notification_content").toHaveText("Missing required fields");
-    expect(".o_notification_bar").toHaveClass("bg-danger");
-    expect(".o_field_float_time[name=qux]").toHaveClass("o_field_invalid");
+    expect(".o_duration_popover").toHaveCount(0);
+    await press("enter");
+    expect(".o_field_float_time.o_field_invalid").toHaveCount(1);
 
     await contains(".o_field_float_time[name=qux] input").edit("6.5");
-    expect(".o_field_float_time[name=qux] input").not.toHaveClass("o_field_invalid", {
-        message: "date field should not be displayed as invalid now",
+    expect(".o_duration_popover").toHaveText("6h 30m");
+});
+
+test("FloatTimeField with formula", async () => {
+    await mountView({
+        type: "form",
+        resModel: "foo",
+        arch: `
+            <form>
+                <field name="qux" widget="float_time"/>
+            </form>`,
     });
+
+    await contains(".o_field_float_time[name=qux] input").edit("=2+3");
+    expect(".o_duration_popover").toHaveText("5h");
+    await clickSave();
+    expect(".o_field_float_time[name=qux] input").toHaveValue("5h");
+
+    await contains(".o_field_float_time[name=qux] input").edit("=2h+30m");
+    expect(".o_duration_popover").toHaveText("2h 30m");
+    await press("enter");
+    expect(".o_field_float_time[name=qux] input").toHaveValue("2h 30m");
+
+    await contains(".o_field_float_time[name=qux] input").edit("=2h+30m+1h-15m");
+    expect(".o_duration_popover").toHaveText("3h 15m");
+    await press("enter");
+    expect(".o_field_float_time[name=qux] input").toHaveValue("3h 15m");
+
+    await contains(".o_field_float_time[name=qux] input").edit("+=30m");
+    expect(".o_duration_popover").toHaveText("3h 45m");
+    await press("enter");
+    expect(".o_field_float_time[name=qux] input").toHaveValue("3h 45m");
+
+    await contains(".o_field_float_time[name=qux] input").edit("-=2h");
+    expect(".o_duration_popover").toHaveText("1h 45m");
+    await press("enter");
+    expect(".o_field_float_time[name=qux] input").toHaveValue("1h 45m");
+
+    await contains(".o_field_float_time[name=qux] input").edit("+=1h+45m-2m");
+    expect(".o_duration_popover").toHaveText("3h 28m");
+    await press("enter");
+    expect(".o_field_float_time[name=qux] input").toHaveValue("3h 28m");
+
+    await contains(".o_field_float_time[name=qux] input").edit("=3:30+2:15-:30");
+    expect(".o_duration_popover").toHaveText("5h 15m");
+    await press("enter");
+    expect(".o_field_float_time[name=qux] input").toHaveValue("5h 15m");
+
+    await contains(".o_field_float_time[name=qux] input").edit("=2-");
+    expect(".o_duration_popover").toHaveText("2h");
+    await press("enter");
+    expect(".o_field_float_time[name=qux] input").toHaveValue("2h");
+
+    await contains(".o_field_float_time[name=qux] input").edit("=2h*3-30m");
+    expect(".o_duration_popover").toHaveText("5h 30m");
+    await press("enter");
+    expect(".o_field_float_time[name=qux] input").toHaveValue("5h 30m");
+
+    await contains(".o_field_float_time[name=qux] input").edit("/=2");
+    expect(".o_duration_popover").toHaveText("2h 45m");
+    await press("enter");
+    expect(".o_field_float_time[name=qux] input").toHaveValue("2h 45m");
 });
 
 test("float_time field does not have an inputmode attribute", async () => {
     await mountView({
         type: "form",
-        resModel: "partner",
+        resModel: "foo",
         arch: `
             <form>
                 <field name="qux" widget="float_time"/>
@@ -119,4 +182,32 @@ test("float_time field does not have an inputmode attribute", async () => {
     });
 
     expect(".o_field_widget[name='qux'] input").not.toHaveAttribute("inputmode");
+});
+
+test("float_time apply beautiful duration on sum", async () => {
+    await mountView({
+        type: "list",
+        resModel: "foo",
+        arch: `
+            <list>
+                <field name="qux" sum="Sum" widget="float_time"/>
+            </list>`,
+    });
+
+    expect(".o_field_widget[name='qux'] time").toHaveText("9h 6m");
+    expect(".o_list_footer .o_list_number").toHaveText("9h 6m");
+});
+
+test("float_time apply options duration on sum", async () => {
+    await mountView({
+        type: "list",
+        resModel: "foo",
+        arch: `
+            <list>
+                <field name="qux" sum="Sum" widget="float_time" options="{'numeric': 1}"/>
+            </list>`,
+    });
+
+    expect(".o_field_widget[name='qux'] time").toHaveText("9:06");
+    expect(".o_list_footer .o_list_number").toHaveText("9:06");
 });

@@ -1,10 +1,14 @@
 import { _t } from "@web/core/l10n/translation";
 import { editModelDebug } from "@web/core/debug/debug_utils";
 import { registry } from "@web/core/registry";
+import { usePlugin } from "@odoo/owl";
+import { ORM } from "@web/core/orm_plugin";
+import { useService } from "@web/core/utils/hooks";
 
 const debugRegistry = registry.category("debug");
 
-function editAction({ action, env }) {
+function editAction({ action }) {
+    const actionService = useService("action");
     if (!action.id) {
         return null;
     }
@@ -13,14 +17,17 @@ function editAction({ action, env }) {
         type: "item",
         description,
         callback: () => {
-            editModelDebug(env, description, action.type, action.id);
+            editModelDebug(actionService, description, action.type, action.id);
         },
         sequence: 220,
         section: "ui",
     };
 }
 
-function viewFields({ action, env }) {
+function viewFields({ action }) {
+    const actionService = useService("action");
+    const orm = usePlugin(ORM);
+
     if (!action.res_model) {
         return null;
     }
@@ -30,11 +37,11 @@ function viewFields({ action, env }) {
         description,
         callback: async () => {
             const modelId = (
-                await env.services.orm.search("ir.model", [["model", "=", action.res_model]], {
+                await orm.search("ir.model", [["model", "=", action.res_model]], {
                     limit: 1,
                 })
             )[0];
-            env.services.action.doAction({
+            actionService.doAction({
                 res_model: "ir.model.fields",
                 name: description,
                 views: [
@@ -53,7 +60,10 @@ function viewFields({ action, env }) {
     };
 }
 
-function ViewModel({ action, env }) {
+function ViewModel({ action }) {
+    const actionService = useService("action");
+    const orm = usePlugin(ORM);
+
     if (!action.res_model) {
         return null;
     }
@@ -63,18 +73,19 @@ function ViewModel({ action, env }) {
         description: _t("Model: %s", modelName),
         callback: async () => {
             const modelId = (
-                await env.services.orm.search("ir.model", [["model", "=", modelName]], {
+                await orm.search("ir.model", [["model", "=", modelName]], {
                     limit: 1,
                 })
             )[0];
-            editModelDebug(env, modelName, "ir.model", modelId);
+            editModelDebug(actionService, modelName, "ir.model", modelId);
         },
         sequence: 210,
         section: "ui",
     };
 }
 
-function manageFilters({ action, env }) {
+function manageFilters({ action }) {
+    const actionService = useService("action");
     if (!action.res_model) {
         return null;
     }
@@ -84,7 +95,7 @@ function manageFilters({ action, env }) {
         description,
         callback: () => {
             // manage_filters
-            env.services.action.doAction({
+            actionService.doAction({
                 res_model: "ir.filters",
                 name: description,
                 views: [
@@ -103,8 +114,11 @@ function manageFilters({ action, env }) {
     };
 }
 
-function viewAccessRights({ accessRights, action, env }) {
-    if (!action.res_model || !accessRights.canSeeModelAccess) {
+function viewAccessRights({ accessRights, action }) {
+    const actionService = useService("action");
+    const orm = usePlugin(ORM);
+
+    if (!action.res_model || !accessRights.canSeeAccess) {
         return null;
     }
     const description = _t("Access Rights");
@@ -113,12 +127,12 @@ function viewAccessRights({ accessRights, action, env }) {
         description,
         callback: async () => {
             const modelId = (
-                await env.services.orm.search("ir.model", [["model", "=", action.res_model]], {
+                await orm.search("ir.model", [["model", "=", action.res_model]], {
                     limit: 1,
                 })
             )[0];
-            env.services.action.doAction({
-                res_model: "ir.model.access",
+            actionService.doAction({
+                res_model: "ir.access",
                 name: description,
                 views: [
                     [false, "list"],
@@ -136,44 +150,10 @@ function viewAccessRights({ accessRights, action, env }) {
     };
 }
 
-function viewRecordRules({ accessRights, action, env }) {
-    if (!action.res_model || !accessRights.canSeeRecordRules) {
-        return null;
-    }
-    const description = _t("Model Record Rules");
-    return {
-        type: "item",
-        description: _t("Record Rules"),
-        callback: async () => {
-            const modelId = (
-                await env.services.orm.search("ir.model", [["model", "=", action.res_model]], {
-                    limit: 1,
-                })
-            )[0];
-            env.services.action.doAction({
-                res_model: "ir.rule",
-                name: description,
-                views: [
-                    [false, "list"],
-                    [false, "form"],
-                ],
-                domain: [["model_id", "=", modelId]],
-                type: "ir.actions.act_window",
-                context: {
-                    default_model_id: modelId,
-                },
-            });
-        },
-        sequence: 360,
-        section: "security",
-    };
-}
-
 debugRegistry
     .category("action")
     .add("editAction", editAction)
     .add("viewFields", viewFields)
     .add("ViewModel", ViewModel)
     .add("manageFilters", manageFilters)
-    .add("viewAccessRights", viewAccessRights)
-    .add("viewRecordRules", viewRecordRules);
+    .add("viewAccessRights", viewAccessRights);

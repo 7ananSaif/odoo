@@ -1,8 +1,6 @@
 import { registry } from "@web/core/registry";
-import { stepUtils } from "@web_tour/tour_utils";
 
 registry.category("web_tour.tours").add('forum_question', {
-    url: '/forum/help-1',
     steps: () => [
     {
         content: "Ask the question in this forum by clicking on the button.",
@@ -26,11 +24,36 @@ registry.category("web_tour.tours").add('forum_question', {
         trigger: ".note-editable:not(:has(br))",
     },
     {
-        content: "Insert tags related to your question.",
-        trigger: '.o_select_menu_toggler',
-        run: 'click',
+        trigger: ".o_select_menu_input",
+        run: `edit Tag`,
     },
-    ...stepUtils.editSelectMenuInput(".o_select_menu_input", "Tag"),
+    {
+        content: "Create a new tag.",
+        trigger: ".o-dropdown-item:contains(Create option)",
+        run: "click",
+    },
+    {
+        content: "Check that the 'Tag' tag is added.",
+        trigger: ".o_tag_badge_text:contains('Tag')",
+    },
+    {
+        content: "Insert tags related to your question.",
+        trigger: ".o_select_menu_input",
+        run: "edit tag, test tag",
+    },
+    {
+        content: "Create multiple new tags.",
+        trigger: ".o-dropdown-item:contains(Create option)",
+        run: "click",
+    },
+    {
+        content: "Check that the 'tag' tag is added.",
+        trigger: ".o_tag_badge_text:contains('tag')",
+    },
+    {
+        content: "Check that the 'test tag' tag is added.",
+        trigger: ".o_tag_badge_text:contains('test tag')",
+    },
     {
         content: "Create a new tag.",
         trigger: ".o-dropdown-item:contains(Create option)",
@@ -66,7 +89,7 @@ registry.category("web_tour.tours").add('forum_question', {
         expectUnloadPage: true,
     }, {
         content: "This page contain new created question.",
-        trigger: '#wrap:has(.fa-star)',
+        trigger: '#wrap:has([data-icon="star"].oi-filled)',
     },
     {
         trigger: ".o_wforum_question:contains(marc demo)",
@@ -104,7 +127,6 @@ registry.category("web_tour.tours").add('forum_question', {
     {
         trigger: "a:contains(\"Reply\").collapsed",
         content: "Click to reply.",
-        tooltipPosition: "bottom",
         run: "click",
     },
     {

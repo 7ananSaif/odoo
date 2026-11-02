@@ -10,10 +10,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-15 17:35+0000\n"
-"PO-Revision-Date: 2026-06-06 15:49+0000\n"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-08-31 17:52+0000\n"
 "Last-Translator: \"Anastasiia Koroleva (koan)\" <koan@odoo.com>\n"
-"Language-Team: Russian <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Russian <https://translate.odoo.com/projects/odoo-s19-4/"
 "pos_stripe/ru/>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
@@ -22,7 +22,13 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
 "(n%100>=11 && n%100<=14)? 2 : 3);\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: pos_stripe
+#. odoo-javascript
+#: code:addons/pos_stripe/static/src/app/payment_stripe.js:0
+msgid "Capture Payment"
+msgstr "Списать средства"
 
 #. module: pos_stripe
 #: model:ir.model.fields,field_description:pos_stripe.field_pos_payment_method__display_name
@@ -34,12 +40,6 @@ msgstr "Display Name"
 #: code:addons/pos_stripe/models/pos_payment_method.py:0
 msgid "Do not have access to fetch token from Stripe"
 msgstr "У вас нет доступа к получению токена из Stripe"
-
-#. module: pos_stripe
-#. odoo-python
-#: code:addons/pos_stripe/models/pos_payment_method.py:0
-msgid "Do not have access to refund Stripe payment"
-msgstr "Do not have access to refund Stripe payment"
 
 #. module: pos_stripe
 #: model_terms:ir.ui.view,arch_db:pos_stripe.pos_payment_method_view_form_inherit_pos_stripe
@@ -62,15 +62,37 @@ msgid "Failed to load resource: net::ERR_INTERNET_DISCONNECTED."
 msgstr "Не удалось загрузить ресурс: net::ERR_INTERNET_DISCONNECTED."
 
 #. module: pos_stripe
+#. odoo-javascript
+#: code:addons/pos_stripe/static/src/app/payment_stripe.js:0
+msgid "Fetch Secret"
+msgstr "Получить секретный ключ"
+
+#. module: pos_stripe
+#. odoo-javascript
+#: code:addons/pos_stripe/static/src/app/payment_stripe.js:0
+msgid "Fetch Token"
+msgstr "Получить токен"
+
+#. module: pos_stripe
 #: model:ir.model.fields,field_description:pos_stripe.field_pos_payment_method__id
 msgid "ID"
 msgstr "ID"
+
+#. module: pos_stripe
+#: model:ir.module.module,summary:base.module_pos_stripe
+msgid "Integrate your POS with a Stripe payment terminal"
+msgstr ""
 
 #. module: pos_stripe
 #. odoo-javascript
 #: code:addons/pos_stripe/static/src/app/payment_stripe.js:0
 msgid "No available Stripe readers."
 msgstr "Нет доступных считывателей Stripe."
+
+#. module: pos_stripe
+#: model:ir.module.module,shortdesc:base.module_pos_stripe
+msgid "POS Stripe"
+msgstr ""
 
 #. module: pos_stripe
 #. odoo-javascript
@@ -80,8 +102,8 @@ msgstr "Платеж отменен, потому что не подключен
 
 #. module: pos_stripe
 #: model:ir.model,name:pos_stripe.model_pos_payment_method
-msgid "Point of Sale Payment Methods"
-msgstr "Способы оплаты в торговых точках"
+msgid "Point of Sale Payment Method"
+msgstr ""
 
 #. module: pos_stripe
 #. odoo-javascript
@@ -92,6 +114,7 @@ msgstr "Считыватель отключен"
 #. module: pos_stripe
 #. odoo-python
 #: code:addons/pos_stripe/models/pos_payment_method.py:0
+#: model_terms:ir.ui.view,arch_db:pos_stripe.pos_payment_method_view_form_inherit_pos_stripe
 msgid "Stripe"
 msgstr "Stripe"
 
@@ -136,16 +159,3 @@ msgstr "You cannot refund a non-Stripe payment via Stripe"
 #: model:ir.model.fields,help:pos_stripe.field_pos_payment_method__stripe_serial_number
 msgid "[Serial number of the stripe terminal], for example: WSC513105011295"
 msgstr "[Серийный номер стрип-терминала], например: WSC513105011295"
-
-#~ msgid "Complete the Stripe onboarding for company %s."
-#~ msgstr "Завершите ввод в эксплуатацию Stripe для компании %s."
-
-#~ msgid "Point of Sale Session"
-#~ msgstr "Сессия в торговой точке"
-
-#~ msgid "Terminal %s is already used on payment method %s."
-#~ msgstr "Терминал %s уже используется для способа оплаты %s."
-
-#~ msgid "There are some issues between us and Stripe, try again later."
-#~ msgstr ""
-#~ "Между нами и Stripe возникли некоторые проблемы, повторите попытку позже."

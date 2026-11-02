@@ -6,8 +6,35 @@ declare module "models" {
     export interface RtcSession extends RtcSessionClass {}
 
     export interface ChannelMember {
+        cancelInvitationTimeout: () => void;
         rtc_inviting_session_id: RtcSession;
         rtcSession: RtcSession;
+        startInvitationTimeout: () => void;
+    }
+    export interface DiscussChannel {
+        _playRtcSessionsSoundEffects: (rtcSessions: RtcSession[]) => Promise<void>;
+        activeRtcSession: RtcSession;
+        activeSpeakers: RtcSession[];
+        cancelRtcInvitationTimeout: number|undefined;
+        clearActiveSpeakers: () => void;
+        focusAvailableVideo: () => void;
+        focusStack: RtcSession[];
+        hadSelfSession: boolean;
+        hasRtcSessionActive: Readonly<boolean>;
+        isCallDisplayedInChatWindow: Readonly<boolean>;
+        isSelfInCall: Readonly<boolean>;
+        lastSessionIds: Set<number>;
+        pin: (session: RtcSession) => void;
+        pinnedRtcSession: RtcSession;
+        pruneSpeakersTimeout: number|undefined;
+        rtc_session_ids: RtcSession[];
+        showCallView: Readonly<boolean>;
+        unpin: () => void;
+        updateActiveSpeakers: () => void;
+        updateCallFocusStack: (session: RtcSession) => void;
+        useCameraByDefault: null;
+        videoCount: number;
+        visibleCards: import("@mail/discuss/call/common/call").CardData[];
     }
     export interface MailGuest {
         currentRtcSession: RtcSession;
@@ -15,37 +42,17 @@ declare module "models" {
     export interface ResPartner {
         currentRtcSession: RtcSession;
     }
-    export interface Settings {
-        getVolume: (rtcSession: RtcSession) => number;
-    }
     export interface Store {
         _hasFullscreenUrl: boolean;
         _hasFullscreenUrlOnUpdate: () => void;
-        allActiveRtcSessions: RtcSession[];
         "discuss.channel.rtc.session": StaticMailRecord<RtcSession, typeof RtcSessionClass>;
-        fullscreenChannel: Thread;
+        fullscreenChannel: DiscussChannel;
         meetingViewOpened: boolean;
         nextTalkingTime: number;
-        ringingThreads: Thread[];
+        ringingChannels: DiscussChannel[];
         rtc: Rtc;
         Rtc: StaticMailRecord<Rtc, typeof RtcClass>;
-    }
-    export interface Thread {
-        activeRtcSession: RtcSession;
-        cancelRtcInvitationTimeout: number|undefined;
-        focusAvailableVideo: () => void;
-        focusStack: RtcSession[];
-        hadSelfSession: boolean;
-        isCallDisplayedInChatWindow: boolean;
-        lastSessionIds: Set<number>;
-        promoteFullscreen: typeof CALL_PROMOTE_FULLSCREEN[keyof CALL_PROMOTE_FULLSCREEN];
-        rtc_session_ids: RtcSession[];
-        showCallView: Readonly<boolean>;
-        updateCallFocusStack: (session: RtcSession) => void;
-        useCameraByDefault: null;
-        videoCount: number;
-        videoCountNotSelf: number;
-        visibleCards: CardData[];
+        shareUrl: Readonly<string|undefined>;
     }
 
     export interface Models {

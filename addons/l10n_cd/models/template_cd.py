@@ -21,7 +21,6 @@ class AccountChartTemplate(models.AbstractModel):
                 'account_fiscal_country_id': 'base.cd',
                 'account_sale_tax_id': 'tva_sale_16',
                 'account_purchase_tax_id': 'tva_purchase_good_16',
-                'account_stock_journal_id': 'inventory_valuation',
                 'account_stock_valuation_id': 'pcg_382',
             }
         )

@@ -1,7 +1,7 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import fields, models, tools
+from odoo.tools import SQL
 
 from odoo.addons.rating.models.rating_data import RATING_LIMIT_MIN
 
@@ -68,9 +68,10 @@ class ReportProjectTaskUser(models.Model):
     # We exclude template tasks, but we still need the field for the views
     is_template = fields.Boolean(readonly=True)
     has_template_ancestor = fields.Boolean(readonly=True)
+    has_project_template = fields.Boolean(readonly=True)
 
     def _select(self):
-        return """
+        return SQL("""
                 (select 1) AS nbr,
                 t.id as id,
                 t.id as task_id,
@@ -101,11 +102,12 @@ class ReportProjectTaskUser(models.Model):
                 (extract('epoch' from (t.date_deadline-(now() at time zone 'UTC'))))/(3600*24) as delay_endings_days,
                 COUNT(td.task_id) as dependent_ids_count,
                 t.is_template,
-                t.has_template_ancestor
-        """
+                t.has_template_ancestor,
+                p.is_template as has_project_template
+        """)
 
     def _group_by(self):
-        return """
+        return SQL("""
                 t.id,
                 t.create_date,
                 t.date_assign,
@@ -127,34 +129,41 @@ class ReportProjectTaskUser(models.Model):
                 t.working_hours_close,
                 t.milestone_id,
                 pm.id,
-                td.depends_on_id
-        """
+                td.depends_on_id,
+                p.is_template
+        """)
 
     def _from(self):
-        return f"""
+        return SQL("""
                 project_task t
                     LEFT JOIN rating_rating rt ON rt.res_id = t.id
                           AND rt.res_model = 'project.task'
                           AND rt.consumed = True
-                          AND rt.rating >= {RATING_LIMIT_MIN}
+                          AND rt.rating >= %s
                     LEFT JOIN project_milestone pm ON pm.id = t.milestone_id
                           AND pm.is_reached = False
                           AND pm.deadline <= CAST(now() AS DATE)
                     LEFT JOIN task_dependencies_rel td ON td.depends_on_id = t.id
                     LEFT JOIN project_project p ON p.id = t.project_id
-        """
+        """, RATING_LIMIT_MIN)
 
     def _where(self):
-        return """
+        return SQL("""
                 t.project_id IS NOT NULL
-        """
+        """)
 
     def init(self):
         tools.drop_view_if_exists(self.env.cr, self._table)
-        self.env.cr.execute("""
+        self.env.cr.execute(SQL("""
     CREATE view %s as
          SELECT %s
            FROM %s
           WHERE %s
        GROUP BY %s
-        """ % (self._table, self._select(), self._from(), self._where(), self._group_by()))
+            """,
+            SQL.identifier(self._table),
+            self._select(),
+            self._from(),
+            self._where(),
+            self._group_by(),
+        ))

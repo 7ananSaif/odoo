@@ -7,13 +7,15 @@ from odoo.tests import tagged
 
 @tagged("post_install_l10n", "post_install", "-at_install")
 class TestL10nBrPix(AccountTestInvoicingCommon):
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     @AccountTestInvoicingCommon.setup_country('br')
     def setUpClass(cls):
         super().setUpClass()
         cls.partner_bank = cls.env["res.partner.bank"].create(
             {
-                "acc_number": "123456789012345678",
+                "account_number": "123456789012345678",
                 "partner_id": cls.company_data["company"].partner_id.id,
                 "proxy_type": "br_random",
                 "proxy_value": "71d6c6e1-64ea-4a11-9560-a10870c40ca2",

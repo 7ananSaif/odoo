@@ -6,16 +6,17 @@ import socket
 import ssl
 import unittest
 import warnings
-from base64 import b64encode
 from os import getenv
 from pathlib import Path
 from socket import getaddrinfo  # keep a reference on the non-patched function
 from unittest.mock import patch
 
 from odoo.exceptions import UserError
-from odoo.tools import config, file_path, mute_logger
+from odoo.tools import BinaryBytes, config, file_path, mute_logger
 
 from .common import TransactionCaseWithUserDemo
+from odoo.tests import tagged
+
 from odoo.addons.base.models.ir_mail_server import IrMail_Server
 
 try:
@@ -72,6 +73,7 @@ class Certificate:
 @patch('odoo.addons.base.models.ir_mail_server.SMTP_TIMEOUT', SMTP_TIMEOUT)
 # prevent the CLI from interfering with the tests
 @patch.dict(config.options, {'smtp_server': ''})
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestIrMailServerSMTPD(TransactionCaseWithUserDemo):
     @classmethod
     def setUpClass(cls):
@@ -241,10 +243,10 @@ class TestIrMailServerSMTPD(TransactionCaseWithUserDemo):
         ssl_context.load_verify_locations(cafile=self.ssl_ca.cert)
         ssl_context.verify_mode = ssl.CERT_REQUIRED
 
-        self_signed_key = b64encode(self.ssl_self_signed.key.read_bytes())
-        self_signed_cert = b64encode(self.ssl_self_signed.cert.read_bytes())
-        client_key = b64encode(self.ssl_client.key.read_bytes())
-        client_cert = b64encode(self.ssl_client.cert.read_bytes())
+        self_signed_key = BinaryBytes(self.ssl_self_signed.key.read_bytes())
+        self_signed_cert = BinaryBytes(self.ssl_self_signed.cert.read_bytes())
+        client_key = BinaryBytes(self.ssl_client.key.read_bytes())
+        client_cert = BinaryBytes(self.ssl_client.cert.read_bytes())
         matrix = [
             # authentication, name, certificate, private key, error pattern
             ('login', "missing", '', '',
@@ -399,8 +401,8 @@ class TestIrMailServerSMTPD(TransactionCaseWithUserDemo):
             'smtp_authentication': 'login',
             'smtp_user': self.user_demo.email,
             'smtp_pass': PASSWORD,
-            'smtp_ssl_certificate': b64encode(self.ssl_client.cert.read_bytes()),
-            'smtp_ssl_private_key': b64encode(self.ssl_client.key.read_bytes()),
+            'smtp_ssl_certificate': BinaryBytes(self.ssl_client.cert.read_bytes()),
+            'smtp_ssl_private_key': BinaryBytes(self.ssl_client.key.read_bytes()),
         })
 
         cert_good = self.ssl_server

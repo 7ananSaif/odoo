@@ -4,7 +4,6 @@ from collections import defaultdict
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
-from odoo.tools.sql import column_exists, create_column
 
 
 class AccountMove(models.Model):
@@ -23,7 +22,10 @@ class AccountMove(models.Model):
         "Another entry with the same name already exists.",
     )
 
-    def _auto_init(self):
+    l10n_latam_available_document_type_ids = fields.Many2many('l10n_latam.document.type', compute='_compute_l10n_latam_available_document_types')
+    l10n_latam_document_type_id = fields.Many2one(
+        'l10n_latam.document.type', string='Document Type', readonly=False, bypass_search_access=True, index='btree_not_null',
+        init_storage=lambda model: None,
         # Skip the computation of the field `l10n_latam_document_type_id` at the module installation
         # Without this, at the module installation,
         # it would call `_compute_l10n_latam_document_type` on all existing records
@@ -51,19 +53,14 @@ class AccountMove(models.Model):
         # Though I don't think this is needed.
         # In practical, it's very rare to already have invoices (draft, in addition)
         # for a Chilian or Argentian company (`res.company`) before installing `l10n_cl` or `l10n_ar`.
-        if not column_exists(self.env.cr, "account_move", "l10n_latam_document_type_id"):
-            create_column(self.env.cr, "account_move", "l10n_latam_document_type_id", "int4")
-        return super()._auto_init()
-
-    l10n_latam_available_document_type_ids = fields.Many2many('l10n_latam.document.type', compute='_compute_l10n_latam_available_document_types')
-    l10n_latam_document_type_id = fields.Many2one(
-        'l10n_latam.document.type', string='Document Type', readonly=False, bypass_search_access=True, index='btree_not_null', compute='_compute_l10n_latam_document_type', store=True)
+        compute='_compute_l10n_latam_document_type', store=True)
     l10n_latam_document_number = fields.Char(
         compute='_compute_l10n_latam_document_number', inverse='_inverse_l10n_latam_document_number',
         string='Document Number', readonly=False)
     l10n_latam_use_documents = fields.Boolean(compute='_compute_l10n_latam_use_documents', search='_search_l10n_latam_use_documents')
     l10n_latam_manual_document_number = fields.Boolean(compute='_compute_l10n_latam_manual_document_number', string='Manual Number')
     l10n_latam_document_type_id_code = fields.Char(related='l10n_latam_document_type_id.code', string='Doc Type')
+    l10n_latam_document_internal_type = fields.Selection(related='l10n_latam_document_type_id.internal_type', string='Internal Type')
 
     @api.depends('l10n_latam_document_type_id')
     def _compute_name(self):
@@ -155,8 +152,7 @@ class AccountMove(models.Model):
         no_anti_regex = False
         if self.l10n_latam_use_documents:
             no_anti_regex = True
-        where_string, param = super(AccountMove, self.with_context(no_anti_regex=no_anti_regex))._get_last_sequence_domain(relaxed)
-        return where_string, param
+        return super(AccountMove, self.with_context(no_anti_regex=no_anti_regex))._get_last_sequence_domain(relaxed)
 
     def _skip_format_document_number(self):
         """Hook to be overridden in localisation"""

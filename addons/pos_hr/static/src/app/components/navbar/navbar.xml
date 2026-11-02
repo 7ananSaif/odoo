@@ -2,23 +2,21 @@
 <templates id="template" xml:space="preserve">
 
     <t t-name="pos_hr.Navbar" t-inherit="point_of_sale.Navbar" t-inherit-mode="extension">
-        <xpath expr="//DropdownItem[contains(text(), 'Backend')]" position="attributes">
-            <attribute name="t-if">showBackend</attribute>
-        </xpath>
-        <xpath expr="//DropdownItem[contains(text(), 'Close Register')]" position="attributes">
-            <attribute name="t-if">
-                !pos.config.module_pos_hr or pos.employeeIsAdmin or pos.getCashierUserId() === pos.session.user_id?.id
-            </attribute>
-        </xpath>
         <xpath expr="//CashierName" position="after">
-            <button t-if="pos.config.module_pos_hr and !ui.isSmall" class="lock-screen btn btn-light btn-lg" title="Lock" t-on-click="() => this.pos.showLoginScreen()">
-                <i class="fa fa-fw fa-unlock"/>
+            <button t-if="this.pos.config.module_pos_hr and !this.ui.isSmall" class="lock-screen btn btn-light btn-lg lh-lg" title="Lock" t-on-click="() => this.pos.showLoginScreen()">
+                <i class="oi oi-fw" data-icon="lock_open" aria-hidden="true"/>
             </button>
         </xpath>
-        <xpath expr="//Dropdown//div[hasclass('pos-burger-menu-items')]" position="inside">
-            <DropdownItem t-if="pos.config.module_pos_hr and ui.isSmall" onSelected="() => this.pos.showLoginScreen()">
-                Lock
-            </DropdownItem>
+    </t>
+
+    <t t-name="pos_hr.BurgerMenuDialog" t-inherit="point_of_sale.BurgerMenuDialog" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('o_pos_burger_menu_buttons')]//t[@t-name='close_register']" position="before">
+            <t t-if="this.pos.config.module_pos_hr and this.ui.isSmall"
+                t-call="point_of_sale.BurgerDialogMenuButton"
+                dataIcon="'lock'"
+                onClick="() => this.pos.showLoginScreen()"
+                btnLabel.translate="Lock"
+            />
         </xpath>
     </t>
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 The module :mod:`odoo.tests.common` provides unittest test cases and a few
 helpers and classes to write tests.
@@ -20,7 +19,6 @@ import os
 import pathlib
 import platform
 import pprint
-import psutil
 import re
 import shutil
 import signal
@@ -30,47 +28,62 @@ import tempfile
 import threading
 import time
 import traceback
+import typing
 import unittest
-import warnings
 from collections import defaultdict, deque
 from concurrent.futures import CancelledError, Future, InvalidStateError, wait
-from contextlib import contextmanager, ExitStack
+from contextlib import AbstractContextManager, ExitStack, contextmanager
 from copy import deepcopy
 from datetime import datetime
-from functools import lru_cache, partial, wraps
+from functools import cache, partial, wraps
 from itertools import islice, zip_longest
 from textwrap import shorten
-from typing import Optional, Iterable, cast
-from unittest.mock import patch, _patch, Mock
+from unittest.mock import Mock, _patch, patch
 from urllib.parse import parse_qsl, urlencode, urljoin, urlsplit, urlunsplit
-from xmlrpc import client as xmlrpclib
 from uuid import uuid4
-from werkzeug.exceptions import BadRequest
+from xmlrpc import client as xmlrpclib
 
 import freezegun
+import psutil
 import requests
 from lxml import etree, html
 from passlib.context import CryptContext
 from requests import PreparedRequest, Session
+from urllib3.util import parse_url
+from werkzeug.exceptions import BadRequest
 
-import odoo.addons.base
 import odoo.cli
-import odoo.http
 import odoo.models
 import odoo.orm.registry
-from odoo import api
+from odoo import api, fields
 from odoo.exceptions import AccessError
 from odoo.fields import Command
-from odoo.modules.registry import Registry, DummyRLock
-from odoo.service import security
-from odoo.sql_db import Cursor, Savepoint
-from odoo.tools import config, float_compare, mute_logger, profiler, SQL, DotDict
+from odoo.http import request, request_var
+from odoo.http.requestlib import Request
+from odoo.http.session import (
+    DEFAULT_LANG,
+    get_default_session,
+    logout,
+    update_session_token,
+    session_store,
+)
+from odoo.http.session import Session as OdooHttpSession
+from odoo.orm.environments import CacheLayer
+from odoo.modules.registry import Registry
+from odoo.sql_db import Cursor
+from odoo.tools import SQL, DotDict, config, file_open, float_compare, mute_logger, profiler
+from odoo.tools.binary import BinaryBytes
+from odoo.tools.lru import LRU
 from odoo.tools.mail import single_email_re
-from odoo.tools.misc import find_in_path
+from odoo.tools.misc import diff_zip, find_in_path, real_time, str2bool
+from odoo.tools.safe_eval import safe_whitelist
 from odoo.tools.xml_utils import _validate_xml
-from odoo.addons.base.models import ir_actions_report
 
+import odoo.addons.base
 from . import case, test_cursor
+
+if typing.TYPE_CHECKING:
+    from collections.abc import Iterable
 
 try:
     import websocket
@@ -89,22 +102,6 @@ else:
     _logger.info("Importing test framework", stack_info=_logger.isEnabledFor(logging.DEBUG))
 
 
-# backward compatibility: Form was defined in this file
-def __getattr__(name):
-    # pylint: disable=import-outside-toplevel
-    if name != 'Form':
-        raise AttributeError(name)
-
-    from .form import Form
-
-    warnings.warn(
-        "Since 18.0: odoo.tests.common.Form is deprecated, use odoo.tests.Form",
-        category=DeprecationWarning,
-        stacklevel=2,
-    )
-    return Form
-
-
 # The odoo library is supposed already configured.
 HOST = '127.0.0.1'
 # Useless constant, tests are aware of the content of demo data
@@ -115,6 +112,8 @@ CHECK_BROWSER_ITERATIONS = 100
 BROWSER_WAIT = CHECK_BROWSER_SLEEP * CHECK_BROWSER_ITERATIONS # seconds
 DEFAULT_SUCCESS_SIGNAL = 'test successful'
 TEST_CURSOR_COOKIE_NAME = 'test_request_key'
+
+DISABLE_TIMEOUTS = str2bool(os.getenv('ODOO_TEST_DISABLE_TIMEOUT', '0'))
 
 IGNORED_MSGS = re.compile(r"""
     failed\ to\ fetch  # base error
@@ -148,11 +147,16 @@ class RegistryRLock(threading._RLock):
 # Further filtering on cursors can be done by extending `assertCanOpenTestCursor`.
 _registry_test_lock = RegistryRLock()
 _registry_test_lock.acquire()
+_disable_flushing_cursor = False
 
 
 @contextmanager
-def release_test_lock():
+def release_test_lock(check_acquired=False):
     """ Releases the test lock in a context manager, the lock is acquired once the context is over."""
+    if check_acquired and not _registry_test_lock.count:
+        # not acquired, just noop
+        yield
+        return
     try:
         _registry_test_lock.release()
         yield
@@ -160,6 +164,75 @@ def release_test_lock():
         if not _registry_test_lock.acquire(timeout=60):
             tag = odoo.modules.module.current_test.canonical_tag
             exit(f'Could not re-acquire the registry lock during {tag}, exiting...')
+
+
+@contextmanager
+def flushing_cursor(cr: Cursor):
+    """ Simulate a commit on a cursor (without comitting) and reset on exit.
+
+    Run this on the main cursor when creating test cursors so that they can see
+    changes made on the main cursor. You can still continue using the main
+    cursor inside the block, it will be flushed on exit and then reset.
+    """
+    assert isinstance(odoo.modules.module.current_test, TransactionCase), "only available for TransactionCase"
+
+    if _disable_flushing_cursor:
+        # execution of wkhtml happens in parallel, we don't want to flush the
+        # cursor in that case
+        yield
+        return
+
+    if cr.transaction is None:  # no environment to clear
+        cr.flush()
+        yield
+        return
+
+    # simluate cr.commit()
+    state_stack = cr.transaction._state_stack__
+    registry_invalidated = cr.transaction._registry_invalidated
+    closing = cr._closing
+    # preserve registry_invalidated flag which is reset when committing
+    # sum them after yielding
+    try:
+        # Since we simulate an empty stack, make sure the parent layer is set as
+        # the cache on the registry. This ensures that existing caches are not
+        # affected by updating parent layers.
+        registry_caches = cr.transaction.registry.registry_caches__
+        for name in registry_caches:
+            layer = cr.transaction.ormcaches__[name]
+            parent = layer.parent
+            if parent is None:
+                # simulate signaling already here
+                layer.parent = parent = LRU(999999)
+                layer.update_parent()
+            registry_caches[name] = (registry_caches[name][0], parent)
+
+        cr._closing = True  # do a quick clean
+        cr.transaction._state_stack__ = []  # replace the stack
+        with cr.transaction.committing():
+            pass  # no real commit
+        # restore the stack
+        cr.transaction._state_stack__ = state_stack
+        cr._closing = closing
+
+        try:
+            yield
+        finally:
+            # the registry may be invalidated during the yield
+            registry_invalidated += cr.transaction._registry_invalidated
+
+        # simulate cr.commit() again to flush changes made by the main cursor
+        state_stack = cr.transaction._state_stack__
+        closing = cr._closing
+
+        cr._closing = False  # do a reset
+        cr.transaction._state_stack__ = []  # replace the stack
+        with cr.transaction.committing():
+            pass  # no real commit
+    finally:
+        cr.transaction._state_stack__ = state_stack
+        cr._closing = closing
+        cr.transaction._registry_invalidated = registry_invalidated
 
 
 def standalone(*tags):
@@ -236,7 +309,7 @@ def new_test_user(env, login='', groups='base.group_user', context=None, **kwarg
     if 'company_id' in create_values and 'company_ids' not in create_values:
         create_values['company_ids'] = [(4, create_values['company_id'])]
 
-    return env['res.users'].with_context(**context).create(create_values)
+    return env['res.users'].sudo().with_context(**context).create(create_values)
 
 def loaded_demo_data(env):
     return bool(env.ref('base.user_demo', raise_if_not_found=False))
@@ -296,9 +369,214 @@ def _normalize_arch_for_assert(arch_string, parser_method="xml"):
     arch_string = etree.fromstring(arch_string, parser=parser)
     return etree.tostring(arch_string, pretty_print=True, encoding='unicode')
 
+
 class BlockedRequest(requests.exceptions.ConnectionError):
     pass
+
+
 _super_send = requests.Session.send
+
+
+class MockHTTPClient(AbstractContextManager):
+    """Mock ``requests`` calls and return a fake ``requests.Response``.
+
+    This context manager patches ``requests.sessions.Session.send``.
+    Each outgoing request is checked against the match criteria. If it
+    matches, the request is recorded in ``calls``, the optional
+    ``side_effect`` is executed, and a mocked response is returned. If
+    it does not match, the request is delegated to the previously active
+    ``send`` (either the real ``requests`` implementation, or an outer
+    ``MockHTTPClient`` when you nest mocks), so multiple
+    ``MockHTTPClient`` instances can be composed.
+
+    A request matches when all checks pass:
+
+    * ``method`` (if passed): matches the HTTP method (case-insensitive)
+    * ``url`` (if passed):  limits which requests this mock will catch.
+      Use ``"https://api.example.com/v1/items"`` to match that
+      host + path; include more (e.g. a query string) to make it
+      stricter. Anything you omit is treated as "don't care" and won't
+      affect matching.
+    * ``matcher(request)`` (if passed): a custom function predicate for
+      anything beyond method/URL (headers, JSON body, etc.).
+
+    The response is built from ``return_status`` and ``return_headers``
+    (both can be values or callables).
+    The body comes from ``return_json`` (JSON-encoded and defaults
+    ``Content-Type`` to ``application/json``) or from ``return_body``
+    when ``return_json`` is ``None``.
+
+    Examples
+    --------
+    Mock an auth flow and return dynamic JSON based on headers
+
+    .. code-block:: python
+        def is_body_authorized(req):
+            token = req.headers.get('Authorization')
+            if token == 'Bearer super-secure-token':
+                return "Authorized!"
+            return "Not authorized :("
+
+        def check_auth_header(req):
+            self.assertIn(
+                'Authorization',
+                req.headers,
+                "Missing Authorization header",
+            )
+
+        with (
+            MockHTTPClient(
+                url='https://auth.example.com/token',
+                return_json={'token': 'super-secure-token'},
+            ) as auth_mock,
+            MockHTTPClient(
+                url='https://api.example.com/am-i-authorized',
+                return_body=is_body_authorized,
+                side_effect=check_auth_header,
+            ) as api_mock,
+        ):
+            token = requests.get(
+                'https://auth.example.com/token',
+            ).json()['token']
+            auth_mock.assert_called_once()
+
+            resp = requests.get(
+                'https://api.example.com/am-i-authorized',
+                headers={'Authorization': f'Bearer {token}'},
+            )
+            api_mock.assert_called_once()
+            assert resp.text == "Authorized!"
+    """
+
+    def __init__(
+        self,
+        url: str | None = None,
+        *,
+        method: str | None = None,
+        matcher: typing.Callable[[requests.PreparedRequest], bool] | None = None,
+        return_status: int | typing.Callable[[requests.PreparedRequest], int] = 200,
+        return_json: dict | typing.Callable[[requests.PreparedRequest], dict] | None = None,
+        return_body: bytes | str | typing.Callable[[requests.PreparedRequest], bytes | str] | None = None,
+        return_headers: dict | typing.Callable[[requests.PreparedRequest], dict] | None = None,
+        side_effect: typing.Callable[[requests.PreparedRequest], None] | None = None,
+    ):
+        self.url = parse_url(url) if url else None
+        if url and not self.url.host:
+            raise ValueError(f"URL '{url}' is not valid: missing host")
+        self.method = method.upper() if method else None
+        self.matcher = matcher
+        self.return_status = return_status if callable(return_status) else lambda _req: return_status
+
+        self.return_json = None
+        if callable(return_json):
+            self.return_json = return_json
+        elif return_json is not None:
+            self.return_json = lambda _req: return_json
+        if self.return_json is not None and return_body is not None:
+            raise ValueError("Cannot specify both return_json and return_body")
+
+        self.return_body = return_body if callable(return_body) else lambda _req: return_body
+        self.return_headers = return_headers if callable(return_headers) else lambda _req: return_headers or {}
+        self.side_effect = side_effect
+        self.calls = []
+        self.super_send = None
+
+    def _request_matches(self, req: requests.PreparedRequest) -> bool:
+        if self.method and self.method != req.method.upper():
+            return False
+        if self.url and req.url:
+            request_url = parse_url(req.url)
+            if any((
+                self.url.scheme and self.url.scheme != request_url.scheme,
+                self.url.host and self.url.host != request_url.host,
+                self.url.port and self.url.port != request_url.port,
+                self.url.path and self.url.path != request_url.path,
+                self.url.query and self.url.query != request_url.query,
+            )):
+                return False
+        return self.matcher is None or self.matcher(req)
+
+    def __enter__(self):
+        self.super_send = requests.sessions.Session.send
+        self.calls = []
+
+        def send(session, req: requests.PreparedRequest, **kw):
+            if not self._request_matches(req):
+                return self.super_send(session, req, **kw)
+
+            self.calls.append(req)
+            if self.side_effect:
+                self.side_effect(req)
+
+            resp = requests.Response()
+            resp.status_code = self.return_status(req)
+            resp.url = req.url or ''
+            resp.request = req
+            resp.headers.update(self.return_headers(req))
+            if self.return_json is not None:
+                resp.headers.setdefault('Content-Type', 'application/json')
+                resp.encoding = 'utf-8'
+                resp._content = json.dumps(self.return_json(req), ensure_ascii=False).encode()
+            else:
+                return_body = self.return_body(req)
+                resp._content = return_body.encode() if isinstance(return_body, str) else return_body or b''
+
+            return resp
+
+        self.patcher = patch.object(requests.sessions.Session, 'send', send)
+        self.patcher.start()
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        self.patcher.stop()
+        self.super_send = None
+        return False
+
+    def __repr__(self) -> str:
+        return (
+            'MockHTTPClient('
+            f'method={str(self.method)!r}, '
+            f'url={str(self.url.url) if self.url is not None else None!r}, '
+            f'matcher={"set" if self.matcher else None!r}, '
+            f'side_effect={"set" if self.side_effect else None!r}, '
+            f'body={"json" if self.return_json is not None else "body"!r}, '
+            f'calls={len(self.calls)})'
+        )
+
+    def assert_called(self, n_times=None):
+        if n_times == 0:
+            if self.calls:
+                raise AssertionError(f"Expected 0 calls. Called {len(self.calls)} times.")
+            return
+
+        if not self.calls:
+            raise AssertionError("Expected to have been called at least once. No calls were made.")
+
+        if n_times is not None and len(self.calls) != n_times:
+            raise AssertionError(f"Expected {n_times} calls. Called {len(self.calls)} times.")
+
+    def assert_called_once(self):
+        self.assert_called(n_times=1)
+
+    def assert_not_called(self):
+        self.assert_called(n_times=0)
+
+
+class DummyRLock:
+    """ Dummy reentrant lock, to be used while running rpc and js tests """
+    def acquire(self):
+        pass
+
+    def release(self):
+        pass
+
+    def __enter__(self):
+        self.acquire()
+
+    def __exit__(self, *args):
+        self.release()
+
+
 class BaseCase(case.TestCase):
     """ Subclass of TestCase for Odoo-specific code. This class is abstract and
     expects self.registry, self.cr and self.uid to be initialized by subclasses.
@@ -306,16 +584,6 @@ class BaseCase(case.TestCase):
     registry: Registry = None
     env: api.Environment = None
     cr: Cursor = None
-    def __init_subclass__(cls):
-        """Assigns default test tags ``standard`` and ``at_install`` to test
-        cases not having them. Also sets a completely unnecessary
-        ``test_module`` attribute.
-        """
-        super().__init_subclass__()
-        if cls.__module__.startswith('odoo.addons.'):
-            if getattr(cls, 'test_tags', None) is None:
-                cls.test_tags = {'standard', 'at_install'}
-            cls.test_module = cls.__module__.split('.')[2]
 
     longMessage = True      # more verbose error message by default: https://www.odoo.com/r/Vmh
     warm = True             # False during warm-up phase (see :func:`warmup`)
@@ -323,7 +591,19 @@ class BaseCase(case.TestCase):
 
     _registry_patched = False
     _registry_readonly_enabled = True
-    test_cursor_lock_timeout: int = 20
+    test_cursor_lock_timeout: int = 3600 if DISABLE_TIMEOUTS else 20
+
+    @classmethod
+    def __init_subclass__(cls):
+        """Assigns default test tags ``standard`` and ``post_install`` to test
+        cases not having them. Also sets a completely unnecessary
+        ``test_module`` attribute.
+        """
+        super().__init_subclass__()
+        if cls.__module__.startswith('odoo.addons.'):
+            if getattr(cls, 'test_tags', None) is None:
+                cls.test_tags = {'standard', 'post_install'}
+            cls.test_module = cls.__module__.split('.')[2]
 
     def __init__(self, methodName='runTest'):
         super().__init__(methodName)
@@ -331,7 +611,6 @@ class BaseCase(case.TestCase):
         self.addTypeEqualityFunc(html.HtmlElement, self.assertTreesEqual)
         if methodName != 'runTest':
             self.test_tags = self.test_tags | set(self.get_method_additional_tags(getattr(self, methodName)))
-
 
     @classmethod
     def _request_handler(cls, s: Session, r: PreparedRequest, /, **kw):
@@ -379,6 +658,12 @@ class BaseCase(case.TestCase):
             )
             patcher.start()
             cls.addClassCleanup(patcher.stop)
+
+        # cannot create new registries during testing, it would mess up test
+        # runs, install other modules, reporting, etc.
+        def forbidden(*a, **kw):
+            raise RuntimeError("cannot call Registry.new during testing")
+        cls.startClassPatcher(patch.object(Registry, 'new', forbidden))
 
     def setUp(self):
         super().setUp()
@@ -466,7 +751,7 @@ class BaseCase(case.TestCase):
         old_uid = self.uid
         old_env = self.env
         try:
-            user = self.env['res.users'].sudo().search([('login', '=', login)])
+            user = self.env['res.users'].sudo().search([('login', '=', login)], order='login')
             assert user, "Login %s not found" % login
             # switch user
             self.uid = user.id
@@ -484,35 +769,41 @@ class BaseCase(case.TestCase):
             httprequest=Mock(host='localhost'),
             db=self.env.cr.dbname,
             env=self.env,
-            session=DotDict(odoo.http.get_default_session(), debug='1'),
+            session=DotDict(get_default_session(), debug='1', sid=''),
         )
+        reset_req = None
         try:
             self.env.flush_all()
             self.env.invalidate_all()
-            odoo.http._request_stack.push(request)
+            reset_req = request_var.set(request)
             yield
             self.env.flush_all()
             self.env.invalidate_all()
         finally:
-            popped_request = odoo.http._request_stack.pop()
-            if popped_request is not request:
+            current_request = request_var.get()
+            if reset_req is not None:
+                request_var.reset(reset_req)
+            if current_request is not request:
                 raise Exception('Wrong request stack cleanup.')
 
     @contextmanager
-    def _assertRaises(self, exception, *, msg=None):
+    def _raisesContext(self, method, expected_exception, *args, **kwargs):
         """ Context manager that clears the environment upon failure. """
         with ExitStack() as init:
             if self.env:
                 init.enter_context(self.env.cr.savepoint())
-                if issubclass(exception, AccessError):
-                    # The savepoint() above calls flush(), which leaves the
-                    # record cache with lots of data.  This can prevent
-                    # access errors to be detected. In order to avoid this
-                    # issue, we clear the cache before proceeding.
-                    self.env.cr.clear()
+                if isinstance(expected_exception, tuple):
+                    clear_cache = any(issubclass(e, AccessError) for e in expected_exception)
+                else:
+                    clear_cache = issubclass(expected_exception, AccessError)
+                if clear_cache:
+                    # When checking for an `AccessError`, the cache is cleared
+                    # before executing the code. This avoids cache pollution issues and
+                    # ensures that access are re-evaluated correctly.
+                    self.env.transaction.clear()
 
             with ExitStack() as inner:
-                cm = inner.enter_context(super().assertRaises(exception, msg=msg))
+                cm = inner.enter_context(method(expected_exception, *args, **kwargs))
                 # *moves* the cleanups from init to inner, this ensures the
                 # savepoint gets rolled back when `yield` raises `exception`,
                 # but still allows the initialisation to be protected *and* not
@@ -521,22 +812,31 @@ class BaseCase(case.TestCase):
 
                 yield cm
 
-    def assertRaises(self, exception, func=None, *args, **kwargs):
-        if func:
-            with self._assertRaises(exception):
-                func(*args, **kwargs)
-        else:
-            return self._assertRaises(exception, **kwargs)
+    def assertRaises(self, expected_exception, callable=None, *args, **kwargs):
+        if callable:
+            with self._raisesContext(super().assertRaises, expected_exception):
+                callable(*args, **kwargs)
+            return None
+        return self._raisesContext(super().assertRaises, expected_exception, *args, **kwargs)
+
+    def assertRaisesRegex(self, expected_exception, expected_regex, callable=None, *args, **kwargs):
+        if callable:
+            with self._raisesContext(super().assertRaisesRegex, expected_exception, expected_regex):
+                callable(*args, **kwargs)
+            return None
+        return self._raisesContext(super().assertRaisesRegex, expected_exception, expected_regex, *args, **kwargs)
 
     def _patchExecute(self, actual_queries, flush=True):
         Cursor_execute = Cursor.execute
 
         def execute(self, query, params=None, log_exceptions=None):
-            actual_queries.append(query.code if isinstance(query, SQL) else query)
+            if isinstance(query, SQL):
+                assert params is None
+                query, params, _ = query._sql_tuple
+            actual_queries.append(query)
             return Cursor_execute(self, query, params, log_exceptions)
 
         if flush:
-            self.env.flush_all()
             self.env.cr.flush()
 
         with (
@@ -545,14 +845,15 @@ class BaseCase(case.TestCase):
         ):
             yield actual_queries
             if flush:
-                self.env.flush_all()
                 self.env.cr.flush()
 
     @contextmanager
     def assertQueries(self, expected, flush=True):
         """ Check the queries made by the current cursor. ``expected`` is a list
         of strings representing the expected queries being made. Query strings
-        are matched against each other, ignoring case and whitespaces.
+        are matched against each other, ignoring case and whitespaces. Moreover,
+        the substring ``"..."`` can be used as a wildcard to match anything in
+        the corresponding actual query.
         """
         actual_queries = []
 
@@ -561,44 +862,19 @@ class BaseCase(case.TestCase):
         if not self.warm:
             return
 
-        self.assertEqual(
-            len(actual_queries), len(expected),
-            "\n---- actual queries:\n%s\n---- expected queries:\n%s" % (
-                "\n".join(actual_queries), "\n".join(expected),
-            )
-        )
-        for actual_query, expect_query in zip(actual_queries, expected):
-            self.assertEqual(
-                "".join(actual_query.lower().split()),
-                "".join(expect_query.lower().split()),
-                "\n---- actual query:\n%s\n---- not like:\n%s" % (actual_query, expect_query),
-            )
-
-    @contextmanager
-    def assertQueriesContain(self, expected, flush=True):
-        """ Check the queries made by the current cursor. ``expected`` is a list
-        of strings representing the expected queries being made. Query strings
-        are matched against each other, ignoring case and whitespaces.
-        """
-        actual_queries = []
-
-        yield from self._patchExecute(actual_queries, flush)
-
-        if not self.warm:
+        # diff lists of queries 'expected' and 'actual_queries'
+        queries1 = [QueryLike(query) for query in expected]
+        queries2 = [QueryLike(query) for query in actual_queries]
+        if queries1 == queries2:
             return
 
-        self.assertEqual(
-            len(actual_queries), len(expected),
-            "\n---- actual queries:\n%s\n---- expected queries:\n%s" % (
-                "\n".join(actual_queries), "\n".join(expected),
-            )
+        diff = "\n".join(
+            (f"--- {query1}" if query2 is None else
+             f"+++ {query2}" if query1 is None else
+             f"=== {query2}")
+            for query1, query2 in diff_zip(queries1, queries2)
         )
-        for actual_query, expect_query in zip(actual_queries, expected):
-            self.assertIn(
-                "".join(expect_query.lower().split()),
-                "".join(actual_query.lower().split()),
-                "\n---- actual query:\n%s\n---- doesn't contain:\n%s" % (actual_query, expect_query),
-            )
+        self.fail(self._formatMessage("\n" + diff, "Not the expected queries"))
 
     @contextmanager
     def assertQueryCount(self, default=0, flush=True, **counters):
@@ -613,19 +889,16 @@ class BaseCase(case.TestCase):
 
             The second form is convenient when used with :func:`users`.
         """
+        flush_func = self.env.cr.flush if flush else lambda: None
         if self.warm:
             # mock random in order to avoid random bus gc
             with patch('random.random', lambda: 1):
                 login = self.env.user.login
                 expected = counters.get(login, default)
-                if flush:
-                    self.env.flush_all()
-                    self.env.cr.flush()
+                flush_func()
                 count0 = self.cr.sql_log_count
                 yield
-                if flush:
-                    self.env.flush_all()
-                    self.env.cr.flush()
+                flush_func()
                 count = self.cr.sql_log_count - count0
                 if count != expected:
                     # add some info on caller to allow semi-automatic update of query count
@@ -638,6 +911,10 @@ class BaseCase(case.TestCase):
                         # add a subtest in order to continue the test_method in case of failures
                         with self.subTest():
                             self.fail(msg % (login, count, expected, funcname, filename, linenum))
+                    elif expected and not count:
+                        msg = "Query count did not detect any queries %s: expected %d in %s at %s:%s"
+                        with self.subTest():
+                            self.fail(msg % (login, expected, funcname, filename, linenum))
                     else:
                         logger = logging.getLogger(type(self).__module__)
                         msg = "Query count less than expected for user %s: %d < %d in %s at %s:%s"
@@ -645,20 +922,16 @@ class BaseCase(case.TestCase):
         else:
             # flush before and after during warmup, in order to reproduce the
             # same operations, otherwise the caches might not be ready!
-            if flush:
-                self.env.flush_all()
-                self.env.cr.flush()
+            flush_func()
             yield
-            if flush:
-                self.env.flush_all()
-                self.env.cr.flush()
+            flush_func()
 
     def assertRecordValues(
             self,
             records: odoo.models.BaseModel,
             expected_values: list[dict],
             *,
-            field_names: Optional[Iterable[str]] = None,
+            field_names: Iterable[str] | None = None,
     ) -> None:
         ''' Compare a recordset with a list of dictionaries representing the expected results.
         This method performs a comparison element by element based on their index.
@@ -697,6 +970,8 @@ class BaseCase(case.TestCase):
                     r[f] = float(vs[f])
                 elif t == 'integer':
                     r[f] = int(vs[f])
+                elif t == 'binary':
+                    r[f] = bytes(vs[f])
                 elif vs[f] is None:
                     r[f] = False
                 else:
@@ -719,6 +994,8 @@ class BaseCase(case.TestCase):
                         # don't round if there's no currency set
                         if c := record[currency_field_name]:
                             record_value = Approx(record_value, c, decorate=False)
+                    case odoo.fields.Binary() as field:
+                        record_value = record_value.content
 
                 r[field_name] = record_value
             record_reformatted.append(r)
@@ -792,75 +1069,72 @@ class BaseCase(case.TestCase):
             **kwargs)
 
     @classmethod
-    def _registry_test_mode_patches(cls, *, cr: Cursor, registry: Registry):
+    def file_read(cls, path: str) -> BinaryBytes:
+        """Read contents of a file using ``file_open``."""
+        with file_open(path, 'rb') as f:
+            return BinaryBytes(f.read())
+
+    @classmethod
+    @contextmanager
+    def registry_test_mode(cls, *, cr: Cursor | None = None, registry: Registry | None = None):
+        """ Entering registry test mode.
+
+        New cursors returned by the registry will be instances of `TestCursor`
+        which will wrap the current cursor.
+
+        Defined in BaseCase because used by upgrade for IntegrityCase.
+        This should be used on TransactionCase only.
         """
-        Returns the patches required for entering registry test mode.
-        The patches are not started.
-        """
+        assert not cls._registry_patched, 'Can only patch registry once'
+        if cr is None:
+            cr = cls.cr
+        if registry is None:
+            registry = cls.registry
+        assert cr, 'No cursor'
+        assert registry, 'No registry'
+
         def _patched_cursor(readonly: bool = False):
             return test_cursor.TestCursor(
                 cr, _registry_test_lock, readonly and cls._registry_readonly_enabled
             )
-        return [
+
+        try:
+            from odoo.addons.bus.tools import misc as bus_misc  # noqa: PLC0415
+        except ImportError:
+            additional_patches = ()
+        else:
+            og_db_connect = bus_misc.db_connect
+
+            def _patched_ws_db_connect(to, allow_uri=False, readonly=False):
+                # acquire_cursor() opens a cursor via db_connect(db_name) directly instead
+                # of going through Registry(db_name).cursor(), bypassing the patch above.
+                # Redirect it to the test's cursor too.
+                if to == cr.dbname:
+
+                    class _TestConnection:
+                        def cursor(self):
+                            return _patched_cursor(readonly)
+
+                    return _TestConnection()
+                return og_db_connect(to, allow_uri=allow_uri, readonly=readonly)
+
+            additional_patches = (
+                patch.object(bus_misc, 'db_connect', _patched_ws_db_connect),
+            )
+
+        def get_sequences(cr):
+            return registry.registry_sequence, registry.cache_sequences.copy()
+
+        with ExitStack() as stack:
+            for additional_patch in additional_patches:
+                stack.enter_context(additional_patch)
+            stack.enter_context(patch.object(cls, '_registry_patched', True))
             # New cursor should point to the test's cursor
-            patch.object(registry, 'cursor', _patched_cursor),
+            stack.enter_context(patch.object(registry, 'cursor', _patched_cursor))
             # Disable locking and signaling
-            patch.object(Registry, '_lock', DummyRLock()),
-            patch.object(registry, 'setup_signaling', return_value=None), #noop
-            patch.object(registry, 'check_signaling', return_value=registry),
-        ]
-
-    @classmethod
-    def registry_enter_test_mode_cls(cls):
-        """
-        Puts the registry in test mode.
-
-        New cursors returned by the registry will be instances of `TestCursor`
-        which will wrap the current cursor.
-        """
-        assert not cls._registry_patched, 'Can only patch registry once'
-        assert cls.cr, 'No cursor'
-        assert cls.registry, 'No registry'
-
-        cls.registry_patches = cls._registry_test_mode_patches(
-            cr=cls.cr, registry=cls.registry,
-        )
-        for p in cls.registry_patches:
-            p.start()
-        cls._registry_patched = True
-        cls.addClassCleanup(cls.registry_leave_test_mode)
-
-    def registry_enter_test_mode(self, *, cr: Cursor | None = None, register_cleanup: bool = True) -> None:
-        """
-        Puts the registry in test mode.
-
-        New cursors returned by the registry will be instances of `TestCursor`
-        which will wrap the current cursor.
-
-        :param cr: the cursor to wrap (defaults to the current cursor if none)
-        :param register_cleanup: whether to register cleanup.
-        """
-        assert not type(self)._registry_patched, 'Can only patch registry once'
-        assert cr or self.cr, 'No cursor'
-        assert self.registry, 'No registry'
-
-        type(self).registry_patches = self._registry_test_mode_patches(
-            cr=cr or self.cr, registry=self.registry,
-        )
-        for p in self.registry_patches:
-            p.start()
-        type(self)._registry_patched = True
-        if register_cleanup:
-            self.addCleanup(self.registry_leave_test_mode)
-
-    @classmethod
-    def registry_leave_test_mode(cls):
-        assert cls._registry_patched, 'Registry is not patched'
-
-        for p in cls.registry_patches:
-            p.stop()
-        cls.registry_patches.clear()
-        cls._registry_patched = False
+            stack.enter_context(patch.object(Registry, '_lock', DummyRLock()))
+            stack.enter_context(patch.object(registry, 'setup_signaling', return_value=None))  # noop
+            yield
 
     @classmethod
     def set_registry_readonly_mode(cls, enabled: bool):
@@ -874,11 +1148,17 @@ class BaseCase(case.TestCase):
             message = f"Trying to open a test cursor for {self.canonical_tag} while already in a test {odoo.modules.module.current_test.canonical_tag}"
             _logger.runbot(message)
             raise BadRequest(message)
-        request = odoo.http.request
+        if isinstance(request, Mock):
+            return
         if not request or self.http_request_allow_all:
             return
         http_request_required_key = self.http_request_key
-        http_request_key = request.cookies.get(TEST_CURSOR_COOKIE_NAME)
+        # Read from the raw transmitted cookies rather than request.cookies.
+        # The latter can be cleared by a handler (e.g. the force_guest auth
+        # method in livechat CORS flows) before a new cursor is opened, which
+        # would incorrectly fail this check even though the cookie was sent by
+        # the test.
+        http_request_key = request.httprequest.cookies.get(TEST_CURSOR_COOKIE_NAME)
         if http_request_key != http_request_required_key:
             expected = http_request_required_key
             if not expected:
@@ -902,6 +1182,20 @@ class BaseCase(case.TestCase):
             if 'self.assertQueryCount' in method_source:
                 additional_tags.append('is_query_count')
         return additional_tags
+
+
+class CrossModule(case.TestCase):
+    _cross_module = True
+    _test_modules = []
+
+    def _callTestMethod(self, method):
+        method(self._test_modules)
+
+    def _get_canonical_tags_params(self, log=None):
+        result = super()._get_canonical_tags_params(log)
+        result['module'] = None
+        return result
+
 
 class Like:
     """
@@ -946,6 +1240,28 @@ class Like:
         return repr(self.pattern)
 
 
+class QueryLike(str):
+    """ Wrapper for comparing query strings. The comparison ignores case and
+    spaces, and the substring ``"..."`` can match anything on the right-hand
+    side of operator `==`.
+    """
+    __slots__ = ('_regex', '_stripped')
+
+    def __init__(self, value):
+        # ignore case and spaces when comparing
+        self._stripped = "".join(value.lower().split())
+        # "..." matches anything
+        self._regex = ".*".join(re.escape(part) for part in self._stripped.split('...'))
+
+    def __hash__(self):
+        return hash(self._stripped)
+
+    def __eq__(self, other):
+        if not isinstance(other, QueryLike):
+            return NotImplemented
+        return re.fullmatch(self._regex, other._stripped, re.DOTALL)
+
+
 class WhitespaceInsensitive(str):
     __slots__ = ()
 
@@ -986,7 +1302,6 @@ class Approx:  # noqa: PLW1641
         return self.cmp(self.value, other) == 0
 
 
-
 class TransactionCase(BaseCase):
     """ Test class in which all test methods are run in a single transaction,
     but each test method is run in a sub-transaction managed by a savepoint.
@@ -1000,10 +1315,11 @@ class TransactionCase(BaseCase):
     After being run, each test method cleans up the record cache and the
     registry cache. However, there is no cleanup of the registry models and
     fields. If a test modifies the registry (custom models and/or fields), it
-    should prepare the necessary cleanup (`self.registry.reset_changes()`).
+    should prepare the necessary cleanup (`self.env.transaction.will_change_registry()`).
     """
     muted_registry_logger = mute_logger(odoo.orm.registry._logger.name)
     freeze_time = None
+    savepoint = None
 
     @classmethod
     def _gc_filestore(cls):
@@ -1011,49 +1327,48 @@ class TransactionCase(BaseCase):
         # they can addup during test and take some disc space.
         # since cron are not running during tests, we need to gc manually
         # We need to check the status of the file system outside of the test cursor
-        with Registry(get_db_name()).cursor() as cr:
+        with cls.registry.cursor() as cr:
             gc_env = api.Environment(cr, api.SUPERUSER_ID, {})
-            gc_env['ir.attachment']._gc_file_store_unsafe()
+            gc_env['ir.attachment']._gc_file_store_unsafe(grace_period=0)
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.addClassCleanup(cls._gc_filestore)
         cls.registry = Registry(get_db_name())
-        cls.registry_start_invalidated = cls.registry.registry_invalidated
-        cls.registry_start_sequence = cls.registry.registry_sequence
-        cls.registry_cache_sequences = dict(cls.registry.cache_sequences)
 
-        def reset_changes():
-            if (cls.registry_start_sequence != cls.registry.registry_sequence) or cls.registry.registry_invalidated:
-                with cls.registry.cursor() as cr:
-                    cls.registry._setup_models__(cr)
-            cls.registry.registry_invalidated = cls.registry_start_invalidated
-            cls.registry.registry_sequence = cls.registry_start_sequence
-            with cls.muted_registry_logger:
-                cls.registry.clear_all_caches()
-            cls.registry.cache_invalidated.clear()
-            cls.registry.cache_sequences = cls.registry_cache_sequences
-        cls.addClassCleanup(reset_changes)
-
-        def signal_changes():
-            if not cls.registry.ready:
-                _logger.info('Skipping signal changes during tests')
-                return
-            if cls.registry.registry_invalidated or cls.registry.cache_invalidated:
+        def signal_changes(cr, names):
+            if 'registry' in names:
+                if not cls.registry.ready:
+                    _logger.info('Skipping signal changes during tests')
+                    return
                 _logger.info('Simulating signal changes during tests')
-            if cls.registry.registry_invalidated:
                 cls.registry.registry_sequence += 1
-            for cache_name in cls.registry.cache_invalidated or ():
-                cls.registry.cache_sequences[cache_name] += 1
-            cls.registry.registry_invalidated = False
-            cls.registry.cache_invalidated.clear()
+                for key, (seq, data) in cls.registry.registry_caches__.items():
+                    cls.registry.registry_caches__[key] = (seq + 1, {})
+            elif names:
+                _logger.debug('Simulating signal changes during tests')
+                for name in names:
+                    cls.registry.registry_caches__[name] = (cls.registry.registry_caches__[name][0] + 1, {})
 
-        cls._signal_changes_patcher = patch.object(cls.registry, 'signal_changes', signal_changes)
-        cls.startClassPatcher(cls._signal_changes_patcher)
+        def get_sequences(cr):
+            return cls.registry.registry_sequence, {name: val[0] for name, val in cls.registry.registry_caches__.items()}
+
+        def reset_registry(registry, *, registry_sequence, caches):
+            registry.registry_sequence = registry_sequence
+            registry.registry_caches__ = caches
+
+        cls.addClassCleanup(
+            reset_registry, cls.registry,
+            registry_sequence=cls.registry.registry_sequence,
+            caches=cls.registry.registry_caches__.copy(),
+        )
+
+        cls.startClassPatcher(patch.object(cls.registry, '_signal_changes', signal_changes))
+        cls.startClassPatcher(patch.object(cls.registry, 'get_sequences', get_sequences))
+        cls.addClassCleanup(cls._gc_filestore)
 
         cls.cr = cls.registry.cursor()
-        cls.addClassCleanup(cast(Cursor, cls.cr).close)
+        cls.addClassCleanup(typing.cast('Cursor', cls.cr).close)
 
         def check_cursor_stack():
             for cursor in test_cursor.TestCursor._cursors_stack:
@@ -1078,18 +1393,44 @@ class TransactionCase(BaseCase):
         cls.startClassPatcher(cls.close_patcher)
 
         cls.env = api.Environment(cls.cr, api.SUPERUSER_ID, {})
+        cls.env.transaction._wrote__ = True  # isolate tests: avoid propagating cache on rollback
 
-        # speedup CryptContext. Many user an password are done during tests, avoid spending time hasing password with many rounds
+        # speedup CryptContext. Many password-type logins are done during tests, avoid spending time hashing password with many rounds
         def _crypt_context(self):  # noqa: ARG001
-            return CryptContext(
+            cryptCtx = CryptContext(
                 ['pbkdf2_sha512', 'plaintext'],
                 pbkdf2_sha512__rounds=1,
             )
+            # The modified hash configuration causes rotation of the in-database password hash values.
+            # Rotating password hashes mid-test causes session_id rotation leading into indeterministic 'user not logged in' errors.
+            # Never returning a replacement hash prevents this problem.
+            original_verify_and_update = cryptCtx.verify_and_update
+
+            def mock_verify_and_update(*args, **kwargs):
+                valid, replacement_hash = original_verify_and_update(*args, **kwargs)
+                if replacement_hash:
+                    _logger.info("Surpressing hash update in CryptContext override")
+                return valid, None
+
+            cryptCtx.verify_and_update = mock_verify_and_update
+            return cryptCtx
+
         cls._crypt_context_patcher = patch('odoo.addons.base.models.res_users.ResUsersPatchedInTest._crypt_context', _crypt_context)
         cls.startClassPatcher(cls._crypt_context_patcher)
 
     def setUp(self):
         super().setUp()
+
+        def reset_registry(registry, *, registry_sequence, caches):
+            registry.registry_sequence = registry_sequence
+            registry.registry_caches__ = caches
+
+        self.addCleanup(
+            # for flushing cursor
+            reset_registry, self.registry,
+            registry_sequence=self.registry.registry_sequence,
+            caches=self.registry.registry_caches__.copy(),
+        )
 
         def _check_registry_lock():
             if _registry_test_lock.count == 0:
@@ -1101,99 +1442,92 @@ class TransactionCase(BaseCase):
                 )
 
         self.addCleanup(_check_registry_lock)
-        # restore environments after the test to avoid invoking flush() with an
-        # invalid environment (inexistent user id) from another test
-        envs = self.env.transaction.envs
-        for env in list(envs):
-            self.addCleanup(env.clear)
-        # restore the set of known environments as it was at setUp
-        self.addCleanup(envs.update, list(envs))
-        self.addCleanup(envs.clear)
 
-        self.addCleanup(self.muted_registry_logger(self.registry.clear_all_caches))
+        # flush everything in setUpClass before introducing a savepoint
+        cr = self.cr
+        if self.savepoint is None:
+            # create savepoint, and close it at class cleanup
+            sp = self.cr.savepoint(flush=True)
+            self.addClassCleanup(sp.close, rollback=False)
+            # store savepoint on the class (to be shared across all test instances)
+            self.__class__.savepoint = sp
+            self.addClassCleanup(setattr, self.__class__, 'savepoint', None)
 
         # This prevents precommit functions and data from piling up
         # until cr.flush is called in 'assertRaises' clauses
-        # (these are not cleared in self.env.clear or envs.clear)
-        cr = self.env.cr
-
         def _reset(cb, funcs, data):
             cb._funcs = funcs
             cb.data = data
         for callback in [cr.precommit, cr.postcommit, cr.prerollback, cr.postrollback]:
             self.addCleanup(_reset, callback, deque(callback._funcs), deepcopy(callback.data))
 
-        # flush everything in setUpClass before introducing a savepoint
-        self.env.flush_all()
+        self.addCleanup(self.savepoint.rollback)
 
-        savepoint = Savepoint(self.cr)
-        self.addCleanup(savepoint.close)
+        # To keep tests isolated, add a CacheLayer.
+        # - L1: cursor cache
+        # - L2: savepoint cache
+        # - L3: this isolation layer
+        # flushing_cursor() may push data from the current to the parent layer
+        # (from L3 to L2) and we need L1 to be unaffected by tests.
+        transaction = self.env.transaction
+        for name, layer in transaction.ormcaches__.items():
+            transaction.ormcaches__[name] = CacheLayer(layer)
 
+    @classmethod
     @contextmanager
-    def enter_registry_test_mode(self):
-        """
-        Make so that all new cursors opened on this database registry reuse the
-        one currenly used by the tests. See ``registry_enter_test_mode``.
-        """
-        # entering the test mode should flush/invalidate all changes in the
-        # current environment because changes happen inside other cursors
-        env = self.env
-        env.flush_all()
-        self.registry_enter_test_mode(register_cleanup=False)
-        try:
+    def mock_datetime_and_now(cls, mock_dt):
+        """ Used when synchronization date (using env.cr.now()) is important
+        in addition to standard datetime mocks. Used mainly to detect sync
+        issues. """
+        mock_dt = fields.Datetime.to_datetime(mock_dt)
+        with freeze_time(mock_dt) as frozen_datetime_mock, \
+             patch.object(cls.env.cr, 'now', lambda: mock_dt):
+            cls.frozen_datetime_mock = frozen_datetime_mock
             yield
-        finally:
-            self.registry_leave_test_mode()
-            env.invalidate_all()
+
+    @classmethod
+    @contextmanager
+    def registry_test_mode(cls, *, cr: Cursor | None = None, registry: Registry | None = None):
+        if cr is None:
+            cr = cls.cr
+        with flushing_cursor(cr), super().registry_test_mode(cr=cr, registry=registry):
+            yield
+
+    @typing.final
+    def enter_registry_test_mode(self):  # deprecated: alias for registry_test_mode
+        return self.registry_test_mode()
 
     @contextmanager
     def allow_pdf_render(self):
         """
-        Allows wkhtmltopdf to send requests to the backend.
+        Allows the pdf renderer to send requests to the backend.
         Enters registry mode if necessary.
         """
         with ExitStack() as stack:
             if not type(self)._registry_patched:
-                stack.enter_context(self.enter_registry_test_mode())
-            old_run_wkhtmltopdf = ir_actions_report._run_wkhtmltopdf
+                stack.enter_context(self.registry_test_mode())
 
-            def _patched_run_wkhtmltopdf(args):
-                with patch.object(self, 'http_request_key', 'wkhtmltopdf'), release_test_lock():
-                    args = ['--cookie', TEST_CURSOR_COOKIE_NAME, 'wkhtmltopdf', *args]
-                    return old_run_wkhtmltopdf(args)
+            case_instance = self
 
-            stack.enter_context(
-                patch.object(ir_actions_report, '_run_wkhtmltopdf', _patched_run_wkhtmltopdf)
-            )
+            def _patched_run_wkhtmltopdf(self, args):
+                http_request_key = case_instance.http_request_key
+                with (
+                    release_test_lock(),
+                    patch('odoo.tests.common._disable_flushing_cursor', True),
+                ):
+                    args = ['--cookie', TEST_CURSOR_COOKIE_NAME, http_request_key, *args]
+                    return old_run_wkhtmltopdf(self, args)
+
+            report_model = self.env.registry['ir.actions.report']
+            try:
+                old_run_wkhtmltopdf = report_model._run_wkhtmltopdf__
+            except AttributeError:
+                pass
+            else:
+                stack.enter_context(
+                    patch.object(report_model, '_run_wkhtmltopdf__', _patched_run_wkhtmltopdf),
+                )
             yield
-
-
-class SingleTransactionCase(BaseCase):
-    """ TestCase in which all test methods are run in the same transaction,
-    the transaction is started with the first test method and rolled back at
-    the end of the last.
-    """
-    @classmethod
-    def __init_subclass__(cls):
-        super().__init_subclass__()
-        if issubclass(cls, TransactionCase):
-            _logger.warning("%s inherits from both TransactionCase and SingleTransactionCase")
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.registry = Registry(get_db_name())
-        cls.addClassCleanup(cls.registry.reset_changes)
-        cls.addClassCleanup(cls.registry.clear_all_caches)
-
-        cls.cr = cls.registry.cursor()
-        cls.addClassCleanup(cast(Cursor, cls.cr).close)
-
-        cls.env = api.Environment(cls.cr, api.SUPERUSER_ID, {})
-
-    def setUp(self):
-        super(SingleTransactionCase, self).setUp()
-        self.env.flush_all()
 
 
 class ChromeBrowserException(Exception):
@@ -1401,7 +1735,7 @@ class ChromeBrowser:
         port_file = pathlib.Path(self.user_data_dir, 'DevToolsActivePort')
         for _ in range(CHECK_BROWSER_ITERATIONS):
             time.sleep(CHECK_BROWSER_SLEEP)
-            if port_file.is_file() and port_file.stat().st_size > 5:
+            if port_file.is_file() and port_file.stat().st_size >= 5:
                 with port_file.open('r', encoding='utf-8') as f:
                     return proc, int(f.readline())
 
@@ -1416,6 +1750,11 @@ class ChromeBrowser:
             'Chrome headless failed to start:\n%s',
             self.read_log().decode(),
         )
+        if port_file.is_file():
+            content = port_file.read_text('utf-8')
+            _logger.warning('DevToolsActivePort content: %r', content)
+        else:
+            _logger.warning('DevToolsActivePort not found')
         self.stop()
 
         raise unittest.SkipTest(f'Failed to detect chrome devtools port after {BROWSER_WAIT :.1f}s.')
@@ -1430,34 +1769,50 @@ class ChromeBrowser:
     ):
         headless_switches = {
             '--headless': '',
-            '--disable-extensions': '',
-            '--disable-background-networking' : '',
-            '--disable-background-timer-throttling' : '',
-            '--disable-backgrounding-occluded-windows': '',
-            '--disable-renderer-backgrounding' : '',
-            '--disable-breakpad': '',
-            '--disable-client-side-phishing-detection': '',
-            '--disable-crash-reporter': '',
-            '--disable-dev-shm-usage': '',
-            '--disable-namespace-sandbox': '',
-            '--disable-translate': '',
-            '--no-sandbox': '',
-            '--disable-gpu': '',
-            '--enable-unsafe-swiftshader': '',
-            '--mute-audio': '',
+            '--disable-extensions': '',  # Disable all chrome extensions
+            '--disable-component-extensions-with-background-pages': '',  # Disable built-in extensions (e.g., PDF viewer, Hangouts...)
+            '--disable-background-networking': '',  # Stop background requests (telemetry, updates, safe browsing)
+            '--disable-background-timer-throttling': '',  # Prevent Chrome from slowing down JS in inactive tabs
+            '--disable-backgrounding-occluded-windows': '',  # Prevent Chrome from suspending hidden windows
+            '--disable-renderer-backgrounding': '',  # Keep background rendering processes running at normal priority
+            '--disable-breakpad': '',  # Disable the Breakpad crash reporting system
+            '--disable-client-side-phishing-detection': '',  # Disable local machine-learning phishing analysis
+            '--disable-crash-reporter': '',  # Disable crash report generation
+            '--disable-dev-shm-usage': '',  # Use /tmp instead of /dev/shm
+            '--disable-namespace-sandbox': '',  # Disable Linux namespace sandboxing
+            '--disable-sync': '',  # Completely disable Google account synchronization engine
+            '--no-crash-upload': '',  # Prevent uploading crash dumps to Google servers
+            '--no-sandbox': '',  # Disable OS-level sandboxing
+            '--disable-gpu': '',  # Disable hardware GPU acceleration
+            '--enable-unsafe-swiftshader': '',  # Allow software rendering fallback for WebGL when GPU is disabled
+            '--mute-audio': '',  # Prevent audio playback from allocating system resources
+            '--font-render-hinting': 'none',  # Disable sub-pixel font rendering calculations
+            '--disable-gpu-early-init': '',  # Disable proactive early init of GPU process
+            '--disable-gpu-sandbox': '',  # Disables the GPU process sandbox
+            '--disable-gpu-driver-bug-workarounds': '',  # Disable workarounds for various GPU driver bugs
         }
         switches = {
             # required for tours that use Youtube autoplay conditions (namely website_slides' "course_tour")
-            '--autoplay-policy': 'no-user-gesture-required',
-            '--disable-default-apps': '',
-            '--disable-device-discovery-notifications': '',
-            '--no-default-browser-check': '',
+            '--autoplay-policy': 'no-user-gesture-required',  # Allow media autoplay without requiring a user click
+            '--disable-default-apps': '',  # Disable installation of default apps
+            '--disable-domain-reliability': '',  # Stop tracking and sending telemetry for failed network requests
+            '--disable-search-engine-choice-screen': '',  # Bypass the EU search engine selection prompt on startup
+            '--disable-features': ','.join([
+                'Translate',  # Disables Chrome translation
+                'MediaRouter',  # Stop scanning for local Cast or media devices
+                'InterestFeedContentSuggestions',  # Disables the Discover feed on NTP
+            ]),
+            '--ash-no-nudges': '',  # Avoids blue bubble "user education" nudges (eg., "… give your browser a new look", Memory Saver)
+            '--propagate-iph-for-testing': '',  # Disable all in-product help (IPH) features
+            '--no-default-browser-check': '',  # Bypass the prompt asking to make Chrome the default browser
+            '--no-first-run': '',  # Skip the welcome screen and first-run setup wizards
+            '--proxy-server': '"direct://"',  # Force a direct connection, bypassing any system proxies
+            '--proxy-bypass-list': '*',  # Bypass proxy for all domains (eliminates local resolution delays)
             '--remote-debugging-address': HOST,
             '--remote-debugging-port': str(self.remote_debugging_port),
             '--user-data-dir': user_data_dir,
             '--enable-logging': '',
             '--v': str(int(os.environ.get("ODOO_BROWSER_LOG_VERBOSITY", "0"))),
-            '--no-first-run': '',
             # FIXME: these next 2 flags are temporarily uncommented to allow client
             # code to manually run garbage collection. This is done as currently
             # the Chrome unit test process doesn't have access to its available
@@ -1656,10 +2011,14 @@ class ChromeBrowser:
             "_websocket_request must not be called from the consumer thread"
         if not hasattr(self, 'ws'):
             return None
+        if DISABLE_TIMEOUTS:
+            timeout = None
+        else:
+            timeout *= self.throttling_factor
 
         f = self._websocket_send(method, params=params, with_future=True)
         try:
-            return f.result(timeout=timeout * self.throttling_factor)
+            return f.result(timeout=timeout)
         except concurrent.futures.TimeoutError:
             raise TimeoutError(f'{method}({params or ""})')
 
@@ -1855,7 +2214,8 @@ which leads to stray network requests and inconsistencies."""
         self._websocket_request('Network.deleteCookies', params=params)
 
     def _wait_ready(self, ready_code=None, timeout=60):
-        timeout *= self.throttling_factor
+        if timeout:
+            timeout *= self.throttling_factor
         ready_code = ready_code or "document.readyState === 'complete'"
         self._logger.info('Evaluate ready code "%s"', ready_code)
         start_time = time.time()
@@ -1890,7 +2250,8 @@ which leads to stray network requests and inconsistencies."""
         return False
 
     def _wait_code_ok(self, code, timeout, error_checker=None):
-        timeout *= self.throttling_factor
+        if timeout:
+            timeout *= self.throttling_factor
         self.error_checker = error_checker
         self._logger.info('Evaluate test code "%s"', code)
         start = time.time()
@@ -1927,7 +2288,8 @@ which leads to stray network requests and inconsistencies."""
 
     def navigate_to(self, url, wait_stop=False):
         self._logger.info('Navigating to: "%s"', url)
-        nav_result = self._websocket_request('Page.navigate', params={'url': url}, timeout=20.0)
+        timeout = 1e6 if DISABLE_TIMEOUTS else 20.0
+        nav_result = self._websocket_request('Page.navigate', params={'url': url}, timeout=timeout)
         self._logger.info("Navigation result: %s", nav_result)
         if wait_stop:
             frame_id = nav_result['frameId']
@@ -2117,7 +2479,7 @@ class Screencaster:
             self._logger.runbot('Screencast in: %s', outfile)
 
 
-@lru_cache(1)
+@cache
 def _find_executable():
     browser_bin_path = os.environ.get('ODOO_BROWSER_BIN')  # used for testing specific Chrome builds
     if browser_bin_path and os.path.exists(browser_bin_path):
@@ -2152,6 +2514,7 @@ def _find_executable():
 
     raise unittest.SkipTest("Chrome executable not found")
 
+
 class Opener(requests.Session):
     """
     Flushes and clears the current transaction when starting a request.
@@ -2167,10 +2530,56 @@ class Opener(requests.Session):
 
     def request(self, *args, **kwargs):
         assert self.test_case.opener == self
-        self.cr.flush()
-        self.cr.clear()
-        with self.test_case.allow_requests():
-            return super().request(*args, **kwargs)
+        with flushing_cursor(self.cr), self.test_case.allow_requests():
+            res = super().request(*args, **kwargs)
+            res.__class__ = Response
+            return res
+
+
+class Response(requests.Response):
+    @property
+    def session(self) -> Session:
+        """
+        Get the session attached to the response.
+
+        There are three cases:
+
+        1. The session exists and was persisted on disk, you get the
+           entire session and ``session.is_new`` is ``False``.
+        2. The session exists but was not persisted on disk (because it
+           only contained default values), you get an *empty* session
+           but ``session.is_new`` is ``False``. This session is **not**
+           populated with :func:`odoo.http.session.get_default_session`
+           as the ``db`` and ``context['lang']`` cannot be set. Please
+           adapt your test in this regard.
+        3. The session doesn't exist, you get an empty session and
+           ``session.is_new`` is ``True``.
+        """
+        session_id = (
+            self.cookies.get('session_id')
+            or self.request._cookies.get('session_id')
+            or ''
+        )
+        return session_store().get(session_id, keep_sid=True)
+
+    def raise_for_status(self) -> Response:
+        try:
+            super().raise_for_status()
+        except requests.exceptions.HTTPError as exc:
+            is_html = self.headers.get('content-type', '').startswith('text/html')
+            is_website = is_html and b'<meta name="generator" content="Odoo"/>' in self.content
+            if is_website:
+                # The second container in <main> contains the error message
+                main = self.text.partition('<main>')[2].partition('</main>')[0]
+                c = '<div class="container">'
+                error = main[main.find(c) + len(c):].partition(c)[2].partition('</div>')[0]
+                exc.add_note(shorten(error, 150))
+            elif is_html:
+                exc.add_note(shorten(self.text.partition('</h1>')[2], 150))
+            else:
+                exc.add_note(shorten(self.text, 150))
+            raise
+        return self
 
 
 class Transport(xmlrpclib.Transport):
@@ -2181,9 +2590,7 @@ class Transport(xmlrpclib.Transport):
         super().__init__()
 
     def request(self, *args, **kwargs):
-        self.cr.flush()
-        self.cr.clear()
-        with self.test_case.allow_requests(all_requests=True):
+        with flushing_cursor(self.cr), self.test_case.allow_requests(all_requests=True):
             return super().request(*args, **kwargs)
 
 
@@ -2195,22 +2602,20 @@ class JsonRpcException(Exception):
 
 class HttpCase(TransactionCase):
     """ Transactional HTTP TestCase with url_open and Chrome headless helpers. """
-    registry_test_mode = True
     browser = None
     browser_size = '1366x768'
     touch_enabled = False
-    session: odoo.http.Session = None
+    session: OdooHttpSession = None
 
     _logger: logging.Logger = None
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        if cls.registry_test_mode:
-            cls.registry_enter_test_mode_cls()
+        cls.enterClassContext(cls.registry_test_mode())
 
         ICP = cls.env['ir.config_parameter']
-        ICP.set_param('web.base.url', cls.base_url())
+        ICP.set_str('web.base.url', cls.base_url())
         ICP.env.flush_all()
         # v8 api with correct xmlrpc exception handling.
         cls.xmlrpc_url = f'{cls.base_url()}/xmlrpc/2/'
@@ -2222,9 +2627,7 @@ class HttpCase(TransactionCase):
 
     @classmethod
     def http_port(cls):
-        if odoo.service.server.server is None:
-            return None
-        return odoo.service.server.server.httpd.server_port
+        return config['http_port']
 
     def setUp(self):
         super().setUp()
@@ -2238,21 +2641,26 @@ class HttpCase(TransactionCase):
         self.opener = Opener(self)
         self.http_key_sequence = itertools.count()
         # we need to allow requests during pdf rendering.
-        old_run_wkhtmltopdf = ir_actions_report._run_wkhtmltopdf
+        case_instance = self
 
-        def _patched_run_wkhtmltopdf(args):
-            with patch.object(self, 'http_request_key', 'wkhtmltopdf'), release_test_lock():
-                args = ['--cookie', TEST_CURSOR_COOKIE_NAME, 'wkhtmltopdf', *args]
-                return old_run_wkhtmltopdf(args)
+        def _patched_run_wkhtmltopdf(self, args):
+            http_request_key = case_instance.http_request_key
+            with (
+                release_test_lock(),
+                patch('odoo.tests.common._disable_flushing_cursor', True),
+            ):
+                args = ['--cookie', TEST_CURSOR_COOKIE_NAME, http_request_key, *args]
+                return old_run_wkhtmltopdf(self, args)
 
-        self.startPatcher(
-            patch.object(ir_actions_report, '_run_wkhtmltopdf', _patched_run_wkhtmltopdf),
-        )
-
-    @contextmanager
-    def enter_registry_test_mode(self):
-        _logger.warning("HTTPCase is already in test mode")
-        yield
+        report_model = self.env.registry['ir.actions.report']
+        try:
+            old_run_wkhtmltopdf = report_model._run_wkhtmltopdf__
+        except AttributeError:
+            pass
+        else:
+            self.startPatcher(
+                patch.object(report_model, '_run_wkhtmltopdf__', _patched_run_wkhtmltopdf),
+            )
 
     @contextmanager
     def allow_pdf_render(self):
@@ -2319,7 +2727,12 @@ class HttpCase(TransactionCase):
             "params": params or {},
         }
 
+    def csrf_token(self):
+        return Request.csrf_token(self)  # noqa: F821
+
     def url_open(self, url, data=None, files=None, timeout=12, headers=None, json=None, params=None, allow_redirects=True, cookies=None, method: str | None = None):
+        if DISABLE_TIMEOUTS:
+            timeout = None
         if not method and (data or files or json):
             method = 'POST'
         method = method or 'GET'
@@ -2330,17 +2743,21 @@ class HttpCase(TransactionCase):
     def _wait_remaining_requests(self, timeout=10):
 
         def get_http_request_threads():
-            return [t for t in threading.enumerate() if t.name.startswith('odoo.service.http.request.')]
+            return [
+                t for t in threading.enumerate()
+                if t.name.startswith('odoo.service.http.request')
+                if getattr(t, 'processing_http', False)
+            ]
 
-        start_time = time.time()
+        end_time = real_time() + timeout
         request_threads = get_http_request_threads()
         if not request_threads:
             return
 
         self._logger.info('waiting for threads: %s', request_threads)
 
-        for thread in request_threads:
-            thread.join(timeout - (time.time() - start_time))
+        while real_time() < end_time:
+            time.sleep(0.1)
 
         request_threads = get_http_request_threads()
         for thread in request_threads:
@@ -2352,51 +2769,61 @@ class HttpCase(TransactionCase):
             odoo.tools.misc.dumpstacks()
 
     def logout(self, keep_db=True):
-        self.session.logout(keep_db=keep_db)
-        odoo.http.root.session_store.save(self.session)
+        logout(self.session, keep_db=keep_db)
+        session_store().save(self.session)
 
-    def authenticate(self, user, password, *,
-        browser: ChromeBrowser = None, session_extra: dict | None = None):
+    def update_session(self, **items):
+        self.session.update(**items)
+        session_store().save(self.session)
+
+    def update_session_context(self, **items):
+        self.session['context'].update(**items)
+        session_store().save(self.session)
+
+    def authenticate(self, user, password, *, browser: ChromeBrowser = None, session_extra=()):
         if getattr(self, 'session', None):
-            odoo.http.root.session_store.delete(self.session)
+            session_store().delete(self.session)
 
-        self.session = session = odoo.http.root.session_store.new()
-        session.update(
-            odoo.http.get_default_session(),
+        self.session = session_store().new()
+        self.session.update(
+            get_default_session(),
             db=get_db_name(),
-            # In order to avoid perform a query to each first `url_open`
-            # in a test (insert `res.device.log`).
-            _trace_disable=True,
+            _trace_disable=True,  # saves a query on all requests
         )
-        session.context['lang'] = odoo.http.DEFAULT_LANG
+        self.session.context['lang'] = DEFAULT_LANG
+        self.session.context['host_id'] = self.env['ir.http']._get_host_id_from_domain(self.base_url())
 
         if session_extra:
             if extra_ctx := session_extra.pop('context', None):
-                session.context.update(extra_ctx)
-            session.update(session_extra)
+                self.session.context.update(extra_ctx)
+            self.session.update(session_extra)
 
         if user: # if authenticated
             # Flush and clear the current transaction.  This is useful, because
             # the call below opens a test cursor, which uses a different cache
             # than this transaction.
-            self.cr.flush()
-            self.cr.clear()
+            # In the context of a browser, the flush is already done.
+            flushing = flushing_cursor(self.cr) if browser is None else contextlib.nullcontext()
 
             def patched_check_credentials(self, credential, env):
                 return {'uid': self.id, 'auth_method': 'password', 'mfa': 'default'}
 
             # patching to speedup the check in case the password is hashed with many hashround + avoid to update the password
-            with patch('odoo.addons.base.models.res_users.ResUsersPatchedInTest._check_credentials', new=patched_check_credentials):
+            with flushing, patch('odoo.addons.base.models.res_users.ResUsersPatchedInTest._check_credentials', new=patched_check_credentials):
                 credential = {'login': user, 'password': password, 'type': 'password'}
-                auth_info = self.env['res.users'].authenticate(credential, {'interactive': False})
+                auth_info = self.env(context=self.session.context)['res.users'].authenticate(credential, {'interactive': False})
             uid = auth_info['uid']
             env = api.Environment(self.cr, uid, {})
-            session.uid = uid
-            session.login = user
-            session.session_token = uid and security.compute_session_token(session, env)
-            session.context = dict(env['res.users'].context_get())
+            self.session['uid'] = uid
+            self.session['login'] = user
+            self.session['session_token'] = None
+            if uid:
+                update_session_token(self.session, env)
+            self.session['context'] = dict(env['res.users'].context_get())
+            if session_extra and (ctx := session_extra.get('context')):
+                self.session['context'].update(ctx)
 
-        odoo.http.root.session_store.save(session)
+        session_store().save(self.session)
         # Reset the opener: turns out when we set cookies['foo'] we're really
         # setting a cookie on domain='' path='/'.
         #
@@ -2411,12 +2838,12 @@ class HttpCase(TransactionCase):
         # An alternative would be to set the cookie to None (unsetting it
         # completely) or clear-ing session.cookies.
         self.opener = Opener(self)
-        self.opener.cookies.set("session_id", session.sid, domain=HOST)
+        self.opener.cookies.set("session_id", self.session.sid, domain=HOST)
         if browser:
             self._logger.info('Setting session cookie in browser')
-            browser.set_cookie('session_id', session.sid, '/', HOST)
+            browser.set_cookie('session_id', self.session.sid, '/', HOST)
 
-        return session
+        return self.session
 
     def fetch_proxy(self, url):
         """
@@ -2479,36 +2906,39 @@ class HttpCase(TransactionCase):
         if debug is not False:
             watch = True
             timeout = 1e6
+        elif DISABLE_TIMEOUTS:
+            timeout = 1e6
         if watch:
             self._logger.warning('watch mode is only suitable for local testing')
 
         browser = ChromeBrowser(self, headless=not watch, success_signal=success_signal, debug=debug)
         with self.allow_requests(browser=browser), contextlib.ExitStack() as atexit:
+            # Flush and clear the current transaction.  This is useful in case
+            # we make requests to the server, as these requests are made with
+            # test cursors, which uses different caches than this transaction.
+            # Wait for all request before resetting the cursor.
+            atexit.enter_context(flushing_cursor(self.cr))
             atexit.callback(self._wait_remaining_requests)
             atexit.enter_context(browser.cleanup)
             if "bus.bus" in self.env.registry:
-                from odoo.addons.bus.websocket import CloseCode, _kick_all, WebsocketConnectionHandler  # noqa: PLC0415
-                from odoo.addons.bus.models.bus import BusBus  # noqa: PLC0415
+                from odoo.addons.base.models.ir_http import IrHttp  # noqa: PLC0415
+                from odoo.addons.bus.websocket import CloseCode, WebsocketConnectionHandler, _kick_all  # noqa: PLC0415
 
                 atexit.callback(_kick_all, CloseCode.KILL_NOW)
-                original_send_one = BusBus._sendone
+                original_post_dispatch = IrHttp._post_dispatch
 
-                def sendone_wrapper(self, target, notification_type, message):
-                    original_send_one(self, target, notification_type, message)
-                    self.env.cr.precommit.run()  # Trigger the creation of bus.bus records
-                    self.env.cr.postcommit.run()  # Trigger notification dispatching
+                def post_dispatch_wrapper(_, response):
+                    original_post_dispatch(response)
+                    # Trigger the creation of bus.bus records and notification dispatching
+                    request.env.cr.precommit.run()
+                    request.env.cr.postcommit.run()
 
-                atexit.enter_context(patch.object(BusBus, "_sendone", sendone_wrapper))
+                atexit.enter_context(patch.object(IrHttp, "_post_dispatch", classmethod(post_dispatch_wrapper)))
                 atexit.enter_context(patch.object(
                     WebsocketConnectionHandler, "websocket_allowed", return_value=True
                 ))
 
             self.authenticate(login, login, browser=browser)
-            # Flush and clear the current transaction.  This is useful in case
-            # we make requests to the server, as these requests are made with
-            # test cursors, which uses different caches than this transaction.
-            self.cr.flush()
-            self.cr.clear()
             url = urljoin(self.base_url(), url_path)
             if watch:
                 parsed = urlsplit(url)
@@ -2540,17 +2970,13 @@ class HttpCase(TransactionCase):
             # code = ""
             self.assertTrue(browser._wait_ready(ready), 'The ready "%s" code was always falsy' % ready)
 
-            error = False
+            error = None
             try:
                 browser._wait_code_ok(code, timeout, error_checker=error_checker)
             except ChromeBrowserException as chrome_browser_exception:
                 error = chrome_browser_exception
             if error:  # dont keep initial traceback, keep that outside of except
-                if code:
-                    message = 'The test code "%s" failed' % code
-                else:
-                    message = "Some js test failed"
-                self.fail('%s\n\n%s' % (message, error))
+                self.fail(str(error))
 
     def start_tour(self, url_path, tour_name, step_delay=None, **kwargs):
         """Wrapper for `browser_js` to start the given `tour_name` with the
@@ -2558,10 +2984,7 @@ class HttpCase(TransactionCase):
         `browser_js` can be passed as keyword arguments."""
         options = {
             'stepDelay': step_delay or 0,
-            'keepWatchBrowser': kwargs.get('watch', False),
             'debug': kwargs.get('debug', False),
-            'startUrl': url_path,
-            'delayToCheckUndeterminisms': kwargs.pop('delay_to_check_undeterminisms', int(os.getenv("ODOO_TOUR_DELAY_TO_CHECK_UNDETERMINISMS", "0")) or 0),
         }
         code = kwargs.pop('code', f"odoo.startTour({tour_name!r}, {json.dumps(options)})")
         ready = kwargs.pop('ready', f"odoo.isTourReady({tour_name!r})")
@@ -2569,16 +2992,14 @@ class HttpCase(TransactionCase):
 
         if step_delay is not None:
             self._logger.warning('step_delay is only suitable for local testing')
-        if options["delayToCheckUndeterminisms"] > 0:
-            timeout = timeout + 1000 * options["delayToCheckUndeterminisms"]
-            _logger.runbot("Tour %s is launched with mode: check for undeterminisms.", tour_name)
         Users = self.registry['res.users']
 
-        def setup(_):
+        def _post_model_setup__(model):
+            super(Users, model)._post_model_setup__()
             Users.tour_enabled = False
 
         with patch.object(Users, 'tour_enabled', False),\
-                patch.object(Users, '_post_model_setup__', setup),\
+                patch.object(Users, '_post_model_setup__', _post_model_setup__),\
                 patch.object(Users, '_compute_tour_enabled', lambda _: None):
             self.browser_js(url_path=url_path, code=code, ready=ready, timeout=timeout, success_signal="tour succeeded", **kwargs)
 
@@ -2592,7 +3013,7 @@ class HttpCase(TransactionCase):
             _route_profiler = sup.profile(description=request.httprequest.full_path, db=_profiler.db)
             _profiler.sub_profilers.append(_route_profiler)
             return _route_profiler
-        return profiler.Nested(_profiler, patch('odoo.http.Request._get_profiler_context_manager', route_profiler))
+        return profiler.Nested(_profiler, patch('odoo.http.router._get_profiler_context_manager', route_profiler))
 
     def get_method_additional_tags(self, test_method):
         """
@@ -2611,6 +3032,8 @@ class HttpCase(TransactionCase):
         :raises requests.HTTPError: if one occurred
         :raises JsonRpcException: if the response contains an error
         """
+        if DISABLE_TIMEOUTS:
+            timeout = None
         response = self.opener.post(urljoin(self.base_url(), route), json={
             'id': 0,
             'jsonrpc': '2.0',
@@ -2622,10 +3045,9 @@ class HttpCase(TransactionCase):
         if 'error' in decoded_response:
             raise JsonRpcException(
                 code=decoded_response['error']['code'],
-                message=decoded_response['error']['data']['name']
+                message=decoded_response['error']['data']['name'],
             )
-        # workaround: JsonRPCDispatcher is broken and may send neither result nor error
-        return decoded_response.get('result')
+        return decoded_response['result']
 
 
 def no_retry(arg):
@@ -2647,7 +3069,10 @@ def users(*logins):
                 Users = self.env['res.users'].with_context(active_test=False)
                 user_id = {
                     user.login: user.id
-                    for user in Users.search([('login', 'in', list(logins))])
+                    for user in Users.search_fetch(
+                        [('login', 'in', list(logins))],
+                        ['login'], order='login',
+                    )
                 }
                 for login in logins:
                     with self.subTest(login=login):
@@ -2717,7 +3142,7 @@ def tagged(*tags):
     A tag prefixed by '-' will remove the tag e.g. to remove the 'standard' tag.
 
     By default, all Test classes from odoo.tests.common have a test_tags
-    attribute that defaults to 'standard' and 'at_install'.
+    attribute that defaults to 'standard' and 'post_install'.
 
     When using class inheritance, the tags ARE inherited.
     """
@@ -2768,3 +3193,12 @@ class freeze_time:
 
 
 freezegun.freeze_time = freeze_time
+
+safe_whitelist.add_class('freezegun.api.FakeDate')
+safe_whitelist.add_class('freezegun.api.FakeDatetime')
+safe_whitelist.add_function('FakeDate.*')
+safe_whitelist.add_function('FakeDatetime.*')
+safe_whitelist.add_instance('odoo.sql_db.TestCursor')
+safe_whitelist.add_instance('odoo.tests.*')
+safe_whitelist.add_instance('unittest.mock.MagicMock')
+safe_whitelist.add_instance('unittest.mock.Mock')

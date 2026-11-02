@@ -13,28 +13,33 @@
 # Hamed Mohammadi <hamed@dehongi.com>, 2023
 # Ali Reza Feizi Derakhshi, 2023
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
-# Omid Ghaffarinia <omid.ghaffarinia@gmail.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-02-25 14:42+0000\n"
-"Last-Translator: Omid Ghaffarinia <omid.ghaffarinia@gmail.com>\n"
-"Language-Team: Persian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-08-31 16:27+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Persian <https://translate.odoo.com/projects/odoo-s19-4/"
 "base_setup/fa/>\n"
 "Language: fa\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+#: model:ir.module.module,description:base.module_base_setup
 msgid ""
-"<span class=\"fa fa-lg fa-users\" aria-label=\"Number of active users\"/>"
-msgstr "<span class=\"fa fa-lg fa-users\" aria-label=\"تعداد کاربران فعال\"/>"
+"\n"
+"This module helps to configure the system at the installation of a new "
+"database.\n"
+"================================================================================\n"
+"\n"
+"Shows you a list of applications features to install from.\n"
+"\n"
+msgstr ""
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -167,11 +172,6 @@ msgid "Add fun feedback and motivate your employees"
 msgstr "بازخورد سرگرم کننده اضافه کنید و به کارکنان خود انگیزه دهید"
 
 #. module: base_setup
-#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_mail_plugin
-msgid "Allow integration with the mail plugins"
-msgstr "اجازه ادغام با افزونه های ایمیل را بدهید"
-
-#. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_google_calendar
 msgid "Allow the users to synchronize their calendar  with Google Calendar"
 msgstr "به کاربران اجازه بده تقویم خود با تقویم گوگل هماهنگ سازی کنند."
@@ -222,7 +222,7 @@ msgstr "Cloudflare Turnstile"
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
 msgid "Companies"
-msgstr "شرکت‌ها"
+msgstr "شرکت"
 
 #. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__company_id
@@ -253,15 +253,6 @@ msgstr "تنظیمات پیکربندی"
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
 msgid "Configure Document Layout"
 msgstr "پیکربندی طرح بندی اسناد"
-
-#. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid ""
-"Configure company rules to automatically create SO/PO when one of your "
-"company sells/buys to another of your company."
-msgstr ""
-"قوانین شرکت را پیکربندی کنید تا زمانی که یکی از شرکت‌های شما به شرکت دیگری از "
-"شرکت شما می‌فروشد/خرید می‌کند، به طور خودکار SO/PO ایجاد شود."
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -323,7 +314,7 @@ msgstr "ویرایش طرح بندی"
 #. odoo-python
 #: code:addons/base_setup/models/res_config_settings.py:0
 msgid "Edit new user default group"
-msgstr "ویرایش گروه پیش‌فرض کاربر جدید"
+msgstr ""
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -357,13 +348,13 @@ msgstr "محلی سازی جغرافیایی"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Geolocate your partners"
-msgstr ""
+msgid "Geolocation"
+msgstr "موقعیت جغرافیایی"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Geolocation"
-msgstr "موقعیت جغرافیایی"
+msgid "Get the latitude and the longitude of your partners"
+msgstr ""
 
 #. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_google_address_autocomplete
@@ -389,9 +380,9 @@ msgid "Import & Export"
 msgstr "ورود و خروج فایل"
 
 #. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Integrate with mail client plugins"
-msgstr "با پلاگین‌های ایمیل مشتری ادغام کنید."
+#: model:ir.module.module,shortdesc:base.module_base_setup
+msgid "Initial Setup Tools"
+msgstr ""
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -428,11 +419,6 @@ msgstr "زبان‌ها"
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
 msgid "Layout"
 msgstr "طرح بندی"
-
-#. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Mail Plugin"
-msgstr "افزونه ایمیل"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -478,6 +464,11 @@ msgstr "تعداد شرکتها"
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__language_count
 msgid "Number of Languages"
 msgstr "تعداد زبان ها"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Number of active users"
+msgstr ""
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -643,57 +634,16 @@ msgstr ""
 #. odoo-python
 #: code:addons/base_setup/models/res_users.py:0
 msgid "You have to install the Discuss application to use this feature."
-msgstr "باید برنامه گفتگو را نصب کنید تا بتوانید از این قابلیت استفاده کنید."
+msgstr ""
 
 #. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_google_recaptcha
 msgid "reCAPTCHA"
 msgstr "reCAPTCHA"
 
-#~ msgid "Asterisk (VoIP)"
-#~ msgstr "ستاره (VoIP)"
-
 #~ msgid ""
-#~ "Automatically generate counterpart documents for orders/invoices between "
-#~ "companies"
+#~ "<span class=\"oi oi-lg oi-filled\" data-icon=\"group\" aria-"
+#~ "label=\"Number of active users\"/>"
 #~ msgstr ""
-#~ "به طور خودکار اسناد مشابه برای سفارشات/فاکتورها بین شرکت ها تولید کنید"
-
-#~ msgid ""
-#~ "By default, new users get highest access rights for all installed apps."
-#~ msgstr ""
-#~ "به صورت پیش فرض کاربران جدید بالاترین حق دسترسی برای همه‌ی برنامه‌های نصب "
-#~ "شده می گیرند."
-
-#~ msgid "Default User Template not found."
-#~ msgstr "قالب کاربر پیش فرض یافت نشد."
-
-#~ msgid "Documentation"
-#~ msgstr "مستندات"
-
-#~ msgid "Geo Localization"
-#~ msgstr "محلی سازی جغرافیایی"
-
-#~ msgid "GeoLocalize your partners"
-#~ msgstr "شرکای خود را محلی سازی جغرافیایی کنید"
-
-#~ msgid "Get product pictures using barcode"
-#~ msgstr "تصاویر محصول را با استفاده از بارکد دریافت کنید"
-
-#~ msgid "Google Calendar"
-#~ msgstr "تقویم گوگل"
-
-#~ msgid "On Apple Store"
-#~ msgstr "روی فروشگاه اپل"
-
-#~ msgid "On Google Play"
-#~ msgstr "روی گوگل پلی"
-
-#~ msgid "Outlook Calendar"
-#~ msgstr "تقویم Outlook"
-
-#~ msgid "Synchronize your calendar with Google Calendar"
-#~ msgstr "تقویم خود را با تقویم گوگل همگام کنید"
-
-#~ msgid "Synchronize your calendar with Outlook"
-#~ msgstr "تقویم خود را با Outlook همگام کنید"
+#~ "<span class=\"oi oi-lg oi-filled\" data-icon=\"group\" aria-label=\"تعداد "
+#~ "کاربران فعال\"/>"

@@ -4,7 +4,9 @@ from odoo import _, models, Command
 from odoo.tools import html2plaintext
 from odoo.tools.float_utils import float_is_zero, float_round
 from odoo.addons.account.tools import dict_to_xml
-from odoo.addons.account_edi_ubl_cii.models.account_edi_common import EAS_MAPPING, FloatFmt
+from odoo.tools.partner_identifiers import get_tin_metadata_of_country
+
+from odoo.addons.account_edi_ubl_cii.models.account_edi_common import FloatFmt
 from odoo.addons.account_edi_ubl_cii.tools import Invoice, CreditNote, DebitNote
 from odoo.addons.account_edi_ubl_cii.tools.ubl_20_optional_fields import PEPPOL_INVOICE_OPTIONAL_FIELDS, PEPPOL_INVOICE_OPTIONAL_LINE_FIELDS, PEPPOL_CREDIT_NOTE_OPTIONAL_FIELDS, PEPPOL_CREDIT_NOTE_OPTIONAL_LINE_FIELDS
 
@@ -47,9 +49,10 @@ class AccountEdiXmlUBL20(models.AbstractModel):
 
         # 3. Run constraints
         vals['document_node'] = document_node
-        template = self._get_document_template(vals)
         nsmap = document_node['_nsmap'] = self._get_document_nsmap(vals)
-        errors = [constraint for constraint in self._export_invoice_constraints(invoice, vals).values() if constraint]
+        constraints = self._flatten_multilevel_constraints(self._export_invoice_constraints(invoice, vals))
+        errors = [constraint for constraint in constraints.values() if constraint]
+        template = self._get_document_template(vals)
 
         # 4. Render the XML
         xml_content = dict_to_xml(document_node, nsmap=nsmap, template=template)
@@ -312,8 +315,8 @@ class AccountEdiXmlUBL20(models.AbstractModel):
                 'cac:Address': self._get_address_node({'partner': partner_shipping}),
             },
         }
-        # TODO master: clean that code a bit hacky, when the module account_add_gln is merged with account
-        if gln := 'global_location_number' in partner_shipping._fields and partner_shipping.global_location_number:
+
+        if gln := partner_shipping.global_location_number:
             document_node['cac:Delivery']['cac:DeliveryLocation'].update({
                 'cbc:ID': {'schemeID': '0088', '_text': gln},
             })
@@ -408,6 +411,7 @@ class AccountEdiXmlUBL20(models.AbstractModel):
         line_node = {}
         self._add_invoice_line_id_nodes(line_node, vals)
         self._add_invoice_line_note_nodes(line_node, vals)
+        self._add_invoice_line_free_of_charge_indicator_nodes(line_node, vals)
         self._add_invoice_line_period_nodes(line_node, vals)
         self._add_invoice_line_allowance_charge_nodes(line_node, vals)
         self._add_invoice_line_amount_nodes(line_node, vals)
@@ -446,6 +450,9 @@ class AccountEdiXmlUBL20(models.AbstractModel):
     def _add_invoice_line_note_nodes(self, line_node, vals):
         self._add_document_line_note_nodes(line_node, vals)
 
+    def _add_invoice_line_free_of_charge_indicator_nodes(self, line_node, vals):
+        pass
+
     def _add_invoice_line_amount_nodes(self, line_node, vals):
         self._add_document_line_amount_nodes(line_node, vals)
 
@@ -461,11 +468,21 @@ class AccountEdiXmlUBL20(models.AbstractModel):
     def _add_invoice_line_item_nodes(self, line_node, vals):
         self._add_document_line_item_nodes(line_node, vals)
 
+        item = line_node['cac:Item']
         line_name = vals['base_line']['_line_name']
         if line_name:
-            line_node['cac:Item']['cbc:Description']['_text'] = line_name
-            if not line_node['cac:Item']['cbc:Name']['_text']:
-                line_node['cac:Item']['cbc:Name']['_text'] = line_name
+            item['cbc:Description']['_text'] = line_name
+            if not item['cbc:Name']['_text']:
+                item['cbc:Name']['_text'] = line_name
+
+        if (
+            self._invoice_line_item_node_require_description(vals)
+            and not item['cbc:Description']['_text']
+        ):
+            item['cbc:Description']['_text'] = item['cbc:Name']['_text']
+
+    def _invoice_line_item_node_require_description(self, vals):
+        return False
 
     def _add_invoice_line_tax_category_nodes(self, line_node, vals):
         self._add_document_line_tax_category_nodes(line_node, vals)
@@ -609,23 +626,19 @@ class AccountEdiXmlUBL20(models.AbstractModel):
     # -------------------------------------------------------------------------
 
     def _get_address_node(self, vals):
-        """ Generic helper to generate the Address node for a res.partner or res.bank. """
+        """ Generic helper to generate the Address node for a res.partner or res.partner.bank. """
         partner = vals['partner']
-        country_key = 'country' if partner._name == 'res.bank' else 'country_id'
-        state_key = 'state' if partner._name == 'res.bank' else 'state_id'
-        country = partner[country_key]
-        state = partner[state_key]
 
         return {
             'cbc:StreetName': {'_text': partner.street},
             'cbc:AdditionalStreetName': {'_text': partner.street2},
             'cbc:CityName': {'_text': partner.city},
             'cbc:PostalZone': {'_text': partner.zip},
-            'cbc:CountrySubentity': {'_text': state.name},
-            'cbc:CountrySubentityCode': {'_text': state.code},
+            'cbc:CountrySubentity': {'_text': partner.state_id.name},
+            'cbc:CountrySubentityCode': {'_text': partner.state_id.code},
             'cac:Country': {
-                'cbc:IdentificationCode': {'_text': country.code},
-                'cbc:Name': {'_text': country.name},
+                'cbc:IdentificationCode': {'_text': partner.country_id.code},
+                'cbc:Name': {'_text': partner.country_id.name},
             },
         }
 
@@ -657,7 +670,7 @@ class AccountEdiXmlUBL20(models.AbstractModel):
                 'cbc:ElectronicMail': {'_text': partner.email},
             },
         }
-        if partner.vat and partner.vat != '/':
+        if partner.has_vat:
             party_node['cac:PartyTaxScheme'] = {
                 'cbc:RegistrationName': {'_text': commercial_partner.name},
                 'cbc:CompanyID': {'_text': commercial_partner.vat},
@@ -679,25 +692,24 @@ class AccountEdiXmlUBL20(models.AbstractModel):
     def _get_financial_account_node(self, vals):
         """ Generic helper to generate the FinancialAccount node for a res.partner.bank """
         partner_bank = vals['partner_bank']
-        bank = partner_bank.bank_id
         financial_institution_branch = None
-        if bank:
+        if partner_bank.bank_bic:
             financial_institution_branch = {
                 'cbc:ID': {
-                    '_text': bank.bic,
+                    '_text': partner_bank.bank_bic,
                     'schemeID': 'BIC'
                 },
                 'cac:FinancialInstitution': {
                     'cbc:ID': {
-                        '_text': bank.bic,
+                        '_text': partner_bank.bank_bic,
                         'schemeID': 'BIC'
                     },
-                    'cbc:Name': {'_text': bank.name},
-                    'cac:Address': self._get_address_node({**vals, 'partner': bank})
+                    'cbc:Name': {'_text': partner_bank.bank_name},
+                    'cac:Address': self._get_address_node({**vals, 'partner': partner_bank})
                 }
             }
         return {
-            'cbc:ID': {'_text': partner_bank.acc_number.replace(' ', '')},
+            'cbc:ID': {'_text': partner_bank.account_number.replace(' ', '')},
             'cac:FinancialInstitutionBranch': financial_institution_branch
         }
 
@@ -982,7 +994,7 @@ class AccountEdiXmlUBL20(models.AbstractModel):
         line_node.update({
             quantity_tag: {
                 '_text': base_line['quantity'],
-                'unitCode': self._get_uom_unece_code(base_line['product_uom_id']),
+                'unitCode': base_line['product_uom_id']._get_unece_code(),
             },
             'cbc:LineExtensionAmount': {
                 '_text': self.format_float(vals[f'total_excluded{currency_suffix}'], vals['currency_dp']),
@@ -1115,10 +1127,9 @@ class AccountEdiXmlUBL20(models.AbstractModel):
         """ Returns a dict of values that will be used to retrieve the partner """
         vat = self._find_value(f'.//cac:{role}Party//cbc:CompanyID[string-length(text()) > 5]', tree)
         country_code = self._find_value(f'.//cac:{role}Party//cac:PostalAddress/cac:Country/cbc:IdentificationCode', tree)
-        if not vat and country_code:
-            for scheme_id, field in EAS_MAPPING.get(country_code, {}).items():
-                if field == 'vat' and (vat := self._find_value(f".//cac:{role}Party//cac:PartyIdentification/cbc:ID[@schemeID='{scheme_id}']", tree)):
-                    break
+        if not vat and country_code and (vat_scheme := get_tin_metadata_of_country(country_code).get('scheme')):
+            vat = self._find_value(f".//cac:{role}Party//cac:PartyIdentification/cbc:ID[@schemeID='{vat_scheme}']", tree)
+
         return {
             'vat': vat,
             'phone': self._find_value(f'.//cac:{role}Party//cac:Contact/cbc:Telephone', tree),
@@ -1146,21 +1157,26 @@ class AccountEdiXmlUBL20(models.AbstractModel):
         if qty_factor == -1:
             logs.append(_("The invoice has been converted into a credit note and the quantities have been reverted."))
         role = "AccountingCustomer" if invoice.journal_id.type == 'sale' else "AccountingSupplier"
-        partner, partner_logs = self._import_partner(invoice.company_id, **self._import_retrieve_partner_vals(tree, role))
+        # ==== partner_bank_id ====
+        bank_detail_nodes = tree.findall('.//{*}PaymentMeans/{*}PayeeFinancialAccount/{*}ID')
+        bank_details = [bank_detail_node.text for bank_detail_node in bank_detail_nodes if bank_detail_node.text]
+
+        partner_vals = self._import_retrieve_partner_vals(tree, role)
+        if bank_details:
+            partner_vals['bank_details'] = bank_details
+        partner, partner_logs = self._import_partner(invoice.company_id, **partner_vals)
         # Need to set partner before to compute bank and lines properly
         invoice.partner_id = partner.id
         invoice_values['currency_id'], currency_logs = self._import_currency(tree, './/{*}DocumentCurrencyCode')
         invoice_values['invoice_date'] = tree.findtext('./{*}IssueDate')
         invoice_values['invoice_date_due'] = self._find_value(('./cbc:DueDate', './/cbc:PaymentDueDate'), tree)
-        # ==== partner_bank_id ====
-        bank_detail_nodes = tree.findall('.//{*}PaymentMeans')
-        bank_details = [bank_detail_node.findtext('{*}PayeeFinancialAccount/{*}ID') for bank_detail_node in bank_detail_nodes if bank_detail_node.findtext('{*}PayeeFinancialAccount/{*}ID')]
+
         if bank_details:
             self._import_partner_bank(invoice, bank_details)
 
         # ==== ref, invoice_origin, narration, payment_reference ====
         ref = tree.findtext('./{*}ID')
-        if ref and invoice.is_sale_document(include_receipts=True) and invoice.quick_edit_mode:
+        if ref and invoice.is_sale_document(include_receipts=True) and invoice.document_sequence_editable:
             invoice_values['name'] = ref
         elif ref:
             invoice_values['ref'] = ref
@@ -1310,7 +1326,7 @@ class AccountEdiXmlUBL20(models.AbstractModel):
         of each quantity in the invoice.
         """
         if tree.tag == '{urn:oasis:names:specification:ubl:schema:xsd:Invoice-2}Invoice':
-            amount_node = tree.find('.//{*}LegalMonetaryTotal/{*}TaxExclusiveAmount')
+            amount_node = tree.find('.//{*}LegalMonetaryTotal/{*}TaxInclusiveAmount')
             if amount_node is not None and float(amount_node.text) < 0:
                 return 'refund', -1
             return 'invoice', 1

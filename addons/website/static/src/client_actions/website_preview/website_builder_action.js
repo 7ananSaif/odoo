@@ -1,39 +1,43 @@
 import { LocalOverlayContainer } from "@html_editor/local_overlay_container";
 import {
     Component,
+    immediateEffect,
     onMounted,
+    onPatched,
     onWillDestroy,
     onWillStart,
     onWillUnmount,
-    status,
-    useComponent,
+    proxy,
+    signal,
     useEffect,
-    useRef,
-    useState,
-    useSubEnv,
+    usePlugin,
+    useScope,
+    useProps,
+    t,
 } from "@odoo/owl";
-import { LazyComponent, loadBundle } from "@web/core/assets";
-import { browser } from "@web/core/browser/browser";
-import { getActiveHotkey } from "@web/core/hotkeys/hotkey_service";
-import { _t } from "@web/core/l10n/translation";
-import { registry } from "@web/core/registry";
-import { ResizablePanel } from "@web/core/resizable_panel/resizable_panel";
-import { RPCError } from "@web/core/network/rpc";
-import { Deferred } from "@web/core/utils/concurrency";
-import { uniqueId } from "@web/core/utils/functions";
-import { useChildRef, useService, useBus } from "@web/core/utils/hooks";
-import { effect } from "@web/core/utils/reactive";
-import { redirect } from "@web/core/utils/urls";
-import { standardActionServiceProps } from "@web/webclient/actions/action_service";
-import { AddPageDialog } from "@website/components/dialog/add_page_dialog";
-import { ResourceEditor } from "@website/components/resource_editor/resource_editor";
-import { isHTTPSorNakedDomainRedirection } from "./utils";
-import { WebsiteSystrayItem } from "./website_systray_item";
-import { renderToElement } from "@web/core/utils/render";
+import { loadBundle } from "@web/core/assets";
+import { location, browser } from "@web/core/browser/browser";
 import { isBrowserChrome, isBrowserMicrosoftEdge } from "@web/core/browser/feature_detection";
 import { router } from "@web/core/browser/router";
+import { DebugModePlugin } from "@web/core/debug_mode_plugin";
+import { getActiveHotkey } from "@web/core/hotkeys/hotkey_utils";
+import { _t } from "@web/core/l10n/translation";
+import { LazyComponent } from "@web/core/lazy_component";
+import { post } from "@web/core/network/http_service";
+import { rpc, RPCError } from "@web/core/network/rpc";
+import { registry } from "@web/core/registry";
+import { ResizablePanel } from "@web/core/resizable_panel/resizable_panel";
+import { uniqueId } from "@web/core/utils/functions";
+import { useBus, useService } from "@web/core/utils/hooks";
+import { renderToElement } from "@web/core/utils/render";
 import { getScrollingElement } from "@web/core/utils/scrolling";
+import { redirect } from "@web/core/utils/urls";
+import { standardActionServiceProps } from "@web/webclient/actions/action_plugin";
+import { AddPageDialog } from "@website/components/dialog/add_page_dialog";
+import { ResourceEditor } from "@website/components/resource_editor/resource_editor";
 import { CreatePageMessage } from "./create_page_message";
+import { isHTTPSorNakedDomainRedirection } from "./utils";
+import { WebsiteSystrayItem } from "./website_systray_item";
 
 const websiteSystrayRegistry = registry.category("website_systray");
 
@@ -46,13 +50,13 @@ export class WebsiteBuilderClientAction extends Component {
         ResourceEditor,
         CreatePageMessage,
     };
-    static props = {
+    props = useProps({
         ...standardActionServiceProps,
-        editTranslations: { type: Boolean, optional: true },
-        enableEditor: { type: Boolean, optional: true },
-        path: { type: String, optional: true },
-        websiteId: { type: [Number, { value: false }], optional: true },
-    };
+        editTranslations: t.boolean().optional(),
+        enableEditor: t.boolean().optional(),
+        path: t.string().optional(),
+        websiteId: t.or([t.number(), t.literal(false)]).optional(),
+    });
 
     static extractProps(action) {
         return {
@@ -63,8 +67,10 @@ export class WebsiteBuilderClientAction extends Component {
         };
     }
 
+    debugMode = usePlugin(DebugModePlugin);
+
     setup() {
-        this.target = null;
+        this.reloadContext = null;
         this.orm = useService("orm");
         this.notification = useService("notification");
         this.dialog = useService("dialog");
@@ -74,22 +80,20 @@ export class WebsiteBuilderClientAction extends Component {
         this.hotkeyService = useService("hotkey");
         this.websiteService.websiteRootInstance = undefined;
         this.iframeFallbackUrl = "/website/iframefallback";
-        this.iframefallback = useRef("iframefallback");
+        this.iframefallback = signal.ref();
+        this.newInstalledModule = router.current.module_installed;
 
-        this.websiteContent = useRef("iframe");
-        this.builderSidebarRef = useRef("builder_sidebar");
+        this.websiteContent = signal.ref();
+        this.builderSidebarRef = signal.ref();
         this.cleanups = [];
 
         this.snippetsTemplate = "website.snippets";
-        // Track iframe navigation state
-        this.isNavigatingToAnotherPage = null;
 
-        useSubEnv({
-            builderRef: useRef("container"),
-        });
-        this.state = useState({ isEditing: false, showSidebar: true, key: 1, is404: false });
-        this.websiteContext = useState(this.websiteService.context);
-        this.component = useComponent();
+        this.containerRef = signal.ref();
+        this.state = proxy({ isEditing: false, showSidebar: true, key: 1, is404: false });
+        this.websiteContext = proxy(this.websiteService.context);
+
+        const scope = useScope();
 
         useBus(
             websiteSystrayRegistry,
@@ -97,25 +101,22 @@ export class WebsiteBuilderClientAction extends Component {
             () => (this.state.is404 = this.websiteService.is404)
         );
 
+        let disposeToggleMobileEffect = () => {};
         onMounted(() => {
             // You can't wait for rendering because the Builder depends on the
             // page style synchronously.
-            effect(
-                (websiteContext) => {
-                    if (status(this.component) === "destroyed") {
-                        return;
-                    }
-                    this.toggleIsMobile(websiteContext.isMobile);
-                },
-                [this.websiteContext]
-            );
+            disposeToggleMobileEffect = immediateEffect(() => {
+                this.websiteContext.isMobile; // consume signal
+                if (!scope.isDestroyed()) {
+                    this.toggleIsMobile(this.websiteContext.isMobile);
+                }
+            });
         });
+        onWillDestroy(disposeToggleMobileEffect);
 
-        this.overlayRef = useChildRef();
-        useSubEnv({
-            localOverlayContainerKey: uniqueId("website"),
-        });
-        this.websitePreviewRef = useRef("website_preview");
+        this.overlayRef = signal.ref();
+        this.localOverlayContainerKey = uniqueId("website");
+        this.websitePreviewRef = signal.ref();
 
         onWillStart(async () => {
             const updateWebsiteId = (websiteId) => {
@@ -133,11 +134,11 @@ export class WebsiteBuilderClientAction extends Component {
                 updateWebsiteId(this.websiteId);
                 await Promise.all(proms);
             } else {
-                const [backendWebsiteRepr] = await Promise.all([
-                    this.orm.call("website", "get_current_website"),
+                const [backendWebsiteId] = await Promise.all([
+                    rpc("/website/get_current_website_id"),
                     ...proms,
                 ]);
-                updateWebsiteId(backendWebsiteRepr[0]);
+                updateWebsiteId(backendWebsiteId);
             }
         });
         onMounted(() => {
@@ -164,7 +165,7 @@ export class WebsiteBuilderClientAction extends Component {
                 fn();
             }
         });
-        this.publicRootReady = new Deferred();
+        this.publicRootReady = Promise.withResolvers();
         this.setIframeLoaded();
         this.addSystrayItems();
         onWillDestroy(() => {
@@ -173,36 +174,44 @@ export class WebsiteBuilderClientAction extends Component {
             websiteSystrayRegistry.trigger("EDIT-WEBSITE");
         });
 
-        effect(
-            (state) => {
-                this.websiteContext.edition = state.isEditing;
-                if (!state.isEditing) {
-                    this.addSystrayItems();
-                }
-            },
-            [this.state]
-        );
-        useEffect(
-            (isEditing) => {
-                document.querySelector("body").classList.toggle("o_builder_open", isEditing);
-                if (isEditing) {
-                    // When entering edit mode, the navbar animates upwards.
-                    // To avoid an abrupt disappearance, we delay adding the
-                    // 'd-none' class
-                    this.navBarTimeout = setTimeout(() => {
-                        websiteSystrayRegistry.remove("website.WebsiteSystrayItem");
-                        websiteSystrayRegistry.trigger("EDIT-WEBSITE");
-                        document
-                            .querySelector(".o_builder_open .o_main_navbar")
-                            .classList.add("d-none");
-                    }, 200);
-                } else {
-                    document.querySelector(".o_main_navbar")?.classList.remove("d-none");
-                }
-                return () => clearTimeout(this.navBarTimeout);
-            },
-            () => [this.state.isEditing]
-        );
+        useEffect(() => {
+            this.websiteContext.edition = this.state.isEditing;
+            if (!this.state.isEditing) {
+                this.addSystrayItems();
+            }
+        });
+        const updateBuilderOpen = (isEditing) => {
+            document.querySelector("body").classList.toggle("o_builder_open", isEditing);
+            if (isEditing) {
+                // When entering edit mode, the navbar animates upwards.
+                // To avoid an abrupt disappearance, we delay adding the
+                // 'd-none' class
+                this.navBarTimeout = setTimeout(() => {
+                    if (!this.state.isEditing) {
+                        return;
+                    }
+                    websiteSystrayRegistry.remove("website.WebsiteSystrayItem");
+                    websiteSystrayRegistry.trigger("EDIT-WEBSITE");
+                    document
+                        .querySelector(".o_builder_open .o_main_navbar")
+                        .classList.add("d-none");
+                }, 200);
+            } else {
+                document.querySelector(".o_main_navbar")?.classList.remove("d-none");
+            }
+        };
+        onMounted(() => {
+            this.lastIsEditing = this.state.isEditing;
+            updateBuilderOpen(this.lastIsEditing);
+        });
+        onPatched(() => {
+            if (this.state.isEditing !== this.lastIsEditing) {
+                this.lastIsEditing = this.state.isEditing;
+                clearTimeout(this.navBarTimeout);
+                updateBuilderOpen(this.lastIsEditing);
+            }
+        });
+        onWillUnmount(() => clearTimeout(this.navBarTimeout));
         onMounted(() => {
             document.body.classList.add("o_website_o_website_preview");
         });
@@ -220,7 +229,7 @@ export class WebsiteBuilderClientAction extends Component {
             this.waitForIframeReady().then(() => el)
         );
         const builderProps = {
-            closeEditor: this.reloadIframeAndCloseEditor.bind(this),
+            closeEditor: this.closeEditor.bind(this),
             editableSelector: "#wrapwrap",
             reloadEditor: this.reloadEditor.bind(this),
             snippetsName: this.snippetsTemplate,
@@ -229,9 +238,11 @@ export class WebsiteBuilderClientAction extends Component {
             overlayRef: this.overlayRef,
             iframeLoaded: iframeLoaded,
             isMobile: this.websiteContext.isMobile,
+            initialTab: this.reloadContext?.initialTab,
+            onlyCustomizeTab: this.translation,
+            newInstalledModule: this.newInstalledModule,
             config: {
-                initialTarget: this.target,
-                initialTab: this.initialTab || this.translation ? "customize" : "blocks",
+                reloadContext: this.reloadContext,
                 builderSidebar: {
                     withHiddenSidebar: async (cb) => {
                         try {
@@ -241,13 +252,9 @@ export class WebsiteBuilderClientAction extends Component {
                             this.state.showSidebar = true;
                         }
                     },
-                    // TODO: remove `toggle` in master
-                    toggle: (show) => {
-                        this.state.showSidebar = show ?? !this.state.showSidebar;
-                    },
                 },
-                isTranslationMode: this.translation,
             },
+            localOverlayContainerKey: this.localOverlayContainerKey,
         };
         return { translation: this.translation, builderProps };
     }
@@ -257,6 +264,7 @@ export class WebsiteBuilderClientAction extends Component {
             onNewPage: this.onNewPage.bind(this),
             onEditPage: this.onEditPage.bind(this),
             iframeLoaded: this.iframeLoaded,
+            newInstalledModule: this.newInstalledModule,
         };
     }
 
@@ -286,22 +294,22 @@ export class WebsiteBuilderClientAction extends Component {
     }
 
     async onEditPage() {
-        if (!this.websiteContent.el) {
+        if (!this.websiteContent()) {
             await this.iframeLoaded;
         }
         this.websiteContext.showResourceEditor = false;
         this.blockIframe();
 
         // Wait for navigation to complete if currently navigating
-        if (this.isNavigatingToAnotherPage) {
-            await this.isNavigatingToAnotherPage;
+        if (this.websiteService.isNavigatingToAnotherPage) {
+            await this.websiteService.isNavigatingToAnotherPage.promise;
         }
 
         await this.loadIframeAndBundles(true);
         window.document.dispatchEvent(
             new CustomEvent("edit_page", {
                 detail: {
-                    iframeDocument: this.websiteContent.el.contentDocument.document,
+                    iframeDocument: this.websiteContent().contentDocument.document,
                 },
             })
         );
@@ -314,7 +322,7 @@ export class WebsiteBuilderClientAction extends Component {
     async loadIframeAndBundles(isEditing) {
         await this.iframeLoaded;
         if (isEditing) {
-            await this.publicRootReady;
+            await this.publicRootReady.promise;
             await this.loadAssetsEditBundle();
         }
     }
@@ -329,7 +337,7 @@ export class WebsiteBuilderClientAction extends Component {
         await this.waitForIframeReady();
         await Promise.all([
             loadBundle("website.assets_inside_builder_iframe", {
-                targetDoc: this.websiteContent.el.contentDocument,
+                targetDoc: this.websiteContent().contentDocument,
             }),
         ]);
     }
@@ -339,7 +347,7 @@ export class WebsiteBuilderClientAction extends Component {
      * the iframe's url (it is clearer for the user).
      */
     replaceBrowserUrl() {
-        const iframe = this.websiteContent.el;
+        const iframe = this.websiteContent();
         if (!iframe || !iframe.contentWindow) {
             return;
         }
@@ -382,8 +390,7 @@ export class WebsiteBuilderClientAction extends Component {
         // turn raises a CORS error when the app tries to update the iframe.
         // If we detect that behavior, we reload the iframe with a new query
         // parameter, so that it's not cached for Chrome.
-        const iframe = this.websiteContent.el;
-        iframe.contentDocument.body.setAttribute("is-ready", "false");
+        const iframe = this.websiteContent();
         if (isBrowserChrome() && !iframe.src.includes("iframe_reload")) {
             try {
                 /* eslint-disable no-unused-expressions */
@@ -406,11 +413,12 @@ export class WebsiteBuilderClientAction extends Component {
                 }
             }
         }
+        iframe.contentDocument.body.setAttribute("is-ready", "false");
         if (this.lastPageURL !== iframe.contentWindow.location.href) {
             // Hide Ace Editor when moving to another page.
             this.websiteService.context.showResourceEditor = false;
         }
-        this.websiteService.pageDocument = this.websiteContent.el.contentDocument;
+        this.websiteService.pageDocument = this.websiteContent().contentDocument;
         const url = new URL(this.websiteService.contentWindow.location.href);
         if (url.searchParams.has("edit_translations")) {
             deleteQueryParam("edit_translations", this.websiteService.contentWindow, true);
@@ -425,59 +433,81 @@ export class WebsiteBuilderClientAction extends Component {
         this.websiteService.hideLoader();
         this.lastPageURL = iframe.contentWindow.location.href;
 
-        if (this.isNavigatingToAnotherPage) {
-            this.isNavigatingToAnotherPage.resolve();
-            this.isNavigatingToAnotherPage = null;
+        if (this.websiteService.isNavigatingToAnotherPage) {
+            this.websiteService.isNavigatingToAnotherPage.resolve();
+            this.websiteService.isNavigatingToAnotherPage = null;
         }
     }
 
     blockIframe() {
-        this.websiteContent.el.setAttribute("inert", "");
+        this.websiteContent().setAttribute("inert", "");
     }
     unblockIframe() {
-        this.websiteContent.el.removeAttribute("inert");
+        this.websiteContent().removeAttribute("inert");
     }
 
     setupClickListener() {
         // The clicks on the iframe are listened, so that links with external
         // redirections can be opened in the top window.
-        this.websiteContent.el.contentDocument.addEventListener("click", (ev) => {
-            if (!this.state.isEditing) {
-                // Forward clicks to close backend client action's navbar
-                // dropdowns.
-                this.websiteContent.el.dispatchEvent(new MouseEvent("click", ev));
-            } else {
+        this.websiteContent().contentDocument.addEventListener("click", async (ev) => {
+            if (this.state.isEditing) {
                 // When in edit mode, prevent the default behaviours of clicks
                 // as to avoid DOM changes not handled by the editor.
                 // (Such as clicking on a link that triggers navigating to
                 // another page.)
                 ev.preventDefault();
-            }
-            const linkEl = ev.target.closest("[href]");
-            if (!linkEl) {
                 return;
             }
 
-            const { href, target } = linkEl;
-            if (href && target !== "_blank" && !this.state.isEditing) {
-                if (isTopWindowURL(linkEl)) {
-                    ev.preventDefault();
-                    try {
-                        browser.location.assign(href);
-                    } catch {
-                        this.notification.add(_t("%s is not a valid URL.", href), {
-                            title: _t("Invalid URL"),
-                            type: "danger",
-                        });
-                    }
-                } else if (
-                    this.websiteContent.el.contentWindow.location.pathname !==
-                    new URL(href).pathname
-                ) {
-                    // This scenario triggers a navigation inside the iframe.
-                    this.websiteService.websiteRootInstance = undefined;
+            // Forward clicks to close backend client action's navbar
+            // dropdowns.
+            this.websiteContent().dispatchEvent(new MouseEvent("click", ev));
 
-                    this.isNavigatingToAnotherPage = new Deferred();
+            const closestEl = ev.target.closest("[href], [action]");
+            let url;
+
+            if (closestEl?.action) {
+                const { action, method } = closestEl;
+                if (isTopWindowURL(new URL(action))) {
+                    if (method === "post") {
+                        // Prevent the default form submission before awaiting
+                        // post(). Otherwise, the browser may submit the form
+                        // before the later preventDefault() call.
+                        ev.preventDefault();
+                        const href = await post(action, { csrf_token: odoo.csrf_token }, "url");
+                        url = new URL(href);
+                    } else {
+                        url = new URL(action);
+                    }
+                }
+            } else if (closestEl?.href) {
+                const { href, target } = closestEl;
+                if (target !== "_blank") {
+                    if (isTopWindowURL(closestEl)) {
+                        url = new URL(href);
+                    } else if (
+                        this.websiteContent().contentWindow.location.pathname !==
+                        new URL(href).pathname
+                    ) {
+                        // This scenario triggers a navigation inside the iframe.
+                        this.websiteService.websiteRootInstance = undefined;
+                        if (this.websiteService.isNavigatingToAnotherPage) {
+                            this.websiteService.isNavigatingToAnotherPage.resolve();
+                        }
+                        this.websiteService.isNavigatingToAnotherPage = Promise.withResolvers();
+                    }
+                }
+            }
+
+            if (url) {
+                ev.preventDefault();
+                try {
+                    location.assign(url);
+                } catch {
+                    this.notification.add(_t("%s is not a valid URL.", url), {
+                        title: _t("Invalid URL"),
+                        type: "danger",
+                    });
                 }
             }
         });
@@ -515,13 +545,18 @@ export class WebsiteBuilderClientAction extends Component {
     }
 
     get websiteId() {
-        return this.props.websiteId || router.current.website_id || false;
+        return (
+            this.props.websiteId ||
+            router.current.website_id ||
+            this.websiteService.currentWebsiteId ||
+            false
+        );
     }
 
     waitForIframeReady() {
         return new Promise((resolve) => {
-            const doc = this.websiteContent.el.contentDocument;
-            if (doc.body.hasAttribute("is-ready")) {
+            const doc = this.websiteContent().contentDocument;
+            if (doc.body.getAttribute("is-ready") === "true") {
                 resolve();
             } else {
                 const observer = new MutationObserver(() => {
@@ -535,23 +570,23 @@ export class WebsiteBuilderClientAction extends Component {
         });
     }
 
-    async reloadEditor(param = {}) {
-        this.initialTab = param.initialTab;
-        this.target = param.target || null;
-        await this.reloadIframe(this.state.isEditing, param.url);
+    async reloadEditor(url, reloadContext) {
+        this.reloadContext = reloadContext || null;
+        await this.reloadIframe(this.state.isEditing, url);
         // Disable the current instance of the builder and trigger a new
         // instance of it with `t-key`
-        this.builderSidebarRef.el.firstElementChild.classList.add("o_builder_disabled");
+        this.builderSidebarRef().firstElementChild.classList.add("o_builder_disabled");
         this.state.key++;
     }
 
-    async reloadIframeAndCloseEditor() {
-        this.initialTab = null;
-        this.target = null;
+    async closeEditor(reloadIframe = true) {
+        this.reloadContext = null;
         const isEditing = false;
         this.state.isEditing = isEditing;
         this.addSystrayItems();
-        await this.reloadIframe(isEditing);
+        if (reloadIframe) {
+            await this.reloadIframe(isEditing);
+        }
     }
 
     async reloadIframe(isEditing = true, url) {
@@ -560,40 +595,56 @@ export class WebsiteBuilderClientAction extends Component {
         this.setIframeLoaded();
         this.websiteService.websiteRootInstance = undefined;
         if (url) {
-            const urlObj = new URL(url, this.websiteContent.el.contentWindow.location);
+            const baseUrl = new URL(this.websiteContent().contentWindow.location);
+            const urlObj = new URL(url, baseUrl);
             const pathSegments = urlObj.pathname.split("/").map(encodeURIComponent);
             const encodedPath = pathSegments.join("/");
-            this.websiteContent.el.contentWindow.location.href = new URL(
-                encodedPath,
-                this.websiteContent.el.contentWindow.location
-            );
+            const newUrl = new URL(encodedPath, baseUrl);
+            if(newUrl.origin !== baseUrl.origin) {
+                console.error("Tried to change the iframe's origin. Reloading instead")
+                this.websiteContent().contentWindow.location.reload();
+            } else {
+                if (history.state?.skipRouteChange) {
+                    history.pushState({}, "", newUrl);
+                }
+                this.websiteContent().contentWindow.location.href = newUrl;
+            }
         } else {
-            this.websiteContent.el.contentWindow.location.reload();
+            this.websiteContent().contentWindow.location.reload();
         }
         await this.loadIframeAndBundles(isEditing);
         this.ui.unblock();
     }
 
-    reloadWebClient() {
+    reloadWebClient(snippetTitle) {
         const currentPath = encodeURIComponent(window.location.pathname);
         const websiteId = this.websiteService.currentWebsite.id;
+        const data = { snippetTitle: snippetTitle };
+        const encodedData = encodeURIComponent(JSON.stringify(data));
         redirect(
             `/odoo/action-website.website_preview?website_id=${encodeURIComponent(
                 websiteId
-            )}&path=${currentPath}&enable_editor=1`
+            )}&path=${currentPath}&enable_editor=1&module_installed=${encodedData}`
         );
     }
 
     async installSnippetModule(snippet, beforeInstall) {
         this.dialog.closeAll();
         try {
-            this.ui.block();
             await beforeInstall();
-            await this.orm.call("ir.module.module", "button_immediate_install", [
+            this.websiteService.showLoader({
+                title: _t("Install modules, unlock the potential of your website."),
+            });
+            await this.orm.silent.call("ir.module.module", "button_immediate_install", [
                 [parseInt(snippet.moduleId)],
             ]);
-            this.reloadWebClient();
+            this.websiteService.redirectOutFromLoader({
+                redirectAction: () => {
+                    this.reloadWebClient(snippet.title);
+                },
+            });
         } catch (e) {
+            this.websiteService.hideLoader({ completeRemainingProgress: false });
             if (e instanceof RPCError) {
                 const message = _t("Could not install module %s", snippet.moduleDisplayName);
                 this.notification.add(message, {
@@ -603,15 +654,13 @@ export class WebsiteBuilderClientAction extends Component {
                 return;
             }
             throw e;
-        } finally {
-            this.ui.unblock();
         }
     }
 
     preparePublicRootReady() {
-        const deferred = new Deferred();
+        const deferred = Promise.withResolvers();
         this.publicRootReady = deferred;
-        this.websiteContent.el.contentWindow.addEventListener(
+        this.websiteContent().contentWindow.addEventListener(
             "PUBLIC-ROOT-READY",
             (event) => {
                 this.websiteService.websiteRootInstance = event.detail.rootInstance;
@@ -623,7 +672,7 @@ export class WebsiteBuilderClientAction extends Component {
 
     async addWelcomeMessage() {
         if (this.websiteService.isRestrictedEditor && !this.state.isEditing) {
-            const wrapEl = this.websiteContent.el.contentDocument.querySelector(
+            const wrapEl = this.websiteContent().contentDocument.querySelector(
                 "#wrapwrap.homepage #wrap"
             );
             if (wrapEl && !wrapEl.innerHTML.trim()) {
@@ -636,15 +685,15 @@ export class WebsiteBuilderClientAction extends Component {
     setIframeLoaded() {
         this.iframeLoaded = new Promise((resolve) => {
             this.resolveIframeLoaded = () => {
-                this.hotkeyService.registerIframe(this.websiteContent.el);
-                this.websiteContent.el.contentWindow.addEventListener(
+                this.hotkeyService.registerIframe(this.websiteContent());
+                this.websiteContent().contentWindow.addEventListener(
                     "beforeunload",
                     this.onPageUnload.bind(this)
                 );
 
-                this.addListeners(this.websiteContent.el.contentDocument);
-                this.iframefallback.el?.contentDocument.documentElement.replaceChildren();
-                resolve(this.websiteContent.el);
+                this.addListeners(this.websiteContent().contentDocument);
+                this.iframefallback()?.contentDocument.documentElement.replaceChildren();
+                resolve(this.websiteContent());
             };
         });
     }
@@ -652,8 +701,8 @@ export class WebsiteBuilderClientAction extends Component {
     onPageUnload() {
         // If the iframe is currently displaying an XML file, the body does not
         // exist, so we do not replace the iframefallback content.
-        const websiteDoc = this.websiteContent.el?.contentDocument;
-        const fallBackDoc = this.iframefallback.el?.contentDocument;
+        const websiteDoc = this.websiteContent()?.contentDocument;
+        const fallBackDoc = this.iframefallback()?.contentDocument;
         if (!this.state.isEditing && websiteDoc && fallBackDoc) {
             fallBackDoc.documentElement.replaceWith(websiteDoc.documentElement.cloneNode(true));
             const currentScrollEl = getScrollingElement(websiteDoc);
@@ -665,7 +714,7 @@ export class WebsiteBuilderClientAction extends Component {
 
     cleanIframeFallback() {
         // Remove autoplay in all iframes urls so videos are not
-        const iframesEl = this.iframefallback.el.contentDocument.querySelectorAll(
+        const iframesEl = this.iframefallback().contentDocument.querySelectorAll(
             'iframe[src]:not([src=""])'
         );
         for (const iframeEl of iframesEl) {
@@ -682,8 +731,8 @@ export class WebsiteBuilderClientAction extends Component {
     }
 
     toggleIsMobile(isMobile) {
-        this.websitePreviewRef.el.classList.toggle("o_is_mobile", isMobile);
-        this.websiteContent.el?.contentDocument.documentElement.classList.toggle(
+        this.websitePreviewRef()?.classList.toggle("o_is_mobile", isMobile);
+        this.websiteContent()?.contentDocument.documentElement.classList.toggle(
             "o_is_mobile",
             isMobile
         );
@@ -720,7 +769,7 @@ export class WebsiteBuilderClientAction extends Component {
         }
         ev.preventDefault();
         const path = this.websiteService.contentWindow.location;
-        const debugMode = this.env.debug ? `&debug=${this.env.debug}` : "";
+        const debugMode = this.debugMode.isActive() ? `&debug=${this.debugMode.toString()}` : "";
         redirect(
             `/odoo/action-website.website_preview?path=${encodeURIComponent(path)}${debugMode}`
         );

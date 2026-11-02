@@ -6,19 +6,24 @@ import { useInputField } from "@web/views/fields/input_field_hook";
 
 import { recommendations, ConcretePolicy } from "./password_policy";
 import { Meter } from "./password_meter";
-import { Component, onWillStart, useState } from "@odoo/owl";
+import { Component, onWillStart, proxy, signal, useProps } from "@odoo/owl";
 
 export class PasswordField extends Component {
-    static props = standardFieldProps;
     static components = { Meter };
     static template = "auth_password_policy.PasswordField";
+
+    props = useProps(standardFieldProps);
+
+    inputRef = signal.ref();
+
     setup() {
-        this.state = useState({
+        this.state = proxy({
             required: new ConcretePolicy({}),
             value: "",
         });
 
         useInputField({
+            ref: this.inputRef,
             getValue: () => this.props.record.data[this.props.name] || "",
         });
 

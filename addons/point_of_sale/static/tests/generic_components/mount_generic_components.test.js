@@ -1,6 +1,6 @@
 import { expect, test } from "@odoo/hoot";
 import { mountWithCleanup } from "@web/../tests/web_test_helpers";
-import { Component, useState, xml } from "@odoo/owl";
+import { Component, xml, proxy } from "@odoo/owl";
 import { OdooLogo } from "@point_of_sale/app/components/odoo_logo/odoo_logo";
 import { CenteredIcon } from "@point_of_sale/app/components/centered_icon/centered_icon";
 import { Input } from "@point_of_sale/app/components/inputs/input/input";
@@ -10,7 +10,6 @@ import { waitFor } from "@odoo/hoot-dom";
 
 test("test that generic components can be mounted; the goal is to ensure that they don't have any unmet dependencies", async () => {
     class TestComponent extends Component {
-        static props = [];
         static components = {
             OdooLogo,
             CenteredIcon,
@@ -20,13 +19,13 @@ test("test that generic components can be mounted; the goal is to ensure that th
         static template = xml`
             <div class="test-container">
                 <OdooLogo />
-                <CenteredIcon icon="'fa-smile'"/>
-                <Input tModel="[state, 'number']"/>
-                <NumericInput tModel="[state, 'number']" />
+                <CenteredIcon icon="'sentiment_satisfied'"/>
+                <Input tModel="[this.state, 'number']"/>
+                <NumericInput tModel="[this.state, 'number']" />
             </div>
         `;
         setup() {
-            this.state = useState({ number: 1 });
+            this.state = proxy({ number: 1 });
         }
     }
 

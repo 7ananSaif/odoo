@@ -1,10 +1,11 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import _, api, models, fields
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Command, Domain
 from odoo.tools import html2plaintext, email_normalize
 from odoo.addons.mail.tools.discuss import Store
+from odoo.addons.phone_validation.tools import phone_validation
 
 from collections import defaultdict
 from markupsafe import Markup
@@ -39,7 +40,6 @@ class ChatbotScriptStep(models.Model):
         copy=False,  # copied manually, see chatbot.script#copy
         string='Only If', help='Show this step only if all of these answers have been selected.')
     # forward-operator specifics
-    is_forward_operator = fields.Boolean(compute="_compute_is_forward_operator")
     is_forward_operator_child = fields.Boolean(compute='_compute_is_forward_operator_child')
     operator_expertise_ids = fields.Many2many(
         "im_livechat.expertise",
@@ -65,14 +65,8 @@ class ChatbotScriptStep(models.Model):
             if update_command:
                 step.triggering_answer_ids = update_command
 
-    @api.depends("step_type")
-    def _compute_is_forward_operator(self):
-        for step in self:
-            step.is_forward_operator = step.step_type == "forward_operator"
-
     @api.depends(
         "chatbot_script_id.script_step_ids.answer_ids",
-        "chatbot_script_id.script_step_ids.is_forward_operator",
         "chatbot_script_id.script_step_ids.sequence",
         "chatbot_script_id.script_step_ids.step_type",
         "chatbot_script_id.script_step_ids.triggering_answer_ids",
@@ -83,7 +77,7 @@ class ChatbotScriptStep(models.Model):
         parent_steps_by_chatbot = {}
         for chatbot in self.chatbot_script_id:
             parent_steps_by_chatbot[chatbot.id] = chatbot.script_step_ids.filtered(
-                lambda step: step.is_forward_operator or step.step_type == "question_selection"
+                lambda step: step.step_type in ["forward_operator", "question_selection"]
             ).sorted(lambda s: s.sequence, reverse=True)
         for step in self:
             parent_steps = parent_steps_by_chatbot[step.chatbot_script_id.id].filtered(
@@ -92,9 +86,9 @@ class ChatbotScriptStep(models.Model):
             parent = step
             while True:
                 parent = parent._get_parent_step(parent_steps)
-                if not parent or parent.is_forward_operator:
+                if not parent or parent.step_type == "forward_operator":
                     break
-            step.is_forward_operator_child = parent and parent.is_forward_operator
+            step.is_forward_operator_child = parent and parent.step_type == "forward_operator"
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -148,29 +142,34 @@ class ChatbotScriptStep(models.Model):
     # --------------------------
 
     def _chatbot_prepare_customer_values(self, discuss_channel, create_partner=True, update_partner=True):
-        """ Common method that allows retreiving default customer values from the discuss.channel
-        following a chatbot.script.
+        """Retrieve default customer values from a ``discuss.channel``
+        following a ``chatbot.script``.
 
-        This method will return a dict containing the 'customer' values such as:
-        {
-            'partner': The created partner (see 'create_partner') or the partner from the
-              environment if not public
-            'email': The email extracted from the discuss.channel messages
-              (see step_type 'question_email')
-            'phone': The phone extracted from the discuss.channel messages
-              (see step_type 'question_phone')
-            'description': A default description containing the "Please contact me on" and "Please
-              call me on" with the related email and phone numbers.
-              Can be used as a default description to create leads or tickets for example.
-        }
+        This method will return a dict containing the 'customer' values:
 
-        :param record discuss_channel: the discuss.channel holding the visitor's conversation with the bot.
-        :param bool create_partner: whether or not to create a res.partner is the current user is public.
-          Defaults to True.
-        :param bool update_partner: whether or not to set update the email and phone on the res.partner
-          from the environment (if not a public user) if those are not set yet. Defaults to True.
+        * ``partner``: the created partner (see ``create_partner``) or the
+          partner from the environment if not public.
+        * ``email``: the email extracted from the ``discuss.channel`` messages
+          (see step type ``question_email``).
+        * ``phone``: the phone extracted from the ``discuss.channel`` messages
+          (see step type ``question_phone``).
+        * ``description``: a default description containing "Please contact me
+          on" and "Please call me on" with the related email and phone. Can be
+          used as a default description when creating leads or tickets, for
+          example.
 
-        :returns: a dict containing the customer values."""
+        :param discuss_channel: The ``discuss.channel`` holding the visitor's
+            conversation with the bot.
+        :type discuss_channel: discuss.channel
+        :param bool create_partner: Whether to create a ``res.partner`` if the
+            current user is public. Defaults to ``True``.
+        :param bool update_partner: Whether to update the email and phone on
+            the ``res.partner`` from the environment (if not a public user)
+            when those are not set yet. Defaults to ``True``.
+        :returns: A dict containing the customer values
+            (``partner``, ``email``, ``phone``, ``description``).
+        :rtype: dict
+        """
 
         partner = False
         user_inputs = discuss_channel._chatbot_find_customer_values_in_messages({
@@ -216,12 +215,12 @@ class ChatbotScriptStep(models.Model):
     def _find_first_user_free_input(self, discuss_channel):
         """Find the first message from the visitor responding to a free_input step."""
         chatbot_partner = self.chatbot_script_id.operator_partner_id
-        user_answers = discuss_channel.sudo().chatbot_message_ids.filtered(
-            lambda m: m.mail_message_id.author_id != chatbot_partner
-        ).sorted("id")
-        for answer in user_answers:
-            if answer.script_step_id.step_type in ("free_input_single", "free_input_multi"):
-                return answer.mail_message_id
+        for answer in discuss_channel.sudo().chatbot_message_ids.sorted("id"):
+            if answer.script_step_id.step_type not in ("free_input_single", "free_input_multi"):
+                continue
+            message = answer.mail_message_id.with_env(self.env)
+            if message.has_access('read') and message.author_id != chatbot_partner:
+                return message.with_prefetch()
         return self.env["mail.message"]
 
     def _fetch_next_step(self, selected_answer_ids):
@@ -322,6 +321,11 @@ class ChatbotScriptStep(models.Model):
         if self.step_type == 'question_email' and not email_normalize(user_text_answer):
             # if this error is raised, display an error message but do not go to next step
             raise ValidationError(_('"%s" is not a valid email.', user_text_answer))
+        if self.step_type == "question_phone":
+            try:
+                phone_validation.phone_parse(user_text_answer, discuss_channel.country_id.code)
+            except UserError:
+                raise ValidationError(self.env._("'%s' is not a valid phone number.", user_text_answer))
 
         if self.step_type in [
             "question_email",
@@ -353,12 +357,11 @@ class ChatbotScriptStep(models.Model):
         self.ensure_one()
         if self.step_type == 'forward_operator':
             return discuss_channel._forward_human_operator(chatbot_script_step=self)
-        return discuss_channel._chatbot_post_message(self.chatbot_script_id, self.message)
+        return {
+            "message": discuss_channel._chatbot_post_message(self.chatbot_script_id, self.message)
+        }
 
-    def _to_store_defaults(self, target):
-        return [
-            Store.Many("answer_ids"),
-            Store.Attr("is_last", lambda step: step._is_last_step()),
-            "message",
-            "step_type",
-        ]
+    def _store_script_step_fields(self, res: Store.FieldList):
+        res.many("answer_ids", "_store_script_answer_fields")
+        res.attr("is_last", lambda step: step._is_last_step())
+        res.extend(["message", "step_type"])

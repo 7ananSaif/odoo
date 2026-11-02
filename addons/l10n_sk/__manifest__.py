@@ -3,9 +3,9 @@
     'name': 'Slovak - Accounting',
     'icon': '/account/static/description/l10n.png',
     'countries': ['sk'],
-    'version': '1.0',
     'author': '26HOUSE (http://www.26house.com)',
     'website': 'https://www.odoo.com/documentation/latest/applications/finance/fiscal_localizations.html',
+    'version': '1.1',
     'category': 'Accounting/Localizations/Account Charts',
     'description': """
 Slovakia accounting chart and localization: Chart of Accounts 2020, basic VAT rates +
@@ -23,14 +23,11 @@ Pre viac informácií kontaktujte info@26house.com alebo navštívte https://www
 
     """,
     'depends': [
-        'base_iban',
-        'base_vat',
         'account',
     ],
     'auto_install': ['account'],
     'data': [
         'data/tax_report.xml',
-        'views/res_partner_views.xml',
         'views/res_company_views.xml',
         'views/report_invoice.xml',
         'views/report_template.xml',

@@ -11,17 +11,34 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-09-16 04:42+0000\n"
-"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
-"Language-Team: Korean <https://translate.odoo.com/projects/odoo-19/sale_crm/"
-"ko/>\n"
+"POT-Creation-Date: 2026-09-04 17:46+0000\n"
+"PO-Revision-Date: 2026-08-31 15:30+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Korean <https://translate.odoo.com/projects/odoo-s19-4/"
+"sale_crm/ko/>\n"
 "Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: sale_crm
+#: model:ir.module.module,description:base.module_sale_crm
+msgid ""
+"\n"
+"This module adds a shortcut on one or several opportunity cases in the CRM.\n"
+"===========================================================================\n"
+"\n"
+"This shortcut allows you to generate a sales order based on the selected "
+"case.\n"
+"If different cases are open (a list), it generates one sales order by case.\n"
+"The case is then closed and linked to the generated sales order.\n"
+"\n"
+"We suggest you to install this module, if you installed both the sale and "
+"the crm\n"
+"modules.\n"
+msgstr ""
 
 #. module: sale_crm
 #: model_terms:ir.ui.view,arch_db:sale_crm.crm_case_form_view_oppor
@@ -32,16 +49,6 @@ msgstr "<span class=\"o_stat_text\">주문</span>"
 #: model:ir.model.fields,field_description:sale_crm.field_crm_quotation_partner__lead_id
 msgid "Associated Lead"
 msgstr "관련된 영업제안"
-
-#. module: sale_crm
-#: model_terms:ir.ui.view,arch_db:sale_crm.crm_quotation_partner_view_form
-msgid "Cancel"
-msgstr "취소"
-
-#. module: sale_crm
-#: model_terms:ir.ui.view,arch_db:sale_crm.crm_quotation_partner_view_form
-msgid "Confirm"
-msgstr "승인"
 
 #. module: sale_crm
 #: model:ir.model.fields.selection,name:sale_crm.selection__crm_quotation_partner__action__create
@@ -57,11 +64,6 @@ msgstr "영업기회 생성"
 #: model:ir.model,name:sale_crm.model_crm_quotation_partner
 msgid "Create new or use existing Customer on new Quotation"
 msgstr "신규 견적에서 새로 만들기 또는 기존 고객 사용"
-
-#. module: sale_crm
-#: model_terms:ir.ui.view,arch_db:sale_crm.crm_case_form_view_oppor
-msgid "Create new quotation"
-msgstr "새로운 견적서 생성"
 
 #. module: sale_crm
 #: model:ir.model.fields,field_description:sale_crm.field_crm_quotation_partner__create_uid
@@ -98,6 +100,11 @@ msgid "Expected revenue has been updated based on the linked Sales Orders."
 msgstr "관련 판매 주문에 따라 예상 수익이 업데이트됩니다."
 
 #. module: sale_crm
+#: model_terms:ir.ui.view,arch_db:sale_crm.crm_quotation_partner_view_form
+msgid "Go to Quotation"
+msgstr ""
+
+#. module: sale_crm
 #: model:ir.model.fields,field_description:sale_crm.field_crm_lead__id
 #: model:ir.model.fields,field_description:sale_crm.field_crm_quotation_partner__id
 #: model:ir.model.fields,field_description:sale_crm.field_crm_team__id
@@ -131,9 +138,7 @@ msgid "My Quotations"
 msgstr "내 견적"
 
 #. module: sale_crm
-#: model:ir.actions.act_window,name:sale_crm.crm_quotation_partner_action
 #: model_terms:ir.ui.view,arch_db:sale_crm.crm_case_form_view_oppor
-#: model_terms:ir.ui.view,arch_db:sale_crm.crm_quotation_partner_view_form
 msgid "New Quotation"
 msgstr "신규 견적서"
 
@@ -151,6 +156,11 @@ msgstr "판매주문서 수"
 #: model:ir.model.fields,field_description:sale_crm.field_sale_order__opportunity_id
 msgid "Opportunity"
 msgstr "영업 기회"
+
+#. module: sale_crm
+#: model:ir.module.module,shortdesc:base.module_sale_crm
+msgid "Opportunity to Quotation"
+msgstr ""
 
 #. module: sale_crm
 #: model:ir.model.fields,field_description:sale_crm.field_crm_lead__order_ids
@@ -194,35 +204,28 @@ msgid "Sales Team"
 msgstr "영업팀"
 
 #. module: sale_crm
+#: model_terms:ir.ui.view,arch_db:sale_crm.crm_quotation_partner_view_form
+msgid "Select a Customer"
+msgstr ""
+
+#. module: sale_crm
 #: model:ir.model.fields,field_description:sale_crm.field_crm_lead__sale_amount_total
 msgid "Sum of Orders"
 msgstr "주문 합계"
 
 #. module: sale_crm
 #: model:ir.model.fields,help:sale_crm.field_crm_lead__sale_amount_total
-msgid "Untaxed Total of Confirmed Orders"
-msgstr "확인된 주문서의 공급가액 합계"
+msgid "Total of Confirmed Orders"
+msgstr ""
+
+#. module: sale_crm
+#: model:ir.actions.act_window,name:sale_crm.crm_quotation_partner_action
+#: model_terms:ir.ui.view,arch_db:sale_crm.crm_quotation_partner_view_form
+msgid "Who should be linked to this new Quotation?"
+msgstr ""
 
 #. module: sale_crm
 #. odoo-python
 #: code:addons/sale_crm/wizard/crm_opportunity_to_quotation.py:0
 msgid "You can only apply this action from a lead."
 msgstr "영업제안 상태에서만 이 조치를 적용할 수 있습니다."
-
-#~ msgid "Invoiced in Sales Orders Target"
-#~ msgstr "판매 발주서 고객에게 인보이스 발행"
-
-#~ msgid "Last Modified on"
-#~ msgstr "최근 수정일"
-
-#~ msgid "Lead/Opportunity"
-#~ msgstr "영업제안/영업기회"
-
-#~ msgid "Log in the chatter from which opportunity the order originates"
-#~ msgstr "주문이 시작되는 영업 기회에 대한 대화에 로그인"
-
-#~ msgid "Sales: Untaxed Total"
-#~ msgstr "매출 : 공급가액 합계"
-
-#~ msgid "User"
-#~ msgstr "사용자"

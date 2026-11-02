@@ -1,6 +1,6 @@
 /** @odoo-module */
 
-import { Callbacks, HootError, createReporting, stringify } from "../hoot_utils";
+import { Callbacks, HootError, TestReporting, stringify } from "../hoot_utils";
 import { Job } from "./job";
 
 /**
@@ -37,19 +37,23 @@ const SHARED_CURRENT_JOBS = $freeze([]);
 
 /**
  * @param {Pick<Suite, "name" | "parent">} suite
- * @param {Error | string} message
+ * @param {...(Error | string)} message
  * @returns {HootError}
  */
-export function suiteError({ name, parent }, message) {
+export function suiteError({ name, parent }, ...message) {
     const parentString = parent ? ` (in parent suite ${stringify(parent.name)})` : "";
     const errorOptions = { level: "critical" };
-    let errorMessage = `error while registering suite ${stringify(name)}${parentString}`;
-    if (message instanceof Error) {
-        errorOptions.cause = message;
-    } else {
-        errorMessage += `: ${message}`;
+    if (message[0] instanceof Error) {
+        const error = message.shift();
+        errorOptions.cause = error;
+        if (error.message) {
+            message.unshift(error.message);
+        }
     }
-    return new HootError(errorMessage, errorOptions);
+    return new HootError(
+        `error while registering suite ${stringify(name)}${parentString}: ${message.join("\n")}`,
+        errorOptions
+    );
 }
 
 export class Suite extends Job {
@@ -59,7 +63,7 @@ export class Suite extends Job {
     currentJobs = [];
     /** @type {(Suite | Test)[]} */
     jobs = [];
-    reporting = createReporting();
+    reporting = new TestReporting();
 
     totalSuiteCount = 0;
     totalTestCount = 0;

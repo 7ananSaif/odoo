@@ -31,7 +31,7 @@ registry.category("web_tour.tours").add("test_use_product_catalog_on_invoice", {
         ...showProductColumn(),
         {
             content: "Ensure product is added",
-            trigger: ".o_field_product_label_section_and_note_cell:contains(Test Product)",
+            trigger: "td[name=product_and_description]:contains(Test Product)",
         },
     ],
 });

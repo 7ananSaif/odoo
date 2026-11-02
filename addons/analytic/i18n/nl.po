@@ -13,23 +13,39 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-06-06 21:48+0000\n"
+"POT-Creation-Date: 2026-09-11 17:42+0000\n"
+"PO-Revision-Date: 2026-09-23 13:33+0000\n"
 "Last-Translator: Bren Driesen <brdri@odoo.com>\n"
-"Language-Team: Dutch <https://translate.odoo.com/projects/odoo-19/analytic/"
+"Language-Team: Dutch <https://translate.odoo.com/projects/odoo-20/analytic/"
 "nl/>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: analytic
-#. odoo-python
-#: code:addons/analytic/models/analytic_account.py:0
-msgid "%s (copy)"
-msgstr "%s (kopie)"
+#: model:ir.module.module,description:base.module_analytic
+msgid ""
+"\n"
+"Module for defining analytic accounting object.\n"
+"===============================================\n"
+"\n"
+"In Odoo, analytic accounts are linked to general accounts but are treated\n"
+"totally independently. So, you can enter various different analytic "
+"operations\n"
+"that have no counterpart in the general financial accounts.\n"
+msgstr ""
+"\n"
+"Module voor het definiëren van een analytische boekhouding object.\n"
+"===============================================\n"
+"\n"
+"In Odoo zijn analytische rekeningen gekoppeld aan algemene rekeningen, maar "
+"worden\n"
+"totaal afhankelijk behandeld. Je kunt dus verschillende kostenplaast "
+"handelingen ingeven die geen tegenwaarde hebben in de algemene financiële "
+"rekeningen.\n"
 
 #. module: analytic
 #. odoo-python
@@ -56,6 +72,11 @@ msgid ""
 msgstr ""
 "Er moet een 'Project'-dimensie bestaan en de id ervan moet worden ingesteld "
 "als 'analytic.project_plan' in de systeemvariabelen"
+
+#. module: analytic
+#: model:ir.model,name:analytic.model_res_groups
+msgid "Access Groups"
+msgstr "Toegangsgroepen"
 
 #. module: analytic
 #. odoo-javascript
@@ -140,6 +161,7 @@ msgstr "Analytische rekening"
 
 #. module: analytic
 #: model:ir.model.fields,field_description:analytic.field_res_config_settings__group_analytic_accounting
+#: model:ir.module.module,shortdesc:base.module_analytic
 #: model:res.groups,name:analytic.group_analytic_accounting
 msgid "Analytic Accounting"
 msgstr "Analytische boekhouding"
@@ -205,6 +227,7 @@ msgid "Analytic Mixin"
 msgstr "Analytisch mixin"
 
 #. module: analytic
+#: model:ir.model,name:analytic.model_account_analytic_plan
 #: model:ir.model.fields,field_description:analytic.field_account_analytic_applicability__analytic_plan_id
 msgid "Analytic Plan"
 msgstr "Analytische dimensie"
@@ -221,7 +244,6 @@ msgstr "Toepassingen van analytische dimensies"
 
 #. module: analytic
 #: model:ir.actions.act_window,name:analytic.account_analytic_plan_action
-#: model:ir.model,name:analytic.model_account_analytic_plan
 #: model_terms:ir.ui.view,arch_db:analytic.account_analytic_plan_form_view
 #: model_terms:ir.ui.view,arch_db:analytic.account_analytic_plan_tree_view
 msgid "Analytic Plans"
@@ -480,8 +502,9 @@ msgstr "Schakel opslaan uit"
 #: model:ir.model.fields,field_description:analytic.field_analytic_plan_fields_mixin__display_name
 #: model:ir.model.fields,field_description:analytic.field_ir_config_parameter__display_name
 #: model:ir.model.fields,field_description:analytic.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:analytic.field_res_groups__display_name
 msgid "Display Name"
-msgstr "Schermnaam"
+msgstr "Weergavenaam"
 
 #. module: analytic
 #: model:ir.model.fields,field_description:analytic.field_account_analytic_distribution_model__distribution_analytic_account_ids
@@ -557,6 +580,7 @@ msgstr "Personeelszaken"
 #: model:ir.model.fields,field_description:analytic.field_analytic_plan_fields_mixin__id
 #: model:ir.model.fields,field_description:analytic.field_ir_config_parameter__id
 #: model:ir.model.fields,field_description:analytic.field_res_config_settings__id
+#: model:ir.model.fields,field_description:analytic.field_res_groups__id
 msgid "ID"
 msgstr "ID"
 
@@ -789,21 +813,21 @@ msgid "Production"
 msgstr "Productie"
 
 #. module: analytic
-#: model:account.analytic.plan,name:analytic.analytic_plan_projects
-msgid "Project"
-msgstr "Project"
-
-#. module: analytic
 #: model:ir.model.fields,field_description:analytic.field_account_analytic_line__account_id
 #: model:ir.model.fields,field_description:analytic.field_analytic_plan_fields_mixin__account_id
 msgid "Project Account"
 msgstr "Projectrekening"
 
 #. module: analytic
+#: model:account.analytic.plan,name:analytic.analytic_plan_projects
+msgid "Project Plan"
+msgstr "Projectplan"
+
+#. module: analytic
 #: model:ir.model.fields,field_description:analytic.field_account_analytic_line__unit_amount
 #: model_terms:ir.ui.view,arch_db:analytic.view_account_analytic_line_tree
 msgid "Quantity"
-msgstr "Hoeveelheid"
+msgstr "Aantal"
 
 #. module: analytic
 #: model:ir.model.fields,field_description:analytic.field_account_analytic_account__code
@@ -898,7 +922,7 @@ msgstr ""
 "Selecteer een partner voor wie de analytische verdeling zal worden gebruikt "
 "(bijvoorbeeld, wanneer we deze partner selecteren voor een nieuwe "
 "klantfactuur of verkooporder, wordt dit automatisch als een analytische "
-"rekening toegewezen)"
+"rekening toegewezen)."
 
 #. module: analytic
 #: model:ir.model.fields,field_description:analytic.field_account_analytic_distribution_model__sequence
@@ -1013,72 +1037,3 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:analytic.view_account_analytic_account_form
 msgid "e.g. Project XYZ"
 msgstr "bijv. Project XYZ"
-
-#~ msgid "Deco Addict"
-#~ msgstr "Deco Addict"
-
-#~ msgid "(no accounts)"
-#~ msgstr "(geen rekeningen)"
-
-#~ msgid "Add a line"
-#~ msgstr "Regel toevoegen"
-
-#~ msgid "Analytic Distribution Search"
-#~ msgstr "Zoeken kostenplaatsdistributie"
-
-#~ msgid "Analytic Distribution Template"
-#~ msgstr "Sjabloon voor kostenplaatsdistributie"
-
-#~ msgid ""
-#~ "Conversion between Units of Measure can only occur if they belong to the "
-#~ "same category. The conversion will be made based on the ratios."
-#~ msgstr ""
-#~ "Conversie tussen maateenheden kan alleen plaatsvinden als deze behoren "
-#~ "tot dezelfde categorie. De conversie wordt gemaakt op basis van ratio's."
-
-#~ msgid "Editing"
-#~ msgstr "Bewerkend"
-
-#~ msgid "Group By..."
-#~ msgstr "Groepeer op..."
-
-#~ msgid "Invalid"
-#~ msgstr "Ongeldig"
-
-#~ msgid "Loading..."
-#~ msgstr "Laden..."
-
-#~ msgid "No Analytic Accounts for this plan"
-#~ msgstr "Geen kostenplaatsen voor dit plan"
-
-#~ msgid "No plans available"
-#~ msgstr "Geen plan beschikbaar"
-
-#~ msgid "Number of messages which requires an action"
-#~ msgstr "Aantal berichten die actie vereisen"
-
-#~ msgid "OK"
-#~ msgstr "OK"
-
-#~ msgid ""
-#~ "The selected account belongs to another company than the one you're "
-#~ "trying to create an analytic item for"
-#~ msgstr ""
-#~ "De geselecteerde rekening behoort bij een ander bedrijf dan het bedrijf "
-#~ "waarvoor je een kostenplaatsboeking probeert aan te maken"
-
-#~ msgid "Unit of Measure"
-#~ msgstr "Maateenheid"
-
-#~ msgid "UoM Category"
-#~ msgstr "Maateenheid categorie"
-
-#~ msgid "View"
-#~ msgstr "Bekijk"
-
-#~ msgid ""
-#~ "You can't set a different company on your analytic account since there "
-#~ "are some analytic items linked to it."
-#~ msgstr ""
-#~ "Je kunt geen ander bedrijf instellen op je kostenplaats omdat er al "
-#~ "kostenplaatsboeking aan zijn gekoppeld."

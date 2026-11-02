@@ -31,7 +31,6 @@ function countLines(el) {
 registerWebsitePreviewTour(
     "text_highlights",
     {
-        url: "/",
         edition: true,
     },
     () => [
@@ -54,10 +53,13 @@ registerWebsitePreviewTour(
         {
             content: "Check that the highlights was correctly applied",
             trigger: ":iframe .s_title .o_text_highlight",
-            run() {
-                if (this.anchor.querySelectorAll("svg").length !== countLines(this.anchor)) {
-                    throw new Error("The highlight svgs are not correctly applied to text lines");
-                }
+            async run({ waitUntil }) {
+                await waitUntil(
+                    () => this.anchor.querySelectorAll("svg").length === countLines(this.anchor),
+                    {
+                        timeout: 9000,
+                    }
+                );
             },
         },
         ...applyHighlight(".s_cover h1", "snippet title", "underline"),
@@ -89,7 +91,7 @@ registerWebsitePreviewTour(
                 secondLine.textContent = "Text content line B";
                 this.anchor.replaceChildren(firstLine, document.createElement("br"), secondLine);
                 const editor = editorsWeakMap.get(this.anchor.ownerDocument);
-                editor.shared.history.addStep();
+                editor.shared.history.commit();
                 // Select the whole content.
                 const range = iframeDOC.createRange();
                 const selection = iframeDOC.getSelection();

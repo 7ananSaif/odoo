@@ -1,5 +1,6 @@
-import { Component } from "@odoo/owl";
+import { Component, t, useProps } from "@odoo/owl";
 import { CheckBox } from "@web/core/checkbox/checkbox";
+import { getCurrency } from "@web/core/currency";
 import { DateTimeInput } from "@web/core/datetime/datetime_input";
 import { Domain } from "@web/core/domain";
 import { Dropdown } from "@web/core/dropdown/dropdown";
@@ -13,17 +14,32 @@ import {
     serializeDateTime,
 } from "@web/core/l10n/dates";
 import { _t } from "@web/core/l10n/translation";
-import { TagsList } from "@web/core/tags_list/tags_list";
+import { SignatureViewer } from "@web/core/signature/signature_viewer";
+import { AvatarTag } from "@web/core/tags_list/avatar_tag";
+import { BadgeTag } from "@web/core/tags_list/badge_tag";
 import { useService } from "@web/core/utils/hooks";
-import { formatInteger, formatMany2one, formatMonetary } from "@web/views/fields/formatters";
 import { formatFloat } from "@web/core/utils/numbers";
-import { parseFloat, parseInteger, parseMonetary } from "@web/views/fields/parsers";
+import { nbsp } from "@web/core/utils/strings";
+import { imageUrl } from "@web/core/utils/urls";
+import { formatInteger, formatMany2one, formatMonetary } from "@web/views/fields/formatters";
+import { Many2One } from "@web/views/fields/many2one/many2one";
+import { parseFloat, parseInteger } from "@web/views/fields/parsers";
 import { Many2XAutocomplete, useOpenMany2XRecord } from "@web/views/fields/relational_utils";
 import { PropertyTags } from "./property_tags";
 import { PropertyText } from "./property_text";
-import { imageUrl } from "@web/core/utils/urls";
-import { getCurrency } from "@web/core/currency";
-import { nbsp } from "@web/core/utils/strings";
+import { fileTypeMagicWordMap } from "@web/views/fields/image/image_field";
+
+class PropertyValueTag extends Component {
+    static template = "web.PropertyValueTag";
+    static components = { BadgeTag, AvatarTag };
+    props = useProps({
+        imageUrl: t.string().optional(),
+        onClick: t.function().optional(),
+        onAvatarClick: t.function().optional(),
+        onDelete: t.function().optional(),
+        text: t.string(),
+    });
+}
 
 function extractData(record) {
     let name;
@@ -56,29 +72,32 @@ export class PropertyValue extends Component {
         DropdownItem,
         CheckBox,
         DateTimeInput,
+        Many2One,
         Many2XAutocomplete,
-        TagsList,
         PropertyTags,
         PropertyText,
+        PropertyValueTag,
+        SignatureViewer,
     };
 
-    static props = {
-        id: { type: String, optional: true },
-        type: { type: String, optional: true },
-        comodel: { type: String, optional: true },
-        currencyField: { type: String, optional: true },
-        domain: { type: String, optional: true },
-        string: { type: String, optional: true },
-        value: { optional: true },
-        context: { type: Object },
-        readonly: { type: Boolean, optional: true },
-        canChangeDefinition: { type: Boolean, optional: true },
-        selection: { type: Array, optional: true },
-        tags: { type: Array, optional: true },
-        onChange: { type: Function, optional: true },
-        onTagsChange: { type: Function, optional: true },
-        record: { type: Object, optional: true },
-    };
+    props = useProps({
+        id: t.string().optional(),
+        type: t.string().optional(),
+        comodel: t.string().optional(),
+        currencyField: t.string().optional(),
+        domain: t.string().optional(),
+        string: t.string().optional(),
+        value: t.any().optional(),
+        context: t.object(),
+        readonly: t.boolean().optional(),
+        canChangeDefinition: t.boolean().optional(),
+        selection: t.array().optional(),
+        tags: t.array().optional(),
+        onChange: t.function().optional(),
+        onTagsChange: t.function().optional(),
+        record: t.object().optional(),
+        model: t.string().optional(),
+    });
 
     setup() {
         this.nbsp = nbsp;
@@ -161,30 +180,40 @@ export class PropertyValue extends Component {
                 return [];
             }
 
-            // Convert to TagsList component format
+            // Convert to Tag component format
             return value.map((many2manyValue) => {
                 const hasAccess = many2manyValue[1] !== null;
-                return {
-                    id: many2manyValue[0],
-                    comodel: this.props.comodel,
-                    text: hasAccess ? many2manyValue[1] : _t("No Access"),
-                    onClick:
-                        hasAccess &&
-                        this.clickableRelational &&
-                        (async () => await this._openRecord(this.props.comodel, many2manyValue[0])),
-                    onDelete:
-                        !this.props.readonly &&
-                        hasAccess &&
-                        (() => this.onMany2manyDelete(many2manyValue[0])),
-                    colorIndex: 0,
-                    img:
+                const props = {
+                    imageUrl:
                         this.showAvatar && hasAccess
                             ? imageUrl(this.props.comodel, many2manyValue[0], "avatar_128")
-                            : null,
+                            : undefined,
+                    onClick:
+                        hasAccess && this.clickableRelational
+                            ? async () =>
+                                  await this._openRecord(this.props.comodel, many2manyValue[0])
+                            : undefined,
+                    onDelete:
+                        !this.props.readonly && hasAccess
+                            ? () => this.onMany2manyDelete(many2manyValue[0])
+                            : undefined,
+                    text: hasAccess ? many2manyValue[1] : _t("No Access"),
+                };
+                return {
+                    id: many2manyValue[0],
+                    props,
                 };
             });
         } else if (this.props.type === "tags") {
             return value || [];
+        } else if (this.props.type === "signature") {
+            if (!value) {
+                return "";
+            } else {
+                // Use magic-word technique for detecting image type
+                const magic = fileTypeMagicWordMap[value[0]] || "png";
+                return `data:image/${magic};base64,${value}`;
+            }
         }
 
         return value;
@@ -296,6 +325,17 @@ export class PropertyValue extends Component {
                 // in the component props to be able to display it.
                 // Make a RPC call to resolve the display name of the record.
                 newValue = await this._nameGet(newValue.id);
+            } else if (newValue && !newValue.id && newValue.display_name) {
+                const result = await this.orm.call(
+                    this.props.comodel,
+                    "name_create",
+                    [newValue.display_name],
+                    {
+                        context: this.props.context,
+                    }
+                );
+                newValue.id = result[0];
+                newValue.display_name = result[1];
             }
 
             if (this.props.type === "many2many" && newValue) {
@@ -310,10 +350,12 @@ export class PropertyValue extends Component {
             }
         } else if (this.props.type === "monetary") {
             try {
-                newValue = parseMonetary(newValue) || 0;
+                newValue = parseFloat(newValue) || 0;
             } catch {
                 newValue = 0;
             }
+        } else if (this.props.type === "signature") {
+            newValue = newValue.signatureImage.split(",")[1] || false;
         }
 
         // trigger the onchange event to notify the parent component
@@ -355,18 +397,6 @@ export class PropertyValue extends Component {
         this.props.onChange(newValue);
     }
 
-    /**
-     * Ask to create a record from a relational property.
-     *
-     * @param {string} name
-     */
-    async onQuickCreate(name) {
-        const result = await this.orm.call(this.props.comodel, "name_create", [name], {
-            context: this.props.context,
-        });
-        this.onValueChange([{ id: result[0], display_name: result[1] }]);
-    }
-
     /* --------------------------------------------------------
      * Private methods
      * -------------------------------------------------------- */
@@ -378,7 +408,7 @@ export class PropertyValue extends Component {
      * @param {integer} recordId
      */
     async _openRecord(recordModel, recordId) {
-        const action = await this.orm.call(recordModel, "get_formview_action", [[recordId]], {
+        const action = await this.orm.call(recordModel, "get_record_default_action", [[recordId]], {
             context: this.props.context,
         });
 

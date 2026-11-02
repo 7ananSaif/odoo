@@ -9,32 +9,27 @@
  * @typedef {import("@spreadsheet").DateDefaultValue} DateDefaultValue
  */
 
-import { _t } from "@web/core/l10n/translation";
 import { Domain } from "@web/core/domain";
 import { user } from "@web/core/user";
 
-import { EvaluationError, helpers } from "@odoo/o-spreadsheet";
+import { helpers } from "@odoo/o-spreadsheet";
 import { CommandResult } from "@spreadsheet/o_spreadsheet/cancelled_reason";
 
 import {
-    checkFilterValueIsValid,
+    checkFilterAndValue,
     getDateDomain,
     getDateRange,
+    getDateGlobalFilterValueFromDefault,
 } from "@spreadsheet/global_filters/helpers";
-import { OdooCoreViewPlugin } from "@spreadsheet/plugins";
-import { getItemId } from "../../helpers/model";
+import { OdooEvaluationPlugin } from "@spreadsheet/plugins";
 import { serializeDate } from "@web/core/l10n/dates";
 import { getFilterCellValue, getFilterValueDomain } from "../helpers";
-import { deepEqual } from "@web/core/utils/objects";
-
 const { DateTime } = luxon;
 
-const { UuidGenerator, createEmptyExcelSheet, createEmptySheet, toXC, toNumber } = helpers;
-const uuidGenerator = new UuidGenerator();
+const { toNumber } = helpers;
 
-export class GlobalFiltersCoreViewPlugin extends OdooCoreViewPlugin {
+export class GlobalFiltersCoreViewPlugin extends OdooEvaluationPlugin {
     static getters = /** @type {const} */ ([
-        "exportSheetWithActiveFilters",
         "getFilterDisplayValue",
         "getGlobalFilterByName",
         "getGlobalFilterDomain",
@@ -57,19 +52,7 @@ export class GlobalFiltersCoreViewPlugin extends OdooCoreViewPlugin {
     allowDispatch(cmd) {
         switch (cmd.type) {
             case "SET_GLOBAL_FILTER_VALUE": {
-                const filter = this.getters.getGlobalFilter(cmd.id);
-                if (!filter) {
-                    return CommandResult.FilterNotFound;
-                }
-                if (!checkFilterValueIsValid(filter, cmd.value)) {
-                    return CommandResult.InvalidValueTypeCombination;
-                }
-
-                const currentFilterValue = this.getters.getGlobalFilterValue(cmd.id);
-                if (deepEqual(currentFilterValue, cmd.value)) {
-                    return CommandResult.NoChanges;
-                }
-                break;
+                return checkFilterAndValue(this.getters, cmd.id, cmd.value);
             }
         }
         return CommandResult.Success;
@@ -173,12 +156,25 @@ export class GlobalFiltersCoreViewPlugin extends OdooCoreViewPlugin {
             .filter((filter) => this.isGlobalFilterActive(filter.id)).length;
     }
 
-    getFilterDisplayValue(filterName) {
-        const filter = this.getGlobalFilterByName(filterName);
-        if (!filter) {
-            throw new EvaluationError(
-                _t(`Filter "%(filter_name)s" not found`, { filter_name: filterName })
+    /**
+     * Get the global filter with the given name
+     *
+     * @param {string} label Label
+     * @returns {GlobalFilter|undefined}
+     */
+    getGlobalFilterByName(label) {
+        return this.getters
+            .getGlobalFilters()
+            .find(
+                (filter) =>
+                    this.getters.dynamicTranslate(filter.label) ===
+                    this.getters.dynamicTranslate(label)
             );
+    }
+
+    getFilterDisplayValue(filter) {
+        if (!filter) {
+            throw new Error("Filter not found");
         }
         switch (filter.type) {
             case "date":
@@ -288,24 +284,9 @@ export class GlobalFiltersCoreViewPlugin extends OdooCoreViewPlugin {
     // Private
     // -------------------------------------------------------------------------
 
-    /**
-     * Get the global filter with the given name
-     *
-     * @param {string} label Label
-     * @returns {GlobalFilter|undefined}
-     */
-    getGlobalFilterByName(label) {
-        return this.getters
-            .getGlobalFilters()
-            .find(
-                (filter) =>
-                    this.getters.dynamicTranslate(filter.label) ===
-                    this.getters.dynamicTranslate(label)
-            );
-    }
-
     _getDateFilterDisplayValue(filter) {
-        const { from, to } = getDateRange(this.getGlobalFilterValue(filter.id));
+        const value = this.getGlobalFilterValue(filter.id);
+        const { from, to } = getDateRange(value, 0, DateTime.local(), this.getters);
         const locale = this.getters.getLocale();
         const _from = {
             value: from ? toNumber(serializeDate(from), locale) : "",
@@ -327,33 +308,7 @@ export class GlobalFiltersCoreViewPlugin extends OdooCoreViewPlugin {
      * @returns {DateValue|undefined}
      */
     _getDateValueFromDefaultValue(defaultValue) {
-        const year = DateTime.local().year;
-        switch (defaultValue) {
-            case "this_year":
-                return { type: "year", year };
-            case "this_month": {
-                const month = DateTime.local().month;
-                return { type: "month", year, month };
-            }
-            case "this_quarter": {
-                const quarter = Math.floor(new Date().getMonth() / 3) + 1;
-                return { type: "quarter", year, quarter };
-            }
-            case "today":
-            case "yesterday":
-            case "last_7_days":
-            case "last_30_days":
-            case "last_90_days":
-            case "month_to_date":
-            case "last_month":
-            case "last_12_months":
-            case "year_to_date":
-                return {
-                    type: "relative",
-                    period: defaultValue,
-                };
-        }
-        return undefined;
+        return getDateGlobalFilterValueFromDefault(defaultValue);
     }
 
     /**
@@ -373,71 +328,12 @@ export class GlobalFiltersCoreViewPlugin extends OdooCoreViewPlugin {
         const field = fieldMatching.chain;
         const type = /** @type {"date" | "datetime"} */ (fieldMatching.type);
         const offset = fieldMatching.offset || 0;
-        const { from, to } = getDateRange(this.getGlobalFilterValue(filter.id), offset);
+        const { from, to } = getDateRange(
+            this.getGlobalFilterValue(filter.id),
+            offset,
+            DateTime.local(),
+            this.getters
+        );
         return getDateDomain(from, to, field, type);
-    }
-
-    /**
-     * Adds all active filters (and their values) at the time of export in a dedicated sheet
-     *
-     * @param {Object} data
-     */
-    exportForExcel(data) {
-        if (this.getters.getGlobalFilters().length === 0) {
-            return;
-        }
-        this.exportSheetWithActiveFilters(data);
-        data.sheets[data.sheets.length - 1] = {
-            ...createEmptyExcelSheet(uuidGenerator.smallUuid(), _t("Active Filters")),
-            ...data.sheets.at(-1),
-        };
-    }
-
-    exportSheetWithActiveFilters(data) {
-        if (this.getters.getGlobalFilters().length === 0) {
-            return;
-        }
-
-        const cells = {
-            A1: "Filter",
-            B1: "Value",
-        };
-        const formats = {};
-        let numberOfCols = 2; // at least 2 cols (filter title and filter value)
-        let filterRowIndex = 1; // first row is the column titles
-        for (const filter of this.getters.getGlobalFilters()) {
-            cells[`A${filterRowIndex + 1}`] = filter.label;
-            const result = this.getFilterDisplayValue(filter.label);
-            for (const colIndex in result) {
-                numberOfCols = Math.max(numberOfCols, Number(colIndex) + 2);
-                for (const rowIndex in result[colIndex]) {
-                    const cell = result[colIndex][rowIndex];
-                    if (cell.value === undefined) {
-                        continue;
-                    }
-                    const xc = toXC(Number(colIndex) + 1, Number(rowIndex) + filterRowIndex);
-                    cells[xc] = cell.value.toString();
-                    if (cell.format) {
-                        const formatId = getItemId(cell.format, data.formats);
-                        formats[xc] = formatId;
-                    }
-                }
-            }
-            filterRowIndex += result[0].length;
-        }
-        const styleId = getItemId({ bold: true }, data.styles);
-
-        const sheet = {
-            ...createEmptySheet(uuidGenerator.smallUuid(), _t("Active Filters")),
-            cells,
-            formats,
-            styles: {
-                A1: styleId,
-                B1: styleId,
-            },
-            colNumber: numberOfCols,
-            rowNumber: filterRowIndex,
-        };
-        data.sheets.push(sheet);
     }
 }

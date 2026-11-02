@@ -6,14 +6,15 @@
 # Martin Trigaux, 2022
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Malaz Siddig Elsayed Abuidris (msea)" <msea@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~14.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-10-13 12:15+0000\n"
-"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
-"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-10-23 09:33+0000\n"
+"Last-Translator: \"Malaz Siddig Elsayed Abuidris (msea)\" <msea@odoo.com>\n"
+"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-20/"
 "account_tax_python/ar/>\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
@@ -21,7 +22,7 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: account_tax_python
 #: model:ir.model.fields,help:account_tax_python.field_account_tax__amount_type
@@ -49,6 +50,26 @@ msgstr ""
 "        "
 
 #. module: account_tax_python
+#: model:ir.module.module,description:base.module_account_tax_python
+msgid ""
+"\n"
+"A tax defined as python code consists of two snippets of python code which "
+"are executed in a local environment containing data such as the unit price, "
+"product or partner.\n"
+"\n"
+"\"Applicable Code\" defines if the tax is to be applied.\n"
+"\n"
+"\"Python Code\" defines the amount of the tax.\n"
+msgstr ""
+"\n"
+"تتكون الضريبة المعرفة ككود Python من قصاصتين من أكواد Python التي يتم "
+"تنفيذها في بيئة محلية تحتوي على بيانات مثل سعر الوحدة، المنتج، أو الشريك.\n"
+"\n"
+"\"الكود القابل للتطبيق\" يحدد إذا ما كان يجب تطبيق الضريبة.\n"
+"\n"
+"\"كود Python\" يحدد مبلغ الضريبة.\n"
+
+#. module: account_tax_python
 #: model:ir.model.fields,help:account_tax_python.field_account_tax__formula
 msgid ""
 "Compute the amount of the tax.\n"
@@ -69,6 +90,11 @@ msgstr ""
 #: model:ir.model.fields.selection,name:account_tax_python.selection__account_tax__amount_type__code
 msgid "Custom Formula"
 msgstr "معادلة مخصصة"
+
+#. module: account_tax_python
+#: model:ir.module.module,shortdesc:base.module_account_tax_python
+msgid "Define Taxes as Python Code"
+msgstr "تعريف الضرائب ككود بايثون"
 
 #. module: account_tax_python
 #: model:ir.model.fields,field_description:account_tax_python.field_account_tax__display_name
@@ -130,7 +156,7 @@ msgstr "لا يُسمح إلا بالأنواع البدائية في سياق �
 #. odoo-python
 #: code:addons/account_tax_python/tools/formula_utils.py:0
 msgid "Only product['string'] or uom['string'] read-access is allowed"
-msgstr ""
+msgstr "يُسمح فقط بالوصول للقراءة إلى product['string'] أو uom['string']"
 
 #. module: account_tax_python
 #. odoo-python
@@ -160,109 +186,7 @@ msgstr "استدعاء وظيفة غير معروفة"
 msgid "Unknown identifier: %s"
 msgstr "المعرّف غير معروف: %s"
 
-#~ msgid "Only product['string'] read-access is allowed"
-#~ msgstr "يُسمح فقط بقراءة المنتج ['string']"
-
-#~ msgid ""
-#~ "\n"
-#~ "    - Group of Taxes: The tax is a set of sub taxes.\n"
-#~ "    - Fixed: The tax amount stays the same whatever the price.\n"
-#~ "    - Percentage of Price: The tax amount is a % of the price:\n"
-#~ "        e.g 100 * (1 + 10%) = 110 (not price included)\n"
-#~ "        e.g 110 / (1 + 10%) = 100 (price included)\n"
-#~ "    - Percentage of Price Tax Included: The tax amount is a division of "
-#~ "the price:\n"
-#~ "        e.g 180 / (1 - 10%) = 200 (not price included)\n"
-#~ "        e.g 200 * (1 - 10%) = 180 (price included)\n"
-#~ "        "
-#~ msgstr ""
-#~ "\n"
-#~ "- مجموعة من الضرائب: تم تعيين الضريبة من الضرائب الفرعية.\n"
-#~ "- ثابتة: يبقى مبلغ الضريبة ثابتاً مهما كان السعر.\n"
-#~ "- نسبة من السعر: مبلغ الضريبةهو % من السعر:\n"
-#~ "مثال: 100 * (1 + 10%) = 110 (غير مشمول في السعر)\n"
-#~ "مثال: 110 / (1 + 10%) = 100 (مشمول في السعر)\n"
-#~ "- نسبة من السعر شامل الضريبة: مبلغ الضريبة هو جزء من السعر:\n"
-#~ "مثال: 180 / (1 - 10%) = 200 (غير مشمول في السعر)\n"
-#~ "مثال: 200 * (1 - 10%) = 180 (مشمول في السعر)"
-
-#~ msgid "Applicable Code"
-#~ msgstr "كود قابل للتطبيق"
-
-#~ msgid ""
-#~ "Compute the amount of the tax by setting the variable 'result'.\n"
-#~ "\n"
-#~ ":param base_amount: float, actual amount on which the tax is applied\n"
-#~ ":param price_unit: float\n"
-#~ ":param quantity: float\n"
-#~ ":param company: res.company recordset singleton\n"
-#~ ":param product: product.product recordset singleton or None\n"
-#~ ":param partner: res.partner recordset singleton or None"
-#~ msgstr ""
-#~ "قم باحتساب مبلغ الضريبة بإعداد المتغير 'النتيجة'.\n"
-#~ "\n"
-#~ ":param base_amount: float, المبلغ الفعلي الذي ستطبق عليه الضريبة\n"
-#~ ":param price_unit: float\n"
-#~ ":param quantity: float\n"
-#~ ":param company: res.company recordset singleton\n"
-#~ ":param product: product.product recordset singleton or None\n"
-#~ ":param partner: res.partner recordset singleton or None"
-
-#~ msgid ""
-#~ "Compute the amount of the tax by setting the variable 'result'.\n"
-#~ "\n"
-#~ ":param base_amount: float, actual amount on which the tax is applied\n"
-#~ ":param price_unit: float\n"
-#~ ":param quantity: float\n"
-#~ ":param product: product.product recordset singleton or None\n"
-#~ ":param partner: res.partner recordset singleton or None"
-#~ msgstr ""
-#~ "احتساب مقدار الضريبة بإعداد المتغير 'result'.\n"
-#~ "\n"
-#~ ":param base_amount: float, المبلغ الفعلي الذي ستطبق عليه الضريبة\n"
-#~ ":param price_unit: float\n"
-#~ ":param quantity: float\n"
-#~ ":param product: product.product recordset singleton or None\n"
-#~ ":param partner: res.partner recordset singleton or None"
-
-#~ msgid ""
-#~ "Determine if the tax will be applied by setting the variable 'result' to "
-#~ "True or False.\n"
-#~ "\n"
-#~ ":param price_unit: float\n"
-#~ ":param quantity: float\n"
-#~ ":param company: res.company recordset singleton\n"
-#~ ":param product: product.product recordset singleton or None\n"
-#~ ":param partner: res.partner recordset singleton or None"
-#~ msgstr ""
-#~ "تحديد ما إذا كانت الضريبة ستُطبق من خلال ضبط قيمة المتغير 'result' بإحدى "
-#~ "القيمتين صحيح أو خطأ.\n"
-#~ "\n"
-#~ ":param price_unit: float\n"
-#~ ":param quantity: float\n"
-#~ ":param company: res.company recordset singleton\n"
-#~ ":param product: product.product recordset singleton or None\n"
-#~ ":param partner: res.partner recordset singleton or None"
-
-#~ msgid ""
-#~ "Determine if the tax will be applied by setting the variable 'result' to "
-#~ "True or False.\n"
-#~ "\n"
-#~ ":param price_unit: float\n"
-#~ ":param quantity: float\n"
-#~ ":param product: product.product recordset singleton or None\n"
-#~ ":param partner: res.partner recordset singleton or None"
-#~ msgstr ""
-#~ "تحديد ما إذا كانت الضريبة ستُطبق من خلال ضبط قيمة المتغير 'result' بإحدى "
-#~ "القيمتين صحيح أو خطأ.\n"
-#~ "\n"
-#~ ":param price_unit: float\n"
-#~ ":param quantity: float\n"
-#~ ":param product: product.product recordset singleton or None\n"
-#~ ":param partner: res.partner recordset singleton or None"
-
-#~ msgid "Python Code"
-#~ msgstr "كود بايثون"
-
-#~ msgid "Templates for Taxes"
-#~ msgstr "قوالب الضرائب"
+#. module: account_tax_python
+#: model:ir.module.module,summary:base.module_account_tax_python
+msgid "Use python code to define taxes"
+msgstr "استخدم كود بايثون لتحديد الضرائب"

@@ -1,32 +1,37 @@
-import { Component } from "@odoo/owl";
+import { Component, signal, t, useProps } from "@odoo/owl";
 
 import { _t } from "@web/core/l10n/translation";
 import { rpc } from "@web/core/network/rpc";
-import { x2ManyCommands } from "@web/core/orm_service";
+import { x2ManyCommands } from "@web/core/orm_plugin";
 import { useTagNavigation } from "@web/core/record_selectors/tag_navigation_hook";
-import { TagsList } from "@web/core/tags_list/tags_list";
+import { BadgeTag } from "@web/core/tags_list/badge_tag";
 import { useService } from "@web/core/utils/hooks";
 import { Many2XAutocomplete } from "@web/views/fields/relational_utils";
 
 /**
  * @typedef {Object} Props
- * @property {import("models").Thread} channel
+ * @property {import("models").DiscussChannel} channel
  * @extends {Component<Props, Env>}
  */
 export class ExpertiseTagsAutocomplete extends Component {
     static template = "im_livechat.ExpertiseTagsAutocomplete";
-    static props = ["channel", "disabled?"];
-    static components = { TagsList, Many2XAutocomplete };
+    static components = { BadgeTag, Many2XAutocomplete };
+    props = useProps({
+        channel: t.object(),
+        disabled: t.boolean().optional(),
+    });
+
+    rootRef = signal.ref();
 
     setup() {
         super.setup(...arguments);
         this.orm = useService("orm");
         this.store = useService("mail.store");
-        useTagNavigation("root", {
+        useTagNavigation(this.rootRef, {
             delete: (index) => {
                 const expertise = this.props.channel.livechat_expertise_ids[index];
                 if (expertise) {
-                    this.writeExpertises([x2ManyCommands.unlink(expertise.id)]);
+                    this.unlinkExpertise(expertise);
                 }
             },
         });
@@ -55,13 +60,18 @@ export class ExpertiseTagsAutocomplete extends Component {
         });
     }
 
-    /** @param {{id: number, display_name: string}} expertises */
+    /** @param {{id: number, display_name: string}[]} expertises */
     addExpertises(expertises) {
         const toAdd = expertises.filter((expertise) => !this.isSelected(expertise.id));
         if (!toAdd.length) {
             return;
         }
         this.writeExpertises(toAdd.map((expertise) => x2ManyCommands.link(expertise.id)));
+    }
+
+    /** @param {import("models").LivechatExpertise} expertise */
+    unlinkExpertise(expertise) {
+        this.writeExpertises([x2ManyCommands.unlink(expertise.id)]);
     }
 
     get placeholder() {
@@ -71,14 +81,7 @@ export class ExpertiseTagsAutocomplete extends Component {
         return "";
     }
 
-    get tags() {
-        return this.props.channel.livechat_expertise_ids.map((expertise) => ({
-            id: expertise.id,
-            onDelete: () => this.writeExpertises([x2ManyCommands.unlink(expertise.id)]),
-            text: expertise.name,
-        }));
-    }
-
+    /** @param {number} expertiseId */
     isSelected(expertiseId) {
         return this.props.channel.livechat_expertise_ids.some((e) => e.id === expertiseId);
     }

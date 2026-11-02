@@ -1,42 +1,36 @@
 import { registry } from "@web/core/registry";
-import { Component, onWillStart, useState } from "@odoo/owl";
+import { Component, onWillStart, proxy, useProps, signal } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 import { standardWidgetProps } from "@web/views/widgets/standard_widget_props";
 
 export class PosPaymentProviderCards extends Component {
     static template = "point_of_sale.PosPaymentProviderCards";
     static components = {};
-    static props = {
-        ...standardWidgetProps,
-    };
+    props = useProps(standardWidgetProps);
+
+    cardsContainerRef = signal.ref();
 
     setup() {
         super.setup();
         this.orm = useService("orm");
         this.action = useService("action");
-        this.state = useState({
-            providers: [],
+        this.state = proxy({
+            allProviders: [],
             disabled: false,
         });
 
         onWillStart(async () => {
-            const res = await this.orm.call("pos.payment.method", "get_provider_status", [
-                providers.map((p) => p[1]),
-            ]);
-
-            this.state.providers = providers
-                .filter((prov) => res.state.some((moduleState) => moduleState.name === prov[1]))
-                .map((prov) => {
-                    const status = res.state.find((p) => p.name === prov[1]);
-                    return Object.assign(
-                        {
-                            selection: prov[0],
-                            provider: prov[2],
-                        },
-                        status
-                    );
-                });
+            this.state.allProviders = await this.orm.call(
+                "pos.payment.method",
+                "get_provider_status"
+            );
         });
+    }
+
+    get providers() {
+        return this.state.allProviders.filter(
+            (p) => p.type === this.props.record.data.payment_method_type
+        );
     }
 
     get config_ids() {
@@ -62,35 +56,13 @@ export class PosPaymentProviderCards extends Component {
             });
     }
 
-    async setupProvider(moduleId) {
-        const provider = this.state.providers.find((p) => p.id === moduleId);
-        if (provider) {
-            this.props.record.update({
-                payment_method_type: "terminal",
-                use_payment_terminal: provider.selection,
-                name: provider.provider,
-            });
-        }
+    async setupProvider(provider) {
+        this.props.record.update({
+            payment_provider: provider.provider,
+            name: provider.name,
+        });
     }
 }
-
-// Selection, module_name, friendly name
-const providers = [
-    ["ingenico", "pos_iot_ingenico", "Ingenico"],
-    ["six_iot", "pos_iot_six", "SIX"],
-    ["adyen", "pos_adyen", "Adyen"],
-    ["mercado_pago", "pos_mercado_pago", "Mercado Pago"],
-    ["razorpay", "pos_razorpay", "Razorpay"],
-    ["stripe", "pos_stripe", "Stripe"],
-    ["viva_com", "pos_viva_com", "Viva.com"],
-    ["worldline", "pos_iot_worldline", "Worldline"],
-    ["tyro", "pos_tyro", "Tyro"],
-    ["pine_labs", "pos_pine_labs", "Pine Labs"],
-    ["qfpay", "pos_qfpay", "QFPay"],
-    ["dpopay", "pos_dpopay", "DPO Pay"],
-    ["mollie", "pos_mollie", "Mollie"],
-    ["safaricom", "pos_safaricom", "Safaricom"],
-];
 
 export const PosPaymentProviderCardsParams = {
     component: PosPaymentProviderCards,

@@ -1,20 +1,21 @@
 import { before, withFetch } from "@odoo/hoot";
 import { loadBundle } from "@web/core/assets";
+import { patch } from "@web/core/utils/patch";
 import * as _fields from "./_framework/mock_server/mock_fields";
 import * as _models from "./_framework/mock_server/mock_model";
+import { IrAccess } from "./_framework/mock_server/mock_models/ir_access";
 import { IrAttachment } from "./_framework/mock_server/mock_models/ir_attachment";
+import { IrEmbeddedActions } from "./_framework/mock_server/mock_models/ir_embedded_actions";
 import { IrHttp } from "./_framework/mock_server/mock_models/ir_http";
 import { IrModel } from "./_framework/mock_server/mock_models/ir_model";
-import { IrModelAccess } from "./_framework/mock_server/mock_models/ir_model_access";
 import { IrModelFields } from "./_framework/mock_server/mock_models/ir_model_fields";
 import { IrModuleCategory } from "./_framework/mock_server/mock_models/ir_module_category";
-import { IrRule } from "./_framework/mock_server/mock_models/ir_rule";
 import { IrUiView } from "./_framework/mock_server/mock_models/ir_ui_view";
 import { ResCompany } from "./_framework/mock_server/mock_models/res_company";
 import { ResCountry } from "./_framework/mock_server/mock_models/res_country";
 import { ResCurrency } from "./_framework/mock_server/mock_models/res_currency";
-import { ResGroupsPrivilege } from "./_framework/mock_server/mock_models/res_groups_privilege";
 import { ResGroups } from "./_framework/mock_server/mock_models/res_groups";
+import { ResGroupsPrivilege } from "./_framework/mock_server/mock_models/res_groups_privilege";
 import { ResPartner } from "./_framework/mock_server/mock_models/res_partner";
 import { ResUsers } from "./_framework/mock_server/mock_models/res_users";
 import { ResUsersSettings } from "./_framework/mock_server/mock_models/res_users_settings";
@@ -38,7 +39,21 @@ import { globalCachedFetch } from "./_framework/module_set.hoot";
  * @typedef {import("./_framework/mock_server/mock_server").RouteCallback<T>} RouteCallback
  */
 
-export { asyncStep, waitForSteps } from "./_framework/async_step";
+export {
+    assignDialogTestEnv,
+    assignTestEnv,
+    clearRegistry,
+    clearTestEnv,
+    destroyApp,
+    getMockEnv,
+    getService,
+    getTestApp,
+    makeTestApp,
+    mockOffline,
+    mockService,
+    restoreRegistry,
+    runTestScope,
+} from "./_framework/app_test_helpers";
 export {
     findComponent,
     getDropdownMenu,
@@ -46,15 +61,6 @@ export {
     waitUntilIdle,
 } from "./_framework/component_test_helpers";
 export { contains, defineStyle, editAce, sortableDrag } from "./_framework/dom_test_helpers";
-export {
-    clearRegistry,
-    getMockEnv,
-    getService,
-    makeDialogMockEnv,
-    makeMockEnv,
-    mockService,
-    restoreRegistry,
-} from "./_framework/env_test_helpers";
 export {
     clickKanbanLoadMore,
     clickKanbanRecord,
@@ -99,7 +105,6 @@ export {
     unmakeKwArgs,
 } from "./_framework/mock_server/mock_server_utils";
 export { serverState } from "./_framework/mock_server_state.hoot";
-export { patchWithCleanup } from "./_framework/patch_test_helpers";
 export { preventResizeObserverError } from "./_framework/resize_observer_error_catcher";
 export {
     editFavorite,
@@ -119,8 +124,8 @@ export {
     pagerNext,
     pagerPrevious,
     removeFacet,
-    saveFavorite,
     saveAndEditFavorite,
+    saveFavorite,
     selectGroup,
     switchView,
     toggleActionMenu,
@@ -134,12 +139,15 @@ export {
     toggleSearchBarMenu,
     validateSearch,
 } from "./_framework/search_test_helpers";
+export { registerTemplate } from "./_framework/templates_test_helpers";
 export { swipeLeft, swipeRight } from "./_framework/touch_helpers";
 export {
+    allowTranslations,
     installLanguages,
     patchTranslations,
-    allowTranslations,
+    xml_translate,
 } from "./_framework/translation_test_helpers";
+export { isSmall } from "./_framework/ui_test_helpers";
 export {
     clickButton,
     clickCancel,
@@ -148,6 +156,7 @@ export {
     clickModalButton,
     clickSave,
     clickViewButton,
+    editSelectMenu,
     expectMarkup,
     fieldInput,
     hideTab,
@@ -155,7 +164,6 @@ export {
     mountViewInDialog,
     parseViewProps,
     selectFieldDropdownItem,
-    editSelectMenu,
 } from "./_framework/view_test_helpers";
 export { mountWebClient, useTestClientAction } from "./_framework/webclient_test_helpers";
 
@@ -195,12 +203,12 @@ export const models = _models;
 
 export const webModels = {
     IrHttp,
+    IrAccess,
     IrAttachment,
+    IrEmbeddedActions,
     IrModel,
-    IrModelAccess,
     IrModelFields,
     IrModuleCategory,
-    IrRule,
     IrUiView,
     ResCompany,
     ResCountry,
@@ -211,3 +219,6 @@ export const webModels = {
     ResUsers,
     ResUsersSettings,
 };
+
+/** @deprecated `patch` from "@web/core/utils/patch" is already cleaned up; use it directly */
+export const patchWithCleanup = patch;

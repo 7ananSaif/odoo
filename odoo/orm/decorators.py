@@ -6,52 +6,17 @@ from __future__ import annotations
 
 import logging
 import typing
-import warnings
 from collections.abc import Mapping
 from functools import wraps
-
-try:
-    # available since python 3.13
-    from warnings import deprecated
-except ImportError:
-    # simplified version
-    class deprecated:
-        def __init__(
-            self,
-            message: str,
-            /,
-            *,
-            category: type[Warning] | None = DeprecationWarning,
-            stacklevel: int = 1,
-        ) -> None:
-            self.message = message
-            self.category = category
-            self.stacklevel = stacklevel
-
-        def __call__(self, obj, /):
-            message = self.message
-            category = self.category
-            stacklevel = self.stacklevel
-            if category is None:
-                obj.__deprecated__ = message
-                return obj
-            if callable(obj):
-                @wraps(obj)
-                def wrapper(*args, **kwargs):
-                    warnings.warn(message, category=category, stacklevel=stacklevel + 1)
-                    return obj(*args, **kwargs)
-
-                obj.__deprecated__ = wrapper.__deprecated__ = message
-                return wrapper
-            raise TypeError(f"@deprecated decorator cannot be applied to {obj!r}")
 
 if typing.TYPE_CHECKING:
     from collections.abc import Callable, Collection
     from .types import BaseModel, ValuesType
 
-    T = typing.TypeVar('T')
-    C = typing.TypeVar("C", bound=Callable)
-    Decorator = Callable[[C], C]
+    type Decorator[C: Callable] = Callable[[C], C]
+
+# re-export here as well
+from .cache import ormcache  # noqa: F401
 
 _logger = logging.getLogger('odoo.api')
 
@@ -248,10 +213,10 @@ def depends(*args) -> Decorator:
 
             pname = fields.Char(compute='_compute_pname')
 
-            @api.depends('partner_id.name', 'partner_id.is_company')
+            @api.depends('partner_id.name', 'partner_id.vat')
             def _compute_pname(self):
                 for record in self:
-                    if record.partner_id.is_company:
+                    if record.partner_id.vat:
                         record.pname = (record.partner_id.name or "").upper()
                     else:
                         record.pname = record.partner_id.name
@@ -292,7 +257,7 @@ def depends_context(*args: str) -> Decorator:
     return attrsetter('_depends_context', args)
 
 
-def autovacuum(method: C) -> C:
+def autovacuum[C: Callable](method: C) -> C:
     """
     Decorate a method so that it is called by the daily vacuum cron job (model
     ``ir.autovacuum``).  This is typically used for garbage-collection-like
@@ -306,7 +271,7 @@ def autovacuum(method: C) -> C:
     return method
 
 
-def model(method: C) -> C:
+def model[C: Callable](method: C) -> C:
     """ Decorate a record-style method where ``self`` is a recordset, but its
         contents is not relevant, only the model is. Such a method::
 
@@ -321,7 +286,7 @@ def model(method: C) -> C:
     return method
 
 
-def private(method: C) -> C:
+def private[C: Callable](method: C) -> C:
     """ Decorate a record-style method to indicate that the method cannot be
         called using RPC. Example::
 
@@ -338,7 +303,7 @@ def private(method: C) -> C:
     return method
 
 
-def readonly(method: C) -> C:
+def readonly[C: Callable](method: C) -> C:
     """ Decorate a record-style method where ``self.env.cr`` can be a
         readonly cursor when called trough a rpc call.
 
@@ -350,7 +315,7 @@ def readonly(method: C) -> C:
     return method
 
 
-def model_create_multi(method: Callable[[T, list[ValuesType]], T]) -> Callable[[T, list[ValuesType] | ValuesType], T]:
+def model_create_multi[T](method: Callable[[T, list[ValuesType]], T]) -> Callable[[T, list[ValuesType] | ValuesType], T]:
     """ Decorate a method that takes a list of dictionaries and creates multiple
         records. The method may be called with either a single dict or a list of
         dicts::

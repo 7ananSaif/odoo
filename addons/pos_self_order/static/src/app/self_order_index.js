@@ -1,4 +1,4 @@
-import { Component } from "@odoo/owl";
+import { Component, usePlugin } from "@odoo/owl";
 import { MainComponentsContainer } from "@web/core/main_components_container";
 import { useSelfOrder } from "@pos_self_order/app/services/self_order_service";
 import { Router } from "@pos_self_order/app/router";
@@ -12,14 +12,15 @@ import { ConfirmationPage } from "@pos_self_order/app/pages/confirmation_page/co
 import { EatingLocationPage } from "@pos_self_order/app/pages/eating_location_page/eating_location_page";
 import { StandNumberPage } from "@pos_self_order/app/pages/stand_number_page/stand_number_page";
 import { OrdersHistoryPage } from "@pos_self_order/app/pages/order_history_page/order_history_page";
+import { OptionalProductPage } from "@pos_self_order/app/pages/optional_product_page/optional_product_page";
 import { LoadingOverlay } from "@pos_self_order/app/components/loading_overlay/loading_overlay";
 import { hasTouch } from "@web/core/browser/feature_detection";
 import { init as initDebugFormatters } from "@point_of_sale/app/utils/debug-formatter";
 import { insertKioskStyle } from "./kiosk_style";
+import { DebugModePlugin } from "@web/core/debug_mode_plugin";
 
 export class selfOrderIndex extends Component {
     static template = "pos_self_order.selfOrderIndex";
-    static props = [];
     static components = {
         Router,
         ProductPage,
@@ -34,6 +35,7 @@ export class selfOrderIndex extends Component {
         LandingPage,
         LoadingOverlay,
         MainComponentsContainer,
+        OptionalProductPage,
     };
 
     setup() {
@@ -49,13 +51,10 @@ export class selfOrderIndex extends Component {
             document.documentElement.classList.add("kiosk");
         }
 
-        const styleConfig = this.selfOrder.config._self_ordering_style;
-        if (styleConfig) {
-            const { primaryBgColor, primaryTextColor } = styleConfig;
-            insertKioskStyle(primaryBgColor, primaryTextColor);
-        }
+        insertKioskStyle(this.selfOrder.config.self_ordering_primary_color);
 
-        if (this.env.debug) {
+        const debugMode = usePlugin(DebugModePlugin);
+        if (debugMode.isActive()) {
             initDebugFormatters();
         }
     }

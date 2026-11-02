@@ -1,11 +1,9 @@
-import { SNIPPET_SPECIFIC_END } from "@html_builder/utils/option_sequence";
 import { Plugin } from "@html_editor/plugin";
-import { withSequence } from "@html_editor/utils/resource";
 import { rpc } from "@web/core/network/rpc";
 import { registry } from "@web/core/registry";
 import { Cache } from "@web/core/utils/cache";
-import { DynamicSnippetOption } from "./dynamic_snippet_option";
 import { BuilderAction } from "@html_builder/core/builder_action";
+import { ClassAction } from "@html_builder/core/core_builder_action_plugin";
 
 /**
  * @typedef {object} Template
@@ -45,13 +43,13 @@ import { BuilderAction } from "@html_builder/core/builder_action";
  * @typedef {((arg: {
  *      el: HTMLElement;
  *      template: Template;
- * }) => void)[]} dynamic_snippet_template_updated
+ * }) => void)[]} on_dynamic_snippet_template_updated_handlers
  */
 
-export const DYNAMIC_SNIPPET = SNIPPET_SPECIFIC_END;
 export const CONTAINER_CLASSES = ["container", "container-fluid", "o_container_small"];
+const DYNAMIC_SNIPPET_UNMOVABLE_SELECTOR = ".s_dynamic_snippet_title, .s_dynamic_snippet_content";
 
-class DynamicSnippetOptionPlugin extends Plugin {
+export class DynamicSnippetOptionPlugin extends Plugin {
     static id = "dynamicSnippetOption";
     static shared = [
         "fetchDynamicFilters",
@@ -74,7 +72,6 @@ class DynamicSnippetOptionPlugin extends Plugin {
     fetchedDynamicFilterTemplates = [];
     /** @type {import("plugins").WebsiteResources} */
     resources = {
-        builder_options: [withSequence(DYNAMIC_SNIPPET, DynamicSnippetOption)],
         builder_actions: {
             DynamicFilterAction,
             DynamicSnippetTemplateAction,
@@ -82,9 +79,15 @@ class DynamicSnippetOptionPlugin extends Plugin {
             DynamicRecordAction,
             CustomizeTemplateAction,
             NumberOfRecordsAction,
+            SetSectionTitlePositionAction,
         },
         on_snippet_dropped_handlers: this.onSnippetDropped.bind(this),
-        is_unremovable_selector: ".s_dynamic_snippet_title",
+        is_unremovable_selectors: ".s_dynamic_snippet_title",
+        is_movable_selectors: {
+            exclude: DYNAMIC_SNIPPET_UNMOVABLE_SELECTOR,
+            direction: "vertical",
+        },
+        has_overlay_options: { hasOption: (el) => el.matches(DYNAMIC_SNIPPET_UNMOVABLE_SELECTOR) },
     };
     setup() {
         this.dynamicFiltersCache = new Cache(this._fetchDynamicFilters, JSON.stringify);
@@ -102,15 +105,8 @@ class DynamicSnippetOptionPlugin extends Plugin {
         return this.modelNameFilter;
     }
     async onSnippetDropped({ snippetEl }) {
-        if (snippetEl.matches(DynamicSnippetOption.selector)) {
+        if (snippetEl.matches(".s_dynamic_snippet")) {
             await this.setOptionsDefaultValues(snippetEl, this.modelNameFilter);
-        }
-        // TODO (adapt for master): Dynamic snippets should display the
-        // placeholder by default. Their visibility should then be controlled
-        // by the interaction behavior.
-        if (snippetEl.classList.contains("s_dynamic")) {
-            snippetEl.classList.remove("o_dynamic_snippet_empty");
-            snippetEl.classList.add("o_dynamic_snippet_loading");
         }
     }
     async setOptionsDefaultValues(snippetEl, modelNameFilter, contextualFilterDomain = []) {
@@ -190,18 +186,18 @@ class DynamicSnippetOptionPlugin extends Plugin {
         }
         el.classList.add(this.getTemplateClass(newTemplateKey));
 
-        if (template.numOfEl) {
-            el.dataset.numberOfElements = template.numOfEl;
+        if (template.numberOfElements) {
+            el.dataset.numberOfElements = template.numberOfElements;
         } else {
             delete el.dataset.numberOfElements;
         }
-        if (template.numOfElSm) {
-            el.dataset.numberOfElementsSmallDevices = template.numOfElSm;
+        if (template.numberOfElementsSmallDevices) {
+            el.dataset.numberOfElementsSmallDevices = template.numberOfElementsSmallDevices;
         } else {
             delete el.dataset.numberOfElementsSmallDevices;
         }
-        if (template.numOfElFetch) {
-            el.dataset.numberOfRecords = template.numOfElFetch;
+        if (template.numberOfRecords) {
+            el.dataset.numberOfRecords = template.numberOfRecords;
         }
         if (template.extraClasses) {
             el.dataset.extraClasses = template.extraClasses;
@@ -225,7 +221,10 @@ class DynamicSnippetOptionPlugin extends Plugin {
             el.classList.remove(...(oldTemplate.extraSnippetClasses?.split(" ") || []));
             el.classList.add(...(template.extraSnippetClasses?.split(" ") || []));
         }
-        this.dispatchTo("dynamic_snippet_template_updated", { el: el, template: template });
+        this.trigger("on_dynamic_snippet_template_updated_handlers", {
+            el: el,
+            template: template,
+        });
     }
     async fetchDynamicFilters(params) {
         this.fetchedDynamicFilters = await this.dynamicFiltersCache.read(params);
@@ -299,6 +298,10 @@ class DynamicSnippetOptionPlugin extends Plugin {
         };
         return position ? classes[position] : classes;
     }
+}
+
+export class SetSectionTitlePositionAction extends ClassAction {
+    static id = "setSectionTitlePosition";
 }
 
 export class DynamicFilterAction extends BuilderAction {
@@ -431,7 +434,8 @@ export class NumberOfRecordsAction extends BuilderAction {
             }
             // Update the snippet title section.
             const titleEl = el.querySelector(".s_dynamic_snippet_title");
-            const classAction = this.dependencies.builderActions.getAction("classAction");
+            const titlePositionAction =
+                this.dependencies.builderActions.getAction("setSectionTitlePosition");
             const titleClasses = Object.values(this.utils.getSnippetTitleClasses()).find(
                 (classes) =>
                     titleEl.matches(
@@ -441,11 +445,11 @@ export class NumberOfRecordsAction extends BuilderAction {
                             .join("")
                     )
             );
-            classAction.clean({
+            titlePositionAction.clean({
                 editingElement: titleEl,
                 params: { mainParam: titleClasses },
             });
-            classAction.apply({
+            titlePositionAction.apply({
                 editingElement: titleEl,
                 params: {
                     mainParam: this.utils.getSnippetTitleClasses(

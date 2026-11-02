@@ -1,6 +1,5 @@
-import { beforeEach, expect, test } from "@odoo/hoot";
-import { animationFrame, runAllTimers } from "@odoo/hoot-mock";
-import { Component, onMounted, xml } from "@odoo/owl";
+import { animationFrame, beforeEach, expect, runAllTimers, test } from "@odoo/hoot";
+import { Component, onMounted, useProps, xml } from "@odoo/owl";
 import {
     contains,
     defineActions,
@@ -13,8 +12,8 @@ import {
     stepAllNetworkCalls,
     webModels,
 } from "@web/../tests/web_test_helpers";
-
-import { browser } from "@web/core/browser/browser";
+import { browser, location } from "@web/core/browser/browser";
+import { Dialog } from "@web/core/dialog/dialog";
 import { registry } from "@web/core/registry";
 import { redirect } from "@web/core/utils/urls";
 import { WebClient } from "@web/webclient/webclient";
@@ -25,9 +24,9 @@ const actionRegistry = registry.category("actions");
 class TestClientAction extends Component {
     static template = xml`
         <div class="test_client_action">
-            ClientAction_<t t-esc="props.action.params?.description"/>
+            ClientAction_<t t-out="this.props.action.params?.description"/>
         </div>`;
-    static props = ["*"];
+    props = useProps();
     setup() {
         onMounted(() => this.env.config.setDisplayName(`Client action ${this.props.action.id}`));
     }
@@ -197,6 +196,22 @@ test("soft_reload a form view", async () => {
     expect.verifySteps(["read 2"]);
 });
 
+test("soft_reload closes the dialogs", async () => {
+    class CustomDialog extends Component {
+        static components = { Dialog };
+        static template = xml`<Dialog title="'Fiscal Year'">content</Dialog>`;
+    }
+    await mountWithCleanup(WebClient);
+    await getService("action").doAction(1);
+    getService("dialog").add(CustomDialog);
+    await animationFrame();
+    expect(".o_dialog").toHaveCount(1);
+
+    await getService("action").doAction("soft_reload");
+    await animationFrame();
+    expect(".o_dialog").toHaveCount(0);
+});
+
 test("soft_reload when there is no controller", async () => {
     await mountWithCleanup(WebClient);
     await getService("action").doAction("soft_reload");
@@ -208,7 +223,6 @@ test("soft_reload when there is no controller", async () => {
 test("can execute client actions from tag name", async () => {
     class ClientAction extends Component {
         static template = xml`<div class="o_client_action_test">Hello World</div>`;
-        static props = ["*"];
     }
     actionRegistry.add("HelloWorldTest", ClientAction);
 
@@ -249,8 +263,7 @@ test("ClientAction receives breadcrumbs and exports title", async () => {
     expect.assertions(4);
 
     class ClientAction extends Component {
-        static template = xml`<div class="my_action" t-on-click="onClick">client action</div>`;
-        static props = ["*"];
+        static template = xml`<div class="my_action" t-on-click="this.onClick">client action</div>`;
         setup() {
             this.breadcrumbTitle = "myAction";
             const { breadcrumbs } = this.env.config;
@@ -273,14 +286,14 @@ test("ClientAction receives breadcrumbs and exports title", async () => {
     expect(".my_action").toHaveCount(1);
     await contains(".my_action").click();
     await getService("action").doAction(3);
-    expect(".o_breadcrumb").toHaveText("Partners Action 1\nnewTitle\nPartners");
+    expect(".o_breadcrumb").toHaveText("newTitle\nPartners");
 });
 
 test("ClientAction receives arbitrary props from doAction", async () => {
     expect.assertions(1);
     class ClientAction extends Component {
         static template = xml`<div></div>`;
-        static props = ["*"];
+        props = useProps();
         setup() {
             expect(this.props.division).toBe("bell");
         }
@@ -305,8 +318,8 @@ test("ClientAction with extractProps", async () => {
         },
     ]);
     class ClientAction extends Component {
-        static template = xml`<div class="my_client_action" t-esc="props.myProp"/>`;
-        static props = ["*"];
+        static template = xml`<div class="my_client_action" t-out="this.props.myProp"/>`;
+        props = useProps();
         static extractProps(action) {
             return { myProp: action.params.my_prop };
         }
@@ -415,17 +428,17 @@ test("test next action on display_notification client action", async () => {
 
 test("test reload client action", async () => {
     redirect("/odoo?test=42");
-    browser.location.search = "?test=42";
+    location.search = "?test=42";
 
     patchWithCleanup(browser.history, {
         pushState: (_state, _unused, url) => {
-            expect.step(`pushState ${url.replace(browser.location.origin, "")}`);
+            expect.step(`pushState ${url.replace(location.origin, "")}`);
         },
         replaceState: (_state, _unused, url) => {
-            expect.step(`replaceState ${url.replace(browser.location.origin, "")}`);
+            expect.step(`replaceState ${url.replace(location.origin, "")}`);
         },
     });
-    patchWithCleanup(browser.location, {
+    patchWithCleanup(location, {
         reload: function () {
             expect.step("window_reload");
         },
@@ -478,9 +491,9 @@ test("test reload client action", async () => {
 
 test("test home client action", async () => {
     redirect("/odoo");
-    browser.location.search = "";
+    location.search = "";
 
-    patchWithCleanup(browser.location, {
+    patchWithCleanup(location, {
         assign: (url) => expect.step(`assign ${url}`),
     });
 

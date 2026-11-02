@@ -13,7 +13,7 @@ registry.category("web_tour.tours").add("test_add_section_from_product_catalog_o
 registry.category("web_tour.tours").add("test_catalog_vendor_uom", {
     steps: () => [
         // Open the PO for the vendor selling product as "Units".
-        { trigger: "td[data-tooltip='PO/TEST/00002']", run: "click" },
+        { trigger: ".o_data_cell:text(PO/TEST/00002)", run: "click" },
         ...purchaseForm.displayOptionalField("discount"),
         ...purchaseForm.openCatalog(),
         ...productCatalog.checkProductPrice("Crab Juice", "$ 2.50"),
@@ -52,8 +52,8 @@ registry.category("web_tour.tours").add("test_catalog_vendor_uom", {
         }),
 
         // Open the PO for the vendor selling product as liter.
-        { trigger: "a[href='/odoo/purchase']", run: "click" },
-        { trigger: "td[data-tooltip='PO/TEST/00001']", run: "click" },
+        { trigger: "li.o_back_button:first-child", run: "click" },
+        { trigger: ".o_data_cell:text(PO/TEST/00001)", run: "click" },
         ...purchaseForm.openCatalog(),
         ...productCatalog.checkProductPrice("Crab Juice", "$ 1.55"),
         ...productCatalog.addProduct("Crab Juice"),
@@ -70,5 +70,15 @@ registry.category("web_tour.tours").add("test_catalog_vendor_uom", {
             unitPrice: "2.00",
             totalPrice: "$ 1.55",
         }),
+
+        // Reopen the PO for `vendor_by_liter` and verify that the price is updated based on the UoM change.
+        { trigger: "li.o_back_button:first-child", run: "click" },
+        { trigger: ".o_data_cell:text(PO/TEST/00001)", run: "click" },
+        ...purchaseForm.openCatalog(),
+        ...productCatalog.checkProductUoM("Crab Juice", "L"),
+        ...productCatalog.checkProductPrice("Crab Juice", "$ 1.55"),
+        ...productCatalog.selectProductUoM("Crab Juice", "Units"),
+        ...productCatalog.checkProductUoM("Crab Juice", "Units"),
+        ...productCatalog.checkProductPrice("Crab Juice", "$ 3.00"),
     ],
 });

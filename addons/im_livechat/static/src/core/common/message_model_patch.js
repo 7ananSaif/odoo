@@ -1,5 +1,5 @@
 import { Message } from "@mail/core/common/message_model";
-import { fields } from "@mail/core/common/record";
+import { fields } from "@mail/model/export";
 
 import { patch } from "@web/core/utils/patch";
 
@@ -9,18 +9,22 @@ const messagePatch = {
         super.setup(...arguments);
         this.chatbotStep = fields.One("ChatbotStep", { inverse: "message" });
     },
-    canReplyTo(thread) {
-        return (
-            super.canReplyTo(thread) &&
-            (thread?.channel_type !== "livechat" || !thread.composerDisabled)
-        );
+    get canReplyTo() {
+        if (this.thread?.channel?.channel_type === "livechat") {
+            return (
+                !this.isEmpty &&
+                !this.thread.composerDisabled &&
+                !this.thread.channel.composerHidden
+            );
+        }
+        return super.canReplyTo;
     },
-    isTranslatable(thread) {
+    get isTranslatable() {
         return (
-            super.isTranslatable(thread) ||
+            super.isTranslatable ||
             (this.store.hasMessageTranslationFeature &&
-                thread?.channel_type === "livechat" &&
-                this.store.self?.main_user_id?.share === false)
+                this.channel_id?.channel_type === "livechat" &&
+                (this.store.self_user?.share === false || !this.isSelfAuthored))
         );
     },
 };

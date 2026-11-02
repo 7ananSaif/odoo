@@ -1,6 +1,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from . import base_partner_merge
+from . import digest
 from . import gamification_challenge
 from . import gamification_karma_tracking
 from . import mail_message
@@ -19,3 +20,5 @@ from . import res_users
 from . import res_groups
 from . import res_partner
 from . import mail_activity
+from . import website_track
+from . import website_visitor

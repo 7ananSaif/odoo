@@ -3,28 +3,23 @@ import {
     addBuilderOption,
     setupHTMLBuilder,
 } from "@html_builder/../tests/helpers";
+import { BaseOptionComponent } from "@html_builder/core/base_option_component";
 import { BuilderAction } from "@html_builder/core/builder_action";
-import { BuilderTextInput } from "@html_builder/core/building_blocks/builder_text_input";
-import { BaseOptionComponent } from "@html_builder/core/utils";
-import { expect, test, describe } from "@odoo/hoot";
-import { reactive, useState, xml } from "@odoo/owl";
+import { describe, expect, test } from "@odoo/hoot";
+import { signal, xml } from "@odoo/owl";
 import { contains } from "@web/../tests/web_test_helpers";
 
 describe.current.tags("desktop");
 
 test("hide/display base on applyTo", async () => {
-    addBuilderOption(
-        class extends BaseOptionComponent {
-            static selector = ".parent-target";
-            static template = xml`<BuilderButton applyTo="'.child-target'" classAction="'my-custom-class'"/>`;
-        }
-    );
-    addBuilderOption(
-        class extends BaseOptionComponent {
-            static selector = ".parent-target";
-            static template = xml`<BuilderTextInput applyTo="'.my-custom-class'" action="'customAction'"/>`;
-        }
-    );
+    addBuilderOption({
+        selector: ".parent-target",
+        template: xml`<BuilderButton applyTo="'.child-target'" classAction="'my-custom-class'"/>`,
+    });
+    addBuilderOption({
+        selector: ".parent-target",
+        template: xml`<BuilderTextInput applyTo="'.my-custom-class'" action="'customAction'"/>`,
+    });
     addBuilderAction({
         customAction: class extends BuilderAction {
             static id = "customAction";
@@ -57,18 +52,15 @@ test("hide/display base on applyTo", async () => {
 test("update default prop", async () => {
     const defaultValueA = "Default Value A";
     const defaultValueB = "Default Value B";
-    const state = reactive({ default: defaultValueA });
-    addBuilderOption(
-        class extends BaseOptionComponent {
-            static selector = ".parent-target";
-            static template = xml`<BuilderTextInput action="'customAction'" default="state.default"/>`;
-            static components = { BuilderTextInput };
+    const getDefault = signal(defaultValueA);
+    addBuilderOption({
+        selector: ".parent-target",
+        Component: class extends BaseOptionComponent {
+            static template = xml`<BuilderTextInput action="'customAction'" default="this.default()"/>`;
 
-            setup() {
-                this.state = useState(state);
-            }
-        }
-    );
+            default = getDefault;
+        },
+    });
     addBuilderAction({
         customAction: class extends BuilderAction {
             static id = "customAction";
@@ -84,7 +76,7 @@ test("update default prop", async () => {
     await contains(":iframe .parent-target").click();
     await contains("[data-action-id='customAction'] input").edit("");
     expect("[data-action-id='customAction'] input").toHaveValue(defaultValueA);
-    state.default = defaultValueB;
+    getDefault.set(defaultValueB);
     await contains("[data-action-id='customAction'] input").edit("");
     expect("[data-action-id='customAction'] input").toHaveValue(defaultValueB);
 });

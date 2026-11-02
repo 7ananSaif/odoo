@@ -1,7 +1,8 @@
 import { describe, test, expect } from "@odoo/hoot";
+import { animationFrame } from "@odoo/hoot-dom";
 import { SplitBillScreen } from "@pos_restaurant/app/screens/split_bill_screen/split_bill_screen";
 import { setupPosEnv, getFilledOrder } from "@point_of_sale/../tests/unit/utils";
-import { mountWithCleanup } from "@web/../tests/web_test_helpers";
+import { contains, mountWithCleanup } from "@web/../tests/web_test_helpers";
 import { definePosModels } from "@point_of_sale/../tests/unit/data/generate_model_definitions";
 
 definePosModels();
@@ -49,7 +50,7 @@ describe("onClickLine", () => {
                     [
                         {
                             combo_item_id: comboItem1,
-                            qty: 1,
+                            qty: 2,
                         },
                         {
                             combo_item_id: comboItem2,
@@ -62,11 +63,14 @@ describe("onClickLine", () => {
             },
             order
         );
+        const parentLine = order.lines[0];
+        parentLine.setQuantity(2, Boolean(parentLine.combo_line_ids?.length));
         expect(order.lines.length).toBe(3);
         expect(line.product_id.product_tmpl_id).toBe(comboTemplate);
         expect(line.combo_line_ids.length).toBe(2);
         expect(line.combo_line_ids[0].product_id.id).toBe(comboItem1.product_id.id);
         expect(line.combo_line_ids[1].product_id.id).toBe(comboItem2.product_id.id);
+        expect(line.combo_line_ids[0].getQuantity()).toBe(4);
         const screen = await mountWithCleanup(SplitBillScreen, {
             props: {
                 orderUuid: order.uuid,
@@ -74,8 +78,16 @@ describe("onClickLine", () => {
         });
         screen.onClickLine(order.lines[0]);
         expect(screen.qtyTracker[order.lines[0].uuid]).toBe(1);
-        expect(screen.qtyTracker[order.lines[1].uuid]).toBe(1);
+        expect(screen.qtyTracker[order.lines[1].uuid]).toBe(2);
         expect(screen.qtyTracker[order.lines[2].uuid]).toBe(1);
+        screen.onClickLine(order.lines[1]);
+        expect(screen.qtyTracker[order.lines[0].uuid]).toBe(2);
+        expect(screen.qtyTracker[order.lines[1].uuid]).toBe(4);
+        expect(screen.qtyTracker[order.lines[2].uuid]).toBe(2);
+        screen.onClickLine(order.lines[2]);
+        expect(screen.qtyTracker[order.lines[0].uuid]).toBe(0);
+        expect(screen.qtyTracker[order.lines[1].uuid]).toBe(0);
+        expect(screen.qtyTracker[order.lines[2].uuid]).toBe(0);
     });
 });
 
@@ -95,14 +107,17 @@ test("_getOrderName", async () => {
 test("setLineQtyStr", async () => {
     const store = await setupPosEnv();
     const order = await getFilledOrder(store);
-    const screen = await mountWithCleanup(SplitBillScreen, {
+    await mountWithCleanup(SplitBillScreen, {
         props: {
             orderUuid: order.uuid,
         },
     });
+    // Click the orderline twice in DOM to set split qty to 2
+    await contains('.splitbill-screen .orderline .product-name:contains("TEST"):first').click();
+    await animationFrame();
+    await contains('.splitbill-screen .orderline .product-name:contains("TEST"):first').click();
+    await animationFrame();
     const line = order.getOrderlines()[0];
-    screen.qtyTracker[line.uuid] = 2;
-    screen.setLineQtyStr(line);
     expect(line.uiState.splitQty).toBe("2 / 3");
 });
 
@@ -111,15 +126,20 @@ test("createSplittedOrder", async () => {
     const order = await getFilledOrder(store);
     const table = store.models["restaurant.table"].get(2);
     order.table_id = table;
-    const screen = await mountWithCleanup(SplitBillScreen, {
+    await mountWithCleanup(SplitBillScreen, {
         props: {
             orderUuid: order.uuid,
         },
     });
-    const line = order.getOrderlines()[0];
-    screen.qtyTracker[line.uuid] = 2;
+    // Click the first orderline twice via DOM
+    await contains('.splitbill-screen .orderline .product-name:contains("TEST"):first').click();
+    await animationFrame();
+    await contains('.splitbill-screen .orderline .product-name:contains("TEST"):first').click();
+    await animationFrame();
+    // Click Split button
+    await contains('.splitbill-screen .pay-button button:contains("Split")').click();
+    await animationFrame();
     const originalUUID = order.uuid;
-    await screen.createSplittedOrder();
     const currentOrder = store.getOrder();
     expect(currentOrder.floating_order_name).toBe("1B");
     expect(currentOrder.uuid).not.toBe(originalUUID);
@@ -128,25 +148,52 @@ test("createSplittedOrder", async () => {
     expect(order.getOrderlines()[0].getQuantity()).toBe(1);
 });
 
-test("createSplittedOrder copies preset from original order", async () => {
+test("paySplittedOrder splits partial selection then calls pay", async () => {
     const store = await setupPosEnv();
     const order = await getFilledOrder(store);
-    const nonDefaultPreset = store.models["pos.preset"].get(2);
-    order.setPreset(nonDefaultPreset);
-    expect(order.preset_id.id).toBe(nonDefaultPreset.id);
-    expect(store.config.default_preset_id.id).not.toBe(nonDefaultPreset.id);
-
-    const screen = await mountWithCleanup(SplitBillScreen, {
+    await mountWithCleanup(SplitBillScreen, {
         props: {
             orderUuid: order.uuid,
         },
     });
-    const line = order.getOrderlines()[0];
-    screen.qtyTracker[line.uuid] = 1;
-    await screen.createSplittedOrder();
+    // Click the first orderline once via DOM
+    await contains('.splitbill-screen .orderline .product-name:contains("TEST"):first').click();
+    await animationFrame();
 
-    const newOrder = store.getOrder();
-    expect(newOrder.uuid).not.toBe(order.uuid);
-    expect(newOrder.preset_id?.id).toBe(nonDefaultPreset.id);
-    expect(order.preset_id.id).toBe(nonDefaultPreset.id);
+    let payCalled = false;
+    store.pay = () => {
+        payCalled = true;
+    };
+
+    // Click Pay button
+    await contains('.splitbill-screen .pay-button button:contains("Pay")').click();
+    await animationFrame();
+
+    expect(payCalled).toBe(true);
+    expect(store.getOpenOrders().length).toBe(2);
+});
+
+test("transferSplittedOrder splits partial selection then starts transfer", async () => {
+    const store = await setupPosEnv();
+    const order = await getFilledOrder(store);
+    await mountWithCleanup(SplitBillScreen, {
+        props: {
+            orderUuid: order.uuid,
+        },
+    });
+    // Click the first orderline once via DOM
+    await contains('.splitbill-screen .orderline .product-name:contains("TEST"):first').click();
+    await animationFrame();
+
+    let transferCalled = false;
+    store.startTransferOrder = () => {
+        transferCalled = true;
+    };
+
+    // Click Transfer button
+    await contains('.splitbill-screen .pay-button button:contains("Transfer")').click();
+    await animationFrame();
+
+    expect(transferCalled).toBe(true);
+    expect(store.getOpenOrders().length).toBe(2);
 });

@@ -3,11 +3,12 @@ from odoo.addons.point_of_sale.tests.common import TestPoSCommon
 from odoo.addons.point_of_sale.tests.test_generic_localization import TestGenericLocalization
 from odoo.tests import tagged
 from odoo.addons.point_of_sale.tests.test_frontend import TestPointOfSaleHttpCommon
-from odoo.addons.account_edi.tests.common import AccountEdiTestCommon
 
 
 @tagged('post_install', '-at_install', 'post_install_l10n')
 class TestGenericSA(TestGenericLocalization):
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     @AccountTestInvoicingCommon.setup_country('sa')
     def setUpClass(cls):
@@ -30,13 +31,19 @@ class TestGenericSA(TestGenericLocalization):
             'zip': '42317',
         })
 
+    def test_generic_localization(self):
+        self.main_pos_config.l10n_gcc_dual_language_receipt = True
+        _, html = super().test_generic_localization()
+        self.assertTrue("Tax Invoice" in html)
+
 
 @tagged('post_install_l10n', 'post_install', '-at_install')
 class TestUi(TestPointOfSaleHttpCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
-    @AccountEdiTestCommon.setup_edi_format('l10n_sa_edi.edi_sa_zatca')
-    @AccountEdiTestCommon.setup_country('sa')
+    @AccountTestInvoicingCommon.setup_country('sa')
     def setUpClass(cls):
         super().setUpClass()
         # Setup company
@@ -69,6 +76,8 @@ class TestUi(TestPointOfSaleHttpCommon):
 
 @tagged('post_install_l10n', 'post_install', '-at_install')
 class TestSaPosInvoice(TestPoSCommon, TestPointOfSaleHttpCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     def test_consolidate_invoices_for_same_customer(self):
         """

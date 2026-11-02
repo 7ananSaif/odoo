@@ -10,10 +10,14 @@ from datetime import datetime
 
 @tagged('post_install', '-at_install')
 class TestPurchaseOrderEDIGen(AccountTestInvoicingCommon):
+    _test_user_groups = None  # FIXME list needed groups
+
     def test_purchase_order_download_edi(self):
+        self.env.company.country_id = self.env.ref('base.be').id
         self.env.company.vat = 'BE0477472701'
         self.partner_a.country_id = self.env.ref('base.nl')
         self.partner_a.vat = 'NL123456782B90'
+        self.product_a.default_code = 'AAA'
         tax = self.company_data['default_tax_sale']
 
         po = self.env['purchase.order'].create({

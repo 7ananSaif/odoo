@@ -1,54 +1,89 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import ast
 
 from markupsafe import Markup
 
-from odoo import api, models, fields, _, SUPERUSER_ID
+from odoo import _, api, fields, models
 from odoo.exceptions import AccessError
 from odoo.fields import Domain
 from odoo.tools.misc import clean_context
 from odoo.addons.mail.tools.discuss import Store
 
+from .hr_employee_location import DAYS
 
-HR_READABLE_FIELDS = [
-    'active',
-    'child_ids',
-    'employee_id',
-    'employee_ids',
-    'is_hr_user',
-    'is_system',
-    'employee_resource_calendar_id',
-    'work_contact_id',
-    'bank_account_ids',
-]
 
-HR_WRITABLE_FIELDS = [
-    'additional_note',
-    'private_street',
-    'private_street2',
-    'private_city',
-    'private_state_id',
-    'private_zip',
-    'private_country_id',
-    'private_phone',
-    'private_email',
-    'barcode',
-    'category_ids',
-    'display_name',
-    'emergency_contact',
-    'emergency_phone',
-    'employee_bank_account_ids',
-    'job_title',
-    'km_home_work',
-    'mobile_phone',
-    'pin',
-    'visa_expire',
-    'work_email',
-    'work_location_id',
-    'work_phone',
-]
+def related_employee_field(name: str, *, field_name: str | None = None, string: str = '__default__'):
+    """Return the field parameters simulating a related field ``employee_id.<name>`` on ``res.users``.
+
+    Used as ``fields.Char(**related_employee_field('work_phone'), user_writeable=True)``
+    to expose employee data on the user (e.g. in the preferences form).
+    Differences with a plain related field:
+
+    - the current user always reads their own employee in sudo (other users
+      are read with the normal access rights);
+    - the current user writes their own employee in sudo only if the field is
+      declared with ``user_writeable=True``;
+    - searching uses ``employee_id`` when the user can read the employee
+      field, otherwise only matches the current user (negative operators are
+      not supported).
+
+    Label and help default to the employee field's (set in
+    ``ResUsers._post_model_setup__``).
+
+    :param str name: name of the ``hr.employee`` field
+    :param field_name: name of the field on ``res.users``, if different from ``name``
+    :type field_name: str or None
+    :param str string: label override
+    :return: keyword arguments for the field constructor
+    :rtype: dict
+    """
+    # simulating a related field which bypasses access only for the current user
+    if field_name is None:
+        field_name = name
+
+    @api.depends(f'employee_id.{name}')
+    @api.depends_context('uid')
+    def compute_employee_field(self):
+        current_user = self.env.user
+        for user in self:
+            if user == current_user:
+                employee = user.sudo().employee_id.with_prefetch()
+            else:
+                employee = user.employee_id
+            user[field_name] = employee[name]
+
+    def inverse_employee_field(self):
+        current_user = self.env.user
+        user_writeable = getattr(self._fields[field_name], 'user_writeable', False)
+        for user in self:
+            if user_writeable and user == current_user:
+                employee = user.sudo().employee_id.with_prefetch()
+            else:
+                employee = user.employee_id
+            employee[name] = user[field_name]
+
+    def search_employee_field(self, operator, value):
+        if operator in Domain.NEGATIVE_OPERATORS:
+            return NotImplemented
+        subdomain = Domain(name, operator, value)
+        Employee = self.env['hr.employee']
+        if Employee.has_access('read') and Employee.has_field_access(Employee._fields[name], 'read'):
+            return Domain('employee_id', 'any', subdomain)
+        else:
+            user = self.env.user.employee_id.filtered_domain(subdomain).user_id
+            return Domain('id', 'in', user.ids)
+
+    # mark the compute function for identification later
+    compute_employee_field.employee_field_name = name
+    return {
+        'string': string,
+        'compute': compute_employee_field,
+        'inverse': inverse_employee_field,
+        'search': search_employee_field,
+         # make it not shareable since we update the field in _post_model_setup__
+        '_shareable': False,
+    }
 
 
 class ResUsers(models.Model):
@@ -57,45 +92,68 @@ class ResUsers(models.Model):
     def _employee_ids_domain(self):
         # employee_ids is considered a safe field and as such will be fetched as sudo.
         # So try to enforce the security rules on the field to make sure we do not load employees outside of active companies
-        return [('company_id', 'in', self.env.company.ids + self.env.context.get('allowed_company_ids', []))]
+        return [('company_id', 'in', self.env.companies.ids)]
+
+    def _post_model_setup__(self):  # noqa: PLW3201
+        for field in self._fields.values():
+            if callable(field.compute) and hasattr(field.compute, 'employee_field_name'):
+                related_field = self.env.registry['hr.employee']._fields[field.compute.employee_field_name]
+                if field.string == '__default__':
+                    field.string = related_field.string
+                if field.help is None:
+                    field.help = related_field.help
+
+        return super()._post_model_setup__()
 
     # note: a user can only be linked to one employee per company (see sql constraint in `hr.employee`)
     employee_ids = fields.One2many('hr.employee', 'user_id', string='Related employee', domain=_employee_ids_domain)
+    all_employee_ids = fields.One2many("hr.employee", "user_id", string="Related employees from all companies")
+    employee_public_ids = fields.One2many('hr.employee.public', 'user_id', string='Related employee (public)', domain=_employee_ids_domain, readonly=True)
     employee_id = fields.Many2one('hr.employee', string="Company employee",
-        compute='_compute_company_employee', search='_search_company_employee', store=False)
+        compute='_compute_company_employee', search='_search_company_employee', readonly=True)
+    department_id = fields.Many2one(related='employee_id.department_id', string='Department')
 
-    job_title = fields.Char(related='employee_id.job_title')
-    work_phone = fields.Char(related='employee_id.work_phone', readonly=False, related_sudo=False)
-    mobile_phone = fields.Char(related='employee_id.mobile_phone', readonly=False, related_sudo=False)
-    work_email = fields.Char(related='employee_id.work_email', readonly=False, related_sudo=False)
-    category_ids = fields.Many2many(related='employee_id.category_ids', string="Employee Tags", readonly=False, related_sudo=False)
-    work_contact_id = fields.Many2one(related='employee_id.work_contact_id', readonly=False, related_sudo=False)
-    work_location_id = fields.Many2one(related='employee_id.work_location_id', readonly=False, related_sudo=True)
+    job_title = fields.Char(**related_employee_field('job_title'), user_writeable=True)
+    work_phone = fields.Char(**related_employee_field('work_phone'), user_writeable=True)
+    mobile_phone = fields.Char(**related_employee_field('mobile_phone'), user_writeable=True)
+    work_email = fields.Char(**related_employee_field('work_email'), user_writeable=True)
+    category_ids = fields.Many2many('hr.employee.category', **related_employee_field('category_ids', string="Employee Tags"), user_writeable=True)
+    work_contact_id = fields.Many2one('res.partner', **related_employee_field('work_contact_id'))
+    work_location_id = fields.Many2one('hr.work.location', **related_employee_field('work_location_id'), user_writeable=True)
     work_location_name = fields.Char(related="employee_id.work_location_name")
     work_location_type = fields.Selection(related="employee_id.work_location_type")
-    private_street = fields.Char(related='employee_id.private_street', string="Private Street", readonly=False, related_sudo=False)
-    private_street2 = fields.Char(related='employee_id.private_street2', string="Private Street2", readonly=False, related_sudo=False)
-    private_city = fields.Char(related='employee_id.private_city', string="Private City", readonly=False, related_sudo=False)
+    private_street = fields.Char(**related_employee_field('private_street'), user_writeable=True)
+    private_street2 = fields.Char(**related_employee_field('private_street2'), user_writeable=True)
+    private_city = fields.Char(**related_employee_field('private_city'), user_writeable=True)
     private_state_id = fields.Many2one(
-        related='employee_id.private_state_id', string="Private State", readonly=False, related_sudo=False,
-        domain="[('country_id', '=?', private_country_id)]")
-    private_zip = fields.Char(related='employee_id.private_zip', readonly=False, string="Private Zip", related_sudo=False)
-    private_country_id = fields.Many2one(related='employee_id.private_country_id', string="Private Country", readonly=False, related_sudo=False)
-    private_phone = fields.Char(related='employee_id.private_phone', readonly=False, related_sudo=False)
-    private_email = fields.Char(related='employee_id.private_email', string="Private Email", readonly=False)
-    km_home_work = fields.Integer(related='employee_id.km_home_work', readonly=False, related_sudo=False)
+        'res.country.state',
+        domain="[('country_id', '=?', private_country_id)]",
+        **related_employee_field('private_state_id'),
+        user_writeable=True,
+    )
+    private_zip = fields.Char(**related_employee_field('private_zip'), user_writeable=True)
+    private_country_id = fields.Many2one('res.country', **related_employee_field('private_country_id'), user_writeable=True)
+    private_phone = fields.Char(**related_employee_field('private_phone'), user_writeable=True)
+    private_email = fields.Char(**related_employee_field('private_email'), user_writeable=True)
+    km_home_work = fields.Integer(**related_employee_field('km_home_work'), user_writeable=True)
     # res.users already have a field bank_account_id and country_id from the res.partner inheritance: don't redefine them
     # This field no longer appears to be in use. To avoid breaking anything it must only be removed after the freeze of v19.
-    employee_bank_account_ids = fields.Many2many('res.partner.bank', related='employee_id.bank_account_ids', string="Employee's Bank Accounts", related_sudo=False, readonly=False)
-    emergency_contact = fields.Char(related='employee_id.emergency_contact', readonly=False, related_sudo=False)
-    emergency_phone = fields.Char(related='employee_id.emergency_phone', readonly=False, related_sudo=False)
-    visa_expire = fields.Date(related='employee_id.visa_expire', readonly=False, related_sudo=False)
-    additional_note = fields.Text(related='employee_id.additional_note', readonly=False, related_sudo=False)
-    barcode = fields.Char(related='employee_id.barcode', readonly=False, related_sudo=False)
-    pin = fields.Char(related='employee_id.pin', readonly=False, related_sudo=False)
+    employee_bank_account_ids = fields.Many2many(
+        'res.partner.bank',
+        **related_employee_field('bank_account_ids', field_name='employee_bank_account_ids', string="Employee's Bank Accounts"),
+        user_writeable=True,
+    )
+    emergency_contact = fields.Char(**related_employee_field('emergency_contact'), user_writeable=True)
+    emergency_phone = fields.Char(**related_employee_field('emergency_phone'), user_writeable=True)
+    visa_expire = fields.Date(**related_employee_field('visa_expire'), user_writeable=True)
+    additional_note = fields.Text(**related_employee_field('additional_note'), user_writeable=True)
+    barcode = fields.Char(**related_employee_field('barcode'), user_writeable=True)
+    pin = fields.Char(**related_employee_field('pin'), user_writeable=True)
     employee_count = fields.Integer(compute='_compute_employee_count')
     employee_resource_calendar_id = fields.Many2one(related='employee_id.resource_calendar_id', string="Employee's Working Hours", readonly=True)
-    bank_account_ids = fields.Many2many(related="employee_id.bank_account_ids")
+    bank_account_ids = fields.Many2many('res.partner.bank', **related_employee_field('bank_account_ids'))
+    birthday = fields.Date(**related_employee_field('birthday'), user_writeable=True)
+    birthday_public_display = fields.Boolean(**related_employee_field('birthday_public_display'), user_writeable=True)
 
     create_employee = fields.Boolean(store=False, default=False, copy=False, string="Technical field, whether to create an employee")
     create_employee_id = fields.Many2one('hr.employee', store=False, copy=False, string="Technical field, bind user to this employee on create")
@@ -103,65 +161,41 @@ class ResUsers(models.Model):
     is_system = fields.Boolean(compute="_compute_is_system")
     is_hr_user = fields.Boolean(compute='_compute_is_hr_user')
 
+    monday_location_id = fields.Many2one('hr.work.location', **related_employee_field('monday_location_id', string='Mondays'), user_writeable=True)
+    tuesday_location_id = fields.Many2one('hr.work.location', **related_employee_field('tuesday_location_id', string='Tuesdays'), user_writeable=True)
+    wednesday_location_id = fields.Many2one('hr.work.location', **related_employee_field('wednesday_location_id', string='Wednesdays'), user_writeable=True)
+    thursday_location_id = fields.Many2one('hr.work.location', **related_employee_field('thursday_location_id', string='Thursdays'), user_writeable=True)
+    friday_location_id = fields.Many2one('hr.work.location', **related_employee_field('friday_location_id', string='Fridays'), user_writeable=True)
+    saturday_location_id = fields.Many2one('hr.work.location', **related_employee_field('saturday_location_id', string='Saturdays'), user_writeable=True)
+    sunday_location_id = fields.Many2one('hr.work.location', **related_employee_field('sunday_location_id', string='Sundays'), user_writeable=True)
+
     @api.depends_context('uid')
     def _compute_is_system(self):
         self.is_system = self.env.user._is_system()
 
+    @api.depends_context('uid')
     def _compute_is_hr_user(self):
         is_hr_user = self.env.user.has_group('hr.group_hr_user')
-        for user in self:
-            user.is_hr_user = is_hr_user
+        self.is_hr_user = is_hr_user
 
     @api.depends('employee_ids')
     def _compute_employee_count(self):
         for user in self.with_context(active_test=False):
             user.employee_count = len(user.employee_ids)
 
-    @property
-    def SELF_READABLE_FIELDS(self):
-        return super().SELF_READABLE_FIELDS + HR_READABLE_FIELDS + HR_WRITABLE_FIELDS
-
-    @property
-    def SELF_WRITEABLE_FIELDS(self):
-        return super().SELF_WRITEABLE_FIELDS + HR_WRITABLE_FIELDS
-
     @api.onchange("private_state_id")
     def _onchange_private_state_id(self):
         if self.private_state_id:
             self.private_country_id = self.private_state_id.country_id
 
-    @api.model
-    def get_views(self, views, options=None):
-        # Requests the My Preferences form view as last.
-        # Otherwise the fields of the 'search' view will take precedence
-        # and will omit the fields that are requested as SUPERUSER
-        # in `get_view()`.
-        preferences_view = self.env.ref("hr.res_users_view_form_preferences")
-        preferences_form = preferences_view and [preferences_view.id, 'form']
-        if preferences_form and preferences_form in views:
-            views.remove(preferences_form)
-            views.append(preferences_form)
-        result = super().get_views(views, options)
-        return result
-
-    @api.model
-    def get_view(self, view_id=None, view_type='form', **options):
-        # When the front-end loads the views it gets the list of available fields
-        # for the user (according to its access rights). Later, when the front-end wants to
-        # populate the view with data, it only asks to read those available fields.
-        # However, in this case, we want the user to be able to read/write its own data,
-        # even if they are protected by groups.
-        # We make the front-end aware of those fields by sending all field definitions.
-        # Note: limit the `sudo` to the only action of "editing own preferences" action in order to
-        # avoid breaking `groups` mecanism on res.users form view.
-        preferences_view = self.env.ref("hr.res_users_view_form_preferences")
-        if preferences_view and view_id == preferences_view.id:
-            self = self.with_user(SUPERUSER_ID)
-        result = super().get_view(view_id, view_type, **options)
-        return result
-
     @api.model_create_multi
     def create(self, vals_list):
+        """Create users, optionally creating or binding their employee.
+
+        With ``create_employee=True`` in the values, an employee is created in
+        the current company (:meth:`hr.employee._sync_user`); with
+        ``create_employee_id``, that existing employee is linked to the user.
+        """
         res = super().create(vals_list)
         employee_create_vals = []
         for user, vals in zip(res, vals_list):
@@ -180,11 +214,24 @@ class ResUsers(models.Model):
         return res
 
     def _get_employee_fields_to_sync(self):
-        """Get values to sync to the related employee when the User is changed.
+        """Return the ``res.users`` fields copied to the related employees when written on the user.
+
+        ``email`` is copied to ``work_email``; ``image_1920`` only to employees
+        without image. Only employees of the current company are updated.
+
+        :rtype: list[str]
         """
-        return ['name', 'email', 'image_1920', 'tz']
+        return ['name', 'email', 'image_1920', 'tz'] + DAYS
 
     def _get_personal_info_partner_ids_to_notify(self, employee):
+        """Return who to notify when a user updates the employee data exposed on their user.
+
+        :param employee: the employee whose data is modified
+        :type employee: hr.employee
+        :return: ``(reason_message, partner_ids)``; by default the employee's HR
+            responsible, ``('', [])`` if none
+        :rtype: tuple[str, list[int]]
+        """
         if employee.version_id.hr_responsible_id:
             return (
                 _("You are receiving this message because you are the HR Responsible of this employee."),
@@ -193,15 +240,18 @@ class ResUsers(models.Model):
         return ('', [])
 
     def write(self, vals):
-        """
-        Synchronize user and its related employee
-        and check access rights if employees are not allowed to update
-        their own data (otherwise sudo is applied for self data).
+        """Write on users and synchronize their employees in the current company.
+
+        Writing employee-related fields (see :func:`related_employee_field`)
+        notifies the partners given by :meth:`_get_personal_info_partner_ids_to_notify`.
+        The fields of :meth:`_get_employee_fields_to_sync` are then written (in
+        sudo) on the users' employees of the current company.
         """
         hr_fields = {
             field_name: field
             for field_name, field in self._fields.items()
-            if field.related_field and field.related_field.model_name == 'hr.employee' and field_name in vals
+            if field_name in vals
+            if callable(field.compute) and hasattr(field.compute, 'employee_field_name')
         }
 
         employee_domain = [
@@ -239,7 +289,9 @@ class ResUsers(models.Model):
                 without_image = self.env['hr.employee'].sudo().search(employee_domain + [('image_1920', '=', False)])
                 with_image = self.env['hr.employee'].sudo().search(employee_domain + [('image_1920', '!=', False)])
                 without_image.write(employee_values)
-                with_image.write(employee_values)
+                employee_values.pop('image_1920')
+                if employee_values:
+                    with_image.write(employee_values)
             else:
                 employees = self.env['hr.employee'].sudo().search(employee_domain)
                 if employees:
@@ -262,14 +314,25 @@ class ResUsers(models.Model):
         return super().action_get()
 
     @api.depends('employee_ids')
-    @api.depends_context('company')
+    @api.depends_context('company', 'uid')
     def _compute_company_employee(self):
-        employee_per_user = {
-            employee.user_id: employee
-            for employee in self.env['hr.employee'].search([('user_id', 'in', self.ids), ('company_id', '=', self.env.company.id)])
-        }
+        """Compute ``employee_id``: the user's employee in the current company (``env.company``).
+
+        A user has at most one employee per company. For users other than the
+        current one, the employee is only set if readable by the current user.
+        """
+        employee_per_user = dict(self.env['hr.employee'].sudo()._read_group(
+            domain=[('user_id', 'in', self.ids), ('company_id', '=', self.env.company.id)],
+            groupby=['user_id'],
+            aggregates=['id:recordset'],
+        ))
+
         for user in self:
-            user.employee_id = employee_per_user.get(user)
+            employee = employee_per_user.get(user, self.env['hr.employee'])
+            if user != self.env.user and not self.env.su:
+                # since the search is done in sudo to avoid cache issues, apply access rules
+                employee = employee.filtered(lambda e: e.has_access('read'))
+            user.employee_id = employee
 
     def _search_company_employee(self, operator, value):
         # Equivalent to `[('employee_ids', operator, value)]`,
@@ -278,7 +341,12 @@ class ResUsers(models.Model):
         # If we're going to inject too many `ids`, we fall back on the default behavior
         # to avoid a performance regression.
         IN_MAX = 10_000
-        domain = Domain('employee_ids', operator, value)
+        # HACK: search directly on public ids to avoid optimization on employee
+        # where we may not have access to all fields.
+        employee_field = 'employee_ids' if self.env['hr.employee'].has_access('read') else 'employee_public_ids'
+        if isinstance(value, models.Query):
+            value._model = None  # we use another model
+        domain = Domain(employee_field, operator, value)
         user_ids = self.env['res.users'].with_context(active_test=False)._search(domain, limit=IN_MAX).get_result_ids()
         if len(user_ids) < IN_MAX:
             return Domain('id', 'in', user_ids)
@@ -286,10 +354,15 @@ class ResUsers(models.Model):
         return domain
 
     def action_create_employee(self):
+        """Create an employee for the user in the current company and return it.
+
+        :rtype: hr.employee
+        :raise AccessError: if the user is not allowed in the current company
+        """
         self.ensure_one()
         if self.env.company not in self.company_ids:
             raise AccessError(_("You are not allowed to create an employee because the user does not have access rights for %s", self.env.company.name))
-        self.env['hr.employee'].create(dict(
+        return self.env['hr.employee'].create(dict(
             name=self.name,
             company_id=self.env.company.id,
             **self.env['hr.employee']._sync_user(self)
@@ -324,11 +397,11 @@ class ResUsers(models.Model):
             'view_mode': 'form',
         }
 
-    def get_formview_action(self, access_uid=None):
+    def get_record_default_action(self, access_uid=None):
         """ Override this method in order to redirect many2one towards the full user form view
         incase the user is ERP manager and the request coming from employee form."""
 
-        res = super().get_formview_action(access_uid=access_uid)
+        res = super().get_record_default_action(access_uid=access_uid)
         user = self.env.user
         if access_uid:
             user = self.env['res.users'].browse(access_uid).sudo()
@@ -337,3 +410,14 @@ class ResUsers(models.Model):
             res['views'] = [(self.env.ref('base.view_users_form').id, 'form')]
 
         return res
+
+    def _store_avatar_card_fields(self, res: Store.FieldList):
+        super()._store_avatar_card_fields(res)
+        if res.is_for_internal_users():
+            # sudo: res.users - internal users can access employee information of accessible user
+            res.many("employee_ids", "_store_avatar_card_fields", sudo=True)
+
+    def _store_im_status_fields(self, res: Store.FieldList):
+        super()._store_im_status_fields(res)
+        # sudo: res.users - internal users can access employee information for the IM status
+        res.many("all_employee_ids", "_store_im_status_fields", sudo=True)

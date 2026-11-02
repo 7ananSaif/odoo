@@ -1,5 +1,6 @@
+from typing import Self
+
 from odoo import api, models
-from odoo.api import Self
 
 
 class DummyMethods:

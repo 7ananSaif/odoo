@@ -1,29 +1,32 @@
-import { Component, useEffect, useRef } from "@odoo/owl";
+import { Component, onMounted, onPatched, useProps, signal, t } from "@odoo/owl";
 import { CenteredIcon } from "@point_of_sale/app/components/centered_icon/centered_icon";
 import { Orderline } from "@point_of_sale/app/components/orderline/orderline";
 import { formatCurrency } from "@web/core/currency";
-import { TagsList } from "@web/core/tags_list/tags_list";
+import { BadgeTag } from "@web/core/tags_list/badge_tag";
+import { PosOrder } from "@point_of_sale/app/models/pos_order";
 
 // This methods is service-less, see PoS knowledges for more information
+export const orderDisplayProps = {
+    order: t.instanceOf(PosOrder),
+    slots: t.object(),
+    mode: t.string().optional("display"), // display, receipt
+};
+
 export class OrderDisplay extends Component {
     static template = "point_of_sale.OrderDisplay";
-    static components = { CenteredIcon, Orderline, TagsList };
-    static props = {
-        order: Object,
-        slots: Object,
-        mode: { type: String, optional: true }, // display, receipt
-    };
-    static defaultProps = {
-        mode: "display",
-    };
+    static components = { CenteredIcon, Orderline, BadgeTag };
+    props = useProps(orderDisplayProps);
+
+    scrollableRef = signal.ref();
 
     setup() {
-        this.scrollableRef = useRef("scrollable");
-        useEffect(() => {
-            this.scrollableRef.el
+        const scrollToSelectedOrderline = () => {
+            this.scrollableRef()
                 ?.querySelector(".orderline.selected")
                 ?.scrollIntoView({ behavior: "smooth", block: "start" });
-        });
+        };
+        onMounted(scrollToSelectedOrderline);
+        onPatched(scrollToSelectedOrderline);
     }
 
     formatCurrency(amount) {
@@ -31,7 +34,7 @@ export class OrderDisplay extends Component {
     }
 
     get comboSortedLines() {
-        return this.order.lines.reduce((acc, line) => {
+        return this.order.getOrderlines().reduce((acc, line) => {
             if (line.combo_line_ids?.length > 0) {
                 acc.push(line, ...line.combo_line_ids);
             } else if (!line.combo_parent_id) {

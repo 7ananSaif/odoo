@@ -3,8 +3,8 @@
     <t t-name="hr_attendance.AttendanceActionHelper">
         <div class="o_view_nocontent">
             <div class="o_nocontent_help">
-                <t t-if="hasAttendanceRight and isHrUser">
-                    <t t-if="env.isSmall">
+                <t t-if="this.hasAttendanceRight and this.isHrUser">
+                    <t t-if="this.uiService.isSmall">
                         <t t-call="hr_attendance.AttendanceActionHelperMobileScreen"/>
                     </t>
                     <t t-else="">
@@ -40,12 +40,12 @@
                 <img src="/hr_attendance/static/img/attendance_dot.gif" height="180" class="mb-2"/>
                 <h3 class="mt-2">
                     <em>Try the top
-                        <i class="fa fa-circle text-danger" role="img" aria-label="Attendance"/>
+                        <i class="oi oi-filled text-danger" data-icon="circle" role="img" aria-label="Attendance"/>
                         icon (e.g for work from home)
                     </em>
                 </h3>
             </div>
-            <t t-if="!state.hasDemoData">
+            <t t-if="!this.state.hasDemoData">
                 <div class="d-flex gap-3 align-items-center or-separator">
                     <hr class="flex-grow-1"/>
                     or
@@ -70,7 +70,7 @@
             <h3 class="py-2">
                 Ready to track attendances ?
             </h3>
-            <div class="d-flex align py-2">
+            <div class="d-flex justify-content-center py-2">
                 <a class="mx-5" type="object" t-on-click="() => this.LoadTryKiosk()">
                     <img src="/hr_attendance/static/img/mock-tablet.png" height="180" class="mb-2"/>
                     <div class="row justify-content-center mt-1">
@@ -82,11 +82,11 @@
                 <div class="mx-5" >
                         <img src="/hr_attendance/static/img/attendance_dot.gif" height="180" class="mb-2"/>
                     <h3 class="mt-2"><em>Try the top
-                        <i class="fa fa-circle text-danger" role="img" aria-label="Attendance"/>
+                        <i class="oi oi-filled text-danger" data-icon="circle" role="img" aria-label="Attendance"/>
                     icon (e.g for work from home)</em></h3>
                 </div>
             </div>
-            <t t-if="!state.hasDemoData">
+            <t t-if="!this.state.hasDemoData">
                     <div class="d-flex gap-3 align-items-center or-separator">
                         <hr class="flex-grow-1"/>
                         or

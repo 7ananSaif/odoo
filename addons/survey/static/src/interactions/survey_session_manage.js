@@ -5,12 +5,16 @@ import { browser } from "@web/core/browser/browser";
 import { Interaction } from "@web/public/interaction";
 import { registry } from "@web/core/registry";
 import { fadeIn, fadeOut } from "@survey/utils";
-import { getActiveHotkey } from "@web/core/hotkeys/hotkey_service";
+import { getActiveHotkey } from "@web/core/hotkeys/hotkey_utils";
+import { useListener, onWillStart, usePlugin } from "@odoo/owl";
+import { BootstrapInstance } from "@web/core/utils/bootstrap_plugin";
 
 const nextPageTooltips = {
     closingWords: _t("End of Survey"),
     leaderboard: _t("Show Leaderboard"),
     leaderboardFinal: _t("Show Final Leaderboard"),
+    scoreboard: _t("Show Scoreboard"),
+    scoreboardFinal: _t("Show Final Scoreboard"),
     nextQuestion: _t("Next"),
     results: _t("Show Correct Answer(s)"),
     startScreen: _t("Start"),
@@ -64,6 +68,7 @@ export class SurveySessionManage extends Interaction {
     };
 
     setup() {
+        this.bootstrap = usePlugin(BootstrapInstance);
         if (this.el.dataset.isSessionClosed) {
             this.isSessionClosed = true;
             this.el.classList.remove("invisible");
@@ -90,6 +95,7 @@ export class SurveySessionManage extends Interaction {
         this.isStartScreen = this.el.dataset.isStartScreen;
         this.isFirstQuestion = this.el.dataset.isFirstQuestion;
         this.isLastQuestion = this.el.dataset.isLastQuestion;
+        this.allParticipantsShown = this.el.dataset.allParticipantsShown;
         this.surveyLastTriggeringAnswers = JSON.parse(
             this.el.dataset.surveyLastTriggeringAnswers || "[]"
         );
@@ -105,20 +111,14 @@ export class SurveySessionManage extends Interaction {
         // Background Management
         this.refreshBackground = this.el.dataset.refreshBackground;
         // Prepare the copy link tooltip
-        this.copyBtnTooltip = window.Tooltip.getOrCreateInstance(
-            this.el.querySelector(".o_survey_session_copy"),
-            {
-                title: _t("Click to copy link"),
-                placement: "right",
-                container: "body",
-                trigger: "hover",
-                offset: "0, 3",
-                delay: 0,
-            }
-        );
-        this.registerCleanup(() => {
-            this.copyBtnPopover?.dispose();
-            this.copyBtnTooltip?.dispose();
+        const copyBtnEl = this.el.querySelector(".o_survey_session_copy");
+        this.bootstrap.getOrCreateInstance(window.Tooltip, copyBtnEl, {
+            title: _t("Click to copy link"),
+            placement: "right",
+            container: "body",
+            trigger: "hover",
+            offset: "0, 3",
+            delay: 0,
         });
         // Attendees count & navigation label
         this.sessionAttendeesCountText = "";
@@ -126,20 +126,19 @@ export class SurveySessionManage extends Interaction {
         // Show the page and start the timer
         this.el.classList.remove("invisible");
         this.setupIntervals();
-    }
-
-    async willStart() {
-        // If a chart is present, we wait for the chart interaction to be ready.
-        // The presence of the class `chart_is_ready` means that the chart was
-        // ready before us, so we don't need to wait (see survey_session_chart)
-        if (this.chartEl && !this.chartEl.classList.contains("chart_is_ready")) {
-            let resolveChartPromise;
-            const chartPromise = new Promise(function (resolve) {
-                resolveChartPromise = resolve;
-            });
-            this.env.bus.addEventListener("SURVEY:CHART_INTERACTION_STARTED", resolveChartPromise);
-            await chartPromise;
-        }
+        // Register listener for chart interaction
+        const { promise, resolve } = Promise.withResolvers();
+        useListener(this.env.bus, "SURVEY:CHART_INTERACTION_STARTED", () => {
+            resolve();
+        });
+        onWillStart(async () => {
+            // If a chart is present, we wait for the chart interaction to be ready.
+            // The presence of the class `chart_is_ready` means that the chart was
+            // ready before us, so we don't need to wait (see survey_session_chart)
+            if (this.chartEl && !this.chartEl.classList.contains("chart_is_ready")) {
+                await promise;
+            }
+        });
     }
 
     start() {
@@ -173,9 +172,8 @@ export class SurveySessionManage extends Interaction {
      */
     async onCopySessionLink(ev) {
         const copyBtnTooltipHideDelay = 800;
-        this.copyBtnTooltip?.dispose();
-        delete this.copyBtnTooltip;
-        this.copyBtnPopover = window.Popover.getOrCreateInstance(ev.currentTarget, {
+        this.bootstrap.disposeBootstrapInstance(window.Tooltip.getInstance(ev.currentTarget));
+        const copyBtnPopover = this.bootstrap.getOrCreateInstance(window.Popover, ev.currentTarget, {
             content: _t("Copied!"),
             trigger: "manual",
             placement: "right",
@@ -186,8 +184,8 @@ export class SurveySessionManage extends Interaction {
             browser.navigator.clipboard.writeText(ev.currentTarget.innerText.trim())
         );
         this.protectSyncAfterAsync(() => {
-            this.copyBtnPopover.show();
-            this.waitForTimeout(() => this.copyBtnPopover.hide(), copyBtnTooltipHideDelay);
+            copyBtnPopover.show();
+            this.waitForTimeout(() => copyBtnPopover.hide(), copyBtnTooltipHideDelay);
         })();
     }
 
@@ -210,13 +208,16 @@ export class SurveySessionManage extends Interaction {
      *
      * @param {Event} ev
      */
-    onNext(ev) {
+    async onNext(ev) {
         const screenToDisplay = this.getNextScreen();
         switch (screenToDisplay) {
             case "userInputs":
                 this.chartUpdateState({ showInputs: true });
                 break;
             case "results":
+                await this.waitFor(
+                    rpc(`/survey/session/disable_answers/${this.surveyAccessToken}`)
+                );
                 this.chartUpdateState({ showAnswers: true });
                 // when showing results, stop refreshing answers
                 clearInterval(this.resultsRefreshInterval);
@@ -480,10 +481,10 @@ export class SurveySessionManage extends Interaction {
      *
      * @param {KeyboardEvent} ev
      */
-    onKeyDown(ev) {
+    async onKeyDown(ev) {
         const hotkey = getActiveHotkey(ev);
         if (hotkey === "arrowright" || hotkey === "space") {
-            this.onNext(ev);
+            await this.onNext(ev);
         } else if (hotkey === "arrowleft") {
             this.onBack(ev);
         }
@@ -537,9 +538,9 @@ export class SurveySessionManage extends Interaction {
         ) {
             tooltip = nextPageTooltips.closingWords;
         } else {
-            const nextScreen = this.getNextScreen();
-            if (nextScreen === "nextQuestion" || this.surveyHasConditionalQuestions) {
-                tooltip = nextPageTooltips.nextQuestion;
+            let nextScreen = this.getNextScreen();
+            if (nextScreen.startsWith("leaderboard") && this.allParticipantsShown) {
+                nextScreen = nextScreen.replace('leaderboard', 'scoreboard');
             }
             tooltip = nextPageTooltips[nextScreen];
         }
@@ -591,7 +592,7 @@ export class SurveySessionManage extends Interaction {
         if (this.timerEl && !questionTimeLimitReached && !hasAnswered && timeLimitMinutes) {
             this.addListener(surveyManagerEl, "time_up", async () => {
                 if (this.currentScreen === "question" && this.isScoredQuestion) {
-                    this.onNext();
+                    await this.onNext();
                 }
             });
             this.timerEl.dispatchEvent(

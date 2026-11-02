@@ -1,23 +1,23 @@
 import { _t } from "@web/core/l10n/translation";
 import { browser } from "@web/core/browser/browser";
 import { Dialog } from "@web/core/dialog/dialog";
-import { Component, onMounted, useState } from "@odoo/owl";
+import { Component, onMounted, proxy, t, useProps } from "@odoo/owl";
 import { SlideXPProgressBar } from "@website_slides/js/public/components/slide_quiz_finish_dialog/slide_xp_progress_bar";
 
 export class SlideQuizFinishDialog extends Component {
     static components = { Dialog, SlideXPProgressBar };
-    static props = {
-        close: Function,
-        hasNext: Boolean,
-        onClickNext: Function,
-        quiz: Object,
-        userId: Number,
-    };
+    props = useProps({
+        close: t.function(),
+        hasNext: t.boolean(),
+        onClickNext: t.function(),
+        quiz: t.object(),
+        userId: t.number(),
+    });
     static template = "website_slides.SlideQuizFinishDialog";
 
     setup() {
         super.setup();
-        this.state = useState({
+        this.state = proxy({
             animateKarmaGain: false,
             fadeRankMotivational: false,
             hideDismissBtns: true,

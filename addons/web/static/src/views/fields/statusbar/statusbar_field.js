@@ -1,15 +1,17 @@
-import { Component, onWillRender, useEffect, useExternalListener, useRef } from "@odoo/owl";
+import { onWillRender, render } from "@web/owl2/utils";
+import { Component, signal, t, onMounted, onPatched, useListener, useProps } from "@odoo/owl";
 import { useCommand } from "@web/core/commands/command_hook";
 import { Domain } from "@web/core/domain";
 import { Dropdown } from "@web/core/dropdown/dropdown";
 import { DropdownItem } from "@web/core/dropdown/dropdown_item";
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { groupBy } from "@web/core/utils/arrays";
-import { throttleForAnimation } from "@web/core/utils/timing";
+import { useThrottleForAnimation } from "@web/core/utils/timing";
 import { getFieldDomain } from "@web/model/relational_model/utils";
 import { useSpecialData } from "@web/views/fields/relational_utils";
 import { standardFieldProps } from "../standard_field_props";
+import { ConnectionLostError } from "@web/core/network/rpc";
+import { useService } from "@web/core/utils/hooks";
 
 /**
  * @typedef {import("../standard_field_props").StandardFieldProps & {
@@ -48,50 +50,61 @@ export class StatusBarField extends Component {
         Dropdown,
         DropdownItem,
     };
-    static props = {
+    props = useProps({
         ...standardFieldProps,
-        domain: { type: [Array, Function], optional: true },
-        foldField: { type: String, optional: true },
-        isDisabled: { type: Boolean, optional: true },
-        visibleSelection: { type: Array, element: String, optional: true },
-        withCommand: { type: Boolean, optional: true },
-        context: { type: Object, optional: true },
-    };
+        domain: t.or([t.array(), t.function()]).optional(),
+        foldField: t.string().optional(),
+        isDisabled: t.boolean().optional(),
+        visibleSelection: t.array(t.string()).optional(),
+        withCommand: t.boolean().optional(),
+        context: t.object().optional(),
+    });
+
+    beforeRef = signal.ref();
+    rootRef = signal.ref();
+    afterRef = signal.ref();
+    dropdownRef = signal.ref();
+    forceRecomputeItemsKey = signal(0);
 
     setup() {
         // Properties
         this.items = {};
-        this.beforeRef = useRef("before");
-        this.rootRef = useRef("root");
-        this.afterRef = useRef("after");
-        this.dropdownRef = useRef("dropdown");
+        this.uiService = useService("ui");
 
         // Resize listeners
         let status = "idle";
         const adjust = () => {
             status = "adjusting";
             this.adjustVisibleItems();
-            this.render();
+            render(this);
         };
 
-        useEffect(() => {
+        const adjustIfNeeded = () => {
             if (status === "shouldAdjust") {
                 adjust();
             }
-        });
+        };
+        onMounted(adjustIfNeeded);
+        onPatched(adjustIfNeeded);
 
-        let forceRecomputeItems = false;
+        let currentItemsKey = this.forceRecomputeItemsKey();
         onWillRender(() => {
-            if (status !== "adjusting" || forceRecomputeItems) {
+            const nextKey = this.forceRecomputeItemsKey();
+            if (status !== "adjusting" || nextKey !== currentItemsKey) {
                 Object.assign(this.items, this.getSortedItems());
                 status = "shouldAdjust";
             } else {
                 status = "idle";
             }
-            forceRecomputeItems = false;
+            currentItemsKey = nextKey;
         });
 
-        useExternalListener(window, "resize", throttleForAnimation(adjust));
+        const throttledRenderAndAdapt = useThrottleForAnimation(() => {
+            if (this.rootRef()) {
+                adjust();
+            }
+        });
+        useListener(window, "resize", throttledRenderAndAdapt);
 
         // Special data
         if (this.field.type === "many2one") {
@@ -102,16 +115,20 @@ export class StatusBarField extends Component {
                 if (foldField) {
                     fieldNames.push(foldField);
                 }
-                const value = record.data[fieldName];
                 let domain = getFieldDomain(record, fieldName, props.domain);
                 domain = Domain.and([this.getDomain(props), domain]).toList();
-                if (domain.length && value) {
-                    domain = Domain.or([[["id", "=", value.id]], domain]).toList(
-                        record.evalContext
-                    );
-                }
-                const res = orm.searchRead(relation, domain, fieldNames, { context });
-                forceRecomputeItems = true;
+                const res = await orm
+                    .searchRead(relation, domain, fieldNames, { context })
+                    .catch((error) => {
+                        if (error instanceof ConnectionLostError) {
+                            if (this.props.record.data[this.props.name]) {
+                                return [this.props.record.data[this.props.name]];
+                            }
+                            return [];
+                        }
+                        throw error;
+                    });
+                this.forceRecomputeItemsKey.set(this.forceRecomputeItemsKey() + 1);
                 return res;
             });
         }
@@ -201,23 +218,23 @@ export class StatusBarField extends Component {
     adjustVisibleItems() {
         // Get all visible buttons
         const itemEls = [
-            ...this.rootRef.el.querySelectorAll(".o_arrow_button:not(.dropdown-toggle)"),
+            ...this.rootRef().querySelectorAll(".o_arrow_button_wrap"),
         ];
         const selectedIndex = itemEls.findIndex((el) =>
-            el.classList.contains("o_arrow_button_current")
+            el.querySelector(".o_arrow_button_current")
         );
         const itemsBefore = itemEls.slice(selectedIndex + 2).reverse();
         const itemsAfter = itemEls.slice(0, Math.max(selectedIndex - 1, 0)).reverse();
 
         // Reset hidden elements
         show(...itemEls);
-        hide(this.dropdownRef.el, this.beforeRef.el);
+        hide(this.dropdownRef(), this.beforeRef());
         if (this.items.folded.length) {
-            show(this.afterRef.el);
-            itemEls.forEach((el) => el.classList.remove("o_first"));
+            show(this.afterRef());
+            itemEls.forEach((el) => el.querySelector(".o_arrow_button").classList.remove("o_first"));
         } else {
-            hide(this.afterRef.el);
-            itemEls[0]?.classList.add("o_first");
+            hide(this.afterRef());
+            itemEls[0]?.querySelector(".o_arrow_button").classList.add("o_first");
         }
 
         // Reset items variables
@@ -225,42 +242,47 @@ export class StatusBarField extends Component {
         this.items.after = [...this.items.folded];
         const itemsToAssign = this.getAllItems().filter((item) => !item.isFolded);
 
-        if (this.env.isSmall && this.items.inline.length) {
+        if (this.uiService.isSmall && this.items.inline.length) {
             // Small screen case: only a single dropdown
-            show(this.dropdownRef.el);
-            hide(this.beforeRef.el, this.afterRef.el, ...itemEls);
+            show(this.dropdownRef());
+            hide(this.beforeRef(), this.afterRef(), ...itemEls);
             return;
         }
 
         while (this.areItemsWrapping()) {
             if (itemsBefore.length) {
                 // Case 1: elements before can be hidden
-                show(this.beforeRef.el);
+                show(this.beforeRef());
                 hide(itemsBefore.shift());
                 this.items.before.push(itemsToAssign.shift());
             } else if (itemsAfter.length) {
                 // Case 2: elements before are hidden, elements after can be hidden
-                show(this.afterRef.el);
+                show(this.afterRef());
                 hide(itemsAfter.pop());
                 this.items.after.unshift(itemsToAssign.pop());
             } else {
                 // Last resort: no elements can be hidden => fallback to single dropdown
-                show(this.dropdownRef.el);
-                hide(this.beforeRef.el, this.afterRef.el, ...itemEls);
+                show(this.dropdownRef());
+                hide(this.beforeRef(), this.afterRef(), ...itemEls);
                 break;
             }
         }
     }
 
     areItemsWrapping() {
-        const root = this.rootRef.el;
+        const root = this.rootRef();
         const firstItem = root.querySelector(":scope > :not(.d-none)");
         if (!firstItem) {
             return false;
         }
+        const style = getComputedStyle(root);
+        const verticalOffset =
+            parseFloat(style.paddingTop) + parseFloat(style.paddingBottom) +
+            parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth);
         const { height: currentHeight } = root.getBoundingClientRect();
         const { height: targetHeight } = firstItem.getBoundingClientRect();
-        return currentHeight > targetHeight;
+        // Add 1 pixel to tolerate sub-pixel measurement noise at some zoom/DPI ratios.
+        return currentHeight > targetHeight + verticalOffset + 1;
     }
 
     /**
@@ -271,12 +293,22 @@ export class StatusBarField extends Component {
         const currentValue = record.data[name];
         if (this.field.type === "many2one") {
             // Many2one
-            return this.specialData.data.map((option) => ({
+            const items = this.specialData.data.map((option) => ({
                 value: option.id,
                 label: option.display_name,
                 isFolded: option[foldField],
                 isSelected: Boolean(currentValue && option.id === currentValue.id),
             }));
+
+            if (currentValue && !items.find((item) => item.value === currentValue.id)) {
+                items.unshift({
+                    value: currentValue.id,
+                    label: currentValue.display_name,
+                    isFolded: false,
+                    isSelected: true,
+                });
+            }
+            return items;
         } else {
             // Selection
             let { selection } = this.field;
@@ -316,7 +348,7 @@ export class StatusBarField extends Component {
     getSortedItems() {
         const before = [];
         const after = [];
-        const { true: inline = [], false: folded = [] } = groupBy(
+        const { true: inline = [], false: folded = [] } = Object.groupBy(
             this.getAllItems(),
             (item) => item.isSelected || !item.isFolded
         );
@@ -335,7 +367,6 @@ export class StatusBarField extends Component {
                 ? { id: item.value, display_name: item.label }
                 : item.value;
         await record.update({ [name]: value });
-        await record.save();
     }
 
     /**

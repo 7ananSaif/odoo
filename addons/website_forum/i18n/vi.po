@@ -11,17 +11,24 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-20 18:37+0000\n"
-"PO-Revision-Date: 2025-11-09 15:12+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Vietnamese <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-11 17:44+0000\n"
+"PO-Revision-Date: 2026-08-31 15:35+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Vietnamese <https://translate.odoo.com/projects/odoo-s19-4/"
 "website_forum/vi/>\n"
 "Language: vi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: website_forum
+#: model:ir.module.module,description:base.module_website_forum
+msgid ""
+"\n"
+"Ask questions, get answers, no distractions\n"
+msgstr ""
 
 #. module: website_forum
 #. odoo-javascript
@@ -90,13 +97,7 @@ msgstr "Cần có %d karma để đóng hoặc mở lại một bài viết."
 
 #. module: website_forum
 #. odoo-python
-#: code:addons/website_forum/models/forum_post.py:0
-msgid "%d karma required to comment."
-msgstr "Cần có %d karma để bình luận."
-
-#. module: website_forum
-#. odoo-python
-#: code:addons/website_forum/models/forum_post.py:0
+#: code:addons/website_forum/models/forum_post_comment.py:0
 msgid "%d karma required to convert a comment to an answer."
 msgstr "Cần có %d karma để chuyển bình luận thành câu trả lời."
 
@@ -108,7 +109,7 @@ msgstr "Cần có %d karma để chuyển câu trả lời thành bình luận."
 
 #. module: website_forum
 #. odoo-python
-#: code:addons/website_forum/models/forum_post.py:0
+#: code:addons/website_forum/models/forum_post_comment.py:0
 msgid "%d karma required to convert your comment to an answer."
 msgstr "Cần có %d karma để chuyển bình luận của bạn thành câu trả lời."
 
@@ -187,6 +188,12 @@ msgstr "Cần có %d karma để bỏ liên kết một bài viết."
 
 #. module: website_forum
 #. odoo-python
+#: code:addons/website_forum/models/forum_post.py:0
+msgid "%d karma required to update a flagged post."
+msgstr ""
+
+#. module: website_forum
+#. odoo-python
 #: code:addons/website_forum/models/forum_post_vote.py:0
 msgid "%d karma required to upvote."
 msgstr "Cần có %d karma để bỏ phiếu vote lên."
@@ -196,6 +203,24 @@ msgstr "Cần có %d karma để bỏ phiếu vote lên."
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "%d karma required to validate a post."
 msgstr "Cần có %d karma để xác nhận một bài viết."
+
+#. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_post_comment.py:0
+msgid "%i karma required to comment."
+msgstr ""
+
+#. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_post_comment.py:0
+msgid "%i karma required to delete a comment."
+msgstr ""
+
+#. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_post_comment.py:0
+msgid "%i karma required to edit a comment."
+msgstr ""
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_index_tags
@@ -408,12 +433,13 @@ msgstr "<b>Bạn đã có một bài viết đang chờ.</b><br/>"
 #: model_terms:ir.ui.view,arch_db:website_forum.contact
 msgid ""
 "<b>|</b>\n"
-"                    <span class=\"fa fa-trophy o-text-gold ms-2\" "
-"role=\"img\" aria-label=\"Gold badge\" title=\"Gold badge\"/>"
+"                    <span class=\"oi oi-filled o-text-gold ms-2\" data-"
+"icon=\"trophy\" role=\"img\" aria-label=\"Gold badge\" title=\"Gold badge\"/>"
 msgstr ""
 "<b>|</b>\n"
-"                    <span class=\"fa fa-trophy o-text-gold ms-2\" "
-"role=\"img\" aria-label=\"Huy hiệu vàng\" title=\"Huy hiệu vàng\"/>"
+"                    <span class=\"oi oi-filled o-text-gold ms-2\" data-"
+"icon=\"trophy\" role=\"img\" aria-label=\"Huy hiệu vàng\" title=\"Huy hiệu "
+"vàng\"/>"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
@@ -421,238 +447,254 @@ msgid "<br/>by"
 msgstr "<br/>bởi"
 
 #. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.new_question
-msgid "<i class=\"fa fa-angle-left me-2\"/>Back to All Posts"
-msgstr "<i class=\"fa fa-angle-left me-2\"/>Trở lại tất cả bài viết"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.user_votes
-msgid "<i class=\"fa fa-arrow-right\"/> Go To Forums"
-msgstr "<i class=\"fa fa-arrow-right\"/> Đi đến diễn đàn"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.forum_model_nav
-msgid "<i class=\"fa fa-bug me-1\"/>Filter Tool"
-msgstr "<i class=\"fa fa-bug me-1\"/>Công cụ lọc"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.vote
-msgid ""
-"<i class=\"fa fa-caret-down\" data-bs-toggle=\"tooltip\" data-bs-"
-"placement=\"top\" title=\"Downvote\"/>"
-msgstr ""
-"<i class=\"fa fa-caret-down\" data-bs-toggle=\"tooltip\" data-bs-"
-"placement=\"top\" title=\"Phản đối\"/>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.vote
-msgid ""
-"<i class=\"fa fa-caret-up\" data-bs-toggle=\"tooltip\" data-bs-"
-"placement=\"top\" title=\"Upvote\"/>"
-msgstr ""
-"<i class=\"fa fa-caret-up\" data-bs-toggle=\"tooltip\" data-bs-"
-"placement=\"top\" title=\"Ủng hộ\"/>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
-msgid "<i class=\"fa fa-check fa-fw me-1\"/>Accept"
-msgstr "<i class=\"fa fa-check fa-fw me-1\"/>Chấp nhận"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
-msgid ""
-"<i class=\"fa fa-check fa-fw me-1\"/>Be less specific in your wording for a "
-"wider search result."
-msgstr ""
-"<i class=\"fa fa-check fa-fw me-1\"/>Đừng dùng từ ngữ quá cụ thể để có được "
-"kết quả tìm kiếm rộng hơn"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
-msgid "<i class=\"fa fa-check fa-fw me-1\"/>Check your spelling and try again."
-msgstr "<i class=\"fa fa-check fa-fw me-1\"/>Hãy kiểm tra chính tả và thử lại."
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
-msgid ""
-"<i class=\"fa fa-check fa-fw me-1\"/>Try searching for one or two words."
-msgstr "<i class=\"fa fa-check fa-fw me-1\"/>Hãy thử tìm kiếm một hoặc hai từ."
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.display_post_question_block
-msgid "<i class=\"fa fa-check me-1\"/>Solved"
-msgstr "<i class=\"fa fa-check me-1\"/>Đã xử lý"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.show_flag_validator
-msgid "<i class=\"fa fa-check\"/> Accept"
-msgstr "<i class=\"fa fa-check\"/> Chấp nhận"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.edit_post
-#: model_terms:ir.ui.view,arch_db:website_forum.new_question
-msgid ""
-"<i class=\"fa fa-check\"/> How to configure TPS and TVQ's canadian taxes?"
-msgstr ""
-"<i class=\"fa fa-check\"/> Cách định cấu hình thuế Canada của TPS và TVQ?"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
-msgid "<i class=\"fa fa-check\"/><span class=\"ms-2\">Accept</span>"
-msgstr "<i class=\"fa fa-check\"/><span class=\"ms-2\">Chấp nhận</span>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_kanban
-msgid "<i class=\"fa fa-comments-o me-1\" title=\"Forum\"/>"
-msgstr "<i class=\"fa fa-comments-o me-1\" title=\"Diễn đàn\"/>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_kanban
-msgid "<i class=\"fa fa-eye me-1\" title=\"Views\"/>"
-msgstr "<i class=\"fa fa-eye me-1\" title=\"Lượt xem\"/>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
-msgid "<i class=\"fa fa-flag\"/> Country"
-msgstr "<i class=\"fa fa-flag\"/> Quốc gia"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
-msgid "<i class=\"fa fa-font\"/> Text"
-msgstr "<i class=\"fa fa-font\"/> Văn bản"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.follow
-msgid "<i class=\"fa fa-fw fa-check me-1\"/>Following"
-msgstr "<i class=\"fa fa-fw fa-check me-1\"/>Đang theo dõi"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_kanban
-msgid "<i class=\"fa fa-globe me-1\" title=\"Website\"/>"
-msgstr "<i class=\"fa fa-globe me-1\" title=\"Website\"/>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar
-#: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar_mobile
-msgid "<i class=\"fa fa-info-circle fa-fw\"/> About this forum"
-msgstr "<i class=\"fa fa-info-circle fa-fw\"/> Về diễn đàn này"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.post_display
-msgid ""
-"<i class=\"fa fa-pencil\"/>\n"
-"                                Edit<span class=\"d-none d-lg-inline\"> your "
-"answer</span>"
-msgstr ""
-"<i class=\"fa fa-pencil\"/>\n"
-"                                Sửa<span class=\"d-none d-lg-inline\"> câu "
-"trả lời</span>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.display_post
-msgid ""
-"<i class=\"fa fa-reply me-1 d-lg-none\"/>\n"
-"                0"
-msgstr ""
-"<i class=\"fa fa-reply me-1 d-lg-none\"/>\n"
-"                0"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
-#: model_terms:ir.ui.view,arch_db:website_forum.post_display
-msgid "<i class=\"fa fa-reply me-1\"/>Reply"
-msgstr "<i class=\"fa fa-reply me-1\"/>Trả lời"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.post_display
-msgid ""
-"<i class=\"fa fa-share-alt\" data-bs-toggle=\"tooltip\" data-bs-"
-"placement=\"top\" title=\"Share\"/>"
-msgstr ""
-"<i class=\"fa fa-share-alt\" data-bs-toggle=\"tooltip\" data-bs-"
-"placement=\"top\" title=\"Chia sẻ\"/>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar_body
-msgid "<i class=\"fa fa-shield fa-fw opacity-50\"/> Badges"
-msgstr "<i class=\"fa fa-shield fa-fw opacity-50\"/> Huy hiệu"
-
-#. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.user_profile_content
-msgid ""
-"<i class=\"fa fa-thumbs-down text-danger ms-3\" role=\"img\" aria-"
-"label=\"Negative votes\" title=\"Negative votes\"/>"
-msgstr ""
-"<i class=\"fa fa-thumbs-down text-danger ms-3\" role=\"img\" aria-"
-"label=\"Phiếu phản đối\" title=\"Phiếu phản đối\"/>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.user_profile_content
-msgid ""
-"<i class=\"fa fa-thumbs-up text-success\" role=\"img\" aria-label=\"Positive "
-"votes\" title=\"Positive votes\"/>"
-msgstr ""
-"<i class=\"fa fa-thumbs-up text-success\" role=\"img\" aria-label=\"Positive "
-"votes\" title=\"Phiếu bầu tích cực\"/>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
-msgid "<i class=\"fa fa-times fa-fw me-1\"/>Reject"
-msgstr "<i class=\"fa fa-times fa-fw me-1\"/>Từ chối"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.edit_post
-#: model_terms:ir.ui.view,arch_db:website_forum.new_question
-msgid ""
-"<i class=\"fa fa-times\"/> Good morning to all! Please, can someone help "
-"solve my tax computation problem in Canada? Thanks!"
-msgstr ""
-"<i class=\"fa fa-times\"/> Xin chào mọi người! Có ai giúp tôi giải quyết vấn "
-"đề tính thuế ở Canada không? Cảm ơn nhiều!"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.show_flag_validator
-msgid "<i class=\"fa fa-times\"/> Reject"
-msgstr "<i class=\"fa fa-times\"/> Từ chối"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
-msgid "<i class=\"fa fa-times\"/><span class=\"ms-2\">Offensive</span>"
-msgstr "<i class=\"fa fa-times\"/><span class=\"ms-2\">Phản cảm</span>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
-msgid "<i class=\"fa fa-times\"/><span class=\"ms-2\">Reject</span>"
-msgstr "<i class=\"fa fa-times\"/><span class=\"ms-2\">Từ chối</span>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
-msgid "<i class=\"fa fa-user\"/> User"
-msgstr "<i class=\"fa fa-user\"/> Người dùng"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar_body
-msgid "<i class=\"fa fa-users fa-fw opacity-50\"/> People"
-msgstr "<i class=\"fa fa-users fa-fw opacity-50\"/> Người"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.user_profile_content
-msgid "<i class=\"oi oi-arrow-right d-inline-block\"/> Go to Forums"
-msgstr "<i class=\"oi oi-arrow-right d-inline-block\"/> Đi đến diễn đàn"
+msgid "<i class=\"oi d-inline-block\" data-icon=\"east\"/> Go to Forums"
+msgstr "<i class=\"oi d-inline-block\" data-icon=\"east\"/> Đi đến diễn đàn"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.404
 msgid ""
-"<i class=\"oi oi-arrow-right display-inline-block\"/> Return to questions "
-"list"
+"<i class=\"oi display-inline-block\" data-icon=\"east\"/> Return to "
+"questions list"
 msgstr ""
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.display_post
+msgid ""
+"<i class=\"oi me-1 d-lg-none\" data-icon=\"reply\"/>\n"
+"                0"
+msgstr ""
+"<i class=\"oi me-1 d-lg-none\" data-icon=\"reply\"/>\n"
+"                0"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.forum_model_nav
+msgid "<i class=\"oi me-1\" data-icon=\"bug_report\"/>Filter Tool"
+msgstr "<i class=\"oi me-1\" data-icon=\"bug_report\"/>Công cụ lọc"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.display_post_question_block
+msgid "<i class=\"oi me-1\" data-icon=\"check\"/>Solved"
+msgstr "<i class=\"oi me-1\" data-icon=\"check\"/>Đã xử lý"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_kanban
+msgid "<i class=\"oi me-1\" data-icon=\"forum\" title=\"Forum\"/>"
+msgstr "<i class=\"oi me-1\" data-icon=\"forum\" title=\"Diễn đàn\"/>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_kanban
+msgid "<i class=\"oi me-1\" data-icon=\"public\" title=\"Website\"/>"
+msgstr "<i class=\"oi me-1\" data-icon=\"public\" title=\"Website\"/>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
+#: model_terms:ir.ui.view,arch_db:website_forum.post_display
+msgid "<i class=\"oi me-1\" data-icon=\"reply\"/>Reply"
+msgstr "<i class=\"oi me-1\" data-icon=\"reply\"/>Trả lời"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_kanban
+msgid "<i class=\"oi me-1\" data-icon=\"visibility\" title=\"Views\"/>"
+msgstr "<i class=\"oi me-1\" data-icon=\"visibility\" title=\"Lượt xem\"/>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.new_question
+msgid ""
+"<i class=\"oi me-2\" data-icon=\"keyboard_arrow_left\"/>Back to All Posts"
+msgstr ""
+"<i class=\"oi me-2\" data-icon=\"keyboard_arrow_left\"/>Trở lại tất cả bài "
+"viết"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar_body
+msgid "<i class=\"oi oi-filled oi-fw opacity-50\" data-icon=\"group\"/> People"
+msgstr "<i class=\"oi oi-filled oi-fw opacity-50\" data-icon=\"group\"/> Người"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.user_profile_content
+msgid ""
+"<i class=\"oi oi-filled text-danger ms-3\" data-icon=\"thumb_down\" "
+"role=\"img\" aria-label=\"Negative votes\" title=\"Negative votes\"/>"
+msgstr ""
+"<i class=\"oi oi-filled text-danger ms-3\" data-icon=\"thumb_down\" "
+"role=\"img\" aria-label=\"Phiếu phản đối\" title=\"Phiếu phản đối\"/>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.user_profile_content
+msgid ""
+"<i class=\"oi oi-filled text-success\" data-icon=\"thumb_up\" role=\"img\" "
+"aria-label=\"Positive votes\" title=\"Positive votes\"/>"
+msgstr ""
+"<i class=\"oi oi-filled text-success\" data-icon=\"thumb_up\" role=\"img\" "
+"aria-label=\"Positive votes\" title=\"Phiếu bầu tích cực\"/>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.post_display
+msgid ""
+"<i class=\"oi oi-filled\" data-icon=\"edit\"/>\n"
+"                                Edit<span class=\"d-none d-lg-inline\"> your "
+"answer</span>"
+msgstr ""
+"<i class=\"oi oi-filled\" data-icon=\"edit\"/>\n"
+"                                Sửa<span class=\"d-none d-lg-inline\"> câu "
+"trả lời</span>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
+msgid "<i class=\"oi oi-filled\" data-icon=\"flag\"/> Country"
+msgstr "<i class=\"oi oi-filled\" data-icon=\"flag\"/> Quốc gia"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
+msgid "<i class=\"oi oi-filled\" data-icon=\"person\"/> User"
+msgstr "<i class=\"oi oi-filled\" data-icon=\"person\"/> Người dùng"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
+msgid "<i class=\"oi oi-fw me-1\" data-icon=\"check\"/>Accept"
+msgstr "<i class=\"oi oi-fw me-1\" data-icon=\"check\"/>Chấp nhận"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
+msgid ""
+"<i class=\"oi oi-fw me-1\" data-icon=\"check\"/>Be less specific in your "
+"wording for a wider search result."
+msgstr ""
+"<i class=\"oi oi-fw me-1\" data-icon=\"check\"/>Đừng dùng từ ngữ quá cụ thể "
+"để có được kết quả tìm kiếm rộng hơn"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
+msgid ""
+"<i class=\"oi oi-fw me-1\" data-icon=\"check\"/>Check your spelling and try "
+"again."
+msgstr ""
+"<i class=\"oi oi-fw me-1\" data-icon=\"check\"/>Hãy kiểm tra chính tả và thử "
+"lại."
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.follow_button
+msgid "<i class=\"oi oi-fw me-1\" data-icon=\"check\"/>Following"
+msgstr "<i class=\"oi oi-fw me-1\" data-icon=\"check\"/>Đang theo dõi"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
+msgid ""
+"<i class=\"oi oi-fw me-1\" data-icon=\"check\"/>Try searching for one or two "
+"words."
+msgstr ""
+"<i class=\"oi oi-fw me-1\" data-icon=\"check\"/>Hãy thử tìm kiếm một hoặc "
+"hai từ."
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
+msgid "<i class=\"oi oi-fw me-1\" data-icon=\"close\"/>Reject"
+msgstr "<i class=\"oi oi-fw me-1\" data-icon=\"close\"/>Từ chối"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar_body
+msgid "<i class=\"oi oi-fw opacity-50\" data-icon=\"security\"/> Badges"
+msgstr "<i class=\"oi oi-fw opacity-50\" data-icon=\"security\"/> Huy hiệu"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar
+#: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar_mobile
+msgid "<i class=\"oi oi-fw\" data-icon=\"info\"/> About this forum"
+msgstr "<i class=\"oi oi-fw\" data-icon=\"info\"/> Về diễn đàn này"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.vote
+msgid ""
+"<i class=\"oi\" data-icon=\"arrow_drop_down\" data-bs-toggle=\"tooltip\" "
+"data-bs-placement=\"top\" title=\"Downvote\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"arrow_drop_down\" data-bs-toggle=\"tooltip\" "
+"data-bs-placement=\"top\" title=\"Phản đối\"/>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.vote
+msgid ""
+"<i class=\"oi\" data-icon=\"arrow_drop_up\" data-bs-toggle=\"tooltip\" data-"
+"bs-placement=\"top\" title=\"Upvote\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"arrow_drop_up\" data-bs-toggle=\"tooltip\" data-"
+"bs-placement=\"top\" title=\"Ủng hộ\"/>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.user_votes
+msgid "<i class=\"oi\" data-icon=\"arrow_forward\"/> Go To Forums"
+msgstr "<i class=\"oi\" data-icon=\"arrow_forward\"/> Đi đến diễn đàn"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.show_flag_validator
+msgid "<i class=\"oi\" data-icon=\"check\"/> Accept"
+msgstr "<i class=\"oi\" data-icon=\"check\"/> Chấp nhận"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.edit_post
+#: model_terms:ir.ui.view,arch_db:website_forum.new_question
+msgid ""
+"<i class=\"oi\" data-icon=\"check\"/> How to configure TPS and TVQ's "
+"canadian taxes?"
+msgstr ""
+"<i class=\"oi\" data-icon=\"check\"/> Cách định cấu hình thuế Canada của TPS "
+"và TVQ?"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
+msgid "<i class=\"oi\" data-icon=\"check\"/><span class=\"ms-2\">Accept</span>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"check\"/><span class=\"ms-2\">Chấp nhận</span>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.edit_post
+#: model_terms:ir.ui.view,arch_db:website_forum.new_question
+msgid ""
+"<i class=\"oi\" data-icon=\"close\"/> Good morning to all! Please, can "
+"someone help solve my tax computation problem in Canada? Thanks!"
+msgstr ""
+"<i class=\"oi\" data-icon=\"close\"/> Xin chào mọi người! Có ai giúp tôi "
+"giải quyết vấn đề tính thuế ở Canada không? Cảm ơn nhiều!"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.show_flag_validator
+msgid "<i class=\"oi\" data-icon=\"close\"/> Reject"
+msgstr "<i class=\"oi\" data-icon=\"close\"/> Từ chối"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
+msgid ""
+"<i class=\"oi\" data-icon=\"close\"/><span class=\"ms-2\">Offensive</span>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"close\"/><span class=\"ms-2\">Phản cảm</span>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
+msgid "<i class=\"oi\" data-icon=\"close\"/><span class=\"ms-2\">Reject</span>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"close\"/><span class=\"ms-2\">Từ chối</span>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.post_display
+msgid ""
+"<i class=\"oi\" data-icon=\"family_history\" data-bs-toggle=\"tooltip\" data-"
+"bs-placement=\"top\" title=\"Share\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"family_history\" data-bs-toggle=\"tooltip\" data-"
+"bs-placement=\"top\" title=\"Chia sẻ\"/>"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_dropdown
 msgid ""
-"<i class=\"oi oi-ellipsis-h\" data-bs-toggle=\"tooltip\" data-bs-"
+"<i class=\"oi\" data-icon=\"more_horiz\" data-bs-toggle=\"tooltip\" data-bs-"
 "placement=\"top\" title=\"More\"/>"
 msgstr ""
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
+msgid "<i class=\"oi\" data-icon=\"text_fields\"/> Text"
+msgstr "<i class=\"oi\" data-icon=\"text_fields\"/> Văn bản"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.user_profile_content
@@ -668,24 +710,6 @@ msgstr "<small>(Xem tất cả)</small>"
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_all_all_entries
 msgid "<span class=\"badge bg-dark me-1\">Last post:</span>"
 msgstr "<span class=\"badge bg-dark me-1\">Bài viết cuối cùng:</span>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.contact
-msgid ""
-"<span class=\"fa fa-trophy o-text-bronze ms-2\" role=\"img\" aria-"
-"label=\"Bronze badge\" title=\"Bronze badge\"/>"
-msgstr ""
-"<span class=\"fa fa-trophy o-text-bronze ms-2\" role=\"img\" aria-"
-"label=\"Huy hiệu đồng\" title=\"Huy hiệu đồng\"/>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.contact
-msgid ""
-"<span class=\"fa fa-trophy o-text-silver ms-2\" role=\"img\" aria-"
-"label=\"Silver badge\" title=\"Silver badge\"/>"
-msgstr ""
-"<span class=\"fa fa-trophy o-text-silver ms-2\" role=\"img\" aria-"
-"label=\"Huy hiệu bạc\" title=\"Huy hiệu bạc\"/>"
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
@@ -755,11 +779,11 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:website_forum.edit_post
 #: model_terms:ir.ui.view,arch_db:website_forum.new_question
 msgid ""
-"<span class=\"form-text small text-muted me-1\"><i class=\"fa fa-lightbulb-"
-"o\"/> Tip:</span>"
+"<span class=\"form-text small text-muted me-1\"><i class=\"oi\" data-"
+"icon=\"lightbulb\"/> Tip:</span>"
 msgstr ""
-"<span class=\"form-text small text-muted me-1\"><i class=\"fa fa-lightbulb-"
-"o\"/> Mẹo:</span>"
+"<span class=\"form-text small text-muted me-1\"><i class=\"oi\" data-"
+"icon=\"lightbulb\"/> Mẹo:</span>"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_forum_view_form
@@ -776,6 +800,24 @@ msgstr "<span class=\"o_stat_text\">Đi tới <br/>website</span>"
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_forum_view_form
 msgid "<span class=\"o_stat_text\">Posts</span>"
 msgstr "<span class=\"o_stat_text\">Bài viết</span>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.contact
+msgid ""
+"<span class=\"oi oi-filled o-text-bronze ms-2\" data-icon=\"trophy\" "
+"role=\"img\" aria-label=\"Bronze badge\" title=\"Bronze badge\"/>"
+msgstr ""
+"<span class=\"oi oi-filled o-text-bronze ms-2\" data-icon=\"trophy\" "
+"role=\"img\" aria-label=\"Huy hiệu đồng\" title=\"Huy hiệu đồng\"/>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.contact
+msgid ""
+"<span class=\"oi oi-filled o-text-silver ms-2\" data-icon=\"trophy\" "
+"role=\"img\" aria-label=\"Silver badge\" title=\"Silver badge\"/>"
+msgstr ""
+"<span class=\"oi oi-filled o-text-silver ms-2\" data-icon=\"trophy\" "
+"role=\"img\" aria-label=\"Huy hiệu bạc\" title=\"Huy hiệu bạc\"/>"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.display_activities
@@ -858,8 +900,6 @@ msgstr "Truy cập bị từ chối"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__message_needaction
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__message_needaction
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__message_needaction
 msgid "Action Needed"
 msgstr "Tác vụ cần thiết"
 
@@ -905,6 +945,12 @@ msgid "All"
 msgstr "Tất cả"
 
 #. module: website_forum
+#. odoo-javascript
+#: code:addons/website_forum/static/src/website_builder/forum_floating_snippets_plugin.js:0
+msgid "All Forums"
+msgstr ""
+
+#. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar_body
 msgid "All Posts"
 msgstr "Tất cả bài viết"
@@ -932,6 +978,7 @@ msgstr "Câu trả lời %s"
 
 #. module: website_forum
 #. odoo-python
+#: code:addons/website_forum/controllers/website_forum.py:0
 #: code:addons/website_forum/models/forum_post.py:0
 #: model:mail.message.subtype,description:website_forum.mt_answer_edit
 #: model:mail.message.subtype,name:website_forum.mt_answer_edit
@@ -947,6 +994,12 @@ msgstr "Câu trả lời đã được duyệt"
 #: model_terms:gamification.badge,description:website_forum.badge_a_6
 msgid "Answer accepted with 15 or more votes"
 msgstr "Câu trả lời được duyệt với trên 15 lượt bình chọn"
+
+#. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_post.py:0
+msgid "Answer converted to comment in \"%s\""
+msgstr ""
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_gen_answer_downvote
@@ -1122,8 +1175,6 @@ msgstr "Tệp đính kèm"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__message_attachment_count
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__message_attachment_count
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__message_attachment_count
 msgid "Attachment Count"
 msgstr "Số lượng tệp đính kèm"
 
@@ -1198,10 +1249,15 @@ msgid "Best Answer"
 msgstr "Câu trả lời hay nhất"
 
 #. module: website_forum
+#: model:ir.model.fields,field_description:website_forum.field_forum_post_comment__body
+msgid "Body"
+msgstr ""
+
+#. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/xml/public_templates.xml:0
 msgid "By sharing you answer, you will get additional"
-msgstr "Bằng cách chia sẻ câu trả lời, bạn sẽ nhận được thêm"
+msgstr ""
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__can_accept
@@ -1279,9 +1335,27 @@ msgid "Can View"
 msgstr "Có thể xem"
 
 #. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_post_comment.py:0
+msgid "Cannot change the post of a comment."
+msgstr ""
+
+#. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_post.py:0
+msgid "Cannot convert a question to a comment"
+msgstr ""
+
+#. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_edit_retag
 msgid "Change question tags"
 msgstr "Thay đổi thẻ câu hỏi"
+
+#. module: website_forum
+#. odoo-javascript
+#: code:addons/website_forum/static/src/js/tours/website_forum.js:0
+msgid "Check edit button is there"
+msgstr ""
 
 #. module: website_forum
 #: model:gamification.badge,name:website_forum.badge_p_4
@@ -1293,25 +1367,25 @@ msgstr "Bình luận viên trưởng"
 #. odoo-javascript
 #: code:addons/website_forum/static/src/js/tours/website_forum.js:0
 msgid "Click here to accept this answer."
-msgstr "Nhấn để duyệt câu trả lời này."
+msgstr ""
 
 #. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/js/tours/website_forum.js:0
 msgid "Click to post your answer."
-msgstr "Bấm để đăng câu trả lời của bạn"
+msgstr ""
 
 #. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/js/tours/website_forum.js:0
 msgid "Click to post your question."
-msgstr "Chọn để đăng câu hỏi"
+msgstr ""
 
 #. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/js/tours/website_forum.js:0
 msgid "Click to reply."
-msgstr "Nhấp để trả lời."
+msgstr ""
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_dropdown
@@ -1338,6 +1412,18 @@ msgstr "Đóng bài viết của bạn"
 #: model_terms:ir.ui.view,arch_db:website_forum.mark_as_offensive
 msgid "Close post"
 msgstr "Đóng bài viết"
+
+#. module: website_forum
+#. odoo-javascript
+#: code:addons/website_forum/static/src/js/tours/website_forum.js:0
+msgid "Close search bar"
+msgstr ""
+
+#. module: website_forum
+#. odoo-javascript
+#: code:addons/website_forum/static/src/js/tours/website_forum.js:0
+msgid "Close this dialog."
+msgstr ""
 
 #. module: website_forum
 #: model:ir.model.fields.selection,name:website_forum.selection__forum_post__state__close
@@ -1404,6 +1490,11 @@ msgid "Commentator"
 msgstr "Người bình luận"
 
 #. module: website_forum
+#: model:ir.model.fields,field_description:website_forum.field_forum_post__comment_ids
+msgid "Comments"
+msgstr ""
+
+#. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_all_oe_structure_forum_all_top
 msgid "Community Forums"
 msgstr "Diễn đàn cộng đồng"
@@ -1429,6 +1520,11 @@ msgstr "Chứa nhận xét phản cảm hoặc ác ý"
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_search
 msgid "Content"
 msgstr "Nội dung"
+
+#. module: website_forum
+#: model:ir.model.fields,field_description:website_forum.field_forum_post__write_date_content
+msgid "Content Updated on"
+msgstr ""
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_comment_convert_all
@@ -1480,7 +1576,7 @@ msgstr "Tạo một bài viết trên diễn đàn"
 #. odoo-javascript
 #: code:addons/website_forum/static/src/js/tours/website_forum.js:0
 msgid "Create a new post in this forum by clicking on the button."
-msgstr "Tạo bài viết mới trong diễn đàn bằng cách bấm vào nút."
+msgstr ""
 
 #. module: website_forum
 #: model_terms:ir.actions.act_window,help:website_forum.forum_tag_action
@@ -1505,7 +1601,7 @@ msgstr "Tạo thẻ mới"
 #. odoo-javascript
 #: code:addons/website_forum/static/src/xml/website_forum_tags_wrapper.xml:0
 msgid "Create option \""
-msgstr "Tạo tuỳ chọn \""
+msgstr ""
 
 #. module: website_forum
 #: model_terms:gamification.badge,description:website_forum.badge_32
@@ -1515,6 +1611,7 @@ msgstr "Tạo một thẻ được sử dụng bởi 15 câu hỏi"
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__create_uid
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__create_uid
+#: model:ir.model.fields,field_description:website_forum.field_forum_post_comment__create_uid
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_reason__create_uid
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_vote__create_uid
 #: model:ir.model.fields,field_description:website_forum.field_forum_tag__create_uid
@@ -1523,6 +1620,7 @@ msgstr "Được tạo bởi"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__create_date
+#: model:ir.model.fields,field_description:website_forum.field_forum_post_comment__create_date
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_reason__create_date
 #: model:ir.model.fields,field_description:website_forum.field_forum_tag__create_date
 #: model_terms:ir.ui.view,arch_db:website_forum.display_post
@@ -1541,12 +1639,6 @@ msgstr "Câu hỏi đáng tin cậy"
 #: model:gamification.goal.definition,name:website_forum.definition_critic
 msgid "Critic"
 msgstr "Phê bình"
-
-#. module: website_forum
-#. odoo-javascript
-#: code:addons/website_forum/static/src/website_builder/forum_searchbar_option_plugin.js:0
-msgid "Date"
-msgstr "Ngày"
 
 #. module: website_forum
 #. odoo-javascript
@@ -1626,8 +1718,6 @@ msgid "Deleted own post with 3 or more upvotes"
 msgstr "Đã xóa bài viết cá nhân với 3 bình chọn trở lên"
 
 #. module: website_forum
-#. odoo-javascript
-#: code:addons/website_forum/static/src/website_builder/forum_searchbar_option_plugin.js:0
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__description
 #: model_terms:ir.ui.view,arch_db:website_forum.edit_post
 #: model_terms:ir.ui.view,arch_db:website_forum.new_question
@@ -1675,12 +1765,15 @@ msgstr "Loại bỏ tin nhắn"
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__display_name
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__display_name
+#: model:ir.model.fields,field_description:website_forum.field_forum_post_comment__display_name
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_reason__display_name
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_vote__display_name
 #: model:ir.model.fields,field_description:website_forum.field_forum_tag__display_name
 #: model:ir.model.fields,field_description:website_forum.field_gamification_challenge__display_name
 #: model:ir.model.fields,field_description:website_forum.field_gamification_karma_tracking__display_name
 #: model:ir.model.fields,field_description:website_forum.field_ir_attachment__display_name
+#: model:ir.model.fields,field_description:website_forum.field_ir_http__display_name
+#: model:ir.model.fields,field_description:website_forum.field_mail_thread__display_name
 #: model:ir.model.fields,field_description:website_forum.field_res_users__display_name
 #: model:ir.model.fields,field_description:website_forum.field_website__display_name
 msgid "Display Name"
@@ -1702,6 +1795,11 @@ msgstr "Hạ cấp"
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "Downvote for posting offensive contents"
 msgstr "Phản đối việc đăng nội dung phản cảm"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.header
+msgid "Drag blocks here to add them on all forum"
+msgstr ""
 
 #. module: website_forum
 #: model:forum.post.reason,name:website_forum.reason_1
@@ -1761,6 +1859,11 @@ msgid "Editor Features: image and links"
 msgstr "Chức năng biên tập: hình ảnh và liên kết"
 
 #. module: website_forum
+#: model:ir.model,name:website_forum.model_mail_thread
+msgid "Email Thread"
+msgstr ""
+
+#. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
 msgid "Empty box"
 msgstr "Ô trống"
@@ -1783,10 +1886,10 @@ msgstr "Khai sáng"
 #: model_terms:ir.ui.view,arch_db:website_forum.new_question
 msgid ""
 "Example\n"
-"                            <i class=\"fa fa-question-circle\"/>"
+"                            <i class=\"oi\" data-icon=\"help\"/>"
 msgstr ""
 "Ví dụ\n"
-"                            <i class=\"fa fa-question-circle\"/>"
+"                            <i class=\"oi\" data-icon=\"help\"/>"
 
 #. module: website_forum
 #. odoo-javascript
@@ -1902,7 +2005,7 @@ msgid "Flagged by"
 msgstr "Gắn cờ bởi"
 
 #. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.follow
+#: model_terms:ir.ui.view,arch_db:website_forum.follow_button
 msgid "Follow"
 msgstr "Theo dõi"
 
@@ -1918,15 +2021,13 @@ msgstr "Thẻ được theo dõi"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__message_follower_ids
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__message_follower_ids
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__message_follower_ids
+#: model:ir.model.fields,field_description:website_forum.field_forum_post__follower_ids
+#: model:ir.model.fields,field_description:website_forum.field_forum_tag__follower_ids
 msgid "Followers"
 msgstr "Người theo dõi"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__message_partner_ids
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__message_partner_ids
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__message_partner_ids
 msgid "Followers (Partners)"
 msgstr "Người theo dõi (Đối tác)"
 
@@ -1951,12 +2052,15 @@ msgstr ""
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/controllers/website_forum.py:0
+#: code:addons/website_forum/models/forum_forum.py:0
 #: code:addons/website_forum/models/website.py:0
 #: model:ir.actions.act_url,name:website_forum.action_open_forum
 #: model:ir.model,name:website_forum.model_forum_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__forum_id
+#: model:ir.model.fields,field_description:website_forum.field_forum_post_comment__forum_id
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_vote__forum_id
 #: model:ir.model.fields,field_description:website_forum.field_forum_tag__forum_id
+#: model:ir.module.module,shortdesc:base.module_website_forum
 #: model:ir.ui.menu,name:website_forum.menu_website_forum_global
 #: model:website.menu,name:website_forum.menu_website_forums
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_forum_view_form
@@ -1984,15 +2088,22 @@ msgstr "Tên diễn đàn"
 
 #. module: website_forum
 #. odoo-javascript
-#: code:addons/website_forum/static/src/website_builder/forum_page_option_plugin.js:0
+#: code:addons/website_forum/static/src/website_builder/forum_page_option.xml:0
 msgid "Forum Page"
 msgstr "Trang diễn đàn"
 
 #. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_post.py:0
 #: model:ir.model,name:website_forum.model_forum_post
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_form
 msgid "Forum Post"
 msgstr "Bài viết diễn đàn"
+
+#. module: website_forum
+#: model:ir.model,name:website_forum.model_forum_post_comment
+msgid "Forum Post Comment"
+msgstr ""
 
 #. module: website_forum
 #: model:ir.actions.act_window,name:website_forum.forum_post_action
@@ -2010,13 +2121,17 @@ msgid "Forum Tag"
 msgstr "Thẻ"
 
 #. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_tag.py:0
 #: model:ir.actions.act_window,name:website_forum.forum_tag_action
 msgid "Forum Tags"
 msgstr "Thẻ diễn đàn"
 
 #. module: website_forum
-#. odoo-javascript
-#: code:addons/website_forum/static/src/website_builder/forum_searchbar_option.xml:0
+#. odoo-python
+#: code:addons/website_forum/models/forum_forum.py:0
+#: code:addons/website_forum/models/forum_post.py:0
+#: code:addons/website_forum/models/website.py:0
 #: model:ir.actions.act_window,name:website_forum.forum_forum_action
 #: model:ir.ui.menu,name:website_forum.menu_forum_global
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_forum_view_tree
@@ -2029,12 +2144,12 @@ msgid "Gamification Challenge"
 msgstr "Thử thách trò chơi hoá"
 
 #. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.follow
+#: model_terms:ir.ui.view,arch_db:website_forum.follow_button
 msgid "Get notified when there's activity on this post"
 msgstr "Nhận thông báo khi có hoạt động trên bài viết này"
 
 #. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.follow
+#: model_terms:ir.ui.view,arch_db:website_forum.follow_button
 msgid "Get notified when this tag is used"
 msgstr "Nhận thông báo khi thẻ này được sử dụng"
 
@@ -2042,7 +2157,7 @@ msgstr "Nhận thông báo khi thẻ này được sử dụng"
 #. odoo-javascript
 #: code:addons/website_forum/static/src/js/tours/website_forum.js:0
 msgid "Give your post title."
-msgstr "Đặt tiêu đề cho bài viết."
+msgstr ""
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
@@ -2117,14 +2232,22 @@ msgid "Guru (15)"
 msgstr "Guru (15)"
 
 #. module: website_forum
+#: model:ir.model,name:website_forum.model_ir_http
+msgid "HTTP Routing"
+msgstr ""
+
+#. module: website_forum
+#: model:ir.model.fields,field_description:website_forum.field_forum_forum__can_access
+msgid "Has Access"
+msgstr ""
+
+#. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__uid_has_answered
 msgid "Has Answered"
 msgstr "Đã trả lời"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__has_message
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__has_message
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__has_message
 msgid "Has Message"
 msgstr "Có tin nhắn"
 
@@ -2152,12 +2275,15 @@ msgstr "Xem bảng đặc quyền và cấp độ điểm karma"
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__id
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__id
+#: model:ir.model.fields,field_description:website_forum.field_forum_post_comment__id
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_reason__id
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_vote__id
 #: model:ir.model.fields,field_description:website_forum.field_forum_tag__id
 #: model:ir.model.fields,field_description:website_forum.field_gamification_challenge__id
 #: model:ir.model.fields,field_description:website_forum.field_gamification_karma_tracking__id
 #: model:ir.model.fields,field_description:website_forum.field_ir_attachment__id
+#: model:ir.model.fields,field_description:website_forum.field_ir_http__id
+#: model:ir.model.fields,field_description:website_forum.field_mail_thread__id
 #: model:ir.model.fields,field_description:website_forum.field_res_users__id
 #: model:ir.model.fields,field_description:website_forum.field_website__id
 msgid "ID"
@@ -2165,18 +2291,12 @@ msgstr "ID"
 
 #. module: website_forum
 #: model:ir.model.fields,help:website_forum.field_forum_forum__message_needaction
-#: model:ir.model.fields,help:website_forum.field_forum_post__message_needaction
-#: model:ir.model.fields,help:website_forum.field_forum_tag__message_needaction
 msgid "If checked, new messages require your attention."
 msgstr "Nếu chọn, bạn cần chú ý tới các tin nhắn mới."
 
 #. module: website_forum
 #: model:ir.model.fields,help:website_forum.field_forum_forum__message_has_error
 #: model:ir.model.fields,help:website_forum.field_forum_forum__message_has_sms_error
-#: model:ir.model.fields,help:website_forum.field_forum_post__message_has_error
-#: model:ir.model.fields,help:website_forum.field_forum_post__message_has_sms_error
-#: model:ir.model.fields,help:website_forum.field_forum_tag__message_has_error
-#: model:ir.model.fields,help:website_forum.field_forum_tag__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
 msgstr "Nếu chọn, một số tin nhắn sẽ có lỗi gửi."
 
@@ -2269,7 +2389,7 @@ msgstr "Tuyên bố không đúng đắn và không thể chấp nhận được
 #. odoo-javascript
 #: code:addons/website_forum/static/src/js/tours/website_forum.js:0
 msgid "Insert tags related to your question."
-msgstr "Điền một thẻ liên quan đến câu hỏi của bạn"
+msgstr ""
 
 #. module: website_forum
 #: model:forum.post.reason,name:website_forum.reason_11
@@ -2283,8 +2403,8 @@ msgstr "Yêu thích"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__message_is_follower
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__message_is_follower
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__message_is_follower
+#: model:ir.model.fields,field_description:website_forum.field_forum_post__is_follower
+#: model:ir.model.fields,field_description:website_forum.field_forum_tag__is_follower
 msgid "Is Follower"
 msgstr "Là người theo dõi"
 
@@ -2375,6 +2495,7 @@ msgstr "Đã cập nhật"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__write_uid
+#: model:ir.model.fields,field_description:website_forum.field_forum_post_comment__write_uid
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_reason__write_uid
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_vote__write_uid
 #: model:ir.model.fields,field_description:website_forum.field_forum_tag__write_uid
@@ -2383,6 +2504,7 @@ msgstr "Cập nhật lần cuối bởi"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__write_date
+#: model:ir.model.fields,field_description:website_forum.field_forum_post_comment__write_date
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_reason__write_date
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_vote__write_date
 #: model:ir.model.fields,field_description:website_forum.field_forum_tag__write_date
@@ -2406,11 +2528,6 @@ msgid "Left 10 answers with score of 10 or more"
 msgstr "Còn lại 10 câu trả lời với số điểm từ 10 trở lên"
 
 #. module: website_forum
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__website_url
-msgid "Link to questions with the tag"
-msgstr "Liên kết đến các câu hỏi bằng thẻ"
-
-#. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/xml/public_templates.xml:0
 #: model_terms:ir.ui.view,arch_db:website_forum.post_display
@@ -2422,6 +2539,11 @@ msgstr "LinkedIn"
 #: code:addons/website_forum/static/src/website_builder/forum_page_option.xml:0
 msgid "List"
 msgstr "Danh sách"
+
+#. module: website_forum
+#: model:ir.module.module,summary:base.module_website_forum
+msgid "Manage a forum with FAQ and Q&A"
+msgstr ""
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_display
@@ -2451,15 +2573,11 @@ msgstr ""
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__message_has_error
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__message_has_error
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__message_has_error
 msgid "Message Delivery error"
 msgstr "Lỗi gửi tin nhắn"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__message_ids
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__message_ids
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__message_ids
 msgid "Messages"
 msgstr "Tin nhắn"
 
@@ -2541,11 +2659,19 @@ msgid "Negative vote"
 msgstr "Bình chọn tiêu cực"
 
 #. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/controllers/website_forum.py:0
 #: model:mail.message.subtype,description:website_forum.mt_answer_new
 #: model:mail.message.subtype,name:website_forum.mt_answer_new
 #: model:mail.message.subtype,name:website_forum.mt_forum_answer_new
 msgid "New Answer"
 msgstr "Đăng câu trả lời"
+
+#. module: website_forum
+#: model:mail.message.subtype,description:website_forum.mt_comment_new
+#: model:mail.message.subtype,name:website_forum.mt_comment_new
+msgid "New Comment"
+msgstr ""
 
 #. module: website_forum
 #: model:ir.actions.act_window,name:website_forum.forum_forum_action_add
@@ -2558,11 +2684,19 @@ msgid "New Post"
 msgstr "Bài viết mới"
 
 #. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/controllers/website_forum.py:0
 #: model:mail.message.subtype,description:website_forum.mt_question_new
 #: model:mail.message.subtype,name:website_forum.mt_forum_question_new
 #: model:mail.message.subtype,name:website_forum.mt_question_new
 msgid "New Question"
 msgstr "Đăng câu hỏi"
+
+#. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_post_comment.py:0
+msgid "New comment in %s"
+msgstr ""
 
 #. module: website_forum
 #: model:ir.model.fields.selection,name:website_forum.selection__forum_forum__default_order__create_date_desc
@@ -2624,8 +2758,6 @@ msgstr "Câu hỏi đáng chú ý"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__message_needaction_counter
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__message_needaction_counter
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__message_needaction_counter
 msgid "Number of Actions"
 msgstr "Số lượng tác vụ"
 
@@ -2636,8 +2768,6 @@ msgstr "Số bài viết"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__message_has_error_counter
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__message_has_error_counter
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__message_has_error_counter
 msgid "Number of errors"
 msgstr "Số lượng lỗi"
 
@@ -2648,15 +2778,11 @@ msgstr "Số bài viết được gắn thẻ"
 
 #. module: website_forum
 #: model:ir.model.fields,help:website_forum.field_forum_forum__message_needaction_counter
-#: model:ir.model.fields,help:website_forum.field_forum_post__message_needaction_counter
-#: model:ir.model.fields,help:website_forum.field_forum_tag__message_needaction_counter
 msgid "Number of messages requiring action"
 msgstr "Số lượng tin nhắn yêu cầu hành động"
 
 #. module: website_forum
 #: model:ir.model.fields,help:website_forum.field_forum_forum__message_has_error_counter
-#: model:ir.model.fields,help:website_forum.field_forum_post__message_has_error_counter
-#: model:ir.model.fields,help:website_forum.field_forum_tag__message_has_error_counter
 msgid "Number of messages with delivery error"
 msgstr "Số tin nhắn bị gửi lỗi"
 
@@ -2694,7 +2820,7 @@ msgstr "Bài viết phản cảm"
 #. odoo-javascript
 #: code:addons/website_forum/static/src/xml/public_templates.xml:0
 msgid "On average,"
-msgstr "Trung bình,"
+msgstr ""
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
@@ -2764,6 +2890,7 @@ msgid "Positive vote"
 msgstr "Bình chọn tích cực"
 
 #. module: website_forum
+#: model:ir.model.fields,field_description:website_forum.field_forum_post_comment__post_id
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_vote__post_id
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_search
 msgid "Post"
@@ -2839,6 +2966,12 @@ msgid "Posting answer on a [Deleted] or [Closed] question is not possible."
 msgstr "Không được đăng câu trả lời cho một câu hỏi đã [Xóa] hoặc [Đóng]"
 
 #. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_post.py:0
+msgid "Posting answer on a [Flagged] question is not possible."
+msgstr ""
+
+#. module: website_forum
 #: model:ir.actions.act_window,name:website_forum.forum_post_action_forum_main
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__post_ids
 #: model:ir.model.fields,field_description:website_forum.field_forum_tag__post_ids
@@ -2880,13 +3013,13 @@ msgstr "Pundit"
 #. odoo-javascript
 #: code:addons/website_forum/static/src/js/tours/website_forum.js:0
 msgid "Put your answer here."
-msgstr "Nhập câu trả lời của bạn vào đây"
+msgstr ""
 
 #. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/js/tours/website_forum.js:0
 msgid "Put your question here."
-msgstr "Nhập câu hỏi của bạn ở đây."
+msgstr ""
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__parent_id
@@ -2901,7 +3034,14 @@ msgid "Question %s"
 msgstr "Câu hỏi %s"
 
 #. module: website_forum
+#: model:mail.message.subtype,description:website_forum.mt_ask_validation
+#: model:mail.message.subtype,name:website_forum.mt_ask_validation
+msgid "Question Ask Validation"
+msgstr ""
+
+#. module: website_forum
 #. odoo-python
+#: code:addons/website_forum/controllers/website_forum.py:0
 #: code:addons/website_forum/models/forum_post.py:0
 #: model:mail.message.subtype,description:website_forum.mt_question_edit
 #: model:mail.message.subtype,name:website_forum.mt_question_edit
@@ -2995,14 +3135,12 @@ msgstr "Ranks"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__rating_ids
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__rating_ids
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__rating_ids
 msgid "Ratings"
 msgstr "Đánh giá"
 
 #. module: website_forum
 #. odoo-python
-#: code:addons/website_forum/models/forum_post.py:0
+#: code:addons/website_forum/models/forum_post_comment.py:0
 msgid "Re: %s"
 msgstr "Phản hồi: %s"
 
@@ -3125,8 +3263,6 @@ msgstr "Tối ưu SEO"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__message_has_sms_error
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__message_has_sms_error
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr "Lỗi gửi SMS"
 
@@ -3173,15 +3309,15 @@ msgid "Second Relevance Parameter"
 msgstr "Thông số liên quan thứ hai"
 
 #. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.forum_post_template_new_answer
+msgid "See answer"
+msgstr ""
+
+#. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/res_users.py:0
 msgid "See our Forum"
 msgstr "Xem Diễn đàn của chúng tôi"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.forum_post_template_new_answer
-msgid "See post"
-msgstr "Xem bài viết"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_template_new_question
@@ -3192,6 +3328,18 @@ msgstr "Xem câu hỏi"
 #: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
 msgid "Select All"
 msgstr "Chọn tất cả"
+
+#. module: website_forum
+#. odoo-javascript
+#: code:addons/website_forum/static/src/js/tours/website_forum.js:0
+msgid "Select a forum to post your question in."
+msgstr ""
+
+#. module: website_forum
+#. odoo-javascript
+#: code:addons/website_forum/static/src/js/tours/website_forum.js:0
+msgid "Select found select menu item"
+msgstr ""
 
 #. module: website_forum
 #: model:gamification.badge,name:website_forum.badge_a_8
@@ -3344,7 +3492,7 @@ msgid "Student"
 msgstr "Học sinh"
 
 #. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.follow
+#: model_terms:ir.ui.view,arch_db:website_forum.follow_button
 msgid "Subscribe"
 msgstr "Đăng ký nhận tin"
 
@@ -3414,6 +3562,20 @@ msgstr "Cảm ơn bạn đã đăng bài!"
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "The accepted answer is deleted"
 msgstr "Câu trả lời được chấp nhận đã bị xoá"
+
+#. module: website_forum
+#: model:ir.model.fields,help:website_forum.field_forum_forum__website_absolute_url
+#: model:ir.model.fields,help:website_forum.field_forum_post__website_absolute_url
+#: model:ir.model.fields,help:website_forum.field_forum_tag__website_absolute_url
+msgid "The full absolute URL to access the document through the website."
+msgstr ""
+
+#. module: website_forum
+#: model:ir.model.fields,help:website_forum.field_forum_forum__website_url
+#: model:ir.model.fields,help:website_forum.field_forum_post__website_url
+#: model:ir.model.fields,help:website_forum.field_forum_tag__website_url
+msgid "The full relative URL to access the document through the website."
+msgstr ""
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
@@ -3651,7 +3813,7 @@ msgid "Undelete"
 msgstr "Bỏ xóa"
 
 #. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.follow
+#: model_terms:ir.ui.view,arch_db:website_forum.follow_button
 msgid "Unfollow"
 msgstr "Ngừng theo dõi"
 
@@ -3758,8 +3920,8 @@ msgstr "Chế độ xem"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_display
-msgid "View my answer <i class=\"oi oi-arrow-right ms-1\"/>"
-msgstr "Xem câu trả lời của tôi <i class=\"oi oi-arrow-right ms-1\"/>"
+msgid "View my answer <i class=\"oi ms-1\" data-icon=\"east\"/>"
+msgstr "Xem câu trả lời của tôi <i class=\"oi ms-1\" data-icon=\"east\"/>"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__views
@@ -3808,23 +3970,18 @@ msgid "Website / Forum"
 msgstr "Website / Diễn đàn"
 
 #. module: website_forum
-#: model:ir.model.fields,field_description:website_forum.field_forum_forum__website_message_ids
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__website_message_ids
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__website_message_ids
-msgid "Website Messages"
-msgstr "Thông báo trên trang web"
+#: model:ir.model.fields,field_description:website_forum.field_forum_forum__website_absolute_url
+#: model:ir.model.fields,field_description:website_forum.field_forum_post__website_absolute_url
+#: model:ir.model.fields,field_description:website_forum.field_forum_tag__website_absolute_url
+msgid "Website Absolute URL"
+msgstr ""
 
 #. module: website_forum
+#: model:ir.model.fields,field_description:website_forum.field_forum_forum__website_url
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__website_url
+#: model:ir.model.fields,field_description:website_forum.field_forum_tag__website_url
 msgid "Website URL"
 msgstr "URL trang web"
-
-#. module: website_forum
-#: model:ir.model.fields,help:website_forum.field_forum_forum__website_message_ids
-#: model:ir.model.fields,help:website_forum.field_forum_post__website_message_ids
-#: model:ir.model.fields,help:website_forum.field_forum_tag__website_message_ids
-msgid "Website communication history"
-msgstr "Lịch sử trao đổi qua trang web"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__website_meta_description
@@ -3894,6 +4051,12 @@ msgstr "XP"
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_model_nav
 msgid "You already have a pending post"
 msgstr "Bạn đã có một bài viết đang chờ"
+
+#. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_post.py:0
+msgid "You can post only one answer."
+msgstr ""
 
 #. module: website_forum
 #. odoo-javascript
@@ -4086,19 +4249,19 @@ msgstr "với nguyên nhân:"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_template_validation
 msgid ""
-"has been posted and require your validation. Click here to access the "
+"has been posted and requires your validation. Click here to access the "
 "question :"
-msgstr "đã được đăng và cần được duyệt. Nhấn vào để truy cập câu hỏi:"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.forum_post_template_new_answer
-msgid "has been posted. Click here to access the post :"
-msgstr "đã được đăng. Nhấn vào để truy cập bài viết:"
+msgstr ""
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_template_new_question
 msgid "has been posted. Click here to access the question :"
 msgstr "đã được đăng. Nhấn vào đây để truy cập câu hỏi :"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.forum_post_template_new_answer
+msgid "has been posted. Click here to access the question:"
+msgstr ""
 
 #. module: website_forum
 #. odoo-javascript
@@ -4133,8 +4296,6 @@ msgid ""
 "if your\n"
 "        answer is selected as the right one. See what you can do with karma"
 msgstr ""
-"nếu là của bạn\n"
-"         Câu trả lời được chọn là đúng. Xem những gì bạn có thể làm với karma"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
@@ -4207,8 +4368,6 @@ msgid ""
 "on social networks get an answer within\n"
 "        5 hours. Questions shared on two social networks have"
 msgstr ""
-"trên mạng xã hội nhận được câu trả lời trong\n"
-"         5 giờ. Câu hỏi được chia sẻ trên hai mạng xã hội có"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_all_all_entries
@@ -4301,444 +4460,6 @@ msgid "your biography can be seen as tooltip"
 msgstr "tiểu sử của bạn sẽ có thể xem ở chú thích"
 
 #. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.follow
+#: model_terms:ir.ui.view,arch_db:website_forum.follow_button
 msgid "your email..."
 msgstr "email của bạn..."
-
-#~ msgid "%d karma required to unlink a comment."
-#~ msgstr "Cần có %d karma để bỏ liên kết một bình luận. "
-
-#~ msgid "&amp;nbsp;and&amp;nbsp;"
-#~ msgstr "&amp;nbsp;and&amp;nbsp;"
-
-#~ msgid ", by"
-#~ msgstr ", bởi"
-
-#~ msgid ", consider <b>adding an example</b>."
-#~ msgstr ", cân nhắc <b>thêm một ví dụ</b>."
-
-#~ msgid "0 Answers"
-#~ msgstr "0 Trả lời"
-
-#~ msgid "<b> [Offensive]</b>"
-#~ msgstr "<b> [Phản cảm]</b>"
-
-#~ msgid "<b>Tags</b> I Follow"
-#~ msgstr "<b>Thẻ</b> I Theo dõi"
-
-#~ msgid ""
-#~ "<b>This forum is empty.</b><br/>\n"
-#~ "                    Be the first one asking a question"
-#~ msgstr ""
-#~ "<b>Diễn đàn chưa có nội dung.</b><br/>\n"
-#~ "                    Hãy là người đầu tiên đặt câu hỏi"
-
-#~ msgid "<b>What kinds of questions can I ask here?</b>"
-#~ msgstr "<b>Tôi có thể hỏi những câu hỏi như thế nào?</b> "
-
-#~ msgid "<b>What should I avoid in my answers?</b>"
-#~ msgstr "<b>Tôi cần tránh điều gì trong câu trả lời của mình?</b>"
-
-#~ msgid "<b>What should I avoid in my questions?</b>"
-#~ msgstr "<b>Tôi nên tránh điều gì trong câu hỏi của mình?</b> "
-
-#~ msgid "<b>[Answer]</b>"
-#~ msgstr "<b>[Trả lời]</b>"
-
-#~ msgid "<em class=\"d-block mb-2\">or</em>"
-#~ msgstr "<em class=\"d-block mb-2\">hoặc</em>"
-
-#~ msgid "<i class=\"fa fa-bell fa-fw\"/> Followed Posts"
-#~ msgstr "<i class=\"fa fa-bell fa-fw\"/> Bài đăng đã theo dõi"
-
-#~ msgid "<i class=\"fa fa-bug\"/> Filter Tool"
-#~ msgstr "<i class=\"fa fa-bug\"/> Công cụ lọc"
-
-#~ msgid ""
-#~ "<i class=\"fa fa-check text-success d-block display-2\"/>\n"
-#~ "            <b>You've Completely Caught Up!</b><br/>"
-#~ msgstr ""
-#~ "<i class=\"fa fa-check text-success d-block display-2\"/>\n"
-#~ "            <b>Bạn đã bắt kịp!</b><br/>"
-
-#~ msgid "<i class=\"fa fa-check-square-o fa-fw\"/> To Validate"
-#~ msgstr "<i class=\"fa fa-check-square-o fa-fw\"/> Xác nhận"
-
-#~ msgid "<i class=\"fa fa-flag fa-fw\"/> Flagged"
-#~ msgstr "<i class=\"fa fa-flag fa-fw\"/> Đã gắn cờ"
-
-#~ msgid "<i class=\"fa fa-question-circle-o fa-fw\"/> My Posts"
-#~ msgstr "<i class=\"fa fa-question-circle-o fa-fw\"/> Bài đăng của tôi"
-
-#~ msgid ""
-#~ "<i class=\"fa fa-share-alt text-muted\"/>\n"
-#~ "                                Share"
-#~ msgstr ""
-#~ "<i class=\"fa fa-share-alt text-muted\"/>\n"
-#~ "                                Chia sẻ"
-
-#~ msgid "<i class=\"fa fa-star fa-fw\"/> Favourites"
-#~ msgstr "<i class=\"fa fa-star fa-fw\"/> Yêu thích"
-
-#~ msgid "<i class=\"fa fa-tags fa-fw\"/> Followed Tags"
-#~ msgstr "<i class=\"fa fa-tags fa-fw\"/> Thẻ đã theo dõi"
-
-#~ msgid "<i class=\"oi oi-chevron-left small\"/> Back"
-#~ msgstr "<i class=\"oi oi-chevron-left small\"/> Quay lại"
-
-#~ msgid ""
-#~ "<small class=\"text-muted\">\n"
-#~ "                    Flagged\n"
-#~ "                </small>"
-#~ msgstr ""
-#~ "<small class=\"text-muted\">\n"
-#~ "                    Đã gắn cờ\n"
-#~ "                </small>"
-
-#~ msgid "<span class=\"mx-1 d-none d-sm-inline\">&amp;nbsp;|</span>"
-#~ msgstr "<span class=\"mx-1 d-none d-sm-inline\">&amp;nbsp;|</span>"
-
-#~ msgid "<span class=\"mx-1 text-400 d-none d-lg-block\">|</span>"
-#~ msgstr "<span class=\"mx-1 text-400 d-none d-lg-block\">|</span>"
-
-#~ msgid "<span class=\"mx-1\">|</span>"
-#~ msgstr "<span class=\"mx-1\">|</span>"
-
-#~ msgid ""
-#~ "<span class=\"mx-1\">|</span>\n"
-#~ "                    <i class=\"fa fa-star\"/>"
-#~ msgstr ""
-#~ "<span class=\"mx-1\">|</span>\n"
-#~ "                    <i class=\"fa fa-star\"/>"
-
-#~ msgid "<span class=\"mx-3  mx-lg-2 text-400 d-none d-md-inline\">|</span>"
-#~ msgstr "<span class=\"mx-3  mx-lg-2 text-400 d-none d-md-inline\">|</span>"
-
-#~ msgid "<span>By </span>"
-#~ msgstr "<span>Bởi</span>"
-
-#~ msgid "A clear, explicit and concise title"
-#~ msgstr "Tiêu đề rõ ràng và ngắn gọn"
-
-#~ msgid "About"
-#~ msgstr "Về chúng tôi"
-
-#~ msgid "All Forums"
-#~ msgstr "Tất cả diễn đàn"
-
-#~ msgid "All Tags"
-#~ msgstr "Tất cả các Thẻ"
-
-#~ msgid "Allow Bump"
-#~ msgstr "Cho phép đưa bài lên"
-
-#~ msgid "Amazing! There are no unanswered questions left!"
-#~ msgstr "Tuyệt vời! Không còn câu hỏi nào chưa có câu trả lời!"
-
-#~ msgid "Answer"
-#~ msgstr "Trả lời"
-
-#~ msgid "Back"
-#~ msgstr "Quay lại"
-
-#~ msgid "Be less specific in your wording for a wider search result"
-#~ msgstr "Đừng dùng từ quá cụ thể để có kế quả tìm kiếm rộng hơn"
-
-#~ msgid "Browse All"
-#~ msgstr "Duyệt tất cả"
-
-#~ msgid "Bumped on"
-#~ msgstr "Đưa lên trên"
-
-#~ msgid ""
-#~ "Check this box to display a popup for posts older than 10 days without "
-#~ "any given answer. The popup will offer to share it on social networks. "
-#~ "When shared, a question is bumped at the top of the forum."
-#~ msgstr ""
-#~ "Chọn ở đây để hiển thị cửa sổ bật lên cho các bài đăng cũ hơn 10 ngày mà "
-#~ "không có câu trả lời nào. Cửa sổ bật lên sẽ cho phép chia sẻ nó trên các "
-#~ "mạng xã hội. Khi được chia sẻ, một câu hỏi được đặt ở đầu diễn đàn."
-
-#~ msgid "Check your spelling and try again"
-#~ msgstr "Kiểm tra chính tả và thử lại"
-
-#~ msgid "Click to answer."
-#~ msgstr "Bấm để trả lời. "
-
-#~ msgid "Close Post"
-#~ msgstr "Đóng bài đăng"
-
-#~ msgid "Comment this post..."
-#~ msgstr "Bình luận bài này..."
-
-#~ msgid "Comments"
-#~ msgstr "Bình luận"
-
-#~ msgid "Convert all answers to comments and vice versa"
-#~ msgstr "Chuyển mọi câu trả lời "
-
-#~ msgid "Convert as a answer"
-#~ msgstr "Chuyển thành câu trả lời"
-
-#~ msgid "Convert as a comment"
-#~ msgstr "Chuyển thành một bình luận"
-
-#~ msgid "Convert own answers to comments and vice versa"
-#~ msgstr "Chuyển đổi câu trả lời của riêng thành nhận xét và ngược lại"
-
-#~ msgid "Date (high to low)"
-#~ msgstr "Ngày (cao tới thấp)"
-
-#~ msgid "Date (low to high)"
-#~ msgstr "Ngày (thấp tới cao)"
-
-#~ msgid "Edit Forum in Backend"
-#~ msgstr "Chỉnh sửa diễn đàn ở backend"
-
-#~ msgid ""
-#~ "Example\n"
-#~ "                        <i class=\"fa fa-question-circle\"/>"
-#~ msgstr ""
-#~ "Ví dụ\n"
-#~ "                        <i class=\"fa fa-question-circle\"/>"
-
-#~ msgid "Following"
-#~ msgstr "Theo dõi"
-
-#~ msgid "Group By"
-#~ msgstr "Nhóm theo"
-
-#~ msgid "Hide Intro"
-#~ msgstr "Ẩn giới thiệu"
-
-#~ msgid "I'm <b>Following</b>"
-#~ msgstr "Tôi <b>đang theo dõi</b>"
-
-#~ msgid "I'm Following"
-#~ msgstr "Tôi đang theo dõi"
-
-#~ msgid "Karma"
-#~ msgstr "Karma"
-
-#~ msgid "Last Post:"
-#~ msgstr "Bài đăng cuối: "
-
-#~ msgid "Last activity date"
-#~ msgstr "Ngày hoạt động gần nhất"
-
-#~ msgid "Menu"
-#~ msgstr "Trình đơn"
-
-#~ msgid "Moderation"
-#~ msgstr "Kiểm duyệt"
-
-#~ msgid "More"
-#~ msgstr "Thêm"
-
-#~ msgid "Most answered"
-#~ msgstr "Được trả lời nhiều nhất"
-
-#~ msgid "Most voted"
-#~ msgstr "Được bình chọn nhiều nhất"
-
-#~ msgid ""
-#~ "Move this question to the top of the list by sharing it on social "
-#~ "networks."
-#~ msgstr ""
-#~ "Đưa câu hỏi này lên đầu danh sách bằng cách chia sẻ nó trên mạng xã hội."
-
-#~ msgid "My <b>Favourites</b>"
-#~ msgstr "<b>Yêu thích</b>"
-
-#~ msgid "My <b>Posts</b>"
-#~ msgstr "<b>Bài đăng</b> của tôi"
-
-#~ msgid "My Favourites"
-#~ msgstr "Yêu thích"
-
-#~ msgid "No activities yet!"
-#~ msgstr "Chưa có hoạt động!"
-
-#~ msgid "No favourite questions in this forum (yet).<br/>"
-#~ msgstr "Không (chưa) có câu hỏi yêu thích trong diễn đàn này.<br/>"
-
-#~ msgid "No flagged posts"
-#~ msgstr "Không có bài nào bị gắn cờ"
-
-#~ msgid "No post to be validated"
-#~ msgstr "Không có bài đăng cần xác nhận"
-
-#~ msgid "No tags"
-#~ msgstr "Không có thẻ"
-
-#~ msgid "No vote given by you yet!"
-#~ msgstr "Bạn chưa vote lần nào!"
-
-#~ msgid "Number of messages which requires an action"
-#~ msgstr "Số thông báo cần xử lý"
-
-#~ msgid "Only one answer per question is allowed"
-#~ msgstr "Mỗi câu hỏi chỉ được phép có một câu trả lời"
-
-#~ msgid "Order by"
-#~ msgstr "Sắp xếp theo"
-
-#~ msgid "Our forums"
-#~ msgstr "Diễn đàn của chúng tôi"
-
-#~ msgid "People"
-#~ msgstr "Con người"
-
-#~ msgid "Post Comment"
-#~ msgstr "Bình luận bài đăng"
-
-#~ msgid "Posts:"
-#~ msgstr "Bài đăng: "
-
-#~ msgid "Question by"
-#~ msgstr "Câu hỏi của"
-
-#~ msgid "Read the guidelines to know how to gain karma."
-#~ msgstr "Đọc hướng dẫn để biết cách được điểm karma. "
-
-#~ msgid "Read: #{question.name}"
-#~ msgstr "Đọc: #{question.name}"
-
-#~ msgid "Register"
-#~ msgstr "Đăng ký"
-
-#~ msgid "Restrict publishing to this website."
-#~ msgstr "Hạn chế phát hành cho website này"
-
-#~ msgid "Return to the forum."
-#~ msgstr "Quay lại diễn đàn. "
-
-#~ msgid "Return to the question list."
-#~ msgstr "Quay lại danh sách câu hỏi."
-
-#~ msgid "Search Tips"
-#~ msgstr "Mẹo tìm kiếm"
-
-#~ msgid "See"
-#~ msgstr "Xem"
-
-#~ msgid "Show"
-#~ msgstr "Trình diễn"
-
-#~ msgid "Show Tags Starting By"
-#~ msgstr "Hiện thẻ bắt đầu bằng"
-
-#~ msgid "Sign in"
-#~ msgstr "Đăng nhập"
-
-#~ msgid "Sorry you must be logged in to perform this action"
-#~ msgstr "Xin lỗi, bạn phải đăng nhập để thực hiện hành động này"
-
-#~ msgid "Sorry you must be logged to flag a post"
-#~ msgstr "Xin lỗi bạn phải đăng nhập để gắn cờ một bài đăng"
-
-#~ msgid "Sorry you must be logged to vote"
-#~ msgstr "Xin lỗi bạn phải đăng nhập để bình chọn"
-
-#~ msgid "Sorry, anonymous users cannot choose correct answer."
-#~ msgstr "Xin lỗi, người dùng ẩn danh không thể chọn câu trả lời đúng."
-
-#~ msgid "Sorry, we could not find any <b>%s</b> result <b>%s</b> %s%s%s."
-#~ msgstr ""
-#~ "Xin lỗi, chúng tôi không tìm thấy <b>%s</b> kết quả nào <b>%s</b> %s%s%s"
-
-#~ msgid "Tags I Follow"
-#~ msgstr "Thẻ I Theo dõi"
-
-#~ msgid "Teaser"
-#~ msgstr "Người kiểm tra"
-
-#~ msgid ""
-#~ "Technical field allowing to bump a question. Writing on this field will "
-#~ "trigger a write on write_date and therefore bump the post. Directly "
-#~ "writing on write_date is currently not supported and this field is a "
-#~ "workaround."
-#~ msgstr ""
-#~ "Trường kỹ thuật cho phép trả lời câu hỏi. Cập nhật trường này sẽ kích "
-#~ "hoạt việc cập nhật trên write_date và vì vậy sẽ làm hỏng bài đăng. Cập "
-#~ "nhật trực tiếp trên write_date không được hổ trợ và trường này là một "
-#~ "phương án giải quyết."
-
-#~ msgid ""
-#~ "This community is for professional and enthusiast users, partners and "
-#~ "programmers."
-#~ msgstr ""
-#~ "Cộng đồng này được xây dựng dành cho người dùng nhiệt tình và chuyên "
-#~ "nghiệp, đối tác và lập trình viên. "
-
-#~ msgid "Toggle favorite status"
-#~ msgstr "Chuyển đổi trạng thái yêu thích"
-
-#~ msgid "Topics"
-#~ msgstr "Chủ đề"
-
-#~ msgid "Trending"
-#~ msgstr "Xu hướng"
-
-#~ msgid "Try searching for one or two words"
-#~ msgstr "Thử tìm kiếm một hoặc hai từ"
-
-#~ msgid "Unlink all comments"
-#~ msgstr "Hủy liên kết tất cả nhận xét"
-
-#~ msgid "Unlink own comments"
-#~ msgstr "Hủy liên kết nhận xét cá nhận"
-
-#~ msgid "Waiting for validation"
-#~ msgstr "Đang chờ xác thực"
-
-#~ msgid "Waiting post"
-#~ msgstr "Đang đăng tải"
-
-#~ msgid "You have no posts in this forum (yet)."
-#~ msgstr "Bạn không (chưa) có bài đăng trong diễn đàn này. "
-
-#~ msgid "You're not following any topic in this forum (yet).<br/>"
-#~ msgstr "Bạn không (chưa) theo dõi chủ đề nào trong diễn đàn này.<br/>"
-
-#~ msgid "[Closed]"
-#~ msgstr "[Đã đóng]"
-
-#~ msgid "[Deleted]"
-#~ msgstr "[Đã xóa]"
-
-#~ msgid "[Offensive]"
-#~ msgstr "[Phản cảm]"
-
-#~ msgid "activity date"
-#~ msgstr "ngày hoạt động"
-
-#~ msgid "in your followed list"
-#~ msgstr "trong danh sách theo dõi"
-
-#~ msgid "most answered"
-#~ msgstr "được trả lời nhiều nhất"
-
-#~ msgid "most voted"
-#~ msgstr "được vote nhiều nhất"
-
-#~ msgid "newest"
-#~ msgstr "mới nhất"
-
-#~ msgid "solved"
-#~ msgstr "đã giải quyết"
-
-#~ msgid "to partecipate"
-#~ msgstr "để tham gia"
-
-#~ msgid "trending"
-#~ msgstr "xu hướng"
-
-#~ msgid "unanswered"
-#~ msgstr "chưa trả lời"
-
-#~ msgid "unsolved"
-#~ msgstr "chưa giải quyết"
-
-#~ msgid "| Flagged"
-#~ msgstr "| Đã gắn cờ"

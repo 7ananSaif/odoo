@@ -1,9 +1,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from base64 import b64encode
 import uuid
-
-from odoo.tools.misc import file_open
+from odoo.addons.account.demo.account_demo import file_read
 
 DEMO_BILL_PATH = 'account_peppol/tools/demo_bill'
 DEMO_ENC_KEY = 'account_peppol/tools/enc_key'
@@ -13,17 +11,18 @@ DEMO_PRIVATE_KEY = 'account_peppol/tools/private_key.pem'
 # HELPERS
 # -------------------------------------------------------------------------
 
+
 def get_demo_vendor_bill(user):
     return {
         'direction': 'incoming',
         'receiver': user.edi_identification,
         'uuid': f'{user.company_id.id}_demo_vendor_bill',
         'origin_message_uuid': f'{user.company_id.id}_demo_vendor_bill',
-        'accounting_supplier_party': '0208:2718281828',
+        'accounting_supplier_party': '0208:0428759497',
         'state': 'done',
         'filename': f'{user.company_id.id}_demo_vendor_bill',
-        'enc_key': file_open(DEMO_ENC_KEY, mode='rb').read(),
-        'document': file_open(DEMO_BILL_PATH, mode='rb').read(),
+        'enc_key': file_read(DEMO_ENC_KEY),
+        'document': file_read(DEMO_BILL_PATH),
         'document_type': 'Invoice',
     }
 
@@ -93,14 +92,16 @@ def _mock_call_peppol_proxy(func, self, endpoint, params=None):
 
 
 def _mock_get_peppol_verification_state(func, self, *args, **kwargs):
-    (endpoint, eas, xml_format) = args
-    if not (eas and endpoint):
+    routing_identifier = args[0] if args else kwargs.get('routing_identifier')
+    xml_format = args[1] if len(args) > 1 else kwargs.get('invoice_edi_format')
+    if not routing_identifier or ':' not in (routing_identifier or ''):
         return 'not_verified'
     if not xml_format:
         return 'not_valid'
     if xml_format not in self._get_peppol_formats():
         return 'not_valid_format'
     return 'valid'
+
 
 def _mock_check_peppol_participant_exists(func, self, *args, **kwargs):
     # in demo, no participant already exists
@@ -123,16 +124,20 @@ def _mock_create_connection(func, self, *args, **kwargs):
         'refresh_token': dummy_response['refresh_token'],
         'private_key_id': private_key_sudo.id,
     })
-    company.account_peppol_proxy_state = dummy_response['peppol_state']
+    company.write({
+        'account_peppol_proxy_state': dummy_response['peppol_state'],
+        'routing_identifier': peppol_identifier,
+    })
 
-    content = b64encode(file_open(DEMO_PRIVATE_KEY, 'rb').read())
+    content = file_read(DEMO_PRIVATE_KEY)
+
     attachments = self.env['ir.attachment'].search([
         ('res_model', '=', 'certificate.key'),
         ('res_field', '=', 'content'),
         ('company_id', '=', edi_user.company_id.id)
     ])
-    content_to_key_id = {attachment.datas: attachment.res_id for attachment in attachments}
-    pkey_id = content_to_key_id.get(content)
+    content_to_key_id = {bytes(attachment.raw): attachment.res_id for attachment in attachments}
+    pkey_id = content_to_key_id.get(bytes(content))
     if not pkey_id:
         pkey_id = self.env['certificate.key'].create({
             'content': content,
@@ -174,7 +179,8 @@ def handle_demo(func, /):
     execute.
     """
     def wrapped(self, *args, **kwargs):
-        if self.env.company._get_peppol_edi_mode() == 'demo':
+        temporary_eas = self.peppol_eas if 'peppol_eas' in self._fields else False
+        if self.env.company._get_peppol_edi_mode(temporary_eas=temporary_eas) == 'demo':
             return _demo_behaviour[func.__name__](func, self, *args, **kwargs)
         return func(self, *args, **kwargs)
     return wrapped

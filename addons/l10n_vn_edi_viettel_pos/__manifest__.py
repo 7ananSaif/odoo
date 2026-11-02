@@ -5,7 +5,7 @@
     "author": "Odoo S.A.",
     'countries': ['vn'],
     "category": "Accounting/Localizations/EDI",
-    'website': 'https://www.odoo.com/documentation/master/applications/finance/fiscal_localizations/vietnam.html',
+    'website': 'https://www.odoo.com/documentation/latest/applications/finance/fiscal_localizations/vietnam.html',
     "depends": [
         "l10n_vn_edi_viettel",
         "point_of_sale",
@@ -17,10 +17,10 @@ Vietnam - POS E-invoicing
 Using SInvoice by Viettel
     """,
     'data': [
-        "security/ir.model.access.csv",
         "data/res_partner_data.xml",
         "views/res_config_settings_views.xml",
         "views/account_move_views.xml",
+        'security/ir.access.csv',
     ],
     'assets': {
         'point_of_sale._assets_pos': [

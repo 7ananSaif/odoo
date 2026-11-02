@@ -11,10 +11,21 @@ class ResPartnerBank(models.Model):
     _inherit = 'res.partner.bank'
 
     display_qr_setting = fields.Boolean(compute='_compute_display_qr_setting')
+    company_qr_code = fields.Boolean(compute='_compute_company_qr_code')
     include_reference = fields.Boolean(string="Include Reference", help="Include the reference in the QR code.")
-    proxy_type = fields.Selection([('none', 'None')], string="Proxy Type", default='none')
+    proxy_type = fields.Selection(
+        [('none', 'None')],
+        string="Account Identifier Type",
+        default='none',
+        help="The identification method linked to this bank account (e.g., Mobile Number, "
+             "Company ID) used to route QR payments to this account.",
+    )
     country_proxy_keys = fields.Char(compute='_compute_country_proxy_keys')
-    proxy_value = fields.Char(string="Proxy Value")
+    proxy_value = fields.Char(
+        string="Identifier Value",
+        help="The specific number or ID linked to this bank account that matches "
+             "the chosen Identifier Type.",
+    )
 
     @api.model
     def _serialize(self, header, value):
@@ -26,6 +37,22 @@ class ResPartnerBank(models.Model):
     @api.model
     def _remove_accents(self, string):
         return remove_accents(string).replace('đ', 'd').replace('Đ', 'D')
+
+    @api.model
+    def _get_emv_qr_code_names(self):
+        """ Maps a country code to the name its local payment scheme gives to the EMV QR code. """
+        return {}
+
+    @api.depends('partner_id')
+    def _compute_company_qr_code(self):
+        # Whether the bank account is held by a company that has enabled the QR codes on its invoices.
+        qr_code_by_partner = dict(self.env['res.company']._read_group(
+            domain=[('partner_id', 'in', self.partner_id.ids)],
+            groupby=['partner_id'],
+            aggregates=['qr_code:bool_or'],
+        ))
+        for bank in self:
+            bank.company_qr_code = qr_code_by_partner.get(bank.partner_id, False)
 
     @api.depends('country_code')
     def _compute_country_proxy_keys(self):
@@ -113,15 +140,16 @@ class ResPartnerBank(models.Model):
             if not self.partner_id.city:
                 return _("Missing Merchant City.")
             if not self.proxy_type:
-                return _("Missing Proxy Type.")
+                return _("Missing Account Identifier Type.")
             if not self.proxy_value:
-                return _("Missing Proxy Value.")
+                return _("Missing Identifier Value.")
         return super()._check_for_qr_code_errors(qr_method, amount, currency, debtor_partner, free_communication, structured_communication)
 
     @api.model
     def _get_available_qr_methods(self):
         rslt = super()._get_available_qr_methods()
-        rslt.append(('emv_qr', _("EMV Merchant-Presented QR-code"), 30))
+        name = self._get_emv_qr_code_names().get(self.env.company.country_code)
+        rslt.append(('emv_qr', name or _("EMV Merchant-Presented QR-code"), 30))
         return rslt
 
     def _get_error_messages_for_qr(self, qr_method, debtor_partner, currency):
@@ -129,6 +157,6 @@ class ResPartnerBank(models.Model):
         if qr_method == 'emv_qr':
             if not self:
                 return _("A bank account is required for EMV QR Code generation.")
-            return _("No EMV QR Code is available for the country of the account %(account_number)s.", account_number=self.acc_number)
+            return _("No EMV QR Code is available for the country of the account %(account_number)s.", account_number=self.account_number)
 
         return super()._get_error_messages_for_qr(qr_method, debtor_partner, currency)

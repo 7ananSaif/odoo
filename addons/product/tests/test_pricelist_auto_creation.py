@@ -1,10 +1,19 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+from odoo.tests import tagged
+
 from odoo.addons.product.tests.common import ProductCommon
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestPricelistAutoCreation(ProductCommon):
+
+    _test_user_groups = (
+        'product.group_product_manager',
+    )
+
+    _test_user_name = 'Test Product Manager'
 
     @classmethod
     def setUpClass(cls):
@@ -25,7 +34,7 @@ class TestPricelistAutoCreation(ProductCommon):
         """Make sure that when setting an inactive currency on a company, the activation of the
         multi-currency group won't
         """
-        self.env.company.currency_id = self.currency_usd
+        self.env.company.sudo().currency_id = self.currency_usd
         self.assertFalse(
             self.env['product.pricelist'].search([
                 ('currency_id.name', '=', 'EUR'),
@@ -39,8 +48,3 @@ class TestPricelistAutoCreation(ProductCommon):
                 ('company_id', '=', self.env.company.id),
             ])
         )
-        # self.env.user.clear_caches()
-        # self.group_user.invalidate_recordset()
-        # self.assertTrue(
-        #     self.group_product_pricelist in self.group_user.implied_ids
-        # )

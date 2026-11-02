@@ -1,13 +1,10 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from requests.exceptions import HTTPError
-
-from odoo import Command, http
-from odoo.tests.common import tagged, HttpCase
-from odoo.tools import file_open, mute_logger
+from odoo import Command
+from odoo.tests.common import HttpCase
+from odoo.tools import file_open
 
 
-@tagged("post_install", "-at_install")
 class TestToggleUpload(HttpCase):
     def test_upload_allowed(self):
         self.authenticate(None, None)
@@ -18,7 +15,7 @@ class TestToggleUpload(HttpCase):
             response = self.url_open(
                 "/mail/attachment/upload",
                 {
-                    "csrf_token": http.Request.csrf_token(self),
+                    "csrf_token": self.csrf_token(),
                     "thread_id": channel.id,
                     "thread_model": "discuss.channel",
                 },

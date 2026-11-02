@@ -1,132 +1,129 @@
-import { toRaw, useComponent, useEffect, useRef, useState } from "@odoo/owl";
-import { useEmojiPicker } from "@web/core/emoji_picker/emoji_picker";
+import { signal } from "@odoo/owl";
+import { CreatePollDialog } from "@mail/core/common/create_poll_dialog";
 
+import { EmojiPicker, useEmojiPickerStoreScroll } from "@web/core/emoji_picker/emoji_picker";
+
+import {
+    Action,
+    ACTION_TAGS,
+    IS_ACTION_GROUP_DESCRIPTION_SYM,
+    IS_ACTION_DEFINITION_SYM,
+    useAction,
+    UseActions,
+} from "@mail/core/common/action";
+import { SUGGESTION_DELIMITERS } from "@mail/core/common/suggestion_hook";
 import { _t } from "@web/core/l10n/translation";
+import { usePopover } from "@web/core/popover/popover_hook";
 import { registry } from "@web/core/registry";
-import { markEventHandled } from "@web/core/utils/misc";
-import { Action, ACTION_TAGS, UseActions } from "@mail/core/common/action";
 import { useService } from "@web/core/utils/hooks";
+import { markEventHandled } from "@web/core/utils/misc";
 
 export const composerActionsRegistry = registry.category("mail.composer/actions");
 
 /** @typedef {import("@odoo/owl").Component} Component */
-/** @typedef {import("@mail/core/common/action").ActionDefinition} ActionDefinition */
 /** @typedef {import("models").Composer} Composer */
 /**
- * @typedef {Object} ComposerActionSpecificDefinition
- * @property {boolean|(comp: Component) => boolean} [condition=true]
- * @property {boolean} [isPicker]
- * @property {string|(comp: Component) => string} [pickerName]
+ * @typedef {Object} ComposerActionSpecificParams
+ * @property {Composer} composer
  */
-/**
- * @typedef {ActionDefinition & ComposerActionSpecificDefinition} ComposerActionDefinition
- */
+/** @typedef {import("@mail/core/common/action").ActionParams<ComposerAction, UseComposerActions_Def> & ComposerActionSpecificParams} ComposerActionParams */
+/** @typedef {import("@mail/core/common/action").ActionDefinition<ComposerActionParams, ComposerAction>} ComposerActionDefinition */
 
 /**
  * @param {string} id
  * @param {ComposerActionDefinition} definition
  */
 export function registerComposerAction(id, definition) {
-    composerActionsRegistry.add(id, definition);
+    composerActionsRegistry.add(
+        id,
+        Object.assign(definition, { [IS_ACTION_DEFINITION_SYM]: true })
+    );
 }
 
-export function pickerOnClick(component, action, ev) {
-    let anchorEl;
-    if (component.ui.isSmall) {
-        anchorEl = component.pickerTargetRef.el;
-    } else if (!anchorEl) {
-        if (action.sequenceQuick) {
-            anchorEl = component.quickActionsRef.el;
-        } else {
-            anchorEl = component.moreActionsRef.el ?? component.extraActionsRef.el;
-        }
+export function describeComposerActionGroup(id, definition) {
+    composerActionsRegistry.add(
+        id,
+        Object.assign(definition, { [IS_ACTION_GROUP_DESCRIPTION_SYM]: true })
+    );
+}
+
+export function pickerGetAnchor({ action, owner }) {
+    if (owner.ui.isSmall) {
+        return null;
     }
-    const previousPicker = component.getActivePicker();
-    previousPicker?.close();
-    if (toRaw(previousPicker) === toRaw(action.picker)) {
-        component.setActivePicker(null);
+    if (action.sequenceQuick) {
+        return owner.quickActionsRef();
     } else {
-        component.setActivePicker(action.picker);
-        component.getActivePicker().open({ el: anchorEl });
+        return owner.moreActionsRef() ?? owner.extraActionsRef();
     }
-}
-
-export function pickerSetup(action, func) {
-    const component = useComponent();
-    component.pickerTargetRef = useRef("picker-target");
-    component.quickActionsRef = useRef("quick-actions");
-    component.moreActionsRef = useRef("more-actions");
-    component.extraActionsRef = useRef("extra-actions");
-    action.ref = useRef(action.id);
-    action.picker = func();
 }
 
 registerComposerAction("send-message", {
     btnClass: ({ action }) => (action.isActive ? "o-sendMessageActive o-text-white shadow-sm" : ""),
     condition: ({ composer, owner, store }) =>
-        (store.env.isSmall && composer.message) || (!owner.env.inChatter && !composer.message),
+        (store.env.services.ui.isSmall && composer.message) ||
+        (!owner.env.inChatter && !composer.message),
     disabledCondition: ({ owner }) => owner.isSendButtonDisabled,
-    icon: "fa fa-paper-plane-o",
-    isActive: ({ owner }) => owner.sendMessageState.active,
+    hasBtnBg: true,
+    icon: "send",
+    isActive: ({ owner }) => !owner.isSendButtonDisabled,
     name: ({ composer, owner }) =>
         composer.message
             ? _t("Save editing")
-            : composer.targetThread?.model === "discuss.channel"
+            : composer.targetThread?.channel
             ? _t("Send")
             : owner.props.type === "note"
             ? _t("Log")
             : _t("Send"),
     onSelected: ({ owner }) => owner.sendMessage(),
-    setup: ({ owner }) => {
-        owner.sendMessageState = useState({ active: false });
-        useEffect(
-            () => {
-                owner.sendMessageState.active = !owner.isSendButtonDisabled;
-            },
-            () => [owner.isSendButtonDisabled]
-        );
-    },
     sequenceQuick: 30,
+    tags: ({ action }) => (action.isActive ? ACTION_TAGS.PRIMARY : undefined),
 });
 registerComposerAction("add-emoji", {
-    icon: "fa fa-smile-o",
-    isPicker: true,
-    pickerName: _t("Emoji"),
+    actionPanelComponent: EmojiPicker,
+    actionPanelComponentProps: ({ action, owner }) => ({
+        onSelect: (emoji) => owner.addEmoji(emoji),
+        onClose: () => action.actionPanelClose(),
+        storeScroll: action.emojiStoreScroll,
+    }),
+    actionPanelName: _t("Emoji"),
+    actionPanelOpen(...args) {
+        const anchorEl = pickerGetAnchor(...args);
+        this.popover?.open(anchorEl, this.actionPanelComponentProps);
+    },
+    disabledCondition: ({ owner }) => owner.areAllActionsDisabled,
+    icon: "sentiment_satisfied",
     name: _t("Add Emojis"),
-    onSelected({ owner }, ev) {
-        pickerOnClick(owner, this, ev);
+    onSelected(params, ev) {
         markEventHandled(ev, "Composer.onClickAddEmoji");
     },
-    setup({ owner }) {
-        pickerSetup(this, () =>
-            useEmojiPicker(
-                undefined,
-                {
-                    onSelect: (emoji) => owner.addEmoji(emoji),
-                    onClose: () => owner.setActivePicker(null),
-                },
-                { arrow: false }
-            )
-        );
+    setup({ store }) {
+        if (store.env.services.ui.isSmall) {
+            return;
+        }
+        this.emojiStoreScroll = useEmojiPickerStoreScroll();
+        this.popover = usePopover(EmojiPicker, {
+            arrow: false,
+            onClose: () => this.actionPanelClose(),
+        });
     },
     sequenceQuick: 20,
 });
 registerComposerAction("upload-files", {
+    disabledCondition: ({ owner }) => owner.areAllActionsDisabled,
     condition: ({ owner }) => owner.allowUpload,
-    icon: "fa fa-paperclip",
+    icon: "attach_file",
     name: _t("Attach Files"),
-    onSelected: ({ composer: comp, owner }, ev) => {
-        owner.fileUploaderRef.el?.click();
-        const composer = toRaw(comp);
+    onSelected: ({ composer, owner }, ev) => {
+        owner.fileUploaderRef()?.click();
         markEventHandled(ev, "composer.clickOnAddAttachment");
         composer.autofocus++;
     },
-    setup: ({ owner }) => (owner.fileUploaderRef = useRef("file-uploader")),
+    setup: ({ owner }) => (owner.fileUploaderRef = signal.ref()),
     sequence: 20,
 });
 registerComposerAction("open-full-composer", {
     condition: ({ composer, owner }) =>
-        !composer.message &&
         owner.props.showFullComposer &&
         composer.targetThread &&
         composer.targetThread.model !== "discuss.channel" &&
@@ -134,10 +131,11 @@ registerComposerAction("open-full-composer", {
     hasBtnBg: ({ composer, owner }) =>
         (composer.restoredFromFullComposer && !owner.state.isFullComposerOpen) || undefined,
     hotkey: "shift+c",
-    icon: "fa fa-expand",
+    icon: "expand_content",
     isActive: ({ composer, owner }) =>
         (composer.restoredFromFullComposer && !owner.state.isFullComposerOpen) || undefined,
-    name: _t("Open Full Composer"),
+    name: ({ composer }) =>
+        composer.message ? _t("Edit in Full Composer") : _t("Open Full Composer"),
     onSelected: ({ owner }) => owner.onClickFullComposer(),
     sequence: 30,
     tags: ({ composer, owner }) =>
@@ -151,11 +149,31 @@ registerComposerAction("add-canned-response", {
         composer.targetThread &&
         store.env.services["mail.suggestion"]
             .getSupportedDelimiters(composer.targetThread)
-            .find(([delimiter]) => delimiter === "::"),
-    icon: "fa fa-file-text-o",
-    name: _t("Insert a Canned response"),
+            .find(([delimiter]) => delimiter === SUGGESTION_DELIMITERS.CANNED_RESPONSE),
+    icon: "article",
+    name: _t("Insert Canned Response"),
     onSelected: ({ owner }, ev) => owner.onClickInsertCannedResponse(ev),
     sequence: 5,
+});
+registerComposerAction("create-poll", {
+    name: _t("Create Poll"),
+    icon: "oi_view-cohort",
+    condition: ({ composer, store }) => {
+        if (!store.self_user || store.self_user.share || composer.message) {
+            return false;
+        }
+        return ["channel", "group"].includes(composer.targetThread?.channel?.channel_type);
+    },
+    onSelected: ({ action, composer, owner }) => {
+        owner.dialogService.add(
+            CreatePollDialog,
+            { thread: composer.targetThread },
+            { rootRef: action.actionRef }
+        );
+    },
+    setup: ({ owner }) => {
+        owner.dialogService = useService("dialog");
+    },
 });
 
 export class ComposerAction extends Action {
@@ -185,51 +203,20 @@ export class ComposerAction extends Action {
     get params() {
         return Object.assign(super.params, { composer: this.composerFn() });
     }
-
-    get isPicker() {
-        return this.definition.isPicker;
-    }
-
-    get pickerName() {
-        return typeof this.definition.pickerName === "function"
-            ? this.definition.pickerName(this._component)
-            : this.definition.pickerName;
-    }
 }
 
+/** @typedef {UseActions<ComposerActionParams, ComposerAction>} UseComposerActions_Def */
 class UseComposerActions extends UseActions {
-    get partition() {
-        const res = super.partition;
-        const actions = this.transformedActions.filter((action) => action.condition);
-        const groupedPickers = Object.groupBy(
-            actions.filter((a) => a.isPicker),
-            (a) => (a.sequenceQuick ? "quick" : "other")
-        );
-        groupedPickers.quick?.sort((a1, a2) => a1.sequenceQuick - a2.sequenceQuick);
-        groupedPickers.other?.sort((a1, a2) => a1.sequence - a2.sequence);
-        const pickers = (groupedPickers.other ?? []).concat(groupedPickers.quick ?? []);
-        return Object.assign(res, { pickers });
-    }
+    ActionClass = ComposerAction;
 }
 
 /**
- * @param {Object} [params0={}]
- * @param {Composer|() => Composer} composer
+ * @param {import("@mail/core/common/action").ActionRootRefParam & {composer?: Composer|() => Composer}} [params0={}]
+ * @returns {UseComposerActions_Def}
  */
-export function useComposerActions({ composer } = {}) {
-    const component = useComponent();
-    const transformedActions = composerActionsRegistry
-        .getEntries()
-        .map(
-            ([id, definition]) => new ComposerAction({ owner: component, id, definition, composer })
-        );
-    for (const action of transformedActions) {
-        action.setup();
-    }
-    const state = useState(
-        new UseComposerActions(component, transformedActions, useService("mail.store"))
-    );
-    component.getActivePicker = () => state.activePicker;
-    component.setActivePicker = (newActivePicker) => (state.activePicker = newActivePicker);
-    return state;
+export function useComposerActions({ composer, rootRef } = {}) {
+    return useAction(composerActionsRegistry, UseComposerActions, ComposerAction, {
+        composer,
+        rootRef,
+    });
 }

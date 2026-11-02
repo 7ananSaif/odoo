@@ -8,17 +8,34 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-03-31 07:13+0000\n"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-10-19 11:54+0000\n"
 "Last-Translator: \"Larissa Manderfeld (lman)\" <lman@odoo.com>\n"
-"Language-Team: German <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: German <https://translate.odoo.com/projects/odoo-20/"
 "project_account/de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.16.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: project_account
+#: model:ir.module.module,description:base.module_project_account
+msgid ""
+"\n"
+"Allows the computation of some section for the project profitability\n"
+"==================================================================================================\n"
+"This module allows the computation of the 'Vendor Bills', 'Other Costs' and "
+"'Other Revenue' section for the project profitability, in the project update "
+"view.\n"
+msgstr ""
+"\n"
+"Ermöglicht die Berechnung bestimmter Abschnitte für die Projektrentabilität\n"
+"==================================================================================================\n"
+"Dieses Modul ermöglicht die Berechnung der Abschnitte „Lieferantenrechnungen"
+"“, „Sonstige Kosten“ und „Sonstige Einnahmen“ für die Projektrentabilität in "
+"der Projektaktualisierungsansicht.\n"
 
 #. module: project_account
 #: model:ir.embedded.actions,name:project_account.project_embedded_action_analytic_items
@@ -37,24 +54,16 @@ msgid "ID"
 msgstr "ID"
 
 #. module: project_account
-#. odoo-python
-#: code:addons/project_account/models/project_project.py:0
-msgid "Other Costs"
-msgstr "Andere Kosten"
-
-#. module: project_account
-#. odoo-python
-#: code:addons/project_account/models/project_project.py:0
-msgid "Other Revenues"
-msgstr "Sonstige Einnahmen"
-
-#. module: project_account
 #: model:ir.model,name:project_account.model_project_project
 msgid "Project"
 msgstr "Projekt"
 
 #. module: project_account
-#. odoo-python
-#: code:addons/project_account/models/project_project.py:0
-msgid "Vendor Bills"
-msgstr "Lieferantenrechnungen"
+#: model:ir.module.module,shortdesc:base.module_project_account
+msgid "Project - Account"
+msgstr "Projekt - Konto"
+
+#. module: project_account
+#: model:ir.module.module,summary:base.module_project_account
+msgid "project profitability items computation"
+msgstr "Einzelberechnung der Projektrentabilität"

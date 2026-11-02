@@ -59,9 +59,10 @@ class ResUsers(models.Model):
             if not key or not request.env['auth_totp.device']._check_credentials_for_uid(
                     scope="browser", key=key, uid=user.id):
                 # 2FA enabled but not a trusted device
-                user._notify_security_setting_update(
-                    subject=_('New Connection to your Account'),
-                    content=_('A new device was used to sign in to your account.'),
+                user_lang = user.lang or self.env.lang or 'en_US'
+                user.with_context(lang=user_lang)._notify_security_setting_update(
+                    subject=self.with_context(lang=user_lang).env._('New Connection to your Account'),
+                    content=self.with_context(lang=user_lang).env._('A new device was used to sign in to your account.'),
                 )
                 _logger.info("New device alert email sent for user <%s> to <%s>", user.login, user.email)
 
@@ -118,8 +119,8 @@ class ResUsers(models.Model):
             return r
         ICP = self.env['ir.config_parameter'].sudo()
         otp_required = False
-        if ICP.get_param('auth_totp.policy') == 'all_required' or \
-                (ICP.get_param('auth_totp.policy') == 'employee_required' and self._is_internal()):
+        if ICP.get_str('auth_totp.policy') == 'all_required' or \
+                (ICP.get_str('auth_totp.policy') == 'employee_required' and self._is_internal()):
             otp_required = True
         if otp_required:
             return 'totp_mail'
@@ -165,15 +166,19 @@ class ResUsers(models.Model):
             or (request and not request.session.uid and request.session.get('pre_uid') == self.id)  # nosemgrep: requests-in-models
         )
 
+        expiration = timedelta(seconds=3600)
+        lang = babel_locale_parse(self.env.context.get('lang') or self.lang)
+        expiration = babel.dates.format_timedelta(expiration, locale=lang)
+
+        if not (self.env.su or (request and not request.session.uid and request.session.get('pre_uid') == self.id)):  # nosemgrep: requests-in-models
+            return '000000', expiration
+
         key = self._get_totp_mail_key()
 
         now = datetime.now()
         counter = int(datetime.timestamp(now) / 3600)
 
         code = hotp(key, counter)
-        expiration = timedelta(seconds=3600)
-        lang = babel_locale_parse(self.env.context.get('lang') or self.lang)
-        expiration = babel.dates.format_timedelta(expiration, locale=lang)
 
         return str(code).zfill(6), expiration
 

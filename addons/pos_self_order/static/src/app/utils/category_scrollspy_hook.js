@@ -34,12 +34,11 @@ export function useCategoryScrollSpy(
     function selectCategory(categoryId) {
         selectedCategoryId = categoryId;
         onCategoryVisible(selectedCategoryId);
-        const tabEl = categoryScrollContainerRef.el.querySelector(
-            `[data-category-pill="${categoryId}"]`
-        );
+        const categoryScrollEl = categoryScrollContainerRef();
+        const tabEl = categoryScrollEl.querySelector(`[data-category-pill="${categoryId}"]`);
         if (tabEl) {
             const scrollLeft = tabEl.offsetLeft + categoryScrollOffsetLeft;
-            categoryScrollContainerRef.el.scrollTo({
+            categoryScrollEl.scrollTo({
                 left: scrollLeft || 0,
                 behavior: "smooth",
             });
@@ -48,7 +47,7 @@ export function useCategoryScrollSpy(
 
     function scrollToCategory(categoryId) {
         const section = categorySections.find((el) => el.dataset.category === "" + categoryId);
-        const { el: scrollEl } = productScrollContainerRef;
+        const scrollEl = productScrollContainerRef();
 
         if (section) {
             const containerTop = scrollEl.getBoundingClientRect().top;
@@ -66,7 +65,7 @@ export function useCategoryScrollSpy(
         let topCategory = null;
         let minTop = Infinity;
         const containerTop =
-            productScrollContainerRef.el.getBoundingClientRect().top + visibleThreshold;
+            productScrollContainerRef().getBoundingClientRect().top + visibleThreshold;
 
         // Loop through each category section to determine which is closest to the top
         for (const section of categorySections) {
@@ -101,14 +100,14 @@ export function useCategoryScrollSpy(
     }
 
     onMounted(() => {
-        const scrollEl = productScrollContainerRef.el;
+        const scrollEl = productScrollContainerRef();
         categorySections = [...scrollEl.querySelectorAll("[data-category]")];
         scrollEl.addEventListener("scroll", deferScroll);
         onProductScroll();
     });
 
     onWillUnmount(() => {
-        productScrollContainerRef.el.removeEventListener("scroll", deferScroll);
+        productScrollContainerRef().removeEventListener("scroll", deferScroll);
     });
 
     return {

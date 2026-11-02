@@ -2,12 +2,16 @@ import { registry } from "@web/core/registry";
 import { stepUtils } from "@web_tour/tour_utils";
 
 registry.category("web_tour.tours").add("hr_employee_multiple_bank_accounts_tour", {
-    url: "/odoo",
     steps: () => [
         stepUtils.showAppsMenuItem(),
         {
             content: "Open Employees app",
             trigger: ".o_app[data-menu-xmlid='hr.menu_hr_root']",
+            run: "click",
+        },
+        {
+            content: "Open Management menu",
+            trigger: '[data-menu-xmlid="hr.menu_hr_employee_payroll"]',
             run: "click",
         },
         {
@@ -67,7 +71,7 @@ registry.category("web_tour.tours").add("hr_employee_multiple_bank_accounts_tour
         },
         {
             content: "save employee form",
-            trigger: ".fa-cloud-upload",
+            trigger: "[data-icon='cloud_upload']",
             run: "click",
         },
         {

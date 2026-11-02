@@ -1,5 +1,5 @@
+import { proxy } from "@odoo/owl";
 import { Logger } from "@bus/workers/bus_worker_utils";
-import { reactive } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
 
 const CASHDRO_URL = "/Cashdro3WS/index3.php";
@@ -96,7 +96,7 @@ export class CashdroService {
         this.username = null;
         this.password = null;
         this.forceHttp = false;
-        this.state = reactive({ amountInserted: 0 });
+        this.state = proxy({ amountInserted: 0 });
     }
 
     /**

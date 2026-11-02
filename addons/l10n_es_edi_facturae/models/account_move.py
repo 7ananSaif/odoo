@@ -1,4 +1,3 @@
-import base64
 import re
 from collections import defaultdict
 from copy import deepcopy
@@ -11,7 +10,6 @@ from odoo import Command, _, api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools import float_round, float_repr, float_compare, date_utils, SQL
 from odoo.tools.xml_utils import cleanup_xml_node, find_xml_value
-from odoo.tools.sql import column_exists, create_column
 from odoo.addons.l10n_es_edi_facturae.xml_utils import (
     NS_MAP,
     _canonicalize_node,
@@ -121,6 +119,7 @@ class AccountMove(models.Model):
         compute='_compute_l10n_es_edi_facturae_reason_code',
         store=True,
         readonly=False,
+        init_storage=lambda model: None,
     )
     l10n_es_invoicing_period_start_date = fields.Date(string="Invoice Period Start Date")
     l10n_es_invoicing_period_end_date = fields.Date(string="Invoice Period End Date")
@@ -150,16 +149,10 @@ class AccountMove(models.Model):
         compute='_compute_l10n_es_payment_means',
         store=True,
         readonly=False,
+        init_storage=lambda model: None,
     )
 
-    def _auto_init(self):
-        # Create compute stored field l10n_es_edi_facturae_reason_code and
-        # l10n_es_payment_means here to avoid timeout error on large databases.
-        if not column_exists(self.env.cr, 'account_move', 'l10n_es_edi_facturae_reason_code'):
-            create_column(self.env.cr, 'account_move', 'l10n_es_edi_facturae_reason_code', 'varchar')
-        if not column_exists(self.env.cr, 'account_move', 'l10n_es_payment_means'):
-            create_column(self.env.cr, 'account_move', 'l10n_es_payment_means', 'varchar')
-        return super()._auto_init()
+    l10n_es_original_invoice_credited = fields.Char(string='Original Invoice Credited', store=True)
 
     @api.depends('country_code')
     def _compute_l10n_es_edi_facturae_reason_code(self):
@@ -186,15 +179,6 @@ class AccountMove(models.Model):
             **self.mapped("company_id")._l10n_es_edi_facturae_export_check(),
             **self.mapped("partner_id")._l10n_es_edi_facturae_export_check(),
         }
-
-    def _l10n_es_edi_facturae_get_default_enable(self):
-        self.ensure_one()
-        return not self.invoice_pdf_report_id \
-            and not self.l10n_es_edi_facturae_xml_id \
-            and not self.l10n_es_is_simplified \
-            and self.is_invoice(include_receipts=True) \
-            and self.country_code == 'ES' \
-            and self.company_id.sudo().l10n_es_edi_facturae_certificate_ids  # We only enable Facturae if a certificate is valid or has been valid (which will raise an error)
 
     def _l10n_es_edi_facturae_get_filename(self):
         self.ensure_one()
@@ -245,27 +229,38 @@ class AccountMove(models.Model):
 
     def _l10n_es_edi_facturae_get_corrective_data(self):
         self.ensure_one()
-        if self.move_type.endswith('refund'):
-            if not self.reversed_entry_id:
-                raise UserError(_("The credit note/refund appears to have been issued manually. For the purpose of "
-                                  "generating a Facturae document, it's necessary that the credit note/refund is created "
-                                  "directly from the associated invoice/bill."))
+        if not self.is_refund():
+            return {}
 
-            refunded_invoice = self.env['account.move'].browse(self._l10n_es_edi_facturae_get_refunded_invoices()[self.id])
+        refunded_invoice = self.env['account.move'].browse(
+            self._l10n_es_edi_facturae_get_refunded_invoices().get(self.id)
+        )
+        if refunded_invoice:
+            invoice_name = refunded_invoice.name
             tax_period = refunded_invoice._l10n_es_edi_facturae_get_tax_period()
+            start_date = tax_period['start']
+            end_date = tax_period['end']
+        elif self.l10n_es_original_invoice_credited:
+            invoice_name = self.l10n_es_original_invoice_credited
+            start_date = self.l10n_es_invoicing_period_start_date
+            end_date = self.l10n_es_invoicing_period_end_date
+            if not (start_date and end_date):
+                raise UserError(_("Please fill in the invoicing period (start and end date) "
+                                  "before generating the corrective Facturae document."))
+        else:
+            raise UserError(_("To generate a Facturae corrective document, link the refund to its "
+                              "original invoice or, if it is not in the system, fill in the 'Original Invoice Credited' field."))
 
-            reason_code = self.l10n_es_edi_facturae_reason_code or '10'
-            reason_description = SPANISH_CREDIT_REASON_TYPE[reason_code]
-            return {
-                'refunded_invoice_record': refunded_invoice,
-                'ReasonCode': reason_code,
-                'Reason': reason_description,
-                'TaxPeriod': {
-                    'StartDate': tax_period.get('start'),
-                    'EndDate': tax_period.get('end'),
-                }
-            }
-        return {}
+        reason_code = self.l10n_es_edi_facturae_reason_code or '10'
+        return {
+            'refunded_invoice_record': invoice_name,
+            'ReasonCode': reason_code,
+            'Reason': SPANISH_CREDIT_REASON_TYPE[reason_code],
+            'TaxPeriod': {
+                'StartDate': start_date,
+                'EndDate': end_date,
+            },
+        }
 
     def _l10n_es_edi_facturae_get_administrative_centers(self, partner):
         self.ensure_one()
@@ -320,7 +315,7 @@ class AccountMove(models.Model):
                     'InstallmentAmount': payment_term.amount_residual_currency,
                     'PaymentMeans': self.l10n_es_payment_means or '04',
                     'AccountToBeCredited': {
-                        'IBAN': self.partner_bank_id.sanitized_acc_number,
+                        'IBAN': self.partner_bank_id.sanitized_account_number,
                         'BIC': self.partner_bank_id.bank_bic,
                     },
                 })
@@ -348,7 +343,7 @@ class AccountMove(models.Model):
             'FileReference': invoice_ref,
             'ReceiverContractReference': invoice_ref,
             'FileDate': fields.Date.context_today(self),
-            'ItemDescription': line.name,
+            'ItemDescription': line.label,
             'Quantity': line.quantity,
             'UnitOfMeasure': line.product_uom_id.l10n_es_edi_facturae_uom_code,
             'DiscountsAndRebates': [],
@@ -416,9 +411,9 @@ class AccountMove(models.Model):
         company = self.company_id
         partner = self.commercial_partner_id
 
-        if not company.vat:
+        if not company.has_vat:
             raise UserError(_('The company needs a set tax identification number or VAT number'))
-        if not partner.vat:
+        if not partner.has_vat:
             raise UserError(_('The partner needs a set tax identification number or VAT number'))
         if not partner.country_id:
             raise UserError(_("The partner needs a set country"))
@@ -441,8 +436,8 @@ class AccountMove(models.Model):
         invoice_values = {
             'invoice_record': self,
             'invoice_currency': inv_curr,
-            'InvoiceDocumentType': 'FA' if self.l10n_es_is_simplified else 'FC',
-            'InvoiceClass': 'OR' if self.move_type in ['out_refund', 'in_refund'] else 'OO',
+            'InvoiceDocumentType': 'FA' if self.l10n_es_invoice_type in ('F2', 'R5') else 'FC',
+            'InvoiceClass': 'OR' if self.is_refund() else 'OO',
             'Corrective': self._l10n_es_edi_facturae_get_corrective_data(),
             'InvoiceIssueData': {
                 'OperationDate': operation_date,
@@ -520,7 +515,7 @@ class AccountMove(models.Model):
             - invoice_values['TotalGeneralDiscounts']
             + invoice_values['TotalGeneralSurcharges']
         )
-        refund_multiplier = -1 if self.move_type in ('out_refund', 'in_refund') else 1
+        refund_multiplier = -1 if self.is_refund() else 1
 
         template_values = {
             'self_party': company.partner_id,
@@ -558,7 +553,11 @@ class AccountMove(models.Model):
             'Invoices': [invoice_values],
         }
 
-        if self.l10n_es_invoicing_period_start_date and self.l10n_es_invoicing_period_end_date:
+        if (
+            not self.is_refund()
+            and self.l10n_es_invoicing_period_start_date
+            and self.l10n_es_invoicing_period_end_date
+        ):
             template_values['Invoices'][0]['InvoiceIssueData']['InvoicingPeriod'] = {
                 'StartDate': self.l10n_es_invoicing_period_start_date,
                 'EndDate': self.l10n_es_invoicing_period_end_date,
@@ -811,7 +810,7 @@ class AccountMove(models.Model):
         return logs
 
     def _search_tax_for_import(self, company, amount, is_fixed, is_withheld, is_purchase, price_included):
-        taxes = self.env['account.tax'].search([
+        taxes = self.env['account.tax'].with_context(active_test=False).search([
             ('company_id', '=', company.id),
             ('amount', '=', -1.0 * amount if is_withheld else amount),
             ('amount_type', '=', 'fixed' if is_fixed else 'percent'),
@@ -872,7 +871,7 @@ class AccountMove(models.Model):
 
         signature_data.update({
             'document_id': document_id,
-            'x509_certificate': base64.encodebytes(base64.b64decode(certificate_sudo._get_der_certificate_bytes())).decode(),
+            'x509_certificate': certificate_sudo._get_der_certificate_bytes(formatting='encodebytes').decode(),
             'public_modulus': n.decode(),
             'public_exponent': e.decode(),
             'iso_now': fields.Datetime.now().isoformat(),
@@ -882,7 +881,7 @@ class AccountMove(models.Model):
             'reference_uri': f"Reference-{document_id}",
             'sigpolicy_url': "http://www.facturae.es/politica_de_firma_formato_facturae/politica_de_firma_formato_facturae_v3_1.pdf",
             'sigpolicy_description': "Política de firma electrónica para facturación electrónica con formato Facturae",
-            'sigcertif_digest': certificate_sudo._get_fingerprint_bytes(formatting='base64').decode(),
+            'sigcertif_digest': certificate_sudo._get_fingerprint_bytes(formatting='encodebytes').decode(),
             'x509_issuer_description': issuer,
             'x509_serial_number': int(certificate_sudo.serial_number),
         })
@@ -900,11 +899,11 @@ class AccountMove(models.Model):
         self.ensure_one()
         if filetype == 'facturae':
             if facturae_attachment := self.l10n_es_edi_facturae_xml_id:
-                return {
+                return [{
                     'filename': facturae_attachment.name,
                     'filetype': 'xml',
                     'content': facturae_attachment.raw,
-                }
+                }]
         return super()._get_invoice_legal_documents(filetype, allow_fallback=allow_fallback)
 
     def get_extra_print_items(self):

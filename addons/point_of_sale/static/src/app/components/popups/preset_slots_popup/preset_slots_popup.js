@@ -1,22 +1,22 @@
-import { Component, onWillStart, useState } from "@odoo/owl";
+import { Component, onWillStart, proxy, useProps, t } from "@odoo/owl";
 import { usePos } from "@point_of_sale/app/hooks/pos_hook";
 import { Dialog } from "@web/core/dialog/dialog";
 import { _t } from "@web/core/l10n/translation";
-import { localization } from "@web/core/l10n/localization";
+import { getDisplayDateInfo } from "@point_of_sale/utils";
 
 const { DateTime } = luxon;
 
 export class PresetSlotsPopup extends Component {
     static template = "point_of_sale.PresetSlotsPopup";
     static components = { Dialog };
-    static props = {
-        close: Function,
-        getPayload: Function,
-    };
+    props = useProps({
+        close: t.function(),
+        getPayload: t.function(),
+    });
 
     setup() {
         this.pos = usePos();
-        this.state = useState({
+        this.state = proxy({
             selectedPresetId: this.pos.getOrder().preset_id.id,
             selectedDate: (this.pos.getOrder().preset_time || DateTime.now()).toFormat(
                 "yyyy-MM-dd"
@@ -24,30 +24,22 @@ export class PresetSlotsPopup extends Component {
         });
 
         onWillStart(async () => {
-            for (const preset of this.timedPresets) {
-                await this.pos.syncPresetSlotAvaibility(preset);
-            }
+            await this.pos.syncPresetSlotAvaibility(this.pos.getOrder().preset_id);
         });
     }
 
-    get timedPresets() {
-        return this.pos.models["pos.preset"].filter((p) => p.use_timing);
+    getDateInfo(date) {
+        return getDisplayDateInfo(date);
     }
 
     getSlotColor(slot, preset) {
         const isSelected = this.isSelected(slot, preset);
         const isFull = slot.isFull;
-        const isPast = slot.datetime < DateTime.now();
 
         if (!isSelected && isFull) {
             return "o_colorlist_item_numpad_color_1"; // Red
         }
-
-        return isSelected
-            ? "btn-primary"
-            : isPast
-            ? "btn-secondary"
-            : "o_colorlist_item_numpad_color_10"; // Green
+        return isSelected ? "btn-primary" : "o_colorlist_item_numpad_color_10"; // Green
     }
 
     isSelected(slot, preset) {
@@ -75,11 +67,6 @@ export class PresetSlotsPopup extends Component {
         };
 
         return periodNames[period];
-    }
-
-    formatDate(date) {
-        const dateObj = DateTime.fromFormat(date, "yyyy-MM-dd");
-        return dateObj.toFormat(localization.dateFormat);
     }
 
     confirm(slot, preset) {

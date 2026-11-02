@@ -7,6 +7,7 @@ from odoo.addons.mail.tools.discuss import Store
 
 class ResPartner(models.Model):
     _inherit = 'res.partner'
+    _explanation = "In the HR context, partners also represent employees."
 
     employee_ids = fields.One2many(
         'hr.employee', 'work_contact_id', string='Employees', groups="hr.group_hr_user",
@@ -26,6 +27,7 @@ class ResPartner(models.Model):
                 'type': 'ir.actions.act_window',
                 'res_model': 'hr.employee',
                 'view_mode': 'kanban',
+                'views': [(False, 'kanban')],
                 'domain': [('id', 'in', self.employee_ids.ids),
                            ('company_id', 'in', self.env.companies.ids)],
             }
@@ -35,9 +37,15 @@ class ResPartner(models.Model):
             'res_model': 'hr.employee',
             'res_id': self.employee_ids.filtered(lambda e: e.company_id in self.env.companies).id,
             'view_mode': 'form',
+            'views': [(False, 'form')],
         }
 
     def _get_all_addr(self):
+        """Prepend the private address of the partner's employee (if any) to the partner's addresses.
+
+        :return: list of address dicts; the employee one has ``contact_type: 'employee'``
+        :rtype: list[dict]
+        """
         self.ensure_one()
         employee_id = self.env['hr.employee'].search(
             [('id', 'in', self.employee_ids.ids)],
@@ -49,8 +57,10 @@ class ResPartner(models.Model):
         pstl_addr = {
             'contact_type': 'employee',
             'street': employee_id.private_street,
+            'street2': employee_id.private_street2,
             'zip': employee_id.private_zip,
             'city': employee_id.private_city,
+            'state': employee_id.private_state_id.code,
             'country': employee_id.private_country_id.code,
         }
         return [pstl_addr] + super()._get_all_addr()
@@ -102,10 +112,8 @@ class ResPartner(models.Model):
             })
         return action
 
-    def _get_store_avatar_card_fields(self, target):
-        avatar_card_fields = super()._get_store_avatar_card_fields(target)
-        if target.is_internal(self.env):
-            # sudo: res.partner - internal users can access employee information of partner
-            employee_fields = self.sudo().employee_ids._get_store_avatar_card_fields(target)
-            avatar_card_fields.append(Store.Many("employee_ids", employee_fields, mode="ADD", sudo=True))
-        return avatar_card_fields
+    def _store_avatar_card_fields(self, res: Store.FieldList):
+        super()._store_avatar_card_fields(res)
+        if res.is_for_internal_users():
+            # sudo: res.partner - internal users can access employee information of accessible partner
+            res.many("employee_ids", "_store_avatar_card_fields", sudo=True)

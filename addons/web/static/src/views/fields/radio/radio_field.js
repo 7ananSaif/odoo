@@ -1,25 +1,28 @@
-import { Component } from "@odoo/owl";
+import { Component, t, useProps } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
 import { getFieldDomain } from "@web/model/relational_model/utils";
 import { useSpecialData } from "@web/views/fields/relational_utils";
 import { standardFieldProps } from "../standard_field_props";
+import { ConnectionLostError } from "@web/core/network/rpc";
+import { hasTouch } from "@web/core/browser/feature_detection";
 
 let nextId = 0;
+
+export const radioFieldProps = {
+    ...standardFieldProps,
+    orientation: t.string().optional("vertical"),
+    label: t.string().optional(),
+    domain: t.or([t.array(), t.function()]).optional(),
+};
+
 export class RadioField extends Component {
     static template = "web.RadioField";
-    static props = {
-        ...standardFieldProps,
-        orientation: { type: String, optional: true },
-        label: { type: String, optional: true },
-        domain: { type: [Array, Function], optional: true },
-    };
-    static defaultProps = {
-        orientation: "vertical",
-    };
+    props = useProps(radioFieldProps);
 
     setup() {
         this.id = `radio_field_${nextId++}`;
+        this.hasTouch = hasTouch();
         this.type = this.props.record.fields[this.props.name].type;
         if (this.type === "many2one") {
             this.specialData = useSpecialData(async (orm, props) => {
@@ -29,7 +32,17 @@ export class RadioField extends Component {
                     specification: { display_name: 1 },
                     domain,
                 };
-                const { records } = await orm.call(relation, "web_search_read", [], kwargs);
+                const { records } = await orm
+                    .call(relation, "web_search_read", [], kwargs)
+                    .catch((error) => {
+                        if (error instanceof ConnectionLostError) {
+                            if (this.props.record.data[this.props.name]) {
+                                return { records: [this.props.record.data[this.props.name]] };
+                            }
+                            return { records: [] };
+                        }
+                        throw error;
+                    });
                 return records.map((record) => [record.id, record.display_name]);
             });
         }

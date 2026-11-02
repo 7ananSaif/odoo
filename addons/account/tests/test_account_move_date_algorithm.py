@@ -11,6 +11,8 @@ from odoo.tests import tagged
 @tagged('post_install', '-at_install')
 class TestAccountMoveDateAlgorithm(AccountTestInvoicingCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -20,7 +22,7 @@ class TestAccountMoveDateAlgorithm(AccountTestInvoicingCommon):
     # HELPERS
     # -------------------------------------------------------------------------
 
-    def _create_invoice(self, move_type, date, **kwargs):
+    def _create_invoice_with_date(self, move_type, date, **kwargs):
         return self.env['account.move'].create({
             'invoice_date': date,
             'partner_id': self.partner_a.id,
@@ -52,16 +54,6 @@ class TestAccountMoveDateAlgorithm(AccountTestInvoicingCommon):
     def _set_lock_date(self, lock_date):
         self.env.company.fiscalyear_lock_date = fields.Date.from_string(lock_date)
 
-    def _reverse_invoice(self, invoice):
-        move_reversal = self.env['account.move.reversal']\
-            .with_context(active_model="account.move", active_ids=invoice.ids)\
-            .create({
-                'journal_id': invoice.journal_id.id,
-                'reason': "no reason",
-            })
-        reversal = move_reversal.refund_moves()
-        return self.env['account.move'].browse(reversal['res_id'])
-
     # -------------------------------------------------------------------------
     # TESTS
     # -------------------------------------------------------------------------
@@ -69,7 +61,7 @@ class TestAccountMoveDateAlgorithm(AccountTestInvoicingCommon):
     @freezegun.freeze_time('2017-01-12')
     def test_out_invoice_date_with_lock_date(self):
         self._set_lock_date('2016-12-31')
-        move = self._create_invoice('out_invoice', '2016-01-01')
+        move = self._create_invoice_with_date('out_invoice', '2016-01-01')
         move.action_post()
 
         self.assertRecordValues(move, [{
@@ -79,7 +71,7 @@ class TestAccountMoveDateAlgorithm(AccountTestInvoicingCommon):
 
     @freezegun.freeze_time('2017-01-12')
     def test_out_invoice_reverse_date_with_lock_date(self):
-        move = self._create_invoice('out_invoice', '2016-01-01')
+        move = self._create_invoice_with_date('out_invoice', '2016-01-01')
         move.action_post()
         self._set_lock_date('2016-12-31')
         reverse_move = self._reverse_invoice(move)
@@ -92,7 +84,7 @@ class TestAccountMoveDateAlgorithm(AccountTestInvoicingCommon):
     @freezegun.freeze_time('2017-01-12')
     def test_out_refund_date_with_lock_date(self):
         self._set_lock_date('2016-12-31')
-        move = self._create_invoice('out_refund', '2016-01-01')
+        move = self._create_invoice_with_date('out_refund', '2016-01-01')
         move.action_post()
 
         self.assertRecordValues(move, [{
@@ -102,7 +94,7 @@ class TestAccountMoveDateAlgorithm(AccountTestInvoicingCommon):
 
     @freezegun.freeze_time('2017-01-12')
     def test_out_refund_reverse_date_with_lock_date(self):
-        move = self._create_invoice('out_refund', '2016-01-01')
+        move = self._create_invoice_with_date('out_refund', '2016-01-01')
         move.action_post()
         self._set_lock_date('2016-12-31')
         reverse_move = self._reverse_invoice(move)
@@ -112,7 +104,7 @@ class TestAccountMoveDateAlgorithm(AccountTestInvoicingCommon):
     @freezegun.freeze_time('2017-01-12')
     def test_in_invoice_date_with_lock_date(self):
         self._set_lock_date('2016-12-31')
-        move = self._create_invoice('in_invoice', '2016-01-01')
+        move = self._create_invoice_with_date('in_invoice', '2016-01-01')
         move.action_post()
 
         self.assertRecordValues(move, [{
@@ -122,7 +114,7 @@ class TestAccountMoveDateAlgorithm(AccountTestInvoicingCommon):
 
     @freezegun.freeze_time('2017-01-12')
     def test_in_invoice_reverse_date_with_lock_date(self):
-        move = self._create_invoice('in_invoice', '2016-01-01')
+        move = self._create_invoice_with_date('in_invoice', '2016-01-01')
         move.action_post()
         self._set_lock_date('2016-12-31')
         reverse_move = self._reverse_invoice(move)
@@ -135,7 +127,7 @@ class TestAccountMoveDateAlgorithm(AccountTestInvoicingCommon):
     @freezegun.freeze_time('2017-01-12')
     def test_in_refund_date_with_lock_date(self):
         self._set_lock_date('2016-12-31')
-        move = self._create_invoice('in_refund', '2016-01-01')
+        move = self._create_invoice_with_date('in_refund', '2016-01-01')
         move.action_post()
 
         self.assertRecordValues(move, [{
@@ -145,7 +137,7 @@ class TestAccountMoveDateAlgorithm(AccountTestInvoicingCommon):
 
     @freezegun.freeze_time('2017-01-12')
     def test_in_refund_reverse_date_with_lock_date(self):
-        move = self._create_invoice('in_refund', '2016-01-01')
+        move = self._create_invoice_with_date('in_refund', '2016-01-01')
         move.action_post()
         self._set_lock_date('2016-12-31')
         reverse_move = self._reverse_invoice(move)
@@ -154,8 +146,8 @@ class TestAccountMoveDateAlgorithm(AccountTestInvoicingCommon):
 
     @freezegun.freeze_time('2017-02-12')
     def test_reconcile_with_lock_date(self):
-        invoice = self._create_invoice('out_invoice', '2016-01-01', currency_id=self.other_currency.id)
-        refund = self._create_invoice('out_refund', '2017-01-01', currency_id=self.other_currency.id)
+        invoice = self._create_invoice_with_date('out_invoice', '2016-01-01', currency_id=self.other_currency.id)
+        refund = self._create_invoice_with_date('out_refund', '2017-01-01', currency_id=self.other_currency.id)
         (invoice + refund).action_post()
         self._set_lock_date('2017-01-31')
 
@@ -170,8 +162,8 @@ class TestAccountMoveDateAlgorithm(AccountTestInvoicingCommon):
 
     @freezegun.freeze_time('2017-02-12')
     def test_unreconcile_with_lock_date(self):
-        invoice = self._create_invoice('out_invoice', '2016-01-01', currency_id=self.other_currency.id)
-        refund = self._create_invoice('out_refund', '2017-01-01', currency_id=self.other_currency.id)
+        invoice = self._create_invoice_with_date('out_invoice', '2016-01-01', currency_id=self.other_currency.id)
+        refund = self._create_invoice_with_date('out_refund', '2017-01-01', currency_id=self.other_currency.id)
         (invoice + refund).action_post()
 
         amls = (invoice + refund).line_ids.filtered(lambda x: x.account_id.account_type == 'asset_receivable')
@@ -184,7 +176,7 @@ class TestAccountMoveDateAlgorithm(AccountTestInvoicingCommon):
 
         reverse_exchange_move = exchange_move.line_ids.matched_credit_ids.credit_move_id.move_id
         self.assertRecordValues(reverse_exchange_move, [{
-            'date': fields.Date.from_string('2017-02-12'),
+            'date': fields.Date.from_string('2017-02-01'),
             'amount_total_signed': 200.0,
         }])
 
@@ -195,7 +187,6 @@ class TestAccountMoveDateAlgorithm(AccountTestInvoicingCommon):
             'name': 'TAX_WAIT',
             'code': 'TWAIT',
             'account_type': 'liability_current',
-            'reconcile': True,
         })
         tax = self.env['account.tax'].create({
             'name': 'cash basis 10%',
@@ -205,7 +196,7 @@ class TestAccountMoveDateAlgorithm(AccountTestInvoicingCommon):
             'cash_basis_transition_account_id': tax_waiting_account.id,
         })
 
-        invoice = self._create_invoice(
+        invoice = self._create_invoice_with_date(
             'out_invoice', '2016-01-01',
             currency_id=self.other_currency.id,
             invoice_line_ids=[{'tax_ids': [Command.set(tax.ids)]}],
@@ -223,7 +214,7 @@ class TestAccountMoveDateAlgorithm(AccountTestInvoicingCommon):
         caba_move = self.env['account.move'].search([('tax_cash_basis_origin_move_id', '=', invoice.id)])
 
         self.assertRecordValues(caba_move, [{
-            'date': fields.Date.from_string('2017-01-12'),
+            'date': fields.Date.from_string('2017-01-04'),
             'amount_total_signed': 440.0,
         }])
 
@@ -235,7 +226,7 @@ class TestAccountMoveDateAlgorithm(AccountTestInvoicingCommon):
         reverse_exchange_move = self.env['account.move'].search([('tax_cash_basis_origin_move_id', '=', invoice.id)]) - caba_move
 
         self.assertRecordValues(reverse_exchange_move, [{
-            'date': fields.Date.from_string('2017-02-28'),
+            'date': fields.Date.from_string('2017-02-02'),
             'amount_total_signed': 440.0,
         }])
 
@@ -252,7 +243,6 @@ class TestAccountMoveDateAlgorithm(AccountTestInvoicingCommon):
             'name': 'TAX_WAIT',
             'code': 'TWAIT',
             'account_type': 'liability_current',
-            'reconcile': True,
         })
         tax = self.env['account.tax'].create({
             'name': 'cash basis 10%',
@@ -272,7 +262,7 @@ class TestAccountMoveDateAlgorithm(AccountTestInvoicingCommon):
 
                 self.assertTrue(self.env.user.has_group(group))
 
-                invoice = self._create_invoice(
+                invoice = self._create_invoice_with_date(
                     'out_invoice', '2023-01-02',
                     invoice_line_ids=[{'tax_ids': [Command.set(tax.ids)]}],
                 )
@@ -292,7 +282,50 @@ class TestAccountMoveDateAlgorithm(AccountTestInvoicingCommon):
 
                 # The sale lock date does not matter for the caba move, since it is not in a sale journal
                 self.assertEqual(caba_move.journal_id.type, 'general')
-                self.assertEqual(caba_move.date.isoformat(), '2023-02-28')
+                self.assertEqual(caba_move.date.isoformat(), '2023-01-30')
+
+    @freezegun.freeze_time('2026-05-10')
+    def test_caba_reverse_date_monthless_sequence_with_lock_date(self):
+        """ Test that when the origin period is closed by a tax lock date, the reversal
+            CABA entry is moved to the first open period
+        """
+        self.env.company.tax_exigibility = True
+
+        tax_waiting_account = self.env['account.account'].create({
+            'name': 'TAX_WAIT',
+            'code': 'TWAIT',
+            'account_type': 'liability_current',
+            'reconcile': True,
+        })
+        tax = self.env['account.tax'].create({
+            'name': 'cash basis 10%',
+            'type_tax_use': 'sale',
+            'amount': 10,
+            'tax_exigibility': 'on_payment',
+            'cash_basis_transition_account_id': tax_waiting_account.id,
+        })
+
+        invoice = self._create_invoice_with_date(
+            'out_invoice', '2026-02-01',
+            invoice_line_ids=[{'tax_ids': [Command.set(tax.ids)]}],
+        )
+        payment = self._create_payment('2026-02-15', amount=invoice.amount_total)
+        invoice.action_post()
+
+        receivable_lines = (invoice + payment.move_id).line_ids\
+            .filtered(lambda x: x.account_id.account_type == 'asset_receivable')
+
+        receivable_lines.reconcile()
+        caba_move = self.env['account.move'].search([('tax_cash_basis_origin_move_id', '=', invoice.id)])
+
+        # Resequence CABA entry, lock the origin period through a tax lock date and unreconcile
+        caba_move.name = 'CABA/2026/00001'
+        self.env.company.sudo().tax_lock_date = fields.Date.from_string('2026-02-28')
+        receivable_lines.remove_move_reconcile()
+        self.assertEqual(
+            caba_move.reversal_move_ids.date, fields.Date.to_date('2026-03-01'),
+            "The reversal should move to the first open period when the origin period is locked.",
+        )
 
     @freezegun.freeze_time('2024-08-05')
     def test_lock_date_exceptions(self):
@@ -313,3 +346,116 @@ class TestAccountMoveDateAlgorithm(AccountTestInvoicingCommon):
                     invoice_date='2024-07-01', post=True
                 )
                 self.assertEqual(move.date, fields.Date.to_date('2024-07-01'))
+
+    def test_invoice_caba_move_date_computation(self):
+        self.env.company.tax_exigibility = True
+
+        tax_waiting_account = self.env['account.account'].create({
+            'name': 'TAX_WAIT',
+            'code': 'TWAIT',
+            'account_type': 'liability_current',
+            'reconcile': True,
+        })
+        tax = self.percent_tax(10.0, tax_exigibility='on_payment', cash_basis_transition_account_id=tax_waiting_account.id)
+
+        for invoice_date, payment_date, lock_date, caba_date in [
+            ('2026-01-31', '2026-02-14', None, '2026-02-14'),
+            ('2026-02-14', '2026-01-31', None, '2026-01-31'),
+            ('2026-01-31', '2026-02-14', '2026-01-31', '2026-02-14'),
+            ('2026-01-31', '2026-02-14', '2026-02-28', '2026-03-01'),
+            ('2026-02-14', '2026-01-31', '2026-01-31', '2026-02-01'),
+        ]:
+            with self.subTest(invoice_date=invoice_date, payment_date=payment_date, lock_date=lock_date, caba_date=caba_date):
+                self._set_lock_date(None)
+                invoice = self._create_invoice_with_date(
+                    'out_invoice', invoice_date,
+                    currency_id=self.other_currency.id,
+                    invoice_line_ids=[{'tax_ids': [Command.set(tax.ids)]}],
+                )
+                payment = self._create_payment(payment_date, amount=invoice.amount_total)
+                invoice.action_post()
+
+                self._set_lock_date(lock_date)
+
+                (invoice + payment.move_id).line_ids\
+                    .filtered(lambda x: x.account_id.account_type == 'asset_receivable')\
+                    .reconcile()
+
+                caba_move = self.env['account.move'].search([('tax_cash_basis_origin_move_id', '=', invoice.id)])
+                self.assertEqual(caba_move.date, fields.Date.from_string(caba_date))
+
+    def test_bill_caba_move_date_computation(self):
+        self.env.company.tax_exigibility = True
+
+        tax_waiting_account = self.env['account.account'].create({
+            'name': 'TAX_WAIT',
+            'code': 'TWAIT',
+            'account_type': 'liability_current',
+            'reconcile': True,
+        })
+        tax = self.percent_tax(10.0, type_tax_use='purchase', tax_exigibility='on_payment', cash_basis_transition_account_id=tax_waiting_account.id)
+
+        for bill_date, payment_date, lock_date, caba_date in [
+            ('2026-01-31', '2026-02-14', None, '2026-02-14'),
+            ('2026-02-14', '2026-01-31', None, '2026-01-31'),
+            ('2026-01-31', '2026-02-14', '2026-01-31', '2026-02-14'),
+            ('2026-01-31', '2026-02-14', '2026-02-28', '2026-03-01'),
+            ('2026-02-14', '2026-01-31', '2026-01-31', '2026-02-01'),
+        ]:
+            with self.subTest(bill_date=bill_date, payment_date=payment_date, lock_date=lock_date, caba_date=caba_date):
+                self._set_lock_date(None)
+                bill = self._create_invoice_with_date(
+                    'in_invoice', bill_date,
+                    currency_id=self.other_currency.id,
+                    invoice_line_ids=[{'tax_ids': [Command.set(tax.ids)]}],
+                )
+                payment = self._create_payment(
+                    payment_date,
+                    amount=bill.amount_total,
+                    payment_type='outbound',
+                    partner_type='supplier',
+                )
+                bill.action_post()
+
+                self._set_lock_date(lock_date)
+
+                (bill + payment.move_id).line_ids\
+                    .filtered(lambda x: x.account_id.account_type == 'liability_payable')\
+                    .reconcile()
+
+                caba_move = self.env['account.move'].search([('tax_cash_basis_origin_move_id', '=', bill.id)])
+                self.assertEqual(caba_move.date, fields.Date.from_string(caba_date))
+
+    @freezegun.freeze_time('2026-02-14')
+    def test_invoice_credit_note_caba_move_date_computation(self):
+        self.env.company.tax_exigibility = True
+
+        tax_waiting_account = self.env['account.account'].create({
+            'name': 'TAX_WAIT',
+            'code': 'TWAIT',
+            'account_type': 'liability_current',
+            'reconcile': True,
+        })
+        tax = self.percent_tax(10.0, tax_exigibility='on_payment', cash_basis_transition_account_id=tax_waiting_account.id)
+
+        for invoice_date, lock_date, expected_caba_date in [
+            ('2026-01-31', None, '2026-02-14'),  # No lock
+            ('2026-01-31', '2026-01-31', '2026-02-14'),  # Payment after lock date
+            ('2026-01-31', '2026-02-28', '2026-03-01'),  # Payment before lock date
+        ]:
+            with self.subTest(invoice_date=invoice_date, lock_date=lock_date, expected_caba_date=expected_caba_date):
+                self._set_lock_date(None)
+                invoice = self._create_invoice_with_date(
+                    'out_invoice', invoice_date,
+                    currency_id=self.other_currency.id,
+                    invoice_line_ids=[{'tax_ids': [Command.set(tax.ids)]}],
+                )
+                invoice.action_post()
+
+                self._set_lock_date(lock_date)
+
+                self.env['account.payment.register'].with_context(active_model='account.move', active_ids=invoice.ids).create({
+                })._create_payments()
+
+                caba_move = self.env['account.move'].search([('tax_cash_basis_origin_move_id', '=', invoice.id)])
+                self.assertEqual(caba_move.date, fields.Date.from_string(expected_caba_date))

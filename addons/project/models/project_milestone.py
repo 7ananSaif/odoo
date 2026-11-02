@@ -18,7 +18,7 @@ class ProjectMilestone(models.Model):
     def _get_default_project_id(self):
         return self.env.context.get('default_project_id') or self.env.context.get('active_id')
 
-    name = fields.Char(required=True)
+    name = fields.Char(required=True, copy=True)
     sequence = fields.Integer('Sequence', default=10)
     project_id = fields.Many2one('project.project', required=True, default=_get_default_project_id, domain=[('is_template', '=', False)], index=True, ondelete='cascade')
     deadline = fields.Date(tracking=True, copy=False)
@@ -98,11 +98,6 @@ class ProjectMilestone(models.Model):
         ])
         return [('project_id', 'in', query)]
 
-    def toggle_is_reached(self, is_reached):
-        self.ensure_one()
-        self.update({'is_reached': is_reached})
-        return self._get_data()
-
     def action_view_tasks(self):
         self.ensure_one()
         action = self.env['ir.actions.act_window']._for_xml_id('project.action_view_task_from_milestone')
@@ -134,10 +129,13 @@ class ProjectMilestone(models.Model):
                 milestone_mapping[old_milestone.id] = new_milestone.id
         return new_milestones
 
+    @api.depends_context('formatted_display_name')
     def _compute_display_name(self):
         super()._compute_display_name()
         if not self.env.context.get('display_milestone_deadline'):
             return
         for milestone in self:
-            if milestone.deadline:
+            if milestone.deadline and self.env.context.get('formatted_display_name'):
+                milestone.display_name = f'{milestone.display_name} \t --{format_date(self.env, milestone.deadline)}--'
+            elif milestone.deadline:
                 milestone.display_name = f'{milestone.display_name} - {format_date(self.env, milestone.deadline)}'

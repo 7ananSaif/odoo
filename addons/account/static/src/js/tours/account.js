@@ -27,7 +27,6 @@ export const accountTourSteps = {
     },
     endSteps() {
         return [{
-            isActive: ["auto"],
             trigger: '.breadcrumb-item',
             run: "click",
         }];
@@ -35,7 +34,6 @@ export const accountTourSteps = {
 }
 
 registry.category("web_tour.tours").add('account_tour', {
-    url: "/odoo",
     steps: () => [
     ...accountTourSteps.goToAccountMenu(markup(_t('Send invoices to your customers in no time with the <b>Invoicing app</b>.'))),
     ...accountTourSteps.onboarding(),
@@ -47,24 +45,21 @@ registry.category("web_tour.tours").add('account_tour', {
         run: "click",
     },
     {
-        isActive: ["auto"],
         trigger: `.o_form_view_container${accountTourSteps.draftInvoiceSelector} div[name=partner_id] input`,
         run: "edit Test Customer",
     },
     {
-        isActive: ["auto"],
         trigger: `body${accountTourSteps.draftInvoiceSelector} .o_m2o_dropdown_option a:contains('Create')`,
         content: _t("Select first partner"),
         run: "click",
     },
     {
-        isActive: ["auto"],
         trigger: `body${accountTourSteps.draftInvoiceSelector} .modal-content button.btn-primary`,
         content: markup(_t("Once everything is set, you are good to continue. You will be able to edit this later in the <b>Customers</b> menu.")),
         run: "click",
     },
     {
-        trigger: `.o_form_view_container${accountTourSteps.draftInvoiceSelector} div[name=invoice_line_ids] .o_field_x2many_list_row_add a`,
+        trigger: `.o_form_view_container${accountTourSteps.draftInvoiceSelector} div[name=invoice_line_ids] .o_field_x2many_list_row_add button`,
         content: _t("Add a line to your invoice"),
         run: "click",
     },
@@ -87,20 +82,14 @@ registry.category("web_tour.tours").add('account_tour', {
         run: "click",
     },
     {
-        trigger: `.o_form_view_container${accountTourSteps.draftInvoiceSelector} div[name=invoice_line_ids] div[name=product_id] button[id=labelVisibilityButtonId]`,
-        content: _t("Click here to add a description to your product."),
-        tooltipPosition: "bottom",
-        run: "click",
-    },
-    {
-        trigger: `.o_form_view_container${accountTourSteps.draftInvoiceSelector} div[name=invoice_line_ids] div[name=product_id] textarea`,
+        trigger: `.o_form_view_container${accountTourSteps.draftInvoiceSelector} div[name=invoice_line_ids] div[name=name] textarea`,
         content: _t("Add a description to your item."),
         tooltipPosition: "bottom",
         run: "edit A very useful description.",
     },
     {
         isActive: ["auto"],
-        trigger: `.o_form_view_container${accountTourSteps.draftInvoiceSelector} div[name=invoice_line_ids] div[name=product_id] textarea`,
+        trigger: `.o_form_view_container${accountTourSteps.draftInvoiceSelector} div[name=invoice_line_ids] div[name=name] textarea`,
         run: function () {
             // Since the t-on-change of the input is not triggered by the run: "edit" action,
             // we need to dispatch the event manually requiring a function.
@@ -134,15 +123,24 @@ registry.category("web_tour.tours").add('account_tour', {
         run: "click",
     },
     {
+        isActive: ["manual"],
+        trigger: "button[name=document_layout_save]",
+        content: _t("Continue with the default document layout."),
+        run: "click",
+    },
+    {
+        isActive: ["auto"],
+        content: "Wait for animation frame",
+        trigger: `body${accountTourSteps.postedInvoiceSelector} .o-mail-RecipientsInputTagsListPopover input`,
+    },
+    {
         // RecipientsInputTagsListPopover will not display if the customer already has an email address
         // unless it's possible to have optional steps, we will only use it for tests at the moment.
-        isActive: ["auto"],
         trigger: `body${accountTourSteps.postedInvoiceSelector} .o-mail-RecipientsInputTagsListPopover input`,
         content: markup(_t("Write here <b>your own email address</b> to test the flow.")),
         run: "edit customer@example.com",
     },
     {
-        isActive: ["auto"],
         trigger: `body${accountTourSteps.postedInvoiceSelector} .o-mail-RecipientsInputTagsListPopover .btn-primary`,
         content: _t("Validate."),
         run: "click",

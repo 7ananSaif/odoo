@@ -1,4 +1,4 @@
-import { Component } from "@odoo/owl";
+import { Component, t, useProps } from "@odoo/owl";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { Dropdown } from "@web/core/dropdown/dropdown";
 import { DropdownItem } from "@web/core/dropdown/dropdown_item";
@@ -11,14 +11,16 @@ import { FormViewDialog } from "@web/views/view_dialogs/form_view_dialog";
 export class GroupConfigMenu extends Component {
     static template = "web.GroupConfigMenu";
     static components = { Dropdown, DropdownItem };
-    static props = {
-        activeActions: { type: Object },
-        configItems: { type: Object },
-        deleteGroup: { type: Function },
-        dialogClose: { type: Array },
-        group: { type: Object },
-        list: { type: Object },
-    };
+    props = useProps({
+        activeActions: t.object(),
+        // entries: [key, descriptor][] — the legacy `{ type: Object }` was
+        // never enforced (static props were ignored by the compat layer)
+        configItems: t.array(),
+        deleteGroup: t.function(),
+        dialogClose: t.array(),
+        group: t.object(),
+        list: t.object(),
+    });
     setup() {
         this.dialog = useService("dialog");
     }
@@ -30,6 +32,7 @@ export class GroupConfigMenu extends Component {
             label: desc.label,
             class: typeof desc.class === "function" ? desc.class(args) : desc.class,
             icon: desc.icon,
+            iconClass: desc.iconClass,
             isVisible: typeof desc.isVisible === "function" ? desc.isVisible(args) : desc.isVisible,
             method: typeof desc.method === "function" ? desc.method : this[desc.method].bind(this),
         }));
@@ -88,7 +91,8 @@ groupConfigItems.add(
         label: _t("Edit"),
         isVisible: ({ permissions }) => permissions.canEditGroup,
         class: "o_group_edit",
-        icon: "fa-pencil",
+        icon: "edit",
+        iconClass: "oi-filled",
         method: "editGroup",
     },
     { sequence: 20 }
@@ -99,7 +103,8 @@ groupConfigItems.add(
         label: _t("Delete"),
         isVisible: ({ permissions }) => permissions.canDeleteGroup,
         class: "o_group_delete text-danger",
-        icon: "fa-trash",
+        icon: "delete",
+        iconClass: "oi-filled",
         method: "deleteGroup",
     },
     { sequence: 30 }

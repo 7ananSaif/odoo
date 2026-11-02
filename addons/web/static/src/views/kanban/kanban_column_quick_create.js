@@ -1,39 +1,43 @@
 import { useHotkey } from "@web/core/hotkeys/hotkey_hook";
 import { useAutofocus, useService } from "@web/core/utils/hooks";
 
-import { Component, useExternalListener, useState, useRef, onPatched } from "@odoo/owl";
+import { Component, onPatched, proxy, signal, t, useListener, useProps } from "@odoo/owl";
 
 export class KanbanColumnQuickCreate extends Component {
     static template = "web.KanbanColumnQuickCreate";
-    static props = {
-        onFoldChange: Function,
-        onValidate: Function,
-        folded: Boolean,
-        groupByField: Object,
-    };
+    props = useProps({
+        onFoldChange: t.function(),
+        onValidate: t.function(),
+        folded: t.boolean(),
+        groupByField: t.object(),
+    });
+
+    root = signal.ref();
+    inputRef = signal.ref();
 
     setup() {
         this.dialog = useService("dialog");
-        this.root = useRef("root");
-        this.state = useState({
+        this.state = proxy({
             hasInputFocused: false,
         });
 
-        useAutofocus();
-        this.inputRef = useRef("autofocus");
+        useAutofocus({ ref: this.inputRef });
 
         // Close on outside click
-        useExternalListener(window, "mousedown", (/** @type {MouseEvent} */ ev) => {
+        useListener(window, "mousedown", (/** @type {MouseEvent} */ ev) => {
             // This target is kept in order to impeach close on outside click behavior if the click
             // has been initiated from the quickcreate root element (mouse selection in an input...)
             this.mousedownTarget = ev.target;
         });
-        useExternalListener(
+        useListener(
             window,
             "click",
             (/** @type {MouseEvent} */ ev) => {
+                if (!this.root()) {
+                    return;
+                }
                 const target = this.mousedownTarget || ev.target;
-                const gotClickedInside = this.root.el.contains(target);
+                const gotClickedInside = this.root().contains(target);
                 if (!gotClickedInside) {
                     this.fold();
                 }
@@ -46,7 +50,7 @@ export class KanbanColumnQuickCreate extends Component {
         useHotkey("escape", () => this.fold());
         onPatched(() => {
             if (this.state.hasInputFocused && !this.props.folded) {
-                this.root.el.scrollIntoView({ behavior: "smooth" });
+                this.root().scrollIntoView({ behavior: "smooth" });
             }
         });
     }
@@ -64,11 +68,11 @@ export class KanbanColumnQuickCreate extends Component {
     }
 
     validate() {
-        const title = this.inputRef.el.value.trim();
+        const title = this.inputRef().value.trim();
         if (title.length) {
             this.props.onValidate(title);
-            this.inputRef.el.value = "";
-            this.inputRef.el.focus();
+            this.inputRef().value = "";
+            this.inputRef().focus();
             this.state.hasInputFocused = true;
         }
     }

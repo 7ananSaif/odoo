@@ -2,7 +2,7 @@ import { describe, expect, test } from "@odoo/hoot";
 import { animationFrame, press } from "@odoo/hoot-dom";
 import { patchWithCleanup } from "@web/../tests/web_test_helpers";
 import { base64Img, setupEditor, testEditor } from "./_helpers/editor";
-import { insertText } from "./_helpers/user_actions";
+import { insertSpace, insertText } from "./_helpers/user_actions";
 
 describe("inline code", () => {
     test("should convert text into inline code (start) (1)", async () => {
@@ -95,6 +95,14 @@ describe("inline code", () => {
             contentBefore: "<p>ab`c<strong>d</strong>e[]fg</p>",
             stepFunction: async (editor) => await insertText(editor, "`"),
             contentAfter: "<p>ab`c<strong>d</strong>e`[]fg</p>",
+        });
+    });
+
+    test("should not convert text into inline code when space is avaialbe right after first backtick", async () => {
+        await testEditor({
+            contentBefore: "<p>ab` test[]</p>",
+            stepFunction: async (editor) => await insertText(editor, "`"),
+            contentAfter: "<p>ab` test`[]</p>",
         });
     });
 
@@ -369,6 +377,17 @@ describe("inline code", () => {
             contentBefore: "<pre>[]<br></pre>",
             stepFunction: async (editor) => await insertText(editor, "# "),
             contentAfter: "<pre># []</pre>",
+        });
+    });
+});
+
+describe("pre", () => {
+    test("should create pre block on triple-backtick", async () => {
+        await testEditor({
+            contentBefore: "<p>```[]</p>",
+            stepFunction: async (editor) => await insertSpace(editor),
+            contentAfterEdit: '<pre o-we-hint-text="Code" class="o-we-hint">[]<br></pre>',
+            contentAfter: "<pre>[]<br></pre>",
         });
     });
 });

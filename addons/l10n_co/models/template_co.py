@@ -9,11 +9,7 @@ class AccountChartTemplate(models.AbstractModel):
     @template('co')
     def _get_co_template_data(self):
         return {
-            'property_account_receivable_id': 'co_puc_130500',
-            'property_account_payable_id': 'co_puc_220500',
-            'property_account_expense_categ_id': 'co_puc_610000',
-            'property_account_income_categ_id': 'co_puc_417500',
-            'property_stock_valuation_account_id': 'co_puc_140500',
+            'code_digits': '0',
         }
 
     @template('co', 'res.company')
@@ -34,10 +30,17 @@ class AccountChartTemplate(models.AbstractModel):
                 'account_purchase_tax_id': 'l10n_co_tax_1',
                 'default_cash_difference_income_account_id': 'co_puc_428000',
                 'default_cash_difference_expense_account_id': 'co_puc_532000',
+                'deferred_expense_account_id': 'co_puc_170500',
+                'deferred_revenue_account_id': 'co_puc_270505',
                 'expense_account_id': 'co_puc_610000',
-                'income_account_id': 'co_puc_417500',
-                'account_stock_journal_id': 'inventory_valuation',
+                'income_account_id': 'co_puc_413500',
+                'receivable_account_id': 'co_puc_130500',
+                'payable_account_id': 'co_puc_220500',
+                'downpayment_account_id': 'co_puc_280500',
+                'withholding_tax_base_account_id': 'co_puc_236500',
                 'account_stock_valuation_id': 'co_puc_140500',
+                'account_production_wip_account_id': 'co_puc_141000',
+                'account_production_wip_overhead_account_id': 'co_puc_730000',
             },
         }
 
@@ -48,4 +51,12 @@ class AccountChartTemplate(models.AbstractModel):
                 'account_stock_expense_id': 'co_puc_621000',
                 'account_stock_variation_id': 'co_puc_146501',
             },
+            'co_puc_150405': {'asset_depreciation_account_id': 'co_puc_150405', 'asset_expense_account_id': 'co_puc_514510'},
+            'co_puc_150410': {'asset_depreciation_account_id': 'co_puc_150410', 'asset_expense_account_id': 'co_puc_514510'},
+            'co_puc_150800': {'asset_depreciation_account_id': 'co_puc_150800', 'asset_expense_account_id': 'co_puc_514510'},
+            'co_puc_151200': {'asset_depreciation_account_id': 'co_puc_151200', 'asset_expense_account_id': 'co_puc_513510'},
+            'co_puc_152000': {'asset_depreciation_account_id': 'co_puc_152000', 'asset_expense_account_id': 'co_puc_519530'},
+            'co_puc_152400': {'asset_depreciation_account_id': 'co_puc_152400', 'asset_expense_account_id': 'co_puc_519530'},
+            'co_puc_152800': {'asset_depreciation_account_id': 'co_puc_152800', 'asset_expense_account_id': 'co_puc_519530'},
+            'co_puc_154000': {'asset_depreciation_account_id': 'co_puc_154000', 'asset_expense_account_id': 'co_puc_524540'},
         }

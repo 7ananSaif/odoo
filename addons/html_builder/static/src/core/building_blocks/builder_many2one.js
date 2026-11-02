@@ -1,46 +1,50 @@
-import { Component } from "@odoo/owl";
+import { Component, t, useProps } from "@odoo/owl";
+import { useCachedModel } from "../cached_model_utils";
 import {
     basicContainerBuilderComponentProps,
     getAllActionsAndOperations,
+    hasPreview,
     revertPreview,
     useBuilderComponent,
     useDependencyDefinition,
     useDomState,
-    useHasPreview,
+    useOperationWithReload,
+    useReloadAction,
 } from "../utils";
 import { BuilderComponent } from "./builder_component";
 import { SelectMany2X } from "./select_many2x";
-import { useCachedModel } from "../cached_model_utils";
 
 export class BuilderMany2One extends Component {
-    static template = "html_builder.BuilderMany2One";
-    static props = {
-        ...basicContainerBuilderComponentProps,
-        model: String,
-        fields: { type: Array, element: String, optional: true },
-        domain: { type: Array, optional: true },
-        limit: { type: Number, optional: true },
-        id: { type: String, optional: true },
-        allowUnselect: { type: Boolean, optional: true },
-        defaultMessage: { type: String, optional: true },
-        createAction: { type: String, optional: true },
-        nullText: { type: String, optional: true },
-    };
-    static defaultProps = {
-        ...BuilderComponent.defaultProps,
-        allowUnselect: true,
-    };
     static components = { BuilderComponent, SelectMany2X };
+    static template = "html_builder.BuilderMany2One";
+
+    props = useProps({
+        ...basicContainerBuilderComponentProps,
+        model: t.string(),
+        fields: t.array(t.string()).optional(),
+        domain: t.array().optional(),
+        limit: t.number().optional(),
+        id: t.string().optional(),
+        allowUnselect: t.boolean().optional(true),
+        unselectBtnTitle: t.string().optional("Unselect"),
+        defaultMessage: t.string().optional(),
+        createAction: t.string().optional(),
+        nullText: t.string().optional(),
+    });
 
     setup() {
-        useBuilderComponent();
-        const { getAllActions, callOperation } = getAllActionsAndOperations(this);
+        useBuilderComponent(this.props);
+        const { getAllActions, callOperation } = getAllActionsAndOperations(this.props);
         this.cachedModel = useCachedModel();
         this.callOperation = callOperation;
-        this.hasPreview = useHasPreview(getAllActions);
+        this.hasPreview = hasPreview(this.props, getAllActions);
         this.applyOperation = this.env.editor.shared.history.makePreviewableAsyncOperation(
             this.callApply.bind(this)
         );
+        // Detect if any action requires a reload.
+        const { reload } = useReloadAction(getAllActions);
+        this.reload = reload;
+        this.operationWithReload = useOperationWithReload(this.callApply.bind(this), reload);
         const getAction = this.env.editor.shared.builderActions.getAction;
         const actionWithGetValue = getAllActions().find(
             ({ actionId }) => getAction(actionId).getValue
@@ -73,7 +77,7 @@ export class BuilderMany2One extends Component {
             return { selected };
         });
         if (this.props.id) {
-            useDependencyDefinition(this.props.id, {
+            useDependencyDefinition(this.props, {
                 getValue: () => getValue(this.env.getEditingElement()),
             });
         }
@@ -95,6 +99,7 @@ export class BuilderMany2One extends Component {
                     isPreviewing,
                     editingElement: applySpec.editingElement,
                     params: applySpec.actionParam,
+                    loadResult: applySpec.loadResult,
                     dependencyManager: this.env.dependencyManager,
                 });
             } else {
@@ -113,9 +118,12 @@ export class BuilderMany2One extends Component {
         return Promise.all(proms);
     }
     select(newSelected) {
-        this.callOperation(this.applyOperation.commit, {
-            userInputValue: newSelected && JSON.stringify(newSelected),
-        });
+        const args = { userInputValue: newSelected && JSON.stringify(newSelected) };
+        if (this.reload) {
+            this.callOperation(this.operationWithReload, args);
+        } else {
+            this.callOperation(this.applyOperation.commit, args);
+        }
     }
     preview(newSelected) {
         this.callOperation(this.applyOperation.preview, {

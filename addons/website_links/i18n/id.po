@@ -9,21 +9,33 @@
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
 # "Abe Manyo (abem)" <abem@odoo.com>, 2025.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# "Nurul Aini Akrima Sabila (nuaas)" <nuaas@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-05 19:30+0000\n"
-"PO-Revision-Date: 2025-11-12 13:05+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Indonesian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 14:01+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Indonesian <https://translate.odoo.com/projects/odoo-s19-4/"
 "website_links/id/>\n"
 "Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: website_links
+#: model:ir.module.module,description:base.module_website_links
+msgid ""
+"\n"
+"Generate short links with analytics trackers (UTM) to share your pages "
+"through marketing campaigns.\n"
+"Those trackers can be used in Google Analytics to track clicks and visitors, "
+"or in Odoo reports to analyze the efficiency of those campaigns in terms of "
+"lead generation, related revenues (sales orders), recruitment, etc.\n"
+msgstr ""
 
 #. module: website_links
 #. odoo-javascript
@@ -35,15 +47,29 @@ msgstr "# klik"
 #: model_terms:ir.ui.view,arch_db:website_links.create_shorten_url
 msgid ""
 "<a class=\"copy-to-clipboard btn btn-success text-nowrap "
-"o_translate_inline\"><i class=\"fa fa-copy me-2\"/>Copy</a>"
+"o_translate_inline\"><i class=\"oi me-2\" data-icon=\"content_copy\"/>Copy</"
+"a>\n"
+"                                        <a class=\"download-qr-code btn btn-"
+"info text-nowrap o_translate_inline\"><i class=\"oi align-middle me-2\" data-"
+"icon=\"qr_code\"/>Download QR Code</a>"
 msgstr ""
 "<a class=\"copy-to-clipboard btn btn-success text-nowrap "
-"o_translate_inline\"><i class=\"fa fa-copy me-2\"/>Salin</a>"
+"o_translate_inline\"><i class=\"oi me-2\" data-icon=\"content_copy\"/>Salin</"
+"a>\n"
+"                                        <a class=\"download-qr-code btn btn-"
+"info text-nowrap o_translate_inline\"><i class=\"oi align-middle me-2\" data-"
+"icon=\"qr_code\"/>Unduh Kode QR</a>"
 
 #. module: website_links
 #: model_terms:ir.ui.view,arch_db:website_links.graphs
-msgid "<i class=\"fa fa-copy me-2\"/>Copy"
-msgstr "<i class=\"fa fa-copy me-2\"/>Salin"
+msgid ""
+"<i class=\"oi align-middle me-2\" data-icon=\"qr_code\"/>Download QR Code"
+msgstr "<i class=\"oi align-middle me-2\" data-icon=\"qr_code\"/>Unduh Kode QR"
+
+#. module: website_links
+#: model_terms:ir.ui.view,arch_db:website_links.graphs
+msgid "<i class=\"oi me-2\" data-icon=\"content_copy\"/>Copy"
+msgstr "<i class=\"oi me-2\" data-icon=\"content_copy\"/>Salin"
 
 #. module: website_links
 #: model_terms:ir.ui.view,arch_db:website_links.graphs
@@ -153,7 +179,7 @@ msgstr "Buat Tracker lain"
 #. odoo-javascript
 #: code:addons/website_links/static/src/xml/website_links_tags_wrapper.xml:0
 msgid "Create option \""
-msgstr "Buat opsi \""
+msgstr ""
 
 #. module: website_links
 #: model:ir.model.fields,field_description:website_links.field_link_tracker__display_name
@@ -170,6 +196,11 @@ msgstr "Edit kod"
 #: model_terms:ir.ui.view,arch_db:website_links.create_shorten_url
 msgid "Generate Link Tracker"
 msgstr "Buat Tracker Link"
+
+#. module: website_links
+#: model:ir.module.module,summary:base.module_website_links
+msgid "Generate trackable & short URLs"
+msgstr ""
 
 #. module: website_links
 #: model:ir.model.fields,field_description:website_links.field_link_tracker__id
@@ -200,6 +231,7 @@ msgstr "Link Disalin!"
 
 #. module: website_links
 #: model:ir.model,name:website_links.model_link_tracker
+#: model:ir.module.module,shortdesc:base.module_website_links
 #: model:ir.ui.menu,name:website_links.menu_link_tracker
 #: model_terms:ir.ui.view,arch_db:website_links.graphs
 msgid "Link Tracker"
@@ -359,125 +391,3 @@ msgstr "contoh LinkedIn, Facebook, Leads, ..."
 #: model_terms:ir.ui.view,arch_db:website_links.create_shorten_url
 msgid "e.g. https://www.odoo.com/contactus"
 msgstr "contoh https://www.odoo.com/contactus"
-
-#~ msgid ""
-#~ "<span class=\"o_website_links_short_url d-flex align-items-center text-"
-#~ "nowrap text-truncate\" id=\"short_url\"><span id=\"short-url-host\" "
-#~ "class=\"text-truncate\"/><span id=\"o_website_links_code\"/></span>\n"
-#~ "                                        <span "
-#~ "class=\"o_website_links_edit_tools text-nowrap\" style=\"display:none;"
-#~ "\">\n"
-#~ "                                            <a role=\"button\" "
-#~ "class=\"o_website_links_ok_edit btn btn-sm btn-primary "
-#~ "o_translate_inline\" href=\"#\">ok</a> or\n"
-#~ "                                            <a "
-#~ "class=\"o_website_links_cancel_edit o_translate_inline\" "
-#~ "href=\"#\">cancel</a>\n"
-#~ "                                        </span>"
-#~ msgstr ""
-#~ "<span class=\"o_website_links_short_url d-flex align-items-center text-"
-#~ "nowrap text-truncate\" id=\"short_url\"><span id=\"short-url-host\" "
-#~ "class=\"text-truncate\"/><span id=\"o_website_links_code\"/></span>\n"
-#~ "                                        <span "
-#~ "class=\"o_website_links_edit_tools text-nowrap\" style=\"display:none;"
-#~ "\">\n"
-#~ "                                            <a role=\"button\" "
-#~ "class=\"o_website_links_ok_edit btn btn-sm btn-primary "
-#~ "o_translate_inline\" href=\"#\">ok</a> or\n"
-#~ "                                            <a "
-#~ "class=\"o_website_links_cancel_edit o_translate_inline\" "
-#~ "href=\"#\">batal</a>\n"
-#~ "                                        </span>"
-
-#~ msgid ""
-#~ "<a class=\"copy-to-clipboard btn btn-sm btn-primary o_translate_inline\" "
-#~ "t-att-data-clipboard-text=\"short_url\"><i class=\"fa fa-copy me-2\"/"
-#~ ">Copy</a>"
-#~ msgstr ""
-#~ "<a class=\"copy-to-clipboard btn btn-sm btn-primary o_translate_inline\" "
-#~ "t-att-data-clipboard-text=\"short_url\"><i class=\"fa fa-copy me-2\"/"
-#~ ">Salin</a>"
-
-#~ msgid " clicks"
-#~ msgstr "klik"
-
-#~ msgid " countries"
-#~ msgstr "negara"
-
-#~ msgid ""
-#~ "Campaign <i class=\"fa fa-info-circle\" data-bs-toggle=\"tooltip\" data-"
-#~ "bs-placement=\"top\" role=\"img\" aria-label=\"Tooltip info\" "
-#~ "title=\"Defines the context of your link. It might be an event you want "
-#~ "to promote or a special promotion.\"/>"
-#~ msgstr ""
-#~ "Kampanye <i class=\"fa fa-info-circle\" data-bs-toggle=\"tooltip\" data-"
-#~ "bs-placement=\"top\" role=\"img\" aria-label=\"Tooltip info\" "
-#~ "title=\"Definisikan konteks link Anda. Ini mungkin merupakan acara yang "
-#~ "Anda ingin promosikan atau promosi spesial.\"/>"
-
-#~ msgid "Copied"
-#~ msgstr "Disalin"
-
-#~ msgid "Generating link..."
-#~ msgstr "Membuat link..."
-
-#~ msgid "Get tracked link"
-#~ msgstr "Dapatkan link yang dilacak"
-
-#~ msgid "Icon"
-#~ msgstr "Ikon"
-
-#~ msgid ""
-#~ "Medium <i class=\"fa fa-info-circle\" data-bs-toggle=\"tooltip\" data-bs-"
-#~ "placement=\"top\" role=\"img\" aria-label=\"Tooltip info\" "
-#~ "title=\"Defines the medium used to share your link. It might be an email, "
-#~ "or a Facebook Ads for instance.\"/>"
-#~ msgstr ""
-#~ "Medium <i class=\"fa fa-info-circle\" data-bs-toggle=\"tooltip\" data-bs-"
-#~ "placement=\"top\" role=\"img\" aria-label=\"Tooltip info\" "
-#~ "title=\"Definisikan medium yang digunakan untuk membagikan link Anda. "
-#~ "Contohnya ini bisa merupakan email, atau Iklan Facebook.\"/>"
-
-#~ msgid "Most Clicked"
-#~ msgstr "Paling Banyak Di-klik"
-
-#~ msgid "No data"
-#~ msgstr "Tidak ada data"
-
-#~ msgid "Recently Used"
-#~ msgstr "Baru Saja Digunakan"
-
-#~ msgid ""
-#~ "Source <i class=\"fa fa-info-circle\" data-bs-toggle=\"tooltip\" data-bs-"
-#~ "placement=\"top\" role=\"img\" aria-label=\"Tooltip info\" "
-#~ "title=\"Defines the source from which your traffic will come from, "
-#~ "Facebook or Twitter for instance.\"/>"
-#~ msgstr ""
-#~ "Sumber <i class=\"fa fa-info-circle\" data-bs-toggle=\"tooltip\" data-bs-"
-#~ "placement=\"top\" role=\"img\" aria-label=\"Tooltip info\" "
-#~ "title=\"Definisikan sumber dari mana traffic Anda akan datang, contohnya "
-#~ "dari Facebook atau Twitter.\"/>"
-
-#~ msgid "Stats"
-#~ msgstr "Statistik"
-
-#~ msgid "URL"
-#~ msgstr "URL"
-
-#~ msgid "Unable to get recent links"
-#~ msgstr "Tidak dapat mengambil link-link terkini"
-
-#~ msgid "You don't have any recent links."
-#~ msgstr "Anda tidak memiliki link-link terkini."
-
-#~ msgid "cancel"
-#~ msgstr "batal"
-
-#~ msgid "copy"
-#~ msgstr "salin"
-
-#~ msgid "ok"
-#~ msgstr "ok"
-
-#~ msgid "or"
-#~ msgstr "atau"

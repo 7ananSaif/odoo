@@ -10,6 +10,8 @@ from odoo.addons.l10n_in.tests.common import L10nInTestInvoicingCommon
 @tagged('post_install', '-at_install', 'post_install_l10n')
 class TestStockEwaybill(L10nInTestInvoicingCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -41,6 +43,7 @@ class TestStockEwaybill(L10nInTestInvoicingCommon):
 
     @freeze_time('2024-04-26')
     def test_ewaybill_stock(self):
+        self.env.user.group_ids = self.env.ref('stock.group_stock_manager')
         delivery_picking = self._create_stock_picking()
         ewaybill = self.env['l10n.in.ewaybill'].create({
             'picking_id': delivery_picking.id,
@@ -53,6 +56,7 @@ class TestStockEwaybill(L10nInTestInvoicingCommon):
             'fiscal_position_id': self.fp_in_inter_state.id,
         }])
         ewaybill.fiscal_position_id = self.fp_in_inter_state
+        self.env.user.group_ids = self.env.ref('stock.group_stock_user')
         self.assertEqual(ewaybill.move_ids[0].ewaybill_tax_ids, self.igst_sale_5)
         expected_json = {
             'supplyType': 'O',
@@ -218,7 +222,7 @@ class TestStockEwaybill(L10nInTestInvoicingCommon):
             'itemList': [{
                 'productName': 'product_a',
                 'hsnCode': '111111',
-                'productDesc': '',
+                'productDesc': 'product_a',
                 'quantity': 5.0,
                 'qtyUnit': 'UNT',
                 'taxableAmount': 1271.19,

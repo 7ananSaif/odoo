@@ -24,7 +24,7 @@
                     widget="many2many_tags"
                     placeholder="All countries"/>
                 <field name="currency_id" groups="base.group_multi_currency"/>
-                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
             </list>
         </field>
     </record>
@@ -38,7 +38,7 @@
                     <t t-name="card" class="flex-row fw-bolder">
                         <field name="name"/>
                         <div class="ms-auto align-items-center">
-                            <i class="fa fa-money" role="img" aria-label="Currency" title="Currency"></i> <field name="currency_id"/>
+                            <i class="oi" data-icon="payments" role="img" aria-label="Currency" title="Currency"></i> <field name="currency_id"/>
                         </div>
                     </t>
                 </templates>
@@ -56,6 +56,18 @@
                 </header>
                 <sheet>
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div name="button_box" class="oe_button_box">
+                        <button
+                            name="action_open_daily_rates"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="speed"
+                        >
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Daily Rates</span>
+                            </div>
+                        </button>
+                    </div>
                     <div class="oe_title">
                         <h1><field name="name" placeholder="e.g. USD Retailers"/></h1>
                     </div>
@@ -66,23 +78,40 @@
                             <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}" placeholder="Visible to all"/>
                         </group>
                         <group>
-                            <field name="country_group_ids" widget="many2many_tags"/>
+                            <field
+                                name="country_group_ids"
+                                widget="many2many_tags"
+                                options="{'on_tag_click': 'open_form'}"
+                            />
                         </group>
                     </group>
                     <notebook>
-                        <page name="pricelist_rules" string="Sales Prices">
+                        <page name="pricelist_rules" string="Rules">
                             <field name="item_ids" nolabel="1" context="{'default_base':'list_price'}">
                                 <list string="Pricelist Rules">
                                     <field name="product_tmpl_id" column_invisible="True"/>
                                     <field name="name" string="Apply on"/>
-                                    <field name="price" string="Price"/>
                                     <field name="min_quantity"/>
-                                    <field name="date_start"/>
-                                    <field name="date_end"/>
+                                    <field
+                                        name="uom_id"
+                                        invisible="categ_id"
+                                        groups="uom.group_uom"
+                                        colspan="4"
+                                        optional="hide"
+                                    />
+                                    <field
+                                        name="date_start"
+                                        string="Validity"
+                                        widget="daterange"
+                                        options="{'end_date_field': 'date_end'}"
+                                        optional="show"
+                                    />
+                                    <field name="price"/>
                                     <field name="base" column_invisible="True"/>
                                     <field name="price_discount" column_invisible="True"/>
                                     <field name="applied_on" column_invisible="True"/>
                                     <field name="compute_price" column_invisible="True"/>
+                                    <field name="categ_id" column_invisible="True"/>
                                 </list>
                             </field>
                         </page>

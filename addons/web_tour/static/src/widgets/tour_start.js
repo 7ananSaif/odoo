@@ -1,16 +1,17 @@
-import { charField, CharField } from "@web/views/fields/char/char_field";
-import { useService } from "@web/core/utils/hooks";
+import { useProps, t, usePlugin } from "@odoo/owl";
+import { charField, CharField, charFieldProps } from "@web/views/fields/char/char_field";
 import { registry } from "@web/core/registry";
+import { TourPlugin } from "@web_tour/tour_plugin";
 
 export class TourStartWidget extends CharField {
     static template = "web_tour.TourStartWidget";
-    static props = {
-        ...CharField.props,
-        link: { type: Boolean, optional: true },
-    };
+    props = useProps({
+        ...charFieldProps,
+        link: t.boolean().optional(),
+    });
 
     setup() {
-        this.tour = useService("tour_service");
+        this.tour = usePlugin(TourPlugin);
     }
 
     get tourData() {
@@ -40,8 +41,8 @@ export class TourStartWidget extends CharField {
 export const tourStartWidgetField = {
     ...charField,
     component: TourStartWidget,
-    extractProps: ({ options }) => ({
-        link: options.link,
+    extractProps: ({ viewType }) => ({
+        link: viewType === "list",
     }),
 };
 

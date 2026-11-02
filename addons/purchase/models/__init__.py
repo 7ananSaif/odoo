@@ -10,6 +10,9 @@ from . import purchase_bill_line_match
 from . import purchase_order
 from . import purchase_order_line
 from . import product
+from . import product_category
 from . import res_company
 from . import res_config_settings
 from . import res_partner
+
+from . import res_groups

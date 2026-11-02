@@ -1,18 +1,20 @@
-from datetime import datetime, timedelta
-from psycopg2 import OperationalError
-from pytz import timezone
-from werkzeug.urls import url_quote_plus, url_encode
-
 import hashlib
+import json
 import logging
 import math
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
+
 import requests.exceptions
-import json
+from lxml import etree
+from psycopg2 import OperationalError
+from werkzeug.urls import url_quote_plus, url_encode
 
 from odoo import _, api, fields, models
 from odoo.addons.certificate.tools import CertificateAdapter
+from odoo.addons.l10n_es_edi_verifactu.const import VERIFACTU_REGIME_CODES_IGIC, VERIFACTU_REGIME_CODES_IVA
 from odoo.exceptions import UserError
-from odoo.tools import float_repr, float_round, frozendict, zeep
+from odoo.tools import float_repr, float_round, frozendict, zeep, BinaryBytes
 
 import odoo.release
 
@@ -25,6 +27,14 @@ EUSKADI_CIPHERS = "DEFAULT:!DH"
 VERIFACTU_VERSION = "1.0"
 
 BATCH_LIMIT = 1000
+
+
+def _verifactu_valid_clave_regimen(applicability):
+    """Valid ClaveRegimen values for a given tax applicability, stripped of their disambiguation
+    suffix. IPSI/unset fall back to the IVA list -- AEAT doesn't define a separate one.
+    """
+    codes = VERIFACTU_REGIME_CODES_IGIC if applicability == '03' else VERIFACTU_REGIME_CODES_IVA
+    return {code.split('_', 1)[0] for code in codes}
 
 
 def _sha256(string):
@@ -44,14 +54,13 @@ def _get_zeep_operation(company, operation):
     def response_hook(resp, *args, **kwargs):
         info['raw_response'] = resp.text
 
-    session.hooks['response'] = response_hook
-
     settings = zeep.Settings(forbid_entities=False, strict=False)
     wsdl = company._l10n_es_edi_verifactu_get_endpoints()['wsdl']
-    client = zeep.Client(
+    client = company._get_zeep_client__(
         wsdl['url'], session=session, settings=settings,
         operation_timeout=20, timeout=20,
     )
+    session.hooks['response'] = response_hook  # To avoid storing XSD/WSDL in info
 
     if operation == 'registration':
         # Note: using the "certificate" before creating `client` causes an error during the `client` creation
@@ -132,13 +141,21 @@ class L10nEsEdiVerifactuDocument(models.Model):
         copy=False,
     )
     # To use the binary widget in the form view to download the attachment
-    json_attachment_base64 = fields.Binary(
+    json_attachment_raw = fields.Binary(
         string="JSON",
-        related='json_attachment_id.datas',
+        related='json_attachment_id.raw',
     )
     json_attachment_filename = fields.Char(
         string="JSON Filename",
         compute='_compute_json_attachment_filename',
+    )
+    xml_attachment_raw = fields.Binary(
+        string="XML",
+        compute='_compute_xml_attachment',
+    )
+    xml_attachment_filename = fields.Char(
+        string="XML Filename",
+        compute='_compute_xml_attachment',
     )
     errors = fields.Html(
         string="Errors",
@@ -154,15 +171,26 @@ class L10nEsEdiVerifactuDocument(models.Model):
     state = fields.Selection(
         string="Status",
         selection=[
+            ('invalid', "Invalid"),
             ('rejected', "Rejected"),
             ('registered_with_errors', "Registered with Errors"),
             ('accepted', "Accepted"),
         ],
         copy=False,
         readonly=True,
-        help="""- Rejected: Successfully sent to the AEAT, but it was rejected during validation
+        help="""- Invalid: The document could not be generated; nothing was sent to the AEAT
+                - Rejected: Successfully sent to the AEAT, but it was rejected during validation
                 - Registered with Errors: Registered at the AEAT, but the AEAT has some issues with the sent record
                 - Accepted: Registered by the AEAT without errors""",
+    )
+    obligado_partner_id = fields.Many2one(
+        string="Required to issue",
+        comodel_name='res.partner',
+        readonly=True,
+        required=True,
+        help="Partner acting as the 'ObligadoEmision' for this document. "
+             "For regular invoices this is the company's own partner. "
+             "For self-billing vendor bills this is the vendor.",
     )
 
     @api.depends('document_type')
@@ -188,7 +216,7 @@ class L10nEsEdiVerifactuDocument(models.Model):
         if not self.json_attachment_id:
             return {}
         json_data = self.json_attachment_id.raw
-        return json.loads(json_data)
+        return json.loads(json_data.content)
 
     def _get_record_identifier(self):
         if not self:
@@ -284,9 +312,11 @@ class L10nEsEdiVerifactuDocument(models.Model):
             cancellation = last_registered_document.document_type == 'cancellation'
             return 'cancelled' if cancellation else last_registered_document.state
 
-        rejected_document = self.filtered(lambda doc: doc.state == 'rejected')[:1]
-        if rejected_document:
+        if self.filtered(lambda doc: doc.state == 'rejected'):
             return 'rejected'
+
+        if self.filtered(lambda doc: doc.state == 'invalid'):
+            return 'invalid'
 
         return False
 
@@ -351,23 +381,20 @@ class L10nEsEdiVerifactuDocument(models.Model):
             errors.append(_("There is no Veri*Factu document for the refunded record."))
 
         need_refund_reason = vals['verifactu_move_type'] in ('correction_incremental', 'correction_substitution')
-        if need_refund_reason and not vals['refund_reason']:
+        if need_refund_reason and not vals['invoice_type']:
             errors.append(_("The refund reason is not specified."))
 
         simplified_partner = self.env.ref('l10n_es.partner_simplified', raise_if_not_found=False)
         partner_specified = vals['partner'] and vals['partner'] != simplified_partner
-        if need_refund_reason and vals['refund_reason'] != 'R5' and vals['is_simplified']:
+        if need_refund_reason and vals['invoice_type'] != 'R5' and vals['is_simplified']:
             errors.append(_("A refund with Refund Reason %(refund_reason)s is not simplified (it needs a partner).",
-                            refund_reason=vals['refund_reason']))
+                            refund_reason=vals['invoice_type']))
 
         if vals['verifactu_move_type'] == 'invoice' and not partner_specified and not vals['is_simplified']:
             errors.append(_("A non-simplified invoice needs a partner."))
 
         if not vals['l10n_es_applicability']:
             errors.append(_("Missing Veri*Factu Tax Applicability (Impuesto)."))
-
-        if vals['l10n_es_applicability'] in ('01', '03') and not vals['clave_regimen']:
-            errors.append(_("Missing Veri*Factu Regime Key (ClaveRegimen)."))
 
         sujeto_tax_types = self.env['account.tax']._l10n_es_get_sujeto_tax_types()
         ignored_tax_types = ['ignore', 'retencion']
@@ -383,13 +410,19 @@ class L10nEsEdiVerifactuDocument(models.Model):
                 errors.append(_("A tax with value '%(tax_type)s' as %(field)s is not supported.",
                                 field=tax_type_description['string'],
                                 tax_type=dict(tax_type_description['selection'])[tax_type]))
-            elif tax_type in ('no_sujeto', 'no_sujeto_loc'):
+            elif tax_type == 'no_sujeto':
                 tax_percentage = key['amount']
                 tax_amount = tax_detail['tax_amount']
                 if float_round(tax_percentage, precision_digits=2) or float_round(tax_amount, precision_digits=2):
                     errors.append(_("No Sujeto VAT taxes must have 0 amount."))
             if len(key['recargo_taxes']) > 1:
                 errors.append(_("Only a single recargo tax may be used per \"main\" tax."))
+            # ClaveRegimen is checked per DetalleDesglose group (not once for the whole
+            # invoice): each group's own regime key must exist (when applicable) and be valid.
+            if vals['l10n_es_applicability'] in ('01', '03') and not key['clave_regimen']:
+                errors.append(_("Missing Veri*Factu Regime Key (ClaveRegimen)."))
+            elif key['clave_regimen'] and key['clave_regimen'] not in _verifactu_valid_clave_regimen(vals['l10n_es_applicability']):
+                errors.append(_("'%s' is not a valid Veri*Factu Regime Key (ClaveRegimen).", key['clave_regimen']))
 
         main_tax_types = self.env['account.tax']._l10n_es_get_main_tax_types()
         tax_applicabilities = {
@@ -434,7 +467,12 @@ class L10nEsEdiVerifactuDocument(models.Model):
         if record_values['errors']:
             document_vals['errors'] = self._format_errors(error_title, record_values['errors'])
         else:
-            previous_document = record_values['company']._l10n_es_edi_verifactu_get_last_document()
+            obligado_partner = record_values.get('obligado_partner', record_values['company'].partner_id)
+            document_vals['obligado_partner_id'] = obligado_partner.id
+            issuer = self.env['l10n_es_edi_verifactu.issuer']._get_or_create(
+                record_values['company'], obligado_partner
+            )
+            previous_document = issuer._get_last_document()
             render_vals = self._render_vals(
                 record_values, previous_record_identifier=previous_document._get_record_identifier(),
             )
@@ -457,7 +495,8 @@ class L10nEsEdiVerifactuDocument(models.Model):
                 _logger.error("%s\n%s\n%s", error_title, errors[0], json.dumps(document_dict, indent=4))
 
             if create_message:
-                batch_dict = self.with_company(record_values['company'])._get_batch_dict([document_dict])
+                emisor_values = record_values['record'].partner_id._l10n_es_edi_verifactu_get_values() if record_values.get('is_self_billing') else None
+                batch_dict = self.with_company(record_values['company'])._get_batch_dict([document_dict], emisor_values=emisor_values)
                 try:
                     _xml_node = create_message(batch_dict['Cabecera'], batch_dict['RegistroFactura'])
                 except zeep.exceptions.ValidationError as error:
@@ -470,7 +509,7 @@ class L10nEsEdiVerifactuDocument(models.Model):
                     _logger.error("%s\n%s\n%s", error_title, errors[0], json.dumps(batch_dict, indent=4))
 
             if not document_vals.get('errors'):
-                chain_sequence = record_values['company'].sudo()._l10n_es_edi_verifactu_get_chain_sequence()
+                chain_sequence = issuer._get_chain_sequence()
                 try:
                     document_vals['chain_index'] = int(chain_sequence.next_by_id())
                 except ValueError:
@@ -480,11 +519,14 @@ class L10nEsEdiVerifactuDocument(models.Model):
                     # We chain all the created documents per company in generation order.
                     # (indexed by `chain_index`).
                     # Thus we can not generate multiple documents for the same company at the same time.
-                    # Function `next_by_id` effectively locks `company.l10n_es_edi_verifactu_chain_sequence_id`
+                    # Function `next_by_id` effectively locks `issuer.chain_sequence_id`
                     # to prevent different transactions from chaining documents at the same time.
                     errors = [_("Error while chaining the document: %s", e)]
                     document_vals['errors'] = self._format_errors(error_title, errors)
                     _logger.error("%s\n%s\n%s", error_title, errors[0], json.dumps(batch_dict, indent=4))
+
+        if document_vals.get('errors'):
+            document_vals['state'] = 'invalid'
 
         document = self.sudo().create(document_vals)
 
@@ -548,7 +590,7 @@ class L10nEsEdiVerifactuDocument(models.Model):
             'previous_record_identifier': previous_record_identifier,
         }
 
-        generation_time_string = fields.Datetime.now(timezone('Europe/Madrid')).astimezone(timezone('Europe/Madrid')).isoformat()
+        generation_time_string = fields.Datetime.now(ZoneInfo('Europe/Madrid')).astimezone(ZoneInfo('Europe/Madrid')).isoformat()
 
         record_type_vals = {
             'IDVersion': VERIFACTU_VERSION,
@@ -572,51 +614,73 @@ class L10nEsEdiVerifactuDocument(models.Model):
         if vals['cancellation']:
             render_vals = {
                 'IDFactura': {
-                    'IDEmisorFacturaAnulada': company_values['NIF'],
+                    'IDEmisorFacturaAnulada': (vals['record'].partner_id._l10n_es_edi_verifactu_get_values()['NIF'] if vals.get('is_self_billing') else company_values['NIF']),
                     'NumSerieFacturaAnulada': vals['name'],
                     'FechaExpedicionFacturaAnulada': invoice_date,
                 }
             }
             return render_vals
 
-        render_vals = {
-            'NombreRazonEmisor': company_values['NombreRazon'],
-            'IDFactura': {
-                'IDEmisorFactura': company_values['NIF'],
-                'NumSerieFactura': vals['name'],
-                'FechaExpedicionFactura': invoice_date,
+        if vals.get('is_self_billing', False):
+            emisor = vals['record'].partner_id._l10n_es_edi_verifactu_get_values()
+            render_vals = {
+                'NombreRazonEmisor': emisor['NombreRazon'],
+                'IDFactura': {
+                    'IDEmisorFactura': emisor['NIF'],
+                    'NumSerieFactura': vals['name'],
+                    'FechaExpedicionFactura': invoice_date,
+                }
             }
-        }
+        else:
+            render_vals = {
+                'NombreRazonEmisor': company_values['NombreRazon'],
+                'IDFactura': {
+                    'IDEmisorFactura': company_values['NIF'],
+                    'NumSerieFactura': vals['name'],
+                    'FechaExpedicionFactura': invoice_date,
+                }
+            }
 
         rectified_document = vals['refunded_document'] or vals['substituted_document']
         if vals['verifactu_move_type'] == 'invoice':
             tipo_rectificativa = None
-            tipo_factura = 'F2' if vals['is_simplified'] else 'F3' if vals.get('was_simplified_invoice') else 'F1'
+            tipo_factura = vals['invoice_type']
             delivery_date = self._format_date_type(vals['delivery_date'])
             fecha_operacion = delivery_date if delivery_date and delivery_date != invoice_date else None
         elif vals['verifactu_move_type'] == 'reversal_for_substitution':
+            # The AEAT requires this intermediate cancellation step to always be reported as a
+            # regular invoice (F1/F2), regardless of the (refund-reason) 'invoice_type'.
             tipo_rectificativa = None
             tipo_factura = 'F2' if vals['is_simplified'] else 'F1'
             fecha_operacion = None
         elif vals['verifactu_move_type'] == 'correction_substitution':
             tipo_rectificativa = 'S'
-            tipo_factura = vals['refund_reason']
+            tipo_factura = vals['invoice_type']
             rectified = rectified_document._get_record_identifier()
             fecha_operacion = rectified['FechaOperacion'] or rectified['FechaExpedicionFactura']
         else:
             # vals['verifactu_move_type'] == 'correction_incremental':
             tipo_rectificativa = 'I'
-            tipo_factura = vals['refund_reason']
+            tipo_factura = vals['invoice_type']
             rectified = rectified_document._get_record_identifier()
             fecha_operacion = rectified['FechaOperacion'] or rectified['FechaExpedicionFactura']
 
         # Note: Error [1189]
-        # Si TipoFactura es F1 o F3 o R1 o R2 o R3 o R4 el bloque Destinatarios tiene que estar cumplimentado.
+        # If TipoFactura in [F1, F3, R1, R2, R3, R4] block Destinatarios must be filled.
 
         if not vals['is_simplified']:
-            render_vals['Destinatarios'] = {
-                'IDDestinatario': [vals['partner']._l10n_es_edi_verifactu_get_values()]
-            }
+            if not vals.get('is_self_billing'):
+                render_vals['Destinatarios'] = {
+                    'IDDestinatario': [vals['partner']._l10n_es_edi_verifactu_get_values()]
+                }
+            else:
+                render_vals['EmitidaPorTerceroODestinatario'] = 'D'
+                render_vals['Destinatarios'] = {
+                    'IDDestinatario': {
+                        'NIF': company_values['NIF'],
+                        'NombreRazon': company_values['NombreRazon']
+                    }
+                }
 
         render_vals.update({
             'TipoFactura': tipo_factura,
@@ -686,13 +750,14 @@ class L10nEsEdiVerifactuDocument(models.Model):
 
     @api.model
     def _render_vals_monetary_amounts(self, vals):
-        # Note: We only support a single verifactu tax applicabilty, clave regimen pair per record.
-        # For moves the clave regime is stored on each move in field `l10n_es_edi_verifactu_clave_regimen`
+        # One tax applicability per record, but NOT one clave regimen: DetalleDesglose groups by
+        # rate + ClaveRegimen + surcharge, so each group reads its own key from `key['clave_regimen']`.
         if vals['cancellation']:
             return {}
 
         sign = vals['sign']
         sujeto_tax_types = self.env['account.tax']._l10n_es_get_sujeto_tax_types()
+        no_sujeto_types = ('no_sujeto', 'no_sujeto_loc')
 
         recargo_tax_details_key = {}  # dict (tax_key -> recargo_tax_key)
         for record_tax_details in vals['tax_details']['tax_details_per_record'].values():
@@ -738,7 +803,7 @@ class L10nEsEdiVerifactuDocument(models.Model):
                         'tax_percentage': recargo_tax_percentage,
                         'tax_amount': recargo_tax_amount,
                     })
-            elif tax_type in ('no_sujeto', 'no_sujeto_loc'):
+            elif tax_type in no_sujeto_types:
                 calificacion_operacion = 'N2' if tax_type == 'no_sujeto_loc' else 'N1'
             else:
                 # tax_type == 'exento' (see `_check_record_values`)
@@ -772,7 +837,7 @@ class L10nEsEdiVerifactuDocument(models.Model):
 
             detalle = {
                 'Impuesto': vals['l10n_es_applicability'],
-                'ClaveRegimen': vals['clave_regimen'],
+                'ClaveRegimen': key['clave_regimen'],
                 'CalificacionOperacion': calificacion_operacion,
                 'OperacionExenta': exempt_reason,
                 'TipoImpositivo': self._round_format_number_2(tax_percentage),
@@ -786,6 +851,12 @@ class L10nEsEdiVerifactuDocument(models.Model):
 
         total_amount = sign * (vals['tax_details']['base_amount'] + vals['tax_details']['tax_amount'])
         tax_amount = sign * (vals['tax_details']['tax_amount'])
+        no_sujeto_tax_amount = sign * sum(
+            detail['tax_amount'] for detail in vals['tax_details']['tax_details'].values()
+            if detail['grouping_key']['l10n_es_type'] in no_sujeto_types
+        )
+        total_amount -= no_sujeto_tax_amount
+        tax_amount -= no_sujeto_tax_amount
 
         render_vals = {
             'Macrodato': 'S' if abs(total_amount) >= 100000000 else None,
@@ -800,7 +871,7 @@ class L10nEsEdiVerifactuDocument(models.Model):
 
     @api.model
     def _get_db_identifier(self):
-        database_uuid = self.env['ir.config_parameter'].sudo().get_param('database.uuid')
+        database_uuid = self.env['ir.config_parameter'].sudo().get_str('database.uuid')
         return _sha256(database_uuid)
 
     @api.model
@@ -884,6 +955,18 @@ class L10nEsEdiVerifactuDocument(models.Model):
     # Sending #
     ###########
 
+    def _l10n_es_edi_verifactu_get_obligado_partner(self):
+        """Return the partner that acts as 'ObligadoEmision' for this document.
+
+        For a self-billing document (emitted by the recipient on behalf of the vendor) the
+        ObligadoEmision is the vendor (move partner). For every other document it is the
+        company itself.
+        """
+        self.ensure_one()
+        if self.move_id:
+            return self.move_id._l10n_es_edi_verifactu_get_obligado_partner()
+        return self.company_id.partner_id
+
     @api.model
     def trigger_next_batch(self):
         """
@@ -894,17 +977,17 @@ class L10nEsEdiVerifactuDocument(models.Model):
             ('json_attachment_id', '!=', False),
             ('state', '=', False),
         ]
-        documents_per_company = self.sudo()._read_group(
+        documents_per_issuer = self.sudo()._read_group(
             unsent_domain,
-            groupby=['company_id'],
+            groupby=['company_id', 'obligado_partner_id'],
             aggregates=['id:recordset'],
         )
 
-        if not documents_per_company:
+        if not documents_per_issuer:
             return
 
         next_trigger_time = None
-        for company, documents in documents_per_company:
+        for company, obligado_partner, documents in documents_per_issuer:
             # Avoid sending a document twice due to concurrent calls to `trigger_next_batch`.
             # This should also avoid concurrently sending in general since the set of documents
             # in both calls should overlap. (Since we always include all previously unsent documents.)
@@ -929,7 +1012,8 @@ class L10nEsEdiVerifactuDocument(models.Model):
             if not next_batch:
                 continue
 
-            next_batch_time = company.l10n_es_edi_verifactu_next_batch_time
+            issuer = self.env['l10n_es_edi_verifactu.issuer']._get_or_create(company, obligado_partner)
+            next_batch_time = issuer.next_batch_time
             if not next_batch_time or fields.Datetime.now() >= next_batch_time:
                 next_batch.with_company(company)._send_as_batch()
             else:
@@ -939,15 +1023,14 @@ class L10nEsEdiVerifactuDocument(models.Model):
 
         # In case any of the documents were not successfully sent we trigger the cron again in 60s
         # (or at the next batch time if the 60s is earlier)
-        for company, documents in documents_per_company:
+        for company, obligado_partner, documents in documents_per_issuer:
             unsent_documents = documents.filtered_domain(unsent_domain)
-            next_batch_time = company.l10n_es_edi_verifactu_next_batch_time
             if unsent_documents:
-                # Trigger in 60s or at the next batch time (except if there is an earlier trigger already)
+                issuer = self.env['l10n_es_edi_verifactu.issuer']._get_or_create(company, obligado_partner)
+                next_batch_time = issuer.next_batch_time
                 in_60_seconds = fields.Datetime.now() + timedelta(seconds=60)
-                company_next_trigger_time = max(in_60_seconds, next_batch_time or datetime.min)
-                # Set `next_trigger_time` to the minimum of all the already encountered trigger times
-                next_trigger_time = min(next_trigger_time or datetime.max, company_next_trigger_time)
+                issuer_next_trigger_time = max(in_60_seconds, next_batch_time or datetime.min)
+                next_trigger_time = min(next_trigger_time or datetime.max, issuer_next_trigger_time)
 
         if next_trigger_time:
             cron = self.env.ref('l10n_es_edi_verifactu.cron_verifactu_batch', raise_if_not_found=False)
@@ -1062,9 +1145,16 @@ class L10nEsEdiVerifactuDocument(models.Model):
         return info
 
     def _send_as_batch(self):
-        # Documents in `self` should all belong to `self.env.company`.
+        # Documents in `self` belong to the issuer (could be self.env.company or partner_id from the move)
         # For the cron we specifically set the `self.env.company` on some functions we call.
         sender_company = self.env.company
+
+        obligado_partners = self.mapped('obligado_partner_id')
+        if len(obligado_partners) > 1:
+            raise UserError(_(
+                "All documents in a batch must share the same ObligadoEmision. "
+                "Got: %s", ', '.join(obligado_partners.mapped('name'))
+            ))
 
         batch_errors = self.with_company(sender_company)._send_as_batch_check()
         if batch_errors:
@@ -1080,7 +1170,10 @@ class L10nEsEdiVerifactuDocument(models.Model):
         incident = any(document.create_date > fields.Datetime.now() + timedelta(seconds=240) for document in self)
 
         document_dict_list = [document._get_document_dict() for document in self]
-        batch_dict = self.with_company(sender_company)._get_batch_dict(document_dict_list, incident=incident)
+        obligado_partner = self[0].obligado_partner_id
+        is_self_billing = obligado_partner != self.env.company.partner_id
+        emisor_values = obligado_partner._l10n_es_edi_verifactu_get_values() if is_self_billing else None
+        batch_dict = self.with_company(sender_company)._get_batch_dict(document_dict_list, incident=incident, emisor_values=emisor_values)
 
         info = self.with_company(sender_company)._send_batch(batch_dict)
 
@@ -1150,7 +1243,10 @@ class L10nEsEdiVerifactuDocument(models.Model):
         if waiting_time_seconds:
             now = fields.Datetime.to_datetime(fields.Datetime.now())
             next_batch_time = now + timedelta(seconds=waiting_time_seconds)
-            self.env.company.l10n_es_edi_verifactu_next_batch_time = next_batch_time
+            issuer = self.env['l10n_es_edi_verifactu.issuer']._get_or_create(
+                self.env.company, self[0].obligado_partner_id
+            )
+            issuer.sudo().next_batch_time = next_batch_time
 
         self._cancel_after_sending(info)
 
@@ -1180,16 +1276,17 @@ class L10nEsEdiVerifactuDocument(models.Model):
         return errors
 
     @api.model
-    def _get_batch_dict(self, document_dict_list, incident=False):
+    def _get_batch_dict(self, document_dict_list, incident=False, emisor_values=None):
         company = self.env.company
         company_values = company.partner_id._l10n_es_edi_verifactu_get_values()
+        obligado = emisor_values or company_values
 
         batch_dict = {
-          "Cabecera": {
-              "ObligadoEmision": {
-                  "NombreRazon": company_values['NombreRazon'],
-                  "NIF": company_values['NIF'],
-              },
+            "Cabecera": {
+                "ObligadoEmision": {
+                    "NombreRazon": obligado['NombreRazon'],
+                    "NIF": obligado['NIF'],
+                },
               "RemisionVoluntaria": {
                   "Incidencia": 'S' if incident else 'N',
               },
@@ -1214,3 +1311,31 @@ class L10nEsEdiVerifactuDocument(models.Model):
                 except UserError as error:
                     _logger.error("Error while canceling journal entry %(name)s (id %(record_id)s) after Veri*Factu cancellation:\n%(error)s",
                                   record_id=invoice.id, name=invoice.name, error=error)
+
+    @api.depends('json_attachment_id', 'chain_index', 'document_type')
+    def _compute_xml_attachment(self):
+        for document in self:
+            document_type = 'anulacion' if document.document_type == 'cancellation' else 'alta'
+            document.xml_attachment_filename = f"verifactu_registro_{document.chain_index}_{document_type}.xml"
+            if not document.json_attachment_id:
+                document.xml_attachment_raw = False
+                continue
+            try:
+                document_dict = document._get_document_dict()
+                batch_dict = document.with_company(document.company_id)._get_batch_dict([document_dict])
+                create_message, _ = _get_zeep_operation(document.company_id, 'registration_xml')
+                xml_node = create_message(batch_dict['Cabecera'], batch_dict['RegistroFactura'])
+                document.xml_attachment_raw = BinaryBytes(
+                    etree.tostring(xml_node, encoding='utf-8', xml_declaration=True, pretty_print=True)
+                )
+            except (zeep.exceptions.Error, requests.exceptions.RequestException) as error:
+                _logger.error("Could not generate Veri*Factu XML for document %s: %s", document.id, error)
+                document.xml_attachment_raw = False
+
+    def action_download_xml(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_url',
+            'url': f'/web/content/{self._name}/{self.id}/xml_attachment_raw/{self.xml_attachment_filename}?download=true',
+            'target': 'self',
+        }

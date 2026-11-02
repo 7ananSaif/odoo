@@ -3,6 +3,7 @@
 from . import assetsbundle
 
 from . import ir_model
+from . import ir_access
 from . import ir_sequence
 from . import ir_ui_menu
 from . import ir_ui_view
@@ -11,12 +12,12 @@ from . import ir_actions
 from . import ir_embedded_actions
 from . import ir_actions_report
 from . import ir_attachment
+from . import website
 from . import ir_binary
 from . import ir_cron
 from . import ir_filters
 from . import ir_default
 from . import ir_exports
-from . import ir_rule
 from . import ir_config_parameter
 from . import ir_autovacuum
 from . import ir_mail_server
@@ -34,13 +35,15 @@ from . import report_layout
 from . import report_paperformat
 
 from . import ir_profile
+from . import ir_profile_query
 from . import image_mixin
 from . import avatar_mixin
 
 from . import res_country
 from . import res_lang
 from . import res_partner
-from . import res_bank
+from . import clearing_label
+from . import res_partner_bank
 from . import res_config
 from . import res_currency
 from . import res_company

@@ -1,11 +1,16 @@
 import { formatFloat } from "@web/views/fields/formatters";
 import { useService } from "@web/core/utils/hooks";
-import { Component } from "@odoo/owl";
+import { Component, t, useProps } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
 
 export class ForecastedDetails extends Component {
     static template = "stock.ForecastedDetails";
-    static props = { docs: Object, openView: Function, reloadReport: Function };
+
+    props = useProps({
+        docs: t.object(),
+        openView: t.function(),
+        reloadReport: t.function(),
+    });
 
     setup() {
         this.orm = useService("orm");
@@ -14,9 +19,7 @@ export class ForecastedDetails extends Component {
         this._prepareData();
         this._mergeLines();
 
-        this._formatFloat = (num) => {
-            return formatFloat(num, { digits: this.props.docs.precision });
-        };
+        this._formatFloat = (num) => formatFloat(num, { digits: [0, this.props.docs.precision] });
     }
 
     async _reserve(move_id){
@@ -181,18 +184,44 @@ export class ForecastedDetails extends Component {
         );
     }
 
-    displayReserve(line){
+    displayAllocation(line) {
+        return Boolean(line.move_in && line.move_out);
+    }
+
+    displayUnassign(line) {
+        return Boolean(line.move_out && line.move_out.move_orig_ids.length);
+    }
+
+    async _allocate(line) {
+        await this.orm.call(
+            "stock.allocation.report",
+            "action_assign",
+            [[line.move_in.id], [line.move_out.id], line.quantity],
+        );
+        this.props.reloadReport();
+    }
+
+    async _unallocate(line) {
+        await this.orm.call(
+            "stock.allocation.report",
+            "action_unassign",
+            [[line.move_in.id], [line.move_out.id], line.quantity],
+        );
+        this.props.reloadReport();
+    }
+
+    displayReserve(line, line_index){
         let splittedLine = true;
-        if(this.line_index - 1 >= 0){
-            const previousLine = this.lines[this.line_index - 1];
-            const sameProduct = this.line.product.id == previousLine.product.id;
+        if(line_index - 1 >= 0){
+            const previousLine = this.lines[line_index - 1];
+            const sameProduct = line.product.id == previousLine.product.id;
             const isOnHandSplittedLine = this.OnHandLinesPerProduct[line.product.id] && this.OnHandLinesPerProduct[line.product.id].some(l => this.sameDocumentOut(l, line))
             const isReconciledSplittedLine = this.ReconciledLinesPerProduct[line.product.id] && !this.isReconciled(line) && this.ReconciledLinesPerProduct[line.product.id].some(l => this.sameDocumentOut(l, line))
             splittedLine = sameProduct && (this.sameDocumentOut(line, previousLine) || isOnHandSplittedLine || isReconciledSplittedLine);
         }
         const hasFreeStock = this.props.docs.product[line.product.id].free_qty > 0;
         return this.props.docs.user_can_edit_pickings && !line.in_transit && this.canReserveOperation(line) &&
-            (this.isOnHand(line) || (hasFreeStock && !splittedLine));
+            (this.isOnHand(line, line_index) || (hasFreeStock && !splittedLine));
     }
 
     canReserveOperation(line){
@@ -221,8 +250,8 @@ export class ForecastedDetails extends Component {
         );
     }
 
-    isOnHand(line){
-        return this.OnHandLinesPerProduct[line.product.id] && this.OnHandLinesPerProduct[line.product.id].includes(this.lines[this.line_index]);
+    isOnHand(line, line_index){
+        return this.OnHandLinesPerProduct[line.product.id] && this.OnHandLinesPerProduct[line.product.id].includes(this.lines[line_index]);
     }
 
     isReconciled(line){

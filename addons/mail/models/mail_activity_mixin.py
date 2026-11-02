@@ -1,13 +1,13 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from datetime import datetime
-
 import logging
-import pytz
+from collections.abc import Iterable
+from datetime import datetime, UTC
 
 from odoo import api, fields, models
 from odoo.fields import Domain
 from odoo.tools import partition, SQL
+from odoo.tools.misc import clean_context
 
 _logger = logging.getLogger(__name__)
 
@@ -55,7 +55,8 @@ class MailActivityMixin(models.AbstractModel):
         ('today', 'Today'),
         ('planned', 'Planned')], string='Activity State',
         compute='_compute_activity_state',
-        search='_search_activity_state',
+        compute_sql='_compute_sql_activity_state',
+        compute_sudo=False,
         groups="base.group_user",
         help='Status based on activities\nOverdue: Due date is already passed\n'
              'Today: Activity date is today\nPlanned: Future activities.')
@@ -92,6 +93,43 @@ class MailActivityMixin(models.AbstractModel):
         help="Type of the exception activity on record.")
     activity_exception_icon = fields.Char('Icon', help="Icon to indicate an exception activity.",
         compute='_compute_activity_exception_type')
+    activity_plans_ids = fields.Many2many(
+        'mail.activity.plan',
+        string="Activity Plans",
+        compute='_compute_activity_plans_ids',
+        search='_search_activity_plans_ids',
+    )
+
+    @api.depends('activity_ids')
+    def _compute_activity_plans_ids(self):
+        for record in self:
+            record.activity_plans_ids = record.activity_ids.activity_plan_id
+
+    def _search_activity_plans_ids(self, operator, value):
+        """
+            Search panel/filter domains like ('=', True) or ('in', [True])
+            would be passed to SQL as "IN (true)" on an integer column,causing type errors.
+            This method rewrites boolean-style queries into safe checks
+            (e.g. has any plan / has no plan) while still passing through normal ID-based domains.
+
+            * ``in [True]`` --> same as "has any plan"
+            * ``not in [False]`` --> same as "has any plan"
+            * ``in [False]`` --> same as "no plan"
+            * ``not in [True]`` --> same as "no plan"
+        """
+        if operator in ('in', 'not in'):
+            if isinstance(value, Iterable) and not isinstance(value, (str, bytes, bool)):
+                seq = list(value)
+            else:
+                seq = [value]
+            if len(seq) == 1 and isinstance(seq[0], bool):
+                if operator == 'in':
+                    operator = '!=' if seq[0] else '='
+                else:
+                    operator = '=' if seq[0] else '!='
+                return [('activity_ids.activity_plan_id', operator, False)]
+
+        return [('activity_ids.activity_plan_id', operator, value)]
 
     @api.depends('activity_ids.activity_type_id.decoration_type', 'activity_ids.activity_type_id.icon')
     def _compute_activity_exception_type(self):
@@ -116,7 +154,12 @@ class MailActivityMixin(models.AbstractModel):
             record.activity_user_id = record.activity_ids[0].user_id if record.activity_ids else False
 
     def _search_activity_exception_decoration(self, operator, operand):
-        return [('activity_ids.activity_type_id.decoration_type', operator, operand)]
+        if operator in Domain.NEGATIVE_OPERATORS:
+            return NotImplemented
+        domain = Domain('activity_ids.activity_type_id.decoration_type', operator, operand)
+        if operator == 'in' and False in operand:  # relation may be falsy
+            domain |= Domain('activity_ids', '=', False)
+        return domain
 
     @api.depends('activity_ids.state')
     def _compute_activity_state(self):
@@ -131,75 +174,54 @@ class MailActivityMixin(models.AbstractModel):
             else:
                 record.activity_state = False
 
-    def _search_activity_state(self, operator, value):
-        all_states = {'overdue', 'today', 'planned', False}
-        if operator == 'in':
-            search_states = set(value)
-        elif operator == 'not in':
-            search_states = all_states - set(value)
-        else:
-            return NotImplemented
+    def _compute_sql_activity_state(self, table):
+        # find activities
+        act_query = self.activity_ids._search(Domain('res_model', '=', self._name) & Domain('active', '=', True), bypass_access=True)
+        activity_t = act_query.table
+        res_id_sql = activity_t.res_id
+        # group them by res_id and compute the state (as int)
+        act_query.groupby = res_id_sql
+        act_sql = act_query.subselect(res_id_sql, SQL(
+            """
+            -- Global activity state
+            MIN(
+                -- Compute the state of each individual activities
+                -- -1: overdue
+                --  0: today
+                --  1: planned
+                SIGN(EXTRACT(day FROM (
+                    %s - DATE_TRUNC('day', %s AT TIME ZONE COALESCE(%s, 'utc'))
+                )))
+            )::INT AS activity_state
+            """,
+            activity_t.date_deadline,
+            fields.Datetime.now().astimezone(UTC),
+            activity_t.user_tz,
+        ))
 
-        reverse_search = False
-        if False in search_states:
-            # If we search "activity_state = False", they might be a lot of records
-            # (million for some models), so instead of returning the list of IDs
-            # [(id, 'in', ids)] we will reverse the domain and return something like
-            # [(id, 'not in', ids)], so the list of ids is as small as possible
-            reverse_search = True
-            search_states = all_states - search_states
-
-        # Use number in the SQL query for performance purpose
-        integer_state_value = {
-            'overdue': -1,
-            'today': 0,
-            'planned': 1,
-            False: None,
-        }
-
-        search_states_int = {integer_state_value.get(s or False) for s in search_states}
-
-        self.env['mail.activity'].flush_model(['active', 'date_deadline', 'res_model', 'user_id', 'user_tz'])
-        query = SQL(
-            """(
-            SELECT res_id
-                FROM (
-                    SELECT res_id,
-                        -- Global activity state
-                        MIN(
-                                -- Compute the state of each individual activities
-                                -- -1: overdue
-                                --  0: today
-                                --  1: planned
-                            SIGN(EXTRACT(day from (
-                                    mail_activity.date_deadline - DATE_TRUNC('day', %(today_utc)s AT TIME ZONE COALESCE(mail_activity.user_tz, 'utc'))
-                            )))
-                            )::INT AS activity_state
-                    FROM mail_activity
-                    WHERE mail_activity.res_model = %(res_model_table)s AND mail_activity.active = true
-                GROUP BY res_id
-                ) AS res_record
-            WHERE %(search_states_int)s @> ARRAY[activity_state]
-            )""",
-            today_utc=pytz.utc.localize(datetime.utcnow()),
-            res_model_table=self._name,
-            search_states_int=list(search_states_int)
-        )
-
-        return [('id', 'not in' if reverse_search else 'in', query)]
+        # join the results and translate int into the state value
+        act_alias = table._make_alias('activity_state')
+        table._query.add_join('LEFT JOIN', act_alias, act_sql, SQL("%s = %s", table.id, act_alias.res_id))
+        col = act_alias.activity_state
+        return SQL("""CASE
+            WHEN %(col)s < 0 THEN 'overdue'
+            WHEN %(col)s = 0 THEN 'today'
+            WHEN %(col)s > 0 THEN 'planned'
+            END""", col=col)
 
     @api.depends('activity_ids.date_deadline')
     def _compute_activity_date_deadline(self):
         for record in self:
             activities = record.activity_ids
-            record.activity_date_deadline = next(iter(activities), activities).date_deadline
+            record.activity_date_deadline = activities[:1].date_deadline
 
     def _search_activity_date_deadline(self, operator, operand):
-        if operator == 'in' and False in operand:
-            return Domain('activity_ids', '=', False) | Domain(self._search_activity_date_deadline('in', operand - {False}))
         if operator in Domain.NEGATIVE_OPERATORS:
             return NotImplemented
-        return Domain('activity_ids.date_deadline', operator, operand)
+        domain = Domain('activity_ids.date_deadline', operator, operand)
+        if operator == 'in' and False in operand:  # relation may be falsy
+            domain |= Domain('activity_ids', '=', False)
+        return domain
 
     @api.model
     def _search_activity_user_id(self, operator, operand):
@@ -224,13 +246,19 @@ class MailActivityMixin(models.AbstractModel):
     def _search_activity_type_id(self, operator, operand):
         if operator in Domain.NEGATIVE_OPERATORS:
             return NotImplemented
-        return [('activity_ids.activity_type_id', operator, operand)]
+        domain = Domain('activity_ids.activity_type_id', operator, operand)
+        if operator == 'in' and False in operand:  # relation may be falsy
+            domain |= Domain('activity_ids', '=', False)
+        return domain
 
     @api.model
     def _search_activity_summary(self, operator, operand):
         if operator in Domain.NEGATIVE_OPERATORS:
             return NotImplemented
-        return [('activity_ids.summary', operator, operand)]
+        domain = Domain('activity_ids.summary', operator, operand)
+        if operator == 'in' and False in operand:  # relation may be falsy
+            domain |= Domain('activity_ids', '=', False)
+        return domain
 
     @api.depends('activity_ids.date_deadline', 'activity_ids.user_id')
     @api.depends_context('uid')
@@ -245,51 +273,15 @@ class MailActivityMixin(models.AbstractModel):
     def _search_my_activity_date_deadline(self, operator, operand):
         if operator in Domain.NEGATIVE_OPERATORS:
             return NotImplemented
-        return [('activity_ids', 'any', [
+        domain = Domain('activity_ids', 'any', [
             ('active', '=', True),  # never overdue if "done"
             ('date_deadline', operator, operand),
             ('res_model', '=', self._name),
             ('user_id', '=', self.env.user.id)
-        ])]
-
-    def _read_group_groupby(self, alias, groupby_spec, query):
-        if groupby_spec != 'activity_state':
-            return super()._read_group_groupby(alias, groupby_spec, query)
-        self._check_field_access(self._fields['activity_state'], 'read')
-
-        # if already grouped by activity_state, do not add the join again
-        alias = query.make_alias(self._table, 'last_activity_state')
-        if alias in query._joins:
-            return SQL.identifier(alias, 'activity_state')
-
-        self.env['mail.activity'].flush_model(['res_model', 'res_id', 'user_id', 'date_deadline'])
-        self.env['res.users'].flush_model(['partner_id'])
-        self.env['res.partner'].flush_model(['tz'])
-
-        tz = 'UTC'
-        if self.env.context.get('tz') in pytz.all_timezones_set:
-            tz = self.env.context['tz']
-
-        sql_join = SQL(
-            """
-            (SELECT res_id,
-                CASE
-                    WHEN min(EXTRACT(day from (mail_activity.date_deadline - DATE_TRUNC('day', %(today_utc)s AT TIME ZONE COALESCE(mail_activity.user_tz, %(tz)s))))) > 0 THEN 'planned'
-                    WHEN min(EXTRACT(day from (mail_activity.date_deadline - DATE_TRUNC('day', %(today_utc)s AT TIME ZONE COALESCE(mail_activity.user_tz, %(tz)s))))) < 0 THEN 'overdue'
-                    WHEN min(EXTRACT(day from (mail_activity.date_deadline - DATE_TRUNC('day', %(today_utc)s AT TIME ZONE COALESCE(mail_activity.user_tz, %(tz)s))))) = 0 THEN 'today'
-                    ELSE null
-                END AS activity_state
-            FROM mail_activity
-            WHERE res_model = %(res_model)s AND mail_activity.active = true
-            GROUP BY res_id)
-            """,
-            res_model=self._name,
-            today_utc=pytz.utc.localize(datetime.utcnow()),
-            tz=tz,
-        )
-        alias = query.left_join(self._table, "id", sql_join, "res_id", "last_activity_state")
-
-        return SQL.identifier(alias, 'activity_state')
+        ])
+        if operator == 'in' and False in operand:  # relation may be falsy
+            domain |= Domain('activity_ids', '=', False)
+        return domain
 
     # Reschedules next my activity to Today
     def action_reschedule_my_next_today(self):
@@ -308,6 +300,12 @@ class MailActivityMixin(models.AbstractModel):
         self.ensure_one()
         my_next_activity = self.activity_ids.filtered(lambda activity: activity.user_id == self.env.user)[:1]
         my_next_activity.action_reschedule_nextweek()
+
+    # Reschedules next my activity to specified date.
+    def action_reschedule_my_next_customdate(self, date_deadline):
+        self.ensure_one()
+        my_next_activity = self.activity_ids.filtered(lambda activity: activity.user_id == self.env.user)[:1]
+        my_next_activity.action_reschedule_customdate(date_deadline)
 
     def activity_send_mail(self, template_id):
         """ Automatically send an email based on the given mail.template, given
@@ -354,8 +352,8 @@ class MailActivityMixin(models.AbstractModel):
 
         return self.env['mail.activity'].search(domain)
 
-    def activity_schedule(self, act_type_xmlid='', date_deadline=None, summary='', note='', **act_values):
-        """ Schedule an activity on each record of the current record set.
+    def _activity_schedule_create_vals(self, act_type_xmlid='', date_deadline=None, summary='', note='', activity_user_id_fname='', **act_values):
+        """ Return a list of create values to schedule activities on the current recordset.
         This method allow to provide as parameter act_type_xmlid. This is an
         xml_id of activity type instead of directly giving an activity_type_id.
         It is useful to avoid having various "env.ref" in the code and allow
@@ -365,11 +363,14 @@ class MailActivityMixin(models.AbstractModel):
         will have their "automated" field set to True.
 
         :param date_deadline: the day the activity must be scheduled on
-        the timezone of the user must be considered to set the correct deadline
+          the timezone of the user must be considered to set the correct deadline
+        :param activity_user_id_fname: name of the user field on the record to use
+          as responsible for the activity. Can be a related field path.
+          Useless if 'user_id' is already provided in act_values.
+        :type activity_user_id_fname: str
+        :returns: a list of activity create vals
+        :rtype: list[dict]
         """
-        if self.env.context.get('mail_activity_automation_skip'):
-            return False
-
         if not date_deadline:
             date_deadline = fields.Date.context_today(self)
         if isinstance(date_deadline, datetime):
@@ -386,9 +387,9 @@ class MailActivityMixin(models.AbstractModel):
                     'Invalid activity type model %s used on %s (tried with xml id %s)',
                     activity_type.res_model, self._name, act_type_xmlid or '',
                 )
-            # TODO master: reset invalid model to default type, keep it for stable as not harmful
-            if not activity_type:
-                activity_type = self._default_activity_type()
+            activity_type = self._default_activity_type()
+            # prevent 'create_vals.update(act_values)' below from restoring the inconsistent type
+            act_values = {k: v for k, v in act_values.items() if k != 'activity_type_id'}
 
         model_id = self.env['ir.model']._get(self._name).id
         create_vals_list = []
@@ -403,15 +404,46 @@ class MailActivityMixin(models.AbstractModel):
                 'res_id': record.id,
             }
             create_vals.update(act_values)
-            if not create_vals.get('user_id') and activity_type.default_user_id:
+            if not create_vals.get('user_id') and not create_vals.get('role_id') and activity_user_id_fname:
+                try:
+                    user = record.mapped(activity_user_id_fname)
+                except Exception:  # noqa: BLE001
+                    _logger.warning(
+                        "Unable to determine the responsible for the activity to schedule. "
+                        "We were not able to fetch value of field '%s'.",
+                        activity_user_id_fname,
+                    )
+                if not isinstance(user, self.pool['res.users']):
+                    _logger.warning(
+                        'The field "%s" must be related to the res.users model.',
+                        activity_user_id_fname,
+                    )
+                if user:
+                    create_vals['user_id'] = user.ids[0]
+            if not create_vals.get('user_id') and not create_vals.get('role_id') and activity_type.default_user_id:
                 create_vals['user_id'] = activity_type.default_user_id.id
             create_vals_list.append(create_vals)
-        return self.env['mail.activity'].create(create_vals_list)
+        return create_vals_list
+
+    def activity_schedule(self, act_type_xmlid='', date_deadline=None, summary='', note='', activity_user_id_fname='', **act_values):
+        """ Schedule activities on each record of the current record set (see `_activity_schedule_create_vals`). """
+        if self.env.context.get('mail_activity_automation_skip'):
+            return False
+        create_vals_list = self._activity_schedule_create_vals(
+            act_type_xmlid, date_deadline, summary, note, activity_user_id_fname, **act_values)
+        activities = self.env['mail.activity'].with_context(clean_context(self.env.context)).create(create_vals_list)
+        self._activity_schedule_postprocess(activities)
+        return activities.with_context(self.env.context)
+
+    def _activity_schedule_postprocess(self, activities):
+        """Hook called after scheduling ``activities`` on ``self``."""
 
     def _activity_schedule_with_view(self, act_type_xmlid='', date_deadline=None, summary='', views_or_xmlid='', render_context=None, **act_values):
         """ Helper method: Schedule an activity on each record of the current record set.
-        This method allow to the same mecanism as `activity_schedule`, but provide
+
+        This method allows to the same mecanism as ``activity_schedule``, but provides
         2 additionnal parameters:
+
         :param views_or_xmlid: record of ir.ui.view or string representing the xmlid
             of the qweb template to render
         :type views_or_xmlid: string or recordset

@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-from odoo.tests import common, new_test_user
+from odoo.tests import tagged, common, new_test_user
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestFleet(common.TransactionCase):
     @classmethod
     def setUpClass(cls):
@@ -30,48 +31,80 @@ class TestFleet(common.TransactionCase):
         car = self.env["fleet.vehicle"].with_user(self.manager).create({
             "model_id": self.car_model.id,
             "driver_id": self.user.partner_id.id,
-            "plan_to_change_car": False
+            "plan_to_change_vehicle": False
         })
-        car.with_user(self.manager).plan_to_change_car = True
+        car.with_user(self.manager).plan_to_change_vehicle = True
 
     def test_change_future_driver(self):
         car1, car2, bike1, bike2 = self.env["fleet.vehicle"].create([
             {
                 "model_id": self.car_model.id,
                 "driver_id": self.user.partner_id.id,
-                "plan_to_change_car": False,
+                "plan_to_change_vehicle": False,
+                "state_id": self.env.ref("fleet.fleet_vehicle_state_registered").id,
             },
             {
                 "model_id": self.car_model.id,
                 "driver_id": self.manager.partner_id.id,
-                "plan_to_change_car": False,
+                "plan_to_change_vehicle": False,
+                "state_id": self.env.ref("fleet.fleet_vehicle_state_registered").id,
             },
             {
                 "model_id": self.bike_model.id,
                 "driver_id": self.user.partner_id.id,
-                "plan_to_change_car": False,
+                "plan_to_change_vehicle": False,
+                "state_id": self.env.ref("fleet.fleet_vehicle_state_registered").id,
             },
             {
                 "model_id": self.bike_model.id,
                 "driver_id": self.manager.partner_id.id,
-                "plan_to_change_car": False,
+                "plan_to_change_vehicle": False,
+                "state_id": self.env.ref("fleet.fleet_vehicle_state_registered").id,
             },
         ])
         self.assertFalse(car1.future_driver_id)
         self.assertFalse(bike1.future_driver_id)
-        self.assertFalse(car1.plan_to_change_car)
-        self.assertFalse(bike1.plan_to_change_bike)
+        self.assertFalse(car1.plan_to_change_vehicle)
+        self.assertFalse(bike1.plan_to_change_vehicle)
         self.assertFalse(car2.future_driver_id)
         self.assertFalse(bike2.future_driver_id)
-        self.assertFalse(car2.plan_to_change_car)
-        self.assertFalse(bike2.plan_to_change_bike)
+        self.assertFalse(car2.plan_to_change_vehicle)
+        self.assertFalse(bike2.plan_to_change_vehicle)
 
-        (car1 + bike1).write({"future_driver_id": self.manager.partner_id.id})
+        car1.future_driver_id = self.manager.partner_id
         self.assertEqual(car1.future_driver_id, self.manager.partner_id)
-        self.assertEqual(bike1.future_driver_id, self.manager.partner_id)
-        self.assertFalse(bike1.plan_to_change_bike)
-        self.assertFalse(car1.plan_to_change_car)
+        self.assertFalse(car1.plan_to_change_vehicle)
         self.assertFalse(car2.future_driver_id)
+        self.assertTrue(car2.plan_to_change_vehicle)
+        self.assertFalse(bike2.plan_to_change_vehicle)
+
+        bike1.future_driver_id = self.manager.partner_id
+        self.assertEqual(bike1.future_driver_id, self.manager.partner_id)
+        self.assertFalse(bike1.plan_to_change_vehicle)
         self.assertFalse(bike2.future_driver_id)
-        self.assertTrue(car2.plan_to_change_car)
-        self.assertTrue(bike2.plan_to_change_bike)
+        self.assertTrue(bike2.plan_to_change_vehicle)
+
+    def test_change_car_with_bike_future_driver(self):
+        car1, bike1 = self.env["fleet.vehicle"].create([
+            {
+                "model_id": self.car_model.id,
+                "driver_id": self.user.partner_id.id,
+                "plan_to_change_vehicle": False,
+                "state_id": self.env.ref("fleet.fleet_vehicle_state_registered").id,
+            },
+            {
+                "model_id": self.bike_model.id,
+                "driver_id": self.user.partner_id.id,
+                "plan_to_change_vehicle": False,
+                "state_id": self.env.ref("fleet.fleet_vehicle_state_registered").id,
+            },
+        ])
+
+        car2 = self.env["fleet.vehicle"].create({
+            "model_id": self.car_model.id,
+            "future_driver_id": self.user.partner_id.id,
+            "state_id": self.env.ref("fleet.fleet_vehicle_state_registered").id,
+        })
+        self.assertTrue(car1.plan_to_change_vehicle)
+        self.assertFalse(bike1.plan_to_change_vehicle)
+        self.assertFalse(car2.plan_to_change_vehicle)

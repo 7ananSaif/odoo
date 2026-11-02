@@ -8,6 +8,8 @@ from odoo import Command
 @tagged('post_install', '-at_install')
 class TestUi(TestPointOfSaleHttpCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -59,10 +61,8 @@ class TestUi(TestPointOfSaleHttpCommon):
         })
 
         mto_route = self.env.ref('stock.route_warehouse0_mto')
-        manu_route = self.env.ref('mrp.route_warehouse0_manufacture')
-        manu_route.product_selectable = True
         mto_route.active = True
-        self.finished.route_ids = [Command.set((mto_route | manu_route).ids)]
+        self.finished.route_ids = [Command.link(mto_route.id)]
 
         customer = self.env['res.partner'].search([('email', '=', 'partner.full@example.com')], limit=1)
         customer.name = "AAAA Super Customer"

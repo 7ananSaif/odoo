@@ -1,23 +1,22 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
 import { standardWidgetProps } from "@web/views/widgets/standard_widget_props";
-import { Component, useEffect, useRef, useState } from "@odoo/owl";
+import { Component, useEffect, signal, proxy, useProps } from "@odoo/owl";
 
 export class SurveyQuestionTriggerWidget extends Component {
     static template = "survey.surveyQuestionTrigger";
-    static props = {
-    ...standardWidgetProps,
-    };
+    props = useProps(standardWidgetProps);
+
+    buttonRef = signal.ref();
 
     setup() {
         super.setup();
-        this.button = useRef('survey_question_trigger');
-        this.state = useState({
+        this.state = proxy({
             surveyIconWarning: false,
             triggerTooltip: "",
         });
         useEffect(() => {
-            if (this.button?.el && this.props.record.data.triggering_question_ids.records?.length !== 0) {
+            if (this.props.record.data.triggering_question_ids.records?.length !== 0) {
                 const { triggerError, misplacedTriggerQuestionRecords } = this.surveyQuestionTriggerError;
                 if (triggerError === "MISPLACED_TRIGGER_WARNING") {
                     this.state.surveyIconWarning = true;

@@ -16,6 +16,8 @@ class TestSelfOrderFrontendMobile(SelfOrderCommonTest):
 
 @odoo.tests.tagged("post_install", "-at_install")
 class TestUi(TestFrontendCommon, OnlinePaymentCommon):
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -29,7 +31,7 @@ class TestUi(TestFrontendCommon, OnlinePaymentCommon):
         })
         cls.online_payment_method = cls.env['pos.payment.method'].create({
             'name': 'Online payment',
-            'is_online_payment': True,
+            'type': 'online',
             'online_payment_provider_ids': [Command.set([cls.payment_provider.id])],
         })
 
@@ -40,6 +42,8 @@ class TestUi(TestFrontendCommon, OnlinePaymentCommon):
 
 
 class TestSelfOrderOnlinePayment(TestUi):
+    _test_user_groups = None  # FIXME list needed groups
+
     def test_01_online_payment_with_multi_table(self):
         # No need to check preparation printer in this test.
         self.env["pos.printer"].search([]).unlink()
@@ -57,14 +61,13 @@ class TestSelfOrderOnlinePayment(TestUi):
         provider_b = self.env['payment.provider'].create(
             {'name': 'Dummy provider B',
              'company_id': company_b.id,
-             'state': 'test',
              'is_published': True,
-             'payment_method_ids': [Command.set([self.pm_unknown.id])],
+             'payment_method_ids': [Command.set([self.payment_method_id])],
              })
 
         online_payment_method = self.env['pos.payment.method'].create({
             'name': 'Online payment B',
-            'is_online_payment': True,
+            'type': 'online',
             'company_id': company_b.id,
             'online_payment_provider_ids': [Command.set([provider_b.id])],
         })
@@ -75,7 +78,6 @@ class TestSelfOrderOnlinePayment(TestUi):
             'module_pos_restaurant': True,
             'company_id': company_b.id,
             'journal_id': test_sale_journal.id,
-            'invoice_journal_id': test_sale_journal.id,
             'payment_method_ids': [Command.set([online_payment_method.id])],
             'self_ordering_mode': 'mobile',
             'self_ordering_pay_after': 'each',

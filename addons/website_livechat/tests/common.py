@@ -1,13 +1,14 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+import datetime
 import random
 
 from odoo import fields
-from odoo.addons.base.tests.common import TransactionCaseWithUserDemo
 from odoo.addons.mail.tests.common import MailCommon
+from odoo.addons.website.models.ir_http import IrHttp
 
 
-class TestLivechatCommon(MailCommon, TransactionCaseWithUserDemo):
+class TestLivechatCommon(MailCommon):
     def setUp(self):
         super().setUp()
         self.maxDiff = None
@@ -32,25 +33,60 @@ class TestLivechatCommon(MailCommon, TransactionCaseWithUserDemo):
             'name': 'The basic channel',
             'user_ids': [(6, 0, [self.operator.id])]
         })
-        self.env.ref("website.default_website").channel_id = self.livechat_channel.id
+        self.env.ref("base.default_website").channel_id = self.livechat_channel.id
 
         self.max_sessions_per_operator = 5
         visitor_vals = {
             'lang_id': self.env.ref('base.lang_en').id,
             'country_id': self.env.ref('base.be').id,
-            'website_id': self.env.ref('website.default_website').id,
+            'website_id': self.env.ref('base.default_website').id,
         }
         self.visitors = self.env['website.visitor'].create([{
             'lang_id': self.env.ref('base.lang_en').id,
             'country_id': self.env.ref('base.de').id,
-            'website_id': self.env.ref('website.default_website').id,
-            'partner_id': self.partner_demo.id,
-            'access_token': self.user_demo.partner_id.id,
+            'website_id': self.env.ref('base.default_website').id,
+            'partner_id': self.partner_employee.id,
+            'access_token': self.user_employee.partner_id.id,
         }] + [
             dict(visitor_vals, access_token='%032x' % random.randrange(16**32))
             for _ in range(self.max_sessions_per_operator)
         ])
-        self.visitor_demo, self.visitor = self.visitors[0], self.visitors[1]
+        self.visitor_employee, self.visitor = self.visitors[0], self.visitors[1]
+        self.page_1, self.page_2 = self.env["website.page"].create(
+            [
+                {
+                    "name": "Test Page 1",
+                    "type": "qweb",
+                    "url": "/page_1",
+                    "website_id": self.env.ref("base.default_website").id,
+                },
+                {
+                    "name": "Test Page 2",
+                    "type": "qweb",
+                    "url": "/page_2",
+                    "website_id": self.env.ref("base.default_website").id,
+                },
+            ],
+        )
+        self.track_ids = self.env["website.track"].create(
+            [
+                {
+                    "page_id": self.page_1.id,
+                    "visitor_id": self.visitor.id,
+                    "visit_datetime": self.base_datetime - datetime.timedelta(minutes=20),
+                },
+                {
+                    "page_id": self.page_2.id,
+                    "visitor_id": self.visitor.id,
+                    "visit_datetime": self.base_datetime - datetime.timedelta(minutes=10),
+                },
+                {
+                    "page_id": self.page_1.id,
+                    "visitor_id": self.visitor.id,
+                    "visit_datetime": self.base_datetime,
+                },
+            ],
+        )
 
         self.livechat_base_url = self.livechat_channel.get_base_url()
 
@@ -65,7 +101,7 @@ class TestLivechatCommon(MailCommon, TransactionCaseWithUserDemo):
         self.target_visitor = self.visitor
         def get_visitor_from_request(self_mock, **kwargs):
             return self.target_visitor
-        self.patch(type(self.env['website.visitor']), '_get_visitor_from_request', get_visitor_from_request)
+        self.patch(IrHttp, '_get_visitor_from_request', get_visitor_from_request)
 
     def _send_message(self, channel, email_from, body, author_id=False):
         # As bus is unavailable in test mode, we cannot call /mail/message/post route to post a message.
@@ -77,13 +113,10 @@ class TestLivechatCommon(MailCommon, TransactionCaseWithUserDemo):
     def _send_rating(self, channel, visitor, rating_value, reason=False):
         channel_messages_count = len(channel.message_ids)
 
-        rating_to_emoji = {1: "😞", 3: "😐", 5: "😊"}
         self.url_open(url=self.send_feedback_url, json={'params': {
             'channel_id': channel.id,
             'rate': rating_value,
             'reason': reason,
         }})
-        res_model_id = self.env['ir.model'].sudo().search([('model', '=', channel._name)], limit=1).id
-        rating = self.env['rating.rating'].search([('res_id', '=', channel.id), ('res_model_id', '=', res_model_id)])
-        self.assertEqual(rating.rating, rating_value, "The rating is not correct.")
+        self.assertEqual(channel.livechat_rating, str(rating_value), "The rating is not correct.")
         self.assertEqual(len(channel.message_ids), channel_messages_count + 1)

@@ -9,7 +9,10 @@ const serverData = {};
 
 beforeEach(async () => {
     const { env: pyEnv } = await makeMockServer();
-    serverData.partnerIds = pyEnv["res.partner"].create([{ name: "Zeus" }, { name: "Azdaha" }]);
+    serverData.partnerIds = pyEnv["res.partner"].create([
+        { name: "Zeus", write_date: "2023-02-13 10:00:00" },
+        { name: "Azdaha", write_date: "2023-02-13 10:00:00" },
+    ]);
     serverData.eventId = pyEnv["calendar.event"].create({
         name: "event 1",
         partner_ids: serverData.partnerIds,
@@ -50,9 +53,42 @@ test("Many2ManyAttendee: basic rendering", async () => {
     expect(".o_field_widget[name='partner_ids'] .o_tag:eq(0) img").toHaveCount(1);
     expect(".o_field_widget[name='partner_ids'] .o_tag:eq(0) img").toHaveAttribute(
         "data-src",
-        `${getOrigin()}/web/image/res.partner/${serverData.partnerIds[0]}/avatar_128`
+        `${getOrigin()}/web/image/res.partner/${
+            serverData.partnerIds[0]
+        }/avatar_128?unique=1676282400000`
     );
     expect.verifySteps(["get_attendee_detail"]);
+});
+
+test("[Offline] Many2ManyAttendee: basic rendering", async () => {
+    onRpc("res.partner", "get_attendee_detail", () => new Response("", { status: 502 }));
+    await mountView({
+        type: "form",
+        resModel: "calendar.event",
+        resId: serverData.eventId,
+        arch: /*xml*/ `
+            <form>
+                <field name="partner_ids" widget="many2manyattendee"/>
+            </form>
+        `,
+    });
+    expect(".o_field_widget[name='partner_ids'] div.o_field_tags").toHaveCount(1);
+    expect(".o_field_widget[name='partner_ids'] .o_tag").toHaveCount(2);
+    expect(".o_field_widget[name='partner_ids'] .o_tag:eq(0)").toHaveText("Zeus");
+    expect(
+        ".o_field_widget[name='partner_ids'] .o_tag:eq(0) .attendee_tag_status.o_attendee_status_accepted"
+    ).toHaveCount(0);
+    expect(".o_field_widget[name='partner_ids'] .o_tag:eq(1)").toHaveText("Azdaha");
+    expect(
+        ".o_field_widget[name='partner_ids'] .o_tag:eq(1) .attendee_tag_status.o_attendee_status_tentative"
+    ).toHaveCount(0);
+    expect(".o_field_widget[name='partner_ids'] .o_tag:eq(0) img").toHaveCount(1);
+    expect(".o_field_widget[name='partner_ids'] .o_tag:eq(0) img").toHaveAttribute(
+        "data-src",
+        `${getOrigin()}/web/image/res.partner/${
+            serverData.partnerIds[0]
+        }/avatar_128?unique=1676282400000`
+    );
 });
 
 test("Many2ManyAttendee: remove own attendee", async () => {

@@ -20,13 +20,12 @@ test("Add member to channel", async () => {
     await start();
     await openDiscuss(channelId);
     await contains(".o-discuss-ChannelMemberList"); // wait for auto-open of this panel
-    await contains(".o-discuss-ChannelMember", { text: "Mitchell Admin" });
-    await click("[title='Invite People']");
-    await click(".o-discuss-ChannelInvitation-selectable", { text: "Harry" });
-    await click(".o-discuss-ChannelInvitation [title='Invite']:enabled");
+    await contains(".o-discuss-ChannelMember:text('Mitchell Admin')");
+    await click("[title='Add People']");
+    await click(".o-discuss-ChannelInvitation-selectable:has(:text('Harry'))");
+    await click(".o-discuss-ChannelInvitation button:text('Invite'):enabled");
     await contains(".o-discuss-ChannelInvitation", { count: 0 });
-    await click("[title='Members']");
-    await contains(".o-discuss-ChannelMember", { text: "Harry" });
+    await contains(".o-discuss-ChannelMember:text('Harry')");
 });
 
 test("Remove member from channel", async () => {
@@ -45,9 +44,9 @@ test("Remove member from channel", async () => {
     });
     await start();
     await openDiscuss(channelId);
-    await contains(".o-discuss-ChannelMember", { text: "Harry" });
+    await contains(".o-discuss-ChannelMember:text('Harry')");
     withUser(userId, () =>
         getService("orm").call("discuss.channel", "action_unfollow", [channelId])
     );
-    await contains(".o-discuss-ChannelMember", { count: 0, text: "Harry" });
+    await contains(".o-discuss-ChannelMember:text('Harry')", { count: 0 });
 });

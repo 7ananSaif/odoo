@@ -175,9 +175,11 @@
         <!-- Net amount for domestic supply exempt from tax (based on JPK tag K_10). -->
         <P_13_7 t-if="not float_is_zero(get_amounts_from_tag('K_10'), 2)"  t-out="float_repr(get_amounts_from_tag('K_10'), 2)"/>
         <!-- P_13_8: Total value of sales for the supply of goods and provision of services outside the country. TO-CHECK -->
-          <!-- P_13_9: Total value of the provision of services referred to in Article 100 sec. 1 item 4 and Article 100 sec TO-CHECK -->
+          <P_13_8 t-if="not float_is_zero(get_base_amounts_from_tag('K_11'), 2)" t-out="float_repr(get_base_amounts_from_tag('K_11'), 2)"/>
+          <!-- P_13_9: Total value of the provision of services referred to in Article 100 sec. 1 item 4 and Article 100 sec. -->
+          <P_13_9 t-if="not float_is_zero(get_base_amounts_from_tag('K_12'), 2)" t-out="float_repr(get_base_amounts_from_tag('K_12'), 2)"/>
           <!-- P_13_10: Total value of sales under the reverse-charge procedure for which the purchaser is the taxpayer in accordance with the repealed Article 17 sec. 1.-->
-          <P_13_10 t-if="reverse_charge" t-out="float_repr(get_base_amounts_from_tag('K_31') + get_base_amounts_from_tag('K_12'), 2)"/>
+          <P_13_10 t-if="reverse_charge" t-out="float_repr(get_base_amount_reverse_charge(), 2)"/>
           <!-- P_13_11: Total value of sales under the margin scheme referred to in Article 119 and Article 120 TO-CHECK -->
 
           <!-- P_15: Total gross amount of the invoice (including all taxes). -->
@@ -245,7 +247,13 @@
             <DaneFaKorygowanej>
                 <DataWystFaKorygowanej t-out="correction_info['DataWystFaKorygowanej']"/>
                 <NrFaKorygowanej t-out="correction_info['NrFaKorygowanej']"/>
-                <NrKSeFN>1</NrKSeFN>
+                <t t-if="correction_info['NrKSeFFaKorygowanej']">
+                    <NrKSeF>1</NrKSeF>
+                    <NrKSeFFaKorygowanej t-out="correction_info['NrKSeFFaKorygowanej']"/>
+                </t>
+                <t t-else="">
+                    <NrKSeFN>1</NrKSeFN>
+                </t>
             </DaneFaKorygowanej>
         </t>
 
@@ -319,11 +327,11 @@
                 </t>
             </TerminPlatnosci>
             </t>
-            <t t-if="invoice.partner_bank_id">
+            <t t-if="invoice.partner_bank_id and 10 &lt;= len(invoice.partner_bank_id.account_number.replace(' ', '')) &lt;= 34">
                 <RachunekBankowy>
-                    <NrRB t-out="invoice.partner_bank_id.acc_number.replace(' ', '')"/>
-                    <NazwaBanku t-out="invoice.partner_bank_id.bank_id.name"/>
-                    <OpisRachunku t-out="invoice.partner_bank_id.currency_id.name"/>
+                    <NrRB t-out="invoice.partner_bank_id.account_number.replace(' ', '')"/>
+                    <NazwaBanku t-out="invoice.partner_bank_id.bank_name"/>
+                    <OpisRachunku t-out="invoice.currency_id.name"/>
                 </RachunekBankowy>
             </t>
         </Platnosc>

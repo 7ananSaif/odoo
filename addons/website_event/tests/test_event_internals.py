@@ -5,8 +5,9 @@ import logging
 import unittest
 from datetime import datetime, timedelta
 
+from odoo.exceptions import UserError
 from odoo.fields import Command, Datetime as FieldsDatetime
-from odoo.tests.common import users
+from odoo.tests.common import tagged, users
 from odoo.addons.website.tests.test_website_visitor import MockVisitor
 from odoo.addons.http_routing.tests.common import MockRequest
 from odoo.addons.website_event.controllers.main import WebsiteEventController
@@ -45,7 +46,7 @@ class TestEventData(EventCase, MockVisitor):
         event.write({
             'date_begin': FieldsDatetime.to_string(datetime(2022, 12, 31, 10, 0, 0)),
             'date_end': FieldsDatetime.to_string(datetime(2022, 12, 31, 12, 0, 0)),
-            'description': '<p>This is <b>HTML</b> description</p>',
+            'subtitle': 'This is a plaintext description with a url for some reason <a href="/hello"/>',
             'event_register_url': 'https://www.example.com',
         })
 
@@ -56,8 +57,8 @@ class TestEventData(EventCase, MockVisitor):
         cal = vobject.readOne(ics_str)
         vevent = cal.vevent
 
-        external_description = event._get_external_description()
-        self.assertIn('This is HTML description', external_description)
+        external_description = event._get_ics_description()
+        self.assertIn('This is a plaintext description with a url for some reason <a href="/hello"/>', external_description)
         self.assertEqual(vevent.description.value, external_description)
 
         self.assertIn('x-alt-desc', vevent.contents)
@@ -173,6 +174,43 @@ class TestEventData(EventCase, MockVisitor):
         })
         self.assertTrue(registrations[0]['event_ticket_id'] is False,
                         f'Falsy string ids should be False, not {registrations[0]["event_ticket_id"]}')
+
+    def test_process_attendees_form_closed_ticket(self):
+        """ Tickets outside of their sales window cannot be registered from the
+        website, even when their id is forged in the posted form. """
+        event = self.env['event.event'].create({
+            'name': 'Test Event',
+            'event_type_id': self.event_type_questions.id,
+            'date_begin': FieldsDatetime.to_string(datetime.today() + timedelta(days=1)),
+            'date_end': FieldsDatetime.to_string(datetime.today() + timedelta(days=15)),
+        })
+        open_ticket, expired_ticket, not_launched_ticket = self.env['event.event.ticket'].create([{
+            'name': 'On Sale',
+            'event_id': event.id,
+        }, {
+            'name': 'Early Bird',
+            'event_id': event.id,
+            'end_sale_datetime': FieldsDatetime.to_string(datetime.today() - timedelta(days=1)),
+        }, {
+            'name': 'Late Bird',
+            'event_id': event.id,
+            'start_sale_datetime': FieldsDatetime.to_string(datetime.today() + timedelta(days=1)),
+        }])
+        name_question = event.question_ids.filtered(lambda q: q.question_type == 'name')
+
+        def form_details(ticket):
+            return {
+                '1-name-%s' % name_question.id: 'Attendee Name',
+                '1-event_ticket_id': str(ticket.id),
+            }
+
+        with MockRequest(self.env):
+            registrations = WebsiteEventController()._process_attendees_form(event, form_details(open_ticket))
+            self.assertEqual(registrations[0]['event_ticket_id'], open_ticket.id)
+
+            for ticket in (expired_ticket, not_launched_ticket):
+                with self.subTest(ticket=ticket.name), self.assertRaises(UserError):
+                    WebsiteEventController()._process_attendees_form(event, form_details(ticket))
 
     def test_registration_answer_search(self):
         """ Test our custom name_search implementation in 'event.registration.answer'.

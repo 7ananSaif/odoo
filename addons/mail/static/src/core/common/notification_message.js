@@ -1,30 +1,22 @@
-import {
-    Component,
-    onMounted,
-    onPatched,
-    onWillDestroy,
-    onWillUpdateProps,
-    useRef,
-} from "@odoo/owl";
+import { useForwardRefsToParent } from "@mail/utils/common/hooks";
+import { Component, htmlEscape, markup, signal, t, useProps } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
 import { useService } from "@web/core/utils/hooks";
-import { escape } from "@web/core/utils/strings";
 
 export class NotificationMessage extends Component {
     static template = "mail.NotificationMessage";
-    static props = ["message", "thread", "registerMessageRef?"];
 
     setup() {
         super.setup();
-        this.root = useRef("root");
-        onWillUpdateProps((nextProps) => {
-            this.props.registerMessageRef?.(this.props.message, null);
-        });
-        onMounted(() => this.props.registerMessageRef?.(this.props.message, this.root));
-        onPatched(() => this.props.registerMessageRef?.(this.props.message, this.root));
-        onWillDestroy(() => this.props.registerMessageRef?.(this.props.message, null));
-        this.escape = escape;
+        this.rootRef = signal();
+        useForwardRefsToParent("messageRefs", (props) => props.message.id, this.rootRef);
+        this.htmlEscape = htmlEscape;
         this.store = useService("mail.store");
+        this.props = useProps({
+            message: t.instanceOf(this.store["mail.message"]),
+            messageRefs: t.instanceOf(Map).optional(),
+            thread: t.instanceOf(this.store["mail.thread"]),
+        });
     }
 
     /**
@@ -40,8 +32,7 @@ export class NotificationMessage extends Component {
                     res_id: this.props.thread.id,
                     model: this.props.thread.model,
                     thread: this.props.thread,
-                }),
-                this.props.thread
+                })
             );
         }
     }
@@ -50,8 +41,27 @@ export class NotificationMessage extends Component {
         return this.props.message;
     }
 
+    callHistory() {
+        return this.message.call_history_ids[0];
+    }
+
+    recordingInformation() {
+        const history = this.callHistory();
+        return _t(
+            "A recording is being processed and will be available %(anchor_start)shere%(anchor_end)s.",
+            {
+                anchor_start: markup`<a href="/odoo/discuss.call.history/${history.id}" data-oe-model="discuss.call.history" data-oe-id="${history.id}">`,
+                anchor_end: markup`</a>`,
+            }
+        );
+    }
+    
+    get showDate() {
+        return true;
+    }
+
     get callInformation() {
-        const history = this.message.call_history_ids[0];
+        const history = this.callHistory();
         if (history?.duration_hour === undefined || !history?.end_dt) {
             return _t("%(author)s started a call.", { author: this.message.authorName });
         }
@@ -67,5 +77,14 @@ export class NotificationMessage extends Component {
         return _t("Call lasted %(duration)s.", {
             duration: duration.shiftTo(...units).toHuman({ unitDisplay: "short" }),
         });
+    }
+
+    get showInlineBody() {
+        return [
+            "channel_rename",
+            "meeting_to_group_chat",
+            "thread_deletion",
+            "thread_creation",
+        ].includes(this.message.notificationType);
     }
 }

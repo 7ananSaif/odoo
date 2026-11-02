@@ -5,13 +5,16 @@ import logging
 import secrets
 import uuid
 import werkzeug.urls
+from requests import RequestException
 
 from odoo import api, fields, models, _
 from odoo.addons.iap.tools import iap_tools
-from odoo.exceptions import AccessError, UserError
+from odoo.exceptions import UserError
 from odoo.modules import module
 from odoo.tools import get_lang
 from odoo.tools.urls import urljoin as url_join
+
+from odoo import Command
 
 _logger = logging.getLogger(__name__)
 
@@ -25,6 +28,7 @@ class IapAccount(models.Model):
     name = fields.Char()
     service_id = fields.Many2one('iap.service', required=True)
     service_name = fields.Char(related='service_id.technical_name')
+    service_price_description = fields.Char(related='service_id.price_description')
     service_locked = fields.Boolean(default=False)  # If True, the service can't be edited anymore
     description = fields.Char(related='service_id.description')
     account_token = fields.Char(
@@ -37,10 +41,27 @@ class IapAccount(models.Model):
     company_ids = fields.Many2many('res.company')
 
     # Dynamic fields, which are received from iap server and set when loading the view
-    balance = fields.Char(readonly=True)
-    warning_threshold = fields.Float("Email Alert Threshold")
+    balance_amount = fields.Float()
+    balance = fields.Char(compute='_compute_balance')
+    is_balance_below_warning_threshold = fields.Boolean(compute='_compute_is_balance_below_warning_threshold')
+    warning_threshold = fields.Float(
+        "Email Alert Threshold",
+        default=1.0,
+        help="Once you have this many credits or less, the system will automatically notify the following recipients by email. Set to 0 to disable email warnings.",
+    )
     warning_user_ids = fields.Many2many('res.users', string="Email Alert Recipients")
     state = fields.Selection([('banned', 'Banned'), ('registered', "Registered"), ('unregistered', "Unregistered")], readonly=True)
+
+    @api.depends('balance_amount', 'service_id.integer_balance', 'service_id.unit_name')
+    def _compute_balance(self):
+        for account in self:
+            balance_amount = round(account.balance_amount, None if account.service_id.integer_balance else 4)
+            account.balance = f"{balance_amount} {account.service_id.unit_name or ''}"
+
+    @api.depends("balance_amount", "warning_threshold")
+    def _compute_is_balance_below_warning_threshold(self):
+        for account in self:
+            account.is_balance_below_warning_threshold = account.balance_amount <= account.warning_threshold
 
     @api.constrains('warning_threshold', 'warning_user_ids')
     def validate_warning_alerts(self):
@@ -78,7 +99,7 @@ class IapAccount(models.Model):
                 }
                 try:
                     iap_tools.iap_jsonrpc(url=url, params=data)
-                except AccessError as e:
+                except RequestException as e:
                     _logger.warning("Update of the warning email configuration has failed: %s", str(e))
         return res
 
@@ -94,29 +115,46 @@ class IapAccount(models.Model):
                 'token': account.sudo().account_token,
                 'service': account.service_id.technical_name,
             } for account in self if account.service_id],
-            'dbuuid': self.env['ir.config_parameter'].sudo().get_param('database.uuid'),
+            'dbuuid': self.env['ir.config_parameter'].sudo().get_str('database.uuid'),
         }
         try:
             accounts_information = iap_tools.iap_jsonrpc(url=url, params=params)
-        except AccessError as e:
+        except RequestException as e:
             _logger.warning("Fetch of the IAP accounts information has failed: %s", str(e))
+            self.env.user._bus_send("simple_notification", {
+                'type': 'danger',
+                'message': _("The IAP server is unreachable and the information may not be up to date. Please try again later."),
+                'sticky': True,
+            })
             return
 
         for token, information in accounts_information.items():
             information.pop('link_to_service_page', None)
             accounts = self.filtered(lambda acc: secrets.compare_digest(acc.sudo().account_token, token))
-
             for account in accounts:
                 # Default rounding of 4 decimal places to avoid large decimals
-                balance_amount = round(information['balance'], None if account.service_id.integer_balance else 4)
-                balance = f"{balance_amount} {account.service_id.unit_name or ''}"
+                account_info = self._get_account_info(account, information)
 
-                account_info = self._get_account_info(account, balance, information)
-                account.with_context(disable_iap_update=True, tracking_disable=True).write(account_info)
+                account = account.with_context(disable_iap_update=True)
+                account.write(account_info)
 
-    def _get_account_info(self, account_id, balance, information):
+                service_information = information.get("service", {})
+                self.env['iap.service.pack'].search([('service_id', '=', account.service_id.id)]).unlink()
+                account.service_id.write({
+                    "description": service_information.get("description", ""),
+                    "price_description": service_information.get("price_description", ""),
+                    "pack_ids": [Command.create({
+                        "name": pack["name"],
+                        "credit": pack["credit"],
+                        "price": pack["price"],
+                        "service_id": account.service_id.id,
+                        "iap_service_pack_identifier": pack["id"],
+                    }) for pack in service_information.get("packs", [])],
+                })
+
+    def _get_account_info(self, account_id, information):
         return {
-            'balance': balance,
+            'balance_amount': information['balance'],
             'warning_threshold': information['warning_threshold'],
             'state': information['registered'],
             'service_locked': True,  # The account exist on IAP, prevent the edition of the service
@@ -129,7 +167,7 @@ class IapAccount(models.Model):
             if not account.name:
                 account.name = account.service_id.name
 
-        if self.env['ir.config_parameter'].sudo().get_param('database.is_neutralized'):
+        if self.env['ir.config_parameter'].sudo().get_bool('database.is_neutralized'):
             # Disable new accounts on a neutralized database
             for account in accounts:
                 account.account_token = f"{account.account_token.split('+')[0]}+disabled"
@@ -181,7 +219,7 @@ class IapAccount(models.Model):
                 # as self's cursor cannot see this account
                 account_token = account.sudo().account_token
             account = self.browse(account.id)
-            self.env.cache.set(account, IapAccount._fields['account_token'], account_token)
+            account._fields['account_token']._update_cache(account, account_token)
             return account
         accounts_with_company = accounts.filtered(lambda acc: acc.company_ids)
         if accounts_with_company:
@@ -195,7 +233,7 @@ class IapAccount(models.Model):
     @api.model
     def get_credits_url(self, service_name, account_token=None):
         """ Called notably by: buy more widget, partner_autocomplete, snailmail, ... """
-        dbuuid = self.env['ir.config_parameter'].sudo().get_param('database.uuid')
+        dbuuid = self.env['ir.config_parameter'].sudo().get_str('database.uuid')
         endpoint = iap_tools.iap_get_endpoint(self.env)
         route = '/iap/1/credit'
         base_url = url_join(endpoint, route)
@@ -226,6 +264,15 @@ class IapAccount(models.Model):
             ),
         }
 
+    def action_open_iap_account(self):
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': self._name,
+            'view_mode': 'form',
+            'res_id': self.id,
+            'target': 'self',
+        }
+
     @api.model
     def get_config_account_url(self):
         """ Called notably by ajax partner_autocomplete. """
@@ -249,13 +296,13 @@ class IapAccount(models.Model):
             endpoint = iap_tools.iap_get_endpoint(self.env)
             url = url_join(endpoint, route)
             params = {
-                'dbuuid': self.env['ir.config_parameter'].sudo().get_param('database.uuid'),
+                'dbuuid': self.env['ir.config_parameter'].sudo().get_str('database.uuid'),
                 'account_token': account.sudo().account_token,
                 'service_name': service_name,
             }
             try:
                 credit = iap_tools.iap_jsonrpc(url=url, params=params)
-            except AccessError as e:
+            except RequestException as e:
                 _logger.info('Get credit error : %s', str(e))
                 credit = -1
 

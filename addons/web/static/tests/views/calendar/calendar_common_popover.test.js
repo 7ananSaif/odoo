@@ -1,11 +1,55 @@
-import { describe, expect, test } from "@odoo/hoot";
+import { expect, test } from "@odoo/hoot";
 import { click } from "@odoo/hoot-dom";
-import { mountWithCleanup } from "@web/../tests/web_test_helpers";
-import { DEFAULT_DATE, FAKE_MODEL } from "./calendar_test_helpers";
+import { defineModels, fields, models, mountWithCleanup } from "@web/../tests/web_test_helpers";
+import { DEFAULT_DATE, FAKE_FIELDS } from "./calendar_test_helpers";
 
+import { createElement, parseXML } from "@web/core/utils/xml";
+import { CalendarArchParser } from "@web/views/calendar/calendar_arch_parser";
 import { CalendarCommonPopover } from "@web/views/calendar/calendar_common/calendar_common_popover";
+import { Field } from "@web/views/fields/field";
 
-describe.current.tags("desktop");
+class Partner extends models.Model {
+    _name = "res.partner";
+
+    name = fields.Char();
+
+    _records = [{ id: 1, name: "Some partner" }];
+}
+
+class Event extends models.Model {
+    _name = "event";
+
+    name = fields.Char();
+    display_name = fields.Char();
+    description = fields.Html();
+    partner_id = fields.Many2one({ relation: "res.partner" });
+
+    _records = [
+        {
+            id: 5,
+            name: "Meeting",
+            display_name: "Meeting",
+            description: "<p>Test description</p>",
+            partner_id: 1,
+        },
+    ];
+
+    _views = {
+        "card,1": /* xml */ `
+            <card>
+                <templates>
+                    <t t-name="card">
+                        <div class="o_custom_card_body">
+                            <field name="display_name"/>
+                        </div>
+                    </t>
+                </templates>
+            </card>
+        `,
+    };
+}
+
+defineModels([Event, Partner]);
 
 const FAKE_RECORD = {
     id: 5,
@@ -15,43 +59,78 @@ const FAKE_RECORD = {
     end: DEFAULT_DATE.plus({ hours: 3, minutes: 15 }),
     colorIndex: 0,
     isTimeHidden: false,
-    rawRecord: {
-        name: "Meeting",
-        description: "<p>Test description</p>",
+};
+
+/**
+ * `getDefaultPopoverBody`'s retro-compatibility layer renders any field
+ * declared directly in the arch (outside of `<popover>`) as a `popoverFieldNodes`
+ * entry on the model's meta. Build one the same way `CalendarArchParser` does,
+ * so a default (no custom `<popover>` arch) popover still shows an extra field,
+ * exactly like a view declaring `<field name="description"/>` would.
+ */
+const DEFAULT_POPOVER_FIELD_NODES = {
+    description: Field.parseFieldNode(
+        createElement("field", { name: "description" }),
+        { event: { fields: FAKE_FIELDS } },
+        "event",
+        "calendar"
+    ),
+};
+
+const DEFAULT_MODEL = {
+    resModel: "event",
+    canEdit: true,
+    canDelete: true,
+    isDateHidden: false,
+    load() {},
+    meta: {
+        fields: FAKE_FIELDS,
+        context: {},
+        popoverFieldNodes: DEFAULT_POPOVER_FIELD_NODES,
     },
 };
 
 const FAKE_PROPS = {
-    model: FAKE_MODEL,
-    record: FAKE_RECORD,
-    createRecord() {},
+    openRecord() {},
     deleteRecord() {},
-    editRecord() {},
     close() {},
 };
 
-async function start(props = {}) {
+async function start({ arch, model = DEFAULT_MODEL, record = FAKE_RECORD, ...props } = {}) {
+    let popoverNode = model.meta.popoverNode;
+    let popoverFieldNodes = model.meta.popoverFieldNodes;
+    if (arch) {
+        ({ popoverNode, popoverFieldNodes } = new CalendarArchParser().parse(
+            parseXML(arch),
+            { fake: { fields: FAKE_FIELDS } },
+            "fake"
+        ));
+    }
     await mountWithCleanup(CalendarCommonPopover, {
-        props: { ...FAKE_PROPS, ...props },
+        props: {
+            ...FAKE_PROPS,
+            ...props,
+            model: { ...model, meta: { ...model.meta, popoverNode, popoverFieldNodes } },
+            record,
+        },
     });
 }
 
 test(`mount a CalendarCommonPopover`, async () => {
     await start();
-    expect(`.popover-header`).toHaveCount(1);
-    expect(`.popover-header`).toHaveText("Meeting");
-    expect(`.list-group`).toHaveCount(2);
-    expect(`.list-group.o_cw_popover_fields_secondary`).toHaveCount(1);
-    expect(`.list-group.o_cw_popover_fields_secondary div[name="description"]`).toHaveClass("text-wrap");
-    expect(`.card-footer .o_cw_popover_edit`).toHaveCount(1);
-    expect(`.card-footer .o_cw_popover_delete`).toHaveCount(1);
+    expect(`.o_popover_header`).toHaveCount(1);
+    expect(`.o_popover_header`).toHaveText("Meeting");
+    expect(`.o_card_record`).toHaveCount(1);
+    expect(`.o_card_record div[name="description"]`).toHaveCount(1);
+    expect(`.o_popover_footer .o_cw_popover_edit`).toHaveCount(1);
+    expect(`.o_popover_footer .o_cw_popover_delete`).toHaveCount(1);
 });
 
 test(`date duration: is all day and is same day`, async () => {
     await start({
         record: { ...FAKE_RECORD, isAllDay: true, isTimeHidden: true },
     });
-    expect(`.list-group:eq(0)`).toHaveText("July 16, 2021");
+    expect(`.o_card_record > div:eq(0)`).toHaveText("July 16, 2021");
 });
 
 test(`date duration: is all day and two days duration`, async () => {
@@ -63,93 +142,95 @@ test(`date duration: is all day and two days duration`, async () => {
             isTimeHidden: true,
         },
     });
-    expect(`.list-group:eq(0)`).toHaveText("July 16-17, 2021 2 days");
+    expect(`.o_card_record > div:eq(0)`).toHaveText("July 16-17, 2021\n2 days");
 });
 
 test(`time duration: 1 hour diff`, async () => {
     await start({
         record: { ...FAKE_RECORD, end: DEFAULT_DATE.plus({ hours: 1 }) },
-        model: { ...FAKE_MODEL, isDateHidden: true },
+        model: { ...DEFAULT_MODEL, isDateHidden: true },
     });
-    expect(`.list-group:eq(0)`).toHaveText("08:00 - 09:00 (1 hour)");
+    expect(`.o_card_record > div:eq(0)`).toHaveText("08:00 - 09:00\n(1 hour)");
 });
 
 test(`time duration: 2 hours diff`, async () => {
     await start({
         record: { ...FAKE_RECORD, end: DEFAULT_DATE.plus({ hours: 2 }) },
-        model: { ...FAKE_MODEL, isDateHidden: true },
+        model: { ...DEFAULT_MODEL, isDateHidden: true },
     });
-    expect(`.list-group:eq(0)`).toHaveText("08:00 - 10:00 (2 hours)");
+    expect(`.o_card_record > div:eq(0)`).toHaveText("08:00 - 10:00\n(2 hours)");
 });
 
 test(`time duration: 1 minute diff`, async () => {
     await start({
         record: { ...FAKE_RECORD, end: DEFAULT_DATE.plus({ minutes: 1 }) },
-        model: { ...FAKE_MODEL, isDateHidden: true },
+        model: { ...DEFAULT_MODEL, isDateHidden: true },
     });
-    expect(`.list-group:eq(0)`).toHaveText("08:00 - 08:01 (1 minute)");
+    expect(`.o_card_record > div:eq(0)`).toHaveText("08:00 - 08:01\n(1 minute)");
 });
 
 test(`time duration: 2 minutes diff`, async () => {
     await start({
         record: { ...FAKE_RECORD, end: DEFAULT_DATE.plus({ minutes: 2 }) },
-        model: { ...FAKE_MODEL, isDateHidden: true },
+        model: { ...DEFAULT_MODEL, isDateHidden: true },
     });
-    expect(`.list-group:eq(0)`).toHaveText("08:00 - 08:02 (2 minutes)");
+    expect(`.o_card_record > div:eq(0)`).toHaveText("08:00 - 08:02\n(2 minutes)");
 });
 
 test(`time duration: 3 hours and 15 minutes diff`, async () => {
     await start({
-        model: { ...FAKE_MODEL, isDateHidden: true },
+        model: { ...DEFAULT_MODEL, isDateHidden: true },
     });
-    expect(`.list-group:eq(0)`).toHaveText("08:00 - 11:15 (3 hours, 15 minutes)");
+    expect(`.o_card_record > div:eq(0)`).toHaveText("08:00 - 11:15\n(3 hours, 15 minutes)");
 });
 
 test(`isDateHidden is true`, async () => {
     await start({
-        model: { ...FAKE_MODEL, isDateHidden: true },
+        model: { ...DEFAULT_MODEL, isDateHidden: true },
     });
-    expect(`.list-group:eq(0)`).toHaveText("08:00 - 11:15 (3 hours, 15 minutes)");
+    expect(`.o_card_record > div:eq(0)`).toHaveText("08:00 - 11:15\n(3 hours, 15 minutes)");
 });
 
 test(`isDateHidden is false`, async () => {
     await start({
-        model: { ...FAKE_MODEL, isDateHidden: false },
+        model: { ...DEFAULT_MODEL, isDateHidden: false },
     });
-    expect(`.list-group:eq(0)`).toHaveText("July 16, 2021\n08:00 - 11:15 (3 hours, 15 minutes)");
+    expect(`.o_card_record > div:eq(0)`).toHaveText("July 16, 2021");
+    expect(`.o_card_record > div:eq(1)`).toHaveText("08:00 - 11:15\n(3 hours, 15 minutes)");
 });
 
 test(`isTimeHidden is true`, async () => {
     await start({
         record: { ...FAKE_RECORD, isTimeHidden: true },
     });
-    expect(`.list-group:eq(0)`).toHaveText("July 16, 2021");
+    expect(`.o_card_record > div:eq(0)`).toHaveText("July 16, 2021");
 });
 
 test(`isTimeHidden is false`, async () => {
     await start({
         record: { ...FAKE_RECORD, isTimeHidden: false },
     });
-    expect(`.list-group:eq(0)`).toHaveText("July 16, 2021\n08:00 - 11:15 (3 hours, 15 minutes)");
+    expect(`.o_card_record > div:eq(0)`).toHaveText("July 16, 2021");
+    expect(`.o_card_record > div:eq(1)`).toHaveText("08:00 - 11:15\n(3 hours, 15 minutes)");
 });
 
 test(`canDelete is true`, async () => {
     await start({
-        model: { ...FAKE_MODEL, canDelete: true },
+        model: { ...DEFAULT_MODEL, canDelete: true },
     });
     expect(`.o_cw_popover_delete`).toHaveCount(1);
 });
 
 test(`canDelete is false`, async () => {
     await start({
-        model: { ...FAKE_MODEL, canDelete: false },
+        model: { ...DEFAULT_MODEL, canDelete: false },
     });
     expect(`.o_cw_popover_delete`).toHaveCount(0);
 });
 
 test(`click on delete button`, async () => {
     await start({
-        model: { ...FAKE_MODEL, canDelete: true },
+        model: { ...DEFAULT_MODEL, canDelete: true },
         deleteRecord: () => expect.step("delete"),
     });
     await click(`.o_cw_popover_delete`);
@@ -158,8 +239,25 @@ test(`click on delete button`, async () => {
 
 test(`click on edit button`, async () => {
     await start({
-        editRecord: () => expect.step("edit"),
+        openRecord: () => expect.step("edit"),
     });
     await click(`.o_cw_popover_edit`);
     expect.verifySteps(["edit"]);
+});
+
+test(`popover node with default body and footer`, async () => {
+    await start({
+        arch: `
+            <calendar date_start="start">
+                <popover>
+                    <templates>
+                    </templates>
+                </popover>
+            </calendar>
+        `,
+    });
+    expect(`.o_popover_body`).toHaveCount(1);
+    expect(`.o_popover_body`).toHaveText("July 16, 2021\n08:00 - 11:15\n(3 hours, 15 minutes)");
+    expect(`.o_popover_footer .o_cw_popover_edit`).toHaveCount(1);
+    expect(`.o_popover_footer .o_cw_popover_delete`).toHaveCount(1);
 });

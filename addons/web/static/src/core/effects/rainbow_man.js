@@ -1,6 +1,6 @@
 import { browser } from "@web/core/browser/browser";
 
-import { Component, useEffect, useExternalListener, useState } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount, proxy, t, useListener, useProps } from "@odoo/owl";
 
 /**
  * @typedef Common
@@ -12,7 +12,7 @@ import { Component, useEffect, useExternalListener, useState } from "@odoo/owl";
  * @property {string} [imgUrl] URL of the image to be displayed
  *
  * @typedef Simple
- * @property {string} message Message to be displayed on rainbowman card
+ * @property {TranslatedString} message Message to be displayed on rainbowman card
  *
  * @typedef Custom
  * @property {typeof import("@odoo/owl").Component} Component
@@ -33,29 +33,27 @@ import { Component, useEffect, useExternalListener, useState } from "@odoo/owl";
 export class RainbowMan extends Component {
     static template = "web.RainbowMan";
     static rainbowFadeouts = { slow: 4500, medium: 3500, fast: 2000, no: false };
-    static props = {
-        fadeout: String,
-        close: Function,
-        message: String,
-        imgUrl: String,
-        Component: { type: Function, optional: true },
-        props: { type: Object, optional: true },
-    };
+    props = useProps({
+        fadeout: t.string(),
+        close: t.function(),
+        message: t.string(),
+        imgUrl: t.string(),
+        Component: t.function().optional(),
+        props: t.object().optional(),
+    });
 
     setup() {
-        useExternalListener(document.body, "click", this.closeRainbowMan);
-        this.state = useState({ isFading: false });
+        useListener(document.body, "click", this.closeRainbowMan.bind(this));
+        this.state = proxy({ isFading: false });
         this.delay = RainbowMan.rainbowFadeouts[this.props.fadeout];
         if (this.delay) {
-            useEffect(
-                () => {
-                    const timeout = browser.setTimeout(() => {
-                        this.state.isFading = true;
-                    }, this.delay);
-                    return () => browser.clearTimeout(timeout);
-                },
-                () => []
-            );
+            let timeout;
+            onMounted(() => {
+                timeout = browser.setTimeout(() => {
+                    this.state.isFading = true;
+                }, this.delay);
+            });
+            onWillUnmount(() => browser.clearTimeout(timeout));
         }
     }
 

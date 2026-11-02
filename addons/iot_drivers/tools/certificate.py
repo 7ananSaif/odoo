@@ -5,17 +5,18 @@ from cryptography import x509
 from cryptography.x509.oid import NameOID
 from pathlib import Path
 
+from odoo.addons.iot_drivers.tools import system
+from odoo.addons.iot_drivers.tools.system import (
+    IS_RPI,
+    IS_TEST,
+    IS_WINDOWS,
+    IOT_IDENTIFIER,
+    NGINX_PATH,
+)
 from odoo.addons.iot_drivers.tools.helpers import (
-    get_conf,
-    get_identifier,
-    get_path_nginx,
-    get_version,
     odoo_restart,
     require_db,
-    start_nginx_server,
-    update_conf,
 )
-from odoo.addons.iot_drivers.tools.system import IS_RPI, IS_TEST, IS_WINDOWS
 
 _logger = logging.getLogger(__name__)
 
@@ -36,7 +37,7 @@ def get_certificate_end_date():
     :return: End date of the certificate if it is valid, None otherwise
     :rtype: str
     """
-    base_path = [get_path_nginx(), 'conf'] if IS_WINDOWS else ['/etc/ssl/certs']
+    base_path = [NGINX_PATH, 'conf'] if IS_WINDOWS else ['/etc/ssl/certs']
     path = Path(*base_path, 'nginx-cert.crt')
     if not path.exists():
         return None
@@ -51,12 +52,7 @@ def get_certificate_end_date():
         (name_attribute.value for name_attribute in cert.subject.get_attributes_for_oid(NameOID.COMMON_NAME)), ''
     )
 
-    # Ensure cryptography compatibility with python < 3.13
-    if IS_RPI and float(get_version()[1:8]) < 2025.10:
-        cert_end_date = cert.not_valid_after
-    else:
-        cert_end_date = cert.not_valid_after_utc.replace(tzinfo=None)
-
+    cert_end_date = cert.not_valid_after_utc.replace(tzinfo=None)
     if (
         common_name == 'OdooTempIoTBoxCertificate'
         or datetime.datetime.now() > cert_end_date - datetime.timedelta(days=10)
@@ -75,8 +71,8 @@ def download_odoo_certificate(retry=0):
     if IS_TEST:
         _logger.info("Skipping certificate download in test mode.")
         return None
-    db_uuid = get_conf('db_uuid')
-    enterprise_code = get_conf('enterprise_code')
+    db_uuid = system.get_conf('db_uuid')
+    enterprise_code = system.get_conf('enterprise_code')
     if not db_uuid:
         return None
     try:
@@ -104,7 +100,7 @@ def download_odoo_certificate(retry=0):
         _logger.warning("Error received from odoo.com while trying to get the certificate: %s", certificate_error)
         return None
 
-    update_conf({'subject': result['subject_cn']})
+    system.update_conf({'subject': result['subject_cn']})
 
     certificate = result['x509_pem']
     private_key = result['private_key_pem']
@@ -117,15 +113,11 @@ def download_odoo_certificate(retry=0):
         Path('/root_bypass_ramdisks/etc/ssl/certs/nginx-cert.crt').write_text(certificate, encoding='utf-8')
         Path('/etc/ssl/private/nginx-cert.key').write_text(private_key, encoding='utf-8')
         Path('/root_bypass_ramdisks/etc/ssl/private/nginx-cert.key').write_text(private_key, encoding='utf-8')
-        start_nginx_server()
-        cert = x509.load_pem_x509_certificate(certificate.encode())
-        if float(get_version()[1:8]) < 2025.10:
-            return str(cert.not_valid_after)
-        else:
-            return str(cert.not_valid_after_utc)
+        system.start_nginx_server()
+        return str(x509.load_pem_x509_certificate(certificate.encode()).not_valid_after_utc.replace(tzinfo=None))
     else:
-        Path(get_path_nginx(), 'conf', 'nginx-cert.crt').write_text(certificate, encoding='utf-8')
-        Path(get_path_nginx(), 'conf', 'nginx-cert.key').write_text(private_key, encoding='utf-8')
+        Path(NGINX_PATH, 'conf', 'nginx-cert.crt').write_text(certificate, encoding='utf-8')
+        Path(NGINX_PATH, 'conf', 'nginx-cert.key').write_text(private_key, encoding='utf-8')
         odoo_restart(3)
         return None
 
@@ -145,9 +137,10 @@ def inform_database(ssl_certificate_end_date, server_url=None):
     try:
         response = requests.post(
             server_url + "/iot/box/update_certificate_status",
-            json={'params': {'identifier': get_identifier(), 'ssl_certificate_end_date': ssl_certificate_end_date}},
+            json={'params': {'identifier': IOT_IDENTIFIER, 'ssl_certificate_end_date': ssl_certificate_end_date}},
             timeout=5,
         )
         response.raise_for_status()
     except requests.exceptions.RequestException:
-        _logger.exception("Could not reach configured server to inform about the certificate status")
+        # Do not display a traceback as old db don't have the controller
+        _logger.warning("Could not reach configured server to inform about the certificate status")

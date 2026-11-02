@@ -1,5 +1,5 @@
 import { Dialog } from "@web/core/dialog/dialog";
-import { Component, useState } from "@odoo/owl";
+import { Component, useProps, proxy, t } from "@odoo/owl";
 import { usePos } from "@point_of_sale/app/hooks/pos_hook";
 import { NumericInput } from "@point_of_sale/app/components/inputs/numeric_input/numeric_input";
 import { _t } from "@web/core/l10n/translation";
@@ -8,32 +8,26 @@ import { useService } from "@web/core/utils/hooks";
 export class MoneyDetailsPopup extends Component {
     static template = "point_of_sale.MoneyDetailsPopup";
     static components = { NumericInput, Dialog };
-    static props = {
-        moneyDetails: { type: [Object, { value: null }], optional: true },
-        action: String,
-        getPayload: Function,
-        close: Function,
-        context: { type: String, optional: true },
-    };
-    static defaultProps = {
-        moneyDetails: null,
-    };
+    props = useProps({
+        moneyDetails: t.or([t.object(), t.literal(null)]).optional(null),
+        action: t.string(),
+        getPayload: t.function(),
+        close: t.function(),
+        context: t.string().optional(),
+    });
 
     setup() {
         super.setup();
         this.pos = usePos();
         this.ui = useService("ui");
         this.currency = this.pos.currency;
-        this.state = useState({
+        this.state = proxy({
             moneyDetails: this.props.moneyDetails
                 ? { ...this.props.moneyDetails }
                 : Object.fromEntries(this.pos.models["pos.bill"].map((bill) => [bill.value, 0])),
         });
         this.env.dialogData.dismiss = () => {
-            if (
-                this.pos.config.iface_cashdrawer &&
-                this.pos.hardwareProxy.connectionInfo.status === "connected"
-            ) {
+            if (this.pos.canOpenCashdrawer) {
                 this.pos.logEmployeeMessage(this.props.action, "ACTION_CANCELLED");
             }
         };
@@ -52,16 +46,13 @@ export class MoneyDetailsPopup extends Component {
             if (this.state.moneyDetails[bill.value]) {
                 moneyDetailsNotes +=
                     "\t" +
-                    `${this.state.moneyDetails[bill.value]} x ${this.env.utils.formatCurrency(
+                    `${this.state.moneyDetails[bill.value]} x ${this.pos.formatCurrency(
                         bill.value
                     )}\n`;
             }
         });
         if (moneyDetailsNotes) {
-            moneyDetailsNotes += _t(
-                "Total: %s",
-                this.env.utils.formatCurrency(this.computeTotal())
-            );
+            moneyDetailsNotes += _t("Total: %s", this.pos.formatCurrency(this.computeTotal()));
         }
         this.props.getPayload({
             total: this.computeTotal(),

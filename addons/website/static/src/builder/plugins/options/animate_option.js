@@ -1,18 +1,20 @@
-import { BaseOptionComponent, useDomState } from "@html_builder/core/utils";
+import { BaseOptionComponent } from "@html_builder/core/base_option_component";
+import { useDomState } from "@html_builder/core/utils";
 import { isImageSupportedForStyle } from "@html_builder/plugins/image/replace_media_option";
+import { registry } from "@web/core/registry";
+import { useProps, t } from "@odoo/owl";
+
+export const animateOptionProps = {
+    dropdownClass: t.string().optional("o-hb-select-dropdown"),
+    requireAnimation: t.boolean().optional(false),
+    slots: t.object().optional(),
+};
 
 export class AnimateOption extends BaseOptionComponent {
+    static id = "animate_option";
     static template = "website.AnimateOption";
     static dependencies = ["animateOption"];
-    static selector = ".o_animable, section .row > div, img, .fa, .btn";
-    static exclude =
-        "[data-oe-xpath], .o_not-animable, .s_col_no_resize.row > div, .s_col_no_resize, .s_website_form_submit";
-    static props = {
-        dropdownClass: { type: String, optional: true, default: "o-hb-select-dropdown" },
-        requireAnimation: { type: Boolean, optional: true },
-        slots: { type: Object, optional: true },
-    };
-    static defaultProps = { requireAnimation: false };
+    props = useProps(animateOptionProps);
 
     setup() {
         super.setup();
@@ -24,7 +26,9 @@ export class AnimateOption extends BaseOptionComponent {
             return {
                 isOptionActive: this.isOptionActive(editingElement),
                 hasAnimateClass: hasAnimateClass,
-                canHover: await this.canHaveHoverEffect(editingElement),
+                canHover: await this.dependencies.animateOption.canHaveHoverEffect(editingElement),
+                canHaveScrollEffect:
+                    this.dependencies.animateOption.canHaveScrollEffect(editingElement),
                 isLimitedEffect: this.limitedEffects.some((className) =>
                     editingElement.classList.contains(className)
                 ),
@@ -34,6 +38,7 @@ export class AnimateOption extends BaseOptionComponent {
                     (i) => !i.check || i.check(editingElement)
                 ),
                 isInDropdown: editingElement.closest(".dropdown"),
+                hasSharedTiming: editingElement.matches(".s_animated_number"),
             };
         });
     }
@@ -74,9 +79,6 @@ export class AnimateOption extends BaseOptionComponent {
 
         return hasDirection;
     }
-    // This is done as a stable fix
-    // TODO: remove in master
-    async canHaveHoverEffect(el) {
-        return this.dependencies.animateOption.canHaveHoverEffect(el);
-    }
 }
+
+registry.category("website-options").add(AnimateOption.id, AnimateOption);

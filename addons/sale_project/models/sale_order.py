@@ -35,6 +35,25 @@ class SaleOrder(models.Model):
     project_id = fields.Many2one('project.project', domain=[('allow_billable', '=', True), ('is_template', '=', False)], copy=False, index='btree_not_null',
                                  help="A task will be created for the project upon sales order confirmation. The analytic distribution of this project will also serve as a reference for newly created sales order items.")
     project_account_id = fields.Many2one('account.analytic.account', related='project_id.account_id')
+    project_required = fields.Boolean(string="Project Required", compute="_compute_project_required")
+
+    @api.depends('order_line.product_id')
+    def _compute_project_required(self):
+        for order in self:
+            order.project_required = False
+            if (
+                all(
+                    l.service_tracking not in ('project_only', 'task_in_project')
+                    for l in order.order_line
+                )
+                and any(
+                    l.service_tracking == 'task_global_project'
+                    and not l.task_id
+                    and not l.product_id.project_id
+                    for l in order.order_line
+                )
+            ):
+                order.project_required = True
 
     def _compute_milestone_count(self):
         read_group = self.env['project.milestone']._read_group(
@@ -52,29 +71,23 @@ class SaleOrder(models.Model):
 
     def _compute_show_project_and_task_button(self):
         is_project_manager = self.env.user.has_group('project.group_project_manager')
-        show_button_ids = self.env['sale.order.line']._read_group([
-            ('order_id', 'in', self.ids),
-            ('order_id.state', 'not in', ['draft', 'sent']),
-        ], aggregates=['order_id:array_agg'])[0][0]
         for order in self:
-            state = order.state not in ['draft', 'sent']
-            order.show_project_button = state and order.project_count
-            order.show_create_project_button = (
-                is_project_manager
-                and order.id in show_button_ids
-                and not order.project_count
-            )
+            order.show_project_button = order.project_count
+            order.show_create_project_button = is_project_manager
 
     @api.model
     def _search_tasks_ids(self, operator, value):
         if operator in Domain.NEGATIVE_OPERATORS:
             return NotImplemented
-        task_domain = [
-            ('display_name' if isinstance(value, str) else 'id', operator, value),
-            ('sale_order_id', '!=', False),
-        ]
+        if operator in ('any', 'any!'):
+            task_domain = value
+        else:
+            task_domain = [
+                ('display_name' if isinstance(value, str) else 'id', operator, value),
+                ('sale_order_id', '!=', False),
+            ]
         query = self.env['project.task']._search(task_domain)
-        return [('id', 'in', query.subselect('sale_order_id'))]
+        return [('id', 'in', query.subselect(query.table.sale_order_id))]
 
     @api.depends('order_line.product_id.project_id')
     def _compute_tasks_ids(self):
@@ -145,15 +158,22 @@ class SaleOrder(models.Model):
             for order in self:
                 order.order_line.sudo().with_company(order.company_id)._timesheet_service_generation()
 
-        # If the order has exactly one project and that project comes from a template, set the company of the template
-        # on the project.
         for order in self.sudo(): # Salesman may not have access to projects
+            sale_line_to_assign = next((sol for sol in order.order_line if sol.is_service), False)
+            if not sale_line_to_assign:
+                continue
+            for project in order.project_ids.sudo():
+                if not project.sale_line_id and project.reinvoiced_sale_order_id:
+                    project.sale_line_id = sale_line_to_assign
+            # If the order has exactly one project and that project comes from a template, set the company of the template
+            # on the project.
             if len(order.project_ids) == 1:
                 project = order.project_ids[0]
                 for sol in order.order_line:
                     if project == sol.project_id and (project_template := sol.product_template_id.with_company(order.company_id).project_template_id):
                         project.sudo().company_id = project_template.sudo().company_id
                         break
+
         return super()._action_confirm()
 
     def _tasks_ids_domain(self):
@@ -167,14 +187,13 @@ class SaleOrder(models.Model):
                 'tag': 'display_notification',
                 'params': {
                     'type': 'danger',
-                    'message': self.env._("The project couldn't be created as the Sales Order must be confirmed or is already linked to a project."),
+                    'message': self.env._("The project couldn't be created because you don't have the right to create a project"),
                 }
             }
-
         sorted_line = self.order_line.sorted('sequence')
         default_sale_line = next((
             sol for sol in sorted_line
-            if sol.product_id.type == 'service' and not sol.is_downpayment
+            if sol._is_product_line() and sol.product_id.type == 'service'
         ), self.env['sale.order.line'])
         view_id = self.env.ref('sale_project.sale_project_view_form_simplified_template', raise_if_not_found=False)
         return {
@@ -191,7 +210,7 @@ class SaleOrder(models.Model):
                 'hide_allow_billable': True,
                 'default_company_id': self.company_id.id,
                 'generate_milestone': default_sale_line.product_id.service_policy == 'delivered_milestones',
-                'default_name': self.name,
+                'default_name': "%s - %s" % (self.name, self.partner_id.commercial_company_name),
                 'default_allow_milestones': 'delivered_milestones' in self.order_line.product_id.mapped('service_policy'),
                 'sale_company_id': self.company_id.id,
             },
@@ -199,9 +218,6 @@ class SaleOrder(models.Model):
 
     def action_view_project_ids(self):
         self.ensure_one()
-        if not self.order_line:
-            return {'type': 'ir.actions.act_window_close'}
-
         sorted_line = self.order_line.sorted('sequence')
         default_sale_line = next((
             sol for sol in sorted_line if sol.product_id.type == 'service'
@@ -305,3 +321,11 @@ class SaleOrder(models.Model):
         if not line:
             raise UserError(self.env._('The Sales Order must contain at least one service product.'))
         return line
+
+    def _get_or_create_analytic_account(self, plan_id):
+        self.ensure_one()
+
+        if self.project_id.account_id:
+            return self.project_id.account_id
+
+        return super()._get_or_create_analytic_account(plan_id)

@@ -8,17 +8,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-12-20 09:53+0000\n"
-"Last-Translator: \"Abe Manyo (abem)\" <abem@odoo.com>\n"
-"Language-Team: Indonesian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 16:24+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Indonesian <https://translate.odoo.com/projects/odoo-s19-4/"
 "cloud_storage/id/>\n"
 "Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: cloud_storage
 #: model_terms:ir.ui.view,arch_db:cloud_storage.cloud_storage_config_settings_view_form
@@ -32,6 +32,7 @@ msgstr "Lampiran"
 
 #. module: cloud_storage
 #: model:ir.model.fields.selection,name:cloud_storage.selection__ir_attachment__type__cloud_storage
+#: model:ir.module.module,shortdesc:base.module_cloud_storage
 #: model_terms:ir.ui.view,arch_db:cloud_storage.cloud_storage_config_settings_view_form
 msgid "Cloud Storage"
 msgstr "Penyimpanan Cloud"
@@ -124,9 +125,24 @@ msgid "Select the cloud storage provider to store new attachments."
 msgstr "Pilih penyedia penyimpanan Cloud untuk menyimpan lampiran baru."
 
 #. module: cloud_storage
+#: model:ir.module.module,summary:base.module_cloud_storage
+msgid "Store chatter attachments in the cloud"
+msgstr ""
+
+#. module: cloud_storage
 #: model:ir.model.fields,field_description:cloud_storage.field_ir_attachment__type
 msgid "Type"
 msgstr "Tipe"
+
+#. module: cloud_storage
+#: model:ir.model.fields,field_description:cloud_storage.field_res_config_settings__cloud_storage_upload_record_attachments
+msgid "Upload Record Attachments"
+msgstr ""
+
+#. module: cloud_storage
+#: model_terms:ir.ui.view,arch_db:cloud_storage.cloud_storage_config_settings_view_form
+msgid "Upload record attachments to the cloud storage"
+msgstr ""
 
 #. module: cloud_storage
 #. odoo-javascript
@@ -155,11 +171,3 @@ msgstr ""
 "minimum        (di bytes) sebagai lampiran url ke server dan lalu mengunggah "
 "file ke\n"
 "        cloud storage."
-
-#~ msgid "Cloud Storage Settings"
-#~ msgstr "Pengaturan Penyimpanan Cloud"
-
-#~ msgid ""
-#~ "Minimum size(bytes) for attachments to be stored in the cloud storage"
-#~ msgstr ""
-#~ "Ukuran minimum (byte) untuk lampiran untuk disimpan di cloud storage"

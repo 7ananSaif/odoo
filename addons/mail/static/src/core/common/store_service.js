@@ -1,30 +1,25 @@
-import { Store as BaseStore, fields, makeStore, storeInsertFns } from "@mail/core/common/record";
-import { threadCompareRegistry } from "@mail/core/common/thread_compare";
-import {
-    attClassObjectToString,
-    cleanTerm,
-    generateEmojisOnHtml,
-    prettifyMessageText,
-} from "@mail/utils/common/format";
-import { compareDatetime } from "@mail/utils/common/misc";
+import { Store as BaseStore, fields, makeStore } from "@mail/model/export";
+import { formatLocalDateTime, resolveTimeZoneName } from "@mail/utils/common/dates";
+import { attClassObjectToString, generateEmojisOnHtml } from "@mail/utils/common/format";
 
-import { reactive } from "@odoo/owl";
+import { proxy, usePlugin } from "@odoo/owl";
 
+import { location } from "@web/core/browser/browser";
+import { cookie } from "@web/core/browser/cookie";
+import { isMobileOS } from "@web/core/browser/feature_detection";
+import { DebugModePlugin } from "@web/core/debug_mode_plugin";
 import { _t } from "@web/core/l10n/translation";
 import { rpc } from "@web/core/network/rpc";
 import { registry } from "@web/core/registry";
 import { user } from "@web/core/user";
-import { Deferred, Mutex } from "@web/core/utils/concurrency";
+import { Mutex } from "@web/core/utils/concurrency";
 import { renderToElement } from "@web/core/utils/render";
 import { debounce } from "@web/core/utils/timing";
-import { session } from "@web/session";
-import { browser } from "@web/core/browser/browser";
-import { loader } from "@web/core/emoji_picker/emoji_picker";
-import { patch } from "@web/core/utils/patch";
-import { isMobileOS } from "@web/core/browser/feature_detection";
 import { getOrigin } from "@web/core/utils/urls";
-import { cookie } from "@web/core/browser/cookie";
+import { session } from "@web/session";
 import { isMarkup, createDocumentFragmentFromContent } from "@web/core/utils/html";
+
+const { DateTime } = luxon;
 
 /**
  * @typedef {{isSpecial: boolean, channel_types: string[], label: string, displayName: string, description: string}} SpecialMention
@@ -33,99 +28,122 @@ import { isMarkup, createDocumentFragmentFromContent } from "@web/core/utils/htm
 let prevLastMessageId = null;
 let temporaryIdOffset = 0.01;
 
-export const pyToJsModels = {
-    "discuss.channel": "Thread",
-    "mail.thread": "Thread",
-};
-
-export const addFieldsByPyModel = {
-    "discuss.channel": { model: "discuss.channel" },
-};
-
-patch(storeInsertFns, {
-    makeContext(store) {
-        if (!(store instanceof Store)) {
-            return super.makeContext(...arguments);
-        }
-        return { pyModels: Object.values(pyToJsModels) };
-    },
-    getActualModelName(store, ctx, pyOrJsModelName) {
-        if (!(store instanceof Store)) {
-            return super.getActualModelName(...arguments);
-        }
-        if (ctx.pyModels.includes(pyOrJsModelName)) {
-            console.warn(
-                `store.insert() should receive the python model name instead of “${pyOrJsModelName}”.`
-            );
-        }
-        return pyToJsModels[pyOrJsModelName] || pyOrJsModelName;
-    },
-    getExtraFieldsFromModel(store, pyOrJsModelName) {
-        if (!(store instanceof Store)) {
-            return super.getExtraFieldsFromModel(...arguments);
-        }
-        return addFieldsByPyModel[pyOrJsModelName];
-    },
-});
-
 export class Store extends BaseStore {
     static FETCH_DATA_DEBOUNCE_DELAY = 1;
     static OTHER_LONG_TYPING = 60000;
-    static IM_STATUS_DEBOUNCE_DELAY = 1000;
 
     FETCH_LIMIT = 30;
     DEFAULT_AVATAR = "/mail/static/src/img/smiley/avatar.jpg";
-    isReady = new Deferred();
-    /** This is the current logged partner / guest */
-    self_partner = fields.One("res.partner");
+
+    isReadyPromise = new Promise((resolve) => (this._resolveIsReady = resolve));
     self_guest = fields.One("mail.guest");
+    self_user = fields.One("res.users");
+    /** This is the current logged partner / guest */
     get self() {
-        return this.self_partner || this.self_guest;
+        return this.self_user?.partner_id || this.self_guest;
     }
-    allChannels = fields.Many("Thread", {
-        inverse: "storeAsAllChannels",
-        onUpdate() {
-            const busService = this.store.env.services.bus_service;
-            if (!busService.isActive && this.allChannels.some((t) => !t.isTransient)) {
-                busService.start();
-            }
-        },
+    /** @type {{self: import("models").ResPartner | import("models").MailGuest, sequence: number}[]} */
+    selvesBySequence = this.computed(() => {
+        const result = [];
+        if (this.self_user?.partner_id) {
+            result.push({ self: this.self_user.partner_id, sequence: 10 });
+        }
+        if (this.self_guest) {
+            result.push({ self: this.self_guest, sequence: 30 });
+        }
+        return result.sort((a, b) => a.sequence - b.sequence);
     });
+    /** @type {boolean} */
+    hasCannedResponses;
+    hasGifPickerFeature = false;
+    initialized = false;
     /**
      * Indicates whether the current user is using the application through the
      * public page.
      */
     inPublicPage = false;
+    /** @type {boolean|undefined} */
+    isOdooWhiteTheme;
     odoobot = fields.One("res.partner");
-    useMobileView = fields.Attr(undefined, {
-        compute() {
-            return this.store.env.services.ui.isSmall || isMobileOS();
-        },
-    });
-    users = {};
+    useMobileView = this.computed(() => this.store.env.services.ui.isSmall || isMobileOS());
+    /** @type {number|undefined} id of the mail.action_discuss action */
+    action_discuss_id;
+    /** @type {number|undefined} */
+    emailActivityTypeId;
     /** @type {number} */
     internalUserGroupId;
     mt_comment = fields.One("mail.message.subtype");
+    mt_important_notification = fields.One("mail.message.subtype");
     mt_note = fields.One("mail.message.subtype");
     /** @type {boolean} */
     hasMessageTranslationFeature;
     hasLinkPreviewFeature = true;
     // messaging menu
     menu = { counter: 0 };
-    chatHub = fields.One("ChatHub", { compute: () => ({}) });
-    failures = fields.Many("Failure", {
-        /**
-         * @param {import("models").Failure} f1
-         * @param {import("models").Failure} f2
-         */
-        sort: (f1, f2) => f2.lastMessage?.id - f1.lastMessage?.id,
-    });
-    settings = fields.One("Settings");
-    emojiLoader = loader;
+    chatHub = this.computed(() => this.ChatHub.insert({}));
+    failures = fields.Many("Failure");
+    sortedFailures = this.computed(() =>
+        [...this.failures].sort((f1, f2) => {
+            if (f1.lastMessage?.id && !f2.lastMessage?.id) {
+                return -1;
+            }
+            if (!f1.lastMessage?.id && f2.lastMessage?.id) {
+                return 1;
+            }
+            return f2.lastMessage?.id - f1.lastMessage?.id || f2.id - f1.id;
+        })
+    );
+    /** local settings of the current device (not stored server side) */
+    settings = this.computed(() => this.Settings.insert({}));
+
+    /**
+     * @param {import("luxon").DateTime<true>} [datetime]
+     * @returns {number} days from the start of today, 1 being tomorrow
+     */
+    daysUntil(datetime) {
+        if (!datetime) {
+            return 0;
+        }
+        return datetime.diff(this.startOfToday, "days").days;
+    }
+
+    /**
+     * @param {string} [tz]
+     */
+    localTimeIn(tz) {
+        const partnerTz = resolveTimeZoneName(tz);
+        const selfTz = resolveTimeZoneName(this.self?.tz);
+        if (
+            !partnerTz ||
+            !selfTz ||
+            [partnerTz, selfTz].includes("local") ||
+            partnerTz === selfTz
+        ) {
+            return null;
+        }
+        return formatLocalDateTime(partnerTz, selfTz, this.startOfMinute);
+    }
+
+    /**
+     * Start of the current minute, made again when the minute changes:
+     * nothing observes the clock, so what shows a time reads this.
+     */
+    startOfMinute = this.computedUntilStale(
+        () => DateTime.now().startOf("minute"),
+        (startOfMinute) => startOfMinute.plus({ minutes: 1 }).diffNow().toMillis()
+    );
+
+    /**
+     * Start of the current day, made again when the day changes: nothing
+     * observes the clock, so what derives from today reads this.
+     */
+    startOfToday = this.computedUntilStale(
+        () => DateTime.now().startOf("day"),
+        (startOfToday) => startOfToday.plus({ days: 1 }).diffNow().toMillis()
+    );
 
     /** @type {[[string, any, import("models").DataResponse]]} */
-    fetchParams = [];
-    fetchReadonly = true;
+    fetchParams = fields.Attr([], { asProxy: true });
     fetchSilent = true;
 
     cannedReponses = this.makeCachedFetchData("mail.canned.response");
@@ -136,73 +154,23 @@ export class Store extends BaseStore {
             label: "everyone",
             channel_types: ["channel", "group"],
             displayName: "Everyone",
-            description: _t("Notify everyone"),
+            description: _t("Notify all members of this conversation"),
+        },
+        {
+            isSpecial: true,
+            label: "here",
+            channel_types: ["channel", "group"],
+            displayName: "Here",
+            description: _t("Notify all members of this conversation who are online"),
         },
     ];
 
-    isNotificationPermissionDismissed = fields.Attr(false, {
-        compute() {
-            return (
-                browser.localStorage.getItem("mail.user_setting.push_notification_dismissed") ===
-                "true"
-            );
-        },
-        /** @this {import("models").DiscussApp} */
-        onUpdate() {
-            if (this.isNotificationPermissionDismissed) {
-                browser.localStorage.setItem(
-                    "mail.user_setting.push_notification_dismissed",
-                    "true"
-                );
-            } else {
-                browser.localStorage.removeItem("mail.user_setting.push_notification_dismissed");
-            }
-        },
-    });
+    isNotificationPermissionDismissed = this.localStorage(false);
 
     messagePostMutex = new Mutex();
 
-    menuThreads = fields.Many("Thread", {
-        /** @this {import("models").Store} */
-        compute() {
-            /** @type {import("models").Thread[]} */
-            const searchTerm = cleanTerm(this.discuss.searchTerm);
-            let threads = Object.values(this.Thread.records).filter(
-                (thread) =>
-                    (thread.displayToSelf ||
-                        (thread.needactionMessages.length > 0 && thread.model !== "mail.box")) &&
-                    cleanTerm(thread.displayName).includes(searchTerm)
-            );
-            const tab = this.discuss.activeTab;
-            if (tab === "inbox") {
-                threads = threads.filter(({ channel_type }) =>
-                    this.tabToThreadType("mailbox").includes(channel_type)
-                );
-            } else if (tab === "starred") {
-                threads = [this.starred];
-            } else if (tab !== "notification") {
-                threads = threads.filter(({ channel_type }) =>
-                    this.tabToThreadType(tab).includes(channel_type)
-                );
-            }
-            return threads;
-        },
-        /**
-         * @this {import("models").Store}
-         * @param {import("models").Thread} thread1
-         * @param {import("models").Thread} thread2
-         */
-        sort(thread1, thread2) {
-            const compareFunctions = threadCompareRegistry.getAll();
-            for (const fn of compareFunctions) {
-                const result = fn(thread1, thread2);
-                if (result !== undefined) {
-                    return result;
-                }
-            }
-            return thread2.localId > thread1.localId ? 1 : -1;
-        },
-    });
+    /** @type {DebugModePlugin} */
+    debugMode;
 
     shouldSimulateDarkTheme(ctx) {
         return (
@@ -211,7 +179,6 @@ export class Store extends BaseStore {
                 ctx?.env.isDiscussPipBanner ||
                 ctx?.env?.inWelcomePage) &&
             this.isOdooWhiteTheme &&
-            !ctx?.env.inMeetingSideActions &&
             !ctx?.env.inDiscussActionPanel
         );
     }
@@ -219,20 +186,10 @@ export class Store extends BaseStore {
     discussDropdownMenuClass(ctx) {
         const simulateDarkTheme = this.shouldSimulateDarkTheme(ctx);
         return attClassObjectToString({
-            "o-discuss-dropdownMenu d-flex flex-column border-secondary": true,
+            "o-discuss-dropdownMenu d-flex flex-column": true,
             "o-simulateDarkTheme": simulateDarkTheme,
-            "bg-view": !simulateDarkTheme,
         });
     }
-
-    standaloneInboxMessages = fields.Many("mail.message", {
-        compute() {
-            const messages = (this.store.inbox?.messages ?? []).filter((m) => !m.thread);
-            return messages.sort(
-                (m1, m2) => compareDatetime(m2.datetime, m1.datetime) || m2.id - m1.id
-            );
-        },
-    });
 
     /**
      * @param {Object} params post message data
@@ -247,8 +204,13 @@ export class Store extends BaseStore {
                 if (!tmpMessage) {
                     throw err;
                 }
+
+                tmpMessage.postFailMessage = err.data?.message
+                    ? _t("Failed to post the message (%s). Click to retry", err.data?.message)
+                    : _t("Failed to post the message. Click to retry");
                 tmpMessage.postFailRedo = () => {
                     tmpMessage.postFailRedo = undefined;
+                    tmpMessage.postFailMessage = undefined;
                     tmpMessage.thread.messages.delete(tmpMessage);
                     tmpMessage.thread.messages.add(tmpMessage);
                     this.doMessagePost(params, tmpMessage);
@@ -256,6 +218,18 @@ export class Store extends BaseStore {
             }
             return res;
         });
+    }
+
+    /**
+     * Ensure `initialize` is executed exactly once. Exposed as a separate function to
+     * allow overriding store initialization.
+     */
+    ensureInitialized() {
+        if (this.initialized) {
+            return;
+        }
+        this.initialized = true;
+        this.initialize();
     }
 
     /**
@@ -267,65 +241,103 @@ export class Store extends BaseStore {
      *  RPC or a bus notification for example). When set to false (the default), the return promise
      *  will resolve as soon as the RPC is done. This is intended to be true only for requests that
      *  will be resolved server side with `resolve_data_request`.
-     * @param {boolean} [options.readonly=true] when set to false, the server will open a read-write
-     *  cursor to process this request which is necessary if the request is expected to change data.
      * @param {boolean} [options.silent=true]
-     * @returns {Deferred}
      */
-    async fetchStoreData(
-        name,
-        params,
-        { requestData = false, readonly = true, silent = true } = {}
-    ) {
+    async fetchStoreData(name, params, { requestData = false, silent = true } = {}) {
+        /** @type {import("models").DataResponse} */
         const dataRequest = this.DataResponse.createRequest();
         dataRequest._autoResolve = !requestData;
         this.fetchParams.push([name, params, dataRequest]);
-        this.fetchReadonly = this.fetchReadonly && readonly;
         this.fetchSilent = this.fetchSilent && silent;
         this._fetchStoreDataDebounced();
-        return dataRequest._resultDef;
+        return dataRequest._resultResolvers.promise;
     }
 
-    /** Import data received from init_messaging */
-    async initialize() {
-        await this.fetchStoreData("init_messaging");
-        this.isReady.resolve();
+    /**
+     * Initialize the store by fetching the required data for the messaging system.
+     * Override to add data to be fetched. Do not call directly: use `ensureInitialized`
+     * to ensure the store is only initialized once.
+     */
+    initialize() {
+        this.fetchStoreData("init_messaging").then(() => {
+            this._resolveIsReady();
+        });
+    }
+
+    /**
+     * Called after the store is fully set up. Override to add listeners or set default field values.
+     * This avoids issues with the dummy store created during setup, which would cause computes to
+     * crash and listeners to be registered twice.
+     */
+    onStarted() {
+        this.isOdooWhiteTheme = cookie.get("color_scheme") !== "dark" || this.inPublicPage;
+        navigator.serviceWorker?.addEventListener("message", ({ data = {} }) => {
+            const { type, payload } = data;
+            if (type === "notification-display-request") {
+                const { correlationId, model, res_id, message_id } = payload;
+                const thread = this["mail.thread"].get({ model, id: res_id });
+                let isTabFocused;
+                try {
+                    isTabFocused = parent.document.hasFocus();
+                } catch {
+                    // assumes tab not focused: parent.document from iframe triggers CORS error
+                }
+                const isMessageSeen =
+                    model === "discuss.channel"
+                        ? thread?.channel?.self_member_id?.seen_message_id?.id >= message_id
+                        : thread?.messages.some((m) => m.id === message_id);
+                if (
+                    this.self_user?.im_status === "busy" ||
+                    (isTabFocused && thread?.channel?.isDisplayed) ||
+                    isMessageSeen
+                ) {
+                    navigator.serviceWorker.controller?.postMessage({
+                        type: "notification-display-response",
+                        payload: { correlationId },
+                    });
+                }
+            }
+            if (type === "notification-displayed") {
+                this.onPushNotificationDisplayed(payload);
+            }
+        });
     }
 
     /**
      * Create a cacheable version of the `fetchStoreData` method. The result of the
-     * request is cached once acquired. In case of failure, the deferred is
+     * request is cached once acquired. In case of failure, the promise is
      * rejected and the cache is reset allowing to retry the request when
      * calling the function again.
      *
      * @param {string} name
-     * @param {*} params Parameters to pass to the `fetchStoreData` method.
+     * @param {*} params Parameters to pass to the `fetchStoreData` method or a function
+     * that evaluates to those parameters.
      * @returns {{
      *      fetch: () => ReturnType<Store["fetchStoreData"]>,
      *      status: "not_fetched"|"fetching"|"fetched"
      * }}
      */
     makeCachedFetchData(name, params) {
-        let def = null;
-        const r = reactive({
+        let promWithResolvers = null;
+        const r = proxy({
             status: "not_fetched",
             fetch: () => {
                 if (["fetching", "fetched"].includes(r.status)) {
-                    return def;
+                    return promWithResolvers.promise;
                 }
                 r.status = "fetching";
-                def = new Deferred();
-                this.fetchStoreData(name, params).then(
+                promWithResolvers = Promise.withResolvers();
+                this.fetchStoreData(name, typeof params === "function" ? params() : params).then(
                     (result) => {
                         r.status = "fetched";
-                        def.resolve(result);
+                        promWithResolvers.resolve(result);
                     },
                     (error) => {
                         r.status = "not_fetched";
-                        def.reject(error);
+                        promWithResolvers.reject(error);
                     }
                 );
-                return def;
+                return promWithResolvers.promise;
             },
         });
         return r;
@@ -362,42 +374,66 @@ export class Store extends BaseStore {
             },
             (error) => {
                 for (const [, , dataRequest] of fetchParams) {
-                    dataRequest._resultDef.reject(error);
+                    dataRequest._resultResolvers.reject(error);
                 }
             }
         );
         this.fetchParams = [];
-        this.fetchReadonly = true;
         this.fetchSilent = true;
     }
 
     _fetchStoreDataRpc(fetchParams) {
         return rpc(
-            this.fetchReadonly ? "/mail/data" : "/mail/action",
+            "/mail/store",
             { fetch_params: fetchParams, context: user.context },
             { silent: this.fetchSilent }
         );
     }
 
-    async startMeeting() {
-        const thread = await this.createGroupChat({
-            default_display_mode: "video_full_screen",
-            partners_to: [this.self.id],
-        });
-        await this.store.chatHub.initPromise;
-        this.ChatWindow.get(thread)?.update({ autofocus: 0 });
-        await this.env.services["discuss.rtc"].toggleCall(thread, { camera: true });
-        if (this.rtc.selfSession) {
-            this.rtc.enterFullscreen({ autoOpenAction: "invite-people" });
+    async requestStartMeeting() {
+        const rtc = this.env.services["discuss.rtc"];
+        if (rtc.channel) {
+            const hasConfirmed = await rtc.askCallSwitchConfirmation({
+                confirmIcon: "videocam",
+                confirmLabel: _t("Start Meeting"),
+                description: _t(
+                    "You will leave the ongoing call and automatically join the new meeting."
+                ),
+                message: _t("Start a new Meeting?"),
+                title: _t("New Meeting Confirmation"),
+            });
+            if (!hasConfirmed) {
+                return;
+            }
         }
+        await this.startMeeting();
+    }
+
+    async startMeeting() {
+        const localizedDatetime = this.store.self?.tz
+            ? DateTime.now().setZone(this.store.self?.tz)
+            : DateTime.now().toLocal();
+        const formatDate = localizedDatetime.toLocaleString(
+            { month: "short", day: "numeric" },
+            { locale: user.lang }
+        );
+        /** @type {import("models").DiscussChannel} */
+        const channel = await this.createGroupChat({
+            name: _t("Meeting, %(date)s", { date: formatDate }),
+            default_display_mode: "video_full_screen",
+            users_to: [this.self_user.id],
+        });
+        await this.chatHub.initPromise;
+        channel.chatWindow?.update({ autofocus: 0 });
+        await this.env.services["discuss.rtc"].startMeetingCall(channel, { fullscreen: true });
     }
 
     /**
-     * @param {'chat' | 'group'} tab
+     * @param {import("menu_tabs").MenuTabs[keyof import("menu_tabs").MenuTabs]} tabId
      * @returns Thread types matching the given tab.
      */
-    tabToThreadType(tab) {
-        return tab === "chat" ? ["chat", "group"] : [tab];
+    tabIdToThreadTypes(tabId) {
+        return tabId === "chat" ? ["chat", "group"] : [tabId];
     }
 
     handleClickOnLink(ev, thread) {
@@ -409,7 +445,7 @@ export class Store extends BaseStore {
         const id = Number(link.dataset.oeId);
         if (link.classList.contains("o_channel_redirect") && model && id) {
             ev.preventDefault();
-            this.Thread.getOrFetch({ model, id }).then((thread) => {
+            this["mail.thread"].getOrFetch({ model, id }).then((thread) => {
                 if (thread) {
                     thread.open({ focus: true });
                 } else {
@@ -442,7 +478,7 @@ export class Store extends BaseStore {
                             window.open(link.href);
                         }
                     } else {
-                        if (this.self_partner) {
+                        if (this.self_user) {
                             showAccessError();
                         } else {
                             window.open(link.href);
@@ -460,7 +496,7 @@ export class Store extends BaseStore {
             this.env.services.ui.isSmall &&
             ev.target.closest(".o-mail-ChatWindow") &&
             link.href &&
-            !link.href.startsWith("#")
+            (model || !link.getAttribute("href").startsWith("#"))
         ) {
             let url;
             try {
@@ -469,11 +505,8 @@ export class Store extends BaseStore {
                 // Ignore invalid URLs
                 return false;
             }
-            if (
-                browser.location.host === url.host &&
-                browser.location.pathname.startsWith("/odoo")
-            ) {
-                this.ChatWindow.get({ thread })?.fold();
+            if (location.host === url.host && location.pathname.startsWith("/odoo")) {
+                this.ChatWindow.get({ channel: thread.channel })?.fold();
             }
         }
         return false;
@@ -487,39 +520,6 @@ export class Store extends BaseStore {
         );
     }
 
-    /** Provides an override point for when the store service has started. */
-    onStarted() {
-        this.isOdooWhiteTheme = cookie.get("color_scheme") !== "dark" || this.inPublicPage;
-        navigator.serviceWorker?.addEventListener("message", ({ data = {} }) => {
-            const { type, payload } = data;
-            if (type === "notification-display-request") {
-                const { correlationId, model, res_id } = payload;
-                const thread = this.Thread.get({ model, id: res_id });
-                let isTabFocused;
-                try {
-                    isTabFocused = parent.document.hasFocus();
-                } catch {
-                    // assumes tab not focused: parent.document from iframe triggers CORS error
-                }
-                // Prevent duplicate inbox push notifications since they're already handled by
-                // `mail.message/inbox` bus notifications, and the `modelsHandleByPush` heuristic
-                // in `out_of_focus_service.js` isn't reliable enough to detect these cases.
-                const isInbox =
-                    this.store.self.main_user_id?.notification_type === "inbox" &&
-                    model !== "discuss.channel";
-                if ((isTabFocused && thread?.isDisplayed) || isInbox) {
-                    navigator.serviceWorker.controller?.postMessage({
-                        type: "notification-display-response",
-                        payload: { correlationId },
-                    });
-                }
-            }
-            if (type === "notification-displayed") {
-                this.onPushNotificationDisplayed(payload);
-            }
-        });
-    }
-
     onPushNotificationDisplayed(payload) {
         if (["mail.thread", "discuss.channel"].includes(payload.model)) {
             this.env.services["mail.out_of_focus"]._playSound();
@@ -531,10 +531,28 @@ export class Store extends BaseStore {
      * @param {Object} param0
      * @param {number} param0.userId
      * @param {number} param0.partnerId
-     * @returns {Promise<import("models").Thread | undefined>}
      */
     async getChat({ userId, partnerId }) {
-        const partner = await this.getPartner({ userId, partnerId });
+        let partner;
+        if (userId) {
+            const user = await this["res.users"].getOrFetch(userId, ["partner_id"]);
+            if (!user?.partner_id) {
+                this.env.services.notification.add(_t("You can only chat with existing users."), {
+                    type: "warning",
+                });
+                return;
+            }
+            partner = user.partner_id;
+        } else if (partnerId) {
+            partner = await this["res.partner"].getOrFetch(partnerId, ["main_user_id"]);
+            if (!partner?.main_user_id) {
+                this.env.services.notification.add(
+                    _t("You can only chat with partners that have a dedicated user."),
+                    { type: "info" }
+                );
+                return;
+            }
+        }
         if (!partner) {
             return;
         }
@@ -554,7 +572,7 @@ export class Store extends BaseStore {
 
     fillPartnersMentionToken(postData) {
         postData.partner_ids_mention_token ||= {};
-        for (const pid of postData.partner_ids) {
+        for (const pid of [...postData.partner_ids, ...(postData.partner_cc_ids || [])]) {
             const partner = this["res.partner"].get(pid);
             if (partner?.mention_token) {
                 postData.partner_ids_mention_token[pid] = partner.mention_token;
@@ -564,30 +582,24 @@ export class Store extends BaseStore {
 
     /** @returns {number} */
     getLastMessageId() {
-        return Object.values(this["mail.message"].records).reduce(
-            (lastMessageId, message) => Math.max(lastMessageId, message.id),
-            0
-        );
+        return this["mail.message"].records
+            .values()
+            .reduce((lastMessageId, message) => Math.max(lastMessageId, message.id), 0);
     }
 
     handleValidChannelMention(channelLinks) {
         for (const linkEl of channelLinks.filter(
-            (el) => !el.querySelector(".fa-comments-o, .fa-hashtag")
+            (el) => !el.querySelector("[data-icon='forum'], [data-icon='tag']")
         )) {
             const text = linkEl.textContent.substring(1); // remove '#' prefix
-            const icon = linkEl.classList.contains("o_channel_redirect_asThread")
-                ? "fa fa-comments-o"
-                : "fa fa-hashtag";
+            const icon = linkEl.classList.contains("o_channel_redirect_asThread") ? "forum" : "tag";
             const iconEl = renderToElement("mail.Message.mentionedChannelIcon", { icon });
             linkEl.replaceChildren(iconEl);
             linkEl.insertAdjacentText("beforeend", ` ${text}`);
         }
     }
 
-    getMentionsFromText(
-        body,
-        { mentionedChannels = [], mentionedPartners = [], mentionedRoles = [], thread } = {}
-    ) {
+    getMentionsFromText(body, { mentionedPartners = [], mentionedRoles = [], thread } = {}) {
         const validMentions = {};
         const segments = isMarkup(body)
             ? Array.from(
@@ -595,17 +607,31 @@ export class Store extends BaseStore {
                   (a) => a.textContent
               )
             : [body];
-        validMentions.threads = mentionedChannels.filter((thread) => {
-            const mention = thread.parent_channel_id
-                ? `#${thread.parent_channel_id.displayName} > ${thread.displayName}`
-                : `#${thread.displayName}`;
-            return segments.some((segment) => segment.includes(mention));
-        });
-        validMentions.partners = mentionedPartners.filter((partner) =>
-            segments.some((segment) =>
-                segment.includes(`@${thread?.getPersonaName?.(partner) ?? partner.name}`)
-            )
+        // Longest mention text first, so e.g. "@John" inside "@John Doe" isn't kept.
+        const mentionTexts = (partner) => {
+            const name = (thread?.getPersonaName(partner) ?? partner.displayName)?.trim();
+            return [name && `@${name}`, partner.email && `@${partner.email}`].filter(Boolean);
+        };
+        const remaining = [...segments];
+        const kept = new Set(
+            [...mentionedPartners]
+                .sort(
+                    (p1, p2) =>
+                        Math.max(0, ...mentionTexts(p2).map((text) => text.length)) -
+                        Math.max(0, ...mentionTexts(p1).map((text) => text.length))
+                )
+                .filter((partner) =>
+                    mentionTexts(partner).some((text) => {
+                        const i = remaining.findIndex((segment) => segment.includes(text));
+                        if (i === -1) {
+                            return false;
+                        }
+                        remaining[i] = remaining[i].replace(text, " ".repeat(text.length));
+                        return true;
+                    })
+                )
         );
+        validMentions.partners = mentionedPartners.filter((partner) => kept.has(partner));
         validMentions.roles = mentionedRoles.filter((role) =>
             segments.some((segment) => segment.includes(`@${role.name}`))
         );
@@ -623,50 +649,58 @@ export class Store extends BaseStore {
             attachments,
             cannedResponseIds,
             emailAddSignature,
+            isCcEnabled,
             isNote,
-            mentionedChannels,
             mentionedPartners,
             mentionedRoles,
+            subject,
         } = postData;
         const subtype = isNote ? "mail.mt_note" : "mail.mt_comment";
         const validMentions = this.getMentionsFromText(body, {
-            mentionedChannels,
             mentionedPartners,
             mentionedRoles,
             thread,
         });
-        const partner_ids = validMentions?.partners.map((partner) => partner.id) ?? [];
-        const role_ids = validMentions?.roles.map((role) => role.id) ?? [];
-        const recipientEmails = [];
-        if (!isNote) {
-            const allRecipients = [...thread.suggestedRecipients, ...thread.additionalRecipients];
-            const recipientIds = allRecipients
-                .filter((recipient) => recipient.persona)
-                .map((recipient) => recipient.persona.id);
-            allRecipients
-                .filter((recipient) => !recipient.persona)
-                .forEach((recipient) => {
-                    recipientEmails.push(recipient.email);
-                });
-            partner_ids.push(...recipientIds);
-        }
         postData = {
             body: await generateEmojisOnHtml(body),
             email_add_signature: emailAddSignature,
             message_type: "comment",
+            partner_cc_emails: [],
+            partner_cc_ids: [],
+            partner_emails: [],
+            partner_ids: validMentions?.partners.map((partner) => partner.id) ?? [],
+            role_ids: validMentions?.roles.map((role) => role.id) ?? [],
             subtype_xmlid: subtype,
+            subject,
         };
+        if (!isNote) {
+            for (const recipient of [
+                ...thread.suggestedRecipients,
+                ...thread.additionalRecipients,
+            ]) {
+                if (!isCcEnabled && recipient.recipient_type === "cc") {
+                    continue;
+                }
+                if (recipient.persona) {
+                    if (recipient.recipient_type === "cc") {
+                        postData.partner_cc_ids.push(recipient.persona.id);
+                    } else {
+                        postData.partner_ids.push(recipient.persona.id);
+                    }
+                } else {
+                    if (recipient.recipient_type === "cc") {
+                        postData.partner_cc_emails.push(recipient.email);
+                    } else {
+                        postData.partner_emails.push(recipient.email);
+                    }
+                }
+            }
+        }
+        this.fillPartnersMentionToken(postData);
         if (attachments.length) {
             postData.attachment_ids = attachments.map(({ id }) => id);
         }
-        if (partner_ids.length) {
-            Object.assign(postData, { partner_ids });
-            this.fillPartnersMentionToken(postData);
-        }
-        if (role_ids.length) {
-            Object.assign(postData, { role_ids });
-        }
-        if (thread.model === "discuss.channel" && validMentions?.specialMentions.length) {
+        if (thread.channel && validMentions?.specialMentions.length) {
             postData.special_mentions = validMentions.specialMentions;
         }
         if (attachments.length) {
@@ -674,8 +708,21 @@ export class Store extends BaseStore {
                 (attachment) => attachment.ownership_token
             );
         }
-        if (recipientEmails.length) {
-            postData.partner_emails = recipientEmails;
+        // Clean empty fields
+        for (const field of [
+            "partner_ids",
+            "partner_ids_mention_token",
+            "partner_cc_ids",
+            "partner_emails",
+            "partner_cc_emails",
+            "role_ids",
+        ]) {
+            if (
+                Object.prototype.hasOwnProperty.call(postData, field) &&
+                !Object.keys(postData[field]).length
+            ) {
+                delete postData[field];
+            }
         }
         const params = {
             // Changed in 18.2+: finally get rid of autofollow, following should be done manually
@@ -695,6 +742,50 @@ export class Store extends BaseStore {
         });
     }
 
+    /**
+     * Delete the given attachments in a single query.
+     * Uploading attachments are cancelled.
+     *
+     * @param {import("models").Attachment[]} attachments
+     * @param {Object} [options]
+     * @param {boolean} [options.keepOnMessages=false] only remove the
+     *  attachments posted on a message from their thread, keeping them on that
+     *  message: trimming the attachment list of a record is not meant to edit
+     *  the messages of that record.
+     */
+    async removeAttachments(attachments, { keepOnMessages = false } = {}) {
+        const uploadService = this.env.services["mail.attachment_upload"];
+        const uploading = [];
+        if (uploadService) {
+            for (const att of attachments) {
+                if (uploadService.uploadingAttachmentIds.has(att.id)) {
+                    uploading.push(att);
+                }
+            }
+            if (uploading.length) {
+                uploadService.cancelUploads(uploading);
+            }
+        }
+        const stored = attachments.filter(({ id }) => id > 0);
+        let keptIds = [];
+        if (stored.length) {
+            const { kept_attachment_ids } = await rpc("/mail/attachment/delete", {
+                access_token_by_attachment_id: Object.fromEntries(
+                    stored.map(({ id, ownership_token }) => [id, ownership_token ?? null])
+                ),
+                keep_on_messages: keepOnMessages,
+            });
+            keptIds = kept_attachment_ids;
+        }
+        for (const attachment of attachments) {
+            if (keptIds.includes(attachment.id)) {
+                attachment.thread = undefined; // only leaves the attachment list of the thread
+            } else {
+                attachment.delete();
+            }
+        }
+    }
+
     getNextTemporaryId() {
         const lastMessageId = this.getLastMessageId();
         if (prevLastMessageId === lastMessageId) {
@@ -706,70 +797,14 @@ export class Store extends BaseStore {
         return lastMessageId + temporaryIdOffset;
     }
 
-    /**
-     * Search and fetch for a partner with a given user or partner id.
-     * @param {Object} param0
-     * @param {number} param0.userId
-     * @param {number} param0.partnerId
-     * @returns {Promise<import("models").Persona> | undefined}
-     */
-    async getPartner({ userId, partnerId }) {
-        if (userId) {
-            let user = this.users[userId];
-            if (!user) {
-                this.users[userId] = { id: userId };
-                user = this.users[userId];
-            }
-            if (!user.partner_id) {
-                const [userData] = await this.env.services.orm.silent.read(
-                    "res.users",
-                    [user.id],
-                    ["partner_id"],
-                    { context: { active_test: false } }
-                );
-                if (userData) {
-                    user.partner_id = userData.partner_id[0];
-                }
-            }
-            if (!user.partner_id) {
-                this.env.services.notification.add(_t("You can only chat with existing users."), {
-                    type: "warning",
-                });
-                return;
-            }
-            partnerId = user.partner_id;
-        }
-        if (partnerId) {
-            const partner = this["res.partner"].insert({ id: partnerId });
-            if (!partner.main_user_id) {
-                const [userId] = await this.env.services.orm.silent.search(
-                    "res.users",
-                    [["partner_id", "=", partnerId]],
-                    { context: { active_test: false } }
-                );
-                if (!userId) {
-                    this.env.services.notification.add(
-                        _t("You can only chat with partners that have a dedicated user."),
-                        { type: "info" }
-                    );
-                    return;
-                }
-                if (!partner.main_user_id) {
-                    partner.main_user_id = userId;
-                }
-            }
-            return partner;
-        }
-    }
-
     async joinChat(id, forceOpen = false) {
         const { channel } = await this.fetchStoreData(
             "/discuss/get_or_create_chat",
             { partners_to: [id] },
-            { readonly: false, requestData: true }
+            { requestData: true }
         );
         if (forceOpen) {
-            await channel.open({ focus: true });
+            channel.open({ focus: true });
         }
         return channel;
     }
@@ -777,15 +812,6 @@ export class Store extends BaseStore {
     async openChat(person) {
         const chat = await this.getChat(person);
         chat?.open({ focus: true });
-    }
-
-    openDocument({ id, model }) {
-        this.env.services.action.doAction({
-            type: "ir.actions.act_window",
-            res_model: model,
-            views: [[false, "form"]],
-            res_id: id,
-        });
     }
 
     /**
@@ -800,29 +826,32 @@ export class Store extends BaseStore {
      * @param {string} searchTerm
      * @param {Thread} thread
      * @param {number} before
-     * @param {true|false|undefined} is_notification
+     * @param {string|undefined} search_filter
      */
-    async searchMessagesInThread(searchTerm, thread, before, is_notification) {
-        const { count, data, messages } = await rpc(thread.getFetchRoute(), {
-            ...thread.getFetchParams(),
-            fetch_params: {
-                is_notification,
-                search_term: await prettifyMessageText(searchTerm), // formatted like message_post
-                before,
+    async searchMessagesInThread(searchTerm, thread, before, search_filter) {
+        const { count, messages } = await this.fetchStoreData(
+            thread.getFetchRoute(),
+            {
+                ...thread.getFetchParams(),
+                fetch_params: {
+                    search_filter,
+                    search_term: searchTerm,
+                    before,
+                },
             },
-        });
-        this.insert(data);
+            { requestData: true }
+        );
         return {
             count,
             loadMore: messages.length === this.FETCH_LIMIT,
-            messages: this["mail.message"].insert(messages),
+            messages,
         };
     }
 }
 Store.register();
 
 export const storeService = {
-    dependencies: ["bus_service", "im_status", "ui", "popover"],
+    dependencies: ["bus_service", "im_status", "ui", "popover", "discuss.upgrade"],
     /**
      * @param {import("@web/env").OdooEnv} env
      * @param {import("services").ServiceFactories} services
@@ -832,14 +861,14 @@ export const storeService = {
         const store = makeStore(env);
         store.insert(session.storeData);
         /**
-         * Add defaults for `self` and `settings` because in livechat there could be no user and no
-         * guest yet (both undefined at init), but some parts of the code that loosely depend on
-         * these values will still be executed immediately. Providing a dummy default is enough to
-         * avoid crashes, the actual values being filled at livechat init when they are necessary.
+         * Add a default for `self` because in livechat there could be no user and no guest yet
+         * (both undefined at init), but some parts of the code that loosely depend on this value
+         * will still be executed immediately. Providing a dummy default is enough to avoid
+         * crashes, the actual value being filled at livechat init when it is necessary.
          */
         store.self_guest ??= { id: -1 };
-        store.settings ??= {};
-        store.initialize();
+        const debugMode = usePlugin(DebugModePlugin);
+        store.debugMode = debugMode;
         store.onStarted();
         return store;
     },

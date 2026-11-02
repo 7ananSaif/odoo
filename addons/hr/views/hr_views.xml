@@ -16,18 +16,18 @@
 
         <menuitem
             id="menu_hr_employee_payroll"
-            name="Employees"
+            name="Management"
             action="open_view_employee_list_my"
             parent="menu_hr_root"
             groups="group_hr_user"
-            sequence="3"/>
+            sequence="1"/>
 
         <menuitem
             id="menu_hr_employee"
             name="Directory"
             action="hr_employee_public_action"
             parent="menu_hr_root"
-            sequence="4"/>
+            sequence="3"/>
 
         <menuitem
             id="hr_menu_hr_reports"
@@ -61,19 +61,19 @@
                 action="mail_activity_plan_action"
                 parent="menu_config_employee"
                 sequence="1"/>
+            
+            <menuitem
+                id="menu_view_hr_contract_type"
+                action="hr_contract_type_action"
+                parent="menu_config_employee"
+                sequence="3"
+                groups="group_hr_user"/>
 
             <menuitem
                 id="menu_hr_work_location_tree"
                 action="hr_work_location_action"
                 parent="menu_config_employee"
                 sequence="5"/>
-
-            <menuitem
-                id="menu_resource_calendar_view"
-                action="resource.action_resource_calendar_form"
-                parent="menu_config_employee"
-                name="Working Schedules"
-                sequence="6"/>
 
             <menuitem
                 id="menu_hr_departure_reason_tree"
@@ -88,6 +88,19 @@
                 parent="menu_config_employee"
                 groups="base.group_no_one"
                 sequence="10"/>
+
+            <menuitem
+                id="menu_config_working_times"
+                name="Time Management"
+                parent="menu_human_resources_configuration"
+                sequence="15"/>
+
+                <menuitem
+                    id="menu_resource_calendar_view"
+                    action="resource.action_resource_calendar_form"
+                    parent="menu_config_working_times"
+                    name="Working Schedules"
+                    sequence="10"/>
 
             <menuitem
                 id="menu_config_recruitment"
@@ -108,14 +121,5 @@
                     parent="menu_config_recruitment"
                     sequence="2"
                     groups="hr.group_hr_manager"/>
-
-                <menuitem
-                    id="menu_view_hr_contract_type"
-                    action="hr_contract_type_action"
-                    parent="menu_config_recruitment"
-                    sequence="3"
-                    groups="group_hr_user"
-                    active="0"/>
-
     </data>
 </odoo>

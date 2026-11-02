@@ -6,23 +6,24 @@
 # Martin Trigaux, 2022
 # Jeffery CHEN <jeffery9@gmail.com>, 2022
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
-# "Chloe Wang (chwa)" <chwa@odoo.com>, 2025.
+# "Chloe Wang (chwa)" <chwa@odoo.com>, 2025, 2026.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# 张飞虎 <feihu.zhang@live.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-11-16 15:05+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
+"POT-Creation-Date: 2026-09-11 17:42+0000\n"
+"PO-Revision-Date: 2026-10-11 13:33+0000\n"
+"Last-Translator: 张飞虎 <feihu.zhang@live.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://translate.odoo.com/"
-"projects/odoo-19/barcodes/zh_Hans/>\n"
+"projects/odoo-20/barcodes/zh_Hans/>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: barcodes
 #. odoo-python
@@ -89,20 +90,16 @@ msgstr "任意"
 
 #. module: barcodes
 #. odoo-javascript
-#: code:addons/barcodes/static/src/components/manual_barcode.xml:0
+#: code:addons/barcodes/static/src/components/barcode_input.xml:0
 msgid "Apply"
 msgstr "应用"
 
 #. module: barcodes
 #. odoo-javascript
 #: code:addons/barcodes/static/src/components/barcode_scanner.xml:0
+#: model:ir.module.module,shortdesc:base.module_barcodes
 msgid "Barcode"
 msgstr "条形码"
-
-#. module: barcodes
-#: model:ir.model,name:barcodes.model_barcodes_barcode_events_mixin
-msgid "Barcode Event Mixin"
-msgstr "条形码事件混合"
 
 #. module: barcodes
 #: model:ir.model,name:barcodes.model_barcode_nomenclature
@@ -130,9 +127,9 @@ msgid "Barcode Rule"
 msgstr "条形码规则"
 
 #. module: barcodes
-#: model:ir.model.fields,field_description:barcodes.field_barcodes_barcode_events_mixin___barcode_scanned
-msgid "Barcode Scanned"
-msgstr "条形码扫描"
+#: model_terms:ir.ui.view,arch_db:barcodes.view_partner_barcodes_form
+msgid "Barcode must start with `042`"
+msgstr "条形码必须以 `042` 开头"
 
 #. module: barcodes
 #. odoo-javascript
@@ -141,8 +138,16 @@ msgid "Barcode: %(barcode)s"
 msgstr "条码：%(barcode)s"
 
 #. module: barcodes
+#. odoo-javascript
+#: code:addons/barcodes/static/src/components/barcode_view.xml:0
+msgid ""
+"Click the icon in the browser on the left of the address bar and toggle "
+"Camera permissions."
+msgstr "点击浏览器地址栏左侧的图标，切换摄像头权限。"
+
+#. module: barcodes
 #: model:ir.model,name:barcodes.model_res_company
-msgid "Companies"
+msgid "Company"
 msgstr "公司"
 
 #. module: barcodes
@@ -160,7 +165,6 @@ msgstr "创建日期"
 #. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_nomenclature__display_name
 #: model:ir.model.fields,field_description:barcodes.field_barcode_rule__display_name
-#: model:ir.model.fields,field_description:barcodes.field_barcodes_barcode_events_mixin__display_name
 #: model:ir.model.fields,field_description:barcodes.field_ir_http__display_name
 #: model:ir.model.fields,field_description:barcodes.field_res_company__display_name
 msgid "Display Name"
@@ -182,15 +186,21 @@ msgid "EAN-8"
 msgstr "EAN-8"
 
 #. module: barcodes
+#. odoo-javascript
+#: code:addons/barcodes/static/src/components/barcode_view.xml:0
+msgid "Edit access to scan"
+msgstr "需授予权限方可扫描"
+
+#. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_rule__encoding
 msgid "Encoding"
 msgstr "编码"
 
 #. module: barcodes
 #. odoo-javascript
-#: code:addons/barcodes/static/src/components/manual_barcode.js:0
-msgid "Enter a barcode..."
-msgstr "输入条形码⋯"
+#: code:addons/barcodes/static/src/components/barcode_input.js:0
+msgid "Enter a barcode"
+msgstr "输入条码"
 
 #. module: barcodes
 #: model:ir.model,name:barcodes.model_ir_http
@@ -200,19 +210,10 @@ msgstr "HTTP 路由"
 #. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_nomenclature__id
 #: model:ir.model.fields,field_description:barcodes.field_barcode_rule__id
-#: model:ir.model.fields,field_description:barcodes.field_barcodes_barcode_events_mixin__id
 #: model:ir.model.fields,field_description:barcodes.field_ir_http__id
 #: model:ir.model.fields,field_description:barcodes.field_res_company__id
 msgid "ID"
 msgstr "ID"
-
-#. module: barcodes
-#. odoo-python
-#: code:addons/barcodes/models/barcode_events_mixin.py:0
-msgid ""
-"In order to use barcodes.barcode_events_mixin, method on_barcode_scanned "
-"must be implemented"
-msgstr "要使用 barcodes.barcode_events_mixin，必须执行方法 on_barcode_scanned"
 
 #. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_nomenclature__write_uid
@@ -230,6 +231,12 @@ msgstr "上次更新日期"
 #: model:ir.model.fields.selection,name:barcodes.selection__barcode_nomenclature__upc_ean_conv__none
 msgid "Never"
 msgstr "从不"
+
+#. module: barcodes
+#. odoo-javascript
+#: code:addons/barcodes/static/src/components/barcode_view.xml:0
+msgid "No access to your camera"
+msgstr "无法访问您的摄像头"
 
 #. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_res_company__nomenclature_id
@@ -276,6 +283,11 @@ msgstr "规则名称"
 #: model:ir.model.fields,field_description:barcodes.field_barcode_nomenclature__rule_ids
 msgid "Rules"
 msgstr "规则"
+
+#. module: barcodes
+#: model:ir.module.module,summary:base.module_barcodes
+msgid "Scan and Parse Barcodes"
+msgstr "扫描并解析条码"
 
 #. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_rule__sequence
@@ -392,16 +404,11 @@ msgid "Used to order rules such that rules with a smaller sequence match first"
 msgstr "用于规则排序，这样较小序列的规则最先匹配"
 
 #. module: barcodes
-#: model:ir.model.fields,help:barcodes.field_barcodes_barcode_events_mixin___barcode_scanned
-msgid "Value of the last barcode scanned."
-msgstr "最后扫描的条形码值。"
-
-#. module: barcodes
 #. odoo-python
 #: code:addons/barcodes/models/barcode_nomenclature.py:0
 msgid ""
 "You cannot delete '%(name)s' because it's the default barcode nomenclature."
-msgstr ""
+msgstr "您无法删除“%(name)s ”，因为这是默认的条形码命名规范。"
 
-#~ msgid "Barcode: "
-#~ msgstr "条码: "
+#~ msgid "Enter a barcode..."
+#~ msgstr "输入条形码⋯"

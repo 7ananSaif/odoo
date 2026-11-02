@@ -11,17 +11,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~18.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-09-16 08:10+0000\n"
-"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 19:32+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Traditional Han script) <https://translate.odoo.com/"
-"projects/odoo-19/hr_gamification/zh_Hant/>\n"
+"projects/odoo-s19-4/hr_gamification/zh_Hant/>\n"
 "Language: zh_TW\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: hr_gamification
 #: model_terms:ir.actions.act_window,help:hr_gamification.goals_menu_groupby_action2
@@ -119,12 +119,6 @@ msgid "Direct Badge"
 msgstr "直接徽章"
 
 #. module: hr_gamification
-#: model_terms:ir.ui.view,arch_db:hr_gamification.view_badge_wizard_reward
-#: model_terms:ir.ui.view,arch_db:hr_gamification.view_current_badge_form
-msgid "Discard"
-msgstr ""
-
-#. module: hr_gamification
 #: model:ir.model.fields,field_description:hr_gamification.field_gamification_badge__display_name
 #: model:ir.model.fields,field_description:hr_gamification.field_gamification_badge_user__display_name
 #: model:ir.model.fields,field_description:hr_gamification.field_gamification_badge_user_wizard__display_name
@@ -205,6 +199,11 @@ msgid "Granted by"
 msgstr ""
 
 #. module: hr_gamification
+#: model:ir.module.module,shortdesc:base.module_hr_gamification
+msgid "HR Gamification"
+msgstr ""
+
+#. module: hr_gamification
 #: model:ir.model.fields,field_description:hr_gamification.field_hr_employee__has_badges
 #: model:ir.model.fields,field_description:hr_gamification.field_hr_employee_public__has_badges
 msgid "Has Badges"
@@ -224,6 +223,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:hr_gamification.field_res_users__id
 msgid "ID"
 msgstr "識別號"
+
+#. module: hr_gamification
+#: model_terms:ir.ui.view,arch_db:hr_gamification.hr_employee_public_view_form
+#: model_terms:ir.ui.view,arch_db:hr_gamification.hr_hr_employee_view_form
+msgid "No Badges granted."
+msgstr ""
 
 #. module: hr_gamification
 #: model:ir.model,name:hr_gamification.model_hr_employee_public
@@ -253,14 +258,14 @@ msgid "The selected employee does not correspond to the selected user."
 msgstr "選中的職員和選中的使用者不一致。"
 
 #. module: hr_gamification
-#: model_terms:ir.ui.view,arch_db:hr_gamification.hr_employee_public_view_form
-#: model_terms:ir.ui.view,arch_db:hr_gamification.hr_hr_employee_view_form
+#: model:ir.module.module,description:base.module_hr_gamification
 msgid ""
-"There are no badges for this employee.<br/>\n"
-"                                It's time to allow the first one."
+"Use the HR resources for the gamification process.\n"
+"\n"
+"The HR officer can now manage challenges and badges.\n"
+"This allow the user to send badges to employees instead of simple users.\n"
+"Badge received are displayed on the user profile.\n"
 msgstr ""
-"此員工未有獎章。<br/>\n"
-"                                是時候授予一個了。"
 
 #. module: hr_gamification
 #: model:ir.model,name:hr_gamification.model_res_users
@@ -290,11 +295,9 @@ msgstr "您不能給自己發送徽章"
 msgid "on"
 msgstr ""
 
-#~ msgid "Basic Employee"
-#~ msgstr "一般員工"
-
-#~ msgid "Cancel"
-#~ msgstr "取消"
-
-#~ msgid "Reward Employee"
-#~ msgstr "需要獎勵的職員"
+msgid ""
+"There are no badges for this employee.<br/>\n"
+"                                It's time to allow the first one."
+msgstr ""
+"此員工未有獎章。<br/>\n"
+"                                是時候授予一個了。"

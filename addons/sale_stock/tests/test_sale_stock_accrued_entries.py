@@ -13,6 +13,8 @@ from odoo.addons.sale.tests.common import TestSaleCommon
 
 @tagged('post_install', '-at_install')
 class TestAccruedStockSaleOrders(TestSaleCommon):
+    _test_user_groups = None  # FIXME list needed groups
+
     def _make_in_move(self,
             product,
             quantity,
@@ -24,14 +26,13 @@ class TestAccruedStockSaleOrders(TestSaleCommon):
         :param quantity: Quantity to move
         :param unit_cost: Price unit
         """
-        warehouse = self.env['stock.warehouse'].search([('company_id', '=', self.env.company.id)], limit=1)
-        receipt_type = warehouse.in_type_id
+        receipt_type = self.warehouse.in_type_id
         product_qty = quantity
         move_vals = {
             'product_id': product.id,
             'location_id': receipt_type.default_location_src_id.id,
             'location_dest_id': receipt_type.default_location_dest_id.id,
-            'product_uom': self.uom_unit.id,
+            'uom_id': self.uom_unit.id,
             'product_uom_qty': quantity,
             'picking_type_id': receipt_type.id,
         }
@@ -53,6 +54,7 @@ class TestAccruedStockSaleOrders(TestSaleCommon):
     def setUpClass(cls):
         super().setUpClass()
 
+        cls.warehouse = cls.env['stock.warehouse'].search([('company_id', '=', cls.env.company.id)], limit=1)
         product = cls.env['product.product'].create({
             'name': "Product",
             'list_price': 30.0,
@@ -60,7 +62,7 @@ class TestAccruedStockSaleOrders(TestSaleCommon):
             'uom_id': cls.uom_unit.id,
             'invoice_policy': 'delivery',
         })
-        cls.sale_order = cls.env['sale.order'].with_context(tracking_disable=True).create({
+        cls.sale_order = cls.env['sale.order'].create({
             'partner_id': cls.partner_a.id,
             'order_line': [
                 Command.create({
@@ -92,6 +94,7 @@ class TestAccruedStockSaleOrders(TestSaleCommon):
         wizard = self.env['account.accrued.orders.wizard'].with_context({
             'active_model': 'sale.order',
             'active_ids': self.sale_order.ids,
+            'default_accrual_type': 'invoice_to_be_issued',
         }).create({
             'account_id': self.account_expense.id,
             'date': '2020-01-01',
@@ -149,6 +152,7 @@ class TestAccruedStockSaleOrders(TestSaleCommon):
         wizard = self.env['account.accrued.orders.wizard'].with_context({
             'active_model': 'sale.order',
             'active_ids': self.sale_order.ids,
+            'default_accrual_type': 'invoiced_not_delivered',
         }).create({
             'account_id': self.company_data['default_account_expense'].id,
             'date': '2020-01-02',
@@ -193,7 +197,7 @@ class TestAccruedStockSaleOrders(TestSaleCommon):
             'property_account_expense_categ_id': self.account_expense.id,
             'property_valuation': 'real_time',
         })
-        account_variation = product_category.property_stock_valuation_account_id.account_stock_variation_id
+        account_valuation = product_category.property_stock_valuation_account_id
         anglo_saxon_product = self.env['product.product'].create({
             'name': "Saxy Product",
             'categ_id': product_category.id,
@@ -205,7 +209,7 @@ class TestAccruedStockSaleOrders(TestSaleCommon):
         })
 
         # Case 1.: SO with more delivered quantities than invoiced quantities.
-        sale_order_1 = self.env['sale.order'].with_context(tracking_disable=True).create({
+        sale_order_1 = self.env['sale.order'].create({
             'partner_id': self.partner_a.id,
             'order_line': [
                 Command.create({
@@ -223,6 +227,7 @@ class TestAccruedStockSaleOrders(TestSaleCommon):
         wizard = self.env['account.accrued.orders.wizard'].with_context({
             'active_model': 'sale.order',
             'active_ids': [sale_order_1.id],
+            'default_accrual_type': 'invoice_to_be_issued',
         }).create({
             'account_id': self.account_expense.id,
             'date': fields.Date.today(),
@@ -232,18 +237,18 @@ class TestAccruedStockSaleOrders(TestSaleCommon):
         self.assertRecordValues(account_move.line_ids.sorted('id'), [
             # Accrued revenues entries.
             {'account_id': self.account_revenue.id, 'debit': 0, 'credit': 135},
+            {'account_id': account_valuation.id, 'debit': 0, 'credit': 80},
             {'account_id': self.account_expense.id, 'debit': 135, 'credit': 0},
-            {'account_id': account_variation.id, 'debit': 0, 'credit': 80},
             {'account_id': self.account_expense.id, 'debit': 80, 'credit': 0},
             # Reversal of accrued revenues entries.
             {'account_id': self.account_revenue.id, 'debit': 135, 'credit': 0},
+            {'account_id': account_valuation.id, 'debit': 80, 'credit': 0},
             {'account_id': self.account_expense.id, 'debit': 0, 'credit': 135},
-            {'account_id': account_variation.id, 'debit': 80, 'credit': 0},
             {'account_id': self.account_expense.id, 'debit': 0, 'credit': 80},
         ])
 
         # Case 2.: SO with more invoiced quantities than delivered quantities.
-        sale_order_2 = self.env['sale.order'].with_context(tracking_disable=True).create({
+        sale_order_2 = self.env['sale.order'].create({
             'partner_id': self.partner_a.id,
             'order_line': [
                 Command.create({
@@ -261,6 +266,7 @@ class TestAccruedStockSaleOrders(TestSaleCommon):
         wizard = self.env['account.accrued.orders.wizard'].with_context({
             'active_model': 'sale.order',
             'active_ids': [sale_order_2.id],
+            'default_accrual_type': 'invoiced_not_delivered',
         }).create({
             'account_id': self.account_expense.id,
             'date': fields.Date.today(),
@@ -270,13 +276,13 @@ class TestAccruedStockSaleOrders(TestSaleCommon):
         self.assertRecordValues(account_move.line_ids.sorted('id'), [
             # Accrued revenues entries.
             {'account_id': self.account_revenue.id, 'debit': 140, 'credit': 0},
+            {'account_id': account_valuation.id, 'debit': 80, 'credit': 0},
             {'account_id': self.account_expense.id, 'debit': 0, 'credit': 140},
-            {'account_id': account_variation.id, 'debit': 80, 'credit': 0},
             {'account_id': self.account_expense.id, 'debit': 0, 'credit': 80},
             # Reversal of accrued revenues entries.
             {'account_id': self.account_revenue.id, 'debit': 0, 'credit': 140},
+            {'account_id': account_valuation.id, 'debit': 0, 'credit': 80},
             {'account_id': self.account_expense.id, 'debit': 140, 'credit': 0},
-            {'account_id': account_variation.id, 'debit': 0, 'credit': 80},
             {'account_id': self.account_expense.id, 'debit': 80, 'credit': 0},
         ])
 
@@ -286,7 +292,6 @@ class TestAccruedStockSaleOrders(TestSaleCommon):
         stock_price_diff_acc_id = self.env['account.account'].create({
             'name': 'default_account_stock_price_diff',
             'code': 'STOCKDIFF',
-            'reconcile': True,
             'account_type': 'asset_current',
         })
         product_category = self.env['product.category'].create({
@@ -296,7 +301,7 @@ class TestAccruedStockSaleOrders(TestSaleCommon):
             'property_price_difference_account_id': stock_price_diff_acc_id.id,
             'property_valuation': 'real_time',
         })
-        account_variation = product_category.property_stock_valuation_account_id.account_stock_variation_id
+        account_valuation = product_category.property_stock_valuation_account_id
         product1, product2 = self.env['product.product'].create([{
             'name': name,
             'categ_id': product_category.id,
@@ -307,7 +312,7 @@ class TestAccruedStockSaleOrders(TestSaleCommon):
         } for (name, price) in (('Product 1', 50), ('Product 2', 30))])
 
         # Create a SO with three lines (2 of them are for the same product.)
-        sale_order = self.env['sale.order'].with_context(tracking_disable=True).create({
+        sale_order = self.env['sale.order'].create({
             'partner_id': self.partner_a.id,
             'order_line': [
                 Command.create({
@@ -343,6 +348,7 @@ class TestAccruedStockSaleOrders(TestSaleCommon):
         wizard = self.env['account.accrued.orders.wizard'].with_context({
             'active_model': 'sale.order.line',
             'active_ids': sale_order.order_line.ids,
+            'default_accrual_type': 'invoice_to_be_issued',
         }).create({
             'account_id': self.account_expense.id,
             'date': fields.Date.today(),
@@ -355,22 +361,22 @@ class TestAccruedStockSaleOrders(TestSaleCommon):
             {'account_id': self.account_revenue.id, 'debit': 260, 'credit': 0},
             {'account_id': self.account_revenue.id, 'debit': 99, 'credit': 0},
             {'account_id': self.account_revenue.id, 'debit': 110, 'credit': 0},
-            {'account_id': self.account_expense.id, 'debit': 0, 'credit': 469},
             # Following lines refer to product cost.
-            {'account_id': account_variation.id, 'debit': 250, 'credit': 0},
-            {'account_id': account_variation.id, 'debit': 90, 'credit': 0},
-            {'account_id': account_variation.id, 'debit': 100, 'credit': 0},
+            {'account_id': account_valuation.id, 'debit': 250, 'credit': 0},
+            {'account_id': account_valuation.id, 'debit': 90, 'credit': 0},
+            {'account_id': account_valuation.id, 'debit': 100, 'credit': 0},
+            {'account_id': self.account_expense.id, 'debit': 0, 'credit': 469},
             {'account_id': self.account_expense.id, 'debit': 0, 'credit': 440},
             # Reversal of accrued revenues entries.
             # Following lines refer to invoice lines' price.
             {'account_id': self.account_revenue.id, 'debit': 0, 'credit': 260},
             {'account_id': self.account_revenue.id, 'debit': 0, 'credit': 99},
             {'account_id': self.account_revenue.id, 'debit': 0, 'credit': 110},
-            {'account_id': self.account_expense.id, 'debit': 469, 'credit': 0},
             # Following lines refer to product cost.
-            {'account_id': account_variation.id, 'debit': 0, 'credit': 250},
-            {'account_id': account_variation.id, 'debit': 0, 'credit': 90},
-            {'account_id': account_variation.id, 'debit': 0, 'credit': 100},
+            {'account_id': account_valuation.id, 'debit': 0, 'credit': 250},
+            {'account_id': account_valuation.id, 'debit': 0, 'credit': 90},
+            {'account_id': account_valuation.id, 'debit': 0, 'credit': 100},
+            {'account_id': self.account_expense.id, 'debit': 469, 'credit': 0},
             {'account_id': self.account_expense.id, 'debit': 440, 'credit': 0},
         ])
 
@@ -380,7 +386,6 @@ class TestAccruedStockSaleOrders(TestSaleCommon):
         stock_price_diff_acc_id = self.env['account.account'].create({
             'name': 'default_account_stock_price_diff',
             'code': 'STOCKDIFF',
-            'reconcile': True,
             'account_type': 'asset_current',
         })
         product_category = self.env['product.category'].create({
@@ -390,7 +395,7 @@ class TestAccruedStockSaleOrders(TestSaleCommon):
             'property_price_difference_account_id': stock_price_diff_acc_id.id,
             'property_valuation': 'real_time',
         })
-        account_variation = product_category.property_stock_valuation_account_id.account_stock_variation_id
+        account_valuation = product_category.property_stock_valuation_account_id
         product = self.env['product.product'].create({
             'name': 'Product 1',
             'categ_id': product_category.id,
@@ -402,7 +407,7 @@ class TestAccruedStockSaleOrders(TestSaleCommon):
         })
 
         # Create a SO with three lines (2 of them are for the same product.)
-        sale_order = self.env['sale.order'].with_context(tracking_disable=True).create({
+        sale_order = self.env['sale.order'].create({
             'partner_id': self.partner_a.id,
             'order_line': [
                 Command.create({
@@ -427,6 +432,7 @@ class TestAccruedStockSaleOrders(TestSaleCommon):
         wizard = self.env['account.accrued.orders.wizard'].with_context({
             'active_model': 'sale.order.line',
             'active_ids': sale_order.order_line.ids,
+            'default_accrual_type': 'invoice_to_be_issued',
         }).create({
             'account_id': self.account_expense.id,
             'date': fields.Date.today(),
@@ -436,13 +442,13 @@ class TestAccruedStockSaleOrders(TestSaleCommon):
         self.assertRecordValues(account_move.line_ids.sorted('id'), [
             # Accrued revenues entries.
             {'account_id': self.account_revenue.id, 'debit': 505, 'credit': 0},
+            {'account_id': account_valuation.id, 'debit': 300, 'credit': 0},
             {'account_id': self.account_expense.id, 'debit': 0, 'credit': 505},
-            {'account_id': account_variation.id, 'debit': 300, 'credit': 0},
             {'account_id': self.account_expense.id, 'debit': 0, 'credit': 300},
             # Reversal of accrued revenues entries.
             {'account_id': self.account_revenue.id, 'debit': 0, 'credit': 505},
+            {'account_id': account_valuation.id, 'debit': 0, 'credit': 300},
             {'account_id': self.account_expense.id, 'debit': 505, 'credit': 0},
-            {'account_id': account_variation.id, 'debit': 0, 'credit': 300},
             {'account_id': self.account_expense.id, 'debit': 300, 'credit': 0},
         ])
 
@@ -456,7 +462,7 @@ class TestAccruedStockSaleOrders(TestSaleCommon):
             'property_valuation': 'real_time',
             'property_cost_method': 'average',
         })
-        account_variation = product_category.property_stock_valuation_account_id.account_stock_variation_id
+        account_valuation = product_category.property_stock_valuation_account_id
         # Set the product in the past so its `product.value` won't be considered as the most recent one.
         with freeze_time(fields.Datetime.now() - timedelta(seconds=10)):
             avco_product = self.env['product.product'].create({
@@ -471,7 +477,7 @@ class TestAccruedStockSaleOrders(TestSaleCommon):
         self._make_in_move(avco_product, 10, 20)
 
         # Create a SO for 10 units, deliver 7 units and invoice 5 units.
-        sale_order_1 = self.env['sale.order'].with_context(tracking_disable=True).create({
+        sale_order_1 = self.env['sale.order'].create({
             'partner_id': self.partner_a.id,
             'order_line': [
                 Command.create({
@@ -499,6 +505,7 @@ class TestAccruedStockSaleOrders(TestSaleCommon):
         wizard = self.env['account.accrued.orders.wizard'].with_context({
             'active_model': 'sale.order',
             'active_ids': [sale_order_1.id],
+            'default_accrual_type': 'invoice_to_be_issued',
         }).create({
             'account_id': self.account_expense.id,
             'date': fields.Date.today(),
@@ -508,13 +515,13 @@ class TestAccruedStockSaleOrders(TestSaleCommon):
         self.assertRecordValues(account_move.line_ids.sorted('id'), [
             # Accrued revenues entries.
             {'account_id': self.account_revenue.id, 'debit': 0, 'credit': 70},
+            {'account_id': account_valuation.id, 'debit': 0, 'credit': 30},
             {'account_id': self.account_expense.id, 'debit': 70, 'credit': 0},
-            {'account_id': account_variation.id, 'debit': 0, 'credit': 30},
             {'account_id': self.account_expense.id, 'debit': 30, 'credit': 0},
             # Reversal of accrued revenues entries.
             {'account_id': self.account_revenue.id, 'debit': 70, 'credit': 0},
+            {'account_id': account_valuation.id, 'debit': 30, 'credit': 0},
             {'account_id': self.account_expense.id, 'debit': 0, 'credit': 70},
-            {'account_id': account_variation.id, 'debit': 30, 'credit': 0},
             {'account_id': self.account_expense.id, 'debit': 0, 'credit': 30},
         ])
 
@@ -528,7 +535,7 @@ class TestAccruedStockSaleOrders(TestSaleCommon):
             'property_valuation': 'real_time',
             'property_cost_method': 'fifo',
         })
-        account_variation = product_category.property_stock_valuation_account_id.account_stock_variation_id
+        account_valuation = product_category.property_stock_valuation_account_id
         fifo_product = self.env['product.product'].create({
             'name': "FIFO Product",
             'categ_id': product_category.id,
@@ -541,7 +548,7 @@ class TestAccruedStockSaleOrders(TestSaleCommon):
         self._make_in_move(fifo_product, 10, 20)
 
         # Create a SO for 10 units, deliver 7 units and invoice 5 units.
-        sale_order_1 = self.env['sale.order'].with_context(tracking_disable=True).create({
+        sale_order_1 = self.env['sale.order'].create({
             'partner_id': self.partner_a.id,
             'order_line': [
                 Command.create({
@@ -566,6 +573,7 @@ class TestAccruedStockSaleOrders(TestSaleCommon):
         wizard = self.env['account.accrued.orders.wizard'].with_context({
             'active_model': 'sale.order',
             'active_ids': [sale_order_1.id],
+            'default_accrual_type': 'invoice_to_be_issued',
         }).create({
             'account_id': self.account_expense.id,
             'date': fields.Date.today(),
@@ -575,14 +583,14 @@ class TestAccruedStockSaleOrders(TestSaleCommon):
         self.assertRecordValues(account_move.line_ids.sorted('id'), [
             # Accrued revenues entries.
             {'account_id': self.account_revenue.id, 'debit': 0, 'credit': 360},
+            {'account_id': account_valuation.id, 'debit': 0, 'credit': 240},
             {'account_id': self.account_expense.id, 'debit': 360, 'credit': 0},
-            {'account_id': account_variation.id, 'debit': 0, 'credit': 169.41},
-            {'account_id': self.account_expense.id, 'debit': 169.41, 'credit': 0},
+            {'account_id': self.account_expense.id, 'debit': 240, 'credit': 0},
             # Reversal of accrued revenues entries.
             {'account_id': self.account_revenue.id, 'debit': 360, 'credit': 0},
+            {'account_id': account_valuation.id, 'debit': 240, 'credit': 0},
             {'account_id': self.account_expense.id, 'debit': 0, 'credit': 360},
-            {'account_id': account_variation.id, 'debit': 169.41, 'credit': 0},
-            {'account_id': self.account_expense.id, 'debit': 0, 'credit': 169.41},
+            {'account_id': self.account_expense.id, 'debit': 0, 'credit': 240},
         ])
 
         # Delivery 3 more units (20 / 20 units.)
@@ -593,6 +601,7 @@ class TestAccruedStockSaleOrders(TestSaleCommon):
         wizard = self.env['account.accrued.orders.wizard'].with_context({
             'active_model': 'sale.order',
             'active_ids': [sale_order_1.id],
+            'default_accrual_type': 'invoice_to_be_issued',
         }).create({
             'account_id': self.account_expense.id,
             'date': fields.Date.today(),
@@ -602,12 +611,464 @@ class TestAccruedStockSaleOrders(TestSaleCommon):
         self.assertRecordValues(account_move.line_ids.sorted('id'), [
             # Accrued revenues entries.
             {'account_id': self.account_revenue.id, 'debit': 0, 'credit': 450},
+            {'account_id': account_valuation.id, 'debit': 0, 'credit': 300},
             {'account_id': self.account_expense.id, 'debit': 450, 'credit': 0},
-            {'account_id': account_variation.id, 'debit': 0, 'credit': 229.41},
-            {'account_id': self.account_expense.id, 'debit': 229.41, 'credit': 0},
+            {'account_id': self.account_expense.id, 'debit': 300, 'credit': 0},
             # Reversal of accrued revenues entries.
             {'account_id': self.account_revenue.id, 'debit': 450, 'credit': 0},
+            {'account_id': account_valuation.id, 'debit': 300, 'credit': 0},
             {'account_id': self.account_expense.id, 'debit': 0, 'credit': 450},
-            {'account_id': account_variation.id, 'debit': 229.41, 'credit': 0},
-            {'account_id': self.account_expense.id, 'debit': 0, 'credit': 229.41},
+            {'account_id': self.account_expense.id, 'debit': 0, 'credit': 300},
+        ])
+
+    def test_accrued_order_from_sale_order_with_draft_invoice(self):
+        """ Nothing delivered and the only invoice is still draft: there's genuinely
+        nothing to accrue, so the wizard must raise instead of creating a zero-value entry.
+        """
+        product_category = self.env['product.category'].create({
+            'name': 'Test Category',
+            'property_account_income_categ_id': self.account_revenue.id,
+            'property_account_expense_categ_id': self.account_expense.id,
+            'property_valuation': 'real_time',
+        })
+        anglo_saxon_product = self.env['product.product'].create({
+            'name': "Saxy Product",
+            'categ_id': product_category.id,
+            'invoice_policy': 'order',
+            'is_storable': True,
+            'uom_id': self.uom_unit.id,
+        })
+
+        sale_order = self.env['sale.order'].with_context(tracking_disable=True).create({
+            'partner_id': self.partner_a.id,
+            'order_line': [Command.create({
+                'product_id': anglo_saxon_product.id,
+            })],
+        })
+        sale_order.action_confirm()
+        sale_order._create_invoices()
+
+        sale_order.order_line.invalidate_recordset(['qty_invoiced'])
+        wizard = self.env['account.accrued.orders.wizard'].with_context(
+            active_model='sale.order',
+            active_ids=sale_order.ids,
+            default_accrual_type='invoice_to_be_issued',
+        ).create({
+            'account_id': self.account_expense.id,
+            'date': fields.Date.today(),
+        })
+
+        with self.assertRaises(UserError):
+            wizard.create_entries()
+
+    def test_accrued_order_multiple_orders_name(self):
+        """ Ensure that when creating accrual entries for multiple sale orders,
+        the label of the stock valuation lines contains the correct order name.
+        """
+        product_category = self.env['product.category'].create({
+            'name': 'Test Category Name',
+            'property_account_income_categ_id': self.account_revenue.id,
+            'property_account_expense_categ_id': self.account_expense.id,
+            'property_valuation': 'real_time',
+        })
+        account_valuation = product_category.property_stock_valuation_account_id
+        anglo_saxon_product = self.env['product.product'].create({
+            'name': "Saxy Product 2",
+            'categ_id': product_category.id,
+            'invoice_policy': 'order',
+            'is_storable': True,
+            'list_price': 100,
+            'standard_price': 50,
+            'uom_id': self.uom_unit.id,
+        })
+
+        sale_order_1 = self.env['sale.order'].create({
+            'partner_id': self.partner_a.id,
+            'order_line': [
+                Command.create({
+                    'product_id': anglo_saxon_product.id,
+                    'product_uom_qty': 1,
+                    'price_unit': 100,
+                    'tax_ids': False,
+                }),
+            ],
+        })
+        sale_order_1.action_confirm()
+        sale_order_1.picking_ids.move_ids.write({'quantity': 1, 'picked': True})
+        sale_order_1.picking_ids.button_validate()
+
+        sale_order_2 = self.env['sale.order'].create({
+            'partner_id': self.partner_a.id,
+            'order_line': [
+                Command.create({
+                    'product_id': anglo_saxon_product.id,
+                    'product_uom_qty': 1,
+                    'price_unit': 100,
+                    'tax_ids': False,
+                }),
+            ],
+        })
+        sale_order_2.action_confirm()
+        sale_order_2.picking_ids.move_ids.write({'quantity': 1, 'picked': True})
+        sale_order_2.picking_ids.button_validate()
+
+        wizard = self.env['account.accrued.orders.wizard'].with_context({
+            'active_model': 'sale.order',
+            'active_ids': (sale_order_1 | sale_order_2).ids,
+            'default_accrual_type': 'invoice_to_be_issued',
+        }).create({
+            'account_id': self.account_expense.id,
+            'date': fields.Date.today(),
+        })
+
+        account_move_domain = wizard.create_entries()['domain']
+        account_move = self.env['account.move'].search(account_move_domain)
+
+        valuation_lines = account_move.line_ids.filtered(lambda line: line.account_id == account_valuation and line.debit > 0)
+        self.assertEqual(len(valuation_lines), 2)
+        names = valuation_lines.mapped('name')
+        self.assertTrue(any(sale_order_1.name in name for name in names), "Label should contain SO1 name")
+        self.assertTrue(any(sale_order_2.name in name for name in names), "Label should contain SO2 name")
+
+
+@freeze_time("2022-01-01")
+@tagged("post_install", "-at_install")
+class TestAccruedSaleOrdersStock(TestSaleCommon):
+    """ `sale`'s accrued-orders tests for storable products: they need `stock` (real
+    delivery pickings, `is_storable`/`property_valuation`) which `sale` itself doesn't
+    depend on, so they live here in `sale_stock` instead. """
+
+    def _create_accrual_product(self, storable, real_time):
+        category = self.env['product.category'].create({
+            'name': 'Real Time Category' if real_time else 'Periodic Category',
+            'property_valuation': 'real_time' if real_time else 'periodic',
+        })
+        return self.env['product.product'].create({
+            'name': 'Storable Product' if storable else 'Non-stock Product',
+            'type': 'consu',
+            'is_storable': storable,
+            'categ_id': category.id,
+            'standard_price': 100.0,
+            'list_price': 100.0,
+        })
+
+    def _create_sale_order(self, product, qty=10.0):
+        sale_order = self.env['sale.order'].create({
+            'partner_id': self.partner_a.id,
+            'order_line': [Command.create({
+                'name': product.name,
+                'product_id': product.id,
+                'product_uom_qty': qty,
+                'price_unit': product.list_price,
+                'tax_ids': False,
+            })],
+        })
+        sale_order.action_confirm()
+        return sale_order
+
+    def _create_invoice(self, sale_order, invoice_date=False):
+        invoice = sale_order._create_invoices()
+        invoice.invoice_date = invoice_date or fields.Date.today()
+        invoice.action_post()
+        return invoice
+
+    def _cancel_accrual_entries(self, moves):
+        moves.filtered(lambda m: m.state == 'posted').button_draft()
+        moves.unlink()
+
+    def _filter_reversal(self, moves):
+        """ `moves.line_ids` without the scheduled reversal move's lines (its exact mirror). """
+        return moves.filtered(lambda m: not m.reversed_entry_id).line_ids
+
+    def _get_accrual_lines(self, report_data):
+        """ `report_data['accrual']['lines']` flattened to just (type, account, debit, credit):
+        the labels are redundant with the account, and the "Inventory Valuation" breakdown
+        (no `accrual_type` of its own) is display-only, not asserted on here. """
+        return [
+            {'accrual_type': line['accrual_type'], 'account_id': sub_line['account_id'], 'debit': sub_line['debit'], 'credit': sub_line['credit']}
+            for line in report_data['accrual']['lines'] if 'accrual_type' in line
+            for sub_line in line['lines']
+        ]
+
+    def _set_qty_delivered(self, sale_order, qty):
+        """ Deliver `qty` on `sale_order`, via its delivery picking for a storable product
+        (writing `qty_delivered` directly only works for a non-storable one). """
+        pickings = sale_order.picking_ids.filtered(lambda p: p.state not in ('done', 'cancel'))
+        if not pickings:
+            sale_order.order_line.qty_delivered = qty
+            return
+        pickings.move_ids.quantity = qty
+        pickings.with_context(skip_backorder=True).button_validate()
+
+    def test_invoice_to_be_issued(self):
+        """ A non-stock-tracked product's "Invoices to be Issued" accrual: check both the
+        created journal entries and the inventory valuation report's accrual breakdown. """
+        product = self._create_accrual_product(storable=False, real_time=False)
+        sale_order = self._create_sale_order(product)
+        accrual_account = product.product_tmpl_id._get_product_accounts()['invoices_to_issue']
+        income_account = product.product_tmpl_id._get_product_accounts()['income']
+
+        wizard = self.env['account.accrued.orders.wizard'].with_context({
+            'active_model': 'sale.order.line',
+            'active_ids': sale_order.order_line.ids,
+            'default_accrual_type': 'invoice_to_be_issued',
+        }).create({
+            'date': fields.Date.today(),
+        })
+        with self.assertRaises(UserError):
+            wizard.create_entries()
+
+        self._set_qty_delivered(sale_order, 5)
+
+        report_data = self.env['account.stock.valuation.report'].with_company(self.env.company)._get_report_data()
+        self.assertNotIn('accrual', report_data)
+        self.assertFalse(report_data['stock_variation']['lines'])
+
+        account_move = self.env['account.move'].search(wizard.create_entries()['domain'])
+        self.assertRecordValues(self._filter_reversal(account_move), [
+            {'account_id': income_account.id, 'debit': 0, 'credit': 500},
+            {'account_id': accrual_account.id, 'debit': 500, 'credit': 0},
+        ])
+
+        self._cancel_accrual_entries(account_move)
+        with self.assertRaises(UserError):
+            self.env.company.action_close_stock_valuation(auto_post=True, include_accruals=True)
+
+    def test_invoiced_not_delivered(self):
+        """ A non-stock-tracked product's "Invoiced Not Delivered" accrual: the invoice is
+        posted for the full ordered quantity before anything is delivered, so the accrual
+        reverses the revenue already recognized until the goods actually go out. """
+        product = self._create_accrual_product(storable=False, real_time=False)
+        product.invoice_policy = 'order'
+        sale_order = self._create_sale_order(product)
+        accrual_account = product.product_tmpl_id._get_product_accounts()['invoiced_not_delivered']
+        income_account = product.product_tmpl_id._get_product_accounts()['income']
+
+        wizard = self.env['account.accrued.orders.wizard'].with_context({
+            'active_model': 'sale.order.line',
+            'active_ids': sale_order.order_line.ids,
+            'default_accrual_type': 'invoiced_not_delivered',
+        }).create({
+            'date': fields.Date.today(),
+        })
+        with self.assertRaises(UserError):
+            wizard.create_entries()
+
+        self._create_invoice(sale_order)
+
+        report_data = self.env['account.stock.valuation.report'].with_company(self.env.company)._get_report_data()
+        self.assertNotIn('accrual', report_data)
+        self.assertFalse(report_data['stock_variation']['lines'])
+
+        account_move = self.env['account.move'].search(wizard.create_entries()['domain'])
+        self.assertRecordValues(self._filter_reversal(account_move), [
+            {'account_id': income_account.id, 'debit': 1000, 'credit': 0},
+            {'account_id': accrual_account.id, 'debit': 0, 'credit': 1000},
+        ])
+
+        self._cancel_accrual_entries(account_move)
+        with self.assertRaises(UserError):
+            self.env.company.action_close_stock_valuation(auto_post=True, include_accruals=True)
+
+    def test_invoice_to_be_issued_realtime(self):
+        """ Same as `test_invoice_to_be_issued`, but for a storable, real-time-valued
+        product: an invoice also posts a COGS entry crediting `stock_valuation` and
+        debiting `expense`, so the accrual needs its own undo for that too. """
+        product = self._create_accrual_product(storable=True, real_time=True)
+        sale_order = self._create_sale_order(product)
+        accrual_account = product.product_tmpl_id._get_product_accounts()['invoices_to_issue']
+        stock_valuation_account = product.product_tmpl_id._get_product_accounts()['stock_valuation']
+        income_account = product.product_tmpl_id._get_product_accounts()['income']
+        expense_account = product.product_tmpl_id._get_product_accounts()['expense']
+
+        wizard = self.env['account.accrued.orders.wizard'].with_context({
+            'active_model': 'sale.order.line',
+            'active_ids': sale_order.order_line.ids,
+            'default_accrual_type': 'invoice_to_be_issued',
+        }).create({
+            'date': fields.Date.today(),
+        })
+        with self.assertRaises(UserError):
+            wizard.create_entries()
+
+        self._set_qty_delivered(sale_order, 5)
+
+        report_data = self.env['account.stock.valuation.report'].with_company(self.env.company)._get_report_data()
+        self.assertEqual(self._get_accrual_lines(report_data), [{
+            'accrual_type': 'invoice_to_be_issued',
+            'account_id': expense_account.id,
+            'debit': 500.0,
+            'credit': 0,
+        }])
+        self.assertEqual(report_data['ending_stock']['lines_by_account_id'][stock_valuation_account.id], {'value': -500.0})
+        self.assertFalse(report_data['stock_variation']['lines'])
+
+        account_move = self.env['account.move'].search(wizard.create_entries()['domain'])
+        self.assertRecordValues(self._filter_reversal(account_move), [
+            {'account_id': income_account.id, 'debit': 0, 'credit': 500},
+            {'account_id': stock_valuation_account.id, 'debit': 0, 'credit': 500},
+            {'account_id': accrual_account.id, 'debit': 500, 'credit': 0},
+            {'account_id': expense_account.id, 'debit': 500, 'credit': 0},
+        ])
+
+        self._cancel_accrual_entries(account_move)
+        action = self.env.company.action_close_stock_valuation(auto_post=True, include_accruals=True)
+        moves = self.env['account.move'].search(action['domain'])
+        self.assertRecordValues(self._filter_reversal(moves), [
+            {'account_id': income_account.id, 'debit': 0, 'credit': 500},
+            {'account_id': stock_valuation_account.id, 'debit': 0, 'credit': 500},
+            {'account_id': accrual_account.id, 'debit': 500, 'credit': 0},
+            {'account_id': expense_account.id, 'debit': 500, 'credit': 0},
+        ])
+
+    def test_invoiced_not_delivered_realtime(self):
+        """ Same as `test_invoiced_not_delivered`, but for a storable, real-time-valued
+        product: the invoice's own COGS entry already touched `stock_valuation`/`expense`,
+        so reverting it undoes that same pair instead of a plain revenue-only reversal. """
+        product = self._create_accrual_product(storable=True, real_time=True)
+        product.invoice_policy = 'order'
+        sale_order = self._create_sale_order(product)
+        accrual_account = product.product_tmpl_id._get_product_accounts()['invoiced_not_delivered']
+        stock_valuation_account = product.product_tmpl_id._get_product_accounts()['stock_valuation']
+        income_account = product.product_tmpl_id._get_product_accounts()['income']
+        expense_account = product.product_tmpl_id._get_product_accounts()['expense']
+
+        wizard = self.env['account.accrued.orders.wizard'].with_context({
+            'active_model': 'sale.order.line',
+            'active_ids': sale_order.order_line.ids,
+            'default_accrual_type': 'invoiced_not_delivered',
+        }).create({
+            'date': fields.Date.today(),
+        })
+        with self.assertRaises(UserError):
+            wizard.create_entries()
+
+        self._create_invoice(sale_order)
+
+        report_data = self.env['account.stock.valuation.report'].with_company(self.env.company)._get_report_data()
+        self.assertEqual(self._get_accrual_lines(report_data), [{
+            'accrual_type': 'invoiced_not_delivered',
+            'account_id': expense_account.id,
+            'debit': 0,
+            'credit': 1000.0,
+        }])
+        self.assertEqual(report_data['ending_stock']['lines_by_account_id'][stock_valuation_account.id], {'value': 0.0})
+        self.assertFalse(report_data['stock_variation']['lines'])
+
+        account_move = self.env['account.move'].search(wizard.create_entries()['domain'])
+        self.assertRecordValues(self._filter_reversal(account_move), [
+            {'account_id': income_account.id, 'debit': 1000, 'credit': 0},
+            {'account_id': stock_valuation_account.id, 'debit': 1000, 'credit': 0},
+            {'account_id': accrual_account.id, 'debit': 0, 'credit': 1000},
+            {'account_id': expense_account.id, 'debit': 0, 'credit': 1000},
+        ])
+
+        self._cancel_accrual_entries(account_move)
+        action = self.env.company.action_close_stock_valuation(auto_post=True, include_accruals=True)
+        moves = self.env['account.move'].search(action['domain'])
+        self.assertRecordValues(self._filter_reversal(moves), [
+            {'account_id': income_account.id, 'debit': 1000, 'credit': 0},
+            {'account_id': stock_valuation_account.id, 'debit': 1000, 'credit': 0},
+            {'account_id': accrual_account.id, 'debit': 0, 'credit': 1000},
+            {'account_id': expense_account.id, 'debit': 0, 'credit': 1000},
+        ])
+
+    def test_invoice_to_be_issued_periodic(self):
+        """ Same as `test_invoice_to_be_issued`, but for a storable, periodic-valued product:
+        the classic revenue line still applies, and the `qty_available` correction is left
+        to the closing action rather than the plain accrual entry. """
+        product = self._create_accrual_product(storable=True, real_time=False)
+        sale_order = self._create_sale_order(product)
+        accrual_account = product.product_tmpl_id._get_product_accounts()['invoices_to_issue']
+        stock_valuation_account = product.product_tmpl_id._get_product_accounts()['stock_valuation']
+        stock_variation_account = product.product_tmpl_id._get_product_accounts()['stock_variation']
+        income_account = product.product_tmpl_id._get_product_accounts()['income']
+
+        wizard = self.env['account.accrued.orders.wizard'].with_context({
+            'active_model': 'sale.order.line',
+            'active_ids': sale_order.order_line.ids,
+            'default_accrual_type': 'invoice_to_be_issued',
+        }).create({
+            'date': fields.Date.today(),
+        })
+        with self.assertRaises(UserError):
+            wizard.create_entries()
+
+        self._set_qty_delivered(sale_order, 5)
+
+        report_data = self.env['account.stock.valuation.report'].with_company(self.env.company)._get_report_data()
+        self.assertNotIn('accrual', report_data)
+        self.assertEqual(report_data['ending_stock']['lines_by_account_id'][stock_valuation_account.id], {'value': -500.0})
+        self.assertNotIn(stock_variation_account.id, report_data['ending_stock']['lines_by_account_id'])
+        self.assertEqual(report_data['stock_variation']['lines'], [
+            {'account_id': stock_variation_account.id, 'debit': 500.0, 'credit': 0},
+            {'account_id': stock_valuation_account.id, 'debit': 0, 'credit': 500.0},
+        ])
+        self.assertEqual(report_data['stock_variation']['value'], -500.0)
+        self.assertEqual(report_data['ending_stock']['value'], -500.0)
+
+        account_move = self.env['account.move'].search(wizard.create_entries()['domain'])
+        self.assertRecordValues(self._filter_reversal(account_move), [
+            {'account_id': income_account.id, 'debit': 0, 'credit': 500},
+            {'account_id': accrual_account.id, 'debit': 500, 'credit': 0},
+        ])
+
+        self._cancel_accrual_entries(account_move)
+        action = self.env.company.action_close_stock_valuation(auto_post=True, include_accruals=True)
+        moves = self.env['account.move'].search(action['domain']).filtered(lambda m: not m.reversed_entry_id)
+        accrual_move = moves.filtered(lambda m: accrual_account in m.line_ids.account_id)
+        closing_move = moves.filtered(lambda m: stock_variation_account in m.line_ids.account_id)
+        self.assertEqual(len(moves), 2)
+        self.assertRecordValues(accrual_move.line_ids, [
+            {'account_id': income_account.id, 'debit': 0, 'credit': 500},
+            {'account_id': accrual_account.id, 'debit': 500, 'credit': 0},
+        ])
+        self.assertRecordValues(closing_move.line_ids, [
+            {'account_id': stock_variation_account.id, 'debit': 500, 'credit': 0},
+            {'account_id': stock_valuation_account.id, 'debit': 0, 'credit': 500},
+        ])
+
+    def test_invoiced_not_delivered_periodic(self):
+        """ Same as `test_invoiced_not_delivered`, but for a storable, periodic-valued product:
+        same split as `test_invoice_to_be_issued_periodic`, the wizard only posts the classic
+        pair and the correction is left to the closing action. """
+        product = self._create_accrual_product(storable=True, real_time=False)
+        product.invoice_policy = 'order'
+        sale_order = self._create_sale_order(product)
+        accrual_account = product.product_tmpl_id._get_product_accounts()['invoiced_not_delivered']
+        stock_valuation_account = product.product_tmpl_id._get_product_accounts()['stock_valuation']
+        stock_variation_account = product.product_tmpl_id._get_product_accounts()['stock_variation']
+        income_account = product.product_tmpl_id._get_product_accounts()['income']
+
+        wizard = self.env['account.accrued.orders.wizard'].with_context({
+            'active_model': 'sale.order.line',
+            'active_ids': sale_order.order_line.ids,
+            'default_accrual_type': 'invoiced_not_delivered',
+        }).create({
+            'date': fields.Date.today(),
+        })
+        with self.assertRaises(UserError):
+            wizard.create_entries()
+
+        self._create_invoice(sale_order)
+
+        report_data = self.env['account.stock.valuation.report'].with_company(self.env.company)._get_report_data()
+        self.assertNotIn('accrual', report_data)
+        self.assertEqual(report_data['ending_stock']['lines_by_account_id'][stock_valuation_account.id], {'value': 0.0})
+        self.assertEqual(report_data['ending_stock']['lines_by_account_id'][stock_variation_account.id], {'value': 0.0})
+        self.assertFalse(report_data['stock_variation']['lines'])
+
+        account_move = self.env['account.move'].search(wizard.create_entries()['domain'])
+        self.assertRecordValues(self._filter_reversal(account_move), [
+            {'account_id': income_account.id, 'debit': 1000, 'credit': 0},
+            {'account_id': accrual_account.id, 'debit': 0, 'credit': 1000},
+        ])
+
+        self._cancel_accrual_entries(account_move)
+        action = self.env.company.action_close_stock_valuation(auto_post=True, include_accruals=True)
+        moves = self.env['account.move'].search(action['domain'])
+        forward_lines = self._filter_reversal(moves).sorted(lambda l: (l.account_id.id, l.debit, l.credit))
+        self.assertRecordValues(forward_lines, [
+            {'account_id': accrual_account.id, 'debit': 0, 'credit': 1000},
+            {'account_id': income_account.id, 'debit': 1000, 'credit': 0},
         ])

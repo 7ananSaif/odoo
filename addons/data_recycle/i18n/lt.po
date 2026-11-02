@@ -7,10 +7,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~18.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:35+0000\n"
-"PO-Revision-Date: 2025-11-16 15:15+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Lithuanian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-08-31 19:03+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Lithuanian <https://translate.odoo.com/projects/odoo-s19-4/"
 "data_recycle/lt/>\n"
 "Language: lt\n"
 "MIME-Version: 1.0\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n % 10 == 1 && (n % 100 < 11 || n % 100 > "
 "19)) ? 0 : ((n % 10 >= 2 && n % 10 <= 9 && (n % 100 < 11 || n % 100 > 19)) ? "
 "1 : 2);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: data_recycle
 #: model_terms:ir.ui.view,arch_db:data_recycle.notification
@@ -49,6 +49,21 @@ msgstr "Aktyvus"
 #: model:ir.model.fields.selection,name:data_recycle.selection__data_recycle_model__recycle_action__archive
 msgid "Archive"
 msgstr "Archyvuoti"
+
+#. module: data_recycle
+#: model_terms:ir.ui.view,arch_db:data_recycle.view_data_recycle_record_list
+msgid "Archive Suggestion"
+msgstr ""
+
+#. module: data_recycle
+#: model_terms:ir.ui.view,arch_db:data_recycle.view_data_recycle_record_list
+msgid "Archive Suggestions"
+msgstr ""
+
+#. module: data_recycle
+#: model_terms:ir.ui.view,arch_db:data_recycle.view_data_recycle_record_search
+msgid "Archived"
+msgstr ""
 
 #. module: data_recycle
 #: model:ir.model.fields.selection,name:data_recycle.selection__data_recycle_model__recycle_mode__automatic
@@ -89,6 +104,11 @@ msgid "Data Cleaning"
 msgstr "Duomenų tvarkymas"
 
 #. module: data_recycle
+#: model:ir.module.module,shortdesc:base.module_data_recycle
+msgid "Data Recycle"
+msgstr ""
+
+#. module: data_recycle
 #: model:ir.actions.server,name:data_recycle.ir_cron_clean_records_ir_actions_server
 msgid "Data Recycle: Clean Records"
 msgstr ""
@@ -121,16 +141,6 @@ msgid "Delta Unit"
 msgstr ""
 
 #. module: data_recycle
-#: model_terms:ir.ui.view,arch_db:data_recycle.view_data_recycle_record_list
-msgid "Discard"
-msgstr "Atmesti"
-
-#. module: data_recycle
-#: model_terms:ir.ui.view,arch_db:data_recycle.view_data_recycle_record_search
-msgid "Discarded"
-msgstr "Išmesta"
-
-#. module: data_recycle
 #: model:ir.model.fields,field_description:data_recycle.field_data_recycle_model__display_name
 #: model:ir.model.fields,field_description:data_recycle.field_data_recycle_record__display_name
 msgid "Display Name"
@@ -146,6 +156,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:data_recycle.field_data_recycle_model__domain
 msgid "Filter"
 msgstr "Filtras"
+
+#. module: data_recycle
+#: model:ir.module.module,description:base.module_data_recycle
+#: model:ir.module.module,summary:base.module_data_recycle
+msgid "Find old records and archive/delete them"
+msgstr ""
 
 #. module: data_recycle
 #: model:ir.model.fields,field_description:data_recycle.field_data_recycle_model__id
@@ -302,6 +318,12 @@ msgid "Recyle Records Rules"
 msgstr ""
 
 #. module: data_recycle
+#. odoo-javascript
+#: code:addons/data_recycle/static/src/cog_menu/data_refresh_cog_menu.xml:0
+msgid "Refresh"
+msgstr ""
+
+#. module: data_recycle
 #: model:ir.ui.menu,name:data_recycle.menu_data_cleaning_config_rules
 msgid "Rules"
 msgstr "Taisyklės"
@@ -333,20 +355,22 @@ msgid "Time Field"
 msgstr ""
 
 #. module: data_recycle
+#: model_terms:ir.ui.view,arch_db:data_recycle.view_data_recycle_record_list
+msgid "Unarchive Suggestion"
+msgstr ""
+
+#. module: data_recycle
+#: model_terms:ir.ui.view,arch_db:data_recycle.view_data_recycle_record_list
+msgid "Unarchive Suggestions"
+msgstr ""
+
+#. module: data_recycle
 #. odoo-python
 #: code:addons/data_recycle/models/data_recycle_record.py:0
 msgid "Undefined Name"
 msgstr ""
 
 #. module: data_recycle
-#. odoo-javascript
-#: code:addons/data_recycle/static/src/views/data_recycle_list_view.xml:0
-msgid "Unselect"
-msgstr "Atšaukti pasirinkimą"
-
-#. module: data_recycle
-#. odoo-javascript
-#: code:addons/data_recycle/static/src/views/data_recycle_list_view.xml:0
 #: model_terms:ir.ui.view,arch_db:data_recycle.view_data_recycle_record_list
 msgid "Validate"
 msgstr "Patvirtinti"
@@ -376,3 +400,9 @@ msgstr "čia"
 #: model_terms:ir.ui.view,arch_db:data_recycle.notification
 msgid "records to clean with the '"
 msgstr ""
+
+msgid "Discard"
+msgstr "Atmesti"
+
+msgid "Discarded"
+msgstr "Išmesta"

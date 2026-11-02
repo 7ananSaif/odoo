@@ -8,17 +8,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-11-08 19:18+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Catalan <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-11 17:44+0000\n"
+"PO-Revision-Date: 2026-08-31 18:59+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Catalan <https://translate.odoo.com/projects/odoo-s19-4/"
 "website_slides_survey/ca/>\n"
 "Language: ca\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_slide_channel__members_certified_count
@@ -30,15 +30,6 @@ msgstr "# Assistents certificats"
 #: code:addons/website_slides_survey/models/survey_survey.py:0
 msgid "- %(certification)s (Courses - %(courses)s)"
 msgstr "- %(certification)s (Cursos - %(courses)s)"
-
-#. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_survey_view_kanban
-msgid ""
-"<br/>\n"
-"                        <span class=\"text-muted\">Courses</span>"
-msgstr ""
-"<br/>\n"
-"                        <span class=\"text-muted\">Courses</span>"
 
 #. module: website_slides_survey
 #: model:mail.template,body_html:website_slides_survey.mail_template_user_input_certification_failed
@@ -90,59 +81,68 @@ msgstr ""
 "            "
 
 #. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
-msgid "<i class=\"fa fa-arrow-right\"/> Get Certified"
-msgstr "<i class=\"fa fa-arrow-right\"/> Obtindre el certificat"
-
-#. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
-msgid ""
-"<i class=\"fa fa-download\" aria-label=\"Download certification\" "
-"title=\"Download Certification\"/>"
-msgstr ""
-"<i class=\"fa fa-download\" aria-label=\"Download certification\" "
-"title=\"Download Certification\"/>"
-
-#. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.slide_content_detailed
-msgid ""
-"<i class=\"fa fa-fw fa-trophy\" role=\"img\" aria-label=\"Download "
-"certification\" title=\"Download certification\"/> Download certification"
+msgid "<i class=\"oi me-1\" data-icon=\"east\"/>Add Questions to this Survey"
+msgstr "<i class=\"oi me-1\" data-icon=\"east\"/>Afegir preguntes a l'enquesta"
+
+#. module: website_slides_survey
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
+msgid "<i class=\"oi me-1\" data-icon=\"east\"/>All Certifications"
 msgstr ""
-"<i class=\"fa fa-fw fa-trophy\" role=\"img\" aria-label=\"Download "
-"certification\" title=\"Download certification\"/> Descarregar la "
-"certificació"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_fill_form_done_inherit_website_slides
 msgid ""
-"<i class=\"fa fa-share-alt\" aria-label=\"Share certification\" "
-"title=\"Share certification\"/>\n"
-"                        Share your certification"
+"<i class=\"oi me-2\" data-icon=\"chevron_backward\" aria-hidden=\"true\"/>Go "
+"back to course"
 msgstr ""
-"<i class=\"fa fa-share-alt\" aria-label=\"Share certification\" "
-"title=\"Share certification\"/>\n"
-"                        Comparteix la certificació"
 
 #. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
-msgid "<i class=\"fa fa-share-alt\" aria-label=\"Share\" title=\"Share\"/>"
-msgstr "<i class=\"fa fa-share-alt\" aria-label=\"Share\" title=\"Share\"/>"
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_fill_form_done_inherit_website_slides
+msgid ""
+"<i class=\"oi oi-filled d-none d-md-inline\" data-icon=\"share\" aria-"
+"label=\"Share certification\" title=\"Share certification\"/>\n"
+"                        <span class=\"d-md-none\">Share certification</span>"
+msgstr ""
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.slide_content_detailed
-msgid "<i class=\"oi oi-arrow-right me-1\"/>Add Questions to this Survey"
-msgstr "<i class=\"oi oi-arrow-right me-1\"/>Afegir preguntes a l'enquesta"
+msgid ""
+"<i class=\"oi oi-fw oi-filled\" data-icon=\"trophy\" role=\"img\" aria-"
+"label=\"Download certification\" title=\"Download certification\"/> Download "
+"certification"
+msgstr ""
+"<i class=\"oi oi-fw oi-filled\" data-icon=\"trophy\" role=\"img\" aria-"
+"label=\"Download certification\" title=\"Download certification\"/> "
+"Descarregar la certificació"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
-msgid "<i class=\"oi oi-arrow-right me-1\"/>All Certifications"
+msgid "<i class=\"oi\" data-icon=\"arrow_forward\"/> Get Certified"
+msgstr "<i class=\"oi\" data-icon=\"arrow_forward\"/> Obtindre el certificat"
+
+#. module: website_slides_survey
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
+msgid ""
+"<i class=\"oi\" data-icon=\"download\" aria-label=\"Download certification\" "
+"title=\"Download Certification\"/>"
 msgstr ""
+"<i class=\"oi\" data-icon=\"download\" aria-label=\"Download certification\" "
+"title=\"Download Certification\"/>"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.user_profile_content
-msgid "<i class=\"oi oi-arrow-right\"/> See Certifications"
+msgid "<i class=\"oi\" data-icon=\"east\"/> See Certifications"
 msgstr ""
+
+#. module: website_slides_survey
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
+msgid ""
+"<i class=\"oi\" data-icon=\"family_history\" aria-label=\"Share\" "
+"title=\"Share\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"family_history\" aria-label=\"Share\" "
+"title=\"Share\"/>"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.badge_content
@@ -170,9 +170,15 @@ msgid "<span class=\"text-muted\">Certifications</span>"
 msgstr "<span class=\"text-muted\">Certificacions</span>"
 
 #. module: website_slides_survey
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_survey_view_kanban
+msgid "<span>Courses</span>"
+msgstr ""
+
+#. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.course_main
 msgid ""
-"<span>Start Now</span><i class=\"oi oi-chevron-right ms-2 align-middle\"/>"
+"<span>Start Now</span><i class=\"oi ms-2 align-middle\" data-"
+"icon=\"chevron_forward\"/>"
 msgstr ""
 
 #. module: website_slides_survey
@@ -196,12 +202,17 @@ msgstr "Afegeix una certificació"
 #. odoo-javascript
 #: code:addons/website_slides_survey/static/src/xml/website_slides_fullscreen.xml:0
 msgid "Add Questions to this Survey"
-msgstr "Afegeix preguntes a aquesta enquesta"
+msgstr ""
 
 #. module: website_slides_survey
 #: model_terms:ir.actions.act_window,help:website_slides_survey.slide_slide_action_certification
 msgid "Add a new certification"
 msgstr "Afegeix una certificació nova"
+
+#. module: website_slides_survey
+#: model:ir.module.module,summary:base.module_website_slides_survey
+msgid "Add certification capabilities to your courses"
+msgstr ""
 
 #. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_slide_slide__is_preview
@@ -371,6 +382,11 @@ msgid "Course"
 msgstr "Curs"
 
 #. module: website_slides_survey
+#: model:ir.module.module,shortdesc:base.module_website_slides_survey
+msgid "Course Certifications"
+msgstr ""
+
+#. module: website_slides_survey
 #. odoo-python
 #: code:addons/website_slides_survey/models/survey_survey.py:0
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_survey_view_form
@@ -428,11 +444,6 @@ msgstr "FunituraName"
 #: model:survey.survey,title:website_slides_survey.furniture_certification
 msgid "Furniture Creation Certification"
 msgstr "Certificació de la creació de mobles"
-
-#. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_fill_form_done_inherit_website_slides
-msgid "Go back to course"
-msgstr "Torna al curs"
 
 #. module: website_slides_survey
 #. odoo-javascript
@@ -555,6 +566,11 @@ msgid "Shelf"
 msgstr "Shelf"
 
 #. module: website_slides_survey
+#: model:ir.model,name:website_slides_survey.model_slide_slide
+msgid "Slide"
+msgstr ""
+
+#. module: website_slides_survey
 #: model:ir.model,name:website_slides_survey.model_slide_slide_partner
 msgid "Slide / Partner decorated m2m"
 msgstr "Diapositiva / Partner decorada m2m"
@@ -570,11 +586,6 @@ msgid "Slide membership information for the logged in user"
 msgstr ""
 "Mostra la informació de la pertinença a la diapositiva de l'usuari que ha "
 "iniciat la sessió"
-
-#. module: website_slides_survey
-#: model:ir.model,name:website_slides_survey.model_slide_slide
-msgid "Slides"
-msgstr "Diapositives"
 
 #. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_survey_user_input__slide_partner_id
@@ -663,6 +674,13 @@ msgstr ""
 "l'aplicació d'aprenentatge electrònic"
 
 #. module: website_slides_survey
+#: model:ir.module.module,description:base.module_website_slides_survey
+msgid ""
+"This module lets you use the full power of certifications within your "
+"courses."
+msgstr ""
+
+#. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_slide_slide__name
 msgid "Title"
 msgstr "Títol"
@@ -722,3 +740,10 @@ msgstr "Has suspès el curs: {{ object.slide_partner_id.channel_id.name }}"
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.user_profile_content
 msgid "You have not taken any certification yet."
 msgstr "Encara no ha obtingut cap certificació."
+
+#~ msgid ""
+#~ "<br/>\n"
+#~ "                        <span class=\"text-muted\">Courses</span>"
+#~ msgstr ""
+#~ "<br/>\n"
+#~ "                        <span class=\"text-muted\">Courses</span>"

@@ -13,10 +13,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~15.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-11-08 19:13+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Romanian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-11 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 16:18+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Romanian <https://translate.odoo.com/projects/odoo-s19-4/"
 "base_address_extended/ro/>\n"
 "Language: ro\n"
 "MIME-Version: 1.0\n"
@@ -24,7 +24,20 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
 "20)) ? 1 : 2;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: base_address_extended
+#: model:ir.module.module,description:base.module_base_address_extended
+msgid ""
+"\n"
+"Extended Addresses Management\n"
+"=============================\n"
+"\n"
+"This module provides the ability to choose a city from a list (in specific "
+"countries).\n"
+"\n"
+"It is primarily used for EDIs that might need a special city code.\n"
+msgstr ""
 
 #. module: base_address_extended
 #: model_terms:ir.ui.view,arch_db:base_address_extended.view_res_country_city_extended_form
@@ -32,9 +45,9 @@ msgid "<span class=\"o_stat_text\">Cities</span>"
 msgstr "<span class=\"o_stat_text\">Orașe</span>"
 
 #. module: base_address_extended
-#: model_terms:ir.ui.view,arch_db:base_address_extended.address_street_extended_form
-msgid "<span> - </span>"
-msgstr "<span> - </span>"
+#: model:ir.module.module,summary:base.module_base_address_extended
+msgid "Add extra fields on addresses"
+msgstr ""
 
 #. module: base_address_extended
 #: model:ir.model.fields,help:base_address_extended.field_res_country__enforce_cities
@@ -49,14 +62,12 @@ msgstr ""
 
 #. module: base_address_extended
 #: model:ir.actions.act_window,name:base_address_extended.action_res_city_tree
-#: model:ir.ui.menu,name:base_address_extended.menu_res_city
 msgid "Cities"
 msgstr "Localități"
 
 #. module: base_address_extended
 #: model:ir.model,name:base_address_extended.model_res_city
 #: model_terms:ir.ui.view,arch_db:base_address_extended.address_street_extended_city_form
-#: model_terms:ir.ui.view,arch_db:base_address_extended.address_street_extended_form
 #: model_terms:ir.ui.view,arch_db:base_address_extended.view_city_filter
 #: model_terms:ir.ui.view,arch_db:base_address_extended.view_city_tree
 msgid "City"
@@ -76,9 +87,13 @@ msgstr "Contact"
 #. module: base_address_extended
 #: model:ir.model,name:base_address_extended.model_res_country
 #: model:ir.model.fields,field_description:base_address_extended.field_res_city__country_id
-#: model_terms:ir.ui.view,arch_db:base_address_extended.address_street_extended_form
 msgid "Country"
 msgstr "Țară"
+
+#. module: base_address_extended
+#: model:ir.model.fields,field_description:base_address_extended.field_res_city__country_code
+msgid "Country Code"
+msgstr ""
 
 #. module: base_address_extended
 #: model:ir.model,website_form_label:base_address_extended.model_res_partner
@@ -121,11 +136,6 @@ msgid "Door"
 msgstr "Ușă"
 
 #. module: base_address_extended
-#: model_terms:ir.ui.view,arch_db:base_address_extended.address_street_extended_form
-msgid "Door #"
-msgstr "Ușă #"
-
-#. module: base_address_extended
 #: model:ir.model.fields,field_description:base_address_extended.field_res_country__enforce_cities
 #: model:ir.model.fields,field_description:base_address_extended.field_res_partner__country_enforce_cities
 #: model:ir.model.fields,field_description:base_address_extended.field_res_users__country_enforce_cities
@@ -133,15 +143,15 @@ msgid "Enforce Cities"
 msgstr "Impune localități"
 
 #. module: base_address_extended
+#: model:ir.module.module,shortdesc:base.module_base_address_extended
+msgid "Extended Addresses"
+msgstr ""
+
+#. module: base_address_extended
 #: model:ir.model.fields,field_description:base_address_extended.field_res_partner__street_number
 #: model:ir.model.fields,field_description:base_address_extended.field_res_users__street_number
 msgid "House"
 msgstr "Casă"
-
-#. module: base_address_extended
-#: model_terms:ir.ui.view,arch_db:base_address_extended.address_street_extended_form
-msgid "House #"
-msgstr "Nr. Casă"
 
 #. module: base_address_extended
 #: model:ir.model.fields,field_description:base_address_extended.field_res_city__id
@@ -162,6 +172,7 @@ msgstr "Ultima actualizare pe"
 
 #. module: base_address_extended
 #: model:ir.model.fields,field_description:base_address_extended.field_res_city__name
+#: model_terms:ir.ui.view,arch_db:base_address_extended.res_city_view_form
 msgid "Name"
 msgstr "Nume"
 
@@ -172,19 +183,8 @@ msgstr "Căutați localitate"
 
 #. module: base_address_extended
 #: model:ir.model.fields,field_description:base_address_extended.field_res_city__state_id
-#: model_terms:ir.ui.view,arch_db:base_address_extended.address_street_extended_form
 msgid "State"
 msgstr "Județ"
-
-#. module: base_address_extended
-#: model_terms:ir.ui.view,arch_db:base_address_extended.address_street_extended_form
-msgid "Street"
-msgstr "Stradă"
-
-#. module: base_address_extended
-#: model_terms:ir.ui.view,arch_db:base_address_extended.address_street_extended_form
-msgid "Street 2..."
-msgstr "Strada 2..."
 
 #. module: base_address_extended
 #: model:ir.model.fields,field_description:base_address_extended.field_res_partner__street_name
@@ -193,12 +193,14 @@ msgid "Street Name"
 msgstr "Nume Stradă"
 
 #. module: base_address_extended
-#: model_terms:ir.ui.view,arch_db:base_address_extended.address_street_extended_form
-msgid "Street..."
-msgstr "Strada..."
+#: model:ir.model.fields,help:base_address_extended.field_res_city__country_code
+msgid ""
+"The ISO country code in two chars. \n"
+"You can use this field for quick search."
+msgstr ""
 
 #. module: base_address_extended
-#: model_terms:ir.ui.view,arch_db:base_address_extended.address_street_extended_form
+#: model_terms:ir.ui.view,arch_db:base_address_extended.res_city_view_form
 msgid "ZIP"
 msgstr "Cod poștal"
 
@@ -206,3 +208,26 @@ msgstr "Cod poștal"
 #: model:ir.model.fields,field_description:base_address_extended.field_res_city__zipcode
 msgid "Zip"
 msgstr "Cod postal"
+
+#. module: base_address_extended
+#: model_terms:ir.ui.view,arch_db:base_address_extended.res_city_view_form
+msgid "e.g. London"
+msgstr ""
+
+#~ msgid "<span> - </span>"
+#~ msgstr "<span> - </span>"
+
+#~ msgid "Door #"
+#~ msgstr "Ușă #"
+
+#~ msgid "House #"
+#~ msgstr "Nr. Casă"
+
+#~ msgid "Street"
+#~ msgstr "Stradă"
+
+#~ msgid "Street 2..."
+#~ msgstr "Strada 2..."
+
+#~ msgid "Street..."
+#~ msgstr "Strada..."

@@ -16,7 +16,7 @@ class TestAutoComplete(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.website = cls.env['website'].browse(1)
+        cls.website = cls.env.ref('base.default_website')
         cls.WebsiteController = Website()
 
     def _autocomplete(self, term, expected_count, expected_fuzzy_term, search_type="test", options=None):
@@ -30,9 +30,7 @@ class TestAutoComplete(TransactionCase):
 
     def _autocomplete_page(self, term, expected_count, expected_fuzzy_term):
         self._autocomplete(term, expected_count, expected_fuzzy_term, search_type="pages", options={
-            'displayDescription': False, 'displayDetail': False,
-            'displayExtraDetail': False, 'displayExtraLink': False,
-            'displayImage': False, 'allowFuzzy': True
+            'allowFuzzy': True,
         })
 
     def test_01_many_records(self):
@@ -90,17 +88,15 @@ class TestAutoComplete(TransactionCase):
                 _logger.warning("pg_trgm extension can't be installed, which is required to run this test")
                 return
 
-        with MockRequest(self.env, website=self.env['website'].browse(1)):
+        with MockRequest(self.env, website=self.env.ref('base.default_website')):
             # This should not crash. This ensures that when searching on `name`
             # field of `website.page` model, it works properly when `pg_trgm` is
             # activated.
             # Indeed, `name` is a field of `website.page` record but only at the
             # ORM level, not in SQL, due to how `inherits` works.
-            self.env['website'].browse(1)._search_with_fuzzy(
-                'pages', 'test', limit=5, order='name asc, website_id desc, id', options={
-                    'displayDescription': False, 'displayDetail': False,
-                    'displayExtraDetail': False, 'displayExtraLink': False,
-                    'displayImage': False, 'allowFuzzy': True
+            self.env.ref('base.default_website')._search_with_fuzzy(
+                'pages', 'test', limit=5, offset=0, order='name asc, website_id desc, id', options={
+                    'allowFuzzy': True,
                 }
             )
 
@@ -108,11 +104,11 @@ class TestAutoComplete(TransactionCase):
         test_page.name = 'testTotallyUnique'
 
         # Editor and Designer see pages in result
-        self._autocomplete_page('testTotallyUnique', 1, None)
+        self._autocomplete_page('testTotallyUnique', 1, False)
 
         test_page.visibility = 'connected'
         self._autocomplete_page('testTotallyUnique', 1, False)
-        test_page.visibility = False
+        test_page.visibility = 'public'
 
         test_page.group_ids = self.env.ref('base.group_public')
         self._autocomplete_page('testTotallyUnique', 1, False)
@@ -149,3 +145,56 @@ class TestAutoComplete(TransactionCase):
         # Sub-sub-fields are currently not supported.
         # Adapt expected result if this becomes a feature.
         self._autocomplete('tagg', 0, "Not found")
+
+    def test_custom_highlight_handler(self):
+        field_meta = {'name': 'notes', 'type': 'notes', 'match': True}
+        value = "The quick brown fox jumps over the lazy dog"
+        term = "fox"
+
+        skip, result, field_type = self.env['test.model']._search_highlight_field(field_meta, value, term)
+
+        self.assertFalse(skip, "Expected field to not be skipped")
+        self.assertEqual(field_type, 'text', "Expected field_type to switch to 'text' after highlighting")
+        self.assertEqual(result, "The quick brown /fox/ jumps over the lazy dog")
+
+    def test_highlight_handler_skips_fields(self):
+        field_meta = {'name': 'notes', 'type': 'notes', 'match': True}
+        value = "The quick brown fox guards a secret note"
+        term = "fox"
+
+        skip, result, field_type = self.env['test.model']._search_highlight_field(field_meta, value, term)
+
+        self.assertTrue(skip, "Expected field to be skipped because the value contains 'secret'")
+        self.assertEqual(field_type, 'notes', "Expected field_type to remain 'notes' when highlighting is skipped")
+        self.assertEqual(result, value, "Expected result to remain unchanged when highlighting is skipped")
+
+    def test_tags_highlight_handler_match(self):
+        field_meta = {'name': 'tag_ids', 'type': 'tags', 'match': True}
+        value = [{'name': 'Marketing'}, {'name': 'Finance'}]
+        search_term = "market"
+
+        skip, result, field_type = self.env['test.model']._search_highlight_field(field_meta, value, search_term)
+
+        self.assertFalse(skip, "Expected field to not be skipped")
+        self.assertEqual(field_type, 'html', "Expected field_type to switch to 'html' after highlighting")
+        self.assertIn(
+            '<span class="o_search_matching_text text-body position-relative">Market</span><span>ing</span>',
+            str(result),
+            "Expected matching term to be highlighted in the output"
+        )
+        self.assertNotIn(
+            '<span>Finance</span>',
+            str(result),
+            "Expected non-matching tags to be not present in the output"
+        )
+
+    def test_tags_highlight_handler_no_match(self):
+        field_meta = {'name': 'tag_ids', 'type': 'tags', 'match': True}
+        value = [{'name': 'Marketing'}, {'name': 'Finance'}]
+        search_term = "random"
+
+        skip, result, field_type = self.env['test.model']._search_highlight_field(field_meta, value, search_term)
+
+        self.assertTrue(skip, "Expected field to be skipped when no tags match the search term")
+        self.assertEqual(field_type, 'tags', "Expected field_type to remain 'tags' when highlighting is skipped")
+        self.assertEqual(result, value, "Expected result to remain unchanged when highlighting is skipped")

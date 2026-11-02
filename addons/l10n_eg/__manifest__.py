@@ -20,9 +20,9 @@ Activates:
 - Fiscal Positions
     """,
     'category': 'Accounting/Localizations/Account Charts',
-    'version': '1.0',
     'depends': [
         'account',
+        'l10n_account_withholding_tax',
     ],
     'auto_install': ['account'],
     'data': [

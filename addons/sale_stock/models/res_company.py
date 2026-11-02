@@ -7,8 +7,10 @@ from odoo import fields, models
 class ResCompany(models.Model):
     _inherit = 'res.company'
 
-    security_lead = fields.Float(
-        'Sales Safety Days', default=0.0, required=True,
+    allow_spontaneous_returns = fields.Boolean(string="Allow Spontaneous Returns")
+    return_validity_days = fields.Integer(string="Return Validity Days", default=14)
+    security_lead = fields.Integer(
+        'Sales Safety Days', default=0, required=True,
         help="Margin of error for dates promised to customers. "
              "Products will be scheduled for procurement and delivery "
              "that many days earlier than the actual promised date, to "

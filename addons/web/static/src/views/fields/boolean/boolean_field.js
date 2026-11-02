@@ -1,22 +1,29 @@
-import { Component, useState } from "@odoo/owl";
+import { Component, proxy, useEffect, useProps } from "@odoo/owl";
 import { CheckBox } from "@web/core/checkbox/checkbox";
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { useRecordObserver } from "@web/model/relational_model/utils";
+import { useService } from "@web/core/utils/hooks";
 import { standardFieldProps } from "../standard_field_props";
+
+export const booleanFieldProps = {
+    ...standardFieldProps,
+};
 
 export class BooleanField extends Component {
     static template = "web.BooleanField";
     static components = { CheckBox };
-    static props = {
-        ...standardFieldProps,
-    };
+    props = useProps(booleanFieldProps);
 
     setup() {
-        this.state = useState({});
-        useRecordObserver((record) => {
-            this.state.value = record.data[this.props.name];
+        this.ui = useService("ui");
+        this.state = proxy({});
+        useEffect(() => {
+            this.state.value = this.props.record.data[this.props.name];
         });
+    }
+
+    get displayAsToggle() {
+        return this.ui.isSmall;
     }
 
     /**

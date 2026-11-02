@@ -1,15 +1,17 @@
+import { Component, t, useProps } from "@odoo/owl";
 import { registry } from "@web/core/registry";
-import { listView } from "@web/views/list/list_view";
+import { render } from "@web/owl2/utils";
 import { ListRenderer } from "@web/views/list/list_renderer";
-import { Component } from "@odoo/owl";
+import { listView } from "@web/views/list/list_view";
 import { useActionLinks } from "@web/views/view_hook";
 
 export class StockActionHelper extends Component {
     static template = "stock.StockActionHelper";
-    static props = ["noContentHelp"];
+    props = useProps({
+        noContentHelp: t.any(),
+    });
     setup() {
-        const resModel = "searchModel" in this.env ? this.env.searchModel.resModel : undefined;
-        this.handler = useActionLinks(resModel);
+        this.handler = useActionLinks(this.env.searchModel?.resModel, () => render(this));
     }
 }
 

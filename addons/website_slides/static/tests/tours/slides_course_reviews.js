@@ -6,7 +6,6 @@ import { registry } from "@web/core/registry";
  * add only one review and react to them.
  */
 registry.category("web_tour.tours").add("course_reviews", {
-    url: "/slides",
     steps: () => [
         {
             trigger: "a:contains(Basics of Gardening - Test)",
@@ -19,7 +18,7 @@ registry.category("web_tour.tours").add("course_reviews", {
         },
         {
             // If it fails here, it means that the portal chatter has fetched the notes.
-            trigger: "#chatterRoot:shadow .o-mail-Chatter:has(:text(The conversation is empty.))",
+            trigger: "#chatterRoot:shadow .o-mail-Chatter:contains(No reviews yet.)",
         },
         {
             // If it fails here, it means the log note is considered as a review

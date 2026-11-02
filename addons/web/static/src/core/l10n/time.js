@@ -1,4 +1,5 @@
 import { localization } from "@web/core/l10n/localization";
+import { memoize } from "@web/core/utils/functions";
 
 const { DateTime } = luxon;
 
@@ -138,7 +139,7 @@ export class Time {
  * Returns whether the given format is a 24-hour format.
  * Falls back to localization time format if none is given.
  *
- * @param {string} format
+ * @param {string} [format]
  */
 export function is24HourFormat(format) {
     return /H/.test(format || localization.timeFormat);
@@ -148,7 +149,7 @@ export function is24HourFormat(format) {
  * Returns whether the given format uses a meridiem suffix (AM/PM).
  * Falls back to localization time format if none is given.
  *
- * @param {string} format
+ * @param {string} [format]
  */
 export function isMeridiemFormat(format) {
     return /a/.test(format || localization.timeFormat);
@@ -264,9 +265,10 @@ export function parseTime(value, parseSeconds) {
  * - Removes all trailing non-numeric characters
  *
  * @param {string} timeStr
+ * @param {boolean} keepSeparators if true, doesn't remove non-numeric characters
  * @returns {string|false}
  */
-function normalizeTimeStr(timeStr) {
+export function normalizeTimeStr(timeStr, keepSeparators = false) {
     if (typeof timeStr !== "string") {
         return false;
     }
@@ -279,8 +281,30 @@ function normalizeTimeStr(timeStr) {
         }
     }
 
-    return timeStr.replace(/^\D+|\D+$/g, "").replace(/\D+/g, ":");
+    return keepSeparators ? timeStr : timeStr.replace(/^\D+|\D+$/g, "").replace(/\D+/g, ":");
 }
+
+export const durationUnitsRegex = memoize(() => {
+    const durationUnits = {};
+    new Intl.DurationFormat(localization.locale, { style: "narrow" })
+        .formatToParts({
+            hours: 1,
+            minutes: 1,
+            seconds: 1,
+        })
+        .filter((d) => d.type === "unit")
+        .forEach((d) => {
+            durationUnits[d.unit] = d.value[0] + (d.value.slice(1) ? `[${d.value.slice(1)}]*` : "");
+        });
+
+    const regexTimes = {
+        hours: new RegExp("(\\d+)" + durationUnits.hour, "i"),
+        minutes: new RegExp("(\\d+)" + durationUnits.minute, "i"),
+        seconds: new RegExp("(\\d+)" + durationUnits.second, "i"),
+    };
+
+    return regexTimes;
+});
 
 /**
  * @param {string} timeStr

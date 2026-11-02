@@ -1,22 +1,18 @@
-import { DYNAMIC_SNIPPET_CAROUSEL } from "@website/builder/plugins/options/dynamic_snippet_carousel_option_plugin";
+import { BuilderAction } from "@html_builder/core/builder_action";
 import { setDatasetIfUndefined } from "@website/builder/plugins/options/dynamic_snippet_option_plugin";
 import { Plugin } from "@html_editor/plugin";
-import { withSequence } from "@html_editor/utils/resource";
 import { registry } from "@web/core/registry";
-import {
-    DynamicSnippetProductsOption,
-    getContextualFilterDomain,
-} from "./dynamic_snippet_products_option";
+import { getContextualFilterDomain } from "./dynamic_snippet_products_option";
 
-class DynamicSnippetProductsOptionPlugin extends Plugin {
+export class DynamicSnippetProductsOptionPlugin extends Plugin {
     static id = "dynamicSnippetProductsOption";
-    static dependencies = ["dynamicSnippetCarouselOption"];
+    static dependencies = ["dynamicSnippetCarouselOption", "dynamicSnippetOption"];
     static shared = ["fetchCategories", "getModelNameFilter"];
     modelNameFilter = "product.product";
     resources = {
-        builder_options: withSequence(DYNAMIC_SNIPPET_CAROUSEL, DynamicSnippetProductsOption),
-        dynamic_snippet_template_updated: this.onTemplateUpdated.bind(this),
+        on_dynamic_snippet_template_updated_handlers: this.onTemplateUpdated.bind(this),
         on_snippet_dropped_handlers: this.onSnippetDropped.bind(this),
+        builder_actions: { GridColumnsAction, MobileColumnsAction },
     };
     setup() {
         this.categories = undefined;
@@ -26,12 +22,22 @@ class DynamicSnippetProductsOptionPlugin extends Plugin {
         this.categories = undefined;
     }
     async onSnippetDropped({ snippetEl }) {
-        if (snippetEl.matches(DynamicSnippetProductsOption.selector)) {
+        if (snippetEl.matches(".s_dynamic_snippet_products")) {
             for (const [optionName, value] of [
                 ["productCategoryId", "all"],
-                ["showVariants", true],
+                ["splitVariants", true],
             ]) {
                 setDatasetIfUndefined(snippetEl, optionName, value);
+            }
+            if (snippetEl.matches(".s_dynamic_snippet_products_grid")) {
+                setDatasetIfUndefined(snippetEl, "gridColumns", "4");
+                setDatasetIfUndefined(snippetEl, "mobileColumns", "2");
+                await this.dependencies.dynamicSnippetOption.setOptionsDefaultValues(
+                    snippetEl,
+                    this.modelNameFilter,
+                    getContextualFilterDomain(this.editable)
+                );
+                return;
             }
             await this.dependencies.dynamicSnippetCarouselOption.setOptionsDefaultValues(
                 snippetEl,
@@ -44,7 +50,7 @@ class DynamicSnippetProductsOptionPlugin extends Plugin {
         return this.modelNameFilter;
     }
     onTemplateUpdated({ el, template }) {
-        if (el.matches(DynamicSnippetProductsOption.selector)) {
+        if (el.matches(".s_dynamic_snippet_products")) {
             this.dependencies.dynamicSnippetCarouselOption.updateTemplateSnippetCarousel(
                 el,
                 template
@@ -70,6 +76,34 @@ class DynamicSnippetProductsOptionPlugin extends Plugin {
             ["id", "name"],
             { order: "name asc" }
         );
+    }
+}
+
+export class GridColumnsAction extends BuilderAction {
+    static id = "gridColumns";
+
+    isApplied({ editingElement, value }) {
+        return parseInt(editingElement.dataset.gridColumns) === value;
+    }
+    getValue({ editingElement }) {
+        return parseInt(editingElement.dataset.gridColumns);
+    }
+    apply({ editingElement, value }) {
+        editingElement.dataset.gridColumns = value;
+    }
+}
+
+export class MobileColumnsAction extends BuilderAction {
+    static id = "mobileColumns";
+
+    isApplied({ editingElement, value }) {
+        return parseInt(editingElement.dataset.mobileColumns) === value;
+    }
+    getValue({ editingElement }) {
+        return parseInt(editingElement.dataset.mobileColumns);
+    }
+    apply({ editingElement, value }) {
+        editingElement.dataset.mobileColumns = value;
     }
 }
 

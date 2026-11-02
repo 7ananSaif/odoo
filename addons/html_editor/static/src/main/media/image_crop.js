@@ -1,22 +1,25 @@
 import {
     activateCropper,
+    cropperDataFieldsWithAspectRatio,
     loadImage,
     loadImageInfo,
-    cropperDataFieldsWithAspectRatio,
 } from "@html_editor/utils/image_processing";
-import { IMAGE_SHAPES } from "./image_plugin";
-import { _t } from "@web/core/l10n/translation";
 import {
     Component,
-    useRef,
+    markup,
     onMounted,
     onWillDestroy,
-    markup,
-    useExternalListener,
+    signal,
     status,
+    t,
+    useListener,
+    useProps,
 } from "@odoo/owl";
+import { useHotkey } from "@web/core/hotkeys/hotkey_hook";
+import { _t } from "@web/core/l10n/translation";
+import { useActiveElement } from "@web/core/ui/ui_plugin";
 import { useService } from "@web/core/utils/hooks";
-import { scrollTo, closestScrollableY } from "@web/core/utils/scrolling";
+import { closestScrollableY, scrollTo } from "@web/core/utils/scrolling";
 
 export const cropperAspectRatios = {
     "0/0": { label: _t("Flexible"), value: 0 },
@@ -26,14 +29,22 @@ export const cropperAspectRatios = {
     "2/3": { label: "2:3", value: 2 / 3 },
 };
 
+const IMAGE_SHAPES = ["rounded", "rounded-circle", "shadow", "img-thumbnail"];
+
 export class ImageCrop extends Component {
     static template = "html_editor.ImageCrop";
-    static props = {
-        document: { validate: (p) => p.nodeType === Node.DOCUMENT_NODE },
-        media: { optional: true },
-        onClose: { type: Function, optional: true },
-        onSave: { type: Function, optional: true },
-    };
+
+    props = useProps({
+        document: t.customValidator(t.object(), (p) => p.nodeType === Node.DOCUMENT_NODE),
+        media: t.any().optional(),
+        onClose: t.function().optional(),
+        onSave: t.function().optional(),
+    });
+
+    elRef = signal.ref();
+    imageRef = signal.ref();
+    discardButtonRef = signal.ref();
+    cropperWrapperRef = signal.ref();
 
     setup() {
         this.aspectRatios = cropperAspectRatios;
@@ -41,26 +52,21 @@ export class ImageCrop extends Component {
         this.media = this.props.media;
         this.document = this.props.document;
 
-        this.elRef = useRef("el");
-        this.cropperWrapper = useRef("cropperWrapper");
-        this.imageRef = useRef("imageRef");
-        this.applyButtonRef = useRef("applyButton");
-        this.discardButtonRef = useRef("discardButton");
         this.isCropperActive = false;
+        useActiveElement(this.cropperWrapperRef);
 
         // We use capture so that the handler is called before other editor handlers
         // like save, such that we can restore the src before a save.
         // We need to add event listeners to the owner document of the widget.
-        useExternalListener(this.document, "mousedown", this.onDocumentMousedown, {
+        useListener(this.document, "mousedown", this.onDocumentMousedown.bind(this), {
             capture: true,
         });
-        useExternalListener(this.document, "keydown", this.onDocumentKeydown, {
-            capture: true,
-        });
-        useExternalListener(document, "keydown", this.onDocumentKeydown, {
-            capture: true,
-        });
-        useExternalListener(
+
+        useHotkey("Enter", ({ target }) => this.onEnterKeyPress(target));
+        useHotkey("Backspace", () => this.closeCropper());
+        useHotkey("Escape", () => this.closeCropper());
+
+        useListener(
             this.document,
             "selectionchange",
             () => {
@@ -156,10 +162,10 @@ export class ImageCrop extends Component {
         await loadImage(this.originalSrc, this.media);
         if (status(this) !== "mounted") {
             // Abort if the component has been destroyed in the meantime
-            // since `this.imageRef.el` is `null` when it is not mounted.
+            // since `this.imageRef()` is `null` when it is not mounted.
             return;
         }
-        const cropperImage = this.imageRef.el;
+        const cropperImage = this.imageRef();
         [cropperImage.style.width, cropperImage.style.height] = [
             this.media.width + "px",
             this.media.height + "px",
@@ -189,8 +195,8 @@ export class ImageCrop extends Component {
             offset.top += frameRect.top;
         }
 
-        this.cropperWrapper.el.style.left = `${offset.left}px`;
-        this.cropperWrapper.el.style.top = `${offset.top}px`;
+        this.cropperWrapperRef().style.left = `${offset.left}px`;
+        this.cropperWrapperRef().style.top = `${offset.top}px`;
 
         await loadImage(this.originalSrc, cropperImage);
         if (status(this) !== "mounted") {
@@ -211,7 +217,6 @@ export class ImageCrop extends Component {
             }
         );
         this.isCropperActive = true;
-        this.applyButtonRef.el?.focus({ preventScroll: true });
     }
     /**
      * Updates the DOM image with cropped data and associates required
@@ -228,15 +233,6 @@ export class ImageCrop extends Component {
             ...cropperData,
         });
         this.closeCropper();
-    }
-    /**
-     * Resets the crop box to prevent it going outside the image.
-     *
-     * @private
-     */
-    resetCropBox() {
-        this.cropper.clear();
-        this.cropper.crop();
     }
     /**
      * Make sure the targeted image is in the visible viewport before crop.
@@ -299,34 +295,20 @@ export class ImageCrop extends Component {
     onDocumentMousedown(ev) {
         if (
             this.props.document.body.contains(ev.target) &&
-            (this.elRef.el === ev.target || !this.elRef.el.contains(ev.target))
+            (this.elRef() === ev.target || !this.elRef().contains(ev.target))
         ) {
             return this.closeCropper();
         }
     }
-    /**
-     * Save crop if user hits enter,
-     * discard crop on escape.
-     *
-     * @private
-     * @param {KeyboardEvent} ev
-     */
-    onDocumentKeydown(ev) {
+
+    onEnterKeyPress(target) {
         if (!this.isCropperActive) {
             return;
         }
-        if (ev.key === "Enter") {
-            ev.preventDefault();
-            ev.stopImmediatePropagation();
-            if (ev.target === this.discardButtonRef.el) {
-                return this.closeCropper();
-            }
-            return this.save();
-        } else if (["Backspace", "Escape"].includes(ev.key)) {
-            ev.preventDefault();
-            ev.stopImmediatePropagation();
+        if (target === this.discardButtonRef()) {
             return this.closeCropper();
         }
+        return this.save();
     }
     /**
      * @param {Cropper} cropper
@@ -337,15 +319,5 @@ export class ImageCrop extends Component {
                 .map((field) => [field, cropper.getData()[field]])
                 .filter(([, value]) => value)
         );
-    }
-    /**
-     * Resets the cropbox on zoom to prevent crop box overflowing.
-     *
-     * @private
-     */
-    async onCropZoom() {
-        // Wait for the zoom event to be fully processed before reseting.
-        await new Promise((res) => setTimeout(res, 0));
-        this.resetCropBox();
     }
 }

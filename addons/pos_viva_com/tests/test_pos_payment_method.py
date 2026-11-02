@@ -9,6 +9,8 @@ from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 @odoo.tests.tagged('post_install', '-at_install')
 class TestVivaComBearerTokenAcl(AccountTestInvoicingCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -17,7 +19,9 @@ class TestVivaComBearerTokenAcl(AccountTestInvoicingCommon):
         cls.viva_pm = cls.env['pos.payment.method'].sudo().create({
             'name': 'Viva ACL Test',
             'journal_id': bank_journal.id,
-            'use_payment_terminal': 'viva_com',
+            'type': 'bank',
+            'payment_method_type': 'terminal',
+            'payment_provider': 'viva_com',
             'viva_com_merchant_id': 'm',
             'viva_com_api_key': 'k',
             'viva_com_client_id': 'test-client-id',

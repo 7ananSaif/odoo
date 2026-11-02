@@ -18,7 +18,7 @@
                             <p class="mb-0">
                                 Onboard this Journal
                             </p>
-                            <button name="%(l10n_sa_edi_otp_wizard_act_window)d" type="action" icon="fa-key"
+                            <button name="%(l10n_sa_edi_otp_wizard_act_window)d" type="action" icon="key"
                                     class="btn-info ">
                                 Onboard
                             </button>
@@ -30,7 +30,7 @@
                                 <h4 role="alert" class="alert-heading">Error: Journal is not onboarded</h4>
                                 <field name="l10n_sa_csr_errors" nolabel="1" readonly="1"/>
                             </div>
-                            <button name="%(l10n_sa_edi_otp_wizard_act_window)d" type="action" icon="fa-key"
+                            <button name="%(l10n_sa_edi_otp_wizard_act_window)d" type="action" icon="key"
                                     class="btn-danger">
                                 Onboard
                             </button>
@@ -44,32 +44,17 @@
                                        class="fw-bold"/>
                             </p>
                             <div>
-                                <button name="%(l10n_sa_edi_otp_wizard_act_window)d" type="action" icon="fa-refresh"
+                                <button name="%(l10n_sa_edi_otp_wizard_act_window)d" type="action" icon="refresh"
                                         class="btn-info" context="{'default_l10n_sa_renewal': True}">
                                     Renew
                                 </button>
-                                <button name="%(l10n_sa_edi_otp_wizard_act_window)d" type="action" icon="fa-refresh" class="btn-warning ms-2"
+                                <button name="%(l10n_sa_edi_otp_wizard_act_window)d" type="action" icon="refresh" class="btn-warning ms-2"
                                     confirm="Do you really want to re-onboard this Journal with ZATCA?" confirm-title="Re-onboarding Confirmation" confirm-label="Yes">
                                     Re-Onboard
                                 </button>
                             </div>
                         </div>
                     </page>
-                </xpath>
-            </field>
-        </record>
-
-        <record id="view_account_form_inherit" model="ir.ui.view">
-            <field name="name">account.move.form.inherit</field>
-            <field name="model">account.move</field>
-            <field name="inherit_id" ref="account.view_move_form" />
-            <field name="arch" type="xml">
-                <xpath expr="//button[@name='action_retry_edi_documents_error']" position="attributes">
-                    <attribute name="invisible">l10n_sa_edi_chain_head_id</attribute>
-                </xpath>
-                <xpath expr="//button[@name='action_retry_edi_documents_error']" position="after">
-                    <!-- when invoice is stuck due to chain head, retry action does not make sense (there are no issues with the current invoice), and instead, we redirect them to the affected invoice -->
-                    <button name="action_show_chain_head" type="object" class="oe_link py-0 text-danger" string="Blocking Invoice" invisible="not l10n_sa_edi_chain_head_id"/>
                 </xpath>
             </field>
         </record>

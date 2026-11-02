@@ -5,13 +5,12 @@ from odoo.fields import Command, Domain
 from xmlrpc.client import MAXINT
 
 from odoo.tools import SQL
-from odoo.tools.misc import str2bool
 
 
 class AccountBankStatementLine(models.Model):
     _name = 'account.bank.statement.line'
     _inherits = {'account.move': 'move_id'}
-    _description = "Bank Statement Line"
+    _description = "Bank Transaction"
     _order = "internal_index desc"
     _check_company_auto = True
 
@@ -60,7 +59,6 @@ class AccountBankStatementLine(models.Model):
     partner_id = fields.Many2one(
         comodel_name='res.partner',
         string='Partner', ondelete='restrict',
-        domain="['|', ('parent_id','=', False), ('is_company','=',True)]",
         check_company=True)
 
     # Technical field used to store the bank account number before its creation, upon the line's processing
@@ -143,6 +141,9 @@ class AccountBankStatementLine(models.Model):
     statement_name = fields.Char(
         string="Statement Name",
         related='statement_id.name',
+    )
+    statement_problem_description = fields.Text(
+        related='statement_id.problem_description',
     )
 
     # Technical field to store details about the bank statement line
@@ -271,7 +272,7 @@ class AccountBankStatementLine(models.Model):
         unless we use a sql view which is more complicated.
         """
         # ensure we are using correct value for reversing sequence in the index (2147483647)
-        # NOTE: assert self._fields['sequence'].column_type[1] == 'int4'
+        assert self._fields['sequence'].column_type[1] == 'int4'
         # if for any reason it changes (how unlikely), we need to update this code
 
         for st_line in self.filtered(lambda line: line._origin.id):
@@ -280,7 +281,7 @@ class AccountBankStatementLine(models.Model):
                                       f'{st_line._origin.id:0>10}'
 
     @api.depends('journal_id', 'currency_id', 'amount', 'foreign_currency_id', 'amount_currency',
-                 'move_id.checked',
+                 'move_id.review_state',
                  'move_id.line_ids.account_id', 'move_id.line_ids.amount_currency',
                  'move_id.line_ids.amount_residual_currency', 'move_id.line_ids.currency_id',
                  'move_id.line_ids.matched_debit_ids', 'move_id.line_ids.matched_credit_ids')
@@ -293,12 +294,8 @@ class AccountBankStatementLine(models.Model):
             _liquidity_lines, suspense_lines, _other_lines = st_line._seek_for_lines()
 
             # Compute residual amount
-            if not st_line.checked:
-                st_line.amount_residual = -st_line.amount_currency if st_line.foreign_currency_id else -st_line.amount
-            elif suspense_lines.account_id.reconcile:
-                st_line.amount_residual = sum(suspense_lines.mapped('amount_residual_currency'))
-            else:
-                st_line.amount_residual = sum(suspense_lines.mapped('amount_currency'))
+            transaction_amount_residual, _company_amount_residual = st_line._get_statement_line_residual_amounts()
+            st_line.amount_residual = transaction_amount_residual
 
             # Compute is_reconciled
             if not st_line.id:
@@ -416,8 +413,11 @@ class AccountBankStatementLine(models.Model):
         # Otherwise field narration will be recomputed silently (at next flush) when writing on partner_id
         self.env.remove_to_compute(self.env['account.move']._fields['narration'], st_lines.move_id)
 
-        # No need for the user to manage their status (from 'Draft' to 'Posted')
-        st_lines.move_id.action_post()
+        # We only post the entry when the st_lines has no statement, when having a statement it either means
+        # we have a draft statement and then the move id will be posted on post of the statement.
+        # Or the statement was created and will be put in a statement after.
+        if not self.env.context.get('from_statement_view'):
+            st_lines.move_id.action_post()
         return st_lines.with_env(self.env)  # clear the context
 
     def write(self, vals):
@@ -429,6 +429,9 @@ class AccountBankStatementLine(models.Model):
 
     def unlink(self):
         # OVERRIDE to unlink the inherited account.move (move_id field) as well.
+        # Here we clear the linked reco model on the reconciled lines to remove them from the smart button
+        # in the reco model view, since new 'matching_rules' can match directly aml.
+        self.line_ids.reconciled_lines_ids.reconcile_model_id = None
         tracked_lines = self.filtered(lambda stl: stl.company_id.restrictive_audit_trail)
         tracked_lines.move_id.button_cancel()
         moves_to_delete = (self - tracked_lines).move_id
@@ -461,12 +464,24 @@ class AccountBankStatementLine(models.Model):
         """ Undo the reconciliation made on the statement line and reset their journal items
         to their original states.
         """
+        for st_line in self:
+            st_line.move_id._check_review_state_access(st_line.review_state)
+
+        partials = self.line_ids.matched_debit_ids + self.line_ids.matched_credit_ids
+        caba_moves = self.env['account.move'].search([
+            ('tax_cash_basis_rec_id', 'in', partials.ids),
+            *self.env['account.move']._check_company_domain(self.line_ids.company_id)
+        ])
+        caba_moves.line_ids._check_tax_lock_date()
+
+        # Here we clear the linked reco model on the reconciled lines to remove them from the smart button
+        # in the reco model view, since new 'matching_rules' can match directly aml.
+        self.line_ids.reconciled_lines_ids.reconcile_model_id = None
         self.line_ids.remove_move_reconcile()
         self.payment_ids.unlink()
 
         for st_line in self:
             st_line.with_context(force_delete=True, skip_readonly_check=True).write({
-                'checked': True,
                 'line_ids': [Command.clear()] + [
                     Command.create(line_vals) for line_vals in st_line._prepare_move_line_default_vals()],
             })
@@ -477,7 +492,7 @@ class AccountBankStatementLine(models.Model):
 
     @api.ondelete(at_uninstall=False)
     def _check_allow_unlink(self):
-        if self.statement_id.filtered(lambda stmt: stmt.is_valid and stmt.is_complete):
+        if self.statement_id.filtered(lambda stmt: stmt.is_statement_posted and stmt.is_valid and stmt.is_complete):
             raise UserError(_("You can not delete a transaction from a valid statement.\n"
                               "If you want to delete it, please remove the statement first."))
 
@@ -485,9 +500,9 @@ class AccountBankStatementLine(models.Model):
         self.ensure_one()
         if not self.partner_id:
             return self.env['res.partner.bank']
-        if str2bool(self.env['ir.config_parameter'].sudo().get_param("account.skip_create_bank_account_on_reconcile")):
+        if self.env['ir.config_parameter'].sudo().get_bool("account.skip_create_bank_account_on_reconcile"):
             return self.env['res.partner.bank'].search([
-                ('acc_number', '=', self.account_number),
+                ('account_number', '=', self.account_number),
                 ('partner_id', '=', self.partner_id.id),
                 ('company_id', 'in', [False, self.company_id.id]),
             ], limit=1)
@@ -538,12 +553,32 @@ class AccountBankStatementLine(models.Model):
         statement = self.search(
             domain=[
                 ('journal_id', '=', journal_id or self._get_default_journal().id),
-                ('date', '<=', date or fields.Date.today()),
+                ('date', '<=', date or 'today'),
             ],
             limit=1
         ).statement_id
         if not statement.is_complete:
             return statement
+
+    def _get_statement_line_residual_amounts(self):
+        """Retrieve the residual amount for this line in terms of the transaction and company currency,
+
+        :return: (
+            transaction_amount_residual,
+            company_amount_residual,
+        )
+        """
+        self.ensure_one()
+        liquidity_lines, suspense_lines, _other_lines = self._seek_for_lines()
+
+        if self.review_state in ('todo', 'anomaly'):
+            transaction_amount_residual = -self.amount_currency if self.foreign_currency_id else -self.amount
+            company_amount_residual = -sum(liquidity_lines.mapped('balance'))
+        else:
+            transaction_amount_residual = sum(suspense_lines.mapped('amount_residual_currency'))
+            company_amount_residual = sum(suspense_lines.mapped('amount_residual'))
+
+        return (transaction_amount_residual, company_amount_residual)
 
     def _get_accounting_amounts_and_currencies(self):
         """ Retrieve the transaction amount, journal amount and the company amount with their corresponding currencies
@@ -634,7 +669,7 @@ class AccountBankStatementLine(models.Model):
 
         if not counterpart_account_id:
             raise UserError(_(
-                "You can't create a new statement line without a suspense account set on the %s journal.",
+                "You can't create a new bank transaction without a suspense account set on the %s journal.",
                 self.journal_id.display_name,
             ))
 
@@ -726,7 +761,7 @@ class AccountBankStatementLine(models.Model):
 
                 if len(liquidity_lines) != 1:
                     raise UserError(_(
-                        "The journal entry %s reached an invalid state regarding its related statement line.\n"
+                        "The journal entry %s reached an invalid state regarding its related bank transaction.\n"
                         "To be consistent, the journal entry must always have exactly one journal item involving the "
                         "bank/cash account.",
                         st_line.move_id.display_name))
@@ -749,7 +784,7 @@ class AccountBankStatementLine(models.Model):
 
                 if len(suspense_lines) > 1:
                     raise UserError(_(
-                        "%(move)s reached an invalid state regarding its related statement line.\n"
+                        "%(move)s reached an invalid state regarding its related bank transaction.\n"
                         "To be consistent, the journal entry must always have exactly one suspense line.",
                         move=st_line.move_id.display_name,
                     ))

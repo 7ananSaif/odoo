@@ -1,11 +1,11 @@
 /* global Stripe */
 
-import { patch } from '@web/core/utils/patch';
-import { _t } from '@web/core/l10n/translation';
-import { rpc } from '@web/core/network/rpc';
-import { redirect } from '@web/core/utils/urls';
 import { ExpressCheckout } from '@payment/interactions/express_checkout';
 import { StripeOptions } from '@payment_stripe/interactions/stripe_options';
+import { _t } from '@web/core/l10n/translation';
+import { rpc } from '@web/core/network/rpc';
+import { patch } from '@web/core/utils/patch';
+import { redirect } from '@web/core/utils/urls';
 
 patch(ExpressCheckout.prototype, {
     /**
@@ -133,10 +133,11 @@ patch(ExpressCheckout.prototype, {
                 addresses,
             )));
             // Call the transaction route to create the transaction and retrieve the client secret.
-            const { client_secret } = await this.waitFor(rpc(
-                this.paymentContext['transactionRoute'],
-                this._prepareTransactionRouteParams(providerData.providerId),
-            ));
+            const { client_secret } = await this._prepareExpressTransaction();
+            if (!client_secret) {
+                ev.complete('fail');
+                return;
+            }
             // Confirm the PaymentIntent without handling eventual next actions (e.g. 3DS).
             const { paymentIntent, error: confirmError } = await this.waitFor(
                 stripeJS.confirmCardPayment(
@@ -177,14 +178,11 @@ patch(ExpressCheckout.prototype, {
                         },
                     },
                 ));
-                const recomputedAmount = await this.waitFor(rpc(
-                    this.paymentContext['shippingAddressUpdateRoute'] + '/compute_taxes',
-                ));
-                const { delivery_methods, delivery_discount_minor_amount } = availableCarriersData;
-                if (delivery_methods.length === 0 || recomputedAmount.external_tax_error) {
+                const { delivery_methods, delivery_discount_minor_amount, adjusted_minor_amount } = availableCarriersData;
+                if (availableCarriersData.external_tax_error || delivery_methods.length === 0) {
                     ev.updateWith({status: 'invalid_shipping_address'});
                 } else {
-                    this.paymentContext['minorAmount'] = recomputedAmount;
+                    this.paymentContext['minorAmount'] = adjusted_minor_amount;
                     ev.updateWith({
                         status: 'success',
                         shippingOptions: delivery_methods.map(carrier => ({

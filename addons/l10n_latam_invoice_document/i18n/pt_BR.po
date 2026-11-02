@@ -1,30 +1,93 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# 	* l10n_latam_invoice_document
+# * l10n_latam_invoice_document
 #
+# "Maitê Dietze (madi)" <madi@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-30 19:08+0000\n"
-"PO-Revision-Date: 2025-03-27 17:58-0300\n"
-"Last-Translator: \n"
-"Language-Team: \n"
+"POT-Creation-Date: 2026-08-28 18:21+0000\n"
+"PO-Revision-Date: 2026-10-07 16:33+0000\n"
+"Last-Translator: \"Maitê Dietze (madi)\" <madi@odoo.com>\n"
+"Language-Team: Portuguese (Brazil) <https://translate.odoo.com/projects/odoo-"
+"20/l10n_latam_invoice_document/pt_BR/>\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: l10n_latam_invoice_document
+#: model:ir.module.module,description:base.module_l10n_latam_invoice_document
+#, fuzzy
+msgid ""
+"\n"
+"Functional\n"
+"----------\n"
+"\n"
+"In some Latinamerica countries, including Argentina and Chile, some "
+"accounting transactions like invoices and vendor bills are classified by a "
+"document types defined by the government fiscal authorities (In Argentina "
+"case ARCA, Chile case SII).\n"
+"\n"
+"This module is intended to be extended by localizations in order to manage "
+"these document types and is an essential information that needs to be "
+"displayed in the printed reports and that needs to be easily identified, "
+"within the set of invoices as well of account moves.\n"
+"\n"
+"Each document type have their own rules and sequence number, this last one "
+"is integrated with the invoice number and journal sequence in order to be "
+"easy for the localization user. In order to support or not this document "
+"types a Journal has a new option that lets to use document or not.\n"
+"\n"
+"Technical\n"
+"---------\n"
+"\n"
+"If your localization needs this logic will then need to add this module as "
+"dependency and in your localization module extend:\n"
+"\n"
+"* extend company's _localization_use_documents() method.\n"
+"* create the data of the document types that exists for the specific "
+"country. The document type has a country field\n"
+"\n"
+msgstr ""
+"\n"
+"Funcional\n"
+"----------\n"
+"\n"
+"Em alguns países da América Latina, incluindo a Argentina e o Chile, certas "
+"transações financeiras, como faturas e notas fiscais de fornecedores, são "
+"classificadas por tipos de documentos definidos pelas autoridades fiscais "
+"governamentais (no caso da Argentina, a ARCA; no caso do Chile, o SII).\n"
+"\n"
+"Este módulo foi projetado para ser ampliado por localizações, a fim de "
+"gerenciar esses tipos de documentos, e trata-se de uma informação essencial "
+"que precisa ser exibida nos relatórios impressos e facilmente identificada, "
+"tanto no conjunto de faturas quanto nos movimentos financeiros.\n"
+"\n"
+"Cada tipo de documento possui suas próprias regras e número de sequência; "
+"este último está integrado ao número da nota fiscal e à sequência do livro "
+"razão, a fim de facilitar o uso para o usuário da localização. Para "
+"habilitar ou desabilitar esses tipos de documentos, o livro razão possui uma "
+"nova opção que permite usar ou não o documento.\n"
+"\n"
+"Técnico\n"
+"---------\n"
+"\n"
+"Se sua localização precisar dessa lógica, será necessário adicionar este "
+"módulo como dependência e, no seu módulo de localização, estender:\n"
+"\n"
+"* estender o método _localization_use_documents() da empresa.\n"
+"* criar os dados dos tipos de documento existentes para o país específico. O "
+"tipo de documento possui um campo de país\n"
+"\n"
 
 #. module: l10n_latam_invoice_document
 #: model:ir.model,name:l10n_latam_invoice_document.model_account_chart_template
 msgid "Account Chart Template"
 msgstr "Modelo de plano de contas"
-
-#. module: l10n_latam_invoice_document
-#: model:ir.model,name:l10n_latam_invoice_document.model_account_move_reversal
-msgid "Account Move Reversal"
-msgstr "Estorno de movimentação da conta"
 
 #. module: l10n_latam_invoice_document
 #: model:ir.model.fields,field_description:l10n_latam_invoice_document.field_l10n_latam_document_type__active
@@ -43,6 +106,8 @@ msgid "All Documents"
 msgstr "Todos os documentos"
 
 #. module: l10n_latam_invoice_document
+#: model:ir.model.fields,help:l10n_latam_invoice_document.field_account_bank_statement_line__l10n_latam_document_internal_type
+#: model:ir.model.fields,help:l10n_latam_invoice_document.field_account_move__l10n_latam_document_internal_type
 #: model:ir.model.fields,help:l10n_latam_invoice_document.field_l10n_latam_document_type__internal_type
 msgid ""
 "Analog to odoo account.move.move_type but with more options allowing to "
@@ -79,8 +144,8 @@ msgstr "Código usado opor diferentes localizações"
 
 #. module: l10n_latam_invoice_document
 #: model:ir.model,name:l10n_latam_invoice_document.model_res_company
-msgid "Companies"
-msgstr "Empresas"
+msgid "Company"
+msgstr "Empresa"
 
 #. module: l10n_latam_invoice_document
 #: model:ir.model.fields,field_description:l10n_latam_invoice_document.field_l10n_latam_document_type__country_id
@@ -192,6 +257,8 @@ msgstr ""
 "pagamentos de impostos, registros de lançamentos de diário"
 
 #. module: l10n_latam_invoice_document
+#: model:ir.model.fields,field_description:l10n_latam_invoice_document.field_account_bank_statement_line__l10n_latam_document_internal_type
+#: model:ir.model.fields,field_description:l10n_latam_invoice_document.field_account_move__l10n_latam_document_internal_type
 #: model:ir.model.fields,field_description:l10n_latam_invoice_document.field_l10n_latam_document_type__internal_type
 #: model_terms:ir.ui.view,arch_db:l10n_latam_invoice_document.view_document_type_filter
 msgid "Internal Type"
@@ -218,6 +285,11 @@ msgid "Journal Entry"
 msgstr "Lançamento de diário"
 
 #. module: l10n_latam_invoice_document
+#: model:ir.model,name:l10n_latam_invoice_document.model_account_move_reversal
+msgid "Journal Entry Reversal"
+msgstr "Reversão de lançamento no diário"
+
+#. module: l10n_latam_invoice_document
 #: model:ir.model,name:l10n_latam_invoice_document.model_account_move_line
 msgid "Journal Item"
 msgstr "Item do diário"
@@ -241,6 +313,16 @@ msgstr "L10N Latam - Usar documentos da empresa"
 #: model:ir.model.fields,field_description:l10n_latam_invoice_document.field_account_move_reversal__l10n_latam_use_documents
 msgid "L10N Latam Use Documents"
 msgstr "L10N Latam - Usar documentos"
+
+#. module: l10n_latam_invoice_document
+#: model:ir.module.module,shortdesc:base.module_l10n_latam_invoice_document
+msgid "LATAM Document"
+msgstr "Documento LATAM"
+
+#. module: l10n_latam_invoice_document
+#: model:ir.module.module,summary:base.module_l10n_latam_invoice_document
+msgid "LATAM Document Types"
+msgstr "Tipos de documentos LATAM"
 
 #. module: l10n_latam_invoice_document
 #: model:ir.model.fields,field_description:l10n_latam_invoice_document.field_l10n_latam_document_type__write_uid
@@ -293,11 +375,11 @@ msgstr "Defina o número do documento nas seguintes faturas %s."
 #. module: l10n_latam_invoice_document
 #: model:ir.model.fields,help:l10n_latam_invoice_document.field_l10n_latam_document_type__doc_code_prefix
 msgid ""
-"Prefix for Documents Codes on Invoices and Account Moves. For eg. 'FA ' will "
-"build 'FA 0001-0000001' Document Number"
+"Prefix for Documents Codes on Invoices and Journal Entries. For eg. 'FA ' "
+"will build 'FA 0001-0000001' Document Number"
 msgstr ""
-"Prefixo para códigos de documentos em faturas e movimentações de contas. For "
-"eg. 'FA ' will build 'FA 0001-0000001' Document Number"
+"Prefixo para códigos de documentos em notas fiscais e lançamentos contábeis. "
+"Por exemplo, “FA ” formará o número de documento “FA 0001-0000001”"
 
 #. module: l10n_latam_invoice_document
 #: model:ir.model.fields,field_description:l10n_latam_invoice_document.field_l10n_latam_document_type__sequence

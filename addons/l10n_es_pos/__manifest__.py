@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 {
     'name': '[Deprecated] Spain - Point of Sale',
@@ -10,6 +9,7 @@
     'data': [
         'views/res_config_settings_views.xml',
         'views/pos_order_views.xml',
+        'receipt/pos_order_receipt.xml',
     ],
     'assets': {
         'point_of_sale._assets_pos': [

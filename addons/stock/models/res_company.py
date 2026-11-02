@@ -16,6 +16,10 @@ class ResCompany(models.Model):
     # used for resupply routes between warehouses that belong to this company
     internal_transit_location_id = fields.Many2one(
         'stock.location', 'Internal Transit Location', ondelete="restrict", check_company=True)
+    scrap_location_id = fields.Many2one(
+        'stock.location', 'Scrap Location', compute='_compute_scrap_location_id', check_company=True)
+    default_stock_location_id = fields.Many2one(
+        'stock.location', 'Default Stock Location', compute='_compute_default_stock_location_id', check_company=True)
     stock_move_email_validation = fields.Boolean("Email Confirmation picking", default=False)
     stock_mail_confirmation_template_id = fields.Many2one('mail.template', string="Email Template confirmation picking",
         domain="[('model', '=', 'stock.picking')]",
@@ -41,7 +45,7 @@ class ResCompany(models.Model):
         string='Day of the month', default=31,
         help="""Day of the month when the annual inventory should occur. If zero or negative, then the first day of the month will be selected instead.
         If greater than the last day of a month, then the last day of the month will be selected instead.""")
-    horizon_days = fields.Float(string="Replenishment Horizon", required=True, default=365,
+    horizon_days = fields.Integer(string="Replenishment Horizon", required=True, default=365,
                                 help="""Configure your horizon to trigger reordering rules earlier to get
                                 a head start on replenishment and avoid delays, or trigger it just-in-time
                                 ('0 days') to avoid overstocking.""")
@@ -49,6 +53,22 @@ class ResCompany(models.Model):
     # used for sending stock text confirmation
     stock_text_confirmation = fields.Boolean("Stock Text Confirmation")
     stock_confirmation_type = fields.Selection([('sms', 'SMS')], default='sms')
+    picking_policy = fields.Selection([
+        ('direct', 'As soon as possible, with back orders'),
+        ('one', 'When all products are ready')
+    ], default='direct', required=True)
+
+    def _compute_scrap_location_id(self):
+        grouped_scrap_locations = self.env['stock.location']._read_group([('company_id', 'in', self.ids), ('usage', '=', 'inventory')], ['company_id'], ['id:min'])
+        scrap_locations_per_company = {company.id: loc_id for company, loc_id in grouped_scrap_locations}
+        for company in self:
+            company.scrap_location_id = scrap_locations_per_company.get(company.id)
+
+    def _compute_default_stock_location_id(self):
+        grouped_stock_locations = self.env['stock.warehouse']._read_group([('company_id', 'in', self.ids)], ['company_id'], ['lot_stock_id:array_agg'])
+        stock_locations_per_company = {company.id: lot_stock_ids[0] if lot_stock_ids else False for company, lot_stock_ids in grouped_stock_locations}
+        for company in self:
+            company.default_stock_location_id = stock_locations_per_company.get(company.id)
 
     def _create_transit_location(self):
         '''Create a transit location with company_id being the given company_id. This is needed
@@ -64,11 +84,6 @@ class ResCompany(models.Model):
             })
 
             company.write({'internal_transit_location_id': location.id})
-
-            company.partner_id.with_company(company).write({
-                'property_stock_customer': location.id,
-                'property_stock_supplier': location.id,
-            })
 
     def _create_inventory_loss_location(self):
         for company in self:
@@ -90,7 +105,7 @@ class ResCompany(models.Model):
 
     def _create_scrap_location(self):
         for company in self:
-            scrap_location = self.env['stock.location'].create({
+            self.env['stock.location'].create({
                 'name': 'Scrap',
                 'usage': 'inventory',
                 'company_id': company.id,
@@ -198,8 +213,12 @@ class ResCompany(models.Model):
         self.ensure_one()
         if not self.env.user.has_group('base.group_multi_company'):
             return
+        # Need to update all other company's partner + their warehouses partner for this company.
         other_companies = self.env['res.company'].search([('id', '!=', self.id)])
-        other_companies.partner_id.with_company(self).write({
+        other_warehouses_partners = self.env['stock.warehouse'].search([('company_id', '!=', self.id)]).partner_id
+        other_partners = other_companies.partner_id | other_warehouses_partners
+
+        other_partners.with_company(self).write({
             'property_stock_customer': inter_company_location.id,
             'property_stock_supplier': inter_company_location.id,
         })

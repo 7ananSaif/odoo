@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 
@@ -12,7 +11,6 @@
     'depends': ['product', 'stock', 'resource'],
     'data': [
         'security/mrp_security.xml',
-        'security/ir.model.access.csv',
         'data/digest_data.xml',
         'data/mail_templates.xml',
         'data/mrp_data.xml',
@@ -31,7 +29,6 @@
         'views/mrp_bom_views.xml',
         'views/mrp_production_views.xml',
         'views/mrp_routing_views.xml',
-        'views/product_document_views.xml',
         'views/product_views.xml',
         'views/stock_orderpoint_views.xml',
         'views/stock_warehouse_views.xml',
@@ -39,23 +36,21 @@
         'views/stock_rule_views.xml',
         'views/mrp_unbuild_views.xml',
         'views/res_config_settings_views.xml',
-        'views/stock_scrap_views.xml',
         'wizard/stock_replenishment_info.xml',  # needs views/mrp_workcenter_views.xml to load first
         'report/report_deliveryslip.xml',
         'report/mrp_report_views_main.xml',
         'report/mrp_report_bom_structure.xml',
         'report/mrp_report_mo_overview.xml',
         'report/mrp_production_templates.xml',
-        'report/report_stock_reception.xml',
         'report/report_stock_rule.xml',
         'report/mrp_zebra_production_templates.xml',
         'report/mrp_workorder_templates.xml',
+        'security/ir.access.csv',
     ],
     'demo': [
         'data/mrp_demo.xml',
     ],
     'application': True,
-    'pre_init_hook': '_pre_init_mrp',
     'post_init_hook': '_create_warehouse_data',
     'uninstall_hook': 'uninstall_hook',
     'assets': {
@@ -67,6 +62,10 @@
         ],
         'web.assets_unit_tests': [
             'mrp/static/tests/**/*',
+        ],
+        'web.report_assets_common': [
+            'mrp/static/src/scss/mrp_report_bom_structure.scss',
+            "mrp/static/src/scss/mrp_report_mo.scss",
         ],
     },
     'author': 'Odoo S.A.',

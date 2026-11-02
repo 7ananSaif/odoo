@@ -6,35 +6,41 @@
 # Malaz Abuidris <msea@odoo.com>, 2022
 # Martin Trigaux, 2022
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+# "Malaz Siddig Elsayed Abuidris (msea)" <msea@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~15.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-09-16 13:39+0000\n"
-"Last-Translator: \"Tiffany Chang (tic)\" <tic@odoo.com>\n"
-"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-19/iap/ar/>\n"
+"POT-Creation-Date: 2026-09-25 17:38+0000\n"
+"PO-Revision-Date: 2026-10-23 09:33+0000\n"
+"Last-Translator: \"Malaz Siddig Elsayed Abuidris (msea)\" <msea@odoo.com>\n"
+"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-20/iap/ar/>\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: iap
-#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
+#: model:ir.module.module,description:base.module_iap
 msgid ""
-"<i class=\"oi oi-arrow-right\"/>\n"
-"                                    Buy Credit"
+"\n"
+"This module provides standard tools (account model, context manager and "
+"helpers)\n"
+"to support In-App Purchase inside Odoo. "
 msgstr ""
-"<i class=\"oi oi-arrow-right\"/>\n"
-"                                    شراء رصيد"
 
 #. module: iap
 #: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
 msgid "Account Information"
 msgstr "معلومات الحساب"
+
+#. module: iap
+#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
+msgid "Account Name"
+msgstr "اسم الحساب"
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__account_token
@@ -63,9 +69,25 @@ msgid "Balance"
 msgstr "الرصيد"
 
 #. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_account__balance_amount
+msgid "Balance Amount"
+msgstr "رصيد الحساب"
+
+#. module: iap
 #: model:ir.model.fields.selection,name:iap.selection__iap_account__state__banned
 msgid "Banned"
 msgstr "محظور"
+
+#. module: iap
+#: model:ir.module.module,summary:base.module_iap
+msgid "Basic models and helpers to support In-App Purchase."
+msgstr ""
+
+#. module: iap
+#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
+#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_tree
+msgid "Buy Credits"
+msgstr "شراء رصيد"
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__company_ids
@@ -75,14 +97,21 @@ msgstr "الشركة"
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__create_uid
 #: model:ir.model.fields,field_description:iap.field_iap_service__create_uid
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__create_uid
 msgid "Created by"
 msgstr "أنشئ بواسطة"
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__create_date
 #: model:ir.model.fields,field_description:iap.field_iap_service__create_date
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__create_date
 msgid "Created on"
 msgstr "أنشئ في"
+
+#. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__credit
+msgid "Credit"
+msgstr ""
 
 #. module: iap
 #: model:iap.service,unit_name:iap.iap_service_reveal
@@ -99,8 +128,14 @@ msgstr "الوصف"
 #: model:ir.model.fields,field_description:iap.field_iap_account__display_name
 #: model:ir.model.fields,field_description:iap.field_iap_enrich_api__display_name
 #: model:ir.model.fields,field_description:iap.field_iap_service__display_name
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__display_name
 msgid "Display Name"
 msgstr "اسم العرض"
+
+#. module: iap
+#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
+msgid "Email Alert"
+msgstr "تنبيه عبر البريد الإلكتروني"
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__warning_user_ids
@@ -129,17 +164,9 @@ msgid "IAP"
 msgstr "الوكيل المدرك للهوية (IAP)"
 
 #. module: iap
-#: model:ir.actions.act_window,name:iap.iap_account_action
 #: model:ir.model,name:iap.model_iap_account
-#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
 msgid "IAP Account"
 msgstr "حساب IAP"
-
-#. module: iap
-#: model:ir.ui.menu,name:iap.iap_account_menu
-#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_tree
-msgid "IAP Accounts"
-msgstr "حسابات IAP"
 
 #. module: iap
 #: model:ir.model,name:iap.model_iap_enrich_api
@@ -152,11 +179,44 @@ msgid "IAP Service"
 msgstr "خدمة الشراء داخل التطبيق"
 
 #. module: iap
+#: model:ir.model,name:iap.model_iap_service_pack
+msgid "IAP Service Pack"
+msgstr ""
+
+#. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__id
 #: model:ir.model.fields,field_description:iap.field_iap_enrich_api__id
 #: model:ir.model.fields,field_description:iap.field_iap_service__id
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__id
 msgid "ID"
 msgstr "المُعرف"
+
+#. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__iap_service_pack_identifier
+msgid "Iap Service Pack Identifier"
+msgstr ""
+
+#. module: iap
+#: model:ir.module.module,shortdesc:base.module_iap
+msgid "In-App Purchase"
+msgstr ""
+
+#. module: iap
+#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
+msgid "In-App Purchase Account"
+msgstr ""
+
+#. module: iap
+#: model:ir.actions.act_window,name:iap.iap_account_action
+#: model:ir.ui.menu,name:iap.iap_account_menu
+#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_tree
+msgid "In-App Purchase Accounts"
+msgstr ""
+
+#. module: iap
+#: model_terms:ir.ui.view,arch_db:iap.iap_service_pack_view_tree
+msgid "In-App Purchase Service Packs"
+msgstr ""
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_service__integer_balance
@@ -164,16 +224,28 @@ msgid "Integer Balance"
 msgstr "الرصيد الصحيح"
 
 #. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_account__is_balance_below_warning_threshold
+msgid "Is Balance Below Warning Threshold"
+msgstr ""
+
+#. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__write_uid
 #: model:ir.model.fields,field_description:iap.field_iap_service__write_uid
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__write_uid
 msgid "Last Updated by"
 msgstr "آخر تحديث بواسطة"
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__write_date
 #: model:ir.model.fields,field_description:iap.field_iap_service__write_date
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__write_date
 msgid "Last Updated on"
 msgstr "آخر تحديث في"
+
+#. module: iap
+#: model:iap.service,name:iap.iap_service_reveal
+msgid "Lead Generation"
+msgstr ""
 
 #. module: iap
 #. odoo-javascript
@@ -184,6 +256,7 @@ msgstr "إدارة الخدمة وشراء الأرصدة"
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__name
 #: model:ir.model.fields,field_description:iap.field_iap_service__name
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__name
 msgid "Name"
 msgstr "الاسم"
 
@@ -195,8 +268,15 @@ msgstr "لا توجد خدمة بالاسم التقني الذي ذكرته"
 
 #. module: iap
 #: model_terms:ir.ui.view,arch_db:iap.res_config_settings_view_form
-msgid "Odoo IAP"
-msgstr "IAP أودو"
+msgid "Odoo In-App Purchase"
+msgstr ""
+
+#. module: iap
+#: model:ir.model.fields,help:iap.field_iap_account__warning_threshold
+msgid ""
+"Once you have this many credits or less, the system will automatically "
+"notify the following recipients by email. Set to 0 to disable email warnings."
+msgstr ""
 
 #. module: iap
 #. odoo-python
@@ -215,10 +295,22 @@ msgstr ""
 "لا يمكن أن تتواجد أكثر من خدمة واحدة فقط لها اسم تقني محدد technical_name"
 
 #. module: iap
+#: model:ir.model.constraint,message:iap.constraint_iap_service_pack_unique_iap_service_pack_identifier
+msgid ""
+"Only one service pack can exist with a specific iap_service_pack_identifier"
+msgstr ""
+
+#. module: iap
 #. odoo-python
 #: code:addons/iap/models/iap_account.py:0
 msgid "Please set a positive email alert threshold."
 msgstr "يُرجى تعيين حد موجب لإرسال التنبيهات عبر البريد الإلكتروني."
+
+#. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_account__service_price_description
+#: model:ir.model.fields,field_description:iap.field_iap_service__price_description
+msgid "Price Description"
+msgstr ""
 
 #. module: iap
 #: model:ir.model.fields.selection,name:iap.selection__iap_account__state__registered
@@ -226,7 +318,13 @@ msgid "Registered"
 msgstr "مُسجل"
 
 #. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__price
+msgid "Sales Price (EUR)"
+msgstr ""
+
+#. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__service_id
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__service_id
 msgid "Service"
 msgstr "الخدمة"
 
@@ -234,6 +332,11 @@ msgstr "الخدمة"
 #: model:ir.model.fields,field_description:iap.field_iap_account__service_locked
 msgid "Service Locked"
 msgstr "الخدمة مقفلة"
+
+#. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_service__pack_ids
+msgid "Service Packs"
+msgstr ""
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__state
@@ -249,18 +352,16 @@ msgstr "الاسم التقني"
 #. module: iap
 #. odoo-python
 #: code:addons/iap/models/iap_account.py:0
-msgid "The IAP token provided is invalid or empty."
+msgid ""
+"The IAP server is unreachable and the information may not be up to date. "
+"Please try again later."
 msgstr ""
 
 #. module: iap
 #. odoo-python
-#: code:addons/iap/tools/iap_tools.py:0
-msgid ""
-"The request to the service timed out. Please contact the author of the app. "
-"The URL it tried to contact was %s"
-msgstr ""
-"انتهت مهلة طلب الخدمة. يرجى الاتصال بمنشئ التطبيق. كان عنوان URL الذي حاول "
-"الاتصال به هو %s"
+#: code:addons/iap/models/iap_account.py:0
+msgid "The IAP token provided is invalid or empty."
+msgstr "رمز الشراء داخل التطبيق (IAP token) المقدم غير صالح أو فارغ."
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_service__unit_name
@@ -271,6 +372,11 @@ msgstr "اسم الوحدة"
 #: model:ir.model.fields.selection,name:iap.selection__iap_account__state__unregistered
 msgid "Unregistered"
 msgstr "غير مسجل"
+
+#. module: iap
+#: model_terms:ir.ui.view,arch_db:iap.view_iap_users_tree
+msgid "Users"
+msgstr ""
 
 #. module: iap
 #. odoo-javascript
@@ -284,30 +390,9 @@ msgstr "عرض خدماتي"
 msgid "View your IAP Services and recharge your credits"
 msgstr "اعرض خدمات IAP الخاصة بك وقم بإعادة شحن رصيدك"
 
-#~ msgid "Buy credits"
-#~ msgstr "شراء رصيد"
-
-#~ msgid "Cancel"
-#~ msgstr "إلغاء "
-
-#~ msgid "Config Settings"
-#~ msgstr "تهيئة الإعدادات "
-
-#~ msgid "Insufficient credit to perform this service."
-#~ msgstr "الرصيد غير كافٍ لإجراء هذه الخدمة."
-
-#~ msgid "Open IAP Account"
-#~ msgstr "فتح حساب IAP"
-
-#~ msgid "Service Name"
-#~ msgstr "اسم الخدمة"
-
-#~ msgid "Start a Trial at Odoo"
-#~ msgstr "بدء نسخة تجريبية في أودو"
-
 #~ msgid ""
-#~ "The url that this service requested returned an error. Please contact the "
-#~ "author of the app. The url it tried to contact was %s"
+#~ "The request to the service timed out. Please contact the author of the "
+#~ "app. The URL it tried to contact was %s"
 #~ msgstr ""
-#~ "حدث خطأ ما في رابط url الذي تم طلبه من قِبَل هذه الخدمة. يرجى التواصل مع "
-#~ "منشئ هذا التطبيق. الرابط الذي حاولت الخدمة التواصل معه هو %s "
+#~ "انتهت مهلة طلب الخدمة. يرجى الاتصال بمنشئ التطبيق. كان عنوان URL الذي "
+#~ "حاول الاتصال به هو %s"

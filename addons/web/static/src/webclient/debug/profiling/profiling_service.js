@@ -1,17 +1,18 @@
+import { effect, EventBus, proxy, usePlugin } from "@odoo/owl";
+import { DebugModePlugin } from "@web/core/debug_mode_plugin";
 import { registry } from "@web/core/registry";
-import { ProfilingItem } from "./profiling_item";
 import { session } from "@web/session";
-import { profilingSystrayItem } from "./profiling_systray_item";
-
-import { EventBus, reactive } from "@odoo/owl";
+import { ProfilingItem } from "@web/webclient/debug/profiling/profiling_item";
+import { profilingSystrayItem } from "@web/webclient/debug/profiling/profiling_systray_item";
 
 const systrayRegistry = registry.category("systray");
 
 export const profilingService = {
-    dependencies: ["orm"],
-    start(env, { orm }) {
+    dependencies: ["action", "orm"],
+    start(env, { action, orm }) {
+        const debugMode = usePlugin(DebugModePlugin);
         // Only set up profiling when in debug mode
-        if (!env.debug) {
+        if (!debugMode.isActive()) {
             return;
         }
 
@@ -25,20 +26,18 @@ export const profilingService = {
             bus.trigger("UPDATE");
         }
 
-        const state = reactive(
-            {
-                session: session.profile_session || false,
-                collectors: session.profile_collectors || ["sql", "traces_async"],
-                params: session.profile_params || {},
-                get isEnabled() {
-                    return Boolean(state.session);
-                },
+        const state = proxy({
+            session: session.profile_session || false,
+            collectors: session.profile_collectors || ["sql", "traces_async"],
+            params: session.profile_params || {},
+            get isEnabled() {
+                return Boolean(state.session);
             },
-            notify
-        );
+        });
 
         const bus = new EventBus();
-        notify();
+        const disposeEffect = effect(notify);
+        registry.category("services").addEventListener("CLEANUP", disposeEffect, { once: true });
 
         async function setProfiling(params) {
             const kwargs = Object.assign(
@@ -52,7 +51,7 @@ export const profilingService = {
             const resp = await orm.call("ir.profile", "set_profiling", [], kwargs);
             if (resp.type) {
                 // most likely an "ir.actions.act_window"
-                env.services.action.doAction(resp);
+                action.doAction(resp);
             } else {
                 state.session = resp.session;
                 state.collectors = resp.collectors;

@@ -7,53 +7,75 @@ export class PosPaymentMethod extends models.ServerModel {
         return [
             "id",
             "name",
-            "is_cash_count",
-            "use_payment_terminal",
-            "split_transactions",
+            "payment_provider",
             "type",
             "image",
             "sequence",
             "payment_method_type",
             "default_qr",
+            "currency_ids",
         ];
+    }
+
+    // Labels of the `payment_provider` selection, extended by the provider modules
+    _get_payment_provider_names() {
+        return {};
+    }
+
+    _load_pos_data_read(records) {
+        const names = this._get_payment_provider_names();
+        for (const record of records) {
+            record._payment_provider_name = names[record.payment_provider] || false;
+        }
+        return records;
+    }
+
+    get_qr_code_value(
+        _amount,
+        _free_communication,
+        _structured_communication,
+        _currency,
+        _debtor_partner
+    ) {
+        return "http://localhost:4444";
     }
 
     _records = [
         {
             id: 2,
             name: "Card",
-            is_cash_count: false,
-            use_payment_terminal: false,
-            split_transactions: false,
+            payment_provider: false,
             type: "bank",
             image: false,
             sequence: 1,
             payment_method_type: "none",
             default_qr: false,
+            currency_ids: [1],
+            write_date: "2025-01-01 10:00:00",
         },
         {
             id: 3,
             name: "Customer Account",
-            is_cash_count: false,
-            use_payment_terminal: false,
-            split_transactions: true,
+            payment_provider: false,
             type: "pay_later",
             image: false,
             sequence: 2,
             payment_method_type: "none",
             default_qr: false,
+            currency_ids: [],
+            write_date: "2025-01-01 10:00:00",
         },
         {
             id: 1,
             name: "Cash",
-            is_cash_count: true,
-            use_payment_terminal: false,
-            split_transactions: false,
+            payment_provider: false,
             type: "cash",
             image: false,
             sequence: 0,
             payment_method_type: "none",
             default_qr: false,
+            currency_ids: [125],
+            write_date: "2025-01-01 10:00:00",
         },
     ];
 }

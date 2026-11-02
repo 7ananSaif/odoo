@@ -10,37 +10,37 @@ const storePatch = {
         super.setup(...arguments);
         this.livechatChannels = this.makeCachedFetchData("im_livechat.channel");
         this.livechatSelfExpertises = this.makeCachedFetchData("/im_livechat/fetch_self_expertise");
-        this.has_access_livechat = false;
     },
     /**
      * @override
      */
-    onStarted() {
-        super.onStarted(...arguments);
+    initialize() {
+        super.initialize(...arguments);
         if (this.discuss.isActive && this.has_access_livechat) {
             this.livechatChannels.fetch();
             this.livechatSelfExpertises.fetch();
         }
     },
-    /** @returns {boolean} Whether the livechat thread changed. */
     goToOldestUnreadLivechatThread() {
-        const [oldestUnreadThread] = this.discuss.livechats
-            .filter((thread) => thread.isUnread)
+        const [oldestUnreadConversation] = this.discuss.livechats
+            .filter((conversation) => conversation.isUnread)
             .sort(
-                (t1, t2) =>
-                    !t2.livechat_end_dt - !t1.livechat_end_dt ||
-                    compareDatetime(t1.lastInterestDt, t2.lastInterestDt) ||
-                    t1.id - t2.id
+                (c1, c2) =>
+                    !c2.livechat_end_dt - !c1.livechat_end_dt ||
+                    compareDatetime(c1.lastInterestDt, c2.lastInterestDt) ||
+                    c1.id - c2.id
             );
-        if (!oldestUnreadThread) {
+        if (!oldestUnreadConversation) {
             return false;
         }
         if (this.discuss.isActive) {
-            oldestUnreadThread.setAsDiscussThread();
+            oldestUnreadConversation.setAsDiscussThread();
             return true;
         }
         this.store.chatHub.initPromise.then(() => {
-            const chatWindow = this.ChatWindow.insert({ thread: oldestUnreadThread });
+            const chatWindow = this.ChatWindow.insert({
+                channel: oldestUnreadConversation.thread.channel,
+            });
             chatWindow.open({ focus: true, jumpToNewMessage: true });
         });
         return true;
@@ -50,32 +50,15 @@ const storePatch = {
             {
                 label: _t("In progress"),
                 status: "in_progress",
-                icon: "fa fa-comments",
-            },
-            {
-                label: _t("Waiting for customer"),
-                status: "waiting",
-                icon: "fa fa-hourglass-start",
+                icon: "forum",
+                iconClass: "oi-filled",
             },
             {
                 label: _t("Looking for help"),
                 status: "need_help",
-                icon: "fa fa-lg fa-exclamation-circle",
+                icon: "error",
             },
         ];
-    },
-    /**
-     * @override
-     */
-    tabToThreadType(tab) {
-        const threadTypes = super.tabToThreadType(tab);
-        if (tab === "chat" && !this.env.services.ui.isSmall) {
-            threadTypes.push("livechat");
-        }
-        if (tab === "livechat") {
-            threadTypes.push("livechat");
-        }
-        return threadTypes;
     },
 };
 patch(Store.prototype, storePatch);

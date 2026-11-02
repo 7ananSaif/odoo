@@ -75,7 +75,7 @@ class TestMailPerformance(FullBaseMailPerformance):
         self.push_to_end_point_mocked.reset_mock()  # reset as executed twice
         self.flush_tracking()
 
-        with self.assertQueryCount(employee=108):  # test_mail_full: 106
+        with self.assertQueryCount(employee=104):  # test_mail_full: 104
             new_message = record_ticket.message_post(
                 attachment_ids=attachments.ids,
                 body=Markup('<p>Test Content</p>'),
@@ -91,7 +91,11 @@ class TestMailPerformance(FullBaseMailPerformance):
             new_message.notified_partner_ids,
             self.user_follower_emp_email.partner_id + self.user_admin.partner_id + self.customers + self.user_follower_portal.partner_id
         )
-        self.assertEqual(self.push_to_end_point_mocked.call_count, 8, "Not sure why 8")
+        self.assertEqual(
+            self.push_to_end_point_mocked.call_count,
+            2,
+            "Mentioned/Subscribed internal users with a device",
+        )
 
 
 @tagged('mail_performance', 'post_install', '-at_install')
@@ -139,7 +143,7 @@ class TestPortalFormatPerformance(FullBaseMailPerformance):
             {
                 'attachment_ids': [
                     (0, 0, {
-                        'datas': 'data',
+                        'raw': b'data',
                         'name': f'Test file {att_idx}',
                         'res_id': record.id,
                         'res_model': record._name,
@@ -185,7 +189,7 @@ class TestPortalFormatPerformance(FullBaseMailPerformance):
                 'res_id': record.id,
                 'subject': f'Test Rating {msg_idx}',
                 'subtype_id': comment_subtype_id,
-                'starred_partner_ids': [
+                'bookmarked_partner_ids': [
                     (4, cls.customers[(msg_idx * 2)].id),
                     (4, cls.customers[(msg_idx * 2) + 1].id),
                 ],
@@ -232,7 +236,7 @@ class TestPortalFormatPerformance(FullBaseMailPerformance):
     def test_portal_message_format_norating(self):
         messages_all = self.messages_all.with_user(self.env.user)
 
-        with self.assertQueryCount(employee=15):
+        with self.assertQueryCount(employee=11):
             # res = messages_all.portal_message_format(options=None)
             res = messages_all.portal_message_format(options={'rating_include': False})
 
@@ -246,7 +250,6 @@ class TestPortalFormatPerformance(FullBaseMailPerformance):
                 [
                     {
                         'checksum': message.attachment_ids[0].checksum,
-                        'filename': 'Test file 1',
                         'has_thumbnail': False,
                         'id': message.attachment_ids[0].id,
                         'mimetype': 'text/plain',
@@ -257,7 +260,6 @@ class TestPortalFormatPerformance(FullBaseMailPerformance):
                         'thumbnail_access_token': message.attachment_ids[0]._get_thumbnail_token(),
                     }, {
                         'checksum': message.attachment_ids[1].checksum,
-                        'filename': 'Test file 0',
                         'has_thumbnail': False,
                         'id': message.attachment_ids[1].id,
                         'mimetype': 'text/plain',
@@ -271,7 +273,7 @@ class TestPortalFormatPerformance(FullBaseMailPerformance):
             )
             self.assertEqual(format_res["author_id"]["id"], record.customer_id.id)
             self.assertEqual(format_res["author_id"]["name"], record.customer_id.display_name)
-            self.assertEqual(format_res['author_avatar_url'], f'/web/image/mail.message/{message.id}/author_avatar/50x50')
+            self.assertEqual(format_res["author_id"]["avatar_128_access_token"], record.customer_id._get_avatar_128_access_token())
             self.assertEqual(format_res['date'], datetime(2023, 5, 15, 10, 30, 5))
             self.assertEqual(' '.join(format_res['published_date_str'].split()), '05/15/2023 10:30:05 AM')
             self.assertEqual(format_res['id'], message.id)
@@ -289,7 +291,7 @@ class TestPortalFormatPerformance(FullBaseMailPerformance):
     def test_portal_message_format_rating(self):
         messages_all = self.messages_all.with_user(self.env.user)
 
-        with self.assertQueryCount(employee=29):  # sometimes +1
+        with self.assertQueryCount(employee=26):  # 25, sometimes +1
             res = messages_all.portal_message_format(options={'rating_include': True})
 
         self.assertEqual(len(res), len(messages_all))
@@ -311,7 +313,7 @@ class TestPortalFormatPerformance(FullBaseMailPerformance):
     def test_portal_message_format_monorecord(self):
         message = self.messages_all[0].with_user(self.env.user)
 
-        with self.assertQueryCount(employee=20):  # randomness: 19+1
+        with self.assertQueryCount(employee=17):  # randomness: 16+1
             res = message.portal_message_format(options={'rating_include': True})
 
         self.assertEqual(len(res), 1)
@@ -421,25 +423,25 @@ class TestRatingPerformance(FullBaseMailPerformance):
     @users('employee')
     @warmup
     def test_rating_last_value_perfs(self):
-        with self.assertQueryCount(employee=274):  # tmf: 274
+        with self.assertQueryCount(employee=335):  # tmf: 335
             self.create_ratings('mail.test.rating.thread')
 
-        with self.assertQueryCount(employee=283):  # tmf: 283
+        with self.assertQueryCount(employee=343):  # tmf: 343
             self.apply_ratings(1)
 
-        with self.assertQueryCount(employee=242):  # tmf: 242
+        with self.assertQueryCount(employee=302):  # tmf: 302
             self.apply_ratings(5)
 
     @users('employee')
     @warmup
     def test_rating_last_value_perfs_with_rating_mixin(self):
-        with self.assertQueryCount(employee=317):  # tmf: 317
+        with self.assertQueryCount(employee=378):  # tmf: 378
             self.create_ratings('mail.test.rating')
 
-        with self.assertQueryCount(employee=325):  # tmf: 325
+        with self.assertQueryCount(employee=384):  # tmf: 384
             self.apply_ratings(1)
 
-        with self.assertQueryCount(employee=304):  # tmf: 304
+        with self.assertQueryCount(employee=363):  # tmf: 363
             self.apply_ratings(5)
 
         with self.assertQueryCount(employee=1):

@@ -18,10 +18,10 @@ class FleetVehicleLogContract(models.Model):
         return fields.Date.to_string(start_date + oneyear)
 
     vehicle_id = fields.Many2one('fleet.vehicle', 'Vehicle', required=True, check_company=True, tracking=True, index=True)
-    cost_subtype_id = fields.Many2one('fleet.service.type', 'Type', help='Cost type purchased with this cost', domain=[('category', '=', 'contract')])
+    cost_subtype_id = fields.Many2one('fleet.service.type', 'Contract Type', help='Cost type purchased with this cost', domain=[('category', '=', 'contract')])
     amount = fields.Monetary('Cost', tracking=True)
     date = fields.Date(help='Date when the cost has been executed')
-    company_id = fields.Many2one('res.company', 'Company', default=lambda self: self.env.company)
+    company_id = fields.Many2one('res.company', 'Company', default=lambda self: self.env.company, index=True)
     currency_id = fields.Many2one('res.currency', related='company_id.currency_id')
     name = fields.Char(string='Name', compute='_compute_contract_name', store=True, readonly=False)
     active = fields.Boolean(default=True)
@@ -48,8 +48,9 @@ class FleetVehicleLogContract(models.Model):
         [('futur', 'New'),
          ('open', 'Running'),
          ('expired', 'Expired'),
-         ('closed', 'Cancelled')
-        ], 'Status', default='open',
+         ('done', 'Done'),
+         ('closed', 'Closed')
+        ], 'Status', default='futur',
         help='Choose whether the contract is still valid or not',
         tracking=True,
         copy=False)
@@ -62,7 +63,7 @@ class FleetVehicleLogContract(models.Model):
         ('monthly', 'Monthly'),
         ('yearly', 'Yearly')
         ], 'Recurring Cost Frequency', default='monthly', required=True, tracking=True)
-    service_ids = fields.Many2many('fleet.service.type', string="Included Services")
+    service_ids = fields.Many2many('fleet.service.type', string="Included Services", domain=[('category', 'in', ['contract', 'service'])])
 
     @api.depends('vehicle_id.name', 'cost_subtype_id')
     def _compute_contract_name(self):
@@ -72,16 +73,16 @@ class FleetVehicleLogContract(models.Model):
                 name = record.cost_subtype_id.name + ' ' + name
             record.name = name
 
-    @api.depends('vehicle_id')
+    @api.depends('vehicle_id', 'cost_subtype_id')
     def _compute_has_open_contract(self):
-        today = fields.Date.today()
         open_contracts = self.env['fleet.vehicle.log.contract'].search([
             ('vehicle_id', 'in', self.vehicle_id.ids),
             ('state', '=', 'open'),
-            ('expiration_date', '>=', today)
+            ('expiration_date', '>=', 'today')
         ])
+        open_contract_keys = {(c.vehicle_id.id, c.cost_subtype_id.id) for c in open_contracts}
         for log_contract in self:
-            log_contract.has_open_contract = log_contract.vehicle_id in open_contracts.vehicle_id
+            log_contract.has_open_contract = (log_contract.vehicle_id.id, log_contract.cost_subtype_id.id) in open_contract_keys
 
     @api.depends('expiration_date', 'state')
     def _compute_days_left(self):
@@ -90,7 +91,7 @@ class FleetVehicleLogContract(models.Model):
         if contract is in a closed state, return -1
         otherwise return the number of days before the contract expires
         """
-        today = fields.Date.from_string(fields.Date.today())
+        today = fields.Date.context_today(self)
         for record in self:
             if record.expiration_date and record.state in ['open', 'expired']:
                 renew_date = fields.Date.from_string(record.expiration_date)
@@ -101,23 +102,34 @@ class FleetVehicleLogContract(models.Model):
                 record.days_left = -1
                 record.expires_today = False
 
+    def _update_state(self):
+        date_today = fields.Date.context_today(self)
+        future_contracts, running_contracts, expired_contracts = self.env[self._name], self.env[self._name], self.env[self._name]
+        # Done and closed are the last steps, so a new date should never bring them back.
+        for contract in self.filtered(lambda c: c.start_date and c.state not in ('closed', 'done')):
+            if date_today < contract.start_date:
+                future_contracts |= contract
+            elif not contract.expiration_date or contract.start_date <= date_today <= contract.expiration_date:
+                running_contracts |= contract
+            else:
+                expired_contracts |= contract
+        future_contracts.action_draft()
+        running_contracts.action_open()
+        expired_contracts.action_expire()
+
     def write(self, vals):
-        res = super(FleetVehicleLogContract, self).write(vals)
+        res = super().write(vals)
         if 'start_date' in vals or 'expiration_date' in vals:
-            date_today = fields.Date.today()
-            future_contracts, running_contracts, expired_contracts = self.env[self._name], self.env[self._name], self.env[self._name]
-            for contract in self.filtered(lambda c: c.start_date and c.state != 'closed'):
-                if date_today < contract.start_date:
-                    future_contracts |= contract
-                elif not contract.expiration_date or contract.start_date <= date_today <= contract.expiration_date:
-                    running_contracts |= contract
-                else:
-                    expired_contracts |= contract
-            future_contracts.action_draft()
-            running_contracts.action_open()
-            expired_contracts.action_expire()
+            self._update_state()
         if vals.get('expiration_date') or vals.get('user_id'):
             self.activity_reschedule(['fleet.mail_act_fleet_contract_to_renew'], date_deadline=vals.get('expiration_date'), new_user_id=vals.get('user_id'))
+        return res
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        res = super().create(vals_list)
+        for contract in res:
+            contract._update_state()
         return res
 
     def action_close(self):
@@ -132,12 +144,22 @@ class FleetVehicleLogContract(models.Model):
     def action_expire(self):
         self.write({'state': 'expired'})
 
+    def action_done(self):
+        """ Mark an expired contract as processed so it stops asking for an action. """
+        self.write({'state': 'done'})
+        # The renewal reminder is useless once someone took care of the contract.
+        self.activity_unlink(['fleet.mail_act_fleet_contract_to_renew'])
+
+    def action_reactivate(self):
+        self.write({'state': 'futur'})
+        self._update_state()
+
     @api.model
     def scheduler_manage_contract_expiration(self):
         # This method is called by a cron task
         # It manages the state of a contract, possibly by posting a message on the vehicle concerned and updating its status
         params = self.env['ir.config_parameter'].sudo()
-        delay_alert_contract = int(params.get_param('hr_fleet.delay_alert_contract', default=30))
+        delay_alert_contract = params.get_int('hr_fleet.delay_alert_contract', 30)
         date_today = fields.Date.from_string(fields.Date.today())
         outdated_days = fields.Date.to_string(date_today + relativedelta(days=+delay_alert_contract))
         reminder_activity_type = self.env.ref('fleet.mail_act_fleet_contract_to_renew')
@@ -147,7 +169,7 @@ class FleetVehicleLogContract(models.Model):
             ('user_id', '!=', False)
         ]
         ).filtered(
-            lambda nec: reminder_activity_type not in nec.activity_ids.activity_type_id
+            lambda nec: reminder_activity_type not in nec.with_context(active_test=False).activity_ids.activity_type_id
         )
 
         for contract in nearly_expired_contracts:
@@ -155,13 +177,15 @@ class FleetVehicleLogContract(models.Model):
                 'fleet.mail_act_fleet_contract_to_renew', contract.expiration_date,
                 user_id=contract.user_id.id)
 
-        expired_contracts = self.search([('state', 'not in', ['expired', 'closed']), ('expiration_date', '<',fields.Date.today() )])
+        today = fields.Date.context_today(self)
+        # Contracts marked as done are skipped here because the team already handled them.
+        expired_contracts = self.search([('state', 'not in', ['expired', 'closed', 'done']), ('expiration_date', '<', today)])
         expired_contracts.action_expire()
 
-        futur_contracts = self.search([('state', 'not in', ['futur', 'closed']), ('start_date', '>', fields.Date.today())])
+        futur_contracts = self.search([('state', 'not in', ['futur', 'closed', 'done']), ('start_date', '>', today)])
         futur_contracts.action_draft()
 
-        now_running_contracts = self.search([('state', '=', 'futur'), ('start_date', '<=', fields.Date.today())])
+        now_running_contracts = self.search([('state', '=', 'futur'), ('start_date', '<=', today)])
         now_running_contracts.action_open()
 
     def run_scheduler(self):

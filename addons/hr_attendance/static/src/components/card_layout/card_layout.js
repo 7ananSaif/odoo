@@ -1,21 +1,20 @@
-import { Component, useState, onWillUnmount } from "@odoo/owl";
+import { Component, onWillUnmount, useProps, proxy, t } from "@odoo/owl";
+import { useService } from "@web/core/utils/hooks";
 
 const { DateTime } = luxon;
 export class CardLayout extends Component {
     static template = "hr_attendance.CardLayout";
-    static props = {
-        slots: Object,
-        fromTrialMode: { type: Boolean, optional: true },
-        companyImageUrl: { type: String },
-        kioskReturn: { type: Function },
-        activeDisplay: { type: String },
-    };
-    static defaultProps = {
-        kioskModeClasses: "",
-    };
+    props = useProps({
+        fromTrialMode: t.boolean().optional(),
+        companyImageUrl: t.string(),
+        kioskReturn: t.function(),
+        activeDisplay: t.string(),
+        kioskModeClasses: t.string().optional(""),
+    });
 
     setup() {
-        this.state = useState(this.getDateTime());
+        this.state = proxy(this.getDateTime());
+        this.uiService = useService("ui");
         this.timeInterval = setInterval(() => {
             Object.assign(this.state, this.getDateTime());
         }, 1000);

@@ -1,13 +1,11 @@
 import { describe, expect, test } from "@odoo/hoot";
 import { queryFirst, waitFor } from "@odoo/hoot-dom";
 import {
-    asyncStep,
-    makeMockEnv,
+    makeTestApp,
     MockServer,
     mockService,
     mountWithCleanup,
     serverState,
-    waitForSteps,
 } from "@web/../tests/web_test_helpers";
 import { WebClient } from "@web/webclient/webclient";
 import { defineBusModels } from "./bus_test_helpers";
@@ -38,13 +36,13 @@ test("receive and display simple notification as sticky", async () => {
     mockService("notification", {
         add(_, options) {
             expect(options.sticky).toBe(true);
-            asyncStep("add notification");
+            expect.step("add notification");
         },
     });
-    await makeMockEnv();
+    await makeTestApp();
     MockServer.env["bus.bus"]._sendone(serverState.partnerId, "simple_notification", {
         message: "simple notification",
         sticky: true,
     });
-    await waitForSteps(["add notification"]);
+    await expect.waitForSteps(["add notification"]);
 });

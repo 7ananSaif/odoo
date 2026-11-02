@@ -14,15 +14,42 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-10-08 18:37+0000\n"
-"Last-Translator: \n"
-"Language-Team: \n"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-08-31 14:12+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Uzbek <https://translate.odoo.com/projects/odoo-s19-4/"
+"base_import/uz/>\n"
 "Language: uz\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: base_import
+#: model:ir.module.module,description:base.module_base_import
+msgid ""
+"\n"
+"New extensible file import for Odoo\n"
+"======================================\n"
+"\n"
+"Re-implement Odoo's file import system:\n"
+"\n"
+"* Server side, the previous system forces most of the logic into the\n"
+"  client which duplicates the effort (between clients), makes the\n"
+"  import system much harder to use without a client (direct RPC or\n"
+"  other forms of automation) and makes knowledge about the\n"
+"  import/export system much harder to gather as it is spread over\n"
+"  3+ different projects.\n"
+"\n"
+"* In a more extensible manner, so users and partners can build their\n"
+"  own front-end to import from other file formats (e.g. OpenDocument\n"
+"  files) which may be simpler to handle in their work flow or from\n"
+"  their data production sources.\n"
+"\n"
+"* In a module, so that administrators and users of Odoo who do not\n"
+"  need or want an online import can avoid it being available to users.\n"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
@@ -72,30 +99,6 @@ msgstr "Qo‘shimcha maydonlar"
 
 #. module: base_import
 #. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-#, fuzzy
-msgid "Advanced"
-msgstr "Kengaytirilgan"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_model.js:0
-#, fuzzy
-msgid ""
-"After each batch import, this delay is applied to avoid unthrottled calls"
-msgstr ""
-"Har bir partiyali import qilinganidan so‘ng, cheklanmagan so‘rovlarning "
-"oldini olish uchun bu kechikish qo‘llaniladi"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-#, fuzzy
-msgid "Allow matching with subfields"
-msgstr "Ichki maydonlar bilan moslashtirish imkonini berish"
-
-#. module: base_import
-#. odoo-javascript
 #: code:addons/base_import/static/src/import_model.js:0
 #, fuzzy
 msgid ""
@@ -108,6 +111,12 @@ msgstr ""
 "yoki xotira limiti oshib ketgan bo‘lishi mumkin). Iltimos, muammo "
 "vaqtinchalik bo‘lsa, qayta urinib ko‘ring. Agar muammo davom etsa, faylni "
 "bir vaqtning o‘zida import qilish o‘rniga bo‘laklarga ajratib ko‘ring."
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
+msgid "Attachments"
+msgstr ""
 
 #. module: base_import
 #: model:ir.model,name:base_import.model_base
@@ -128,39 +137,33 @@ msgid "Base Import Mapping"
 msgstr "Asosiy import xaritalash"
 
 #. module: base_import
+#: model:ir.module.module,shortdesc:base.module_base_import
+msgid "Base import"
+msgstr ""
+
+#. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_progress/import_data_progress.xml:0
-#, fuzzy
 msgid "Batch"
-msgstr "Partiya"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-#, fuzzy
-msgid "Batch Import"
-msgstr "Partiyali import"
+msgid "Batch interval"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-#, fuzzy
-msgid "Batch limit"
-msgstr "Partiya chegarasi"
+msgid "Batch max size"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
-#: code:addons/base_import/static/src/import_action/import_action.xml:0
-#, fuzzy
-msgid "But, you can also use .csv files"
-msgstr "Ammo siz .csv fayllaridan ham foydalanishingiz mumkin"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_action/import_action.xml:0
-#, fuzzy
-msgid "Cancel"
-msgstr "Bekor qilish"
+#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
+msgid "Batch size"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
@@ -204,13 +207,6 @@ msgid "Comma"
 msgstr "Vergul"
 
 #. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_data_content/import_data_content.xml:0
-#, fuzzy
-msgid "Comments"
-msgstr "Izohlar"
-
-#. module: base_import
 #. odoo-python
 #: code:addons/base_import/models/base_import.py:0
 #, fuzzy
@@ -242,13 +238,6 @@ msgid "Created on"
 msgstr "Yaratilgan sana"
 
 #. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-#, fuzzy
-msgid "Data to import"
-msgstr "Import qilinadigan ma'lumotlar"
-
-#. module: base_import
 #. odoo-python
 #: code:addons/base_import/models/base_import.py:0
 #, fuzzy
@@ -258,39 +247,46 @@ msgstr "Ma'lumotlar bazasi ID raqami"
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_model.js:0
-#, fuzzy
-msgid "Date Format:"
-msgstr "Sana formati:"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_model.js:0
-#, fuzzy
-msgid "Datetime Format:"
-msgstr "Sana va vaqt formati:"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_model.js:0
-#, fuzzy
-msgid "Decimals Separator:"
-msgstr "O‘nlik kasrlar ajratuvchisi:"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_model.js:0
-#, fuzzy
-msgid "Defines how many megabytes can be imported in each batch import"
+msgid "Date Format"
 msgstr ""
-"Har bir partiyali importda qancha megabayt ma'lumot import qilinishi "
-"mumkinligini belgilaydi"
 
 #. module: base_import
 #. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-#, fuzzy
-msgid "Delay after each batch"
-msgstr "Har bir partiyadan keyingi kechikish"
+#: code:addons/base_import/static/src/import_model.js:0
+msgid "Datetime Format"
+msgstr ""
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_model.js:0
+msgid "Decimals Separator"
+msgstr ""
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_model.js:0
+msgid "Defines how many megabytes can be imported in each batch"
+msgstr ""
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.js:0
+msgid ""
+"Defines the number of records that will be imported in one transaction. "
+"Reduce the batch size in case of heavy imports"
+msgstr ""
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_model.js:0
+msgid "Delay applied after each batch to prevent unthrottled calls"
+msgstr ""
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_model.js:0
+msgid "Delimiter"
+msgstr ""
 
 #. module: base_import
 #: model:ir.model.fields,field_description:base_import.field_base_import_import__display_name
@@ -299,6 +295,13 @@ msgstr "Har bir partiyadan keyingi kechikish"
 #, fuzzy
 msgid "Display Name"
 msgstr "Ko‘rsatiladigan nom"
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_action/import_action.xml:0
+#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
+msgid "Documentation"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
@@ -317,17 +320,9 @@ msgstr "Yuklab olish"
 
 #. module: base_import
 #. odoo-javascript
-#: code:addons/base_import/static/src/import_action/import_action.xml:0
-#, fuzzy
-msgid "Drop or upload a file to import"
-msgstr "Import qilish uchun faylni tashlang yoki yuklang"
-
-#. module: base_import
-#. odoo-javascript
 #: code:addons/base_import/static/src/import_model.js:0
-#, fuzzy
-msgid "Encoding:"
-msgstr "Kodlash:"
+msgid "Encoding"
+msgstr ""
 
 #. module: base_import
 #. odoo-python
@@ -382,27 +377,11 @@ msgid "Everything seems valid."
 msgstr "Hamma narsa to‘g‘ri ko‘rinmoqda."
 
 #. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_action/import_action.xml:0
-#, fuzzy
-msgid "Excel files are recommended as formatting is automatic."
-msgstr ""
-"Excel fayllari tavsiya etiladi, chunki ularda formatlash avtomatik ravishda "
-"amalga oshiriladi."
-
-#. module: base_import
 #. odoo-python
 #: code:addons/base_import/models/base_import.py:0
 #, fuzzy
 msgid "External ID"
 msgstr "Tashqi identifikator"
-
-#. module: base_import
-#. odoo-python
-#: code:addons/base_import/models/base_import.py:0
-#, fuzzy
-msgid "Field '%(field)s' does not accept date/time values."
-msgstr "'%(field)s' maydoni sana/vaqt qiymatlarini qabul qilmaydi."
 
 #. module: base_import
 #: model:ir.model.fields,field_description:base_import.field_base_import_mapping__field_name
@@ -444,23 +423,14 @@ msgstr "Fayl hajmi belgilangan maksimal qiymatdan oshib ketdi (%s bayt)"
 
 #. module: base_import
 #: model:ir.model.fields,help:base_import.field_base_import_import__file
-#, fuzzy
-msgid "File to check and/or import, raw binary (not base64)"
-msgstr "Tekshirish va/yoki import qilish uchun fayl, xom ikkilik (base64 emas)"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-#, fuzzy
-msgid "Files to import"
-msgstr "Import qilinadigan fayllar"
+msgid "File to check and/or import"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_progress/import_data_progress.xml:0
-#, fuzzy
 msgid "Finalizing current batch before interrupting..."
-msgstr "Uzilishdan oldin joriy to‘plam yakunlanmoqda..."
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
@@ -492,13 +462,6 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
 #, fuzzy
-msgid "Go to Import FAQ"
-msgstr "Import qilish bo‘yicha savol-javoblar sahifasiga o‘tish"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-#, fuzzy
 msgid "Help"
 msgstr "Yordam"
 
@@ -519,60 +482,42 @@ msgstr "ID"
 
 #. module: base_import
 #. odoo-javascript
+#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.js:0
+msgid ""
+"If checked, the changes are tracked in the chatter and notifications can be "
+"sent to followers, which could slow down the import"
+msgstr ""
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.js:0
+msgid "If checked, the first row of the sheet will not be imported"
+msgstr ""
+
+#. module: base_import
+#. odoo-javascript
 #: code:addons/base_import/static/src/import_data_content/import_data_content.xml:0
-#, fuzzy
 msgid ""
 "If the file contains\n"
 "                    the column names, Odoo can try auto-detecting the\n"
 "                    field corresponding to the column. This makes imports\n"
 "                    simpler especially when the file has many columns."
 msgstr ""
-"Agar faylda ustun nomlari mavjud bo‘lsa, Odoo ustunga mos keladigan maydonni "
-"avtomatik aniqlashga harakat qiladi. Bu, ayniqsa, fayl ko‘p ustunli bo‘lsa, "
-"importni osonlashtiradi."
 
 #. module: base_import
 #. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-#, fuzzy
-msgid ""
-"If the model uses openchatter, history tracking will set up subscriptions "
-"and send notifications during the import, but lead to a slower import."
-msgstr ""
-"Agar modelda openchatter ishlatilsa, tarixni kuzatish obunalarni o‘rnatadi "
-"va import paytida bildirishnomalar yuboradi, lekin bu importni "
-"sekinlashtiradi."
-
-#. module: base_import
-#. odoo-python
-#: code:addons/base_import/models/base_import.py:0
-#, fuzzy
-msgid ""
-"Image size excessive, imported images must be smaller than 42 million pixel"
-msgstr ""
-"Rasm hajmi juda katta, import qilingan rasmlar 42 million pikseldan kichik "
-"bo‘lishi kerak"
-
-#. module: base_import
-#. odoo-javascript
+#: code:addons/base_import/static/src/import_action/import_action.js:0
 #: code:addons/base_import/static/src/import_action/import_action.xml:0
+#: code:addons/base_import/static/src/import_records/import_records.xml:0
 #, fuzzy
 msgid "Import"
 msgstr "Import qilish"
 
 #. module: base_import
 #. odoo-javascript
-#: code:addons/base_import/static/src/import_action/import_action.xml:0
-#, fuzzy
-msgid "Import FAQ"
-msgstr "Import bo‘yicha savol-javoblar"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_action/import_action.js:0
-#, fuzzy
-msgid "Import a File"
-msgstr "Faylni import qilish"
+#: code:addons/base_import/static/src/import_model.js:0
+msgid "Import failed: see errors below"
+msgstr ""
 
 #. module: base_import
 #. odoo-python
@@ -584,18 +529,8 @@ msgstr "Import faylida ma'lumot yo‘q yoki u buzilgan"
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_content/import_data_content.xml:0
-#, fuzzy
 msgid "Import preview failed due to: \""
 msgstr ""
-"Import qilishdan oldingi ko‘rib chiqish quyidagi sabab tufayli amalga "
-"oshmadi: \""
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_records/import_records.xml:0
-#, fuzzy
-msgid "Import records"
-msgstr "Yozuvlarni import qilish"
 
 #. module: base_import
 #. odoo-javascript
@@ -632,6 +567,18 @@ msgstr ""
 "%(row)s qator, %(col)s ustundagi noto‘g‘ri katakcha qiymati: %(cell_value)s"
 
 #. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_data_content/import_data_content.xml:0
+msgid "Lang:"
+msgstr ""
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_data_content/import_data_content.xml:0
+msgid "Language"
+msgstr ""
+
+#. module: base_import
 #: model:ir.model.fields,field_description:base_import.field_base_import_import__write_uid
 #: model:ir.model.fields,field_description:base_import.field_base_import_mapping__write_uid
 #, fuzzy
@@ -644,13 +591,6 @@ msgstr "Oxirgi yangilovchi"
 #, fuzzy
 msgid "Last Updated on"
 msgstr "Oxirgi yangilangan sana"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_action/import_action.xml:0
-#, fuzzy
-msgid "Load Data File"
-msgstr "Ma'lumotlar faylini yuklash"
 
 #. module: base_import
 #. odoo-javascript
@@ -670,13 +610,6 @@ msgstr "Yuklanmoqda..."
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
 #, fuzzy
-msgid "Max size per batch"
-msgstr "Har bir to‘plamdagi maksimal hajm"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-#, fuzzy
 msgid "Mb"
 msgstr "Mb"
 
@@ -689,16 +622,8 @@ msgstr "Model"
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_column_error/import_data_column_error.xml:0
-#, fuzzy
 msgid "Multiple errors occurred"
-msgstr "Bir nechta xatolik yuz berdi"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_action/import_action.xml:0
-#, fuzzy
-msgid "Need Help?"
-msgstr "Yordam kerakmi?"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
@@ -706,6 +631,18 @@ msgstr "Yordam kerakmi?"
 #, fuzzy
 msgid "No Separator"
 msgstr "Ajratgich yo‘q"
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_model.js:0
+msgid "No date detected"
+msgstr ""
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_model.js:0
+msgid "No datetime detected"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
@@ -717,9 +654,8 @@ msgstr "Hech qanday fayl tanlanmagan"
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_column_error/import_data_column_error.xml:0
-#, fuzzy
 msgid "No matching records found for the following name"
-msgstr "Quyidagi nom uchun mos keladigan yozuvlar topilmadi"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
@@ -727,6 +663,12 @@ msgstr "Quyidagi nom uchun mos keladigan yozuvlar topilmadi"
 #, fuzzy
 msgid "Odoo Field"
 msgstr "Odoo maydoni"
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_model.js:0
+msgid "Other"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
@@ -767,10 +709,9 @@ msgstr "Jarayon ko‘rsatkichi"
 
 #. module: base_import
 #. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-#, fuzzy
-msgid "Reimport"
-msgstr "Qayta import qilish"
+#: code:addons/base_import/static/src/import_action/import_action.xml:0
+msgid "Re-Upload"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
@@ -778,6 +719,12 @@ msgstr "Qayta import qilish"
 #, fuzzy
 msgid "Relation Fields"
 msgstr "Aloqa maydonlari"
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_data_content/import_data_content.js:0
+msgid "Required Fields"
+msgstr ""
 
 #. module: base_import
 #: model:ir.model.fields,field_description:base_import.field_base_import_mapping__res_model
@@ -801,10 +748,15 @@ msgstr "Maydonni qidirish..."
 
 #. module: base_import
 #. odoo-javascript
+#: code:addons/base_import/static/src/import_data_content/import_data_content.xml:0
+msgid "Search a language..."
+msgstr ""
+
+#. module: base_import
+#. odoo-javascript
 #: code:addons/base_import/static/src/import_data_column_error/import_data_column_error.xml:0
-#, fuzzy
 msgid "See possible values"
-msgstr "Mumkin bo‘lgan qiymatlarni ko‘rish"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
@@ -823,9 +775,8 @@ msgstr "Nuqtali vergul"
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_model.js:0
-#, fuzzy
-msgid "Separator:"
-msgstr "Ajratuvchi:"
+msgid "Separator"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
@@ -885,13 +836,6 @@ msgstr "Standart maydonlar"
 
 #. module: base_import
 #. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-#, fuzzy
-msgid "Start at line"
-msgstr "Qatordan boshlash"
-
-#. module: base_import
-#. odoo-javascript
 #: code:addons/base_import/static/src/import_data_progress/import_data_progress.xml:0
 #, fuzzy
 msgid "Stop Import"
@@ -926,27 +870,6 @@ msgid "Testing"
 msgstr "Sinovdan o‘tkazish"
 
 #. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_model.js:0
-#, fuzzy
-msgid "Text Delimiter:"
-msgstr "Matn chegaralovchisi:"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_model.js:0
-#, fuzzy
-msgid "The file contains blocking errors (see below)"
-msgstr "Faylda bloklash xatolari mavjud (quyiga qarang)"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-#, fuzzy
-msgid "The file will be imported by batches"
-msgstr "Fayl qismlar bo‘yicha import qilinadi"
-
-#. module: base_import
 #. odoo-python
 #: code:addons/base_import/models/base_import.py:0
 msgid ""
@@ -972,9 +895,8 @@ msgstr "Bu ustun maydon bilan birlashtiriladi"
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_model.js:0
-#, fuzzy
-msgid "Thousands Separator:"
-msgstr "Minglik ajratuvchisi:"
+msgid "Thousands Separator"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
@@ -994,9 +916,8 @@ msgstr "Import qilish uchun maydon tanlang..."
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-#, fuzzy
-msgid "Track history during import"
-msgstr "Import paytida tarixni kuzatish"
+msgid "Track changes in chatter"
+msgstr ""
 
 #. module: base_import
 #. odoo-python
@@ -1028,16 +949,17 @@ msgstr "Nomsiz"
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_action/import_action.xml:0
-#, fuzzy
-msgid "Upload Data File"
-msgstr "Ma'lumotlar faylini yuklash"
+#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
+msgid "Upload"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-#, fuzzy
-msgid "Upload your files"
-msgstr "Fayllaringizni yuklang"
+#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.js:0
+msgid ""
+"Upload attachments such as images or files that can be mapped with imported "
+"data"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
@@ -1072,26 +994,22 @@ msgstr ""
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-#, fuzzy
 msgid "Use first row as header"
-msgstr "Birinchi qatorni sarlavha sifatida ishlatish"
+msgstr ""
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_model.js:0
+msgid ""
+"Use unique key across objects for External ID's, for example \"lead_1\" "
+"instead of \"1\""
+msgstr ""
 
 #. module: base_import
 #: model:ir.model,name:base_import.model_res_users
 #, fuzzy
 msgid "User"
 msgstr "Foydalanuvchi"
-
-#. module: base_import
-#. odoo-javascript
-#: code:addons/base_import/static/src/import_data_sidepanel/import_data_sidepanel.xml:0
-#, fuzzy
-msgid ""
-"Warning: ignores the labels line, empty lines and lines composed only of "
-"empty cells"
-msgstr ""
-"Ogohlantirish: yorliqlar qatori, bo‘sh qatorlar va faqat bo‘sh "
-"katakchalardan iborat qatorlar e'tiborga olinmaydi"
 
 #. module: base_import
 #. odoo-javascript
@@ -1130,23 +1048,20 @@ msgstr "Import qilish uchun kamida bitta maydonni sozlashingiz kerak"
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_column_error/import_data_column_error.xml:0
-#, fuzzy
 msgid "at multiple rows"
-msgstr "bir necha qatorda"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_column_error/import_data_column_error.xml:0
-#, fuzzy
 msgid "at row"
-msgstr "qatorda"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_column_error/import_data_column_error.xml:0
-#, fuzzy
 msgid "in field"
-msgstr "maydonida"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
@@ -1158,16 +1073,20 @@ msgstr "daqiqa"
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_column_error/import_data_column_error.xml:0
-#, fuzzy
 msgid "more"
-msgstr "ko‘proq"
+msgstr ""
+
+#. module: base_import
+#. odoo-javascript
+#: code:addons/base_import/static/src/import_action/import_action.xml:0
+msgid "or drag a file"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript
 #: code:addons/base_import/static/src/import_data_progress/import_data_progress.xml:0
-#, fuzzy
 msgid "out of"
-msgstr "dan"
+msgstr ""
 
 #. module: base_import
 #. odoo-javascript

@@ -12,17 +12,26 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:38+0000\n"
-"PO-Revision-Date: 2026-04-24 07:57+0000\n"
+"POT-Creation-Date: 2026-10-16 17:41+0000\n"
+"PO-Revision-Date: 2026-09-09 14:05+0000\n"
 "Last-Translator: Bren Driesen <brdri@odoo.com>\n"
-"Language-Team: Dutch <https://translate.odoo.com/projects/odoo-19/pos_sale/"
-"nl/>\n"
+"Language-Team: Dutch <https://translate.odoo.com/projects/odoo-master/"
+"pos_sale/nl/>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: pos_sale
+#: model:ir.module.module,description:base.module_pos_sale
+msgid ""
+"\n"
+"\n"
+"This module adds a custom Sales Team for the Point of Sale. This enables you "
+"to view and manage your point of sale sales with more ease.\n"
+msgstr ""
 
 #. module: pos_sale
 #. odoo-python
@@ -43,27 +52,15 @@ msgid "(tax incl.)"
 msgstr "(Incl. btw)"
 
 #. module: pos_sale
-#: model_terms:ir.ui.view,arch_db:pos_sale.report_invoice_document
-msgid "<span style=\"margin: 0px 5px;\">:</span>"
-msgstr "<span style=\"margin: 0px 5px;\">:</span>"
+#: model_terms:ir.ui.view,arch_db:pos_sale.pos_orderline_receipt_information
+msgid "<strong>Sale Order: </strong>"
+msgstr "<strong>Verkooporder: </strong>"
 
 #. module: pos_sale
 #. odoo-javascript
 #: code:addons/pos_sale/static/src/app/services/pos_store.js:0
 msgid "A new order has been created."
 msgstr "Er is een nieuwe order aangemaakt."
-
-#. module: pos_sale
-#: model:ir.model.fields,field_description:pos_sale.field_sale_order__amount_unpaid
-msgid "Amount To Pay In POS"
-msgstr "Te betalen bedrag In Kassa"
-
-#. module: pos_sale
-#: model:ir.model.fields,help:pos_sale.field_sale_order__amount_unpaid
-msgid "Amount left to pay in POS to avoid double payment or double invoicing."
-msgstr ""
-"Resterend bedrag te betalen in Kassa om dubbele betaling of dubbele "
-"facturering te voorkomen."
 
 #. module: pos_sale
 #. odoo-javascript
@@ -98,14 +95,25 @@ msgid "Currency Rate"
 msgstr "Wisselkoers"
 
 #. module: pos_sale
-#: model_terms:ir.ui.view,arch_db:pos_sale.message_body
-msgid "Delivered from"
-msgstr "Geleverd vanaf"
+#: model:ir.model.fields,field_description:pos_sale.field_pos_config__default_product_id
+#: model:ir.model.fields,field_description:pos_sale.field_res_config_settings__pos_default_product_id
+msgid "Default Product"
+msgstr "Standaardproduct"
+
+#. module: pos_sale
+#: model_terms:ir.ui.view,arch_db:pos_sale.res_config_settings_view_form
+msgid "Default Sale Product"
+msgstr "Standaardverkoopproduct"
 
 #. module: pos_sale
 #: model:ir.model.fields,field_description:pos_sale.field_pos_order_line__qty_delivered
 msgid "Delivery Quantity"
 msgstr "Leveringsaantal"
+
+#. module: pos_sale
+#: model:ir.model.fields,field_description:pos_sale.field_pos_order_line__sale_order_line_name
+msgid "Description"
+msgstr "Beschrijving"
 
 #. module: pos_sale
 #: model:ir.model.fields,field_description:pos_sale.field_account_move__display_name
@@ -114,6 +122,7 @@ msgstr "Leveringsaantal"
 #: model:ir.model.fields,field_description:pos_sale.field_pos_config__display_name
 #: model:ir.model.fields,field_description:pos_sale.field_pos_order__display_name
 #: model:ir.model.fields,field_description:pos_sale.field_pos_order_line__display_name
+#: model:ir.model.fields,field_description:pos_sale.field_pos_order_receipt__display_name
 #: model:ir.model.fields,field_description:pos_sale.field_pos_session__display_name
 #: model:ir.model.fields,field_description:pos_sale.field_product_template__display_name
 #: model:ir.model.fields,field_description:pos_sale.field_res_config_settings__display_name
@@ -121,26 +130,14 @@ msgstr "Leveringsaantal"
 #: model:ir.model.fields,field_description:pos_sale.field_sale_order__display_name
 #: model:ir.model.fields,field_description:pos_sale.field_sale_order_line__display_name
 #: model:ir.model.fields,field_description:pos_sale.field_sale_report__display_name
-#: model:ir.model.fields,field_description:pos_sale.field_stock_picking__display_name
 msgid "Display Name"
-msgstr "Weergavenaam"
-
-#. module: pos_sale
-#. odoo-javascript
-#: code:addons/pos_sale/static/src/app/services/pos_store.js:0
-msgid "Do you want to load the SN/Lots linked to the Sales Order?"
-msgstr "Wil je de aan de verkooporder gekoppelde serie-/partijnummers laden?"
+msgstr "Schermnaam"
 
 #. module: pos_sale
 #. odoo-javascript
 #: code:addons/pos_sale/static/src/app/services/pos_store.js:0
 msgid "Down Payment"
 msgstr "Aanbetaling"
-
-#. module: pos_sale
-#: model:product.template,name:pos_sale.default_downpayment_product_product_template
-msgid "Down Payment (POS)"
-msgstr "Aanbetaling (Kassa)"
 
 #. module: pos_sale
 #: model:ir.model.fields,field_description:pos_sale.field_pos_order_line__down_payment_details
@@ -171,9 +168,9 @@ msgid "Due balance: %s"
 msgstr "Verschuldigd saldo: %s"
 
 #. module: pos_sale
-#: model_terms:ir.ui.view,arch_db:pos_sale.report_invoice_document
-msgid "From"
-msgstr "Van"
+#: model:ir.model.fields,field_description:pos_sale.field_pos_order_line__has_default_product
+msgid "Has Default Product"
+msgstr "Heeft standaardproduct"
 
 #. module: pos_sale
 #: model:ir.model.fields,field_description:pos_sale.field_account_move__id
@@ -182,6 +179,7 @@ msgstr "Van"
 #: model:ir.model.fields,field_description:pos_sale.field_pos_config__id
 #: model:ir.model.fields,field_description:pos_sale.field_pos_order__id
 #: model:ir.model.fields,field_description:pos_sale.field_pos_order_line__id
+#: model:ir.model.fields,field_description:pos_sale.field_pos_order_receipt__id
 #: model:ir.model.fields,field_description:pos_sale.field_pos_session__id
 #: model:ir.model.fields,field_description:pos_sale.field_product_template__id
 #: model:ir.model.fields,field_description:pos_sale.field_res_config_settings__id
@@ -189,7 +187,6 @@ msgstr "Van"
 #: model:ir.model.fields,field_description:pos_sale.field_sale_order__id
 #: model:ir.model.fields,field_description:pos_sale.field_sale_order_line__id
 #: model:ir.model.fields,field_description:pos_sale.field_sale_report__id
-#: model:ir.model.fields,field_description:pos_sale.field_stock_picking__id
 msgid "ID"
 msgstr "ID"
 
@@ -197,16 +194,6 @@ msgstr "ID"
 #: model:ir.model.fields.selection,name:pos_sale.selection__sale_report__state__invoiced
 msgid "Invoiced"
 msgstr "Gefactureerd"
-
-#. module: pos_sale
-#. odoo-javascript
-#: code:addons/pos_sale/static/src/app/services/pos_store.js:0
-msgid ""
-"It seems that you didn't configure a down payment product in your point of "
-"sale. You can go to your point of sale configuration to choose one."
-msgstr ""
-"Het lijkt erop dat je geen aanbetalingsproduct heeft geconfigureerd in de "
-"kassa. Je kunt naar de instellingen van de kassa gaan om er een te kiezen."
 
 #. module: pos_sale
 #: model:ir.model,name:pos_sale.model_account_move
@@ -217,6 +204,11 @@ msgstr "Boeking"
 #: model:ir.model,name:pos_sale.model_account_move_line
 msgid "Journal Item"
 msgstr "Boeking"
+
+#. module: pos_sale
+#: model:ir.module.module,summary:base.module_pos_sale
+msgid "Link module between Point of Sale and Sales"
+msgstr ""
 
 #. module: pos_sale
 #. odoo-python
@@ -236,12 +228,6 @@ msgid "Linked Sale Orders"
 msgstr "Gekoppelde verkooporders"
 
 #. module: pos_sale
-#. odoo-javascript
-#: code:addons/pos_sale/static/src/app/services/pos_store.js:0
-msgid "No down payment product"
-msgstr "Geen aanbetalingsproduct"
-
-#. module: pos_sale
 #: model:ir.actions.act_window,name:pos_sale.pos_session_action_from_crm_team
 msgid "Open Sessions"
 msgstr "Open sessies"
@@ -256,6 +242,11 @@ msgstr "Order"
 #: model:ir.model.fields,field_description:pos_sale.field_sale_order_line__pos_order_line_ids
 msgid "Order lines Transfered to Point of Sale"
 msgstr "Orderregels overgebracht naar Kassa"
+
+#. module: pos_sale
+#: model:ir.module.module,shortdesc:base.module_pos_sale
+msgid "POS - Sales"
+msgstr ""
 
 #. module: pos_sale
 #: model:ir.model.fields.selection,name:pos_sale.selection__sale_report__order_reference__pos_order
@@ -273,14 +264,19 @@ msgid "Point of Sale Configuration"
 msgstr "Kassa-instellingen"
 
 #. module: pos_sale
-#: model:ir.model,name:pos_sale.model_pos_order_line
-msgid "Point of Sale Order Lines"
-msgstr "Kassaorderregels"
+#: model:ir.model,name:pos_sale.model_pos_order
+msgid "Point of Sale Order"
+msgstr "Kassaorder"
 
 #. module: pos_sale
-#: model:ir.model,name:pos_sale.model_pos_order
-msgid "Point of Sale Orders"
-msgstr "Kassaorders"
+#: model:ir.model,name:pos_sale.model_pos_order_line
+msgid "Point of Sale Order Line"
+msgstr "Kassaorderregel"
+
+#. module: pos_sale
+#: model:ir.model,name:pos_sale.model_pos_order_receipt
+msgid "Point of Sale Order Receipt Generator"
+msgstr "Kassa Kassabon-generator"
 
 #. module: pos_sale
 #: model:ir.model,name:pos_sale.model_pos_session
@@ -309,15 +305,9 @@ msgstr "Product"
 
 #. module: pos_sale
 #. odoo-javascript
-#: code:addons/pos_sale/static/src/app/components/screens/product_screen/control_buttons/control_buttons.xml:0
-msgid "Quotation/Order"
-msgstr "Offerte/Order"
-
-#. module: pos_sale
-#. odoo-javascript
-#: code:addons/pos_sale/static/src/app/services/pos_store.js:0
-msgid "SN/Lots Loading"
-msgstr "SN/partijen laden"
+#: code:addons/pos_sale/static/src/app/components/screens/product_screen/control_buttons/control_buttons.js:0
+msgid "Quotation / Order"
+msgstr ""
 
 #. module: pos_sale
 #. odoo-javascript
@@ -371,12 +361,6 @@ msgstr "Verkopen worden gerapporteerd aan het volgende verkoopteam"
 
 #. module: pos_sale
 #. odoo-javascript
-#: code:addons/pos_sale/static/src/app/components/screens/product_screen/control_buttons/control_buttons.xml:0
-msgid "Set Sale Order"
-msgstr "Verkoopvolgorde instellen"
-
-#. module: pos_sale
-#. odoo-javascript
 #: code:addons/pos_sale/static/src/app/services/pos_store.js:0
 msgid "Settle the order"
 msgstr "Order afrekenen"
@@ -401,6 +385,12 @@ msgstr ""
 "datum van de order"
 
 #. module: pos_sale
+#. odoo-javascript
+#: code:addons/pos_sale/static/src/app/services/pos_store.js:0
+msgid "There is nothing left to settle on this sale order."
+msgstr ""
+
+#. module: pos_sale
 #: model:ir.model.fields,help:pos_sale.field_pos_config__crm_team_id
 #: model:ir.model.fields,help:pos_sale.field_pos_session__crm_team_id
 #: model:ir.model.fields,help:pos_sale.field_res_config_settings__pos_crm_team_id
@@ -409,8 +399,22 @@ msgstr "Deze kassa zijn verkopen zullen gerelateerd zijn aan dit verkoopteam."
 
 #. module: pos_sale
 #: model_terms:ir.ui.view,arch_db:pos_sale.res_config_settings_view_form
+msgid "This product will be applied on description only Sale order lines."
+msgstr ""
+"Dit product wordt alleen toegepast op de beschrijving van verkooporderregels."
+
+#. module: pos_sale
+#: model_terms:ir.ui.view,arch_db:pos_sale.res_config_settings_view_form
 msgid "This product will be applied when down payment is made"
 msgstr "Dit product wordt toegepast wanneer de aanbetaling is gedaan"
+
+#. module: pos_sale
+#: model:ir.model.fields,help:pos_sale.field_pos_config__default_product_id
+#: model:ir.model.fields,help:pos_sale.field_res_config_settings__pos_default_product_id
+msgid "This product will be used as default product on productless SOLs."
+msgstr ""
+"Dit product wordt gebruikt als standaardproduct bij verkooporderregels "
+"zonder product."
 
 #. module: pos_sale
 #: model:ir.model.fields,help:pos_sale.field_pos_config__down_payment_product_id
@@ -419,9 +423,14 @@ msgid "This product will be used as down payment on a sale order."
 msgstr "Dit product wordt gebruikt als aanbetaling op een verkooporder."
 
 #. module: pos_sale
-#: model:ir.model,name:pos_sale.model_stock_picking
-msgid "Transfer"
-msgstr "Verplaatsing"
+#: model:ir.model.fields,help:pos_sale.field_pos_order_line__has_default_product
+msgid ""
+"To check whether the product is default product from pos.config or not. In "
+"case of description only SOLs we use default product from pos.config."
+msgstr ""
+"Om te controleren of het product het standaardproduct uit pos.config is of "
+"niet. In het geval van verkooporderregels met alleen een beschrijving "
+"gebruiken we het standaardproduct uit pos.config."
 
 #. module: pos_sale
 #: model_terms:ir.ui.view,arch_db:pos_sale.view_pos_order_form_inherit_pos_sale
@@ -463,128 +472,37 @@ msgstr "ID"
 #. module: pos_sale
 #. odoo-javascript
 #: code:addons/pos_sale/static/src/app/components/orderline/orderline.xml:0
-#: model_terms:ir.ui.view,arch_db:pos_sale.report_invoice_document
 msgid "x"
 msgstr "x"
 
-#~ msgid "(left:"
-#~ msgstr "(links:"
+#~ msgid "Default Product (POS)"
+#~ msgstr "Standaardproduct (Kassa)"
 
-#~ msgid "Back"
-#~ msgstr "Terug"
-
-#~ msgid "Back to list"
-#~ msgstr "Terug naar de lijst."
-
-#~ msgid "Cancelled"
-#~ msgstr "Geannuleerd"
-
-#~ msgid "Customer"
-#~ msgstr "Klant"
-
-#~ msgid "Customer loading error"
-#~ msgstr "Laadfout klant"
-
-#~ msgid "Date"
-#~ msgstr "Datum"
-
-#~ msgid "E.g. customer: Steward, date: 2020-05-09"
-#~ msgstr "Bijv. klant: Steward, datum: 9-5-2020"
+#~ msgid "Down Payment (POS)"
+#~ msgstr "Aanbetaling (Kassa)"
 
 #~ msgid ""
 #~ "It seems that you didn't configure a down payment product in your point "
-#~ "of sale.\n"
-#~ "                        You can go to your point of sale configuration to "
-#~ "choose one."
+#~ "of sale. You can go to your point of sale configuration to choose one."
 #~ msgstr ""
 #~ "Het lijkt erop dat je geen aanbetalingsproduct heeft geconfigureerd in de "
-#~ "kassa.\n"
-#~ "Je kunt naar de instellingen van de kassa gaan om er een te kiezen."
-
-#~ msgid "Locked"
-#~ msgstr "Geblokkeerd"
-
-#~ msgid "New"
-#~ msgstr "Nieuw"
-
-#~ msgid "Next Order List"
-#~ msgstr "Volgende orderlijst"
-
-#~ msgid "No"
-#~ msgstr "Nee"
-
-#~ msgid "Open POS Sessions"
-#~ msgstr "Open kassasessies"
-
-#~ msgid "Previous Order List"
-#~ msgstr "Vorige orderlijst"
-
-#~ msgid "Products not available in POS"
-#~ msgstr "Producten niet beschikbaar in kassa"
-
-#~ msgid "Quotation"
-#~ msgstr "Offerte"
-
-#~ msgid "Quotation Sent"
-#~ msgstr "Offerte verstuurd"
-
-#~ msgid "Salesman"
-#~ msgstr "Verkoper"
-
-#~ msgid "Salesperson"
-#~ msgstr "Verkoper"
-
-#~ msgid "Session Running"
-#~ msgstr "Sessie loopt"
-
-#~ msgid "Session Sale Amount"
-#~ msgstr "Sessie verkoopbedrag"
-
-#~ msgid "Sessions Running"
-#~ msgstr "Lopende sessies"
+#~ "kassa. Je kunt naar de instellingen van de kassa gaan om er een te kiezen."
 
 #~ msgid ""
-#~ "Some of the products in your Sale Order are not available in POS, do you "
-#~ "want to import them?"
+#~ "It seems that you didn't configure a down payment product in your point "
+#~ "of sale. You can go to your point of sale settings to choose one."
 #~ msgstr ""
-#~ "Sommige producten in je verkooporder zijn niet beschikbaar in kassa, wil "
-#~ "je ze importeren?"
+#~ "Het lijkt erop dat je geen aanbetalingsproduct hebt geconfigureerd in je "
+#~ "kassasysteem. Je er een kiezen in de instellingen van het kassasysteem."
 
-#~ msgid "State"
-#~ msgstr "Status"
+#~ msgid "No down payment product"
+#~ msgstr "Geen aanbetalingsproduct"
 
-#~ msgid "The amount due from the sale order."
-#~ msgstr "Het verschuldigde bedrag van de verkooporder."
-
-#~ msgid "There was a problem in loading the %s customer."
-#~ msgstr "Er is een probleem opgetreden bij het laden van de %s klant."
-
-#~ msgid "Total"
-#~ msgstr "Totaal"
+#~ msgid "Amount To Pay In POS"
+#~ msgstr "Te betalen bedrag In Kassa"
 
 #~ msgid ""
-#~ "Transfered<br/>\n"
-#~ "                                from Sale"
+#~ "Amount left to pay in POS to avoid double payment or double invoicing."
 #~ msgstr ""
-#~ "Overgedragen<br/>\n"
-#~ "                                van verkoop"
-
-#~ msgid ""
-#~ "Transfered<br/>\n"
-#~ "                                to POS"
-#~ msgstr ""
-#~ "Overgedragen<br/>\n"
-#~ "                                naar kassa"
-
-#~ msgid "Unpaid Amount"
-#~ msgstr "Onbetaald bedrag"
-
-#~ msgid "Yes"
-#~ msgstr "Ja"
-
-#~ msgid ""
-#~ "You have tried to charge a down payment of %s but only %s remains to be "
-#~ "paid, %s will be applied to the purchase order line."
-#~ msgstr ""
-#~ "Je hebt geprobeerd een aanbetaling van %s te maken, maar enkel %s moet "
-#~ "nog betaald worden, %s zal worden toegepast op de inkooporderregel."
+#~ "Resterend bedrag te betalen in Kassa om dubbele betaling of dubbele "
+#~ "facturering te voorkomen."

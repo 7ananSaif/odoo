@@ -12,17 +12,31 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:38+0000\n"
-"PO-Revision-Date: 2026-06-08 11:04+0000\n"
+"POT-Creation-Date: 2026-10-16 17:41+0000\n"
+"PO-Revision-Date: 2026-10-19 11:54+0000\n"
 "Last-Translator: \"Larissa Manderfeld (lman)\" <lman@odoo.com>\n"
-"Language-Team: German <https://translate.odoo.com/projects/odoo-19/pos_sale/"
+"Language-Team: German <https://translate.odoo.com/projects/odoo-20/pos_sale/"
 "de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: pos_sale
+#: model:ir.module.module,description:base.module_pos_sale
+msgid ""
+"\n"
+"\n"
+"This module adds a custom Sales Team for the Point of Sale. This enables you "
+"to view and manage your point of sale sales with more ease.\n"
+msgstr ""
+"\n"
+"\n"
+"Dieses Modul fügt dem Kassensystem ein benutzerdefiniertes Verkaufsteam "
+"hinzu. Dadurch können Sie Ihre Umsätze am Kassensystem einfacher einsehen "
+"und verwalten.\n"
 
 #. module: pos_sale
 #. odoo-python
@@ -40,30 +54,18 @@ msgstr "%(old_name)s (storniert)"
 #. odoo-javascript
 #: code:addons/pos_sale/static/src/app/components/orderline/orderline.xml:0
 msgid "(tax incl.)"
-msgstr "(inkl. Steuern)"
+msgstr "(Steuer inkl.)"
 
 #. module: pos_sale
-#: model_terms:ir.ui.view,arch_db:pos_sale.report_invoice_document
-msgid "<span style=\"margin: 0px 5px;\">:</span>"
-msgstr "<span style=\"margin: 0px 5px;\">:</span>"
+#: model_terms:ir.ui.view,arch_db:pos_sale.pos_orderline_receipt_information
+msgid "<strong>Sale Order: </strong>"
+msgstr "<strong>Verkaufsauftrag: </strong>"
 
 #. module: pos_sale
 #. odoo-javascript
 #: code:addons/pos_sale/static/src/app/services/pos_store.js:0
 msgid "A new order has been created."
 msgstr "Ein neuer Auftrag wurde erstellt."
-
-#. module: pos_sale
-#: model:ir.model.fields,field_description:pos_sale.field_sale_order__amount_unpaid
-msgid "Amount To Pay In POS"
-msgstr "Zu bezahlender Betrag im Kassensystem"
-
-#. module: pos_sale
-#: model:ir.model.fields,help:pos_sale.field_sale_order__amount_unpaid
-msgid "Amount left to pay in POS to avoid double payment or double invoicing."
-msgstr ""
-"Noch zu zahlender Betrag im Kassensystem, um doppelte Zahlungen oder "
-"doppelte Rechnungsstellung zu vermeiden."
 
 #. module: pos_sale
 #. odoo-javascript
@@ -90,7 +92,7 @@ msgstr "Kontakt"
 #. module: pos_sale
 #: model:ir.model,website_form_label:pos_sale.model_res_partner
 msgid "Create a Customer"
-msgstr "Kunde erstellen"
+msgstr "Kunden erstellen"
 
 #. module: pos_sale
 #: model:ir.model.fields,field_description:pos_sale.field_pos_order__currency_rate
@@ -98,14 +100,25 @@ msgid "Currency Rate"
 msgstr "Wechselkurs"
 
 #. module: pos_sale
-#: model_terms:ir.ui.view,arch_db:pos_sale.message_body
-msgid "Delivered from"
-msgstr "Geliefert aus"
+#: model:ir.model.fields,field_description:pos_sale.field_pos_config__default_product_id
+#: model:ir.model.fields,field_description:pos_sale.field_res_config_settings__pos_default_product_id
+msgid "Default Product"
+msgstr "Standardprodukt"
+
+#. module: pos_sale
+#: model_terms:ir.ui.view,arch_db:pos_sale.res_config_settings_view_form
+msgid "Default Sale Product"
+msgstr "Standardverkaufsprodukt"
 
 #. module: pos_sale
 #: model:ir.model.fields,field_description:pos_sale.field_pos_order_line__qty_delivered
 msgid "Delivery Quantity"
 msgstr "Liefermenge"
+
+#. module: pos_sale
+#: model:ir.model.fields,field_description:pos_sale.field_pos_order_line__sale_order_line_name
+msgid "Description"
+msgstr "Beschreibung"
 
 #. module: pos_sale
 #: model:ir.model.fields,field_description:pos_sale.field_account_move__display_name
@@ -114,6 +127,7 @@ msgstr "Liefermenge"
 #: model:ir.model.fields,field_description:pos_sale.field_pos_config__display_name
 #: model:ir.model.fields,field_description:pos_sale.field_pos_order__display_name
 #: model:ir.model.fields,field_description:pos_sale.field_pos_order_line__display_name
+#: model:ir.model.fields,field_description:pos_sale.field_pos_order_receipt__display_name
 #: model:ir.model.fields,field_description:pos_sale.field_pos_session__display_name
 #: model:ir.model.fields,field_description:pos_sale.field_product_template__display_name
 #: model:ir.model.fields,field_description:pos_sale.field_res_config_settings__display_name
@@ -121,27 +135,14 @@ msgstr "Liefermenge"
 #: model:ir.model.fields,field_description:pos_sale.field_sale_order__display_name
 #: model:ir.model.fields,field_description:pos_sale.field_sale_order_line__display_name
 #: model:ir.model.fields,field_description:pos_sale.field_sale_report__display_name
-#: model:ir.model.fields,field_description:pos_sale.field_stock_picking__display_name
 msgid "Display Name"
 msgstr "Anzeigename"
 
 #. module: pos_sale
 #. odoo-javascript
 #: code:addons/pos_sale/static/src/app/services/pos_store.js:0
-msgid "Do you want to load the SN/Lots linked to the Sales Order?"
-msgstr ""
-"Möchten Sie die mit dem Verkaufsauftrag verbundenen Seriennummern/Lose laden?"
-
-#. module: pos_sale
-#. odoo-javascript
-#: code:addons/pos_sale/static/src/app/services/pos_store.js:0
 msgid "Down Payment"
 msgstr "Anzahlung"
-
-#. module: pos_sale
-#: model:product.template,name:pos_sale.default_downpayment_product_product_template
-msgid "Down Payment (POS)"
-msgstr "Anzahlung (Kassensystem)"
 
 #. module: pos_sale
 #: model:ir.model.fields,field_description:pos_sale.field_pos_order_line__down_payment_details
@@ -172,9 +173,9 @@ msgid "Due balance: %s"
 msgstr "Fälliger Saldo: %s"
 
 #. module: pos_sale
-#: model_terms:ir.ui.view,arch_db:pos_sale.report_invoice_document
-msgid "From"
-msgstr "Von"
+#: model:ir.model.fields,field_description:pos_sale.field_pos_order_line__has_default_product
+msgid "Has Default Product"
+msgstr "Hat Standardprodukt"
 
 #. module: pos_sale
 #: model:ir.model.fields,field_description:pos_sale.field_account_move__id
@@ -183,6 +184,7 @@ msgstr "Von"
 #: model:ir.model.fields,field_description:pos_sale.field_pos_config__id
 #: model:ir.model.fields,field_description:pos_sale.field_pos_order__id
 #: model:ir.model.fields,field_description:pos_sale.field_pos_order_line__id
+#: model:ir.model.fields,field_description:pos_sale.field_pos_order_receipt__id
 #: model:ir.model.fields,field_description:pos_sale.field_pos_session__id
 #: model:ir.model.fields,field_description:pos_sale.field_product_template__id
 #: model:ir.model.fields,field_description:pos_sale.field_res_config_settings__id
@@ -190,7 +192,6 @@ msgstr "Von"
 #: model:ir.model.fields,field_description:pos_sale.field_sale_order__id
 #: model:ir.model.fields,field_description:pos_sale.field_sale_order_line__id
 #: model:ir.model.fields,field_description:pos_sale.field_sale_report__id
-#: model:ir.model.fields,field_description:pos_sale.field_stock_picking__id
 msgid "ID"
 msgstr "ID"
 
@@ -198,17 +199,6 @@ msgstr "ID"
 #: model:ir.model.fields.selection,name:pos_sale.selection__sale_report__state__invoiced
 msgid "Invoiced"
 msgstr "Abgerechnet"
-
-#. module: pos_sale
-#. odoo-javascript
-#: code:addons/pos_sale/static/src/app/services/pos_store.js:0
-msgid ""
-"It seems that you didn't configure a down payment product in your point of "
-"sale. You can go to your point of sale configuration to choose one."
-msgstr ""
-"Es scheint, dass Sie in Ihrem Kassensystem kein Anzahlungsprodukt "
-"konfiguriert haben. Sie können in der Konfiguration Ihres Kassensystems ein "
-"solches Produkt auswählen."
 
 #. module: pos_sale
 #: model:ir.model,name:pos_sale.model_account_move
@@ -219,6 +209,11 @@ msgstr "Journalbuchung"
 #: model:ir.model,name:pos_sale.model_account_move_line
 msgid "Journal Item"
 msgstr "Buchungszeile"
+
+#. module: pos_sale
+#: model:ir.module.module,summary:base.module_pos_sale
+msgid "Link module between Point of Sale and Sales"
+msgstr "Verbindungsmodul zwischen Kassensystem und Verkauf"
 
 #. module: pos_sale
 #. odoo-python
@@ -238,12 +233,6 @@ msgid "Linked Sale Orders"
 msgstr "Verknüpfte Verkaufsaufträge"
 
 #. module: pos_sale
-#. odoo-javascript
-#: code:addons/pos_sale/static/src/app/services/pos_store.js:0
-msgid "No down payment product"
-msgstr "Kein Anzahlungsprodukt"
-
-#. module: pos_sale
 #: model:ir.actions.act_window,name:pos_sale.pos_session_action_from_crm_team
 msgid "Open Sessions"
 msgstr "Offene Sitzungen"
@@ -258,6 +247,11 @@ msgstr "Auftrag"
 #: model:ir.model.fields,field_description:pos_sale.field_sale_order_line__pos_order_line_ids
 msgid "Order lines Transfered to Point of Sale"
 msgstr "An das Kassensystem übertragene Auftragspositionen"
+
+#. module: pos_sale
+#: model:ir.module.module,shortdesc:base.module_pos_sale
+msgid "POS - Sales"
+msgstr "Kassensystem & Verkauf"
 
 #. module: pos_sale
 #: model:ir.model.fields.selection,name:pos_sale.selection__sale_report__order_reference__pos_order
@@ -275,14 +269,19 @@ msgid "Point of Sale Configuration"
 msgstr "Kassensystem-Konfiguration"
 
 #. module: pos_sale
-#: model:ir.model,name:pos_sale.model_pos_order_line
-msgid "Point of Sale Order Lines"
-msgstr "Kassenauftragszeilen"
+#: model:ir.model,name:pos_sale.model_pos_order
+msgid "Point of Sale Order"
+msgstr "Kassenauftrag"
 
 #. module: pos_sale
-#: model:ir.model,name:pos_sale.model_pos_order
-msgid "Point of Sale Orders"
-msgstr "Kassenaufträge"
+#: model:ir.model,name:pos_sale.model_pos_order_line
+msgid "Point of Sale Order Line"
+msgstr "Kassenauftragszeile"
+
+#. module: pos_sale
+#: model:ir.model,name:pos_sale.model_pos_order_receipt
+msgid "Point of Sale Order Receipt Generator"
+msgstr "Generator für Kassenbelege"
 
 #. module: pos_sale
 #: model:ir.model,name:pos_sale.model_pos_session
@@ -311,15 +310,9 @@ msgstr "Produkt"
 
 #. module: pos_sale
 #. odoo-javascript
-#: code:addons/pos_sale/static/src/app/components/screens/product_screen/control_buttons/control_buttons.xml:0
-msgid "Quotation/Order"
+#: code:addons/pos_sale/static/src/app/components/screens/product_screen/control_buttons/control_buttons.js:0
+msgid "Quotation / Order"
 msgstr "Angebot/Auftrag"
-
-#. module: pos_sale
-#. odoo-javascript
-#: code:addons/pos_sale/static/src/app/services/pos_store.js:0
-msgid "SN/Lots Loading"
-msgstr "SN/Lose werden geladen"
 
 #. module: pos_sale
 #. odoo-javascript
@@ -373,12 +366,6 @@ msgstr "Die Verkäufe werden an das folgende Verkaufsteam gemeldet"
 
 #. module: pos_sale
 #. odoo-javascript
-#: code:addons/pos_sale/static/src/app/components/screens/product_screen/control_buttons/control_buttons.xml:0
-msgid "Set Sale Order"
-msgstr "Verkaufsauftrag setzen"
-
-#. module: pos_sale
-#. odoo-javascript
 #: code:addons/pos_sale/static/src/app/services/pos_store.js:0
 msgid "Settle the order"
 msgstr "Auftrag abwickeln"
@@ -402,6 +389,12 @@ msgstr ""
 "Der zum Zeitpunkt des Auftrags geltende Wechselkurs zur Währung des Kurses"
 
 #. module: pos_sale
+#. odoo-javascript
+#: code:addons/pos_sale/static/src/app/services/pos_store.js:0
+msgid "There is nothing left to settle on this sale order."
+msgstr "Für diesen Verkaufsauftrag gibt es nichts mehr abzurechnen."
+
+#. module: pos_sale
 #: model:ir.model.fields,help:pos_sale.field_pos_config__crm_team_id
 #: model:ir.model.fields,help:pos_sale.field_pos_session__crm_team_id
 #: model:ir.model.fields,help:pos_sale.field_res_config_settings__pos_crm_team_id
@@ -411,8 +404,23 @@ msgstr ""
 
 #. module: pos_sale
 #: model_terms:ir.ui.view,arch_db:pos_sale.res_config_settings_view_form
+msgid "This product will be applied on description only Sale order lines."
+msgstr ""
+"Dieses Produkt wird nur auf Verkaufsauftragszeilen angewendet, die nur aus "
+"einer Beschreibung bestehen."
+
+#. module: pos_sale
+#: model_terms:ir.ui.view,arch_db:pos_sale.res_config_settings_view_form
 msgid "This product will be applied when down payment is made"
 msgstr "Dieses Produkt wird bei Anzahlung angewendet"
+
+#. module: pos_sale
+#: model:ir.model.fields,help:pos_sale.field_pos_config__default_product_id
+#: model:ir.model.fields,help:pos_sale.field_res_config_settings__pos_default_product_id
+msgid "This product will be used as default product on productless SOLs."
+msgstr ""
+"Dieses Produkt wird als Standardprodukt für Verkaufsauftragszeilen "
+"verwendet, die keine Produkte enthalten."
 
 #. module: pos_sale
 #: model:ir.model.fields,help:pos_sale.field_pos_config__down_payment_product_id
@@ -421,9 +429,14 @@ msgid "This product will be used as down payment on a sale order."
 msgstr "Dieses Produkt wird als Anzahlung für einen Verkaufsauftrag verwendet."
 
 #. module: pos_sale
-#: model:ir.model,name:pos_sale.model_stock_picking
-msgid "Transfer"
-msgstr "Transfer"
+#: model:ir.model.fields,help:pos_sale.field_pos_order_line__has_default_product
+msgid ""
+"To check whether the product is default product from pos.config or not. In "
+"case of description only SOLs we use default product from pos.config."
+msgstr ""
+"Um zu prüfen, ob es sich bei dem Produkt um das Standardprodukt aus "
+"pos.config handelt oder nicht. Bei Verkaufsauftragszeilen, die nur eine "
+"Beschreibung enthalten, verwenden wir das Standardprodukt aus pos.config."
 
 #. module: pos_sale
 #: model_terms:ir.ui.view,arch_db:pos_sale.view_pos_order_form_inherit_pos_sale
@@ -465,122 +478,39 @@ msgstr "ID"
 #. module: pos_sale
 #. odoo-javascript
 #: code:addons/pos_sale/static/src/app/components/orderline/orderline.xml:0
-#: model_terms:ir.ui.view,arch_db:pos_sale.report_invoice_document
 msgid "x"
 msgstr "x"
 
-#~ msgid "(left:"
-#~ msgstr "(links:"
+#~ msgid "Default Product (POS)"
+#~ msgstr "Standardprodukt (Kassensystem)"
 
-#~ msgid "Back"
-#~ msgstr "Zurück"
-
-#~ msgid "Back to list"
-#~ msgstr "Zurück zur Liste"
-
-#~ msgid "Cancelled"
-#~ msgstr "Abgebrochen"
-
-#~ msgid "Customer"
-#~ msgstr "Kunde"
-
-#~ msgid "Customer loading error"
-#~ msgstr "Fehler beim Laden des Kunden"
-
-#~ msgid "Date"
-#~ msgstr "Datum"
-
-#~ msgid "E.g. customer: Steward, date: 2020-05-09"
-#~ msgstr "z.B. Kunde: Steward, Datum: 2022-05-09"
+#~ msgid "Down Payment (POS)"
+#~ msgstr "Anzahlung (Kassensystem)"
 
 #~ msgid ""
 #~ "It seems that you didn't configure a down payment product in your point "
-#~ "of sale.\n"
-#~ "                        You can go to your point of sale configuration to "
-#~ "choose one."
+#~ "of sale. You can go to your point of sale configuration to choose one."
 #~ msgstr ""
 #~ "Es scheint, dass Sie in Ihrem Kassensystem kein Anzahlungsprodukt "
-#~ "konfiguriert haben.\n"
-#~ "Sie können in der Konfiguration Ihres Kassensystems ein solches Produkt "
-#~ "auswählen."
-
-#~ msgid "Locked"
-#~ msgstr "Gesperrt"
-
-#~ msgid "New"
-#~ msgstr "Neu"
-
-#~ msgid "Next Order List"
-#~ msgstr "Liste nächster Aufträge"
-
-#~ msgid "No"
-#~ msgstr "Nein"
-
-#~ msgid "Open POS Sessions"
-#~ msgstr "PoS-Sitzungen öffnen"
-
-#~ msgid "Previous Order List"
-#~ msgstr "Vorherige Auftragsliste"
-
-#~ msgid "Products not available in POS"
-#~ msgstr "Produkte im Kassensystem nicht verfügbar"
-
-#~ msgid "Quotation"
-#~ msgstr "Angebot"
-
-#~ msgid "Quotation Sent"
-#~ msgstr "Angebot gesendet"
-
-#~ msgid "Salesman"
-#~ msgstr "Verkäufer"
-
-#~ msgid "Salesperson"
-#~ msgstr "Verkäufer"
-
-#~ msgid "Session Running"
-#~ msgstr "Sitzung läuft"
-
-#~ msgid "Session Sale Amount"
-#~ msgstr "Anzahl der Sitzungsverkäufe"
-
-#~ msgid "Sessions Running"
-#~ msgstr "Laufende Sitzungen"
+#~ "konfiguriert haben. Sie können in der Konfiguration Ihres Kassensystems "
+#~ "ein solches Produkt auswählen."
 
 #~ msgid ""
-#~ "Some of the products in your Sale Order are not available in POS, do you "
-#~ "want to import them?"
+#~ "It seems that you didn't configure a down payment product in your point "
+#~ "of sale. You can go to your point of sale settings to choose one."
 #~ msgstr ""
-#~ "Einige der Produkte in Ihrem Kundenauftrag sind nicht in POS verfügbar. "
-#~ "Möchten Sie diese importieren?"
+#~ "Es scheint, dass Sie in Ihrem Kassensystem kein Anzahlungsprodukt "
+#~ "konfiguriert haben. Sie können in den Einstellungen Ihres Kassensystems "
+#~ "ein solches Produkt auswählen."
 
-#~ msgid "State"
-#~ msgstr "Status"
+#~ msgid "No down payment product"
+#~ msgstr "Kein Anzahlungsprodukt"
 
-#~ msgid "The amount due from the sale order."
-#~ msgstr "Der fällige Betrag aus dem Verkaufsauftrag."
-
-#~ msgid "There was a problem in loading the %s customer."
-#~ msgstr "Es gab ein Problem beim Laden des Kunden %s."
-
-#~ msgid "Total"
-#~ msgstr "Gesamt"
+#~ msgid "Amount To Pay In POS"
+#~ msgstr "Zu bezahlender Betrag im Kassensystem"
 
 #~ msgid ""
-#~ "Transfered<br/>\n"
-#~ "                                from Sale"
+#~ "Amount left to pay in POS to avoid double payment or double invoicing."
 #~ msgstr ""
-#~ "Übertragen<br/>\n"
-#~ "                                aus Sale"
-
-#~ msgid ""
-#~ "Transfered<br/>\n"
-#~ "                                to POS"
-#~ msgstr ""
-#~ "Übertragen<br/>\n"
-#~ "                               an PoS"
-
-#~ msgid "Unpaid Amount"
-#~ msgstr "Unbezahlter Betrag"
-
-#~ msgid "Yes"
-#~ msgstr "Ja"
+#~ "Noch zu zahlender Betrag im Kassensystem, um doppelte Zahlungen oder "
+#~ "doppelte Rechnungsstellung zu vermeiden."

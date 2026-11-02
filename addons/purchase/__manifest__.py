@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
@@ -11,16 +10,16 @@
     'depends': ['account'],
     'data': [
         'security/purchase_security.xml',
-        'security/ir.model.access.csv',
         'data/digest_data.xml',
+        'data/portal_entry_data.xml',
         'views/account_move_views.xml',
         'data/purchase_data.xml',
         'data/ir_cron_data.xml',
         'report/purchase_reports.xml',
+        'views/product_views.xml',
         'views/purchase_views.xml',
         'views/purchase_bill_line_match_views.xml',
         'views/res_config_settings_views.xml',
-        'views/product_views.xml',
         'views/res_partner_views.xml',
         'report/purchase_bill_views.xml',
         'report/purchase_report_views.xml',
@@ -32,12 +31,13 @@
         'views/analytic_account_views.xml',
         'wizard/bill_to_po_wizard_views.xml',
         'data/purchase_tour.xml',
+        'security/ir.access.csv',
     ],
     'demo': [
         'data/purchase_demo.xml',
     ],
-    'installable': True,
     'application': True,
+    'post_init_hook': '_post_init_hook',
     'assets': {
         'web.assets_backend': [
             'purchase/static/src/components/**/*',

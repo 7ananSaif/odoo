@@ -14,7 +14,7 @@ from odoo.addons.sms.tests.common import SMSCase
 from odoo.addons.website.tests.test_website_visitor import MockVisitor
 
 
-class TestEventFullCommon(EventCrmCase, TestSalesCommon, MockVisitor):
+class TestEventFullCommon(EventCrmCase, TestSalesCommon, MockVisitor, HttpCaseWithUserPortal):
 
     @classmethod
     def setUpClass(cls):
@@ -229,7 +229,7 @@ class TestEventFullCommon(EventCrmCase, TestSalesCommon, MockVisitor):
             'is_published': True,
         }
 
-        with cls.mock_datetime_and_now(cls, cls.reference_now):
+        with cls.mock_datetime_and_now(cls.reference_now):
             cls.test_event = cls.env['event.event'].create({
                 'name': 'Test Event',
                 'date_begin': datetime.now() + timedelta(days=1),
@@ -312,7 +312,7 @@ class TestEventMailCommon(EventCase, SMSCase, MailCase, CronMixinCase):
         # deactivate other schedulers to avoid messing with crons
         cls.env['event.mail'].search([]).unlink()
         # consider asynchronous sending as default sending
-        cls.env["ir.config_parameter"].set_param("event.event_mail_async", False)
+        cls.env["ir.config_parameter"].set_bool("event.event_mail_async", False)
 
         cls.env.company.write({
             'email': 'info@yourcompany.example.com',
@@ -343,7 +343,7 @@ class TestEventMailCommon(EventCase, SMSCase, MailCase, CronMixinCase):
         cls.event_date_end = datetime(2021, 3, 28, 18, 0, 0)
 
         cls._setup_test_reports()
-        with cls.mock_datetime_and_now(cls, cls.reference_now):
+        with cls.mock_datetime_and_now(cls.reference_now):
             cls.test_event = cls.env['event.event'].create({
                 'name': 'TestEventMail',
                 'user_id': cls.user_eventmanager.id,

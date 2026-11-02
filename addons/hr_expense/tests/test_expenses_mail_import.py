@@ -2,11 +2,13 @@
 
 from odoo.addons.hr_expense.tests.common import TestExpenseCommon
 from odoo.tests import tagged
-from odoo.exceptions import UserError
+from odoo.exceptions import ValidationError
 
 
 @tagged('-at_install', 'post_install')
 class TestExpensesMailImport(TestExpenseCommon):
+    _test_user_groups = None  # FIXME list needed groups
+
     def test_import_expense_from_email(self):
         messages = (
             {
@@ -227,7 +229,7 @@ class TestExpensesMailImport(TestExpenseCommon):
         }
 
         expense = self.env['hr.expense'].message_new(message)
-        self.assertRaisesRegex(UserError, r"You can not submit an expense without a category\.", expense.action_submit)
+        self.assertRaisesRegex(ValidationError, "Select a product to proceed.", expense.action_submit)
 
     def test_import_expense_from_email_several_companies_one_employee(self):
         """ Import an expense for a user who has access to several companies,

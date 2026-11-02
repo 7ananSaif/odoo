@@ -40,10 +40,6 @@ class StockStorageCategory(models.Model):
         for storage_category in self:
             storage_category.capacity_ids = storage_category.product_capacity_ids | storage_category.package_capacity_ids
 
-    def copy_data(self, default=None):
-        vals_list = super().copy_data(default=default)
-        return [dict(vals, name=self.env._("%s (copy)", category.name)) for category, vals in zip(self, vals_list)]
-
 
 class StockStorageCategoryCapacity(models.Model):
     _name = 'stock.storage.category.capacity'
@@ -58,7 +54,7 @@ class StockStorageCategoryCapacity(models.Model):
             " [('is_storable', '=', True)]"))
     package_type_id = fields.Many2one('stock.package.type', 'Package Type', ondelete='cascade', check_company=True, index='btree_not_null')
     quantity = fields.Float('Quantity', required=True)
-    product_uom_id = fields.Many2one(related='product_id.uom_id')
+    uom_id = fields.Many2one(related='product_id.uom_id')
     company_id = fields.Many2one('res.company', 'Company', related="storage_category_id.company_id")
 
     _positive_quantity = models.Constraint(

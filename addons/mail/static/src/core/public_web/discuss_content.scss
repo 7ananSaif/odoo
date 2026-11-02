@@ -4,47 +4,6 @@
     }
 }
 
-.o-mail-DiscussContent-core {
-    background-color: $body-bg;
-}
-
-.o-mail-DiscussContent-header {
-    background-color: $white;
-}
-
-.o-mail-DiscussContent-headerActions button {
-    --btn-disabled-opacity: 0.25;
-    background-color: transparent !important;
-
-    i {
-        opacity: 65%;
-    }
-
-    &:hover, &.o-isActive {
-        i {
-            opacity: 100%;
-        }
-    }
-    &:not(.o-isActive):hover {
-        background-color: $gray-200 !important;
-    }
-    &.o-isActive {
-        background-color: $gray-200 !important;
-        outline: $border-width solid mix($gray-300, $gray-400);
-        outline-offset: -$border-width;
-        opacity: 100%;
-    }
-    &.o-isActive:hover {
-        background-color: $gray-300 !important;
-    }
-}
-
-.o-mail-DiscussContent-headerActionsGroup {
-    background-color: mix($gray-100, $gray-200, 65%);
-    outline: 1px solid $gray-200;
-    outline-offset: -1px;
-}
-
 .o-mail-DiscussContent-headerCountry {
     width: 24px;
 }
@@ -52,6 +11,11 @@
 .o-mail-DiscussContent-headerImStatus {
     bottom: -2px;
     right: -2px;
+}
+
+.o-mail-DiscussContent-headerBox,
+.o-mail-DiscussContent-panelContainer {
+    background-color: $o-view-background-color;
 }
 
 .o-mail-DiscussContent-selfAvatar {
@@ -80,6 +44,16 @@
     }
 }
 
-.o-mail-DiscussContent-threadName {
-    max-width: 75%;
+.o-mail-DiscussContent-threadDescription:not(:focus) {
+    color: $text-muted;
+}
+
+.o-mail-DiscussContent-headerInfo {
+    // headerBox can't be the reference for the width below. Its own width depends on the
+    // name's size, which would be circular.
+    container-type: inline-size;
+}
+
+.o-mail-DiscussContent-threadNameBox {
+    max-width: 75cqi;
 }

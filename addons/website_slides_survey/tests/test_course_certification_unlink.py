@@ -4,7 +4,7 @@
 
 from odoo.addons.website_slides.tests.common import SlidesCase
 from odoo.exceptions import ValidationError
-from odoo.tests.common import users
+from odoo.tests.common import tagged, users
 
 
 class TestSurvey(SlidesCase):

@@ -8,6 +8,8 @@ TEST_DATE = date(2023, 5, 20)
 @tagged('post_install_l10n', 'post_install', '-at_install')
 class TestPOSGstrSection(TestInPosBase):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     def test_b2cs_gstr_section_with_pos_order(self):
         with self.with_pos_session() as session:
             self._create_order({
@@ -17,8 +19,8 @@ class TestPOSGstrSection(TestInPosBase):
                 ],
                 'payments': [(self.bank_pm1, 630.0)],
             })
-            session.action_pos_session_closing_control()
-            pos_entry_lines = session.move_id.line_ids
+            session.close_session_from_ui()
+            pos_entry_lines = session.move_ids.line_ids
             for line in pos_entry_lines.filtered(lambda l: l.display_type in ('product, tax')):
                 self.assertEqual(line.l10n_in_gstr_section, 'sale_b2cs')
 
@@ -31,7 +33,7 @@ class TestPOSGstrSection(TestInPosBase):
                 'payments': [(self.bank_pm1, 900.0)],
                 'customer': self.partner_a,
             })
-            session.action_pos_session_closing_control()
-            pos_entry_lines = session.move_id.line_ids
+            session.close_session_from_ui()
+            pos_entry_lines = session.move_ids.line_ids
             for line in pos_entry_lines.filtered(lambda l: l.display_type in ('product, tax')):
                 self.assertEqual(line.l10n_in_gstr_section, 'sale_nil_rated')

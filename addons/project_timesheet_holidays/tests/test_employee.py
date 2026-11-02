@@ -154,16 +154,18 @@ class TestEmployee(TransactionCase):
         })
         old_timesheet_count = len(self.env['account.analytic.line'].search([
             ('employee_id', '=', employee.id)]))
-        generic_time_off_type = self.env['hr.leave.type'].create({
-            'name': 'Generic Time Off',
-            'requires_allocation': False,
+        work_entry_type = self.env['hr.work.entry.type'].create({
+            'name': 'Legal Leaves',
+            'code': 'Legal Leaves',
+            'count_as': 'absence',
             'leave_validation_type': 'both',
-            'company_id': self.company.id,
+            'requires_allocation': False,
+            'unit_of_measure': 'day',
         })
         leave = self.env['hr.leave'].create({
             'employee_id': employee.id,
             'state': 'confirm',
-            'holiday_status_id': generic_time_off_type.id,
+            'work_entry_type_id': work_entry_type.id,
             'request_date_from': '2020-01-02 08:00:00',
             'request_date_to': '2020-01-07 17:00:00',
         })

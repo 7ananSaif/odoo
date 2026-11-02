@@ -11,26 +11,27 @@
 # "Junko Augias (juau)" <juau@odoo.com>, 2025, 2026.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
 # Yoshi Tashiro <tashiro@quartile.co>, 2025.
+# Odoo Translation Bot <c3p@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:38+0000\n"
-"PO-Revision-Date: 2026-03-18 11:18+0000\n"
+"POT-Creation-Date: 2026-09-18 17:38+0000\n"
+"PO-Revision-Date: 2026-10-16 03:33+0000\n"
 "Last-Translator: \"Junko Augias (juau)\" <juau@odoo.com>\n"
-"Language-Team: Japanese <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Japanese <https://translate.odoo.com/projects/odoo-20/"
 "purchase_stock/ja/>\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.16.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.purchase_order_view_form_inherit
-msgid "% On-Time Delivery"
-msgstr "納期遵守率(％)"
+msgid "% On Time"
+msgstr "% 納期厳守"
 
 #. module: purchase_stock
 #. odoo-python
@@ -53,14 +54,24 @@ msgstr "%(value)s(%(quantity)s %(unit)s、%(quotation)s より、未請求)"
 #. module: purchase_stock
 #. odoo-python
 #: code:addons/purchase_stock/models/stock_rule.py:0
-msgid "+ %d day(s)"
-msgstr "+ %d 日"
+msgid "+ %d days"
+msgstr ""
 
 #. module: purchase_stock
 #. odoo-python
 #: code:addons/purchase_stock/models/stock_rule.py:0
-msgid "+ %s day(s)"
-msgstr "+ %s 日"
+msgid "+ %s days"
+msgstr ""
+
+#. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_kanban_catalog_purchase_only
+msgid "<small class=\"text-muted ms-1\"> / month</small>"
+msgstr "<small class=\"text-muted ms-1\"> / 月</small>"
+
+#. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_kanban_catalog_purchase_only
+msgid "<small class=\"text-muted\">Demand: </small>"
+msgstr "<small class=\"text-muted\">需要: </small>"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.res_partner_view_purchase_buttons_inherit
@@ -84,18 +95,8 @@ msgstr "<span class=\"text-info fw-bold fs-5 me-1\">提案</span>"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_kanban_catalog_purchase_only
-msgid "<span class=\"text-muted small me-1\">Monthly Demand:</span>"
-msgstr "<span class=\"text-muted small me-1\">月次需要:</span>"
-
-#. module: purchase_stock
-#: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_kanban_catalog_purchase_only
 msgid "<span class=\"text-muted small ms-1\">Forecasted</span>"
 msgstr "<span class=\"text-muted small ms-1\">予測済</span>"
-
-#. module: purchase_stock
-#: model_terms:ir.ui.view,arch_db:purchase_stock.purchase_order_view_form_inherit
-msgid "<span invisible=\"on_time_rate &gt;= 0\">No data yet</span>"
-msgstr "<span invisible=\"on_time_rate &gt;= 0\">データなし</span>"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_kanban_catalog_purchase_only
@@ -112,12 +113,6 @@ msgstr "<span>日</span>"
 #: model_terms:ir.ui.view,arch_db:purchase_stock.report_purchasequotation_document
 msgid "<strong class=\"d-block mt-3\">Shipping address</strong>"
 msgstr "<strong class=\"d-block mt-3\">配送先</strong>"
-
-#. module: purchase_stock
-#: model_terms:ir.ui.view,arch_db:purchase_stock.report_purchaseorder_document
-#: model_terms:ir.ui.view,arch_db:purchase_stock.report_purchasequotation_document
-msgid "<strong>Incoterm:</strong>"
-msgstr "<strong>貿易条件:</strong>"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.report_purchasequotation_document
@@ -170,7 +165,7 @@ msgstr ""
 #. module: purchase_stock
 #: model:ir.model.fields.selection,name:purchase_stock.selection__res_partner__group_rfq__all
 msgid "Always"
-msgstr "常に"
+msgstr "常時"
 
 #. module: purchase_stock
 #: model:ir.model.fields,help:purchase_stock.field_stock_warehouse_orderpoint__available_vendor
@@ -214,13 +209,13 @@ msgstr "購入して補充"
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_res_company
-msgid "Companies"
+msgid "Company"
 msgstr "会社"
 
 #. module: purchase_stock
 #: model:ir.model.fields,help:purchase_stock.field_purchase_order__effective_date
-msgid "Completion date of the first receipt order."
-msgstr "最初の入荷オーダの完了日。"
+msgid "Completion date of the last receipt order."
+msgstr "最終入荷オーダの完了日。"
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_res_config_settings
@@ -241,7 +236,7 @@ msgstr "対応する領収書が見つかりません。"
 #. module: purchase_stock
 #: model:ir.model,website_form_label:purchase_stock.model_res_partner
 msgid "Create a Customer"
-msgstr "顧客を作成する"
+msgstr "顧客を作成"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_move__created_purchase_line_ids
@@ -257,6 +252,13 @@ msgstr "説明をカスタマイズする"
 #: model:ir.model.fields.selection,name:purchase_stock.selection__res_partner__group_rfq__day
 msgid "Daily"
 msgstr "日次"
+
+#. module: purchase_stock
+#: model:ir.model.fields,help:purchase_stock.field_purchase_order__date_promised
+msgid ""
+"Date promised by the vendor for at least 1 or more products to be delivered "
+"by."
+msgstr "仕入先が少なくとも1つ以上のプロダクトの納品を約束した日付。"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_picking__days_to_arrive
@@ -298,6 +300,14 @@ msgid ""
 "is the same week or week day\n"
 "         Always: Replenishment needs will always be grouped."
 msgstr ""
+"ドロップシップの処理を除き、         入荷予定日に基づいて見積依頼をまとめるか"
+"どうかを設定します。\n"
+"         オーダ時: 補充の必要があるオーダは、受注生産以外でまとめて処理されま"
+"す。\n"
+"         日ごと: 入荷予定日が同じであれば、補充のニーズをまとめます。\n"
+"         週ごと: 入荷予定日が同じ週または同じ曜日であれば、補充のニーズをまと"
+"めます。\n"
+"         常時: 常に補充のニーズをまとめます。"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_picking__delay_pass
@@ -310,6 +320,15 @@ msgid "Deliver To"
 msgstr "納入先"
 
 #. module: purchase_stock
+#: model:ir.model.fields,help:purchase_stock.field_purchase_order_line__date_promised
+msgid ""
+"Delivery Date promised by the vendor. If the vendor delivers products after "
+"this date, their On-Time rate will be negatively impacted."
+msgstr ""
+"仕入先が約束した納品日です。この日を過ぎて納品された場合、納期遵守率に悪影響"
+"を及ぼします。"
+
+#. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.product_supplierinfo_replenishment_tree_view
 msgid "Delivery Time"
 msgstr "納期"
@@ -320,7 +339,6 @@ msgid "Destination Location Type"
 msgstr "移動先ロケーションタイプ"
 
 #. module: purchase_stock
-#: model:ir.model.fields,field_description:purchase_stock.field_account_move__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_account_move_line__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_product_product__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_product_replenish__display_name
@@ -333,6 +351,7 @@ msgstr "移動先ロケーションタイプ"
 #: model:ir.model.fields,field_description:purchase_stock.field_res_company__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_res_config_settings__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_res_partner__display_name
+#: model:ir.model.fields,field_description:purchase_stock.field_stock_allocation_report__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_forecasted_product_product__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_lot__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_move__display_name
@@ -341,7 +360,6 @@ msgstr "移動先ロケーションタイプ"
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_replenish_mixin__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_replenishment_info__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_replenishment_option__display_name
-#: model:ir.model.fields,field_description:purchase_stock.field_stock_return_picking__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_route__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_rule__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_warehouse__display_name
@@ -427,20 +445,20 @@ msgid "Forecasted Issue"
 msgstr "予測された問題"
 
 #. module: purchase_stock
+#: model:ir.model.fields,field_description:purchase_stock.field_purchase_order_line__forecasted_location_id
+msgid "Forecasted Location"
+msgstr ""
+
+#. module: purchase_stock
 #: model:ir.model.fields.selection,name:purchase_stock.selection__res_partner__group_on__5
 msgid "Friday"
 msgstr "金曜"
 
 #. module: purchase_stock
-#: model:ir.model.fields.selection,name:purchase_stock.selection__purchase_order__receipt_status__full
-msgid "Fully Received"
-msgstr "すべて入荷済"
-
-#. module: purchase_stock
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/js/tours/purchase_stock.js:0
 msgid "Generate the draft vendor bill."
-msgstr "草稿のベンダー請求書を生成します。"
+msgstr "ドラフトの仕入先請求書を生成します。"
 
 #. module: purchase_stock
 #. odoo-javascript
@@ -452,7 +470,7 @@ msgid ""
 " Set a reference period to estimate sales, and use the percentage to take "
 "into account seasonality and the increase/decrease of business."
 msgstr ""
-"%(vendorName)s で購入すべきプロダクトの推奨を、手持ち在庫、入荷予定数量、予測"
+"%(vendorName)s で購買が推奨されるプロダクトを、手持ち在庫、入荷予定数量、予測"
 "販売量に基づいて取得します。\n"
 "\n"
 "販売の見積もりには基準期間を設定し、季節性や取引量の増減を考慮するために割合"
@@ -465,19 +483,12 @@ msgid "Go back to the purchase order to generate the vendor bill."
 msgstr "発注書に戻って、仕入先請求書を生成します。"
 
 #. module: purchase_stock
-#. odoo-javascript
-#: code:addons/purchase_stock/static/src/stock_valuation/stock_valuation_report.js:0
-msgid "Goods Received Not Invoiced"
-msgstr "商品受領済未請求"
-
-#. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_res_partner__group_rfq
 #: model:ir.model.fields,field_description:purchase_stock.field_res_users__group_rfq
 msgid "Group RFQ"
 msgstr "見積依頼をグループ化"
 
 #. module: purchase_stock
-#: model:ir.model.fields,field_description:purchase_stock.field_account_move__id
 #: model:ir.model.fields,field_description:purchase_stock.field_account_move_line__id
 #: model:ir.model.fields,field_description:purchase_stock.field_product_product__id
 #: model:ir.model.fields,field_description:purchase_stock.field_product_replenish__id
@@ -490,6 +501,7 @@ msgstr "見積依頼をグループ化"
 #: model:ir.model.fields,field_description:purchase_stock.field_res_company__id
 #: model:ir.model.fields,field_description:purchase_stock.field_res_config_settings__id
 #: model:ir.model.fields,field_description:purchase_stock.field_res_partner__id
+#: model:ir.model.fields,field_description:purchase_stock.field_stock_allocation_report__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_forecasted_product_product__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_lot__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_move__id
@@ -498,7 +510,6 @@ msgstr "見積依頼をグループ化"
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_replenish_mixin__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_replenishment_info__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_replenishment_option__id
-#: model:ir.model.fields,field_description:purchase_stock.field_stock_return_picking__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_route__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_rule__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_warehouse__id
@@ -518,13 +529,8 @@ msgid "Incoming Shipments"
 msgstr "入荷"
 
 #. module: purchase_stock
-#: model:ir.model.fields,field_description:purchase_stock.field_purchase_order__incoterm_location
-msgid "Incoterm Location"
-msgstr "インコタームズロケーション"
-
-#. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_stock_route
-msgid "Inventory Routes"
+msgid "Inventory Route"
 msgstr "在庫ルート"
 
 #. module: purchase_stock
@@ -536,11 +542,6 @@ msgstr "発送されたか"
 #: model:ir.model.fields,field_description:purchase_stock.field_res_config_settings__is_installed_sale
 msgid "Is the Sale Module Installed"
 msgstr "販売モジュールがインストールされているか"
-
-#. module: purchase_stock
-#: model:ir.model,name:purchase_stock.model_account_move
-msgid "Journal Entry"
-msgstr "仕訳"
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_account_move_line
@@ -583,9 +584,9 @@ msgid "Last year quarter"
 msgstr "前年四半期"
 
 #. module: purchase_stock
-#: model:ir.model.fields,field_description:purchase_stock.field_purchase_order_line__location_final_id
-msgid "Location from procurement"
-msgstr "調達からのロケーション"
+#: model:ir.model.fields,help:purchase_stock.field_purchase_order_line__forecasted_location_id
+msgid "Location used in the computation of the forecast."
+msgstr ""
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.res_config_settings_view_form_purchase
@@ -608,6 +609,12 @@ msgid "Minimum Inventory Rule"
 msgstr "最小在庫ルール"
 
 #. module: purchase_stock
+#. odoo-python
+#: code:addons/purchase_stock/models/stock.py:0
+msgid "Missing products in receipt"
+msgstr "入荷で不足しているプロダクト"
+
+#. module: purchase_stock
 #: model:ir.model.fields.selection,name:purchase_stock.selection__res_partner__group_on__1
 msgid "Monday"
 msgstr "月曜"
@@ -626,7 +633,7 @@ msgstr "前年の翌月"
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.exception_on_po
 msgid "Next transfer(s) impacted:"
-msgstr "影響を受ける次の転送(複数):"
+msgstr "影響を受ける次の移動(複数):"
 
 #. module: purchase_stock
 #. odoo-python
@@ -646,18 +653,13 @@ msgid "No supplier has been found to replenish"
 msgstr "補充できるサプライヤーは見つかりませんでした"
 
 #. module: purchase_stock
-#: model:ir.model.fields.selection,name:purchase_stock.selection__purchase_order__receipt_status__pending
-msgid "Not Received"
-msgstr "未入荷"
-
-#. module: purchase_stock
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/purchase_dashboard/purchase_dashboard.xml:0
 msgid "OTD"
 msgstr "OTD(納期遵守率)"
 
 #. module: purchase_stock
-#: model_terms:ir.ui.view,arch_db:purchase_stock.res_partner_view_purchase_buttons_inherit
+#: model_terms:ir.ui.view,arch_db:purchase_stock.purchase_order_view_form_inherit
 msgid "On"
 msgstr "On"
 
@@ -696,6 +698,11 @@ msgid "On-time Rate"
 msgstr "納期遵守率"
 
 #. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.exception_on_picking
+msgid "Only"
+msgstr "以下のみ："
+
+#. module: purchase_stock
 #. odoo-python
 #: code:addons/purchase_stock/models/stock_rule.py:0
 msgid "Order Deadline"
@@ -723,11 +730,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:purchase_stock.field_product_product__purchase_order_line_ids
 msgid "PO Lines"
 msgstr "購買オーダ明細"
-
-#. module: purchase_stock
-#: model:ir.model.fields.selection,name:purchase_stock.selection__purchase_order__receipt_status__partial
-msgid "Partially Received"
-msgstr "一部入荷済"
 
 #. module: purchase_stock
 #. odoo-javascript
@@ -762,6 +764,12 @@ msgid "Product Variant"
 msgstr "プロダクトバリアント"
 
 #. module: purchase_stock
+#: model:ir.model.fields,field_description:purchase_stock.field_purchase_order__date_promised
+#: model:ir.model.fields,field_description:purchase_stock.field_purchase_order_line__date_promised
+msgid "Promised Date"
+msgstr "納入予定日"
+
+#. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_order_line__propagate_cancel
 msgid "Propagate cancellation"
 msgstr "キャンセルの伝播"
@@ -784,8 +792,6 @@ msgid "Purchase Order Line"
 msgstr "購買オーダ明細"
 
 #. module: purchase_stock
-#. odoo-javascript
-#: code:addons/purchase_stock/static/src/stock_valuation/stock_valuation_report.js:0
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_lot__purchase_order_ids
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_picking__purchase_id
 #: model_terms:ir.ui.view,arch_db:purchase_stock.purchase_help_message_template
@@ -794,9 +800,19 @@ msgid "Purchase Orders"
 msgstr "購買オーダ"
 
 #. module: purchase_stock
+#: model:ir.module.module,summary:base.module_purchase_stock
+msgid "Purchase Orders, Receipts, Vendor Bills for Stock"
+msgstr ""
+
+#. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_purchase_report
 msgid "Purchase Report"
 msgstr "購買レポート"
+
+#. module: purchase_stock
+#: model:ir.module.module,shortdesc:base.module_purchase_stock
+msgid "Purchase Stock"
+msgstr ""
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_lot__purchase_order_count
@@ -829,11 +845,6 @@ msgid "Receipt Date"
 msgstr "入荷日"
 
 #. module: purchase_stock
-#: model:ir.model.fields,field_description:purchase_stock.field_purchase_order__receipt_status
-msgid "Receipt Status"
-msgstr "入荷ステータス"
-
-#. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.purchase_order_view_form_inherit
 msgid "Receive"
 msgstr "受取"
@@ -850,20 +861,14 @@ msgid "Received Qty Method"
 msgstr "受け取った数量メソッド"
 
 #. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.exception_on_picking
+msgid "Received quantity is less than the expected quantity for transfer"
+msgstr "入荷数量が、移動(移動)で予定されている数量を下回っています"
+
+#. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_order__picking_ids
 msgid "Receptions"
 msgstr "入荷"
-
-#. module: purchase_stock
-#: model:ir.model.fields,help:purchase_stock.field_purchase_order__receipt_status
-msgid ""
-"Red: Late\n"
-"            Orange: To process today\n"
-"            Green: On time"
-msgstr ""
-"赤: 遅延\n"
-"            オレンジ: 本日処理要\n"
-"            緑: 納期遵守"
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_stock_reference
@@ -890,17 +895,12 @@ msgstr "顧客に直送するよう仕入先に指示"
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/purchase_stock_forecasted/forecasted_details.xml:0
 msgid "Requests for quotation :"
-msgstr "見積依頼 :"
+msgstr "見積依頼:"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_order_line__move_ids
 msgid "Reservation"
 msgstr "在庫引当"
-
-#. module: purchase_stock
-#: model:ir.model,name:purchase_stock.model_stock_return_picking
-msgid "Return Picking"
-msgstr "返品ピッキング"
 
 #. module: purchase_stock
 #. odoo-javascript
@@ -940,6 +940,11 @@ msgid "Show supplier column"
 msgstr "仕入先列を表示"
 
 #. module: purchase_stock
+#: model:ir.model,name:purchase_stock.model_stock_allocation_report
+msgid "Stock Allocation Report"
+msgstr ""
+
+#. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_stock_move
 msgid "Stock Move"
 msgstr "在庫移動"
@@ -961,14 +966,14 @@ msgid "Stock Rule"
 msgstr "在庫ルール"
 
 #. module: purchase_stock
+#: model:ir.model,name:purchase_stock.model_stock_replenishment_info
+msgid "Stock delivery time information"
+msgstr ""
+
+#. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_report_stock_report_stock_rule
 msgid "Stock rule report"
 msgstr "在庫ルールレポート"
-
-#. module: purchase_stock
-#: model:ir.model,name:purchase_stock.model_stock_replenishment_info
-msgid "Stock supplier replenishment information"
-msgstr "在庫仕入先補充情報"
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_stock_replenishment_option
@@ -1018,6 +1023,11 @@ msgstr "推奨数量"
 #: model:ir.model.fields.selection,name:purchase_stock.selection__res_partner__group_on__7
 msgid "Sunday"
 msgstr "日曜"
+
+#. module: purchase_stock
+#: model:ir.model.fields,field_description:purchase_stock.field_product_replenish__partner_id
+msgid "Supplier"
+msgstr "仕入先"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_warehouse_orderpoint__supplier_id_placeholder
@@ -1073,6 +1083,15 @@ msgstr ""
 "(location)s) :再オーダルール(%(reordering_rule)s)、プロダクト%(product)s用、"
 "が一致しません。オペレーションタイプを変更するか、見積依頼をキャンセルして下"
 "さい。"
+
+#. module: purchase_stock
+#. odoo-python
+#: code:addons/purchase_stock/models/purchase_order_line.py:0
+msgid ""
+"There is a mismatch between the company the Vendor is restricted to and the "
+"company receiving the purchased products. Please ensure the company is the "
+"same or that the Contact has no company restriction set."
+msgstr ""
 
 #. module: purchase_stock
 #. odoo-python
@@ -1157,6 +1176,12 @@ msgid "To Order"
 msgstr "オーダ予定数量"
 
 #. module: purchase_stock
+#. odoo-javascript
+#: code:addons/purchase_stock/static/src/product_catalog/search/search_panel.xml:0
+msgid "Total"
+msgstr "合計"
+
+#. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_vendor_delay_report__qty_total
 msgid "Total Quantity"
 msgstr "合計数量"
@@ -1169,17 +1194,12 @@ msgstr "在庫追跡"
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_stock_picking
 msgid "Transfer"
-msgstr "転送"
+msgstr "移動"
 
 #. module: purchase_stock
 #: model:ir.model.fields.selection,name:purchase_stock.selection__res_partner__group_on__2
 msgid "Tuesday"
 msgstr "火曜"
-
-#. module: purchase_stock
-#: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_kanban_catalog_purchase_only
-msgid "Units"
-msgstr ""
 
 #. module: purchase_stock
 #. odoo-javascript
@@ -1223,6 +1243,11 @@ msgstr "仕入先価格表"
 #: model_terms:ir.ui.view,arch_db:purchase_stock.view_stock_replenishment_info_stock_purchase_inherit
 msgid "Vendors"
 msgstr "仕入先"
+
+#. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.product_product_tree_view_stock
+msgid "View Forecast"
+msgstr ""
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_stock_warehouse
@@ -1271,9 +1296,14 @@ msgstr ""
 
 #. module: purchase_stock
 #. odoo-python
-#: code:addons/purchase_stock/models/purchase_order.py:0
-msgid "You must set a Vendor Location for this partner %s"
-msgstr "この取引先 %s に仕入先ロケーションを設定してください。"
+#: code:addons/purchase_stock/models/purchase_order_line.py:0
+msgid "You must set a Vendor Location for partner %(partner_name)s"
+msgstr "取引先には仕入先所在地を管理設定する必要があります%(partner_name)s"
+
+#. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.exception_on_picking
+msgid "and no backorder is planned. Manual action may be needed."
+msgstr "再注文の予定はありません。手動での対応が必要になる場合があります。"
 
 #. module: purchase_stock
 #. odoo-javascript
@@ -1282,6 +1312,7 @@ msgid "day(s)"
 msgstr "日"
 
 #. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.exception_on_picking
 #: model_terms:ir.ui.view,arch_db:purchase_stock.exception_on_po
 msgid "of"
 msgstr "の"
@@ -1292,138 +1323,41 @@ msgid "ordered instead of"
 msgstr "が次の数量の代わりにオーダされました:"
 
 #. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.exception_on_picking
+msgid "received in contrast to the expected"
+msgstr "予定数量と実際の入荷数量が一致しません"
+
+#. module: purchase_stock
 #. odoo-python
 #: code:addons/purchase_stock/models/stock_rule.py:0
 msgid "this product should be manually replenished."
 msgstr "このプロダクトは手動で補充する必要があります"
 
 #. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_kanban_catalog_purchase_only
+msgid "units"
+msgstr "単位"
+
+#. module: purchase_stock
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/product_catalog/search/search_panel.xml:0
 msgid "x"
-msgstr ""
+msgstr "x"
 
-#~ msgid ""
-#~ "<span class=\"text-info fw-bold fs-5 me-1\" groups=\"!"
-#~ "uom.group_uom\">Units</span>"
-#~ msgstr ""
-#~ "<span class=\"text-info fw-bold fs-5 me-1\" groups=\"!uom.group_uom\">単位"
-#~ "</span>"
+#~ msgid "Goods Received Not Invoiced"
+#~ msgstr "商品受領済未請求"
 
-#~ msgid ""
-#~ "<span class=\"text-muted small ms-1\" groups=\"!uom.group_uom\">Units</"
-#~ "span>"
-#~ msgstr ""
-#~ "<span class=\"text-muted small ms-1\" groups=\"!uom.group_uom\">単位</"
-#~ "span>"
+#~ msgid "Journal Entry"
+#~ msgstr "仕訳"
+
+#~ msgid "<strong>Incoterm:</strong>"
+#~ msgstr "<strong>貿易条件:</strong>"
+
+#~ msgid "Incoterm Location"
+#~ msgstr "インコタームズロケーション"
+
+#~ msgid "Location from procurement"
+#~ msgstr "調達からのロケーション"
 
 #~ msgid "Stock Valuation"
 #~ msgstr "在庫評価"
-
-#~ msgid ""
-#~ "Define if RFQ should be grouped         together based on expected "
-#~ "arrival.\n"
-#~ "         On Order: Replenishment needs will be grouped together except "
-#~ "for MTO.\n"
-#~ "         Daily: Replenishment needs will be grouped if the expected "
-#~ "arrival is the same day\n"
-#~ "         Weekly: Replenishment needs will be grouped if the expected "
-#~ "arrival is the same week or week day\n"
-#~ "         Always: Replenishment needs will always be grouped."
-#~ msgstr ""
-#~ "見積依頼を         到着予定に基づいてグループ化するかを定義します。\n"
-#~ "         オーダ時: 受注生産(MTO)を除き、補充ニーズはグループ化されます。\n"
-#~ "         日ごと: 到着予定日が同じ場合、補充ニーズはグループ化されます\n"
-#~ "         週ごと: 到着予定日が同じ週または同じ曜日である場合、補充ニーズは"
-#~ "グループ化されます\n"
-#~ "         常時: 常にグループ化されます。"
-
-#~ msgid "<span class=\"text-info fw-bold fs-5 me-1\">units</span>"
-#~ msgstr "<span class=\"text-info fw-bold fs-5 me-1\">単位</span>"
-
-#~ msgid "<span class=\"text-info fw-bold fs-5\"> Suggest </span>"
-#~ msgstr "<span class=\"text-info fw-bold fs-5\"> 提案する </span>"
-
-#~ msgid "<span class=\"text-info fw-bold fs-5\"> units </span>"
-#~ msgstr "<span class=\"text-info fw-bold fs-5\">ユニット </span>"
-
-#~ msgid "<span class=\"text-muted small\"> Forecasted</span>"
-#~ msgstr "<span class=\"text-muted small\"> 予測在庫</span>"
-
-#~ msgid "<span class=\"text-muted small\">Monthly Demand: </span>"
-#~ msgstr "<span class=\"text-muted small\">月間需要: </span>"
-
-#~ msgid "Requests for quotation"
-#~ msgstr "見積依頼"
-
-#~ msgid "<strong>Shipping address:</strong>"
-#~ msgstr "<strong>納入場所:</strong>"
-
-#~ msgid "Currency exchange rate difference"
-#~ msgstr "為替レートの違い"
-
-#~ msgid ""
-#~ "Depending on the modules installed, this will allow you to define the "
-#~ "route of the product: whether it will be bought, manufactured, "
-#~ "replenished on order, etc."
-#~ msgstr ""
-#~ "インストールされているモジュールに応じて、製品のルートを定義できます。つま"
-#~ "り、購入、製造、注文時に補充するかどうかなどです。"
-
-#~ msgid "Incoterm"
-#~ msgstr "インコタームズ"
-
-#~ msgid ""
-#~ "International Commercial Terms are a series of predefined commercial "
-#~ "terms used in international transactions."
-#~ msgstr ""
-#~ "国際取引条件は国際間の取り引きで使用する、事前に定義された取引条件をまとめ"
-#~ "たものです。"
-
-#~ msgid ""
-#~ "Margin of error for vendor lead times. When the system generates Purchase "
-#~ "Orders for reordering products,they will be scheduled that many days "
-#~ "earlier to cope with unexpected vendor delays."
-#~ msgstr ""
-#~ "ベンダーのリードタイムの​​許容誤差。システムが製品を再注文するための発注書を"
-#~ "生成するとき、予期しないベンダーの遅延に対処するために、それらは何日も前に"
-#~ "スケジュールされます。"
-
-#~ msgid "No data yet"
-#~ msgstr "未データ"
-
-#~ msgid ""
-#~ "Odoo is not able to generate the anglo saxon entries. The total valuation "
-#~ "of %s is zero."
-#~ msgstr ""
-#~ "ODooはアングロサクソン人のエントリを生成できません。 %s の総評価は0です。"
-
-#~ msgid "Procurement Group"
-#~ msgstr "調達グループ"
-
-#~ msgid "Purchase Security Lead Time"
-#~ msgstr "購入セキュリティリードタイム"
-
-#~ msgid "Receive Products"
-#~ msgstr "プロダクト入荷"
-
-#~ msgid "Routes"
-#~ msgstr "ルート"
-
-#~ msgid "Schedule request for quotations earlier to avoid delays"
-#~ msgstr "見積依頼のスケジュールを早めに設定し、遅延を回避"
-
-#~ msgid ""
-#~ "Unable to cancel purchase order %s as some receptions have already been "
-#~ "done."
-#~ msgstr "処理された入荷があるため購買オーダ %s は取消できません。"
-
-#~ msgid ""
-#~ "You cannot decrease the ordered quantity below the received quantity.\n"
-#~ "Create a return first."
-#~ msgstr ""
-#~ "注文数量を受領数量より少なくすることはできません。\n"
-#~ "最初に返品を作成します。"
-
-#~ msgid "days"
-#~ msgstr "日"

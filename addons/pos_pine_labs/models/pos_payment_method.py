@@ -10,22 +10,22 @@ class PosPaymentMethod(models.Model):
     pine_labs_merchant = fields.Char(string='Pine Labs Merchant ID', help='A merchant id issued directly to the merchant by Pine Labs.', copy=False)
     pine_labs_store = fields.Char(string='Pine Labs Store ID', help='A store id issued directly to the merchant by Pine Labs.', copy=False)
     pine_labs_client = fields.Char(string='Pine Labs Client ID', help='A client id issued directly to the merchant by Pine Labs.', copy=False)
-    pine_labs_security_token = fields.Char(string='Pine Labs Security Token', help='A security token issued directly to the merchant by Pine Labs.')
+    pine_labs_security_token = fields.Char(string='Pine Labs Security Token', help='A security token issued directly to the merchant by Pine Labs.', groups="point_of_sale.group_pos_manager")
     pine_labs_allowed_payment_mode = fields.Selection(
         selection=[('all', "All"), ('card', "Card"), ('upi', "Upi")],
         string='Pine Labs Allowed Payment Modes',
         help='Accepted payment modes by Pine Labs for transactions.')
     pine_labs_test_mode = fields.Boolean(string='Pine Labs Test Mode', help='Test Pine Labs transaction process.')
 
-    def _get_payment_terminal_selection(self):
-        return super()._get_payment_terminal_selection() + [('pine_labs', 'Pine Labs')]
+    def _get_terminal_provider_selection(self):
+        return super()._get_terminal_provider_selection() + [('pine_labs', 'Pine Labs')]
 
     def pine_labs_make_payment_request(self, data):
         """
         Sends a payment request to the Pine Labs POS API.
 
         :param dict data: Contains `amount`, `transactionNumber`, and `sequenceNumber`.
-        :return: On success, returns `responseCode`, `status`, and `plutusTransactionReferenceID`. 
+        :return: On success, returns `responseCode`, `status`, and `plutusTransactionReferenceID`.
                 On failure, returns an error message.
         :rtype: dict
         """
@@ -50,7 +50,7 @@ class PosPaymentMethod(models.Model):
         Fetches payment status from the Pine Labs POS API.
 
         :param dict data: Contains `plutusTransactionReferenceID` for the status request.
-        :return: On success, returns `responseCode`, `status`, `plutusTransactionReferenceID`, and `data` (formatted transaction details). 
+        :return: On success, returns `responseCode`, `status`, `plutusTransactionReferenceID`, and `data` (formatted transaction details).
                 On failure, returns an error message.
         :rtype: dict
         """
@@ -92,7 +92,7 @@ class PosPaymentMethod(models.Model):
         error = response.get('ResponseMessage') or response.get('errorMessage') or default_error
         return { 'error': error }
 
-    @api.constrains('use_payment_terminal')
+    @api.constrains('payment_provider')
     def _check_pine_labs_terminal(self):
-        if any(record.use_payment_terminal == 'pine_labs' and record.company_id.currency_id.name != 'INR' for record in self):
+        if any(record.payment_provider == 'pine_labs' and record.company_id.currency_id.name != 'INR' for record in self):
             raise UserError(_('This Payment Terminal is only valid for INR Currency'))

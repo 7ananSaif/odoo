@@ -1,5 +1,6 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+from itertools import islice
 from random import randint
 
 from odoo import api, fields, models, tools, _
@@ -13,7 +14,7 @@ class ProductTemplateAttributeValue(models.Model):
 
     _name = 'product.template.attribute.value'
     _description = "Product Template Attribute Value"
-    _order = 'attribute_line_id, product_attribute_value_id, id'
+    _order = 'sequence, attribute_line_id, product_attribute_value_id, id'
 
     def _get_default_color(self):
         return randint(1, 11)
@@ -22,6 +23,7 @@ class ProductTemplateAttributeValue(models.Model):
     # specific case, as opposed to `active_test`.
     ptav_active = fields.Boolean(string="Active", default=True)
     name = fields.Char(string="Value", related="product_attribute_value_id.name")
+    sequence = fields.Integer(string="Sequence", help="Determine the display order")
 
     # defining fields: the product template attribute line and the product attribute value
     product_attribute_value_id = fields.Many2one(
@@ -40,12 +42,20 @@ class ProductTemplateAttributeValue(models.Model):
             " eg. 200 price extra, 1000 + 200 = 1200.")
     currency_id = fields.Many2one(related='attribute_line_id.product_tmpl_id.currency_id')
 
-    exclude_for = fields.One2many(
-        comodel_name='product.template.attribute.exclusion',
-        inverse_name='product_template_attribute_value_id',
-        string="Exclude for",
-        help="Make this attribute value not compatible with "
-             "other values of the product or some attribute values of optional and accessory products.")
+    show_price_extra = fields.Boolean(
+        string="Show Extra Price",
+        help="Show separately the extra price for this attribute value."
+    )
+
+    excluded_value_ids = fields.Many2many(
+        string="Exclude For",
+        help="Make this attribute value not compatible with other values of the product.",
+        comodel_name='product.template.attribute.value',
+        relation='product_template_attribute_excluded_value_ids_rel',
+        column1='product_template_attribute_value_id',
+        column2='excluded_product_template_attribute_value_id',
+        domain="[('product_tmpl_id', '=', product_tmpl_id), ('attribute_line_id', '!=', attribute_line_id), ('ptav_active', '=', True)]",
+    )
 
     # related fields: product template and product attribute
     product_tmpl_id = fields.Many2one(
@@ -110,7 +120,7 @@ class ProductTemplateAttributeValue(models.Model):
                         product=ptav.product_tmpl_id.display_name,
                     ))
         res = super().write(values)
-        if 'exclude_for' in values:
+        if 'excluded_value_ids' in values:
             self.product_tmpl_id._create_variant_ids()
         return res
 
@@ -148,14 +158,12 @@ class ProductTemplateAttributeValue(models.Model):
         ptav_to_archive.write({'ptav_active': False})
         return True
 
+    @api.depends_context('display_attribute_name')
     @api.depends('attribute_id')
     def _compute_display_name(self):
-        """Override because in general the name of the value is confusing if it
-        is displayed without the name of the corresponding attribute.
-        Eg. on exclusion rules form
-        """
+        display_attribute_name = self.env.context.get('display_attribute_name', True)
         for value in self:
-            value.display_name = f"{value.attribute_id.name}: {value.name}"
+            value.display_name = f"{value.attribute_id.name}: {value.name}" if display_attribute_name else value.name
 
     def _only_active(self):
         return self.filtered(lambda ptav: ptav.ptav_active)
@@ -194,5 +202,16 @@ class ProductTemplateAttributeValue(models.Model):
         self.ensure_one()
         all_values = self.attribute_line_id.product_template_value_ids
         if only_active:
-            all_values = all_values._only_active()
+            active_values = (v for v in all_values if v.ptav_active)
+            return len(list(islice(active_values, 2))) == 1
         return len(all_values) == 1
+
+    @api.readonly
+    def action_edit_product_attribute_value(self):
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'product.attribute.value',
+            'res_id': self.product_attribute_value_id.id,
+            'view_mode': 'form',
+            'target': 'new',
+        }

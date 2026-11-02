@@ -19,6 +19,18 @@
                                 'default_type': 'service',
                                 'default_taxes_id': False,
                             }"
+                            required="pos_config_id"
+                        />
+                    </setting>
+                    <setting id="default_product" string="Default Sale Product" help="This product will be applied on description only Sale order lines.">
+                        <field
+                            name="pos_default_product_id"
+                            domain="[('type', '=', 'service'), '|', ('company_id', '=', company_id), ('company_id', '=', False)]"
+                            context="{
+                                'default_type': 'service',
+                                'default_taxes_id': False,
+                            }"
+                            required="pos_config_id"
                         />
                     </setting>
                 </block>

@@ -6,9 +6,8 @@ const CONSOLE_COLOR = "#28ffeb";
 
 /* global IminPrinter */
 export class IminPrinterAdapter extends BasePrinter {
-    setup({ fallbackPrinter } = {}) {
+    setup({ printer } = {}) {
         super.setup(...arguments);
-        this.fallbackPrinter = fallbackPrinter;
         this.iminPrinter = new IminPrinter();
         this.isConnected = false;
     }
@@ -17,10 +16,18 @@ export class IminPrinterAdapter extends BasePrinter {
         this.isConnected = await this.iminPrinter.connect();
     }
 
-    async isAvailable() {
+    async isAvailable(timeoutMs = 3000) {
         return new Promise((resolve) => {
+            let ws;
+            const timer = setTimeout(() => {
+                if (ws) {
+                    ws.close();
+                }
+                resolve(false);
+            }, timeoutMs);
+
             try {
-                const ws = new window.WebSocket(
+                ws = new window.WebSocket(
                     this.iminPrinter.protocol +
                         this.iminPrinter.address +
                         ":" +
@@ -28,20 +35,16 @@ export class IminPrinterAdapter extends BasePrinter {
                         this.iminPrinter.prefix
                 );
                 ws.onopen = function () {
+                    clearTimeout(timer);
                     ws.close();
                     resolve(true);
                 };
                 ws.onerror = function () {
+                    clearTimeout(timer);
                     resolve(false);
                 };
-            } catch (error) {
-                logPosMessage(
-                    "IminPrinterAdapter",
-                    "isAvailable",
-                    "Error checking printer availability: " + error.message,
-                    CONSOLE_COLOR,
-                    [error]
-                );
+            } catch {
+                clearTimeout(timer);
                 resolve(false);
             }
         });
@@ -68,35 +71,17 @@ export class IminPrinterAdapter extends BasePrinter {
     /**
      * @override
      */
-    processCanvas(canvas) {
-        return canvas.toDataURL("image/jpeg");
-    }
-
-    /**
-     * @override
-     */
-    async printReceipt(receipt) {
-        const status = await this.printerStatus();
-        // We only use the fallback printer if the printer is not connected or not powered on
-        if ([-1, 1].includes(status.value) && this.fallbackPrinter) {
-            return await this.fallbackPrinter.printReceipt(receipt);
-        }
-        return await super.printReceipt(receipt);
-    }
-
-    /**
-     * @override
-     */
     async sendPrintingJob(img) {
         try {
+            const image = img.toDataURL("image/jpeg");
             const status = await this.printerStatus();
             if (status.value !== 0) {
                 return { result: false, errorCode: status.value, canRetry: true };
             }
-            await this.iminPrinter.printSingleBitmap(img);
-            this.iminPrinter.printAndLineFeed();
-            this.iminPrinter.printAndLineFeed();
-            this.iminPrinter.printAndLineFeed();
+            await this.iminPrinter.printSingleBitmap(image);
+            await new Promise((resolve) => setTimeout(resolve, 200));
+            this.iminPrinter.printAndFeedPaper(100);
+            this.iminPrinter.partialCut();
             return { result: true };
         } catch (error) {
             logPosMessage(

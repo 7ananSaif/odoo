@@ -21,6 +21,7 @@ class TestReInvoice(TestExpenseCommon, TestSaleCommon):
         - As it should be a one-to-one relation between model, we need to ensure that one expense only impacts one SOL
     The test tries to cover all the possible combinations of expense and invoicing policies, as well as the different actions
     """
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):
@@ -56,7 +57,7 @@ class TestReInvoice(TestExpenseCommon, TestSaleCommon):
                 'uom_id': cls.env.ref('uom.product_uom_unit').id,
                 'default_code': 'FURN_99991',
                 'invoice_policy': 'order',
-                'expense_policy': 'sales_price',
+                'reinvoice_policy': 'sales_price',
                 'taxes_id': [Command.set([new_sale_tax.id])],
                 'supplier_taxes_id': [Command.set([new_purchase_tax.id])],
                 'can_be_expensed': True,
@@ -71,7 +72,7 @@ class TestReInvoice(TestExpenseCommon, TestSaleCommon):
                 'uom_id': cls.env.ref('uom.product_uom_unit').id,
                 'default_code': 'FURN_99992',
                 'invoice_policy': 'delivery',
-                'expense_policy': 'sales_price',
+                'reinvoice_policy': 'sales_price',
                 'taxes_id': [Command.set([new_sale_tax.id])],
                 'supplier_taxes_id': [Command.set([new_purchase_tax.id])],
                 'can_be_expensed': True,
@@ -86,7 +87,7 @@ class TestReInvoice(TestExpenseCommon, TestSaleCommon):
                 'uom_id': cls.env.ref('uom.product_uom_unit').id,
                 'default_code': 'FURN_99993',
                 'invoice_policy': 'delivery',
-                'expense_policy': 'cost',
+                'reinvoice_policy': 'cost',
                 'taxes_id': [Command.set([new_sale_tax.id])],
                 'supplier_taxes_id': [Command.set([new_purchase_tax.id])],
                 'can_be_expensed': True,
@@ -101,14 +102,14 @@ class TestReInvoice(TestExpenseCommon, TestSaleCommon):
                 'uom_id': cls.env.ref('uom.product_uom_unit').id,
                 'default_code': 'FURN_99994',
                 'invoice_policy': 'order',
-                'expense_policy': 'cost',
+                'reinvoice_policy': 'cost',
                 'taxes_id': [Command.set([new_sale_tax.id])],
                 'supplier_taxes_id': [Command.set([new_purchase_tax.id])],
                 'can_be_expensed': True,
             }),
         })
         # create SO line and confirm SO (with only one line)
-        cls.expense_sale_order = cls.env['sale.order'].with_context(mail_notrack=True, mail_create_nolog=True).create({
+        cls.expense_sale_order = cls.env['sale.order'].create({
             'partner_id': cls.partner_a.id,
             'partner_invoice_id': cls.partner_a.id,
             'partner_shipping_id': cls.partner_a.id,
@@ -185,7 +186,7 @@ class TestReInvoice(TestExpenseCommon, TestSaleCommon):
         """
         CASE 1: Creation of the expenses moves. The sale order lines are created.
         """
-        self.post_expenses_with_wizard(self.sale_expense_all)
+        self.post_expenses(self.sale_expense_all)
 
         self.assertRecordValues(self.expense_sale_order.order_line, [
             # [0] Line not created from a re-invoiced, should never be changed
@@ -204,7 +205,7 @@ class TestReInvoice(TestExpenseCommon, TestSaleCommon):
         CASE 2: Reset to draft of the expenses, the quantities of the corresponding SOL are set to 0
         """
         # CASE 1 steps
-        self.post_expenses_with_wizard(self.sale_expense_all)
+        self.post_expenses(self.sale_expense_all)
 
         # CASE 2 steps
         self.sale_expense_all.account_move_id.button_draft()
@@ -228,7 +229,7 @@ class TestReInvoice(TestExpenseCommon, TestSaleCommon):
         CASE 3: Re-Approve and Re-Post the expense after a reset, creating new SOLs with the correct quantities
         """
         # CASE 1 steps
-        self.post_expenses_with_wizard(self.sale_expense_all)
+        self.post_expenses(self.sale_expense_all)
 
         # CASE 2 steps
         self.sale_expense_all.account_move_id.button_draft()
@@ -238,7 +239,7 @@ class TestReInvoice(TestExpenseCommon, TestSaleCommon):
         # CASE 3 steps
         self.sale_expense_all.action_submit()
         self.sale_expense_all._do_approve()  # Skip duplicate wizard
-        self.post_expenses_with_wizard(self.sale_expense_all)
+        self.post_expenses(self.sale_expense_all)
 
         self.assertRecordValues(self.expense_sale_order.order_line, [
             # [0] Line not created from a re-invoiced, should never be changed
@@ -264,7 +265,7 @@ class TestReInvoice(TestExpenseCommon, TestSaleCommon):
         CASE 4: Reset to draft of the expenses move, the quantities of the corresponding SOL are set to 0
         """
         # CASE 1 steps
-        self.post_expenses_with_wizard(self.sale_expense_all)
+        self.post_expenses(self.sale_expense_all)
 
         # CASE 4 steps
         self.sale_expense_all.account_move_id.button_draft()
@@ -286,13 +287,13 @@ class TestReInvoice(TestExpenseCommon, TestSaleCommon):
         CASE 5: Re-Post the expenses move, creating new SOLs with the correct quantities
         """
         # CASE 1 steps
-        self.post_expenses_with_wizard(self.sale_expense_all)
+        self.post_expenses(self.sale_expense_all)
 
         # CASE 4 steps
         self.sale_expense_all.account_move_id.button_draft()
 
         # CASE 5 steps
-        self.sale_expense_all.account_move_id.action_post()
+        self.post_expenses(self.sale_expense_all)
 
         self.assertRecordValues(self.expense_sale_order.order_line, [
             # [0] Line not created from a re-invoiced, should never be changed
@@ -318,7 +319,7 @@ class TestReInvoice(TestExpenseCommon, TestSaleCommon):
         CASE 6: Reverse the expenses move, the quantities of the corresponding SOL are reset to 0
         """
         # CASE 1 steps
-        self.post_expenses_with_wizard(self.sale_expense_all)
+        self.post_expenses(self.sale_expense_all)
 
         # CASE 6 steps
         self.sale_expense_all.account_move_id._reverse_moves()
@@ -362,8 +363,8 @@ class TestReInvoice(TestExpenseCommon, TestSaleCommon):
 
         sale_expense_copies_all.action_submit()
         sale_expense_copies_all._do_approve()  # Skip duplicate wizard
-        self.post_expenses_with_wizard(sale_expense_original_all)
-        self.post_expenses_with_wizard(sale_expense_copies_all)  # To ensure there are two different moves
+        self.post_expenses(sale_expense_original_all)
+        self.post_expenses(sale_expense_copies_all)  # To ensure there are two different moves
 
         # Check that all the expenses can be found on the sale order
         self.assertRecordValues(self.expense_sale_order.order_line, [
@@ -414,7 +415,7 @@ class TestReInvoice(TestExpenseCommon, TestSaleCommon):
         })
 
         # create SO line and confirm SO (with only one line)
-        sale_order = self.env['sale.order'].with_context(mail_notrack=True, mail_create_nolog=True).create({
+        sale_order = self.env['sale.order'].create({
             'partner_id': self.partner_a.id,
             'partner_invoice_id': self.partner_a.id,
             'partner_shipping_id': self.partner_a.id,
@@ -439,7 +440,7 @@ class TestReInvoice(TestExpenseCommon, TestSaleCommon):
 
         expense.action_submit()
         expense.action_approve()
-        self.post_expenses_with_wizard(expense)
+        self.post_expenses(expense)
 
         self.assertRecordValues(sale_order.order_line, [
             # Original SO line:
@@ -497,7 +498,7 @@ class TestReInvoice(TestExpenseCommon, TestSaleCommon):
         })
 
         # create SO line and confirm SO (with only one line)
-        sale_order = self.env['sale.order'].with_context(mail_notrack=True, mail_create_nolog=True).create({
+        sale_order = self.env['sale.order'].create({
             'partner_id': self.partner_a.id,
             'partner_invoice_id': self.partner_a.id,
             'partner_shipping_id': self.partner_a.id,
@@ -522,7 +523,7 @@ class TestReInvoice(TestExpenseCommon, TestSaleCommon):
 
         expense.action_submit()
         expense._do_approve()
-        self.post_expenses_with_wizard(expense)
+        self.post_expenses(expense)
 
         self.assertRecordValues(sale_order.order_line, [
             # Original SO line:
@@ -553,7 +554,7 @@ class TestReInvoice(TestExpenseCommon, TestSaleCommon):
 
         expense.action_submit()
         expense._do_approve()
-        expense.action_post()
+        self.post_expenses(expense)
 
         self.assertRecordValues(self.expense_sale_order.order_line, [
             # Original SO line:

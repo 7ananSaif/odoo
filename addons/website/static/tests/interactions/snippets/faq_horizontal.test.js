@@ -28,15 +28,15 @@ const getTemplate = function (headerType) {
                         <hgroup class="col-lg-4" role="heading" aria-level="3">
                             <div class="s_faq_horizontal_entry_title position-lg-sticky pb-lg-3 transition-base overflow-auto" style="top: 79.9773px; max-height: calc(-119.977px + 100vh);">
                                 <h3 class="h5-fs">Getting Started</h3>
-                                <p class="o_small text-muted">Getting started with our product is a breeze, thanks to our well-structured and comprehensive onboarding process.</p>
+                                <p class="o_small-fs text-muted">Getting started with our product is a breeze, thanks to our well-structured and comprehensive onboarding process.</p>
                             </div>
                         </hgroup>
                         <span class="col-lg-7 offset-lg-1 d-block">
                             <p>We understand that the initial setup can be daunting, especially if you are new to our platform, so we have designed a step-by-step guide to walk you through every stage, ensuring that you can hit the ground running.<br></p>
-                            <img src="/web/image/website.s_faq_horizontal_default_image_1" class="img img-fluid rounded" style="width: 100% !important;" alt="" loading="lazy" data-mimetype="image/webp" data-attachment-id="278" data-original-id="278" data-original-src="/website/static/src/img/snippets_demo/s_faq_horizontal_1.webp" data-mimetype-before-conversion="image/webp">
+                            <img src="/web/image/website.ultrawide_lg_5" class="img img-fluid rounded" style="width: 100% !important;" alt="" loading="lazy" data-mimetype="image/webp" data-attachment-id="278" data-original-id="278" data-original-src="/website/static/src/img/snippets_demo/s_quotes_carousel_0.jpg" data-mimetype-before-conversion="image/webp">
                             <p><br>The first step in the onboarding process is <b>account creation</b>. This involves signing up on our platform using your email address or social media accounts. Once you’ve created an account, you will receive a confirmation email with a link to activate your account. Upon activation, you’ll be prompted to complete your profile, which includes setting up your preferences, adding any necessary payment information, and selecting the initial features or modules you wish to use.</p>
                             <p>Next, you will be introduced to our <b>setup wizard</b>, which is designed to guide you through the basic configuration of the platform. The wizard will help you configure essential settings such as language, time zone, and notifications.</p>
-                            <p><a href="#">Read More <i class="fa fa-angle-right" role="img"></i></a></p>
+                            <p><a href="#">Read More <i class="oi" data-icon="keyboard_arrow_right" role="img"></i></a></p>
                         </span>
                         </article>
                     </div>
@@ -45,7 +45,7 @@ const getTemplate = function (headerType) {
                         <hgroup class="col-lg-4" role="heading" aria-level="3">
                             <div class="s_faq_horizontal_entry_title position-lg-sticky pb-lg-3 transition-base overflow-auto" style="top: 79.9773px; max-height: calc(-119.977px + 100vh);">
                                 <h3 class="h5-fs">Updates and Improvements</h3>
-                                <p class="o_small text-muted">We are committed to continuous improvement, regularly releasing updates and new features based on user feedback and technological advancements.</p>
+                                <p class="o_small-fs text-muted">We are committed to continuous improvement, regularly releasing updates and new features based on user feedback and technological advancements.</p>
                             </div>
                         </hgroup>
                         <span class="col-lg-7 offset-lg-1 d-block">
@@ -63,7 +63,7 @@ const getTemplate = function (headerType) {
                         <hgroup class="col-lg-4" role="heading" aria-level="3">
                             <div class="s_faq_horizontal_entry_title position-lg-sticky pb-lg-3 transition-base overflow-auto" style="top: 79.9773px; max-height: calc(-119.977px + 100vh);">
                                 <h3 class="h5-fs">Support and Resources</h3>
-                                <p class="o_small text-muted">We are committed to providing exceptional support and resources to help you succeed with our platform.</p>
+                                <p class="o_small-fs text-muted">We are committed to providing exceptional support and resources to help you succeed with our platform.</p>
                             </div>
                         </hgroup>
                         <span class="col-lg-7 offset-lg-1 d-block">

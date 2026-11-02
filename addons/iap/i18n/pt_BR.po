@@ -6,37 +6,46 @@
 # Martin Trigaux, 2022
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
-# "Maitê Dietze (madi)" <madi@odoo.com>, 2025.
+# "Maitê Dietze (madi)" <madi@odoo.com>, 2025, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~15.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-11-24 15:35+0000\n"
+"POT-Creation-Date: 2026-09-25 17:38+0000\n"
+"PO-Revision-Date: 2026-10-01 22:29+0000\n"
 "Last-Translator: \"Maitê Dietze (madi)\" <madi@odoo.com>\n"
-"Language-Team: Portuguese (Brazil) <https://translate.odoo.com/projects/"
-"odoo-19/iap/pt_BR/>\n"
+"Language-Team: Portuguese (Brazil) <https://translate.odoo.com/projects/odoo-"
+"20/iap/pt_BR/>\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=(n == 0 || n == 1) ? 0 : ((n != 0 && n % "
 "1000000 == 0) ? 1 : 2);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: iap
-#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
+#: model:ir.module.module,description:base.module_iap
 msgid ""
-"<i class=\"oi oi-arrow-right\"/>\n"
-"                                    Buy Credit"
+"\n"
+"This module provides standard tools (account model, context manager and "
+"helpers)\n"
+"to support In-App Purchase inside Odoo. "
 msgstr ""
-"<i class=\"oi oi-arrow-right\"/>\n"
-"                                    Comprar créditos"
+"\n"
+"Este módulo fornece ferramentas padrão (modelo de conta, gerenciador de "
+"contexto e auxiliares)\n"
+"para oferecer suporte a Compras no aplicativo dentro do Odoo. "
 
 #. module: iap
 #: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
 msgid "Account Information"
 msgstr "Informações da conta"
+
+#. module: iap
+#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
+msgid "Account Name"
+msgstr "Nome da conta"
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__account_token
@@ -67,9 +76,25 @@ msgid "Balance"
 msgstr "Saldo"
 
 #. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_account__balance_amount
+msgid "Balance Amount"
+msgstr "Valor do saldo"
+
+#. module: iap
 #: model:ir.model.fields.selection,name:iap.selection__iap_account__state__banned
 msgid "Banned"
 msgstr "Banido"
+
+#. module: iap
+#: model:ir.module.module,summary:base.module_iap
+msgid "Basic models and helpers to support In-App Purchase."
+msgstr "Modelos básicos e auxiliares para dar suporte à compras In-App."
+
+#. module: iap
+#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
+#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_tree
+msgid "Buy Credits"
+msgstr "Comprar créditos"
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__company_ids
@@ -79,14 +104,21 @@ msgstr "Empresa"
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__create_uid
 #: model:ir.model.fields,field_description:iap.field_iap_service__create_uid
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__create_uid
 msgid "Created by"
 msgstr "Criado por"
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__create_date
 #: model:ir.model.fields,field_description:iap.field_iap_service__create_date
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__create_date
 msgid "Created on"
 msgstr "Criado em"
+
+#. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__credit
+msgid "Credit"
+msgstr "Crédito"
 
 #. module: iap
 #: model:iap.service,unit_name:iap.iap_service_reveal
@@ -103,8 +135,14 @@ msgstr "Descrição"
 #: model:ir.model.fields,field_description:iap.field_iap_account__display_name
 #: model:ir.model.fields,field_description:iap.field_iap_enrich_api__display_name
 #: model:ir.model.fields,field_description:iap.field_iap_service__display_name
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__display_name
 msgid "Display Name"
 msgstr "Nome exibido"
+
+#. module: iap
+#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
+msgid "Email Alert"
+msgstr "Alerta por e-mail"
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__warning_user_ids
@@ -133,17 +171,9 @@ msgid "IAP"
 msgstr "IAP"
 
 #. module: iap
-#: model:ir.actions.act_window,name:iap.iap_account_action
 #: model:ir.model,name:iap.model_iap_account
-#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
 msgid "IAP Account"
 msgstr "Conta de IAP"
-
-#. module: iap
-#: model:ir.ui.menu,name:iap.iap_account_menu
-#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_tree
-msgid "IAP Accounts"
-msgstr "Contas de IAP"
 
 #. module: iap
 #: model:ir.model,name:iap.model_iap_enrich_api
@@ -156,11 +186,44 @@ msgid "IAP Service"
 msgstr "Serviços IAP"
 
 #. module: iap
+#: model:ir.model,name:iap.model_iap_service_pack
+msgid "IAP Service Pack"
+msgstr "Pacote de serviços IAP"
+
+#. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__id
 #: model:ir.model.fields,field_description:iap.field_iap_enrich_api__id
 #: model:ir.model.fields,field_description:iap.field_iap_service__id
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__id
 msgid "ID"
 msgstr "ID"
+
+#. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__iap_service_pack_identifier
+msgid "Iap Service Pack Identifier"
+msgstr "Identificador do Service Pack do Iap"
+
+#. module: iap
+#: model:ir.module.module,shortdesc:base.module_iap
+msgid "In-App Purchase"
+msgstr "Compras dentro do aplicativo (IAP)"
+
+#. module: iap
+#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
+msgid "In-App Purchase Account"
+msgstr "Conta de compras dentro do aplicativo"
+
+#. module: iap
+#: model:ir.actions.act_window,name:iap.iap_account_action
+#: model:ir.ui.menu,name:iap.iap_account_menu
+#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_tree
+msgid "In-App Purchase Accounts"
+msgstr "Contas de compras dentro do aplicativo"
+
+#. module: iap
+#: model_terms:ir.ui.view,arch_db:iap.iap_service_pack_view_tree
+msgid "In-App Purchase Service Packs"
+msgstr "Pacotes de serviços de compra dentro do aplicativo"
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_service__integer_balance
@@ -168,16 +231,28 @@ msgid "Integer Balance"
 msgstr "Saldo inteiro"
 
 #. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_account__is_balance_below_warning_threshold
+msgid "Is Balance Below Warning Threshold"
+msgstr "O saldo está abaixo do limite de alerta"
+
+#. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__write_uid
 #: model:ir.model.fields,field_description:iap.field_iap_service__write_uid
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__write_uid
 msgid "Last Updated by"
 msgstr "Última atualização por"
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__write_date
 #: model:ir.model.fields,field_description:iap.field_iap_service__write_date
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__write_date
 msgid "Last Updated on"
 msgstr "Última atualização em"
+
+#. module: iap
+#: model:iap.service,name:iap.iap_service_reveal
+msgid "Lead Generation"
+msgstr "Geração de leads"
 
 #. module: iap
 #. odoo-javascript
@@ -188,6 +263,7 @@ msgstr "Gerenciar serviços e comprar créditos"
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__name
 #: model:ir.model.fields,field_description:iap.field_iap_service__name
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__name
 msgid "Name"
 msgstr "Nome"
 
@@ -199,8 +275,18 @@ msgstr "Não existe nenhum serviço com o nome técnico fornecido"
 
 #. module: iap
 #: model_terms:ir.ui.view,arch_db:iap.res_config_settings_view_form
-msgid "Odoo IAP"
-msgstr "Odoo IAP"
+msgid "Odoo In-App Purchase"
+msgstr "Compra no aplicativo Odoo"
+
+#. module: iap
+#: model:ir.model.fields,help:iap.field_iap_account__warning_threshold
+msgid ""
+"Once you have this many credits or less, the system will automatically "
+"notify the following recipients by email. Set to 0 to disable email warnings."
+msgstr ""
+"Quando você tiver esse número de créditos ou menos, o sistema notificará "
+"automaticamente os seguintes destinatários por e-mail. Defina como 0 para "
+"desativar os avisos por e-mail."
 
 #. module: iap
 #. odoo-python
@@ -218,10 +304,24 @@ msgid "Only one service can exist with a specific technical_name"
 msgstr "Só pode existir um serviço com um technical_name específco"
 
 #. module: iap
+#: model:ir.model.constraint,message:iap.constraint_iap_service_pack_unique_iap_service_pack_identifier
+msgid ""
+"Only one service pack can exist with a specific iap_service_pack_identifier"
+msgstr ""
+"Apenas um service pack pode existir com um identificador específico "
+"iap_service_pack_identifier"
+
+#. module: iap
 #. odoo-python
 #: code:addons/iap/models/iap_account.py:0
 msgid "Please set a positive email alert threshold."
 msgstr "Defina um limite de alertas de e-mail positivo."
+
+#. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_account__service_price_description
+#: model:ir.model.fields,field_description:iap.field_iap_service__price_description
+msgid "Price Description"
+msgstr "Descrição do preço"
 
 #. module: iap
 #: model:ir.model.fields.selection,name:iap.selection__iap_account__state__registered
@@ -229,7 +329,13 @@ msgid "Registered"
 msgstr "Registrado"
 
 #. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__price
+msgid "Sales Price (EUR)"
+msgstr "Preço de venda (EUR)"
+
+#. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__service_id
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__service_id
 msgid "Service"
 msgstr "Serviço"
 
@@ -237,6 +343,11 @@ msgstr "Serviço"
 #: model:ir.model.fields,field_description:iap.field_iap_account__service_locked
 msgid "Service Locked"
 msgstr "Serviço bloqueado"
+
+#. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_service__pack_ids
+msgid "Service Packs"
+msgstr "Pacotes de Serviços"
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__state
@@ -252,18 +363,19 @@ msgstr "Nome técnico"
 #. module: iap
 #. odoo-python
 #: code:addons/iap/models/iap_account.py:0
-msgid "The IAP token provided is invalid or empty."
-msgstr "O token IAP fornecido é inválido ou está vazio."
+msgid ""
+"The IAP server is unreachable and the information may not be up to date. "
+"Please try again later."
+msgstr ""
+"O servidor IAP está inacessível e as informações podem não estar "
+"atualizadas.\n"
+"Tente novamente mais tarde."
 
 #. module: iap
 #. odoo-python
-#: code:addons/iap/tools/iap_tools.py:0
-msgid ""
-"The request to the service timed out. Please contact the author of the app. "
-"The URL it tried to contact was %s"
-msgstr ""
-"A solicitação ao serviço atingiu o tempo limite. Entre em contato com o "
-"autor do aplicativo. O URL que ele tentou contatar foi %s"
+#: code:addons/iap/models/iap_account.py:0
+msgid "The IAP token provided is invalid or empty."
+msgstr "O token IAP fornecido é inválido ou está vazio."
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_service__unit_name
@@ -274,6 +386,11 @@ msgstr "Nome da unidade"
 #: model:ir.model.fields.selection,name:iap.selection__iap_account__state__unregistered
 msgid "Unregistered"
 msgstr "Não registrado"
+
+#. module: iap
+#: model_terms:ir.ui.view,arch_db:iap.view_iap_users_tree
+msgid "Users"
+msgstr "Usuários"
 
 #. module: iap
 #. odoo-javascript
@@ -287,17 +404,51 @@ msgstr "Ver meus serviços"
 msgid "View your IAP Services and recharge your credits"
 msgstr "Visualize seus serviços de IAP e recarregue seus créditos"
 
-#~ msgid "Buy credits"
-#~ msgstr "Comprar créditos"
+#~ msgid ""
+#~ "The IAP server is unreachable and the information may not be up to date.\n"
+#~ "Please try again later."
+#~ msgstr ""
+#~ "O servidor IAP está inacessível e as informações podem não estar "
+#~ "atualizadas.\n"
+#~ "Tente novamente mais tarde."
 
-#~ msgid "Cancel"
-#~ msgstr "Cancelar"
+#~ msgid "Auto-Refill"
+#~ msgstr "Recarga automática"
 
-#~ msgid "Config Settings"
-#~ msgstr "Configurações"
+#~ msgid "Auto-refill Pack"
+#~ msgstr "Pacote de recarga automática"
 
-#~ msgid "Insufficient credit to perform this service."
-#~ msgstr "Crédito insuficiente para executar este serviço."
+#~ msgid "Auto-refill Threshold"
+#~ msgstr "Limite de recarga automática"
 
-#~ msgid "Service Name"
-#~ msgstr "Nome do Serviço"
+#~ msgid "Buy"
+#~ msgstr "Comprar"
+
+#~ msgid "Manage your auto-refill payment method"
+#~ msgstr "Gerencie seu método de pagamento para recarga automática"
+
+#~ msgid ""
+#~ "Once you have this many credits or less, the system will automatically "
+#~ "buy the following pack with your payment method on file. Set to 0 to "
+#~ "disable auto-refill."
+#~ msgstr ""
+#~ "Quando você tiver esse número de créditos ou menos, o sistema comprará "
+#~ "automaticamente o pacote a seguir com o método de pagamento cadastrado. "
+#~ "Defina como 0 para desativar a recarga automática."
+
+#~ msgid "Set Alerts & Auto-Refill"
+#~ msgstr "Definir alertas e recarga automática"
+
+#~ msgid ""
+#~ "The In-App Purchase pack the system will automatically buy when reaching "
+#~ "your refill threshold."
+#~ msgstr ""
+#~ "O pacote de compras no aplicativo que o sistema comprará automaticamente "
+#~ "quando atingir seu limite de recarga."
+
+#~ msgid ""
+#~ "The request to the service timed out. Please contact the author of the "
+#~ "app. The URL it tried to contact was %s"
+#~ msgstr ""
+#~ "A solicitação ao serviço atingiu o tempo limite. Entre em contato com o "
+#~ "autor do aplicativo. O URL que ele tentou contatar foi %s"

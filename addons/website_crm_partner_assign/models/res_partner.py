@@ -37,6 +37,8 @@ class ResPartner(models.Model):
     )
     implemented_partner_count = fields.Integer(compute='_compute_implemented_partner_count', store=True)
 
+    _country_id_grade_id_published_idx = models.Index('(country_id, grade_id) WHERE is_published IS TRUE AND grade_id IS NOT NULL AND country_id IS NOT NULL')
+
     @api.depends('implemented_partner_ids.is_published', 'implemented_partner_ids.active')
     def _compute_implemented_partner_count(self):
         rg_result = self.env['res.partner']._read_group(
@@ -81,3 +83,20 @@ class ResPartner(models.Model):
                 assign_partner = assign_partner.parent_id
                 partner = partner.parent_id
 
+    def write(self, vals):
+        """Recompute geolocation when a portal user updates their address.
+
+        Portal users cannot manually refresh geolocation. Since geolocation is used
+        for automatic lead assignment, recompute it when a portal user updates their
+        address and the partner is eligible for assignment (graded and previously
+        geolocated).
+        """
+        res = super().write(vals)
+
+        address_fields = {'street', 'zip', 'city', 'state_id', 'country_id'}
+        if self.env.user._is_portal() and address_fields & vals.keys():
+            partners = self.filtered(lambda p: p.grade_id and p.date_localization)
+            if partners:
+                partners.geo_localize()
+
+        return res

@@ -24,6 +24,7 @@ import pexpect
 ROOTDIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 TSTAMP = time.strftime("%Y%m%d", time.gmtime())
 TSEC = time.strftime("%H%M%S", time.gmtime())
+TFULL = time.strftime("%a, %d %b %Y %H:%M:%S %z", time.gmtime())
 # Get some variables from release.py
 version = ...
 version_info = ...
@@ -195,10 +196,10 @@ class Docker():
         self.container_name = None
         self.exposed_port = None
         docker_templates = {
-            'tgz': os.path.join(args.build_dir, 'setup/package.dfsrc'),
-            'deb': os.path.join(args.build_dir, 'setup/package.dfdebian'),
-            'rpm': os.path.join(args.build_dir, 'setup/package.dffedora'),
-            'win': os.path.join(args.build_dir, 'setup/package.dfwine'),
+            'tgz': os.path.join(args.build_dir, 'setup/docker/package.dfsrc'),
+            'deb': os.path.join(args.build_dir, 'setup/docker/package.dfdebian'),
+            'rpm': os.path.join(args.build_dir, 'setup/docker/package.dffedora'),
+            'win': os.path.join(args.build_dir, 'setup/docker/package.dfwine'),
         }
         self.docker_template = Path(docker_templates[self.arch]).read_text(encoding='utf-8').replace('USER odoo', DOCKERUSER)
         self.test_log_file = '/data/src/test-%s.log' % self.arch
@@ -299,7 +300,7 @@ class DockerTgz(Docker):
             f'su odoo -s /bin/bash -c "/var/lib/odoo/odoovenv/bin/python3 -m pip install /data/src/odoo_{VERSION}.{TSTAMP}.tar.gz"',
             'su odoo -s /bin/bash -c "createdb mycompany"',
             'su odoo -s /bin/bash -c "/var/lib/odoo/odoovenv/bin/odoo -d mycompany -i base --stop-after-init"',
-            'su odoo -s /bin/bash -c "/var/lib/odoo/odoovenv/bin/odoo -d mycompany --pidfile=/data/src/odoo.pid"',
+            'su odoo -s /bin/bash -c "/var/lib/odoo/odoovenv/bin/odoo -d mycompany --pidfile=/data/src/odoo.pid --http-interface 0.0.0.0"',
         ]
         self.run(' && '.join(cmds), self.args.build_dir, 'odoo-src-test-%s' % TSTAMP, user='root', detach=True, exposed_port=8069, timeout=300)
         self.test_odoo()
@@ -313,8 +314,11 @@ class DockerDeb(Docker):
 
     def build(self):
         logging.info('Start building debian package')
-        # Append timestamp to version for the .dsc to refer the right .tar.gz
-        cmds = ["sed -i '1s/^.*$/odoo (%s.%s) stable; urgency=low/' debian/changelog" % (VERSION, TSTAMP)]
+        # Generate new debian/changelog
+        # - Append timestamp to version for the .dsc to refer the right .tar.gz
+        # - Write the date into the email line so SOURCE_DATE_EPOCH is set correctly from it
+        changelog = fr"odoo ({VERSION}.{TSTAMP}) stable; urgency=low\n\n  * {VERSION}\n\n -- Odoo Bot <info@odoo.com>  {TFULL}\n"
+        cmds = ["sed -i '1i %s' debian/changelog" % changelog]
         cmds.append('dpkg-buildpackage -rfakeroot -uc -us -tc')
         # As the packages are built in the parent of the buildir, we move them back to build_dir
         cmds.append('mv ../odoo_* ./')
@@ -329,7 +333,7 @@ class DockerDeb(Docker):
             'service postgresql start',
             '/usr/bin/apt-get update -y',
             f'/usr/bin/apt-get install -y /data/src/odoo_{VERSION}.{TSTAMP}_all.deb',
-            'su odoo -s /bin/bash -c "odoo -d mycompany -i base --pidfile=/data/src/odoo.pid"',
+            'su odoo -s /bin/bash -c "odoo -d mycompany -i base --pidfile=/data/src/odoo.pid --http-interface 0.0.0.0"',
         ]
         self.run(' && '.join(cmds), self.args.build_dir, 'odoo-deb-test-%s' % TSTAMP, user='root', detach=True, exposed_port=8069, timeout=300)
         self.test_odoo()
@@ -369,7 +373,7 @@ class DockerRpm(Docker):
             'su odoo -c "createdb mycompany"',
             'dnf install -q /data/src/odoo_%s.%s.rpm -y' % (VERSION, TSTAMP),
             'su odoo -s /bin/bash -c "odoo -c /etc/odoo/odoo.conf -d mycompany -i base --stop-after-init"',
-            'su odoo -s /bin/bash -c "odoo -c /etc/odoo/odoo.conf -d mycompany --pidfile=/data/src/odoo.pid"',
+            'su odoo -s /bin/bash -c "odoo -c /etc/odoo/odoo.conf -d mycompany --pidfile=/data/src/odoo.pid --http-interface 0.0.0.0"',
         ]
         self.run(' && '.join(cmds), args.build_dir, 'odoo-rpm-test-%s' % TSTAMP, user='root', detach=True, exposed_port=8069, timeout=300)
         self.test_odoo()
@@ -404,16 +408,32 @@ class DockerWine(Docker):
         self.package_name = "windows"
         self.nsi_filepath = r"c:\odoobuild\server\setup\win32\setup.nsi"
         self.nt_service_name = nt_service_name
+        self.bundle_po_files = True
 
     def build(self):
         logging.info('Start building %s package', self.package_name)
         winver = "%s.%s" % (VERSION.replace('~', '_').replace('+', ''), TSTAMP)
         container_python = '/var/lib/odoo/.wine/drive_c/odoobuild/WinPy64/python-3.12.3.amd64/python.exe'
         nsis_args = f'/DVERSION={winver} /DMAJOR_VERSION={version_info[0]} /DMINOR_VERSION={version_info[1]} /DSERVICENAME={self.nt_service_name} /DPYTHONVERSION=3.12.3'
+
+        bundle_po_files_cmd = (
+            'cd /data/src && '
+            'find odoo/addons -name "*.po" > .i18n_list.txt && '
+            '7zz a -mx=9 -ms=on i18n_bundle.7z @.i18n_list.txt && '
+            'xargs -a .i18n_list.txt rm && '
+            'rm .i18n_list.txt'
+        )
+
         cmds = [
+            rf'wine {container_python} -m pip install --upgrade pip',
+            rf'cat /data/src/requirements*.txt  | while read PACKAGE; do wine {container_python} -m pip install "${{PACKAGE%%#*}}" ; done',
+            rf'wine "c:\nsis\makensis.exe" {nsis_args} "{self.nsi_filepath}"',
             rf'wine {container_python} -m pip list',
-            rf'wine "c:\nsis-3.11\makensis.exe" {nsis_args} "{self.nsi_filepath}"'
         ]
+
+        if self.bundle_po_files:
+            cmds = [bundle_po_files_cmd, *cmds]
+
         self.run(' && '.join(cmds), self.args.build_dir, 'odoo-win-build-%s' % TSTAMP)
         logging.info('Finished building %s package', self.package_name)
 
@@ -426,9 +446,10 @@ class DockerIot(DockerWine):
         self.package_name = "IoT"
         self.nsi_filepath = r"c:\odoobuild\server\setup\win32\setup-iot.nsi"
         self.nt_service_name = "odoo-iot"
+        self.bundle_po_files = False
 
     def build_image(self):
-        shutil.copy(os.path.join(self.args.build_dir, 'odoo/addons/iot_box_image/configuration/requirements.txt'), self.docker_dir / 'requirements-iot.txt')
+        shutil.copy(os.path.join(self.args.build_dir, 'setup/iot_box_builder/configuration/requirements.txt'), self.docker_dir / 'requirements-iot.txt')
         self.tag = f'{self.tag}-iot'
         super().build_image()
 

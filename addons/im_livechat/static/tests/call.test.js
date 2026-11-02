@@ -13,6 +13,8 @@ import { test } from "@odoo/hoot";
 import { mockDate } from "@odoo/hoot-mock";
 
 import { Command, serverState } from "@web/../tests/web_test_helpers";
+import { deserializeDateTime } from "@web/core/l10n/dates";
+import { user } from "@web/core/user";
 
 defineLivechatModels();
 
@@ -31,11 +33,17 @@ test("should display started a call message with operator livechat username", as
             Command.create({ guest_id: guestId, livechat_member_type: "visitor" }),
         ],
         channel_type: "livechat",
-        livechat_operator_id: serverState.partnerId,
     });
     setupChatHub({ opened: [channelId] });
     await start();
     await contains(".o-mail-ChatWindow", { text: "Visitor" });
     await click("[title='Start Call']");
-    await contains(".o-mail-NotificationMessage", { text: "mitchell boss started a call.1:00 PM" });
+    await contains(".o-mail-NotificationMessage");
+    const [{ date }] = pyEnv["mail.message"].search_read([["res_id", "=", channelId]]);
+    const time = deserializeDateTime(date).toLocaleString(luxon.DateTime.TIME_SIMPLE, {
+        locale: user.lang,
+    });
+    await contains(".o-mail-NotificationMessage", {
+        text: `mitchell boss started a call.${time}`,
+    });
 });

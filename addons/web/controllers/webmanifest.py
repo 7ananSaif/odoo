@@ -1,5 +1,4 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-import base64
 import mimetypes
 
 from urllib.parse import unquote, urlencode
@@ -7,7 +6,7 @@ from urllib.parse import unquote, urlencode
 from odoo import http, modules
 from odoo.exceptions import AccessError
 from odoo.http import request
-from odoo.tools import file_open, file_path
+from odoo.tools import BinaryBytes, file_open, file_path
 from odoo.tools.image import image_process
 
 
@@ -41,7 +40,7 @@ class WebManifest(http.Controller):
         return shortcuts
 
     def _get_webmanifest(self):
-        web_app_name = request.env['ir.config_parameter'].sudo().get_param('web.web_app_name', 'Odoo')
+        web_app_name = request.env['ir.config_parameter'].sudo().get_str('web.web_app_name') or 'Odoo'
         manifest = {
             'name': web_app_name,
             'scope': '/odoo',
@@ -58,6 +57,21 @@ class WebManifest(http.Controller):
             'type': 'image/png',
         } for size in icon_sizes]
         manifest['shortcuts'] = self._get_shortcuts()
+        if self._has_share_target():
+            manifest['share_target'] = {
+                'action': '/odoo?share_target=trigger',
+                'method': 'POST',
+                'enctype': 'multipart/form-data',
+                'params': {
+                    'title': 'title',
+                    'text': 'text',
+                    'url': 'url',
+                    'files': [{
+                        'name': 'externalMedia',
+                        'accept': ['image/*', 'video/*', 'application/*']
+                    }]
+                }
+            }
         return manifest
 
     @http.route('/web/manifest.webmanifest', type='http', auth='public', methods=['GET'], readonly=True)
@@ -94,8 +108,10 @@ class WebManifest(http.Controller):
     @http.route('/odoo/offline', type='http', auth='public', methods=['GET'], readonly=True)
     def offline(self):
         """ Returns the offline page delivered by the service worker """
+        with file_open(self._icon_path(), 'rb') as f:
+            icon = BinaryBytes(f.read())
         return request.render('web.webclient_offline', {
-            'odoo_icon': base64.b64encode(file_open(self._icon_path(), 'rb').read())
+            'odoo_icon': icon,
         })
 
     @http.route('/scoped_app', type='http', auth='public', methods=['GET'])
@@ -183,3 +199,6 @@ class WebManifest(http.Controller):
             'sizes': 'any',
             'type': mimetypes.guess_type(src)[0] or 'image/png'
         }]
+
+    def _has_share_target(self):
+        return False

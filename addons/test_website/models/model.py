@@ -43,9 +43,25 @@ class TestModel(models.Model):
                 'name': {'name': 'name', 'type': 'text', 'match': True},
                 'website_url': {'name': 'name', 'type': 'text', 'truncate': False},
             },
-            'icon': 'fa-check-square-o',
+            'icon': 'check_box',
             'order': 'name asc, id desc',
+            'group_name': self.env._("Test Models"),
         }
+
+    def _get_search_highlight_handlers(self):
+        handlers = super()._get_search_highlight_handlers()
+        handlers['notes'] = self._search_highlight_notes
+        return handlers
+
+    def _search_highlight_notes(self, field_meta, value, term):
+        if value and 'secret' in value:
+            return True, value, 'notes'
+
+        if value and term:
+            highlighted = value.replace(term, f'/{term}/')
+            return False, highlighted, 'text'
+
+        return False, value, 'text'
 
     def open_website_url(self):
         self.ensure_one()

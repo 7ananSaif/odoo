@@ -7,11 +7,17 @@ from odoo import models, fields, api
 class L10n_KeItemCode(models.Model):
     _name = 'l10n_ke.item.code'
     _description = "KRA defined codes that justify a given tax rate / exemption"
-    _rec_names_search = ['code', 'description']
+    _rec_names_search = ('code', 'description')
 
     code = fields.Char(string='KRA Item Code')
     description = fields.Char(string='Description')
-    tax_rate = fields.Selection([('C', 'Zero Rated'), ('E', 'Exempted'), ('B', 'Taxable at 8%')])
+    tax_rate = fields.Selection([
+        ('C', 'Zero Rated'),
+        ('E', 'Exempted'),
+        ('B', 'Taxable at 8%'),
+        ('A', 'Taxable at 16%'),
+        ('D', 'Special Category'),
+    ])
 
     @api.depends('code', 'description')
     def _compute_display_name(self):

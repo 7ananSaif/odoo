@@ -1,9 +1,11 @@
-import { Component, onWillStart } from "@odoo/owl";
+import { Component, useProps } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { standardWidgetProps } from "@web/views/widgets/standard_widget_props";
 import { _t } from "@web/core/l10n/translation";
 import { useService } from "@web/core/utils/hooks";
 import { initLNA, getLNATargetAddressSpace } from "@point_of_sale/app/utils/init_lna";
+
+const PRINTER_FIELDS = ["printer_ip", "name", "printer_type", "use_lna", "paper_size"];
 
 const EPSON_ERRORS = {
     DeviceNotFound: _t(
@@ -16,33 +18,28 @@ const EPSON_ERRORS = {
     EPTR_CUTTER: _t("The cutter has a foreign matter, please check the cutter mechanism"),
     EPTR_MECHANICAL: _t("Mechanical error, please check the printer"),
     EPTR_REC_EMPTY: _t("The paper is empty, please load paper into the printer"),
-    EPTR_UNRECOVERABLE: _t("Low voltage unrecoverable error occured, please check the printer"),
+    EPTR_UNRECOVERABLE: _t("Low voltage unrecoverable error occurred, please check the printer"),
     EX_BADPORT: _t("The device is not connected, please check the printer power / connection"),
-    EX_TIMEOUT: _t("Timeout occured, please try again"),
+    EX_TIMEOUT: _t("Timeout occurred, please try again"),
 };
 
 export class TestEPos extends Component {
     static template = `point_of_sale.TestEPosButton`;
-    static props = {
-        ...standardWidgetProps,
-    };
+    props = useProps(standardWidgetProps);
 
     setup() {
         super.setup();
         this.notification = useService("notification");
         this.orm = useService("orm");
-        onWillStart(async () => {
-            odoo.use_lna = (await this.orm.call("pos.printer", "use_local_network_access")).use_lna;
-        });
     }
 
-    _getReceipt() {
+    _getReceipt(printer_name) {
         return `
         <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
             <s:Body>
                 <epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print">
                     <feed line="1" />
-                    <text align="center">This is a test receipt&#10;</text>
+                    <text align="center">Test print for printer ${printer_name}&#10;</text>
                     <feed line="3" />
                     <cut type="feed" />
                 </epos-print>
@@ -50,61 +47,127 @@ export class TestEPos extends Component {
         </s:Envelope>`;
     }
 
-    async onClick() {
-        try {
+    async getPrinterDataEPos(printer_id) {
+        if (printer_id) {
+            const response = await this.orm.read("pos.printer", [printer_id], PRINTER_FIELDS);
+            return response[0];
+        } else {
             const data = this.props.record.data;
-            const printer_ip =
-                data.epson_printer_ip !== undefined
-                    ? data.epson_printer_ip
-                    : data.pos_epson_printer_ip;
-            if (!printer_ip) {
-                this.notification.add(
-                    _t("Please configure a valid ePoS url in order to test the printer"),
-                    { type: "danger" }
-                );
-                return;
-            }
-            const protocol = odoo.use_lna ? "http:" : window.location.protocol;
-            const url = protocol + "//" + printer_ip;
-            this.address = url + "/cgi-bin/epos/service.cgi?devid=local_printer";
-            const params = {
-                method: "POST",
-                body: this._getReceipt(),
-                signal: AbortSignal.timeout(15000),
+            return {
+                id: this.props.record.resId || null,
+                name: data.name,
+                printer_ip: data.printer_ip,
+                printer_type: data.printer_type,
+                use_lna: data.use_lna,
+                paper_size: data.paper_size,
             };
-            if (odoo.use_lna) {
-                params.targetAddressSpace = getLNATargetAddressSpace(this.address);
-                let lnaStatus = "pending";
-                await initLNA(this.notification, (status) => {
-                    lnaStatus = status;
-                });
-                if (lnaStatus === "danger") {
-                    return;
-                }
-            }
-            // Parse response
-            const result = await fetch(this.address, params);
-            const body = await result.text();
-            const parser = new DOMParser();
-            const parsedBody = parser.parseFromString(body, "application/xml");
-            const response = parsedBody.querySelector("response");
-            const success = response.getAttribute("success") === "true";
-            const errorCode = response.getAttribute("code");
-            if (!success || errorCode !== "") {
-                const errorMessage =
-                    EPSON_ERRORS[errorCode] ||
-                    _t("Failed to print a test receipt. Check your printer.");
-                this.notification.add(errorMessage, { type: "warning" });
-            } else {
-                this.notification.add(_t("Succesfully printed a test receipt"), { type: "info" });
-            }
+        }
+    }
+
+    async _testSinglePrinter() {
+        const { record } = this.props;
+        // Kanban: the printer fields are not loaded, read them by id
+        const loaded = PRINTER_FIELDS.every((field) => field in record.data);
+        try {
+            await this._printTo(loaded ? null : record.resId);
         } catch {
             this.notification.add(
-                _t(
-                    "Failed to reach the printer. Check the configured url. Make sure that the printer is online and you are on the same network."
-                ),
-                { type: "danger" }
+                _t("You need to add an IP address or choose an IoT device before testing."),
+                {
+                    type: "warning",
+                }
             );
+            return;
+        }
+    }
+
+    async _testAllPrinters() {
+        const printersIds = this.props.record.data.receipt_printer_ids?._currentIds || [];
+        if (!printersIds.length) {
+            this.notification.add(_t("No receipt printers configured for this POS."), {
+                type: "warning",
+            });
+            return;
+        }
+
+        for (const p_id of printersIds) {
+            await this._printTo(p_id);
+        }
+    }
+
+    async _printTo(printer_id = null) {
+        const printer = await this.getPrinterDataEPos(printer_id);
+        if (printer.printer_type === "epson_epos") {
+            const protocol = printer.use_lna ? "http:" : window.location.protocol;
+            const url = protocol + "//" + printer.printer_ip;
+            const params = {
+                method: "POST",
+                body: this._getReceipt(printer.name),
+                signal: AbortSignal.timeout(15000),
+            };
+            if (printer.use_lna) {
+                params.targetAddressSpace = getLNATargetAddressSpace(url);
+                await initLNA(this.notification);
+            }
+            if (printer.paper_size !== "label") {
+                try {
+                    const address = url + "/cgi-bin/epos/service.cgi?devid=local_printer";
+                    const result = await fetch(address, params);
+                    const body = await result.text();
+                    const parser = new DOMParser();
+                    const parsedBody = parser.parseFromString(body, "application/xml");
+                    const response = parsedBody.querySelector("response");
+                    const success = response.getAttribute("success") === "true";
+                    const errorCode = response.getAttribute("code");
+
+                    if (!success || errorCode !== "") {
+                        const errorMessage =
+                            EPSON_ERRORS[errorCode] ||
+                            _t("Failed to print a test receipt. Check your printer.");
+                        this.notification.add(
+                            `${printer.name} (${printer.printer_ip}): ${errorMessage}`,
+                            {
+                                type: "warning",
+                            }
+                        );
+                    }
+                } catch {
+                    this.notification.add(
+                        `${printer.name} (${printer.printer_ip}): ${_t(
+                            "Cannot reach the printer."
+                        )}`,
+                        { type: "danger" }
+                    );
+                }
+            } else {
+                const zpl = "^XA^FO50,50^ADN,36,20^FDTest ZPL receipt!^FS^XZ";
+                params.body = zpl;
+                params.headers = {
+                    "Content-Length": zpl.length,
+                    "Content-Type": "text/plain; charset=utf-8",
+                };
+                params.mode = "no-cors";
+
+                try {
+                    await fetch(`${url}/pstprnt`, params);
+                } catch {
+                    this.notification.add(
+                        `${printer.name} (${printer.printer_ip}): ${_t(
+                            "Cannot reach the printer."
+                        )}`,
+                        { type: "danger" }
+                    );
+                }
+            }
+        }
+    }
+
+    async onClick() {
+        const model = this.props.record.resModel;
+        if (model === "pos.printer") {
+            await this._testSinglePrinter();
+        } else if (model === "pos.config") {
+            await this._testAllPrinters();
         }
     }
 }

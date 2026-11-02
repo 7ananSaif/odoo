@@ -4,16 +4,33 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0\n"
+"Project-Id-Version: Odoo Server 20.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2026-01-25 18:37+0000\n"
+"POT-Creation-Date: 2026-09-25 17:39+0000\n"
+"PO-Revision-Date: 2026-09-25 17:39+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
+
+#. module: phone_validation
+#: model:ir.module.module,description:base.module_phone_validation
+msgid ""
+"\n"
+"Phone Numbers Validation\n"
+"========================\n"
+"\n"
+"This module adds the feature of validation and formatting phone numbers\n"
+"according to a destination country.\n"
+"\n"
+"It also adds phone blacklist management through a specific model storing\n"
+"blacklisted phone numbers.\n"
+"\n"
+"It adds mail.thread.phone mixin that handles sanitation and blacklist of\n"
+"records numbers. "
+msgstr ""
 
 #. module: phone_validation
 #. odoo-python
@@ -31,6 +48,21 @@ msgstr ""
 #. module: phone_validation
 #: model:ir.model.fields,field_description:phone_validation.field_phone_blacklist__active
 msgid "Active"
+msgstr ""
+
+#. module: phone_validation
+#: model:ir.model,name:phone_validation.model_mail_activity
+msgid "Activity"
+msgstr ""
+
+#. module: phone_validation
+#: model:ir.model,name:phone_validation.model_mail_activity_mixin
+msgid "Activity Mixin"
+msgstr ""
+
+#. module: phone_validation
+#: model:ir.model,name:phone_validation.model_mail_activity_schedule
+msgid "Activity schedule plan Wizard"
 msgstr ""
 
 #. module: phone_validation
@@ -126,11 +158,9 @@ msgid "Created on"
 msgstr ""
 
 #. module: phone_validation
-#: model_terms:ir.ui.view,arch_db:phone_validation.phone_blacklist_remove_view_form
-msgid "Discard"
-msgstr ""
-
-#. module: phone_validation
+#: model:ir.model.fields,field_description:phone_validation.field_mail_activity__display_name
+#: model:ir.model.fields,field_description:phone_validation.field_mail_activity_mixin__display_name
+#: model:ir.model.fields,field_description:phone_validation.field_mail_activity_schedule__display_name
 #: model:ir.model.fields,field_description:phone_validation.field_mail_thread_phone__display_name
 #: model:ir.model.fields,field_description:phone_validation.field_phone_blacklist__display_name
 #: model:ir.model.fields,field_description:phone_validation.field_phone_blacklist_remove__display_name
@@ -170,6 +200,9 @@ msgid "Has Message"
 msgstr ""
 
 #. module: phone_validation
+#: model:ir.model.fields,field_description:phone_validation.field_mail_activity__id
+#: model:ir.model.fields,field_description:phone_validation.field_mail_activity_mixin__id
+#: model:ir.model.fields,field_description:phone_validation.field_mail_activity_schedule__id
 #: model:ir.model.fields,field_description:phone_validation.field_mail_thread_phone__id
 #: model:ir.model.fields,field_description:phone_validation.field_phone_blacklist__id
 #: model:ir.model.fields,field_description:phone_validation.field_phone_blacklist_remove__id
@@ -344,6 +377,11 @@ msgid "Phone Blacklisted"
 msgstr ""
 
 #. module: phone_validation
+#: model:ir.model.fields,field_description:phone_validation.field_mail_activity_schedule__phone_formatted
+msgid "Phone Formatted"
+msgstr ""
+
+#. module: phone_validation
 #: model:ir.model.fields,field_description:phone_validation.field_mail_thread_phone__phone_mobile_search
 #: model:ir.model.fields,field_description:phone_validation.field_phone_blacklist__number
 #: model:ir.model.fields,field_description:phone_validation.field_phone_blacklist_remove__phone
@@ -351,6 +389,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:phone_validation.field_res_users__phone_mobile_search
 #: model_terms:ir.ui.view,arch_db:phone_validation.phone_blacklist_remove_view_form
 msgid "Phone Number"
+msgstr ""
+
+#. module: phone_validation
+#: model:ir.module.module,shortdesc:base.module_phone_validation
+msgid "Phone Numbers Validation"
 msgstr ""
 
 #. module: phone_validation
@@ -405,6 +448,11 @@ msgstr ""
 #. module: phone_validation
 #: model:ir.model,name:phone_validation.model_res_users
 msgid "User"
+msgstr ""
+
+#. module: phone_validation
+#: model:ir.module.module,summary:base.module_phone_validation
+msgid "Validate and format phone numbers"
 msgstr ""
 
 #. module: phone_validation

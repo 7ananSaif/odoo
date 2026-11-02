@@ -12,10 +12,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-01-23 06:06+0000\n"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-09-21 11:34+0000\n"
 "Last-Translator: \"Noemi Pla Garcia (nopl)\" <nopl@odoo.com>\n"
-"Language-Team: Spanish <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Spanish <https://translate.odoo.com/projects/odoo-20/"
 "event_sale/es/>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
@@ -23,7 +23,30 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=(n == 1) ? 0 : ((n != 0 && n % 1000000 == "
 "0) ? 1 : 2);\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: event_sale
+#: model:ir.module.module,description:base.module_event_sale
+msgid ""
+"\n"
+"Creating registration with sales orders.\n"
+"========================================\n"
+"\n"
+"This module allows you to automate and connect your registration creation "
+"with\n"
+"your main sale flow and therefore, to enable the invoicing feature of "
+"registrations.\n"
+"\n"
+"It defines a new kind of service products that offers you the possibility "
+"to\n"
+"choose an event category associated with it. When you encode a sales order "
+"for\n"
+"that product, you will be able to choose an existing event of that category "
+"and\n"
+"when you confirm your sales order it will automatically create a "
+"registration for\n"
+"this event.\n"
+msgstr ""
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_registration_change_exception
@@ -36,8 +59,10 @@ msgstr ""
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_configurator_view_form
-msgid "<i class=\"fa fa-arrow-right\"/> Configure Events &amp; Tickets"
-msgstr "<i class=\"fa fa-arrow-right\"/> Configurar eventos y entradas"
+msgid ""
+"<i class=\"oi\" data-icon=\"arrow_forward\"/> Configure Events &amp; Tickets"
+msgstr ""
+"<i class=\"oi\" data-icon=\"arrow_forward\"/> Configurar eventos y entradas"
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_registration_ticket_view_form
@@ -58,6 +83,11 @@ msgstr "<span>Modificación de la inscripción para el asistente:</span>"
 #: model_terms:ir.ui.view,arch_db:event_sale.event_configurator_view_form
 msgid "Add"
 msgstr "Añadir"
+
+#. module: event_sale
+#: model:ir.model.fields,field_description:event_sale.field_event_event_configurator__additional_product_ids
+msgid "Additional Products"
+msgstr ""
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_configurator_view_form
@@ -312,6 +342,11 @@ msgid "Event Type"
 msgstr "Tipo de evento"
 
 #. module: event_sale
+#: model:ir.module.module,shortdesc:base.module_event_sale
+msgid "Events Sales"
+msgstr ""
+
+#. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_sale_report_view_search
 msgid "Events that have ended"
 msgstr "Eventos finalizados"
@@ -420,7 +455,7 @@ msgstr "No vendido"
 #. module: event_sale
 #: model:ir.model.fields,field_description:event_sale.field_event_sale_report__sale_order_date
 msgid "Order Date"
-msgstr "Fecha de pedido"
+msgstr "Fecha del pedido"
 
 #. module: event_sale
 #: model:ir.model.fields,field_description:event_sale.field_registration_editor_line__registration_id
@@ -577,6 +612,13 @@ msgid "Select an Event"
 msgstr "Seleccione un evento"
 
 #. module: event_sale
+#: model:ir.model.fields,help:event_sale.field_event_event_configurator__additional_product_ids
+msgid ""
+"Select products to include with each registration. They will also show up "
+"separately on Sale Orders."
+msgstr ""
+
+#. module: event_sale
 #. odoo-python
 #: code:addons/event_sale/models/event_registration.py:0
 #: model:ir.model.fields,field_description:event_sale.field_event_event_configurator__event_slot_id
@@ -691,123 +733,3 @@ msgstr "proporcione los detalles de los asistentes."
 #: model_terms:ir.ui.view,arch_db:event_sale.event_registration_change_exception
 msgid "to"
 msgstr "a"
-
-#~ msgid ""
-#~ "<span>Not enough seats available. All registrations were created as "
-#~ "\"Unconfirmed\" and can be updated later on.</span>"
-#~ msgstr ""
-#~ "<span>No hay suficientes lugares disponibles. Todos los registros se "
-#~ "crearon como \"sin confirmar\" y se pueden actualizar después.</span>"
-
-#~ msgid ""
-#~ "A description of the ticket that you want to communicate to your "
-#~ "customers."
-#~ msgstr "Agrega una descripción de la entrada para tus clientes."
-
-#~ msgid ""
-#~ "A storable product is a product for which you manage stock. The Inventory "
-#~ "app has to be installed.\n"
-#~ "A consumable product is a product for which stock is not managed.\n"
-#~ "A service is a non-material product you provide."
-#~ msgstr ""
-#~ "Un producto almacenable es un producto para el que gestiona stock. La "
-#~ "aplicación de inventario debe estar instalada.\n"
-#~ "Un producto consumible es un producto para el que no se gestionan las "
-#~ "existencias.\n"
-#~ "Un servicio es un producto no material."
-
-#~ msgid "Cancel"
-#~ msgstr "Cancelar"
-
-#~ msgid "Configure an event"
-#~ msgstr "Configurar un evento"
-
-#~ msgid "Currency"
-#~ msgstr "Moneda"
-
-#~ msgid "Description"
-#~ msgstr "Descripción"
-
-#~ msgid "Event Registration - Standard"
-#~ msgstr "Respuesta de Registro del Evento"
-
-#~ msgid "Event Registration - VIP"
-#~ msgstr "Registro de eventos - VIP"
-
-#~ msgid "Event Template Ticket"
-#~ msgstr "Entrada de plantilla de evento"
-
-#~ msgid "Event Tickets"
-#~ msgstr "Entradas del evento"
-
-#~ msgid "Group By"
-#~ msgstr "Agrupar por"
-
-#~ msgid "Is Paid"
-#~ msgstr "Pagado"
-
-#~ msgid "Journal Entry"
-#~ msgstr "Asiento contable"
-
-#~ msgid "Locked"
-#~ msgstr "Bloqueado"
-
-#~ msgid "Mobile"
-#~ msgstr "Móvil"
-
-#~ msgid "Not Paid"
-#~ msgstr "No pagadas"
-
-#~ msgid "Not enough seats for all registrations"
-#~ msgstr "No hay suficientes asientos para todas las personas registradas"
-
-#~ msgid "Ok"
-#~ msgstr "Aceptar"
-
-#~ msgid "Order Ref"
-#~ msgstr "Ref. venta"
-
-#~ msgid "Paid"
-#~ msgstr "Pagado"
-
-#~ msgid "Price"
-#~ msgstr "Precio"
-
-#~ msgid "Price Reduce"
-#~ msgstr "Reducción de precio"
-
-#~ msgid "Price Reduce Tax inc"
-#~ msgstr "Precio reducido con IVA"
-
-#~ msgid "Product Type"
-#~ msgstr "Tipo de producto"
-
-#~ msgid "Product Variant"
-#~ msgstr "Variantes de producto"
-
-#~ msgid "Quotation Template Line"
-#~ msgstr "Linea de plantilla de presupuesto"
-
-#~ msgid "Quotation Template Option"
-#~ msgstr "Opción de plantilla de presupuesto"
-
-#~ msgid "Sales (Tax Excluded)"
-#~ msgstr "Ventas (libre de impuestos)"
-
-#~ msgid "Sales End"
-#~ msgstr "Final de las ventas"
-
-#~ msgid "Sales Start"
-#~ msgstr "Inicia venta"
-
-#~ msgid "Skip"
-#~ msgstr "Saltar"
-
-#~ msgid "Ticket changed from"
-#~ msgstr "Entrada modificada de"
-
-#~ msgid "Transaction"
-#~ msgstr "Transacción"
-
-#~ msgid "please give attendee details."
-#~ msgstr "indique los datos de los asistentes."

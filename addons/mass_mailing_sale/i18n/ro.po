@@ -13,10 +13,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~15.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-11-27 09:02+0000\n"
-"Last-Translator: Adrian Cocos <adrian.cocos@capps.ai>\n"
-"Language-Team: Romanian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-04 17:45+0000\n"
+"PO-Revision-Date: 2026-08-31 14:20+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Romanian <https://translate.odoo.com/projects/odoo-s19-4/"
 "mass_mailing_sale/ro/>\n"
 "Language: ro\n"
 "MIME-Version: 1.0\n"
@@ -24,7 +24,34 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
 "20)) ? 1 : 2;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: mass_mailing_sale
+#: model_terms:ir.ui.view,arch_db:mass_mailing_sale.mailing_mailing_view_form
+msgid "<span class=\"o_stat_text\">Revenues</span>"
+msgstr ""
+
+#. module: mass_mailing_sale
+#: model:ir.module.module,summary:base.module_mass_mailing_sale
+msgid "Add sale order UTM info on mass mailing"
+msgstr ""
+
+#. module: mass_mailing_sale
+#. odoo-javascript
+#: code:addons/mass_mailing_sale/static/src/snippets/snippet_categories.xml:0
+msgid "Auto-filled from Product"
+msgstr ""
+
+#. module: mass_mailing_sale
+#. odoo-javascript
+#: code:addons/mass_mailing_sale/static/src/builder/options/product_snapshot_fragments.xml:0
+msgid "Buy Now"
+msgstr ""
+
+#. module: mass_mailing_sale
+#: model:ir.model.fields,field_description:mass_mailing_sale.field_mailing_mailing__currency_id
+msgid "Currency"
+msgstr ""
 
 #. module: mass_mailing_sale
 #: model:ir.model.fields,field_description:mass_mailing_sale.field_mailing_mailing__display_name
@@ -47,11 +74,6 @@ msgid "INVOICED"
 msgstr "FACTURAT"
 
 #. module: mass_mailing_sale
-#: model_terms:ir.ui.view,arch_db:mass_mailing_sale.mailing_mailing_view_form
-msgid "Invoiced"
-msgstr "Facturat"
-
-#. module: mass_mailing_sale
 #: model:ir.model.fields,field_description:mass_mailing_sale.field_mailing_mailing__sale_invoiced_amount
 msgid "Invoiced Amount"
 msgstr "Suma facturata"
@@ -68,6 +90,11 @@ msgid "Mass Mailing"
 msgstr "Emailuri în masă"
 
 #. module: mass_mailing_sale
+#: model:ir.module.module,shortdesc:base.module_mass_mailing_sale
+msgid "Mass mailing on sale orders"
+msgstr ""
+
+#. module: mass_mailing_sale
 #. odoo-python
 #: code:addons/mass_mailing_sale/models/mailing_mailing.py:0
 msgid "No Quotations yet!"
@@ -78,6 +105,24 @@ msgstr "Nu există oferte!"
 #: code:addons/mass_mailing_sale/models/mailing_mailing.py:0
 msgid "No Revenues yet!"
 msgstr "Nu există venituri!"
+
+#. module: mass_mailing_sale
+#. odoo-javascript
+#: code:addons/mass_mailing_sale/static/src/builder/options/product_snapshot_fragments.xml:0
+msgid "Price information"
+msgstr ""
+
+#. module: mass_mailing_sale
+#. odoo-javascript
+#: code:addons/mass_mailing_sale/static/src/builder/options/product_snapshot_snippet_info.js:0
+msgid "Product"
+msgstr ""
+
+#. module: mass_mailing_sale
+#. odoo-javascript
+#: code:addons/mass_mailing_sale/static/src/builder/options/product_snapshot_fragments.xml:0
+msgid "Product information"
+msgstr ""
 
 #. module: mass_mailing_sale
 #. odoo-python
@@ -138,6 +183,11 @@ msgstr "Selectați pentru a determina mailing-ul câștigător care va fi trimis
 #: model:ir.model,name:mass_mailing_sale.model_utm_campaign
 msgid "UTM Campaign"
 msgstr "Campanie UTM"
+
+#. module: mass_mailing_sale
+#: model:ir.module.module,description:base.module_mass_mailing_sale
+msgid "UTM and mass mailing on sale orders"
+msgstr ""
 
 #. module: mass_mailing_sale
 #: model:ir.model.fields,field_description:mass_mailing_sale.field_utm_campaign__ab_testing_winner_selection

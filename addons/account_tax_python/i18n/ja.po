@@ -6,21 +6,22 @@
 # Martin Trigaux, 2022
 #
 # "Junko Augias (juau)" <juau@odoo.com>, 2025, 2026.
+# Odoo Translation Bot <c3p@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~14.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-02-03 07:25+0000\n"
-"Last-Translator: \"Junko Augias (juau)\" <juau@odoo.com>\n"
-"Language-Team: Japanese <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-10-08 08:41+0000\n"
+"Last-Translator: Odoo Translation Bot <c3p@odoo.com>\n"
+"Language-Team: Japanese <https://translate.odoo.com/projects/odoo-20/"
 "account_tax_python/ja/>\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: account_tax_python
 #: model:ir.model.fields,help:account_tax_python.field_account_tax__amount_type
@@ -48,6 +49,26 @@ msgstr ""
 "        "
 
 #. module: account_tax_python
+#: model:ir.module.module,description:base.module_account_tax_python
+msgid ""
+"\n"
+"A tax defined as python code consists of two snippets of python code which "
+"are executed in a local environment containing data such as the unit price, "
+"product or partner.\n"
+"\n"
+"\"Applicable Code\" defines if the tax is to be applied.\n"
+"\n"
+"\"Python Code\" defines the amount of the tax.\n"
+msgstr ""
+"\n"
+"Pythonコードとして定義された税金は、単価、プロダクト、パートナーなどのデータ"
+"を含むローカル環境で実行されるPythonコードの2つのスニペットで構成されます。\n"
+"\n"
+"\"適用コード”は、税金を適用するかどうかを定義します。\n"
+"\n"
+"\"Pythonコード”は税額を定義します。\n"
+
+#. module: account_tax_python
 #: model:ir.model.fields,help:account_tax_python.field_account_tax__formula
 msgid ""
 "Compute the amount of the tax.\n"
@@ -67,7 +88,12 @@ msgstr ""
 #. module: account_tax_python
 #: model:ir.model.fields.selection,name:account_tax_python.selection__account_tax__amount_type__code
 msgid "Custom Formula"
-msgstr "カスタム計算式"
+msgstr "カスタム式"
+
+#. module: account_tax_python
+#: model:ir.module.module,shortdesc:base.module_account_tax_python
+msgid "Define Taxes as Python Code"
+msgstr "Pythonコードで税金を定義"
 
 #. module: account_tax_python
 #: model:ir.model.fields,field_description:account_tax_python.field_account_tax__display_name
@@ -161,35 +187,7 @@ msgstr "不明な関数呼び出し"
 msgid "Unknown identifier: %s"
 msgstr "不明な識別子: %s"
 
-#~ msgid "Only product['string'] read-access is allowed"
-#~ msgstr ""
-#~ "product['string'] 形式による読み取り専用アクセスのみが許可されています"
-
-#~ msgid ""
-#~ "\n"
-#~ "    - Group of Taxes: The tax is a set of sub taxes.\n"
-#~ "    - Fixed: The tax amount stays the same whatever the price.\n"
-#~ "    - Percentage of Price: The tax amount is a % of the price:\n"
-#~ "        e.g 100 * (1 + 10%) = 110 (not price included)\n"
-#~ "        e.g 110 / (1 + 10%) = 100 (price included)\n"
-#~ "    - Percentage of Price Tax Included: The tax amount is a division of "
-#~ "the price:\n"
-#~ "        e.g 180 / (1 - 10%) = 200 (not price included)\n"
-#~ "        e.g 200 * (1 - 10%) = 180 (price included)\n"
-#~ "        "
-#~ msgstr ""
-#~ "\n"
-#~ "-税金のグループ：より細かい税のひとまとまりです。\n"
-#~ "-固定：税額は価格に関係なく同額です。\n"
-#~ "-外税率：税額は価格に基づき比率で加算されます：\n"
-#~ "例：100 *（1 + 10％）= 110（課税後の価格）\n"
-#~ "例：110 /（1 + 10％）= 100（課税前の価格）\n"
-#~ "-内税率：税額は価格に含まれています：\n"
-#~ "例：180 /（1-10％）= 200（課税後の価格）\n"
-#~ "例：200 *（1-10％）= 180（課税前の価格）"
-
-#~ msgid "Python Code"
-#~ msgstr "Pythonコード"
-
-#~ msgid "Templates for Taxes"
-#~ msgstr "税テンプレート"
+#. module: account_tax_python
+#: model:ir.module.module,summary:base.module_account_tax_python
+msgid "Use python code to define taxes"
+msgstr "Pythonコードを使用して税金を定義"

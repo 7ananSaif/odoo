@@ -4,7 +4,7 @@
         id="mail.menu_root_discuss"
         action="action_discuss"
         web_icon="mail,static/description/icon.png"
-        groups="base.group_user"
+        groups="base.group_user_regular"
         sequence="5"
     />
     <menuitem
@@ -12,33 +12,33 @@
         name="Discuss"
         parent="mail.menu_root_discuss"
         action="action_discuss"
-        sequence="1"
+        sequence="10"
     />
     <menuitem
         id="mail.menu_channel"
         name="Channels"
         parent="mail.menu_root_discuss"
         action="mail.discuss_channel_action"
-        sequence="2"
+        sequence="20"
     />
     <menuitem
         id="mail.menu_configuration"
         name="Configuration"
         parent="mail.menu_root_discuss"
-        sequence="3"
+        sequence="40"
     />
-    <menuitem name="Notifications"
-        id="mail.menu_notification_settings"
+    <menuitem name="Settings"
+        id="mail.menu_settings"
         parent="mail.menu_configuration"
-        action="mail.discuss_notification_settings_action"
+        action="action_open_discuss_settings"
+        groups="base.group_system"
         sequence="1"
     />
-    <menuitem
-        id="mail.menu_call_settings"
-        name="Voice &amp; Video"
+    <menuitem name="Categories"
+        id="mail.menu_discuss_category"
         parent="mail.menu_configuration"
-        action="mail.discuss_call_settings_action"
-        sequence="5"
+        action="mail.discuss_category_settings_action"
+        sequence="10"
     />
     <menuitem name="Canned Responses"
         id="mail.menu_canned_responses"
@@ -51,6 +51,25 @@
         parent="mail.menu_configuration"
         action="mail.res_role_action"
         sequence="25"
+    />
+    <menuitem
+        id="mail.menu_discuss_user_settings"
+        name="User Settings"
+        parent="mail.menu_configuration"
+        sequence="90"
+    />
+    <menuitem name="Notifications"
+        id="mail.menu_notification_settings"
+        parent="mail.menu_discuss_user_settings"
+        action="mail.discuss_notification_settings_action"
+        sequence="10"
+    />
+    <menuitem
+        id="mail.menu_call_settings"
+        name="Voice &amp; Video"
+        parent="mail.menu_discuss_user_settings"
+        action="mail.discuss_call_settings_action"
+        sequence="20"
     />
 
     <record id="base.menu_email" model="ir.ui.menu">
@@ -66,12 +85,12 @@
     <menuitem id="mail_alias_menu"
         parent="base.menu_email"
         action="mail_alias_action"
-        sequence="11"
+        sequence="15"
         groups="base.group_no_one"/>
     <menuitem id="mail_alias_domain_menu"
         parent="base.menu_email"
         action="mail_alias_domain_action"
-        sequence="12"
+        sequence="16"
         groups="base.group_no_one"/>
     <menuitem name="Incoming Mail Servers"
         id="menu_action_fetchmail_server_tree"
@@ -83,6 +102,11 @@
         parent="base.menu_email"
         action="action_email_template_tree_all"
         sequence="10"/>
+    <menuitem name="System Notifications"
+        id="ir_ui_view_menu_usage_mail_post"
+        parent="base.menu_email"
+        action="ir_ui_view_action_usage_mail_post"
+        sequence="11"/>
     <menuitem id="mail.discuss_channel_menu_settings"
         name="Channels"
         parent="base.menu_email"
@@ -122,11 +146,6 @@
         parent="mail.mail_menu_technical"
         action="action_view_message_subtype"
         sequence="4"/>
-    <menuitem name="Tracking Values"
-        id="menu_mail_tracking_value"
-        parent="mail.mail_menu_technical"
-        action="action_view_mail_tracking_value"
-        sequence="5"/>
 
     <menuitem name="Notifications"
         id="mail_notification_menu"

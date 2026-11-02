@@ -6,29 +6,27 @@ from odoo.tests import tagged
 from odoo.addons.payment_mercado_pago.tests.common import MercadoPagoCommon
 
 
-@tagged('post_install', '-at_install')
+@tagged("post_install", "-at_install")
 class TestPaymentProvider(MercadoPagoCommon):
+    def test_allow_setting_live_if_credentials_are_set(self):
+        """Test that setting live a Mercado Pago provider with credentials succeeds."""
+        self._assert_does_not_raise(ValidationError, self.provider.write({"is_live": True}))
 
-    def test_allow_enabling_if_credentials_are_set(self):
-        """ Test that enabling a Mercado Pago provider with credentials succeeds. """
-        self._assert_does_not_raise(ValidationError, self.provider.write({'state': 'enabled'}))
-
-    def test_prevent_enabling_if_credentials_are_not_set(self):
-        """ Test that enabling a Mercado Pago provider without credentials raises a ValidationError.
-        """
+    def test_prevent_setting_live_if_credentials_are_not_set(self):
+        """Test that setting live a Mercado Pago provider without credentials raises a
+        ValidationError."""
         # Reset the state and credentials together to avoid triggering the constraint outside of the
         # 'assertRaises'.
+        self.provider.module_state = "installed"
         self.provider.action_reset_credentials()
         with self.assertRaises(ValidationError):
-            self.provider.state = 'enabled'
+            self.provider.is_live = True
 
-    def test_incompatible_with_unsupported_currencies(self):
-        """ Test that Mercado Pago providers are filtered out from compatible providers when the
-        currency is not supported. """
-        compatible_providers = self.env['payment.provider']._get_compatible_providers(
-            self.company_id, self.partner.id, self.amount, currency_id=self.env.ref('base.AFN').id
+    def test_not_available_for_unsupported_currencies(self):
+        available_providers = self.env["payment.provider"]._find_available_providers(
+            self.company_id, self.partner.id, self.amount, currency_id=self.env.ref("base.AFN").id
         )
-        self.assertNotIn(self.provider, compatible_providers)
+        self.assertNotIn(self.provider, available_providers)
 
     def test_locale_resolves_from_website_language(self):
         """Test that a supported website language maps to its country's locale."""

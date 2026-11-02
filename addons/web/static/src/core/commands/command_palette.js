@@ -1,24 +1,26 @@
+import {
+    Component,
+    EventBus,
+    markRaw,
+    onWillDestroy,
+    onWillStart,
+    proxy,
+    signal,
+    t,
+    useListener,
+    useProps,
+    useScope,
+} from "@odoo/owl";
+import { hasTouch, isMacOS } from "@web/core/browser/feature_detection";
 import { Dialog } from "@web/core/dialog/dialog";
 import { useHotkey } from "@web/core/hotkeys/hotkey_hook";
 import { _t } from "@web/core/l10n/translation";
 import { KeepLast, Race } from "@web/core/utils/concurrency";
 import { useAutofocus, useService } from "@web/core/utils/hooks";
+import { highlightText } from "@web/core/utils/html";
 import { scrollTo } from "@web/core/utils/scrolling";
 import { fuzzyLookup } from "@web/core/utils/search";
 import { debounce } from "@web/core/utils/timing";
-import { isMacOS, isMobileOS } from "@web/core/browser/feature_detection";
-import { highlightText } from "@web/core/utils/html";
-
-import {
-    Component,
-    onWillStart,
-    onWillDestroy,
-    EventBus,
-    useRef,
-    useState,
-    markRaw,
-    useExternalListener,
-} from "@odoo/owl";
 
 const DEFAULT_PLACEHOLDER = _t("Search...");
 const DEFAULT_EMPTY_MESSAGE = _t("No result found");
@@ -46,8 +48,8 @@ const FUZZY_NAMESPACES = ["default"];
  * @typedef {{
  *  categories: string[];
  *  debounceDelay: number;
- *  emptyMessage: string;
- *  placeholder: string;
+ *  emptyMessage: TranslatedString;
+ *  placeholder: TranslatedString;
  * }} NamespaceConfig
  */
 
@@ -76,29 +78,37 @@ function commandsWithinCategory(categoryName, categories) {
     };
 }
 
+export const defaultCommandItemProps = {
+    slots: t.object().optional(),
+    // Props send by the command palette:
+    hotkey: t.string().optional(),
+    hotkeyOptions: t.string().optional(),
+    name: t.string().optional(),
+    searchValue: t.string().optional(),
+    executeCommand: t.function().optional(),
+};
+
 export class DefaultCommandItem extends Component {
     static template = "web.DefaultCommandItem";
-    static props = {
-        slots: { type: Object, optional: true },
-        // Props send by the command palette:
-        hotkey: { type: String, optional: true },
-        hotkeyOptions: { type: String, optional: true },
-        name: { type: String, optional: true },
-        searchValue: { type: String, optional: true },
-        executeCommand: { type: Function, optional: true },
-    };
+    props = useProps(defaultCommandItemProps);
 }
 
 export class CommandPalette extends Component {
     static template = "web.CommandPalette";
     static components = { Dialog };
     static lastSessionId = 0;
-    static props = {
-        bus: { type: EventBus, optional: true },
-        close: Function,
-        config: Object,
-        closeMe: { type: Function, optional: true },
-    };
+    props = useProps({
+        bus: t.instanceOf(EventBus).optional(),
+        close: t.function(),
+        config: t.object(),
+        closeMe: t.function().optional(),
+    });
+
+    scope = useScope();
+
+    root = signal.ref();
+    listboxRef = signal.ref();
+    inputRef = signal.ref();
 
     setup() {
         if (this.props.bus) {
@@ -112,8 +122,9 @@ export class CommandPalette extends Component {
         this.keepLast = new KeepLast();
         this._sessionId = CommandPalette.lastSessionId++;
         this.DefaultCommandItem = DefaultCommandItem;
-        this.activeElement = useService("ui").activeElement;
-        this.inputRef = useAutofocus();
+        this.uiService = useService("ui");
+        this.activeElement = this.uiService.activeElement;
+        useAutofocus({ ref: this.inputRef });
 
         useHotkey("Enter", () => this.executeSelectedCommand(), { bypassEditableProtection: true });
         useHotkey("Control+Enter", () => this.executeSelectedCommand(true), {
@@ -127,7 +138,7 @@ export class CommandPalette extends Component {
             bypassEditableProtection: true,
             allowRepeat: true,
         });
-        useExternalListener(window, "mousedown", this.onWindowMouseDown);
+        useListener(window, "mousedown", this.onWindowMouseDown.bind(this));
 
         /**
          * @type {{ commands: CommandItem[],
@@ -138,10 +149,7 @@ export class CommandPalette extends Component {
          *          searchValue: string,
          *          selectedCommand: CommandItem }}
          */
-        this.state = useState({});
-
-        this.root = useRef("root");
-        this.listboxRef = useRef("listbox");
+        this.state = proxy({});
 
         onWillStart(() => this.setCommandPaletteConfig(this.props.config));
     }
@@ -198,7 +206,7 @@ export class CommandPalette extends Component {
         this.categoryNames = {};
         const proms = this.providersByNamespace[namespace].map((provider) => {
             const { provide } = provider;
-            const result = provide(this.env, options);
+            const result = this.scope.run(() => provide(options));
             return result;
         });
         let commands = (await this.keepLast.add(Promise.all(proms))).flat();
@@ -261,8 +269,8 @@ export class CommandPalette extends Component {
         }
         this.selectCommand(nextIndex);
 
-        const command = this.listboxRef.el.querySelector(`#o_command_${nextIndex}`);
-        scrollTo(command, { scrollable: this.listboxRef.el });
+        const command = this.listboxRef().querySelector(`#o_command_${nextIndex}`);
+        scrollTo(command, { scrollable: this.listboxRef() });
     }
 
     onCommandClicked(event, index) {
@@ -318,8 +326,8 @@ export class CommandPalette extends Component {
         } finally {
             this.state.isLoading = false;
         }
-        if (this.inputRef.el) {
-            this.inputRef.el.focus();
+        if (this.inputRef()) {
+            this.inputRef().focus();
         }
     }
 
@@ -352,7 +360,7 @@ export class CommandPalette extends Component {
      * Close the palette on outside click.
      */
     onWindowMouseDown(ev) {
-        if (!this.root.el.contains(ev.target)) {
+        if (this.root() && !this.root().contains(ev.target)) {
             this.props.close();
         }
     }
@@ -382,7 +390,7 @@ export class CommandPalette extends Component {
     get isMacOS() {
         return isMacOS();
     }
-    get isMobileOS() {
-        return isMobileOS();
+    get hasTouch() {
+        return hasTouch();
     }
 }

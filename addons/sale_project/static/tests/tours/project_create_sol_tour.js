@@ -2,7 +2,6 @@ import { registry } from "@web/core/registry";
 import { stepUtils } from "@web_tour/tour_utils";
 
 registry.category("web_tour.tours").add('project_create_sol_tour', {
-    url: "/odoo",
     steps: () => [
     stepUtils.showAppsMenuItem(), {
         trigger: ".o_app[data-menu-xmlid='project.menu_main_pm']",
@@ -22,7 +21,7 @@ registry.category("web_tour.tours").add('project_create_sol_tour', {
         run: "click",
     }, {
         isActive: ["auto"],
-        trigger: ".ui-autocomplete > li > a:not(:has(i.fa))",
+        trigger: ".ui-autocomplete > li > a:not(:has(i.oi))",
         content: "Select the customer in the autocomplete dropdown",
         run: "click",
     },
@@ -30,7 +29,7 @@ registry.category("web_tour.tours").add('project_create_sol_tour', {
         trigger: 'div.o_notebook_headers',
     },
     {
-        trigger: 'a.nav-link[name="settings"]',
+        trigger: 'button.nav-link[name="settings"]',
         content: 'Click on Settings tab to configure this project.',
         run: "click",
     }, {

@@ -1,5 +1,5 @@
 import { registry } from "@web/core/registry";
-import { SIZES } from "@web/core/ui/ui_service";
+import { SIZES } from "@web/core/ui/ui_utils";
 import {
     append,
     combineAttributes,
@@ -66,7 +66,7 @@ export class FormCompiler extends ViewCompiler {
     compile(key, params = {}) {
         const compiled = super.compile(...arguments);
         if (!params.isSubView) {
-            compiled.children[0].setAttribute("t-ref", "compiled_view_root");
+            compiled.children[0].setAttribute("t-ref", "__comp__.rootRef");
         }
         return compiled;
     }
@@ -165,7 +165,7 @@ export class FormCompiler extends ViewCompiler {
             if (child.tagName === "field") {
                 child.classList.add("d-inline-block", "mb-0", "z-0");
             }
-            append(mainSlot, this.compileNode(child, params, false));
+            append(mainSlot, this.compileNode(child, { ...params, currentSlot: mainSlot }, false));
             append(buttonBox, mainSlot);
         }
 
@@ -268,7 +268,7 @@ export class FormCompiler extends ViewCompiler {
             footer.append(
                 createElement("t", {
                     "t-call": "web.DefaultButtonsSlot",
-                    "t-call-context": "{ props: __comp__.props }",
+                    "t-call-context": "{ __owl__: __comp__.__owl__ }",
                 })
             );
         }
@@ -324,6 +324,7 @@ export class FormCompiler extends ViewCompiler {
                 "t-slot-scope": "scope",
             });
             let itemSpan = parseInt(child.getAttribute("colspan") || "1", 10);
+            let noBox = false;
 
             if (forceNewline) {
                 mainSlot.setAttribute("newline", true);
@@ -332,6 +333,7 @@ export class FormCompiler extends ViewCompiler {
 
             if (getTag(child, true) === "separator") {
                 itemSpan = parseInt(formGroup.getAttribute("maxCols") || 2, 10);
+                noBox = true;
             }
 
             if (child.matches("div[class='clearfix']:empty")) {
@@ -341,7 +343,7 @@ export class FormCompiler extends ViewCompiler {
             let slotContent;
             if (getTag(child, true) === "field") {
                 const addLabel = child.hasAttribute("nolabel")
-                    ? child.getAttribute("nolabel") !== "1"
+                    ? !exprToBoolean(child.getAttribute("nolabel"))
                     : true;
                 slotContent = this.compileNode(child, { ...params, currentSlot: mainSlot }, false);
                 if (slotContent && addLabel && !isOuterGroup && !isTextNode(slotContent)) {
@@ -388,6 +390,9 @@ export class FormCompiler extends ViewCompiler {
                 mainSlot.setAttribute("isVisible", isVisibleExpr);
                 if (itemSpan > 0) {
                     mainSlot.setAttribute("itemSpan", `${itemSpan}`);
+                }
+                if (noBox) {
+                    mainSlot.setAttribute("noBox", "true");
                 }
 
                 const groupClassExpr = `scope && scope.className`;
@@ -442,7 +447,7 @@ export class FormCompiler extends ViewCompiler {
         const statusBar = createElement("div", {
             "t-att-class": "{ 'shadow-sm': __comp__.state.isStatusbarStickyPinned }",
         });
-        statusBar.className = "o_form_statusbar d-flex justify-content-between py-2";
+        statusBar.className = "o_form_statusbar d-flex justify-content-between pb-2";
         const buttons = [];
         const others = [];
         for (const child of el.childNodes) {
@@ -613,9 +618,8 @@ export class FormCompiler extends ViewCompiler {
                 if (field) {
                     append(fieldSlot, field);
                     setting.setAttribute("fieldInfo", field.getAttribute("fieldInfo"));
-
                     addLabel = child.hasAttribute("nolabel")
-                        ? child.getAttribute("nolabel") !== "1"
+                        ? !exprToBoolean(child.getAttribute("nolabel"))
                         : true;
                     const fieldName = child.getAttribute("name");
                     string = child.hasAttribute("string")

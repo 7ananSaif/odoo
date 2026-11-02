@@ -1,7 +1,9 @@
+import { usePlugin } from "@odoo/owl";
 import { Interaction } from "@web/public/interaction";
 import { registry } from "@web/core/registry";
 
 import { isVisible } from "@html_editor/utils/dom_info";
+import { BootstrapInstance } from "@web/core/utils/bootstrap_plugin";
 
 /**
  * This interaction is kept for compatibility with snippets dropped before 18.0.
@@ -10,8 +12,7 @@ import { isVisible } from "@html_editor/utils/dom_info";
  * @deprecated
  **/
 export class GallerySlider extends Interaction {
-    // TODO in master: use `.o_slideshow:not([data-vjs])`
-    static selector = ".o_slideshow:not([data-vcss]), .o_slideshow[data-vcss='001']";
+    static selector = ".o_slideshow:not([data-vjs])";
     dynamicContent = {
         ".carousel": {
             "t-on-slide.bs.carousel": this.onSlideCarousel,
@@ -23,6 +24,14 @@ export class GallerySlider extends Interaction {
     };
 
     setup() {
+        this.bootstrap = usePlugin(BootstrapInstance);
+        // Stable fix to set `data-vjs` on snippets dropped between 18 and 19.1.
+        if (!this.el.matches(".o_slideshow:not([data-vcss]), .o_slideshow[data-vcss='001']")) {
+            this.el.dataset.vjs = "001";
+            this.stopOnStart = true;
+            return;
+        }
+        this.liEls = [];
         this.hideOnClickIndicator = true;
         this.carouselEl = this.el.classList.contains("carousel")
             ? this.el
@@ -68,6 +77,15 @@ export class GallerySlider extends Interaction {
         this.onSlidCarousel();
     }
 
+    start() {
+        // Stable fix after setting `data-vjs`. Restarting can't be done in the
+        // setup.
+        if (this.stopOnStart) {
+            this.services["public.interactions"].stopInteractions(this.el);
+            this.services["public.interactions"].startInteractions(this.el);
+        }
+    }
+
     destroy() {
         if (this.prevEl) {
             this.indicatorEl.prepend(this.prevEl);
@@ -108,7 +126,9 @@ export class GallerySlider extends Interaction {
         }
         this.page += dispatchedEl.classList.contains("o_indicators_left") ? -1 : 1;
         this.page = Math.max(0, Math.min(this.nbPages - 1, this.page)); // should not be necessary
-        window.Carousel.getOrCreateInstance(this.carouselEl).to(this.page * this.realNbPerPage);
+        this.bootstrap
+            .getOrCreateInstance(window.Carousel, this.carouselEl)
+            .to(this.page * this.realNbPerPage);
         // We dont use hide() before the slide animation in the editor because there is a traceback
         // TO DO: fix this traceback
         if (this.hideOnClickIndicator) {
@@ -142,7 +162,7 @@ export class GallerySlider extends Interaction {
     }
 
     onSlidCarousel() {
-        if (this.liEls) {
+        if (this.liEls.length > 0) {
             const active = [...this.liEls].filter((el) => el.classList.contains("active"));
             const index = active.length ? [...this.liEls].indexOf(active[0]) : 0;
             this.page = Math.floor(index / this.realNbPerPage);

@@ -1,6 +1,6 @@
 <templates>
     <t t-name="mail.EmailHtmlConverterReferenceIframe">
-        <iframe t-att-sandbox="isBrowserSafari() ? 'allow-same-origin allow-scripts' : 'allow-same-origin'"
+        <iframe t-att-sandbox="this.isBrowserSafari() ? 'allow-same-origin allow-scripts' : 'allow-same-origin'"
             aria-hidden="true"
             t-attf-style="
                 visibility: hidden !important;

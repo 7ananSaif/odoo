@@ -8,6 +8,14 @@ from odoo.addons.mrp.tests.common import TestMrpCommon
 @tagged('post_install', '-at_install')
 class TestMrpRepairFlow(TestMrpCommon):
 
+    _test_user_groups = (
+        'product.group_product_manager',  # FIXME: use base.group_user
+        'stock.group_stock_manager',  # subject: repair orders & routes (repair.order needs stock user)
+        'mrp.group_mrp_manager',  # subject: manufacturing/BoM linked to repairs
+    )
+
+    _test_user_name = 'Test Product Manager'
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -21,16 +29,13 @@ class TestMrpRepairFlow(TestMrpCommon):
         Validates that a repair order triggers a manufacturing order with correct product
         and quantity, and ensures proper linking via the procurement group.
         """
-        mto_route = self.env.ref('stock.route_warehouse0_mto')
+        mto_route = self.route_mto
         mto_route.active = True
-        manufacturing_route = self.env['stock.rule'].search([('action', '=', 'manufacture')]).route_id
         rule = mto_route.rule_ids.filtered(lambda r: r.picking_type_id.code == 'repair_operation')
         rule.procure_method = 'make_to_order'
 
         product = self.product_2
-        product.write({
-            'route_ids': [Command.set([mto_route.id, manufacturing_route.id])],
-        })
+        product.route_ids = [Command.link(mto_route.id)]
         self.env['mrp.bom'].create({'product_tmpl_id': product.product_tmpl_id.id})
 
         repair = self.env['repair.order'].create([
@@ -82,3 +87,30 @@ class TestMrpRepairFlow(TestMrpCommon):
             set(repair.move_ids.product_id.ids),
             set(self.product_5.bom_ids.bom_line_ids.product_id.ids)
         )
+
+    def test_repair_smart_buttons_with_manufacture_mtso_link(self):
+        """Check the link between repair and manufacturing orders when the repair
+        parts are replenished in MTSO manufacture."""
+        self.route_mto.active = True
+        self.warehouse_1.repair_mto_pull_id.procure_method = 'mts_else_mto'
+        self.product_2.route_ids = [Command.set(self.route_mto.ids)]
+        self.env['mrp.bom'].create({'product_tmpl_id': self.product_2.product_tmpl_id.id})
+        self.env['stock.quant']._update_available_quantity(self.product_2, self.stock_location, 1.0)
+        repair = self.env['repair.order'].create({
+            'picking_type_id': self.warehouse_1.repair_type_id.id,
+            'move_ids': [Command.create({
+                'repair_line_type': 'add',
+                'product_id': self.product_2.id,
+                'product_uom_qty': 2.0,
+            })],
+        })
+        repair.action_validate()
+        production = repair.reference_ids.production_ids
+        self.assertRecordValues(production, [{
+            'product_id': self.product_2.id,
+            'product_qty': 1.0,
+            'repair_count': 1,
+        }])
+        self.assertEqual(repair.production_count, 1)
+        self.assertEqual(repair.action_view_mrp_productions()['res_id'], production.id)
+        self.assertEqual(production.action_view_repair_orders()['res_id'], repair.id)

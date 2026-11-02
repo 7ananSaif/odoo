@@ -7,7 +7,7 @@ export class EmptyNotEditableElementsPlugin extends Plugin {
     static id = "mass_mailing.EmptyNotEditableElements";
     static dependencies = ["selection"];
     resources = {
-        normalize_handlers: this.normalize.bind(this),
+        normalize_processors: this.normalize.bind(this),
     };
 
     /**
@@ -27,6 +27,7 @@ export class EmptyNotEditableElementsPlugin extends Plugin {
         if (!this.dependencies.selection.isSelectionInEditable(selection)) {
             this.dependencies.selection.resetSelection();
         }
+        return element;
     }
 }
 

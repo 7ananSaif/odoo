@@ -6,23 +6,23 @@
 # Martin Trigaux, 2022
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
-# "Kwanghee Park (kwpa)" <kwpa@odoo.com>, 2025.
+# "Kwanghee Park (kwpa)" <kwpa@odoo.com>, 2025, 2026.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-20 18:37+0000\n"
-"PO-Revision-Date: 2025-12-02 14:54+0000\n"
-"Last-Translator: \"Kwanghee Park (kwpa)\" <kwpa@odoo.com>\n"
-"Language-Team: Korean <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 18:33+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Korean <https://translate.odoo.com/projects/odoo-s19-4/"
 "website_livechat/ko/>\n"
 "Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: website_livechat
 #: model:ir.model.fields,field_description:website_livechat.field_website_visitor__session_count
@@ -30,20 +30,9 @@ msgid "# Sessions"
 msgstr "# 세션"
 
 #. module: website_livechat
-#. odoo-python
-#: code:addons/website_livechat/models/discuss_channel.py:0
-msgid ""
-"%(visitor)s started a conversation with %(operator)s.\n"
-"The chat request has been cancelled"
+#: model:ir.module.module,description:base.module_website_livechat
+msgid "Allow website visitors to chat with the collaborators."
 msgstr ""
-"%(visitor)s가 %(operator)s와 대화를 시작했습니다.\n"
-"채팅 요청이 취소되었습니다."
-
-#. module: website_livechat
-#. odoo-javascript
-#: code:addons/website_livechat/static/src/web/livechat_channel_info_list_patch.js:0
-msgid "(closed on: %(date)s)"
-msgstr "(종료일: %(date)s)"
 
 #. module: website_livechat
 #: model_terms:ir.ui.view,arch_db:website_livechat.website_visitor_view_search
@@ -54,6 +43,11 @@ msgstr "사용 가능"
 #: model_terms:ir.ui.view,arch_db:website_livechat.res_config_settings_view_form
 msgid "Channel"
 msgstr "채널"
+
+#. module: website_livechat
+#: model:ir.model,name:website_livechat.model_discuss_channel_member
+msgid "Channel Member"
+msgstr "채널 멤버"
 
 #. module: website_livechat
 #: model_terms:ir.ui.view,arch_db:website_livechat.im_livechat_channel_view_form_add
@@ -71,6 +65,11 @@ msgstr "채널 생성됨: %(name)s"
 #: model_terms:ir.ui.view,arch_db:website_livechat.website_visitor_view_tree
 msgid "Chat"
 msgstr "채팅"
+
+#. module: website_livechat
+#: model:ir.module.module,summary:base.module_website_livechat
+msgid "Chat with your website visitors"
+msgstr ""
 
 #. module: website_livechat
 #: model:ir.model,name:website_livechat.model_chatbot_script
@@ -94,6 +93,12 @@ msgid "Config Settings"
 msgstr "환경 설정"
 
 #. module: website_livechat
+#. odoo-javascript
+#: code:addons/website_livechat/static/src/core/web/livechat_channel_info_list_patch.xml:0
+msgid "Conversation ongoing"
+msgstr ""
+
+#. module: website_livechat
 #: model:ir.model,name:website_livechat.model_discuss_channel
 msgid "Discussion Channel"
 msgstr "메일 및 채팅 채널"
@@ -102,6 +107,7 @@ msgstr "메일 및 채팅 채널"
 #: model:ir.model.fields,field_description:website_livechat.field_chatbot_script__display_name
 #: model:ir.model.fields,field_description:website_livechat.field_chatbot_script_step__display_name
 #: model:ir.model.fields,field_description:website_livechat.field_discuss_channel__display_name
+#: model:ir.model.fields,field_description:website_livechat.field_discuss_channel_member__display_name
 #: model:ir.model.fields,field_description:website_livechat.field_im_livechat_channel__display_name
 #: model:ir.model.fields,field_description:website_livechat.field_ir_http__display_name
 #: model:ir.model.fields,field_description:website_livechat.field_res_config_settings__display_name
@@ -120,6 +126,7 @@ msgstr "HTTP 라우팅"
 #: model:ir.model.fields,field_description:website_livechat.field_chatbot_script__id
 #: model:ir.model.fields,field_description:website_livechat.field_chatbot_script_step__id
 #: model:ir.model.fields,field_description:website_livechat.field_discuss_channel__id
+#: model:ir.model.fields,field_description:website_livechat.field_discuss_channel_member__id
 #: model:ir.model.fields,field_description:website_livechat.field_im_livechat_channel__id
 #: model:ir.model.fields,field_description:website_livechat.field_ir_http__id
 #: model:ir.model.fields,field_description:website_livechat.field_res_config_settings__id
@@ -133,6 +140,14 @@ msgstr "ID"
 #: model_terms:ir.ui.view,arch_db:website_livechat.website_visitor_view_search
 msgid "In Conversation"
 msgstr "대화 중"
+
+#. module: website_livechat
+#. odoo-python
+#: code:addons/website_livechat/models/discuss_channel.py:0
+msgid ""
+"Live chat conversation closed automatically: the visitor started a new "
+"conversation with another agent."
+msgstr ""
 
 #. module: website_livechat
 #: model:ir.model,name:website_livechat.model_im_livechat_channel
@@ -157,24 +172,19 @@ msgid "Operator Avatar"
 msgstr "운영자 아바타"
 
 #. module: website_livechat
-#: model:ir.model.fields,field_description:website_livechat.field_website_visitor__livechat_operator_name
-msgid "Operator Name"
-msgstr "운영자 이름"
-
-#. module: website_livechat
 #: model:ir.model,name:website_livechat.model_website_page
 msgid "Page"
 msgstr "페이지"
 
 #. module: website_livechat
 #. odoo-javascript
-#: code:addons/website_livechat/static/src/web/livechat_channel_info_list_patch.xml:0
+#: code:addons/website_livechat/static/src/core/web/livechat_channel_info_list_patch.xml:0
 msgid "Recent conversations"
 msgstr "최근 대화"
 
 #. module: website_livechat
 #. odoo-javascript
-#: code:addons/website_livechat/static/src/web/livechat_channel_info_list_patch.xml:0
+#: code:addons/website_livechat/static/src/core/web/livechat_channel_info_list_patch.xml:0
 msgid "Recent page views"
 msgstr "최근 페이지 조회수"
 
@@ -203,7 +213,7 @@ msgid "Speaking With"
 msgstr "다음 상태와 대화하기"
 
 #. module: website_livechat
-#: model:ir.model.fields,field_description:website_livechat.field_website_visitor__livechat_operator_id
+#: model:ir.model.fields,field_description:website_livechat.field_website_visitor__current_livechat_agent_ids
 msgid "Speaking with"
 msgstr "다음 상태와 대화하기"
 
@@ -214,9 +224,9 @@ msgstr "테스트"
 
 #. module: website_livechat
 #. odoo-python
-#: code:addons/website_livechat/models/discuss_channel.py:0
-msgid "The visitor"
-msgstr "방문자"
+#: code:addons/website_livechat/controllers/chatbot.py:0
+msgid "Test %s"
+msgstr ""
 
 #. module: website_livechat
 #: model:ir.model.fields,field_description:website_livechat.field_discuss_channel__livechat_visitor_id
@@ -259,7 +269,7 @@ msgstr "방문자"
 
 #. module: website_livechat
 #. odoo-javascript
-#: code:addons/website_livechat/static/src/web/livechat_channel_info_list_patch.xml:0
+#: code:addons/website_livechat/static/src/core/web/livechat_channel_info_list_patch.xml:0
 #: model:ir.model,name:website_livechat.model_website
 msgid "Website"
 msgstr "웹사이트"
@@ -268,6 +278,11 @@ msgstr "웹사이트"
 #: model:ir.model.fields,field_description:website_livechat.field_res_config_settings__channel_id
 msgid "Website Live Channel"
 msgstr "웹 사이트 실시간 채널"
+
+#. module: website_livechat
+#: model:ir.module.module,shortdesc:base.module_website_livechat
+msgid "Website Live Chat"
+msgstr ""
 
 #. module: website_livechat
 #: model:ir.model.fields,field_description:website_livechat.field_website__channel_id
@@ -289,99 +304,3 @@ msgid ""
 msgstr ""
 "운영자가 채널을 생성한 경우, 해당 채널이 방문자 측에서 아직 열리지 않는지 여"
 "부입니다."
-
-#. module: website_livechat
-#. odoo-python
-#: code:addons/website_livechat/models/discuss_channel.py:0
-msgid "an operator"
-msgstr "운영자"
-
-#~ msgid "Country"
-#~ msgstr "국가"
-
-#~ msgid "Country & Language"
-#~ msgstr "국가 및 언어"
-
-#~ msgid "Language"
-#~ msgstr "언어"
-
-#~ msgid "<span>Livechat Channel</span>"
-#~ msgstr "<span>실시간 채팅 채널</span>"
-
-#~ msgid "Avatar"
-#~ msgstr "아바타"
-
-#~ msgid "Bad"
-#~ msgstr "나쁨"
-
-#~ msgid "Can Publish"
-#~ msgstr "게시 가능"
-
-#~ msgid "Description of the channel displayed on the website page"
-#~ msgstr "웹사이트 페이지에 표시된 채널에 대한 설명"
-
-#~ msgid "Great"
-#~ msgstr "훌륭함"
-
-#~ msgid "Happy face"
-#~ msgstr "행복한 표정"
-
-#~ msgid "History"
-#~ msgstr "기록"
-
-#~ msgid "Is Published"
-#~ msgstr "게시 여부"
-
-#~ msgid "Lang"
-#~ msgstr "언어"
-
-#~ msgid "Live Support"
-#~ msgstr "실시간 지원"
-
-#~ msgid "Livechat Support Channels"
-#~ msgstr "실시간 채팅 지원 채널"
-
-#~ msgid "Neutral face"
-#~ msgstr "중립적인 얼굴"
-
-#~ msgid "Not rated yet"
-#~ msgstr "아직 평가되지 않음"
-
-#~ msgid "Okay"
-#~ msgstr "괜찮아요"
-
-#~ msgid "Sad face"
-#~ msgstr "슬픈 표정"
-
-#~ msgid "Statistics"
-#~ msgstr "통계"
-
-#~ msgid "The"
-#~ msgstr "The"
-
-#~ msgid "The Team"
-#~ msgstr "팀"
-
-#~ msgid "The full URL to access the document through the website."
-#~ msgstr "웹사이트를 통해 문서에 접근 하는 전체 URL입니다."
-
-#~ msgid "There are no public livechat channels to show."
-#~ msgstr "공개된 실시간 채팅 채널이 없습니다."
-
-#~ msgid "There are no ratings for this channel for now."
-#~ msgstr "현재 이 채널에 대한 평가가 없습니다."
-
-#~ msgid "Visible on current website"
-#~ msgstr "현재 웹 사이트에 공개"
-
-#~ msgid "Visitor #%s"
-#~ msgstr "방문자 #%s"
-
-#~ msgid "Website URL"
-#~ msgstr "웹 사이트 URL"
-
-#~ msgid "Website description"
-#~ msgstr "웹 사이트 설명"
-
-#~ msgid "last feedbacks"
-#~ msgstr "최근 피드백"

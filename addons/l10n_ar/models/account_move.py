@@ -2,7 +2,7 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, RedirectWarning, ValidationError
 from odoo.fields import Domain
-from odoo.tools import float_round, formatLang
+from odoo.tools import SQL, float_round, formatLang
 from dateutil.relativedelta import relativedelta
 import logging
 _logger = logging.getLogger(__name__)
@@ -66,9 +66,14 @@ class AccountMove(models.Model):
         docs_used_for_inv_and_ref = self.filtered(
             lambda x: x.country_code == 'AR' and
             x.l10n_latam_document_type_id.code in self._get_l10n_ar_codes_used_for_inv_and_ref() and
-            x.move_type in ['out_refund', 'in_refund'])
+            x.is_refund())
 
         super(AccountMove, self - docs_used_for_inv_and_ref)._check_invoice_type_document_type()
+
+    @api.depends('journal_id.l10n_ar_is_pos', 'journal_id.l10n_ar_afip_pos_system')
+    def _compute_alerts(self):
+        # EXTENDS 'account'
+        super()._compute_alerts()
 
     def _get_afip_invoice_concepts(self):
         """ Return the list of values of the selection field. """
@@ -113,6 +118,12 @@ class AccountMove(models.Model):
         document 61 could not be used as refunds. """
         return ['99', '186', '188', '189', '60']
 
+    def _l10n_ar_is_refund_invoice(self):
+        """ This method is used to check if the document type is in the list of document types that can be used as
+        an invoice and refund and if the move type is 'in_refund' or 'out_refund'. """
+        return self.l10n_latam_document_type_id.code in self._get_l10n_ar_codes_used_for_inv_and_ref() \
+            and self.move_type in ['in_refund', 'out_refund']
+
     def _get_l10n_latam_documents_domain(self):
         self.ensure_one()
         domain = super()._get_l10n_latam_documents_domain()
@@ -121,7 +132,7 @@ class AccountMove(models.Model):
             domain = Domain(domain)
             domain &= Domain('l10n_ar_letter', '=', False) | Domain('l10n_ar_letter', 'in', letters)
             domain &= Domain(self.journal_id._get_journal_codes_domain())
-            if self.move_type in ['out_refund', 'in_refund']:
+            if self.is_refund():
                 domain = Domain('code', 'in', self._get_l10n_ar_codes_used_for_inv_and_ref()) | domain
         return domain
 
@@ -182,7 +193,6 @@ class AccountMove(models.Model):
             if res_code in ['8', '9', '10'] and rec.journal_id.l10n_ar_afip_pos_system not in expo_journals:
                 # if it is a foreign partner and journal is not for expo, we try to change it to an expo journal
                 journal = journal.search(domain + [('l10n_ar_afip_pos_system', 'in', expo_journals)], limit=1)
-                msg = _('You are trying to create an invoice for foreign partner but you don\'t have an exportation journal')
             elif res_code not in ['8', '9', '10'] and rec.journal_id.l10n_ar_afip_pos_system in expo_journals:
                 # if it is NOT a foreign partner and journal is for expo, we try to change it to a local journal
                 journal = journal.search(domain + [('l10n_ar_afip_pos_system', 'not in', expo_journals)], limit=1)
@@ -256,6 +266,21 @@ class AccountMove(models.Model):
                     raise UserError(_('The document number can not be changed for this journal, you can only modify'
                                       ' the POS number if there is not posted (or posted before) invoices'))
 
+    def _get_alerts(self):
+        # EXTENDS 'account'
+        alerts = super()._get_alerts()
+        journal = self.journal_id
+        if journal.l10n_ar_is_pos and journal.l10n_ar_afip_pos_system == 'II_IM':
+            alerts['l10n_ar_apos_sys_preprinted_warning'] = {
+                'level': 'warning',
+                'message': _(
+                    'Headers and footers are omitted from the printed PDF for Pre-Printed Journals. '
+                    'If you need them included on the PDF, please select an Online (not sent to ARCA) '
+                    'or Electronic Invoice (sent to ARCA) journal instead.'
+                )
+            }
+        return alerts
+
     def _get_formatted_sequence(self, number=0):
         return "%s %05d-%08d" % (self.l10n_latam_document_type_id.doc_code_prefix,
                                  self.journal_id.l10n_ar_afip_pos_number, number)
@@ -269,11 +294,10 @@ class AccountMove(models.Model):
         return super()._get_starting_sequence()
 
     def _get_last_sequence_domain(self, relaxed=False):
-        where_string, param = super(AccountMove, self)._get_last_sequence_domain(relaxed)
+        condition = super()._get_last_sequence_domain(relaxed)
         if self.company_id.account_fiscal_country_id.code == "AR" and self.l10n_latam_use_documents:
-            where_string += " AND l10n_latam_document_type_id = %(l10n_latam_document_type_id)s"
-            param['l10n_latam_document_type_id'] = self.l10n_latam_document_type_id.id or 0
-        return where_string, param
+            condition = SQL("%s AND l10n_latam_document_type_id = %s", condition, self.l10n_latam_document_type_id.id or 0)
+        return condition
 
     def _l10n_ar_get_amounts(self, base_lines=None):
         """ Method used to prepare data to present amounts and taxes related amounts when creating an
@@ -412,15 +436,17 @@ class AccountMove(models.Model):
         vat_afip_code_aggregated_tax_details = self.env['account.tax']._aggregate_base_lines_aggregated_values(vat_afip_code_base_lines_aggregated_values)
         amount_sign = 1
 
-        if self.move_type in ('out_refund', 'in_refund') and self.l10n_latam_document_type_id.code in self._get_l10n_ar_codes_used_for_inv_and_ref():
+        if self.is_refund() and self.l10n_latam_document_type_id.code in self._get_l10n_ar_codes_used_for_inv_and_ref():
             amount_sign = -1
 
         for grouping_key, values in vat_afip_code_aggregated_tax_details.items():
-            if grouping_key['vat_afip_code'] not in (False, '0', '1', '2') and (values['base_amount_currency'] or values['tax_amount_currency']):
+            base_imp = float_round(amount_sign * values['base_amount_currency'], precision_digits=2)
+            importe = float_round(amount_sign * values['tax_amount_currency'], precision_digits=2)
+            if grouping_key['vat_afip_code'] not in (False, '0', '1', '2') and (base_imp or importe):
                 res.append({
                     'Id': grouping_key['vat_afip_code'],
-                    'BaseImp': float_round(amount_sign * values['base_amount_currency'], precision_digits=2),
-                    'Importe': float_round(amount_sign * values['tax_amount_currency'], precision_digits=2),
+                    'BaseImp': base_imp,
+                    'Importe': importe,
                 })
                 if grouping_key['vat_afip_code'] == '3':
                     res[-1]['Importe'] = 0.0
@@ -433,10 +459,35 @@ class AccountMove(models.Model):
             return 'l10n_ar.report_invoice_document'
         return super()._get_name_invoice_report()
 
+    def _apply_refund_adjustments(self, tax_totals):
+        """Helper method to adjust tax totals for refund invoices that share the same AFIP codes as the invoice
+        it is reversing."""
+        for suffix in ('', '_currency'):
+            for prefix in ('base', 'tax', 'total'):
+                field = f'{prefix}_amount{suffix}'
+                if tax_totals[field]:
+                    tax_totals[field] *= -1
+            for subtotal in tax_totals['subtotals']:
+                for prefix in ('base', 'tax'):
+                    field = f'{prefix}_amount{suffix}'
+                    if subtotal[field]:
+                        subtotal[field] *= -1
+                for tax_group in subtotal['tax_groups']:
+                    for prefix in ('display_base', 'base', 'tax'):
+                        field = f'{prefix}_amount{suffix}'
+                        if tax_group[field]:
+                            tax_group[field] *= -1
+
     def _l10n_ar_get_invoice_totals_for_report(self):
-        """If the invoice document type indicates that vat should not be detailed in the printed report (result of _l10n_ar_include_vat()) then we overwrite tax_totals field so that includes taxes in the total amount, otherwise it would be showing amount_untaxed in the amount_total"""
+        """If the invoice document type indicates that vat should not be detailed in the printed report (result of
+        _l10n_ar_include_vat()) then we overwrite tax_totals field so that includes taxes in the total amount, otherwise
+         it would be showing amount_untaxed in the amount_total.
+         Also, if the invoice is a refund and share the same ARCA code as the invoice it is reversing, we apply
+         adjustments to the tax totals to reflect the amounts in negative."""
         self.ensure_one()
         tax_totals = self.tax_totals
+        if self._l10n_ar_is_refund_invoice():
+            self._apply_refund_adjustments(tax_totals)
         include_vat = self._l10n_ar_include_vat()
         if not include_vat:
             return tax_totals
@@ -451,14 +502,16 @@ class AccountMove(models.Model):
             .filtered(lambda tax_group: (
                 self._l10n_ar_is_tax_group_other_national_ind_tax(tax_group)
                 or self._l10n_ar_is_tax_group_vat(tax_group)
+                or (self._l10n_ar_is_transparency_document() and self._l10n_ar_is_tax_group_iibb_perception(tax_group))
             )).ids
         if tax_group_ids_to_exclude:
             tax_totals = self.env['account.tax']._exclude_tax_groups_from_tax_totals_summary(tax_totals, tax_group_ids_to_exclude)
+
         return tax_totals
 
     def _l10n_ar_get_invoice_custom_tax_summary_for_report(self):
         """ Get a new tax details for RG 5614/2024 to show ARCA VAT and Other National Internal Taxes. """
-        if self.l10n_latam_document_type_id.code not in ('6', '7', '8'):
+        if not self._l10n_ar_is_transparency_document():
             return []
 
         base_lines, _tax_lines = self._get_rounded_base_and_tax_lines()
@@ -473,6 +526,8 @@ class AccountMove(models.Model):
                 name = _("Other National Ind. Taxes %s", base_line['currency_id'].symbol)
             elif self._l10n_ar_is_tax_group_vat(tax_group):
                 name = _("VAT Content %s", base_line['currency_id'].symbol)
+            elif self._l10n_ar_is_tax_group_iibb_perception(tax_group):
+                name = tax_data['tax'].invoice_label or tax_data['tax'].name
             else:
                 skip = True
             return {
@@ -500,6 +555,10 @@ class AccountMove(models.Model):
         self.ensure_one()
         return self.l10n_latam_document_type_id.l10n_ar_letter in ['B', 'C', 'X', 'R']
 
+    def _l10n_ar_is_transparency_document(self):
+        self.ensure_one()
+        return self.l10n_latam_document_type_id.code in ('6', '7', '8')
+
     @api.model
     def _l10n_ar_is_tax_group_other_national_ind_tax(self, tax_group):
         return tax_group.l10n_ar_tribute_afip_code in ('01', '04')
@@ -507,3 +566,7 @@ class AccountMove(models.Model):
     @api.model
     def _l10n_ar_is_tax_group_vat(self, tax_group):
         return bool(tax_group.l10n_ar_vat_afip_code)
+
+    @api.model
+    def _l10n_ar_is_tax_group_iibb_perception(self, tax_group):
+        return tax_group.l10n_ar_tribute_afip_code == '07'

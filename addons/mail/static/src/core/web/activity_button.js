@@ -1,28 +1,33 @@
+import { useEnv } from "@web/owl2/utils";
 import { ActivityListPopover } from "@mail/core/web/activity_list_popover";
 
-import { Component, useEnv, useRef } from "@odoo/owl";
+import { Component, signal, types, useProps } from "@odoo/owl";
 
 import { _t } from "@web/core/l10n/translation";
 import { usePopover } from "@web/core/popover/popover_hook";
+import { Record } from "@web/model/relational_model/record";
 
 export class ActivityButton extends Component {
-    static props = {
-        record: { type: Object },
-    };
     static template = "mail.ActivityButton";
+
+    buttonRef = signal.ref();
 
     setup() {
         super.setup();
+        this.props = useProps({ record: types.instanceOf(Record) });
         this.popover = usePopover(ActivityListPopover, { position: "bottom-start" });
-        this.buttonRef = useRef("button");
         this.env = useEnv();
         this.defaultActivityStateClass = "text-muted";
-        this.defaultActivityDecorationClass = "fa-clock-o btn-link text-dark";
+        this.defaultActivityDecorationClass = "btn-link text-dark";
     }
 
     get buttonClass() {
         const classes = [];
-        switch (this.props.record.data.activity_state) {
+        const { activity_ids, activity_state, activity_exception_decoration } = this.props.record.data;
+        if (activity_ids.records.length) {
+            classes.push("oi-filled");
+        }
+        switch (activity_state) {
             case "overdue":
                 classes.push("text-danger");
                 break;
@@ -38,26 +43,30 @@ export class ActivityButton extends Component {
                 }
                 break;
         }
-        switch (this.props.record.data.activity_exception_decoration) {
+        switch (activity_exception_decoration) {
             case "warning":
                 classes.push("text-warning");
-                classes.push(this.props.record.data.activity_exception_icon);
                 break;
             case "danger":
                 classes.push("text-danger");
-                classes.push(this.props.record.data.activity_exception_icon);
                 break;
             default: {
-                const { activity_ids, activity_type_icon } = this.props.record.data;
-                if (activity_ids.records.length) {
-                    classes.push(activity_type_icon || "fa-tasks");
-                    break;
+                if (!activity_ids.records.length) {
+                    classes.push(this.defaultActivityDecorationClass);
                 }
-                classes.push(this.defaultActivityDecorationClass);
                 break;
             }
         }
         return classes.join(" ");
+    }
+
+    get buttonIcon() {
+        const { activity_ids, activity_type_icon } = this.props.record.data;
+        if (activity_ids.records.length) {
+            return activity_type_icon || "checklist";
+        } else {
+            return "schedule";
+        }
     }
 
     get title() {
@@ -83,7 +92,7 @@ export class ActivityButton extends Component {
             // If the current record is not selected, ignore the selection
             const resIds =
                 selectedIds.includes(resId) && selectedIds.length > 1 ? selectedIds : undefined;
-            this.popover.open(this.buttonRef.el, {
+            this.popover.open(this.buttonRef(), {
                 activityIds: this.props.record.data.activity_ids.currentIds,
                 onActivityChanged: (thread) => {
                     const recordToLoad = resIds ? selectedRecords : [this.props.record];

@@ -13,29 +13,36 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-05-30 09:34+0000\n"
+"POT-Creation-Date: 2026-09-11 17:42+0000\n"
+"PO-Revision-Date: 2026-09-09 13:52+0000\n"
 "Last-Translator: \"Larissa Manderfeld (lman)\" <lman@odoo.com>\n"
-"Language-Team: German <https://translate.odoo.com/projects/odoo-19/analytic/"
-"de/>\n"
+"Language-Team: German <https://translate.odoo.com/projects/odoo-master/"
+"analytic/de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: analytic
-#. odoo-python
-#: code:addons/analytic/models/analytic_account.py:0
-msgid "%s (copy)"
-msgstr "%s (Kopie)"
+#: model:ir.module.module,description:base.module_analytic
+msgid ""
+"\n"
+"Module for defining analytic accounting object.\n"
+"===============================================\n"
+"\n"
+"In Odoo, analytic accounts are linked to general accounts but are treated\n"
+"totally independently. So, you can enter various different analytic "
+"operations\n"
+"that have no counterpart in the general financial accounts.\n"
+msgstr ""
 
 #. module: analytic
 #. odoo-python
 #: code:addons/analytic/models/analytic_line.py:0
 msgid "%s analytic lines created"
-msgstr "%s Kostenstellenbuchungen erstellt"
+msgstr "%s Kostenstellenzeilen erstellt"
 
 #. module: analytic
 #: model_terms:ir.ui.view,arch_db:analytic.account_analytic_plan_form_view
@@ -58,6 +65,11 @@ msgstr ""
 "Systemvariablen als `analytic.project_plan` festgelegt sein"
 
 #. module: analytic
+#: model:ir.model,name:analytic.model_res_groups
+msgid "Access Groups"
+msgstr ""
+
+#. module: analytic
 #. odoo-javascript
 #: code:addons/analytic/static/src/components/analytic_distribution/analytic_distribution.js:0
 msgid "Account field"
@@ -66,7 +78,7 @@ msgstr "Kontenfeld"
 #. module: analytic
 #: model:ir.model.fields,field_description:analytic.field_account_analytic_plan__account_ids
 msgid "Accounts"
-msgstr "Kostenstellen"
+msgstr "Konten"
 
 #. module: analytic
 #: model:account.analytic.account,name:analytic.analytic_agrolait
@@ -98,7 +110,7 @@ msgstr "Zeile hinzufügen"
 #: model_terms:ir.actions.act_window,help:analytic.action_account_analytic_account_form
 #: model_terms:ir.actions.act_window,help:analytic.action_analytic_account_form
 msgid "Add a new analytic account"
-msgstr "Eine neue Kostenstelle hinzufügen"
+msgstr "Neue Kostenstelle hinzufügen"
 
 #. module: analytic
 #: model:account.analytic.account,name:analytic.analytic_administratif
@@ -140,6 +152,7 @@ msgstr "Kostenstelle"
 
 #. module: analytic
 #: model:ir.model.fields,field_description:analytic.field_res_config_settings__group_analytic_accounting
+#: model:ir.module.module,shortdesc:base.module_analytic
 #: model:res.groups,name:analytic.group_analytic_accounting
 msgid "Analytic Accounting"
 msgstr "Kostenrechnung"
@@ -202,9 +215,10 @@ msgstr "Kostenstellenbuchungen"
 #. module: analytic
 #: model:ir.model,name:analytic.model_analytic_mixin
 msgid "Analytic Mixin"
-msgstr "Kostenrechnung Mixin"
+msgstr "Mixin für Kostenrechnung"
 
 #. module: analytic
+#: model:ir.model,name:analytic.model_account_analytic_plan
 #: model:ir.model.fields,field_description:analytic.field_account_analytic_applicability__analytic_plan_id
 msgid "Analytic Plan"
 msgstr "Kostenstellenplan"
@@ -221,7 +235,6 @@ msgstr "Anwendbarkeit des Kostenstellenplans"
 
 #. module: analytic
 #: model:ir.actions.act_window,name:analytic.account_analytic_plan_action
-#: model:ir.model,name:analytic.model_account_analytic_plan
 #: model_terms:ir.ui.view,arch_db:analytic.account_analytic_plan_form_view
 #: model_terms:ir.ui.view,arch_db:analytic.account_analytic_plan_tree_view
 msgid "Analytic Plans"
@@ -295,7 +308,7 @@ msgstr "Saldo:"
 #. odoo-javascript
 #: code:addons/analytic/static/src/components/analytic_distribution/analytic_distribution.js:0
 msgid "Business domain"
-msgstr "Geschäftsbereich"
+msgstr "Geschäftsdomain"
 
 #. module: analytic
 #: model:account.analytic.account,name:analytic.analytic_partners_camp_to_camp
@@ -480,6 +493,7 @@ msgstr "Speicherung deaktivieren"
 #: model:ir.model.fields,field_description:analytic.field_analytic_plan_fields_mixin__display_name
 #: model:ir.model.fields,field_description:analytic.field_ir_config_parameter__display_name
 #: model:ir.model.fields,field_description:analytic.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:analytic.field_res_groups__display_name
 msgid "Display Name"
 msgstr "Anzeigename"
 
@@ -540,7 +554,7 @@ msgstr "Bruttomarge"
 #. module: analytic
 #: model:ir.model.fields,field_description:analytic.field_account_analytic_account__has_message
 msgid "Has Message"
-msgstr "Hat eine Nachricht"
+msgstr "Hat Nachricht"
 
 #. module: analytic
 #: model:account.analytic.account,name:analytic.analytic_rd_hr
@@ -557,6 +571,7 @@ msgstr "Personalwesen"
 #: model:ir.model.fields,field_description:analytic.field_analytic_plan_fields_mixin__id
 #: model:ir.model.fields,field_description:analytic.field_ir_config_parameter__id
 #: model:ir.model.fields,field_description:analytic.field_res_config_settings__id
+#: model:ir.model.fields,field_description:analytic.field_res_groups__id
 msgid "ID"
 msgstr "ID"
 
@@ -650,7 +665,7 @@ msgstr "Millennium Industries"
 #. module: analytic
 #: model:ir.model.fields.selection,name:analytic.selection__account_analytic_applicability__business_domain__general
 msgid "Miscellaneous"
-msgstr "Sonstige"
+msgstr "Sonstiges"
 
 #. module: analytic
 #. odoo-javascript
@@ -683,7 +698,7 @@ msgstr "Noch keine Aktivität"
 #. module: analytic
 #: model_terms:ir.actions.act_window,help:analytic.account_analytic_line_action
 msgid "No activity yet on this account"
-msgstr "Noch keine Aktivität für dieses Konto"
+msgstr "Noch keine Aktivität auf diesem Konto"
 
 #. module: analytic
 #. odoo-javascript
@@ -694,7 +709,7 @@ msgstr "Keine Kostenstellenpläne gefunden"
 #. module: analytic
 #: model:ir.model.fields,field_description:analytic.field_account_analytic_account__message_needaction_counter
 msgid "Number of Actions"
-msgstr "Anzahl Aktionen"
+msgstr "Anzahl der Aktionen"
 
 #. module: analytic
 #: model:ir.model.fields,field_description:analytic.field_account_analytic_account__message_has_error_counter
@@ -709,7 +724,7 @@ msgstr "Anzahl der Nachrichten, die eine Aktion erfordern"
 #. module: analytic
 #: model:ir.model.fields,help:analytic.field_account_analytic_account__message_has_error_counter
 msgid "Number of messages with delivery error"
-msgstr "Anzahl Nachrichten mit Zustellungsfehler"
+msgstr "Anzahl der Nachrichten mit Zustellungsfehler."
 
 #. module: analytic
 #. odoo-python
@@ -790,15 +805,15 @@ msgid "Production"
 msgstr "Produktion"
 
 #. module: analytic
-#: model:account.analytic.plan,name:analytic.analytic_plan_projects
-msgid "Project"
-msgstr "Projekt"
-
-#. module: analytic
 #: model:ir.model.fields,field_description:analytic.field_account_analytic_line__account_id
 #: model:ir.model.fields,field_description:analytic.field_analytic_plan_fields_mixin__account_id
 msgid "Project Account"
 msgstr "Projektkonto"
+
+#. module: analytic
+#: model:account.analytic.plan,name:analytic.analytic_plan_projects
+msgid "Project Plan"
+msgstr "Projektplan"
 
 #. module: analytic
 #: model:ir.model.fields,field_description:analytic.field_account_analytic_line__unit_amount
@@ -830,8 +845,8 @@ msgstr ""
 "Umsätze werden automatisch erstellt, wenn Sie Kundenrechnungen\n"
 "generieren. Kundenrechnungen können auf der Grundlage von Verkaufsaufträgen "
 "erstellt werden\n"
-"(Festpreisrechnungen), auf Zeiterfassungen "
-"(basierend auf der geleisteten Arbeit) oder\n"
+"(Festpreisrechnungen), auf Zeiterfassungen (basierend auf der geleisteten "
+"Arbeit) oder\n"
 "auf Spesen (z. B. Weiterberechnung von Reisekosten)."
 
 #. module: analytic
@@ -848,7 +863,7 @@ msgstr "Stammplan"
 #. odoo-javascript
 #: code:addons/analytic/static/src/components/analytic_distribution/analytic_distribution.xml:0
 msgid "Save as new analytic distribution model"
-msgstr "Als neuen Verteilungsschlüssel für Kostenstellen speichern"
+msgstr "Als Verteilungsschlüssel für Kostenstellen speichern"
 
 #. module: analytic
 #: model:account.analytic.account,name:analytic.analytic_seagate_p2
@@ -873,10 +888,10 @@ msgid ""
 "create new customer invoice or Sales order if we select this company, it "
 "will automatically take this as an analytic account)"
 msgstr ""
-"Wählen Sie ein Unternehmen aus, für das diese Kostenstellenverteilung "
-"genutzt werden soll (z. B. bei der Erstellung einer neuen Kundenrechnung "
-"oder einem neuen Verkaufsauftrag soll dann diese Kostenstelle automatisch "
-"eingetragen werden, wenn dieses Unternehmen ausgewählt wird)."
+"Wählen Sie ein Unternehmen, für das diese Kostenstellenverteilung genutzt "
+"werden soll (z. B. bei der Erstellung einer neuen Kundenrechnung oder einem "
+"neuen Verkaufsauftrag soll dann diese Kostenstelle automatisch eingetragen "
+"werden, wenn dieses Unternehmen ausgewählt wird)."
 
 #. module: analytic
 #: model:ir.model.fields,help:analytic.field_account_analytic_distribution_model__partner_category_id
@@ -990,16 +1005,16 @@ msgid ""
 "You can't change the company of an analytic account that already has "
 "analytic items! It's a recipe for an analytical disaster!"
 msgstr ""
-"Sie können das Unternehmen einer Kostenstelle, die bereits "
-"Kostenstellenbuchungen enthält, nicht ändern. Dies würde zu einer "
-"Katastrophe führen!"
+"Sie können das Unternehmen einer Kostenstellen, das bereits "
+"Kostenstellenbuchungn enthält, nicht ändern. Dies würde zu einer Katastrophe "
+"führen."
 
 #. module: analytic
 #. odoo-python
 #: code:addons/analytic/models/analytic_plan.py:0
 msgid "You cannot add a parent to the base plan '%s'"
 msgstr ""
-"Sie können keine übergeordnete Kostenstelle zum Basisplan „%s“ hinzufügen"
+"Sie können keine übergeordnete Kostenstelle zum Basisplan „%s“ hinzufügen."
 
 #. module: analytic
 #. odoo-python
@@ -1016,70 +1031,3 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:analytic.view_account_analytic_account_form
 msgid "e.g. Project XYZ"
 msgstr "z. B. Projekt XYZ"
-
-#~ msgid "Deco Addict"
-#~ msgstr "Deco Addict"
-
-#~ msgid "(no accounts)"
-#~ msgstr "(keine Konten)"
-
-#~ msgid "Add a line"
-#~ msgstr "Eintrag hinzufügen"
-
-#~ msgid "Analytic Distribution Template"
-#~ msgstr "Vorlage für Kostenverteilung"
-
-#~ msgid ""
-#~ "Conversion between Units of Measure can only occur if they belong to the "
-#~ "same category. The conversion will be made based on the ratios."
-#~ msgstr ""
-#~ "Die Umrechnung zwischen Mengeneinheiten kann nur erfolgen, wenn sie "
-#~ "derselben Kategorie angehören. Die Umrechnung erfolgt auf Basis der "
-#~ "Kennzahlen."
-
-#~ msgid "Editing"
-#~ msgstr "In Bearbeitung"
-
-#~ msgid "Group By..."
-#~ msgstr "Gruppieren nach ..."
-
-#~ msgid "Invalid"
-#~ msgstr "Ungültig"
-
-#~ msgid "Loading..."
-#~ msgstr "Lädt…"
-
-#~ msgid "No Analytic Accounts for this plan"
-#~ msgstr "Keine Kostenstellen für diesen Plan"
-
-#~ msgid "No plans available"
-#~ msgstr "Keine Pläne verfügbar"
-
-#~ msgid "Number of messages which requires an action"
-#~ msgstr "Anzahl der Nachrichten, die eine Aktion erfordern"
-
-#~ msgid "OK"
-#~ msgstr "OK"
-
-#~ msgid ""
-#~ "The selected account belongs to another company than the one you're "
-#~ "trying to create an analytic item for"
-#~ msgstr ""
-#~ "Das ausgewählte Konto gehört zu einem anderen Unternehmen als dem, für "
-#~ "das Sie ein Analyseelement erstellen möchten"
-
-#~ msgid "Unit of Measure"
-#~ msgstr "Mengeneinheit"
-
-#~ msgid "UoM Category"
-#~ msgstr "Maßeinheit Kategorie"
-
-#~ msgid "View"
-#~ msgstr "Ansicht"
-
-#~ msgid ""
-#~ "You can't set a different company on your analytic account since there "
-#~ "are some analytic items linked to it."
-#~ msgstr ""
-#~ "Sie können in Ihrer Kostenstelle kein anderes Unternehmen einstellen, da "
-#~ "einige Kostenbuchungen damit verknüpft sind."

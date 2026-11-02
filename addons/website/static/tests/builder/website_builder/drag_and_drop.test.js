@@ -1,9 +1,10 @@
-import { expect, test } from "@odoo/hoot";
+import { animationFrame, expect, test } from "@odoo/hoot";
 import { contains } from "@web/../tests/web_test_helpers";
 import {
     defineWebsiteModels,
     setupWebsiteBuilder,
     setupWebsiteBuilderWithSnippet,
+    toggleMobilePreview,
 } from "@website/../tests/builder/website_helpers";
 import {
     dummyBase64Img,
@@ -18,7 +19,7 @@ test("Drag and drop a section and then undo", async () => {
     await setupWebsiteBuilderWithSnippet(["s_text_image", "s_three_columns"]);
     await contains(":iframe section.s_text_image").click();
     expect(".overlay .o_overlay_options .o_move_handle.o_draggable").toHaveCount(1);
-    expect(".o-website-builder_sidebar .fa-undo").not.toBeEnabled();
+    expect(".o-website-builder_sidebar [data-icon='undo']").not.toBeEnabled();
 
     const { moveTo, drop } = await contains(".o_overlay_options .o_move_handle").drag();
     expect(":iframe .oe_drop_zone").toHaveCount(2);
@@ -33,17 +34,17 @@ test("Drag and drop a section and then undo", async () => {
     expect(":iframe .oe_drop_zone").toHaveCount(0);
     expect(":iframe section.s_text_image:nth-child(2)").toHaveCount(1);
     await waitForEndOfOperation();
-    expect(".o-website-builder_sidebar .fa-undo").toBeEnabled();
+    expect(".o-website-builder_sidebar [data-icon='undo']").toBeEnabled();
 
-    await contains(".o-website-builder_sidebar .fa-undo").click();
+    await contains(".o-website-builder_sidebar [data-icon='undo']").click();
     expect(":iframe section.s_text_image:nth-child(1)").toHaveCount(1);
 });
 
-test("Drag and drop at the same position should not add a step in the history", async () => {
+test("Drag and drop at the same position should not add a commit in the history", async () => {
     await setupWebsiteBuilderWithSnippet(["s_text_image", "s_three_columns"]);
     await contains(":iframe section.s_text_image").click();
     expect(".overlay .o_overlay_options .o_move_handle.o_draggable").toHaveCount(1);
-    expect(".o-website-builder_sidebar .fa-undo").not.toBeEnabled();
+    expect(".o-website-builder_sidebar [data-icon='undo']").not.toBeEnabled();
 
     const { moveTo, drop } = await contains(".o_overlay_options .o_move_handle").drag();
     expect(":iframe .oe_drop_zone").toHaveCount(2);
@@ -60,7 +61,22 @@ test("Drag and drop at the same position should not add a step in the history", 
     expect(":iframe .oe_drop_zone").toHaveCount(0);
     expect(":iframe section.s_text_image:nth-child(1)").toHaveCount(1);
     await waitForEndOfOperation();
-    expect(".o-website-builder_sidebar .fa-undo").not.toBeEnabled();
+    expect(".o-website-builder_sidebar [data-icon='undo']").not.toBeEnabled();
+});
+
+test("Drag and drop at the same place a section with connection shape", async () => {
+    await setupWebsiteBuilderWithSnippet("s_banner_connected");
+
+    await contains(":iframe .s_banner_connected").click();
+    expect(".overlay .o_overlay_options .o_move_handle.o_draggable").toHaveCount(1);
+
+    const { moveTo, drop } = await contains(".o_overlay_options .o_move_handle").drag();
+    expect(":iframe .oe_drop_zone").toHaveCount(1);
+    await moveTo(":iframe .oe_drop_zone");
+    await drop(getDragMoveHelper());
+    expect(":iframe .oe_drop_zone").toHaveCount(0);
+    await waitForEndOfOperation();
+    expect(":iframe .s_banner_connected").toHaveCount(1);
 });
 
 test("Drag and drop a column toggles the grid mode", async () => {
@@ -68,26 +84,34 @@ test("Drag and drop a column toggles the grid mode", async () => {
         loadIframeBundles: true,
     });
     await contains(":iframe section.s_text_image .row > div:nth-child(1)").click();
-    expect(".overlay .o_overlay_options .o_move_handle.o_draggable").toHaveCount(1);
-    expect(".o-website-builder_sidebar .fa-undo").not.toBeEnabled();
+    expect(".oe_overlay.oe_active").toBeVisible();
+    expect(".overlay .o_overlay_options .o_move_handle.o_draggable").toBeVisible();
+    expect(".o-website-builder_sidebar [data-icon='undo']").not.toBeEnabled();
     expect(":iframe section.s_text_image .row").not.toHaveClass("o_grid_mode");
 
     const { moveTo, drop } = await contains(".o_overlay_options .o_move_handle").drag();
+    await animationFrame();
+    expect(".oe_overlay.oe_active").not.toBeVisible();
+    expect(".overlay .o_overlay_options .o_move_handle.o_draggable").not.toBeVisible();
     expect(":iframe .oe_drop_zone.oe_grid_zone").toHaveCount(1);
     expect(":iframe .oe_drop_zone:not(.oe_grid_zone)").toHaveCount(4);
 
     await moveTo(":iframe .oe_drop_zone.oe_grid_zone");
+    expect(".oe_overlay.oe_active").not.toBeVisible();
+    expect(".overlay .o_overlay_options .o_move_handle.o_draggable").not.toBeVisible();
     expect(":iframe .oe_drop_zone.oe_grid_zone").toHaveClass("invisible");
     expect(":iframe section.s_text_image .row.o_grid_mode > .o_we_background_grid").toHaveCount(1);
     expect(":iframe section.s_text_image .row > .o_we_drag_helper").toHaveCount(1);
 
     await drop(getDragMoveHelper());
+    expect(".oe_overlay.oe_active").toBeVisible();
+    expect(".overlay .o_overlay_options .o_move_handle.o_draggable").toBeVisible();
     expect(":iframe .oe_drop_zone").toHaveCount(0);
     expect(":iframe section.s_text_image .row > .o_we_background_grid").toHaveCount(0);
     expect(":iframe section.s_text_image .row > .o_we_drag_helper").toHaveCount(0);
     expect(":iframe section.s_text_image .row.o_grid_mode > .o_grid_item").toHaveCount(2);
     await waitForEndOfOperation();
-    expect(".o-website-builder_sidebar .fa-undo").toBeEnabled();
+    expect(".o-website-builder_sidebar [data-icon='undo']").toBeEnabled();
 });
 
 test("Drag and drop an image should drag the closest draggable element but not if it is a section", async () => {
@@ -116,7 +140,7 @@ test("Drag and drop an image should drag the closest draggable element but not i
 
 test("A column in mobile view should not be draggable", async () => {
     await setupWebsiteBuilderWithSnippet("s_text_image");
-    await contains("button[data-action='mobile']").click();
+    await toggleMobilePreview();
 
     await contains(":iframe section.s_text_image").click();
     expect(".overlay .o_overlay_options .o_move_handle").toHaveClass("o_draggable");
@@ -153,7 +177,7 @@ test("Drag and drop an inner content as a grid item", async () => {
     await dragUtils.drop(getDragHelper());
     await waitForEndOfOperation();
     expect(":iframe .o_grid_item:only-child div.s_alert").toHaveCount(1);
-    await contains(".o-website-builder_sidebar .fa-undo").click();
+    await contains(".o-website-builder_sidebar [data-icon='undo']").click();
     expect(":iframe div.s_alert").toHaveCount(0);
 
     // Drag over the grid and drop it as a grid item.
@@ -177,7 +201,7 @@ test("Drag and drop an inner content as a grid item", async () => {
         gridColumnStart: 1,
         gridColumnEnd: 7,
     });
-    await contains(".o-website-builder_sidebar .fa-undo").click();
+    await contains(".o-website-builder_sidebar [data-icon='undo']").click();
     expect(":iframe div.s_alert").toHaveCount(0);
 
     // Drop near the grid (should become a grid item in the top left corner).
@@ -204,8 +228,7 @@ test("Dragging an inner content from the sidebar in mobile view should not make 
     await waitForEndOfOperation();
     expect(":iframe .s_alert").toHaveCount(0);
 
-    // Toggle the mobile preview.
-    await contains(".o-snippets-top-actions [data-action='mobile']").click();
+    await toggleMobilePreview();
     expect(".o_website_preview").toHaveClass("o_is_mobile");
     dragUtils = await contains("#snippet_content [name='Alert'] .o_snippet_thumbnail").drag();
     expect(":iframe .oe_grid_zone").toHaveCount(0);
@@ -231,7 +254,7 @@ test("Dragging an inner content from the page should not make grid dropzones app
     await waitForEndOfOperation();
 
     // Check in mobile view.
-    await contains(".o-snippets-top-actions [data-action='mobile']").click();
+    await toggleMobilePreview();
     expect(".o_website_preview").toHaveClass("o_is_mobile");
     const { cancel } = await contains(".o_overlay_options .o_move_handle").drag();
     expect(":iframe .oe_grid_zone").toHaveCount(0);

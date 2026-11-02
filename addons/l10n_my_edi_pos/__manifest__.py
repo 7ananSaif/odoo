@@ -2,7 +2,6 @@
 {
     "name": "Malaysia - E-invoicing (POS)",
     "countries": ["my"],
-    "version": "1.0",
     "category": "Accounting/Localizations/EDI",
     "icon": "/account/static/description/l10n.png",
     "summary": "Consolidated E-invoicing using MyInvois",
@@ -11,13 +10,19 @@
     """,
     "depends": ["l10n_my_edi", "point_of_sale"],
     "data": [
-        "data/res_partner.xml",
-
         "views/myinvois_document_pos_views.xml",
         "views/pos_order_views.xml",
         "views/product_view.xml",
+        "views/res_partner_view.xml",
+        "views/portal_address_templates.xml",
+        "views/ticket_validation_screen.xml",
     ],
-    "installable": True,
+    'assets': {
+        'web.assets_frontend': [
+            'l10n_my_edi_pos/static/src/interactions/address.js',
+        ],
+    },
+
     'auto_install': True,
     'author': 'Odoo S.A.',
     "license": "LGPL-3",

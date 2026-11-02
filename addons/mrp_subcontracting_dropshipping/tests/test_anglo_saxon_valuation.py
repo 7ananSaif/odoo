@@ -4,13 +4,15 @@
 from unittest import skip
 
 from odoo.addons.stock_account.tests.test_anglo_saxon_valuation_reconciliation_common import ValuationReconciliationTestCommon
-from odoo import Command
+from odoo import Command, fields
 from odoo.tests import tagged, Form
 
 
 @tagged('post_install', '-at_install')
 @skip('Temporary to fast merge new valuation')
 class TestSubcontractingDropshippingValuation(ValuationReconciliationTestCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):
@@ -106,13 +108,9 @@ class TestSubcontractingDropshippingValuation(ValuationReconciliationTestCommon)
         ])
 
         # return to subcontracting location
-        return_form = Form(self.env['stock.return.picking'].with_context(active_id=delivery.id, active_model='stock.picking'))
-        with return_form.product_return_moves.edit(0) as line:
-            line.quantity = 1
-        return_wizard = return_form.save()
-        return_picking = return_wizard._create_return()
-        return_picking.move_ids.quantity = 1
-        return_picking.move_ids.picked = True
+        return_picking = delivery._create_return()
+        return_picking.move_ids[0].product_uom_qty = 1
+        return_picking.action_assign()
         return_picking.button_validate()
 
         amls = self.env['account.move.line'].search([('id', 'not in', all_amls_ids)])
@@ -125,13 +123,9 @@ class TestSubcontractingDropshippingValuation(ValuationReconciliationTestCommon)
         # return to stock location
         warehouse = self.env['stock.warehouse'].search([('company_id', '=', self.env.company.id)], limit=1)
         stock_location = warehouse.lot_stock_id
-        return_form = Form(self.env['stock.return.picking'].with_context(active_id=delivery.id, active_model='stock.picking'))
-        with return_form.product_return_moves.edit(0) as line:
-            line.quantity = 1
-        return_wizard = return_form.save()
-        return_picking = return_wizard._create_return()
-        return_picking.move_ids.quantity = 1
-        return_picking.move_ids.picked = True
+        return_picking = delivery._create_return()
+        return_picking.move_ids[0].product_uom_qty = 1
+        return_picking.action_assign()
         return_picking.location_dest_id = stock_location
         return_picking.button_validate()
 
@@ -224,7 +218,7 @@ class TestSubcontractingDropshippingValuation(ValuationReconciliationTestCommon)
         })
         kit_bom = self.env['mrp.bom'].create({
             'product_tmpl_id': kit_final_prod.product_tmpl_id.id,
-            'product_uom_id': kit_final_prod.uom_id.id,
+            'uom_id': kit_final_prod.uom_id.id,
             'product_qty': 1.0,
             'type': 'phantom',
         })
@@ -237,7 +231,7 @@ class TestSubcontractingDropshippingValuation(ValuationReconciliationTestCommon)
             Command.create({
                 'product_id': product_c.id,
                 'product_qty': 24,
-                'product_uom_id': self.env.ref('uom.product_uom_unit').id
+                'uom_id': self.env.ref('uom.product_uom_unit').id
             }),
         ]
 
@@ -298,3 +292,50 @@ class TestSubcontractingDropshippingValuation(ValuationReconciliationTestCommon)
             {'name': f'{sale_order.name} - {invoice.name} installment #1',   'account_name': 'Account Receivable (copy)',   'debit': 621.0,    'credit': 0.0},
             {'name': f'{sale_order.name} - {invoice.name} installment #2',   'account_name': 'Account Receivable (copy)',   'debit': 1449.0,   'credit': 0.0},
         ])
+
+    def test_mto_kit_component_keeps_cost_on_vendor_bill(self):
+        """
+        Sell a kit whose AVCO component is replenished on order from a vendor. The
+        component enters stock at its purchase price on receipt, and a partial vendor
+        bill revalues only the billed units at the bill price.
+        """
+        warehouse = self.env['stock.warehouse'].search([('company_id', '=', self.env.company.id)], limit=1)
+        warehouse.mto_pull_id.route_id.active = True
+        warehouse.mto_pull_id.procure_method = 'mts_else_mto'
+        component, kit = self.env['product.product'].create([{
+            'name': 'avco component',
+            'is_storable': True,
+            'categ_id': self.categ_avco_auto.id,
+            'route_ids': [Command.set([warehouse.mto_pull_id.route_id.id, warehouse.buy_pull_id.route_id.id])],
+            'seller_ids': [Command.create({'partner_id': self.partner_a.id, 'price': 60})],
+        }, {
+            'name': 'kit',
+        }])
+        self.env['mrp.bom'].create({
+            'product_tmpl_id': kit.product_tmpl_id.id,
+            'type': 'phantom',
+            'bom_line_ids': [Command.create({'product_id': component.id, 'product_qty': 4})],
+        })
+
+        sale_order = self.env['sale.order'].sudo().create({
+            'partner_id': self.partner_b.id,
+            'order_line': [Command.create({'product_id': kit.id, 'product_uom_qty': 1.0})],
+        })
+        sale_order.action_confirm()
+
+        purchase_order = sale_order._get_purchase_orders()
+        purchase_order.button_confirm()
+        purchase_order.picking_ids.button_validate()
+        self.assertEqual(component.standard_price, 60)
+
+        # Bill 2 of the 4 received units at 90: only those 2 units are revalued, so the
+        # component's cost blends to (2*90 + 2*60) / 4 = 75.
+        purchase_order.action_create_invoice()
+        bill = purchase_order.invoice_ids
+        with Form(bill) as bill_form:
+            bill_form.invoice_date = fields.Date.today()
+            with bill_form.invoice_line_ids.edit(0) as line:
+                line.quantity = 2
+                line.price_unit = 90
+        bill.action_post()
+        self.assertEqual(component.standard_price, 75)

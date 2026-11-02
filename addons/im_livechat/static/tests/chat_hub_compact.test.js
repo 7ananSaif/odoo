@@ -19,13 +19,12 @@ test("Do not open chat windows automatically when chat hub is compact", async ()
             Command.create({ guest_id: guestId, livechat_member_type: "visitor" }),
         ],
         channel_type: "livechat",
-        livechat_operator_id: serverState.partnerId,
         create_uid: serverState.publicUserId,
     });
     await start();
     await click("button[title='Chat Options']");
     await click(".o-dropdown-item", { text: "Hide all conversations" });
-    await contains(".o-mail-ChatHub-bubbleBtn .fa-comments");
+    await contains(".o-mail-ChatHub-bubbleBtn [data-icon='forum']");
     await withGuest(guestId, () =>
         rpc("/mail/message/post", {
             post_data: {

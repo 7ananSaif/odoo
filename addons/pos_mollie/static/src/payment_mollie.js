@@ -2,18 +2,41 @@ import { browser } from "@web/core/browser/browser";
 import { _t } from "@web/core/l10n/translation";
 import { AlertDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { PaymentInterface } from "@point_of_sale/app/utils/payment/payment_interface";
-import { register_payment_method } from "@point_of_sale/app/services/pos_store";
+import { registry } from "@web/core/registry";
 
 export class PaymentMollie extends PaymentInterface {
     setup() {
         super.setup(...arguments);
         this.paymentLineResolvers = {};
+
+        this.connectWebSocket("MOLLIE_PAYMENT_STATUS", (payload) => {
+            if (payload.session_id === this.pos.session.id) {
+                const paymentLine = this.pos.models["pos.payment"].find(
+                    (line) => line.transaction_id === payload.payment_id
+                );
+
+                if (paymentLine && paymentLine.uuid !== payload.payment_uuid) {
+                    console.warn("Ignoring mismatched Mollie webhook");
+                    return;
+                }
+
+                if (
+                    paymentLine &&
+                    !paymentLine.isDone() &&
+                    paymentLine.getPaymentStatus() !== "retry"
+                ) {
+                    paymentLine.payment_method_id.payment_interface.handleMollieStatusResponse(
+                        paymentLine,
+                        payload
+                    );
+                }
+            }
+        });
     }
 
-    async sendPaymentRequest(uuid) {
-        const paymentLine = this.pos.getOrder().getPaymentlineByUuid(uuid);
-        if (paymentLine.amount < 0) {
-            const originalPaymentId = this._findOriginalPaymentId(paymentLine);
+    async sendPaymentRequest(line) {
+        if (line.amount < 0) {
+            const originalPaymentId = this._findOriginalPaymentId(line);
             if (!originalPaymentId) {
                 this._showMollieError(
                     _t("You can only refund an order that was paid for with Mollie.")
@@ -21,18 +44,17 @@ export class PaymentMollie extends PaymentInterface {
                 return false;
             }
 
-            return this._createMollieRefund(paymentLine, originalPaymentId);
+            return this._createMollieRefund(line, originalPaymentId);
         }
 
-        return this._createMolliePayment(paymentLine);
+        return this._createMolliePayment(line);
     }
 
-    async sendPaymentCancel(order, uuid) {
-        const paymentLine = this.pos.getOrder().getPaymentlineByUuid(uuid);
+    async sendPaymentCancel(line) {
         try {
-            await this.pos.data.call("pos.payment.method", "mollie_cancel_payment", [
+            await this.callPaymentMethod("mollie_cancel_payment", [
                 this.payment_method_id.id,
-                paymentLine.transaction_id,
+                line.transaction_id,
             ]);
             return true;
         } catch (error) {
@@ -43,7 +65,7 @@ export class PaymentMollie extends PaymentInterface {
 
     async _createMolliePayment(paymentLine) {
         try {
-            const data = await this.pos.data.call("pos.payment.method", "mollie_create_payment", [
+            const data = await this.callPaymentMethod("mollie_create_payment", [
                 this.payment_method_id.id,
                 paymentLine.amount,
                 paymentLine.uuid,
@@ -61,11 +83,7 @@ export class PaymentMollie extends PaymentInterface {
 
             paymentLine.transaction_id = data.id;
             await this.pos.data.synchronizeLocalDataInIndexedDB();
-
-            const { promise, resolve } = Promise.withResolvers();
-            this.paymentLineResolvers[paymentLine.uuid] = resolve;
-
-            return promise;
+            return this._waitForPaymentConfirmation(paymentLine);
         } catch (error) {
             this._showMollieError(error);
             return false;
@@ -74,7 +92,7 @@ export class PaymentMollie extends PaymentInterface {
 
     async _createMollieRefund(refundPaymentLine, originalPaymentId) {
         try {
-            const data = await this.pos.data.call("pos.payment.method", "mollie_create_refund", [
+            const data = await this.callPaymentMethod("mollie_create_refund", [
                 this.payment_method_id.id,
                 originalPaymentId,
                 Math.abs(refundPaymentLine.amount),
@@ -105,10 +123,51 @@ export class PaymentMollie extends PaymentInterface {
         const amountDue = Math.abs(currentOrder.remainingDue);
         const matchedPaymentLine = orderToRefund.payment_ids.find(
             (line) =>
-                line.payment_method_id.use_payment_terminal === "mollie" && line.amount <= amountDue
+                line.payment_method_id.payment_provider === "mollie" && line.amount <= amountDue
         );
 
         return matchedPaymentLine?.transaction_id ?? null;
+    }
+
+    _waitForPaymentConfirmation(paymentLine) {
+        const { promise, resolve } = Promise.withResolvers();
+        const transactionId = paymentLine.transaction_id;
+        this.paymentLineResolvers[paymentLine.uuid] = resolve;
+        let connectionLost = false;
+
+        const intervalId = setInterval(async () => {
+            const isPaymentStillValid = () =>
+                this.paymentLineResolvers[paymentLine.uuid] &&
+                transactionId === paymentLine.transaction_id;
+            if (!isPaymentStillValid()) {
+                clearInterval(intervalId);
+                return;
+            }
+
+            try {
+                const result = await this.callPaymentMethod("mollie_get_payment", [
+                    this.payment_method_id.id,
+                    transactionId,
+                ]);
+                connectionLost = false;
+                if (!["open", "pending"].includes(result.status) && isPaymentStillValid()) {
+                    clearInterval(intervalId);
+                    this.handleMollieStatusResponse(paymentLine, result);
+                }
+            } catch {
+                if (!connectionLost) {
+                    connectionLost = true;
+                    this.env.services.notification.add(
+                        _t(
+                            "No internet connection. Waiting for recovery to confirm the payment..."
+                        ),
+                        { type: "warning" }
+                    );
+                }
+            }
+        }, 5000);
+
+        return promise;
     }
 
     handleMollieStatusResponse(paymentLine, notification) {
@@ -157,4 +216,4 @@ export class PaymentMollie extends PaymentInterface {
     }
 }
 
-register_payment_method("mollie", PaymentMollie);
+registry.category("pos_payment_providers").add("mollie", PaymentMollie);

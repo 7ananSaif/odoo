@@ -8,9 +8,8 @@
                 <list string="Work Location">
                     <field name="active" column_invisible="True" />
                     <field name="name" />
-                    <field class="o_homework_icon_types d-flex flex-wrap" name="location_type"
-                           widget="hr_homeworking_radio_image" options="{'horizontal': true}"/>
-                    <field name="company_id" groups="base.group_multi_company" />
+                    <field name="address_id" />
+                    <field name="company_id" groups="base.group_multi_company" optional="hide"/>
                 </list>
             </field>
         </record>
@@ -24,9 +23,14 @@
                             <group>
                                 <field name="active" invisible="1" />
                                 <field name="name" />
-                                <field name="address_id" />
-                                <field class="o_homework_icon_types d-flex flex-wrap" name="location_type"
-                                       widget="hr_homeworking_radio_image" options="{'horizontal': true}"/>
+                                <field name="address_id" invisible="location_type == 'home'" required="location_type != 'home'"/>
+                                <field name="location_type"
+                                       widget="badges_selection"
+                                       options="{
+                                            'default_icon': 'location_on',
+                                            'icon_mapping': {'office': 'business', 'home': 'home'},
+                                       }"
+                                />
                             </group>
                             <group>
                                 <field name="company_id" groups="base.group_multi_company" />

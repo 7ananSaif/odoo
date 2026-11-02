@@ -3,26 +3,27 @@ import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { checkFileSize } from "@web/core/utils/files";
 import { standardWidgetProps } from "@web/views/widgets/standard_widget_props";
-import { Component } from "@odoo/owl";
+import { Component, t, useProps } from "@odoo/owl";
 
 export class AttachDocumentWidget extends Component {
     static template = "web.AttachDocument";
     static components = {
         FileInput,
     };
-    static props = {
+    props = useProps({
         ...standardWidgetProps,
-        string: { type: String },
-        action: { type: String, optional: true },
-        highlight: { type: Boolean },
-    };
+        acceptedFileExtensions: t.string().optional(),
+        string: t.string(),
+        action: t.string().optional(),
+        highlight: t.boolean(),
+    });
 
     setup() {
         this.http = useService("http");
         this.notification = useService("notification");
         this.fileInput = document.createElement("input");
         this.fileInput.type = "file";
-        this.fileInput.accept = "*";
+        this.fileInput.accept = this.props.acceptedFileExtensions || "*";
         this.fileInput.multiple = true;
         this.fileInput.onchange = this.onInputChange.bind(this);
     }
@@ -75,12 +76,13 @@ export class AttachDocumentWidget extends Component {
 
 export const attachDocumentWidget = {
     component: AttachDocumentWidget,
-    extractProps: ({ attrs }) => {
+    extractProps: ({ attrs, options }) => {
         const { action, highlight, string } = attrs;
         return {
             action,
             highlight: !!highlight,
             string,
+            acceptedFileExtensions: options.accepted_file_extensions,
         };
     },
 };

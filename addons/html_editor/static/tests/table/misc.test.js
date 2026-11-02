@@ -1,10 +1,12 @@
 import { describe, expect, test } from "@odoo/hoot";
-import { setupEditor } from "../_helpers/editor";
+import { setupEditor, testEditor } from "../_helpers/editor";
 import {
+    advanceTime,
     click,
     manuallyDispatchProgrammaticEvent,
     queryAll,
     queryFirst,
+    queryOne,
     waitFor,
 } from "@odoo/hoot-dom";
 import { animationFrame, tick } from "@odoo/hoot-mock";
@@ -12,7 +14,7 @@ import { getContent, setSelection, waitForSelectionChange } from "../_helpers/se
 import { execCommand } from "../_helpers/userCommands";
 import { expandToolbar } from "../_helpers/toolbar";
 import { expectElementCount } from "../_helpers/ui_expectations";
-import { deleteBackward } from "../_helpers/user_actions";
+import { deleteBackward, getElementTouchPosition } from "../_helpers/user_actions";
 import { unformat } from "../_helpers/format";
 
 function insertTable(editor, cols, rows) {
@@ -33,7 +35,7 @@ describe("insertTable", () => {
         expect(getContent(el)).toBe(
             unformat(`
                 <p data-selection-placeholder=""><br></p>
-                <table class="table table-bordered o_table">
+                <div class="o_table_wrapper"><table class="table table-bordered o_table">
                     <tbody>
                         <tr>
                             <td>
@@ -41,7 +43,7 @@ describe("insertTable", () => {
                             </td>
                         </tr>
                     </tbody>
-                </table>
+                </table></div>
                 <p>hello</p>
             `)
         );
@@ -53,7 +55,7 @@ describe("insertTable", () => {
         expect(getContent(el)).toBe(
             unformat(`
                 <p>he</p>
-                <table class="table table-bordered o_table">
+                <div class="o_table_wrapper"><table class="table table-bordered o_table">
                     <tbody>
                         <tr>
                             <td>
@@ -61,7 +63,7 @@ describe("insertTable", () => {
                             </td>
                         </tr>
                     </tbody>
-                </table>
+                </table></div>
                 <p>llo</p>
             `)
         );
@@ -73,7 +75,7 @@ describe("insertTable", () => {
         expect(getContent(el)).toBe(
             unformat(`
                 <p>hello</p>
-                <table class="table table-bordered o_table">
+                <div class="o_table_wrapper"><table class="table table-bordered o_table">
                     <tbody>
                         <tr>
                             <td>
@@ -81,7 +83,7 @@ describe("insertTable", () => {
                             </td>
                         </tr>
                     </tbody>
-                </table>
+                </table></div>
                 <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>
             `)
         );
@@ -169,8 +171,8 @@ describe("selected cell color in toolbar", () => {
         </table>`);
 
         await expandToolbar();
-        expect(".fa-paint-brush").toHaveCount(1);
-        expect(".fa-paint-brush").toHaveStyle({
+        expect("[data-icon='colors']").toHaveCount(1);
+        expect("[data-icon='colors']").toHaveStyle({
             "border-bottom": "2px solid rgba(255, 0, 0, 0.6)",
         });
     });
@@ -188,14 +190,14 @@ describe("selected cell color in toolbar", () => {
 
         await expandToolbar();
         await animationFrame();
-        expect(".fa-paint-brush").toHaveCount(1);
-        expect(".fa-paint-brush").toHaveStyle({
+        expect("[data-icon='colors']").toHaveCount(1);
+        expect("[data-icon='colors']").toHaveStyle({
             "border-bottom": "2px solid rgba(0, 0, 0, 0)",
         });
     });
     test("cell's selected color should be shown in toolbar (3)", async () => {
         await setupEditor(`
-        <table>
+           <table>
             <tbody>
                 <tr>
                     <td style="background-color: rgba(255, 0, 0, 0.6);"><div class="o-paragraph">[ab</div></td>
@@ -207,8 +209,8 @@ describe("selected cell color in toolbar", () => {
         </table>`);
 
         await expandToolbar();
-        expect(".fa-paint-brush").toHaveCount(1);
-        expect(".fa-paint-brush").toHaveStyle({
+        expect("[data-icon='colors']").toHaveCount(1);
+        expect("[data-icon='colors']").toHaveStyle({
             "border-bottom": "2px solid rgba(255, 0, 0, 0.6)",
         });
         const nonStyledCellOne = queryFirst(".non_styled_1");
@@ -221,8 +223,8 @@ describe("selected cell color in toolbar", () => {
         });
         await waitForSelectionChange();
         await animationFrame();
-        expect(".fa-paint-brush").toHaveCount(1);
-        expect(".fa-paint-brush").toHaveStyle({
+        expect("[data-icon='colors']").toHaveCount(1);
+        expect("[data-icon='colors']").toHaveStyle({
             "border-bottom": "2px solid rgba(0, 0, 0, 0)",
         });
     });
@@ -266,8 +268,8 @@ describe("selected cell color in toolbar", () => {
         // set a timeout for the deplayed toolbar update
         await waitFor(".o-we-toolbar", { timeout: 1500 });
         await expandToolbar();
-        expect(".fa-paint-brush").toHaveCount(1);
-        expect(".fa-paint-brush").toHaveStyle({
+        expect("[data-icon='colors']").toHaveCount(1);
+        expect("[data-icon='colors']").toHaveStyle({
             "border-bottom": "2px solid rgba(255, 0, 0, 0.6)",
         });
     });
@@ -307,9 +309,1099 @@ describe("selected cell color in toolbar", () => {
         // set a timeout for the deplayed toolbar update
         await waitFor(".o-we-toolbar", { timeout: 1500 });
         await expandToolbar();
-        expect(".fa-paint-brush").toHaveCount(1);
-        expect(".fa-paint-brush").toHaveStyle({
+        expect("[data-icon='colors']").toHaveCount(1);
+        expect("[data-icon='colors']").toHaveStyle({
             "border-bottom": "2px solid rgba(255, 0, 0, 0.6)",
         });
+    });
+});
+
+describe("normalize table structure", () => {
+    test("should create a tbody when it's missing", async () => {
+        const { el, editor } = await setupEditor(
+            `<table class="table table-bordered o_table" style="width: 500px;"><caption>c</caption></table>`
+        );
+        expect(editor.isDestroyed).toBe(false);
+        expect(getContent(el)).toBe(
+            unformat(`
+                <p data-selection-placeholder=""><br></p>
+                <div class="o_table_wrapper"><table class="table table-bordered o_table" style="width: 500px;">
+                    <caption>c</caption>
+                    <tbody>
+                        <tr>
+                            <td><p><br></p></td>
+                        </tr>
+                    </tbody>
+                </table></div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>
+            `)
+        );
+    });
+
+    test("should convert thead to tbody", async () => {
+        const { el } = await setupEditor(
+            `<table style="width: 500px;"><thead><tr><th>1</th><th>2</th></tr></thead></table>`
+        );
+        expect(getContent(el)).toBe(
+            unformat(`
+                <p data-selection-placeholder=""><br></p>
+                <div class="o_table_wrapper"><table style="width: 500px;">
+                    <tbody>
+                        <tr>
+                            <th class="o_table_header">1</th>
+                            <th class="o_table_header">2</th>
+                        </tr>
+                    </tbody>
+                </table></div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>
+            `)
+        );
+    });
+
+    test("should move thead rows into the existing tbody", async () => {
+        const { el } = await setupEditor(
+            unformat(
+                `<table style="width: 500px;">
+                    <thead><tr><th>1</th><th>2</th></tr></thead>
+                    <tbody><tr><td>3</td><td>4</td></tr></tbody>
+                </table>`
+            )
+        );
+        expect(getContent(el)).toBe(
+            unformat(`
+                <p data-selection-placeholder=""><br></p>
+                <div class="o_table_wrapper"><table style="width: 500px;">
+                    <tbody>
+                        <tr>
+                            <th class="o_table_header">1</th>
+                            <th class="o_table_header">2</th>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>4</td>
+                        </tr>
+                    </tbody>
+                </table></div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>
+            `)
+        );
+    });
+
+    test("should wrap the table into o_table_wrapper div while editing", async () => {
+        await testEditor({
+            contentBefore: unformat(`
+                <table class="o_table">
+                    <tbody>
+                        <tr><td>ab[]</td><td>cd</td></tr>
+                        <tr><td>ab</td><td>cd</td></tr>
+                    </tbody>
+                </table>
+            `),
+            contentBeforeEdit: unformat(`
+                <p data-selection-placeholder=""><br></p>
+                <div class="o_table_wrapper">
+                    <table class="o_table">
+                        <tbody>
+                            <tr><td>ab[]</td><td>cd</td></tr>
+                            <tr><td>ab</td><td>cd</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>
+            `),
+            contentAfter: unformat(`
+                <table class="o_table">
+                    <tbody>
+                        <tr><td>ab[]</td><td>cd</td></tr>
+                        <tr><td>ab</td><td>cd</td></tr>
+                    </tbody>
+                </table>
+            `),
+        });
+    });
+
+    test("should keep the table wrapper on save when 'saveScrollableTables' is enabled", async () => {
+        await testEditor({
+            config: { saveScrollableTables: true },
+            contentBefore: unformat(`
+                <table class="o_table">
+                    <tbody>
+                        <tr><td>ab[]</td><td>cd</td></tr>
+                    </tbody>
+                </table>
+            `),
+            contentAfter: unformat(`
+                <div class="o_table_wrapper">
+                    <table class="o_table">
+                        <tbody>
+                            <tr><td>ab[]</td><td>cd</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            `),
+        });
+    });
+
+    test("should not wrap the table into o_table_wrapper div if it already has one", async () => {
+        await testEditor({
+            contentBefore: unformat(`
+                <div class="o_table_wrapper">
+                    <table class="o_table">
+                        <tbody>
+                            <tr><td>ab[]</td><td>cd</td></tr>
+                            <tr><td>ab</td><td>cd</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            `),
+            contentBeforeEdit: unformat(`
+                <p data-selection-placeholder=""><br></p>
+                <div class="o_table_wrapper">
+                    <table class="o_table">
+                        <tbody>
+                            <tr><td>ab[]</td><td>cd</td></tr>
+                            <tr><td>ab</td><td>cd</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>
+            `),
+        });
+    });
+
+    test("should not wrap the inner table into o_table_wrapper div", async () => {
+        await testEditor({
+            contentBefore: unformat(`
+                <table class="o_table">
+                    <tbody>
+                        <tr><td>ab[]</td><td>cd</td></tr>
+                        <tr><td><table class="o_table"></table></td><td>cd</td></tr>
+                    </tbody>
+                </table>
+            `),
+            contentBeforeEdit: unformat(`
+                <p data-selection-placeholder=""><br></p>
+                <div class="o_table_wrapper">
+                    <table class="o_table">
+                        <tbody>
+                            <tr><td>ab[]</td><td>cd</td></tr>
+                            <tr>
+                                <td>
+                                    <p data-selection-placeholder=""><br></p>
+                                    <table class="o_table"><tbody><tr><td><p><br></p></td></tr></tbody></table>
+                                    <p data-selection-placeholder=""><br></p>
+                                    </td>
+                                <td>cd</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>
+            `),
+        });
+    });
+});
+
+describe("Table merge/unmerge button visibility", () => {
+    test("shouldn't show merge button in toolbar when selection spans multiple rows and columns", async () => {
+        const { el } = await setupEditor(
+            unformat(`
+                <div class="o_table_wrapper"><table class="table table-bordered o_table">
+                    <tbody>
+                        <tr>
+                            <td class="a"><p>[<br></p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td class="b"><p><br></p></td>
+                            <td><p><br>]</p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                    </tbody>
+                </table></div>`)
+        );
+        expect(getContent(el)).toBe(
+            unformat(`
+                <p data-selection-placeholder=""><br></p>
+                <div class="o_table_wrapper"><table class="table table-bordered o_table o_selected_table">
+                    <tbody>
+                        <tr>
+                            <td class="a o_selected_td"><p>[<br></p></td>
+                            <td class="o_selected_td"><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td class="b o_selected_td"><p><br></p></td>
+                            <td class="o_selected_td"><p><br>]</p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                    </tbody>
+                </table></div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`)
+        );
+        await expandToolbar();
+        await expectElementCount("button[name='mergeCells']", 0);
+    });
+
+    test("shouldn't show merge button in toolbar when selection includes cells with rowspan", async () => {
+        const { el } = await setupEditor(
+            unformat(`
+                <table class="table table-bordered o_table">
+                    <tbody>
+                        <tr>
+                            <td><p><br></p></td>
+                            <td rowspan="2"><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td class="a">[<p><br></p></td>
+                            <td><p><br></p>]</td>
+                        </tr>
+                    </tbody>
+                </table>`)
+        );
+        expect(getContent(el)).toBe(
+            unformat(`
+                <p data-selection-placeholder=""><br></p>
+                <div class="o_table_wrapper"><table class="table table-bordered o_table o_selected_table">
+                    <tbody>
+                        <tr>
+                            <td><p><br></p></td>
+                            <td rowspan="2" class="o_selected_td"><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td class="a o_selected_td">[<p><br></p></td>
+                            <td class="o_selected_td"><p><br></p>]</td>
+                        </tr>
+                    </tbody>
+                </table></div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`)
+        );
+
+        await expandToolbar();
+        await expectElementCount("button[name='mergeCells']", 0);
+    });
+    test("shouldn't show merge button in toolbar when selection includes cells with colspan", async () => {
+        const { el } = await setupEditor(
+            unformat(`
+                <table class="table table-bordered o_table">
+                    <tbody>
+                        <tr>
+                            <td class="a"><p>[<br></p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3"><p>]<br></p></td>
+                        </tr>
+                    </tbody>
+                </table>`)
+        );
+        expect(getContent(el)).toBe(
+            unformat(`
+                <p data-selection-placeholder=""><br></p>
+                <div class="o_table_wrapper"><table class="table table-bordered o_table o_selected_table">
+                    <tbody>
+                        <tr>
+                            <td class="a o_selected_td"><p>[<br></p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="o_selected_td"><p>]<br></p></td>
+                        </tr>
+                    </tbody>
+                </table></div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`)
+        );
+
+        await expandToolbar();
+        await expectElementCount("button[name='mergeCells']", 0);
+    });
+
+    test("should show inactive merge button in toolbar when selection includes cells in a single row including a merged cell", async () => {
+        const { el } = await setupEditor(
+            unformat(`
+                <div class="o_table_wrapper"><table class="table table-bordered o_table">
+                    <tbody>
+                        <tr>
+                            <td class="a" rowspan="2"><p>[<br></p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td><p><br>]</p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                    </tbody>
+                </table></div>`)
+        );
+        expect(getContent(el)).toBe(
+            unformat(`
+                <p data-selection-placeholder=""><br></p>
+                <div class="o_table_wrapper"><table class="table table-bordered o_table o_selected_table">
+                    <tbody>
+                        <tr>
+                            <td class="a o_selected_td" rowspan="2"><p>[<br></p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td class="o_selected_td"><p><br>]</p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                    </tbody>
+                </table></div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`)
+        );
+
+        await expandToolbar();
+        await expectElementCount("button[name='mergeCells']:not(.active)", 1);
+    });
+
+    test("should show inactive merge button in toolbar when selection includes cells in a single column including a merged cell", async () => {
+        const { el } = await setupEditor(
+            unformat(`
+                <div class="o_table_wrapper"><table class="table table-bordered o_table">
+                    <tbody>
+                        <tr>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td class="a" colspan="2"><p>[<br></p></td>
+                            <td><p><br>]</p></td>
+                        </tr>
+                    </tbody>
+                </table></div>`)
+        );
+        expect(getContent(el)).toBe(
+            unformat(`
+                <p data-selection-placeholder=""><br></p>
+                <div class="o_table_wrapper"><table class="table table-bordered o_table o_selected_table">
+                    <tbody>
+                        <tr>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td class="a o_selected_td" colspan="2"><p>[<br></p></td>
+                            <td class="o_selected_td"><p><br>]</p></td>
+                        </tr>
+                    </tbody>
+                </table></div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`)
+        );
+
+        await expandToolbar();
+        await expectElementCount("button[name='mergeCells']:not(.active)", 1);
+    });
+
+    test("should show active merge button in toolbar when selecting a merged row cell", async () => {
+        const { el } = await setupEditor(
+            unformat(`
+                <table class="table table-bordered o_table">
+                    <tbody>
+                        <tr>
+                            <td class="a o_selected_td" rowspan="2"><p>[]<br></p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                    </tbody>
+                </table>`)
+        );
+        expect(getContent(el)).toBe(
+            unformat(`
+                <p data-selection-placeholder=""><br></p>
+                <div class="o_table_wrapper"><table class="table table-bordered o_table">
+                    <tbody>
+                        <tr>
+                            <td class="a o_selected_td" rowspan="2"><p o-we-hint-text='Type "/" for commands' class="o-we-hint">[]<br></p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                    </tbody>
+                </table></div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`)
+        );
+
+        await expandToolbar();
+        await expectElementCount("button[name='mergeCells'].active", 1);
+    });
+
+    test("should show active merge button in toolbar when selecting a merged column cell", async () => {
+        const { el } = await setupEditor(
+            unformat(`
+                <table class="table table-bordered o_table">
+                    <tbody>
+                        <tr>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td class="a o_selected_td" colspan="3"><p>[]<br></p></td>
+                        </tr>
+                    </tbody>
+                </table>`)
+        );
+        expect(getContent(el)).toBe(
+            unformat(`
+                <p data-selection-placeholder=""><br></p>
+                <div class="o_table_wrapper"><table class="table table-bordered o_table">
+                    <tbody>
+                        <tr>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td class="a o_selected_td" colspan="3"><p o-we-hint-text='Type "/" for commands' class="o-we-hint">[]<br></p></td>
+                        </tr>
+                    </tbody>
+                </table></div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`)
+        );
+
+        await expandToolbar();
+        await expectElementCount("button[name='mergeCells'].active", 1);
+    });
+});
+
+describe("Merge column cells", () => {
+    test("merges selected cells in a single row into one with colspan", async () => {
+        const { el } = await setupEditor(
+            unformat(`
+                <table class="table table-bordered o_table">
+                    <tbody>
+                        <tr>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td class="a">[<p><br></p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p>]</td>
+                        </tr>
+                    </tbody>
+                </table>`)
+        );
+        expect(getContent(el)).toBe(
+            unformat(`
+                <p data-selection-placeholder=""><br></p>
+                <div class="o_table_wrapper"><table class="table table-bordered o_table o_selected_table">
+                    <tbody>
+                        <tr>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td class="a o_selected_td">[<p><br></p></td>
+                            <td class="o_selected_td"><p><br></p></td>
+                            <td class="o_selected_td"><p><br></p>]</td>
+                        </tr>
+                    </tbody>
+                </table></div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`)
+        );
+
+        await expandToolbar();
+        await expectElementCount("button[name='mergeCells']", 1);
+        await click("button[name='mergeCells']");
+
+        expect(getContent(el)).toBe(
+            unformat(`
+                <p data-selection-placeholder=""><br></p>
+                <div class="o_table_wrapper"><table class="table table-bordered o_table o_selected_table">
+                    <tbody>
+                        <tr>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td class="a o_selected_td" colspan="3"><p o-we-hint-text='Type "/" for commands' class="o-we-hint">[]<br></p></td>
+                        </tr>
+                    </tbody>
+                </table></div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`)
+        );
+    });
+
+    test("merges selected filled cells by combining their content into one cell with colspan", async () => {
+        const { el } = await setupEditor(
+            unformat(`
+                <table class="table table-bordered o_table">
+                    <tbody>
+                        <tr>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td class="a">[<p>a</p></td>
+                            <td><p>b</p></td>
+                            <td><p>c</p>]</td>
+                        </tr>
+                    </tbody>
+                </table>`)
+        );
+        expect(getContent(el)).toBe(
+            unformat(`
+                <p data-selection-placeholder=""><br></p>
+                <div class="o_table_wrapper"><table class="table table-bordered o_table o_selected_table">
+                    <tbody>
+                        <tr>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td class="a o_selected_td">[<p>a</p></td>
+                            <td class="o_selected_td"><p>b</p></td>
+                            <td class="o_selected_td"><p>c</p>]</td>
+                        </tr>
+                    </tbody>
+                </table></div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`)
+        );
+
+        await expandToolbar();
+        await expectElementCount("button[name='mergeCells']", 1);
+        await click("button[name='mergeCells']");
+
+        expect(getContent(el)).toBe(
+            unformat(`
+                <p data-selection-placeholder=""><br></p>
+                <div class="o_table_wrapper"><table class="table table-bordered o_table o_selected_table">
+                    <tbody>
+                        <tr>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td class="a o_selected_td" colspan="3"><p>[a</p><p>b</p><p>c]</p></td>
+                        </tr>
+                    </tbody>
+                </table></div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`)
+        );
+    });
+
+    test.tags("mobile");
+    test("merges selected cells in a single row into one with colspan (mobile)", async () => {
+        const { el } = await setupEditor(
+            unformat(`
+                <table class="table table-bordered o_table">
+                    <tbody>
+                        <tr>
+                            <td class="a"><p><br></p></td>
+                            <td><p><br></p></td>
+                            <td class="b"><p><br></p></td>
+                        </tr>
+                    </tbody>
+                </table>`)
+        );
+
+        await manuallyDispatchProgrammaticEvent(queryOne("td.b"), "touchstart", {
+            touches: [getElementTouchPosition("td.b")],
+        });
+        await advanceTime(200);
+        await manuallyDispatchProgrammaticEvent(queryOne("td.a"), "touchmove", {
+            touches: [getElementTouchPosition("td.a")],
+        });
+        await manuallyDispatchProgrammaticEvent(queryOne("td.a"), "touchend", {
+            touches: [getElementTouchPosition("td.a")],
+        });
+
+        await expandToolbar();
+        await expectElementCount("button[name='mergeCells']", 1);
+        await click("button[name='mergeCells']");
+
+        expect(getContent(el)).toBe(
+            unformat(`
+                <p data-selection-placeholder=""><br></p>
+                <div class="o_table_wrapper"><table class="table table-bordered o_table o_selected_table">
+                    <tbody>
+                        <tr>
+                            <td class="a o_selected_td" colspan="3"><p o-we-hint-text='Type "/" for commands' class="o-we-hint">[]<br></p></td>
+                        </tr>
+                    </tbody>
+                </table></div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`)
+        );
+    });
+});
+
+describe("Merge row cells", () => {
+    test("merges selected cells vertically in a column by applying rowspan", async () => {
+        const { el } = await setupEditor(
+            unformat(`
+                <div class="o_table_wrapper"><table class="table table-bordered o_table">
+                    <tbody>
+                        <tr>
+                            <td class="a"><p>[<br></p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td><p><br>]</p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                    </tbody>
+                </table></div>`)
+        );
+        expect(getContent(el)).toBe(
+            unformat(`
+                <p data-selection-placeholder=""><br></p>
+                <div class="o_table_wrapper"><table class="table table-bordered o_table o_selected_table">
+                    <tbody>
+                        <tr>
+                            <td class="a o_selected_td"><p>[<br></p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td class="o_selected_td"><p><br>]</p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                    </tbody>
+                </table></div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`)
+        );
+
+        await expandToolbar();
+        await expectElementCount("button[name='mergeCells']", 1);
+        await click("button[name='mergeCells']");
+
+        expect(getContent(el)).toBe(
+            unformat(`
+                <p data-selection-placeholder=""><br></p>
+                <div class="o_table_wrapper"><table class="table table-bordered o_table o_selected_table">
+                    <tbody>
+                        <tr>
+                            <td class="a o_selected_td" rowspan="2"><p o-we-hint-text='Type "/" for commands' class="o-we-hint">[]<br></p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                    </tbody>
+                </table></div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`)
+        );
+    });
+
+    test("merges filled cells vertically by combining their content into one cell with rowspan", async () => {
+        const { el } = await setupEditor(
+            unformat(`
+                <table class="table table-bordered o_table">
+                    <tbody>
+                        <tr>
+                            <td class="a"><p>[a</p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td><p>b]</p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                    </tbody>
+                </table>`)
+        );
+        expect(getContent(el)).toBe(
+            unformat(`
+                <p data-selection-placeholder=""><br></p>
+                <div class="o_table_wrapper"><table class="table table-bordered o_table o_selected_table">
+                    <tbody>
+                        <tr>
+                            <td class="a o_selected_td"><p>[a</p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td class="o_selected_td"><p>b]</p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                    </tbody>
+                </table></div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`)
+        );
+
+        await expandToolbar();
+        await expectElementCount("button[name='mergeCells']", 1);
+        await click("button[name='mergeCells']");
+
+        expect(getContent(el)).toBe(
+            unformat(`
+                <p data-selection-placeholder=""><br></p>
+                <div class="o_table_wrapper"><table class="table table-bordered o_table o_selected_table">
+                    <tbody>
+                        <tr>
+                            <td class="a o_selected_td" rowspan="2"><p>[a</p><p>b]</p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                    </tbody>
+                </table></div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`)
+        );
+    });
+
+    test("does not display merge cell option when selecting multiple cells from different tables", async () => {
+        const { el } = await setupEditor(
+            unformat(`
+                <p><br></p>
+                <div class="o_table_wrapper"><table class="table table-bordered o_table">
+                    <tbody>
+                        <tr>
+                            <td class="a"><p>[<br></p></td>
+                        </tr>
+                    </tbody>
+                </table></div>
+                <div class="o_table_wrapper"><table class="table table-bordered o_table">
+                    <tbody>
+                        <tr>
+                            <td><p><br>]</p></td>
+                        </tr>
+                    </tbody>
+                </table></div>`)
+        );
+        expect(getContent(el)).toBe(
+            unformat(`
+                <p><br></p>
+                <div class="o_table_wrapper"><table class="table table-bordered o_table o_selected_table">
+                    <tbody>
+                        <tr>
+                            <td class="a o_selected_td"><p>[<br></p></td>
+                        </tr>
+                    </tbody>
+                </table></div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>
+                <div class="o_table_wrapper"><table class="table table-bordered o_table o_selected_table">
+                    <tbody>
+                        <tr>
+                            <td class="o_selected_td"><p><br>]</p></td>
+                        </tr>
+                    </tbody>
+                </table></div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`)
+        );
+        await expandToolbar();
+        await expectElementCount("button[name='mergeCells']", 0);
+    });
+
+    test.tags("mobile");
+    test("merges selected cells in a single column into one with rowspan (mobile)", async () => {
+        const { el } = await setupEditor(
+            unformat(`
+                <table class="table table-bordered o_table">
+                    <tbody>
+                        <tr>
+                            <td><p><br></p></td>
+                            <td class="a"><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td><p><br></p></td>
+                            <td class="b"><p><br></p></td>
+                        </tr>
+                    </tbody>
+                </table>`)
+        );
+
+        await manuallyDispatchProgrammaticEvent(queryOne("td.b"), "touchstart", {
+            touches: [getElementTouchPosition("td.b")],
+        });
+        await advanceTime(200);
+        await manuallyDispatchProgrammaticEvent(queryOne("td.a"), "touchmove", {
+            touches: [getElementTouchPosition("td.a")],
+        });
+        await manuallyDispatchProgrammaticEvent(queryOne("td.a"), "touchend", {
+            touches: [getElementTouchPosition("td.a")],
+        });
+
+        await expandToolbar();
+        await expectElementCount("button[name='mergeCells']", 1);
+        await click("button[name='mergeCells']");
+
+        expect(getContent(el)).toBe(
+            unformat(`
+                <p data-selection-placeholder=""><br></p>
+                <div class="o_table_wrapper"><table class="table table-bordered o_table o_selected_table">
+                    <tbody>
+                        <tr>
+                            <td><p><br></p></td>
+                            <td class="a o_selected_td" rowspan="3"><p o-we-hint-text='Type "/" for commands' class="o-we-hint">[]<br></p></td>
+                        </tr>
+                        <tr>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td><p><br></p></td>
+                        </tr>
+                    </tbody>
+                </table></div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`)
+        );
+    });
+});
+
+describe("unmerge cells option", () => {
+    test("unmerge merged row cells via toolbar", async () => {
+        const { el } = await setupEditor(
+            unformat(`
+                <table class="table table-bordered o_table">
+                    <tbody>
+                        <tr>
+                            <td class="a o_selected_td" rowspan="2"><p>[]<br></p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                    </tbody>
+                </table>`)
+        );
+
+        await expandToolbar();
+        await expectElementCount("button[name='mergeCells'].active", 1);
+        await click("button[name='mergeCells']");
+
+        expect(getContent(el)).toBe(
+            unformat(`
+                <p data-selection-placeholder=""><br></p>
+                <div class="o_table_wrapper"><table class="table table-bordered o_table">
+                    <tbody>
+                        <tr>
+                            <td class="a o_selected_td"><p o-we-hint-text='Type "/" for commands' class="o-we-hint">[]<br></p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                    </tbody>
+                </table></div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`)
+        );
+    });
+    test("unmerge merged column cells via toolbar", async () => {
+        const { el } = await setupEditor(
+            unformat(`
+                <table class="table table-bordered o_table">
+                    <tbody>
+                        <tr>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td class="a o_selected_td" colspan="3"><p>[]<br></p></td>
+                        </tr>
+                    </tbody>
+                </table>`)
+        );
+
+        await expandToolbar();
+        await expectElementCount("button[name='mergeCells'].active", 1);
+        await click("button[name='mergeCells']");
+
+        expect(getContent(el)).toBe(
+            unformat(`
+                <p data-selection-placeholder=""><br></p>
+                <div class="o_table_wrapper"><table class="table table-bordered o_table">
+                    <tbody>
+                        <tr>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td class="a o_selected_td"><p o-we-hint-text='Type "/" for commands' class="o-we-hint">[]<br></p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                    </tbody>
+                </table></div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`)
+        );
+    });
+    test("unmerge merged filled row cells via toolbar", async () => {
+        const { el } = await setupEditor(
+            unformat(`
+                <table class="table table-bordered o_table">
+                    <tbody>
+                        <tr>
+                            <td class="a o_selected_td" rowspan="2"><p>a[]</p><p>b</p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                    </tbody>
+                </table>`)
+        );
+
+        await expandToolbar();
+        await expectElementCount("button[name='mergeCells'].active", 1);
+        await click("button[name='mergeCells']");
+
+        expect(getContent(el)).toBe(
+            unformat(`
+                <p data-selection-placeholder=""><br></p>
+                <div class="o_table_wrapper"><table class="table table-bordered o_table">
+                    <tbody>
+                        <tr>
+                            <td class="a o_selected_td"><p>a[]</p><p>b</p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                    </tbody>
+                </table></div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`)
+        );
+    });
+    test("unmerge merged filled column cells via toolbar", async () => {
+        const { el } = await setupEditor(
+            unformat(`
+                <table class="table table-bordered o_table">
+                    <tbody>
+                        <tr>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td class="a o_selected_td" colspan="3"><p>a[]</p><p>b</p></td>
+                        </tr>
+                    </tbody>
+                </table>`)
+        );
+
+        await expandToolbar();
+        await expectElementCount("button[name='mergeCells'].active", 1);
+        await click("button[name='mergeCells']");
+
+        expect(getContent(el)).toBe(
+            unformat(`
+                <p data-selection-placeholder=""><br></p>
+                <div class="o_table_wrapper"><table class="table table-bordered o_table">
+                    <tbody>
+                        <tr>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                        <tr>
+                            <td class="a o_selected_td"><p>a[]</p><p>b</p></td>
+                            <td><p><br></p></td>
+                            <td><p><br></p></td>
+                        </tr>
+                    </tbody>
+                </table></div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`)
+        );
+    });
+});
+
+describe("table style migration", () => {
+    test("should move tbody width/margin-left back to table", async () => {
+        const { el } = await setupEditor(
+            unformat(
+                `<table>
+                    <tbody style="width: 500px; margin-left: 50px;">
+                        <tr><td>1</td><td>2</td></tr>
+                        <tr><td>3</td><td>4</td></tr>
+                    </tbody>
+                </table>`
+            )
+        );
+        expect(getContent(el)).toBe(
+            unformat(`
+                <p data-selection-placeholder=""><br></p>
+                <div class="o_table_wrapper"><table style="width: 500px; margin-left: 50px;">
+                    <tbody>
+                        <tr><td>1</td><td>2</td></tr>
+                        <tr><td>3</td><td>4</td></tr>
+                    </tbody>
+                </table></div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>
+            `)
+        );
+    });
+
+    test("should not move tbody width/margin-left if the table already has them", async () => {
+        const { el } = await setupEditor(
+            unformat(
+                `<table style="width: 700px;">
+                    <tbody style="width: 500px; margin-left: 50px;">
+                        <tr><td>1</td><td>2</td></tr>
+                        <tr><td>3</td><td>4</td></tr>
+                    </tbody>
+                </table>`
+            )
+        );
+        expect(getContent(el)).toBe(
+            unformat(`
+                <p data-selection-placeholder=""><br></p>
+                <div class="o_table_wrapper"><table style="width: 700px;">
+                    <tbody style="width: 500px; margin-left: 50px;">
+                        <tr><td>1</td><td>2</td></tr>
+                        <tr><td>3</td><td>4</td></tr>
+                    </tbody>
+                </table></div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>
+            `)
+        );
     });
 });

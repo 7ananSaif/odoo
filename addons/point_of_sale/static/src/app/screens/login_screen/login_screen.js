@@ -1,13 +1,15 @@
 import { registry } from "@web/core/registry";
 import { usePos } from "@point_of_sale/app/hooks/pos_hook";
-import { Component } from "@odoo/owl";
+import { Component, useProps, t } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 import { useTime } from "@point_of_sale/app/hooks/time_hook";
 import { _t } from "@web/core/l10n/translation";
 
 export class LoginScreen extends Component {
     static template = "point_of_sale.LoginScreen";
-    static props = {};
+    props = useProps({
+        orderUuid: t.string().optional(),
+    });
     static storeOnOrder = false;
     setup() {
         this.pos = usePos();
@@ -35,7 +37,7 @@ export class LoginScreen extends Component {
         const params =
             selectedScreen.page === "ProductScreen" ? { orderUuid: this.pos.getOrder().uuid } : {};
         this.pos.navigate(selectedScreen.page, params);
-        this.pos.hasLoggedIn = true;
+        this.pos.accessRight.hasLoggedIn.set(true);
     }
     selectOneCashier(cashier) {
         this.pos.setCashier(cashier);
@@ -43,6 +45,9 @@ export class LoginScreen extends Component {
     }
     get backBtnName() {
         return _t("Backend");
+    }
+    get logoUrl() {
+        return this.pos.config.receiptLogoUrl;
     }
     clickBack() {
         this.pos.closePos();

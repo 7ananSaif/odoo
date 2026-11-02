@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
     'name': 'Portal Rating',
     'category': 'Services',
-    'version': '1.0',
     'description': """
 Bridge module adding rating capabilities on portal. It includes notably
 inclusion of rating directly within the customer portal discuss widget.
@@ -20,6 +18,18 @@ inclusion of rating directly within the customer portal discuss widget.
     ],
     'auto_install': True,
     'assets': {
+        "web.assets_backend": [
+            "portal_rating/static/src/core/common/**/*",
+        ],
+        "mail.assets_public": [
+            "portal_rating/static/src/core/common/**/*",
+        ],
+        "im_livechat.assets_embed_core": [
+            "portal_rating/static/src/core/common/**/*",
+        ],
+        "portal.assets_chatter_helpers": [
+            "portal_rating/static/src/core/common/**/*",
+        ],
         'web.assets_frontend': [
             'portal_rating/static/src/scss/portal_rating.scss',
             'portal_rating/static/src/xml/portal_chatter.xml',
@@ -32,7 +42,7 @@ inclusion of rating directly within the customer portal discuss widget.
             'portal_rating/static/src/xml/**/*',
         ],
         'portal.assets_chatter': [
-            'portal_rating/static/src/chatter/frontend/**/*',
+            'portal_rating/static/src/chatter/portal/**/*',
         ],
         'portal.assets_chatter_style': [
             'portal_rating/static/src/scss/portal_rating.scss',

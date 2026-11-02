@@ -1,22 +1,25 @@
-import { Interaction } from "@web/public/interaction";
+import { usePlugin } from "@odoo/owl";
+import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
 
 import { uniqueId } from "@web/core/utils/functions";
-import { renderToElement } from "@web/core/utils/render";
+import { Interaction } from "@web/public/interaction";
+import { BootstrapInstance } from "@web/core/utils/bootstrap_plugin";
 
 export class Gallery extends Interaction {
-    static selector = ".s_image_gallery:not(.o_slideshow)";
+    static selector = ".s_image_gallery.o_image_popup";
     dynamicContent = {
-        img: {
+        "img:not(.o_carousel_controllers img)": {
             "t-on-click": this.onClickImg,
         },
     };
 
     setup() {
-        this.modalEl = null;
+        this.bootstrap = usePlugin(BootstrapInstance);
         this.originalSources = [...this.el.querySelectorAll("img")].map((img) =>
             img.getAttribute("src")
         );
+        this.carouselEl = this.el.querySelector(".carousel");
     }
 
     /**
@@ -27,8 +30,17 @@ export class Gallery extends Interaction {
      */
     onClickImg(ev) {
         const clickedEl = ev.currentTarget;
-        if (this.modalEl || clickedEl.matches("a > img")) {
+        if (clickedEl.matches("a > img")) {
             return;
+        }
+
+        // Pause carousel autoplay while the lightbox is active
+        let carousel;
+        if (this.carouselEl) {
+            carousel = this.bootstrap.getOrCreateInstance(window.Carousel, this.carouselEl);
+            this.carouselRideValue = carousel._config.ride;
+            carousel.pause();
+            carousel._config.ride = false;
         }
 
         let imageEls = this.el.querySelectorAll("img");
@@ -53,60 +65,38 @@ export class Gallery extends Interaction {
         };
 
         const milliseconds = this.el.dataset.interval || false;
-        const lightboxTemplate =
-            this.el.dataset.vcss === "002"
-                ? "website.gallery.s_image_gallery_mirror.lightbox"
-                : "website.gallery.slideshow.lightbox";
 
-        this.modalEl = renderToElement(lightboxTemplate, {
+        this.hasMultipleImages = imageEls.length > 1;
+        this.modalEl = this.renderAt("website.image_mirror.lightbox", {
             images: imageEls,
             index: currentImageIndex,
             dim: dimensions,
             interval: milliseconds || 0,
             ride: !milliseconds ? "false" : "carousel",
             id: uniqueId("slideshow_"),
-        });
-
-        this.onModalKeydownBound = this.onModalKeydown.bind(this);
-
-        this.modalEl.addEventListener("hidden.bs.modal", () => {
-            this.modalEl.classList.add("d-none");
-            for (const backdropEl of this.modalEl.querySelectorAll(".modal-backdrop")) {
-                backdropEl.remove(); // bootstrap leaves a modal-backdrop
-            }
-            const slideshowEl = this.modalEl.querySelector(".modal-body.o_slideshow");
-            this.services["public.interactions"].stopInteractions(slideshowEl);
-            this.modalEl.removeEventListener("keydown", this.onModalKeydownBound);
-            this.modalEl.remove();
-            this.modalEl = undefined;
-        });
-
-        this.modalEl.addEventListener(
-            "shown.bs.modal",
-            () => {
-                const slideshowEl = this.modalEl.querySelector(".modal-body.o_slideshow");
-                this.services["public.interactions"].startInteractions(slideshowEl);
-                this.modalEl.addEventListener("keydown", this.onModalKeydownBound);
-            },
-            { once: true }
-        );
-
+            shouldShowControls: this.hasMultipleImages,
+            getIndicatorLabel: (itemPosition, total) =>
+                _t("Slide %(itemPosition)s of %(total)s", { itemPosition, total }),
+        })[0];
         this.insert(this.modalEl, document.body);
-        const modalBS = new Modal(this.modalEl, { keyboard: true, backdrop: true });
-        modalBS.show();
-    }
+        const modal = this.bootstrap.getOrCreateInstance(Modal, this.modalEl, {
+            keyboard: true,
+        });
+        const disposeModal = () => {
+            this.bootstrap.disposeBootstrapInstance(modal);
+            this.modalEl.remove();
+        };
+        this.addListener(this.modalEl, "hidden.bs.modal", disposeModal, { once: true });
+        this.registerCleanup(disposeModal);
+        modal.show();
 
-    /**
-     * @param {MouseEvent} ev
-     */
-    onModalKeydown(ev) {
-        if (ev.key === "ArrowLeft" || ev.key === "ArrowRight") {
-            const side = ev.key === "ArrowLeft" ? "prev" : "next";
-            this.modalEl.querySelector(`.carousel-control-${side}`).click();
-        }
-        if (ev.key === "Escape") {
-            // If the user is connected as an editor, prevent the backend header from collapsing.
-            ev.stopPropagation();
+        // Restore carousel autoplay when closing the lightbox modal
+        if (this.carouselEl) {
+            this.addListener(this.modalEl, "hidden.bs.modal", () => {
+                // Restore the carousel's original auto-cycling state
+                carousel._config.ride = this.carouselRideValue;
+                carousel._maybeEnableCycle();
+            });
         }
     }
 }

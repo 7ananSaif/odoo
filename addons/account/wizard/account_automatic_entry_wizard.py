@@ -241,11 +241,11 @@ class AccountAutomaticEntryWizard(models.TransientModel):
                     'partner_id': partner.id or None,
                     'currency_id': currency.id,
                     'amount_currency': (account_balance > 0 and -1 or 1) * abs(account_amount_currency),
-                    'analytic_distribution': analytic_distribution,
+                    'analytic_distribution': analytic_distribution and dict(analytic_distribution),
                 })
 
         # Get the lowest child company based on accounts used to avoid access error
-        accounts = self.env['account.account'].browse([line['account_id'] for line in line_vals])
+        accounts = self.env['account.account'].browse(account_id for line in line_vals if (account_id := line['account_id']))
         companies = accounts.company_ids.filtered(lambda c: self.env.company in c.parent_ids) | self.env.company
         lowest_child_company = max(companies, key=lambda company: len(company.parent_ids))
 
@@ -410,20 +410,20 @@ class AccountAutomaticEntryWizard(models.TransientModel):
         created_moves._post()
 
         destination_move = created_moves[0]
-        destination_move_offset = 0
         destination_messages = []
         accrual_move_messages = defaultdict(lambda: [])
-        accrual_move_offsets = defaultdict(int)
+
+        # Reconcile lines that are exact mirrors of each other: same name, same reconcilable account.
+        # _get_move_dict_vals_change_period names each line after its source move (e.g. "Cut-off inv/001"),
+        # so grouping by (name, account) naturally pairs each destination line with its reversal
+        lines_by_key = created_moves.line_ids.filtered(
+            lambda line: (line.account_id == accrual_account or line.account_id.reconcile) and not line.currency_id.is_zero(line.balance)
+        ).grouped(lambda line: (line.name, line.account_id, line.partner_id, line.currency_id, frozendict(line.analytic_distribution or {})))
+        self.env['account.move.line'].with_context(no_exchange_difference=True, no_cash_basis=True)._reconcile_plan(list(lines_by_key.values()))
+
         for move in self.move_line_ids.move_id:
             amount = sum((self.move_line_ids._origin & move.line_ids).mapped('balance'))
             accrual_move = created_moves[1:].filtered(lambda m: m.date == self._get_lock_safe_date(move.date))
-
-            if accrual_account.reconcile and accrual_move.state == 'posted' and destination_move.state == 'posted':
-                destination_move_lines = destination_move.mapped('line_ids').filtered(lambda line: line.account_id == accrual_account)[destination_move_offset:destination_move_offset+2]
-                destination_move_offset += 2
-                accrual_move_lines = accrual_move.mapped('line_ids').filtered(lambda line: line.account_id == accrual_account)[accrual_move_offsets[accrual_move]:accrual_move_offsets[accrual_move]+2]
-                accrual_move_offsets[accrual_move] += 2
-                (accrual_move_lines + destination_move_lines).filtered(lambda line: not line.currency_id.is_zero(line.balance)).reconcile()
             body = Markup("%(title)s<ul><li>%(link1)s %(second)s</li><li>%(link2)s %(third)s</li></ul>") % {
                 'title': _("Adjusting Entries have been created for this invoice:"),
                 'link1': self._format_move_link(accrual_move),
@@ -474,11 +474,10 @@ class AccountAutomaticEntryWizard(models.TransientModel):
 
         # Reconcile
         for (partner, currency, account), lines in grouped_lines.items():
-            if account.reconcile:
-                to_reconcile = lines + new_move.line_ids.filtered(lambda x: x.account_id == account and x.partner_id == partner and x.currency_id == currency)
-                to_reconcile.reconcile()
+            to_reconcile = lines + new_move.line_ids.filtered(lambda x: x.account_id == account and x.partner_id == partner and x.currency_id == currency)
+            to_reconcile.reconcile()
 
-            if destination_lines and self.destination_account_id.reconcile:
+            if destination_lines:
                 to_reconcile = destination_lines + new_move.line_ids.filtered(lambda x: x.account_id == self.destination_account_id and x.partner_id == partner and x.currency_id == currency)
                 to_reconcile.reconcile()
 

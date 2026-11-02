@@ -14,9 +14,10 @@ import { getValueFromVar } from "@html_builder/utils/utils";
 /**
  * @typedef {((
  *      editingElement: HTMLElement,
- *      params: ActionParams,
+ *      styleName: string,
  *      value: ActionValue,
- * ) => boolean)[]} apply_custom_css_style
+ *      params?: ActionParams,
+ * ) => boolean)[]} apply_custom_css_style_overrides
  */
 
 export function withoutTransition(editingElement, callback) {
@@ -153,7 +154,7 @@ export class ClassAction extends BuilderAction {
     }
 }
 
-class AttributeAction extends BuilderAction {
+export class AttributeAction extends BuilderAction {
     static id = "attributeAction";
     getValue({ editingElement, params: { mainParam: attributeName } = {} }) {
         return editingElement.getAttribute(attributeName);
@@ -214,7 +215,7 @@ export class DataAttributeAction extends BuilderAction {
 }
 
 // TODO maybe find a better place for this
-class SetClassRangeAction extends BuilderAction {
+export class SetClassRangeAction extends BuilderAction {
     static id = "setClassRange";
     getValue({ editingElement, params: { mainParam: classNames } }) {
         for (const index in classNames) {
@@ -301,21 +302,23 @@ export class StyleAction extends BuilderAction {
         return currentValue === value;
     }
     apply({ editingElement, params = {}, value }) {
-        if (!this.delegateTo("apply_custom_css_style", { editingElement, params, value })) {
-            this.applyCssStyle({ editingElement, params, value });
-        }
-    }
-    applyCssStyle({ editingElement, params = {}, value }) {
-        params = { ...params };
-        const styleName = params.mainParam;
-        delete params.mainParam;
         // Disable all transitions for the duration of the method as many
         // comparisons will be done on the element to know if applying a
         // property has an effect or not. Also, changing a css property via the
         // editor should not show any transition as previews would not be done
         // immediately, which is not good for the user experience.
         withoutTransition(editingElement, () => {
-            setStyle(editingElement, styleName, value, params);
+            const { mainParam: styleName, ...styleParams } = params;
+            if (
+                !this.delegateTo("apply_custom_css_style_overrides", {
+                    editingElement,
+                    styleName,
+                    value,
+                    params: styleParams,
+                })
+            ) {
+                setStyle(editingElement, styleName, value, styleParams);
+            }
         });
     }
     _getValueWithoutTransition(el, styleName) {

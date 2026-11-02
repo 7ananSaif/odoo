@@ -1,36 +1,38 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import http
+from unittest.mock import patch
+
+import odoo
+from odoo.http.session import session_store
+from odoo.tests.common import HOST, HttpCase, new_test_user, tagged
+
 from odoo.addons.base.tests.common import HttpCaseWithUserDemo
-from odoo.tests.common import get_db_name, HOST, HttpCase, new_test_user, Opener, tagged
 
 
 class TestWebLoginCommon(HttpCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        new_test_user(cls.env, 'internal_user', context={'lang': 'en_US'})
-        new_test_user(cls.env, 'portal_user', groups='base.group_portal')
+        cls.internal_user = new_test_user(cls.env, 'internal_user', context={'lang': 'en_US'})
+        cls.portal_user = new_test_user(cls.env, 'portal_user', groups='base.group_portal')
 
     def setUp(self):
         super().setUp()
-        self.session = http.root.session_store.new()
-        self.session.update(http.get_default_session(), db=get_db_name())
-        self.opener = Opener(self)
-        self.opener.cookies.set('session_id', self.session.sid, domain=HOST, path='/')
+        self.authenticate(None, None)
 
     def login(self, username, password, csrf_token=None):
         """Log in with provided credentials and return response to POST request or raises for status."""
         res_post = self.url_open('/web/login', data={
             'login': username,
             'password': password,
-            'csrf_token':csrf_token or http.Request.csrf_token(self),
+            'csrf_token': csrf_token or self.csrf_token(),
         })
         res_post.raise_for_status()
 
         return res_post
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestWebLogin(TestWebLoginCommon):
     def test_web_login(self):
         res_post = self.login('internal_user', 'internal_user')
@@ -38,7 +40,7 @@ class TestWebLogin(TestWebLoginCommon):
         self.url_open(
             '/web/session/check',
             headers={'Content-Type': 'application/json'},
-            data='{}'
+            data='{}',
         ).raise_for_status()
         # ensure we end up on the right page for internal users.
         self.assertEqual(res_post.request.path_url, '/odoo')
@@ -48,9 +50,22 @@ class TestWebLogin(TestWebLoginCommon):
         # ensure we end up on the right page for external users. Valid without portal installed.
         self.assertEqual(res_post.request.path_url, '/web/login_successful')
 
+    def test_web_login_does_not_invalidate_cache(self):
+        from odoo.orm.environments import Transaction  # noqa: PLC0415
+
+        self.internal_user.tz = 'Europe/Brussels'
+        self.assertFalse(self.internal_user.login_date)
+        with patch.object(Transaction, 'invalidate_ormcache') as invalidate_ormcache:
+            for _ in range(2):  # first login, then a regular one
+                self.authenticate(None, None)
+                self.opener.cookies.set('tz', 'Europe/Brussels', domain=HOST)
+                self.login('internal_user', 'internal_user')
+                self.assertTrue(self.internal_user.login_date)
+        invalidate_ormcache.assert_not_called()
+
     def test_web_login_bad_xhr(self):
         # simulate the user downloaded the login form
-        csrf_token = http.Request.csrf_token(self)
+        csrf_token = self.csrf_token()
 
         # simulate that the JS sended a bad XHR to a route that is
         # auth='none' using the same session (e.g. via a service worker)
@@ -59,6 +74,36 @@ class TestWebLogin(TestWebLoginCommon):
 
         # log in using the above form, it should still be valid
         self.login('internal_user', 'internal_user', csrf_token)
+
+    def test_web_switch_to_admin(self):
+        session = self.authenticate(None, None)
+        res = self.url_open('/web/become', allow_redirects=False)
+        res.raise_for_status()
+        self.assertEqual(res.status_code, 303)
+        self.assertURLEqual(res.headers['Location'], '/web/login?redirect=/web/become?')
+        sid = res.cookies.get('session_id', session.sid)
+        self.assertEqual(sid, session.sid, "it should not have a new session")
+        self.assertIsNone(session_store().get(sid)['uid'], "it should still not be connected")
+
+        session = self.authenticate('internal_user', 'internal_user')
+        res = self.url_open('/web/become', allow_redirects=False)
+        res.raise_for_status()
+        self.assertEqual(res.status_code, 303)
+        self.assertURLEqual(res.headers['Location'], '/odoo')
+        sid = res.cookies.get('session_id', session.sid)
+        self.assertEqual(sid, session.sid, "it should not have a new session")
+        self.assertEqual(session_store().get(sid)['uid'], self.internal_user.id,
+            "it should not had become SUPERUSER")
+
+        session = self.authenticate('admin', 'admin')
+        res = self.url_open('/web/become', allow_redirects=False)
+        res.raise_for_status()
+        self.assertEqual(res.status_code, 303)
+        self.assertURLEqual(res.headers['Location'], '/odoo')
+        sid = res.cookies.get('session_id', session.sid)
+        # self.assertNotEqual(sid, session.sid, "it should have a new session")
+        self.assertEqual(session_store().get(sid)['uid'], odoo.SUPERUSER_ID,
+            "it should had become SUPERUSER")
 
 
 @tagged('post_install', '-at_install')

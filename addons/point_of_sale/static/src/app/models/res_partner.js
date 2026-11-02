@@ -10,20 +10,20 @@ export class ResPartner extends Base {
         this._searchString = null;
     }
 
+    get company() {
+        return this.config.company_id;
+    }
+
+    get config() {
+        return this.models["pos.config"].getFirst();
+    }
+
     get searchString() {
         if (this._searchString) {
             return this._searchString;
         }
 
-        const fields = [
-            "name",
-            "barcode",
-            "phone",
-            "email",
-            "vat",
-            "parent_name",
-            "pos_contact_address",
-        ];
+        const fields = ["name", "barcode", "phone", "email", "vat", "parent_name", "address"];
         this._searchString = fields
             .map((field) => {
                 if (field === "phone" && this[field]) {

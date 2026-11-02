@@ -11,23 +11,30 @@
 # Rastislav Brencic <rastislav.brencic@azet.sk>, 2022
 # Jiří Podhorecký, 2022
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
-# "Marta (wacm)" <wacm@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:39+0000\n"
-"PO-Revision-Date: 2026-02-25 14:48+0000\n"
-"Last-Translator: \"Marta (wacm)\" <wacm@odoo.com>\n"
-"Language-Team: Czech <https://translate.odoo.com/projects/odoo-19/snailmail/"
-"cs/>\n"
+"POT-Creation-Date: 2026-09-11 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 20:27+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Czech <https://translate.odoo.com/projects/odoo-s19-4/"
+"snailmail/cs/>\n"
 "Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n "
 "<= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: snailmail
+#: model:ir.module.module,description:base.module_snailmail
+msgid ""
+"\n"
+"Allows users to send documents by post\n"
+"=====================================================\n"
+msgstr ""
 
 #. module: snailmail
 #: model:ir.model.fields.selection,name:snailmail.selection__snailmail_letter__error_code__attachment_error
@@ -92,6 +99,12 @@ msgid "Both sides"
 msgstr "Obě strany"
 
 #. module: snailmail
+#. odoo-javascript
+#: code:addons/snailmail/static/src/core/notification_model_patch.js:0
+msgid "Bounced"
+msgstr ""
+
+#. module: snailmail
 #: model:ir.model.fields.selection,name:snailmail.selection__snailmail_letter__error_code__credit_error
 msgid "CREDIT_ERROR"
 msgstr "CREDIT_ERROR"
@@ -120,10 +133,6 @@ msgstr "Barva"
 
 #. module: snailmail
 #: model:ir.model,name:snailmail.model_res_company
-msgid "Companies"
-msgstr "Společnosti"
-
-#. module: snailmail
 #: model:ir.model.fields,field_description:snailmail.field_snailmail_letter__company_id
 msgid "Company"
 msgstr "Společnost"
@@ -170,6 +179,12 @@ msgid "Created on"
 msgstr "Vytvořeno dne"
 
 #. module: snailmail
+#. odoo-javascript
+#: code:addons/snailmail/static/src/core/notification_model_patch.js:0
+msgid "Dispatched"
+msgstr ""
+
+#. module: snailmail
 #: model:ir.model.fields,field_description:snailmail.field_ir_actions_report__display_name
 #: model:ir.model.fields,field_description:snailmail.field_mail_message__display_name
 #: model:ir.model.fields,field_description:snailmail.field_mail_notification__display_name
@@ -179,10 +194,10 @@ msgstr "Vytvořeno dne"
 #: model:ir.model.fields,field_description:snailmail.field_res_partner__display_name
 #: model:ir.model.fields,field_description:snailmail.field_snailmail_letter__display_name
 msgid "Display Name"
-msgstr "Zobrazovaný název"
+msgstr "Zobrazovací název"
 
 #. module: snailmail
-#: model:ir.model.fields,field_description:snailmail.field_snailmail_letter__attachment_datas
+#: model:ir.model.fields,field_description:snailmail.field_snailmail_letter__attachment_raw
 #: model_terms:ir.ui.view,arch_db:snailmail.snailmail_letter_list
 msgid "Document"
 msgstr "Dokument"
@@ -256,6 +271,11 @@ msgid "Invalid recipient name."
 msgstr "Neplatné jméno příjemce."
 
 #. module: snailmail
+#: model:ir.model.fields.selection,name:snailmail.selection__snailmail_letter__error_code__letter_undeliverable
+msgid "LETTER_UNDELIVERABLE"
+msgstr ""
+
+#. module: snailmail
 #: model:ir.model.fields,field_description:snailmail.field_snailmail_letter__write_uid
 msgid "Last Updated by"
 msgstr "Naposledy upraveno uživatelem"
@@ -272,10 +292,28 @@ msgid "Letter"
 msgstr "Dopis"
 
 #. module: snailmail
+#. odoo-javascript
+#: code:addons/snailmail/static/src/core/notification_model_patch.js:0
+msgid "Letter Undeliverable"
+msgstr ""
+
+#. module: snailmail
+#. odoo-python
+#: code:addons/snailmail/controller/snailmail_webhook.py:0
+msgid "Letter is delivered successfully"
+msgstr ""
+
+#. module: snailmail
 #. odoo-python
 #: code:addons/snailmail/models/snailmail_letter.py:0
 msgid "Letter sent by post with Snailmail"
 msgstr "Dopis zaslaný klasickou poštou"
+
+#. module: snailmail
+#. odoo-python
+#: code:addons/snailmail/controller/snailmail_webhook.py:0
+msgid "Letter was unable to be delivered"
+msgstr ""
 
 #. module: snailmail
 #: model_terms:ir.ui.view,arch_db:snailmail.snailmail_letter_list
@@ -294,8 +332,8 @@ msgstr "Zpráva"
 
 #. module: snailmail
 #: model:ir.model,name:snailmail.model_mail_notification
-msgid "Message Notifications"
-msgstr "Notifikace zprávy"
+msgid "Message Notification"
+msgstr ""
 
 #. module: snailmail
 #. odoo-javascript
@@ -363,6 +401,11 @@ msgid "Print In Color"
 msgstr "Tisk v barvě"
 
 #. module: snailmail
+#: model:ir.model.fields.selection,name:snailmail.selection__snailmail_letter__state__process
+msgid "Processing"
+msgstr ""
+
+#. module: snailmail
 #: model:ir.model.fields,field_description:snailmail.field_snailmail_letter__partner_id
 msgid "Recipient"
 msgstr "Adresát"
@@ -400,6 +443,12 @@ msgid "Sent by"
 msgstr "Odesláno"
 
 #. module: snailmail
+#: model:iap.service,name:snailmail.iap_service_snailmail
+#: model:ir.module.module,shortdesc:base.module_snailmail
+msgid "Snail Mail"
+msgstr ""
+
+#. module: snailmail
 #. odoo-python
 #: code:addons/snailmail/models/snailmail_letter.py:0
 msgid "Snail Mails are successfully sent"
@@ -414,11 +463,6 @@ msgstr "Poštovní dopis"
 #. module: snailmail
 #: model:ir.model.fields,field_description:snailmail.field_res_company__snailmail_color
 msgid "Snailmail Color"
-msgstr ""
-
-#. module: snailmail
-#: model:ir.model.fields,field_description:snailmail.field_res_config_settings__snailmail_cover_readonly
-msgid "Snailmail Cover Readonly"
 msgstr ""
 
 #. module: snailmail
@@ -476,9 +520,19 @@ msgid "Snailmail Trial Error"
 msgstr "Zkušební chyba Snailmail"
 
 #. module: snailmail
+#: model:ir.model.fields.selection,name:snailmail.selection__mail_notification__failure_type__sn_undeliverable
+msgid "Snailmail Undeliverable"
+msgstr ""
+
+#. module: snailmail
 #: model:ir.model.fields.selection,name:snailmail.selection__mail_notification__failure_type__sn_error
 msgid "Snailmail Unknown Error"
 msgstr "Neznámá chyba Snailmail"
+
+#. module: snailmail
+#: model:ir.model.fields,field_description:snailmail.field_snailmail_letter__letter_uid
+msgid "Snailmail letter ID"
+msgstr ""
 
 #. module: snailmail
 #: model:ir.model.fields,field_description:snailmail.field_mail_mail__snailmail_error
@@ -546,14 +600,16 @@ msgstr "Do země partnera nelze poslat klasický dopis"
 #. module: snailmail
 #. odoo-python
 #: code:addons/snailmail/models/snailmail_letter.py:0
-msgid "The document to be sent exceeds the maximum allowed limit of 8 pages."
+msgid ""
+"The document has been accepted by postal service provider and is being "
+"processed.<br>The tracking id is %s"
 msgstr ""
 
 #. module: snailmail
 #. odoo-python
 #: code:addons/snailmail/models/snailmail_letter.py:0
-msgid "The document was correctly sent by post.<br>The tracking id is %s"
-msgstr "Dokument byl správně odeslán poštou. <br>Trasovací ID je %s"
+msgid "The document to be sent exceeds the maximum allowed limit of 8 pages."
+msgstr ""
 
 #. module: snailmail
 #: model:ir.model.fields,field_description:snailmail.field_mail_mail__message_type
@@ -599,14 +655,12 @@ msgstr ""
 #: model:ir.model.fields,help:snailmail.field_snailmail_letter__state
 msgid ""
 "When a letter is created, the status is 'Pending'.\n"
-"If the letter is correctly sent, the status goes in 'Sent',\n"
-"If not, it will got in state 'Error' and the error message will be displayed "
-"in the field 'Error Message'."
+"If the letter is correctly sent to provider, the status goes in 'process',\n"
+"If the provider confirms the letter is delivered, the status goes in "
+"'Sent'.\n"
+"If not sent or delivered, it will got in state 'Error' and the error message "
+"will be displayed in the field 'Error Message'."
 msgstr ""
-"Po vytvoření dopisu je stav „Čekající“.\n"
-"Pokud je dopis správně odeslán, stav se změní na „Odesláno“,\n"
-"Pokud ne, dostane se do stavu „Chyba“ a chybová zpráva se zobrazí v poli "
-"„Chybová zpráva“."
 
 #. module: snailmail
 #. odoo-python
@@ -633,77 +687,16 @@ msgstr ""
 msgid "Zip"
 msgstr "PSČ"
 
-#~ msgid "Address"
-#~ msgstr "Adresa"
-
-#~ msgid "An unknown error occurred. Please contact our"
-#~ msgstr "Došlo k neznámé chybě. Kontaktujte prosím naši"
-
-#~ msgid "Buy credits"
-#~ msgstr "Koupit kredity"
-
-#~ msgid "Cancel letter"
-#~ msgstr "Zrušit dopis"
-
-#~ msgid "Cancel notification in failure"
-#~ msgstr "Zrušit oznámení v případě selhání"
-
-#~ msgid "Canceled"
-#~ msgstr "Zrušeno"
-
-#~ msgid "Close"
-#~ msgstr "Zavřít"
-
-#~ msgid "Format Error Sending a Snailmail Letter"
-#~ msgstr "Chyba formátování k odeslání dopisu klasickou poštou"
+#~ msgid "The document was correctly sent by post.<br>The tracking id is %s"
+#~ msgstr "Dokument byl správně odeslán poštou. <br>Trasovací ID je %s"
 
 #~ msgid ""
-#~ "Message type: email for email message, notification for system message, "
-#~ "comment for other messages such as user replies"
+#~ "When a letter is created, the status is 'Pending'.\n"
+#~ "If the letter is correctly sent, the status goes in 'Sent',\n"
+#~ "If not, it will got in state 'Error' and the error message will be "
+#~ "displayed in the field 'Error Message'."
 #~ msgstr ""
-#~ "Druh zprávy: 'E-mail' pro e-mailové zprávy, 'Upozornění' pro zprávy "
-#~ "systému, 'Komentář' pro ostatní zprávy, jako odpovědi uživatelů."
-
-#~ msgid "Partner"
-#~ msgstr "Partner"
-
-#~ msgid "Re-send letter"
-#~ msgstr "Znovu poslat dopis"
-
-#~ msgid "Street 2..."
-#~ msgstr "Ulice 2..."
-
-#~ msgid "Street..."
-#~ msgstr "Ulice..."
-
-#~ msgid ""
-#~ "The country to which you want to send the letter is not supported by our "
-#~ "service."
-#~ msgstr "Země, do které chcete dopis odeslat, není naší službou podporována."
-
-#~ msgid ""
-#~ "The letter could not be sent due to insufficient credits on your IAP "
-#~ "account."
-#~ msgstr ""
-#~ "Dopis nemohl být odeslán z důvodu nedostatku kreditů na vašem účtu IAP."
-
-#~ msgid "Update Config and Re-send"
-#~ msgstr "Aktualizujte konfiguraci a znovu odešlete"
-
-#~ msgid "Update address and re-send"
-#~ msgstr "Aktualizovat adresu a znovu odeslat"
-
-#~ msgid "Update address of partner"
-#~ msgstr "Aktualizovat adresu partnera"
-
-#~ msgid "You need credits on your IAP account to send a letter."
-#~ msgstr "K odeslání dopisu potřebujete kredity na účtu IAP."
-
-#~ msgid "ZIP"
-#~ msgstr "PSČ"
-
-#~ msgid "for further assistance."
-#~ msgstr "pro další pomoc."
-
-#~ msgid "support"
-#~ msgstr "podporu"
+#~ "Po vytvoření dopisu je stav „Čekající“.\n"
+#~ "Pokud je dopis správně odeslán, stav se změní na „Odesláno“,\n"
+#~ "Pokud ne, dostane se do stavu „Chyba“ a chybová zpráva se zobrazí v poli "
+#~ "„Chybová zpráva“."

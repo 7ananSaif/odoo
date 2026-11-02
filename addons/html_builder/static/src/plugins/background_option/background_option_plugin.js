@@ -11,11 +11,11 @@ import { registry } from "@web/core/registry";
  * }[]} mark_color_level_selector_params
  */
 
-class BackgroundOptionPlugin extends Plugin {
+export class BackgroundOptionPlugin extends Plugin {
     static id = "backgroundOption";
     /** @type {import("plugins").BuilderResources} */
     resources = {
-        normalize_handlers: this.normalize.bind(this),
+        normalize_processors: this.normalize.bind(this),
         system_classes: ["o_colored_level"],
     };
     normalize(root) {
@@ -27,6 +27,7 @@ class BackgroundOptionPlugin extends Plugin {
                 markColorLevelSelectorParam
             );
         }
+        return root;
     }
     markColorLevel(editingEl) {
         editingEl.classList.add("o_colored_level");

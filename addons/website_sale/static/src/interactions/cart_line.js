@@ -1,3 +1,4 @@
+import { markup } from '@odoo/owl';
 import { Interaction } from '@web/public/interaction';
 import { browser } from '@web/core/browser/browser';
 import { registry } from '@web/core/registry';
@@ -9,32 +10,32 @@ export class CartLine extends Interaction {
     static selector = '.o_cart_product';
     dynamicContent = {
         '.css_quantity > input.js_quantity': {
-            't-on-change.withTarget': this.locked(this.debounced(this.changeQuantity, 500)),
+            't-on-change': this.locked(this.debounced(this.changeQuantity, 500)),
         },
-        '.css_quantity > a': {
-            't-on-click.prevent.withTarget': this.locked(this.incOrDecQuantity),
+        '.css_quantity > button': {
+            't-on-click.prevent': this.locked(this.incOrDecQuantity),
         },
         '.js_delete_product': { 't-on-click.prevent': this.locked(this.deleteProduct) },
     };
 
     /**
      * @param {Event} ev
-     * @param {HTMLElement} currentTargetEl
      */
-    async changeQuantity(ev, currentTargetEl) {
-        await this._changeQuantity(currentTargetEl);
+    async changeQuantity(ev) {
+        await this._changeQuantity(ev.target);
     }
 
     /**
      * @param {Event} ev
-     * @param {HTMLElement} currentTargetEl
      */
-    async incOrDecQuantity(ev, currentTargetEl) {
-        const input = currentTargetEl.closest('.css_quantity').querySelector('input.js_quantity');
+    async incOrDecQuantity(ev) {
+        const input = ev.currentTarget.closest('.css_quantity').querySelector('input.js_quantity');
+        const datasetMin = parseFloat(input.dataset.min || 0);
+        const minQuantity = datasetMin > 1 ? datasetMin : 0;
         const maxQuantity = parseFloat(input.dataset.max || Infinity);
         const oldQuantity = parseFloat(input.value || 0);
-        const newQuantity = currentTargetEl.querySelector('i').classList.contains('oi-minus')
-            ? Math.min(Math.max(oldQuantity - 1, 0), maxQuantity)
+        const newQuantity = ev.currentTarget.name === 'minus_button'
+            ? Math.min(Math.max(oldQuantity - 1, minQuantity), maxQuantity)
             : Math.min(oldQuantity + 1, maxQuantity);
         if (oldQuantity !== newQuantity) {
             input.value = newQuantity;
@@ -60,7 +61,19 @@ export class CartLine extends Interaction {
             line_id: lineId,
             product_id: parseInt(input.dataset.productId),
             quantity: quantity,
-        }));
+        })).catch(error => {
+            this.services.cart.showWarning(error.data.message);
+        });
+        if (!data) {return;}
+
+        data['website_sale.cart_lines'] = markup(data['website_sale.cart_lines']);
+
+        if (data.tracking_info?.length) {
+            wSaleUtils.dispatchTrackingEvent("update_cart_event", {
+                currency: data.currency,
+                items: data.tracking_info,
+            });
+        }
 
         if (!data.cart_quantity) {
             // Ensure the last cart removal is recorded.
@@ -73,14 +86,14 @@ export class CartLine extends Interaction {
         );
 
         const cart = this.el.closest('#shop_cart');
-        // `updateCartNavBar` regenerates the cart lines and `updateQuickReorderSidebar`
-        // regenerates the quick reorder products, so we need to stop and start interactions
-        // to make sure the regenerated cart lines and reorder products are properly handled.
+        // `updateCartNavBar` regenerates the cart lines and `updateQuickReorderSidebar` regenerates
+        // the quick reorder products, so we need to stop and start interactions to make sure the
+        // regenerated cart lines and reorder products are properly handled.
         this.services['public.interactions'].stopInteractions(cart);
         wSaleUtils.updateCartNavBar(data);
         wSaleUtils.updateQuickReorderSidebar(data);
         this.services['public.interactions'].startInteractions(cart);
-        wSaleUtils.showWarning(data.warning);
+        this.services.cart.showWarning(data.warning);
         // Propagate the change to the express checkout forms.
         this.env.bus.trigger('cart_amount_changed', [data.amount, data.minor_amount]);
     }

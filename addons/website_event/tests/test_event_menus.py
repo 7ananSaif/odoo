@@ -5,9 +5,10 @@ from datetime import datetime, timedelta
 
 from odoo import fields
 from odoo.addons.website_event.tests.common import OnlineEventCase
-from odoo.tests.common import HttpCase, users
+from odoo.tests.common import tagged, HttpCase, users
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install, fails post install
 class TestEventMenus(OnlineEventCase, HttpCase):
 
     @users('admin')
@@ -141,8 +142,14 @@ class TestEventMenus(OnlineEventCase, HttpCase):
         })
         self._assert_website_menus(event, ['Home', 'Practical'], menus_out=['Rooms'])
 
+        # simulate menu edition via the editor
+        home_menu = event.menu_id.child_id.filtered(lambda menu: menu.name == 'Home')
+        event_home_menu = self.env['website.event.menu'].search([('menu_id', '=', home_menu.id)])
+        replacement = '<div class="oe_structure" id="oe_structure_website_event_intro_2">hello</div>'
+        event_home_menu.view_id.save(replacement, xpath='/t[1]/t[1]/div[3]')
+
         # simulate menu removal from frontend: aka unlinking a menu
-        event.menu_id.child_id.filtered(lambda menu: menu.name == 'Home').unlink()
+        home_menu.unlink()
 
         self.assertTrue(event.website_menu)
         self._assert_website_menus(event, ['Practical'], menus_out=['Home', 'Rooms'])

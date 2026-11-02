@@ -43,7 +43,7 @@
                            invisible="repartition_type == 'base'"
                            widget="account_tax_repartition_line_factor_percent"/>
                     <field name="repartition_type"/>
-                    <field name="account_id" invisible="repartition_type == 'base'" options="{'no_create': True}"/>
+                    <field name="account_id" invisible="repartition_type == 'base'" options="{'no_create': True}" decoration-muted="not account_active" context="{'active_test': True}"/>
                     <field name="tag_ids"
                            widget="many2many_tags"
                            options="{'no_create': True}"
@@ -54,6 +54,44 @@
                     <field name="company_id" column_invisible="True"/>
                     <field name="tag_ids_domain" column_invisible="True"/>
                 </list>
+            </field>
+        </record>
+
+        <record id="tax_repartition_line_kanban" model="ir.ui.view">
+            <field name="name">account.tax.repartition.line.kanban</field>
+            <field name="model">account.tax.repartition.line</field>
+            <field name="arch" type="xml">
+                <kanban class="o_kanban_mobile">
+                    <templates>
+                        <t t-name="card">
+                            <div class="card-body d-flex justify-content-center gap-1 flex-wrap">
+                                <field name="factor_percent" digits="[1, 2]" invisible="repartition_type == 'base'"/>
+                                <span invisible="repartition_type == 'base'">%</span>
+                                <field name="repartition_type"/>
+                                <span invisible="not account_id">on</span>
+                                <field name="account_id" invisible="not account_id"/>
+                                <div class="w-100" invisible="not tag_ids"/>
+                                <field name="tag_ids" widget="many2many_tags" class="oe_inline"/>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <record id="tax_repartition_line_form" model="ir.ui.view">
+            <field name="name">account.tax.repartition.line.form</field>
+            <field name="model">account.tax.repartition.line</field>
+            <field name="arch" type="xml">
+                <form string="Account Tax Repartition Line">
+                    <group>
+                        <field name="factor_percent"/>
+                        <field name="repartition_type"/>
+                        <field name="account_id"/>
+                        <field name="tag_ids" widget="many2many_tags"/>
+                        <field name="use_in_tax_closing" widget="boolean_toggle"/>
+                    </group>
+                </form>
             </field>
         </record>
 
@@ -72,15 +110,15 @@
         <record id="account_tax_fiscal_position_view_tree" model="ir.ui.view">
             <field name="name">account.fiscal.position.tax.list</field>
             <field name="model">account.tax</field>
-            <field name="inherit_id" ref="account.account_tax_view_tree" />
+            <field name="inherit_id" ref="account.account_tax_view_tree"/>
             <field name="mode">primary</field>
             <field name="priority">20</field>
             <field name="arch" type="xml">
                 <field name="display_name" position="before">
-                    <field name="type_tax_use" />
+                    <field name="type_tax_use"/>
                 </field>
                 <field name="display_name" position="after">
-                    <field name="original_tax_ids" widget="many2many_tax_tags" />
+                    <field name="original_tax_ids" widget="many2many_tax_tags"/>
                 </field>
             </field>
         </record>
@@ -130,8 +168,8 @@
                     <filter name="inactive" string="Inactive" domain="[('active','=',False)]" help="Show inactive taxes"/>
                     <group>
                         <filter string="Company" name="company" domain="[]" context="{'group_by':'company_id'}" groups="base.group_multi_company"/>
-                        <filter string="Tax Type" name="taxapp" domain="[]" context="{'group_by':'type_tax_use'}"/>
-                        <filter string="Tax Scope" name="taxapp" domain="[]" context="{'group_by':'tax_scope'}"/>
+                        <filter string="Tax Type" name="type_tax_use" domain="[]" context="{'group_by':'type_tax_use'}"/>
+                        <filter string="Tax Scope" name="tax_scope" domain="[]" context="{'group_by':'tax_scope'}"/>
                         <filter string="Fiscal Position" name="groupfp" domain="[]" context="{'group_by': 'fiscal_position_ids'}"/>
                     </group>
                 </search>
@@ -160,17 +198,15 @@
                         <group>
                             <field name="name"/>
                             <field name="amount_type"/>
-                            <field name="active" widget="boolean_toggle"/>
-                        </group>
-                        <group>
-                            <field name="is_used" invisible="1"/>
-                            <field name="type_tax_use"/>
-                            <field name="tax_scope"/>
                             <label for="amount" invisible="amount_type not in ('fixed', 'percent', 'division')"/>
                             <div invisible="amount_type not in ('fixed', 'percent', 'division')">
                                 <field name="amount" class="oe_inline" nolabel="1"/>
                                 <span class="o_form_label oe_inline" invisible="amount_type == 'fixed'">%</span>
                             </div>
+                            <field name="description"/>
+                        </group>
+                        <group>
+                            <field name="type_tax_use"/>
                             <field name="fiscal_position_ids" widget="many2many_tags" placeholder="all"/>
                             <field name="original_tax_ids"
                                    widget="many2many_tags"
@@ -184,10 +220,10 @@
                             <group invisible="amount_type == 'group'">
                                 <field name="country_code" invisible="1"/>
                                 <group string="Distribution for Invoices" class="mw-100">
-                                    <field name="invoice_repartition_line_ids" nolabel="1" colspan="2"/>
+                                    <field name="invoice_repartition_line_ids" nolabel="1" colspan="2" context="{'default_document_type': 'invoice'}"/>
                                 </group>
                                 <group string="Distribution for Refunds" class="mw-100">
-                                    <field name="refund_repartition_line_ids" nolabel="1" colspan="2"/>
+                                    <field name="refund_repartition_line_ids" nolabel="1" colspan="2" context="{'default_document_type': 'refund'}"/>
                                 </group>
                             </group>
                             <field name="children_tax_ids" invisible="amount_type != 'group' or type_tax_use == 'none'" domain="[('type_tax_use','in',('none',type_tax_use)), ('amount_type','!=','group')]">
@@ -203,12 +239,11 @@
                             <group>
                                 <group>
                                     <field name="invoice_label"/>
-                                    <field name="description"/>
+                                    <field name="tax_scope"/>
                                     <field name="tax_group_id" invisible="amount_type == 'group'" required="amount_type != 'group'"/>
                                     <field name="analytic" invisible="amount_type == 'group'" groups="analytic.group_analytic_accounting" />
                                     <field name="company_id" options="{'no_create': True}" groups="base.group_multi_company"/>
                                     <field name="country_id" required="True"/>
-                                    <field name="invoice_legal_notes"/>
                                 </group>
                                 <group name="advanced_booleans">
                                     <field name="price_include" invisible="1"/>
@@ -220,9 +255,15 @@
                                     <field name="is_base_affected"
                                            invisible="amount_type == 'group' or price_include"
                                            groups="base.group_no_one"/>
+                                    <field name="active" widget="boolean_toggle"/>
                                     <field name="hide_tax_exigibility" invisible="1"/>
                                     <field name="tax_exigibility" widget="radio" invisible="amount_type == 'group' or not hide_tax_exigibility"/>
-                                    <field name="cash_basis_transition_account_id" options="{'no_create': True}" invisible="tax_exigibility == 'on_invoice'" required="tax_exigibility == 'on_payment'" groups="account.group_account_readonly"/>
+                                    <field name="cash_basis_transition_account_id" options="{'no_create': True}" invisible="tax_exigibility == 'on_invoice'" required="tax_exigibility == 'on_payment'"/>
+                                </group>
+                            </group>
+                            <group>
+                                <group string="Legal Notes" name="legal_notes">
+                                    <field name="invoice_legal_notes" nolabel="1" colspan="2" placeholder="This note will be mentioned on invoices using this tax."/>
                                 </group>
                             </group>
                         </page>
@@ -272,11 +313,6 @@
                     <field name="company_id" column_invisible="True"/>
                     <field name="company_id" groups="base.group_multi_company"/>
                     <field name="country_code" column_invisible="True"/>
-
-                    <field name="tax_payable_account_id"/>
-                    <field name="tax_receivable_account_id"/>
-                    <field name="advance_tax_payment_account_id"/>
-
                     <field name="preceding_subtotal" optional="hide"/>
                 </list>
             </field>
@@ -298,9 +334,6 @@
                                 <field name="pos_receipt_label" string="Label on PoS Receipts" groups="base.group_no_one"/>
                             </group>
                             <group>
-                                <field name="tax_payable_account_id" domain="[('company_ids', '=', company_id)]"/>
-                                <field name="tax_receivable_account_id" domain="[('company_ids', '=', company_id)]"/>
-                                <field name="advance_tax_payment_account_id" domain="[('company_ids', '=', company_id)]"/>
                                 <field name="preceding_subtotal"/>
                             </group>
                         </group>

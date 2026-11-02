@@ -1,16 +1,21 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+from functools import wraps
 from markupsafe import Markup
+from unittest.mock import patch
 
-from odoo import Command, tests
+from odoo import Command, fields, tests
+from odoo.addons.im_livechat.controllers.chatbot import (
+    LivechatChatbotScriptController as LivechatChatbotController,
+)
 from odoo.addons.im_livechat.tests.chatbot_common import ChatbotCase
 from odoo.addons.website_livechat.tests.common import TestLivechatCommon as TestWebsiteLivechatCommon
 from odoo.addons.im_livechat.tests.common import TestGetOperatorCommon
 from odoo.tools import html2plaintext
+from odoo.tools.misc import mute_logger
 
 
-@tests.tagged('post_install', '-at_install', 'is_tour')
+@tests.tagged("is_tour")
 class TestLivechatChatbotUICommon(TestGetOperatorCommon, TestWebsiteLivechatCommon, ChatbotCase):
     def setUp(self):
         super().setUp()
@@ -26,7 +31,7 @@ class TestLivechatChatbotUICommon(TestGetOperatorCommon, TestWebsiteLivechatComm
             })]
         })
 
-        self.env.ref('website.default_website').channel_id = self.livechat_channel.id
+        self.env.ref('base.default_website').channel_id = self.livechat_channel.id
 
     def chatbot_redirect_tour(self):
         chatbot_redirect_script = self.env["chatbot.script"].create(
@@ -65,13 +70,12 @@ class TestLivechatChatbotUICommon(TestGetOperatorCommon, TestWebsiteLivechatComm
                 'chatbot_script_id': chatbot_redirect_script.id,
             })]
         })
-        default_website = self.env.ref("website.default_website")
+        default_website = self.env.ref("base.default_website")
         default_website.channel_id = livechat_channel.id
-        self.env.ref("website.default_website").channel_id = livechat_channel.id
+        self.env.ref("base.default_website").channel_id = livechat_channel.id
         self.start_tour("/contactus", "website_livechat.chatbot_redirect")
 
 
-@tests.tagged("post_install", "-at_install")
 class TestLivechatChatbotUI(TestLivechatChatbotUICommon):
 
     def _check_complete_chatbot_flow_result(self):
@@ -83,12 +87,8 @@ class TestLivechatChatbotUI(TestLivechatChatbotUICommon):
         ])
         self.assertTrue(bool(livechat_discuss_channel))
         self.assertEqual(len(livechat_discuss_channel), 1)
-
         conversation_messages = livechat_discuss_channel.message_ids.sorted('id')
-        operator_member = livechat_discuss_channel.channel_member_ids.filtered(
-            lambda m: m.partner_id == self.operator.partner_id
-        )
-
+        operator_member = livechat_discuss_channel.with_user(self.operator).self_member_id
         expected_messages = [
             ("Hello! I'm a bot!", operator, False),
             ("I help lost visitors find their way.", operator, False),
@@ -101,6 +101,11 @@ class TestLivechatChatbotUI(TestLivechatChatbotUICommon):
             ("'No, you won't get my email!' does not look like a valid email. Can you please try again?", operator, False),
             ("okfine@fakeemail.com", False, False),
             ("Your email is validated, thank you!", operator, False),
+            ("Can you give us your phone number please?", operator, False),
+            ("123456", False, False),
+            ("'123456' does not look like a valid phone number. Can you please try again?", operator, False),
+            ("+919876543210", False, False),
+            ("Your phone number is validated. thank you!", operator, False),
             ("Would you mind providing your website address?", operator, False),
             ("https://www.fakeaddress.com", False, False),
             ("Great, do you want to leave any feedback for us to improve?", operator, False),
@@ -128,15 +133,15 @@ class TestLivechatChatbotUI(TestLivechatChatbotUICommon):
             ("I will transfer you to a human.", operator, False),
             (
                 'invited <a href="#" data-oe-model="res.partner" data-oe-id="'
-                f'{operator_member.partner_id.id}">@El Deboulonnator</a> to the channel',
+                f'{operator_member.partner_id.id}" class="o_mail_redirect">@El Deboulonnator</a> to the conversation',
                 self.chatbot_script.operator_partner_id,
                 False,
             ),
         ]
 
         self.assertEqual(len(conversation_messages), len(expected_messages))
-        # "invited" notification is not taken into account in unread counter contribution.
-        self.assertEqual(len(conversation_messages) - 1, operator_member.message_unread_counter)
+        # New members land at latest message, so operator unread counter is 0.
+        self.assertEqual(operator_member.message_unread_counter, 0)
 
         # check that the whole conversation is correctly saved
         # including welcome steps: see chatbot.script#_post_welcome_steps
@@ -168,16 +173,18 @@ class TestLivechatChatbotUI(TestLivechatChatbotUICommon):
         for body, operator, _ in expected_messages[-6:-1]:
             message_author = operator or visitor_partner
             if previous_message_author != message_author:
+                if parts:
+                    parts.append("")
                 parts.append(
-                    Markup("<br/><strong>%s:</strong><br/>")
+                    Markup("<strong>%s:</strong>")
                     % (
                         (message_author.user_livechat_username if message_author._name == "res.partner" else None)
                         or message_author.name
                     ),
                 )
-            parts.append(Markup("%s<br/>") % html2plaintext(body))
+            parts.append(Markup("%s") % html2plaintext(body))
             previous_message_author = message_author
-        expected_history = Markup("").join(parts)
+        expected_history = Markup("<br/>").join(parts)
         self.assertEqual(history, expected_history)
 
     def test_complete_chatbot_flow_ui(self):
@@ -238,15 +245,15 @@ class TestLivechatChatbotUI(TestLivechatChatbotUICommon):
                 'chatbot_script_id': chatbot_trigger_selection.id,
             })]
         })
-        default_website = self.env.ref("website.default_website")
+        default_website = self.env.ref("base.default_website")
         default_website.channel_id = livechat_channel.id
-        self.env.ref("website.default_website").channel_id = livechat_channel.id
+        self.env.ref("base.default_website").channel_id = livechat_channel.id
         self.start_tour("/contactus", "website_livechat.chatbot_trigger_selection")
 
     def test_chatbot_fw_operator_matching_lang(self):
         fr_op = self._create_operator(lang_code="fr_FR")
         en_op = self._create_operator(lang_code="en_US")
-        self.env.ref("website.default_website").language_ids = self.env["res.lang"].search(
+        self.env.ref("base.default_website").language_ids = self.env["res.lang"].search(
             [("code", "in", ("fr_FR", "en_US"))]
         )
         self.livechat_channel.user_ids = fr_op + en_op
@@ -346,7 +353,7 @@ class TestLivechatChatbotUI(TestLivechatChatbotUICommon):
                 ],
             }
         )
-        self.env.ref("website.default_website").channel_id = livechat_channel.id
+        self.env.ref("base.default_website").channel_id = livechat_channel.id
         self.start_tour("/", "website_livechat.chatbot_continue_tour")
 
     def test_chatbot_user_input_saved_on_last_step(self):
@@ -391,12 +398,120 @@ class TestLivechatChatbotUI(TestLivechatChatbotUICommon):
             "script_step_id": restart_step.id,
         })
         self.livechat_channel.rule_ids = self.env["im_livechat.channel.rule"].create(
-            {"chatbot_script_id": chatbot_script.id}
+            {"chatbot_script_id": chatbot_script.id},
         )
-        self.start_tour("/", "website_livechat.chatbot_restart_on_feedback_tour")
+        tests.new_test_user(self.env, login="portal_user", groups="base.group_portal")
+        self.start_tour("/", "website_livechat.chatbot_restart_on_feedback_tour", login="portal_user")
+
+    @mute_logger("odoo.http")
+    def test_chatbot_stop_when_agent_joins(self):
+        chatbot_script = self.env["chatbot.script"].create({"title": "Test User Input Bot"})
+        _, email_step, _ = self.env["chatbot.script.step"].create([
+            {
+                "step_type": "question_phone",
+                "chatbot_script_id": chatbot_script.id,
+                "message": "Enter your phone number",
+            },
+            {
+                "step_type": "question_email",
+                "chatbot_script_id": chatbot_script.id,
+                "message": "Enter your email address",
+            },
+            {
+                "step_type": "text",
+                "chatbot_script_id": chatbot_script.id,
+                "message": "This step should not be reached",
+            },
+        ])
+        self.livechat_channel.rule_ids = self.env["im_livechat.channel.rule"].create(
+            {"chatbot_script_id": chatbot_script.id},
+        )
+        step_trigger = LivechatChatbotController.chatbot_trigger_step
+        count = 0
+        new_channel_id = None
+
+        def _patched_step_trigger(_self, channel_id, chatbot_script_id=None, data_id=None):
+            nonlocal count, new_channel_id
+            channel = _self.env["discuss.channel"].sudo().search([("id", "=", channel_id)])
+            new_channel_id = channel_id
+            if channel and channel.sudo().chatbot_current_step_id == email_step:
+                count += 1
+                match count:
+                    case 1:
+                        raise ValueError(
+                            "Test exception during trigger, should update the UI with retry button",
+                        )
+                    case 2:
+                        channel.with_user(self.operator.partner_id.main_user_id)._add_members(
+                            partners=self.operator.partner_id,
+                            create_member_params={"livechat_member_type": "agent"},
+                        )
+            return step_trigger(_self, channel_id, chatbot_script_id, data_id)
+
+        with patch.object(
+            LivechatChatbotController,
+            "chatbot_trigger_step",
+            wraps(step_trigger)(_patched_step_trigger),
+        ):
+            # The routing map is cached (the "routing" ormcache) with the controller endpoints
+            # baked in. When it was already built with the original method, the monkeypatch above
+            # is ignored and the retry button never appears.
+            self.env.transaction.invalidate_ormcache("routing")
+            self.start_tour("/", "website_livechat.chatbot_stop_when_agent_joins_tour")
+
+        channel = self.env["discuss.channel"].search([("id", "=", new_channel_id)])
+
+        self.assertFalse(
+            channel.message_ids.filtered(lambda m: "This step should not be reached" in m.body),
+        )
+        self.assertEqual(count, 2, "Email step should be triggered twice (1 failure + 1 retry)")
+
+    def test_chatbot_continue_after_login(self):
+        portal_user = tests.new_test_user(
+            self.env,
+            name="Batman",
+            login="portal_user",
+            password="portal_user",
+            groups="base.group_portal",
+        )
+        guest = self.env["mail.guest"].create({"name": "Albert"})
+        closed_channel_id = self.make_jsonrpc_request(
+            "/im_livechat/get_session",
+            {"channel_id": self.livechat_channel.id},
+            cookies={guest._cookie_name: guest._format_auth_cookie()},
+        )["channel_id"]
+        closed_channel = self.env["discuss.channel"].browse(closed_channel_id)
+        closed_channel.livechat_end_dt = fields.Datetime.now()
+        guest_member = closed_channel.channel_member_ids.filtered(lambda m: m.guest_id == guest)
+        self.start_tour(
+            "/",
+            "website_livechat.chatbot_continue_after_login_tour",
+            cookies={guest._cookie_name: guest._format_auth_cookie()},
+        )
+        self.assertFalse(guest_member.exists())
+        self.assertEqual(
+            closed_channel.channel_member_ids.filtered(lambda m: m.livechat_member_type == "visitor").partner_id,
+            portal_user.partner_id,
+        )
+        self.assertCountEqual(
+            [history.partner_id or history.guest_id for history in closed_channel.livechat_customer_history_ids],
+            [guest, portal_user.partner_id],
+        )
+        self.assertFalse(closed_channel.message_ids)
+        active_channel = self.env["discuss.channel"].search([
+            ("id", "!=", closed_channel.id),
+            ("livechat_channel_id", "=", self.livechat_channel.id),
+            ("channel_member_ids.partner_id", "=", portal_user.partner_id.id),
+        ])
+        visitor_members = active_channel.channel_member_ids.filtered(lambda m: m.livechat_member_type == "visitor")
+        self.assertEqual(len(visitor_members), 1)
+        self.assertEqual(visitor_members.partner_id, portal_user.partner_id)
+        self.assertCountEqual(
+            [history.partner_id or history.guest_id for history in active_channel.livechat_customer_history_ids],
+            [guest, portal_user.partner_id],
+        )
 
 
-@tests.tagged("post_install", "-at_install")
 class TestLivechatChatbotUIMoblie(TestLivechatChatbotUICommon):
     browser_size = '375x667'
 

@@ -9,14 +9,15 @@
 # digitouch UAB <digitouchagencyeur@gmail.com>, 2022
 # Linas Versada <linaskrisiukenas@gmail.com>, 2022
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# Odoo Translation Bot <c3p@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-20 18:37+0000\n"
-"PO-Revision-Date: 2025-11-13 13:14+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Lithuanian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 18:34+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Lithuanian <https://translate.odoo.com/projects/odoo-s19-4/"
 "website_livechat/lt/>\n"
 "Language: lt\n"
 "MIME-Version: 1.0\n"
@@ -25,7 +26,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n % 10 == 1 && (n % 100 > 19 || n % 100 < "
 "11) ? 0 : (n % 10 >= 2 && n % 10 <=9) && (n % 100 > 19 || n % 100 < 11) ? "
 "1 : n % 1 != 0 ? 2: 3);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: website_livechat
 #: model:ir.model.fields,field_description:website_livechat.field_website_visitor__session_count
@@ -33,17 +34,8 @@ msgid "# Sessions"
 msgstr "Sesijos nr."
 
 #. module: website_livechat
-#. odoo-python
-#: code:addons/website_livechat/models/discuss_channel.py:0
-msgid ""
-"%(visitor)s started a conversation with %(operator)s.\n"
-"The chat request has been cancelled"
-msgstr ""
-
-#. module: website_livechat
-#. odoo-javascript
-#: code:addons/website_livechat/static/src/web/livechat_channel_info_list_patch.js:0
-msgid "(closed on: %(date)s)"
+#: model:ir.module.module,description:base.module_website_livechat
+msgid "Allow website visitors to chat with the collaborators."
 msgstr ""
 
 #. module: website_livechat
@@ -55,6 +47,11 @@ msgstr "Pasiekiamas"
 #: model_terms:ir.ui.view,arch_db:website_livechat.res_config_settings_view_form
 msgid "Channel"
 msgstr "Kanalas"
+
+#. module: website_livechat
+#: model:ir.model,name:website_livechat.model_discuss_channel_member
+msgid "Channel Member"
+msgstr ""
 
 #. module: website_livechat
 #: model_terms:ir.ui.view,arch_db:website_livechat.im_livechat_channel_view_form_add
@@ -72,6 +69,11 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:website_livechat.website_visitor_view_tree
 msgid "Chat"
 msgstr "Pokalbis"
+
+#. module: website_livechat
+#: model:ir.module.module,summary:base.module_website_livechat
+msgid "Chat with your website visitors"
+msgstr ""
 
 #. module: website_livechat
 #: model:ir.model,name:website_livechat.model_chatbot_script
@@ -95,6 +97,12 @@ msgid "Config Settings"
 msgstr "Konfigūracijos nustatymai"
 
 #. module: website_livechat
+#. odoo-javascript
+#: code:addons/website_livechat/static/src/core/web/livechat_channel_info_list_patch.xml:0
+msgid "Conversation ongoing"
+msgstr ""
+
+#. module: website_livechat
 #: model:ir.model,name:website_livechat.model_discuss_channel
 msgid "Discussion Channel"
 msgstr "Diskusijų kanalas"
@@ -103,6 +111,7 @@ msgstr "Diskusijų kanalas"
 #: model:ir.model.fields,field_description:website_livechat.field_chatbot_script__display_name
 #: model:ir.model.fields,field_description:website_livechat.field_chatbot_script_step__display_name
 #: model:ir.model.fields,field_description:website_livechat.field_discuss_channel__display_name
+#: model:ir.model.fields,field_description:website_livechat.field_discuss_channel_member__display_name
 #: model:ir.model.fields,field_description:website_livechat.field_im_livechat_channel__display_name
 #: model:ir.model.fields,field_description:website_livechat.field_ir_http__display_name
 #: model:ir.model.fields,field_description:website_livechat.field_res_config_settings__display_name
@@ -121,6 +130,7 @@ msgstr "HTTP nukreipimas"
 #: model:ir.model.fields,field_description:website_livechat.field_chatbot_script__id
 #: model:ir.model.fields,field_description:website_livechat.field_chatbot_script_step__id
 #: model:ir.model.fields,field_description:website_livechat.field_discuss_channel__id
+#: model:ir.model.fields,field_description:website_livechat.field_discuss_channel_member__id
 #: model:ir.model.fields,field_description:website_livechat.field_im_livechat_channel__id
 #: model:ir.model.fields,field_description:website_livechat.field_ir_http__id
 #: model:ir.model.fields,field_description:website_livechat.field_res_config_settings__id
@@ -133,6 +143,14 @@ msgstr "ID"
 #. module: website_livechat
 #: model_terms:ir.ui.view,arch_db:website_livechat.website_visitor_view_search
 msgid "In Conversation"
+msgstr ""
+
+#. module: website_livechat
+#. odoo-python
+#: code:addons/website_livechat/models/discuss_channel.py:0
+msgid ""
+"Live chat conversation closed automatically: the visitor started a new "
+"conversation with another agent."
 msgstr ""
 
 #. module: website_livechat
@@ -157,24 +175,19 @@ msgid "Operator Avatar"
 msgstr ""
 
 #. module: website_livechat
-#: model:ir.model.fields,field_description:website_livechat.field_website_visitor__livechat_operator_name
-msgid "Operator Name"
-msgstr ""
-
-#. module: website_livechat
 #: model:ir.model,name:website_livechat.model_website_page
 msgid "Page"
 msgstr "Puslapis"
 
 #. module: website_livechat
 #. odoo-javascript
-#: code:addons/website_livechat/static/src/web/livechat_channel_info_list_patch.xml:0
+#: code:addons/website_livechat/static/src/core/web/livechat_channel_info_list_patch.xml:0
 msgid "Recent conversations"
 msgstr ""
 
 #. module: website_livechat
 #. odoo-javascript
-#: code:addons/website_livechat/static/src/web/livechat_channel_info_list_patch.xml:0
+#: code:addons/website_livechat/static/src/core/web/livechat_channel_info_list_patch.xml:0
 msgid "Recent page views"
 msgstr ""
 
@@ -202,7 +215,7 @@ msgid "Speaking With"
 msgstr ""
 
 #. module: website_livechat
-#: model:ir.model.fields,field_description:website_livechat.field_website_visitor__livechat_operator_id
+#: model:ir.model.fields,field_description:website_livechat.field_website_visitor__current_livechat_agent_ids
 msgid "Speaking with"
 msgstr ""
 
@@ -213,8 +226,8 @@ msgstr "Testas"
 
 #. module: website_livechat
 #. odoo-python
-#: code:addons/website_livechat/models/discuss_channel.py:0
-msgid "The visitor"
+#: code:addons/website_livechat/controllers/chatbot.py:0
+msgid "Test %s"
 msgstr ""
 
 #. module: website_livechat
@@ -258,7 +271,7 @@ msgstr "Lankytojai"
 
 #. module: website_livechat
 #. odoo-javascript
-#: code:addons/website_livechat/static/src/web/livechat_channel_info_list_patch.xml:0
+#: code:addons/website_livechat/static/src/core/web/livechat_channel_info_list_patch.xml:0
 #: model:ir.model,name:website_livechat.model_website
 msgid "Website"
 msgstr "Svetainė"
@@ -267,6 +280,11 @@ msgstr "Svetainė"
 #: model:ir.model.fields,field_description:website_livechat.field_res_config_settings__channel_id
 msgid "Website Live Channel"
 msgstr "Svetainės gyvas susirašinėjimas"
+
+#. module: website_livechat
+#: model:ir.module.module,shortdesc:base.module_website_livechat
+msgid "Website Live Chat"
+msgstr ""
 
 #. module: website_livechat
 #: model:ir.model.fields,field_description:website_livechat.field_website__channel_id
@@ -286,78 +304,3 @@ msgid ""
 "When created from an operator, whether the channel is yet to be opened on "
 "the visitor side."
 msgstr ""
-
-#. module: website_livechat
-#. odoo-python
-#: code:addons/website_livechat/models/discuss_channel.py:0
-msgid "an operator"
-msgstr ""
-
-#~ msgid "Country"
-#~ msgstr "Valstybė"
-
-#~ msgid "Language"
-#~ msgstr "Kalba"
-
-#~ msgid "<span>Livechat Channel</span>"
-#~ msgstr "<span>Gyvo susirašinėjimo kanalas </span>"
-
-#~ msgid "Avatar"
-#~ msgstr "Portretas"
-
-#~ msgid "Bad"
-#~ msgstr "Blogas"
-
-#~ msgid "Can Publish"
-#~ msgstr "Gali publikuoti"
-
-#~ msgid "Description of the channel displayed on the website page"
-#~ msgstr "Kanalo aprašymas, rodomas svetainėje"
-
-#~ msgid "Happy face"
-#~ msgstr "Laimingas veidas"
-
-#~ msgid "History"
-#~ msgstr "Istorija"
-
-#~ msgid "Is Published"
-#~ msgstr "Paskelbta"
-
-#~ msgid "Live Support"
-#~ msgstr "Gyvas palaikymas"
-
-#~ msgid "Livechat Support Channels"
-#~ msgstr "Gyvo susirašinėjimo palaikymo kanalai"
-
-#~ msgid "Neutral face"
-#~ msgstr "Neutralus veidas"
-
-#~ msgid "Okay"
-#~ msgstr "Gerai"
-
-#~ msgid "Sad face"
-#~ msgstr "Liūdnas veidas"
-
-#~ msgid "Statistics"
-#~ msgstr "Statistika"
-
-#~ msgid "The"
-#~ msgstr " "
-
-#~ msgid "The Team"
-#~ msgstr "Komanda"
-
-#~ msgid "The full URL to access the document through the website."
-#~ msgstr "Pilna nuoroda dokumento pasiekimui per svetainę."
-
-#~ msgid "Visible on current website"
-#~ msgstr "Matomas dabartinėje svetainėje"
-
-#~ msgid "Website URL"
-#~ msgstr "Svetainės nuoroda"
-
-#~ msgid "Website description"
-#~ msgstr "Tinklalapio aprašymas"
-
-#~ msgid "last feedbacks"
-#~ msgstr "paskutiniai atsiliepimai"

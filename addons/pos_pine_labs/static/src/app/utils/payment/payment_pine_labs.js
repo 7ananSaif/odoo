@@ -3,7 +3,7 @@ import { PaymentInterface } from "@point_of_sale/app/utils/payment/payment_inter
 import { AlertDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { serializeDateTime } from "@web/core/l10n/dates";
 import { offlineErrorHandler, handleRPCError } from "@point_of_sale/app/utils/error_handlers";
-import { register_payment_method } from "@point_of_sale/app/services/pos_store";
+import { registry } from "@web/core/registry";
 import { ConnectionLostError, RPCError } from "@web/core/network/rpc";
 
 const REQUEST_TIMEOUT_MS = 5000;
@@ -18,8 +18,8 @@ export class PaymentPineLabs extends PaymentInterface {
         this.payment_stopped = false;
     }
 
-    sendPaymentRequest(cid) {
-        super.sendPaymentRequest(cid);
+    async sendPaymentRequest(line) {
+        await super.sendPaymentRequest(...arguments);
         return this._processPineLabs();
     }
 
@@ -27,8 +27,8 @@ export class PaymentPineLabs extends PaymentInterface {
         return this.pos.getPendingPaymentLine("pine_labs");
     }
 
-    sendPaymentCancel(order, cid) {
-        super.sendPaymentCancel(order, cid);
+    async sendPaymentCancel(line) {
+        await super.sendPaymentCancel(...arguments);
         return this._pineLabsCancel();
     }
 
@@ -37,7 +37,6 @@ export class PaymentPineLabs extends PaymentInterface {
             .call("pos.payment.method", action, [[this.payment_method_id.id], data])
             .catch((error) => {
                 const line = this.pendingPineLabsPaymentLine();
-                this.pos.paymentTerminalInProgress = false;
                 if (line) {
                     line.setPaymentStatus("force_done");
                 }
@@ -168,18 +167,16 @@ export class PaymentPineLabs extends PaymentInterface {
         const order = this.pos.getOrder();
         const paymentLine = order.getSelectedPaymentline();
         const sequenceNumber = order.payment_ids.filter(
-            (pi) => pi.payment_method_id.use_payment_terminal === "pine_labs"
+            (pi) => pi.payment_method_id.payment_provider === "pine_labs"
         ).length;
         if (paymentLine.amount < 0) {
             this._showError(_t("Cannot process transactions with negative amount."));
             return false;
         }
 
-        const orderId = order?.pos_reference?.replace(" ", "").replaceAll("-", "").toUpperCase();
-        const referencePrefix = this.pos.config.name.replace(/\s/g, "").slice(0, 4);
+        const referenceId = `${this.pos.config.id}/${order.uuid}/${this.payment_method_id.id}/${this.pos.config.currency_id.name}/${paymentLine.amount}/${sequenceNumber}`;
         paymentLine.update({
-            payment_ref_no:
-                referencePrefix + "/" + orderId + "/" + crypto.randomUUID().replaceAll("-", ""),
+            payment_ref_no: referenceId,
         });
 
         // Assume that the Pine Labs terminal payment method is configured with INR (Indian Rupees) as the currency_id in the POS config.
@@ -215,7 +212,7 @@ export class PaymentPineLabs extends PaymentInterface {
             clearTimeout(this.pollingTimeout);
 
             // If the user navigates to another screen, stop the polling
-            if (this.pos.router.state.current !== "PaymentScreen") {
+            if (this.pos.router.currentScreen() !== "PaymentScreen") {
                 this._removePaymentHandler();
                 return;
             }
@@ -269,4 +266,4 @@ export class PaymentPineLabs extends PaymentInterface {
     }
 }
 
-register_payment_method("pine_labs", PaymentPineLabs);
+registry.category("pos_payment_providers").add("pine_labs", PaymentPineLabs);

@@ -2,21 +2,23 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import api, Command, models, fields
+from odoo.fields import Domain
 from odoo.http import request
 from odoo.tools import email_normalize, get_lang, html2plaintext, is_html_empty, plaintext2html
 from odoo.addons.mail.tools.discuss import Store
-from odoo.exceptions import ValidationError
+from odoo.addons.phone_validation.tools import phone_validation
+from odoo.exceptions import UserError, ValidationError
+from odoo.tools.translate import mark_as_copy
 
 
 class ChatbotScript(models.Model):
     _name = 'chatbot.script'
     _description = 'Chatbot Script'
-    _inherit = ['image.mixin', 'utm.source.mixin']
+    _inherit = ['image.mixin']
     _rec_name = 'title'
     _order = 'title, id'
 
-    # we keep a separate field for UI since name is manipulated by 'utm.source.mixin'
-    title = fields.Char('Title', required=True, translate=True, default="Chatbot")
+    title = fields.Char('Title', required=True, translate=True, default="Chatbot", copy=mark_as_copy('title'))
     active = fields.Boolean(default=True)
     image_1920 = fields.Image(related='operator_partner_id.image_1920', readonly=False)
 
@@ -49,7 +51,7 @@ class ChatbotScript(models.Model):
         for script in self:
             script.livechat_channel_count = mapped_channels.get(script.id, 0)
 
-    @api.depends("script_step_ids.is_forward_operator", "script_step_ids.step_type" )
+    @api.depends("script_step_ids.step_type")
     def _compute_first_step_warning(self):
         for script in self:
             allowed_first_step_types = [
@@ -60,16 +62,12 @@ class ChatbotScript(models.Model):
                 'free_input_multi',
             ]
             welcome_steps = script.script_step_ids and script._get_welcome_steps()
-            if welcome_steps and welcome_steps[-1].is_forward_operator:
+            if welcome_steps and welcome_steps[-1].step_type == "forward_operator":
                 script.first_step_warning = 'first_step_operator'
             elif welcome_steps and welcome_steps[-1].step_type not in allowed_first_step_types:
                 script.first_step_warning = 'first_step_invalid'
             else:
                 script.first_step_warning = False
-
-    def copy_data(self, default=None):
-        vals_list = super().copy_data(default=default)
-        return [dict(vals, title=self.env._("%s (copy)", script.title)) for script, vals in zip(self, vals_list)]
 
     def copy(self, default=None):
         """ Correctly copy the 'triggering_answer_ids' field from the original script_step_ids to the clone.
@@ -107,8 +105,9 @@ class ChatbotScript(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        field_title = self._fields['title']
         operator_partners_values = [{
-            'name': vals['title'],
+            'name': field_title.convert_to_cache(vals['title'], self, validate=False),  # adapt in case `isinstance(vals['title'], dict)` for translated field
             'image_1920': vals.get('image_1920', False),
             'active': False,
         } for vals in vals_list if 'operator_partner_id' not in vals and 'title' in vals]
@@ -190,22 +189,26 @@ class ChatbotScript(models.Model):
     def action_view_livechat_channels(self):
         self.ensure_one()
         action = self.env['ir.actions.act_window']._for_xml_id('im_livechat.im_livechat_channel_action')
-        action['domain'] = [('rule_ids.chatbot_script_id', 'in', self.ids)]
+        domain = Domain("rule_ids.chatbot_script_id", "in", self.ids)
+        channel_ids = self.env["im_livechat.channel"].search(domain, limit=2)
+        if len(channel_ids) == 1:
+            action.update(res_id=channel_ids[0].id, views=[(False, "form")])
+        action["domain"] = domain
         return action
 
     # --------------------------
     # Tooling / Misc
     # --------------------------
 
-    def _to_store_defaults(self, target):
-        return [Store.One("operator_partner_id", ["name"]), "title"]
+    def _store_script_fields(self, res: Store.FieldList):
+        res.one("operator_partner_id", ["name"])
+        res.attr("title")
 
     def _validate_email(self, email_address, discuss_channel):
         email_address = html2plaintext(email_address)
         email_normalized = email_normalize(email_address)
 
         posted_message = False
-        error_message = False
         if not email_normalized:
             error_message = self.env._(
                 "'%(input_email)s' does not look like a valid email. Can you please try again?",
@@ -213,11 +216,21 @@ class ChatbotScript(models.Model):
             )
             posted_message = discuss_channel._chatbot_post_message(self, plaintext2html(error_message))
 
-        return {
-            'success': bool(email_normalized),
-            'posted_message': posted_message,
-            'error_message': error_message,
-        }
+        return {"success": bool(email_normalized), "posted_message": posted_message}
+
+    def _validate_phone(self, phone_number, discuss_channel):
+        phone_number = html2plaintext(phone_number)
+        error_message = False
+        try:
+            # Validate the phone number using phone_parse, which raises on invalid input.
+            phone_validation.phone_parse(phone_number, discuss_channel.country_id.code)
+        except UserError:
+            error_text = self.env._(
+                "'%(input_phone)s' does not look like a valid phone number. Can you please try again?",
+                input_phone=phone_number,
+            )
+            error_message = discuss_channel._chatbot_post_message(self, plaintext2html(error_text))
+        return {"success": not bool(error_message), "posted_message": error_message}
 
     def _get_chatbot_language(self):
         return get_lang(

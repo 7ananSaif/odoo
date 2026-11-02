@@ -5,33 +5,23 @@ import {
 } from "@html_editor/utils/image_processing";
 import { registry } from "@web/core/registry";
 import { Plugin } from "@html_editor/plugin";
-import { ImageToolOption } from "./image_tool_option";
-import { getFetchedMimetype, isImageCorsProtected } from "@html_editor/utils/image";
-import { withSequence } from "@html_editor/utils/resource";
-import {
-    REPLACE_MEDIA,
-    IMAGE_TOOL,
-    ALIGNMENT_STYLE_PADDING,
-} from "@html_builder/utils/option_sequence";
-import { ReplaceMediaOption, searchSupportedParentLinkEl } from "./replace_media_option";
+import { searchSupportedParentLinkEl } from "./replace_media_option";
+import { getMimetype } from "@html_editor/utils/image";
 import { computeMaxDisplayWidth } from "@html_builder/plugins/image/image_format_option";
 import { BuilderAction } from "@html_builder/core/builder_action";
 import { ClassAction } from "@html_builder/core/core_builder_action_plugin";
 import { selectElements } from "@html_editor/utils/dom_traversal";
 import { isCSSColor } from "@web/core/utils/colors";
 import { getCSSVariableValue, getHtmlStyle } from "@html_editor/utils/formatting";
-import { BaseOptionComponent } from "@html_builder/core/utils";
 import { isImageSupportedForProcessing } from "@html_editor/main/media/image_post_process_plugin";
 
 const IMAGE_LINK_ALIGN_CLASSES = ["mx-auto", "ms-auto", "me-auto"];
 
-export class ImageAndFaOption extends BaseOptionComponent {
-    static template = "html_builder.ImageAndFaOption";
-    static selector = "span.fa, i.fa, img";
-    static exclude = "[data-oe-type='image'] > img, [data-oe-xpath]";
-    static name = "imageAndFaOption";
-}
-class ImageToolOptionPlugin extends Plugin {
+/**
+ * @typedef {(() => boolean)[]} should_optimize_image_predicates
+ */
+
+export class ImageToolOptionPlugin extends Plugin {
     static id = "imageToolOption";
     static dependencies = [
         "history",
@@ -44,11 +34,6 @@ class ImageToolOptionPlugin extends Plugin {
     static shared = ["getCSSColorValue"];
     /** @type {import("plugins").BuilderResources} */
     resources = {
-        builder_options: [
-            withSequence(REPLACE_MEDIA, ReplaceMediaOption),
-            withSequence(IMAGE_TOOL, ImageToolOption),
-            withSequence(ALIGNMENT_STYLE_PADDING, ImageAndFaOption),
-        ],
         builder_actions: {
             ImageAlignClassAction,
             CropImageAction,
@@ -59,48 +44,12 @@ class ImageToolOptionPlugin extends Plugin {
             SetNewWindowAction,
             AltAction,
         },
-        on_media_dialog_saved_handlers: async (elements, { node }) => {
-            for (const image of elements) {
-                if (image && image.tagName === "IMG") {
-                    const imgInfo = await loadImageInfo(image);
-                    if (!imgInfo.originalSrc || !imgInfo.originalId) {
-                        continue;
-                    }
-                    const isImgSupportedForProcessing = await isImageSupportedForProcessing(
-                        image,
-                        await getFetchedMimetype(image, imgInfo)
-                    );
-                    const newDataset = {};
-                    if (isImgSupportedForProcessing) {
-                        newDataset.formatMimetype =
-                            this.config.defaultImageMimetype ?? "image/webp";
-                        const original = await loadImage(imgInfo.originalSrc);
-                        const maxWidth = image.dataset.width
-                            ? image.naturalWidth
-                            : original.naturalWidth;
-                        const optimizedWidth = Math.min(
-                            maxWidth,
-                            computeMaxDisplayWidth(node || this.editable)
-                        );
-                        newDataset.resizeWidth = optimizedWidth;
-                    }
-                    const updateImageAttributes =
-                        await this.dependencies.imagePostProcess.processImage({
-                            img: image,
-                            newDataset,
-                        });
-                    updateImageAttributes();
-                }
-            }
-        },
-        hover_effect_allowed_predicates: (el) => this.canHaveHoverEffect(el),
-        normalize_handlers: this.migrateImages.bind(this),
+        should_optimize_image_predicates: () => true, // default
+        on_will_save_media_dialog_handlers: this.onWillSaveMediaDialogHandlers.bind(this),
+        normalize_processors: this.migrateImages.bind(this),
     };
     setup() {
         this.htmlStyle = getHtmlStyle(this.document);
-    }
-    async canHaveHoverEffect(imgEl) {
-        return imgEl.tagName === "IMG" && !(await isImageCorsProtected(imgEl));
     }
     migrateImages(rootEl) {
         for (const el of selectElements(
@@ -116,6 +65,7 @@ class ImageToolOptionPlugin extends Plugin {
             el.dataset.formatMimetype = el.dataset.originalMimetype;
             delete el.dataset.originalMimetype;
         }
+        return rootEl;
     }
     /**
      * Gets the CSS value of a color variable name.
@@ -128,6 +78,43 @@ class ImageToolOptionPlugin extends Plugin {
             return color;
         }
         return getCSSVariableValue(color, this.htmlStyle);
+    }
+    async onWillSaveMediaDialogHandlers(elements, { node }) {
+        for (const image of elements) {
+            if (image && image.tagName === "IMG") {
+                const imgInfo = await loadImageInfo(image);
+                if (!imgInfo.originalSrc || !imgInfo.originalId) {
+                    continue;
+                }
+                const newDataset = {};
+                if (this.checkPredicates("should_optimize_image_predicates")) {
+                    const isImgSupportedForProcessing = await isImageSupportedForProcessing(
+                        image,
+                        await getMimetype(image, imgInfo)
+                    );
+                    if (isImgSupportedForProcessing) {
+                        newDataset.formatMimetype =
+                            this.config.defaultImageMimetype ?? "image/webp";
+                        const original = await loadImage(imgInfo.originalSrc);
+                        const maxWidth = image.dataset.width
+                            ? image.naturalWidth
+                            : original.naturalWidth;
+                        const optimizedWidth = Math.min(
+                            maxWidth,
+                            computeMaxDisplayWidth(node || this.editable)
+                        );
+                        newDataset.resizeWidth = optimizedWidth;
+                    }
+                }
+                const updateImageAttributes = await this.dependencies.imagePostProcess.processImage(
+                    {
+                        img: image,
+                        newDataset,
+                    }
+                );
+                updateImageAttributes();
+            }
+        }
     }
 }
 
@@ -172,6 +159,7 @@ export class ReplaceMediaAction extends BuilderAction {
 
     setup() {
         this.canTimeout = false;
+        this.preview = false;
     }
 
     async apply({ editingElement: mediaEl }) {
@@ -244,18 +232,12 @@ export class SetUrlAction extends BuilderAction {
     }
     apply({ editingElement, value }) {
         const linkEl = searchSupportedParentLinkEl(editingElement);
-        let url = value;
-        if (!url) {
+        if (!value) {
             // As long as there is no URL, the image is not considered a link.
             linkEl.removeAttribute("href");
             return;
         }
-        if (!url.startsWith("/") && !url.startsWith("#") && !/^([a-zA-Z]*.):.+$/gm.test(url)) {
-            // We permit every protocol (http:, https:, ftp:, mailto:,...).
-            // If none is explicitly specified, we assume it is a http.
-            url = "http://" + url;
-        }
-        linkEl.setAttribute("href", url);
+        linkEl.setAttribute("href", value);
     }
     getValue({ editingElement }) {
         const linkEl = searchSupportedParentLinkEl(editingElement);
@@ -301,3 +283,4 @@ export class AltAction extends BuilderAction {
 }
 
 registry.category("builder-plugins").add(ImageToolOptionPlugin.id, ImageToolOptionPlugin);
+registry.category("translation-plugins").add(ImageToolOptionPlugin.id, ImageToolOptionPlugin);

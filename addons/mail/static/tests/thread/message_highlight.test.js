@@ -7,9 +7,9 @@ import {
     start,
     startServer,
 } from "@mail/../tests/mail_test_helpers";
-import { Thread } from "@mail/core/common/thread";
+import { UseForwardRefsToParent } from "@mail/utils/common/hooks";
 import { describe, test } from "@odoo/hoot";
-import { advanceTime, Deferred, tick, waitFor } from "@odoo/hoot-dom";
+import { advanceTime, tick, waitFor } from "@odoo/hoot-dom";
 import { disableAnimations } from "@odoo/hoot-mock";
 import { router, routerBus } from "@web/core/browser/router";
 import { range } from "@web/core/utils/numbers";
@@ -42,6 +42,37 @@ test("can highlight messages that are not yet loaded", async () => {
     await isInViewportOf(".o-mail-Message:contains(message 100)", ".o-mail-Thread");
 });
 
+test("highlight scroll is not stopped by the scrollend of a previous scroll", async () => {
+    const pyEnv = await startServer();
+    const channelId = pyEnv["discuss.channel"].create({ name: "general" });
+    let middleMessageId;
+    for (let i = 0; i < 200; i++) {
+        const messageId = pyEnv["mail.message"].create({
+            body: `message ${i}`,
+            model: "discuss.channel",
+            res_id: channelId,
+        });
+        if (i === 100) {
+            middleMessageId = messageId;
+        }
+    }
+    await pyEnv["discuss.channel"].set_message_pin(channelId, middleMessageId, true);
+    patchWithCleanup(Element.prototype, {
+        scrollIntoView(options) {
+            super.scrollIntoView(options);
+            if (options?.behavior === "smooth") {
+                // Simulate the late scrollend of the previous scroll.
+                this.closest(".o-mail-Thread").dispatchEvent(new Event("scrollend"));
+            }
+        },
+    });
+    await start();
+    await openDiscuss(channelId);
+    await isInViewportOf(".o-mail-Message:contains(message 199)", ".o-mail-Thread");
+    await click("a[data-oe-type='highlight']");
+    await isInViewportOf(".o-mail-Message:contains(message 100)", ".o-mail-Thread");
+});
+
 test("can highlight message (slow ref registration)", async () => {
     disableAnimations();
     const pyEnv = await startServer();
@@ -58,22 +89,21 @@ test("can highlight message (slow ref registration)", async () => {
         }
     }
     await pyEnv["discuss.channel"].set_message_pin(channelId, middleMessageId, true);
-    let slowRegisterMessageDef;
-    patchWithCleanup(Thread.prototype, {
-        async registerMessageRef(...args) {
+    const { promise: refRegistered, resolve: resolveRefRegistration } = Promise.withResolvers();
+    patchWithCleanup(UseForwardRefsToParent.prototype, {
+        async registerRef(...args) {
             // Ensure scroll is made even when messages are mounted later.
-            await slowRegisterMessageDef;
-            return super.registerMessageRef(...args);
+            await refRegistered;
+            return super.registerRef(...args);
         },
     });
     await start();
     await openDiscuss(channelId);
     await tick(); // Wait for the scroll to first unread to complete.
     await isInViewportOf(".o-mail-Message:contains(message 199)", ".o-mail-Thread");
-    slowRegisterMessageDef = new Deferred();
     await click("a[data-oe-type='highlight']");
     await advanceTime(1000);
-    slowRegisterMessageDef.resolve();
+    resolveRefRegistration();
     await isInViewportOf(".o-mail-Message:contains(message 100)", ".o-mail-Thread");
 });
 

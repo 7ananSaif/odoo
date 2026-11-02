@@ -1,11 +1,11 @@
 import base64
 
 from cryptography import x509
+from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.x509 import ObjectIdentifier
 from cryptography.x509.oid import NameOID
-from cryptography.hazmat.primitives import hashes, serialization
 
-from odoo import _, api, models, service
+from odoo import _, api, models, release
 from odoo.exceptions import UserError
 
 CERT_TEMPLATE_NAME = {
@@ -22,14 +22,13 @@ class CertificateCertificate(models.Model):
 
     def _l10n_sa_get_issuer_name(self):
         self.ensure_one()
-        cert = x509.load_pem_x509_certificate(base64.b64decode(self.pem_certificate))
+        cert = x509.load_pem_x509_certificate(self.pem_certificate.content)
         return ', '.join([s.rfc4514_string() for s in cert.issuer.rdns[::-1]])
 
     @api.model
     def _l10n_sa_get_csr_vals(self, journal):
         company_id = journal.company_id
         parent_company_id = journal.company_id.parent_id
-        version_info = service.common.exp_version()
         return {
             "country_name": {
                 "value": company_id.country_id.code,
@@ -60,7 +59,7 @@ class CertificateCertificate(models.Model):
                 "name": _("Locality Name"),
             },
             "egs_serial": {
-                "value": f"1-Odoo|2-{version_info['server_serie']}|3-{journal.id}",
+                "value": f"1-Odoo|2-{release.major_version}|3-{journal.id}",
                 "name": _("Journal Serial Number"),
             },
             "org_uid": {
@@ -89,21 +88,21 @@ class CertificateCertificate(models.Model):
     def _l10n_sa_validate_csr_vals(self, journal):
         error_fields = set()
         for data in self._l10n_sa_get_csr_vals(journal).values():
-            if len(str(data['value'])) > MAX_ALLOWED_CSR_VALUE_LENGTH:
+            if len(str(data['value']).encode('utf-8')) > MAX_ALLOWED_CSR_VALUE_LENGTH:
                 error_fields.add(data['name'])
         if error_fields:
             company_fields = [_("Company Name"), _("Parent Company Name")]
             company_msg = _("<br/><br/>Once the journal is onboarded, please update the company name to match the one listed on the VAT Registration Certificate.") if any(field in error_fields for field in company_fields) else ""
             raise UserError(_(
-                "Please make sure the following fields are shorter than %(max_length)d characters: %(error_fields_msg)s",
+                "Please make sure the following fields are shorter than %(max_length)d bytes (note that Arabic or special characters take more space): %(error_fields_msg)s",
                 max_length=MAX_ALLOWED_CSR_VALUE_LENGTH,
                 error_fields_msg=" <br/>- " + " <br/>- ".join(error_fields) + company_msg
             ))
 
     @api.model
-    def _l10n_sa_get_csr_str(self, journal):
+    def _l10n_sa_get_csr_bin(self, journal):
         """
-            Return a string representation of a ZATCA compliant CSR that will be sent to the Compliance API in order to get back
+            Return public bytes of a ZATCA compliant CSR that will be sent to the Compliance API in order to get back
             a signed X509 certificate
         """
         if not journal:
@@ -161,7 +160,7 @@ class CertificateCertificate(models.Model):
         for ext in x509_extensions:
             builder = builder.add_extension(ext[0], critical=ext[1])
 
-        private_key = serialization.load_pem_private_key(base64.b64decode(journal.company_id.l10n_sa_private_key_id.pem_key), password=None)
+        private_key = serialization.load_pem_private_key(journal.company_id.l10n_sa_private_key_id.pem_key.content, password=None)
         request = builder.sign(private_key, hashes.SHA256())
 
-        return base64.b64encode(request.public_bytes(serialization.Encoding.PEM)).decode()
+        return base64.b64encode(request.public_bytes(serialization.Encoding.PEM))

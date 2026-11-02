@@ -1,11 +1,11 @@
 import { localization } from "@web/core/l10n/localization";
-import { Component } from "@odoo/owl";
+import { Component, useProps, t } from "@odoo/owl";
 
 export class PriceFormatter extends Component {
     static template = "point_of_sale.PriceFormatter";
-    static props = {
-        price: { type: String },
-    };
+    props = useProps({
+        price: t.string(),
+    });
 
     get priceParts() {
         const trimmedPrice = this.props.price.trim();
@@ -19,8 +19,8 @@ export class PriceFormatter extends Component {
         }
         const numericPart = trimmedPrice.replace(currencySymbol, "").trim();
         const amountParts = numericPart.split(localization.decimalPoint);
-        const decimal = amountParts[1] || "";
-        const amountStr = amountParts[0] + (decimal ? localization.decimalPoint : ""); // ex. "1000."
+        const decimal = amountParts?.[1] ? localization.decimalPoint + amountParts[1] : ""; // ex. ".00"
+        const amountStr = amountParts[0]; // ex. "1000"
         return {
             amountStr,
             decimal,

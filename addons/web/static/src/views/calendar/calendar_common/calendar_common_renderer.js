@@ -2,7 +2,7 @@ import { browser } from "@web/core/browser/browser";
 import { getLocalYearAndWeek } from "@web/core/l10n/dates";
 import { localization } from "@web/core/l10n/localization";
 import { is24HourFormat } from "@web/core/l10n/time";
-import { useBus } from "@web/core/utils/hooks";
+import { useBus, useService } from "@web/core/utils/hooks";
 import { renderToFragment, renderToString } from "@web/core/utils/render";
 import { useDebounced } from "@web/core/utils/timing";
 import { makeWeekColumn } from "@web/views/calendar/calendar_common/calendar_common_week_column";
@@ -11,8 +11,9 @@ import { convertRecordToEvent, getColor } from "@web/views/calendar/utils";
 import { useCalendarPopover } from "@web/views/calendar/hooks/calendar_popover_hook";
 import { useFullCalendar } from "@web/views/calendar/hooks/full_calendar_hook";
 import { useSquareSelection } from "@web/views/calendar/hooks/square_selection_hook";
+import { TOUCH_SELECTION_THRESHOLD } from "@web/views/utils";
 
-import { Component, useEffect } from "@odoo/owl";
+import { Component, signal, t, useOnChange, useProps } from "@odoo/owl";
 
 const SCALE_TO_FC_VIEW = {
     day: "timeGridDay",
@@ -45,6 +46,20 @@ const HOUR_FORMATS = {
 
 const { DateTime } = luxon;
 
+export const calendarCommonRendererProps = {
+    model: t.object(),
+    initialDate: t.object(),
+    isDisabled: t.boolean().optional(),
+    isWeekendVisible: t.boolean().optional(),
+    createRecord: t.function(),
+    editRecord: t.function(),
+    deleteRecord: t.function(),
+    setDate: t.function().optional(),
+    callbackRecorder: t.object(),
+    onSquareSelection: t.function(),
+    cleanSquareSelection: t.function(),
+};
+
 export class CalendarCommonRenderer extends Component {
     static components = {
         Popover: CalendarCommonPopover,
@@ -52,79 +67,102 @@ export class CalendarCommonRenderer extends Component {
     static template = "web.CalendarCommonRenderer";
     static eventTemplate = "web.CalendarCommonRenderer.event";
     static headerTemplate = "web.CalendarCommonRendererHeader";
-    static props = {
-        model: Object,
-        isWeekendVisible: { type: Boolean, optional: true },
-        createRecord: Function,
-        editRecord: Function,
-        deleteRecord: Function,
-        setDate: { type: Function, optional: true },
-        callbackRecorder: Object,
-        onSquareSelection: Function,
-        cleanSquareSelection: Function,
-    };
+    props = useProps(calendarCommonRendererProps);
+
+    ref = signal.ref();
 
     setup() {
-        this.fc = useFullCalendar("fullCalendar", this.options);
+        this.uiService = useService("ui");
+        this.fc = useFullCalendar(
+            this.ref,
+            this.props.isDisabled ? this.disabledOptions : this.interactiveOptions
+        );
         this.clickTimeoutId = null;
         this.popover = useCalendarPopover(this.constructor.components.Popover);
         this.timeFormat = is24HourFormat() ? "HH:mm" : "hh:mm a";
+        this.dayHeaderListeners = {};
         useBus(this.props.model.bus, "SCROLL_TO_CURRENT_HOUR", () =>
-            this.fc.api.scrollToTime(`${luxon.DateTime.local().hour - 2}:00:00`)
+            this.fc().scrollToTime(`${luxon.DateTime.local().hour - 2}:00:00`)
         );
 
-        const fullCalendarRenderDebounced = useDebounced(() => this.fc.api.updateSize(), 100, {
+        const fullCalendarRenderDebounced = useDebounced(() => this.fc().updateSize(), 100, {
             immediate: true,
             trailing: true,
         });
         const fullCalendarResizeObserver = new ResizeObserver(fullCalendarRenderDebounced);
-        useEffect(
+        useOnChange(
+            () => [this.ref()],
             (el) => {
+                if (!el) {
+                    return;
+                }
                 fullCalendarResizeObserver.observe(el);
                 return () => fullCalendarResizeObserver.unobserve(el);
-            },
-            () => [this.fc.el]
+            }
         );
-        useSquareSelection({
-            cellIsSelectable: this.constructor.cellIsSelectable,
-        });
+
+        useSquareSelection(this.ref);
+    }
+
+    get disabledOptions() {
+        return {
+            ...this.options,
+            editable: false,
+            selectable: false,
+            eventStartEditable: false,
+            eventDurationEditable: false,
+            droppable: false,
+        };
+    }
+
+    get interactiveOptions() {
+        return {
+            ...this.options,
+            dayMaxEventRows: this.props.model.eventLimit,
+            dragRevertDuration: 0,
+            droppable: true,
+            editable: this.props.model.canEdit,
+            eventClick: this.onEventClick.bind(this),
+            eventDragStart: this.onEventDragStart.bind(this),
+            eventDragStop: this.onEventDragStop.bind(this),
+            eventDrop: this.onEventDrop.bind(this),
+            eventClassNames: this.eventClassNames.bind(this),
+            eventDidMount: this.onEventDidMount.bind(this),
+            eventContent: this.onEventContent.bind(this),
+            eventReceive: this.onEventScheduled.bind(this),
+            eventResizableFromStart: true,
+            eventResize: this.onEventResize.bind(this),
+            eventResizeStart: this.onEventResizeStart.bind(this),
+            longPressDelay: TOUCH_SELECTION_THRESHOLD,
+            moreLinkClick: this.onEventLimitClick.bind(this),
+            select: this.onSelect.bind(this),
+            selectAllow: this.isSelectionAllowed.bind(this),
+            selectMinDistance: 5, // needed to not trigger select when click
+            selectMirror: true,
+            selectable: !this.props.model.hasMultiCreate && this.props.model.canCreate,
+            unselectAuto: false,
+        };
     }
 
     get options() {
         return {
             allDaySlot: true,
             allDayContent: "",
-            dayHeaderFormat: this.env.isSmall
+            dayHeaderFormat: this.uiService.isSmall
                 ? SHORT_SCALE_TO_HEADER_FORMAT[this.props.model.scale]
                 : SCALE_TO_HEADER_FORMAT[this.props.model.scale],
-            // we must handle clicks differently in multicreate mode:
-            // fc is blocked by safePrevent in onPointerDown (draggable_hook_builder.js)
-            dateClick: this.props.model.hasMultiCreate ? () => {} : this.onDateClick,
-            dayCellClassNames: this.getDayCellClassNames,
-            initialDate: this.props.model.date.toISO(),
+            dayHeaderDidMount: this.onDayHeaderDidMount.bind(this),
+            dayHeaderWillUnmount: this.onDayHeaderWillUnmount.bind(this),
+            dateClick: this.handleDateClick.bind(this),
+            dayCellClassNames: this.getDayCellClassNames.bind(this),
+            events: (_, successCb) => successCb(this.mapRecordsToEvents()),
+            initialDate: this.props.initialDate.toISO(),
             initialView: SCALE_TO_FC_VIEW[this.props.model.scale],
             direction: localization.direction,
-            droppable: true,
-            editable: this.props.model.canEdit,
-            eventClick: this.onEventClick,
-            eventDragStart: this.onEventDragStart,
-            eventDrop: this.onEventDrop,
-            dayMaxEventRows: this.props.model.eventLimit,
-            moreLinkClick: this.onEventLimitClick,
-            eventMouseEnter: this.onEventMouseEnter,
-            eventMouseLeave: this.onEventMouseLeave,
-            eventClassNames: this.eventClassNames,
-            eventDidMount: this.onEventDidMount,
-            eventContent: this.onEventContent,
-            eventResizableFromStart: true,
-            eventResize: this.onEventResize,
-            eventResizeStart: this.onEventResizeStart,
-            events: (_, successCb) => successCb(this.mapRecordsToEvents()),
             firstDay: this.props.model.firstDayOfWeek,
             headerToolbar: false,
             height: "100%",
             locale: luxon.Settings.defaultLocale,
-            longPressDelay: 500,
             navLinks: false,
             nowIndicator: true,
             nowIndicatorContent: {
@@ -132,34 +170,31 @@ export class CalendarCommonRenderer extends Component {
                     <div class="o_calendar_time_indicator_now"></div>
                 `,
             },
-            select: this.onSelect,
-            selectAllow: this.isSelectionAllowed,
-            selectMinDistance: 5, // needed to not trigger select when click
-            selectMirror: true,
-            selectable: !this.props.model.hasMultiCreate && this.props.model.canCreate,
             showNonCurrentDates: this.props.model.monthOverflow,
             slotLabelFormat: is24HourFormat() ? HOUR_FORMATS[24] : HOUR_FORMATS[12],
             snapDuration: { minutes: 15 },
             timeZone: luxon.Settings.defaultZone.name,
-            unselectAuto: false,
             weekNumberFormat: {
-                week: this.props.model.scale === "month" || this.env.isSmall ? "numeric" : "long",
+                week:
+                    this.props.model.scale === "month" || this.uiService.isSmall
+                        ? "numeric"
+                        : "long",
             },
             weekends: this.props.isWeekendVisible,
             weekNumberCalculation: (date) => getLocalYearAndWeek(date).week,
             weekNumbers: true,
-            dayHeaderContent: this.getHeaderHtml,
+            dayHeaderContent: this.getHeaderHtml.bind(this),
             eventDisplay: "block", // Restore old render in daygrid view for single-day timed events
             eventTimeFormat: is24HourFormat() ? HOUR_FORMATS[24] : HOUR_FORMATS[12],
-            viewDidMount: this.viewDidMount,
-            moreLinkDidMount: this.wrapMoreLink,
+            viewDidMount: this.viewDidMount.bind(this),
+            moreLinkDidMount: this.wrapMoreLink.bind(this),
             fixedWeekCount: false,
         };
     }
 
     get customOptions() {
         return {
-            weekNumbersWithinDays: !this.env.isSmall,
+            weekNumbersWithinDays: !this.uiService.isSmall,
         };
     }
 
@@ -179,52 +214,77 @@ export class CalendarCommonRenderer extends Component {
     getEndTime(record) {
         return record.end.toFormat(this.timeFormat);
     }
+    /**
+     * Register an event listener, to create all day events when the day header is clicked in week/day view
+     * @param info Object passed from the fullcalendar library. See https://fullcalendar.io/docs/day-header-render-hooks
+     */
+    onDayHeaderDidMount(info) {
+        if (["day", "week"].includes(this.props.model.scale)) {
+            const date = DateTime.fromJSDate(info.date);
+            const handler = (event) => {
+                this.onDateClick({
+                    date: info.date,
+                    dateStr: date.toISODate(),
+                    allDay: true,
+                    jsEvent: event,
+                });
+            };
+            this.dayHeaderListeners[date] = handler;
+            info.el.addEventListener("click", handler);
+        }
+    }
+
+    onDayHeaderWillUnmount(info) {
+        if (["day", "week"].includes(this.props.model.scale)) {
+            const date = DateTime.fromJSDate(info.date);
+            const customListener = this.dayHeaderListeners[date];
+            if (customListener) {
+                info.el.removeEventListener("click", customListener);
+                delete this.dayHeaderListeners[date];
+            }
+        }
+    }
 
     computeEventSelector(event) {
         return `[data-event-id="${event.id}"]`;
     }
+    handleDateClick(info) {
+        if (!info.jsEvent || info.jsEvent.defaultPrevented) {
+            // The event might be fired after a touch pointerup without any jsEvent
+            return;
+        }
+        if (!this.props.model.hasMultiCreate) {
+            this.onDateClick(info);
+        }
+    }
     highlightEvent(event, className) {
-        for (const el of this.fc.api.el.querySelectorAll(this.computeEventSelector(event))) {
+        for (const el of this.fc().el.querySelectorAll(this.computeEventSelector(event))) {
             el.classList.add(className);
         }
     }
-    unhighlightEvent(event, className) {
-        for (const el of this.fc.api.el.querySelectorAll(this.computeEventSelector(event))) {
-            el.classList.remove(className);
-        }
-    }
     mapRecordsToEvents() {
-        return Object.values(this.props.model.records).map((r) => this.convertRecordToEvent(r));
+        const { records } = this.props.model.data;
+        return Object.values(records).map((r) => this.convertRecordToEvent(r));
     }
     convertRecordToEvent(record) {
         return convertRecordToEvent(record);
     }
     getPopoverProps(record) {
         return {
-            record,
             model: this.props.model,
-            createRecord: this.props.createRecord,
-            deleteRecord: this.props.deleteRecord,
-            editRecord: this.props.editRecord,
+            record,
+            openRecord: () => this.props.editRecord(record),
+            deleteRecord: () => this.props.deleteRecord(record),
         };
     }
     openPopover(target, record) {
-        const color = getColor(record.colorIndex);
-        this.popover.open(
-            target,
-            this.getPopoverProps(record),
-            `o_cw_popover card o_calendar_color_${typeof color === "number" ? color : 0}`
-        );
+        this.popover.open(target, this.getPopoverProps(record));
     }
 
     onClick(info) {
         this.openPopover(info.el, this.props.model.records[info.event.id]);
-        this.highlightEvent(info.event, "o_cw_custom_highlight");
     }
     onDateClick(info) {
-        if (info.jsEvent.defaultPrevented) {
-            return;
-        }
         this.props.createRecord(this.fcEventToRecord(info));
     }
     getDayCellClassNames(info) {
@@ -252,8 +312,7 @@ export class CalendarCommonRenderer extends Component {
     onEventContent(arg) {
         const { event } = arg;
         if (event.start && event.end) {
-            const dateFmt = (date) =>
-                luxon.DateTime.fromJSDate(date).toFormat(this.timeFormat);
+            const dateFmt = (date) => luxon.DateTime.fromJSDate(date).toFormat(this.timeFormat);
             arg.timeText = `${dateFmt(event.start)} - ${dateFmt(event.end)}`;
         }
         const record = this.props.model.records[event.id];
@@ -330,72 +389,128 @@ export class CalendarCommonRenderer extends Component {
         info.jsEvent.preventDefault();
         this.popover.close();
         await this.props.createRecord(this.fcEventToRecord(info));
-        this.fc.api.unselect();
+        this.fc().unselect();
     }
     isSelectionAllowed(event) {
         return event.end.getDate() === event.start.getDate() || event.allDay;
     }
+    onEventDragStop(info) {
+        // the calendar may already be unmounted and jsEvent undefined when fullcalendar
+        // interrupts the drag (e.g. swiping to another date while dragging on touch devices)
+        this.ref()?.classList.remove("o_interacting", "o_grabbing");
+        if (!this.uiService.isSmall) {
+            const point = info.jsEvent?.changedTouches?.[0] ?? info.jsEvent;
+            const x = point?.clientX;
+            const y = point?.clientY;
+            if (Number.isFinite(x) && Number.isFinite(y)) {
+                const dropTarget = document.elementFromPoint(x, y);
+                if (dropTarget && dropTarget.closest(".o_calendar_unschedule_zone")) {
+                    info.event.remove();
+                    this.props.model.unscheduleEvent(Number(info.event.id));
+                }
+            }
+            this.props.model.bus.trigger("CALENDAR_EVENT_DRAG", { dragging: false });
+        }
+    }
     onEventDrop(info) {
-        this.fc.api.unselect();
-        this.props.model.updateRecord(this.fcEventToRecord(info.event), { moved: true });
+        this.fc().unselect();
+        let forceAllDay = false;
+        // allDay should change if the event was dropped in an "allday" section
+        // from a regular section or conversely. This ensures `allDay` fullcalendar events
+        // that are not all_day in odoo keep their value when simply moved around.
+        if (info.oldEvent.allDay !== info.event.allDay) {
+            forceAllDay = true;
+        }
+        this.props.model.updateRecord(this.fcEventToRecord(info.event, forceAllDay)).catch((e) => {
+            info.revert();
+            throw e;
+        });
     }
     onEventResize(info) {
-        this.fc.api.unselect();
-        this.props.model.updateRecord(this.fcEventToRecord(info.event));
+        this.fc().unselect();
+        this.props.model.updateRecord(this.fcEventToRecord(info.event)).catch((e) => {
+            info.revert();
+            throw e;
+        });
     }
-    fcEventToRecord(event) {
-        const { id, allDay, date, start, end } = event;
+    async onEventScheduled(info) {
+        const original = info.event;
+        const date = DateTime.fromJSDate(original.start);
+        const resId = Number(original.id);
+        await this.props.model.scheduleEvent(resId, date);
+        original.remove();
+    }
+    /**
+     *
+     * @param {object} event fullcalendar event
+     * @param {boolean} forceAllDay if true, set the all_day to the value of allDay, otherwise keep the original record value
+     * @returns {object} odoo record values
+     */
+    fcEventToRecord(event, forceAllDay = false) {
+        const { id, date, start, end } = event;
         const res = {
             start: luxon.DateTime.fromJSDate(date || start),
-            isAllDay: allDay,
+            isAllDay: event.allDay,
         };
         if (end) {
             res.end = luxon.DateTime.fromJSDate(end);
-            if (["week", "month"].includes(this.props.model.scale) && allDay) {
-                res.end = res.end.minus({ days: 1 });
-            }
         }
-        if (id) {
-            const existingRecord = this.props.model.records[id];
-            if (this.props.model.scale === "month") {
+        const existingRecord = this.props.model.records[id];
+        if (existingRecord) {
+            res.id = existingRecord.id;
+            res.isAllDay = forceAllDay ? event.allDay : existingRecord.isAllDay;
+        }
+        // allday fullcalendar events are start-inclusive but end-exclusive for the date (`[start, end[`)
+        // whereas odoo is normally inclusive for both (`[start, end]`)
+        // This means fullcalendar [2000-01-01, 2000-01-02[ is actually equivalent to odoo [2000-01-01, 2000-01-01]
+        if (["week", "month"].includes(this.props.model.scale)) {
+            // case where the event is only visually "allday"
+            if (existingRecord && !res.isAllDay && event.allDay) {
                 res.start = res.start?.set({
                     hour: existingRecord.start.hour,
                     minute: existingRecord.start.minute,
                 });
-                if (existingRecord.end) {
-                    res.end = res.end?.set({
+                if (res.end && existingRecord.end) {
+                    // exact opposite of the recordToEvent logic, for consistency
+                    // original value -> fullcalendar value -> save value
+                    // [X, 2000-01-01 16:00] -> [X, 2000-01-02[ -> [X, 2000-01-01 16:00]
+                    // [X, 2000-01-02 00:00] -> [X, 2000-01-02[ -> [X, 2000-01-02 00:00]
+                    // [X, 2000-01-02 00:01] -> [X, 2000-01-03[ -> [X, 2000-01-02 00:01]
+                    if (
+                        existingRecord.end.toMillis() !==
+                        existingRecord.end.startOf("day").toMillis()
+                    ) {
+                        res.end = res.end.minus({ days: 1 });
+                    }
+                    res.end = res.end.set({
                         hour: existingRecord.end.hour,
                         minute: existingRecord.end.minute,
                     });
                 }
+            } else if (res.isAllDay && res.end) {
+                res.end = res.end.minus({ days: 1 });
             }
-            res.id = existingRecord.id;
         }
         return res;
-    }
-    onEventMouseEnter(info) {
-        this.highlightEvent(info.event, "o_cw_custom_highlight");
-    }
-    onEventMouseLeave(info) {
-        if (!info.event.id) {
-            return;
-        }
-        this.unhighlightEvent(info.event, "o_cw_custom_highlight");
     }
     onEventDragStart(info) {
         this.popover.close();
         this.props.cleanSquareSelection();
         info.el.classList.add(info.view.type);
-        this.fc.api.unselect();
+        this.fc().unselect();
         this.highlightEvent(info.event, "o_cw_custom_highlight");
+        this.ref().classList.add("o_interacting", "o_grabbing");
+        if (!this.uiService.isSmall) {
+            this.props.model.bus.trigger("CALENDAR_EVENT_DRAG", { dragging: true });
+        }
     }
     onEventResizeStart(info) {
         this.props.cleanSquareSelection();
-        this.fc.api.unselect();
+        this.fc().unselect();
         this.highlightEvent(info.event, "o_cw_custom_highlight");
     }
     onEventLimitClick() {
-        this.fc.api.unselect();
+        this.fc().unselect();
         return "popover";
     }
     onWindowResize() {
@@ -413,7 +528,9 @@ export class CalendarCommonRenderer extends Component {
         // when rendering months, FullCalendar uses a date w/out tz
         // so use UTC instead of local tz when converting to DateTime
         const options = scale === "month" ? { zone: "UTC" } : {};
-        const { weekdayShort, weekdayLong, day } = DateTime.fromJSDate(date, options);
+        const { weekdayShort, weekdayLong, day } = DateTime.fromJSDate(date, options).plus({
+            hour: 1,
+        });
         return {
             weekdayShort,
             weekdayLong,

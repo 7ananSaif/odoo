@@ -8,23 +8,30 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo 9.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-11-16 15:05+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Hindi <https://translate.odoo.com/projects/odoo-19/analytic/"
-"hi/>\n"
+"POT-Creation-Date: 2026-09-11 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 16:14+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Hindi <https://translate.odoo.com/projects/odoo-s19-4/"
+"analytic/hi/>\n"
 "Language: hi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: analytic
-#. odoo-python
-#: code:addons/analytic/models/analytic_account.py:0
-msgid "%s (copy)"
-msgstr "%s (कॉपी)"
+#: model:ir.module.module,description:base.module_analytic
+msgid ""
+"\n"
+"Module for defining analytic accounting object.\n"
+"===============================================\n"
+"\n"
+"In Odoo, analytic accounts are linked to general accounts but are treated\n"
+"totally independently. So, you can enter various different analytic "
+"operations\n"
+"that have no counterpart in the general financial accounts.\n"
+msgstr ""
 
 #. module: analytic
 #. odoo-python
@@ -51,6 +58,11 @@ msgid ""
 msgstr ""
 "एक 'प्रोजेक्ट प्लान' ज़रूर होना चाहिए और उसकी आईडी सिस्टम में analytic.project_plan "
 "रखनी ज़रूरी है."
+
+#. module: analytic
+#: model:ir.model,name:analytic.model_res_groups
+msgid "Access Groups"
+msgstr ""
 
 #. module: analytic
 #. odoo-javascript
@@ -121,7 +133,7 @@ msgstr "अमाउंट फ़ील्ड"
 #. odoo-javascript
 #: code:addons/analytic/static/src/components/analytic_distribution/analytic_distribution.xml:0
 msgid "Analytic"
-msgstr "एनालिटिक"
+msgstr ""
 
 #. module: analytic
 #: model:ir.model,name:analytic.model_account_analytic_account
@@ -135,6 +147,7 @@ msgstr "एनालिटिक अकाउंट"
 
 #. module: analytic
 #: model:ir.model.fields,field_description:analytic.field_res_config_settings__group_analytic_accounting
+#: model:ir.module.module,shortdesc:base.module_analytic
 #: model:res.groups,name:analytic.group_analytic_accounting
 msgid "Analytic Accounting"
 msgstr "एनालिटिक अकाउंटिंग"
@@ -200,6 +213,7 @@ msgid "Analytic Mixin"
 msgstr "एनालिटिक मिक्सिन"
 
 #. module: analytic
+#: model:ir.model,name:analytic.model_account_analytic_plan
 #: model:ir.model.fields,field_description:analytic.field_account_analytic_applicability__analytic_plan_id
 msgid "Analytic Plan"
 msgstr "एनालिटिक प्लान"
@@ -216,7 +230,6 @@ msgstr "एनालिटिक प्लान की ऐप्लिकेब
 
 #. module: analytic
 #: model:ir.actions.act_window,name:analytic.account_analytic_plan_action
-#: model:ir.model,name:analytic.model_account_analytic_plan
 #: model_terms:ir.ui.view,arch_db:analytic.account_analytic_plan_form_view
 #: model_terms:ir.ui.view,arch_db:analytic.account_analytic_plan_tree_view
 msgid "Analytic Plans"
@@ -475,6 +488,7 @@ msgstr "सेव करें को बंद करें"
 #: model:ir.model.fields,field_description:analytic.field_analytic_plan_fields_mixin__display_name
 #: model:ir.model.fields,field_description:analytic.field_ir_config_parameter__display_name
 #: model:ir.model.fields,field_description:analytic.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:analytic.field_res_groups__display_name
 msgid "Display Name"
 msgstr "डिस्प्ले का नाम"
 
@@ -552,6 +566,7 @@ msgstr "मानव संसाधन"
 #: model:ir.model.fields,field_description:analytic.field_analytic_plan_fields_mixin__id
 #: model:ir.model.fields,field_description:analytic.field_ir_config_parameter__id
 #: model:ir.model.fields,field_description:analytic.field_res_config_settings__id
+#: model:ir.model.fields,field_description:analytic.field_res_groups__id
 msgid "ID"
 msgstr "आईडी"
 
@@ -784,15 +799,15 @@ msgid "Production"
 msgstr "उत्पादन"
 
 #. module: analytic
-#: model:account.analytic.plan,name:analytic.analytic_plan_projects
-msgid "Project"
-msgstr "प्रोजेक्ट"
-
-#. module: analytic
 #: model:ir.model.fields,field_description:analytic.field_account_analytic_line__account_id
 #: model:ir.model.fields,field_description:analytic.field_analytic_plan_fields_mixin__account_id
 msgid "Project Account"
 msgstr "प्रोजेक्ट अमाउंट"
+
+#. module: analytic
+#: model:account.analytic.plan,name:analytic.analytic_plan_projects
+msgid "Project Plan"
+msgstr ""
 
 #. module: analytic
 #: model:ir.model.fields,field_description:analytic.field_account_analytic_line__unit_amount
@@ -997,9 +1012,3 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:analytic.view_account_analytic_account_form
 msgid "e.g. Project XYZ"
 msgstr "जैसे, प्रोजेक्ट XYZ"
-
-#~ msgid "Deco Addict"
-#~ msgstr "Deco Addict"
-
-#~ msgid "Group By..."
-#~ msgstr "द्वारा वर्गीकृत करें"

@@ -7,7 +7,7 @@ import {
     startServer,
 } from "@mail/../tests/mail_test_helpers";
 import { test } from "@odoo/hoot";
-import { preloadBundle, serverState } from "@web/../tests/web_test_helpers";
+import { preloadBundle } from "@web/../tests/web_test_helpers";
 import { serializeDateTime } from "@web/core/l10n/dates";
 
 const { DateTime } = luxon;
@@ -18,8 +18,9 @@ preloadBundle("web.fullcalendar_lib");
 test("list activity widget: reschedule button in dropdown", async () => {
     const pyEnv = await startServer();
     const resPartnerId = pyEnv["res.partner"].create({});
+    const userId = pyEnv["res.users"].create({ partner_id: resPartnerId });
     const activityTypeId = pyEnv["mail.activity.type"].create({
-        icon: "fa-calendar",
+        icon: "calendar_today",
         name: "Meeting",
     });
     const tomorrow = serializeDateTime(DateTime.now().plus({ days: 1 }));
@@ -36,14 +37,15 @@ test("list activity widget: reschedule button in dropdown", async () => {
         date_deadline: tomorrow,
         state: "planned",
         can_write: true,
-        res_id: resPartnerId,
-        res_model: "res.partner",
+        res_id: userId,
+        res_model: "res.users", //Target the user instead of the partner
         calendar_event_id: meetingId,
         summary: "OXP",
     });
-    pyEnv["res.partner"].write([serverState.partnerId], {
+    pyEnv["res.users"].write([userId], {
         activity_ids: [activityId_1],
         activity_state: "today",
+        // activity_summary: "OXP",
     });
 
     // FIXME: Manually trigger recomputation of related fields
@@ -55,9 +57,11 @@ test("list activity widget: reschedule button in dropdown", async () => {
         arch: `<list>
             <field name="activity_ids" widget="list_activity"/>
         </list>`,
+        // Filter the view so we only click the button for our specific test user
+        domain: [["id", "=", userId]],
     });
     await contains(".o-mail-ListActivity-summary", { text: "OXP" });
     await click(".o-mail-ActivityButton"); // open the popover
-    await contains(".o-mail-ActivityListPopoverItem-editbtn .fa-pencil", { count: 0 });
-    await contains(".o-mail-ActivityListPopoverItem-editbtn .fa-calendar");
+    await contains(".o-mail-ActivityListPopoverItem-editbtn [data-icon='edit']", { count: 0 });
+    await contains(".o-mail-ActivityListPopoverItem-editbtn [data-icon='calendar_today']");
 });

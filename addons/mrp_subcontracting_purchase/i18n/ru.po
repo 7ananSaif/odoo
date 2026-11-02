@@ -9,10 +9,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-04-24 18:43+0000\n"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-08-31 19:34+0000\n"
 "Last-Translator: \"Anastasiia Koroleva (koan)\" <koan@odoo.com>\n"
-"Language-Team: Russian <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Russian <https://translate.odoo.com/projects/odoo-s19-4/"
 "mrp_subcontracting_purchase/ru/>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
@@ -21,19 +21,33 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
 "(n%100>=11 && n%100<=14)? 2 : 3);\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: mrp_subcontracting_purchase
+#: model:ir.module.module,description:base.module_mrp_subcontracting_purchase
+msgid ""
+"\n"
+"This bridge module adds some smart buttons between Purchase and "
+"Subcontracting\n"
+msgstr ""
+
+#. module: mrp_subcontracting_purchase
+#. odoo-python
+#: code:addons/mrp_subcontracting_purchase/models/mrp_production.py:0
+msgid "%(name)s - Subcontracting"
+msgstr ""
 
 #. module: mrp_subcontracting_purchase
 #. odoo-python
 #: code:addons/mrp_subcontracting_purchase/models/stock_move.py:0
 msgid "%(value)s for %(quantity)s %(unit)s from %(production)s"
-msgstr ""
+msgstr "%(value)s за %(quantity)s %(unit)s из %(production)s"
 
 #. module: mrp_subcontracting_purchase
 #. odoo-python
 #: code:addons/mrp_subcontracting_purchase/models/stock_rule.py:0
-msgid "+ %d day(s)"
-msgstr "+ %d день(ы)"
+msgid "+ %d days"
+msgstr ""
 
 #. module: mrp_subcontracting_purchase
 #: model_terms:ir.ui.view,arch_db:mrp_subcontracting_purchase.purchase_order_form_mrp_subcontracting_purchase
@@ -67,10 +81,13 @@ msgid "Days to Supply Components"
 msgstr "Дни на поставку компонентов"
 
 #. module: mrp_subcontracting_purchase
+#: model:ir.model.fields,field_description:mrp_subcontracting_purchase.field_account_move__display_name
 #: model:ir.model.fields,field_description:mrp_subcontracting_purchase.field_account_move_line__display_name
+#: model:ir.model.fields,field_description:mrp_subcontracting_purchase.field_mrp_production__display_name
 #: model:ir.model.fields,field_description:mrp_subcontracting_purchase.field_product_product__display_name
 #: model:ir.model.fields,field_description:mrp_subcontracting_purchase.field_purchase_order__display_name
 #: model:ir.model.fields,field_description:mrp_subcontracting_purchase.field_report_mrp_report_bom_structure__display_name
+#: model:ir.model.fields,field_description:mrp_subcontracting_purchase.field_report_mrp_report_mo_overview__display_name
 #: model:ir.model.fields,field_description:mrp_subcontracting_purchase.field_stock_move__display_name
 #: model:ir.model.fields,field_description:mrp_subcontracting_purchase.field_stock_picking__display_name
 #: model:ir.model.fields,field_description:mrp_subcontracting_purchase.field_stock_rule__display_name
@@ -78,10 +95,13 @@ msgid "Display Name"
 msgstr "Отображаемое название"
 
 #. module: mrp_subcontracting_purchase
+#: model:ir.model.fields,field_description:mrp_subcontracting_purchase.field_account_move__id
 #: model:ir.model.fields,field_description:mrp_subcontracting_purchase.field_account_move_line__id
+#: model:ir.model.fields,field_description:mrp_subcontracting_purchase.field_mrp_production__id
 #: model:ir.model.fields,field_description:mrp_subcontracting_purchase.field_product_product__id
 #: model:ir.model.fields,field_description:mrp_subcontracting_purchase.field_purchase_order__id
 #: model:ir.model.fields,field_description:mrp_subcontracting_purchase.field_report_mrp_report_bom_structure__id
+#: model:ir.model.fields,field_description:mrp_subcontracting_purchase.field_report_mrp_report_mo_overview__id
 #: model:ir.model.fields,field_description:mrp_subcontracting_purchase.field_stock_move__id
 #: model:ir.model.fields,field_description:mrp_subcontracting_purchase.field_stock_picking__id
 #: model:ir.model.fields,field_description:mrp_subcontracting_purchase.field_stock_rule__id
@@ -89,15 +109,37 @@ msgid "ID"
 msgstr "ID"
 
 #. module: mrp_subcontracting_purchase
+#: model:ir.model,name:mrp_subcontracting_purchase.model_account_move
+msgid "Journal Entry"
+msgstr ""
+
+#. module: mrp_subcontracting_purchase
 #: model:ir.model,name:mrp_subcontracting_purchase.model_account_move_line
 msgid "Journal Item"
 msgstr "Элемент журнала"
+
+#. module: mrp_subcontracting_purchase
+#: model:ir.model.fields,help:mrp_subcontracting_purchase.field_mrp_production__subcontract_extra_move_id
+msgid ""
+"Journal entry neutralising the subcontractor bill's stock valuation, so the "
+"finished move keeps the full cost while the bill is not counted twice."
+msgstr ""
+
+#. module: mrp_subcontracting_purchase
+#: model:ir.model,name:mrp_subcontracting_purchase.model_report_mrp_report_mo_overview
+msgid "MO Overview Report"
+msgstr ""
 
 #. module: mrp_subcontracting_purchase
 #. odoo-python
 #: code:addons/mrp_subcontracting_purchase/models/stock_rule.py:0
 msgid "Manufacturing Lead Time"
 msgstr "Сроки изготовления"
+
+#. module: mrp_subcontracting_purchase
+#: model:ir.model,name:mrp_subcontracting_purchase.model_mrp_production
+msgid "Manufacturing Order"
+msgstr ""
 
 #. module: mrp_subcontracting_purchase
 #: model:ir.model.fields,field_description:mrp_subcontracting_purchase.field_stock_picking__subcontracting_source_purchase_count
@@ -112,13 +154,13 @@ msgstr "Номер источника заказа на поставку по с
 #. module: mrp_subcontracting_purchase
 #: model:ir.model,name:mrp_subcontracting_purchase.model_product_product
 msgid "Product Variant"
-msgstr ""
+msgstr "Вариант товара"
 
 #. module: mrp_subcontracting_purchase
 #. odoo-python
 #: code:addons/mrp_subcontracting_purchase/models/stock_rule.py:0
 msgid "Production Start Date"
-msgstr ""
+msgstr "Дата начала производства"
 
 #. module: mrp_subcontracting_purchase
 #: model:ir.model,name:mrp_subcontracting_purchase.model_purchase_order
@@ -126,10 +168,15 @@ msgid "Purchase Order"
 msgstr "Заказ на покупку"
 
 #. module: mrp_subcontracting_purchase
+#: model:ir.module.module,shortdesc:base.module_mrp_subcontracting_purchase
+msgid "Purchase and Subcontracting Management"
+msgstr ""
+
+#. module: mrp_subcontracting_purchase
 #. odoo-python
 #: code:addons/mrp_subcontracting_purchase/models/stock_rule.py:0
 msgid "Receipt Date"
-msgstr ""
+msgstr "Дата поступления"
 
 #. module: mrp_subcontracting_purchase
 #. odoo-python
@@ -148,6 +195,11 @@ msgid "Stock Rule"
 msgstr "Правило запаса"
 
 #. module: mrp_subcontracting_purchase
+#: model:ir.model.fields,field_description:mrp_subcontracting_purchase.field_mrp_production__subcontract_extra_move_id
+msgid "Subcontracting Cost Entry"
+msgstr ""
+
+#. module: mrp_subcontracting_purchase
 #: model:ir.model,name:mrp_subcontracting_purchase.model_stock_picking
 msgid "Transfer"
 msgstr "Перевод"
@@ -157,6 +209,3 @@ msgstr "Перевод"
 #: code:addons/mrp_subcontracting_purchase/models/stock_rule.py:0
 msgid "Vendor Lead Time"
 msgstr "Время ожидания поставки от поставщика"
-
-#~ msgid "Stock Valuation Layer"
-#~ msgstr "Уровень оценки запасов"

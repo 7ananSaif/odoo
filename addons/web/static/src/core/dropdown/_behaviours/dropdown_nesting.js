@@ -1,7 +1,7 @@
-import { EventBus, onWillDestroy, useChildSubEnv, useEffect, useEnv } from "@odoo/owl";
+import { useEnv, useSubEnv } from "@web/owl2/utils";
+import { EventBus, onMounted, onWillDestroy, useEffect } from "@odoo/owl";
 import { localization } from "@web/core/l10n/localization";
 import { useBus, useService } from "@web/core/utils/hooks";
-import { effect } from "@web/core/utils/reactive";
 
 export const DROPDOWN_NESTING = Symbol("dropdownNesting");
 const BUS = new EventBus();
@@ -82,24 +82,18 @@ export function useDropdownNesting(state) {
 
     // Set up UI active element related behavior ---------------------------
     const uiService = useService("ui");
-    useEffect(
-        () => {
-            Promise.resolve().then(() => {
-                current.activeEl = uiService.activeElement;
-            });
-        },
-        () => []
-    );
+    onMounted(() => {
+        Promise.resolve().then(() => {
+            current.activeEl = uiService.activeElement;
+        });
+    });
 
-    useChildSubEnv({ [DROPDOWN_NESTING]: current });
+    useSubEnv({ [DROPDOWN_NESTING]: current });
     useBus(BUS, "dropdown-opened", ({ detail: other }) => current.handleChange(other));
 
-    effect(
-        (state) => {
-            current.isOpen = state.isOpen;
-        },
-        [state]
-    );
+    useEffect(() => {
+        current.isOpen = state.isOpen;
+    });
 
     onWillDestroy(() => {
         current.remove();
@@ -121,6 +115,14 @@ export function useDropdownNesting(state) {
             },
             hotkeys: {
                 escape: () => current.close(),
+                tab: {
+                    callback: (navigator) => navigator.next(),
+                    bypassEditableProtection: true,
+                },
+                "shift+tab": {
+                    callback: (navigator) => navigator.previous(),
+                    bypassEditableProtection: true,
+                },
                 arrowleft: {
                     isAvailable: () => true,
                     callback: (navigator) => {

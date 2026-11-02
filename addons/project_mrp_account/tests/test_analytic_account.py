@@ -2,8 +2,7 @@
 
 from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
-from odoo.tests import Form, tagged
-from odoo import Command
+from odoo.tests import tagged, Form
 
 
 class TestMrpAnalyticAccount(TransactionCase):
@@ -64,6 +63,7 @@ class TestMrpAnalyticAccount(TransactionCase):
         cls.project.account_id = False
 
 
+@tagged('-post_install', 'at_install')  # test_workcenter_different_analytic_account breaks post install
 class TestAnalyticAccount(TestMrpAnalyticAccount):
     def test_mo_analytic(self):
         """Test the amount on analytic line will change when consumed qty of the
@@ -83,13 +83,21 @@ class TestAnalyticAccount(TestMrpAnalyticAccount):
         mo_form = Form(mo)
         mo_form.qty_producing = 5.0
         mo_form.save()
-        self.assertEqual(mo.state, 'progress')
+        # Setting the move as picked to trigger analytic account lines calculations and
+        # setting it to False again to enable changing move.quantity when changing mo.qty_producing
+        mo.move_raw_ids.picked = True
+        mo.move_raw_ids.picked = False
+        self.assertEqual(mo.state, 'confirmed')
         self.assertEqual(mo.move_raw_ids.analytic_account_line_ids.amount, -50.0)
 
         # increase qty_producing to 10.0
         mo_form = Form(mo)
         mo_form.qty_producing = 10.0
         mo_form.save()
+        # Setting the move as picked to trigger analytic account lines calculations and
+        # setting it to False again to enable changing move.quantity when changing mo.qty_producing
+        mo.move_raw_ids.picked = True
+        mo.move_raw_ids.picked = False
         mo.workorder_ids.button_finish()
         self.assertEqual(mo.state, 'to_close')
         self.assertEqual(mo.move_raw_ids.analytic_account_line_ids.amount, -100.0)
@@ -98,6 +106,41 @@ class TestAnalyticAccount(TestMrpAnalyticAccount):
         mo.button_mark_done()
         self.assertEqual(mo.state, 'done')
         self.assertEqual(mo.move_raw_ids.analytic_account_line_ids.amount, -100.0)
+
+    def test_mo_analytic_disabled(self):
+        """Test no analytic line is created when analytic costs are disabled.
+        """
+        # create a mo
+        mo_form = Form(self.env['mrp.production'])
+        mo_form.product_id = self.product
+        mo_form.bom_id = self.bom
+        mo_form.product_qty = 10.0
+        mo_form.project_id = self.project
+        mo = mo_form.save()
+        mo.picking_type_id.analytic_costs = False
+        mo.action_confirm()
+        self.assertEqual(mo.state, 'confirmed')
+        self.assertFalse(mo.move_raw_ids.analytic_account_line_ids)
+
+        # increase qty_producing to 5.0
+        mo_form = Form(mo)
+        mo_form.qty_producing = 5.0
+        mo_form.save()
+        self.assertEqual(mo.state, 'confirmed')
+        self.assertFalse(mo.move_raw_ids.analytic_account_line_ids)
+
+        # increase qty_producing to 10.0
+        mo_form = Form(mo)
+        mo_form.qty_producing = 10.0
+        mo_form.save()
+        mo.workorder_ids.button_finish()
+        self.assertEqual(mo.state, 'to_close')
+        self.assertFalse(mo.move_raw_ids.analytic_account_line_ids)
+
+        # mark as done
+        mo.button_mark_done()
+        self.assertEqual(mo.state, 'done')
+        self.assertFalse(mo.move_raw_ids.analytic_account_line_ids)
 
     def test_mo_analytic_backorder(self):
         """Test the analytic lines are correctly posted when backorder.
@@ -117,7 +160,11 @@ class TestAnalyticAccount(TestMrpAnalyticAccount):
         mo_form = Form(mo)
         mo_form.qty_producing = 5.0
         mo_form.save()
-        self.assertEqual(mo.state, 'progress')
+        # Setting the move as picked to trigger analytic account lines calculations and
+        # setting it to False again to enable changing move.quantity when changing mo.qty_producing
+        mo.move_raw_ids.picked = True
+        mo.move_raw_ids.picked = False
+        self.assertEqual(mo.state, 'confirmed')
         self.assertEqual(mo.move_raw_ids.analytic_account_line_ids.amount, -50.0)
 
         Form.from_action(self.env, mo.button_mark_done()).save().action_backorder()
@@ -160,7 +207,6 @@ class TestAnalyticAccount(TestMrpAnalyticAccount):
         self.assertEqual(mo.workorder_ids.wc_analytic_account_line_ids[analytic_plan._column_name()], wc_analytic_account)
 
         # mark as done
-
         mo.qty_producing = 10.0
         mo.set_qty_producing()
         mo.button_mark_done()
@@ -246,14 +292,14 @@ class TestAnalyticAccount(TestMrpAnalyticAccount):
         mo_no_company = self.env['mrp.production'].create({
             'product_id': self.product.id,
             'project_id': project_aa_no_company.id,
-            'product_uom_id': self.bom.product_uom_id.id,
+            'uom_id': self.bom.uom_id.id,
         })
 
         mo_no_c_form = Form(mo_no_company)
         wo = self.env['mrp.workorder'].create({
             'name': 'Work_order',
             'workcenter_id': self.workcenter.id,
-            'product_uom_id': self.bom.product_uom_id.id,
+            'uom_id': self.bom.uom_id.id,
             'production_id': mo_no_c_form.id,
             'duration': 60,
         })
@@ -281,12 +327,12 @@ class TestAnalyticAccount(TestMrpAnalyticAccount):
         bom = self.env['mrp.bom'].create({
                 'product_tmpl_id': product.product_tmpl_id.id,
                 'product_qty': 1,
-                'product_uom_id': product.uom_id.id,
+                'uom_id': product.uom_id.id,
                 'type': 'normal',
                 'bom_line_ids': [(0, 0, {
                     'product_id': component.id,
                     'product_qty': 1,
-                    'product_uom_id': component.uom_id.id,
+                    'uom_id': component.uom_id.id,
                 })],
         })
         analytic_account = self.env['account.analytic.account'].create({
@@ -312,7 +358,7 @@ class TestAnalyticAccount(TestMrpAnalyticAccount):
         mo_form = Form(mo)
         mo_form.qty_producing = 1
         mo = mo_form.save()
-        self.assertEqual(mo.state, 'to_close')
+        self.assertEqual(mo.state, 'confirmed')
         mo.button_mark_done()
         self.assertEqual(mo.state, 'done')
         self.assertEqual(analytic_account.debit, 100)
@@ -359,7 +405,11 @@ class TestAnalyticAccount(TestMrpAnalyticAccount):
         mo_form = Form(mo)
         mo_form.qty_producing = 5.0
         mo_form.save()
-        self.assertEqual(mo.state, 'progress')
+        self.assertEqual(mo.state, 'confirmed')
+        # Setting the move as picked to trigger analytic account lines calculations and
+        # setting it to False again to enable changing move.quantity when changing mo.qty_producing
+        mo.move_raw_ids.picked = True
+        mo.move_raw_ids.picked = False
         aal = mo.move_raw_ids.analytic_account_line_ids
         self.assertEqual(len(aal), 1)
         self.assertEqual(sum(aal.mapped('amount')), -50.00)
@@ -368,6 +418,10 @@ class TestAnalyticAccount(TestMrpAnalyticAccount):
         mo_form = Form(mo)
         mo_form.qty_producing = 10.0
         mo_form.save()
+        # Setting the move as picked to trigger analytic account lines calculations and
+        # setting it to False again to enable changing move.quantity when changing mo.qty_producing
+        mo.move_raw_ids.picked = True
+        mo.move_raw_ids.picked = False
         mo.workorder_ids.button_finish()
         aal = mo.move_raw_ids.analytic_account_line_ids
 
@@ -416,13 +470,19 @@ class TestAnalyticAccount(TestMrpAnalyticAccount):
         mo_form = Form(mo)
         mo_form.qty_producing = 5.0
         mo_form.save()
-        self.assertEqual(mo.state, 'progress')
+        # Setting the move as picked to trigger analytic account lines calculations and
+        # setting it to False again to enable changing move.quantity when changing mo.qty_producing
+        mo.move_raw_ids.picked = True
+        mo.move_raw_ids.picked = False
+        self.assertEqual(mo.state, 'confirmed')
         self.assertEqual(self.analytic_account.balance, -50.0)
 
         # decrease qty_producing to 0.0
         mo_form = Form(mo)
         mo_form.qty_producing = 0.0
         mo_form.save()
+        # Setting the move as picked to trigger analytic account lines calculations and
+        mo.move_raw_ids.picked = True
         self.assertEqual(mo.state, 'progress')
         self.assertEqual(self.analytic_account.balance, 0.0)
 
@@ -490,46 +550,3 @@ class TestAnalyticAccount(TestMrpAnalyticAccount):
         mo.action_confirm()
         mo.button_mark_done()
         self.assertEqual(mo.move_raw_ids.analytic_account_line_ids.category, 'manufacturing_order')
-
-
-@tagged('post_install', '-at_install')
-class TestAnalyticAccountTimesheet(TestMrpAnalyticAccount):
-    def test_analytic_account_access(self):
-        """ This test make sure that a user can scrap an order even without accounting rights """
-        if not self.env['ir.module.module'].search([('name', '=', 'timesheet_grid'), ('state', '=', 'installed')]):
-            self.skipTest("timesheet_grid is not installed, the access error won't trigger")
-
-        test_user = self.env['res.users'].create({
-            'name': 'Test MRP User',
-            'login': 'test_mrp_user',
-            'group_ids': [Command.set([
-                self.ref('mrp.group_mrp_user'),
-                self.ref('project.group_project_user'),
-                self.ref('hr_timesheet.group_hr_timesheet_approver')
-            ])],
-        })
-
-        quant = self.env['stock.quant'].with_context(inventory_mode=True).create({
-                'product_id': self.component.id,
-                'inventory_quantity': 10,
-                'location_id': self.env.ref("stock.warehouse0").lot_stock_id.id,
-            })
-        quant.action_apply_inventory()
-
-        def _create_confirmed_mo():
-            mo_form = Form(self.env['mrp.production'])
-            mo_form.product_id = self.product
-            mo_form.bom_id = self.bom
-            mo_form.product_qty = 1.0
-            mo_form.project_id = self.project
-            mo = mo_form.save()
-            mo.action_confirm()
-            return mo
-
-        _create_confirmed_mo().button_mark_done()
-        mo2 = _create_confirmed_mo()
-        self.env['stock.scrap'].with_user(test_user).create({
-            'product_id': self.component.id,
-            'scrap_qty': 1.0,
-            'production_id': mo2.id,
-        }).action_validate()

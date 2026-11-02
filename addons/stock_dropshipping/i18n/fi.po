@@ -9,30 +9,51 @@
 # Kari Lindgren <kari.lindgren@emsystems.fi>, 2022
 # Tuomas Lyyra <tuomas.lyyra@legenda.fi>, 2022
 # Tuomo Aura <tuomo.aura@web-veistamo.fi>, 2022
-# "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+# "Tiffany Chang (tic)" <tic@odoo.com>, 2025, 2026.
 # Saara Hakanen <sahak@odoo.com>, 2026.
+# Weblate <noreply-mt-weblate@weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2026-06-12 21:07+0000\n"
+"POT-Creation-Date: 2026-09-25 17:39+0000\n"
+"PO-Revision-Date: 2026-09-09 13:57+0000\n"
 "Last-Translator: Saara Hakanen <sahak@odoo.com>\n"
-"Language-Team: Finnish <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Finnish <https://translate.odoo.com/projects/odoo-master/"
 "stock_dropshipping/fi/>\n"
 "Language: fi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: stock_dropshipping
+#: model:ir.module.module,description:base.module_stock_dropshipping
+msgid ""
+"\n"
+"Manage drop shipping orders\n"
+"===========================\n"
+"\n"
+"This module adds a pre-configured Drop Shipping operation type\n"
+"as well as a procurement route that allow configuring Drop\n"
+"Shipping products and orders.\n"
+"\n"
+"When drop shipping is used the goods are directly transferred\n"
+"from vendors to customers (direct delivery) without\n"
+"going through the retailer's warehouse. In this case no\n"
+"internal transfer document is needed.\n"
+"\n"
+msgstr ""
 
 #. module: stock_dropshipping
 #: model:ir.model,name:stock_dropshipping.model_res_company
-msgid "Companies"
-msgstr "Yritykset"
+#, fuzzy
+msgid "Company"
+msgstr "Yritys"
 
 #. module: stock_dropshipping
+#: model:ir.model.fields,field_description:stock_dropshipping.field_account_move_line__display_name
 #: model:ir.model.fields,field_description:stock_dropshipping.field_product_product__display_name
 #: model:ir.model.fields,field_description:stock_dropshipping.field_purchase_order__display_name
 #: model:ir.model.fields,field_description:stock_dropshipping.field_purchase_order_line__display_name
@@ -40,12 +61,19 @@ msgstr "Yritykset"
 #: model:ir.model.fields,field_description:stock_dropshipping.field_sale_order__display_name
 #: model:ir.model.fields,field_description:stock_dropshipping.field_sale_order_line__display_name
 #: model:ir.model.fields,field_description:stock_dropshipping.field_stock_lot__display_name
+#: model:ir.model.fields,field_description:stock_dropshipping.field_stock_move_line__display_name
 #: model:ir.model.fields,field_description:stock_dropshipping.field_stock_picking__display_name
 #: model:ir.model.fields,field_description:stock_dropshipping.field_stock_picking_type__display_name
 #: model:ir.model.fields,field_description:stock_dropshipping.field_stock_replenish_mixin__display_name
 #: model:ir.model.fields,field_description:stock_dropshipping.field_stock_rule__display_name
 msgid "Display Name"
 msgstr "Näyttönimi"
+
+#. module: stock_dropshipping
+#: model:ir.module.module,shortdesc:base.module_stock_dropshipping
+#: model:ir.module.module,summary:base.module_stock_dropshipping
+msgid "Drop Shipping"
+msgstr ""
 
 #. module: stock_dropshipping
 #: model:ir.model.fields.selection,name:stock_dropshipping.selection__stock_picking_type__code__dropship
@@ -69,6 +97,7 @@ msgid "Dropships"
 msgstr "Suoratoimitukset"
 
 #. module: stock_dropshipping
+#: model:ir.model.fields,field_description:stock_dropshipping.field_account_move_line__id
 #: model:ir.model.fields,field_description:stock_dropshipping.field_product_product__id
 #: model:ir.model.fields,field_description:stock_dropshipping.field_purchase_order__id
 #: model:ir.model.fields,field_description:stock_dropshipping.field_purchase_order_line__id
@@ -76,6 +105,7 @@ msgstr "Suoratoimitukset"
 #: model:ir.model.fields,field_description:stock_dropshipping.field_sale_order__id
 #: model:ir.model.fields,field_description:stock_dropshipping.field_sale_order_line__id
 #: model:ir.model.fields,field_description:stock_dropshipping.field_stock_lot__id
+#: model:ir.model.fields,field_description:stock_dropshipping.field_stock_move_line__id
 #: model:ir.model.fields,field_description:stock_dropshipping.field_stock_picking__id
 #: model:ir.model.fields,field_description:stock_dropshipping.field_stock_picking_type__id
 #: model:ir.model.fields,field_description:stock_dropshipping.field_stock_replenish_mixin__id
@@ -89,6 +119,11 @@ msgid "Is a Dropship"
 msgstr "Suoratoimitettava"
 
 #. module: stock_dropshipping
+#: model:ir.model,name:stock_dropshipping.model_account_move_line
+msgid "Journal Item"
+msgstr ""
+
+#. module: stock_dropshipping
 #: model:ir.model,name:stock_dropshipping.model_stock_lot
 msgid "Lot/Serial"
 msgstr "Erä/sarja"
@@ -97,6 +132,11 @@ msgstr "Erä/sarja"
 #: model:ir.model,name:stock_dropshipping.model_stock_picking_type
 msgid "Picking Type"
 msgstr "Keräilyn tyyppi"
+
+#. module: stock_dropshipping
+#: model:ir.model,name:stock_dropshipping.model_stock_move_line
+msgid "Product Moves (Stock Move Line)"
+msgstr ""
 
 #. module: stock_dropshipping
 #: model:ir.model,name:stock_dropshipping.model_stock_replenish_mixin
@@ -131,7 +171,7 @@ msgstr "Myyntitilausrivi"
 #. module: stock_dropshipping
 #: model:ir.model,name:stock_dropshipping.model_stock_rule
 msgid "Stock Rule"
-msgstr "Varaston sääntö"
+msgstr "Varastosääntö"
 
 #. module: stock_dropshipping
 #: model_terms:ir.ui.view,arch_db:stock_dropshipping.stock_picking_type_kanban
@@ -147,9 +187,3 @@ msgstr "Siirto"
 #: model:ir.model.fields,field_description:stock_dropshipping.field_stock_picking_type__code
 msgid "Type of Operation"
 msgstr "Toiminnon tyyppi"
-
-#~ msgid "Stock Move"
-#~ msgstr "Varastosiirto"
-
-#~ msgid "Procurement Group"
-#~ msgstr "Hankintaryhmä"

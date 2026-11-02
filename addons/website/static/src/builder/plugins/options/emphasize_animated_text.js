@@ -1,14 +1,14 @@
-import { Component, useState } from "@odoo/owl";
+import { Component, proxy, useProps } from "@odoo/owl";
 import { CheckBox } from "@web/core/checkbox/checkbox";
 import { useBus } from "@web/core/utils/hooks";
 
 export class EmphasizeAnimatedText extends Component {
     static template = "website.EmphasizeAnimatedText";
     static components = { CheckBox };
-    static props = [];
+    props = useProps({});
 
     setup() {
-        this.state = useState({
+        this.state = proxy({
             animatedTextEmphasized: this.isAnimatedTextEmphasized(),
             hasAnimatedText: this.hasAnimatedText(),
         });

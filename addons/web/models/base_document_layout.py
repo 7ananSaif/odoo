@@ -1,10 +1,11 @@
+import base64
 from markupsafe import Markup
 from math import ceil
 
 from odoo import api, fields, models
 from odoo.addons.base.models.assetsbundle import ScssStylesheetAsset
-from odoo.addons.base.models.ir_qweb_fields import nl2br
-from odoo.tools import html2plaintext, is_html_empty, image as tools
+from odoo.addons.base.models.ir_qweb_fields import nl2br_enclose
+from odoo.tools import BinaryBytes, html2plaintext, is_html_empty, image as tools
 
 try:
     from PIL.Image import Resampling
@@ -32,20 +33,7 @@ class BaseDocumentLayout(models.TransientModel):
     @api.model
     def _default_company_details(self):
         company = self.env.company
-        address_format, company_data = company.partner_id._prepare_display_address()
-        address_format = self._clean_address_format(address_format, company_data)
-        # company_name may *still* be missing from prepared address in case commercial_company_name is falsy
-        if 'company_name' not in address_format:
-            address_format = '%(company_name)s\n' + address_format
-            company_data['company_name'] = company_data['company_name'] or company.name
-        return nl2br(address_format) % company_data
-
-    def _clean_address_format(self, address_format, company_data):
-        missing_company_data = [k for k, v in company_data.items() if not v]
-        for key in missing_company_data:
-            if key in address_format:
-                address_format = address_format.replace(f'%({key})s\n', '')
-        return address_format
+        return nl2br_enclose(company.partner_id.contact_address, 'div')
 
     company_id = fields.Many2one(
         'res.company', default=lambda self: self.env.company, required=True)
@@ -70,10 +58,8 @@ class BaseDocumentLayout(models.TransientModel):
     logo_primary_color = fields.Char(compute="_compute_logo_colors")
     logo_secondary_color = fields.Char(compute="_compute_logo_colors")
 
-    layout_background = fields.Selection(related='company_id.layout_background', readonly=False)
-    layout_background_image = fields.Binary(related='company_id.layout_background_image', readonly=False)
-
     report_layout_id = fields.Many2one('report.layout')
+    report_tables_id = fields.Selection(related='company_id.report_tables_id', readonly=False, required=True)
 
     # All the sanitization get disabled as we want true raw html to be passed to an iframe.
     preview = fields.Html(compute='_compute_preview', sanitize=False)
@@ -104,23 +90,15 @@ class BaseDocumentLayout(models.TransientModel):
     @api.depends('logo')
     def _compute_logo_colors(self):
         for wizard in self:
-            if wizard.env.context.get('bin_size'):
-                wizard_for_image = wizard.with_context(bin_size=False)
-            else:
-                wizard_for_image = wizard
-            wizard.logo_primary_color, wizard.logo_secondary_color = wizard.extract_image_primary_secondary_colors(wizard_for_image.logo)
+            wizard.logo_primary_color, wizard.logo_secondary_color = wizard.extract_image_primary_secondary_colors(wizard.logo)
 
-    @api.depends('report_layout_id', 'logo', 'font', 'primary_color', 'secondary_color', 'report_header', 'report_footer', 'layout_background', 'layout_background_image', 'company_details')
+    @api.depends('report_layout_id', 'logo', 'font', 'primary_color', 'secondary_color', 'report_header', 'report_footer', 'company_details', 'report_tables_id')
     def _compute_preview(self):
         """ compute a qweb based preview to display on the wizard """
         styles = self._get_asset_style()
 
         for wizard in self:
             if wizard.report_layout_id:
-                if wizard.env.context.get('bin_size'):
-                    # guarantees that bin_size is always set to False,
-                    # so the logo always contains the bin data instead of the binary size
-                    wizard = wizard.with_context(bin_size=False)
                 wizard.preview = wizard.env['ir.ui.view']._render_template(
                     wizard._get_preview_template(),
                     wizard._get_render_information(styles),
@@ -206,14 +184,17 @@ class BaseDocumentLayout(models.TransientModel):
         """
         if not logo:
             return False, False
-        # The "===" gives different base64 encoding a correct padding
-        logo += b'===' if isinstance(logo, bytes) else '==='
+        if isinstance(logo, str):
+            logo = BinaryBytes(base64.b64decode(logo))
+
         try:
             # Catches exceptions caused by logo not being an image
-            image = tools.image_fix_orientation(tools.base64_to_image(logo))
+            image = tools.ImageProcess(logo.content).image
         except Exception:
             return False, False
 
+        if not image:
+            return False, False
         base_w, base_h = image.size
         w = ceil(50 * base_w / base_h)
         h = 50

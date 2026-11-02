@@ -1,104 +1,73 @@
 import { TranscriptSender } from "@im_livechat/core/common/transcript_sender";
 import { ExpertiseTagsAutocomplete } from "@im_livechat/core/web/expertise_tags_autocomplete";
-import { ConversationTagEdit } from "@im_livechat/core/web/livechat_conversation_tag_edit";
 
 import { ActionPanel } from "@mail/discuss/core/common/action_panel";
 import { prettifyMessageContent } from "@mail/utils/common/format";
 
-import { Component, useEffect, useRef, useSubEnv } from "@odoo/owl";
+import { Component, t, useEffect, useProps } from "@odoo/owl";
 
 import { startUrl } from "@web/core/browser/router";
 import { rpc } from "@web/core/network/rpc";
-import { usePopover } from "@web/core/popover/popover_hook";
 import { useService } from "@web/core/utils/hooks";
 import { url } from "@web/core/utils/urls";
-import { TagsList } from "@web/core/tags_list/tags_list";
 
 export class LivechatChannelInfoList extends Component {
-    static components = { ActionPanel, TagsList, ExpertiseTagsAutocomplete, TranscriptSender };
+    static components = { ActionPanel, ExpertiseTagsAutocomplete, TranscriptSender };
     static template = "im_livechat.LivechatChannelInfoList";
-    static props = ["thread"];
+    props = useProps({
+        close: t.function().optional(),
+        thread: t.object(),
+    });
 
     setup() {
         super.setup();
         this.actionService = useService("action");
         this.store = useService("mail.store");
         this.ui = useService("ui");
-        this.tagEditPopover = usePopover(ConversationTagEdit, {
-            closeOnClickAway: true,
-            position: "left",
-            useBottomSheet: this.ui.isSmall,
+        useEffect(() => {
+            if (this.props.thread.hasFetchedLivechatSessionData) {
+                return;
+            }
+            this.store.fetchStoreData("/im_livechat/session/data", {
+                channel_id: this.props.thread.id,
+            });
+            this.props.thread.hasFetchedLivechatSessionData = true;
         });
-        this.tagsContainer = useRef("tagsContainer");
-        useSubEnv({ inLivechatInfoPanel: true });
-        useEffect(
-            () => {
-                if (this.props.thread.hasFetchedLivechatSessionData) {
-                    return;
-                }
-                this.store.fetchStoreData("/im_livechat/session/data", {
-                    channel_id: this.props.thread.id,
-                });
-                this.props.thread.hasFetchedLivechatSessionData = true;
-            },
-            () => [this.props.thread.id, this.props.thread.hasFetchedLivechatSessionData]
+    }
+
+    get answeredChatbotMessages() {
+        return this.props.thread.channel.sortedChatbotMessages.filter(
+            (m) => m.expectAnswer && m.answer
         );
     }
 
-    get conversationTags() {
-        return this.props.thread.livechat_conversation_tag_ids.map((tag) => ({
-            id: tag.id,
-            text: tag.name,
-            colorIndex: tag.color,
-            className: "me-1 mb-1",
-        }));
-    }
-
-    get expectAnswerSteps() {
-        return this.props.thread.messages
-            .filter((m) => m.chatbotStep?.expectAnswer && m.chatbotStep.answer)
-            .map((m) => m.chatbotStep);
-    }
-
-    /** @deprecated */
-    get expertiseTags() {
-        return this.props.thread.livechat_expertise_ids.map((expertise) => ({
-            id: expertise.id,
-            text: expertise.name,
-            colorIndex: 0,
-            className: "me-1 mb-1",
-        }));
-    }
-
     onBlurNote() {
-        prettifyMessageContent(this.props.thread.livechatNoteText).then((note) => {
-            rpc("/im_livechat/session/update_note", { channel_id: this.props.thread.id, note });
+        prettifyMessageContent(this.props.thread.channel.livechatNoteText).then((note) => {
+            rpc("/im_livechat/session/update_note", {
+                channel_id: this.props.thread.channel.id,
+                note,
+            });
         });
     }
 
-    onClickEditTags(ev) {
-        this.tagEditPopover.open(this.tagsContainer.el, {
-            thread: this.props.thread,
-        });
-    }
-
-    openVisitorProfile() {
+    async openVisitorProfile() {
+        await this.store.chatHub.initPromise;
         if (this.ui.isSmall) {
-            this.store.ChatWindow.get({ thread: this.props.thread })?.fold();
+            this.props.thread.channel.chatWindow?.fold();
         } else {
-            this.props.thread.openChatWindow({ focus: true });
+            this.props.thread.channel.openChatWindow({ focus: true });
         }
         this.actionService.doAction({
             type: "ir.actions.act_window",
             res_model: "res.partner",
-            res_id: this.props.thread.livechatVisitorMember.partner_id.id,
+            res_id: this.props.thread.channel.livechatVisitorMember.partner_id.id,
             views: [[false, "form"]],
             target: "current",
         });
     }
 
     get visitorProfileURL() {
-        const visitorMember = this.props.thread?.livechatVisitorMember;
+        const visitorMember = this.props.thread?.channel?.livechatVisitorMember;
         if (visitorMember?.partner_id) {
             return url(`/${startUrl()}/res.partner/${visitorMember.partner_id.id}`);
         }

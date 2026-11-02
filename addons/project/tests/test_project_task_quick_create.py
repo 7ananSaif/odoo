@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import Command
 from odoo.addons.project.tests.test_project_base import TestProjectCommon
-from odoo.tests import Form
+from odoo.tests import tagged, Form
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install, fails post install
 class TestProjectTaskQuickCreate(TestProjectCommon):
     @classmethod
     def setUpClass(cls):
@@ -45,7 +45,7 @@ class TestProjectTaskQuickCreate(TestProjectCommon):
         }
 
         for expression, values in valid_expressions.items():
-            task_form = Form(self.env['project.task'].with_context({'tracking_disable': True, 'default_project_id': self.project_pigs.id}), view="project.quick_create_task_form")
+            task_form = Form(self.env['project.task'].with_context({'default_project_id': self.project_pigs.id}), view="project.quick_create_task_form")
             task_form.display_name = expression
             task = task_form.save()
             results = (task.name, len(task.tag_ids), len(task.user_ids), task.priority, task.allocated_hours)
@@ -66,7 +66,7 @@ class TestProjectTaskQuickCreate(TestProjectCommon):
         )
 
         for expression in invalid_expressions:
-            task_form = Form(self.env['project.task'].with_context({'tracking_disable': True, 'default_project_id': self.project_pigs.id}), view="project.quick_create_task_form")
+            task_form = Form(self.env['project.task'].with_context({'default_project_id': self.project_pigs.id}), view="project.quick_create_task_form")
             task_form.display_name = expression
             task = task_form.save()
             results = (task.name, len(task.tag_ids), len(task.user_ids), task.priority, task.allocated_hours)
@@ -94,19 +94,17 @@ class TestProjectTaskQuickCreate(TestProjectCommon):
         task_values = self.env['project.task'].onchange({}, [], field_specs)['value']
         self.assertEqual(task_values['project_id'], self.project_pigs.id, "The task project_id should be set")
 
-    def test_project_user_task_creation_without_access_error_updates_partner_mobile(self):
-        """
-        Verify that creating a task with a customer as project user
-        raises AccessError due to restricted res.partner rights.
-        """
-        self.user_projectuser.group_ids = [Command.set([self.env.ref('project.group_project_user').id])]
-        self.assertFalse(self.user_projectuser.partner_id.phone)
-        test_task = self.env['project.task'].with_user(self.user_projectuser).create({
-            'name': 'Test task',
-            'project_id': self.project_pigs.id,
-            'partner_id': self.user_projectuser.partner_id.id,
-            'partner_phone': '1234'
-        })
-
-        self.assertTrue(test_task.partner_id, "Customer should be set when creating a task with a partner.")
-        self.assertEqual(self.user_projectuser.partner_id.phone, '1234', "Partner phone number should be updated according to the partner_phone field.")
+    def test_project_follower_can_be_assigned_to_task(self):
+        """If a portal user is a follower of the project, they can be assigned to the task. And if not then they can't be assigned."""
+        portal_user = self.user_portal
+        self.project_pigs.message_subscribe(partner_ids=[portal_user.partner_id.id])
+        self.assertIn(portal_user.partner_id, self.project_pigs.message_partner_ids, "Portal user should be a follower of the project")
+        self.task_1.user_ids += portal_user
+        self.assertIn(portal_user, self.task_1.user_ids, "Project follower should be assignable to task (user_ids)")
+        self.project_goats.message_unsubscribe(partner_ids=[portal_user.partner_id.id])
+        self.task_1.project_id = self.project_goats
+        self.assertNotIn(
+            portal_user,
+            self.task_1.user_ids,
+            "Portal user must be removed when task is moved to a project they do not follow",
+        )

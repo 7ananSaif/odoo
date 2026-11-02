@@ -5,46 +5,58 @@
 # Bone NI <bounkirdni@gmail.com>, 2026.
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0\n"
+"Project-Id-Version: Odoo Server 19.4a1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:35+0000\n"
-"PO-Revision-Date: 2026-06-06 13:26+0000\n"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-10-19 01:37+0000\n"
 "Last-Translator: Bone NI <bounkirdni@gmail.com>\n"
-"Language-Team: Lao <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Lao <https://translate.odoo.com/projects/odoo-20/"
 "marketing_card/lo/>\n"
 "Language: lo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: marketing_card
 #. odoo-python
 #: code:addons/marketing_card/models/card_campaign.py:0
 msgid "%(card_campaign_name)s Mailings"
-msgstr "ການສົ່ງເມລ %(card_campaign_name)s"
+msgstr "ການສົ່ງຈົດໝາຍ %(card_campaign_name)s"
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_view_kanban
 msgid ""
-"<i class=\"fa fa-fw fa-mouse-pointer\" aria-label=\"Clicks\" role=\"img\" "
+"<i class=\"oi oi-fw\" data-icon=\"mouse\" aria-label=\"Clicks\" role=\"img\" "
 "title=\"Clicks\"/>"
 msgstr ""
-"<i class=\"fa fa-fw fa-mouse-pointer\" aria-label=\"Clicks\" role=\"img\" "
-"title=\"Clicks\"/>"
+"<i class=\"oi oi-fw\" data-icon=\"mouse\" aria-label=\"ການກົດ\" role=\"img\" "
+"title=\"ການກົດ\"/>"
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_view_kanban
-msgid "<i class=\"fa fa-fw fa-share\" aria-label=\"Shares\" role=\"img\" title=\"Shares\"/>"
-msgstr ""
-"<i class=\"fa fa-fw fa-share\" aria-label=\"Shares\" role=\"img\" "
+msgid ""
+"<i class=\"oi oi-fw\" data-icon=\"share\" aria-label=\"Shares\" role=\"img\" "
 "title=\"Shares\"/>"
+msgstr ""
+"<i class=\"oi oi-fw\" data-icon=\"share\" aria-label=\"ການແບ່ງປັນ\" "
+"role=\"img\" title=\"ການແບ່ງປັນ\"/>"
+
+#. module: marketing_card
+#: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_linkedin_share_composer
+msgid ""
+"<i class=\"oi\" data-icon=\"warning\"/>\n"
+"                    <span>We were not able to get an authorization to post "
+"in your stead.</span>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"warning\"/>\n"
+"                    <span>ພວກເຮົາບໍ່ສາມາດຂໍສິດອະນຸຍາດເພື່ອໂພສຕ໌ແທນທ່ານໄດ້.</span>"
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_preview
 msgid "<small>Where does this link to?</small>"
-msgstr "<small>ລິ້ງນີ້ເຊື່ອມຕໍ່ໄປໃສ?</small>"
+msgstr "<small>ລິ້ງຄ໌ນີ້ເຊື່ອມຕໍ່ໄປໃສ?</small>"
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_view_form
@@ -65,7 +77,7 @@ msgid ""
 "                            </span>"
 msgstr ""
 "<span class=\"o_stat_text\">\n"
-"                                ການຄລິກ\n"
+"                                ການກົດ\n"
 "                            </span>"
 
 #. module: marketing_card
@@ -76,7 +88,7 @@ msgid ""
 "                            </span>"
 msgstr ""
 "<span class=\"o_stat_text\">\n"
-"                                ການສົ່ງເມລ\n"
+"                                ການສົ່ງຈົດໝາຍ\n"
 "                            </span>"
 
 #. module: marketing_card
@@ -98,13 +110,13 @@ msgid ""
 "                            </span>"
 msgstr ""
 "<span class=\"o_stat_text\">\n"
-"                                ແຊຣ໌ແລ້ວ\n"
+"                                ແບ່ງປັນແລ້ວ\n"
 "                            </span>"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__message_needaction
 msgid "Action Needed"
-msgstr "ຈຳເປັນຕ້ອງດຳເນີນການ"
+msgstr "ຕ້ອງດຳເນີນການ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__active
@@ -120,7 +132,12 @@ msgstr "ກິດຈະກຳ"
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__activity_exception_decoration
 msgid "Activity Exception Decoration"
-msgstr "ການຕົບແຕ່ງກິດຈະກຳທີ່ຍົກເວັ້ນ"
+msgstr "ການສະແດງຂໍ້ຍົກເວັ້ນກິດຈະກຳ"
+
+#. module: marketing_card
+#: model:ir.model.fields,field_description:marketing_card.field_card_campaign__activity_plans_ids
+msgid "Activity Plans"
+msgstr "ແຜນກິດຈະກຳ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__activity_state
@@ -136,11 +153,11 @@ msgstr "ໄອຄອນປະເພດກິດຈະກຳ"
 #. odoo-python
 #: code:addons/marketing_card/models/card_campaign.py:0
 msgid ""
-"An error occured while rendering a card for %(record_name)s. Try again or "
+"An error occurred while rendering a card for %(record_name)s. Try again or "
 "check the server logs for more details."
 msgstr ""
-"ເກີດຂໍ້ຜິດພາດໃນຂະນະທີ່ສ້າງບັດສຳລັບ %(record_name)s. ກະລຸນາລອງໃໝ່ ຫຼື ກວດເບິ່ງ log ຂອງເຊີບເວີສຳ"
-"ລັບລາຍລະອຽດເພີ່ມເຕີມ."
+"ເກີດຂໍ້ຜິດພາດຂະນະສ້າງບັດສຳລັບ %(record_name)s. ກະລຸນາລອງໃໝ່ອີກຄັ້ງ ຫຼື ກວດເບິ່ງບັນທຶກເຊີບເວີເພື່ອລາ"
+"ຍລະອຽດເພີ່ມເຕີມ."
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_view_form
@@ -161,7 +178,7 @@ msgstr "ຈຳນວນໄຟລ໌ຄັດຕິດ"
 #. module: marketing_card
 #: model:card.template,name:marketing_card.card_template_avatar_highlight
 msgid "Avatar Highlight"
-msgstr "ເນັ້ນຮູບຕົວແທນ"
+msgstr "ຈຸດເດັ່ນຮູບໂປຣໄຟລ໌"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__content_background
@@ -171,7 +188,7 @@ msgstr "ພື້ນຫຼັງ"
 #. module: marketing_card
 #: model:card.template,name:marketing_card.card_template_blur
 msgid "Blur"
-msgstr "ເບຼີ"
+msgstr "ມົວ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__body_html
@@ -212,12 +229,12 @@ msgstr "ແຄມເປນບັດ"
 #. odoo-python
 #: code:addons/marketing_card/models/mailing_mailing.py:0
 msgid "Card Campaign Mailing should target model %(model_name)s"
-msgstr "ການສົ່ງເມລແຄມເປນບັດຄວນຕັ້ງເປົ້າໝາຍໃສ່ໂມເດວ %(model_name)s"
+msgstr "ການສົ່ງຈົດໝາຍແຄມເປນບັດຄວນກຳນົດເປົ້າໝາຍໃສ່ໂມເດວ %(model_name)s"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__card_click_count
 msgid "Card Click Count"
-msgstr "ຈຳນວນການຄລິກບັດ"
+msgstr "ຈຳນວນການກົດບັດ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__card_count
@@ -225,31 +242,43 @@ msgid "Card Count"
 msgstr "ຈຳນວນບັດ"
 
 #. module: marketing_card
+#: model:ir.model.fields,field_description:marketing_card.field_mailing_mailing__card_lang
+msgid "Card Language"
+msgstr "ພາສາຂອງບັດ"
+
+#. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_view_form
 msgid "Card Layout"
-msgstr "ຮູບແບບບັດ"
+msgstr "ການຈັດວາງບັດ"
 
 #. module: marketing_card
 #. odoo-python
 #: code:addons/marketing_card/models/card_campaign.py:0
 msgid "Card Preview"
-msgstr "ຕົວຢ່າງບັດ"
+msgstr "ສະແດງຕົວຢ່າງບັດ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_mailing_mailing__card_requires_sync_count
 msgid "Card Requires Sync Count"
-msgstr "ຈຳນວນບັດທີ່ຕ້ອງຊິງຄ໌"
+msgstr "ຈຳນວນບັດທີ່ຕ້ອງຊິ້ງຄ໌"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__card_share_count
 msgid "Card Share Count"
-msgstr "ຈຳນວນການແຊຣ໌ບັດ"
+msgstr "ຈຳນວນການແບ່ງປັນບັດ"
 
 #. module: marketing_card
 #: model:ir.actions.act_window,name:marketing_card.card_template_action
 #: model:ir.ui.menu,name:marketing_card.cards_template_menu
 msgid "Card Template"
 msgstr "ແມ່ແບບບັດ"
+
+#. module: marketing_card
+#. odoo-python
+#: code:addons/marketing_card/models/card_campaign.py:0
+#: model:card.campaign,content_header:marketing_card.card_campaign_campaign_1
+msgid "Card Title"
+msgstr "ຫົວຂໍ້ບັດ"
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.mailing_mailing_view_form_inherit_marketing_card
@@ -259,7 +288,12 @@ msgstr "ບັດ"
 #. module: marketing_card
 #: model:card.template,name:marketing_card.card_template_user_image
 msgid "Center"
-msgstr "ກາງ"
+msgstr "ເຄິ່ງກາງ"
+
+#. module: marketing_card
+#: model_terms:card.campaign,reward_message:marketing_card.card_campaign_campaign_1
+msgid "Check out odoo.com for more!"
+msgstr "ເຂົ້າເບິ່ງ odoo.com ເພື່ອຂໍ້ມູນເພີ່ມເຕີມ!"
 
 #. module: marketing_card
 #: model:card.template,name:marketing_card.card_template_circles
@@ -269,7 +303,7 @@ msgstr "ວົງມົນ"
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_preview
 msgid "Click here for your reward!"
-msgstr "ຄລິກທີ່ນີ້ເພື່ອຮັບລາງວັນຂອງທ່ານ!"
+msgstr "ກົດບ່ອນນີ້ເພື່ອຮັບລາງວັນຂອງທ່ານ!"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign_tag__color
@@ -324,13 +358,20 @@ msgstr "ພື້ນຫຼັງເລີ່ມຕົ້ນ"
 
 #. module: marketing_card
 #: model:ir.model.fields,help:marketing_card.field_card_campaign__post_suggestion
-msgid "Description below the card and default text when sharing on X"
-msgstr "ຄຳອະທິບາຍລຸ່ມບັດ ແລະ ຂໍ້ຄວາມເລີ່ມຕົ້ນເມື່ອແຊຣ໌ລົງໃນ X"
+msgid ""
+"Description below the card and default text when sharing on X and LinkedIn"
+msgstr "ຄຳອະທິບາຍກ້ອງບັດ ແລະ ຂໍ້ຄວາມເລີ່ມຕົ້ນເມື່ອແບ່ງປັນລົງໃນ X ແລະ LinkedIn"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__card_template_id
 msgid "Design"
 msgstr "ການອອກແບບ"
+
+#. module: marketing_card
+#. odoo-python
+#: code:addons/marketing_card/models/card_campaign.py:0
+msgid "Details"
+msgstr "ລາຍລະອຽດ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__display_name
@@ -342,7 +383,7 @@ msgstr "ການອອກແບບ"
 #: model:ir.model.fields,field_description:marketing_card.field_mailing_mailing__display_name
 #: model:ir.model.fields,field_description:marketing_card.field_utm_source__display_name
 msgid "Display Name"
-msgstr "ຊື່ສະແດງ"
+msgstr "ຊື່ທີ່ສະແດງ"
 
 #. module: marketing_card
 #: model:card.template,name:marketing_card.card_template_drawings
@@ -352,7 +393,7 @@ msgstr "ຮູບແຕ້ມ"
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_view_form
 msgid "Dynamic Field?"
-msgstr "ຟິວແບບໄດນາມິກ?"
+msgstr "ຟິວໄດນາມິກ?"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__content_image1_path
@@ -365,14 +406,44 @@ msgid "Dynamic Image 2"
 msgstr "ຮູບພາບໄດນາມິກ 2"
 
 #. module: marketing_card
-#: model:ir.model.constraint,message:marketing_card.constraint_card_card_campaign_record_unique
-msgid "Each record should be unique for a campaign"
-msgstr "ແຕ່ລະບັນທຶກຄວນມີພຽງອັນດຽວສຳລັບແຄມເປນ"
+#: model:ir.model.constraint,message:marketing_card.constraint_card_card_campaign_record_lang_unique
+msgid "Each record should be unique for a campaign and language"
+msgstr "ແຕ່ລະບັນທຶກຄວນຈະມີພຽງອັນດຽວສຳລັບແຕ່ລະແຄມເປນ ແລະ ພາສາ"
 
 #. module: marketing_card
 #: model:ir.model,name:marketing_card.model_mail_compose_message
 msgid "Email composition wizard"
-msgstr "ເຄື່ອງມືຊ່ວຍຂຽນອີເມລ"
+msgstr "ຕົວຊ່ວຍສ້າງອີເມວ"
+
+#. module: marketing_card
+#. odoo-python
+#: code:addons/marketing_card/utils/linkedin_api.py:0
+msgid "Error on generating an authorization url: %(iap_error_string)s"
+msgstr "ເກີດຂໍ້ຜິດພາດໃນການສ້າງ URL ຢືນຢັນສິດ: %(iap_error_string)s"
+
+#. module: marketing_card
+#. odoo-python
+#: code:addons/marketing_card/utils/linkedin_api.py:0
+msgid "Error when fetching user info"
+msgstr "ເກີດຂໍ້ຜິດພາດຂະນະດຶງຂໍ້ມູນຜູ້ໃຊ້"
+
+#. module: marketing_card
+#. odoo-python
+#: code:addons/marketing_card/utils/linkedin_api.py:0
+msgid "Error when posting an image"
+msgstr "ເກີດຂໍ້ຜິດພາດຂະນະໂພສຕ໌ຮູບພາບ"
+
+#. module: marketing_card
+#. odoo-python
+#: code:addons/marketing_card/utils/linkedin_api.py:0
+msgid "Error when registering an image upload"
+msgstr "ເກີດຂໍ້ຜິດພາດຂະນະອັບໂຫຼດຮູບພາບ"
+
+#. module: marketing_card
+#. odoo-python
+#: code:addons/marketing_card/utils/linkedin_api.py:0
+msgid "Error when uploading an image"
+msgstr "ເກີດຂໍ້ຜິດພາດຂະນະອັບໂຫຼດຮູບພາບ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__message_follower_ids
@@ -385,9 +456,9 @@ msgid "Followers (Partners)"
 msgstr "ຜູ້ຕິດຕາມ (ຄູ່ຮ່ວມງານ)"
 
 #. module: marketing_card
-#: model:ir.model.fields,help:marketing_card.field_card_campaign__activity_type_icon
-msgid "Font awesome icon e.g. fa-tasks"
-msgstr "ໄອຄອນ Font awesome ເຊັ່ນ: fa-tasks"
+#: model:ir.module.module,summary:base.module_marketing_card
+msgid "Generate dynamic shareable cards"
+msgstr "ສ້າງບັດໄດນາມິກທີ່ສາມາດແບ່ງປັນໄດ້"
 
 #. module: marketing_card
 #: model:card.template,name:marketing_card.card_template_geometric
@@ -402,23 +473,17 @@ msgstr "ມີຂໍ້ຄວາມ"
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__content_header
 msgid "Header"
-msgstr "ຫົວຂໍ້"
+msgstr "ສ່ວນຫົວ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__content_header_color
 msgid "Header Color"
-msgstr "ສີຫົວຂໍ້"
+msgstr "ສີສ່ວນຫົວ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__content_header_path
 msgid "Header Path"
-msgstr "ທີ່ຢູ່ຫົວຂໍ້"
-
-#. module: marketing_card
-#. odoo-python
-#: code:addons/marketing_card/models/card_campaign.py:0
-msgid "Hello everyone"
-msgstr "ສະບາຍດີທຸກຄົນ"
+msgstr "ເສັ້ນທາງສ່ວນຫົວ"
 
 #. module: marketing_card
 #. odoo-python
@@ -429,8 +494,14 @@ msgstr "ຊ່ວຍພວກເຮົາແບ່ງປັນຂ່າວສາ
 #. module: marketing_card
 #. odoo-python
 #: code:addons/marketing_card/models/card_campaign.py:0
-msgid "Here's the link to advertise your participation."
-msgstr "ນີ້ແມ່ນລິ້ງເພື່ອໂຄສະນາການເຂົ້າຮ່ວມຂອງທ່ານ."
+msgid "Hi everyone!"
+msgstr "ສະບາຍດີທຸກຄົນ!"
+
+#. module: marketing_card
+#. odoo-python
+#: code:addons/marketing_card/models/card_campaign.py:0
+msgid "Home page"
+msgstr "ໜ້າຫຼັກ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__id
@@ -452,18 +523,18 @@ msgstr "ໄອຄອນ"
 #. module: marketing_card
 #: model:ir.model.fields,help:marketing_card.field_card_campaign__activity_exception_icon
 msgid "Icon to indicate an exception activity."
-msgstr "ໄອຄອນເພື່ອບົ່ງບອກກິດຈະກຳທີ່ຍົກເວັ້ນ."
+msgstr "ໄອຄອນເພື່ອບົ່ງບອກກິດຈະກຳຍົກເວັ້ນ."
 
 #. module: marketing_card
 #: model:ir.model.fields,help:marketing_card.field_card_campaign__message_needaction
 msgid "If checked, new messages require your attention."
-msgstr "ຖ້າໝາຍໄວ້, ຂໍ້ຄວາມໃໝ່ຈະຕ້ອງໄດ້ຮັບຄວາມສົນໃຈຈາກທ່ານ."
+msgstr "ຖ້າໝາຍຕິກ, ຂໍ້ຄວາມໃໝ່ຈະຕ້ອງການຄວາມສົນໃຈຈາກທ່ານ."
 
 #. module: marketing_card
 #: model:ir.model.fields,help:marketing_card.field_card_campaign__message_has_error
 #: model:ir.model.fields,help:marketing_card.field_card_campaign__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
-msgstr "ຖ້າໝາຍໄວ້, ບາງຂໍ້ຄວາມມີຂໍ້ຜິດພາດໃນການສົ່ງ."
+msgstr "ຖ້າໝາຍຕິກ, ຂໍ້ຄວາມບາງອັນມີຂໍ້ຜິດພາດໃນການສົ່ງ."
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_card__image
@@ -473,32 +544,32 @@ msgstr "ຮູບພາບ"
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__image_preview
 msgid "Image Preview"
-msgstr "ເບິ່ງຕົວຢ່າງຮູບພາບ"
+msgstr "ສະແດງຕົວຢ່າງຮູບພາບ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__content_header_dyn
 msgid "Is Dynamic Header"
-msgstr "ເປັນຫົວຂໍ້ໄດນາມິກ"
+msgstr "ເປັນສ່ວນຫົວແບບໄດນາມິກ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__content_section_dyn
 msgid "Is Dynamic Section"
-msgstr "ເປັນສ່ວນໄດນາມິກ"
+msgstr "ເປັນພາກສ່ວນແບບໄດນາມິກ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__content_sub_header_dyn
 msgid "Is Dynamic Sub-Header"
-msgstr "ເປັນຫົວຂໍ້ຍ່ອຍໄດນາມິກ"
+msgstr "ເປັນຫົວຂໍ້ຍ່ອຍແບບໄດນາມິກ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__content_sub_section1_dyn
 msgid "Is Dynamic Sub-Section 1"
-msgstr "ເປັນສ່ວນຍ່ອຍໄດນາມິກ 1"
+msgstr "ເປັນພາກສ່ວນຍ່ອຍ 1 ແບບໄດນາມິກ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__content_sub_section2_dyn
 msgid "Is Dynamic Sub-Section 2"
-msgstr "ເປັນສ່ວນຍ່ອຍໄດນາມິກ 2"
+msgstr "ເປັນພາກສ່ວນຍ່ອຍ 2 ແບບໄດນາມິກ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__message_is_follower
@@ -508,12 +579,19 @@ msgstr "ເປັນຜູ້ຕິດຕາມ"
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_view_form
 msgid "Join me at this event!"
-msgstr "ເຂົ້າຮ່ວມງານນີ້ກັບຂ້ອຍ!"
+msgstr "ມາຮ່ວມງານນີ້ນຳຂ້ອຍເດີ!"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__lang
+#: model:ir.model.fields,field_description:marketing_card.field_card_card__lang
+#: model_terms:ir.ui.view,arch_db:marketing_card.card_card_view_search
 msgid "Language"
 msgstr "ພາສາ"
+
+#. module: marketing_card
+#: model:ir.model.fields,help:marketing_card.field_mailing_mailing__card_lang
+msgid "Language in which the cards will be rendered"
+msgstr "ພາສາທີ່ບັດຈະຖືກສ້າງຂຶ້ນ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__write_uid
@@ -521,7 +599,7 @@ msgstr "ພາສາ"
 #: model:ir.model.fields,field_description:marketing_card.field_card_card__write_uid
 #: model:ir.model.fields,field_description:marketing_card.field_card_template__write_uid
 msgid "Last Updated by"
-msgstr "ອັບເດດລ່າສຸດໂດຍ"
+msgstr "ປັບປຸງຫຼ້າສຸດໂດຍ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__write_date
@@ -529,7 +607,7 @@ msgstr "ອັບເດດລ່າສຸດໂດຍ"
 #: model:ir.model.fields,field_description:marketing_card.field_card_card__write_date
 #: model:ir.model.fields,field_description:marketing_card.field_card_template__write_date
 msgid "Last Updated on"
-msgstr "ອັບເດດລ່າສຸດເມື່ອ"
+msgstr "ປັບປຸງຫຼ້າສຸດເມື່ອ"
 
 #. module: marketing_card
 #: model:card.template,name:marketing_card.card_template_light
@@ -549,26 +627,21 @@ msgstr "ເສັ້ນ"
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__link_tracker_id
 msgid "Link Tracker"
-msgstr "ເຄື່ອງມືຕິດຕາມລິ້ງ"
+msgstr "ຕົວຕິດຕາມລິ້ງຄ໌"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__mailing_ids
 msgid "Mailing"
-msgstr "ການສົ່ງເມລ"
+msgstr "ການສົ່ງຈົດໝາຍ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__mailing_count
 msgid "Mailing Count"
-msgstr "ຈຳນວນການສົ່ງເມລ"
-
-#. module: marketing_card
-#. odoo-python
-#: code:addons/marketing_card/models/card_campaign.py:0
-msgid "Many thanks"
-msgstr "ຂອບໃຈຫຼາຍໆ"
+msgstr "ຈຳນວນການສົ່ງຈົດໝາຍ"
 
 #. module: marketing_card
 #: model:ir.model,name:marketing_card.model_card_card
+#: model:ir.module.module,shortdesc:base.module_marketing_card
 #: model:ir.ui.menu,name:marketing_card.card_menu
 #: model:ir.ui.menu,name:marketing_card.marketing_card_menu_technical
 #: model:res.groups.privilege,name:marketing_card.res_groups_privilege_marketing_card
@@ -598,12 +671,17 @@ msgstr "ແມ່ແບບບັດການຕະຫຼາດ"
 #. module: marketing_card
 #: model:res.groups,name:marketing_card.marketing_card_group_user
 msgid "Marketing Card User"
-msgstr "ຜູ້ໃຊ້ບັດການຕະຫຼາດ"
+msgstr "ຜູ້ໃຊ້ງານບັດການຕະຫຼາດ"
 
 #. module: marketing_card
 #: model:ir.model,name:marketing_card.model_mailing_mailing
 msgid "Mass Mailing"
-msgstr "ການສົ່ງເມລຈຳນວນຫຼາຍ"
+msgstr "ການສົ່ງອີເມວເປັນຊຸດ"
+
+#. module: marketing_card
+#: model:ir.model.fields,help:marketing_card.field_card_campaign__activity_type_icon
+msgid "Material Symbols icon e.g. checklist"
+msgstr "ໄອຄອນ Material Symbols ເຊັ່ນ: checklist"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__message_has_error
@@ -616,6 +694,27 @@ msgid "Messages"
 msgstr "ຂໍ້ຄວາມ"
 
 #. module: marketing_card
+#. odoo-python
+#: code:addons/marketing_card/utils/linkedin_api.py:0
+msgid "Missing LinkedIn app credentials."
+msgstr "ບໍ່ມີຂໍ້ມູນການເຂົ້າສູ່ລະບົບແອັບ LinkedIn."
+
+#. module: marketing_card
+#. odoo-python
+#: code:addons/marketing_card/models/mailing_mailing.py:0
+msgid ""
+"Missing target language for card campaign mailings:\n"
+"\t- %(mailing_names)s"
+msgstr ""
+"ບໍ່ມີພາສາເປົ້າໝາຍສຳລັບການສົ່ງຈົດໝາຍແຄມເປນບັດ:\n"
+"\t- %(mailing_names)s"
+
+#. module: marketing_card
+#: model:ir.model,name:marketing_card.model_ir_model
+msgid "Model"
+msgstr "ໂມເດວ"
+
+#. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__res_model
 #: model:ir.model.fields,field_description:marketing_card.field_card_card__res_model
 msgid "Model Name"
@@ -626,17 +725,12 @@ msgstr "ຊື່ໂມເດວ"
 #: code:addons/marketing_card/models/card_campaign.py:0
 msgid ""
 "Model of campaign %(campaign)s may not be changed as it already has cards"
-msgstr "ໂມເດວຂອງແຄມເປນ %(campaign)s ອາດຈະປ່ຽນແປງບໍ່ໄດ້ ເນື່ອງຈາກມັນມີບັດຢູ່ແລ້ວ"
-
-#. module: marketing_card
-#: model:ir.model,name:marketing_card.model_ir_model
-msgid "Models"
-msgstr "ໂມເດວ"
+msgstr "ໂມເດວຂອງແຄມເປນ %(campaign)s ບໍ່ສາມາດປ່ຽນແປງໄດ້ ເນື່ອງຈາກມີບັດຢູ່ແລ້ວ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__my_activity_date_deadline
 msgid "My Activity Deadline"
-msgstr "ກຳນົດເວລາສິ້ນສຸດກິດຈະກຳຂອງຂ້ອຍ"
+msgstr "ກຳນົດເວລາກິດຈະກຳຂອງຂ້ອຍ"
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_view_search
@@ -653,22 +747,27 @@ msgstr "ຊື່"
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__activity_calendar_event_id
 msgid "Next Activity Calendar Event"
-msgstr "ກິດຈະກຳໃນປະຕິທິນຖັດໄປ"
+msgstr "ເຫດການປະຕິທິນກິດຈະກຳຕໍ່ໄປ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__activity_date_deadline
 msgid "Next Activity Deadline"
-msgstr "ກຳນົດເວລາສິ້ນສຸດກິດຈະກຳຖັດໄປ"
+msgstr "ກຳນົດເວລາກິດຈະກຳຕໍ່ໄປ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__activity_summary
 msgid "Next Activity Summary"
-msgstr "ສະຫຼຸບກິດຈະກຳຖັດໄປ"
+msgstr "ສະຫຼຸບກິດຈະກຳຕໍ່ໄປ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__activity_type_id
 msgid "Next Activity Type"
-msgstr "ປະເພດກິດຈະກຳຖັດໄປ"
+msgstr "ປະເພດກິດຈະກຳຕໍ່ໄປ"
+
+#. module: marketing_card
+#: model:res.groups.privilege,placeholder:marketing_card.res_groups_privilege_marketing_card
+msgid "No"
+msgstr "ບໍ່"
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_view_form
@@ -683,7 +782,7 @@ msgstr "ຈຳນວນການດຳເນີນການ"
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__target_url_click_count
 msgid "Number of Clicks"
-msgstr "ຈຳນວນການຄລິກ"
+msgstr "ຈຳນວນການກົດ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__message_has_error_counter
@@ -713,50 +812,60 @@ msgid ""
 "usually be a placeholder expression that provides the appropriate language, "
 "e.g. {{ object.partner_id.lang }}."
 msgstr ""
-"ພາສາແປທາງເລືອກ (ລະຫັດ ISO) ເພື່ອເລືອກເມື່ອສົ່ງອີເມລ. ຖ້າບໍ່ໄດ້ຕັ້ງໄວ້, ພາສາຂອງຄູ່ຮ່ວມງານຫຼັກຈະຖືກນຳໃ"
-"ຊ້. ປົກກະຕິແລ້ວນີ້ຄວນຈະເປັນ placeholder ທີ່ໃຫ້ພາສາທີ່ເໝາະສົມ, ເຊັ່ນ: {{ "
+"ພາສາແປທາງເລືອກ (ລະຫັດ ISO) ທີ່ຈະເລືອກເມື່ອສົ່ງອີເມວອອກ. ຖ້າບໍ່ໄດ້ກຳນົດໄວ້, ພາສາຂອງຄູ່ຮ່ວມງານຫຼັກຈະ"
+"ຖືກນຳໃຊ້. ສ່ວນຫຼາຍຄວນເປັນນິພົດ placeholder ທີ່ລະບຸພາສາທີ່ເໝາະສົມ ເຊັ່ນ: {{ "
 "object.partner_id.lang }}."
 
 #. module: marketing_card
 #: model:card.template,name:marketing_card.card_template_organic
 msgid "Organic"
-msgstr "ອໍແກນິກ"
+msgstr "ທຳມະຊາດ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__target_url
 msgid "Post Link"
-msgstr "ລິ້ງໂພສ"
+msgstr "ລິ້ງຄ໌ໂພສຕ໌"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__post_suggestion
 msgid "Post Suggestion"
-msgstr "ຄຳແນະນຳການໂພສ"
+msgstr "ຂໍ້ແນະນຳໃນການໂພສຕ໌"
+
+#. module: marketing_card
+#: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_linkedin_share_composer
+msgid "Post Text"
+msgstr "ຂໍ້ຄວາມໂພສຕ໌"
+
+#. module: marketing_card
+#: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_linkedin_share_composer
+msgid "Post on LinkedIn"
+msgstr "ໂພສຕ໌ລົງ LinkedIn"
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_preview
 msgid "Powered By"
-msgstr "ພັດທະນາໂດຍ"
+msgstr "ຂັບເຄື່ອນໂດຍ"
 
 #. module: marketing_card
 #: model_terms:ir.actions.act_window,help:marketing_card.card_campaign_action
 msgid ""
 "Prepare a design and some content and let your community spread the word!"
-msgstr "ກຽມການອອກແບບ ແລະ ເນື້ອໃນ ໃຫ້ຊຸມຊົນຂອງທ່ານຊ່ວຍກະຈາຍຂ່າວ!"
+msgstr "ກຽມການອອກແບບ ແລະ ເນື້ອໃນບາງສ່ວນ ແລ້ວໃຫ້ຊຸມຊົນຂອງທ່ານຊ່ວຍກະຈາຍຂ່າວ!"
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_view_form
 msgid "Preview"
-msgstr "ເບິ່ງຕົວຢ່າງ"
+msgstr "ສະແດງຕົວຢ່າງ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__preview_record_ref
 msgid "Preview On"
-msgstr "ເບິ່ງຕົວຢ່າງໃນ"
+msgstr "ສະແດງຕົວຢ່າງຢູ່ທີ່"
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_view_form
 msgid "Preview on..."
-msgstr "ເບິ່ງຕົວຢ່າງໃນ..."
+msgstr "ສະແດງຕົວຢ່າງຢູ່ທີ່..."
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_template__primary_color
@@ -766,7 +875,7 @@ msgstr "ສີຫຼັກ"
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_template__primary_text_color
 msgid "Primary Text Color"
-msgstr "ສີຕົວໜັງສືຫຼັກ"
+msgstr "ສີຂໍ້ຄວາມຫຼັກ"
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.template_1
@@ -785,7 +894,7 @@ msgstr "ການໃຫ້ຄະແນນ"
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_view_form
 msgid "Recipient Message"
-msgstr "ຂໍ້ຄວາມຜູ້ຮັບ"
+msgstr "ຂໍ້ຄວາມເຖິງຜູ້ຮັບ"
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_view_form
@@ -793,34 +902,37 @@ msgid "Recipients"
 msgstr "ຜູ້ຮັບ"
 
 #. module: marketing_card
-#: model:ir.model.fields,field_description:marketing_card.field_mailing_mailing__mailing_model_id
-msgid "Recipients Model"
-msgstr "ໂມເດວຜູ້ຮັບ"
-
-#. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_card__res_id
 msgid "Record ID"
 msgstr "ໄອດີບັນທຶກ"
 
 #. module: marketing_card
+#: model:ir.model.fields,help:marketing_card.field_card_campaign__target_url
+msgid ""
+"Redirection link for clicks on the cards, defaults to the relevant record or "
+"the home page."
+msgstr ""
+"ລິ້ງຄ໌ປ່ຽນເສັ້ນທາງສຳລັບການກົດໃສ່ບັດ, ຄ່າເລີ່ມຕົ້ນແມ່ນບັນທຶກທີ່ກ່ຽວຂ້ອງ ຫຼື ໜ້າຫຼັກ."
+
+#. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__render_model
 msgid "Rendering Model"
-msgstr "ໂມເດວການສ້າງພາບ"
+msgstr "ໂມເດວການສ້າງ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__request_title
 msgid "Request"
-msgstr "ຄຳຮ້ອງ"
+msgstr "ຄຳຮ້ອງຂໍ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__request_description
 msgid "Request Description"
-msgstr "ຄຳອະທິບາຍຄຳຮ້ອງ"
+msgstr "ລາຍລະອຽດຄຳຮ້ອງຂໍ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_card__requires_sync
 msgid "Requires Sync"
-msgstr "ຕ້ອງມີການຊິງຄ໌"
+msgstr "ຈຳເປັນຕ້ອງຊິ້ງຄ໌"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__user_id
@@ -836,7 +948,7 @@ msgstr "ຜູ້ໃຊ້ທີ່ຮັບຜິດຊອບ"
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__reward_target_url
 msgid "Reward Link"
-msgstr "ລິ້ງລາງວັນ"
+msgstr "ລິ້ງຄ໌ລາງວັນ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__message_has_sms_error
@@ -861,22 +973,22 @@ msgstr "ຄົ້ນຫາແຄມເປນການແບ່ງປັນ"
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_template__secondary_color
 msgid "Secondary Color"
-msgstr "ສີຮອງ"
+msgstr "ສີສຳຮອງ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_template__secondary_text_color
 msgid "Secondary Text Color"
-msgstr "ສີຕົວໜັງສືຮອງ"
+msgstr "ສີຂໍ້ຄວາມສຳຮອງ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__content_section
 msgid "Section"
-msgstr "ສ່ວນ"
+msgstr "ພາກສ່ວນ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__content_section_path
 msgid "Section Path"
-msgstr "ທີ່ຢູ່ສ່ວນ"
+msgstr "ເສັ້ນທາງພາກສ່ວນ"
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_view_form
@@ -886,7 +998,7 @@ msgstr "ເລືອກຟິວ"
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_preview
 msgid "Select where to share"
-msgstr "ເລືອກບ່ອນທີ່ຈະແຊຣ໌"
+msgstr "ເລືອກບ່ອນທີ່ຈະແບ່ງປັນ"
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_view_form
@@ -902,22 +1014,27 @@ msgstr "ສົ່ງບັດ"
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_view_form
 msgid "Share Campaign"
-msgstr "ແຊຣ໌ແຄມເປນ"
+msgstr "ແບ່ງປັນແຄມເປນ"
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_card_view_list
 msgid "Share Card"
-msgstr "ແຊຣ໌ບັດ"
+msgstr "ແບ່ງປັນບັດ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_card__share_status
 msgid "Share Status"
-msgstr "ສະຖານະການແຊຣ໌"
+msgstr "ສະຖານະການແບ່ງປັນ"
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_template_view_form
 msgid "Share Template"
-msgstr "ແມ່ແບບການແຊຣ໌"
+msgstr "ແບ່ງປັນແມ່ແບບ"
+
+#. module: marketing_card
+#: model:card.campaign,request_title:marketing_card.card_campaign_campaign_1
+msgid "Share the news with your community"
+msgstr "ແບ່ງປັນຂ່າວສານກັບຊຸມຊົນຂອງທ່ານ"
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_preview
@@ -928,7 +1045,12 @@ msgstr "ແບ່ງປັນກັບຊຸມຊົນຂອງທ່ານ!"
 #: model:ir.model.fields.selection,name:marketing_card.selection__card_card__share_status__shared
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_card_view_search
 msgid "Shared"
-msgstr "ແຊຣ໌ແລ້ວ"
+msgstr "ແບ່ງປັນແລ້ວ"
+
+#. module: marketing_card
+#: model_terms:ir.ui.view,arch_db:marketing_card.card_card_view_search
+msgid "Status"
+msgstr "ສະຖານະ"
 
 #. module: marketing_card
 #: model:ir.model.fields,help:marketing_card.field_card_campaign__activity_state
@@ -938,8 +1060,8 @@ msgid ""
 "Today: Activity date is today\n"
 "Planned: Future activities."
 msgstr ""
-"ສະຖານະອີງຕາມກິດຈະກຳ\n"
-"ເກີນກຳນົດ: ວັນຄົບກຳນົດໄດ້ຜ່ານໄປແລ້ວ\n"
+"ສະຖານະຕາມກິດຈະກຳ\n"
+"ກາຍກຳນົດ: ວັນຄົບກຳນົດຜ່ານໄປແລ້ວ\n"
 "ມື້ນີ້: ວັນທີກິດຈະກຳແມ່ນມື້ນີ້\n"
 "ວາງແຜນໄວ້: ກິດຈະກຳໃນອະນາຄົດ."
 
@@ -956,27 +1078,27 @@ msgstr "ຫົວຂໍ້ຍ່ອຍ"
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__content_sub_header_path
 msgid "Sub-Header Path"
-msgstr "ທີ່ຢູ່ຫົວຂໍ້ຍ່ອຍ"
+msgstr "ເສັ້ນທາງຫົວຂໍ້ຍ່ອຍ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__content_sub_section1
 msgid "Sub-Section 1"
-msgstr "ສ່ວນຍ່ອຍ 1"
+msgstr "ພາກສ່ວນຍ່ອຍ 1"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__content_sub_section1_path
 msgid "Sub-Section 1 Path"
-msgstr "ທີ່ຢູ່ສ່ວນຍ່ອຍ 1"
+msgstr "ເສັ້ນທາງພາກສ່ວນຍ່ອຍ 1"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__content_sub_section2
 msgid "Sub-Section 2"
-msgstr "ສ່ວນຍ່ອຍ 2"
+msgstr "ພາກສ່ວນຍ່ອຍ 2"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__content_sub_section2_path
 msgid "Sub-Section 2 Path"
-msgstr "ທີ່ຢູ່ສ່ວນຍ່ອຍ 2"
+msgstr "ເສັ້ນທາງພາກສ່ວນຍ່ອຍ 2"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__tag_ids
@@ -987,7 +1109,18 @@ msgstr "ແທັກ"
 #. module: marketing_card
 #: model:ir.model.constraint,message:marketing_card.constraint_card_campaign_tag_name_uniq
 msgid "Tags may not reuse existing names."
-msgstr "ແທັກບໍ່ສາມາດໃຊ້ຊື່ທີ່ມີຢູ່ແລ້ວໄດ້."
+msgstr "ແທັກບໍ່ສາມາດໃຊ້ຊື່ທີ່ມີຢູ່ແລ້ວຄືນໄດ້."
+
+#. module: marketing_card
+#: model:ir.model.fields,field_description:marketing_card.field_card_campaign__target_url_placeholder
+msgid "Target Url Placeholder"
+msgstr "ຂໍ້ຄວາມຕົວຢ່າງ URL ເປົ້າໝາຍ"
+
+#. module: marketing_card
+#. odoo-python
+#: code:addons/marketing_card/models/card_campaign.py:0
+msgid "Target record (if published) or Home page"
+msgstr "ບັນທຶກເປົ້າໝາຍ (ຖ້າເຜີຍແຜ່ແລ້ວ) ຫຼື ໜ້າຫຼັກ"
 
 #. module: marketing_card
 #: model:ir.model.fields,field_description:marketing_card.field_card_campaign__reward_message
@@ -996,17 +1129,39 @@ msgstr "ຂໍ້ຄວາມຂອບໃຈ"
 
 #. module: marketing_card
 #. odoo-python
+#: code:addons/marketing_card/models/card_campaign.py:0
+msgid "Thanks for your support."
+msgstr "ຂອບໃຈສຳລັບການສະໜັບສະໜູນຂອງທ່ານ."
+
+#. module: marketing_card
+#: model:card.campaign,request_description:marketing_card.card_campaign_campaign_1
+msgid "That will help us"
+msgstr "ສິ່ງນັ້ນຈະຊ່ວຍພວກເຮົາ"
+
+#. module: marketing_card
+#. odoo-python
 #: code:addons/marketing_card/models/utm_source.py:0
 msgid ""
 "The UTM source '%s' cannot be deleted as it is used to promote marketing "
 "cards campaigns."
 msgstr ""
-"ບໍ່ສາມາດລຶບແຫຼ່ງທີ່ມາ UTM '%s' ໄດ້ ເນື່ອງຈາກມັນຖືກໃຊ້ເພື່ອໂປຣໂມດແຄມເປນບັດການຕະຫຼາດ."
+"ບໍ່ສາມາດລຶບແຫຼ່ງທີ່ມາ UTM '%s' ໄດ້ ເນື່ອງຈາກຖືກນຳໃຊ້ເພື່ອໂຄສະນາແຄມເປນບັດການຕະຫຼາດ."
+
+#. module: marketing_card
+#. odoo-python
+#: code:addons/marketing_card/utils/linkedin_api.py:0
+msgid "The image is too large: %(image_size_human_readable)s"
+msgstr "ຮູບພາບມີຂະໜາດໃຫຍ່ເກີນໄປ: %(image_size_human_readable)s"
+
+#. module: marketing_card
+#: model:card.campaign,content_section:marketing_card.card_campaign_campaign_1
+msgid "This section is static"
+msgstr "ພາກສ່ວນນີ້ເປັນແບບຄົງທີ່"
 
 #. module: marketing_card
 #: model:ir.model.fields,help:marketing_card.field_card_campaign__activity_exception_decoration
 msgid "Type of the exception activity on record."
-msgstr "ປະເພດຂອງກິດຈະກຳທີ່ຍົກເວັ້ນໃນບັນທຶກ."
+msgstr "ປະເພດຂອງກິດຈະກຳຍົກເວັ້ນໃນບັນທຶກ."
 
 #. module: marketing_card
 #: model:ir.model,name:marketing_card.model_utm_source
@@ -1035,19 +1190,32 @@ msgid "Waves"
 msgstr "ຄື້ນ"
 
 #. module: marketing_card
-#: model:ir.model.fields,field_description:marketing_card.field_card_campaign__website_message_ids
-msgid "Website Messages"
-msgstr "ຂໍ້ຄວາມເວັບໄຊ"
+#. odoo-python
+#: code:addons/marketing_card/models/card_campaign.py:0
+msgid ""
+"We'd love your help in getting the word out. Feel free to post these on your "
+"social channels!"
+msgstr ""
+"ພວກເຮົາຢາກໃຫ້ທ່ານຊ່ວຍກະຈາຍຂ່າວສານນີ້. ທ່ານສາມາດໂພສຕ໌ສິ່ງເຫຼົ່ານີ້ລົງໃນຊ່ອງທາງສື່ສັງຄົມຂອງທ່ານໄດ້ເລີຍ!"
 
 #. module: marketing_card
-#: model:ir.model.fields,help:marketing_card.field_card_campaign__website_message_ids
-msgid "Website communication history"
-msgstr "ປະຫວັດການສື່ສານເວັບໄຊ"
+#. odoo-python
+#: code:addons/marketing_card/models/card_campaign.py:0
+msgid ""
+"We've created these personalized cards to make it easy for you to share your "
+"involvement with your network."
+msgstr ""
+"ພວກເຮົາໄດ້ສ້າງບັດສະເພາະບຸກຄົນເຫຼົ່ານີ້ຂຶ້ນມາ ເພື່ອໃຫ້ທ່ານແບ່ງປັນການມີສ່ວນຮ່ວມຂອງທ່ານກັບເຄືອຂ່າຍໄດ້ງ່າຍຂຶ້ນ."
+
+#. module: marketing_card
+#: model:card.campaign,content_sub_header:marketing_card.card_campaign_campaign_1
+msgid "Welcome to Odoo"
+msgstr "ຍິນດີຕ້ອນຮັບສູ່ Odoo"
 
 #. module: marketing_card
 #: model:ir.model.fields,help:marketing_card.field_card_card__requires_sync
 msgid "Whether the image needs to be updated to match the campaign template."
-msgstr "ຮູບພາບຈຳເປັນຕ້ອງໄດ້ຮັບການອັບເດດເພື່ອໃຫ້ກົງກັບແມ່ແບບແຄມເປນຫຼືບໍ່."
+msgstr "ຮູບພາບຈຳເປັນຕ້ອງໄດ້ຮັບການອັບເດດໃຫ້ກົງກັບແມ່ແບບແຄມເປນຫຼືບໍ່."
 
 #. module: marketing_card
 #: model:card.template,name:marketing_card.card_template_world_map
@@ -1055,22 +1223,23 @@ msgid "World Map"
 msgstr "ແຜນທີ່ໂລກ"
 
 #. module: marketing_card
+#: model_terms:card.campaign,reward_message:marketing_card.card_campaign_campaign_1
+msgid "You just leveled up your exposure!"
+msgstr "ທ່ານຫາກໍ່ເພີ່ມລະດັບການເບິ່ງເຫັນຂອງທ່ານ!"
+
+#. module: marketing_card
+#. odoo-python
+#: code:addons/marketing_card/utils/linkedin_api.py:0
+msgid "You must be authentified with LinkedIn to do this."
+msgstr "ທ່ານຕ້ອງຢືນຢັນຕົວຕົນກັບ LinkedIn ກ່ອນຈຶ່ງຈະສາມາດເຮັດສິ່ງນີ້ໄດ້."
+
+#. module: marketing_card
 #. odoo-python
 #: code:addons/marketing_card/models/mailing_mailing.py:0
 msgid ""
 "You should update all the cards for %(mailing)s before scheduling a mailing."
-msgstr "ທ່ານຄວນອັບເດດບັດທັງໝົດສຳລັບ %(mailing)s ກ່ອນທີ່ຈະກຳນົດເວລາສົ່ງເມລ."
-
-#. module: marketing_card
-#: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_view_form
-msgid "Your Home Page"
-msgstr "ໜ້າຫຼັກຂອງທ່ານ"
-
-#. module: marketing_card
-#. odoo-python
-#: code:addons/marketing_card/models/card_campaign.py:0
-msgid "Your help with this promotion would be greatly appreciated!"
-msgstr "ພວກເຮົາຈະຮູ້ສຶກຂອບໃຈເປັນຢ່າງສູງສຳລັບການຊ່ວຍເຫຼືອຂອງທ່ານໃນການໂປຣໂມດນີ້!"
+msgstr ""
+"ທ່ານຄວນອັບເດດບັດທັງໝົດສຳລັບ %(mailing)s ກ່ອນທີ່ຈະກຳນົດເວລາການສົ່ງຈົດໝາຍ."
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.template_2
@@ -1078,49 +1247,49 @@ msgstr "ພວກເຮົາຈະຮູ້ສຶກຂອບໃຈເປັນ
 #: model_terms:ir.ui.view,arch_db:marketing_card.template_4
 #: model_terms:ir.ui.view,arch_db:marketing_card.template_5
 msgid "button text"
-msgstr "ຂໍ້ຄວາມເທິງປຸ່ມ"
+msgstr "ຂໍ້ຄວາມປຸ່ມ"
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_view_form
 msgid "e.g. \"Thanks for sharing, here is your reward!\""
-msgstr "ຕົວຢ່າງ: \"ຂອບໃຈສຳລັບການແຊຣ໌, ນີ້ແມ່ນລາງວັນຂອງທ່ານ!\""
+msgstr "e.g. \"ຂອບໃຈສຳລັບການແບ່ງປັນ, ນີ້ແມ່ນລາງວັນຂອງທ່ານ!\""
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_view_form
 msgid "e.g. \"https://www.mycompany.com/reward\""
-msgstr "ຕົວຢ່າງ: \"https://www.mycompany.com/reward\""
+msgstr "e.g. \"https://www.mycompany.com/reward\""
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_view_form
 msgid "e.g. Aug 24, Brussels Expo"
-msgstr "ຕົວຢ່າງ: 24 ສິງຫາ, Brussels Expo"
+msgstr "e.g. 24 ສິງຫາ, Brussels Expo"
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_view_form
 msgid "e.g. By Lionel Messy"
-msgstr "ຕົວຢ່າງ: ໂດຍ Lionel Messy"
+msgstr "e.g. ໂດຍ Lionel Messy"
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_view_form
 msgid "e.g. CFO Chief Football Officer"
-msgstr "ຕົວຢ່າງ: CFO Chief Football Officer"
+msgstr "e.g. CFO Chief Football Officer"
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_view_form
 msgid "e.g. Join Odoo Experience 2024"
-msgstr "ຕົວຢ່າງ: ເຂົ້າຮ່ວມ Odoo Experience 2024"
+msgstr "e.g. ເຂົ້າຮ່ວມ Odoo Experience 2024"
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_view_form
 msgid "e.g. Odoo Experience Talks"
-msgstr "ຕົວຢ່າງ: ການບັນຍາຍ Odoo Experience"
+msgstr "e.g. Odoo Experience Talks"
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_view_form
 msgid "e.g. Sample Talk"
-msgstr "ຕົວຢ່າງ: ການບັນຍາຍຕົວຢ່າງ"
+msgstr "e.g. ບົດບັນຍາຍຕົວຢ່າງ"
 
 #. module: marketing_card
 #: model_terms:ir.ui.view,arch_db:marketing_card.card_campaign_view_form
 msgid "e.g. Why people should share on their network?"
-msgstr "ຕົວຢ່າງ: ເປັນຫຍັງຄົນຄວນແຊຣ໌ລົງໃນເຄືອຂ່າຍຂອງເຂົາເຈົ້າ?"
+msgstr "e.g. ເປັນຫຍັງຄົນເຮົາຄວນແບ່ງປັນໃນເຄືອຂ່າຍຂອງຕົນເອງ?"

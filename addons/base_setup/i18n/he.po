@@ -17,16 +17,16 @@
 # Ha Ketem <haketem@gmail.com>, 2022
 # ZVI BLONDER <ZVIBLONDER@gmail.com>, 2023
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
-# or balmas <or@laylinetech.com>, 2025, 2026.
+# or balmas <or@laylinetech.com>, 2025.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-05-03 10:35+0000\n"
-"Last-Translator: or balmas <or@laylinetech.com>\n"
-"Language-Team: Hebrew <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-08-31 16:27+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Hebrew <https://translate.odoo.com/projects/odoo-s19-4/"
 "base_setup/he/>\n"
 "Language: he\n"
 "MIME-Version: 1.0\n"
@@ -34,13 +34,19 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=4; plural=(n == 1) ? 0 : ((n == 2) ? 1 : ((n > 10 && "
 "n % 10 == 0) ? 2 : 3));\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+#: model:ir.module.module,description:base.module_base_setup
 msgid ""
-"<span class=\"fa fa-lg fa-users\" aria-label=\"Number of active users\"/>"
-msgstr "<span class=\"fa fa-lg fa-users\" aria-label=\"מספר משתמשים פעילים\"/>"
+"\n"
+"This module helps to configure the system at the installation of a new "
+"database.\n"
+"================================================================================\n"
+"\n"
+"Shows you a list of applications features to install from.\n"
+"\n"
+msgstr ""
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -158,11 +164,6 @@ msgid "Add fun feedback and motivate your employees"
 msgstr "הוסף משוב נעים וכיפי כדי להניע את העובדים שלך"
 
 #. module: base_setup
-#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_mail_plugin
-msgid "Allow integration with the mail plugins"
-msgstr "אפשר אינטגרציה עם תוספי הדואר"
-
-#. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_google_calendar
 msgid "Allow the users to synchronize their calendar  with Google Calendar"
 msgstr "אפשר למשתמשים לסנכרן את היומן שלהם עם יומן גוגל"
@@ -244,15 +245,6 @@ msgstr "הגדר הגדרות"
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
 msgid "Configure Document Layout"
 msgstr "הגדר עיצוב מסמך"
-
-#. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid ""
-"Configure company rules to automatically create SO/PO when one of your "
-"company sells/buys to another of your company."
-msgstr ""
-"הגדר את חוקי החברה כדי ליצור אוטומטית הזמנת לקוח/הזמנת רכש כאשר אחת מהחברות "
-"שלך מוכרת / קונה מחברה אחרת שלך."
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -347,13 +339,13 @@ msgstr "מקם גיאוגרפית"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Geolocate your partners"
-msgstr ""
+msgid "Geolocation"
+msgstr "מיקום גיאוגרפי"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Geolocation"
-msgstr "מיקום גיאוגרפי"
+msgid "Get the latitude and the longitude of your partners"
+msgstr ""
 
 #. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_google_address_autocomplete
@@ -379,9 +371,9 @@ msgid "Import & Export"
 msgstr "ייבוא וייצוא"
 
 #. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Integrate with mail client plugins"
-msgstr "שילוב עם תוספים של דואר לקוח"
+#: model:ir.module.module,shortdesc:base.module_base_setup
+msgid "Initial Setup Tools"
+msgstr ""
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -418,11 +410,6 @@ msgstr "שפות"
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
 msgid "Layout"
 msgstr "עיצוב"
-
-#. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Mail Plugin"
-msgstr "תוסף דואר"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -468,6 +455,11 @@ msgstr "מספר חברות"
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__language_count
 msgid "Number of Languages"
 msgstr "מספר שפות"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Number of active users"
+msgstr ""
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -638,49 +630,9 @@ msgstr ""
 msgid "reCAPTCHA"
 msgstr "reCAPTCHA"
 
-#~ msgid "Asterisk (VoIP)"
-#~ msgstr "כוכבית (VoIP)"
-
 #~ msgid ""
-#~ "Automatically generate counterpart documents for orders/invoices between "
-#~ "companies"
-#~ msgstr "הפק באופן אוטומטי מסמכים מקבילים להזמנות / חשבוניות בין חברות"
-
-#~ msgid ""
-#~ "By default, new users get highest access rights for all installed apps."
+#~ "<span class=\"oi oi-lg oi-filled\" data-icon=\"group\" aria-"
+#~ "label=\"Number of active users\"/>"
 #~ msgstr ""
-#~ "כברירת מחדל, משתמשים חדשים מקבלים את ההרשאות הגבוהות ביותר עבור כל "
-#~ "היישומים המותקנים."
-
-#~ msgid "Default User Template not found."
-#~ msgstr "לא נמצאה ברירת מחדל לתבנית משתמש."
-
-#~ msgid "Documentation"
-#~ msgstr "תיעוד"
-
-#~ msgid "Geo Localization"
-#~ msgstr "מיקום גיאוגרפי"
-
-#~ msgid "GeoLocalize your partners"
-#~ msgstr "מקם גיאוגרפית את הלקוחות/ספקים שלך"
-
-#~ msgid "Get product pictures using barcode"
-#~ msgstr "קבל תמונות מוצר באמצעות ברקוד"
-
-#~ msgid "Google Calendar"
-#~ msgstr "לוח שנה של גוגל"
-
-#~ msgid "On Apple Store"
-#~ msgstr "בחנות אפל"
-
-#~ msgid "On Google Play"
-#~ msgstr "בחנות גוגל"
-
-#~ msgid "Outlook Calendar"
-#~ msgstr "יומן Outlook"
-
-#~ msgid "Synchronize your calendar with Google Calendar"
-#~ msgstr "סנכרן את לוח השנה שלך עם לוח השנה של גוגל"
-
-#~ msgid "Synchronize your calendar with Outlook"
-#~ msgstr "סנכרן את לוח השנה שלך עם Outlook"
+#~ "<span class=\"oi oi-lg oi-filled\" data-icon=\"group\" aria-label=\"מספר "
+#~ "משתמשים פעילים\"/>"

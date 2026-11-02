@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0+e\n"
+"Project-Id-Version: Odoo Server 19.5a1+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-30 19:08+0000\n"
-"PO-Revision-Date: 2025-12-30 19:08+0000\n"
+"POT-Creation-Date: 2026-09-11 18:13+0000\n"
+"PO-Revision-Date: 2026-09-11 18:13+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,26 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: l10n_mx
-#: model:ir.model.fields,field_description:l10n_mx.field_res_bank__l10n_mx_edi_code
-msgid "ABM Code"
+#: model:ir.module.module,description:base.module_l10n_mx
+msgid ""
+"\n"
+"Minimal accounting configuration for Mexico.\n"
+"============================================\n"
+"\n"
+"This Chart of account is a minimal proposal to be able to use OoB the\n"
+"accounting feature of Odoo.\n"
+"\n"
+"This doesn't pretend be all the localization for MX it is just the minimal\n"
+"data required to start from 0 in mexican localization.\n"
+"\n"
+"This modules and its content is updated frequently by openerp-mexico team.\n"
+"\n"
+"With this module you will have:\n"
+"\n"
+" - Minimal chart of account tested in production environments.\n"
+" - Minimal chart of taxes, to comply with SAT_ requirements.\n"
+"\n"
+".. _SAT: http://www.sat.gob.mx/\n"
 msgstr ""
 
 #. module: l10n_mx
@@ -36,22 +54,6 @@ msgid "Activity"
 msgstr ""
 
 #. module: l10n_mx
-#: model:ir.model,name:l10n_mx.model_res_bank
-msgid "Bank"
-msgstr ""
-
-#. module: l10n_mx
-#: model:ir.model,name:l10n_mx.model_res_partner_bank
-msgid "Bank Accounts"
-msgstr ""
-
-#. module: l10n_mx
-#: model:ir.model.fields,field_description:l10n_mx.field_account_setup_bank_manual_config__l10n_mx_edi_clabe
-#: model:ir.model.fields,field_description:l10n_mx.field_res_partner_bank__l10n_mx_edi_clabe
-msgid "CLABE"
-msgstr ""
-
-#. module: l10n_mx
 #. odoo-python
 #: code:addons/l10n_mx/models/template_mx.py:0
 msgid "Cash"
@@ -59,7 +61,7 @@ msgstr ""
 
 #. module: l10n_mx
 #: model:ir.model,name:l10n_mx.model_res_company
-msgid "Companies"
+msgid "Company"
 msgstr ""
 
 #. module: l10n_mx
@@ -82,10 +84,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_mx.field_account_chart_template__display_name
 #: model:ir.model.fields,field_description:l10n_mx.field_account_move_line__display_name
 #: model:ir.model.fields,field_description:l10n_mx.field_account_tax__display_name
-#: model:ir.model.fields,field_description:l10n_mx.field_res_bank__display_name
 #: model:ir.model.fields,field_description:l10n_mx.field_res_company__display_name
 #: model:ir.model.fields,field_description:l10n_mx.field_res_config_settings__display_name
-#: model:ir.model.fields,field_description:l10n_mx.field_res_partner_bank__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -101,11 +101,6 @@ msgid "Effectively Paid"
 msgstr ""
 
 #. module: l10n_mx
-#: model:account.report.column,name:l10n_mx.diot_report_exempt_imp
-msgid "Exempt Imports"
-msgstr ""
-
-#. module: l10n_mx
 #: model:ir.model.fields.selection,name:l10n_mx.selection__account_tax__l10n_mx_factor_type__exento
 msgid "Exento"
 msgstr ""
@@ -116,21 +111,12 @@ msgid "Factor Type"
 msgstr ""
 
 #. module: l10n_mx
-#: model:ir.model.fields,field_description:l10n_mx.field_account_setup_bank_manual_config__fiscal_country_codes
-#: model:ir.model.fields,field_description:l10n_mx.field_res_bank__fiscal_country_codes
-#: model:ir.model.fields,field_description:l10n_mx.field_res_partner_bank__fiscal_country_codes
-msgid "Fiscal Country Codes"
-msgstr ""
-
-#. module: l10n_mx
 #: model:ir.model.fields,field_description:l10n_mx.field_account_account__id
 #: model:ir.model.fields,field_description:l10n_mx.field_account_chart_template__id
 #: model:ir.model.fields,field_description:l10n_mx.field_account_move_line__id
 #: model:ir.model.fields,field_description:l10n_mx.field_account_tax__id
-#: model:ir.model.fields,field_description:l10n_mx.field_res_bank__id
 #: model:ir.model.fields,field_description:l10n_mx.field_res_company__id
 #: model:ir.model.fields,field_description:l10n_mx.field_res_config_settings__id
-#: model:ir.model.fields,field_description:l10n_mx.field_res_partner_bank__id
 msgid "ID"
 msgstr ""
 
@@ -150,16 +136,6 @@ msgid "IVA"
 msgstr ""
 
 #. module: l10n_mx
-#: model:account.report.column,name:l10n_mx.diot_report_paid_16_imp
-msgid "Importation 16% - Creditable"
-msgstr ""
-
-#. module: l10n_mx
-#: model:account.report.column,name:l10n_mx.diot_report_paid_16_imp_nc
-msgid "Importation 16% - Non-Creditable"
-msgstr ""
-
-#. module: l10n_mx
 #: model:ir.model.fields,field_description:l10n_mx.field_res_config_settings__l10n_mx_account_income_return_discount_id
 msgid "Income Returns and Discounts Account"
 msgstr ""
@@ -172,21 +148,6 @@ msgstr ""
 #. module: l10n_mx
 #: model:ir.model.fields,field_description:l10n_mx.field_res_company__l10n_mx_income_return_discount_account_id
 msgid "Income account for returns and discounts"
-msgstr ""
-
-#. module: l10n_mx
-#: model:account.report.column,name:l10n_mx.diot_report_paid_16_imp_int_wnc
-msgid "Intangible Imports 16%"
-msgstr ""
-
-#. module: l10n_mx
-#: model:account.report.column,name:l10n_mx.diot_report_paid_16_imp_int
-msgid "Intangible Imports 16% - Creditable"
-msgstr ""
-
-#. module: l10n_mx
-#: model:account.report.column,name:l10n_mx.diot_report_paid_16_imp_int_nc
-msgid "Intangible Imports 16% - Non-Creditable"
 msgstr ""
 
 #. module: l10n_mx
@@ -205,6 +166,11 @@ msgid "Local"
 msgstr ""
 
 #. module: l10n_mx
+#: model:ir.module.module,shortdesc:base.module_l10n_mx
+msgid "Mexico - Accounting"
+msgstr ""
+
+#. module: l10n_mx
 #: model:ir.model.fields,help:l10n_mx.field_account_tax__l10n_mx_factor_type
 msgid ""
 "Mexico: 'TipoFactor' is an attribute for CFDI 4.0. This indicates the factor"
@@ -212,74 +178,9 @@ msgid ""
 msgstr ""
 
 #. module: l10n_mx
-#: model:account.report.column,name:l10n_mx.diot_report_no_obj
-msgid "No Tax Object"
-msgstr ""
-
-#. module: l10n_mx
 #. odoo-python
 #: code:addons/l10n_mx/models/template_mx.py:0
 msgid "Other Income"
-msgstr ""
-
-#. module: l10n_mx
-#: model:account.report.column,name:l10n_mx.diot_report_paid_16
-msgid "Paid 16% - Creditable"
-msgstr ""
-
-#. module: l10n_mx
-#: model:account.report.column,name:l10n_mx.diot_report_paid_8_n
-msgid "Paid 8 % N. - Creditable"
-msgstr ""
-
-#. module: l10n_mx
-#: model:account.report.column,name:l10n_mx.diot_report_paid_8_n_nc
-msgid "Paid 8 % N. - Non-Creditable"
-msgstr ""
-
-#. module: l10n_mx
-#: model:account.report.column,name:l10n_mx.diot_report_paid_8_n_wnc
-msgid "Paid 8 % Northern"
-msgstr ""
-
-#. module: l10n_mx
-#: model:account.report.column,name:l10n_mx.diot_report_paid_8_s
-msgid "Paid 8 % S. - Creditable"
-msgstr ""
-
-#. module: l10n_mx
-#: model:account.report.column,name:l10n_mx.diot_report_paid_8_s_nc
-msgid "Paid 8 % S. - Non-Creditable"
-msgstr ""
-
-#. module: l10n_mx
-#: model:account.report.column,name:l10n_mx.diot_report_paid_8_s_wnc
-msgid "Paid 8 % Southern"
-msgstr ""
-
-#. module: l10n_mx
-#: model:account.report.column,name:l10n_mx.diot_report_paid_16_r
-msgid "Refunds 16%"
-msgstr ""
-
-#. module: l10n_mx
-#: model:account.report.column,name:l10n_mx.diot_report_paid_8_n_r
-msgid "Refunds 8 % Northern"
-msgstr ""
-
-#. module: l10n_mx
-#: model:account.report.column,name:l10n_mx.diot_report_paid_8_s_r
-msgid "Refunds 8 % Southern"
-msgstr ""
-
-#. module: l10n_mx
-#: model:account.report.column,name:l10n_mx.diot_report_paid_16_imp_r
-msgid "Refunds Importation 16%"
-msgstr ""
-
-#. module: l10n_mx
-#: model:account.report.column,name:l10n_mx.diot_report_paid_16_imp_int_r
-msgid "Refunds Intangible Imports 16%"
 msgstr ""
 
 #. module: l10n_mx
@@ -298,20 +199,6 @@ msgid "Service Unit"
 msgstr ""
 
 #. module: l10n_mx
-#: model:ir.model.fields,help:l10n_mx.field_account_setup_bank_manual_config__l10n_mx_edi_clabe
-#: model:ir.model.fields,help:l10n_mx.field_res_partner_bank__l10n_mx_edi_clabe
-msgid ""
-"Standardized banking cipher for Mexico. More info wikipedia.org/wiki/CLABE"
-msgstr ""
-
-#. module: l10n_mx
 #: model:ir.model.fields.selection,name:l10n_mx.selection__account_tax__l10n_mx_factor_type__tasa
 msgid "Tasa"
-msgstr ""
-
-#. module: l10n_mx
-#: model:ir.model.fields,help:l10n_mx.field_res_bank__l10n_mx_edi_code
-msgid ""
-"Three-digit number assigned by the ABM to identify banking institutions (ABM"
-" is an acronym for Asociación de Bancos de México)"
 msgstr ""

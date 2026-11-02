@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import fields, models, _
@@ -12,17 +11,13 @@ class ProjectProjectStage(models.Model):
 
     active = fields.Boolean(default=True, export_string_translation=False)
     sequence = fields.Integer(default=50, export_string_translation=False)
-    name = fields.Char(required=True, translate=True)
+    name = fields.Char("Stage Name", required=True, translate=True)
     mail_template_id = fields.Many2one('mail.template', string='Email Template', domain=[('model', '=', 'project.project')],
         help="If set, an email will be automatically sent to the customer when the project reaches this stage.")
     fold = fields.Boolean('Folded',
         help="If enabled, this stage will be displayed as folded in the Kanban and List views of your projects. Projects in a folded stage are considered as closed.")
     company_id = fields.Many2one('res.company', string="Company")
-    color = fields.Integer(string='Color', export_string_translation=False)
-
-    def copy_data(self, default=None):
-        vals_list = super().copy_data(default=default)
-        return [dict(vals, name=self.env._("%s (copy)", stage.name)) for stage, vals in zip(self, vals_list)]
+    rotting_threshold_days = fields.Integer('Days to rot', default=0, help='Day count before projects in this stage become stale. Set to 0 to disable.')
 
     def unlink_wizard(self, stage_view=False):
         wizard = self.with_context(active_test=False).env['project.project.stage.delete.wizard'].create({

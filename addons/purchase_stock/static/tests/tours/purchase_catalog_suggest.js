@@ -81,7 +81,11 @@ registry.category("web_tour.tours").add("test_purchase_order_suggest_search_pane
          */
         ...catalogSuggestion.setParameters({ basedOn: "Last 7 days", nbDays: 28, factor: 50 }), // 1 order of 12 used in computation of demand // 28 days --> forecast uses both 50 delivery
         { trigger: "span[name='suggest_total']:visible:contains('480')" },
-        ...catalogSuggestion.assertCatalogRecord("test_product", { monthly: 52, suggest: 24, forecast: 100 }),
+        ...catalogSuggestion.assertCatalogRecord("test_product", {
+            monthly: 52,
+            suggest: 24,
+            forecast: 100,
+        }),
         ...catalogSuggestion.checkKanbanRecordPosition("test_product", 0),
 
         ...catalogSuggestion.setParameters({ basedOn: "Last 30 days", factor: 10 }), // 2 orders of 12
@@ -105,8 +109,7 @@ registry.category("web_tour.tours").add("test_purchase_order_suggest_search_pane
         ...catalogSuggestion.toggleSuggest(false),
         ...catalogSuggestion.assertCatalogRecord("test_product", { forecast: 100, monthly: 24 }),
         ...catalogSuggestion.checkKanbanRecordPosition("Other product", 0),
-        { trigger: "span[name='kanban_monthly_demand_qty']:visible:contains('24')" }, // Should come back to normal monthly demand
-
+        ...catalogSuggestion.assertCatalogRecord("test_product", { monthly: 24 }), // Should come back to normal monthly demand
         /*
          * -------------------  PART 3 : KANBAN FILTERS ---------------------
          * Checks suggest and searchModel (filters) interactions

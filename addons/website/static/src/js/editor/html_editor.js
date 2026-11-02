@@ -1,11 +1,10 @@
 import { LinkPopover } from "@html_editor/main/link/link_popover";
 import { _t } from "@web/core/l10n/translation";
-import { AutoComplete } from "@web/core/autocomplete/autocomplete";
+import { AutoComplete, autoCompleteProps } from "@web/core/autocomplete/autocomplete";
+import { useProps, signal, t, onMounted } from "@odoo/owl";
 import { patch } from "@web/core/utils/patch";
-import { useChildRef } from "@web/core/utils/hooks";
 import wUtils from "@website/js/utils";
-import { useEffect } from "@odoo/owl";
-import { browser } from "@web/core/browser/browser";
+import { location, browser } from "@web/core/browser/browser";
 import { session } from "@web/session";
 
 /**
@@ -23,11 +22,11 @@ import { session } from "@web/session";
  * - updateValue: to update the URL of the link element
  */
 export class AutoCompleteInLinkPopover extends AutoComplete {
-    static props = {
-        ...AutoComplete.props,
-        inputClass: { type: String, optional: true },
-        updateValue: { type: Function, optional: true },
-    };
+    props = useProps({
+        ...autoCompleteProps,
+        inputClass: t.string().optional(),
+        updateValue: t.function().optional(),
+    });
     static template = "website.AutoCompleteInLinkPopover";
 
     // overwrite the div class to avoid breaking the popover style
@@ -61,15 +60,13 @@ patch(LinkPopover, {
 patch(LinkPopover.prototype, {
     setup() {
         super.setup();
-        this.urlRef = useChildRef();
-        useEffect(
-            (el) => {
-                if (el && (this.state.isImage || (!this.state.url && this.state.label))) {
-                    el.focus();
-                }
-            },
-            () => [this.urlRef.el]
-        );
+        this.urlRef = signal.ref();
+        onMounted(() => {
+            const el = this.urlRef();
+            if (el && (this.state.isImage || (!this.state.url && this.state.label))) {
+                el.focus();
+            }
+        });
     },
 
     get sources() {
@@ -101,7 +98,7 @@ patch(LinkPopover.prototype, {
     isFrontendUrl(url) {
         const parsedUrl = new URL(url);
         return (
-            (browser.location.hostname === parsedUrl.hostname ||
+            (location.hostname === parsedUrl.hostname ||
                 // Also check if the odoo-hosted domain is the current domain of the url
                 new RegExp(`^https?://${session.db}\\.odoo\\.com(/.*)?$`).test(parsedUrl.origin)) &&
             !parsedUrl.pathname.startsWith("/odoo") &&
@@ -114,7 +111,7 @@ patch(LinkPopover.prototype, {
             const currentUrl = new URL(this.props.linkElement.href);
             // only when we are on a frontend page (in website builder) and the link is also a frontend link
             if (
-                this.isFrontendUrl(browser.location.href) &&
+                this.isFrontendUrl(location.href) &&
                 this.isFrontendUrl(this.props.linkElement.href)
             ) {
                 ev.preventDefault();

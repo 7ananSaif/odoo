@@ -8,7 +8,7 @@ from odoo.exceptions import UserError
 
 class MrpAccountWipAccountingLine(models.TransientModel):
     _name = 'mrp.account.wip.accounting.line'
-    _description = 'Account move line to be created when posting WIP account move'
+    _description = 'Journal item to be created when posting WIP journal entry'
 
     account_id = fields.Many2one('account.account', "Account")
     label = fields.Char("Label")
@@ -37,7 +37,7 @@ class MrpAccountWipAccountingLine(models.TransientModel):
 
 class MrpAccountWipAccounting(models.TransientModel):
     _name = 'mrp.account.wip.accounting'
-    _description = 'Wizard to post Manufacturing WIP account move'
+    _description = 'Wizard to post Manufacturing WIP journal entry'
 
     @api.model
     def default_get(self, fields):
@@ -105,7 +105,7 @@ class MrpAccountWipAccounting(models.TransientModel):
     @api.depends('date')
     def _compute_reversal_date(self):
         for wizard in self:
-            if not wizard.reversal_date or wizard.reversal_date <= wizard.date:
+            if wizard.date and (not wizard.reversal_date or wizard.reversal_date <= wizard.date):
                 wizard.reversal_date = wizard.date + relativedelta(days=1)
             else:
                 wizard.reversal_date = wizard.reversal_date
@@ -115,13 +115,13 @@ class MrpAccountWipAccounting(models.TransientModel):
         for wizard in self:
             # don't update lines when manual (i.e. no applicable MOs) entry
             if not wizard.line_ids or wizard.mo_ids:
-                wizard.line_ids = [Command.clear()] + wizard._get_line_vals(wizard.mo_ids, datetime.combine(wizard.date, time.max))
+                wizard.line_ids = [Command.clear()] + wizard._get_line_vals(wizard.mo_ids, wizard.date and datetime.combine(wizard.date, time.max))
 
     def confirm(self):
         self.ensure_one()
         if self.env.company.currency_id.compare_amounts(sum(self.line_ids.mapped('credit')), sum(self.line_ids.mapped('debit'))) != 0:
             raise UserError(_("Please make sure the total credit amount equals the total debit amount."))
-        if self.reversal_date <= self.date:
+        if self.date and self.reversal_date <= self.date:
             raise UserError(_("Reversal date must be after the posting date."))
         move = self.env['account.move'].sudo().create({
             'journal_id': self.journal_id.id,

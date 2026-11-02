@@ -13,7 +13,7 @@ _logger = logging.getLogger(__name__)
 
 class MailPush(models.Model):
     _name = 'mail.push'
-    _description = "Push Notifications"
+    _description = "Push Notification"
 
     mail_push_device_id = fields.Many2one('mail.push.device', string='devices', required=True, ondelete="cascade")
     payload = fields.Text()
@@ -26,8 +26,8 @@ class MailPush(models.Model):
             return
 
         ir_parameter_sudo = self.env['ir.config_parameter'].sudo()
-        vapid_private_key = ir_parameter_sudo.get_param('mail.web_push_vapid_private_key')
-        vapid_public_key = ir_parameter_sudo.get_param('mail.web_push_vapid_public_key')
+        vapid_private_key = ir_parameter_sudo.get_str('mail.web_push_vapid_private_key')
+        vapid_public_key = ir_parameter_sudo.get_str('mail.web_push_vapid_public_key')
         if not vapid_private_key or not vapid_public_key:
             return
 

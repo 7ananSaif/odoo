@@ -39,13 +39,13 @@
 // ------------------------------------------------------------------
 // Text overflow
 // ------------------------------------------------------------------
-@mixin o-text-overflow($display: inline-block, $max-width: 100%) {
+@mixin o-text-overflow($display: inline-block, $max-width: 100%, $vertical-align: top) {
     display: $display;
     max-width: $max-width;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    vertical-align: top; // To update display context changed by overflow:hidden
+    vertical-align: $vertical-align; // To update display context changed by overflow:hidden
 }
 
 // ------------------------------------------------------------------
@@ -149,12 +149,6 @@
 //-------------------------------------------------------------------
 // Cursor
 //-------------------------------------------------------------------
-
-@mixin o-grab-cursor() {
-    // Use a custom cursor for the open hand icon as "grab" is not properly
-    // working on Chrome Linux (at least)
-    cursor: url(/web/static/img/openhand.cur), grab;
-}
 
 @mixin o-field-pointer() {
     // Force `pointer`cursor on  inputs and labels
@@ -270,20 +264,26 @@
     margin-top: 0;
 }
 
+// Emulate a dropdown link
+@mixin o-kanban-dashboard-dropdown-link-style($link-padding-gap: $o-dropdown-hpadding) {
+    margin: auto auto auto (-$link-padding-gap);
+    padding: 3px $link-padding-gap;
+    color: $dropdown-link-color;
+    display: block;
+    border-radius: var(--#{$prefix}dropdown-item-border-radius, 0);
+
+    &:hover {
+        background-color: $dropdown-link-hover-bg;
+        color: $dropdown-link-hover-color;
+    }
+}
+
 // Emulate dropdown links
 @mixin o-kanban-dashboard-dropdown-link($link-padding-gap: $o-dropdown-hpadding) {
     padding: 0;
 
     > a {
-        margin: auto auto auto (-$link-padding-gap);
-        padding: 3px $link-padding-gap;
-        color: $dropdown-link-color;
-        display: block;
-
-        &:hover {
-            background-color: $dropdown-link-hover-bg;
-            color: $dropdown-link-hover-color;
-        }
+        @include o-kanban-dashboard-dropdown-link-style($link-padding-gap);
     }
 
     &:last-child {

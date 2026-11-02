@@ -10,18 +10,22 @@ patch(PosOrder.prototype, {
         this.uiState = {
             ...this.uiState,
             lineChanges: this.uiState.lineChanges || {},
-            receiptReady: false,
         };
     },
     get unsentLines() {
         return this.lines.filter(
             (l) =>
-                !Object.keys(this.uiState.lineChanges).includes(l.uuid) ||
-                this.uiState.lineChanges[l.uuid].qty !== l.qty
+                !l.isTipLine() &&
+                (!Object.keys(this.uiState.lineChanges).includes(l.uuid) ||
+                    this.uiState.lineChanges[l.uuid].qty !== l.qty)
         );
     },
     get changes() {
         return this.lines.reduce((acc, line) => {
+            // Tip isn't tracked as a change. counting it would mark an unsent change and could block payment.
+            if (line.isTipLine()) {
+                return acc;
+            }
             const diff = line.changes;
             if (
                 diff.qty ||
@@ -71,6 +75,7 @@ patch(PosOrder.prototype, {
         if (this.email && !data.email) {
             data.email = this.email;
         }
+        data.partner_id = this.raw.partner_id || false;
         return data;
     },
 });

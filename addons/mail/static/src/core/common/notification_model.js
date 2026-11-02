@@ -1,10 +1,9 @@
-import { fields, Record } from "@mail/core/common/record";
+import { fields, Record } from "@mail/model/export";
 
 import { _t } from "@web/core/l10n/translation";
 
 export class Notification extends Record {
     static _name = "mail.notification";
-    static id = "id";
 
     /** @type {number} */
     id;
@@ -26,12 +25,14 @@ export class Notification extends Record {
             if (!this.mail_message_id?.isSelfAuthored) {
                 return;
             }
-            const failure = Object.values(this.store.Failure.records).find(
-                (f) =>
-                    f.resModel === thread?.model &&
-                    f.type === this.notification_type &&
-                    (f.resModel !== "discuss.channel" || f.resIds.has(thread?.id))
-            );
+            const failure = this.store.Failure.records
+                .values()
+                .find(
+                    (f) =>
+                        f.resModel === thread?.model &&
+                        f.type === this.notification_type &&
+                        (f.resModel !== "discuss.channel" || f.resIds.has(thread?.id))
+                );
             return this.isFailure
                 ? {
                       id: failure ? failure.id : this.store.Failure.nextId.value++,
@@ -69,7 +70,6 @@ export class Notification extends Record {
      * when it corresponds to a failure type
      * that is automatically cancelled before sending.
      *
-     * @returns {string}
      */
     get autoCanceledFailureType() {
         switch (this.failure_type) {
@@ -88,10 +88,11 @@ export class Notification extends Record {
     }
 
     get icon() {
-        if (this.isFailure) {
-            return "fa fa-envelope";
-        }
-        return "fa fa-envelope-o";
+        return this.isFailure ? "cancel" : "mail";
+    }
+
+    get iconClass() {
+        return this.isFailure ? "oi-filled" : "";
     }
 
     get label() {
@@ -99,32 +100,39 @@ export class Notification extends Record {
     }
 
     get isFollowerNotification() {
-        return this.res_partner_id && this.mail_message_id.thread.followers.some(
-            (follower) => follower.partner_id.id === this.res_partner_id.id
+        return (
+            this.res_partner_id &&
+            this.mail_message_id.thread.followers.some(
+                (follower) => follower.partner_id.id === this.res_partner_id.id
+            )
         );
     }
 
     get statusIcon() {
         switch (this.notification_status) {
             case "process":
-                return "fa fa-hourglass-half";
+                return "hourglass_bottom";
             case "pending":
-                return "fa fa-paper-plane-o";
+                return "send";
             case "sent":
-                return "fa fa-check";
+                return "check";
             case "bounce":
-                return "fa fa-exclamation";
+                return "priority_high";
             case "exception":
-                return "fa fa-times text-danger";
+                return "cancel";
             case "ready":
-                return "fa fa-send-o";
+                return "send";
             case "canceled":
                 if (this.autoCanceledFailureType) {
-                    return "fa fa-remove";
+                    return "close";
                 }
-                return "fa fa-trash-o";
+                return "delete";
         }
         return "";
+    }
+
+    get statusClass() {
+        return this.notification_status === "exception" ? "text-danger oi-filled" : "";
     }
 
     get statusTitle() {

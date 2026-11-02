@@ -1,11 +1,20 @@
-import { mountComponent } from "./env";
-import { localization } from "@web/core/l10n/localization";
-import { session } from "@web/session";
+import { whenReady } from "@odoo/owl";
 import { hasTouch } from "@web/core/browser/feature_detection";
+import { localization } from "@web/core/l10n/localization";
 import { user } from "@web/core/user";
-import { Component, whenReady } from "@odoo/owl";
+import { session } from "@web/session";
+import { _t } from "./core/l10n/translation";
 import { rpc } from "./core/network/rpc";
-import { RPCCache } from "./core/network/rpc_cache";
+import { isRPCCacheDisabled, RPCCache } from "./core/network/rpc_cache";
+import { mountComponent } from "./env";
+
+// Chrome iOS wraps some text nodes (like measures, email...)
+// with a `<chrome_annotation>` tag, which breaks OWL rendering.
+// This meta tag allows to disable this behavior.
+const chromeMetaTag = document.createElement("meta");
+chromeMetaTag.setAttribute("name", "chrome");
+chromeMetaTag.setAttribute("content", "nointentdetection");
+document.head.appendChild(chromeMetaTag);
 
 // Chrome iOS wraps some text nodes (like measures, email...)
 // with a `<chrome_annotation>` tag, which breaks OWL rendering.
@@ -21,7 +30,7 @@ document.head.appendChild(chromeMetaTag);
  * It's meant to be webclient flexible so we can have a subclass of
  * webclient in enterprise with added features.
  *
- * @param {Component} Webclient
+ * @param {import("@odoo/owl").ComponentConstructor} Webclient
  */
 export async function startWebClient(Webclient) {
     odoo.info = {
@@ -32,14 +41,20 @@ export async function startWebClient(Webclient) {
     };
     odoo.isReady = false;
 
-    if (window.isSecureContext && session.browser_cache_secret) {
+    if (window.isSecureContext && session.browser_cache_secret && !isRPCCacheDisabled()) {
         rpc.setCache(new RPCCache("rpc", session.registry_hash, session.browser_cache_secret));
     }
 
     await whenReady();
-    const app = await mountComponent(Webclient, document.body, { name: "Odoo Web Client" });
-    const { env } = app;
-    Component.env = env;
+    await mountComponent(Webclient, document.body, { name: "Odoo Web Client" });
+
+    if (!window.isSecureContext) {
+        console.error(
+            _t(
+                "You are currently using a non-secure context. As a result, some Odoo features may be unavailable or function improperly. For more information, please visit: https://developer.mozilla.org/en-US/docs/Web/Security/Defenses/Secure_Contexts"
+            )
+        );
+    }
 
     const classList = document.body.classList;
     if (localization.direction === "rtl") {
@@ -48,7 +63,7 @@ export async function startWebClient(Webclient) {
     if (user.userId === 1) {
         classList.add("o_is_superuser");
     }
-    if (env.debug) {
+    if (odoo.debug) {
         classList.add("o_debug");
     }
     if (hasTouch()) {

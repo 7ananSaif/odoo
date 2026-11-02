@@ -1,4 +1,4 @@
-import { browser } from "../browser/browser";
+import { location, browser } from "../browser/browser";
 import { Dialog } from "../dialog/dialog";
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "../registry";
@@ -6,25 +6,24 @@ import { Tooltip } from "@web/core/tooltip/tooltip";
 import { usePopover } from "@web/core/popover/popover_hook";
 import { useService } from "@web/core/utils/hooks";
 import { capitalize } from "../utils/strings";
-
-import { Component, useRef, useState, markup } from "@odoo/owl";
+import { Component, markup, proxy, signal, t, useProps } from "@odoo/owl";
 
 const { DateTime } = luxon;
 
 // This props are added by the error handler
 export const standardErrorDialogProps = {
-    traceback: { type: [String, { value: null }], optional: true },
-    message: { type: String, optional: true },
-    name: { type: String, optional: true },
-    exceptionName: { type: [String, { value: null }], optional: true },
-    data: { type: [Object, { value: null }], optional: true },
-    subType: { type: [String, { value: null }], optional: true },
-    code: { type: [Number, String, { value: null }], optional: true },
-    type: { type: [String, { value: null }], optional: true },
-    serverHost: { type: [String, { value: null }], optional: true },
-    id: { type: [Number, { value: null }], optional: true },
-    model: { type: [String, { value: null }], optional: true },
-    close: Function, // prop added by the Dialog service
+    traceback: t.or([t.string(), t.literal(null)]).optional(),
+    message: t.string().optional(),
+    name: t.string().optional(),
+    exceptionName: t.or([t.string(), t.literal(null)]).optional(),
+    data: t.or([t.object(), t.literal(null)]).optional(),
+    subType: t.or([t.string(), t.literal(null)]).optional(),
+    code: t.or([t.number(), t.string(), t.literal(null)]).optional(),
+    type: t.or([t.string(), t.literal(null)]).optional(),
+    serverHost: t.or([t.string(), t.literal(null)]).optional(),
+    id: t.or([t.number(), t.literal(null)]).optional(),
+    model: t.or([t.string(), t.literal(null)]).optional(),
+    close: t.function(), // prop added by the Dialog service
 };
 
 export const odooExceptionTitleMap = new Map(
@@ -50,28 +49,35 @@ export class ErrorDialog extends Component {
     static title = _t("Odoo Error");
     static showTracebackButtonText = _t("See technical details");
     static hideTracebackButtonText = _t("Hide technical details");
-    static props = { ...standardErrorDialogProps };
+    props = useProps({
+        ...standardErrorDialogProps,
+    });
+
+    copyButtonRef = signal.ref();
 
     setup() {
-        this.state = useState({
+        this.state = proxy({
             showTraceback: false,
         });
-        this.copyButtonRef = useRef("copyButton");
         this.popover = usePopover(Tooltip);
-        this.contextDetails = "Occured ";
+        let date = DateTime.now().setZone("UTC");
+        if (this.props.data?.timestamp) {
+            date = DateTime.fromSeconds(this.props.data.timestamp, { zone: "utc" });
+        }
+        this.logDate = date.toFormat("dd/MMM/yyyy HH:mm:ss", { locale: "en" });
+
+        this.contextDetails = "Occurred ";
         if (this.props.serverHost) {
             this.contextDetails += `on ${this.props.serverHost} `;
         }
         if (this.props.model) {
             this.contextDetails += `on model ${this.props.model} `;
         }
-        this.contextDetails += `on ${DateTime.now()
-            .setZone("UTC")
-            .toFormat("yyyy-MM-dd HH:mm:ss")} GMT`;
+        this.contextDetails += `on ${this.logDate}`;
     }
 
     showTooltip() {
-        this.popover.open(this.copyButtonRef.el, { tooltip: _t("Copied") });
+        this.popover.open(this.copyButtonRef(), { tooltip: _t("Copied") });
         browser.setTimeout(this.popover.close, 800);
     }
 
@@ -147,13 +153,15 @@ export class RPCErrorDialog extends ErrorDialog {
 // -----------------------------------------------------------------------------
 // Warning Dialog
 // -----------------------------------------------------------------------------
+export const warningDialogProps = {
+    ...standardErrorDialogProps,
+    title: t.string().optional(),
+};
+
 export class WarningDialog extends Component {
     static template = "web.WarningDialog";
     static components = { Dialog };
-    static props = {
-        ...standardErrorDialogProps,
-        title: { type: String, optional: true },
-    };
+    props = useProps(warningDialogProps);
 
     setup() {
         this.title = this.inferTitle();
@@ -178,7 +186,9 @@ export class WarningDialog extends Component {
 export class RedirectWarningDialog extends Component {
     static template = "web.RedirectWarningDialog";
     static components = { Dialog };
-    static props = { ...standardErrorDialogProps };
+    props = useProps({
+        ...standardErrorDialogProps,
+    });
 
     setup() {
         this.actionService = useService("action");
@@ -204,12 +214,88 @@ export class RedirectWarningDialog extends Component {
 }
 
 // -----------------------------------------------------------------------------
+// Unlink Blocked Error Dialog
+// -----------------------------------------------------------------------------
+
+/**
+ * Shown for any `UnlinkBlockedError` (see `Base.web_unlink` server-side, in
+ * `@web/../models/models.py`), whichever flow the delete came from: everything
+ * this dialog needs travels in the error's `context`.
+ */
+export class UnlinkBlockedErrorDialog extends Component {
+    static template = "web.UnlinkBlockedErrorDialog";
+    static components = { Dialog };
+    props = useProps({
+        ...standardErrorDialogProps,
+    });
+
+    setup() {
+        this.orm = useService("orm");
+        this.actionService = useService("action");
+        const {
+            archivable,
+            model_name: modelName,
+            res_model: resModel,
+            res_ids: resIds,
+            blocked_ids: blockedIds,
+        } = this.props.data.context;
+        this.archivable = archivable;
+        this.resModel = resModel;
+        this.resIds = resIds;
+        this.blockedIds = blockedIds;
+        this.isMulti = resIds.length > 1;
+        this.message = this.isMulti
+            ? _t("Not possible to delete all the records because some are used in %(model_name)s", {
+                  model_name: modelName,
+              })
+            : _t("Not possible to delete the record because it is used in %(model_name)s", {
+                  model_name: modelName,
+              });
+    }
+
+    get archiveHint() {
+        return this.isMulti
+            ? _t("How about archiving them instead?")
+            : _t("How about archiving it instead?");
+    }
+
+    async onArchiveClick() {
+        await this.orm.call(this.resModel, "action_archive", [this.resIds]);
+        // the current view has no idea any of this happened: make it reload
+        const controller = this.actionService.currentController;
+        if (controller) {
+            await this.actionService.restore(controller.jsId);
+        }
+        this.props.close();
+    }
+
+    async onViewBlockedRecordsClick(ev) {
+        ev.preventDefault();
+        // a new action, so the user gets back through the breadcrumbs
+        await this.actionService.doAction({
+            name: _t("Non-deletable records"),
+            type: "ir.actions.act_window",
+            res_model: this.resModel,
+            views: [
+                [false, "list"],
+                [false, "form"],
+            ],
+            domain: [["id", "in", this.blockedIds]],
+            target: "current",
+        });
+        this.props.close();
+    }
+}
+
+// -----------------------------------------------------------------------------
 // Error 504 Dialog
 // -----------------------------------------------------------------------------
 export class Error504Dialog extends Component {
     static template = "web.Error504Dialog";
     static components = { Dialog };
-    static props = { ...standardErrorDialogProps };
+    props = useProps({
+        ...standardErrorDialogProps,
+    });
 }
 
 // -----------------------------------------------------------------------------
@@ -218,10 +304,12 @@ export class Error504Dialog extends Component {
 export class SessionExpiredDialog extends Component {
     static template = "web.SessionExpiredDialog";
     static components = { Dialog };
-    static props = { ...standardErrorDialogProps };
+    props = useProps({
+        ...standardErrorDialogProps,
+    });
 
     onClick() {
-        browser.location.reload();
+        location.reload();
     }
 }
 
@@ -235,6 +323,7 @@ registry
     .add("odoo.exceptions.UserError", WarningDialog)
     .add("odoo.exceptions.ValidationError", WarningDialog)
     .add("odoo.exceptions.RedirectWarning", RedirectWarningDialog)
-    .add("odoo.http.SessionExpiredException", SessionExpiredDialog)
+    .add("odoo.addons.web.models.models.UnlinkBlockedError", UnlinkBlockedErrorDialog)
+    .add("odoo.http.session.SessionExpiredException", SessionExpiredDialog)
     .add("werkzeug.exceptions.Forbidden", SessionExpiredDialog)
     .add("504", Error504Dialog);

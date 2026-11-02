@@ -29,7 +29,7 @@ class RatingMixin(models.AbstractModel):
     def _compute_rating_last_value(self):
         # Pure SQL instead of calling read_group to allow ordering array_agg
         self.flush_model(['rating_ids'])
-        self.env['rating.rating'].flush_model(['consumed', 'rating'])
+        self.env['rating.rating'].flush_model(['consumed', 'rating', 'res_id', 'res_model', 'write_date'])
         if not self.ids:
             self.rating_last_value = 0
             return
@@ -203,16 +203,20 @@ class RatingMixin(models.AbstractModel):
         base_domain = self._rating_domain() & Domain("rating", ">=", 1)
         if domain:
             base_domain &= Domain(domain)
+        # flush all updates at once, _read_group is otherwise flushing only non-computed fields
+        # initially which means there will be extra queries when to-compute fields are flushed
+        self.env["rating.rating"].flush_model()
         rg_data = self.env["rating.rating"]._read_group(
             base_domain,
             groupby=["res_id", "rating"],
             aggregates=["__count"],
         )
-        stats_per_record = defaultdict(
-            lambda: {"total": 0, "weighted_sum": 0.0, "counts": defaultdict(int), "percent": {}}
-        )
+        stats_per_record = {
+            record: {"total": 0, "weighted_sum": 0.0, "counts": defaultdict(int), "percent": {}}
+            for record in self
+        }
         for res_id, rating, count in rg_data:
-            stats = stats_per_record[res_id]
+            stats = stats_per_record[self.browse(res_id)]
             stats["total"] += count
             stats["weighted_sum"] += rating * count
             stats["counts"][int(rating)] = count

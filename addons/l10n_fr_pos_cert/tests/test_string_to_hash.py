@@ -7,6 +7,8 @@ from json import dumps
 @tagged('post_install_l10n', 'post_install', '-at_install')
 class TestStringToHash(TestPoSCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -110,5 +112,5 @@ class TestStringToHash(TestPoSCommon):
             {'amount': 8900, 'payment_method': self.cash_pm1},
             {'amount': 11000, 'payment_method': self.pay_later_pm}
         ])
-        self.basic_config.current_session_id.action_pos_session_closing_control()
+        self.basic_config.current_session_id.close_session_from_ui()
         self.assertEqual(order.l10n_fr_string_to_hash, self._compute_string_to_hash_original(order))

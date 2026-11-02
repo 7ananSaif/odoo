@@ -192,7 +192,7 @@ class TestRatingRoutes(TestRatingCommon):
                     f"/rate/{access_token}/submit_feedback",
                     data={
                         "rate": 5,
-                        "csrf_token": http.Request.csrf_token(self),
+                        "csrf_token": self.csrf_token(),
                         "feedback": "good",
                     }
                 )
@@ -221,7 +221,7 @@ class TestRatingRoutes(TestRatingCommon):
                     f"/rate/{access_token}/submit_feedback",
                     data={
                         "rate": 1,
-                        "csrf_token": http.Request.csrf_token(self),
+                        "csrf_token": self.csrf_token(),
                         "feedback": "bad job"
                     }
                 )

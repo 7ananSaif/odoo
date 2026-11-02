@@ -2,10 +2,9 @@
 
 import re
 import logging
-from odoo import api, fields, models, tools
+from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Domain
-from odoo.tools.translate import _
 
 _logger = logging.getLogger(__name__)
 
@@ -28,17 +27,41 @@ NO_FLAG_COUNTRIES = [
     "SJ", #Svalbard + Jan Mayen : separate jurisdictions : no dedicated flag
 ]
 
+EUROPEAN_ECONOMIC_AREA_COUNTRY_CODES = {
+    # EU Member States
+    'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE',
+    'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE',
 
-class ResCountry(models.Model):
+    # EFTA Countries in the EEA
+    'IS', 'LI', 'NO',
+}
+
+# France and its overseas territories (DOM-TOM/DROM-COM)
+FR_AND_OVERSEAS_TERRITORIES = [
+    'FR', 'BL', 'GF', 'GP', 'MF', 'MQ', 'NC', 'PF', 'PM', 'RE', 'TF', 'WF', 'YT',
+]
+
+SEPA_COUNTRIES = [
+    'AD', 'AT', 'AX', 'BE', 'BG', 'BL', 'CH', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FI', 'FR',
+    'UK', 'GF', 'GG', 'GI', 'GP', 'GR', 'HR', 'HU', 'IE', 'IM', 'IS', 'IT', 'JE', 'LI', 'LT',
+    'LU', 'LV', 'MC', 'MF', 'MQ', 'MT', 'NL', 'NO', 'PL', 'PM', 'PT', 'RE', 'RO', 'SE', 'SI',
+    'SK', 'SM', 'VA', 'YT',
+]
+
+
+class ResCountry(models.CachedModel):
     _name = 'res.country'
     _description = 'Country'
+    _explanation = "Represents a nation or territory. Used for addressing, tax rules (fiscal positions), and localization settings."
     _order = 'name, id'
-    _rec_names_search = ['name', 'code']
+    _rec_names_search = ('name', 'code')
+    _cached_data_fields = ('code', 'currency_id', 'phone_code')
 
     name = fields.Char(
         string='Country Name', required=True, translate=True)
     code = fields.Char(
-        string='Country Code', size=2,
+        string='Country Code',
+        size=2,
         required=True,
         help='The ISO country code in two chars. \nYou can use this field for quick search.')
     address_format = fields.Text(string="Layout in Reports",
@@ -62,7 +85,7 @@ class ResCountry(models.Model):
         compute="_compute_image_url", string="Flag",
         help="Url of static flag image",
     )
-    phone_code = fields.Integer(string='Country Calling Code')
+    phone_code = fields.Integer(string="Phone Prefix")
     country_group_ids = fields.Many2many('res.country.group', 'res_country_res_country_group_rel',
                          'res_country_id', 'res_country_group_id', string='Country Groups')
     country_group_codes = fields.Json(compute="_compute_country_group_codes")
@@ -75,7 +98,12 @@ class ResCountry(models.Model):
     vat_label = fields.Char(string='Vat Label', translate=True, prefetch=True, help="Use this field if you want to change vat label.")
 
     state_required = fields.Boolean(default=False)
-    zip_required = fields.Boolean(default=True)
+    zip_applicability = fields.Selection(
+        string="Zip",
+        selection=[("required", "Required"), ("optional", "Optional"), ("not_applicable", "Not Applicable")],
+        default="required",
+        required=True,
+    )
 
     _name_uniq = models.Constraint(
         'unique (name)',
@@ -84,6 +112,10 @@ class ResCountry(models.Model):
     _code_uniq = models.Constraint(
         'unique (code)',
         "The code of the country must be unique!",
+    )
+    _code_check = models.Constraint(
+        'check (length(code) = 2 and upper(code) = code)',
+        "The code of the country must be 2 letters and uppercase.",
     )
 
     @api.model
@@ -104,13 +136,16 @@ class ResCountry(models.Model):
         return result
 
     @api.model
-    @tools.ormcache('code', cache='stable')
+    @api.ormcache('code', cache='stable')
     def _phone_code_for(self, code):
-        return self.search([('code', '=', code)]).phone_code
+        data = self._cached_data()
+        for country_code, phone_code in zip(data['code'], data['phone_code']):
+            if country_code == code:
+                return phone_code
+        return False
 
     @api.model_create_multi
     def create(self, vals_list):
-        self.env.registry.clear_cache('stable')
         for vals in vals_list:
             if vals.get('code'):
                 vals['code'] = vals['code'].upper()
@@ -120,20 +155,11 @@ class ResCountry(models.Model):
         if vals.get('code'):
             vals['code'] = vals['code'].upper()
         res = super().write(vals)
-        if ('code' in vals or 'phone_code' in vals):
-            # Intentionally simplified by not clearing the cache in create and unlink.
-            self.env.registry.clear_cache('stable')
-        if 'address_view_id' in vals or 'vat_label' in vals:
+        if 'address_view_id' in vals:
             # Changing the address view of the company must invalidate the view cached for res.partner
             # because of _view_get_address
-            # Same goes for vat_label
-            # because of _get_view override from FormatVATLabelMixin
-            self.env.registry.clear_cache('templates')
+            self.env.transaction.invalidate_ormcache('templates')
         return res
-
-    def unlink(self):
-        self.env.registry.clear_cache('stable')
-        return super().unlink()
 
     def get_address_fields(self):
         self.ensure_one()
@@ -152,11 +178,11 @@ class ResCountry(models.Model):
     def _check_address_format(self):
         for record in self:
             if record.address_format:
-                address_fields = self.env['res.partner']._formatting_address_fields() + ['state_code', 'state_name', 'country_code', 'country_name', 'company_name']
+                address_fields = self.env['res.partner']._formatting_address_fields() + ['state_code', 'state_name', 'country_code', 'country_name', 'parent_name']
                 try:
                     record.address_format % {i: 1 for i in address_fields}
                 except (ValueError, KeyError):
-                    raise UserError(_('The layout contains an invalid format key'))
+                    raise UserError(self.env._('The layout contains an invalid format key'))
 
     @api.depends('country_group_ids')
     def _compute_country_group_codes(self):
@@ -198,8 +224,9 @@ class ResCountryGroup(models.Model):
 class ResCountryState(models.Model):
     _name = 'res.country.state'
     _description = "Country state"
+    _explanation = "Represents a sub-division of a country, such as a state, province, or region."
     _order = 'code, id'
-    _rec_names_search = ['name', 'code']
+    _rec_names_search = ('name', 'code')
 
     country_id = fields.Many2one('res.country', string='Country', required=True, index=True)
     name = fields.Char(string='State Name', required=True,

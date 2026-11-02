@@ -12,7 +12,6 @@ registerWebsitePreviewTour(
     "anchor_behaviour_on_accordion_same_tab",
     {
         edition: true,
-        url: "/",
     },
     () => [
         ...insertSnippet({
@@ -46,7 +45,12 @@ registerWebsitePreviewTour(
             trigger: ":iframe .s_text_block .container p:first-child",
             run: "editor Paragraph",
         },
-        ...clickToolbarButton("Paragraph", "#wrap .s_text_block p", "Add a link", false),
+        ...clickToolbarButton(
+            "Paragraph",
+            "#wrap .s_text_block p",
+            "Insert link (Ctrl + K)",
+            false
+        ),
         {
             content: "Type the link URL",
             trigger: ".o-we-linkpopover .o_we_href_input_link",
@@ -72,7 +76,6 @@ registerWebsitePreviewTour(
 );
 
 registry.category("web_tour.tours").add("anchor_behaviour_on_accordion_new_tab", {
-    url: "/#What-services-does-your-company-offer-%3F",
     steps: () => [
         {
             content: "Check that the accordion item's content is visible",

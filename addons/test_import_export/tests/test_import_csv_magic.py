@@ -3,19 +3,21 @@ Tests for various autodetection magics for CSV imports
 """
 import codecs
 
-from odoo.tests import common
+from odoo.tests import tagged, common
+from odoo.tools import BinaryBytes
 
 
 class ImportCase(common.TransactionCase):
-    def _make_import(self, contents):
+    def _make_import(self, contents: bytes):
         return self.env['base_import.import'].create({
             'res_model': 'import.complex',
             'file_name': 'f',
             'file_type': 'text/csv',
-            'file': contents,
+            'file': BinaryBytes(contents),
         })
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestEncoding(ImportCase):
     """
     create + parse_preview -> check result options
@@ -69,12 +71,13 @@ class TestEncoding(ImportCase):
         self.assertEqual(r['preview'], [[s.decode('iso-8859-1'), 'text']])
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestFileSeparator(ImportCase):
 
     def setUp(self):
         super().setUp()
         self.imp = self._make_import(
-"""c|f
+b"""c|f
 a|1
 b|2
 c|3
@@ -120,7 +123,7 @@ d|4
         """ If the guesser has no idea what the separator is, it defaults to
         "," but should not set that value
         """
-        imp = self._make_import('c\na\nb\nc\nd')
+        imp = self._make_import(b'c\na\nb\nc\nd')
         r = imp.parse_preview({
             'separator': '',
             'has_headers': True,
@@ -132,6 +135,7 @@ d|4
         self.assertEqual(r['options']['separator'], '')
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestNumberSeparators(common.TransactionCase):
     def test_parse_float(self):
         w = self.env['base_import.import'].create({

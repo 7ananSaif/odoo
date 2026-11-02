@@ -5,6 +5,8 @@ from odoo.tests import tagged
 
 @tagged('post_install', '-at_install', 'post_install_l10n')
 class TestGenericGCC(TestGenericLocalization):
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     @AccountTestInvoicingCommon.setup_country('sa')
     def setUpClass(cls):
@@ -22,7 +24,37 @@ class TestGenericGCC(TestGenericLocalization):
                 'code': 'RYA',
                 'country_id': cls.company.country_id.id
             }),
-            'street': 'Al Amir Mohammed Bin Abdul Aziz Street',
+            'street': 'Al Amir Mohammed Bin '
+            'Abdul Aziz Street',
             'city': 'المدينة المنورة',
             'zip': '42317',
         })
+
+    def test_generic_localization(self):
+        self.main_pos_config.l10n_gcc_dual_language_receipt = True
+        self.main_pos_config.cash_rounding = True
+        self.main_pos_config.rounding_method = self.env['account.cash.rounding'].create({
+            'name': 'Test rounding',
+            'rounding': 0.05,
+            'rounding_method': 'UP',
+            'profit_account_id': self.company_data['default_account_revenue'].id,
+            'loss_account_id': self.company_data['default_account_expense'].id,
+        })
+        _, html = super().test_generic_localization()
+        self.assertTrue("Served by / خدم بواسطة" in html)
+        self.assertTrue("Ticket / تذكرة" in html)
+        self.assertTrue(" / الفاتورة الضريبية" in html)
+        self.assertTrue("Subtotal / الإجمالي الفرعي" in html)
+        self.assertTrue("Rounding / التقريب" in html)
+        self.assertTrue("Total / اﻹجمالي" in html)
+        self.assertTrue("Discount / الخصومات" in html)
+        self.assertTrue("Change / الباقي" in html)
+
+    def test_gcc_basic_receipt_title_hidden(self):
+        """check the tax invoice title is hidden on basic receipts for GCC region """
+        self.main_pos_config.write({
+            'basic_receipt': True,
+            'l10n_gcc_dual_language_receipt': True,
+        })
+        self.main_pos_config.open_ui()
+        self.start_pos_tour("test_gcc_basic_receipt_title_hidden")

@@ -9,17 +9,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:40+0000\n"
-"PO-Revision-Date: 2026-05-23 09:36+0000\n"
+"POT-Creation-Date: 2026-09-18 17:40+0000\n"
+"PO-Revision-Date: 2026-10-01 22:29+0000\n"
 "Last-Translator: \"Fernanda Alvarez (mfar)\" <mfar@odoo.com>\n"
 "Language-Team: Spanish (Latin America) <https://translate.odoo.com/projects/"
-"odoo-19/website_event_track/es_419/>\n"
+"odoo-20/website_event_track/es_419/>\n"
 "Language: es_419\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: website_event_track
 #. odoo-python
@@ -47,6 +47,12 @@ msgstr "%(name)s, %(function)s en %(company)s"
 
 #. module: website_event_track
 #. odoo-python
+#: code:addons/website_event_track/controllers/location_display.py:0
+msgid "%(start_time)s – %(end_time)s"
+msgstr "%(start_time)s – %(end_time)s"
+
+#. module: website_event_track
+#. odoo-python
 #: code:addons/website_event_track/models/website.py:0
 msgid "%s Events"
 msgstr "%s Eventos"
@@ -62,6 +68,12 @@ msgstr "%s Aplicación de eventos en línea"
 #: model_terms:ir.ui.view,arch_db:website_event_track.tracks_display_list
 msgid "(timezone:"
 msgstr "(zona horaria:"
+
+#. module: website_event_track
+#. odoo-javascript
+#: code:addons/website_event_track/static/src/xml/website_event_track_email_reminder.xml:0
+msgid ", your favorites are only available from this device."
+msgstr ""
 
 #. module: website_event_track
 #: model:event.track,name:website_event_track.event_7_track_17
@@ -122,23 +134,22 @@ msgid ""
 "    </div>\n"
 "    <br/><br/>\n"
 "    Thank you,\n"
-"    <t t-if=\"user.signature\" data-o-mail-quote-container=\"1\">\n"
+"    <t t-if=\"user.signature\">\n"
 "        <br/>\n"
 "        <div data-o-mail-quote=\"1\">--<br data-o-mail-quote=\"1\"/><t t-"
-"out=\"user.signature or ''\" data-o-mail-quote=\"1\">Mitchell Admin</t></"
-"div>\n"
+"out=\"user.signature or ''\">Mitchell Admin</t></div>\n"
 "    </t>\n"
 "</div>"
 msgstr ""
 "<div>\n"
-"    Apreciable <t t-out=\"object.partner_id.name or object.partner_name or "
-"''\">Brandon Freeman</t><br/>\n"
-"    Nos complace informarle que aceptamos y confirmamos su propuesta <t t-"
-"out=\"object.name or ''\">De qué trata este evento</t> para el evento <t t-"
-"out=\"object.event_id.name or ''\">Presentación en línea de la colección "
-"OpenWood</t>.\n"
+"    Hola, <t t-out=\"object.partner_id.name or object.partner_name or "
+"''\">Brandon Freeman:</t><br/>\n"
+"    Nos emociona decirte que aceptamos y confirmamos tu propuesta de plática "
+"<t t-out=\"object.name or ''\">De qué trata este evento</t> para el evento "
+"<t t-out=\"object.event_id.name or ''\">Presentación en línea de la "
+"colección OpenWood</t>.\n"
 "    <br/>\n"
-"    A continuación encontrará más detalles:\n"
+"    Encontrarás más detalles a continuación:\n"
 "    <div style=\"margin: 16px 0px 16px 0px;\">\n"
 "        <a t-attf-href=\"/event/{{ object.event_id.id }}/track/"
 "{{ object.id }}\" t-attf-style=\"padding: 8px 16px 8px 16px; font-size: "
@@ -151,23 +162,48 @@ msgstr ""
 "    </div>\n"
 "    <br/><br/>\n"
 "    Gracias,\n"
-"    <t t-if=\"user.signature\" data-o-mail-quote-container=\"1\">\n"
+"    <t t-if=\"user.signature\">\n"
 "        <br/>\n"
 "        <div data-o-mail-quote=\"1\">--<br data-o-mail-quote=\"1\"/><t t-"
-"out=\"user.signature or ''\" data-o-mail-quote=\"1\">Mitchell Admin</t></"
-"div>\n"
+"out=\"user.signature or ''\">Mitchell Admin</t></div>\n"
 "    </t>\n"
 "</div>"
 
 #. module: website_event_track
-#: model_terms:ir.ui.view,arch_db:website_event_track.track_card
-msgid "<i class=\"fa fa-ban me-2\"/>Unpublished"
-msgstr "<i class=\"fa fa-ban me-2\"/>No publicado"
+#: model_terms:ir.ui.view,arch_db:website_event_track.event_track_location_display
+msgid ""
+"<i class=\"oi me-1 align-middle\" data-icon=\"link_off\" aria-"
+"hidden=\"true\"/>\n"
+"                <span>Last updated at</span>\n"
+"                <time/>"
+msgstr ""
+"<i class=\"oi me-1 align-middle\" data-icon=\"link_off\" aria-"
+"hidden=\"true\"/>\n"
+"                <span>Última actualización el</span>\n"
+"                <time/>"
 
 #. module: website_event_track
 #: model_terms:ir.ui.view,arch_db:website_event_track.tracks_search
-msgid "<i class=\"fa fa-bell mx-2 text-muted\"/> Favorite Talks"
-msgstr "<i class=\"fa fa-bell mx-2 text-muted\"/> Pláticas favoritas"
+msgid ""
+"<i class=\"oi oi-filled mx-2 text-muted\" data-icon=\"notifications\"/> "
+"Favorite Talks"
+msgstr ""
+"<i class=\"oi oi-filled mx-2 text-muted\" data-icon=\"notifications\"/> "
+"Pláticas favoritas"
+
+#. module: website_event_track
+#: model_terms:ir.ui.view,arch_db:website_event_track.track_widget_reminder
+msgid ""
+"<i class=\"oi oi-filled\" data-icon=\"star\" title=\"Favorite On\"/> <span "
+"class=\"d-none d-sm-inline\">Favorited</span>"
+msgstr ""
+
+#. module: website_event_track
+#: model_terms:ir.ui.view,arch_db:website_event_track.track_widget_reminder
+msgid ""
+"<i class=\"oi\" data-icon=\"star\" title=\"Set Favorite\"/> <span "
+"class=\"\">Add to favorite</span>"
+msgstr ""
 
 #. module: website_event_track
 #: model_terms:ir.ui.view,arch_db:website_event_track.track_list_item
@@ -175,23 +211,22 @@ msgid "<span class=\"d-none d-md-block\">&amp;bull;</span>"
 msgstr "<span class=\"d-none d-md-block\">&amp;bull;</span>"
 
 #. module: website_event_track
-#: model_terms:ir.ui.view,arch_db:website_event_track.agenda_online
-#: model_terms:ir.ui.view,arch_db:website_event_track.tracks_main
-msgid "<span class=\"fa fa-plus me-1\"/> Schedule Tracks"
-msgstr "<span class=\"fa fa-plus me-1\"/> Programar sesiones"
+#: model_terms:ir.ui.view,arch_db:website_event_track.event_event_view_form
+msgid "<span class=\"o_stat_text\">Track Locations</span>"
+msgstr ""
 
 #. module: website_event_track
 #: model_terms:ir.ui.view,arch_db:website_event_track.event_track_proposal
 msgid ""
 "<span class=\"o_wetrack_proposal_error_section text-danger d-none ml8\">\n"
-"                                    <i class=\"fa fa-close mr4\" "
+"                                    <i class=\"oi mr4\" data-icon=\"close\" "
 "role=\"img\" aria-label=\"Error\" title=\"Error\"/>\n"
 "                                    <span "
 "class=\"o_wetrack_proposal_error_message\"/>\n"
 "                                </span>"
 msgstr ""
 "<span class=\"o_wetrack_proposal_error_section text-danger d-none ml8\">\n"
-"                                    <i class=\"fa fa-close mr4\" "
+"                                    <i class=\"oi mr4\" data-icon=\"close\" "
 "role=\"img\" aria-label=\"Error\" title=\"Error\"/>\n"
 "                                    <span "
 "class=\"o_wetrack_proposal_error_message\"/>\n"
@@ -216,6 +251,21 @@ msgstr ""
 "<span class=\"o_wetrack_proposal_label_content\">Título de la plática</"
 "span>\n"
 "                                        <span>*</span>"
+
+#. module: website_event_track
+#: model_terms:ir.ui.view,arch_db:website_event_track.event_track_location_display_content
+msgid ""
+"<span class=\"o_wevent_location_display_live_badge d-inline-block align-"
+"middle me-2 bg-danger rounded-pill\"/>Live Now"
+msgstr ""
+"<span class=\"o_wevent_location_display_live_badge d-inline-block align-"
+"middle me-2 bg-danger rounded-pill\"/>En vivo"
+
+#. module: website_event_track
+#: model_terms:ir.ui.view,arch_db:website_event_track.agenda_online
+#: model_terms:ir.ui.view,arch_db:website_event_track.tracks_main
+msgid "<span class=\"oi me-1\" data-icon=\"add\"/> Schedule Tracks"
+msgstr "<span class=\"oi me-1\" data-icon=\"add\"/> Programar sesiones"
 
 #. module: website_event_track
 #: model_terms:ir.ui.view,arch_db:website_event_track.agenda_main
@@ -319,7 +369,8 @@ msgid ""
 "                                    Hello<t t-if=\"not user_id.is_public\" t-"
 "out=\"' ' + user_id.name\"/>,\n"
 "                                    <br/><br/>\n"
-"                                    You recently show interest for the talk\n"
+"                                    You recently showed interest for the "
+"talk\n"
 "                                    <a t-if=\"object.description or "
 "object.partner_biography\" t-attf-href=\"{{ object.get_base_url() }}"
 "{{ object.website_url }}\" style=\"font-weight:bold;color:#875A7B;text-"
@@ -684,11 +735,11 @@ msgstr ""
 "object.company_id.name\"/>\n"
 "                                </t>\n"
 "                            </td></tr>\n"
-"                            <tr><td colspan=\"2\" style=\"text-align:center;"
-"\">\n"
-"                              <hr width=\"100%\" style=\"background-"
-"color:rgb(204,204,204);border:medium none;clear:both;display:block;font-"
-"size:0px;min-height:1px;line-height:0; margin:16px 0px 16px 0px;\"/>\n"
+"                            <tr><td colspan=\"2\" style=\"text-"
+"align:center;\">\n"
+"                              <hr width=\"100%\" style=\"background-color:rgb"
+"(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-"
+"height:1px;line-height:0; margin:16px 0px 16px 0px;\"/>\n"
 "                            </td></tr>\n"
 "                        </table>\n"
 "                    </td>\n"
@@ -699,8 +750,8 @@ msgstr ""
 "                        <table width=\"590\" border=\"0\" cellpadding=\"0\" "
 "cellspacing=\"0\" style=\"min-width: 590px; background-color: white; "
 "padding: 0px 8px 0px 8px; border-collapse:separate;\">\n"
-"                            <tr><td valign=\"top\" style=\"font-size: 14px;"
-"\">\n"
+"                            <tr><td valign=\"top\" style=\"font-size: "
+"14px;\">\n"
 "                                <div>\n"
 "                                    Hola<t t-if=\"not user_id.is_public\" t-"
 "out=\"' ' + user_id.name\"/>,\n"
@@ -708,8 +759,8 @@ msgstr ""
 "                                    Hace poco mostraste interés en la "
 "plática\n"
 "                                    <a t-if=\"object.description or "
-"object.partner_biography\" t-attf-href=\"{{ object.get_base_url() }}"
-"{{ object.website_url }}\" style=\"font-weight:bold;color:#875A7B;text-"
+"object.partner_biography\" t-attf-href=\"{{ object.get_base_url() }}{{ "
+"object.website_url }}\" style=\"font-weight:bold;color:#875A7B;text-"
 "decoration:none;\" t-out=\"object.name or ''\">Presentación en línea de la "
 "colección de OpenWood</a>\n"
 "                                    <span t-else=\"\" style=\"font-"
@@ -769,9 +820,9 @@ msgstr ""
 "                                </div>\n"
 "                            </td></tr>\n"
 "                            <tr><td style=\"text-align:center;\">\n"
-"                              <hr width=\"100%\" style=\"background-"
-"color:rgb(204,204,204);border:medium none;clear:both;display:block;font-"
-"size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;\"/>\n"
+"                              <hr width=\"100%\" style=\"background-color:rgb"
+"(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-"
+"height:1px;line-height:0; margin: 16px 0px 16px 0px;\"/>\n"
 "                            </td></tr>\n"
 "                        </table>\n"
 "                    </td>\n"
@@ -782,8 +833,8 @@ msgstr ""
 "                        <table width=\"590\" border=\"0\" cellpadding=\"0\" "
 "cellspacing=\"0\" style=\"min-width: 590px; background-color: white; "
 "padding: 0px 8px 0px 8px; border-collapse:separate;\">\n"
-"                            <tr><td valign=\"top\" style=\"font-size: 14px;"
-"\">\n"
+"                            <tr><td valign=\"top\" style=\"font-size: "
+"14px;\">\n"
 "                                <table style=\"width:100%;\">\n"
 "                                    <tr>\n"
 "                                        <td style=\"vertical-align:top;\">\n"
@@ -793,8 +844,8 @@ msgstr ""
 "                                        </td>\n"
 "                                        <td style=\"padding: 0px 10px 0px "
 "10px;width:50%;line-height:20px;vertical-align:top;\">\n"
-"                                            <div t-"
-"if=\"object.is_one_day\">\n"
+"                                            <div t-if=\"object.is_one_day\">"
+"\n"
 "                                                <t t-out=\"object.date\" t-"
 "options=\"{&quot;widget&quot;: &quot;datetime&quot;, &quot;date_only&quot;: "
 "True, &quot;tz_name&quot;: object.event_id.date_tz, &quot;format&quot;: "
@@ -802,8 +853,8 @@ msgstr ""
 "                                                <t t-out=\"object.date\" t-"
 "options=\"{&quot;widget&quot;: &quot;datetime&quot;, &quot;time_only&quot;: "
 "True, &quot;tz_name&quot;: object.event_id.date_tz, "
-"&quot;hide_seconds&quot;: True, &quot;format&quot;: &quot;short&quot;}"
-"\">7:00 AM</t>\n"
+"&quot;hide_seconds&quot;: True, &quot;format&quot;: &quot;short&quot;}\">"
+"7:00 AM</t>\n"
 "                                                 - <t t-"
 "out=\"object.date_end\" t-options=\"{&quot;widget&quot;: "
 "&quot;datetime&quot;, &quot;time_only&quot;: True, &quot;tz_name&quot;: "
@@ -829,15 +880,14 @@ msgstr ""
 "object.event_id.date_tz, &quot;format&quot;: &quot;long&quot;}\">6 de mayo "
 "de 2021</t>\n"
 "                                                 - <t t-"
-"out=\"object.date_end or object.event_id.date_end\" t-"
-"options=\"{&quot;widget&quot;: &quot;datetime&quot;, &quot;time_only&quot;: "
-"True, &quot;tz_name&quot;: object.event_id.date_tz, "
-"&quot;hide_seconds&quot;: True, &quot;format&quot;: &quot;short&quot;}"
-"\">5:00 PM</t>\n"
+"out=\"object.date_end or object.event_id.date_end\" t-options=\""
+"{&quot;widget&quot;: &quot;datetime&quot;, &quot;time_only&quot;: True, "
+"&quot;tz_name&quot;: object.event_id.date_tz, &quot;hide_seconds&quot;: "
+"True, &quot;format&quot;: &quot;short&quot;}\">5:00 PM</t>\n"
 "                                            </div>\n"
 "                                            <div style=\"font-"
-"size:12px;color:#9e9e9e\"><i><t t-out=\"object.event_id.date_tz or "
-"''\">Europa/Bruselas</t></i></div>\n"
+"size:12px;color:#9e9e9e\"><i><t t-out=\"object.event_id.date_tz or ''\">"
+"Europa/Bruselas</t></i></div>\n"
 "                                        </td>\n"
 "                                        <td style=\"vertical-align:top;\">\n"
 "                                            <t t-if=\"event_address or "
@@ -924,8 +974,8 @@ msgstr ""
 "                                </t>\n"
 "                            </td></tr>\n"
 "\n"
-"                            <tr><td valign=\"top\" style=\"font-size: 14px;"
-"\">\n"
+"                            <tr><td valign=\"top\" style=\"font-size: "
+"14px;\">\n"
 "                                <!-- CONTACTO DEL ORGANIZADOR -->\n"
 "                                <t t-if=\"object.event_id.organizer_id.name "
 "or object.event_id.company_id.name\">\n"
@@ -941,8 +991,8 @@ msgstr ""
 "if=\"event_organizer.email\">\n"
 "                                                <li>Correo: <a t-attf-"
 "href=\"mailto:{{ event_organizer.email }}\" style=\"text-"
-"decoration:none;color:#875A7B;\" t-out=\"event_organizer.email or ''\"/></"
-"li>\n"
+"decoration:none;color:#875A7B;\" t-out=\"event_organizer.email or ''\"/></li>"
+"\n"
 "                                            </t>\n"
 "                                            <t t-"
 "if=\"object.event_id.organizer_id.phone or "
@@ -957,21 +1007,21 @@ msgstr ""
 "                            </td></tr>\n"
 "\n"
 "                            <tr><td style=\"text-align:center;\">\n"
-"                                <!-- SEPARACIÓN DEL CONTACTO DEL ORGANIZADOR "
-"-->\n"
+"                                <!-- SEPARACIÓN DEL CONTACTO DEL "
+"ORGANIZADOR -->\n"
 "                                <hr t-if=\"is_online or event_address\" "
 "width=\"100%\" style=\"background-color:rgb(204,204,204);border:medium "
 "none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; "
 "margin: 16px 0px 16px 0px;\"/>\n"
 "                            </td></tr>\n"
 "\n"
-"                            <tr><td valign=\"top\" style=\"font-size: 14px;"
-"\">\n"
-"                                <!-- MARKETING DE APLICACIÓN WEB PROGRESIVA "
-"-->\n"
+"                            <tr><td valign=\"top\" style=\"font-size: "
+"14px;\">\n"
+"                                <!-- MARKETING DE APLICACIÓN WEB "
+"PROGRESIVA -->\n"
 "                                <div t-if=\"is_online\">\n"
-"                                    <strong>Vive la mejor experiencia móvil."
-"</strong>\n"
+"                                    <strong>Vive la mejor experiencia "
+"móvil.</strong>\n"
 "                                    <a href=\"/event\"> Instala nuestra "
 "aplicación para celulares.</a>\n"
 "                                </div>\n"
@@ -985,8 +1035,8 @@ msgstr ""
 "margin: 16px 0px 16px 0px;\"/>\n"
 "                            </td></tr>\n"
 "\n"
-"                            <tr><td valign=\"top\" style=\"font-size: 14px;"
-"\">\n"
+"                            <tr><td valign=\"top\" style=\"font-size: "
+"14px;\">\n"
 "                                <!-- ENLACE DE GOOGLE MAPS -->\n"
 "                                <table t-if=\"event_address and location\" "
 "style=\"width:100%;\"><tr><td>\n"
@@ -997,9 +1047,9 @@ msgstr ""
 "maps.google.com/maps?q={{ location }}\" target=\"new\">\n"
 "                                            <img t-"
 "if=\"event_address.static_map_url and "
-"event_address.static_map_url_is_valid\" t-attf-"
-"src=\"{{ event_address.static_map_url }}\" style=\"vertical-align:bottom; "
-"width: 100%;\" alt=\"Google Maps\"/>\n"
+"event_address.static_map_url_is_valid\" t-attf-src=\"{{ "
+"event_address.static_map_url }}\" style=\"vertical-align:bottom; width: "
+"100%;\" alt=\"Google Maps\"/>\n"
 "                                            <span t-else=\"\">Ver ubicación "
 "del evento en Google Maps</span>\n"
 "                                        </a>\n"
@@ -1018,15 +1068,15 @@ msgstr ""
 "cellpadding=\"0\" cellspacing=\"0\" style=\"min-width: 590px; background-"
 "color: #F1F1F1; color: #454748; padding: 8px; border-collapse:separate;\">\n"
 "                  <tr><td style=\"text-align: center; font-size: 14px;\">\n"
-"                    Enviado por <a target=\"_blank\" t-attf-"
-"href=\"{{ object.get_base_url() }}\" style=\"color: #875A7B;\" t-"
+"                    Enviado por <a target=\"_blank\" t-attf-href=\"{{ "
+"object.get_base_url() }}\" style=\"color: #875A7B;\" t-"
 "out=\"object.event_id.organizer_id.name or object.event_id.company_id.name "
 "or ''\">TuEmpresa</a>\n"
 "                    <t t-if=\"'website_url' in object.event_id and "
 "object.event_id.website_url\">\n"
 "                        <br/>\n"
-"                        Descubre <a href=\"/event\" style=\"color:#875A7B;"
-"\">todos nuestros eventos</a>.\n"
+"                        Descubre <a href=\"/event\" style=\"color:#875A7B;\">"
+"todos nuestros eventos</a>.\n"
 "                    </t>\n"
 "                  </td></tr>\n"
 "                </table>\n"
@@ -1074,6 +1124,11 @@ msgstr "Actividades"
 #: model:ir.model.fields,field_description:website_event_track.field_event_track__activity_exception_decoration
 msgid "Activity Exception Decoration"
 msgstr "Decoración de la actividad de excepción"
+
+#. module: website_event_track
+#: model:ir.model.fields,field_description:website_event_track.field_event_track__activity_plans_ids
+msgid "Activity Plans"
+msgstr "Planes de actividad"
 
 #. module: website_event_track
 #: model:ir.model.fields,field_description:website_event_track.field_event_track__activity_state
@@ -1128,10 +1183,9 @@ msgid "Add talk reminder: {{ object.name }}"
 msgstr "Agregar recordatorio de la plática: {{ object.name }}"
 
 #. module: website_event_track
-#. odoo-javascript
-#: code:addons/website_event_track/static/src/xml/website_event_track_email_reminder.xml:0
-msgid "Add this talk to your agenda ?"
-msgstr "¿Desea agregar esta plática a su agenda?"
+#: model:ir.module.module,shortdesc:base.module_website_event_track
+msgid "Advanced Events"
+msgstr ""
 
 #. module: website_event_track
 #: model:event.track,name:website_event_track.event_track19
@@ -1222,6 +1276,12 @@ msgstr ""
 "sesiones principales."
 
 #. module: website_event_track
+#. odoo-javascript
+#: code:addons/website_event_track/static/src/xml/website_event_track_email_reminder.xml:0
+msgid "As you are not"
+msgstr ""
+
+#. module: website_event_track
 #: model_terms:event.track,description:website_event_track.event_7_track_17
 msgid ""
 "As you may have heard before, making your own furniture is actually not as "
@@ -1251,14 +1311,19 @@ msgid "Audience"
 msgstr "Audiencia"
 
 #. module: website_event_track
+#: model:ir.model.fields,field_description:website_event_track.field_event_track__publish_on
+msgid "Auto publish on"
+msgstr "Publicar de forma automática el"
+
+#. module: website_event_track
+#: model:ir.model.fields,help:website_event_track.field_event_track__publish_on
+msgid "Automatically publish the page on the chosen date and time."
+msgstr "Publica la página de forma automática en la fecha y hora elegidas."
+
+#. module: website_event_track
 #: model:ir.model.fields,field_description:website_event_track.field_event_event__allowed_track_tag_ids
 msgid "Available Track Tags"
 msgstr "Etiquetas disponibles para sesiones"
-
-#. module: website_event_track
-#: model_terms:ir.ui.view,arch_db:website_event_track.agenda_online
-msgid "Available on all event Agenda pages"
-msgstr "Disponible en todas las páginas de agenda en todo el evento"
 
 #. module: website_event_track
 #: model_terms:ir.ui.view,arch_db:website_event_track.event_track_main
@@ -1293,11 +1358,6 @@ msgstr "Bloqueado"
 #: model_terms:ir.ui.view,arch_db:website_event_track.registration_complete
 msgid "Book your seats to the best talks"
 msgstr "Reserve sus lugares para las mejores pláticas"
-
-#. module: website_event_track
-#: model_terms:ir.ui.view,arch_db:website_event_track.tracks_display_list
-msgid "Book your talks"
-msgstr "Reserve sus pláticas"
 
 #. module: website_event_track
 #: model:event.track,name:website_event_track.event_7_track_14
@@ -1350,12 +1410,6 @@ msgid "Category"
 msgstr "Categoría"
 
 #. module: website_event_track
-#. odoo-javascript
-#: code:addons/website_event_track/static/src/interactions/event_track_reminder.js:0
-msgid "Check your email to add the track to your agenda."
-msgstr "Revise su correo electrónico para agregar la sesión a su agenda."
-
-#. module: website_event_track
 #: model:event.track,name:website_event_track.event_7_track_12
 msgid "Climate positive"
 msgstr "Clima favorable"
@@ -1379,6 +1433,11 @@ msgid "Color Index"
 msgstr "Índice de color"
 
 #. module: website_event_track
+#: model:ir.model.fields,field_description:website_event_track.field_event_event__location_display_upcoming_track_count
+msgid "Coming Up Sessions"
+msgstr ""
+
+#. module: website_event_track
 #. odoo-python
 #: code:addons/website_event_track/controllers/event_track.py:0
 msgid "Coming soon"
@@ -1388,6 +1447,11 @@ msgstr "Próximamente"
 #: model_terms:ir.ui.view,arch_db:website_event_track.tracks_display_cards
 msgid "Coming soon ..."
 msgstr "Próximamente..."
+
+#. module: website_event_track
+#: model_terms:ir.ui.view,arch_db:website_event_track.event_track_location_display_content
+msgid "Coming up"
+msgstr ""
 
 #. module: website_event_track
 #: model:ir.model.fields,field_description:website_event_track.field_event_track__company_id
@@ -1403,12 +1467,6 @@ msgstr "Nombre de la empresa"
 #: model:ir.model,name:website_event_track.model_res_config_settings
 msgid "Config Settings"
 msgstr "Ajustes de configuración"
-
-#. module: website_event_track
-#. odoo-javascript
-#: code:addons/website_event_track/static/src/xml/website_event_track_email_reminder.xml:0
-msgid "Confirm"
-msgstr "Confirmar"
 
 #. module: website_event_track
 #: model:mail.template,subject:website_event_track.mail_template_data_track_confirmation
@@ -1428,9 +1486,9 @@ msgid ""
 "information about a construction process and final result. Step by step "
 "simple explanation! Interested?"
 msgstr ""
-"¿Quiere construir una casa de madera? Vea este video para obtener más "
-"información sobre el proceso de construcción y ver el resultado final. La "
-"explicación lo guiará paso por paso de la manera más sencilla, ¿le interesa?"
+"¿Estás pensando en construir una casa de madera? Mira este video para "
+"conocer más sobre el proceso de construcción y ver el resultado final. ¡Una "
+"explicación sencilla paso a paso! ¿Te interesa?"
 
 #. module: website_event_track
 #: model:ir.model.fields,field_description:website_event_track.field_event_track__partner_id
@@ -1507,15 +1565,6 @@ msgstr "Cliente"
 #: model:event.track,name:website_event_track.event_7_track_19
 msgid "DIY Timber Cladding Project"
 msgstr "Proyecto DIY de revestimiento de madera"
-
-#. module: website_event_track
-#: model_terms:ir.ui.view,arch_db:website_event_track.event_track_proposal
-msgid ""
-"DROP BUILDING BLOCKS HERE TO MAKE THEM AVAILABLE ACROSS ALL PROPOSAL PAGES "
-"OF ALL EVENTS"
-msgstr ""
-"ARRASTRE LOS BLOQUES DE CREACIÓN AQUÍ PARA QUE ESTÉN DISPONIBLES PARA TODAS "
-"LAS PÁGINAS DE PROPUESTA PARA TODOS LOS EVENTOS"
 
 #. module: website_event_track
 #: model_terms:ir.ui.view,arch_db:website_event_track.view_event_track_search
@@ -1619,14 +1668,29 @@ msgstr ""
 "sesión."
 
 #. module: website_event_track
-#: model_terms:ir.ui.view,arch_db:website_event_track.event_track_aside_other_track
-msgid "Done"
-msgstr "Listo"
+#. odoo-javascript
+#: code:addons/website_event_track/static/src/xml/website_event_track_email_reminder.xml:0
+msgid "Do you want an invitation by email to add to your agenda?"
+msgstr ""
 
 #. module: website_event_track
 #: model_terms:event.track,description:website_event_track.event_7_track_18
 msgid "Dowel Hack"
 msgstr "Corte de clavija"
+
+#. module: website_event_track
+#: model_terms:ir.ui.view,arch_db:website_event_track.agenda_online
+msgid "Drag blocks here to add them on all event agenda pages"
+msgstr ""
+"Arrastra los bloques aquí para agregarlos a todas las páginas de la agenda "
+"de eventos"
+
+#. module: website_event_track
+#: model_terms:ir.ui.view,arch_db:website_event_track.event_track_proposal
+msgid "Drag blocks here to add them on all event proposal pages"
+msgstr ""
+"Arrastra bloques aquí para agregarlos a todas las páginas de propuestas de "
+"eventos"
 
 #. module: website_event_track
 #: model:ir.model.fields,field_description:website_event_track.field_event_track__duration
@@ -1668,6 +1732,11 @@ msgid "Email*"
 msgstr "Correo electrónico*"
 
 #. module: website_event_track
+#: model_terms:ir.ui.view,arch_db:website_event_track.event_track_location_display_empty_state
+msgid "End of the day"
+msgstr "Al final del día"
+
+#. module: website_event_track
 #: model:ir.model,name:website_event_track.model_event_event
 #: model:ir.model.fields,field_description:website_event_track.field_event_track__event_id
 #: model_terms:ir.ui.view,arch_db:website_event_track.event_track_content
@@ -1688,7 +1757,7 @@ msgstr "Ubicaciones del evento"
 
 #. module: website_event_track
 #. odoo-javascript
-#: code:addons/website_event_track/static/src/website_builder/event_track_page_option_plugin.js:0
+#: code:addons/website_event_track/static/src/website_builder/event_track_page_option.xml:0
 msgid "Event Page"
 msgstr "Página del evento"
 
@@ -1768,15 +1837,9 @@ msgid "Events PWA"
 msgstr "Eventos de aplicación web progresiva"
 
 #. module: website_event_track
-#. odoo-javascript
-#: code:addons/website_event_track/static/src/interactions/event_track_reminder.js:0
-msgid "Favorite On"
-msgstr "Marcado como favorito"
-
-#. module: website_event_track
 #: model_terms:ir.ui.view,arch_db:website_event_track.session_topbar
 msgid "Favorites"
-msgstr "Favoritos"
+msgstr "Favoritas"
 
 #. module: website_event_track
 #: model_terms:ir.ui.view,arch_db:website_event_track.agenda_topbar
@@ -1820,11 +1883,6 @@ msgid "Followers (Partners)"
 msgstr "Seguidores (contactos)"
 
 #. module: website_event_track
-#: model:ir.model.fields,help:website_event_track.field_event_track__activity_type_icon
-msgid "Font awesome icon e.g. fa-tasks"
-msgstr "Icono de Font Awesome, por ejemplo, fa-tasks"
-
-#. module: website_event_track
 #: model:ir.model.fields,field_description:website_event_track.field_event_track__footer_visible
 msgid "Footer Visible"
 msgstr "Pie de página visible"
@@ -1848,7 +1906,7 @@ msgstr "Actividades futuras"
 #: model_terms:ir.ui.view,arch_db:website_event_track.event_confirmation_end_page_hook
 #: model_terms:ir.ui.view,arch_db:website_event_track.registration_complete
 msgid "Get prepared and"
-msgstr "Prepárese y"
+msgstr "Prepárate y"
 
 #. module: website_event_track
 #: model_terms:event.track,description:website_event_track.event_7_track_18
@@ -2269,7 +2327,6 @@ msgstr ""
 
 #. module: website_event_track
 #: model_terms:ir.ui.view,arch_db:website_event_track.agenda_main_track
-#: model_terms:ir.ui.view,arch_db:website_event_track.event_track_aside_other_track
 #: model_terms:ir.ui.view,arch_db:website_event_track.track_list_item
 msgid "Live"
 msgstr "En vivo"
@@ -2295,6 +2352,16 @@ msgstr "Testimonios en vivo"
 #: model_terms:ir.ui.view,arch_db:website_event_track.view_event_track_search
 msgid "Location"
 msgstr "Ubicación"
+
+#. module: website_event_track
+#: model:ir.model.fields,field_description:website_event_track.field_event_event__location_display_background
+msgid "Location Display Background"
+msgstr ""
+
+#. module: website_event_track
+#: model:ir.model.fields,field_description:website_event_track.field_event_track_location__location_display_url
+msgid "Location Display Link"
+msgstr ""
 
 #. module: website_event_track
 #: model:event.track,name:website_event_track.event_7_track_13
@@ -2334,6 +2401,11 @@ msgid ""
 msgstr ""
 "Gestione desde aquí los lugares donde organiza sus sesiones (por ejemplo, "
 "salas, canales, ...)."
+
+#. module: website_event_track
+#: model:ir.model.fields,help:website_event_track.field_event_track__activity_type_icon
+msgid "Material Symbols icon e.g. checklist"
+msgstr "Icono de Material Symbols, por ejemplo, checklist"
 
 #. module: website_event_track
 #: model:ir.model.fields.selection,name:website_event_track.selection__event_track__priority__1
@@ -2449,6 +2521,12 @@ msgid "Next Activity Type"
 msgstr "Siguiente tipo de actividad"
 
 #. module: website_event_track
+#. odoo-javascript
+#: code:addons/website_event_track/static/src/xml/website_event_track_email_reminder.xml:0
+msgid "No Invitation"
+msgstr ""
+
+#. module: website_event_track
 #: model_terms:ir.actions.act_window,help:website_event_track.event_track_visitor_action
 msgid "No Track Visitors yet!"
 msgstr "Todavía no hay visitantes en la sesión."
@@ -2456,14 +2534,13 @@ msgstr "Todavía no hay visitantes en la sesión."
 #. module: website_event_track
 #. odoo-javascript
 #: code:addons/website_event_track/static/src/xml/website_event_track_email_reminder.xml:0
-msgid "No thanks"
-msgstr "No, gracias"
+msgid "No don't ask again"
+msgstr ""
 
 #. module: website_event_track
-#. odoo-javascript
-#: code:addons/website_event_track/static/src/xml/website_event_track_email_reminder.xml:0
-msgid "No thanks & don't ask again"
-msgstr "No y no volver a preguntar"
+#: model_terms:ir.ui.view,arch_db:website_event_track.event_track_location_display_empty_state
+msgid "No talks today"
+msgstr ""
 
 #. module: website_event_track
 #: model_terms:ir.actions.act_window,help:website_event_track.event_track_action_from_visitor
@@ -2490,6 +2567,16 @@ msgstr ""
 "sitio web."
 
 #. module: website_event_track
+#: model_terms:ir.ui.view,arch_db:website_event_track.event_track_location_display_empty_state
+msgid "Nothing is scheduled in this room today."
+msgstr "Hoy no hay nada programado en esta sala."
+
+#. module: website_event_track
+#: model_terms:ir.ui.view,arch_db:website_event_track.event_track_location_display_content
+msgid "Nothing planned right now"
+msgstr "No hay nada planeado por el momento"
+
+#. module: website_event_track
 #: model:ir.model.fields,field_description:website_event_track.field_event_track__message_needaction_counter
 msgid "Number of Actions"
 msgstr "Número de acciones"
@@ -2513,6 +2600,111 @@ msgstr "Número de mensajes con error de envío"
 #: model:event.track,name:website_event_track.event_7_track_24
 msgid "Old is New"
 msgstr "Lo viejo está de moda"
+
+#. module: website_event_track
+#: model:ir.module.module,description:base.module_website_event_track
+msgid ""
+"Organize Events, Trainings & Webinars\n"
+"-------------------------------------\n"
+"\n"
+"### Schedule, Promote, Sell, Organize\n"
+"\n"
+"Get extra features per event; multiple pages, sponsors, multiple talks, talk "
+"proposal form, agenda, event-related news, documents (slides of "
+"presentations), event-specific menus.\n"
+"\n"
+"Organize Your Tracks\n"
+"--------------------\n"
+"\n"
+"### From the talk proposal to the publication\n"
+"\n"
+"Add a talk proposal form on your events to allow visitors to submit talks "
+"and speakers. Organize the validation process of every talk, and schedule "
+"easily.\n"
+"\n"
+"Odoo's unique frontend and backend integration makes organization and "
+"publication so easy. Easily design beautiful speaker biographies and talks "
+"description.\n"
+"\n"
+"Agenda and List of Talks\n"
+"------------------------\n"
+"\n"
+"### A strong user interface\n"
+"\n"
+"Get a beautiful agenda for each event published automatically on your "
+"website. Allow your visitors to easily search and browse talks, filter by "
+"tags, locations or speakers.\n"
+"\n"
+"Manage Sponsors\n"
+"---------------\n"
+"\n"
+"### Sell sponsorship, promote your sponsors\n"
+"\n"
+"Add sponsors to your events and publish sponsors per level (e.g. bronze, "
+"silver, gold) on the bottom of every page of the event.\n"
+"\n"
+"Sell sponsorship packages online through the Odoo eCommerce for a full sales "
+"cycle integration.\n"
+"\n"
+"Communicate Efficiently\n"
+"-----------------------\n"
+"\n"
+"### Activate a blog for some events\n"
+"\n"
+"You can activate a blog for each event allowing you to communicate on "
+"specific events. Visitors can subscribe to news to get informed."
+msgstr ""
+"Organiza eventos, capacitaciones y webinarios\n"
+"-------------------------------------\n"
+"\n"
+"### Planifica, promociona, vende y organiza\n"
+"\n"
+"Obtén funciones adicionales para cada evento: varias páginas, "
+"patrocinadores, diversas pláticas y formularios de propuesta para ellas, "
+"agenda, noticias relacionadas con el evento, documentos (diapositivas de las "
+"presentaciones) y menús específicos para el evento.\n"
+"\n"
+"Organiza tus sesiones\n"
+"--------------------\n"
+"\n"
+"### Desde la propuesta de la plática hasta su publicación\n"
+"\n"
+"Agrega un formulario de propuesta de pláticas a tus eventos para permitir "
+"que los visitantes envíen sus pláticas y datos de los ponentes. Organiza el "
+"proceso de validación de cada plática y programa todo con facilidad.\n"
+"\n"
+"La integración única del frontend y del backend de Odoo facilita la "
+"organización y la publicación. Diseña con mucha facilidad y profesionalidad "
+"las biografías de los ponentes y las descripciones de las pláticas.\n"
+"\n"
+"Agenda y lista de pláticas\n"
+"------------------------\n"
+"\n"
+"### Una interfaz muy eficaz\n"
+"\n"
+"Elabora una increíble agenda para cada evento que se publica en automático "
+"en tu sitio web. Deja que tus visitantes busquen y accedan con facilidad a "
+"las pláticas y las filtren por etiquetas, ubicaciones o ponentes.\n"
+"\n"
+"Gestiona a los patrocinadores\n"
+"---------------\n"
+"\n"
+"### Vende patrocinios y promociona a tus patrocinadores\n"
+"\n"
+"Agrega patrocinadores a tus eventos y publícalos por niveles (por ejemplo, "
+"bronce, plata, oro) en la parte inferior de todas las páginas del evento.\n"
+"\n"
+"Vende paquetes de patrocinio en línea a través de Comercio electrónico de "
+"Odoo para integrar todo el ciclo de ventas.\n"
+"\n"
+"Comunícate con eficacia\n"
+"-----------------------\n"
+"\n"
+"### Crea un blog para algunos eventos\n"
+"\n"
+"Puedes crear un blog para los eventos para comunicar información sobre "
+"eventos específicos. Los visitantes pueden suscribirse a las noticias para "
+"recibir información."
 
 #. module: website_event_track
 #: model:event.track,name:website_event_track.event_7_track_20
@@ -2621,6 +2813,11 @@ msgid "Published"
 msgstr "Publicada"
 
 #. module: website_event_track
+#: model:ir.model.fields,field_description:website_event_track.field_event_track__published_date
+msgid "Published date"
+msgstr "Fecha de publicación"
+
+#. module: website_event_track
 #: model:event.track,name:website_event_track.event_track10
 msgid "Raising qualitive insights from your customers"
 msgstr "Obtener información de calidad de sus clientes"
@@ -2715,7 +2912,7 @@ msgstr "Error en el envío del SMS"
 
 #. module: website_event_track
 #: model_terms:ir.ui.view,arch_db:website_event_track.session_topbar
-msgid "Search a talk ..."
+msgid "Search a talk..."
 msgstr "Busca una plática..."
 
 #. module: website_event_track
@@ -2728,6 +2925,12 @@ msgstr "Cómo asegurar su madera durante el transporte"
 #: code:addons/website_event_track/static/src/interactions/website_event_track_proposal_form_tags.js:0
 msgid "Select Categories"
 msgstr "Seleccionar categorías"
+
+#. module: website_event_track
+#. odoo-javascript
+#: code:addons/website_event_track/static/src/xml/website_event_track_email_reminder.xml:0
+msgid "Send Invitation"
+msgstr ""
 
 #. module: website_event_track
 #: model:mail.template,description:website_event_track.mail_template_data_track_confirmation
@@ -2750,12 +2953,6 @@ msgstr "Nombre SEO"
 #: model:ir.model.fields,field_description:website_event_track.field_event_track_tag_category__sequence
 msgid "Sequence"
 msgstr "Secuencia"
-
-#. module: website_event_track
-#. odoo-javascript
-#: code:addons/website_event_track/static/src/interactions/event_track_reminder.js:0
-msgid "Set Favorite"
-msgstr "Marcar como favorito"
 
 #. module: website_event_track
 #: model:ir.model.fields,field_description:website_event_track.field_event_track__website_cta_delay
@@ -2803,6 +3000,11 @@ msgstr "Perfil del ponente"
 #: code:addons/website_event_track/models/event_track.py:0
 msgid "Speakers"
 msgstr "Ponentes"
+
+#. module: website_event_track
+#: model:ir.module.module,summary:base.module_website_event_track
+msgid "Sponsors, Tracks, Agenda, Event News"
+msgstr "Patrocinadores, sesiones, agenda y noticias de eventos"
 
 #. module: website_event_track
 #: model:ir.model.fields,field_description:website_event_track.field_event_track__stage_id
@@ -2854,6 +3056,12 @@ msgid "Submit Proposal"
 msgstr "Enviar propuesta"
 
 #. module: website_event_track
+#. odoo-javascript
+#: code:addons/website_event_track/static/src/xml/website_event_track_email_reminder.xml:0
+msgid "Successfully added to your favorites"
+msgstr ""
+
+#. module: website_event_track
 #: model:ir.model.fields,field_description:website_event_track.field_event_track__partner_tag_line
 msgid "Tag Line"
 msgstr "Línea de etiquetas"
@@ -2891,14 +3099,9 @@ msgstr ""
 "y necesita una."
 
 #. module: website_event_track
-#. odoo-javascript
-#: code:addons/website_event_track/static/src/interactions/event_track_reminder.js:0
-msgid "Talk removed from your Favorites"
-msgstr "Se ha eliminado la plática de sus favoritos"
-
-#. module: website_event_track
 #. odoo-python
 #: code:addons/website_event_track/models/event_event.py:0
+#: code:addons/website_event_track/models/event_track.py:0
 #: model_terms:ir.ui.view,arch_db:website_event_track.event_track_aside
 #: model_terms:ir.ui.view,arch_db:website_event_track.session_topbar
 msgid "Talks"
@@ -2924,7 +3127,17 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/website_event_track/static/src/xml/event_track_proposal_templates.xml:0
 msgid "Thank you for your proposal."
-msgstr "Gracias por su propuesta."
+msgstr "Gracias por tu propuesta."
+
+#. module: website_event_track
+#: model_terms:ir.ui.view,arch_db:website_event_track.event_track_location_display_empty_state
+msgid "Thanks for joining us."
+msgstr "Gracias por acompañarnos."
+
+#. module: website_event_track
+#: model_terms:ir.ui.view,arch_db:website_event_track.event_track_location_display_empty_state
+msgid "That’s all for today"
+msgstr "Eso es todo por hoy"
 
 #. module: website_event_track
 #: model:ir.model.fields,help:website_event_track.field_event_track__website_absolute_url
@@ -2948,6 +3161,11 @@ msgstr "La nueva estrategia de marketing"
 #: model:event.track,name:website_event_track.event_track5
 msgid "The new way to promote your creations"
 msgstr "La nueva manera de promocionar sus creaciones"
+
+#. module: website_event_track
+#: model_terms:ir.ui.view,arch_db:website_event_track.event_track_location_display_content
+msgid "The next session will begin shortly."
+msgstr "La próxima sesión comenzará pronto."
 
 #. module: website_event_track
 #. odoo-python
@@ -3084,6 +3302,12 @@ msgid "Today Activities"
 msgstr "Actividades de hoy"
 
 #. module: website_event_track
+#. odoo-python
+#: code:addons/website_event_track/controllers/location_display.py:0
+msgid "Tomorrow · %(date_label)s"
+msgstr ""
+
+#. module: website_event_track
 #: model:event.track,name:website_event_track.event_7_track_22
 msgid "Tools for the Woodworking Beginner"
 msgstr "Herramientas para los que apenas comiencen a trabajar con la madera"
@@ -3139,6 +3363,8 @@ msgid "Track End Date"
 msgstr "Fecha final de la sesión"
 
 #. module: website_event_track
+#. odoo-python
+#: code:addons/website_event_track/models/event_event.py:0
 #: model:ir.ui.menu,name:website_event_track.menu_event_track_location
 msgid "Track Locations"
 msgstr "Ubicación de las sesiones"
@@ -3220,15 +3446,15 @@ msgstr ""
 "eventos, incluyendo cuántas veces se agregaron sesiones a favoritos."
 
 #. module: website_event_track
+#. odoo-javascript
+#: code:addons/website_event_track/static/src/interactions/event_track_reminder.js:0
+msgid "Track added to favorites"
+msgstr ""
+
+#. module: website_event_track
 #: model:mail.message.subtype,description:website_event_track.mt_track_blocked
 msgid "Track blocked"
 msgstr "Sesión bloqueada"
-
-#. module: website_event_track
-#. odoo-javascript
-#: code:addons/website_event_track/static/src/interactions/event_track_reminder.js:0
-msgid "Track successfully added to your favorites."
-msgstr "Plática agregada con éxito a sus favoritos."
 
 #. module: website_event_track
 #: model:ir.model.fields,field_description:website_event_track.field_event_event__track_ids
@@ -3275,13 +3501,6 @@ msgstr "Tipo de la actividad de excepción registrada."
 #: model_terms:ir.ui.view,arch_db:website_event_track.agenda_main
 msgid "Unknown"
 msgstr "Desconocido"
-
-#. module: website_event_track
-#: model_terms:ir.ui.view,arch_db:website_event_track.agenda_main_track
-#: model_terms:ir.ui.view,arch_db:website_event_track.event_track_aside_other_track
-#: model_terms:ir.ui.view,arch_db:website_event_track.track_list_item
-msgid "Unpublished"
-msgstr "Sin publicar"
 
 #. module: website_event_track
 #: model_terms:ir.ui.view,arch_db:website_event_track.view_event_track_search
@@ -3414,12 +3633,6 @@ msgstr ""
 "Evaluaremos su propuesta y nos pondremos en contacto lo más rápido posible."
 
 #. module: website_event_track
-#. odoo-javascript
-#: code:addons/website_event_track/static/src/xml/website_event_track_email_reminder.xml:0
-msgid "We will send you a link to add this talk to your agenda."
-msgstr "Le enviaremos un enlace para que agregue esta plática a su agenda."
-
-#. module: website_event_track
 #: model_terms:ir.ui.view,arch_db:website_event_track.event_track_proposal
 msgid "We're sorry, this event does not accept proposals anymore"
 msgstr "Ya no se aceptan propuestas para este evento"
@@ -3455,11 +3668,6 @@ msgid "Website Menu"
 msgstr "Menú del sitio web"
 
 #. module: website_event_track
-#: model:ir.model.fields,field_description:website_event_track.field_event_track__website_message_ids
-msgid "Website Messages"
-msgstr "Mensajes del sitio web"
-
-#. module: website_event_track
 #: model:ir.model.fields,field_description:website_event_track.field_event_track__website_url
 msgid "Website URL"
 msgstr "URL del sitio web"
@@ -3468,11 +3676,6 @@ msgstr "URL del sitio web"
 #: model:ir.model,name:website_event_track.model_website_visitor
 msgid "Website Visitor"
 msgstr "Visitante del sitio web"
-
-#. module: website_event_track
-#: model:ir.model.fields,help:website_event_track.field_event_track__website_message_ids
-msgid "Website communication history"
-msgstr "Historial de comunicación del sitio web"
 
 #. module: website_event_track
 #: model:ir.model.fields,field_description:website_event_track.field_event_track__website_meta_description
@@ -3497,7 +3700,7 @@ msgstr "Imagen Open Graph del sitio web"
 #. module: website_event_track
 #: model:event.track,name:website_event_track.event_7_track_10
 msgid "Welcome to Day 2"
-msgstr "Bienvenido al día 2"
+msgstr "Te damos la bienvenida al día 2"
 
 #. module: website_event_track
 #: model:event.track,name:website_event_track.event_7_track_1
@@ -3615,6 +3818,7 @@ msgstr "horas"
 
 #. module: website_event_track
 #. odoo-python
+#: code:addons/website_event_track/models/event_event.py:0
 #: code:addons/website_event_track/models/event_track.py:0
 msgid "id"
 msgstr "ID"
@@ -3626,6 +3830,12 @@ msgid "in %s"
 msgstr "en %s"
 
 #. module: website_event_track
+#. odoo-javascript
+#: code:addons/website_event_track/static/src/xml/website_event_track_email_reminder.xml:0
+msgid "logged in"
+msgstr ""
+
+#. module: website_event_track
 #: model_terms:ir.ui.view,arch_db:website_event_track.view_event_track_form
 msgid "minutes after Track start"
 msgstr "minutos después del inicio de la sesión"
@@ -3634,7 +3844,7 @@ msgstr "minutos después del inicio de la sesión"
 #: model_terms:ir.ui.view,arch_db:website_event_track.event_confirmation_end_page_hook
 #: model_terms:ir.ui.view,arch_db:website_event_track.registration_complete
 msgid "register to your favorites talks now."
-msgstr "regístrate en tus pláticas favoritas."
+msgstr "registra tus pláticas favoritas ahora."
 
 #. module: website_event_track
 #: model_terms:ir.ui.view,arch_db:website_event_track.event_track_content
@@ -3647,27 +3857,15 @@ msgid "starts on"
 msgstr "comienza el"
 
 #. module: website_event_track
+#: model_terms:ir.ui.view,arch_db:website_event_track.session_topbar
+msgid "track"
+msgstr "sesión"
+
+#. module: website_event_track
 #. odoo-javascript
 #: code:addons/website_event_track/static/src/xml/website_event_pwa.xml:0
 msgid "x"
 msgstr "x"
-
-#~ msgid ""
-#~ "<a t-att-href=\"url_for('/event')\" class=\"btn btn-primary btn-block "
-#~ "o_translate_inline\">Home page</a>"
-#~ msgstr ""
-#~ "<a t-att-href=\"url_for('/event')\" class=\"btn btn-primary btn-block "
-#~ "o_translate_inline\">Página de inicio</a>"
-
-#~ msgid ""
-#~ "Get prepared and\n"
-#~ "                    <a class=\"o_translate_inline\" t-att-href=\"'/event/"
-#~ "%s/track' % (slug(event))\">register to your favorites talks now.</a>"
-#~ msgstr ""
-#~ "Prepárese y\n"
-#~ "                    <a class=\"o_translate_inline\" t-att-href=\"'/event/"
-#~ "%s/track' % (slug(event))\">regístrese en sus pláticas favoritas ahora.</"
-#~ "a>"
 
 #~ msgid ""
 #~ "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"padding-"
@@ -3756,7 +3954,7 @@ msgstr "x"
 #~ "padding-bottom:2px; padding-left:8px; margin-left: 8px; border-radius: "
 #~ "3px; background-color: #E7E9ED;\">\n"
 #~ "                                                    <img src=\"/event/"
-#~ "static/src/img/apple-calendar.svg\" alt=\"iCal\" title=\"iCal\" "
+#~ "static/src/img/apple-calendar-128.png\" alt=\"iCal\" title=\"iCal\" "
 #~ "style=\"height: 20px; vertical-align: baseline;\"/>\n"
 #~ "                                                </a>\n"
 #~ "                                            </td>\n"
@@ -3766,8 +3964,8 @@ msgstr "x"
 #~ "padding-bottom:2px; padding-left:8px; margin-left: 8px; border-radius: "
 #~ "3px; background-color: #E7E9ED;\">\n"
 #~ "                                                    <img src=\"/event/"
-#~ "static/src/img/outlook-calendar.svg\" alt=\"Outlook\" title=\"Outlook\" "
-#~ "style=\"height: 20px; vertical-align: baseline;\"/>\n"
+#~ "static/src/img/outlook-calendar-128.png\" alt=\"Outlook\" "
+#~ "title=\"Outlook\" style=\"height: 20px; vertical-align: baseline;\"/>\n"
 #~ "                                                </a>\n"
 #~ "                                            </td>\n"
 #~ "                                            <td>\n"
@@ -3776,7 +3974,7 @@ msgstr "x"
 #~ "right:8px; padding-bottom:2px; padding-left:8px; margin-left: 8px; border-"
 #~ "radius: 3px; background-color: #E7E9ED;\">\n"
 #~ "                                                    <img src=\"/event/"
-#~ "static/src/img/google-calendar.svg\" alt=\"Google\" title=\"Google\" "
+#~ "static/src/img/google-calendar-128.png\" alt=\"Google\" title=\"Google\" "
 #~ "style=\"height: 20px; vertical-align: baseline;\"/>\n"
 #~ "                                                </a>\n"
 #~ "                                            </td>\n"
@@ -4022,7 +4220,9 @@ msgstr "x"
 #~ "                                <table t-if=\"event_address and "
 #~ "location\" style=\"width:100%;\"><tr><td>\n"
 #~ "                                    <div>\n"
-#~ "                                        <i class=\"fa fa-map-marker\"/>\n"
+#~ "                                        <img src=\"/web_editor/"
+#~ "font_to_img/61505/rgb(81,81,102)/20\" height=\"20\" style=\"vertical-"
+#~ "align: bottom;\"/>\n"
 #~ "                                        <a t-attf-href=\"https://"
 #~ "maps.google.com/maps?q={{ location }}\" target=\"new\">\n"
 #~ "                                            <img t-"
@@ -4152,7 +4352,7 @@ msgstr "x"
 #~ "padding-bottom:2px; padding-left:8px; margin-left: 8px; border-radius: "
 #~ "3px; background-color: #E7E9ED;\">\n"
 #~ "                                                    <img src=\"/event/"
-#~ "static/src/img/apple-calendar.svg\" alt=\"iCal\" title=\"iCal\" "
+#~ "static/src/img/apple-calendar-128.png\" alt=\"iCal\" title=\"iCal\" "
 #~ "style=\"height: 20px; vertical-align: baseline;\"/>\n"
 #~ "                                                </a>\n"
 #~ "                                            </td>\n"
@@ -4162,8 +4362,8 @@ msgstr "x"
 #~ "padding-bottom:2px; padding-left:8px; margin-left: 8px; border-radius: "
 #~ "3px; background-color: #E7E9ED;\">\n"
 #~ "                                                    <img src=\"/event/"
-#~ "static/src/img/outlook-calendar.svg\" alt=\"Outlook\" title=\"Outlook\" "
-#~ "style=\"height: 20px; vertical-align: baseline;\"/>\n"
+#~ "static/src/img/outlook-calendar-128.png\" alt=\"Outlook\" "
+#~ "title=\"Outlook\" style=\"height: 20px; vertical-align: baseline;\"/>\n"
 #~ "                                                </a>\n"
 #~ "                                            </td>\n"
 #~ "                                            <td>\n"
@@ -4172,7 +4372,7 @@ msgstr "x"
 #~ "right:8px; padding-bottom:2px; padding-left:8px; margin-left: 8px; border-"
 #~ "radius: 3px; background-color: #E7E9ED;\">\n"
 #~ "                                                    <img src=\"/event/"
-#~ "static/src/img/google-calendar.svg\" alt=\"Google\" title=\"Google\" "
+#~ "static/src/img/google-calendar-128.png\" alt=\"Google\" title=\"Google\" "
 #~ "style=\"height: 20px; vertical-align: baseline;\"/>\n"
 #~ "                                                </a>\n"
 #~ "                                            </td>\n"
@@ -4422,7 +4622,9 @@ msgstr "x"
 #~ "                                <table t-if=\"event_address and "
 #~ "location\" style=\"width:100%;\"><tr><td>\n"
 #~ "                                    <div>\n"
-#~ "                                        <i class=\"fa fa-map-marker\"/>\n"
+#~ "                                        <img src=\"/web_editor/"
+#~ "font_to_img/61505/rgb(81,81,102)/20\" height=\"20\" style=\"vertical-"
+#~ "align: bottom;\"/>\n"
 #~ "                                        <a t-attf-href=\"https://"
 #~ "maps.google.com/maps?q={{ location }}\" target=\"new\">\n"
 #~ "                                            <img t-"
@@ -4466,5 +4668,38 @@ msgstr "x"
 #~ "            </table>\n"
 #~ "        "
 
-#~ msgid "Error"
-#~ msgstr "Error"
+#~ msgid "Add this talk to your agenda ?"
+#~ msgstr "¿Desea agregar esta plática a su agenda?"
+
+#~ msgid "Book your talks"
+#~ msgstr "Reserve sus pláticas"
+
+#~ msgid "Check your email to add the track to your agenda."
+#~ msgstr "Revise su correo electrónico para agregar la sesión a su agenda."
+
+#~ msgid "Confirm"
+#~ msgstr "Confirmar"
+
+#~ msgid "Done"
+#~ msgstr "Listo"
+
+#~ msgid "Favorite On"
+#~ msgstr "Marcado como favorito"
+
+#~ msgid "No thanks"
+#~ msgstr "No, gracias"
+
+#~ msgid "No thanks & don't ask again"
+#~ msgstr "No y no volver a preguntar"
+
+#~ msgid "Set Favorite"
+#~ msgstr "Marcar como favorito"
+
+#~ msgid "Talk removed from your Favorites"
+#~ msgstr "Se ha eliminado la plática de sus favoritos"
+
+#~ msgid "Track successfully added to your favorites."
+#~ msgstr "Plática agregada con éxito a sus favoritos."
+
+#~ msgid "We will send you a link to add this talk to your agenda."
+#~ msgstr "Le enviaremos un enlace para que agregue esta plática a su agenda."

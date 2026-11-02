@@ -18,22 +18,18 @@ Tento modul definuje:
 
 - Základní fiskální pozice pro českou legislativu
     """,
-    'depends': [
-        'account',
-        'account_edi_ubl_cii',
-        'base_iban',
-        'base_vat',
-    ],
+    'depends': ['account', 'account_edi_ubl_cii'],
     'auto_install': ['account'],
     'data': [
+        'views/res_partner_views.xml',
         'data/tax_report.xml',
         'data/l10n_cz.tax_office.csv',
+        'data/res_country_data.xml',
         'views/report_invoice.xml',
-        'views/res_partner_views.xml',
         'views/res_company_views.xml',
         'views/report_template.xml',
         'views/tax_office_view.xml',
-        'security/ir.model.access.csv',
+        'security/ir.access.csv',
     ],
     'demo': [
         'demo/demo_company.xml',

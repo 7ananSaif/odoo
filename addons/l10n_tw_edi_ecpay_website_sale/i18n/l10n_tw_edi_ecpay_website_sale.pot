@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0+e\n"
+"Project-Id-Version: Odoo Server 20.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-06 19:06+0000\n"
-"PO-Revision-Date: 2026-02-06 19:06+0000\n"
+"POT-Creation-Date: 2026-09-18 18:22+0000\n"
+"PO-Revision-Date: 2026-09-18 18:22+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,35 +16,22 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: l10n_tw_edi_ecpay_website_sale
+#: model:ir.module.module,description:base.module_l10n_tw_edi_ecpay_website_sale
+msgid ""
+"\n"
+"This bridge module allows the user to input Ecpay information in ecommerce for sending their invoices to the Ecpay system\n"
+msgstr ""
+
+#. module: l10n_tw_edi_ecpay_website_sale
 #. odoo-javascript
-#: code:addons/l10n_tw_edi_ecpay_website_sale/static/src/js/website_sale.js:0
+#: code:addons/l10n_tw_edi_ecpay_website_sale/static/src/js/edi_invoicing_info.js:0
 msgid "Card hidden code"
 msgstr ""
 
 #. module: l10n_tw_edi_ecpay_website_sale
 #. odoo-javascript
-#: code:addons/l10n_tw_edi_ecpay_website_sale/static/src/js/website_sale.js:0
+#: code:addons/l10n_tw_edi_ecpay_website_sale/static/src/js/edi_invoicing_info.js:0
 msgid "Card visible code"
-msgstr ""
-
-#. module: l10n_tw_edi_ecpay_website_sale
-#: model:ir.model.fields,field_description:l10n_tw_edi_ecpay_website_sale.field_sale_order__l10n_tw_edi_carrier_number
-msgid "Carrier Number"
-msgstr ""
-
-#. module: l10n_tw_edi_ecpay_website_sale
-#: model:ir.model.fields,field_description:l10n_tw_edi_ecpay_website_sale.field_sale_order__l10n_tw_edi_carrier_number_2
-msgid "Carrier Number 2"
-msgstr ""
-
-#. module: l10n_tw_edi_ecpay_website_sale
-#: model:ir.model.fields,field_description:l10n_tw_edi_ecpay_website_sale.field_sale_order__l10n_tw_edi_carrier_type
-msgid "Carrier Type"
-msgstr ""
-
-#. module: l10n_tw_edi_ecpay_website_sale
-#: model:ir.model.fields.selection,name:l10n_tw_edi_ecpay_website_sale.selection__sale_order__l10n_tw_edi_carrier_type__2
-msgid "Citizen Digital Certificate"
 msgstr ""
 
 #. module: l10n_tw_edi_ecpay_website_sale
@@ -64,7 +51,8 @@ msgstr ""
 
 #. module: l10n_tw_edi_ecpay_website_sale
 #: model:ir.model.fields,field_description:l10n_tw_edi_ecpay_website_sale.field_res_partner__display_name
-#: model:ir.model.fields,field_description:l10n_tw_edi_ecpay_website_sale.field_sale_order__display_name
+#: model:ir.model.fields,field_description:l10n_tw_edi_ecpay_website_sale.field_website__display_name
+#: model:ir.model.fields,field_description:l10n_tw_edi_ecpay_website_sale.field_website_checkout_step__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -85,8 +73,13 @@ msgid "Donation Code is invalid"
 msgstr ""
 
 #. module: l10n_tw_edi_ecpay_website_sale
+#: model:ir.module.module,summary:base.module_l10n_tw_edi_ecpay_website_sale
+msgid "ECpay E-invoice bridge module for Ecommerce"
+msgstr ""
+
+#. module: l10n_tw_edi_ecpay_website_sale
 #. odoo-javascript
-#: code:addons/l10n_tw_edi_ecpay_website_sale/static/src/js/website_sale.js:0
+#: code:addons/l10n_tw_edi_ecpay_website_sale/static/src/js/edi_invoicing_info.js:0
 msgid "ECpay Error"
 msgstr ""
 
@@ -96,36 +89,27 @@ msgid "ECpay information"
 msgstr ""
 
 #. module: l10n_tw_edi_ecpay_website_sale
-#: model_terms:ir.ui.view,arch_db:l10n_tw_edi_ecpay_website_sale.view_order_form
-msgid "ECpay invoice Information"
-msgstr ""
-
-#. module: l10n_tw_edi_ecpay_website_sale
-#: model:ir.model.fields.selection,name:l10n_tw_edi_ecpay_website_sale.selection__sale_order__l10n_tw_edi_carrier_type__4
-msgid "EasyCard"
-msgstr ""
-
-#. module: l10n_tw_edi_ecpay_website_sale
 #. odoo-javascript
-#: code:addons/l10n_tw_edi_ecpay_website_sale/static/src/js/website_sale.js:0
+#: code:addons/l10n_tw_edi_ecpay_website_sale/static/src/js/edi_invoicing_info.js:0
 msgid "Error"
 msgstr ""
 
 #. module: l10n_tw_edi_ecpay_website_sale
 #. odoo-javascript
-#: code:addons/l10n_tw_edi_ecpay_website_sale/static/src/js/website_sale.js:0
+#: code:addons/l10n_tw_edi_ecpay_website_sale/static/src/js/edi_invoicing_info.js:0
 msgid "Example: /ABCD123"
 msgstr ""
 
 #. module: l10n_tw_edi_ecpay_website_sale
 #. odoo-javascript
-#: code:addons/l10n_tw_edi_ecpay_website_sale/static/src/js/website_sale.js:0
+#: code:addons/l10n_tw_edi_ecpay_website_sale/static/src/js/edi_invoicing_info.js:0
 msgid "Example: TP03000001234567"
 msgstr ""
 
 #. module: l10n_tw_edi_ecpay_website_sale
 #: model:ir.model.fields,field_description:l10n_tw_edi_ecpay_website_sale.field_res_partner__id
-#: model:ir.model.fields,field_description:l10n_tw_edi_ecpay_website_sale.field_sale_order__id
+#: model:ir.model.fields,field_description:l10n_tw_edi_ecpay_website_sale.field_website__id
+#: model:ir.model.fields,field_description:l10n_tw_edi_ecpay_website_sale.field_website_checkout_step__id
 msgid "ID"
 msgstr ""
 
@@ -146,29 +130,19 @@ msgid "Invoicing info"
 msgstr ""
 
 #. module: l10n_tw_edi_ecpay_website_sale
-#: model:ir.model.fields,field_description:l10n_tw_edi_ecpay_website_sale.field_sale_order__l10n_tw_edi_love_code
-msgid "Love Code"
-msgstr ""
-
-#. module: l10n_tw_edi_ecpay_website_sale
 #: model_terms:ir.ui.view,arch_db:l10n_tw_edi_ecpay_website_sale.l10n_tw_edi_invoicing_info
 msgid "Love code format is 3-7 digits"
 msgstr ""
 
 #. module: l10n_tw_edi_ecpay_website_sale
 #. odoo-javascript
-#: code:addons/l10n_tw_edi_ecpay_website_sale/static/src/js/website_sale.js:0
+#: code:addons/l10n_tw_edi_ecpay_website_sale/static/src/js/edi_invoicing_info.js:0
 msgid "Love code is invalid"
 msgstr ""
 
 #. module: l10n_tw_edi_ecpay_website_sale
-#: model:ir.model.fields.selection,name:l10n_tw_edi_ecpay_website_sale.selection__sale_order__l10n_tw_edi_carrier_type__1
+#: model_terms:ir.ui.view,arch_db:l10n_tw_edi_ecpay_website_sale.l10n_tw_edi_invoicing_info
 msgid "Member Account"
-msgstr ""
-
-#. module: l10n_tw_edi_ecpay_website_sale
-#: model:ir.model.fields.selection,name:l10n_tw_edi_ecpay_website_sale.selection__sale_order__l10n_tw_edi_carrier_type__3
-msgid "Mobile Barcode"
 msgstr ""
 
 #. module: l10n_tw_edi_ecpay_website_sale
@@ -209,11 +183,6 @@ msgid "Please enter the storage code and storage code 2"
 msgstr ""
 
 #. module: l10n_tw_edi_ecpay_website_sale
-#: model:ir.model.fields,field_description:l10n_tw_edi_ecpay_website_sale.field_sale_order__l10n_tw_edi_is_print
-msgid "Print"
-msgstr ""
-
-#. module: l10n_tw_edi_ecpay_website_sale
 #: model_terms:ir.ui.view,arch_db:l10n_tw_edi_ecpay_website_sale.l10n_tw_edi_invoicing_info
 msgid "ReEnter"
 msgstr ""
@@ -235,11 +204,6 @@ msgid "Return to invoicing info"
 msgstr ""
 
 #. module: l10n_tw_edi_ecpay_website_sale
-#: model:ir.model,name:l10n_tw_edi_ecpay_website_sale.model_sale_order
-msgid "Sales Order"
-msgstr ""
-
-#. module: l10n_tw_edi_ecpay_website_sale
 #: model_terms:ir.ui.view,arch_db:l10n_tw_edi_ecpay_website_sale.l10n_tw_edi_invoicing_info
 msgid "Storage Code"
 msgstr ""
@@ -251,7 +215,7 @@ msgstr ""
 
 #. module: l10n_tw_edi_ecpay_website_sale
 #. odoo-javascript
-#: code:addons/l10n_tw_edi_ecpay_website_sale/static/src/js/website_sale.js:0
+#: code:addons/l10n_tw_edi_ecpay_website_sale/static/src/js/edi_invoicing_info.js:0
 msgid "Storage Code is invalid"
 msgstr ""
 
@@ -261,16 +225,26 @@ msgid "Storage Type"
 msgstr ""
 
 #. module: l10n_tw_edi_ecpay_website_sale
+#: model:ir.module.module,shortdesc:base.module_l10n_tw_edi_ecpay_website_sale
+msgid "Taiwan - E-invoicing Ecommerce"
+msgstr ""
+
+#. module: l10n_tw_edi_ecpay_website_sale
 #: model_terms:ir.ui.view,arch_db:l10n_tw_edi_ecpay_website_sale.l10n_tw_edi_invoicing_info
 msgid "Validate"
 msgstr ""
 
 #. module: l10n_tw_edi_ecpay_website_sale
-#: model_terms:ir.ui.view,arch_db:l10n_tw_edi_ecpay_website_sale.address
-msgid "Yes"
+#: model:ir.model,name:l10n_tw_edi_ecpay_website_sale.model_website
+msgid "Website"
 msgstr ""
 
 #. module: l10n_tw_edi_ecpay_website_sale
-#: model:ir.model.fields.selection,name:l10n_tw_edi_ecpay_website_sale.selection__sale_order__l10n_tw_edi_carrier_type__5
-msgid "iPass"
+#: model:ir.model,name:l10n_tw_edi_ecpay_website_sale.model_website_checkout_step
+msgid "Website Checkout Step"
+msgstr ""
+
+#. module: l10n_tw_edi_ecpay_website_sale
+#: model_terms:ir.ui.view,arch_db:l10n_tw_edi_ecpay_website_sale.address
+msgid "Yes"
 msgstr ""

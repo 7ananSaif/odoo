@@ -1,17 +1,14 @@
-import { whenReady } from "@odoo/owl";
-
+import { patch } from "@web/core/utils/patch";
 import { registry } from "@web/core/registry";
-import { patchWithCleanup } from "@web/../tests/helpers/utils";
 
 let firstChannelId;
 registry.category("web_tour.tours").add("im_livechat_session_history_open", {
     steps: () => [
         {
-            trigger: "body",
+            trigger: ".o_switch_view[data-tooltip='List']",
             async run() {
-                await whenReady();
                 const busService = odoo.__WOWL_DEBUG__.root.env.services.bus_service;
-                patchWithCleanup(busService, {
+                patch(busService, {
                     addChannel(channel) {
                         document.body.classList.add(`o-bus-channel-${channel}`);
                         return super.addChannel(...arguments);
@@ -21,11 +18,8 @@ registry.category("web_tour.tours").add("im_livechat_session_history_open", {
                         return super.deleteChannel(...arguments);
                     },
                 });
+                this.anchor.click();
             },
-        },
-        {
-            trigger: ".o_switch_view[data-tooltip='List']",
-            run: "click",
         },
         {
             trigger: ".o_data_cell:contains('test 2')",
@@ -42,7 +36,7 @@ registry.category("web_tour.tours").add("im_livechat_session_history_open", {
             },
         },
         {
-            trigger: ".oi-chevron-right",
+            trigger: "[data-icon='arrow_forward_ios']",
             run: "click",
         },
         {

@@ -13,7 +13,7 @@ patch(AttachmentUploadService.prototype, {
         );
     },
 
-    _processLoaded(thread, composer, { data, upload_info }, tmpId, def) {
+    _processLoaded(thread, composer, { data, upload_info }, tmpId, resolveUpload) {
         if (!upload_info) {
             super._processLoaded(...arguments);
             return;
@@ -45,7 +45,7 @@ patch(AttachmentUploadService.prototype, {
                     { type: "danger" }
                 );
                 removeAttachment();
-                def.resolve();
+                resolveUpload();
                 this._cleanupUploading(tmpId);
                 return;
             }
@@ -53,7 +53,7 @@ patch(AttachmentUploadService.prototype, {
             if (xhr.status !== upload_info.response_status) {
                 this.notificationService.add(_t("Cloud storage error"), { type: "danger" });
                 removeAttachment();
-                def.resolve();
+                resolveUpload();
                 this._cleanupUploading(tmpId);
                 return;
             }
@@ -85,6 +85,7 @@ patch(AttachmentUploadService.prototype, {
 
     async _upload(thread, composer, file, options, tmpId, tmpURL) {
         if (
+            !thread.channel?.ai_agent_id && // ai_agent (enterprise) does not support url files
             session.cloud_storage_min_file_size !== undefined &&
             file.size > session.cloud_storage_min_file_size &&
             !session.cloud_storage_unsupported_models.includes(thread.model)

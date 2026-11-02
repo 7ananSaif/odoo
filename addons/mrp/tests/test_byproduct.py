@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo.fields import Command
-from odoo.tests import Form
-from odoo.tests import common
+from odoo.tests import common, Form
 from odoo.exceptions import ValidationError
 
 
@@ -14,27 +12,25 @@ class TestMrpByProduct(common.TransactionCase):
         super().setUpClass()
         cls.MrpBom = cls.env['mrp.bom']
         cls.warehouse = cls.env.ref('stock.warehouse0')
-        route_manufacture = cls.warehouse.manufacture_pull_id.route_id.id
-        route_mto = cls.warehouse.mto_pull_id.route_id.id
         cls.uom_unit_id = cls.env.ref('uom.product_uom_unit').id
-        def create_product(name, route_ids=[]):
+
+        def create_product(name):
             return cls.env['product.product'].create({
                 'name': name,
-                'is_storable': True,
-                'route_ids': route_ids})
+                'is_storable': True})
 
         # Create product A, B, C.
         # --------------------------
-        cls.product_a = create_product('Product A', route_ids=[(6, 0, [route_manufacture, route_mto])])
-        cls.product_b = create_product('Product B', route_ids=[(6, 0, [route_manufacture, route_mto])])
-        cls.product_c_id = create_product('Product C', route_ids=[]).id
+        cls.product_a = create_product('Product A')
+        cls.product_b = create_product('Product B')
+        cls.product_c_id = create_product('Product C').id
         cls.bom_byproduct = cls.MrpBom.create({
             'product_tmpl_id': cls.product_a.product_tmpl_id.id,
             'product_qty': 1.0,
             'type': 'normal',
-            'product_uom_id': cls.uom_unit_id,
-            'bom_line_ids': [(0, 0, {'product_id': cls.product_c_id, 'product_uom_id': cls.uom_unit_id, 'product_qty': 2})],
-            'byproduct_ids': [(0, 0, {'product_id': cls.product_b.id, 'product_uom_id': cls.uom_unit_id, 'product_qty': 1})]
+            'uom_id': cls.uom_unit_id,
+            'bom_line_ids': [(0, 0, {'product_id': cls.product_c_id, 'uom_id': cls.uom_unit_id, 'product_qty': 2})],
+            'byproduct_ids': [(0, 0, {'product_id': cls.product_b.id, 'uom_id': cls.uom_unit_id, 'product_qty': 1})]
             })
         cls.produced_serial = cls.env['product.product'].create({
             'name': 'Produced Serial',
@@ -58,8 +54,8 @@ class TestMrpByProduct(common.TransactionCase):
             'product_tmpl_id': self.product_b.product_tmpl_id.id,
             'product_qty': 1.0,
             'type': 'normal',
-            'product_uom_id': self.uom_unit_id,
-            'bom_line_ids': [(0, 0, {'product_id': self.product_c_id, 'product_uom_id': self.uom_unit_id, 'product_qty': 2})]
+            'uom_id': self.uom_unit_id,
+            'bom_line_ids': [(0, 0, {'product_id': self.product_c_id, 'uom_id': self.uom_unit_id, 'product_qty': 2})]
             })
 
         # Create production order for product A
@@ -93,7 +89,7 @@ class TestMrpByProduct(common.TransactionCase):
         self.assertEqual(consume_move_c.product_uom_qty, 4, "Wrong consumed quantity of product c.")
         self.assertEqual(by_product_move.product_uom_qty, 2, "Wrong produced quantity of sub product.")
 
-        mnf_product_a._post_inventory()
+        mnf_product_a.button_mark_done()
 
         # I see that stock moves of External Hard Disk including Headset USB are done now.
         self.assertFalse(any(move.state != 'done' for move in moves), 'Moves are not done!')
@@ -108,8 +104,8 @@ class TestMrpByProduct(common.TransactionCase):
             'product_tmpl_id': self.product_a.product_tmpl_id.id,
             'product_qty': 1.0,
             'type': 'normal',
-            'product_uom_id': self.uom_unit_id,
-            'bom_line_ids': [(0, 0, {'product_id': self.product_c_id, 'product_uom_id': self.uom_unit_id, 'product_qty': 2})]
+            'uom_id': self.uom_unit_id,
+            'bom_line_ids': [(0, 0, {'product_id': self.product_c_id, 'uom_id': self.uom_unit_id, 'product_qty': 2})]
             })
         mnf_product_a_form = Form(self.env['mrp.production'])
         mnf_product_a_form.product_id = self.product_a
@@ -135,16 +131,16 @@ class TestMrpByProduct(common.TransactionCase):
             'product_tmpl_id': self.product_a.product_tmpl_id.id,
             'product_qty': 1.0,
             'type': 'normal',
-            'product_uom_id': self.uom_unit_id,
-            'bom_line_ids': [(0, 0, {'product_id': self.product_b.id, 'product_uom_id': self.uom_unit_id, 'product_qty': 2})],
+            'uom_id': self.uom_unit_id,
+            'bom_line_ids': [(0, 0, {'product_id': self.product_b.id, 'uom_id': self.uom_unit_id, 'product_qty': 2})],
             })
 
         bom_product_a_2 = self.MrpBom.create({
             'product_tmpl_id': self.product_b.product_tmpl_id.id,
             'product_qty': 1.0,
             'type': 'normal',
-            'product_uom_id': self.uom_unit_id,
-            'bom_line_ids': [(0, 0, {'product_id': self.product_c_id, 'product_uom_id': self.uom_unit_id, 'product_qty': 2})],
+            'uom_id': self.uom_unit_id,
+            'bom_line_ids': [(0, 0, {'product_id': self.product_c_id, 'uom_id': self.uom_unit_id, 'product_qty': 2})],
             })
         # Create production order for product A
         # -------------------------------------
@@ -173,7 +169,7 @@ class TestMrpByProduct(common.TransactionCase):
             'type': 'normal',
             'byproduct_ids': [(0, 0, {'product_id': self.product_b.id, 'product_qty': 1})]
         })
-        self.assertEqual(bom.byproduct_ids.product_uom_id, self.env.ref('uom.product_uom_dozen'))
+        self.assertEqual(bom.byproduct_ids.uom_id, self.env.ref('uom.product_uom_dozen'))
 
     def test_finished_and_byproduct_moves(self):
         """
@@ -205,10 +201,10 @@ class TestMrpByProduct(common.TransactionCase):
             'product_qty': 1.0,
             'type': 'normal',
             'bom_line_ids': [(0, 0, {
-                'product_id': self.product_c_id, 'product_uom_id': self.uom_unit_id, 'product_qty': 2.0
+                'product_id': self.product_c_id, 'uom_id': self.uom_unit_id, 'product_qty': 2.0
             })],
             'byproduct_ids': [(0, 0, {
-                'product_id': self.product_b.id, 'product_uom_id': self.uom_unit_id, 'product_qty': 1.0
+                'product_id': self.product_b.id, 'uom_id': self.uom_unit_id, 'product_qty': 1.0
             })]
         })
         for expected_finished_qty, expected_byproduct_qty, values in [
@@ -353,11 +349,25 @@ class TestMrpByProduct(common.TransactionCase):
         mo_form.qty_producing = 2.00
         mo = mo_form.save()
 
-        mo._post_inventory()
+        mo.button_mark_done()
         byproduct_move_line = mo.move_byproduct_ids.move_line_ids
         finished_move_line = mo.move_finished_ids.filtered(lambda m: m.product_id == self.product_a).move_line_ids
         self.assertEqual(byproduct_move_line.location_dest_id, shelf2_location)
         self.assertEqual(finished_move_line.location_dest_id, shelf2_location)
+
+    def test_mrp_byproduct_unreserve(self):
+        """ Verify that unreserving the components on a mo,
+        do not affect the byproducts quantity.
+        """
+        mo = self.env['mrp.production'].create({
+            'product_id': self.product_a.id,
+            'product_qty': 2,
+            'bom_id': self.bom_byproduct.id
+        })
+        mo.action_confirm()
+        mo.qty_producing = 2
+        mo.do_unreserve()
+        self.assertEqual(mo.move_byproduct_ids.quantity, 2)
 
     def test_check_byproducts_cost_share(self):
         """
@@ -381,14 +391,14 @@ class TestMrpByProduct(common.TransactionCase):
         # Create byproduct
         byproduct_1 = self.env['stock.move'].create({
             'product_id': self.product_d.id,
-            'product_uom': self.ref('uom.product_uom_unit'),
+            'uom_id': self.ref('uom.product_uom_unit'),
             'production_id': mo.id,
             'location_id': self.ref('stock.stock_location_stock'),
             'location_dest_id': self.ref('stock.stock_location_output'),
             })
         byproduct_2 = self.env['stock.move'].create({
             'product_id': self.product_e.id,
-            'product_uom': self.ref('uom.product_uom_unit'),
+            'uom_id': self.ref('uom.product_uom_unit'),
             'production_id': mo.id,
             'location_id': self.ref('stock.stock_location_stock'),
             'location_dest_id': self.ref('stock.stock_location_output'),
@@ -426,71 +436,9 @@ class TestMrpByProduct(common.TransactionCase):
         mo_form = Form(mo)
         mo_form.qty_producing = 1
         mo = mo_form.save()
-        self.assertEqual(mo.state, 'to_close')
+        self.assertEqual(mo.state, 'confirmed')
         mo.button_mark_done()
         self.assertEqual(mo.state, 'done')
-
-    def test_01_check_byproducts_update(self):
-        """
-        Test that check byproducts update in stock move should also reflect in stock move line(Product moves).
-        """
-        # Create new MO
-        mo_form = Form(self.env['mrp.production'])
-        mo_form.product_id = self.product_a
-        mo_form.product_qty = 1.0
-        mo = mo_form.save()
-        mo.action_confirm()
-
-        mo.move_byproduct_ids.write({'product_id': self.product_c_id})
-        mo.button_mark_done()
-        self.assertEqual(mo.move_byproduct_ids.product_id, mo.move_byproduct_ids.move_line_ids.product_id)
-
-    def test_02_check_byproducts_update(self):
-        """
-        Case 2: Update Product From Tracked Product to Non Tracked Product.
-        """
-        self.bom_byproduct.byproduct_ids[0].product_id = self.produced_serial.id
-        self.bom_byproduct.byproduct_ids[0].product_qty = 2
-        mo = self.env["mrp.production"].create({
-            'product_id': self.product_a.id,
-            'product_qty': 1.0,
-            'bom_id': self.bom_byproduct.id,
-        })
-        mo.action_confirm()
-
-        mo.move_byproduct_ids.lot_ids = [(4, self.sn_1.id)]
-        mo.move_byproduct_ids.lot_ids = [(4, self.sn_2.id)]
-
-        self.assertEqual(len(mo.move_byproduct_ids.move_line_ids), 2)
-
-        mo.move_byproduct_ids.write({'product_id': self.product_c_id})
-
-        mo.button_mark_done()
-        self.assertEqual(len(mo.move_byproduct_ids.move_line_ids), 1)
-        self.assertEqual(mo.move_byproduct_ids.product_id, mo.move_byproduct_ids.move_line_ids.product_id)
-
-    def test_03_check_byproducts_update(self):
-        """
-        Case 3: Update Product From Non Tracked Product to Tracked Product.
-        """
-        mo_form = Form(self.env['mrp.production'])
-        mo_form.product_id = self.product_a
-        mo_form.product_qty = 2.0
-        mo = mo_form.save()
-        mo.action_confirm()
-
-        mo.move_byproduct_ids.write({'product_id': self.produced_serial.id})
-
-        mo.move_byproduct_ids.lot_ids = [(4, self.sn_1.id)]
-        mo.move_byproduct_ids.lot_ids = [(4, self.sn_2.id)]
-
-        self.assertFalse(mo.move_byproduct_ids.show_lots_text)
-        self.assertTrue(mo.move_byproduct_ids.show_lots_m2o)
-        self.assertFalse(mo.move_byproduct_ids.show_quant)
-
-        mo.button_mark_done()
-        self.assertEqual(len(mo.move_byproduct_ids.move_line_ids), 2)
-        self.assertEqual(mo.move_byproduct_ids.product_id, mo.move_byproduct_ids.move_line_ids.product_id)
 
     def test_byproduct_qty_update(self):
         """
@@ -511,49 +459,6 @@ class TestMrpByProduct(common.TransactionCase):
         self.assertEqual(picking.state, 'assigned')
         byproduct_move = picking.move_ids.filtered(lambda m: m.product_id == self.bom_byproduct.byproduct_ids.product_id)
         self.assertEqual(byproduct_move.product_qty, 1.0)
-
-    def test_byproducts_bom_document(self):
-        self.env.user.group_ids += self.env.ref('mrp.group_mrp_byproducts')
-        doc_product_bom = self.env['product.document'].create({
-            'name': 'doc_product_bom',
-            'attached_on_mrp': 'bom',
-            'res_id': self.product_a.id,
-            'res_model': 'product.product',
-        })
-
-        # ensures that the archived docs are not taken into account
-        self.env['product.document'].create({
-            'name': 'doc_product_bom_archived',
-            'active': False,
-            'attached_on_mrp': 'bom',
-            'res_id': self.product_a.id,
-            'res_model': 'product.product',
-        })
-
-        doc_template_bom = self.env['product.document'].create({
-            'name': 'doc_template_bom',
-            'attached_on_mrp': 'bom',
-            'res_id': self.product_a.product_tmpl_id.id,
-            'res_model': 'product.template',
-        })
-
-        attachments = doc_template_bom.ir_attachment_id + doc_product_bom.ir_attachment_id
-
-        bom = self.env['mrp.bom'].create({
-            'product_tmpl_id': self.product_b.product_tmpl_id.id,
-            'product_uom_id': self.product_b.product_tmpl_id.uom_id.id,
-            'product_qty': 1.0,
-            'type': 'normal',
-            'byproduct_ids': [
-                Command.create({
-                    'product_id': self.product_a.id,
-                    'product_qty': 1
-                }),
-            ]
-        })
-
-        # the two docs linked to the byproduct should be in the chatter
-        self.assertEqual(bom._get_extra_attachments(), attachments)
 
     def test_3_steps_byproduct(self):
         """ Test that non-bom byproducts are correctly pushed from

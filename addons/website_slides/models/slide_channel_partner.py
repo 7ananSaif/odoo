@@ -12,11 +12,13 @@ class SlideChannelPartner(models.Model):
     channel_id = fields.Many2one('slide.channel', string='Course', index=True, required=True, ondelete='cascade')
     member_status = fields.Selection([
         ('invited', 'Invite Sent'),
-        ('joined', 'Joined'),
+        ('joined', 'Not Started'),
         ('ongoing', 'Ongoing'),
         ('completed', 'Finished')],
         string='Attendee Status', readonly=True, required=True, default='joined')
     completion = fields.Integer('% Completed Contents', default=0, aggregator="avg")
+    completion_date = fields.Datetime('Completion date', help='Completion date', compute='_compute_completion_date',
+                                      store=True)
     completed_slides_count = fields.Integer('# Completed Contents', default=0)
     partner_id = fields.Many2one('res.partner', index=True, required=True, ondelete='cascade')
     partner_email = fields.Char(related='partner_id.email', readonly=True)
@@ -41,9 +43,22 @@ class SlideChannelPartner(models.Model):
         'The completion of a channel is a percentage and should be between 0% and 100.',
     )
 
+    @api.depends('member_status')
+    def _compute_completion_date(self):
+        """ Set the completion date to the current date when it gets completed and resets the completion date when it's
+        set again to incomplete (member_status != 'completed') so that completion date represents the date of completion
+        and is coherent with the "member_status" field. """
+        for record in self:
+            completed = record.member_status == 'completed'
+            if not record.completion_date:
+                if completed:
+                    record.completion_date = fields.Datetime.now()
+            elif not completed:
+                record.completion_date = None
+
     @api.depends('channel_id', 'partner_id')
     def _compute_invitation_link(self):
-        ''' This sets the url used as hyperlink in the channel invitation email in template mail_notification_channel_invite.
+        ''' This sets the url used as hyperlink in the channel invitation email in template mail_template_slide_channel_enroll.
         The partner_id is given in the url, as well as a hash based on the partner and channel id. '''
         for record in self:
             invitation_hash = record._get_invitation_hash()
@@ -203,6 +218,7 @@ class SlideChannelPartner(models.Model):
                  'mail_server_id',
                  'model',
                  'partner_to',
+                 'partner_cc',
                  'reply_to',
                  'report_template_ids',
                  'res_id',
@@ -220,13 +236,18 @@ class SlideChannelPartner(models.Model):
         for record in self:
             email_values = record_email_values.get(record.id)
 
-            if not email_values or not email_values.get('partner_ids'):
+            if not email_values:
+                continue
+            partner_ids = email_values.get('partner_ids') or []
+            partner_cc_ids = email_values.get('partner_cc_ids') or []
+            if not partner_ids and not partner_cc_ids:
                 continue
 
             email_values.update(
                 author_id=record.channel_id.user_id.partner_id.id or self.env.company.partner_id.id,
                 auto_delete=True,
-                recipient_ids=[(4, pid) for pid in email_values['partner_ids']],
+                recipient_ids=[(4, pid) for pid in partner_ids],
+                recipient_cc_ids=[(4, pid) for pid in partner_cc_ids],
             )
             email_values['body_html'] = template._render_encapsulate(
                 'mail.mail_notification_light', email_values['body_html'],

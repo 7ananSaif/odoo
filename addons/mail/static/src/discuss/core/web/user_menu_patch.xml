@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<templates xml:space="preserve">  
+<templates xml:space="preserve">
     <t t-inherit="web.UserMenu" t-inherit-mode="extension">
         <xpath expr="//img[hasclass('o_user_avatar')]" position="replace">
-            <div class="position-relative d-flex flex-shrink-0 bg-inherit">
-                <t>$0</t>
-                <ImStatus className="'o-web-UserMenu-imStatus position-absolute'" persona="store.self" size="'md'"/>
-            </div>
+            <DiscussAvatar t-if="this.store.self_user" record="this.store.self_user" size="26"/>
+            <t t-else="">$0</t>
         </xpath>
     </t>
 </templates>

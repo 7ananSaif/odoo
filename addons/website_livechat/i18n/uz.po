@@ -14,15 +14,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-20 18:37+0000\n"
-"PO-Revision-Date: 2025-10-08 18:39+0000\n"
-"Last-Translator: \n"
-"Language-Team: \n"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 18:34+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Uzbek <https://translate.odoo.com/projects/odoo-s19-4/"
+"website_livechat/uz/>\n"
 "Language: uz\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: website_livechat
 #: model:ir.model.fields,field_description:website_livechat.field_website_visitor__session_count
@@ -31,21 +33,9 @@ msgid "# Sessions"
 msgstr "# Seanslar"
 
 #. module: website_livechat
-#. odoo-python
-#: code:addons/website_livechat/models/discuss_channel.py:0
-#, fuzzy
-msgid ""
-"%(visitor)s started a conversation with %(operator)s.\n"
-"The chat request has been cancelled"
+#: model:ir.module.module,description:base.module_website_livechat
+msgid "Allow website visitors to chat with the collaborators."
 msgstr ""
-"%(visitor)s %(operator)s bilan suhbatni boshladi. Chat so‘rovi bekor qilindi"
-
-#. module: website_livechat
-#. odoo-javascript
-#: code:addons/website_livechat/static/src/web/livechat_channel_info_list_patch.js:0
-#, fuzzy
-msgid "(closed on: %(date)s)"
-msgstr "(yopilgan sana: %(date)s)"
 
 #. module: website_livechat
 #: model_terms:ir.ui.view,arch_db:website_livechat.website_visitor_view_search
@@ -58,6 +48,11 @@ msgstr "Mavjud"
 #, fuzzy
 msgid "Channel"
 msgstr "Kanal"
+
+#. module: website_livechat
+#: model:ir.model,name:website_livechat.model_discuss_channel_member
+msgid "Channel Member"
+msgstr ""
 
 #. module: website_livechat
 #: model_terms:ir.ui.view,arch_db:website_livechat.im_livechat_channel_view_form_add
@@ -78,6 +73,11 @@ msgstr "Kanal yaratildi: %(name)s"
 #, fuzzy
 msgid "Chat"
 msgstr "Chat"
+
+#. module: website_livechat
+#: model:ir.module.module,summary:base.module_website_livechat
+msgid "Chat with your website visitors"
+msgstr ""
 
 #. module: website_livechat
 #: model:ir.model,name:website_livechat.model_chatbot_script
@@ -105,6 +105,12 @@ msgid "Config Settings"
 msgstr "Konfiguratsiya sozlamalari"
 
 #. module: website_livechat
+#. odoo-javascript
+#: code:addons/website_livechat/static/src/core/web/livechat_channel_info_list_patch.xml:0
+msgid "Conversation ongoing"
+msgstr ""
+
+#. module: website_livechat
 #: model:ir.model,name:website_livechat.model_discuss_channel
 #, fuzzy
 msgid "Discussion Channel"
@@ -114,6 +120,7 @@ msgstr "Muhokama kanali"
 #: model:ir.model.fields,field_description:website_livechat.field_chatbot_script__display_name
 #: model:ir.model.fields,field_description:website_livechat.field_chatbot_script_step__display_name
 #: model:ir.model.fields,field_description:website_livechat.field_discuss_channel__display_name
+#: model:ir.model.fields,field_description:website_livechat.field_discuss_channel_member__display_name
 #: model:ir.model.fields,field_description:website_livechat.field_im_livechat_channel__display_name
 #: model:ir.model.fields,field_description:website_livechat.field_ir_http__display_name
 #: model:ir.model.fields,field_description:website_livechat.field_res_config_settings__display_name
@@ -134,6 +141,7 @@ msgstr "HTTP yo‘naltirish"
 #: model:ir.model.fields,field_description:website_livechat.field_chatbot_script__id
 #: model:ir.model.fields,field_description:website_livechat.field_chatbot_script_step__id
 #: model:ir.model.fields,field_description:website_livechat.field_discuss_channel__id
+#: model:ir.model.fields,field_description:website_livechat.field_discuss_channel_member__id
 #: model:ir.model.fields,field_description:website_livechat.field_im_livechat_channel__id
 #: model:ir.model.fields,field_description:website_livechat.field_ir_http__id
 #: model:ir.model.fields,field_description:website_livechat.field_res_config_settings__id
@@ -149,6 +157,14 @@ msgstr "ID"
 #, fuzzy
 msgid "In Conversation"
 msgstr "Suhbatlashmoqda"
+
+#. module: website_livechat
+#. odoo-python
+#: code:addons/website_livechat/models/discuss_channel.py:0
+msgid ""
+"Live chat conversation closed automatically: the visitor started a new "
+"conversation with another agent."
+msgstr ""
 
 #. module: website_livechat
 #: model:ir.model,name:website_livechat.model_im_livechat_channel
@@ -178,12 +194,6 @@ msgid "Operator Avatar"
 msgstr "Operator avatari"
 
 #. module: website_livechat
-#: model:ir.model.fields,field_description:website_livechat.field_website_visitor__livechat_operator_name
-#, fuzzy
-msgid "Operator Name"
-msgstr "Operator ismi"
-
-#. module: website_livechat
 #: model:ir.model,name:website_livechat.model_website_page
 #, fuzzy
 msgid "Page"
@@ -191,14 +201,14 @@ msgstr "Sahifa"
 
 #. module: website_livechat
 #. odoo-javascript
-#: code:addons/website_livechat/static/src/web/livechat_channel_info_list_patch.xml:0
+#: code:addons/website_livechat/static/src/core/web/livechat_channel_info_list_patch.xml:0
 #, fuzzy
 msgid "Recent conversations"
 msgstr "So‘nggi suhbatlar"
 
 #. module: website_livechat
 #. odoo-javascript
-#: code:addons/website_livechat/static/src/web/livechat_channel_info_list_patch.xml:0
+#: code:addons/website_livechat/static/src/core/web/livechat_channel_info_list_patch.xml:0
 #, fuzzy
 msgid "Recent page views"
 msgstr "So‘nggi sahifa ko‘rishlari"
@@ -233,7 +243,7 @@ msgid "Speaking With"
 msgstr "Suhbatlashmoqda"
 
 #. module: website_livechat
-#: model:ir.model.fields,field_description:website_livechat.field_website_visitor__livechat_operator_id
+#: model:ir.model.fields,field_description:website_livechat.field_website_visitor__current_livechat_agent_ids
 #, fuzzy
 msgid "Speaking with"
 msgstr "Suhbatlashmoqda"
@@ -246,10 +256,9 @@ msgstr "Sinov"
 
 #. module: website_livechat
 #. odoo-python
-#: code:addons/website_livechat/models/discuss_channel.py:0
-#, fuzzy
-msgid "The visitor"
-msgstr "Tashrif buyuruvchi"
+#: code:addons/website_livechat/controllers/chatbot.py:0
+msgid "Test %s"
+msgstr ""
 
 #. module: website_livechat
 #: model:ir.model.fields,field_description:website_livechat.field_discuss_channel__livechat_visitor_id
@@ -299,7 +308,7 @@ msgstr "Tashrif buyuruvchilar"
 
 #. module: website_livechat
 #. odoo-javascript
-#: code:addons/website_livechat/static/src/web/livechat_channel_info_list_patch.xml:0
+#: code:addons/website_livechat/static/src/core/web/livechat_channel_info_list_patch.xml:0
 #: model:ir.model,name:website_livechat.model_website
 #, fuzzy
 msgid "Website"
@@ -310,6 +319,11 @@ msgstr "Veb-sayt"
 #, fuzzy
 msgid "Website Live Channel"
 msgstr "Veb-sayt jonli kanali"
+
+#. module: website_livechat
+#: model:ir.module.module,shortdesc:base.module_website_livechat
+msgid "Website Live Chat"
+msgstr ""
 
 #. module: website_livechat
 #: model:ir.model.fields,field_description:website_livechat.field_website__channel_id
@@ -334,22 +348,3 @@ msgid ""
 msgstr ""
 "Operator tomonidan yaratilganda, kanal hali tashrif buyuruvchi tomonidan "
 "ochilmaganmi."
-
-#. module: website_livechat
-#. odoo-python
-#: code:addons/website_livechat/models/discuss_channel.py:0
-#, fuzzy
-msgid "an operator"
-msgstr "operator"
-
-#, fuzzy
-#~ msgid "Country"
-#~ msgstr "Mamlakat"
-
-#, fuzzy
-#~ msgid "Country & Language"
-#~ msgstr "Mamlakat va til"
-
-#, fuzzy
-#~ msgid "Language"
-#~ msgstr "Til"

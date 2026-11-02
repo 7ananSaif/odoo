@@ -5,6 +5,8 @@ from odoo.addons.point_of_sale.tests.test_frontend import TestPointOfSaleHttpCom
 
 
 class Testl10nFrPosCert(TestPointOfSaleHttpCommon):
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -16,6 +18,8 @@ class Testl10nFrPosCert(TestPointOfSaleHttpCommon):
 
 @tagged("post_install_l10n", "post_install", "-at_install")
 class TestUi(Testl10nFrPosCert):
+    _test_user_groups = None  # FIXME list needed groups
+
     def test_pos_use_ticket_qr_code_for_fr(self):
         company = self.main_pos_config.company_id
         self.assertEqual(company.country_id.code, "FR", "Company should be set to France (FR)")
@@ -27,3 +31,14 @@ class TestUi(Testl10nFrPosCert):
         self.assertEqual(company.country_id.code, "FR", "Company should be set to France (FR)")
         self.main_pos_config.with_user(self.pos_user).open_ui()
         self.start_pos_tour("test_correct_old_price_upon_price_change_fr", login="pos_user")
+
+    def test_old_price_unit_uses_product_uom_fr(self):
+        self.env['product.product'].create({
+            'name': 'Test Product',
+            'available_in_pos': True,
+            'lst_price': 10.0,
+            'taxes_id': False,
+            'uom_id': self.env.ref('uom.product_uom_kgm').id,
+        })
+        self.main_pos_config.with_user(self.pos_user).open_ui()
+        self.start_pos_tour("test_old_price_unit_uses_product_uom_fr", login="pos_user")

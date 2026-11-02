@@ -42,7 +42,8 @@ function fromField(f, record) {
 
             // Copy Button
             const copySpanIcon = document.createElement("span");
-            copySpanIcon.setAttribute("class", "fa fa-clipboard");
+            copySpanIcon.setAttribute("class", "oi");
+            copySpanIcon.setAttribute("data-icon", "assignment");
             const copySpanText = document.createElement("span");
             copySpanText.textContent = _t(" Copy");
 
@@ -151,6 +152,7 @@ export class TOTPEnable extends Interaction {
             body: markup(body.outerHTML),
             onInput: ({ inputEl }) => { inputEl.setCustomValidity("") },
             confirmLabel: _t("Activate"),
+            size: "md",
             confirm: async ({ inputEl }) => {
                 if (!inputEl.reportValidity()) {
                     inputEl.classList.add("is-invalid");
@@ -169,7 +171,7 @@ export class TOTPEnable extends Interaction {
                 } catch (e) {
                     const errorMessage = (
                         !e.message ? e.toString()
-                            : !e.message.data ? e.message.message
+                            : !e.message.data ? e.message.message || _t("Verification failed, please double-check the 6-digit code")
                                 : e.message.data.message || _t("Operation failed for unknown reason.")
                     );
                     inputEl.classList.add("is-invalid");

@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0\n"
+"Project-Id-Version: Odoo Server 20.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2026-01-25 18:37+0000\n"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-09-18 17:39+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -20,11 +20,6 @@ msgstr ""
 msgid ""
 "(object.state in ('draft', 'sent') and 'Quotation - %s' % (object.name)) or "
 "'Order - %s' % (object.name)"
-msgstr ""
-
-#. module: sale_pdf_quote_builder
-#: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.sale_order_template_form
-msgid "<i class=\"fa fa-arrow-right\"/> Link to the demo video"
 msgstr ""
 
 #. module: sale_pdf_quote_builder
@@ -81,18 +76,6 @@ msgid "All files uploaded"
 msgstr ""
 
 #. module: sale_pdf_quote_builder
-#: model:ir.model.fields,help:sale_pdf_quote_builder.field_product_document__attached_on_sale
-msgid ""
-"Allows you to share the document with your customers within a sale.\n"
-"Leave it empty if you don't want to share this document with sales customer.\n"
-"On quote: the document will be sent to and accessible by customers at any time.\n"
-"e.g. this option can be useful to share Product description files.\n"
-"On order confirmation: the document will be sent to and accessible by customers.\n"
-"e.g. this option can be useful to share User Manual or digital content bought on ecommerce. \n"
-"Inside quote: The document will be included in the pdf of the quotation and sale order between the header pages and the quote table. "
-msgstr ""
-
-#. module: sale_pdf_quote_builder
 #: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.quotation_document_kanban
 #: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.quotation_document_search_view
 msgid "Archived"
@@ -119,6 +102,11 @@ msgid "Available Quotation Documents"
 msgstr ""
 
 #. module: sale_pdf_quote_builder
+#: model:ir.module.module,description:base.module_sale_pdf_quote_builder
+msgid "Build nice quotations"
+msgstr ""
+
+#. module: sale_pdf_quote_builder
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__checksum
 msgid "Checksum/SHA1"
 msgstr ""
@@ -136,6 +124,10 @@ msgstr ""
 
 #. module: sale_pdf_quote_builder
 #: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.product_document_form
+msgid "Configure"
+msgstr ""
+
+#. module: sale_pdf_quote_builder
 #: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.quotation_document_form
 msgid "Configure dynamic fields"
 msgstr ""
@@ -215,18 +207,13 @@ msgid "Download"
 msgstr ""
 
 #. module: sale_pdf_quote_builder
-#: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.sale_order_template_form
-msgid "Download examples"
-msgstr ""
-
-#. module: sale_pdf_quote_builder
 #: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.quotation_document_kanban
 msgid "Edit"
 msgstr ""
 
 #. module: sale_pdf_quote_builder
-#: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__datas
-msgid "File Content (base64)"
+#: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_product_document__form_field_ids
+msgid "Fields"
 msgstr ""
 
 #. module: sale_pdf_quote_builder
@@ -259,7 +246,6 @@ msgid "Form Fields"
 msgstr ""
 
 #. module: sale_pdf_quote_builder
-#: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_product_document__form_field_ids
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__form_field_ids
 msgid "Form Fields Included"
 msgstr ""
@@ -354,11 +340,6 @@ msgid "Indexed Content"
 msgstr ""
 
 #. module: sale_pdf_quote_builder
-#: model:ir.model.fields.selection,name:sale_pdf_quote_builder.selection__product_document__attached_on_sale__inside
-msgid "Inside quote pdf"
-msgstr ""
-
-#. module: sale_pdf_quote_builder
 #. odoo-python
 #: code:addons/sale_pdf_quote_builder/models/sale_pdf_form_field.py:0
 msgid ""
@@ -394,7 +375,7 @@ msgstr ""
 
 #. module: sale_pdf_quote_builder
 #. odoo-python
-#: code:addons/sale_pdf_quote_builder/utils.py:0
+#: code:addons/sale_pdf_quote_builder/models/sale_pdf_form_field.py:0
 msgid ""
 "It seems that we're not able to process this pdf inside a quotation. It is "
 "either encrypted, or encoded in a format we do not support."
@@ -440,14 +421,13 @@ msgstr ""
 
 #. module: sale_pdf_quote_builder
 #. odoo-python
-#: code:addons/sale_pdf_quote_builder/models/product_document.py:0
-msgid "Only PDF documents can be attached inside a quote."
+#: code:addons/sale_pdf_quote_builder/models/quotation_document.py:0
+msgid "Only PDF documents can be used as header or footer."
 msgstr ""
 
 #. module: sale_pdf_quote_builder
-#. odoo-python
-#: code:addons/sale_pdf_quote_builder/models/quotation_document.py:0
-msgid "Only PDF documents can be used as header or footer."
+#: model:ir.model,name:sale_pdf_quote_builder.model_sale_order_template
+msgid "Order Templates"
 msgstr ""
 
 #. module: sale_pdf_quote_builder
@@ -475,12 +455,6 @@ msgid "Please use only relational fields until the last value of your path."
 msgstr ""
 
 #. module: sale_pdf_quote_builder
-#. odoo-python
-#: code:addons/sale_pdf_quote_builder/models/sale_order.py:0
-msgid "Product"
-msgstr ""
-
-#. module: sale_pdf_quote_builder
 #: model:ir.model,name:sale_pdf_quote_builder.model_product_document
 #: model:ir.model.fields.selection,name:sale_pdf_quote_builder.selection__sale_pdf_form_field__document_type__product_document
 msgid "Product Document"
@@ -490,16 +464,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_sale_order_line__product_document_ids
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_sale_pdf_form_field__product_document_ids
 msgid "Product Documents"
-msgstr ""
-
-#. module: sale_pdf_quote_builder
-#: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.sale_order_template_form
-msgid ""
-"Provide header pages and footer pages to compose an attractive quotation with more information\n"
-"                        about your company, your products and you services. <br/>\n"
-"                        The pdf of your quotes will be built by putting together header pages, product descriptions,\n"
-"                        details of the quote and then the footer pages. <br/>\n"
-"                        If empty, it will use those define in the company settings. <br/>"
 msgstr ""
 
 #. module: sale_pdf_quote_builder
@@ -518,7 +482,6 @@ msgid "Quotation Documents"
 msgstr ""
 
 #. module: sale_pdf_quote_builder
-#: model:ir.model,name:sale_pdf_quote_builder.model_sale_order_template
 #: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.quotation_document_search_view
 msgid "Quotation Template"
 msgstr ""
@@ -540,11 +503,6 @@ msgid "Quote Builder"
 msgstr ""
 
 #. module: sale_pdf_quote_builder
-#: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.sale_order_template_form
-msgid "Quote Builder Demo Video"
-msgstr ""
-
-#. module: sale_pdf_quote_builder
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__ir_attachment_id
 msgid "Related attachment"
 msgstr ""
@@ -552,6 +510,16 @@ msgstr ""
 #. module: sale_pdf_quote_builder
 #: model:ir.model,name:sale_pdf_quote_builder.model_ir_actions_report
 msgid "Report Action"
+msgstr ""
+
+#. module: sale_pdf_quote_builder
+#: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__res_access_read
+msgid "Res Access Read"
+msgstr ""
+
+#. module: sale_pdf_quote_builder
+#: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__res_access_write
+msgid "Res Access Write"
 msgstr ""
 
 #. module: sale_pdf_quote_builder
@@ -575,11 +543,6 @@ msgid "Resource Name"
 msgstr ""
 
 #. module: sale_pdf_quote_builder
-#: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_product_document__attached_on_sale
-msgid "Sale : Visible at"
-msgstr ""
-
-#. module: sale_pdf_quote_builder
 #: model:ir.actions.server,name:sale_pdf_quote_builder.cron_post_upgrade_assign_missing_form_fields_ir_actions_server
 msgid "Sale Pdf Quote Builder: assign form fields to documents post upgrade"
 msgstr ""
@@ -592,6 +555,11 @@ msgstr ""
 #. module: sale_pdf_quote_builder
 #: model:ir.model,name:sale_pdf_quote_builder.model_sale_order_line
 msgid "Sales Order Line"
+msgstr ""
+
+#. module: sale_pdf_quote_builder
+#: model:ir.module.module,shortdesc:base.module_sale_pdf_quote_builder
+msgid "Sales PDF Quotation Builder"
 msgstr ""
 
 #. module: sale_pdf_quote_builder
@@ -672,12 +640,6 @@ msgstr ""
 #. module: sale_pdf_quote_builder
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__website_id
 msgid "Website"
-msgstr ""
-
-#. module: sale_pdf_quote_builder
-#. odoo-python
-#: code:addons/sale_pdf_quote_builder/models/product_document.py:0
-msgid "When attached inside a quote, the document must be a file, not a URL."
 msgstr ""
 
 #. module: sale_pdf_quote_builder

@@ -382,11 +382,27 @@ line 1 (sk_01) and its VAT label,
                         <field name="expression_ids">
                             <record id="sk_vat_exempt_14_base" model="account.report.expression">
                                 <field name="label">base</field>
+                                <field name="engine">aggregation</field>
+                                <field name="formula">sk_14._14_goods_base + sk_14._14_services_base + sk_14._14_triangular_base</field>
+                            </record>
+                            <record id="sk_vat_exempt_14_goods_base" model="account.report.expression">
+                                <field name="label">_14_goods_base</field>
                                 <field name="engine">tax_tags</field>
-                                <field name="formula">-14</field>
+                                <field name="formula">-14_G</field>
+                            </record>
+                            <record id="sk_vat_exempt_14_services_base" model="account.report.expression">
+                                <field name="label">_14_services_base</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">-14_S</field>
+                            </record>
+                            <record id="sk_vat_exempt_14_triangular_base" model="account.report.expression">
+                                <field name="label">_14_triangular_base</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">-14_T</field>
                             </record>
                         </field>
                     </record>
+
                     <record id="sk_vat_exempt_15" model="account.report.line">
                         <field name="name">15 - Supply of goods and services, acquisition of goods (§ 46,47,48 para. 8)</field>
                         <field name="name@sk">15 - Dodanie tovarov a služieb, nadobudnutie tovaru (§ 46, 47, 48 ods. 8)</field>
@@ -455,7 +471,7 @@ line 1 (sk_01) and its VAT label,
                                     <record id="sk_deductible_total_18_vat" model="account.report.expression">
                                         <field name="label">vat</field>
                                         <field name="engine">aggregation</field>
-                                        <field name="formula">sk_18.vat + sk_20.vat + sk_22.vat + sk_23a.vat</field>
+                                        <field name="formula">sk_18.vat + sk_20.vat + sk_20_simpl.vat + sk_22.vat + sk_23a.vat</field>
                                     </record>
                                 </field>
                             </record>
@@ -467,7 +483,7 @@ line 1 (sk_01) and its VAT label,
                                     <record id="sk_deductible_total_18a_vat" model="account.report.expression">
                                         <field name="label">vat</field>
                                         <field name="engine">aggregation</field>
-                                        <field name="formula">sk_18a.vat + sk_20a.vat + sk_22a.vat + sk_23b.vat</field>
+                                        <field name="formula">sk_18a.vat + sk_20a.vat + sk_20a_simpl.vat + sk_22a.vat + sk_23b.vat</field>
                                     </record>
                                 </field>
                             </record>
@@ -479,7 +495,7 @@ line 1 (sk_01) and its VAT label,
                                     <record id="sk_deductible_total_19_vat" model="account.report.expression">
                                         <field name="label">vat</field>
                                         <field name="engine">aggregation</field>
-                                        <field name="formula">sk_19.vat + sk_21.vat + sk_23.vat + sk_23c.vat</field>
+                                        <field name="formula">sk_19.vat + sk_21.vat + sk_21_simpl.vat + sk_23.vat + sk_23c.vat</field>
                                     </record>
                                 </field>
                             </record>
@@ -566,6 +582,42 @@ line 1 (sk_01) and its VAT label,
                                         <field name="label">vat</field>
                                         <field name="engine">tax_tags</field>
                                         <field name="formula">21</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="sk_deductible_specific_20_simpl" model="account.report.line">
+                                <field name="name">20 (Simplified) - VAT deduction, simplified receipts, reduced VAT (§ 27 para. 2)</field>
+                                <field name="name@sk">20 (ZJF) - Odpočet DPH, zjednodušené faktúry, znížená DPH (§ 27 ods. 2)</field>
+                                <field name="code">sk_20_simpl</field>
+                                <field name="expression_ids">
+                                    <record id="sk_deductible_specific_20_simpl_vat" model="account.report.expression">
+                                        <field name="label">vat</field>
+                                        <field name="engine">tax_tags</field>
+                                        <field name="formula">20_simpl</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="sk_deductible_specific_20a_simpl" model="account.report.line">
+                                <field name="name">20a (Simplified) - VAT deduction, simplified receipts, reduced VAT (§ 27 para. 3)</field>
+                                <field name="name@sk">20a (ZJF) - Odpočet DPH, zjednodušené faktúry, znížená DPH (§ 27 ods. 3)</field>
+                                <field name="code">sk_20a_simpl</field>
+                                <field name="expression_ids">
+                                    <record id="sk_deductible_specific_20a_simpl_vat" model="account.report.expression">
+                                        <field name="label">vat</field>
+                                        <field name="engine">tax_tags</field>
+                                        <field name="formula">20a_simpl</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="sk_deductible_specific_21_simpl" model="account.report.line">
+                                <field name="name">21 (Simplified) - VAT deduction, simplified receipts, basic VAT</field>
+                                <field name="name@sk">21 (ZJF) - Odpočet DPH, zjednodušené faktúry, základná DPH</field>
+                                <field name="code">sk_21_simpl</field>
+                                <field name="expression_ids">
+                                    <record id="sk_deductible_specific_21_simpl_vat" model="account.report.expression">
+                                        <field name="label">vat</field>
+                                        <field name="engine">tax_tags</field>
+                                        <field name="formula">21_simpl</field>
                                     </record>
                                 </field>
                             </record>

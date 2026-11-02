@@ -1,9 +1,11 @@
-import { BaseOptionComponent } from "@html_builder/core/utils";
+import { BaseOptionComponent } from "@html_builder/core/base_option_component";
 import { onWillStart } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
 import { useService } from "@web/core/utils/hooks";
+import { registry } from "@web/core/registry";
 
 export class CustomerFilterOption extends BaseOptionComponent {
+    static id = "customer_filter_option";
     static template = "website_customer.CustomerFilterOption";
     static selector = "main:not(:has(#oe_structure_website_crm_partner_assign_layout_1)):has(.o_wcrm_filters_top)";
     static groups = ["website.group_website_designer"];
@@ -18,3 +20,5 @@ export class CustomerFilterOption extends BaseOptionComponent {
         });
     }
 }
+
+registry.category("website-options").add(CustomerFilterOption.id, CustomerFilterOption);

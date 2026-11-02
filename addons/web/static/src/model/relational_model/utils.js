@@ -1,4 +1,4 @@
-import { markup, onWillDestroy, onWillStart, onWillUpdateProps, useComponent } from "@odoo/owl";
+import { markup, onWillStart, t, useEffect, useProps } from "@odoo/owl";
 import { evalPartialContext, makeContext } from "@web/core/context";
 import { Domain } from "@web/core/domain";
 import {
@@ -7,17 +7,17 @@ import {
     serializeDate,
     serializeDateTime,
 } from "@web/core/l10n/dates";
-import { x2ManyCommands } from "@web/core/orm_service";
-import { evaluateExpr } from "@web/core/py_js/py";
-import { Deferred } from "@web/core/utils/concurrency";
-import { omit } from "@web/core/utils/objects";
-import { effect } from "@web/core/utils/reactive";
-import { batched } from "@web/core/utils/timing";
-import { orderByToString } from "@web/search/utils/order_by";
 import { _t } from "@web/core/l10n/translation";
+import { x2ManyCommands } from "@web/core/orm_plugin";
+import { evaluateExpr } from "@web/core/py_js/py";
 import { user } from "@web/core/user";
-import { uniqueId } from "@web/core/utils/functions";
 import { unique } from "@web/core/utils/arrays";
+import { omit } from "@web/core/utils/objects";
+import {
+    getCurrencyAggregateSpecs,
+    isConvertedAggregateUsed,
+} from "@web/model/currency_aggregates";
+import { orderByToString } from "@web/search/utils/order_by";
 
 const granularityToInterval = {
     hour: { hours: 1 },
@@ -62,9 +62,17 @@ export function makeActiveField({
 export const AGGREGATABLE_FIELD_TYPES = ["float", "integer", "monetary"]; // types that can be aggregated in grouped views
 
 export function addFieldDependencies(activeFields, fields, fieldDependencies = []) {
-    for (const field of fieldDependencies) {
+    for (let field of fieldDependencies) {
+        field = { ...field };
         if (!("readonly" in field)) {
             field.readonly = true;
+        }
+        if (!("required" in field)) {
+            if (field.name in activeFields) {
+                field.required = activeFields[field.name].required; // field already in the view
+            } else if (field.name in fields) {
+                field.required = fields[field.name].required; // check in field definition (model)
+            }
         }
         if (field.name in activeFields) {
             patchActiveFields(activeFields[field.name], makeActiveField(field));
@@ -92,6 +100,7 @@ export function addFieldDependencies(activeFields, fields, fieldDependencies = [
 
 function completeActiveField(activeField, extra) {
     if (extra.related) {
+        activeField.related = activeField.related || { activeFields: {}, fields: {} };
         for (const fieldName in extra.related.activeFields) {
             if (fieldName in activeField.related.activeFields) {
                 completeActiveField(
@@ -179,6 +188,7 @@ export function patchActiveFields(activeField, patch) {
     activeField.isHandle = activeField.isHandle || patch.isHandle;
     // x2manys
     if (patch.related) {
+        activeField.related = activeField.related || { activeFields: {}, fields: {} };
         const related = activeField.related;
         for (const fieldName in patch.related.activeFields) {
             if (fieldName in related.activeFields) {
@@ -282,7 +292,9 @@ export function extractFieldsFromArchInfo({ fieldNodes, widgetNodes }, fields) {
         } else {
             activeFields[fieldName] = activeField;
         }
+    }
 
+    for (const fieldNode of Object.values(fieldNodes)) {
         if (fieldNode.field) {
             let fieldDependencies = fieldNode.field.fieldDependencies;
             if (typeof fieldDependencies === "function") {
@@ -483,11 +495,6 @@ export function parseServerValue(field, value) {
             return value ? deserializeDateTime(value) : false;
         }
         case "selection": {
-            if (value === false) {
-                // process selection: convert false to 0, if 0 is a valid key
-                const hasKey0 = field.selection.find((option) => option[0] === 0);
-                return hasKey0 ? 0 : value;
-            }
             return value;
         }
         case "reference": {
@@ -501,8 +508,7 @@ export function parseServerValue(field, value) {
             };
         }
         case "many2one_reference": {
-            if (value === 0) {
-                // unset many2one_reference fields' value is 0
+            if (!value) {
                 return false;
             }
             if (typeof value === "number") {
@@ -545,11 +551,7 @@ export function getAggregateSpecifications(fields) {
     const currencyFields = unique(
         Object.values(fields)
             .filter((field) => field.aggregator && field.currency_field)
-            .map((field) => [
-                `${field.currency_field}:array_agg_distinct`,
-                `${field.name}:sum_currency`,
-            ])
-            .flat()
+            .flatMap(getCurrencyAggregateSpecs)
     );
     return aggregatableFields.concat(currencyFields);
 }
@@ -593,12 +595,8 @@ function getAggregatesFromGroupData(groupData, fields) {
     for (const keyAggregate of getAggregateSpecifications(fields)) {
         if (keyAggregate in groupData) {
             const [fieldName, aggregate] = keyAggregate.split(":");
-            if (aggregate === "sum_currency") {
-                const currencies =
-                    groupData[fields[fieldName].currency_field + ":array_agg_distinct"];
-                if (currencies.length === 1) {
-                    continue;
-                }
+            if (!isConvertedAggregateUsed(groupData, fields[fieldName], aggregate)) {
+                continue;
             }
             aggregates[fieldName] = groupData[keyAggregate];
         }
@@ -609,7 +607,6 @@ function getAggregatesFromGroupData(groupData, fields) {
 /**
  * @param {import("./datapoint").Field} field
  * @param {any} rawValue
- * @returns {string}
  */
 function getDisplayNameFromGroupData(field, rawValue) {
     switch (field.type) {
@@ -754,58 +751,20 @@ export function isRelational(field) {
 
 /**
  * This hook should only be used in a component field because it
- * depends on the record props.
+ * depends on the record prop.
  * The callback will be executed once during setup and each time
  * a record value read in the callback changes.
- * @param {(record) => void} callback
+ *
+ * @deprecated use `computed` or `useEffect` around `this.props.record` directly
+ * @param {(record: import("./record").Record) => any} callback
  */
 export function useRecordObserver(callback) {
-    const component = useComponent();
-    let currentId;
-    const observeRecord = (props) => {
-        currentId = uniqueId();
-        if (!props.record) {
-            return;
-        }
-        const def = new Deferred();
-        const effectId = currentId;
-        let firstCall = true;
-        effect(
-            (record) => {
-                if (firstCall) {
-                    firstCall = false;
-                    return Promise.resolve(callback(record, props))
-                        .then(def.resolve)
-                        .catch(def.reject);
-                } else {
-                    return batched(
-                        (record) => {
-                            if (effectId !== currentId) {
-                                // effect doesn't clean up when the component is unmounted.
-                                // We must do it manually.
-                                return;
-                            }
-                            return Promise.resolve(callback(record, props))
-                                .then(def.resolve)
-                                .catch(def.reject);
-                        },
-                        () => new Promise((resolve) => window.requestAnimationFrame(resolve))
-                    )(record);
-                }
-            },
-            [props.record]
-        );
-        return def;
-    };
-    onWillDestroy(() => {
-        currentId = uniqueId();
+    const props = useProps({ record: t.object() });
+    let result = null;
+    useEffect(() => {
+        result = callback(props.record);
     });
-    onWillStart(() => observeRecord(component.props));
-    onWillUpdateProps((nextProps) => {
-        if (nextProps.record !== component.props.record) {
-            return observeRecord(nextProps);
-        }
-    });
+    onWillStart(() => result);
 }
 
 /**
@@ -816,7 +775,9 @@ export function useRecordObserver(callback) {
  * @param {string} params.resModel - The model to be used for resequencing.
  * @param {Object} params.orm
  * @param {string} params.fieldName - The field used to handle the sequence.
- * @param {number} params.movedId - The id of the record being moved.
+ * @param {string[]} params.movedIds - The ids of the records being moved, in display
+ *                                     order: several of them for a multi selection drag and
+ *                                     drop, a single one otherwise.
  * @param {number} [params.targetId] - The id of the target position, the record will be resequenced
  *                                     after the target. If undefined, the record will be resequenced
  *                                     as the first record.
@@ -831,29 +792,21 @@ export async function resequence({
     resModel,
     orm,
     fieldName,
-    movedId,
+    movedIds,
     targetId,
     asc = true,
     getSequence = (record) => record[fieldName],
     getResId = (record) => record.id,
     context,
 }) {
-    // Find indices
-    const fromIndex = records.findIndex((d) => d.id === movedId);
-    let toIndex = 0;
-    if (targetId !== null) {
-        const targetIndex = records.findIndex((d) => d.id === targetId);
-        toIndex = fromIndex > targetIndex ? targetIndex + 1 : targetIndex;
-    }
+    // Save the original list in case of error
+    const originalOrder = [...records];
 
-    // Determine which records/groups need to be modified
-    const firstIndex = Math.min(fromIndex, toIndex);
-    const lastIndex = Math.max(fromIndex, toIndex) + 1;
     let reorderAll = records.some((record) => getSequence(record) === undefined);
     if (!reorderAll) {
         let lastSequence = (asc ? -1 : 1) * Infinity;
-        for (let index = 0; index < records.length; index++) {
-            const sequence = getSequence(records[index]);
+        for (const record of records) {
+            const sequence = getSequence(record);
             if ((asc && lastSequence >= sequence) || (!asc && lastSequence <= sequence)) {
                 reorderAll = true;
                 break;
@@ -862,27 +815,32 @@ export async function resequence({
         }
     }
 
-    // Save the original list in case of error
-    const originalOrder = [...records];
-    // Perform the resequence in the list of records/groups
-    const record = records[fromIndex];
-    if (fromIndex !== toIndex) {
-        records.splice(fromIndex, 1);
-        records.splice(toIndex, 0, record);
-    }
+    // Move the records/groups after the target (or first), keeping their relative order
+    const idsToMove = new Set(movedIds);
+    const movedRecords = records.filter((d) => idsToMove.has(d.id));
+    const otherRecords = records.filter((d) => !idsToMove.has(d.id));
+    const insertIndex = (targetId ? otherRecords.findIndex((d) => d.id === targetId) : -1) + 1;
+    // Only what lies between the old and the new range of the moved records/groups
+    // needs a new sequence
+    const firstIndex = Math.min(insertIndex, records.indexOf(movedRecords[0]));
+    const lastIndex = Math.max(
+        insertIndex + movedRecords.length,
+        records.indexOf(movedRecords.at(-1)) + 1
+    );
+    records.splice(
+        0,
+        records.length,
+        ...otherRecords.slice(0, insertIndex),
+        ...movedRecords,
+        ...otherRecords.slice(insertIndex)
+    );
 
-    // Creates the list of records/groups to modify
     let toReorder = records;
-    if (!reorderAll) {
-        toReorder = toReorder.slice(firstIndex, lastIndex).filter((r) => r.id !== movedId);
-        if (fromIndex < toIndex) {
-            toReorder.push(record);
-        } else {
-            toReorder.unshift(record);
-        }
+    if (!reorderAll && movedRecords.length) {
+        toReorder = records.slice(firstIndex, lastIndex);
     }
     if (!asc) {
-        toReorder.reverse();
+        toReorder = [...toReorder].reverse();
     }
 
     const resIds = toReorder.map((d) => getResId(d)).filter((id) => id && !isNaN(id));
@@ -902,4 +860,31 @@ export async function resequence({
         records.splice(0, records.length, ...originalOrder);
         throw error;
     }
+}
+
+export function getScheduleORMExtras(model, records) {
+    const extras = {
+        actionId: model.env.config.actionId,
+        actionName: model.env.config.actionName,
+        viewType: model.env.config.viewType,
+        timeStamp: Date.now(),
+    };
+    if (records.length > 1) {
+        extras.displayNames = records.map((r) => getOfflineDisplayName(r));
+        extras.displayName = _t("%s Records", records.length);
+    } else {
+        extras.displayName = getOfflineDisplayName(records[0]);
+    }
+    return extras;
+}
+
+export function getOfflineDisplayName(record) {
+    return (
+        record.data.complete_name ||
+        record.data.name ||
+        record.data.display_name ||
+        record.data.x_name ||
+        record.data.x_studio_name ||
+        _t("Record")
+    );
 }

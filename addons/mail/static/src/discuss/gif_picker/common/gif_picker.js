@@ -1,12 +1,12 @@
 import { Gif } from "@mail/core/common/gif";
 import { useOnBottomScrolled, useSequential } from "@mail/utils/common/hooks";
 
-import { Component, onWillStart, useState, useEffect } from "@odoo/owl";
+import { Component, onWillStart, proxy, signal, t, useOnChange, useProps } from "@odoo/owl";
 import { user } from "@web/core/user";
 import { useService, useAutofocus } from "@web/core/utils/hooks";
 import { useDebounced } from "@web/core/utils/timing";
 import { rpc } from "@web/core/network/rpc";
-import { PICKER_PROPS, usePicker } from "@web/core/emoji_picker/emoji_picker";
+import { usePicker } from "@web/core/emoji_picker/emoji_picker";
 
 export function useGifPicker(...args) {
     return usePicker(GifPicker, ...args);
@@ -20,51 +20,47 @@ export function useGifPicker(...args) {
  * @property {string} name
  */
 
-/**
- * @typedef {Object} TenorMediaFormat
- * @property {string} url
- * @property {number} duration
- * @property {string} preview
- * @property {number[]} dims
- * @property {number} size
- */
+const tenorMediaFormatType = t.object({
+    url: t.string(),
+    duration: t.number(),
+    preview: t.string(),
+    dims: t.array(t.number()),
+    size: t.number(),
+});
 
-/**
- * @typedef {Object} TenorGif
- * @property {string} id
- * @property {string} title
- * @property {number} created
- * @property {string} content_description
- * @property {string} itemurl
- * @property {string} url
- * @property {string[]} tags
- * @property {string[]} flags
- * @property {boolean} hasaudio
- * @property {{ tinygif: TenorMediaFormat }} media_formats
- */
-
-/**
- * @typedef {Object} Props
- * @property {function} onSelect Callback to use when the gif is selected
- * @property {string} [className]
- * @property {function} [close]
- * @property {Object} [state]
- * @extends {Component<Props, Env>}
- */
+const tenorGifType = t.object({
+    id: t.string(),
+    title: t.string(),
+    created: t.number(),
+    content_description: t.string(),
+    itemurl: t.string(),
+    url: t.string(),
+    tags: t.array(t.string()),
+    flags: t.array(t.string()),
+    hasaudio: t.boolean(),
+    media_formats: t.object({ tinygif: tenorMediaFormatType }),
+});
+/** @typedef {import("@odoo/owl").StripType<typeof tenorGifType>} TenorGif */
 
 export class GifPicker extends Component {
     static template = "discuss.GifPicker";
-    static props = PICKER_PROPS;
     static components = { Gif };
+
+    autofocusRef = signal.ref();
+    scrollerRef = signal.ref();
 
     setup() {
         super.setup();
+        this.props = useProps({
+            close: t.function([]).optional(),
+            onSelect: t.function([tenorGifType, t.boolean()]),
+        });
         this.orm = useService("orm");
         this.store = useService("mail.store");
         this.sequential = useSequential();
-        this.inputRef = useAutofocus();
+        useAutofocus({ ref: this.autofocusRef });
         useOnBottomScrolled(
-            "scroller",
+            this.scrollerRef,
             () => {
                 if (!this.state.showCategories) {
                     if (!this.showFavorite) {
@@ -79,7 +75,7 @@ export class GifPicker extends Component {
         this.next = "";
         this.showFavorite = false;
         this.offset = 0;
-        this.state = useState({
+        this.state = proxy({
             favorites: {
                 /** @type {TenorGif[]} */
                 gifs: [],
@@ -105,20 +101,18 @@ export class GifPicker extends Component {
             },
             focused: false,
         });
-        this.loadFavoritesDebounced = useDebounced(this.loadFavorites, 200);
+        this.loadFavoritesDebounced = useDebounced(this.loadFavorites.bind(this), 200);
         onWillStart(() => {
             this.loadCategories();
         });
-        if (this.store.self_partner) {
+        if (this.store.self_user) {
             onWillStart(() => {
                 this.loadFavorites();
             });
         }
-        useEffect(
+        useOnChange(
+            () => [this.searchTerm],
             () => {
-                if (this.props.state?.picker !== this.props.PICKERS?.GIF) {
-                    return;
-                }
                 this.clear();
                 this.search();
                 if (this.searchTerm) {
@@ -126,8 +120,7 @@ export class GifPicker extends Component {
                 } else {
                     this.openCategories();
                 }
-            },
-            () => [this.searchTerm, this.props.state?.picker]
+            }
         );
     }
 
@@ -136,15 +129,11 @@ export class GifPicker extends Component {
     }
 
     get searchTerm() {
-        return this.props.state ? this.props.state.searchTerm : this.state.searchTerm;
+        return this.state.searchTerm;
     }
 
     set searchTerm(value) {
-        if (this.props.state) {
-            this.props.state.searchTerm = value;
-        } else {
-            this.state.searchTerm = value;
-        }
+        this.state.searchTerm = value;
     }
 
     async loadCategories() {
@@ -255,7 +244,7 @@ export class GifPicker extends Component {
     async onClickCategory(category) {
         this.clear();
         this.searchTerm = category.searchterm;
-        this.inputRef.el?.focus();
+        this.autofocusRef()?.focus();
         this.closeCategories();
     }
 
@@ -307,5 +296,9 @@ export class GifPicker extends Component {
             this.pushGif(gif);
         }
         this.closeCategories();
+    }
+
+    onClickOpenDiscussSetting() {
+        this.env.services.action.doAction("mail.action_open_discuss_settings");
     }
 }

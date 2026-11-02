@@ -1,12 +1,11 @@
-import pytz
-from datetime import datetime
+from datetime import datetime, UTC
+from zoneinfo import ZoneInfo
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools.date_utils import float_to_time
 from odoo.tools import (
     format_date,
-    format_datetime,
     formatLang,
     format_time,
 )
@@ -60,21 +59,23 @@ class EventSlot(models.Model):
             if not (event_start <= slot.start_datetime <= event_end) or not (event_start <= slot.end_datetime <= event_end):
                 raise ValidationError(_(
                     "A slot cannot be scheduled outside of its event time range.\n\n"
-                    "Event:\t\t%(event_start)s - %(event_end)s\n"
-                    "Slot:\t\t%(slot_name)s",
-                    event_start=format_datetime(self.env, event_start, tz=slot.date_tz, dt_format='medium'),
-                    event_end=format_datetime(self.env, event_end, tz=slot.date_tz, dt_format='medium'),
+                    "Event:\t%(event_start_date)s, %(event_start_time)s - %(event_end_date)s, %(event_end_time)s\n"
+                    "Slot:\t%(slot_name)s",
+                    event_start_date=format_date(self.env, event_start, date_format="medium"),
+                    event_start_time=format_time(self.env, event_start, time_format="short"),
+                    event_end_date=format_date(self.env, event_end, date_format="medium"),
+                    event_end_time=format_time(self.env, event_end, time_format="short"),
                     slot_name=slot.display_name,
                 ))
 
     @api.depends("date", "date_tz", "start_hour", "end_hour")
     def _compute_datetimes(self):
         for slot in self:
-            event_tz = pytz.timezone(slot.date_tz)
+            event_tz = ZoneInfo(slot.date_tz)
             start = datetime.combine(slot.date, float_to_time(slot.start_hour))
             end = datetime.combine(slot.date, float_to_time(slot.end_hour))
-            slot.start_datetime = event_tz.localize(start).astimezone(pytz.UTC).replace(tzinfo=None)
-            slot.end_datetime = event_tz.localize(end).astimezone(pytz.UTC).replace(tzinfo=None)
+            slot.start_datetime = start.replace(tzinfo=event_tz).astimezone(UTC).replace(tzinfo=None)
+            slot.end_datetime = end.replace(tzinfo=event_tz).astimezone(UTC).replace(tzinfo=None)
 
     @api.depends("seats_available")
     @api.depends_context('name_with_seats_availability')

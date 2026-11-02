@@ -3,27 +3,26 @@ import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { standardFieldProps } from "../standard_field_props";
 
-import { Component, useState } from "@odoo/owl";
-import { useRecordObserver } from "@web/model/relational_model/utils";
+import { Component, proxy, t, useEffect, useProps } from "@odoo/owl";
 
 export class ImageUrlField extends Component {
     static template = "web.ImageUrlField";
-    static props = {
+    props = useProps({
         ...standardFieldProps,
-        width: { type: Number, optional: true },
-        height: { type: Number, optional: true },
-    };
+        width: t.number().optional(),
+        height: t.number().optional(),
+    });
 
     static fallbackSrc = "/web/static/img/placeholder.png";
 
     setup() {
         this.notification = useService("notification");
-        this.state = useState({
+        this.state = proxy({
             src: this.props.record.data[this.props.name],
         });
 
-        useRecordObserver((record) => {
-            this.state.src = record.data[this.props.name];
+        useEffect(() => {
+            this.state.src = this.props.record.data[this.props.name];
         });
     }
 
@@ -33,10 +32,10 @@ export class ImageUrlField extends Component {
         const height = this.props.height;
         style = width ? `max-width: ${width}px;` : `width: auto;`;
         style += height ? `max-height: ${height}px` : `height: auto`;
-        
+
         return style;
     }
-    
+
     onLoadFailed() {
         this.state.src = this.constructor.fallbackSrc;
     }

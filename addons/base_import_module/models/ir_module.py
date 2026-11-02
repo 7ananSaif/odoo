@@ -1,5 +1,4 @@
 import ast
-import base64
 import io
 import json
 import logging
@@ -17,11 +16,10 @@ from os.path import join as opj
 from odoo import api, fields, models, _
 from odoo.exceptions import AccessDenied, AccessError, UserError
 from odoo.fields import Domain
-from odoo.http import request
 from odoo.modules.module import MANIFEST_NAMES, Manifest
 from odoo.release import major_version
-from odoo.tools import SQL, convert_file
-from odoo.tools import file_open, file_path, file_open_temporary_directory, ormcache
+from odoo.tools import BinaryBytes, SQL, convert_file
+from odoo.tools import file_open, file_path, file_open_temporary_directory
 from odoo.tools.misc import OrderedSet, topological_sort
 from odoo.tools.translate import JAVASCRIPT_TRANSLATION_COMMENT, CodeTranslations, TranslationImporter, get_base_langs
 
@@ -41,9 +39,15 @@ class IrModuleModule(models.Model):
         ('official', 'Official Apps'),
         ('industries', 'Industries'),
     ], default='official')
+    total_lines_of_code = fields.Integer(
+        string="Extra lines of Code",
+        store=False,  # info is retrieved from the appstore in web_read
+        help="Number of lines of code that may be billed under an Enterprise subscription."
+            " For exact pricing details, please contact your account manager or visit odoo.com/pricing.",
+    )
 
     @api.model
-    @ormcache(cache='stable')
+    @api.ormcache(cache='stable')
     def _get_imported_module_names(self):
         return OrderedSet(self.sudo().search_fetch([('imported', '=', True), ('state', '=', 'installed')], ['name']).mapped('name'))
 
@@ -71,7 +75,7 @@ class IrModuleModule(models.Model):
                     ], limit=1)
                     if attachment.raw:
                         try:
-                            with io.BytesIO(attachment.raw) as fileobj:
+                            with io.BytesIO(attachment.raw) as fileobj:  # use BytesIO to set the name
                                 fileobj.name = attachment.name
                                 translation_importer.load(fileobj, 'po', lang, module=module)
                         except Exception:   # noqa: BLE001
@@ -99,16 +103,13 @@ class IrModuleModule(models.Model):
                 ('res_model', '=', 'ir.ui.view')
             ], limit=1)
             if attachment:
-                module.icon_image = attachment.datas
+                module.icon_image = attachment.raw
 
     def _import_module(self, module, path, force=False, with_demo=False):
         # Do not create a bridge module for these neutralizations.
         # Do not involve specific website during import by resetting
-        # information used by website's get_current_website.
+        # information used by website_id's context.
         self = self.with_context(website_id=None)  # noqa: PLW0642
-        force_website_id = None
-        if request and request.session.get('force_website_id'):
-            force_website_id = request.session.pop('force_website_id')
 
         known_mods = self.search([])
         known_mods_names = {m.name: m for m in known_mods}
@@ -138,7 +139,10 @@ class IrModuleModule(models.Model):
                 err = _("Unknown module dependencies:") + "\n - " + "\n - ".join(wrong_dependencies)
                 raise UserError(err)
             to_install = known_mods.filtered(lambda mod: mod.name in unmet_dependencies)
+            _logger.info("Unmet dependencies during import of %s: %s", module, to_install.mapped('name'))
             to_install.button_immediate_install()
+            # Rebrowse to use the new registry
+            return self.env[self._name].browse(self._ids)._import_module(module, path, force=force, with_demo=with_demo)
         elif 'web_studio' not in installed_mods and _is_studio_custom(path):
             raise UserError(_("Studio customizations require the Odoo Studio app."))
 
@@ -189,7 +193,7 @@ class IrModuleModule(models.Model):
                 for static_file in files:
                     full_path = opj(root, static_file)
                     with file_open(full_path, 'rb', env=self.env) as fp:
-                        data = base64.b64encode(fp.read())
+                        raw = BinaryBytes(fp.read())
                     url_path = '/{}{}'.format(module, full_path.split(path)[1].replace(os.path.sep, '/'))
                     if not isinstance(url_path, str):
                         url_path = url_path.decode(sys.getfilesystemencoding())
@@ -199,7 +203,7 @@ class IrModuleModule(models.Model):
                         url=url_path,
                         res_model='ir.ui.view',
                         type='binary',
-                        datas=data,
+                        raw=raw,
                     )
                     # Do not create a bridge module for this check.
                     if 'public' in IrAttachment._fields:
@@ -232,7 +236,7 @@ class IrModuleModule(models.Model):
                     # we don't support sub-directories in i18n
                     continue
                 with file_open(entry.path, 'rb', env=self.env) as fp:
-                    raw = fp.read()
+                    raw = BinaryBytes(fp.read())
                 lang = entry.name.split('.')[0]
                 # store as binary ir.attachment
                 values = {
@@ -313,11 +317,8 @@ class IrModuleModule(models.Model):
             article_record.write({'body': body})
 
         mod._update_from_terp(terp)
+        self.env.cr.flush()
         _logger.info("Successfully imported module '%s'", module)
-
-        if force_website_id:
-            # Restore neutralized website_id.
-            request.session['force_website_id'] = force_website_id
 
         return True
 
@@ -376,12 +377,14 @@ class IrModuleModule(models.Model):
                     if is_data_file or is_static or is_translation:
                         z.extract(file, module_dir)
 
+                env_sudo = self.sudo().env
                 for mod_name in sorted_dirs:
                     module_names.append(mod_name)
                     try:
                         # assert mod_name.startswith('theme_')
                         path = opj(module_dir, mod_name)
-                        self.sudo()._import_module(mod_name, path, force=force, with_demo=with_demo)
+                        # call import module after rebinding to the new registry
+                        env_sudo[self._name]._import_module(mod_name, path, force=force, with_demo=with_demo)
                     except Exception as e:
                         raise UserError(_(
                             "Error while importing module '%(module)s'.\n\n %(error_message)s \n\n",
@@ -416,6 +419,9 @@ class IrModuleModule(models.Model):
                 'records': modules_list[:(limit or 80)],
             }
         else:
+            domain = Domain(domain).map_conditions(
+                lambda c: Domain.OR([c, [('module_type', '=', False)]]) if c.field_expr == 'module_type' else c
+            ).optimize(self)
             return super().web_search_read(domain, specification, offset=offset, limit=limit, order=order, count_limit=count_limit)
 
     def more_info(self):
@@ -495,7 +501,7 @@ class IrModuleModule(models.Model):
         return results
 
     @api.model
-    @ormcache('payload')
+    @api.ormcache('payload')
     def _call_apps(self, payload):
         headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
         import requests  # noqa: PLC0415
@@ -507,7 +513,7 @@ class IrModuleModule(models.Model):
             )
 
     @api.model
-    @ormcache()
+    @api.ormcache()
     def _get_industry_categories_from_apps(self):
         import requests  # noqa: PLC0415
         try:
@@ -522,12 +528,6 @@ class IrModuleModule(models.Model):
             return []
         except requests.exceptions.ConnectionError:
             return []
-
-    def button_upgrade(self):
-        res = super().button_upgrade()
-        # revert states for imported modules since they cannot be upgraded
-        self.search([('imported', '=', True), ('state', '=', 'to upgrade')]).state = 'installed'
-        return res
 
     def button_immediate_install_app(self):
         if not self.env.is_admin():
@@ -544,7 +544,7 @@ class IrModuleModule(models.Model):
             if unavailable_modules:
                 raise UserError(missing_dependencies_description)
             import_module = self.env['base.import.module'].create({
-                'module_file': base64.b64encode(resp.content),
+                'module_file': BinaryBytes(resp.content),
                 'state': 'init',
                 'modules_dependencies': missing_dependencies_description,
             })
@@ -624,7 +624,7 @@ class IrModuleModule(models.Model):
         return super().search_panel_select_range(field_name, **kwargs)
 
     @api.model
-    @ormcache('module', 'lang', cache='stable')
+    @api.ormcache('module', 'lang', cache='stable')
     def _get_imported_module_translations_for_webclient(self, module, lang):
         if not lang:
             lang = self.env.context.get("lang") or 'en_US'
@@ -644,7 +644,7 @@ class IrModuleModule(models.Model):
             ], limit=1)
             if attachment.raw:
                 try:
-                    with io.BytesIO(attachment.raw) as fileobj:
+                    with io.BytesIO(attachment.raw) as fileobj:  # use BytesIO to set the name
                         fileobj.name = attachment.name
                         webclient_translations = CodeTranslations._read_code_translations_file(fileobj, filter_func)
                         translations.update(webclient_translations)
@@ -700,7 +700,7 @@ class IrModuleModule(models.Model):
                 extract_method = 'odoo.tools.translate:babel_extract_qweb'
                 extract_keywords = {}
             try:
-                with io.BytesIO(attachment.raw) as fileobj:
+                with attachment.raw.open() as fileobj:
                     for extracted in extract.extract(extract_method, fileobj, keywords=extract_keywords):
                         lineno, message, comments = extracted[:3]
                         value = translations.get(message, '')

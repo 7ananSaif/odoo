@@ -126,7 +126,7 @@ const checkWebsiteFilters = [
 const deleteSelectedPage = [
     {
         content: "Click on Action",
-        trigger: ".o_cp_action_menus button",
+        trigger: ".o_cp_action_menus button:text(actions)",
         run: "click",
     },
     {
@@ -143,12 +143,15 @@ const deleteSelectedPage = [
         run: "click",
     },
     {
-        content: "Click on OK",
-        trigger: ".modal-content footer button.btn-primary:not([disabled])",
+        content: "Click on Delete",
+        trigger: ".modal-content footer button.btn-danger:contains('Delete'):not([disabled])",
         run: "click",
     },
+    {
+        trigger: "body:not(:has(.modal))",
+    },
 ];
-const homePage = 'tr:contains("Home")';
+const homePage = "tr:has(td:contains(Home):has([data-icon='home']))";
 
 const duplicateSinglePage = [
     {
@@ -159,7 +162,7 @@ const duplicateSinglePage = [
     },
     {
         content: "Click on Action button",
-        trigger: ".o_cp_action_menus button",
+        trigger: ".o_cp_action_menus button:text(actions)",
         run: "click",
     },
     {
@@ -168,13 +171,21 @@ const duplicateSinglePage = [
         run: "click",
     },
     {
+        content: "Create is disabled while the name is empty",
+        trigger: ".modal-footer button.btn-primary:contains('Create'):disabled",
+    },
+    {
         content: "Put your website name as 'Test Duplicate' here",
         trigger: 'main.modal-body input[type="text"]',
         run: "edit Test Duplicate",
     },
     {
-        content: "Click on OK",
-        trigger: ".modal-footer button.btn-primary",
+        content: "Create is enabled once a name is entered",
+        trigger: ".modal-footer button.btn-primary:contains('Create'):not(:disabled)",
+    },
+    {
+        content: "Click on Create",
+        trigger: ".modal-footer button.btn-primary:contains('Create')",
         run: "click",
     },
     {
@@ -198,7 +209,7 @@ const duplicateMultiplePage = [
     },
     {
         content: "Click on Action button",
-        trigger: ".o_cp_action_menus button",
+        trigger: ".o_cp_action_menus button:text(actions)",
         run: "click",
     },
     {
@@ -212,18 +223,14 @@ const duplicateMultiplePage = [
         run: "edit Test Duplicate",
     },
     {
-        content: "Click on OK",
-        trigger: ".modal-footer button.btn-primary",
+        content: "Click on Create",
+        trigger: ".modal-footer button.btn-primary:contains('Create')",
         run: "click",
     },
 ];
 
-registerWebsitePreviewTour(
-    "website_page_manager",
-    {
-        url: "/",
-    },
-    () => [
+registry.category("web_tour.tours").add("website_page_manager", {
+    steps: () => [
         {
             content: "Click on Site",
             trigger: 'button.dropdown-toggle[data-menu-xmlid="website.menu_site"]',
@@ -247,9 +254,17 @@ registerWebsitePreviewTour(
             run: "click",
         },
         {
+            content: "Check there is only one home page",
+            trigger: `.o_list_renderer:has(tr:contains(home):count(1))`,
+        },
+        {
             content: "Click on Home Page",
             trigger: `.o_list_renderer ${homePage} td.o_list_record_selector input[type="checkbox"]`,
-            run: "click",
+            run: "check",
+        },
+        {
+            content: "Make sure the record has been selected",
+            trigger: `.o_list_renderer ${homePage} td.o_list_record_selector input[type="checkbox"]:checked`,
         },
         ...deleteSelectedPage,
         {
@@ -259,45 +274,38 @@ registerWebsitePreviewTour(
         {
             content: "Click on All Pages",
             trigger: '.o_list_renderer thead input[type="checkbox"]',
-            run: "click",
+            run: "check",
         },
         ...deleteSelectedPage,
         {
             content: "Check that all pages have been removed",
             trigger: ".o_list_renderer tbody:not(:has([data-id]))",
         },
-    ]
-);
+    ],
+});
 
-registerWebsitePreviewTour(
-    "website_page_manager_session_forced",
+registerWebsitePreviewTour("website_page_manager_session_forced", {}, () => [
+    ...testSwitchWebsite("Test Website"),
     {
-        url: "/",
+        content: "Click on Site",
+        trigger: 'button.dropdown-toggle[data-menu-xmlid="website.menu_site"]',
+        run: " click",
     },
-    () => [
-        ...testSwitchWebsite("Test Website"),
-        {
-            content: "Click on Site",
-            trigger: 'button.dropdown-toggle[data-menu-xmlid="website.menu_site"]',
-            run: " click",
-        },
-        {
-            content: "Click on Pages",
-            trigger: 'a.dropdown-item[data-menu-xmlid="website.menu_website_pages_list"]',
-            run: " click",
-        },
-        {
-            content: "Check that the homepage is the one of Test Website",
-            trigger:
-                ".o_list_table .o_data_row .o_data_cell[name=name]:contains('Home') " +
-                "~ .o_data_cell[name=website_id]:contains('Test Website')",
-        },
-        ...verifySelectedWebsiteFilter("Test Website"),
-    ]
-);
+    {
+        content: "Click on Pages",
+        trigger: 'a.dropdown-item[data-menu-xmlid="website.menu_website_pages_list"]',
+        run: " click",
+    },
+    {
+        content: "Check that the homepage is the one of Test Website",
+        trigger:
+            ".o_list_table .o_data_row .o_data_cell[name=name]:contains('Home') " +
+            "~ .o_data_cell[name=website_id]:contains('Test Website')",
+    },
+    ...verifySelectedWebsiteFilter("Test Website"),
+]);
 
 registry.category("web_tour.tours").add("website_page_manager_direct_access", {
-    url: "/odoo/action-website.action_website_pages_list",
     steps: () => [
         {
             content: "Check that the homepage is the one of Test Website",
@@ -309,26 +317,20 @@ registry.category("web_tour.tours").add("website_page_manager_direct_access", {
     ],
 });
 
-registerWebsitePreviewTour(
-    "website_clone_pages",
+registerWebsitePreviewTour("website_clone_pages", {}, () => [
     {
-        url: "/",
+        content: "Click on Site",
+        trigger: 'button.dropdown-toggle[data-menu-xmlid="website.menu_site"]',
+        run: "click",
     },
-    () => [
-        {
-            content: "Click on Site",
-            trigger: 'button.dropdown-toggle[data-menu-xmlid="website.menu_site"]',
-            run: "click",
-        },
-        {
-            content: "Click on Pages",
-            trigger: 'a.dropdown-item[data-menu-xmlid="website.menu_website_pages_list"]',
-            run: "click",
-        },
-        ...duplicateSinglePage,
-        ...duplicateMultiplePage,
-        {
-            trigger: "td:contains('/test-duplicate-2-1')",
-        },
-    ]
-);
+    {
+        content: "Click on Pages",
+        trigger: 'a.dropdown-item[data-menu-xmlid="website.menu_website_pages_list"]',
+        run: "click",
+    },
+    ...duplicateSinglePage,
+    ...duplicateMultiplePage,
+    {
+        trigger: "td:contains('/test-duplicate-2-1')",
+    },
+]);

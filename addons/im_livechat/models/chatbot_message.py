@@ -2,6 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import models, fields
+from odoo.addons.mail.tools.discuss import Store
 
 
 class ChatbotMessage(models.Model):
@@ -15,7 +16,7 @@ class ChatbotMessage(models.Model):
     _order = 'create_date desc, id desc'
     _rec_name = 'discuss_channel_id'
 
-    mail_message_id = fields.Many2one('mail.message', string='Related Mail Message')
+    mail_message_id = fields.Many2one('mail.message', string='Related Mail Message', index=True)
     discuss_channel_id = fields.Many2one('discuss.channel', string='Discussion Channel', required=True, index=True, ondelete="cascade")
     script_step_id = fields.Many2one(
         "chatbot.script.step", string="Chatbot Step", index="btree_not_null")
@@ -30,3 +31,8 @@ class ChatbotMessage(models.Model):
     _channel_id_user_raw_script_answer_id_idx = models.Index(
         "(discuss_channel_id, user_raw_script_answer_id) WHERE user_raw_script_answer_id IS NOT NULL",
     )
+
+    def _store_chatbot_message_fields(self, res: Store.FieldList):
+        res.one("script_step_id", ["step_type"])
+        res.one("user_script_answer_id", ["name"])
+        res.attr("user_raw_answer")

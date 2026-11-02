@@ -10,7 +10,7 @@ from werkzeug import urls
 
 from odoo import api, models, tools
 from odoo.addons.link_tracker.tools.html import find_links_with_urls_and_labels
-from odoo.tools.mail import is_html_empty, URL_SKIP_PROTOCOL_REGEX, TEXT_URL_REGEX
+from odoo.tools.mail import is_html_empty, text_url_replace, URL_SKIP_PROTOCOL_REGEX, TEXT_URL_REGEX
 
 
 class MailRenderMixin(models.AbstractModel):
@@ -39,13 +39,20 @@ class MailRenderMixin(models.AbstractModel):
         """
         if not html or is_html_empty(html):
             return html
-        base_url = base_url or self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        base_url = base_url or self.env['ir.config_parameter'].sudo().get_str('web.base.url')
         short_schema = base_url + '/r/'
 
         root_node = lxml.html.fromstring(html)
         link_nodes, urls_and_labels = find_links_with_urls_and_labels(
             root_node, base_url, skip_regex=rf'^{URL_SKIP_PROTOCOL_REGEX}', skip_prefix=short_schema,
             skip_list=blacklist)
+        if link_nodes:
+            filtered = [
+                (node, url)
+                for node, url in zip(link_nodes, urls_and_labels)
+                if self._should_track_node(node)
+            ]
+            link_nodes, urls_and_labels = zip(*filtered) if filtered else ((), ())
         if not link_nodes:
             return html
 
@@ -62,6 +69,10 @@ class MailRenderMixin(models.AbstractModel):
         return new_html
 
     @api.model
+    def _should_track_node(self, node):
+        return True
+
+    @api.model
     def _shorten_links_text(self, content, link_tracker_vals, blacklist=None, base_url=None):
         """ Shorten links in a string content. Works like ``_shorten_links`` but
         targeting string content, not html.
@@ -70,7 +81,7 @@ class MailRenderMixin(models.AbstractModel):
         """
         if not content:
             return content
-        base_url = base_url or self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        base_url = base_url or self.env['ir.config_parameter'].sudo().get_str('web.base.url')
         shortened_schema = base_url + '/r/'
         unsubscribe_schema = base_url + '/sms/'
         for original_url in set(re.findall(TEXT_URL_REGEX, content)):
@@ -86,6 +97,6 @@ class MailRenderMixin(models.AbstractModel):
             link = self.env['link.tracker'].search_or_create([create_vals])
             if link.short_url:
                 # Ensures we only replace the same link and not a subpart of a longer one, multiple times if applicable
-                content = re.sub(re.escape(original_url) + r'(?![\w@:%.+&~#=/-])', link.short_url, content)
+                content = text_url_replace(original_url, link.short_url, content)
 
         return content

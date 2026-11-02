@@ -1,23 +1,24 @@
-import { _t } from "@web/core/l10n/translation";
-import { registry } from '@web/core/registry';
-import { useMatrixConfigurator } from "@product_matrix/js/matrix_configurator_hook";
-import { useService } from "@web/core/utils/hooks";
-import { useRecordObserver } from "@web/model/relational_model/utils";
 import {
-    productLabelSectionAndNoteField,
-    ProductLabelSectionAndNoteField
-} from "@account/components/product_label_section_and_note_field/product_label_section_and_note_field";
+    accountProductField,
+    AccountProductField,
+} from "@account/components/account_product_field/account_product_field";
+import { useEffect } from "@odoo/owl";
+import { useMatrixConfigurator } from "@product_matrix/js/matrix_configurator_hook";
+import { _t } from "@web/core/l10n/translation";
+import { registry } from "@web/core/registry";
+import { useService } from "@web/core/utils/hooks";
 
-export class PurchaseOrderLineProductField extends ProductLabelSectionAndNoteField {
+export class PurchaseOrderLineProductField extends AccountProductField {
     static template = "purchase.PurchaseProductField";
     setup() {
         super.setup();
         this.orm = useService("orm");
         this.currentValue = this.props.record.data[this.props.name];
 
-        useRecordObserver((record) => {
-            if (record.isInEdition && this.props.record.data[this.props.name]) {
-                if (!this.currentValue || this.currentValue.id != record.data[this.props.name].id) {
+        useEffect(() => {
+            const name = this.props.name;
+            if (this.props.record.isInEdition && this.props.record.data[name]) {
+                if (!this.currentValue || this.currentValue.id != this.props.record.data[name].id) {
                     // Field was updated if line was open in edit mode,
                     //      field is not emptied,
                     //      new value is different than existing value.
@@ -25,7 +26,7 @@ export class PurchaseOrderLineProductField extends ProductLabelSectionAndNoteFie
                     this._onProductTemplateUpdate();
                 }
             }
-            this.currentValue = record.data[this.props.name];
+            this.currentValue = this.props.record.data[this.props.name];
         });
         this.matrixConfigurator = useMatrixConfigurator();
     }
@@ -46,12 +47,10 @@ export class PurchaseOrderLineProductField extends ProductLabelSectionAndNoteFie
     }
 
     async _onProductTemplateUpdate() {
-        const result = await this.orm.call(
-            'product.template',
-            'get_single_product_variant',
-            [this.props.record.data.product_template_id.id],
-        );
-        if(result && result.product_id) {
+        const result = await this.orm.call("product.template", "get_single_product_variant", [
+            this.props.record.data.product_template_id.id,
+        ]);
+        if (result && result.product_id) {
             if (this.props.record.data.product_id != result.product_id.id) {
                 this.props.record.update({
                     // TODO right name get (same problem as configurator)
@@ -71,6 +70,6 @@ export class PurchaseOrderLineProductField extends ProductLabelSectionAndNoteFie
 }
 
 registry.category("fields").add("pol_product_many2one", {
-    ...productLabelSectionAndNoteField,
+    ...accountProductField,
     component: PurchaseOrderLineProductField,
 });

@@ -1,9 +1,20 @@
 $o-kanban-attachement-image-size: 80px;
 
+.o-discuss-CategoryKanban {
+    .o-discuss-CategoryKanban-group {
+        gap: var(--Kanban-gap);
+    }
+
+    .o_kanban_record {
+        width: var(--KanbanRecord-width);
+        flex-grow: 1;
+    }
+}
+
 .o_kanban_renderer {
     .o_kanban_record.o_kanban_attachment {
-        --KanbanRecord-padding-h: #{map-get($spacers, 0)};
-        --KanbanRecord-padding-v: #{map-get($spacers, 0)};
+        --Card-padding-h: #{map-get($spacers, 0)};
+        --Card-padding-v: #{map-get($spacers, 0)};
 
         .o_kanban_image {
             width: $o-kanban-attachement-image-size;

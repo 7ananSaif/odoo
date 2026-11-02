@@ -1,4 +1,4 @@
-import { Component, xml } from "@odoo/owl";
+import { Component, xml, useProps, t } from "@odoo/owl";
 import { Dialog } from "@web/core/dialog/dialog";
 import { generateQRCodeDataUrl } from "@point_of_sale/utils";
 import { CopyButton } from "@web/core/copy_button/copy_button";
@@ -8,7 +8,10 @@ import { _t } from "@web/core/l10n/translation";
 export class QrCodeCustomerDisplay extends Component {
     static template = "point_of_sale.QrCodeCustomerDisplay";
     static components = { Dialog, CopyButton };
-    static props = ["close", "customerDisplayURL"];
+    props = useProps({
+        close: t.function(),
+        customerDisplayURL: t.string(),
+    });
 
     setup() {
         this.ui = useService("ui");
@@ -17,16 +20,50 @@ export class QrCodeCustomerDisplay extends Component {
     }
 
     getQrCode() {
-        return generateQRCodeDataUrl(this.props.customerDisplayURL);
+        return generateQRCodeDataUrl(this.props.customerDisplayURL, { useThemeQr: true });
     }
 
-    openOnThisDevice() {
-        window.open(
-            this.props.customerDisplayURL,
-            "newWindow",
-            "width=800,height=600,left=200,top=200"
-        );
-        this.notification.add(_t("PoS Customer Display opened in a new window"));
+    async getScreenFeatures() {
+        let windowFeatures = "width=800,height=600,left=200,top=200";
+        let usedFallback = false;
+
+        if ("getScreenDetails" in window) {
+            // https://developer.mozilla.org/en-US/docs/Web/API/Window/getScreenDetails
+            try {
+                const screenDetails = await window.getScreenDetails();
+                if (screenDetails.screens.length >= 2) {
+                    const secondScreen = screenDetails.screens.find(
+                        (screen) => screen !== screenDetails.currentScreen
+                    );
+
+                    if (secondScreen) {
+                        windowFeatures = [
+                            `left=${secondScreen.availLeft}`,
+                            `top=${secondScreen.availTop}`,
+                            `width=${secondScreen.availWidth}`,
+                            `height=${secondScreen.availHeight}`,
+                        ].join(",");
+                    }
+                }
+            } catch {
+                usedFallback = true;
+            }
+        }
+        return { windowFeatures, usedFallback };
+    }
+
+    async openOnThisDevice() {
+        const { windowFeatures, usedFallback } = await this.getScreenFeatures();
+        window.open(this.props.customerDisplayURL, "customerDisplay", windowFeatures);
+
+        if (usedFallback) {
+            this.notification.add(
+                _t("Customer Display opened in a new window. Allow popups to use a second screen.")
+            );
+        } else {
+            this.notification.add(_t("Customer Display opened in a new window"));
+        }
+        this.props.close();
     }
 
     showQr() {
@@ -39,16 +76,18 @@ export class QrCodeCustomerDisplay extends Component {
 }
 
 class QrDialog extends Component {
-    static props = ["close", "qrData", "parentClose"];
+    props = useProps({
+        close: t.function(),
+        qrData: t.string(),
+        parentClose: t.function(),
+    });
     static components = { Dialog };
     static template = xml`
-        <Dialog header="false" footer="false" size="'sm'">
-            <div class="d-flex flex-column align-items-center">
-                <img id="CustomerDisplayqrCode" t-att-src="props.qrData" alt="Customer QR Code" class="img-fluid mb-3 square w-100"/>
-                <button t-on-click="close" class="button btn btn-secondary h1 mb-3 rounded-3">
-                    Close
-                </button>
-            </div>
+        <Dialog header="false" size="'sm'" bodyClass="'d-flex justify-content-center'" contentClass="'pt-4 pb-3'">
+            <img id="CustomerDisplayqrCode" t-att-src="this.props.qrData" alt="Customer QR Code" class="img-fluid w-50"/>
+            <t t-set-slot="footer">
+                <button class="btn btn-secondary mx-auto" t-on-click="this.close">Discard</button>
+            </t>
         </Dialog>
     `;
 

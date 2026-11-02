@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, test } from "@odoo/hoot";
 
-import { getFirstListFunction, getNumberOfListFormulas } from "@spreadsheet/list/list_helpers";
-import { constants, tokenize, helpers } from "@odoo/o-spreadsheet";
+import { getFirstListFunction, hasListFormula } from "@spreadsheet/list/list_helpers";
+import { constants, helpers, CompiledFormula, Model } from "@odoo/o-spreadsheet";
 import { allowTranslations } from "@web/../tests/web_test_helpers";
 const {
     getFirstPivotFunction,
@@ -28,17 +28,18 @@ beforeEach(() => {
 describe.current.tags("headless");
 
 test("Basic formula extractor", async function () {
-    const formula = `=PIVOT.VALUE("1", "test") + ODOO.LIST("2", "hello", "bla")`;
-    const tokens = tokenize(formula);
+    const model = new Model();
+    const formula = `=PIVOT.VALUE("1", "test") + ODOO.LIST.VALUE("2", "hello", "bla")`;
+    const compiledFormula = CompiledFormula.Compile(formula, "no_sheet", model.getters);
     let functionName;
     let args;
-    ({ functionName, args } = getFirstPivotFunction(tokens));
+    ({ functionName, args } = getFirstPivotFunction(compiledFormula, model.getters));
     expect(functionName).toBe("PIVOT.VALUE");
     expect(args.length).toBe(2);
     expect(args[0]).toEqual(stringArg("1", 3));
     expect(args[1]).toEqual(stringArg("test", 6));
-    ({ functionName, args } = getFirstListFunction(tokens));
-    expect(functionName).toBe("ODOO.LIST");
+    ({ functionName, args } = getFirstListFunction(compiledFormula, model.getters));
+    expect(functionName).toBe("ODOO.LIST.VALUE");
     expect(args.length).toBe(3);
     expect(args[0]).toEqual(stringArg("2", 13));
     expect(args[1]).toEqual(stringArg("hello", 16));
@@ -46,35 +47,44 @@ test("Basic formula extractor", async function () {
 });
 
 test("Extraction with two PIVOT formulas", async function () {
-    const formula = `=PIVOT.VALUE("1", "test") + PIVOT.VALUE("2", "hello", "bla")`;
-    const tokens = tokenize(formula);
-    const { functionName, args } = getFirstPivotFunction(tokens);
+    const model = new Model();
+    const formula = `=PIVOT.VALUE("1", "test") + PIVOT.VALUE("2", "hello")`;
+    const compiledFormula = CompiledFormula.Compile(formula, "no_sheet", model.getters);
+    const { functionName, args } = getFirstPivotFunction(compiledFormula, model.getters);
     expect(functionName).toBe("PIVOT.VALUE");
     expect(args.length).toBe(2);
     expect(args[0]).toEqual(stringArg("1", 3));
     expect(args[1]).toEqual(stringArg("test", 6));
-    expect(getFirstListFunction(tokens)).toBe(undefined);
+    expect(getFirstListFunction(compiledFormula, model.getters)).toBe(undefined);
 });
 
 test("Number of formulas", async function () {
-    const formula = `=PIVOT.VALUE("1", "test") + PIVOT.VALUE("2", "hello", "bla") + ODOO.LIST("1", "bla")`;
-    expect(getNumberOfPivotFunctions(tokenize(formula))).toBe(2);
-    expect(getNumberOfListFormulas(tokenize(formula))).toBe(1);
-    expect(getNumberOfPivotFunctions(tokenize("=1+1"))).toBe(0);
-    expect(getNumberOfListFormulas(tokenize("=1+1"))).toBe(0);
-    expect(getNumberOfPivotFunctions(tokenize("=bla"))).toBe(0);
-    expect(getNumberOfListFormulas(tokenize("=bla"))).toBe(0);
+    const model = new Model();
+    const formula = CompiledFormula.Compile(
+        `=PIVOT.VALUE("1", "test") + PIVOT.VALUE("2", "hello") + ODOO.LIST.VALUE("1", 1, "bla")`,
+        "no_sheet",
+        model.getters
+    );
+    expect(getNumberOfPivotFunctions(formula,model.getters)).toBe(2);
+    expect(hasListFormula(formula, model.getters)).toBe(true);
+    const formula2 = CompiledFormula.Compile("=1+1", "no_sheet",model.getters);
+    expect(getNumberOfPivotFunctions(formula2, model.getters)).toBe(0);
+    expect(hasListFormula(formula2, model.getters)).toBe(false);
+    const formula3 = CompiledFormula.Compile("=bla", "no_sheet",model.getters);
+    expect(getNumberOfPivotFunctions(formula3, model.getters)).toBe(0);
+    expect(hasListFormula(formula3, model.getters)).toBe(false);
 });
 
 test("getFirstPivotFunction does not crash when given crap", async function () {
-    expect(getFirstListFunction(tokenize("=SUM(A1)"))).toBe(undefined);
-    expect(getFirstPivotFunction(tokenize("=SUM(A1)"))).toBe(undefined);
-    expect(getFirstListFunction(tokenize("=1+1"))).toBe(undefined);
-    expect(getFirstPivotFunction(tokenize("=1+1"))).toBe(undefined);
-    expect(getFirstListFunction(tokenize("=bla"))).toBe(undefined);
-    expect(getFirstPivotFunction(tokenize("=bla"))).toBe(undefined);
-    expect(getFirstListFunction(tokenize("bla"))).toBe(undefined);
-    expect(getFirstPivotFunction(tokenize("bla"))).toBe(undefined);
+    const model = new Model();
+    expect(getFirstListFunction(CompiledFormula.Compile("=SUM(A1)","no_sheet", model.getters))).toBe(undefined);
+    expect(getFirstPivotFunction(CompiledFormula.Compile("=SUM(A1)","no_sheet", model.getters))).toBe(undefined);
+    expect(getFirstListFunction(CompiledFormula.Compile("=1+1","no_sheet", model.getters))).toBe(undefined);
+    expect(getFirstPivotFunction(CompiledFormula.Compile("=1+1","no_sheet", model.getters))).toBe(undefined);
+    expect(getFirstListFunction(CompiledFormula.Compile("=bla","no_sheet", model.getters))).toBe(undefined);
+    expect(getFirstPivotFunction(CompiledFormula.Compile("=bla","no_sheet", model.getters))).toBe(undefined);
+    expect(getFirstListFunction(CompiledFormula.Compile("bla","no_sheet", model.getters))).toBe(undefined);
+    expect(getFirstPivotFunction(CompiledFormula.Compile("bla","no_sheet", model.getters))).toBe(undefined);
 });
 
 describe("toNormalizedPivotValue", () => {
@@ -257,6 +267,12 @@ describe("pivot time adapters formatted value", () => {
         const adapter = pivotTimeAdapter("quarter");
         expect(adapter.toValueAndFormat("1/2022", DEFAULT_LOCALE)).toEqual({ value: "Q1 2022" });
         expect(adapter.toValueAndFormat("3/1998", DEFAULT_LOCALE)).toEqual({ value: "Q3 1998" });
+    });
+
+    test("Week/Month/Quarter comparable values", () => {
+        expect(pivotTimeAdapter("week").toComparableValue("5/2024")).toBe(202405);
+        expect(pivotTimeAdapter("month").toComparableValue("02/2024")).toBe(202402);
+        expect(pivotTimeAdapter("quarter").toComparableValue("2/2025")).toBe(202502);
     });
 
     test("Year adapter", () => {

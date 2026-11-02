@@ -3,8 +3,8 @@ import { setupEditor, testEditor } from "./_helpers/editor";
 import {
     alignCenter,
     justify,
-    alignLeft,
-    alignRight,
+    alignStart,
+    alignEnd,
     alignTop,
     alignMiddle,
     alignBottom,
@@ -24,22 +24,22 @@ test("should have align tool only if the block is content editable", async () =>
     }
 });
 
-describe("left", () => {
-    test("should align left", async () => {
+describe("start", () => {
+    test("should align start", async () => {
         await testEditor({
             contentBefore: "<p>ab</p><p>c[]d</p>",
-            stepFunction: alignLeft,
+            stepFunction: alignStart,
             contentAfter: "<p>ab</p><p>c[]d</p>",
         });
     });
 
-    test("should not align left a non-editable node", async () => {
+    test("should not align start a non-editable node", async () => {
         await testEditor({
             contentBefore: '<p>ab</p><div contenteditable="false"><p>c[]d</p></div>',
             contentBeforeEdit:
                 '<p>ab</p><div contenteditable="false"><p>c[]d</p></div>' +
                 '<p data-selection-placeholder=""><br></p>',
-            stepFunction: alignLeft,
+            stepFunction: alignStart,
             contentAfterEdit:
                 '<p>ab</p><div contenteditable="false"><p>c[]d</p></div>' +
                 '<p data-selection-placeholder=""><br></p>',
@@ -47,67 +47,125 @@ describe("left", () => {
         });
     });
 
-    test("should align several paragraphs left", async () => {
+    test("should align several paragraphs start", async () => {
         await testEditor({
             contentBefore: "<p>a[b</p><p>c]d</p>",
-            stepFunction: alignLeft,
+            stepFunction: alignStart,
             contentAfter: "<p>a[b</p><p>c]d</p>",
         });
     });
 
-    test("should left align a node within a right-aligned node", async () => {
+    test("should start align a node within a right-aligned node", async () => {
         await testEditor({
             contentBefore: '<div style="text-align: right;"><p>ab</p><p>c[d]e</p></div>',
-            stepFunction: alignLeft,
+            stepFunction: alignStart,
             contentAfter:
-                '<div style="text-align: right;"><p>ab</p><p style="text-align: left;">c[d]e</p></div>',
+                '<div style="text-align: right;"><p>ab</p><p style="text-align: start;">c[d]e</p></div>',
         });
     });
 
-    test("should left align a node within a right-aligned node and a paragraph", async () => {
+    test("should start align a node within an end-aligned node", async () => {
+        await testEditor({
+            contentBefore: '<div style="text-align: end;"><p>ab</p><p>c[d]e</p></div>',
+            stepFunction: alignStart,
+            contentAfter:
+                '<div style="text-align: end;"><p>ab</p><p style="text-align: start;">c[d]e</p></div>',
+        });
+    });
+
+    test("should start align a node within a right-aligned node and a paragraph", async () => {
         await testEditor({
             contentBefore: '<div style="text-align: right;"><p>ab</p><p>c[d</p></div><p>e]f</p>',
-            stepFunction: alignLeft,
+            stepFunction: alignStart,
             contentAfter:
-                '<div style="text-align: right;"><p>ab</p><p style="text-align: left;">c[d</p></div><p>e]f</p>',
+                '<div style="text-align: right;"><p>ab</p><p style="text-align: start;">c[d</p></div><p>e]f</p>',
         });
     });
 
-    test("should left align a node within a right-aligned node and a paragraph, with a center-aligned common ancestor", async () => {
+    test("should start align a node within an end-aligned node and a paragraph", async () => {
+        await testEditor({
+            contentBefore: '<div style="text-align: end;"><p>ab</p><p>c[d</p></div><p>e]f</p>',
+            stepFunction: alignStart,
+            contentAfter:
+                '<div style="text-align: end;"><p>ab</p><p style="text-align: start;">c[d</p></div><p>e]f</p>',
+        });
+    });
+
+    test("should start align a node within a right-aligned node and a paragraph, with a center-aligned common ancestor", async () => {
         await testEditor({
             contentBefore:
                 '<div style="text-align: center;"><div style="text-align: right;"><p>ab</p><p>c[d</p></div><p>e]f</p></div>',
-            stepFunction: alignLeft,
+            stepFunction: alignStart,
             contentAfter:
-                '<div style="text-align: center;"><div style="text-align: right;"><p>ab</p><p style="text-align: left;">c[d</p></div><p style="text-align: left;">e]f</p></div>',
+                '<div style="text-align: center;"><div style="text-align: right;"><p>ab</p><p style="text-align: start;">c[d</p></div><p style="text-align: start;">e]f</p></div>',
         });
     });
 
-    test("should left align a node within a right-aligned node and a paragraph, with a left-aligned common ancestor", async () => {
+    test("should start align a node within an end-aligned node and a paragraph, with a center-aligned common ancestor", async () => {
+        await testEditor({
+            contentBefore:
+                '<div style="text-align: center;"><div style="text-align: end;"><p>ab</p><p>c[d</p></div><p>e]f</p></div>',
+            stepFunction: alignStart,
+            contentAfter:
+                '<div style="text-align: center;"><div style="text-align: end;"><p>ab</p><p style="text-align: start;">c[d</p></div><p style="text-align: start;">e]f</p></div>',
+        });
+    });
+
+    test("should start align a node within a right-aligned node and a paragraph, with a left-aligned common ancestor", async () => {
         await testEditor({
             contentBefore:
                 '<div style="text-align: left;"><div style="text-align: right;"><p>ab</p><p>c[d</p></div><p>e]f</p></div>',
-            stepFunction: alignLeft,
+            stepFunction: alignStart,
             contentAfter:
-                '<div style="text-align: left;"><div style="text-align: right;"><p>ab</p><p style="text-align: left;">c[d</p></div><p>e]f</p></div>',
+                '<div style="text-align: left;"><div style="text-align: right;"><p>ab</p><p style="text-align: start;">c[d</p></div><p style="text-align: start;">e]f</p></div>',
         });
     });
 
-    test("should not left align a node that is already within a left-aligned node", async () => {
+    test("should start align a node within an end-aligned node and a paragraph, with a left-aligned common ancestor", async () => {
         await testEditor({
-            contentBefore: '<div style="text-align: left;"><p>ab</p><p>c[d]e</p></div>',
-            stepFunction: alignLeft,
-            contentAfter: '<div style="text-align: left;"><p>ab</p><p>c[d]e</p></div>',
+            contentBefore:
+                '<div style="text-align: left;"><div style="text-align: end;"><p>ab</p><p>c[d</p></div><p>e]f</p></div>',
+            stepFunction: alignStart,
+            contentAfter:
+                '<div style="text-align: left;"><div style="text-align: end;"><p>ab</p><p style="text-align: start;">c[d</p></div><p style="text-align: start;">e]f</p></div>',
         });
     });
 
-    test("should left align a container within an editable that is center-aligned", async () => {
+    test("should start align a node within an end-aligned node and a paragraph, with a start-aligned common ancestor", async () => {
+        await testEditor({
+            contentBefore:
+                '<div style="text-align: start;"><div style="text-align: end;"><p>ab</p><p>c[d</p></div><p>e]f</p></div>',
+            stepFunction: alignStart,
+            contentAfter:
+                '<div style="text-align: start;"><div style="text-align: end;"><p>ab</p><p style="text-align: start;">c[d</p></div><p>e]f</p></div>',
+        });
+    });
+
+    test("should not start align a node that is already within a start-aligned node", async () => {
+        await testEditor({
+            contentBefore: '<div style="text-align: start;"><p>ab</p><p>c[d]e</p></div>',
+            stepFunction: alignStart,
+            contentAfter: '<div style="text-align: start;"><p>ab</p><p>c[d]e</p></div>',
+        });
+    });
+
+    test("should start align a container within an editable that is center-aligned", async () => {
         await testEditor({
             contentBefore:
                 '<div contenteditable="true" style="text-align: center;"><h1>a[]b</h1></div>',
-            stepFunction: alignLeft,
+            stepFunction: alignStart,
             contentAfter:
-                '<div contenteditable="true" style="text-align: center;"><h1 style="text-align: left;">a[]b</h1></div>',
+                '<div contenteditable="true" style="text-align: center;"><h1 style="text-align: start;">a[]b</h1></div>',
+        });
+    });
+
+    test("should END align an RTL container within an editable that is center-aligned", async () => {
+        await testEditor({
+            contentBefore:
+                '<div contenteditable="true" style="text-align: center;"><h1 dir="rtl">a[]b</h1></div>',
+            stepFunction: alignStart,
+            contentAfter:
+                '<div contenteditable="true" style="text-align: center;"><h1 dir="rtl" style="text-align: end;">a[]b</h1></div>',
         });
     });
 });
@@ -139,12 +197,30 @@ describe("center", () => {
         });
     });
 
+    test("should center align a node within an end-aligned node", async () => {
+        await testEditor({
+            contentBefore: '<div style="text-align: end;"><p>ab</p><p>c[d]e</p></div>',
+            stepFunction: alignCenter,
+            contentAfter:
+                '<div style="text-align: end;"><p>ab</p><p style="text-align: center;">c[d]e</p></div>',
+        });
+    });
+
     test("should center align a node within a right-aligned node and a paragraph", async () => {
         await testEditor({
             contentBefore: '<div style="text-align: right;"><p>ab</p><p>c[d</p></div><p>e]f</p>',
             stepFunction: alignCenter,
             contentAfter:
                 '<div style="text-align: right;"><p>ab</p><p style="text-align: center;">c[d</p></div><p style="text-align: center;">e]f</p>',
+        });
+    });
+
+    test("should center align a node within a end-aligned node and a paragraph", async () => {
+        await testEditor({
+            contentBefore: '<div style="text-align: end;"><p>ab</p><p>c[d</p></div><p>e]f</p>',
+            stepFunction: alignCenter,
+            contentAfter:
+                '<div style="text-align: end;"><p>ab</p><p style="text-align: center;">c[d</p></div><p style="text-align: center;">e]f</p>',
         });
     });
 
@@ -158,6 +234,26 @@ describe("center", () => {
         });
     });
 
+    test("should center align a node within an end-aligned node and a paragraph, with a left-aligned common ancestor", async () => {
+        await testEditor({
+            contentBefore:
+                '<div style="text-align: left;"><div style="text-align: end;"><p>ab</p><p>c[d</p></div><p>e]f</p></div>',
+            stepFunction: alignCenter,
+            contentAfter:
+                '<div style="text-align: left;"><div style="text-align: end;"><p>ab</p><p style="text-align: center;">c[d</p></div><p style="text-align: center;">e]f</p></div>',
+        });
+    });
+
+    test("should center align a node within an end-aligned node and a paragraph, with a start-aligned common ancestor", async () => {
+        await testEditor({
+            contentBefore:
+                '<div style="text-align: start;"><div style="text-align: end;"><p>ab</p><p>c[d</p></div><p>e]f</p></div>',
+            stepFunction: alignCenter,
+            contentAfter:
+                '<div style="text-align: start;"><div style="text-align: end;"><p>ab</p><p style="text-align: center;">c[d</p></div><p style="text-align: center;">e]f</p></div>',
+        });
+    });
+
     test("should center align a node within a right-aligned node and a paragraph, with a center-aligned common ancestor", async () => {
         await testEditor({
             contentBefore:
@@ -165,6 +261,16 @@ describe("center", () => {
             stepFunction: alignCenter,
             contentAfter:
                 '<div style="text-align: center;"><div style="text-align: right;"><p>ab</p><p style="text-align: center;">c[d</p></div><p>e]f</p></div>',
+        });
+    });
+
+    test("should center align a node within an end-aligned node and a paragraph, with a center-aligned common ancestor", async () => {
+        await testEditor({
+            contentBefore:
+                '<div style="text-align: center;"><div style="text-align: end;"><p>ab</p><p>c[d</p></div><p>e]f</p></div>',
+            stepFunction: alignCenter,
+            contentAfter:
+                '<div style="text-align: center;"><div style="text-align: end;"><p>ab</p><p style="text-align: center;">c[d</p></div><p>e]f</p></div>',
         });
     });
 
@@ -185,79 +291,108 @@ describe("center", () => {
                 '<div contenteditable="true" style="text-align: center;"><h1 style="text-align: center;">a[]b</h1></div>',
         });
     });
+
+    test("should center align a start-aligned container within an editable that is center-aligned", async () => {
+        await testEditor({
+            contentBefore:
+                '<div contenteditable="true" style="text-align: center;"><h1 style="text-align: start;">a[]b</h1></div>',
+            stepFunction: alignCenter,
+            contentAfter:
+                '<div contenteditable="true" style="text-align: center;"><h1 style="text-align: center;">a[]b</h1></div>',
+        });
+    });
 });
 
-describe("right", () => {
-    test("should align right", async () => {
+describe("end", () => {
+    test("should align end", async () => {
         await testEditor({
             contentBefore: "<p>ab</p><p>c[]d</p>",
-            stepFunction: alignRight,
-            contentAfter: '<p>ab</p><p style="text-align: right;">c[]d</p>',
+            stepFunction: alignEnd,
+            contentAfter: '<p>ab</p><p style="text-align: end;">c[]d</p>',
         });
     });
 
-    test("should align several paragraphs right", async () => {
+    test("should align several paragraphs end", async () => {
         await testEditor({
             contentBefore: "<p>a[b</p><p>c]d</p>",
-            stepFunction: alignRight,
-            contentAfter:
-                '<p style="text-align: right;">a[b</p><p style="text-align: right;">c]d</p>',
+            stepFunction: alignEnd,
+            contentAfter: '<p style="text-align: end;">a[b</p><p style="text-align: end;">c]d</p>',
         });
     });
 
-    test("should right align a node within a center-aligned node", async () => {
+    test("should end align a node within a center-aligned node", async () => {
         await testEditor({
             contentBefore: '<div style="text-align: center;"><p>ab</p><p>c[d]e</p></div>',
-            stepFunction: alignRight,
+            stepFunction: alignEnd,
             contentAfter:
-                '<div style="text-align: center;"><p>ab</p><p style="text-align: right;">c[d]e</p></div>',
+                '<div style="text-align: center;"><p>ab</p><p style="text-align: end;">c[d]e</p></div>',
         });
     });
 
-    test("should right align a node within a center-aligned node and a paragraph", async () => {
+    test("should end align a node within a center-aligned node and a paragraph", async () => {
         await testEditor({
             contentBefore: '<div style="text-align: center;"><p>ab</p><p>c[d</p></div><p>e]f</p>',
-            stepFunction: alignRight,
+            stepFunction: alignEnd,
             contentAfter:
-                '<div style="text-align: center;"><p>ab</p><p style="text-align: right;">c[d</p></div><p style="text-align: right;">e]f</p>',
+                '<div style="text-align: center;"><p>ab</p><p style="text-align: end;">c[d</p></div><p style="text-align: end;">e]f</p>',
         });
     });
 
-    test("should right align a node within a center-aligned node and a paragraph, with a justify-aligned common ancestor", async () => {
+    test("should end align a node within a center-aligned node and a paragraph, with a justify-aligned common ancestor", async () => {
         await testEditor({
             contentBefore:
                 '<div style="text-align: justify;"><div style="text-align: center;"><p>ab</p><p>c[d</p></div><p>e]f</p></div>',
-            stepFunction: alignRight,
+            stepFunction: alignEnd,
             contentAfter:
-                '<div style="text-align: justify;"><div style="text-align: center;"><p>ab</p><p style="text-align: right;">c[d</p></div><p style="text-align: right;">e]f</p></div>',
+                '<div style="text-align: justify;"><div style="text-align: center;"><p>ab</p><p style="text-align: end;">c[d</p></div><p style="text-align: end;">e]f</p></div>',
         });
     });
 
-    test("should right align a node within a center-aligned node and a paragraph, with a right-aligned common ancestor", async () => {
+    test("should end align a node within a center-aligned node and a paragraph, with a right-aligned common ancestor", async () => {
         await testEditor({
             contentBefore:
                 '<div style="text-align: right;"><div style="text-align: center;"><p>ab</p><p>c[d</p></div><p>e]f</p></div>',
-            stepFunction: alignRight,
+            stepFunction: alignEnd,
             contentAfter:
-                '<div style="text-align: right;"><div style="text-align: center;"><p>ab</p><p style="text-align: right;">c[d</p></div><p>e]f</p></div>',
+                '<div style="text-align: right;"><div style="text-align: center;"><p>ab</p><p style="text-align: end;">c[d</p></div><p style="text-align: end;">e]f</p></div>',
         });
     });
 
-    test("should not right align a node that is already within a right-aligned node", async () => {
+    test("should end align a node within a center-aligned node and a paragraph, with an end-aligned common ancestor", async () => {
         await testEditor({
-            contentBefore: '<div style="text-align: right;"><p>ab</p><p>c[d]e</p></div>',
-            stepFunction: alignRight,
-            contentAfter: '<div style="text-align: right;"><p>ab</p><p>c[d]e</p></div>',
+            contentBefore:
+                '<div style="text-align: end;"><div style="text-align: center;"><p>ab</p><p>c[d</p></div><p>e]f</p></div>',
+            stepFunction: alignEnd,
+            contentAfter:
+                '<div style="text-align: end;"><div style="text-align: center;"><p>ab</p><p style="text-align: end;">c[d</p></div><p>e]f</p></div>',
         });
     });
 
-    test("should right align a container within an editable that is center-aligned", async () => {
+    test("should not end align a node that is already within an end-aligned node", async () => {
+        await testEditor({
+            contentBefore: '<div style="text-align: end;"><p>ab</p><p>c[d]e</p></div>',
+            stepFunction: alignEnd,
+            contentAfter: '<div style="text-align: end;"><p>ab</p><p>c[d]e</p></div>',
+        });
+    });
+
+    test("should end align a container within an editable that is center-aligned", async () => {
         await testEditor({
             contentBefore:
                 '<div contenteditable="true" style="text-align: center;"><h1>a[]b</h1></div>',
-            stepFunction: alignRight,
+            stepFunction: alignEnd,
             contentAfter:
-                '<div contenteditable="true" style="text-align: center;"><h1 style="text-align: right;">a[]b</h1></div>',
+                '<div contenteditable="true" style="text-align: center;"><h1 style="text-align: end;">a[]b</h1></div>',
+        });
+    });
+
+    test("should START align an RTL container within an editable that is center-aligned", async () => {
+        await testEditor({
+            contentBefore:
+                '<div contenteditable="true" style="text-align: center;"><h1 dir="rtl">a[]b</h1></div>',
+            stepFunction: alignEnd,
+            contentAfter:
+                '<div contenteditable="true" style="text-align: center;"><h1 dir="rtl" style="text-align: start;">a[]b</h1></div>',
         });
     });
 });
@@ -289,12 +424,30 @@ describe("justify", () => {
         });
     });
 
+    test("should justify align a node within an end-aligned node", async () => {
+        await testEditor({
+            contentBefore: '<div style="text-align: end;"><p>ab</p><p>c[d]e</p></div>',
+            stepFunction: justify,
+            contentAfter:
+                '<div style="text-align: end;"><p>ab</p><p style="text-align: justify;">c[d]e</p></div>',
+        });
+    });
+
     test("should justify align a node within a right-aligned node and a paragraph", async () => {
         await testEditor({
             contentBefore: '<div style="text-align: right;"><p>ab</p><p>c[d</p></div><p>e]f</p>',
             stepFunction: justify,
             contentAfter:
                 '<div style="text-align: right;"><p>ab</p><p style="text-align: justify;">c[d</p></div><p style="text-align: justify;">e]f</p>',
+        });
+    });
+
+    test("should justify align a node within an end-aligned node and a paragraph", async () => {
+        await testEditor({
+            contentBefore: '<div style="text-align: end;"><p>ab</p><p>c[d</p></div><p>e]f</p>',
+            stepFunction: justify,
+            contentAfter:
+                '<div style="text-align: end;"><p>ab</p><p style="text-align: justify;">c[d</p></div><p style="text-align: justify;">e]f</p>',
         });
     });
 
@@ -308,6 +461,16 @@ describe("justify", () => {
         });
     });
 
+    test("should justify align a node within an end-aligned node and a paragraph, with a center-aligned common ancestor", async () => {
+        await testEditor({
+            contentBefore:
+                '<div style="text-align: center;"><div style="text-align: end;"><p>ab</p><p>c[d</p></div><p>e]f</p></div>',
+            stepFunction: justify,
+            contentAfter:
+                '<div style="text-align: center;"><div style="text-align: end;"><p>ab</p><p style="text-align: justify;">c[d</p></div><p style="text-align: justify;">e]f</p></div>',
+        });
+    });
+
     test("should justify align a node within a right-aligned node and a paragraph, with a justify-aligned common ancestor", async () => {
         await testEditor({
             contentBefore:
@@ -315,6 +478,16 @@ describe("justify", () => {
             stepFunction: justify,
             contentAfter:
                 '<div style="text-align: justify;"><div style="text-align: right;"><p>ab</p><p style="text-align: justify;">c[d</p></div><p>e]f</p></div>',
+        });
+    });
+
+    test("should justify align a node within an end-aligned node and a paragraph, with a justify-aligned common ancestor", async () => {
+        await testEditor({
+            contentBefore:
+                '<div style="text-align: justify;"><div style="text-align: end;"><p>ab</p><p>c[d</p></div><p>e]f</p></div>',
+            stepFunction: justify,
+            contentAfter:
+                '<div style="text-align: justify;"><div style="text-align: end;"><p>ab</p><p style="text-align: justify;">c[d</p></div><p>e]f</p></div>',
         });
     });
 
@@ -465,6 +638,59 @@ describe("bottom", () => {
                         </tr>
                     </tbody>
                 </table>`,
+        });
+    });
+});
+
+describe("override !important class", () => {
+    test("should align start even if a class sets text-align with !important", async () => {
+        await testEditor({
+            contentBefore: '<p class="text-center">a[]b</p>',
+            styleContent: ".text-center { text-align: center !important; }",
+            stepFunction: alignStart,
+            contentAfterEdit:
+                '<p class="text-center" style="text-align: start !important;">a[]b</p>',
+            contentAfter: '<p class="text-center" style="text-align: start !important;">a[]b</p>',
+        });
+    });
+
+    test("should align center even if a class sets text-align with !important", async () => {
+        await testEditor({
+            contentBefore: '<p class="text-start">a[]b</p>',
+            styleContent: ".text-start { text-align: start !important; }",
+            stepFunction: alignCenter,
+            contentAfterEdit:
+                '<p class="text-start" style="text-align: center !important;">a[]b</p>',
+            contentAfter: '<p class="text-start" style="text-align: center !important;">a[]b</p>',
+        });
+    });
+
+    test("should align end even if a class sets text-align with !important", async () => {
+        await testEditor({
+            contentBefore: '<p class="text-center">a[]b</p>',
+            styleContent: ".text-center { text-align: center !important; }",
+            stepFunction: alignEnd,
+            contentAfterEdit: '<p class="text-center" style="text-align: end !important;">a[]b</p>',
+            contentAfter: '<p class="text-center" style="text-align: end !important;">a[]b</p>',
+        });
+    });
+
+    test("should justify even if a class sets text-align with !important", async () => {
+        await testEditor({
+            contentBefore: '<p class="text-center">a[]b</p>',
+            styleContent: ".text-center { text-align: center !important; }",
+            stepFunction: justify,
+            contentAfterEdit:
+                '<p class="text-center" style="text-align: justify !important;">a[]b</p>',
+            contentAfter: '<p class="text-center" style="text-align: justify !important;">a[]b</p>',
+        });
+    });
+
+    test("should not use !important when no class overrides text-align", async () => {
+        await testEditor({
+            contentBefore: "<p>a[]b</p>",
+            stepFunction: alignCenter,
+            contentAfter: '<p style="text-align: center;">a[]b</p>',
         });
     });
 });

@@ -3,21 +3,22 @@
 # * crm_iap_mine
 #
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# "Ujjawal Pathak (pauj)" <pauj@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-11-16 15:13+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Hindi <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 16:25+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Hindi <https://translate.odoo.com/projects/odoo-s19-4/"
 "crm_iap_mine/hi/>\n"
 "Language: hi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: crm_iap_mine
 #. odoo-python
@@ -30,9 +31,10 @@ msgstr ""
 "होंगे।"
 
 #. module: crm_iap_mine
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.enrich_company
-msgid "<b>Contacts</b>"
-msgstr "<b>संपर्क करें</b>"
+#. odoo-python
+#: code:addons/crm_iap_mine/models/crm_iap_lead_helpers.py:0
+msgid "%s's opportunity"
+msgstr ""
 
 #. module: crm_iap_mine
 #: model:mail.template,body_html:crm_iap_mine.lead_generation_no_credits
@@ -50,35 +52,41 @@ msgstr ""
 #. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.enrich_company
 msgid ""
-"<i class=\"fa fa-fw me-2 fa-address-book text-primary\"/>\n"
-"                    <b>Address</b>"
-msgstr ""
-
-#. module: crm_iap_mine
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.enrich_company
-msgid ""
-"<i class=\"fa fa-fw me-2 fa-cube text-primary\"/>\n"
+"<i class=\"oi oi-fw me-2 text-primary\" data-icon=\"deployed_code\"/>\n"
 "                    <b>Industries</b>"
 msgstr ""
 
 #. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.enrich_company
 msgid ""
-"<i class=\"fa fa-fw me-2 fa-globe text-primary\"/>\n"
+"<i class=\"oi oi-fw me-2 text-primary\" data-icon=\"public\"/>\n"
 "                    <b>Website</b>"
 msgstr ""
 
 #. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.enrich_company
 msgid ""
-"<i class=\"fa fa-fw me-2 fa-solid fa-id-card text-primary\"/>\n"
+"<i class=\"oi oi-fw oi-filled me-2 text-primary\" data-icon=\"badge\"/>\n"
 "                    <b>Tax ID</b>"
 msgstr ""
 
 #. module: crm_iap_mine
+#: model_terms:ir.ui.view,arch_db:crm_iap_mine.enrich_company
+msgid ""
+"<i class=\"oi oi-fw oi-filled me-2 text-primary\" data-icon=\"contact_page\"/"
+">\n"
+"                    <b>Address</b>"
+msgstr ""
+
+#. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
-msgid "<span class=\"col-md-6\">Extra contacts per Company</span>"
-msgstr "<span class=\"col-md-6\">कंपनी के लिए अतिरिक्त संपर्क</span>"
+msgid "<span class=\"fw-normal o_stat_text o_translate_inline\">Leads</span>"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
+msgid "<span class=\"o_form_label fw-normal\">employees</span>"
+msgstr ""
 
 #. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
@@ -100,9 +108,44 @@ msgstr ""
 "मिला (कोई क्रेडिट इस्तेमाल नहीं हुआ). कुछ फ़िल्टर हटाकर फिर कोशिश करें.</span>"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_238
-msgid "Automobiles & Components"
-msgstr "ऑटोमोबाइल और कॉम्पोनेंट"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_96
+msgid "Administration Of Economic Programs"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_07
+msgid "Agricultural Services"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry.division,name:crm_iap_mine.crm_iap_mine_division_a
+msgid "Agriculture, Forestry & Fishing"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_45
+msgid "Air Transportation"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_56
+msgid "Apparel and Accessory Stores"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_23
+msgid "Apparel and Similar Products"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_55
+msgid "Auto Dealers and Gas Stations"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_75
+msgid "Automotive Repair and Parking"
+msgstr ""
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__available_state_ids
@@ -110,9 +153,19 @@ msgid "Available State"
 msgstr "उपलब्ध स्टेट"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_69_157
-msgid "Banks & Insurance"
-msgstr "बैंक और इंश्योरेंस"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_15
+msgid "Building Construction"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_52
+msgid "Building Materials and Garden Retail"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_73
+msgid "Business Services"
+msgstr ""
 
 #. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
@@ -130,19 +183,30 @@ msgid "CRM IAP Lead Industry"
 msgstr "सीआरएम आईएपी लीड इंडस्ट्री"
 
 #. module: crm_iap_mine
+#: model:ir.model,name:crm_iap_mine.model_crm_iap_lead_industry_division
+msgid "CRM IAP Lead Industry Division"
+msgstr ""
+
+#. module: crm_iap_mine
 #: model:ir.model,name:crm_iap_mine.model_crm_iap_lead_mining_request
 msgid "CRM Lead Mining Request"
 msgstr "सीआरएम लीड माइनिंग रिक्वेस्ट"
 
 #. module: crm_iap_mine
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
-msgid "Cancel"
-msgstr "रद्द"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_28
+msgid "Chemicals"
+msgstr ""
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_162
-msgid "Capital Goods"
-msgstr "कैपिटल गुड्स"
+#. odoo-javascript
+#: code:addons/crm_iap_mine/static/src/js/tours/crm_iap_lead.js:0
+msgid "Click here to generate some leads."
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_12
+msgid "Coal Mining"
+msgstr ""
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__color
@@ -151,24 +215,10 @@ msgid "Color Index"
 msgstr "कलर इंडेक्स"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_163
-msgid "Commercial & Professional Services"
-msgstr "कमर्शियल और प्रोफ़ेशनल सर्विस"
-
-#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_48
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_2
 msgid "Communications"
 msgstr "कम्यूनिकेशन"
-
-#. module: crm_iap_mine
-#: model:ir.model.fields.selection,name:crm_iap_mine.selection__crm_iap_lead_mining_request__search_type__companies
-msgid "Companies"
-msgstr "कंपनियां"
-
-#. module: crm_iap_mine
-#: model:ir.model.fields.selection,name:crm_iap_mine.selection__crm_iap_lead_mining_request__search_type__people
-msgid "Companies and their Contacts"
-msgstr "कंपनियां और उनके संपर्क"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__company_size_max
@@ -176,34 +226,14 @@ msgid "Company Size Max"
 msgstr "कंपनी का अधिकतम आकार"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_167
-msgid "Construction Materials"
-msgstr "कंस्ट्रक्शन से जुड़ी सामग्री"
+#: model:crm.iap.lead.industry.division,name:crm_iap_mine.crm_iap_mine_division_c
+msgid "Construction"
+msgstr ""
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_3
 msgid "Consulting"
 msgstr "कंसल्टिंग"
-
-#. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_30_155
-msgid "Consumer Discretionary"
-msgstr "उपभोक्ता के विवेक के हिसाब से"
-
-#. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_239
-msgid "Consumer Durables & Apparel"
-msgstr "टिकाऊ उपभोक्ता सामान और कपड़े"
-
-#. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_150_151
-msgid "Consumer Services"
-msgstr "उपभोक्ता सेवा"
-
-#. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_33
-msgid "Consumer Staples"
-msgstr "उपभोक्ता के लिए ज़रूरी चीज़ें"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__country_ids
@@ -224,6 +254,7 @@ msgstr "अवसर बनाएं"
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_helpers__create_uid
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__create_uid
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry_division__create_uid
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__create_uid
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_role__create_uid
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_seniority__create_uid
@@ -233,11 +264,17 @@ msgstr "इन्होंने बनाया"
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_helpers__create_date
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__create_date
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry_division__create_date
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__create_date
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_role__create_date
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_seniority__create_date
 msgid "Created on"
 msgstr "इस तारीख को बनाया गया"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_01
+msgid "Crop Farming"
+msgstr ""
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_4
@@ -250,8 +287,14 @@ msgid "Default Tags"
 msgstr "डिफ़ॉल्ट टैग"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_60
+msgid "Depository Institutions"
+msgstr ""
+
+#. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_helpers__display_name
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__display_name
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry_division__display_name
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__display_name
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_role__display_name
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_seniority__display_name
@@ -260,9 +303,20 @@ msgid "Display Name"
 msgstr "डिस्प्ले का नाम"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_158_159
-msgid "Diversified Financials & Financial Services"
-msgstr "अलग-अलग तरह की वित्तीय और बैंक सेवाएं"
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry_division__code
+msgid "Division Code"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry_division__name
+msgid "Division Name"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:ir.model.fields,help:crm_iap_mine.field_crm_iap_lead_industry_division__code
+msgid ""
+"Division code as per SIC indicating the higher-level industry classification."
+msgstr ""
 
 #. module: crm_iap_mine
 #: model:ir.model.fields.selection,name:crm_iap_mine.selection__crm_iap_lead_mining_request__state__done
@@ -277,24 +331,34 @@ msgid "Draft"
 msgstr "मसौदा"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_50
+msgid "Durable Goods Wholesale"
+msgstr ""
+
+#. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_5
 msgid "Education"
 msgstr "शिक्षा"
 
 #. module: crm_iap_mine
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.enrich_company
-msgid "Email"
-msgstr "ईमेल"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_82
+msgid "Educational Services"
+msgstr ""
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_138_156
-msgid "Energy & Utilities "
-msgstr "ऊर्जा और यूटिलिटी. "
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_36
+msgid "Electronic and Electrical Equipment"
+msgstr ""
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_6
 msgid "Engineering"
 msgstr "इंजीनियरिंग"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_95
+msgid "Environmental and Housing Administration"
+msgstr ""
 
 #. module: crm_iap_mine
 #: model:ir.model.fields.selection,name:crm_iap_mine.selection__crm_iap_lead_mining_request__state__error
@@ -308,8 +372,8 @@ msgid "Error Type"
 msgstr "गड़बड़ी किस तरह की है"
 
 #. module: crm_iap_mine
-#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__contact_filter_type
-msgid "Filter on"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_34
+msgid "Fabricated Metal Products"
 msgstr ""
 
 #. module: crm_iap_mine
@@ -323,8 +387,28 @@ msgid "Finance"
 msgstr "फ़ाइनेंस"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_153_154
-msgid "Food, Beverage & Tobacco"
+#: model:crm.iap.lead.industry.division,name:crm_iap_mine.crm_iap_mine_division_h
+msgid "Finance, Insurance & Real Estate"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_09
+msgid "Fishing and Hunting"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_20
+msgid "Food Products"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_54
+msgid "Food Stores"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_08
+msgid "Forestry"
 msgstr ""
 
 #. module: crm_iap_mine
@@ -333,19 +417,40 @@ msgid "Founder"
 msgstr ""
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_42
+msgid "Freight and Warehousing"
+msgstr ""
+
+#. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
 msgid "From"
 msgstr "के द्वारा"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_25
+msgid "Furniture and Fixtures"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_91
+msgid "General Government"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_53
+msgid "General Merchandise Stores"
+msgstr ""
+
+#. module: crm_iap_mine
 #. odoo-python
 #: code:addons/crm_iap_mine/models/crm_iap_lead_mining_request.py:0
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_case_kanban_view_leads
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_lead_view_tree_lead
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_lead_view_tree_opportunity
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.view_crm_lead_kanban
 msgid "Generate Leads"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:ir.module.module,summary:base.module_crm_iap_mine
+msgid "Generate Leads/Opportunities based on country, industries, size, etc."
 msgstr ""
 
 #. module: crm_iap_mine
@@ -360,13 +465,18 @@ msgid "Generated Lead / Opportunity"
 msgstr ""
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_160
-msgid "Health Care Equipment & Services"
+#: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_9
+msgid "Health Professional"
 msgstr ""
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_9
-msgid "Health Professional"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_80
+msgid "Health Services"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_16
+msgid "Heavy Construction"
 msgstr ""
 
 #. module: crm_iap_mine
@@ -375,14 +485,34 @@ msgid "Helper methods for crm_iap_mine modules"
 msgstr ""
 
 #. module: crm_iap_mine
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
-msgid "How many leads would you like?"
-msgstr "आपको कितनी लीड चाहिए?"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_67
+msgid "Holding and Investment Offices"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_57
+msgid "Home Furnishings Stores"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_70
+msgid "Hotels and Lodging"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_94
+msgid "Human Resource Administration"
+msgstr ""
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_10
 msgid "Human Resources"
 msgstr "मानव संसाधन"
+
+#. module: crm_iap_mine
+#: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
+msgid "I want to order"
+msgstr ""
 
 #. module: crm_iap_mine
 #: model:mail.template,name:crm_iap_mine.lead_generation_no_credits
@@ -393,17 +523,13 @@ msgstr ""
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_helpers__id
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__id
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry_division__id
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__id
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_role__id
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_seniority__id
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_lead__id
 msgid "ID"
 msgstr "आईडी"
-
-#. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_168
-msgid "Independent Power and Renewable Electricity Producers"
-msgstr ""
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__industry_ids
@@ -416,9 +542,19 @@ msgid "Industry"
 msgstr "इंडस्ट्री"
 
 #. module: crm_iap_mine
+#: model:ir.model.constraint,message:crm_iap_mine.constraint_crm_iap_lead_industry_division_name_uniq
+msgid "Industry Division already exists!"
+msgstr ""
+
+#. module: crm_iap_mine
 #: model:ir.model.constraint,message:crm_iap_mine.constraint_crm_iap_lead_industry_name_uniq
 msgid "Industry name already exists!"
 msgstr "इंडस्ट्री का नाम पहले से मौजूद है!"
+
+#. module: crm_iap_mine
+#: model:ir.model.fields,help:crm_iap_mine.field_crm_iap_lead_industry__sic_group
+msgid "Industry's Major Group Code as per SIC"
+msgstr ""
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_11
@@ -426,13 +562,34 @@ msgid "Information Technology"
 msgstr "इन्फ़ॉर्मेशन टेक्नोलॉजी"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_38
+msgid "Instruments and Optical Goods"
+msgstr ""
+
+#. module: crm_iap_mine
 #: model:ir.model.fields.selection,name:crm_iap_mine.selection__crm_iap_lead_mining_request__error_type__credits
 msgid "Insufficient Credits"
 msgstr "क्रेडिट कम है"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_64
+msgid "Insurance Agents and Brokers"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_63
+msgid "Insurance Carriers"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_92
+msgid "Justice and Public Safety"
+msgstr ""
+
+#. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_helpers__write_uid
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__write_uid
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry_division__write_uid
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__write_uid
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_role__write_uid
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_seniority__write_uid
@@ -442,6 +599,7 @@ msgstr "इन्होंने आखिरी बार अपडेट क�
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_helpers__write_date
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__write_date
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry_division__write_date
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__write_date
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_role__write_date
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_seniority__write_date
@@ -454,16 +612,12 @@ msgid "Lead"
 msgstr "लीड"
 
 #. module: crm_iap_mine
-#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__lead_contacts_credits
-msgid "Lead Contacts Credits"
-msgstr ""
-
-#. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__lead_credits
 msgid "Lead Credits"
 msgstr "लीड क्रेडिट"
 
 #. module: crm_iap_mine
+#: model:ir.module.module,shortdesc:base.module_crm_iap_mine
 #: model:ir.ui.menu,name:crm_iap_mine.crm_menu_lead_generation
 msgid "Lead Generation"
 msgstr "लीड जनरेशन"
@@ -481,20 +635,30 @@ msgid "Lead Mining Requests"
 msgstr ""
 
 #. module: crm_iap_mine
-#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__lead_total_credits
-msgid "Lead Total Credits"
-msgstr ""
-
-#. module: crm_iap_mine
 #: model:ir.model.fields.selection,name:crm_iap_mine.selection__crm_iap_lead_mining_request__lead_type__lead
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_search
 msgid "Leads"
 msgstr "लीड्स"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_31
+msgid "Leather"
+msgstr ""
+
+#. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_12
 msgid "Legal"
 msgstr "लीगल"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_81
+msgid "Legal Services"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_02
+msgid "Livestock and Animal Production"
+msgstr ""
 
 #. module: crm_iap_mine
 #. odoo-javascript
@@ -503,23 +667,67 @@ msgid "Looking for more opportunities?<br>Try the <b>Lead Generation</b> tool."
 msgstr ""
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_35
+msgid "Machinery and Computer Equipment"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry.division,name:crm_iap_mine.crm_iap_mine_division_d
+msgid "Manufacturing"
+msgstr ""
+
+#. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_13
 msgid "Marketing"
 msgstr "मार्केटिंग"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_148
-msgid "Materials"
-msgstr "सामग्री"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_86
+msgid "Membership Organizations"
+msgstr ""
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_86
-msgid "Media"
-msgstr "मीडिया"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_10
+msgid "Metal Mining"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry.division,name:crm_iap_mine.crm_iap_mine_division_b
+msgid "Mining"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_39
+msgid "Miscellaneous Manufacturing Industries"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_76
+msgid "Miscellaneous Repair Services"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_59
+msgid "Miscellaneous Retail"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_89
+msgid "Miscellaneous Services"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_78
+msgid "Motion Pictures"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_84
+msgid "Museums and Botanical Gardens"
+msgstr ""
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_seniority__name
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.enrich_company
 msgid "Name"
 msgstr "नाम"
 
@@ -527,6 +735,11 @@ msgstr "नाम"
 #: model:ir.model.constraint,message:crm_iap_mine.constraint_crm_iap_lead_seniority_name_uniq
 msgid "Name already exists!"
 msgstr "नाम पहले से ही मौजूद है!"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_97
+msgid "National Security"
+msgstr ""
 
 #. module: crm_iap_mine
 #. odoo-python
@@ -546,15 +759,30 @@ msgid "No Result"
 msgstr "कोई नतीजा नहीं"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_61
+msgid "Non-Depository Credit"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_51
+msgid "Non-Durable Goods Wholesale"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_99
+msgid "Nonclassifiable Establishments"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_14
+msgid "Nonmetallic Mineral Mining"
+msgstr ""
+
+#. module: crm_iap_mine
 #. odoo-javascript
 #: code:addons/crm_iap_mine/static/src/js/tours/crm_iap_lead.js:0
 msgid "Now, just let the magic happen!"
 msgstr ""
-
-#. module: crm_iap_mine
-#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__contact_number
-msgid "Number of Contacts"
-msgstr "संपर्कों की संख्या"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__lead_count
@@ -566,6 +794,11 @@ msgstr "जनरेट की गई लीड की संख्या"
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_tree
 msgid "Number of Leads"
 msgstr "लीड की संख्या"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_13
+msgid "Oil and Gas Extraction"
+msgstr ""
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_14
@@ -585,14 +818,14 @@ msgid "Opportunity created by Odoo Lead Generation"
 msgstr ""
 
 #. module: crm_iap_mine
-#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__role_ids
-msgid "Other Roles"
-msgstr "दूसरी भूमिकाएं"
-
-#. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_15
 msgid "Owner"
 msgstr "मालिक"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_26
+msgid "Paper Products"
+msgstr ""
 
 #. module: crm_iap_mine
 #: model:ir.model,name:crm_iap_mine.model_crm_iap_lead_role
@@ -605,14 +838,14 @@ msgid "People Seniority"
 msgstr ""
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_161
-msgid "Pharmaceuticals, Biotechnology & Life Sciences"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_72
+msgid "Personal Services"
 msgstr ""
 
 #. module: crm_iap_mine
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.enrich_company
-msgid "Phone"
-msgstr "फ़ोन"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_29
+msgid "Petroleum Refining"
+msgstr ""
 
 #. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
@@ -620,9 +853,9 @@ msgid "Pick States..."
 msgstr "राज्य चुनें..।"
 
 #. module: crm_iap_mine
-#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__preferred_role_id
-msgid "Preferred Role"
-msgstr "पसंदीदा भूमिका"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_46
+msgid "Pipelines, Except Natural Gas"
+msgstr ""
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_16
@@ -630,9 +863,39 @@ msgid "President"
 msgstr "प्रेसीडेंट"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_33
+msgid "Primary Metal Industries"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_27
+msgid "Printing and Publishing"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_88
+msgid "Private Households"
+msgstr ""
+
+#. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_17
 msgid "Product"
 msgstr "प्रॉडक्ट"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_87
+msgid "Professional Services"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry.division,name:crm_iap_mine.crm_iap_mine_division_j
+msgid "Public Administration"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_93
+msgid "Public Finance and Taxation"
+msgstr ""
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_18
@@ -640,10 +903,20 @@ msgid "Public Relations"
 msgstr "पब्लिक रिलेशन"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_114
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_40
+msgid "Railroad Transportation"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_65
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_19
 msgid "Real Estate"
 msgstr "रियल एस्टेट"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_79
+msgid "Recreation Services"
+msgstr ""
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_20
@@ -661,9 +934,14 @@ msgid "Research"
 msgstr "रिसर्च"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_152
-msgid "Retailing"
-msgstr "रिटेलिंग"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_58
+msgid "Restaurants and Bars"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry.division,name:crm_iap_mine.crm_iap_mine_division_g
+msgid "Retail Trade"
+msgstr ""
 
 #. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
@@ -671,16 +949,10 @@ msgid "Retry"
 msgstr "दोबारा कोशिश करें"
 
 #. module: crm_iap_mine
-#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__reveal_ids
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_role__reveal_id
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_seniority__reveal_id
 msgid "Reveal"
 msgstr "दिखाएं"
-
-#. module: crm_iap_mine
-#: model:ir.model.fields.selection,name:crm_iap_mine.selection__crm_iap_lead_mining_request__contact_filter_type__role
-msgid "Role"
-msgstr "भूमिका"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_role__name
@@ -691,6 +963,21 @@ msgstr "भूमिका का नाम"
 #: model:ir.model.constraint,message:crm_iap_mine.constraint_crm_iap_lead_role_name_uniq
 msgid "Role name already exists!"
 msgstr "भूमिका का नाम पहले से ही मौजूद है!"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_30
+msgid "Rubber and Plastics"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:ir.model.fields,help:crm_iap_mine.field_crm_iap_lead_industry__division_id
+msgid "SIC Division code to which Major Group belongs."
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__sic_group
+msgid "SIC Group"
+msgstr ""
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_22
@@ -710,15 +997,26 @@ msgid "Salesperson"
 msgstr "सेल्सपर्सन"
 
 #. module: crm_iap_mine
-#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__seniority_id
-#: model:ir.model.fields.selection,name:crm_iap_mine.selection__crm_iap_lead_mining_request__contact_filter_type__seniority
-msgid "Seniority"
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__division_id
+#: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_industry_view_search
+msgid "Sector"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_62
+msgid "Securities and Commodity Services"
 msgstr ""
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__sequence
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry_division__sequence
 msgid "Sequence"
 msgstr "सीक्वेंस"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry.division,name:crm_iap_mine.crm_iap_mine_division_i
+msgid "Services"
+msgstr ""
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__company_size_min
@@ -726,8 +1024,13 @@ msgid "Size"
 msgstr "साइज़"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_165
-msgid "Software & Services"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_83
+msgid "Social Services"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_17
+msgid "Specialty Contractors"
 msgstr ""
 
 #. module: crm_iap_mine
@@ -741,6 +1044,11 @@ msgid "Status"
 msgstr "स्टेटस"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_32
+msgid "Stone, Clay, Glass and Concrete"
+msgstr ""
+
+#. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
 msgid "Submit"
 msgstr "सबमिट करें"
@@ -751,29 +1059,33 @@ msgid "Tags"
 msgstr "टैग"
 
 #. module: crm_iap_mine
-#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__search_type
-msgid "Target"
-msgstr "टारगेट"
-
-#. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_166
-msgid "Technology Hardware & Equipment"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_22
+msgid "Textile Mill Products"
 msgstr ""
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_149
-msgid "Telecommunication Services"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_21
+msgid "Tobacco Products"
 msgstr ""
 
 #. module: crm_iap_mine
-#. odoo-python
-#: code:addons/crm_iap_mine/models/crm_iap_lead_mining_request.py:0
-msgid "This makes a total of %d credits for this request."
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_41
+msgid "Transit and Passenger Transport"
 msgstr ""
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_136
-msgid "Transportation"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_37
+msgid "Transportation Equipment"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_47
+msgid "Transportation Services"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry.division,name:crm_iap_mine.crm_iap_mine_division_e
+msgid "Transportation, Communication, Energy & Sanitation"
 msgstr ""
 
 #. module: crm_iap_mine
@@ -783,17 +1095,34 @@ msgid "Type"
 msgstr "टाइप"
 
 #. module: crm_iap_mine
-#. odoo-python
-#: code:addons/crm_iap_mine/models/crm_iap_lead_mining_request.py:0
-msgid ""
-"Up to %(credit_count)d additional credits will be consumed to identify %"
-"(contact_count)d contacts per company."
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_43
+msgid "United States Postal Service"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_49
+msgid "Utilities and Sanitary Services"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_44
+msgid "Water Transportation"
 msgstr ""
 
 #. module: crm_iap_mine
 #. odoo-javascript
 #: code:addons/crm_iap_mine/static/src/js/tours/crm_iap_lead.js:0
 msgid "Which Industry do you want to target?"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry.division,name:crm_iap_mine.crm_iap_mine_division_f
+msgid "Wholesale Trade"
+msgstr ""
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_24
+msgid "Wood Products"
 msgstr ""
 
 #. module: crm_iap_mine
@@ -811,11 +1140,6 @@ msgstr ""
 #: model:crm.iap.lead.seniority,name:crm_iap_mine.crm_iap_mine_seniority_1
 msgid "director"
 msgstr ""
-
-#. module: crm_iap_mine
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
-msgid "employees"
-msgstr "कर्मचारी"
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.seniority,name:crm_iap_mine.crm_iap_mine_seniority_2

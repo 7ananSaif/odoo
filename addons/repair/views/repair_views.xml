@@ -28,31 +28,30 @@
         <field name="arch" type="xml">
             <list string="Repairs order" multi_edit="1" sample="1" decoration-info="state == 'draft'">
                 <field name="company_id" column_invisible="True"/>
-                <field name="priority" optional="show" widget="priority" nolabel="1"/>
+                <field name="priority" optional="show" widget="priority" nolabel="1" width="20px"/>
                 <field name="name"/>
-                <field name="schedule_date" optional="show" widget="remaining_days"/>
+                <field name="schedule_date" optional="show" widget="relative_date"/>
                 <field name="product_id" readonly="1" optional="show"/>
                 <field name="parts_availability_state" column_invisible="True"/>
                 <field name="parts_availability"
-                    invisible="state not in ['confirmed', 'under_repair']"
-                    optional="show"
+                    invisible="state != 'confirmed'"
+                    optional="hide"
                     decoration-success="parts_availability_state == 'available'"
                     decoration-warning="parts_availability_state == 'expected'"
                     decoration-danger="parts_availability_state == 'late'"/>
                 <field name="product_qty" optional="hide" string="Quantity" readonly="state != 'draft'"/>
-                <field name="product_uom" readonly="1" groups="uom.group_uom" widget="many2one_uom" optional="hide"/>
+                <field name="uom_id" readonly="1" groups="uom.group_uom" widget="many2one_uom" optional="hide"/>
                 <field name="user_id" optional="hide" widget='many2one_avatar_user'/>
                 <field name="partner_id" readonly="1" optional="show"/>
                 <field name="picking_id" optional="hide"/>
-                <field name="sale_order_id" optional="show"/>
+                <field name="sale_order_id" optional="hide"/>
                 <field name="location_id" optional="hide"/>
                 <field name="company_id" groups="base.group_multi_company" readonly="1" optional="show"/>
                 <field name="state" optional="show" widget='badge'
                     decoration-success="state == 'done'"
-                    decoration-info="state == 'confirmed'"
-                    decoration-warning="state == 'under_repair'"
+                    decoration-info="state == 'draft'"
                     decoration-danger="state == 'cancel'"
-                    decoration-muted="state == 'draft'"
+                    decoration-muted="state == 'confirmed'"
                 />
                 <field name="activity_exception_decoration" widget="activity_exception"/>
             </list>
@@ -69,20 +68,27 @@
                 <field name="reserve_visible" invisible="1"/>
                <header>
                    <button name="action_validate" invisible="state != 'draft'" type="object" string="Confirm Repair" class="oe_highlight" data-hotkey="v"/>
-                   <button name="action_repair_start" invisible="state != 'confirmed'" type="object" string="Start Repair" class="oe_highlight" data-hotkey="q"/>
-                   <button name="action_repair_end" invisible="state != 'under_repair' or not has_uncomplete_moves" type="object" string="End Repair" class="oe_highlight" data-hotkey="x" confirm="For some of the parts, there is a difference between the initial demand and the actual quantity that was used. Are you sure you want to confirm ?"/>
-                   <button name="action_repair_end" invisible="state != 'under_repair' or has_uncomplete_moves" type="object" string="End Repair" class="oe_highlight" data-hotkey="x"/>
-                   <button name="action_assign" invisible="not reserve_visible" string="Check availability" type="object"/>
-                   <button name="action_unreserve" type="object" string="Unreserve" invisible="not unreserve_visible" data-hotkey="w"/>
-                   <button name="action_create_sale_order" type="object" string="Create Quotation" invisible="not partner_id or (state == 'cancel' or sale_order_id)"/>
-                   <button name="action_repair_cancel" string="Cancel Repair" type="object" invisible="state in ('done', 'cancel')" data-hotkey="l"/>
+                   <button name="action_repair_end" type="object" string="End Repair" class="oe_highlight" data-hotkey="x"
+                            invisible="validate_button_style != 'primary'"/>
+                   <button name="action_repair_end" type="object" string="End Repair" class="btn-secondary" data-hotkey="x"
+                            invisible="validate_button_style != 'secondary'"/>
+                   <button name="action_assign" invisible="not reserve_visible" string="Reserve" type="object"/>
+                   <button name="action_create_sale_order" type="object" string="Quote" invisible="not can_create_sale_or_invoice"/>
+                   <button name="action_create_invoice" type="object" string="Invoice" invisible="not (can_create_sale_or_invoice or can_create_extra_invoice) or state != 'done'"/>
                    <button name="action_repair_cancel_draft" invisible="state != 'cancel'" string="Set to Draft" type="object" data-hotkey="z"/>
-                   <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,under_repair,done"/>
+                   <button name="action_repair_cancel" string="Cancel" type="object" invisible="state in ('done', 'cancel')" data-hotkey="l"/>
+                   <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,done"/>
                </header>
                <sheet string="Repairs order">
                     <div class="oe_button_box" name="button_box">
+                        <button name="%(action_repair_move_lines)d"
+                            type="action"
+                            string="Product Moves"
+                            class="oe_stat_button"
+                            icon="sync_alt"
+                            invisible="not(move_ids or move_id) or state != 'done'"/>
                         <!-- No groups attribute on the next button as "stock.group_stock_user" is needed for Repair, and as this group is granted 'sale.order' read/write accesses in sale_stock module (forcefully loaded as transitive dependency) -->
-                        <button name="action_view_sale_order" type="object" string="Sale Order" icon="fa-dollar" class="oe_stat_button" invisible="not sale_order_id">
+                        <button name="action_view_sale_order" type="object" string="Sale Order" icon="attach_money" class="oe_stat_button" invisible="not sale_order_id">
                             <div class="o_field_widget o_stat_info">
                                 <span class="o_stat_value">
                                     <field name="sale_order_id" widget="statinfo" nolabel="1" class="mr4"/>
@@ -90,12 +96,18 @@
                                 <span class="o_stat_text">Sale Order</span>
                             </div>
                         </button>
-                        <button name="%(action_repair_move_lines)d" type="action" string="Product Moves" class="oe_stat_button" icon="fa-exchange" invisible="state not in ['done', 'cancel']"/>
+                        <button name="action_view_invoice"
+                            type="object"
+                            icon="edit_square"
+                            class="oe_stat_button"
+                            invisible="not invoice_count">
+                            <field name="invoice_count" widget="statinfo" string="Invoices"/>
+                        </button>
                     </div>
                     <div class="oe_title">
-                        <label class="o_form_label" for="name"/>
-                        <h1 class="d-flex">
-                            <field name="priority" widget="priority" class="me-3"/>
+                        <label for="name"/>
+                        <h1 class="o_outlined d-flex align-items-center gap-2">
+                            <field name="priority" widget="priority"/>
                             <field name="name"/>
                         </h1>
                     </div>
@@ -103,17 +115,17 @@
                         <group>
                             <field name="allowed_lot_ids" invisible="1"/>
                             <field name="repair_request" invisible="not sale_order_line_id"/>
-                            <field name="partner_id" widget="res_partner_many2one" context="{'res_partner_search_mode': 'customer', 'show_vat': True}" readonly="sale_order_id"/>
+                            <field name="partner_id" widget="res_partner_many2one" context="{'res_partner_search_mode': 'customer', 'show_identifier': True}" readonly="sale_order_id"/>
                             <field name="product_id" readonly="state in ['cancel', 'done']"/>
                             <label for="lot_id" invisible="tracking not in ['serial', 'lot']"/>
                             <div class="o_row" invisible="tracking not in ['serial', 'lot']">
                                 <field name="lot_id" context="{'default_product_id': product_id}" groups="stock.group_production_lot" invisible="tracking not in ['serial', 'lot']" readonly="state == 'done'" required="state=='done' and tracking in ['serial', 'lot']"/>
-                                <button name="action_generate_serial" type="object" class="btn btn-primary fa fa-plus-square-o" aria-label="Creates a new serial/lot number" title="Creates a new serial/lot number" role="img" invisible="lot_id"/>
+                                <button name="action_generate_serial" type="object" class="oi btn btn-primary" data-icon="add_box" aria-label="Creates a new serial/lot number" title="Creates a new serial/lot number" role="img" invisible="lot_id"/>
                             </div>
                             <label for="product_qty" invisible="not product_id" groups="base.group_no_one"/>
                             <div class="o_row" invisible="not product_id" groups="base.group_no_one">
                                 <field name="product_qty" readonly="tracking == 'serial' or state in ('done', 'cancel')"/>
-                                <field name="product_uom" groups="uom.group_uom" widget="many2one_uom" readonly="state != 'draft'"/>
+                                <field name="uom_id" groups="uom.group_uom" widget="many2one_uom" readonly="state != 'draft'"/>
                             </div>
                             <field name="picking_id" invisible="not picking_id" options="{'no_create': True}"/>
                             <field name="under_warranty" readonly="state in ['cancel', 'done']"/>
@@ -122,10 +134,10 @@
                             <field name="schedule_date" readonly="state in ['done', 'cancel']"/>
                             <field name="user_id" domain="[('share', '=', False)]"/>
                             <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
-                            <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}"/>
+                            <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color', 'on_tag_click': 'edit_color', 'no_create_edit': True}"/>
                             <field name="parts_availability_state" invisible="True"/>
                             <field name="parts_availability"
-                                invisible="state not in ['confirmed', 'under_repair']"
+                                invisible="state != 'confirmed'"
                                 decoration-success="parts_availability_state == 'available'"
                                 decoration-warning="parts_availability_state == 'expected'"
                                 decoration-danger="parts_availability_state == 'late'"/>
@@ -135,16 +147,16 @@
                     </group>
                 <notebook>
                     <page string="Parts" name="parts">
-                        <field name="move_ids" readonly="state == 'cancel' or state == 'done'"
+                        <field name="move_ids" mode="list,kanban" readonly="state == 'cancel' or state == 'done'"
                         context="{'default_repair_id': id, 'default_product_uom_qty': 1, 'default_company_id': company_id, 'default_date': schedule_date, 'default_repair_line_type': 'add', 'active_repair_id': id}">
                             <list string="Operations" editable="bottom">
                                 <control>
                                     <create string="Add a line"/>
                                     <button name="action_add_from_catalog_repair" string="Catalog" type="object" class="px-4 btn-link" context="{'order_id': parent.id}"/>
                                 </control>
+                                <field name="sequence" widget="handle"/>
                                 <field name="company_id" column_invisible="True"/>
                                 <field name="state" column_invisible="True"/>
-                                <field name="repair_line_type" required="1"/>
                                 <field name="picking_type_id" column_invisible="True"/>
                                 <field name="location_id" column_invisible="True"/>
                                 <field name="location_dest_id" column_invisible="True"/>
@@ -162,12 +174,12 @@
                                 <field name="description_picking" string="Description" optional="hide"/>
                                 <field name="date" optional="hide"/>
                                 <field name="date_deadline" optional="hide"/>
+                                <field name="repair_line_type" required="1"/>
                                 <field name="product_uom_qty" string="Demand" readonly="state in ('done', 'cancel')"/>
                                 <field name="forecast_expected_date" column_invisible="True"/>
                                 <field name="product_qty" readonly="1" column_invisible="True"/>
-                                <field name="quantity" string="Quantity" readonly="not product_id"/>
-                                <field name="product_uom" readonly="state != 'draft' and not additional" options="{'no_open': True, 'no_create': True}" widget="many2one_uom"/>
-                                <field name="picked" string="Picked" optional='hide'/>
+                                <field name="quantity" string="Quantity" readonly="not product_id" optional="show"/>
+                                <field name="uom_id" readonly="state != 'draft' and not additional" options="{'no_open': True, 'no_create': True}" widget="many2one_uom"/>
                                 <field name="lot_ids" widget="many2many_tags"
                                     groups="stock.group_production_lot"
                                     invisible="not show_details_visible or has_tracking != 'serial'"
@@ -182,6 +194,35 @@
                             </list>
                         </field>
                         <div class="clearfix"/>
+                    </page>
+                     <page string="Services" name="services">
+                        <field name="repair_service_line_ids" readonly="state in ['done', 'cancel']">
+                            <list string="text" editable="bottom">
+                                <control>
+                                    <create string="Add a line"/>
+                                    <button
+                                        name="action_add_service_from_repair_catalog"
+                                        class="px-4 btn-link"
+                                        string="Catalog"
+                                        type="object"
+                                        context="{'order_id': parent.id}"/>
+                                </control>
+                                <field name="sequence" widget="handle"/>
+                                <field
+                                    name="product_id"
+                                    required="1"
+                                    readonly="parent.state in ['done', 'cancel']"
+                                    context="{'default_type': 'service'}"/>
+                                <field name="description" optional="hide"/>
+                                <field name="quantity"/>
+                                <field
+                                    name="uom_id"
+                                    groups="uom.group_uom"
+                                    readonly="0"
+                                    options="{'no_open': True, 'no_create': True}"
+                                    widget="many2one_uom"/>
+                            </list>
+                        </field>
                     </page>
                     <page string="Repair Notes" name="repair_notes">
                         <field name="internal_notes" placeholder="Add internal notes."/>
@@ -204,10 +245,11 @@
                     <t t-name="card">
                         <div class="row">
                             <field name="name" class="col-6 fw-bolder mb-1"/>
-                            <field name="state" class="col-6 text-end mb-1" widget="label_selection" options="{'classes': {'draft': 'info', 'cancel': 'danger', 'done': 'success', 'under_repair': 'secondary'}}"/>
+                            <field name="state" class="col-6 text-end mb-1" widget="label_selection"
+                                options="{'classes': {'draft': 'info', 'cancel': 'danger', 'done': 'success'}}"/>
                             <div class="col-6 text-muted">
                                 <field name="product_id" />
-                                <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                                <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color', 'on_tag_click': 'edit_color'}"/>
                             </div>
                             <div class="col-6">
                                 <field name="partner_id" class="float-end"/>
@@ -230,8 +272,7 @@
                 <field name="sale_order_id"/>
                 <filter string="New" domain="[('state', '=', 'draft')]" name="filter_draft" />
                 <filter string="Confirmed" domain="[('state', '=', 'confirmed')]" name="filter_confirmed" />
-                <filter string="Under Repair" name="filter_under_repair" domain="[('state', '=', 'under_repair')]"/>
-                <filter string="Repaired" name="filter_done" domain="[('state', '=', 'done')]"/>
+                <filter string="Done" name="filter_done" domain="[('state', '=', 'done')]"/>
                 <filter string="Cancelled" name="filter_cancel" domain="[('state', '=', 'cancel')]"/>
                 <filter string="Returned" name="returned" domain="[('picking_id', '!=', False), ('picking_id.state', '=', 'done')]"/>
                 <separator/>
@@ -301,6 +342,7 @@
             <field name="res_model">repair.order</field>
             <field name="view_mode">list,kanban,graph,pivot,form,activity</field>
             <field name="search_view_id" ref="view_repair_order_form_filter"/>
+            <field name="context">{'search_default_partner_id': context.get('partner_id')}</field>
             <field name="help" type="html">
               <p class="o_view_nocontent_smiling_face">
                 No repair order found. Let's create one!
@@ -378,6 +420,17 @@
             </field>
         </record>
 
+        <record id="action_unreserve" model="ir.actions.server">
+            <field name="name">Unreserve</field>
+            <field name="model_id" ref="repair.model_repair_order"/>
+            <field name="binding_model_id" ref="repair.model_repair_order"/>
+            <field name="binding_view_types">form</field>
+            <field name="state">code</field>
+            <field name="code">
+            if records:
+                records.action_unreserve()</field>
+        </record>
+
         <menuitem id="menu_repair_order" groups="stock.group_stock_user" name="Repairs" sequence="165"
                   web_icon="repair,static/description/icon.png"/>
 
@@ -392,8 +445,6 @@
 
         <menuitem id="repair_menu_product_template" name="Products" action="stock.product_template_action_product"
             parent="repair_menu_config" sequence="2"/>
-        <menuitem id="repair_menu_product_product" name="Product Variants" action="stock.stock_product_normal_action"
-            parent="repair_menu_config" sequence="3" groups="product.group_product_variant"/>
         <menuitem id="repair_menu_tag" name="Repair Orders Tags" parent="repair_menu_config"
             action="action_repair_order_tag" sequence="1000" groups="base.group_no_one"/>
     </data>

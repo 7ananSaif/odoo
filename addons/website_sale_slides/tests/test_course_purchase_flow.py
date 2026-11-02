@@ -2,7 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo.addons.website_slides.tests import common
-from odoo.tests.common import users
+from odoo.tests.common import tagged, users
 
 
 class TestCoursePurchaseFlow(common.SlidesCase):

@@ -1,6 +1,6 @@
 import { makeDraggableHook } from "@web/core/utils/draggable_hook_builder";
 import { pick } from "@web/core/utils/objects";
-import { reactive } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { throttleForAnimation } from "@web/core/utils/timing";
 import { closest, touching } from "@web/core/utils/ui";
 
@@ -55,7 +55,7 @@ export function useNativeDraggable(hookParams, initialParams) {
     const cleanupFunctions = [];
     const currentParams = { ...initialParams };
     const setupHooks = {
-        wrapState: reactive,
+        wrapState: proxy,
         throttle: throttleForAnimation,
         addListener: (el, type, callback, options) => {
             el.addEventListener(type, callback, options);
@@ -67,7 +67,7 @@ export function useNativeDraggable(hookParams, initialParams) {
         },
     };
     // Compatibility for tests
-    const el = initialParams.ref.el;
+    const el = initialParams.ref();
     // TODO this is probably to be removed in master: the received params
     // contain the selector that should be checked and it will be transferred
     // to the makeDraggableHook function. There should not be any need to add
@@ -81,7 +81,12 @@ export function useNativeDraggable(hookParams, initialParams) {
         state: draggableState,
         update: (newParams) => {
             Object.assign(currentParams, newParams);
-            setupFunctions.forEach((depsFn, setupFn) => setupFn(...depsFn()));
+            setupFunctions.forEach((depsFn, setupFn) => {
+                const cleanUp = setupFn(...depsFn());
+                if (cleanUp) {
+                    cleanupFunctions.push(cleanUp);
+                }
+            });
         },
         destroy: () => {
             cleanupFunctions.forEach((cleanupFn) => cleanupFn());

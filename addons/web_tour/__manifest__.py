@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
@@ -9,62 +8,69 @@ Odoo Web tours.
 ========================
 
 """,
-    'version': '1.0',
     'depends': ['web'],
     'data': [
-        'security/ir.model.access.csv',
         'views/tour_views.xml',
+        'security/ir.access.csv',
     ],
     'assets': {
         'web.assets_backend': [
-            'web_tour/static/src/scss/**/*',
-            'web_tour/static/src/js/tour_pointer/**/*',
-            'web_tour/static/src/js/utils/**/*',
-            'web_tour/static/src/js/tour_state.js',
-            'web_tour/static/src/js/tour_service.js',
-            'web_tour/static/src/js/tour_recorder/tour_recorder_state.js',
-            'web_tour/static/src/tour_utils.js',
-            'web_tour/static/src/js/onboarding_item.xml',
+            ('include', 'web_tour.assets'),
+            'web_tour/static/src/tour_pointer/tour_pointer.scss',
             'web_tour/static/src/views/**/*',
             'web_tour/static/src/widgets/**/*',
         ],
         'web.assets_frontend': [
-            'web_tour/static/src/scss/**/*',
-            'web_tour/static/src/js/tour_pointer/**/*',
-            'web_tour/static/src/js/utils/**/*',
-            'web_tour/static/src/js/tour_state.js',
-            'web_tour/static/src/js/tour_service.js',
-            'web_tour/static/src/js/tour_recorder/tour_recorder_state.js',
-            'web_tour/static/src/tour_utils.js',
-            'web_tour/static/src/js/onboarding_item.xml',
+            ('include', 'web_tour.assets'),
+            'web_tour/static/src/tour_pointer/tour_pointer.scss',
         ],
         'web.assets_unit_tests': [
             ('include', 'web_tour.recorder'),
             ('include', 'web_tour.automatic'),
             ('include', 'web_tour.interactive'),
+            'web_tour/static/tests/tour_models.js',
             'web_tour/static/tests/*.test.js',
         ],
         "web.assets_tests": [
-            'web_tour/static/src/js/tour_automatic/tour_helpers.js',
+            'web_tour/static/src/tour_helpers/tour_helpers.js',
             ('include', 'web_tour.automatic')
         ],
         'web_tour.common': [
             'web/static/lib/hoot-dom/**/*',
-            'web_tour/static/src/js/tour_step.js',
+            'web_tour/static/src/tour_step.js',
+        ],
+        'web_tour.helpers': [
+            ('include', 'web_tour.common'),
+            'web_tour/static/src/tour_helpers/**/*',
         ],
         'web_tour.interactive': [
-            ('include', 'web_tour.common'),
-            'web_tour/static/src/js/tour_interactive/**/*',
+            ('include', 'web_tour.helpers'),
+            'web_tour/static/src/tour_interactive/**/*',
         ],
         'web_tour.automatic': [
-            ('include', 'web_tour.common'),
-            'web_tour/static/src/js/tour_automatic/**/*',
+            ('include', 'web_tour.helpers'),
+            'web_tour/static/src/tour_automatic/tour_automatic.js',
+            'web_tour/static/src/tour_automatic/tour_step_automatic.js',
         ],
         'web_tour.recorder': [
             ('include', 'web_tour.common'),
-            'web_tour/static/src/js/tour_recorder/**/*',
+            'web_tour/static/src/tour_recorder/**/*',
             'web_tour/static/src/views/**/*',
             'web_tour/static/src/widgets/**/*',
+        ],
+        'web_tour.assets': [
+            'web_tour/static/src/tour_pointer/tour_pointer.js',
+            'web_tour/static/src/tour_pointer/tour_pointer.xml',
+            'web_tour/static/src/tour_helpers/tour_helpers.js',
+            'web_tour/static/src/tour_state.js',
+            'web_tour/static/src/tour_plugin.js',
+            'web_tour/static/src/tour_recorder/tour_recorder_state.js',
+            'web_tour/static/src/tour_recorder/tour_recorder_plugin.js',
+            'web_tour/static/src/tour_recorder/tour_recorder_command_provider.js',
+            'web_tour/static/src/tour_utils.js',
+            'web_tour/static/src/tour_scenarios.js',
+            'web_tour/static/src/widgets/onboarding_item.js',
+            'web_tour/static/src/widgets/onboarding_item.xml',
         ],
     },
     'auto_install': True,

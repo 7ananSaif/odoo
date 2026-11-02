@@ -43,10 +43,10 @@ class StockLot(models.Model):
     ref = fields.Char('Internal Reference', help="Internal reference number in case it differs from the manufacturer's lot/serial number")
     product_id = fields.Many2one(
         'product.product', 'Product', index=True,
-        domain=("[('tracking', '!=', 'none'), ('is_storable', '=', True)] +"
+        domain=("[('tracking', '!=', False), ('is_storable', '=', True)] +"
             " ([('product_tmpl_id', '=', context['default_product_tmpl_id'])] if context.get('default_product_tmpl_id') else [])"),
         required=True, check_company=True, tracking=True)
-    product_uom_id = fields.Many2one(
+    uom_id = fields.Many2one(
         'uom.uom', 'Unit',
         related='product_id.uom_id')
     quant_ids = fields.One2many('stock.quant', 'lot_id', 'Quants', readonly=True)
@@ -56,11 +56,12 @@ class StockLot(models.Model):
     company_id = fields.Many2one('res.company', 'Company', index=True, store=True, readonly=False, compute='_compute_company_id')
     delivery_ids = fields.Many2many('stock.picking', compute='_compute_delivery_ids', string='Transfers')
     delivery_count = fields.Integer('Delivery order count', compute='_compute_delivery_ids')
-    partner_ids = fields.Many2many('res.partner', compute='_compute_partner_ids', search='_search_partner_ids')
+    partner_ids = fields.Many2many('res.partner', domain="['|', ('company_id', '=', False), ('company_id', '=?', company_id)]")
     lot_properties = fields.Properties('Properties', definition='product_id.lot_properties_definition', copy=True)
     location_id = fields.Many2one(
         'stock.location', 'Location', compute='_compute_single_location', store=True, readonly=False,
         inverse='_set_single_location', domain="[('usage', '!=', 'view')]", group_expand='_read_group_location_id')
+    is_scrap = fields.Boolean('Is Scrapped', compute='_compute_is_scrap')
 
     @api.depends('product_id')
     def _compute_name(self):
@@ -69,12 +70,24 @@ class StockLot(models.Model):
                 lot.name = lot.product_id.lot_sequence_id.next_by_id() if lot.product_id.lot_sequence_id else False
 
     @api.model
-    def generate_lot_names(self, first_lot, count):
+    def generate_lot_names(self, first_lot, count, product_sequence=False):
         """Generate `lot_names` from a string."""
+        # Get the lot sequence in order to extract prefix and suffix
+        seq = product_sequence or self.env.ref('stock.sequence_production_lots', raise_if_not_found=False)
+        sequence_prefix = sequence_suffix = ''
+        if seq:
+            sequence_prefix, sequence_suffix = seq._get_prefix_suffix()
+        # Remove the prefix and suffix before the computation of the number to be incremented
+        if not first_lot.endswith(sequence_suffix):
+            sequence_suffix = ''
+        if not first_lot.startswith(sequence_prefix):
+            sequence_prefix = ''
+        first_lot = first_lot.removesuffix(sequence_suffix)
+        first_lot = first_lot.removeprefix(sequence_prefix)
         # We look if the first lot contains at least one digit.
         caught_initial_number = regex_findall(r"\d+", first_lot)
         if not caught_initial_number:
-            return self.generate_lot_names(first_lot + "0", count)
+            return self.generate_lot_names(sequence_prefix + first_lot + "0" + sequence_suffix, count, product_sequence)
         # We base the series on the last number found in the base lot.
         initial_number = caught_initial_number[-1]
         padding = len(initial_number)
@@ -86,18 +99,18 @@ class StockLot(models.Model):
         initial_number = int(initial_number)
 
         return [{
-            'lot_name': '%s%s%s' % (prefix, str(initial_number + i).zfill(padding), suffix),
-        } for i in range(0, count)]
+            'lot_name': f'{sequence_prefix}{prefix}{str(initial_number + i).zfill(padding)}{suffix}{sequence_suffix}'
+        } for i in range(count)]
 
     @api.model
     def _get_next_serial(self, company, product):
         """Return the next serial number to be attributed to the product."""
-        if product.tracking != "none":
+        if product.tracking:
             last_serial = self.env['stock.lot'].search(
                 ['|', ('company_id', '=', company.id), ('company_id', '=', False), ('product_id', '=', product.id)],
                 limit=1, order='id DESC')
             if last_serial:
-                return self.env['stock.lot'].generate_lot_names(last_serial.name, 2)[1]['lot_name']
+                return self.env['stock.lot'].generate_lot_names(last_serial.name, 2, product.lot_sequence_id)[1]['lot_name']
         return False
 
     @api.constrains('name', 'product_id', 'company_id')
@@ -151,18 +164,10 @@ class StockLot(models.Model):
             prod_lot.display_complete = prod_lot.id or self.env.context.get('display_complete')
 
     def _compute_delivery_ids(self):
-        delivery_ids_by_lot = self._find_delivery_ids_by_lot_iterative()
+        delivery_ids_by_lot = self._find_delivery_ids_by_lot()
         for lot in self:
             lot.delivery_ids = delivery_ids_by_lot.get(lot.id, [])
             lot.delivery_count = len(lot.delivery_ids)
-
-    def _compute_partner_ids(self):
-        delivery_ids_by_lot = self._find_delivery_ids_by_lot_iterative()
-        for lot in self:
-            if delivery_ids_by_lot.get(lot.id, []):
-                lot.partner_ids = self.env['stock.picking'].browse(delivery_ids_by_lot[lot.id]).sorted(key='date_done', reverse=True).partner_id
-            else:
-                lot.partner_ids = False
 
     @api.depends('quant_ids', 'quant_ids.quantity')
     def _compute_single_location(self):
@@ -177,6 +182,12 @@ class StockLot(models.Model):
             quants.move_quants(location_dest_id=self.location_id, message=_("Lot/Serial Number Relocated"), unpack=unpack)
         elif len(quants.location_id) > 1:
             raise UserError(_('You can only move a lot/serial to a new location if it exists in a single location.'))
+
+    def _compute_is_scrap(self):
+        grouped_move_lines = self.env['stock.move.line']._read_group([('lot_id', 'in', self.ids), ('is_scrap', '=', True)], ['lot_id'], ['id:recordset'])
+        move_lines_by_lot = dict(grouped_move_lines)
+        for lot in self:
+            lot.is_scrap = bool(move_lines_by_lot.get(lot))
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -197,7 +208,12 @@ class StockLot(models.Model):
                     'if some stock moves have already been created with that number. '
                     'This would lead to inconsistencies in your stock.'
                 ))
-        return super().write(vals)
+        res = super().write(vals)
+        if vals.get('company_id'):
+            for lot in self:
+                if invalid_partners := lot.partner_ids.filtered(lambda partner: partner.company_id and partner.company_id != lot.company_id):
+                    lot.partner_ids -= invalid_partners
+        return res
 
     def copy_data(self, default=None):
         default = dict(default or {})
@@ -208,9 +224,9 @@ class StockLot(models.Model):
         return vals_list
 
     @api.depends('quant_ids', 'quant_ids.quantity')
-    @api.depends_context('owner_id', 'package_id', 'to_date', 'location', 'warehouse_id', 'allowed_company_ids')
+    @api.depends_context('owner_id', 'package_id', 'to_date', 'location', 'warehouse_id', 'allowed_company_ids', 'owners')
     def _product_qty(self):
-        domain_quant_loc, domain_move_in_loc, domain_move_out_loc = self.env['product.product'].with_context(skip_in_progress=True)._get_domain_locations()
+        domain_quant_loc, _, _, domain_move_in_loc, domain_move_out_loc = self.env['product.product']._get_domain_locations()
         owner_id = self.env.context.get('owner_id')
         package_id = self.env.context.get('package_id')
         to_date = fields.Datetime.to_datetime(self.env.context.get('to_date'))
@@ -220,6 +236,16 @@ class StockLot(models.Model):
             domain_quant &= Domain([('owner_id', '=', owner_id)])
             domain_move_in_loc &= Domain([('owner_id', '=', owner_id)])
             domain_move_out_loc &= Domain([('owner_id', '=', owner_id)])
+        if 'owners' in self.env.context:
+            owners = self.env.context['owners']
+            if owners:
+                domain_quant &= Domain([('owner_id', 'in', owners)])
+                domain_move_in_loc &= Domain([('owner_id', 'in', owners)])
+                domain_move_out_loc &= Domain([('owner_id', 'in', owners)])
+            else:
+                domain_quant &= Domain([('owner_id', '=', False)])
+                domain_move_in_loc &= Domain([('owner_id', '=', False)])
+                domain_move_out_loc &= Domain([('owner_id', '=', False)])
         if package_id is not None:
             domain_quant &= Domain([('package_id', '=', package_id)])
         quant_qty_by_lot = dict(self.env['stock.quant']._read_group(domain_quant, ['lot_id'], ['quantity:sum']))
@@ -262,34 +288,6 @@ class StockLot(models.Model):
             return ['|', ('id', 'in', ids), ('id', 'not in', lot_ids_w_qty)]
         return [('id', 'in', ids)]
 
-    def _search_partner_ids(self, operator, value):
-        """ returns partner_ids that are directly delivered the product of the lot/SN, i.e. not
-        lots/SNs that are consumed within a MO. This means this search is NOT symmetric with the
-        partner_ids field within the form view since it uses different logic that isn't efficient
-        enough for this search due to it being usable within the list view.
-        """
-        if operator in Domain.NEGATIVE_OPERATORS or not isinstance(value, (Iterable)):
-            return NotImplemented
-        is_no_partner = operator == 'in' and list(value) == [False]
-        domain = Domain([
-            ('lot_id', '!=', False),
-            ('state', '=', 'done'),
-        ])
-        if is_no_partner:
-            # reverse the search, get all lots sent to partner so we can return all lots NOT sent
-            domain &= Domain('picking_partner_id', 'not in', value)
-        else:
-            domain &= Domain.OR([
-                Domain('picking_partner_id', operator, value),
-                Domain('move_partner_id', operator, value),
-            ])
-        domain &= Domain(self._get_outgoing_domain())
-        move_lines = self.env['stock.move.line'].search(domain)
-
-        if is_no_partner:
-            return [('id', 'not in', move_lines.lot_id.ids)]
-        return [('id', 'in', move_lines.lot_id.ids)]
-
     def action_lot_open_quants(self):
         self = self.with_context(search_default_lot_id=self.id, create=False)
         if self.env.user.has_group('stock.group_stock_manager'):
@@ -298,79 +296,35 @@ class StockLot(models.Model):
 
     def action_lot_open_transfers(self):
         self.ensure_one()
-
-        action = {
-            'res_model': 'stock.picking',
-            'type': 'ir.actions.act_window'
+        delivered_lot_move_lines = self._get_delivery_move_lines_by_lot().get(self.id, [])
+        list_view = self.env.ref('stock.stock_move_line_view_list')
+        return {
+            'name': self.env._("Delivery move lines of %s", self.display_name),
+            'res_model': 'stock.move.line',
+            'type': 'ir.actions.act_window',
+            'views': [(list_view.id, 'list'), (False, 'form')],
+            'view_mode': 'list,form',
+            'domain': [
+                ('id', 'in', delivered_lot_move_lines),
+                ('location_dest_usage', 'in', ('customer', 'transit')),
+            ],
         }
-        if len(self.delivery_ids) == 1:
-            action.update({
-                'view_mode': 'form',
-                'res_id': self.delivery_ids[0].id
-            })
-        else:
-            action.update({
-                'name': _("Delivery orders of %s", self.display_name),
-                'domain': [('id', 'in', self.delivery_ids.ids)],
-                'view_mode': 'list,form'
-            })
-        return action
 
     @api.model
     def _get_outgoing_domain(self):
         return [
             '|',
+            '|',
             '|', ('picking_code', '=', 'outgoing'), ('move_id.picking_code', '=', 'outgoing'),
             ('produce_line_ids', '!=', False),
+            ('location_dest_usage', 'in', ('customer', 'transit')),
         ]
 
-    def _find_delivery_ids_by_lot(self, lot_path=None, delivery_by_lot=None):
-        if lot_path is None:
-            lot_path = set()
-        domain = Domain([
-            ('lot_id', 'in', self.ids),
-            ('state', '=', 'done'),
-        ]) & Domain(self._get_outgoing_domain())
-        move_lines = self.env['stock.move.line'].search(domain)
-        moves_by_lot = {
-            lot_id: {'producing_lines': set(), 'barren_lines': set()}
-            for lot_id in move_lines.lot_id.ids
-        }
-        for line in move_lines:
-            if line.produce_line_ids:
-                moves_by_lot[line.lot_id.id]['producing_lines'].add(line.id)
-            else:
-                moves_by_lot[line.lot_id.id]['barren_lines'].add(line.id)
-        if delivery_by_lot is None:
-            delivery_by_lot = dict()
-        for lot in self:
-            delivery_ids = set()
-
-            if moves_by_lot.get(lot.id):
-                producing_move_lines = self.env['stock.move.line'].browse(moves_by_lot[lot.id]['producing_lines'])
-                barren_move_lines = self.env['stock.move.line'].browse(moves_by_lot[lot.id]['barren_lines'])
-
-                if producing_move_lines:
-                    lot_path.add(lot.id)
-                    next_lots = producing_move_lines.produce_line_ids.lot_id.filtered(lambda l: l.id not in lot_path)
-                    next_lots_ids = set(next_lots.ids)
-                    # If some producing lots are in lot_path, it means that they have been previously processed.
-                    # Their results are therefore already in delivery_by_lot and we add them to delivery_ids directly.
-                    delivery_ids.update(*(delivery_by_lot.get(lot_id, []) for lot_id in (producing_move_lines.produce_line_ids.lot_id - next_lots).ids))
-
-                    for lot_id, delivery_ids_set in next_lots._find_delivery_ids_by_lot(lot_path=lot_path, delivery_by_lot=delivery_by_lot).items():
-                        if lot_id in next_lots_ids:
-                            delivery_ids.update(delivery_ids_set)
-                delivery_ids.update(barren_move_lines.picking_id.ids)
-
-            delivery_by_lot[lot.id] = list(delivery_ids)
-        return delivery_by_lot
-
-    def _find_delivery_ids_by_lot_iterative(self):
-        """ Retrieve all delivery IDs (outgoing picking) linked to the lots
-            in self and all the lots found when parcouring the produce lines.
+    def _get_delivery_move_lines_by_lot(self):
+        """ Retrieve all delivery move lines (outgoing) linked to the lots
+            in self and all the lots found when tracing the produce lines.
             :return: A dictionary where keys are the IDs of the original 'stock.lot'
-                      records (self) and values are lists of associated 'stock.picking' IDs.
+                     records (self) and values are lists of associated 'stock.move.line' IDs.
             :rtype: dict
         """
 
@@ -381,7 +335,8 @@ class StockLot(models.Model):
         # Prefetch the lines linked to lots and split them between producing lines
         # and barren lines (lines that have `produce_line_ids` and lines that don't
         # have them respectively) and build the map of the parents of each lot (so we
-        # can browse the tree from the leaves to the root and propagate the pickings)
+        # can browse the tree from the leaves to the root and propagate the move lines)
+
         queue = list(self.ids)
         while queue:
             domain = Domain([
@@ -399,33 +354,78 @@ class StockLot(models.Model):
                     for child_lot_id in produce_line_lot_ids:
                         parent_map[child_lot_id].add(lot_id)
                 else:
-                    barren_lines[lot_id].add(line.id)
+                    barren_lines[lot_id].add(line.id)  # Leaf node (no more children)
 
                 next_lots = set(produce_line_lot_ids) - all_lot_ids
                 all_lot_ids.update(next_lots)
                 queue.extend(next_lots)
 
-        # Initialize delivery_by_lot with barren lines (i.e. the leaves of the lot tree)
+        # Initialize move_lines_by_lot with barren lines (the leaves of the tree)
         lots_to_propagate = set()
-        delivery_by_lot = {lot_id: set() for lot_id in all_lot_ids}
-        for lot_id in barren_lines:
-            barren_line_ids = barren_lines[lot_id]
+        move_lines_by_lot = {lot_id: set() for lot_id in all_lot_ids}
+
+        for lot_id, barren_line_ids in barren_lines.items():
             if barren_line_ids:
-                barren_move_lines = self.env['stock.move.line'].browse(barren_line_ids)
-                delivery_by_lot[lot_id].update(barren_move_lines.picking_id.ids)
+                move_lines_by_lot[lot_id].update(barren_line_ids)
                 lots_to_propagate.add(lot_id)
 
-        # Propagate the deliveries from the children to their parent lots.
-        # This loop processes lots whose delivery sets have just been updated,
+        # Propagate the move lines from the children to their parent lots.
+        # This loop processes lots whose move line sets have just been updated,
         # ensuring the new results are merged upward through the parent graph until
-        # all deliveries are propagated
+        # all move lines are propagated
         while lots_to_propagate:
             lot_id = lots_to_propagate.pop()
 
             for parent_id in parent_map.get(lot_id, []):
-                new_deliveries = delivery_by_lot[lot_id] - delivery_by_lot[parent_id]
-                if new_deliveries:
-                    delivery_by_lot[parent_id].update(new_deliveries)
+                new_move_lines = move_lines_by_lot[lot_id] - move_lines_by_lot[parent_id]
+                if new_move_lines:
+                    move_lines_by_lot[parent_id].update(new_move_lines)
                     lots_to_propagate.add(parent_id)
 
-        return {lot_id: list(delivery_by_lot[lot_id]) for lot_id in delivery_by_lot}
+        return {lot_id: list(line_ids) for lot_id, line_ids in move_lines_by_lot.items()}
+
+    def _find_delivery_ids_by_lot(self):
+        """ Retrieve all delivery IDs (outgoing picking) linked to the lots
+            in self and all the lots found when tracing the produce lines.
+            :return: A dictionary where keys are the IDs of the original 'stock.lot'
+                      records (self) and values are lists of associated 'stock.picking' IDs.
+            :rtype: dict
+        """
+        return {
+            lot_id: self.env['stock.move.line'].browse(move_line_ids).picking_id.ids
+            for lot_id, move_line_ids in self._get_delivery_move_lines_by_lot().items()
+        }
+
+    def action_open_scrap_moves(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Scraps of %s', self.name),
+            'res_model': 'stock.move',
+            'views': [(self.env.ref('stock.view_scrap_move_list').id, 'list'), (self.env.ref('stock.view_scrap_move_form').id, 'form')],
+            'domain': [('move_line_ids.lot_id', '=', self.id), ('is_scrap', '=', True)],
+        }
+
+    def action_scrap(self):
+        self.ensure_one()
+        context = {
+            'default_is_scrap': True,
+            'default_product_id': self.product_id.id,
+            'default_quantity': self.product_qty,
+            'default_lot_ids': self.ids,
+            'default_location_dest_id': self.env.company.scrap_location_id.id,
+            'default_state': 'draft',
+            'default_company_id': self.company_id.id or self.env.company.id,
+            'product_ids': self.product_id.ids,
+            'lot_ids': self.ids,
+        }
+        if self.location_id:
+            # an empty default would shadow the scrap fallback of the move's source location
+            context['default_location_id'] = self.location_id.id
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Scrap %(lot_name)s', lot_name=self.name),
+            'res_model': 'stock.move',
+            'views': [(self.env.ref('stock.view_scrap_move_form').id, 'form')],
+            'context': context,
+        }

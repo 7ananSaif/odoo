@@ -1,7 +1,7 @@
 import { expect, test } from "@odoo/hoot";
-import { click, edit } from "@odoo/hoot-dom";
+import { click, edit, keyDown } from "@odoo/hoot-dom";
 import { animationFrame, tick } from "@odoo/hoot-mock";
-import { Component, reactive, useState, xml } from "@odoo/owl";
+import { Component, proxy, signal, useProps, xml } from "@odoo/owl";
 import { mountWithCleanup } from "@web/../tests/web_test_helpers";
 import { DateTimeInput } from "@web/core/datetime/datetime_input";
 import { useDateTimePicker } from "@web/core/datetime/datetime_picker_hook";
@@ -18,11 +18,13 @@ const mountInput = async (setup) => {
 
 class Root extends Component {
     static components = { DateTimeInput };
-    static template = xml`<input type="text" class="datetime_hook_input" t-ref="start-date"/>`;
-    static props = ["*"];
+    static template = xml`<input type="text" class="datetime_hook_input" t-ref="this.startDateRef"/>`;
+    props = useProps();
+
+    startDateRef = signal.ref();
 
     setup() {
-        this.props.setup();
+        this.props.setup(this.startDateRef);
     }
 }
 
@@ -32,8 +34,8 @@ test("reactivity: update inert object", async () => {
         type: "date",
     };
 
-    await mountInput(() => {
-        useDateTimePicker({ pickerProps });
+    await mountInput((startDateRef) => {
+        useDateTimePicker({ inputRefs: [startDateRef], pickerProps });
     });
 
     expect(".datetime_hook_input").toHaveValue("");
@@ -45,16 +47,17 @@ test("reactivity: update inert object", async () => {
 });
 
 test("reactivity: useState & update getter object", async () => {
-    const pickerProps = reactive({
+    const pickerProps = proxy({
         value: false,
         type: "date",
     });
 
-    await mountInput(() => {
-        const state = useState(pickerProps);
+    await mountInput((startDateRef) => {
+        const state = proxy(pickerProps);
         state.value; // artificially subscribe to value
 
         useDateTimePicker({
+            inputRefs: [startDateRef],
             get pickerProps() {
                 return pickerProps;
             },
@@ -69,6 +72,27 @@ test("reactivity: useState & update getter object", async () => {
     expect(".datetime_hook_input").toHaveValue("06/06/2023");
 });
 
+test("getter-only undefined props do not prevent service defaults", async () => {
+    let pickerProps;
+    const defaultPickerProps = {
+        value: false,
+        type: "date",
+    };
+    Object.defineProperty(defaultPickerProps, "onReset", {
+        enumerable: true,
+        get: () => undefined,
+    });
+
+    await mountInput((startDateRef) => {
+        pickerProps = useDateTimePicker({
+            inputRefs: [startDateRef],
+            pickerProps: defaultPickerProps,
+        }).state;
+    });
+
+    expect(pickerProps.onReset).toBeOfType("function");
+});
+
 test("reactivity: update reactive object returned by the hook", async () => {
     let pickerProps;
     const defaultPickerProps = {
@@ -76,8 +100,11 @@ test("reactivity: update reactive object returned by the hook", async () => {
         type: "date",
     };
 
-    await mountInput(() => {
-        pickerProps = useDateTimePicker({ pickerProps: defaultPickerProps }).state;
+    await mountInput((startDateRef) => {
+        pickerProps = useDateTimePicker({
+            inputRefs: [startDateRef],
+            pickerProps: defaultPickerProps,
+        }).state;
     });
 
     expect(".datetime_hook_input").toHaveValue("");
@@ -96,8 +123,11 @@ test("returned value is updated when input has changed", async () => {
         type: "date",
     };
 
-    await mountInput(() => {
-        pickerProps = useDateTimePicker({ pickerProps: defaultPickerProps }).state;
+    await mountInput((startDateRef) => {
+        pickerProps = useDateTimePicker({
+            inputRefs: [startDateRef],
+            pickerProps: defaultPickerProps,
+        }).state;
     });
 
     expect(".datetime_hook_input").toHaveValue("");
@@ -118,8 +148,9 @@ test("value is not updated if it did not change", async () => {
         type: "date",
     };
 
-    await mountInput(() => {
+    await mountInput((startDateRef) => {
         pickerProps = useDateTimePicker({
+            inputRefs: [startDateRef],
             pickerProps: defaultPickerProps,
             onApply: (value) => {
                 expect.step(getShortDate(value));
@@ -145,24 +176,64 @@ test("value is not updated if it did not change", async () => {
     expect.verifySteps(["2023-07-07"]);
 });
 
-test("close popover when owner component is unmounted", async() => {
+test("value is applied when pressing Enter after typing without opening the picker", async () => {
+    const getShortDate = (date) => date.toSQL().split(" ")[0];
+
+    let pickerProps;
+    const defaultPickerProps = {
+        value: DateTime.fromSQL("2023-06-06"),
+        type: "date",
+    };
+
+    await mountInput((startDateRef) => {
+        pickerProps = useDateTimePicker({
+            inputRefs: [startDateRef],
+            pickerProps: defaultPickerProps,
+            onApply: (value) => {
+                expect.step(getShortDate(value));
+            },
+        }).state;
+    });
+
+    expect(".datetime_hook_input").toHaveValue("06/06/2023");
+
+    // Focus the input directly (as opposed to clicking on it) so that the
+    // picker popover never opens, then type a new date with `keyDown`
+    // (as opposed to `fill`/`edit`) and press Enter, without ever blurring
+    // the input.
+
+    document.querySelector(".datetime_hook_input").focus();
+    for (const char of "07/07/2023") {
+        await keyDown(char);
+    }
+    await keyDown("Enter");
+    await animationFrame();
+
+    expect(".datetime_hook_input").toHaveValue("07/07/2023");
+    expect(getShortDate(pickerProps.value)).toBe("2023-07-07");
+    expect.verifySteps(["2023-07-07"]);
+});
+
+test("close popover when owner component is unmounted", async () => {
     class Child extends Component {
         static components = { DateTimeInput };
-        static props = [];
         static template = xml`
             <div>
-                <input type="text" class="datetime_hook_input" t-ref="start-date"/>
+                <input type="text" class="datetime_hook_input" t-ref="this.startDateRef"/>
             </div>
         `;
 
+        startDateRef = signal.ref();
+
         setup() {
             useDateTimePicker({
+                inputRefs: [this.startDateRef],
                 createPopover: usePopover,
                 pickerProps: {
                     value: [false, false],
                     type: "date",
                     range: true,
-                }
+                },
             });
         }
     }
@@ -171,11 +242,10 @@ test("close popover when owner component is unmounted", async() => {
 
     class DateTimeToggler extends Component {
         static components = { Child };
-        static props = [];
-        static template = xml`<Child t-if="!state.hidden"/>`;
+        static template = xml`<Child t-if="!this.state.hidden"/>`;
 
         setup() {
-            this.state = useState({
+            this.state = proxy({
                 hidden: false,
             });
             promise.then(() => {
@@ -195,4 +265,21 @@ test("close popover when owner component is unmounted", async() => {
     await animationFrame();
     await animationFrame();
     expect(".o_datetime_picker").toHaveCount(0);
+});
+
+test("hide reset button in datetime picker popover", async () => {
+    const pickerProps = {
+        type: "datetime",
+        value: DateTime.fromSQL("2026-09-05"),
+    };
+
+    await mountInput((startDateRef) => {
+        useDateTimePicker({ inputRefs: [startDateRef], pickerProps, showResetButton: false });
+    });
+
+    await click("input.datetime_hook_input");
+    await animationFrame();
+
+    expect(".o_datetime_picker").toHaveCount(1);
+    expect(".o_datetime_buttons button[title='Clear']").toHaveCount(0);
 });

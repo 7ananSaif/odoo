@@ -6,10 +6,11 @@ from freezegun import freeze_time
 
 from odoo.addons.base.tests.test_ir_cron import CronMixinCase
 from odoo.addons.mass_mailing.tests.common import MassMailCommon
-from odoo.tests import users, Form
+from odoo.tests import tagged, users, Form
 from odoo.tools import mute_logger
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestMailingScheduleDateWizard(MassMailCommon, CronMixinCase):
 
     @mute_logger('odoo.addons.mail.models.mail_mail')
@@ -27,7 +28,6 @@ class TestMailingScheduleDateWizard(MassMailCommon, CronMixinCase):
         with freeze_time(datetime(2023, 2, 17, 9, 0)):
             with self.capture_triggers(cron_job_id) as capt:
                 mailing = self.env['mailing.mailing'].create({
-                    'name': 'mailing',
                     'subject': 'some subject',
                     'mailing_model_id': self.env['ir.model']._get('res.partner').id,
                     'state' : 'draft'
@@ -46,7 +46,6 @@ class TestMailingScheduleDateWizard(MassMailCommon, CronMixinCase):
         with freeze_time(datetime(2023, 2, 17, 9, 0)):
             with self.capture_triggers(cron_job_id) as capt:
                 mailing = self.env['mailing.mailing'].create({
-                    'name': 'mailing',
                     'subject': 'some subject',
                     'mailing_model_id': self.env['ir.model']._get('res.partner').id,
                     'state' : 'draft',
@@ -67,7 +66,6 @@ class TestMailingScheduleDateWizard(MassMailCommon, CronMixinCase):
         with freeze_time(datetime(2023, 2, 17, 9, 0)):
             with self.capture_triggers(cron_job_id) as capt:
                 mailing = self.env['mailing.mailing'].create({
-                    'name': 'mailing',
                     'subject': 'some subject',
                     'mailing_model_id': self.env['ir.model']._get('res.partner').id,
                     'state' : 'draft',
@@ -87,7 +85,6 @@ class TestMailingScheduleDateWizard(MassMailCommon, CronMixinCase):
         with freeze_time(datetime(2023, 2, 17, 9, 0)):
             with self.capture_triggers(cron_job_id) as capt:
                 mailing = self.env['mailing.mailing'].create({
-                    'name': 'mailing',
                     'subject': 'some subject',
                     'mailing_model_id': self.env['ir.model']._get('res.partner').id,
                     'state' : 'draft',
@@ -116,7 +113,6 @@ class TestMailingScheduleDateWizard(MassMailCommon, CronMixinCase):
 
     def test_mailing_schedule_date(self):
         mailing = self.env['mailing.mailing'].create({
-            'name': 'mailing',
             'subject': 'some subject',
             'mailing_model_id': self.env['ir.model']._get('res.partner').id,
         })

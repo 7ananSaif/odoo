@@ -2,7 +2,7 @@ from lxml import etree
 
 from odoo import Command
 from odoo.addons.account_edi_ubl_cii.tests.common import TestUblBis3Common, TestUblCiiFRCommon
-from odoo.addons.account_edi_ubl_cii.models.account_edi_xml_ubl_bis3 import CHORUS_PRO_PEPPOL_ID
+from odoo.addons.account_edi_ubl_cii.models.account_edi_xml_ubl_bis3 import CHORUS_PRO_SIRET
 from odoo.addons.l10n_fr_facturx_chorus_pro.tests.common import TestUblCiiCommonChorusPro
 from odoo.tests import tagged
 
@@ -10,15 +10,17 @@ from odoo.tests import tagged
 @tagged('post_install_l10n', 'post_install', '-at_install', *TestUblBis3Common.extra_tags)
 class TestUblExportBis3FRChorusPro(TestUblBis3Common, TestUblCiiCommonChorusPro, TestUblCiiFRCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        if cls.env['ir.module.module']._get('l10n_fr_pdp').state == 'installed':
-            # The PDP module sets a 0225 identifier (based on the siret)
-            cls.env.company.partner_id.write({
-                'peppol_eas': '0009',
-                'peppol_endpoint': '40678483500521'
-            })
+        # TestUblCiiFRCommon sets a 9957 identifier (based on the VAT),
+        # but Chorus Pro expects french suppliers to be identified by their siret
+        cls.env.company.partner_id.write({
+            'routing_scheme': '0009',
+            'routing_endpoint': '40678483500521'
+        })
 
     @classmethod
     def subfolders(cls):
@@ -38,7 +40,6 @@ class TestUblExportBis3FRChorusPro(TestUblBis3Common, TestUblCiiCommonChorusPro,
 
     def test_invoice_customer_party_identifiers_partner_chorus_pro(self):
         # VAT and siret set.
-        # The siret must not have spaces in the exported document
         # Supplier:
         # EndpointID is filled using the siret.
         # PartyIdentification is filled using the siret.
@@ -49,10 +50,6 @@ class TestUblExportBis3FRChorusPro(TestUblBis3Common, TestUblCiiCommonChorusPro,
         # PartyIdentification is filled using the customer siret.
         # PartyTaxScheme is filled using the VAT.
         # PartyLegalEntity is filled using the customer siret.
-        self.partner_fr_chorus_pro.commercial_partner_id.write({
-            'company_registry': '214 401 0930 0015',
-            'peppol_endpoint': '11000201100044',
-        })
         self._assert_invoice_partner_party_identifiers(
             partner=self.partner_fr_chorus_pro,
             test_file='test_invoice_customer_party_identifiers_partner_chorus_pro',
@@ -62,13 +59,13 @@ class TestUblExportBis3FRChorusPro(TestUblBis3Common, TestUblCiiCommonChorusPro,
         """ A public customer located in a DROM, its SIRET must
         be used in PartyIdentification, exactly like metropolitan France.
         """
-        chorus_eas, chorus_endpoint = CHORUS_PRO_PEPPOL_ID.split(":")
+        chorus_eas, chorus_endpoint = '0009', CHORUS_PRO_SIRET
         drom_partner = self.env['res.partner'].create({
             'name': "Chorus Pro - Ville du Lamentin (Martinique)",
             'vat': "FR19219722139",
-            'company_registry': "21972213900017",
-            'peppol_eas': chorus_eas,
-            'peppol_endpoint': chorus_endpoint,
+            'additional_identifiers': {'FR_SIRET': "21972213900017"},
+            'routing_scheme': chorus_eas,
+            'routing_endpoint': chorus_endpoint,
             'country_id': self.env.ref('base.mq').id,  # Martinique (DROM)
             'invoice_edi_format': 'ubl_bis3',
         })

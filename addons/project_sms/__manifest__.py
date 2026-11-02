@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
@@ -13,8 +12,7 @@
         'views/project_task_type_views.xml',
         'views/project_project_views.xml',
         'views/project_task_views.xml',
-        'security/ir.model.access.csv',
-        'security/project_sms_security.xml',
+        'security/ir.access.csv',
     ],
     'auto_install': True,
     'author': 'Odoo S.A.',

@@ -1,58 +1,75 @@
-import { PageDependencies } from "@website/components/dialog/page_properties";
+import { Component, onMounted, onPatched, onWillUnmount, useProps, t } from "@odoo/owl";
+import { _t } from "@web/core/l10n/translation";
+import { registry } from "@web/core/registry";
+import { useService } from "@web/core/utils/hooks";
+import { debounce } from "@web/core/utils/timing";
+import { charField, CharField } from "@web/views/fields/char/char_field";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
 import { UrlField, urlField } from "@web/views/fields/url/url_field";
-import { registry } from "@web/core/registry";
-import { _t } from "@web/core/l10n/translation";
-import { debounce } from "@web/core/utils/timing";
-import { Component, useEffect, useRef } from "@odoo/owl";
+import { PageDependencies } from "@website/components/dialog/page_properties";
+import { TranslationButton } from "@web/views/fields/translation/translation_button";
 
 /**
  * Displays website page dependencies and URL redirect options when the page URL
  * is updated.
  */
 class PageUrlField extends UrlField {
-    static components = { PageDependencies };
+    static components = { PageDependencies, TranslationButton };
     static template = "website.PageUrlField";
-    static defaultProps = {
-        ...UrlField.defaultProps,
-        websitePath: true,
-    };
+    // Inlined from UrlField's static props (UrlField is not yet converted to
+    // an exported schema const; it has no defaultProps of its own).
+    props = useProps({
+        ...standardFieldProps,
+        placeholder: t.string().optional(),
+        text: t.string().optional(),
+        websitePath: t.boolean().optional(true),
+    });
 
     setup() {
         super.setup();
         this.serverUrl = `${window.location.origin}/`;
-        this.inputRef = useRef("input");
+        this.uiService = useService("ui");
 
         // Trigger onchange api on input event to display redirection
         // parameters as soon as the user types.
         // TODO should find a way to do this more automatically (and option in
         // the framework? or at least a t-on-input?)
-        useEffect(
-            (inputEl) => {
-                if (inputEl) {
-                    const originalValue = inputEl.value;
-                    let previousValueChanged = false;
-                    const fireChangeEvent = debounce(() => {
-                        const currentValue = inputEl.value;
-                        const valueChanged = currentValue !== originalValue;
-                        if (valueChanged !== previousValueChanged) {
-                            if (currentValue[0] !== "/") {
-                                inputEl.value = `/${currentValue}`;
-                            }
-                            inputEl.dispatchEvent(new Event("change"));
-                            inputEl.value = currentValue;
-                            previousValueChanged = valueChanged;
+        let cleanup;
+        let listenedEl;
+        const setupInputListener = () => {
+            const inputEl = this.inputRef();
+            if (inputEl === listenedEl) {
+                return;
+            }
+            if (cleanup) {
+                cleanup();
+                cleanup = undefined;
+            }
+            listenedEl = inputEl;
+            if (inputEl) {
+                const originalValue = inputEl.value;
+                let previousValueChanged = false;
+                const fireChangeEvent = debounce(() => {
+                    const currentValue = inputEl.value;
+                    const valueChanged = currentValue !== originalValue;
+                    if (valueChanged !== previousValueChanged) {
+                        if (currentValue[0] !== "/") {
+                            inputEl.value = `/${currentValue}`;
                         }
-                    }, 100);
-
-                    inputEl.addEventListener("input", fireChangeEvent);
-                    return () => {
-                        inputEl.removeEventListener("input", fireChangeEvent);
-                    };
-                }
-            },
-            () => [this.inputRef.el]
-        );
+                        inputEl.dispatchEvent(new Event("change"));
+                        inputEl.value = currentValue;
+                        previousValueChanged = valueChanged;
+                    }
+                }, 100);
+                inputEl.addEventListener("input", fireChangeEvent);
+                cleanup = () => {
+                    inputEl.removeEventListener("input", fireChangeEvent);
+                };
+            }
+        };
+        onMounted(setupInputListener);
+        onPatched(setupInputListener);
+        onWillUnmount(() => cleanup && cleanup());
     }
 
     get value() {
@@ -65,6 +82,9 @@ class PageUrlField extends UrlField {
         // and thus doesn't accept an empty string.
         this.props.record.data[this.props.name] = `/${value.trim()}`;
         return value;
+    }
+    get isTranslatable() {
+        return this.props.record.isFieldTranslatable(this.props.name);
     }
 }
 
@@ -81,10 +101,10 @@ registry.category("fields").add("page_url", pageUrlField);
  */
 export class ImageRadioField extends Component {
     static template = "website.FieldImageRadio";
-    static props = {
+    props = useProps({
         ...standardFieldProps,
-        images: { type: Array, element: String },
-    };
+        images: t.array(t.string()),
+    });
 
     setup() {
         const selection = this.props.record.fields[this.props.name].selection;
@@ -123,3 +143,30 @@ export const imageRadioField = {
 };
 
 registry.category("fields").add("image_radio", imageRadioField);
+
+/**
+ * A Char field that updates its value on input.
+ */
+export class UrlWarningBannerVisibilityCharField extends CharField {
+    static template = "website.UrlWarningBannerVisibilityCharField";
+
+    onFocus(ev) {
+        if (this.props.record.data.is_url_from_exist) {
+            this.props.record.update({ is_url_from_exist: false });
+        }
+    }
+
+    onBlur() {
+        this.props.record.update({ [this.props.name]: this.input().value });
+        super.onBlur();
+    }
+}
+
+export const urlWarningBannerVisibilityCharField = {
+    ...charField,
+    component: UrlWarningBannerVisibilityCharField,
+};
+
+registry
+    .category("fields")
+    .add("url_warning_banner_visibility", urlWarningBannerVisibilityCharField);

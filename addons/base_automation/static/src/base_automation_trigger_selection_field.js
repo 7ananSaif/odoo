@@ -1,4 +1,4 @@
-import { useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
 import { useRecordObserver } from "@web/model/relational_model/utils";
@@ -72,23 +72,28 @@ export class TriggerSelectionField extends SelectionField {
     static template = "base_automation.TriggerSelectionField";
     setup() {
         super.setup();
-        this.groupedOptions = useState([]);
+        this.groupedOptions = proxy([]);
 
         const orm = useService("orm");
         let lastRelatedModelId;
-        let relatedModelFields;
+        let relatedModelFieldsProm;
+        let observerId = 0;
         useRecordObserver(async (record) => {
+            const _id = ++observerId;
             const { data, fields } = record;
             const modelId = data.model_id?.id;
             if (lastRelatedModelId !== modelId) {
                 lastRelatedModelId = modelId;
-                relatedModelFields = await orm.searchRead(
+                relatedModelFieldsProm = orm.searchRead(
                     "ir.model.fields",
                     [["model_id", "=", modelId]],
                     ["field_description", "name", "ttype", "relation"]
                 );
             }
-
+            const relatedModelFields = await relatedModelFieldsProm;
+            if (observerId !== _id) {
+                return;
+            }
             // first, compute the derived options
             const derivedOptions = computeDerivedOptions(
                 fields[this.props.name].selection,

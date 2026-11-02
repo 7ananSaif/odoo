@@ -8,7 +8,6 @@ from unittest.mock import Mock, patch
 import textwrap
 import pathlib
 import lxml
-import base64
 import unittest
 
 import odoo.modules
@@ -16,6 +15,7 @@ from odoo import api
 from odoo.addons.base.models.assetsbundle import AssetsBundle, XMLAssetError, ANY_UNIQUE
 from odoo.addons.base.models.ir_asset import AssetPaths
 from odoo.addons.base.models.ir_attachment import IrAttachment
+from odoo.modules import Manifest
 from odoo.tests import HttpCase, tagged
 from odoo.tests.common import TransactionCase
 from odoo.tools import mute_logger
@@ -26,6 +26,7 @@ GETMTINE = os.path.getmtime
 # ruff: noqa: S320
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestAddonPaths(TransactionCase):
     def test_operations(self):
         asset_paths = AssetPaths()
@@ -96,23 +97,23 @@ class TestAddonPaths(TransactionCase):
         ])
 
 
-class Manifests(dict):
-    def __init__(self, default):
-        self.defaults = default
-
-    def __missing__(self, key):
-        return self.defaults(key)
-
-
 class AddonManifestPatched(TransactionCase):
     def setUp(self):
         super().setUp()
 
         self.installed_modules = {'base', 'test_assetsbundle'}
-        self.manifests = Manifests(odoo.modules.Manifest.for_addon)
+        self.manifests = {}
 
         self.patch(self.env.registry, '_init_modules', self.installed_modules)
-        self.patch(odoo.modules.Manifest, 'for_addon', lambda module, **kw: self.manifests[module])
+
+        default_for_addon = odoo.modules.Manifest.for_addon
+
+        def for_addon(module, **kwargs):
+            if manifest := self.manifests.get(module):
+                return Manifest(path=__file__.rsplit(os.sep, 2)[0], manifest_content={'author': 'test_assetsbundle', 'license': 'LGPL-3', **manifest})
+            return default_for_addon(module)
+
+        self.patch(odoo.modules.Manifest, 'for_addon', for_addon)
 
 
 class FileTouchable(AddonManifestPatched):
@@ -125,6 +126,7 @@ class FileTouchable(AddonManifestPatched):
         return patch('os.path.getmtime', lambda filename: self.touches.get(filename) or GETMTINE(filename))
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestJavascriptAssetsBundle(FileTouchable):
     @classmethod
     def setUpClass(cls):
@@ -667,6 +669,8 @@ class TestJavascriptAssetsBundle(FileTouchable):
     </body>
 </html>"""))
 
+
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestXMLAssetsBundle(FileTouchable):
 
     def _get_asset(self, bundle, rtl=False, debug_assets=False):
@@ -766,7 +770,7 @@ class TestAssetsBundleInBrowser(HttpCase):
         attach = self.env['ir.attachment'].create({
             'name': 'CustomJscode.js',
             'mimetype': 'text/javascript',
-            'datas': base64.b64encode(code),
+            'raw': code,
         })
         # Use this route (filename is necessary)
         custom_url = '/web/content/%s/%s' % (attach.id, attach.name)
@@ -784,6 +788,7 @@ class TestAssetsBundleInBrowser(HttpCase):
         )
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestAssetsBundleWithIRAMock(FileTouchable):
     def setUp(self):
         super(TestAssetsBundleWithIRAMock, self).setUp()
@@ -854,6 +859,7 @@ class TestAssetsBundleWithIRAMock(FileTouchable):
 
 
 @tagged('assets_manifest')
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestAssetsManifest(AddonManifestPatched):
 
     def make_asset_view(self, asset_key, t_call_assets_attrs=None):
@@ -1797,7 +1803,7 @@ class TestAssetsManifest(AddonManifestPatched):
         )
 
     @mute_logger('odoo.addons.base.models.ir_asset')
-    def test_31(self):
+    def test_31_a_relative_path_in_addon(self):
         path_to_dummy = '../../tests/dummy.js'
         me = pathlib.Path(__file__).parent.absolute()
         file_path = me.joinpath("..", path_to_dummy)  # assuming me = test_assetsbundle/tests
@@ -1811,7 +1817,7 @@ class TestAssetsManifest(AddonManifestPatched):
         bundle = self.env['ir.qweb']._get_asset_bundle('test_assetsbundle.irassetsec')
         with mute_logger('odoo.addons.base.models.assetsbundle'):
             attach = bundle.js()
-            self.assertIn(b"Could not get content for /test_assetsbundle/../../tests/dummy.js", attach.exists().raw)
+            self.assertIn(b"Could not get content for /test_assetsbundle/../../tests/dummy.js", attach.exists().raw.content)
 
     @mute_logger('odoo.addons.base.models.ir_asset')
     def test_32_a_relative_path_in_addon(self):
@@ -1912,19 +1918,19 @@ class TestAssetsManifest(AddonManifestPatched):
         )])
 
     def test_37_path_can_be_an_attachment(self):
-        scss_code = base64.b64encode(b"""
+        scss_code = b"""
             .my_div {
                 &.subdiv {
                     color: blue;
                 }
             }
-        """)
+        """
         self.env['ir.attachment'].create({
             'name': 'my custom scss',
             'mimetype': 'text/scss',
             'type': 'binary',
             'url': 'test_assetsbundle/my_style_attach.scss',
-            'datas': scss_code
+            'raw': scss_code,
         })
 
         self.env['ir.asset'].create({
@@ -1948,69 +1954,56 @@ class TestAssetsManifest(AddonManifestPatched):
 @tagged('-at_install', 'post_install')
 class AssetsNodeOrmCacheUsage(TransactionCase):
 
-    def cache_keys(self):
-        keys = list(self.env.registry._Registry__caches['assets'])
+    def setUp(self):
+        super().setUp()
+        self.env.transaction.invalidate_ormcache('assets')
 
-        asset_keys = [key for key in keys if key[0] == 'ir.asset' and '_get_asset_paths' in str(key[1])] # ignore topological sort entry
+    def cache_keys(self):
+        keys = list(self.env.transaction.ormcaches__['assets'])
+
+        asset_keys = [key for key in keys if key[0] == 'ir.asset' and '_get_asset_paths' in str(key[1])]  # ignore topological sort entry
         qweb_keys = [key for key in keys if key[0] == 'ir.qweb']
         return asset_keys, qweb_keys
 
     def test_assets_node_orm_cache_usage_debug(self):
-        self.env.registry.clear_cache('assets')
-
+        self.env['ir.qweb']._get_asset_nodes('test_assetsbundle.manifest1')
         asset_keys, qweb_keys = self.cache_keys()
-        self.assertEqual(len(asset_keys), 0)
-        self.assertEqual(len(qweb_keys), 0)
+        asset_keys_length = len(asset_keys)
+        qweb_keys_length = len(qweb_keys)
+        self.assertEqual(asset_keys_length, 1)
+        self.assertEqual(qweb_keys_length, 1)
 
-        self.env['ir.qweb']._get_asset_nodes('web.assets_backend')
+        def check_no_new_cache_entry(debug):
+            self.env['ir.qweb']._get_asset_nodes('test_assetsbundle.manifest1', debug=debug)
+            asset_keys, qweb_keys = self.cache_keys()
+            self.assertEqual(len(asset_keys), asset_keys_length)
+            self.assertEqual(len(qweb_keys), qweb_keys_length)
 
-        asset_keys, qweb_keys = self.cache_keys()
-        self.assertEqual(len(asset_keys), 1)
-        self.assertEqual(len(qweb_keys), 1)
-
-        self.env['ir.qweb']._get_asset_nodes('web.assets_backend', debug='tests')
-        asset_keys, qweb_keys = self.cache_keys()
-        self.assertEqual(len(asset_keys), 1)
-        self.assertEqual(len(qweb_keys), 1)
-
-        self.env['ir.qweb']._get_asset_nodes('web.assets_backend', debug='1')
-        asset_keys, qweb_keys = self.cache_keys()
-        self.assertEqual(len(asset_keys), 1)
-        self.assertEqual(len(qweb_keys), 1)
-
+        check_no_new_cache_entry(debug='tests')
+        check_no_new_cache_entry(debug='1')
         # in debug=assets, the ormcache is not used for _generate_asset_links_cache
-        self.env['ir.qweb']._get_asset_nodes('web.assets_backend', debug='assets')
-        asset_keys, qweb_keys = self.cache_keys()
-        self.assertEqual(len(asset_keys), 1)
-        self.assertEqual(len(qweb_keys), 1)
+        check_no_new_cache_entry(debug='assets')
 
     def test_assets_node_orm_cache_usage_file_type(self):
-        self.env.registry.clear_cache('assets')
-
-        asset_keys, qweb_keys = self.cache_keys()
-        self.assertEqual(len(asset_keys), 0)
-        self.assertEqual(len(qweb_keys), 0)
-
-        self.env['ir.qweb']._get_asset_nodes('web.assets_backend', js=True, css=False)
+        self.env['ir.qweb']._get_asset_nodes('test_assetsbundle.manifest1', js=True, css=False)
         asset_keys, qweb_keys = self.cache_keys()
         self.assertEqual(len(asset_keys), 1)
         self.assertEqual(len(qweb_keys), 1)
 
-        self.env['ir.qweb']._get_asset_nodes('web.assets_backend', js=False, css=True)
+        self.env['ir.qweb']._get_asset_nodes('test_assetsbundle.manifest1', js=False, css=True)
         asset_keys, qweb_keys = self.cache_keys()
         self.assertEqual(len(asset_keys), 1)
         self.assertEqual(len(qweb_keys), 2)
 
-        # NOTE: this result is not really desired but this is the current behaviour. In practice, we usually only generate one of them.
+        # NOTE: this result is not really desired but this is the current
+        # behavior. In practice, we usually only generate one of them.
         # This could be enforced or avoided
-        self.env['ir.qweb']._get_asset_nodes('web.assets_backend', js=True, css=True)
+        self.env['ir.qweb']._get_asset_nodes('test_assetsbundle.manifest1', js=True, css=True)
         asset_keys, qweb_keys = self.cache_keys()
         self.assertEqual(len(asset_keys), 1)
         self.assertEqual(len(qweb_keys), 3)
 
-
     def test_assets_node_orm_cache_usage_lang(self):
-        self.env.registry.clear_cache('assets')
         self.env['res.lang']._activate_lang('ar_SY')
         self.env['res.lang']._activate_lang('fr_FR')
         self.env['res.lang']._activate_lang('en_US')
@@ -2019,66 +2012,59 @@ class AssetsNodeOrmCacheUsage(TransactionCase):
         self.assertEqual(len(asset_keys), 0)
         self.assertEqual(len(qweb_keys), 0)
 
-        self.env['ir.qweb'].with_context(lang='fr_FR')._get_asset_nodes('web.assets_backend')
+        self.env['ir.qweb'].with_context(lang='fr_FR')._get_asset_nodes('test_assetsbundle.manifest1')
         asset_keys, qweb_keys = self.cache_keys()
-        self.assertEqual(len(asset_keys), 1)
-        self.assertEqual(len(qweb_keys), 1)
+        asset_keys_length = len(asset_keys)
+        qweb_keys_length = len(qweb_keys)
+        self.assertEqual(asset_keys_length, 1)
+        self.assertEqual(qweb_keys_length, 1)
 
-        self.env['ir.qweb'].with_context(lang='en_US')._get_asset_nodes('web.assets_backend')
-        asset_keys, qweb_keys = self.cache_keys()
-        self.assertEqual(len(asset_keys), 1)
-        self.assertEqual(len(qweb_keys), 1)
+        def check_no_new_cache_entry(lang, is_rtl):
+            self.env['ir.qweb'].with_context(lang=lang)._get_asset_nodes('test_assetsbundle.manifest1')
+            asset_keys, qweb_keys = self.cache_keys()
+            self.assertEqual(len(asset_keys), asset_keys_length)
+            # A second cache entry is created for rtl
+            self.assertEqual(len(qweb_keys), qweb_keys_length + (1 if is_rtl else 0))
 
-        self.env['ir.qweb'].with_context(lang='ar_SY')._get_asset_nodes('web.assets_backend')
-        asset_keys, qweb_keys = self.cache_keys()
-        self.assertEqual(len(asset_keys), 1)
-        self.assertEqual(len(qweb_keys), 2)  # a second cache entry is created for rtl
+        check_no_new_cache_entry('en_US', is_rtl=False)
+        check_no_new_cache_entry('ar_SY', is_rtl=True)
 
     def test_assets_node_orm_cache_usage_website(self):
         if self.env['ir.module.module'].search([('name', '=', 'website'), ('state', '=', 'uninstalled')]):
             return  # only makes sence if website is installed
-        self.env.registry.clear_cache('assets')
 
+        self.env['ir.qweb'].with_context(website_id=None)._get_asset_nodes('test_assetsbundle.manifest1')
         asset_keys, qweb_keys = self.cache_keys()
-        self.assertEqual(len(asset_keys), 0)
-        self.assertEqual(len(qweb_keys), 0)
+        asset_keys_length = len(asset_keys)
+        qweb_keys_length = len(qweb_keys)
+        self.assertEqual(asset_keys_length, 1)
+        self.assertEqual(qweb_keys_length, 1)
 
-        self.env['ir.qweb'].with_context(website_id=None)._get_asset_nodes('web.assets_backend')
+        self.env['ir.qweb'].with_context(website_id=self.ref('base.default_website'))._get_asset_nodes('test_assetsbundle.manifest1')
         asset_keys, qweb_keys = self.cache_keys()
-        self.assertEqual(len(asset_keys), 1)
-        self.assertEqual(len(qweb_keys), 1)
-
-        self.env['ir.qweb'].with_context(website_id=1)._get_asset_nodes('web.assets_backend')
-        asset_keys, qweb_keys = self.cache_keys()
-        self.assertEqual(len(asset_keys), 2)  # the content may be different for different websites, even if it is not always the case
-        self.assertEqual(len(qweb_keys), 2)
+        # The content may be different for different websites, even if it is not
+        # always the case.
+        self.assertEqual(len(asset_keys), asset_keys_length + 1)
+        self.assertEqual(len(qweb_keys), qweb_keys_length + 1)
 
     def test_assets_node_orm_cache_usage_node_flags(self):
-        self.env.registry.clear_cache('assets')
-
+        self.env['ir.qweb']._get_asset_nodes('test_assetsbundle.manifest1')
         asset_keys, qweb_keys = self.cache_keys()
-        self.assertEqual(len(asset_keys), 0)
-        self.assertEqual(len(qweb_keys), 0)
+        asset_keys_length = len(asset_keys)
+        qweb_keys_length = len(qweb_keys)
+        self.assertEqual(asset_keys_length, 1)
+        self.assertEqual(qweb_keys_length, 1)
 
-        self.env['ir.qweb']._get_asset_nodes('web.assets_backend')
-        asset_keys, qweb_keys = self.cache_keys()
-        self.assertEqual(len(asset_keys), 1)
-        self.assertEqual(len(qweb_keys), 1)
+        def check_no_new_cache_entry(error_message, **kwargs):
+            self.env['ir.qweb']._get_asset_nodes('test_assetsbundle.manifest1', **kwargs)
+            asset_keys, qweb_keys = self.cache_keys()
+            self.assertEqual(len(asset_keys), asset_keys_length, error_message)
+            self.assertEqual(len(qweb_keys), qweb_keys_length, error_message)
 
-        self.env['ir.qweb']._get_asset_nodes('web.assets_backend', media='print')
-        asset_keys, qweb_keys = self.cache_keys()
-        self.assertEqual(len(asset_keys), 1, "media shouldn't create another entry")
-        self.assertEqual(len(qweb_keys), 1, "media shouldn't create another entry")
+        check_no_new_cache_entry("media shouldn't create another entry", media='print')
+        check_no_new_cache_entry("defer_load shouldn't create another entry", defer_load=True)
+        check_no_new_cache_entry("lazy_load shouldn't create another entry", lazy_load=True)
 
-        self.env['ir.qweb']._get_asset_nodes('web.assets_backend', defer_load=True)
-        asset_keys, qweb_keys = self.cache_keys()
-        self.assertEqual(len(asset_keys), 1, "defer_load shouldn't create another entry")
-        self.assertEqual(len(qweb_keys), 1, "defer_load shouldn't create another entry")
-
-        self.env['ir.qweb']._get_asset_nodes('web.assets_backend', lazy_load=True)
-        asset_keys, qweb_keys = self.cache_keys()
-        self.assertEqual(len(asset_keys), 1, "lazy_load shouldn't create another entry")
-        self.assertEqual(len(qweb_keys), 1, "lazy_load shouldn't create another entry")
 
 @tagged('-at_install', 'post_install')
 @unittest.skipIf(os.getenv("ODOO_FAKETIME_TEST_MODE"), "This test cannot work with faketime")

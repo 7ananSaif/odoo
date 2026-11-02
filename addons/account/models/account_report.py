@@ -4,9 +4,10 @@ import ast
 import re
 from collections import defaultdict
 
-from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError, UserError
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Command, Domain
+from odoo.tools import SQL
 
 FIGURE_TYPE_SELECTION_VALUES = [
     ('monetary', "Monetary"),
@@ -17,10 +18,11 @@ FIGURE_TYPE_SELECTION_VALUES = [
     ('datetime', "Datetime"),
     ('boolean', 'Boolean'),
     ('string', 'String'),
+    ('many2one', 'Many2One'),
 ]
 
 DOMAIN_REGEX = re.compile(r'(-?sum)\((.*)\)')
-CROSS_REPORT_REGEX = re.compile(r'^cross_report\((.+)\)$')
+CROSS_REPORT_REGEX = re.compile(r'^cross_report\((?P<report>[^,\s]+)(,\s*(?P<force_date_scope>force_date_scope))?\)$')
 
 ACCOUNT_CODES_ENGINE_SPLIT_REGEX = re.compile(r"(?=[+-])")
 ACCOUNT_CODES_ENGINE_TERM_REGEX = re.compile(
@@ -50,8 +52,27 @@ class AccountReport(models.Model):
 
     name = fields.Char(string="Name", required=True, translate=True)
     sequence = fields.Integer(string="Sequence")
-    active = fields.Boolean(string="Active", default=True)
+    active = fields.Boolean(compute="_compute_active", compute_sql="_compute_sql_active", inverse="_inverse_active", compute_sudo=False)
+    active_fallback = fields.Boolean(default=True)
+    # In this case we need a selection field because in DB a False boolean is just not set, in this case we need a differenciation of Null an False
+    active_selection = fields.Selection(
+        selection=[
+            ('False', "False"),
+            ('True', "True"),
+        ],
+        company_dependent=True,
+    )
     line_ids = fields.One2many(string="Lines", comodel_name='account.report.line', inverse_name='report_id')
+    groupby = fields.Char(
+        string="Group By",
+        help="Comma-separated list of fields from account.move.line (Journal Item). \
+            When set, this report will have report lines generating sublines grouped by those keys except when specified on the report line.")
+    user_groupby = fields.Char(
+        string="User Group By",
+        compute='_compute_user_groupby', store=True, readonly=False, precompute=True,
+        help="Comma-separated list of fields from account.move.line (Journal Item). \
+            When set, the report lines will generate sublines grouped by those keys except when specified on the report line.",
+    )
     column_ids = fields.One2many(string="Columns", comodel_name='account.report.column', inverse_name='report_id')
     root_report_id = fields.Many2one(string="Root Report", comodel_name='account.report', index='btree_not_null', help="The report this report is a variant of.")
     variant_report_ids = fields.One2many(string="Variants", comodel_name='account.report', inverse_name='root_report_id')
@@ -72,15 +93,14 @@ class AccountReport(models.Model):
     )
     availability_condition = fields.Selection(
         string="Availability",
-        selection=[('country', "Country Matches"), ('coa', "Chart of Accounts Matches"), ('always', "Always")],
+        selection=[('country', "Country Matches"), ('coa', "Chart of Accounts Matches"), ('always', "Always"), ('consolidation', "Consolidation")],
         compute='_compute_default_availability_condition', readonly=False, store=True,
     )
-    load_more_limit = fields.Integer(string="Load More Limit")
+    load_more_limit = fields.Integer(string="Load More Limit", default=500)
     search_bar = fields.Boolean(string="Search Bar")
-    prefix_groups_threshold = fields.Integer(string="Prefix Groups Threshold", default=4000)
     integer_rounding = fields.Selection(string="Integer Rounding", selection=[('HALF-UP', "Nearest"), ('UP', "Up"), ('DOWN', "Down")])
     allow_foreign_vat = fields.Boolean(
-        string="Allow Foreign VAT",
+        string="Allow Foreign Tax ID",
         compute=lambda x: x._compute_report_option_filter('allow_foreign_vat'),
         precompute=True, readonly=False, store=True, depends=['root_report_id', 'section_main_report_ids'],
     )
@@ -102,6 +122,12 @@ class AccountReport(models.Model):
         precompute=True,
         readonly=False, store=True, depends=['root_report_id', 'section_main_report_ids'],
     )
+    use_fiscal_periods = fields.Boolean(
+        string="Fiscal Periods",
+        compute=lambda x: x._compute_report_option_filter('use_fiscal_periods', True),
+        precompute=True, readonly=False, store=True,
+        depends=['root_report_id', 'section_main_report_ids'],
+    )
 
     currency_translation = fields.Selection(
         string="Currency Translation",
@@ -110,6 +136,13 @@ class AccountReport(models.Model):
             ('cta', "Use CTA"),
         ],
         compute=lambda x: x._compute_report_option_filter('currency_translation', 'cta'),
+        precompute=True,
+        readonly=False, store=True, depends=['root_report_id', 'section_main_report_ids'],
+    )
+
+    enable_snapshots = fields.Boolean(
+        string="Enable Snapshots",
+        compute=lambda x: x._compute_report_option_filter('enable_snapshots'),
         precompute=True,
         readonly=False, store=True, depends=['root_report_id', 'section_main_report_ids'],
     )
@@ -159,18 +192,18 @@ class AccountReport(models.Model):
         compute=lambda x: x._compute_report_option_filter('filter_growth_comparison', True),
         precompute=True, readonly=False, store=True, depends=['root_report_id', 'section_main_report_ids'],
     )
+    filter_line_comparison = fields.Boolean(
+        string="Report Line Comparison",
+        compute=lambda x: x._compute_report_option_filter('filter_line_comparison', False),
+        precompute=True, readonly=False, store=True, depends=['root_report_id', 'section_main_report_ids'],
+    )
     filter_journals = fields.Boolean(
         string="Journals",
         compute=lambda x: x._compute_report_option_filter('filter_journals'), readonly=False,
         precompute=True, store=True, depends=['root_report_id', 'section_main_report_ids'],
     )
-    filter_analytic = fields.Boolean(
-        string="Analytic Filter",
-        compute=lambda x: x._compute_report_option_filter('filter_analytic'), readonly=False,
-        precompute=True, store=True, depends=['root_report_id', 'section_main_report_ids'],
-    )
     filter_hierarchy = fields.Selection(
-        string="Account Groups",
+        string="Account Parents",
         selection=[('by_default', "Enabled by Default"), ('optional', "Optional"), ('never', "Never")],
         compute=lambda x: x._compute_report_option_filter('filter_hierarchy', 'optional'), readonly=False,
         precompute=True, store=True, depends=['root_report_id', 'section_main_report_ids'],
@@ -230,6 +263,11 @@ class AccountReport(models.Model):
         for report in self:
             report.use_sections = bool(report.section_report_ids)
 
+    @api.depends('groupby')
+    def _compute_user_groupby(self):
+        for report in self:
+            report.user_groupby = report.user_groupby or report.groupby
+
     @api.constrains('root_report_id')
     def _validate_root_report_id(self):
         for report in self:
@@ -263,7 +301,27 @@ class AccountReport(models.Model):
         if self.availability_condition != 'country':
             self.country_id = None
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        self._check_no_active_use_in_data_files(vals_list)
+        return super().create(vals_list)
+
+    @api.model
+    def _check_no_active_use_in_data_files(self, vals_list):
+        """ account.report's active field should never be directly written to in data files. If someone does that, only the active company
+        will receive the data, as a company-dependent value in active_selection. To prevent mistakes (especially with forward-ports),
+        this check is called in write() and create(), making sure active isn't used in the provided values when a module is being installed.
+        """
+        if install_filename := self.env.context.get('install_filename'):
+            if any('active' in vals for vals in vals_list):
+                raise UserError(_(
+                    "'active' field of account.report shouldn't be directly written to in data files. Use active_fallback. (Detected while loading %(file_path)s)",
+                    file_path=install_filename,
+                ))
+
     def write(self, vals):
+        self._check_no_active_use_in_data_files([vals])
+
         # Overridden so that changing the country of a report also creates new tax tags if necessary, or updates the country
         # of existing tags, if they aren't shared with another report.
         if 'country_id' in vals:
@@ -286,10 +344,6 @@ class AccountReport(models.Model):
                         self.env['account.account.tag'].create(tag_vals)
 
         return super().write(vals)
-
-    def copy_data(self, default=None):
-        vals_list = super().copy_data(default=default)
-        return [dict(vals, name=report._get_copied_name()) for report, vals in zip(self, vals_list)]
 
     def copy(self, default=None):
         '''Copy the whole financial report hierarchy by duplicating each line recursively.
@@ -320,22 +374,24 @@ class AccountReport(models.Model):
             old_report.column_ids.copy({'report_id': new_report.id})
         return new_reports
 
+    @api.depends_context('company')
+    @api.depends('active_selection', 'active_fallback')
+    def _compute_active(self):
+        for record in self:
+            record.active = record.active_selection == 'True' if record.active_selection else record.active_fallback
+
+    def _compute_sql_active(self, table):
+        return SQL("COALESCE(%s = 'True', %s)", table.active_selection, table.active_fallback)
+
+    @api.onchange('active')
+    def _inverse_active(self):
+        for record in self:
+            record.active_selection = str(record.active)
+
     @api.ondelete(at_uninstall=False)
     def _unlink_if_no_variant(self):
         if self.variant_report_ids:
             raise UserError(_("You can't delete a report that has variants."))
-
-    def _get_copied_name(self):
-        '''Return a copied name of the account.report record by adding the suffix (copy) at the end
-        until the name is unique.
-
-        :return: an unique name for the copied account.report
-        '''
-        self.ensure_one()
-        name = self.name + ' ' + _('(copy)')
-        while self.search_count([('name', '=', name)]) > 0:
-            name += ' ' + _('(copy)')
-        return name
 
     @api.depends('name', 'country_id')
     def _compute_display_name(self):
@@ -351,7 +407,7 @@ class AccountReportLine(models.Model):
     _description = "Accounting Report Line"
     _order = 'sequence, id'
 
-    name = fields.Char(string="Name", translate=True, required=True)
+    name = fields.Char(string="Name", translate=True, required=True, copy=True)
     expression_ids = fields.One2many(string="Expressions", comodel_name='account.report.expression', inverse_name='report_line_id')
     report_id = fields.Many2one(
         string="Parent Report",
@@ -384,7 +440,16 @@ class AccountReportLine(models.Model):
     )
     sequence = fields.Integer(string="Sequence")
     code = fields.Char(string="Code", help="Unique identifier for this line.")
-    foldable = fields.Boolean(string="Foldable", help="By default, we always unfold the lines that can be. If this is checked, the line won't be unfolded by default, and a folding button will be displayed.")
+    foldability = fields.Selection(
+        selection=[
+            ('always_unfolded', 'Always Unfolded'),
+            ('never_unfolded', 'Never Unfolded'),
+            ('foldable', 'Foldable'),
+        ],
+        compute='_compute_foldability',
+        store=True,
+        readonly=False,
+    )
     print_on_new_page = fields.Boolean('Print On New Page', help='When checked this line and everything after it will be printed on a new page.')
     action_id = fields.Many2one(string="Action", comodel_name='ir.actions.actions', help="Setting this field will turn the line into a link, executing the action when clicked.")
     hide_if_zero = fields.Boolean(string="Hide if Zero", help="This line and its children will be hidden when all of their columns are 0.")
@@ -421,6 +486,21 @@ class AccountReportLine(models.Model):
             if report_line.parent_id:
                 report_line.horizontal_split_side = report_line.parent_id.horizontal_split_side
 
+    @api.depends('create_date')
+    def _compute_foldability(self):
+        for line in self:
+            if line.foldability:
+                continue
+            has_groupby = bool(line.groupby or line.user_groupby or line.report_id.groupby or line.report_id.user_groupby)
+            if line.children_ids:
+                line.foldability = 'always_unfolded'
+            elif has_groupby and all(expr.engine not in ('aggregation', 'external') for expr in line.expression_ids):
+                line.foldability = 'foldable'
+            elif any(expr.engine in ('aggregation', 'external') for expr in line.expression_ids):
+                line.foldability = 'never_unfolded'
+            else:
+                line.foldability = 'always_unfolded'
+
     @api.depends('groupby', 'expression_ids.engine')
     def _compute_user_groupby(self):
         for report_line in self:
@@ -430,6 +510,11 @@ class AccountReportLine(models.Model):
                 report_line._validate_groupby()
             except UserError:
                 report_line.user_groupby = report_line.groupby
+
+    @api.onchange('user_groupby')
+    def _onchange_user_groupby(self):
+        if self.user_groupby and self.foldability == 'never_unfolded':
+            self.foldability = 'foldable'
 
     @api.constrains('parent_id')
     def _validate_groupby_no_child(self):
@@ -593,11 +678,19 @@ class AccountReportExpression(models.Model):
             ('account_codes', "Prefix of Account Codes"),
             ('external', "External Value"),
             ('custom', "Custom Python Function"),
+            ('text', "Plain Text"),
+            ('reference', "Record Reference"),
         ],
         required=True
     )
-    formula = fields.Char(string="Formula", required=True)
-    subformula = fields.Char(string="Subformula")
+    formula = fields.Text(string="Formula", required=True)
+    model_id = fields.Many2one(
+        string="Model",
+        comodel_name="ir.model",
+        compute="_compute_model_id",
+        inverse="_inverse_model_id",
+    )
+    subformula = fields.Text(string="Subformula")
     date_scope = fields.Selection(
         string="Date Scope",
         selection=[
@@ -656,7 +749,8 @@ class AccountReportExpression(models.Model):
                 raise_formula_error(expression)
 
         for expression in expressions_by_engine.get('account_codes', []):
-            for token in ACCOUNT_CODES_ENGINE_SPLIT_REGEX.split(expression.formula.replace(' ', '')):
+            cleaned_formula = re.sub(r'\s+', '', expression.formula)
+            for token in ACCOUNT_CODES_ENGINE_SPLIT_REGEX.split(cleaned_formula):
                 if token:  # e.g. if the first character of the formula is "-", the first token is ''
                     token_match = ACCOUNT_CODES_ENGINE_TERM_REGEX.match(token)
                     prefix = token_match and token_match['prefix']
@@ -664,7 +758,7 @@ class AccountReportExpression(models.Model):
                         raise_formula_error(expression)
 
         for expression in expressions_by_engine.get('aggregation', []):
-            if not AGGREGATION_ENGINE_FORMULA_REGEX.fullmatch(expression.formula):
+            if not AGGREGATION_ENGINE_FORMULA_REGEX.fullmatch(expression.formula.strip()):
                 raise_formula_error(expression)
 
 
@@ -674,10 +768,30 @@ class AccountReportExpression(models.Model):
         for expression in self:
             expression.auditable = expression.engine in auditable_engines
 
+    @api.depends('engine', 'formula')
+    def _compute_model_id(self):
+        for expression in self:
+            if expression.engine == "reference" and expression.formula:
+                expression.model_id = self.env["ir.model"].search([("model", "=", expression.formula)], limit=1)
+            else:
+                expression.model_id = False
+
+    @api.onchange('model_id')
+    def _inverse_model_id(self):
+        for expression in self:
+            if expression.engine == "reference":
+                expression.formula = expression.model_id.model
+
+    @api.onchange('engine')
+    def _set_figure_type_for_reference_engine(self):
+        for expression in self:
+            if expression.engine == "reference":
+                expression.figure_type = "many2one"
+
     @api.constrains('engine', 'report_line_id')
     def _validate_engine(self):
         for expression in self:
-            if expression.engine in ('aggregation', 'external') and (expression.report_line_id.groupby or expression.report_line_id.user_groupby):
+            if expression.engine == 'external' and (expression.report_line_id.groupby or expression.report_line_id.user_groupby):
                 engine_description = dict(expression._fields['engine']._description_selection(self.env))
                 raise ValidationError(_(
                     "Groupby feature isn't supported by '%(engine)s' engine. Please remove the groupby value on '%(report_line)s'",
@@ -687,10 +801,6 @@ class AccountReportExpression(models.Model):
 
     def _get_auditable_engines(self):
         return {'tax_tags', 'domain', 'account_codes', 'external', 'aggregation'}
-
-    def _strip_formula(self, vals):
-        if 'formula' in vals and isinstance(vals['formula'], str):
-            vals['formula'] = re.sub(r'\s+', ' ', vals['formula'].strip())
 
     def _create_tax_tags(self, tag_name, country):
         existing_tag = self.env['account.account.tag']._get_tax_tags(tag_name, country.id)
@@ -702,13 +812,11 @@ class AccountReportExpression(models.Model):
     def create(self, vals_list):
         # Overridden so that we create the corresponding account.account.tag objects when instantiating an expression
         # with engine 'tax_tags'.
-        for vals in vals_list:
-            self._strip_formula(vals)
 
         result = super().create(vals_list)
 
         for expression in result:
-            tag_name = expression.formula if expression.engine == 'tax_tags' else None
+            tag_name = re.sub(r'\s+', ' ', expression.formula.strip()) if expression.engine == 'tax_tags' else None
             if tag_name:
                 country = expression.report_line_id.report_id.country_id
                 self._create_tax_tags(tag_name, country)
@@ -716,9 +824,6 @@ class AccountReportExpression(models.Model):
         return result
 
     def write(self, vals):
-
-        self._strip_formula(vals)
-
         tax_tags_expressions = self.filtered(lambda x: x.engine == 'tax_tags')
 
         if vals.get('engine') == 'tax_tags':
@@ -726,6 +831,7 @@ class AccountReportExpression(models.Model):
             tags_create_vals = []
             for expression_with_new_engine in self - tax_tags_expressions:
                 tag_name = vals.get('formula') or expression_with_new_engine.formula
+                tag_name = re.sub(r'\s+', ' ', tag_name.strip())
                 country = expression_with_new_engine.report_line_id.report_id.country_id
                 if not self.env['account.account.tag']._get_tax_tags(tag_name, country.id):
                     tags_create_vals += self.env['account.report.expression']._get_tags_create_vals(
@@ -796,8 +902,7 @@ class AccountReportExpression(models.Model):
         for expr in self:
             expr.display_name = f'{expr.report_line_name} [{expr.label}]'
 
-
-    def _expand_aggregations(self):
+    def _expand_aggregations(self, no_cross_report_expansion=False):
         """Return self and its full aggregation expression dependency"""
         result = self
 
@@ -813,12 +918,14 @@ class AccountReportExpression(models.Model):
                     labels_by_code = candidate_expr._get_aggregation_terms_details()
 
                     if candidate_expr.subformula and candidate_expr.subformula.startswith('cross_report'):
+                        if no_cross_report_expansion:
+                            continue
                         subformula_match = CROSS_REPORT_REGEX.match(candidate_expr.subformula)
                         if not subformula_match:
                             raise UserError(_(
                                 "In report '%(report_name)s', on line '%(line_name)s', with label '%(label)s',\n"
                                 "The format of the cross report expression is invalid. \n"
-                                "Expected: cross_report(<report_id>|<xml_id>)"
+                                "Expected: cross_report(<report_id>|<xml_id>[,force_date_sope])"
                                 "Example:  cross_report(my_module.my_report) or cross_report(123)",
                                 report_name=candidate_expr.report_line_id.report_id.display_name,
                                 line_name=candidate_expr.report_line_name,
@@ -937,15 +1044,21 @@ class AccountReportColumn(models.Model):
     name = fields.Char(string="Name", translate=True, required=True)
     expression_label = fields.Char(string="Expression Label", required=True)
     sequence = fields.Integer(string="Sequence")
-    report_id = fields.Many2one(string="Report", comodel_name='account.report', index='btree_not_null')
+    report_id = fields.Many2one(string="Report", comodel_name='account.report', index='btree_not_null', required=True, ondelete='cascade')
     sortable = fields.Boolean(string="Sortable")
     figure_type = fields.Selection(string="Figure Type", selection=FIGURE_TYPE_SELECTION_VALUES, default="monetary", required=True)
     blank_if_zero = fields.Boolean(string="Blank if Zero", help="When checked, 0 values will not show in this column.")
     custom_audit_action_id = fields.Many2one(string="Custom Audit Action", comodel_name="ir.actions.act_window")
 
+    _expression_label_uniq = models.Constraint(
+        "unique(report_id, expression_label)",
+        "The Expression label must be unique per account report."
+    )
+
 
 class AccountReportExternalValue(models.Model):
     _name = 'account.report.external.value'
+    _inherit = ['res.currency.rate.consolidation.mixin']
     _description = 'Accounting Report External Value'
     _check_company_auto = True
     _order = 'date, id'

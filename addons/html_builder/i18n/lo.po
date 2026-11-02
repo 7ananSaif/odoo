@@ -5,19 +5,37 @@
 # Bone NI <bounkirdni@gmail.com>, 2026.
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0\n"
+"Project-Id-Version: Odoo Server 19.4a1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:38+0000\n"
-"PO-Revision-Date: 2026-06-06 15:45+0000\n"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-10-18 09:58+0000\n"
 "Last-Translator: Bone NI <bounkirdni@gmail.com>\n"
-"Language-Team: Lao <https://translate.odoo.com/projects/odoo-19/html_builder/"
+"Language-Team: Lao <https://translate.odoo.com/projects/odoo-20/html_builder/"
 "lo/>\n"
 "Language: lo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: html_builder
+#: model:ir.module.module,description:base.module_html_builder
+msgid ""
+"\n"
+"This addon contains a generic html builder application. It is designed to "
+"be\n"
+"used by the website builder and mass mailing editor.\n"
+msgstr ""
+"\n"
+"ສ່ວນເສີມນີ້ບັນຈຸແອັບພລິເຄຊັນສ້າງ html ທົ່ວໄປ. ມັນຖືກອອກແບບມາ\n"
+"ເພື່ອໃຊ້ໂດຍຕົວສ້າງເວັບໄຊ ແລະ ຕົວແກ້ໄຂການສົ່ງອີເມວເປັນຊຸດ.\n"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/rating_option_plugin.js:0
+msgid "%(nbActiveIcons)s out of %(nbTotalIcons)s stars"
+msgstr "%(nbActiveIcons)s ຈາກ %(nbTotalIcons)s ດາວ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -44,18 +62,19 @@ msgid ""
 "'Alt tag' specifies an alternate text for an image, if the image cannot be "
 "displayed (slow connection, missing image, screen reader ...)."
 msgstr ""
-"'Alt tag' ກຳນົດຂໍ້ຄວາມສຳຮອງສຳລັບຮູບພາບ, ໃນກໍລະນີທີ່ຮູບພາບບໍ່ສາມາດສະແດງຜົນໄດ້ (ການເຊື່ອມຕໍ່ຊ້າ, ຮູ"
-"ບພາບຫາຍ, ເຄື່ອງອ່ານໜ້າຈໍ ...)."
+"'ແທັກ Alt' ກຳນົດຂໍ້ຄວາມສຳຮອງສຳລັບຮູບພາບ, ຖ້າຫາກຮູບພາບບໍ່ສາມາດສະແດງຜົນໄດ້ (ການເຊື່ອມຕໍ່ຊ້າ, ບໍ່ພົບ"
+"ຮູບພາບ, ໂປຣແກຣມອ່ານໜ້າຈໍ ...)."
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_tool_option.xml:0
 msgid "'Title tag' is shown as a tooltip when you hover the picture."
 msgstr ""
-"'Title tag' ຈະຖືກສະແດງເປັນຄຳແນະນຳ (tooltip) ເມື່ອທ່ານເລື່ອນເມົາສ໌ໄປວາງໄວ້ເທິງຮູບ."
+"'ແທັກ Title' ຈະສະແດງເປັນຄຳແນະນຳເຄື່ອງມື ເມື່ອທ່ານເລື່ອນເມົາສ໌ໄປວາງເທິງຮູບ."
 
 #. module: html_builder
 #. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/font/text_effect_selector.xml:0
 #: code:addons/html_builder/static/src/plugins/shape/shape_selector.xml:0
 msgid "A"
 msgstr "A"
@@ -67,7 +86,19 @@ msgid ""
 "A technical issue occurred in the builder, you should save or discard your "
 "changes."
 msgstr ""
-"ເກີດບັນຫາທາງເຕັກນິກໃນເຄື່ອງມືສ້າງ, ທ່ານຄວນບັນທຶກ ຫຼື ຍົກເລີກການປ່ຽນແປງຂອງທ່ານ."
+"ເກີດບັນຫາທາງດ້ານເຕັກນິກໃນຕົວສ້າງ, ທ່ານຄວນບັນທຶກ ຫຼື ຍົກເລີກການປ່ຽນແປງຂອງທ່ານ."
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/button_style_option.xml:0
+msgid "Aa"
+msgstr "Aa"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/rating_option.xml:0
+msgid "Active"
+msgstr "ເປີດໃຊ້"
 
 #. module: html_builder
 #. odoo-javascript
@@ -84,9 +115,27 @@ msgstr "ເພີ່ມສິນຄ້າ"
 
 #. module: html_builder
 #. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/font/text_effect_selector.xml:0
+msgid "Add Shadow"
+msgstr "ເພີ່ມເງົາ"
+
+#. module: html_builder
+#. odoo-javascript
 #: code:addons/html_builder/static/src/core/building_blocks/builder_fontfamilypicker.xml:0
 msgid "Add a Custom Font"
-msgstr "ເພີ່ມຟອນແບບກຳນົດເອງ"
+msgstr "ເພີ່ມຟອນກຳນົດເອງ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_option.xml:0
+msgid "Add a background image"
+msgstr "ເພີ່ມຮູບພື້ນຫຼັງ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/core/building_blocks/builder_list.xml:0
+msgid "Add a record to the list"
+msgstr "ເພີ່ມລາຍການໃສ່ລາຍຊື່"
 
 #. module: html_builder
 #. odoo-javascript
@@ -98,7 +147,7 @@ msgstr "Aden"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Airy"
-msgstr "ໂປ່ງສະບາຍ"
+msgstr "Airy"
 
 #. module: html_builder
 #. odoo-javascript
@@ -189,39 +238,39 @@ msgstr "Airy 14"
 #: code:addons/html_builder/static/src/plugins/vertical_alignment_option.xml:0
 #: code:addons/html_builder/static/src/plugins/vertical_justify_option.xml:0
 msgid "Align Bottom"
-msgstr "ຈັດວາງໄວ້ລຸ່ມ"
+msgstr "ຈັດລຽນລຸ່ມ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_tool_option.xml:0
 msgid "Align Center"
-msgstr "ຈັດວາງໄວ້ກາງ"
+msgstr "ຈັດລຽນກາງ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_tool_option.xml:0
 msgid "Align Left"
-msgstr "ຈັດວາງໄວ້ຊ້າຍ"
+msgstr "ຈັດລຽນຊ້າຍ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/vertical_alignment_option.xml:0
 #: code:addons/html_builder/static/src/plugins/vertical_justify_option.xml:0
 msgid "Align Middle"
-msgstr "ຈັດວາງໄວ້ເຄິ່ງກາງ"
+msgstr "ຈັດລຽນເຄິ່ງກາງ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_tool_option.xml:0
 msgid "Align Right"
-msgstr "ຈັດວາງໄວ້ຂວາ"
+msgstr "ຈັດລຽນຂວາ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/vertical_alignment_option.xml:0
 #: code:addons/html_builder/static/src/plugins/vertical_justify_option.xml:0
 msgid "Align Top"
-msgstr "ຈັດວາງໄວ້ເທິງ"
+msgstr "ຈັດລຽນເທິງ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -230,42 +279,41 @@ msgstr "ຈັດວາງໄວ້ເທິງ"
 #: code:addons/html_builder/static/src/plugins/separator_option.xml:0
 #: code:addons/html_builder/static/src/plugins/text_alignment_option.xml:0
 msgid "Alignment"
-msgstr "ການຈັດວາງ"
+msgstr "ການຈັດລຽນ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/snippets/add_snippet_dialog.xml:0
 msgid "Almost there! Snippets are incoming, grab a coffee and relax!"
-msgstr ""
-"ໃກ້ຈະສຳເລັດແລ້ວ! ສ່ວນປະກອບ (Snippets) ກຳລັງໂຫຼດຢູ່, ພັກຜ່ອນດື່ມກາເຟຖ້າກ່ອນ!"
+msgstr "ໃກ້ຈະສຳເລັດແລ້ວ! ສະນິບເພັດກຳລັງໂຫລດ, ຈິບກາເຟ ແລະ ຜ່ອນຄາຍລໍຖ້າໄດ້ເລີຍ!"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_tool_option.xml:0
 msgid "Alt tag"
-msgstr "Alt tag"
+msgstr "ແທັກ Alt"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/core/anchor/anchor_plugin.js:0
 msgid ""
-"Anchor copied to clipboard%(br)s%(open_span)sLink: "
-"%(anchor_link)s%(close_span)s"
+"Anchor copied to clipboard%(br)s%(open_span)sLink: %(anchor_link)s%"
+"(close_span)s"
 msgstr ""
-"ຄັດລອກຈຸດເຊື່ອມ (Anchor) ໄປທີ່ຄລິບບອດແລ້ວ%(br)s%(open_span)sລິ້ງ: %(anchor_link)s%"
+"ສຳເນົາຈຸດເຊື່ອມໂຍງໄປຍັງຄລິບບອດແລ້ວ%(br)s%(open_span)sລິ້ງ: %(anchor_link)s%"
 "(close_span)s"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/core/anchor/anchor_dialog.xml:0
 msgid "Anchor name"
-msgstr "ຊື່ຈຸດເຊື່ອມ (Anchor)"
+msgstr "ຊື່ຈຸດເຊື່ອມໂຍງ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Angular"
-msgstr "ເປັນມຸມ"
+msgstr "Angular"
 
 #. module: html_builder
 #. odoo-javascript
@@ -329,21 +377,31 @@ msgstr "Angular 10"
 
 #. module: html_builder
 #. odoo-javascript
-#: code:addons/html_builder/static/src/plugins/background_option/background_position_overlay.xml:0
+#: code:addons/html_builder/static/src/plugins/image/image_position_overlay.xml:0
 msgid "Apply"
 msgstr "ນຳໃຊ້"
 
 #. module: html_builder
 #. odoo-javascript
-#: code:addons/html_builder/static/src/snippets/snippet_service.js:0
-msgid "Are you sure you want to delete the block %s?"
-msgstr "ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບບລັອກ %s?"
+#: code:addons/html_builder/static/src/plugins/font/text_effect_plugin.js:0
+msgid "Apply Text Effects"
+msgstr "ນຳໃຊ້ເອັບເຟັກຂໍ້ຄວາມ"
 
 #. module: html_builder
 #. odoo-javascript
-#: code:addons/html_builder/static/src/plugins/shape/shape_selector.xml:0
-msgid "Back"
-msgstr "ກັບຄືນ"
+#: code:addons/html_builder/static/src/snippets/snippet_service.js:0
+msgid ""
+"Are you sure you want to delete %s from your list of custom blocks?\n"
+"Deleting it will remove it for all users."
+msgstr ""
+"ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບ %s ອອກຈາກລາຍການບລັອກກຳນົດເອງຂອງທ່ານ?\n"
+"ການລຶບມັນຈະລຶບອອກສຳລັບຜູ້ໃຊ້ທັງໝົດ."
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/image/media_size_option.xml:0
+msgid "Auto"
+msgstr "ອັດຕະໂນມັດ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -359,9 +417,15 @@ msgstr "ຕຳແໜ່ງພື້ນຫຼັງ"
 
 #. module: html_builder
 #. odoo-javascript
-#: code:addons/html_builder/static/src/plugins/background_option/background_shape_option_plugin.js:0
+#: code:addons/html_builder/static/src/plugins/background_option/background_shape_option.xml:0
 msgid "Background Shapes"
-msgstr "ຮູບຊົງພື້ນຫຼັງ"
+msgstr "ຮູບຮ່າງພື້ນຫຼັງ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shape_option.xml:0
+msgid "Background color"
+msgstr "ສີພື້ນຫຼັງ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -500,37 +564,37 @@ msgstr "Blob 5"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Blob Hard"
-msgstr "Blob ແຂງ"
+msgstr "Blob Hard"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Blob Medium"
-msgstr "Blob ກາງ"
+msgstr "Blob Medium"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Blob Shadow 1"
-msgstr "Blob ເງົາ 1"
+msgstr "Blob Shadow 1"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Blob Shadow 2"
-msgstr "Blob ເງົາ 2"
+msgstr "Blob Shadow 2"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Blob Soft"
-msgstr "Blob ອ່ອນ"
+msgstr "Blob Soft"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Blobs"
-msgstr "ຮູບຊົງຢອດນ້ຳ"
+msgstr "Blobs"
 
 #. module: html_builder
 #. odoo-javascript
@@ -542,13 +606,19 @@ msgstr "ບລັອກ"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Block & Rainy"
-msgstr "ບລັອກ ແລະ ຝົນ"
+msgstr "ບລັອກ ແລະ ຝົນຕົກ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/snippets/add_snippet_dialog.xml:0
 msgid "Block Categories"
 msgstr "ໝວດໝູ່ບລັອກ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/snippets/snippet_viewer.xml:0
+msgid "Block Viewer"
+msgstr "ຕົວເບິ່ງບລັອກ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -560,26 +630,39 @@ msgstr "ບລັອກ"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Blocks 01"
-msgstr "ບລັອກ 01"
+msgstr "Blocks 01"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Blocks 02"
-msgstr "ບລັອກ 02"
+msgstr "Blocks 02"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Blocks 03"
-msgstr "ບລັອກ 03"
+msgstr "Blocks 03"
 
 #. module: html_builder
 #. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/font/text_effect_selector.xml:0
 #: code:addons/html_builder/static/src/plugins/image/image_filter_option.xml:0
 #: code:addons/html_builder/static/src/plugins/shadow_option.xml:0
 msgid "Blur"
 msgstr "ມົວ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/font/text_effect_selector.js:0
+msgid "Blurred (Black)"
+msgstr "ມົວ (ດຳ)"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/font/text_effect_selector.js:0
+msgid "Blurred (White)"
+msgstr "ມົວ (ຂາວ)"
 
 #. module: html_builder
 #. odoo-javascript
@@ -626,8 +709,44 @@ msgstr "Blurry 06"
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Blurry 07"
+msgstr "Blurry 07"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Blurry 08"
+msgstr "Blurry 08"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Blurry 09"
+msgstr "Blurry 09"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Blurry 10"
+msgstr "Blurry 10"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Blurry 11"
+msgstr "Blurry 11"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Blurry 12"
+msgstr "Blurry 12"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Bold"
-msgstr "ເຂັ້ມ"
+msgstr "ໜາ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -703,6 +822,7 @@ msgstr "Bold 12"
 
 #. module: html_builder
 #. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/button_style_option.xml:0
 #: code:addons/html_builder/static/src/plugins/cta_badge_option.xml:0
 #: code:addons/html_builder/static/src/plugins/separator_option.xml:0
 msgid "Border"
@@ -718,7 +838,7 @@ msgstr "Brannan"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Bread (R)"
-msgstr "ເຂົ້າຈີ່ (R)"
+msgstr "Bread (R)"
 
 #. module: html_builder
 #. odoo-javascript
@@ -772,7 +892,7 @@ msgstr "ແປງ 4"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Brushed"
-msgstr "ຜ່ານການຖູ"
+msgstr "ຮອຍແປງ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -783,30 +903,24 @@ msgstr "ປຸ່ມ"
 
 #. module: html_builder
 #. odoo-javascript
-#: code:addons/html_builder/static/src/sidebar/custom_inner_snippet.xml:0
-msgid "Cancel"
-msgstr "ຍົກເລີກ"
-
-#. module: html_builder
-#. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/block_alignment_option.xml:0
 #: code:addons/html_builder/static/src/plugins/image/image_tool_option.xml:0
 #: code:addons/html_builder/static/src/plugins/separator_option.xml:0
 #: code:addons/html_builder/static/src/plugins/text_alignment_option.xml:0
 msgid "Center"
-msgstr "ກາງ"
+msgstr "ເຄິ່ງກາງ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/core/building_blocks/select_many2x.js:0
 msgid "Choose a record..."
-msgstr "ເລືອກຂໍ້ມູນ..."
+msgstr "ເລືອກລາຍການ..."
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/core/anchor/anchor_dialog.xml:0
 msgid "Choose an anchor name"
-msgstr "ເລືອກຊື່ຈຸດເຊື່ອມ (Anchor)"
+msgstr "ເລືອກຊື່ຈຸດເຊື່ອມໂຍງ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -828,19 +942,20 @@ msgstr "ວົງຈອນ"
 
 #. module: html_builder
 #. odoo-javascript
-#: code:addons/html_builder/static/src/plugins/background_option/background_position_overlay.xml:0
-msgid "Click and drag the background to adjust its position!"
-msgstr "ຄລິກ ແລະ ລາກພື້ນຫຼັງເພື່ອປັບຕຳແໜ່ງ!"
+#: code:addons/html_builder/static/src/plugins/image/image_position_overlay.xml:0
+msgid "Click and drag the image to adjust its position!"
+msgstr "ຄລິກ ແລະ ລາກຮູບເພື່ອປັບຕຳແໜ່ງ!"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Clover (R)"
-msgstr "ໃບໂຄລເວີ (R)"
+msgstr "Clover (R)"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background/background_color_option.xml:0
+#: code:addons/html_builder/static/src/plugins/font/text_effect_selector.xml:0
 #: code:addons/html_builder/static/src/plugins/image/image_filter_option.xml:0
 #: code:addons/html_builder/static/src/plugins/shadow_option.xml:0
 msgid "Color"
@@ -857,31 +972,31 @@ msgstr "ຕົວກອງສີ"
 #: code:addons/html_builder/static/src/plugins/background_option/background_shape_option.xml:0
 #: code:addons/html_builder/static/src/plugins/image/image_shape_option.xml:0
 msgid "Colors"
-msgstr "ສີ"
+msgstr "ສີຕ່າງໆ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/utils/utils.js:0
 msgid "Column"
-msgstr "ຄໍລຳ"
+msgstr "ຖັນ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/layout_column_option.xml:0
 msgid "Columns"
-msgstr "ຄໍລຳ"
+msgstr "ຖັນ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Composites"
-msgstr "ສ່ວນປະກອບ"
+msgstr "ອົງປະກອບລວມ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Composition"
-msgstr "ການຈັດອົງປະກອບ"
+msgstr "ການຈັດວາງອົງປະກອບ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -899,121 +1014,121 @@ msgstr "ການເຊື່ອມຕໍ່"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Connections 01"
-msgstr "ການເຊື່ອມຕໍ່ 01"
+msgstr "Connections 01"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Connections 02"
-msgstr "ການເຊື່ອມຕໍ່ 02"
+msgstr "Connections 02"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Connections 03"
-msgstr "ການເຊື່ອມຕໍ່ 03"
+msgstr "Connections 03"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Connections 04"
-msgstr "ການເຊື່ອມຕໍ່ 04"
+msgstr "Connections 04"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Connections 05"
-msgstr "ການເຊື່ອມຕໍ່ 05"
+msgstr "Connections 05"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Connections 06"
-msgstr "ການເຊື່ອມຕໍ່ 06"
+msgstr "Connections 06"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Connections 07"
-msgstr "ການເຊື່ອມຕໍ່ 07"
+msgstr "Connections 07"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Connections 08"
-msgstr "ການເຊື່ອມຕໍ່ 08"
+msgstr "Connections 08"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Connections 09"
-msgstr "ການເຊື່ອມຕໍ່ 09"
+msgstr "Connections 09"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Connections 10"
-msgstr "ການເຊື່ອມຕໍ່ 10"
+msgstr "Connections 10"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Connections 11"
-msgstr "ການເຊື່ອມຕໍ່ 11"
+msgstr "Connections 11"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Connections 12"
-msgstr "ການເຊື່ອມຕໍ່ 12"
+msgstr "Connections 12"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Connections 13"
-msgstr "ການເຊື່ອມຕໍ່ 13"
+msgstr "Connections 13"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Connections 14"
-msgstr "ການເຊື່ອມຕໍ່ 14"
+msgstr "Connections 14"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Connections 15"
-msgstr "ການເຊື່ອມຕໍ່ 15"
+msgstr "Connections 15"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Connections 16"
-msgstr "ການເຊື່ອມຕໍ່ 16"
+msgstr "Connections 16"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Connections 17"
-msgstr "ການເຊື່ອມຕໍ່ 17"
+msgstr "Connections 17"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Connections 18"
-msgstr "ການເຊື່ອມຕໍ່ 18"
+msgstr "Connections 18"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Connections 19"
-msgstr "ການເຊື່ອມຕໍ່ 19"
+msgstr "Connections 19"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Connections 20"
-msgstr "ການເຊື່ອມຕໍ່ 20"
+msgstr "Connections 20"
 
 #. module: html_builder
 #. odoo-javascript
@@ -1055,7 +1170,7 @@ msgstr "Container 06"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Containers"
-msgstr "ຕົວບັນຈຸ (Containers)"
+msgstr "ກ່ອງບັນຈຸ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -1073,25 +1188,19 @@ msgstr "ສາມຫຼ່ຽມມຸມ"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Cornered"
-msgstr "ມີມຸມ"
+msgstr "ແບບມີມຸມ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_position_option.xml:0
 msgid "Cover"
-msgstr "ປົກ"
+msgstr "ປົກຄຸມ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/core/building_blocks/select_many2x.xml:0
 msgid "Create \""
 msgstr "ສ້າງ \""
-
-#. module: html_builder
-#. odoo-javascript
-#: code:addons/html_builder/static/src/snippets/snippet_service.js:0
-msgid "Create a custom snippet"
-msgstr "ສ້າງ snippet ແບບກຳນົດເອງ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -1108,8 +1217,10 @@ msgstr "ຕັດຮູບ"
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/core/select_number_column.xml:0
+#: code:addons/html_builder/static/src/plugins/font/text_effect_selector.js:0
 #: code:addons/html_builder/static/src/plugins/image/image_filter_option.xml:0
 #: code:addons/html_builder/static/src/plugins/rating_option.xml:0
+#: code:addons/html_builder/static/src/plugins/shadow_option.xml:0
 msgid "Custom"
 msgstr "ກຳນົດເອງ"
 
@@ -1117,31 +1228,31 @@ msgstr "ກຳນົດເອງ"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/snippets/snippet_service.js:0
 msgid "Custom %s"
-msgstr "%s ແບບກຳນົດເອງ"
+msgstr "%s ກຳນົດເອງ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/snippets/snippet_service.js:0
 msgid "Custom Button"
-msgstr "ປຸ່ມແບບກຳນົດເອງ"
+msgstr "ປຸ່ມກຳນົດເອງ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/sidebar/block_tab.xml:0
 msgid "Custom Inner Content"
-msgstr "ເນື້ອໃນພາຍໃນແບບກຳນົດເອງ"
+msgstr "ເນື້ອໃນພາຍໃນກຳນົດເອງ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/font/text_effect_selector.js:0
+msgid "Custom Shadow"
+msgstr "ເງົາກຳນົດເອງ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Cut Circle"
 msgstr "ວົງມົນຖືກຕັດ"
-
-#. module: html_builder
-#. odoo-javascript
-#: code:addons/html_builder/static/src/core/setup_editor_plugin.js:0
-msgid "DRAG BUILDING BLOCKS HERE"
-msgstr "ລາກບລັອກສ້າງມາໄວ້ນີ້"
 
 #. module: html_builder
 #. odoo-javascript
@@ -1171,15 +1282,15 @@ msgstr "ເສັ້ນຂີດ"
 
 #. module: html_builder
 #. odoo-javascript
-#: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
-msgid "Decorative"
-msgstr "ຕົກແຕ່ງ"
+#: code:addons/html_builder/static/src/plugins/date_time_field_option.xml:0
+msgid "Date"
+msgstr "ວັນທີ"
 
 #. module: html_builder
 #. odoo-javascript
-#: code:addons/html_builder/static/src/plugins/image/image_tool_option.xml:0
-msgid "Default"
-msgstr "ຄ່າເລີ່ມຕົ້ນ"
+#: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
+msgid "Decorative"
+msgstr "ຕົກແຕ່ງ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -1195,9 +1306,33 @@ msgstr "ລຶບ %(snippetTitle)s"
 
 #. module: html_builder
 #. odoo-javascript
+#: code:addons/html_builder/static/src/core/building_blocks/builder_fontfamilypicker.js:0
+msgid "Delete & Reload"
+msgstr "ລຶບ ແລະ ໂຫລດໃໝ່"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/snippets/snippet_service.js:0
+msgid "Delete Block"
+msgstr "ລຶບບລັອກ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/core/building_blocks/builder_fontfamilypicker.js:0
+msgid "Delete Font"
+msgstr "ລຶບຟອນ"
+
+#. module: html_builder
+#. odoo-javascript
 #: code:addons/html_builder/static/src/core/building_blocks/builder_list.xml:0
 msgid "Delete item"
 msgstr "ລຶບລາຍການ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/snippets/snippet_service.js:0
+msgid "Delete this block?"
+msgstr "ລຶບບລັອກນີ້ບໍ່?"
 
 #. module: html_builder
 #. odoo-javascript
@@ -1207,19 +1342,9 @@ msgstr "ລຶບຟອນນີ້"
 
 #. module: html_builder
 #. odoo-javascript
-#: code:addons/html_builder/static/src/core/building_blocks/builder_fontfamilypicker.js:0
-msgid ""
-"Deleting a font requires a reload of the page. This will save all your "
-"changes and reload the page, are you sure you want to proceed?"
-msgstr ""
-"ການລຶບຟອນຈຳເປັນຕ້ອງໂຫຼດໜ້າຄືນໃໝ່. ນີ້ຈະບັນທຶກການປ່ຽນແປງທັງໝົດ ແລະ ໂຫຼດໜ້າຄືນ, ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການ"
-"ສືບຕໍ່?"
-
-#. module: html_builder
-#. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_tool_option.xml:0
 msgid "Description"
-msgstr "ລາຍລະອຽດ"
+msgstr "ຄຳອະທິບາຍ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -1231,33 +1356,34 @@ msgstr "ອຸປະກອນ"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Diamond"
-msgstr "ຮູບເພັດ"
+msgstr "ເຂົ້າຫຼາມຕັດ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Diamond (R)"
-msgstr "ຮູບເພັດ (R)"
+msgstr "Diamond (R)"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/core/anchor/anchor_dialog.xml:0
-#: code:addons/html_builder/static/src/plugins/background_option/background_position_overlay.xml:0
-#: code:addons/html_builder/static/src/snippets/snippet_viewer.js:0
+#: code:addons/html_builder/static/src/core/building_blocks/builder_list_dialog.xml:0
+#: code:addons/html_builder/static/src/plugins/image/image_position_overlay.xml:0
+#: code:addons/html_builder/static/src/sidebar/custom_inner_snippet.xml:0
 msgid "Discard"
 msgstr "ຍົກເລີກ"
+
+#. module: html_builder
+#: model:ir.model.fields,field_description:html_builder.field_ir_qweb__display_name
+#: model:ir.model.fields,field_description:html_builder.field_ir_ui_view__display_name
+msgid "Display Name"
+msgstr "ຊື່ສະແດງ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/snippets/snippet_service.js:0
 msgid "Do you want to install %s App?"
 msgstr "ທ່ານຕ້ອງການຕິດຕັ້ງແອັບ %s ບໍ່?"
-
-#. module: html_builder
-#. odoo-javascript
-#: code:addons/html_builder/static/src/snippets/snippet_service.js:0
-msgid "Do you want to save this snippet as a custom one?"
-msgstr "ທ່ານຕ້ອງການບັນທຶກ snippet ນີ້ເປັນແບບກຳນົດເອງບໍ່?"
 
 #. module: html_builder
 #. odoo-javascript
@@ -1269,37 +1395,37 @@ msgstr "ປະຕູ"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Door (R)"
-msgstr "ປະຕູ (R)"
+msgstr "Door (R)"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/border_configurator_option.xml:0
 msgid "Dotted"
-msgstr "ເສັ້ນຈ້ຳ"
+msgstr "ເສັ້ນຈຸດ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/border_configurator_option.xml:0
 msgid "Double"
-msgstr "ເສັ້ນຄູ່"
+msgstr "ຄູ່"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Double Pill"
-msgstr "ຊົງຢາແຄບຊູນຄູ່"
+msgstr "ເມັດຢາຄູ່"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Double Sonar"
-msgstr "ໂຊນາຄູ່"
+msgstr "Double Sonar"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/core/media_website_plugin.js:0
 msgid "Double-click to edit"
-msgstr "ຄລິກສອງຄັ້ງເພື່ອແກ້ໄຂ"
+msgstr "ດັບເບິນຄລິກເພື່ອແກ້ໄຂ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -1311,43 +1437,49 @@ msgstr "ລາກ ແລະ ວາງບລັອກສ້າງ"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/core/drag_and_drop_move_handle.js:0
 msgid "Drag and move"
-msgstr "ລາກ ແລະ ເຄື່ອນຍ້າຍ"
+msgstr "ລາກ ແລະ ຍ້າຍ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/core/building_blocks/builder_list.xml:0
 msgid "Drag and sort field"
-msgstr "ລາກ ແລະ ຈັດຮຽງຟິວ"
+msgstr "ລາກ ແລະ ຈັດລຽງຊ່ອງຂໍ້ມູນ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/core/setup_editor_plugin.js:0
+msgid "Drag blocks here"
+msgstr "ລາກບລັອກມາໃສ່ບ່ອນນີ້"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Duo"
-msgstr "ຄູ່ (Duo)"
+msgstr "Duo"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Duo (R)"
-msgstr "ຄູ່ (R)"
+msgstr "Duo (R)"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Duo Step"
-msgstr "ຂັ້ນໄດຄູ່"
+msgstr "Duo Step"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Duo Step Pill"
-msgstr "ຂັ້ນໄດຊົງຢາແຄບຊູນຄູ່"
+msgstr "Duo Step Pill"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/sidebar/option_container.xml:0
 msgid "Duplicate this block"
-msgstr "ເຮັດຊ້ຳບລັອກນີ້"
+msgstr "ສຳເນົາບລັອກນີ້ຊ້ຳ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -1358,9 +1490,14 @@ msgstr "EarlyBird"
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/core/anchor/anchor_plugin.js:0
-#: code:addons/html_builder/static/src/core/building_blocks/color_picker_theme_tab.xml:0
 msgid "Edit"
 msgstr "ແກ້ໄຂ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/button_style_option.xml:0
+msgid "Edit color in Theme Tab"
+msgstr "ແກ້ໄຂສີໃນແຖບຮູບແບບສີສັນ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -1370,21 +1507,58 @@ msgstr "ແກ້ໄຂຮູບ"
 
 #. module: html_builder
 #. odoo-javascript
+#: code:addons/html_builder/static/src/core/building_blocks/color_picker_theme_tab.xml:0
+#: code:addons/html_builder/static/src/plugins/shadow_option.xml:0
+msgid "Edit in Theme Tab"
+msgstr "ແກ້ໄຂໃນແຖບຮູບແບບສີສັນ"
+
+#. module: html_builder
+#. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Emerald"
-msgstr "ສີມໍລະກົດ"
+msgstr "ມໍລະກົດ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Emerald (R)"
-msgstr "ສີມໍລະກົດ (R)"
+msgstr "Emerald (R)"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/snippets/snippet_viewer.xml:0
+msgid "Enter"
+msgstr "Enter"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/core/building_blocks/builder_list_dialog.xml:0
+msgid "Exclude all"
+msgstr "ຍົກເວັ້ນທັງໝົດ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/core/building_blocks/builder_list_dialog.xml:0
+msgid "Exclude record"
+msgstr "ຍົກເວັ້ນລາຍການ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/core/building_blocks/builder_list_dialog.xml:0
+msgid "Excluded records"
+msgstr "ລາຍການທີ່ຖືກຍົກເວັ້ນ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_filter_option.xml:0
 msgid "Exclusion"
 msgstr "ການຍົກເວັ້ນ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/button_style_option.xml:0
+msgid "Fill"
+msgstr "ຕື່ມເຕັມ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -1401,15 +1575,21 @@ msgstr "ທຸງ"
 
 #. module: html_builder
 #. odoo-javascript
-#: code:addons/html_builder/static/src/plugins/background_option/background_shape_option.xml:0
-msgid "Flip"
-msgstr "ພິກ"
+#: code:addons/html_builder/static/src/plugins/font/text_effect_selector.js:0
+msgid "Flat"
+msgstr "ຮາບພຽງ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/core/drop_zone_plugin.js:0
 msgid "For technical reasons, this block cannot be dropped here"
-msgstr "ເນື່ອງຈາກເຫດຜົນທາງເຕັກນິກ, ບລັອກນີ້ບໍ່ສາມາດວາງໄວ້ບ່ອນນີ້ໄດ້"
+msgstr "ຍ້ອນເຫດຜົນທາງດ້ານເຕັກນິກ, ບລັອກນີ້ຈຶ່ງບໍ່ສາມາດວາງໃສ່ບ່ອນນີ້ໄດ້"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/utils/utils.js:0
+msgid "Form"
+msgstr "ຟອມ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -1457,13 +1637,54 @@ msgstr "Galaxy S #6"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Gem"
-msgstr "ແກ້ວປະເສີດ"
+msgstr "ອັນຍະມະນີ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Gem (R)"
-msgstr "ແກ້ວປະເສີດ (R)"
+msgstr "Gem (R)"
+
+#. module: html_builder
+#: model:ir.module.module,summary:base.module_html_builder
+msgid "Generic html builder"
+msgstr "ຕົວສ້າງ html ທົ່ວໄປ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Geometric"
+msgstr "ເລຂາຄະນິດ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Geometric 01"
+msgstr "Geometric 01"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Geometric 02"
+msgstr "Geometric 02"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Geometric 03"
+msgstr "Geometric 03"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Geometric 04"
+msgstr "Geometric 04"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Geometric 05"
+msgstr "Geometric 05"
 
 #. module: html_builder
 #. odoo-javascript
@@ -1485,57 +1706,86 @@ msgstr "ເລຂາຄະນິດມົນ"
 
 #. module: html_builder
 #. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/font/text_effect_selector.js:0
+msgid "Glow"
+msgstr "ເປັ່ງແສງ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/font/text_effect_selector.xml:0
+msgid "Go back to effect selection"
+msgstr "ກັບໄປໜ້າເລືອກເອັບເຟັກ"
+
+#. module: html_builder
+#. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Grid 01"
-msgstr "ຕາຕະລາງ 01"
+msgstr "Grid 01"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Grid 02"
-msgstr "ຕາຕະລາງ 02"
+msgstr "Grid 02"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Grid 03"
-msgstr "ຕາຕະລາງ 03"
+msgstr "Grid 03"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Grid 04"
-msgstr "ຕາຕະລາງ 04"
+msgstr "Grid 04"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Grid 05"
-msgstr "ຕາຕະລາງ 05"
+msgstr "Grid 05"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Grid 06"
-msgstr "ຕາຕະລາງ 06"
+msgstr "Grid 06"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Grid 07"
-msgstr "ຕາຕະລາງ 07"
+msgstr "Grid 07"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Grid 08"
-msgstr "ຕາຕະລາງ 08"
+msgstr "Grid 08"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Grid 09"
+msgstr "Grid 09"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Grid 10"
+msgstr "Grid 10"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Grids"
 msgstr "ຕາຕະລາງ"
+
+#. module: html_builder
+#: model:ir.module.module,shortdesc:base.module_html_builder
+msgid "HTML Builder"
+msgstr "ຕົວສ້າງ HTML"
 
 #. module: html_builder
 #. odoo-javascript
@@ -1551,27 +1801,39 @@ msgstr "Half Galaxy S"
 
 #. module: html_builder
 #. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
+msgid "Half MacBook"
+msgstr "Half MacBook"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
+msgid "Half iPhone"
+msgstr "Half iPhone"
+
+#. module: html_builder
+#. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/font/font_plugin.js:0
 msgid "Header 1 Display 2"
-msgstr "Header 1 Display 2"
+msgstr "ຫົວຂໍ້ 1 ສະແດງ 2"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/font/font_plugin.js:0
 msgid "Header 1 Display 3"
-msgstr "Header 1 Display 3"
+msgstr "ຫົວຂໍ້ 1 ສະແດງ 3"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/font/font_plugin.js:0
 msgid "Header 1 Display 4"
-msgstr "Header 1 Display 4"
+msgstr "ຫົວຂໍ້ 1 ສະແດງ 4"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/rating_option.xml:0
 msgid "Hearts"
-msgstr "ຫົວໃຈ"
+msgstr "ຮູບຫົວໃຈ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -1589,7 +1851,7 @@ msgstr "ເຈັດຫຼ່ຽມ"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Heptagon (R)"
-msgstr "ເຈັດຫຼ່ຽມ (R)"
+msgstr "Heptagon (R)"
 
 #. module: html_builder
 #. odoo-javascript
@@ -1601,13 +1863,27 @@ msgstr "ຫົກຫຼ່ຽມ"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Hexagon (R)"
-msgstr "ຫົກຫຼ່ຽມ (R)"
+msgstr "Hexagon (R)"
 
 #. module: html_builder
 #. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/font/text_effect_selector.xml:0
+#: code:addons/html_builder/static/src/plugins/shadow_option.xml:0
+msgid "Horizontal and Vertical offset"
+msgstr "ໄລຍະຫ່າງຕາມລວງນອນ ແລະ ລວງຕັ້ງ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shape_option.xml:0
 #: code:addons/html_builder/static/src/plugins/image/image_shape_option.xml:0
-msgid "Horizontal mirror"
-msgstr "ສະທ້ອນແນວນອນ"
+msgid "Horizontal flip"
+msgstr "ພິກລວງນອນ"
+
+#. module: html_builder
+#: model:ir.model.fields,field_description:html_builder.field_ir_qweb__id
+#: model:ir.model.fields,field_description:html_builder.field_ir_ui_view__id
+msgid "ID"
+msgstr "ID"
 
 #. module: html_builder
 #. odoo-javascript
@@ -1619,10 +1895,39 @@ msgstr "ໄອຄອນ"
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_image.xml:0
-#: code:addons/html_builder/static/src/plugins/background_option/background_option.xml:0
 #: code:addons/html_builder/static/src/utils/utils.js:0
 msgid "Image"
 msgstr "ຮູບພາບ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/rating_option.xml:0
+msgid "Inactive"
+msgstr "ບໍ່ເຄື່ອນໄຫວ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/core/building_blocks/builder_list_dialog.xml:0
+msgid "Include all"
+msgstr "ຮວມທັງໝົດ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/core/building_blocks/builder_list_dialog.xml:0
+msgid "Include record"
+msgstr "ຮວມລາຍການ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/core/building_blocks/builder_list_dialog.xml:0
+msgid "Included records"
+msgstr "ລາຍການທີ່ຮວມ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/image/image_format_option.xml:0
+msgid "Increase for more detail, decrease for speed"
+msgstr "ເພີ່ມຂຶ້ນເພື່ອລາຍລະອຽດເພີ່ມຕື່ມ, ຫຼຸດລົງເພື່ອຄວາມໄວ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -1645,22 +1950,21 @@ msgstr "ເນື້ອໃນພາຍໃນ"
 
 #. module: html_builder
 #. odoo-javascript
-#: code:addons/html_builder/static/src/snippets/add_snippet_dialog.xml:0
+#: code:addons/html_builder/static/src/snippets/add_snippet_dialog.js:0
 msgid "Insert a block"
 msgstr "ແຊກບລັອກ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/sidebar/custom_inner_snippet.xml:0
-#: code:addons/html_builder/static/src/sidebar/snippet.xml:0
 msgid "Insert snippet"
-msgstr "ແຊກ snippet"
+msgstr "ແຊກສະນິບເພັດ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/shadow_option.xml:0
 msgid "Inset"
-msgstr "ດ້ານໃນ (Inset)"
+msgstr "Inset"
 
 #. module: html_builder
 #. odoo-javascript
@@ -1679,38 +1983,39 @@ msgstr "ຕິດຕັ້ງ %s"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/sidebar/invisible_elements_panel.xml:0
 msgid "Invisible Elements"
-msgstr "ອົງປະກອບທີ່ເບິ່ງບໍ່ເຫັນ"
+msgstr "ອົງປະກອບທີ່ເຊື່ອງຢູ່"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/core/version_error_plugin.js:0
 msgid ""
-"It might have caused problem during the editing. Please drag the new version"
-" from the snippet panel to update it."
+"It might cause/have caused problems during the editing. Please drag the new "
+"version from the snippet panel to update it."
 msgstr ""
-"ມັນອາດຈະເຮັດໃຫ້ເກີດບັນຫາລະຫວ່າງການແກ້ໄຂ. ກະລຸນາລາກເວີຊັນໃໝ່ຈາກແຜງ snippet ເພື່ອອັບເດດ."
-
-#. module: html_builder
-#. odoo-javascript
-#: code:addons/html_builder/static/src/core/building_blocks/builder_list.js:0
-msgid "Item"
-msgstr "ລາຍການ"
+"ມັນອາດຈະກໍ່ໃຫ້ເກີດບັນຫາໃນລະຫວ່າງການແກ້ໄຂ. ກະລຸນາລາກເວີຊັນໃໝ່ຈາກແຜງສະນິບເພັດເພື່ອອັບເດດ."
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Kayak"
-msgstr "ຄາຍັກ"
+msgstr "Kayak"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/snippets/snippet_service.js:0
+msgid "Keep it"
+msgstr "ຮັກສາໄວ້"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Labyrinth"
-msgstr "ເຂົາວົງກົດ"
+msgstr "ເຂາວົງກົດ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/rating_option.xml:0
+#: code:addons/html_builder/static/src/plugins/shadow_option.xml:0
 #: code:addons/html_builder/static/src/plugins/size_option.xml:0
 msgid "Large"
 msgstr "ໃຫຍ່"
@@ -1719,7 +2024,7 @@ msgstr "ໃຫຍ່"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Layered"
-msgstr "ຊ້ອນກັນ"
+msgstr "ເປັນຊັ້ນ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -1735,7 +2040,7 @@ msgstr "ຊ້າຍ"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Lemon (R)"
-msgstr "ໝາກນາວ (R)"
+msgstr "Lemon (R)"
 
 #. module: html_builder
 #. odoo-javascript
@@ -1743,7 +2048,7 @@ msgstr "ໝາກນາວ (R)"
 #: code:addons/html_builder/static/src/plugins/badge_option.xml:0
 #: code:addons/html_builder/static/src/plugins/font/font_plugin.js:0
 msgid "Light"
-msgstr "ອ່ອນ"
+msgstr "ແຈ້ງ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -1753,15 +2058,63 @@ msgstr "ເຮັດໃຫ້ແຈ້ງຂຶ້ນ"
 
 #. module: html_builder
 #. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Line 01"
+msgstr "Line 01"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Line 02"
+msgstr "Line 02"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Line 03"
+msgstr "Line 03"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Line 04"
+msgstr "Line 04"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Line 05"
+msgstr "Line 05"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Line 06"
+msgstr "Line 06"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Line 07"
+msgstr "Line 07"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Line 08"
+msgstr "Line 08"
+
+#. module: html_builder
+#. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Line 1"
-msgstr "ເສັ້ນ 1"
+msgstr "Line 1"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Line 2"
-msgstr "ເສັ້ນ 2"
+msgstr "Line 2"
 
 #. module: html_builder
 #. odoo-javascript
@@ -1771,9 +2124,15 @@ msgstr "ເສັ້ນຊື່"
 
 #. module: html_builder
 #. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Lines"
+msgstr "ເສັ້ນຕ່າງໆ"
+
+#. module: html_builder
+#. odoo-javascript
 #: code:addons/html_builder/static/src/core/anchor/anchor_dialog.js:0
 msgid "Link Anchor"
-msgstr "ຈຸດເຊື່ອມຕໍ່"
+msgstr "ຈຸດເຊື່ອມໂຍງລິ້ງ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -1801,6 +2160,12 @@ msgstr "ສີຫຼັກ"
 
 #. module: html_builder
 #. odoo-javascript
+#: code:addons/html_builder/static/src/core/building_blocks/builder_list_dialog.xml:0
+msgid "Manage Records"
+msgstr "ຈັດການລາຍການ"
+
+#. module: html_builder
+#. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_filter_option.xml:0
 msgid "Maven"
 msgstr "Maven"
@@ -1816,7 +2181,7 @@ msgstr "ສື່"
 #: code:addons/html_builder/static/src/plugins/rating_option.xml:0
 #: code:addons/html_builder/static/src/plugins/size_option.xml:0
 msgid "Medium"
-msgstr "ກາງ"
+msgstr "ປານກາງ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -1828,73 +2193,103 @@ msgstr "ອື່ນໆ"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Miscellaneous 01"
-msgstr "ອື່ນໆ 01"
+msgstr "Miscellaneous 01"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Miscellaneous 02"
-msgstr "ອື່ນໆ 02"
+msgstr "Miscellaneous 02"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Miscellaneous 03"
-msgstr "ອື່ນໆ 03"
+msgstr "Miscellaneous 03"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Miscellaneous 04"
-msgstr "ອື່ນໆ 04"
+msgstr "Miscellaneous 04"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Miscellaneous 05"
-msgstr "ອື່ນໆ 05"
+msgstr "Miscellaneous 05"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Miscellaneous 06"
-msgstr "ອື່ນໆ 06"
+msgstr "Miscellaneous 06"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Miscellaneous 07"
-msgstr "ອື່ນໆ 07"
+msgstr "Miscellaneous 07"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Miscellaneous 08"
-msgstr "ອື່ນໆ 08"
+msgstr "Miscellaneous 08"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Miscellaneous 09"
+msgstr "Miscellaneous 09"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Miscellaneous 10"
+msgstr "Miscellaneous 10"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Miscellaneous 11"
+msgstr "Miscellaneous 11"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Miscellaneous 12"
+msgstr "Miscellaneous 12"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Miscellaneous 13"
+msgstr "Miscellaneous 13"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Mixed 1"
-msgstr "ປະສົມ 1"
+msgstr "Mixed 1"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Mixed 2"
-msgstr "ປະສົມ 2"
+msgstr "Mixed 2"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/builder.xml:0
 msgid "Mobile Preview"
-msgstr "ສະແດງຕົວຢ່າງໃນມືຖື"
+msgstr "ເບິ່ງຕົວຢ່າງເທິງມືຖື"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/snippets/snippet_service.js:0
 msgid "More info about this app."
-msgstr "ຂໍ້ມູນເພີ່ມເຕີມກ່ຽວກັບແອັບນີ້."
+msgstr "ຂໍ້ມູນເພີ່ມຕື່ມກ່ຽວກັບແອັບນີ້."
 
 #. module: html_builder
 #. odoo-javascript
@@ -1922,21 +2317,87 @@ msgstr "ຊື່"
 
 #. module: html_builder
 #. odoo-javascript
-#: code:addons/html_builder/static/src/snippets/snippet_service.js:0
-msgid "No"
-msgstr "ບໍ່"
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Nature"
+msgstr "ທຳມະຊາດ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Nature 01"
+msgstr "Nature 01"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Nature 02"
+msgstr "Nature 02"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Nature 03"
+msgstr "Nature 03"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Nature 04"
+msgstr "Nature 04"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Nature 05"
+msgstr "Nature 05"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Nature 06"
+msgstr "Nature 06"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Nature 07"
+msgstr "Nature 07"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Nature 08"
+msgstr "Nature 08"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/snippets/snippet_viewer.xml:0
+msgid "Navigate around the blocks with"
+msgstr "ນຳທາງໄປຕາມບລັອກຕ່າງໆດ້ວຍ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/font/text_effect_selector.js:0
+msgid "No Shadow"
+msgstr "ບໍ່ມີເງົາ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/sidebar/block_tab.xml:0
 msgid "No block of this category can be dropped on this page."
-msgstr "ບໍ່ມີບລັອກໃນໝວດໝູ່ນີ້ທີ່ສາມາດວາງລົງໃນໜ້ານີ້ໄດ້."
+msgstr "ບໍ່ມີບລັອກໃນໝວດໝູ່ນີ້ທີ່ສາມາດວາງໃສ່ໜ້ານີ້ໄດ້."
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/core/building_blocks/builder_list_dialog.xml:0
+msgid "No record."
+msgstr "ບໍ່ມີຂໍ້ມູນ."
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/snippets/add_snippet_dialog.xml:0
 msgid "No snippets found"
-msgstr "ບໍ່ພົບ Snippets"
+msgstr "ບໍ່ພົບສະນິບເພັດ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -1954,20 +2415,28 @@ msgstr "ບໍ່ມີ"
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_filter_option.xml:0
+#: code:addons/html_builder/static/src/plugins/shadow_option.xml:0
 msgid "Normal"
 msgstr "ປົກກະຕິ"
 
 #. module: html_builder
 #. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/font/text_effect_selector.xml:0
 #: code:addons/html_builder/static/src/plugins/shadow_option.xml:0
-msgid "Offset (X, Y)"
-msgstr "ໄລຍະຫ່າງ (X, Y)"
+msgid "Offset"
+msgstr "ໄລຍະຫ່າງ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/core/save_plugin.js:0
+msgid "One or more fields were not valid"
+msgstr "ມີໜຶ່ງ ຫຼື ຫຼາຍຊ່ອງຂໍ້ມູນບໍ່ຖືກຕ້ອງ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/snippets/add_snippet_dialog.xml:0
 msgid "Oops! No snippets found."
-msgstr "ຂໍອະໄພ! ບໍ່ພົບ Snippets."
+msgstr "ໂອ້ຍ! ບໍ່ພົບສະນິບເພັດ."
 
 #. module: html_builder
 #. odoo-javascript
@@ -1977,51 +2446,70 @@ msgstr "ເປີດໃນໜ້າຕ່າງໃໝ່"
 
 #. module: html_builder
 #. odoo-javascript
+#: code:addons/html_builder/static/src/core/building_blocks/builder_list.xml:0
+msgid "Open the record list manager"
+msgstr "ເປີດຕົວຈັດການລາຍການຂໍ້ມູນ"
+
+#. module: html_builder
+#. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Organic"
-msgstr "ອໍການິກ"
+msgstr "Organic"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Organic Caps"
-msgstr "ອໍການິກຊົງໝວກ"
+msgstr "Organic Caps"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Organic Cross"
-msgstr "ອໍການິກຮູບກາກະບາດ"
+msgstr "Organic Cross"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Organic Dot"
-msgstr "ອໍການິກຈຸດ"
+msgstr "Organic Dot"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Organic Line"
-msgstr "ອໍການິກເສັ້ນ"
+msgstr "Organic Line"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/font/text_effect_selector.js:0
+#: code:addons/html_builder/static/src/plugins/font/text_effect_selector.xml:0
+msgid "Outline"
+msgstr "ເສັ້ນເຄົ້າ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/shadow_option.xml:0
 msgid "Outset"
-msgstr "ຂອບນອກ"
+msgstr "Outset"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/shadow_option.xml:0
+msgid "Outset/Inset"
+msgstr "Outset/Inset"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Oval Line"
-msgstr "ເສັ້ນຮູບວົງມົນ"
+msgstr "Oval Line"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Oval Zebra"
-msgstr "ວົງມົນລາຍເສືອໂຄ່ງ"
+msgstr "Oval Zebra"
 
 #. module: html_builder
 #. odoo-javascript
@@ -2033,7 +2521,7 @@ msgstr "ວາງຊ້ອນ"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_tool_option.xml:0
 msgid "Padding"
-msgstr "ໄລຍະຫ່າງຂອບໃນ"
+msgstr "ໄລຍະຫ່າງພາຍໃນ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -2045,44 +2533,44 @@ msgstr "ຕົວເລືອກໜ້າ"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Pattern 01"
-msgstr "ລວດລາຍ 01"
+msgstr "Pattern 01"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Pattern 02"
-msgstr "ລວດລາຍ 02"
+msgstr "Pattern 02"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Pattern 03"
-msgstr "ລວດລາຍ 03"
+msgstr "Pattern 03"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Pattern 04"
-msgstr "ລວດລາຍ 04"
+msgstr "Pattern 04"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Pattern 05"
-msgstr "ລວດລາຍ 05"
+msgstr "Pattern 05"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Pattern 06"
-msgstr "ລວດລາຍ 06"
+msgstr "Pattern 06"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Patterns"
-msgstr "ລວດລາຍ"
+msgstr "ຮູບແບບລວດລາຍ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -2094,25 +2582,25 @@ msgstr "ຫ້າຫຼ່ຽມ"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Pentagon (R)"
-msgstr "ຫ້າຫຼ່ຽມ (R)"
+msgstr "Pentagon (R)"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Pill (R)"
-msgstr "ຮູບຊົງຢາ (R)"
+msgstr "Pill (R)"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Planet 1"
-msgstr "ດາວເຄາະ 1"
+msgstr "Planet 1"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Planet 2"
-msgstr "ດາວເຄາະ 2"
+msgstr "Planet 2"
 
 #. module: html_builder
 #. odoo-javascript
@@ -2130,14 +2618,20 @@ msgstr "ຕຳແໜ່ງ"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/core/building_blocks/builder_urlpicker.xml:0
 msgid "Preview this URL in a new tab"
-msgstr "ສະແດງຕົວຢ່າງ URL ນີ້ໃນແທັບໃໝ່"
+msgstr "ເບິ່ງຕົວຢ່າງ URL ນີ້ໃນແທັບໃໝ່"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/core/save_plugin.js:0
+msgid "Previous values restored."
+msgstr "ຄືນຄ່າເດີມແລ້ວ."
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/alert_option.xml:0
 #: code:addons/html_builder/static/src/plugins/badge_option.xml:0
 msgid "Primary"
-msgstr "ສີຫຼັກ"
+msgstr "ຫຼັກ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -2152,6 +2646,11 @@ msgid "Quality"
 msgstr "ຄຸນນະພາບ"
 
 #. module: html_builder
+#: model:ir.model,name:html_builder.model_ir_qweb
+msgid "Qweb"
+msgstr "Qweb"
+
+#. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Rain"
@@ -2161,79 +2660,105 @@ msgstr "ຝົນ"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Rainy 01"
-msgstr "ຝົນຕົກ 01"
+msgstr "Rainy 01"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Rainy 02"
-msgstr "ຝົນຕົກ 02"
+msgstr "Rainy 02"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Rainy 03"
-msgstr "ຝົນຕົກ 03"
+msgstr "Rainy 03"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Rainy 04"
-msgstr "ຝົນຕົກ 04"
+msgstr "Rainy 04"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Rainy 05"
-msgstr "ຝົນຕົກ 05"
+msgstr "Rainy 05"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Rainy 06"
-msgstr "ຝົນຕົກ 06"
+msgstr "Rainy 06"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Rainy 07"
-msgstr "ຝົນຕົກ 07"
+msgstr "Rainy 07"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Rainy 08"
-msgstr "ຝົນຕົກ 08"
+msgstr "Rainy 08"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Rainy 09"
-msgstr "ຝົນຕົກ 09"
+msgstr "Rainy 09"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/replace_media_option.xml:0
 msgid "Redirect the user elsewhere when he clicks on the media."
-msgstr "ສົ່ງຕໍ່ຜູ້ໃຊ້ໄປບ່ອນອື່ນເມື່ອຄລິກໃສ່ສື່."
+msgstr "ສົ່ງຜູ້ໃຊ້ໄປບ່ອນອື່ນເມື່ອຄລິກໃສ່ສື່."
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/core/anchor/anchor_dialog.xml:0
+#: code:addons/html_builder/static/src/snippets/snippet_viewer.xml:0
 msgid "Remove"
-msgstr "ລຶບອອກ"
+msgstr "ເອົາອອກ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_image.xml:0
 msgid "Remove image"
-msgstr "ລຶບຮູບອອກ"
+msgstr "ເອົາຮູບອອກ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/font/text_effect_selector.xml:0
+msgid "Remove shadow"
+msgstr "ເອົາເງົາອອກ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_option.xml:0
+msgid "Remove the background image"
+msgstr "ເອົາຮູບພື້ນຫຼັງອອກ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shape_option.xml:0
+#: code:addons/html_builder/static/src/plugins/image/image_shape_option.xml:0
+msgid "Remove the shape"
+msgstr "ເອົາຮູບຮ່າງອອກ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/sidebar/option_container.xml:0
 msgid "Remove this block"
-msgstr "ລຶບບລັອກນີ້ອອກ"
+msgstr "ເອົາບລັອກນີ້ອອກ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/snippets/snippet_viewer.xml:0
+msgid "Rename"
+msgstr "ປ່ຽນຊື່"
 
 #. module: html_builder
 #. odoo-javascript
@@ -2257,93 +2782,63 @@ msgstr "ປ່ຽນຊື່ບລັອກ"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_position_option.xml:0
 msgid "Repeat pattern"
-msgstr "ລວດລາຍຊ້ຳ"
+msgstr "ເຮັດລວດລາຍຊ້ຳ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_image.xml:0
 #: code:addons/html_builder/static/src/plugins/image/replace_media_option.xml:0
 msgid "Replace"
-msgstr "ປ່ຽນແທນ"
+msgstr "ແທນທີ່"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/replace_media_option.js:0
 #: code:addons/html_builder/static/src/plugins/rating_option.xml:0
 msgid "Replace Icon"
-msgstr "ປ່ຽນແທນໄອຄອນ"
+msgstr "ແທນທີ່ໄອຄອນ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/replace_media_option.js:0
 msgid "Replace Image"
-msgstr "ປ່ຽນແທນຮູບພາບ"
+msgstr "ແທນທີ່ຮູບພາບ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/replace_media_option.js:0
 msgid "Replace Media"
-msgstr "ປ່ຽນແທນສື່"
+msgstr "ແທນທີ່ສື່"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/replace_media_option.js:0
 msgid "Replace Video"
-msgstr "ປ່ຽນແທນວິດີໂອ"
-
-#. module: html_builder
-#. odoo-javascript
-#: code:addons/html_builder/static/src/plugins/image/image_tool_option.xml:0
-#: code:addons/html_builder/static/src/plugins/image/image_transform_option.xml:0
-msgid "Reset"
-msgstr "ຄືນຄ່າໃໝ່"
+msgstr "ແທນທີ່ວິດີໂອ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_tool_option.xml:0
 msgid "Reset crop"
-msgstr "ຄືນຄ່າການຕັດຮູບ"
+msgstr "ຣີເຊັດການຕັດຮູບ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shape_option.xml:0
 msgid "Reset shape transformation"
-msgstr "ຄືນຄ່າການປ່ຽນຮູບຊົງ"
+msgstr "ຣີເຊັດການແປງຮູບຮ່າງ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_transform_option.xml:0
 msgid "Reset transformation"
-msgstr "ຄືນຄ່າການປ່ຽນແປງ"
-
-#. module: html_builder
-#. odoo-javascript
-#: code:addons/html_builder/static/src/plugins/image/image_tool_option.xml:0
-msgid "Resize Default"
-msgstr "ປັບຂະໜາດເປັນຄ່າເລີ່ມຕົ້ນ"
-
-#. module: html_builder
-#. odoo-javascript
-#: code:addons/html_builder/static/src/plugins/image/image_tool_option.xml:0
-msgid "Resize Full"
-msgstr "ປັບຂະໜາດເຕັມ"
-
-#. module: html_builder
-#. odoo-javascript
-#: code:addons/html_builder/static/src/plugins/image/image_tool_option.xml:0
-msgid "Resize Half"
-msgstr "ປັບຂະໜາດເຄິ່ງໜຶ່ງ"
-
-#. module: html_builder
-#. odoo-javascript
-#: code:addons/html_builder/static/src/plugins/image/image_tool_option.xml:0
-msgid "Resize Quarter"
-msgstr "ປັບຂະໜາດໜຶ່ງສ່ວນສີ່"
+msgstr "ຣີເຊັດການແປງຮູບແບບ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/block_alignment_option.xml:0
 #: code:addons/html_builder/static/src/plugins/image/image_tool_option.xml:0
+#: code:addons/html_builder/static/src/plugins/rating_option.xml:0
 #: code:addons/html_builder/static/src/plugins/separator_option.xml:0
 #: code:addons/html_builder/static/src/plugins/text_alignment_option.xml:0
 msgid "Right"
@@ -2353,19 +2848,19 @@ msgstr "ຂວາ"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shape_option.xml:0
 msgid "Rotate left"
-msgstr "ໝູນໄປຊ້າຍ"
+msgstr "ໝຸນໄປຊ້າຍ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shape_option.xml:0
 msgid "Rotate right"
-msgstr "ໝູນໄປຂວາ"
+msgstr "ໝຸນໄປຂວາ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/border_configurator_option.xml:0
 msgid "Round Corners"
-msgstr "ແຈມົນ"
+msgstr "ມຸມມົນ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -2375,7 +2870,7 @@ msgstr "ຄວາມອີ່ມຕົວຂອງສີ"
 
 #. module: html_builder
 #. odoo-javascript
-#: code:addons/html_builder/static/src/snippets/snippet_service.js:0
+#: code:addons/html_builder/static/src/core/building_blocks/builder_list_dialog.xml:0
 #: code:addons/html_builder/static/src/snippets/snippet_viewer.js:0
 msgid "Save"
 msgstr "ບັນທຶກ"
@@ -2396,7 +2891,7 @@ msgstr "ບັນທຶກ ແລະ ຕິດຕັ້ງ"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/core/save_snippet_plugin.js:0
 msgid "Saved as %s. Find it in your snippets."
-msgstr "ບັນທຶກເປັນ %s. ຊອກຫາໄດ້ໃນ snippets ຂອງທ່ານ."
+msgstr "ບັນທຶກເປັນ %s ແລ້ວ. ຊອກຫາໄດ້ໃນສະນິບເພັດຂອງທ່ານ."
 
 #. module: html_builder
 #. odoo-javascript
@@ -2412,9 +2907,21 @@ msgstr "ໜ້າຈໍ"
 
 #. module: html_builder
 #. odoo-javascript
+#: code:addons/html_builder/static/src/core/building_blocks/builder_list_dialog.xml:0
+msgid "Search"
+msgstr "ຄົ້ນຫາ"
+
+#. module: html_builder
+#. odoo-javascript
 #: code:addons/html_builder/static/src/snippets/add_snippet_dialog.xml:0
 msgid "Search for a block"
 msgstr "ຄົ້ນຫາບລັອກ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/core/building_blocks/builder_search_select.xml:0
+msgid "Search for items..."
+msgstr "ຄົ້ນຫາລາຍການ..."
 
 #. module: html_builder
 #. odoo-javascript
@@ -2425,33 +2932,45 @@ msgstr "ຄົ້ນຫາຂໍ້ມູນ..."
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/core/building_blocks/select_many2x.xml:0
-msgid "Search more..."
-msgstr "ຄົ້ນຫາເພີ່ມເຕີມ..."
+msgid "Search more"
+msgstr "ຄົ້ນຫາເພີ່ມເຕີມ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/core/building_blocks/select_many2x.xml:0
 msgid "Search to show more records"
-msgstr "ຄົ້ນຫາເພື່ອສະແດງຂໍ້ມູນເພີ່ມເຕີມ"
+msgstr "ຄົ້ນຫາເພື່ອສະແດງລາຍການເພີ່ມ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/alert_option.xml:0
 #: code:addons/html_builder/static/src/plugins/badge_option.xml:0
 msgid "Secondary"
-msgstr "ສຳຮອງ"
+msgstr "ຮອງ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/sidebar/customize_tab.xml:0
 msgid "Select a block on your page to style it."
-msgstr "ເລືອກບລັອກໃນໜ້າຂອງທ່ານເພື່ອປັບແຕ່ງຮູບແບບ."
+msgstr "ເລືອກບລັອກໃນໜ້າຂອງທ່ານເພື່ອໃສ່ຮູບແບບ."
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/core/building_blocks/builder_search_select.js:0
+msgid "Select an option..."
+msgstr "ເລືອກຕົວເລືອກ..."
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_filter_option.xml:0
 msgid "Sepia"
-msgstr "ຊີເປຍ"
+msgstr "Sepia"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/core/building_blocks/builder_datetimepicker.xml:0
+msgid "Set today as a relative date"
+msgstr "ຕັ້ງຄ່າມື້ນີ້ເປັນວັນທີສຳພັນ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -2462,58 +2981,59 @@ msgstr "ເງົາ"
 
 #. module: html_builder
 #. odoo-javascript
-#: code:addons/html_builder/static/src/plugins/background_option/background_option.xml:0
 #: code:addons/html_builder/static/src/plugins/background_option/background_shape_option.xml:0
+#: code:addons/html_builder/static/src/plugins/button_style_option.xml:0
 #: code:addons/html_builder/static/src/plugins/image/image_shape_option.xml:0
 msgid "Shape"
-msgstr "ຮູບຊົງ"
+msgstr "ຮູບຮ່າງ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_tool_option.xml:0
 msgid "Shape: Circle"
-msgstr "ຮູບຊົງ: ວົງມົນ"
+msgstr "ຮູບຮ່າງ: ວົງມົນ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_tool_option.xml:0
 msgid "Shape: Rounded"
-msgstr "ຮູບຊົງ: ມົນ"
+msgstr "ຮູບຮ່າງ: ມົນ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_tool_option.xml:0
 msgid "Shape: Thumbnail"
-msgstr "ຮູບຊົງ: ຮູບຂະໜາດນ້ອຍ"
+msgstr "ຮູບຮ່າງ: ຮູບຫຍໍ້"
 
 #. module: html_builder
 #. odoo-javascript
-#: code:addons/html_builder/static/src/plugins/image/image_shape_option.js:0
+#: code:addons/html_builder/static/src/plugins/image/image_shape_option.xml:0
 msgid "Shapes"
-msgstr "ຮູບຊົງ"
+msgstr "ຮູບຮ່າງຕ່າງໆ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shape_option.xml:0
 msgid "Show/Hide on Mobile"
-msgstr "ສະແດງ/ເຊື່ອງ ໃນມືຖື"
+msgstr "ສະແດງ/ເຊື່ອງ ເທິງມືຖື"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Shuriken"
-msgstr "ດາວຈັກ"
+msgstr "Shuriken"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Shuriken (R)"
-msgstr "ດາວຈັກ (R)"
+msgstr "Shuriken (R)"
 
 #. module: html_builder
 #. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/button_style_option.xml:0
 #: code:addons/html_builder/static/src/plugins/image/image_size.xml:0
-#: code:addons/html_builder/static/src/plugins/image/image_tool_option.xml:0
+#: code:addons/html_builder/static/src/plugins/image/media_size_option.xml:0
 #: code:addons/html_builder/static/src/plugins/rating_option.xml:0
 #: code:addons/html_builder/static/src/plugins/size_option.xml:0
 msgid "Size"
@@ -2529,6 +3049,7 @@ msgstr "ອຽງ"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/font/font_plugin.js:0
 #: code:addons/html_builder/static/src/plugins/rating_option.xml:0
+#: code:addons/html_builder/static/src/plugins/shadow_option.xml:0
 #: code:addons/html_builder/static/src/plugins/size_option.xml:0
 msgid "Small"
 msgstr "ນ້ອຍ"
@@ -2543,25 +3064,31 @@ msgstr "ຫິມະ"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/border_configurator_option.xml:0
 msgid "Solid"
-msgstr "ເສັ້ນທຶບ"
+msgstr "ຕຶບ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Solids"
-msgstr "ຮູບຊົງທຶບ"
+msgstr "ຮູບຮ່າງຕຶບ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Sonar"
-msgstr "ໂຊນ້າ"
+msgstr "Sonar"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Sonar (R)"
-msgstr "ໂຊນ້າ (R)"
+msgstr "Sonar (R)"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/snippets/snippet_viewer.xml:0
+msgid "Space"
+msgstr "ອາວະກາດ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -2587,85 +3114,85 @@ msgstr "ການກະຈາຍ"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Square (R)"
-msgstr "ສີ່ຫຼ່ຽມ (R)"
+msgstr "Square (R)"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Square 1"
-msgstr "ສີ່ຫຼ່ຽມ 1"
+msgstr "Square 1"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Square 1 (R)"
-msgstr "ສີ່ຫຼ່ຽມ 1 (R)"
+msgstr "Square 1 (R)"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Square 2"
-msgstr "ສີ່ຫຼ່ຽມ 2"
+msgstr "Square 2"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Square 2 (R)"
-msgstr "ສີ່ຫຼ່ຽມ 2 (R)"
+msgstr "Square 2 (R)"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Square 3"
-msgstr "ສີ່ຫຼ່ຽມ 3"
+msgstr "Square 3"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Square 4"
-msgstr "ສີ່ຫຼ່ຽມ 4"
+msgstr "Square 4"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Square 5"
-msgstr "ສີ່ຫຼ່ຽມ 5"
+msgstr "Square 5"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Square 6"
-msgstr "ສີ່ຫຼ່ຽມ 6"
+msgstr "Square 6"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Square Dot 1"
-msgstr "ສີ່ຫຼ່ຽມຈຸດ 1"
+msgstr "Square Dot 1"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Square Dot 2"
-msgstr "ສີ່ຫຼ່ຽມຈຸດ 2"
+msgstr "Square Dot 2"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Square Dot 3"
-msgstr "ສີ່ຫຼ່ຽມຈຸດ 3"
+msgstr "Square Dot 3"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Square Dot 4"
-msgstr "ສີ່ຫຼ່ຽມຈຸດ 4"
+msgstr "Square Dot 4"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Square Line"
-msgstr "ເສັ້ນສີ່ຫຼ່ຽມ"
+msgstr "Square Line"
 
 #. module: html_builder
 #. odoo-javascript
@@ -2683,61 +3210,61 @@ msgstr "ດາວ"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Star 1"
-msgstr "ດາວ 1"
+msgstr "Star 1"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Star 1 (R)"
-msgstr "ດາວ 1 (R)"
+msgstr "Star 1 (R)"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Star 2"
-msgstr "ດາວ 2"
+msgstr "Star 2"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Star 2 (R)"
-msgstr "ດາວ 2 (R)"
+msgstr "Star 2 (R)"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Star 3"
-msgstr "ດາວ 3"
+msgstr "Star 3"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Star 3 (R)"
-msgstr "ດາວ 3 (R)"
+msgstr "Star 3 (R)"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Star 4 (R)"
-msgstr "ດາວ 4 (R)"
+msgstr "Star 4 (R)"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/rating_option.xml:0
 msgid "Stars"
-msgstr "ດາວ"
+msgstr "ດາວຕ່າງໆ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shape_option.xml:0
 msgid "Stretch"
-msgstr "ຍືດ"
+msgstr "ຢືດ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/vertical_alignment_option.xml:0
 msgid "Stretch to Equal Height"
-msgstr "ຍືດໃຫ້ສູງເທົ່າກັນ"
+msgstr "ຢືດໃຫ້ຄວາມສູງເທົ່າກັນ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -2758,31 +3285,37 @@ msgstr "ສຳເລັດ"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Sun"
-msgstr "ຕາເວັນ"
+msgstr "ດວງຕາເວັນ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/font/font_plugin.js:0
 msgid "System Fonts"
-msgstr "ຟອນລະບົບ"
+msgstr "ຟອນຂອງລະບົບ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/snippets/snippet_viewer.xml:0
+msgid "Tab"
+msgstr "ແທັບ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/snippets/add_snippet_dialog.xml:0
 msgid "Take a look at the search bar, there might be a small typo!"
-msgstr "ກະລຸນາກວດເບິ່ງຊ່ອງຄົ້ນຫາ, ອາດຈະມີການພິມຜິດເລັກນ້ອຍ!"
+msgstr "ກວດເບິ່ງແຖບຄົ້ນຫາຄືນ, ອາດມີການພິມຜິດເລັກນ້ອຍ!"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Tear"
-msgstr "ຢອດນ້ຳ"
+msgstr "Tear"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Tear (R)"
-msgstr "ຢອດນ້ຳ (R)"
+msgstr "Tear (R)"
 
 #. module: html_builder
 #. odoo-javascript
@@ -2793,8 +3326,15 @@ msgstr "ເຕຕຣິສ"
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/core/building_blocks/color_picker_theme_tab.xml:0
+#: code:addons/html_builder/static/src/plugins/button_style_option.xml:0
 msgid "Text"
 msgstr "ຂໍ້ຄວາມ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/font/text_effect_selector.xml:0
+msgid "Text Shadow"
+msgstr "ເງົາຂໍ້ຄວາມ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -2807,32 +3347,41 @@ msgstr "ຊື່ທີ່ເລືອກມີຢູ່ແລ້ວ"
 #: code:addons/html_builder/static/src/builder.js:0
 #: code:addons/html_builder/static/src/core/building_blocks/color_picker_theme_tab.js:0
 msgid "Theme"
-msgstr "ຮູບແບບທີມ"
+msgstr "ຮູບແບບສີສັນ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/sidebar/block_tab.xml:0
 #: code:addons/html_builder/static/src/sidebar/custom_inner_snippet.xml:0
 msgid "This block cannot be dropped anywhere on this page."
-msgstr "ບລັອກນີ້ບໍ່ສາມາດວາງລົງບ່ອນໃດກໍໄດ້ໃນໜ້ານີ້."
+msgstr "ບໍ່ສາມາດວາງບລັອກນີ້ໃສ່ບ່ອນໃດກໍໄດ້ໃນໜ້ານີ້."
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/core/building_blocks/builder_fontfamilypicker.js:0
+msgid ""
+"This change will be applied after saving and reloading the page. Are you "
+"sure you want to continue?"
+msgstr ""
+"ການປ່ຽນແປງນີ້ຈະຖືກນຳໃຊ້ຫຼັງຈາກບັນທຶກ ແລະ ໂຫລດໜ້າໃໝ່. ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການສືບຕໍ່?"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/core/building_blocks/builder_fontfamilypicker.xml:0
 msgid "This font is hosted and served to your visitors by Google servers"
-msgstr "ຟອນນີ້ຖືກຈັດເກັບ ແລະ ໃຫ້ບໍລິການແກ່ຜູ້ເຂົ້າຊົມຂອງທ່ານໂດຍເຊີເວີ Google"
+msgstr "ຟອນນີ້ຖືກໂຮສຕ໌ ແລະ ສະໜອງໃຫ້ແກ່ຜູ້ເຂົ້າຊົມຂອງທ່ານໂດຍເຊີບເວີ Google"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/core/version_error_plugin.js:0
 msgid "This snippet is outdated"
-msgstr "Snippet ນີ້ເກົ່າເກີນໄປແລ້ວ"
+msgstr "ສະນິບເພັດນີ້ລ້າສະໄໝແລ້ວ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/rating_option.xml:0
 msgid "Thumbs"
-msgstr "ຮູບໂປ້"
+msgstr "ຮູບຫຍໍ້"
 
 #. module: html_builder
 #. odoo-javascript
@@ -2850,7 +3399,7 @@ msgstr "ຕຳແໜ່ງຫົວຂໍ້"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_tool_option.xml:0
 msgid "Title tag"
-msgstr "Title tag"
+msgstr "ແທັກ Title"
 
 #. module: html_builder
 #. odoo-javascript
@@ -2860,15 +3409,27 @@ msgstr "Toaster"
 
 #. module: html_builder
 #. odoo-javascript
+#: code:addons/html_builder/static/src/core/building_blocks/builder_datetimepicker.js:0
+msgid "Today"
+msgstr "ມື້ນີ້"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/snippets/add_snippet_dialog.xml:0
+msgid "Toggle Mobile Preview"
+msgstr "ສະຫຼັບການເບິ່ງຕົວຢ່າງເທິງມືຖື"
+
+#. module: html_builder
+#. odoo-javascript
 #: code:addons/html_builder/static/src/core/building_blocks/builder_row.xml:0
 msgid "Toggle more options"
-msgstr "ເປີດ/ປິດ ຕົວເລືອກເພີ່ມເຕີມ"
+msgstr "ສະຫຼັບຕົວເລືອກເພີ່ມຕື່ມ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_tool_option.xml:0
 msgid "Tooltip"
-msgstr "ຄຳແນະນຳ"
+msgstr "ຄຳແນະນຳເຄື່ອງມື"
 
 #. module: html_builder
 #. odoo-javascript
@@ -2878,16 +3439,71 @@ msgstr "ເທິງ"
 
 #. module: html_builder
 #. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shape_option.xml:0
 #: code:addons/html_builder/static/src/plugins/image/image_shape_option.xml:0
 #: code:addons/html_builder/static/src/plugins/image/image_tool_option.xml:0
 msgid "Transform"
-msgstr "ປ່ຽນຮູບ"
+msgstr "ແປງຮູບແບບ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_transform_option.xml:0
 msgid "Transform the picture"
-msgstr "ປ່ຽນຮູບພາບ"
+msgstr "ແປງຮູບແບບຂອງຮູບພາບ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Travel"
+msgstr "ການທ່ອງທ່ຽວ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Travel 01"
+msgstr "Travel 01"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Travel 02"
+msgstr "Travel 02"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Travel 03"
+msgstr "Travel 03"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Travel 04"
+msgstr "Travel 04"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Travel 05"
+msgstr "Travel 05"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Travel 06"
+msgstr "Travel 06"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Travel 07"
+msgstr "Travel 07"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
+msgid "Travel 08"
+msgstr "Travel 08"
 
 #. module: html_builder
 #. odoo-javascript
@@ -2899,13 +3515,13 @@ msgstr "ສາມຫຼ່ຽມ"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Triangle (R)"
-msgstr "ສາມຫຼ່ຽມ (R)"
+msgstr "Triangle (R)"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Triangle Line"
-msgstr "ເສັ້ນສາມຫຼ່ຽມ"
+msgstr "Triangle Line"
 
 #. module: html_builder
 #. odoo-javascript
@@ -2923,11 +3539,12 @@ msgstr "Trio Out (R)"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Triple Pill"
-msgstr "ຮູບຊົງຢາສາມຊັ້ນ"
+msgstr "Triple Pill"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/alert_option.xml:0
+#: code:addons/html_builder/static/src/plugins/button_style_option.xml:0
 msgid "Type"
 msgstr "ປະເພດ"
 
@@ -2935,13 +3552,19 @@ msgstr "ປະເພດ"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_tool_option.xml:0
 msgid "Unalign"
-msgstr "ຍົກເລີກການຈັດວາງ"
+msgstr "ຍົກເລີກການຈັດລຽນ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/core/building_blocks/builder_many2one.xml:0
 msgid "Unselect"
 msgstr "ຍົກເລີກການເລືອກ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/core/building_blocks/builder_list.xml:0
+msgid "Update the list with all records and sort it alphabetically"
+msgstr "ອັບເດດລາຍຊື່ດ້ວຍຂໍ້ມູນທັງໝົດ ແລະ ຈັດລຽງຕາມລຳດັບຕົວອັກສອນ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -2954,25 +3577,32 @@ msgstr "Valencia"
 #: code:addons/html_builder/static/src/plugins/vertical_alignment_option.xml:0
 #: code:addons/html_builder/static/src/plugins/vertical_justify_option.xml:0
 msgid "Vert. Alignment"
-msgstr "ການຈັດວາງແນວຕັ້ງ"
+msgstr "ການຈັດລຽນລວງຕັ້ງ"
 
 #. module: html_builder
 #. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/vertical_alignment_option.xml:0
 #: code:addons/html_builder/static/src/plugins/vertical_justify_option.xml:0
 msgid "Vertical Alignment"
-msgstr "ການຈັດວາງແນວຕັ້ງ"
+msgstr "ການຈັດລຽນຕາມລວງຕັ້ງ"
 
 #. module: html_builder
 #. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/background_option/background_shape_option.xml:0
 #: code:addons/html_builder/static/src/plugins/image/image_shape_option.xml:0
-msgid "Vertical mirror"
-msgstr "ສະທ້ອນແນວຕັ້ງ"
+msgid "Vertical flip"
+msgstr "ພິກລວງຕັ້ງ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/utils/utils.js:0
 msgid "Video"
 msgstr "ວິດີໂອ"
+
+#. module: html_builder
+#: model:ir.model,name:html_builder.model_ir_ui_view
+msgid "View"
+msgstr "ເບິ່ງ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -2985,31 +3615,31 @@ msgstr "Walden"
 #: code:addons/html_builder/static/src/plugins/alert_option.xml:0
 #: code:addons/html_builder/static/src/plugins/badge_option.xml:0
 msgid "Warning"
-msgstr "ຄຳເຕືອນ"
+msgstr "ແຈ້ງເຕືອນ"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Wave 1"
-msgstr "ຄື້ນ 1"
+msgstr "Wave 1"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Wave 2"
-msgstr "ຄື້ນ 2"
+msgstr "Wave 2"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Wave 3"
-msgstr "ຄື້ນ 3"
+msgstr "Wave 3"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_shapes_definition.js:0
 msgid "Wave 4"
-msgstr "ຄື້ນ 4"
+msgstr "Wave 4"
 
 #. module: html_builder
 #. odoo-javascript
@@ -3021,91 +3651,91 @@ msgstr "ເປັນຄື້ນ"
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Wavy 01"
-msgstr "ເປັນຄື້ນ 01"
+msgstr "Wavy 01"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Wavy 02"
-msgstr "ເປັນຄື້ນ 02"
+msgstr "Wavy 02"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Wavy 03"
-msgstr "ເປັນຄື້ນ 03"
+msgstr "Wavy 03"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Wavy 04"
-msgstr "ເປັນຄື້ນ 04"
+msgstr "Wavy 04"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Wavy 05"
-msgstr "ເປັນຄື້ນ 05"
+msgstr "Wavy 05"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Wavy 06"
-msgstr "ເປັນຄື້ນ 06"
+msgstr "Wavy 06"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Wavy 07"
-msgstr "ເປັນຄື້ນ 07"
+msgstr "Wavy 07"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Wavy 08"
-msgstr "ເປັນຄື້ນ 08"
+msgstr "Wavy 08"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Wavy 09"
-msgstr "ເປັນຄື້ນ 09"
+msgstr "Wavy 09"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Wavy 10"
-msgstr "ເປັນຄື້ນ 10"
+msgstr "Wavy 10"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Wavy 11"
-msgstr "ເປັນຄື້ນ 11"
+msgstr "Wavy 11"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Wavy 12"
-msgstr "ເປັນຄື້ນ 12"
+msgstr "Wavy 12"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Wavy 13"
-msgstr "ເປັນຄື້ນ 13"
+msgstr "Wavy 13"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_shapes_definition.js:0
 msgid "Wavy 14"
-msgstr "ເປັນຄື້ນ 14"
+msgstr "Wavy 14"
 
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/image_filter_option.js:0
 msgid "WebGL is not enabled on your browser."
-msgstr "WebGL ບໍ່ໄດ້ຖືກເປີດໃຊ້ໃນບຣາວເຊີຂອງທ່ານ."
+msgstr "WebGL ບໍ່ໄດ້ຖືກເປີດໃຊ້ງານໃນບຣາວເຊີຂອງທ່ານ."
 
 #. module: html_builder
 #. odoo-javascript
@@ -3115,11 +3745,23 @@ msgstr "ບຣາວເຊີນີ້ບໍ່ຮອງຮັບການບີ
 
 #. module: html_builder
 #. odoo-javascript
+#: code:addons/html_builder/static/src/utils/utils.js:0
+msgid "Website"
+msgstr "ເວັບໄຊ"
+
+#. module: html_builder
+#. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_position_option.xml:0
 #: code:addons/html_builder/static/src/plugins/separator_option.xml:0
 #: code:addons/html_builder/static/src/plugins/width_option.xml:0
 msgid "Width"
 msgstr "ຄວາມກວ້າງ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/image/image_shape_option.xml:0
+msgid "Will remove the crop factor"
+msgstr "ຈະເອົາຄ່າອັດຕາການຕັດຮູບອອກ"
 
 #. module: html_builder
 #. odoo-javascript
@@ -3135,18 +3777,6 @@ msgstr "Xpro"
 
 #. module: html_builder
 #. odoo-javascript
-#: code:addons/html_builder/static/src/snippets/snippet_service.js:0
-msgid "Yes"
-msgstr "ແມ່ນ"
-
-#. module: html_builder
-#. odoo-javascript
-#: code:addons/html_builder/static/src/core/building_blocks/builder_list.xml:0
-msgid "You don't have any record to add"
-msgstr "ທ່ານບໍ່ມີຂໍ້ມູນໃດໆທີ່ຈະເພີ່ມ"
-
-#. module: html_builder
-#. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/image/replace_media_option.xml:0
 msgid "Your URL"
 msgstr "URL ຂອງທ່ານ"
@@ -3154,8 +3784,21 @@ msgstr "URL ຂອງທ່ານ"
 #. module: html_builder
 #. odoo-javascript
 #: code:addons/html_builder/static/src/plugins/background_option/background_position_option.xml:0
+#: code:addons/html_builder/static/src/plugins/image/media_size_option.xml:0
 msgid "auto"
 msgstr "ອັດຕະໂນມັດ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/core/building_blocks/builder_sliding_panel.xml:0
+msgid "close"
+msgstr "ປິດ"
+
+#. module: html_builder
+#. odoo-javascript
+#: code:addons/html_builder/static/src/plugins/image/replace_media_option.xml:0
+msgid "e.g. /page or URL"
+msgstr "ຕົວຢ່າງ: /page ຫຼື URL"
 
 #. module: html_builder
 #. odoo-javascript
@@ -3255,18 +3898,12 @@ msgstr "ເຄື່ອນໄຫວ"
 
 #. module: html_builder
 #. odoo-javascript
-#: code:addons/html_builder/static/src/plugins/image/replace_media_option.xml:0
-msgid "www.example.com"
-msgstr "www.example.com"
+#: code:addons/html_builder/static/src/snippets/snippet_viewer.xml:0
+msgid "or"
+msgstr "ຫຼື"
 
 #. module: html_builder
 #. odoo-javascript
-#: code:addons/html_builder/static/src/plugins/rating_option.xml:0
-msgid "⌙ Active"
-msgstr "⌙ ເປີດໃຊ້"
-
-#. module: html_builder
-#. odoo-javascript
-#: code:addons/html_builder/static/src/plugins/rating_option.xml:0
-msgid "⌙ Inactive"
-msgstr "⌙ ບໍ່ໄດ້ໃຊ້"
+#: code:addons/html_builder/static/src/snippets/snippet_viewer.xml:0
+msgid "or the arrow keys. Select with"
+msgstr "ຫຼື ປຸ່ມລູກສອນ. ເລືອກດ້ວຍ"

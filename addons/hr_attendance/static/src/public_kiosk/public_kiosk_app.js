@@ -1,38 +1,44 @@
-import { App, whenReady, Component, useState } from "@odoo/owl";
+import { BreakDurationDialog } from "@hr_attendance/components/break_duration_dialog/break_duration_dialog";
 import { CardLayout } from "@hr_attendance/components/card_layout/card_layout";
+import { KioskConfirmation } from "@hr_attendance/components/confirmation/confirmation";
+import { KioskGreetings } from "@hr_attendance/components/greetings/greetings";
+import { KioskBarcodeScanner } from "@hr_attendance/components/kiosk_barcode/kiosk_barcode";
 import { KioskManualSelection } from "@hr_attendance/components/manual_selection/manual_selection";
-import { makeEnv, startServices } from "@web/env";
-import { getTemplate } from "@web/core/templates";
-import { _t, appTranslateFn } from "@web/core/l10n/translation";
+import { NewEmployeeDialog } from "@hr_attendance/components/new_employee_dialog/new_employee_dialog";
+import { KioskPinCode } from "@hr_attendance/components/pin_code/pin_code";
+import { Component, proxy, t, usePlugin, useProps, whenReady } from "@odoo/owl";
+import { browser } from "@web/core/browser/browser";
+import { deserializeDateTime } from "@web/core/l10n/dates";
+import { _t } from "@web/core/l10n/translation";
 import { MainComponentsContainer } from "@web/core/main_components_container";
 import { rpc } from "@web/core/network/rpc";
-import { useService, useBus } from "@web/core/utils/hooks";
+import { useBus, useService } from "@web/core/utils/hooks";
 import { url } from "@web/core/utils/urls";
-import { KioskGreetings } from "@hr_attendance/components/greetings/greetings";
-import { KioskPinCode } from "@hr_attendance/components/pin_code/pin_code";
-import { KioskBarcodeScanner } from "@hr_attendance/components/kiosk_barcode/kiosk_barcode";
-import { browser } from "@web/core/browser/browser";
-import { isIosApp } from "@web/core/browser/feature_detection";
-import { DocumentationLink } from "@web/views/widgets/documentation_link/documentation_link";
-import { NewEmployeeDialog } from "@hr_attendance/components/new_employee_dialog/new_employee_dialog";
+import { mountComponent } from "@web/env";
 import { session } from "@web/session";
+import { DocumentationLink } from "@web/views/widgets/documentation_link/documentation_link";
+import { BarcodePlugin } from "@barcodes/barcode_plugin";
 
-class kioskAttendanceApp extends Component{
+class kioskAttendanceApp extends Component {
     static template = "hr_attendance.public_kiosk_app";
-    static props = {
-        token: { type: String },
-        companyId: { type: Number },
-        companyName: { type: String },
-        departments: { type: Array },
-        kioskMode: { type: String },
-        barcodeSource: { type: String },
-        fromTrialMode: { type: Boolean },
-        deviceTrackingEnabled: { type: Boolean },
-    };
+
+    props = useProps({
+        token: t.string(),
+        companyId: t.number(),
+        companyName: t.string(),
+        departments: t.array(),
+        kioskMode: t.string(),
+        barcodeSource: t.string(),
+        fromTrialMode: t.boolean(),
+        deviceTrackingEnabled: t.boolean(),
+        captureCheckInImage: t.boolean(),
+        lang: { type: String },
+    });
     static components = {
         KioskBarcodeScanner,
         CardLayout,
         KioskManualSelection,
+        KioskConfirmation,
         KioskGreetings,
         KioskPinCode,
         MainComponentsContainer,
@@ -41,33 +47,42 @@ class kioskAttendanceApp extends Component{
 
     setup() {
         this.dialogService = useService("dialog");
-        this.barcode = useService("barcode");
+        this.barcode = usePlugin(BarcodePlugin);
         this.notification = useService("notification");
         this.ui = useService("ui");
         this.companyImageUrl = url("/web/binary/company_logo", {
             company: this.props.companyId,
         });
-        this.state = useState({
+        this.state = proxy({
             active_display: "settings",
-            displayDemoMessage: browser.localStorage.getItem("hr_attendance.ShowDemoMessage") !== "false",
+            displayDemoMessage:
+                browser.localStorage.getItem("hr_attendance.ShowDemoMessage") !== "false",
+            streamAvailable: false,
+            kioskMode: this.props.kioskMode,
         });
         this.lockScanner = false;
-        if (this.props.kioskMode === 'settings' || this.props.fromTrialMode){
+        this.cameraCapture = null;
+        this.lastIdentification = null;
+        if (this.state.kioskMode === "settings" || this.props.fromTrialMode) {
             this.manualKioskMode = false;
-            useBus(this.barcode.bus, "barcode_scanned", (ev) => this.onBarcodeScanned(ev.detail.barcode));
-        }
-        else if (this.props.kioskMode !== 'manual') {
-            useBus(this.barcode.bus, "barcode_scanned", (ev) => this.onBarcodeScanned(ev.detail.barcode));
+            useBus(this.barcode.bus, "barcode_scanned", (ev) =>
+                this.onBarcodeScanned(ev.detail.barcode)
+            );
+        } else if (this.state.kioskMode !== "manual") {
+            useBus(this.barcode.bus, "barcode_scanned", (ev) =>
+                this.onBarcodeScanned(ev.detail.barcode)
+            );
             this.state.active_display = "main";
             this.manualKioskMode = false;
         } else {
             this.manualKioskMode = true;
             this.state.active_display = "manual";
         }
+        luxon.Settings.defaultLocale = this.props.lang;
     }
 
     switchDisplay(screen) {
-        const displays = ["main", "greet", "manual", "pin", "settings"];
+        const displays = ["main", "greet", "manual", "confirmation", "pin", "settings"];
         if (displays.includes(screen)) {
             this.state.active_display = screen;
         } else {
@@ -76,7 +91,7 @@ class kioskAttendanceApp extends Component{
     }
 
     newSetUp() {
-        this.dialogService.add(NewEmployeeDialog, { 'token': this.props.token });
+        this.dialogService.add(NewEmployeeDialog, { token: this.props.token });
     }
 
     async setSetting(mode) {
@@ -84,58 +99,75 @@ class kioskAttendanceApp extends Component{
             token: this.props.token,
             mode: mode,
         });
-        this.props.kioskMode = mode;
+        this.state.kioskMode = mode;
         if (mode !== "manual") {
             this.manualKioskMode = false;
             this.state.active_display = "main";
-            this.props.kioskMode = mode;
         } else {
             this.manualKioskMode = true;
             this.state.active_display = "manual";
-            this.props.kioskMode = "manual";
         }
     }
 
-    async kioskConfirm(employeeId){
-        const employee = await rpc('attendance_employee_data',
-            {
-                'token': this.props.token,
-                'employee_id': employeeId
-            })
-        if (employee && employee.employee_name){
-            if (employee.use_pin){
-                this.employeeData = employee
-                this.switchDisplay('pin')
-            }else{
-                await this.onManualSelection(employeeId, false)
+    async fetchEmployeeData(employeeId) {
+        const employee = await rpc("attendance_employee_data", {
+            token: this.props.token,
+            employee_id: employeeId,
+        });
+        if (employee && employee.employee_name) {
+            this.employeeData = employee;
+            return employee;
+        }
+        return null;
+    }
+
+    async kioskEmployeeSelected(employeeId) {
+        const employee = await this.fetchEmployeeData(employeeId);
+        if (employee) {
+            if (employee.use_pin) {
+                this.switchDisplay("pin");
+            } else {
+                this.switchDisplay("confirmation");
             }
         }
     }
 
     kioskReturn() {
-        if (this.state.active_display === "settings"){
+        if (this.state.active_display === "settings") {
             history.back();
+        } else if (["confirmation", "pin", "greet"].includes(this.state.active_display)) {
+            this.switchDisplay(
+                ["barcode_manual", "barcode"].includes(this.state.kioskMode) ? "main" : "manual"
+            );
         } else if (
-            (["manual", "barcode"].includes(this.props.kioskMode) ||
-                (this.props.kioskMode === "barcode_manual" &&
+            (["manual", "barcode"].includes(this.state.kioskMode) ||
+                (this.state.kioskMode === "barcode_manual" &&
                     this.state.active_display === "main")) &&
             this.props.fromTrialMode
         ) {
             this.switchDisplay("settings");
-        } else if (this.props.kioskMode === 'manual') {
+        } else if (this.state.kioskMode === "manual") {
             this.switchDisplay("manual");
         } else {
             this.switchDisplay("main");
         }
     }
 
-    displayNotification(text){
+    displayNotification(text) {
         this.notification.add(text, { type: "danger" });
     }
 
+    displayServerNotification(notification) {
+        if (!notification?.message) {
+            return;
+        }
+        this.notification.add(notification.message, {
+            type: notification.type,
+        });
+    }
+
     async makeRpcWithGeolocation(route, params) {
-        if (!this.props.deviceTrackingEnabled || !navigator.geolocation || isIosApp()) {
-            // iOS app lacks permissions or tracking disabled
+        if (!this.props.deviceTrackingEnabled || !navigator.geolocation) {
             return rpc(route, { ...params });
         }
 
@@ -151,7 +183,7 @@ class kioskAttendanceApp extends Component{
                 },
                 async (err) => {
                     const result = await rpc(route, {
-                        ...params
+                        ...params,
                     });
                     resolve(result);
                 },
@@ -161,38 +193,51 @@ class kioskAttendanceApp extends Component{
     }
 
     async onManualSelection(employeeId, enteredPin) {
-        const result = await this.makeRpcWithGeolocation('manual_selection',
-            {
-                'token': this.props.token,
-                'employee_id': employeeId,
-                'pin_code': enteredPin
-            })
+        const checkInImage = await this.cameraCapture?.();
+        const result = await this.makeRpcWithGeolocation("manual_selection", {
+            token: this.props.token,
+            employee_id: employeeId,
+            pin_code: enteredPin,
+            check_in_image: checkInImage,
+        });
         if (result && result.attendance) {
-            this.employeeData = result
-            this.switchDisplay('greet')
-        }else{
-            if (enteredPin){
-                this.displayNotification(_t("Wrong Pin"))
+            this.lastIdentification = {
+                employeeId,
+                params: { employee_id: employeeId, pin_code: enteredPin },
+            };
+            this.employeeData = result;
+            this.displayServerNotification(result.notification);
+            this.switchDisplay("greet");
+        } else {
+            if (enteredPin) {
+                this.displayNotification(_t("Wrong Pin"));
             }
         }
     }
 
-    async onBarcodeScanned(barcode){
-        if (this.lockScanner || this.state.active_display !== 'main') {
+    async onBarcodeScanned(barcode) {
+        if (this.lockScanner || this.state.active_display !== "main") {
             return;
         }
+        const checkInImage = await this.cameraCapture?.();
         this.lockScanner = true;
         this.ui.block();
 
         let result;
         try {
-            result = await rpc("attendance_barcode_scanned", {
+            result = await this.makeRpcWithGeolocation('attendance_barcode_scanned',{
                 barcode: barcode,
                 token: this.props.token,
+                check_in_image: checkInImage,
             });
 
             if (result && result.employee_name) {
+                this.lastIdentification = {
+                    employeeId: result.id,
+                    params: { barcode },
+                };
                 this.employeeData = result;
+                this.displayServerNotification(result.notification);
                 this.switchDisplay("greet");
             } else {
                 this.displayNotification(
@@ -207,36 +252,100 @@ class kioskAttendanceApp extends Component{
         }
     }
 
+    continueAsBreakTime() {
+        const employee = this.employeeData;
+        if (!employee?.id) {
+            this.kioskReturn();
+            return;
+        }
+
+        this.dialogService.add(
+            BreakDurationDialog,
+            {
+                employeeName: employee.employee_name,
+                maxMinutes: this.attendanceDurationInMinutes(employee.attendance),
+                onConfirm: (minutes) => this.saveBreakDuration(employee, minutes),
+            },
+            {
+                onClose: () => this.kioskReturn(),
+            }
+        );
+    }
+
+    attendanceDurationInMinutes(attendance) {
+        if (!attendance?.check_in || !attendance?.check_out) {
+            return undefined;
+        }
+        const checkIn = deserializeDateTime(attendance.check_in);
+        const checkOut = deserializeDateTime(attendance.check_out);
+        return Math.floor(checkOut.diff(checkIn).as("minutes"));
+    }
+
+    async saveBreakDuration(employee, minutes) {
+        this.ui.block();
+        try {
+            const identificationParams =
+                this.lastIdentification?.employeeId === employee.id
+                    ? this.lastIdentification.params
+                    : { employee_id: employee.id };
+            const result = await rpc("update_break_duration", {
+                token: this.props.token,
+                ...identificationParams,
+                attendance_id: employee.attendance.id,
+                break_duration: minutes / 60,
+            });
+
+            if (!result?.attendance) {
+                // No duration would go through: let the dialog close so that the
+                // employee can identify again.
+                this.displayNotification(
+                    _t("Could not save break duration. Please identify again.")
+                );
+                return true;
+            }
+            this.employeeData = result;
+            this.displayServerNotification(result.notification);
+            return true;
+        } catch (error) {
+            this.displayNotification(error?.data?.message || error?.message);
+            return false;
+        } finally {
+            this.ui.unblock();
+        }
+    }
+
     removeDemoMessage() {
         this.state.displayDemoMessage = false;
         browser.localStorage.setItem("hr_attendance.ShowDemoMessage", "false");
         return;
     }
+
+    setCameraCapture(capturePicture) {
+        this.cameraCapture = capturePicture;
+    }
+
+    setStreamAvailable(isAvailable) {
+        this.state.streamAvailable = isAvailable;
+    }
 }
 
 export async function createPublicKioskAttendance(document, kiosk_backend_info) {
     await whenReady();
-    const env = makeEnv();
-    await startServices(env);
     session.server_version_info = kiosk_backend_info.server_version_info;
-    const app = new App(kioskAttendanceApp, {
-        getTemplate,
-        env: env,
-        props:
-            {
-                token : kiosk_backend_info.token,
-                companyId: kiosk_backend_info.company_id,
-                companyName: kiosk_backend_info.company_name,
-                departments: kiosk_backend_info.departments,
-                kioskMode: kiosk_backend_info.kiosk_mode,
-                barcodeSource: kiosk_backend_info.barcode_source,
-                fromTrialMode: kiosk_backend_info.from_trial_mode,
-                deviceTrackingEnabled: kiosk_backend_info.device_tracking_enabled,
-            },
-        dev: env.debug,
-        translateFn: appTranslateFn,
-        translatableAttributes: ["data-tooltip"],
+    await mountComponent(kioskAttendanceApp, document.body, {
+        name: "Kiosk Attendance",
+        props: {
+            token: kiosk_backend_info.token,
+            companyId: kiosk_backend_info.company_id,
+            companyName: kiosk_backend_info.company_name,
+            departments: kiosk_backend_info.departments,
+            kioskMode: kiosk_backend_info.kiosk_mode,
+            barcodeSource: kiosk_backend_info.barcode_source,
+            fromTrialMode: kiosk_backend_info.from_trial_mode,
+            deviceTrackingEnabled: kiosk_backend_info.device_tracking_enabled,
+            captureCheckInImage: kiosk_backend_info.capture_check_in_image,
+            lang: kiosk_backend_info.lang,
+        },
     });
-    return app.mount(document.body);
 }
 export default { kioskAttendanceApp, createPublicKioskAttendance };

@@ -13,10 +13,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-11-08 17:48+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Czech <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-11 17:44+0000\n"
+"PO-Revision-Date: 2026-08-31 18:59+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Czech <https://translate.odoo.com/projects/odoo-s19-4/"
 "website_slides_survey/cs/>\n"
 "Language: cs\n"
 "MIME-Version: 1.0\n"
@@ -24,7 +24,7 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n "
 "<= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_slide_channel__members_certified_count
@@ -36,15 +36,6 @@ msgstr ""
 #: code:addons/website_slides_survey/models/survey_survey.py:0
 msgid "- %(certification)s (Courses - %(courses)s)"
 msgstr "- %(certification)s (Kurzy - %(courses)s)"
-
-#. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_survey_view_kanban
-msgid ""
-"<br/>\n"
-"                        <span class=\"text-muted\">Courses</span>"
-msgstr ""
-"<br/>\n"
-"                        <span class=\"text-muted\">Kurzy</span>"
 
 #. module: website_slides_survey
 #: model:mail.template,body_html:website_slides_survey.mail_template_user_input_certification_failed
@@ -74,58 +65,68 @@ msgid ""
 msgstr ""
 
 #. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
-msgid "<i class=\"fa fa-arrow-right\"/> Get Certified"
-msgstr ""
-
-#. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
-msgid ""
-"<i class=\"fa fa-download\" aria-label=\"Download certification\" "
-"title=\"Download Certification\"/>"
-msgstr ""
-"<i class=\"fa fa-download\" aria-label=\"Download certification\" "
-"title=\"Download Certification\"/>"
-
-#. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.slide_content_detailed
-msgid ""
-"<i class=\"fa fa-fw fa-trophy\" role=\"img\" aria-label=\"Download "
-"certification\" title=\"Download certification\"/> Download certification"
+msgid "<i class=\"oi me-1\" data-icon=\"east\"/>Add Questions to this Survey"
 msgstr ""
-"<i class=\"fa fa-fw fa-trophy\" role=\"img\" aria-label=\"Download "
-"certification\" title=\"Download certification\"/> Stáhnout certifikaci"
+
+#. module: website_slides_survey
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
+msgid "<i class=\"oi me-1\" data-icon=\"east\"/>All Certifications"
+msgstr ""
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_fill_form_done_inherit_website_slides
 msgid ""
-"<i class=\"fa fa-share-alt\" aria-label=\"Share certification\" "
-"title=\"Share certification\"/>\n"
-"                        Share your certification"
+"<i class=\"oi me-2\" data-icon=\"chevron_backward\" aria-hidden=\"true\"/>Go "
+"back to course"
 msgstr ""
-"<i class=\"fa fa-share-alt\" aria-label=\"Share certification\" "
-"title=\"Share certification\"/>\n"
-"                         Sdílejte svou certifikaci"
 
 #. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
-msgid "<i class=\"fa fa-share-alt\" aria-label=\"Share\" title=\"Share\"/>"
-msgstr "<i class=\"fa fa-share-alt\" aria-label=\"Share\" title=\"Share\"/>"
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_fill_form_done_inherit_website_slides
+msgid ""
+"<i class=\"oi oi-filled d-none d-md-inline\" data-icon=\"share\" aria-"
+"label=\"Share certification\" title=\"Share certification\"/>\n"
+"                        <span class=\"d-md-none\">Share certification</span>"
+msgstr ""
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.slide_content_detailed
-msgid "<i class=\"oi oi-arrow-right me-1\"/>Add Questions to this Survey"
+msgid ""
+"<i class=\"oi oi-fw oi-filled\" data-icon=\"trophy\" role=\"img\" aria-"
+"label=\"Download certification\" title=\"Download certification\"/> Download "
+"certification"
+msgstr ""
+"<i class=\"oi oi-fw oi-filled\" data-icon=\"trophy\" role=\"img\" aria-"
+"label=\"Download certification\" title=\"Download certification\"/> Stáhnout "
+"certifikaci"
+
+#. module: website_slides_survey
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
+msgid "<i class=\"oi\" data-icon=\"arrow_forward\"/> Get Certified"
 msgstr ""
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
-msgid "<i class=\"oi oi-arrow-right me-1\"/>All Certifications"
+msgid ""
+"<i class=\"oi\" data-icon=\"download\" aria-label=\"Download certification\" "
+"title=\"Download Certification\"/>"
 msgstr ""
+"<i class=\"oi\" data-icon=\"download\" aria-label=\"Download certification\" "
+"title=\"Download Certification\"/>"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.user_profile_content
-msgid "<i class=\"oi oi-arrow-right\"/> See Certifications"
+msgid "<i class=\"oi\" data-icon=\"east\"/> See Certifications"
 msgstr ""
+
+#. module: website_slides_survey
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
+msgid ""
+"<i class=\"oi\" data-icon=\"family_history\" aria-label=\"Share\" "
+"title=\"Share\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"family_history\" aria-label=\"Share\" "
+"title=\"Share\"/>"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.badge_content
@@ -153,9 +154,15 @@ msgid "<span class=\"text-muted\">Certifications</span>"
 msgstr "<span class=\"text-muted\">Certifikace</span>"
 
 #. module: website_slides_survey
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_survey_view_kanban
+msgid "<span>Courses</span>"
+msgstr ""
+
+#. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.course_main
 msgid ""
-"<span>Start Now</span><i class=\"oi oi-chevron-right ms-2 align-middle\"/>"
+"<span>Start Now</span><i class=\"oi ms-2 align-middle\" data-"
+"icon=\"chevron_forward\"/>"
 msgstr ""
 
 #. module: website_slides_survey
@@ -179,12 +186,17 @@ msgstr "Přidat certifikaci"
 #. odoo-javascript
 #: code:addons/website_slides_survey/static/src/xml/website_slides_fullscreen.xml:0
 msgid "Add Questions to this Survey"
-msgstr "Přidat otázky do tohoto průzkumu"
+msgstr ""
 
 #. module: website_slides_survey
 #: model_terms:ir.actions.act_window,help:website_slides_survey.slide_slide_action_certification
 msgid "Add a new certification"
 msgstr "Přidat novou certifikaci"
+
+#. module: website_slides_survey
+#: model:ir.module.module,summary:base.module_website_slides_survey
+msgid "Add certification capabilities to your courses"
+msgstr ""
 
 #. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_slide_slide__is_preview
@@ -352,6 +364,11 @@ msgid "Course"
 msgstr "Kurz"
 
 #. module: website_slides_survey
+#: model:ir.module.module,shortdesc:base.module_website_slides_survey
+msgid "Course Certifications"
+msgstr ""
+
+#. module: website_slides_survey
 #. odoo-python
 #: code:addons/website_slides_survey/models/survey_survey.py:0
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_survey_view_form
@@ -409,11 +426,6 @@ msgstr "Nábytek"
 #: model:survey.survey,title:website_slides_survey.furniture_certification
 msgid "Furniture Creation Certification"
 msgstr "Certifikace tvorby nábytku"
-
-#. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_fill_form_done_inherit_website_slides
-msgid "Go back to course"
-msgstr "Zpět na kurz"
 
 #. module: website_slides_survey
 #. odoo-javascript
@@ -536,6 +548,11 @@ msgid "Shelf"
 msgstr "Police"
 
 #. module: website_slides_survey
+#: model:ir.model,name:website_slides_survey.model_slide_slide
+msgid "Slide"
+msgstr ""
+
+#. module: website_slides_survey
 #: model:ir.model,name:website_slides_survey.model_slide_slide_partner
 msgid "Slide / Partner decorated m2m"
 msgstr "Snímek / Partner jako m2m"
@@ -549,11 +566,6 @@ msgstr "Typ slidu"
 #: model:ir.model.fields,help:website_slides_survey.field_survey_user_input__slide_partner_id
 msgid "Slide membership information for the logged in user"
 msgstr "Informace o členství snímku pro přihlášeného uživatele"
-
-#. module: website_slides_survey
-#: model:ir.model,name:website_slides_survey.model_slide_slide
-msgid "Slides"
-msgstr "Prezentace"
 
 #. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_survey_user_input__slide_partner_id
@@ -641,6 +653,13 @@ msgstr ""
 "learning"
 
 #. module: website_slides_survey
+#: model:ir.module.module,description:base.module_website_slides_survey
+msgid ""
+"This module lets you use the full power of certifications within your "
+"courses."
+msgstr ""
+
+#. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_slide_slide__name
 msgid "Title"
 msgstr "Název"
@@ -702,25 +721,8 @@ msgid "You have not taken any certification yet."
 msgstr "Ještě jste nezískali žádnou certifikaci."
 
 #~ msgid ""
-#~ "<span class=\"o_stat_text\" attrs=\"{'invisible': [('nbr_certification', "
-#~ "'&gt;', 0)]}\">Finished</span>\n"
-#~ "                <span class=\"o_stat_text\" attrs=\"{'invisible': "
-#~ "[('nbr_certification', '=', 0)]}\">Certified</span>"
+#~ "<br/>\n"
+#~ "                        <span class=\"text-muted\">Courses</span>"
 #~ msgstr ""
-#~ "<span class=\"o_stat_text\" attrs=\"{'invisible': [('nbr_certification', "
-#~ "'&gt;', 0)]}\">Hotovo</span>\n"
-#~ "                <span class=\"o_stat_text\" attrs=\"{'invisible': "
-#~ "[('nbr_certification', '=', 0)]}\">Certifikováno</span>"
-
-#~ msgid "<span class=\"text-muted\">Certified</span>"
-#~ msgstr "<span class=\"text-muted\">Certifikováno</span>"
-
-#~ msgid "<span class=\"text-muted\">Finished</span>"
-#~ msgstr "<span class=\"text-muted\">Hotovo</span>"
-
-#~ msgid ""
-#~ "You can create your certification from here or use an existing one. Once "
-#~ "your certification is created, you can still edit it in backend."
-#~ msgstr ""
-#~ "Svou certifikaci můžete vytvořit odtud nebo použít stávající. Jakmile je "
-#~ "vaše certifikace vytvořena, můžete ji v backendu stále upravovat."
+#~ "<br/>\n"
+#~ "                        <span class=\"text-muted\">Kurzy</span>"

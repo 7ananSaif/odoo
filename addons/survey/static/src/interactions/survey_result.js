@@ -1,7 +1,7 @@
 import { Interaction } from "@web/public/interaction";
 import { registry } from "@web/core/registry";
 import { redirect } from "@web/core/utils/urls";
-import { getActiveHotkey } from "@web/core/hotkeys/hotkey_service";
+import { getActiveHotkey } from "@web/core/hotkeys/hotkey_utils";
 
 export class SurveyResult extends Interaction {
     static selector = ".o_survey_result";
@@ -9,6 +9,7 @@ export class SurveyResult extends Interaction {
     dynamicContent = {
         ".o_survey_results_topbar_clear_filters": { "t-on-click": this.onClearFiltersClick },
         ".o_survey_results_data_tab:not(.active)": { "t-on-click": this.updateContent },
+        ".pagination_wrapper": { "t-on-click": this.updateContent },
         ".filter-add-answer": { "t-on-click": this.onFilterAddAnswerClick },
         "i.filter-remove-answer": { "t-on-click": this.onFilterRemoveAnswerClick },
         "a.filter-finished-or-not": { "t-on-click": this.onFilterFinishedOrNotClick },

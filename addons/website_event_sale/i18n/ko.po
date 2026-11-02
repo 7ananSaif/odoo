@@ -7,22 +7,30 @@
 # Sarah Park, 2023
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
-# "Kwanghee Park (kwpa)" <kwpa@odoo.com>, 2025.
+# "Kwanghee Park (kwpa)" <kwpa@odoo.com>, 2025, 2026.
+# Weblate <noreply-mt-weblate@weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-15 17:36+0000\n"
-"PO-Revision-Date: 2025-11-17 19:01+0000\n"
-"Last-Translator: \"Kwanghee Park (kwpa)\" <kwpa@odoo.com>\n"
-"Language-Team: Korean <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 18:22+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Korean <https://translate.odoo.com/projects/odoo-s19-4/"
 "website_event_sale/ko/>\n"
 "Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: website_event_sale
+#: model:ir.module.module,description:base.module_website_event_sale
+msgid ""
+"\n"
+"Sell event tickets through eCommerce app.\n"
+msgstr ""
 
 #. module: website_event_sale
 #: model_terms:ir.ui.view,arch_db:website_event_sale.event_confirmation
@@ -36,17 +44,17 @@ msgstr "<b>시작</b>"
 
 #. module: website_event_sale
 #: model_terms:ir.ui.view,arch_db:website_event_sale.event_confirmation
-msgid "<i class=\"fa fa-check me-2\" role=\"img\"/>Registered"
-msgstr ""
+msgid "<i class=\"oi me-2\" data-icon=\"check\" role=\"img\"/>Registered"
+msgstr "<i class=\"oi me-2\" data-icon=\"check\" role=\"img\"/>등록됨"
 
 #. module: website_event_sale
 #: model_terms:ir.ui.view,arch_db:website_event_sale.registration_attendee_details
 msgid ""
 "<span>Sign In</span>\n"
-"                <span class=\"fa fa-sign-in\"/>"
+"                <span class=\"oi\" data-icon=\"login\"/>"
 msgstr ""
 "<span>로그인</span>\n"
-"                <span class=\"fa fa-sign-in\"/>"
+"                <span class=\"oi\" data-icon=\"login\"/>"
 
 #. module: website_event_sale
 #. odoo-python
@@ -59,21 +67,12 @@ msgstr ""
 "이 행사 티켓 상품에는 수량을 적용할 수 없습니다."
 
 #. module: website_event_sale
-#. odoo-python
-#: code:addons/website_event_sale/models/product_pricelist.py:0
-msgid ""
-"A pricelist item with a positive min. quantity will not be applied to the "
-"event tickets products."
-msgstr ""
-"최소값이 양수인 가격표 항목\n"
-"이 행사 티켓 제품에는 수량을 적용할 수 없습니다."
-
-#. module: website_event_sale
 #: model_terms:ir.ui.view,arch_db:website_event_sale.registration_attendee_details
 msgid "Confirm Registration"
 msgstr "등록 확인"
 
 #. module: website_event_sale
+#: model:ir.model.fields,field_description:website_event_sale.field_event_event__display_name
 #: model:ir.model.fields,field_description:website_event_sale.field_event_event_ticket__display_name
 #: model:ir.model.fields,field_description:website_event_sale.field_event_sale_report__display_name
 #: model:ir.model.fields,field_description:website_event_sale.field_product_pricelist_item__display_name
@@ -83,6 +82,11 @@ msgstr "등록 확인"
 #: model:ir.model.fields,field_description:website_event_sale.field_sale_order_line__display_name
 msgid "Display Name"
 msgstr "표시명"
+
+#. module: website_event_sale
+#: model:ir.model,name:website_event_sale.model_event_event
+msgid "Event"
+msgstr ""
 
 #. module: website_event_sale
 #: model:ir.model,name:website_event_sale.model_event_sale_report
@@ -96,8 +100,9 @@ msgstr "행사 부제"
 
 #. module: website_event_sale
 #: model:ir.model,name:website_event_sale.model_event_event_ticket
+#, fuzzy
 msgid "Event Ticket"
-msgstr ""
+msgstr "행사 티켓"
 
 #. module: website_event_sale
 #: model:ir.model.fields,field_description:website_event_sale.field_product_product__event_ticket_ids
@@ -125,6 +130,7 @@ msgid "Go to Payment"
 msgstr "결제로 이동"
 
 #. module: website_event_sale
+#: model:ir.model.fields,field_description:website_event_sale.field_event_event__id
 #: model:ir.model.fields,field_description:website_event_sale.field_event_event_ticket__id
 #: model:ir.model.fields,field_description:website_event_sale.field_event_sale_report__id
 #: model:ir.model.fields,field_description:website_event_sale.field_product_pricelist_item__id
@@ -134,6 +140,11 @@ msgstr "결제로 이동"
 #: model:ir.model.fields,field_description:website_event_sale.field_sale_order_line__id
 msgid "ID"
 msgstr "ID"
+
+#. module: website_event_sale
+#: model:ir.module.module,shortdesc:base.module_website_event_sale
+msgid "Online Event Ticketing"
+msgstr ""
 
 #. module: website_event_sale
 #: model:ir.model,name:website_event_sale.model_product_pricelist_item
@@ -167,6 +178,11 @@ msgid "Sales Order Line"
 msgstr "판매 주문 내역"
 
 #. module: website_event_sale
+#: model:ir.module.module,summary:base.module_website_event_sale
+msgid "Sell event tickets online"
+msgstr ""
+
+#. module: website_event_sale
 #. odoo-python
 #: code:addons/website_event_sale/models/sale_order.py:0
 msgid "Sorry, The %(ticket)s tickets for the %(event)s event are sold out."
@@ -175,10 +191,13 @@ msgstr "죄송합니다. %(event)s행사 %(ticket)s티켓은 매진되었습니�
 #. module: website_event_sale
 #. odoo-python
 #: code:addons/website_event_sale/models/sale_order.py:0
+#, fuzzy
 msgid ""
 "Sorry, only %(remaining_seats)d seats are still available for the %(ticket)s "
 "ticket for the %(event)s event%(slot)s."
 msgstr ""
+"죄송합니다. %(event)s 행사 %(slot)s 에서 %(ticket)s 티켓의 잔여 좌석은 %"
+"(remaining_seats)d 석입니다."
 
 #. module: website_event_sale
 #. odoo-python
@@ -189,8 +208,9 @@ msgstr "제공한 티켓이 존재하지 않습니다"
 #. module: website_event_sale
 #. odoo-python
 #: code:addons/website_event_sale/models/sale_order.py:0
+#, fuzzy
 msgid "The provided ticket slot doesn't exist"
-msgstr ""
+msgstr "제공된 티켓 슬롯이 없습니다."
 
 #. module: website_event_sale
 #. odoo-python
@@ -214,13 +234,3 @@ msgstr "장바구니에서 행사 티켓 수량을 올릴 수 없습니다."
 #: model_terms:ir.ui.view,arch_db:website_event_sale.modal_ticket_registration
 msgid "to"
 msgstr "종료"
-
-#~ msgid ""
-#~ "Sorry, only %(remaining_seats)d seats are still available for the %"
-#~ "(ticket)s ticket for the %(event)s event."
-#~ msgstr ""
-#~ "죄송합니다. %(event)s행사 %(ticket)s티켓에 남아있는 좌석 수는 %"
-#~ "(remaining_seats)d 남았습니다."
-
-#~ msgid "Website"
-#~ msgstr "웹사이트"

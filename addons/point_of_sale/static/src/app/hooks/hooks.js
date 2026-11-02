@@ -1,74 +1,18 @@
-import { _t } from "@web/core/l10n/translation";
-import { ConfirmationDialog, AlertDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
-import { ErrorDialog } from "@web/core/errors/error_dialogs";
-import {
-    useEnv,
-    onMounted,
-    onPatched,
-    useComponent,
-    useRef,
-    useState,
-    useExternalListener,
-} from "@odoo/owl";
-import { KeepLast } from "@web/core/utils/concurrency";
+import { onMounted, onPatched, proxy, signal, useListener } from "@odoo/owl";
 import { ConnectionLostError } from "@web/core/network/rpc";
+import { KeepLast } from "@web/core/utils/concurrency";
 
 /**
- * Introduce error handlers in the component.
+ * Focuses the last input inside the given root element.
  *
- * IMPROVEMENT: This is a terrible hook. There could be a better way to handle
- * the error when the order failed to sync.
- * FIXME POSREF: move this to the error_handler registry.
+ * @param {() => HTMLElement | null} rootRef an Owl 3 signal ref to the root
+ *  element containing the inputs.
  */
-export function useErrorHandlers() {
-    const component = useComponent();
-    const dialog = useEnv().services.dialog;
-
-    component._handlePushOrderError = async function (error) {
-        // This error handler receives `error` equivalent to `error.message` of the rpc error.
-        if (error.message === "Backend Invoice") {
-            dialog.add(ConfirmationDialog, {
-                title: _t("Please print the invoice from the backend"),
-                body:
-                    _t(
-                        "The order has been synchronized earlier. Please make the invoice from the backend for the order: "
-                    ) + error.data.order.name,
-            });
-        } else if (error.code < 0) {
-            // XmlHttpRequest Errors
-            dialog.add(ConfirmationDialog, {
-                title: _t("Unable to sync order"),
-                body: _t(
-                    "Check the internet connection then try to sync again by clicking on the red wifi button (upper right of the screen)."
-                ),
-            });
-        } else if (error.data) {
-            // OpenERP Server Errors
-            dialog.add(ErrorDialog, {
-                traceback:
-                    error.data.debug.status.message_body ||
-                    _t("The server encountered an error while receiving your order."),
-            });
-        } else {
-            // ???
-            await dialog.add(AlertDialog, {
-                title: _t("Unknown Error"),
-                body: _t("The order could not be sent to the server due to an unknown error"),
-                showReloadButton: true,
-            });
-        }
-    };
-}
-
-/**
- * Assumes t-ref="root" in the root element of the component that uses this hook.
- */
-export function useAutoFocusToLast() {
-    const root = useRef("root");
+export function useAutoFocusToLast(rootRef) {
     let target = null;
     function autofocus() {
         const prevTarget = target;
-        const allInputs = root.el.querySelectorAll("input");
+        const allInputs = rootRef().querySelectorAll("input");
         target = allInputs[allInputs.length - 1];
         if (target && target !== prevTarget) {
             target.focus();
@@ -80,7 +24,6 @@ export function useAutoFocusToLast() {
 }
 
 export function useAsyncLockedMethod(method) {
-    const component = useComponent();
     let called = false;
     return async (...args) => {
         if (called) {
@@ -88,7 +31,7 @@ export function useAsyncLockedMethod(method) {
         }
         try {
             called = true;
-            return await method.call(component, ...args);
+            return await method(...args);
         } finally {
             called = false;
         }
@@ -102,7 +45,7 @@ export function useAsyncLockedMethod(method) {
  * ```js
  * {
  *   // inside in a component
- *   this.doPrint = useTrackedAsync(() => this.printReceipt())
+ *   this.doPrint = useTrackedAsync(() => this.printOrderReceipt())
  *   this.doPrint.status === 'idle'
  *   this.doPrint.call() // triggers the given async function
  *   this.doPrint.status === 'loading'
@@ -120,7 +63,7 @@ export function useTrackedAsync(asyncFn, options = {}) {
      * lastArgs: any[]
      * }}
      */
-    const state = useState({
+    const state = proxy({
         status: "idle",
         result: null,
         lastArgs: null,
@@ -167,50 +110,48 @@ export function useTrackedAsync(asyncFn, options = {}) {
     };
 }
 
-export function useIsChildLarger(container) {
-    const state = useState({
-        isLarger: false,
-        maxItems: 0,
-    });
+export function useIsChildLarger(containerRef) {
+    const isLarger = signal(false);
+    const maxItems = signal(0);
 
     const computeSize = () => {
-        if (!container.el || !container.el.children.length) {
+        const el = containerRef();
+        if (!el || !el.children.length) {
             return;
         }
 
         let acc = 0;
         let nbrItems = 0;
-        let isLarger = false;
-        const oldLargerState = state.isLarger;
-        const containerWidth = container.el.clientWidth - 10;
+        let anyChildLarger = false;
+        const containerWidth = el.clientWidth - 10;
 
-        for (const child of container.el.children) {
+        for (const child of el.children) {
             acc += child.clientWidth;
             if (acc < containerWidth) {
                 nbrItems++;
             } else {
-                isLarger = true;
+                anyChildLarger = true;
                 break;
             }
         }
 
-        state.isLarger = isLarger;
-        state.maxItems = nbrItems;
-        if (!oldLargerState && state.isLarger) {
-            state.maxItems--;
+        isLarger.set(anyChildLarger);
+        maxItems.set(nbrItems);
+        if (isLarger()) {
+            maxItems.set(Math.max(0, maxItems() - 1));
         }
     };
 
-    useExternalListener(window, "resize", () => {
+    useListener(window, "resize", () => {
         computeSize();
     });
 
     return {
         get isLarger() {
-            return state.isLarger;
+            return isLarger();
         },
         get maxItems() {
-            return state.maxItems;
+            return maxItems();
         },
         reload: () => {
             computeSize();

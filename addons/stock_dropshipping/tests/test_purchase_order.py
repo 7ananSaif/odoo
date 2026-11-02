@@ -2,12 +2,14 @@
 
 from odoo.fields import Command
 from odoo.addons.stock_account.tests.test_anglo_saxon_valuation_reconciliation_common import ValuationReconciliationTestCommon
-from odoo.tests import Form
+from odoo.tests import freeze_time
 from odoo.tests.common import tagged
 
 
 @tagged('-at_install', 'post_install')
 class TestPurchaseOrder(ValuationReconciliationTestCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):
@@ -18,11 +20,13 @@ class TestPurchaseOrder(ValuationReconciliationTestCommon):
             ('company_id', '=', cls.env.company.id),
         ], limit=1)
 
+    @freeze_time('2025-07-20')
     def test_qty_received_does_sync_after_changing_validated_move_quantity(self):
         """ After validating a picking, if it is unlocked and has its move quantity modified,
         the underlying purchase order's qty_delivered value should reflect the change.
         """
-        self.product_a.standard_price = 5.0
+        with freeze_time('2025-07-19'):
+            self.product_a.standard_price = 5.0
         cost_methods = ['standard', 'fifo', 'average']
         picking_types = [
             self.env['stock.picking.type'].search([
@@ -42,7 +46,7 @@ class TestPurchaseOrder(ValuationReconciliationTestCommon):
                         'product_id': self.product_a.id,
                         'product_qty': 10.0,
                         'price_unit': 15.0,
-                        'product_uom_id': self.product_a.uom_id.id,
+                        'uom_id': self.product_a.uom_id.id,
                     })],
                     'picking_type_id': picking_type.id,
                 })
@@ -157,15 +161,10 @@ class TestPurchaseOrder(ValuationReconciliationTestCommon):
         invoice = so._create_invoices()
         invoice.action_post()
 
-        return_wizard_form = Form(self.env['stock.return.picking'].with_context(
-            active_id=dropship.id,
-            active_model='stock.picking',
-        ))
-        return_wizard = return_wizard_form.save()
-        return_wizard.product_return_moves.quantity = 1
-        res = return_wizard.action_create_returns()
-        return_picking = self.env['stock.picking'].browse(res['res_id'])
+        return_picking = dropship._create_return()
+        return_picking.move_ids.product_uom_qty = 1
         return_picking.move_ids.lot_ids = serial2
+        return_picking.action_assign()
         return_picking.button_validate()
 
         reversal_wizard = self.env['account.move.reversal'].with_context(

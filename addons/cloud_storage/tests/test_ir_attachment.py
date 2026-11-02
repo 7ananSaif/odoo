@@ -13,7 +13,7 @@ class TestIrAttachment(TransactionCase):
         # Patch the method on the class to avoid "read-only" errors on recordsets
         self.patch(self.env.registry['ir.attachment'], '_generate_cloud_storage_url', _generate_cloud_storage_url)
 
-        self.env['ir.config_parameter'].sudo().set_param('cloud_storage_provider', 'dummy')
+        self.env['ir.config_parameter'].sudo().set_str('cloud_storage_provider', 'dummy')
         attachment = self.env['ir.attachment'].create({
             'name': 'test_audio.webm',
             'mimetype': 'audio/webm',

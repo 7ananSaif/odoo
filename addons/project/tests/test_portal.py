@@ -4,12 +4,13 @@
 from odoo import Command
 from odoo.addons.project.tests.test_access_rights import TestProjectPortalCommon
 from odoo.exceptions import AccessError
-from odoo.tests import HttpCase
+from odoo.tests import tagged, HttpCase
 from odoo.tools import mute_logger
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install, fails post install
 class TestPortalProject(TestProjectPortalCommon, HttpCase):
-    @mute_logger('odoo.addons.base.models.ir_model')
+    @mute_logger('odoo.addons.base.models.ir_access')
     def test_portal_project_access_rights(self):
         pigs = self.project_pigs
         pigs.write({'privacy_visibility': 'portal'})
@@ -27,7 +28,10 @@ class TestPortalProject(TestProjectPortalCommon, HttpCase):
         self.assertRaises(AccessError, self.env['project.task'].with_user(self.user_noone).search, [('project_id', '=', pigs.id)])
 
         # Data: task follower
-        pigs.with_user(self.user_projectmanager).message_subscribe(partner_ids=[self.user_portal.partner_id.id])
+        self.env['project.collaborator'].create({
+            'project_id': pigs.id,
+            'partner_id': self.user_portal.partner_id.id,
+        })
         self.task_1.with_user(self.user_projectuser).message_subscribe(partner_ids=[self.user_portal.partner_id.id])
         self.task_3.with_user(self.user_projectuser).message_subscribe(partner_ids=[self.user_portal.partner_id.id])
         # Do: Chell reads project -> ok (portal ok public)
@@ -56,9 +60,8 @@ class TestPortalProject(TestProjectPortalCommon, HttpCase):
         })
         wizard.action_send_mail()
         self.assertEqual(self.task_1.project_id, self.project_pigs)
-        self.assertTrue(self.project_pigs.access_token, 'The access token should be set since the project has been shared.')
-        self.assertTrue(self.task_1.access_token, 'The access token should be set since the task has been shared.')
-        access_token = self.project_pigs.access_token
+        self.assertFalse(self.project_pigs.access_token, 'The access token should not be set even if the project has been shared.')
+        self.assertFalse(self.task_1.access_token, 'The access token should not be set even if the task has been shared.')
         task_access_token = self.task_1.access_token
         self.project_pigs.privacy_visibility = 'followers'
         self.assertFalse(self.project_pigs.access_token, 'The access token should no longer be set since now the project is private.')
@@ -67,7 +70,7 @@ class TestPortalProject(TestProjectPortalCommon, HttpCase):
         self.assertFalse(self.project_pigs.access_token, 'The access token should still not be set since now the project has not been shared yet.')
         self.assertFalse(all(self.project_pigs.tasks.mapped('access_token')), 'The access token should no longer be set in any tasks linked to the project since now the project is private.')
         wizard.action_send_mail()
-        self.assertTrue(self.project_pigs.access_token, 'The access token should now be regenerated for this project since that project has been shared to an external partner.')
+        self.assertFalse(self.project_pigs.access_token, 'The access token should not be set even if the project has been shared again.')
         self.assertFalse(self.task_1.access_token)
         task_wizard = self.env['portal.share'].create({
             'res_model': 'project.task',
@@ -78,7 +81,7 @@ class TestPortalProject(TestProjectPortalCommon, HttpCase):
         })
         task_wizard.action_send_mail()
         self.assertTrue(self.task_1.access_token, 'The access token should be set since the task has been shared.')
-        self.assertNotEqual(self.project_pigs.access_token, access_token, 'The new access token generated for the project should not be the old one.')
+        self.assertFalse(self.project_pigs.access_token, 'The access token should not be set even if the project has been shared again.')
         self.assertNotEqual(self.task_1.access_token, task_access_token, 'The new access token generated for the task should not be the old one.')
         self.project_pigs.privacy_visibility = 'employees'
         self.assertFalse(self.project_pigs.access_token, 'The access token should no longer be set since now the project is only available by internal users.')
@@ -123,8 +126,14 @@ class TestPortalProject(TestProjectPortalCommon, HttpCase):
         Verify that a portal user can see regular tasks but not task templates or their subtasks.
         """
         self.authenticate(self.user_portal.login, self.user_portal.login)
-        portal_project = self.env['project.project'].create({'name': 'Portal Project'})
-        portal_project.message_subscribe(partner_ids=[self.user_portal.partner_id.id])
+        portal_project = self.env['project.project'].create({
+            'name': 'Portal Project',
+            'privacy_visibility': 'portal',
+        })
+        self.env['project.collaborator'].create({
+            'project_id': portal_project.id,
+            'partner_id': self.user_portal.partner_id.id,
+        })
         task, task_template = self.env['project.task'].create([
             {
                 'name': 'Visible Task',
@@ -147,10 +156,3 @@ class TestPortalProject(TestProjectPortalCommon, HttpCase):
         self.assertNotIn(task_template.name, my_tasks_response.text)
         self.assertNotIn(task_template.child_ids[0].name, my_tasks_response.text)
         self.assertNotIn(task_template.child_ids[1].name, my_tasks_response.text)
-
-        # Check the tasks page for the specific project
-        project_tasks_response = self.url_open('/my/projects/%s' % (portal_project.id))
-        self.assertIn(task.name, project_tasks_response.text)
-        self.assertNotIn(task_template.name, project_tasks_response.text)
-        self.assertNotIn(task_template.child_ids[0].name, project_tasks_response.text)
-        self.assertNotIn(task_template.child_ids[1].name, project_tasks_response.text)

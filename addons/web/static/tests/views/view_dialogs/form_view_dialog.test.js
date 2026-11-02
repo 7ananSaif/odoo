@@ -1,6 +1,6 @@
 import { expect, test } from "@odoo/hoot";
 import { click, edit, press, queryAllTexts, runAllTimers, waitFor } from "@odoo/hoot-dom";
-import { animationFrame, Deferred } from "@odoo/hoot-mock";
+import { animationFrame } from "@odoo/hoot-mock";
 import {
     clickSave,
     contains,
@@ -84,6 +84,39 @@ test("formviewdialog buttons in footer are positioned properly", async () => {
     });
 });
 
+test("expand with middleClick", async () => {
+    mockService("action", {
+        doAction(params, options) {
+            if (options?.newWindow) {
+                expect.step("opened in a new window");
+                return;
+            }
+            super.doAction(params);
+        },
+        loadState() {},
+    });
+
+    Partner._views.form = /* xml */ `
+        <form string="Partner">
+            <sheet>
+                <group><field name="foo"/></group >
+            </sheet>
+        </form>
+    `;
+
+    await mountWithCleanup(WebClient);
+    getService("dialog").add(FormViewDialog, {
+        resModel: "partner",
+        resId: 1,
+    });
+
+    await animationFrame();
+    expect(".o_expand_button").toHaveCount(1);
+    await contains(".o_expand_button").middleClick();
+
+    expect.verifySteps(["opened in a new window"]);
+});
+
 test("modifiers are considered on multiple <footer/> tags", async () => {
     Partner._views.form = /* xml */ `
         <form>
@@ -138,7 +171,7 @@ test("formviewdialog buttons in footer are not duplicated", async () => {
     expect(".modal").toHaveCount(1);
     expect(".modal button.my_button").toHaveCount(1, { message: "should have 1 buttons in modal" });
 
-    await click(".o_field_x2many_list_row_add a");
+    await click(".o_field_x2many_list_row_add button");
     await animationFrame();
     await press("escape");
     await animationFrame();
@@ -316,8 +349,8 @@ test("Buttons are set as disabled on click", async () => {
         </form>
     `;
 
-    const def = new Deferred();
-    onRpc("web_save", async () => await def);
+    const def = Promise.withResolvers();
+    onRpc("web_save", async () => await def.promise);
     await mountWithCleanup(WebClient);
     getService("dialog").add(FormViewDialog, {
         resModel: "partner",
@@ -416,6 +449,34 @@ test("new record has an expand button", async () => {
     expect.verifySteps(["save", [1, "partner", "ir.actions.act_window", [[false, "form"]]]]);
 });
 
+test("new record has an expand button with an onRecordSave prop", async () => {
+    Partner._views.form = /* xml */ `<form><field name="foo"/></form>`;
+    Partner._records = [];
+    onRpc("web_save", () => {
+        expect.step("save");
+    });
+    mockService("action", {
+        doAction(actionRequest) {
+            expect.step([
+                actionRequest.res_id,
+                actionRequest.res_model,
+                actionRequest.type,
+                actionRequest.views,
+            ]);
+        },
+    });
+    await mountWithCleanup(WebClient);
+    getService("dialog").add(FormViewDialog, {
+        resModel: "partner",
+        onRecordSave: (record) => record.save({ reload: false }),
+    });
+    await animationFrame();
+    await fieldInput("foo").edit("new");
+    await click(".o_dialog .modal-header .o_expand_button");
+    await animationFrame();
+    expect.verifySteps(["save", [1, "partner", "ir.actions.act_window", [[false, "form"]]]]);
+});
+
 test("existing record has an expand button", async () => {
     Partner._views.form = /* xml */ `<form><field name="foo"/></form>`;
     onRpc("web_save", () => {
@@ -460,6 +521,7 @@ test("existing record has an expand button", async () => {
     ]);
 });
 
+test.tags("desktop");
 test("expand button with save and new", async () => {
     Instrument._views.form = /* xml */ `<form><field name="name"/></form>`;
     Instrument._records = [{ id: 1, name: "Violon" }];

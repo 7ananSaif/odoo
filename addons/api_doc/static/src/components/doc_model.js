@@ -1,10 +1,12 @@
-import { Component, useState, useEffect, onPatched, markup } from "@odoo/owl";
+import { Component, onPatched, markup, useEffect, proxy, t, useProps } from "@odoo/owl";
 import { DocTable, TABLE_TYPES } from "@api_doc/components/doc_table";
 import { getCrudMethodsExamples } from "@api_doc/utils/doc_model_utils";
+import { DocCopyablePre } from "@api_doc/components/doc_copyable_pre";
 import { DocMethod } from "@api_doc/components/doc_method";
 import { DocLoadingIndicator } from "@api_doc/components/doc_loading_indicator";
 import { useDocUI } from "@api_doc/utils/doc_ui_store";
 import { DocErrorDialog } from "@api_doc/components/doc_error_dialog";
+import { localeCompare } from "@web/core/l10n/utils";
 
 const TYPE_COLORS = {
     "text-success": ["integer", "char", "boolean", "selection", "float"],
@@ -44,17 +46,20 @@ function getTypeData(fieldData) {
 export class DocModel extends Component {
     static template = "web.DocModel";
     static components = {
+        DocCopyablePre,
         DocTable,
         DocMethod,
         DocLoadingIndicator,
         DocErrorDialog,
     };
-    static props = {};
+    props = useProps({
+        showAside: t.boolean().optional(),
+        onMethodSelected: t.function().optional(),
+    });
 
     setup() {
-        this.state = useState({
+        this.state = proxy({
             model: undefined,
-            modelData: { items: [] },
             crudMethods: [],
             methods: [],
             fields: { data: { items: [] }},
@@ -67,40 +72,43 @@ export class DocModel extends Component {
         });
 
         this.ui = useDocUI();
-        this.modelStore = useState(this.env.modelStore);
+        this.modelStore = proxy(this.env.modelStore);
         this.update();
 
-        useEffect(
-            () => {
-                this.update();
-            },
-            () => [
-                this.modelStore.activeModel,
-                this.modelStore.activeMethod,
-                this.modelStore.activeField,
-            ],
-        );
+        useEffect(() => {
+            this.update();
+        });
 
-        let lastFocusedElement = null
-        onPatched(
-            () => {
-                let el = null;
-                if (this.modelStore.activeMethod) {
-                    el = document.getElementById(this.modelStore.activeMethod);
-                }
-                if (this.modelStore.activeField) {
-                    el = document.getElementById(this.modelStore.activeField);
-                }
-                if (el && el != lastFocusedElement) {
-                    lastFocusedElement = el;
-                    el.scrollIntoView({ behavior: "smooth" });
-                }
+        let lastFocusedElement = null;
+        onPatched(() => {
+            let el = null;
+            if (this.modelStore.activeMethod) {
+                el = document.getElementById(this.modelStore.activeMethod);
             }
-        );
+            if (this.modelStore.activeField) {
+                el = document.getElementById(this.modelStore.activeField);
+            }
+            if (el && el != lastFocusedElement) {
+                lastFocusedElement = el;
+                el.scrollIntoView({ behavior: "smooth" });
+            }
+        });
+    }
+
+    get showDescription() {
+        return !!this.state.model?.doc && this.state.model.doc != "false";
     }
 
     get modelName() {
         return this.state.model?.name ?? "";
+    }
+
+    get modelTechnicalName() {
+        return this.state.model?.model ?? "";
+    }
+
+    selectMethod() {
+        this.props.onMethodSelected?.();
     }
 
     async update() {
@@ -121,7 +129,6 @@ export class DocModel extends Component {
             fields: null,
             error: null,
         };
-        this.state.modelData = { items: [] };
         this.state.methods = [];
         this.state.modules = [];
 
@@ -132,12 +139,6 @@ export class DocModel extends Component {
                 }
 
                 this.state.model = model;
-                this.state.modelData = {
-                    items: [
-                        ["Model Name", { type: "code", value: model.model }],
-                        ...(model.doc ? [["Description", model.doc]] : []),
-                    ]
-                };
 
                 this.updateModules();
                 this.updateMethods();
@@ -169,7 +170,7 @@ export class DocModel extends Component {
         Object.values(model.methods).forEach((m) => m.module && modules.add(m.module));
 
         modules = [...modules];
-        modules.sort((a, b) => (a === "core" ? -1 : b === "core" ? 1 : a.localeCompare(b)));
+        modules.sort((a, b) => (a === "core" ? -1 : b === "core" ? 1 : localeCompare(a, b)));
         this.state.modules = modules;
     }
 
@@ -211,7 +212,7 @@ export class DocModel extends Component {
             } else if (bIndex >= 0) {
                 return 1;
             }
-            return a.name.localeCompare(b.name)
+            return localeCompare(a.name, b.name)
         });
         this.state.methods = methods;
     }
@@ -251,7 +252,7 @@ export class DocModel extends Component {
                 ]
             });
 
-        fields.sort((a, b) => a[0].value.localeCompare(b[0].value));
+        fields.sort((a, b) => localeCompare(a[0].value, b[0].value));
 
         this.state.fields = {
             activeIndex,
@@ -286,5 +287,16 @@ export class DocModel extends Component {
 
     toggleAllModules(select) {
         this.setActiveModules(this.state.modules, select);
+    }
+
+    isDocTableLoaded() {
+        return this.state.fields.data
+            && this.state.model
+            && this.state.model.fields != null;
+    }
+
+    isDocMethodLoaded() {
+        return this.state.methods
+            && this.state.methods.length > 0;
     }
 }

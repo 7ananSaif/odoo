@@ -6,11 +6,12 @@
         <field name="arch" type="xml">
             <form js_class="event_configurator_form">
                 <field name="has_available_tickets" invisible="1"/>
+                <field name="additional_product_ids" invisible="1"/>
                 <div invisible="has_available_tickets">
                     We could not find a matching event ticket for this product. <br/>
                     <a role="button" class="btn btn-link" target="_blank"
                         href="/odoo/action-event.action_event_view">
-                        <i class="fa fa-arrow-right"/> Configure Events &amp; Tickets
+                        <i class="oi" data-icon="arrow_forward"/> Configure Events &amp; Tickets
                     </a>
                 </div>
                 <group invisible="not has_available_tickets">

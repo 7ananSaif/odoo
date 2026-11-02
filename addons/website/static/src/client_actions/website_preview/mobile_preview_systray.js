@@ -1,12 +1,12 @@
 import { useService } from "@web/core/utils/hooks";
-import { Component, useState } from "@odoo/owl";
+import { Component, proxy, useProps } from "@odoo/owl";
 
 export class MobilePreviewSystrayItem extends Component {
     static template = "website.MobilePreviewSystrayItem";
-    static props = {};
+    props = useProps({});
     setup() {
         this.websiteService = useService("website");
-        this.state = useState(this.websiteService.context);
+        this.state = proxy(this.websiteService.context);
     }
 
     onClick() {

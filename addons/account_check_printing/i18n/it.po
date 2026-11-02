@@ -6,16 +6,16 @@
 # Martin Trigaux, 2022
 # Sergio Zanchetta <primes2h@gmail.com>, 2022
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
-# "Marianna Ciofani (cima)" <cima@odoo.com>, 2025.
+# "Marianna Ciofani (cima)" <cima@odoo.com>, 2025, 2026.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-11-08 17:54+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Italian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-10-19 08:28+0000\n"
+"Last-Translator: \"Marianna Ciofani (cima)\" <cima@odoo.com>\n"
+"Language-Team: Italian <https://translate.odoo.com/projects/odoo-20/"
 "account_check_printing/it/>\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
@@ -23,7 +23,26 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=(n == 1) ? 0 : ((n != 0 && n % 1000000 == "
 "0) ? 1 : 2);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: account_check_printing
+#: model:ir.module.module,description:base.module_account_check_printing
+msgid ""
+"\n"
+"This module offers the basic functionalities to make payments by printing "
+"checks.\n"
+"It must be used as a dependency for modules that provide country-specific "
+"check templates.\n"
+"The check settings are located in the accounting journals configuration "
+"page.\n"
+msgstr ""
+"\n"
+"Questo modulo offre le funzionalità di base per effettuare pagamenti tramite "
+"assegni stampati.\n"
+"Deve essere utilizzato come dipendenza per moduli che forniscono modelli di "
+"assegni specifici per nazione.\n"
+"Le impostazioni per gli assegni si trovano nella pagina di configurazione "
+"dei registri contabili.\n"
 
 #. module: account_check_printing
 #. odoo-python
@@ -68,11 +87,6 @@ msgid "Bills"
 msgstr "Fatture"
 
 #. module: account_check_printing
-#: model_terms:ir.ui.view,arch_db:account_check_printing.print_pre_numbered_checks_view
-msgid "Cancel"
-msgstr "Annulla"
-
-#. module: account_check_printing
 #: model:ir.model.fields,field_description:account_check_printing.field_account_journal__bank_check_printing_layout
 #: model:ir.model.fields,field_description:account_check_printing.field_res_company__account_check_printing_layout
 #: model:ir.model.fields,field_description:account_check_printing.field_res_config_settings__account_check_printing_layout
@@ -96,6 +110,11 @@ msgid "Check Printing"
 msgstr "Stampa assegno"
 
 #. module: account_check_printing
+#: model:ir.module.module,shortdesc:base.module_account_check_printing
+msgid "Check Printing Base"
+msgstr "Controllo della base di stampa"
+
+#. module: account_check_printing
 #: model:ir.model.fields,field_description:account_check_printing.field_res_config_settings__account_check_printing_margin_right
 msgid "Check Right Margin"
 msgstr "Margine destro assegno"
@@ -116,6 +135,11 @@ msgstr "Margine superiore assegno"
 #: code:addons/account_check_printing/models/account_payment.py:0
 msgid "Check numbers can only consist of digits"
 msgstr "I numeri degli assegni possono solo essere costituiti da cifre"
+
+#. module: account_check_printing
+#: model:ir.module.module,summary:base.module_account_check_printing
+msgid "Check printing basic features"
+msgstr "Caratteristiche di base della stampa di assegni"
 
 #. module: account_check_printing
 #: model:ir.model.fields,help:account_check_printing.field_account_journal__check_manual_sequencing
@@ -154,8 +178,8 @@ msgstr "assegni da stampare"
 
 #. module: account_check_printing
 #: model:ir.model,name:account_check_printing.model_res_company
-msgid "Companies"
-msgstr "Aziende"
+msgid "Company"
+msgstr "Azienda"
 
 #. module: account_check_printing
 #: model:ir.model,name:account_check_printing.model_res_config_settings
@@ -299,19 +323,15 @@ msgid "None"
 msgstr "Nessuna"
 
 #. module: account_check_printing
-#: model:ir.model.fields,field_description:account_check_printing.field_account_payment__payment_method_line_id
-msgid "Payment Method"
-msgstr "Metodo di pagamento"
+#: model:ir.model,name:account_check_printing.model_account_payment
+msgid "Payment"
+msgstr "Pagamento"
 
 #. module: account_check_printing
 #: model:ir.model,name:account_check_printing.model_account_payment_method
-msgid "Payment Methods"
-msgstr "Metodi di pagamento"
-
-#. module: account_check_printing
-#: model:ir.model,name:account_check_printing.model_account_payment
-msgid "Payments"
-msgstr "Pagamenti"
+#: model:ir.model.fields,field_description:account_check_printing.field_account_payment__payment_method_line_id
+msgid "Payment Method"
+msgstr "Metodo di pagamento"
 
 #. module: account_check_printing
 #. odoo-python
@@ -383,11 +403,6 @@ msgstr ""
 "Selezionare il formato corrispondente alla carta da usare per stampare gli "
 "assegni.\n"
 "Per disattivare la funzionalità di stampa, scegliere \"Nessuna\"."
-
-#. module: account_check_printing
-#: model_terms:ir.ui.view,arch_db:account_check_printing.view_account_payment_form_inherited
-msgid "Sent"
-msgstr "Inviato"
 
 #. module: account_check_printing
 #: model:ir.model.fields,help:account_check_printing.field_account_journal__check_next_number
@@ -518,24 +533,5 @@ msgstr "out_refund"
 msgid "sep"
 msgstr "sep"
 
-#~ msgid "Contact"
-#~ msgstr "Contatto"
-
-#~ msgid "Journal Entry"
-#~ msgstr "Registrazione contabile"
-
-#~ msgid "Preferred Payment Method"
-#~ msgstr "Metodo di pagamento preferito"
-
-#~ msgid ""
-#~ "Preferred payment method when paying this vendor. This is used to filter "
-#~ "vendor bills by preferred payment method to register payments in mass. "
-#~ "Use cases: create bank files for batch wires, check runs."
-#~ msgstr ""
-#~ "Metodo preferito per il pagamento del fornitore. Usato per filtrare le "
-#~ "fatture fornitore in base al metodo preferito per registrare pagamenti "
-#~ "massivi. Casi d'uso: creazione file bancari per bonifici raggruppati, "
-#~ "processi di verifica."
-
-#~ msgid "Register Payment"
-#~ msgstr "Registra pagamento"
+#~ msgid "Sent"
+#~ msgstr "Inviato"

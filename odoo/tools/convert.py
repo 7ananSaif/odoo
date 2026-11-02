@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 __all__ = [
-    'convert_file', 'convert_sql_import',
-    'convert_csv_import', 'convert_xml_import'
+    'convert_file',
 ]
-import base64
 import csv
 import io
 import logging
@@ -13,9 +10,10 @@ import os.path
 import pprint
 import re
 import subprocess
+import typing
 import warnings
-from datetime import datetime, timedelta
-from typing import Literal, Optional
+import zoneinfo
+from datetime import datetime, timedelta, UTC, tzinfo
 
 from dateutil.relativedelta import relativedelta
 from lxml import etree, builder
@@ -24,16 +22,25 @@ try:
 except ImportError:
     jingtrang = None
 
+from .binary import BinaryBytes
 from .config import config
 from .misc import file_open, file_path, SKIPPED_ELEMENT_TYPES
+from .safe_eval import _UNSAFE_ATTRIBUTES
 from odoo.exceptions import ValidationError
 
-from .safe_eval import safe_eval, pytz, time
+from .safe_eval import safe_eval, time
 
 _logger = logging.getLogger(__name__)
 
-ConvertMode = Literal['init', 'update']
-IdRef = dict[str, int | Literal[False]]
+ConvertMode = typing.Literal['init', 'update']
+IdRef = dict[str, int | typing.Literal[False]]
+
+
+class Pytz(typing.NamedTuple):
+    timezone: typing.Callable[[str], zoneinfo.ZoneInfo]
+    utc: tzinfo
+    UTC: tzinfo
+
 
 class ParseError(Exception):
     ...
@@ -49,7 +56,7 @@ def _get_eval_context(self, env, model_str):
                   relativedelta=relativedelta,
                   version=release.major_version,
                   ref=self.id_get,
-                  pytz=pytz)
+                  pytz=Pytz(zoneinfo.ZoneInfo, UTC, UTC))
     if model_str:
         context['obj'] = env[model_str].browse
     return context
@@ -128,11 +135,16 @@ def _eval_xml(self, node, env):
             return _process("".join(etree.tostring(n, method='html', encoding='unicode') for n in node))
 
         if node.get('file'):
+            node_file = node.get('file')
+            if t == 'bytes':
+                with file_open(node_file, 'rb', env=env) as f:
+                    return BinaryBytes(f.read())
             if t == 'base64':
-                with file_open(node.get('file'), 'rb', env=env) as f:
-                    return base64.b64encode(f.read())
+                warnings.warn("Since 20.0, use type=bytes instead of type=base64", DeprecationWarning)
+                with file_open(node_file, 'rb', env=env) as f:
+                    return BinaryBytes(f.read()).to_base64()
 
-            with file_open(node.get('file'), env=env) as f:
+            with file_open(node_file, env=env) as f:
                 data = f.read()
         else:
             data = node.text or ''
@@ -160,6 +172,8 @@ def _eval_xml(self, node, env):
                 return [_eval_xml(self, n, env) for n in node.iterchildren('value')]
             case 'tuple':
                 return tuple(_eval_xml(self, n, env) for n in node.iterchildren('value'))
+            case 'bytes':
+                raise ValueError("bytes type is only compatible with file data")
             case 'base64':
                 raise ValueError("base64 type is only compatible with file data")
             case t:
@@ -169,7 +183,9 @@ def _eval_xml(self, node, env):
         from odoo.models import BaseModel  # noqa: PLC0415
         model_str = node.get('model')
         model = env[model_str]
-        method_name = node.get('name')
+        method_name = node.get('name') or ''
+        if '__' in method_name or method_name in _UNSAFE_ATTRIBUTES:
+            raise NameError(f'Access to forbidden name {method_name!r}')
         # determine arguments
         args = []
         kwargs = {}
@@ -191,6 +207,11 @@ def _eval_xml(self, node, env):
             pass  # already bound to an empty recordset
         else:
             record_ids, *args = args
+            # skip falsy ids
+            try:
+                record_ids = tuple(record_id for record_id in record_ids if record_id)
+            except TypeError:
+                record_ids = (record_ids,) if record_ids else ()
             model = model.browse(record_ids)
             method = getattr(model, method_name)
         # invoke method
@@ -345,7 +366,6 @@ form: module.record_id""" % (xml_id,)
                 install_mode=True,
                 install_module=self.module,
                 install_filename=self.xml_filename,
-                install_xmlid=rec_id,
             )
 
         self._test_xml_id(rec_id)
@@ -395,15 +415,15 @@ form: module.record_id""" % (xml_id,)
             if '@' in f_name:
                 continue  # used for translations
             f_model = field.get("model")
-            if not f_model and f_name in model._fields:
+            if not f_model and f_name in model._fields and model._fields[f_name].relational:
                 f_model = model._fields[f_name].comodel_name
             f_use = field.get("use",'') or 'id'
             f_val = False
 
             if f_search := field.get("search"):
+                assert f_model, 'Define an attribute model="..." in your .XML file!'
                 context = _get_eval_context(self, env, f_model)
                 q = safe_eval(f_search, context)
-                assert f_model, 'Define an attribute model="..." in your .XML file!'
                 # browse the objects searched
                 s = env[f_model].search(q)
                 # column definitions of the "local" object
@@ -453,6 +473,8 @@ form: module.record_id""" % (xml_id,)
             sequence = self.next_sequence()
             if sequence:
                 res['sequence'] = sequence
+        if 'xmlid' not in res and 'xmlid' in model._fields:
+            res['xmlid'] = xid
 
         data = dict(xml_id=xid, values=res, noupdate=self.noupdate)
         if foreign_record_to_create:
@@ -470,6 +492,7 @@ form: module.record_id""" % (xml_id,)
         # This helper transforms a <template> element into a <record> and forwards it
         tpl_id = el.get('id', el.get('t-name'))
         full_tpl_id = tpl_id
+        attrib = el.attrib
         if '.' not in full_tpl_id:
             full_tpl_id = '%s.%s' % (self.module, tpl_id)
         # set the full template name for qweb <module>.<id>
@@ -478,7 +501,7 @@ form: module.record_id""" % (xml_id,)
             el.tag = 't'
         else:
             el.tag = 'data'
-        el.attrib.pop('id', None)
+        attrib.pop('id', None)
 
         if self.module.startswith('theme_'):
             model = 'theme.ir.ui.view'
@@ -490,8 +513,8 @@ form: module.record_id""" % (xml_id,)
             'model': model,
         }
         for att in ['forcecreate', 'context']:
-            if att in el.attrib:
-                record_attrs[att] = el.attrib.pop(att)
+            if att in attrib:
+                record_attrs[att] = attrib.pop(att)
 
         Field = builder.E.field
         name = el.get('name', tpl_id)
@@ -500,33 +523,35 @@ form: module.record_id""" % (xml_id,)
         record.append(Field(name, name='name'))
         record.append(Field(full_tpl_id, name='key'))
         record.append(Field("qweb", name='type'))
-        if 'track' in el.attrib:
-            record.append(Field(el.get('track'), name='track'))
-        if 'priority' in el.attrib:
-            record.append(Field(el.get('priority'), name='priority'))
-        if 'inherit_id' in el.attrib:
-            record.append(Field(name='inherit_id', ref=el.get('inherit_id')))
-        if 'website_id' in el.attrib:
-            record.append(Field(name='website_id', ref=el.get('website_id')))
-        if 'key' in el.attrib:
-            record.append(Field(el.get('key'), name='key'))
+        if 'track' in attrib:
+            record.append(Field(attrib.pop('track'), name='track'))
+        if 'priority' in attrib:
+            record.append(Field(attrib.pop('priority'), name='priority'))
+        if 'inherit_id' in attrib:
+            record.append(Field(name='inherit_id', ref=attrib.pop('inherit_id')))
+        if 'technical_usage' in attrib:
+            record.append(Field(attrib.pop('technical_usage'), name='technical_usage'))
+        if 'website_id' in attrib:
+            record.append(Field(name='website_id', ref=attrib.pop('website_id')))
+        if 'key' in attrib:
+            record.append(Field(attrib.pop('key'), name='key'))
 
         # If the "active" value is set on the root node (instead of an inner
         # <field>), it is treated as the value for the "active" field but only
         # when *not updating*. This allows to update the record in a more recent
         # version without changing its active state (compatibility).
-        if el.get('active') in ("True", "False"):
+        if (active := attrib.pop('active', None)) in ("True", "False"):
             view_id = self.id_get(tpl_id, raise_if_not_found=False)
             if self.mode != "update" or not view_id:
-                record.append(Field(name='active', eval=el.get('active')))
+                record.append(Field(name='active', eval=active))
 
-        if el.get('customize_show') in ("True", "False"):
-            record.append(Field(name='customize_show', eval=el.get('customize_show')))
-        groups = el.attrib.pop('groups', None)
+        if (customize_show := attrib.pop('customize_show', None)) in ("True", "False"):
+            record.append(Field(name='customize_show', eval=customize_show))
+        groups = attrib.pop('groups', None)
         if groups:
             grp_lst = [("ref('%s')" % x) for x in groups.split(',')]
             record.append(Field(name="group_ids", eval="[Command.set(["+', '.join(grp_lst)+"])]"))
-        if el.get('primary') == 'True':
+        if attrib.pop('primary', None) == 'True':
             # Pseudo clone mode, we'll set the t-name to the full canonical xmlid
             el.append(
                 builder.E.xpath(
@@ -639,7 +664,7 @@ form: module.record_id""" % (xml_id,)
             value = self._sequences[-1] = value + 10
         return value
 
-    def __init__(self, env, module, idref: Optional[IdRef], mode: ConvertMode, noupdate: bool = False, xml_filename: str = ''):
+    def __init__(self, env, module, idref: IdRef | None, mode: ConvertMode, noupdate: bool = False, xml_filename: str = ''):
         self.mode = mode
         self.module = module
         self.envs = [env(context=dict(env.context, lang=None))]
@@ -668,7 +693,7 @@ def convert_file(
         env,
         module,
         filename,
-        idref: Optional[IdRef],
+        idref: IdRef | None,
         mode: ConvertMode = 'update',
         noupdate=False,
         kind=None,
@@ -688,7 +713,7 @@ def convert_file(
         if ext == '.csv':
             convert_csv_import(env, module, pathname, fp.read(), idref, mode, noupdate)
         elif ext == '.sql':
-            convert_sql_import(env, fp)
+            env.cr.execute(fp.read())  # pylint: disable=sql-injection
         elif ext == '.xml':
             convert_xml_import(env, module, fp, idref, mode, noupdate)
         elif ext == '.js':
@@ -697,16 +722,12 @@ def convert_file(
             raise ValueError("Can't load unknown file type %s.", filename)
 
 
-def convert_sql_import(env, fp):
-    env.cr.execute(fp.read()) # pylint: disable=sql-injection
-
-
 def convert_csv_import(
         env,
         module,
         fname,
         csvcontent,
-        idref: Optional[IdRef] = None,
+        idref: IdRef | None = None,
         mode: ConvertMode = 'init',
         noupdate=False,
 ):
@@ -763,7 +784,7 @@ def convert_xml_import(
         env,
         module,
         xmlfile,
-        idref: Optional[IdRef] = None,
+        idref: IdRef | None = None,
         mode: ConvertMode = 'init',
         noupdate=False,
         report=None,
@@ -776,7 +797,11 @@ def convert_xml_import(
     except Exception:
         _logger.exception("The XML file '%s' does not fit the required schema!", xmlfile.name)
         if jingtrang:
-            p = subprocess.run(['pyjing', schema, xmlfile.name], stdout=subprocess.PIPE)
+            environ = os.environ.copy()
+            environ['JAVA_TOOL_OPTIONS'] = '-Xmx64m -XX:-UseCompressedClassPointers'
+            p = subprocess.run(
+                ["pyjing", schema, xmlfile.name], stdout=subprocess.PIPE, env=environ,
+            )
             _logger.warning(p.stdout.decode())
         else:
             for e in relaxng.error_log:

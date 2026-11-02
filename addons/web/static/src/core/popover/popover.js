@@ -1,11 +1,11 @@
-import { Component, onMounted, onWillDestroy, useRef } from "@odoo/owl";
+import { Component, onMounted, onWillDestroy, signal, t, useProps } from "@odoo/owl";
 import { useHotkey } from "@web/core/hotkeys/hotkey_hook";
 import { OVERLAY_SYMBOL } from "@web/core/overlay/overlay_container";
 import { usePosition } from "@web/core/position/position_hook";
 import { reverseForRTL } from "@web/core/position/utils";
-import { useActiveElement } from "@web/core/ui/ui_service";
+import { useActiveElement } from "@web/core/ui/ui_plugin";
 import { mergeClasses } from "@web/core/utils/classname";
-import { useForwardRefToParent } from "@web/core/utils/hooks";
+import { useBackButton } from "@web/core/utils/hooks";
 
 /**
  * @param {EventTarget} target
@@ -15,7 +15,16 @@ import { useForwardRefToParent } from "@web/core/utils/hooks";
  */
 function useEarlyExternalListener(target, eventName, handler, eventParams) {
     target.addEventListener(eventName, handler, eventParams);
-    onWillDestroy(() => target.removeEventListener(eventName, handler, eventParams));
+    onWillDestroy(() => {
+        try {
+            target.removeEventListener(eventName, handler, eventParams);
+        } catch (e) {
+            // If iframe source became CORS it can result in a SecurityError.
+            if (e.name !== "SecurityError") {
+                throw e;
+            }
+        }
+    });
 }
 
 /**
@@ -26,44 +35,53 @@ function useEarlyExternalListener(target, eventName, handler, eventParams) {
  *
  * @param {Popover} popover
  * @param {(node?: Node) => any} callback
+ * @param {Window} targetWindow
  */
-function useClickAway(popover, callback) {
+function useClickAway(popover, callback, targetWindow = window) {
     function blurHandler(ev) {
-        const target = ev.relatedTarget || document.activeElement;
+        const target = ev.relatedTarget || targetWindow.document.activeElement;
         if (target?.tagName === "IFRAME") {
             callback(target);
         }
     }
 
     function navigationHandler() {
-        callback(document.documentElement);
+        callback(targetWindow.document.documentElement);
     }
 
     function pointerDownHandler(ev) {
         callback(ev.composedPath()[0]);
     }
 
-    useEarlyExternalListener(window, "pointerdown", pointerDownHandler, { capture: true });
-    useEarlyExternalListener(window, "blur", blurHandler, { capture: true });
-    useEarlyExternalListener(window, "popstate", navigationHandler, { capture: true });
+    useEarlyExternalListener(targetWindow, "pointerdown", pointerDownHandler, { capture: true });
+    useEarlyExternalListener(targetWindow, "blur", blurHandler, { capture: true });
+    useEarlyExternalListener(targetWindow, "popstate", navigationHandler, { capture: true });
     for (const iframeEl of document.querySelectorAll("iframe")) {
-        useEarlyExternalListener(
-            iframeEl.contentWindow,
-            "pointerdown",
-            () => {
-                const popupEl = popover.popoverRef.el;
-                let checkEl = iframeEl.parentElement;
-                while (checkEl) {
-                    if (checkEl === popupEl) {
-                        // Ignore iframes within popup
-                        return;
+        try {
+            useEarlyExternalListener(
+                iframeEl.contentWindow,
+                "pointerdown",
+                () => {
+                    const popupEl = popover.ref();
+                    let checkEl = iframeEl.parentElement;
+                    while (checkEl) {
+                        if (checkEl === popupEl) {
+                            // Ignore iframes within popup
+                            return;
+                        }
+                        checkEl = checkEl.parentElement;
                     }
-                    checkEl = checkEl.parentElement;
-                }
-                callback(iframeEl);
-            },
-            { capture: true, once: true }
-        );
+                    callback(iframeEl);
+                },
+                { capture: true, once: true }
+            );
+        } catch (e) {
+            // In some browsers, if an iframe is loaded from a different
+            // domain accessing it results in a SecurityError.
+            if (e.name !== "SecurityError") {
+                throw e;
+            }
+        }
     }
 }
 
@@ -77,98 +95,82 @@ export function getPopoverForTarget(target) {
     return POPOVERS.get(target);
 }
 
+export const popoverProps = {
+    // Main props
+    component: t.function(),
+    componentProps: t.object().optional({}),
+    target: t.customValidator(t.any(), (target) => {
+        // target may be inside an iframe, so get the Element constructor
+        // to test against from its owner document's default view
+        const Element = target?.ownerDocument?.defaultView?.Element;
+        return (
+            (Boolean(Element) && (target instanceof Element || target instanceof window.Element)) ||
+            (typeof target === "object" && target?.constructor?.name?.endsWith("Element"))
+        );
+    }),
+    close: t.function(),
+
+    // Styling and semantical props
+    animation: t.boolean().optional(true),
+    arrow: t.boolean().optional(true),
+    class: t.any().optional(""),
+    role: t.string().optional(),
+
+    // Positioning props
+    fixedPosition: t.boolean().optional(false),
+    shrink: t.boolean().optional(),
+    holdOnHover: t.boolean().optional(),
+    onPositioned: t.function().optional(),
+    position: t
+        .customValidator(t.string(), (p) => {
+            const [d, v = "middle"] = p.split("-");
+            return (
+                ["top", "bottom", "left", "right"].includes(d) &&
+                ["start", "middle", "end", "fit"].includes(v)
+            );
+        })
+        .optional("bottom"),
+
+    // Control props
+    closeOnClickAway: t.function().optional(() => () => true),
+    closeOnEscape: t.boolean().optional(true),
+    setActiveElement: t.boolean().optional(false),
+
+    // Technical props
+    slots: t.object().optional(),
+};
+
 export class Popover extends Component {
     static template = "web.Popover";
-    static defaultProps = {
-        animation: true,
-        arrow: true,
-        class: "",
-        closeOnClickAway: () => true,
-        closeOnEscape: true,
-        componentProps: {},
-        fixedPosition: false,
-        position: "bottom",
-        setActiveElement: false,
-    };
-    static props = {
-        // Main props
-        component: { type: Function },
-        componentProps: { optional: true, type: Object },
-        target: {
-            validate: (target) => {
-                // target may be inside an iframe, so get the Element constructor
-                // to test against from its owner document's default view
-                const Element = target?.ownerDocument?.defaultView?.Element;
-                return (
-                    (Boolean(Element) &&
-                        (target instanceof Element || target instanceof window.Element)) ||
-                    (typeof target === "object" && target?.constructor?.name?.endsWith("Element"))
-                );
-            },
-        },
-        close: { type: Function },
-
-        // Styling and semantical props
-        animation: { optional: true, type: Boolean },
-        arrow: { optional: true, type: Boolean },
-        class: { optional: true },
-        role: { optional: true, type: String },
-
-        // Positioning props
-        fixedPosition: { optional: true, type: Boolean },
-        extendedFlipping: { optional: true, type: Boolean },
-        holdOnHover: { optional: true, type: Boolean },
-        onPositioned: { optional: true, type: Function },
-        position: {
-            optional: true,
-            type: String,
-            validate: (p) => {
-                const [d, v = "middle"] = p.split("-");
-                return (
-                    ["top", "bottom", "left", "right"].includes(d) &&
-                    ["start", "middle", "end", "fit"].includes(v)
-                );
-            },
-        },
-
-        // Control props
-        closeOnClickAway: { optional: true, type: Function },
-        closeOnEscape: { optional: true, type: Boolean },
-        setActiveElement: { optional: true, type: Boolean },
-
-        // Technical props
-        ref: { optional: true, type: Function },
-        slots: { optional: true, type: Object },
-    };
     static animationTime = 200;
+    props = useProps(popoverProps);
+    ref = useProps.static(
+        "ref",
+        t.signal(t.ref()).optional(() => signal.ref())
+    );
 
     setup() {
         if (this.props.setActiveElement) {
-            useActiveElement("ref");
+            useActiveElement(this.ref);
         }
 
-        useForwardRefToParent("ref");
-        this.popoverRef = useRef("ref");
-        this.position = usePosition("ref", () => this.props.target, this.positioningOptions);
-
-        if (!this.props.animation) {
-            this.animationDone = true;
-        }
+        this.position = usePosition(this.ref, () => this.props.target, this.positioningOptions);
 
         const resizeObserver = new ResizeObserver(() => {
-            if (!this.props.fixedPosition && this.animationDone) {
+            if (!this.props.fixedPosition && (!this.props.animation || this.animationDone)) {
                 this.position.unlock();
             }
         });
 
         onMounted(() => {
-            POPOVERS.set(this.props.target, this.popoverRef.el);
-            resizeObserver.observe(this.popoverRef.el);
+            POPOVERS.set(this.props.target, this.ref());
+            resizeObserver.observe(this.ref());
         });
         onWillDestroy(() => POPOVERS.delete(this.props.target));
 
         if (this.props.target.isConnected) {
-            useClickAway(this, this.onClickAway.bind(this));
+            const targetWindow = this.props.target.ownerDocument.defaultView || window;
+            useClickAway(this, this.onClickAway.bind(this), targetWindow);
 
             if (this.props.closeOnEscape) {
                 useHotkey("escape", () => this.props.close());
@@ -179,6 +181,11 @@ export class Popover extends Component {
         } else {
             this.props.close();
         }
+
+        useBackButton(
+            () => this.props.close(),
+            () => this.props.target.isConnected
+        );
     }
 
     get defaultClassObj() {
@@ -187,14 +194,13 @@ export class Popover extends Component {
 
     get positioningOptions() {
         return {
-            extendedFlipping: this.props.extendedFlipping,
             margin: this.props.arrow ? 8 : 0,
             onPositioned: (el, solution) => {
                 this.onPositioned(solution);
                 this.props.onPositioned?.(el, solution);
             },
             position: this.props.position,
-            shrink: true,
+            shrink: this.props.shrink,
         };
     }
 
@@ -205,16 +211,13 @@ export class Popover extends Component {
             bottom: ["translateY(5%)", "translateY(0)"],
             left: ["translateX(-5%)", "translateX(0)"],
         }[direction];
-        return this.popoverRef.el.animate(
-            { opacity: [0, 1], transform },
-            this.constructor.animationTime
-        );
+        return this.ref().animate({ opacity: [0, 1], transform }, this.constructor.animationTime);
     }
 
     isInside(target) {
         return (
             this.props.target?.contains(target) ||
-            this.popoverRef?.el?.contains(target) ||
+            this.ref()?.contains(target) ||
             this.env[OVERLAY_SYMBOL]?.contains(target)
         );
     }
@@ -254,7 +257,7 @@ export class Popover extends Component {
     }
 
     updateArrow(direction, variant, variantOffset) {
-        const { el } = this.popoverRef;
+        const el = this.ref();
 
         // Reverse the direction if RTL as bootstrap expects it that way
         [direction, variant] = reverseForRTL(direction, variant);

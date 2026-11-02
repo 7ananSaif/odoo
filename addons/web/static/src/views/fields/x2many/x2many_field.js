@@ -1,9 +1,13 @@
+import { render } from "@web/owl2/utils";
 import { makeContext } from "@web/core/context";
 import { _t } from "@web/core/l10n/translation";
+import { x2ManyCommands } from "@web/core/orm_plugin";
 import { Pager } from "@web/core/pager/pager";
 import { evaluateBooleanExpr } from "@web/core/py_js/py";
 import { registry } from "@web/core/registry";
+import { symmetricalDifference } from "@web/core/utils/arrays";
 import { useService } from "@web/core/utils/hooks";
+import { pick } from "@web/core/utils/objects";
 import { getFieldDomain } from "@web/model/relational_model/utils";
 import {
     useActiveActions,
@@ -13,32 +17,32 @@ import {
     useX2ManyCrud,
 } from "@web/views/fields/relational_utils";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
-import { KanbanCompiler } from "@web/views/kanban/kanban_compiler";
+import { CardCompiler } from "@web/views/card/card_compiler";
 import { KanbanRenderer } from "@web/views/kanban/kanban_renderer";
 import { ListRenderer } from "@web/views/list/list_renderer";
 import { computeViewClassName } from "@web/views/utils";
 import { ViewButton } from "@web/views/view_button/view_button";
-import { symmetricalDifference } from "@web/core/utils/arrays";
-import { x2ManyCommands } from "@web/core/orm_service";
 
-import { Component } from "@odoo/owl";
+import { Component, t, useProps } from "@odoo/owl";
+
+export const x2ManyFieldProps = {
+    ...standardFieldProps,
+    addLabel: t.string().optional(),
+    editable: t.string().optional(),
+    viewMode: t.string().optional(),
+    widget: t.string().optional(),
+    crudOptions: t.object().optional(),
+    string: t.string().optional(),
+    relatedFields: t.object().optional(),
+    views: t.object().optional(),
+    domain: t.or([t.array(), t.function()]).optional(),
+    context: t.object(),
+};
 
 export class X2ManyField extends Component {
     static template = "web.X2ManyField";
     static components = { Pager, KanbanRenderer, ListRenderer, ViewButton };
-    static props = {
-        ...standardFieldProps,
-        addLabel: { type: String, optional: true },
-        editable: { type: String, optional: true },
-        viewMode: { type: String, optional: true },
-        widget: { type: String, optional: true },
-        crudOptions: { type: Object, optional: true },
-        string: { type: String, optional: true },
-        relatedFields: { type: Object, optional: true },
-        views: { type: Object, optional: true },
-        domain: { type: [Array, Function], optional: true },
-        context: { type: Object },
-    };
+    props = useProps(x2ManyFieldProps);
 
     setup() {
         this.field = this.props.record.fields[this.props.name];
@@ -177,7 +181,7 @@ export class X2ManyField extends Component {
                         limit -= 1;
                     }
                     await list.load({ limit, offset });
-                    this.render();
+                    render(this);
                 }
             },
             withAccessKey: false,
@@ -196,7 +200,7 @@ export class X2ManyField extends Component {
         if (this.props.viewMode === "kanban") {
             const recordsDraggable = !this.props.readonly && archInfo.recordsDraggable;
             props.archInfo = { ...archInfo, recordsDraggable };
-            props.Compiler = KanbanCompiler;
+            props.Compiler = CardCompiler;
             // TODO: apply same logic in the list case
             props.deleteRecord = (record) => {
                 if (this.isMany2Many) {
@@ -325,15 +329,12 @@ export const x2ManyField = {
     displayName: _t("Relational table"),
     supportedTypes: ["one2many", "many2many"],
     useSubView: true,
-    extractProps: (
-        { attrs, relatedFields, viewMode, views, widget, options, string },
-        dynamicInfo
-    ) => {
+    extractProps: ({ attrs, relatedFields, viewMode, views, widget, string }, dynamicInfo) => {
         const props = {
             addLabel: attrs["add-label"],
             context: dynamicInfo.context,
             domain: dynamicInfo.domain,
-            crudOptions: options,
+            crudOptions: pick(attrs, "create", "delete", "link", "unlink", "write"),
             string,
         };
         if (viewMode) {

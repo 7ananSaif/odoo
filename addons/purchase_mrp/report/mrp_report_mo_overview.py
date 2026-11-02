@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import fields, models
+from odoo import models
 
 
 class ReportMrpReport_Mo_Overview(models.AbstractModel):
@@ -24,7 +24,7 @@ class ReportMrpReport_Mo_Overview(models.AbstractModel):
             for move in dest_moves:
                 if not move.raw_material_production_id:
                     continue
-                prod_qty = min(line_qty, move.product_uom._compute_quantity(move.product_uom_qty, po_line.product_uom_id))
+                prod_qty = min(line_qty, move.uom_id._compute_quantity(move.product_uom_qty, po_line.uom_id))
                 res.append(self._format_extra_replenishment(po_line, prod_qty, move.raw_material_production_id.id))
                 line_qty -= prod_qty
             if line_qty:
@@ -33,21 +33,13 @@ class ReportMrpReport_Mo_Overview(models.AbstractModel):
         return res
 
     def _format_extra_replenishment(self, po_line, quantity, production_id=False):
-        po = po_line.order_id
-        price = po_line.tax_ids.compute_all(
-            po_line.price_unit,
-            currency=po.currency_id,
-            quantity=quantity,
-            product=po_line.product_id,
-            partner=po.partner_id,
-            rounding_method="round_globally",
-        )['total_void']
+        price = self._calculate_po_price(po_line, quantity)
         return {
             '_name': 'purchase.order',
-            'id': po.id,
+            'id': po_line.order_id.id,
             'cost': price,
             'quantity': quantity,
-            'uom': po_line.product_uom_id,
+            'uom': po_line.uom_id,
             'production_id': production_id
         }
 
@@ -64,14 +56,17 @@ class ReportMrpReport_Mo_Overview(models.AbstractModel):
     def _get_resupply_data(self, rules, rules_delay, quantity, uom_id, product, production):
         res = super()._get_resupply_data(rules, rules_delay, quantity, uom_id, product, production)
         if any(rule for rule in rules if rule.action == 'buy' and product.seller_ids):
-            supplier = product._select_seller(quantity=quantity, uom_id=product.uom_id)
-            if supplier:
-                return {
-                    'delay': supplier.delay + rules_delay,
-                    'cost': supplier.price * uom_id._compute_quantity(quantity, supplier.product_uom_id),
-                    'currency': supplier.currency_id,
-                }
+            seller_info = product._select_seller(quantity=quantity, uom_id=product.uom_id)
+            if seller_info:
+                return self._get_seller_resupply_data(product, quantity, rules_delay, uom_id, seller_info)
         return res
+
+    def _get_seller_resupply_data(self, product, quantity, rules_delay, uom_id, seller_info):
+        return {
+            'delay': seller_info['delay'] + rules_delay,
+            'cost': seller_info['price'] * uom_id._compute_quantity(quantity, seller_info['uom_id']),
+            'currency': seller_info['currency_id'],
+        }
 
     def _is_doc_in_done(self, doc_in):
         if doc_in._name == 'purchase.order':
@@ -86,15 +81,18 @@ class ReportMrpReport_Mo_Overview(models.AbstractModel):
     def _get_replenishment_mo_cost(self, product, quantity, uom_id, currency, move_in=False):
         if move_in and move_in.purchase_line_id:
             po_line = move_in.purchase_line_id
-            po = po_line.order_id
-            price = po_line.tax_ids.compute_all(
-                po_line.price_unit,
-                currency=po.currency_id,
-                quantity=uom_id._compute_quantity(quantity, move_in.purchase_line_id.product_uom_id),
-                product=po_line.product_id,
-                partner=po.partner_id,
-                rounding_method='round_globally',
-            )['total_void']
-            price = po_line.currency_id._convert(price, currency, (move_in.company_id or self.env.company), fields.Date.today())
+            price = self._calculate_po_price(po_line, uom_id._compute_quantity(quantity, move_in.purchase_line_id.uom_id))
+            price = po_line.currency_id._convert(price, currency, (move_in.company_id or self.env.company))
             return currency.round(price)
         return super()._get_replenishment_mo_cost(product, quantity, uom_id, currency, move_in)
+
+    def _calculate_po_price(self, po_line, quantity):
+        po = po_line.order_id
+        return po_line.tax_ids.compute_all(
+            po_line.price_unit,
+            currency=po.currency_id,
+            quantity=quantity,
+            product=po_line.product_id,
+            partner=po.partner_id,
+            rounding_method='round_globally',
+        )['total_void']

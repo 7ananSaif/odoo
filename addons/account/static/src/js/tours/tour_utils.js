@@ -1,21 +1,29 @@
-export function showProductColumn() {
-    // Show product column if Sale is not installed.
+export function showProductColumn(fieldName = "product_id") {
     return [
         {
+            isActive: ["desktop"],
             content: "Open line fields list",
             trigger: ".o_optional_columns_dropdown_toggle",
             run: "click",
         },
         {
+            isActive: ["desktop", "auto"],
             content: "Show product column",
-            trigger: '.o-dropdown-item input[name="product_id"], .o-dropdown-item input[name="product_template_id"]',
-            run: function (actions) {
-                if (!this.anchor.checked) {
-                    actions.click();
+            trigger: `.o-dropdown-item input[name="${fieldName}"]`,
+            run: function ({ anchor }) {
+                if (!anchor.checked) {
+                    anchor.click();
                 }
             },
         },
         {
+            isActive: ["desktop", "manual"],
+            content: "Show product column",
+            trigger: `.o-dropdown-item input[name="${fieldName}"]`,
+            run: "click",
+        },
+        {
+            isActive: ["desktop"],
             content: "Close line fields list",
             trigger: ".o_optional_columns_dropdown_toggle",
             run: "click",
@@ -32,7 +40,7 @@ export function addSectionFromProductCatalog() {
         },
         {
             content: "Click 'Add Section' button",
-            trigger: '.o_search_panel_sections button:contains("+ Add Section")',
+            trigger: '.o_search_panel_sections button:contains("Add Section")',
             run: 'click',
         },
         {
@@ -62,21 +70,21 @@ export function addSectionFromProductCatalog() {
         },
         {
             content: "Wait for product to be added",
-            trigger: '.o_kanban_record:contains("Test Product"):not(:has(.fa-shopping-cart))',
+            trigger: '.o_kanban_record:contains("Test Product"):not(:has([data-icon="shopping_cart"]))',
         },
         {
             content: "Close the catalog",
             trigger: '.o-kanban-button-back',
             run: 'click',
         },
-        ...showProductColumn(),
         {
             content: "Ensure Section is first row",
             trigger: '.o_section_and_note_list_view tr:nth-child(1).o_is_line_section',
         },
         {
             content: "Ensure Product is second row",
-            trigger: 'tbody tr:nth-child(2) .o_field_product_label_section_and_note_cell:contains("Test Product")',
+            trigger:
+                "tbody tr:nth-child(2) td[name=product_and_description]:contains(Test Product)",
         },
     ];
 }

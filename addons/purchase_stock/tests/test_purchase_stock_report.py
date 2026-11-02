@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo.tests import Form
+from datetime import datetime, timedelta
+
+from odoo import Command
+from odoo.tests import Form, tagged
 from odoo.addons.mail.tests.common import mail_new_test_user
 from odoo.addons.stock.tests.test_report import TestReportsCommon
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestPurchaseStockReports(TestReportsCommon):
     def test_report_forecast_1_purchase_order_multi_receipt(self):
         """ Create a PO for 5 product, receive them then increase the quantity to 10.
@@ -200,6 +204,31 @@ class TestPurchaseStockReports(TestReportsCommon):
         draft_purchase_qty = self.sum_dicts(docs['product'], 'draft_purchase_qty')['in']
         self.assertEqual(draft_purchase_qty, 150)
 
+    def test_purchase_report_effective_days_to_arrival(self):
+        """ Test that 'Effective Days To Arrival' counts the days between the
+        order confirmation date and the effective receipt date.
+        """
+        po = self.env['purchase.order'].create({
+            'partner_id': self.partner.id,
+            'date_order': datetime.now() - timedelta(days=10),
+            'order_line': [Command.create({
+                'product_id': self.product.id,
+                'product_qty': 1,
+                'date_planned': datetime.now() + timedelta(days=5),
+            })],
+        })
+        po.button_confirm()
+        po.picking_ids.button_validate()
+
+        po.flush_model()
+        po.picking_ids.flush_recordset(['date_done'])
+        report = self.env['purchase.report'].formatted_read_group(
+            [('order_id', '=', po.id)],
+            ['order_id'],
+            ['days_to_arrival:avg'],
+        )
+        self.assertEqual(round(report[0]['days_to_arrival:avg']), 10)
+
     def test_vendor_delay_report_with_uom(self):
         """
         PO 12 units x P
@@ -223,7 +252,7 @@ class TestPurchaseStockReports(TestReportsCommon):
             'location_id': receipt_move.location_id.id,
             'location_dest_id': receipt_move.location_dest_id.id,
             'product_id': self.product.id,
-            'product_uom_id': uom_12.id,
+            'uom_id': uom_12.id,
             'quantity': 1,
             'picking_id': receipt.id,
         })]
@@ -273,14 +302,14 @@ class TestPurchaseStockReports(TestReportsCommon):
             'location_id': receipt_move.location_id.id,
             'location_dest_id': child_loc_01.id,
             'product_id': self.product.id,
-            'product_uom_id': self.product.uom_id.id,
+            'uom_id': self.product.uom_id.id,
             'quantity': 6,
             'picking_id': receipt.id,
         }), (0, 0, {
             'location_id': receipt_move.location_id.id,
             'location_dest_id': child_loc_02.id,
             'product_id': self.product.id,
-            'product_uom_id': self.product.uom_id.id,
+            'uom_id': self.product.uom_id.id,
             'quantity': 4,
             'picking_id': receipt.id,
         })]

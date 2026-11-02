@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
@@ -7,7 +6,7 @@
     'description': """
 Enable management of UTM trackers: campaign, medium, source.
 """,
-    'version': '1.1',
+    'version': '1.2',
     'depends': ['base', 'web'],
     'data': [
         'data/utm_medium_data.xml',
@@ -20,7 +19,7 @@ Enable management of UTM trackers: campaign, medium, source.
         'views/utm_stage_views.xml',
         'views/utm_tag_views.xml',
         'views/utm_menus.xml',
-        'security/ir.model.access.csv',
+        'security/ir.access.csv',
     ],
     'demo': [
         'data/utm_campaign_demo.xml',

@@ -1,5 +1,5 @@
 import { test, expect, describe } from "@odoo/hoot";
-import { Component, xml } from "@odoo/owl";
+import { Component, useProps, xml } from "@odoo/owl";
 import {
     assertDateTimePicker,
     editTime,
@@ -10,7 +10,7 @@ import { DateTimeInput } from "@web/core/datetime/datetime_input";
 import {
     contains,
     defineParams,
-    makeMockEnv,
+    makeTestApp,
     mountWithCleanup,
     serverState,
 } from "@web/../tests/web_test_helpers";
@@ -20,13 +20,13 @@ const { DateTime } = luxon;
 
 class DateTimeInputComp extends Component {
     static components = { DateTimeInput };
-    static template = xml`<DateTimeInput t-props="props" />`;
-    static props = ["*"];
+    static template = xml`<DateTimeInput t-props="this.props" />`;
+    props = useProps();
 }
 
 async function changeLang(lang) {
     serverState.lang = lang;
-    await makeMockEnv();
+    await makeTestApp();
 }
 
 describe("DateTimeInput (date)", () => {
@@ -56,7 +56,7 @@ describe("DateTimeInput (date)", () => {
         await animationFrame();
 
         assertDateTimePicker({
-            title: "January 1997",
+            title: "Jan 1997",
             date: [
                 {
                     cells: [
@@ -77,7 +77,7 @@ describe("DateTimeInput (date)", () => {
     test("pick a date", async () => {
         expect.assertions(4);
 
-        await makeMockEnv();
+        await makeTestApp();
 
         await mountWithCleanup(DateTimeInputComp, {
             props: {
@@ -170,6 +170,8 @@ describe("DateTimeInput (date)", () => {
     test("enter a date value", async () => {
         expect.assertions(4);
 
+        await makeTestApp();
+
         await mountWithCleanup(DateTimeInputComp, {
             props: {
                 value: DateTime.fromFormat("09/01/1997", "dd/MM/yyyy"),
@@ -217,11 +219,11 @@ describe("DateTimeInput (date)", () => {
     });
 
     test.tags("mobile");
-    test("popover should have enough space to be displayed", async () => {
+    test("popover should be inside a bottom sheet", async () => {
         class Root extends Component {
             static components = { DateTimeInput };
-            static template = xml`<div class="d-flex"><DateTimeInput t-props="props" /></div>`;
-            static props = ["*"];
+            static template = xml`<div class="d-flex"><DateTimeInput t-props="this.props" /></div>`;
+            props = useProps();
         }
         await mountWithCleanup(Root, {
             props: {
@@ -230,18 +232,9 @@ describe("DateTimeInput (date)", () => {
             },
         });
         const parent = queryFirst(".o_datetime_input").parentElement;
-        const initialParentHeight = parent.clientHeight;
 
         await contains(".o_datetime_input", { root: parent }).click();
-
-        const pickerRectHeight = queryFirst(".o_datetime_picker").clientHeight;
-
-        expect(initialParentHeight).toBeLessThan(pickerRectHeight, {
-            message: "initial height shouldn't be big enough to display the picker",
-        });
-        expect(parent.clientHeight).toBeGreaterThan(pickerRectHeight, {
-            message: "initial height should be big enough to display the picker",
-        });
+        expect(".o_bottom_sheet .o_datetime_picker").toHaveCount(1);
     });
 });
 
@@ -269,7 +262,7 @@ describe("DateTimeInput (datetime)", () => {
         await contains(".o_datetime_input").click();
 
         assertDateTimePicker({
-            title: "January 1997",
+            title: "Jan 1997",
             date: [
                 {
                     cells: [
@@ -289,8 +282,6 @@ describe("DateTimeInput (datetime)", () => {
     });
 
     test("pick a date and time", async () => {
-        await makeMockEnv();
-
         await mountWithCleanup(DateTimeInputComp, {
             props: {
                 value: DateTime.fromFormat("09/01/1997 12:30:01", "dd/MM/yyyy HH:mm:ss"),
@@ -349,7 +340,8 @@ describe("DateTimeInput (datetime)", () => {
             },
         });
 
-        await makeMockEnv();
+        await makeTestApp();
+
         await mountWithCleanup(DateTimeInputComp, {
             props: {
                 value: DateTime.fromFormat("09/01/1997 08:30", "dd/MM/yyyy HH:mm"),
@@ -372,6 +364,8 @@ describe("DateTimeInput (datetime)", () => {
 
     test("enter a datetime value", async () => {
         expect.assertions(6);
+
+        await makeTestApp();
 
         await mountWithCleanup(DateTimeInputComp, {
             props: {
@@ -402,7 +396,7 @@ describe("DateTimeInput (datetime)", () => {
         expect(".o_datetime_input").toHaveValue("08/02/1997 15:45:05");
         expect(getPickerCell("8", true)).toHaveClass("o_selected");
 
-        expect(".o_time_picker_input").toHaveValue("15:45");
+        expect(queryFirst(".o_time_picker_input").value).toBe("15:45");
     });
 
     test("Date time format is correctly set", async () => {
@@ -473,7 +467,8 @@ describe("DateTimeInput (datetime)", () => {
     test("start with no value", async () => {
         expect.assertions(5);
 
-        await makeMockEnv();
+        await makeTestApp();
+
         await mountWithCleanup(DateTimeInputComp, {
             props: {
                 type: "datetime",

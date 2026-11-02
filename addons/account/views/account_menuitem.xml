@@ -32,13 +32,13 @@
             <menuitem id="account_audit_control_menu" name="Control" sequence="20" groups="account.group_account_readonly">
                 <menuitem id="menu_action_account_moves_all" action="action_account_moves_all" groups="account.group_account_readonly" sequence="6"/>
             </menuitem>
-            <menuitem id="account_logs_menu" name="Logs" sequence="60"/>
         </menuitem>
         <menuitem id="menu_finance_reports" name="Reporting" sequence="20" groups="account.group_account_readonly,account.group_account_invoice">
             <menuitem id="account_reports_partners_reports_menu" name="Partner Reports" sequence="3"/>
             <menuitem id="account_reports_taxes_and_fiscal_menu" name="Taxes &amp; Fiscal" sequence="4"/>
             <menuitem id="account_reports_management_menu" name="Management" sequence="5">
                 <menuitem id="menu_action_account_invoice_report_all" name="Invoice Analysis" action="action_account_invoice_report_all" sequence="1"/>
+                <menuitem id="menu_action_account_cashflow_analysis" name="Cashflow Analysis" action="action_account_cashflow_analysis" sequence="2"/>
                 <menuitem id="menu_action_analytic_reporting" name="Analytic Report" action="action_analytic_reporting" groups="account.group_account_readonly"/>
             </menuitem>
             <menuitem id="account_reports_legal_statements_menu" name="Statement Reports" sequence="1" groups="account.group_account_readonly,account.group_account_basic"/>
@@ -61,7 +61,6 @@
                 <menuitem id="menu_action_incoterm_open" action="action_incoterms_tree" groups="base.group_no_one" sequence="20"/>
                 <menuitem id="menu_product_product_categories" name="Product Categories" action="product.product_category_action_form" sequence="30"/>
             </menuitem>
-            <menuitem id="root_payment_menu" name="Online Payments" groups="account.group_account_manager" sequence="30"/>
             <menuitem id="menu_analytic_accounting" name="Analytic Accounting" groups="analytic.group_analytic_accounting" sequence="40">
                 <menuitem id="menu_analytic__distribution_model" name="Analytic Distribution Models" action="analytic.action_analytic_distribution_model" groups="analytic.group_analytic_accounting" sequence="10"/>
                 <menuitem id="account_analytic_def_account" action="analytic.action_account_analytic_account_form" groups="analytic.group_analytic_accounting" sequence="20"/>

@@ -1,15 +1,18 @@
 import { animationFrame } from "@odoo/hoot-mock";
-import { Model } from "@odoo/o-spreadsheet";
+import { Model, stores } from "@odoo/o-spreadsheet";
 import { OdooDataProvider } from "@spreadsheet/data_sources/odoo_data_provider";
 import {
     defineActions,
     defineMenus,
     getMockEnv,
-    makeMockEnv,
+    getTestApp,
+    makeTestApp,
     onRpc,
+    patchWithCleanup,
 } from "@web/../tests/web_test_helpers";
 import { setCellContent } from "./commands";
 import { addRecordsFromServerData, addViewsFromServerData } from "./data";
+import { markRaw } from "@odoo/owl";
 
 /**
  * @typedef {import("@spreadsheet/../tests/helpers/data").ServerData} ServerData
@@ -34,7 +37,8 @@ export function setupDataSourceEvaluation(model) {
  * @returns {Promise<{ model: OdooSpreadsheetModel, env: Object }>}
  */
 export async function createModelWithDataSource(params = {}) {
-    const env = await makeSpreadsheetMockEnv(params);
+    await makeSpreadsheetMockEnv(params);
+    const env = getMockEnv();
     const config = params.modelConfig;
     /** @type any*/
     const model = new Model(params.spreadsheetData, {
@@ -45,6 +49,7 @@ export async function createModelWithDataSource(params = {}) {
             ...config?.custom,
         },
     });
+    markRaw(model);
     env.model = model;
     // if (params.serverData) {
     //     await addRecordsFromServerData(params.serverData);
@@ -61,7 +66,7 @@ export async function createModelWithDataSource(params = {}) {
  * @param {object} [params.spreadsheetData] Spreadsheet data to import
  * @param {ServerData} [params.serverData] Data to be injected in the mock server
  * @param {function} [params.mockRPC] Mock rpc function
- * @returns {Promise<Object>}
+ * @returns {Promise<void>}
  */
 export async function makeSpreadsheetMockEnv(params = {}) {
     if (params.mockRPC) {
@@ -81,8 +86,15 @@ export async function makeSpreadsheetMockEnv(params = {}) {
     if (params.serverData?.views) {
         addViewsFromServerData(params.serverData);
     }
-    const env = getMockEnv() || (await makeMockEnv());
-    return env;
+    if (!getTestApp()) {
+        await makeTestApp();
+    }
+    patchWithCleanup(stores.GridRenderer.prototype, {
+        getBoxesWithAnimations(boxes) {
+            // disable animations for tests, as they won't work with hoot patched `requestAnimationFrame`
+            return boxes;
+        },
+    });
 }
 
 export function createModelFromGrid(grid) {

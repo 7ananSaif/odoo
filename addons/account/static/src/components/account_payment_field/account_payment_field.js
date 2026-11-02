@@ -1,22 +1,37 @@
-import { _t } from "@web/core/l10n/translation";
-import { registry } from "@web/core/registry";
-import { usePopover } from "@web/core/popover/popover_hook";
-import { useService } from "@web/core/utils/hooks";
+import { t, Component, useProps } from "@odoo/owl";
+import { deserializeDate, formatDate } from "@web/core/l10n/dates";
 import { localization } from "@web/core/l10n/localization";
-import { formatDate, deserializeDate } from "@web/core/l10n/dates";
-
+import { _t } from "@web/core/l10n/translation";
+import { usePopover } from "@web/core/popover/popover_hook";
+import { registry } from "@web/core/registry";
+import { useService } from "@web/core/utils/hooks";
 import { formatMonetary } from "@web/views/fields/formatters";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
-import { Component } from "@odoo/owl";
 
 class AccountPaymentPopOver extends Component {
-    static props = { "*": { optional: true } };
     static template = "account.AccountPaymentPopOver";
+
+    props = useProps({
+        _onOpenMove: t.function(),
+        _onRemoveMoveReconcile: t.function(),
+        amount_company_currency: t.string(),
+        amount_foreign_currency: t.or([t.string(), t.literal(null)]).optional(),
+        close: t.function(),
+        company_name: t.or([t.string(), t.literal(false)]),
+        date: t.string(),
+        journal_name: t.string(),
+        move_id: t.or([t.number(), t.literal(false)]),
+        partial_id: t.or([t.number(), t.literal(false)]),
+        payment_method_name: t.or([t.string(), t.literal(false)]).optional(),
+        ref: t.string(),
+        title: t.string(),
+    });
 }
 
 export class AccountPaymentField extends Component {
-    static props = { ...standardFieldProps };
     static template = "account.AccountPaymentField";
+
+    props = useProps(standardFieldProps);
 
     setup() {
         const position = localization.direction === "rtl" ? "bottom" : "left";
@@ -31,7 +46,9 @@ export class AccountPaymentField extends Component {
             outstanding: false,
             title: "",
             move_id: this.props.record.resId,
+            exchange_info: {},
         };
+
         for (const [key, value] of Object.entries(info.content)) {
             value.index = key;
             value.amount_formatted = formatMonetary(value.amount, {
@@ -41,9 +58,11 @@ export class AccountPaymentField extends Component {
                 // value.date is a string, parse to date and format to the users date format
                 value.formattedDate = formatDate(deserializeDate(value.date))
             }
-        }
+        };
+
         return {
             lines: info.content,
+            exchangeInfo: info.exchange_info,
             outstanding: info.outstanding,
             title: info.title,
             moveId: info.move_id,
@@ -59,7 +78,13 @@ export class AccountPaymentField extends Component {
         });
     }
 
+    async onExchangeInfoClick(lineIds) {
+        const action = await this.orm.call(this.props.record.resModel, 'action_open_exchange_items', [lineIds], {});
+        this.action.doAction(action);
+    }
+
     async assignOutstandingCredit(moveId, id) {
+        await this.props.record.save();
         await this.orm.call(this.props.record.resModel, 'js_assign_outstanding_line', [moveId, id], {});
         await this.props.record.model.root.load();
     }
@@ -78,7 +103,7 @@ export class AccountPaymentField extends Component {
 
 export const accountPaymentField = {
     component: AccountPaymentField,
-    supportedTypes: ["binary"],
+    supportedTypes: ["json"],
 };
 
 registry.category("fields").add("payment", accountPaymentField);

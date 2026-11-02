@@ -15,17 +15,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-11-16 15:04+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Hungarian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-11 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 16:03+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Hungarian <https://translate.odoo.com/projects/odoo-s19-4/"
 "barcodes/hu/>\n"
 "Language: hu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: barcodes
 #. odoo-python
@@ -96,20 +96,16 @@ msgstr "Bármely"
 
 #. module: barcodes
 #. odoo-javascript
-#: code:addons/barcodes/static/src/components/manual_barcode.xml:0
+#: code:addons/barcodes/static/src/components/barcode_input.xml:0
 msgid "Apply"
-msgstr "Alkalmazás"
+msgstr ""
 
 #. module: barcodes
 #. odoo-javascript
 #: code:addons/barcodes/static/src/components/barcode_scanner.xml:0
+#: model:ir.module.module,shortdesc:base.module_barcodes
 msgid "Barcode"
 msgstr "Vonalkód"
-
-#. module: barcodes
-#: model:ir.model,name:barcodes.model_barcodes_barcode_events_mixin
-msgid "Barcode Event Mixin"
-msgstr ""
 
 #. module: barcodes
 #: model:ir.model,name:barcodes.model_barcode_nomenclature
@@ -137,9 +133,9 @@ msgid "Barcode Rule"
 msgstr "Vonalkód szabály"
 
 #. module: barcodes
-#: model:ir.model.fields,field_description:barcodes.field_barcodes_barcode_events_mixin___barcode_scanned
-msgid "Barcode Scanned"
-msgstr "Vonalkód leolvasva"
+#: model_terms:ir.ui.view,arch_db:barcodes.view_partner_barcodes_form
+msgid "Barcode must start with `042`"
+msgstr ""
 
 #. module: barcodes
 #. odoo-javascript
@@ -148,9 +144,17 @@ msgid "Barcode: %(barcode)s"
 msgstr ""
 
 #. module: barcodes
+#. odoo-javascript
+#: code:addons/barcodes/static/src/components/barcode_view.xml:0
+msgid ""
+"Click the icon in the browser on the left of the address bar and toggle "
+"Camera permissions."
+msgstr ""
+
+#. module: barcodes
 #: model:ir.model,name:barcodes.model_res_company
-msgid "Companies"
-msgstr "Vállalatok"
+msgid "Company"
+msgstr ""
 
 #. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_nomenclature__create_uid
@@ -167,7 +171,6 @@ msgstr "Létrehozva"
 #. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_nomenclature__display_name
 #: model:ir.model.fields,field_description:barcodes.field_barcode_rule__display_name
-#: model:ir.model.fields,field_description:barcodes.field_barcodes_barcode_events_mixin__display_name
 #: model:ir.model.fields,field_description:barcodes.field_ir_http__display_name
 #: model:ir.model.fields,field_description:barcodes.field_res_company__display_name
 msgid "Display Name"
@@ -189,14 +192,20 @@ msgid "EAN-8"
 msgstr "EAN-8"
 
 #. module: barcodes
+#. odoo-javascript
+#: code:addons/barcodes/static/src/components/barcode_view.xml:0
+msgid "Edit access to scan"
+msgstr ""
+
+#. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_rule__encoding
 msgid "Encoding"
 msgstr "Kódolás"
 
 #. module: barcodes
 #. odoo-javascript
-#: code:addons/barcodes/static/src/components/manual_barcode.js:0
-msgid "Enter a barcode..."
+#: code:addons/barcodes/static/src/components/barcode_input.js:0
+msgid "Enter a barcode"
 msgstr ""
 
 #. module: barcodes
@@ -207,19 +216,10 @@ msgstr "HTTP irányítás"
 #. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_nomenclature__id
 #: model:ir.model.fields,field_description:barcodes.field_barcode_rule__id
-#: model:ir.model.fields,field_description:barcodes.field_barcodes_barcode_events_mixin__id
 #: model:ir.model.fields,field_description:barcodes.field_ir_http__id
 #: model:ir.model.fields,field_description:barcodes.field_res_company__id
 msgid "ID"
 msgstr "ID"
-
-#. module: barcodes
-#. odoo-python
-#: code:addons/barcodes/models/barcode_events_mixin.py:0
-msgid ""
-"In order to use barcodes.barcode_events_mixin, method on_barcode_scanned "
-"must be implemented"
-msgstr ""
 
 #. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_nomenclature__write_uid
@@ -237,6 +237,12 @@ msgstr "Frissítve"
 #: model:ir.model.fields.selection,name:barcodes.selection__barcode_nomenclature__upc_ean_conv__none
 msgid "Never"
 msgstr "Soha"
+
+#. module: barcodes
+#. odoo-javascript
+#: code:addons/barcodes/static/src/components/barcode_view.xml:0
+msgid "No access to your camera"
+msgstr ""
 
 #. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_res_company__nomenclature_id
@@ -276,6 +282,11 @@ msgid "Rules"
 msgstr "Szabályok"
 
 #. module: barcodes
+#: model:ir.module.module,summary:base.module_barcodes
+msgid "Scan and Parse Barcodes"
+msgstr ""
+
+#. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_rule__sequence
 msgid "Sequence"
 msgstr "Sorszám"
@@ -289,7 +300,7 @@ msgstr "Asztalok"
 #. odoo-javascript
 #: code:addons/barcodes/static/src/components/barcode_scanner.xml:0
 msgid "Tap to scan"
-msgstr "Érintse meg a beolvasáshoz"
+msgstr ""
 
 #. module: barcodes
 #: model:ir.model.fields,help:barcodes.field_barcode_rule__pattern
@@ -392,11 +403,6 @@ msgstr ""
 msgid "Used to order rules such that rules with a smaller sequence match first"
 msgstr ""
 "Szabályok rendbetételéhez használja, mint a kisebb  sorrendű az első találat"
-
-#. module: barcodes
-#: model:ir.model.fields,help:barcodes.field_barcodes_barcode_events_mixin___barcode_scanned
-msgid "Value of the last barcode scanned."
-msgstr "Utoljára beszkennelt vonalkód értéke."
 
 #. module: barcodes
 #. odoo-python

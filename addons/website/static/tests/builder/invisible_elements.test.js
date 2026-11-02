@@ -1,16 +1,20 @@
 import { InvisibleElementsPanel } from "@html_builder/sidebar/invisible_elements_panel";
-import { getSnippetStructure, waitForEndOfOperation } from "@html_builder/../tests/helpers";
+import {
+    addBuilderOption,
+    getSnippetStructure,
+    waitForEndOfOperation,
+} from "@html_builder/../tests/helpers";
 import { unformat } from "@html_editor/../tests/_helpers/format";
 import { describe, expect, test } from "@odoo/hoot";
 import { click, queryAllTexts, queryFirst, queryOne, waitFor } from "@odoo/hoot-dom";
 import { xml } from "@odoo/owl";
 import { contains, patchWithCleanup } from "@web/../tests/web_test_helpers";
 import {
-    addOption,
     addDropZoneSelector,
     defineWebsiteModels,
     invisibleEl,
     setupWebsiteBuilder,
+    toggleMobilePreview,
     waitForSnippetDialog,
 } from "./website_helpers";
 
@@ -21,19 +25,24 @@ test("click on invisible elements in the invisible elements tab (check eye icon)
     expect(queryOne(".o_we_invisible_el_panel .o_we_invisible_entry")).toHaveText(
         "Invisible Element"
     );
-    expect(queryOne(".o_we_invisible_el_panel .o_we_invisible_entry i")).toHaveClass(
-        "fa-eye-slash"
+    expect(queryOne(".o_we_invisible_el_panel .o_we_invisible_entry i")).toHaveAttribute(
+        "data-icon",
+        "visibility_off"
     );
     await contains(".o_we_invisible_el_panel .o_we_invisible_entry").click();
-    expect(queryOne(".o_we_invisible_el_panel .o_we_invisible_entry i")).toHaveClass("fa-eye");
+    expect(queryOne(".o_we_invisible_el_panel .o_we_invisible_entry i")).toHaveAttribute(
+        "data-icon",
+        "visibility"
+    );
     await contains(".o_we_invisible_el_panel .o_we_invisible_entry").click();
-    expect(queryOne(".o_we_invisible_el_panel .o_we_invisible_entry i")).toHaveClass(
-        "fa-eye-slash"
+    expect(queryOne(".o_we_invisible_el_panel .o_we_invisible_entry i")).toHaveAttribute(
+        "data-icon",
+        "visibility_off"
     );
 });
 
 test("click on invisible elements in the invisible elements tab (check sidebar tab)", async () => {
-    addOption({
+    addBuilderOption({
         selector: ".s_test",
         template: xml`<BuilderButton classAction="'my-custom-class'"/>`,
     });
@@ -83,11 +92,11 @@ test("Add an element on the invisible elements tab", async () => {
         ".o_add_snippet_dialog .o_add_snippet_iframe:iframe .o_snippet_preview_wrap"
     ).click();
     await waitForEndOfOperation();
-    expect(".o_we_invisible_el_panel .o_we_invisible_entry:contains('Test') .fa-eye").toHaveCount(
-        1
-    );
     expect(
-        ".o_we_invisible_el_panel .o_we_invisible_entry:contains('Invisible Element') .fa-eye-slash"
+        ".o_we_invisible_el_panel .o_we_invisible_entry:contains('Test') [data-icon='visibility']"
+    ).toHaveCount(1);
+    expect(
+        ".o_we_invisible_el_panel .o_we_invisible_entry:contains('Invisible Element') [data-icon='visibility_off']"
     ).toHaveCount(1);
 });
 
@@ -101,7 +110,7 @@ test("mobile and desktop invisible elements panel", async () => {
         "Popup1",
         "Popup3",
     ]);
-    await contains("button[data-action='mobile']").click();
+    await toggleMobilePreview();
     expect(queryAllTexts(".o_we_invisible_el_panel .o_we_invisible_entry")).toEqual([
         "Popup1",
         "Popup2",
@@ -114,9 +123,9 @@ test("mobile and desktop option container", async () => {
     `);
     await contains(".o_we_invisible_el_panel .o_we_invisible_entry").click();
     expect(".options-container").toBeVisible();
-    await contains("button[data-action='mobile']").click();
+    await toggleMobilePreview();
     expect(".options-container").toBeVisible();
-    await contains("button[data-action='mobile']").click();
+    await toggleMobilePreview();
     expect(".options-container").not.toHaveCount();
 });
 
@@ -129,7 +138,7 @@ test("desktop option undo after override", async () => {
         "[data-action-id='toggleDeviceVisibility'][data-action-param='no_desktop']"
     ).click();
     expect(":iframe section").not.toHaveClass("o_snippet_override_invisible");
-    await contains(".o_we_invisible_entry .fa-eye-slash").click();
+    await contains(".o_we_invisible_entry [data-icon='visibility_off']").click();
     expect(":iframe section").toHaveClass("o_snippet_override_invisible");
     builder.getEditor().shared.history.undo();
     expect(":iframe section").not.toHaveClass("o_snippet_override_invisible");
@@ -144,7 +153,7 @@ test("keep the option container of a visible snippet even if there are hidden sn
     `);
     await contains(":iframe #my_el").click();
     expect(".options-container").toBeVisible();
-    await contains("button[data-action='mobile']").click();
+    await toggleMobilePreview();
     expect(".options-container").toBeVisible();
 });
 
@@ -163,7 +172,7 @@ test("invisible elements efficiency", async () => {
         <div class="o_snippet_desktop_invisible" data-name="Popup3"></div>
     `);
     expect.verifySteps(["update invisible panel"]);
-    await contains("button[data-action='mobile']").click();
+    await toggleMobilePreview();
     expect.verifySteps(["update invisible panel"]);
 });
 

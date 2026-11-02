@@ -10,13 +10,17 @@ import {
 } from "@mail/../tests/mail_test_helpers";
 
 import { describe, test } from "@odoo/hoot";
+import { mockDate } from "@odoo/hoot-mock";
 
 import { Command, serverState } from "@web/../tests/web_test_helpers";
+import { deserializeDateTime } from "@web/core/l10n/dates";
+import { user } from "@web/core/user";
 
 describe.current.tags("desktop");
 defineCrmLivechatModels();
 
 test("can create a lead from the thread action after the conversation ends", async () => {
+    mockDate("2025-01-01 12:00:00", +1);
     const pyEnv = await startServer();
     const groupId = pyEnv["res.groups"].create({ name: "Sales Team" });
     serverState.groupSalesTeamId = groupId;
@@ -30,7 +34,6 @@ test("can create a lead from the thread action after the conversation ends", asy
             Command.create({ partner_id: serverState.partnerId, livechat_member_type: "agent" }),
             Command.create({ guest_id: guestId, livechat_member_type: "visitor" }),
         ],
-        livechat_operator_id: serverState.partnerId,
     });
     await start();
     await openDiscuss(channel_id);
@@ -38,5 +41,15 @@ test("can create a lead from the thread action after the conversation ends", asy
     await click(".o-mail-DiscussContent-header button[title='Create Lead']");
     await insertText(".o-livechat-LivechatCommandDialog-form input", "testlead");
     await click(".o-mail-ActionPanel button", { text: "Create Lead" });
-    await contains(".o_mail_notification", { text: "Created a new lead: testlead" });
+    const [{ date }] = pyEnv["mail.message"].search_read([["res_id", "=", channel_id]]);
+    const time = deserializeDateTime(date).toLocaleString(luxon.DateTime.TIME_SIMPLE, {
+        locale: user.lang,
+    });
+    await contains(
+        `.o-mail-NotificationMessage:text('${serverState.partnerName} created a new lead: testlead${time}')`
+    );
+    const [leadId] = pyEnv["crm.lead"].search([["name", "=", "testlead"]]);
+    await contains(
+        `.o-mail-NotificationMessage a[href='/mail/view?model=crm.lead&res_id=${leadId}'][data-oe-model='crm.lead'][data-oe-id='${leadId}']:text('testlead')`
+    );
 });

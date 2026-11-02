@@ -3,23 +3,23 @@
 # * hr_recruitment_skills
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
-# "Junko Augias (juau)" <juau@odoo.com>, 2025.
+# "Junko Augias (juau)" <juau@odoo.com>, 2025, 2026.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-11-18 04:53+0000\n"
+"POT-Creation-Date: 2026-09-04 17:46+0000\n"
+"PO-Revision-Date: 2026-08-31 16:50+0000\n"
 "Last-Translator: \"Junko Augias (juau)\" <juau@odoo.com>\n"
-"Language-Team: Japanese <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Japanese <https://translate.odoo.com/projects/odoo-s19-4/"
 "hr_recruitment_skills/ja/>\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: hr_recruitment_skills
 #: model:ir.model,name:hr_recruitment_skills.model_hr_applicant
@@ -36,6 +36,11 @@ msgstr "求人に応募する"
 #: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_applicant_skill_view_form
 msgid "Category"
 msgstr "カテゴリ"
+
+#. module: hr_recruitment_skills
+#: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant_skill__certificate_file
+msgid "Certificate"
+msgstr "証明書"
 
 #. module: hr_recruitment_skills
 #: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant_skill__color
@@ -58,6 +63,16 @@ msgid "Current Applicant Skill"
 msgstr "現在の応募者スキル"
 
 #. module: hr_recruitment_skills
+#: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__degree_score
+msgid "Degree Score"
+msgstr ""
+
+#. module: hr_recruitment_skills
+#: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__is_degree_score_matching
+msgid "Degree Score Matching"
+msgstr ""
+
+#. module: hr_recruitment_skills
 #: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__display_name
 #: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant_skill__display_name
 #: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_job__display_name
@@ -77,13 +92,19 @@ msgid "ID"
 msgstr "ID"
 
 #. module: hr_recruitment_skills
+#: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__job_expected_degree
+msgid "Job Degree"
+msgstr ""
+
+#. module: hr_recruitment_skills
 #: model:ir.model,name:hr_recruitment_skills.model_hr_job
 msgid "Job Position"
 msgstr "職位"
 
 #. module: hr_recruitment_skills
 #. odoo-javascript
-#: code:addons/hr_recruitment_skills/static/src/fields/skill_match_gauge_field/skill_match_gauge_field.xml:0
+#: code:addons/hr_recruitment_skills/static/src/components/match_scores_gauge/match_scores_gauge.js:0
+#: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_applicant_view_form
 msgid "Job Position Matching"
 msgstr "職種との適合度"
 
@@ -103,7 +124,12 @@ msgid "Levels Count"
 msgstr "レベル数"
 
 #. module: hr_recruitment_skills
-#: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.crm_case_tree_view_job
+#: model:ir.module.module,summary:base.module_hr_recruitment_skills
+msgid "Manage skills of your employees"
+msgstr ""
+
+#. module: hr_recruitment_skills
+#: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_job_list_inherit_hr_recruitment_skills
 msgid "Matching"
 msgstr "マッチング"
 
@@ -114,12 +140,14 @@ msgid "Matching Applicants"
 msgstr "マッチする応募者"
 
 #. module: hr_recruitment_skills
-#: model:ir.actions.act_window,name:hr_recruitment_skills.action_find_matching_job
-msgid "Matching Positions"
-msgstr "一致する職位"
+#: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__matching_skill_ids
+msgid "Matching Factors"
+msgstr ""
 
 #. module: hr_recruitment_skills
 #: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__matching_score
+#: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.crm_case_tree_view_job
+#: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_applicant_view_search_bis
 msgid "Matching Score"
 msgstr "マッチングスコア(%)"
 
@@ -129,12 +157,37 @@ msgid "Matching Score(%)"
 msgstr "マッチングスコア(%)"
 
 #. module: hr_recruitment_skills
-#: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__matching_skill_ids
+#: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_job__matching_applicant_skill_ids
 msgid "Matching Skills"
 msgstr "マッチングスキル"
 
 #. module: hr_recruitment_skills
+#. odoo-javascript
+#: code:addons/hr_recruitment_skills/static/src/components/search_job_applicant_menu/search_job_applicant_menu.xml:0
+#: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.view_hr_job_form
+#: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.view_hr_job_kanban
+msgid "Matching Talents"
+msgstr "マッチする人材"
+
+#. module: hr_recruitment_skills
+#. odoo-javascript
+#: code:addons/hr_recruitment_skills/static/src/components/match_scores_gauge/match_scores_gauge.js:0
+msgid "Max Value"
+msgstr ""
+
+#. module: hr_recruitment_skills
+#. odoo-javascript
+#: code:addons/hr_recruitment_skills/static/src/components/match_scores_gauge/match_scores_gauge.js:0
+msgid "Max Value Field"
+msgstr ""
+
+#. module: hr_recruitment_skills
 #: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__missing_skill_ids
+msgid "Missing Factors"
+msgstr ""
+
+#. module: hr_recruitment_skills
+#: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_job__missing_applicant_skill_ids
 msgid "Missing Skills"
 msgstr "不足しているスキル"
 
@@ -146,8 +199,8 @@ msgstr "この職位に移動"
 #. module: hr_recruitment_skills
 #. odoo-python
 #: code:addons/hr_recruitment_skills/models/hr_job.py:0
-msgid "No Matching Applicants"
-msgstr "マッチする応募者がいません"
+msgid "No Matching Talents"
+msgstr "該当する人材が見つかりません"
 
 #. module: hr_recruitment_skills
 #: model:ir.model.fields,help:hr_recruitment_skills.field_hr_applicant_skill__levels_count
@@ -165,11 +218,21 @@ msgid "Progress from zero knowledge (0%) to fully mastered (100%)."
 msgstr "進捗は、知識ゼロ(0%)から完全習得(100%)まで。"
 
 #. module: hr_recruitment_skills
+#: model:ir.module.module,shortdesc:base.module_hr_recruitment_skills
+msgid "Recruitment - Skills Management"
+msgstr ""
+
+#. module: hr_recruitment_skills
 #. odoo-javascript
-#: code:addons/hr_recruitment_skills/static/src/components/search_job_applicant_menu/search_job_applicant_menu.xml:0
-#: model:ir.actions.server,name:hr_recruitment_skills.action_applicant_search_applicant
-msgid "Search Matching Applicants"
-msgstr "マッチする応募者を検索"
+#: code:addons/hr_recruitment_skills/static/src/components/match_scores_gauge/match_scores_gauge.js:0
+msgid "Remaining"
+msgstr ""
+
+#. module: hr_recruitment_skills
+#. odoo-javascript
+#: code:addons/hr_recruitment_skills/static/src/components/match_scores_gauge/match_scores_gauge.js:0
+msgid "Score Fields"
+msgstr ""
 
 #. module: hr_recruitment_skills
 #: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__skill_ids
@@ -199,11 +262,18 @@ msgstr "応募者用のスキルレベル"
 
 #. module: hr_recruitment_skills
 #: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__applicant_skill_ids
+#: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.crm_case_tree_view_job
 #: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_applicant_skill_view_form
 #: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_applicant_view_form
 #: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_applicant_view_search
+#: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_applicant_view_search_bis
 msgid "Skills"
 msgstr "スキル"
+
+#. module: hr_recruitment_skills
+#: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__skills_score
+msgid "Skills Score"
+msgstr ""
 
 #. module: hr_recruitment_skills
 #: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_applicant_skill_view_form
@@ -212,9 +282,9 @@ msgstr "終了日は開始日より後にしてください。"
 
 #. module: hr_recruitment_skills
 #. odoo-javascript
-#: code:addons/hr_recruitment_skills/static/src/fields/skill_match_gauge_field/skill_match_gauge_field.js:0
-msgid "This score reflects skills and degree match"
-msgstr "このスコアはスキルと学位の一致度を反映しています"
+#: code:addons/hr_recruitment_skills/static/src/components/match_scores_gauge/match_scores_gauge.js:0
+msgid "Title"
+msgstr ""
 
 #. module: hr_recruitment_skills
 #: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_applicant_skill_view_form
@@ -240,11 +310,9 @@ msgstr "検証中断"
 #. odoo-python
 #: code:addons/hr_recruitment_skills/models/hr_job.py:0
 msgid ""
-"We do not have any applicants who meet the skill requirements for this job "
+"We do not have any talents who meet the skill requirements for this job "
 "position in the database at the moment."
-msgstr ""
-"現在、この求人ポジションのスキル要件を満たす応募者はデータベースに登録されて"
-"いません。"
+msgstr "現在、データベースにはこの求人要件を満たす人材が登録されていません。"
 
 #. module: hr_recruitment_skills
 #: model:ir.model.fields,help:hr_recruitment_skills.field_hr_applicant_skill__is_certification
@@ -255,17 +323,3 @@ msgstr "チェックすると、このスキルタイプは認定タイプとし
 #: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_applicant_skill_view_form
 msgid "indefinite"
 msgstr "無期限"
-
-#~ msgid "Expected Skills"
-#~ msgstr "期待するスキル"
-
-#~ msgid "The skill %(name)s and skill type %(type)s doesn't match"
-#~ msgstr "スキル %(name)s とスキルレベル %(type)s が一致しません。"
-
-#~ msgid "The skill level %(level)s is not valid for skill type: %(type)s"
-#~ msgstr ""
-#~ "スキルレベル %(level)s は、スキルタイプ %(type)s に対して有効ではありませ"
-#~ "ん。"
-
-#~ msgid "Two levels for the same skill is not allowed"
-#~ msgstr "同じスキルに2つのレベルを設定することはできません"

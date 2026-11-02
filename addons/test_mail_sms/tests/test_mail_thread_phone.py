@@ -7,6 +7,7 @@ from odoo.tests import tagged, users
 
 
 @tagged('mail_thread')
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestSMSActionsCommon(SMSCommon, TestSMSRecipients):
     """ Test mail.thread.phone mixin, its tools and API """
 
@@ -106,10 +107,12 @@ class TestSMSActionsCommon(SMSCommon, TestSMSRecipients):
                 # complete national number
                 ('0475000000', test_phone_records[0]),
                 # various international numbers
-                # ('32475110606', test_phone_records[6]),  # currently not supported, returns nothing
-                ('0032475110606', test_phone_records[6]),
-                ('+32475110606', test_phone_records[6]),
-                ('+32 475 11 06 06', test_phone_records[6]),
+                # Not supported yet: equal match expect a full prefix (e.g. +32).
+                # This should match `test_phone_records[6] | self.dupes` when supported.
+                ('32475110606', self.env['mail.test.sms.bl']),
+                ('0032475110606', test_phone_records[6] | self.dupes),
+                ('+32475110606', test_phone_records[6] | self.dupes),
+                ('+32 475 11 06 06', test_phone_records[6] | self.dupes),
             ]:
                 with self.subTest(source=source):
                     results = self.env['mail.test.sms.bl'].search([('phone_mobile_search', '=', source)])
@@ -121,15 +124,11 @@ class TestSMSActionsCommon(SMSCommon, TestSMSRecipients):
         test_phone_records = self.test_phone_records.with_env(self.env)
 
         # test ilike search
-        for source, ilike_expected, notilike_expected in [
-            (
-                '0475', test_phone_records[:5] + self.dupes,
-                test_phone_records - test_phone_records[:5] - self.dupes
-            ),
-            ('101', test_phone_records[1], test_phone_records - test_phone_records[1]),
-            # not ilike is not the inverse with formatting but hey, that's not easy to do
-            ('+32475', test_phone_records[5:8], test_phone_records),
-            ('0032475', test_phone_records[5:8], test_phone_records),
+        for source, ilike_expected in [
+            ('0475', test_phone_records[:5] + self.dupes),
+            ('101', test_phone_records[1]),
+            ('+32475110', test_phone_records[5:8] | self.dupes),
+            ('0032475110', test_phone_records[5:8] | self.dupes),
         ]:
             # test ilike search
             with self.subTest(source=source, operator="ilike"):
@@ -137,6 +136,7 @@ class TestSMSActionsCommon(SMSCommon, TestSMSRecipients):
                 self.assertEqual(results, ilike_expected)
 
             # test inverse ilike search: should be the complement
+            notilike_expected = test_phone_records - ilike_expected
             with self.subTest(source=source, operator="not ilike"):
                 results = self.env['mail.test.sms.bl'].search([('phone_mobile_search', 'not ilike', source)])
                 self.assertEqual(results, notilike_expected)

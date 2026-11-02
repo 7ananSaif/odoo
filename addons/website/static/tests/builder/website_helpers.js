@@ -8,7 +8,6 @@ import {
 import { Builder } from "@html_builder/builder";
 import { SetupEditorPlugin } from "@html_builder/core/setup_editor_plugin";
 import { Plugin } from "@html_editor/plugin";
-import { withSequence } from "@html_editor/utils/resource";
 import { defineMailModels, startServer } from "@mail/../tests/mail_test_helpers";
 import { describe } from "@odoo/hoot";
 import { advanceTime, animationFrame, click, queryOne, tick, waitFor } from "@odoo/hoot-dom";
@@ -25,25 +24,24 @@ import {
 } from "@web/../tests/web_test_helpers";
 import { loadBundle } from "@web/core/assets";
 import { isBrowserFirefox } from "@web/core/browser/feature_detection";
-import { registry } from "@web/core/registry";
+import { Registry, registry } from "@web/core/registry";
 import { uniqueId } from "@web/core/utils/functions";
 import { WebClient } from "@web/webclient/webclient";
 import { EditInteractionPlugin } from "@website/builder/plugins/edit_interaction_plugin";
-import { WebsiteSessionPlugin } from "@website/builder/plugins/website_session_plugin";
+import { WebsiteBridgePlugin } from "@website/builder/plugins/website_bridge_plugin";
 import { WebsiteBuilderClientAction } from "@website/client_actions/website_preview/website_builder_action";
 import { WebsiteSystrayItem } from "@website/client_actions/website_preview/website_systray_item";
 import { mockImageRequests } from "./image_test_helpers";
 import { getWebsiteSnippets } from "./snippets_getter.hoot";
-import { BaseOptionComponent, revertPreview } from "@html_builder/core/utils";
-import { BorderConfigurator } from "@html_builder/plugins/border_configurator_option";
+import { revertPreview } from "@html_builder/core/utils";
 import { WebsiteBuilder } from "@website/builder/website_builder";
+import { session } from "@web/session";
 import { getTranslatedElements } from "./translated_elements_getter.hoot";
+import { BackgroundShapeOptionPlugin } from "@html_builder/plugins/background_option/background_shape_option_plugin";
+import { _t, translatedTerms, translationLoaded } from "@web/core/l10n/translation";
 
 class Website extends models.Model {
     _name = "website";
-    get_current_website() {
-        return [1];
-    }
 }
 
 class IrUiView extends models.Model {
@@ -58,11 +56,18 @@ export const setupWebsiteBuilderOeId = 539;
 export const invisibleEl =
     '<div class="s_invisible_el o_snippet_invisible" data-name="Invisible Element" data-invisible="1"></div>';
 
-export function defineWebsiteModels() {
+export function defineWebsiteModels({ includeMailModels = true } = {}) {
     describe.current.tags("desktop");
-    defineMailModels();
+    if (includeMailModels) {
+        defineMailModels();
+    }
     defineModels([Website, IrUiView]);
+    onRpc("/website/get_current_website_id", () => 1);
     onRpc("/website/theme_customize_data_get", () => []);
+    onRpc("website", "get_search_scopes", () => [
+        { search_type: "all", label: "Everything", url: "/website/search" },
+        { search_type: "pages", label: "Pages", url: "/pages" },
+    ]);
     onRpc("website", "web_search_read", () => ({
         length: 1,
         records: [
@@ -71,6 +76,7 @@ export function defineWebsiteModels() {
                 default_lang_id: {
                     code: "en_US",
                 },
+                company_id: 1,
             },
         ],
     }));
@@ -108,16 +114,20 @@ export async function setupWebsiteBuilder(
         openEditor = true,
         loadIframeBundles = false,
         loadAssetsFrontendJS = false,
+        loadIframeBuilderTemplates = false,
         hasToCreateWebsite = true,
         styleContent,
         headerContent = "",
         footerContent = "",
         beforeWrapwrapContent = "",
         translateMode = false,
+        enableIframeTransitions = false,
+        withIframeRegistry,
         onIframeLoaded = () => {},
         delayReload = async () => {},
     } = {}
 ) {
+    loadIframeBuilderTemplates ||= withIframeRegistry;
     // TODO: fix when the iframe is reloaded and become empty (e.g. discard button)
     if (hasToCreateWebsite) {
         const pyEnv = await startServer();
@@ -140,7 +150,9 @@ export async function setupWebsiteBuilder(
         resolveIframeLoaded = async (el) => {
             const iframe = el;
             const styleEl = iframe.contentDocument.createElement("style");
-            styleEl.textContent = /*css*/ `* { transition: none !important; } `;
+            if (!enableIframeTransitions) {
+                styleEl.textContent = /*css*/ `* { transition: none !important; }`;
+            }
             if (styleContent) {
                 styleEl.textContent += styleContent;
             }
@@ -171,9 +183,9 @@ export async function setupWebsiteBuilder(
         resolveEditAssetsLoaded = () => resolve();
     });
 
-    onRpc("/website/get_translated_elements", () => getTranslatedElements());
-
     patchDOMParser();
+
+    onRpc("/website/get_translated_elements", () => getTranslatedElements());
 
     patchWithCleanup(WebsiteBuilderClientAction.prototype, {
         setIframeLoaded() {
@@ -190,16 +202,27 @@ export async function setupWebsiteBuilder(
         // with Hoot.
         preparePublicRootReady() {},
         async loadAssetsEditBundle() {
+            const { contentDocument: targetDoc, contentWindow } = queryOne(
+                "iframe[data-src^='/website/force/1']"
+            );
             // To instantiate interactions in the iframe test we need to load
             // the frontend bundle in it. The problem is that Hoot does not have
             // control of this iframe and therefore does not mock anything in it
             // (location, rpc, ...). So we don't load the js part of the bundle
-
             if (loadIframeBundles) {
-                await loadBundle("website.assets_inside_builder_iframe", {
-                    targetDoc: queryOne("iframe[data-src^='/website/force/1']").contentDocument,
-                    js: false,
-                });
+                await loadBundle("website.assets_inside_builder_iframe", { targetDoc, js: false });
+            }
+            if (loadIframeBuilderTemplates) {
+                // Load the builder's *.edit.xml, needed for some options
+                await loadBundle("website.assets_inside_builder_iframe_tests", { targetDoc });
+                // Reuse the translation in the iframe to avoid loading them
+                const translation = contentWindow.odoo.loader.require("@web/core/l10n/translation");
+                translation.translatedTerms[translation.translationLoaded] =
+                    translatedTerms[translationLoaded];
+
+                withIframeRegistry?.(
+                    contentWindow.odoo.loader.require("@web/core/registry").registry
+                );
             }
             await resolveEditAssetsLoaded();
         },
@@ -208,7 +231,7 @@ export async function setupWebsiteBuilder(
         },
         async reloadIframe() {
             await delayReload();
-            this.websiteContent.el.contentDocument.body.innerHTML = bodyHTML;
+            this.websiteContent().contentDocument.body.innerHTML = bodyHTML;
         },
     });
     patchWithCleanup(WebsiteSystrayItem.prototype, {
@@ -246,7 +269,7 @@ export async function setupWebsiteBuilder(
         await tick();
         await lastUpdatePromise;
         await animationFrame();
-        await waitUntilIdle([comp.__owl__.app]);
+        await waitUntilIdle(comp);
     };
     patchWithCleanup(Builder.prototype, {
         setup() {
@@ -266,15 +289,40 @@ export async function setupWebsiteBuilder(
     patchWithCleanup(SetupEditorPlugin.prototype, {
         setup() {
             super.setup();
-            editableContent = this.getEditableElements(
-                '.oe_structure.oe_empty, [data-oe-type="html"]'
-            )[0];
+            editableContent = this.editable.querySelector(
+                '.o_savable.oe_structure.oe_empty, .o_savable[data-oe-type="html"]'
+            );
         },
     });
 
-    patchWithCleanup(WebsiteSessionPlugin.prototype, {
+    patchWithCleanup(WebsiteBridgePlugin.prototype, {
         getSession() {
             return {};
+        },
+        getRegistry() {
+            return loadIframeBuilderTemplates || loadAssetsFrontendJS
+                ? super.getRegistry()
+                : new Registry();
+        },
+        get _t() {
+            return _t;
+        },
+    });
+
+    // Remove as soon as the background shape are not always instantiated when
+    // entering in edit mode.
+    patchWithCleanup(BackgroundShapeOptionPlugin.prototype, {
+        getShapeStylePosition(shapeId, flip) {
+            if (!this.shapeStyles[this.convertShapeIdForStyleSearch(shapeId)]) {
+                return [50, 50];
+            }
+            return super.getShapeStylePosition(shapeId, flip);
+        },
+        getShapeStyleUrl(shapeId) {
+            if (!this.shapeStyles[this.convertShapeIdForStyleSearch(shapeId)]) {
+                return "";
+            }
+            return super.getShapeStyleUrl(shapeId);
         },
     });
 
@@ -291,8 +339,16 @@ export async function setupWebsiteBuilder(
         await originalIframeLoaded;
     }
     if (loadIframeBundles) {
+        const targetDoc = iframe.contentDocument;
+        const sessionScriptEl = targetDoc.createElement("script");
+        sessionScriptEl.type = "text/javascript";
+        sessionScriptEl.textContent = `
+            odoo = {};
+            odoo.__session_info__ = ${JSON.stringify(session)}
+        `;
+        targetDoc.head.append(sessionScriptEl);
         await loadBundle("web.assets_frontend", {
-            targetDoc: iframe.contentDocument,
+            targetDoc,
             js: loadAssetsFrontendJS,
         });
     }
@@ -304,7 +360,12 @@ export async function setupWebsiteBuilder(
     return {
         getEditor: () => editor,
         getEditableContent: () => editableContent,
-        openBuilderSidebar: async () => await openBuilderSidebar(editAssetsLoaded),
+        openBuilderSidebar: async () => {
+            await openBuilderSidebar(editAssetsLoaded);
+            if (translateMode) {
+                iframe.contentDocument.documentElement.dataset.edit_translations = "1";
+            }
+        },
         waitSidebarUpdated,
     };
 }
@@ -340,29 +401,6 @@ export function addPlugin(...Plugin) {
     });
 }
 
-export function addOption(option) {
-    const pluginId = uniqueId("test-option");
-    const BaseComponent = option.Component || BaseOptionComponent;
-    class Option extends BaseComponent {
-        static components = { ...BaseComponent.components, BorderConfigurator };
-    }
-    const staticProps = { ...option };
-    const sequence = staticProps.sequence;
-    delete staticProps.Component;
-    delete staticProps.sequence;
-    Object.assign(Option, staticProps);
-
-    const P = {
-        [pluginId]: class extends Plugin {
-            static id = pluginId;
-            resources = {
-                builder_options: sequence ? withSequence(sequence, Option) : Option,
-            };
-        },
-    }[pluginId];
-    addPlugin(P);
-}
-
 export function addActionOption(actions = {}) {
     const pluginId = uniqueId("test-action-plugin");
     class P extends Plugin {
@@ -380,7 +418,7 @@ export function addDropZoneSelector(selector) {
     class P extends Plugin {
         static id = pluginId;
         resources = {
-            dropzone_selector: [selector],
+            dropzone_selectors: [selector],
         };
     }
     addPlugin(P);
@@ -397,7 +435,7 @@ export async function setupWebsiteBuilderWithDummySnippet(content) {
     const snippetsStructure = {
         snippets: {
             snippet_groups: [
-                '<div name="A" data-oe-thumbnail="a.svg" data-oe-snippet-id="123" data-o-snippet-group="a"><section data-snippet="s_snippet_group"></section></div>',
+                '<div name="A" data-oe-snippet-id="123" data-o-snippet-group="a"><section data-snippet="s_snippet_group"></section></div>',
             ],
             snippet_structure: snippetsDescription().map((snippetDesc) =>
                 getSnippetStructure(snippetDesc)
@@ -447,6 +485,7 @@ export async function setupWebsiteBuilderWithSnippet(snippetName, options = {}) 
                 default_lang_id: {
                     code: "en_US",
                 },
+                company_id: 1,
             };
         },
     });
@@ -460,6 +499,55 @@ export async function setupWebsiteBuilderWithSnippet(snippetName, options = {}) 
         ...options,
         hasToCreateWebsite: false,
     });
+}
+export const websiteServiceInTranslateMode = {
+    currentWebsite: {
+        metadata: {
+            lang: "fr_BE",
+            langName: " Français (BE)",
+            translatable: true,
+            defaultLangName: "English (US)",
+        },
+        default_lang_id: {
+            code: "en_US",
+        },
+    },
+    // Minimal context to avoid crashes.
+    context: {},
+    websites: [
+        {
+            id: 1,
+            metadata: {},
+        },
+    ],
+};
+
+export async function setupSidebarBuilderForTranslation(options) {
+    const { websiteContent, loadIframeBundles = false } = options;
+    // Hack: configure the snippets menu as in translate mode when clicking
+    // on the "Edit" button of the systray. The goal of this hack is to avoid
+    // the handling of an extra reload of the action to arrive in translate
+    // mode.
+    patchWithCleanup(WebsiteBuilder.prototype, {
+        setup() {
+            super.setup();
+            this.env.services.website = websiteServiceInTranslateMode;
+            this.websiteService = websiteServiceInTranslateMode;
+            this.websiteContext = this.websiteService.context;
+        },
+    });
+    const { getEditor, getEditableContent, openBuilderSidebar, waitSidebarUpdated } =
+        await setupWebsiteBuilder(websiteContent, {
+            openEditor: false,
+            translateMode: true,
+            onIframeLoaded: (iframe) => {
+                websiteServiceInTranslateMode.pageDocument = iframe.contentDocument;
+            },
+            loadIframeBundles,
+        });
+    await getTranslatedElements();
+    await openBuilderSidebar();
+    return { getEditor, getEditableContent, waitSidebarUpdated };
 }
 
 export async function getStructureSnippet(snippetName) {
@@ -481,5 +569,13 @@ export async function insertStructureSnippet(editor, snippetName) {
     const snippetEl = await getStructureSnippet(snippetName);
     const parentEl = editor.editable.querySelector("#wrap") || editor.editable;
     parentEl.append(snippetEl);
-    editor.shared.history.addStep();
+    editor.shared.history.commit();
+}
+
+export async function toggleMobilePreview() {
+    await contains("button[data-action='mobile']").click();
+    // The click above will cause a resize of the iframe containing the builder.
+    // Resize observers that react to that change and update the ui accordingly
+    // will need one more animation frame to have their changes reflected
+    await animationFrame();
 }

@@ -6,14 +6,15 @@
 # Martin Trigaux, 2022
 # Stefano Consolaro <stefano.consolaro@mymage.it>, 2022
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Marianna Ciofani (cima)" <cima@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-09-14 21:13+0000\n"
-"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
-"Language-Team: Italian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-10-20 12:34+0000\n"
+"Last-Translator: \"Marianna Ciofani (cima)\" <cima@odoo.com>\n"
+"Language-Team: Italian <https://translate.odoo.com/projects/odoo-20/"
 "purchase_mrp/it/>\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
@@ -21,7 +22,28 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=(n == 1) ? 0 : ((n != 0 && n % 1000000 == "
 "0) ? 1 : 2);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: purchase_mrp
+#: model:ir.module.module,description:base.module_purchase_mrp
+msgid ""
+"\n"
+"This module provides facility to the user to install mrp and purchase "
+"modules at a time.\n"
+"========================================================================================\n"
+"\n"
+"It is basically used when we want to keep track of production orders "
+"generated\n"
+"from purchase order.\n"
+msgstr ""
+"\n"
+"Modulo che offre all'utente la possibilità di installare contemporaneamente "
+"i moduli MRP e acquisti.\n"
+"========================================================================================\n"
+"\n"
+"Viene sostanzialmente utilizzato quando si vuole tenere traccia di ordini di "
+"produzione generati\n"
+"da un ordine di acquisto.\n"
 
 #. module: purchase_mrp
 #: model_terms:ir.ui.view,arch_db:purchase_mrp.purchase_order_form_mrp
@@ -114,16 +136,6 @@ msgid "Manufacturing Source of %s"
 msgstr "Fonte produzione di %s"
 
 #. module: purchase_mrp
-#. odoo-python
-#: code:addons/purchase_mrp/models/stock_move.py:0
-msgid ""
-"Odoo is not able to generate the anglo saxon entries. The total valuation of "
-"%s is zero."
-msgstr ""
-"Odoo non è in grado di generare le registrazioni anglosassoni. La "
-"valutazione totale di %s è pari a zero."
-
-#. module: purchase_mrp
 #: model:ir.model,name:purchase_mrp.model_purchase_order
 msgid "Purchase Order"
 msgstr "Ordine di acquisto"
@@ -138,6 +150,11 @@ msgstr "Riga ordine di acquisto"
 #: code:addons/purchase_mrp/models/mrp_production.py:0
 msgid "Purchase Order generated from %s"
 msgstr "Ordine di acquisto generato da %s"
+
+#. module: purchase_mrp
+#: model:ir.module.module,shortdesc:base.module_purchase_mrp
+msgid "Purchase and MRP Management"
+msgstr ""
 
 #. module: purchase_mrp
 #: model:ir.model,name:purchase_mrp.model_stock_move
@@ -164,9 +181,3 @@ msgstr ""
 msgid "The total cost share for a BoM's component have to be 100"
 msgstr ""
 "La quota totale del costo per il componente di una DiBa deve essere 100"
-
-#~ msgid "Journal Item"
-#~ msgstr "Movimento contabile"
-
-#~ msgid "Production Order"
-#~ msgstr "Ordine di produzione"

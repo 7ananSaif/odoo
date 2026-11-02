@@ -2,7 +2,7 @@
     --SearchBar-background-color: #{$input-focus-bg};
 
     background-color: var(--SearchBar-background-color);
-    border: $input-border-width solid $border-color;
+    border: $input-border-width solid $input-border-color;
 
     &:focus-within {
         border-color: $input-focus-border-color;
@@ -17,6 +17,10 @@
 
     .o_searchview_input {
         appearance: none;
+    }
+
+    .btn {
+        --gradient:none;
     }
 }
 
@@ -59,7 +63,7 @@
     .o_add_condition {
         line-height: 1.1;
 
-        .fa {
+        .oi {
             font-size: $font-size-lg;
         }
     }

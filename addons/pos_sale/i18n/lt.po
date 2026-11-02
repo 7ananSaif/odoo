@@ -15,10 +15,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:38+0000\n"
-"PO-Revision-Date: 2025-09-16 18:38+0000\n"
-"Last-Translator: \"Tiffany Chang (tic)\" <tic@odoo.com>\n"
-"Language-Team: Lithuanian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-10-16 17:41+0000\n"
+"PO-Revision-Date: 2026-08-31 19:11+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Lithuanian <https://translate.odoo.com/projects/odoo-s19-4/"
 "pos_sale/lt/>\n"
 "Language: lt\n"
 "MIME-Version: 1.0\n"
@@ -27,7 +27,16 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n % 10 == 1 && (n % 100 > 19 || n % 100 < "
 "11) ? 0 : (n % 10 >= 2 && n % 10 <=9) && (n % 100 > 19 || n % 100 < 11) ? "
 "1 : n % 1 != 0 ? 2: 3);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: pos_sale
+#: model:ir.module.module,description:base.module_pos_sale
+msgid ""
+"\n"
+"\n"
+"This module adds a custom Sales Team for the Point of Sale. This enables you "
+"to view and manage your point of sale sales with more ease.\n"
+msgstr ""
 
 #. module: pos_sale
 #. odoo-python
@@ -45,27 +54,17 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/pos_sale/static/src/app/components/orderline/orderline.xml:0
 msgid "(tax incl.)"
-msgstr "(su PVM)"
+msgstr ""
 
 #. module: pos_sale
-#: model_terms:ir.ui.view,arch_db:pos_sale.report_invoice_document
-msgid "<span style=\"margin: 0px 5px;\">:</span>"
-msgstr "<span style=\"margin: 0px 5px;\">:</span>"
+#: model_terms:ir.ui.view,arch_db:pos_sale.pos_orderline_receipt_information
+msgid "<strong>Sale Order: </strong>"
+msgstr ""
 
 #. module: pos_sale
 #. odoo-javascript
 #: code:addons/pos_sale/static/src/app/services/pos_store.js:0
 msgid "A new order has been created."
-msgstr ""
-
-#. module: pos_sale
-#: model:ir.model.fields,field_description:pos_sale.field_sale_order__amount_unpaid
-msgid "Amount To Pay In POS"
-msgstr ""
-
-#. module: pos_sale
-#: model:ir.model.fields,help:pos_sale.field_sale_order__amount_unpaid
-msgid "Amount left to pay in POS to avoid double payment or double invoicing."
 msgstr ""
 
 #. module: pos_sale
@@ -101,13 +100,24 @@ msgid "Currency Rate"
 msgstr "Valiutos kursas"
 
 #. module: pos_sale
-#: model_terms:ir.ui.view,arch_db:pos_sale.message_body
-msgid "Delivered from"
-msgstr "Pristatyta iš"
+#: model:ir.model.fields,field_description:pos_sale.field_pos_config__default_product_id
+#: model:ir.model.fields,field_description:pos_sale.field_res_config_settings__pos_default_product_id
+msgid "Default Product"
+msgstr ""
+
+#. module: pos_sale
+#: model_terms:ir.ui.view,arch_db:pos_sale.res_config_settings_view_form
+msgid "Default Sale Product"
+msgstr ""
 
 #. module: pos_sale
 #: model:ir.model.fields,field_description:pos_sale.field_pos_order_line__qty_delivered
 msgid "Delivery Quantity"
+msgstr ""
+
+#. module: pos_sale
+#: model:ir.model.fields,field_description:pos_sale.field_pos_order_line__sale_order_line_name
+msgid "Description"
 msgstr ""
 
 #. module: pos_sale
@@ -117,6 +127,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:pos_sale.field_pos_config__display_name
 #: model:ir.model.fields,field_description:pos_sale.field_pos_order__display_name
 #: model:ir.model.fields,field_description:pos_sale.field_pos_order_line__display_name
+#: model:ir.model.fields,field_description:pos_sale.field_pos_order_receipt__display_name
 #: model:ir.model.fields,field_description:pos_sale.field_pos_session__display_name
 #: model:ir.model.fields,field_description:pos_sale.field_product_template__display_name
 #: model:ir.model.fields,field_description:pos_sale.field_res_config_settings__display_name
@@ -124,14 +135,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:pos_sale.field_sale_order__display_name
 #: model:ir.model.fields,field_description:pos_sale.field_sale_order_line__display_name
 #: model:ir.model.fields,field_description:pos_sale.field_sale_report__display_name
-#: model:ir.model.fields,field_description:pos_sale.field_stock_picking__display_name
 msgid "Display Name"
-msgstr ""
-
-#. module: pos_sale
-#. odoo-javascript
-#: code:addons/pos_sale/static/src/app/services/pos_store.js:0
-msgid "Do you want to load the SN/Lots linked to the Sales Order?"
 msgstr ""
 
 #. module: pos_sale
@@ -139,11 +143,6 @@ msgstr ""
 #: code:addons/pos_sale/static/src/app/services/pos_store.js:0
 msgid "Down Payment"
 msgstr "Pradinė įmoka"
-
-#. module: pos_sale
-#: model:product.template,name:pos_sale.default_downpayment_product_product_template
-msgid "Down Payment (POS)"
-msgstr ""
 
 #. module: pos_sale
 #: model:ir.model.fields,field_description:pos_sale.field_pos_order_line__down_payment_details
@@ -172,9 +171,9 @@ msgid "Due balance: %s"
 msgstr ""
 
 #. module: pos_sale
-#: model_terms:ir.ui.view,arch_db:pos_sale.report_invoice_document
-msgid "From"
-msgstr "Iš"
+#: model:ir.model.fields,field_description:pos_sale.field_pos_order_line__has_default_product
+msgid "Has Default Product"
+msgstr ""
 
 #. module: pos_sale
 #: model:ir.model.fields,field_description:pos_sale.field_account_move__id
@@ -183,6 +182,7 @@ msgstr "Iš"
 #: model:ir.model.fields,field_description:pos_sale.field_pos_config__id
 #: model:ir.model.fields,field_description:pos_sale.field_pos_order__id
 #: model:ir.model.fields,field_description:pos_sale.field_pos_order_line__id
+#: model:ir.model.fields,field_description:pos_sale.field_pos_order_receipt__id
 #: model:ir.model.fields,field_description:pos_sale.field_pos_session__id
 #: model:ir.model.fields,field_description:pos_sale.field_product_template__id
 #: model:ir.model.fields,field_description:pos_sale.field_res_config_settings__id
@@ -190,7 +190,6 @@ msgstr "Iš"
 #: model:ir.model.fields,field_description:pos_sale.field_sale_order__id
 #: model:ir.model.fields,field_description:pos_sale.field_sale_order_line__id
 #: model:ir.model.fields,field_description:pos_sale.field_sale_report__id
-#: model:ir.model.fields,field_description:pos_sale.field_stock_picking__id
 msgid "ID"
 msgstr ""
 
@@ -200,14 +199,6 @@ msgid "Invoiced"
 msgstr "Pateikta sąskaita"
 
 #. module: pos_sale
-#. odoo-javascript
-#: code:addons/pos_sale/static/src/app/services/pos_store.js:0
-msgid ""
-"It seems that you didn't configure a down payment product in your point of "
-"sale. You can go to your point of sale configuration to choose one."
-msgstr ""
-
-#. module: pos_sale
 #: model:ir.model,name:pos_sale.model_account_move
 msgid "Journal Entry"
 msgstr ""
@@ -215,6 +206,11 @@ msgstr ""
 #. module: pos_sale
 #: model:ir.model,name:pos_sale.model_account_move_line
 msgid "Journal Item"
+msgstr ""
+
+#. module: pos_sale
+#: model:ir.module.module,summary:base.module_pos_sale
+msgid "Link module between Point of Sale and Sales"
 msgstr ""
 
 #. module: pos_sale
@@ -235,12 +231,6 @@ msgid "Linked Sale Orders"
 msgstr ""
 
 #. module: pos_sale
-#. odoo-javascript
-#: code:addons/pos_sale/static/src/app/services/pos_store.js:0
-msgid "No down payment product"
-msgstr ""
-
-#. module: pos_sale
 #: model:ir.actions.act_window,name:pos_sale.pos_session_action_from_crm_team
 msgid "Open Sessions"
 msgstr "Atviros sesijos"
@@ -254,6 +244,11 @@ msgstr "Užsakymas"
 #: model:ir.model.fields,field_description:pos_sale.field_sale_order__pos_order_line_ids
 #: model:ir.model.fields,field_description:pos_sale.field_sale_order_line__pos_order_line_ids
 msgid "Order lines Transfered to Point of Sale"
+msgstr ""
+
+#. module: pos_sale
+#: model:ir.module.module,shortdesc:base.module_pos_sale
+msgid "POS - Sales"
 msgstr ""
 
 #. module: pos_sale
@@ -272,14 +267,19 @@ msgid "Point of Sale Configuration"
 msgstr "Pardavimo taško konfigūracija"
 
 #. module: pos_sale
-#: model:ir.model,name:pos_sale.model_pos_order_line
-msgid "Point of Sale Order Lines"
-msgstr "Pardavimo taško užsakymo eilutės"
+#: model:ir.model,name:pos_sale.model_pos_order
+msgid "Point of Sale Order"
+msgstr ""
 
 #. module: pos_sale
-#: model:ir.model,name:pos_sale.model_pos_order
-msgid "Point of Sale Orders"
-msgstr "PT užsakymai"
+#: model:ir.model,name:pos_sale.model_pos_order_line
+msgid "Point of Sale Order Line"
+msgstr ""
+
+#. module: pos_sale
+#: model:ir.model,name:pos_sale.model_pos_order_receipt
+msgid "Point of Sale Order Receipt Generator"
+msgstr ""
 
 #. module: pos_sale
 #: model:ir.model,name:pos_sale.model_pos_session
@@ -308,14 +308,8 @@ msgstr ""
 
 #. module: pos_sale
 #. odoo-javascript
-#: code:addons/pos_sale/static/src/app/components/screens/product_screen/control_buttons/control_buttons.xml:0
-msgid "Quotation/Order"
-msgstr ""
-
-#. module: pos_sale
-#. odoo-javascript
-#: code:addons/pos_sale/static/src/app/services/pos_store.js:0
-msgid "SN/Lots Loading"
+#: code:addons/pos_sale/static/src/app/components/screens/product_screen/control_buttons/control_buttons.js:0
+msgid "Quotation / Order"
 msgstr ""
 
 #. module: pos_sale
@@ -370,12 +364,6 @@ msgstr ""
 
 #. module: pos_sale
 #. odoo-javascript
-#: code:addons/pos_sale/static/src/app/components/screens/product_screen/control_buttons/control_buttons.xml:0
-msgid "Set Sale Order"
-msgstr ""
-
-#. module: pos_sale
-#. odoo-javascript
 #: code:addons/pos_sale/static/src/app/services/pos_store.js:0
 msgid "Settle the order"
 msgstr ""
@@ -398,6 +386,12 @@ msgid ""
 msgstr "Valiutų santykis, taikomas užsakymo datos metu"
 
 #. module: pos_sale
+#. odoo-javascript
+#: code:addons/pos_sale/static/src/app/services/pos_store.js:0
+msgid "There is nothing left to settle on this sale order."
+msgstr ""
+
+#. module: pos_sale
 #: model:ir.model.fields,help:pos_sale.field_pos_config__crm_team_id
 #: model:ir.model.fields,help:pos_sale.field_pos_session__crm_team_id
 #: model:ir.model.fields,help:pos_sale.field_res_config_settings__pos_crm_team_id
@@ -406,7 +400,18 @@ msgstr "Pardavimų taško pardavimai bus susiję su šia pardavimų komanda."
 
 #. module: pos_sale
 #: model_terms:ir.ui.view,arch_db:pos_sale.res_config_settings_view_form
+msgid "This product will be applied on description only Sale order lines."
+msgstr ""
+
+#. module: pos_sale
+#: model_terms:ir.ui.view,arch_db:pos_sale.res_config_settings_view_form
 msgid "This product will be applied when down payment is made"
+msgstr ""
+
+#. module: pos_sale
+#: model:ir.model.fields,help:pos_sale.field_pos_config__default_product_id
+#: model:ir.model.fields,help:pos_sale.field_res_config_settings__pos_default_product_id
+msgid "This product will be used as default product on productless SOLs."
 msgstr ""
 
 #. module: pos_sale
@@ -416,8 +421,10 @@ msgid "This product will be used as down payment on a sale order."
 msgstr ""
 
 #. module: pos_sale
-#: model:ir.model,name:pos_sale.model_stock_picking
-msgid "Transfer"
+#: model:ir.model.fields,help:pos_sale.field_pos_order_line__has_default_product
+msgid ""
+"To check whether the product is default product from pos.config or not. In "
+"case of description only SOLs we use default product from pos.config."
 msgstr ""
 
 #. module: pos_sale
@@ -456,63 +463,5 @@ msgstr ""
 #. module: pos_sale
 #. odoo-javascript
 #: code:addons/pos_sale/static/src/app/components/orderline/orderline.xml:0
-#: model_terms:ir.ui.view,arch_db:pos_sale.report_invoice_document
 msgid "x"
 msgstr ""
-
-#~ msgid "Back"
-#~ msgstr "Grįžti"
-
-#~ msgid "Back to list"
-#~ msgstr "Grįžti į sąrašą"
-
-#~ msgid "Cancelled"
-#~ msgstr "Atšauktas"
-
-#~ msgid "Customer"
-#~ msgstr "Klientas"
-
-#~ msgid "Date"
-#~ msgstr "Data"
-
-#~ msgid "Locked"
-#~ msgstr "Užrakinta"
-
-#~ msgid "New"
-#~ msgstr "Naujas"
-
-#~ msgid "No"
-#~ msgstr "Ne"
-
-#~ msgid "Open POS Sessions"
-#~ msgstr "Atviros PT sesijos"
-
-#~ msgid "Quotation"
-#~ msgstr "Komercinis pasiūlymas"
-
-#~ msgid "Quotation Sent"
-#~ msgstr "Pasiūlymas išsiųstas"
-
-#~ msgid "Salesman"
-#~ msgstr "Pardavėjas"
-
-#~ msgid "Salesperson"
-#~ msgstr "Pardavėjas"
-
-#~ msgid "Session Running"
-#~ msgstr "Sesija vyksta"
-
-#~ msgid "Session Sale Amount"
-#~ msgstr "Sesijos pardavimų kiekis"
-
-#~ msgid "Sessions Running"
-#~ msgstr "Vykstančios sesijos"
-
-#~ msgid "State"
-#~ msgstr "Būsena"
-
-#~ msgid "Total"
-#~ msgstr "Suma"
-
-#~ msgid "Yes"
-#~ msgstr "Taip"

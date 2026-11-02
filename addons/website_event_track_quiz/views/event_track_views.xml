@@ -6,7 +6,6 @@
         <field name="inherit_id" ref="website_event_track.view_event_track_form"/>
         <field name="arch" type="xml">
             <field name='stage_id' position="before">
-                <field name="quiz_id" invisible="1"/>
                 <button name="action_add_quiz"
                     type="object" class="btn btn-primary" string="Add Quiz"
                     invisible="quiz_id"
@@ -15,7 +14,7 @@
             </field>
             <field name='is_published' position="before">
                 <button name="action_view_quiz" type="object" class="oe_stat_button"
-                    string="Go to Quiz" icon="fa-question-circle" widget="stat_info"
+                    string="Go to Quiz" icon="help" widget="stat_info"
                     invisible="not quiz_id"
                     groups="event.group_event_user">
                 </button>

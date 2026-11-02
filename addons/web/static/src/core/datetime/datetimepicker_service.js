@@ -1,10 +1,21 @@
-import { markRaw, onPatched, onWillRender, reactive, useEffect, useRef } from "@odoo/owl";
+import {
+    getDefault,
+    immediateEffect,
+    markRaw,
+    onMounted,
+    onPatched,
+    onWillDestroy,
+    proxy,
+    untrack,
+} from "@odoo/owl";
+import { hasTouch } from "@web/core/browser/feature_detection";
+import { onWillRender, useLayoutEffect } from "@web/owl2/utils";
 import { areDatesEqual, formatDate, formatDateTime, parseDate, parseDateTime } from "../l10n/dates";
 import { makePopover } from "../popover/popover_hook";
 import { registry } from "../registry";
-import { ensureArray, zip, zipWith } from "../utils/arrays";
+import { ensureArray, zip } from "../utils/arrays";
 import { shallowEqual } from "../utils/objects";
-import { DateTimePicker } from "./datetime_picker";
+import { dateTimePickerProps } from "./datetime_picker";
 import { DateTimePickerPopover } from "./datetime_picker_popover";
 
 /**
@@ -12,13 +23,11 @@ import { DateTimePickerPopover } from "./datetime_picker_popover";
  *
  * @typedef {import("./datetime_picker").DateTimePickerProps} DateTimePickerProps
  * @typedef {import("../popover/popover_hook").PopoverHookReturnType} PopoverHookReturnType
- * @typedef {import("../popover/popover_service").PopoverServiceAddOptions} PopoverServiceAddOptions
+ * @typedef {import("../popover/popover_plugin").PopoverOptionSchema} PopoverServiceAddOptions
  * @typedef {import("@odoo/owl").Component} Component
- * @typedef {ReturnType<typeof import("@odoo/owl").useRef>} OwlRef
  *
  * @typedef {{
  *  createPopover?: (component: Component, options: PopoverServiceAddOptions) => PopoverHookReturnType;
- *  ensureVisibility?: () => boolean;
  *  format?: string;
  *  getInputs?: () => HTMLElement[];
  *  onApply?: (value: DateTimePickerProps["value"]) => any;
@@ -26,27 +35,10 @@ import { DateTimePickerPopover } from "./datetime_picker_popover";
  *  onClose?: () => any;
  *  pickerProps?: DateTimePickerProps;
  *  showSeconds?: boolean;
- *  target: HTMLElement | string;
- *  useOwlHooks?: boolean;
+ *  target: HTMLElement | (() => HTMLElement | null) | { el?: HTMLElement };
+ *  showResetButton?: boolean;
  * }} DateTimePickerServiceParams
  */
-
-/**
- * @template {object} T
- * @param {T} obj
- */
-function markValuesRaw(obj) {
-    /** @type {T} */
-    const copy = {};
-    for (const [key, value] of Object.entries(obj)) {
-        if (value && typeof value === "object") {
-            copy[key] = markRaw(value);
-        } else {
-            copy[key] = value;
-        }
-    }
-    return copy;
-}
 
 /**
  * @param {Record<string, any>} props
@@ -59,8 +51,25 @@ function stringifyProps(props) {
     return copy;
 }
 
+/**
+ * Derives the default values of the date time picker props from its schema.
+ *
+ * @returns {Partial<DateTimePickerProps>}
+ */
+function getPickerDefaults() {
+    const defaults = {};
+    for (const [key, type] of Object.entries(dateTimePickerProps)) {
+        const factory = getDefault(type);
+        if (factory) {
+            defaults[key] = factory();
+        }
+    }
+    return defaults;
+}
+
 const FOCUS_CLASSNAME = "text-primary";
 
+const dateTimeManagerList = new Set();
 const formatters = {
     date: formatDate,
     datetime: formatDateTime,
@@ -72,14 +81,23 @@ const parsers = {
 };
 
 export const datetimePickerService = {
-    dependencies: ["popover"],
-    start(env, { popover: popoverService }) {
-        const dateTimePickerList = new Set();
+    dependencies: ["bottom_sheet", "popover", "ui"],
+    start(_env, { bottom_sheet: bottomSheetService, popover: popoverService, ui }) {
+        function defaultCreatePopover(...args) {
+            const service = useBottomSheet() ? bottomSheetService : popoverService;
+            return makePopover(service.add.bind(service), ...args);
+        }
+
+        function useBottomSheet() {
+            return ui.isSmall && hasTouch();
+        }
+
         return {
             /**
-             * @param {DateTimePickerServiceParams} [params]
+             * @param {DateTimePickerServiceParams} params
+             * @param {{ useOwlHooks?: boolean }} [options]
              */
-            create(params = {}) {
+            create(params, options) {
                 /**
                  * Wrapper method on the "onApply" callback to only call it when the
                  * value has changed, and set other internal variables accordingly.
@@ -98,33 +116,11 @@ export const datetimePickerService = {
                     inputsChanged = ensureArray(value).map(() => false);
 
                     await params.onApply?.(value);
-
-                    stringProps.value = stringValue;
                 }
 
-                function enable() {
-                    for (const [el, value] of zip(
-                        getInputs(),
-                        ensureArray(pickerProps.value),
-                        true
-                    )) {
-                        updateInput(el, value);
-                        if (el && !el.disabled && !el.readOnly && !listenedElements.has(el)) {
-                            listenedElements.add(el);
-                            el.addEventListener("change", onInputChange);
-                            el.addEventListener("click", onInputClick);
-                            el.addEventListener("focus", onInputFocus);
-                            el.addEventListener("keydown", onInputKeydown);
-                        }
-                    }
-                    const calendarIconGroupEl = getInput(0)?.parentElement.querySelector(
-                        ".o_input_group_date_icon"
-                    );
-                    if (calendarIconGroupEl) {
-                        calendarIconGroupEl.classList.add("cursor-pointer");
-                        calendarIconGroupEl.addEventListener("click", () => open(0));
-                    }
-                    return () => {};
+                function destroy() {
+                    dateTimeManagerList.delete(dateTimeManager);
+                    disposeEffect();
                 }
 
                 /**
@@ -183,7 +179,31 @@ export const datetimePickerService = {
                 }
 
                 function getTarget() {
-                    return targetRef ? targetRef.el : params.target;
+                    // `params.target` may be a raw HTMLElement or a ref (a
+                    // callable): resolve refs to their element, pass raw
+                    // elements through.
+                    const target = params.target;
+                    return typeof target === "function" ? untrack(target) : target;
+                }
+
+                function initInputs(...inputs) {
+                    for (const [el, value] of zip(inputs, ensureArray(pickerProps.value), true)) {
+                        updateInput(el, value);
+                        if (el && !el.disabled && !el.readOnly && !listenedElements.has(el)) {
+                            listenedElements.add(el);
+                            el.addEventListener("change", onInputChange);
+                            el.addEventListener("click", onInputClick);
+                            el.addEventListener("focus", onInputFocus);
+                            el.addEventListener("keydown", onInputKeydown);
+                        }
+                    }
+                    const calendarIconGroupEl = getInput(0)?.parentElement.querySelector(
+                        ".o_input_group_date_icon"
+                    );
+                    if (calendarIconGroupEl) {
+                        calendarIconGroupEl.classList.add("cursor-pointer");
+                        calendarIconGroupEl.addEventListener("click", () => open(0));
+                    }
                 }
 
                 function isOpen() {
@@ -200,7 +220,10 @@ export const datetimePickerService = {
                  * @param {Event} ev
                  */
                 function onInputChange(ev) {
-                    updateValueFromInputs();
+                    const abort = updateValueFromInputs();
+                    if (abort) {
+                        return;
+                    }
                     inputsChanged[ev.target === getInput(1) ? 1 : 0] = true;
                     if (!isOpen() || inputsChanged.every(Boolean)) {
                         saveAndClose();
@@ -226,15 +249,16 @@ export const datetimePickerService = {
                  * @param {KeyboardEvent} ev
                  */
                 function onInputKeydown(ev) {
-                    if (ev.key == "Enter" && ev.ctrlKey) {
-                        ev.preventDefault();
-                        updateValueFromInputs();
-                        return open(ev.target === getInput(1) ? 1 : 0);
-                    }
                     switch (ev.key) {
-                        case "Enter":
-                        case "Escape": {
+                        case "Enter": {
+                            const abort = updateValueFromInputs();
+                            if (abort) {
+                                return;
+                            }
                             return saveAndClose();
+                        }
+                        case "Escape": {
+                            return updateInputsFromValue();
                         }
                         case "Tab": {
                             if (
@@ -255,21 +279,13 @@ export const datetimePickerService = {
                     pickerProps.focusedDateIndex = inputIndex;
 
                     if (!isOpen()) {
-                        const popoverTarget = getPopoverTarget();
-                        if (ensureVisibility()) {
-                            const { marginBottom } = popoverTarget.style;
-                            // Adds enough space for the popover to be displayed below the target
-                            // even on small screens.
-                            popoverTarget.style.marginBottom = `100vh`;
-                            popoverTarget.scrollIntoView(true);
-                            restoreTargetMargin = async () => {
-                                popoverTarget.style.marginBottom = marginBottom;
-                            };
+                        for (const manager of dateTimeManagerList) {
+                            manager.close();
                         }
-                        for (const picker of dateTimePickerList) {
-                            picker.close();
-                        }
-                        popover.open(popoverTarget, { pickerProps });
+                        popover.open(getPopoverTarget(), {
+                            pickerProps,
+                            showResetButton: params.showResetButton,
+                        });
                     }
 
                     focusActiveInput();
@@ -340,6 +356,18 @@ export const datetimePickerService = {
                     shouldFocus = false;
                 }
 
+                function setup() {
+                    dateTimeManagerList.add(dateTimeManager);
+
+                    disposeEffect = immediateEffect(() => {
+                        const nextStrPickerProps = JSON.stringify(pickerProps);
+                        if (strPickerProps !== nextStrPickerProps) {
+                            strPickerProps = nextStrPickerProps;
+                            updateInputsFromValue();
+                        }
+                    });
+                }
+
                 /**
                  * Synchronizes the given input with the given value.
                  *
@@ -352,6 +380,25 @@ export const datetimePickerService = {
                     }
                     const [formattedValue] = safeConvert("format", value);
                     el.value = formattedValue || "";
+                }
+
+                function updateInputsFromValue() {
+                    for (const [el, value] of zip(
+                        getInputs(),
+                        ensureArray(pickerProps.value),
+                        true
+                    )) {
+                        if (el) {
+                            updateInput(el, value);
+                            // Apply changes immediately if the popover is already closed.
+                            // Otherwise ´apply()´ will be called later on close.
+                            if (!isOpen()) {
+                                apply();
+                            }
+                        }
+                    }
+
+                    shouldFocus = true;
                 }
 
                 /**
@@ -396,35 +443,34 @@ export const datetimePickerService = {
                 }
 
                 function updateValueFromInputs() {
-                    const values = zipWith(
-                        getInputs(),
-                        ensureArray(pickerProps.value),
-                        (el, currentValue) => {
-                            if (!el || el.tagName?.toLowerCase() !== "input") {
-                                return currentValue;
-                            }
-                            const [parsedValue, error] = safeConvert("parse", el.value);
-                            if (error) {
-                                updateInput(el, currentValue);
-                                return currentValue;
-                            } else {
-                                return parsedValue;
-                            }
-                        }
+                    const inputs = getInputs();
+                    const updated = params.onWillParseValues?.(
+                        inputs.map((input) => input && input.value)
                     );
+                    if (updated) {
+                        return true;
+                    }
+                    // Iterate over the current value slots rather than the inputs:
+                    // a target-only picker (e.g. gantt scale selector, builder
+                    // datetimepicker) has no input elements, in which case every
+                    // value must be preserved as-is. Indexing an absent input keeps
+                    // the current value, so the just-selected value is never wiped.
+                    const values = ensureArray(pickerProps.value).map((currentValue, i) => {
+                        const el = inputs[i];
+                        if (!el || el.tagName?.toLowerCase() !== "input") {
+                            return currentValue;
+                        }
+                        const [parsedValue, error] = safeConvert("parse", el.value);
+                        if (error) {
+                            updateInput(el, currentValue);
+                            return currentValue;
+                        }
+                        return parsedValue;
+                    });
                     updateValue(values.length === 2 ? values : values[0], "date", "input");
                 }
 
-                const createPopover =
-                    params.createPopover ||
-                    function defaultCreatePopover(...args) {
-                        return makePopover(popoverService.add, ...args);
-                    };
-                const ensureVisibility =
-                    params.ensureVisibility ||
-                    function defaultEnsureVisibility() {
-                        return env.isSmall;
-                    };
+                const createPopover = params.createPopover || defaultCreatePopover;
                 const getInputs =
                     params.getInputs ||
                     function defaultGetInputs() {
@@ -434,8 +480,8 @@ export const datetimePickerService = {
                 // Hook variables
 
                 /** @type {DateTimePickerProps} */
-                const rawPickerProps = {
-                    ...DateTimePicker.defaultProps,
+                const defaults = {
+                    ...getPickerDefaults(),
                     onReset: () => {
                         updateValue(
                             ensureArray(pickerProps.value).length === 2 ? [false, false] : false,
@@ -451,30 +497,23 @@ export const datetimePickerService = {
                             saveAndClose();
                         }
                     },
-                    ...markValuesRaw(params.pickerProps),
                 };
-                const pickerProps = reactive(rawPickerProps, () => {
-                    // Update inputs
-                    for (const [el, value] of zip(
-                        getInputs(),
-                        ensureArray(pickerProps.value),
-                        true
-                    )) {
-                        if (el) {
-                            updateInput(el, value);
-                            // Apply changes immediately if the popover is already closed.
-                            // Otherwise ´apply()´ will be called later on close.
-                            if (!isOpen()) {
-                                apply();
-                            }
-                        }
-                    }
 
-                    shouldFocus = true;
-                });
+                const rawPickerProps = params.pickerProps;
+                const initialPickerProps = { ...defaults };
+                for (const [key, value] of Object.entries(rawPickerProps)) {
+                    if (value !== undefined) {
+                        initialPickerProps[key] = value;
+                    }
+                }
+                const pickerProps = proxy(initialPickerProps);
                 const popover = createPopover(DateTimePickerPopover, {
+                    useBottomSheet: useBottomSheet(),
                     async onClose() {
-                        updateValueFromInputs();
+                        const abort = updateValueFromInputs();
+                        if (abort) {
+                            return;
+                        }
                         setFocusClass(null);
                         restoreTargetMargin?.();
                         restoreTargetMargin = null;
@@ -483,24 +522,30 @@ export const datetimePickerService = {
                     },
                 });
 
+                const dateTimeManager = {
+                    /** @deprecated use {@link destroy} directly */
+                    enable: () => destroy,
+                    destroy,
+                    isOpen,
+                    open,
+                    close: popover.close,
+                    state: pickerProps,
+                };
+
+                let disposeEffect = () => {};
                 /** @type {boolean[]} */
                 let inputsChanged = [];
                 let lastAppliedStringValue = "";
+                let strPickerProps = JSON.stringify(pickerProps);
                 /** @type {(() => void) | null} */
                 let restoreTargetMargin = null;
                 let shouldFocus = false;
                 /** @type {Partial<DateTimePickerProps>} */
                 let stringProps = {};
-                /** @type {OwlRef | null} */
-                let targetRef = null;
 
-                if (params.useOwlHooks) {
-                    if (typeof params.target === "string") {
-                        targetRef = useRef(params.target);
-                    }
-
+                if (options?.useOwlHooks) {
                     onWillRender(function computeBasePickerProps() {
-                        const nextProps = markValuesRaw(params.pickerProps);
+                        const nextProps = params.pickerProps;
                         const oldStringProps = stringProps;
 
                         stringProps = stringifyProps(nextProps);
@@ -513,36 +558,32 @@ export const datetimePickerService = {
                         inputsChanged = ensureArray(nextProps.value).map(() => false);
 
                         for (const [key, value] of Object.entries(nextProps)) {
+                            if (value === undefined) {
+                                continue;
+                            }
                             if (!areDatesEqual(pickerProps[key], value)) {
                                 pickerProps[key] = value;
                             }
                         }
                     });
 
-                    useEffect(enable, getInputs);
+                    onMounted(setup);
+                    onWillDestroy(destroy);
+                    useLayoutEffect(initInputs, getInputs);
 
-                    // Note: this `onPatched` callback must be called after the `useEffect` since
+                    // Note: this `onPatched` callback must be called after the `useLayoutEffect` since
                     // the effect may change input values that will be selected by the patch callback.
                     onPatched(function focusIfNeeded() {
-                        if (isOpen() && shouldFocus) {
+                        if (shouldFocus && isOpen() && !useBottomSheet()) {
                             focusActiveInput();
                         }
                     });
-                } else if (typeof params.target === "string") {
-                    throw new Error(
-                        `datetime picker service error: cannot use target as ref name when not using Owl hooks`
-                    );
+                } else {
+                    initInputs(...getInputs());
+                    setup();
                 }
-                const picker = {
-                    enable,
-                    disable: () => dateTimePickerList.delete(picker),
-                    isOpen,
-                    open,
-                    close: () => popover.close(),
-                    state: pickerProps,
-                };
-                dateTimePickerList.add(picker);
-                return picker;
+
+                return dateTimeManager;
             },
         };
     },

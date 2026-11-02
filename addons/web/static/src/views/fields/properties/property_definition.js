@@ -1,19 +1,116 @@
-import { _t } from "@web/core/l10n/translation";
-import { PropertyValue } from "./property_value";
+import {
+    Component,
+    onMounted,
+    onWillUpdateProps,
+    proxy,
+    signal,
+    t,
+    usePlugin,
+    useProps,
+} from "@odoo/owl";
 import { CheckBox } from "@web/core/checkbox/checkbox";
-import { DomainSelector } from "@web/core/domain_selector/domain_selector";
+import { DebugModePlugin } from "@web/core/debug_mode_plugin";
 import { Domain } from "@web/core/domain";
+import { DomainSelector } from "@web/core/domain_selector/domain_selector";
 import { Dropdown } from "@web/core/dropdown/dropdown";
 import { DropdownItem } from "@web/core/dropdown/dropdown_item";
+import { useHotkey } from "@web/core/hotkeys/hotkey_hook";
+import { _t } from "@web/core/l10n/translation";
 import { ModelSelector } from "@web/core/model_selector/model_selector";
+import { SelectMenu } from "@web/core/select_menu/select_menu";
+import { useOwnedDialogs, useService } from "@web/core/utils/hooks";
+import { uuid } from "@web/core/utils/strings";
 import { Many2XAutocomplete } from "@web/views/fields/relational_utils";
-import { useService, useOwnedDialogs } from "@web/core/utils/hooks";
+import { SelectCreateDialog } from "@web/views/view_dialogs/select_create_dialog";
 import { PropertyDefinitionSelection } from "./property_definition_selection";
 import { PropertyTags } from "./property_tags";
-import { SelectCreateDialog } from "@web/views/view_dialogs/select_create_dialog";
-import { uuid } from "@web/core/utils/strings";
+import { PropertyValue } from "./property_value";
 
-import { Component, useState, onWillUpdateProps, useEffect, useRef } from "@odoo/owl";
+export const PROPERTIES_INFO = {
+    char: {
+        label: _t("Text"),
+        parameters: [],
+    },
+    text: {
+        label: _t("Multiline Text"),
+        parameters: [],
+    },
+    html: {
+        label: _t("HTML"),
+        parameters: [],
+    },
+    boolean: {
+        label: _t("Checkbox"),
+        parameters: [],
+    },
+    integer: {
+        label: _t("Integer"),
+        parameters: [],
+    },
+    float: {
+        label: _t("Decimal"),
+        parameters: [],
+    },
+    monetary: {
+        label: _t("Monetary"),
+        parameters: ["currency_field"],
+    },
+    date: {
+        label: _t("Date"),
+        parameters: [],
+    },
+    datetime: {
+        label: _t("Date & Time"),
+        parameters: [],
+    },
+    selection: {
+        label: _t("Selection"),
+        parameters: ["selection"],
+    },
+    tags: {
+        label: _t("Tags"),
+        parameters: ["tags"],
+    },
+    many2one: {
+        label: _t("Many2one"),
+        parameters: ["comodel", "domain"],
+    },
+    many2many: {
+        label: _t("Many2many"),
+        parameters: ["comodel", "domain"],
+    },
+    signature: {
+        label: _t("Signature"),
+        parameters: [],
+    },
+    separator: {
+        label: _t("Separator"),
+        parameters: [],
+    },
+};
+export const PROPERTY_TYPES = Object.keys(PROPERTIES_INFO);
+const PROPERTY_PARAMETERS = new Set(
+    Object.values(PROPERTIES_INFO).flatMap((info) => info.parameters)
+);
+
+export const propertyDefinitionProps = {
+    fieldName: t.string(),
+    readonly: t.boolean().optional(),
+    canChangeDefinition: t.boolean().optional(),
+    propertyDefinition: t.any().optional(),
+    context: t.object(),
+    isNewlyCreated: t.boolean().optional(),
+    // index and number of properties, to hide the move arrows when needed
+    propertiesSize: t.number(),
+    // events
+    onChange: t.function().optional(),
+    onDelete: t.function().optional(),
+    onDiscard: t.function().optional(),
+    onAdd: t.function().optional(),
+    // prop needed by the popover service
+    close: t.function().optional(),
+    record: t.object().optional(),
+};
 
 export class PropertyDefinition extends Component {
     static template = "web.PropertyDefinition";
@@ -27,37 +124,17 @@ export class PropertyDefinition extends Component {
         ModelSelector,
         PropertyDefinitionSelection,
         PropertyTags,
+        SelectMenu,
     };
-    static props = {
-        fieldName: { type: String },
-        readonly: { type: Boolean, optional: true },
-        canChangeDefinition: { type: Boolean, optional: true },
-        propertyDefinition: { optional: true },
-        context: { type: Object },
-        isNewlyCreated: { type: Boolean, optional: true },
-        // index and number of properties, to hide the move arrows when needed
-        propertyIndex: { type: Number },
-        propertiesSize: { type: Number },
-        // events
-        onChange: { type: Function, optional: true },
-        onDelete: { type: Function, optional: true },
-        onPropertyMove: { type: Function, optional: true },
-        // prop needed by the popover service
-        close: { type: Function, optional: true },
-        record: { type: Object, optional: true },
-    };
-    static _propertyParametersMap = new Map([
-        ["comodel", ["many2one", "many2many"]],
-        ["currency_field", ["monetary"]],
-        ["domain", ["many2one", "many2many"]],
-        ["selection", ["selection"]],
-        ["tags", ["tags"]],
-    ]);
+    props = useProps(propertyDefinitionProps);
+
+    propertyDefinitionRef = signal.ref();
+
+    debugMode = usePlugin(DebugModePlugin);
 
     setup() {
         this.orm = useService("orm");
 
-        this.propertyDefinitionRef = useRef("propertyDefinition");
         this.addDialog = useOwnedDialogs();
 
         const defaultDefinition = {
@@ -71,13 +148,13 @@ export class PropertyDefinition extends Component {
             ...this.props.propertyDefinition,
         };
 
-        this.state = useState({
+        this.state = proxy({
             propertyDefinition: propertyDefinition,
-            typeLabel: this._typeLabel(propertyDefinition.type),
+            typeLabel: PROPERTIES_INFO[propertyDefinition.type].label,
             resModel: "",
+            /** @type {TranslatedString} */
             resModelDescription: "",
             matchingRecordsCount: undefined,
-            propertyIndex: this.props.propertyIndex,
         });
 
         this._syncStateWithProps(propertyDefinition);
@@ -87,14 +164,9 @@ export class PropertyDefinition extends Component {
         // update the state and fetch needed information
         onWillUpdateProps((newProps) => this._syncStateWithProps(newProps.value));
 
-        useEffect((event) => {
+        onMounted(() => {
             // focus the property label, when we open the property definition
-            if (this.labelFocused) {
-                // focus it only once
-                return;
-            }
-            this.labelFocused = true;
-            const labelInput = this.propertyDefinitionRef.el.querySelectorAll("input")[0];
+            const labelInput = this.propertyDefinitionRef()?.querySelectorAll("input")[0];
             if (labelInput) {
                 if (this.props.isNewlyCreated) {
                     labelInput.select();
@@ -103,6 +175,18 @@ export class PropertyDefinition extends Component {
                 }
             }
         });
+
+        useHotkey(
+            "control+enter",
+            () => {
+                document.activeElement?.blur();
+                setTimeout(() => {
+                    this.props.onAdd();
+                });
+            },
+            { bypassEditableProtection: true }
+        );
+        useHotkey("escape", () => this.props.onDiscard());
     }
 
     /* --------------------------------------------------------
@@ -115,47 +199,31 @@ export class PropertyDefinition extends Component {
      * @returns {array}
      */
     get availablePropertyTypes() {
-        return [
-            ["char", _t("Text")],
-            ["text", _t("Multiline Text")],
-            ["html", _t("HTML")],
-            ["boolean", _t("Checkbox")],
-            ["integer", _t("Integer")],
-            ["float", _t("Decimal")],
-            ["monetary", _t("Monetary")],
-            ["date", _t("Date")],
-            ["datetime", _t("Date & Time")],
-            ["selection", _t("Selection")],
-            ["tags", _t("Tags")],
-            ["many2one", _t("Many2one")],
-            ["many2many", _t("Many2many")],
-            ["separator", _t("Separator")],
-        ];
+        const defaultCurrencyField = this.defaultCurrencyField;
+        return Object.entries(PROPERTIES_INFO).map(([value, { label }]) => {
+            const isEnabled = value !== "monetary" || !!defaultCurrencyField;
+            return {
+                enabled: isEnabled,
+                label,
+                tooltip: isEnabled
+                    ? ""
+                    : _t(
+                          "Not possible to create monetary field because there is no currency on current model."
+                      ),
+                value,
+            };
+        });
     }
 
     get currencyFields() {
-        return Object
-            .values(this.props.record.fields)
-            .filter((fieldDef) => fieldDef.type === "many2one" && fieldDef.relation === "res.currency");
+        return Object.values(this.props.record.fields).filter(
+            (fieldDef) => fieldDef.type === "many2one" && fieldDef.relation === "res.currency"
+        );
     }
 
     get defaultCurrencyField() {
         const currencyFields = this.currencyFields.map((fieldDef) => fieldDef.name);
         return currencyFields.includes("currency_id") ? "currency_id" : currencyFields[0] || false;
-    }
-
-    /**
-     * Return True if the current properties is the first one in the list.
-     */
-    get isFirst() {
-        return this.state.propertyIndex === 0;
-    }
-
-    /**
-     * Return True if the current properties is the last one in the list.
-     */
-    get isLast() {
-        return this.state.propertyIndex === this.props.propertiesSize - 1;
     }
 
     /**
@@ -166,6 +234,14 @@ export class PropertyDefinition extends Component {
      */
     get propertyTagValues() {
         return (this.state.propertyDefinition.tags || []).map((tag) => tag[0]);
+    }
+
+    get currentPropertyDefinitionTitle() {
+        return this.props.isNewlyCreated ? _t("Add Property Field") : _t("Update Property Field");
+    }
+
+    get currentPrimaryActionName() {
+        return this.props.isNewlyCreated ? _t("Add") : _t("Update");
     }
 
     /**
@@ -182,21 +258,6 @@ export class PropertyDefinition extends Component {
      * -------------------------------------------------------- */
 
     /**
-     * We changed the string of the property.
-     *
-     * @param {event} event
-     */
-    onPropertyLabelChange(event) {
-        const newString = event.target.value;
-        const propertyDefinition = {
-            ...this.state.propertyDefinition,
-            string: newString,
-        };
-        this.props.onChange(propertyDefinition);
-        this.state.propertyDefinition = propertyDefinition;
-    }
-
-    /**
      * Pressed enter on the property label close the definition.
      *
      * @param {event} event
@@ -206,20 +267,6 @@ export class PropertyDefinition extends Component {
             return;
         }
         this.props.close();
-    }
-
-    /**
-     * We changed the default value of the property.
-     *
-     * @param {object} newDefault
-     */
-    onDefaultChange(newDefault) {
-        const propertyDefinition = {
-            ...this.state.propertyDefinition,
-            default: newDefault,
-        };
-        this.props.onChange(propertyDefinition);
-        this.state.propertyDefinition = propertyDefinition;
     }
 
     /**
@@ -248,11 +295,15 @@ export class PropertyDefinition extends Component {
             propertyDefinition.fold_by_default = true;
         }
 
-        PropertyDefinition._propertyParametersMap.forEach((types, param) => {
-            if (!types.includes(propertyDefinition.type)) {
+        if (newType === "signature") {
+            delete propertyDefinition.suffix;
+        }
+
+        for (const param of PROPERTY_PARAMETERS) {
+            if (!PROPERTIES_INFO[propertyDefinition.type].parameters.includes(param)) {
                 delete propertyDefinition[param];
             }
-        });
+        }
 
         this.props.onChange(propertyDefinition);
         this.state.propertyDefinition = propertyDefinition;
@@ -260,7 +311,7 @@ export class PropertyDefinition extends Component {
             this.state.resModel = "";
             this.state.resModelDescription = "";
         }
-        this.state.typeLabel = this._typeLabel(newType);
+        this.state.typeLabel = PROPERTIES_INFO[propertyDefinition.type].label;
     }
 
     /**
@@ -319,91 +370,10 @@ export class PropertyDefinition extends Component {
         });
     }
 
-    /**
-     * Move the current property up or down.
-     *
-     * @param {string} direction, either 'up' or 'down'
-     */
-    onPropertyMove(direction) {
-        if (direction === "up") {
-            this.state.propertyIndex--;
-        } else {
-            this.state.propertyIndex++;
-        }
-        this.props.onPropertyMove(direction);
-    }
-
-    /**
-     * We renamed / created / removed a selection option.
-     *
-     * @param {array} newOptions
-     */
-    onSelectionOptionChange(newOptions) {
+    onAttributeChange(name, newValue) {
         const propertyDefinition = {
             ...this.state.propertyDefinition,
-            selection: newOptions,
-        };
-        this.props.onChange(propertyDefinition);
-        this.state.propertyDefinition = propertyDefinition;
-    }
-
-    /**
-     * @param {Event & { target: HTMLInputElement }} ev
-     */
-    onSuffixChange(ev) {
-        const propertyDefinition = {
-            ...this.state.propertyDefinition,
-            suffix: ev.target.value,
-        };
-        this.props.onChange(propertyDefinition);
-        this.state.propertyDefinition = propertyDefinition;
-    }
-
-    /**
-     * We renamed / created / removed tags.
-     *
-     * @param {array} newTags
-     */
-    onTagsChange(newTags) {
-        const propertyDefinition = {
-            ...this.state.propertyDefinition,
-            tags: newTags,
-        };
-        this.props.onChange(propertyDefinition);
-        this.state.propertyDefinition = propertyDefinition;
-    }
-
-    /**
-     * We activate / deactivate the property in the kanban view.
-     *
-     * @param {boolean} newValue
-     */
-    onViewInKanbanChange(newValue) {
-        const propertyDefinition = {
-            ...this.state.propertyDefinition,
-            view_in_cards: newValue,
-        };
-        this.props.onChange(propertyDefinition);
-        this.state.propertyDefinition = propertyDefinition;
-    }
-
-    /**
-     * Ensure the section below the separator is folded/unfolded by default
-     * @param {boolean} checked
-     */
-    onFoldByDefaultChange(checked) {
-        const propertyDefinition = {
-            ...this.state.propertyDefinition,
-            fold_by_default: checked,
-        };
-        this.props.onChange(propertyDefinition);
-        this.state.propertyDefinition = propertyDefinition;
-    }
-
-    onCurrencyFieldUpdate(path) {
-        const propertyDefinition = {
-            ...this.state.propertyDefinition,
-            currency_field: path,
+            [name]: newValue,
         };
         this.props.onChange(propertyDefinition);
         this.state.propertyDefinition = propertyDefinition;
@@ -425,7 +395,7 @@ export class PropertyDefinition extends Component {
 
         this.state.propertyDefinition = propertyDefinition;
         this.state.resModel = propertyDefinition.comodel;
-        this.state.typeLabel = this._typeLabel(propertyDefinition.type);
+        this.state.typeLabel = PROPERTIES_INFO[propertyDefinition.type].label;
         this.state.resModel = newModel;
 
         if (newModel && newModel !== currentModel) {
@@ -455,29 +425,19 @@ export class PropertyDefinition extends Component {
      * Update the number of records that match the current domain.
      */
     async _updateMatchingRecordsCount() {
+        let matchingRecordsCount;
         if (this.state.resModel && this.state.resModel.length) {
             const domainList = new Domain(this.state.propertyDefinition.domain || "[]").toList();
-
-            const result = await this.orm.call(
-                this.state.propertyDefinition.comodel,
-                "search_count",
-                [domainList]
-            );
-
-            this.state.matchingRecordsCount = result;
-        } else {
-            this.state.matchingRecordsCount = undefined;
+            try {
+                matchingRecordsCount = await this.orm.call(
+                    this.state.propertyDefinition.comodel,
+                    "search_count",
+                    [domainList]
+                );
+            } catch {
+                // An invalid domain shows no record count.
+            }
         }
-    }
-
-    /**
-     * Return the property label corresponding to the property type.
-     *
-     * @param {string} propertyType
-     * @returns {string}
-     */
-    _typeLabel(propertyType) {
-        const allTypes = this.availablePropertyTypes;
-        return allTypes.find((type) => type[0] === propertyType)[1];
+        this.state.matchingRecordsCount = matchingRecordsCount;
     }
 }

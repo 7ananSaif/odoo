@@ -1,11 +1,12 @@
 /* global checkVATNumber */
 
-import { loadJS } from "@web/core/assets";
+import { useScope } from "@odoo/owl";
+import { AssetsLoadingError, loadJS } from "@web/core/assets";
 import { _t } from "@web/core/l10n/translation";
+import { ConnectionLostError } from "@web/core/network/rpc";
 import { KeepLast } from "@web/core/utils/concurrency";
 import { useService } from "@web/core/utils/hooks";
 import { renderToMarkup } from "@web/core/utils/render";
-import { onWillStart } from "@odoo/owl";
 
 /**
  * Get list of companies via Autocomplete API
@@ -15,22 +16,29 @@ import { onWillStart } from "@odoo/owl";
  * @private
  */
 export function usePartnerAutocomplete() {
-    const keepLastOdoo = new KeepLast();
+    const keepLast = new KeepLast();
 
+    const scope = useScope();
     const notification = useService("notification");
     const orm = useService("orm");
 
     let lastNoResultsQuery = null;
 
-    onWillStart(async () => {
-        await loadJS("/partner_autocomplete/static/lib/jsvat.js");
-    });
-
     function sanitizeVAT(value) {
-        return value ? value.replace(/[^A-Za-z0-9]/g, '') : '';
+        return value ? value.replace(/[^A-Za-z0-9]/g, "") : "";
     }
 
     async function isVATNumber(value) {
+        // Lazyload jsvat only if the component is being used.
+        try {
+            await loadJS("/partner_autocomplete/static/lib/jsvat.js");
+        } catch (e) {
+            if (e instanceof AssetsLoadingError) {
+                return new Promise(() => {});
+            }
+            throw e;
+        }
+
         // checkVATNumber is defined in library jsvat.
         // It validates that the input has a valid VAT number format
         return checkVATNumber(sanitizeVAT(value));
@@ -46,7 +54,7 @@ export function usePartnerAutocomplete() {
                 /\d{4}[A-Z]{3}\d{5}[A-Z]{3}/, // Revised NRI GSTIN
                 /\d{4}[a-zA-Z]{3}\d{5}NR[0-9a-zA-Z]/, // NRI GSTIN
                 /\d{2}[a-zA-Z]{4}[a-zA-Z0-9]\d{4}[a-zA-Z][1-9A-Za-z][DK][0-9a-zA-Z]/, // TDS GSTIN
-                /\d{2}[a-zA-Z]{5}\d{4}[a-zA-Z][1-9A-Za-z]C[0-9a-zA-Z]/ // TCS GSTIN
+                /\d{2}[a-zA-Z]{5}\d{4}[a-zA-Z][1-9A-Za-z]C[0-9a-zA-Z]/, // TCS GSTIN
             ];
 
             isGST = allGSTinRe.some((re) => re.test(value));
@@ -55,14 +63,19 @@ export function usePartnerAutocomplete() {
         return isGST;
     }
 
-    async function autocomplete(value, queryCountryId) {
+    async function autocomplete(fieldName, value, queryCountryId) {
         value = value.trim();
-        const isVAT = await isVATNumber(value);
-        if (isVAT){
-        	value = sanitizeVAT(value);
-        }
+
+        const isVat = await isVATNumber(value);
         const isGST = isGSTNumber(value);
-        return await getSuggestions(value, isVAT || isGST, queryCountryId);
+
+        if (fieldName === 'vat' && !isGST && !isVat) {
+            return [];
+        }
+
+        fieldName = fieldName === 'name' && (isVat || isGST) ? 'vat' : fieldName;
+
+        return await scope.run(getSuggestions, fieldName, value, queryCountryId);
     }
 
     /**
@@ -74,24 +87,24 @@ export function usePartnerAutocomplete() {
      */
     function enrichCompany(company) {
         const context = {
-            'enriched_company_data': company,
+            enriched_company_data: company,
         };
 
-        if (isGSTNumber(company.query)){
-            return orm.call('res.partner', 'enrich_by_gst', [company.query]);
+        if (isGSTNumber(company.query)) {
+            return orm.call("res.partner", "enrich_by_gst", [company.query]);
         }
-        return orm.call('res.partner', 'enrich_by_duns', [company.duns], { context: context });
+        return orm.call("res.partner", "enrich_by_duns", [company.duns], { context: context });
     }
 
     function removeUselessFields(company, fieldsToKeep) {
         // Delete attribute to avoid "Field_changed" errors (these fields will be populated in the form)
-        for (const field in company){
-            if (!fieldsToKeep.includes(field)){
-                delete company[field]
+        for (const field in company) {
+            if (!fieldsToKeep.includes(field)) {
+                delete company[field];
             }
         }
         return company;
-    };
+    }
 
     /**
      * Get enriched data + logo before populating partner form
@@ -104,21 +117,18 @@ export function usePartnerAutocomplete() {
             // Fetch additional company info via Autocomplete Enrichment API
             let isEnrichAccessible = false;
             if (companyData.error) {
-                if (companyData.error_message === 'Insufficient Credit') {
+                if (companyData.error_message === "Insufficient Credit") {
                     notifyNoCredits();
-                }
-                else if (companyData.error_message === 'No Account Token') {
+                } else if (companyData.error_message === "No Account Token") {
                     notifyAccountToken();
-                }
-                else {
+                } else {
                     notification.add(companyData.error_message);
                 }
                 companyData = {
                     ...company,
                     ...companyData,
                 };
-            }
-            else {
+            } else {
                 isEnrichAccessible = true;
             }
             return {
@@ -126,51 +136,61 @@ export function usePartnerAutocomplete() {
                 logo: companyData.logo || false,
                 isEnrichAccessible,
             };
-        })
+        });
     }
 
     /**
      * Use Odoo Autocomplete API to return suggestions
      *
+     * @param {string} fieldName
      * @param {string} value
-     * @param {boolean} isVAT
+     * @param {int} queryCountryId
      * @returns {Promise}
      * @private
      */
-    async function getSuggestions(value, isVAT, queryCountryId) {
-        const method = isVAT ? 'autocomplete_by_vat' : 'autocomplete_by_name';
-
+    async function getSuggestions(fieldName, value, queryCountryId) {
         // Optimization: if the search query starts with the same content as a previous query for
         // which there was no results, there won't be any results for the current query.
         // E.g., if there is no results for query "abc123", there won't be any results for query "abc1234".
-        if (!isVAT && lastNoResultsQuery && value.startsWith(lastNoResultsQuery)) {
+        if (fieldName === 'name' && lastNoResultsQuery && value.startsWith(lastNoResultsQuery)) {
             return [];
         }
 
-        const prom = orm.silent.call(
-            'res.partner',
-            method,
-            [value, queryCountryId],
-        );
+        const prom = orm.silent.call('res.partner', 'autocomplete_by_field', [fieldName.toLowerCase(), value, queryCountryId]);
 
-        const suggestions = await keepLastOdoo.add(prom);
-
-        if (!isVAT && suggestions.length === 0) {
-            lastNoResultsQuery = value;
+        let suggestions = [];
+        try {
+            suggestions = await keepLast.add(prom);
+        } catch (e) {
+            if (!(e instanceof ConnectionLostError)) {
+                throw e;
+            }
+        }
+        if (suggestions.length === 0) {
+            if (fieldName === 'name') {
+                lastNoResultsQuery = value;
+            }
+            return [];
         }
 
-        await Promise.all(suggestions.map(async (suggestion) => {
-            suggestion.query = value;  // Save queried value (name, VAT) for later
-            suggestion.description = '';
-            if (suggestion.city || suggestion.city_id){
-                suggestion.description += suggestion.city || suggestion.city_id.display_name;
-            }
-            // Show country name only if searching worldwide
-            if (queryCountryId === 0 && suggestion.country_id && suggestion.country_id.display_name) {
-                suggestion.description +=  ', ' + suggestion.country_id.display_name;
-            }
-            return suggestion;
-        }));
+        await Promise.all(
+            suggestions.map(async (suggestion) => {
+                suggestion.query = value; // Save queried value (name, VAT) for later
+                suggestion.description = "";
+                if (suggestion.city || suggestion.city_id) {
+                    suggestion.description += suggestion.city || suggestion.city_id.display_name;
+                }
+                // Show country name only if searching worldwide
+                if (
+                    queryCountryId === 0 &&
+                    suggestion.country_id &&
+                    suggestion.country_id.display_name
+                ) {
+                    suggestion.description += ", " + suggestion.country_id.display_name;
+                }
+                return suggestion;
+            })
+        );
         return suggestions;
     }
 
@@ -179,14 +199,10 @@ export function usePartnerAutocomplete() {
      * @returns {Promise}
      */
     async function notifyNoCredits() {
-        const url = await orm.call(
-            'iap.account',
-            'get_credits_url',
-            ['partner_autocomplete'],
-        );
-        const title = _t('Not enough credits for Partner Autocomplete');
-        const content = renderToMarkup('partner_autocomplete.InsufficientCreditNotification', {
-            credits_url: url
+        const url = await orm.call("iap.account", "get_credits_url", ["partner_autocomplete"]);
+        const title = _t("Not enough credits for Partner Autocomplete");
+        const content = renderToMarkup("partner_autocomplete.InsufficientCreditNotification", {
+            credits_url: url,
         });
         notification.add(content, {
             title,
@@ -194,21 +210,16 @@ export function usePartnerAutocomplete() {
     }
 
     async function notifyAccountToken() {
-        const url = await orm.call(
-            'iap.account',
-            'get_config_account_url',
-            []
-        );
-        const title = _t('IAP Account Token missing');
+        const url = await orm.call("iap.account", "get_config_account_url", []);
+        const title = _t("IAP Account Token missing");
         if (url) {
-            const content = renderToMarkup('partner_autocomplete.AccountTokenMissingNotification', {
-                account_url: url
+            const content = renderToMarkup("partner_autocomplete.AccountTokenMissingNotification", {
+                account_url: url,
             });
             notification.add(content, {
                 title,
             });
-        }
-        else {
+        } else {
             notification.add(title);
         }
     }

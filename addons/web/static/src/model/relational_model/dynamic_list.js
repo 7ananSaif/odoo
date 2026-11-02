@@ -1,15 +1,14 @@
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
-import { x2ManyCommands } from "@web/core/orm_service";
+import { ConnectionLostError } from "@web/core/network/rpc";
+import { x2ManyCommands } from "@web/core/orm_plugin";
 import { unique } from "@web/core/utils/arrays";
+import { deepEqual } from "@web/core/utils/objects";
 import { DataPoint } from "./datapoint";
+import { FetchRecordError } from "./errors";
 import { Operation } from "./operation";
 import { Record as RelationalRecord } from "./record";
-import { getFieldsSpec, resequence } from "./utils";
-
-/**
- * @typedef {import("./record").Record} RelationalRecord
- */
+import { getBasicEvalContext, getFieldsSpec, getScheduleORMExtras, resequence } from "./utils";
 
 const DEFAULT_HANDLE_FIELD = "sequence";
 
@@ -22,12 +21,15 @@ export class DynamicList extends DataPoint {
      */
     setup() {
         super.setup(...arguments);
+
         this.handleField = Object.keys(this.activeFields).find(
             (fieldName) => this.activeFields[fieldName].isHandle
         );
         if (!this.handleField && DEFAULT_HANDLE_FIELD in this.fields) {
             this.handleField = DEFAULT_HANDLE_FIELD;
         }
+
+        this.count = 0;
         this.isDomainSelected = false;
         this.evalContext = this.context;
     }
@@ -255,10 +257,13 @@ export class DynamicList extends DataPoint {
 
         if (resIds.length > 1) {
             this.model.dialog.add(ConfirmationDialog, {
-                body: _t("Are you sure that you want to duplicate all the selected records?"),
+                title: _t("Duplicate Records"),
+                body: _t(
+                    "You are about to create a copy of every selected record.\nAre you sure you want to proceed?"
+                ),
                 confirm: () => copy(resIds),
                 cancel: () => {},
-                confirmLabel: _t("Confirm"),
+                confirmLabel: _t("Duplicate"),
             });
         } else {
             await copy(resIds);
@@ -273,9 +278,27 @@ export class DynamicList extends DataPoint {
             resIds = await this.getResIds(true);
             records = this.records.filter((r) => resIds.includes(r.resId));
         }
-        const unlinked = await this.model.orm.unlink(this.resModel, resIds, {
-            context: this.context,
-        });
+        let unlinked = false;
+        try {
+            unlinked = await this.model.orm.webUnlink(this.resModel, resIds, {
+                context: this.context,
+            });
+        } catch (e) {
+            if (e instanceof ConnectionLostError) {
+                this.model.offlinePlugin.scheduleORM(
+                    this.resModel,
+                    "web_unlink",
+                    [resIds],
+                    { context: this.context },
+                    {
+                        extras: getScheduleORMExtras(this.model, records),
+                    }
+                );
+                this._unselectAll();
+                return true;
+            }
+            throw e;
+        }
         if (!unlinked) {
             return false;
         }
@@ -292,13 +315,6 @@ export class DynamicList extends DataPoint {
         }
         await this.model.load();
         return unlinked;
-    }
-
-    async _leaveSampleMode() {
-        if (this.model.useSampleModel) {
-            await this._load(this.offset, this.limit, this.orderBy, this.domain);
-            this.model.useSampleModel = false;
-        }
     }
 
     async _multiSave(editedRecord, changes) {
@@ -434,7 +450,68 @@ export class DynamicList extends DataPoint {
         return true;
     }
 
-    async _resequence(originalList, resModel, movedId, targetId) {
+    /**
+     * Applies the same `changes` on several records and saves them with a single rpc,
+     * bypassing the onchanges, the per record save hooks and the "multi edit" flow:
+     * only for programmatic changes on records not being edited.
+     *
+     * @param {RelationalRecord[]} records
+     * @param {Record<string, unknown>} changes
+     * @returns {Promise<boolean>} false if a record is invalid, nothing being saved then
+     */
+    async _saveRecords(records, changes) {
+        const [{ activeFields, fields, config }] = records;
+        const kwargs = {
+            context: this.context,
+            specification: getFieldsSpec(activeFields, fields, getBasicEvalContext(config)),
+        };
+        const undoFns = [];
+        const valsList = [];
+        for (const record of records) {
+            // a property is written as part of the whole properties field, so its
+            // new value depends on the other properties of the record itself
+            const recordChanges = { ...changes };
+            record._preprocessPropertiesChanges(recordChanges);
+            undoFns.push(record._applyChanges(recordChanges));
+            valsList.push(record._getChanges(recordChanges));
+        }
+        // as with a single record save, an invalid record is not written at all
+        if (!records.every((record) => record._checkValidity({ displayNotification: true }))) {
+            undoFns.forEach((undo) => undo());
+            return false;
+        }
+        const resIds = records.map((record) => record.resId);
+        const [vals] = valsList;
+        let values;
+        try {
+            // a single write on the whole recordset whenever the records share the same
+            // values: only a property change can yield different ones, as it is written
+            // as the whole properties field, with the values the record has for the others
+            values = valsList.every((v) => deepEqual(v, vals))
+                ? await this.model.orm.webSave(this.resModel, resIds, vals, kwargs)
+                : await this.model.orm.webSaveMulti(this.resModel, resIds, valsList, kwargs);
+        } catch (e) {
+            if (e instanceof ConnectionLostError) {
+                // keep the changes and replay them when the connection is back
+                records.forEach((record) => record._offlineSave());
+                return true;
+            }
+            undoFns.forEach((undo) => undo());
+            throw e;
+        }
+        const valuesById = Object.fromEntries(values.map((vals) => [vals.id, vals]));
+        const missing = records.filter((record) => !(record.resId in valuesById));
+        if (missing.length) {
+            throw new FetchRecordError(missing.map((record) => record.resId));
+        }
+        for (const record of records) {
+            record._setData(valuesById[record.resId]);
+        }
+        this.model.hooks.onSavedMulti(records);
+        return true;
+    }
+
+    async _resequence(originalList, resModel, movedIds, targetId) {
         if (this.resModel === resModel && !this.canResequence()) {
             return;
         }
@@ -445,7 +522,7 @@ export class DynamicList extends DataPoint {
         const resequencedRecords = await resequence({
             records: originalList,
             resModel,
-            movedId,
+            movedIds,
             targetId,
             fieldName: handleField,
             asc: order?.asc,
@@ -472,7 +549,26 @@ export class DynamicList extends DataPoint {
         const method = state ? "action_archive" : "action_unarchive";
         const context = this.context;
         const resIds = await this.getResIds(isSelected);
-        const action = await this.model.orm.call(this.resModel, method, [resIds], { context });
+        let action;
+        try {
+            action = await this.model.orm.call(this.resModel, method, [resIds], { context });
+        } catch (e) {
+            if (e instanceof ConnectionLostError) {
+                const records = this.records.filter((r) => resIds.includes(r.resId));
+                this.model.offlinePlugin.scheduleORM(
+                    this.resModel,
+                    method,
+                    [resIds],
+                    { context: this.context },
+                    {
+                        extras: getScheduleORMExtras(this.model, records),
+                    }
+                );
+                this._unselectAll();
+                return true;
+            }
+            throw e;
+        }
         if (
             this.isDomainSelected &&
             resIds.length === this.model.activeIdsLimit &&
@@ -498,15 +594,24 @@ export class DynamicList extends DataPoint {
     }
 
     async _toggleSelection() {
-        if (this.selection.length === this.records.length) {
-            this.records.forEach((record) => {
-                record._toggleSelection(false);
-            });
-            this._selectDomain(false);
+        // As soon as something is selected, clicking the header checkbox clears the selection.
+        if (this.isDomainSelected || this.selection.length > 0) {
+            this._unselectAll();
         } else {
             this.records.forEach((record) => {
                 record._toggleSelection(true);
             });
         }
+    }
+
+    unselectAll() {
+        return this.model.mutex.exec(() => this._unselectAll());
+    }
+
+    _unselectAll() {
+        this.selection.forEach((record) => {
+            record._toggleSelection(false);
+        });
+        this._selectDomain(false);
     }
 }

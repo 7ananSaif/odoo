@@ -1,9 +1,11 @@
 import { describe, expect } from "@odoo/hoot";
+import { waitUntil } from "@odoo/hoot-dom";
 import { advanceTime } from "@odoo/hoot-mock";
 import { browser } from "@web/core/browser/browser";
-import { asyncStep, onRpc, mountWebClient, waitForSteps } from "@web/../tests/web_test_helpers";
+import { onRpc, mountWebClient } from "@web/../tests/web_test_helpers";
 import { defineMailModels, mockGetMedia, onlineTest } from "@mail/../tests/mail_test_helpers";
 import { PeerToPeer, STREAM_TYPE, UPDATE_EVENT } from "@mail/discuss/call/common/peer_to_peer";
+import { range } from "@web/core/utils/numbers";
 
 describe.current.tags("desktop");
 defineMailModels();
@@ -50,14 +52,14 @@ onlineTest("basic peer to peer connection", async () => {
     const user2 = network.register(2);
     user2.p2p.addEventListener("update", ({ detail: { name, payload } }) => {
         if (name === UPDATE_EVENT.CONNECTION_CHANGE && payload.state === "connected") {
-            asyncStep(payload.state);
+            expect.step(payload.state);
         }
     });
 
     user2.p2p.connect(user2.id, channelId);
     user1.p2p.connect(user1.id, channelId);
     await user1.p2p.addPeer(user2.id);
-    await waitForSteps(["connected"]);
+    await expect.waitForSteps(["connected"]);
     network.close();
 });
 
@@ -66,7 +68,7 @@ onlineTest("mesh peer to peer connections", async () => {
     const channelId = 2;
     const network = new Network();
     const userCount = 10;
-    const users = Array.from({ length: userCount }, (_, i) => network.register(i));
+    const users = range(userCount).map((i) => network.register(i));
     const promises = [];
     for (const user of users) {
         user.p2p.connect(user.id, channelId);
@@ -76,17 +78,14 @@ onlineTest("mesh peer to peer connections", async () => {
     }
     await Promise.all(promises);
 
-    let connectionsCount = 0;
-    for (const user of users) {
-        connectionsCount += user.p2p.peers.size;
-    }
-    expect(connectionsCount).toBe(userCount * (userCount - 1));
-    connectionsCount = 0;
+    const expectedCount = userCount * (userCount - 1);
+    const connectionCount = () => users.reduce((count, user) => count + user.p2p.peers.size, 0);
+    await waitUntil(() => connectionCount() === expectedCount, {
+        message: () => `expected ${expectedCount} connections, got ${connectionCount()}`,
+        timeout: 10_000,
+    });
     network.close();
-    for (const user of users) {
-        connectionsCount += user.p2p.peers.size;
-    }
-    expect(connectionsCount).toBe(0);
+    expect(connectionCount()).toBe(0);
 });
 
 onlineTest("connection recovery", async () => {
@@ -98,7 +97,7 @@ onlineTest("connection recovery", async () => {
     user2.remoteStates = new Map();
     user2.p2p.addEventListener("update", ({ detail: { name, payload } }) => {
         if (name === UPDATE_EVENT.CONNECTION_CHANGE && payload.state === "connected") {
-            asyncStep(payload.state);
+            expect.step(payload.state);
         }
     });
 
@@ -112,7 +111,7 @@ onlineTest("connection recovery", async () => {
     });
     advanceTime(5_000); // recovery timeout
     await openPromise;
-    await waitForSteps(["connected"]);
+    await expect.waitForSteps(["connected"]);
     network.close();
 });
 
@@ -201,11 +200,11 @@ onlineTest("can reject arbitrary offers", async () => {
     user1.p2p.connect(user1.id, channelId);
     user2.p2p._emitLog = (id, message) => {
         if (message === "offer rejected") {
-            asyncStep("offer rejected");
+            expect.step("offer rejected");
         }
     };
     user2.p2p.acceptOffer = (id, sequence) => id !== user1.id || sequence > 20;
     user1.p2p.addPeer(user2.id, { sequence: 19 });
-    await waitForSteps(["offer rejected"]);
+    await expect.waitForSteps(["offer rejected"]);
     network.close();
 });

@@ -1,18 +1,19 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+import ast
 import re
-from pytz import UTC
 from collections import defaultdict
-from datetime import timedelta, datetime, time
+from datetime import timedelta, datetime, time, UTC
+from random import shuffle
+
 from lxml import html
 
 from odoo import api, fields, models, tools, SUPERUSER_ID, _
 from odoo.fields import Command, Date, Domain
 from odoo.addons.rating.models import rating_data
 from odoo.addons.html_editor.tools import handle_history_divergence
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import UserError, ValidationError, AccessError
 from odoo.tools import format_list, SQL, LazyTranslate, html_sanitize
-from odoo.addons.resource.models.utils import filter_domain_leaf
 from odoo.addons.project.controllers.project_sharing_chatter import ProjectSharingChatter
 from odoo.addons.mail.tools.discuss import Store
 
@@ -35,7 +36,6 @@ PROJECT_TASK_READABLE_FIELDS = {
     'portal_user_names',
     'user_ids',
     'display_parent_task_button',
-    'current_user_same_company_partner',
     'allow_recurring_tasks',
     'allow_milestones',
     'milestone_id',
@@ -59,24 +59,25 @@ PROJECT_TASK_READABLE_FIELDS = {
     'is_template',
     'has_template_ancestor',
     'has_project_template',
-    'stage_id_color',
     'access_token',
     'access_url',
+    'date_deadline',
+    'partner_id',
+    'parent_id',
+    'project_sharing_portal_user_ids'
 }
 
 PROJECT_TASK_WRITABLE_FIELDS = {
     'name',
     'description',
-    'partner_id',
-    'date_deadline',
     'date_last_stage_update',
     'tag_ids',
     'sequence',
-    'stage_id',
+    'stage_id',  # only advanced edit
     'child_ids',
     'color',
     'parent_id',
-    'priority',
+    'priority',  # only advanced edit
     'state',
     'is_closed',
 }
@@ -90,10 +91,10 @@ CLOSED_STATES = {
 class ProjectTask(models.Model):
     _name = 'project.task'
     _description = "Task"
+    _explanation = "A specific piece of work to be completed within a project. Tasks can be assigned to employees, tracked through stages (e.g., In Progress, Done), and have logged timesheets."
     _date_name = "date_assign"
     _inherit = [
         'portal.mixin',
-        'mail.thread.cc',
         'mail.activity.mixin',
         'rating.mixin',
         'mail.tracking.duration.mixin',
@@ -105,6 +106,7 @@ class ProjectTask(models.Model):
     _primary_email = 'email_from'
     _systray_view = 'list'
     _track_duration_field = 'stage_id'
+    _priority_field = 'priority'
 
     def _get_versioned_fields(self):
         return [ProjectTask.description.name]
@@ -122,7 +124,7 @@ class ProjectTask(models.Model):
         project_id = self.env.context.get('default_project_id')
         if not project_id:
             return False
-        return self.stage_find(project_id, order="fold, sequence, id")
+        return self.env['project.project'].browse(project_id)._get_default_task_stage().id
 
     @api.model
     def _default_user_ids(self):
@@ -149,20 +151,19 @@ class ProjectTask(models.Model):
         return stages.search(['|', ('id', 'in', stages.ids), ('user_id', '=', self.env.user.id)])
 
     active = fields.Boolean(default=True, export_string_translation=False)
-    name = fields.Char(string='Title', tracking=True, required=True, index='trigram')
+    name = fields.Char(string='Title', tracking=1, required=True, index='trigram', copy=True)
     description = fields.Html(string='Description', sanitize_attributes=False)
     priority = fields.Selection([
         ('0', 'Low priority'),
         ('1', 'Medium priority'),
         ('2', 'High priority'),
         ('3', 'Urgent'),
-    ], default='0', index=True, string="Priority", tracking=True)
+    ], default='0', index=True, string="Priority", tracking=2)
     sequence = fields.Integer(string='Sequence', default=10, export_string_translation=False)
     stage_id = fields.Many2one('project.task.type', string='Stage', compute='_compute_stage_id',
-       store=True, readonly=False, ondelete='restrict', tracking=True, index=True,
+       store=True, readonly=False, ondelete='restrict', tracking=6, index=True,
        default=_get_default_stage_id, group_expand='_read_group_stage_ids',
        domain="[('project_ids', '=', project_id)]")
-    stage_id_color = fields.Integer(string='Stage Color', related="stage_id.color", export_string_translation=False)
     tag_ids = fields.Many2many('project.tags', string='Tags')
 
     state = fields.Selection([
@@ -172,7 +173,7 @@ class ProjectTask(models.Model):
         *CLOSED_STATES.items(),
         ('04_waiting_normal', 'Waiting'),
     ], string='State', copy=False, default='01_in_progress', required=True, compute='_compute_state',
-        inverse='_inverse_state', readonly=False, store=True, index=True, recursive=True, tracking=True)
+        inverse='_inverse_state', readonly=False, store=True, index=True, recursive=True, tracking=5)
     is_closed = fields.Boolean("Closed state", compute='_compute_is_closed', search='_search_is_closed')
 
     create_date = fields.Datetime("Created On", readonly=True, index=True)
@@ -180,7 +181,7 @@ class ProjectTask(models.Model):
     date_end = fields.Datetime(string='Ending Date', index=True, copy=False)
     date_assign = fields.Datetime(string='Assigning Date', copy=False, readonly=True,
         help="Date on which this task was last assigned (or unassigned). Based on this, you can get statistics on the time it usually takes to assign tasks.")
-    date_deadline = fields.Datetime(string='Deadline', index=True, tracking=True, copy=False)
+    date_deadline = fields.Datetime(string='Deadline', index=True, tracking=7, copy=False)
 
     date_last_stage_update = fields.Datetime(string='Last Stage Update',
         index=True,
@@ -190,10 +191,10 @@ class ProjectTask(models.Model):
             "Based on this information you can identify tasks that are stalling and get statistics on the time it usually takes to move tasks from one stage/state to another.")
 
     project_id = fields.Many2one('project.project', string='Project', domain="['|', ('company_id', '=', False), ('company_id', '=?',  company_id)]",
-                                 compute="_compute_project_id", store=True, precompute=True, recursive=True, readonly=False, index=True, tracking=True, change_default=True, falsy_value_label=_lt("🔒 Private"))
+                                 compute="_compute_project_id", store=True, precompute=True, recursive=True, readonly=False, index=True, tracking=4, change_default=True)
     display_in_project = fields.Boolean(compute='_compute_display_in_project', store=True, export_string_translation=False)
     task_properties = fields.Properties('Properties', definition='project_id.task_properties_definition', copy=True)
-    allocated_hours = fields.Float("Allocated Time", tracking=True)
+    allocated_hours = fields.Float("Allocated Time", tracking=8)
     subtask_allocated_hours = fields.Float("Sub-tasks Allocated Time", compute='_compute_subtask_allocated_hours', export_string_translation=False,
         help="Sum of the hours allocated for all the sub-tasks (and their own sub-tasks) linked to this task. Usually less than or equal to the allocated hours of this task.")
     role_ids = fields.Many2many(
@@ -203,7 +204,8 @@ class ProjectTask(models.Model):
     )
     # Tracking of this field is done in the write function
     user_ids = fields.Many2many('res.users', relation='project_task_user_rel', column1='task_id', column2='user_id',
-        string='Assignees', context={'active_test': False}, tracking=True, default=_default_user_ids, domain="[('share', '=', False), ('active', '=', True)]", falsy_value_label=_lt("👤 Unassigned"))
+        string='Assignees', context={'active_test': False}, tracking=3, default=_default_user_ids,
+        domain="['|', ('share', '=', False), ('id', 'in', project_sharing_portal_user_ids), ('active', '=', True), '|', ('company_id', '=?', company_id), ('company_ids', 'in', company_id)]", falsy_value_label=_lt("👤 Unassigned"))
     # User names displayed in project sharing views
     portal_user_names = fields.Char(compute='_compute_portal_user_names', compute_sudo=True, search='_search_portal_user_names', export_string_translation=False)
     # Second Many2many containing the actual personal stage for the current user
@@ -220,10 +222,10 @@ class ProjectTask(models.Model):
     personal_stage_type_id = fields.Many2one('project.task.type', string='Personal Stage',
         related='personal_stage_id.stage_id',
         readonly=False, store=False,
-        help="The current user's personal task stage.", domain="[('user_id', '=', uid)]",
+        domain="[('user_id', '=', uid)]",
         group_expand='_read_group_personal_stage_type_ids')
     partner_id = fields.Many2one('res.partner',
-        string='Customer', recursive=True, tracking=True, compute='_compute_partner_id', store=True, readonly=False, index='btree_not_null',
+        string='Customer', recursive=True, tracking=10, compute='_compute_partner_id', store=True, readonly=False, index='btree_not_null',
         domain="['|', ('company_id', '=?', company_id), ('company_id', '=', False)]", )
     partner_phone = fields.Char(
         compute='_compute_partner_phone', inverse='_inverse_partner_phone',
@@ -231,7 +233,6 @@ class ProjectTask(models.Model):
     )
     # Need this field to check there is no email loops when Odoo reply automatically
     email_from = fields.Char('Email From')
-    email_cc = fields.Char(help='Email addresses that were in the CC of the incoming emails from this task and that are not currently linked to an existing customer.')
     company_id = fields.Many2one('res.company', string='Company', compute='_compute_company_id', store=True, readonly=False, recursive=True, copy=True, default=_default_company_id)
     color = fields.Integer(string='Color Index', export_string_translation=False)
     rating_active = fields.Boolean(string='Stage Rating Status', related="stage_id.rating_active")
@@ -245,8 +246,8 @@ class ProjectTask(models.Model):
     # In the domain of displayed_image_id, we couln't use attachment_ids because a one2many is represented as a list of commands so we used res_model & res_id
     displayed_image_id = fields.Many2one('ir.attachment', domain="[('res_model', '=', 'project.task'), ('res_id', '=', id), ('mimetype', 'ilike', 'image')]", string='Cover Image')
 
-    parent_id = fields.Many2one('project.task', string='Parent Task', inverse="_inverse_parent_id", index=True, domain="['!', ('id', 'child_of', id), ('project_id', '!=', False)]", tracking=True)
-    child_ids = fields.One2many('project.task', 'parent_id', string="Sub-tasks", domain="[('recurring_task', '=', False)]", export_string_translation=False)
+    parent_id = fields.Many2one('project.task', string='Parent Task', inverse="_inverse_parent_id", index=True, domain="['!', ('id', 'child_of', id), '|', ('project_id', '!=', False), ('is_template', '=' , True)]", tracking=20)
+    child_ids = fields.One2many('project.task', 'parent_id', string="Sub-tasks", domain=[('recurring_task', '=', False), '|', ('parent_id.is_template', '=', True), ('is_template', '=', False)], export_string_translation=False)
     subtask_count = fields.Integer("Sub-task Count", compute='_compute_subtask_count', export_string_translation=False)
     closed_subtask_count = fields.Integer("Closed Sub-tasks Count", compute='_compute_subtask_count', export_string_translation=False)
     project_privacy_visibility = fields.Selection(related='project_id.privacy_visibility', string="Project Visibility", tracking=False)
@@ -256,8 +257,6 @@ class ProjectTask(models.Model):
     working_hours_close = fields.Float(compute='_compute_elapsed', string='Working Hours to Close', digits=(16, 2), store=True, aggregator="avg")
     working_days_open = fields.Float(compute='_compute_elapsed', string='Working Days to Assign', store=True, aggregator="avg")
     working_days_close = fields.Float(compute='_compute_elapsed', string='Working Days to Close', store=True, aggregator="avg")
-    # customer portal: include comment and (incoming/outgoing) emails in communication history
-    website_message_ids = fields.One2many(domain=lambda self: [('model', '=', self._name), ('message_type', 'in', ['email', 'comment', 'email_outgoing', 'auto_comment'])], export_string_translation=False)
     allow_milestones = fields.Boolean(related='project_id.allow_milestones', export_string_translation=False)
     milestone_id = fields.Many2one(
         'project.milestone',
@@ -266,7 +265,7 @@ class ProjectTask(models.Model):
         compute='_compute_milestone_id',
         readonly=False,
         store=True,
-        tracking=True,
+        tracking=21,
         index='btree_not_null',
         help="Deliver your services automatically when a milestone is reached by linking it to a sales order item."
     )
@@ -276,25 +275,28 @@ class ProjectTask(models.Model):
         export_string_translation=False,
     )
     # Task Dependencies fields
-    allow_task_dependencies = fields.Boolean(related='project_id.allow_task_dependencies', export_string_translation=False)
+    allow_task_dependencies = fields.Boolean(compute='_compute_allow_task_dependencies', compute_sudo=True, export_string_translation=False)
     # Tracking of this field is done in the write function
     depend_on_ids = fields.Many2many('project.task', relation="task_dependencies_rel", column1="task_id",
-                                     column2="depends_on_id", string="Blocked By", tracking=True, copy=False,
-                                     domain="[('project_id', '!=', False), ('id', '!=', id)]")
+                                     column2="depends_on_id", string="Blocked By", tracking=22, copy=False,
+                                     domain="[('project_id', '!=', False), ('id', '!=', id), ('is_template', '=', False)]")
     depend_on_count = fields.Integer(string="Depending on Tasks", compute='_compute_depend_on_count', compute_sudo=True)
     closed_depend_on_count = fields.Integer(string="Closed Depending on Tasks", compute='_compute_depend_on_count', compute_sudo=True)
     dependent_ids = fields.Many2many('project.task', relation="task_dependencies_rel", column1="depends_on_id",
                                      column2="task_id", string="Block", copy=False,
-                                     domain="[('project_id', '!=', False), ('id', '!=', id)]", export_string_translation=False)
+                                     domain="[('project_id', '!=', False), ('id', '!=', id), ('is_template', '=', False)]", export_string_translation=False)
     dependent_tasks_count = fields.Integer(string="Dependent Tasks", compute='_compute_dependent_tasks_count', export_string_translation=False)
 
     # Project sharing fields
     display_parent_task_button = fields.Boolean(compute='_compute_display_parent_task_button', compute_sudo=True, export_string_translation=False)
-    current_user_same_company_partner = fields.Boolean(compute='_compute_current_user_same_company_partner', compute_sudo=True, export_string_translation=False)
     display_follow_button = fields.Boolean(compute='_compute_display_follow_button', compute_sudo=True, export_string_translation=False)
-
+    project_sharing_portal_user_ids = fields.Many2many(
+        'res.users',
+        compute='_compute_project_sharing_portal_user_ids',
+        string="Assignable Portal Users"
+    )
     # recurrence fields
-    allow_recurring_tasks = fields.Boolean(related='project_id.allow_recurring_tasks', export_string_translation=False)
+    allow_recurring_tasks = fields.Boolean(compute='_compute_allow_recurring_tasks', compute_sudo=True, export_string_translation=False)
     recurring_task = fields.Boolean(string="Recurrent")
     recurring_count = fields.Integer(string="Tasks in Recurrence", compute='_compute_recurring_count')
     recurrence_id = fields.Many2one('project.task.recurrence', copy=False, index='btree_not_null')
@@ -333,8 +335,8 @@ class ProjectTask(models.Model):
         'You cannot convert this task into a sub-task because it is recurrent.',
     )
     _private_task_has_no_parent = models.Constraint(
-        'CHECK (NOT (project_id IS NULL AND parent_id IS NOT NULL))',
-        'A private task cannot have a parent.',
+        'CHECK (NOT (project_id IS NULL AND parent_id IS NOT NULL) OR is_template IS TRUE)',
+        'A private (non-template) task cannot have a parent.',
     )
 
     _is_template_idx = models.Index('(is_template) WHERE is_template IS TRUE')
@@ -350,7 +352,7 @@ class ProjectTask(models.Model):
     def _ensure_super_task_is_not_private(self):
         """ Ensures that the company of the task is valid for the partner. """
         for task in self:
-            if not task.project_id and task.subtask_count:
+            if not task.project_id and task.subtask_count and not task.is_template:
                 raise ValidationError(_('This task has sub-tasks, so it can\'t be private.'))
 
     @property
@@ -366,7 +368,10 @@ class ProjectTask(models.Model):
         self.env.remove_to_compute(self._fields['display_in_project'], self)
         for task in self:
             if not task.display_in_project and task.parent_id and task.parent_id.project_id != task.project_id:
-                task.project_id = task.parent_id.project_id
+                if not task.parent_id.project_id and not task.is_template:
+                    continue
+                else:
+                    task.project_id = task.parent_id.project_id
 
     @api.depends('project_id', 'parent_id')
     def _compute_display_in_project(self):
@@ -382,6 +387,15 @@ class ProjectTask(models.Model):
             elif task.display_in_project and task.project_id == task.parent_id.sudo().project_id:
                 task.display_in_project = False
 
+    @api.depends_context('formatted_display_name', 'show_muted_project')
+    def _compute_display_name(self):
+        super()._compute_display_name()
+        if not (self.env.context.get('formatted_display_name') and self.env.context.get('show_muted_project')):
+            return
+        for task in self:
+            if task.project_id:
+                task.display_name = f'{task.name} \t --{task.project_id.sudo().name}--'
+
     @api.depends('stage_id', 'depend_on_ids.state')
     def _compute_state(self):
         for task in self:
@@ -395,7 +409,7 @@ class ProjectTask(models.Model):
                 if task.state not in CLOSED_STATES:
                     task.state = '04_waiting_normal'
             # if the task as no blocking dependencies and is in waiting_normal, the task goes back to in progress
-            elif task.state not in CLOSED_STATES:
+            elif task.state == '04_waiting_normal':
                 task.state = '01_in_progress'
 
     @api.depends('state')
@@ -425,7 +439,7 @@ class ProjectTask(models.Model):
 
     @api.onchange('project_id')
     def _onchange_project_id(self):
-        if self.state != '04_waiting_normal' and self.state not in CLOSED_STATES:
+        if self.state != '04_waiting_normal' and self.stage_id != self._origin.stage_id and self.state not in CLOSED_STATES:
             self.state = '01_in_progress'
         if not self.project_id and not self.user_ids:
             self.user_ids = self.env.user
@@ -433,6 +447,9 @@ class ProjectTask(models.Model):
         if not self.project_id and self.parent_id and self.parent_id.project_id:
             self.project_id = self.parent_id.project_id.id
             self.display_in_project = False
+
+        if not self._origin and not self.parent_id and self.project_id.partner_id:
+            self.partner_id = self.project_id.partner_id
 
     def is_blocked_by_dependences(self):
         return any(blocking_task.state not in CLOSED_STATES for blocking_task in self.depend_on_ids)
@@ -458,7 +475,7 @@ class ProjectTask(models.Model):
         field_name = 'display_name' if any(isinstance(v, str) for v in value) or value == '' else 'id'  # noqa: PLC1901
         domain = Domain(field_name, operator, value) & Domain('user_id', '=', self.env.uid)
         personal_stages = self.env['project.task.stage.personal']._search(domain)
-        return Domain('id', 'in', personal_stages.subselect('task_id'))
+        return Domain('id', 'in', personal_stages.subselect(personal_stages.table.task_id))
 
     @api.model
     def _get_default_personal_stage_create_vals(self, user_id):
@@ -497,7 +514,8 @@ class ProjectTask(models.Model):
             for project_follower in project_followers:
                 project_subtypes = project_follower.subtype_ids
                 task_subtypes = (project_subtypes.mapped('parent_id') | project_subtypes.filtered(lambda sub: sub.internal or sub.default)).ids if project_subtypes else None
-                partner_ids.remove(project_follower.partner_id.id)
+                if project_follower.partner_id.id in partner_ids:
+                    partner_ids.remove(project_follower.partner_id.id)
                 super().message_subscribe(project_follower.partner_id.ids, task_subtypes)
         return super().message_subscribe(partner_ids, subtype_ids)
 
@@ -515,6 +533,11 @@ class ProjectTask(models.Model):
             'repeat_until',
         ]
 
+    @api.depends('project_id.allow_task_dependencies', 'is_template')
+    def _compute_allow_task_dependencies(self):
+        for task in self:
+            task.allow_task_dependencies = task.project_id.allow_task_dependencies if task.project_id else task.is_template
+
     @api.depends('recurring_task')
     def _compute_repeat(self):
         rec_fields = self._get_recurrence_fields()
@@ -528,11 +551,6 @@ class ProjectTask(models.Model):
                         task[f] = defaults.get(f)
                     else:
                         task[f] = False
-
-    def _is_recurrence_valid(self):
-        self.ensure_one()
-        return self.repeat_interval > 0 and\
-                (self.repeat_type != 'until' or self.repeat_until and self.repeat_until > fields.Date.today())
 
     @api.depends('recurrence_id')
     def _compute_recurring_count(self):
@@ -605,7 +623,7 @@ class ProjectTask(models.Model):
         )
         for task in task_linked_to_calendar:
             dt_create_date = fields.Datetime.from_string(task.create_date)
-            domain = [('company_id', 'in', task.project_id.company_id.ids), ('time_type', '=', 'leave')]
+            domain = [('company_id', 'in', task.project_id.company_id.ids), ('count_as', '=', 'absence')]
             if task.date_assign:
                 dt_date_assign = fields.Datetime.from_string(task.date_assign)
                 duration_data = task.project_id.resource_calendar_id.get_work_duration_data(dt_create_date, dt_date_assign, compute_leaves=True, domain=domain)
@@ -646,7 +664,12 @@ class ProjectTask(models.Model):
         total_and_closed_subtask_count_per_parent_id = {
             parent.id: (count, sum(s in CLOSED_STATES for s in states))
             for parent, states, count in self.env['project.task']._read_group(
-                [('parent_id', 'in', self.ids)],
+                [
+                    ('parent_id', 'in', self.ids),
+                    '|',
+                    ('parent_id.is_template', '=', True),
+                    ('is_template', '=', False),
+                ],
                 ['parent_id'],
                 ['state:array_agg', '__count'],
             )
@@ -661,13 +684,17 @@ class ProjectTask(models.Model):
 
     def _inverse_partner_phone(self):
         for task in self:
-            if task.partner_id and task.partner_phone != task.partner_id.phone:
-                task.partner_id.sudo().phone = task.partner_phone
+            if task.partner_id:
+                task.partner_id.phone = task.partner_phone
 
     @api.onchange('company_id')
     def _onchange_task_company(self):
         if self.project_id.company_id and self.project_id.company_id != self.company_id:
             self.project_id = False
+        if self.company_id:
+            self.user_ids = self.user_ids.filtered(
+                lambda u: self.company_id in u._origin.company_ids
+            )
 
     @api.depends('project_id.company_id', 'parent_id.company_id')
     def _compute_company_id(self):
@@ -679,12 +706,20 @@ class ProjectTask(models.Model):
     @api.depends('project_id')
     def _compute_stage_id(self):
         for task in self:
+            if not task.project_id and task.is_template:
+                task.stage_id = False
+                continue
             project = task.project_id or task.parent_id.project_id
             if project:
                 if project not in task.stage_id.project_ids:
-                    task.stage_id = task.stage_find(project.id, [('fold', '=', False)])
+                    task.stage_id = project._get_default_task_stage().id
             else:
                 task.stage_id = False
+
+    @api.onchange('stage_id')
+    def _onchange_stage_id(self):
+        if self.state not in CLOSED_STATES and self.state != '04_waiting_normal' and self.stage_id != self._origin.stage_id:
+            self.state = '01_in_progress'
 
     @api.depends('user_ids')
     def _compute_portal_user_names(self):
@@ -722,23 +757,17 @@ class ProjectTask(models.Model):
         for task in self:
             task.display_parent_task_button = task.parent_id in accessible_parent_tasks
 
-    def _compute_current_user_same_company_partner(self):
-        commercial_partner_id = self.env.user.partner_id.commercial_partner_id
-        for task in self:
-            task.current_user_same_company_partner = task.partner_id and commercial_partner_id == task.partner_id.commercial_partner_id
-
     def _compute_display_follow_button(self):
         if not self.env.user.share:
             self.display_follow_button = False
             return
-        project_collaborator_read_group = self.env['project.collaborator']._read_group(
-            [('project_id', 'in', self.project_id.ids), ('partner_id', '=', self.env.user.partner_id.id)],
-            ['project_id'],
-            ['limited_access:bool_and'],
-        )
-        limited_access_per_project_id = dict(project_collaborator_read_group)
+        collaborator_projects = self.env['project.collaborator'].sudo().search([
+            ('project_id', 'in', self.project_id.ids),
+            ('partner_id', '=', self.env.user.partner_id.id)
+        ])
+        collaborator_project_ids = collaborator_projects.mapped('project_id')
         for task in self:
-            task.display_follow_button = not limited_access_per_project_id.get(task.project_id, True)
+            task.display_follow_button = task.project_id in collaborator_project_ids
 
     def _get_group_pattern(self):
         return {
@@ -825,6 +854,11 @@ class ProjectTask(models.Model):
         for task in self:
             task.has_template_ancestor = task.is_template or (task.parent_id and task.parent_id.sudo().has_template_ancestor)
 
+    @api.depends('project_id.allow_recurring_tasks', 'is_template')
+    def _compute_allow_recurring_tasks(self):
+        for task in self:
+            task.allow_recurring_tasks = task.project_id.allow_recurring_tasks if task.project_id else task.is_template
+
     def _search_has_template_ancestor(self, operator, value):
         if operator not in ['=', '!='] or not isinstance(value, bool):
             return NotImplemented
@@ -840,13 +874,15 @@ class ProjectTask(models.Model):
             'depend_on_ids': False,
             'dependent_ids': False,
         })
+        copy_from_template = self.env.context.get('copy_from_template')
+        project_template = self.env['project.project'].browse(self.env.context.get('copy_from_project_template', False))
         vals_list = super().copy_data(default=default)
         # filter only readable fields
         vals_list = [
             {
                 k: v
                 for k, v in vals.items()
-                if self._has_field_access(self._fields[k], 'read')
+                if self.has_field_access(self._fields[k], 'read')
             }
             for vals in vals_list
         ]
@@ -856,17 +892,17 @@ class ProjectTask(models.Model):
         if not has_default_users:
             active_users = self.user_ids.filtered('active')
         milestone_mapping = self.env.context.get('milestone_mapping', {})
+        role_to_users_mapping = self.env.context.get('role_to_users_mapping')
         for task, vals in zip(self, vals_list):
             if self.env.context.get('convert_to_template'):
                 vals['date_deadline'] = task.date_deadline
-
             if not default.get('stage_id'):
                 vals['stage_id'] = task.stage_id.id
             if 'active' not in default and not task['active'] and not self.env.context.get('copy_project'):
                 vals['active'] = True
             if not default.get('name'):
-                vals['name'] = task.name if self.env.context.get('copy_project') or self.env.context.get('copy_from_template') else _("%s (copy)", task.name)
-            if task.recurrence_id and not default.get('recurrence_id'):
+                vals['name'] = task.name if self.env.context.get('copy_project') or copy_from_template else _("%s (copy)", task.name)
+            if task.recurrence_id and 'recurrence_id' not in default:
                 vals['recurrence_id'] = task.recurrence_id.copy().id
             if task.allow_milestones:
                 vals['milestone_id'] = milestone_mapping.get(vals['milestone_id'], vals['milestone_id'])
@@ -875,37 +911,68 @@ class ProjectTask(models.Model):
                 default = {key: value for key, value in default.items() if key in whitelisted_fields}
                 default['parent_id'] = False
                 current_task = task
-                if self.env.context.get('copy_from_template'):
+                if copy_from_template:
                     current_task = current_task.with_context(active_test=True)
                 child_ids = current_task.child_ids
                 vals['child_ids'] = [Command.create(child_id.copy_data(default)[0]) for child_id in child_ids.filtered(lambda c: c.active)]
             if not has_default_users and vals['user_ids']:
                 task_active_users = task.user_ids & active_users
                 vals['user_ids'] = [Command.set(task_active_users.ids)]
-            if self.env.context.get('copy_from_template') and not self.env.context.get('copy_from_project_template'):
-                vals['is_template'] = False
-            if self.env.context.get('copy_from_template'):
+            if copy_from_template:
+                if not project_template:
+                    vals['is_template'] = False
+                if not task.is_template:
+                    vals['role_ids'] = False
+                    if project_template and task.project_id == project_template:
+                        user_ids = set()
+                        if role_to_users_mapping:
+                            for role in task.role_ids:
+                                user_ids |= set(role_to_users_mapping.get(role.id, []))
+                        elif role_to_users_mapping is None and task.role_ids.user_ids:
+                            for role in task.role_ids:
+                                if (
+                                    role.user_ids
+                                    and (candidat_ids := list(set(role.user_ids.filtered('active').ids) - user_ids))
+                                ):
+                                    shuffle(candidat_ids)
+                                    user_ids.add(candidat_ids[0])
+                        if user_ids:
+                            if 'user_ids' not in vals:
+                                vals['user_ids'] = []
+                            vals['user_ids'] += [Command.link(user_id) for user_id in user_ids]
                 for field in set(self._get_template_field_blacklist()) & set(vals.keys()):
                     del vals[field]
+                if not vals.get('project_id'):
+                    vals['project_id'] = self.env.context.get('default_project_id')
         return vals_list
 
     def _create_task_mapping(self, copied_tasks):
         """
-        Thanks to the way create and command.create is handled, when a task with 2 children is copied, we have the guarantee that the children of the
-        copied task will have the same index in the child_ids recordset. We can use this behavior to create a mapping containing all the original tasks and their copy.
-        :return:
-            task_mapping: a dict containing the mapping of the original task ids and their copied task (k: original_task.id, v: new_task)
-            task_dependencies: a dict containing the ids of the dependencies of the original task when they have one.
-            (k: original_task_id, v: [original_task.depend_on_ids.ids, original_task.dependent_ids.ids]
+        Create a mapping between original tasks and their copied counterparts.
+
+        When a task with children is copied, the children of the copied task are
+        created in the order in which the original ``child_ids`` were iterated, so
+        sorting them by id gives back the index correspondence with the original
+        children. This method leverages that behavior to generate a mapping
+        containing all original tasks and their copies.
+
+        :param copied_tasks: The tasks that have been copied.
+        :type copied_tasks: recordset of project.task
+
+        :returns: A tuple of two dictionaries. The first dictionary, ``task_mapping``,
+                maps original task IDs to copied task objects (``{original_task.id: new_task}``).
+                The second dictionary, ``task_dependencies``, maps original task IDs to
+                a tuple of two lists of dependency IDs (``{original_task_id: ([depend_on_ids], [dependent_ids])}``).
+        :rtype: tuple[dict[int, project.task], dict[int, tuple[list[int], list[int]]]]
         """
         task_mapping, task_dependencies = {}, {}
         for original_task, copied_task in zip(self, copied_tasks):
             task_mapping[original_task.id] = copied_task
             if original_task.allow_task_dependencies and (original_task.depend_on_ids or original_task.dependent_ids):
-                task_dependencies[original_task.id] = [original_task.depend_on_ids.ids, original_task.dependent_ids.ids]
+                task_dependencies[original_task.id] = (original_task.depend_on_ids.ids, original_task.dependent_ids.ids)
             if original_task.child_ids:
                 # If the task has children, we have to call the method create_task_mapping to get their ids and dependencies mapping too.
-                children_mapping, children_dependencies = original_task.child_ids._create_task_mapping(copied_task.child_ids)
+                children_mapping, children_dependencies = original_task.child_ids._create_task_mapping(copied_task.child_ids.sorted('id'))
                 task_mapping.update(children_mapping)
                 task_dependencies.update(children_dependencies)
         return task_mapping, task_dependencies
@@ -936,9 +1003,13 @@ class ProjectTask(models.Model):
             mail_create_nolog=bool(not self.env.context.get('copy_from_template')),
         )).copy(default=default)
 
-        self._resolve_copied_dependencies(copied_tasks)
+        if (
+            not self.env.context.get('copy_from_template')
+            or self.env['project.project'].browse(default.get('project_id')).allow_task_dependencies
+        ):
+            self._resolve_copied_dependencies(copied_tasks)
         if not self.env.context.get('copy_from_template'):
-            log_message = _("Task Created")
+            log_message = self.env._("Task Created")
             copied_tasks._message_log_batch(bodies={task.id: log_message for task in copied_tasks})
 
         return copied_tasks
@@ -958,31 +1029,6 @@ class ProjectTask(models.Model):
         )
         return super().get_empty_list_help(help_message)
 
-    # ----------------------------------------
-    # Case management
-    # ----------------------------------------
-
-    def stage_find(self, section_id, domain=[], order='sequence, id'):
-        """ Override of the base.stage method
-        Parameter of the stage search taken from the lead:
-
-        :param section_id: if set, stages must belong to this section or
-            be a default stage; if not set, stages must be default stages
-        """
-        # collect all section_ids
-        section_ids = []
-        if section_id:
-            section_ids.append(section_id)
-        section_ids.extend(self.mapped('project_id').ids)
-        search_domain = []
-        if section_ids:
-            search_domain = [('|')] * (len(section_ids) - 1)
-            for section_id in section_ids:
-                search_domain.append(('project_ids', '=', section_id))
-        search_domain += list(domain)
-        # perform search, return the first found
-        return self.env['project.task.type'].search(search_domain, order=order, limit=1).id
-
     # ------------------------------------------------
     # CRUD overrides
     # ------------------------------------------------
@@ -998,15 +1044,12 @@ class ProjectTask(models.Model):
     def default_get(self, fields):
         vals = super().default_get(fields)
 
-        if project_id := self.env.context.get('default_create_in_project_id'):
-            vals['project_id'] = project_id
-
         # prevent creating new task in the waiting state
         if 'state' in fields and vals.get('state') == '04_waiting_normal':
             vals['state'] = '01_in_progress'
 
         if 'repeat_until' in fields:
-            vals['repeat_until'] = Date.today() + timedelta(days=7)
+            vals['repeat_until'] = Date.context_today(self) + timedelta(days=7)
 
         if 'partner_id' in vals and not vals['partner_id']:
             # if the default_partner_id=False or no default_partner_id then we search the partner based on the project and parent
@@ -1038,12 +1081,19 @@ class ProjectTask(models.Model):
         return vals
 
     @api.model
-    @tools.ormcache(cache='stable')
+    @api.ormcache(cache='stable')
     def _portal_accessible_fields(self) -> tuple[frozenset[str], frozenset[str]]:
         """Readable and writable fields by portal users."""
         readable = frozenset(self.TASK_PORTAL_READABLE_FIELDS)
         writeable = frozenset(self.TASK_PORTAL_WRITABLE_FIELDS)
         return readable | writeable, writeable
+
+    @api.model
+    def fields_get(self, allfields=None, attributes=None):
+        context = dict(self.env.context)
+        context.pop('project_sharing_create', False)
+        self_ctx = self.with_context(context)
+        return super(ProjectTask, self_ctx).fields_get(allfields, attributes)
 
     def _has_field_access(self, field, operation):
         if not super()._has_field_access(field, operation):
@@ -1054,7 +1104,7 @@ class ProjectTask(models.Model):
             if operation == 'read':
                 return field.name in readable
             if operation == 'write':
-                return field.name in writeable
+                return field.name in writeable or (field.name == 'project_id' and self.env.context.get('project_sharing_create'))
         return True
 
     def _ensure_fields_write(self, vals, defaults=False):
@@ -1070,17 +1120,42 @@ class ProjectTask(models.Model):
 
         for fname, value in vals.items():
             field = self._fields.get(fname)
+            self.check_field_access(field, "write")
             if field and field.type == 'many2one':
                 self.env[field.comodel_name].browse(value).check_access('read')
 
-    def _set_stage_on_project_from_task(self):
-        stage_ids_per_project = defaultdict(list)
-        for task in self:
-            if task.stage_id and task.stage_id not in task.project_id.type_ids and task.stage_id.id not in stage_ids_per_project[task.project_id]:
-                stage_ids_per_project[task.project_id].append(task.stage_id.id)
+        if self.env.user._is_portal() and not self.env.su:
+            if {'stage_id', 'priority'}.intersection(vals.keys()):
+                project_ids = set(self.project_id.ids)
+                if vals.get('project_id'):
+                    project_ids.add(vals['project_id'])
+                if project_ids:
+                    advanced_collabs_count = self.env['project.collaborator'].sudo().search_count([
+                        ('project_id', 'in', list(project_ids)),
+                        ('partner_id', '=', self.env.user.partner_id.id),
+                        ('access_mode', '=', 'advanced_edit'),
+                    ])
+                    if advanced_collabs_count != len(project_ids):
+                        raise AccessError(self.env._("You need Advanced Edit access to change the stage or priority of a task."))
 
-        for project, stage_ids in stage_ids_per_project.items():
-            project.write({'type_ids': [Command.link(stage_id) for stage_id in stage_ids]})
+    def _set_stage_on_project_from_task(self):
+        tasks_with_stage = self.filtered(lambda t: t.stage_id and t.project_id)
+        if not tasks_with_stage:
+            return
+
+        missing_stages_per_project = {
+            project: tasks.stage_id - project.type_ids
+            for project, tasks in tasks_with_stage.grouped('project_id').items()
+        }
+        project_ids_per_missing_stage_ids = defaultdict(set)
+        for project, missing_stages in missing_stages_per_project.items():
+            if missing_stages:
+                project_ids_per_missing_stage_ids[frozenset(missing_stages.ids)].add(project.id)
+
+        for stage_ids, project_ids in project_ids_per_missing_stage_ids.items():
+            self.env['project.project'].browse(project_ids).write({
+                'type_ids': [Command.link(stage_id) for stage_id in stage_ids],
+            })
 
     def _load_records_create(self, vals_list):
         for vals in vals_list:
@@ -1106,20 +1181,24 @@ class ProjectTask(models.Model):
         new_context = dict(self.env.context)
         default_personal_stage = new_context.pop('default_personal_stage_type_ids', False)
         default_project_id = new_context.pop('default_project_id', False)
+        new_context.pop('project_sharing_create', False)
         if not default_project_id:
             parent_task = self.browse({parent_id for vals in vals_list if (parent_id := vals.get('parent_id'))})
             if len(parent_task) == 1:
                 default_project_id = parent_task.sudo().project_id.id
-        # (portal) users that don't have write access can still create a task
-        # in the project that will be checked using record rules
-        new_context["default_create_in_project_id"] = default_project_id
-        if not self._has_field_access(self._fields['user_ids'], 'write'):
+        if not self.has_field_access(self._fields['user_ids'], 'write'):
             # remove user_ids if we have no access to it
             new_context.pop('default_user_ids', False)
-        self_ctx = self.with_context(new_context)
+        self_ctx = self_with_restrict_context = self.with_context(new_context)
+        is_portal_user = self.env.user._is_portal() and not self.env.su
+        if default_project_id:
+            # when subtask is created in form view of task in project sharing
+            self_ctx = self_ctx.with_context(default_project_id=default_project_id, project_sharing_create=is_portal_user)
 
         self_ctx.browse().check_access('create')
         default_stage = dict()
+        if is_portal_user:
+            child_ids_list = []
         for vals, additional_vals in zip(vals_list, additional_vals_list):
             project_id = vals.get('project_id') or default_project_id
 
@@ -1134,8 +1213,9 @@ class ProjectTask(models.Model):
             if not vals.get('name') and vals.get('display_name'):
                 vals['name'] = vals['display_name']
 
-            if self_ctx.env.user._is_portal() and not self_ctx.env.su:
-                self_ctx._ensure_fields_write(vals, defaults=True)
+            if is_portal_user:
+                child_ids_list.append(vals.pop('child_ids', None))
+                self_with_restrict_context._ensure_fields_write(vals, defaults=True)
 
             if project_id and not "company_id" in vals:
                 additional_vals["company_id"] = self_ctx.env["project.project"].browse(
@@ -1144,7 +1224,7 @@ class ProjectTask(models.Model):
             if not project_id and ("stage_id" in vals or self_ctx.env.context.get('default_stage_id')):
                 vals["stage_id"] = False
 
-            if project_id and "stage_id" not in vals:
+            if (project_id and "stage_id" not in vals) or (project_id and not vals.get("stage_id") and self.env.context.get("copy_from_template")):
                 # 1) Allows keeping the batch creation of tasks
                 # 2) Ensure the defaults are correct (and computed once by project),
                 # by using default get (instead of _get_default_stage_id or _stage_find),
@@ -1168,11 +1248,11 @@ class ProjectTask(models.Model):
         # create the task, write computed inaccessible fields in sudo
         for vals, computed_vals in zip(vals_list, additional_vals_list):
             for field_name in list(computed_vals):
-                if self_ctx._has_field_access(self_ctx._fields[field_name], 'write'):
+                if self_ctx.has_field_access(self_ctx._fields[field_name], 'write'):
                     vals[field_name] = computed_vals.pop(field_name)
-        # no track when the portal user create a task to avoid using during tracking
-        # process since the portal does not have access to tracking models
-        tasks = super(ProjectTask, self_ctx.with_context(mail_create_nosubscribe=True, mail_notrack=not self_ctx.env.su and self_ctx.env.user._is_portal())).create(vals_list)
+
+        tasks = super(ProjectTask, self_ctx.with_context(mail_create_nosubscribe=True)).create(vals_list)
+        tasks = tasks.with_env(self.env)  # reset the environment
         for task, computed_vals in zip(tasks.sudo(), additional_vals_list):
             if computed_vals:
                 task.write(computed_vals)
@@ -1181,15 +1261,6 @@ class ProjectTask(models.Model):
 
         current_partner = self_ctx.env.user.partner_id
 
-        all_partner_emails = []
-        for task in tasks.sudo():
-            all_partner_emails += tools.email_normalize_all(task.email_cc)
-        partners = self_ctx.env['res.partner'].search([('email', 'in', all_partner_emails)])
-        partner_per_email = {
-            partner.email: partner
-            for partner in partners
-            if not all(u.share for u in partner.user_ids)
-        }
         if tasks.project_id:
             tasks.sudo()._set_stage_on_project_from_task()
         for task in tasks.sudo():
@@ -1199,19 +1270,16 @@ class ProjectTask(models.Model):
                 task.message_subscribe(follower.partner_id.ids, follower.subtype_ids.ids)
             if current_partner not in task.message_partner_ids:
                 task.message_subscribe(current_partner.ids)
-            if task.email_cc:
-                partners_with_internal_user = self_ctx.env['res.partner']
-                for email in tools.email_normalize_all(task.email_cc):
-                    new_partner = partner_per_email.get(email)
-                    if new_partner:
-                        partners_with_internal_user |= new_partner
-                if not partners_with_internal_user:
-                    continue
-                task._send_email_notify_to_cc(partners_with_internal_user)
-                task.message_subscribe(partners_with_internal_user.ids)
+        if is_portal_user and child_ids_list:
+            for task, child_ids in zip(tasks, child_ids_list):
+                if child_ids:
+                    task.write({'child_ids': child_ids})
         return tasks
 
     def write(self, vals):
+        context = dict(self.env.context)
+        context.pop('project_sharing_create', False)
+        self = self.with_context(context)  # noqa: PLW0642
         self.check_access('write')
         if len(self) == 1:
             handle_history_divergence(self, 'description', vals)
@@ -1239,6 +1307,8 @@ class ProjectTask(models.Model):
                 if valid_milestone_tasks:
                     valid_milestone_tasks.sudo().write({'milestone_id': vals['milestone_id']})
                 del vals['milestone_id']
+                # the sub-tasks have already been handled by the writes above
+                valid_milestone_tasks = self.env['project.task']
 
             # 2. Parent's milestone is set to subtask with no milestone recursively
             subtasks_to_update = valid_milestone_tasks.child_ids.filtered(
@@ -1316,6 +1386,11 @@ class ProjectTask(models.Model):
                         if not project_link:
                             project_link = link_per_project_id[task.project_id.id] = task.project_id._get_html_link(title=task.project_id.display_name)
                         project_link_per_task_id[task.id] = project_link
+            for task in self:
+                if portal_assignees := task.user_ids.filtered(lambda u: u.share):
+                    users_to_remove = portal_assignees.filtered(lambda u: u.partner_id.id not in project.message_follower_ids.partner_id.ids)
+                    if users_to_remove:
+                        task.user_ids -= users_to_remove
         if vals.get('parent_id') is False:
             additional_vals['display_in_project'] = True
         if 'description' in vals:
@@ -1324,11 +1399,19 @@ class ProjectTask(models.Model):
             additional_vals['description'] = vals.pop('description')
 
             # write changes
+        if 'project_id' in vals:
+            tasks_to_check = self | self._get_all_subtasks()
+            previous_stage_ids = {task.id: task.stage_id.id for task in tasks_to_check}
+
         if self.env.su or not self.env.user._is_portal():
             vals.update(additional_vals)
         elif additional_vals:
             super(ProjectTask, self.sudo()).write(additional_vals)
         result = super().write(vals)
+
+        if vals.get('company_id'):
+            for task in self:
+                task.user_ids = task.user_ids.filtered(lambda user: task.company_id in user.company_ids)
 
         if 'user_ids' in vals:
             self._populate_missing_personal_stages()
@@ -1352,7 +1435,17 @@ class ProjectTask(models.Model):
                     if task.is_blocked_by_dependences() and vals['state'] not in CLOSED_STATES and vals['state'] != '04_waiting_normal':
                         task.state = '04_waiting_normal'
                 task.date_last_stage_update = now
-        elif 'project_id' in vals:
+
+        if 'project_id' in vals:
+            tasks_to_check.filtered(
+                lambda t: (
+                    t.state != '04_waiting_normal'
+                    and t.state not in CLOSED_STATES
+                    and previous_stage_ids.get(t.id) != t.stage_id.id
+                    and not (t.id in self.ids and 'state' in vals)
+                )
+            ).state = '01_in_progress'
+        elif 'stage_id' in vals and 'state' not in vals:
             self.filtered(lambda t: t.state != '04_waiting_normal' and t.state not in CLOSED_STATES).state = '01_in_progress'
 
         # Do not recompute the state when changing the parent (to avoid resetting the state)
@@ -1377,7 +1470,7 @@ class ProjectTask(models.Model):
                     partner_ids=partner_ids,
                     email_layout_xmlid='mail.mail_notification_layout',
                     notify_author_mention=False,
-               )
+                )
         return result
 
     def unlink(self):
@@ -1386,7 +1479,9 @@ class ProjectTask(models.Model):
         last_task_id_per_recurrence_id = self.recurrence_id._get_last_task_id_per_recurrence_id()
         for task in self:
             if task.id == last_task_id_per_recurrence_id.get(task.recurrence_id.id):
+                remaining_tasks = task.recurrence_id.task_ids - self
                 task.recurrence_id.unlink()
+                remaining_tasks.recurring_task = False
         return super().unlink()
 
     def update_date_end(self, stage_id):
@@ -1394,57 +1489,6 @@ class ProjectTask(models.Model):
         if project_task_type.fold:
             return {'date_end': fields.Datetime.now()}
         return {'date_end': False}
-
-    def _search_on_comodel(self, domain, field, comodel, additional_domain=None):
-        """ This method is called by `group_expand` methods, whose purpose is to add empty groups to the `read_group`
-            (which otherwise returns groups containing records that match the domain).
-            When specifically filtering on a comodel's field, the result of the `read_group` should contain all matching groups.
-            However, if the search isn't filtered on any comodel's field, the result shouldn't be affected,
-            which explains why we return `False` if `filtered_domain` is empty.
-
-            Returns:
-                False or recordset of the comodel given in parameter.
-        """
-        def _change_operator(domain):
-            new_domain = []
-            for dom in domain:
-                if len(dom) == 3:
-                    _, op, value = dom
-                    if op in ("any", "not any"):
-                        new_op = "in" if op == "any" else "not in"
-                        ids = [val[2] for val in value if isinstance(val, (tuple, list)) and isinstance(val[2], int)]
-                        new_domain.append(("id", new_op, ids))
-                        continue
-                    op = "ilike" if op == "child_of" else op
-                    if isinstance(value, list) and all(isinstance(val, int) for val in value):
-                        new_domain.append(("id", op, value))
-                    elif isinstance(value, str) or (isinstance(value, list) and not all(isinstance(val, str) for val in value)):
-                        new_domain.append(("name", op, value))
-                    if isinstance(value, int):
-                        if op == "=":
-                            op = "in"
-                        if op == "!=":
-                            op = "not in"
-                        new_domain.append(("id", op, [value]))
-                else:
-                    new_domain.append(dom)
-            return Domain(new_domain)
-
-        filtered_domain = filter_domain_leaf(domain, lambda field_to_check: field_to_check in [
-            field,
-            f"{field}.id",
-            f"{field}.name",
-        ], {
-            field: "name",
-            f"{field}.id": "id",
-            f"{field}.name": "name",
-        })
-        if filtered_domain.is_true():
-            return self.env[comodel]
-        filtered_domain = _change_operator(filtered_domain)
-        if additional_domain:
-            filtered_domain &= Domain(additional_domain)
-        return self.env[comodel].search(filtered_domain)
 
     # ---------------------------------------------------
     # Subtasks
@@ -1478,7 +1522,7 @@ class ProjectTask(models.Model):
         late_milestones = self.env['project.milestone'].sudo()._search([  # sudo is needed for the portal user in Project Sharing.
             ('id', 'in', self.milestone_id.ids),
             ('is_reached', '=', False),
-            ('deadline', '<=', fields.Date.today()),
+            ('deadline', '<=', 'today'),
         ])
         for task in self:
             task.has_late_and_unreached_milestone = task.allow_milestones and task.milestone_id.id in late_milestones
@@ -1490,7 +1534,7 @@ class ProjectTask(models.Model):
             ('allow_milestones', '=', True),
             ('milestone_id', 'any', [
                 ('is_reached', '=', False),
-                ('deadline', '<', fields.Date.today()),
+                ('deadline', '<', 'today'),
             ]),
         ]
 
@@ -1498,12 +1542,14 @@ class ProjectTask(models.Model):
     # Mail gateway
     # ---------------------------------------------------
 
-    def _notify_by_email_prepare_rendering_context(self, message, msg_vals=False, model_description=False,
+    def _notify_by_email_prepare_rendering_context(self, message, model_description=False,
                                                    force_email_company=False, force_email_lang=False,
+                                                   force_header=False, force_footer=False,
                                                    force_record_name=False):
         render_context = super()._notify_by_email_prepare_rendering_context(
-            message, msg_vals=msg_vals, model_description=model_description,
+            message, model_description=model_description,
             force_email_company=force_email_company, force_email_lang=force_email_lang,
+            force_header=force_header, force_footer=force_footer,
             force_record_name=force_record_name,
         )
         project_name = self.project_id.sudo().name
@@ -1571,6 +1617,11 @@ class ProjectTask(models.Model):
                     mail_auto_delete=True,
                 )
 
+    def _message_auto_subscribe(self, updated_values, followers_existing_policy='skip'):
+        if updated_values.get('project_id'):
+            followers_existing_policy = 'update'
+        return super()._message_auto_subscribe(updated_values, followers_existing_policy)
+
     def _message_auto_subscribe_followers(self, updated_values, default_subtype_ids):
         if 'user_ids' not in updated_values:
             return []
@@ -1589,14 +1640,13 @@ class ProjectTask(models.Model):
                 pass
         return new_followers
 
-    def _track_template(self, changes):
-        res = super()._track_template(changes)
+    def _track_template_parameters(self, tracked_fields):
+        res = super()._track_template_parameters(tracked_fields)
         test_task = self[0]
-        if 'stage_id' in changes and test_task.stage_id.mail_template_id and not test_task.is_template:
+        if 'stage_id' in tracked_fields and test_task.stage_id.mail_template_id and not test_task.is_template:
             res['stage_id'] = (test_task.stage_id.mail_template_id, {
                 'auto_delete_keep_log': False,
                 'subtype_id': self.env['ir.model.data']._xmlid_to_res_id('mail.mt_note'),
-                'email_layout_xmlid': 'mail.mail_notification_light'
             })
         return res
 
@@ -1606,11 +1656,11 @@ class ProjectTask(models.Model):
     def _creation_message(self):
         self.ensure_one()
         if self.project_id:
-            return _('A new task has been created in the "%(project_name)s" project.',
+            return _('This new task has been created in the "%(project_name)s" project.',
                      project_name=self.project_id.display_name)
-        return _('A new task has been created and is not part of any project.')
+        return _('This new task is not part of any project.')
 
-    def _track_subtype(self, init_values):
+    def _track_log_get_default_subtype(self, track_init_values):
         self.ensure_one()
         mail_message_subtype_per_state = {
             '1_done': 'project.mt_task_done',
@@ -1621,11 +1671,11 @@ class ProjectTask(models.Model):
             '04_waiting_normal': 'project.mt_task_waiting',
         }
 
-        if 'stage_id' in init_values:
+        if 'stage_id' in track_init_values:
             return self.env.ref('project.mt_task_stage')
-        elif 'state' in init_values and self.state in mail_message_subtype_per_state:
+        elif 'state' in track_init_values and self.state in mail_message_subtype_per_state:
             return self.env.ref(mail_message_subtype_per_state[self.state])
-        return super()._track_subtype(init_values)
+        return super()._track_log_get_default_subtype(track_init_values)
 
     def _mail_get_message_subtypes(self):
         res = super()._mail_get_message_subtypes()
@@ -1639,14 +1689,24 @@ class ProjectTask(models.Model):
                 res -= waiting_subtype
         return res
 
-    def _notify_get_recipients_groups(self, message, model_description, msg_vals=False):
+    def _get_customer_portal_message_types(self):
+        message_types = super()._get_customer_portal_message_types()
+        if 'tracking' not in message_types:
+            message_types.append('tracking')
+        return message_types
+
+    def _get_share_message_domain(self):
+        return (
+            Domain("is_internal", "=", False)
+            & Domain("subtype_id.internal", "=", False)
+        ) | Domain("message_type", "=", "tracking")
+
+    def _notify_get_recipients_groups(self, message, model_description):
         # Handle project users and managers recipients that can assign
         # tasks and create new one directly from notification emails. Also give
         # access button to portal users and portal customers. If they are notified
         # they should probably have access to the document.
-        groups = super()._notify_get_recipients_groups(
-            message, model_description, msg_vals=msg_vals
-        )
+        groups = super()._notify_get_recipients_groups(message, model_description)
         if not self:
             return groups
 
@@ -1684,27 +1744,16 @@ class ProjectTask(models.Model):
         return res
 
     def _find_internal_users_from_address_mail(self, emails, project_id=False):
-        sanitized_email_dict = self._mail_cc_sanitized_raw_dict(emails)
+        sanitized_email_dict = {
+            tools.email_normalize(email): tools.formataddr((name, tools.email_normalize(email)))
+            for (name, email) in tools.mail.email_split_tuples(emails)
+        } if emails else {}
         matched_partners = self.env['res.partner']._find_or_create_from_emails(
             sanitized_email_dict.keys(),
             no_create=True
         )
-        partners = self.env['res.partner'].concat(*matched_partners)
-        unresolved_emails = set(sanitized_email_dict) - set(partners.mapped("email"))
-        if project_id:
-            project = self.env["project.project"].browse(project_id)
-            project_alias_address = project.alias_name + "@" + project.alias_domain_id.name
-            # Removing project alias from unresolved_emails as this will be added to cc_mail address and when
-            # a mail is sent unnecessary partner is created in the name of project_alias
-            unresolved_emails.discard(project_alias_address)
-        unmatched_partner_emails = [sanitized_email_dict.get(email) for email in unresolved_emails]
-
-        users = partners.user_ids
-        internal_user_ids = users.filtered(lambda u: not u.share).ids
-
-        partner_emails_without_internal_users = (partners - users.partner_id).mapped("email_formatted")
-
-        return internal_user_ids, partner_emails_without_internal_users, unmatched_partner_emails
+        users = self.env['res.partner'].concat(matched_partners).user_ids
+        return users.filtered(lambda u: not u.share).ids
 
     @api.model
     def message_new(self, msg_dict, custom_values=None):
@@ -1725,18 +1774,14 @@ class ProjectTask(models.Model):
             'name': msg_dict.get('subject') or _("No Subject"),
             'allocated_hours': 0.0,
             'partner_id': msg_dict.get('author_id'),
-            'email_cc': ", ".join(self._mail_cc_sanitized_raw_dict(msg_dict.get('cc')).values()) if custom_values.get('project_id') else ""
-
         }
         defaults.update(custom_values)
 
         # users having email address matched from emails recepients are filtered out and added as assignees to the task
         if msg_dict.get('to'):
-            internal_users, partner_emails_without_users, unmatched_partner_emails = self._find_internal_users_from_address_mail(msg_dict.get('to'), defaults.get('project_id'))
+            internal_users = self._find_internal_users_from_address_mail(msg_dict.get('to'), defaults.get('project_id'))
             # set only internal users as assignees
             defaults['user_ids'] = defaults.get('user_ids', []) + internal_users
-            if custom_values.get("project_id") and (partner_emails_without_users or unmatched_partner_emails):
-                defaults["email_cc"] = defaults.get("email_cc", "") + ", " + ", ".join(partner_emails_without_users + unmatched_partner_emails)
         task = super(ProjectTask, self.with_context(create_context)).message_new(msg_dict, custom_values=defaults)
         partners = task._partner_find_from_emails_single(tools.email_split((msg_dict.get('to') or '') + ',' + (msg_dict.get('cc') or '')), no_create=True)
         if task.project_id:
@@ -1759,7 +1804,7 @@ class ProjectTask(models.Model):
             headers['X-Odoo-Tags'] = ','.join(self.tag_ids.mapped('name'))
         return headers
 
-    def _message_post_after_hook(self, message, msg_vals):
+    def _message_post_after_hook(self, message):
         if message.attachment_ids and not self.displayed_image_id:
             image_attachments = message.attachment_ids.filtered(lambda a: a.mimetype == 'image')
             if image_attachments:
@@ -1770,16 +1815,15 @@ class ProjectTask(models.Model):
            not self.description
            and message.subtype_id == self._creation_subtype()
            and self.partner_id == message.author_id
-           and msg_vals['message_type'] == 'email'
-           and msg_vals.get('body')
+           and message.message_type == 'email'
+           and message.body  # TDE FIXME: use html empty
         ):
             # Remove the signature from the email body
-            source_html = msg_vals.get('body')
+            source_html = message.body
             doc = html.fromstring(source_html)
 
             signature_xpath = (
-                '//*[@id="Signature"] | '
-                '//*[@data-smartmail="gmail_signature"] | '
+                '//*[@data-o-mail-quote="1"] | '
                 '//span[normalize-space(.) = "--"]'
             )
 
@@ -1789,7 +1833,7 @@ class ProjectTask(models.Model):
             cleaned_html = html.tostring(doc, encoding='unicode').strip()
             self.description = html_sanitize(cleaned_html)
 
-        return super()._message_post_after_hook(message, msg_vals)
+        return super()._message_post_after_hook(message)
 
     def _get_projects_to_make_billable_domain(self, additional_domain=None):
         return Domain('partner_id', '!=', False) & Domain(additional_domain or Domain.TRUE)
@@ -1869,6 +1913,7 @@ class ProjectTask(models.Model):
             return {}
         action = self.with_context({
             'search_view_ref': 'project.project_sharing_project_task_view_search',
+            'default_project_id': self.project_id.id,
         }).action_open_parent_task()
         action['views'] = [(self.env.ref('project.project_sharing_project_task_view_form').id, 'form')]
         action['search_view_id'] = self.env.ref("project.project_sharing_project_task_view_search").id
@@ -1886,6 +1931,31 @@ class ProjectTask(models.Model):
             'type': 'ir.actions.act_window',
             'context': self.env.context
         }
+
+    def action_open_subtasks(self):
+        self.ensure_one()
+        action = self.env['ir.actions.act_window']._for_xml_id('project.project_task_action_sub_task')
+        context = action.get('context', '{}').replace('active_id', str(self.id))
+        context = ast.literal_eval(context)
+        context.update({
+            'default_project_id': self.project_id.id,
+            'default_user_ids': self.user_ids.ids,
+            'default_milestone_id': self.milestone_id.id,
+            'subtask_action': True,
+            'default_is_template': self.is_template,
+        })
+        action['context'] = context
+        action['domain'] = [('id', 'child_of', self.id), ('id', '!=', self.id)]
+        if not self.is_template:
+            action['domain'].append(('is_template', '=', False))
+        if not self.project_id:
+            action['views'] = [
+                (self.env.ref('project.project_task_view_tree_base').id, 'list') if view_type == 'list' else
+                (self.env.ref('project.view_task_kanban_no_default_grouping').id, 'kanban') if view_type == 'kanban' else
+                (view_id, view_type)
+                for view_id, view_type in action['views']
+            ]
+        return action
 
     def action_project_sharing_open_task(self):
         action = self.action_open_task()
@@ -1977,7 +2047,7 @@ class ProjectTask(models.Model):
 
     def action_convert_to_subtask(self):
         self.ensure_one()
-        if self.project_id:
+        if self.project_id or self.is_template:
             return {
                 'name': _('Convert to Task/Sub-Task'),
                 'type': 'ir.actions.act_window',
@@ -1991,21 +2061,12 @@ class ProjectTask(models.Model):
             'tag': 'display_notification',
             'params': {
                 'type': 'danger',
-                'message': _('Private tasks cannot be converted into sub-tasks. Please set a project on the task to gain access to this feature.'),
+                'message': self.env._('Private (non-template) tasks cannot be converted into sub-tasks. Please set a project on the task to gain access to this feature.'),
             }
         }
 
     def action_convert_to_template(self):
         self.ensure_one()
-        if not self.project_id:
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'type': 'danger',
-                    'message': _('Private tasks cannot be converted into templates'),
-                },
-            }
         if self.is_template:
             return {
                 'type': 'ir.actions.client',
@@ -2031,6 +2092,15 @@ class ProjectTask(models.Model):
 
     def action_undo_convert_to_template(self):
         self.ensure_one()
+        if (self.parent_id or self.subtask_count) and not self.project_id:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'type': 'danger',
+                    'message': self.env._('Cannot convert back to regular task because the task has no project defined but has a parent or sub-tasks.'),
+                },
+            }
         self.is_template = False
         self.message_post(body=_("Template converted back to regular task"))
         return {
@@ -2057,6 +2127,7 @@ class ProjectTask(models.Model):
         """
         return [
             "parent_id",
+            "project_id",
         ]
 
     @api.model
@@ -2064,9 +2135,13 @@ class ProjectTask(models.Model):
         """
         Blacklist of fields to not copy when creating a task from a template.
         """
-        return [
+        fields = [
             "partner_id",
         ]
+        project_id = self.env.context.get('default_project_id')
+        if project_id and not self.env['project.project'].browse(project_id).allow_recurring_tasks:
+            fields.extend(self._get_recurrence_fields() + ["recurrence_id", "recurring_task"])
+        return fields
 
     def action_create_from_template(self, values=None):
         self.ensure_one()
@@ -2090,6 +2165,18 @@ class ProjectTask(models.Model):
     def _get_access_action(self, access_uid=None, force_website=False):
         self.ensure_one()
         user = self.env['res.users'].sudo().browse(access_uid) if access_uid else self.env.user
+        if user and not user.share and self.with_user(user).has_access('read') and not force_website:
+            if self.project_id:
+                return {
+                    'type': 'ir.actions.act_url',
+                    'url': f'/odoo/project/{self.project_id.id}/tasks/{self.id}',
+                    'target': 'self',
+                }
+            return {
+                "type": "ir.actions.act_url",
+                "url": f'/odoo/all-tasks/{self.id}',
+                "target": "self",
+            }
         if (
             user
             and user._is_portal()
@@ -2153,8 +2240,8 @@ class ProjectTask(models.Model):
     def get_unusual_days(self, date_from, date_to=None):
         calendar = self.env.company.resource_calendar_id
         return calendar._get_unusual_days(
-            datetime.combine(fields.Date.from_string(date_from), time.min).replace(tzinfo=UTC),
-            datetime.combine(fields.Date.from_string(date_to), time.max).replace(tzinfo=UTC)
+            datetime.combine(fields.Date.from_string(date_from), time.min, tzinfo=UTC),
+            datetime.combine(fields.Date.from_string(date_to), time.max, tzinfo=UTC)
         )
 
     def action_redirect_to_project_task_form(self):
@@ -2175,22 +2262,72 @@ class ProjectTask(models.Model):
             # appear in read_group, but this has no functional utility
             groupby = ['personal_stage_type_ids' if fname == 'personal_stage_type_id' else fname for fname in groupby]
             if order:
-                order = order.replace('personal_stage_type_id', 'personal_stage_type_ids')
+                order = re.sub(r'\bpersonal_stage_type_id\b', 'personal_stage_type_ids', order)
         return super()._read_group(domain, groupby, aggregates, having, offset, limit, order)
+
+    @api.model
+    def _read_grouping_sets(self, domain, grouping_sets, aggregates=(), order=None):
+        if any('personal_stage_type_id' in groupby for groupby in grouping_sets):
+            grouping_sets = [
+                ['personal_stage_type_ids' if fname == 'personal_stage_type_id' else fname for fname in groupby]
+                for groupby in grouping_sets
+            ]
+            if order:
+                order = re.sub(r'\bpersonal_stage_type_id\b', 'personal_stage_type_ids', order)
+        return super()._read_grouping_sets(domain, grouping_sets, aggregates, order)
 
     # ---------------------------------------------------
     # Project Sharing
     # ---------------------------------------------------
+    @api.depends('project_id.collaborator_ids.access_mode', 'project_id.collaborator_ids.partner_id')
+    def _compute_project_sharing_portal_user_ids(self):
+        for task in self:
+            if not task.project_id:
+                task.project_sharing_portal_user_ids = False
+                continue
+            valid_collabs = task.project_id.sudo().collaborator_ids.filtered(
+                lambda c: c.access_mode in ['edit', 'advanced_edit']
+            )
+            task.project_sharing_portal_user_ids = valid_collabs.mapped('partner_id.user_ids').filtered('share')
+
+    def _search_message_partner_ids(self, operator, operand):
+        """`project_task_rule_portal` OR's two sub-queries, which makes postgresql
+        seq-scan project_task instead of using its indexes. Materialize the ids of
+        each branch when there are few enough, so that it can BitmapOr them.
+        """
+        domain = super()._search_message_partner_ids(operator, operand)
+        if domain is NotImplemented or self.env.user._is_internal():
+            return domain
+        task_ids = self._search(
+            domain,
+            limit=self.env.cr.IN_MAX,
+            active_test=False,
+            bypass_access=True,
+            order=self._order,  # reason: postgresql chooses a bad plan without explicit order
+        ).get_result_ids()
+        if len(task_ids) < self.env.cr.IN_MAX:
+            domain = Domain('id', 'in', task_ids)
+        return domain
 
     def project_sharing_toggle_is_follower(self):
         self.ensure_one()
-        self.check_access('write')
+        self.check_access('read')
         is_follower = self.message_is_follower
         if is_follower:
             self.sudo().message_unsubscribe(self.env.user.partner_id.ids)
         else:
             self.sudo().message_subscribe(self.env.user.partner_id.ids)
         return not is_follower
+
+    def action_project_sharing_toggle_assign(self):
+        self.ensure_one()
+        self.check_access('write')
+        user_ids_vals = [Command.unlink(self.env.user.id) if self.env.user in self.user_ids else Command.link(self.env.user.id)]
+        if self.env.user._is_portal():
+            res = self.sudo().write({'user_ids': user_ids_vals})
+        else:
+            res = self.write({'user_ids': user_ids_vals})
+        return res
 
     @api.depends('subtask_count', 'closed_subtask_count')
     def _compute_subtask_completion_percentage(self):
@@ -2204,15 +2341,14 @@ class ProjectTask(models.Model):
     @api.model
     def _get_thread_with_access(self, thread_id, *, project_sharing_id=None, token=None, **kwargs):
         if project_sharing_id:
-            if token := ProjectSharingChatter._check_project_access_and_get_token(
+            token = ProjectSharingChatter._check_project_access_and_get_token(
                 self, project_sharing_id, self._name, thread_id, token
-            ):
-                token = token
+            )
         return super()._get_thread_with_access(thread_id, project_sharing_id=project_sharing_id, token=token, **kwargs)
 
     def get_mention_suggestions(self, search, limit=8):
         """Return the 'limit'-first followers of the given task or followers of its project matching
-        a 'search' string as a list of partner data (returned by `_to_store()`).
+        a 'search' string.
         See similar method for all partners `get_mention_suggestions()`.
         """
         self.ensure_one()
@@ -2229,16 +2365,57 @@ class ProjectTask(models.Model):
             Domain(self.env["res.partner"]._get_mention_suggestions_domain(search))
             & Domain("id", "in", followers.partner_id.ids)
         )
-        partners = self.env["res.partner"].sudo()._search_mention_suggestions(domain, limit)
-        return (
-            Store()
-            .add(partners, ["email", "im_status", "name", *partners._get_store_mention_fields()])
-            .get_result()
+        return Store().add(
+            self.env["res.partner"].sudo()._search_mention_suggestions(domain, limit),
+            lambda res: (
+                res.extend(["email", "name"]),
+                res.from_method("_store_im_status_fields", internal=True),
+                res.from_method("_store_mention_fields"),
+            ),
         )
+
+    def _get_share_url(self, redirect=False, signup_partner=False, pid=None, share_token=True):
+        self.ensure_one()
+        if self.sudo().project_privacy_visibility != 'portal':
+            return super()._get_share_url(redirect=redirect, signup_partner=signup_partner, pid=pid, share_token=False)
+        return super()._get_share_url(redirect=redirect, signup_partner=signup_partner, pid=pid, share_token=share_token)
+
+    def _portal_ensure_token(self):
+        self.ensure_one()
+        if self.sudo().project_privacy_visibility != 'portal':
+            return ''
+        return super()._portal_ensure_token()
+
+    def get_portal_url(self, suffix=None, report_type=None, download=None, query_string=None, anchor=None, share_token=True):
+        return super().get_portal_url(
+            suffix=suffix,
+            report_type=report_type,
+            download=download,
+            query_string=query_string,
+            anchor=anchor,
+            share_token=share_token and self.sudo().project_privacy_visibility == 'portal',
+        )
+
+    def action_open_share_task_wizard(self):
+        self.ensure_one()
+        error_notification = {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'type': 'danger',
+            },
+        }
+        if self.is_template:
+            error_notification['params']['message'] = self.env._('Task templates cannot be shared.')
+            return error_notification
+        if self.project_privacy_visibility in ['followers', 'employees']:
+            error_notification['params']['message'] = self.env._('This task can’t be shared with external people.')
+            return error_notification
+        return self.env['ir.actions.actions']._for_xml_id('project.portal_share_action')
 
     @api.model
     def get_import_templates(self):
         return [{
-            'label': _('Import Template for Tasks'),
+            'label': _('Template for Tasks'),
             'template': '/project/static/xls/tasks_import_template.xlsx',
         }]

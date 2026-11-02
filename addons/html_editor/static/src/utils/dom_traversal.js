@@ -74,16 +74,16 @@ export function findFurthest(node, limitAncestor, predicate) {
  * @returns {HTMLElement|null}
  */
 export function closestElement(node, predicate = "*") {
-    let element = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
+    let element = node?.nodeType === Node.ELEMENT_NODE ? node : node?.parentElement;
     const editable = element?.closest(".odoo-editor-editable");
     if (typeof predicate === "function") {
         while (element && !predicate(element)) {
-            element = element.parentElement;
+            element = element === editable ? null : element.parentElement;
         }
     } else {
         element = element?.closest(predicate);
     }
-    if ((editable && editable.contains(element)) || !node.isConnected) {
+    if (element && ((editable && editable.contains(element)) || !node.isConnected)) {
         return element;
     }
     return null;
@@ -343,13 +343,52 @@ export function getCommonAncestor(nodes, root = undefined) {
  *
  * @param {Element} root
  * @param {string} selector
- * @returns {Generator<Element>}
+ * @returns {Element[]}
  */
-export const selectElements = function* (root, selector) {
+export const selectElements = function (root, selector) {
+    const elements = [];
     if (root.matches(selector)) {
-        yield root;
+        elements.push(root);
     }
-    for (const elem of root.querySelectorAll(selector)) {
-        yield elem;
-    }
+    elements.push(...root.querySelectorAll(selector));
+    return elements;
 };
+
+/**
+ * Loops over all children of a node recursively and calls traverseChildrenPredicate.
+ * If traverseChildrenPredicate returns false, it skips the children of that node.
+ *
+ * @param {Element} node
+ * @param {Function<Element>} [traverseChildrenPredicate] (node: Node) => boolean?
+ */
+export function traverseNode(node, traverseChildrenPredicate) {
+    const iterators = [[node]];
+    while (iterators.length) {
+        for (const child of iterators.pop()) {
+            if (traverseChildrenPredicate(child) !== false) {
+                iterators.push(child.children);
+            }
+        }
+    }
+}
+
+/**
+ * Moves keyboard focus to the next or previous focusable
+ * element in the given list of elements.
+ * Loops focus when reaching the start or end of the list.
+ *
+ * @param {Array} elements - The Array of Elements.
+ * @param {Boolean} backward - If true move focus backward
+ */
+export function trapFocus(elements, backward = false) {
+    if (!elements || !elements.length) {
+        return;
+    }
+
+    const focusableElements = Array.from(elements).filter((el) => !el.disabled);
+    const currentIndex = focusableElements.indexOf(document.activeElement);
+    const nextIndex =
+        (currentIndex + (backward ? -1 : 1) + focusableElements.length) % focusableElements.length;
+
+    focusableElements[nextIndex]?.focus();
+}

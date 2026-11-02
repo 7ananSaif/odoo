@@ -1,5 +1,7 @@
 from .test_multicompany import TestMultiCompanyProject
 
+from odoo.tests import tagged
+
 from odoo.exceptions import UserError
 
 

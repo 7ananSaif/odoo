@@ -1,5 +1,6 @@
-import { Component, onWillStart } from "@odoo/owl";
+import { Component, onWillStart, signal, t, useProps } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
+import { localeCompare } from "@web/core/l10n/utils";
 import { useService } from "@web/core/utils/hooks";
 import {
     basicContainerBuilderComponentProps,
@@ -11,24 +12,27 @@ import { BuilderSelect } from "@html_builder/core/building_blocks/builder_select
 import { BuilderSelectItem } from "@html_builder/core/building_blocks/builder_select_item";
 
 export class BuilderFontFamilyPicker extends Component {
-    static template = "html_builder.BuilderFontFamilyPicker";
-    static props = {
-        ...basicContainerBuilderComponentProps,
-        valueParamName: String,
-    };
     static components = {
         BuilderSelect,
         BuilderSelectItem,
     };
+    static template = "html_builder.BuilderFontFamilyPicker";
+
+    props = useProps({
+        ...basicContainerBuilderComponentProps,
+        valueParamName: t.string(),
+    });
+
+    contentRef = signal.ref();
+    rootRef = signal.ref();
 
     setup() {
         this.dialog = useService("dialog");
-        this.orm = useService("orm");
-        useVisibilityObserver("content", useApplyVisibility("root"));
+        useVisibilityObserver(this.contentRef, useApplyVisibility(this.rootRef));
         this.fonts = [];
         onWillStart(async () => {
             const fontsData = await this.env.editor.shared.builderFont.getFontsData();
-            this.fonts = fontsData._fonts.slice().sort((a, b) => a.string.localeCompare(b.string));
+            this.fonts = fontsData._fonts.slice().sort((a, b) => localeCompare(a.string, b.string));
         });
     }
     forwardProps(fontValue) {
@@ -44,10 +48,12 @@ export class BuilderFontFamilyPicker extends Component {
     }
     async onDeleteFontClick(font) {
         const save = await new Promise((resolve) => {
-            this.env.services.dialog.add(ConfirmationDialog, {
+            this.dialog.add(ConfirmationDialog, {
+                title: _t("Delete Font"),
                 body: _t(
-                    "Deleting a font requires a reload of the page. This will save all your changes and reload the page, are you sure you want to proceed?"
+                    "This change will be applied after saving and reloading the page. Are you sure you want to continue?"
                 ),
+                confirmLabel: _t("Delete & Reload"),
                 confirm: () => resolve(true),
                 cancel: () => resolve(false),
             });

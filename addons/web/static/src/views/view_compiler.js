@@ -17,7 +17,9 @@ import { toStringExpression, BUTTON_CLICK_PARAMS } from "./utils";
 
 import { xml } from "@odoo/owl";
 
-const BUTTON_STRING_PROPS = ["string", "size", "title", "icon", "id", "disabled"];
+const BUTTON_STRING_PROPS = ["string", "size", "title", "icon", "icon_class", "id", "disabled"];
+// arch attribute name -> ViewButton prop name, when they differ
+const BUTTON_STRING_PROP_NAMES = { icon_class: "iconClass" };
 const INTERP_REGEXP = /(\{\{|#\{)(.*?)(\}{1,2})/g;
 
 /**
@@ -182,8 +184,10 @@ export function isTextNode(node) {
  * @returns {Element}
  */
 export function makeSeparator(title) {
-    const separator = createElement("div");
-    separator.className = "o_horizontal_separator mt-4 mb-3 text-uppercase fw-bolder small";
+    const separator = createElement("div", {
+        class: "o_horizontal_separator mb-3 text-uppercase fw-bolder small",
+        "t-att-class": "{ 'mt-4' : !__comp__.env.services.ui.isSmall }",
+    });
     separator.textContent = title;
     return separator;
 }
@@ -206,6 +210,7 @@ export class ViewCompiler {
             { selector: "field", fn: this.compileField },
             { selector: "widget", fn: this.compileWidget },
         ];
+        this.allowedFieldAttributes = ["data-tooltip"];
         this.templates = templates;
         this.ctx = { readonly: "__comp__.props.readonly" };
 
@@ -335,7 +340,10 @@ export class ViewCompiler {
             if (BUTTON_CLICK_PARAMS.includes(name)) {
                 clickParams[name] = value;
             } else if (BUTTON_STRING_PROPS.includes(name)) {
-                button.setAttribute(name, toStringExpression(value));
+                button.setAttribute(
+                    BUTTON_STRING_PROP_NAMES[name] || name,
+                    toStringExpression(value)
+                );
             } else if (!name.startsWith("t-")) {
                 attrs[name] = value;
             }
@@ -364,6 +372,24 @@ export class ViewCompiler {
     }
 
     /**
+     * Copies allowed attributes from a source element to a target element.
+     *
+     * For each attribute listed in `this.allowedFieldAttributes`, if the source
+     * element `el` has that attribute, its value is copied to `field`.
+     *
+     * @param {Element} field - The target DOM element to set attributes on.
+     * @param {Element} el - The source DOM element to read attributes from.
+     */
+    copyFieldAttributes(field, el) {
+        for (const attr of this.allowedFieldAttributes) {
+            const value = el.getAttribute(attr);
+            if (value !== null) {
+                field.setAttribute(attr, value);
+            }
+        }
+    }
+
+    /**
      * @param {Element} el
      * @returns {Element}
      */
@@ -382,7 +408,7 @@ export class ViewCompiler {
         if (el.hasAttribute("widget")) {
             field.setAttribute("type", `'${el.getAttribute("widget")}'`);
         }
-
+        this.copyFieldAttributes(field, el);
         return field;
     }
 

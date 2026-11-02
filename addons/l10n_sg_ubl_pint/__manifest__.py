@@ -2,14 +2,14 @@
 {
     'name': 'Singapore - UBL PINT',
     'countries': ['sg'],
-    'version': '1.0',
     'category': 'Accounting/Localizations/EDI',
     'description': """
     The UBL PINT e-invoicing format for Singapore is based on the Peppol International (PINT) model for Billing.
     """,
-    'depends': ['account_edi_ubl_cii'],
-    'installable': True,
+    'depends': ['l10n_sg'],
+    'auto_install': True,
     'author': 'Odoo S.A.',
+    'post_init_hook': 'post_init_hook',
     'uninstall_hook': 'uninstall_hook',
     'license': 'LGPL-3'
 }

@@ -4,6 +4,8 @@ from odoo.tests import tagged
 
 @tagged('post_install', '-at_install')
 class TestAccountMove(AccountTestInvoicingCommon):
+    _test_user_groups = None  # FIXME list needed groups
+
     def setUp(self):
         super().setUp()
         Template = self.env['mail.template']
@@ -19,11 +21,7 @@ class TestAccountMove(AccountTestInvoicingCommon):
         self.product_a.email_template_id = self.template.id
 
     def test_send_product_template_email_on_invoice_post(self):
-        id_max = self.env['mail.message'].search([], order='id desc', limit=1)
-        if id_max:
-            id_max = id_max[0].id
-        else:
-            id_max = 0
+        id_max = self.env['mail.message'].sudo().search([], order='id desc', limit=1).id or 0
         invoice = self.env['account.move'].create({
             'move_type': 'out_invoice',
             'partner_id': self.customer.id,
@@ -43,11 +41,7 @@ class TestAccountMove(AccountTestInvoicingCommon):
         """
         Test scenario of a product ordered through the portal.
         """
-        id_max = self.env['mail.message'].search([], order='id desc', limit=1)
-        if id_max:
-            id_max = id_max[0].id
-        else:
-            id_max = 0
+        id_max = self.env['mail.message'].sudo().search([], order='id desc', limit=1).id or 0
         invoice = self.env['account.move'].create({
             'move_type': 'out_invoice',
             'partner_id': self.customer.id,

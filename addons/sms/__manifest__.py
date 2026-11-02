@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
@@ -34,15 +33,14 @@ The service is provided by the In App Purchase Odoo platform.
         'views/iap_account_views.xml',
         'views/sms_sms_views.xml',
         'views/sms_template_views.xml',
-        'security/ir.model.access.csv',
-        'security/sms_security.xml',
+        'security/ir.access.csv',
     ],
     'demo': [
         'data/sms_demo.xml',
         'data/mail_demo.xml',
     ],
-    'installable': True,
     'auto_install': True,
+    'iap_paid_service': True,
     'assets': {
         'web.assets_backend': [
             'sms/static/src/**/*',

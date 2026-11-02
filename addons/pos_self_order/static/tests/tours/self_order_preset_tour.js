@@ -3,37 +3,6 @@ import * as Utils from "@pos_self_order/../tests/tours/utils/common";
 import * as CartPage from "@pos_self_order/../tests/tours/utils/cart_page_util";
 import * as LandingPage from "@pos_self_order/../tests/tours/utils/landing_page_util";
 import * as ProductPage from "@pos_self_order/../tests/tours/utils/product_page_util";
-import * as Chrome from "@point_of_sale/../tests/pos/tours/utils/chrome_util";
-import { today } from "@web/core/l10n/dates";
-
-registry.category("web_tour.tours").add("self_order_preset_dine_in_tour", {
-    steps: () => [
-        // Test preset "Dine in" location with table
-        Utils.checkIsNoBtn("My Order"),
-        Utils.clickBtn("Order Now"),
-        LandingPage.selectLocation("Dine in"),
-        ProductPage.clickProduct("Coca-Cola"),
-        Utils.clickBtn("Checkout"),
-        CartPage.checkProduct("Coca-Cola", "2.53", "1"),
-        Utils.clickBtn("Order"),
-        Utils.clickBtn("Ok"),
-    ],
-});
-
-registry.category("web_tour.tours").add("self_order_preset_takeaway_tour", {
-    steps: () => [
-        Utils.checkIsNoBtn("My Order"),
-        Utils.clickBtn("Order Now"),
-        LandingPage.selectLocation("Takeaway"),
-        ProductPage.clickProduct("Coca-Cola"),
-        Utils.clickBtn("Checkout"),
-        CartPage.checkProduct("Coca-Cola", "2.53", "1"),
-        Utils.clickBtn("Order"),
-        CartPage.fillInput("Name", "Dr Dre"),
-        Utils.clickBtn("Continue"),
-        Utils.clickBtn("Ok"),
-    ],
-});
 
 registry.category("web_tour.tours").add("self_order_preset_delivery_tour", {
     steps: () => [
@@ -45,11 +14,42 @@ registry.category("web_tour.tours").add("self_order_preset_delivery_tour", {
         Utils.clickBtn("Order"),
         CartPage.fillInput("Name", "Dr Dre"),
         CartPage.fillInput("Email", "dre@dr.com"),
-        CartPage.fillInput("Phone", "+32490904390"),
-        CartPage.fillInput("Street and Number", "Rue du Bronx 90"),
-        CartPage.fillInput("Zip", "9999"),
-        CartPage.fillInput("City", "New York"),
+        CartPage.fillInput("Phone", "490904390"),
+        CartPage.fillInput("Address", "Rue du Bronx"),
+        {
+            trigger: ".o-autocomplete--dropdown-menu .dropdown-item:contains('Rue du Bronx')",
+            run: "click",
+        },
         Utils.clickBtn("Continue"),
+        Utils.checkConfirmationString(),
+        Utils.clickBtn("Ok"),
+
+        // Second order: delivery address rejected (mock returns "too far")
+        Utils.checkIsNoBtn("My Order"),
+        Utils.clickBtn("Order Now"),
+        LandingPage.selectLocation("Delivery"),
+        ProductPage.clickProduct("Free"),
+        Utils.clickBtn("Checkout"),
+        CartPage.checkProduct("Free", "0", "1"),
+        Utils.clickBtn("Order"),
+        CartPage.fillInput("Name", "Dr Dre"),
+        CartPage.fillInput("Email", "dre@dr.com"),
+        CartPage.fillInput("Phone", "490904390"),
+        CartPage.fillInput("Address", "Rue du Bronx"),
+        {
+            trigger: ".o-autocomplete--dropdown-menu .dropdown-item:contains('Rue du Bronx')",
+            run: "click",
+        },
+        Utils.clickBtn("Continue"),
+        {
+            trigger: "p.text-danger:contains('Delivery isn\u2019t available')",
+        },
+        {
+            trigger: "button:contains('Takeaway')",
+            run: "click",
+        },
+        Utils.clickBtn("Continue"),
+        Utils.checkConfirmationString(),
         Utils.clickBtn("Ok"),
     ],
 });
@@ -58,39 +58,22 @@ registry.category("web_tour.tours").add("self_order_preset_slot_tour", {
     steps: () => [
         Utils.checkIsNoBtn("My Order"),
         Utils.clickBtn("Order Now"),
+        {
+            content: "Check that average preparation time badge is displayed on Takeaway preset",
+            trigger: ".preset_btn:contains('Takeaway') .badge:contains('20 min')",
+        },
         LandingPage.selectLocation("Takeaway"),
         ProductPage.clickProduct("Coca-Cola"),
         Utils.clickBtn("Checkout"),
         CartPage.checkProduct("Coca-Cola", "2.53", "1"),
         Utils.clickBtn("Order"),
-        CartPage.selectRandomValueInInput(".slot-select"),
+        ...CartPage.selectTimeSlot(),
         CartPage.fillInput("Name", "Dr Dre"),
+        CartPage.fillInput("Phone", "490904390"),
         Utils.clickBtn("Continue"),
+        Utils.checkConfirmationString(true),
         Utils.clickBtn("Ok"),
     ],
-});
-
-registry.category("web_tour.tours").add("test_slot_limit_orders", {
-    steps: () =>
-        [
-            Chrome.freezeDateTime(today().ts),
-            Utils.checkIsNoBtn("My Order"),
-            Utils.clickBtn("Order Now"),
-            LandingPage.selectLocation("Takeaway"),
-            ProductPage.clickProduct("Free"),
-            Utils.clickBtn("Checkout"),
-            Utils.clickBtn("Order"),
-            CartPage.selectSpecificValueInInput(".slot-select", "18:00"),
-            CartPage.fillInput("Name", "Dr Dre"),
-            Utils.clickBtn("Continue"),
-            Utils.clickBtn("Ok"),
-            Utils.clickBtn("Order Now"),
-            LandingPage.selectLocation("Takeaway"),
-            ProductPage.clickProduct("Free"),
-            Utils.clickBtn("Checkout"),
-            Utils.clickBtn("Order"),
-            CartPage.checkSlotUnavailable("18:00"),
-        ].flat(),
 });
 
 registry.category("web_tour.tours").add("test_preset_takeaway_email_tour", {
@@ -104,7 +87,7 @@ registry.category("web_tour.tours").add("test_preset_takeaway_email_tour", {
         Utils.clickBtn("Order"),
         CartPage.fillInput("Name", "Public user"),
         CartPage.fillInput("Email", "public.user@test.com"),
-        CartPage.fillInput("Phone", "+32000111222"),
+        CartPage.fillInput("Phone", "490904390"),
         Utils.clickBtn("Continue"),
         // Waiting for mail to be sent
         {

@@ -7,17 +7,18 @@ from datetime import timedelta
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
-from odoo.fields import Domain
+from odoo.fields import Command, Domain
 
 
 class StockLocation(models.Model):
     _name = 'stock.location'
-    _description = "Inventory Locations"
+    _description = "Inventory Location"
     _parent_name = "location_id"
     _parent_store = True
     _order = 'complete_name, id'
-    _rec_names_search = ['complete_name', 'barcode']
+    _rec_names_search = ('complete_name', 'barcode')
     _check_company_auto = True
+    _check_company_domain = models.check_company_domain_parent_of
 
     @api.model
     def default_get(self, fields):
@@ -101,15 +102,18 @@ class StockLocation(models.Model):
     _parent_path_id_idx = models.Index("(parent_path, id)")
 
     @api.depends('name', 'location_id.complete_name', 'usage')
-    @api.depends_context('formatted_display_name')
+    @api.depends_context('formatted_display_name', 'show_empty')
     def _compute_display_name(self):
         super()._compute_display_name()
+        formatted_display_name = self.env.context.get('formatted_display_name')
         for location in self:
             has_parent = location.location_id and location.usage != 'view'
-            if location.env.context.get('formatted_display_name') and has_parent:
+            if formatted_display_name and has_parent:
                 location.display_name = f"--{location.location_id.complete_name}/--{location.name}"
             elif has_parent:
                 location.display_name = f"{location.location_id.complete_name}/{location.name}"
+            if formatted_display_name and self.env.context.get('show_empty') and location.is_empty:
+                location.display_name += self.env._("\t--Empty--")
 
     @api.depends('outgoing_move_line_ids.quantity_product_uom', 'incoming_move_line_ids.quantity_product_uom',
                  'outgoing_move_line_ids.state', 'incoming_move_line_ids.state',
@@ -140,17 +144,18 @@ class StockLocation(models.Model):
 
     @api.depends('cyclic_inventory_frequency', 'last_inventory_date', 'usage', 'company_id')
     def _compute_next_inventory_date(self):
+        today = fields.Date.context_today(self)
         for location in self:
             if location.company_id and location.usage in ['internal', 'transit'] and location.cyclic_inventory_frequency > 0:
                 try:
                     if location.last_inventory_date:
-                        days_until_next_inventory = location.cyclic_inventory_frequency - (fields.Date.today() - location.last_inventory_date).days
+                        days_until_next_inventory = location.cyclic_inventory_frequency - (today - location.last_inventory_date).days
                         if days_until_next_inventory <= 0:
-                            location.next_inventory_date = fields.Date.today() + timedelta(days=1)
+                            location.next_inventory_date = today + timedelta(days=1)
                         else:
                             location.next_inventory_date = location.last_inventory_date + timedelta(days=location.cyclic_inventory_frequency)
                     else:
-                        location.next_inventory_date = fields.Date.today() + timedelta(days=location.cyclic_inventory_frequency)
+                        location.next_inventory_date = today + timedelta(days=location.cyclic_inventory_frequency)
                 except OverflowError:
                     raise UserError(_("The selected Inventory Frequency (Days) creates a date too far into the future."))
             else:
@@ -246,18 +251,17 @@ class StockLocation(models.Model):
                             "You cannot archive location %(location)s because it is used by warehouse %(warehouse)s",
                             location=location.display_name, warehouse=warehouses.display_name))
 
-            if not self.env.context.get('do_not_check_quant'):
-                children_location = self.env['stock.location'].with_context(active_test=False).search([('id', 'child_of', self.ids)])
-                internal_children_locations = children_location.filtered(lambda l: l.usage == 'internal')
-                children_quants = self.env['stock.quant'].search(['&', '|', ('quantity', '!=', 0), ('reserved_quantity', '!=', 0), ('location_id', 'in', internal_children_locations.ids)])
-                if children_quants and not values['active']:
-                    raise UserError(_(
-                        "You can't disable locations %s because they still contain products.",
-                        ', '.join(children_quants.mapped('location_id.display_name'))))
-                else:
-                    super(StockLocation, children_location - self).with_context(do_not_check_quant=True).write({
-                        'active': values['active'],
-                    })
+            children_location = self.env['stock.location'].with_context(active_test=False).search([('id', 'child_of', self.ids)])
+            internal_children_locations = children_location.filtered(lambda l: l.usage == 'internal')
+            children_quants = self.env['stock.quant'].search(['&', '|', ('quantity', '!=', 0), ('reserved_quantity', '!=', 0), ('location_id', 'in', internal_children_locations.ids)])
+            if children_quants and not values['active']:
+                raise UserError(_(
+                    "You can't disable locations %s because they still contain products.",
+                    ', '.join(children_quants.mapped('location_id.display_name'))))
+
+            super(StockLocation, children_location - self).write({
+                'active': values['active'],
+            })
 
         res = super().write(values)
         self.invalidate_model(['warehouse_id'])
@@ -285,14 +289,6 @@ class StockLocation(models.Model):
         res = super().create(vals_list)
         self.invalidate_model(['warehouse_id'])
         return res
-
-    def copy_data(self, default=None):
-        default = dict(default or {})
-        vals_list = super().copy_data(default=default)
-        if 'name' not in default:
-            for location, vals in zip(self, vals_list):
-                vals['name'] = _("%s (copy)", location.name)
-        return vals_list
 
     def _get_putaway_strategy(self, product, quantity=0, package=None, packaging=None, additional_qty=None):
         """Returns the location where the product has to be put, if any compliant
@@ -354,7 +350,7 @@ class StockLocation(models.Model):
                         ('product_id', '=', product.id),
                         ('location_dest_id', 'in', locations.ids),
                         ('state', 'not in', ['draft', 'done', 'cancel'])
-                    ], ['location_dest_id'], ['quantity:array_agg', 'product_uom_id:recordset'])
+                    ], ['location_dest_id'], ['quantity:array_agg', 'uom_id:recordset'])
                     quant_data = self.env['stock.quant']._read_group([
                         ('product_id', '=', product.id),
                         ('location_id', 'in', locations.ids),
@@ -387,7 +383,7 @@ class StockLocation(models.Model):
         company_inventory_date = False
 
         if self.company_id.annual_inventory_month:
-            today = fields.Date.today()
+            today = fields.Date.context_today(self)
             annual_inventory_month = int(self.company_id.annual_inventory_month)
             # Manage 0 and negative annual_inventory_day
             annual_inventory_day = max(self.company_id.annual_inventory_day, 1)
@@ -496,7 +492,7 @@ class StockLocation(models.Model):
             groupby=['location_dest_id', 'product_id'], aggregates=['quantity_product_uom:sum']
         )
 
-        products = Product.union(*(product for __, product, __ in quants + outgoing_move_lines + incoming_move_lines))
+        products = Product.union(product for __, product, __ in quants + outgoing_move_lines + incoming_move_lines)
         products.fetch(['weight'])
 
         result = defaultdict(lambda: defaultdict(float))
@@ -516,7 +512,7 @@ class StockLocation(models.Model):
 
 class StockRoute(models.Model):
     _name = 'stock.route'
-    _description = "Inventory Routes"
+    _description = "Inventory Route"
     _order = 'sequence'
     _check_company_auto = True
 
@@ -529,7 +525,7 @@ class StockRoute(models.Model):
     warehouse_selectable = fields.Boolean('Applicable on Warehouse', help="When a warehouse is selected for this route, this route should be seen as the default route when products pass through this warehouse.")
     package_type_selectable = fields.Boolean('Applicable on Package Type', help="When checked, the route will be selectable on package types")
     supplied_wh_id = fields.Many2one('stock.warehouse', 'Supplied Warehouse', index='btree_not_null')
-    supplier_wh_id = fields.Many2one('stock.warehouse', 'Supplying Warehouse')
+    supplier_wh_id = fields.Many2one('stock.warehouse', 'Supplying Warehouse', index='btree_not_null')
     company_id = fields.Many2one(
         'res.company', 'Company',
         default=lambda self: self.env.company, index=True,
@@ -543,29 +539,11 @@ class StockRoute(models.Model):
         'stock.warehouse', 'stock_route_warehouse', 'route_id', 'warehouse_id',
         'Warehouses', copy=False, domain="[('id', 'in', warehouse_domain_ids)]")
 
-    def copy_data(self, default=None):
-        default = dict(default or {})
-        vals_list = super().copy_data(default=default)
-        if 'name' not in default:
-            for route, vals in zip(self, vals_list):
-                vals['name'] = _("%s (copy)", route.name)
-        return vals_list
-
     @api.depends('company_id')
     def _compute_warehouses(self):
         for loc in self:
             domain = [('company_id', '=', loc.company_id.id)] if loc.company_id else []
             loc.warehouse_domain_ids = self.env['stock.warehouse'].search(domain)
-
-    @api.onchange('company_id')
-    def _onchange_company(self):
-        if self.company_id:
-            self.warehouse_ids = self.warehouse_ids.filtered(lambda w: w.company_id == self.company_id)
-
-    @api.onchange('warehouse_selectable')
-    def _onchange_warehouse_selectable(self):
-        if not self.warehouse_selectable:
-            self.warehouse_ids = [(5, 0, 0)]
 
     def write(self, vals):
         if 'active' in vals:
@@ -574,7 +552,32 @@ class StockRoute(models.Model):
                 rules.action_unarchive()
             else:
                 rules.action_archive()
-        return super().write(vals)
+        warehouse_vals = []
+        if 'warehouse_ids' in vals:
+            old_warehouses = {route.id: route.warehouse_ids for route in self}
+        if 'warehouse_selectable' in vals and not vals.get('warehouse_selectable'):
+            warehouse_vals = [Command.clear()]
+        if vals.get('company_id') and not warehouse_vals:
+            warehouse_vals = [Command.unlink(wh.id) for wh in self.sudo().warehouse_ids if wh.company_id.id != vals.get('company_id')]
+        if warehouse_vals:
+            # Need to sudo this as warehouses could be defined in other companies, but wouldn't be cleared.
+            self.sudo().with_context(bypass_global_route_sync=True).write({'warehouse_ids': warehouse_vals})
+        res = super().write(vals)
+        if 'warehouse_ids' in vals and not self.env.context.get('bypass_global_route_sync'):
+            changed_warehouses = {
+                route: (old_warehouses[route.id] - route.warehouse_ids) | (route.warehouse_ids - old_warehouses[route.id])
+                for route in self
+            }
+            warehouse_ids_to_sync = set()
+            for route, warehouses in changed_warehouses.items():
+                for warehouse in warehouses:
+                    if warehouse.id in warehouse_ids_to_sync:
+                        continue
+                    if any(warehouse[rule].route_id == route for rule in warehouse._get_global_route_rules_values()):
+                        warehouse_ids_to_sync.add(warehouse.id)
+            for warehouse in self.env['stock.warehouse'].browse(warehouse_ids_to_sync):
+                warehouse._create_or_update_global_routes_rules()
+        return res
 
     @api.constrains('company_id')
     def _check_company_consistency(self):
@@ -593,3 +596,19 @@ class StockRoute(models.Model):
 
     def _is_valid_resupply_route_for_product(self, product):
         return False
+
+    def _get_routes_with_no_warehouse(self):
+        rule_actions = self._get_non_push_pull_rule_actions()
+        route_domain = [
+            ('warehouse_selectable', '=', True),
+            ('rule_ids.action', 'in', rule_actions),
+            ('company_id', 'in', [False, self.env.company.id]),
+            '|',
+                ('warehouse_ids', '=', False),
+                ('warehouse_ids', 'not in', self.env['stock.warehouse']._search([
+                    ('company_id', '=', self.env.company.id)]))
+        ]
+        return self.env['stock.route'].search(route_domain)
+
+    def _get_non_push_pull_rule_actions(self):
+        return []

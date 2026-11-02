@@ -1,7 +1,7 @@
 import { beforeEach, expect, test } from "@odoo/hoot";
 import { click } from "@odoo/hoot-dom";
 import { Plugin } from "@html_editor/plugin";
-import { contains } from "@web/../tests/web_test_helpers";
+import { contains, onRpc } from "@web/../tests/web_test_helpers";
 import {
     addPlugin,
     defineWebsiteModels,
@@ -15,11 +15,28 @@ const searchbarHTML = (orderBy) => `
             <div role="search" class="input-group ">
                 <input type="search" name="search" class="search-query form-control oe_search_box" placeholder="Search..." data-limit="5" data-order-by="${orderBy}" autocomplete="off" data-search-type="pages" data-display-description="true">
                 <button type="submit" aria-label="Search" title="Search" class="btn oe_search_button btn-primary">
-                    <i class="oi oi-search" contenteditable="false"></i>
+                    <i class="oi" data-icon="search" contenteditable="false"></i>
                 </button>
             </div>
         <input name="order" type="hidden" class="o_search_order_by" value="${orderBy}">
     </form>
+    `;
+
+const headerSearchbarHTML = (orderBy) => `
+    <header>
+        <form method="get" data-snippet="s_searchbar_input" action="/pages" data-name="Search"
+            class="o_searchbar_form s_searchbar_input o_header_searchbar o_no_save">
+            <div role="search" class="input-group ">
+                <input type="search" name="search" class="search-query form-control oe_search_box"
+                    placeholder="Search..." data-limit="5" data-order-by="${orderBy}"
+                    autocomplete="off" data-search-type="pages">
+                <button type="submit" aria-label="Search" title="Search" class="btn oe_search_button btn-primary">
+                    <i class="oi" data-icon="search" contenteditable="false"></i>
+                </button>
+            </div>
+            <input name="order" type="hidden" class="o_search_order_by" value="${orderBy}">
+        </form>
+    </header>
     `;
 
 class SearchbarTestPlugin extends Plugin {
@@ -57,17 +74,6 @@ test("Available 'order by' options are updated after switching search type", asy
     expect(".o_popover[role=menu] [data-action-id='setOrderBy']").toHaveCount(2);
 });
 
-test("Switching search type changes data checkboxes", async () => {
-    await setupWebsiteBuilder(searchbarHTML("name asc"));
-    await contains(":iframe .search-query").click();
-    expect("[data-label='Search within'] button.o-dropdown").toHaveText("Pages");
-    expect(".form-check-input").toHaveCount(1);
-    await contains("[data-label='Search within'] button.o-dropdown").click();
-    await contains(".o_popover[role=menu] [data-action-value='/website/search']").click();
-    expect("[data-label='Search within'] button.o-dropdown").toHaveText("Everything");
-    expect(".form-check-input").toHaveCount(4);
-});
-
 test("Switching search type resets 'order by' option to default", async () => {
     await setupWebsiteBuilder(searchbarHTML("write_date asc"));
     await contains(":iframe .search-query").click();
@@ -95,8 +101,31 @@ test("Input parent is not contenteditable, while all other children beside the i
 
     expect(":iframe .input-group:has(:scope > input)").toHaveAttribute("contenteditable", "false");
 
-    expect(":iframe .input-group:has(:scope > input) > *:not(input)").toHaveAttribute(
-        "contenteditable",
-        "true"
-    );
+    // The editable <button> does not receive the contenteditable=true attribute
+    // but receives a span inside which has the contenteditable=true attribute
+    expect(
+        ":iframe .input-group:has(:scope > input) > button > span.o_inner_button_editable_span"
+    ).toHaveAttribute("contenteditable", "true");
+});
+
+test("saving the header bar stores its settings on the website", async () => {
+    await setupWebsiteBuilder("", { headerContent: headerSearchbarHTML("name asc") });
+    await contains(":iframe .o_header_searchbar .search-query").click();
+    await contains("[data-label='Search within'] button.o-dropdown").click();
+    await contains(".o_popover[role=menu] [data-action-value='/website/search']").click();
+
+    onRpc("ir.ui.view", "save", () => true);
+    onRpc("website", "set_header_search", ({ args, kwargs }) => {
+        expect([args[0], kwargs.search_type, kwargs.order_by, kwargs.limit]).toEqual([
+            1,
+            "all",
+            "name asc",
+            5,
+        ]);
+        expect.step("store the header search settings");
+        return true;
+    });
+
+    await contains(".o-snippets-top-actions button[data-action='save']").click();
+    expect.verifySteps(["store the header search settings"]);
 });

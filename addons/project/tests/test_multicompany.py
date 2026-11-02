@@ -6,8 +6,7 @@ from datetime import datetime
 from freezegun import freeze_time
 from lxml import etree
 
-from odoo import Command, fields
-from odoo.tests import Form, TransactionCase
+from odoo.tests import Command, Form, TransactionCase
 from odoo.exceptions import AccessError, UserError
 
 class TestMultiCompanyCommon(TransactionCase):
@@ -121,6 +120,7 @@ class TestMultiCompanyCommon(TransactionCase):
             context = dict(self.env.context, allowed_company_ids=old_companies)
             self.env = self.env(context=context)
 
+
 class TestMultiCompanyProject(TestMultiCompanyCommon):
 
     @classmethod
@@ -147,7 +147,7 @@ class TestMultiCompanyProject(TestMultiCompanyCommon):
         })
 
         # create project in both companies
-        cls.Project = cls.env['project.project'].with_context({'mail_create_nolog': True, 'tracking_disable': True})
+        cls.Project = cls.env['project.project']
         cls.project_company_a = cls.Project.create({
             'name': 'Project Company A',
             'alias_name': 'project+companya',
@@ -181,7 +181,7 @@ class TestMultiCompanyProject(TestMultiCompanyCommon):
             ]
         })
         # already-existing tasks in company A and B
-        Task = cls.env['project.task'].with_context({'mail_create_nolog': True, 'tracking_disable': True})
+        Task = cls.env['project.task']
         cls.task_1 = Task.create({
             'name': 'Task 1 in Project A',
             'user_ids': cls.user_employee_company_a,
@@ -196,7 +196,7 @@ class TestMultiCompanyProject(TestMultiCompanyCommon):
     def test_create_project(self):
         """ Check project creation in multiple companies """
         with self.sudo('manager-a'):
-            project = self.env['project.project'].with_context({'tracking_disable': True}).create({
+            project = self.env['project.project'].create({
                 'name': 'Project Company A',
                 'partner_id': self.partner_1.id,
             })
@@ -204,7 +204,7 @@ class TestMultiCompanyProject(TestMultiCompanyCommon):
 
             with self.switch_company(self.company_b):
                 with self.assertRaises(AccessError, msg="Manager can not create project in a company in which he is not allowed"):
-                    project = self.env['project.project'].with_context({'tracking_disable': True}).create({
+                    project = self.env['project.project'].create({
                         'name': 'Project Company B',
                         'partner_id': self.partner_1.id,
                         'company_id': self.company_b.id
@@ -212,7 +212,7 @@ class TestMultiCompanyProject(TestMultiCompanyCommon):
 
                 # when allowed in other company, can create a project in another company (different from the one in which you are logged)
                 with self.allow_companies([self.company_a.id, self.company_b.id]):
-                    project = self.env['project.project'].with_context({'tracking_disable': True}).create({
+                    project = self.env['project.project'].create({
                         'name': 'Project Company B',
                         'partner_id': self.partner_1.id,
                         'company_id': self.company_b.id
@@ -334,7 +334,7 @@ class TestMultiCompanyProject(TestMultiCompanyCommon):
     def test_create_task(self):
         with self.sudo('employee-a'):
             # create task, set project; the onchange will set the correct company
-            with Form(self.env['project.task'].with_context({'tracking_disable': True})) as task_form:
+            with Form(self.env['project.task']) as task_form:
                 task_form.name = 'Test Task in company A'
                 task_form.project_id = self.project_company_a
             task = task_form.save()
@@ -472,7 +472,7 @@ class TestMultiCompanyProject(TestMultiCompanyCommon):
         with self.sudo('employee-a'):
             with self.allow_companies([self.company_a.id, self.company_b.id]):
                 with self.debug_mode():
-                    with Form(self.env['project.task'].with_context({'tracking_disable': True})) as task_form:
+                    with Form(self.env['project.task']) as task_form:
                         task_form.name = 'Test Subtask in company B'
                         task_form.project_id = self.task_1.project_id
                         task_form.parent_id = self.task_1
@@ -485,32 +485,40 @@ class TestMultiCompanyProject(TestMultiCompanyCommon):
                 with Form(task) as task_form:
                     task_form.name = "Testing changing name in a company I can not read/write"
 
-    @freeze_time("2019-5-28 08:00:00")
     def test_date_to_assign_project(self):
-        company_0, company_1 = self.env['res.company'].create([{
-            "name": "Test company 0",
-        },
-            {
-                "name": "Test company 1",
-            }])
+        company_0 = self.env['res.company'].create({'name': 'Test company 0'})
 
-        self.env['resource.calendar.leaves'].create([{
-            'name': "Public Holiday for company 0",
+        leaves = self.env['resource.calendar.leaves'].with_company(company_0).create([{
+            'name': 'Public Holiday for company 0',
             'company_id': company_0.id,
             'date_from': datetime(2019, 5, 27, 0, 0, 0),
             'date_to': datetime(2019, 5, 29, 23, 0, 0),
             'resource_id': False,
-            'time_type': "leave",
+            'count_as': 'absence'
         }])
-        project = self.env['project.project'].with_company(company_1).create({'name': 'Project for company 1'})
+
+        company_1 = self.env['res.company'].create({'name': 'Test company 1'})
+        project = self.env['project.project'].with_company(company_1).create({
+            'name': 'Project for company 1',
+            'company_id': company_1.id
+        })
         task = self.env['project.task'].with_company(company_1).create({
             'name': 'Task for company 1',
             'project_id': project.id,
-            'create_date': datetime(2019, 5, 28, 10, 0, 0),
             'user_ids': False
         })
+
+        self.env.cr.execute("""
+                       UPDATE
+                       project_task
+                       SET create_date = '%s'
+                       WHERE id = %s
+                       """ % ("2019-05-28 10:00:00", task.id))
+        task.invalidate_recordset(['create_date'])
+
         with freeze_time("2019-05-28 14:00:00"):
             task.user_ids = [Command.set([self.user_employee_company_a.id])]
-            task.date_assign = fields.Datetime.now()
-            self.assertEqual(task.working_hours_open, 3.0)
-            self.assertEqual(task.working_days_open, 0.375)
+            task.date_assign = datetime.now()
+            self.assertEqual(leaves.company_id.id, company_0.id)
+            self.assertEqual(task.working_hours_open, 4.0)
+            self.assertEqual(task.working_days_open, 0.5)

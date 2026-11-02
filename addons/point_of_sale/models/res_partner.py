@@ -13,7 +13,6 @@ class ResPartner(models.Model):
         groups="point_of_sale.group_pos_user",
     )
     pos_order_ids = fields.One2many('pos.order', 'partner_id', readonly=True)
-    pos_contact_address = fields.Char('PoS Address', compute='_compute_pos_contact_address')
     invoice_emails = fields.Char(compute='_compute_invoice_emails', readonly=True)
     fiscal_position_id = fields.Many2one(
         'account.fiscal.position',
@@ -23,47 +22,43 @@ class ResPartner(models.Model):
              "customers or sales orders/invoices. The default value comes from the customer.",
     )
 
-    @api.depends(lambda self: self._display_address_depends())
-    def _compute_pos_contact_address(self):
-        for partner in self:
-            partner.pos_contact_address = partner._display_address(without_company=True)
-
     def _compute_application_statistics_hook(self):
         data_list = super()._compute_application_statistics_hook()
         if not self.env.user.has_group('point_of_sale.group_pos_user'):
             return data_list
         for partner in self.filtered('pos_order_count'):
-            stat_info = {'iconClass': 'fa-shopping-bag', 'value': partner.pos_order_count, 'label': _('Shopping cart'), 'tagClass': 'o_tag_color_7'}
+            stat_info = {'icon': 'shopping_bag', 'value': partner.pos_order_count, 'label': _('Shopping cart')}
             data_list[partner.id].append(stat_info)
         return data_list
 
-    @api.model
-    def get_new_partner(self, config_id, domain, offset):
-        config = self.env['pos.config'].browse(config_id)
-        if len(domain) == 0:
-            limited_partner_ids = {partner[0] for partner in config.get_limited_partners_loading(offset)}
-            domain += [('id', 'in', list(limited_partner_ids))]
-            new_partners = self.search(domain)
-        else:
-            # If search domain is not empty, we need to search inside all partners
-            new_partners = self.search(domain, offset=offset, limit=100)
-        fiscal_positions = new_partners.fiscal_position_id
-        return {
-            'res.partner': self._load_pos_data_read(new_partners, config),
-            'account.fiscal.position': self.env['account.fiscal.position']._load_pos_data_read(fiscal_positions, config),
-        }
+    @api.constrains('barcode')
+    def _check_barcode_prefix(self):
+        for partner in self:
+            if partner.barcode and not partner.barcode.startswith("042"):
+                self.env.user._bus_send("simple_notification", {
+                    'message': _("Barcode must start with 042")
+            })
 
     @api.model
-    def _load_pos_data_domain(self, data, config):
+    def _load_pos_data_domain(self, data):
         # Collect partner IDs from loaded orders
-        loaded_order_partner_ids = {order['partner_id'] for order in data['pos.order']}
+        loaded_order_partner_ids = set(data.get('pos.order', self.env['pos.order']).partner_id.ids)
 
         # Extract partner IDs from the tuples returned by get_limited_partners_loading
-        limited_partner_ids = {partner[0] for partner in config.get_limited_partners_loading()}
+        limited_partner_ids = {partner[0] for partner in data['pos.config'].get_limited_partners_loading()}
 
         limited_partner_ids.add(self.env.user.partner_id.id)  # Ensure current user is included
         partner_ids = limited_partner_ids.union(loaded_order_partner_ids)
         return [('id', 'in', list(partner_ids))]
+
+    @api.model
+    def _load_pos_metadata(self, data, search_params={}):
+        if search_params.get('offset') and not search_params.get('domain'):
+            # Load the next partners of the ones loaded at startup (see `_load_pos_data_domain`)
+            config = data['pos.config']['records']
+            partner_ids = [partner[0] for partner in config.get_limited_partners_loading(search_params['offset'])]
+            search_params = {'domain': [('id', 'in', partner_ids)]}
+        return super()._load_pos_metadata(data, search_params)
 
     def _compute_fiscal_position_id(self):
         for partner in self:
@@ -73,8 +68,9 @@ class ResPartner(models.Model):
     def _load_pos_data_fields(self, config):
         return [
             'id', 'name', 'street', 'street2', 'city', 'state_id', 'country_id', 'vat', 'lang', 'phone', 'zip', 'email',
-            'barcode', 'write_date', 'property_product_pricelist', 'parent_name', 'pos_contact_address',
+            'barcode', 'write_date', 'property_product_pricelist', 'parent_name', 'address',
             'invoice_emails', 'fiscal_position_id', 'is_company', 'property_account_receivable_id',
+            'additional_identifiers', 'available_additional_identifiers_metadata', 'phone_formatted',
         ]
 
     def _compute_pos_order(self):
@@ -108,10 +104,8 @@ class ResPartner(models.Model):
         This function returns an action that displays the pos orders from partner.
         '''
         action = self.env['ir.actions.act_window']._for_xml_id('point_of_sale.action_pos_pos_form')
-        if self.is_company:
-            action['domain'] = [('partner_id.commercial_partner_id', '=', self.id)]
-        else:
-            action['domain'] = [('partner_id', '=', self.id)]
+        # If the partner has any children (including grandchildren)
+        action['domain'] = [('partner_id', 'child_of', self.id)]
         return action
 
     def open_commercial_entity(self):
@@ -124,3 +118,22 @@ class ResPartner(models.Model):
     def _unlink_if_pos_no_orders(self):
         if self.sudo().pos_order_ids:
             raise ValidationError(_('You cannot delete a customer that has point of sales orders. You can archive it instead.'))
+
+    def action_open_partner_view(self):
+        return {
+            'name': _('Edit Partner') if self else _('Create Partner'),
+            'target': 'new',
+            'view_mode': 'form',
+            'type': 'ir.actions.act_window',
+            'res_model': 'res.partner',
+            'views': [(self.env.ref('point_of_sale.view_partner_form_pos_ui').id, 'form')],
+        }
+
+    def _get_current_partner(self, *, pos_order=False, **kwargs):
+        """Override `portal` to get current partner from pos_order if user is not signed up."""
+        if pos_order:
+            return (
+                (not pos_order.partner_id.is_public and pos_order.partner_id)
+                or self.env["res.partner"]  # Avoid returning public user's partner
+            )
+        return super()._get_current_partner(pos_order=pos_order, **kwargs)

@@ -4,7 +4,6 @@ import { boundariesIn } from "@html_editor/utils/position";
 import { setSelection } from "@html_editor/../tests/tours/helpers/editor";
 
 registry.category("web_tour.tours").add('mailing_editor_theme', {
-    url: '/odoo',
     steps: () => [
         stepUtils.showAppsMenuItem(),
         {
@@ -33,15 +32,19 @@ registry.category("web_tour.tours").add('mailing_editor_theme', {
             run: "click",
         },
         {
-            trigger: ".o_mailing_template_preview_wrapper",
+            trigger: ":iframe .o_mailing_template_preview_wrapper",
         },
         {
             content: "Pick the basic theme",
-            trigger: '.o_mailing_template_preview_wrapper [data-name="basic"]',
+            trigger: ':iframe .o_mailing_template_preview_wrapper [data-name="basic"]',
             run: "click",
         },
         {
-            trigger: "html:not(:has(.o_mailing_template_preview_wrapper))",
+            trigger:
+                ".o_field_mass_mailing_html:not(:has(.o_mass_mailing_theme_selector_iframe_wrapper))",
+        },
+        {
+            trigger: ":iframe .o_mass_mailing_value .o_layout",
         },
         {
             content: "Make sure the snippets menu is hidden",
@@ -57,7 +60,7 @@ registry.category("web_tour.tours").add('mailing_editor_theme', {
             run: "click",
         },
         {
-            trigger: ".o_mailing_template_preview_wrapper",
+            trigger: ":iframe .o_mailing_template_preview_wrapper",
         },
         {
             content: "Fill in Subject",
@@ -76,7 +79,7 @@ registry.category("web_tour.tours").add('mailing_editor_theme', {
         },
         {
             content: "Pick the newsletter theme",
-            trigger: '.o_mailing_template_preview_wrapper [data-name="newsletter"]',
+            trigger: ':iframe .o_mailing_template_preview_wrapper [data-name="newsletter"]',
             run: "click",
         },
         {

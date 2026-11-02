@@ -1,22 +1,27 @@
-import { Component } from "@odoo/owl";
+import { Component, useProps, t } from "@odoo/owl";
 
 import { _t } from "@web/core/l10n/translation";
 import { evaluateExpr } from "@web/core/py_js/py";
-import { floatField, FloatField } from "@web/views/fields/float/float_field";
-import { monetaryField, MonetaryField } from "@web/views/fields/monetary/monetary_field";
+import { floatField, FloatField, floatFieldProps } from "@web/views/fields/float/float_field";
+import {
+    monetaryField,
+    MonetaryField,
+    monetaryFieldProps,
+} from "@web/views/fields/monetary/monetary_field";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 
 const fieldRegistry = registry.category("fields");
 
 class StockActionField extends Component {
-    static props = {
-        ...FloatField.props,
-        ...MonetaryField.props,
-        actionName: { type: String, optional: false },
-        actionContext: { type: String, optional: true },
-        disabled: { type: String, optional: true },
-    };
+    props = useProps({
+        ...floatFieldProps,
+        ...monetaryFieldProps,
+        actionName: t.string(),
+        actionContext: t.string().optional(),
+        disabled: t.string().optional(),
+        muteEmpty: t.boolean().optional(),
+    });
     static components = {
         FloatField,
         MonetaryField,
@@ -31,7 +36,7 @@ class StockActionField extends Component {
     }
     
     extractProps () {
-        const keysToRemove = ["actionName", "actionContext", "disabled"];
+        const keysToRemove = ["actionName", "actionContext", "disabled", "muteEmpty"];
         return Object.fromEntries(
          Object.entries(this.props).filter(([prop]) => !keysToRemove.includes(prop))
        );
@@ -52,7 +57,7 @@ class StockActionField extends Component {
         // const action = this.orm.call(this.props.record.resModel, actionName, this.props.record.resId);
         // Use the action service to perform the action
         this.actionService.doAction(actionName, {
-            additionalContext: { ...actionContext, ...this.props.record.context },
+            additionalContext: { ...this.props.record.context, ...actionContext },
         });
     }
 }
@@ -62,7 +67,7 @@ const stockActionField = {
     ...monetaryField,
     component: StockActionField,
     supportedOptions: [
-        Object.values(
+        ...Object.values(
             Object.fromEntries(
                 [...floatField.supportedOptions, ...monetaryField.supportedOptions].map(
                     (option) => [option.name, option]
@@ -80,6 +85,7 @@ const stockActionField = {
         const action_props = {
             actionName: options.action_name,
             disabled: options.disabled,
+            muteEmpty: options.mute_empty,
             actionContext: context,
         }
         let props = {...action_props}

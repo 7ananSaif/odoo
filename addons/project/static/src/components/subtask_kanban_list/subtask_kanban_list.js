@@ -1,4 +1,4 @@
-import { Component, useState } from "@odoo/owl";
+import { Component, proxy, t, useProps } from "@odoo/owl";
 
 import { useService } from "@web/core/utils/hooks";
 import { registry } from "@web/core/registry";
@@ -13,24 +13,21 @@ export class SubtaskKanbanList extends Component {
         Field,
         SubtaskCreate,
     };
-    static props = {
+    props = useProps({
         ...standardWidgetProps,
-        isReadonly: {
-            type: Boolean,
-            optional: true,
-        },
-    };
+        isReadonly: t.boolean().optional(),
+    });
     static template = "project.SubtaskKanbanList";
 
     setup() {
         this.actionService = useService("action");
         this.orm = useService("orm");
         this.notification = useService("notification");
-        this.subtaskCreate = useState({
+        this.subtaskCreate = proxy({
             open: false,
             name: "",
         });
-        this.state = useState({
+        this.state = proxy({
             subtasks: [],
             isLoad: true,
             prevSubtaskCount: 0,
@@ -60,7 +57,7 @@ export class SubtaskKanbanList extends Component {
                     type: "selection",
                     widget: "project_task_state_selection",
                 }),
-                viewType: "kanban",
+                viewType: "card",
             },
         };
     }

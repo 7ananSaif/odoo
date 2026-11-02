@@ -8,45 +8,60 @@
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
 # Sarbó Gergely <sarbo.gergely@gmail.com>, 2026.
+# Weblate <noreply-mt-weblate@weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~12.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2026-03-14 09:34+0000\n"
-"Last-Translator: Sarbó Gergely <sarbo.gergely@gmail.com>\n"
-"Language-Team: Hungarian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-11 17:44+0000\n"
+"PO-Revision-Date: 2026-08-31 15:18+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Hungarian <https://translate.odoo.com/projects/odoo-s19-4/"
 "payment_custom/hu/>\n"
 "Language: hu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.16.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: payment_custom
-#: model_terms:ir.ui.view,arch_db:payment_custom.custom_state_header
-msgid ""
-"<small class=\"text-center text-wrap lh-sm\">Scan me in your banking app</"
-"small>"
+#: model_terms:ir.ui.view,arch_db:payment_custom.custom_payment_transfer_details
+msgid "<b>Amount:</b>"
 msgstr ""
 
 #. module: payment_custom
-#: model_terms:ir.ui.view,arch_db:payment_custom.custom_state_header
-msgid "<strong class=\"mt-auto\">Communication: </strong>"
-msgstr "<strong class=\"mt-auto\">Közlemény:</strong>"
+#: model_terms:ir.ui.view,arch_db:payment_custom.custom_payment_transfer_details
+msgid "<b>Bank Account:</b>"
+msgstr ""
 
 #. module: payment_custom
-#. odoo-python
-#: code:addons/payment_custom/models/payment_provider.py:0
+#: model_terms:ir.ui.view,arch_db:payment_custom.custom_payment_transfer_details
+msgid "<b>Beneficiary:</b>"
+msgstr ""
+
+#. module: payment_custom
+#: model_terms:ir.ui.view,arch_db:payment_custom.custom_payment_transfer_details
+msgid "<b>Communication:</b>"
+msgstr ""
+
+#. module: payment_custom
+#: model_terms:ir.ui.view,arch_db:payment_custom.custom_payment_transfer_details
+msgid ""
+"<small class=\"text-center text-wrap lh-sm\">\n"
+"                            Scan me in your banking app\n"
+"                        </small>"
+msgstr ""
+
+#. module: payment_custom
+#: model:ir.module.module,summary:base.module_payment_custom
+msgid "A payment provider for custom flows like wire transfers."
+msgstr ""
+
+#. module: payment_custom
+#: model:ir.model.fields,field_description:payment_custom.field_payment_provider__partner_bank_id
 msgid "Bank Account"
 msgstr "Bankszámla"
-
-#. module: payment_custom
-#. odoo-python
-#: code:addons/payment_custom/models/payment_provider.py:0
-msgid "Bank Accounts"
-msgstr "Bankszámlák"
 
 #. module: payment_custom
 #: model:ir.model.fields,field_description:payment_custom.field_payment_provider__code
@@ -66,8 +81,9 @@ msgstr "Egyéni mód"
 #. module: payment_custom
 #: model:ir.model.fields,field_description:payment_custom.field_payment_provider__display_name
 #: model:ir.model.fields,field_description:payment_custom.field_payment_transaction__display_name
+#, fuzzy
 msgid "Display Name"
-msgstr ""
+msgstr "Megjelenített név"
 
 #. module: payment_custom
 #: model:ir.model.fields,field_description:payment_custom.field_payment_provider__qr_code
@@ -80,18 +96,20 @@ msgid "Enable the use of QR-codes when paying by wire transfer."
 msgstr ""
 
 #. module: payment_custom
-#: model_terms:ir.ui.view,arch_db:payment_custom.custom_state_header
+#. odoo-python
+#: code:addons/payment_custom/models/payment_transaction.py:0
 msgid "Finalize your payment"
 msgstr "Fizetés véglegesítése"
 
 #. module: payment_custom
 #: model:ir.model.fields,field_description:payment_custom.field_payment_provider__id
 #: model:ir.model.fields,field_description:payment_custom.field_payment_transaction__id
+#, fuzzy
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #. module: payment_custom
-#: model_terms:ir.ui.view,arch_db:payment_custom.custom_state_header
+#: model_terms:ir.ui.view,arch_db:payment_custom.custom_payment_transfer_details
 msgid "OR"
 msgstr "VAGY"
 
@@ -101,25 +119,35 @@ msgid "Only custom providers should have a custom mode."
 msgstr ""
 
 #. module: payment_custom
+#: model_terms:ir.ui.view,arch_db:payment_custom.payment_provider_form
+msgid "Others"
+msgstr ""
+
+#. module: payment_custom
+#: model:ir.model.fields,field_description:payment_custom.field_payment_provider__company_partner_id
+msgid "Partner"
+msgstr ""
+
+#. module: payment_custom
+#: model:ir.model.fields.selection,name:payment_custom.selection__payment_provider__custom_mode__pay_on_invoice
+#: model:payment.method,name:payment_custom.payment_method_pay_on_invoice
+msgid "Pay on Invoice"
+msgstr ""
+
+#. module: payment_custom
 #: model:ir.model,name:payment_custom.model_payment_provider
 msgid "Payment Provider"
 msgstr "Fizetési szolgáltató"
 
 #. module: payment_custom
+#: model:ir.module.module,shortdesc:base.module_payment_custom
+msgid "Payment Provider: Custom Payment Modes"
+msgstr ""
+
+#. module: payment_custom
 #: model:ir.model,name:payment_custom.model_payment_transaction
 msgid "Payment Transaction"
 msgstr "Fizetési tranzakció"
-
-#. module: payment_custom
-#. odoo-python
-#: code:addons/payment_custom/models/payment_provider.py:0
-msgid "Please use the following transfer details"
-msgstr "Kérjük az alábbi utalási adatok használatát"
-
-#. module: payment_custom
-#: model_terms:ir.ui.view,arch_db:payment_custom.payment_provider_form
-msgid "Reload Pending Message"
-msgstr ""
 
 #. module: payment_custom
 #. odoo-python
@@ -137,35 +165,3 @@ msgstr ""
 #: model:payment.method,name:payment_custom.payment_method_wire_transfer
 msgid "Wire Transfer"
 msgstr "Banki átutalás"
-
-#~ msgid "; multiple order found"
-#~ msgstr "; többszörös rendelést talált"
-
-#~ msgid "; no order found"
-#~ msgstr "; nem talált rendelést"
-
-#~ msgid ""
-#~ "<div>\n"
-#~ "<h3>Please use the following transfer details</h3>\n"
-#~ "<h4>%(bank_title)s</h4>\n"
-#~ "%(bank_accounts)s\n"
-#~ "<h4>Communication</h4>\n"
-#~ "<p>Please use the order name as communication reference.</p>\n"
-#~ "</div>"
-#~ msgstr ""
-#~ "<div>\n"
-#~ "<h3>Kérem használja következő utalási részleteket</h3>\n"
-#~ "<h4>%(bank_title)s</h4>\n"
-#~ "%(bank_accounts)s\n"
-#~ "<h4>Kommunikáció</h4>\n"
-#~ "<p>Kérem a régebbi név használatát kommunikáció hivatkozásként.</p>\n"
-#~ "</div>"
-
-#~ msgid "Payment Acquirer"
-#~ msgstr "Fizetést lebonyolító"
-
-#~ msgid "Provider"
-#~ msgstr "Szolgáltató"
-
-#~ msgid "received data for reference %s"
-#~ msgstr "fogadott adat ehhez a referenciához %s"

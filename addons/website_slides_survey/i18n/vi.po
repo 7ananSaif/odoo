@@ -13,17 +13,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-11-08 21:58+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Vietnamese <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-11 17:44+0000\n"
+"PO-Revision-Date: 2026-08-31 19:00+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Vietnamese <https://translate.odoo.com/projects/odoo-s19-4/"
 "website_slides_survey/vi/>\n"
 "Language: vi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_slide_channel__members_certified_count
@@ -35,15 +35,6 @@ msgstr "# Học viên đã được chứng nhận"
 #: code:addons/website_slides_survey/models/survey_survey.py:0
 msgid "- %(certification)s (Courses - %(courses)s)"
 msgstr "- %(certification)s (Khoá học - %(courses)s)"
-
-#. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_survey_view_kanban
-msgid ""
-"<br/>\n"
-"                        <span class=\"text-muted\">Courses</span>"
-msgstr ""
-"<br/>\n"
-"                        <span class=\"text-muted\">Khoá học</span>"
 
 #. module: website_slides_survey
 #: model:mail.template,body_html:website_slides_survey.mail_template_user_input_certification_failed
@@ -95,58 +86,68 @@ msgstr ""
 "            "
 
 #. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
-msgid "<i class=\"fa fa-arrow-right\"/> Get Certified"
-msgstr "<i class=\"fa fa-arrow-right\"/> Được chứng nhận"
-
-#. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
-msgid ""
-"<i class=\"fa fa-download\" aria-label=\"Download certification\" "
-"title=\"Download Certification\"/>"
-msgstr ""
-"<i class=\"fa fa-download\" aria-label=\"Download certification\" "
-"title=\"Tải về chứng nhận\"/>"
-
-#. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.slide_content_detailed
-msgid ""
-"<i class=\"fa fa-fw fa-trophy\" role=\"img\" aria-label=\"Download "
-"certification\" title=\"Download certification\"/> Download certification"
-msgstr ""
-"<i class=\"fa fa-fw fa-trophy\" role=\"img\" aria-label=\"Download "
-"certification\" title=\"Tải về chứng nhận\"/> Tải về chứng nhận"
+msgid "<i class=\"oi me-1\" data-icon=\"east\"/>Add Questions to this Survey"
+msgstr "<i class=\"oi me-1\" data-icon=\"east\"/>Thêm câu hỏi vào khảo sát này"
+
+#. module: website_slides_survey
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
+msgid "<i class=\"oi me-1\" data-icon=\"east\"/>All Certifications"
+msgstr "<i class=\"oi me-1\" data-icon=\"east\"/>Tất cả chứng nhận"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_fill_form_done_inherit_website_slides
 msgid ""
-"<i class=\"fa fa-share-alt\" aria-label=\"Share certification\" "
-"title=\"Share certification\"/>\n"
-"                        Share your certification"
+"<i class=\"oi me-2\" data-icon=\"chevron_backward\" aria-hidden=\"true\"/>Go "
+"back to course"
 msgstr ""
-"<i class=\"fa fa-share-alt\" aria-label=\"Share certification\" title=\"Chia "
-"sẻ chứng nhận\"/>\n"
-"                        Chia sẻ chứng nhận của bạn"
 
 #. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
-msgid "<i class=\"fa fa-share-alt\" aria-label=\"Share\" title=\"Share\"/>"
-msgstr "<i class=\"fa fa-share-alt\" aria-label=\"Share\" title=\"Chia sẻ\"/>"
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_fill_form_done_inherit_website_slides
+msgid ""
+"<i class=\"oi oi-filled d-none d-md-inline\" data-icon=\"share\" aria-"
+"label=\"Share certification\" title=\"Share certification\"/>\n"
+"                        <span class=\"d-md-none\">Share certification</span>"
+msgstr ""
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.slide_content_detailed
-msgid "<i class=\"oi oi-arrow-right me-1\"/>Add Questions to this Survey"
-msgstr "<i class=\"oi oi-arrow-right me-1\"/>Thêm câu hỏi vào khảo sát này"
+msgid ""
+"<i class=\"oi oi-fw oi-filled\" data-icon=\"trophy\" role=\"img\" aria-"
+"label=\"Download certification\" title=\"Download certification\"/> Download "
+"certification"
+msgstr ""
+"<i class=\"oi oi-fw oi-filled\" data-icon=\"trophy\" role=\"img\" aria-"
+"label=\"Download certification\" title=\"Tải về chứng nhận\"/> Tải về chứng "
+"nhận"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
-msgid "<i class=\"oi oi-arrow-right me-1\"/>All Certifications"
-msgstr "<i class=\"oi oi-arrow-right me-1\"/>Tất cả chứng nhận"
+msgid "<i class=\"oi\" data-icon=\"arrow_forward\"/> Get Certified"
+msgstr "<i class=\"oi\" data-icon=\"arrow_forward\"/> Được chứng nhận"
+
+#. module: website_slides_survey
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
+msgid ""
+"<i class=\"oi\" data-icon=\"download\" aria-label=\"Download certification\" "
+"title=\"Download Certification\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"download\" aria-label=\"Download certification\" "
+"title=\"Tải về chứng nhận\"/>"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.user_profile_content
-msgid "<i class=\"oi oi-arrow-right\"/> See Certifications"
-msgstr "<i class=\"oi oi-arrow-right\"/> Xem chứng nhận"
+msgid "<i class=\"oi\" data-icon=\"east\"/> See Certifications"
+msgstr "<i class=\"oi\" data-icon=\"east\"/> Xem chứng nhận"
+
+#. module: website_slides_survey
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
+msgid ""
+"<i class=\"oi\" data-icon=\"family_history\" aria-label=\"Share\" "
+"title=\"Share\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"family_history\" aria-label=\"Share\" "
+"title=\"Chia sẻ\"/>"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.badge_content
@@ -174,11 +175,18 @@ msgid "<span class=\"text-muted\">Certifications</span>"
 msgstr "<span class=\"text-muted\">Chứng nhận</span>"
 
 #. module: website_slides_survey
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_survey_view_kanban
+msgid "<span>Courses</span>"
+msgstr ""
+
+#. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.course_main
 msgid ""
-"<span>Start Now</span><i class=\"oi oi-chevron-right ms-2 align-middle\"/>"
+"<span>Start Now</span><i class=\"oi ms-2 align-middle\" data-"
+"icon=\"chevron_forward\"/>"
 msgstr ""
-"<span>Bắt đầu ngay</span><i class=\"oi oi-chevron-right ms-2 align-middle\"/>"
+"<span>Bắt đầu ngay</span><i class=\"oi ms-2 align-middle\" data-"
+"icon=\"chevron_forward\"/>"
 
 #. module: website_slides_survey
 #: model:ir.model.constraint,message:website_slides_survey.constraint_slide_slide_check_survey_id
@@ -201,12 +209,17 @@ msgstr "Thêm chứng nhận"
 #. odoo-javascript
 #: code:addons/website_slides_survey/static/src/xml/website_slides_fullscreen.xml:0
 msgid "Add Questions to this Survey"
-msgstr "Thêm câu hỏi vào khảo sát này"
+msgstr ""
 
 #. module: website_slides_survey
 #: model_terms:ir.actions.act_window,help:website_slides_survey.slide_slide_action_certification
 msgid "Add a new certification"
 msgstr "Thêm một chứng nhận mới"
+
+#. module: website_slides_survey
+#: model:ir.module.module,summary:base.module_website_slides_survey
+msgid "Add certification capabilities to your courses"
+msgstr ""
 
 #. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_slide_slide__is_preview
@@ -374,6 +387,11 @@ msgid "Course"
 msgstr "Khóa học"
 
 #. module: website_slides_survey
+#: model:ir.module.module,shortdesc:base.module_website_slides_survey
+msgid "Course Certifications"
+msgstr ""
+
+#. module: website_slides_survey
 #. odoo-python
 #: code:addons/website_slides_survey/models/survey_survey.py:0
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_survey_view_form
@@ -431,11 +449,6 @@ msgstr "Đồ nội thất"
 #: model:survey.survey,title:website_slides_survey.furniture_certification
 msgid "Furniture Creation Certification"
 msgstr "Chứng nhận sáng tạo đồ nội thất"
-
-#. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_fill_form_done_inherit_website_slides
-msgid "Go back to course"
-msgstr "Quay lại khóa học"
 
 #. module: website_slides_survey
 #. odoo-javascript
@@ -560,6 +573,11 @@ msgid "Shelf"
 msgstr "Giá"
 
 #. module: website_slides_survey
+#: model:ir.model,name:website_slides_survey.model_slide_slide
+msgid "Slide"
+msgstr ""
+
+#. module: website_slides_survey
 #: model:ir.model,name:website_slides_survey.model_slide_slide_partner
 msgid "Slide / Partner decorated m2m"
 msgstr "Slide / Đối tác trang trí m2m"
@@ -573,11 +591,6 @@ msgstr "Loại slide"
 #: model:ir.model.fields,help:website_slides_survey.field_survey_user_input__slide_partner_id
 msgid "Slide membership information for the logged in user"
 msgstr "Thông tin tư cách thành viên slide cho người dùng đã đăng nhập"
-
-#. module: website_slides_survey
-#: model:ir.model,name:website_slides_survey.model_slide_slide
-msgid "Slides"
-msgstr "Slide"
 
 #. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_survey_user_input__slide_partner_id
@@ -661,6 +674,13 @@ msgid "The slides this survey is linked to through the e-learning application"
 msgstr "Slide liên kết với khảo sát này thông qua ứng dụng e-learning."
 
 #. module: website_slides_survey
+#: model:ir.module.module,description:base.module_website_slides_survey
+msgid ""
+"This module lets you use the full power of certifications within your "
+"courses."
+msgstr ""
+
+#. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_slide_slide__name
 msgid "Title"
 msgstr "Tiêu đề"
@@ -726,25 +746,8 @@ msgid "You have not taken any certification yet."
 msgstr "Bạn chưa tham gia bất kỳ chứng nhận nào."
 
 #~ msgid ""
-#~ "<span class=\"o_stat_text\" attrs=\"{'invisible': [('nbr_certification', "
-#~ "'&gt;', 0)]}\">Finished</span>\n"
-#~ "                <span class=\"o_stat_text\" attrs=\"{'invisible': "
-#~ "[('nbr_certification', '=', 0)]}\">Certified</span>"
+#~ "<br/>\n"
+#~ "                        <span class=\"text-muted\">Courses</span>"
 #~ msgstr ""
-#~ "<span class=\"o_stat_text\" attrs=\"{'invisible': [('nbr_certification', "
-#~ "'&gt;', 0)]}\">Đã hoàn thành</span>\n"
-#~ "                <span class=\"o_stat_text\" attrs=\"{'invisible': "
-#~ "[('nbr_certification', '=', 0)]}\">Đã chứng nhận</span>"
-
-#~ msgid "<span class=\"text-muted\">Certified</span>"
-#~ msgstr "<span class=\"text-muted\">Đã chứng nhận</span>"
-
-#~ msgid "<span class=\"text-muted\">Finished</span>"
-#~ msgstr "<span class=\"text-muted\">Đã hoàn thành</span>"
-
-#~ msgid ""
-#~ "You can create your certification from here or use an existing one. Once "
-#~ "your certification is created, you can still edit it in backend."
-#~ msgstr ""
-#~ "Bạn có thể tạo chứng nhận tại đây hoặc sử dụng chứng nhận đã có. Khi bạn "
-#~ "đã tạo chứng nhận, bạn vẫn có thể chỉnh sửa ở backend. "
+#~ "<br/>\n"
+#~ "                        <span class=\"text-muted\">Khoá học</span>"

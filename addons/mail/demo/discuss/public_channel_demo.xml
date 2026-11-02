@@ -8,6 +8,7 @@
             <field name="name">Public Community</field>
             <field name="description">A space for engaging discussions among employees, partners, and the public.</field>
             <field name="group_public_id" eval="False"/>
+            <field name="discuss_category_id" ref="mail.discuss_category_community"/>
         </record>
         <record model="mail.message" id="mail.channel_public_community_message_0_demo">
             <field name="model">discuss.channel</field>
@@ -64,21 +65,22 @@
         <record model="discuss.channel.member" id="mail.channel_public_community_member_partner_admin_demo">
             <field name="partner_id" ref="base.partner_admin"/>
             <field name="channel_id" ref="mail.channel_public_community_demo"/>
-            <field name="fetched_message_id" ref="mail.channel_public_community_message_0_demo"/>
+            <field name="channel_role" eval="'owner'"/>
             <field name="seen_message_id" ref="mail.channel_public_community_message_0_demo"/>
             <field name="new_message_separator" eval="ref('mail.channel_public_community_message_0_demo') + 1"/>
         </record>
         <record model="discuss.channel.member" id="mail.channel_public_community_member_partner_demo_demo">
             <field name="partner_id" ref="base.partner_demo"/>
             <field name="channel_id" ref="mail.channel_public_community_demo"/>
-            <field name="fetched_message_id" ref="mail.channel_public_community_message_2_demo"/>
+            <field name="channel_role" eval="'owner'"/>
+            <field name="is_favorite" eval="True"/>
             <field name="seen_message_id" ref="mail.channel_public_community_message_2_demo"/>
             <field name="new_message_separator" eval="ref('mail.channel_public_community_message_2_demo') + 1"/>
         </record>
         <record model="discuss.channel.member" id="mail.channel_public_community_member_guest_alex_demo">
             <field name="guest_id" ref="mail.guest_alex_demo"/>
             <field name="channel_id" ref="mail.channel_public_community_demo"/>
-            <field name="fetched_message_id" ref="mail.channel_public_community_message_1_demo"/>
+            <field name="is_favorite" eval="True"/>
             <field name="seen_message_id" ref="mail.channel_public_community_message_1_demo"/>
             <field name="new_message_separator" eval="ref('mail.channel_public_community_message_1_demo') + 1"/>
         </record>

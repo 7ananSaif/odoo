@@ -1,6 +1,6 @@
 import { append, createElement, setAttributes } from "@web/core/utils/xml";
 import { registry } from "@web/core/registry";
-import { SIZES } from "@web/core/ui/ui_service";
+import { SIZES } from "@web/core/ui/ui_utils";
 import { patch } from "@web/core/utils/patch";
 import { FormCompiler } from "@web/views/form/form_compiler";
 
@@ -13,9 +13,7 @@ import { FormCompiler } from "@web/views/form/form_compiler";
  */
 function compileChatter(node, params) {
     const chatterContainerXml = createElement("Chatter");
-    const parentURLQuery = new URLSearchParams(window.parent.location.search);
     setAttributes(chatterContainerXml, {
-        token: `'${parentURLQuery.get("access_token")}'` || "",
         threadModel: params.resModel,
         threadId: params.resId,
         projectSharingId: params.projectSharingId,

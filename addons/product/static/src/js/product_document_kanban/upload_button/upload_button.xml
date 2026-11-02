@@ -4,16 +4,17 @@
         <input
             type="file"
             multiple="true"
-            t-ref="uploadFileInput"
-            t-att-accept="props.allowedMIMETypes"
+            t-ref="this.uploadFileInputRef"
+            t-att-accept="this.props.allowedMIMETypes"
             class="o_input_file o_hidden"
-            t-on-change.stop="onFileInputChange"
+            t-on-change.stop="this.onFileInputChange"
         />
         <button
             type="button"
             name="product_upload_document"
+            t-if="!this.props.formData.hideUploadButton"
             t-attf-class="btn btn-primary"
-            t-on-click.stop.prevent="() => this.uploadFileInputRef.el.click()"
+            t-on-click.stop.prevent="() => this.uploadFileInputRef().click()"
         >
             Upload
         </button>

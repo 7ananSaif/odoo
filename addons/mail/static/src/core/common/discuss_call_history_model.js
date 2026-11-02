@@ -1,7 +1,6 @@
-import { fields, Record } from "@mail/core/common/record";
+import { fields, Record } from "@mail/model/export";
 
 export class DiscussCallHistory extends Record {
-    static id = "id";
     static _name = "discuss.call.history";
 
     /** @type {number} */
@@ -9,5 +8,7 @@ export class DiscussCallHistory extends Record {
     end_dt = fields.Datetime();
     /** @type {number|undefined} */
     duration_hour;
+    /** @type {boolean|undefined} */
+    has_recording;
 }
 DiscussCallHistory.register();

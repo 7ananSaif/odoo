@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import base64
@@ -12,6 +11,7 @@ from datetime import datetime, timedelta
 from odoo import _, api, fields, models
 from odoo.addons.base.models.res_users import check_identity
 from odoo.exceptions import AccessDenied, UserError
+from odoo.fields import Domain
 from odoo.http import request
 from odoo.tools import sql, SQL
 
@@ -40,15 +40,11 @@ class ResUsers(models.Model):
         if not sql.column_exists(self.env.cr, self._table, "totp_secret"):
             self.env.cr.execute("ALTER TABLE res_users ADD COLUMN totp_secret varchar")
 
-    @property
-    def SELF_READABLE_FIELDS(self):
-        return super().SELF_READABLE_FIELDS + ['totp_enabled', 'totp_trusted_device_ids']
-
     def _mfa_type(self):
         r = super()._mfa_type()
         if r is not None:
             return r
-        if self.totp_enabled:
+        if self.sudo().totp_enabled:
             return 'totp'
 
     def _mfa_url(self):
@@ -59,7 +55,11 @@ class ResUsers(models.Model):
             return '/web/login/totp'
 
     @api.depends('totp_secret')
+    @api.depends_context('uid')
     def _compute_totp_enabled(self):
+        if not (self.env.su or self.env.user.has_group('base.group_erp_manager')):
+            self.totp_enabled = False
+            self = self.filtered(lambda u: u._origin == self.env.user).with_prefetch()  # noqa: PLW0642
         for r, v in zip(self, self.sudo()):
             r.totp_enabled = bool(v.totp_secret)
 
@@ -236,4 +236,7 @@ class ResUsers(models.Model):
         if True in value and False in value:
             return fields.Domain.TRUE
         # HACK: totp_secret is not a stored field, but still present in table!
-        return fields.Domain.custom(to_sql=lambda _model, alias, _query: SQL("%s.totp_secret <> ''", SQL.identifier(alias)))
+        domain = Domain.custom(to_sql=lambda table: SQL("%s.totp_secret <> ''", table))
+        if not (self.env.su or self.env.user.has_group('base.group_erp_manager')):
+            domain &= Domain('id', '=', self.env.uid)
+        return domain

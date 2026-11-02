@@ -1,16 +1,23 @@
-import { expect, test } from "@odoo/hoot";
-import { click, edit, press, queryAllTexts, queryOne, queryAll } from "@odoo/hoot-dom";
-import { animationFrame, runAllTimers } from "@odoo/hoot-mock";
-import { Component, useState, xml } from "@odoo/owl";
+import {
+    animationFrame,
+    expect,
+    manuallyDispatchProgrammaticEvent,
+    pointerDown,
+    runAllTimers,
+    test,
+} from "@odoo/hoot";
+import { click, edit, press, queryAll, queryAllTexts, queryOne } from "@odoo/hoot-dom";
+import { Component, proxy, t, useProps, xml } from "@odoo/owl";
 import {
     contains,
     editSelectMenu,
-    getMockEnv,
+    isSmall,
     mountWithCleanup,
     patchWithCleanup,
 } from "@web/../tests/web_test_helpers";
 
 import { MainComponentsContainer } from "@web/core/main_components_container";
+import { Dropdown } from "@web/core/dropdown/dropdown";
 import { SelectMenu } from "@web/core/select_menu/select_menu";
 
 /**
@@ -21,9 +28,11 @@ import { SelectMenu } from "@web/core/select_menu/select_menu";
  */
 async function mountSingleApp(ComponentClass, props) {
     class TestComponent extends Component {
-        static props = { components: { type: Array } };
+        props = useProps({
+            components: t.array(),
+        });
         static template = xml`
-            <t t-foreach="props.components" t-as="comp" t-key="comp.component.name">
+            <t t-foreach="this.props.components" t-as="comp" t-key="comp.component.name">
                 <t t-component="comp.component" t-props="comp.props"/>
             </t>
         `;
@@ -46,17 +55,16 @@ async function mountSingleApp(ComponentClass, props) {
 }
 
 class Parent extends Component {
-    static props = ["*"];
     static components = { SelectMenu };
     static template = xml`
         <SelectMenu
-            choices="choices"
-            value="state.value"
-            onSelect.bind="onSelect"
+            choices="this.choices"
+            value="this.state.value"
+            onSelect.bind="this.onSelect"
         />
     `;
     setup() {
-        this.state = useState({ value: "world" });
+        this.state = proxy({ value: "world" });
         this.choices = [
             { label: "Hello", value: "hello" },
             { label: "World", value: "world" },
@@ -70,7 +78,7 @@ class Parent extends Component {
 async function open() {
     await click(".o_select_menu_toggler");
     await animationFrame();
-    if (getMockEnv().isSmall) {
+    if (isSmall()) {
         // In BottomSheet, the search input is not focused by default.
         // For the following tests, it's easier to expect a focused
         // input for any display of SelectMenu.
@@ -104,18 +112,17 @@ test("Default value correctly set", async () => {
 
 test("Selecting a choice calls onSelect and the displayed value is updated", async () => {
     class MyParent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
         static template = xml`
             <SelectMenu
-                groups="groups"
-                choices="choices"
-                value="state.value"
-                onSelect.bind="onSelect"
+                groups="this.groups"
+                choices="this.choices"
+                value="this.state.value"
+                onSelect.bind="this.onSelect"
             />
         `;
         setup() {
-            this.state = useState({ value: "world" });
+            this.state = proxy({ value: "world" });
             this.choices = [{ label: "Hello", value: "hello" }];
             this.groups = [
                 {
@@ -153,7 +160,7 @@ test("Close dropdown on click outside", async () => {
     await open();
     expect(".o_select_menu_menu").toHaveCount(1);
 
-    if (getMockEnv().isSmall) {
+    if (isSmall()) {
         await click(".o_bottom_sheet_backdrop");
     } else {
         await click(document.body);
@@ -179,10 +186,9 @@ test("Close dropdown on escape keydown", async () => {
 
 test("Search input should be present as a toggler, but cannot be edited if searchable=false", async () => {
     class MyParent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
         static template = xml`
-            <SelectMenu choices="choices" searchable="false" />
+            <SelectMenu choices="this.choices" searchable="false" />
         `;
         setup() {
             this.choices = [
@@ -198,10 +204,9 @@ test("Search input should be present as a toggler, but cannot be edited if searc
 
 test("Search input should be present in a dropdown with a custom toggler", async () => {
     class MyParent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
         static template = xml`
-            <SelectMenu choices="choices">
+            <SelectMenu choices="this.choices">
                 <span class="select_menu_test">Select something</span>
             </SelectMenu>
         `;
@@ -221,10 +226,9 @@ test("Search input should be present in a dropdown with a custom toggler", async
 test.tags("mobile");
 test("Search input should behave as a toggler only and an input should be present in a dropdown on small+touch screen", async () => {
     class MyParent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
         static template = xml`
-            <SelectMenu choices="choices" />
+            <SelectMenu choices="this.choices" />
         `;
         setup() {
             this.choices = [
@@ -242,7 +246,6 @@ test("Search input should behave as a toggler only and an input should be presen
 
 test("Value with no corresponding choices displays as if no choice was selected", async () => {
     class MyParent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
         static template = xml`
         <SelectMenu
@@ -255,7 +258,7 @@ test("Value with no corresponding choices displays as if no choice was selected"
                 { label: "World", value: "world" },
                 { label: "Hello", value: "hello" },
             ];
-            this.state = useState({ value: "coucou" });
+            this.state = proxy({ value: "coucou" });
         }
         setValue(newValue) {
             this.state.value = newValue;
@@ -267,7 +270,6 @@ test("Value with no corresponding choices displays as if no choice was selected"
 
 test("Changing value props properly updates the selected choice", async () => {
     class MyParent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
         static template = xml`
             <SelectMenu
@@ -280,7 +282,7 @@ test("Changing value props properly updates the selected choice", async () => {
                 { label: "Z", value: "world" },
                 { label: "A", value: "company" },
             ];
-            this.state = useState({ value: "company" });
+            this.state = proxy({ value: "company" });
         }
         setValue(newValue) {
             this.state.value = newValue;
@@ -296,7 +298,6 @@ test("Changing value props properly updates the selected choice", async () => {
 
 test("Use a null value for choices", async () => {
     class MyParent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
         static template = xml`
             <SelectMenu
@@ -309,7 +310,7 @@ test("Use a null value for choices", async () => {
                 { label: "Nothing", value: null },
                 { label: "Everything", value: "things" },
             ];
-            this.state = useState({
+            this.state = proxy({
                 value: null,
             });
         }
@@ -327,7 +328,6 @@ test("Use a null value for choices", async () => {
 
 test("Use an empty string as the value for a choice display the corresponding choice", async () => {
     class MyParent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
         static template = xml`
         <SelectMenu
@@ -340,7 +340,7 @@ test("Use an empty string as the value for a choice display the corresponding ch
                 { label: "Empty", value: "" },
                 { label: "Full", value: "full" },
             ];
-            this.state = useState({ value: "" });
+            this.state = proxy({ value: "" });
         }
         setValue(newValue) {
             this.state.value = newValue;
@@ -361,17 +361,16 @@ test("Use an empty string as the value for a choice display the corresponding ch
 test("Clear the input calls 'onSelect' with null value and appears only when value is not null", async () => {
     expect.assertions(4);
     class MyParent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
         static template = xml`
             <SelectMenu
-                choices="choices"
-                value="state.value"
+                choices="this.choices"
+                value="this.state.value"
                 onSelect.bind="this.onSelect"
             />
         `;
         setup() {
-            this.state = useState({ value: "hello" });
+            this.state = proxy({ value: "hello" });
             this.choices = [
                 { label: "Hello", value: "hello" },
                 { label: "World", value: "world" },
@@ -392,17 +391,16 @@ test("Clear the input calls 'onSelect' with null value and appears only when val
 
 test("When the 'required' props is set to true, the input cannot be cleared", async () => {
     class MyParent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
         static template = xml`
             <SelectMenu
                 required="true"
-                choices="choices"
-                value="state.value"
+                choices="this.choices"
+                value="this.state.value"
             />
         `;
         setup() {
-            this.state = useState({ value: null });
+            this.state = proxy({ value: null });
             this.choices = [
                 { label: "Hello", value: "hello" },
                 { label: "World", value: "world" },
@@ -421,19 +419,18 @@ test("When the 'required' props is set to true, the input cannot be cleared", as
 
 test("When the 'required' props is set to true, the clear button is not shown", async () => {
     class MyParent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
         static template = xml`
             <SelectMenu
                 required="true"
-                choices="choices"
-                value="state.value"
+                choices="this.choices"
+                value="this.state.value"
             >
                 <span class="select_menu_test">Select something</span>
             </SelectMenu>
         `;
         setup() {
-            this.state = useState({ value: null });
+            this.state = proxy({ value: null });
             this.choices = [
                 { label: "Hello", value: "hello" },
                 { label: "World", value: "world" },
@@ -454,11 +451,10 @@ test("When the 'required' props is set to true, the clear button is not shown", 
 
 test("Items are sorted based on their label by default", async () => {
     class MyParent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
         static template = xml`
             <SelectMenu
-                choices="choices"
+                choices="this.choices"
             />
         `;
         setup() {
@@ -477,9 +473,8 @@ test("Items are sorted based on their label by default", async () => {
 
 test("autoSort props set to false", async () => {
     class MyParent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
-        static template = xml`<SelectMenu choices="choices" autoSort="false"/>`;
+        static template = xml`<SelectMenu choices="this.choices" autoSort="false"/>`;
         setup() {
             this.choices = [
                 { label: "Hello", value: "hello" },
@@ -496,10 +491,9 @@ test("autoSort props set to false", async () => {
 
 test("Custom toggler using default slot", async () => {
     class MyParent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
         static template = xml`
-            <SelectMenu choices="choices">
+            <SelectMenu choices="this.choices">
                 <span class="select_menu_test">Select something</span>
             </SelectMenu>
         `;
@@ -519,13 +513,12 @@ test("Custom toggler using default slot", async () => {
 
 test("Custom choice template using a slot", async () => {
     class MyParent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
         static template = xml`
-            <SelectMenu choices="choices">
+            <SelectMenu choices="this.choices">
                 <span class="select_menu_test">Select something</span>
                 <t t-set-slot="choice" t-slot-scope="choice">
-                    <span class="coolClass" t-esc="choice.data.label" />
+                    <span class="coolClass" t-out="choice.data.label" />
                 </t>
             </SelectMenu>
         `;
@@ -544,15 +537,14 @@ test("Custom choice template using a slot", async () => {
 
 test("Custom slot for the bottom area sends the current search value", async () => {
     class MyParent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
         static template = xml`
-            <SelectMenu choices="choices">
+            <SelectMenu choices="this.choices">
                 <span class="select_menu_test">Select something</span>
                 <t t-set-slot="bottomArea" t-slot-scope="select">
                     <div t-if="select.data.searchValue" class="px-2">
                         <button class="coolClass btn text-primary" t-on-click="() => this.onClick(select.data.searchValue)">
-                            Do something with "<i t-esc="select.data.searchValue" />"
+                            Do something with "<i t-out="select.data.searchValue" />"
                         </button>
                     </div>
                 </t>
@@ -585,9 +577,8 @@ test("Custom slot for the bottom area sends the current search value", async () 
 
 test("Groups properly added in the select", async () => {
     class MyParent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
-        static template = xml`<SelectMenu groups="groups"/>`;
+        static template = xml`<SelectMenu groups="this.groups"/>`;
         setup() {
             this.groups = [
                 {
@@ -608,7 +599,6 @@ test("Groups properly added in the select", async () => {
 
 test("Items are properly sorted but still in their respective group", async () => {
     class MyParent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
         static template = xml`
             <SelectMenu
@@ -657,7 +647,6 @@ test("When they are a lot of choices, not all are show at first and scrolling lo
     };
 
     class MyParent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
         static template = xml`
             <SelectMenu
@@ -679,8 +668,10 @@ test("When they are a lot of choices, not all are show at first and scrolling lo
     await open();
     expect(".o_select_menu_item, .o_select_menu_group").toHaveCount(scrollSettings.defaultCount);
 
-    queryOne(".o_select_menu_menu").scrollTo({
-        top: queryOne(".o_select_menu_menu").scrollHeight - scrollSettings.distanceBeforeReload,
+    queryOne(".o_select_menu_menu .o_select_menu-choices").scrollTo({
+        top:
+            queryOne(".o_select_menu_menu .o_select_menu-choices").scrollHeight -
+            scrollSettings.distanceBeforeReload,
     });
     await animationFrame();
 
@@ -691,7 +682,6 @@ test("When they are a lot of choices, not all are show at first and scrolling lo
 
 test("When multiSelect is enable, value is an array of values, multiple choices should display as selected and tags should be displayed", async () => {
     class MyParent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
         static template = xml`
             <SelectMenu
@@ -702,7 +692,7 @@ test("When multiSelect is enable, value is an array of values, multiple choices 
             />
         `;
         setup() {
-            this.state = useState({ value: [] });
+            this.state = proxy({ value: [] });
             this.choices = [
                 { label: "A", value: "a" },
                 { label: "B", value: "b" },
@@ -742,7 +732,6 @@ test("When multiSelect is enable, value is an array of values, multiple choices 
 
 test("When multiSelect is enable, allow deselecting elements by clicking the selected choices inside the dropdown or by clicking the tags", async () => {
     class MyParent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
         static template = xml`
             <SelectMenu
@@ -753,7 +742,7 @@ test("When multiSelect is enable, allow deselecting elements by clicking the sel
             />
         `;
         setup() {
-            this.state = useState({ value: ["a", "b"] });
+            this.state = proxy({ value: ["a", "b"] });
             this.choices = [
                 { label: "A", value: "a" },
                 { label: "B", value: "b" },
@@ -790,7 +779,6 @@ test("When multiSelect is enable, allow deselecting elements by clicking the sel
 test.tags("desktop");
 test("Navigation is possible from the input when it is focused", async () => {
     class MyParent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
         static template = xml`
             <SelectMenu
@@ -800,7 +788,7 @@ test("Navigation is possible from the input when it is focused", async () => {
             />
         `;
         setup() {
-            this.state = useState({ value: "b" });
+            this.state = proxy({ value: "b" });
             this.choices = [
                 { label: "A", value: "a" },
                 { label: "B", value: "b" },
@@ -841,7 +829,6 @@ test("Navigation is possible from the input when it is focused", async () => {
 test.tags("desktop");
 test("When only one choice is displayed, 'enter' key should select the value", async () => {
     class MyParent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
         static template = xml`
             <SelectMenu
@@ -851,7 +838,7 @@ test("When only one choice is displayed, 'enter' key should select the value", a
             />
         `;
         setup() {
-            this.state = useState({ value: "b" });
+            this.state = proxy({ value: "b" });
             this.choices = [
                 { label: "A", value: "a" },
                 { label: "B", value: "b" },
@@ -878,18 +865,17 @@ test("When only one choice is displayed, 'enter' key should select the value", a
 
 test("Props onInput is executed when the search changes", async () => {
     class MyParent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
         static template = xml`
             <SelectMenu
-                choices="state.choices"
-                value="state.value"
-                onInput.bind="onInput"
-                onSelect.bind="onSelect"
+                choices="this.state.choices"
+                value="this.state.value"
+                onInput.bind="this.onInput"
+                onSelect.bind="this.onSelect"
             />
         `;
         setup() {
-            this.state = useState({
+            this.state = proxy({
                 choices: [{ label: "Hello", value: "hello" }],
                 value: "hello",
             });
@@ -916,7 +902,6 @@ test("Props onInput is executed when the search changes", async () => {
 
     await mountSingleApp(MyParent);
     expect(".o_select_menu_toggler").toHaveValue("Hello");
-
     await open();
     expect.verifySteps(["call with empty search"]);
     expect(queryAllTexts(".o_select_menu_item")).toEqual(["Hello"]);
@@ -935,18 +920,17 @@ test("Props onInput is executed when the search changes", async () => {
 
 test("Choices are updated and filtered when props change", async () => {
     class MyParent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
         static template = xml`
             <SelectMenu
-                choices="state.choices"
-                value="state.value"
-                onInput.bind="onInput"
-                onSelect.bind="onSelect"
+                choices="this.state.choices"
+                value="this.state.value"
+                onInput.bind="this.onInput"
+                onSelect.bind="this.onSelect"
             />
         `;
         setup() {
-            this.state = useState({
+            this.state = proxy({
                 choices: [
                     { label: "Hello", value: "hello" },
                     { label: "Coucou", value: "hello2" },
@@ -997,17 +981,16 @@ test("SelectMenu group items only after being opened", async () => {
     });
     class MyParent extends Component {
         static components = { SelectMenu };
-        static props = ["*"];
         static template = xml`
             <SelectMenu
-                choices="state.choices"
-                groups="state.groups"
-                value="state.value"
-                onInput.bind="onInput"
+                choices="this.state.choices"
+                groups="this.state.groups"
+                value="this.state.value"
+                onInput.bind="this.onInput"
             />
         `;
         setup() {
-            this.state = useState({
+            this.state = proxy({
                 choices: [{ label: "Option A", value: "optionA" }],
                 groups: [
                     {
@@ -1068,17 +1051,16 @@ test("SelectMenu group items only after being opened", async () => {
 test("search value is cleared when reopening the menu", async () => {
     class MyParent extends Component {
         static components = { SelectMenu };
-        static props = ["*"];
         static template = xml`
             <SelectMenu
-                choices="state.choices"
-                groups="state.groups"
-                value="state.value"
-                onInput.bind="onInput"
+                choices="this.state.choices"
+                groups="this.state.groups"
+                value="this.state.value"
+                onInput.bind="this.onInput"
             />
         `;
         setup() {
-            this.state = useState({
+            this.state = proxy({
                 choices: [{ label: "Option A", value: "optionA" }],
                 value: "hello",
             });
@@ -1104,10 +1086,9 @@ test("search value is cleared when reopening the menu", async () => {
 
 test("Groups can be member of sections", async () => {
     class Parent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
         static template = xml`
-            <SelectMenu choices="choices" groups="groups" sections="sections" />
+            <SelectMenu choices="this.choices" groups="this.groups" sections="this.sections" />
         `;
         setup() {
             this.choices = [{ label: "Hello", value: "hello" }];
@@ -1156,23 +1137,17 @@ test("Groups can be member of sections", async () => {
         "Option B.2",
     ]);
     await editInput("option 2");
-    expect(queryAllTexts(".o_select_menu_group")).toEqual([
-        "Group A",
-        "Subgroup 2",
-        "Group B",
-        "Subgroup 1B",
-    ]);
-    expect(queryAllTexts(".o_select_menu_item")).toEqual(["Option 2.I", "Option B.2"]);
+    expect(queryAllTexts(".o_select_menu_group")).toEqual(["Group A", "Subgroup 2"]);
+    expect(queryAllTexts(".o_select_menu_item")).toEqual(["Option 2.I"]);
 });
 
 test("Can add custom data to choices", async () => {
     class Parent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
         static template = xml`
-            <SelectMenu choices="choices">
+            <SelectMenu choices="this.choices">
                 <t t-set-slot="choice" t-slot-scope="choice">
-                    <span class="coolClass" t-esc="choice.data.custom" />
+                    <span class="coolClass" t-out="choice.data.custom" />
                 </t>
             </SelectMenu>
         `;
@@ -1187,7 +1162,6 @@ test("Can add custom data to choices", async () => {
 
 test("placeholder added succesfully", async () => {
     class MyParent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
         static template = xml`
             <SelectMenu
@@ -1203,7 +1177,7 @@ test("placeholder added succesfully", async () => {
                 { label: "A", value: "company" },
             ];
             this.placeholder = "";
-            this.state = useState({ value: "" });
+            this.state = proxy({ value: "" });
         }
     }
     await mountSingleApp(MyParent);
@@ -1214,7 +1188,6 @@ test("placeholder added succesfully", async () => {
 
 test("disabled select list", async () => {
     class MyParent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
         static template = xml`
             <SelectMenu
@@ -1228,7 +1201,7 @@ test("disabled select list", async () => {
                 { label: "Z", value: "world" },
                 { label: "A", value: "company" },
             ];
-            this.state = useState({ value: "" });
+            this.state = proxy({ value: "" });
         }
     }
     await mountSingleApp(MyParent);
@@ -1237,17 +1210,16 @@ test("disabled select list", async () => {
 
 test("Fetch choices", async () => {
     class MyParent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
         static template = xml`
             <SelectMenu
                 value="this.state.value"
-                onInput.bind="loadChoice"
-                choices="state.choices"
+                onInput.bind="this.loadChoice"
+                choices="this.state.choices"
             />
         `;
         setup() {
-            this.state = useState({ choices: [] }, { value: "" });
+            this.state = proxy({ choices: [] }, { value: "" });
         }
         loadChoice(searchString) {
             if (searchString === "test") {
@@ -1263,51 +1235,19 @@ test("Fetch choices", async () => {
     expect(queryAllTexts(".o_select_menu_item")).toEqual(["test"]);
 });
 
-test("Typing is preserved if choices rerender before the debounced search runs", async () => {
-    class MyParent extends Component {
-        static props = ["*"];
-        static components = { SelectMenu };
-        static template = xml`
-            <SelectMenu
-                value="this.state.value"
-                onInput.bind="loadChoice"
-                choices="state.choices"
-            />
-        `;
-        setup() {
-            this.state = useState({ choices: [] }, { value: "" });
-        }
-        loadChoice(searchString) {
-            this.state.choices = [{ label: searchString || "test", value: searchString || "test" }];
-        }
-    }
-    const parent = await mountSingleApp(MyParent);
-    await open();
-    for (const char of "test") {
-        await press(char);
-        await animationFrame();
-        if (char === "e") {
-            parent.state.choices = [{ label: "forced rerender", value: "forced" }];
-            await animationFrame();
-        }
-    }
-    expect(".o_select_menu input").toHaveValue("test");
-});
-
 test.tags("mobile");
 test("In the BottomSheet, a 'Clear' button is present", async () => {
     class MyParent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
         static template = xml`
             <SelectMenu
-                choices="choices"
+                choices="this.choices"
                 value="'test'"
                 onSelect.bind="this.onSelect"
             />
         `;
         setup() {
-            this.state = useState({ value: "hello" });
+            this.state = proxy({ value: "hello" });
             this.choices = [{ label: "Test", value: "test" }];
         }
         onSelect(value) {
@@ -1324,17 +1264,16 @@ test("In the BottomSheet, a 'Clear' button is present", async () => {
 
 test("Ensure items are properly sorted", async () => {
     class MyParent extends Component {
-        static props = ["*"];
         static components = { SelectMenu };
         static template = xml`
             <SelectMenu
-                groups="state.groups"
-                choices="state.choices"
+                groups="this.state.groups"
+                choices="this.state.choices"
             />
         `;
 
         setup() {
-            this.state = useState({
+            this.state = proxy({
                 choices: [{ label: "item-group-none", value: 0 }],
                 groups: [
                     {
@@ -1372,4 +1311,189 @@ test("Ensure items are properly sorted", async () => {
     expect(elements[4]).toHaveText("item-group-z");
     expect(elements[5]).toHaveText("item-world");
     expect(elements[6]).toHaveText("item-z");
+});
+
+test.tags("desktop");
+test("Space bar key opens the dropdown", async () => {
+    await mountSingleApp(Parent);
+
+    expect(".o_select_menu_menu").toHaveCount(0);
+    await contains(".o_select_menu_input").focus();
+    await press("Space");
+    await animationFrame();
+    expect(".o_select_menu_menu").toHaveCount(1);
+    expect(".o_select_menu_input").toHaveValue("World");
+});
+
+test("Disabled choice", async () => {
+    class ParentWithDisabledChoice extends Parent {
+        setup() {
+            super.setup();
+            this.choices[0].enabled = false;
+        }
+    }
+
+    await mountSingleApp(ParentWithDisabledChoice);
+    await click(".o_select_menu_toggler");
+    await animationFrame();
+    expect(queryAllTexts(".o_select_menu_item")).toEqual(["Hello", "World"]);
+    expect(".o_select_menu_item:eq(0)").toHaveClass("text-muted");
+});
+
+test.tags("desktop");
+test("prevent glitch on open or focusout", async () => {
+    const slots = `
+        <t t-set-slot="default">
+            <button class="custom_button">Open</button>
+        </t>
+    `;
+    class Wrapper extends Component {
+        static components = { SelectMenu };
+        props = useProps();
+        static template = xml`
+            <SelectMenu t-props="this.props">${slots}</SelectMenu>`;
+    }
+    await mountSingleApp(Wrapper, {
+        choices: [
+            {
+                label: "C1",
+                value: "C1",
+            },
+        ],
+        placeholder: "placeholder",
+        searchPlaceholder: "searchPlaceholder",
+    });
+
+    await contains(".custom_button").click();
+    const searchInput = queryOne(".o_select_menu_searchbox input");
+    expect(searchInput.placeholder).toBe("searchPlaceholder");
+    expect(document.activeElement).toBe(searchInput);
+    await contains(".o_select_menu_searchbox input").click();
+
+    await pointerDown(searchInput);
+    await animationFrame();
+    manuallyDispatchProgrammaticEvent(searchInput, "focus");
+    await animationFrame();
+    expect(queryOne(".o_select_menu_searchbox input")).toBe(searchInput);
+    expect(searchInput.placeholder).toBe("searchPlaceholder");
+
+    pointerDown(".custom_button");
+    await animationFrame();
+
+    expect(queryOne(".o_select_menu_searchbox input")).toBe(searchInput);
+    expect(searchInput.placeholder).toBe("searchPlaceholder");
+});
+
+test("Prevents loss of value due to debounce when changing state (rendering)", async () => {
+    class MyParent extends Component {
+        static components = { SelectMenu };
+        static template = xml`
+        <SelectMenu
+            choices="this.choices"
+            value="this.state.value"
+            placeholder="this.state.placeholder"
+            searchPlaceholder="this.state.searchPlaceholder"
+        />
+    `;
+        setup() {
+            this.choices = [
+                { label: "Harry Kane", value: "kane" },
+                { label: "Michael Olise", value: "olise" },
+                { label: "Vincent Kompany", value: "Kompany" },
+            ];
+            this.state = proxy({
+                value: "",
+                placeholder: "brol",
+                searchPlaceholder: "search",
+            });
+        }
+    }
+    const machin = await mountSingleApp(MyParent);
+    expect(".o_select_menu_toggler").toHaveAttribute("placeholder", "brol");
+    await open();
+    expect(".o_select_menu_toggler").toHaveAttribute("placeholder", "search");
+    await contains(".o_select_menu_input").edit("Michael", { confirm: false });
+    machin.state.searchPlaceholder = "player";
+    await animationFrame();
+    machin.choices.push({ label: "Michael Owen", value: "owen" });
+    expect(".o_select_menu_input").toHaveValue("Michael");
+    await runAllTimers();
+    expect(".o_select_menu-choices .o-dropdown-item").toHaveCount(2);
+});
+
+test("Filter is preserved when choices rerender before the debounced search runs", async () => {
+    class MyParent extends Component {
+        static components = { SelectMenu };
+        static template = xml`
+            <SelectMenu
+                value="this.state.value"
+                choices="this.state.choices"
+            />
+        `;
+        setup() {
+            this.state = proxy({
+                choices: [
+                    { label: "Jeremy Doku", value: "doku" },
+                    { label: "Kevin De Bruyne", value: "de_bruyne" },
+                ],
+                value: "",
+            });
+        }
+    }
+    const parent = await mountSingleApp(MyParent);
+    await open();
+    // Type "ku" — debounce is queued but has not fired yet
+    await press("k");
+    await press("u");
+    // New players are called up before the debounce fires
+    parent.state.choices = [
+        { label: "Jeremy Doku", value: "doku" },
+        { label: "Kevin De Bruyne", value: "de_bruyne" },
+        { label: "Thibaut Courtois", value: "courtois" },
+        { label: "Romelu Lukaku", value: "lukaku" },
+        { label: "Leandro Trossard", value: "trossard" },
+    ];
+    await animationFrame();
+    // Filter must stay on "ku": only Doku and Lukaku match
+    expect(".o_select_menu-choices span.o-dropdown-item").toHaveCount(2);
+    await animationFrame();
+    // Filter must stay on "ku": only Doku and Lukaku match
+    expect(".o_select_menu-choices span.o-dropdown-item").toHaveCount(2);
+});
+
+test.tags("desktop");
+test("Ensure the Dropdown uses the correct 'position' value", async () => {
+    let position;
+    patchWithCleanup(Dropdown.prototype, {
+        get position() {
+            position = super.position;
+            return position;
+        },
+    });
+
+    class MyParent extends Component {
+        static components = { SelectMenu };
+        static template = xml`
+            <SelectMenu choices="this.choices" position="this.state.position"/>
+        `;
+        setup() {
+            this.state = proxy({ position: undefined });
+            this.choices = [
+                { label: "Item 1", value: "item_1" },
+                { label: "Item 2", value: "item_2" },
+            ];
+        }
+    }
+    const comp = await mountSingleApp(MyParent);
+    await open();
+    // If no value is set, the default position should be "bottom-fit"
+    expect(position).toBe("bottom-fit");
+
+    position = undefined;
+    comp.state.position = "top-start";
+    await press("escape");
+    await animationFrame();
+    await open();
+    // If a value is set, the position should be the one defined in the props
+    expect(position).toBe("top-start");
 });

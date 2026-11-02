@@ -1,15 +1,22 @@
 // Part of Odoo. See LICENSE file for full copyright and licensing details.
 import { Dialog } from "@web/core/dialog/dialog";
-import { Component, useState } from "@odoo/owl";
+import { Component, proxy, useProps, t } from "@odoo/owl";
 import { usePos } from "@point_of_sale/app/hooks/pos_hook";
 import { ProductCard } from "@point_of_sale/app/components/product_card/product_card";
 import { NumericInput } from "@point_of_sale/app/components/inputs/numeric_input/numeric_input";
 import { useService } from "@web/core/utils/hooks";
 import { AlertDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
+import { _t } from "@web/core/l10n/translation";
+import { isValidEmail } from "@point_of_sale/utils";
 
 export class EventRegistrationPopup extends Component {
     static template = "pos_event.EventRegistrationPopup";
-    static props = ["data", "getPayload", "close", "event"];
+    props = useProps({
+        data: t.array(t.object()),
+        getPayload: t.function(),
+        close: t.function(),
+        event: t.object(),
+    });
     static components = {
         Dialog,
         ProductCard,
@@ -18,9 +25,10 @@ export class EventRegistrationPopup extends Component {
     setup() {
         this.pos = usePos();
         this.dialog = useService("dialog");
-        this.state = useState({
+        this.state = proxy({
             byRegistration: [],
             byOrder: {},
+            touchedFields: new Set(),
         });
         this.dataInQty = this.props.data.reduce((acc, data) => {
             for (let i = 0; i < data.qty; i++) {
@@ -35,14 +43,36 @@ export class EventRegistrationPopup extends Component {
                 product_id: data.product_id,
                 questions: {},
             };
-
+            const existingRegData = data?.registration_ids?.[idx];
             for (const question of this.questionsByRegistration) {
-                this.state.byRegistration[idx].questions[question.id] = "";
+                this.state.byRegistration[idx].questions[question.id] =
+                    existingRegData?.[question.id] || "";
+            }
+        }
+        // always have one data per order
+        if (this.questionsOncePerOrder.length) {
+            const existingRegData = this.props.data[0]?.registration_ids?.[0];
+            for (const question of this.questionsOncePerOrder) {
+                this.state.byOrder[question.id] = existingRegData?.[question.id] || "";
             }
         }
 
-        for (const question of this.questionsOncePerOrder) {
-            this.state.byOrder[question.id] = "";
+        // Autofill first ticket with customer data if customer is selected
+        const customer = this.pos.getOrder()?.partner_id;
+        if (customer && this.state.byRegistration.length) {
+            const firstTicketQuestions = this.state.byRegistration[0].questions;
+            const fieldMap = {
+                name: customer.name,
+                email: customer.email,
+                phone: customer.phone,
+                company_name: customer.parent_name,
+            };
+
+            this.questionsByRegistration.forEach(
+                (q) =>
+                    fieldMap[q.question_type] &&
+                    (firstTicketQuestions[q.id] = fieldMap[q.question_type])
+            );
         }
 
         if (this.props.event.question_ids.length === 0) {
@@ -58,9 +88,61 @@ export class EventRegistrationPopup extends Component {
         return this.props.event.question_ids.filter((question) => question.once_per_order);
     }
 
+    getFieldKey(questionId, ticketIndex = null) {
+        return ticketIndex === null ? `order:${questionId}` : `reg:${ticketIndex}:${questionId}`;
+    }
+
+    markTouched(questionId, ticketIndex = null) {
+        this.state.touchedFields.add(this.getFieldKey(questionId, ticketIndex));
+    }
+
+    isValidPhone(string) {
+        const phone = string.replace(/[\s.\-()]/g, "");
+        const pattern = /^\+?\d{8,18}$/;
+        return pattern.test(phone);
+    }
+
+    validateQuestion(question, value) {
+        if (question.is_mandatory_answer && !value?.trim()) {
+            return false;
+        }
+        if (!value) {
+            return true;
+        }
+        if (question.question_type === "email") {
+            return isValidEmail(value);
+        }
+        if (question.question_type === "phone") {
+            return this.isValidPhone(value);
+        }
+        return true;
+    }
+
+    getValidationClass(question, stateObject, ticketIndex = null) {
+        const value = stateObject[question.id];
+        const key = this.getFieldKey(question.id, ticketIndex);
+
+        if (this.state.touchedFields.has(key) && !this.validateQuestion(question, value)) {
+            return "border border-danger";
+        }
+        return "";
+    }
+
     isQuestionMissingMandatoryAnswer(id, value) {
         const question = this.pos.models["event.question"].get(id);
         return !!(question && question.is_mandatory_answer && !value);
+    }
+
+    isConfirmEnabled() {
+        const areQuestionsValid = (questions, values) =>
+            questions.every((q) => this.validateQuestion(q, values[q.id]));
+
+        return (
+            areQuestionsValid(this.questionsOncePerOrder, this.state.byOrder) &&
+            this.state.byRegistration.every((reg) =>
+                areQuestionsValid(this.questionsByRegistration, reg.questions)
+            )
+        );
     }
 
     confirm() {
@@ -78,8 +160,8 @@ export class EventRegistrationPopup extends Component {
 
         if (requiredByRegistration || requiredByOrder) {
             this.dialog.add(AlertDialog, {
-                title: "Error",
-                body: "Please fill in all required fields",
+                title: _t("Oh snap !"),
+                body: _t("Please fill in all required fields"),
             });
             return;
         }

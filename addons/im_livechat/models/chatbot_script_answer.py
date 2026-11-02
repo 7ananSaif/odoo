@@ -1,9 +1,10 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+import textwrap
+
 from odoo import api, models, fields
 from odoo.fields import Domain
-
-import textwrap
+from odoo.addons.mail.tools.discuss import Store
 
 
 class ChatbotScriptAnswer(models.Model):
@@ -11,7 +12,7 @@ class ChatbotScriptAnswer(models.Model):
     _description = 'Chatbot Script Answer'
     _order = 'script_step_id, sequence, id'
 
-    name = fields.Char(string='Answer', required=True, translate=True)
+    name = fields.Char(string='Answer', required=True, translate=True, copy=True)
     sequence = fields.Integer(string='Sequence', default=1)
     redirect_link = fields.Char('Redirect Link',
         help="The visitor will be redirected to this link upon clicking the option "
@@ -42,5 +43,5 @@ class ChatbotScriptAnswer(models.Model):
             return Domain('name', operator, value) | Domain('script_step_id.message', operator, value)
         return super()._search_display_name(operator, value)
 
-    def _to_store_defaults(self, target):
-        return ["name", "redirect_link"]
+    def _store_script_answer_fields(self, res: Store.FieldList):
+        res.extend(["name", "redirect_link"])

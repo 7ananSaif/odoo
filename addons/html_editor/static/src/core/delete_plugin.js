@@ -42,7 +42,12 @@ import {
 import { CTYPES } from "../utils/content_types";
 import { withSequence } from "@html_editor/utils/resource";
 import { compareListTypes } from "@html_editor/main/list/utils";
-import { hasTouch, isBrowserChrome, isMacOS } from "@web/core/browser/feature_detection";
+import {
+    isBrowserChrome,
+    isBrowserSafari,
+    isMacOS,
+    isMobileOS,
+} from "@web/core/browser/feature_detection";
 import { normalizeDeepCursorPosition, normalizeFakeBR } from "@html_editor/utils/selection";
 
 /**
@@ -62,11 +67,12 @@ import { normalizeDeepCursorPosition, normalizeFakeBR } from "@html_editor/utils
  * @property { DeletePlugin['deleteSelection'] } deleteSelection
  * @property { DeletePlugin['deleteBackward'] } deleteBackward
  * @property { DeletePlugin['deleteForward'] } deleteForward
+ * @property { DeletePlugin['isUnremovable'] } isUnremovable
  */
 
 /**
- * @typedef {(() => void)[]} before_delete_handlers
- * @typedef {(() => void)[]} delete_handlers
+ * @typedef {(() => void)[]} on_will_delete_handlers
+ * @typedef {(() => void)[]} on_deleted_handlers
  *
  * @typedef {((range: RangeLike) => void | true)[]} delete_backward_overrides
  * @typedef {((range: RangeLike) => void | true)[]} delete_backward_word_overrides
@@ -76,8 +82,8 @@ import { normalizeDeepCursorPosition, normalizeFakeBR } from "@html_editor/utils
  * @typedef {((range: RangeLike) => void | true)[]} delete_forward_line_overrides
  * @typedef {((range: RangeLike) => void | true)[]} delete_range_overrides
  *
- * @typedef {((node: Node) => boolean)[]} functional_empty_node_predicates
- * @typedef {((node: Node) => boolean)[]} is_empty_predicates
+ * @typedef {((node: Node) => boolean | undefined)[]} is_functional_empty_node_predicates
+ * @typedef {((node: Node) => boolean | undefined)[]} is_node_empty_predicates
  *
  * @typedef {((node: Node) => Node[])[]} removable_descendants_providers
  *
@@ -87,20 +93,29 @@ import { normalizeDeepCursorPosition, normalizeFakeBR } from "@html_editor/utils
  * The `root` argument is used by some predicates in which a node is
  * conditionally unremovable (e.g. a table cell is only removable if its
  * ancestor table is also being removed).
- * @typedef {((node: Node, root: HTMLElement) => boolean)[]} unremovable_node_predicates
+ * @typedef {((node: Node, root: HTMLElement) => boolean | undefined)[]} is_node_removable_predicates
  */
 
 // @todo @phoenix: move these predicates to different plugins
-export const unremovableNodePredicates = [
-    (node) => node.classList?.contains("oe_unremovable"),
-    // Monetary field
-    (node) => node.matches?.("[data-oe-type='monetary'] > span"),
+export const removableNodePredicates = [
+    (node) => {
+        if (node.classList?.contains("oe_unremovable")) {
+            return false;
+        }
+    },
 ];
 
 export class DeletePlugin extends Plugin {
     static dependencies = ["baseContainer", "selection", "history", "input", "userCommand"];
     static id = "delete";
-    static shared = ["deleteBackward", "deleteForward", "deleteRange", "deleteSelection", "delete"];
+    static shared = [
+        "deleteBackward",
+        "deleteForward",
+        "deleteRange",
+        "deleteSelection",
+        "delete",
+        "isUnremovable",
+    ];
     /** @type {import("plugins").EditorResources} */
     resources = {
         user_commands: [
@@ -120,12 +135,12 @@ export class DeletePlugin extends Plugin {
             { hotkey: "control+shift+delete", commandId: "deleteForwardLine" },
         ],
         /** Handlers */
-        beforeinput_handlers: [
+        on_beforeinput_handlers: [
             withSequence(5, this.onBeforeInputInsertText.bind(this)),
             this.onBeforeInputDelete.bind(this),
         ],
-        input_handlers: (ev) => this.onAndroidChromeInput?.(ev),
-        selectionchange_handlers: withSequence(5, () => this.onAndroidChromeSelectionChange?.()),
+        on_input_handlers: (ev) => this.onAndroidChromeInput?.(ev),
+        on_selectionchange_handlers: withSequence(5, () => this.onAndroidChromeSelectionChange?.()),
         /** Overrides */
         delete_backward_overrides: withSequence(30, this.deleteBackwardUnmergeable.bind(this)),
         delete_backward_word_overrides: withSequence(20, this.deleteBackwardUnmergeable.bind(this)),
@@ -134,8 +149,12 @@ export class DeletePlugin extends Plugin {
         delete_forward_word_overrides: this.deleteForwardUnmergeable.bind(this),
         delete_forward_line_overrides: this.deleteForwardUnmergeable.bind(this),
 
-        unremovable_node_predicates: unremovableNodePredicates,
-        invalid_for_base_container_predicates: (node) => this.isUnremovable(node, this.editable),
+        is_node_removable_predicates: removableNodePredicates,
+        is_valid_for_base_container_predicates: (node) => {
+            if (this.isUnremovable(node, this.editable)) {
+                return false;
+            }
+        },
     };
 
     setup() {
@@ -248,10 +267,8 @@ export class DeletePlugin extends Plugin {
      */
     delete(direction, granularity) {
         const selection = this.dependencies.selection.getEditableSelection();
-
-        this.dependencies.history.stageSelection();
-
-        this.dispatchTo("before_delete_handlers");
+        this.dependencies.selection.stageSelection();
+        this.trigger("on_will_delete_handlers");
 
         if (!selection.isCollapsed) {
             this.deleteSelection(selection);
@@ -262,8 +279,8 @@ export class DeletePlugin extends Plugin {
         } else {
             throw new Error("Invalid direction");
         }
-        this.dispatchTo("delete_handlers");
-        this.dependencies.history.addStep();
+        this.trigger("on_deleted_handlers");
+        this.dependencies.history.commit({ batchable: true });
     }
 
     // --------------------------------------------------------------------------
@@ -294,6 +311,7 @@ export class DeletePlugin extends Plugin {
         range = this.adjustRange(range, [
             this.includeEmptyInlineEnd,
             this.includePreviousZWS,
+            this.includePreviousGrapheme,
             this.includeEndOrStartBlock,
         ]);
         range = this.deleteRange(range);
@@ -325,6 +343,7 @@ export class DeletePlugin extends Plugin {
         range = this.adjustRange(range, [
             this.includeEmptyInlineStart,
             this.includeNextZWS,
+            this.includeNextGrapheme,
             this.includeEndOrStartBlock,
         ]);
         range = this.deleteRange(range);
@@ -556,7 +575,6 @@ export class DeletePlugin extends Plugin {
             ) {
                 // @todo: not sure we want this when allowInlineAtRoot is true
                 const baseContainer = this.dependencies.baseContainer.createBaseContainer();
-                baseContainer.appendChild(this.document.createElement("br"));
                 block.appendChild(baseContainer);
             } else {
                 block.appendChild(this.document.createElement("br"));
@@ -642,7 +660,7 @@ export class DeletePlugin extends Plugin {
     // conditionally unremovable (e.g. a table cell is only removable if its
     // ancestor table is also being removed).
     isUnremovable(node, root = undefined) {
-        return this.getResource("unremovable_node_predicates").some((p) => p(node, root));
+        return !(this.checkPredicates("is_node_removable_predicates", node, root) ?? true);
     }
 
     // Returns true if the entire subtree rooted at node was removed.
@@ -766,7 +784,7 @@ export class DeletePlugin extends Plugin {
      * merge are reverse operations from one another).
      */
     isUnmergeable(node) {
-        return this.getResource("unsplittable_node_predicates").some((p) => p(node));
+        return !(this.checkPredicates("is_node_splittable_predicates", node) ?? true);
     }
 
     joinBlocks(left, right, commonAncestor) {
@@ -1013,6 +1031,72 @@ export class DeletePlugin extends Plugin {
     }
 
     /**
+     * Extends the start of the range to include the full previous ZWJ grapheme
+     * cluster when the range partially overlaps it.
+     *
+     * @param {Range} range
+     * @returns {Range}
+     */
+    includePreviousGrapheme(range) {
+        const { startContainer, startOffset, endContainer, endOffset } = range;
+
+        if (!isTextNode(startContainer)) {
+            return range;
+        }
+
+        const segmentEndOffset =
+            startContainer === endContainer ? endOffset : nodeSize(startContainer);
+
+        const lastSegment = [
+            ...new Intl.Segmenter(undefined, {
+                granularity: "grapheme",
+            }).segment(startContainer.textContent.slice(0, segmentEndOffset)),
+        ].at(-1);
+
+        if (!lastSegment || lastSegment.segment.length === 1) {
+            return range;
+        }
+
+        const segmentStartOffset = segmentEndOffset - lastSegment.segment.length;
+        if (segmentStartOffset < startOffset) {
+            range.setStart(startContainer, segmentStartOffset);
+        }
+        return range;
+    }
+
+    /**
+     * Extends the end of the range to include the full next ZWJ grapheme
+     * cluster when the range partially overlaps it.
+     *
+     * @param {Range} range
+     * @returns {Range}
+     */
+    includeNextGrapheme(range) {
+        const { startContainer, startOffset, endContainer, endOffset } = range;
+
+        if (!isTextNode(endContainer)) {
+            return range;
+        }
+
+        const segmentStartOffset = startContainer === endContainer ? startOffset : 0;
+        const firstSegment = [
+            ...new Intl.Segmenter(undefined, {
+                granularity: "grapheme",
+            }).segment(endContainer.textContent.slice(segmentStartOffset)),
+        ][0];
+
+        if (!firstSegment || firstSegment.segment.length === 1) {
+            return range;
+        }
+
+        const segmentEndOffset = segmentStartOffset + firstSegment.segment.length;
+        if (segmentEndOffset > endOffset) {
+            range.setEnd(endContainer, segmentEndOffset);
+        }
+        return range;
+    }
+
+    /**
      * Expand the range to fully include all contentEditable=False elements.
      * This scenario happens when the range has one end inside a non-editable
      * element and the other end outside of it.
@@ -1239,11 +1323,7 @@ export class DeletePlugin extends Plugin {
         if (leaf.nodeName === "BR" && isFakeLineBreak(leaf)) {
             return true;
         }
-        if (
-            this.getResource("functional_empty_node_predicates").some((predicate) =>
-                predicate(leaf)
-            )
-        ) {
+        if (this.checkPredicates("is_functional_empty_node_predicates", leaf) ?? false) {
             return false;
         }
         if (isEmpty(leaf) || isZWS(leaf)) {
@@ -1327,7 +1407,7 @@ export class DeletePlugin extends Plugin {
         if (argsForDelete) {
             this.delete(...argsForDelete);
             ev.preventDefault();
-            if (isBrowserChrome() && hasTouch()) {
+            if (isBrowserChrome() && isMobileOS()) {
                 this.preventDefaultDeleteAndroidChrome(ev);
             }
         }
@@ -1337,9 +1417,14 @@ export class DeletePlugin extends Plugin {
         if (ev.inputType === "insertText") {
             const selection = this.dependencies.selection.getSelectionData().deepEditableSelection;
             if (!selection.isCollapsed) {
-                this.dispatchTo("before_delete_handlers");
+                this.trigger("on_will_delete_handlers");
                 this.deleteSelection(selection);
-                this.dispatchTo("delete_handlers");
+                this.trigger("on_deleted_handlers");
+                if (isBrowserSafari()) {
+                    // Safari requires the initial anchor node to remain inside the DOM.
+                    ev.preventDefault();
+                    this.document.execCommand(ev.inputType, false, ev.data);
+                }
             }
             // Default behavior: insert text and trigger input event
         }
@@ -1406,7 +1491,7 @@ export class DeletePlugin extends Plugin {
 
         if (
             (isEmpty(closestUnmergeable) ||
-                this.getResource("is_empty_predicates").some((p) => p(closestUnmergeable))) &&
+                (this.checkPredicates("is_node_empty_predicates", closestUnmergeable) ?? false)) &&
             !this.isUnremovable(closestUnmergeable)
         ) {
             closestUnmergeable.remove();

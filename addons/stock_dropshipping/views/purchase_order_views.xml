@@ -9,15 +9,10 @@
                 <button type="object"
                     name="action_view_dropship"
                     class="oe_stat_button"
-                    icon="fa-truck"
+                    icon="local_shipping"
                     invisible="dropship_picking_count == 0" groups="stock.group_stock_user">
                     <field name="dropship_picking_count" widget="statinfo" string="Dropship"/>
                 </button>
-            </xpath>
-            <xpath expr="//field[@name='picking_type_id']" position="attributes">
-                <attribute name="domain">
-                    [('code', 'in', ('incoming', 'dropship')), '|', ('warehouse_id', '=', False), ('warehouse_id.company_id', '=', company_id)]
-                </attribute>
             </xpath>
         </field>
     </record>

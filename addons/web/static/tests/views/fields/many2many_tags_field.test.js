@@ -1,6 +1,7 @@
 import { expect, getFixture, test } from "@odoo/hoot";
-import { hover, press, queryAllTexts, queryOne } from "@odoo/hoot-dom";
-import { animationFrame, Deferred, runAllTimers } from "@odoo/hoot-mock";
+import { OfflinePlugin } from "@web/core/offline/offline_plugin";
+import { click, hover, press, queryAllTexts, queryOne } from "@odoo/hoot-dom";
+import { animationFrame, runAllTimers } from "@odoo/hoot-mock";
 
 import {
     clickFieldDropdown,
@@ -10,14 +11,18 @@ import {
     defineModels,
     fieldInput,
     fields,
+    getService,
     makeServerError,
+    mockOffline,
     MockServer,
     mockService,
     models,
     mountView,
+    mountWithCleanup,
     onRpc,
     selectFieldDropdownItem,
 } from "@web/../tests/web_test_helpers";
+import { WebClient } from "@web/webclient/webclient";
 
 class Partner extends models.Model {
     _name = "partner";
@@ -128,7 +133,7 @@ test("Many2ManyTagsField with and without color on desktop", async () => {
         resModel: "partner",
         arch: `
             <form>
-                <field name="partner_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                <field name="partner_ids" widget="many2many_tags" options="{'color_field': 'color', 'on_tag_click': 'edit_color'}"/>
                 <field name="timmy" widget="many2many_tags"/>
             </form>`,
     });
@@ -161,6 +166,126 @@ test("Many2ManyTagsField with and without color on desktop", async () => {
     expect(".o_colorlist").toHaveCount(0);
 });
 
+test.tags("desktop");
+test("[Offline] Many2ManyTagsField", async () => {
+    const setOffline = mockOffline();
+    onRpc("web_save", () => expect.step(`web_save`));
+
+    Partner._fields.partner_ids = fields.Many2many({
+        string: "Partner",
+        relation: "partner",
+    });
+    Partner._fields.color = fields.Integer({ string: "Color index" });
+    Partner._views = {
+        form: `
+          <form>
+              <field name="partner_ids" widget="many2many_tags" options="{'color_field': 'color', 'on_tag_click': 'edit_color'}"/>
+          </form>`,
+    };
+
+    await mountWithCleanup(WebClient);
+    await getService("action").doAction({
+        name: "Partner",
+        res_model: "partner",
+        res_id: 1,
+        type: "ir.actions.act_window",
+        views: [[false, "form"]],
+    });
+    await contains(".o_field_many2many_selection input").click();
+    await runAllTimers();
+
+    expect(queryAllTexts(`.o-autocomplete.dropdown li`)).toEqual([
+        "first record",
+        "second record",
+        "aaa",
+        "Search more...",
+    ]);
+
+    //close the dropdown
+    await contains(".o_form_renderer").click();
+
+    //re-render to avoid the memoizedSearch !
+    await getService("action").doAction({
+        name: "Partner",
+        res_model: "partner",
+        res_id: 1,
+        type: "ir.actions.act_window",
+        views: [[false, "form"]],
+    });
+
+    await setOffline(true);
+    await contains(".o_field_many2many_selection input").click();
+    expect(queryAllTexts(`.o-autocomplete.dropdown li`)).toEqual([
+        "first record",
+        "second record",
+        "aaa",
+    ]);
+
+    // search Offline
+    await contains(".o_field_widget input").edit("record", { confirm: false });
+    await runAllTimers();
+    expect(queryAllTexts(`.o-autocomplete.dropdown li`)).toEqual(["first record", "second record"]);
+
+    // select the first one
+    await contains(`.dropdown .dropdown-item:contains(first record)`).click();
+    expect(".o_field_many2many_tags .badge").toHaveCount(1);
+    expect(queryAllTexts(".o_field_many2many_tags .badge")).toEqual(["first record"]);
+
+    // save the record (should do the write RPC with the correct commands)
+    await clickSave();
+
+    // The created record will be save the next time we are online
+    await contains(`.o_menu_systray .o_nav_entry [data-icon="link_off"]`).click();
+    expect(queryAllTexts`.o-dropdown--menu .o_offline_systray_content div`).toEqual([
+        "PARTNER",
+        "first record",
+        "Edited",
+        "",
+    ]);
+
+    // go online and save the record.
+    await setOffline(false);
+
+    expect(getService(OfflinePlugin).isOffline()).toBe(false);
+    await expect.waitForSteps(["web_save"]); // We sync when the connection returns
+});
+
+test.tags("desktop");
+test("[Offline] Many2ManyTagsField autopopulated", async () => {
+    const setOffline = mockOffline();
+
+    Partner._fields.partner_ids = fields.Many2many({
+        string: "Partner",
+        relation: "partner",
+    });
+    Partner._records[0].partner_ids = [1, 4];
+    Partner._records[1].partner_ids = [1];
+
+    await mountView({
+        resModel: "partner",
+        type: "form",
+        arch: `
+          <form>
+              <field name="partner_ids" widget="many2many_tags"/>
+          </form>`,
+        resIds: [1, 2, 4],
+        resId: 1,
+    });
+
+    expect(".o_field_many2many_tags .badge").toHaveCount(2);
+    expect(queryAllTexts(".o_field_many2many_tags .badge")).toEqual(["first record", "aaa"]);
+    await contains(`.o_pager_next`).click();
+
+    expect(".o_field_many2many_tags .badge").toHaveCount(1);
+    expect(queryAllTexts(".o_field_many2many_tags .badge")).toEqual(["first record"]);
+    await contains(`.o_pager_next`).click();
+
+    await setOffline(true);
+
+    await contains(".o_field_many2many_selection input").click();
+    expect(queryAllTexts(`.o-autocomplete.dropdown li`)).toEqual(["first record", "aaa"]);
+});
+
 test.tags("mobile");
 test("Many2ManyTagsField with and without color on mobile", async () => {
     expect.assertions(14);
@@ -185,7 +310,7 @@ test("Many2ManyTagsField with and without color on mobile", async () => {
         resModel: "partner",
         arch: `
             <form>
-                <field name="partner_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                <field name="partner_ids" widget="many2many_tags" options="{'color_field': 'color', 'on_tag_click': 'edit_color'}"/>
                 <field name="timmy" widget="many2many_tags"/>
             </form>`,
     });
@@ -200,7 +325,7 @@ test("Many2ManyTagsField with and without color on mobile", async () => {
     expect(".o_colorlist").toHaveCount(0);
     await contains("[name=partner_ids] .o_tag").click();
     expect(".o_colorlist").toHaveCount(1);
-    await contains(getFixture()).click();
+    await click(".o_bottom_sheet_backdrop");
 
     // Add a tag to second field
     expect("[name=timmy] .o_tag").toHaveCount(0);
@@ -243,7 +368,7 @@ test("Many2ManyTagsField with color: rendering and edition on desktop", async ()
         resModel: "partner",
         arch: `
             <form>
-                <field name="timmy" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True }"/>
+                <field name="timmy" widget="many2many_tags" options="{'color_field': 'color', 'on_tag_click': 'edit_color', 'no_create_edit': True }"/>
             </form>`,
         resId: 1,
     });
@@ -303,7 +428,7 @@ test("Many2ManyTagsField in list view on desktop", async () => {
         resModel: "partner",
         arch: `
             <list>
-                <field name="timmy" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                <field name="timmy" widget="many2many_tags" options="{'color_field': 'color', 'on_tag_click': 'edit_color'}"/>
                 <field name="foo"/>
             </list>`,
         selectRecord: () => {
@@ -341,7 +466,7 @@ test("Many2ManyTagsField in list view -- multi edit on desktop", async () => {
         resModel: "partner",
         arch: `
             <list multi_edit="1">
-                <field name="timmy" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                <field name="timmy" widget="many2many_tags" options="{'color_field': 'color', 'on_tag_click': 'edit_color'}"/>
                 <field name="foo"/>
             </list>`,
         selectRecord: () => {
@@ -368,6 +493,27 @@ test("Many2ManyTagsField in list view -- multi edit on desktop", async () => {
 
     expect(".o_selected_row").toHaveCount(1);
     expect(".o_colorlist").toHaveCount(0);
+});
+
+test.tags("desktop");
+test("Many2ManyTagsField in list view -- click on tag in editable mode should do onClick action", async () => {
+    Partner._records[0].timmy = [12, 14];
+
+    await mountView({
+        type: "list",
+        resModel: "partner",
+        arch: `
+            <list editable="top">
+                <field name="timmy" widget="many2many_tags" options="{'color_field': 'color', 'on_tag_click': 'edit_color'}"/>
+                <field name="foo"/>
+            </list>`,
+    });
+
+    await contains(`.o_field_many2many_tags`).click();
+    expect(`.o_tag_popover`).toHaveCount(0);
+    expect(`.o_data_row:eq(0)`).toHaveClass("o_selected_row");
+    await contains(`.o_tag`).click();
+    expect(`.o_tag_popover`).toHaveCount(1);
 });
 
 test.tags("desktop");
@@ -449,75 +595,6 @@ test("Many2ManyTagsField view a domain on mobile", async () => {
 
     expect(".o_field_many2many_tags .badge").toHaveCount(2);
 
-    expect(queryAllTexts(".badge")).toEqual(["gold", "silver"]);
-});
-
-test.tags("desktop");
-test("use binary field as the domain on desktop", async () => {
-    Partner._fields.domain = fields.Binary();
-    Partner._records[0].domain = '[["id", "<", 50]]';
-    Partner._records[0].timmy = [12];
-    PartnerType._records.push({ id: 99, name: "red", color: 8 });
-
-    await mountView({
-        type: "form",
-        resModel: "partner",
-        arch: `
-            <form>
-                <field name="timmy" widget="many2many_tags" domain="domain"/>
-                <field name="domain" invisible="1"/>
-            </form>`,
-        resId: 1,
-    });
-
-    expect(".o_field_many2many_tags .badge").toHaveCount(1);
-    expect(queryAllTexts(".badge")).toEqual(["gold"]);
-
-    await clickFieldDropdown("timmy");
-
-    expect(".o-autocomplete--dropdown-menu li").toHaveCount(3);
-    expect(queryAllTexts(".o-autocomplete--dropdown-menu li")).toEqual([
-        "gold",
-        "silver",
-        "Search more...",
-    ]);
-    expect(".o-autocomplete--dropdown-menu li a:eq(0)").toHaveText("gold");
-
-    await clickFieldDropdownItem("timmy", "silver");
-
-    expect(".o_field_many2many_tags .badge").toHaveCount(2);
-    expect(queryAllTexts(".badge")).toEqual(["gold", "silver"]);
-});
-
-test.tags("mobile");
-test("use binary field as the domain on mobile", async () => {
-    Partner._fields.domain = fields.Binary();
-    Partner._records[0].domain = '[["id", "<", 50]]';
-    Partner._records[0].timmy = [12];
-    PartnerType._records.push({ id: 99, name: "red", color: 8 });
-
-    await mountView({
-        type: "form",
-        resModel: "partner",
-        arch: `
-            <form>
-                <field name="timmy" widget="many2many_tags" domain="domain"/>
-                <field name="domain" invisible="1"/>
-            </form>`,
-        resId: 1,
-    });
-    expect(".o_field_many2many_tags .badge").toHaveCount(1);
-    expect(queryAllTexts(".badge")).toEqual(["gold"]);
-
-    await clickFieldDropdown("timmy");
-
-    expect(".o_kanban_record span").toHaveCount(2);
-    expect(queryAllTexts(".o_kanban_record span")).toEqual(["gold", "silver"]);
-    expect(".o_kanban_record span:eq(0)").toHaveText("gold");
-
-    await clickFieldDropdownItem("timmy", "silver");
-
-    expect(".o_field_many2many_tags .badge").toHaveCount(2);
     expect(queryAllTexts(".badge")).toEqual(["gold", "silver"]);
 });
 
@@ -620,7 +697,7 @@ test("Many2ManyTagsField: update color", async () => {
         resModel: "partner",
         arch: `
             <form>
-                <field name="timmy" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                <field name="timmy" widget="many2many_tags" options="{'color_field': 'color', 'on_tag_click': 'edit_color'}"/>
             </form>`,
         resId: 1,
     });
@@ -672,7 +749,7 @@ test("Many2ManyTagsField: update color", async () => {
     */
 });
 
-test("Many2ManyTagsField with no_edit_color option", async () => {
+test("Many2ManyTagsField without on_tag_click option", async () => {
     Partner._records[0].timmy = [12];
 
     await mountView({
@@ -680,7 +757,7 @@ test("Many2ManyTagsField with no_edit_color option", async () => {
         resModel: "partner",
         arch: `
             <form>
-                <field name="timmy" widget="many2many_tags" options="{'color_field': 'color', 'no_edit_color': 1}"/>
+                <field name="timmy" widget="many2many_tags" options="{'color_field': 'color'}"/>
             </form>`,
         resId: 1,
     });
@@ -738,7 +815,7 @@ test("Many2ManyTagsField can load more than 40 records", async () => {
     await mountView({
         type: "form",
         resModel: "partner",
-        arch: '<form><field name="partner_ids" widget="many2many_tags"/></form>',
+        arch: `<form><field name="partner_ids" widget="many2many_tags" options="{'tag_limit': 0}"/></form>`,
         resId: 1,
     });
     expect('.o_field_widget[name="partner_ids"] .badge').toHaveCount(100);
@@ -796,6 +873,7 @@ test("Many2ManyTagsField: tags data-tooltip attribute", async () => {
     expect(".o_field_many2many_tags .o_tag.badge").toHaveAttribute("data-tooltip", "second record");
 });
 
+test.tags("desktop");
 test("Many2ManyTagsField: toggle colorpicker with multiple tags", async () => {
     Partner._records[0].timmy = [12, 14];
     PartnerType._records[0].color = 0;
@@ -805,7 +883,7 @@ test("Many2ManyTagsField: toggle colorpicker with multiple tags", async () => {
         resModel: "partner",
         arch: `
                 <form>
-                    <field name="timmy" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                    <field name="timmy" widget="many2many_tags" options="{'color_field': 'color', 'on_tag_click': 'edit_color'}"/>
                 </form>`,
         resId: 1,
     });
@@ -829,6 +907,32 @@ test("Many2ManyTagsField: toggle colorpicker with multiple tags", async () => {
     expect(".o_colorpicker").toHaveCount(0);
 });
 
+test.tags("mobile");
+test("Many2ManyTagsField: toggle colorpicker with multiple tags on mobile", async () => {
+    Partner._records[0].timmy = [12, 14];
+    PartnerType._records[0].color = 0;
+
+    await mountView({
+        type: "form",
+        resModel: "partner",
+        arch: `
+                <form>
+                    <field name="timmy" widget="many2many_tags" options="{'color_field': 'color', 'on_tag_click': 'edit_color'}"/>
+                </form>`,
+        resId: 1,
+    });
+
+    expect(".o_colorlist").toHaveCount(0);
+    // click on the badge to open colorpicker
+    await contains(".o_field_many2many_tags .badge").click();
+    expect(".o_colorlist").toHaveCount(1);
+    await contains(".o_bottom_sheet_backdrop").click();
+    await contains(".o_field_many2many_tags [data-tooltip=silver]").click();
+    expect(".o_colorlist").toHaveCount(1);
+    await contains(".o_bottom_sheet_backdrop").click();
+    expect(".o_colorlist").toHaveCount(0);
+});
+
 test("Many2ManyTagsField: toggle colorpicker multiple times", async () => {
     Partner._records[0].timmy = [12];
     PartnerType._records[0].color = 0;
@@ -838,7 +942,7 @@ test("Many2ManyTagsField: toggle colorpicker multiple times", async () => {
         resModel: "partner",
         arch: `
             <form>
-                <field name="timmy" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                <field name="timmy" widget="many2many_tags" options="{'color_field': 'color', 'on_tag_click': 'edit_color'}"/>
             </form>`,
         resId: 1,
     });
@@ -1041,7 +1145,7 @@ test("Many2ManyTagsField: select multiple records on desktop", async () => {
         resId: 1,
         arch: `
             <form>
-                <field name="timmy" widget="many2many_tags"/>
+                <field name="timmy" widget="many2many_tags" options="{'tag_limit': 0}"/>
             </form>`,
     });
 
@@ -1080,9 +1184,9 @@ test("Many2ManyTagsField: select multiple records doesn't show already added tag
         resModel: "partner",
         resId: 1,
         arch: `
-                <form>
-                    <field name="timmy" widget="many2many_tags"/>
-                </form>`,
+            <form>
+                <field name="timmy" widget="many2many_tags" options="{'tag_limit': 0}"/>
+            </form>`,
     });
 
     await selectFieldDropdownItem("timmy", "Search more...");
@@ -1224,7 +1328,7 @@ test("Many2ManyTagsField: Save&New in many2many_tags with default_ keys in conte
 });
 
 test.tags("desktop");
-test("Many2ManyTagsField: conditional create/delete actions on desktop", async () => {
+test("Many2ManyTagsField: conditional create/delete attrs on desktop", async () => {
     Turtle._records[0].partner_ids = [2];
     for (let id = 101; id <= 110; id++) {
         Partner._records.push({ id, name: "Partner" + id });
@@ -1241,7 +1345,7 @@ test("Many2ManyTagsField: conditional create/delete actions on desktop", async (
             <form>
                 <field name="name"/>
                 <field name="turtle_bar"/>
-                <field name="partner_ids" options="{'create': [('turtle_bar', '=', True)], 'delete': [('turtle_bar', '=', True)]}" widget="many2many_tags"/>
+                <field name="partner_ids" create="turtle_bar == True" delete="turtle_bar == True" widget="many2many_tags"/>
             </form>`,
         resId: 1,
     });
@@ -1457,7 +1561,7 @@ test("Many2ManyTagsField supports 'create' props to be a Boolean on mobile", asy
     await mountView({
         type: "form",
         resModel: "partner",
-        arch: `<form><field name="timmy" widget="many2many_tags" placeholder="Placeholder" options="{'create': False }"/></form>`,
+        arch: `<form><field name="timmy" widget="many2many_tags" placeholder="Placeholder" create="False"/></form>`,
     });
 
     await contains(".o_field_many2many_tags input").click();
@@ -1489,7 +1593,7 @@ test("save a record with an empty many2many_tags required", async () => {
 test("set a required many2many_tags and save directly", async () => {
     let def;
     onRpc("web_read", async () => {
-        await def;
+        await def.promise;
     });
     await mountView({
         type: "form",
@@ -1499,19 +1603,17 @@ test("set a required many2many_tags and save directly", async () => {
 
     expect(".o_tag").toHaveCount(0);
 
-    def = new Deferred();
+    def = Promise.withResolvers();
     await clickFieldDropdown("timmy");
     await clickFieldDropdownItem("timmy", "gold");
-    expect(".o_tag").toHaveCount(1);
-    expect(".o_tag").toHaveText("", {
-        message: "The tag is displayed, but the web read is not finished yet",
-    });
+    expect(".o_tag").toHaveCount(0);
 
     await clickSave();
     expect("[name='timmy']").not.toHaveClass("o_field_invalid");
 
     def.resolve();
     await animationFrame();
+    expect(".o_tag").toHaveCount(1);
     expect(".o_tag").toHaveText("gold");
 });
 
@@ -1764,7 +1866,7 @@ test("Many2ManyTagsField doesn't use virtualId for 'web_name_search' on desktop"
             </field>
         </form>`,
     });
-    await contains(".o_field_x2many_list_row_add a").click();
+    await contains(".o_field_x2many_list_row_add button").click();
     expect(".modal").toHaveCount(1);
 
     await contains(".modal [name='name'] input").edit("yop");
@@ -1800,7 +1902,7 @@ test("Many2ManyTagsField doesn't use virtualId for 'web_name_search' on mobile",
             </field>
         </form>`,
     });
-    await contains(".o_field_x2many_list_row_add a").click();
+    await contains(".o_field_x2many_list_row_add button").click();
     expect(".modal").toHaveCount(1);
 
     await contains(".modal [name='name'] input").edit("yop");
@@ -1881,7 +1983,7 @@ test("Many2ManyTagsField selected records still pickable and not duplicable on m
     expect(".o_tag").toHaveCount(0);
 });
 
-test("Many2ManyTagsField with edit_tags option", async () => {
+test("Many2ManyTagsField with on_tag_click option", async () => {
     expect.assertions(4);
 
     PartnerType._views = {
@@ -1904,7 +2006,7 @@ test("Many2ManyTagsField with edit_tags option", async () => {
         resModel: "partner",
         arch: `
             <form>
-                <field name="timmy" widget="many2many_tags" options="{'edit_tags': 1}"/>
+                <field name="timmy" widget="many2many_tags" options="{'on_tag_click': 'open_form'}"/>
             </form>`,
         resId: 1,
     });
@@ -1919,7 +2021,7 @@ test("Many2ManyTagsField with edit_tags option", async () => {
     await clickSave();
 });
 
-test("Many2ManyTagsField with edit_tags option overrides color edition", async () => {
+test("Many2ManyTagsField with on_tag_click option overrides color edition", async () => {
     expect.assertions(9);
 
     PartnerType._views = {
@@ -1942,7 +2044,7 @@ test("Many2ManyTagsField with edit_tags option overrides color edition", async (
         resModel: "partner",
         arch: `
             <form>
-                <field name="timmy" widget="many2many_tags" options="{'edit_tags': 1, 'color_field': 'color'}"/>
+                <field name="timmy" widget="many2many_tags" options="{'on_tag_click': 'open_form', 'color_field': 'color'}"/>
             </form>`,
         resId: 1,
     });
@@ -1962,6 +2064,44 @@ test("Many2ManyTagsField with edit_tags option overrides color edition", async (
     expect(".o_field_widget[name=timmy] .o_badge").toHaveCount(2);
     expect(queryAllTexts(".o_field_widget[name=timmy] .o_badge")).toEqual(["new", "silver"]);
     expect(".o_form_status_indicator_buttons").not.toBeVisible();
+});
+
+test("Many2ManyTagsField: editing tags via dialog on dirty record", async () => {
+    PartnerType._views = {
+        form: `<form><field name="name"/></form>`,
+    };
+    Partner._records[0].timmy = [12];
+    Partner._fields.timmy.onChange = () => {};
+
+    onRpc("get_formview_id", () => false);
+    onRpc("web_save", () => expect.step("web_save"));
+    onRpc("web_read", () => expect.step("web_read"));
+
+    await mountView({
+        type: "form",
+        resModel: "partner",
+        arch: `
+            <form>
+                <field name="name"/>
+                <field name="timmy" widget="many2many_tags" options="{'on_tag_click': 'open_form'}"/>
+            </form>`,
+        resId: 1,
+    });
+
+    expect.verifySteps(["web_read"]);
+
+    await contains(".o_field_widget[name=name] input").edit("new name");
+
+    await contains(".o_tag.badge").click();
+    expect(".o_dialog").toHaveCount(1);
+
+    expect.verifySteps(["web_save", "web_read"]); // save main record, read the dialog
+
+    await contains(".o_dialog .o_field_widget[name=name] input").edit("gold edited");
+    await clickSave();
+
+    expect(".o_dialog").toHaveCount(0);
+    expect.verifySteps(["web_save", "web_read"]); // save dialog, reload main record
 });
 
 test.tags("mobile");
@@ -2037,7 +2177,7 @@ test("Many2ManyTagsField: press backspace multiple times to remove tag", async (
     Partner._records[0].timmy = [12, 14];
     Partner._fields.timmy.onChange = () => {};
 
-    const def = new Deferred();
+    const def = Promise.withResolvers();
     onRpc("onchange", ({ args }) => {
         expect.step(`onchange ${JSON.stringify(args[1].timmy)}`);
     });
@@ -2060,4 +2200,202 @@ test("Many2ManyTagsField: press backspace multiple times to remove tag", async (
     await animationFrame();
     expect(".o_field_many2many_tags .badge").toHaveCount(1);
     expect.verifySteps(["onchange [[3,14]]"]);
+});
+
+test.tags("desktop");
+test("Many2ManyTagsField: keyboard navigation", async () => {
+    // 1. Setup the records with the value already present
+    PartnerType._records = [
+        { id: 12, name: "gold", color: 2 },
+        { id: 14, name: "silver", color: 5 },
+        { id: 15, name: "platinium", color: 10 },
+    ];
+
+    Partner._records[0].timmy = [12, 14, 15];
+
+    await mountView({
+        type: "form",
+        resModel: "partner",
+        arch: `
+            <form>
+                <field name="timmy" widget="many2many_tags" options="{'tag_limit': 2}"/>
+            </form>`,
+        resId: 1,
+    });
+
+    const input = ".o_field_many2many_tags input";
+
+    // 1. Should expand on focus
+    expect(".o_field_many2many_tags .o_tag").toHaveCount(2); // 1 normal tag + 1 counter tag
+    await contains(input).click();
+    expect(".o_field_many2many_tags .o_tag").toHaveCount(3); // 3 normal tags
+
+    // 2. Test RIGHT arrow: Should close dropdown and focus the FIRST tag
+    expect(".o-autocomplete--dropdown-menu").toHaveCount(1);
+    await press("ArrowRight");
+    expect(".o_tag:eq(0)").toBeFocused();
+
+    // Ensure dropdown closed
+    await animationFrame();
+    expect(".o-autocomplete--dropdown-menu").toHaveCount(0);
+
+    // 3. Test LEFT arrow: Should close dropdown and focus the LAST tag
+    await contains(input).click();
+    await press("ArrowLeft");
+    expect(".o_tag:last").toBeFocused();
+
+    // Ensure dropdown closed
+    await animationFrame();
+    expect(".o-autocomplete--dropdown-menu").toHaveCount(0);
+
+    // 4. Test with non-empty input: Focus should NOT move to tags
+    await fieldInput("timmy").focus();
+    await fieldInput("timmy").click();
+    await fieldInput("timmy").edit("gold", { confirm: false });
+
+    // Press ArrowLeft while typing
+    await press("ArrowLeft");
+    expect(input).toBeFocused();
+    expect(".o_tag").not.toBeFocused();
+
+    // Press ArrowRight while typing
+    await press("ArrowRight");
+    await press("ArrowRight");
+    expect(input).toBeFocused();
+    expect(".o_tag").not.toBeFocused();
+
+    // Dropdown should still be visible (filtering)
+    expect(".o-autocomplete--dropdown-menu").toHaveCount(1);
+});
+
+test.tags("desktop");
+test("many2many_tags widget with more records than limit can be edited", async () => {
+    PartnerType._records.push({ id: 15, name: "bronze" }, { id: 16, name: "copper" });
+    Partner._records[0].timmy = [12, 14, 15, 16];
+    await mountView({
+        type: "form",
+        resModel: "partner",
+        resId: 1,
+        arch: `
+            <form>
+                <field name="timmy" widget="many2many_tags" options="{'tag_limit': 3}"/>
+            </form>`,
+    });
+
+    expect(".o_field_many2many_tags .o_tag").toHaveCount(3); // The counter badge also has the .o_tag class
+    expect(".o_field_many2many_tags .o_m2m_avatar_empty").toHaveCount(1); // .o_m2m_avatar_empty is the counter badge
+    expect(".o_field_many2many_tags .o_m2m_avatar_empty").toHaveText("+2"); // 4 records in total, 2 displayed / 2 hidden
+
+    // When editing we should see all elements and many2many drop down should appear
+    expect(".o-autocomplete--dropdown-menu").toHaveCount(0);
+    await contains(".o_field_widget[name='timmy'] .o_field_many2many_selection input").click();
+    expect(".o_field_many2many_tags .o_tag").toHaveCount(4);
+    expect(".o-autocomplete--dropdown-menu").toHaveCount(1);
+});
+
+test.tags("mobile");
+test("many2many_tags widget enforces limit in desktop form view", async () => {
+    PartnerType._records.push({ id: 15, name: "bronze" }, { id: 16, name: "copper" });
+    Partner._records[0].timmy = [12, 14, 15, 16];
+    await mountView({
+        type: "form",
+        resModel: "partner",
+        resId: 1,
+        arch: `
+            <form>
+                <field name="timmy" widget="many2many_tags" options="{'tag_limit': 3}"/>
+            </form>`,
+    });
+
+    expect(".o_field_many2many_tags .o_tag").toHaveCount(3); // The counter badge also has the .o_tag class
+    expect(".o_field_many2many_tags .o_m2m_avatar_empty").toHaveCount(1); // .o_m2m_avatar_empty is the counter badge
+    expect(".o_field_many2many_tags .o_m2m_avatar_empty").toHaveText("+2");
+
+    // When editing we should see all elements and should open a new screen with list of tags
+    await contains(".o_field_widget[name='timmy'] .o_field_many2many_selection input").click();
+    expect("article.o_kanban_record:contains('gold')").toHaveCount(1); // New screen with list of tags
+
+    // When coming back we should see all tags
+    await click(".modal-header button[data-icon='arrow_back']");
+    expect(".o_field_many2many_tags .o_tag").toHaveCount(4);
+});
+
+test.tags("desktop");
+test("many2many_tags limit and edit color on click", async () => {
+    PartnerType._records.push(
+        { id: 15, name: "a", color: 3 },
+        { id: 16, name: "b", color: 4 },
+        { id: 17, name: "c", color: 5 }
+    );
+    Partner._records[0].timmy = [15, 16, 17];
+    await mountView({
+        type: "form",
+        resModel: "partner",
+        resId: 1,
+        arch: `
+            <form>
+                <field name="timmy" widget="many2many_tags" options="{'tag_limit': 2, 'on_tag_click': 'edit_color', 'color_field': 'color'}"/>
+            </form>`,
+    });
+
+    // Show the color list on first click even if tags list is truncated.
+    expect(".o_colorlist").toHaveCount(0);
+    expect(".o_field_many2many_tags .o_tag").toHaveCount(2);
+    await contains("[name=timmy] .o_tag").click();
+    expect(".o_colorlist").toHaveCount(1);
+    expect(".o_field_many2many_tags .o_tag").toHaveCount(3); // Clicking on a tag should also expand all tags
+});
+
+test("Opening many2many_tags in x2many safely retains pending changes", async () => {
+    Partner._views = {
+        form: `<form><field name="name"/></form>`,
+    };
+
+    onRpc("get_formview_id", () => false);
+    onRpc("web_read", ({ model }) => {
+        expect.step(`web_read ${model}`);
+    });
+    onRpc("web_save", ({ model }) => {
+        expect.step(`web_save ${model}`);
+    });
+
+    await mountView({
+        type: "form",
+        resModel: "partner",
+        resId: 1,
+        arch: `
+            <form>
+                <field name="turtles">
+                    <list editable="bottom">
+                        <field name="partner_ids" widget="many2many_tags" options="{'on_tag_click': 'open_form'}"/>
+                        <field name="name"/>
+                    </list>
+                </field>
+            </form>`,
+    });
+
+    expect.verifySteps(["web_read partner"]);
+    expect(queryAllTexts(".o_data_row:eq(0) .o_field_widget[name=partner_ids] .o_tag")).toEqual([
+        "second record",
+        "aaa",
+    ]);
+
+    await contains(".o_data_row:eq(0) .o_data_cell[name=name]").click();
+    await contains(".o_data_row:eq(0) .o_field_widget[name=name] input").edit("dirty turtle");
+
+    await contains(".o_data_row:eq(0) .o_data_cell[name=partner_ids]").click();
+    await contains(".o_tag").click();
+    expect(".o_dialog").toHaveCount(1);
+    expect.verifySteps(["web_read partner"]);
+
+    await contains(".o_dialog .o_field_widget[name=name] input").edit("new tag name");
+    await contains(".o_dialog footer .o_form_button_save").click();
+    expect(".o_dialog").toHaveCount(0);
+    expect.verifySteps(["web_save partner", "web_read turtle"]);
+
+    expect(".o_data_row:eq(0) .o_field_widget[name=name] input").toHaveValue("dirty turtle");
+    expect(queryAllTexts(".o_data_row:eq(0) .o_field_widget[name=partner_ids] .o_tag")).toEqual([
+        "new tag name",
+        "aaa",
+    ]);
 });

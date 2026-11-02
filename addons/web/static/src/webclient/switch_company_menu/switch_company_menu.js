@@ -1,18 +1,20 @@
+import { useSubEnv } from "@web/owl2/utils";
 import { Dropdown } from "@web/core/dropdown/dropdown";
 import { DropdownGroup } from "@web/core/dropdown/dropdown_group";
 import { DropdownItem } from "@web/core/dropdown/dropdown_item";
 import { registry } from "@web/core/registry";
 
-import { Component, useChildSubEnv, useRef, useState } from "@odoo/owl";
+import { Component, proxy, signal } from "@odoo/owl";
 import { useCommand } from "@web/core/commands/command_hook";
 import { _t } from "@web/core/l10n/translation";
 import { symmetricalDifference } from "@web/core/utils/arrays";
-import { useBus, useChildRef, useService } from "@web/core/utils/hooks";
+import { useBus, useService } from "@web/core/utils/hooks";
 import { SwitchCompanyItem } from "@web/webclient/switch_company_menu/switch_company_item";
 import { useHotkey } from "@web/core/hotkeys/hotkey_hook";
 import { useDropdownState } from "@web/core/dropdown/dropdown_hooks";
 import { user, userBus } from "@web/core/user";
 import { router } from "@web/core/browser/router";
+import { CheckBox } from "@web/core/checkbox/checkbox";
 
 function getCompany(cid) {
     return user.allowedCompaniesWithAncestors.find((c) => c.id === cid);
@@ -185,22 +187,22 @@ export class CompanySelector {
 
 export class SwitchCompanyMenu extends Component {
     static template = "web.SwitchCompanyMenu";
-    static components = { Dropdown, DropdownItem, DropdownGroup, SwitchCompanyItem };
-    static props = {};
+    static components = { Dropdown, DropdownItem, DropdownGroup, SwitchCompanyItem, CheckBox };
     static CompanySelector = CompanySelector;
+
+    searchInputRef = signal.ref();
 
     setup() {
         this.dropdown = useDropdownState();
         this.user = user;
         const actionService = useService("action");
 
-        this.companySelector = useState(
+        this.companySelector = proxy(
             new this.constructor.CompanySelector(actionService, this.dropdown)
         );
-        useChildSubEnv({ companySelector: this.companySelector });
+        useSubEnv({ companySelector: this.companySelector });
 
-        this.searchInputRef = useRef("inputRef");
-        this.state = useState({});
+        this.state = proxy({});
         this.resetState();
 
         useHotkey("control+enter", () => this.confirm(), {
@@ -213,8 +215,9 @@ export class SwitchCompanyMenu extends Component {
             this.companySelector.reset();
         });
 
-        this.containerRef = useChildRef();
+        this.containerRef = signal.ref();
         this.navigationOptions = {
+            shouldFocusChildInput: false,
             hotkeys: {
                 space: (navigator) => {
                     const navItem = navigator.activeItem;
@@ -257,28 +260,19 @@ export class SwitchCompanyMenu extends Component {
         );
     }
 
-    get selectAllClass() {
-        if (
+    get isAllCompaniesSelected() {
+        return (
+            this.visibleCompanies.length > 0 &&
             this.visibleCompanies.every((c) => this.companySelector.isCompanySelected(c.company.id))
-        ) {
-            return "btn-link text-primary";
-        } else {
-            return "btn-link text-secondary";
-        }
+        );
     }
 
-    get selectAllIcon() {
-        if (
-            this.visibleCompanies.every((c) => this.companySelector.isCompanySelected(c.company.id))
-        ) {
-            return "fa-check-square text-primary";
-        } else if (
-            this.visibleCompanies.some((c) => this.companySelector.isCompanySelected(c.company.id))
-        ) {
-            return "fa-minus-square-o";
-        } else {
-            return "fa-square-o";
-        }
+    get isIndeterminate() {
+        return this.hasSelectedCompanies && !this.isAllCompaniesSelected;
+    }
+
+    get checkboxTitleLabel() {
+        return this.hasSelectedCompanies ? _t("Deselect all") : _t("Select all");
     }
 
     computeVisibleCompanies() {
@@ -306,13 +300,11 @@ export class SwitchCompanyMenu extends Component {
 
     resetState() {
         this.state.searchFilter = "";
-        this.state.showFilter = this.hasLotsOfCompanies;
         this.state.visibleCompanies = this.computeVisibleCompanies();
     }
 
     onSearch(ev) {
         this.state.searchFilter = ev.target.value;
-        this.state.showFilter = true;
         this.state.visibleCompanies = this.computeVisibleCompanies();
     }
 
@@ -328,14 +320,14 @@ export class SwitchCompanyMenu extends Component {
 
     handleDropdownChange(isOpen) {
         if (isOpen) {
-            if (this.searchInputRef.el) {
-                this.searchInputRef.el.focus();
+            if (this.searchInputRef()) {
+                this.searchInputRef().focus();
             }
 
-            if (this.containerRef.el) {
+            if (this.containerRef()) {
                 // Fixes the container width so it doesn't change when searching.
-                const currentWidth = this.containerRef.el.getBoundingClientRect().width;
-                this.containerRef.el.style.width = currentWidth + "px";
+                const currentWidth = this.containerRef().getBoundingClientRect().width;
+                this.containerRef().style.width = currentWidth + "px";
             }
         } else {
             this.resetState();

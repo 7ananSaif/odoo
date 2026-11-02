@@ -8,12 +8,7 @@ class AccountChartTemplate(models.AbstractModel):
 
     @template('uy')
     def _get_uy_template_data(self):
-        return {
-            'property_account_receivable_id': 'uy_code_11300',
-            'property_account_payable_id': 'uy_code_21100',
-            'code_digits': '6',
-            'name': _('Uruguayan Generic Chart of Accounts'),
-        }
+        return {}
 
     @template('uy', 'res.company')
     def _get_uy_res_company(self):
@@ -28,14 +23,20 @@ class AccountChartTemplate(models.AbstractModel):
                 'expense_currency_exchange_account_id': 'uy_code_5302',
                 'account_journal_early_pay_discount_loss_account_id': 'uy_code_5303',
                 'account_journal_early_pay_discount_gain_account_id': 'uy_code_4303',
+                'account_discount_expense_allocation_id': 'uy_code_5303',
+                'account_discount_income_allocation_id': 'uy_code_4303',
                 'account_sale_tax_id': 'vat1',
                 'account_purchase_tax_id': 'vat4',
                 'deferred_expense_account_id': 'uy_code_11407',
                 'deferred_revenue_account_id': 'uy_code_21321',
                 'income_account_id': 'uy_code_4102',
-                'expense_account_id': 'uy_code_5100',
-                'account_stock_journal_id': 'inventory_valuation',
-                'account_stock_valuation_id': 'uy_code_11704',
+                'expense_account_id': 'uy_code_5401',
+                'receivable_account_id': 'uy_code_11300',
+                'payable_account_id': 'uy_code_21100',
+                'downpayment_account_id': 'uy_code_21301',
+                'account_stock_valuation_id': 'uy_code_11701',
+                'account_production_wip_account_id': 'uy_code_11703',
+                'account_production_wip_overhead_account_id': 'uy_code_11731',
             },
         }
 
@@ -45,29 +46,28 @@ class AccountChartTemplate(models.AbstractModel):
             'sale': {
                 "name": _("Sales"),
                 "code": "0001",
-                "l10n_latam_use_documents": True,
                 "refund_sequence": False,
             },
             'purchase': {
                 "name": _("Purchases"),
                 "code": "0002",
-                "l10n_latam_use_documents": True,
                 "refund_sequence": False,
+                "default_account_id": 'uy_code_5401',
             },
         }
-
-    def _load(self, template_code, company, install_demo, force_create=True):
-        """ Set companies rut as the company identification type  after install the chart of account,
-        this one is the uruguayan vat """
-        res = super()._load(template_code, company, install_demo, force_create)
-        if template_code == 'uy':
-            company.partner_id.l10n_latam_identification_type_id = self.env.ref('l10n_uy.it_rut')
-        return res
 
     @template('uy', 'account.account')
     def _get_uy_account_account(self):
         return {
-            'uy_code_11704': {
+            'uy_code_11701': {
                 'account_stock_variation_id': 'uy_code_5401',
             },
+            'uy_code_12401': {'asset_depreciation_account_id': 'uy_code_12420', 'asset_expense_account_id': 'uy_code_5500'},
+            'uy_code_12402': {'asset_depreciation_account_id': 'uy_code_12421', 'asset_expense_account_id': 'uy_code_5500'},
+            'uy_code_12403': {'asset_depreciation_account_id': 'uy_code_12422', 'asset_expense_account_id': 'uy_code_5500'},
+            'uy_code_12404': {'asset_depreciation_account_id': 'uy_code_12423', 'asset_expense_account_id': 'uy_code_5500'},
+            'uy_code_12405': {'asset_depreciation_account_id': 'uy_code_12422', 'asset_expense_account_id': 'uy_code_5500'},
+            'uy_code_12407': {'asset_depreciation_account_id': 'uy_code_12421', 'asset_expense_account_id': 'uy_code_5500'},
+            'uy_code_12408': {'asset_depreciation_account_id': 'uy_code_12520', 'asset_expense_account_id': 'uy_code_5500'},
+            'uy_code_12409': {'asset_depreciation_account_id': 'uy_code_12423', 'asset_expense_account_id': 'uy_code_5500'},
         }

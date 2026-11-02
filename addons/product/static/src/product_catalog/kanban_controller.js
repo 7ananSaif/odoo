@@ -5,14 +5,12 @@ import { useDebounced } from "@web/core/utils/timing";
 import { _t } from "@web/core/l10n/translation";
 
 export class ProductCatalogKanbanController extends KanbanController {
-    static template = "ProductCatalogKanbanController";
-
     setup() {
         super.setup();
         this.orm = useService("orm");
         this.orderId = this.props.context.order_id;
         this.orderResModel = this.props.context.product_catalog_order_model;
-        this.backToQuotationDebounced = useDebounced(this.backToQuotation, 500)
+        this.backToQuotationDebounced = useDebounced(this.backToQuotation.bind(this), 500)
 
         onWillStart(() => this.onWillStart());
     }
@@ -63,5 +61,12 @@ export class ProductCatalogKanbanController extends KanbanController {
                 res_id: this.orderId,
             });
         }
+        this.scrollToLastLine();
+    }
+
+    scrollToLastLine() {
+        const childField = this.props.context.child_field;
+        const lines = document.querySelectorAll(`[name="${childField}"] [data-id]`);
+        lines[lines.length - 1]?.scrollIntoView({ behavior: "smooth", block: "end" });
     }
 }

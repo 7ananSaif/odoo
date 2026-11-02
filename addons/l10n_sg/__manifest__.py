@@ -20,19 +20,24 @@ This module add, for accounting:
     'depends': [
         'account_qr_code_emv',
         'account',
+        'account_edi_ubl_cii',
+        'account_peppol',
     ],
     'auto_install': ['account'],
     'data': [
+        'data/account.account.tag.csv',
         'data/l10n_sg_chart_data.xml',
         'data/account_tax_report_data.xml',
         'views/account_invoice_view.xml',
+        'views/report_invoice.xml',
+        'views/report_templates.xml',
         'views/res_bank_views.xml',
-        'views/res_company_view.xml',
-        'views/res_partner_view.xml',
+        'views/res_config_settings_views.xml',
     ],
     'demo': [
         'demo/demo_company.xml',
     ],
-    'post_init_hook': '_preserve_tag_on_taxes',
+    'post_init_hook': '_l10n_sg_post_init',
+    'uninstall_hook': '_l10n_sg_uninstall',
     'license': 'LGPL-3',
 }

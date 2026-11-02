@@ -1,4 +1,6 @@
 from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
+from odoo.tools.sql import column_exists, create_column
 
 
 class AccountMove(models.Model):
@@ -16,13 +18,15 @@ class AccountMove(models.Model):
     l10n_es_edi_verifactu_state = fields.Selection(
         string="Veri*Factu Status",
         selection=[
+            ('invalid', "Invalid"),
             ('rejected', "Rejected"),
             ('registered_with_errors', "Registered with Errors"),
             ('accepted', "Accepted"),
             ('cancelled', "Cancelled"),
         ],
         compute='_compute_l10n_es_edi_verifactu_state', store=True,
-        help="""- Rejected: Successfully sent to the AEAT, but it was rejected during validation
+        help="""- Invalid: The document could not be generated; nothing was sent to the AEAT
+                - Rejected: Successfully sent to the AEAT, but it was rejected during validation
                 - Registered with Errors: Registered at the AEAT, but the AEAT has some issues with the sent document
                 - Accepted: Registered by the AEAT without errors
                 - Cancelled: Registered by the AEAT as cancelled""",
@@ -39,20 +43,6 @@ class AccountMove(models.Model):
         string="Veri*Factu QR Code",
         compute='_compute_l10n_es_edi_verifactu_qr_code',
     )
-    l10n_es_edi_verifactu_show_cancel_button = fields.Boolean(
-        string="Show Veri*Factu Cancel Button",
-        compute='_compute_l10n_es_edi_verifactu_show_cancel_button',
-    )
-    l10n_es_edi_verifactu_available_clave_regimens = fields.Char(
-        string="Available Veri*Factu Regime Key",
-        compute='_compute_l10n_es_edi_verifactu_available_clave_regimens',
-        help="Technical field to enable a dynamic selection of the field \"Veri*Factu Regime Key\"",
-    )
-    l10n_es_edi_verifactu_clave_regimen = fields.Selection(
-        string="Veri*Factu Regime Key",
-        selection='_l10n_es_edi_verifactu_clave_regimen_selection',
-        compute='_compute_l10n_es_edi_verifactu_clave_regimen', store=True, readonly=False,
-    )
     l10n_es_edi_verifactu_substituted_entry_id = fields.Many2one(
         comodel_name='account.move',
         string="Substitution of",
@@ -66,40 +56,18 @@ class AccountMove(models.Model):
         comodel_name='account.move',
         inverse_name='l10n_es_edi_verifactu_substituted_entry_id',
     )
-    l10n_es_edi_verifactu_refund_reason = fields.Selection(
-        selection=[
-            ('R1', "R1: Art 80.1 and 80.2 and error of law"),
-            ('R2', "R2: Art. 80.3"),
-            ('R3', "R3: Art. 80.4"),
-            ('R4', "R4: Rest"),
-            ('R5', "R5: Corrective invoices concerning simplified invoices"),
-        ],
-        string="Veri*Factu Refund Reason",
-        copy=False,
-    )
 
-    @api.model
-    def _l10n_es_edi_verifactu_clave_regimen_selection(self):
-        return [
-            # There are different possibilities for the ClaveRegimen field
-            # depending on the Impuesto field (IVA / IGIC)
-            # Format: '{clave_regimen}' or '{clave_regimen}_{l10n_es_applicability}'
-            #         - The first format is in case the code and label are the same in both lists
-            #         - The second format is in case the code, label pair is only in one of the lists
-            # VAT & IGIC
-            ('01', _("General regime operation")),
-            ('02', _("Export")),
-            ('11', _("Leasing of business premises")),
-            # VAT only
-            ('17_iva', _("Operation under one of the regimes provided for in Chapter XI of Title IX (OSS and IOSS).")),
-            ('18_iva', _("Recargo de equivalencia")),
-            ('19_iva', _("Operations of activities included in the Special Regime for Agriculture, Livestock and Fishing (REAGYP)")),
-            ('20_iva', _("Simplified Regime")),
-            # IGIC only
-            ('17_igic', _("Special retailer regime")),
-        ]
+    def _auto_init(self):
+        """Create column `l10n_es_edi_verifactu_state` to avoid computing it during the
+        installation of the module.
+        """
+        if not column_exists(self.env.cr, 'account_move', 'l10n_es_edi_verifactu_state'):
+            create_column(self.env.cr, 'account_move', 'l10n_es_edi_verifactu_state', 'varchar')
 
-    def _l10n_es_edi_verifactu_get_tax_applicability(self):
+        return super()._auto_init()
+
+    def _l10n_es_get_tax_applicability(self):
+        # EXTENDS 'l10n_es'
         """
         Currently we only support a single Veri*Factu Tax Applicability per Veri*Factu document.
         In `_check_record_values` of model 'l10n_es_edi_verifactu.document' we check:
@@ -109,56 +77,7 @@ class AccountMove(models.Model):
         if not self.l10n_es_edi_verifactu_required:
             return False
 
-        taxes = self.invoice_line_ids.tax_ids.flatten_taxes_hierarchy()
-        return taxes._l10n_es_edi_verifactu_get_applicability()
-
-    @api.model
-    def _l10n_es_edi_verifactu_get_available_clave_regimens_map(self):
-        """
-        Return dictionary (Veri*Factu Tax Applicability -> set(operation types))
-        """
-        clave_regimen_selection = self._l10n_es_edi_verifactu_clave_regimen_selection()
-        return {
-            '01': {ot for ot, _desc in clave_regimen_selection if len(ot.removesuffix('_iva')) == 2},
-            '03': {ot for ot, _desc in clave_regimen_selection if len(ot.removesuffix('_igic')) == 2},
-        }
-
-    def _l10n_es_edi_verifactu_get_suggested_clave_regimen(self):
-        """
-        Currently we only support a single Clave Regimen per Veri*Factu document.
-        """
-        self.ensure_one()
-
-        tax_applicability = self._l10n_es_edi_verifactu_get_tax_applicability()
-        if not tax_applicability:
-            return False
-
-        taxes = self.invoice_line_ids.tax_ids.flatten_taxes_hierarchy()
-        special_regime = self.company_id.l10n_es_edi_verifactu_special_vat_regime
-        return taxes._l10n_es_edi_verifactu_get_suggested_clave_regimen(
-            special_regime, forced_tax_applicability=tax_applicability
-        )
-
-    @api.depends('invoice_line_ids.tax_ids')
-    def _compute_l10n_es_edi_verifactu_available_clave_regimens(self):
-        available_clave_regimens = {
-            tax_applicability: ','.join(clave_regimens)
-            for tax_applicability, clave_regimens in self._l10n_es_edi_verifactu_get_available_clave_regimens_map().items()
-        }
-        for move in self:
-            tax_applicability = move._l10n_es_edi_verifactu_get_tax_applicability()
-            move.l10n_es_edi_verifactu_available_clave_regimens = available_clave_regimens.get(tax_applicability, False)
-
-    @api.depends('invoice_line_ids.tax_ids')
-    def _compute_l10n_es_edi_verifactu_clave_regimen(self):
-        # Currently we only support one operation type for the whole invoice.
-        available_clave_regimens = self._l10n_es_edi_verifactu_get_available_clave_regimens_map()
-        for move in self:
-            clave_regimen = move.l10n_es_edi_verifactu_clave_regimen
-            tax_applicability = move._l10n_es_edi_verifactu_get_tax_applicability()
-            if clave_regimen not in available_clave_regimens.get(tax_applicability, set()):
-                clave_regimen = move._l10n_es_edi_verifactu_get_suggested_clave_regimen()
-            move.l10n_es_edi_verifactu_clave_regimen = clave_regimen
+        return super()._l10n_es_get_tax_applicability()
 
     @api.depends('l10n_es_edi_verifactu_document_ids', 'l10n_es_edi_verifactu_document_ids.state')
     def _compute_l10n_es_edi_verifactu_state(self):
@@ -203,11 +122,6 @@ class AccountMove(models.Model):
             move.l10n_es_edi_verifactu_warning = warning
             move.l10n_es_edi_verifactu_warning_level = warning_level
 
-    @api.depends('l10n_es_edi_verifactu_state')
-    def _compute_l10n_es_edi_verifactu_show_cancel_button(self):
-        for move in self:
-            move.l10n_es_edi_verifactu_show_cancel_button = move.l10n_es_edi_verifactu_state in ('registered_with_errors', 'accepted')
-
     @api.depends('l10n_es_edi_verifactu_state', 'l10n_es_edi_verifactu_document_ids',
                  'l10n_es_edi_verifactu_document_ids.state', 'l10n_es_edi_verifactu_document_ids.json_attachment_id')
     def _compute_show_reset_to_draft_button(self):
@@ -235,6 +149,10 @@ class AccountMove(models.Model):
         }
 
     def l10n_es_edi_verifactu_button_cancel(self):
+        if self.l10n_es_edi_verifactu_state not in ('registered_with_errors', 'accepted'):
+            raise ValidationError(self.env._(
+                "Veri*Factu Cancellation Request is only allowed for the invoice in either 'Registered with Errors' or 'Accepted' Veri*Factu Status."
+            ))
         self._l10n_es_edi_verifactu_mark_for_next_batch(cancellation=True)
 
     def _l10n_es_edi_verifactu_check(self, cancellation=False):
@@ -244,27 +162,25 @@ class AccountMove(models.Model):
         if self.state != 'posted':
             errors.append(_("The journal entry has to be posted."))
 
-        tax_applicability = self._l10n_es_edi_verifactu_get_tax_applicability()
-        selected_clave_regimen = self.l10n_es_edi_verifactu_clave_regimen
-        available_clave_regimens_map = self._l10n_es_edi_verifactu_get_available_clave_regimens_map()
-        if selected_clave_regimen and selected_clave_regimen not in available_clave_regimens_map.get(tax_applicability, set()):
-            errors.append(_("The Veri*Factu Regime Key is not compatible with the Veri*Factu Tax Applicability."))
-
         return errors
 
     def _l10n_es_edi_verifactu_get_record_values(self, cancellation=False):
         self.ensure_one()
 
         company = self.company_id
+        obligado_partner = self._l10n_es_edi_verifactu_get_obligado_partner()
         document_type = 'cancellation' if cancellation else 'submission'
         vals = {
             'company': company,
             'record': self,
+            'obligado_partner': obligado_partner,
             'cancellation': cancellation,
+            'is_self_billing': self.journal_id.is_self_billing,
             'errors': self._l10n_es_edi_verifactu_check(cancellation=cancellation),
             'document_vals': {
                 'move_id': self.id,
                 'company_id': company.id,
+                'obligado_partner_id': obligado_partner.id,
                 'document_type': document_type,
             },
         }
@@ -277,16 +193,14 @@ class AccountMove(models.Model):
         # again after a cancellation (else we get the error '[3000] Registro de facturación duplicado.').
         rejected_before = documents._get_last(document_type).state == 'rejected'
 
-        tax_applicability = self._l10n_es_edi_verifactu_get_tax_applicability()
-        selected_clave_regimen = self.l10n_es_edi_verifactu_clave_regimen
-        clave_regimen = selected_clave_regimen and selected_clave_regimen.split('_', 1)[0]
+        tax_applicability = self._l10n_es_get_tax_applicability()
         substituted_move = self.l10n_es_edi_verifactu_substituted_entry_id
         reversed_move = self.reversed_entry_id
 
         move_type = self.move_type
         if move_type == 'out_invoice' and substituted_move:
             verifactu_move_type = 'correction_substitution'
-        elif move_type == 'out_invoice':
+        elif move_type in ['out_invoice', 'in_invoice']:
             verifactu_move_type = 'invoice'
         elif move_type == 'out_refund' and reversed_move.l10n_es_edi_verifactu_substitution_move_ids:
             verifactu_move_type = 'reversal_for_substitution'
@@ -300,20 +214,19 @@ class AccountMove(models.Model):
             'delivery_date': self.delivery_date,
             'description': self.invoice_origin[:500] if self.invoice_origin else None,
             'invoice_date': self.invoice_date,
-            'is_simplified': self.l10n_es_is_simplified,
+            'is_simplified': self.l10n_es_invoice_type in ('F2', 'R5'),
             'move_type': move_type,
             'verifactu_move_type': verifactu_move_type,
             'sign': -1 if move_type == 'out_refund' else 1,
             'name': self.name,
             'partner': self.commercial_partner_id,
-            'refund_reason': self.l10n_es_edi_verifactu_refund_reason,
+            'invoice_type': self.l10n_es_invoice_type,
             'refunded_document': reversed_move.l10n_es_edi_verifactu_document_ids._get_last('submission'),
             'substituted_document': substituted_move.l10n_es_edi_verifactu_document_ids._get_last('submission'),
             'substituted_document_reversal_document': substituted_move.reversal_move_ids.l10n_es_edi_verifactu_document_ids._get_last('submission'),
             'documents': documents,
             'record_identifier': documents._get_last('submission')._get_record_identifier(),
             'l10n_es_applicability': tax_applicability,
-            'clave_regimen': clave_regimen or None,
         })
 
         base_amls = self.line_ids.filtered(lambda x: x.display_type == 'product')
@@ -343,3 +256,39 @@ class AccountMove(models.Model):
         document_map = self._l10n_es_edi_verifactu_create_documents(cancellation=cancellation)
         self.env['l10n_es_edi_verifactu.document'].trigger_next_batch()
         return document_map
+
+    # EXTENDS account_move
+    @api.depends('move_type', 'state', 'journal_id.is_self_billing')
+    def _compute_display_send_button(self):
+        super()._compute_display_send_button()
+        for move in self:
+            if (
+                move.move_type in ['in_invoice', 'in_refund']
+                and move.state == 'posted'
+                and move.journal_id.is_self_billing
+                and move.company_id.account_fiscal_country_id.code == 'ES'
+                and move.company_id.l10n_es_edi_verifactu_required
+            ):
+                move.display_send_button = True
+
+    def _l10n_es_edi_verifactu_get_obligado_partner(self):
+        """Return the partner acting as ObligadoEmision for this document.
+        For regular invoices this is always the company's own partner.
+        Overridden for self-billing vendor bills.
+        """
+        self.ensure_one()
+        if self.journal_id.is_self_billing:
+            return self.commercial_partner_id
+        return self.company_id.partner_id
+
+    def _reverse_moves(self, default_values_list=None, cancel=False):
+        default_values_list = default_values_list or [{}] * len(self)
+        for move, default_values in zip(self, default_values_list):
+            # `cancel` marks the cancellation half of a "modify" (substitution) flow; it keeps the
+            # original's invoice type (F1/F2) instead of a rectificativa (R1-R5).
+            if cancel:
+                default_values['l10n_es_invoice_type'] = 'F2' if move.l10n_es_invoice_type in ('F2', 'R5') else 'F1'
+        return super()._reverse_moves(
+            default_values_list=default_values_list,
+            cancel=cancel,
+        )

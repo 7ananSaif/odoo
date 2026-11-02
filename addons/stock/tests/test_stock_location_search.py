@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo.tests import common
+from odoo.tests import tagged, common
 
 
 class TestStockLocationSearch(common.TransactionCase):

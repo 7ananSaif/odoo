@@ -25,14 +25,11 @@ class TestProjectSharingWithSms(TestProjectSharingCommon, SMSCommon):
             'body': '{{ object.name }}',
             'model_id': cls.env['ir.model'].sudo().search([('model', '=', 'project.project')]).id,
         })
-        cls.project_stage_with_sms = cls.project_portal.stage_id.browse(2)
+        cls.project_stage_with_sms = cls.env.ref('project.project_project_stage_1')
         cls.project_stage_with_sms.write({'sms_template_id': cls.sms_template_2.id})
-
-        cls.project_portal.write({
-            'collaborator_ids': [
-                Command.create({'partner_id': cls.user_portal.partner_id.id}),
-            ],
-        })
+        cls.project_portal.collaborator_ids.filtered(
+            lambda c: c.partner_id == cls.user_portal.partner_id
+        ).write({'access_mode': 'advanced_edit'})
         cls.project_portal.partner_id.phone = cls.random_numbers[0]
 
     def test_portal_user_can_change_stage_with_sms_template(self):

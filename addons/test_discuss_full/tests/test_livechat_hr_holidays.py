@@ -3,11 +3,10 @@
 from dateutil.relativedelta import relativedelta
 
 from odoo import Command, fields
-from odoo.tests.common import HttpCase, tagged
+from odoo.tests.common import HttpCase
 from odoo.addons.mail.tests.common import MailCommon
 
 
-@tagged("post_install", "-at_install")
 class TestLivechatHrHolidays(HttpCase, MailCommon):
     """Tests for bridge between im_livechat and hr_holidays modules."""
 
@@ -15,14 +14,21 @@ class TestLivechatHrHolidays(HttpCase, MailCommon):
     def setUpClass(cls):
         super().setUpClass()
         cls.env["mail.presence"]._update_presence(cls.user_employee)
-        leave_type = cls.env["hr.leave.type"].create(
-            {"name": "Legal Leaves", "requires_allocation": False, "time_type": "leave"}
+        work_entry_type = cls.env['hr.work.entry.type'].create(
+            {
+                "name": "Legal Leaves",
+                "code": "Legal Leaves",
+                "requires_allocation": False,
+                "count_as": "absence",
+                'request_unit': 'day',
+                'unit_of_measure': 'day',
+            }
         )
         employee = cls.env["hr.employee"].create({"user_id": cls.user_employee.id})
         cls.env["hr.leave"].with_context(leave_skip_state_check=True).create(
             {
                 "employee_id": employee.id,
-                "holiday_status_id": leave_type.id,
+                "work_entry_type_id": work_entry_type.id,
                 "request_date_from": fields.Datetime.today() + relativedelta(days=-2),
                 "request_date_to": fields.Datetime.today() + relativedelta(days=2),
                 "state": "validate",
@@ -36,7 +42,7 @@ class TestLivechatHrHolidays(HttpCase, MailCommon):
         livechat_channel = self.env["im_livechat.channel"].create(
             {"name": "support", "user_ids": [Command.link(self.user_employee.id)]}
         )
-        self.assertEqual(self.user_employee.im_status, "leave_online")
+        self.assertTrue(self.user_employee.leave_date_to)
         self.assertEqual(livechat_channel.available_operator_ids, self.user_employee)
 
     def test_operator_limit_on_leave(self):
@@ -50,5 +56,5 @@ class TestLivechatHrHolidays(HttpCase, MailCommon):
             }
         )
         self.make_jsonrpc_request("/im_livechat/get_session", {"channel_id": livechat_channel.id})
-        self.assertEqual(self.user_employee.im_status, "leave_online")
+        self.assertTrue(self.user_employee.leave_date_to)
         self.assertFalse(livechat_channel.available_operator_ids)

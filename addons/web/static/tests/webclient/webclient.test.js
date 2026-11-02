@@ -2,12 +2,7 @@ import { expect, test } from "@odoo/hoot";
 import { animationFrame } from "@odoo/hoot-mock";
 import { Component, xml } from "@odoo/owl";
 
-import {
-    contains,
-    makeMockEnv,
-    mountWithCleanup,
-    patchWithCleanup,
-} from "@web/../tests/web_test_helpers";
+import { contains, mountWithCleanup, patchWithCleanup } from "@web/../tests/web_test_helpers";
 import { registry } from "@web/core/registry";
 import { WebClient } from "@web/webclient/webclient";
 
@@ -19,14 +14,12 @@ test("can be rendered", async () => {
 
 test("can render a main component", async () => {
     class MyComponent extends Component {
-        static props = {};
         static template = xml`<span class="chocolate">MyComponent</span>`;
     }
 
-    const env = await makeMockEnv();
     registry.category("main_components").add("mycomponent", { Component: MyComponent });
 
-    await mountWithCleanup(WebClient, { env });
+    await mountWithCleanup(WebClient);
 
     expect(`.chocolate`).toHaveCount(1);
 });
@@ -34,8 +27,7 @@ test("can render a main component", async () => {
 test.tags("desktop");
 test("control-click <a href/> in a standalone component", async () => {
     class MyComponent extends Component {
-        static props = {};
-        static template = xml`<a href="#" class="MyComponent" t-on-click="onclick">Some link</a>`;
+        static template = xml`<a href="#" class="MyComponent" t-on-click="this.onclick">Some link</a>`;
 
         /** @param {MouseEvent} ev */
         onclick(ev) {
@@ -75,8 +67,7 @@ test("control-click propagation stopped on <a href/>", async () => {
     });
 
     class MyComponent extends Component {
-        static props = {};
-        static template = xml`<a href="#" class="MyComponent" t-on-click="onclick">Some link</a>`;
+        static template = xml`<a href="#" class="MyComponent" t-on-click="this.onclick">Some link</a>`;
 
         /** @param {MouseEvent} ev */
         onclick(ev) {

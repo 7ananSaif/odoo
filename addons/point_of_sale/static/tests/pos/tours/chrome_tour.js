@@ -1,15 +1,14 @@
 import * as ProductScreen from "@point_of_sale/../tests/pos/tours/utils/product_screen_util";
-import * as ReceiptScreen from "@point_of_sale/../tests/pos/tours/utils/receipt_screen_util";
+import * as FeedbackScreen from "@point_of_sale/../tests/pos/tours/utils/feedback_screen_util";
 import * as Dialog from "@point_of_sale/../tests/generic_helpers/dialog_util";
 import * as CashMoveList from "@point_of_sale/../tests/pos/tours/utils/cash_move_list_util";
 import * as PaymentScreen from "@point_of_sale/../tests/pos/tours/utils/payment_screen_util";
 import * as TicketScreen from "@point_of_sale/../tests/pos/tours/utils/ticket_screen_util";
 import * as Chrome from "@point_of_sale/../tests/pos/tours/utils/chrome_util";
 import * as Utils from "@point_of_sale/../tests/pos/tours/utils/common";
-import { refresh } from "@point_of_sale/../tests/generic_helpers/utils";
+import { refresh, negateStep } from "@point_of_sale/../tests/generic_helpers/utils";
 import { registry } from "@web/core/registry";
-import { inLeftSide } from "@point_of_sale/../tests/pos/tours/utils/common";
-import * as PartnerList from "@point_of_sale/../tests/pos/tours/utils/partner_list_util";
+import { inLeftSide, expectActionTarget } from "@point_of_sale/../tests/pos/tours/utils/common";
 
 registry.category("web_tour.tours").add("ChromeTour", {
     steps: () =>
@@ -17,10 +16,11 @@ registry.category("web_tour.tours").add("ChromeTour", {
             Chrome.startPoS(),
             Dialog.confirm("Open Register"),
             Chrome.clickMenuButton(),
-            Chrome.clickMenuDropdownOption("Cash In/Out"),
+            Chrome.clickMenuDialogOption("Cash In/Out"),
             Chrome.fillTextArea(".cash-reason", "MOBT"),
             Dialog.confirm(),
             Chrome.clickMenuButton(),
+            negateStep(Chrome.orderTrackerShown()),
 
             // Order 1 is at Product Screen
             ProductScreen.addOrderline("Desk Pad", "1", "2", "2.0"),
@@ -35,18 +35,18 @@ registry.category("web_tour.tours").add("ChromeTour", {
             Chrome.clickOrders(),
             TicketScreen.checkStatus("002", "Payment"),
 
-            // Order 3 is at Receipt Screen
+            // Order 3 is paid
             Chrome.createFloatingOrder(),
             ProductScreen.addOrderline("Whiteboard Pen", "5", "6", "30.0"),
             ProductScreen.clickPayButton(),
             PaymentScreen.clickPaymentMethod("Bank", true, { remaining: "0.0" }),
             PaymentScreen.validateButtonIsHighlighted(true),
             PaymentScreen.clickValidate(),
-            ReceiptScreen.isShown(),
-            Chrome.clickOrders(),
-            TicketScreen.checkStatus("003", "Receipt"),
+            FeedbackScreen.isShown(),
+            FeedbackScreen.clickScreen(),
 
             // Select order 1, should be at Product Screen
+            Chrome.clickOrders(),
             TicketScreen.selectOrder("001"),
             TicketScreen.loadSelectedOrder(),
             ProductScreen.productIsDisplayed("Desk Pad"),
@@ -62,12 +62,6 @@ registry.category("web_tour.tours").add("ChromeTour", {
             PaymentScreen.emptyPaymentlines("12.0"),
             PaymentScreen.validateButtonIsHighlighted(false),
 
-            // Select order 3, should be at Receipt Screen
-            Chrome.clickOrders(),
-            TicketScreen.selectOrder("003"),
-            TicketScreen.loadSelectedOrder(),
-            ReceiptScreen.totalAmountContains("30.0"),
-
             // Pay order 1, with change
             Chrome.clickOrders(),
             TicketScreen.selectOrder("001"),
@@ -78,26 +72,19 @@ registry.category("web_tour.tours").add("ChromeTour", {
             PaymentScreen.enterPaymentLineAmount("Cash", "20", true, { change: "18.0" }),
             PaymentScreen.validateButtonIsHighlighted(true),
             PaymentScreen.clickValidate(),
-            ReceiptScreen.totalAmountContains("2.0"),
+            FeedbackScreen.isShown(),
+            FeedbackScreen.checkTicketData({
+                total_amount: "2.0",
+            }),
 
-            // Order 1 now should have Receipt status
-            Chrome.clickOrders(),
-            TicketScreen.checkStatus("001", "Receipt"),
-
-            // Select order 3, should still be at Receipt Screen
-            // and the total amount doesn't change.
-            TicketScreen.selectOrder("003"),
-            TicketScreen.loadSelectedOrder(),
-            ReceiptScreen.totalAmountContains("30.0"),
-
-            // click next screen on order 3
+            // click next screen on order 1
             // then delete the new empty order
-            ReceiptScreen.clickNextOrder(),
+            FeedbackScreen.clickNextOrder(),
             ProductScreen.orderIsEmpty(),
             Chrome.clickOrders(),
             TicketScreen.deleteOrder("004"),
 
-            // After deleting order 1 above, order 2 became
+            // After paying order 1 above, order 2 became
             // the 1st-row order and it has payment status
             TicketScreen.nthRowContains(1, "Payment"),
             TicketScreen.deleteOrder("002"),
@@ -112,11 +99,18 @@ registry.category("web_tour.tours").add("ChromeTour", {
             PaymentScreen.clickPaymentMethod("Bank"),
             PaymentScreen.clickInvoiceButton(),
             PaymentScreen.clickValidate(),
-            ReceiptScreen.isShown(),
-            { trigger: ".receipt-screen .pos-config-name:contains(Shop)" },
+            FeedbackScreen.isShown(),
+            FeedbackScreen.checkTicketData({
+                cssRules: [
+                    {
+                        css: ".pos-config-name",
+                        text: "Shop",
+                    },
+                ],
+            }),
 
             // Cancelling a floating order should remove it from the floating orders list.
-            ReceiptScreen.clickNextOrder(),
+            FeedbackScreen.clickNextOrder(),
             Chrome.hasFloatingOrder("004"),
         ].flat(),
 });
@@ -130,13 +124,21 @@ registry.category("web_tour.tours").add("OrderModificationAfterValidationError",
             ProductScreen.clickPayButton(),
             PaymentScreen.clickPaymentMethod("Bank", true, { remaining: "0.0" }),
             PaymentScreen.clickValidate(),
+            FeedbackScreen.isShown(),
 
             // Dialog showing the error
             Dialog.confirm(),
 
-            PaymentScreen.clickBack(),
-            { ...ProductScreen.back(), isActive: ["mobile"] },
+            FeedbackScreen.clickNextOrder(),
             ProductScreen.isShown(),
+            ProductScreen.selectFloatingOrder(0),
+            PaymentScreen.isShown(),
+            PaymentScreen.clickBack(),
+            ProductScreen.isShown(),
+            {
+                isActive: ["mobile"],
+                ...ProductScreen.back(),
+            },
 
             // Allow order changes after the error
             ProductScreen.clickDisplayedProduct("Test Product", true, "2"),
@@ -152,12 +154,13 @@ registry.category("web_tour.tours").add("test_tracking_number_closing_session", 
             ProductScreen.clickPayButton(),
             PaymentScreen.clickPaymentMethod("Bank"),
             PaymentScreen.clickValidate(),
-            ReceiptScreen.clickNextOrder(),
+            FeedbackScreen.clickNextOrder(),
             ProductScreen.isShown(),
             Chrome.clickMenuOption("Close Register"),
+            Chrome.closeRegisterPopupIsShown(),
             {
                 content: `Select button close register`,
-                trigger: `button:contains(close register)`,
+                trigger: `.modal .modal-footer .btn:contains(close register)`,
                 run: "click",
                 expectUnloadPage: true,
             },
@@ -168,8 +171,8 @@ registry.category("web_tour.tours").add("test_tracking_number_closing_session", 
             PaymentScreen.clickPaymentMethod("Bank"),
             PaymentScreen.enterPaymentLineAmount("Bank", "20"),
             PaymentScreen.clickValidate(),
-            ReceiptScreen.isShown(),
-            ReceiptScreen.clickNextOrder(),
+            FeedbackScreen.isShown(),
+            FeedbackScreen.clickNextOrder(),
         ].flat(),
 });
 
@@ -182,11 +185,11 @@ registry.category("web_tour.tours").add("test_reload_page_before_payment_with_cu
             refresh(),
             ProductScreen.productIsDisplayed("Desk Organizer"),
             ProductScreen.clickPartnerButton(),
-            ProductScreen.clickCustomer("Partner Test 1"),
+            ProductScreen.clickCustomer("Partner Test 1", true),
             ProductScreen.clickPayButton(),
             PaymentScreen.clickPaymentMethod("Customer Account"),
             PaymentScreen.clickValidate(),
-            ReceiptScreen.clickNextOrder(),
+            FeedbackScreen.clickNextOrder(),
             ProductScreen.isShown(),
             ProductScreen.clickDisplayedProduct("Desk Organizer", true, "1.0"),
             ProductScreen.clickPayButton(),
@@ -200,16 +203,49 @@ registry.category("web_tour.tours").add("test_reload_page_before_payment_with_cu
         ].flat(),
 });
 
+registry.category("web_tour.tours").add("test_edit_paid_order", {
+    steps: () =>
+        [
+            Chrome.startPoS(),
+            Dialog.confirm("Open Register"),
+            ProductScreen.addOrderline("Desk Organizer"),
+            ProductScreen.clickPayButton(),
+            PaymentScreen.clickPaymentMethod("Cash"),
+            PaymentScreen.clickValidate(),
+            FeedbackScreen.isShown(),
+            FeedbackScreen.clickEditPayment(),
+            // Add customer
+            PaymentScreen.clickPartnerButton(),
+            PaymentScreen.clickCustomer("Partner Test 1", true),
+            PaymentScreen.clickInvoiceButton(),
+            {
+                content: "wait for 200 ms",
+                trigger: "body",
+                run: async () => {
+                    await new Promise((resolve) => setTimeout(resolve, 200));
+                },
+            },
+            PaymentScreen.clickValidate(),
+            FeedbackScreen.isShown(),
+        ].flat(),
+});
+
 registry.category("web_tour.tours").add("test_cash_in_out", {
     steps: () =>
         [
             Chrome.startPoS(),
             Dialog.confirm("Open Register"),
             Chrome.freezeDateTime(1749965940000),
+            Chrome.clickMenuButton(),
+            Chrome.clickMenuDialogOption("Cash In/Out"),
+            Chrome.checkButtonDisabled("Details"),
+            Utils.selectButton("Discard"),
             Chrome.doCashMove("10", "MOBT in"),
             Chrome.doCashMove("5", "MOBT out"),
             Chrome.clickMenuOption("Close Register"),
+            Chrome.closeRegisterPopupIsShown(),
             Utils.selectButton("Cash In/Out"),
+            negateStep(Chrome.checkButtonDisabled("Details")),
             Utils.selectButton("Details"),
             CashMoveList.checkNumberOfRows(2),
             CashMoveList.checkCashMoveShown("10"),
@@ -230,8 +266,16 @@ registry.category("web_tour.tours").add("test_zero_decimal_places_currency", {
             ProductScreen.clickPayButton(),
             PaymentScreen.clickPaymentMethod("Cash"),
             PaymentScreen.clickValidate(),
-            ReceiptScreen.receiptIsThere(),
-            ReceiptScreen.totalAmountContains("100"),
+            FeedbackScreen.isShown(),
+            FeedbackScreen.checkTicketData({
+                total_amount: "100",
+                has_portal_url: true,
+            }),
+            FeedbackScreen.clickNextOrder(),
+            ProductScreen.clickDisplayedProduct("Test Product", true, "1.00"),
+            ProductScreen.clickPayButton(),
+            // To verify first payment method is clicked by default
+            PaymentScreen.clickValidate(),
         ].flat(),
 });
 
@@ -240,20 +284,19 @@ registry.category("web_tour.tours").add("SessionStatisticsDisplay", {
         [
             Chrome.startPoS(),
             ProductScreen.enterOpeningAmount("100.00"),
-            Dialog.confirm("Open Register"),
             ProductScreen.addOrderline("Desk Pad", "5", "5"),
             ProductScreen.clickPayButton(),
             PaymentScreen.clickPaymentMethod("Cash"),
             PaymentScreen.validateButtonIsHighlighted(true),
             PaymentScreen.clickValidate(),
-            ReceiptScreen.clickNextOrder(),
+            FeedbackScreen.clickNextOrder(),
             ProductScreen.isShown(),
             ProductScreen.addOrderline("Monitor Stand", "2", "10"),
             ProductScreen.clickPayButton(),
             PaymentScreen.clickPaymentMethod("Cash"),
             PaymentScreen.validateButtonIsHighlighted(true),
             PaymentScreen.clickValidate(),
-            ReceiptScreen.clickNextOrder(),
+            FeedbackScreen.clickNextOrder(),
             ProductScreen.isShown(),
             Chrome.clickMenuOption("Backend", { expectUnloadPage: true }),
             {
@@ -262,56 +305,6 @@ registry.category("web_tour.tours").add("SessionStatisticsDisplay", {
             {
                 trigger: `[name=paid_orders]:contains(45.00 (2 orders))`,
             },
-        ].flat(),
-});
-
-registry.category("web_tour.tours").add("test_click_all_orders_keep_customer", {
-    steps: () =>
-        [
-            Chrome.startPoS(),
-            Dialog.confirm("Open Register"),
-            ProductScreen.clickPartnerButton(),
-            ProductScreen.clickCustomer("Partner Test 1"),
-            ProductScreen.clickPartnerButton(),
-            PartnerList.clickPartnerOptions("Partner Test 1"),
-            {
-                isActive: ["auto"],
-                trigger: "body .dropdown-item:contains('All Orders')",
-                content: "Check the popover opened",
-                run: "click",
-            },
-            Chrome.clickRegister(),
-            ProductScreen.isShown(),
-            {
-                content: "customer is selected",
-                trigger: ".product-screen .set-partner:contains('Partner Test 1')",
-            },
-        ].flat(),
-});
-
-registry.category("web_tour.tours").add("test_ctrl_number_ignored", {
-    steps: () =>
-        [
-            Chrome.startPoS(),
-            Dialog.confirm("Open Register"),
-            ProductScreen.addOrderline("Whiteboard Pen", "1", "6", "6.0"),
-            {
-                trigger: "body",
-                run: () => {
-                    window.dispatchEvent(new KeyboardEvent("keyup", { key: "5", ctrlKey: true }));
-                },
-            },
-            {
-                trigger: "body",
-                run: () =>
-                    new Promise((resolve) => {
-                        setTimeout(resolve, 300); // wait 300ms so NumberBuffer timeout runs
-                    }),
-            },
-            inLeftSide([
-                { ...ProductScreen.clickLine("Whiteboard Pen")[0], isActive: ["mobile"] },
-                ...ProductScreen.selectedOrderlineHasDirect("Whiteboard Pen", "1", "6.0"),
-            ]),
         ].flat(),
 });
 
@@ -326,5 +319,51 @@ registry.category("web_tour.tours").add("test_set_opening_note_without_cash_meth
             },
             Dialog.confirm("Open Register"),
             ProductScreen.addOrderline("Whiteboard Pen", "1", "6", "6.0"),
+        ].flat(),
+});
+
+registry.category("web_tour.tours").add("chrome_without_cash_move_permission", {
+    steps: () =>
+        [
+            Chrome.startPoS(),
+            Dialog.confirm("Open Register"),
+            Chrome.clickMenuButton(),
+            Chrome.isCashMoveButtonHidden(),
+        ].flat(),
+});
+
+registry.category("web_tour.tours").add("test_pos_open_ui_button", {
+    steps: () =>
+        [
+            {
+                content: "Ctrl/Cmd click Open Register should open in new tab",
+                trigger: "button:contains('Open Register')",
+                run: async (el) => {
+                    const actionTargetPromise = expectActionTarget("new");
+                    el.anchor.dispatchEvent(
+                        new MouseEvent("click", { ctrlKey: true, metaKey: true })
+                    );
+                    await actionTargetPromise;
+                },
+            },
+            {
+                content: "Middle click Open Register should open in new tab",
+                trigger: "button:contains('Open Register')",
+                run: async (el) => {
+                    const actionTargetPromise = expectActionTarget("new");
+                    el.anchor.dispatchEvent(new MouseEvent("click", { button: 1 }));
+                    await actionTargetPromise;
+                },
+            },
+            {
+                content: "Normal click opens Open Register in the same tab",
+                trigger: "button:contains('Open Register')",
+                run: async (el) => {
+                    const actionTargetPromise = expectActionTarget("self");
+                    el.anchor.dispatchEvent(new MouseEvent("click", {}));
+                    await actionTargetPromise;
+                },
+                expectUnloadPage: true,
+            },
         ].flat(),
 });

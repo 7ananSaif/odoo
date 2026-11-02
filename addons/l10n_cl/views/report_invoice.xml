@@ -89,15 +89,16 @@
                 <span t-out="o.partner_id.commercial_partner_id.name or o.partner_id.name"/>
                 <br/>
 
-                <t t-if="o.partner_id.vat and o.partner_id.l10n_latam_identification_type_id">
+                <t t-set="cl_doc_vals" t-value="o.partner_id._get_preferred_legal_entity_identifier_vals()"/>
+                <t t-if="cl_doc_vals">
                     <strong>
-                        <t t-out="o.partner_id.l10n_latam_identification_type_id.name or o.company_id.account_fiscal_country_id.vat_label" id="inv_tax_id_label"/>:
+                        <t t-out="cl_doc_vals.get('label') or o.company_id.account_fiscal_country_id.vat_label" id="inv_tax_id_label"/>:
                     </strong>
-                    <span t-out="o.partner_id.vat"/>
+                    <span t-out="cl_doc_vals['value']"/>
                     <br/>
                 </t>
                 <strong>Address:</strong>
-                <span t-out="o.partner_id._display_address(without_company=True)"/>
+                <span t-out="o.partner_id.address"/>
             </div>
             <div class="col-6">
                 <strong>Due Date:</strong>
@@ -113,7 +114,7 @@
                 <t t-if="o.partner_shipping_id and o.partner_id not in o.partner_shipping_id" >
                     <br/>
                     <strong>Delivery Address:</strong>
-                    <span t-out="o.partner_shipping_id._display_address(without_company=True)"/>
+                    <span t-out="o.partner_shipping_id.address"/>
                 </t>
                 <br/>
                 <strong>GIRO:</strong>
@@ -131,20 +132,12 @@
 
     <template id="report_invoice_document" inherit_id="account.report_invoice_document" primary="True">
 
-        <t t-set="o" position="after">
+        <t t-call="web.external_layout" position="before">
             <t t-set="custom_header" t-value="'l10n_cl.custom_header'"/>
         </t>
 
         <!-- remove default partner address -->
-        <xpath expr="//div[@name='address_not_same_as_shipping']" position="replace">
-            <div name="address_not_same_as_shipping"/>
-        </xpath>
-        <xpath expr="//div[@name='address_same_as_shipping']" position="replace">
-            <div name="address_same_as_shipping"/>
-        </xpath>
-        <xpath expr="//div[@name='no_shipping']" position="replace">
-            <div name="no_shipping"/>
-        </xpath>
+        <t t-set="address" position="replace" />
 
         <xpath expr="//t[@t-set='layout_document_title']" position="replace"/>
 
@@ -210,7 +203,7 @@
             </div>
         </xpath>
 
-        <xpath expr="//span[@t-field='line.name']" position="replace">
+        <xpath expr="//span[@t-field='line.label']" position="replace">
             <t t-set="all_taxes" t-value="'all_taxes'"/>
             <t t-if="'second_currency' in line_amounts" t-set="line_second_currency_round" t-value="line_amounts['second_currency']['round_currency']"/>
             <span t-out="line_amounts['line_description']" t-options="{'widget': 'text'}"/>
@@ -247,7 +240,7 @@
             </t>
             <t t-if="subtotal_amounts['vat_amount'] != 0.0">
                 <tr>
-                    <td>VAT <t t-esc="subtotal_amounts['vat_percent']"/>%</td>
+                    <td>VAT <t t-out="subtotal_amounts['vat_percent']"/>%</td>
                     <td class="text-end" t-out="subtotal_amounts['vat_amount']"
                         t-options="{'widget': 'monetary', 'display_currency': subtotal_amounts['main_currency']}"/></tr>
             </t>

@@ -13,21 +13,24 @@
             <div class="mb-3 field-password pt-2 o_caps_lock_warning">
                 <label for="password" class="form-label">Password</label>
                 <div class="input-group mb-1">
-                    <input type="password" name="password" id="password" class="form-control"
+                    <input type="password" name="password" id="password" class="form-control" autocomplete="new-password"
                         required="required" t-att-autofocus="'autofocus' if autofocus else None" placeholder="••••••••••"/>
                     <button type="button" class="btn btn-sm border border-start-0 o_show_password">
-                        <i class="fa fa-eye"/>
+                        <i class="oi" data-icon="visibility"/>
                     </button>
                 </div>
             </div>
 
             <div class="mb-3 field-confirm_password">
-                <label for="confirm_password" class="form-label">Confirm Password</label>
-                <div class="input-group mb-1">
-                    <input type="password" name="confirm_password" id="confirm_password" class="form-control" required="required" placeholder="••••••••••"/>
-                    <button type="button" class="btn btn-sm border border-start-0 o_show_password">
-                        <i class="fa fa-eye"/>
-                    </button>
+                <div class="mb-3 field-password pt-2 o_caps_lock_warning">
+                    <label for="confirm_password" class="form-label">Confirm Password</label>
+                    <div class="input-group mb-1">
+                        <input type="password" name="confirm_password" id="confirm_password" class="form-control"
+                            autocomplete="new-password" required="required" placeholder="••••••••••"/>
+                        <button type="button" class="btn btn-sm border border-start-0 o_show_password">
+                            <i class="oi" data-icon="visibility"/>
+                        </button>
+                    </div>
                 </div>
             </div>
         </template>
@@ -41,20 +44,20 @@
                     <div class="mb-3 field-name">
                         <label for="name" class="form-label">Name</label>
                         <input type="text" name="name" t-att-value="name" id="name" class="form-control" placeholder="John Doe"
-                            autofocus="autofocus" required="required"/>
+                            autofocus="autofocus" required="required" autocomplete="name"/>
                     </div>
 
                     <div class="mb-3 field-login">
                         <label for="login" class="form-label">Email</label>
-                        <input type="text" name="login" t-att-value="login" id="login" class="form-control"
-                            t-att-autofocus="'autofocus' if login else None"
+                        <input type="email" name="login" t-att-value="login" id="login" class="form-control"
+                            t-att-autofocus="'autofocus' if login else None" autocomplete="username"
                             autocapitalize="off" required="required" placeholder="name@example.com"/>
                     </div>
 
                     <t t-call="auth_signup.fields"/>
 
                     <p class="alert alert-danger" t-if="error" role="alert">
-                        <t t-esc="error"/>
+                        <t t-out="error"/>
                     </p>
                     <input type="hidden" name="redirect" t-att-value="redirect"/>
                     <input type="hidden" name="token" t-att-value="token"/>
@@ -73,7 +76,7 @@
                 <div class="oe_structure" id="oe_structure_reset_password_top"/>
                 <div t-if="message" class="oe_login_form clearfix">
                     <p class="alert alert-success" t-if="message" role="status">
-                        <t t-esc="message"/>
+                        <t t-out="message"/>
                     </p>
                     <a href="/web/login" class="btn btn-link btn-sm float-start" role="button">Back to Login</a>
                 </div>
@@ -82,9 +85,7 @@
                   <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
 
                     <t t-if="token and not invalid_token">
-                        <t t-call="auth_signup.fields">
-                            <t t-set="autofocus" t-value="1"/>
-                        </t>
+                        <t t-call="auth_signup.fields" autofocus="1"/>
                     </t>
 
                     <t t-if="not token">
@@ -96,7 +97,7 @@
                     </t>
 
                     <p class="alert alert-danger" t-if="error" role="alert">
-                        <t t-esc="error"/>
+                        <t t-out="error"/>
                     </p>
                     <input type="hidden" name="redirect" t-att-value="redirect"/>
                     <input type="hidden" name="token" t-att-value="token"/>

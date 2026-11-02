@@ -36,9 +36,9 @@ registry.category("web_tour.tours").add("invoicePoSOrderWithSelfInvocing", {
             run: "edit test@test.com",
         },
         {
-            trigger: ".o_portal_wrap input[name='company_name']",
+            trigger: ".o_portal_wrap input[name='parent_name']",
             run: function () {
-                const companyNameInput = document.querySelector("input[name='company_name']");
+                const companyNameInput = document.querySelector("input[name='parent_name']");
                 if (companyNameInput.hasAttribute("readonly")) {
                     throw new Error("The company name input must not be readonly.");
                 }
@@ -76,9 +76,14 @@ registry.category("web_tour.tours").add("invoicePoSOrderWithSelfInvocing", {
             run: function () {
                 const countrySelect = document.querySelector("select[name='country_id']");
                 if (Array.from(countrySelect.classList).includes("d-none")) {
-                    throw new Error("The language selector must not be hidden.");
+                    throw new Error("The country selector must not be hidden.");
                 }
-                countrySelect.value = "233";
+                const option = Array.from(countrySelect.options).find(
+                    (opt) => opt.textContent.trim() === "United States"
+                );
+                if (option) {
+                    countrySelect.value = option.value;
+                }
             },
         },
         {
@@ -86,13 +91,46 @@ registry.category("web_tour.tours").add("invoicePoSOrderWithSelfInvocing", {
             run: function () {
                 const stateSelect = document.querySelector("select[name='state_id']");
                 if (Array.from(stateSelect.classList).includes("d-none")) {
-                    throw new Error("The language selector must not be hidden.");
+                    throw new Error("The country state selector must not be hidden.");
                 }
-                stateSelect.value = "19";
+                const option = Array.from(stateSelect.options).find(
+                    (opt) => opt.textContent.trim() === "Georgia"
+                );
+                if (option) {
+                    stateSelect.value = option.value;
+                }
             },
         },
         {
             trigger: ".o_portal_wrap button:contains('Get my invoice')",
+            run: "click",
+            expectUnloadPage: true,
+        },
+        {
+            trigger: ".rounded.text-bg-success.fw-normal.badge",
+        },
+    ],
+});
+registry.category("web_tour.tours").add("invoicePoSOrderWithPartner", {
+    steps: () => [
+        {
+            trigger: "input[name='pos_reference']",
+            run: "edit 2500-002-00003",
+        },
+        {
+            trigger: ".o_portal_wrap input[name='date_order']",
+            run: function () {
+                const date_order = luxon.DateTime.now();
+                document.querySelector(".o_portal_wrap input[name='date_order']").value =
+                    date_order.toFormat("yyyy-MM-dd");
+            },
+        },
+        {
+            trigger: ".o_portal_wrap input[name='ticket_code']",
+            run: "edit inPoS",
+        },
+        {
+            trigger: ".o_portal_wrap button:contains('Request Invoice')",
             run: "click",
             expectUnloadPage: true,
         },

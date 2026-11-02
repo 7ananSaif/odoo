@@ -4,19 +4,21 @@ import collections
 import configparser as ConfigParser
 import errno
 import functools
+import glob
 import logging
 import optparse
-import glob
 import os
 import sys
 import tempfile
 import warnings
-from os.path import expandvars, expanduser, abspath, realpath, normcase
-from odoo import release
-from odoo.tools.func import classproperty
-from . import appdirs
+from os.path import abspath, expanduser, expandvars, normcase, realpath
 
 from passlib.context import CryptContext
+
+from odoo import release
+from odoo.tools.func import classproperty
+
+from . import appdirs
 
 crypt_context = CryptContext(schemes=['pbkdf2_sha512', 'plaintext'],
                              deprecated=['plaintext'],
@@ -24,21 +26,48 @@ crypt_context = CryptContext(schemes=['pbkdf2_sha512', 'plaintext'],
 
 _dangerous_logger = logging.getLogger(__name__)  # use config._log() instead
 
-optparse._ = str  # disable gettext
+optparse._ = str  # disable gettext  # ty:ignore[unresolved-attribute]
 
 ALL_DEV_MODE = ['access', 'qweb', 'reload', 'xml']
 DEFAULT_SERVER_WIDE_MODULES = ['base', 'rpc', 'web']
 REQUIRED_SERVER_WIDE_MODULES = ['base', 'web']
 
+DEFAULT_COLOR_SPEC = {
+    'pid': 'never',
+    'loglevel': 'auto',
+    'session_id': 'never',
+    'http_request_line': 'auto',
+    'http_response_body': 'auto',
+    'perf': 'auto',
+    'cursor_mode': 'auto',
+    'sql': 'auto',
+}
+
 
 class _Empty:
     def __repr__(self):
         return ''
-EMPTY = _Empty()
+EMPTY = _Empty()  # noqa: E305
+
+
+class OdooOptionParser(optparse.OptionParser):
+    def _match_long_opt(self, opt):
+        # --st is an "ambigous" prefix for --stop and --stop-after-init
+        # which actually are the same option, make it return that single
+        # option.
+        possibilities = [
+            (long_opt, option)
+            for long_opt, option
+            in self._long_opt.items()
+            if long_opt.startswith(opt)
+        ]
+        if len({p[1] for p in possibilities}) == 1:
+            return possibilities[0][0]
+        return super()._match_long_opt(opt)
 
 
 class _OdooOption(optparse.Option):
-    config = None  # must be overriden
+    config: "configmanager"
 
     TYPES = ['int', 'float', 'string', 'choice', 'bool', 'path', 'comma',
              'addons_path', 'upgrade_path', 'pre_upgrade_scripts', 'without_demo']
@@ -102,7 +131,7 @@ class _OdooOption(optparse.Option):
             self.const = const
             for opt in self._short_opts + self._long_opts:
                 self.config.optional_options[opt] = self
-        if env_name is None and is_new_option and self.file_loadable:
+        if env_name is None and is_new_option and self.file_loadable and self.dest:
             # generate an env_name for file_loadable settings that are in the index
             self.env_name = 'ODOO_' + self.dest.upper()
         elif env_name and not is_new_option:
@@ -123,7 +152,8 @@ class _FileOnlyOption(_OdooOption):
 
     def _check_opt_strings(self, opts):
         if opts:
-            raise TypeError("No option can be supplied")
+            e = "No option can be supplied"
+            raise TypeError(e)
 
     def _set_opt_strings(self, opts):
         return
@@ -149,7 +179,7 @@ def _deduplicate_loggers(loggers):
     # which is what we want and expect. Output order should not matter as
     # there are no duplicates within the output sequence
     return (
-        '{}:{}'.format(logger, level)
+        f'{logger}:{level}'
         for logger, level in dict(it.split(':') for it in loggers).items()
     )
 
@@ -175,6 +205,9 @@ class configmanager:
         # list of nargs='?' options, indexed by short/long option (-x, --xx)
         self.optional_options = {}
 
+        # optional [colors] options, no color until we load_color_options()
+        self.colors: dict[str, bool] = dict.fromkeys(DEFAULT_COLOR_SPEC, False)
+
         # map old name -> new name
         self.aliases = {
             "import_image_maxbytes": "import_file_maxbytes",
@@ -186,30 +219,15 @@ class configmanager:
         self._load_default_options()
         self._parse_config()
 
-    @property
-    def rcfile(self):
-        self._warn("Since 19.0, use odoo.tools.config['config'] instead", DeprecationWarning, stacklevel=2)
-        return self['config']
-
-    @rcfile.setter
-    def rcfile(self, rcfile):
-        self._warn(f"Since 19.0, use odoo.tools.config['config'] = {rcfile!r} instead", DeprecationWarning, stacklevel=2)
-        self._runtime_options['config'] = rcfile
-
     def _build_cli(self):
         OdooOption = type('OdooOption', (_OdooOption,), {'config': self})
         FileOnlyOption = type('FileOnlyOption', (_FileOnlyOption, OdooOption), {})
         PosixOnlyOption = type('PosixOnlyOption', (_PosixOnlyOption, OdooOption), {})
 
         version = "%s %s" % (release.description, release.version)
-        parser = optparse.OptionParser(version=version, option_class=OdooOption)
+        parser = OdooOptionParser(version=version, option_class=OdooOption)
 
         parser.add_option(FileOnlyOption(dest='admin_passwd', my_default='admin'))
-        # SAAS-PATCH: SaaS lock switches (odoo.conf only, never exported by --save).
-        #   saas_lock = True                 -> enable all SaaS restrictions
-        #   saas_manager_token = <secret>    -> token the SaaS Manager must send
-        parser.add_option(FileOnlyOption(dest='saas_lock', type='bool', my_default=False))
-        parser.add_option(FileOnlyOption(dest='saas_manager_token', my_default='', file_exportable=False))
         parser.add_option(FileOnlyOption(dest='bin_path', type='path', my_default='', file_exportable=False))
         parser.add_option(FileOnlyOption(dest='csv_internal_sep', my_default=','))
         parser.add_option(FileOnlyOption(dest='default_productivity_apps', type='bool', my_default=False, file_exportable=False))
@@ -227,17 +245,18 @@ class configmanager:
         group = optparse.OptionGroup(parser, "Common options")
         group.add_option("-c", "--config", dest="config", type='path', file_loadable=False, env_name='ODOO_RC',
                          help="specify alternate config file")
-        group.add_option("-s", "--save", action="store_true", dest="save", my_default=False, file_loadable=False,
+        group.add_option("--save", action="store_true", dest="save", my_default=False, file_loadable=False,
                          help="save configuration to ~/.odoorc (or to ~/.openerp_serverrc if it exists)")
         group.add_option("-i", "--init", dest="init", type='comma', metavar="MODULE,...", my_default=[], file_loadable=False,
                          help="install one or more modules (comma-separated list, use \"all\" for all modules), requires -d")
-        group.add_option("-u", "--update", dest="update", type='comma',  metavar="MODULE,...", my_default=[], file_loadable=False,
+        group.add_option("-u", "--update", dest="update", type='comma', metavar="MODULE,...", my_default=[], file_loadable=False,
                          help="update one or more modules (comma-separated list, use \"all\" for all modules). Requires -d.")
         group.add_option("--reinit", dest="reinit", type='comma', metavar="MODULE,...", my_default=[], file_loadable=False,
                          help="reinitialize one or more modules (comma-separated list), requires -d")
         group.add_option("--with-demo", dest="with_demo", action='store_true', my_default=False,
                          help="install demo data in new databases")
-        group.add_option("--without-demo", dest="with_demo", type='without_demo', metavar='BOOL', nargs='?', const=True,
+        group.add_option("--without-demo", dest="with_demo", type='without_demo', metavar='BOOL', const=True,
+                         nargs='?',  # ty:ignore[invalid-argument-type]
                          help="don't install demo data in new databases (default)")
         group.add_option("--skip-auto-install", dest="skip_auto_install", action="store_true", my_default=False,
                          help="skip the automatic installation of modules marked as auto_install")
@@ -255,11 +274,19 @@ class configmanager:
                          help="Comma-separated list of server-wide modules.")
         group.add_option("-D", "--data-dir", dest="data_dir", type='path',  # sensitive default set in _load_default_options
                          help="Directory where to store Odoo data")
+        group.add_option("--unsafe-policy", dest='unsafe_policy', type='choice', my_default='log',
+                         choices=['disable', 'log', 'raise', 'terminate'],
+                         help="Policy if an unsafe object is detected during          "
+                              "arbitrary code execution                               "
+                              "- disable: No action taken                             "
+                              "- log: Log a warning with unsafe object information    "
+                              "- raise: Raise an exception (BaseException)            "
+                              "- terminate: Terminate the current worker process      ")
         parser.add_option_group(group)
 
         # HTTP
         group = optparse.OptionGroup(parser, "HTTP Service Configuration")
-        group.add_option("--http-interface", dest="http_interface", my_default='0.0.0.0',
+        group.add_option("--http-interface", dest="http_interface", my_default='127.0.0.1',
                          help="Listen interface address for HTTP services.")
         group.add_option("-p", "--http-port", dest="http_port", my_default=8069,
                          help="Listen port for the main HTTP service", type="int", metavar="PORT")
@@ -294,7 +321,7 @@ class configmanager:
                          "A filter spec has the format: [-][tag][/module][:class][.method][[params]] "
                          "The '-' specifies if we want to include or exclude tests matching this spec. "
                          "The tag will match tags added on a class with a @tagged decorator "
-                         "(all Test classes have 'standard' and 'at_install' tags "
+                         "(all Test classes have 'standard' and 'post_install' tags "
                          "until explicitly removed, see the decorator documentation). "
                          "'*' will match all tags. "
                          "If tag is omitted on include mode, its value is 'standard'. "
@@ -325,7 +352,7 @@ class configmanager:
         group.add_option("--logfile", dest="logfile", type='path', my_default='',
                          help="file where the server log will be stored")
         group.add_option("--syslog", action="store_true", dest="syslog", my_default=False,
-                         help="Send the log to the syslog server")
+                         help="Send the log to the syslog server (deprecated)")
         group.add_option('--log-handler', action="append", type='comma', my_default=[':INFO'], metavar="MODULE:LEVEL",
                          help='setup a handler at LEVEL for a given MODULE. An empty MODULE indicates the root logger. '
                               'This option can be repeated. Example: "odoo.orm:DEBUG" or "werkzeug:CRITICAL" (default: ":INFO")')
@@ -335,6 +362,9 @@ class configmanager:
                          help='shortcut for --log-handler=odoo.sql_db:DEBUG')
         group.add_option('--log-db', dest='log_db', help="Logging database", my_default='')
         group.add_option('--log-db-level', dest='log_db_level', my_default='warning', help="Logging database level")
+        group.add_option('--log-config', dest='log_config', type='path', my_default='',
+                         help="JSON logging configuration file, in dictconfig format ("
+                              "https://docs.python.org/3/library/logging.config.html#logging-config-dictschema).")
         # For backward-compatibility, map the old log levels to something
         # quite close.
         levels = [
@@ -398,6 +428,8 @@ class configmanager:
                          help="specify the maximum number of physical connections to PostgreSQL specifically for the gevent worker")
         group.add_option("--db-template", dest="db_template", my_default="template0", env_name='PGDATABASE_TEMPLATE',
                          help="specify a custom database template to create a new database")
+        group.add_option("--db-system", dest="db_system", my_default="postgres", env_name='PGDATABASE_SYSTEM',
+                         help="specify the database for shared system operations like bus and maintenance")
         parser.add_option_group(group)
 
         # i18n Group
@@ -431,9 +463,8 @@ class configmanager:
                               "- qweb: log the compiled xml with qweb errors          "
                               "- reload: restart server on change in the source code  "
                               "- replica: simulate a deployment with readonly replica "
-                              "- werkzeug: open a html debugger on http request error "
                               "- xml: read views from the source code, and not the db ")
-        group.add_option("--stop-after-init", action="store_true", dest="stop_after_init", my_default=False, file_exportable=False, file_loadable=False,
+        group.add_option("--stop", "--stop-after-init", action="store_true", dest="stop_after_init", my_default=False, file_exportable=False, file_loadable=False,
                          help="stop the server after its initialization")
         group.add_option("--osv-memory-count-limit", dest="osv_memory_count_limit", my_default=0,
                          help="Force a limit on the maximum number of records kept in the virtual "
@@ -463,6 +494,10 @@ class configmanager:
         group.add_option(PosixOnlyOption(
                          "--workers", dest="workers", my_default=0,
                          help="Specify the number of workers, 0 disable prefork mode.",
+                         type="int"))
+        group.add_option(PosixOnlyOption(
+                         "--gevent-workers", dest="gevent_workers", my_default=1,
+                         help="Specify the number of gevent workers in prefork mode. (requires SO_REUSEPORT)",
                          type="int"))
         group.add_option("--limit-memory-soft", dest="limit_memory_soft", my_default=2048 * 1024 * 1024,
                          help="Maximum allowed virtual memory per worker (in bytes), when reached the worker be "
@@ -517,14 +552,23 @@ class configmanager:
             f'/var/lib/{release.product_name}'
         )
 
-        if os.name == 'nt':
+        default_config_dir = (
+            appdirs.user_config_dir(release.product_name, release.author)
+            if os.path.isdir(os.path.expanduser('~')) else
+            appdirs.site_config_dir(release.product_name, release.author)
+        )
+        default_config_file = os.path.join(default_config_dir, 'odoo.conf')
+
+        if os.path.isfile(default_config_file):
+            rcfilepath = default_config_file
+        elif os.name == 'nt':
             rcfilepath = os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), 'odoo.conf')
         elif os.path.isfile(rcfilepath := os.path.expanduser('~/.odoorc')):
             pass
         elif os.path.isfile(rcfilepath := os.path.expanduser('~/.openerp_serverrc')):
             self._warn("Since ages ago, the ~/.openerp_serverrc file has been replaced by ~/.odoorc", DeprecationWarning)
         else:
-            rcfilepath = '~/.odoorc'
+            rcfilepath = default_config_file
         self._default_options['config'] = self._normalize(rcfilepath)
 
     _log_entries = []   # helpers for log() and warn(), accumulate messages
@@ -545,12 +589,12 @@ class configmanager:
         for loglevel, message, args, kwargs in cls._log_entries:
             _dangerous_logger.log(loglevel, message, *args, **kwargs)
         cls._log_entries.clear()
-        cls._log = _dangerous_logger.log
+        cls._log = _dangerous_logger.log  # ty:ignore[invalid-assignment]
 
         for message, args, kwargs in cls._warn_entries:
             warnings.warn(message, *args, **kwargs, stacklevel=1)
         cls._warn_entries.clear()
-        cls._warn = warnings.warn
+        cls._warn = warnings.warn  # ty:ignore[invalid-assignment]
 
     def parse_config(self, args: list[str] | None = None, *, setup_logging: bool | None = None) -> None:
         """ Parse the configuration file (if any) and the command-line
@@ -571,14 +615,15 @@ class configmanager:
         opt = self._parse_config(args)
         if setup_logging is not False:
             netsvc.init_logger()
+            self.load_color_options()
             # warn after having done setup, so it has a chance to show up
             # (mostly once this warning is bumped to DeprecationWarning proper)
             if setup_logging is None:
                 warnings.warn(
-                    "As of Odoo 18, it's recommended to specify whether"
-                    " you want Odoo to setup its own logging (or want to"
-                    " handle it yourself)",
-                    category=PendingDeprecationWarning,
+                    "As of Odoo 20, it is strongly recommended to specify"
+                    " whether you want Odoo to setup its own logging (or want"
+                    " to handle it yourself)",
+                    category=DeprecationWarning,
                     stacklevel=2,
                 )
         self._warn_deprecated_options()
@@ -586,7 +631,7 @@ class configmanager:
         modules.module.initialize_sys_path()
         return opt
 
-    def _parse_config(self, args=None):
+    def _parse_config(self, args=()):
         # preprocess the args to add support for nargs='?'
         for arg_no, arg in enumerate(args or ()):
             if option := self.optional_options.get(arg):
@@ -599,7 +644,7 @@ class configmanager:
             self.parser.error(f"unrecognized parameters: {' '.join(unknown_args)}")
 
         if not opt.save and opt.config and not os.access(opt.config, os.R_OK):
-            self.parser.error(f"the config file {opt.config!r} selected with -c/--config doesn't exist or is not readable, use -s/--save if you want to generate it")
+            self.parser.error(f"the config file {opt.config!r} selected with -c/--config doesn't exist or is not readable, use --save if you want to generate it")
 
         # Even if they are not exposed on the CLI, cli un-loadable variables still show up in the opt, remove them
         for option_name in list(vars(opt).keys()):
@@ -648,6 +693,57 @@ class configmanager:
         if opt.log_handler:
             self._cli_options['log_handler'] = [handler for comma in opt.log_handler for handler in comma]
 
+    def load_color_options(self):
+        if os.getenv('NO_COLOR'):
+            self.colors = dict.fromkeys(DEFAULT_COLOR_SPEC, False)
+            return
+
+        if os.getenv('FORCE_COLOR'):
+            self.colors = dict.fromkeys(DEFAULT_COLOR_SPEC, True)
+            return
+
+        color2bool = {'always': True, 'never': False, 'auto': any(
+            isinstance(handler, logging.StreamHandler)
+            and hasattr(handler.stream, 'fileno')
+            and os.isatty(handler.stream.fileno())
+            for handler in logging.getLogger().handlers
+        )}
+
+        if color := os.getenv('ODOO_PY_COLORS'):
+            try:
+                value = color2bool[color]
+            except KeyError:
+                try:
+                    value = self._check_bool(..., ..., color)  # backward compat
+                except optparse.OptionValueError:
+                    e = f"environ['ODOO_PY_COLORS'] is not always/never/auto: {color!r}"
+                    raise optparse.OptionValueError(e) from None
+
+            self.colors = dict.fromkeys(DEFAULT_COLOR_SPEC, value)
+            return
+
+        self.colors = {
+            name: color2bool[value]
+            for name, value in DEFAULT_COLOR_SPEC.items()
+        }
+
+        p = ConfigParser.RawConfigParser()
+        try:
+            p.read([self['config']])
+            file_options = p.items('colors')
+        except (OSError, ConfigParser.NoSectionError):
+            pass
+        else:
+            for name, value in file_options:
+                if name not in DEFAULT_COLOR_SPEC:
+                    self._log(logging.WARNING, "unknown color option: %r, skipped", name)
+                    continue
+                try:
+                    self.colors[name] = color2bool[value]
+                except KeyError:
+                    e = f"color option {name}: invalid value: {value!r}"
+                    raise optparse.OptionValueError(e) from None
+
     def _postprocess_options(self):
         self._runtime_options.clear()
 
@@ -669,6 +765,17 @@ class configmanager:
                 self._log(logging.INFO, "adding missing %r to %s", mod, self.options_index['server_wide_modules'])
                 self._runtime_options['server_wide_modules'] = [mod] + self['server_wide_modules']
 
+        # ensure default http_interface is set
+        if not self['http_interface']:
+            self._runtime_options['http_interface'] = '127.0.0.1'
+
+        # check here some envvar options that are exposed as property
+        try:
+            self.http_socket_activation
+            self.max_http_threads
+        except ValueError as exc:
+            self.parser.error(exc.args[0])
+
         # accumulate all log_handlers
         self._runtime_options['log_handler'] = list(_deduplicate_loggers([
             *self._default_options.get('log_handler', []),
@@ -681,7 +788,7 @@ class configmanager:
         self._runtime_options['update'] = {'base': True} if 'all' in self['update'] else dict.fromkeys(self['update'], True)
 
         # TODO saas-22.1: remove support for the empty db_replica_host
-        if self['db_replica_host'] == '':
+        if self['db_replica_host'] == '':  # noqa: PLC1901
             self._runtime_options['db_replica_host'] = None
             if 'replica' not in self['dev_mode']:
                 # Conditional warning so it is possible to have a single
@@ -727,16 +834,6 @@ class configmanager:
                     "Empty %s, tests won't run", self.options_index['db_name'])
 
     def _warn_deprecated_options(self):
-        if self['http_enable'] and not self.http_socket_activation:
-            for map_ in self.options.maps:
-                if 'http_interface' in map_:
-                    if map_ is self._file_options and map_['http_interface'] == '':  # noqa: PLC1901
-                        del map_['http_interface']
-                    elif map_ is self._default_options:
-                        self._log(logging.WARNING, "missing %s, using 0.0.0.0 by default, will change to 127.0.0.1 in 20.0", self.options_index['http_interface'])
-                    else:
-                        break
-
         for old_option_name, new_option_name in self.aliases.items():
             for source_name, deprecated_value in self._get_sources(old_option_name).items():
                 if deprecated_value is EMPTY:
@@ -896,10 +993,6 @@ class configmanager:
             format_func = self.parser.option_class.TYPE_FORMATTER[option.type]
         return format_func(value)
 
-    def load(self):
-        self._warn("Since 19.0, use config._load_file_options instead", DeprecationWarning, stacklevel=2)
-        self._load_file_options(self['config'])
-
     def _load_file_options(self, rcfile):
         self._file_options.clear()
         p = ConfigParser.RawConfigParser()
@@ -930,7 +1023,7 @@ class configmanager:
                     self._log(logging.WARNING, "option %s reads %r in the config file at %s but isn't a boolean option, skip", name, value, self['config'])
                     continue
                 self._file_options[name] = self.parse(name, value)
-        except IOError:
+        except OSError:
             pass
         except ConfigParser.NoSectionError:
             pass
@@ -942,6 +1035,8 @@ class configmanager:
             p.read([self['config']])
         if not p.has_section('options'):
             p.add_section('options')
+        if not p.has_section('colors'):
+            p.add_section('colors')
         for opt in sorted(self.options):
             option = self.options_index.get(opt)
             if keys is not None and opt not in keys:
@@ -964,6 +1059,10 @@ class configmanager:
             else:
                 p.set('options', opt, self.options[opt])
 
+        for color, value in DEFAULT_COLOR_SPEC.items():
+            if color not in p['colors']:  # ignored unless keys are given
+                p['colors'][color] = value
+
         # try to create the directories and write the file
         try:
             if not rc_exists and not os.path.exists(os.path.dirname(self['config'])):
@@ -973,7 +1072,7 @@ class configmanager:
                     p.write(file)
                 if not rc_exists:
                     os.chmod(self['config'], 0o600)
-            except IOError:
+            except OSError:
                 sys.stderr.write("ERROR: couldn't write the config file\n")
 
         except OSError:
@@ -1056,6 +1155,14 @@ class configmanager:
             and os.getenv('LISTEN_FDS') == '1'
             and os.getenv('LISTEN_PID') == str(os.getpid())
         )
+
+    @property
+    def max_http_threads(self):
+        mht = os.getenv('ODOO_MAX_HTTP_THREADS', str(2 * os.cpu_count() + 1))
+        if not (mht.isdecimal() and mht.isascii()):
+            e = f"ODOO_MAX_HTTP_THREADS={mht} but it is not a positive integer"
+            raise ValueError(e)
+        return int(mht)
 
     @classmethod
     def _normalize(cls, path):

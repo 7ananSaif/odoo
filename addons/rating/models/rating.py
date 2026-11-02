@@ -1,12 +1,11 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-import base64
 import uuid
 
 from odoo import api, fields, models
 from odoo.addons.mail.tools.discuss import Store
 from odoo.addons.rating.models import rating_data
-from odoo.tools.misc import file_open
+from odoo.tools import BinaryBytes, file_open
 
 
 class RatingRating(models.Model):
@@ -34,11 +33,11 @@ class RatingRating(models.Model):
     parent_res_name = fields.Char('Parent Document Name', compute='_compute_parent_res_name', store=True)
     parent_res_model_id = fields.Many2one('ir.model', 'Parent Related Document Model', index=True, ondelete='cascade')
     parent_res_model = fields.Char('Parent Document Model', store=True, related='parent_res_model_id.model', index=True, readonly=False)
-    parent_res_id = fields.Integer('Parent Document', index=True)
+    parent_res_id = fields.Many2oneReference('Parent Document', model_field='parent_res_model', index=True)
     parent_ref = fields.Reference(
         string='Parent Ref', selection='_selection_target_model',
         compute='_compute_parent_ref', readonly=True)
-    rated_partner_id = fields.Many2one('res.partner', string="Rated Operator")
+    rated_partner_id = fields.Many2one('res.partner', string="Rated Operator", index='btree_not_null')
     rated_partner_name = fields.Char(related="rated_partner_id.name")
     partner_id = fields.Many2one('res.partner', string='Customer')
     rating = fields.Float(string="Rating Value", aggregator="avg", default=0)
@@ -109,7 +108,7 @@ class RatingRating(models.Model):
             rating.rating_image_url = f'/{image_path}'
             try:
                 with file_open(image_path, 'rb', filter_ext=('.png',)) as f:
-                    rating.rating_image = base64.b64encode(f.read())
+                    rating.rating_image = BinaryBytes(f.read())
             except OSError:
                 rating.rating_image = False
 
@@ -208,5 +207,5 @@ class RatingRating(models.Model):
             data_by_model[rating.res_model]['record_ids'].append(rating.res_id)
         return data_by_model
 
-    def _to_store_defaults(self, target):
-        return ["rating", "rating_image_url", "rating_text"]
+    def _store_rating_fields(self, res: Store.FieldList):
+        res.extend(["rating", "rating_image_url", "rating_text"])

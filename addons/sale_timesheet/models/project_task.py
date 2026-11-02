@@ -18,6 +18,13 @@ class ProjectTask(models.Model):
                 return related_project.sale_line_employee_ids.sale_line_id.order_partner_id[:1]
         return res
 
+    @api.model
+    def _get_portal_timesheet_domain(self):
+        return Domain.AND([
+            super()._get_portal_timesheet_domain(),
+            ['|', ('so_line', '=', False), ('sale_order_state', '=', 'sale')],
+        ])
+
     sale_order_id = fields.Many2one(domain="['|', '|', ('partner_id', '=', partner_id), ('partner_id.commercial_partner_id.id', 'parent_of', partner_id), ('partner_id', 'parent_of', partner_id)]")
     pricing_type = fields.Selection(related="project_id.pricing_type")
     is_project_map_empty = fields.Boolean("Is Project map empty", compute='_compute_is_project_map_empty')
@@ -40,7 +47,8 @@ class ProjectTask(models.Model):
         #      in the task From View.
         timesheets = self.timesheet_ids.filtered(lambda t: t.task_id.sale_line_id in (t.so_line, t._origin.so_line) and t.so_line.remaining_hours_available)
 
-        mapped_remaining_hours = {task._origin.id: task.sale_line_id and task.sale_line_id.remaining_hours or 0.0 for task in self}
+        mapped_remaining_hours = {task._origin.id: task.sale_line_id and task.sale_order_state == 'sale' and
+                                                   task.sale_line_id.remaining_hours or 0.0 for task in self}
         uom_hour = self.env.ref('uom.product_uom_hour')
         for timesheet in timesheets:
             delta = 0
@@ -56,24 +64,33 @@ class ProjectTask(models.Model):
 
     @api.model
     def _search_remaining_hours_so(self, operator, value):
-        return [('sale_line_id.remaining_hours', operator, value)]
+        if operator in Domain.NEGATIVE_OPERATORS:
+            return NotImplemented
+        domain = Domain('sale_line_id.remaining_hours', operator, value)
+        if operator == 'in' and False in value:  # relation may be falsy
+            domain |= Domain('sale_line_id', '=', False)
+        return domain
 
     def _compute_last_sol_of_customer(self):
         sol_per_domain = dict()
         for task in self:
-            domain = tuple(task._get_last_sol_of_customer_domain())
+            domain = task._get_last_sol_of_customer_domain()
             if not domain:
                 task.last_sol_of_customer = False
                 continue
-            if domain not in sol_per_domain:
-                sol_per_domain[domain] = self.env['sale.order.line'].search(domain, limit=1)
-            task.last_sol_of_customer = sol_per_domain[domain]
+            domain_str = str(domain)
+            if domain_str not in sol_per_domain:
+                sol_per_domain[domain_str] = self.env['sale.order.line'].search(domain, limit=1)
+            task.last_sol_of_customer = sol_per_domain[domain_str]
 
     def _inverse_partner_id(self):
         super()._inverse_partner_id()
         for task in self:
             if task.allow_billable and not task.sale_line_id:
-                task.sale_line_id = task.sudo().last_sol_of_customer
+                if self.env.user._is_portal():
+                    task.sudo().sale_line_id = task.sudo().last_sol_of_customer
+                else:
+                    task.sale_line_id = task.sudo().last_sol_of_customer
 
     @api.depends('sale_line_id.order_partner_id', 'parent_id.sale_line_id', 'project_id.sale_line_id', 'allow_billable')
     def _compute_sale_line(self):
@@ -92,6 +109,16 @@ class ProjectTask(models.Model):
         for task in self:
             task.has_multi_sol = task.timesheet_ids and task.timesheet_ids.so_line != task.sale_line_id
 
+    def _get_domain_effective_hours(self):
+        return Domain.AND([
+            super()._get_domain_effective_hours(),
+            [
+                '|',
+                    ('so_line', '=', False),
+                    ('sale_order_state', '=', 'sale'),
+            ],
+        ])
+
     def _get_last_sol_of_customer_domain(self):
         # Get the domain of the last SOL made for the customer in the current task where we need to compute
         self.ensure_one()
@@ -104,6 +131,7 @@ class ProjectTask(models.Model):
                 ('company_id', '=?', self.company_id.id),
                 ('order_partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
                 ('remaining_hours', '>', 0),
+                ('state', '=', 'sale'),
             ],
         ])
         if self.project_id.pricing_type != 'task_rate' and self.project_sale_order_id and self.partner_id.commercial_partner_id == self.project_id.partner_id.commercial_partner_id:

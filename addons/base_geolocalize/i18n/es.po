@@ -6,14 +6,15 @@
 # Martin Trigaux, 2022
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Noemi Pla Garcia (nopl)" <nopl@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-09-14 21:11+0000\n"
-"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
-"Language-Team: Spanish <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-08-31 16:20+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Spanish <https://translate.odoo.com/projects/odoo-s19-4/"
 "base_geolocalize/es/>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
@@ -21,7 +22,15 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=(n == 1) ? 0 : ((n != 0 && n % 1000000 == "
 "0) ? 1 : 2);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: base_geolocalize
+#: model:ir.module.module,description:base.module_base_geolocalize
+msgid ""
+"\n"
+"Partners Geolocation\n"
+"========================\n"
+msgstr ""
 
 #. module: base_geolocalize
 #: model:ir.model.fields,field_description:base_geolocalize.field_res_config_settings__geoloc_provider_id
@@ -39,11 +48,6 @@ msgstr ""
 "Se requiere la clave API para GeoCoding (Lugares).\n"
 "Visite https://developers.google.com/maps/documentation/geocoding/get-api-"
 "key para más información."
-
-#. module: base_geolocalize
-#: model_terms:ir.ui.view,arch_db:base_geolocalize.res_config_settings_view_form
-msgid "API:"
-msgstr "API:"
 
 #. module: base_geolocalize
 #: model_terms:ir.ui.view,arch_db:base_geolocalize.view_crm_partner_geo_form
@@ -100,14 +104,14 @@ msgid "Geo Coder"
 msgstr "Geocodificador"
 
 #. module: base_geolocalize
-#: model_terms:ir.ui.view,arch_db:base_geolocalize.view_crm_partner_geo_form
-msgid "Geo Location"
-msgstr "Geolocalización"
-
-#. module: base_geolocalize
 #: model:ir.model,name:base_geolocalize.model_base_geo_provider
 msgid "Geo Provider"
 msgstr "Proveedor de geolocalización"
+
+#. module: base_geolocalize
+#: model:ir.actions.server,name:base_geolocalize.ir_cron_geolocalize_required_partners_ir_actions_server
+msgid "Geolocalize Partners"
+msgstr ""
 
 #. module: base_geolocalize
 #: model_terms:ir.ui.view,arch_db:base_geolocalize.view_crm_partner_geo_form
@@ -117,8 +121,8 @@ msgstr "Geolocalización"
 #. module: base_geolocalize
 #: model:ir.model.fields,field_description:base_geolocalize.field_res_partner__date_localization
 #: model:ir.model.fields,field_description:base_geolocalize.field_res_users__date_localization
-msgid "Geolocation Date"
-msgstr "Fecha de geolocalización"
+msgid "Geolocation Updated On"
+msgstr "Geolocalización actualizada el"
 
 #. module: base_geolocalize
 #: model:ir.model.fields,field_description:base_geolocalize.field_res_config_settings__geoloc_provider_googlemap_key
@@ -134,9 +138,17 @@ msgid "ID"
 msgstr "ID"
 
 #. module: base_geolocalize
+#: model:ir.model.fields,help:base_geolocalize.field_res_partner__should_be_geolocalized
+#: model:ir.model.fields,help:base_geolocalize.field_res_users__should_be_geolocalized
+msgid ""
+"Indicates whether the partner's address has changed, so we should "
+"geolocalize them from their new address."
+msgstr ""
+
+#. module: base_geolocalize
 #: model_terms:ir.ui.view,arch_db:base_geolocalize.res_config_settings_view_form
-msgid "Key:"
-msgstr "Clave:"
+msgid "Key"
+msgstr ""
 
 #. module: base_geolocalize
 #: model:ir.model.fields,field_description:base_geolocalize.field_base_geo_provider__write_uid
@@ -147,16 +159,6 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:base_geolocalize.field_base_geo_provider__write_date
 msgid "Last Updated on"
 msgstr "Última actualización el"
-
-#. module: base_geolocalize
-#: model_terms:ir.ui.view,arch_db:base_geolocalize.view_crm_partner_geo_form
-msgid "Lat :"
-msgstr "Latitud:"
-
-#. module: base_geolocalize
-#: model_terms:ir.ui.view,arch_db:base_geolocalize.view_crm_partner_geo_form
-msgid "Long:"
-msgstr "Longitud:"
 
 #. module: base_geolocalize
 #: model:ir.model.fields,field_description:base_geolocalize.field_base_geo_provider__name
@@ -182,6 +184,16 @@ msgid "Partner Assignment"
 msgstr "Asignación de socio"
 
 #. module: base_geolocalize
+#: model:ir.module.module,shortdesc:base.module_base_geolocalize
+msgid "Partners Geolocation"
+msgstr ""
+
+#. module: base_geolocalize
+#: model_terms:ir.ui.view,arch_db:base_geolocalize.res_config_settings_view_form
+msgid "Provider"
+msgstr ""
+
+#. module: base_geolocalize
 #. odoo-python
 #: code:addons/base_geolocalize/models/base_geocoder.py:0
 msgid "Provider %s is not implemented for geolocation service."
@@ -194,9 +206,10 @@ msgid "Refresh"
 msgstr "Actualizar"
 
 #. module: base_geolocalize
-#: model_terms:ir.ui.view,arch_db:base_geolocalize.view_crm_partner_geo_form
-msgid "Refresh Localization"
-msgstr "Actualizar ubicación"
+#: model:ir.model.fields,field_description:base_geolocalize.field_res_partner__should_be_geolocalized
+#: model:ir.model.fields,field_description:base_geolocalize.field_res_users__should_be_geolocalized
+msgid "Should Be Geolocalized"
+msgstr ""
 
 #. module: base_geolocalize
 #: model:ir.model.fields,field_description:base_geolocalize.field_base_geo_provider__tech_name
@@ -232,8 +245,8 @@ msgstr "Desconocido"
 
 #. module: base_geolocalize
 #: model_terms:ir.ui.view,arch_db:base_geolocalize.view_crm_partner_geo_form
-msgid "Updated on:"
-msgstr "Actualizado el:"
+msgid "Updated on"
+msgstr ""
 
 #. module: base_geolocalize
 #: model:ir.model.fields,help:base_geolocalize.field_res_config_settings__geoloc_provider_googlemap_key
@@ -249,6 +262,3 @@ msgstr ""
 #: code:addons/base_geolocalize/models/res_partner.py:0
 msgid "Warning"
 msgstr "Advertencia"
-
-#~ msgid "Error with geolocation server:"
-#~ msgstr "Error con el servidor de geolocalización:"

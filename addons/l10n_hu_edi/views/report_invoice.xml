@@ -8,13 +8,19 @@
     </template>
 
     <template id="report_invoice_document" inherit_id="account.report_invoice_document" primary="True">
-        <xpath expr="//t[@t-set='forced_vat']" position="replace"/>
+        <t t-call="web.external_layout" position="attributes">
+            <attribute name="forced_vat"/>
+        </t>
         <xpath expr="//t[@t-set='o']" position="after">
+            <t t-set="is_sale_document" t-value="o.is_sale_document(include_receipts=True)" />
             <t t-set="sign" t-value="-1 if 'refund' in o.move_type else 1"/>
             <t t-set="custom_header" t-value="'l10n_hu_edi.custom_header'"/>
             <t t-set="information_block">
             <div class="col-6">
-                <div><strong>Supplier:</strong></div>
+                <div>
+                    <strong t-if="is_sale_document">Supplier:</strong>
+                    <strong t-else="">Customer:</strong>
+                </div>
                 <div class="float-start company_address">
                     <ul class="list-unstyled">
                         <li><t t-out="o.company_id.partner_id" t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": true}'/></li>
@@ -29,7 +35,7 @@
                         <li t-if="o.partner_id.commercial_partner_id.country_id and o.partner_id.commercial_partner_id.country_id.code!='HU' and o.company_id.vat">
                             EU Tax ID: <span t-out="'HU%s' % o.company_id.vat[:8]"/>
                         </li>
-                        <li t-if="o.move_type in ['out_invoice', 'out_receipt'] and o.partner_bank_id">Bank Account: <span t-field="o.partner_bank_id.acc_number"/></li>
+                        <li t-if="o.move_type in ['out_invoice', 'out_receipt'] and o.partner_bank_id">Bank Account: <span t-field="o.partner_bank_id.account_number"/></li>
                         <li t-if="o.company_id.l10n_hu_tax_regime=='ie'">The issuer of the invoice is <u>Exempt from VAT</u>.</li>
                         <li t-if="o.company_id.l10n_hu_tax_regime=='ca'">The issuer of the invoice is <u>Cash accounting</u>.</li>
                         <li t-if="o.company_id.l10n_hu_tax_regime=='sb'">The issuer of the invoice is <u>Small taxpayer</u>.</li>
@@ -41,11 +47,12 @@
         <xpath expr="//div[@name='invoice_date']/t[1]" position="attributes">
             <attribute name="t-if">o.move_type == 'out_invoice' or (o.move_type == 'out_refund' and not o.reversed_entry_id)</attribute>
         </xpath>
-        <xpath expr="//div[@name='address_not_same_as_shipping']//address" position="before">
-            <strong>Customer:</strong>
+        <xpath expr="//t[@name='address_not_same_as_shipping']//address" position="before">
+            <strong t-if="is_sale_document">Customer:</strong>
+            <strong t-else="">Supplier:</strong>
         </xpath>
-        <xpath expr="//div[@name='shipping_address_block']/../.." position="replace"/>
-        <xpath expr="//div[@name='address_not_same_as_shipping']//span[@t-field='o.partner_id.vat']/.." position="after">
+        <xpath expr="//t[@t-set='information_block'][div[@name='shipping_address_block']]" position="replace"/>
+        <xpath expr="//t[@name='address_not_same_as_shipping']//t[@id='inv_tax_id_label']" position="after">
             <div t-if="o.partner_id.l10n_hu_group_vat">Group Member Tax ID: <span t-field="o.partner_id.l10n_hu_group_vat"/></div>
             <div groups="account.group_delivery_invoice_address" name="shipping_address_block">
                 <div/>
@@ -53,17 +60,19 @@
                 <div t-field="o.partner_shipping_id" t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}'/>
             </div>
         </xpath>
-        <xpath expr="//div[@name='address_same_as_shipping']//address" position="before">
-            <strong>Customer:</strong>
+        <xpath expr="//t[@name='address_same_as_shipping']//address" position="before">
+            <strong t-if="is_sale_document">Customer:</strong>
+            <strong t-else="">Supplier:</strong>
         </xpath>
-        <xpath expr="//div[@name='address_same_as_shipping']//span[@t-field='o.partner_id.vat']/.." position="after">
+        <xpath expr="//t[@name='address_same_as_shipping']//t[@id='inv_tax_id_label']" position="after">
             <div t-if="o.partner_id.l10n_hu_group_vat">Group Member Tax ID: <span t-field="o.partner_id.l10n_hu_group_vat"/></div>
-            <div t-if="o.move_type == 'out_refund' and o.partner_bank_id">Bank Account: <span t-field="o.partner_bank_id.acc_number"/></div>
+            <div t-if="o.move_type == 'out_refund' and o.partner_bank_id">Bank Account: <span t-field="o.partner_bank_id.account_number"/></div>
         </xpath>
-        <xpath expr="//div[@name='no_shipping']//address" position="before">
-            <strong>Customer:</strong>
+        <xpath expr="//t[@name='no_shipping']//address" position="before">
+            <strong t-if="is_sale_document">Customer:</strong>
+            <strong t-else="">Supplier:</strong>
         </xpath>
-        <xpath expr="//div[@name='no_shipping']//span[@t-field='o.partner_id.vat']/.." position="after">
+        <xpath expr="//t[@name='no_shipping']//t[@id='inv_tax_id_label']" position="after">
             <div t-if="o.partner_id.l10n_hu_group_vat">Group Member Tax ID: <span t-field="o.partner_id.l10n_hu_group_vat"/></div>
         </xpath>
         <xpath expr="//div[@name='due_date']" position="after">
@@ -91,9 +100,7 @@
         </xpath>
         <xpath expr="//div[hasclass('clearfix')]//t[@t-call='account.document_tax_totals']" position="attributes">
             <attribute name="t-call">l10n_hu_edi.document_tax_totals</attribute>
-        </xpath>
-        <xpath expr="//div[hasclass('clearfix')]//t[@t-set='tax_totals']" position="attributes">
-            <attribute name="t-value">o._l10n_hu_get_invoice_totals_for_report()</attribute>
+            <attribute name="tax_totals">o._l10n_hu_get_invoice_totals_for_report()</attribute>
         </xpath>
         <xpath expr="//td[@name='account_invoice_line_name']/span" position="after">
             <div t-if="line.product_id.l10n_hu_product_code_type and line.product_id.l10n_hu_product_code">

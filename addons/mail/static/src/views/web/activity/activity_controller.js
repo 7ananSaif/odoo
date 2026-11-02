@@ -1,6 +1,6 @@
 import { _t } from "@web/core/l10n/translation";
 
-import { Component, useState } from "@odoo/owl";
+import { Component, proxy, t, useProps } from "@odoo/owl";
 
 import { useService } from "@web/core/utils/hooks";
 import { useModel } from "@web/model/model";
@@ -14,16 +14,17 @@ import { SelectCreateDialog } from "@web/views/view_dialogs/select_create_dialog
 
 export class ActivityController extends Component {
     static components = { Layout, SearchBar, CogMenu };
-    static props = {
+    props = useProps({
         ...standardViewProps,
-        Model: Function,
-        Renderer: Function,
-        archInfo: Object,
-    };
+        Model: t.function(),
+        Renderer: t.function(),
+        archInfo: t.object(),
+    });
     static template = "mail.ActivityController";
 
     setup() {
-        this.model = useState(useModel(this.props.Model, this.modelParams));
+        this.archInfo = this.props.archInfo;
+        this.model = proxy(useModel(this.props.Model, this.modelParams));
 
         this.dialog = useService("dialog");
         this.action = useService("action");
@@ -61,6 +62,7 @@ export class ActivityController extends Component {
                 resModel,
                 fields,
             },
+            limit: this.archInfo.limit || this.props.limit,
         };
     }
 

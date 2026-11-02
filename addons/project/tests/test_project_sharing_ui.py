@@ -1,7 +1,7 @@
-# -*- coding: utf-8 -*-
-
 from odoo import Command
 from odoo.tests import HttpCase, tagged
+
+from odoo.addons.mail.tests.common import mail_new_test_user
 
 @tagged('post_install', '-at_install')
 class TestProjectSharingUi(HttpCase):
@@ -52,9 +52,6 @@ class TestProjectSharingUi(HttpCase):
 
         self.project_portal.write({
             'allow_task_dependencies': True,
-            'collaborator_ids': [
-                Command.create({'partner_id': self.partner_portal.id}),
-            ],
         })
 
         project = self.env['project.project'].with_context({'mail_create_nolog': True}).create({
@@ -65,7 +62,7 @@ class TestProjectSharingUi(HttpCase):
             'res_model': 'project.project',
             'res_id': self.project_portal.id,
             'collaborator_ids': [
-                Command.create({'partner_id': self.partner_portal.id, 'access_mode': 'edit'}),
+                Command.create({'partner_id': self.partner_portal.id, 'access_mode': 'advanced_edit'}),
             ],
         })
 
@@ -81,7 +78,7 @@ class TestProjectSharingUi(HttpCase):
             'stage_id': self.project_portal.type_ids[0].id,
         })
 
-        self.start_tour("/odoo", 'project_sharing_with_blocked_task_tour', login="georges1")
+        self.start_tour("/my/projects", 'project_sharing_with_blocked_task_tour', login="georges1")
 
     def test_01_project_sharing(self):
         """ Test Project Sharing UI with an internal user """
@@ -98,14 +95,9 @@ class TestProjectSharingUi(HttpCase):
             Since a problem to logout Mitchell Admin to log in as Georges user, this test is created
             to launch a tour with portal user.
         """
-        self.env['project.share.wizard'].create({
-            'res_model': 'project.project',
-            'res_id': self.project_portal.id,
-            'collaborator_ids': [
-                Command.create({'partner_id': self.partner_portal.id, 'access_mode': 'edit'}),
-            ],
-        })
-
+        self.project_portal.collaborator_ids.filtered(
+            lambda c: c.partner_id == self.partner_portal
+        ).write({'access_mode': 'advanced_edit'})
         self.project_portal.write({
             'task_ids': [Command.create({
                 'name': "Test Project Sharing",
@@ -115,13 +107,9 @@ class TestProjectSharingUi(HttpCase):
         self.start_tour("/my/projects", 'portal_project_sharing_tour', login='georges1')
 
     def test_03_project_sharing(self):
-        self.env['project.share.wizard'].create({
-            'res_model': 'project.project',
-            'res_id': self.project_portal.id,
-            'collaborator_ids': [
-                Command.create({'partner_id': self.partner_portal.id, 'access_mode': 'edit'}),
-            ],
-        })
+        self.project_portal.collaborator_ids.filtered(
+            lambda c: c.partner_id == self.partner_portal
+        ).write({'access_mode': 'advanced_edit'})
 
         self.project_portal.write({
             'task_ids': [Command.create({
@@ -138,7 +126,7 @@ class TestProjectSharingUi(HttpCase):
             'res_model': 'project.project',
             'res_id': self.project_portal.id,
             'collaborator_ids': [
-                Command.create({'partner_id': self.partner_portal.id, 'access_mode': 'edit'}),
+                Command.create({'partner_id': self.partner_portal.id, 'access_mode': 'advanced_edit'}),
             ],
         })
         user_john = self.env["res.users"].create({
@@ -185,4 +173,6 @@ class TestProjectSharingUi(HttpCase):
                 "project_id": self.project_portal.id,
             }
         )
+        user_employee = mail_new_test_user(self.env, "alice", name="Alice")
+        self.project_portal.message_subscribe(partner_ids=user_employee.partner_id.ids)
         self.start_tour("/my/projects", "portal_project_sharing_chatter_mention_users", login="georges1")

@@ -7,10 +7,19 @@ from odoo.addons.sale.controllers import portal
 
 
 class CustomerPortal(portal.CustomerPortal):
-
-    @route(['/my/orders/<int:order_id>/update_line_dict'], type='jsonrpc', auth="public", website=True)
-    def portal_quote_option_update(self, order_id, line_id, access_token=None, remove=False, input_quantity=False, **kwargs):
-        """ Update the quantity of an optional SOline from a SO.
+    @route(
+        ["/my/orders/<int:order_id>/update_line_dict"], type="jsonrpc", auth="public", website=True
+    )
+    def portal_quote_option_update(
+        self,
+        order_id,
+        line_id,
+        access_token=None,
+        remove=False,
+        input_quantity=False,
+        **kwargs,  # noqa: ARG002
+    ):
+        """Update the quantity of an optional SOline from a SO.
 
         :param int order_id: `sale.order` id
         :param int line_id: `sale.order.line` id
@@ -20,35 +29,41 @@ class CustomerPortal(portal.CustomerPortal):
         :param dict kwargs: unused parameters
         """
         try:
-            order_sudo = self._document_check_access('sale.order', order_id, access_token=access_token)
+            order_sudo = self._document_check_access(
+                "sale.order", order_id, access_token=access_token
+            )
         except (AccessError, MissingError):
-            return request.redirect('/my')
+            return request.redirect("/my")
 
         # Redundant with can be edited on portal for line, ask sales if can rbe removed
         if not order_sudo._can_be_edited_on_portal():
-            return
+            return None
 
-        order_line = request.env['sale.order.line'].sudo().browse(int(line_id)).exists()
+        order_line = self.env["sale.order.line"].sudo().browse(int(line_id)).exists()
         if (
             not order_line
             or order_line.order_id != order_sudo
             or not order_line._can_be_edited_on_portal()
         ):
             # Do not allow updating non-optional lines from a quotation
-            return
+            return None
 
         if input_quantity is not False:
-            quantity = input_quantity
+            quantity = max(input_quantity, 0)
         else:
             number = -1 if remove else 1
             quantity = max((order_line.product_uom_qty + number), 0)
 
-        if order_line.product_type == 'combo':
+        if order_line.product_type == "combo":
             # for combo products, we update the quantities of the combo items too
-            combo_item_lines = order_line._get_linked_lines().filtered('combo_item_id')
-            combo_item_lines.update({'product_uom_qty': quantity})
+            combo_item_lines = order_line._get_linked_lines().filtered("combo_item_id")
+            combo_item_lines.update({"product_uom_qty": quantity})
 
         with self.env.protecting(
             [order_line._fields["discount"], order_line._fields["price_unit"]], order_line
         ):
             order_line.product_uom_qty = quantity
+
+        disabled = self.env['ir.config_parameter'].sudo().get_bool('sale.disable_sale_update', default=False)
+        if not disabled and order_sudo.has_active_pricelist and order_line.product_id:
+            order_line._compute_price_unit()

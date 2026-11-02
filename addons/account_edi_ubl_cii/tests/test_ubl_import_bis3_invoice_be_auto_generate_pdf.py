@@ -7,13 +7,15 @@ from odoo.tests import tagged
 @tagged('post_install_l10n', 'post_install', '-at_install')
 class TestUblImportBis3InvoiceBEAutoGeneratePDF(TestUblImportBis3InvoiceBE):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     def test_import_invoice_auto_generate_pdf(self):
-        def _run_wkhtmltopdf(*args, **kwargs):
+        def _run_pdf_engine_without_processing(*args, **kwargs):
             _filename, file_content = self._import_file_content('test_import_invoice_auto_generate_pdf', 'pdf')
             return file_content
 
         def _set_pdf_param(value):
-            self.env['ir.config_parameter'].sudo().set_param(
+            self.env['ir.config_parameter'].sudo().set_bool(
                 'account_edi_ubl_cii.disable_pdf_in_xml',
                 value
             )
@@ -21,7 +23,7 @@ class TestUblImportBis3InvoiceBEAutoGeneratePDF(TestUblImportBis3InvoiceBE):
 
         def _import_and_assert(should_generate_pdf):
             # Import the document that doesn't contain an embedded PDF
-            with patch.object(self.env.registry['ir.actions.report'], '_run_wkhtmltopdf', _run_wkhtmltopdf):
+            with patch.object(self.env.registry['ir.actions.report'], '_run_pdf_engine_without_processing', _run_pdf_engine_without_processing):
                 bill = self._import_invoice_as_attachment_on(
                     test_name='test_import_invoice_auto_generate_pdf',
                     journal=self.company_data["default_journal_purchase"].with_context(force_report_rendering=True),
@@ -36,8 +38,8 @@ class TestUblImportBis3InvoiceBEAutoGeneratePDF(TestUblImportBis3InvoiceBE):
         _import_and_assert(True)
 
         # Unabled conf -> No PDF
-        _set_pdf_param('True')
+        _set_pdf_param(True)
         _import_and_assert(False)
 
         # Return default behaviour
-        _set_pdf_param('False')
+        _set_pdf_param(False)

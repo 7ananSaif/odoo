@@ -13,18 +13,25 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0beta\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-12-11 13:00+0000\n"
-"Last-Translator: \"Manon Rondou (ronm)\" <ronm@odoo.com>\n"
-"Language-Team: French <https://translate.odoo.com/projects/odoo-19/rating/fr/"
-">\n"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 20:16+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: French <https://translate.odoo.com/projects/odoo-s19-4/rating/"
+"fr/>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=(n == 0 || n == 1) ? 0 : ((n != 0 && n % "
 "1000000 == 0) ? 1 : 2);\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: rating
+#: model:ir.module.module,description:base.module_rating
+msgid ""
+"\n"
+"This module allows a customer to give rating.\n"
+msgstr ""
 
 #. module: rating
 #: model_terms:ir.ui.view,arch_db:rating.rating_external_page_invalid_partner
@@ -38,18 +45,25 @@ msgstr "# Évaluations"
 
 #. module: rating
 #: model_terms:ir.ui.view,arch_db:rating.rating_external_page_view
-msgid "<i class=\"fa fa-arrow-left me-1\"/> Back to the Homepage"
-msgstr "<i class=\"fa fa-arrow-left me-1\"/> Retour à la page d'accueil"
+msgid "<i class=\"oi me-1\" data-icon=\"arrow_back\"/> Back to the Homepage"
+msgstr ""
+"<i class=\"oi me-1\" data-icon=\"arrow_back\"/> Retour à la page d'accueil"
 
 #. module: rating
 #: model_terms:ir.ui.view,arch_db:rating.rating_rating_view_kanban_stars
-msgid "<i class=\"fa fa-clock-o me-2\" aria-label=\"Create date\"/>"
-msgstr "<i class=\"fa fa-clock-o me-2\" aria-label=\"Date de création\"/>"
+msgid ""
+"<i class=\"oi me-2\" data-icon=\"schedule\" aria-label=\"Create date\"/>"
+msgstr ""
+"<i class=\"oi me-2\" data-icon=\"schedule\" aria-label=\"Date de création\"/>"
 
 #. module: rating
 #: model_terms:ir.ui.view,arch_db:rating.rating_rating_view_kanban_stars
-msgid "<i class=\"fa fa-folder me-2\" aria-label=\"Open folder\"/>"
-msgstr "<i class=\"fa fa-folder me-2\" aria-label=\"Dossier ouvert\"/>"
+msgid ""
+"<i class=\"oi oi-filled me-2\" data-icon=\"folder\" aria-label=\"Open "
+"folder\"/>"
+msgstr ""
+"<i class=\"oi oi-filled me-2\" data-icon=\"folder\" aria-label=\"Dossier "
+"ouvert\"/>"
 
 #. module: rating
 #: model_terms:ir.ui.view,arch_db:rating.rating_rating_view_kanban_stars
@@ -92,6 +106,11 @@ msgstr "Créé par"
 #: model_terms:ir.ui.view,arch_db:rating.rating_rating_view_search
 msgid "Customer"
 msgstr "Client"
+
+#. module: rating
+#: model:ir.module.module,shortdesc:base.module_rating
+msgid "Customer Rating"
+msgstr ""
 
 #. module: rating
 #: model:ir.model.fields,field_description:rating.field_mail_message__display_name
@@ -146,7 +165,6 @@ msgstr "Une demi-étoile"
 #. module: rating
 #. odoo-python
 #: code:addons/rating/controllers/main.py:0
-#: model:ir.model.fields.selection,name:rating.selection__discuss_channel__rating_avg_text__top
 #: model:ir.model.fields.selection,name:rating.selection__product_template__rating_avg_text__top
 #: model:ir.model.fields.selection,name:rating.selection__project_task__rating_avg_text__top
 #: model:ir.model.fields.selection,name:rating.selection__rating_mixin__rating_avg_text__top
@@ -278,7 +296,6 @@ msgstr "Nom"
 #. module: rating
 #. odoo-python
 #: code:addons/rating/controllers/main.py:0
-#: model:ir.model.fields.selection,name:rating.selection__discuss_channel__rating_avg_text__ok
 #: model:ir.model.fields.selection,name:rating.selection__product_template__rating_avg_text__ok
 #: model:ir.model.fields.selection,name:rating.selection__project_task__rating_avg_text__ok
 #: model:ir.model.fields.selection,name:rating.selection__rating_mixin__rating_avg_text__ok
@@ -294,7 +311,6 @@ msgid "No rating yet"
 msgstr "Aucune évaluation pour l'instant"
 
 #. module: rating
-#: model:ir.model.fields.selection,name:rating.selection__discuss_channel__rating_avg_text__none
 #: model:ir.model.fields.selection,name:rating.selection__product_template__rating_avg_text__none
 #: model:ir.model.fields.selection,name:rating.selection__project_task__rating_avg_text__none
 #: model:ir.model.fields.selection,name:rating.selection__rating_mixin__rating_avg_text__none
@@ -468,15 +484,16 @@ msgstr "Évaluation :"
 #: model:ir.model.fields,field_description:rating.field_gamification_badge_user__rating_ids
 #: model:ir.model.fields,field_description:rating.field_gamification_challenge__rating_ids
 #: model:ir.model.fields,field_description:rating.field_iap_account__rating_ids
+#: model:ir.model.fields,field_description:rating.field_ir_access__rating_ids
 #: model:ir.model.fields,field_description:rating.field_ir_actions_server__rating_ids
 #: model:ir.model.fields,field_description:rating.field_ir_cron__rating_ids
 #: model:ir.model.fields,field_description:rating.field_lunch_supplier__rating_ids
 #: model:ir.model.fields,field_description:rating.field_mail_blacklist__rating_ids
 #: model:ir.model.fields,field_description:rating.field_mail_thread__rating_ids
 #: model:ir.model.fields,field_description:rating.field_mail_thread_blacklist__rating_ids
-#: model:ir.model.fields,field_description:rating.field_mail_thread_cc__rating_ids
 #: model:ir.model.fields,field_description:rating.field_mail_thread_main_attachment__rating_ids
 #: model:ir.model.fields,field_description:rating.field_mail_thread_phone__rating_ids
+#: model:ir.model.fields,field_description:rating.field_mail_thread_subject_suggested__rating_ids
 #: model:ir.model.fields,field_description:rating.field_mail_tracking_duration_mixin__rating_ids
 #: model:ir.model.fields,field_description:rating.field_maintenance_equipment__rating_ids
 #: model:ir.model.fields,field_description:rating.field_maintenance_request__rating_ids
@@ -560,7 +577,6 @@ msgstr "Il n'y a pas d'évaluation pour le moment."
 #. module: rating
 #. odoo-python
 #: code:addons/rating/controllers/main.py:0
-#: model:ir.model.fields.selection,name:rating.selection__discuss_channel__rating_avg_text__ko
 #: model:ir.model.fields.selection,name:rating.selection__product_template__rating_avg_text__ko
 #: model:ir.model.fields.selection,name:rating.selection__project_task__rating_avg_text__ko
 #: model:ir.model.fields.selection,name:rating.selection__rating_mixin__rating_avg_text__ko
@@ -602,48 +618,3 @@ msgstr "pour"
 #: model_terms:ir.ui.view,arch_db:rating.rating_rating_view_kanban
 msgid "on"
 msgstr "le"
-
-#~ msgid "Customer rated %r."
-#~ msgstr "Le client a évalué %r."
-
-#~ msgid "Date"
-#~ msgstr "Date"
-
-#~ msgid "Dissatisfied"
-#~ msgstr "Insatisfait"
-
-#~ msgid "Go back to the Homepage"
-#~ msgstr "Retourner à la page d'accueil"
-
-#~ msgid "Group By"
-#~ msgstr "Regrouper par"
-
-#~ msgid "Incorrect rating: should be 1, 3 or 5 (received %d)"
-#~ msgstr "Évaluation incorrecte : devrait être 1, 3 ou 5 (reçu %d)"
-
-#~ msgid "Last 30 days"
-#~ msgstr "Les 30 derniers jours"
-
-#~ msgid "Last 7 days"
-#~ msgstr "Les 7 derniers jours"
-
-#~ msgid "No Rating yet"
-#~ msgstr "Aucune évaluation pour l'instant"
-
-#~ msgid "Okay"
-#~ msgstr "Bien"
-
-#~ msgid "Posting a rating should be done using message post API."
-#~ msgstr "L'évaluation devrait être publiée par un message post API."
-
-#~ msgid "Rating Value (/5)"
-#~ msgstr "Valeur de l'évaluation (/5)"
-
-#~ msgid "Satisfied"
-#~ msgstr "Satisfait"
-
-#~ msgid "Thank you, we appreciate your feedback!"
-#~ msgstr "Merci, nous apprécions votre retour !"
-
-#~ msgid "Today"
-#~ msgstr "Aujourd'hui"

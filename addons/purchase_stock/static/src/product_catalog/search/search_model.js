@@ -1,5 +1,5 @@
+import { useSubEnv } from "@web/owl2/utils";
 import { AccountProductCatalogSearchModel } from "@account/components/product_catalog/search/search_model";
-import { useSubEnv } from "@odoo/owl";
 import { getSuggestToggleState } from "../utils";
 
 export class PurchaseStockProductCatalogSearchModel extends AccountProductCatalogSearchModel {
@@ -125,7 +125,7 @@ export class PurchaseStockProductCatalogSearchModel extends AccountProductCatalo
             suggest_based_on: this.suggest.basedOn,
             suggest_days: this.suggest.numberOfDays,
             suggest_percent: this.suggest.percentFactor,
-            section_id: this.selectedSection.sectionId ?? false,
+            section_id: this.selectedSectionId ?? false,
         };
         if (!this.suggest.suggestToggle.isOn) {
             for (const k of new Set([...Object.keys(suggestContext)])) {

@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 from contextlib import contextmanager
-from freezegun import freeze_time
 from unittest.mock import patch
 
 from odoo import exceptions, tools
@@ -17,19 +14,6 @@ class MockSMS(common.HttpCase):
     def tearDown(self):
         super(MockSMS, self).tearDown()
         self._clear_sms_sent()
-
-    # ------------------------------------------------------------
-    # UTILITY MOCKS
-    # ------------------------------------------------------------
-
-    @contextmanager
-    def mock_datetime_and_now(self, mock_dt):
-        """ Used when synchronization date (using env.cr.now()) is important
-        in addition to standard datetime mocks. Used mainly to detect sync
-        issues. """
-        with freeze_time(mock_dt), \
-             patch.object(self.env.cr, 'now', lambda: mock_dt):
-            yield
 
     # ------------------------------------------------------------
     # GATEWAY MOCK
@@ -105,10 +89,10 @@ class MockSMS(common.HttpCase):
             self._new_sms += res.sudo()
             return res
 
-        def _sms_sms_send(records, unlink_failed=False, unlink_sent=True, raise_exception=False):
+        def _sms_sms_send(records, unlink_sent=True, raise_exception=False):
             if sms_allow_unlink:
-                return sms_send_origin(records, unlink_failed=unlink_failed, unlink_sent=unlink_sent, raise_exception=raise_exception)
-            return sms_send_origin(records, unlink_failed=False, unlink_sent=False, raise_exception=raise_exception)
+                return sms_send_origin(records, unlink_sent=unlink_sent, raise_exception=raise_exception)
+            return sms_send_origin(records, unlink_sent=False, raise_exception=raise_exception)
 
         with patch.object(SmsApi, '_contact_iap', side_effect=_contact_iap) as _sms_api_contact_iap_mock, \
                 patch.object(SmsSms, 'create', autospec=True, wraps=SmsSms, side_effect=_sms_sms_create) as sms_create, \
@@ -250,7 +234,7 @@ class SMSCase(MockSMS):
           :param content: SMS content
           :param mail_message_values: dictionary of expected mail message fields values
         """
-        partners = self.env['res.partner'].concat(*list(p['partner'] for p in recipients_info if p.get('partner')))
+        partners = self.env['res.partner'].concat(p['partner'] for p in recipients_info if p.get('partner'))
         numbers = [p['number'] for p in recipients_info if p.get('number')]
         # special case of void notifications: check for False / False notifications
         if not partners and not numbers:
@@ -329,11 +313,16 @@ class SMSCase(MockSMS):
                 for message in messages:
                     self.assertEqual(content, tools.html2plaintext(tools.html_sanitize(message.body)).rstrip('\n'))
 
-    def assertSMSLogged(self, records, body):
+    def assertSMSLogged(self, records, body, message_values=None):
         for record in records:
-            message = record.message_ids[-1]
-            self.assertEqual(message.subtype_id, self.env.ref('mail.mt_note'))
-            self.assertEqual(message.message_type, 'sms')
+            message = record.message_ids[0]  # assume last message
+            expected_values = {
+                'message_type': 'sms',
+                'subtype_id': self.env.ref('mail.mt_note'),
+            }
+            if message_values:
+                expected_values.update(**message_values)
+            self.assertMessageFields(message, expected_values)
             self.assertEqual(tools.html2plaintext(message.body).rstrip('\n'), body)
 
 

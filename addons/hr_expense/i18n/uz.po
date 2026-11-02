@@ -14,15 +14,54 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:37+0000\n"
-"PO-Revision-Date: 2025-10-08 18:37+0000\n"
-"Last-Translator: \n"
-"Language-Team: \n"
+"POT-Creation-Date: 2026-10-09 17:39+0000\n"
+"PO-Revision-Date: 2026-08-31 16:39+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Uzbek <https://translate.odoo.com/projects/odoo-s19-4/"
+"hr_expense/uz/>\n"
 "Language: uz\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: hr_expense
+#: model:ir.module.module,description:base.module_hr_expense
+msgid ""
+"\n"
+"Manage expenses by Employees\n"
+"============================\n"
+"\n"
+"This application allows you to manage your employees' daily expenses. It "
+"gives you access to your employees’ fee notes and give you the right to "
+"complete and validate or refuse the notes. After validation it creates an "
+"invoice for the employee.\n"
+"Employee can encode their own expenses and the validation flow puts it "
+"automatically in the accounting after validation by managers.\n"
+"\n"
+"\n"
+"The whole flow is implemented as:\n"
+"---------------------------------\n"
+"* Draft expense\n"
+"* Submitted by the employee to his manager\n"
+"* Approved by his manager\n"
+"* Validation by the accountant and accounting entries creation\n"
+"\n"
+"This module also uses analytic accounting and is compatible with the invoice "
+"on timesheet module so that you are able to automatically re-invoice your "
+"customers' expenses if your work by project.\n"
+msgstr ""
+
+#. module: hr_expense
+#: model:ir.model.fields,help:hr_expense.field_hr_expense__has_existing_bill
+msgid ""
+" - When a bill already exists, the payment will use the supplier payable "
+"account so it can be matched with the bill.\n"
+"                 - When no bill exists, the payment will be recorded "
+"directly on the expense account, as usual.\n"
+"            "
+msgstr ""
 
 #. module: hr_expense
 #. odoo-python
@@ -74,19 +113,15 @@ msgstr ""
 
 #. module: hr_expense
 #: model:ir.actions.report,print_report_name:hr_expense.action_report_hr_expense
-#, fuzzy
 msgid ""
-"'Expense - %s - %s' % (object.employee_id.name, (object.name).replace('/', "
-"''))"
+"'Expense - %s - %s' % (object.employee_id.name, (object.name or "
+"'').replace('/', ''))"
 msgstr ""
-"'Xarajat - %s - %s' % (object.employee_id.name, (object.name).replace('/', "
-"''))"
 
 #. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
-#, fuzzy
-msgid "(incl"
-msgstr "(shu jumladan"
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_submitted_expenses
+msgid "--<br/>"
+msgstr ""
 
 #. module: hr_expense
 #. odoo-python
@@ -103,9 +138,13 @@ msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
-#, fuzzy
-msgid "<i class=\"oi oi-arrow-right\"/> Setup your alias domain"
-msgstr "<i class=\"oi oi-arrow-right\"/> Taxallus domeningizni sozlang"
+msgid "<i class=\"oi\" data-icon=\"east\"/> Setup your alias domain"
+msgstr ""
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_split
+msgid "<span class=\"mx-1\" invisible=\"split_possible\">/</span>"
+msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.view_payment_form_inherit_expense
@@ -120,16 +159,15 @@ msgid "<span class=\"o_stat_text\">Journal Entry</span>"
 msgstr "<span class=\"o_stat_text\">Jurnal yozuvi</span>"
 
 #. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
+msgid "<span class=\"o_stat_text\">Payment</span>"
+msgstr ""
+
+#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
 #, fuzzy
 msgid "<span>@</span>"
 msgstr "<span>@</span>"
-
-#. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.report_expense
-#, fuzzy
-msgid "<span>Date:</span>"
-msgstr "<span>Sana:</span>"
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.report_expense
@@ -150,10 +188,21 @@ msgid "<span>Paid by:</span>"
 msgstr "<span>To‘lovchi:</span>"
 
 #. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_split
-#, fuzzy
-msgid "<span>The total amount doesn't match the original amount.</span>"
-msgstr "<span>Umumiy summa asl summaga mos kelmayapti.</span>"
+#: model_terms:ir.ui.view,arch_db:hr_expense.view_move_form_inherit_expense
+msgid ""
+"<span>This bill was already paid by an employee and the bill has been sent "
+"to you. Don't pay the supplier</span>"
+msgstr ""
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_submitted_expenses
+msgid "<strong>expenses</strong> pending approval, from:"
+msgstr ""
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_submitted_expenses
+msgid "A new expense is waiting for your approval in Odoo."
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__account_id
@@ -168,23 +217,21 @@ msgid "Accounting"
 msgstr "Buxgalteriya hisobi"
 
 #. module: hr_expense
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_post_wizard__accounting_date
 #: model_terms:ir.ui.view,arch_db:hr_expense.view_move_list_expense
 #, fuzzy
 msgid "Accounting Date"
 msgstr "Buxgalteriya sanasi"
 
 #. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_post_wizard_view
-#, fuzzy
-msgid "Accounting date"
-msgstr "Hisob-kitob sanasi"
-
-#. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__message_needaction
 #, fuzzy
 msgid "Action Needed"
 msgstr "Harakat talab qilinadi"
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
+msgid "Action Required"
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__activity_ids
@@ -197,6 +244,11 @@ msgstr "Faoliyatlar"
 #, fuzzy
 msgid "Activity Exception Decoration"
 msgstr "Faoliyat istisnosi belgisi"
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__activity_plans_ids
+msgid "Activity Plans"
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__activity_state
@@ -267,6 +319,12 @@ msgid "Amount Due"
 msgstr "To‘lanishi kerak bo‘lgan summa"
 
 #. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/hr_expense.py:0
+msgid "Amount reimbursed"
+msgstr ""
+
+#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
 #, fuzzy
 msgid "An"
@@ -281,16 +339,27 @@ msgstr "Yuklash paytida xatolik yuz berdi"
 
 #. module: hr_expense
 #: model:ir.model.fields,help:hr_expense.field_hr_expense__account_id
-#, fuzzy
-msgid "An expense account is expected"
-msgstr "Xarajat hisobi kutilmoqda"
+msgid ""
+"An expense account is expected for employee paid expenses and company paid "
+"expenses without a matched bill.\n"
+"For company paid expenses with a matched bill, the account needs to be the "
+"payable account of the bill."
+msgstr ""
 
 #. module: hr_expense
 #. odoo-javascript
 #: code:addons/hr_expense/static/src/views/expense_form_view.js:0
-#, fuzzy
-msgid "An expense of same category, amount and date already exists."
-msgstr "Xuddi shu toifadagi, summadagi va sanadagi xarajat allaqachon mavjud."
+msgid ""
+"An expense with the same product, amount, and date already exists.\n"
+"Are you sure you want to submit this one as well?"
+msgstr ""
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_split
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_split_form_view
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
+msgid "Analytic"
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model,name:hr_expense.model_account_analytic_account
@@ -334,7 +403,6 @@ msgstr "Tasdiqlash holati"
 
 #. module: hr_expense
 #. odoo-javascript
-#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
 #: code:addons/hr_expense/static/src/views/list.xml:0
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_approve_duplicate_view_form
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
@@ -373,6 +441,11 @@ msgid "Attach a receipt - usually an image or a PDF file."
 msgstr "Chekni biriktiring - odatda rasm yoki PDF fayl."
 
 #. module: hr_expense
+#: model:ir.model,name:hr_expense.model_ir_attachment
+msgid "Attachment"
+msgstr ""
+
+#. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__message_attachment_count
 #, fuzzy
 msgid "Attachment Count"
@@ -399,6 +472,12 @@ msgid "Auto-validation"
 msgstr "Avtomatik tekshirish"
 
 #. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_account_bank_statement_line__bill_paid_by_employee
+#: model:ir.model.fields,field_description:hr_expense.field_account_move__bill_paid_by_employee
+msgid "Bill Paid By Employee"
+msgstr ""
+
+#. module: hr_expense
 #: model:ir.model.fields,help:hr_expense.field_hr_expense__tax_ids
 #, fuzzy
 msgid ""
@@ -409,16 +488,15 @@ msgstr ""
 "uchun narxga kiritilgan soliqlar kabi hisoblanadi."
 
 #. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.report_expense
-#, fuzzy
-msgid "Business Trip"
-msgstr "Xizmat safari"
-
-#. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__can_approve
 #, fuzzy
 msgid "Can Approve"
 msgstr "Tasdiqlash huquqi"
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__can_edit_account
+msgid "Can Edit Account"
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__can_reset
@@ -427,33 +505,15 @@ msgid "Can Reset"
 msgstr "Qayta o‘rnatish huquqi"
 
 #. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_approve_duplicate_view_form
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_post_wizard_view
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_refuse_wizard_view_form
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_split
-#, fuzzy
-msgid "Cancel"
-msgstr "Bekor qilish"
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
+msgid "Cap Reimbursement to Policy"
+msgstr ""
 
 #. module: hr_expense
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__product_id
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
 #: model_terms:ir.ui.view,arch_db:hr_expense.product_product_expense_form_view
 #, fuzzy
 msgid "Category"
 msgstr "Turkum"
-
-#. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_register
-#, fuzzy
-msgid "Category:"
-msgstr "Turkum:"
-
-#. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_register
-#, fuzzy
-msgid "Category: not found"
-msgstr "Turkum: topilmadi"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__message_main_attachment_checksum
@@ -462,22 +522,29 @@ msgid "Checksum/SHA1"
 msgstr "Nazorat summasi/SHA1"
 
 #. module: hr_expense
+#. odoo-javascript
+#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
+msgid "Click here to create your employee profile."
+msgstr ""
+
+#. module: hr_expense
+#. odoo-javascript
+#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
+msgid "Click on all expenses"
+msgstr ""
+
+#. module: hr_expense
 #: model:product.template,name:hr_expense.expense_product_communication_product_template
 #, fuzzy
 msgid "Communication"
 msgstr "Aloqa"
 
 #. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/ir_actions_report.py:0
 #: model:ir.model,name:hr_expense.model_res_company
-#, fuzzy
-msgid "Companies"
-msgstr "Kompaniyalar"
-
-#. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__company_id
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_post_wizard__company_id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split__company_id
-#: model:ir.model.fields.selection,name:hr_expense.selection__hr_expense__payment_mode__company_account
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
 #, fuzzy
 msgid "Company"
@@ -496,6 +563,11 @@ msgid "Configuration"
 msgstr "Konfiguratsiya"
 
 #. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_product_job_position_limit__company_currency_id
+msgid "Cost Currency"
+msgstr ""
+
+#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.product_product_expense_kanban_view
 #, fuzzy
 msgid "Cost:"
@@ -506,6 +578,12 @@ msgstr "Narxi:"
 #, fuzzy
 msgid "Create a new expense"
 msgstr "Yangi xarajat kiritish"
+
+#. module: hr_expense
+#. odoo-javascript
+#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
+msgid "Create and edit a new employee profile."
+msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
@@ -533,7 +611,7 @@ msgstr ""
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__create_uid
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_approve_duplicate__create_uid
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_post_wizard__create_uid
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_product_job_position_limit__create_uid
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_refuse_wizard__create_uid
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split__create_uid
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split_wizard__create_uid
@@ -544,7 +622,7 @@ msgstr "Yaratuvchi"
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__create_date
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_approve_duplicate__create_date
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_post_wizard__create_date
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_product_job_position_limit__create_date
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_refuse_wizard__create_date
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split__create_date
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split_wizard__create_date
@@ -553,15 +631,10 @@ msgid "Created on"
 msgstr "Yaratilgan sana"
 
 #. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.report_expense
-#, fuzzy
-msgid "Credit Card"
-msgstr "Kredit karta"
-
-#. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__currency_id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split__currency_id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split_wizard__currency_id
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
 #, fuzzy
 msgid "Currency"
 msgstr "Valyuta"
@@ -573,8 +646,13 @@ msgid "Currency Rate"
 msgstr "Valyuta kursi"
 
 #. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__date
+#: model_terms:ir.ui.view,arch_db:hr_expense.report_expense
+msgid "Date"
+msgstr ""
+
+#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_register
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_submitted_expenses
 #, fuzzy
 msgid "Dear"
 msgstr "Hurmatli"
@@ -623,6 +701,7 @@ msgstr "Cheklaringizni OCR va Sun'iy intellekt yordamida raqamlashtiring"
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_account_analytic_account__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_account_analytic_applicability__display_name
+#: model:ir.model.fields,field_description:hr_expense.field_account_journal__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_account_move__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_account_move_line__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_account_payment__display_name
@@ -633,11 +712,12 @@ msgstr "Cheklaringizni OCR va Sun'iy intellekt yordamida raqamlashtiring"
 #: model:ir.model.fields,field_description:hr_expense.field_hr_employee_public__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_approve_duplicate__display_name
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_post_wizard__display_name
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_product_job_position_limit__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_refuse_wizard__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split_wizard__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_ir_actions_report__display_name
+#: model:ir.model.fields,field_description:hr_expense.field_ir_attachment__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_product_product__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_product_template__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_res_company__display_name
@@ -672,13 +752,6 @@ msgid "Domain"
 msgstr "Domen"
 
 #. module: hr_expense
-#. odoo-javascript
-#: code:addons/hr_expense/static/src/mixins/qrcode.js:0
-#, fuzzy
-msgid "Download our App"
-msgstr "Ilovamizni yuklab oling"
-
-#. module: hr_expense
 #: model:ir.model.fields.selection,name:hr_expense.selection__hr_expense__state__draft
 #: model:mail.message.subtype,name:hr_expense.mt_expense_reset
 #, fuzzy
@@ -694,6 +767,12 @@ msgid "Duplicate Expense"
 msgstr "Xarajatni nusxalash"
 
 #. module: hr_expense
+#. odoo-javascript
+#: code:addons/hr_expense/static/src/views/expense_form_view.js:0
+msgid "Duplicate Expense found"
+msgstr ""
+
+#. module: hr_expense
 #. odoo-python
 #: code:addons/hr_expense/models/account_move.py:0
 #, fuzzy
@@ -705,19 +784,21 @@ msgstr ""
 "yozuviga ega bo‘lishi kerak."
 
 #. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/ir_actions_report.py:0
 #: model:ir.model,name:hr_expense.model_hr_employee
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__employee_id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split__employee_id
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
+#: model_terms:ir.ui.view,arch_db:hr_expense.report_expense
 #, fuzzy
 msgid "Employee"
 msgstr "Xodim"
 
 #. module: hr_expense
 #: model:ir.model.fields.selection,name:hr_expense.selection__hr_expense__payment_mode__own_account
-#, fuzzy
-msgid "Employee (to reimburse)"
-msgstr "Xodim (to‘lovni qoplash uchun)"
+msgid "Employee (Through a Purchase Receipt)"
+msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
@@ -727,20 +808,55 @@ msgstr "Xodimlar xarajatlari jurnali"
 
 #. module: hr_expense
 #: model:ir.actions.act_window,name:hr_expense.action_hr_expense_account
-#: model:ir.ui.menu,name:hr_expense.menu_hr_expense_account_employee_expenses
 #, fuzzy
 msgid "Employee Expenses"
 msgstr "Xodimlar xarajatlari"
 
 #. module: hr_expense
-#. odoo-javascript
-#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
-#, fuzzy
-msgid ""
-"Enter a name then choose a category and configure the amount of your expense."
-msgstr "Nom kiriting, keyin turkumni tanlang va xarajat miqdorini belgilang."
+#. odoo-python
+#: code:addons/hr_expense/models/hr_expense.py:0
+msgid "Enter a description and select a product to proceed."
+msgstr ""
 
 #. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/hr_expense.py:0
+msgid "Enter a description to proceed."
+msgstr ""
+
+#. module: hr_expense
+#. odoo-javascript
+#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
+msgid "Enter the total amount of the expense."
+msgstr ""
+
+#. module: hr_expense
+#. odoo-javascript
+#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
+msgid "Enter your name to create your employee profile."
+msgstr ""
+
+#. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/hr_expense.py:0
+msgid "Exceeds company limit"
+msgstr ""
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__existing_bill_id
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
+msgid "Existing Bill"
+msgstr ""
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_account_bank_statement_line__existing_expense_ids
+#: model:ir.model.fields,field_description:hr_expense.field_account_move__existing_expense_ids
+msgid "Existing Expense"
+msgstr ""
+
+#. module: hr_expense
+#. odoo-javascript
+#: code:addons/hr_expense/static/src/webclient/share_target/expense_share_target_item.js:0
 #: model:account.journal,name:hr_expense.hr_expense_account_journal
 #: model:ir.model,name:hr_expense.model_hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_account_bank_statement_line__expense_ids
@@ -752,6 +868,7 @@ msgstr "Nom kiriting, keyin turkumni tanlang va xarajat miqdorini belgilang."
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split__expense_id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split_wizard__expense_id
 #: model:ir.model.fields.selection,name:hr_expense.selection__account_analytic_applicability__business_domain__expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.account_journal_dashboard_kanban_view_inherit_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_employee_view_form_inherit_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
 #, fuzzy
@@ -779,10 +896,14 @@ msgstr "Xarajatni takroran tasdiqlash"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_employee__expense_manager_id
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_employee_search_view
 #, fuzzy
 msgid "Expense Approver"
 msgstr "Xarajatni tasdiqlovchi"
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.account_journal_dashboard_kanban_view_inherit_expense
+msgid "Expense Bills"
+msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
@@ -791,15 +912,6 @@ msgid "Expense Card"
 msgstr "Xarajat kartasi"
 
 #. module: hr_expense
-#: model:ir.actions.act_window,name:hr_expense.hr_expense_product
-#: model:ir.ui.menu,name:hr_expense.menu_hr_product
-#: model_terms:ir.ui.view,arch_db:hr_expense.product_product_expense_form_view
-#, fuzzy
-msgid "Expense Categories"
-msgstr "Xarajat turkumlari"
-
-#. module: hr_expense
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__date
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
 #, fuzzy
 msgid "Expense Date"
@@ -818,10 +930,16 @@ msgid "Expense Manager"
 msgstr "Xarajatlar boshqaruvchisi"
 
 #. module: hr_expense
-#: model:ir.model,name:hr_expense.model_hr_expense_post_wizard
-#, fuzzy
-msgid "Expense Posting Wizard"
-msgstr "Xarajatlarni kiritish yordamchisi"
+#: model:ir.model,name:hr_expense.model_hr_expense_product_job_position_limit
+msgid "Expense Product Limit by Job Position"
+msgstr ""
+
+#. module: hr_expense
+#: model:ir.actions.act_window,name:hr_expense.hr_expense_product
+#: model:ir.ui.menu,name:hr_expense.menu_hr_product
+#: model_terms:ir.ui.view,arch_db:hr_expense.product_product_expense_form_view
+msgid "Expense Products"
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model,name:hr_expense.model_hr_expense_refuse_wizard
@@ -866,12 +984,6 @@ msgid "Expense approved"
 msgstr "Xarajat tasdiqlandi"
 
 #. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_product
-#, fuzzy
-msgid "Expense categories can be reinvoiced to your customers."
-msgstr "Xarajat turkumlari mijozlaringizga qayta hisob-kitob qilinishi mumkin."
-
-#. module: hr_expense
 #. odoo-python
 #: code:addons/hr_expense/models/hr_expense.py:0
 #, fuzzy
@@ -879,10 +991,21 @@ msgid "Expense created from a split."
 msgstr "Bo‘lishdan yaratilgan xarajat."
 
 #. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/account_journal.py:0
+msgid "Expense linked moves"
+msgstr ""
+
+#. module: hr_expense
 #: model:mail.message.subtype,description:hr_expense.mt_expense_paid
 #, fuzzy
 msgid "Expense paid"
 msgstr "Xarajat to‘landi"
+
+#. module: hr_expense
+#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_product
+msgid "Expense products can be reinvoiced to your customers."
+msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_refuse_wizard_view_form
@@ -910,17 +1033,12 @@ msgid "Expense split"
 msgstr "Xarajatni bo‘lish"
 
 #. module: hr_expense
-#: model:ir.actions.act_window,name:hr_expense.action_hr_expense_department_to_approve
-#, fuzzy
-msgid "Expense to Approve"
-msgstr "Tasdiqlanishi kerak bo‘lgan xarajat"
-
-#. module: hr_expense
 #. odoo-python
 #: code:addons/hr_expense/models/account_move.py:0
 #: code:addons/hr_expense/models/account_payment.py:0
 #: model:ir.model.fields,field_description:hr_expense.field_product_product__can_be_expensed
 #: model:ir.model.fields,field_description:hr_expense.field_product_template__can_be_expensed
+#: model:ir.module.module,shortdesc:base.module_hr_expense
 #: model:ir.ui.menu,name:hr_expense.menu_hr_expense_root
 #: model:product.template,name:hr_expense.product_product_no_cost_product_template
 #: model:res.groups.privilege,name:hr_expense.res_groups_privilege_expenses
@@ -952,11 +1070,6 @@ msgid "Expenses Report"
 msgstr "Xarajatlar hisoboti"
 
 #. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_submitted_expenses
-msgid "Expenses approval"
-msgstr ""
-
-#. module: hr_expense
 #. odoo-python
 #: code:addons/hr_expense/models/hr_expense.py:0
 #, fuzzy
@@ -970,6 +1083,13 @@ msgid "Expenses of Your Team Member"
 msgstr "Jamoa a'zongizning xarajatlari"
 
 #. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/hr_expense.py:0
+msgid "Expenses similar to %(other_expense_name)s"
+msgstr ""
+
+#. module: hr_expense
+#: model:ir.actions.act_window,name:hr_expense.action_hr_expense_department_to_approve
 #: model:ir.model.fields,field_description:hr_expense.field_hr_department__expenses_to_approve_count
 #, fuzzy
 msgid "Expenses to Approve"
@@ -981,6 +1101,11 @@ msgstr "Tasdiqlanishi kerak bo‘lgan xarajatlar"
 #, fuzzy
 msgid "Expenses to Process"
 msgstr "Ishlov berilishi kerak bo‘lgan xarajatlar"
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.view_account_invoice_filter_inherit_expense
+msgid "Expenses to post"
+msgstr ""
 
 #. module: hr_expense
 #. odoo-python
@@ -1026,12 +1151,6 @@ msgid "Followers (Partners)"
 msgstr "Kuzatuvchilar (Hamkorlar)"
 
 #. module: hr_expense
-#: model:ir.model.fields,help:hr_expense.field_hr_expense__activity_type_icon
-#, fuzzy
-msgid "Font awesome icon e.g. fa-tasks"
-msgstr "Font awesome ikonkasi, masalan fa-tasks"
-
-#. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__former_sheet_id
 #, fuzzy
 msgid "Former Report"
@@ -1070,14 +1189,31 @@ msgid "Go to Account"
 msgstr "Hisobga o‘tish"
 
 #. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/hr_expense.py:0
+msgid "Go to expense(s)"
+msgstr ""
+
+#. module: hr_expense
+#. odoo-javascript
+#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
+msgid "Go to the Settings tab to configure the expense approver."
+msgstr ""
+
+#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.product_product_expense_form_view
 #, fuzzy
 msgid "Guideline"
 msgstr "Yo‘riqnoma"
 
 #. module: hr_expense
-#: model:ir.actions.server,name:hr_expense.ir_cron_send_submitted_expenses_mail_ir_actions_server
-msgid "HR Expense: Send Submitted Expenses Mail"
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__has_existing_bill
+msgid "Has Existing Bill"
+msgstr ""
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__has_expense_job_position_limit
+msgid "Has Expense Job Position Limit"
 msgstr ""
 
 #. module: hr_expense
@@ -1087,10 +1223,20 @@ msgid "Has Message"
 msgstr "Xabar mavjud"
 
 #. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_submitted_expenses
+msgid "Hi"
+msgstr ""
+
+#. module: hr_expense
 #: model_terms:product.template,description:hr_expense.expense_product_travel_accommodation_product_template
 #, fuzzy
 msgid "Hotel, plane ticket, taxi, etc."
 msgstr "Mehmonxona, samolyot chiptasi, taksi va hokazo."
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_account_tax__hr_expense_ids
+msgid "Hr Expense"
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_res_config_settings__hr_expense_alias_domain_id
@@ -1101,6 +1247,7 @@ msgstr "Hr Xarajat taxallus domeni"
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_account_analytic_account__id
 #: model:ir.model.fields,field_description:hr_expense.field_account_analytic_applicability__id
+#: model:ir.model.fields,field_description:hr_expense.field_account_journal__id
 #: model:ir.model.fields,field_description:hr_expense.field_account_move__id
 #: model:ir.model.fields,field_description:hr_expense.field_account_move_line__id
 #: model:ir.model.fields,field_description:hr_expense.field_account_payment__id
@@ -1111,11 +1258,12 @@ msgstr "Hr Xarajat taxallus domeni"
 #: model:ir.model.fields,field_description:hr_expense.field_hr_employee_public__id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_approve_duplicate__id
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_post_wizard__id
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_product_job_position_limit__id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_refuse_wizard__id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split__id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split_wizard__id
 #: model:ir.model.fields,field_description:hr_expense.field_ir_actions_report__id
+#: model:ir.model.fields,field_description:hr_expense.field_ir_attachment__id
 #: model:ir.model.fields,field_description:hr_expense.field_product_product__id
 #: model:ir.model.fields,field_description:hr_expense.field_product_template__id
 #: model:ir.model.fields,field_description:hr_expense.field_res_company__id
@@ -1182,16 +1330,31 @@ msgid "Invalid attachments!"
 msgstr "Noto‘g‘ri ilovalar!"
 
 #. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.view_account_invoice_filter_inherit_expense
+msgid "Invoices from an expense, approved but not posted yet"
+msgstr ""
+
+#. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__is_editable
 #, fuzzy
 msgid "Is Editable By Current User"
 msgstr "Joriy foydalanuvchi tomonidan tahrirlash mumkinmi"
 
 #. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__is_expense_exceeding_job_position_limit
+msgid "Is Expense Exceeding Job Position Limit"
+msgstr ""
+
+#. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__message_is_follower
 #, fuzzy
 msgid "Is Follower"
 msgstr "Kuzatuvchimi"
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__is_own_expense
+msgid "Is Own Expense"
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__is_multiple_currency
@@ -1213,9 +1376,28 @@ msgid "It all begins here - let's go!"
 msgstr "Hammasi shu yerdan boshlanadi - qani ketdik!"
 
 #. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__expense_job_position_limit_amount
+msgid "Job Position Limit"
+msgstr ""
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__expense_job_position_limit_amount_currency
+msgid "Job Position Limit in Currency"
+msgstr ""
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_product_product__expense_job_position_limit_ids
+msgid "Job Position Limits"
+msgstr ""
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_product_job_position_limit__job_ids
+msgid "Job Positions"
+msgstr ""
+
+#. module: hr_expense
+#: model:ir.model,name:hr_expense.model_account_journal
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__journal_id
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_post_wizard__employee_journal_id
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_post_wizard_view
 #, fuzzy
 msgid "Journal"
 msgstr "Jurnal"
@@ -1278,9 +1460,14 @@ msgid "Label Currency Rate"
 msgstr "Valyuta kursi yorlig‘i"
 
 #. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__last_notification_date
+msgid "Last Notification Date"
+msgstr ""
+
+#. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__write_uid
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_approve_duplicate__write_uid
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_post_wizard__write_uid
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_product_job_position_limit__write_uid
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_refuse_wizard__write_uid
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split__write_uid
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split_wizard__write_uid
@@ -1291,7 +1478,7 @@ msgstr "Oxirgi yangilovchi"
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__write_date
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_approve_duplicate__write_date
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_post_wizard__write_date
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_product_job_position_limit__write_date
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_refuse_wizard__write_date
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split__write_date
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split_wizard__write_date
@@ -1304,6 +1491,11 @@ msgstr "Oxirgi yangilangan sana"
 #, fuzzy
 msgid "Late Activities"
 msgstr "Kechikkan faoliyatlar"
+
+#. module: hr_expense
+#: model:ir.model.fields,help:hr_expense.field_hr_expense_product_job_position_limit__job_ids
+msgid "Leave empty to define the limit for all job positions."
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_res_config_settings__hr_expense_use_mailgateway
@@ -1328,6 +1520,16 @@ msgstr ""
 #, fuzzy
 msgid "Let's go back to your expenses."
 msgstr "Keling, xarajatlaringizga qaytaylik"
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_product_job_position_limit__limit_amount
+msgid "Limit"
+msgstr ""
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.product_product_expense_form_view
+msgid "Limits"
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_res_config_settings__module_hr_expense_stripe
@@ -1373,15 +1575,25 @@ msgstr ""
 #. module: hr_expense
 #. odoo-javascript
 #: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
-#, fuzzy
-msgid "Managers can inspect all expenses from here."
-msgstr "Menejerlar bu yerdan barcha xarajatlarni ko‘rib chiqishlari mumkin."
+msgid "Managers can inspect and select expenses from here."
+msgstr ""
+
+#. module: hr_expense
+#. odoo-javascript
+#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
+msgid "Managers can inspect expenses from here."
+msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.report_expense
 #, fuzzy
 msgid "Marc Demo"
 msgstr "Mark Demo"
+
+#. module: hr_expense
+#: model:ir.model.fields,help:hr_expense.field_hr_expense__activity_type_icon
+msgid "Material Symbols icon e.g. checklist"
+msgstr ""
 
 #. module: hr_expense
 #: model:product.template,name:hr_expense.expense_product_meal_product_template
@@ -1412,6 +1624,24 @@ msgstr "Bosib o‘tilgan masofa"
 #, fuzzy
 msgid "Mitchell Admin"
 msgstr "Mitchell Admin"
+
+#. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/ir_actions_report.py:0
+msgid "Multiple Managers"
+msgstr ""
+
+#. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/ir_actions_report.py:0
+msgid "Multiple employees"
+msgstr ""
+
+#. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/ir_actions_report.py:0
+msgid "Multiple payment modes"
+msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
@@ -1448,20 +1678,6 @@ msgstr "Nomi"
 
 #. module: hr_expense
 #. odoo-python
-#: code:addons/hr_expense/wizard/hr_expense_post_wizard.py:0
-#, fuzzy
-msgid "New expense entries"
-msgstr "Yangi xarajat yozuvlari"
-
-#. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_submitted_expenses
-msgid ""
-"New expenses are waiting for your approval. You can Review them by following "
-"this link."
-msgstr ""
-
-#. module: hr_expense
-#. odoo-python
 #: code:addons/hr_expense/models/hr_expense.py:0
 #, fuzzy
 msgid "New expenses waiting for your approval"
@@ -1492,6 +1708,16 @@ msgid "Next Activity Type"
 msgstr "Keyingi faoliyat turi"
 
 #. module: hr_expense
+#: model:res.groups.privilege,placeholder:hr_expense.res_groups_privilege_expenses
+msgid "No"
+msgstr ""
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
+msgid "No (Direct Expense)"
+msgstr ""
+
+#. module: hr_expense
 #. odoo-python
 #: code:addons/hr_expense/models/hr_expense.py:0
 #, fuzzy
@@ -1506,10 +1732,15 @@ msgid "No data yet!"
 msgstr "Hali ma'lumot yo‘q!"
 
 #. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/ir_actions_report.py:0
+msgid "No employee"
+msgstr ""
+
+#. module: hr_expense
 #: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_product
-#, fuzzy
-msgid "No expense categories found. Let's create one!"
-msgstr "Xarajat toifalari topilmadi. Keling, birini yarataylik!"
+msgid "No expense products found. Let's create one!"
+msgstr ""
 
 #. module: hr_expense
 #. odoo-python
@@ -1517,6 +1748,17 @@ msgstr "Xarajat toifalari topilmadi. Keling, birini yarataylik!"
 #, fuzzy
 msgid "No work contact found for the employee %(name)s, please configure one."
 msgstr "%(name)s xodim uchun ish kontakti topilmadi, iltimos, uni sozlang."
+
+#. module: hr_expense
+#: model:ir.model.fields.selection,name:hr_expense.selection__hr_expense__payment_mode__company_account
+msgid "None (Paid by Company)"
+msgstr ""
+
+#. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/ir_actions_report.py:0
+msgid "None (automatic)"
+msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.product_product_expense_categories_tree_view
@@ -1548,6 +1790,11 @@ msgstr "Ilovalar soni"
 #, fuzzy
 msgid "Number of Expenses"
 msgstr "Xarajatlar soni"
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__split_expense_count
+msgid "Number of Split Expenses"
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__message_has_error_counter
@@ -1637,36 +1884,38 @@ msgstr "Faqat loyiha holatidagi xarajatlargina 0 ga teng bo‘lishi mumkin."
 #. odoo-python
 #: code:addons/hr_expense/models/hr_expense.py:0
 #, fuzzy
-msgid "Only expense paid by the employee can be posted with the wizard"
-msgstr ""
-"Faqat xodim tomonidan to‘langan xarajatlar ustun orqali joylashtirilishi "
-"mumkin"
-
-#. module: hr_expense
-#. odoo-python
-#: code:addons/hr_expense/models/hr_expense.py:0
-#, fuzzy
 msgid "Only one expense can be linked to a particular payment"
 msgstr "Faqat bitta xarajat ma'lum bir to‘lovga bog‘lanishi mumkin"
 
 #. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/hr_expense_product_job_position_limit.py:0
+msgid "Only one generic expense limit can be defined per product."
+msgstr ""
+
+#. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/hr_expense.py:0
+msgid "Only submitted expenses exceeding a job position limit can be capped."
+msgstr ""
+
+#. module: hr_expense
 #. odoo-javascript
 #: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
-#, fuzzy
-msgid "Open bugger menu."
-msgstr "Asosiy menyuni ochish."
+msgid "Open burger menu."
+msgstr ""
+
+#. module: hr_expense
+#. odoo-javascript
+#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
+msgid "Open the actions menu."
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__split_expense_origin_id
 #, fuzzy
 msgid "Origin Split Expense"
 msgstr "Asl taqsimlangan xarajat"
-
-#. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_split
-#, fuzzy
-msgid "Original Amount"
-msgstr "Asl miqdor"
 
 #. module: hr_expense
 #: model:ir.model.fields,help:hr_expense.field_hr_expense__split_expense_origin_id
@@ -1680,12 +1929,6 @@ msgstr "Taqsimlangan asl xarajat."
 #, fuzzy
 msgid "Paid"
 msgstr "To‘langan"
-
-#. module: hr_expense
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__payment_mode
-#, fuzzy
-msgid "Paid By"
-msgstr "To‘lovchi"
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
@@ -1708,6 +1951,11 @@ msgstr "Hamkor"
 #. module: hr_expense
 #: model:ir.model,name:hr_expense.model_account_payment_register
 msgid "Pay"
+msgstr ""
+
+#. module: hr_expense
+#: model:ir.model,name:hr_expense.model_account_payment
+msgid "Payment"
 msgstr ""
 
 #. module: hr_expense
@@ -1746,12 +1994,6 @@ msgstr ""
 "Kompaniya tomonidan to‘lanadigan xarajatlar uchun mavjud to‘lov usullari"
 
 #. module: hr_expense
-#: model:ir.model,name:hr_expense.model_account_payment
-#, fuzzy
-msgid "Payments"
-msgstr "To‘lovlar"
-
-#. module: hr_expense
 #: model_terms:product.template,description:hr_expense.expense_product_communication_product_template
 #, fuzzy
 msgid "Phone bills, postage, etc."
@@ -1760,45 +2002,10 @@ msgstr "Telefon to‘lovlari, pochta xarajatlari va boshqalar."
 #. module: hr_expense
 #. odoo-python
 #: code:addons/hr_expense/models/hr_expense.py:0
-#, fuzzy
 msgid ""
-"Please specify if the expenses were paid by the company, or the employee."
+"Please specify if the expenses were paid by the company, reimbursed to the "
+"employee directly, or in a payslip."
 msgstr ""
-"Iltimos, xarajatlar kompaniya yoki xodim tomonidan to‘langanligini aniq "
-"ko‘rsating."
-
-#. module: hr_expense
-#. odoo-javascript
-#: code:addons/hr_expense/static/src/views/list.xml:0
-#, fuzzy
-msgid "Post Entries"
-msgstr "Yozuvlarni joylashtirish"
-
-#. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_post_wizard_view
-#, fuzzy
-msgid "Post Expenses"
-msgstr "Xarajatlarni joylashtirish"
-
-#. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
-#, fuzzy
-msgid "Post Journal Entries"
-msgstr "Jurnal yozuvlarini joylashtirish"
-
-#. module: hr_expense
-#. odoo-python
-#: code:addons/hr_expense/models/hr_expense.py:0
-#, fuzzy
-msgid "Post expenses"
-msgstr "Xarajatlarni joylashtirish"
-
-#. module: hr_expense
-#. odoo-python
-#: code:addons/hr_expense/models/hr_expense.py:0
-#, fuzzy
-msgid "Post expenses paid by the employee"
-msgstr "Xodim tomonidan to‘langan xarajatlarni joylashtirish"
 
 #. module: hr_expense
 #: model:ir.model.fields.selection,name:hr_expense.selection__hr_expense__state__posted
@@ -1820,8 +2027,19 @@ msgid "Price:"
 msgstr "Narx:"
 
 #. module: hr_expense
+#. odoo-javascript
+#. odoo-python
+#: code:addons/hr_expense/models/hr_expense.py:0
+#: code:addons/hr_expense/static/src/views/list.xml:0
+msgid "Print"
+msgstr ""
+
+#. module: hr_expense
 #: model:ir.model,name:hr_expense.model_product_template
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__product_id
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_product_job_position_limit__product_id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split__product_id
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
 #, fuzzy
 msgid "Product"
 msgstr "Mahsulot"
@@ -1857,6 +2075,16 @@ msgid "Product Variants"
 msgstr "Mahsulot variantlari"
 
 #. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_register
+msgid "Product:"
+msgstr ""
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_register
+msgid "Product: not found"
+msgstr ""
+
+#. module: hr_expense
 #: model:ir.model,name:hr_expense.model_hr_employee_public
 #, fuzzy
 msgid "Public Employee"
@@ -1878,15 +2106,11 @@ msgstr "Baholash"
 #. module: hr_expense
 #. odoo-javascript
 #: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
-#, fuzzy
 msgid ""
 "Ready? You can save it manually or discard modifications from here. You "
-"don't <em>need to save</em> - Odoo will save eveyrthing for you when you "
+"don't <em>need to save</em> - Odoo will save everything for you when you "
 "navigate."
 msgstr ""
-"Tayyormisiz? Bu yerdan qo‘lda saqlashingiz yoki o‘zgartirishlarni bekor "
-"qilishingiz mumkin. <em>Saqlash</em> shart emas - Odoo navigatsiya paytida "
-"hamma narsani o‘zi saqlaydi."
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_refuse_wizard__reason
@@ -1915,6 +2139,8 @@ msgid "Refund employees via their payslips."
 msgstr "Xodimlarning xarajatlarini ish haqi to‘lov qog‘ozlari orqali qoplang."
 
 #. module: hr_expense
+#. odoo-javascript
+#: code:addons/hr_expense/static/src/views/list.xml:0
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_approve_duplicate_view_form
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_refuse_wizard_view_form
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
@@ -1948,6 +2174,17 @@ msgstr "Xarajatlarni ish haqi to‘lov qog‘ozida qoplash"
 #, fuzzy
 msgid "Reimburse in Payslip"
 msgstr "Ish haqi to‘lov qog‘ozida qoplash"
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__payment_mode
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
+msgid "Reimbursement"
+msgstr ""
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
+msgid "Related"
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model,name:hr_expense.model_ir_actions_report
@@ -1986,6 +2223,11 @@ msgid "Restaurants, business lunches, etc."
 msgstr "Restoranlar, ishbilarmonlik tushlikları va boshqalar."
 
 #. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_submitted_expenses
+msgid "Review Expenses"
+msgstr ""
+
+#. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__message_has_sms_error
 #, fuzzy
 msgid "SMS Delivery error"
@@ -2004,6 +2246,12 @@ msgid "Same Receipt Expense"
 msgstr "Bir xil kvitansiyali xarajat"
 
 #. module: hr_expense
+#. odoo-javascript
+#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
+msgid "Save the employee profile."
+msgstr ""
+
+#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
 #, fuzzy
 msgid "Save this page and come back here to set up the feature."
@@ -2013,16 +2261,31 @@ msgstr "Bu sahifani saqlang va funksiyani sozlash uchun bu yerga qayting."
 #. odoo-javascript
 #: code:addons/hr_expense/static/src/views/kanban.xml:0
 #: code:addons/hr_expense/static/src/views/list.xml:0
-#, fuzzy
 msgid "Scan"
-msgstr "Skanerlash"
+msgstr ""
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
+msgid "Select Bill..."
+msgstr ""
+
+#. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/hr_expense.py:0
+msgid "Select a product to proceed."
+msgstr ""
+
+#. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/hr_expense.py:0
+msgid "Select an employee to proceed."
+msgstr ""
 
 #. module: hr_expense
 #. odoo-javascript
-#: code:addons/hr_expense/static/src/components/qrcode_action.xml:0
-#, fuzzy
-msgid "Scan this QR code to get the Odoo app:"
-msgstr "Odoo ilovasini yuklab olish uchun ushbu QR kodni skanerlang:"
+#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
+msgid "Select the expense approver."
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields,help:hr_expense.field_hr_employee__expense_manager_id
@@ -2044,25 +2307,30 @@ msgstr "Tanlanadigan to‘lov usuli satri"
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
-#, fuzzy
 msgid ""
 "Send an email to this email alias with the receipt in attachment to create "
 "an expense in one click. If the first word of the mail subject contains the "
-"category's internal reference or the category name, the corresponding "
-"category will automatically be set. Type the expense amount in the mail "
-"subject to set it on the expense too."
+"product's internal reference or the product name, the corresponding product "
+"will automatically be set. Type the expense amount in the mail subject to "
+"set it on the expense too."
 msgstr ""
-"Bir marta bosish orqali xarajat yaratish uchun ushbu elektron pochta "
-"manzilga kvitansiyani biriktirgan holda xat yuboring. Agar xat mavzusining "
-"birinchi so‘zi toifaning ichki havolasini yoki toifa nomini o‘z ichiga olsa, "
-"tegishli toifa avtomatik ravishda o‘rnatiladi. Xarajat miqdorini xat "
-"mavzusiga kiritish orqali xarajatga qo‘shishingiz mumkin."
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_res_config_settings__module_hr_expense_extract
 #, fuzzy
 msgid "Send bills to OCR to generate expenses"
 msgstr "Xarajatlarni yaratish uchun hisob-fakturalarni OCRga yuboring"
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_product_job_position_limit__sequence
+msgid "Sequence"
+msgstr ""
+
+#. module: hr_expense
+#. odoo-javascript
+#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
+msgid "Set an expense approver for this employee."
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.actions.act_window,name:hr_expense.action_hr_expense_configuration
@@ -2084,12 +2352,6 @@ msgid "Source Document"
 msgstr "Manba hujjati"
 
 #. module: hr_expense
-#: model:ir.model.fields,help:hr_expense.field_hr_expense_post_wizard__accounting_date
-#, fuzzy
-msgid "Specify the bill date of the related vendor bill."
-msgstr "Tegishli sotuvchi hisob-fakturasining sana ko‘rsating."
-
-#. module: hr_expense
 #: model:ir.model.fields,help:hr_expense.field_product_product__can_be_expensed
 #: model:ir.model.fields,help:hr_expense.field_product_template__can_be_expensed
 #, fuzzy
@@ -2097,17 +2359,11 @@ msgid "Specify whether the product can be selected in an expense."
 msgstr "Mahsulotni xarajatda tanlash mumkinligini belgilang."
 
 #. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_split
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
 #, fuzzy
 msgid "Split"
 msgstr "Bo‘lish"
-
-#. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_split
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
-#, fuzzy
-msgid "Split Expense"
-msgstr "Xarajatni bo‘lish"
 
 #. module: hr_expense
 #. odoo-python
@@ -2122,12 +2378,6 @@ msgstr "Xarajatlarni bo‘lish"
 #, fuzzy
 msgid "Split Possible"
 msgstr "Bo‘lish imkoniyati mavjud"
-
-#. module: hr_expense
-#: model:ir.model.fields,field_description:hr_expense.field_product_product__standard_price_update_warning
-#, fuzzy
-msgid "Standard Price Update Warning"
-msgstr "Standart narx yangilanishi haqida ogohlantirish"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__state
@@ -2151,6 +2401,7 @@ msgstr ""
 
 #. module: hr_expense
 #. odoo-javascript
+#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
 #: code:addons/hr_expense/static/src/views/list.xml:0
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
 #, fuzzy
@@ -2159,10 +2410,14 @@ msgstr "Topshirish"
 
 #. module: hr_expense
 #. odoo-javascript
-#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
-#, fuzzy
-msgid "Submit to Manager"
-msgstr "Menejerga topshirish"
+#: code:addons/hr_expense/static/src/views/expense_form_view.js:0
+msgid "Submit Expense"
+msgstr ""
+
+#. module: hr_expense
+#: model:ir.module.module,summary:base.module_hr_expense
+msgid "Submit, validate and reinvoice employee expenses"
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields.selection,name:hr_expense.selection__hr_expense__approval_state__submitted
@@ -2185,8 +2440,16 @@ msgid "Subtotal in currency"
 msgstr "Valyutadagi oraliq summa"
 
 #. module: hr_expense
+#. odoo-javascript
+#: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
+msgid "Switch to the list view."
+msgstr ""
+
+#. module: hr_expense
 #: model:ir.model,name:hr_expense.model_account_tax
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_split__tax_ids
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_split
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_split_form_view
 #: model_terms:ir.ui.view,arch_db:hr_expense.view_move_list_expense
 #, fuzzy
 msgid "Tax"
@@ -2244,6 +2507,11 @@ msgid "Team Approver"
 msgstr "Jamoa tasdiqlovchisi"
 
 #. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_submitted_expenses
+msgid "Thanks,"
+msgstr ""
+
+#. module: hr_expense
 #. odoo-python
 #: code:addons/hr_expense/models/hr_expense.py:0
 #, fuzzy
@@ -2275,26 +2543,38 @@ msgid "The current user has no related employee. Please, create one."
 msgstr "Joriy foydalanuvchining bog‘liq xodimi yo‘q. Iltimos, uni yarating"
 
 #. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_register
-#, fuzzy
-msgid ""
-"The first word of the email subject did not correspond to any category code. "
-"You'll have to set the category manually on the expense."
+#. odoo-python
+#: code:addons/hr_expense/models/res_company.py:0
+msgid "The employee expense journal must be a purchase journal."
 msgstr ""
-"Xat mavzusining birinchi so‘zi hech qanday toifa kodiga mos kelmadi. Xarajat "
-"toifasini qo‘lda o‘rnatishingiz kerak bo‘ladi"
+
+#. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/hr_expense.py:0
+msgid "The existing bill must be set."
+msgstr ""
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
+msgid ""
+"The expense existing bill is not linked, please reference it before "
+"approving."
+msgstr ""
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_register
+msgid ""
+"The first word of the email subject did not correspond to any product code. "
+"You'll have to set the product manually on the expense."
+msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_approve_duplicate_view_form
-#, fuzzy
 msgid ""
-"The following approved expenses have similar employee, amount and category "
+"The following approved expenses have similar employee, amount and product "
 "than some expenses of this report. Please verify this report does not "
 "contain duplicates."
 msgstr ""
-"Quyidagi tasdiqlangan xarajatlar ushbu hisobotning ba'zi xarajatlariga "
-"o‘xshash xodim, miqdor va toifaga ega. Iltimos, ushbu hisobotda takroriy "
-"ma'lumotlar yo‘qligini tekshiring"
 
 #. module: hr_expense
 #. odoo-python
@@ -2304,12 +2584,6 @@ msgid ""
 "this isn't supported:\n"
 "%(expenses)s"
 msgstr ""
-
-#. module: hr_expense
-#: model:ir.model.fields,help:hr_expense.field_hr_expense_post_wizard__employee_journal_id
-#, fuzzy
-msgid "The journal used when the expense is paid by employee."
-msgstr "Xarajat xodim tomonidan to‘langanda foydalaniladigan jurnal"
 
 #. module: hr_expense
 #: model:ir.model.fields,help:hr_expense.field_hr_expense__payment_method_line_id
@@ -2336,27 +2610,27 @@ msgstr "Bo‘lingandan keyin yig‘indi o‘zgarishsiz qolishi kerak"
 msgid ""
 "The vendor is required for expenses using SEPA Credit Transfer as the "
 "payment method.\n"
-"Please set a vendor on the following expenses: %s"
+"Please set a vendor on the expenses."
 msgstr ""
 
 #. module: hr_expense
 #. odoo-python
 #: code:addons/hr_expense/models/product_product.py:0
-#, fuzzy
 msgid ""
-"There are unsubmitted expenses linked to this category. Updating the "
-"category cost will change expense amounts. Make sure it is what you want to "
-"do."
+"There are draft expenses linked to this product. Updating the product cost "
+"will change expense amounts. Make sure it is what you want to do."
 msgstr ""
-"Ushbu toifa bilan bog‘liq taqdim etilmagan xarajatlar mavjud. Toifa "
-"qiymatini yangilash xarajatlar miqdorini o‘zgartiradi. Bu siz xohlagan narsa "
-"ekanligiga ishonch hosil qiling"
 
 #. module: hr_expense
 #: model_terms:web_tour.tour,rainbow_man_message:hr_expense.hr_expense_tour
 #, fuzzy
 msgid "There you go - expense management in a nutshell!"
 msgstr "Mana sizga - xarajatlarni boshqarish haqida qisqacha ma'lumot!"
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
+msgid "This expense exceeds the limit of"
+msgstr ""
 
 #. module: hr_expense
 #: model:digest.tip,name:hr_expense.digest_tip_hr_expense_0
@@ -2394,6 +2668,8 @@ msgstr "Bugungi faoliyatlar"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__total_amount
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_split
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_split_form_view
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
 #: model_terms:ir.ui.view,arch_db:hr_expense.report_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.view_move_list_expense
@@ -2432,6 +2708,11 @@ msgstr "Soliqsiz umumiy summa"
 #, fuzzy
 msgid "Total Untaxed Amount In Currency"
 msgstr "Valyutadagi soliqsiz umumiy summa"
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
+msgid "Total With Conversion"
+msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields,help:hr_expense.field_hr_expense_split_wizard__total_amount_currency_original
@@ -2482,25 +2763,29 @@ msgid "Unit Price"
 msgstr "Birlik narxi"
 
 #. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/ir_actions_report.py:0
+msgid "Unknown"
+msgstr ""
+
+#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.report_expense
 #, fuzzy
 msgid "Untaxed Amount"
 msgstr "Soliqsiz summa"
 
 #. module: hr_expense
-#. odoo-python
-#: code:addons/hr_expense/models/hr_expense.py:0
-#, fuzzy
-msgid "Untitled Expense %s"
-msgstr "Nomsiz xarajat %s"
+#. odoo-javascript
+#: code:addons/hr_expense/static/src/components/hr_expense_product_form_view.js:0
+msgid "Update cost"
+msgstr ""
 
 #. module: hr_expense
 #. odoo-javascript
 #: code:addons/hr_expense/static/src/views/kanban.xml:0
 #: code:addons/hr_expense/static/src/views/list.xml:0
-#, fuzzy
 msgid "Upload"
-msgstr "Yuklash"
+msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_actions_my_all
@@ -2536,12 +2821,6 @@ msgid "View Expense"
 msgstr "Xarajatni ko‘rish"
 
 #. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_submitted_expenses
-#, fuzzy
-msgid "View expenses"
-msgstr "Xarajatlarni ko‘rish"
-
-#. module: hr_expense
 #. odoo-python
 #: code:addons/hr_expense/models/hr_expense.py:0
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
@@ -2558,36 +2837,17 @@ msgid "Waiting Reimbursement"
 msgstr "To‘lovni qaytarish kutilmoqda"
 
 #. module: hr_expense
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__website_message_ids
-#, fuzzy
-msgid "Website Messages"
-msgstr "Veb-sayt xabarlari"
-
-#. module: hr_expense
-#: model:ir.model.fields,help:hr_expense.field_hr_expense__website_message_ids
-#, fuzzy
-msgid "Website communication history"
-msgstr "Veb-sayt aloqa tarixi"
-
-#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.product_product_expense_form_view
-#, fuzzy
 msgid ""
 "When the cost of an expense product is different than 0, then the "
 "user                                             using this product won't be "
 "able to change the amount of the "
 "expense,                                             only the quantity. Use "
-"a cost different than 0 for expense categories funded "
+"a cost different than 0 for expense products funded "
 "by                                             the company at fixed cost "
 "like allowances for mileage, per diem, "
 "accommodation                                             or meal."
 msgstr ""
-"Xarajat mahsulotining narxi 0 dan farqli bo‘lsa, bu mahsulotdan "
-"foydalanuvchi xarajat miqdorini o‘zgartira olmaydi, faqat miqdorini "
-"o‘zgartiradi. Kompaniya tomonidan belgilangan narxlarda "
-"moliyalashtiriladigan xarajat toifalari, masalan, yo‘l haqi, kunlik to‘lov, "
-"yashash yoki ovqatlanish uchun ustamalar uchun 0 dan farqli xarajatdan "
-"foydalaning."
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__product_has_tax
@@ -2603,11 +2863,9 @@ msgid "Wizard"
 msgstr "Yo‘riqnoma"
 
 #. module: hr_expense
-#. odoo-python
-#: code:addons/hr_expense/models/hr_expense.py:0
-#, fuzzy
-msgid "You can not submit an expense without a category."
-msgstr "Toifasiz xarajat yuborolmaysiz."
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
+msgid "Yes (Match to Bill)"
+msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_register
@@ -2627,13 +2885,23 @@ msgstr ""
 #. module: hr_expense
 #. odoo-python
 #: code:addons/hr_expense/models/hr_expense.py:0
-#, fuzzy
-msgid ""
-"You can't post simultaneously employee-paid expenses belonging to different "
-"companies"
+msgid "You can't add an attachment to an expense once it has been approved."
 msgstr ""
-"Turli kompaniyalarga tegishli xodimlar tomonidan to‘lanadigan xarajatlarni "
-"bir vaqtning o‘zida joylashtirish mumkin emas"
+
+#. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/hr_expense.py:0
+msgid ""
+"You can't create move for employee-paid expenses belonging to different "
+"companies at the same time"
+msgstr ""
+
+#. module: hr_expense
+#. odoo-python
+#: code:addons/hr_expense/models/ir_attachment.py:0
+msgid ""
+"You can't delete attachments from an expense once it has been submitted."
+msgstr ""
 
 #. module: hr_expense
 #. odoo-python
@@ -2647,9 +2915,8 @@ msgstr "Quyidagi sabablar tufayli tasdiqlay olmaysiz: %(reasons)s"
 #. module: hr_expense
 #. odoo-python
 #: code:addons/hr_expense/models/hr_expense.py:0
-#, fuzzy
-msgid "You cannot cancel an expense linked to a posted journal entry"
-msgstr "Joylangan jurnal yozuvi bilan bog‘liq xarajatni bekor qila olmaysiz"
+msgid "You cannot cancel an expense linked to a journal entry"
+msgstr ""
 
 #. module: hr_expense
 #. odoo-python
@@ -2685,20 +2952,16 @@ msgstr "Xarajatning xavfsizlik maydonlarini qo‘lda tahrirlay olmaysiz"
 #. module: hr_expense
 #. odoo-python
 #: code:addons/hr_expense/models/hr_expense.py:0
-#, fuzzy
 msgid ""
 "You cannot refuse:\n"
-" %(reasons)s"
-msgstr "Quyidagi sabablar tufayli rad eta olmaysiz: %(reasons)s"
+"%(reasons)s"
+msgstr ""
 
 #. module: hr_expense
 #. odoo-python
 #: code:addons/hr_expense/models/hr_expense.py:0
-#, fuzzy
-msgid "You cannot reset to draft an expense linked to a posted journal entry."
+msgid "You cannot reset to draft an expense linked to a journal entry."
 msgstr ""
-"Joylangan jurnal yozuviga biriktirilgan xarajatni qayta loyihalash holatiga "
-"qaytarish mumkin emas."
 
 #. module: hr_expense
 #. odoo-python
@@ -2706,6 +2969,11 @@ msgstr ""
 #, fuzzy
 msgid "You cannot split an expense that is already posted."
 msgstr "Allaqachon joylangan xarajatni bo‘la olmaysiz."
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_submitted_expenses
+msgid "You currently have"
+msgstr ""
 
 #. module: hr_expense
 #. odoo-python
@@ -2723,10 +2991,9 @@ msgstr "Ushbu xarajatni tahrirlash huquqiga ega emassiz."
 
 #. module: hr_expense
 #. odoo-python
-#: code:addons/hr_expense/wizard/hr_expense_post_wizard.py:0
-#, fuzzy
-msgid "You don't have the rights to create accounting entries."
-msgstr "Buxgalteriya yozuvlarini yaratish huquqiga ega emassiz."
+#: code:addons/hr_expense/models/hr_expense.py:0
+msgid "You don't have the access rights to modify this expense."
+msgstr ""
 
 #. module: hr_expense
 #. odoo-python
@@ -2734,17 +3001,6 @@ msgstr "Buxgalteriya yozuvlarini yaratish huquqiga ega emassiz."
 #, fuzzy
 msgid "You need to add a manual payment method on the journal (%s)"
 msgstr "Jurnalga qo‘lda to‘lash usulini qo‘shishingiz kerak (%s)"
-
-#. module: hr_expense
-#. odoo-python
-#: code:addons/hr_expense/models/hr_expense.py:0
-#, fuzzy
-msgid ""
-"You need to have at least one category that can be expensed in your database "
-"to proceed!"
-msgstr ""
-"Davom etish uchun ma'lumotlar bazangizda xarajat sifatida hisobga olinishi "
-"mumkin bo‘lgan kamida bitta toifa bo‘lishi kerak!"
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_refuse_reason
@@ -2759,10 +3015,20 @@ msgid "Your expense has been successfully registered."
 msgstr "Xarajatingiz muvaffaqiyatli ro‘yxatdan o‘tkazildi."
 
 #. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
+msgid "Your job position has a limit of"
+msgstr ""
+
+#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
 #, fuzzy
 msgid "alias"
 msgstr "taxallus"
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
+msgid "defined for this job position."
+msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.product_product_expense_form_view
@@ -2795,6 +3061,11 @@ msgid "expense"
 msgstr "xarajat"
 
 #. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
+msgid "for this expense. You may not be fully reimbursed!"
+msgstr ""
+
+#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_refuse_reason
 #, fuzzy
 msgid "has been refused"
@@ -2813,17 +3084,16 @@ msgid "per"
 msgstr "uchun"
 
 #. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
-#, fuzzy
-msgid "tax)"
-msgstr "soliq)"
-
-#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
 #, fuzzy
 msgid "use OCR to fill data from a picture of the bill"
 msgstr ""
 "hisob-faktura rasmidan ma'lumotlarni to‘ldirish uchun OCR dan foydalaning"
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
+msgid "with the same category, date, amount, and employee already exists."
+msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
@@ -2833,8 +3103,91 @@ msgstr "Xuddi shunday chek allaqachon mavjud."
 
 #, fuzzy
 #~ msgid ""
-#~ "New expenses are awaiting your approval.\n"
-#~ "                You can review them by following this link"
+#~ "You cannot refuse:\n"
+#~ " %(reasons)s"
+#~ msgstr "Quyidagi sabablar tufayli rad eta olmaysiz: %(reasons)s"
+
+#, fuzzy
+#~ msgid ""
+#~ "'Expense - %s - %s' % (object.employee_id.name, "
+#~ "(object.name).replace('/', ''))"
 #~ msgstr ""
-#~ "Yangi xarajatlar sizning tasdig‘ingizni kutmoqda. Siz ularni ushbu havola "
-#~ "orqali ko‘rib chiqishingiz mumkin"
+#~ "'Xarajat - %s - %s' % (object.employee_id.name, "
+#~ "(object.name).replace('/', ''))"
+
+#, fuzzy
+#~ msgid "<span>Date:</span>"
+#~ msgstr "<span>Sana:</span>"
+
+#, fuzzy
+#~ msgid "Business Trip"
+#~ msgstr "Xizmat safari"
+
+#, fuzzy
+#~ msgid "Credit Card"
+#~ msgstr "Kredit karta"
+
+#, fuzzy
+#~ msgid "Expense Posting Wizard"
+#~ msgstr "Xarajatlarni kiritish yordamchisi"
+
+#, fuzzy
+#~ msgid "New expense entries"
+#~ msgstr "Yangi xarajat yozuvlari"
+
+#, fuzzy
+#~ msgid "Only expense paid by the employee can be posted with the wizard"
+#~ msgstr ""
+#~ "Faqat xodim tomonidan to‘langan xarajatlar ustun orqali joylashtirilishi "
+#~ "mumkin"
+
+#, fuzzy
+#~ msgid "Post Expenses"
+#~ msgstr "Xarajatlarni joylashtirish"
+
+#, fuzzy
+#~ msgid "Post expenses"
+#~ msgstr "Xarajatlarni joylashtirish"
+
+#, fuzzy
+#~ msgid "Post expenses paid by the employee"
+#~ msgstr "Xodim tomonidan to‘langan xarajatlarni joylashtirish"
+
+#, fuzzy
+#~ msgid "Specify the bill date of the related vendor bill."
+#~ msgstr "Tegishli sotuvchi hisob-fakturasining sana ko‘rsating."
+
+#, fuzzy
+#~ msgid "The journal used when the expense is paid by employee."
+#~ msgstr "Xarajat xodim tomonidan to‘langanda foydalaniladigan jurnal"
+
+#, fuzzy
+#~ msgid ""
+#~ "You can't post simultaneously employee-paid expenses belonging to "
+#~ "different companies"
+#~ msgstr ""
+#~ "Turli kompaniyalarga tegishli xodimlar tomonidan to‘lanadigan "
+#~ "xarajatlarni bir vaqtning o‘zida joylashtirish mumkin emas"
+
+#, fuzzy
+#~ msgid "You cannot cancel an expense linked to a posted journal entry"
+#~ msgstr "Joylangan jurnal yozuvi bilan bog‘liq xarajatni bekor qila olmaysiz"
+
+#, fuzzy
+#~ msgid ""
+#~ "You cannot reset to draft an expense linked to a posted journal entry."
+#~ msgstr ""
+#~ "Joylangan jurnal yozuviga biriktirilgan xarajatni qayta loyihalash "
+#~ "holatiga qaytarish mumkin emas."
+
+#, fuzzy
+#~ msgid "You don't have the rights to create accounting entries."
+#~ msgstr "Buxgalteriya yozuvlarini yaratish huquqiga ega emassiz."
+
+#, fuzzy
+#~ msgid "Website Messages"
+#~ msgstr "Veb-sayt xabarlari"
+
+#, fuzzy
+#~ msgid "Website communication history"
+#~ msgstr "Veb-sayt aloqa tarixi"

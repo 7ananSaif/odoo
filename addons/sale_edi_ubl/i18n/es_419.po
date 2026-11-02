@@ -4,22 +4,45 @@
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
 # "Patricia Gutiérrez (pagc)" <pagc@odoo.com>, 2025.
-# "Fernanda Alvarez (mfar)" <mfar@odoo.com>, 2025.
+# "Fernanda Alvarez (mfar)" <mfar@odoo.com>, 2025, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-10-30 17:20+0000\n"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-10-23 00:33+0000\n"
 "Last-Translator: \"Fernanda Alvarez (mfar)\" <mfar@odoo.com>\n"
 "Language-Team: Spanish (Latin America) <https://translate.odoo.com/projects/"
-"odoo-19/sale_edi_ubl/es_419/>\n"
+"odoo-20/sale_edi_ubl/es_419/>\n"
 "Language: es_419\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: sale_edi_ubl
+#: model:ir.module.module,description:base.module_sale_edi_ubl
+msgid ""
+"\n"
+"Electronic ordering module\n"
+"===========================\n"
+"\n"
+"Allows to import formats: UBL Bis 3.\n"
+"When uploading or pasting Files in order list view with order related data "
+"inside XML file or PDF\n"
+"File with embedded xml data will allow seller to retrieve Order data from "
+"Files.\n"
+msgstr ""
+"\n"
+"Módulo de órdenes electrónicas\n"
+"===========================\n"
+"\n"
+"Permite importar archivos en formato UBL BIS 3.\n"
+"Al subir o pegar archivos en la vista de lista de las órdenes, si contienen "
+"datos relacionados con la orden en un archivo XML o PDF,\n"
+"el archivo con datos XML integrados permite al vendedor recuperar los datos "
+"de la orden.\n"
 
 #. module: sale_edi_ubl
 #. odoo-python
@@ -28,18 +51,68 @@ msgid "Could not retrieve the product named: %(name)s"
 msgstr "No pudimos recuperar el producto llamado %(name)s"
 
 #. module: sale_edi_ubl
+#: model:ir.model.fields,field_description:sale_edi_ubl.field_customer_product_reference__create_uid
+msgid "Created by"
+msgstr "Creada por"
+
+#. module: sale_edi_ubl
+#: model:ir.model.fields,field_description:sale_edi_ubl.field_customer_product_reference__create_date
+msgid "Created on"
+msgstr "Creada el"
+
+#. module: sale_edi_ubl
+#: model:ir.model,name:sale_edi_ubl.model_customer_product_reference
+#: model:ir.model.fields,field_description:sale_edi_ubl.field_customer_product_reference__customer_product_reference
+msgid "Customer Product Reference"
+msgstr "Referencia del producto del cliente"
+
+#. module: sale_edi_ubl
+#: model:ir.model.fields,field_description:sale_edi_ubl.field_customer_product_reference__display_name
 #: model:ir.model.fields,field_description:sale_edi_ubl.field_product_product__display_name
 #: model:ir.model.fields,field_description:sale_edi_ubl.field_sale_edi_xml_ubl_bis3__display_name
 #: model:ir.model.fields,field_description:sale_edi_ubl.field_sale_order__display_name
+#: model:ir.model.fields,field_description:sale_edi_ubl.field_sale_order_line__display_name
 msgid "Display Name"
 msgstr "Mostrar nombre"
 
 #. module: sale_edi_ubl
+#: model:ir.model.fields,field_description:sale_edi_ubl.field_sale_order_line__edi_customer_product_ref
+msgid "Edi Customer Product Ref"
+msgstr "Ref. del producto del cliente en EDI"
+
+#. module: sale_edi_ubl
+#: model:ir.model.fields,field_description:sale_edi_ubl.field_customer_product_reference__id
 #: model:ir.model.fields,field_description:sale_edi_ubl.field_product_product__id
 #: model:ir.model.fields,field_description:sale_edi_ubl.field_sale_edi_xml_ubl_bis3__id
 #: model:ir.model.fields,field_description:sale_edi_ubl.field_sale_order__id
+#: model:ir.model.fields,field_description:sale_edi_ubl.field_sale_order_line__id
 msgid "ID"
 msgstr "ID"
+
+#. module: sale_edi_ubl
+#: model:ir.module.module,shortdesc:base.module_sale_edi_ubl
+msgid "Import electronic orders with UBL"
+msgstr ""
+
+#. module: sale_edi_ubl
+#: model:ir.model.fields,field_description:sale_edi_ubl.field_customer_product_reference__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: sale_edi_ubl
+#: model:ir.model.fields,field_description:sale_edi_ubl.field_customer_product_reference__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: sale_edi_ubl
+#: model:ir.model.fields,field_description:sale_edi_ubl.field_customer_product_reference__partner_id
+msgid "Partner"
+msgstr "Contacto"
+
+#. module: sale_edi_ubl
+#: model:ir.model.fields,field_description:sale_edi_ubl.field_customer_product_reference__product_id
+msgid "Product"
+msgstr "Producto"
 
 #. module: sale_edi_ubl
 #: model:ir.model,name:sale_edi_ubl.model_product_product
@@ -57,43 +130,18 @@ msgid "Sales Order"
 msgstr "Orden de venta"
 
 #. module: sale_edi_ubl
+#: model:ir.model,name:sale_edi_ubl.model_sale_order_line
+msgid "Sales Order Line"
+msgstr "Línea de la orden de venta"
+
+#. module: sale_edi_ubl
 #. odoo-python
 #: code:addons/sale_edi_ubl/models/sale_order.py:0
 msgid "Some information could not be imported:"
 msgstr "No pudimos importar parte de la información:"
 
-#~ msgid "Discount"
-#~ msgstr "Descuento"
-
-#~ msgid ", Email: %(email)s"
-#~ msgstr ", Correo: %(email)s"
-
-#~ msgid ", Phone: %(phone)s"
-#~ msgstr ", Teléfono: %(phone)s"
-
-#~ msgid "Common functions for EDI orders"
-#~ msgstr "Funciones comunes para las órdenes EDI"
-
-#~ msgid "Could not retrieve Delivery Address with Details: { %s }"
-#~ msgstr "No se pudo recuperar la dirección de entrega con detalles: { %s }"
-
-#~ msgid "Could not retrieve product for line '%s'"
-#~ msgstr "No se pudo recuperar el producto para la línea \"%s\""
-
-#~ msgid "Could not retrive Customer with Details: { %s }"
-#~ msgstr "No se pudo recuperar el cliente con detalles: { %s }"
-
-#~ msgid "Format used to import the invoice: %s"
-#~ msgstr "Formato usado para importar la factura: %s"
-
-#~ msgid "Insufficient details to extract Customer: { %s }"
-#~ msgstr "Detalles insuficientes para extraer del cliente: { %s }"
-
-#~ msgid "Name: %(name)s, Vat: %(vat)s"
-#~ msgstr "Nombre: %(name)s, IVA: %(vat)s"
-
-#~ msgid "Some information could not be imported"
-#~ msgstr "No fue posible importar parte de la información"
-
-#~ msgid "UBL BIS Ordering 3.0"
-#~ msgstr "Órdenes UBL BIS 3.0"
+#. module: sale_edi_ubl
+#: model:ir.model.constraint,message:sale_edi_ubl.constraint_customer_product_reference_product_partner_unique
+msgid ""
+"The customer reference with the same product and partner already exists!"
+msgstr "¡La referencia del cliente con el mismo producto y contacto ya existe!"

@@ -7,15 +7,16 @@
 # Cécile Collart <cco@odoo.com>, 2022
 # Jolien De Paepe, 2023
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
-# "Manon Rondou (ronm)" <ronm@odoo.com>, 2025.
+# "Manon Rondou (ronm)" <ronm@odoo.com>, 2025, 2026.
+# "Cécile Collart (cco)" <cco@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-10-23 09:15+0000\n"
-"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
-"Language-Team: French <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-11 17:44+0000\n"
+"PO-Revision-Date: 2026-09-09 13:59+0000\n"
+"Last-Translator: \"Cécile Collart (cco)\" <cco@odoo.com>\n"
+"Language-Team: French <https://translate.odoo.com/projects/odoo-master/"
 "website_slides_survey/fr/>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -23,7 +24,7 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=(n == 0 || n == 1) ? 0 : ((n != 0 && n % "
 "1000000 == 0) ? 1 : 2);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_slide_channel__members_certified_count
@@ -35,15 +36,6 @@ msgstr "# Participants certifiés"
 #: code:addons/website_slides_survey/models/survey_survey.py:0
 msgid "- %(certification)s (Courses - %(courses)s)"
 msgstr "- %(certification)s (Cours - %(courses)s)"
-
-#. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_survey_view_kanban
-msgid ""
-"<br/>\n"
-"                        <span class=\"text-muted\">Courses</span>"
-msgstr ""
-"<br/>\n"
-"                        <span class=\"text-muted\">Cours</span>"
 
 #. module: website_slides_survey
 #: model:mail.template,body_html:website_slides_survey.mail_template_user_input_certification_failed
@@ -96,61 +88,70 @@ msgstr ""
 "            "
 
 #. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
-msgid "<i class=\"fa fa-arrow-right\"/> Get Certified"
-msgstr "<i class=\"fa fa-arrow-right\"/> Obtenir une certification"
-
-#. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
-msgid ""
-"<i class=\"fa fa-download\" aria-label=\"Download certification\" "
-"title=\"Download Certification\"/>"
-msgstr ""
-"<i class=\"fa fa-download\" aria-label=\"Télécharger la certification\" "
-"title=\"Télécharger la certification\"/>"
-
-#. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.slide_content_detailed
-msgid ""
-"<i class=\"fa fa-fw fa-trophy\" role=\"img\" aria-label=\"Download "
-"certification\" title=\"Download certification\"/> Download certification"
+msgid "<i class=\"oi me-1\" data-icon=\"east\"/>Add Questions to this Survey"
 msgstr ""
-"<i class=\"fa fa-fw fa-trophy\" role=\"img\" aria-label=\"Télécharger la "
-"certification\" title=\"Télécharger la certification\"/> Télécharger la "
-"certification"
+"<i class=\"oi me-1\" data-icon=\"east\"/>Ajouter des questions à ce sondage"
+
+#. module: website_slides_survey
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
+msgid "<i class=\"oi me-1\" data-icon=\"east\"/>All Certifications"
+msgstr "<i class=\"oi me-1\" data-icon=\"east\"/>Toutes les certifications"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_fill_form_done_inherit_website_slides
 msgid ""
-"<i class=\"fa fa-share-alt\" aria-label=\"Share certification\" "
-"title=\"Share certification\"/>\n"
-"                        Share your certification"
+"<i class=\"oi me-2\" data-icon=\"chevron_backward\" aria-hidden=\"true\"/>Go "
+"back to course"
 msgstr ""
-"<i class=\"fa fa-share-alt\" aria-label=\"Share certification\" "
-"title=\"Partager la certification\"/>\n"
-"Partager votre certification"
 
 #. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
-msgid "<i class=\"fa fa-share-alt\" aria-label=\"Share\" title=\"Share\"/>"
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_fill_form_done_inherit_website_slides
+msgid ""
+"<i class=\"oi oi-filled d-none d-md-inline\" data-icon=\"share\" aria-"
+"label=\"Share certification\" title=\"Share certification\"/>\n"
+"                        <span class=\"d-md-none\">Share certification</span>"
 msgstr ""
-"<i class=\"fa fa-share-alt\" aria-label=\"Partager\" title=\"Partager\"/>"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.slide_content_detailed
-msgid "<i class=\"oi oi-arrow-right me-1\"/>Add Questions to this Survey"
+msgid ""
+"<i class=\"oi oi-fw oi-filled\" data-icon=\"trophy\" role=\"img\" aria-"
+"label=\"Download certification\" title=\"Download certification\"/> Download "
+"certification"
 msgstr ""
-"<i class=\"oi oi-arrow-right me-1\"/>Ajouter des questions à ce sondage"
+"<i class=\"oi oi-fw oi-filled\" data-icon=\"trophy\" role=\"img\" aria-"
+"label=\"Télécharger la certification\" title=\"Télécharger la "
+"certification\"/> Télécharger la certification"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
-msgid "<i class=\"oi oi-arrow-right me-1\"/>All Certifications"
-msgstr "<i class=\"oi oi-arrow-right me-1\"/>Toutes les certifications"
+msgid "<i class=\"oi\" data-icon=\"arrow_forward\"/> Get Certified"
+msgstr ""
+"<i class=\"oi\" data-icon=\"arrow_forward\"/> Obtenir une certification"
+
+#. module: website_slides_survey
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
+msgid ""
+"<i class=\"oi\" data-icon=\"download\" aria-label=\"Download certification\" "
+"title=\"Download Certification\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"download\" aria-label=\"Télécharger la "
+"certification\" title=\"Télécharger la certification\"/>"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.user_profile_content
-msgid "<i class=\"oi oi-arrow-right\"/> See Certifications"
-msgstr "<i class=\"oi oi-arrow-right\"/> Voir les certifications"
+msgid "<i class=\"oi\" data-icon=\"east\"/> See Certifications"
+msgstr "<i class=\"oi\" data-icon=\"east\"/> Voir les certifications"
+
+#. module: website_slides_survey
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.display_certificate
+msgid ""
+"<i class=\"oi\" data-icon=\"family_history\" aria-label=\"Share\" "
+"title=\"Share\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"family_history\" aria-label=\"Partager\" "
+"title=\"Partager\"/>"
 
 #. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.badge_content
@@ -178,12 +179,18 @@ msgid "<span class=\"text-muted\">Certifications</span>"
 msgstr "<span class=\"text-muted\">Certifications</span>"
 
 #. module: website_slides_survey
+#: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_survey_view_kanban
+msgid "<span>Courses</span>"
+msgstr ""
+
+#. module: website_slides_survey
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.course_main
 msgid ""
-"<span>Start Now</span><i class=\"oi oi-chevron-right ms-2 align-middle\"/>"
+"<span>Start Now</span><i class=\"oi ms-2 align-middle\" data-"
+"icon=\"chevron_forward\"/>"
 msgstr ""
-"<span>Démarrer maintenant</span><i class=\"oi oi-chevron-right ms-2 align-"
-"middle\"/>"
+"<span>Démarrer maintenant</span><i class=\"oi ms-2 align-middle\" data-"
+"icon=\"chevron_forward\"/>"
 
 #. module: website_slides_survey
 #: model:ir.model.constraint,message:website_slides_survey.constraint_slide_slide_check_survey_id
@@ -212,6 +219,11 @@ msgstr "Ajouter des questions à ce sondage"
 #: model_terms:ir.actions.act_window,help:website_slides_survey.slide_slide_action_certification
 msgid "Add a new certification"
 msgstr "Ajouter une nouvelle certification"
+
+#. module: website_slides_survey
+#: model:ir.module.module,summary:base.module_website_slides_survey
+msgid "Add certification capabilities to your courses"
+msgstr ""
 
 #. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_slide_slide__is_preview
@@ -382,6 +394,11 @@ msgid "Course"
 msgstr "Cours"
 
 #. module: website_slides_survey
+#: model:ir.module.module,shortdesc:base.module_website_slides_survey
+msgid "Course Certifications"
+msgstr ""
+
+#. module: website_slides_survey
 #. odoo-python
 #: code:addons/website_slides_survey/models/survey_survey.py:0
 #: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_survey_view_form
@@ -439,11 +456,6 @@ msgstr "Meuble"
 #: model:survey.survey,title:website_slides_survey.furniture_certification
 msgid "Furniture Creation Certification"
 msgstr "Certification en création de mobilier"
-
-#. module: website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides_survey.survey_fill_form_done_inherit_website_slides
-msgid "Go back to course"
-msgstr "Revenir aux cours"
 
 #. module: website_slides_survey
 #. odoo-javascript
@@ -570,6 +582,11 @@ msgid "Shelf"
 msgstr "Étagère"
 
 #. module: website_slides_survey
+#: model:ir.model,name:website_slides_survey.model_slide_slide
+msgid "Slide"
+msgstr "Diapositive"
+
+#. module: website_slides_survey
 #: model:ir.model,name:website_slides_survey.model_slide_slide_partner
 msgid "Slide / Partner decorated m2m"
 msgstr "Diapositive / Partenaire décoré m2m"
@@ -584,11 +601,6 @@ msgstr "Type de diapositive"
 msgid "Slide membership information for the logged in user"
 msgstr ""
 "Diapositive sur les informations d'adhésion pour l'utilisateur connecté"
-
-#. module: website_slides_survey
-#: model:ir.model,name:website_slides_survey.model_slide_slide
-msgid "Slides"
-msgstr "Diapositives"
 
 #. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_survey_user_input__slide_partner_id
@@ -676,6 +688,13 @@ msgstr ""
 "eLearning"
 
 #. module: website_slides_survey
+#: model:ir.module.module,description:base.module_website_slides_survey
+msgid ""
+"This module lets you use the full power of certifications within your "
+"courses."
+msgstr ""
+
+#. module: website_slides_survey
 #: model:ir.model.fields,field_description:website_slides_survey.field_slide_slide__name
 msgid "Title"
 msgstr "Titre"
@@ -742,85 +761,9 @@ msgstr ""
 msgid "You have not taken any certification yet."
 msgstr "Vous n'avez pas encore passé de certification."
 
-#~ msgid "- %s (Courses - %s)"
-#~ msgstr "- %s (Cours - %s)"
-
 #~ msgid ""
-#~ "<div style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
-#~ "    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
-#~ "        Dear <t t-out=\"object.partner_id.name or 'participant' or "
-#~ "''\">participant</t><br><br>\n"
-#~ "        Unfortunately, you have failed the certification and are no "
-#~ "longer a member of the course: <t t-"
-#~ "out=\"object.slide_partner_id.channel_id.name or ''\">Basics of "
-#~ "Gardening</t>.<br><br>\n"
-#~ "        Don't hesitate to enroll again!\n"
-#~ "        <div style=\"margin: 16px 0px 16px 0px;\">\n"
-#~ "            <a t-att-"
-#~ "href=\"(object.slide_partner_id.channel_id.website_url)\" "
-#~ "style=\"background-color: #875A7B; padding: 8px 16px 8px 16px; text-"
-#~ "decoration: none; color: #fff; border-radius: 5px; font-size:13px;\">\n"
-#~ "                Enroll now\n"
-#~ "            </a>\n"
-#~ "        </div>\n"
-#~ "        Thank you for your participation.\n"
-#~ "    </p>\n"
-#~ "</div>\n"
-#~ "            "
+#~ "<br/>\n"
+#~ "                        <span class=\"text-muted\">Courses</span>"
 #~ msgstr ""
-#~ "<div style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
-#~ "    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
-#~ "        Bonjour <t t-out=\"object.partner_id.name or 'participant' or "
-#~ "''\">participant</t><br><br>\n"
-#~ "        Malheureusement, vous n’avez pas réussi la certification et vous "
-#~ "n’êtes donc plus membre du cours : <t t-"
-#~ "out=\"object.slide_partner_id.channel_id.name or ''\">Les bases du "
-#~ "jardinage</t>.<br><br>\n"
-#~ "        Vous pouvez toutefois vous inscrire à nouveau si vous le "
-#~ "souhaitez.\n"
-#~ "        <div style=\"margin: 16px 0px 16px 0px;\">\n"
-#~ "            <a t-att-"
-#~ "href=\"(object.slide_partner_id.channel_id.website_url)\" "
-#~ "style=\"background-color: #875A7B; padding: 8px 16px 8px 16px; text-"
-#~ "decoration: none; color: #fff; border-radius: 5px; font-size:13px;\">\n"
-#~ "                S’inscrire maintenant\n"
-#~ "            </a>\n"
-#~ "        </div>\n"
-#~ "        Merci pour votre participation.\n"
-#~ "    </p>\n"
-#~ "</div>\n"
-#~ "            "
-
-#~ msgid ""
-#~ "<span class=\"o_stat_text\" attrs=\"{'invisible': [('nbr_certification', "
-#~ "'&gt;', 0)]}\">Finished</span>\n"
-#~ "                <span class=\"o_stat_text\" attrs=\"{'invisible': "
-#~ "[('nbr_certification', '=', 0)]}\">Certified</span>"
-#~ msgstr ""
-#~ "<span class=\"o_stat_text\" attrs=\"{'invisible': [('nbr_certification', "
-#~ "'&gt;', 0)]}\">Terminé</span>\n"
-#~ "                <span class=\"o_stat_text\" attrs=\"{'invisible': "
-#~ "[('nbr_certification', '=', 0)]}\">Certifié</span>"
-
-#~ msgid "<span class=\"text-muted\">Certified</span>"
-#~ msgstr "<span class=\"text-muted\">Certifié</span>"
-
-#~ msgid "<span class=\"text-muted\">Finished</span>"
-#~ msgstr "<span class=\"text-muted\">Terminé</span>"
-
-#~ msgid ""
-#~ "Any Survey listed below is currently used as a Course Certification and "
-#~ "cannot be deleted:\n"
-#~ "%s"
-#~ msgstr ""
-#~ "Tout sondage répertorié ci-dessous est actuellement utilisée comme "
-#~ "certification de cours et ne peut pas être supprimé :\n"
-#~ "%s"
-
-#~ msgid ""
-#~ "You can create your certification from here or use an existing one. Once "
-#~ "your certification is created, you can still edit it in backend."
-#~ msgstr ""
-#~ "Vous pouvez créer votre certification à partir d'ici ou bien utiliser un "
-#~ "modèle existant. Une fois la certification créée, vous pouvez toujours la "
-#~ "modifier en arrière-plan."
+#~ "<br/>\n"
+#~ "                        <span class=\"text-muted\">Cours</span>"

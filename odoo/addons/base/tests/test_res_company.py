@@ -4,9 +4,10 @@
 from unittest.mock import patch
 
 from odoo.exceptions import ValidationError
-from odoo.tests.common import Command, TransactionCase
+from odoo.tests import Command, TransactionCase, tagged, Form
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestCompany(TransactionCase):
 
     def test_check_active(self):
@@ -57,6 +58,26 @@ class TestCompany(TransactionCase):
         branch = self.env['res.company'].with_context(default_parent_id=self.env.company.id).create({'name': 'Branch Company'})
         self.assertFalse(branch.partner_id.parent_id)
 
+    def test_correct_order_of_company(self):
+        """Ensure that companies are correctly ordered in a hierarchy"""
+        Company = self.env['res.company']
+        main_company = self.env.ref('base.main_company')
+        self.assertEqual(len(main_company), 1, "main company do not exists")
+
+        second_company = Company.create({
+            'name': main_company.name + '2',
+            'sequence': main_company.sequence + 999,
+        })
+        companies = Company.search([('id', 'in', [main_company.id, second_company.id])])
+
+        # If main_company will not have sequence then the child company will be before the main_company
+        # If the main_company has sequence (default 10) then it will be before the child company due to order by name
+        self.assertListEqual(
+            companies.ids,
+            [main_company.id, second_company.id],
+            "Companies are not in the correct order",
+        )
+
     def test_write_company_root_delegated_field_names(self):
         self.env['res.company'].with_context(default_parent_id=self.env.company.id).create({'name': 'foo'})
         new_currency = self.env['res.currency'].create({
@@ -66,3 +87,19 @@ class TestCompany(TransactionCase):
         })
         with patch('odoo.addons.base.models.res_company.ResCompany._get_company_root_delegated_field_names', return_value=["currency_id", "zip"]):
             self.env.company.write({'currency_id': new_currency.id, 'zip': '12345'})
+
+    def test_write_country_installs_l10n_modules(self):
+        company = self.env['res.company'].create({'name': 'foo'})
+        with patch('odoo.addons.base.models.res_company.ResCompany.install_l10n_modules', autospec=True) as install:
+            company.write({'country_id': self.env.ref('base.be').id})
+            install.assert_called_once_with(company)
+            install.reset_mock()
+            company.write({'country_id': self.env.ref('base.fr').id})
+            install.assert_not_called()
+
+
+class TestResCompanyForm(TransactionCase):
+    def test_create_res_company(self):
+        company_form = Form(self.env['res.company'])
+        company_form.name = 'a company'
+        company_form.save()

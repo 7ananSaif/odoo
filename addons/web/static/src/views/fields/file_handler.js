@@ -3,33 +3,29 @@ import { useService } from "@web/core/utils/hooks";
 import { getDataURLFromFile } from "@web/core/utils/urls";
 import { checkFileSize } from "@web/core/utils/files";
 
-import { Component, useRef, useState } from "@odoo/owl";
+import { Component, proxy, signal, t, useProps } from "@odoo/owl";
 
 export class FileUploader extends Component {
     static template = "web.FileUploader";
-    static props = {
-        onClick: { type: Function, optional: true },
-        onUploaded: Function,
-        onUploadComplete: { type: Function, optional: true },
-        multiUpload: { type: Boolean, optional: true },
-        checkSize: { type: Boolean, optional: true },
-        inputName: { type: String, optional: true },
-        fileUploadClass: { type: String, optional: true },
-        acceptedFileExtensions: { type: String, optional: true },
-        slots: { type: Object, optional: true },
-        showUploadingText: { type: Boolean, optional: true },
-        // See https://www.iana.org/assignments/media-types/media-types.xhtml
-        allowedMIMETypes: { type: String, optional: true },
-    };
-    static defaultProps = {
-        checkSize: true,
-        showUploadingText: true,
-    };
+    props = useProps({
+        onClick: t.function().optional(),
+        onUploaded: t.function(),
+        onUploadComplete: t.function().optional(),
+        multiUpload: t.boolean().optional(),
+        checkSize: t.boolean().optional(true),
+        inputName: t.string().optional(),
+        fileUploadClass: t.string().optional(),
+        acceptedFileExtensions: t.string().optional(),
+        showUploadingText: t.boolean().optional(true),
+        // See https://www.iana.org/assignments/media-types/media-t.xhtml
+        allowedMIMETypes: t.string().optional(),
+    });
+
+    fileInputRef = signal.ref();
 
     setup() {
         this.notification = useService("notification");
-        this.fileInputRef = useRef("fileInput");
-        this.state = useState({
+        this.state = proxy({
             isUploading: false,
         });
     }
@@ -38,8 +34,8 @@ export class FileUploader extends Component {
      * @param {Event} ev
      */
     async onFileChange(ev) {
-        const files = [...ev.target.files].filter(file => this.validFileType(file));
-        if (!files. length) {
+        const files = [...ev.target.files].filter((file) => this.validFileType(file));
+        if (!files.length) {
             return;
         }
         const { target } = ev;
@@ -81,7 +77,7 @@ export class FileUploader extends Component {
      * @param {File} file
      * @returns Whether the upload file's type is in the whitelist (`allowedMIMETypes`).
      */
-     validFileType(file) {
+    validFileType(file) {
         if (this.props.allowedMIMETypes && !this.props.allowedMIMETypes.includes(file.type)) {
             this.notification.add(
                 _t(`Oops! '%(fileName)s' didn’t upload since its format isn’t allowed.`, {
@@ -103,6 +99,6 @@ export class FileUploader extends Component {
                 return;
             }
         }
-        this.fileInputRef.el.click();
+        this.fileInputRef()?.click();
     }
 }

@@ -15,9 +15,9 @@ class TestMailComposer(MailCommon):
     @classmethod
     def setUpClass(cls):
         super(TestMailComposer, cls).setUpClass()
-        cls.env['ir.config_parameter'].set_param('mail.restrict.template.rendering', True)
+        cls.env['ir.config_parameter'].set_bool('mail.restrict.template.rendering', True)
         cls.user_employee.group_ids -= cls.env.ref('mail.group_mail_template_editor')
-        cls.test_record = cls.env['res.partner'].with_context(cls._test_context).create({
+        cls.test_record = cls.env['res.partner'].create({
             'name': 'Test',
         })
         cls.body_html = """<h1>Hello sir!</h1>
@@ -42,6 +42,7 @@ class TestMailComposer(MailCommon):
         })
 
 @tagged('mail_composer')
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestMailComposerForm(TestMailComposer):
     """ Test mail composer form view usage. """
 
@@ -137,7 +138,7 @@ class TestMailComposerForm(TestMailComposer):
         self.assertEqual(message.partner_ids, partner_private + partner_classic)
         self.assertEqual(message.subject, f'{test_record.name}')
 
-    @mute_logger('odoo.addons.base.models.ir_rule', 'odoo.addons.mail.models.mail_mail')
+    @mute_logger('odoo.addons.base.models.ir_access', 'odoo.addons.mail.models.mail_mail')
     @users('employee')
     def test_composer_default_recipients_private_norights(self):
         """ Test usage of a private partner in composer when not having the
@@ -151,12 +152,56 @@ class TestMailComposerForm(TestMailComposer):
         partner_classic = self.partner_classic.with_env(self.env)
         test_record = self.test_record.with_env(self.env)
 
-        with self.assertRaises(AccessError):
-            _form = Form(self.env['mail.compose.message'].with_context({
-                'default_partner_ids': (self.partner_private + partner_classic).ids,
-                'default_model': test_record._name,
-                'default_res_ids': test_record.ids,
-            }))
+        form = Form(self.env['mail.compose.message'].with_context({
+            'default_partner_ids': (self.partner_private + partner_classic).ids,
+            'default_model': test_record._name,
+            'default_res_ids': test_record.ids,
+        }))
+        msg = form.save()
+        self.assertEqual(partner_classic, msg.sudo().partner_ids, 'partner_private must not be saved')
+
+    @mute_logger('odoo.addons.mail.models.mail_mail')
+    @users('employee')
+    def test_composer_template_change_recipients_update(self):
+        """Check that recipients only change when coming or going to a template with specific recipients."""
+        self.mail_template.write({
+            'email_to': self.partner_private.email_formatted,
+            'partner_to': False,
+            'use_default_to': False,
+        })
+        specific_recipient_template = self.mail_template
+        specific_recipient_template_copy = specific_recipient_template.copy(default={
+            'email_to': False,
+            'partner_to': f'{self.partner_private_2.id}',
+        })
+        default_recipient_template = specific_recipient_template.copy(default={
+            'email_to': False, 'partner_to': False, 'use_default_to': True,
+        })
+        default_recipient_template_copy = default_recipient_template.copy()
+        test_record = self.test_record.with_env(self.env)
+        default_recipient = test_record
+        self.assertTrue(default_recipient, self.env.registry['res.partner'])
+
+        cases = [
+            (self.partner_classic, False, specific_recipient_template, self.partner_private, 'No template -> Specific recipients'),
+            (self.partner_classic, specific_recipient_template, specific_recipient_template_copy, self.partner_private_2, 'Specific recipients -> Specific recipients'),
+            (self.partner_classic, specific_recipient_template_copy, default_recipient_template, self.partner_classic, 'Specific recipients -> Default recipients'),
+            (None, default_recipient_template, default_recipient_template_copy, default_recipient, 'Default recipients -> Default recipients'),
+            (self.partner_classic, default_recipient_template, default_recipient_template_copy, self.partner_classic, 'Default recipients -> Default recipients'),
+            (self.partner_classic, default_recipient_template_copy, specific_recipient_template, self.partner_private, 'Default recipients -> Specific recipients'),
+            (None, specific_recipient_template, False, False, 'Specific recipients -> No template'),
+            (None, default_recipient_template, False, False, 'Default recipients -> No template'),
+        ]
+        for previous_partners, previous_template, new_template, expected_partners, case_name in cases:
+            with self.subTest(case=case_name):
+                composer_form = Form(self.env['mail.compose.message'].with_context({
+                    'default_model': test_record._name,
+                    'default_res_ids': test_record.ids,
+                    'default_template_id': previous_template and previous_template.id,
+                } | ({'default_partner_ids': previous_partners.ids} if previous_partners is not None else {})
+                ))
+                composer_form.template_id = new_template or self.env['mail.template']
+                self.assertEqual(sorted(composer_form.partner_ids.ids), sorted(expected_partners.ids if expected_partners else []))
 
     @mute_logger('odoo.addons.mail.models.mail_mail')
     @users('employee')
@@ -259,6 +304,7 @@ class TestMailComposerForm(TestMailComposer):
 
 
 @tagged('mail_composer')
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestMailComposerRendering(TestMailComposer):
     """ Test rendering and support of various html tweaks in composer """
 
@@ -304,8 +350,27 @@ class TestMailComposerRendering(TestMailComposer):
             'We must preserve (mso) comments in email html'
         )
 
+        notification = self.env["mail.notification"].search(
+            [('mail_email_address', '=', self.partner_employee.email)])
+        self.assertEqual(len(notification), 1)
 
-@tagged("mail_composer", "-at_install", "post_install")
+    @users('employee')
+    def test_prevent_sudo_rendering(self):
+        test_template = self.env['mail.template'].sudo().create({
+            'body_html': '<t t-if="not object.env.su">1</t>',
+            'model_id': self.env['ir.model']._get_id('res.partner'),
+        })
+        partner = self.test_record.with_env(self.env)
+        composer = self.env['mail.compose.message'].create({
+            'model': partner._name,
+            'res_ids': f'{[partner.id]}',
+            'template_id': test_template.id,
+            'composition_mode': 'mass_mail',
+        })
+        result = composer._render_field('body', partner.ids)[partner.id]
+        self.assertEqual(result, '1')
+
+@tagged("mail_composer")
 class TestMailComposerUI(MailCommon, HttpCase):
 
     def test_mail_composer_test_tour(self):
@@ -346,7 +411,7 @@ class TestMailComposerUI(MailCommon, HttpCase):
         message_1, message_2, message_3 = self._new_msgs.filtered(lambda message: message.author_id == self.user_employee.partner_id)
         self.assertIn(user.partner_id, message_1.partner_ids)
         self.assertEqual(
-            sorted(message_1.attachment_ids.mapped('raw')),
+            sorted([a.raw.content for a in message_1.attachment_ids]),
             sorted([b'hello, world', b'hi there']))
 
         signature_pattern = r'<span data-o-mail-quote="1">--\nErnest</span>'

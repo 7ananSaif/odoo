@@ -1,6 +1,7 @@
 import { PaymentInterface } from "@point_of_sale/app/utils/payment/payment_interface";
 import { CashmaticService } from "@pos_cashmatic/cashmatic_service";
 import { AlertDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
+import { registry } from "@web/core/registry";
 import { _t } from "@web/core/l10n/translation";
 
 const CENTS_PER_UNIT = 100;
@@ -94,14 +95,17 @@ export class PaymentCashmatic extends PaymentInterface {
 
     cashmaticAmountToPosAmount(amountInCents) {
         const amount = amountInCents / CENTS_PER_UNIT;
-        return this.env.utils.roundCurrency(amount);
+        return this.pos.config.currency_id.round(amount);
     }
 
     showDispenseError(notDispensed) {
         this.showError(
             _t(
                 "The cash machine could not dispense %s. Please give the remaining amount to the customer manually.",
-                this.env.utils.formatCurrency(this.cashmaticAmountToPosAmount(notDispensed))
+                this.pos.formatCurrency(
+                    this.cashmaticAmountToPosAmount(notDispensed),
+                    this.pos.config.currency_id.id
+                )
             )
         );
     }
@@ -113,3 +117,5 @@ export class PaymentCashmatic extends PaymentInterface {
         });
     }
 }
+
+registry.category("pos_payment_providers").add("cashmatic", PaymentCashmatic);

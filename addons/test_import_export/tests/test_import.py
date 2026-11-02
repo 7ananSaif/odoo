@@ -4,13 +4,16 @@ import datetime
 import difflib
 import io
 import pprint
+from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
+from openpyxl.cell.rich_text import CellRichText, TextBlock
+from openpyxl.cell.text import InlineFont
 from PIL import Image
 
-from odoo.tests.common import TransactionCase, can_import, RecordCapturer
-from odoo.tools import mute_logger, DEFAULT_SERVER_DATE_FORMAT, DEFAULT_SERVER_DATETIME_FORMAT
-from odoo.tools.misc import file_open
+from odoo.tests.common import tagged, TransactionCase, can_import, RecordCapturer
+from odoo.tools import BinaryBytes, mute_logger, DEFAULT_SERVER_DATE_FORMAT, DEFAULT_SERVER_DATETIME_FORMAT
 from odoo.addons.base_import.models.base_import import ImportValidationError
 
 
@@ -19,6 +22,7 @@ def get_id_field(model_name):
         'id': 'id',
         'name': 'id',
         'string': "External ID",
+        'translate': False,
         'required': False,
         'fields': [],
         'type': 'id',
@@ -26,10 +30,10 @@ def get_id_field(model_name):
     }
 
 
-def make_field(name='value', string='Value', required=False, fields=None, field_type='id', model_name=None, comodel_name=None):
+def make_field(name='value', string='Value', required=False, fields=None, field_type='id', model_name=None, comodel_name=None, translate=False):
     if fields is None:
         fields = []
-    field = {'id': name, 'name': name, 'string': string, 'required': required, 'fields': fields, 'type': field_type}
+    field = {'id': name, 'name': name, 'string': string, 'required': required, 'fields': fields, 'translate': translate, 'type': field_type}
     if model_name:
         field['model_name'] = model_name
     if comodel_name:
@@ -44,44 +48,6 @@ def sorted_fields(fields):
     """ recursively sort field lists to ease comparison """
     recursed = [dict(field, fields=sorted_fields(field['fields'])) for field in fields]
     return sorted(recursed, key=lambda field: field['id'])
-
-
-def generate_xls(data):
-    """
-    Generates an XLS file from the given data dictionary. Each key in the `data` dictionary represents a column header,
-    and its corresponding values are written as rows under that column.
-
-    Date and datetime objects in the values will automatically set the style of the cell to a date/datetime.
-
-    :param dict data: keys are column headers, values are rows.
-    :return bytes: the xls file as bytes.
-    """
-    import xlwt  # noqa: PLC0415
-
-    wb = xlwt.Workbook()
-    ws = wb.add_sheet('Sheet1')
-
-    default_style = xlwt.XFStyle()
-
-    date_style = xlwt.XFStyle()
-    date_style.num_format_str = 'yyyy-mm-dd'
-
-    datetime_style = xlwt.XFStyle()
-    datetime_style.num_format_str = 'yyyy-mm-dd hh:mm:ss'
-
-    for column, (key, values) in enumerate(data.items()):
-        ws.write(0, column, key, default_style)
-        for row, value in enumerate(values, 1):
-            style = default_style
-            if isinstance(value, datetime.datetime):
-                style = datetime_style
-            elif isinstance(value, datetime.date):
-                style = date_style
-            ws.write(row, column, value, style)
-
-    output = io.BytesIO()
-    wb.save(output)
-    return output.getvalue()
 
 
 def generate_xlsx(data):
@@ -128,6 +94,7 @@ class BaseImportCase(TransactionCase):
         ))
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestBasicFields(BaseImportCase):
 
     def get_fields(self, field):
@@ -140,6 +107,10 @@ class TestBasicFields(BaseImportCase):
     def test_required(self):
         """ Required fields should be flagged (so they can be fill-required) """
         self.assertEqualFields(self.get_fields('char.required'), make_field(required=True, field_type='char', model_name='import.char.required'))
+
+    def test_translatable(self):
+        """ Translatable fields should be flagged """
+        self.assertEqualFields(self.get_fields('char.translate'), make_field(translate=True, field_type='char', model_name='import.char.translate'))
 
     def test_readonly(self):
         """ Readonly fields should be filtered out"""
@@ -161,8 +132,8 @@ class TestBasicFields(BaseImportCase):
         self.assertEqualFields(self.get_fields('m2o'), make_field(
             field_type='many2one', comodel_name='import.m2o.related', model_name='import.m2o',
             fields=[
-                {'id': 'value', 'name': 'id', 'string': 'External ID', 'required': False, 'fields': [], 'type': 'id', 'model_name': 'import.m2o.related'},
-                {'id': 'value', 'name': '.id', 'string': 'Database ID', 'required': False, 'fields': [], 'type': 'id', 'model_name': 'import.m2o.related'},
+                {'id': 'value', 'name': 'id', 'string': 'External ID', 'required': False, 'translate': False, 'fields': [], 'type': 'id', 'model_name': 'import.m2o.related'},
+                {'id': 'value', 'name': '.id', 'string': 'Database ID', 'required': False, 'translate': False, 'fields': [], 'type': 'id', 'model_name': 'import.m2o.related'},
         ]))
 
     def test_m2o_required(self):
@@ -173,41 +144,42 @@ class TestBasicFields(BaseImportCase):
         self.assertEqualFields(self.get_fields('m2o.required'), make_field(
             field_type='many2one', required=True, comodel_name='import.m2o.required.related', model_name='import.m2o.required',
             fields=[
-                {'id': 'value', 'name': 'id', 'string': 'External ID', 'required': True, 'fields': [], 'type': 'id', 'model_name': 'import.m2o.required.related'},
-                {'id': 'value', 'name': '.id', 'string': 'Database ID', 'required': True, 'fields': [], 'type': 'id', 'model_name': 'import.m2o.required.related'},
+                {'id': 'value', 'name': 'id', 'string': 'External ID', 'required': True, 'translate': False, 'fields': [], 'type': 'id', 'model_name': 'import.m2o.required.related'},
+                {'id': 'value', 'name': '.id', 'string': 'Database ID', 'required': True, 'translate': False, 'fields': [], 'type': 'id', 'model_name': 'import.m2o.required.related'},
         ]))
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestO2M(BaseImportCase):
 
     def test_shallow(self):
         self.assertEqualFields(
-            self.env['base_import.import'].get_fields_tree("import.o2m"), 
+            self.env['base_import.import'].get_fields_tree("import.o2m"),
             [
                 get_id_field("import.o2m"),
-                {'id': 'name', 'name': 'name', 'string': "Name", 'required': False, 'fields': [], 'type': 'char', 'model_name': 'import.o2m'},
+                {'id': 'name', 'name': 'name', 'string': "Name", 'required': False, 'translate': False, 'fields': [], 'type': 'char', 'model_name': 'import.o2m'},
                 {
                     'id': 'value', 'name': 'value', 'string': 'Value', 'model_name': 'import.o2m',
-                    'required': False, 'type': 'one2many', 'comodel_name': 'import.o2m.child',
+                    'required': False, 'translate': False, 'type': 'one2many', 'comodel_name': 'import.o2m.child',
                     'fields': [
                         get_id_field("import.o2m.child"),
                         {
                             'id': 'parent_id', 'name': 'parent_id', 'model_name': 'import.o2m.child',
                             'string': 'Parent', 'type': 'many2one', 'comodel_name': 'import.o2m',
-                            'required': False, 'fields': [
+                            'required': False, 'translate': False, 'fields': [
                                 {'id': 'parent_id', 'name': 'id', 'model_name': 'import.o2m',
-                                 'string': 'External ID', 'required': False,
+                                 'string': 'External ID', 'required': False, 'translate': False,
                                  'fields': [], 'type': 'id'},
                                 {'id': 'parent_id', 'name': '.id', 'model_name': 'import.o2m',
-                                 'string': 'Database ID', 'required': False,
+                                 'string': 'Database ID', 'required': False, 'translate': False,
                                  'fields': [], 'type': 'id'},
                             ]
                         },
                         {'id': 'name', 'name': 'name', 'string': 'Name',
-                         'required': False, 'fields': [], 'type': 'char', 'model_name': 'import.o2m.child',
+                         'required': False, 'translate': False, 'fields': [], 'type': 'char', 'model_name': 'import.o2m.child',
                         },
                         {'id': 'value', 'name': 'value', 'string': 'Value',
-                         'required': False, 'fields': [], 'type': 'integer', 'model_name': 'import.o2m.child',
+                         'required': False, 'translate': False, 'fields': [], 'type': 'integer', 'model_name': 'import.o2m.child',
                         },
                     ]
                 }
@@ -220,37 +192,38 @@ class TestO2M(BaseImportCase):
                 self.env['base_import.import'].get_fields_tree("import.o2m"),
                 [
                     get_id_field("import.o2m"),
-                    {'id': 'name', 'name': 'name', 'string': "Name", 'required': False, 'fields': [], 'type': 'char', 'model_name': 'import.o2m'},
+                    {'id': 'name', 'name': 'name', 'string': "Name", 'required': False, 'translate': False, 'fields': [], 'type': 'char', 'model_name': 'import.o2m'},
                     {
                         'id': 'value', 'name': 'value', 'string': 'Value', 'model_name': 'import.o2m',
-                        'required': False, 'type': 'one2many', 'comodel_name': 'import.o2m.child',
+                        'required': False, 'translate': False, 'type': 'one2many', 'comodel_name': 'import.o2m.child',
                         'fields': [
                             get_id_field("import.o2m.child"),
                             {
                                 'id': 'parent_id', 'name': 'parent_id', 'model_name': 'import.o2m.child',
                                 'string': 'Parent', 'type': 'many2one', 'comodel_name': 'import.o2m',
-                                'required': False, 'fields': [
+                                'required': False, 'translate': False, 'fields': [
                                     {'id': 'parent_id', 'name': 'id', 'model_name': 'import.o2m',
-                                    'string': 'External ID', 'required': False,
+                                    'string': 'External ID', 'required': False, 'translate': False,
                                     'fields': [], 'type': 'id'},
                                     {'id': 'parent_id', 'name': '.id', 'model_name': 'import.o2m',
-                                    'string': 'Database ID', 'required': False,
+                                    'string': 'Database ID', 'required': False, 'translate': False,
                                     'fields': [], 'type': 'id'},
                                 ]
                             },
                             {'id': 'name', 'name': 'name', 'string': 'Name',
-                             'required': False, 'fields': [], 'type': 'char', 'model_name': 'import.o2m.child',
+                             'required': False, 'translate': False, 'fields': [], 'type': 'char', 'model_name': 'import.o2m.child',
                             },
                             {'id': 'value', 'name': 'value', 'string': 'Value',
-                            'required': False, 'fields': [], 'type': 'integer', 'model_name': 'import.o2m.child',
+                            'required': False, 'translate': False, 'fields': [], 'type': 'integer', 'model_name': 'import.o2m.child',
                             },
-                            {'id': 'value', 'name': '.id', 'string': 'Database ID', 'required': False, 'fields': [], 'type': 'id', 'model_name': 'import.o2m.child'}
+                            {'id': 'value', 'name': '.id', 'string': 'Database ID', 'required': False, 'translate': False, 'fields': [], 'type': 'id', 'model_name': 'import.o2m.child'}
                         ]
                     }
                 ]
             )
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestMatchHeadersSingle(TransactionCase):
 
     def test_match_by_name(self):
@@ -304,6 +277,7 @@ class TestMatchHeadersSingle(TransactionCase):
         self.assertEqual(match, {})
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestMatchHeadersMultiple(TransactionCase):
 
     def test_noheaders(self):
@@ -333,7 +307,7 @@ class TestMatchHeadersMultiple(TransactionCase):
     def test_mixed(self):
         self.assertEqual(
             self.env['base_import.import']._get_mapping_suggestions(
-                'foo bar baz qux/corge'.split(),
+                ['foo', 'bar', 'baz', 'qux/corge'],
                 {
                     (0, 'foo'): ['int'],
                     (1, 'bar'): ['char'],
@@ -356,14 +330,18 @@ class TestMatchHeadersMultiple(TransactionCase):
         )
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestColumnMapping(TransactionCase):
 
     def test_column_mapping(self):
+        content = (
+            b"Name,Some Value,value\n"
+            b"chhagan,10,1\n"
+            b"magan,20,2\n"
+        )
         import_record = self.env['base_import.import'].create({
             'res_model': 'import.preview',
-            'file': b"Name,Some Value,value\n"
-                    b"chhagan,10,1\n"
-                    b"magan,20,2\n",
+            'file': BinaryBytes(content),
             'file_type': 'text/csv',
             'file_name': 'data.csv',
         })
@@ -404,12 +382,13 @@ class TestColumnMapping(TransactionCase):
             )
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestPreview(TransactionCase):
 
     def make_import(self):
         import_wizard = self.env['base_import.import'].create({
             'res_model': 'res.users',
-            'file': "로그인,언어\nbob,1\n".encode('euc_kr'),
+            'file': BinaryBytes("로그인,언어\nbob,1\n".encode('euc_kr')),
             'file_type': 'text/csv',
             'file_name': 'kr_data.csv',
         })
@@ -441,12 +420,15 @@ class TestPreview(TransactionCase):
         self.assertTrue('error' in result)
 
     def test_csv_success(self):
+        content = (
+            b'name,Some Value,Counter\n'
+            b'foo,,\n'
+            b'bar,,4\n'
+            b'qux,5,6\n'
+        )
         import_wizard = self.env['base_import.import'].create({
             'res_model': 'import.preview',
-            'file': b'name,Some Value,Counter\n'
-                    b'foo,,\n'
-                    b'bar,,4\n'
-                    b'qux,5,6\n',
+            'file': BinaryBytes(content),
             'file_type': 'text/csv'
         })
 
@@ -461,15 +443,14 @@ class TestPreview(TransactionCase):
         # Order depends on iteration order of fields_get
         self.assertItemsEqual(result['fields'][:4], [
             get_id_field('import.preview'),
-            {'id': 'name', 'name': 'name', 'string': 'Name', 'required': False, 'fields': [], 'type': 'char', 'model_name': 'import.preview'},
-            {'id': 'somevalue', 'name': 'somevalue', 'string': 'Some Value', 'required': True, 'fields': [], 'type': 'integer', 'model_name': 'import.preview'},
-            {'id': 'othervalue', 'name': 'othervalue', 'string': 'Other Variable', 'required': False, 'fields': [], 'type': 'integer', 'model_name': 'import.preview'},
+            {'id': 'name', 'name': 'name', 'string': 'Name', 'required': False, 'translate': False, 'fields': [], 'type': 'char', 'model_name': 'import.preview'},
+            {'id': 'somevalue', 'name': 'somevalue', 'string': 'Some Value', 'required': True, 'translate': False, 'fields': [], 'type': 'integer', 'model_name': 'import.preview'},
+            {'id': 'othervalue', 'name': 'othervalue', 'string': 'Other Variable', 'required': False, 'translate': False, 'fields': [], 'type': 'integer', 'model_name': 'import.preview'},
         ])
         self.assertEqual(result['preview'], [['foo', 'bar', 'qux'], ['5'], ['4', '6']])
 
-    @unittest.skipUnless(can_import('xlrd'), "XLRD module not available")
     def test_xls_success(self):
-        file_content = file_open('test_import_export/data/test_import.xls', 'rb').read()
+        file_content = self.file_read('test_import_export/data/test_import.xls')
         import_wizard = self.env['base_import.import'].create({
             'res_model': 'import.preview',
             'file': file_content,
@@ -484,15 +465,14 @@ class TestPreview(TransactionCase):
         self.assertEqual(result['headers'], ['name', 'Some Value', 'Counter'])
         self.assertItemsEqual(result['fields'][:4], [
             get_id_field('import.preview'),
-            {'id': 'name', 'name': 'name', 'string': 'Name', 'required': False, 'fields': [], 'type': 'char', 'model_name': 'import.preview'},
-            {'id': 'somevalue', 'name': 'somevalue', 'string': 'Some Value', 'required': True, 'fields': [], 'type': 'integer', 'model_name': 'import.preview'},
-            {'id': 'othervalue', 'name': 'othervalue', 'string': 'Other Variable', 'required': False, 'fields': [], 'type': 'integer', 'model_name': 'import.preview'},
+            {'id': 'name', 'name': 'name', 'string': 'Name', 'required': False, 'translate': False, 'fields': [], 'type': 'char', 'model_name': 'import.preview'},
+            {'id': 'somevalue', 'name': 'somevalue', 'string': 'Some Value', 'required': True, 'translate': False, 'fields': [], 'type': 'integer', 'model_name': 'import.preview'},
+            {'id': 'othervalue', 'name': 'othervalue', 'string': 'Other Variable', 'required': False, 'translate': False, 'fields': [], 'type': 'integer', 'model_name': 'import.preview'},
         ])
         self.assertEqual(result['preview'], [['foo', 'bar', 'qux'], ['1', '3', '5'], ['2', '4', '6']])
 
-    @unittest.skipUnless(can_import('xlrd.xlsx') or can_import('openpyxl'), "XLRD/XLSX not available")
     def test_xlsx_success(self):
-        file_content = file_open('test_import_export/data/test_import.xlsx', 'rb').read()
+        file_content = self.file_read('test_import_export/data/test_import.xlsx')
         import_wizard = self.env['base_import.import'].create({
             'res_model': 'import.preview',
             'file': file_content,
@@ -507,15 +487,35 @@ class TestPreview(TransactionCase):
         self.assertEqual(result['headers'], ['name', 'Some Value', 'Counter'])
         self.assertItemsEqual(result['fields'][:4], [
             get_id_field('import.preview'),
-            {'id': 'name', 'name': 'name', 'string': 'Name', 'required': False, 'fields': [], 'type': 'char', 'model_name': 'import.preview'},
-            {'id': 'somevalue', 'name': 'somevalue', 'string': 'Some Value', 'required': True, 'fields': [], 'type': 'integer', 'model_name': 'import.preview'},
-            {'id': 'othervalue', 'name': 'othervalue', 'string': 'Other Variable', 'required': False, 'fields': [], 'type': 'integer', 'model_name': 'import.preview'},
+            {'id': 'name', 'name': 'name', 'string': 'Name', 'required': False, 'translate': False, 'fields': [], 'type': 'char', 'model_name': 'import.preview'},
+            {'id': 'somevalue', 'name': 'somevalue', 'string': 'Some Value', 'required': True, 'translate': False, 'fields': [], 'type': 'integer', 'model_name': 'import.preview'},
+            {'id': 'othervalue', 'name': 'othervalue', 'string': 'Other Variable', 'required': False, 'translate': False, 'fields': [], 'type': 'integer', 'model_name': 'import.preview'},
         ])
         self.assertEqual(result['preview'], [['foo', 'bar', 'qux'], ['1', '3', '5'], ['2', '4', '6']])
 
+    def test_rich_text_to_html(self):
+        importer = self.env["base_import.import"]
+
+        cases = [
+            (InlineFont(b=True), "Bold", "<b>Bold</b>"),
+            (InlineFont(i=True), "Italic", "<i>Italic</i>"),
+            (InlineFont(color="FFFF0000"), "Red", "<span style='color:#FF0000'>Red</span>"),
+            (InlineFont(sz=20), "Large", "<span style='font-size:20px'>Large</span>"),
+            (InlineFont(rFont="Century"), "Century", "<span style='font-family:Century'>Century</span>"),
+        ]
+
+        for font, text, expected_html in cases:
+            with self.subTest(text=text):
+                cell = SimpleNamespace(value=CellRichText([TextBlock(font, text)]))
+                result_html = "".join(
+                    importer._text_to_html(value.text, value.font)
+                    for value in cell.value
+                )
+                self.assertEqual(result_html, expected_html)
+
     @unittest.skipUnless(can_import('odf'), "ODFPY not available")
     def test_ods_success(self):
-        file_content = file_open('test_import_export/data/test_import.ods', 'rb').read()
+        file_content = self.file_read('test_import_export/data/test_import.ods')
         import_wizard = self.env['base_import.import'].create({
             'res_model': 'import.preview',
             'file': file_content,
@@ -530,24 +530,28 @@ class TestPreview(TransactionCase):
         self.assertEqual(result['headers'], ['name', 'Some Value', 'Counter'])
         self.assertItemsEqual(result['fields'][:4], [
             get_id_field('import.preview'),
-            {'id': 'name', 'name': 'name', 'string': 'Name', 'required': False, 'fields': [], 'type': 'char', 'model_name': 'import.preview'},
-            {'id': 'somevalue', 'name': 'somevalue', 'string': 'Some Value', 'required': True, 'fields': [], 'type': 'integer', 'model_name': 'import.preview'},
-            {'id': 'othervalue', 'name': 'othervalue', 'string': 'Other Variable', 'required': False, 'fields': [], 'type': 'integer', 'model_name': 'import.preview'},
+            {'id': 'name', 'name': 'name', 'string': 'Name', 'required': False, 'translate': False, 'fields': [], 'type': 'char', 'model_name': 'import.preview'},
+            {'id': 'somevalue', 'name': 'somevalue', 'string': 'Some Value', 'required': True, 'translate': False, 'fields': [], 'type': 'integer', 'model_name': 'import.preview'},
+            {'id': 'othervalue', 'name': 'othervalue', 'string': 'Other Variable', 'required': False, 'translate': False, 'fields': [], 'type': 'integer', 'model_name': 'import.preview'},
         ])
         self.assertEqual(result['preview'], [['foo', 'bar', 'aux'], ['1', '3', '5'], ['2', '4', '6']])
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class test_convert_import_data(TransactionCase):
     """ Tests conversion of base_import.import input into data which
     can be fed to Model.load
     """
     def test_all(self):
+        content = (
+            b'name,Some Value,Counter\n'
+            b'foo,1,2\n'
+            b'bar,3,4\n'
+            b'qux,5,6\n'
+        )
         import_wizard = self.env['base_import.import'].create({
             'res_model': 'import.preview',
-            'file': b'name,Some Value,Counter\n'
-                    b'foo,1,2\n'
-                    b'bar,3,4\n'
-                    b'qux,5,6\n',
+            'file': BinaryBytes(content),
             'file_type': 'text/csv'
 
         })
@@ -564,10 +568,13 @@ class test_convert_import_data(TransactionCase):
         ])
 
     def test_date_fields(self):
+        content = (
+            'c,d,create_date\n'
+            '"foo","2013年07月18日","2016-10-12 06:06"\n'
+        ).encode()
         import_wizard = self.env['base_import.import'].create({
             'res_model': 'import.complex',
-            'file': 'c,d,create_date\n'
-                    '"foo","2013年07月18日","2016-10-12 06:06"\n',
+            'file': BinaryBytes(content),
             'file_type': 'text/csv'
 
         })
@@ -589,10 +596,13 @@ class test_convert_import_data(TransactionCase):
 
     def test_date_fields_no_options(self):
         self.env['res.lang']._activate_lang('de_DE')
+        content = (
+            b'c,d,dt\n'
+            b'"foo","15.10.2023","15.10.2023 15:15:15"\n'
+        )
         import_wizard = self.env['base_import.import'].with_context(lang='de_DE').create({
             'res_model': 'import.complex',
-            'file': 'c,d,dt\n'
-                    '"foo","15.10.2023","15.10.2023 15:15:15"\n',
+            'file': BinaryBytes(content),
             'file_type': 'text/csv',
         })
 
@@ -621,8 +631,10 @@ class test_convert_import_data(TransactionCase):
         self.env['res.lang']._activate_lang('de_DE')
         import_wizard = self.env['base_import.import'].with_context(lang='de_DE').create({
             'res_model': 'import.complex',
-            'file': 'c,d,create_date\n'
-                    '"foo","2023/01/01","2023.01.01 15:15:15"\n',
+            'file': BinaryBytes(
+                b'c,d,create_date\n'
+                b'"foo","2023/01/01","2023.01.01 15:15:15"\n',
+            ),
             'file_type': 'text/csv',
         })
 
@@ -651,8 +663,10 @@ class test_convert_import_data(TransactionCase):
         self.env['res.lang']._activate_lang('de_DE')
         import_wizard = self.env['base_import.import'].with_context(lang='de_DE').create({
             'res_model': 'import.complex',
-            'file': 'c,d,create_date\n'
-                    '"foo","01/01/2023","2023.01.01 15:15:15"\n',
+            'file': BinaryBytes(
+                b'c,d,create_date\n'
+                b'"foo","01/01/2023","2023.01.01 15:15:15"\n',
+            ),
             'file_type': 'text/csv',
         })
 
@@ -681,10 +695,13 @@ class test_convert_import_data(TransactionCase):
         """ Ensure that relational fields float and date are correctly
         parsed during the import call.
         """
+        content = (
+            'name,parent_id/id,parent_id/date,parent_id/partner_latitude\n'
+            '"foo","__export__.res_partner_1","2017年10月12日","5,69"\n'
+        ).encode()
         import_wizard = self.env['base_import.import'].create({
             'res_model': 'import.complex',
-            'file': 'name,parent_id/id,parent_id/date,parent_id/partner_latitude\n'
-                    '"foo","__export__.res_partner_1","2017年10月12日","5,69"\n',
+            'file': BinaryBytes(content),
             'file_type': 'text/csv'
 
         })
@@ -730,12 +747,15 @@ class test_convert_import_data(TransactionCase):
         """ If ``False`` is provided as field mapping for a column,
         that column should be removed from importable data
         """
+        content = (
+            b'name,Some Value,Counter\n'
+            b'foo,1,2\n'
+            b'bar,3,4\n'
+            b'qux,5,6\n'
+        )
         import_wizard = self.env['base_import.import'].create({
             'res_model': 'import.preview',
-            'file': b'name,Some Value,Counter\n'
-                    b'foo,1,2\n'
-                    b'bar,3,4\n'
-                    b'qux,5,6\n',
+            'file': BinaryBytes(content),
             'file_type': 'text/csv'
         })
         data, fields = import_wizard._convert_import_data(
@@ -754,12 +774,15 @@ class test_convert_import_data(TransactionCase):
         """ If a row is composed only of empty values (due to having
         filtered out non-empty values from it), it should be removed
         """
+        content = (
+            b'name,Some Value,Counter\n'
+            b'foo,1,2\n'
+            b',3,\n'
+            b',5,6\n'
+        )
         import_wizard = self.env['base_import.import'].create({
             'res_model': 'import.preview',
-            'file': b'name,Some Value,Counter\n'
-                    b'foo,1,2\n'
-                    b',3,\n'
-                    b',5,6\n',
+            'file': BinaryBytes(content),
             'file_type': 'text/csv'
         })
         data, fields = import_wizard._convert_import_data(
@@ -774,14 +797,17 @@ class test_convert_import_data(TransactionCase):
         ])
 
     def test_empty_rows(self):
+        content = (
+            b'name,Some Value\n'
+            b'foo,1\n'
+            b'\n'
+            b'bar,2\n'
+            b'     \n'
+            b'\t \n'
+        )
         import_wizard = self.env['base_import.import'].create({
             'res_model': 'import.preview',
-            'file': b'name,Some Value\n'
-                    b'foo,1\n'
-                    b'\n'
-                    b'bar,2\n'
-                    b'     \n'
-                    b'\t \n',
+            'file': BinaryBytes(content),
             'file_type': 'text/csv'
         })
         data, fields = import_wizard._convert_import_data(
@@ -796,20 +822,26 @@ class test_convert_import_data(TransactionCase):
         ])
 
     def test_nofield(self):
+        content = (
+            b'name,Some Value,Counter\n'
+            b'foo,1,2\n'
+        )
         import_wizard = self.env['base_import.import'].create({
             'res_model': 'import.preview',
-            'file': b'name,Some Value,Counter\n'
-                    b'foo,1,2\n',
+            'file': BinaryBytes(content),
             'file_type': 'text/csv'
 
         })
         self.assertRaises(ImportValidationError, import_wizard._convert_import_data, [], {'quoting': '"', 'separator': ',', 'has_headers': True})
 
     def test_falsefields(self):
+        content = (
+            b'name,Some Value,Counter\n'
+            b'foo,1,2\n'
+        )
         import_wizard = self.env['base_import.import'].create({
             'res_model': 'import.preview',
-            'file': b'name,Some Value,Counter\n'
-                    b'foo,1,2\n',
+            'file': BinaryBytes(content),
             'file_type': 'text/csv'
         })
 
@@ -833,7 +865,7 @@ class test_convert_import_data(TransactionCase):
 
         import_wizard = self.env['base_import.import'].create({
             'res_model': 'import.preview',
-            'file': output.getvalue().encode(),
+            'file': BinaryBytes(output.getvalue().encode()),
             'file_type': 'text/csv',
         })
         data, _ = import_wizard._convert_import_data(
@@ -847,19 +879,20 @@ class test_convert_import_data(TransactionCase):
         partners_before = self.env['res.partner'].search([])
         import_wizard = self.env['base_import.import'].create({
             'res_model': 'res.partner',
-            'file': """foo,US,person\n
-foo1,Invalid Country,person\n
-foo2,US,persons\n""",
+            'file': BinaryBytes(b"""\
+foo,US\n
+foo1,Invalid Country\n
+foo2,US\n"""),
             'file_type': 'text/csv'
         })
 
         results = import_wizard.execute_import(
-            ['name', 'country_id', 'company_type'],
+            ['name', 'country_id'],
             [],
             {
                 'quoting': '"',
                 'separator': ',',
-                'import_set_empty_fields': ['country_id', 'company_type'],
+                'import_set_empty_fields': ['country_id'],
             }
         )
         partners_now = self.env['res.partner'].search([]) - partners_before
@@ -867,11 +900,9 @@ foo2,US,persons\n""",
 
         self.assertEqual(partners_now[0].name, 'foo', "New partner's name should be foo")
         self.assertEqual(partners_now[0].country_id.id, self.env.ref('base.us').id, "Foo partner's country should be US")
-        self.assertEqual(partners_now[0].company_type, 'person', "Foo partner's country should be person")
 
         self.assertEqual(partners_now[1].country_id.id, False, "foo1 partner's country should be False")
 
-        self.assertEqual(partners_now[2].company_type, False, "foo2 partner's country should be False")
         # if results empty, no errors
         self.assertItemsEqual(results['messages'], [])
 
@@ -879,20 +910,21 @@ foo2,US,persons\n""",
         partners_before = self.env['res.partner'].search([])
         import_wizard = self.env['base_import.import'].create({
             'res_model': 'res.partner',
-            'file': """foo,US,0,person\n
-foo1,Invalid Country,0,person\n
-foo2,US,False Value,person\n
-foo3,US,0,persons\n""",
+            'file': BinaryBytes(b"""\
+foo,US\n
+foo1,Invalid Country\n
+foo2,Invalid Country\n
+foo3,Invalid Country\n"""),
             'file_type': 'text/csv'
         })
 
         results = import_wizard.execute_import(
-            ['name', 'country_id', 'is_company', 'company_type'],
+            ['name', 'country_id'],
             [],
             {
                 'quoting': '"',
                 'separator': ',',
-                'import_skip_records': ['country_id', 'is_company', 'company_type']
+                'import_skip_records': ['country_id']
             }
         )
         partners_now = self.env['res.partner'].search([]) - partners_before
@@ -925,7 +957,7 @@ foo3,US,0,persons\n""",
         with RecordCapturer(self.env['res.partner']) as capture:
             import_wizard = self.env['base_import.import'].create({
                 'res_model': 'res.partner',
-                'file': '\n'.join([';'.join(partner_values) for partner_values in file_partner_values]),
+                'file': BinaryBytes('\n'.join([';'.join(partner_values) for partner_values in file_partner_values]).encode()),
                 'file_type': 'text/csv',
             })
 
@@ -955,8 +987,7 @@ foo3,US,0,persons\n""",
     def test_multi_mapping_hmtl(self):
         import_wizard = self.env['base_import.import'].create({
             'res_model': 'import.complex',
-            'file': 'html,html\n'
-                    '"<p>foo</p>","<p>bar</p>"\n',
+            'file': BinaryBytes(b'html,html\n"<p>foo</p>","<p>bar</p>"\n'),
             'file_type': 'text/csv',
         })
 
@@ -975,7 +1006,6 @@ foo3,US,0,persons\n""",
         self.assertItemsEqual(last_record.html, "<p>foo</p><br><p>bar</p>")
 
     @mute_logger('odoo.addons.base_import.models.base_import')
-    @unittest.skipUnless(can_import('xlwt') and can_import('openpyxl'), "xlwt/openpyxl not available")
     def test_xls_datetime_values(self):
         """ Test the support of having dates set as strings with the user format and date/datetime objects
         in the same xls(x) file.
@@ -1002,7 +1032,7 @@ foo3,US,0,persons\n""",
 
         Given how easy this is to land in such a situation using Google Spreadhseet, Odoo should support it.
         """
-        for data, expected_preview in [
+        GENERATE_DATA_DATETIME = [
             ({
                 'Some Value': [1, 2],
                 'Date': ['06/30/2025', datetime.date(2025, 7, 1)],
@@ -1022,14 +1052,16 @@ foo3,US,0,persons\n""",
                 ['2025-06-30', '2025-07-01'],
                 ['2025-06-30 13:37:42', '2025-07-01 09:08:07'],
             ])
-        ]:
-            for file_content, file_type in [
-                (generate_xls(data), 'application/vnd.ms-excel'),
-                (generate_xlsx(data), 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'),
-            ]:
+        ]
+
+        for index, (_data, expected_preview) in enumerate(GENERATE_DATA_DATETIME):
+            for extension in ('xls', 'xlsx'):
+                file_type = 'application/vnd.ms-excel' if extension == 'xls' else 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                # content was generate with generate_xls/generate_xls(_data)
+                file_content = self.file_read(f'test_import_export/data/generated_{index}.{extension}').content
                 import_wizard = self.env['base_import.import'].create({
                     'res_model': 'import.preview',
-                    'file': file_content,
+                    'file': BinaryBytes(file_content),
                     'file_type': file_type,
                 })
                 result = import_wizard.parse_preview({'has_headers': True})
@@ -1048,7 +1080,6 @@ foo3,US,0,persons\n""",
 
                 self.assertFalse(response.get('messages'))
 
-    @unittest.skipUnless(can_import('xlwt') and can_import('openpyxl'), "xlwt/openpyxl not available")
     def test_xlsx_datetime_values_assigned_to_char_field(self):
         """Test that importing datetime values to char field is converted"""
 
@@ -1061,7 +1092,7 @@ foo3,US,0,persons\n""",
 
         import_wizard = self.env['base_import.import'].create({
             'res_model': 'import.preview',
-            'file': file_content,
+            'file': BinaryBytes(file_content),
             'file_type': file_type,
         })
 
@@ -1081,7 +1112,6 @@ foo3,US,0,persons\n""",
         self.assertFalse(response.get('messages'))
         self.assertEqual(response['name'], ['foo', '08:10:00 06/01/2020', '01/07/2025', '', '', ''])
 
-    @unittest.skipUnless(can_import('xlwt') and can_import('openpyxl'), "xlwt/openpyxl not available")
     def test_xlsx_datetime_values_assigned_to_related_char_field(self):
         """Test that importing datetime values to a related char field is converted"""
         file_content = generate_xlsx(
@@ -1092,7 +1122,7 @@ foo3,US,0,persons\n""",
         file_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         import_wizard = self.env["base_import.import"].create({
             'res_model': "import.o2m",
-            'file': file_content,
+            'file': BinaryBytes(file_content),
             'file_type': file_type,
         })
         import_wizard.parse_preview({'has_headers': True})
@@ -1110,7 +1140,6 @@ foo3,US,0,persons\n""",
             ['foo', '08:10:00 06/01/2020', '01/07/2024']
         )
 
-    @unittest.skipUnless(can_import('xlwt') and can_import('openpyxl'), "xlwt/openpyxl not available")
     def test_xlsx_datetime_values_assigned_to_property_char_field(self):
         """Test that importing datetime values to a property char field is converted"""
         def_record = self.env['import.properties.definition'].create([
@@ -1129,7 +1158,7 @@ foo3,US,0,persons\n""",
         file_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         import_wizard = self.env['base_import.import'].create({
             'res_model': 'import.properties',
-            'file': file_content,
+            'file': BinaryBytes(file_content),
             'file_type': file_type,
         })
         import_wizard.parse_preview({'has_headers': True})
@@ -1149,7 +1178,200 @@ foo3,US,0,persons\n""",
             ],
         )
 
+    def test_extract_translation(self):
+        content = (
+            b'.id,name,name@fr_FR,osef,normal,name@it_IT,description,description@fr_FR,name@fr_FR\n'
+            b'1,Test,Test,osef,normal,Prova,Desc 1,Desc 1 Fr,Concat\n'
+            b'2,Yes,Oui,osef,normal,Si,Desc 2,Desc 2 Fr,Concat\n'
+            b'3,No,Non,osef,normal,No,Desc 3,Desc 3 Fr,Concat\n'
+        )
+        import_wizard = self.env['base_import.import'].create({
+            'res_model': 'import.base.translation',
+            'file': BinaryBytes(content),
+            'file_type': 'text/csv',
+        })
+        data, fields = import_wizard._convert_import_data(
+            ['.id', 'name', 'name@fr_FR', False, 'normal', 'name@it_IT', 'description', 'description@fr_FR', 'name@fr_FR'],
+            {'quoting': '"', 'separator': ',', 'has_headers': True},
+        )
 
+        self.assertEqual(fields, ['.id', 'name', 'normal', 'description'])
+        self.assertEqual(data, [
+            [
+                '1',
+                {
+                    'en_US': ['Test'],
+                    'fr_FR': ['Test', 'Concat'],
+                    'it_IT': ['Prova'],
+                },
+                'normal',
+                {
+                    'en_US': ['Desc 1'],
+                    'fr_FR': ['Desc 1 Fr'],
+                },
+            ],
+            [
+                '2',
+                {
+                    'en_US': ['Yes'],
+                    'fr_FR': ['Oui', 'Concat'],
+                    'it_IT': ['Si'],
+                },
+                'normal',
+                {
+                    'en_US': ['Desc 2'],
+                    'fr_FR': ['Desc 2 Fr'],
+                },
+            ],
+            [
+                '3',
+                {
+                    'en_US': ['No'],
+                    'fr_FR': ['Non', 'Concat'],
+                    'it_IT': ['No'],
+                },
+                'normal',
+                {
+                    'en_US': ['Desc 3'],
+                    'fr_FR': ['Desc 3 Fr'],
+                },
+            ],
+        ])
+
+    def test_extract_translation_mix(self):
+        content = (
+            b'.id,name,name@fr_FR,name\n'
+            b'1,Test,TestFr,TestEn\n'
+        )
+        import_wizard = self.env['base_import.import'].create({
+            'res_model': 'import.base.translation',
+            'file': BinaryBytes(content),
+            'file_type': 'text/csv',
+        })
+        data, fields = import_wizard._convert_import_data(
+            ['.id', 'name', 'name@fr_FR', 'name'],
+            {'quoting': '"', 'separator': ',', 'has_headers': True},
+        )
+
+        self.assertEqual(fields, ['.id', 'name'])
+        self.assertEqual(data, [
+            [
+                '1',
+                {
+                    'en_US': ['Test', 'TestEn'],
+                    'fr_FR': ['TestFr'],
+                },
+            ],
+        ])
+
+    def test_import_translation(self):
+        self.env['res.lang']._activate_lang('fr_FR')
+        import_wizard = self.env['base_import.import'].create({
+            'res_model': 'import.base.translation',
+            'file': BinaryBytes(b"""Product 1,Produit 1,concat 1,concat_fr_1,<p>My product 1</p><p>Product 1-1</p>,<p>Mon produit 1</p><p>Produit 1-1</p>,My product 1,Mon produit 1
+Product 2,Produit 2,concat 2,concat_fr_2,<p>My product 2</p><p>Product 2-2</p>,<p>Mon produit 2</p><p>Produit 2-2</p>,My product 2,Mon produit 2"""),
+            'file_type': 'text/csv'
+        })
+
+        results = import_wizard.execute_import(
+            ['name', 'name@fr_FR', 'name@en_US', 'name@fr_FR', 'html', 'html@fr_FR', 'description', 'description@fr_FR'],
+            [],
+            {
+                'quoting': '"',
+                'separator': ',',
+            }
+        )
+        self.assertEqual(len(results['ids']), 2, "should have imported 2 records")
+
+        product = self.env['import.base.translation'].browse(results['ids'])
+        product_fr = self.env['import.base.translation'].with_context(lang="fr_FR").browse(results['ids'])
+
+        self.assertEqual(product[0].name, 'Product 1 concat 1')
+        self.assertEqual(product[0].html, '<p>My product 1</p><p>Product 1-1</p>')
+        self.assertEqual(product[0].description, 'My product 1')
+
+        self.assertEqual(product_fr[0].name, 'Produit 1 concat_fr_1')
+        self.assertEqual(product_fr[0].html, '<p>Mon produit 1</p><p>Produit 1-1</p>')
+        self.assertEqual(product_fr[0].description, 'Mon produit 1')
+
+        self.assertEqual(product[1].name, 'Product 2 concat 2')
+        self.assertEqual(product[1].html, '<p>My product 2</p><p>Product 2-2</p>')
+        self.assertEqual(product[1].description, 'My product 2')
+
+        self.assertEqual(product_fr[1].name, 'Produit 2 concat_fr_2')
+        self.assertEqual(product_fr[1].html, '<p>Mon produit 2</p><p>Produit 2-2</p>')
+        self.assertEqual(product_fr[1].description, 'Mon produit 2')
+
+        # if results empty, no errors
+        self.assertItemsEqual(results['messages'], [])
+
+    def test_import_translation_empty_languages(self):
+        self.env['res.lang']._activate_lang('fr_FR')
+        empty_all, empty_fr, empty_en = self.env['import.base.translation'].create([
+            {'name': 'Product'},
+            {'name': 'Product'},
+            {'name': 'Product'},
+        ])
+        (empty_all | empty_fr | empty_en).with_context(lang='fr_FR').write({'name': 'Produit'})
+
+        import_wizard = self.env['base_import.import'].create({
+            'res_model': 'import.base.translation',
+            'file': BinaryBytes(
+                f"{empty_all.id},,\n"
+                f"{empty_fr.id},Product,\n"
+                f"{empty_en.id},,Produit\n".encode()
+            ),
+            'file_type': 'text/csv',
+        })
+        results = import_wizard.execute_import(
+            ['.id', 'name', 'name@fr_FR'],
+            [],
+            {'quoting': '"', 'separator': ','},
+        )
+        self.assertFalse(results.get('messages'))
+        self.assertEqual(results['ids'], [empty_all.id, empty_fr.id, empty_en.id])
+
+        self.assertEqual(empty_all.name, False)
+        self.assertEqual(empty_all.with_context(lang='fr_FR').name, False)
+
+        self.assertEqual(empty_fr.name, 'Product')
+        self.assertEqual(empty_fr.with_context(lang='fr_FR').name, '')
+
+        self.assertEqual(empty_en.name, '')
+        self.assertEqual(empty_en.with_context(lang='fr_FR').name, 'Produit')
+
+    def test_import_translation_latin(self):
+        self.env['res.lang']._activate_lang('sr@latin')
+        import_wizard = self.env['base_import.import'].create({
+            'res_model': 'import.base.translation',
+            'file': BinaryBytes(b"""Product 1,P1 sr@latin
+Product 2,P2 sr@latin"""),
+            'file_type': 'text/csv'
+        })
+
+        results = import_wizard.execute_import(
+            ['name', 'name@sr@latin'],
+            [],
+            {
+                'quoting': '"',
+                'separator': ',',
+            }
+        )
+        self.assertEqual(len(results['ids']), 2, "should have imported 2 records")
+
+        product = self.env['import.base.translation'].browse(results['ids'])
+        product_latin = self.env['import.base.translation'].with_context(lang="sr@latin").browse(results['ids'])
+
+        self.assertEqual(product[0].name, 'Product 1')
+        self.assertEqual(product_latin[0].name, 'P1 sr@latin')
+        self.assertEqual(product[1].name, 'Product 2')
+        self.assertEqual(product_latin[1].name, 'P2 sr@latin')
+
+        # if results empty, no errors
+        self.assertItemsEqual(results['messages'], [])
+
+
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestBatching(TransactionCase):
     def _makefile(self, rows):
         f = io.StringIO()
@@ -1165,7 +1387,7 @@ class TestBatching(TransactionCase):
             'file_type': 'text/csv',
         })
 
-        import_wizard.file = self._makefile(10)
+        import_wizard.file = BinaryBytes(self._makefile(10))
         result = import_wizard.parse_preview({
             'quoting': '"',
             'separator': ',',
@@ -1211,7 +1433,7 @@ class TestBatching(TransactionCase):
             'res_model': 'import.o2m',
             'file_type': 'text/csv',
             'file_name': 'things.csv',
-            'file': f.getvalue().encode(),
+            'file': BinaryBytes(f.getvalue().encode()),
         })
         opts = {'quoting': '"', 'separator': ',', 'has_headers': True}
         preview = import_wizard.parse_preview({**opts, 'limit': 15})
@@ -1241,7 +1463,7 @@ class TestBatching(TransactionCase):
             'res_model': 'res.partner',
             'file_type': 'text/csv',
             'file_name': 'clients.csv',
-            'file': b"""name,email
+            'file': BinaryBytes(b"""name,email
 a,a@example.com
 b,b@example.com
 ,
@@ -1250,7 +1472,7 @@ d,d@example.com
 e,e@example.com
 f,f@example.com
 g,g@example.com
-"""
+""")
         })
 
         results = import_wizard.execute_import(['name', 'email'], [], {**opts, 'limit': 1})
@@ -1277,6 +1499,44 @@ g,g@example.com
         self.assertEqual(partners_3.mapped('name'), ['d', 'e', 'f', 'g'])
 
 
+class TestImageImport(TransactionCase):
+    webp = base64.b64decode(
+        b'UklGRjoAAABXRUJQVlA4IC4AAAAwAQCdASoBAAEAAUAmJaAAA3AA/u/uY//8s//2W/7LeM///5Bj'
+    )
+
+    def _import_image(self, content):
+        response = unittest.mock.Mock(
+            headers={},
+            iter_content=unittest.mock.Mock(return_value=[content]),
+        )
+        session = unittest.mock.Mock()
+        session.get.return_value = response
+        return bytes(self.env['base_import.import']._import_file_by_url(
+            'https://example.com/image.webp', session, 'image', 0,
+        ))
+
+    def test_import_webp_by_url(self):
+        self.assertEqual(self._import_image(self.webp), self.webp)
+
+    def test_import_unsupported_webp_by_url(self):
+        # ImageProcess accepts unknown WebP codecs and returns the source bytes.
+        content = b'RIFF\x08\x00\x00\x00WEBPVP8?'
+        self.assertEqual(self._import_image(content), content)
+
+    def test_import_oversized_webp_by_url(self):
+        # Above IMAGE_MAX_RESOLUTION (50e6); 8000x8000 = 64e6
+        width = height = 8000
+        dimensions = b''.join(
+            (size - 1).to_bytes(3, 'little') for size in (width, height)
+        )
+        chunk = b'VP8X' + (10).to_bytes(4, 'little') + b'\x00\x00\x00\x00' + dimensions
+        content = b'RIFF' + (len(chunk) + 4).to_bytes(4, 'little') + b'WEBP' + chunk
+
+        with mute_logger('odoo.addons.base_import.models.base_import'), \
+             self.assertRaisesRegex(ImportValidationError, r'Too large image \(above 50\.0Mpx\)'):
+            self._import_image(content)
+
+
 class test_failures(TransactionCase):
     def test_big_attachments(self):
         """
@@ -1289,12 +1549,12 @@ class test_failures(TransactionCase):
         writer = csv.writer(fout, dialect=None)
         writer.writerows([
             ['name', 'db_datas'],
-            ['foo', base64.b64encode(im.tobytes()).decode('ascii')]
+            ['foo', base64.b64encode(im.tobytes()).decode()]
         ])
 
         import_wizard = self.env['base_import.import'].create({
             'res_model': 'ir.attachment',
-            'file': fout.getvalue().encode(),
+            'file': BinaryBytes(fout.getvalue().encode()),
             'file_type': 'text/csv'
         })
         results = import_wizard.execute_import(
@@ -1302,3 +1562,109 @@ class test_failures(TransactionCase):
             [],
             {'has_headers': True, 'separator': ',', 'quoting': '"'})
         self.assertFalse(results['messages'], "results should be empty on successful import")
+
+
+@tagged('at_install', '-post_install')
+class TestUrlImport(TransactionCase):
+    def test_import_image_by_url_as_non_admin_user(self):
+        img_buf = io.BytesIO()
+        Image.new('RGB', (1, 1), '#FF0000').save(img_buf, 'PNG')
+        image_data = img_buf.getvalue()
+
+        with patch(
+            "odoo.addons.base_import.models.base_import.Base_ImportImport._import_file_by_url",
+            return_value=image_data,
+        ):
+            demo_user = self.env['res.users'].create({
+                'name': 'Demo User',
+                'login': 'demo_user',
+                'group_ids': [
+                    (6, 0, [
+                        self.env.ref('base.group_user').id,
+                        self.env.ref('base.group_partner_manager').id,
+                    ]),
+                ],
+            })
+            self.env = self.env(user=demo_user)
+
+            file_content = generate_xlsx({
+                'name': ['Test Partner'],
+                'image_1920': ['https://example.com/logo.png'],
+            })
+            import_wizard = self.env["base_import.import"].create(
+                {
+                    "res_model": "res.partner",
+                    "file": BinaryBytes(file_content),
+                    "file_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                }
+            )
+            results = import_wizard.execute_import(
+                ['name', 'image_1920'],
+                ['Name', 'Image'],
+                {
+                    "has_headers": True,
+                    "limit": 1,
+                },
+            )
+
+        self.assertFalse(
+            results["messages"],
+            f"Non-admin user should be able to import images via URL, but got errors: {results['messages']}",
+        )
+        self.assertEqual(results['name'], ['Test Partner'])
+
+    def test_import_svg_by_url_mimetype(self):
+        """SVG imported via URL: text/plain for non-admin (XSS prevention), image/svg+xml for admin."""
+        svg_data = b'<svg xmlns="http://www.w3.org/2000/svg"></svg>'
+
+        def _run_import(env):
+            file_content = generate_xlsx({
+                'name': ['Test Partner'],
+                'image_1920': ['https://example.com/logo.svg'],
+            })
+            import_wizard = env["base_import.import"].create({
+                "res_model": "res.partner",
+                "file": BinaryBytes(file_content),
+                "file_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            })
+            return import_wizard.execute_import(
+                ['name', 'image_1920'],
+                ['Name', 'Image'],
+                {"has_headers": True, "limit": 1},
+            )
+
+        with patch(
+            "odoo.addons.base_import.models.base_import.Base_ImportImport._import_file_by_url",
+            return_value=svg_data,
+        ):
+            # Non-admin user
+            demo_user = self.env['res.users'].create({
+                'name': 'Demo User',
+                'login': 'demo_user',
+                'group_ids': [(6, 0, [
+                    self.env.ref('base.group_user').id,
+                    self.env.ref('base.group_partner_manager').id,
+                ])],
+            })
+            results = _run_import(self.env(user=demo_user))
+            self.assertEqual(results['name'], ['Test Partner'])
+
+            partner = self.env['res.partner'].search([('name', '=', 'Test Partner')], limit=1)
+            attachment = self.env['ir.attachment'].search([
+                ('res_model', '=', 'res.partner'),
+                ('res_id', '=', partner.id),
+                ('res_field', '=', 'image_1920'),
+            ], limit=1)
+            self.assertEqual(attachment.mimetype, 'text/plain',
+                "SVG should be stored as text/plain for non-admin users to prevent XSS")
+
+            # Admin user
+            results = _run_import(self.env)
+            partner = self.env['res.partner'].search([('name', '=', 'Test Partner')], order='id desc', limit=1)
+            attachment = self.env['ir.attachment'].search([
+                ('res_model', '=', 'res.partner'),
+                ('res_id', '=', partner.id),
+                ('res_field', '=', 'image_1920'),
+            ], limit=1)
+            self.assertEqual(attachment.mimetype, 'image/svg+xml',
+                "SVG should be stored as image/svg+xml for admin users")

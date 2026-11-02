@@ -7,20 +7,33 @@
         <field name="model">event.event</field>
         <field name="priority" eval="3"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='website_url']" position="before">
+            <div name="button_box" position="inside">
                 <button name="%(action_event_track_from_event)d"
                         type="action"
                         class="oe_stat_button"
-                        icon="fa-microphone">
+                        icon="mic">
                     <field name="track_count" string="Tracks" widget="statinfo"/>
                 </button>
+                <button name="action_view_track_locations" type="object" class="oe_stat_button" icon="location_on">
+                    <div class="o_stat_info">
+                        <span class="o_stat_text">Track Locations</span>
+                    </div>
+                </button>
+            </div>
+            <xpath expr="//*[label[@for='website_menu']]" position="after">
+                <span>
+                    <field name="website_track" class="w-auto"/>
+                    <label for="website_track" string="Showcase Tracks" />
+                </span>
+                <span>
+                    <field name="website_track_proposal" class="w-auto"/>
+                    <label for="website_track_proposal" string="Allow Track Proposals" />
+                </span>
             </xpath>
-            <xpath expr="//field[@name='website_menu']" position="after">
-                <label for="website_track" string="Showcase Tracks" class="me-1"/>
-                <field name="website_track" class="me-3"/>
-                <label for="website_track_proposal" string="Allow Track Proposals" class="me-1"/>
-                <field name="website_track_proposal" class="me-3"/>
-            </xpath>
+            <field name="badge_image" position="after">
+                <field name="location_display_background"/>
+                <field name="location_display_upcoming_track_count"/>
+            </field>
         </field>
     </record>
 

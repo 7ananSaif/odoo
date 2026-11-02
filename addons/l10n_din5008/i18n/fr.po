@@ -3,21 +3,23 @@
 # * l10n_din5008
 #
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# "Manon Rondou (ronm)" <ronm@odoo.com>, 2026.
+# "Cécile Collart (cco)" <cco@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-01 18:03+0000\n"
-"PO-Revision-Date: 2025-11-17 03:10+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: French <https://translate.odoo.com/projects/odoo-19-l10n/"
+"POT-Creation-Date: 2026-09-11 18:11+0000\n"
+"PO-Revision-Date: 2026-10-20 14:48+0000\n"
+"Last-Translator: \"Cécile Collart (cco)\" <cco@odoo.com>\n"
+"Language-Team: French <https://translate.odoo.com/projects/odoo-20/"
 "l10n_din5008/fr/>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: l10n_din5008
 #: model_terms:ir.ui.view,arch_db:l10n_din5008.din5008_css
@@ -28,6 +30,11 @@ msgid ""
 "                                .name_container {\n"
 "                                    color:"
 msgstr ""
+"&amp;.din_page {\n"
+"                        &amp;.header {\n"
+"                            .company_header {\n"
+"                                .name_container {\n"
+"                                    color:"
 
 #. module: l10n_din5008
 #: model_terms:ir.ui.view,arch_db:l10n_din5008.din5008_css
@@ -39,6 +46,12 @@ msgid ""
 "                            h2 {\n"
 "                                color:"
 msgstr ""
+";\n"
+"                                    }\n"
+"                                }\n"
+"                            }\n"
+"                            h2 {\n"
+"                                color:"
 
 #. module: l10n_din5008
 #: model_terms:ir.ui.view,arch_db:l10n_din5008.din5008_css
@@ -53,6 +66,15 @@ msgid ""
 "                                    .colored_address {\n"
 "                                        color:"
 msgstr ""
+";\n"
+"                                }\n"
+"                            }\n"
+"                        }\n"
+"                        &amp;.invoice_note {\n"
+"                            td {\n"
+"                                .address {\n"
+"                                    .colored_address {\n"
+"                                        color:"
 
 #. module: l10n_din5008
 #: model_terms:ir.ui.view,arch_db:l10n_din5008.din5008_css
@@ -65,6 +87,13 @@ msgid ""
 "                                    th {\n"
 "                                        color:"
 msgstr ""
+";\n"
+"                            }\n"
+"                            .page {\n"
+"                                [name=invoice_line_table], "
+"[name=stock_move_table], .o_main_table {\n"
+"                                    th {\n"
+"                                        color:"
 
 #. module: l10n_din5008
 #: model_terms:ir.ui.view,arch_db:l10n_din5008.report_invoice_document
@@ -74,12 +103,12 @@ msgstr "<span class=\"fw-bold\">Bénéficiaire :</span>"
 #. module: l10n_din5008
 #: model_terms:ir.ui.view,arch_db:l10n_din5008.report_invoice_document
 msgid "<span class=\"fw-bold\">Shipping Address:</span>"
-msgstr "<span class=\"fw-bold\">Adresse d'expédition :</span>"
+msgstr "<span class=\"fw-bold\">Adresse de livraison :</span>"
 
 #. module: l10n_din5008
 #: model_terms:ir.ui.view,arch_db:l10n_din5008.external_layout_din5008
 msgid "<span>|</span>"
-msgstr ""
+msgstr "<span>|</span>"
 
 #. module: l10n_din5008
 #: model_terms:ir.ui.view,arch_db:l10n_din5008.external_layout_din5008
@@ -103,8 +132,8 @@ msgstr "Ville"
 
 #. module: l10n_din5008
 #: model:ir.model,name:l10n_din5008.model_res_company
-msgid "Companies"
-msgstr "Sociétés"
+msgid "Company"
+msgstr "Entreprise"
 
 #. module: l10n_din5008
 #: model:ir.model.fields,field_description:l10n_din5008.field_base_document_layout__company_details
@@ -117,11 +146,6 @@ msgid "Company Document Layout"
 msgstr "Mise en page des documents de votre société"
 
 #. module: l10n_din5008
-#: model:ir.model.fields,field_description:l10n_din5008.field_base_document_layout__company_registry
-msgid "Company ID"
-msgstr "ID de la société"
-
-#. module: l10n_din5008
 #: model:ir.model,name:l10n_din5008.model_res_config_settings
 msgid "Config Settings"
 msgstr "Paramètres de configuration"
@@ -130,6 +154,11 @@ msgstr "Paramètres de configuration"
 #: model_terms:ir.ui.view,arch_db:l10n_din5008.report_invoice_document
 msgid "Credit Note"
 msgstr "Note de crédit"
+
+#. module: l10n_din5008
+#: model:ir.module.module,shortdesc:base.module_l10n_din5008
+msgid "DIN 5008"
+msgstr ""
 
 #. module: l10n_din5008
 #: model_terms:ir.ui.view,arch_db:l10n_din5008.report_invoice_document
@@ -147,12 +176,12 @@ msgstr "Date de livraison :"
 #: model:ir.model.fields,field_description:l10n_din5008.field_res_company__display_name
 #: model:ir.model.fields,field_description:l10n_din5008.field_res_config_settings__display_name
 msgid "Display Name"
-msgstr "Nom affiché"
+msgstr "Nom d'affichage"
 
 #. module: l10n_din5008
 #: model_terms:ir.ui.view,arch_db:l10n_din5008.report_invoice_document
 msgid "Draft Invoice"
-msgstr "Facture en brouillon"
+msgstr "Facture brouillon"
 
 #. module: l10n_din5008
 #: model_terms:ir.ui.view,arch_db:l10n_din5008.report_invoice_wizard_preview
@@ -163,6 +192,8 @@ msgstr "Date d'échéance :"
 #: model_terms:ir.ui.view,arch_db:l10n_din5008.res_config_settings_view_form
 msgid "Enable to show a 'Position' column on invoices and sales reports."
 msgstr ""
+"Activer pour afficher une colonne 'Position' sur les factures et les "
+"rapports de vente."
 
 #. module: l10n_din5008
 #: model:ir.model.fields,field_description:l10n_din5008.field_base_document_layout__account_fiscal_country_id
@@ -208,11 +239,13 @@ msgid ""
 "If this checkbox is ticked, a 'Position' column will be displayed on "
 "invoices and sales reports."
 msgstr ""
+"Si cette case est cochée, une colonne 'Position' sera affichée sur les "
+"factures et les rapports de vente."
 
 #. module: l10n_din5008
 #: model_terms:ir.ui.view,arch_db:l10n_din5008.report_invoice_document
 msgid "Incoterm"
-msgstr ""
+msgstr "Incoterm"
 
 #. module: l10n_din5008
 #: model_terms:ir.ui.view,arch_db:l10n_din5008.external_layout_din5008
@@ -226,14 +259,14 @@ msgid "Invoice Date"
 msgstr "Date de facturation"
 
 #. module: l10n_din5008
-#: model_terms:ir.ui.view,arch_db:l10n_din5008.report_invoice_document
-msgid "Invoice Date Due"
-msgstr "Date d'échéance de la facture"
-
-#. module: l10n_din5008
 #: model_terms:ir.ui.view,arch_db:l10n_din5008.report_invoice_wizard_preview
 msgid "Invoice Date:"
 msgstr "Date de facturation :"
+
+#. module: l10n_din5008
+#: model_terms:ir.ui.view,arch_db:l10n_din5008.report_invoice_document
+msgid "Invoice Due Date"
+msgstr "Échéance de la facture"
 
 #. module: l10n_din5008
 #: model_terms:ir.ui.view,arch_db:l10n_din5008.report_invoice_document
@@ -283,7 +316,7 @@ msgstr "Référence :"
 #. module: l10n_din5008
 #: model:ir.model,name:l10n_din5008.model_ir_actions_report
 msgid "Report Action"
-msgstr ""
+msgstr "Action de rapport"
 
 #. module: l10n_din5008
 #: model:ir.model.fields,field_description:l10n_din5008.field_base_document_layout__report_footer
@@ -296,10 +329,20 @@ msgid "SO/2021/45678"
 msgstr "SO/2021/45678"
 
 #. module: l10n_din5008
+#: model_terms:ir.ui.view,arch_db:l10n_din5008.report_invoice_document
+msgid "Self Billing"
+msgstr ""
+
+#. module: l10n_din5008
+#: model_terms:ir.ui.view,arch_db:l10n_din5008.report_invoice_document
+msgid "Self Billing Credit Note"
+msgstr ""
+
+#. module: l10n_din5008
 #: model:ir.model.fields,field_description:l10n_din5008.field_res_company__has_position_column
 #: model:ir.model.fields,field_description:l10n_din5008.field_res_config_settings__has_position_column
 msgid "Show Position Column in Reports"
-msgstr ""
+msgstr "Afficher la colonne Position dans les rapports"
 
 #. module: l10n_din5008
 #: model_terms:ir.ui.view,arch_db:l10n_din5008.report_invoice_document
@@ -318,7 +361,6 @@ msgstr "Rue 2"
 
 #. module: l10n_din5008
 #: model_terms:ir.ui.view,arch_db:l10n_din5008.external_layout_din5008
-#: model_terms:ir.ui.view,arch_db:l10n_din5008.report_invoice_document
 msgid "Tax ID"
 msgstr "N° de TVA"
 
@@ -329,19 +371,9 @@ msgstr ""
 "Le pays à partir duquel utiliser les déclarations fiscales pour cette société"
 
 #. module: l10n_din5008
-#: model:ir.model.fields,help:l10n_din5008.field_base_document_layout__company_registry
-msgid ""
-"The registry number of the company. Use it if it is different from the Tax "
-"ID. It must be unique across all partners of a same country"
+#: model:ir.module.module,description:base.module_l10n_din5008
+msgid "This is the base module that defines the DIN 5008 standard in Odoo."
 msgstr ""
-"Le numéro de registre de la société. Utilisez-le s'il est différent du "
-"numéro d'identification fiscale. Il doit être unique pour tous les "
-"partenaires d'un même pays"
-
-#. module: l10n_din5008
-#: model_terms:ir.ui.view,arch_db:l10n_din5008.report_invoice_document
-msgid "VAT"
-msgstr "TVA"
 
 #. module: l10n_din5008
 #: model_terms:ir.ui.view,arch_db:l10n_din5008.report_invoice_document
@@ -357,3 +389,17 @@ msgstr "Note de crédit fournisseur"
 #: model:ir.model.fields,field_description:l10n_din5008.field_base_document_layout__zip
 msgid "Zip"
 msgstr "Code postal"
+
+#~ msgid "VAT"
+#~ msgstr "TVA"
+
+#~ msgid "Company ID"
+#~ msgstr "ID de la société"
+
+#~ msgid ""
+#~ "The registry number of the company. Use it if it is different from the "
+#~ "Tax ID. It must be unique across all partners of a same country"
+#~ msgstr ""
+#~ "Le numéro de registre de la société. Utilisez-le s'il est différent du "
+#~ "numéro d'identification fiscale. Il doit être unique pour tous les "
+#~ "partenaires d'un même pays"

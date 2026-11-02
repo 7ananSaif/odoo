@@ -2,7 +2,10 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import Command
+from odoo.tests import tagged
+
 from odoo.addons.website_forum.tests.common import TestForumCommon
+from odoo.exceptions import AccessError
 
 
 class TestForumTag(TestForumCommon):
@@ -25,3 +28,13 @@ class TestForumTag(TestForumCommon):
         self._check_tags_post_counts(test_tags, [1, 1])
         post_tags.close(None)
         self._check_tags_post_counts(test_tags, [0, 0])
+
+    def test_tags_access_followers(self):
+        """Check that having access on a tag doesn't allow seeing all followers."""
+        self._activate_tags_for_counts()
+
+        with self.assertRaises(AccessError):
+            self.tags[0].with_user(self.user_employee).follower_ids
+
+        # Sanity check
+        self.tags[0].with_user(self.user_employee).sudo().follower_ids

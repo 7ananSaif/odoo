@@ -4,7 +4,7 @@ import { registry } from "@web/core/registry";
 import { useBus } from "@web/core/utils/hooks";
 import { Transition } from "@web/core/transition";
 
-import { Component, useState } from "@odoo/owl";
+import { Component, untrack, proxy } from "@odoo/owl";
 
 /**
  * Loading Indicator
@@ -19,17 +19,16 @@ import { Component, useState } from "@odoo/owl";
 export class LoadingIndicator extends Component {
     static template = "web.LoadingIndicator";
     static components = { Transition };
-    static props = {};
 
     setup() {
-        this.state = useState({
+        this.state = proxy({
             count: 0,
             show: false,
         });
         this.rpcIds = new Set();
         this.startShowTimer = null;
-        useBus(rpcBus, "RPC:REQUEST", this.requestCall);
-        useBus(rpcBus, "RPC:RESPONSE", this.responseCall);
+        useBus(rpcBus, "RPC:REQUEST", (ev) => untrack(() => this.requestCall(ev)));
+        useBus(rpcBus, "RPC:RESPONSE", (ev) => untrack(() => this.responseCall(ev)));
     }
 
     requestCall({ detail }) {

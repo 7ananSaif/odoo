@@ -1,6 +1,5 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 from odoo import fields
-from odoo.tests import Form
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 import random
 import logging
@@ -10,6 +9,8 @@ _logger = logging.getLogger(__name__)
 
 
 class TestArCommon(AccountTestInvoicingCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     @AccountTestInvoicingCommon.setup_chart_template('ar_ri')
@@ -28,7 +29,6 @@ class TestArCommon(AccountTestInvoicingCommon):
         cls.company_ri.partner_id.write({
             'name': '(AR) Responsable Inscripto (Unit Tests)',
             'l10n_ar_afip_responsibility_type_id': cls.env.ref("l10n_ar.res_IVARI").id,
-            'l10n_latam_identification_type_id': cls.env.ref("l10n_ar.it_cuit").id,
             'vat': '30111111118',
             "street": 'Calle Falsa 123',
             "city": 'Rosario',
@@ -51,7 +51,6 @@ class TestArCommon(AccountTestInvoicingCommon):
         cls.company_mono.partner_id.write({
             'name': '(AR) Monotributista (Unit Tests)',
             'l10n_ar_afip_responsibility_type_id': cls.env.ref("l10n_ar.res_RM").id,
-            'l10n_latam_identification_type_id': cls.env.ref("l10n_ar.it_cuit").id,
             'vat': '20222222223',
             "street": 'Calle Falsa 123',
             "city": 'Rosario',
@@ -66,7 +65,7 @@ class TestArCommon(AccountTestInvoicingCommon):
 
         # ==== Bank Account ====
         cls.bank_account_ri = cls.env['res.partner.bank'].create({
-            'acc_number': '7982898111100056688080',
+            'account_number': '7982898111100056688080',
             'partner_id': cls.company_ri.partner_id.id,
             'company_id': cls.company_ri.id,
             'allow_out_payment': True,
@@ -76,7 +75,6 @@ class TestArCommon(AccountTestInvoicingCommon):
         cls.partner_afip = cls.env.ref("l10n_ar.partner_afip")
         cls.res_partner_adhoc = cls.env['res.partner'].create({
             "name": "ADHOC SA",
-            "is_company": 1,
             "city": "Rosario",
             "zip": "2000",
             "state_id": cls.env.ref("base.state_ar_s").id,
@@ -85,18 +83,16 @@ class TestArCommon(AccountTestInvoicingCommon):
             "email": "info@adhoc.com.ar",
             "phone": "(+54) (341) 208 0203",
             "website": "http://www.adhoc.com.ar",
-            'l10n_latam_identification_type_id': cls.env.ref("l10n_ar.it_cuit").id,
             'vat': "30714295698",
             'l10n_ar_afip_responsibility_type_id': cls.env.ref("l10n_ar.res_IVARI").id,
         })
         cls.partner_cf = cls.env['res.partner'].create({
             "name": "Consumidor Final Anonimo",
-            "l10n_latam_identification_type_id": cls.env.ref('l10n_ar.it_Sigd').id,
+            "additional_identifiers": {'AR_SIGD': '0'},
             "l10n_ar_afip_responsibility_type_id": cls.env.ref("l10n_ar.res_CF").id,
         })
         cls.res_partner_gritti_mono = cls.env['res.partner'].create({
             "name": "Gritti Agrimensura (Monotributo)",
-            "is_company": 1,
             "city": "Rosario",
             "zip": "2000",
             "state_id": cls.env.ref("base.state_ar_s").id,
@@ -105,13 +101,11 @@ class TestArCommon(AccountTestInvoicingCommon):
             "email": "info@example.com.ar",
             "phone": "(+54) (341) 111 2222",
             "website": "http://www.grittiagrimensura.com",
-            'l10n_latam_identification_type_id': cls.env.ref("l10n_ar.it_cuit").id,
             'vat': "27320732811",
             'l10n_ar_afip_responsibility_type_id': cls.env.ref("l10n_ar.res_RM").id,
         })
         cls.res_partner_montana_sur = cls.env['res.partner'].create({
             "name": "Montana Sur",
-            "is_company": 1,
             "city": "San Martin de los Andes",
             "state_id": cls.env.ref("base.state_ar_v").id,
             "country_id": cls.env.ref("base.ar").id,
@@ -119,13 +113,11 @@ class TestArCommon(AccountTestInvoicingCommon):
             "email": "contacto@montanasur.com.ar.com",
             "phone": "(+54) (297) 4876 123",
             "website": "http://www.montanasur.com.ar/",
-            'l10n_latam_identification_type_id': cls.env.ref("l10n_ar.it_cuit").id,
             'vat': "27333333339",
             'l10n_ar_afip_responsibility_type_id': cls.env.ref("l10n_ar.res_IVA_LIB").id,
         })
         cls.res_partner_servicios_globales = cls.env['res.partner'].create({
             "name": "Servicios Globales SRL (IVA Sujeto Exento)",
-            "is_company": 1,
             "city": "Rosario",
             "zip": "2000",
             "state_id": cls.env.ref("base.state_ar_s").id,
@@ -134,13 +126,11 @@ class TestArCommon(AccountTestInvoicingCommon):
             "email": "contacto@serviciosglobales.com.ar",
             "phone": "(+54) (341) 333 4444",
             "website": "http://www.serviciosglobales.com.ar/",
-            'l10n_latam_identification_type_id': cls.env.ref("l10n_ar.it_cuit").id,
             'vat': "30684679372",
             'l10n_ar_afip_responsibility_type_id': cls.env.ref("l10n_ar.res_IVAE").id,
         })
         cls.res_partner_barcelona_food = cls.env['res.partner'].create({
             "name": "Barcelona Food",
-            "is_company": 1,
             "city": "Barcelona",
             "zip": "11002",
             "country_id": cls.env.ref("base.es").id,
@@ -148,13 +138,11 @@ class TestArCommon(AccountTestInvoicingCommon):
             "email": "info@barcelonafoods.com",
             "phone": "(+00) (11) 222 3333",
             "website": "http://www.barcelonafoods.com/",
-            'l10n_latam_identification_type_id': cls.env.ref("l10n_latam_base.it_fid").id,
-            'vat': "2222333344445555",
+            'vat': 'A12345674',
             'l10n_ar_afip_responsibility_type_id': cls.env.ref("l10n_ar.res_EXT").id,
         })
         cls.partner_mipyme = cls.env['res.partner'].create({
             "name": "Trenes Argentinos (Mipyme)",
-            "is_company": 1,
             "city": "Buenos Aires",
             "zip": "1524",
             "state_id": cls.env.ref("base.state_ar_c").id,
@@ -163,7 +151,6 @@ class TestArCommon(AccountTestInvoicingCommon):
             "email": "mipyme@example.com",
             "phone": "(123)-456-7890",
             "website": "http://www.mypime-inc.com",
-            'l10n_latam_identification_type_id': cls.env.ref("l10n_ar.it_cuit").id,
             'vat': "30714101443",
             'l10n_ar_afip_responsibility_type_id': cls.env.ref("l10n_ar.res_IVARI").id,
         })
@@ -590,25 +577,21 @@ class TestArCommon(AccountTestInvoicingCommon):
                 invoice_values.pop('invoice_date')
                 cls.demo_invoices[invoice_key] = cls._create_invoice_ar(**invoice_values)
         else:
+            form_fields = ('move_type', 'ref', 'partner_id', 'invoice_payment_term_id', 'invoice_date', 'invoice_incoterm_id', 'journal_id')
             for key, values in test_invoices_map.items():
-                values['invoice_line_ids'] = [line_data for _, _, line_data in values['invoice_line_ids']]
-                with Form(cls.env['account.move'].with_context(default_move_type=values['move_type'])) as invoice_form:
-                    invoice_form.ref = values['ref']
-                    invoice_form.partner_id = values['partner_id']
-                    invoice_form.invoice_payment_term_id = values['invoice_payment_term_id']
-                    invoice_form.invoice_date = values['invoice_date']
-                    if values.get('invoice_incoterm_id'):
-                        invoice_form.invoice_incoterm_id = values['invoice_incoterm_id']
-                    for line in values['invoice_line_ids']:
-                        with invoice_form.invoice_line_ids.new() as line_form:
-                            line_form.product_id = cls.env['product.product'].browse(line.get('product_id'))
-                            line_form.price_unit = line.get('price_unit')
-                            line_form.quantity = line.get('quantity')
-                            if line.get('tax_ids'):
-                                line_form.tax_ids = cls.env['account.tax'].browse(line.get('tax_ids'))
-                            line_form.name = 'xxxx'
-                            line_form.account_id = cls.company_data['default_account_revenue']
-                cls.demo_invoices[key] = invoice_form.save()
+                cls.demo_invoices[key] = cls._create_invoice(
+                    **{field: values[field] for field in form_fields if field in values},
+                    invoice_line_ids=[
+                        cls._prepare_invoice_line(
+                            product_id=line['product_id'],
+                            price_unit=line.get('price_unit', 0.0),
+                            quantity=line['quantity'],
+                            name='xxxx',
+                            account_id=cls.company_data['default_account_revenue'],
+                        )
+                        for _command, _id, line in values['invoice_line_ids']
+                    ],
+                )
 
     # -------------------------------------------------------------------------
     # Helpers
@@ -635,6 +618,7 @@ class TestArCommon(AccountTestInvoicingCommon):
                   'l10n_latam_use_documents': True,
                   'company_id': cls.env.company.id,
                   'l10n_ar_afip_pos_partner_id': cls.partner_ri.id,
+                  'default_account_id': cls.env['account.chart.template'].ref('sale').default_account_id.id,
                   'sequence': 1}
         values.update(data)
 

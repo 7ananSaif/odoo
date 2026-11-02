@@ -238,5 +238,5 @@ test("ImageUrlField with width attribute is auto when Studio is set", async () =
 
     });
 
-    expect(`.o_field_widget[name=foo] img`).toHaveAttribute("style", "width: auto;max-height: 270px");
+    expect(`.o_field_widget[name=foo] img`).toHaveAttribute("style", "width: auto; max-height: 270px;");
 });

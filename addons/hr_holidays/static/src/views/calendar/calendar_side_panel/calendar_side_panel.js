@@ -2,13 +2,11 @@ import { CalendarSidePanel } from "@web/views/calendar/calendar_side_panel/calen
 import { serializeDate, serializeDateTime } from "@web/core/l10n/dates";
 import { Cache } from "@web/core/utils/cache";
 import { useService } from "@web/core/utils/hooks";
-import { useState, onWillStart, onWillUpdateProps } from "@odoo/owl";
-import { TimeOffCalendarFilterSection } from "../filter_section/calendar_filter_section";
+import { asyncComputed, computed, onWillStart } from "@odoo/owl";
 
 export class TimeOffCalendarSidePanel extends CalendarSidePanel {
     static components = {
         ...CalendarSidePanel.components,
-        FilterSection: TimeOffCalendarFilterSection,
     };
     static template = "hr_holidays.TimeOffCalendarSidePanel";
 
@@ -23,20 +21,40 @@ export class TimeOffCalendarSidePanel extends CalendarSidePanel {
             if (isSameDay) {
                 return start.toLocaleString({ month: s, day: n, year: n });
             }
-            return start.toLocaleString({ month: s, day: n, year: n }) + " - " + end.toLocaleString({ month: s, day: n, year: n });
-        };;
-        this.leaveState = useState({
-            mandatoryDays: [],
-            bankHolidays: [],
-        });
+            return (
+                start.toLocaleString({ month: s, day: n, year: n }) +
+                " - " +
+                end.toLocaleString({ month: s, day: n, year: n })
+            );
+        };
 
         this._specialDaysCache = new Cache(
             (start, end) => this.fetchSpecialDays(start, end),
             (start, end) => `${serializeDateTime(start)},${serializeDateTime(end)}`
         );
 
-        onWillStart(this.updateSpecialDays);
-        onWillUpdateProps(this.updateSpecialDays);
+        this.currentDateTime = luxon.DateTime.now();
+
+        this.specialDays = asyncComputed(() => this.getSpecialDays());
+        this.holidays = asyncComputed(() => this.getHolidayData(), { initial: [] });
+        this.bankHolidays = computed(() =>
+            this._mapIsoToDatetimes(this.specialDays().bankHolidays || [])
+        );
+        this.mandatoryDays = computed(() =>
+            this._mapIsoToDatetimes(this.specialDays().mandatoryDays || [])
+        );
+
+        onWillStart(async () => {
+            await Promise.all([this.specialDays.currentPromise(), this.holidays.currentPromise()]);
+        });
+    }
+
+    _mapIsoToDatetimes(days) {
+        return days.map((day) => {
+            day.start = luxon.DateTime.fromISO(day.start);
+            day.end = luxon.DateTime.fromISO(day.end);
+            return day;
+        });
     }
 
     fetchSpecialDays(start, end) {
@@ -53,18 +71,34 @@ export class TimeOffCalendarSidePanel extends CalendarSidePanel {
         );
     }
 
-    async updateSpecialDays() {
+    async getHolidayData() {
+        if (!this.uiService.isSmall) {
+            return [];
+        }
+        const promises = [];
+        for (const section of this.props.model.filterSections) {
+            if (section.fieldName !== "work_entry_type_id") {
+                continue;
+            }
+            promises.push(
+                this.orm.call("hr.work.entry.type", "get_allocation_data_request", [], {
+                    context: { from_dashboard: true },
+                })
+            );
+        }
+        const filterData = {};
+        const [data] = await Promise.all(promises);
+        if (!Array.isArray(data)) {
+            return [];
+        }
+        data.forEach((leave) => {
+            filterData[leave[3]] = leave;
+        });
+        return Object.values(filterData);
+    }
+
+    async getSpecialDays() {
         const { rangeStart, rangeEnd } = this.props.model;
-        const specialDays = await this._specialDaysCache.read(rangeStart, rangeEnd);
-        specialDays["bankHolidays"].forEach((bankHoliday) => {
-            bankHoliday.start = luxon.DateTime.fromISO(bankHoliday.start);
-            bankHoliday.end = luxon.DateTime.fromISO(bankHoliday.end);
-        });
-        specialDays["mandatoryDays"].forEach((mandatoryDay) => {
-            mandatoryDay.start = luxon.DateTime.fromISO(mandatoryDay.start);
-            mandatoryDay.end = luxon.DateTime.fromISO(mandatoryDay.end);
-        });
-        this.leaveState.bankHolidays = specialDays["bankHolidays"];
-        this.leaveState.mandatoryDays = specialDays["mandatoryDays"];
+        return await this._specialDaysCache.read(rangeStart, rangeEnd);
     }
 }

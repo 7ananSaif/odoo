@@ -9,6 +9,8 @@ from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 @tagged('post_install', '-at_install')
 class TestAccountFleet(AccountTestInvoicingCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @freeze_time('2021-09-15')
     def test_transfer_wizard_vehicle_info_propagation(self):
         self.env.user.group_ids |= self.env.ref("fleet.fleet_group_manager")
@@ -21,7 +23,7 @@ class TestAccountFleet(AccountTestInvoicingCommon):
         })
         car_1 = self.env["fleet.vehicle"].create({
             "model_id": model.id,
-            "plan_to_change_car": False,
+            "plan_to_change_vehicle": False,
         })
 
         bill = self.init_invoice('in_invoice', products=self.product_a, invoice_date='2021-09-01', post=False)
@@ -40,7 +42,6 @@ class TestAccountFleet(AccountTestInvoicingCommon):
                 'name': 'Accrual Revenue Account',
                 'code': '765432',
                 'account_type': 'expense',
-                'reconcile': True,
             }).id,
         })
         result_action = wizard.do_action()

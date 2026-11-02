@@ -23,7 +23,23 @@ export class DataServiceOptions {
                 getRecordsBasedOnLines: (orderlines) =>
                     orderlines.flatMap((line) => line.custom_attribute_value_ids),
             },
+            "pos.prep.order": {
+                key: "uuid",
+                condition: (record) => !record.pos_order_id,
+            },
+            "pos.prep.line": {
+                key: "uuid",
+                condition: (record) => !record.prep_order_id,
+            },
         };
+    }
+
+    get abortableTypes() {
+        return new Set(["read", "search_read"]);
+    }
+
+    get abortableMethods() {
+        return new Set(["sync_from_ui"]);
     }
 
     get dynamicModels() {
@@ -31,8 +47,9 @@ export class DataServiceOptions {
             "pos.order",
             "pos.order.line",
             "pos.payment",
-            "pos.pack.operation.lot",
             "product.attribute.custom.value",
+            "pos.prep.order",
+            "pos.prep.line",
         ];
     }
 
@@ -42,6 +59,7 @@ export class DataServiceOptions {
             "pos.order": ["uuid"],
             "pos.order.line": ["uuid"],
             "pos.payment": ["uuid"],
+            "product.attribute.custom.value": ["uuid"],
             "product.template": ["pos_categ_ids", "write_date"],
             "product.product": ["pos_categ_ids", "barcode"],
             "account.fiscal.position": ["tax_ids"],
@@ -66,7 +84,7 @@ export class DataServiceOptions {
         return ["read", "search_read", "create"];
     }
 
-    get pohibitedAutoLoadedModels() {
+    get prohibitedAutoLoadedModels() {
         return [
             "pos.order", // Cannot be auto-loaded can cause infinite loop
             "pos.order.line", // Cannot be auto-loaded can cause infinite loop
@@ -78,20 +96,11 @@ export class DataServiceOptions {
     }
 
     get cascadeDeleteModels() {
-        return [
-            "pos.order.line",
-            "pos.payment",
-            "product.attribute.custom.value",
-            "pos.pack.operation.lot",
-        ];
+        return ["pos.order.line", "pos.payment", "product.attribute.custom.value"];
     }
 
     get uniqueModels() {
-        return ["pos.session", "res.users", "res.company"];
-    }
-
-    get cleanupModels() {
-        return ["product.template", "product.product"];
+        return ["pos.session", "res.users", "res.company", "ir.ui.view"];
     }
 
     get prohibitedAutoLoadedFields() {

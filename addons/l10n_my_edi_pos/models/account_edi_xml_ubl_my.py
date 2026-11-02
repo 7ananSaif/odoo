@@ -1,6 +1,4 @@
-from datetime import datetime
-
-from pytz import UTC
+from datetime import datetime, timezone
 
 from odoo import api, models
 from odoo.addons.l10n_my_edi.models.account_edi_xml_ubl_my import COUNTRY_CODE_MAP
@@ -32,12 +30,8 @@ class AccountEdiXmlUBLMyInvoisMY(models.AbstractModel):
         # the PayableAmount to reflect the full invoice amount (not reduced by prepayment).
         if not myinvois_document._is_consolidated_invoice() and myinvois_document.invoice_ids.pos_order_ids:
             currency_suffix = vals['currency_suffix']
-            document_node['cac:PrepaidPayment'] = {
-                'cbc:PaidAmount': {
-                    '_text': self.format_float(0.0, vals['currency_dp']),
-                    'currencyID': vals['currency_name'],
-                }
-            }
+            # Omit the node entirely rather than emitting it with a 0.00 amount, consistent with the base module.
+            document_node['cac:PrepaidPayment'] = None
             monetary_total_tag = self._get_tags_for_document_type(vals)['monetary_total']
             document_node[monetary_total_tag]['cbc:PayableAmount']['_text'] = self.format_float(
                 vals[f'tax_inclusive_amount{currency_suffix}'], vals['currency_dp']
@@ -128,7 +122,7 @@ class AccountEdiXmlUBLMyInvoisMY(models.AbstractModel):
         for index, orders in enumerate(orders_per_line):
             base_lines = []
             for order in orders:
-                order_base_lines = order._prepare_tax_base_line_values()
+                order_base_lines = order.lines._prepare_base_lines_for_taxes_computation()
                 AccountTax._add_tax_details_in_base_lines(order_base_lines, consolidated_invoice.company_id)
                 AccountTax._round_base_lines_tax_details(order_base_lines, consolidated_invoice.company_id)
                 base_lines += order_base_lines
@@ -230,7 +224,7 @@ class AccountEdiXmlUBLMyInvoisMY(models.AbstractModel):
         vals['tax_grouping_function'] = tax_grouping_function
 
     def _add_consolidated_invoice_header_nodes(self, document_node, vals):
-        utc_now = datetime.now(tz=UTC)
+        utc_now = datetime.now(timezone.utc)
 
         document_node.update({
             'cbc:UBLVersionID': None,
@@ -345,15 +339,11 @@ class AccountEdiXmlUBLMyInvoisMY(models.AbstractModel):
         }
 
     def _get_address_node(self, vals):
-        """ Generic helper to generate the Address node for a res.partner or res.bank. """
+        """ Generic helper to generate the Address node for a res.partner or res.partner.bank. """
         if 'consolidated_invoice' not in vals:
             return super()._get_address_node(vals)
 
         partner = vals['partner']
-        country_key = 'country' if partner._name == 'res.bank' else 'country_id'
-        state_key = 'state' if partner._name == 'res.bank' else 'state_id'
-        country = partner[country_key]
-        state = partner[state_key]
 
         subentity_code = partner.state_id.code or ''
         # The API does not expect the country code inside the state code, only the number part.
@@ -367,15 +357,15 @@ class AccountEdiXmlUBLMyInvoisMY(models.AbstractModel):
             ],
             'cbc:CityName': {'_text': partner.city},
             'cbc:PostalZone': {'_text': partner.zip},
-            'cbc:CountrySubentity': {'_text': state.name},
+            'cbc:CountrySubentity': {'_text': partner.state_id.name},
             'cbc:CountrySubentityCode': {'_text': subentity_code},
             'cac:Country': {
                 'cbc:IdentificationCode': {
                     'listID': 'ISO3166-1',
                     'listAgencyID': '6',
-                    '_text': COUNTRY_CODE_MAP.get(country.code),
+                    '_text': COUNTRY_CODE_MAP.get(partner.country_id.code),
                 },
-                'cbc:Name': {'_text': country.name},
+                'cbc:Name': {'_text': partner.country_id.name},
             },
         }
 
@@ -383,13 +373,10 @@ class AccountEdiXmlUBLMyInvoisMY(models.AbstractModel):
         self._add_document_monetary_total_nodes(document_node, vals)
         currency_suffix = vals['currency_suffix']
 
+        # Consolidated invoices have no genuine prepayment to report; omit the node entirely rather than
+        # emitting it with a 0.00 amount.
         amount_paid = 0.0
-        document_node['cac:PrepaidPayment'] = {
-            'cbc:PaidAmount': {
-                '_text': self.format_float(amount_paid, vals['currency_dp']),
-                'currencyID': vals['currency_name'],
-            },
-        }
+        document_node['cac:PrepaidPayment'] = None
         monetary_total_tag = self._get_tags_for_document_type(vals)['monetary_total']
         payable_amount = self.format_float(vals[f'tax_inclusive_amount{currency_suffix}'] - amount_paid, vals['currency_dp'])
         document_node[monetary_total_tag]['cbc:PayableAmount']['_text'] = payable_amount

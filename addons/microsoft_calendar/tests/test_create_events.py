@@ -69,6 +69,7 @@ class TestCreateEvents(TestCommon):
         self.assertEqual(len(new_records), 1)
         self.assert_odoo_event(new_records, self.expected_odoo_event_from_outlook)
         self.assertEqual(new_records.user_id, self.organizer_user)
+        self.assertEqual(new_records.calendar_id, self.organizer_user._find_or_create_primary_calendar())
         self.assertEqual(new_records.need_sync_m, False)
 
     @patch.object(MicrosoftCalendarService, 'get_events')
@@ -129,7 +130,9 @@ class TestCreateEvents(TestCommon):
         outlook_event = dict(self.simple_event_from_outlook_attendee, organizer={
             'emailAddress': {'address': "Mike@organizer.com", 'name': "Mike Organizer"},
         }, attendees=[{'type': 'required', 'status': {'response': 'none', 'time': '0001-01-01T00:00:00Z'},
-                       'emailAddress': {'name': 'John Attendee', 'address': 'John@attendee.com'}}])
+                       'emailAddress': {'name': 'John Attendee', 'address': 'John@attendee.com'}},
+                      {'type': 'required', 'status': {'response': 'none', 'time': '0001-01-01T00:00:00Z'},
+                       'emailAddress': {'name': 'Mike Organizer', 'address': 'Mike@organizer.com'}}])
 
         mock_get_events.return_value = (MicrosoftEvent([outlook_event]), None)
         existing_records = self.env["calendar.event"].search([])
@@ -141,6 +144,7 @@ class TestCreateEvents(TestCommon):
         records = self.env["calendar.event"].search([])
         new_records = (records - existing_records)
         self.assertEqual(len(new_records), 1)
+        self.assertEqual(len(new_records.attendee_ids), 2)
         self.assert_odoo_event(new_records, self.expected_odoo_event_from_outlook)
         self.assertEqual(new_records.user_id, self.organizer_user)
 
@@ -575,8 +579,8 @@ class TestCreateEvents(TestCommon):
             self.skipTest("The 'hr_holidays' module must be installed to run this test.")
 
         self.user_hrmanager = mail_new_test_user(self.env, login='bastien', groups='base.group_user,hr_holidays.group_hr_holidays_manager')
-        self.user_employee = mail_new_test_user(self.env, login='enguerran', password='enguerran', groups='base.group_user')
-        self.rd_dept = self.env['hr.department'].with_context(tracking_disable=True).create({
+        self.user_employee = mail_new_test_user(self.env, login='enguerran', password='enguerran', groups='base.group_user,hr_holidays.group_hr_holidays_employee')
+        self.rd_dept = self.env['hr.department'].create({
             'name': 'Research and Development',
         })
         self.employee_emp = self.env['hr.employee'].create({
@@ -584,14 +588,17 @@ class TestCreateEvents(TestCommon):
             'user_id': self.user_employee.id,
             'department_id': self.rd_dept.id,
         })
-        self.hr_leave_type = self.env['hr.leave.type'].with_user(self.user_hrmanager).create({
+        self.hr_work_entry_type = self.env['hr.work.entry.type'].with_user(self.user_hrmanager).create({  # noqa: OLS03001
             'name': 'Time Off Type',
+            'code': 'Time Off Type',
             'requires_allocation': False,
+            'request_unit': 'day',
+            'unit_of_measure': 'day',
         })
-        self.holiday = self.env['hr.leave'].with_context(mail_create_nolog=True, mail_notrack=True).with_user(self.user_employee).create({
+        self.holiday = self.env['hr.leave'].with_user(self.user_employee).create({
             'name': 'Time Off Employee',
             'employee_id': self.employee_emp.id,
-            'holiday_status_id': self.hr_leave_type.id,
+            'work_entry_type_id': self.hr_work_entry_type.id,
             'request_date_from': datetime(2020, 1, 15),
             'request_date_to': datetime(2020, 1, 15),
         })
@@ -605,7 +612,7 @@ class TestCreateEvents(TestCommon):
         ]
         record = self.env['calendar.event'].search(search_domain)
         self.assertTrue(record, "The time off event should exist.")
-        self.assertEqual(record.name, "Marc Demo on Time Off : 1 days",
+        self.assertEqual(record.name, "Marc Demo on Time Off : 1 day",
                         "The event name should match the employee's time off description.")
         self.assertEqual(record.start_date, datetime(2020, 1, 15).date(),
                         "The start date should match the time off request.")
@@ -821,7 +828,7 @@ class TestCreateEvents(TestCommon):
         with self.mock_datetime_and_now(t_minus_12h), patch.object(ResUsers, '_get_microsoft_calendar_token', _mock_calendar_token):
             self.organizer_user.with_user(self.organizer_user).restart_microsoft_synchronization()
             # also force set first sync far in the past as it affects the domain and we don't care to take it into account here
-            self.env['ir.config_parameter'].sudo().set_param('microsoft_calendar.sync.first_synchronization_date', t_minus_12h - timedelta(days=5))
+            self.env['ir.config_parameter'].sudo().set_str('microsoft_calendar.sync.first_synchronization_date', t_minus_12h - timedelta(days=5))
         self.env.cr.postcommit.clear()
 
         # users without sync create events at last sync, 1 hour later, and 12 hours later

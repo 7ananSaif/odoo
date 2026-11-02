@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
@@ -7,13 +6,12 @@
     'website': 'https://www.odoo.com/app/project',
     'category': 'Services/Project',
     'sequence': 45,
-    'summary': 'Organize and plan your projects',
+    'summary': 'Manage tasks and collaborate on projects',
     'depends': [
         'analytic',
         'base_setup',
         'mail',
-        'portal',
-        'rating',
+        'portal_rating',
         'resource',
         'web',
         'web_tour',
@@ -21,9 +19,8 @@
     ],
     'data': [
         'security/project_security.xml',
-        'security/ir.model.access.csv',
-        'security/ir.model.access.xml',
         'data/digest_data.xml',
+        'data/portal_entry_data.xml',
         'report/project_task_burndown_chart_report_views.xml',
         'views/account_analytic_account_views.xml',
         'views/digest_digest_views.xml',
@@ -48,6 +45,7 @@
         'views/project_task_templates.xml',
         'views/project_sharing_project_task_templates.xml',
         'report/project_report_views.xml',
+        'report/project_time_by_stage_report_views.xml',
         'data/ir_cron_data.xml',
         'data/mail_message_subtype_data.xml',
         'data/mail_template_data.xml',
@@ -58,12 +56,12 @@
         'wizard/project_project_stage_delete_views.xml',
         'wizard/project_template_create_wizard.xml',
         'views/project_menus.xml',
+        'security/ir.access.csv',
     ],
     'demo': [
         'data/mail_template_demo.xml',
         'data/project_demo.xml',
     ],
-    'installable': True,
     'application': True,
     'post_init_hook': '_project_post_init',
     'uninstall_hook': '_project_uninstall_hook',
@@ -80,6 +78,7 @@
             'project/static/src/scss/project_form.scss',
             'project/static/src/scss/project_widgets.scss',
             'project/static/src/xml/**/*',
+            'project/static/src/webclient/**/*',
             ('remove', 'project/static/src/views/project_task_activity/**'),
             ('remove', 'project/static/src/views/project_task_graph/**'),
             ('remove', 'project/static/src/views/project_task_pivot/**'),
@@ -87,11 +86,7 @@
             ('remove', 'project/static/src/views/project_task_analysis_graph/**'),
             ('remove', 'project/static/src/views/project_task_analysis_pivot/**'),
             ('remove', 'project/static/src/views/burndown_chart/**'),
-            ('remove', 'project/static/src/**/*.dark.scss'),
             ('remove', 'project/static/src/views/project_project_activity/**'),
-        ],
-        "web.assets_web_dark": [
-            'project/static/src/**/*.dark.scss',
         ],
         'web.assets_backend_lazy': [
             'project/static/src/views/project_task_model_mixin',
@@ -106,7 +101,6 @@
         ],
         'web.assets_frontend': [
             'project/static/src/scss/portal_rating.scss',
-            'project/static/src/interactions/*',
         ],
         'web.assets_unit_tests': [
             'project/static/tests/mock_server/**/*',
@@ -126,23 +120,21 @@
             'web/static/lib/bootstrap/scss/_maps.scss',
             ('include', 'web._assets_bootstrap_backend'),
 
-            'web/static/src/libs/fontawesome/css/font-awesome.css',
-            'web/static/lib/odoo_ui_icons/*',
+            ('include', 'web.icons_fonts'),
             'web/static/src/webclient/navbar/navbar.scss',
             'web/static/src/scss/animation.scss',
-            'web/static/src/core/color_picker/color_picker.scss',
             'web/static/src/scss/mimetypes.scss',
             'web/static/src/scss/ui.scss',
-            'web/static/src/views/fields/translation_dialog.scss',
-            'web/static/src/scss/fontawesome_overridden.scss',
 
             'web/static/src/module_loader.js',
             'web/static/src/session.js',
 
             'web/static/lib/luxon/luxon.js',
+            'web/static/src/libs/luxon.js',
             'web/static/lib/owl/owl.js',
+            'web/static/src/owl2/owl3_compatibility_layer.js',
+            'web/static/src/owl2/utils.js',
             'web/static/lib/owl/odoo_module.js',
-            'web/static/lib/jquery/jquery.js',
             'web/static/lib/popper/popper.js',
             'web/static/lib/bootstrap/js/dist/util/index.js',
             'web/static/lib/bootstrap/js/dist/dom/data.js',
@@ -172,7 +164,6 @@
             'web/static/lib/bootstrap/js/dist/toast.js',
             'web/static/lib/dompurify/DOMpurify.js',
             'web/static/src/libs/bootstrap.js',
-            'web/static/src/legacy/js/libs/jquery.js',
 
             'base/static/src/css/modules.css',
 
@@ -186,6 +177,7 @@
             'web/static/src/views/*.scss',
             'web/static/src/views/fields/**/*',
             'web/static/src/views/form/**/*',
+            'web/static/src/views/card/**/*',
             'web/static/src/views/kanban/**/*',
             'web/static/src/views/list/**/*',
             'web/static/src/views/view_button/**/*',
@@ -212,12 +204,10 @@
             'bus/static/src/**/*.js',
 
             # To be able to launch tour js in project sharing
-            'web_tour/static/src/js/**/*',
-            'web_tour/static/src/tour_utils.js',
-            'web/static/lib/hoot-dom/**/*',
+            ('include', 'web_tour.assets'),
+            'web_tour/static/src/tour_pointer/tour_pointer.scss',
 
             ('include', 'html_editor.assets_editor'),
-            'html_editor/static/src/others/dynamic_placeholder_plugin.js',
             'html_editor/static/src/backend/**/*',
             'html_editor/static/src/fields/**/*',
             'html_editor/static/src/scss/html_editor.common.scss',
@@ -239,7 +229,7 @@
             'project/static/src/views/project_relational_model.js',
 
             ('include', 'portal.assets_chatter_helpers'),
-            'portal/static/src/chatter/core/**/*',
+            'portal/static/src/chatter/portal_project/**/*',
             'project/static/src/project_sharing/**/*',
             'web/static/src/start.js',
         ],

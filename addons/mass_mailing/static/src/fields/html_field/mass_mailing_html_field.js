@@ -1,28 +1,28 @@
-import { DYNAMIC_PLACEHOLDER_PLUGINS } from "@html_editor/backend/plugin_sets";
-import { htmlField, HtmlField } from "@html_editor/fields/html_field";
+import { DYNAMIC_FIELD_PLUGINS } from "@html_editor/backend/dynamic_field/dynamic_field_plugin";
+import { htmlField, HtmlField, htmlFieldProps } from "@html_editor/fields/html_field";
 import { LocalOverlayContainer } from "@html_editor/local_overlay_container";
 import { MAIN_PLUGINS as MAIN_EDITOR_PLUGINS } from "@html_editor/plugin_sets";
 import { normalizeHTML, parseHTML } from "@html_editor/utils/html";
+import { fixInvalidHTML } from "@html_editor/utils/sanitize";
+import { useEmailHtmlConverter } from "@mail/convert_inline/hooks";
 import { MassMailingIframe } from "@mass_mailing/iframe/mass_mailing_iframe";
-import { ThemeSelector } from "@mass_mailing/themes/theme_selector/theme_selector";
+import { ThemeSelectorIframe } from "@mass_mailing/themes/theme_selector/theme_selector_iframe";
 import {
-    onWillUpdateProps,
+    signal,
     status,
+    t,
     toRaw,
     useEffect,
-    useExternalListener,
-    useRef,
+    useListener,
+    useOnChange,
+    usePlugin,
+    useProps,
 } from "@odoo/owl";
 import { loadBundle } from "@web/core/assets";
+import { DebugModePlugin } from "@web/core/debug_mode_plugin";
 import { Domain } from "@web/core/domain";
 import { registry } from "@web/core/registry";
-import { Deferred } from "@web/core/utils/concurrency";
-import { effect } from "@web/core/utils/reactive";
-import { useChildRef, useService } from "@web/core/utils/hooks";
-import { batched } from "@web/core/utils/timing";
-import { PowerButtonsPlugin } from "@html_editor/main/power_buttons_plugin";
-import { useEmailHtmlConverter } from "@mail/convert_inline/hooks";
-import { fixInvalidHTML } from "@html_editor/utils/sanitize";
+import { useService } from "@web/core/utils/hooks";
 
 export class MassMailingHtmlField extends HtmlField {
     static template = "mass_mailing.HtmlField";
@@ -30,25 +30,23 @@ export class MassMailingHtmlField extends HtmlField {
         ...HtmlField.components,
         LocalOverlayContainer,
         MassMailingIframe,
-        ThemeSelector,
+        ThemeSelectorIframe,
     };
-    static props = {
-        ...HtmlField.props,
-        inlineField: { type: String },
-        filterTemplates: { type: Boolean, optional: true },
-    };
+    props = useProps({
+        ...htmlFieldProps,
+        inlineField: t.string(),
+        filterTemplates: t.boolean().optional(),
+    });
+
+    debugMode = usePlugin(DebugModePlugin);
+
+    get classList() {
+        return this.withBuilder ? [] : ["o-html-field"];
+    }
+
+    codeViewButtonRef = signal.ref();
 
     setup() {
-        // Keep track of the next props before other `onWillUpdateProps`
-        // callbacks in super can be executed, to be able to compute the next
-        // activeTheme and next themeSelector display status just before the
-        // Component is patched.
-        let props = this.props;
-        onWillUpdateProps((nextProps) => {
-            if (nextProps !== this.props) {
-                props = nextProps;
-            }
-        });
         super.setup();
         this.converter = useEmailHtmlConverter({
             bundles: ["mass_mailing.assets_iframe_style"],
@@ -58,6 +56,7 @@ export class MassMailingHtmlField extends HtmlField {
         Object.assign(this.state, {
             showThemeSelector: this.props.record.isNew,
             activeTheme: undefined,
+            isNewlySelectedTheme: false,
         });
 
         if (this.state.showThemeSelector) {
@@ -66,97 +65,85 @@ export class MassMailingHtmlField extends HtmlField {
             // Theme Selector, no need to wait for the user selection.
             loadBundle("mass_mailing.assets_builder");
         }
-
-        this.resetIframe();
-        this.iframeRef = useChildRef();
-        this.iframeWrapperRef = useChildRef();
-        this.codeViewButtonRef = useRef("codeViewButtonRef");
-
-        onWillUpdateProps((nextProps) => {
-            if (
-                this.props.readonly !== nextProps.readonly &&
-                (this.props.readonly || nextProps.readonly)
-            ) {
-                // Force a full reload for MassMailingIframe on readonly change
-                this.state.key++;
-            }
-            if (nextProps.readonly) {
-                toRaw(this.state).showThemeSelector = false;
+        let resId = this.props.record.resId;
+        useEffect(() => {
+            if (this.props.record.resId !== resId) {
+                this.state.isNewlySelectedTheme = false;
+                resId = this.props.record.resId;
             }
         });
 
-        let currentKey = this.state.key;
-        effect(
-            batched((state) => {
-                if (status(this) === "destroyed") {
-                    return;
+        // useRecordObserver's callback now runs during setup() (via Owl's
+        // reactive effect), before this component's setup() continues. This
+        // means state.key is already incremented by the time we register the
+        // useEffect below, so updateThemeSelector would never be called on
+        // the first mount. Call them explicitly here to compute the correct
+        // initial state before the first render.
+        this.updateActiveTheme();
+        this.updateThemeSelector();
+
+        this.iframeRef = signal.ref();
+        this.iframeWrapperRef = signal.ref();
+
+        let currentReadonly = this.props.readonly;
+        useOnChange(
+            () => [this.props.readonly],
+            (nextReadonly) => {
+                if (currentReadonly !== nextReadonly && (currentReadonly || nextReadonly)) {
+                    // Force a full reload for MassMailingIframe on readonly change
+                    this.state.key++;
                 }
-                if (state.key !== currentKey) {
-                    // html value may have been reset from the server:
-                    // - await the new iframe
-                    this.resetIframe();
-                    // - ensure that the activeTheme is up to date with the next
-                    //   record.
-                    this.updateActiveTheme(props.record);
-                    // - ensure that the themeSelector is displayed if necessary
-                    //   for the next props.
-                    this.updateThemeSelector(props);
-                    currentKey = state.key;
+                if (nextReadonly) {
+                    toRaw(this.state).showThemeSelector = false;
                 }
-            }),
-            [this.state]
+                currentReadonly = nextReadonly;
+            },
+            { initialRun: false }
         );
 
-        useEffect(
-            () => {
-                if (!this.codeViewRef.el) {
+        let currentKey = this.state.key;
+        useEffect(() => {
+            if (status(this) === "destroyed") {
+                return;
+            }
+            if (this.state.key !== currentKey) {
+                // html value may have been reset from the server:
+                // - ensure that the activeTheme is up to date with the next
+                //   record.
+                this.updateActiveTheme(this.props);
+                // - ensure that the themeSelector is displayed if necessary
+                //   for the next props.
+                this.updateThemeSelector(this.props);
+                currentKey = this.state.key;
+            }
+        });
+
+        useOnChange(
+            () => [this.codeViewRef()],
+            (codeViewEl) => {
+                if (!codeViewEl) {
                     return;
                 }
                 // Set the initial textArea height.
-                this.codeViewRef.el.style.height = this.codeViewRef.el.scrollHeight + "px";
-            },
-            () => [this.codeViewRef.el]
+                codeViewEl.style.height = codeViewEl.scrollHeight + "px";
+            }
         );
 
-        useExternalListener(window, "pointerdown", this.onPointerDown.bind(this));
+        useListener(window, "pointerdown", this.onPointerDown.bind(this));
     }
 
     get withBuilder() {
         return this.state.activeTheme !== "basic" && !this.props.readonly;
     }
 
-    /**
-     * @deprecated
-     */
-    resetIframe() {
-        this.iframeLoaded = new Deferred();
-    }
-
-    /**
-     * @deprecated
-     */
-    async ensureIframeLoaded() {
-        const iframeLoaded = this.iframeLoaded;
-        // iframeInfo is deprecated
-        const iframeInfo = await iframeLoaded;
-        return iframeLoaded === this.iframeLoaded ? iframeInfo : undefined;
-    }
-
-    /**
-     * @deprecated
-     */
-    onIframeLoad(iframeLoaded) {
-        this.iframeLoaded.resolve(iframeLoaded);
-    }
-
-    updateActiveTheme(record = this.props.record) {
+    updateActiveTheme(props = this.props) {
         // This function is called in an `effect` with a dependency on
         // `state.key` which already guarantees that the Component will be
         // re-rendered. All further reads on the state should not add
         // dependencies to that effect, so it is used raw.
         const state = toRaw(this.state);
         const getThemeName = () => {
-            const value = record.data[this.props.name];
+            const value = props.record.data[props.name];
             if (!value || !value.toString()) {
                 return;
             }
@@ -198,20 +185,36 @@ export class MassMailingHtmlField extends HtmlField {
             iframeRef: this.iframeRef,
             iframeWrapperRef: this.iframeWrapperRef,
             onFocus: this.onFocus.bind(this),
-            onBlur: this.onBlur.bind(this), // deprecated
             onEditorLoad: this.onEditorLoad.bind(this),
-            onIframeLoad: this.onIframeLoad.bind(this), // deprecated
             readonly: this.props.readonly,
             showThemeSelector: this.state.showThemeSelector,
             showCodeView: this.state.showCodeView,
+            showFullscreen: this.state.isNewlySelectedTheme && this.withBuilder,
             withBuilder: this.withBuilder,
+            saveRecord: this.saveRecord.bind(this),
+            discardIframe: this.discardIframe.bind(this),
         };
-        if (this.env.debug) {
+        if (this.debugMode.isActive()) {
             Object.assign(props, {
                 toggleCodeView: () => this.toggleCodeView(),
             });
         }
         return props;
+    }
+
+    async saveRecord() {
+        if (await this.props.record.checkValidity({ displayNotification: false })) {
+            await this.props.record.save();
+        } else {
+            await this.commitChanges();
+        }
+    }
+
+    async discardIframe() {
+        if (this.isDirty || (await this.props.record.isDirty())) {
+            this.state.isNewlySelectedTheme = false;
+            this.state.key++;
+        }
     }
 
     /**
@@ -223,6 +226,7 @@ export class MassMailingHtmlField extends HtmlField {
     async toggleCodeView() {
         await this.commitChanges();
         this.state.showCodeView = !this.state.showCodeView;
+        this.state.isNewlySelectedTheme = false;
         this.state.key++;
     }
 
@@ -258,6 +262,7 @@ export class MassMailingHtmlField extends HtmlField {
         return {
             ...config,
             allowChecklist: false,
+            allowTextColumnResize: false,
             record: this.props.record,
             mobileBreakpoint: "md",
             defaultImageMimetype: "image/png",
@@ -272,17 +277,14 @@ export class MassMailingHtmlField extends HtmlField {
             .flat()
             .find((cmd) => cmd.id === "codeview");
         if (codeViewCommand) {
-            codeViewCommand.isAvailable = () => this.env.debug;
+            codeViewCommand.isAvailable = () => this.debugMode.isActive();
         }
         return {
             ...config,
             onEditorReady: () => this.commitChanges(),
-            Plugins: [
-                ...MAIN_EDITOR_PLUGINS,
-                ...DYNAMIC_PLACEHOLDER_PLUGINS,
-                ...registry.category("basic-editor-plugins").getAll(),
-                PowerButtonsPlugin,
-            ].filter((P) => !["banner", "prompt"].includes(P.id)),
+            Plugins: [...MAIN_EDITOR_PLUGINS, ...DYNAMIC_FIELD_PLUGINS]
+                .filter((P) => !["banner", "prompt", "link"].includes(P.id))
+                .concat(registry.category("basic-editor-plugins").getAll()),
         };
     }
 
@@ -316,12 +318,14 @@ export class MassMailingHtmlField extends HtmlField {
                                     "FIELD_IS_DIRTY",
                                     this.lastChangeId !== changeId
                                 );
+                                this.state.isNewlySelectedTheme = true;
                             },
                             () => {}
                         );
                 });
             },
             filterTemplates: this.props.filterTemplates,
+            isTemplate: this.props.record.data.is_template,
             mailingModelId: this.props.record.data.mailing_model_id.id,
             mailingModelName: this.props.record.data.mailing_model_id.display_name || "",
         };
@@ -340,7 +344,7 @@ export class MassMailingHtmlField extends HtmlField {
     }
 
     onFocus() {
-        this.activeElement = this.iframeWrapperRef.el;
+        this.activeElement = this.iframeWrapperRef();
     }
 
     /**
@@ -361,8 +365,8 @@ export class MassMailingHtmlField extends HtmlField {
         if (isTargetOutsideActiveElement && !shouldIgnoreTarget) {
             this.activeElement = undefined;
             this.onBlur();
-        } else if (this.iframeWrapperRef.el.contains(ev.target)) {
-            this.activeElement = this.iframeWrapperRef.el;
+        } else if (this.iframeWrapperRef().contains(ev.target)) {
+            this.activeElement = this.iframeWrapperRef();
         }
     }
 
@@ -380,7 +384,7 @@ export class MassMailingHtmlField extends HtmlField {
     async commitChanges({ urgent } = {}) {
         if (!urgent) {
             await this.mutex.exec(() => {
-                if (this.withBuilder && this.isEditorReady()) {
+                if (this.withBuilder && this.isEditorReady() && this.editor.shared.operation) {
                     return this.editor.shared.operation.getUnlockedDef();
                 }
             });
@@ -490,6 +494,7 @@ export const massMailingHtmlField = {
     extractProps({ attrs, options }) {
         const props = htmlField.extractProps(...arguments);
         props.editorConfig.allowChecklist = false;
+        props.editorConfig.allowScrollableTables = false;
         props.editorConfig.allowVideo = false;
         props.editorConfig.baseContainers = ["P"];
         Object.assign(props, {
@@ -503,8 +508,6 @@ export const massMailingHtmlField = {
         });
         return props;
     },
-    // Deprecated (to be defined in the view)
-    fieldDependencies: [{ name: "body_html", type: "html", readonly: "false" }],
 };
 
 registry.category("fields").add("mass_mailing_html", massMailingHtmlField);

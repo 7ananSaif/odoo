@@ -7,11 +7,11 @@
         <field name="priority">600</field>
         <field name="inherit_id" ref="hr_timesheet.project_sharing_inherit_project_task_view_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='timesheet_ids']/list" position="attributes">
-                <attribute name="decoration-muted">timesheet_invoice_id != False</attribute>
+            <xpath expr="//field[@name='portal_timesheet_ids']/list" position="attributes">
+                <attribute name="decoration-muted">reinvoice_move_id != False</attribute>
             </xpath>
-            <xpath expr="//field[@name='timesheet_ids']/list/field[@name='unit_amount']" position="before">
-                <field name="timesheet_invoice_id" column_invisible="True"/>
+            <xpath expr="//field[@name='portal_timesheet_ids']/list/field[@name='unit_amount']" position="before">
+                <field name="reinvoice_move_id" column_invisible="True"/>
                 <field name="so_line" widget="so_line_field"
                     column_invisible="not parent.allow_billable"
                     context="{'with_remaining_hours': True, 'with_price_unit': True}" options="{'no_create': True, 'no_open': True}"
@@ -19,23 +19,28 @@
             </xpath>
             <xpath expr="//field[@name='child_ids']/list/field[@name='remaining_hours']" position="after">
                 <field name="remaining_hours_available" column_invisible="True"/>
-                <field name="remaining_hours_so" optional="hide" widget="timesheet_uom" column_invisible="not parent.allow_timesheets"/>
+                <field name="remaining_hours_so" optional="hide" widget="timesheet_uom" column_invisible="not parent.allow_timesheets or not parent.show_portal_timesheets"/>
             </xpath>
             <xpath expr="//field[@name='depend_on_ids']/list/field[@name='remaining_hours']" position="after">
                 <field name="remaining_hours_available" column_invisible="True"/>
-                <field name="remaining_hours_so" optional="hide" widget="timesheet_uom" column_invisible="not parent.allow_timesheets"/>
+                <field name="remaining_hours_so" optional="hide" widget="timesheet_uom" column_invisible="not parent.allow_timesheets or not parent.show_portal_timesheets"/>
             </xpath>
-            <xpath expr="//field[@name='remaining_hours']" position="after">
-                <field name="allow_billable" invisible="1" />
-                <field name="remaining_hours_available" invisible="1"/>
-                <field name="sale_order_id" invisible="1"/>
-                <span id="remaining_hours_so_label" invisible="not allow_billable or not sale_order_id or not partner_id or not sale_line_id or not remaining_hours_available" class="o_td_label float-start">
-                    <label class="fw-bold" for="remaining_hours_so"
+            <xpath expr="//div[@id='remaining_hours_div']" position="after">
+                <div class="row align-items-center mb-2" 
+                    invisible="not allow_billable or not sale_order_id or sale_order_state != 'sale' or not partner_id or not sale_line_id or not remaining_hours_available">
+                    <field name="allow_billable" invisible="1"/>
+                    <field name="remaining_hours_available" invisible="1"/>
+                    <field name="sale_order_id" invisible="1"/>
+                    <div id="remaining_hours_so_label" class="col-6 col-md-8">
+                        <label class="fw-bold" for="remaining_hours_so"
                             invisible="remaining_hours_so &lt; 0"/>
-                    <label class="fw-bold text-danger" for="remaining_hours_so"
+                        <label class="fw-bold text-danger" for="remaining_hours_so"
                             invisible="remaining_hours_so &gt;= 0"/>
-                </span>
-                <field name="remaining_hours_so" nolabel="1" widget="timesheet_uom" invisible="not allow_billable or not sale_order_id or not partner_id or not sale_line_id or not remaining_hours_available" decoration-danger="remaining_hours_so &lt; 0"></field>
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <field name="remaining_hours_so" nolabel="1" widget="timesheet_uom" class="text-nowrap" decoration-danger="remaining_hours_so &lt; 0"/>
+                    </div>
+                </div>
             </xpath>
         </field>
     </record>

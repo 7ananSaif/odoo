@@ -6,22 +6,34 @@
 # Martin Trigaux, 2022
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
-# "Junko Augias (juau)" <juau@odoo.com>, 2025.
+# "Junko Augias (juau)" <juau@odoo.com>, 2025, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~12.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-11-13 08:15+0000\n"
-"Last-Translator: \"Junko Augias (juau)\" <juau@odoo.com>\n"
-"Language-Team: Japanese <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-11 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 20:12+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Japanese <https://translate.odoo.com/projects/odoo-s19-4/"
 "base_import_module/ja/>\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: base_import_module
+#: model:ir.module.module,description:base.module_base_import_module
+msgid ""
+"\n"
+"Import a custom data module\n"
+"===========================\n"
+"\n"
+"This module allows authorized users to import a custom data module (.xml "
+"files and static assests)\n"
+"for customization purpose.\n"
+msgstr ""
 
 #. module: base_import_module
 #. odoo-python
@@ -53,9 +65,9 @@ msgid "Apps"
 msgstr "アプリ"
 
 #. module: base_import_module
-#: model_terms:ir.ui.view,arch_db:base_import_module.view_base_module_import
-msgid "Cancel"
-msgstr "キャンセル"
+#: model:ir.module.module,shortdesc:base.module_base_import_module
+msgid "Base import module"
+msgstr ""
 
 #. module: base_import_module
 #: model_terms:ir.ui.view,arch_db:base_import_module.view_base_module_import
@@ -96,7 +108,6 @@ msgstr "作成日"
 
 #. module: base_import_module
 #: model:ir.model.fields,field_description:base_import_module.field_base_import_module__display_name
-#: model:ir.model.fields,field_description:base_import_module.field_base_module_uninstall__display_name
 #: model:ir.model.fields,field_description:base_import_module.field_ir_http__display_name
 #: model:ir.model.fields,field_description:base_import_module.field_ir_module_module__display_name
 #: model:ir.model.fields,field_description:base_import_module.field_ir_ui_view__display_name
@@ -116,6 +127,11 @@ msgstr ""
 "\n"
 " %(error_message)s \n"
 "\n"
+
+#. module: base_import_module
+#: model:ir.model.fields,field_description:base_import_module.field_ir_module_module__total_lines_of_code
+msgid "Extra lines of Code"
+msgstr "追加のコード行"
 
 #. module: base_import_module
 #. odoo-python
@@ -142,7 +158,6 @@ msgstr "HTTPルーティング"
 
 #. module: base_import_module
 #: model:ir.model.fields,field_description:base_import_module.field_base_import_module__id
-#: model:ir.model.fields,field_description:base_import_module.field_base_module_uninstall__id
 #: model:ir.model.fields,field_description:base_import_module.field_ir_http__id
 #: model:ir.model.fields,field_description:base_import_module.field_ir_module_module__id
 #: model:ir.model.fields,field_description:base_import_module.field_ir_ui_view__id
@@ -233,11 +248,6 @@ msgid "Module Type"
 msgstr "モジュールタイプ"
 
 #. module: base_import_module
-#: model:ir.model,name:base_import_module.model_base_module_uninstall
-msgid "Module Uninstall"
-msgstr "モジュールアンインストール"
-
-#. module: base_import_module
 #: model_terms:ir.ui.view,arch_db:base_import_module.view_base_module_import
 msgid "Module file (.zip)"
 msgstr "モジュールファイル (.zip)"
@@ -269,6 +279,17 @@ msgid ""
 msgstr ""
 "注: インポートできるのはデータモジュール（.xml ファイル、i18n ファイル、静的"
 "アセット)のみです"
+
+#. module: base_import_module
+#: model:ir.model.fields,help:base_import_module.field_ir_module_module__total_lines_of_code
+msgid ""
+"Number of lines of code that may be billed under an Enterprise subscription. "
+"For exact pricing details, please contact your account manager or visit "
+"odoo.com/pricing."
+msgstr ""
+"企業版サブスクリプションで課金対象となるソースコードの行数です。正確な価格の"
+"詳細については、担当のアカウントマネジャーにお問い合わせいただくか、 "
+"odoo.com/pricingをご確認ください。"
 
 #. module: base_import_module
 #: model:ir.model.fields.selection,name:base_import_module.selection__ir_module_module__module_type__official
@@ -364,36 +385,5 @@ msgstr "完了"
 msgid "init"
 msgstr "初期化"
 
-#~ msgid "Import App"
-#~ msgstr "アプリのインポート"
-
-#~ msgid "Import module"
-#~ msgstr "モジュールのインポート"
-
-#~ msgid "Last Modified on"
-#~ msgstr "最終更新日"
-
-#~ msgid ""
-#~ "Note: you can only import data modules (.xml files and static assets)"
-#~ msgstr ""
-#~ "注：インポートできるのはデータモジュール（.xmlファイルと静的アセット）のみ"
-#~ "です。"
-
-#~ msgid "Open Modules"
-#~ msgstr "モジュールを開く"
-
-#~ msgid "Select module package to import (.zip file):"
-#~ msgstr ""
-#~ "インポートする（.zipファイル）モジュールパッケージを選択して下さい。"
-
-#~ msgid "Studio customizations require Studio"
-#~ msgstr "StudioのカスタマイズにはStudioが必要です"
-
-#~ msgid ""
-#~ "Unmet module dependencies: \n"
-#~ "\n"
-#~ " - %s"
-#~ msgstr ""
-#~ "モジュールのディペンデンシーが一致しません: \n"
-#~ "\n"
-#~ " - %s"
+#~ msgid "Module Uninstall"
+#~ msgstr "モジュールアンインストール"

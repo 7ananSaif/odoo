@@ -7,17 +7,25 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-11-16 15:13+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Hindi <https://translate.odoo.com/projects/odoo-19/digest/hi/"
-">\n"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 14:32+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Hindi <https://translate.odoo.com/projects/odoo-s19-4/digest/"
+"hi/>\n"
 "Language: hi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: digest
+#: model:ir.module.module,description:base.module_digest
+msgid ""
+"\n"
+"Send KPI Digests periodically\n"
+"=============================\n"
+msgstr ""
 
 #. module: digest
 #: model_terms:ir.ui.view,arch_db:digest.digest_mail_main
@@ -51,6 +59,11 @@ msgid "Add new users as recipient of a periodic email with key metrics"
 msgstr ""
 "कुछ नए उपयोगकर्ताओं को एक ऐसे ईमेल के प्राप्तकर्ता के रूप में जोड़ें, जो अपने-आप कुछ समय के बाद "
 "भेजा जाता है और जिसमें ज़रूरी आंकड़े होते हैं"
+
+#. module: digest
+#: model_terms:ir.ui.view,arch_db:digest.digest_mail_main
+msgid "All Companies"
+msgstr ""
 
 #. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_tip__group_id
@@ -107,12 +120,14 @@ msgstr "जुड़े हुए उपयोगकर्ता"
 
 #. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_digest__create_uid
+#: model:ir.model.fields,field_description:digest.field_digest_test__create_uid
 #: model:ir.model.fields,field_description:digest.field_digest_tip__create_uid
 msgid "Created by"
 msgstr "इन्होंने बनाया"
 
 #. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_digest__create_date
+#: model:ir.model.fields,field_description:digest.field_digest_test__create_date
 #: model:ir.model.fields,field_description:digest.field_digest_tip__create_date
 msgid "Created on"
 msgstr "इस तारीख को बनाया गया"
@@ -139,12 +154,14 @@ msgstr "निष्क्रिय करें"
 
 #. module: digest
 #: model:ir.model.fields.selection,name:digest.selection__digest_digest__state__deactivated
+#: model_terms:ir.ui.view,arch_db:digest.digest_digest_view_form
 #: model_terms:ir.ui.view,arch_db:digest.digest_digest_view_search
 msgid "Deactivated"
 msgstr "निष्क्रिय किया गया"
 
 #. module: digest
 #: model:ir.model,name:digest.model_digest_digest
+#: model:ir.model.fields,field_description:digest.field_digest_test__digest_id
 msgid "Digest"
 msgstr "डाइजेस्ट"
 
@@ -168,8 +185,12 @@ msgid "Digest Subscriptions"
 msgstr "डाइजेस्ट सब्सक्रिप्शन"
 
 #. module: digest
-#: model:ir.actions.act_window,name:digest.digest_tip_action
 #: model:ir.model,name:digest.model_digest_tip
+msgid "Digest Tip"
+msgstr ""
+
+#. module: digest
+#: model:ir.actions.act_window,name:digest.digest_tip_action
 #: model:ir.ui.menu,name:digest.digest_tip_menu
 msgid "Digest Tips"
 msgstr "डाइजेस्ट से जुड़ी सलाह"
@@ -180,12 +201,35 @@ msgid "Digest Title"
 msgstr "डाइजेस्ट का टाइटल"
 
 #. module: digest
+#. odoo-python
+#: code:addons/digest/models/digest.py:0
+msgid "Digest sent!"
+msgstr ""
+
+#. module: digest
+#: model:ir.model.fields,field_description:digest.field_res_users__digest_ids
+msgid "Digests"
+msgstr ""
+
+#. module: digest
+#: model_terms:ir.ui.view,arch_db:digest.digest_test_view_form
+msgid "Discard"
+msgstr ""
+
+#. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_digest__display_name
+#: model:ir.model.fields,field_description:digest.field_digest_test__display_name
 #: model:ir.model.fields,field_description:digest.field_digest_tip__display_name
 #: model:ir.model.fields,field_description:digest.field_res_config_settings__display_name
 #: model:ir.model.fields,field_description:digest.field_res_users__display_name
 msgid "Display Name"
 msgstr "डिस्प्ले का नाम"
+
+#. module: digest
+#. odoo-python
+#: code:addons/digest/models/digest.py:0
+msgid "Do not have access, skip this data for user's digest email"
+msgstr ""
 
 #. module: digest
 #: model_terms:ir.ui.view,arch_db:digest.digest_digest_view_form
@@ -213,6 +257,7 @@ msgstr ""
 
 #. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_digest__id
+#: model:ir.model.fields,field_description:digest.field_digest_test__id
 #: model:ir.model.fields,field_description:digest.field_digest_tip__id
 #: model:ir.model.fields,field_description:digest.field_res_config_settings__id
 #: model:ir.model.fields,field_description:digest.field_res_users__id
@@ -245,6 +290,11 @@ msgstr "केपीआई (KPI) डाइजेस्ट से जुड़ी
 #: model_terms:ir.ui.view,arch_db:digest.digest_tip_view_tree
 msgid "KPI Digest Tips"
 msgstr "केपीआई (KPI) डाइजेस्ट से जुड़ी सलाह"
+
+#. module: digest
+#: model:ir.module.module,shortdesc:base.module_digest
+msgid "KPI Digests"
+msgstr ""
 
 #. module: digest
 #: model_terms:ir.ui.view,arch_db:digest.digest_digest_view_form
@@ -281,12 +331,14 @@ msgstr "आखिरी 7 दिन"
 
 #. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_digest__write_uid
+#: model:ir.model.fields,field_description:digest.field_digest_test__write_uid
 #: model:ir.model.fields,field_description:digest.field_digest_tip__write_uid
 msgid "Last Updated by"
 msgstr "इन्होंने आखिरी बार अपडेट किया"
 
 #. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_digest__write_date
+#: model:ir.model.fields,field_description:digest.field_digest_test__write_date
 #: model:ir.model.fields,field_description:digest.field_digest_tip__write_date
 msgid "Last Updated on"
 msgstr "आखिरी बार अपडेट हुआ"
@@ -358,6 +410,7 @@ msgstr "त्रैमासिक"
 
 #. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_digest__user_ids
+#: model:ir.model.fields,field_description:digest.field_digest_test__user_ids
 #: model:ir.model.fields,field_description:digest.field_digest_tip__user_ids
 #: model_terms:ir.ui.view,arch_db:digest.digest_digest_view_form
 msgid "Recipients"
@@ -369,9 +422,29 @@ msgid "Run your business from anywhere with <b>Odoo Mobile</b>."
 msgstr "कहीं से भी <b>Odoo मोबाइल</b> के साथ अपना बिज़नेस चलाएं।"
 
 #. module: digest
+#: model:ir.model,name:digest.model_digest_test
+msgid "Sample Digest Wizard"
+msgstr ""
+
+#. module: digest
+#: model_terms:ir.ui.view,arch_db:digest.digest_test_view_form
+msgid "Select Recipients..."
+msgstr ""
+
+#. module: digest
+#: model_terms:ir.ui.view,arch_db:digest.digest_test_view_form
+msgid "Send Digest"
+msgstr ""
+
+#. module: digest
 #: model_terms:ir.ui.view,arch_db:digest.digest_digest_view_form
 msgid "Send Now"
 msgstr "अभी भेजें"
+
+#. module: digest
+#: model_terms:ir.ui.view,arch_db:digest.digest_test_view_form
+msgid "Send a Sample Digest"
+msgstr ""
 
 #. module: digest
 #: model_terms:ir.ui.view,arch_db:digest.digest_mail_main
@@ -393,6 +466,22 @@ msgstr "स्टेटस"
 #: code:addons/digest/models/digest.py:0
 msgid "Switch to weekly Digests"
 msgstr "साप्ताहिक डाइजेस्ट पर स्विच करें"
+
+#. module: digest
+#: model_terms:ir.ui.view,arch_db:digest.res_config_settings_view_form
+msgid "Template"
+msgstr ""
+
+#. module: digest
+#: model_terms:ir.ui.view,arch_db:digest.digest_digest_view_form
+msgid "Test"
+msgstr ""
+
+#. module: digest
+#. odoo-python
+#: code:addons/digest/models/digest.py:0
+msgid "Test Digest"
+msgstr ""
 
 #. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_tip__tip_description
@@ -469,11 +558,9 @@ msgstr "टाइटल"
 #. module: digest
 #: model_terms:digest.tip,tip_description:digest.digest_tip_digest_3
 msgid ""
-"Type \"@\" to notify someone in a message, or \"#\" to link to a channel. "
-"Try to notify @OdooBot to test the feature."
+"Type \"@\" to notify someone in a message. Try to notify @OdooBot to test "
+"the feature."
 msgstr ""
-"किसी मैसेज में किसी को नोटिफ़ाई करने के लिए \"@\" टाइप करें या किसी चैनल से लिंक करने के "
-"लिए \"#\" टाइप करें. सुविधा की जांच करने के लिए @OdooBot को नोटिफ़ाई करें।"
 
 #. module: digest
 #: model:ir.model.fields,help:digest.field_digest_tip__sequence
@@ -571,3 +658,10 @@ msgstr ""
 #: code:addons/digest/models/digest.py:0
 msgid "weekly"
 msgstr "साप्ताहिक"
+
+msgid ""
+"Type \"@\" to notify someone in a message, or \"#\" to link to a channel. "
+"Try to notify @OdooBot to test the feature."
+msgstr ""
+"किसी मैसेज में किसी को नोटिफ़ाई करने के लिए \"@\" टाइप करें या किसी चैनल से लिंक करने के "
+"लिए \"#\" टाइप करें. सुविधा की जांच करने के लिए @OdooBot को नोटिफ़ाई करें।"

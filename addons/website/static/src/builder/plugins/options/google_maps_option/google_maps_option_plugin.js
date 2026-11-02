@@ -1,11 +1,7 @@
 import { registry } from "@web/core/registry";
 import { _t } from "@web/core/l10n/translation";
-import { renderToElement } from "@web/core/utils/render";
 import { Plugin } from "@html_editor/plugin";
 import { GoogleMapsApiKeyDialog } from "./google_maps_api_key_dialog";
-import { GoogleMapsOption } from "./google_maps_option";
-import { Deferred } from "@web/core/utils/concurrency";
-import { BuilderAction } from "@html_builder/core/builder_action";
 
 /**
  * A `google.maps.places.PlaceResult` object.
@@ -37,6 +33,7 @@ import { BuilderAction } from "@html_builder/core/builder_action";
  * @property { GoogleMapsOptionPlugin['commitPlace'] } commitPlace
  * @property { GoogleMapsOptionPlugin['getPlace'] } getPlace
  * @property { GoogleMapsOptionPlugin['getMapsAPI'] } getMapsAPI
+ * @property { GoogleMapsOptionPlugin['notifyGMapsError'] } notifyGMapsError
  */
 
 export class GoogleMapsOptionPlugin extends Plugin {
@@ -51,18 +48,12 @@ export class GoogleMapsOptionPlugin extends Plugin {
         "commitPlace",
         "getPlace",
         "getMapsAPI",
+        "notifyGMapsError",
     ];
     /** @type {import("plugins").WebsiteResources} */
     resources = {
-        builder_options: [GoogleMapsOption],
-        so_content_addition_selector: [".s_google_map"],
+        so_content_addition_selectors: [".s_google_map"],
         on_snippet_dropped_handlers: this.onSnippetDropped.bind(this),
-        builder_actions: {
-            ResetMapColorAction,
-            ShowDescriptionAction,
-        },
-        // TODO remove when the snippet will have a "Height" option.
-        keep_overlay_options: (el) => el.matches(".s_google_map"),
     };
 
     setup() {
@@ -76,14 +67,37 @@ export class GoogleMapsOptionPlugin extends Plugin {
 
         /** @type {Map<HTMLElement, Deferred} */
         this.recentlyDroppedSnippetDeferredInit = new Map();
+        this.upgradeSnippets();
+    }
+
+    // TODO: Remove this method when data-vxml is reintroduced.
+    upgradeSnippets() {
+        // This is for pages which already existed before the plugin was created.
+        this.document.querySelectorAll(".s_google_map").forEach((mapSnippetEl) => {
+            mapSnippetEl.classList.remove("o_not_editable");
+            mapSnippetEl.dataset.vxml = "001";
+            if (!mapSnippetEl.style.getPropertyValue("--GoogleMap-height")) {
+                // Old map snippets used padding classes for the height. This
+                // condition converts them into the CSS variable.
+                const paddingClasses = [...mapSnippetEl.classList].filter((cls) =>
+                    /^p(b|t)\d+$/.test(cls)
+                );
+                let mapHeight = 0;
+                for (const cls of paddingClasses) {
+                    mapHeight += parseInt(/\d+$/.exec(cls)[0]);
+                    mapSnippetEl.classList.remove(cls);
+                }
+                mapSnippetEl.style.setProperty("--GoogleMap-height", `${mapHeight}px`);
+            }
+        });
     }
 
     async onSnippetDropped({ snippetEl }) {
         if (snippetEl.matches(".s_google_map")) {
-            const deferredInit = new Deferred();
+            const deferredInit = Promise.withResolvers();
             this.recentlyDroppedSnippetDeferredInit.set(snippetEl, deferredInit);
             this.dependencies.edit_interaction.restartInteractions(snippetEl);
-            const initSuccess = await deferredInit;
+            const initSuccess = await deferredInit.promise;
             this.recentlyDroppedSnippetDeferredInit.delete(snippetEl);
             if (!initSuccess) {
                 return true; // cancel
@@ -102,6 +116,7 @@ export class GoogleMapsOptionPlugin extends Plugin {
     async initializeGoogleMaps(editingElement, mapsAPI) {
         this.recentlyDroppedSnippetDeferredInit.get(editingElement)?.resolve(true);
         if (mapsAPI) {
+            await mapsAPI.importLibrary("places");
             this.mapsAPI = mapsAPI;
             this.placesAPI = mapsAPI.places;
         }
@@ -114,19 +129,16 @@ export class GoogleMapsOptionPlugin extends Plugin {
 
     /**
      * Take a set of coordinates and perform a search on them to return a
-     * place's formatted address. If it failed, there must be an issue with the
-     * API so remove the snippet.
+     * place's formatted address.
      *
      * @param {Element} editingElement
      * @param {Coordinates} coordinates
      * @returns {Promise<Place | undefined>}
      */
     async getPlace(editingElement, coordinates) {
-        const place = await this.nearbySearch(coordinates);
-        if (place?.error && !this.isGoogleMapsErrorBeingHandled) {
-            this.notifyGMapsError(editingElement);
-        } else if (!place && !this.isGoogleMapsErrorBeingHandled) {
-            // Somehow the search failed but Google didn't trigger an error.
+        const place = await this.nearbySearch(coordinates, editingElement);
+        if (!place && !this.isGoogleMapsErrorBeingHandled) {
+            // No place found at these cordinates (empty result).
             this.undoInitialize?.();
         } else {
             return place;
@@ -144,7 +156,7 @@ export class GoogleMapsOptionPlugin extends Plugin {
         if (place?.geometry) {
             const location = place.geometry.location;
             /** @type {Coordinates} */
-            const coordinates = `(${location.lat()},${location.lng()})`;
+            const coordinates = `(${location.lat},${location.lng})`;
             this.gpsMapCache.set(coordinates, place);
             /** @type {{mapGps: Coordinates, pinAddress: string}} */
             const currentMapData = editingElement.dataset;
@@ -153,8 +165,8 @@ export class GoogleMapsOptionPlugin extends Plugin {
                 editingElement.dataset.mapGps = coordinates;
                 editingElement.dataset.pinAddress = place.formatted_address;
                 // Restart interactions to re-render the map.
-                this.dispatchTo("content_manually_updated_handlers", editingElement);
-                this.dependencies.history.addStep();
+                this.trigger("on_content_manually_updated_handlers", editingElement);
+                this.dependencies.history.commit();
             }
         }
     }
@@ -199,57 +211,50 @@ export class GoogleMapsOptionPlugin extends Plugin {
 
     /**
      * @param {Coordinates} coordinates
-     * @returns {Promise<Place|{ error: string }|undefined>}
+     * @param {HTMLElement} editingElement
+     * @returns {Promise<Place|undefined>}
      */
-    async nearbySearch(coordinates) {
+    async nearbySearch(coordinates, editingElement) {
         const place = this.gpsMapCache.get(coordinates);
         if (place) {
             return place;
         }
 
         const p = coordinates.substring(1).slice(0, -1).split(",");
-        const location = new this.mapsAPI.LatLng(p[0] || 0, p[1] || 0);
-        return new Promise((resolve) => {
-            const placesService = new this.placesAPI.PlacesService(document.createElement("div"));
-            placesService.nearbySearch(
-                {
-                    // Do a 'nearbySearch' followed by 'getDetails' to avoid using
-                    // GMaps Geocoder which the user may not have enabled... but
-                    // ideally Geocoder should be used to get the exact location at
-                    // those coordinates and to limit billing query count.
-                    location,
-                    radius: 1,
+        try {
+            const { places } = await this.placesAPI.Place.searchNearby({
+                // Use 'searchNearby' to avoid relying on the GMaps Geocoder,
+                // which the user may not have enabled... but ideally Geocoder
+                // should be used to get the exact location at those coordinates
+                // and to limit billing query count.
+                fields: ["id", "location", "formattedAddress"],
+                locationRestriction: {
+                    center: { lat: Number(p[0]), lng: Number(p[1]) },
+                    radius: 10,
                 },
-                (results, status) => {
-                    const GMAPS_CRITICAL_ERRORS = [
-                        this.placesAPI.PlacesServiceStatus.REQUEST_DENIED,
-                        this.placesAPI.PlacesServiceStatus.UNKNOWN_ERROR,
-                    ];
-                    if (status === this.placesAPI.PlacesServiceStatus.OK) {
-                        placesService.getDetails(
-                            {
-                                placeId: results[0].place_id,
-                                fields: ["geometry", "formatted_address"],
-                            },
-                            (place, status) => {
-                                if (status === this.placesAPI.PlacesServiceStatus.OK) {
-                                    this.gpsMapCache.set(coordinates, place);
-                                    resolve(place);
-                                } else if (GMAPS_CRITICAL_ERRORS.includes(status)) {
-                                    resolve({ error: status });
-                                } else {
-                                    resolve();
-                                }
-                            }
-                        );
-                    } else if (GMAPS_CRITICAL_ERRORS.includes(status)) {
-                        resolve({ error: status });
-                    } else {
-                        resolve();
-                    }
-                }
-            );
-        });
+                maxResultCount: 1,
+            });
+            if (!places.length) {
+                return;
+            }
+            const placeResult = places[0];
+            const place = {
+                place_id: placeResult.id,
+                formatted_address: placeResult.formattedAddress,
+                geometry: {
+                    location: {
+                        lat: placeResult.location.lat(),
+                        lng: placeResult.location.lng(),
+                    },
+                },
+            };
+            this.gpsMapCache.set(coordinates, place);
+            return place;
+        } catch (error) {
+            console.error(error);
+            this.notifyGMapsError(editingElement);
+            return;
+        }
     }
 
     /**
@@ -290,25 +295,6 @@ export class GoogleMapsOptionPlugin extends Plugin {
     }
     shouldNotRefetchApiKey() {
         this.wasApiKeyInvalidated = false;
-    }
-}
-
-export class ResetMapColorAction extends BuilderAction {
-    static id = "resetMapColor";
-    apply({ editingElement }) {
-        editingElement.dataset.mapColor = "";
-    }
-}
-export class ShowDescriptionAction extends BuilderAction {
-    static id = "showDescription";
-    isApplied({ editingElement }) {
-        return !!editingElement.querySelector(".description");
-    }
-    apply({ editingElement }) {
-        editingElement.append(renderToElement("html_builder.GoogleMapsDescription"));
-    }
-    clean({ editingElement }) {
-        editingElement.querySelector(".description").remove();
     }
 }
 

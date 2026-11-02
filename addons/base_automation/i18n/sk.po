@@ -7,24 +7,39 @@
 # Rastislav Brencic <rastislav.brencic@azet.sk>, 2022
 # Jaroslav Bosansky <jaro.bosansky@ekoenergo.sk>, 2022
 # Martin Trigaux, 2022
-# Weblate <noreply-mt-weblate@weblate.org>, 2025.
-# Tomáš Píšek <Tomas.Pisek@seznam.cz>, 2026.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-03-30 06:19+0000\n"
-"Last-Translator: Tomáš Píšek <Tomas.Pisek@seznam.cz>\n"
-"Language-Team: Slovak <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-08-31 19:38+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Slovak <https://translate.odoo.com/projects/odoo-s19-4/"
 "base_automation/sk/>\n"
 "Language: sk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
-"Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n == 1 ? 0 : n % 1 == 0 && "
-"n >= 2 && n <= 4 ? 1 : n % 1 != 0 ? 2: 3);\n"
-"X-Generator: Weblate 5.16.2\n"
+"Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n == 1 ? 0 : n % 1 == 0 && n "
+">= 2 && n <= 4 ? 1 : n % 1 != 0 ? 2: 3);\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: base_automation
+#: model:ir.module.module,description:base.module_base_automation
+msgid ""
+"\n"
+"This module allows to implement automation rules for any object.\n"
+"================================================================\n"
+"\n"
+"Use automation rules to automatically trigger actions for various screens.\n"
+"\n"
+"**Example:** A lead created by a specific user may be automatically set to a "
+"specific\n"
+"Sales Team, or an opportunity which still has status pending after 14 days "
+"might\n"
+"trigger an automatic reminder email.\n"
+msgstr ""
 
 #. module: base_automation
 #. odoo-javascript
@@ -37,6 +52,7 @@ msgstr ""
 #. module: base_automation
 #. odoo-javascript
 #: code:addons/base_automation/static/src/group_config_menu_patch.js:0
+#, fuzzy
 msgid "\"%s\" tag is added"
 msgstr "\"%s\" štítok pridaný"
 
@@ -88,22 +104,24 @@ msgstr ""
 
 #. module: base_automation
 #: model_terms:ir.ui.view,arch_db:base_automation.view_base_automation_kanban
-msgid "<i class=\"fa fa-2x fa-arrow-right text-primary\" title=\"Actions\"/>"
+msgid ""
+"<i class=\"oi oi-2x text-primary\" data-icon=\"arrow_forward\" "
+"title=\"Actions\"/>"
 msgstr ""
 
 #. module: base_automation
 #: model_terms:ir.ui.view,arch_db:base_automation.view_base_automation_form
 msgid ""
-"<i class=\"fa fa-info-circle\"/> The default target record getter will work "
-"out-of-the-box for any webhook coming from another Odoo instance."
+"<i class=\"oi\" data-icon=\"info\"/> The default target record getter will "
+"work out-of-the-box for any webhook coming from another Odoo instance."
 msgstr ""
 
 #. module: base_automation
 #: model_terms:ir.ui.view,arch_db:base_automation.view_base_automation_form
 msgid ""
-"<i class=\"fa fa-warning\"/> Automation rules triggered by UI changes will "
-"be executed <em>every time</em> the watched fields change, <em>whether you "
-"save or not</em>."
+"<i class=\"oi\" data-icon=\"warning\"/> Automation rules triggered by UI "
+"changes will be executed <em>every time</em> the watched fields change, "
+"<em>whether you save or not</em>."
 msgstr ""
 
 #. module: base_automation
@@ -118,8 +136,9 @@ msgstr ""
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__message_needaction
+#, fuzzy
 msgid "Action Needed"
-msgstr ""
+msgstr "Potrebná akcia"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__action_server_ids
@@ -138,28 +157,39 @@ msgstr "Aktívne"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__activity_ids
+#, fuzzy
 msgid "Activities"
-msgstr ""
+msgstr "Aktivity"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__activity_exception_decoration
+#, fuzzy
 msgid "Activity Exception Decoration"
-msgstr ""
+msgstr "Označenie výnimky v aktivite"
+
+#. module: base_automation
+#: model:ir.model.fields,field_description:base_automation.field_base_automation__activity_plans_ids
+#, fuzzy
+msgid "Activity Plans"
+msgstr "Plány aktivít"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__activity_state
+#, fuzzy
 msgid "Activity State"
-msgstr ""
+msgstr "Stav aktivity"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__activity_type_icon
+#, fuzzy
 msgid "Activity Type Icon"
-msgstr ""
+msgstr "Ikona typu aktivity"
 
 #. module: base_automation
 #: model:ir.model.fields.selection,name:base_automation.selection__base_automation__trg_date_range_mode__after
+#, fuzzy
 msgid "After"
-msgstr ""
+msgstr "Po"
 
 #. module: base_automation
 #: model:ir.model.fields.selection,name:base_automation.selection__base_automation__trigger__on_time_created
@@ -184,8 +214,9 @@ msgstr "Archivovaný"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__message_attachment_count
+#, fuzzy
 msgid "Attachment Count"
-msgstr ""
+msgstr "Počet príloh"
 
 #. module: base_automation
 #: model_terms:ir.actions.act_window,help:base_automation.base_automation_act
@@ -198,8 +229,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:base_automation.field_ir_cron__base_automation_id
 #: model:ir.model.fields.selection,name:base_automation.selection__ir_actions_server__usage__base_automation
 #: model_terms:ir.ui.view,arch_db:base_automation.view_base_automation_form
+#, fuzzy
 msgid "Automation Rule"
-msgstr ""
+msgstr "Pravidlo automatizácie"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__name
@@ -208,6 +240,7 @@ msgstr ""
 
 #. module: base_automation
 #: model:ir.actions.act_window,name:base_automation.base_automation_act
+#: model:ir.module.module,shortdesc:base.module_base_automation
 #: model:ir.ui.menu,name:base_automation.menu_base_automation_form
 #: model_terms:ir.ui.view,arch_db:base_automation.view_base_automation_kanban
 #: model_terms:ir.ui.view,arch_db:base_automation.view_base_automation_tree
@@ -232,8 +265,9 @@ msgstr ""
 
 #. module: base_automation
 #: model:ir.model.fields.selection,name:base_automation.selection__base_automation__trg_date_range_mode__before
+#, fuzzy
 msgid "Before"
-msgstr ""
+msgstr "Predtým"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__filter_pre_domain
@@ -297,8 +331,9 @@ msgstr "Popis"
 #. module: base_automation
 #. odoo-javascript
 #: code:addons/base_automation/static/src/base_automation_error_dialog.xml:0
+#, fuzzy
 msgid "Disable"
-msgstr ""
+msgstr "Zakázať"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__display_name
@@ -310,8 +345,9 @@ msgstr "Zobrazovaný názov"
 #. module: base_automation
 #. odoo-javascript
 #: code:addons/base_automation/static/src/base_automation_error_dialog.xml:0
+#, fuzzy
 msgid "Edit"
-msgstr ""
+msgstr "Upraviť"
 
 #. module: base_automation
 #. odoo-javascript
@@ -330,8 +366,9 @@ msgstr ""
 #. module: base_automation
 #. odoo-javascript
 #: code:addons/base_automation/static/src/base_automation_trigger_selection_field.js:0
+#, fuzzy
 msgid "External"
-msgstr ""
+msgstr "Externé"
 
 #. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__on_change_field_ids
@@ -340,13 +377,15 @@ msgstr "Polia, ktoré spustia výmenu."
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__message_follower_ids
+#, fuzzy
 msgid "Followers"
-msgstr ""
+msgstr "Odberatelia"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__message_partner_ids
+#, fuzzy
 msgid "Followers (Partners)"
-msgstr ""
+msgstr "Odberatelia (partneri)"
 
 #. module: base_automation
 #. odoo-python
@@ -355,19 +394,16 @@ msgid "Following child actions have warnings: %(children)s"
 msgstr ""
 
 #. module: base_automation
-#: model:ir.model.fields,help:base_automation.field_base_automation__activity_type_icon
-msgid "Font awesome icon e.g. fa-tasks"
-msgstr ""
-
-#. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__model_is_mail_thread
+#, fuzzy
 msgid "Has Mail Thread"
-msgstr ""
+msgstr "Má e-mailovú konverzáciu"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__has_message
+#, fuzzy
 msgid "Has Message"
-msgstr ""
+msgstr "Má správu"
 
 #. module: base_automation
 #: model:ir.model.fields.selection,name:base_automation.selection__base_automation__trg_date_range_type__hour
@@ -383,24 +419,28 @@ msgstr "ID"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__activity_exception_icon
+#, fuzzy
 msgid "Icon"
-msgstr ""
+msgstr "Ikona"
 
 #. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__activity_exception_icon
+#, fuzzy
 msgid "Icon to indicate an exception activity."
-msgstr ""
+msgstr "Ikona indikujúca výnimočnú aktivitu."
 
 #. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__message_needaction
+#, fuzzy
 msgid "If checked, new messages require your attention."
-msgstr ""
+msgstr "Ak označené, potom nové správy vyžadujú vašu pozornosť."
 
 #. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__message_has_error
 #: model:ir.model.fields,help:base_automation.field_base_automation__message_has_sms_error
+#, fuzzy
 msgid "If checked, some messages have a delivery error."
-msgstr ""
+msgstr "Ak označené, potom majú niektoré správy chybu dodania."
 
 #. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__filter_domain
@@ -430,8 +470,9 @@ msgstr ""
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__message_is_follower
+#, fuzzy
 msgid "Is Follower"
-msgstr ""
+msgstr "Odberateľ"
 
 #. module: base_automation
 #: model_terms:ir.ui.view,arch_db:base_automation.view_base_automation_form
@@ -472,14 +513,21 @@ msgid ""
 msgstr ""
 
 #. module: base_automation
+#: model:ir.model.fields,help:base_automation.field_base_automation__activity_type_icon
+msgid "Material Symbols icon e.g. checklist"
+msgstr ""
+
+#. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__message_has_error
+#, fuzzy
 msgid "Message Delivery error"
-msgstr "Chyba doručenia správy"
+msgstr "Chyba zobrazovania správ"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__message_ids
+#, fuzzy
 msgid "Messages"
-msgstr ""
+msgstr "Správy"
 
 #. module: base_automation
 #: model:ir.model.fields.selection,name:base_automation.selection__base_automation__trg_date_range_type__minutes
@@ -511,28 +559,33 @@ msgstr "Mesiace"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__my_activity_date_deadline
+#, fuzzy
 msgid "My Activity Deadline"
-msgstr ""
+msgstr "Termín mojej aktivity"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__activity_calendar_event_id
+#, fuzzy
 msgid "Next Activity Calendar Event"
-msgstr ""
+msgstr "Kalendár ďalších aktivít eventu"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__activity_date_deadline
+#, fuzzy
 msgid "Next Activity Deadline"
-msgstr ""
+msgstr "Ďalší konečný termín aktivity"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__activity_summary
+#, fuzzy
 msgid "Next Activity Summary"
-msgstr ""
+msgstr "Zhrnutie ďalšej aktivity"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__activity_type_id
+#, fuzzy
 msgid "Next Activity Type"
-msgstr ""
+msgstr "Typ ďalšej aktivity"
 
 #. module: base_automation
 #. odoo-python
@@ -547,23 +600,27 @@ msgstr "Poznámky"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__message_needaction_counter
+#, fuzzy
 msgid "Number of Actions"
-msgstr ""
+msgstr "Počet akcií"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__message_has_error_counter
+#, fuzzy
 msgid "Number of errors"
-msgstr ""
+msgstr "Počet chýb"
 
 #. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__message_needaction_counter
+#, fuzzy
 msgid "Number of messages requiring action"
-msgstr ""
+msgstr "Počet správ, ktoré vyžadujú akciu"
 
 #. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__message_has_error_counter
+#, fuzzy
 msgid "Number of messages with delivery error"
-msgstr ""
+msgstr "Počet doručených správ s chybou"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__on_change_field_ids
@@ -632,8 +689,9 @@ msgstr ""
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__rating_ids
+#, fuzzy
 msgid "Ratings"
-msgstr ""
+msgstr "Hodnotenia"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__record_getter
@@ -642,29 +700,29 @@ msgstr ""
 
 #. module: base_automation
 #: model_terms:ir.ui.view,arch_db:base_automation.view_base_automation_form
+#, fuzzy
 msgid "Renew"
-msgstr ""
+msgstr "Obnoviť"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__activity_user_id
+#, fuzzy
 msgid "Responsible User"
-msgstr ""
+msgstr "Zodpovedný užívateľ"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__message_has_sms_error
+#, fuzzy
 msgid "SMS Delivery error"
-msgstr ""
+msgstr "Chyba doručenia SMS"
 
 #. module: base_automation
 #. odoo-python
 #: code:addons/base_automation/models/base_automation.py:0
-msgid "Scheduled Action"
-msgstr ""
-
-#. module: base_automation
 #: model:ir.model,name:base_automation.model_ir_cron
-msgid "Scheduled Actions"
-msgstr ""
+#, fuzzy
+msgid "Scheduled Action"
+msgstr "Naplánované akcie"
 
 #. module: base_automation
 #: model_terms:ir.ui.view,arch_db:base_automation.view_base_automation_form
@@ -750,12 +808,17 @@ msgstr ""
 
 #. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__activity_state
+#, fuzzy
 msgid ""
 "Status based on activities\n"
 "Overdue: Due date is already passed\n"
 "Today: Activity date is today\n"
 "Planned: Future activities."
 msgstr ""
+"Status založený na aktivitách\n"
+"Zmeškané: dátum už vypršal\n"
+"Dnes: dátum aktivity je dnes\n"
+"Plán: budúce aktivity"
 
 #. module: base_automation
 #: model:ir.model.fields.selection,name:base_automation.selection__base_automation__trigger__on_tag_set
@@ -855,8 +918,9 @@ msgstr ""
 
 #. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__activity_exception_decoration
+#, fuzzy
 msgid "Type of the exception activity on record."
-msgstr ""
+msgstr "Typ výnimočnej aktivity v zázname."
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__url
@@ -914,21 +978,14 @@ msgid "Webhook UUID"
 msgstr ""
 
 #. module: base_automation
-#: model:ir.model.fields,field_description:base_automation.field_base_automation__website_message_ids
-msgid "Website Messages"
-msgstr ""
-
-#. module: base_automation
-#: model:ir.model.fields,help:base_automation.field_base_automation__website_message_ids
-msgid "Website communication history"
-msgstr ""
-
-#. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__trg_date_calendar_id
+#, fuzzy
 msgid ""
 "When calculating a day-based timed condition, it is possible to use a "
 "calendar to compute the date based on working days."
 msgstr ""
+"Pri výpočte podmienky založenej na dennej báze, je možné použiť kalendár pre "
+"výpočet dátumu na základe pracovných dní."
 
 #. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__trg_date_id
@@ -986,41 +1043,10 @@ msgstr ""
 msgid "path"
 msgstr ""
 
-#~ msgid "Action Name"
-#~ msgstr "Názov akcie"
+#, fuzzy
+msgid "Website Messages"
+msgstr "Správy webstránok"
 
-#~ msgid "Delay after trigger date"
-#~ msgstr "Meškanie po dátume spustenia"
-
-#~ msgid "Delay type"
-#~ msgstr "Typ meškania"
-
-#~ msgid "Email"
-#~ msgstr "Email"
-
-#~ msgid ""
-#~ "If present, this condition must be satisfied before the update of the "
-#~ "record."
-#~ msgstr ""
-#~ "Ak prítomné, táto podmienka musí byť naplnená pred aktualizáciou záznamu."
-
-#~ msgid "Least Delay Msg"
-#~ msgstr "Najmenej oneskorenie Msg"
-
-#~ msgid "Send SMS Text Message"
-#~ msgstr "Poslať SMS textovú správu"
-
-#~ msgid "Send email"
-#~ msgstr "Poslať mail"
-
-#~ msgid "Type"
-#~ msgstr "Typ"
-
-#~ msgid "URL"
-#~ msgstr "URL"
-
-#~ msgid "Update"
-#~ msgstr "Aktualizácia"
-
-#~ msgid "Weeks"
-#~ msgstr "Týždne"
+#, fuzzy
+msgid "Website communication history"
+msgstr "História komunikácie webstránok"

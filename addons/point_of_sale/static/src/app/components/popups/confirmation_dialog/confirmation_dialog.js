@@ -1,9 +1,12 @@
-import { AlertDialog, ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
+import {
+    alertDialogProps,
+    ConfirmationDialog,
+    confirmationDialogProps,
+} from "@web/core/confirmation_dialog/confirmation_dialog";
+import { t } from "@odoo/owl";
 import { patch } from "@web/core/utils/patch";
 import { logPosMessage } from "@point_of_sale/app/utils/pretty_console_log";
-import { SyncPopup } from "@point_of_sale/app/components/popups/sync_popup/sync_popup";
 import { usePos } from "@point_of_sale/app/hooks/pos_hook";
-import { _t } from "@web/core/l10n/translation";
 
 patch(ConfirmationDialog.prototype, {
     setup() {
@@ -31,31 +34,19 @@ patch(ConfirmationDialog.prototype, {
                 logPosMessage("Failed to sync orders:", error);
             }
         }
-        this.pos.dialog.add(SyncPopup, {
-            title: _t("Reload Data"),
-            confirm: (fullReload) => this.pos.reloadData(fullReload),
-        });
+        this.pos.reloadData();
     },
 });
 
-ConfirmationDialog.props = {
-    ...ConfirmationDialog.props,
-    getPayload: { type: Function, optional: true },
-    showReloadButton: { type: Boolean, optional: true },
-};
+Object.assign(confirmationDialogProps, {
+    getPayload: t.function().optional(),
+    showReloadButton: t.boolean().optional(false),
+    backdrop: t.boolean().optional(false),
+});
 
-ConfirmationDialog.defaultProps = {
-    ...ConfirmationDialog.defaultProps,
-    showReloadButton: false,
-};
-
-AlertDialog.props = {
-    ...AlertDialog.props,
-    getPayload: { type: Function, optional: true },
-    showReloadButton: { type: Boolean, optional: true },
-};
-
-AlertDialog.defaultProps = {
-    ...AlertDialog.defaultProps,
-    showReloadButton: false,
-};
+Object.assign(alertDialogProps, {
+    getPayload: t.function().optional(),
+    showReloadButton: t.boolean().optional(false),
+    size: t.string().optional("md"),
+    backdrop: t.boolean().optional(false),
+});

@@ -12,7 +12,7 @@
                 <field name="expected_hours" widget="float_time"/>
                 <field name="worked_hours" widget="float_time"/>
                 <field name="leave_hours" widget="float_time"/>
-                <field name="leave_type_names" optional="hide" groups="hr_holidays.group_hr_holidays_user"/>
+                <field name="work_entry_type_names" optional="hide" groups="hr_holidays.group_hr_holidays_user"/>
                 <field name="difference_hours" widget="float_time" decoration-danger="difference_hours &lt; 0"
                     decoration-success="difference_hours &gt;= 0" decoration-bf="True"/>
             </list>
@@ -61,16 +61,13 @@
                                     <field name="check_in"/>
                                     <field name="check_out"/>
                                     <field name="worked_hours" widget="float_time"/>
-                                    <field name="overtime_hours" string="Worked Extra Hours" widget="float_time"
-                                        optional="hide"/>
-                                    <field name="validated_overtime_hours" widget="float_time" optional="hide"/>
                                 </list>
                             </field>
                         </page>
                         <page name="leaves" string="Approved Time Offs">
                             <field name="leave_ids">
                                 <list>
-                                    <field name="holiday_status_id"/>
+                                    <field name="work_entry_type_id"/>
                                     <field name="date_from"/>
                                     <field name="date_to"/>
                                     <field name="duration_display" string="Duration"/>
@@ -99,7 +96,7 @@
                 <separator/>
                 <filter string="Archived Employees" name="archived_employees"
                     domain="[('active', '=', False)]"/>
-                <group name="groupby">
+                <group>
                     <filter string="Date" name="group_by_date" context="{'group_by': 'date'}"/>
                     <filter string="Employees" name="group_by_employees" context="{'group_by': 'employee_id'}"/>
                     <separator/>

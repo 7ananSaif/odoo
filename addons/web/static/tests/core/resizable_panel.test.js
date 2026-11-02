@@ -1,7 +1,7 @@
 import { describe, expect, test } from "@odoo/hoot";
 import { drag, queryOne, queryRect, resize } from "@odoo/hoot-dom";
 import { animationFrame } from "@odoo/hoot-mock";
-import { Component, reactive, xml } from "@odoo/owl";
+import { Component, proxy, useProps, xml } from "@odoo/owl";
 import { mountWithCleanup } from "@web/../tests/web_test_helpers";
 import { ResizablePanel } from "@web/core/resizable_panel/resizable_panel";
 
@@ -17,7 +17,6 @@ test("Width cannot exceed viewport width", async () => {
                 <p>Paragraph</p>
             </ResizablePanel>
         `;
-        static props = ["*"];
     }
 
     await mountWithCleanup(Parent);
@@ -43,7 +42,6 @@ test("handles right-to-left", async () => {
                 </ResizablePanel>
             </div>
         `;
-        static props = ["*"];
     }
 
     await mountWithCleanup(Parent);
@@ -73,7 +71,6 @@ test("handles resize handle at start in fixed position", async () => {
                 </ResizablePanel>
             </div>
         `;
-        static props = ["*"];
     }
 
     await mountWithCleanup(Parent);
@@ -107,7 +104,6 @@ test("resizing the window adapts the panel", async () => {
                 </ResizablePanel>
             </div>
         `;
-        static props = ["*"];
     }
 
     await mountWithCleanup(Parent);
@@ -130,16 +126,16 @@ test("minWidth props can be updated", async () => {
         static components = { ResizablePanel };
         static template = xml`
             <div class="d-flex">
-                <ResizablePanel minWidth="props.state.minWidth">
+                <ResizablePanel minWidth="this.props.state.minWidth">
                     <div style="width: 10px;" class="text-break">
                         A cool paragraph
                     </div>
                 </ResizablePanel>
             </div>
         `;
-        static props = ["*"];
+        props = useProps();
     }
-    const state = reactive({ minWidth: 20 });
+    const state = proxy({ minWidth: 20 });
     await mountWithCleanup(Parent, {
         props: { state },
     });
@@ -162,4 +158,21 @@ test("minWidth props can be updated", async () => {
         },
     });
     expect(".o_resizable_panel").toHaveRect({ width: 40 });
+});
+
+test("default to minWidth if initialWidth is smaller than minWidth", async () => {
+    class Parent extends Component {
+        static components = { ResizablePanel };
+        static template = xml`
+            <div class="d-flex">
+                <ResizablePanel minWidth="200" initialWidth="100">
+                    <div style="width: 10px;" class="text-break">
+                        A cool paragraph
+                    </div>
+                </ResizablePanel>
+            </div>
+        `;
+    }
+    await mountWithCleanup(Parent);
+    expect(".o_resizable_panel").toHaveRect({ width: 200 });
 });

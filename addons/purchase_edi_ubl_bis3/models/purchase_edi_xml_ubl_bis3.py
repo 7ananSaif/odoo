@@ -67,15 +67,6 @@ class PurchaseEdiXmlUbl_Bis3(models.AbstractModel):
         for base_line in vals['base_lines']:
             base_line['_ubl_values'] = {}
 
-        # Global rounding of tax_details using 6 digits.
-        AccountTax._round_raw_total_excluded(vals['base_lines'], company)
-        AccountTax._round_raw_total_excluded(vals['base_lines'], company, in_foreign_currency=False)
-        AccountTax._add_and_round_raw_gross_total_excluded_and_discount(vals['base_lines'], company)
-        AccountTax._add_and_round_raw_gross_total_excluded_and_discount(vals['base_lines'], company, in_foreign_currency=False)
-        AccountTax._round_raw_gross_total_excluded_and_discount(vals['base_lines'], company)
-        AccountTax._round_raw_gross_total_excluded_and_discount(vals['base_lines'], company, in_foreign_currency=False)
-
-        for base_line in vals['base_lines']:
             product = base_line['product_id']
             partner = base_line['partner_id']
             supplier_info = product.variant_seller_ids.filtered(lambda s:
@@ -87,6 +78,14 @@ class PurchaseEdiXmlUbl_Bis3(models.AbstractModel):
                 and (s.product_code or s.product_name),
             )[:1]
             base_line['supplier_info'] = supplier_info
+
+        # Global rounding of tax_details using 6 digits.
+        AccountTax._round_raw_total_excluded(vals['base_lines'], company)
+        AccountTax._round_raw_total_excluded(vals['base_lines'], company, in_foreign_currency=False)
+        AccountTax._add_and_round_raw_gross_total_excluded_and_discount(vals['base_lines'], company)
+        AccountTax._add_and_round_raw_gross_total_excluded_and_discount(vals['base_lines'], company, in_foreign_currency=False)
+        AccountTax._round_raw_gross_total_excluded_and_discount(vals['base_lines'], company)
+        AccountTax._round_raw_gross_total_excluded_and_discount(vals['base_lines'], company, in_foreign_currency=False)
 
     def _add_purchase_order_config_vals(self, vals):
         purchase_order = vals['purchase_order']
@@ -302,11 +301,18 @@ class PurchaseEdiXmlUbl_Bis3(models.AbstractModel):
 
         item_node = vals['item_node']
         base_line = vals['line_vals']['base_line']
+        product = base_line['product_id']
+
+        item_node['cac:BuyersItemIdentification'] = {
+            'cbc:ID': {'_text': product.default_code or product.id},
+        }
+
+        # When generating purchase order (PO) we are not considered as the seller of the sale but
+        # buyer. The `SellersItemIdentification` is therefore the PO's partner product ID.
         supplier_info = base_line['supplier_info']
-        if supplier_info.product_code:
-            item_node['cac:SellersItemIdentification'] = {
-                'cbc:ID': {'_text': supplier_info.product_code},
-            }
+        item_node['cac:SellersItemIdentification'] = {
+            'cbc:ID': {'_text': supplier_info.product_code or None},
+        }
 
     def _add_purchase_order_line_item_nodes(self, line_node, vals):
         # OVERRIDE
@@ -369,6 +375,9 @@ class PurchaseEdiXmlUbl_Bis3(models.AbstractModel):
         lines_vals, line_logs = self._import_lines(order, tree, './{*}OrderLine/{*}LineItem', document_type='order', tax_type='purchase')
         # adapt each line to purchase.order.line
         for line in lines_vals:
+            # line level charges do not have product_uom_id
+            if line.get('product_uom_id'):
+                line['uom_id'] = line.pop('product_uom_id')
             # remove invoice line fields
             line.pop('deferred_start_date', False)
             line.pop('deferred_end_date', False)
@@ -382,9 +391,9 @@ class PurchaseEdiXmlUbl_Bis3(models.AbstractModel):
 
         return order_vals, logs
 
-    def _retrieve_line_vals(self, tree, document_type=False, qty_factor=1):
+    def _retrieve_line_vals(self, record, tree, document_type=False, qty_factor=1):
         """Override of `account.edi.common` to adapt dictionary keys from the base method to be
         compatible with the `purchase.order.line` model."""
-        line_vals = super()._retrieve_line_vals(tree, document_type, qty_factor)
+        line_vals = super()._retrieve_line_vals(record, tree, document_type, qty_factor)
         line_vals['product_qty'] = line_vals.pop('quantity')
         return line_vals

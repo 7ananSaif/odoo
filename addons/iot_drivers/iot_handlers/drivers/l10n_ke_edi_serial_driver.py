@@ -8,7 +8,7 @@ import json
 from functools import reduce
 
 from odoo import http
-from odoo.addons.iot_drivers.iot_handlers.drivers.serial_base_driver import SerialDriver, SerialProtocol, serial_connection
+from odoo.addons.iot_drivers.iot_handlers.drivers.serial_driver_base import SerialDriver, SerialProtocol, serial_connection
 from odoo.addons.iot_drivers.main import iot_devices
 from odoo.addons.iot_drivers.tools import route
 
@@ -108,8 +108,10 @@ class TremolG03Driver(SerialDriver):
 
         except serial.serialutil.SerialTimeoutException:
             pass
-        except Exception:
-            _logger.exception('Error while probing %s with protocol %s', device, protocol.name)
+        except Exception:  # noqa: BLE001
+            _logger.warning(
+                "Error while probing %s with protocol %s", device, protocol.name,
+            )
 
     # ----------------
     # HELPERS

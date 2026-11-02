@@ -1,5 +1,6 @@
 div.o_product_catalog_quantity {
     input[type="number"] {
+        width: 9ch;
         // Remove arrow buttons input type="number"
         appearance: textfield;
         &::-webkit-outer-spin-button,
@@ -7,6 +8,14 @@ div.o_product_catalog_quantity {
             appearance: none;
             margin: 0;
         }
+    }
+    select.form-select {
+        flex: 0 0 auto;
+        max-width: 20ch;
+        text-overflow: ellipsis;
+        // Restore form-select's right padding (overridden by input-group-text's symmetric padding).
+        padding-right: 1.5rem;
+        background-position: right 0.25rem center;
     }
 }
 

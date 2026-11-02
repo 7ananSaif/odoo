@@ -1,6 +1,6 @@
 import { Plugin } from "@html_editor/plugin";
-import { useComponent } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
+import { useEnv } from "@web/owl2/utils";
 import { Operation } from "./operation";
 
 /** @typedef {import("./operation").OperationParams} OperationParams */
@@ -12,12 +12,12 @@ import { Operation } from "./operation";
 
 export class OperationPlugin extends Plugin {
     static id = "operation";
-    static dependencies = ["history"];
-    static shared = ["next", "hasTimedOut"];
+    static dependencies = ["domObserver", "history"];
+    static shared = ["addLoadingElement", "next", "hasTimedOut"];
 
     setup() {
         this._hasTimedOut = false;
-        this.operation = new Operation(this.document);
+        this.operation = new Operation(this.document, () => this.config.extraPreviewDocument);
 
         // Revert any potential preview as soon as the user does anything, to
         // avoid losing what the user will have done when they ends the preview.
@@ -25,6 +25,20 @@ export class OperationPlugin extends Plugin {
         // this may lose the user input while the apply was running
         this.addDomListener(this.editable, "keydown", () => this.next());
         this.addDomListener(this.editable, "beforeinput", () => this.next());
+
+        // We want to hide the loading screen if the ui gets blocked, to avoid
+        // multiple loading screens
+        const ui = this.services.ui;
+        const onBlockUI = this.operation.onBlockUI.bind(this.operation);
+        const onUnblockUI = this.operation.onUnblockUI.bind(this.operation);
+
+        ui.bus.addEventListener("BLOCK", onBlockUI);
+        ui.bus.addEventListener("UNBLOCK", onUnblockUI);
+
+        this._cleanups.push(() => {
+            ui.bus.removeEventListener("BLOCK", onBlockUI);
+            ui.bus.removeEventListener("UNBLOCK", onUnblockUI);
+        });
     }
 
     /**
@@ -51,6 +65,13 @@ export class OperationPlugin extends Plugin {
         return result;
     }
 
+    /**
+     * @see Operation.addLoadingElement
+     */
+    addLoadingElement(...args) {
+        return this.operation.addLoadingElement(...args);
+    }
+
     onTimeout(rollback) {
         rollback();
 
@@ -71,11 +92,11 @@ export class OperationPlugin extends Plugin {
 }
 
 export function useOperation() {
-    const comp = useComponent();
+    const env = useEnv();
     return (apply, ...args) => {
-        comp.env.editor.shared.operation.next(async (...args) => {
+        env.editor.shared.operation.next(async (...args) => {
             await apply(...args);
-            comp.env.editor.shared.history.addStep();
+            env.editor.shared.history.commit();
         }, ...args);
     };
 }

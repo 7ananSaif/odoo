@@ -1,17 +1,44 @@
+import { isListItem } from "@html_editor/main/list/utils";
 import { callbacksForCursorUpdate } from "@html_editor/utils/selection";
 import { Plugin } from "../plugin";
-import { isBlock } from "../utils/blocks";
+import { isBlock, closestBlock } from "../utils/blocks";
 import { fillEmpty, splitTextNode } from "../utils/dom";
 import {
+    allowsParagraphRelatedElements,
     isContentEditable,
     isContentEditableAncestor,
+    isPhrasingContent,
+    isElement,
     isTextNode,
     isVisible,
 } from "../utils/dom_info";
-import { prepareUpdate } from "../utils/dom_state";
-import { childNodes, closestElement, firstLeaf, lastLeaf, findUpTo } from "../utils/dom_traversal";
+import { prepareUpdate, isFakeLineBreak } from "../utils/dom_state";
+import {
+    childNodes,
+    closestElement,
+    firstLeaf,
+    lastLeaf,
+    ancestors,
+    createDOMPathGenerator,
+    descendants,
+    findUpTo,
+} from "../utils/dom_traversal";
 import { DIRECTIONS, childNodeIndex, nodeSize } from "../utils/position";
 import { isProtected, isProtecting } from "@html_editor/utils/dom_info";
+import { isBrowserSafari } from "@web/core/browser/feature_detection";
+
+const isInList = (node, editable) =>
+    ancestors(node, editable).find((ancestor) => isListItem(ancestor));
+const isLineBreak = (node) => node.nodeName === "BR" && !isFakeLineBreak(node);
+const [getPreviousLeavesInBlock, getNextLeavesInBlock] = [DIRECTIONS.LEFT, DIRECTIONS.RIGHT]
+    .map((direction) =>
+        createDOMPathGenerator(direction, {
+            leafOnly: true,
+            stopTraverseFunction: isBlock,
+            stopFunction: isBlock,
+        })
+    )
+    .map((path) => (node, offset) => [...path(node, offset)]);
 
 /**
  * @typedef { Object } SplitShared
@@ -22,15 +49,16 @@ import { isProtected, isProtecting } from "@html_editor/utils/dom_info";
  * @property { SplitPlugin['splitElement'] } splitElement
  * @property { SplitPlugin['splitElementBlock'] } splitElementBlock
  * @property { SplitPlugin['splitSelection'] } splitSelection
+ * @property { SplitPlugin['splitBlockSegments'] } splitBlockSegments
  */
 
 /**
- * @typedef {(({element: HTMLElement, secondPart: HTMLElement}) => void)[]} after_split_element_handlers
- * @typedef {(() => void)[]} before_split_block_handlers
+ * @typedef {(({element: HTMLElement, secondPart: HTMLElement}) => void)[]} on_element_split_handlers
+ * @typedef {(() => void)[]} on_will_split_block_handlers
  *
  * @typedef {((params: { targetNode: Node, targetOffset: number, blockToSplit: HTMLElement | null }) => void | true)[]} split_element_block_overrides
  *
- * @typedef {((node: Node) => boolean)[]} unsplittable_node_predicates
+ * @typedef {((node: Node) => boolean | undefined)[]} is_node_splittable_predicates
  */
 
 export class SplitPlugin extends Plugin {
@@ -44,24 +72,30 @@ export class SplitPlugin extends Plugin {
         "splitAroundUntil",
         "splitSelection",
         "isUnsplittable",
+        "splitBlockSegments",
     ];
     /** @type {import("plugins").EditorResources} */
     resources = {
-        beforeinput_handlers: this.onBeforeInput.bind(this),
+        on_beforeinput_handlers: this.onBeforeInput.bind(this),
 
-        unsplittable_node_predicates: [
+        is_node_splittable_predicates: [
             // An unremovable element is also unmergeable (as merging two
             // elements results in removing one of them).
             // An unmergeable element is unsplittable and vice-versa (as
             // split and merge are reverse operations from one another).
             // Therefore, unremovable nodes are also unsplittable.
-            (node) =>
-                this.getResource("unremovable_node_predicates").some((predicate) =>
-                    predicate(node)
-                ),
+            (node) => {
+                if (this.dependencies.delete.isUnremovable(node)) {
+                    return false;
+                }
+            },
             // "Unbreakable" is a legacy term that means unsplittable and
             // unmergeable.
-            (node) => node.classList?.contains("oe_unbreakable"),
+            (node) => {
+                if (node.classList?.contains("oe_unbreakable")) {
+                    return false;
+                }
+            },
             (node) => {
                 const isExplicitlyNotContentEditable = (node) =>
                     // In the `contenteditable` attribute consideration,
@@ -69,7 +103,7 @@ export class SplitPlugin extends Plugin {
                     // explicitly set under a contenteditable="false" element.
                     !isContentEditable(node) &&
                     (node.isConnected || closestElement(node, "[contenteditable]"));
-                return (
+                if (
                     isExplicitlyNotContentEditable(node) ||
                     // If node sets contenteditable='true' and is inside a non-editable
                     // context, it has to be unsplittable since splitting it would modify
@@ -77,22 +111,35 @@ export class SplitPlugin extends Plugin {
                     (node.parentElement &&
                         isContentEditableAncestor(node) &&
                         isExplicitlyNotContentEditable(node.parentElement))
-                );
+                ) {
+                    return false;
+                }
             },
-            (node) => node.nodeName === "SECTION",
+            (node) => {
+                if (node.nodeName === "SECTION") {
+                    return false;
+                }
+            },
         ],
-        selection_blocker_predicates: (blocker) => {
+        is_selection_blocker_predicates: (blocker) => {
             if (this.isUnsplittable(blocker)) {
                 return true;
             }
         },
     };
 
+    setup() {
+        super.setup();
+        if (isBrowserSafari()) {
+            this.addDomListener(this.editable, "keydown", this.onKeyDown);
+        }
+    }
+
     // --------------------------------------------------------------------------
     // commands
     // --------------------------------------------------------------------------
     splitBlock() {
-        this.dispatchTo("before_split_block_handlers");
+        this.trigger("on_will_split_block_handlers");
         let selection = this.dependencies.selection.getSelectionData().deepEditableSelection;
         if (!selection.isCollapsed) {
             // @todo @phoenix collapseIfZWS is not tested
@@ -186,13 +233,12 @@ export class SplitPlugin extends Plugin {
      * @returns {boolean}
      */
     isUnsplittable(node) {
-        return this.getResource("unsplittable_node_predicates").some((p) => p(node));
+        return !(this.checkPredicates("is_node_splittable_predicates", node) ?? true);
     }
 
     /**
-     * Split the given element at the given offset. The element will be removed in
-     * the process so caution is advised in dealing with its reference. Returns a
-     * tuple containing the new elements on both sides of the split.
+     * Split the given element at the given offset. Returns a tuple containing
+     * the new elements on both sides of the split.
      *
      * @param {HTMLElement} element
      * @param {number} offset
@@ -201,27 +247,17 @@ export class SplitPlugin extends Plugin {
     splitElement(element, offset) {
         const cursor = this.dependencies.selection.preserveSelection();
         /** @type {HTMLElement} **/
-        const firstPart = element.cloneNode();
-        /** @type {HTMLElement} **/
         const secondPart = element.cloneNode();
-        cursor.update(callbacksForCursorUpdate.before(element, firstPart));
-        element.before(firstPart);
-        cursor.update(callbacksForCursorUpdate.after(element, secondPart));
-        element.after(secondPart);
         const children = childNodes(element);
-        for (const node of children.slice(0, offset)) {
-            cursor.update(callbacksForCursorUpdate.append(firstPart, node));
-            firstPart.appendChild(node);
-        }
         for (const node of children.slice(offset)) {
             cursor.update(callbacksForCursorUpdate.append(secondPart, node));
             secondPart.appendChild(node);
         }
-        cursor.update(callbacksForCursorUpdate.remove(element));
-        element.remove();
-        this.dispatchTo("after_split_element_handlers", { firstPart, secondPart });
+        cursor.update(callbacksForCursorUpdate.after(element, secondPart));
+        element.after(secondPart);
+        this.trigger("on_element_split_handlers", { element, secondPart });
         cursor.restore();
-        return [firstPart, secondPart];
+        return [element, secondPart];
     }
 
     /**
@@ -255,7 +291,7 @@ export class SplitPlugin extends Plugin {
      * Split around the given elements, until a given ancestor (included). Elements
      * will be removed in the process so caution is advised in dealing with their
      * references. Returns the new split root element that is a clone of
-     * limitAncestor or the original limitAncestor if no split occured.
+     * limitAncestor or the original limitAncestor if no split occurred.
      *
      * @param {Node[] | Node} elements
      * @param {HTMLElement} limitAncestor
@@ -305,6 +341,29 @@ export class SplitPlugin extends Plugin {
         return beforeSplit || afterSplit || limitAncestor;
     }
 
+    /**
+     * Fix for stable to remove empty nodes created by `splitAroundUntil`
+     * and properly manage the cursor.
+     * @param {Node} node
+     * @param {HTMLElement} limitAncestor
+     * @returns { Node }
+     */
+    fixSplitAroundUntilEmptyNodes(node, cursors) {
+        node &&
+            descendants(node)
+                .filter(
+                    (node) =>
+                        isElement(node) &&
+                        node.childNodes.length &&
+                        [...node.childNodes].every((n) => isTextNode(n)) &&
+                        !node.textContent.replaceAll("\ufeff", "")
+                )
+                .forEach((node) => {
+                    cursors?.update(callbacksForCursorUpdate.remove(node));
+                    node.remove();
+                });
+    }
+
     splitSelection() {
         let { startContainer, startOffset, endContainer, endOffset, direction } =
             this.dependencies.selection.getEditableSelection();
@@ -347,11 +406,119 @@ export class SplitPlugin extends Plugin {
         return this.dependencies.selection.setSelection(selection, { normalize: false });
     }
 
+    /**
+     * Split in order to isolate any block segment in the selection. A block
+     * segment forms a deliberate line in the content, separated using line
+     * breaks. A line break in a list item cannot create block segments as the
+     * list item visually marks its own segment (with a bullet point).
+     *
+     * eg: `<p>a<br>b<br>[c<br>d<br>e]<br>f<br>g</p>` marks seven line segments
+     * (one per letter). The selection contains 3 line segments, which will be
+     * isolated like this:
+     * `<p>a<br>b</p><p>[c</p><p>d</p><p>e]</p><p>f<br>g</p>`.
+     */
+    splitBlockSegments() {
+        const { setSelection, getEditableSelection } = this.dependencies.selection;
+        const { startContainer, startOffset, endContainer, endOffset } = getEditableSelection();
+
+        const brs = [
+            // BR before the selection:
+            getPreviousLeavesInBlock(startContainer, startOffset).find(isLineBreak),
+            // Selected BRs:
+            ...this.dependencies.selection.getTargetedNodes(),
+            // BR after the selection:
+            getNextLeavesInBlock(endContainer, endOffset).find(isLineBreak),
+        ].filter((node) => node && isLineBreak(node) && !isInList(node, this.editable));
+        for (const br of brs) {
+            let block = closestBlock(br);
+            if (!block?.isContentEditable) {
+                continue;
+            }
+
+            // Check if we can split at this line break.
+            const unsplittable = ancestors(br, block).find(this.isUnsplittable.bind(this));
+            const canWrapInUnsplittable = allowsParagraphRelatedElements(unsplittable);
+            if (unsplittable) {
+                if (canWrapInUnsplittable) {
+                    // If splitting here would split an unsplittable element,
+                    // remove the line break and wrap the content around it in
+                    // new base containers.
+                    const cursors = this.dependencies.selection.preserveSelection();
+                    const children = [...unsplittable.childNodes];
+                    const brIndex = childNodeIndex(br);
+                    // Wrap only until the first node that can't be wrapped, in
+                    // both directions.
+                    const isInvalid = (node) => !isPhrasingContent(node);
+                    const startInvalid = children.slice(0, brIndex).findLast(isInvalid);
+                    const endInvalid = children.slice(brIndex + 1).find(isInvalid);
+                    const childrenToInsert = children.slice(
+                        startInvalid ? childNodeIndex(startInvalid) + 1 : 0,
+                        endInvalid ? childNodeIndex(endInvalid) : children.length
+                    );
+                    // The new base container will become the new block parent
+                    // of the BR.
+                    block = this.dependencies.baseContainer.createBaseContainer();
+                    childrenToInsert[0]?.before(block);
+                    block.replaceChildren(...childrenToInsert);
+                    cursors.restore();
+                } else {
+                    // If we can't insert a base container here, there's nothing
+                    // we can do.
+                    continue;
+                }
+            }
+
+            // Now let's split at the line break.
+            const cursors = this.dependencies.selection.preserveSelection();
+            let { anchorNode, anchorOffset, focusNode, focusOffset } = getEditableSelection();
+            const isVisibleEmptyLine = br.previousSibling && isLineBreak(br.previousSibling);
+            const brIndex = childNodeIndex(br) + (isVisibleEmptyLine ? 1 : 0);
+            const oldParent = br.parentElement;
+            const [before, after] = this.splitElementUntil(oldParent, brIndex, block.parentElement);
+            // If the `br` if after another it means it is showing an empty like break
+            // so we don't remove it.
+            if (!isVisibleEmptyLine) {
+                br.remove();
+            }
+            [before, after].forEach(fillEmpty);
+
+            // Restore the selection.
+            if ([anchorNode, focusNode].some((node) => node === oldParent)) {
+                // We can't use `cursors.remapNode` here because the old parent
+                // was split into two new nodes.
+                // eg, `<p>[a<br>b]</p>` with selection (p, 0, p, 3) ->
+                // `<p>[a</p><p>b]</p>` -> anchor p !== focus p.
+                const remapPos = (i) => (i <= brIndex ? [before, 0] : [after, i - brIndex - 1]);
+                [[anchorNode, anchorOffset], [focusNode, focusOffset]] = [
+                    [anchorNode, anchorOffset],
+                    [focusNode, focusOffset],
+                ].map(([node, offset]) => (node === oldParent ? remapPos(offset) : [node, offset]));
+                setSelection(
+                    { anchorNode, anchorOffset, focusNode, focusOffset },
+                    { normalize: false }
+                );
+            } else {
+                cursors.restore();
+            }
+        }
+    }
+
     onBeforeInput(e) {
         if (e.inputType === "insertParagraph") {
             e.preventDefault();
+            // Safari reports Shift+Enter as "insertParagraph" instead of "insertLineBreak"
+            // Track it on keydown to handle it properly
+            if (this.forceLineBreak) {
+                this.forceLineBreak = false;
+                this.dependencies.lineBreak.insertLineBreak();
+                return;
+            }
             this.splitBlock();
-            this.dependencies.history.addStep();
+            this.dependencies.history.commit();
         }
+    }
+
+    onKeyDown(e) {
+        this.forceLineBreak = e.key === "Enter" && e.shiftKey;
     }
 }

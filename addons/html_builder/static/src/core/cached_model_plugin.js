@@ -12,10 +12,10 @@ import { ModelEdit } from "./cached_model_utils";
 export class CachedModelPlugin extends Plugin {
     static id = "cachedModel";
     static shared = ["ormRead", "ormSearchRead", "useModelEdit"];
-    static dependencies = ["history"];
+    static dependencies = ["domObserver"];
     /** @type {import("plugins").BuilderResources} */
     resources = {
-        save_handlers: this.savePendingRecords.bind(this),
+        on_ready_to_save_document_handlers: this.savePendingRecords.bind(this),
     };
     setup() {
         this.ormReadCache = new Cache(
@@ -27,7 +27,7 @@ export class CachedModelPlugin extends Plugin {
             JSON.stringify
         );
         this.modelEditCache = new Cache(
-            ({ model, recordId }) => new ModelEdit(this.dependencies.history, model, recordId),
+            ({ model, recordId }) => new ModelEdit(this.dependencies.domObserver, model, recordId),
             JSON.stringify
         );
     }

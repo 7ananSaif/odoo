@@ -26,8 +26,8 @@
                     <filter name="group_by_category" string="Category" context="{'group_by': 'category_id'}"/>
                 </group>
                 <searchpanel>
-                    <field name="category_id" select="multi" string="Categories" icon="fa-cutlery" color="#875A7B" enable_counters="1"/>
-                    <field name="supplier_id" select="multi" string="Vendors" icon="fa-truck" enable_counters="1"/>
+                    <field name="category_id" select="multi" string="Categories" icon="restaurant" color="#875A7B" enable_counters="1"/>
+                    <field name="supplier_id" select="multi" string="Vendors" icon="local_shipping" enable_counters="1"/>
                 </searchpanel>
             </search>
         </field>
@@ -71,12 +71,14 @@
                 <field name="currency_id" invisible="1"/>
                 <sheet>
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
-                    <field name="image_1920" widget="image" class="oe_avatar" options="{'preview_image': 'image_128'}"/>
-                    <div class="oe_title">
-                        <label for="name" class="oe-edit-only"/>
-                        <h1>
-                            <field name='name'/>
-                        </h1>
+                    <div class="d-flex flex-column-reverse flex-md-row align-items-center gap-3">
+                        <group class="w-100">
+                            <label for="name" class="d-md-none"/>
+                            <h1>
+                                <field name='name' placeholder="Product's Name"/>
+                            </h1>
+                        </group>
+                        <field name="image_1920" widget="image" class="oe_avatar" options="{'preview_image': 'image_128'}"/>
                     </div>
                     <group>
                         <group>
@@ -148,7 +150,7 @@
                 <field name="currency_id"/>
                 <templates>
                     <t t-name="card" class="flex-row">
-                        <aside class="o_kanban_aside_full d-none d-md-block">
+                        <aside class="o_card_aside_full d-none d-md-block">
                             <field name="image_128" widget="image" alt="Product Image"/>
                         </aside>
                         <main>
@@ -202,7 +204,7 @@
                         <button class="oe_stat_button" type="action" name="%(lunch.lunch_product_action_statbutton)d"
                             context="{'search_default_category_id': id,'default_category_id': id}"
                             invisible="product_count == 0"
-                            icon="fa-cutlery">
+                            icon="restaurant">
                             <field string="Products" name="product_count" widget="statinfo"/>
                         </button>
                     </div>
@@ -231,7 +233,7 @@
                             <field name="image_128" widget="image"/>
                         </aside>
                         <main>
-                            <button class="badge text-bg-primary ms-auto" type="action"
+                            <button class="badge rounded-pill text-bg-primary ms-auto" type="action"
                                 name="%(lunch.lunch_product_action_statbutton)d"
                                 context="{'search_default_category_id': id,'default_category_id': id}"
                                 invisible="product_count == 0">
@@ -274,6 +276,7 @@
         <field name="name">Order Your Lunch</field>
         <field name="path">lunch</field>
         <field name="res_model">lunch.product</field>
+        <field name="cache">False</field>
         <field name="view_mode">kanban,list</field>
         <field name="view_ids" eval="[
             (5, 0, 0),

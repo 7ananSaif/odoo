@@ -1,4 +1,4 @@
-import { describe, expect, test, beforeEach, Deferred, animationFrame } from "@odoo/hoot";
+import { describe, expect, test, beforeEach, animationFrame } from "@odoo/hoot";
 import { waitFor, waitForNone, click, queryOne } from "@odoo/hoot-dom";
 import {
     defineWebsiteModels,
@@ -8,7 +8,6 @@ import { setupEditor } from "@html_editor/../tests/_helpers/editor";
 import { setSelection } from "@html_editor/../tests/_helpers/selection";
 import { expectElementCount } from "@html_editor/../tests/_helpers/ui_expectations";
 import { patchWithCleanup, mockService, onRpc, contains } from "@web/../tests/web_test_helpers";
-import { MAIN_PLUGINS } from "@html_editor/plugin_sets";
 import { MenuDataPlugin } from "@website/builder/plugins/menu_data_plugin";
 import { MenuDialog } from "@website/components/dialog/edit_menu";
 import { SavePlugin } from "@html_builder/core/save_plugin";
@@ -34,7 +33,7 @@ describe("NavbarLinkPopover", () => {
             </ul>
             <p>Outside</p>`,
             {
-                config: { Plugins: [...MAIN_PLUGINS, MenuDataPlugin, SavePlugin] },
+                config: { includePlugins: [MenuDataPlugin, SavePlugin] },
             }
         );
         await expectElementCount(".o-we-linkpopover", 0);
@@ -42,7 +41,7 @@ describe("NavbarLinkPopover", () => {
         setSelection({ anchorNode: el.querySelector(".nav-link > span"), anchorOffset: 0 });
         await waitFor(".o-we-linkpopover");
         // remove link button replaced with sitemap button
-        expect(".o-we-linkpopover:has(i.fa-chain-broken)").toHaveCount(0);
+        expect(".o-we-linkpopover:has(i[data-icon='link_off'])").toHaveCount(0);
         expect(".o-we-linkpopover:has(button.js_edit_menu)").toHaveCount(1);
         // selection outside a top menu link
         setSelection({ anchorNode: el.querySelector("p"), anchorOffset: 0 });
@@ -59,7 +58,7 @@ describe("NavbarLinkPopover", () => {
                 </li>
             </ul>`,
             {
-                config: { Plugins: [...MAIN_PLUGINS, MenuDataPlugin, SavePlugin] },
+                config: { includePlugins: [MenuDataPlugin, SavePlugin] },
             }
         );
         expect(".o-we-linkpopover:has(button.js_edit_menu)").toHaveCount(0);
@@ -93,7 +92,7 @@ describe("NavbarLinkPopover", () => {
                 </div>
             </ul>`,
             {
-                config: { Plugins: [...MAIN_PLUGINS, MenuDataPlugin, SavePlugin] },
+                config: { includePlugins: [MenuDataPlugin, SavePlugin] },
             }
         );
         expect(".o-we-linkpopover:has(button.js_edit_menu)").toHaveCount(0);
@@ -123,7 +122,7 @@ describe("NavbarLinkPopover", () => {
                 </li>
             </ul>`,
             {
-                config: { Plugins: [...MAIN_PLUGINS, MenuDataPlugin, SavePlugin] },
+                config: { includePlugins: [MenuDataPlugin, SavePlugin] },
             }
         );
 
@@ -147,7 +146,7 @@ describe("MenuDialog", () => {
                 </li>
             </ul>`,
             {
-                config: { Plugins: [...MAIN_PLUGINS, MenuDataPlugin, SavePlugin] },
+                config: { includePlugins: [MenuDataPlugin, SavePlugin] },
             }
         );
         patchWithCleanup(MenuDialog.prototype, {
@@ -228,7 +227,7 @@ describe("EditMenuDialog", () => {
                 </li>
             </ul>`,
             {
-                config: { Plugins: [...MAIN_PLUGINS, MenuDataPlugin, SavePlugin] },
+                config: { includePlugins: [MenuDataPlugin, SavePlugin] },
             }
         );
 
@@ -270,7 +269,7 @@ describe("EditMenuDialog", () => {
                 </li>
             </ul>`,
             {
-                config: { Plugins: [...MAIN_PLUGINS, MenuDataPlugin, SavePlugin] },
+                config: { includePlugins: [MenuDataPlugin, SavePlugin] },
             }
         );
 
@@ -423,23 +422,21 @@ describe("EditMenuDialog", () => {
                     super.setup();
                     this.website.pageDocument = builder.getEditableContent().ownerDocument;
                 },
-                onClickOk() {
+                getUrl() {
                     // little lie to avoid calling `toRelativeIfSameDomain`,
                     // so that we still have the absolute url (see NOTE above)
-                    this.props.isMegaMenu = true;
-                    super.onClickOk();
-                    this.props.isMegaMenu = false;
+                    return this.state.url;
                 },
             });
 
             await contains("a:contains('Add Menu Item')").click();
 
-            const deferred = new Deferred();
+            const deferred = Promise.withResolvers();
             onRpc("/website/check_existing_link", async (request) => {
                 const { params } = await request.json();
                 expect(params.link).toEqual("/top-menu-url");
                 expect.step("check existing");
-                await deferred;
+                await deferred.promise;
                 return false;
             });
 

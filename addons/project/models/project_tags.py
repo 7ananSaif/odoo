@@ -10,7 +10,7 @@ from odoo.tools import SQL
 class ProjectTags(models.Model):
     """ Tags of project's tasks """
     _name = 'project.tags'
-    _description = "Project Tags"
+    _description = "Project Tag"
     _order = "name"
 
     def _get_default_color(self):
@@ -48,13 +48,19 @@ class ProjectTags(models.Model):
 
     @api.model
     def arrange_tag_list_by_id(self, tag_list, id_order):
-        """Re-order a list of record values (dict) following a given id sequence, in O(n).
+        """
+        Re-order a list of record values (dict) according to a given ID sequence.
 
-        :param tag_list: ordered (by id) list of record values, each record being a dict
-            containing at least an 'id' key
+        This method rearranges the input ``tag_list`` so that the resulting list
+        follows the order specified in ``id_order``. Complexity is O(n).
 
-        :param id_order: list of value (int) corresponding to the id of the records to re-arrange
-        :returns: Sorted list of record values (dict)
+        :param list[dict] tag_list: Ordered (by ID) list of record values, each record being
+            a dict containing at least an 'id' key.
+
+        :param list[int] id_order: List of integer IDs specifying the desired order of records.
+
+        :returns: The sorted list of record values (dict) following the given ID sequence.
+        :rtype: list[dict]
         """
         tags_by_id = {tag['id']: tag for tag in tag_list}
         return [tags_by_id[id] for id in id_order if id in tags_by_id]
@@ -80,6 +86,26 @@ class ProjectTags(models.Model):
                     LIMIT 1000
                 ) AS project_tasks_tags
             )""", project_id=self.env.context['project_id'])
+            tags += self.search_fetch(Domain('id', 'in', tag_sql) & domain, ['display_name'], limit=limit)
+        elif self.env.context.get('use_user_history'):
+            # optimisation for large projects, we look first for tags present on the last 1000 tasks of said project.
+            # when not enough results are found, we complete them with a fallback on a regular search
+            tag_sql = SQL("""
+                (SELECT DISTINCT project_tasks_tags.id
+                FROM (
+                    SELECT rel.project_tags_id AS id
+                    FROM project_tags_project_task_rel AS rel
+                    JOIN project_task AS task
+                        ON task.id=rel.project_task_id
+                    JOIN project_task_user_rel AS user_rel
+                        ON user_rel.task_id = task.id
+                        AND user_rel.user_id = %(user_id)s
+                        AND task.active = TRUE
+                        AND task.project_id IS NULL
+                    ORDER BY task.id DESC
+                    LIMIT 1000
+                ) AS project_tasks_tags
+            )""", user_id=self.env.user.id)
             tags += self.search_fetch(Domain('id', 'in', tag_sql) & domain, ['display_name'], limit=limit)
         if len(tags) < limit:
             tags += self.search_fetch(Domain('id', 'not in', tags.ids) & domain, ['display_name'], limit=limit - len(tags))

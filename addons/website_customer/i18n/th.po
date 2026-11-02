@@ -8,51 +8,60 @@
 # Martin Trigaux, 2022
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# Nusara Boonma <nuboo@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-11-08 19:10+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Thai <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 20:22+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Thai <https://translate.odoo.com/projects/odoo-s19-4/"
 "website_customer/th/>\n"
 "Language: th\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: website_customer
+#: model:ir.module.module,description:base.module_website_customer
+msgid ""
+"\n"
+"Publish your customers as business references on your website to attract new "
+"potential prospects.\n"
+msgstr ""
+
+#. module: website_customer
+#: model_terms:ir.ui.view,arch_db:website_customer.details
+msgid "<i class=\"oi me-2\" data-icon=\"chevron_backward\"/>Back to references"
+msgstr ""
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.index
 msgid ""
-"<i class=\"fa fa-info-circle me-2\"/>\n"
+"<i class=\"oi me-2\" data-icon=\"info\"/>\n"
 "                        There are no matching customers found for the "
 "selected country. Displaying results across all countries instead."
 msgstr ""
-"<i class=\"fa fa-info-circle me-2\"/>\n"
+"<i class=\"oi me-2\" data-icon=\"info\"/>\n"
 "                        ไม่พบลูกค้าที่ตรงกันสำหรับประเทศที่เลือก แสดงผลทั่วทุกประเทศแทน"
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.opt_country
 msgid ""
-"<i class=\"fa fa-map-marker\" role=\"img\" aria-label=\"Open map\" "
-"title=\"Open map\"/>"
+"<i class=\"oi\" data-icon=\"location_on\" role=\"img\" aria-label=\"Open "
+"map\" title=\"Open map\"/>"
 msgstr ""
-"<i class=\"fa fa-map-marker\" role=\"img\" aria-label=\"Open map\" "
-"title=\"Open map\"/>"
-
-#. module: website_customer
-#: model_terms:ir.ui.view,arch_db:website_customer.details
-msgid "<i class=\"oi oi-chevron-left me-2\"/>Back to references"
-msgstr ""
+"<i class=\"oi\" data-icon=\"location_on\" role=\"img\" aria-label=\"Open "
+"map\" title=\"Open map\"/>"
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.index
 #: model_terms:ir.ui.view,arch_db:website_customer.opt_tag_list
-msgid "<span class=\"fa fa-1x fa-tags\"/> All"
-msgstr "<span class=\"fa fa-1x fa-tags\"/> ทั้งหมด"
+msgid "<span class=\"oi oi-1x\" data-icon=\"sell\"/> All"
+msgstr "<span class=\"oi oi-1x\" data-icon=\"sell\"/> ทั้งหมด"
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.implemented_by_block
@@ -80,6 +89,16 @@ msgstr "อุตสาหกรรมทั้งหมด"
 #: model_terms:ir.ui.view,arch_db:website_customer.res_partner_tag_view_search
 msgid "Archived"
 msgstr "เก็บถาวรแล้ว"
+
+#. module: website_customer
+#: model:ir.model.fields,field_description:website_customer.field_res_partner_tag__publish_on
+msgid "Auto publish on"
+msgstr ""
+
+#. module: website_customer
+#: model:ir.model.fields,help:website_customer.field_res_partner_tag__publish_on
+msgid "Automatically publish the page on the chosen date and time."
+msgstr ""
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.details
@@ -144,6 +163,11 @@ msgid "Created on"
 msgstr "สร้างเมื่อ"
 
 #. module: website_customer
+#: model:ir.module.module,shortdesc:base.module_website_customer
+msgid "Customer References"
+msgstr ""
+
+#. module: website_customer
 #. odoo-python
 #: code:addons/website_customer/controllers/main.py:0
 msgid "Customers"
@@ -151,14 +175,9 @@ msgstr "ลูกค้า"
 
 #. module: website_customer
 #. odoo-javascript
-#: code:addons/website_customer/static/src/website_builder/customer_filter_option.js:0
+#: code:addons/website_customer/static/src/website_builder/customer_filter_option.xml:0
 msgid "Customers Page"
 msgstr ""
-
-#. module: website_customer
-#: model_terms:ir.ui.view,arch_db:website_customer.details
-msgid "DROP BUILDING BLOCKS HERE TO MAKE THEM AVAILABLE ACROSS ALL CUSTOMERS"
-msgstr "วางบล็อกสำเร็จรูปที่นี่เพื่อให้สามารถใช้งานได้กับลูกค้าทุกคน"
 
 #. module: website_customer
 #: model:ir.model.fields,field_description:website_customer.field_res_partner__display_name
@@ -166,6 +185,11 @@ msgstr "วางบล็อกสำเร็จรูปที่นี่เ
 #: model:ir.model.fields,field_description:website_customer.field_website__display_name
 msgid "Display Name"
 msgstr "แสดงชื่อ"
+
+#. module: website_customer
+#: model_terms:ir.ui.view,arch_db:website_customer.details
+msgid "Drag blocks here to add them on all customers"
+msgstr ""
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.index
@@ -276,6 +300,16 @@ msgid "Partners"
 msgstr "พาร์ทเนอร์"
 
 #. module: website_customer
+#: model:ir.module.module,summary:base.module_website_customer
+msgid "Publish your customer references"
+msgstr ""
+
+#. module: website_customer
+#: model:ir.model.fields,field_description:website_customer.field_res_partner_tag__published_date
+msgid "Published date"
+msgstr ""
+
+#. module: website_customer
 #. odoo-python
 #: code:addons/website_customer/models/website.py:0
 #: model_terms:ir.ui.view,arch_db:website_customer.references_block
@@ -367,43 +401,3 @@ msgstr "แท็กเว็บไซต์"
 #: model_terms:ir.ui.view,arch_db:website_customer.opt_country
 msgid "World Map"
 msgstr "แผนที่โลก"
-
-#~ msgid ""
-#~ "<span class=\"fa fa-external-link\" role=\"img\" aria-label=\"External "
-#~ "link\" title=\"External link\"/>"
-#~ msgstr ""
-#~ "<span class=\"fa fa-external-link\" role=\"img\" aria-label=\"External "
-#~ "link\" title=\"ลิงค์ภายนอก\"/>"
-
-#~ msgid "Implemented By"
-#~ msgstr "ดำเนินการโดย"
-
-#~ msgid "Last Modified on"
-#~ msgstr "แก้ไขครั้งล่าสุดเมื่อ"
-
-#~ msgid "No result found"
-#~ msgstr "ไม่พบผลลัพธ์"
-
-#~ msgid "Our References"
-#~ msgstr "การอ้างอิงของเรา"
-
-#~ msgid "References Page"
-#~ msgstr "หน้าอ้างอิง"
-
-#~ msgid "References by Country"
-#~ msgstr "อ้างอิงตามประเทศ"
-
-#~ msgid "References by Industries"
-#~ msgstr "อ้างอิงตามอุตสาหกรรม"
-
-#~ msgid "References by Tag"
-#~ msgstr "อ้างอิงตามแท็ก"
-
-#~ msgid "The full URL to access the document through the website."
-#~ msgstr "URL แบบเต็มเพื่อเข้าถึงเอกสารผ่านเว็บไซต์"
-
-#~ msgid "Trusted by millions worldwide"
-#~ msgstr "ได้รับความไว้วางใจจากผู้ใช้นับล้านทั่วโลก"
-
-#~ msgid "reference(s))"
-#~ msgstr "อ้างอิง"

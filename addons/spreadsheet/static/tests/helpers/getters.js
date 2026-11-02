@@ -20,6 +20,16 @@ export function getCell(model, xc, sheetId = model.getters.getActiveSheetId()) {
     return model.getters.getCell({ sheetId, col, row });
 }
 
+export function getComputedBorder(model, xc, sheetId = model.getters.getActiveSheetId()) {
+    const { col, row } = toCartesian(xc);
+    return model.getters.getCellComputedBorder({ sheetId, col, row });
+}
+
+export function getComputedStyle(model, xc, sheetId = model.getters.getActiveSheetId()) {
+    const { col, row } = toCartesian(xc);
+    return model.getters.getCellComputedStyle({ sheetId, col, row });
+}
+
 export function getEvaluatedCell(model, xc, sheetId = model.getters.getActiveSheetId()) {
     const { col, row } = toCartesian(xc);
     return model.getters.getEvaluatedCell({ sheetId, col, row });
@@ -76,7 +86,7 @@ export function getCells(model, sheetId = model.getters.getActiveSheetId()) {
  */
 export function getCellFormula(model, xc, sheetId = model.getters.getActiveSheetId()) {
     const cell = getCell(model, xc, sheetId);
-    return cell && cell.isFormula ? cell.content : "";
+    return cell && cell.isFormula ? cell.compiledFormula.toFormulaString(model.getters) : "";
 }
 
 /**
@@ -89,7 +99,7 @@ export function getCellContent(model, xc, sheetId = model.getters.getActiveSheet
 
 export function getCorrespondingCellFormula(model, xc, sheetId = model.getters.getActiveSheetId()) {
     const cell = model.getters.getCorrespondingFormulaCell({ sheetId, ...toCartesian(xc) });
-    return cell && cell.isFormula ? cell.content : "";
+    return cell && cell.isFormula ? cell.compiledFormula.toFormulaString(model.getters) : "";
 }
 
 /**

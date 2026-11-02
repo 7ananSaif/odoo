@@ -37,11 +37,11 @@ const $$ = queryAll;
 /**
  * @param {...string} queryAllSelectors
  */
-const expectSelector = (...queryAllSelectors) => {
+function expectSelector(...queryAllSelectors) {
     /**
      * @param {string} nativeSelector
      */
-    const toEqualNodes = (nativeSelector, options) => {
+    function toEqualNodes(nativeSelector, options) {
         if (typeof nativeSelector !== "string") {
             throw new Error(`Invalid selector: ${nativeSelector}`);
         }
@@ -65,23 +65,24 @@ const expectSelector = (...queryAllSelectors) => {
         expect(fnNodes).toEqual(nodes, {
             message: `should match ${nodes.length} nodes`,
         });
-    };
+    }
 
     return { toEqualNodes };
-};
+}
 
 /**
  * @param {Document} document
  * @param {HTMLElement} [root]
  * @returns {Promise<HTMLIFrameElement>}
  */
-const makeIframe = (document, root) =>
-    new Promise((resolve) => {
+function makeIframe(document, root) {
+    return new Promise((resolve) => {
         const iframe = document.createElement("iframe");
         iframe.addEventListener("load", () => resolve(iframe));
         iframe.srcdoc = "<body></body>";
         (root || document.body).appendChild(iframe);
     });
+}
 
 const FULL_HTML_TEMPLATE = /* html */ `
     <header>
@@ -404,6 +405,33 @@ describe(parseUrl(import.meta.url), () => {
         await expect(promise).resolves.toBe(el1);
 
         expect.verifySteps(["new-element"]);
+    });
+
+    test("waitFor: waits for matching count", async () => {
+        const el1 = document.createElement("div");
+        el1.className = "new-element";
+
+        const el2 = document.createElement("div");
+        el2.className = "new-element";
+
+        waitFor(".new-element", { count: 2 }).then(() => expect.step("found"));
+        getFixture().append(el1);
+
+        await animationFrame();
+
+        expect.verifySteps([]);
+
+        getFixture().append(el2);
+
+        await animationFrame();
+
+        expect.verifySteps(["found"]);
+    });
+
+    test("waitFor: rejects with unmatched count", async () => {
+        await expect(waitFor("never", { count: 1, timeout: 1 })).rejects.toThrow(
+            `expected at least 1 element after 1ms and found 0 elements instead of 1: 0 matching "never"`
+        );
     });
 
     test("waitForNone: DOM empty", async () => {
@@ -851,7 +879,7 @@ describe(parseUrl(import.meta.url), () => {
             expect(() => $$`[href=/]`).toThrow(); // missing quotes
             expect(
                 () =>
-                    $$`_o_wblog_posts_loop:has(span:has(i.fa-calendar-o):has(a[href="/blog?search=a"])):has(span:has(i.fa-search):has(a[href^="/blog?date_begin"]))`
+                    $$`_o_wblog_posts_loop:has(span:has(i[data-icon="calendar_today"]):has(a[href="/blog?search=a"])):has(span:has(i[data-icon="search"]):has(a[href^="/blog?date_begin"]))`
             ).toThrow(); // nested :has statements
         });
 

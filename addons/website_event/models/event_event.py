@@ -1,14 +1,16 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from ast import literal_eval
-from dateutil.relativedelta import relativedelta
 import json
-import werkzeug.urls
+from datetime import UTC
+from zoneinfo import ZoneInfo
 
-from markupsafe import Markup
-from pytz import utc, timezone
+import textwrap
+import werkzeug.urls
+from dateutil.relativedelta import relativedelta
 
 from odoo import api, fields, models, tools, _
+from odoo.addons.website.tools import text_from_html
 from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Domain
 from odoo.tools.misc import get_lang, format_date
@@ -25,7 +27,10 @@ class EventEvent(models.Model):
         'website.cover_properties.mixin',
         'website.searchable.mixin',
         'website.page_visibility_options.mixin',
+        'website.structured_data.mixin',
+        'website.trackable.mixin',
     ]
+    _website_track_field = 'event_id'
 
     def _default_cover_properties(self):
         res = super()._default_cover_properties()
@@ -37,7 +42,10 @@ class EventEvent(models.Model):
         return res
 
     # description
-    subtitle = fields.Char('Event Subtitle', translate=True)
+    subtitle = fields.Char(
+        'Event Subtitle', translate=True,
+        help="Displayed on website and used as description when the event is added to a third-party calendar.",
+    )
     # registration
     is_participating = fields.Boolean("Is Participating", compute="_compute_is_participating",
                                       search="_search_is_participating")
@@ -50,6 +58,8 @@ class EventEvent(models.Model):
         help="""Defines the Visibility of the Event on the Website and searches.\n
             Note that the EventEvent is however always available via its link.""")
     website_published = fields.Boolean(tracking=True)
+    is_published = fields.Boolean(tracking=True)
+    publish_on = fields.Datetime(tracking=True)
     website_menu = fields.Boolean(
         string='Website Menu',
         compute='_compute_website_menu', precompute=True, readonly=False, store=True,
@@ -126,7 +136,7 @@ class EventEvent(models.Model):
           * logged as visitor: check partner or visitor are linked to a
             registration;
         """
-        current_visitor = self.env['website.visitor']._get_visitor_from_request()
+        current_visitor = self.env['ir.http']._get_visitor_from_request()
         if self.env.user._is_public() and not current_visitor:
             return self.env['event.event']
 
@@ -205,10 +215,10 @@ class EventEvent(models.Model):
     def _compute_time_data(self):
         """ Compute start and remaining time. Do everything in UTC as we compute only
         time deltas here. """
-        now_utc = utc.localize(fields.Datetime.now().replace(microsecond=0))
+        now_utc = fields.Datetime.now().replace(microsecond=0, tzinfo=UTC)
         for event in self:
-            date_begin_utc = utc.localize(event.date_begin, is_dst=False)
-            date_end_utc = utc.localize(event.date_end, is_dst=False)
+            date_begin_utc = event.date_begin.replace(tzinfo=UTC)
+            date_end_utc = event.date_end.replace(tzinfo=UTC)
             event.is_ongoing = date_begin_utc <= now_utc <= date_end_utc
             event.is_done = now_utc > date_end_utc
             event.start_today = date_begin_utc.date() == now_utc.date()
@@ -465,13 +475,17 @@ class EventEvent(models.Model):
             return self.sudo().address_id.google_map_link(zoom=zoom)
         return None
 
-    def _track_subtype(self, init_values):
+    def _track_log_get_default_subtype(self, track_init_values):
         self.ensure_one()
-        if init_values.keys() & {'is_published', 'website_published'}:
+        if track_init_values.keys() & {'publish_on'}:
+            if self.publish_on:
+                return self.env.ref('website_event.mt_event_scheduled', raise_if_not_found=False) or super()._track_log_get_default_subtype(track_init_values)
+            return self.env.ref('website_event.mt_event_unscheduled', raise_if_not_found=False) or super()._track_log_get_default_subtype(track_init_values)
+        if track_init_values.keys() & {'is_published', 'website_published'}:
             if self.is_published:
-                return self.env.ref('website_event.mt_event_published', raise_if_not_found=False)
-            return self.env.ref('website_event.mt_event_unpublished', raise_if_not_found=False)
-        return super()._track_subtype(init_values)
+                return self.env.ref('website_event.mt_event_published', raise_if_not_found=False) or super()._track_log_get_default_subtype(track_init_values)
+            return self.env.ref('website_event.mt_event_unpublished', raise_if_not_found=False) or super()._track_log_get_default_subtype(track_init_values)
+        return super()._track_log_get_default_subtype(track_init_values)
 
     def _get_event_resource_urls(self, slot=False):
         """ Prepare the Google and iCal urls for the event.
@@ -481,17 +495,17 @@ class EventEvent(models.Model):
         """
         start = slot.start_datetime if slot else self.date_begin
         end = slot.end_datetime if slot else self.date_end
-        url_date_start = start.astimezone(timezone(self.date_tz)).strftime('%Y%m%dT%H%M%S')
-        url_date_stop = end.astimezone(timezone(self.date_tz)).strftime('%Y%m%dT%H%M%S')
+        url_date_start = start.astimezone(ZoneInfo(self.date_tz)).strftime('%Y%m%dT%H%M%S')
+        url_date_stop = end.astimezone(ZoneInfo(self.date_tz)).strftime('%Y%m%dT%H%M%S')
         params = {
             'action': 'TEMPLATE',
             'text': self.name,
             'dates': f'{url_date_start}/{url_date_stop}',
             'ctz': self.date_tz,
-            'details': self._get_external_description(),
+            'details': self._get_ics_description(),
         }
         if self.address_id:
-            params.update(location=self.address_inline)
+            params.update(location=self.contact_address_inline)
         encoded_params = werkzeug.urls.url_encode(params)
         google_url = GOOGLE_CALENDAR_URL + encoded_params
         iCal_url = f'/event/{self.id:d}/ics'
@@ -499,13 +513,26 @@ class EventEvent(models.Model):
             iCal_url += '?' + werkzeug.urls.url_encode({'slot_id': slot.id})
         return {'google_url': google_url, 'iCal_url': iCal_url}
 
+    def _get_ics_description(self):
+        """Use subtitle as description is more front-end oriented when website is installed.
+
+        :return: a plain string, crucially not markup nor html-safe (expected sanitized by calendar clients)
+        """
+        self.ensure_one()
+        description = ''
+        if self.event_share_url:
+            description = f'<a href="{self.event_share_url}">{self.name}</a>\n'
+        if self.subtitle:
+            description += textwrap.shorten(self.subtitle, 1900)
+        return description
+
     def _default_website_meta(self):
         res = super()._default_website_meta()
         event_cover_properties = json.loads(self.cover_properties)
         # background-image might contain single quotes eg `url('/my/url')`
-        res['default_opengraph']['og:image'] = res['default_twitter']['twitter:image'] = event_cover_properties.get('background-image', 'none')[4:-1].strip("\"'")
-        res['default_opengraph']['og:title'] = res['default_twitter']['twitter:title'] = self.name
-        res['default_opengraph']['og:description'] = res['default_twitter']['twitter:description'] = self.subtitle
+        res['default_opengraph']['og:image'] = event_cover_properties.get('background-image', 'none')[4:-1].strip("\"'")
+        res['default_opengraph']['og:title'] = self.name
+        res['default_opengraph']['og:description'] = self.subtitle
         res['default_twitter']['twitter:card'] = 'summary'
         res['default_meta_description'] = self.subtitle
         return res
@@ -519,16 +546,16 @@ class EventEvent(models.Model):
         # To fetch the remaining events of the user's current day, the end of the user's day must
         # be localized and then converted in UTC, as it is the timezone used to record dates and
         # times in db.
-        tz = timezone(self.env.user.tz or self.env.context.get('tz') or 'UTC')
-        localized_today_begin = tz.localize(fields.Datetime.today())
-        utc_today_end = localized_today_begin.replace(hour=23, minute=59, second=59).astimezone(utc)
+        tz = self.env.tz
+        localized_today_begin = fields.Datetime.today().replace(tzinfo=tz)
+        utc_today_end = localized_today_begin.replace(hour=23, minute=59, second=59).astimezone(UTC)
 
         def sd(date):
             return fields.Datetime.to_string(date)
 
         def get_month_filter_domain(filter_name, months_delta):
             localized_month_begin = localized_today_begin.replace(day=1)
-            utc_months_delta_end = (localized_month_begin + relativedelta(months=months_delta + 1)).astimezone(utc)
+            utc_months_delta_end = (localized_month_begin + relativedelta(months=months_delta + 1)).astimezone(UTC)
             filter_string = _('This month') if months_delta == 0 \
                 else format_date(self.env, value=localized_today_begin + relativedelta(months=months_delta),
                     date_format='LLLL', lang_code=get_lang(self.env).code).capitalize()
@@ -552,8 +579,6 @@ class EventEvent(models.Model):
 
     @api.model
     def _search_get_detail(self, website, order, options):
-        with_description = options['displayDescription']
-        with_date = options['displayDetail']
         date = options.get('date', 'all')
         country = options.get('country')
         tags = options.get('tags')
@@ -582,11 +607,16 @@ class EventEvent(models.Model):
                 domain.append([('tag_ids', 'in', tags.ids)])
 
         no_country_domain = domain.copy()
+        include_online_events = (
+            website.is_view_active('website_event.event_location') and
+            website.is_view_active('website_event.event_location_include_online')
+        )
+
         if country:
             if country == 'online':
                 domain.append([("country_id", "=", False)])
             elif country != 'all':
-                domain.append([("country_id", "=", int(country))])
+                domain.append([("country_id", "in", [int(country), False] if include_online_events else [int(country)])])
 
         no_date_domain = domain.copy()
         dates = self._search_build_dates()
@@ -598,19 +628,16 @@ class EventEvent(models.Model):
                 if date_details[0] != 'scheduled':
                     current_date = date_details[1]
 
-        search_fields = ['name']
-        fetch_fields = ['name', 'website_url', 'address_name']
+        search_fields = ['name', 'tag_ids.name', 'subtitle']
+        fetch_fields = ['name', 'website_url', 'date_begin', 'subtitle']
         mapping = {
             'name': {'name': 'name', 'type': 'text', 'match': True},
             'website_url': {'name': 'website_url', 'type': 'text', 'truncate': False},
-            'address_name': {'name': 'address_name', 'type': 'text', 'match': True},
+            'search_item_metadata': {'name': 'date_begin', 'type': 'date'},
+            'image_url': {'name': 'image_url', 'type': 'html'},
+            'tags': {'name': 'tag_ids', 'type': 'tags', 'match': True},
+            'description': {'name': 'subtitle', 'type': 'text', 'html': True, 'match': True},
         }
-        if with_description:
-            search_fields.append('subtitle')
-            fetch_fields.append('subtitle')
-            mapping['description'] = {'name': 'subtitle', 'type': 'text', 'match': True}
-        if with_date:
-            mapping['detail'] = {'name': 'range', 'type': 'html'}
 
         # Bypassing the access rigths of partner to search the address.
         def search_in_address(env, search_term):
@@ -626,24 +653,127 @@ class EventEvent(models.Model):
             'search_extra': search_in_address,
             'fetch_fields': fetch_fields,
             'mapping': mapping,
-            'icon': 'fa-ticket',
+            'icon': 'confirmation_number',
             # for website_event main controller:
             'dates': dates,
             'current_date': current_date,
             'search_tags': search_tags,
             'no_date_domain': no_date_domain,
             'no_country_domain': no_country_domain,
+            'group_name': self.env._("Events"),
+            'sequence': 40,
         }
 
     def _search_render_results(self, fetch_fields, mapping, icon, limit):
-        with_date = 'detail' in mapping
         results_data = super()._search_render_results(fetch_fields, mapping, icon, limit)
-        if with_date:
-            for event, data in zip(self, results_data):
-                begin = self.env['ir.qweb.field.date'].record_to_html(event, 'date_begin', {})
-                end = self.env['ir.qweb.field.date'].record_to_html(event, 'date_end', {})
-                data['range'] = (
-                    Markup('{} <i class="fa fa-long-arrow-right"></i> {}').format(begin, end)
-                    if begin != end else begin
-                )
+        for event, data in zip(self, results_data):
+            data['tag_ids'] = event.tag_ids.read(['name'])
+            data['image_url'] = event._get_image_url()
         return results_data
+
+    def _prepare_jsonld_vals(self):
+        self.ensure_one()
+        # An event is either physical (address_id) or online (event_share_url);
+        # the two are mutually exclusive. Skip events that are either past, or
+        # non-public.
+        if self.is_done or self.website_visibility != 'public':
+            return {}
+        base_url = self.get_base_url()
+        if self.address_id:
+            address = self.address_id.sudo()
+            location = {'@type': 'Place'}
+            if place_name := self.address_name or address.city:
+                location['name'] = place_name
+            if postal := self._build_postaladdress_jsonld_vals(address):
+                # Fall back to the company country when the venue has none set.
+                if 'addressCountry' not in postal and self.company_id.country_id.code:
+                    postal['addressCountry'] = self.company_id.country_id.code
+                location['address'] = postal
+            attendance_mode = 'OfflineEventAttendanceMode'
+        else:
+            location = {'@type': 'VirtualLocation', 'url': self.event_share_url}
+            attendance_mode = 'OnlineEventAttendanceMode'
+        description = self.subtitle or (
+            self.description and text_from_html(self.description, True)
+        )
+        event_status = (
+            'EventCancelled' if self.kanban_state == 'cancel' else 'EventScheduled'
+        )
+        vals = {
+            '@type': 'Event',
+            '@id': f'{self.website_absolute_url}/#event',
+            'name': self.name,
+            'url': self.website_absolute_url,
+            'startDate': self._to_iso_datetime(self.date_begin),
+            'endDate': self._to_iso_datetime(self.date_end),
+            'eventStatus': f'https://schema.org/{event_status}',
+            'eventAttendanceMode': f'https://schema.org/{attendance_mode}',
+            'location': location,
+        }
+        if offers := self._get_ticket_offer_jsonlds():
+            vals['offers'] = offers
+        if description:
+            vals['description'] = description
+        if image_url := self._get_image_url():
+            vals['image'] = f'{base_url}{image_url}'
+        if self.organizer_id:
+            organizer_sudo = self.organizer_id.sudo()
+            if organizer_sudo == self.env.company.partner_id:
+                vals['organizer'] = {
+                    '@id': f'{base_url}/#organization',
+                }
+            else:
+                organizer = {'@type': 'Organization', 'name': organizer_sudo.name}
+                if organizer_sudo.website:
+                    organizer['url'] = organizer_sudo.website
+                vals['organizer'] = organizer
+        return vals
+
+    def _get_ticket_offer_jsonlds(self):
+        self.ensure_one()
+        return [
+            self._build_offer_jsonld_vals(ticket)
+            for ticket in self.event_ticket_ids.filtered(lambda ticket: not ticket.is_expired)
+        ]
+
+    def _build_offer_jsonld_vals(self, ticket):
+        is_available = not (ticket.is_sold_out or ticket.is_expired)
+        offer = {
+            '@type': 'Offer',
+            'name': ticket.name,
+            'price': 0,
+            'priceCurrency': self.company_id.currency_id.name,
+            'availability': (
+                'https://schema.org/InStock' if is_available else 'https://schema.org/SoldOut'
+            ),
+        }
+        if ticket.seats_limited:
+            offer['inventoryLevel'] = {
+                '@type': 'QuantitativeValue',
+                'value': ticket.seats_available,
+            }
+        if ticket.start_sale_datetime:
+            offer['validFrom'] = self._to_iso_datetime(ticket.start_sale_datetime)
+        if ticket.end_sale_datetime:
+            offer['validThrough'] = self._to_iso_datetime(ticket.end_sale_datetime)
+        if is_available:
+            offer['url'] = f'{self.website_absolute_url}/register'
+        return offer
+
+    def _get_breadcrumb_items(self, is_detail_page=False):
+        items = super()._get_breadcrumb_items(is_detail_page)
+        items.append((self.env._("Events"), '/event'))
+        if is_detail_page:
+            items.append((self.name, self.website_url))
+        return items
+
+    def _get_jsonld_dict(self, is_detail_page=False):
+        schemas = super()._get_jsonld_dict(is_detail_page)
+        if is_detail_page:
+            if event_vals := self._prepare_jsonld_vals():
+                schemas.append(event_vals)
+        elif self:
+            schemas.append(self._build_collectionpage_jsonld_vals(
+                self.env._("Events"), '/event', self,
+            ))
+        return schemas

@@ -2,7 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 from odoo.addons.website_slides.tests import common as slides_common
 from odoo.exceptions import UserError
-from odoo.tests.common import HttpCase, users
+from odoo.tests.common import HttpCase, tagged, users
 from unittest.mock import patch
 
 

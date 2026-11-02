@@ -1,14 +1,14 @@
 import { Plugin } from "@html_editor/plugin";
 import { closestBlock, isBlock } from "@html_editor/utils/blocks";
 import {
+    fillEmpty,
     removeClass,
-    removeEmptyTextNodes,
     removeStyle,
     toggleClass,
     unwrapContents,
-    wrapInlinesInBlocks,
 } from "@html_editor/utils/dom";
 import {
+    getDeepestEditablePosition,
     getDeepestPosition,
     isElement,
     isEmptyBlock,
@@ -18,7 +18,7 @@ import {
     isPhrasingContent,
     isProtected,
     isProtecting,
-    isShrunkBlock,
+    isVisible,
     isVisibleTextNode,
     listElementSelector,
 } from "@html_editor/utils/dom_info";
@@ -37,11 +37,10 @@ import { _t } from "@web/core/l10n/translation";
 import { compareListTypes, createList, insertListAfter, isListItem } from "./utils";
 import { callbacksForCursorUpdate } from "@html_editor/utils/selection";
 import { withSequence } from "@html_editor/utils/resource";
-import { FONT_SIZE_CLASSES, getFontSizeOrClass, getHtmlStyle } from "@html_editor/utils/formatting";
-import { getTextColorOrClass, TEXT_CLASSES_REGEX } from "@html_editor/utils/color";
+import { getFontSizeOrClass, getHtmlStyle } from "@html_editor/utils/formatting";
+import { TEXT_CLASSES_REGEX, getColorOrClass } from "@html_editor/utils/color";
 import { baseContainerGlobalSelector } from "@html_editor/utils/base_container";
 import { ListSelector } from "./list_selector";
-import { reactive } from "@odoo/owl";
 import { composeToolbarButton } from "../toolbar/toolbar";
 import { isHtmlContentSupported } from "@html_editor/core/selection_plugin";
 import { pick } from "@web/core/utils/objects";
@@ -53,16 +52,19 @@ const listSelectorItems = [
         id: "bulleted_list",
         commandId: "toggleListUL",
         mode: "UL",
+        description: _t("Bulleted list (Ctrl + Shift + 8)"),
     },
     {
         id: "numbered_list",
         commandId: "toggleListOL",
         mode: "OL",
+        description: _t("Numbered list (Ctrl + Shift + 7)"),
     },
     {
         id: "checklist",
         commandId: "toggleListCL",
         mode: "CL",
+        description: _t("Checklist (Ctrl + Shift + 9)"),
     },
 ];
 
@@ -82,7 +84,6 @@ export class ListPlugin extends Plugin {
     static defaultConfig = {
         allowChecklist: true,
     };
-    toolbarListSelectorKey = reactive({ value: 0 });
     /** @type {import("plugins").EditorResources} */
     resources = {
         user_commands: [
@@ -90,7 +91,7 @@ export class ListPlugin extends Plugin {
                 id: "toggleListUL",
                 title: _t("Bulleted list"),
                 description: _t("Create a simple bulleted list"),
-                icon: "fa-list-ul",
+                icon: "format_list_bulleted",
                 run: () => this.toggleListCommand({ mode: "UL" }),
                 isAvailable: this.canToggleList.bind(this),
             },
@@ -98,7 +99,7 @@ export class ListPlugin extends Plugin {
                 id: "toggleListOL",
                 title: _t("Numbered list"),
                 description: _t("Create a list with numbering"),
-                icon: "fa-list-ol",
+                icon: "format_list_numbered",
                 run: ({ listStyle } = {}) => this.toggleListCommand({ mode: "OL", listStyle }),
                 isAvailable: this.canToggleList.bind(this),
             },
@@ -106,7 +107,7 @@ export class ListPlugin extends Plugin {
                 id: "toggleListCL",
                 title: _t("Checklist"),
                 description: _t("Track tasks with a checklist"),
-                icon: "fa-check-square-o",
+                icon: "check_box",
                 run: () => this.toggleListCommand({ mode: "CL" }),
                 isAvailable: (selection) =>
                     this.config.allowChecklist && this.canToggleList(selection),
@@ -119,25 +120,25 @@ export class ListPlugin extends Plugin {
         ],
         shorthands: [
             {
-                pattern: /^1[.)]$/,
+                literals: ["1.", "1)"],
                 commandId: "toggleListOL",
             },
             {
-                pattern: /^a[.)]$/,
+                literals: ["a.", "a)"],
                 commandId: "toggleListOL",
                 commandParams: { listStyle: "lower-alpha" },
             },
             {
-                pattern: /^A[.)]$/,
+                literals: ["A.", "A)"],
                 commandId: "toggleListOL",
                 commandParams: { listStyle: "upper-alpha" },
             },
             {
-                pattern: /^[-*]$/,
+                literals: ["*", "-"],
                 commandId: "toggleListUL",
             },
             {
-                pattern: /^\[\]$/,
+                literals: ["[]"],
                 commandId: "toggleListCL",
             },
         ],
@@ -150,7 +151,6 @@ export class ListPlugin extends Plugin {
                 props: {
                     getButtons: () => this.listSelectorButtons,
                     getListMode: this.getListMode.bind(this),
-                    key: this.toolbarListSelectorKey,
                 },
                 isAvailable: this.canToggleList.bind(this),
             }),
@@ -159,6 +159,7 @@ export class ListPlugin extends Plugin {
             {
                 categoryId: "structure",
                 commandId: "toggleListUL",
+                keywords: [_t("list")],
             },
             {
                 categoryId: "structure",
@@ -178,9 +179,16 @@ export class ListPlugin extends Plugin {
         hints: [{ selector: `LI, LI > ${baseContainerGlobalSelector}`, text: _t("List") }],
 
         /** Handlers */
-        normalize_handlers: this.normalize.bind(this),
-        step_added_handlers: this.updateToolbarButtons.bind(this),
-        delete_handlers: this.adjustListPaddingOnDelete.bind(this),
+        on_deleted_handlers: this.adjustListPaddingOnDelete.bind(this),
+        on_will_insert_separator_handlers: this.exitList.bind(this),
+        on_format_applied_handlers: this.postFormatAppliedOnList.bind(this),
+
+        /** Processors */
+        normalize_processors: this.normalize.bind(this),
+        node_to_insert_processors: this.processNodeToInsert.bind(this),
+        clipboard_content_processors: this.processContentForClipboard.bind(this),
+        before_insert_within_pre_processors: this.insertListWithinPre.bind(this),
+        before_insert_processors: this.handleInsert.bind(this),
 
         /** Overrides */
         delete_backward_overrides: this.handleDeleteBackward.bind(this),
@@ -188,28 +196,49 @@ export class ListPlugin extends Plugin {
         tab_overrides: this.handleTab.bind(this),
         shift_tab_overrides: this.handleShiftTab.bind(this),
         split_element_block_overrides: this.handleSplitBlock.bind(this),
-        color_apply_overrides: this.applyColorToListItem.bind(this),
-        format_selection_handlers: this.applyFormatToListItem.bind(this),
-        node_to_insert_processors: this.processNodeToInsert.bind(this),
-        clipboard_content_processors: this.processContentForClipboard.bind(this),
-        before_insert_within_pre_processors: this.insertListWithinPre.bind(this),
-        before_insert_processors: this.handleInsert.bind(this),
+        apply_color_overrides: this.applyColorToListItem.bind(this),
         triple_click_overrides: this.handleTripleClick.bind(this),
 
-        fully_selected_node_predicates: (node, selection, range) => {
+        is_node_fully_selected_predicates: (node, selection, range) => {
             if (node.nodeName === "LI") {
                 const nonListChildren = childNodes(node).filter(
                     (n) => !["UL", "OL"].includes(n.nodeName)
                 );
-                if (!nonListChildren.length) {
-                    return;
+                if (nonListChildren.length) {
+                    const startLeaf = firstLeaf(nonListChildren[0]);
+                    const endLeaf = lastLeaf(nonListChildren[nonListChildren.length - 1]);
+                    if (
+                        range.isPointInRange(startLeaf, 0) &&
+                        range.isPointInRange(endLeaf, nodeSize(endLeaf))
+                    ) {
+                        return true;
+                    }
                 }
-                const startLeaf = firstLeaf(nonListChildren[0]);
-                const endLeaf = lastLeaf(nonListChildren[nonListChildren.length - 1]);
-                return (
-                    range.isPointInRange(startLeaf, 0) &&
-                    range.isPointInRange(endLeaf, nodeSize(endLeaf))
-                );
+            }
+        },
+        can_contain_selection_placeholder_predicates: (container) => {
+            if (isListItemElement(container)) {
+                return true;
+            }
+        },
+        is_node_in_same_block_segment_predicates: (node, blockNode) => {
+            const listAncestor = closestElement(node, "ul, ol");
+            if (listAncestor && blockNode.contains(listAncestor)) {
+                return false;
+            }
+        },
+
+        /** Providers */
+        color_target_providers: (node) => {
+            const li = closestElement(node, isListItem);
+            if (li && this.dependencies.selection.areNodeContentsFullySelected(li)) {
+                return li;
+            }
+        },
+        formattable_node_providers: (node) => {
+            const li = closestElement(node, isListItem);
+            if (li && this.dependencies.selection.areNodeContentsFullySelected(li)) {
+                return li;
             }
         },
     };
@@ -226,17 +255,19 @@ export class ListPlugin extends Plugin {
 
     toggleListCommand({ mode, listStyle } = {}) {
         this.toggleList(mode, listStyle);
-        this.dependencies.history.addStep();
+        this.dependencies.history.commit();
     }
 
     getBlocksToToggleList() {
         const targetedBlocks = [...this.dependencies.selection.getTargetedBlocks()];
-        return targetedBlocks.filter(
-            (block) =>
-                !descendants(block).some((descendant) => targetedBlocks.includes(descendant)) &&
-                block.isContentEditable &&
-                !["OL", "UL"].includes(block.tagName)
-        );
+        return targetedBlocks
+            .filter(
+                (block) =>
+                    !descendants(block).some((descendant) => targetedBlocks.includes(descendant)) &&
+                    !["OL", "UL"].includes(block.tagName)
+            )
+            .map((block) => closestElement(block, isListItem) ?? block)
+            .filter((block) => block.isContentEditable && block.parentElement.isContentEditable);
     }
 
     canToggleList(selection) {
@@ -270,6 +301,8 @@ export class ListPlugin extends Plugin {
             throw new Error(`listStyle is not compatible with "CL" list type`);
         }
 
+        this.dependencies.split.splitBlockSegments();
+
         // @todo @phoenix: original implementation removed whitespace-only text nodes from targetedNodes.
         // Check if this is necessary.
 
@@ -278,7 +311,7 @@ export class ListPlugin extends Plugin {
         const nonListBlocks = new Set();
         const listsToSwitch = new Set();
         for (const block of this.getBlocksToToggleList()) {
-            const li = closestElement(block, isListItem);
+            const li = isListItem(block) && block;
             if (li) {
                 if (this.getListMode(li.parentElement) === mode) {
                     sameModeListItems.add(li);
@@ -311,11 +344,15 @@ export class ListPlugin extends Plugin {
     }
 
     normalize(root = this.editable) {
+        const originalRoot = root;
         const closestNestedLI = closestElement(root, "li:has(ul, ol)");
         if (closestNestedLI && closestNestedLI.closest("ul, ol")) {
             root = closestNestedLI.parentElement;
         }
         for (let element of selectElements(root, "ul, ol, li")) {
+            if (element.nodeName === "LI" && !element.hasChildNodes()) {
+                fillEmpty(element);
+            }
             if (isProtected(element) || isProtecting(element)) {
                 continue;
             }
@@ -331,6 +368,19 @@ export class ListPlugin extends Plugin {
                 }
             }
         }
+        // Help CSS to not use :has(> ...) by setting a class on parent nodes
+        for (const floatClass of ["float-start", "float-end"]) {
+            const parentClass = `o-${floatClass}-parent`;
+            for (const el of selectElements(root, `.${parentClass}`)) {
+                if (![...el.children].some((el) => el.classList.contains(floatClass))) {
+                    el.classList.remove(parentClass);
+                }
+            }
+            for (const el of selectElements(root, `:not(.${parentClass}) > .${floatClass}`)) {
+                el.parentElement.classList.add(parentClass);
+            }
+        }
+        return originalRoot;
     }
 
     // --------------------------------------------------------------------------
@@ -375,6 +425,7 @@ export class ListPlugin extends Plugin {
                 list.setAttribute("dir", element.getAttribute("dir"));
             }
         }
+        this.adjustListPadding(list);
         cursors.restore();
         return list;
     }
@@ -498,7 +549,7 @@ export class ListPlugin extends Plugin {
             return;
         }
         const cursors = this.dependencies.selection.preserveSelection();
-        wrapInlinesInBlocks(element, {
+        this.dependencies.dom.wrapInlinesInBlocks(element, {
             baseContainerNodeName: this.dependencies.baseContainer.getDefaultNodeName(),
             cursors,
         });
@@ -510,7 +561,7 @@ export class ListPlugin extends Plugin {
     mergeSimilarLists(element) {
         if (
             !element.matches("ul, ol, li.oe-nested") ||
-            (element.matches("li.oe-nested") && !element.querySelector("ul, ol"))
+            (element.matches("li.oe-nested") && ![...element.childNodes].every(isListElement))
         ) {
             return;
         }
@@ -562,7 +613,7 @@ export class ListPlugin extends Plugin {
             )
         ) {
             const cursors = this.dependencies.selection.preserveSelection();
-            wrapInlinesInBlocks(element, {
+            this.dependencies.dom.wrapInlinesInBlocks(element, {
                 baseContainerNodeName: this.dependencies.baseContainer.getDefaultNodeName(),
                 cursors,
             });
@@ -659,7 +710,7 @@ export class ListPlugin extends Plugin {
     splitList(node) {
         const cursors = this.dependencies.selection.preserveSelection();
         // Create new list
-        const currentList = closestElement(node, "ul, ol");
+        const currentList = closestElement(node.parentElement, "ul, ol");
         const newList = currentList.cloneNode(false);
         const isList = isListElement(node);
         const wrapperLi = isList ? this.document.createElement("li") : node;
@@ -730,14 +781,9 @@ export class ListPlugin extends Plugin {
         const ul = li.parentNode;
         const children = childNodes(li);
         if (!children.every(isBlock)) {
-            const baseContainer = this.dependencies.baseContainer.createBaseContainer();
-            for (const child of children) {
-                cursors.update(callbacksForCursorUpdate.append(baseContainer, child));
-                baseContainer.append(child);
-            }
-            if (isShrunkBlock(baseContainer)) {
-                baseContainer.append(this.document.createElement("br"));
-            }
+            const baseContainer = this.dependencies.baseContainer.createBaseContainer({
+                children: [...children],
+            });
             li.append(baseContainer);
             cursors.remapNode(li, baseContainer);
         }
@@ -750,9 +796,15 @@ export class ListPlugin extends Plugin {
         // Preserve style properties
         const dir = li.getAttribute("dir") || ul.getAttribute("dir");
         const textAlign = li.style.getPropertyValue("text-align");
-        const liColorStyle = getTextColorOrClass(li);
+        const liColorStyle = getColorOrClass(li);
         const liFontSizeStyle = getFontSizeOrClass(li);
-        const wrapChildren = (parent, tag) => {
+        const getOrCreateWrapper = (parent, tag) => {
+            if (
+                parent.childNodes.length === 1 &&
+                parent.firstChild.nodeName === tag.toUpperCase()
+            ) {
+                return parent.firstChild;
+            }
             const wrapper = this.document.createElement(tag);
             wrapper.append(...parent.childNodes);
             parent.replaceChildren(wrapper);
@@ -770,16 +822,24 @@ export class ListPlugin extends Plugin {
             }
             // text color
             if (liColorStyle) {
-                const font = wrapChildren(block, "font");
+                const font = getOrCreateWrapper(block, "font");
                 this.dependencies.color.colorElement(font, liColorStyle.value, "color");
             }
             // font-size
-            if (liFontSizeStyle && !isEmptyBlock(block)) {
-                const span = wrapChildren(block, "span");
+            if (liFontSizeStyle) {
+                const span = getOrCreateWrapper(block, "span");
                 if (liFontSizeStyle.type === "font-size") {
-                    span.style.fontSize = liFontSizeStyle.value;
-                } else if (liFontSizeStyle.type === "class") {
+                    span.style.setProperty("font-size", liFontSizeStyle.value);
+                } else {
                     span.classList.add(liFontSizeStyle.value);
+                }
+            }
+            // other style properties
+            for (const property of ["font-weight", "font-style"]) {
+                const value = li.style.getPropertyValue(property);
+                if (value) {
+                    const span = getOrCreateWrapper(block, "span");
+                    span.style.setProperty(property, value);
                 }
             }
         }
@@ -834,7 +894,7 @@ export class ListPlugin extends Plugin {
     // Handlers of other plugins commands
     // --------------------------------------------------------------------------
 
-    processNodeToInsert({ nodeToInsert, container }) {
+    processNodeToInsert(nodeToInsert, container) {
         if (isListItemElement(container) && isParagraphRelatedElement(nodeToInsert)) {
             nodeToInsert = this.dependencies.dom.setTagName(nodeToInsert, "LI");
         }
@@ -853,6 +913,14 @@ export class ListPlugin extends Plugin {
     }
 
     handleTab() {
+        if (
+            !this.dependencies.selection
+                .getTargetedNodes()
+                .some((node) => closestElement(node, "LI"))
+        ) {
+            return;
+        }
+        this.dependencies.split.splitBlockSegments();
         const selection = this.dependencies.selection.getEditableSelection();
         const closestLI = closestElement(selection.anchorNode, "LI");
         if (closestLI) {
@@ -877,7 +945,7 @@ export class ListPlugin extends Plugin {
                 this.adjustListPadding(list);
             }
             // Do nothing to nav-items.
-            this.dependencies.history.addStep();
+            this.dependencies.history.commit();
             return true;
         }
     }
@@ -901,22 +969,31 @@ export class ListPlugin extends Plugin {
             this.outdentListNodes(listItems);
             this.dependencies.tabulation.outdentBlocks(nonListItems);
             // Do nothing to nav-items.
-            this.dependencies.history.addStep();
+            this.dependencies.history.commit();
             return true;
         }
     }
 
     handleSplitBlock(params) {
         const closestLI = closestElement(params.targetNode, "LI");
-        const isBlockUnsplittable =
+        // Do not split the LI if the cursor is inside an unsplittable element.
+        const isTargetInUnsplittable =
             closestLI &&
-            Array.from(closestLI.childNodes).some(
-                (node) => isBlock(node) && this.dependencies.split.isUnsplittable(node)
+            ancestors(params.targetNode, closestLI).find((node) =>
+                this.dependencies.split.isUnsplittable(node)
             );
-        if (!closestLI || isBlockUnsplittable) {
+        if (!closestLI || isTargetInUnsplittable) {
             return;
         }
-        if (isEmptyBlock(closestLI)) {
+        if (
+            childNodes(closestLI).every(
+                (child) =>
+                    isListElement(child) ||
+                    isEmptyBlock(child) ||
+                    child.nodeName === "BR" ||
+                    !isVisible(child)
+            )
+        ) {
             this.outdentLI(closestLI);
             return true;
         }
@@ -1005,6 +1082,36 @@ export class ListPlugin extends Plugin {
      * @param {import("@html_editor/core/selection_plugin").EditorSelection} selection
      */
     processContentForClipboard(clonedContents, selection) {
+        const closestLi = closestElement(selection.commonAncestorContainer, "LI");
+        if (
+            closestLi &&
+            closestLi.childNodes.length > 1 &&
+            this.dependencies.selection.areNodeContentsFullySelected(
+                selection.commonAncestorContainer
+            )
+        ) {
+            const outermostSingleChildAncestor = closestElement(
+                selection.commonAncestorContainer,
+                (el) => el === closestLi || el.parentElement?.childNodes.length !== 1
+            );
+            if (
+                outermostSingleChildAncestor === closestLi ||
+                outermostSingleChildAncestor.parentElement === closestLi
+            ) {
+                let [li, list] = [closestLi.cloneNode(), closestLi.parentElement.cloneNode()];
+                if (outermostSingleChildAncestor.parentElement === closestLi) {
+                    [li, list] = [
+                        outermostSingleChildAncestor.parentElement.cloneNode(),
+                        outermostSingleChildAncestor.parentElement.parentElement.cloneNode(),
+                    ];
+                    li.append(outermostSingleChildAncestor.cloneNode(true));
+                } else {
+                    li.append(...childNodes(clonedContents));
+                }
+                list.append(li);
+                return (clonedContents = list);
+            }
+        }
         if (clonedContents.firstChild.nodeName === "LI") {
             const list = selection.commonAncestorContainer.cloneNode();
             list.replaceChildren(...childNodes(clonedContents));
@@ -1070,7 +1177,7 @@ export class ListPlugin extends Plugin {
                 this.dependencies.selection.setSelection({ anchorNode: node, anchorOffset: 0 });
             }
             ev.preventDefault();
-            this.dependencies.history.addStep();
+            this.dependencies.history.commit();
         }
     }
 
@@ -1105,24 +1212,22 @@ export class ListPlugin extends Plugin {
         );
     }
 
-    applyColorToListItem(color, mode) {
+    applyColorToListItem(color, mode, coloredNodes) {
         this.dependencies.split.splitSelection();
         const targetedNodes = this.dependencies.selection.getTargetedNodes();
         const listItems = new Set(
             targetedNodes.map((n) => closestElement(n, "li")).filter(Boolean)
         );
-        if (!listItems.size || mode !== "color" || isColorGradient(color)) {
+        if (!listItems.size || (mode !== "color" && color) || isColorGradient(color)) {
             return;
         }
         const cursors = this.dependencies.selection.preserveSelection();
         for (const listItem of listItems) {
-            // Remove empty text nodes without breaking the current selection.
-            removeEmptyTextNodes(listItem, cursors);
-
             if (this.dependencies.selection.areNodeContentsFullySelected(listItem)) {
+                const listItemDescendants = descendants(listItem);
                 for (const node of [
                     listItem,
-                    ...descendants(listItem).filter(
+                    ...listItemDescendants.filter(
                         (n) => isElement(n) && closestElement(n, "LI") === listItem
                     ),
                 ]) {
@@ -1133,13 +1238,20 @@ export class ListPlugin extends Plugin {
                     removeClass(node, ...classesToRemove);
 
                     if (node.style.color) {
-                        removeStyle(node, "color");
+                        this.dependencies.color.colorElement(node, color, mode);
+                    }
+                    if (node.style.backgroundColor) {
+                        removeStyle(node, "background-color");
                     }
                 }
 
+                const sublists = childNodes(listItem).filter(isListElement);
+                coloredNodes.add(listItem);
+                listItemDescendants
+                    .filter((n) => !sublists.some((list) => list.contains(n)))
+                    .forEach((n) => coloredNodes.add(n));
                 if (color) {
                     this.dependencies.color.colorElement(listItem, color, mode);
-                    const sublists = childNodes(listItem).filter(isListElement);
                     for (const list of sublists) {
                         list.classList.add("o_default_color");
                     }
@@ -1167,83 +1279,24 @@ export class ListPlugin extends Plugin {
         cursors.restore();
     }
 
-    applyFormatToListItem(formatName, { formatProps, applyStyle } = {}) {
-        if (!["setFontSizeClassName", "fontSize"].includes(formatName)) {
-            return;
-        }
-        this.dependencies.split.splitSelection();
-        const targetedNodes = this.dependencies.selection.getTargetedNodes();
-        const listItems = new Set(
-            targetedNodes.map((n) => closestElement(n, "li")).filter(Boolean)
-        );
-        if (!listItems.size) {
-            return false;
-        }
+    postFormatAppliedOnList(node, formatSpec, applyStyle) {
         const listsSet = new Set();
-        const cursors = this.dependencies.selection.preserveSelection();
-        for (const listItem of listItems) {
-            // Skip list items with block descendants other than base
-            // container or a list related elements or no font size formatting
-            // to remove.
-            const hasOnlyBaseBlocks = [...descendants(listItem)]
-                .filter(isBlock)
-                .every((n) => n.matches(`${baseContainerGlobalSelector}, ol, ul, li`));
-            const hasExistingFontSize =
-                FONT_SIZE_CLASSES.some((c) => listItem.classList.contains(c)) ||
-                listItem.style.fontSize;
-            if (!hasOnlyBaseBlocks || (!applyStyle && !hasExistingFontSize)) {
-                continue;
-            }
-
-            // Remove empty text nodes without breaking the current selection.
-            removeEmptyTextNodes(listItem, cursors);
-
-            if (this.dependencies.selection.areNodeContentsFullySelected(listItem)) {
-                for (const node of [
-                    listItem,
-                    ...descendants(listItem).filter(
-                        (n) => isElement(n) && closestElement(n, "LI") === listItem
-                    ),
-                ]) {
-                    removeClass(node, ...FONT_SIZE_CLASSES, "o_default_font_size");
-                    if (node.style.fontSize) {
-                        node.style.fontSize = "";
-                    }
-                }
-
+        if (isListItem(node)) {
+            const sublists = childNodes(node).filter(isListElement);
+            for (const list of sublists) {
                 if (applyStyle) {
-                    if (formatName === "setFontSizeClassName") {
-                        listItem.classList.add(formatProps.className);
-                    } else if (formatName === "fontSize") {
-                        listItem.style.fontSize = formatProps.size;
-                    }
-                    const sublists = childNodes(listItem).filter(isListElement);
-                    for (const list of sublists) {
-                        list.classList.add("o_default_font_size");
-                    }
-                }
-            } else if (!applyStyle && hasExistingFontSize) {
-                const textNodes = targetedNodes.filter(
-                    (n) => isVisibleTextNode(n) && closestElement(n, "li") === listItem
-                );
-                // Remove inline font size from partial selection by
-                // wrapping in span with default font size.
-                for (const node of textNodes) {
-                    const span = this.document.createElement("span");
-                    span.classList.add("o_default_font_size");
-                    node.before(span);
-                    cursors.update(callbacksForCursorUpdate.before(node, span));
-                    span.append(node);
-                    cursors.update(callbacksForCursorUpdate.append(span, node));
+                    formatSpec.addNeutralStyle(list);
+                } else {
+                    formatSpec.removeStyle(list);
                 }
             }
-            listsSet.add(listItem.parentElement);
+            listsSet.add(node.parentElement);
         }
-        cursors.restore();
-        for (const list of listsSet) {
-            this.adjustListPadding(list);
+        if (formatSpec.id === "fontSize") {
+            for (const list of listsSet) {
+                this.adjustListPadding(list);
+            }
         }
-        return true;
     }
 
     /**
@@ -1262,14 +1315,18 @@ export class ListPlugin extends Plugin {
             return;
         }
 
-        const largestMarker = list.children[Symbol.iterator]()
+        const largestMarkerPadding = list.children[Symbol.iterator]()
             .map((li) => {
-                const markerWidth = parseFloat(this.window.getComputedStyle(li, "::marker").width);
-                return isNaN(markerWidth) ? 0 : markerWidth;
+                const beforeMargin = Math.abs(
+                    parseFloat(this.window.getComputedStyle(li, "::before").marginInlineStart) || 0
+                );
+                const markerWidth =
+                    parseFloat(this.window.getComputedStyle(li, "::marker").width) || 0;
+                // For `UL` with large font size the marker width is so big that more padding is needed.
+                const markerPadding = Math.round(markerWidth) * (list.nodeName === "UL" ? 2 : 1);
+                return Math.max(markerPadding, beforeMargin);
             })
             .reduce((accumulator, currentValue) => Math.max(accumulator, currentValue));
-        // For `UL` with large font size the marker width is so big that more padding is needed.
-        const largestMarkerPadding = Math.round(largestMarker) * (list.nodeName === "UL" ? 2 : 1);
 
         // bootstrap sets ul { padding-left: 2rem; }
         const defaultPadding = parseFloat(getHtmlStyle(this.document).fontSize) * 2;
@@ -1292,13 +1349,36 @@ export class ListPlugin extends Plugin {
         }
     }
 
+    /**
+     * Exit the list from given list item by splitting
+     * the list.
+     *
+     * @param {HTMLElement} blockEl
+     */
+    exitList(blockEl) {
+        let li;
+        if (isListItem(blockEl)) {
+            li = blockEl;
+        } else if (isListItem(blockEl.parentElement)) {
+            li = blockEl.parentElement;
+        }
+        if (li) {
+            // Helper li to split the list
+            const [, after] = this.dependencies.split.splitElementBlock({
+                targetNode: blockEl,
+                targetOffset: nodeSize(blockEl),
+                blockToSplit: li,
+            });
+            const [anchorNode, anchorOffset] = getDeepestEditablePosition(after, 0);
+            this.dependencies.selection.setSelection({ anchorNode, anchorOffset });
+            // Fully outdent li to exit the list
+            this.liToBlocks(after);
+        }
+    }
+
     // --------------------------------------------------------------------------
     // Toolbar buttons
     // --------------------------------------------------------------------------
-
-    updateToolbarButtons() {
-        this.toolbarListSelectorKey.value++;
-    }
 
     getListSelectorButtons() {
         return listSelectorItems
@@ -1311,7 +1391,7 @@ export class ListPlugin extends Plugin {
                 return {
                     ...pick(button, "id", "icon", "run", "mode"),
                     // We want short descriptions for these buttons.
-                    description: command.title,
+                    description: item.description,
                 };
             });
     }

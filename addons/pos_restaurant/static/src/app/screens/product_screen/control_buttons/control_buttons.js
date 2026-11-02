@@ -1,21 +1,11 @@
 import { ControlButtons } from "@point_of_sale/app/screens/product_screen/control_buttons/control_buttons";
 import { SelectPartnerButton } from "@point_of_sale/app/screens/product_screen/control_buttons/select_partner_button/select_partner_button";
-import { useService } from "@web/core/utils/hooks";
-import { useAsyncLockedMethod } from "@point_of_sale/app/hooks/hooks";
 import { patch } from "@web/core/utils/patch";
 
 patch(ControlButtons.prototype, {
     setup() {
         super.setup(...arguments);
-        this.alert = useService("alert");
-        this.printer = useService("printer");
-        this.clickPrintBill = useAsyncLockedMethod(this.clickPrintBill);
-    },
-    async clickPrintBill() {
-        // Need to await to have the result in case of automatic skip screen.
-        await this.pos.printReceipt({
-            printBillActionTriggered: true,
-        });
+        this.alert = this.pos.alert;
     },
     clickTableGuests() {
         this.pos.setCustomerCount();
@@ -23,6 +13,14 @@ patch(ControlButtons.prototype, {
     clickTransferOrder() {
         this.dialog.closeAll();
         this.pos.startTransferOrder();
+    },
+    get showAddCourse() {
+        return (
+            this.pos.config.module_pos_restaurant &&
+            !this.props.showRemainingButtons &&
+            !this.pos.getOrder()?.isRefund &&
+            !this.pos.config.use_course_allocation
+        );
     },
     showTransferCourse() {
         const order = this.currentOrder;
@@ -39,6 +37,7 @@ patch(ControlButtons.prototype, {
     async clickTransferCourse() {
         this.dialog.closeAll();
         await this.pos.transferLinesToCourse();
+        this.currentOrder.cleanCourses();
     },
 });
 patch(ControlButtons, {

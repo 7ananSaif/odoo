@@ -1,4 +1,4 @@
-import { markup, reactive } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 
 import { registry } from "@web/core/registry";
 
@@ -18,47 +18,19 @@ export class DiscussCoreCommon {
 
     setup() {
         this.busService.subscribe("discuss.channel/delete", (payload, metadata) => {
-            const thread = this.store.Thread.insert({
-                id: payload.id,
-                model: "discuss.channel",
-            });
-            this._handleNotificationChannelDelete(thread, metadata);
+            const channel = this.store["discuss.channel"].insert(payload.id);
+            this._handleNotificationChannelDelete(channel, metadata);
         });
         this.busService.subscribe("discuss.channel/new_message", (payload, metadata) => {
-            // Insert should always be done before any async operation. Indeed,
-            // awaiting before the insertion could lead to overwritting newer
-            // state coming from more recent `mail.record/insert` notifications.
-            this.store.insert(payload.data);
+            this.store.insert(payload.store_data);
             this._handleNotificationNewMessage(payload, metadata);
         });
-        this.busService.subscribe("discuss.channel/transient_message", (payload) => {
-            const { body, channel_id } = payload;
-            const lastMessageId = this.store.getLastMessageId();
-            const message = this.store["mail.message"].insert({
-                author_id: this.store.odoobot,
-                body: markup(body),
-                id: lastMessageId + 0.01,
-                subtype_id: this.store.mt_note,
-                is_transient: true,
-                thread: { id: channel_id, model: "discuss.channel" },
-            });
-            message.thread.messages.push(message);
-            message.thread.transientMessages.push(message);
-        });
-        this.busService.subscribe("discuss.channel.member/fetched", (payload) => {
-            const { channel_id, id, last_message_id, partner_id } = payload;
-            this.store["discuss.channel.member"].insert({
-                id,
-                fetched_message_id: { id: last_message_id },
-                partner_id: { id: partner_id },
-                thread: { id: channel_id, model: "discuss.channel" },
-            });
-        });
         this.env.bus.addEventListener("mail.message/delete", ({ detail: { message, notifId } }) => {
-            if (message.thread) {
-                const { self_member_id } = message.thread;
+            const self_member_id = message.channel_id?.self_member_id;
+            if (self_member_id) {
                 if (
-                    message.id > self_member_id?.seen_message_id.id &&
+                    self_member_id &&
+                    message.id > (self_member_id.seen_message_id?.id ?? 0) &&
                     notifId > self_member_id.message_unread_counter_bus_id
                 ) {
                     self_member_id.message_unread_counter--;
@@ -68,25 +40,23 @@ export class DiscussCoreCommon {
     }
 
     /**
-     * @param {import("models").Thread} thread
+     * @param {import("models").DiscussChannel} channel
      * @param {{ notifId: number}} metadata
      */
-    async _handleNotificationChannelDelete(thread, metadata) {
-        await thread.closeChatWindow({ force: true });
-        thread.messages.splice(0, thread.messages.length);
-        thread.delete();
+    async _handleNotificationChannelDelete(channel, metadata) {
+        await channel.closeChatWindow();
+        channel.messages.splice(0, channel.messages.length);
+        this.env.bus.trigger("discuss.channel/delete", { channel });
+        channel.delete();
     }
 
     async _handleNotificationNewMessage(payload, { id: notifId }) {
-        const { data, id: channelId, silent, temporary_id } = payload;
-        const channel = await this.store.Thread.getOrFetch({
-            model: "discuss.channel",
-            id: channelId,
-        });
+        const { store_data, id: channelId, silent, temporary_id } = payload;
+        const channel = await this.store["discuss.channel"].getOrFetch(channelId);
         if (!channel) {
             return;
         }
-        const message = this.store["mail.message"].get(data["mail.message"][0]);
+        const message = this.store["mail.message"].get(store_data["mail.message"][0]);
         if (!message) {
             return;
         }
@@ -107,26 +77,29 @@ export class DiscussCoreCommon {
                 }
                 if (
                     notifId > channel.self_member_id?.message_unread_counter_bus_id &&
-                    !message.isNotification
+                    (!message.isNotification ||
+                        (message.subtype_id === this.store.mt_important_notification &&
+                            message.thread?.channel))
                 ) {
                     channel.self_member_id.message_unread_counter++;
+                }
+                if (channel.shouldTranslateNewMessages) {
+                    message.toggleTranslation();
                 }
             }
         }
         if (
-            channel.channel_type !== "channel" &&
-            this.store.self_partner &&
-            channel.self_member_id
+            message.notificationType === "meeting_to_group_chat" &&
+            this.store.discuss.thread?.channel?.eq(channel)
         ) {
-            // disabled on non-channel threads and
-            // on "channel" channels for performance reasons
-            channel.markAsFetched();
+            this.store.discuss.sidebarState.activeTab = channel.primaryMessagingMenuTab;
         }
         if (
             !channel.loadNewer &&
             !message.isSelfAuthored &&
+            channel.scrollTop === "bottom" &&
             channel.composer.isFocused &&
-            this.store.self_partner &&
+            this.store.self_user &&
             channel.newestPersistentMessage?.eq(channel.newestMessage) &&
             !channel.markedAsUnread
         ) {
@@ -156,7 +129,7 @@ export const discussCoreCommon = {
      * @param {import("services").ServiceFactories} services
      */
     start(env, services) {
-        const discussCoreCommon = reactive(new DiscussCoreCommon(env, services));
+        const discussCoreCommon = proxy(new DiscussCoreCommon(env, services));
         discussCoreCommon.setup(env, services);
         return discussCoreCommon;
     },

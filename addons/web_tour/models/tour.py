@@ -1,14 +1,14 @@
 from odoo import api, fields, models, Command
 import json
-import base64
 
 
 class Web_TourTour(models.Model):
     _name = 'web_tour.tour'
-    _description = "Tours"
+    _description = "Tour"
     _order = "sequence, name, id"
 
     name = fields.Char(required=True)
+    active = fields.Boolean(default=True)
     step_ids = fields.One2many("web_tour.tour.step", "tour_id")
     url = fields.Char(string="Starting URL", default="/odoo")
     sharing_url = fields.Char(compute="_compute_sharing_url", string="Sharing URL")
@@ -44,7 +44,7 @@ class Web_TourTour(models.Model):
     @api.model
     def get_tour_json_by_name(self, tour_name):
         tour_id = self.search([("name", "=", tour_name)])
-        return tour_id._get_tour_json()
+        return tour_id._get_tour_json() if tour_id else False
 
     def _get_tour_json(self):
         tour_json = self.read(fields={
@@ -62,12 +62,11 @@ class Web_TourTour(models.Model):
         js_content = f"""import {{ registry }} from '@web/core/registry';
 
 registry.category("web_tour.tours").add("{self.name}", {{
-    url: "{self.url}",
     steps: () => {json.dumps(self.step_ids.get_steps_json(), indent=4)}
 }})"""
 
         attachment_id = self.env["ir.attachment"].create({
-            "datas": base64.b64encode(bytes(js_content, 'utf-8')),
+            "raw": bytes(js_content, 'utf-8'),
             "name": f"{self.name}.js",
             "mimetype": "application/javascript",
             "res_model": "web_tour.tour",

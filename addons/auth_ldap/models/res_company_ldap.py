@@ -3,13 +3,18 @@
 
 import ldap
 import logging
+import time
 from ldap.filter import filter_format
 
 from odoo import _, fields, models, tools
 from odoo.exceptions import AccessDenied
-from odoo.tools.misc import str2bool
+from odoo.http import request
 
 _logger = logging.getLogger(__name__)
+
+LDAP_IDENTITY_CHECK_LAST = 'identity-check-last-ldap'
+LDAP_IDENTITY_CHECK_ENTRY = 'identity-check-ldap-entry'
+LDAP_IDENTITY_CHECK_TIMEOUT = 10 * 60
 
 
 class LDAPWrapper:
@@ -18,6 +23,9 @@ class LDAPWrapper:
 
     def passwd_s(self, *args, **kwargs):
         self.__obj__.passwd_s(*args, **kwargs)
+
+    def modify_s(self, *args, **kwargs):
+        self.__obj__.modify_s(*args, **kwargs)
 
     def search_st(self, *args, **kwargs):
         return self.__obj__.search_st(*args, **kwargs)
@@ -106,8 +114,8 @@ class ResCompanyLdap(models.Model):
         uri = 'ldap://%s:%d' % (conf['ldap_server'], conf['ldap_server_port'])
 
         connection = ldap.initialize(uri)
-        ldap_chase_ref_disabled = self.env['ir.config_parameter'].sudo().get_param('auth_ldap.disable_chase_ref', 'True')
-        if str2bool(ldap_chase_ref_disabled):
+        ldap_chase_ref_disabled = self.env['ir.config_parameter'].sudo().get_bool('auth_ldap.disable_chase_ref', True)
+        if ldap_chase_ref_disabled:
             connection.set_option(ldap.OPT_REFERRALS, ldap.OPT_OFF)
         if conf['ldap_tls']:
             connection.start_tls_s()
@@ -159,6 +167,13 @@ class ResCompanyLdap(models.Model):
         except ldap.LDAPError as e:
             _logger.error('An LDAP exception occurred: %s', e)
             return False
+        if request:
+            request.session[LDAP_IDENTITY_CHECK_LAST] = time.time()  # nosemgrep: requests-in-models
+            request.session[LDAP_IDENTITY_CHECK_ENTRY] = {  # nosemgrep: requests-in-models
+                'db': self.env.cr.dbname,
+                'ldap_id': conf['id'],
+                'dn': dn,
+            }
         return entry
 
     def _query(self, conf, filter, retrieve_attributes=None):
@@ -246,15 +261,27 @@ class ResCompanyLdap(models.Model):
 
         raise AccessDenied(_("No local user found for LDAP login and not configured to create one"))
 
-    def _change_password(self, conf, login, old_passwd, new_passwd):
+    def _change_password(self, conf, login, new_passwd):
         changed = False
         dn, entry = self._get_entry(conf, login)
         if not dn:
             return False
+        if not self.env.user._is_admin() and (
+            not request
+            or request.session.get(LDAP_IDENTITY_CHECK_LAST, 0) <= time.time() - LDAP_IDENTITY_CHECK_TIMEOUT  # nosemgrep: requests-in-models
+            or request.session.get(LDAP_IDENTITY_CHECK_ENTRY) != {  # nosemgrep: requests-in-models
+                'db': self.env.cr.dbname,
+                'ldap_id': conf['id'],
+                'dn': dn,
+            }
+        ):
+            return False
+        ldap_password = conf["ldap_password"] or ""
+        ldap_binddn = conf["ldap_binddn"] or ""
         try:
             conn = self._connect(conf)
-            conn.simple_bind_s(dn, old_passwd)
-            conn.passwd_s(dn, old_passwd, new_passwd)
+            conn.simple_bind_s(ldap_binddn, ldap_password)
+            conn.modify_s(dn, [(ldap.MOD_REPLACE, "userPassword", new_passwd.encode())])
             changed = True
             conn.unbind()
         except ldap.INVALID_CREDENTIALS:

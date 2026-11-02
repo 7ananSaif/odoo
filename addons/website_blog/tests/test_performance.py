@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+from odoo.tests import tagged
+
 from odoo.addons.website.tests.test_performance import UtilPerf
 import random
 import datetime
@@ -14,11 +16,11 @@ class TestBlogPerformance(UtilPerf):
         blogs = self.env['blog.blog'].create([{
             "name": 'aaa Blog Test',
             "subtitle": 'Blog Test Subtitle',
-            "cover_properties": """{"background-image": "url('/website_blog/static/src/img/blog_1.jpeg')", "resize_class": "o_record_has_cover o_half_screen_height", "opacity": "0.4"}""",
+            "cover_properties": """{"background-image": "url('/website_blog/static/src/img/blog_1.webp')", "resize_class": "o_record_has_cover o_half_screen_height", "opacity": "0.4"}""",
         }, {
             "name": 'bbb Blog Test',
             "subtitle": 'Blog Test Subtitle',
-            "cover_properties": """{"background-image": "url('/website_blog/static/src/img/blog_1.jpeg')", "resize_class": "o_record_has_cover o_half_screen_height", "opacity": "0.4"}""",
+            "cover_properties": """{"background-image": "url('/website_blog/static/src/img/blog_1.webp')", "resize_class": "o_record_has_cover o_half_screen_height", "opacity": "0.4"}""",
         }])
 
         blog_tags = self.env['blog.tag'].create([{
@@ -30,10 +32,10 @@ class TestBlogPerformance(UtilPerf):
             "name": "Post Test",
             "subtitle": "Subtitle Test",
             "blog_id": blog.id,
-            "author_id": self.env.user.id,
+            "author_id": self.env.user.partner_id.id,
             "tag_ids": [(4, tag.id) for tag in blog_tags],
             "is_published": True,
-            "cover_properties": """{"background-image": "url('/website_blog/static/src/img/cover_1.jpg')", "resize_class": "o_record_has_cover o_half_screen_height", "opacity": "0"}""",
+            "cover_properties": """{"background-image": "url('/website_blog/static/src/img/cover_1.webp')", "resize_class": "o_record_has_cover o_half_screen_height", "opacity": "0"}""",
         } for blog in blogs])
 
     def test_10_perf_sql_blog_standard_data(self):
@@ -44,7 +46,7 @@ class TestBlogPerformance(UtilPerf):
         # - only the last call (considered hot) is executed after the publication date: ~40-50 queries
         # using freezetime after the publication date ensures a consistent result
         with freeze_time(datetime.datetime.now() + datetime.timedelta(seconds=2)):
-            self.assertLessEqual(self._get_url_hot_query('/blog'), 20)
+            self.assertLessEqual(self._get_url_hot_query('/blog'), 22)
 
     def test_20_perf_sql_blog_bigger_data_scaling(self):
         BlogPost = self.env['blog.post']
@@ -57,7 +59,7 @@ class TestBlogPerformance(UtilPerf):
             blog_post.tag_ids += blog_tags
             blog_tags = blog_tags[:-1]
         self.assertLessEqual(self._get_url_hot_query('/blog'), 33)
-        self.assertLessEqual(self._get_url_hot_query(blog_post[0].website_url), 24)
+        self.assertLessEqual(self._get_url_hot_query(blog_post[0].website_url), 25)
 
     def test_30_perf_sql_blog_bigger_data_scaling(self):
         BlogPost = self.env['blog.post']

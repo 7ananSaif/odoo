@@ -1,23 +1,23 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from contextlib import contextmanager
 from unittest.mock import patch, Mock
 
-from odoo import Command, modules
+from odoo import Command, models
 from odoo.tests.common import new_test_user, TransactionCase, HttpCase
 from odoo.tools.mail import email_split_and_format
 
-DISABLED_MAIL_CONTEXT = {
-    'tracking_disable': True,
+DISABLED_MAIL_CREATE_CONTEXT = {
     'mail_create_nolog': True,
     'mail_create_nosubscribe': True,
-    'mail_notrack': True,
     'no_reset_password': True,
 }
 
 
 class BaseCommon(TransactionCase):
+    _test_user_groups = ('base.group_user',)
+
+    _test_user_name = 'Test User'
 
     @classmethod
     def setUpClass(cls):
@@ -28,6 +28,11 @@ class BaseCommon(TransactionCase):
         # Hack to use with_context and avoid manual context dict modification
         cls.env = cls.env['base'].with_context(**cls.default_env_context()).env
 
+        # setup_independent_user() must run before setup_independent_company():
+        # some overrides (e.g. account) create the independent company using
+        # cls.env, so cls.env must already point to the independent user by
+        # then. Otherwise, the company ends up being assigned to the shared
+        # superuser instead of the test user.
         independent_user = cls.setup_independent_user()
         if independent_user:
             cls.env = cls.env(user=independent_user)
@@ -35,31 +40,73 @@ class BaseCommon(TransactionCase):
         else:
             cls.env.user.group_ids += cls.get_default_groups()
 
-        independent_company = cls.setup_independent_company()
-        if independent_company:
+        company = cls.setup_independent_company() or cls.env.company
+        if company is not cls.env.company:
             # avoid using the context to assign companies
-            cls.env.user.company_id = independent_company
-            cls.env.user.company_ids = [Command.set(independent_company.ids)]
+            cls.env.user.company_id = company
+            cls.env.user.company_ids = [Command.set(company.ids)]
         else:
             cls.setup_main_company()
 
+        if cls._test_user_groups:
+            cls._test_user = new_test_user(
+                cls.env,
+                name=cls._test_user_name,
+                login='test_user',
+                password='test_user',
+                email='test_user@test.com',
+                # Resolve groups tolerantly: a class may list a group belonging to
+                # a module that is not installed in the current run (cross-module
+                # regressions, see the # FIXME notes on some _test_user_groups). Such a
+                # group is simply ignored when its module is absent.
+                group_ids=[
+                    group.id
+                    for xmlid in cls._test_user_groups
+                    if (group := cls.env.ref(xmlid, raise_if_not_found=False))
+                ],
+                company_id=company.id,
+                company_ids=[Command.set(company.ids)],
+            )
+        else:
+            cls._test_user = cls.env.user
+
         # Make sure all class variables have the same env.
         # Do not specify any class variables before the env changes.
-        cls.company = cls.env.company
-        cls.currency = cls.env.company.currency_id
+        cls.company = company
+        cls.currency = company.currency_id
 
         cls.partner = cls.env['res.partner'].create({
             'name': 'Test Partner',
         })
 
+        cls.group_public = cls.quick_ref('base.group_public')
         cls.group_portal = cls.quick_ref('base.group_portal')
         cls.group_user = cls.quick_ref('base.group_user')
         cls.group_system = cls.quick_ref('base.group_system')
 
+    def _callSetUp(self):
+        super()._callSetUp()
+
+        if not self._test_user_groups:
+            return
+
+        self.env = self.env(user=self._test_user.id)
+
+        for key in dir(self):
+            if key.startswith('__'):
+                continue
+            value = getattr(self, key)
+            if isinstance(value, models.BaseModel):
+                setattr(self, key, value.with_env(self.env))
+
+        self.patch(self.env.transaction, "default_env", self.env)
+
+        self.env.invalidate_all()
+
     @classmethod
     def default_env_context(cls):
         """ To Override to reactivate the tracking """
-        return {**DISABLED_MAIL_CONTEXT}
+        return {**DISABLED_MAIL_CREATE_CONTEXT}
 
     @classmethod
     def setup_other_currency(cls, code, **kwargs):
@@ -109,7 +156,7 @@ class BaseCommon(TransactionCase):
         # Enforce constant currency
         currency = cls._enable_currency(currency_code)
         if company.currency_id != currency:
-            cls.env.transaction.cache.set(cls.env.company, type(cls.env.company).currency_id, currency.id, dirty=True)
+            company.__class__.currency_id._update_cache(cls.env.company, currency.id, dirty=True)
             # this is equivalent to cls.env.company.currency_id = currency but without triggering buisness code checks.
             # The value is added in cache, and the cache value is set as dirty so that that
             # the value will be written to the database on next flush.
@@ -166,7 +213,7 @@ class TransactionCaseWithUserDemo(TransactionCase):
         cls.partner_demo = cls.user_demo.partner_id
 
         if not cls.user_demo:
-            cls.env['ir.config_parameter'].sudo().set_param('auth_password_policy.minlength', 4)
+            cls.env['ir.config_parameter'].sudo().set_int('auth_password_policy.minlength', 4)
             cls.partner_demo = cls.env['res.partner'].create({
                 'name': 'Marc Demo',
                 'email': 'mark.brown23@example.com',
@@ -191,7 +238,7 @@ class HttpCaseWithUserDemo(HttpCase):
         cls.partner_demo = cls.user_demo.partner_id
 
         if not cls.user_demo:
-            cls.env['ir.config_parameter'].sudo().set_param('auth_password_policy.minlength', 4)
+            cls.env['ir.config_parameter'].sudo().set_int('auth_password_policy.minlength', 4)
             cls.partner_demo = cls.env['res.partner'].create({
                 'name': 'Marc Demo',
                 'email': 'mark.brown23@example.com',
@@ -215,7 +262,7 @@ class SavepointCaseWithUserDemo(TransactionCase):
         cls.partner_demo = cls.user_demo.partner_id
 
         if not cls.user_demo:
-            cls.env['ir.config_parameter'].sudo().set_param('auth_password_policy.minlength', 4)
+            cls.env['ir.config_parameter'].sudo().set_int('auth_password_policy.minlength', 4)
             cls.partner_demo = cls.env['res.partner'].create({
                 'name': 'Marc Demo',
                 'email': 'mark.brown23@example.com',
@@ -340,7 +387,7 @@ class TransactionCaseWithUserPortal(TransactionCase):
         cls.partner_portal = cls.user_portal.partner_id
 
         if not cls.user_portal:
-            cls.env['ir.config_parameter'].sudo().set_param('auth_password_policy.minlength', 4)
+            cls.env['ir.config_parameter'].sudo().set_int('auth_password_policy.minlength', 4)
             cls.partner_portal = cls.env['res.partner'].create({
                 'name': 'Joel Willis',
                 'email': 'joel.willis63@example.com',
@@ -362,7 +409,7 @@ class HttpCaseWithUserPortal(HttpCase):
         cls.partner_portal = cls.user_portal.partner_id
 
         if not cls.user_portal:
-            cls.env['ir.config_parameter'].sudo().set_param('auth_password_policy.minlength', 4)
+            cls.env['ir.config_parameter'].sudo().set_int('auth_password_policy.minlength', 4)
             cls.partner_portal = cls.env['res.partner'].create({
                 'name': 'Joel Willis',
                 'email': 'joel.willis63@example.com',
@@ -529,7 +576,7 @@ class MockSmtplibCase:
     @classmethod
     def _init_mail_gateway(cls):
         cls.default_from_filter = False
-        cls.env['ir.config_parameter'].sudo().set_param('mail.default.from_filter', cls.default_from_filter)
+        cls.env['ir.config_parameter'].sudo().set_str('mail.default.from_filter', cls.default_from_filter)
 
     @classmethod
     def _init_mail_servers(cls):

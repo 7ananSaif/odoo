@@ -3,22 +3,33 @@
 # * website_partner
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
-# "Fernanda Alvarez (mfar)" <mfar@odoo.com>, 2025.
+# "Fernanda Alvarez (mfar)" <mfar@odoo.com>, 2025, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-10-07 18:28+0000\n"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-10-15 15:38+0000\n"
 "Last-Translator: \"Fernanda Alvarez (mfar)\" <mfar@odoo.com>\n"
 "Language-Team: Spanish (Latin America) <https://translate.odoo.com/projects/"
-"odoo-19/website_partner/es_419/>\n"
+"odoo-20/website_partner/es_419/>\n"
 "Language: es_419\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: website_partner
+#: model:ir.module.module,description:base.module_website_partner
+msgid ""
+"\n"
+"This is a base module. It holds website-related stuff for Contact model "
+"(res.partner).\n"
+msgstr ""
+"\n"
+"Este es un módulo base. Incluye todo lo relacionado con el sitio web para el "
+"modelo de contacto (res.partner).\n"
 
 #. module: website_partner
 #: model:ir.model,name:website_partner.model_res_partner
@@ -31,16 +42,20 @@ msgid "Create a Customer"
 msgstr "Crear un cliente"
 
 #. module: website_partner
-#: model_terms:ir.ui.view,arch_db:website_partner.partner_page
-msgid "DROP BUILDING BLOCKS HERE TO MAKE THEM AVAILABLE ACROSS ALL PARTNERS"
-msgstr ""
-"ARRASTRA LOS BLOQUES DE CREACIÓN AQUÍ, ESTARÁN DISPONIBLES PARA TODOS LOS "
-"CONTACTOS"
-
-#. module: website_partner
 #: model:ir.model.fields,field_description:website_partner.field_res_partner__display_name
 msgid "Display Name"
 msgstr "Mostrar nombre"
+
+#. module: website_partner
+#: model_terms:ir.ui.view,arch_db:website_partner.partner_page
+msgid "Drag blocks here to add them on all partners"
+msgstr "Arrastra los bloques aquí para agregarlos a todos los contactos"
+
+#. module: website_partner
+#. odoo-python
+#: code:addons/website_partner/models/res_partner.py:0
+msgid "Find Resellers"
+msgstr "Buscar distribuidores"
 
 #. module: website_partner
 #: model:ir.model.fields,field_description:website_partner.field_res_partner__id
@@ -64,6 +79,11 @@ msgid "Partner Unpublished"
 msgstr "Contacto sin publicar"
 
 #. module: website_partner
+#: model:ir.module.module,summary:base.module_website_partner
+msgid "Partner module for website"
+msgstr "Módulo del contacto para el sitio web"
+
+#. module: website_partner
 #: model:mail.message.subtype,name:website_partner.mt_partner_published
 msgid "Partner published"
 msgstr "Contacto publicado"
@@ -74,6 +94,12 @@ msgid "Partner unpublished"
 msgstr "Contacto sin publicar"
 
 #. module: website_partner
+#. odoo-python
+#: code:addons/website_partner/models/res_partner.py:0
+msgid "Resellers"
+msgstr "Distribuidores"
+
+#. module: website_partner
 #: model:ir.model.fields,field_description:website_partner.field_res_partner__is_seo_optimized
 msgid "SEO optimized"
 msgstr "Optimizado para SEO"
@@ -82,6 +108,11 @@ msgstr "Optimizado para SEO"
 #: model:ir.model.fields,field_description:website_partner.field_res_partner__seo_name
 msgid "Seo name"
 msgstr "Nombre SEO"
+
+#. module: website_partner
+#: model:ir.module.module,shortdesc:base.module_website_partner
+msgid "Website Partner"
+msgstr "Contacto del sitio web"
 
 #. module: website_partner
 #: model:ir.model.fields,field_description:website_partner.field_res_partner__website_description

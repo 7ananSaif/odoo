@@ -4,7 +4,7 @@ import re
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
-from odoo.tools.misc import mod10r
+from odoo.tools.business_data import mod10r
 
 L10N_CH_QRR_NUMBER_LENGTH = 27
 
@@ -26,8 +26,8 @@ class AccountMove(models.Model):
                     move.company_id.account_fiscal_country_id.code == 'CH' or
                     (
                         # QR code is also printed if the fiscal country is not Switzerland but the receivale account is eligible
-                        move.partner_bank_id.acc_type == 'iban' and
-                        (iban := (move.partner_bank_id.acc_number or '').replace(' ', '')).startswith('CH') and
+                        move.partner_bank_id.account_type == 'iban' and
+                        (iban := (move.partner_bank_id.account_number or '').replace(' ', '')).startswith('CH') and
                         iban[4:9].isdigit() and
                         30000 <= int(iban[4:9]) <= 31999
                     )
@@ -43,7 +43,7 @@ class AccountMove(models.Model):
         The last digit is a checksum (mod10r).
         """
         self.ensure_one()
-        if self.partner_bank_id.l10n_ch_qr_iban and self.l10n_ch_is_qr_valid and self.name:
+        if self.partner_bank_id.l10n_ch_qr_iban and self.name:
             invoice_ref = re.sub(r'[^\d]', '', self.name)
             return self._compute_qrr_number(invoice_ref)
         else:

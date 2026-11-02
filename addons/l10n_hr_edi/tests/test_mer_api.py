@@ -11,7 +11,7 @@ from odoo.tests import tagged
 
 from odoo.addons.account.tests.test_account_move_send import TestAccountMoveSendCommon
 from odoo.addons.l10n_hr_edi.tests.test_hr_edi_common import TestL10nHrEdiCommon
-from ..tools import (
+from odoo.addons.l10n_hr_edi.tools.api import (
     _mer_api_query_document_process_status_outbox,
     _mer_api_receive_document,
     _mer_api_query_inbox,
@@ -21,6 +21,8 @@ from ..tools import (
 
 @tagged('external', 'external_l10n', 'post_install', '-post_install_l10n', '-at_install', '-standard')
 class TestL10nHrEdiMerApi(TestL10nHrEdiCommon, TestAccountMoveSendCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):
@@ -149,6 +151,8 @@ class TestL10nHrEdiMerApi(TestL10nHrEdiCommon, TestAccountMoveSendCommon):
         Test recieving a document with known MER ElectronicId from the MER system and importing it.
         Invoices sent to the demo server are returned as vendor bills.
         """
+        self.modify_demo_bank_account()
+
         electronic_id = '3120260'
         response = _mer_api_receive_document(
             self.env.company,
@@ -203,6 +207,8 @@ class TestL10nHrEdiMerApi(TestL10nHrEdiCommon, TestAccountMoveSendCommon):
         and to not notify MER of successful document import.
         Only a select number of 'trusted' documents are imported to avoid dragging the test out.
         """
+        self.modify_demo_bank_account()
+
         self.env.company._l10n_hr_mer_get_new_documents(
             undelivered_only=False,
             slc=(10, 20),  # Documents 3107515, 3110637, 3110651, 3111902, 3111911, 3114870, 3120196, 3120260, 3120276, 3120289
@@ -225,6 +231,8 @@ class TestL10nHrEdiMerApi(TestL10nHrEdiCommon, TestAccountMoveSendCommon):
         First create a partial payment for the document, then add the remaining payment.
         WARNING: permanently changes the state of the demo server!
         """
+        self.modify_demo_bank_account()
+
         electronic_id = '3084663'
         response = _mer_api_receive_document(
             self.env.company,

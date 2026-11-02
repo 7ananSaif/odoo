@@ -1,16 +1,5 @@
 .o_timeoff_card {
-    display: flex;
-    flex-direction: column;
-    justify-content: start;
-    flex: 1;
-    text-align: center;
-    border-right: 1px solid $border-color;
-
-    &>* {
-        width: fit-content;
-        margin-left: auto;
-        margin-right: auto;
-    }
+    min-height: 80px;
 
     span {
         line-height: 1;
@@ -20,17 +9,14 @@
         color: $body-color;
         font-size: 15px;
         margin-bottom: 3px;
-    }
-
-    .o_timeoff_name.btn-link:hover {
-        color: $btn-link-hover-color;
+        font-weight: bolder;
     }
 
     .o_timeoff_duration {
-        font-size: 30px;
-        font-weight: bold;
+        font-size: 40px;
         width: auto;
         padding: auto 5px;
+        line-height: 1;
 
         img {
             height: 30px;
@@ -39,24 +25,19 @@
     }
 
     .o_timeoff_validity {
-        font-size: 10px;
+        font-size: 14px;
     }
 
-    .o_timeoff_details {
-        width: fit-content;
-        margin: 0 auto;
-        cursor: pointer;
-    }
+    .no-bg-color {
+        // The goal is to achieve the same background as in the calendar renderer, 
+        // which uses a mix for the background color and has 30% opacity.
+        // (with a darker shade for the bright version, otherwise it wouldn't be visible)
+        $base_color: mix($o-white, nth($o-colors-complete, 1), 25%);
+        $calendar_bg: $o-view-background-color;
+        $base_color_with_fake_opacity: mix($base_color, $calendar_bg, 30%);
 
-    .o_timeoff_info {
-        display: inline-block;
-        margin-right: -10px;
-        padding-right: 10px;
+        background-color: #{$base_color_with_fake_opacity};
     }
-}
-
-.o_time_off_icon_types img {
-    filter: var(--timeOffCard-icon-filter);
 }
 
 .o_time_off_card_popover_warning {

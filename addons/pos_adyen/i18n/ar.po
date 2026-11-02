@@ -7,14 +7,16 @@
 # Malaz Abuidris <msea@odoo.com>, 2023
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Malaz Siddig Elsayed Abuidris (msea)" <msea@odoo.com>, 2026.
+# Weblate <noreply-mt-weblate@weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-10-13 12:15+0000\n"
-"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
-"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-19/pos_adyen/"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-10-16 13:46+0000\n"
+"Last-Translator: \"Malaz Siddig Elsayed Abuidris (msea)\" <msea@odoo.com>\n"
+"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-20/pos_adyen/"
 "ar/>\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
@@ -22,12 +24,17 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: pos_adyen
 #: model_terms:ir.ui.view,arch_db:pos_adyen.res_config_settings_view_form
 msgid "Add tip through payment terminal (Adyen)"
 msgstr "إضافة بقشيش من خلال جهاز الدفع بالبطاقة (Adyen)"
+
+#. module: pos_adyen
+#: model_terms:ir.ui.view,arch_db:pos_adyen.pos_payment_method_view_form_inherit_pos_adyen
+msgid "Adyen"
+msgstr "Adyen"
 
 #. module: pos_adyen
 #: model:ir.model.fields,field_description:pos_adyen.field_pos_payment_method__adyen_api_key
@@ -44,6 +51,11 @@ msgstr "خطأ في Adyen"
 #: model:ir.model.fields,field_description:pos_adyen.field_pos_payment_method__adyen_latest_response
 msgid "Adyen Latest Response"
 msgstr "آخر استجابة لـ Adyen"
+
+#. module: pos_adyen
+#: model:ir.model.fields,field_description:pos_adyen.field_pos_payment_method__adyen_merchant_account
+msgid "Adyen Merchant Account"
+msgstr "حساب تاجر Adyen"
 
 #. module: pos_adyen
 #: model:ir.model.fields,field_description:pos_adyen.field_pos_payment_method__adyen_terminal_identifier
@@ -83,8 +95,8 @@ msgstr "لقد فشلت عملية إلغاء الدفع. يرجى إلغاؤه�
 #. module: pos_adyen
 #. odoo-javascript
 #: code:addons/pos_adyen/static/src/app/utils/payment/payment_adyen.js:0
-msgid "Cannot process transactions with negative amount."
-msgstr "لا يمكن معالجة المعاملات التي بها مبلغ قيمته سالبة."
+msgid "Cannot refund non-Adyen transactions via Adyen."
+msgstr ""
 
 #. module: pos_adyen
 #: model:ir.model,name:pos_adyen.model_res_config_settings
@@ -102,6 +114,8 @@ msgstr ""
 
 #. module: pos_adyen
 #: model:ir.model.fields,field_description:pos_adyen.field_pos_config__display_name
+#: model:ir.model.fields,field_description:pos_adyen.field_pos_order__display_name
+#: model:ir.model.fields,field_description:pos_adyen.field_pos_payment__display_name
 #: model:ir.model.fields,field_description:pos_adyen.field_pos_payment_method__display_name
 #: model:ir.model.fields,field_description:pos_adyen.field_res_config_settings__display_name
 msgid "Display Name"
@@ -114,10 +128,17 @@ msgstr "رابط URL للفعالية"
 
 #. module: pos_adyen
 #: model:ir.model.fields,field_description:pos_adyen.field_pos_config__id
+#: model:ir.model.fields,field_description:pos_adyen.field_pos_order__id
+#: model:ir.model.fields,field_description:pos_adyen.field_pos_payment__id
 #: model:ir.model.fields,field_description:pos_adyen.field_pos_payment_method__id
 #: model:ir.model.fields,field_description:pos_adyen.field_res_config_settings__id
 msgid "ID"
 msgstr "المُعرف"
+
+#. module: pos_adyen
+#: model:ir.module.module,summary:base.module_pos_adyen
+msgid "Integrate your POS with an Adyen payment terminal"
+msgstr ""
 
 #. module: pos_adyen
 #. odoo-python
@@ -132,6 +153,11 @@ msgid "Message from Adyen: %s"
 msgstr "رسالة من Adyen: %s"
 
 #. module: pos_adyen
+#: model:ir.module.module,shortdesc:base.module_pos_adyen
+msgid "POS Adyen"
+msgstr ""
+
+#. module: pos_adyen
 #. odoo-python
 #: code:addons/pos_adyen/models/pos_config.py:0
 msgid ""
@@ -144,9 +170,19 @@ msgid "Point of Sale Configuration"
 msgstr "تهيئة نقطة البيع"
 
 #. module: pos_adyen
+#: model:ir.model,name:pos_adyen.model_pos_order
+msgid "Point of Sale Order"
+msgstr "طلب نقطة البيع"
+
+#. module: pos_adyen
+#: model:ir.model,name:pos_adyen.model_pos_payment
+msgid "Point of Sale Payment"
+msgstr "الدفع عند نقطة البيع"
+
+#. module: pos_adyen
 #: model:ir.model,name:pos_adyen.model_pos_payment_method
-msgid "Point of Sale Payment Methods"
-msgstr "طرق الدفع في نقطة البيع"
+msgid "Point of Sale Payment Method"
+msgstr "طريقة الدفع في نقطة البيع"
 
 #. module: pos_adyen
 #: model:ir.model.fields,field_description:pos_adyen.field_res_config_settings__pos_adyen_ask_customer_for_tip
@@ -178,6 +214,11 @@ msgstr ""
 "(payment_method)s."
 
 #. module: pos_adyen
+#: model:ir.model.fields,help:pos_adyen.field_pos_payment_method__adyen_merchant_account
+msgid "The POS merchant account code used in Adyen"
+msgstr "رمز حساب تاجر نقطة البيع المُستخدَم في Adyen"
+
+#. module: pos_adyen
 #: model:ir.model.fields,help:pos_adyen.field_pos_payment_method__adyen_event_url
 msgid "This URL needs to be pasted on Adyen's portal terminal settings."
 msgstr "عليك لصق عنوان URL هذا في إعدادات جهاز الدفع في بوابة Adyen."
@@ -197,15 +238,3 @@ msgid "[Terminal model]-[Serial number], for example: P400Plus-123456789"
 msgstr ""
 "[نموذج جهاز الدفع بالبطاقة]-[الرقم التسلسلي]، على سبيل المثال: "
 "P400Plus-123456789"
-
-#~ msgid "Adyen Latest Diagnosis"
-#~ msgstr "آخر تشخيص لـ Adyen "
-
-#~ msgid "Point of Sale Session"
-#~ msgstr "جلسة نقطة البيع"
-
-#~ msgid "Terminal %s is already used in company %s on payment method %s."
-#~ msgstr "جهاز الدفع بالبطاقة %s مستخدم بالفعل في الشركة %s لطريقة الدفع %s. "
-
-#~ msgid "Terminal %s is already used on payment method %s."
-#~ msgstr "جهاز الدفع بالبطاقة %s مستخدم بالفعل في طريقة الدفع %s. "

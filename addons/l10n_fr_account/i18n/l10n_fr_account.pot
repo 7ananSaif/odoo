@@ -4,16 +4,42 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0+e\n"
+"Project-Id-Version: Odoo Server 19.5a1+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 19:16+0000\n"
-"PO-Revision-Date: 2026-04-10 19:16+0000\n"
+"POT-Creation-Date: 2026-09-11 18:12+0000\n"
+"PO-Revision-Date: 2026-09-11 18:12+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
+
+#. module: l10n_fr_account
+#: model:ir.module.module,description:base.module_l10n_fr_account
+msgid ""
+"\n"
+"This is the module to manage the accounting chart for France in Odoo.\n"
+"========================================================================\n"
+"\n"
+"This module applies to companies based in France mainland. It doesn't apply to\n"
+"companies based in the DOM-TOMs (Guadeloupe, Martinique, Guyane, Réunion, Mayotte).\n"
+"\n"
+"This localisation module creates the VAT taxes of type 'tax included' for purchases\n"
+"(it is notably required when you use the module 'hr_expense'). Beware that these\n"
+"'tax included' VAT taxes are not managed by the fiscal positions provided by this\n"
+"module (because it is complex to manage both 'tax excluded' and 'tax included'\n"
+"scenarios in fiscal positions).\n"
+"\n"
+"This localisation module doesn't properly handle the scenario when a France-mainland\n"
+"company sells services to a company based in the DOMs. We could manage it in the\n"
+"fiscal positions, but it would require to differentiate between 'product' VAT taxes\n"
+"and 'service' VAT taxes. We consider that it is too 'heavy' to have this by default\n"
+"in l10n_fr_account; companies that sell services to DOM-based companies should update the\n"
+"configuration of their taxes and fiscal positions manually.\n"
+"\n"
+"**Credits:** Sistheo, Zeekom, CrysaLEAD, Akretion and Camptocamp.\n"
+msgstr ""
 
 #. module: l10n_fr_account
 #: model_terms:ir.ui.view,arch_db:l10n_fr_account.report_invoice_document
@@ -35,8 +61,9 @@ msgid "Account Chart Template"
 msgstr ""
 
 #. module: l10n_fr_account
-#: model_terms:ir.ui.view,arch_db:l10n_fr_account.fec_export_wizard_view
-msgid "Cancel"
+#. odoo-python
+#: code:addons/l10n_fr_account/models/template_fr_asso.py:0
+msgid "Associations accounting plan"
 msgstr ""
 
 #. module: l10n_fr_account
@@ -60,8 +87,14 @@ msgid "CompAuxNum"
 msgstr ""
 
 #. module: l10n_fr_account
+#. odoo-python
+#: code:addons/l10n_fr_account/models/template_fr_comp.py:0
+msgid "Companies accounting plan"
+msgstr ""
+
+#. module: l10n_fr_account
 #: model:ir.model,name:l10n_fr_account.model_res_company
-msgid "Companies"
+msgid "Company"
 msgstr ""
 
 #. module: l10n_fr_account
@@ -150,6 +183,11 @@ msgid "End Date"
 msgstr ""
 
 #. module: l10n_fr_account
+#: model:res.country.group,name:l10n_fr_account.europe_vat_without_mc
+msgid "European Union VAT (Without Monaco)"
+msgstr ""
+
+#. module: l10n_fr_account
 #: model:ir.model.fields,field_description:l10n_fr_account.field_l10n_fr_fec_export_wizard__excluded_journal_ids
 msgid "Excluded Journals"
 msgstr ""
@@ -182,6 +220,17 @@ msgstr ""
 #. module: l10n_fr_account
 #: model:ir.ui.menu,name:l10n_fr_account.account_reports_fr_statements_menu
 msgid "France"
+msgstr ""
+
+#. module: l10n_fr_account
+#: model:ir.module.module,shortdesc:base.module_l10n_fr_account
+msgid "France - Accounting"
+msgstr ""
+
+#. module: l10n_fr_account
+#. odoo-python
+#: code:addons/l10n_fr_account/models/template_fr.py:0
+msgid "General accounting plan"
 msgstr ""
 
 #. module: l10n_fr_account
@@ -241,6 +290,20 @@ msgid "L10N Fr Rounding Difference Profit Account"
 msgstr ""
 
 #. module: l10n_fr_account
+#: model:ir.model.fields,field_description:l10n_fr_account.field_res_company__l10n_fr_siren
+#: model:ir.model.fields,field_description:l10n_fr_account.field_res_partner__l10n_fr_siren
+#: model:ir.model.fields,field_description:l10n_fr_account.field_res_users__l10n_fr_siren
+msgid "L10N Fr Siren"
+msgstr ""
+
+#. module: l10n_fr_account
+#: model:ir.model.fields,field_description:l10n_fr_account.field_res_company__l10n_fr_siret
+#: model:ir.model.fields,field_description:l10n_fr_account.field_res_partner__l10n_fr_siret
+#: model:ir.model.fields,field_description:l10n_fr_account.field_res_users__l10n_fr_siret
+msgid "L10N Fr Siret"
+msgstr ""
+
+#. module: l10n_fr_account
 #: model:ir.model.fields,field_description:l10n_fr_account.field_l10n_fr_fec_export_wizard__write_uid
 msgid "Last Updated by"
 msgstr ""
@@ -258,12 +321,6 @@ msgstr ""
 #. module: l10n_fr_account
 #: model_terms:ir.ui.view,arch_db:l10n_fr_account.fec_export_wizard_view
 msgid "Montantdevise"
-msgstr ""
-
-#. module: l10n_fr_account
-#. odoo-python
-#: code:addons/l10n_fr_account/models/res_partner.py:0
-msgid "No. Tahiti"
 msgstr ""
 
 #. module: l10n_fr_account
@@ -297,9 +354,8 @@ msgid "Report Footer"
 msgstr ""
 
 #. module: l10n_fr_account
-#. odoo-python
-#: code:addons/l10n_fr_account/models/res_partner.py:0
-msgid "SIRET Number"
+#: model_terms:ir.ui.view,arch_db:l10n_fr_account.report_invoice_document
+msgid "SIREN:"
 msgstr ""
 
 #. module: l10n_fr_account

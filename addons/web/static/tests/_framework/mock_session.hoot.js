@@ -26,12 +26,15 @@ const makeSession = ({
         debug: new URLSearchParams(location.search).get("debug"),
         lang,
     },
+    bus_info: { last_id: 0, worker_version: "test" },
     can_insert_in_spreadsheet: true,
     db,
     registry_hash: "05500d71e084497829aa807e3caa2e7e9782ff702c15b2f57f87f2d64d049bd0",
+    browser_cache_secret: "23aeb0ff5d46cfa8aa44163720d871ac",
     home_action_id: false,
     is_admin: true,
     is_internal_user: true,
+    is_regular_user: true,
     is_system: true,
     max_file_upload_size: 134217728,
     name: partnerName,
@@ -68,7 +71,7 @@ const makeSession = ({
 //-----------------------------------------------------------------------------
 
 export function mockSessionFactory() {
-    return () => {
+    return function mockSession() {
         const session = makeSession(serverState);
 
         onServerStateChange(session, makeSession);

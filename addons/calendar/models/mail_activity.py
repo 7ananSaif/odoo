@@ -1,9 +1,8 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-
-import pytz
+from datetime import UTC
 
 from odoo import models, fields, tools, _
-from odoo.tools import is_html_empty
+from odoo.tools import format_list, is_html_empty
 from odoo.addons.mail.tools.discuss import Store
 
 
@@ -20,7 +19,6 @@ class MailActivity(models.Model):
             date_deadline = self[0].date_deadline  # updated, hence all same value
             # also protect against loops in case of ill-managed timezones
             events = self.calendar_event_id.with_context(mail_activity_meeting_update=True)
-            user_tz = self.env.context.get('tz') or 'UTC'
             for event in events:
                 # allday: just apply diff between dates
                 if event.allday and event.start_date != date_deadline:
@@ -28,7 +26,7 @@ class MailActivity(models.Model):
                 # otherwise: we have to check if day did change, based on TZ
                 elif not event.allday:
                     # old start in user timezone
-                    old_deadline_dt = pytz.utc.localize(event.start).astimezone(pytz.timezone(user_tz))
+                    old_deadline_dt = event.start.replace(tzinfo=UTC).astimezone(self.env.tz)
                     date_diff = date_deadline - old_deadline_dt.date()
                     event.start = event.start + date_diff
 
@@ -37,14 +35,21 @@ class MailActivity(models.Model):
     def action_create_calendar_event(self):
         self.ensure_one()
         action = self.env["ir.actions.actions"]._for_xml_id("calendar.action_calendar_event")
+        # The event default partners should be the current user +
+        # the activity related record "customer" (aka main partner)
+        default_partners = self.user_id.partner_id
+        if self.res_model and self.res_id:
+            record = self.env[self.res_model].browse(self.res_id).exists()
+            if record and record.has_access('read'):
+                default_partners |= record._mail_get_customer()
         action['context'] = {
             'default_activity_type_id': self.activity_type_id.id,
             'default_res_id': self.env.context.get('default_res_id'),
             'default_res_model': self.env.context.get('default_res_model'),
             'default_name': self.res_name,
             'default_description': self.note if not is_html_empty(self.note) else '',
-            'default_activity_ids': [(6, 0, self.ids)],
-            'default_partner_ids': self.user_id.partner_id.ids,
+            'default_meeting_activity_ids': [(6, 0, self.ids)],
+            'default_partner_ids': default_partners.ids,
             'default_user_id': self.user_id.id,
             'initial_date': self.date_deadline,
             'default_calendar_event_id': self.calendar_event_id.id,
@@ -69,5 +74,26 @@ class MailActivity(models.Model):
         events.unlink()
         return res
 
-    def _to_store_defaults(self, target):
-        return super()._to_store_defaults(target) + [Store.One("calendar_event_id", [])]
+    def _get_activity_done_message_extra_values(self, activity):
+        """Extra values for the chatter template send on activity marked as done."""
+        event = activity.calendar_event_id
+        if not event.partner_ids:
+            return {}
+        attendee_names = format_list(self.env, event.partner_ids.mapped("name"))
+        attendee_count = len(event.partner_ids)
+        return {
+            "attendee_names": attendee_names,
+            "truncated_attendee_names": (
+                format_list(self.env, [
+                    *event.partner_ids[:2].mapped("name"),
+                    self.env._("%s others", attendee_count - 2),
+                ])
+                if attendee_count > 3
+                else attendee_names
+            ),
+        }
+
+    def _store_activity_fields(self, res: Store.FieldList):
+        super()._store_activity_fields(res)
+        res.attr("res_name")
+        res.one("calendar_event_id", "_store_calendar_event_fields")

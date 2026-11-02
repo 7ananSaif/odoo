@@ -3,14 +3,24 @@ import { formatFloat } from "@web/core/utils/numbers";
 import { parseFloat } from "@web/views/fields/parsers";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
 import { registry } from "@web/core/registry";
+import { _t } from "@web/core/l10n/translation";
+import { user } from "@web/core/user";
+import { useService } from "@web/core/utils/hooks";
+import { usePopover } from "@web/core/popover/popover_hook";
+import { DropdownPopover } from "@web/core/dropdown/_behaviours/dropdown_popover";
+import { FormViewDialog } from "@web/views/view_dialogs/form_view_dialog";
+import { SelectCreateDialog } from "@web/views/view_dialogs/select_create_dialog";
 import {
     Component,
+    computed,
     onPatched,
-    onWillUpdateProps,
-    onWillRender,
+    onWillStart,
+    signal,
+    t,
     toRaw,
-    useRef,
-    useState,
+    proxy,
+    useEffect,
+    useProps,
 } from "@odoo/owl";
 import { useNumpadDecimal } from "@web/views/fields/numpad_decimal_hook";
 
@@ -18,31 +28,40 @@ import { useNumpadDecimal } from "@web/views/fields/numpad_decimal_hook";
  A line of some TaxTotalsComponent, giving the values of a tax group.
  **/
 class TaxGroupComponent extends Component {
-    static props = {
-        totals: { optional: true },
-        subtotal: { optional: true },
-        taxGroup: { optional: true },
-        onChangeTaxGroup: { optional: true },
-        isReadonly: Boolean,
-        invalidate: Function,
-    };
     static template = "account.TaxGroupComponent";
 
+    props = useProps({
+        totals: t.any().optional(),
+        subtotal: t.any().optional(),
+        taxGroup: t.any().optional(),
+        onChangeTaxGroup: t.any().optional(),
+        isReadonly: t.boolean(),
+        invalidate: t.function(),
+        removeCashRounding: t.function().optional(),
+    });
+
+    inputTaxRef = signal.ref();
+    numpadDecimalRef = signal.ref();
+
     setup() {
-        this.inputTax = useRef("taxValueInput");
-        this.state = useState({ value: "readonly" });
+        this.state = proxy({ value: "readonly" });
         onPatched(() => {
             if (this.state.value === "edit") {
+                const el = this.inputTaxRef();
+                if (!el) {
+                    return;
+                }
                 const { taxGroup } = this.props;
                 const newVal = formatFloat(taxGroup.tax_amount_currency, { digits: this.props.totals.currency_pd });
-                this.inputTax.el.value = newVal;
-                this.inputTax.el.focus(); // Focus the input
+                el.value = newVal;
+                el.focus(); // Focus the input
             }
         });
-        onWillUpdateProps(() => {
+        useEffect(() => {
+            this.props.taxGroup;
             this.setState("readonly");
         });
-        useNumpadDecimal();
+        useNumpadDecimal(this.numpadDecimalRef);
     }
 
     formatMonetary(value) {
@@ -86,11 +105,15 @@ class TaxGroupComponent extends Component {
     _onChangeTaxValue() {
         this.setState("disable"); // Disable the input
         const oldValue = this.props.taxGroup.tax_amount_currency;
+        const el = this.inputTaxRef();
+        if (!el) {
+            return;
+        }
         let newValue;
         try {
-            newValue = parseFloat(this.inputTax.el.value); // Get the new value
+            newValue = parseFloat(el.value); // Get the new value
         } catch {
-            this.inputTax.el.value = oldValue;
+            el.value = oldValue;
             this.setState("edit");
             return;
         }
@@ -123,15 +146,142 @@ class TaxGroupComponent extends Component {
 export class TaxTotalsComponent extends Component {
     static template = "account.TaxTotalsField";
     static components = { TaxGroupComponent };
-    static props = {
-        ...standardFieldProps,
-    };
+
+    props = useProps(standardFieldProps);
+
+    totals = computed(() => this.formatData(this.props));
+
+    taxGroupWithRoundingAmount = computed(() => {
+        const totals = this.totals();
+        if (!totals || !this.showCashRounding || !totals.has_biggest_tax_cash_rounding) {
+            return;
+        }
+        const taxGroups = totals.subtotals?.flatMap((subtotal) => subtotal.tax_groups);
+        if (taxGroups?.length) {
+            return taxGroups.reduce((a, b) =>
+                b.tax_amount_currency > a.tax_amount_currency ? b : a
+            );
+        }
+    });
 
     setup() {
-        this.totals = {};
-        this.formatData(this.props);
-        onWillRender(() => this.formatData(this.props));
+        this.orm = useService("orm");
+        this.dialogService = useService("dialog");
+        this.cashRoundingDropdown = usePopover(DropdownPopover, {
+            popoverClass: "o-dropdown--menu dropdown-menu o_cash_rounding_dropdown",
+            position: "left-middle",
+            role: "menu",
+        });
+        this.hasCashRoundingAccess = false;
+
+        onWillStart(async () => {
+            this.hasCashRoundingAccess =
+                this.props.record.isInEdition &&
+                (await user.hasGroup("account.group_cash_rounding"));
+        });
     }
+
+    //--------------------------------------------------------------------------
+    // Cash rounding
+    //--------------------------------------------------------------------------
+
+    get showCashRounding() {
+        if (this.props.record.resModel !== "account.move") {
+            return false;
+        }
+
+        const move = this.props.record.data;
+        return (
+            this.hasCashRoundingAccess &&
+            move.move_type?.startsWith("out_") &&
+            move.state === "draft"
+        );
+    }
+
+    isCashRoundingSelected(cashRoundingId) {
+        return (
+            cashRoundingId && cashRoundingId === this.props.record.data.invoice_cash_rounding_id.id
+        );
+    }
+
+    setCashRounding(cashRoundingId) {
+        this.cashRoundingDropdown.close();
+        this.props.record.update({
+            ["invoice_cash_rounding_id"]: {
+                id: this.isCashRoundingSelected(cashRoundingId) ? false : cashRoundingId,
+            },
+        });
+        this.props.record.save();
+    }
+
+    async openCashRoundingDropdown(target) {
+        if (this.cashRoundingDropdown.isOpen) {
+            this.cashRoundingDropdown.close();
+            return;
+        }
+
+        const { total_length, records } = await this.orm.call(
+            "account.move",
+            "get_cash_roundings",
+            [this.props.record.data.id]
+        );
+        const items = [
+            {
+                id: "title",
+                label: _t("Rounding Methods"),
+                class: "o_cash_rounding_dropdown_title",
+                onSelected: () => {},
+            },
+        ];
+        items.push(
+            ...records.map((rounding) => ({
+                id: rounding.id,
+                label: rounding.display_name,
+                class: {
+                    o_cash_rounding_dropdown_selected: this.isCashRoundingSelected(rounding.id),
+                },
+                onSelected: () => this.setCashRounding(rounding.id),
+            }))
+        );
+        if (total_length > records.length) {
+            items.push({
+                id: "search_more",
+                label: _t("Search more..."),
+                class: "o_cash_rounding_dropdown_action",
+                onSelected: () => this.openCashRoundingListView(),
+            });
+        }
+        items.push({
+            id: "new_rounding",
+            label: _t("Create and edit"),
+            class: "o_cash_rounding_dropdown_action",
+            onSelected: () => this.openCashRoundingFormView(),
+        });
+        this.cashRoundingDropdown.open(target, { items, slots: {} });
+    }
+
+    openCashRoundingFormView() {
+        this.dialogService.add(FormViewDialog, {
+            resModel: "account.cash.rounding",
+            title: _t("New Rounding Method"),
+            onRecordSaved: (record) => this.setCashRounding(record.resId),
+        });
+    }
+
+    openCashRoundingListView() {
+        this.dialogService.add(SelectCreateDialog, {
+            resModel: "account.cash.rounding",
+            title: _t("Select Rounding Method"),
+            multiSelect: false,
+            onSelected: (resIds) => this.setCashRounding(resIds[0]),
+        });
+    }
+
+    removeCashRounding() {
+        return this.setCashRounding(false);
+    }
+
+    //--------------------------------------------------------------------------
 
     get readonly() {
         return this.props.readonly;
@@ -142,7 +292,7 @@ export class TaxTotalsComponent extends Component {
     }
 
     formatMonetary(value) {
-        return formatMonetary(value, {currencyId: this.totals.currency_id});
+        return formatMonetary(value, {currencyId: this.totals().currency_id});
     }
 
     /**
@@ -153,8 +303,9 @@ export class TaxTotalsComponent extends Component {
      */
     _onChangeTaxValueByTaxGroup({ oldValue, newValue }) {
         if (oldValue === newValue) return;
-        this.props.record.update({ [this.props.name]: this.totals });
-        delete this.totals.cash_rounding_base_amount_currency;
+        const totals = this.totals();
+        this.props.record.update({ [this.props.name]: totals });
+        delete totals.cash_rounding_base_amount_currency;
     }
 
     formatData(props) {
@@ -162,7 +313,7 @@ export class TaxTotalsComponent extends Component {
         if (!totals) {
             return;
         }
-        this.totals = totals;
+        return totals;
     }
 }
 

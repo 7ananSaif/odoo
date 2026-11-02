@@ -7,7 +7,9 @@ import {
     models,
     mountView,
     onRpc,
+    patchWithCleanup,
 } from "@web/../tests/web_test_helpers";
+import { AnalyticDistribution } from "@analytic/components/analytic_distribution/analytic_distribution";
 import { defineAnalyticModels } from "./analytic_test_helpers";
 
 defineAnalyticModels();
@@ -94,7 +96,7 @@ class Aml extends models.Model {
     label = fields.Char({ string: "Label" });
     amount = fields.Float({ string: "Amount" });
     analytic_distribution = fields.Json({ string: "Analytic" });
-    move_id = fields.Many2one({ string: "Account Move", relation: "move" });
+    move_id = fields.Many2one({ string: "Journal Entry", relation: "move" });
     analytic_precision = fields.Integer({ string: "Analytic Precision" });
     company_id = fields.Many2one({ relation: "res.company" });
 
@@ -188,7 +190,7 @@ test("analytic field in form view basic features", async () => {
     ).toHaveCount(1);
 
     // tags
-    await contains(".fa-close").click();
+    await contains(".btn.o_button[title='Close']").click();
     expect(".analytic_distribution_popup").toHaveCount(0);
     expect(".badge").toHaveCount(2);
     expect(".badge:eq(0) .o_tag_badge_text").toHaveText("30.3% RD | 50% HR | 19.7% FI");
@@ -242,7 +244,7 @@ test("analytic field in multi_edit list view + search more", async () => {
     await contains(".modal-dialog .o_data_row:nth-of-type(4) .o_data_cell:first-of-type").click();
     expect(".modal-dialog .o_list_renderer").toHaveCount(0);
 
-    await contains(".fa-close").click();
+    await contains("[data-icon='close']").click();
     await contains(".modal-dialog .btn-primary").click();
     await animationFrame();
     expect(".o_data_row .badge").toHaveCount(4);
@@ -362,4 +364,54 @@ test("Rounding, value suggestions, keyboard only", async () => {
     await press("Escape"); // close the popup
     await animationFrame();
     expect(".badge:contains('99.99% Time Off | 0.01% Operating Costs')").toHaveCount(1);
+});
+
+test.tags("desktop");
+test("editable list save flushes pending dropdown pick before web_save", async () => {
+    onRpc("account.analytic.plan", "get_relevant_plans", function ({ model }) {
+        return this.env[model].filter((r) => !r.parent_id && r.applicability !== "unavailable");
+    });
+    let savedVals;
+    onRpc("aml", "web_save", ({ args }) => {
+        savedVals = args[1];
+    });
+
+    const def = Promise.withResolvers();
+    patchWithCleanup(AnalyticDistribution.prototype, {
+        async commitChanges() {
+            await def.promise;
+            return super.commitChanges();
+        },
+    });
+
+    await mountView({
+        type: "list",
+        resModel: "aml",
+        arch: `
+            <list editable="bottom">
+                <field name="label"/>
+                <field name="analytic_distribution" widget="analytic_distribution"/>
+                <field name="amount"/>
+            </list>`,
+    });
+
+    await contains(".o_data_row:eq(1) .o_list_char").click();
+    await press("Tab");
+    await animationFrame();
+    expect(".analytic_distribution_popup").toHaveCount(1);
+
+    await press("Tab");
+    await animationFrame();
+    await press("ArrowDown");
+    await animationFrame();
+    await press("Enter");
+    await animationFrame();
+
+    await contains(".o_list_renderer").click();
+    await animationFrame();
+    expect(savedVals).toBe(undefined);
+
+    def.resolve();
+    await animationFrame();
+    expect(savedVals.analytic_distribution).toEqual({ 1: 100 });
 });

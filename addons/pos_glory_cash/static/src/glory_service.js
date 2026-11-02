@@ -1,3 +1,4 @@
+import { proxy } from "@odoo/owl";
 import {
     serializeGloryXml,
     parseGloryXml,
@@ -12,16 +13,13 @@ import {
     XML_REQUESTS,
 } from "@pos_glory_cash/utils/constants";
 import { SocketIoService } from "@pos_glory_cash/utils/socket_io";
-import { reactive } from "@odoo/owl";
 import { sortBy } from "@web/core/utils/arrays";
-import { browser } from "@web/core/browser/browser";
+import { location } from "@web/core/browser/browser";
 import { Logger } from "@bus/workers/bus_worker_utils";
 import { uuid } from "@web/core/utils/strings";
 
 const { DateTime } = luxon;
 
-const WEBSOCKET_PORT = browser.location.protocol === "https:" ? 3001 : 3000;
-const WEBSOCKET_PROTOCOL = browser.location.protocol === "https:" ? "wss:" : "ws:";
 const WEBSOCKET_URL = "/socket.io/?transport=websocket&EIO=3";
 
 const convertObjectValuesToInt = (object) =>
@@ -58,12 +56,14 @@ export class GloryService {
             },
             onBinaryEvent: (data) =>
                 parseGloryXml(data).then((response) => {
-                    this._logXml("RECV", response);
-                    const message = response.firstChild;
-                    if (this.resolvers[message.tagName]) {
-                        this.resolvers[message.tagName](message);
-                    } else if (this.eventHandlers[message.tagName]) {
-                        this.eventHandlers[message.tagName](message);
+                    for (const element of response) {
+                        this._logXml("RECV", element);
+                        const message = element.firstChild;
+                        if (this.resolvers[message.tagName]) {
+                            this.resolvers[message.tagName](message);
+                        } else if (this.eventHandlers[message.tagName]) {
+                            this.eventHandlers[message.tagName](message);
+                        }
                     }
                 }),
         });
@@ -74,12 +74,16 @@ export class GloryService {
      * @param {string} ip
      * @param {string} [username]
      * @param {string} [password]
+     * @param {boolean} [forceHttp]
      */
-    connect(ip, username, password) {
+    connect(ip, username, password, forceHttp = false) {
         this._resetState();
         this.username = username;
         this.password = password;
-        const websocketEndpoint = `${WEBSOCKET_PROTOCOL}//${ip}:${WEBSOCKET_PORT}${WEBSOCKET_URL}`;
+        const protocol = location.protocol === "https:" && !forceHttp ? "wss:" : "ws:";
+        const port = protocol === "wss:" ? 3001 : 3000;
+
+        const websocketEndpoint = `${protocol}//${ip}:${port}${WEBSOCKET_URL}`;
         this.socketIo.connect(websocketEndpoint);
     }
 
@@ -194,7 +198,7 @@ export class GloryService {
         this.paymentInProgress = false;
 
         /** @type {import("models".GloryState)} */
-        this.state = reactive({
+        this.state = proxy({
             status: "DISCONNECTED",
             inventory: [],
             amountInserted: 0,

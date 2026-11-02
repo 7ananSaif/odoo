@@ -3,133 +3,102 @@
 # * crm_mail_plugin
 #
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+# "Chloe Wang (chwa)" <chwa@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~18.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-09-16 15:38+0000\n"
-"Last-Translator: \"Tiffany Chang (tic)\" <tic@odoo.com>\n"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-08-31 19:40+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://translate.odoo.com/"
-"projects/odoo-19/crm_mail_plugin/zh_Hans/>\n"
+"projects/odoo-s19-4/crm_mail_plugin/zh_Hans/>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: crm_mail_plugin
-#. odoo-javascript
-#: code:addons/crm_mail_plugin/static/src/to_translate/translations_gmail.xml:0
-#: code:addons/crm_mail_plugin/static/src/to_translate/translations_outlook.xml:0
+#. odoo-python
+#: code:addons/crm_mail_plugin/controllers/mail_plugin.py:0
 msgid ""
 "%(expected_revenue)s + %(recurring_revenue)s %(recurring_plan)s at %"
-"(probability)s%"
+"(probability)s%%"
 msgstr ""
-"%(expected_revenue)s + %(recurring_revenue)s%(recurring_plan)s在%"
-"(probability)s%时"
+
+#. module: crm_mail_plugin
+#. odoo-python
+#: code:addons/crm_mail_plugin/controllers/mail_plugin.py:0
+msgid "%(expected_revenue)s at %(probability)s%%"
+msgstr ""
+
+#. module: crm_mail_plugin
+#: model:ir.module.module,shortdesc:base.module_crm_mail_plugin
+msgid "CRM Mail Plugin"
+msgstr ""
 
 #. module: crm_mail_plugin
 #. odoo-javascript
 #: code:addons/crm_mail_plugin/static/src/to_translate/translations_gmail.xml:0
 #: code:addons/crm_mail_plugin/static/src/to_translate/translations_outlook.xml:0
-msgid "%(expected_revenue)s at %(probability)s%"
-msgstr "在%(probability)s%的%(expected_revenue)s处"
+msgid "Could not create the opportunity"
+msgstr "无法创建商机"
 
 #. module: crm_mail_plugin
 #. odoo-javascript
 #: code:addons/crm_mail_plugin/static/src/to_translate/translations_gmail.xml:0
-msgid "Could not create the lead"
-msgstr "无法创造线索"
-
-#. module: crm_mail_plugin
-#: model:ir.model,website_form_label:crm_mail_plugin.model_crm_lead
-msgid "Create an Opportunity"
-msgstr "创建商机"
-
-#. module: crm_mail_plugin
-#: model:ir.model.fields,field_description:crm_mail_plugin.field_crm_lead__display_name
-msgid "Display Name"
-msgstr "显示名称"
-
-#. module: crm_mail_plugin
-#. odoo-javascript
-#: code:addons/crm_mail_plugin/static/src/to_translate/translations_gmail.xml:0
-msgid "Email already logged on the lead"
-msgstr "已经登录在线索上的电子邮件"
-
-#. module: crm_mail_plugin
-#: model:ir.model.fields,field_description:crm_mail_plugin.field_crm_lead__id
-msgid "ID"
-msgstr "ID"
-
-#. module: crm_mail_plugin
-#: model:ir.model,name:crm_mail_plugin.model_crm_lead
-msgid "Lead"
-msgstr "线索"
-
-#. module: crm_mail_plugin
-#: model:ir.actions.act_window,name:crm_mail_plugin.crm_lead_action_form_edit
-msgid "Lead: redirect form in edit mode"
-msgstr "领导：在编辑模式下重定向表格"
-
-#. module: crm_mail_plugin
-#. odoo-javascript
 #: code:addons/crm_mail_plugin/static/src/to_translate/translations_outlook.xml:0
-msgid "Log Email Into Lead"
-msgstr "将电子邮件记录到线索中"
+msgid "Email already logged on the opportunity"
+msgstr "已记录在商机中的电子邮件"
 
 #. module: crm_mail_plugin
 #. odoo-javascript
 #: code:addons/crm_mail_plugin/static/src/to_translate/translations_gmail.xml:0
-msgid "Log the email on the lead"
-msgstr "记录线索上的电子邮件"
-
-#. module: crm_mail_plugin
-#. odoo-javascript
 #: code:addons/crm_mail_plugin/static/src/to_translate/translations_outlook.xml:0
-msgid "No opportunities found for this contact."
-msgstr "没有发现该联系人的机会。"
+msgid "Log the email on the opportunity"
+msgstr "将电子邮件记录在商机中"
 
 #. module: crm_mail_plugin
 #. odoo-javascript
+#: code:addons/crm_mail_plugin/static/src/to_translate/translations_gmail.xml:0
+#: code:addons/crm_mail_plugin/static/src/to_translate/translations_outlook.xml:0
+msgid "New"
+msgstr "新"
+
+#. module: crm_mail_plugin
+#. odoo-javascript
+#: code:addons/crm_mail_plugin/static/src/to_translate/translations_gmail.xml:0
 #: code:addons/crm_mail_plugin/static/src/to_translate/translations_outlook.xml:0
 msgid "Opportunities"
 msgstr "商机"
 
 #. module: crm_mail_plugin
 #. odoo-javascript
-#: code:addons/crm_mail_plugin/static/src/to_translate/translations_outlook.xml:0
-msgid "Opportunities (%(count)s)"
-msgstr "机会 (%(count)s)"
-
-#. module: crm_mail_plugin
-#. odoo-javascript
 #: code:addons/crm_mail_plugin/static/src/to_translate/translations_gmail.xml:0
+#: code:addons/crm_mail_plugin/static/src/to_translate/translations_outlook.xml:0
 msgid "Opportunities (%s)"
 msgstr "机会 (%s)"
 
 #. module: crm_mail_plugin
-#: model:ir.actions.server,name:crm_mail_plugin.lead_creation_prefilled_action
-msgid "Redirection to the lead creation form with prefilled info"
-msgstr "使用预填充信息重定向到Lead Creation表单"
+#. odoo-javascript
+#: code:addons/crm_mail_plugin/static/src/to_translate/translations_gmail.xml:0
+#: code:addons/crm_mail_plugin/static/src/to_translate/translations_outlook.xml:0
+msgid "Search Opportunities"
+msgstr "搜索商机"
 
 #. module: crm_mail_plugin
 #. odoo-javascript
 #: code:addons/crm_mail_plugin/static/src/to_translate/translations_gmail.xml:0
 #: code:addons/crm_mail_plugin/static/src/to_translate/translations_outlook.xml:0
-msgid "Save Contact to create new Opportunities."
-msgstr "保存联系人以创建新的机会。"
+msgid "Show all"
+msgstr "显示全部"
 
 #. module: crm_mail_plugin
-#. odoo-javascript
-#: code:addons/crm_mail_plugin/static/src/to_translate/translations_outlook.xml:0
-msgid "The Contact needs to exist to create Opportunity."
-msgstr "联系人需要存在才能创建商机。"
-
-#. module: crm_mail_plugin
-#. odoo-javascript
-#: code:addons/crm_mail_plugin/static/src/to_translate/translations_gmail.xml:0
-msgid "You can only create opportunities for existing customers."
-msgstr "您只能为现有客户创造机会。"
+#: model:ir.module.module,description:base.module_crm_mail_plugin
+#: model:ir.module.module,summary:base.module_crm_mail_plugin
+msgid ""
+"Turn emails received in your mailbox into leads and log their content as "
+"internal notes."
+msgstr ""

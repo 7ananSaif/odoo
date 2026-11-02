@@ -1,43 +1,36 @@
-import { Component, useState } from "@odoo/owl";
+import { Component, useProps, proxy, t } from "@odoo/owl";
 import { useBus } from "@web/core/utils/hooks";
-import { formatFloat, formatFloatTime, formatMonetary } from "@web/views/fields/formatters";
+import { formatFloatTime, formatMonetary } from "@web/views/fields/formatters";
 import { MoOverviewLine } from "../mo_overview_line/mrp_mo_overview_line";
 import { SHOW_OPTIONS } from "../mo_overview_display_filter/mrp_mo_overview_display_filter";
 
-export class MoOverviewOperationsBlock extends Component {
-    static template = "mrp.MoOverviewOperationsBlock";
+export const MO_OVERVIEW_SUMMARY_SHAPE = {
+    index: t.string(),
+    quantity: t.number().optional(),
+    quantity_decorator: t.or([t.string(), t.boolean()]).optional(),
+    mo_cost: t.number().optional(),
+    uom_name: t.string().optional(),
+    currency_id: t.number().optional(),
+    currency: t.string().optional(),
+    done: t.boolean().optional(),
+};
+
+export const moOverviewBaseBlockProps = {
+    unfoldAll: t.boolean().optional(false),
+    summary: t.object(MO_OVERVIEW_SUMMARY_SHAPE),
+    showOptions: SHOW_OPTIONS,
+};
+
+export class MoOverviewBaseBlock extends Component {
+    static template = "mrp.MoOverviewBaseBlock";
     static components = {
         MoOverviewLine,
     };
-    static props = {
-        unfoldAll: { type: Boolean, optional: true },
-        operations: Array,
-        summary: {
-            type: Object,
-            shape: {
-                index: String,
-                quantity: { type: Number, optional: true },
-                quantity_decorator: { type: [String, Boolean], optional: true },
-                mo_cost: { type: Number, optional: true },
-                mo_cost_decorator: { type: [String, Boolean], optional: true },
-                bom_cost: { type: [Number, Boolean], optional: true },
-                real_cost: { type: Number, optional: true },
-                real_cost_decorator: { type: [String, Boolean], optional: true },
-                uom_name: { type: String, optional: true },
-                currency_id: { type: Number, optional: true },
-                currency: { type: String, optional: true },
-                done: { type: Boolean, optional: true },
-            },
-        },
-        showOptions: SHOW_OPTIONS,
-    };
-    static defaultProps = {
-        unfoldAll: false,
-    };
+    props = useProps(moOverviewBaseBlockProps);
 
     setup() {
         this.formatFloatTime = formatFloatTime;
-        this.state = useState({
+        this.state = proxy({
             // Unfold the main MO's operations by default
             isFolded: this.level > 0 && !this.props.unfoldAll,
         });
@@ -72,12 +65,8 @@ export class MoOverviewOperationsBlock extends Component {
 
     //---- Getters ----
 
-    get hasOperations() {
-        return this.props?.operations?.length > 0;
-    }
-
     get level() {
-        return this.hasOperations ? this.props.operations[0].level - 1 : 0;
+        throw new Error("Not Implemented");
     }
 
     get index() {
@@ -87,7 +76,28 @@ export class MoOverviewOperationsBlock extends Component {
     get totalQuantity() {
         // Float for Hours when displaying done productions, FloatTime for Minutes otherwise.
         return this.props.summary?.done ?
-            formatFloat(this.props.summary.quantity, { digits: [false, this.props.operations[0].uom_precision || undefined] }) :
-            formatFloatTime(this.props.summary.quantity)
+            formatFloatTime(this.props.summary.quantity, { unit: "hours", showSeconds: true }) :
+            formatFloatTime(this.props.summary.quantity, { unit: "minutes", showSeconds: true })
+    }
+}
+
+export class MoOverviewOperationsBlock extends MoOverviewBaseBlock {
+    static template = "mrp.MoOverviewOperationsBlock";
+    static components = {
+        MoOverviewLine,
+    };
+    props = useProps({
+        ...moOverviewBaseBlockProps,
+        operations: t.array(),
+    });
+
+    //---- Getters ----
+
+    get hasOperations() {
+        return this.props?.operations?.length > 0;
+    }
+
+    get level() {
+        return this.hasOperations ? this.props.operations[0].level - 1 : 0;
     }
 }

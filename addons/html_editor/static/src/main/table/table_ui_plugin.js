@@ -1,11 +1,16 @@
+import { proxy } from "@odoo/owl";
 import { Plugin } from "@html_editor/plugin";
 import { closestElement } from "@html_editor/utils/dom_traversal";
-import { reactive } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
+import { MobileTablePicker } from "./mobile_table_picker";
 import { TableMenu } from "./table_menu";
 import { TablePicker } from "./table_picker";
 import { isHtmlContentSupported } from "@html_editor/core/selection_plugin";
+import { TableDragDrop } from "./table_drag_drop";
 import { registry } from "@web/core/registry";
+import { getRowIndex } from "@html_editor/utils/table";
+import { allowsParagraphRelatedElements, isTableCell } from "@html_editor/utils/dom_info";
+import { hasTouch } from "@web/core/browser/feature_detection";
 
 /**
  * This plugin only contains the table ui feature (table picker, menus, ...).
@@ -13,7 +18,7 @@ import { registry } from "@web/core/registry";
  */
 export class TableUIPlugin extends Plugin {
     static id = "tableUi";
-    static dependencies = ["history", "overlay", "table"];
+    static dependencies = ["history", "overlay", "selection", "table"];
     /** @type {import("plugins").EditorResources} */
     resources = {
         user_commands: [
@@ -21,9 +26,12 @@ export class TableUIPlugin extends Plugin {
                 id: "openTablePicker",
                 title: _t("Table"),
                 description: _t("Insert a table"),
-                icon: "fa-table",
+                icon: "table",
                 run: this.openPickerOrInsertTable.bind(this),
-                isAvailable: isHtmlContentSupported,
+                isAvailable: (selection) =>
+                    isHtmlContentSupported(selection) &&
+                    closestElement(selection.anchorNode, allowsParagraphRelatedElements)
+                        ?.isContentEditable,
             },
         ],
         powerbox_items: [
@@ -32,6 +40,7 @@ export class TableUIPlugin extends Plugin {
                 commandId: "openTablePicker",
             },
         ],
+        on_selectionchange_handlers: this.updateActiveCell.bind(this),
     };
 
     setup() {
@@ -52,10 +61,24 @@ export class TableUIPlugin extends Plugin {
             },
         });
 
+        /** @type {import("@html_editor/core/overlay_plugin").Overlay} */
+        this.mobilePicker = this.dependencies.overlay.createOverlay(MobileTablePicker, {
+            positionOptions: {
+                updatePositionOnResize: false,
+                onPositioned: (picker) => {
+                    picker.style.bottom = 0;
+                    picker.style.width = "100%";
+                    picker.style.removeProperty("top");
+                },
+            },
+        });
+
+        this.activeTd = null;
         this.columnMenuOverlayKey = "table-column-menu";
         this.rowMenuOverlayKey = "table-row-menu";
-        this.activeTd = null;
 
+        /** @type {import("@html_editor/core/overlay_plugin").Overlay} */
+        this.tableDragDropOverlay = this.dependencies.overlay.createOverlay(TableDragDrop);
         this.addDomListener(this.document, "pointermove", this.onMouseMove);
         const closeMenus = () => {
             if (this.isMenuOpened) {
@@ -65,6 +88,9 @@ export class TableUIPlugin extends Plugin {
             }
         };
         this.addDomListener(this.document, "scroll", closeMenus, true);
+        this.addDomListener(this.document, "click", this.onClick);
+        this.tableMenuMethods = Object.assign({}, ...this.getResource("table_menu_commands"));
+        this.addDomListener(this.document, "touchend", this.onTouchEnd);
     }
 
     openPicker() {
@@ -78,16 +104,69 @@ export class TableUIPlugin extends Plugin {
         });
     }
 
+    openMobilePicker() {
+        this.mobilePicker.open({
+            props: {
+                editable: this.editable,
+                close: () => {
+                    this.mobilePicker.close();
+                    this.dependencies.selection.focusEditable();
+                },
+                insertTable: (params) => this.dependencies.table.insertTable(params),
+            },
+        });
+    }
+
     openPickerOrInsertTable() {
         if (this.services.ui.isSmall) {
-            this.dependencies.table.insertTable({ cols: 3, rows: 3 });
+            this.openMobilePicker();
         } else {
             this.openPicker();
         }
     }
 
+    onTouchEnd(ev) {
+        const touch = ev.changedTouches[0];
+        const element = this.document.elementFromPoint(touch.clientX, touch.clientY);
+        if (!element) {
+            return;
+        }
+        const targetCell = closestElement(element, isTableCell);
+        const isTableMenuClick = !targetCell && element.closest(".o-we-table-menu");
+
+        if (!isTableMenuClick && this.activeTd !== targetCell) {
+            this.setActiveTd(targetCell);
+        }
+    }
+
+    updateActiveCell(selectionData) {
+        const selection = selectionData.editableSelection;
+        const selectedTd = closestElement(selection.startContainer, ".o_selected_td");
+        if (selection.isCollapsed || !selectedTd) {
+            return;
+        }
+        this.activeTd = false;
+    }
+
+    onClick() {
+        const selectedTds = this.document.querySelectorAll(".o_selected_td");
+        // If there is a selected td, we hide the table menu as it manipulates
+        // the whole table and shouldn't overlap with the toolbar.
+        if (selectedTds.length !== 0) {
+            this.setActiveTd(null);
+            return;
+        }
+    }
+
     onMouseMove(ev) {
         const target = ev.target;
+        const selectedTds = this.document.querySelectorAll(".o_selected_td");
+        // If there is a selected td, we hide the table menu as it manipulates
+        // the whole table and shouldn't overlap with the toolbar.
+        if (selectedTds.length !== 0) {
+            this.setActiveTd(null);
+            return;
+        }
         if (this.isMenuOpened) {
             return;
         }
@@ -108,7 +187,7 @@ export class TableUIPlugin extends Plugin {
     }
 
     createDropdownState(closeMenu) {
-        const dropdownState = reactive({
+        const dropdownState = proxy({
             isOpen: false,
             open: () => {
                 dropdownState.isOpen = true;
@@ -138,54 +217,41 @@ export class TableUIPlugin extends Plugin {
         if (!td) {
             return;
         }
-        const withAddStep =
-            (fn) =>
-            (...args) => {
-                fn(...args);
-                this.dependencies.history.addStep();
-            };
-        const tableMethods = {
-            moveColumn: withAddStep(this.dependencies.table.moveColumn),
-            addColumn: withAddStep(this.dependencies.table.addColumn),
-            removeColumn: withAddStep(this.dependencies.table.removeColumn),
-            moveRow: withAddStep(this.dependencies.table.moveRow),
-            addRow: withAddStep(this.dependencies.table.addRow),
-            removeRow: withAddStep(this.dependencies.table.removeRow),
-            turnIntoHeader: withAddStep(this.dependencies.table.turnIntoHeader),
-            turnIntoRow: withAddStep(this.dependencies.table.turnIntoRow),
-            resetRowHeight: withAddStep(this.dependencies.table.resetRowHeight),
-            resetColumnWidth: withAddStep(this.dependencies.table.resetColumnWidth),
-            resetTableSize: withAddStep(this.dependencies.table.resetTableSize),
-            clearColumnContent: withAddStep(this.dependencies.table.clearColumnContent),
-            clearRowContent: withAddStep(this.dependencies.table.clearRowContent),
-        };
-        if (td.cellIndex === 0) {
+        const grid = this.dependencies.table.buildTableGrid(closestElement(td, "table"));
+        const rowIndex = getRowIndex(td.parentElement);
+        if (grid[rowIndex][0] === td || hasTouch()) {
             registry.category(this.config.localOverlayContainers.key).add(this.rowMenuOverlayKey, {
                 Component: TableMenu,
                 props: {
-                    document: this.document,
                     type: "row",
+                    tableDragDropOverlay: this.tableDragDropOverlay,
                     target: td,
                     dropdownState: this.createDropdownState(this.closeColumnMenu.bind(this)),
                     direction: this.config.direction || "ltr",
                     close: () => this.closeRowMenu(),
-                    ...tableMethods,
+                    document: this.document,
+                    editable: this.editable,
+                    commit: this.dependencies.history.commit,
+                    ...this.tableMenuMethods,
                 },
             });
         }
-        if (td.parentElement.rowIndex === 0) {
+        if (td.parentElement.rowIndex === 0 || hasTouch()) {
             registry
                 .category(this.config.localOverlayContainers.key)
                 .add(this.columnMenuOverlayKey, {
                     Component: TableMenu,
                     props: {
-                        document: this.document,
                         type: "column",
                         target: td,
+                        tableDragDropOverlay: this.tableDragDropOverlay,
                         dropdownState: this.createDropdownState(this.closeRowMenu.bind(this)),
                         direction: this.config.direction || "ltr",
+                        document: this.document,
+                        editable: this.editable,
                         close: () => this.closeColumnMenu(),
-                        ...tableMethods,
+                        commit: this.dependencies.history.commit,
+                        ...this.tableMenuMethods,
                     },
                 });
         }

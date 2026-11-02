@@ -8,18 +8,19 @@
             <form>
                 <sheet>
                     <h1>
-                        <field name="name" readonly="not datas"/>
+                        <field name="name" readonly="not raw"/>
                     </h1>
                     <group>
                         <group>
                             <field name="document_type"/>
-                            <label for="datas"/>
+                            <label for="raw"/>
                             <div class="o_row">
                                 <field
-                                    name="datas"
+                                    name="raw"
                                     filename="name"
                                     options="{'accepted_file_extensions': '.pdf', 'allowed_mime_type' : 'application/pdf'}"
                                     class="oe_inline"
+                                    required="1"
                                 />
                                 <button
                                     name="action_open_pdf_form_fields"
@@ -27,10 +28,11 @@
                                     string="Configure dynamic fields"
                                     help="Mark fields as safe to fill in the quote."
                                     class="btn btn-link"
-                                    icon="fa-pencil"
+                                    icon="edit"
+                                    icon_class="oi-filled"
                                     colspan="2"
                                     groups="base.group_system,base.group_no_one"
-                                    invisible="not (datas and form_field_ids)"
+                                    invisible="not (raw and form_field_ids)"
                                 />
                             </div>
                             <field
@@ -88,21 +90,21 @@
                             class="dropdown-item"
                         >Download</a>
                     </t>
-                    <t t-name="card" class="o_kanban_attachment flex-row">
+                    <t t-name="card" class="flex-row gap-2">
                         <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
-                        <aside>
-                            <div class="o_image o_kanban_previewer w-100 h-100" t-att-data-mimetype="record.mimetype.value"/>
+                        <aside class="o_kanban_previewer">
+                            <div class="o_image o_image_64_contain" t-att-data-mimetype="record.mimetype.value"/>
                         </aside>
-                        <main class="ms-2">
+                        <main>
                             <field name="name" class="fw-bolder text-truncate"/>
-                            <div class="d-flex mt-2">
+                            <div class="d-flex text-nowrap">
                                 <span>Document type:</span>
                                 <field name="document_type" class="ms-2" widget="selection"/>
                             </div>
                             <div
                                 t-if="!context.hide_template_ids
                                       and !!record.quotation_template_ids.raw_value.length"
-                                class="mt-2"
+                                class="mt-1"
                             >
                                 <span class="pe-2">Templates:</span>
                                 <field name="quotation_template_ids" class="d-inline-block" widget="many2many_tags"/>
@@ -118,7 +120,7 @@
         <field name="name">quotation.document.list</field>
         <field name="model">quotation.document</field>
         <field name="arch" type="xml">
-            <list editable="top" multi_edit="true">
+            <list multi_edit="true">
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
                 <field name="document_type"/>

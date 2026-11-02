@@ -16,29 +16,44 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~14.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:40+0000\n"
-"PO-Revision-Date: 2025-11-16 22:46+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Catalan <https://translate.odoo.com/projects/odoo-19/web_tour/"
-"ca/>\n"
+"POT-Creation-Date: 2026-10-09 17:40+0000\n"
+"PO-Revision-Date: 2026-08-31 16:59+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Catalan <https://translate.odoo.com/projects/odoo-s19-4/"
+"web_tour/ca/>\n"
 "Language: ca\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: web_tour
+#: model:ir.module.module,description:base.module_web_tour
+msgid ""
+"\n"
+"Odoo Web tours.\n"
+"========================\n"
+"\n"
+msgstr ""
 
 #. module: web_tour
 #. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_recorder/tour_recorder.xml:0
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.js:0
+msgid "'%s' created"
+msgstr ""
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.xml:0
 msgid "(recording keyboard)"
-msgstr "(gravant el teclat)"
+msgstr ""
 
 #. module: web_tour
 #. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_recorder/tour_recorder.xml:0
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.xml:0
 msgid "(run:"
-msgstr "(executar:"
+msgstr ""
 
 #. module: web_tour
 #: model:ir.model.constraint,message:web_tour.constraint_web_tour_tour_uniq_name
@@ -48,9 +63,49 @@ msgstr ""
 "únic!"
 
 #. module: web_tour
+#: model:ir.model.fields,field_description:web_tour.field_web_tour_tour__active
+msgid "Active"
+msgstr ""
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.js:0
+msgid ""
+"Are you sure you want to clear all steps?\n"
+"All steps will be lost."
+msgstr ""
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.js:0
+msgid ""
+"Are you sure you want to close the tour recorder?\n"
+"All changes will be lost."
+msgstr ""
+
+#. module: web_tour
 #: model:ir.model.fields.selection,name:web_tour.selection__web_tour_tour_step__tooltip_position__bottom
 msgid "Bottom"
 msgstr "Fons"
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.js:0
+msgid "Cancel"
+msgstr ""
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.js:0
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.xml:0
+msgid "Clear"
+msgstr ""
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.js:0
+msgid "Clear all steps?"
+msgstr ""
 
 #. module: web_tour
 #. odoo-javascript
@@ -60,9 +115,45 @@ msgstr ""
 "Fes clic a la part superior esquerra per navegar entre les aplicacions."
 
 #. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.xml:0
+msgid "Close"
+msgstr ""
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.js:0
+msgid "Close recorder"
+msgstr ""
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.js:0
+msgid "Close tour recorder?"
+msgstr ""
+
+#. module: web_tour
 #: model:ir.model.fields,field_description:web_tour.field_web_tour_tour_step__content
 msgid "Content"
 msgstr "Contingut"
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_scenarios.js:0
+msgid "Create a new %s."
+msgstr ""
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_scenarios.js:0
+msgid "Create and edit the %s."
+msgstr ""
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_scenarios.js:0
+msgid "Create the %s."
+msgstr ""
 
 #. module: web_tour
 #: model:ir.model.fields,field_description:web_tour.field_web_tour_tour__create_uid
@@ -83,14 +174,8 @@ msgstr "Personalitzat"
 
 #. module: web_tour
 #. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_recorder/tour_recorder.js:0
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.js:0
 msgid "Custom tour '%s' couldn't be saved!"
-msgstr ""
-
-#. module: web_tour
-#. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_recorder/tour_recorder.js:0
-msgid "Custom tour '%s' has been added."
 msgstr ""
 
 #. module: web_tour
@@ -100,6 +185,18 @@ msgstr ""
 #: model:ir.model.fields,field_description:web_tour.field_web_tour_tour_step__display_name
 msgid "Display Name"
 msgstr "Nom mostrat"
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder_command_provider.js:0
+msgid "Enable the tour recorder"
+msgstr ""
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_scenarios.js:0
+msgid "Enter the %s."
+msgstr ""
 
 #. module: web_tour
 #: model:ir.actions.server,name:web_tour.tour_export_js_action
@@ -137,19 +234,15 @@ msgid "Menu"
 msgstr "Menú"
 
 #. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.xml:0
 #: model:ir.model.fields,field_description:web_tour.field_web_tour_tour__name
 msgid "Name"
 msgstr "Nom"
 
 #. module: web_tour
 #. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_recorder/tour_recorder.xml:0
-msgid "Name:"
-msgstr "Nom:"
-
-#. module: web_tour
-#. odoo-javascript
-#: code:addons/web_tour/static/src/js/onboarding_item.xml:0
+#: code:addons/web_tour/static/src/widgets/onboarding_item.xml:0
 #: code:addons/web_tour/static/src/widgets/tour_start.xml:0
 #: model:ir.model.fields,field_description:web_tour.field_res_users__tour_enabled
 msgid "Onboarding"
@@ -167,10 +260,10 @@ msgstr ""
 
 #. module: web_tour
 #. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_recorder/tour_recorder.xml:0
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.xml:0
 #: code:addons/web_tour/static/src/views/tour_controller.xml:0
 msgid "Record"
-msgstr "Registre"
+msgstr ""
 
 #. module: web_tour
 #. odoo-javascript
@@ -190,32 +283,50 @@ msgstr "Executa"
 
 #. module: web_tour
 #. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_recorder/tour_recorder.xml:0
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.xml:0
 msgid "Save"
 msgstr "Desar"
 
 #. module: web_tour
 #. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_pointer/tour_pointer_state.js:0
+#: code:addons/web_tour/static/src/tour_scenarios.js:0
+msgid "Save the %s."
+msgstr ""
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_pointer/tour_pointer.js:0
 msgid "Scroll down to reach the next step."
 msgstr ""
 
 #. module: web_tour
 #. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_pointer/tour_pointer_state.js:0
+#: code:addons/web_tour/static/src/tour_pointer/tour_pointer.js:0
 msgid "Scroll left to reach the next step."
 msgstr ""
 
 #. module: web_tour
 #. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_pointer/tour_pointer_state.js:0
+#: code:addons/web_tour/static/src/tour_pointer/tour_pointer.js:0
 msgid "Scroll right to reach the next step."
 msgstr ""
 
 #. module: web_tour
 #. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_pointer/tour_pointer_state.js:0
+#: code:addons/web_tour/static/src/tour_pointer/tour_pointer.js:0
 msgid "Scroll up to reach the next step."
+msgstr ""
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_scenarios.js:0
+msgid "Search or create %s."
+msgstr ""
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_scenarios.js:0
+msgid "Select this %s."
 msgstr ""
 
 #. module: web_tour
@@ -236,6 +347,8 @@ msgid "Start Tour"
 msgstr "Inicia el recorregut"
 
 #. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.xml:0
 #: model:ir.model.fields,field_description:web_tour.field_web_tour_tour__url
 msgid "Starting URL"
 msgstr ""
@@ -247,20 +360,14 @@ msgstr "Pas"
 
 #. module: web_tour
 #. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_recorder/tour_recorder.xml:0
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.xml:0
 #: model_terms:ir.ui.view,arch_db:web_tour.tour_form
 msgid "Steps"
 msgstr "Passos"
 
 #. module: web_tour
 #. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_recorder/tour_recorder.xml:0
-msgid "Steps:"
-msgstr ""
-
-#. module: web_tour
-#. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_pointer/tour_pointer.xml:0
+#: code:addons/web_tour/static/src/tour_pointer/tour_pointer.xml:0
 msgid "Stop Tour"
 msgstr ""
 
@@ -274,7 +381,7 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/web_tour/static/src/widgets/tour_start.xml:0
 msgid "Testing"
-msgstr "En proves"
+msgstr ""
 
 #. module: web_tour
 #: model_terms:ir.ui.view,arch_db:web_tour.tour_search
@@ -292,6 +399,7 @@ msgid "Top"
 msgstr "Superior"
 
 #. module: web_tour
+#: model:ir.model,name:web_tour.model_web_tour_tour
 #: model:ir.model.fields,field_description:web_tour.field_web_tour_tour_step__tour_id
 msgid "Tour"
 msgstr "Tour"
@@ -303,21 +411,17 @@ msgstr ""
 
 #. module: web_tour
 #: model:ir.actions.act_window,name:web_tour.tour_action
-#: model:ir.model,name:web_tour.model_web_tour_tour
+#: model:ir.module.module,shortdesc:base.module_web_tour
 #: model:ir.ui.menu,name:web_tour.menu_tour_action
 msgid "Tours"
 msgstr "Recorreguts"
 
 #. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.xml:0
 #: model:ir.model.fields,field_description:web_tour.field_web_tour_tour_step__trigger
 msgid "Trigger"
 msgstr "Activació"
-
-#. module: web_tour
-#. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_recorder/tour_recorder.xml:0
-msgid "Url:"
-msgstr ""
 
 #. module: web_tour
 #: model:ir.model,name:web_tour.model_res_users
@@ -330,6 +434,12 @@ msgid "User Consumed"
 msgstr ""
 
 #. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.js:0
+msgid "View tour"
+msgstr ""
+
+#. module: web_tour
 #: model_terms:ir.ui.view,arch_db:web_tour.tour_form
 msgid "e.g. My_Tour"
 msgstr ""
@@ -338,64 +448,3 @@ msgstr ""
 #: model:ir.model.fields.selection,name:web_tour.selection__web_tour_tour_step__tooltip_position__left
 msgid "left"
 msgstr "esquerra"
-
-#. module: web_tour
-#. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_recorder/tour_recorder.xml:0
-msgid "name_of_the_tour"
-msgstr ""
-
-#. module: web_tour
-#. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_recorder/tour_recorder.xml:0
-msgid "n°"
-msgstr ""
-
-#. module: web_tour
-#. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_recorder/tour_recorder.xml:0
-msgid "trigger"
-msgstr ""
-
-#~ msgid ""
-#~ "<strong><b>Good job!</b> You went through all steps of this tour.</strong>"
-#~ msgstr ""
-#~ "<strong><b>Bon treball!</b> Has fet tots els passos d'aquest recorregut.</"
-#~ "strong>"
-
-#~ msgid "Click on the <i>Home icon</i> to navigate across apps."
-#~ msgstr ""
-#~ "Feu clic a <i>Icona de l'usuari</i> per navegar per les aplicacions."
-
-#~ msgid "Consumed by"
-#~ msgstr "Consumit per"
-
-#~ msgid "Disable Tours"
-#~ msgstr "Inhabilita les visites"
-
-#~ msgid "Onboarding tours"
-#~ msgstr "Visites d'enboarding"
-
-#~ msgid "Open bugger menu."
-#~ msgstr "Obriu el menú del bugger."
-
-#~ msgid "Path"
-#~ msgstr "Ruta"
-
-#~ msgid "Start"
-#~ msgstr "Inicia"
-
-#~ msgid "Start tour"
-#~ msgstr "Començar recorregut"
-
-#~ msgid "Test"
-#~ msgstr "Test"
-
-#~ msgid "Test tour"
-#~ msgstr "Prova la visita"
-
-#~ msgid "Testing tours"
-#~ msgstr "Proves de visites"
-
-#~ msgid "Tour name"
-#~ msgstr "Nom del recorregut"

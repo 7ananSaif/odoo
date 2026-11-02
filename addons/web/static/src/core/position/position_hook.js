@@ -1,14 +1,8 @@
+import { EventBus, onMounted, onPatched, onWillDestroy, onWillUnmount } from "@odoo/owl";
 import { reposition } from "@web/core/position/utils";
 import { omit } from "@web/core/utils/objects";
 import { useThrottleForAnimation } from "@web/core/utils/timing";
-import {
-    EventBus,
-    onWillDestroy,
-    useChildSubEnv,
-    useComponent,
-    useEffect,
-    useRef,
-} from "@odoo/owl";
+import { useEnv, useSubEnv } from "@web/owl2/utils";
 
 /**
  * @typedef {import("@web/core/position/utils").ComputePositionOptions} ComputePositionOptions
@@ -18,6 +12,8 @@ import {
  * @property {(popperElement: HTMLElement, solution: PositioningSolution) => void} [onPositioned]
  *  callback called when the positioning is done.
  * @typedef {ComputePositionOptions & UsePositionOptionsExtensionType} UsePositionOptions
+ * @property {boolean} [rememberPosition=true]
+ *  keep the last position as the preferred one
  *
  * @typedef PositioningControl
  * @property {() => void} lock prevents further positioning updates
@@ -34,40 +30,48 @@ export const POSITION_BUS = Symbol("position-bus");
  * If all of fallback positions are also clipped off `container`,
  * the original position is used.
  *
- * Note: The popper element should be indicated in your template
- *       with a t-ref reference matching the refName argument.
+ * Note: The popper element should be bound to the given ref with t-ref.
  *
- * @param {string} refName
- *  name of the reference to the popper element in the template.
+ * @param {import("@web/core/utils/hooks").Ref} popperRef ref on the popper element
  * @param {() => HTMLElement} getTarget
  * @param {UsePositionOptions} [options={}] the options to be used for positioning
  * @returns {PositioningControl}
  *  control object to lock/unlock the positioning.
  */
-export function usePosition(refName, getTarget, options = {}) {
-    const ref = useRef(refName);
+export function usePosition(popperRef, getTarget, options = {}) {
+    const rememberPosition = options.rememberPosition ?? true;
+    const getPopperEl = popperRef;
     let lock = false;
     const update = () => {
+        const popperEl = getPopperEl();
         const targetEl = getTarget();
-        if (!ref.el || !targetEl?.isConnected || lock) {
+        if (!popperEl || !targetEl?.isConnected || lock) {
             // No compute needed
-            return;
+            return false;
         }
         const repositionOptions = omit(options, "onPositioned");
-        const solution = reposition(ref.el, targetEl, repositionOptions);
-        options.position = `${solution.direction}-${solution.variant}`; // memorize last position
-        options.onPositioned?.(ref.el, solution);
+        const solution = reposition(popperEl, targetEl, repositionOptions);
+        // Don't memorize center position because it's a fallback that we don't want to keep if possible
+        if (rememberPosition && solution.direction !== "center") {
+            options.position = `${solution.direction}-${solution.variant}`; // memorize last position
+        }
+        options.onPositioned?.(popperEl, solution);
+        return true;
     };
 
-    const component = useComponent();
-    const bus = component.env[POSITION_BUS] || new EventBus();
+    const env = useEnv();
+    const bus = env[POSITION_BUS] || new EventBus();
 
     let executingUpdate = false;
     const batchedUpdate = async () => {
-        // not same as batch, here we're executing once and then awaiting
-        if (!executingUpdate) {
+        // not same as batch, here we're executing once and then awaiting.
+        // Only open the batching window when a reposition actually happened:
+        // update() may run before the popper ref is set (its subtree commits
+        // later in the same task), and consuming the window then would drop
+        // the "update" trigger that follows the ref assignment, leaving the
+        // popper unpositioned until an unrelated event repositions it.
+        if (!executingUpdate && update()) {
             executingUpdate = true;
-            update();
             await Promise.resolve();
             executingUpdate = false;
         }
@@ -75,21 +79,28 @@ export function usePosition(refName, getTarget, options = {}) {
     bus.addEventListener("update", batchedUpdate);
     onWillDestroy(() => bus.removeEventListener("update", batchedUpdate));
 
-    const isTopmost = !(POSITION_BUS in component.env);
+    const isTopmost = !(POSITION_BUS in env);
     if (isTopmost) {
-        useChildSubEnv({ [POSITION_BUS]: bus });
+        useSubEnv({ [POSITION_BUS]: bus });
     }
 
     const throttledUpdate = useThrottleForAnimation(() => bus.trigger("update"));
-    useEffect(() => {
+    let stopListening;
+    const updatePosition = () => {
+        stopListening?.();
+        stopListening = null;
         // Reposition
         bus.trigger("update");
 
         if (isTopmost) {
             // Attach listeners to keep the positioning up to date
             const scrollListener = (e) => {
-                if (ref.el?.contains(e.target)) {
+                if (getPopperEl()?.contains(e.target)) {
                     // In case the scroll event occurs inside the popper, do not reposition
+                    return;
+                }
+                if (!e.target.contains(getTarget())) {
+                    // the position target isn't inside the scrolled area, no need to reposition
                     return;
                 }
                 throttledUpdate();
@@ -118,7 +129,7 @@ export function usePosition(refName, getTarget, options = {}) {
                 document.addEventListener("load", throttledUpdate, { capture: true });
             }
             window.addEventListener("resize", throttledUpdate);
-            return () => {
+            stopListening = () => {
                 for (const document of documents) {
                     document.removeEventListener("scroll", scrollListener, { capture: true });
                     document.removeEventListener("load", throttledUpdate, { capture: true });
@@ -126,7 +137,10 @@ export function usePosition(refName, getTarget, options = {}) {
                 window.removeEventListener("resize", throttledUpdate);
             };
         }
-    });
+    };
+    onMounted(updatePosition);
+    onPatched(updatePosition);
+    onWillUnmount(() => stopListening?.());
 
     return {
         lock: () => {

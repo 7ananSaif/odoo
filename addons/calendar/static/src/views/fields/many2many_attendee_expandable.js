@@ -1,10 +1,10 @@
+import { proxy } from "@odoo/owl";
 import { Many2ManyAttendee, many2ManyAttendee } from "@calendar/views/fields/many2many_attendee";
-import { useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 
 export class Many2ManyAttendeeExpandable extends Many2ManyAttendee {
     static template = "calendar.Many2ManyAttendeeExpandable";
-    state = useState({ expanded: false });
+    state = proxy({ expanded: false });
 
     setup() {
         super.setup();
@@ -12,10 +12,6 @@ export class Many2ManyAttendeeExpandable extends Many2ManyAttendee {
         this.acceptedCount = this.props.record.data.accepted_count;
         this.declinedCount = this.props.record.data.declined_count;
         this.uncertainCount = this.attendeesCount - this.acceptedCount - this.declinedCount;
-    }
-
-    onExpanderClick() {
-        this.state.expanded = !this.state.expanded;
     }
 }
 

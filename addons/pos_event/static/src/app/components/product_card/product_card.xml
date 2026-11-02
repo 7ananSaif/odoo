@@ -4,19 +4,18 @@
         <xpath expr="//div[hasclass('product-img')]" position="before">
             <t t-set="availableSeats" t-value="this.totalTicketSeats" />
             <t t-set="futureSlots" t-value="this.totalFutureSlots" />            
-            <div t-if="displayRemainingSeats" class="shadow-sm m-1 py-1 px-2 z-1 rounded position-absolute top-0 end-0 bg-white">
-                <t t-if="isEventMultiSlot">
+            <div t-if="this.displayRemainingSeats" class="shadow-sm m-1 py-1 px-2 z-1 rounded position-absolute top-0 end-0 bg-white">
+                <t t-if="this.isEventMultiSlot">
                     <span t-if="futureSlots > 0">
-                        <t t-esc="futureSlots" /> <t t-if="futureSlots > 1">slots</t><t t-else="">slot</t>
+                        <t t-out="futureSlots" /> <t t-if="futureSlots > 1">slots</t><t t-else="">slot</t>
                     </span>
                     <span t-else="">No slots</span>
                 </t>
                 <t t-else="">
                     <span t-if="availableSeats > 0">
-                        <t t-esc="availableSeats" /> left
+                        <t t-out="availableSeats" /> seats
                     </span>
-                    <span t-elif="availableSeats === 0">Unlimited</span>
-                    <span t-else="">Sold out</span>
+                    <span t-elif="availableSeats !== 0">Sold out</span>
                 </t>
             </div>
         </xpath>

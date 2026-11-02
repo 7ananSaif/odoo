@@ -56,21 +56,30 @@ class TestPayrollFieldsAccess(TransactionCase):
             if field.groups and ('hr.group_hr_manager' in field.groups or 'hr_payroll.group_hr_payroll_user' in field.groups)
         }
         whitelist_field_names = [
+            'contract_date_start',
+            'contract_date_end',
+            'fixed_term',
+            'trial_date_end',
+            'date_start',
+            'date_end',
+            'is_current',
+            'is_past',
+            'is_future',
+            'is_in_contract',
             'resource_calendar_id',
-            'employee_type',
+            'hours_per_week',
+            'hours_per_day',
             'tz',
             'currency_id',
             'lang',
             'registration_number',
-            'standard_calendar_id',
-            'employee_age',
             'distance_home_work',
             'distance_home_work_unit',
             'show_billable_time_target',
             'billable_time_target',
             'holidays',
             'car_id',
-            'new_car',
+            'has_new_car',
             'new_car_model_id',
             'ordered_car_id',
             'fuel_type',
@@ -80,8 +89,12 @@ class TestPayrollFieldsAccess(TransactionCase):
             'new_bike_model_id',
             'originated_offer_id',
             'is_non_resident',
-            'structure_id'
+            'structure_id',
+            'attendance_based',
         ]
+        if self.env['ir.module.module']._get('hr_payroll').state != 'installed':
+            # payroll is not installed, payroll-specific fields are not there
+            whitelist_field_names.append('contract_template_id')
         missing_group_field_names = [
             f_name
             for f_name in payroll_field_names

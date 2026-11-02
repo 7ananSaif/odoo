@@ -1,26 +1,40 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import ast
-import json
 import locale
 import logging
 import re
+from collections.abc import Mapping
 from typing import Any, Literal
 
 from odoo import api, fields, models, tools, _
 from odoo.exceptions import UserError, ValidationError
-from odoo.tools import OrderedSet
-from odoo.tools.misc import ReadonlyDict
+from odoo.tools.translate import mark_as_copy
 
 _logger = logging.getLogger(__name__)
 
-class LangData(ReadonlyDict):
+
+class LangData(Mapping):
     """ A ``dict``-like class which can access field value like a ``res.lang`` record.
     Note: This data class cannot store data for fields with the same name as
     ``dict`` methods, like ``dict.keys``.
     """
-    __slots__ = ()
+    __slots__ = ('__data',)
+
+    def __init__(self, data):
+        self.__data = dict(data)
+
+    def __getitem__(self, key):
+        return self.__data[key]
+
+    def __len__(self):
+        return len(self.__data)
+
+    def __iter__(self):
+        return iter(self.__data)
+
+    def __contains__(self, key):
+        return key in self.__data
 
     def __bool__(self) -> bool:
         return bool(self.id)
@@ -32,31 +46,48 @@ class LangData(ReadonlyDict):
             raise AttributeError
 
 
-class LangDataDict(ReadonlyDict):
+class LangDataDict(Mapping):
     """ A ``dict`` of :class:`LangData` objects indexed by some key, which returns
     a special dummy :class:`LangData` for missing keys.
     """
-    __slots__ = ()
+    __slots__ = ('__data',)
+
+    def __init__(self, data):
+        self.__data = dict(data)
 
     def __getitem__(self, key: Any) -> LangData:
         try:
-            return self._data__[key]
+            return self.__data[key]
         except KeyError:
             some_lang = next(iter(self.values()))  # should have at least one active language
             return LangData(dict.fromkeys(some_lang, False))
 
+    def __len__(self):
+        return len(self.__data)
 
-class ResLang(models.Model):
+    def __iter__(self):
+        return iter(self.__data)
+
+    def __contains__(self, key):
+        return key in self.__data
+
+
+class ResLang(models.CachedModel):
     _name = 'res.lang'
-    _description = "Languages"
+    _description = "Language"
     _order = "active desc,name"
     _allow_sudo_commands = False
+    _cached_data_domain = [('active', '=', True)]
+    _cached_data_fields = (
+        'name', 'code', 'iso_code', 'url_code', 'active', 'direction', 'date_format',
+        'time_format', 'week_start', 'grouping', 'decimal_point', 'thousands_sep', 'flag_image_url',
+    )
 
     _disallowed_datetime_patterns = list(tools.misc.DATETIME_FORMATS_MAP)
     _disallowed_datetime_patterns.remove('%y') # this one is in fact allowed, just not good practice
 
     def _get_date_format_selection(self):
-        current_year = fields.Date.today().year
+        current_year = fields.Date.context_today(self).year
         return [
             ('%d/%m/%Y', '31/01/%s' % current_year),
             ('%m/%d/%Y', '01/31/%s' % current_year),
@@ -69,10 +100,10 @@ class ResLang(models.Model):
             ('%Y.%m.%d', '%s.01.31' % current_year),
         ]
 
-    name = fields.Char(required=True)
-    code = fields.Char(string='Locale Code', required=True, help='This field is used to set/get locales for user')
+    name = fields.Char(required=True, copy=mark_as_copy('name'))
+    code = fields.Char(string='Locale Code', required=True, copy=mark_as_copy('code'), help='This field is used to set/get locales for user')
     iso_code = fields.Char(string='ISO code', help='This ISO code is the name of po files to use for translations')
-    url_code = fields.Char('URL Code', required=True, help='The Lang Code displayed in the URL')
+    url_code = fields.Char('URL Code', required=True, copy=mark_as_copy('url_code'), help='The Lang Code displayed in the URL')
     active = fields.Boolean()
     direction = fields.Selection([('ltr', 'Left-to-Right'), ('rtl', 'Right-to-Left')], required=True, default='ltr')
     date_format = fields.Selection(selection=_get_date_format_selection, string='Date Format', required=True, default='%m/%d/%Y')
@@ -105,7 +136,7 @@ class ResLang(models.Model):
                 lang.flag_image_url = f"/base/static/img/country_flags/{lang.code.lower().rsplit('_')[-1]}.png"
 
     flag_image = fields.Image("Image")
-    flag_image_url = fields.Char(compute=_compute_field_flag_image_url)
+    flag_image_url = fields.Char(compute='_compute_field_flag_image_url')
 
     _name_uniq = models.Constraint(
         'unique(name)',
@@ -158,6 +189,7 @@ class ResLang(models.Model):
         if not self.search_count([]):
             _logger.error("No language is active.")
 
+    @api.model
     def _activate_lang(self, code):
         """ Activate languages
         :param code: code of the language to activate
@@ -168,6 +200,7 @@ class ResLang(models.Model):
             lang.active = True
         return lang
 
+    @api.model
     def _activate_and_install_lang(self, code):
         """ Activate languages and update their translations
         :param code: code of the language to activate
@@ -178,11 +211,12 @@ class ResLang(models.Model):
             lang.action_unarchive()
         return lang
 
+    @api.model
     def _create_lang(self, lang, lang_name=None):
         """ Create the given language and make it active. """
         # create the language with locale information
         fail = True
-        iso_lang = tools.get_iso_codes(lang)
+        iso_lang = tools.translate.get_iso_codes(lang)
         for ln in tools.translate.get_locales(lang):
             try:
                 locale.setlocale(locale.LC_ALL, str(ln))
@@ -240,7 +274,7 @@ class ResLang(models.Model):
             'grouping': fix_grouping(conv.get('grouping')),
         }
         try:
-            return self.create(lang_info)
+            return self.sudo().create(lang_info)
         finally:
             tools.translate.resetlocale()
 
@@ -271,16 +305,11 @@ class ResLang(models.Model):
     # ------------------------------------------------------------
     # cached methods for **active** languages
     # ------------------------------------------------------------
-    @property
-    def CACHED_FIELDS(self) -> OrderedSet:
-        """ Return fields to cache for the active languages
-        Please promise all these fields don't depend on other models and context
-        and are not translated.
-        Warning: Don't add method names of ``dict`` to CACHED_FIELDS for sake of the
-        implementation of LangData
-        """
-        return OrderedSet(['id', 'name', 'code', 'iso_code', 'url_code', 'active', 'direction', 'date_format',
-                           'time_format', 'week_start', 'grouping', 'decimal_point', 'thousands_sep', 'flag_image_url'])
+
+    @api.model
+    def _get_active_langs(self):
+        """ Return active languages. """
+        return self.get_all()
 
     def _get_data(self, **kwargs) -> LangData:
         """ Get the language data for the given field value in kwargs
@@ -288,46 +317,58 @@ class ResLang(models.Model):
         for the res.lang record whose 'code' field value is 'en_US'
 
         :param dict kwargs: ``{field_name: field_value}``
-                field_name is the only key in kwargs and in ``self.CACHED_FIELDS``
+                field_name is the only key in kwargs and in ``self._cached_data_fields``
                 Try to reuse the used ``field_name``: 'id', 'code', 'url_code'
         :return: Valid LangData if (field_name, field_value) pair is for an
                 **active** language. Otherwise, Dummy LangData which will return
-                ``False`` for all ``self.CACHED_FIELDS``
-        :raise: UserError if field_name is not in ``self.CACHED_FIELDS``
+                ``False`` for all ``self._cached_data_fields``
+        :raise: UserError if field_name is not in ``self._cached_data_fields``
         """
+        # TODO use _lang_get
         [[field_name, field_value]] = kwargs.items()
         return self._get_active_by(field_name)[field_value]
 
+    @api.model
     def _lang_get(self, code: str):
         """ Return the language using this code if it is active """
-        return self.browse(self._get_data(code=code).id)
+        data = self._cached_data()
+        # trick: since 'code' is unique, this returns at most one record
+        return self.browse([
+            id_ for id_, value in zip(data['id'], data['code']) if value == code
+        ])
 
+    @api.model
     def _get_code(self, code: str) -> str | Literal[False]:
         """ Return the given language code if active, else return ``False`` """
-        return self._get_data(code=code).code
+        return self.sudo()._lang_get(code).code
 
     @api.model
     @api.readonly
     def get_installed(self) -> list[tuple[str, str]]:
         """ Return installed languages' (code, name) pairs sorted by name. """
-        return [(code, data.name) for code, data in self._get_active_by('code').items()]
+        return [
+            (lang.code, lang.name)
+            for lang in self.sudo()._get_active_langs().sorted('name')
+        ]
 
-    @tools.ormcache('field', cache='stable')
+    @api.ormcache('field', cache='stable')
     def _get_active_by(self, field: str) -> LangDataDict:
         """ Return a LangDataDict mapping active languages' **unique**
-        **required** ``self.CACHED_FIELDS`` values to their LangData.
+        **required** ``self._cached_data_fields`` values to their LangData.
         Its items are ordered by languages' names
         Try to reuse the used ``field``: 'id', 'code', 'url_code'
         """
-        if field not in self.CACHED_FIELDS:
+        # TODO use directly _get_active_langs().grouped()
+        fnames = ('id', *self._cached_data_fields)
+        if field not in fnames:
             raise UserError(_('Field "%s" is not cached', field))
         if field == 'code':
-            langs = self.sudo().with_context(active_test=True).search_fetch([], self.CACHED_FIELDS, order='name')
+            langs = self.sudo()._get_active_langs()
             return LangDataDict({
-                lang.code: LangData({f: lang[f] for f in self.CACHED_FIELDS})
+                lang.code: LangData({f: lang[f] for f in fnames})
                 for lang in langs
             })
-        return LangDataDict({data[field]: data for data in self._get_active_by('code').values()})
+        return LangDataDict({data[field]: data for data in self.sudo()._get_active_by('code').values()})
 
     # ------------------------------------------------------------
 
@@ -339,11 +380,11 @@ class ResLang(models.Model):
             active_lang = activated.mapped('code')
             mods = self.env['ir.module.module'].search([('state', '=', 'installed')])
             mods._update_translations(active_lang)
+            self.env['ir.module.module']._load_non_installed_modules_manifest_terms(active_lang)
         return res
 
     @api.model_create_multi
     def create(self, vals_list):
-        self.env.registry.clear_cache('stable')
         for vals in vals_list:
             if not vals.get('url_code'):
                 vals['url_code'] = vals.get('iso_code') or vals['code']
@@ -364,6 +405,7 @@ class ResLang(models.Model):
             self.env['ir.default'].discard_values('res.partner', 'lang', lang_codes)
 
         res = super().write(vals)
+        self.flush_recordset(['url_code'])
 
         if vals.get('active'):
             # If we activate a lang, set it's url_code to the shortest version
@@ -384,8 +426,6 @@ class ResLang(models.Model):
                     short_lang.url_code = short_lang.code
                     long_lang.url_code = short_code
 
-        self.env.flush_all()
-        self.env.registry.clear_cache('stable')
         return res
 
     @api.ondelete(at_uninstall=True)
@@ -399,22 +439,6 @@ class ResLang(models.Model):
             if language.active:
                 raise UserError(_("You cannot delete the language which is Active!\nPlease de-activate the language first."))
 
-    def unlink(self):
-        self.env.registry.clear_cache('stable')
-        return super().unlink()
-
-    def copy_data(self, default=None):
-        default = dict(default or {})
-        vals_list = super().copy_data(default=default)
-        for record, vals in zip(self, vals_list):
-            if "name" not in default:
-                vals["name"] = _("%s (copy)", record.name)
-            if "code" not in default:
-                vals["code"] = _("%s (copy)", record.code)
-            if "url_code" not in default:
-                vals["url_code"] = _("%s (copy)", record.url_code)
-        return vals_list
-
     def format(self, percent: str, value, grouping: bool = False) -> str:
         """ Format() will return the language-specific output for float values"""
         self.ensure_one()
@@ -423,13 +447,12 @@ class ResLang(models.Model):
 
         formatted = percent % value
 
-        data = self._get_data(id=self.id)
-        if not data:
+        if self not in self._get_active_langs():
             raise UserError(_("The language %s is not installed.", self.name))
-        decimal_point = data.decimal_point
+        decimal_point = self.decimal_point
         # floats and decimal ints need special action!
         if grouping:
-            lang_grouping, thousands_sep = data.grouping, data.thousands_sep or ''
+            lang_grouping, thousands_sep = self.grouping, self.thousands_sep or ''
             eval_lang_grouping = ast.literal_eval(lang_grouping)
 
             if percent[-1] in 'eEfFgG':

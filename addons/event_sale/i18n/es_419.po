@@ -9,17 +9,55 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-05-23 09:32+0000\n"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-10-13 21:17+0000\n"
 "Last-Translator: \"Fernanda Alvarez (mfar)\" <mfar@odoo.com>\n"
 "Language-Team: Spanish (Latin America) <https://translate.odoo.com/projects/"
-"odoo-19/event_sale/es_419/>\n"
+"odoo-20/event_sale/es_419/>\n"
 "Language: es_419\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: event_sale
+#: model:ir.module.module,description:base.module_event_sale
+msgid ""
+"\n"
+"Creating registration with sales orders.\n"
+"========================================\n"
+"\n"
+"This module allows you to automate and connect your registration creation "
+"with\n"
+"your main sale flow and therefore, to enable the invoicing feature of "
+"registrations.\n"
+"\n"
+"It defines a new kind of service products that offers you the possibility "
+"to\n"
+"choose an event category associated with it. When you encode a sales order "
+"for\n"
+"that product, you will be able to choose an existing event of that category "
+"and\n"
+"when you confirm your sales order it will automatically create a "
+"registration for\n"
+"this event.\n"
+msgstr ""
+"\n"
+"Crea registros con órdenes de venta.\n"
+"======================================\n"
+"\n"
+"Este módulo te permite automatizar y conectar la creación de tus registros "
+"con\n"
+"tu flujo de ventas principal y, por lo tanto, habilitar la función de "
+"facturación de los registros.\n"
+"\n"
+"Define un nuevo tipo de productos de servicio que te permite elegir una "
+"categoría de evento\n"
+"asociada. Cuando agregues una orden de venta para ese producto, podrás "
+"elegir un evento existente de esa categoría y,\n"
+"al confirmar la orden de venta, se creará un registro para\n"
+"este evento de forma automática.\n"
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_registration_change_exception
@@ -32,8 +70,10 @@ msgstr ""
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_configurator_view_form
-msgid "<i class=\"fa fa-arrow-right\"/> Configure Events &amp; Tickets"
-msgstr "<i class=\"fa fa-arrow-right\"/> Configurar eventos y boletos"
+msgid ""
+"<i class=\"oi\" data-icon=\"arrow_forward\"/> Configure Events &amp; Tickets"
+msgstr ""
+"<i class=\"oi\" data-icon=\"arrow_forward\"/> Configurar eventos y boletos"
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_registration_ticket_view_form
@@ -54,6 +94,11 @@ msgstr "<span>Modificación del registro de los asistentes:</span>"
 #: model_terms:ir.ui.view,arch_db:event_sale.event_configurator_view_form
 msgid "Add"
 msgstr "Agregar"
+
+#. module: event_sale
+#: model:ir.model.fields,field_description:event_sale.field_event_event_configurator__additional_product_ids
+msgid "Additional Products"
+msgstr "Productos adicionales"
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_configurator_view_form
@@ -304,6 +349,11 @@ msgstr "Boleto del evento"
 #: model_terms:ir.ui.view,arch_db:event_sale.event_sale_report_view_search
 msgid "Event Type"
 msgstr "Tipo de evento"
+
+#. module: event_sale
+#: model:ir.module.module,shortdesc:base.module_event_sale
+msgid "Events Sales"
+msgstr "Ventas de eventos"
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_sale_report_view_search
@@ -571,6 +621,15 @@ msgid "Select an Event"
 msgstr "Selecciona un evento"
 
 #. module: event_sale
+#: model:ir.model.fields,help:event_sale.field_event_event_configurator__additional_product_ids
+msgid ""
+"Select products to include with each registration. They will also show up "
+"separately on Sale Orders."
+msgstr ""
+"Selecciona los productos a incluir con cada registro. También aparecerán por "
+"separado en las órdenes de venta."
+
+#. module: event_sale
 #. odoo-python
 #: code:addons/event_sale/models/event_registration.py:0
 #: model:ir.model.fields,field_description:event_sale.field_event_event_configurator__event_slot_id
@@ -661,7 +720,7 @@ msgstr "Siguientes eventos desde hoy"
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_sale_report_view_search
 msgid "Upcoming/Running"
-msgstr "Próximos/En ejecución"
+msgstr "Próximos/En curso"
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_configurator_view_form
@@ -683,31 +742,3 @@ msgstr "proporcione los detalles de los asistentes."
 #: model_terms:ir.ui.view,arch_db:event_sale.event_registration_change_exception
 msgid "to"
 msgstr "para"
-
-#~ msgid "%(event_name)s - Tickets"
-#~ msgstr "%(event_name)s - Boletos"
-
-#~ msgid "Get Your Tickets"
-#~ msgstr "Consigue tus boletos"
-
-#~ msgid "Group By"
-#~ msgstr "Agrupar por"
-
-#~ msgid "Sale Status"
-#~ msgstr "Estado de venta"
-
-#~ msgid "Sales (Tax Excluded)"
-#~ msgstr "Ventas (sin impuestos)"
-
-#~ msgid ""
-#~ "The sale order line with the product %(product_name)s needs an event and "
-#~ "a ticket."
-#~ msgstr ""
-#~ "La línea de la orden de trabajo con el producto %(product_name)s necesita "
-#~ "un evento y un boleto."
-
-#~ msgid "Ticket changed from"
-#~ msgstr "Ticket cambiado de"
-
-#~ msgid "Transaction"
-#~ msgstr "Transacción"

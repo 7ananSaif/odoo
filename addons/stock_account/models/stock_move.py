@@ -1,11 +1,13 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from collections import defaultdict
+from datetime import timedelta
 
 from odoo import api, fields, models, _, Command
 from odoo.fields import Domain
-from odoo.tools import float_is_zero, OrderedSet
-from odoo.exceptions import UserError
+from odoo.tools import OrderedSet
+from odoo.tools.sql import SQL
+from odoo.exceptions import UserError, ValidationError
 
 VALUATION_DICT = {
     'value': 0,
@@ -17,6 +19,11 @@ VALUATION_DICT = {
 class StockMove(models.Model):
     _inherit = "stock.move"
 
+    cogs_aml_ids = fields.Many2many(
+        'account.move.line', string="COGS lines",
+        compute='_compute_cogs_aml_ids', compute_sudo=True,
+        help="Account move lines using this move in order to compute their COGS"
+    )
     to_refund = fields.Boolean(
         "Update quantities on SO/PO", copy=True, default=True,
         help='Trigger a decrease of the delivered/received quantity in the associated Sale Order/Purchase Order')
@@ -40,15 +47,20 @@ class StockMove(models.Model):
     is_out = fields.Boolean(string='Is Outgoing (valued)', compute='_compute_is_out', store=True)
     is_dropship = fields.Boolean(string='Is Dropship', compute='_compute_is_dropship', store=True)
     is_valued = fields.Boolean(string='Is Valued', compute='_compute_is_valued')
-
     remaining_qty = fields.Float(
         string='Remaining Quantity', compute='_compute_remaining_qty', search='search_remaining_qty')
     remaining_value = fields.Monetary(
         currency_field='company_currency_id',
         string='Remaining Value', compute='_compute_remaining_value')
 
+    origin_company_id = fields.Many2one('res.company', string='Origin Company', compute='_compute_origin_company_id', search='_search_origin_company_id', compute_sudo=True,
+                                        help='Only set if the move is generated from a document belonging to another company')
+    order_partner_id = fields.Many2one('res.partner', compute='_compute_order_partner_id', compute_sql='_compute_sql_order_partner_id', compute_sudo=True,
+                                      help="If the move originates from a document from another company, contains that company's partner, otherwise the move's partner.")
     analytic_account_line_ids = fields.Many2many('account.analytic.line', copy=False)
     account_move_id = fields.Many2one('account.move', 'stock_move_id', copy=False, index="btree_not_null")
+    invoice_line_ids = fields.One2many('account.move.line', 'stock_move_id', 'Invoice Line', index='btree_not_null')
+    product_value_ids = fields.One2many('product.value', 'move_id', 'Product Value', index='btree_not_null')
 
     def search_remaining_qty(self, operator, value):
         if operator != '=' or not isinstance(value, bool) or value is not True:
@@ -67,6 +79,9 @@ class StockMove(models.Model):
     def _compute_standard_price(self):
         for move in self:
             move.standard_price = move.product_id.with_company(move.company_id).standard_price
+
+    def _compute_cogs_aml_ids(self):
+        self.cogs_aml_ids = False
 
     @api.depends('state', 'move_line_ids')
     def _compute_is_in(self):
@@ -97,6 +112,24 @@ class StockMove(models.Model):
         for move in self:
             move.is_valued = move.is_in or move.is_out
 
+    def _compute_origin_company_id(self):
+        self.origin_company_id = False
+
+    def _search_origin_company_id(self, operator, value):
+        domains = self._get_origin_company_domains(operator, value)
+        if not domains:
+            return Domain.FALSE
+
+        return [('id', 'in', self._search(Domain.OR(domains)))]
+
+    @api.depends('partner_id')
+    def _compute_order_partner_id(self):
+        for move in self:
+            move.order_partner_id = move.partner_id
+
+    def _compute_sql_order_partner_id(self, table):
+        return SQL("%s", table.partner_id)
+
     def _compute_value_manual(self):
         for move in self:
             move.value_manual = move.value
@@ -126,17 +159,64 @@ class StockMove(models.Model):
             for move in moves:
                 move.remaining_qty = remaining_by_product.get(move.product_id, {}).get(move, 0)
 
-    @api.depends('value', 'remaining_qty', 'product_id.standard_price')
+    @api.depends('value', 'remaining_qty')
     def _compute_remaining_value(self):
         for move in self:
             if not move.is_in:
                 move.remaining_value = 0
                 continue
-            ratio = move.remaining_qty / move.quantity if move.quantity else 0
             if move.product_id.cost_method == 'fifo':
+                ratio = move.remaining_qty / move.quantity if move.quantity else 0
                 move.remaining_value = ratio * move.value if ratio else 0
             else:
                 move.remaining_value = move.remaining_qty * move.standard_price
+
+    @api.depends_context('for_product_value')
+    def _compute_display_name(self):
+        if not self.env.context.get('for_product_value'):
+            return super()._compute_display_name()
+        for move in self:
+            move.display_name = move.reference
+
+    def write(self, vals):
+        """ Editing the done date of a valued move (to the past or the future) shifts the
+        on-hand context of every move in between, so the valuation has to be replayed
+        from the earliest impacted date.
+        """
+        recompute_date = None
+        if vals.get('date'):
+            new_date = fields.Datetime.to_datetime(vals['date'])
+            impacted_moves = self.filtered(lambda m: (m.is_in or m.is_out) and m.date != new_date)
+            recompute_date = min([*impacted_moves.mapped('date'), new_date]) if impacted_moves else False
+        res = super().write(vals)
+        if recompute_date:
+            impacted_moves._set_value(recompute_date=recompute_date)
+        if vals.get('value'):
+            self.cogs_aml_ids._set_cogs()
+        return res
+
+    def _read_group_select(self, table, aggregate_spec):
+        if aggregate_spec in (
+            "remaining_qty:sum",
+            "remaining_value:sum",
+            "remaining_value:sum_currency",
+        ):
+            return super()._read_group_select(table, 'id:recordset')
+        return super()._read_group_select(table, aggregate_spec)
+
+    def _read_group_postprocess_aggregate(self, aggregate_spec, raw_values):
+        if aggregate_spec in ('remaining_qty:sum', 'remaining_value:sum', 'remaining_value:sum_currency'):
+            column = super()._read_group_postprocess_aggregate('id:recordset', raw_values)
+            field = 'remaining_qty' if aggregate_spec == 'remaining_qty:sum' else 'remaining_value'
+            field_name, op = aggregate_spec.split(':')
+            if op == 'sum':
+                return (sum(records.mapped(field)) for records in column)
+            if op == 'sum_currency':
+                return (sum(record.company_currency_id._convert(
+                    from_amount=record[field_name],
+                    to_currency=self.env.company.currency_id,
+                ) for record in records) for records in column)
+        return super()._read_group_postprocess_aggregate(aggregate_spec, raw_values)
 
     def _inverse_picked(self):
         super()._inverse_picked()
@@ -144,7 +224,7 @@ class StockMove(models.Model):
 
     def _inverse_value_manual(self):
         for move in self:
-            if move.value_manual == move.value:
+            if move.value_manual == move.value or move.product_id.tracking is None:
                 continue
             self.env['product.value'].create({
                 'move_id': move.id,
@@ -166,47 +246,52 @@ class StockMove(models.Model):
         return action
 
     def _action_done(self, cancel_backorder=False):
-        # Use _is_out() instead of is_out since the move is not done
-        # It's called before action_done since we need the current fifo
-        # stack. Limitation when validating at same time out and ins
-        moves_out = self.filtered(lambda m: m._is_out())
-        moves_out._set_value()
+        self = self.sudo()  # noqa: PLW0642
         moves = super()._action_done(cancel_backorder=cancel_backorder)
-        moves_out = moves_out.exists()
+        moves_out = moves.filtered(lambda m: m.is_out)
         moves_in = moves.filtered(lambda m: m.is_in or m.is_dropship)
-        moves_in.with_context(std_price_incremental_recompute=not moves_out)._set_value()
+        moves_out._set_value()
+        moves_in._set_value()
+        moves.cogs_aml_ids._set_cogs()
         moves._create_account_move()
-        # Update standard price on outgoing fifo or lot valuated average products
-        moves_out.product_id.filtered(lambda p: p.cost_method == 'fifo' or (p.cost_method == 'average' and p.lot_valuated))._update_standard_price()
         (moves_in | moves_out).sudo()._create_analytic_move()
         return moves
 
     def _create_account_move(self):
-        """ Create account move for specific location or analytic."""
-        aml_vals_list = []
-        move_to_link = set()
+        """ Create account move for specific location or analytic.
+
+        One account move is created per company and accounting partner, as moves
+        validated together may belong to pickings of different partners or companies.
+        """
+        moves_by_company_partner = defaultdict(lambda: self.env['stock.move'])
         for move in self:
             if move._should_create_account_move():
+                moves_by_company_partner[move.company_id, move._get_partner_id_for_valuation_lines()] |= move
+
+        account_moves = self.env['account.move']
+        for (company, partner_id), moves in moves_by_company_partner.items():
+            aml_vals_list = []
+            for move in moves:
                 aml_vals_list += move._get_account_move_line_vals()
-                move_to_link.add(move.id)
-        if not aml_vals_list:
-            return self.env['account.move']
+            if not aml_vals_list:
+                continue
 
-        move_refs = list(set(self.mapped('reference')))
-        joined_refs = ", ".join(move_refs)
-        if len(joined_refs) > 43:
-            joined_refs = joined_refs[:40] + "..."
+            move_refs = list(set(moves.mapped('reference')))
+            joined_refs = ", ".join(move_refs)
+            if len(joined_refs) > 43:
+                joined_refs = joined_refs[:40] + "..."
 
-        account_move = self.env['account.move'].sudo().create({
-            'ref': joined_refs,
-            'partner_id': self._get_partner_id_for_valuation_lines(),
-            'journal_id': self.company_id.account_stock_journal_id.id,
-            'line_ids': [Command.create(aml_vals) for aml_vals in aml_vals_list],
-            'date': self.env.context.get('force_period_date') or fields.Date.context_today(self),
-        })
-        self.env['stock.move'].browse(move_to_link).account_move_id = account_move.id
-        account_move._post()
-        return account_move
+            account_move = self.env['account.move'].sudo().create({
+                'ref': joined_refs,
+                'partner_id': partner_id,
+                'journal_id': company.account_stock_journal_id.id,
+                'line_ids': [Command.create(aml_vals) for aml_vals in aml_vals_list],
+                'date': self.env.context.get('force_period_date') or fields.Date.context_today(self),
+            })
+            moves.account_move_id = account_move.id
+            account_move._post()
+            account_moves |= account_move
+        return account_moves
 
     def _get_partner_id_for_valuation_lines(self):
         return (self.picking_id.partner_id and self.env['res.partner']._find_accounting_partner(self.picking_id.partner_id).id) or False
@@ -224,7 +309,7 @@ class StockMove(models.Model):
         else:
             debit_acc = self.location_dest_id.valuation_account_id
             credit_acc = self.product_id._get_product_accounts()['stock_valuation']
-        value = self._get_aml_value()
+        value = self.value if self.is_in else -self.value
         return [{
             'account_id': credit_acc.id,
             'name': self.reference + ' - ' + self.product_id.name,
@@ -239,123 +324,134 @@ class StockMove(models.Model):
             'product_id': self.product_id.id,
         }]
 
-    def _get_aml_value(self):
-        self.ensure_one()
-        return self.value
-
     def _get_analytic_distribution(self):
         return {}
 
-    def _get_price_unit(self):
-        """ Returns the unit price to value this stock move """
+    def _get_price_unit(self, product=None, include_consigned=False, include_consumable=False):
+        """ Returns the unit price to value this stock move.
+
+        :param product: the finished product the moves relate to. Unused here; kit
+            (phantom BoM) valuation relies on it (see ``mrp_account``).
+        :param include_consigned: divide by the full moved quantity, consigned
+            included. Consigned quantities carry no value, so the consigned share
+            of the moves generates no cost (e.g. no COGS).
+        :param include_consumable: value consumable products (which carry no valuation
+            layer, hence a zero value) at their standard price instead of at zero.
+        """
         if len(self.product_id) > 1:
-            return 0
-        total_value = sum(self.mapped('value'))
-        total_qty = sum(m._get_valued_qty() for m in self)
+            if not product:
+                raise ValidationError(self.env._('Product should be passed as an argument in order to get the unit price for moves in a kit.'))
+            return product.standard_price
+        total_value = sum(m._get_value() if include_consumable else m.value for m in self)
+        if include_consumable:
+            total_qty = sum(m.uom_id._compute_quantity(m.quantity, m.product_id.uom_id) for m in self)
+        elif include_consigned:
+            total_qty = sum(m.uom_id._compute_quantity(m.quantity, m.product_id.uom_id) * (-1 if m.is_out else 1) for m in self)
+        else:
+            total_qty = sum(m._get_valued_qty(signed=True) for m in self)
         return total_value / total_qty if total_qty else 0
 
-    def _get_cogs_price_unit(self, quantity=0):
-        """ Returns the COGS unit price to value this stock move
-        quantity should be given in product uom """
-
-        if len(self.product_id) > 1:
-            return 0
-        total_qty = sum(m._get_valued_qty() * (-1 if m.is_in else 1) for m in self)
-        valued_consigned_qty = self._get_valued_consigned_qty()
-        total_valued_qty = total_qty + valued_consigned_qty
-        if total_valued_qty and (self.product_id.cost_method == 'fifo' or valued_consigned_qty or
-            (self.product_id.lot_valuated and self.product_id.cost_method == 'average')):
-            total_value = sum(m.value * (-1 if m.is_in else 1) for m in self)
-            return total_value / total_valued_qty
-        else:
-            return self.product_id.standard_price
-
-    @api.model
-    def _get_valued_types(self):
-        """Returns a list of `valued_type` as strings. During `action_done`, we'll call
-        `_is_[valued_type]'. If the result of this method is truthy, we'll consider the move to be
-        valued.
-
-        :returns: a list of `valued_type`
-        :rtype: list
-        """
-        return ['in', 'out', 'dropshipped', 'dropshipped_returned']
-
-    def _set_value(self, correction_quantity=None):
+    def _set_value(self, recompute_date=None, skip_check=False):
         """Set the value of the move.
 
-        :param correction_quantity: if set, it means that the quantity of the move has been
-            changed by this amount (can be positive or negative). In that case, we just update
-            the value of the move based on the ratio of extra_quantity / quantity. It only applies
-            on out_move since their value is computed during action_done, and it's used to get a
-            more accurate value for COGS. In case of in move correction, you have to call _set_value
-            without arguments.
+        :param recompute_date: if provided, valuation runs in correction mode. The given
+            moves changed position in the valuation timeline (their date moved, or the
+            quantity of one of their lines was edited), which shifts the on-hand context of
+            every later move. The valuation of every impacted product is therefore replayed
+            from ``recompute_date`` (the earliest impacted date among the moves) through
+        :param skip_check: internal flag set while replaying, to only refresh in-move
+            values without re-triggering the replay detection below (which would loop).
+        :return: the outgoing moves whose value changed during a valuation replay.
         """
+        changed_moves = self.env['stock.move']
+        moves_already_sold = self.filtered(lambda m: m.is_in and m.remaining_qty != m._get_valued_qty())
+        if not recompute_date and not skip_check and moves_already_sold:
+            recompute_date = min(self.mapped('date'))
+            for move in moves_already_sold:
+                product = move.product_id.with_company(move.company_id)
+                if product.cost_method != 'fifo':
+                    continue
+                oversold_stack = product._get_fifo_stack(at_date=move.date - timedelta(seconds=1), allow_negative=True)[0]
+                oversold_moves = self.env['stock.move'].concat(oversold_stack).filtered(lambda m: m.is_out)
+                if oversold_moves:
+                    recompute_date = min(recompute_date, *oversold_moves.mapped('date'))
+            self._set_value(recompute_date=recompute_date)
+            return changed_moves
+
+        if recompute_date and any(m.remaining_qty != m._get_valued_qty() or m.is_out for m in self):
+            self.filtered(lambda m: m.is_in)._set_value(skip_check=True)
+            return self.product_id._correct_inventory_valuation(recompute_date)
+
+        self = self.sorted(key=lambda m: (m.date, m.id))  # noqa: PLW0642
         products_to_recompute = set()
         lots_to_recompute = set()
-        fifo_qty_processed = defaultdict(float)
+        fifo_qty_already_processed = defaultdict(float)
+        for move in self:
+            move = move.with_company(move.company_id)
+            if not move.is_out or move.product_id.cost_method != 'fifo':
+                continue
+            if move.product_id.lot_valuated:
+                for move_line in move.move_line_ids.filtered('lot_id'):
+                    fifo_qty_already_processed[move_line.lot_id] -= move_line.quantity_product_uom
+            else:
+                fifo_qty_already_processed[move.product_id] -= move._get_valued_qty()
 
-        for company, moves in self.grouped('company_id').items():
-            extra_value_by_product = defaultdict(float)
-            extra_qty_by_product = defaultdict(float)
-
-            for move in moves:
-                move = move.with_company(company.id)
-                # Incoming moves
-                if move.is_dropship or move.is_in:
-                    products_to_recompute.add(move.product_id.id)
-                    if move.product_id.lot_valuated:
-                        if any(not ml.lot_id for ml in move.move_line_ids):
-                            raise UserError(self.env._(
-                                "A lot/serial number is required for product '%s' as it has lot valuation enabled.",
-                                move.product_id.display_name))
-                        lots_to_recompute.update(move.move_line_ids.lot_id.ids)
-                if move.is_in:
-                    move.value = move.sudo()._get_value()
-                    if self.env.context.get('std_price_incremental_recompute') and move.product_id.is_storable:
-                        # fast path: add extra_value/extra_qty to standard price (only realtime)
-                        extra_value_by_product[move.product_id] += move.value
-                        extra_qty_by_product[move.product_id] += move._get_valued_qty()
-                    continue
-                # Outgoing moves
-                if not move._is_out():
-                    continue
-                if correction_quantity:
-                    previous_qty = move.quantity - correction_quantity
-                    ratio = correction_quantity / previous_qty if previous_qty else 0
-                    move.value += ratio * move.value
-                    continue
+        for move in self:
+            move = move.with_company(move.company_id)
+            if move.is_in:
+                products_to_recompute.add(move.product_id.id)
                 if move.product_id.lot_valuated:
+                    if any(not ml.lot_id for ml in move.move_line_ids):
+                        raise UserError(self.env._(
+                            "A lot/serial number is required for product '%s' as it has lot valuation enabled.",
+                            move.product_id.display_name))
+                    lots_to_recompute.update(move.move_line_ids.lot_id.ids)
+                move.value = move.sudo()._get_value()
+                continue
+            # Outgoing moves
+            if not move.is_out:
+                continue
+            if move.product_id.cost_method == 'fifo' or (move.product_id.cost_method == 'average' and move.product_id.lot_valuated):
+                products_to_recompute.add(move.product_id.id)
+            if move.product_id.lot_valuated and move.product_id.cost_method != 'standard':
+                lots_to_recompute.update(move.move_line_ids.lot_id.ids)
+            if move.product_id.cost_method == 'fifo':
+                if not move.product_id.lot_valuated:
+                    valued_qty = move._get_valued_qty()
+                    move.value = - move.product_id._get_fifo_value(valued_qty, stack_size_extra_qty=-fifo_qty_already_processed[move.product_id])
+                    fifo_qty_already_processed[move.product_id] += valued_qty
+                else:
                     value = 0.0
                     for move_line in move.move_line_ids:
+                        ml_qty = move_line.quantity_product_uom
                         if move_line.lot_id:
-                            value += move_line.lot_id.standard_price * move_line.quantity_product_uom
+                            value += move.product_id._get_fifo_value(
+                                ml_qty, lot=move_line.lot_id, stack_size_extra_qty=-fifo_qty_already_processed[move_line.lot_id])
+                            fifo_qty_already_processed[move_line.lot_id] += ml_qty
                         else:
-                            value += move.product_id.standard_price * move_line.quantity_product_uom
-                    move.value = value
-                    continue
-
-                if move.product_id.cost_method == 'fifo':
-                    valued_qty = move._get_valued_qty()
-                    move.value = move.product_id.with_context(fifo_qty_already_processed=fifo_qty_processed[move.product_id])._run_fifo(valued_qty)
-                    fifo_qty_processed[move.product_id] += valued_qty
+                            value += move.product_id.standard_price * ml_qty
+                    move.value = - value
+            else:
+                if not move.product_id.lot_valuated:
+                    move.value = - move.product_id.standard_price * move._get_valued_qty()
                 else:
-                    move.value = move.product_id.standard_price * move._get_valued_qty()
+                    value = 0.0
+                    for move_line in move.move_line_ids:
+                        price = move_line.lot_id.standard_price if move_line.lot_id else move.product_id.standard_price
+                        value += price * move_line.quantity_product_uom
+                    move.value = - value
 
-            # Recompute the standard price
-            self.env['product.product'].browse(products_to_recompute).with_company(company)._update_standard_price(
-                extra_value=extra_value_by_product,
-                extra_quantity=extra_qty_by_product,
-            )
-            self.env['stock.lot'].browse(lots_to_recompute).with_company(company)._update_standard_price()
+        # Recompute the standard price
+        self.env['product.product'].browse(products_to_recompute)._update_standard_price()
+        self.env['stock.lot'].browse(lots_to_recompute)._update_standard_price()
+        return changed_moves
 
-    def _get_value(self, forced_std_price=False, at_date=False, ignore_manual_update=False):
-        return self._get_value_data(forced_std_price, at_date, ignore_manual_update)['value']
+    def _get_value(self, forced_std_price=False, ignore_manual_update=False):
+        return self._get_value_data(forced_std_price, ignore_manual_update)['value']
 
     def _get_value_data(
         self,
         forced_std_price=False,
-        at_date=False,
         ignore_manual_update=False,
         add_extra_value=True,
     ):
@@ -380,8 +476,7 @@ class StockMove(models.Model):
         descriptions = []
 
         if not ignore_manual_update:
-            manual_data = self._get_manual_value(
-                remaining_qty, at_date)
+            manual_data = self._get_manual_value(remaining_qty)
             # In case of manual update we will skip extra cost
             if manual_data['quantity']:
                 add_extra_value = False
@@ -392,14 +487,14 @@ class StockMove(models.Model):
 
         # 1. take from Invoice/Bills
         if remaining_qty:
-            account_data = self._get_value_from_account_move(remaining_qty, at_date)
+            account_data = self._get_value_from_account_move(remaining_qty)
             value += account_data['value']
             remaining_qty -= account_data['quantity']
             if account_data.get('description'):
                 descriptions.append(account_data['description'])
 
         if remaining_qty:
-            production_data = self._get_value_from_production(remaining_qty, at_date)
+            production_data = self._get_value_from_production(remaining_qty)
             value += production_data["value"]
             remaining_qty -= production_data["quantity"]
             if production_data.get("description"):
@@ -407,7 +502,7 @@ class StockMove(models.Model):
 
         # 2. from SO/PO lines
         if remaining_qty:
-            quotation_data = self._get_value_from_quotation(remaining_qty, at_date)
+            quotation_data = self._get_value_from_quotation(remaining_qty)
             value += quotation_data['value']
             remaining_qty -= quotation_data['quantity']
             if quotation_data.get('description'):
@@ -415,20 +510,28 @@ class StockMove(models.Model):
 
         # 3. from returns
         if remaining_qty:
-            return_data = self._get_value_from_returns(remaining_qty, at_date)
+            return_data = self._get_value_from_returns(remaining_qty)
             value += return_data['value']
             remaining_qty -= return_data['quantity']
             if return_data.get('description'):
                 descriptions.append(return_data['description'])
 
-        # 4. standard_price
+        # 4. from previous move in another company
         if remaining_qty:
-            std_price_data = self._get_value_from_std_price(remaining_qty, forced_std_price, at_date)
+            previous_moves_data = self._get_value_from_previous_company(remaining_qty)
+            value += previous_moves_data['value']
+            remaining_qty -= previous_moves_data['quantity']
+            if previous_moves_data.get('description'):
+                descriptions.append(previous_moves_data['description'])
+
+        # 5. standard_price
+        if remaining_qty:
+            std_price_data = self._get_value_from_std_price(remaining_qty, forced_std_price)
             value += std_price_data['value']
             descriptions.append(std_price_data.get('description'))
 
         if add_extra_value:
-            extra_data = self._get_value_from_extra(valued_qty, at_date)
+            extra_data = self._get_value_from_extra(valued_qty)
             value += extra_data['value']
             if extra_data.get('description'):
                 descriptions.append(extra_data['description'])
@@ -439,23 +542,25 @@ class StockMove(models.Model):
             'description': '\n'.join(descriptions),
         }
 
-    def _get_valued_qty(self, lot=None):
+    def _get_valued_qty(self, lot=None, signed=False):
+        """ When `signed` is True, the quantity is negative for out moves, so it
+        stays consistent with `value` (also negative for out moves) and value/qty
+        ratios stay positive without needing abs(). """
         self.ensure_one()
-        if self._is_in():
+        if (self.state == 'done' and self.is_in) or (self.state != 'done' and self._is_in()):
             return sum(self._get_in_move_lines(lot).mapped('quantity_product_uom'))
-        if self._is_out():
-            return sum(self._get_out_move_lines(lot).mapped('quantity_product_uom'))
+        if (self.state == 'done' and self.is_out) or (self.state != 'done' and self._is_out()):
+            qty = sum(self._get_out_move_lines(lot).mapped('quantity_product_uom'))
+            return -qty if signed else qty
         if self.is_dropship:
             if lot:
                 return sum(self.move_line_ids.filtered(lambda ml: ml.lot_id == lot).mapped('quantity_product_uom'))
-            return self.product_uom._compute_quantity(self.quantity, self.product_id.uom_id)
+            return self.uom_id._compute_quantity(self.quantity, self.product_id.uom_id)
         return 0
 
-    def _get_manual_value(self, quantity, at_date=None):
+    def _get_manual_value(self, quantity):
         valuation_data = dict(VALUATION_DICT)
         domain = Domain([('move_id', '=', self.id)])
-        if at_date:
-            domain &= Domain([('date', '<=', at_date)])
         manual_value = self.env['product.value'].sudo().search(domain, order="date desc, id desc", limit=1)
         if manual_value:
             valuation_data['value'] = manual_value.value
@@ -469,38 +574,37 @@ class StockMove(models.Model):
             valuation_data['description'] = description
         return valuation_data
 
-    def _get_value_from_account_move(self, quantity, at_date=None):
+    def _get_value_from_account_move(self, quantity):
         return dict(VALUATION_DICT)
 
-    def _get_value_from_production(self, quantity, at_date=None):
+    def _get_value_from_production(self, quantity):
         return dict(VALUATION_DICT)
 
-    def _get_value_from_quotation(self, quantity, at_date=None):
+    def _get_value_from_quotation(self, quantity):
         return dict(VALUATION_DICT)
 
-    def _get_value_from_returns(self, quantity, at_date=None):
+    def _get_value_from_returns(self, quantity):
         if self.origin_returned_move_id and self.origin_returned_move_id.is_out:
             origin_move = self.origin_returned_move_id
             origin_valued_qty = origin_move._get_valued_qty()
             return {
-                'value': 0 if self.product_uom.is_zero(origin_valued_qty) else origin_move.value * quantity / origin_valued_qty,
+                'value': 0 if self.uom_id.is_zero(origin_valued_qty) else abs(origin_move.value * quantity / origin_valued_qty),
                 'quantity': quantity,
                 'description': _('Value based on original move %(reference)s', reference=origin_move.reference),
             }
         return dict(VALUATION_DICT)
 
-    def _get_value_from_std_price(self, quantity, std_price=False, at_date=None):
-        if at_date and self.product_id.cost_method == 'standard':
-            std_price = std_price or self.product_id.standard_price or self.product_id._get_standard_price_at_date(at_date)
+    def _get_value_from_std_price(self, quantity, std_price=False):
+        std_price = std_price if std_price else self.product_id.standard_price
         # If multiple lots keep standard_price from product
-        elif self.product_id.lot_valuated and len(self.lot_ids) == 1:
+        if self.product_id.lot_valuated and len(self.lot_ids) == 1:
             std_price = self.lot_ids.standard_price
-        elif not std_price and at_date and self.product_id.cost_method == 'fifo':
+        elif not std_price and self.product_id.cost_method == 'fifo':
             valued_qty = self._get_valued_qty()
             if valued_qty:
                 std_price = self.value / valued_qty
         return {
-            'value': (std_price or self.product_id.standard_price) * quantity,
+            'value': std_price * quantity,
             'quantity': quantity,
             'description': self.env._("%(quantity)s %(uom)s at product's cost",
                 quantity=quantity,
@@ -508,7 +612,19 @@ class StockMove(models.Model):
             ),
         }
 
-    def _get_value_from_extra(self, quantity, at_date=None):
+    def _get_value_from_previous_company(self, quantity):
+        if not self.move_orig_ids or self.move_orig_ids.company_id == self.company_id or len(self.move_orig_ids) > 1:
+            return dict(VALUATION_DICT)
+        origin_moves = self.move_orig_ids
+        origin_quantity = sum(origin_moves.mapped(lambda m: m.uom_id._compute_quantity(m.quantity, m.product_id.uom_id)))
+        # Since move value is signed and previous move is from another operation, we must invert it.
+        return {
+            'value': -1 * sum(origin_moves.mapped('value')) * quantity / origin_quantity if origin_quantity else 0,
+            'quantity': quantity,
+            'description': self.env._('Value from previous move %(references)s', references=list(set(origin_moves.mapped('reference')))),
+        }
+
+    def _get_value_from_extra(self, quantity):
         return dict(VALUATION_DICT)
 
     def _get_move_directions(self):
@@ -530,7 +646,7 @@ class StockMove(models.Model):
                 continue
             if move_line._should_exclude_for_valuation():
                 continue
-            if not move_line.location_id._should_be_valued() and move_line.location_dest_id._should_be_valued():
+            if not move_line.with_company(move_line.company_id).location_id._should_be_valued() and move_line.with_company(move_line.company_id).location_dest_id._should_be_valued():
                 res.add(move_line.id)
         return self.env['stock.move.line'].browse(res)
 
@@ -560,7 +676,7 @@ class StockMove(models.Model):
                 continue
             if move_line._should_exclude_for_valuation():
                 continue
-            if move_line.location_id._should_be_valued() and not move_line.location_dest_id._should_be_valued():
+            if move_line.with_company(move_line.company_id).location_id._should_be_valued() and not move_line.with_company(move_line.company_id).location_dest_id._should_be_valued():
                 res |= move_line
         return res
 
@@ -613,19 +729,18 @@ class StockMove(models.Model):
 
         if self.state != 'done':
             if self.picked:
-                unit_amount = self.product_uom._compute_quantity(
+                unit_amount = self.uom_id._compute_quantity(
                     self.quantity, self.product_id.uom_id)
                 # Falsy in FIFO but since it's an estimation we don't require exact correct cost. Otherwise
                 # we would have to recompute all the analytic estimation at each out.
                 amount = unit_amount * self.product_id.standard_price
+                if self._is_out():
+                    amount = -amount
             else:
                 return False
         else:
             amount = self.value
             unit_amount = self._get_valued_qty()
-
-        if self._is_out():
-            amount = -amount
 
         if self.analytic_account_line_ids and amount == 0 and unit_amount == 0:
             self.analytic_account_line_ids.unlink()
@@ -655,7 +770,7 @@ class StockMove(models.Model):
         self.ensure_one()
         return self.product_id.is_storable and self.is_valued\
         and (self.location_dest_id.valuation_account_id or self.location_id.valuation_account_id)\
-        and not float_is_zero(self.quantity, precision_rounding=self.product_uom.rounding)\
+        and not self.uom_id.is_zero(self.quantity)\
         and self.product_id.valuation == 'real_time'
 
     def _should_exclude_for_valuation(self):
@@ -666,12 +781,6 @@ class StockMove(models.Model):
         self.ensure_one()
         return self.restrict_partner_id and self.restrict_partner_id != self.company_id.partner_id
 
-    def _get_related_invoices(self):  # To be overridden in purchase and sale_stock
-        """ This method is overrided in both purchase and sale_stock modules to adapt
-        to the way they mix stock moves with invoices.
-        """
-        return self.env['account.move']
-
     def _is_returned(self, valued_type):
         self.ensure_one()
         if valued_type == 'in':
@@ -680,15 +789,34 @@ class StockMove(models.Model):
             return self.location_dest_id and self.location_dest_id.usage == 'supplier'
         return bool(self.picking_id.return_picking_id)
 
-    def _get_valued_consigned_qty(self):
-        consigned_lines = self.move_line_ids.filtered(lambda l: l._is_consigned_valued_line())
-        consigned_qty = sum(
-            sml.quantity_product_uom * (-1 if sml.location_dest_id._should_be_valued() else 1)
-            for sml in consigned_lines
-        )
-        return consigned_qty
+    def _clear_journal_entries(self):
+        account_moves = self.account_move_id
+        account_moves.sudo().button_draft()
+        account_moves.sudo().unlink()
 
-    def _get_price_unit_delivery(self):
+    def _reset_valuation(self, date):
+        self.value = 0
+        self.product_id._correct_inventory_valuation(date)
+        self.product_id._update_standard_price()
+
+    def _action_reset_to_progress(self):
+        date = min(self.mapped('date'))
+        self._clear_journal_entries()
+        super()._action_reset_to_progress()
+        self._reset_valuation(date)
+
+    def _action_reset_to_draft(self):
+        date = min(self.mapped('date'))
+        self._clear_journal_entries()
+        super()._action_reset_to_draft()
+        self._reset_valuation(date)
+
+    def _get_origin_company_domains(self, operator, value):
+        """ Overriden in `sale_stock` & `purchase_stock`
+        """
+        return []
+
+    def _get_price_unit_delivery(self, product=None):
         """ Computes the unit price for a set of moves, using a weighted average between
         dropshipped and non dropshipped moves.
         """
@@ -697,10 +825,10 @@ class StockMove(models.Model):
         dropship_price_unit = dropship_moves._get_price_unit_dropshipped()
         regular_moves = self - dropship_moves
         regular_quantity = sum(m._get_valued_qty() for m in regular_moves)
-        regular_price_unit = regular_moves._get_price_unit()
+        regular_price_unit = regular_moves._get_price_unit(product=product)
         total_quantity = dropship_quantity + regular_quantity
         if not total_quantity:
-            return self._get_price_unit()
+            return self._get_price_unit(product=product)
         return (dropship_quantity * dropship_price_unit + regular_quantity * regular_price_unit) / total_quantity
 
     def _get_price_unit_dropshipped(self):

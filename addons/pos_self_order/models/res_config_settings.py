@@ -21,6 +21,7 @@ class ResConfigSettings(models.TransientModel):
     pos_self_ordering_image_brand_name = fields.Char(related="pos_config_id.self_ordering_image_brand_name", readonly=False)
     pos_self_ordering_pay_after = fields.Selection(related="pos_config_id.self_ordering_pay_after", readonly=False, required=True)
     pos_self_ordering_default_user_id = fields.Many2one(related="pos_config_id.self_ordering_default_user_id", readonly=False)
+    pos_self_ordering_primary_color = fields.Char(related="pos_config_id.self_ordering_primary_color", readonly=False)
 
     @api.onchange("pos_self_ordering_default_user_id")
     def _onchange_default_user(self):
@@ -35,6 +36,8 @@ class ResConfigSettings(models.TransientModel):
     def _onchange_pos_self_order_service_mode(self):
         if self.pos_self_ordering_service_mode == 'counter':
             self.pos_self_ordering_pay_after = "each"
+        elif self.pos_self_ordering_service_mode == 'dynamic_qr':
+            self.pos_self_ordering_pay_after = "meal"
 
     @api.onchange("pos_self_ordering_default_language_id", "pos_self_ordering_available_language_ids")
     def _onchange_pos_self_order_kiosk_default_language(self):
@@ -46,21 +49,17 @@ class ResConfigSettings(models.TransientModel):
     @api.onchange("pos_self_ordering_mode", "pos_module_pos_restaurant")
     def _onchange_pos_self_order_kiosk(self):
         if self.pos_self_ordering_mode == 'kiosk':
-            self.is_kiosk_mode = True
+            self.use_kiosk_mode = True
             self.pos_module_pos_restaurant = False
             self.pos_self_ordering_pay_after = "each"
-            cash_payment_methods = self.pos_payment_method_ids.filtered(lambda x: x.is_cash_count)
-            self.pos_payment_method_ids = self.pos_payment_method_ids - cash_payment_methods
         else:
-            self.is_kiosk_mode = False
+            self.use_kiosk_mode = False
 
             if not self.pos_module_pos_restaurant:
                 self.pos_self_ordering_service_mode = 'counter'
-
-    @api.onchange("pos_payment_method_ids")
-    def _onchange_pos_payment_method_ids(self):
-        if self.pos_self_ordering_mode == 'kiosk' and any(pm.is_cash_count for pm in self.pos_payment_method_ids):
-            raise ValidationError(_("You cannot add cash payment methods in kiosk mode."))
+            if self.pos_config_id.self_ordering_mode == 'kiosk' and self.pos_self_ordering_mode != 'kiosk':
+                cash_payment_methods = self.pos_payment_method_ids.filtered(lambda pm: pm.type == 'cash' and not pm.payment_provider)
+                self.pos_payment_method_ids = self.pos_payment_method_ids - cash_payment_methods
 
     @api.onchange("pos_self_ordering_pay_after", "pos_self_ordering_mode")
     def _onchange_pos_self_order_pay_after(self):
@@ -69,6 +68,8 @@ class ResConfigSettings(models.TransientModel):
 
         if self.pos_self_ordering_service_mode == 'counter' and self.pos_self_ordering_mode == 'mobile':
             self.pos_self_ordering_pay_after = "each"
+        elif self.pos_self_ordering_service_mode == 'dynamic_qr' and self.pos_self_ordering_mode == 'mobile':
+            self.pos_self_ordering_pay_after = "meal"
 
     def custom_link_action(self):
         self.ensure_one()
@@ -116,10 +117,10 @@ class ResConfigSettings(models.TransientModel):
             if not table_ids:
                 raise ValidationError(_("In Self-Order mode, you must have at least one table to generate QR codes"))
 
-            for row_num, table in enumerate(table_ids, start=1):
+            for table in table_ids:
                 table_number = table.table_number
                 floor_name = table.floor_id.name
-                url = url_unquote(self.pos_config_id._get_self_order_url(table.id))
+                url = url_unquote(self.pos_config_id._get_self_order_url(table_id=table.id))
                 qr_images.append({
                     'images': self.pos_config_id._generate_single_qr_code__(url),
                     'name': f"{floor_name} - {table_number}",
@@ -141,10 +142,10 @@ class ResConfigSettings(models.TransientModel):
         zip_buffer = BytesIO()
         with zipfile.ZipFile(zip_buffer, "w", 0) as zip_file:
             zip_file.writestr("Table_url.xlsx", xlsx_content)
-            for index, qr_image in enumerate(qr_images):
-                with zip_file.open(f"{qr_image['name']} ({index + 1}).png", "w") as buf:
+            for qr_image in qr_images:
+                with zip_file.open(f"{qr_image['name']}.png", "w") as buf:
                     qr_image['images']['png'].save(buf, format="PNG")
-                with zip_file.open(f"{qr_image['name']} ({index + 1}).svg", "w") as buf:
+                with zip_file.open(f"{qr_image['name']}.svg", "w") as buf:
                     buf.write(qr_image['images']['svg'].to_string())
         zip_buffer.seek(0)
 
@@ -214,10 +215,6 @@ class ResConfigSettings(models.TransientModel):
     def preview_self_order_app(self):
         self.ensure_one()
         return self.pos_config_id.preview_self_order_app()
-
-    def update_access_tokens(self):
-        self.ensure_one()
-        self.pos_config_id._update_access_token()
 
     @api.depends('pos_self_ordering_mode')
     def _compute_pos_pricelist_id(self):

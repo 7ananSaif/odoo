@@ -1,3 +1,4 @@
+import { proxy } from "@odoo/owl";
 import { rpc } from "@web/core/network/rpc";
 import { registry } from "@web/core/registry";
 import { UploadProgressToast } from "./upload_progress_toast";
@@ -5,7 +6,6 @@ import { _t } from "@web/core/l10n/translation";
 import { checkFileSize } from "@web/core/utils/files";
 import { humanNumber } from "@web/core/utils/numbers";
 import { getDataURLFromFile } from "@web/core/utils/urls";
-import { reactive } from "@odoo/owl";
 
 export const AUTOCLOSE_DELAY = 3000;
 export const AUTOCLOSE_DELAY_LONG = 8000;
@@ -14,7 +14,7 @@ export const uploadService = {
     dependencies: ["notification"],
     start(env, { notification }) {
         let fileId = 0;
-        const progressToast = reactive({
+        const progressToast = proxy({
             files: {},
             isVisible: false,
         });
@@ -29,6 +29,9 @@ export const uploadService = {
         const addFile = (file) => {
             progressToast.files[file.id] = file;
             progressToast.isVisible = true;
+            file.cancelUpload = () => {
+                deleteFile(file.id);
+            };
             return progressToast.files[file.id];
         };
 
@@ -142,6 +145,7 @@ export const uploadService = {
                         id,
                         name: file.name,
                         size: fileSize,
+                        mimetype: file.type,
                     });
                 }
 
@@ -153,6 +157,11 @@ export const uploadService = {
                     }
 
                     const file = progressToast.files[sortedFile.progressToastId];
+                    if (!file) {
+                        // A file could be deleted before uploading started,
+                        // in such case, we wouldn't proceed further.
+                        continue;
+                    }
                     let dataURL;
                     try {
                         dataURL = await getDataURLFromFile(sortedFile);
@@ -187,7 +196,7 @@ export const uploadService = {
                     currentXHR.addEventListener("abort", onFileAbort);
 
                     try {
-                        addAttachmentRpc = rpc(
+                        const rpcProm = rpc(
                             "/html_editor/attachment/add_data",
                             {
                                 name: file.name,
@@ -200,9 +209,12 @@ export const uploadService = {
                             },
                             { xhr: currentXHR }
                         );
-
+                        addAttachmentRpc = rpcProm;
+                        file.cancelUpload = () => {
+                            rpcProm.abort();
+                        };
                         const attachment = await addAttachmentRpc;
-                        if (signal.aborted || file.aborted) {
+                        if (signal.aborted) {
                             break;
                         }
 
@@ -213,11 +225,7 @@ export const uploadService = {
                             if (attachment.mimetype === "image/webp") {
                                 try {
                                     // Generate alternate format for reports.
-                                    await convertWebpToJpeg(
-                                        dataURL,
-                                        file.name,
-                                        attachment.id
-                                    );
+                                    await convertWebpToJpeg(dataURL, file.name, attachment.id);
                                 } catch (convErr) {
                                     console.warn(
                                         "[uploadService] webp conversion failed:",
@@ -229,18 +237,16 @@ export const uploadService = {
                             await onUploaded(attachment);
                         }
                     } catch (err) {
-                        if (signal.aborted) {
+                        if (signal.aborted || file.aborted) {
                             break;
                         }
                         file.hasError = true;
                         console.error("Upload error:", err);
                         throw err;
                     } finally {
-                        currentXHR.upload.removeEventListener(
-                            "progress",
-                            onProgress
-                        );
+                        currentXHR.upload.removeEventListener("progress", onProgress);
                         currentXHR.upload.removeEventListener("load", onLoad);
+                        currentXHR.removeEventListener("abort", onFileAbort);
                         // If there's an error, display the error message for longer
                         const message_autoclose_delay = file.hasError
                             ? AUTOCLOSE_DELAY_LONG

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <template id="report_saleorder_document" inherit_id="sale.report_saleorder_document">
-        <xpath expr="//t[@t-set='forced_vat']" position="after">
+        <t t-call="web.external_layout" position="before">
             <t t-set="din5008_document_information">
                 <div class="information_block" t-if="doc and doc._name=='sale.order'">
                     <table>
@@ -12,11 +12,11 @@
                             </tr>
                             <tr t-if="doc.date_order">
                                 <td>Quotation Date:</td>
-                                <td><div t-field="doc.date_order" t-options="{'widget': 'date'}"/></td>
+                                <td><div t-field="doc.date_order" t-options="{'widget': 'date', 'format': 'dd.MM.yyyy'}"/></td>
                             </tr>
                             <tr t-if="doc.validity_date">
                                 <td>Expiration:</td>
-                                <td><div t-field="doc.validity_date" t-options="{'widget': 'date'}"/></td>
+                                <td><div t-field="doc.validity_date" t-options="{'widget': 'date', 'format': 'dd.MM.yyyy'}"/></td>
                             </tr>
                         </t>
                         <t t-else="">
@@ -26,7 +26,11 @@
                             </tr>
                             <tr t-if="doc.date_order">
                                 <td>Order Date:</td>
-                                <td><div t-field="doc.date_order" t-options="{'widget': 'date'}"/></td>
+                                <td><div t-field="doc.date_order" t-options="{'widget': 'date', 'format': 'dd.MM.yyyy'}"/></td>
+                            </tr>
+                            <tr t-if="doc.commitment_date">
+                                <td>Delivery Date:</td>
+                                <td><div t-field="doc.commitment_date" t-options="{'widget': 'date', 'format': 'dd.MM.yyyy'}"/></td>
                             </tr>
                             <tr t-if="doc.commitment_date">
                                 <td>Delivery Date:</td>
@@ -58,11 +62,11 @@
                     <t t-if="doc.env.context.get('proforma')">
                         <td class="shipping_address" t-if="delivery_partner and delivery_partner != commercial_partner">
                             <span class="fw-bold">Shipping Address:</span>
-                            <address t-esc="delivery_partner" t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True}'/>
+                            <address t-out="delivery_partner" t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True}'/>
                         </td>
                         <td class="shipping_address" t-if="invoice_partner and invoice_partner != commercial_partner">
                             <span class="fw-bold">Beneficiary:</span>
-                            <address class="mb-0" t-esc="commercial_partner" t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True}'/>
+                            <address class="mb-0" t-out="commercial_partner" t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True}'/>
                             <div t-if="commercial_partner.vat">
                                 <t t-if="commercial_partner.company_id.account_fiscal_country_id.vat_label" t-out="commercial_partner.company_id.account_fiscal_country_id.vat_label" id="inv_tax_id_label"/>
                                 <t t-else="">Tax ID</t>: <span t-field="commercial_partner.vat"/>
@@ -73,17 +77,17 @@
                         <t t-if="doc.partner_invoice_id == doc.partner_shipping_id">
                             <td class="shipping_address">
                                 <span class="fw-bold">Invoicing and Shipping Address:</span>
-                                <address t-esc="doc.partner_shipping_id" t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True}'/>
+                                <address t-out="doc.partner_shipping_id" t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True}'/>
                             </td>
                         </t>
                         <t t-else="">
                             <td class="shipping_address">
                                 <span class="fw-bold">Shipping Address:</span>
-                                <address t-esc="doc.partner_shipping_id" t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True}'/>
+                                <address t-out="doc.partner_shipping_id" t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True}'/>
                             </td>
                             <td class="shipping_address">
                                 <span class="fw-bold">Invoicing Address:</span>
-                                <address t-esc="doc.partner_invoice_id" t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True}'/>
+                                <address t-out="doc.partner_invoice_id" t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True}'/>
                             </td>
                         </t>
                     </t>
@@ -97,7 +101,12 @@
                     <t t-else="">Sales Order</t>
                 </span>
             </t>
-        </xpath>
+        </t>
+        <t t-call="web.external_layout" position="attributes">
+            <attribute name="din5008_document_information">din5008_document_information</attribute>
+            <attribute name="din5008_address_block">din5008_address_block</attribute>
+            <attribute name="din5008_document_title">din5008_document_title</attribute>
+        </t>
         <!-- Insert Position Column as the First Column in the Table Header -->
         <xpath expr="//th[@name='th_description']" position="before">
             <t t-if="doc.company_id.has_position_column">
@@ -120,7 +129,7 @@
         </xpath>
         <xpath expr="//td[@name='td_product_name']" position="before">
             <t t-if="doc.company_id.has_position_column">
-               <td class="text-start" t-esc="line_number"/>
+               <td class="text-start" t-out="line_number"/>
                 <t t-set="line_number" t-value="line_number+1"/>
             </t>
         </xpath>

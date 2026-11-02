@@ -6,6 +6,7 @@ import { listView } from "@web/views/list/list_view";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { DeletePageDialog, DuplicatePageDialog } from "@website/components/dialog/page_properties";
 import { useService } from "@web/core/utils/hooks";
+import { rpc } from "@web/core/network/rpc";
 
 export class PageListController extends listView.Controller {
     static components = {
@@ -45,7 +46,7 @@ export class PageListController extends listView.Controller {
         if (Object.prototype.hasOwnProperty.call(this.props.fields, "is_published")) {
             menuItems.publish = {
                 sequence: 15,
-                icon: "fa fa-globe",
+                icon: "public",
                 description: _t("Publish"),
                 callback: async () => {
                     this.dialogService.add(ConfirmationDialog, {
@@ -60,7 +61,7 @@ export class PageListController extends listView.Controller {
             };
             menuItems.unpublish = {
                 sequence: 16,
-                icon: "fa fa-chain-broken",
+                icon: "link_off",
                 description: _t("Unpublish"),
                 callback: async () => this.togglePublished(false),
             };
@@ -81,9 +82,9 @@ export class PageListController extends listView.Controller {
 
     async onDeleteSelectedRecords() {
         const pageIds = this.model.root.selection.map((record) => record.resId);
-        const newPageTemplateRecords = await this.orm.read("website.page", pageIds, [
-            "is_new_page_template",
-        ]);
+        const newPageTemplateRecords = await rpc("/website/get_new_pages", {
+            page_ids: pageIds,
+        });
         this.dialogService.add(DeletePageDialog, {
             resIds: pageIds,
             resModel: this.props.resModel,

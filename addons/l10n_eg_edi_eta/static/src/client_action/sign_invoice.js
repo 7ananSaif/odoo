@@ -1,10 +1,47 @@
+import { usePlugin } from "@odoo/owl";
+import { browser } from "@web/core/browser/browser";
 import { AlertDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
-import { registry } from "@web/core/registry";
 import { _t } from "@web/core/l10n/translation";
+import { ORM } from "@web/core/orm_plugin";
+import { registry } from "@web/core/registry";
+import { useService } from "@web/core/utils/hooks";
 
-async function actionGetDrive(env, action, type) {
-    const { drive_id, sign_host: host } = action.params;
-    const { orm, http, dialog, action: actionService } = env.services;
+function jsonToFormData(params) {
+    if (params instanceof FormData) {
+        return params;
+    }
+
+    const formData = new FormData();
+    for (const [key, value] of Object.entries(params)) {
+        for (const val of [].concat(value)) {
+            formData.append(key, val);
+        }
+    }
+    return formData;
+}
+
+async function initLNA(notification) {
+    try {
+        const result = await navigator.permissions.query({ name: "local-network-access" });
+        if (["granted", "prompt"].includes(result?.state)) {
+            return true;
+        }
+        const message = _t(
+            "Local Network Access permission is denied. Some hardware devices might not work properly. Please allow Local Network Access in your browser settings."
+        );
+        notification.add(message, { type: "warning" });
+        return false;
+    } catch {
+        return false;
+    }
+}
+
+async function actionGetDrive(env, actionDescr, type) {
+    const { drive_id, sign_host: host } = actionDescr.params;
+    const orm = usePlugin(ORM);
+    const notification = useService("notification");
+    const dialog = useService("dialog");
+    const action = useService("action");
 
     let route = host;
     let key, method;
@@ -18,12 +55,24 @@ async function actionGetDrive(env, action, type) {
         key = "invoices";
     }
 
+    const useLna = await initLNA(notification);
+    const useLoopback = (host.includes("127.0.0.1") || host.includes("localhost")) && useLna;
+
     let result;
     try {
-        result = await http.post(route, action.params);
+        result = await browser.fetch(route, {
+            method: "POST",
+            targetAddressSpace: useLoopback ? "loopback" : useLna ? "local" : undefined,
+            body: jsonToFormData(actionDescr.params),
+        });
+        result = await result.json();
     } catch {
+        if (type === "sign") {
+            await sendLogOnSignFailure(orm, actionDescr.params);
+        }
         dialog.add(AlertDialog, {
             body: _t("Error trying to connect to the middleware. Is the middleware running?"),
+            confirm: () => { action.doAction("soft_reload") },
         });
         return;
     }
@@ -52,7 +101,7 @@ async function actionGetDrive(env, action, type) {
                 body: _t("Error trying to connect to Odoo. Check your internet connection"),
             });
         });
-        actionService.doAction({
+        action.doAction({
             type: "ir.actions.client",
             tag: "reload",
         });
@@ -61,6 +110,15 @@ async function actionGetDrive(env, action, type) {
             body: _t("An unexpected error has occurred"),
         });
     }
+}
+
+async function sendLogOnSignFailure(orm, params) {
+    const invoices = JSON.parse(params.invoices);
+    if (!invoices) {
+        return;
+    }
+    const invoice_ids = Object.keys(invoices).map(Number);
+    await orm.call("account.move", "l10n_eg_log_on_sign_failure", [invoice_ids])
 }
 
 registry

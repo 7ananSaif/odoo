@@ -25,7 +25,7 @@ class TestCancelTimeOff(TransactionCase):
             login='test_user',
             name='Test User',
             company_id=cls.company.id,
-            groups='base.group_user,hr_timesheet.group_hr_timesheet_user',
+            groups='base.group_user,hr_timesheet.group_hr_timesheet_user,hr_holidays.group_hr_holidays_employee',
         )
         cls.employee = cls.env['hr.employee'].create({
             'name': 'Test Employee',
@@ -33,11 +33,13 @@ class TestCancelTimeOff(TransactionCase):
             'resource_calendar_id': cls.company.resource_calendar_id.id,
             'company_id': cls.company.id,
         })
-        cls.generic_time_off_type = cls.env['hr.leave.type'].create({
+        cls.generic_time_off_type = cls.env['hr.work.entry.type'].create({
             'name': 'Generic Time Off',
+            'code': 'Generic Time Off',
             'requires_allocation': False,
             'leave_validation_type': 'both',
-            'company_id': cls.company.id,
+            'request_unit': 'day',
+            'unit_of_measure': 'day',
         })
 
     @freeze_time('2020-01-01')
@@ -54,7 +56,7 @@ class TestCancelTimeOff(TransactionCase):
         """
         time_off = self.env['hr.leave'].create({
             'name': 'Test Time Off',
-            'holiday_status_id': self.generic_time_off_type.id,
+            'work_entry_type_id': self.generic_time_off_type.id,
             'employee_id': self.employee.id,
             'date_from': '2020-01-07 08:00:00',
             'date_to': '2020-01-09 17:00:00',

@@ -6,22 +6,19 @@ import { registry } from '@web/core/registry';
 export class RecentlyViewedProducts extends Interaction {
     static selector = '.o_wsale_product_page';
     dynamicContent = {
-        'input.product_id[name="product_id"]': {
-            't-on-change.withTarget': this.debounced(this.onProductChange, 500),
-        },
+        '.js_product': { 't-on-product_changed': this.debounced(this.onProductChanged, 500) },
     };
 
     /**
      * Mark the product as viewed.
      *
-     * @param {Event} ev
-     * @param {HTMLElement} currentTargetEl
+     * @param {CustomEvent} event
      */
-    async onProductChange(ev, currentTargetEl) {
+    async onProductChanged(event) {
         if (!parseInt(this.el.querySelector('#product_detail').dataset.viewTrack)) {
             return; // Product not tracked.
         }
-        const productId = parseInt(currentTargetEl.value);
+        const { productId } = event.detail;
         const cookieName = 'seen_product_id_' + productId;
         if (cookie.get(cookieName)) {
             return; // Product already tracked in the last 30 min.
@@ -29,10 +26,11 @@ export class RecentlyViewedProducts extends Interaction {
         if (this.el.querySelector('.js_product.css_not_available')) {
             return; // Product not available.
         }
-        await this.waitFor(rpc('/shop/products/recently_viewed_update', {
-            product_id: productId,
+        await this.waitFor(rpc('/website/odoo_track', {
+            res_model: 'product.product',
+            res_id: productId,
         }));
-        cookie.set(cookieName, productId, 30 * 60, 'optional');
+        cookie.set(cookieName, productId, 30 * 60);
     }
 }
 

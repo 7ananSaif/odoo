@@ -7,6 +7,11 @@
 ///
 
 :root {
+    // Background the editor adjusts the contrast of the content against.
+    // Defaults to the background the editable is usually drawn on, and can be
+    // overridden by any context rendering the editor on another one.
+    --o-html-editor-background-contrast: #{$o-view-background-color};
+
     @each $color, $value in $grays {
         @include print-variable($color, $value);
     }
@@ -124,7 +129,7 @@ pre {
 
 /* ----- GENERIC LAYOUTING HELPERS ---- */
 /* table */
-#wrapwrap, .o_editable {
+#wrapwrap {
     // Only style editor-made tables (shop/portal/... tables are not supposed to
     // use table-bordered...)
     table.table.table-bordered {
@@ -191,15 +196,27 @@ ul.o_checklist {
     }
 }
 /*rtl:begin:ignore*/
-ul.o_checklist[dir="rtl"] li:not(.oe-nested)::before {
-    left: auto;
-    right: - $o-checklist-margin-left;
-    text-align: right;
+/* Actual RTL, through user language or switch command */
+.o_rtl ul.o_checklist, ul.o_checklist[dir="rtl"] {
+    li {
+        margin-right: unset;
+        &:not(.oe-nested)::before {
+            left: auto;
+            right: - $o-checklist-margin-left;
+            text-align: right;
+        }
+    }
 }
-ul.o_checklist[dir="ltr"] li:not(.oe-nested)::before {
-    right: auto;
-    left: - $o-checklist-margin-left;
-    text-align: left;
+/* Actual LTR, from RTL language, using switch command */
+ul.o_checklist[dir="ltr"] {
+    li {
+        margin-left: unset;
+        &:not(.oe-nested)::before {
+            right: auto;
+            left: - $o-checklist-margin-left;
+            text-align: left;
+        }
+    }
 }
 /*rtl:end:ignore*/
 ol > li.o_indent, ul > li.o_indent {
@@ -211,7 +228,7 @@ ol > li.o_indent, ul > li.o_indent {
 }
 
 // Stars widget
-.o_stars .fa.fa-star {
+.o_stars [data-icon="star"].oi-filled {
     color: gold;
 }
 
@@ -225,42 +242,27 @@ img.o_we_custom_image {
 img.shadow {
     box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.2);
 }
-img.padding-small, .img.padding-small, span.fa.padding-small, iframe.padding-small {
+img.padding-small, .img.padding-small, iframe.padding-small {
     padding: 4px;
 }
-img.padding-medium, .img.padding-medium, span.fa.padding-medium, iframe.padding-medium {
+img.padding-medium, .img.padding-medium, iframe.padding-medium {
     padding: 8px;
 }
-img.padding-large, .img.padding-large, span.fa.padding-large, iframe.padding-large {
+img.padding-large, .img.padding-large, iframe.padding-large {
     padding: 16px;
 }
-img.padding-xl, .img.padding-xl, span.fa.padding-xl, iframe.padding-xl {
+img.padding-xl, .img.padding-xl, iframe.padding-xl {
     padding: 32px;
 }
 img.ms-auto, img.mx-auto {
     display: block;
 }
 
-.fa-6x {
-    font-size: 6em;
-}
-.fa-7x {
-    font-size: 7em;
-}
-.fa-8x {
-    font-size: 8em;
-}
-.fa-9x {
-    font-size: 9em;
-}
-.fa-10x {
-    font-size: 10em;
-}
-.fa.mx-auto {
+.oi.mx-auto {
     display: block;
     text-align: center;
 }
-.fa.card-img, .fa.card-img-top, .fa.card-img-bottom {
+.oi.card-img, .oi.card-img-top, .oi.card-img-bottom {
     width: auto;
 }
 
@@ -317,27 +319,37 @@ div.media_iframe_video {
     overflow: hidden;
     min-width: 100px;
 
-    iframe {
+    iframe, video {
         width: 100%;
         height: 100%;
         @include o-position-absolute($top: 0, $left: 0, $right: 0);
         margin: 0 auto;
     }
-    &.padding-small iframe {
+    video {
+        object-fit: cover;
+    }
+    &.padding-small :is(iframe, video) {
         padding: 4px;
     }
-    &.padding-medium iframe {
+    &.padding-medium :is(iframe, video) {
         padding: 8px;
     }
-    &.padding-large iframe {
+    &.padding-large :is(iframe, video) {
         padding: 16px;
     }
-    &.padding-xl iframe {
+    &.padding-xl :is(iframe, video) {
         padding: 32px;
     }
 
     .media_iframe_video_size {
         padding-bottom: 56.25%; /* 16:9 aspect ratio */
+        position: relative;
+        width: 100%;
+        height: 0;
+    }
+
+    .media_iframe_video_size_for_vertical {
+        padding-bottom: 177.78%; /* 9:16 aspect ratio */
         position: relative;
         width: 100%;
         height: 0;
@@ -350,14 +362,18 @@ div.media_iframe_video {
         display: none;
         z-index: 2;
     }
+
+    &:has(.media_iframe_video_size_for_vertical) {
+        max-width: 315px;
+    }
 }
 
 // Fields
 address {
-    .fa.fa-mobile-phone {
+    [data-icon="smartphone"] {
         margin: 0 3px 0 2px;
     }
-    .fa.fa-file-text-o {
+    [data-icon="article"] {
         margin-right: 1px;
     }
 }
@@ -376,7 +392,7 @@ ul.oe_menu_editor {
         list-style: none;
     }
     li div {
-        @include o-grab-cursor;
+        cursor: grab;
 
         :active {
             cursor: grabbing;
@@ -497,8 +513,7 @@ a.o_underline {
 // BS4 blockquote has no style anymore, except bloquote <footer>
 blockquote {
     padding: $spacer/2 $spacer;
-    border-left: 5px solid;
-    border-color: map-get($grays, '300');
+    border-inline-start: 5px solid map-get($grays, '300');
     font-style: italic;
 }
 
@@ -630,7 +645,7 @@ pre {
             // Links
             $-link-color: if($-link, o-color($-link), map-get($theme-colors, 'primary'));
             $-link-hover-color: darken($-link-color, 15%);
-            a:not(.btn), .btn-link {
+            a:not(.btn):where(:not(.o_cc)), .btn-link:where(:not(.o_cc)) {
                 color: auto-contrast($-link-color, $-bg-color, 'o-cc#{$index}-link');
 
                 &:hover {
@@ -665,7 +680,7 @@ pre {
             // 'Active' states. Note: this only emulates very common components
             // used in snippets. This might need to be more complex the day we
             // can apply color combinations anywhere (page-item, ...).
-            .nav-pills {
+            .nav-pills, .nav-tabs {
                 .nav-link.active,
                 .show > .nav-link {
                     background-color: $-btn-primary-color;
@@ -683,7 +698,7 @@ pre {
             }
 
             .btn-close {
-                @if (lightness($-bg-color) < 50) {
+                @if lightness($-bg-color) < 50 {
                     @include btn-close-white();
                 }
             }
@@ -702,14 +717,17 @@ pre {
     background-image: none !important;
 }
 
-.o_full_screen_height {
+@mixin o_full_screen_height {
     display: flex;
     flex-direction: column;
     justify-content: space-around;
     min-height: 100vh !important;
 }
+.o_full_screen_height {
+    @include o_full_screen_height;
+}
 .o_half_screen_height {
-    @extend .o_full_screen_height;
+    @include o_full_screen_height;
     min-height: 55vh !important;
 }
 
@@ -764,9 +782,9 @@ pre {
         -webkit-text-fill-color: inherit;
     }
 
-    // On Iphone (Safari & Chrome) and Mac (only Safari), the font awesome icons
+    // On Iphone (Safari & Chrome) and Mac (only Safari), the font icons
     // are not rendered (invisible) when inside a gradient.
-    .fa {
+    .oi {
         display: inherit;
     }
 
@@ -778,7 +796,7 @@ pre {
         color: transparent;
         caret-color: black;
     }
-    * {
+    *:not([style*="background-image"]) {
         background-size: 0px;
         background-image: inherit !important;
     }
@@ -833,6 +851,8 @@ code.o_inline_code {
     background-color: var(--WebEditor__inlineCode-bg, #{$gray-200});
     font-size: 85%;
     color: $gray-900;
+    font-style: normal;
+    font-weight: normal;
 }
 
 // Ensure colored font wrapper is inherited by child links

@@ -1,6 +1,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from . import assets
+from . import digest
 from . import base_partner_merge
 from . import html_text_processor
 from . import ir_actions_server
@@ -20,7 +21,7 @@ from . import website_menu
 from . import website_page_properties
 from . import website_page
 from . import website_rewrite
-from . import ir_rule
+from . import ir_access
 from . import ir_ui_menu
 from . import ir_ui_view
 from . import res_company
@@ -35,3 +36,5 @@ from . import website_snippet_filter
 from . import website_visitor
 from . import website_controller_page
 from . import website_technical_page
+
+from . import res_groups

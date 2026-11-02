@@ -17,13 +17,13 @@
                     <button type="object"
                         name="open_google_gmail_uri" class="btn-link px-0"
                         invisible="smtp_authentication != 'gmail' or google_gmail_refresh_token">
-                        <i class="oi oi-arrow-right"/>
+                        <i class="oi" data-icon="east"/>
                         Connect your Gmail account
                     </button>
                     <button type="object"
                         name="open_google_gmail_uri" class="btn-link px-0 ms-2"
                         invisible="smtp_authentication != 'gmail' or not google_gmail_refresh_token">
-                        <i class="fa fa-cog" title="Edit Settings"/>
+                        <i class="oi oi-filled" data-icon="settings" title="Edit Settings"/>
                     </button>
                 </div>
             </field>
@@ -31,6 +31,9 @@
                 <widget name="documentation_link" path="/applications/general/email_communication/email_servers.html?highlight=outgoing email server#use-a-default-from-email-address"
                     invisible="smtp_authentication != 'gmail'" label="Read More"/>
             </field>
+            <xpath expr="//field[@name='smtp_user']" position="attributes">
+                <attribute name="required" separator="or" add="smtp_authentication == 'gmail'"/>
+            </xpath>
         </field>
     </record>
 </odoo>

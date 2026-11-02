@@ -1,11 +1,10 @@
 import { registry } from "@web/core/registry";
 
 registry.category("web_tour.tours").add('passkeys_tour_delete', {
-    url: '/odoo',
     steps: () => [
         {
             content: 'Open user account menu',
-            trigger: '.o_user_menu .dropdown-toggle',
+            trigger: '.o_user_menu',
             run: 'click',
         }, {
             content: "Open preferences / profile screen",
@@ -13,7 +12,7 @@ registry.category("web_tour.tours").add('passkeys_tour_delete', {
             run: 'click',
         }, {
             content: "Switch to security tab",
-            trigger: 'a[role=tab]:contains("Security")',
+            trigger: 'button[role=tab]:contains("Security")',
             run: 'click',
         }, {
             content: "Ensure there is only one passkey",
@@ -26,7 +25,7 @@ registry.category("web_tour.tours").add('passkeys_tour_delete', {
             },
         }, {
             content: "Open Passkey dropdown",
-            trigger: '[name="auth_passkey_key_ids"] .o_dropdown_kanban .o-dropdown:not(:visible)',
+            trigger: '[name="auth_passkey_key_ids"] .o_dropdown_kanban .o-dropdown',
             run: 'click',
         }, {
             content: "Delete Passkey",
@@ -38,7 +37,7 @@ registry.category("web_tour.tours").add('passkeys_tour_delete', {
             run: 'click',
         }, {
             content: "Check that we have to enter enhanced security mode",
-            trigger: ".modal div:contains(Enter your current password)",
+            trigger: ".modal div:contains(Enter your own password)",
         }, {
             content: "Input password",
             trigger: '.modal [name=password] input',
@@ -49,7 +48,7 @@ registry.category("web_tour.tours").add('passkeys_tour_delete', {
             run: "click",
         }, {
             content: 'Open user account menu',
-            trigger: '.o_user_menu .dropdown-toggle',
+            trigger: '.o_user_menu',
             run: 'click',
         }, {
             content: "Open preferences / profile screen",
@@ -61,7 +60,7 @@ registry.category("web_tour.tours").add('passkeys_tour_delete', {
             trigger: 'label:contains("Email Signature")',
         }, {
             content: "Switch to security tab",
-            trigger: 'a[role=tab]:contains("Security")',
+            trigger: 'button[role=tab]:contains("Security")',
             run: 'click',
         }, {
             content: "Ensure there are no more passkeys",

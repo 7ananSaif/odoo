@@ -8,10 +8,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2026-06-06 15:57+0000\n"
-"Last-Translator: \"Marta (wacm)\" <wacm@odoo.com>\n"
-"Language-Team: Polish <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-18 17:40+0000\n"
+"PO-Revision-Date: 2026-08-31 14:03+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Polish <https://translate.odoo.com/projects/odoo-s19-4/"
 "website_sale_loyalty/pl/>\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
@@ -19,7 +19,19 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: website_sale_loyalty
+#: model:ir.module.module,description:base.module_website_sale_loyalty
+msgid ""
+"\n"
+"Create coupons, promotion codes, gift cards and loyalty programs to boost "
+"your sales (free products,\n"
+"discounts, etc.). Shoppers can use them in the eCommerce checkout.\n"
+"\n"
+"Coupon & promotion programs can be edited in the Catalog menu of the Website "
+"app.\n"
+msgstr ""
 
 #. module: website_sale_loyalty
 #. odoo-python
@@ -39,20 +51,15 @@ msgid "All websites"
 msgstr "Wszystkie strony internetowe"
 
 #. module: website_sale_loyalty
+#. odoo-python
+#: code:addons/website_sale_loyalty/models/sale_order.py:0
+msgid "Applied rewards have changed. Please review your cart."
+msgstr ""
+
+#. module: website_sale_loyalty
 #: model:ir.model.fields,field_description:website_sale_loyalty.field_loyalty_program__ecommerce_ok
 msgid "Available on Website"
 msgstr "Dostępne na stronie internetowej"
-
-#. module: website_sale_loyalty
-#. odoo-python
-#: code:addons/website_sale_loyalty/controllers/payment.py:0
-msgid ""
-"Cannot process payment: applied reward was changed or has expired.\n"
-"Please refresh the page and try again."
-msgstr ""
-"Nie można przetworzyć płatności: przyznana nagroda została zmieniona lub "
-"wygasła.\n"
-"Odśwież stronę i spróbuj ponownie."
 
 #. module: website_sale_loyalty
 #. odoo-javascript
@@ -77,15 +84,14 @@ msgid "Coupon"
 msgstr "Kupon"
 
 #. module: website_sale_loyalty
-#. odoo-javascript
-#: code:addons/website_sale_loyalty/static/src/website_builder/coupon_option_plugin.js:0
-msgid "Coupon Snippet Options"
-msgstr "Opcje fragmentów kuponów"
-
-#. module: website_sale_loyalty
 #: model_terms:ir.ui.view,arch_db:website_sale_loyalty.modify_code_form
 msgid "Coupons -"
 msgstr "Kupony -"
+
+#. module: website_sale_loyalty
+#: model:ir.module.module,shortdesc:base.module_website_sale_loyalty
+msgid "Coupons, Promotions, Gift Card and Loyalty for eCommerce"
+msgstr ""
 
 #. module: website_sale_loyalty
 #: model:ir.model,name:website_sale_loyalty.model_coupon_share
@@ -114,21 +120,6 @@ msgid "Discount & Loyalty"
 msgstr "Zniżki i programy lojalnościowe"
 
 #. module: website_sale_loyalty
-#: model_terms:ir.ui.view,arch_db:website_sale_loyalty.reduction_coupon_code
-msgid "Discount code or gift card"
-msgstr "Kod rabatowy lub karta podarunkowa"
-
-#. module: website_sale_loyalty
-#: model_terms:ir.ui.view,arch_db:website_sale_loyalty.cart_discount
-msgid "Discount:"
-msgstr "Zniżka:"
-
-#. module: website_sale_loyalty
-#: model_terms:ir.ui.view,arch_db:website_sale_loyalty.cart_discount
-msgid "Discounted amount"
-msgstr "Kwota zniżki"
-
-#. module: website_sale_loyalty
 #: model:ir.model.fields,field_description:website_sale_loyalty.field_coupon_share__display_name
 #: model:ir.model.fields,field_description:website_sale_loyalty.field_loyalty_card__display_name
 #: model:ir.model.fields,field_description:website_sale_loyalty.field_loyalty_program__display_name
@@ -148,6 +139,16 @@ msgstr "Gotowe"
 #: model_terms:ir.ui.view,arch_db:website_sale_loyalty.modify_code_form
 msgid "Expired Date:"
 msgstr "Data wygaśnięcia:"
+
+#. module: website_sale_loyalty
+#: model:loyalty.program,name:website_sale_loyalty.free_shipping_promotion
+msgid "Free Shipping"
+msgstr "Darmowa dostawa"
+
+#. module: website_sale_loyalty
+#: model:loyalty.reward,description:website_sale_loyalty.free_shipping_promotion_reward
+msgid "Free shipping"
+msgstr "Darmowa dostawa"
 
 #. module: website_sale_loyalty
 #: model_terms:ir.ui.view,arch_db:website_sale_loyalty.coupon_share_view_form
@@ -206,14 +207,20 @@ msgid "Loyalty Program"
 msgstr "Program lojalnościowy"
 
 #. module: website_sale_loyalty
-#: model_terms:ir.ui.view,arch_db:website_sale_loyalty.res_config_settings_view_form_inherit_website_sale_loyalty
-msgid "Loyalty Programs"
-msgstr "Programy lojalnościowe"
-
-#. module: website_sale_loyalty
 #: model:ir.model,name:website_sale_loyalty.model_loyalty_rule
 msgid "Loyalty Rule"
 msgstr "Zasady lojalności"
+
+#. module: website_sale_loyalty
+#. odoo-python
+#: code:addons/website_sale_loyalty/tests/test_shop_sale_coupon.py:0
+msgid "No reward to claim with this coupon"
+msgstr "Z tym kuponem nie można odebrać żadnej nagrody"
+
+#. module: website_sale_loyalty
+#: model:loyalty.program,portal_point_name:website_sale_loyalty.free_shipping_promotion
+msgid "Points"
+msgstr "Punkty"
 
 #. module: website_sale_loyalty
 #: model:ir.model,name:website_sale_loyalty.model_product_product
@@ -234,6 +241,11 @@ msgstr "Strona internetowa programu"
 #: model:ir.model.fields,field_description:website_sale_loyalty.field_coupon_share__promo_code
 msgid "Promo Code"
 msgstr "Kod promocyjny"
+
+#. module: website_sale_loyalty
+#: model_terms:ir.ui.view,arch_db:website_sale_loyalty.res_config_settings_view_form_inherit_website_sale_loyalty
+msgid "Promotions"
+msgstr ""
 
 #. module: website_sale_loyalty
 #. odoo-python
@@ -288,12 +300,6 @@ msgid "Share Loyalty Card"
 msgstr "Udostępnij kartę lojalnościową"
 
 #. module: website_sale_loyalty
-#. odoo-javascript
-#: code:addons/website_sale_loyalty/static/src/website_builder/coupon_option.xml:0
-msgid "Show Discount in Subtotal"
-msgstr "Wyświetl zniżkę w sumie częściowej"
-
-#. module: website_sale_loyalty
 #: model:ir.model.fields,field_description:website_sale_loyalty.field_loyalty_program__show_non_published_product_warning
 msgid "Show Non Published Product Warning"
 msgstr "Pokaż ostrzeżenia o nieopublikowanych produktach"
@@ -346,6 +352,13 @@ msgid "Use"
 msgstr "Użyj"
 
 #. module: website_sale_loyalty
+#: model:ir.module.module,summary:base.module_website_sale_loyalty
+msgid ""
+"Use coupon, promotion, gift cards and loyalty programs in your eCommerce "
+"store"
+msgstr ""
+
+#. module: website_sale_loyalty
 #: model:ir.model.fields,field_description:website_sale_loyalty.field_coupon_share__website_id
 #: model:ir.model.fields,field_description:website_sale_loyalty.field_loyalty_program__website_id
 #: model:ir.model.fields,field_description:website_sale_loyalty.field_loyalty_rule__website_id
@@ -367,3 +380,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:website_sale_loyalty.modify_code_form
 msgid "You have successfully applied the following code:"
 msgstr "Poniższy kod został pomyślnie zastosowany:"
+
+#~ msgid "Loyalty Programs"
+#~ msgstr "Programy lojalnościowe"

@@ -7,7 +7,7 @@ from werkzeug import urls
 from odoo import api, fields, models, tools
 from odoo.modules import Manifest
 from odoo.tools import misc
-from odoo.tools.constants import ASSET_EXTENSIONS, EXTERNAL_ASSET
+from odoo.tools.constants import ASSET_EXTENSIONS, EXTERNAL_ASSET, BINARY_EXTENSIONS
 
 _logger = getLogger(__name__)
 
@@ -61,20 +61,7 @@ class IrAsset(models.Model):
     _description = 'Asset'
     _order = 'sequence, id'
     _allow_sudo_commands = False
-
-    @api.model_create_multi
-    def create(self, vals_list):
-        self.env.registry.clear_cache('assets')
-        return super().create(vals_list)
-
-    def write(self, vals):
-        if self:
-            self.env.registry.clear_cache('assets')
-        return super().write(vals)
-
-    def unlink(self):
-        self.env.registry.clear_cache('assets')
-        return super().unlink()
+    _clear_cache_name = 'assets'
 
     name = fields.Char(string='Name', required=True)
     bundle = fields.Char(string='Bundle name', required=True)
@@ -103,9 +90,12 @@ class IrAsset(models.Model):
 
     def _parse_bundle_name(self, bundle_name, debug_assets):
         bundle_name, asset_type = bundle_name.rsplit('.', 1)
+        if asset_type in BINARY_EXTENSIONS:
+            asset_type = 'binary'
+            bundle_name = bundle_name.rsplit('.', 1)[0]
         rtl = False
         autoprefix = False
-        if not debug_assets:
+        if not debug_assets and asset_type != 'binary':
             bundle_name, min_ = bundle_name.rsplit('.', 1)
             if min_ != 'min':
                 raise ValueError("'min' expected in extension in non debug mode")
@@ -116,15 +106,15 @@ class IrAsset(models.Model):
             if bundle_name.endswith('.rtl'):
                 bundle_name = bundle_name[:-4]
                 rtl = True
-        elif asset_type != 'js':
-            raise ValueError('Only js and css assets bundle are supported for now')
-        if len(bundle_name.split('.')) != 2:
+        elif asset_type not in ('js', 'binary'):
+            raise ValueError('Only js, css and binary assets bundle are supported for now')
+        if len(bundle_name.split('.')) != 2 and asset_type != 'binary':
             raise ValueError(f'{bundle_name} is not a valid bundle name, should have two parts')
         return bundle_name, rtl, asset_type, autoprefix
 
     @tools.conditional(
         'xml' not in tools.config['dev_mode'],
-        tools.ormcache('bundle', 'tuple(sorted(assets_params.items()))', cache='assets'),
+        api.ormcache('bundle', 'tuple(sorted(assets_params.items()))', cache='assets'),
     )
     def _get_asset_paths(self, bundle, assets_params):
         """
@@ -165,9 +155,10 @@ class IrAsset(models.Model):
         See `_get_asset_paths` for more information.
 
         :param bundle: name of the bundle from which to fetch the file paths
-        :param addons: list of addon names as strings
         :param asset_paths: the AssetPath object to fill
         :param seen: a list of bundles already checked to avoid circularity
+        :param addons: list of addon names as strings
+        :param installed: installed addons list
         :param assets_params: Keyword arguments:
 
             * css: bool: whether or not to include style files
@@ -188,7 +179,7 @@ class IrAsset(models.Model):
 
         # 2. Process all addons' manifests.
         for addon in addons:
-            for command in Manifest.for_addon(addon)['assets'].get(bundle, ()):
+            for command in Manifest.for_addon(addon)._Manifest__manifest_cached['assets'].get(bundle, ()):
                 directive, target, path_def = self._process_command(command)
                 self._process_path(bundle, directive, target, path_def, asset_paths, seen, addons, installed, bundle_start_index, **assets_params)
 
@@ -283,7 +274,7 @@ class IrAsset(models.Model):
         return self._get_installed_addons_list()
 
     @api.model
-    @tools.ormcache('addons_tuple')
+    @api.ormcache('addons_tuple')
     def _topological_sort(self, addons_tuple):
         """Returns a list of sorted modules name accord to the spec in ir.module.module
         that is, application desc, sequence, name then topologically sorted"""
@@ -306,7 +297,7 @@ class IrAsset(models.Model):
         return misc.topological_sort({manif['name']: tuple(manif['depends']) for manif in manifs})
 
     @api.model
-    @tools.ormcache()
+    @api.ormcache()
     def _get_installed_addons_list(self):
         """
         Returns the list of all installed addons.
@@ -388,7 +379,7 @@ class IrAsset(models.Model):
 
 
 class AssetPaths:
-    """ A list of asset paths (path, addon, bundle) with efficient operations. """
+    """ A list of asset paths (path, addon, bundle, last_modified) with efficient operations. """
     def __init__(self):
         self.list = []
         self.memo = set()

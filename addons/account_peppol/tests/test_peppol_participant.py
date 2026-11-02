@@ -1,38 +1,44 @@
-from base64 import b64encode
+import json
 
 from odoo import Command
 from odoo.exceptions import UserError, ValidationError
-from odoo.tests.common import tagged, freeze_time
+from odoo.tests.common import TransactionCase, freeze_time, tagged
 from odoo.tests.form import Form
-from odoo.tools.misc import file_open
 
-from odoo.addons.account_peppol.tests.common import PeppolConnectorCommon
+from odoo.addons.account_peppol.tests.common import (
+    mock_can_connect,
+    mock_cancel_peppol_registration,
+    mock_connect,
+    mock_documents_retrieval,
+    mock_get_participant_status,
+    mock_lookup_not_found,
+    mock_lookup_success,
+    mock_register_sender_as_receiver,
+    mock_update_user,
+)
 
 
 @freeze_time('2023-01-01')
 @tagged('-at_install', 'post_install')
-class TestPeppolParticipant(PeppolConnectorCommon):
+class TestPeppolParticipant(TransactionCase):
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.env['ir.config_parameter'].sudo().set_str('account_peppol.edi.mode', 'test')
         cls.private_key = cls.env['certificate.key'].create([{
             'name': 'Test key PEPPOL',
-            'content': b64encode(file_open('account_peppol/tests/assets/private_key.pem', 'rb').read()),
+            'content': cls.file_read('account_peppol/tests/assets/private_key.pem'),
         }])
 
         cls.env.company.write({
-            'peppol_eas': '0208',
-            'peppol_endpoint': '0239843188',
+            'routing_identifier': '0208:0239843188',
             'account_peppol_phone_number': '+32483123456',
             'account_peppol_contact_email': 'yourcompany@test.example.com',
         })
 
     def test_ignore_archived_edi_users(self):
-        with self._mock_requests([
-            self._mock_can_connect(),
-            self._mock_connect(peppol_state='sender'),
-        ]):
+        with mock_can_connect(), mock_connect(peppol_state='sender'):
             wizard = self.env['peppol.registration'].create({})
             wizard.button_register_peppol_participant()
 
@@ -46,9 +52,7 @@ class TestPeppolParticipant(PeppolConnectorCommon):
             'proxy_type': 'peppol',
             'edi_mode': 'demo',
         }])
-        with self._mock_requests([
-            self._mock_lookup_participant(),
-        ]):
+        with mock_lookup_success(peppol_identifier='0208:0239843188'):
             self.env.company.with_context(active_test=False).partner_id.button_account_peppol_check_partner_endpoint()
 
     def test_create_participant_missing_data(self):
@@ -60,55 +64,97 @@ class TestPeppolParticipant(PeppolConnectorCommon):
         with self.assertRaises(ValidationError):
             wizard.button_register_peppol_participant()
 
+    def test_register_with_odoo_demo_id_without_config_param(self):
+        """ Selecting the 'Odoo Demo ID' EAS must be enough to register in demo mode,
+        even without the 'account_peppol.edi.mode' system parameter (e.g. a fresh database
+        created without demo data, where that parameter is never set).
+        """
+        self.env['ir.config_parameter'].sudo().search([('key', '=', 'account_peppol.edi.mode')]).unlink()
+        wizard = self.env['peppol.registration'].create({
+            'peppol_eas': 'odemo',
+            'peppol_endpoint': 'democompany',
+        })
+        self.assertEqual(wizard.edi_mode, 'demo')
+        wizard.button_register_peppol_participant()
+        self.assertRecordValues(self.env.company, [{'account_peppol_proxy_state': 'receiver'}])
+        self.assertRecordValues(self.env.company.account_peppol_edi_user, [{'edi_mode': 'demo'}])
+
+    def test_peppol_registration_wizard_form_view(self):
+        """ Form-test for the wizard basic registrationflow. """
+        with (
+            mock_can_connect(),
+            mock_lookup_not_found(peppol_identifier='0208:0239843188'),
+            mock_connect(peppol_state='sender'),
+        ):
+            wizard_form = Form(self.env['peppol.registration'])
+            self.assertEqual(wizard_form.peppol_eas, '0208')
+            self.assertEqual(wizard_form.peppol_endpoint, '0239843188')
+            self.assertEqual(wizard_form.edi_mode, 'test')
+            self.assertEqual(wizard_form.contact_email, 'yourcompany@test.example.com')
+            self.assertEqual(wizard_form.phone_number, '+32483123456')
+            self.assertFalse(wizard_form.use_parent_connection)
+            # No authentication required in test mode: the plain "Activate" button is shown.
+            self.assertTrue(wizard_form.display_no_auth_buttons)
+            self.assertFalse(wizard_form.display_itsme_login)
+
+            # The onchange normalizes the phone number
+            wizard_form.phone_number = '+32 483 12 34 56'
+            self.assertEqual(wizard_form.phone_number, '+32483123456')
+
+            wizard = wizard_form.save()
+            self.assertTrue(wizard.smp_registration)
+            wizard.button_register_peppol_participant()
+
+        self.assertEqual(self.env.company.account_peppol_proxy_state, 'sender')
+
     def test_register_participant_for_the_first_time_as_sender_then_receiver_then_unregister(self):
         # Register the use for the very first time as sender.
-        with self._mock_requests([
-            self._mock_can_connect(),
-            self._mock_connect(peppol_state='sender'),
-            self._mock_lookup_participant(already_exists=True),
-        ]):
+        with (
+            mock_can_connect(),
+            mock_connect(peppol_state='sender'),
+            mock_lookup_success(peppol_identifier='0208:0239843188'),
+        ):
             wizard = self.env['peppol.registration'].create({})
             self.assertRecordValues(wizard, [{'smp_registration': False}])
             wizard.button_register_peppol_participant()
         self.assertRecordValues(self.env.company, [{'account_peppol_proxy_state': 'sender'}])
 
-        # sender -> receiver.
+        # sender -> receiver (simulate the user already unregistered)
         settings = self.env['res.config.settings'].create({})
-        with self._mock_requests([
-            self._mock_lookup_participant(),
-            self._mock_register_sender_as_receiver(),
-            self._mock_participant_status('receiver'),
-        ]):
-            settings.button_peppol_register_sender_as_receiver()
+        with (
+            mock_register_sender_as_receiver(),
+            mock_get_participant_status(peppol_state='receiver'),
+            mock_lookup_not_found(peppol_identifier='0208:0239843188'),
+        ):
+            settings.peppol_participation_role = 'sending_and_receiving'
         self.assertRecordValues(self.env.company, [{'account_peppol_proxy_state': 'receiver'}])
 
         # receiver -> not_registered.
-        with self._mock_requests([
-            self._mock_participant_status('receiver'),
-            self._mock_get_all_documents(),
-            self._mock_cancel_peppol_registration(),
-        ]):
-            config_wizard = self.env['peppol.config.wizard'].create({})
-            config_wizard.button_peppol_unregister()
+        with (
+            mock_get_participant_status(peppol_state='receiver'),
+            mock_documents_retrieval(messages=[]),
+            mock_cancel_peppol_registration(),
+        ):
+            settings.button_peppol_deregister()
         self.assertRecordValues(self.env.company, [{'account_peppol_proxy_state': 'not_registered'}])
 
     def test_register_participant_already_exists_on_peppol_as_sender(self):
-        with self._mock_requests([
-            self._mock_can_connect(),
-            self._mock_connect(peppol_state='sender'),
-            self._mock_lookup_participant(),
-        ]):
+        with (
+            mock_can_connect(),
+            mock_connect(peppol_state='sender'),
+            mock_lookup_not_found(peppol_identifier='0208:0239843188'),
+        ):
             wizard = self.env['peppol.registration'].create({})
             self.assertRecordValues(wizard, [{'smp_registration': True}])
             wizard.button_register_peppol_participant()
         self.assertRecordValues(self.env.company, [{'account_peppol_proxy_state': 'sender'}])
 
     def test_register_participant_already_exists_on_peppol_as_receiver(self):
-        with self._mock_requests([
-            self._mock_can_connect(),
-            self._mock_connect(peppol_state='sender'),
-            self._mock_lookup_participant(already_exists=True),
-        ]):
+        with (
+            mock_can_connect(),
+            mock_connect(peppol_state='sender'),
+            mock_lookup_success(peppol_identifier='0208:0239843188'),
+        ):
             wizard = self.env['peppol.registration'].create({})
             self.assertRecordValues(wizard, [{'smp_registration': False}])
             wizard.button_register_peppol_participant()
@@ -116,11 +162,9 @@ class TestPeppolParticipant(PeppolConnectorCommon):
 
     def test_register_participant_rejected(self):
         with (
-            self._mock_requests([
-                self._mock_can_connect(),
-                self._mock_connect(peppol_state='rejected'),
-                self._mock_lookup_participant(),
-            ]),
+            mock_can_connect(),
+            mock_connect(peppol_state='rejected'),
+            mock_lookup_not_found(peppol_identifier='0208:0239843188'),
             self.assertRaisesRegex(UserError, "There was an issue with the Peppol Participant"),
         ):
             wizard = self.env['peppol.registration'].create({})
@@ -129,10 +173,7 @@ class TestPeppolParticipant(PeppolConnectorCommon):
         self.assertRecordValues(self.env.company, [{'account_peppol_proxy_state': 'not_registered'}])
 
     def test_config_update_email(self):
-        with self._mock_requests([
-            self._mock_can_connect(),
-            self._mock_connect(peppol_state='sender'),
-        ]):
+        with mock_can_connect(), mock_connect(peppol_state='sender'):
             wizard = self.env['peppol.registration'].create({})
             wizard.button_register_peppol_participant()
         self.assertRecordValues(self.env.company, [{
@@ -141,11 +182,12 @@ class TestPeppolParticipant(PeppolConnectorCommon):
         }])
 
         # Change the email.
-        config_wizard = self.env['peppol.config.wizard'].create({'account_peppol_contact_email': 'another@email.be'})
-        with self._mock_requests([self._mock_update_user()]) as mocks_results:
-            config_wizard.button_sync_form_with_peppol_proxy()
+        settings = self.env['res.config.settings'].create({})
+        with mock_update_user() as mock_response:
+            settings.account_peppol_contact_email = 'another@email.be'
+            http_params = json.loads(mock_response.calls[0].body)
             self.assertEqual(
-                mocks_results['called']['https://peppol.test.odoo.com/api/peppol/1/update_user']['kwargs']['json']['params']['update_data']['peppol_contact_email'],
+                http_params['params']['update_data']['peppol_contact_email'],
                 'another@email.be',
             )
 
@@ -169,7 +211,7 @@ class TestPeppolParticipant(PeppolConnectorCommon):
         }])
 
         wizard.write({
-            'contact_email': "turlututu@tsointsoin",
+            'contact_email': "turlututu@tsointsoin.com",
             'phone_number': "+3236656565",
             'peppol_eas': '0208',
             'peppol_endpoint': '0239843188',
@@ -180,17 +222,13 @@ class TestPeppolParticipant(PeppolConnectorCommon):
             wizard.button_register_peppol_participant()
 
         wizard.peppol_endpoint = '0477472701'
-        with self._mock_requests([
-            self._mock_can_connect(),
-            self._mock_connect(peppol_state='sender'),
-        ]):
+        with mock_can_connect(), mock_connect(peppol_state='sender'):
             wizard.button_register_peppol_participant()
 
         self.assertRecordValues(branch, [{
             'peppol_parent_company_id': False,
-            'peppol_eas': '0208',
-            'peppol_endpoint': '0477472701',
-            'account_peppol_contact_email': "turlututu@tsointsoin",
+            'routing_identifier': '0208:0477472701',
+            'account_peppol_contact_email': "turlututu@tsointsoin.com",
             'account_peppol_phone_number': "+3236656565",
         }])
 
@@ -201,12 +239,8 @@ class TestPeppolParticipant(PeppolConnectorCommon):
         }])
 
         # Disconnect from the network.
-        with self._mock_requests([
-            self._mock_participant_status('sender'),
-            self._mock_cancel_peppol_registration(),
-        ]):
-            config_wizard = self.env['peppol.config.wizard'].with_context(allowed_company_ids=branch.ids).create({})
-            config_wizard.button_peppol_unregister()
+        with mock_get_participant_status(peppol_state='sender'), mock_cancel_peppol_registration():
+            settings.button_peppol_deregister()
         self.assertRecordValues(settings, [{
             'account_peppol_proxy_state': 'not_registered',
             'peppol_use_parent_company': False,
@@ -255,10 +289,7 @@ class TestPeppolParticipant(PeppolConnectorCommon):
             'display_use_parent_connection_selection': False,
             'use_parent_connection_selection': 'use_self',
         }])
-        with self._mock_requests([
-            self._mock_can_connect(),
-            self._mock_connect(peppol_state='receiver'),
-        ]):
+        with mock_can_connect(), mock_connect(peppol_state='receiver'):
             wizard.button_register_peppol_participant()
 
         settings = self.env['res.config.settings'].with_context(allowed_company_ids=self.env.company.ids).create({})
@@ -269,27 +300,24 @@ class TestPeppolParticipant(PeppolConnectorCommon):
 
         # Back to the branch.
         wizard = self.env['peppol.registration'].with_context(allowed_company_ids=branch.ids).create({})
+        routing_scheme, _sep, routing_endpoint = (self.env.company.routing_identifier or '').partition(':')
         self.assertRecordValues(wizard, [{
             'company_id': branch.id,
             'parent_company_id': self.env.company.id,
             'selected_company_id': self.env.company.id,
             'display_use_parent_connection_selection': True,
             'use_parent_connection_selection': 'use_parent',
-            'peppol_eas': self.env.company.peppol_eas,
-            'peppol_endpoint': self.env.company.peppol_endpoint,
+            'peppol_eas': routing_scheme,
+            'peppol_endpoint': routing_endpoint,
             'phone_number': self.env.company.account_peppol_phone_number,
             'contact_email': self.env.company.account_peppol_contact_email,
         }])
-        with self._mock_requests([
-            self._mock_can_connect(),
-            self._mock_connect(peppol_state='sender', id_client='test_id_client_branch'),
-        ]):
+        with mock_can_connect(), mock_connect(peppol_state='sender', id_client='test_id_client_branch'):
             wizard.button_register_peppol_participant()
 
         self.assertRecordValues(branch, [{
             'peppol_parent_company_id': self.env.company.id,
-            'peppol_eas': '0208',
-            'peppol_endpoint': '0239843188',
+            'routing_identifier': '0208:0239843188',
         }])
 
         settings = self.env['res.config.settings'].with_context(allowed_company_ids=branch.ids).create({})
@@ -299,13 +327,12 @@ class TestPeppolParticipant(PeppolConnectorCommon):
         }])
 
         # Disconnect from the network.
-        with self._mock_requests([
-            self._mock_cancel_peppol_registration(),
-            self._mock_get_all_documents(),
-            self._mock_participant_status('sender'),
-        ]):
-            config_wizard = self.env['peppol.config.wizard'].with_context(allowed_company_ids=branch.ids).create({})
-            config_wizard.button_peppol_unregister()
+        with (
+            mock_cancel_peppol_registration(),
+            mock_get_participant_status(peppol_state='sender'),
+            mock_documents_retrieval(messages=[])
+        ):
+            settings.button_peppol_deregister()
         self.assertRecordValues(settings, [{
             'account_peppol_proxy_state': 'not_registered',
             'peppol_use_parent_company': False,
@@ -313,35 +340,38 @@ class TestPeppolParticipant(PeppolConnectorCommon):
 
         # Back to the initial state.
         wizard = self.env['peppol.registration'].with_context(allowed_company_ids=branch.ids).create({})
+        routing_scheme, _sep, routing_endpoint = (self.env.company.routing_identifier or '').partition(':')
         self.assertRecordValues(wizard, [{
             'company_id': branch.id,
             'parent_company_id': self.env.company.id,
             'selected_company_id': self.env.company.id,
             'display_use_parent_connection_selection': True,
             'use_parent_connection_selection': 'use_parent',
-            'peppol_eas': self.env.company.peppol_eas,
-            'peppol_endpoint': self.env.company.peppol_endpoint,
+            'peppol_eas': routing_scheme,
+            'peppol_endpoint': routing_endpoint,
             'phone_number': self.env.company.account_peppol_phone_number,
             'contact_email': self.env.company.account_peppol_contact_email,
         }])
 
     def test_deregister_with_client_gone_error(self):
         """Test deregistration succeeds even when proxy returns client_gone error"""
-        with self._mock_requests([
-            self._mock_can_connect(),
-            self._mock_lookup_participant(),
-            self._mock_connect(peppol_state='smp_registration'),
-        ]):
+        with (
+            mock_can_connect(),
+            mock_lookup_not_found('0208:0239843188'),
+            mock_lookup_not_found('9925:be0239843188'),
+            mock_connect(peppol_state='smp_registration'),
+        ):
             wizard = self.env['peppol.registration'].create({})
             self.assertTrue(wizard.smp_registration)
             wizard.button_register_peppol_participant()
         self.assertEqual(self.env.company.account_peppol_proxy_state, 'smp_registration')
 
-        config_wizard = self.env['peppol.config.wizard'].create({})
-        with self._mock_requests([
-            self._mock_participant_status('smp_registration', exists=False)
-        ]):
-            config_wizard.button_peppol_unregister()
+        settings = self.env['res.config.settings'].create({})
+        with (
+            mock_get_participant_status(peppol_state='smp_registration'),
+            mock_cancel_peppol_registration(),
+        ):
+            settings.button_peppol_deregister()
 
         # Should successfully deregister despite Exception
         self.assertEqual(self.env.company.account_peppol_proxy_state, 'not_registered')
@@ -383,7 +413,6 @@ class TestPeppolParticipant(PeppolConnectorCommon):
             self.assertEqual(partner_form.peppol_verification_state, "not_verified")
             partner_form.name = "test"
             partner_form.vat = "BE0477472701"
-            partner_form.peppol_eas = "odemo"
             self.assertFalse(partner_form.commercial_partner_id)
             p_rec = partner_form.save()
             self.assertEqual(p_rec.commercial_partner_id, p_rec)
@@ -395,29 +424,28 @@ class TestPeppolParticipant(PeppolConnectorCommon):
             'country_id': be_country.id,
             'vat': 'BE0477472701',
         })
-        with self._mock_requests([
-            self._mock_can_connect(),
-            self._mock_connect(peppol_state='sender'),
-        ]):
+        with (
+            mock_lookup_success(peppol_identifier='0088:9780471117094'),
+            mock_can_connect(),
+            mock_connect(peppol_state='sender'),
+        ):
             wizard = self.env['peppol.registration'].create({
                 'peppol_eas': '0088',
-                'peppol_endpoint': '88888888888',
+                'peppol_endpoint': '9780471117094',
                 'phone_number': '+32483123456',
                 'contact_email': 'yourcompany@test.example.com',
             })
             wizard.button_register_peppol_participant()
         self.env.company.vat = 'BE0475646428'
         self.assertRecordValues(self.env.company.partner_id, [{
-            'peppol_eas': '0088',
-            'peppol_endpoint': '88888888888',
+            'routing_identifier': '0088:9780471117094',
         }])
 
         with Form(self.env.company.partner_id) as partner:
             # Test with NewID record
             partner.vat = 'BE0477472701'
         self.assertRecordValues(self.env.company.partner_id, [{
-            'peppol_eas': '0088',
-            'peppol_endpoint': '88888888888',
+            'routing_identifier': '0088:9780471117094',
         }])
 
         company_partner = self.env.company.partner_id
@@ -428,12 +456,46 @@ class TestPeppolParticipant(PeppolConnectorCommon):
 
         company_partner.vat = 'BE0477472701'
         self.assertRecordValues(company_partner, [{
-            'peppol_eas': '0088',
-            'peppol_endpoint': '88888888888',
+            'routing_identifier': '0088:9780471117094',
         }])
 
-        self.env.company.vat = 'BE0475646428'
-        self.assertRecordValues(self.env.company.partner_id, [{
-            'peppol_eas': '0208',
-            'peppol_endpoint': '0475646428',
+    def test_recompute_routing_for_unverified_peppol_partner(self):
+        """A partner whose Peppol status is not 'valid' still has its routing
+        scheme/endpoint recomputed when a routing dependency changes.
+        """
+        partner = self.env['res.partner'].create({
+            'name': 'Unverified Peppol Partner',
+            'country_id': self.env.ref('base.be').id,
+            'invoice_edi_format': 'ubl_bis3',
+        })
+        partner.routing_identifier = '0208:0475646428'
+        self.assertNotEqual(partner.peppol_verification_state, 'valid')
+
+        # The partner is not a valid Peppol participant, so changing the VAT
+        # recomputes the routing scheme/endpoint from the partner's identifiers.
+        partner.vat = 'BE0477472701'
+        self.assertRecordValues(partner, [{
+            'routing_scheme': '0208',
+            'routing_endpoint': '0477472701',
+        }])
+
+    def test_routing_endpoint_recompute_for_valid_peppol_partner(self):
+        """A partner already verified on Peppol still gets its routing
+        scheme/endpoint updated when its VAT changes."""
+        partner = self.env['res.partner'].create({
+            'name': 'Valid Peppol Partner',
+            'country_id': self.env.ref('base.be').id,
+            'vat': 'BE0411905847',
+            'invoice_edi_format': 'ubl_bis3',
+            'peppol_verification_state': 'valid',
+        })
+        self.assertRecordValues(partner, [{
+            'routing_scheme': '0208',
+            'routing_endpoint': '0411905847',
+        }])
+
+        partner.vat = 'BE0691480435'
+        self.assertRecordValues(partner, [{
+            'routing_scheme': '0208',
+            'routing_endpoint': '0691480435',
         }])

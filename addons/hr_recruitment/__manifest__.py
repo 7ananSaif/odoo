@@ -1,4 +1,3 @@
-# -*- encoding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
@@ -18,7 +17,6 @@
     ],
     'data': [
         'security/hr_recruitment_security.xml',
-        'security/ir.model.access.csv',
         'data/digest_data.xml',
         'data/mail_message_subtype_data.xml',
         'data/mail_template_data.xml',
@@ -33,23 +31,28 @@
         'views/hr_applicant_refuse_reason_views.xml',
         'views/hr_applicant_views.xml',
         'views/hr_talent_pool_views.xml',
+        'views/hr_employee_views.xml',
         'views/res_config_settings_views.xml',
         'views/hr_department_views.xml',
         'views/hr_job_views.xml',
+        'views/hr_job_tag_views.xml',
         'views/mail_activity_views.xml',
         'views/mail_activity_plan_views.xml',
         'views/digest_views.xml',
         'wizard/applicant_refuse_reason_views.xml',
-        'wizard/applicant_send_mail_views.xml',
         'wizard/talent_pool_add_applicants_views.xml',
         'wizard/job_add_applicants_views.xml',
         'views/menuitems.xml',
+        'security/ir.access.csv',
     ],
     'demo': [
         'data/hr_recruitment_demo.xml',
     ],
-    'installable': True,
+    'other_files': [
+        'data/scenarios/hr_recruitment_scenario.xml',
+    ],
     'application': True,
+    "uninstall_hook": "uninstall_hook",
     'assets': {
         'web.assets_backend': [
             'hr_recruitment/static/src/**/*.js',
@@ -59,6 +62,15 @@
         ],
         'web.assets_unit_tests': [
             'hr_recruitment/static/tests/**/*',
+        ],
+        "im_livechat.assets_embed_core": [
+            "hr_recruitment/static/src/core/common/**/*",
+        ],
+        "mail.assets_public": [
+            "hr_recruitment/static/src/core/common/**/*",
+        ],
+        "portal.assets_chatter_helpers": [
+            "hr_recruitment/static/src/core/common/**/*",
         ],
     },
     'author': 'Odoo S.A.',

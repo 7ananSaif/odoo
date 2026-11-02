@@ -1,15 +1,20 @@
-import { EventBus, toRaw } from "@odoo/owl";
+import { computed, EventBus, proxy, signal, toRaw, usePlugin } from "@odoo/owl";
+import { router } from "@web/core/browser/router";
 import { makeContext } from "@web/core/context";
+import { DebugModePlugin } from "@web/core/debug_mode_plugin";
 import { Domain } from "@web/core/domain";
 import { getDefaultDomain } from "@web/core/domain_selector/utils";
 import { DomainSelectorDialog } from "@web/core/domain_selector_dialog/domain_selector_dialog";
 import { _t } from "@web/core/l10n/translation";
 import { rpcBus } from "@web/core/network/rpc";
+import { OfflinePlugin } from "@web/core/offline/offline_plugin";
 import { evaluateExpr } from "@web/core/py_js/py";
 import { domainFromTree } from "@web/core/tree_editor/domain_from_tree";
 import { user } from "@web/core/user";
-import { groupBy, sortBy } from "@web/core/utils/arrays";
+import { sortBy } from "@web/core/utils/arrays";
+import { useService } from "@web/core/utils/hooks";
 import { deepCopy } from "@web/core/utils/objects";
+import { hashCode } from "@web/core/utils/strings";
 import { SearchArchParser } from "./search_arch_parser";
 import {
     constructDateDomain,
@@ -18,7 +23,10 @@ import {
     getPeriodOptions,
     INTERVAL_OPTIONS,
     rankInterval,
+    getRelativeFilterOptions,
     yearSelected,
+    constructRelativeDateDomain,
+    getRelativeDateLabel,
 } from "./utils/dates";
 import { FACET_COLORS, FACET_ICONS } from "./utils/misc";
 
@@ -54,9 +62,16 @@ const { DateTime } = luxon;
  *  resId?: number | false;
  *  useSampleModel?: boolean;
  * }} SearchParams
+ *
+ * @typedef {{
+ *  key: string,
+ *  facets: Object[];
+ *  domain: string;
+ *  groupBys: string[];
+ * }} Search
  */
 
-const SPECIAL = Symbol("special");
+const DEFAULT_GROUPBY_ID = -1;
 
 /** @todo rework doc */
 // interface SectionCommon { // check optional keys
@@ -135,15 +150,34 @@ function arraytoMap(array) {
  * @param {Object} target
  */
 function execute(op, source, target) {
-    const { query, nextId, nextGroupId, nextGroupNumber, searchItems, searchPanelInfo, sections } =
-        source;
+    const {
+        query,
+        nextId,
+        nextGroupId,
+        nextGroupNumber,
+        searchItems,
+        searchPanelInfo,
+        sections,
+        _appliedSearch,
+    } = source;
 
     target.nextGroupId = nextGroupId;
     target.nextGroupNumber = nextGroupNumber;
     target.nextId = nextId;
+    target._appliedSearch = _appliedSearch;
 
-    target.query = query;
-    target.searchItems = searchItems;
+    // Filled in place: on import, the target is the search model, whose
+    // containers are reactive and must not be replaced by raw values.
+    if (query) {
+        target.query.length = 0;
+        target.query.push(...query);
+    }
+    if (searchItems) {
+        for (const key in target.searchItems) {
+            delete target.searchItems[key];
+        }
+        Object.assign(target.searchItems, searchItems);
+    }
 
     target.searchPanelInfo = searchPanelInfo;
 
@@ -166,7 +200,25 @@ function execute(op, source, target) {
 const FAVORITE_PRIVATE_GROUP = 1;
 const FAVORITE_SHARED_GROUP = 2;
 
+// Maps a search item type to the facet type used for icon/color/separator.
+// Types absent from this map fall back to the search item type itself.
+const FACET_TYPES = {
+    field: "field",
+    field_property: "field",
+    groupBy: "groupBy",
+    dateGroupBy: "groupBy",
+    dateFilter: "filter",
+    parentFilter: "filter",
+    relativeFilter: "relative",
+};
+
 export class SearchModel extends EventBus {
+    query = proxy([]);
+    searchItems = proxy({});
+
+    _groupByState = signal.Object({ defaultGroupBy: undefined, globalGroupBy: [] });
+    _groupBy = computed(() => (this.searchMenuTypes.has("groupBy") ? this._getGroupBy() : []));
+
     constructor(env, services, args) {
         super();
         this.env = env;
@@ -175,6 +227,9 @@ export class SearchModel extends EventBus {
 
     setup(services) {
         // services
+        this.debugMode = usePlugin(DebugModePlugin);
+        this.offlinePlugin = usePlugin(OfflinePlugin);
+
         const { field: fieldService, orm, view, dialog, treeProcessor } = services;
         this.orm = orm;
         this.fieldService = fieldService;
@@ -182,6 +237,7 @@ export class SearchModel extends EventBus {
         this.treeProcessor = treeProcessor;
         this.dialog = dialog;
         this.orderByCount = false;
+        this.notificationService = useService("notification");
 
         // used to manage search items related to date/datetime fields
         this.referenceMoment = DateTime.local();
@@ -289,8 +345,10 @@ export class SearchModel extends EventBus {
 
         this.blockNotification = true;
 
-        this.searchItems = {};
-        this.query = [];
+        for (const key in this.searchItems) {
+            delete this.searchItems[key];
+        }
+        this.query.length = 0;
 
         this.nextId = 1;
         this.nextGroupId = 1;
@@ -320,11 +378,17 @@ export class SearchModel extends EventBus {
             this._createGroupOfDynamicFilters(dynamicFilters);
         }
 
-        const defaultFavoriteId = this._createGroupOfFavorites(this.irFilters || []);
-        const activateFavorite = "activateFavorite" in config ? config.activateFavorite : true;
-
-        // activate default search items (populate this.query)
-        this._activateDefaultSearchItems(activateFavorite ? defaultFavoriteId : null);
+        // Activate filters if necessary (from url or saved filters)
+        const { domain: urlDomain, groupBy: urlGroupBy, orderBy: urlOrderBy } = router.current;
+        let useUrl = urlDomain || urlGroupBy || urlOrderBy;
+        if (useUrl) {
+            useUrl = this._tryApplySharedFilters(urlDomain, urlGroupBy, urlOrderBy); // Returns False if no filters could be activated
+        }
+        if (!useUrl) {
+            const defaultFavoriteId = this._createGroupOfFavorites(this.irFilters || []);
+            const activateFavorite = "activateFavorite" in config ? config.activateFavorite : true;
+            this._activateDefaultSearchItems(activateFavorite ? defaultFavoriteId : null);
+        }
 
         // prepare search panel sections
 
@@ -436,17 +500,27 @@ export class SearchModel extends EventBus {
         return [...this.sections.values()].filter((s) => s.type === "filter");
     }
 
+    get defaultGroupBy() {
+        return this._groupByState().defaultGroupBy;
+    }
+
+    set defaultGroupBy(groupBy) {
+        this._groupByState().defaultGroupBy = groupBy;
+    }
+
+    get globalGroupBy() {
+        return this._groupByState().globalGroupBy;
+    }
+
+    set globalGroupBy(groupBy) {
+        this._groupByState().globalGroupBy = groupBy;
+    }
+
     /**
      * @returns {string[]}
      */
     get groupBy() {
-        if (!this.searchMenuTypes.has("groupBy")) {
-            return [];
-        }
-        if (!this._groupBy) {
-            this._groupBy = this._getGroupBy();
-        }
-        return deepCopy(this._groupBy);
+        return deepCopy(this._groupBy());
     }
 
     /**
@@ -459,9 +533,6 @@ export class SearchModel extends EventBus {
         return deepCopy(this._orderBy);
     }
 
-    get isDebugMode() {
-        return !!this.env.debug;
-    }
     //--------------------------------------------------------------------------
     // Public
     //--------------------------------------------------------------------------
@@ -493,10 +564,50 @@ export class SearchModel extends EventBus {
     }
 
     /**
+     * Apply the given search. Typically called offline, with a Search that has
+     * been previously obtained through @getCurrentSearch.
+     *
+     * @param {Search} search
+     */
+    applySearch(search) {
+        this.query.length = 0; // remove everything
+        this._appliedSearch = search;
+        const { domain, groupBys } = search;
+        if (domain !== "[]") {
+            search.facets.forEach((facet) => {
+                if (!["field", "filter", "favorite", "relative"].includes(facet.type)) {
+                    return;
+                }
+                let description = facet.values.join(` ${facet.separator} `);
+                if (facet.type === "field") {
+                    description = `${facet.title} ${description}`;
+                }
+                this.searchItems[this.nextId] = {
+                    id: this.nextId,
+                    groupId: this.nextGroupId,
+                    groupNumber: this.nextGroupNumber,
+                    type: facet.type === "favorite" ? "favorite" : "filter",
+                    description,
+                    domain: facet.domain,
+                    orderBy: [],
+                    name: `offline filter ${this.nextId}`,
+                    invisible: "True",
+                };
+                this.query.push({ searchItemId: this.nextId });
+                this.nextId++;
+                this.nextGroupId++;
+                this.nextGroupNumber++;
+            });
+        }
+        this._toggleGroupBys(groupBys);
+        this._notify();
+    }
+
+    /**
      * Remove all the query elements from query.
      */
     clearQuery() {
-        this.query = [];
+        this.query.length = 0;
         this.orderByCount = false;
         this._notify();
     }
@@ -622,15 +733,12 @@ export class SearchModel extends EventBus {
      * with given groupId.
      */
     deactivateGroup(groupId) {
-        if (groupId === SPECIAL) {
-            delete this.defaultGroupBy;
+        if (groupId === DEFAULT_GROUPBY_ID) {
+            this.defaultGroupBy = undefined;
             this._notify();
             return;
         }
-        this.query = this.query.filter((queryElem) => {
-            const searchItem = this.searchItems[queryElem.searchItemId];
-            return searchItem.groupId !== groupId;
-        });
+        this._filterQuery((item) => this.searchItems[item.searchItemId].groupId !== groupId);
         this._checkOrderByCountStatus();
         this._notify();
     }
@@ -639,9 +747,32 @@ export class SearchModel extends EventBus {
      * @returns {Object}
      */
     exportState() {
-        const state = {};
+        const state = { query: [], searchItems: {} };
         execute(mapToArray, this, state);
         return state;
+    }
+
+    /**
+     * Returns the current search, which can then be re-applied in the future,
+     * when being offline, with @applySearch.
+     *
+     * @returns Search
+     */
+    getCurrentSearch() {
+        if (!this.offlinePlugin.isOffline()) {
+            delete this._appliedSearch;
+        } else if (this._appliedSearch) {
+            return this._appliedSearch;
+        }
+        const { preFavorite } = this._getIrFilterDescription();
+        const { domain, groupBys } = preFavorite; // TODO: handle orderBy ?
+        const key = hashCode(`${JSON.stringify(domain)},${JSON.stringify(groupBys)}}`);
+        return {
+            key,
+            facets: this.facets,
+            domain,
+            groupBys,
+        };
     }
 
     getIrFilterValues(params) {
@@ -717,7 +848,7 @@ export class SearchModel extends EventBus {
         const tree = await this.treeProcessor.treeFromDomain(
             this.resModel,
             domain,
-            !this.isDebugMode
+            !this.debugMode.isActive()
         );
         const trees =
             !tree.negate &&
@@ -775,7 +906,10 @@ export class SearchModel extends EventBus {
                         this.createNewGroupBy(fieldName, { interval, invisible: true });
                     }
                     const index = this.query.length - activeItemGroupBys.length;
-                    this.query = [...this.query.slice(index), ...this.query.slice(0, index)];
+                    const trail = this.query.slice(index);
+                    const lead = this.query.slice(0, index);
+                    this.query.length = 0;
+                    this.query.push(...trail, ...lead);
                 }
             }
             this.deactivateGroup(groupId);
@@ -787,17 +921,75 @@ export class SearchModel extends EventBus {
         }
         const queryElems = this.query.slice(queryLength);
 
-        if (queryItemIndex !== undefined) {
-            this.query = [
-                ...this.query.slice(0, queryItemIndex),
-                ...queryElems,
-                ...this.query.slice(queryItemIndex, queryLength),
-            ];
+        if (queryItemIndex >= 0) {
+            this.query.splice(queryItemIndex, 0, ...queryElems);
         }
 
         this.blockNotification = false;
 
         this._notify();
+    }
+
+    async loadLazyParentFilter(itemId) {
+        const searchItem = this.searchItems[itemId];
+        if (searchItem.optionsParams.fieldType === "selection") {
+            const field = this.searchViewFields[searchItem.optionsParams.fieldName];
+            const values = field.selection;
+            const options = searchItem.optionsParams.customOptions;
+            for (const val of values) {
+                options.push({
+                    description: val[1],
+                    domain: Domain.and([
+                        searchItem.domain,
+                        `[('${searchItem.optionsParams.fieldName}', '=', '${val[0]}')]`,
+                    ]).toString(),
+                    id: `custom_${val[1].toLowerCase()}_${searchItem.optionsParams.fieldName}`,
+                    type: "innerFilter",
+                });
+            }
+        }
+        if (["many2many", "many2one"].includes(searchItem.optionsParams.fieldType)) {
+            await this.loadMoreOptions(itemId);
+        }
+        delete searchItem.optionsParams.toBeLoaded;
+    }
+
+    async loadMoreOptions(itemId) {
+        const searchItem = this.searchItems[itemId];
+        const field = this.searchViewFields[searchItem.optionsParams.fieldName];
+        if (searchItem.optionsParams.limit) {
+            searchItem.optionsParams.limit *= 2;
+        } else {
+            searchItem.optionsParams.limit = 8;
+        }
+        const res = await this.orm
+            .cache({ type: "disk" })
+            .webSearchRead(
+                field.relation,
+                new Domain(searchItem.optionsParams.domain).toList(this.context),
+                {
+                    specification: {
+                        id: {},
+                        display_name: {},
+                    },
+                    limit: searchItem.optionsParams.limit,
+                }
+            );
+        searchItem.optionsParams.count = res.length;
+        const values = res.records.map((r) => [r.id, r.display_name]);
+        const options = [];
+        for (const val of values) {
+            options.push({
+                description: val[1],
+                domain: Domain.and([
+                    searchItem.domain,
+                    `[('${searchItem.optionsParams.fieldName}', '=', ${val[0]})]`,
+                ]).toString(),
+                id: `custom_${val[1].toLowerCase()}_${searchItem.optionsParams.fieldName}`,
+                type: "innerFilter",
+            });
+        }
+        searchItem.optionsParams.customOptions = options;
     }
 
     /**
@@ -857,6 +1049,7 @@ export class SearchModel extends EventBus {
         switch (searchItem.type) {
             case "dateFilter":
             case "dateGroupBy":
+            case "parentFilter":
             case "field_property":
             case "field": {
                 return;
@@ -868,7 +1061,7 @@ export class SearchModel extends EventBus {
             this._checkOrderByCountStatus();
         } else {
             if (searchItem.type === "favorite") {
-                this.query = [];
+                this.query.length = 0;
             }
             this.query.push({ searchItemId });
         }
@@ -880,12 +1073,12 @@ export class SearchModel extends EventBus {
      * This can impact the query in various form, e.g. add/remove other query elements
      * in case the filter is of type 'filter'.
      */
-    toggleDateFilter(searchItemId, generatorId) {
+    toggleParentFilter(searchItemId, generatorId) {
         const searchItem = this.searchItems[searchItemId];
-        if (searchItem.type !== "dateFilter") {
+        if (searchItem.type !== "dateFilter" && searchItem.type !== "parentFilter") {
             return;
         }
-        const generatorIds = generatorId ? [generatorId] : searchItem.defaultGeneratorIds;
+        const generatorIds = generatorId ? [generatorId] : searchItem.defaultGeneratorIds || [];
         for (const generatorId of generatorIds) {
             const index = this.query.findIndex(
                 (queryElem) =>
@@ -895,27 +1088,33 @@ export class SearchModel extends EventBus {
             );
             if (index >= 0) {
                 this.query.splice(index, 1);
+                if (searchItem.type === "parentFilter") {
+                    continue;
+                }
                 if (!yearSelected(this._getSelectedGeneratorIds(searchItemId))) {
                     // This is the case where generatorId was the last option
                     // of type 'year' to be there before being removed above.
                     // Since other options of type 'month' or 'quarter' do
                     // not make sense without a year we deactivate all options.
-                    this.query = this.query.filter(
-                        (queryElem) => queryElem.searchItemId !== searchItemId
-                    );
+                    this._filterQuery((item) => searchItemId !== item.searchItemId);
                 }
             } else {
-                if (generatorId.startsWith("custom")) {
-                    this.query = this.query.filter(
-                        (queryElem) => searchItemId !== queryElem.searchItemId
+                // Deactivate other options on this field (prevent "This week" + "February" )
+                if (searchItem.relativeFilterId) {
+                    this._filterQuery(
+                        (queryElem) => queryElem.searchItemId !== searchItem.relativeFilterId
                     );
+                }
+                if (generatorId.startsWith("custom")) {
+                    if (searchItem.type !== "parentFilter") {
+                        this._filterQuery((item) => searchItemId !== item.searchItemId);
+                    }
                     this.query.push({ searchItemId, generatorId });
                     continue;
                 }
-                this.query = this.query.filter(
-                    (queryElem) =>
-                        queryElem.searchItemId !== searchItemId ||
-                        !queryElem.generatorId.startsWith("custom")
+                this._filterQuery(
+                    (item) =>
+                        searchItemId !== item.searchItemId || !item.generatorId.startsWith("custom")
                 );
                 this.query.push({ searchItemId, generatorId });
                 if (!yearSelected(this._getSelectedGeneratorIds(searchItemId))) {
@@ -953,19 +1152,53 @@ export class SearchModel extends EventBus {
         this._notify();
     }
 
-    async spawnCustomFilterDialog() {
-        const domain = getDefaultDomain(this.searchViewFields);
+    toggleRelativeFilter(searchItemId, optionId) {
+        const { groupId, dateFilterId } = this.searchItems[searchItemId];
+        const alreadyActive = this.query.some(
+            (q) => q.searchItemId === searchItemId && q.optionId === optionId
+        );
+
+        // Deactivate other filter from same group (prevent "This week" + "February" )
+        this._filterQuery((q) => this.searchItems[q.searchItemId].groupId !== groupId);
+        if (!alreadyActive) {
+            this._filterQuery((q) => q.searchItemId !== dateFilterId);
+            this.query.push({ searchItemId, optionId, offset: 0 }); // Activate if it wasn't active before
+        }
+        this._notify();
+    }
+
+    shiftRelativeFilter(groupId, delta) {
+        const filter = this.query.find((q) => this.searchItems[q.searchItemId].groupId === groupId);
+        if (!filter) {
+            throw new Error(`shiftRelativeFilter: no active search item in group ${groupId}`);
+        }
+        filter.offset = (filter.offset || 0) + delta;
+        this._notify();
+    }
+
+    /**
+     * Opens the filter domain editor in a Dialog
+     * @param {Object} [options={}]
+     * @param {string} [options.domain=false] domain to edit (false to use default domain).
+     * @param {number} [options.groupId=false] facet groupId to edit a facet group in place
+     * */
+    spawnCustomFilterDialog({ domain = false, groupId = false } = {}) {
+        const create = !groupId; // no facet group to replace: we are adding a new filter
         this.dialog.add(DomainSelectorDialog, {
             resModel: this.resModel,
-            defaultConnector: "|",
-            domain,
-            context: this.globalContext,
-            onConfirm: (domain) => this.splitAndAddDomain(domain),
+            defaultConnector: create ? "|" : "&",
+            domain: domain || getDefaultDomain(this.searchViewFields),
+            context: this.domainEvalContext,
+            onConfirm: (nextDomain) => {
+                if (nextDomain !== domain || create) {
+                    this.splitAndAddDomain(nextDomain, groupId);
+                }
+            },
             disableConfirmButton: (domain) => domain === `[]`,
             title: _t("Custom Filter"),
             confirmButtonText: _t("Search"),
             discardButtonText: _t("Discard"),
-            isDebugMode: this.isDebugMode,
+            isDebugMode: this.debugMode.isActive(),
         });
     }
 
@@ -1150,12 +1383,125 @@ export class SearchModel extends EventBus {
             fieldName,
             domain
         );
-        const result = groupBy(Object.values(definitions), (definition) => definition.record_id);
+        const result = Object.groupBy(
+            Object.values(definitions),
+            (definition) => definition.record_id
+        );
         return Object.entries(result).map(([recordId, definitions]) => ({
             definitionRecordId: parseInt(recordId),
             definitionRecordName: definitions[0]?.record_name,
             definitions,
         }));
+    }
+
+    /**
+     * Creates 1 "Shared" filter from encoded domain, and 1 grouped filter from groupby +orderBy.
+     * Raises notification warning in case of partial or total filter activation error(s).
+     * @return {boolean} Success - False if 0 filter activated successfully from url
+     */
+    _tryApplySharedFilters(urlDomain, urlGroupBy, urlOrderBy) {
+        const urlApplyStatus = { anyErrors: false, anySuccess: false };
+
+        this._createUrlFilter(urlDomain, urlApplyStatus);
+        this._createUrlGroupBy(urlGroupBy, urlApplyStatus);
+        this._createUrlOrderBy(urlOrderBy, urlApplyStatus);
+
+        if (!urlApplyStatus.anySuccess) {
+            this.notificationService.add(_t("Shared filters couldn't be applied"), {
+                type: "danger",
+            });
+            return false; // Default back to favorite / default filters
+        } else if (urlApplyStatus.anyErrors) {
+            this.notificationService.add(_t("Warning: Not all shared filters applied"), {
+                type: "warning",
+            });
+            return true;
+        }
+        return true;
+    }
+
+    /**
+     * Creates 1 "Shared" filter from URl encoded domain.
+     * @param {string} urlDomain - Uri encoded domain
+     * @param {{ anyErrors: boolean, anySuccess: boolean }} urlApplyStatus
+     */
+    _createUrlFilter(urlDomain, urlApplyStatus) {
+        if (!urlDomain) {
+            return;
+        }
+        try {
+            const decodedDomain = decodeURIComponent(urlDomain);
+            this.createNewFilters([
+                {
+                    description: "Shared",
+                    domain: new Domain(decodedDomain).toString(),
+                    name: "sharedDomainFromUrl",
+                },
+            ]);
+            urlApplyStatus.anySuccess = true;
+        } catch {
+            urlApplyStatus.anyErrors = true; // Continue trying to parse other search param
+        }
+    }
+
+    /**
+     * Recreates GroupBys (including sub items and order) filter from encoded parameters
+     * @param {string} urlGroupBy - encoded list of fields to group by
+     * @param {{ anyErrors: boolean, anySuccess: boolean }} urlApplyStatus
+     */
+    _createUrlGroupBy(urlGroupBy, urlApplyStatus) {
+        try {
+            const decodedGroupBys = urlGroupBy ? JSON.parse(decodeURIComponent(urlGroupBy)) : [];
+            if (decodedGroupBys.length === 0) {
+                return;
+            }
+            this._toggleGroupBys(decodedGroupBys);
+            urlApplyStatus.anySuccess = true;
+        } catch {
+            urlApplyStatus.anyErrors = true; // Continue trying to parse other search param
+        }
+    }
+
+    /**
+     * Recreates ordering logic (either from fields or groupBy)
+     * @param {Object} urlOrderBy - encoded orderBy (can be multiple)
+     * @param {{ anyErrors: boolean, anySuccess: boolean }} urlApplyStatus
+     */
+    _createUrlOrderBy(urlOrderBy, urlApplyStatus) {
+        if (!urlOrderBy) {
+            return;
+        }
+        try {
+            this.globalOrderBy = JSON.parse(decodeURIComponent(urlOrderBy));
+            const orderByCount = this.globalOrderBy.find((o) => o.name == "__count");
+            if (orderByCount) {
+                this.orderByCount = orderByCount.asc ? "Asc" : "Desc";
+            }
+            urlApplyStatus.anySuccess = true;
+        } catch {
+            urlApplyStatus.anyErrors = true; // Continue trying to parse other search param
+        }
+    }
+
+    /**
+     * Encodes search model parameters (domain, groupBys & orderBy) into query string
+     * @return {string} eg. "domain=...,&orderBy=...". Can be empty and never start with "?".
+     */
+    generateQueryString() {
+        const { preFavorite } = this._getIrFilterDescription();
+        const { domain, groupBys, orderBy } = preFavorite; // No need for context, as its only used for groupBys
+
+        const queryParts = [];
+        if (domain !== "[]") {
+            queryParts.push(`domain=${encodeURIComponent(domain)}`);
+        }
+        if (groupBys.length > 0) {
+            queryParts.push(`groupBy=${encodeURIComponent(JSON.stringify(groupBys))}`);
+        }
+        if (orderBy.length > 0) {
+            queryParts.push(`orderBy=${encodeURIComponent(JSON.stringify(orderBy))}`);
+        }
+        return queryParts.join("&");
     }
 
     /**
@@ -1171,8 +1517,10 @@ export class SearchModel extends EventBus {
                 .filter((f) => f.isDefault && f.type !== "favorite")
                 .sort((f1, f2) => (f1.defaultRank || 100) - (f2.defaultRank || 100))
                 .forEach((f) => {
-                    if (f.type === "dateFilter") {
-                        this.toggleDateFilter(f.id);
+                    if (f.type === "dateFilter" || f.type === "parentFilter") {
+                        this.toggleParentFilter(f.id);
+                    } else if (f.type === "relativeFilter") {
+                        this.toggleRelativeFilter(f.id, f.defaultOptionId);
                     } else if (f.type === "dateGroupBy") {
                         this.toggleDateGroupBy(f.id);
                     } else if (f.type === "field") {
@@ -1315,17 +1663,25 @@ export class SearchModel extends EventBus {
 
     /**
      * Add filters of type 'favorite' determined by the array this.favoriteFilters.
+     *
+     * The selected default favorite is the first private favorite by name; if
+     * there is none, it's the first shared favorite by name.
      */
     _createGroupOfFavorites(irFilters) {
-        let defaultFavoriteId = null;
+        let privateDefaultId = null;
+        let sharedDefaultId = null;
         irFilters.forEach((irFilter) => {
             const favorite = this._irFilterToFavorite(irFilter);
             this._createGroupOfSearchItems([favorite]);
             if (favorite.isDefault) {
-                defaultFavoriteId = favorite.id;
+                if (favorite.groupNumber === FAVORITE_PRIVATE_GROUP) {
+                    privateDefaultId ??= favorite.id;
+                } else {
+                    sharedDefaultId ??= favorite.id;
+                }
             }
         });
-        return defaultFavoriteId;
+        return privateDefaultId || sharedDefaultId;
     }
 
     /**
@@ -1342,6 +1698,38 @@ export class SearchModel extends EventBus {
             this.nextId++;
         });
         this.nextGroupId++;
+
+        for (const dateFilterItem of pregroup.filter((item) => item.type === "dateFilter")) {
+            const relativeFilterItem = {
+                type: "relativeFilter",
+                fieldName: dateFilterItem.fieldName,
+                fieldType: dateFilterItem.fieldType,
+                endFieldName: dateFilterItem.endFieldName,
+                endFieldType: dateFilterItem.endFieldType,
+                description: dateFilterItem.description,
+                options: getRelativeFilterOptions(),
+                groupNumber: dateFilterItem.groupNumber,
+                groupId: this.nextGroupId,
+                id: this.nextId,
+                dateFilterId: dateFilterItem.id,
+            };
+            if (dateFilterItem.defaultRelativeOptionId) {
+                relativeFilterItem.defaultOptionId = dateFilterItem.defaultRelativeOptionId;
+                if (dateFilterItem.isDefault) {
+                    // The default targets a relative option: it is the relative
+                    // filter that must be activated, not a period of the date
+                    // filter (they are mutually exclusive).
+                    relativeFilterItem.isDefault = true;
+                    relativeFilterItem.defaultRank = dateFilterItem.defaultRank;
+                    delete dateFilterItem.isDefault;
+                    delete dateFilterItem.defaultRank;
+                }
+            }
+            dateFilterItem.relativeFilterId = this.nextId;
+            this.searchItems[this.nextId] = relativeFilterItem;
+            this.nextId++;
+            this.nextGroupId++;
+        }
     }
 
     /**
@@ -1375,8 +1763,21 @@ export class SearchModel extends EventBus {
                 break;
             case "dateGroupBy":
                 enrichSearchItem.options = _enrichOptions(
-                    this.intervalOptions,
+                    this._getIntervalOptions(searchItem),
                     queryElements.map((queryElem) => queryElem.intervalId)
+                );
+                break;
+            case "parentFilter":
+            case "lazyParentFilter":
+                enrichSearchItem.options = _enrichOptions(
+                    searchItem.optionsParams.customOptions,
+                    queryElements.map((queryElem) => queryElem.generatorId)
+                );
+                break;
+            case "relativeFilter":
+                enrichSearchItem.options = _enrichOptions(
+                    searchItem.options,
+                    queryElements.map((queryElem) => queryElem.optionId)
                 );
                 break;
             case "field":
@@ -1522,6 +1923,19 @@ export class SearchModel extends EventBus {
     }
 
     /**
+     * @param {(queryItem: any) => boolean} predicate
+     */
+    _filterQuery(predicate) {
+        const oldQuery = this.query.slice();
+        this.query.length = 0;
+        for (const queryItem of oldQuery) {
+            if (predicate(queryItem)) {
+                this.query.push(queryItem);
+            }
+        }
+    }
+
+    /**
      * Computes and returns the domain based on the current active
      * categories. If "excludedCategoryId" is provided, the category with
      * that id is not taken into account in the domain computation.
@@ -1562,11 +1976,22 @@ export class SearchModel extends EventBus {
 
     /**
      * Compute the string representation or the description of the current domain associated
-     * with a date filter starting from its corresponding query elements.
+     * with a parent filter (such as a date filter) starting from its corresponding query elements.
      */
-    _getDateFilterDomain(dateFilter, generatorIds, key = "domain") {
-        const dateFilterRange = constructDateDomain(this.referenceMoment, dateFilter, generatorIds);
-        return dateFilterRange[key];
+    _getParentFilterDomain(searchItem, generatorIds, key = "domain") {
+        if (searchItem.type === "dateFilter") {
+            const dateFilterRange = constructDateDomain(
+                this.referenceMoment,
+                searchItem,
+                generatorIds
+            );
+            return dateFilterRange[key];
+        }
+        const options = searchItem.optionsParams.customOptions
+            .filter((item) => generatorIds.includes(item.id))
+            .map((o) => o[key]);
+
+        return key === "domain" ? Domain.or(options) : options;
     }
 
     /**
@@ -1631,6 +2056,51 @@ export class SearchModel extends EventBus {
         return params.raw ? domain : domain.toList(this.domainEvalContext);
     }
 
+    /**
+     * Builds the human-readable facet value labels for a given active item.
+     *
+     * @param {Object} searchItem
+     * @param {Object} activeItem
+     * @returns {string[]}
+     */
+    _getFacetValues(searchItem, activeItem) {
+        const { description } = searchItem;
+        switch (searchItem.type) {
+            case "field_property":
+            case "field":
+                return activeItem.autocompleteValues.map((v) => v.label);
+            case "dateGroupBy":
+                return activeItem.intervalIds.map(
+                    (intervalId) =>
+                        `${description}: ${
+                            this._getIntervalOptionByIntervalId(intervalId).description
+                        }`
+                );
+            case "dateFilter":
+                return [
+                    `${description}: ${this._getParentFilterDomain(
+                        searchItem,
+                        activeItem.generatorIds,
+                        "description"
+                    )}`,
+                ];
+            case "relativeFilter": {
+                const option = this._getRelativeFilterOption(searchItem, activeItem.optionId);
+                const label = getRelativeDateLabel(this.referenceMoment, option, activeItem.offset);
+                return [`${description}: ${label}`];
+            }
+            case "parentFilter":
+                return this._getParentFilterDomain(
+                    searchItem,
+                    activeItem.generatorIds,
+                    "description"
+                );
+            default:
+                // groupBy and any other single-description facet.
+                return [description];
+        }
+    }
+
     _getFacets() {
         const facets = [];
         const groups = this._getGroups();
@@ -1647,45 +2117,11 @@ export class SearchModel extends EventBus {
                 }
                 const searchItem = this.searchItems[activeItem.searchItemId];
                 tooltip = searchItem.tooltip;
-                switch (searchItem.type) {
-                    case "field_property":
-                    case "field": {
-                        type = "field";
-                        title = searchItem.description;
-                        for (const autocompleteValue of activeItem.autocompleteValues) {
-                            values.push(autocompleteValue.label);
-                        }
-                        break;
-                    }
-                    case "groupBy": {
-                        type = "groupBy";
-                        values.push(searchItem.description);
-                        break;
-                    }
-                    case "dateGroupBy": {
-                        type = "groupBy";
-                        for (const intervalId of activeItem.intervalIds) {
-                            const { description } = INTERVAL_OPTIONS[intervalId];
-                            values.push(`${searchItem.description}: ${description}`);
-                        }
-                        break;
-                    }
-                    case "dateFilter": {
-                        type = "filter";
-                        const periodDescription = this._getDateFilterDomain(
-                            searchItem,
-                            activeItem.generatorIds,
-                            "description"
-                        );
-                        values.push(`${searchItem.description}: ${periodDescription}`);
-
-                        break;
-                    }
-                    default: {
-                        type = searchItem.type;
-                        values.push(searchItem.description);
-                    }
+                type = FACET_TYPES[searchItem.type] ?? searchItem.type;
+                if (type === "field") {
+                    title = searchItem.description;
                 }
+                values.push(...this._getFacetValues(searchItem, activeItem));
             }
             const facet = {
                 groupId: group.id,
@@ -1720,13 +2156,13 @@ export class SearchModel extends EventBus {
             this.env.config.viewType !== "kanban"
         ) {
             facets.unshift({
-                groupId: SPECIAL,
+                groupId: DEFAULT_GROUPBY_ID,
                 type: "groupBy",
                 values: this.defaultGroupBy.map((gb) => {
                     const [fieldName, interval] = gb.split(":");
                     const { string } = this.searchViewFields[fieldName];
                     if (interval) {
-                        const { description } = INTERVAL_OPTIONS[interval];
+                        const { description } = this._getIntervalOptionByIntervalId(interval);
                         return `${string}:${description}`;
                     }
                     return string;
@@ -1951,6 +2387,12 @@ export class SearchModel extends EventBus {
                         activeItems.push(activeItem);
                     }
                     activeItem.autocompleteValues.push(queryElem.autocompleteValue);
+                } else if ("optionId" in queryElem) {
+                    if (!activeItem) {
+                        const { optionId, offset = 0 } = queryElem;
+                        activeItem = { searchItemId, optionId, offset };
+                        activeItems.push(activeItem);
+                    }
                 } else {
                     if (!activeItem) {
                         activeItem = { searchItemId };
@@ -1960,7 +2402,9 @@ export class SearchModel extends EventBus {
             }
             for (const activeItem of activeItems) {
                 if ("intervalIds" in activeItem) {
-                    activeItem.intervalIds.sort((g1, g2) => rankInterval(g1) - rankInterval(g2));
+                    activeItem.intervalIds.sort(
+                        (g1, g2) => this._rankInterval(g1) - this._rankInterval(g2)
+                    );
                 }
             }
             groups.push({ id, activeItems });
@@ -1968,6 +2412,17 @@ export class SearchModel extends EventBus {
         return groups;
     }
 
+    _getIntervalOptions(searchItem) {
+        return this.intervalOptions;
+    }
+
+    _getIntervalOptionByIntervalId(intervalId) {
+        return INTERVAL_OPTIONS[intervalId];
+    }
+
+    _rankInterval(intervalOptionId) {
+        return rankInterval(intervalOptionId);
+    }
     /**
      *
      * @private
@@ -2100,8 +2555,13 @@ export class SearchModel extends EventBus {
             case "field": {
                 return this._getFieldDomain(searchItem, activeItem.autocompleteValues);
             }
-            case "dateFilter": {
-                return this._getDateFilterDomain(searchItem, activeItem.generatorIds);
+            case "dateFilter":
+            case "parentFilter": {
+                return this._getParentFilterDomain(searchItem, activeItem.generatorIds);
+            }
+            case "relativeFilter": {
+                const { optionId, offset } = activeItem;
+                return this._getRelativeFilterDomain(searchItem, optionId, offset);
             }
             case "filter":
             case "favorite": {
@@ -2111,6 +2571,24 @@ export class SearchModel extends EventBus {
                 return null;
             }
         }
+    }
+
+    _getRelativeFilterDomain(searchItem, optionId, offset) {
+        const option = this._getRelativeFilterOption(searchItem, optionId);
+        return constructRelativeDateDomain(searchItem, option, offset);
+    }
+
+    /**
+     * @param {Object} searchItem a search item of type "relativeFilter"
+     * @param {string} optionId
+     * @returns {Object} the option of searchItem with the given id
+     */
+    _getRelativeFilterOption(searchItem, optionId) {
+        const option = searchItem.options.find((o) => o.id === optionId);
+        if (!option) {
+            throw new Error(`unknown option "${optionId}" on field "${searchItem.fieldName}"`);
+        }
+        return option;
     }
 
     _getSearchItemGroupBys(activeItem) {
@@ -2305,7 +2783,6 @@ export class SearchModel extends EventBus {
     _reset() {
         this._context = null;
         this._domain = null;
-        this._groupBy = null;
         this._orderBy = null;
     }
 
@@ -2327,6 +2804,24 @@ export class SearchModel extends EventBus {
         return [...this.sections.values()].some(
             (section) => !section.expand && searchDomainChanged
         );
+    }
+
+    _toggleGroupBys(groupBys) {
+        for (const raw of groupBys) {
+            const [field, interval] = raw.split(":"); // eg. grouping on "dateorder:quarter"
+            const found = Object.values(this.searchItems).find(
+                (f) => ["groupBy", "dateGroupBy"].includes(f.type) && f.fieldName === field
+            );
+            if (found) {
+                if (interval) {
+                    this.toggleDateGroupBy(found.id, interval);
+                } else {
+                    this.toggleSearchItem(found.id);
+                }
+            } else {
+                this.createNewGroupBy(field, { interval });
+            }
+        }
     }
 
     /**

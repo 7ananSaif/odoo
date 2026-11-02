@@ -1,6 +1,7 @@
 import {
     addMedia,
     changeOption,
+    changeImageShape,
     clickOnSave,
     clickOnSnippet,
     insertSnippet,
@@ -8,12 +9,12 @@ import {
     changeOptionInPopover,
     clickOnEditAndWaitEditMode,
     assertCssVariable,
+    unfoldOptionsGroup,
 } from "@website/js/tours/tour_utils";
 
 registerWebsitePreviewTour(
     "snippet_image_gallery",
     {
-        url: "/",
         edition: true,
     },
     () => [
@@ -26,7 +27,7 @@ registerWebsitePreviewTour(
         },
         {
             content: "Check that the modal has opened properly",
-            trigger: ":iframe .s_gallery_lightbox img",
+            trigger: ":iframe .o_image_lightbox img",
         },
     ]
 );
@@ -34,7 +35,6 @@ registerWebsitePreviewTour(
 registerWebsitePreviewTour(
     "snippet_image_gallery_remove",
     {
-        url: "/",
         edition: true,
     },
     () => [
@@ -76,8 +76,7 @@ registerWebsitePreviewTour(
         {
             content:
                 "Check that the Snippet Editor of the clicked image has been loaded with its size",
-            trigger:
-                ".o-tab-content [data-container-title='Image']:has([title='Size']:text(.+ kB)",
+            trigger: ".o-tab-content [data-container-title='Image']:has([title='Size']:text(.+ kB)",
         },
         {
             content: "Click on Remove Block",
@@ -95,7 +94,6 @@ registerWebsitePreviewTour(
 registerWebsitePreviewTour(
     "snippet_image_gallery_reorder",
     {
-        url: "/",
         edition: true,
     },
     () => [
@@ -159,6 +157,7 @@ registerWebsitePreviewTour(
             trigger:
                 ".o_customize_tab [data-container-title='Image'] [data-label='Filter'] .o-dropdown:contains('Blur')",
         },
+        ...unfoldOptionsGroup("Image Gallery"),
         {
             content: "Change the height of the snippet",
             trigger: `.o_customize_tab [data-container-title="Image Gallery"] [data-label="Height"] input`,
@@ -177,7 +176,6 @@ registerWebsitePreviewTour(
 registerWebsitePreviewTour(
     "snippet_image_gallery_thumbnail_update",
     {
-        url: "/",
         edition: true,
     },
     () => [
@@ -205,14 +203,14 @@ registerWebsitePreviewTour(
         {
             content: "Check that the thumbnail of the first image has not been changed",
             trigger:
-                ":iframe .s_image_gallery div.carousel-indicators button:first-child[style='background-image: url(/web/image/website.library_image_08)']",
+                ":iframe .s_image_gallery div.carousel-indicators button:first-child img[src='/web/image/website.landscape_md_5']",
         },
         ...clickOnSave(),
         ...clickOnEditAndWaitEditMode(),
         {
             content: "Check that the thumbnail of the new image is displayed",
             trigger:
-                ":iframe .s_image_gallery div.carousel-indicators button:nth-child(4)[style*='s_default_image']",
+                ":iframe .s_image_gallery div.carousel-indicators button:nth-child(4) img[src*='s_default_image']",
         },
         {
             content: "Select the first image in the gallery",
@@ -239,23 +237,18 @@ registerWebsitePreviewTour(
         {
             content: "Check that the thumbnail of the first image is updated",
             trigger:
-                ":iframe .s_image_gallery div.carousel-indicators button:first-child[style*='s_default_image_2']",
+                ":iframe .s_image_gallery div.carousel-indicators button:first-child img[src*='s_default_image_2']",
         },
         {
             content: "Select the second image in the gallery",
             trigger: ":iframe .s_image_gallery .carousel-control-next-icon",
             run: "click",
         },
-        changeOption("Image", "[data-label='Shape'] .dropdown-toggle"),
-        {
-            content: "Click on the first image shape",
-            trigger: "[data-action-id='setImageShape']",
-            run: "click",
-        },
+        ...changeImageShape(),
         {
             content: "Check that the thumbnail of the second image is an SVG",
             trigger:
-                ":iframe .s_image_gallery div.carousel-indicators button:nth-child(2)[style*='data:image/svg+xml']",
+                ":iframe .s_image_gallery div.carousel-indicators button:nth-child(2) img[src*='data:image/svg+xml']",
         },
     ]
 );

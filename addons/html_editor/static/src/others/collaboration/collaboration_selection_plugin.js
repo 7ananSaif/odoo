@@ -12,13 +12,13 @@ import { _t } from "@web/core/l10n/translation";
 
 export class CollaborationSelectionPlugin extends Plugin {
     static id = "collaborationSelection";
-    static dependencies = ["history", "collaborationOdoo", "position", "localOverlay"];
+    static dependencies = ["domReferenceMap", "collaborationOdoo", "position", "localOverlay"];
     /** @type {import("plugins").EditorResources} */
     resources = {
         /** Handlers */
-        collaboration_notification_handlers: this.handleCollaborationNotification.bind(this),
-        layout_geometry_change_handlers: this.refreshSelection.bind(this),
-        collaborative_selection_update_handlers: this.updateSelection.bind(this),
+        on_collaboration_notification_handlers: this.handleCollaborationNotification.bind(this),
+        on_layout_geometry_change_handlers: this.refreshSelection.bind(this),
+        on_collaborative_selection_updated_handlers: this.updateSelection.bind(this),
 
         collaboration_peer_metadata_providers: () => ({ selectionColor: this.selectionColor }),
     };
@@ -56,8 +56,8 @@ export class CollaborationSelectionPlugin extends Plugin {
         this.multiselectionRemove(peerId);
         let clientRects;
 
-        let anchorNode = this.dependencies.history.getNodeById(selection.anchorNodeId);
-        let focusNode = this.dependencies.history.getNodeById(selection.focusNodeId);
+        let anchorNode = this.dependencies.domReferenceMap.getNodeById(selection.anchorNodeId);
+        let focusNode = this.dependencies.domReferenceMap.getNodeById(selection.focusNodeId);
         let anchorOffset = selection.anchorOffset;
         let focusOffset = selection.focusOffset;
         if (!anchorNode || !focusNode) {
@@ -113,7 +113,7 @@ export class CollaborationSelectionPlugin extends Plugin {
         // Draw rects (in case the selection is not collapsed).
         const containerRect = this.selectionOverlay.getBoundingClientRect();
         const indicators = clientRects.map(({ x, y, width, height }) => {
-            const rectElement = this.document.createElement("div");
+            const rectElement = this.dependencies.localOverlay.createElement("div");
             rectElement.style = `
                 position: absolute;
                 top: ${y - containerRect.y}px;
@@ -129,13 +129,13 @@ export class CollaborationSelectionPlugin extends Plugin {
         });
 
         // Draw carret.
-        const caretElement = this.document.createElement("div");
+        const caretElement = this.dependencies.localOverlay.createElement("div");
         caretElement.style = `border-left: 2px solid ${selectionColor}; position: absolute;`;
         caretElement.setAttribute("data-selection-peer-id", peerId);
         caretElement.className = "oe-collaboration-caret";
 
         // Draw carret top square.
-        const caretTopSquare = this.document.createElement("div");
+        const caretTopSquare = this.dependencies.localOverlay.createElement("div");
         caretTopSquare.className = "oe-collaboration-caret-top-square";
         caretTopSquare.style["background-color"] = selectionColor;
         caretTopSquare.setAttribute("data-peer-name", peerName);

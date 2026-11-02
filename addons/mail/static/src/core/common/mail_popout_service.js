@@ -1,11 +1,29 @@
-import { App } from "@odoo/owl";
-
+import { OverlayPlugin } from "@web/core/overlay/overlay_plugin";
+import { Component, types, useApp, usePlugin, useProps, xml } from "@odoo/owl";
 import { browser } from "@web/core/browser/browser";
-import { appTranslateFn } from "@web/core/l10n/translation";
+import { useOwnDebugContext } from "@web/core/debug/debug_context";
+import { OverlayContainer } from "@web/core/overlay/overlay_container";
 import { registry } from "@web/core/registry";
-import { getTemplate } from "@web/core/templates";
 
 const DEFAULT_ID = Symbol("default");
+
+class OverlayWrapper extends Component {
+    static template = xml`
+        <t t-component="this.props.component" t-props="this.props.componentProps"/>
+        <OverlayContainer/>
+    `;
+    static components = { OverlayContainer };
+    props = useProps({
+        component: types.any(),
+        componentProps: types.object(),
+    });
+    setup() {
+        this.overlayService = usePlugin(OverlayPlugin);
+        useOwnDebugContext();
+    }
+}
+
+export const POLL_CLOSE_WINDOW_TIMEOUT = 1000;
 
 export const mailPopoutService = {
     /**
@@ -14,9 +32,17 @@ export const mailPopoutService = {
      */
     async addAssets(window) {},
 
-    start(env) {
+    dependencies: ["hotkey"],
+    start(env, { hotkey }) {
         /**
-         * @type {Map<any, { externalWindow: Window|null, hooks: { beforePopout?: Function, afterPopoutClosed?: Function, app: App } }>}
+         * @type {Map<any, {
+         *  externalWindow: Window | null;
+         *  hooks: {
+         *      beforePopout?: Function;
+         *      afterPopoutClosed?: Function;
+         *  };
+         *  root?: import("@odoo/owl").Root;
+         * }>}
          */
         const popouts = new Map();
 
@@ -24,7 +50,7 @@ export const mailPopoutService = {
          * Reset the external window to its initial state:
          * - Reset the external window header from main window (for appropriate title and other meta data)
          * - clear the external window's document body
-         * - destroy the current app mounted on the window
+         * - destroy the current root mounted on the window
          * @param {any} id - The ID of the popout instance to reset
          * @param {Object} [options]
          * @param {Boolean} [options.useAlternativeAssets]
@@ -44,9 +70,9 @@ export const mailPopoutService = {
                 }
                 doc.body = doc.createElement("body");
             }
-            if (popout.app) {
-                popout.app.destroy();
-                popout.app = null;
+            if (popout.root) {
+                popout.root.destroy();
+                delete popout.root;
             }
         }
 
@@ -57,7 +83,7 @@ export const mailPopoutService = {
         async function pollClosedWindow(id) {
             while (popouts.get(id)?.externalWindow) {
                 const popout = popouts.get(id);
-                await new Promise((r) => setTimeout(r, 1000));
+                await new Promise((r) => setTimeout(r, POLL_CLOSE_WINDOW_TIMEOUT));
                 if (popout.externalWindow?.closed) {
                     const hooks = popout.hooks;
                     hooks?.afterPopoutClosed?.();
@@ -112,21 +138,21 @@ export const mailPopoutService = {
                 pollClosedWindow(id);
             }
             await reset(id, { useAlternativeAssets });
-            popout.app = new App(component, {
-                name: "Popout",
-                env: Object.assign({}, env, {
-                    /**
-                     * Some sub components may need a reference to the external window to
-                     * access window information such as its dimensions, or to attach event listeners.
-                     */
-                    pipWindow: externalWindow,
-                }),
-                props,
-                getTemplate,
-                translatableAttributes: ["data-tooltip"],
-                translateFn: appTranslateFn,
+            externalWindow.document.host = { ...externalWindow.document.host, id };
+            const rootEnv = Object.assign({}, env, {
+                /**
+                 * Some sub components may need a reference to the external window to
+                 * access window information such as its dimensions, or to attach event listeners.
+                 */
+                pipWindow: externalWindow,
+                rootId: id,
             });
-            popout.app.mount(externalWindow.document.body);
+            popout.root = app.createRoot(OverlayWrapper, {
+                env: rootEnv,
+                props: { component, componentProps: props },
+            });
+            popout.root.mount(externalWindow.document.body);
+            hotkey.registerWindow(externalWindow);
             return externalWindow;
         }
 
@@ -141,6 +167,11 @@ export const mailPopoutService = {
                 const hooks = popout.hooks;
                 hooks?.beforePopout?.();
                 externalWindow = browser.open("about:blank", "_blank", "popup=yes");
+                if (!externalWindow) {
+                    // The browser can refuse to open the popup (e.g. popup blocker).
+                    hooks?.afterPopoutClosed?.();
+                    return null;
+                }
                 window.addEventListener("beforeunload", () => {
                     if (externalWindow && !externalWindow.closed) {
                         externalWindow.close();
@@ -150,15 +181,8 @@ export const mailPopoutService = {
                 pollClosedWindow(id);
             }
             reset(id);
-            popout.app = new App(component, {
-                name: "Popout",
-                env,
-                props,
-                getTemplate,
-                translatableAttributes: ["data-tooltip"],
-                translateFn: appTranslateFn,
-            });
-            popout.app.mount(externalWindow.document.body);
+            popout.root = app.createRoot(component, { props });
+            popout.root.mount(externalWindow.document.body);
             return externalWindow;
         }
 
@@ -170,6 +194,10 @@ export const mailPopoutService = {
         function addHooks(id, hooks) {
             const popout = popouts.get(id);
             popout.hooks = hooks;
+        }
+
+        function resetAll() {
+            popouts.forEach((p, id) => reset(id));
         }
 
         /**
@@ -238,7 +266,9 @@ export const mailPopoutService = {
             };
         }
 
-        return Object.assign(createManager(), { createManager });
+        const app = useApp();
+
+        return Object.assign(createManager(), { createManager, resetAll });
     },
 };
 

@@ -7,7 +7,13 @@
             <form string="Contract logs">
                 <field name="company_id" invisible="1"/>
                 <header>
-                    <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
+                    <button name="action_done" string="Mark as Done" type="object" class="btn-primary" invisible="state != 'expired'"/>
+                    <button name="action_close" string="Close" type="object" class="btn-secondary" invisible="state in ('closed', 'done')"/>
+                    <button name="action_reactivate" string="Reactivate" type="object" class="btn-secondary" invisible="state not in ('closed', 'done')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="futur,open" invisible="state in ('expired', 'closed', 'done')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="futur,open,expired" invisible="state != 'expired'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="futur,open,done" invisible="state != 'done'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="futur,open,closed" invisible="state != 'closed'"/>
                 </header>
                 <sheet>
                     <field name="active" invisible="1"/>
@@ -19,9 +25,19 @@
                     <group string="Information" col="2">
                         <group col="1">
                             <field name="ins_ref"/>
-                            <field name="cost_subtype_id"/>
-                            <field name="insurer_id" widget="many2one_avatar"/>
-                            <field name="service_ids" widget="many2many_tags"/>
+                            <field name="cost_subtype_id" domain="[('category', '=', 'contract')]"
+                                   context="{
+                                       'default_category': 'contract',
+                                       'list_view_ref': 'fleet.fleet_vehicle_service_types_view_tree',
+                                       'form_view_ref': 'fleet.fleet_service_type_view_form_shared'
+                                   }"/>
+                            <field name="insurer_id" widget="many2one_avatar_user"/>
+                            <field name="service_ids" widget="many2many_tags" domain="[('category', '=', 'service')]"
+                                   context="{
+                                       'default_category': 'service',
+                                       'list_view_ref': 'fleet.fleet_vehicle_service_types_view_tree',
+                                       'form_view_ref': 'fleet.fleet_service_type_view_form_shared'
+                                   }"/>
                             <field name="company_id" groups="base.group_multi_company" placeholder="Visible to all"/>
                         </group>
                         <group col="2">
@@ -36,7 +52,7 @@
                             <field name="vehicle_id"/>
                         </group>
                         <group col="2">
-                            <field name="purchaser_id" widget="many2one_avatar"/>
+                            <field name="purchaser_id" widget="many2one_avatar_user"/>
                         </group>
                     </group>
                     <group string="Cost" col="2">
@@ -69,22 +85,24 @@
             <list string="Contract logs"
                 decoration-warning="expires_today"
                 decoration-danger="days_left==0 and not expires_today and not has_open_contract"
-                decoration-muted="state=='closed'"
+                decoration-muted="state in ('closed', 'done')"
                 default_order="expiration_date"
                 sample="1">
                 <field name="active" column_invisible="True"/>
                 <field name="expires_today" column_invisible="True"/>
-                <field name="name" class="fw-bold" />
+                <field name="name" class="fw-bold"/>
+                <field name="cost_subtype_id"/>
                 <field name="start_date" />
-                <field name="expiration_date" widget="remaining_days"/>
+                <field name="expiration_date" widget="relative_date"
+                    options="{'classes': {'danger': 'record.days_left==0 and not record.expires_today and not record.has_open_contract'}}"/>
                 <field name="days_left" column_invisible="True"/>
                 <field name="vehicle_id"/>
-                <field name="insurer_id" />
-                <field name="purchaser_id" widget="many2one_avatar"/>
+                <field name="insurer_id"/>
+                <field name="purchaser_id" widget="many2one_avatar_user"/>
                 <field name="cost_generated" widget="monetary"/>
                 <field name="currency_id" column_invisible="True"/>
                 <field name="cost_frequency"/>
-                <field name="state" widget="badge" decoration-info="state == 'open'" decoration-danger="state == 'expired' and not has_open_contract" />
+                <field name="state" widget="badge" decoration-info="state == 'open'" decoration-success="state == 'done'" decoration-danger="state == 'expired' and not has_open_contract" />
                 <field name="activity_exception_decoration" widget="activity_exception"/>
             </list>
         </field>
@@ -100,7 +118,7 @@
                     <t t-name="card">
                         <div class="d-flex justify-content-between align-items-center">
                             <field name="vehicle_id" class="fw-bold" widget="res_partner_many2one"/>
-                            <field class="badge text-bg-secondary" name="state"/>
+                            <field class="badge rounded-pill text-bg-secondary" name="state"/>
                         </div>
                         <t t-if="luxon.DateTime.fromISO(record.expiration_date.raw_value) &lt; luxon.DateTime.local()" t-set="expiration_class" t-value="'text-danger fw-bold'"/>
                         <span t-att-class="expiration_class"><field name="start_date"/> - <field name="expiration_date"/></span>
@@ -133,6 +151,9 @@
                 <field name="insurer_id" string="Vendor" filter_domain="[('insurer_id','child_of', self)]"/>
                 <filter string="In Progress" name="open" domain="[('state', '=', 'open')]"/>
                 <filter string="Expired" name="expired" domain="[('state', '=', 'expired')]"/>
+                <filter string="Done" name="done" domain="[('state', '=', 'done')]"/>
+                <filter string="Start Date" name="start_date" date="start_date" default_period="month"/>
+                <filter string="Expiration Date" name="expiration_date" date="expiration_date" default_period="month"/>
                 <field name="activity_user_id" string="Activities of"/>
                 <field name="activity_type_id" string="Activity type"/>
                 <separator/>
@@ -217,14 +238,20 @@
                     <group col="2">
                         <group>
                             <field name="description" />
-                            <field name="service_type_id" />
-                            <field name="date" />
+                            <field name="service_type_id" domain="[('category', '=', 'service')]"
+                                   context="{
+                                       'default_category': 'service',
+                                       'list_view_ref': 'fleet.fleet_vehicle_service_types_view_tree',
+                                       'form_view_ref': 'fleet.fleet_service_type_view_form_shared'
+                                   }"/>
+                            <field name="date_from" string="Date" widget="daterange"
+                                options="{'end_date_field': 'date_to'}"/>
                             <field name="amount" widget="monetary"/>
                             <field name="vendor_id" widget="many2one_avatar"/>
                         </group>
                         <group>
                             <field name="vehicle_id"/>
-                            <field name="purchaser_id" widget="many2one_avatar"/>
+                            <field name="purchaser_id" widget="many2one_avatar_user"/>
                             <label for="odometer"/>
                             <div class="o_row">
                                 <field name="odometer" class="w-25"/>
@@ -245,11 +272,12 @@
         <field name="model">fleet.vehicle.log.services</field>
         <field name="arch" type="xml">
             <list string="Services Logs" multi_edit="1" expand="1">
-                <field name="date" readonly="1" />
+                <field name="date_from" readonly="1"/>
+                <field name="date_to" readonly="1"/>
                 <field name="description" />
                 <field name="service_type_id" />
                 <field name="vehicle_id" readonly="1" widget="many2one_avatar" />
-                <field name="purchaser_id" readonly="1" widget="many2one_avatar"/>
+                <field name="purchaser_id" readonly="1" widget="many2one_avatar_user"/>
                 <field name="vendor_id" optional="show" />
                 <field name="inv_ref" column_invisible="True" />
                 <field name="notes" optional="show" />
@@ -273,7 +301,7 @@
                             <field name="vehicle_id" widget="image" options="{'preview_image': 'image_128'}" class="float-start col-2 pe-2"/>
                             <div class="col-10 pe-2 text-truncate">
                                 <field class="fw-bolder" name="vehicle_id"/>
-                                <span t-attf-class="float-end badge #{['todo', 'running'].indexOf(record.state.raw_value) > -1 ? 'text-bg-secondary' : ['cancelled'].indexOf(record.state.raw_value) > -1 ? 'text-bg-danger' : 'text-bg-success'}">
+                                <span t-attf-class="float-end badge rounded-pill #{['todo', 'running'].indexOf(record.state.raw_value) > -1 ? 'text-bg-secondary' : ['cancelled'].indexOf(record.state.raw_value) > -1 ? 'text-bg-danger' : 'text-bg-success'}">
                                     <field name="state"/>
                                 </span>
                                 <div class="text-truncate">
@@ -283,7 +311,13 @@
                         </div>
                         <div class="text-truncate">
                             <field name="purchaser_id"/>
-                            <field class="float-end" name="date"/>
+                            <div>
+                                <field name="date_from"/>
+                                <t t-if="record.date_to.raw_value">
+                                    <span class="text-muted"> - </span>
+                                    <field name="date_to"/>
+                                </t>
+                            </div>
                         </div>
                         <field class="text-truncate" name="vendor_id"/>
                         <footer class="pt-0">
@@ -301,7 +335,7 @@
        <field name="model">fleet.vehicle.log.services</field>
        <field name="arch" type="xml">
             <graph string="Services Costs Per Month" sample="1">
-                <field name="date"/>
+                <field name="date_from"/>
                 <field name="vehicle_id"/>
                 <field name="amount" type="measure"/>
             </graph>

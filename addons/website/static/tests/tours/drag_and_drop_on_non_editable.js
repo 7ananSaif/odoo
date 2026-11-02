@@ -7,7 +7,6 @@ import {
 registerWebsitePreviewTour(
     "test_drag_and_drop_on_non_editable",
     {
-        url: "/",
         edition: true,
     },
     () => [

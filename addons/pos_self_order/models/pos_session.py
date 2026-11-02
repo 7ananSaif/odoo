@@ -18,8 +18,8 @@ class PosSession(models.Model):
         return ['id', 'user_id', 'config_id', 'payment_method_ids', 'state']
 
     @api.model
-    def _load_pos_self_data_domain(self, data, config):
-        return [('config_id', '=', config.id), ('state', '=', 'opened')]
+    def _load_pos_self_data_domain(self, data):
+        return [('config_id', '=', data['pos.config'].id), ('state', 'not in', ['closed', 'closing_control'])]
 
     def _load_pos_data_read(self, records, config):
         read_records = super()._load_pos_data_read(records, config)
@@ -41,3 +41,12 @@ class PosSession(models.Model):
             > 0
         )
         return read_records
+
+    def close_session_from_ui(self, payment_method_closing={}):
+        result = super().close_session_from_ui(payment_method_closing)
+        self.config_id.notify_session_state_changed()
+        return result
+
+    def _set_opening_control_data(self, cashbox_value: int, notes: str):
+        super()._set_opening_control_data(cashbox_value, notes)
+        self.config_id.notify_session_state_changed()

@@ -3,19 +3,19 @@ import { withSequence } from "@html_editor/utils/resource";
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
 import { FontFamilyPicker } from "../fontfamily_picker";
-import { BaseOptionComponent } from "@html_builder/core/utils";
+import { BaseOptionComponent } from "@html_builder/core/base_option_component";
 
 export const OPTION_POSITIONS = {
     BODY: 10,
     SETTINGS: 20,
-    HEADINGS: 30,
-    PARAGRAPH: 40,
+    PARAGRAPH: 30,
+    HEADINGS: 40,
     BUTTON: 50,
     LINK: 60,
     SEPARATORS: 70,
 };
 
-class DesignTabPlugin extends Plugin {
+export class DesignTabPlugin extends Plugin {
     static id = "mass_mailing.DesignTab";
     static dependencies = ["builderActions"];
     resources = {
@@ -27,7 +27,7 @@ class DesignTabPlugin extends Plugin {
                 OPTION_POSITIONS.BODY,
                 this.getDesignOptionBlock("design-body", {
                     template: "mass_mailing.DesignBodyOption",
-                    title: _t("Body"),
+                    title: _t("Mailing"),
                 })
             ),
             withSequence(
@@ -83,7 +83,6 @@ class DesignTabPlugin extends Plugin {
             isRemovable: false,
             options: [Option],
             optionsContainerTopButtons: [],
-            snippetModel: {},
         };
     }
 }

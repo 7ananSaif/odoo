@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+from odoo import Command
 from odoo.addons.sale.tests.common import TestSaleCommon
 
 
 class TestSaleProjectCommon(TestSaleCommon):
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -22,11 +25,12 @@ class TestSaleProjectCommon(TestSaleCommon):
             'plan_id': cls.analytic_plan.id,
             'company_id': cls.company_data['company'].id,
         })
-        Project = cls.env['project.project'].with_context(tracking_disable=True)
+        Project = cls.env['project.project']
         cls.project_global = Project.create({
             'name': 'Project Global',
             'account_id': cls.analytic_account_sale.id,
             'allow_billable': True,
+            'type_ids': [Command.set([])],
         })
         cls.project_template = Project.create({
             'name': 'Project TEMPLATE for services',

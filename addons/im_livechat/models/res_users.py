@@ -1,8 +1,12 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import fields, models, api
-from odoo.addons.mail.tools.discuss import Store
+from markupsafe import Markup
+
+from odoo import api, fields, models
 from odoo.fields import Command
+from odoo.http import request
+
+from odoo.addons.mail.tools.discuss import Store
 
 
 class ResUsers(models.Model):
@@ -16,27 +20,27 @@ class ResUsers(models.Model):
     )
     livechat_username = fields.Char(
         string="Livechat Username",
-        groups="im_livechat.im_livechat_group_user,base.group_erp_manager",
         compute="_compute_livechat_username",
         inverse="_inverse_livechat_username",
         store=False,
+        user_writeable=True,
     )
     livechat_lang_ids = fields.Many2many(
         "res.lang",
         string="Livechat Languages",
-        groups="im_livechat.im_livechat_group_user,base.group_erp_manager",
         compute="_compute_livechat_lang_ids",
         inverse="_inverse_livechat_lang_ids",
         store=False,
+        user_writeable=True,
     )
     livechat_expertise_ids = fields.Many2many(
         "im_livechat.expertise",
         string="Live Chat Expertise",
-        groups="im_livechat.im_livechat_group_user,base.group_erp_manager",
         compute="_compute_livechat_expertise_ids",
         inverse="_inverse_livechat_expertise_ids",
         store=False,
         help="When forwarding live chat conversations, the chatbot will prioritize users with matching expertise.",
+        user_writeable=True,
     )
     livechat_ongoing_session_count = fields.Integer(
         "Number of Ongoing sessions",
@@ -50,22 +54,13 @@ class ResUsers(models.Model):
     )
     has_access_livechat = fields.Boolean(compute='_compute_has_access_livechat', string='Has access to Livechat', store=False, readonly=True)
 
-    @property
-    def SELF_READABLE_FIELDS(self):
-        return super().SELF_READABLE_FIELDS + [
-            "has_access_livechat",
-            "livechat_expertise_ids",
-            "livechat_lang_ids",
-            "livechat_username",
-        ]
-
-    @property
-    def SELF_WRITEABLE_FIELDS(self):
-        return super().SELF_WRITEABLE_FIELDS + [
-            "livechat_expertise_ids",
-            "livechat_lang_ids",
-            "livechat_username",
-        ]
+    def _has_livechat_field_access(self):
+        return (
+            self.env.user == self
+            or self.env.su
+            or self.env.user.has_group('base.group_erp_manager')
+            or self.env.user.has_group('im_livechat.im_livechat_group_user')
+        )
 
     @api.depends("livechat_channel_ids", "is_in_call")
     def _compute_livechat_is_in_call(self):
@@ -93,34 +88,49 @@ class ResUsers(models.Model):
             user.livechat_ongoing_session_count = count_by_partner.get(user.partner_id, 0)
 
     @api.depends('res_users_settings_id.livechat_username')
+    @api.depends_context('uid')
     def _compute_livechat_username(self):
+        if not self._has_livechat_field_access():
+            self.livechat_username = False
+            return
         for user in self:
-            # sudo: livechat user can see the livechat username of any other user
             user.livechat_username = user.sudo().res_users_settings_id.livechat_username
 
     def _inverse_livechat_username(self):
+        if not self._has_livechat_field_access():
+            return
         for user in self:
             settings = self.env['res.users.settings']._find_or_create_for_user(user)
             settings.livechat_username = user.livechat_username
 
     @api.depends('res_users_settings_id.livechat_lang_ids')
+    @api.depends_context('uid')
     def _compute_livechat_lang_ids(self):
+        if not self._has_livechat_field_access():
+            self.livechat_lang_ids = False
+            return
         for user in self:
-            # sudo: livechat user can see the livechat languages of any other user
             user.livechat_lang_ids = user.sudo().res_users_settings_id.livechat_lang_ids
 
     def _inverse_livechat_lang_ids(self):
+        if not self._has_livechat_field_access():
+            return
         for user in self:
             settings = self.env['res.users.settings']._find_or_create_for_user(user)
             settings.livechat_lang_ids = user.livechat_lang_ids
 
     @api.depends("res_users_settings_id.livechat_expertise_ids")
+    @api.depends_context('uid')
     def _compute_livechat_expertise_ids(self):
+        if not self._has_livechat_field_access():
+            self.livechat_expertise_ids = False
+            return
         for user in self:
-            # sudo: livechat user can see the livechat expertise of any other user
             user.livechat_expertise_ids = user.sudo().res_users_settings_id.livechat_expertise_ids
 
     def _inverse_livechat_expertise_ids(self):
+        if not self._has_livechat_field_access():
+            return
         for user in self:
             settings = self.env["res.users.settings"]._find_or_create_for_user(user)
             settings.livechat_expertise_ids = user.livechat_expertise_ids
@@ -143,14 +153,57 @@ class ResUsers(models.Model):
                 return result
         return super().write(vals)
 
-    def _init_store_data(self, store: Store):
-        super()._init_store_data(store)
-        store.add_global_values(has_access_livechat=self.env.user.has_access_livechat)
-        if not self.env.user._is_public():
-            store.add(
-                self.env.user,
-                Store.Attr(
-                    "is_livechat_manager",
-                    lambda u: u.has_group("im_livechat.im_livechat_group_manager"),
-                ),
+    def _after_session_login(self):
+        super()._after_session_login()
+        if request:
+            token = request.cookies.get(self.env["mail.guest"]._cookie_name, "")
+            guest = self.env["mail.guest"]._get_guest_from_token(token)
+            if guest and not self._is_public():
+                self.with_context(guest=guest)._join_livechat_sessions_from_guest(guest)
+
+    def _join_livechat_sessions_from_guest(self, guest):
+        self.ensure_one()
+        # using guest env to find livechat channels the guest has access to
+        guest_access_env = self.env(user=self.env.ref("base.public_user"))
+        guest_members = guest_access_env["discuss.channel.member"].search_fetch(
+            [
+                ("channel_id.channel_type", "=", "livechat"),
+                ("is_self", "=", True),
+            ],
+            limit=100,
+            order="id DESC",
+        )
+        if not guest_members:
+            return
+        # sudo: discuss.channel - the authenticated user is taking over livechat
+        # sessions that belonged to their guest, so adding them as member is legitimate.
+        new_members = guest_members.channel_id.with_env(self.env).sudo()._add_members(
+            users=self,
+            create_member_params={"livechat_member_type": "visitor"},
+            post_joined_message=False,
+        )
+        guest_members.with_context(close_chat_window=False).unlink()
+        notif = self.env._(
+            "%(visitor)s authenticated as %(user)s.",
+            # sudo: mail.guest - reading the name for a notification message is acceptable
+            visitor=guest.sudo().name,
+            user=self.partner_id.name or self.partner_id.display_name,
+        )
+        for channel in new_members.channel_id.filtered(lambda c: not c.livechat_end_dt):
+            channel.message_post(
+                body=Markup('<div class="o_mail_notification" data-oe-type="o_mail_notification">%s</div>') % notif,
+                message_type="notification",
+                subtype_xmlid="mail.mt_comment",
+            )
+
+    def _store_init_global_fields(self, res: Store.FieldList):
+        super()._store_init_global_fields(res)
+        res.attr("has_access_livechat", self.has_access_livechat)
+
+    def _store_init_fields(self, res: Store.FieldList):
+        super()._store_init_fields(res)
+        if res.is_for_internal_users():
+            res.attr(
+                "is_livechat_manager",
+                lambda u: u.has_group("im_livechat.im_livechat_group_manager"),
             )

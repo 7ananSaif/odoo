@@ -7,24 +7,24 @@
 # Abe Manyo, 2023
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
-# "Abe Manyo (abem)" <abem@odoo.com>, 2025.
+# "Abe Manyo (abem)" <abem@odoo.com>, 2025, 2026.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
 # "Nurul Aini Akrima Sabila (nuaas)" <nuaas@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-05-02 09:39+0000\n"
-"Last-Translator: \"Nurul Aini Akrima Sabila (nuaas)\" <nuaas@odoo.com>\n"
-"Language-Team: Indonesian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-08-31 17:37+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Indonesian <https://translate.odoo.com/projects/odoo-s19-4/"
 "product_expiry/id/>\n"
 "Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: product_expiry
 #. odoo-python
@@ -37,6 +37,24 @@ msgstr "\t--Kadaluwarsa pada %(date)s--"
 #: code:addons/product_expiry/models/production_lot.py:0
 msgid "\t--Expired--"
 msgstr "\t--Kadaluwarsa--"
+
+#. module: product_expiry
+#: model:ir.module.module,description:base.module_product_expiry
+msgid ""
+"\n"
+"Track different dates on products and production lots.\n"
+"======================================================\n"
+"\n"
+"Following dates can be tracked:\n"
+"-------------------------------\n"
+"    - end of life\n"
+"    - best before date\n"
+"    - removal date\n"
+"    - alert date\n"
+"\n"
+"Also implements the removal strategy First Expiry First Out (FEFO) widely "
+"used, for example, in food industries.\n"
+msgstr ""
 
 #. module: product_expiry
 #: model_terms:ir.ui.view,arch_db:product_expiry.view_move_form_expiry
@@ -56,11 +74,11 @@ msgstr ""
 #. module: product_expiry
 #: model_terms:ir.ui.view,arch_db:product_expiry.view_production_lot_view_kanban
 msgid ""
-"<span title=\"Alert\" class=\"fa fa-exclamation-triangle text-danger me-2\" "
+"<span title=\"Alert\" class=\"oi text-danger me-2\" data-icon=\"warning\" "
 "invisible=\"product_qty &lt;= 0 or not product_expiry_alert or not "
 "expiration_date\"/>"
 msgstr ""
-"<span title=\"Alert\" class=\"fa fa-exclamation-triangle text-danger me-2\" "
+"<span title=\"Alert\" class=\"oi text-danger me-2\" data-icon=\"warning\" "
 "invisible=\"product_qty &lt;= 0 or not product_expiry_alert or not "
 "expiration_date\"/>"
 
@@ -73,6 +91,11 @@ msgstr "<span> hari setelah bon</span>"
 #: model_terms:ir.ui.view,arch_db:product_expiry.view_product_form_expiry
 msgid "<span> days before expiration date</span>"
 msgstr "<span> hari sebelum tanggal kadaluwarsa</span>"
+
+#. module: product_expiry
+#: model:ir.model,name:product_expiry.model_res_groups
+msgid "Access Groups"
+msgstr ""
 
 #. module: product_expiry
 #: model:ir.model.fields,field_description:product_expiry.field_product_product__alert_time
@@ -125,6 +148,7 @@ msgstr ""
 
 #. module: product_expiry
 #: model_terms:ir.ui.view,arch_db:product_expiry.report_lot_label_expiry
+#: model_terms:ir.ui.view,arch_db:product_expiry.report_lot_qr_label_expiry
 msgid "B.b."
 msgstr "Baik sebelum."
 
@@ -143,6 +167,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:product_expiry.field_stock_lot__use_date
 msgid "Best before Date"
 msgstr "Bagus sebelum tanggal"
+
+#. module: product_expiry
+#: model:ir.model,name:product_expiry.model_lot_label_layout
+msgid "Choose the sheet layout to print lot labels"
+msgstr ""
 
 #. module: product_expiry
 #: model:ir.model,name:product_expiry.model_res_config_settings
@@ -197,21 +226,18 @@ msgid "Description"
 msgstr "Deskripsi"
 
 #. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.confirm_expiry_view
-msgid "Discard"
-msgstr "Buang"
-
-#. module: product_expiry
 #: model:ir.model.fields,field_description:product_expiry.field_res_config_settings__group_expiry_date_on_delivery_slip
 msgid "Display Expiration Dates on Delivery Slips"
 msgstr "Tampilkan Tanggal Kadaluwarsa pada Slip Pengiriman"
 
 #. module: product_expiry
 #: model:ir.model.fields,field_description:product_expiry.field_expiry_picking_confirmation__display_name
+#: model:ir.model.fields,field_description:product_expiry.field_lot_label_layout__display_name
 #: model:ir.model.fields,field_description:product_expiry.field_product_product__display_name
 #: model:ir.model.fields,field_description:product_expiry.field_product_template__display_name
 #: model:ir.model.fields,field_description:product_expiry.field_report_stock_quantity__display_name
 #: model:ir.model.fields,field_description:product_expiry.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:product_expiry.field_res_groups__display_name
 #: model:ir.model.fields,field_description:product_expiry.field_stock_forecasted_product_product__display_name
 #: model:ir.model.fields,field_description:product_expiry.field_stock_lot__display_name
 #: model:ir.model.fields,field_description:product_expiry.field_stock_move__display_name
@@ -219,11 +245,14 @@ msgstr "Tampilkan Tanggal Kadaluwarsa pada Slip Pengiriman"
 #: model:ir.model.fields,field_description:product_expiry.field_stock_picking__display_name
 #: model:ir.model.fields,field_description:product_expiry.field_stock_quant__display_name
 #: model:ir.model.fields,field_description:product_expiry.field_stock_rule__display_name
+#: model:ir.model.fields,field_description:product_expiry.field_stock_traceability_report__display_name
 msgid "Display Name"
 msgstr "Nama Tampilan"
 
 #. module: product_expiry
 #: model_terms:ir.ui.view,arch_db:product_expiry.report_lot_label_expiry
+#: model_terms:ir.ui.view,arch_db:product_expiry.report_lot_qr_label_expiry
+#: model_terms:ir.ui.view,arch_db:product_expiry.report_package_barcode_content_inherit_expiry
 msgid "Exp."
 msgstr "Kadaluwarsa."
 
@@ -238,11 +267,14 @@ msgid "Expiration Alerts"
 msgstr "Peringatan Kadaluwarsa"
 
 #. module: product_expiry
+#. odoo-javascript
+#: code:addons/product_expiry/static/src/stock_traceability_report_backend.xml:0
 #: model:ir.model.fields,field_description:product_expiry.field_product_product__expiration_time
 #: model:ir.model.fields,field_description:product_expiry.field_product_template__expiration_time
 #: model:ir.model.fields,field_description:product_expiry.field_stock_lot__expiration_date
 #: model:ir.model.fields,field_description:product_expiry.field_stock_move_line__expiration_date
 #: model:ir.model.fields,field_description:product_expiry.field_stock_quant__expiration_date
+#: model_terms:ir.ui.view,arch_db:product_expiry.report_stock_body_print
 #: model_terms:ir.ui.view,arch_db:product_expiry.stock_report_delivery_document_inherit_product_expiry
 #: model_terms:ir.ui.view,arch_db:product_expiry.view_product_form_expiry
 msgid "Expiration Date"
@@ -317,10 +349,12 @@ msgstr "Kuantitas yang Bebas Digunakan "
 
 #. module: product_expiry
 #: model:ir.model.fields,field_description:product_expiry.field_expiry_picking_confirmation__id
+#: model:ir.model.fields,field_description:product_expiry.field_lot_label_layout__id
 #: model:ir.model.fields,field_description:product_expiry.field_product_product__id
 #: model:ir.model.fields,field_description:product_expiry.field_product_template__id
 #: model:ir.model.fields,field_description:product_expiry.field_report_stock_quantity__id
 #: model:ir.model.fields,field_description:product_expiry.field_res_config_settings__id
+#: model:ir.model.fields,field_description:product_expiry.field_res_groups__id
 #: model:ir.model.fields,field_description:product_expiry.field_stock_forecasted_product_product__id
 #: model:ir.model.fields,field_description:product_expiry.field_stock_lot__id
 #: model:ir.model.fields,field_description:product_expiry.field_stock_move__id
@@ -328,6 +362,7 @@ msgstr "Kuantitas yang Bebas Digunakan "
 #: model:ir.model.fields,field_description:product_expiry.field_stock_picking__id
 #: model:ir.model.fields,field_description:product_expiry.field_stock_quant__id
 #: model:ir.model.fields,field_description:product_expiry.field_stock_rule__id
+#: model:ir.model.fields,field_description:product_expiry.field_stock_traceability_report__id
 msgid "ID"
 msgstr "ID"
 
@@ -443,8 +478,13 @@ msgid "Product Variant"
 msgstr "Varian Produk"
 
 #. module: product_expiry
+#: model:ir.module.module,shortdesc:base.module_product_expiry
+msgid "Products Expiration Date"
+msgstr ""
+
+#. module: product_expiry
 #: model:ir.model,name:product_expiry.model_stock_quant
-msgid "Quants"
+msgid "Quant"
 msgstr "Kuant"
 
 #. module: product_expiry
@@ -547,7 +587,12 @@ msgstr "Untuk dihapus sekarang"
 #. odoo-javascript
 #: code:addons/product_expiry/static/src/forecasted_details.xml:0
 msgid "To remove on"
-msgstr "Untuk dihapus pada"
+msgstr ""
+
+#. module: product_expiry
+#: model:ir.model,name:product_expiry.model_stock_traceability_report
+msgid "Traceability Report"
+msgstr ""
 
 #. module: product_expiry
 #: model:ir.model,name:product_expiry.model_stock_picking
@@ -603,115 +648,126 @@ msgstr ""
 "Apakah Anda mengonfirmasi Anda ingin melanjutkan?"
 
 #. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-msgid "^A0N,44,33^FDUse by:"
-msgstr "^A0N,44,33^FDUse by:"
-
-#. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-msgid ""
-"^BCN,100,Y,N,N\n"
-"^FD"
+#: model_terms:ir.ui.view,arch_db:product_expiry.alternative_zpl_lot_label_qr_expiry
+msgid "^A0N,16^TBN,246,23^FH^FD"
 msgstr ""
-"^BCN,100,Y,N,N\n"
-"^FD"
 
 #. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-msgid "^FO100,150"
-msgstr "^FO100,150"
-
-#. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-msgid ""
-"^FO100,150\n"
-"^A0N,44,33^FDBest before:"
+#: model_terms:ir.ui.view,arch_db:product_expiry.alternative_zpl_lot_label_qr_expiry
+msgid "^A0N,16^TBN,246,23^FH^FDB.b."
 msgstr ""
-"^FO100,150\n"
-"^A0N,44,33^FDBaik sebelum:"
 
 #. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-msgid ""
-"^FO100,150\n"
-"^A0N,44,33^FDUse by:"
+#: model_terms:ir.ui.view,arch_db:product_expiry.report_lot_label_zpl_expiry
+msgid "^A0N,21,16^FB170,1,0,R^FH^FDExp."
 msgstr ""
-"^FO100,150\n"
-"^A0N,44,33^FDUse by:"
 
 #. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-msgid "^FO100,200"
-msgstr "^FO100,200"
-
-#. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-msgid ""
-"^FO100,200\n"
-"^A0N,44,33^FDUse by:"
+#: model_terms:ir.ui.view,arch_db:product_expiry.alternative_zpl_lot_label_qr_expiry
+msgid "^FO155,"
 msgstr ""
-"^FO100,200\n"
-"^A0N,44,33^FDUse by:"
 
 #. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-msgid "^FO100,200^BY3"
-msgstr "^FO100,200^BY3"
-
-#. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-msgid ""
-"^FO100,50\n"
-"^A0N,44,33^FD"
+#: model_terms:ir.ui.view,arch_db:product_expiry.alternative_zpl_lot_label_qr_expiry
+msgid "^FO155,145^A0N,16^TBN,246,23^FH^FDExp."
 msgstr ""
-"^FO100,50\n"
-"^A0N,44,33^FD"
 
 #. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
+#: model_terms:ir.ui.view,arch_db:product_expiry.report_lot_label_zpl_expiry
+msgid "^FO222,22"
+msgstr ""
+
+#. module: product_expiry
+#: model_terms:ir.ui.view,arch_db:product_expiry.report_lot_label_zpl_expiry
+msgid "^FO222,22^A0N,21,16^FB170,1,0,R^FH^FDB.b."
+msgstr ""
+
+#. module: product_expiry
+#: model_terms:ir.ui.view,arch_db:product_expiry.report_lot_label_zpl_expiry
+msgid "^FO222,44"
+msgstr ""
+
+#. module: product_expiry
+#: model_terms:ir.ui.view,arch_db:product_expiry.alternative_zpl_lot_label_qr_expiry
+#: model_terms:ir.ui.view,arch_db:product_expiry.report_lot_label_zpl_expiry
 msgid "^FS"
 msgstr "^FS"
-
-#. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-msgid ""
-"^FS\n"
-"^FO100,100\n"
-"^A0N,44,33^FDLN/SN:"
-msgstr ""
-"^FS\n"
-"^FO100,100\n"
-"^A0N,44,33^FDLN/SN:"
-
-#. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-msgid ""
-"^FS\n"
-"^FO100,200^BY3\n"
-"^BCN,100,Y,N,N\n"
-"^FD"
-msgstr ""
-"^FS\n"
-"^FO100,200^BY3\n"
-"^BCN,100,Y,N,N\n"
-"^FD"
-
-#. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-msgid ""
-"^FS\n"
-"^FO100,250^BY3"
-msgstr ""
-"^FS\n"
-"^FO100,250^BY3"
 
 #. module: product_expiry
 #: model:product.removal,method:product_expiry.removal_fefo
 msgid "fefo"
 msgstr "fefo"
 
-#~ msgid "Fresh Free Stock"
-#~ msgstr "Stok Gratis Fresh"
+#~ msgid "^A0N,44,33^FDUse by:"
+#~ msgstr "^A0N,44,33^FDUse by:"
 
-#~ msgid "Procurement Group"
-#~ msgstr "Grup Pengadaan"
+#~ msgid ""
+#~ "^BCN,100,Y,N,N\n"
+#~ "^FD"
+#~ msgstr ""
+#~ "^BCN,100,Y,N,N\n"
+#~ "^FD"
+
+#~ msgid "^FO100,150"
+#~ msgstr "^FO100,150"
+
+#~ msgid ""
+#~ "^FO100,150\n"
+#~ "^A0N,44,33^FDBest before:"
+#~ msgstr ""
+#~ "^FO100,150\n"
+#~ "^A0N,44,33^FDBaik sebelum:"
+
+#~ msgid ""
+#~ "^FO100,150\n"
+#~ "^A0N,44,33^FDUse by:"
+#~ msgstr ""
+#~ "^FO100,150\n"
+#~ "^A0N,44,33^FDUse by:"
+
+#~ msgid "^FO100,200"
+#~ msgstr "^FO100,200"
+
+#~ msgid ""
+#~ "^FO100,200\n"
+#~ "^A0N,44,33^FDUse by:"
+#~ msgstr ""
+#~ "^FO100,200\n"
+#~ "^A0N,44,33^FDUse by:"
+
+#~ msgid "^FO100,200^BY3"
+#~ msgstr "^FO100,200^BY3"
+
+#~ msgid ""
+#~ "^FO100,50\n"
+#~ "^A0N,44,33^FD"
+#~ msgstr ""
+#~ "^FO100,50\n"
+#~ "^A0N,44,33^FD"
+
+#~ msgid ""
+#~ "^FS\n"
+#~ "^FO100,100\n"
+#~ "^A0N,44,33^FDLN/SN:"
+#~ msgstr ""
+#~ "^FS\n"
+#~ "^FO100,100\n"
+#~ "^A0N,44,33^FDLN/SN:"
+
+#~ msgid ""
+#~ "^FS\n"
+#~ "^FO100,200^BY3\n"
+#~ "^BCN,100,Y,N,N\n"
+#~ "^FD"
+#~ msgstr ""
+#~ "^FS\n"
+#~ "^FO100,200^BY3\n"
+#~ "^BCN,100,Y,N,N\n"
+#~ "^FD"
+
+#~ msgid ""
+#~ "^FS\n"
+#~ "^FO100,250^BY3"
+#~ msgstr ""
+#~ "^FS\n"
+#~ "^FO100,250^BY3"

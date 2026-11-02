@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
@@ -14,15 +13,13 @@ This module allows you to easily add extra costs on pickings and decide the spli
     'category': 'Supply Chain/Inventory',
     'sequence': 16,
     'data': [
-        'security/ir.model.access.csv',
-        'security/stock_landed_cost_security.xml',
         'data/stock_landed_cost_data.xml',
         'views/account_move_views.xml',
         'views/product_views.xml',
         'views/stock_landed_cost_views.xml',
         'views/res_config_settings_views.xml',
+        'security/ir.access.csv',
     ],
-    'installable': True,
     'author': 'Odoo S.A.',
     'license': 'LGPL-3',
 }

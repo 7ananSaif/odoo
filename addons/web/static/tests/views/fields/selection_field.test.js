@@ -1,16 +1,29 @@
-import { expect, test } from "@odoo/hoot";
-import { click, queryAllTexts, queryFirst, queryOne } from "@odoo/hoot-dom";
-import { animationFrame } from "@odoo/hoot-mock";
+import {
+    animationFrame,
+    click,
+    expect,
+    press,
+    queryAllTexts,
+    queryFirst,
+    queryOne,
+    test,
+} from "@odoo/hoot";
 import {
     clickSave,
     contains,
     defineModels,
     editSelectMenu,
     fields,
+    getService,
+    makeMockServer,
+    mockOffline,
     models,
     mountView,
+    mountWithCleanup,
     onRpc,
 } from "@web/../tests/web_test_helpers";
+import { OfflinePlugin } from "@web/core/offline/offline_plugin";
+import { WebClient } from "@web/webclient/webclient";
 
 class Partner extends models.Model {
     display_name = fields.Char({ string: "Displayed name" });
@@ -138,30 +151,62 @@ test("SelectionField, edition and on many2one field", async () => {
     expect.verifySteps(["get_views", "web_read", "name_search", "name_search", "onchange"]);
 });
 
-test("unset selection field with 0 as key", async () => {
-    // The server doesn't make a distinction between false value (the field
-    // is unset), and selection 0, as in that case the value it returns is
-    // false. So the client must convert false to value 0 if it exists.
-    Partner._fields.selection = fields.Selection({
-        selection: [
-            [0, "Value O"],
-            [1, "Value 1"],
-        ],
+test.tags("desktop");
+test("[Offline] SelectionField on many2one field", async () => {
+    const setOffline = mockOffline();
+    onRpc("web_save", () => expect.step(`web_save`));
+
+    Partner._onChanges.product_id = () => {};
+    Partner._records[0].product_id = 37;
+    Partner._records[0].trululu = false;
+    Partner._views = {
+        form: `
+            <form>
+                <field name="product_id" widget="selection" />
+            </form>`,
+    };
+
+    await mountWithCleanup(WebClient);
+    await getService("action").doAction({
+        name: "Partner",
+        res_model: "partner",
+        res_id: 1,
+        type: "ir.actions.act_window",
+        views: [[false, "form"]],
     });
 
-    await mountView({
-        type: "form",
-        resModel: "partner",
-        resId: 1,
-        arch: /* xml */ '<form edit="0"><field name="selection" /></form>',
-    });
+    await contains(".o_field_selection input").click();
+    expect(queryAllTexts(`.o-dropdown-item`)).toEqual(["xphone", "xpad"]);
 
-    expect(".o_field_widget").toHaveText("Value O", {
-        message: "the displayed value should be 'Value O'",
-    });
-    expect(".o_field_widget").not.toHaveClass("o_field_empty", {
-        message: "should not have class o_field_empty",
-    });
+    //close the dropdown
+    await contains(".o_form_renderer").click();
+
+    setOffline(true);
+
+    await contains(".o_field_selection input").click();
+    expect(queryAllTexts(`.o-dropdown-item`)).toEqual(["xphone", "xpad"]);
+
+    // select the second one
+    await contains(`.dropdown-item:contains(xpad)`).click();
+    expect(`.o_field_selection input`).toHaveValue("xpad");
+
+    // save the record (should do the write RPC with the correct commands)
+    await clickSave();
+
+    // The created record will be save the next time we are online
+    await contains(`.o_menu_systray .o_nav_entry [data-icon="link_off"]`).click();
+    expect(queryAllTexts`.o-dropdown--menu .o_offline_systray_content div`).toEqual([
+        "PARTNER",
+        "first record",
+        "Edited",
+        "",
+    ]);
+
+    // go online and save the record.
+    await setOffline(false);
+
+    expect(getService(OfflinePlugin).isOffline()).toBe(false);
+    await expect.waitForSteps(["web_save"]); // We sync when the connection returns
 });
 
 test("unset selection field with string keys", async () => {
@@ -414,4 +459,143 @@ test("SelectionField search is disabled in BottomSheet", async function (assert)
 
     await contains(".o_field_widget[name='color'] input").click();
     expect(".o_bottom_sheet input").toHaveCount(0);
+});
+
+test("SelectionField fallback to value when option not found", async () => {
+    // Test that when a selection value is not in the options list,
+    // it falls back to displaying the raw value instead of crashing
+    Partner._fields.color = fields.Selection({
+        selection: [
+            ["red", "Red"],
+            ["black", "Black"],
+        ],
+        string: "Color",
+    });
+
+    // We cannot assign an invalid value from the '_records' since it would
+    // crash during mock server setup.
+    const { env } = await makeMockServer();
+    env["partner"][0].color = "unknown_value"; // Value not in selection list
+
+    await mountView({
+        type: "form",
+        resModel: "partner",
+        resId: 1,
+        arch: /* xml */ '<form><field name="color" widget="selection" /></form>',
+    });
+
+    // Should display the raw value "unknown_value" instead of crashing
+    expect(".o_field_widget[name='color'] input").toHaveValue("unknown_value", {
+        message: "should fallback to raw value when option not found",
+    });
+});
+
+test("SelectionField fallback to value in readonly mode", async () => {
+    // Test that fallback also works in readonly mode
+    Partner._fields.color = fields.Selection({
+        selection: [
+            ["red", "Red"],
+            ["black", "Black"],
+        ],
+        string: "Color",
+    });
+
+    // We cannot assign an invalid value from the '_records' since it would
+    // crash during mock server setup.
+    const { env } = await makeMockServer();
+    env["partner"][0].color = "deprecated_option";
+
+    await mountView({
+        type: "form",
+        resModel: "partner",
+        resId: 1,
+        arch: /* xml */ '<form edit="0"><field name="color" widget="selection" /></form>',
+    });
+
+    // In readonly mode, should display the raw value as text
+    expect(".o_field_widget[name='color']").toHaveText("deprecated_option", {
+        message: "should display raw value in readonly mode when option not found",
+    });
+});
+
+test("SelectionField fallback in list view", async () => {
+    // Test that fallback works in list view using formatSelection
+    Partner._fields.color = fields.Selection({
+        selection: [
+            ["red", "Red"],
+            ["black", "Black"],
+        ],
+        string: "Color",
+    });
+
+    // We cannot assign an invalid value from the '_records' since it would
+    // crash during mock server setup.
+    const { env } = await makeMockServer();
+    env["partner"][0].color = "unknown_status";
+
+    await mountView({
+        type: "list",
+        resModel: "partner",
+        arch: /* xml */ '<list><field name="color"/></list>',
+    });
+
+    // Check that unknown values fallback to raw value
+    expect(".o_data_row:eq(0) .o_data_cell").toHaveText("unknown_status", {
+        message: "unknown value should fallback to raw value in list view",
+    });
+});
+
+test.tags("desktop");
+test("SelectionField hotkeys in form view", async () => {
+    await mountView({
+        type: "form",
+        resModel: "partner",
+        resId: 1,
+        arch: /* xml */ `
+            <form>
+                <field name="product_id" widget="selection" />
+            </form>`,
+    });
+
+    await contains(".o_field_widget[name='product_id'] input").click();
+    expect(".o_field_widget[name='product_id'] input").toBeFocused();
+    expect(queryAllTexts(".o_select_menu_item")).toEqual(["xphone", "xpad"]);
+
+    await press("Tab");
+    await animationFrame();
+    expect(".o_field_widget[name='product_id'] input").toHaveValue("xphone");
+    expect(".o_field_widget[name='product_id'] input").toBeFocused();
+
+    await press("ArrowDown");
+    await animationFrame();
+    await press("ArrowDown");
+    await animationFrame();
+    await press("Shift+Tab");
+    await animationFrame();
+    expect(".o_field_widget[name='product_id'] input").toHaveValue("xpad");
+    expect(".o_field_widget[name='product_id'] input").toBeFocused();
+
+    await press("ArrowUp");
+    await animationFrame();
+    await press("Enter");
+    await animationFrame();
+    expect(".o_field_widget[name='product_id'] input").toHaveValue("xphone");
+    expect(".o_field_widget[name='product_id'] input").toBeFocused();
+});
+
+test.tags("desktop");
+test("required SelectionField value is not cleared when input is emptied and blurred", async () => {
+    Partner._records[0].color = "red";
+
+    await mountView({
+        type: "form",
+        resModel: "partner",
+        resId: 1,
+        arch: /* xml */ `<form><field name="color" required="1" /></form>`,
+    });
+
+    await contains(".o_field_widget[name='color'] input").edit("", { confirm: "blur" });
+    await animationFrame();
+
+    expect(".o_field_widget[name='color'] input").toHaveValue("Red");
 });

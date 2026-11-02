@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 
@@ -37,27 +36,24 @@ Ask questions, get answers, no distractions
 
         'views/base_contact_templates.xml',
         'views/forum_forum_templates.xml',
+        'views/forum_forum_templates_follow.xml',
         'views/forum_forum_templates_forum_all.xml',
         'views/forum_forum_templates_layout.xml',
         'views/forum_forum_templates_moderation.xml',
         'views/forum_forum_templates_post.xml',
         'views/forum_forum_templates_tools.xml',
-        'views/forum_templates_mail.xml',
         'views/website_profile_templates.xml',
-
-        'security/ir.model.access.csv',
-        'security/ir_rule_data.xml',
 
         'data/gamification_badge_data_question.xml',
         'data/gamification_badge_data_answer.xml',
         'data/gamification_badge_data_participation.xml',
         'data/gamification_badge_data_moderation.xml',
+        'security/ir.access.csv',
     ],
     'demo': [
         'data/forum_tag_demo.xml',
         'data/forum_post_demo.xml',
     ],
-    'installable': True,
     'assets': {
         'website.assets_editor': [
             'website_forum/static/src/js/systray_items/*.js',

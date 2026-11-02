@@ -1,13 +1,12 @@
 import { registry } from "@web/core/registry";
 import { stepUtils } from "@web_tour/tour_utils";
 import configuratorTourUtils from "@sale/js/tours/product_configurator_tour_utils";
-import tourUtils from "@sale/js/tours/tour_utils";
+import * as tourUtils from "@sale/js/tours/tour_utils";
 
 // Note: please keep this test without pricelist for maximum coverage.
 // The pricelist is tested on the other tours.
 
 registry.category("web_tour.tours").add('sale_product_configurator_tour', {
-    url: '/odoo',
     steps: () => [
         ...stepUtils.goToAppSteps("sale.sale_menu_root", "Go to the Sales App"),
         ...tourUtils.createNewSalesOrder(),
@@ -25,14 +24,14 @@ registry.category("web_tour.tours").add('sale_product_configurator_tour', {
             trigger: '.o_sale_product_configurator_table tr:has(td>div[name="o_sale_product_configurator_name"] span:contains("Customizable Desk")) span[name="sale_product_configurator_formatted_price"]:contains("800.40")',
         },
         {
-            trigger: 'label[style="background-color:#000000"] input:not(:visible)',
+            trigger: 'label[style*="rgb(0, 0, 0)"] input:not(:visible)',
             run: "click",
         },
         {
             trigger: '.btn-primary:disabled:contains("Confirm")',
         },
         {
-            trigger: 'label[style="background-color:#FFFFFF"] input:not(:visible)',
+            trigger: 'label[style*="rgb(255, 255, 255)"] input:not(:visible)',
             run: "click",
         },
         {
@@ -48,6 +47,7 @@ registry.category("web_tour.tours").add('sale_product_configurator_tour', {
         configuratorTourUtils.addOptionalProduct("Conference Chair (TEST)"),
         configuratorTourUtils.addOptionalProduct("Chair floor protection (TEST)"),
         ...configuratorTourUtils.saveConfigurator(),
+        ...tourUtils.clickSomewhereElse(),
         // check that 3 products were added to the SO
         {
             trigger: 'td.o_data_cell:contains("Customizable Desk (TEST) (Aluminium, White)")',

@@ -95,8 +95,9 @@ def make_suite(module_names, position='at_install'):
     :param list[str] module_names: modules to load tests from
     :param str position: "at_install" or "post_install"
     """
-    config_tags = TagsSelector(tools.config['test_tags'])
-    position_tag = TagsSelector(position)
+    available_modules = module_names if position == 'post_install' else None
+    config_tags = TagsSelector(tools.config['test_tags'], available_modules)
+    position_tag = TagsSelector(position, available_modules)
     tests = (
         t
         for module_name in module_names
@@ -108,12 +109,6 @@ def make_suite(module_names, position='at_install'):
 
 
 def run_suite(suite, global_report=None):
-    # avoid dependency hell
-    from ..modules import module
-    module.current_test = True
-
     results = OdooTestResult(global_report=global_report)
     suite(results)
-
-    module.current_test = False
     return results

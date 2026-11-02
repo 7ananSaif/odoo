@@ -2,6 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import hashlib
+import re
 from collections import OrderedDict
 from werkzeug.urls import url_quote
 from markupsafe import Markup
@@ -54,6 +55,47 @@ class IrQwebFieldImage(models.AbstractModel):
 
         return src, src_zoom
 
+    def _get_srcset(self, record, field_name, options):
+        srcset = []
+        size_list = ('128', '256', '512', '1024', '1920')
+
+        if not field_name.endswith(size_list):
+            return None
+
+        if not field_name.startswith('image'):
+            return None
+
+        # Delete the number (size) at the end of the field name
+        tmp_field_name = re.sub(r'_\d+$', '', field_name)
+
+        # get maximum size of the image
+        selected_image = options.get('preview_image') or field_name
+        max_size = selected_image.split('_')[-1]
+        if not max_size.isdigit():
+            max_size = field_name.split('_')[-1]
+
+        for size in size_list:
+            if int(size) > int(max_size):
+                break
+
+            tmp_preview_image = tmp_field_name + '_' + size
+            if tmp_preview_image not in record._fields:
+                continue
+
+            preview_options = dict(options, preview_image=tmp_preview_image)
+            if options.get('qweb_img_raw_data', False):
+                value = record[tmp_preview_image]
+                if not value:
+                    continue
+                src = self._get_src_data_b64(value, preview_options)
+            else:
+                src = self._get_src_urls(record, field_name, preview_options)[0]
+
+            srcset.append('%s %sw' % (src, size))
+
+        srcset = ', '.join(srcset)
+        return srcset
+
     @api.model
     def record_to_html(self, record, field_name, options):
         assert options['tagName'] != 'img',\
@@ -64,7 +106,7 @@ class IrQwebFieldImage(models.AbstractModel):
         src = src_zoom = None
         if options.get('qweb_img_raw_data', False):
             value = record[field_name]
-            if value is False:
+            if not value:
                 return False
             src = self._get_src_data_b64(value, options)
         else:
@@ -76,7 +118,7 @@ class IrQwebFieldImage(models.AbstractModel):
 
         if options.get('alt-field') and options['alt-field'] in record and record[options['alt-field']]:
             alt = escape(record[options['alt-field']])
-        elif options.get('alt'):
+        elif options.get('alt') is not None:
             alt = options['alt']
         else:
             alt = escape(record.display_name)
@@ -85,8 +127,12 @@ class IrQwebFieldImage(models.AbstractModel):
         if options.get('itemprop'):
             itemprop = options['itemprop']
 
+        srcset = self._get_srcset(record, field_name, options)
         atts = OrderedDict()
         atts["src"] = src
+        if srcset:
+            atts["srcset"] = srcset
+
         atts["itemprop"] = itemprop
         atts["class"] = classes
         atts["style"] = options.get('style')
@@ -101,7 +147,7 @@ class IrQwebFieldImage(models.AbstractModel):
 
         img = ['<img']
         for name, value in atts.items():
-            if value:
+            if value is not None:
                 img.append(' ')
                 img.append(escape(name))
                 img.append('="')

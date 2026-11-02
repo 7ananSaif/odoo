@@ -12,6 +12,7 @@ from odoo.addons.base_setup.controllers.main import BaseSetup
 from odoo.exceptions import UserError
 from odoo.tools.translate import LazyTranslate
 from odoo.http import request
+from odoo.http.session import authenticate
 from markupsafe import Markup
 
 _lt = LazyTranslate(__name__)
@@ -60,7 +61,15 @@ class AuthSignupHome(Home):
                 )
                 template = request.env.ref('auth_signup.mail_template_user_signup_account_created', raise_if_not_found=False)
                 if user_sudo and template:
-                    template.sudo().send_mail(user_sudo.id, force_send=True)
+                    template.sudo().with_context(
+                        email_notification_force_header=True,
+                        email_notification_force_footer=True,
+                        email_notification_subtitles=[_lt("Your Account"), user_sudo.name or ''],
+                    ).send_mail_batch(
+                        user_sudo.ids,
+                        force_send=True,
+                        email_layout_xmlid='mail.mail_notification_layout',
+                    )
                 request.update_context(skip_captcha_login=SKIP_CAPTCHA_LOGIN)
                 return self.web_login(*args, **kw)
             except UserError as e:
@@ -126,11 +135,10 @@ class AuthSignupHome(Home):
     def get_auth_signup_config(self):
         """retrieve the module config (which features are enabled) for the login page"""
 
-        get_param = request.env['ir.config_parameter'].sudo().get_param
         return {
             'disable_database_manager': not tools.config['list_db'],
             'signup_enabled': request.env['res.users']._get_signup_invitation_scope() == 'b2c',
-            'reset_password_enabled': get_param('auth_signup.reset_password') == 'True',
+            'reset_password_enabled': request.env['ir.config_parameter'].sudo().get_bool('auth_signup.reset_password'),
         }
 
     def get_auth_signup_qcontext(self):
@@ -150,12 +158,15 @@ class AuthSignupHome(Home):
                 qcontext['invalid_token'] = True
         return qcontext
 
-    def _prepare_signup_values(self, qcontext):
+    def _prepare_signup_values(self, qcontext, *, validate_email=False):
         values = { key: qcontext.get(key) for key in ('login', 'name', 'password') }
         if not values:
             raise UserError(_("The form was not properly filled in."))
         if values.get('password') != qcontext.get('confirm_password'):
             raise UserError(_("Passwords do not match; please retype them."))
+        login = values.get('login')
+        if validate_email and not (login and tools.single_email_re.match(login)):
+            raise UserError(_("Invalid email; please enter a valid email address."))
         supported_lang_codes = [code for code, _ in request.env['res.lang'].get_installed()]
         lang = request.env.context.get('lang', '')
         if lang in supported_lang_codes:
@@ -164,7 +175,9 @@ class AuthSignupHome(Home):
 
     def do_signup(self, qcontext, do_login=True):
         """ Shared helper that creates a res.partner out of a token """
-        values = self._prepare_signup_values(qcontext)
+        # do_login = True only when calling from the signup page, that is when
+        # we want to validate the email address entered by the user
+        values = self._prepare_signup_values(qcontext, validate_email=do_login)
         self._signup_with_values(qcontext.get('token'), values, do_login)
         request.env.cr.commit()
 
@@ -172,7 +185,16 @@ class AuthSignupHome(Home):
         login, password = request.env['res.users'].sudo().signup(values, token)
         credential = {'login': login, 'password': password, 'type': 'password'}
         if do_login:
-            request.session.authenticate(request.env, credential)
+            authenticate(request.session, request.env, credential)
+
+    @http.route(["/.well-known/change-password"], type="http", auth="public", methods=["GET"])
+    def well_known_change_password(self):
+        """Redirect to the password reset form.
+
+        Implements the Change Password URL specification:
+        https://wicg.github.io/change-password-url/
+        """
+        return request.redirect("/web/reset_password")
 
 class AuthBaseSetup(BaseSetup):
     @http.route()

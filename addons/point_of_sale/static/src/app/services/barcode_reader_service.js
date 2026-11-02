@@ -8,18 +8,16 @@ import { GS1BarcodeError } from "@barcodes_gs1_nomenclature/js/barcode_parser";
 import { logPosMessage } from "../utils/pretty_console_log";
 
 export class BarcodeReader {
-    static serviceDependencies = ["dialog", "hardware_proxy", "notification", "action", "orm"];
-    constructor(parser, { dialog, hardware_proxy, notification, action, orm }) {
+    constructor(parser, services) {
+        this.setup(...arguments);
+    }
+
+    setup(parser, { dialog, notification, action, orm }) {
         this.parser = parser;
         this.dialog = dialog;
         this.action = action;
         this.orm = orm;
-        this.hardwareProxy = hardware_proxy;
         this.notification = notification;
-        this.setup();
-    }
-
-    setup() {
         this.mutex = new Mutex();
         this.cbMaps = new Set();
         // FIXME POSREF: When LoginScreen becomes a normal screen, we can remove this exclusive callback handling.
@@ -117,36 +115,10 @@ export class BarcodeReader {
             }
         );
     }
-
-    // the barcode scanner will listen on the hw_proxy/scanner interface for
-    // scan events until disconnectFromProxy is called
-    connectToProxy() {
-        this.remoteScanning = true;
-        if (this.remoteActive >= 1) {
-            return;
-        }
-        this.remoteActive = 1;
-        this.waitForBarcode();
-    }
-
-    async waitForBarcode() {
-        const barcode = await this.hardwareProxy.message("scanner").catch(() => {});
-        if (!this.remoteScanning) {
-            this.remoteActive = 0;
-            return;
-        }
-        this.scan(barcode);
-        this.waitForBarcode();
-    }
-
-    // the barcode scanner will stop listening on the hw_proxy/scanner remote interface
-    disconnectFromProxy() {
-        this.remoteScanning = false;
-    }
 }
 
 export const barcodeReaderService = {
-    dependencies: [...BarcodeReader.serviceDependencies, "dialog", "barcode", "orm"],
+    dependencies: ["dialog", "barcode", "notification", "action", "orm"],
     async start(env, deps) {
         const { dialog, barcode, orm } = deps;
         let barcodeReader = null;
@@ -187,7 +159,7 @@ export const barcodeReaderService = {
                 dialog.add(AlertDialog, {
                     title: _t("Unable to parse barcode"),
                     body: _t(
-                        "No barcode nomenclature has been configured. This can be changed in the configuration settings."
+                        "It seems that no barcode nomenclature is set in your point of sale. You can add it in the settings of your shop."
                     ),
                 });
             }

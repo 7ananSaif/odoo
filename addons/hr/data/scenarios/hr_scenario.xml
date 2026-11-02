@@ -15,14 +15,14 @@
         <record id="job_consultant" model="hr.job" forcecreate="1">
             <field name="name">Consultant</field>
             <field name="no_of_recruitment">5</field>
-            <field name="contract_type_id" ref="hr.contract_type_interim"/>
+            <field name="employee_type_id" eval="ref('hr.contract_type_interim', raise_if_not_found=False)"/>
             <field name="description">We are currently looking for someone like that to join our Consultant team.</field>
         </record>
         <record id="job_developer" model="hr.job" forcecreate="1">
             <field name="name">Experienced Developer</field>
             <field name="department_id" ref="hr.dep_rd"/>
             <field name="no_of_recruitment">5</field>
-            <field name="contract_type_id" ref="hr.contract_type_permanent"/>
+            <field name="employee_type_id" eval="ref('hr.contract_type_employee', raise_if_not_found=False)"/>
             <field name="description">We are currently looking for someone like that to join our Web team.
                 Someone who can snap out of coding and perform analysis or meet clients to explain the technical
                 possibilities that can meet their needs.</field>
@@ -52,7 +52,7 @@
                 Result driven.
                 Excellent analytical skills, ability to think logically and "out of the box"
             </field>
-            <field name="contract_type_id" ref="hr.contract_type_permanent"/>
+            <field name="employee_type_id" eval="ref('hr.contract_type_employee', raise_if_not_found=False)"/>
         </record>
 
         <!-- Employee category -->
@@ -73,7 +73,7 @@
         <record id="work_contact_eg" model="res.partner" forcecreate="1">
             <field name="name">Emma Granger</field>
             <field name="email">granger@mycompany.example.com</field>
-            <field name="image_1920" type="base64" file="hr/static/img/employee_awa-image.jpg"/>
+            <field name="image_1920" type="bytes" file="hr/static/img/employee_awa-image.webp"/>
             <field name="street">260 Broadway</field>
             <field name="city">New York</field>
             <field name="state_id"  model="res.country.state" search="[('code','=','NY')]"/>
@@ -86,7 +86,7 @@
         <record id="work_contact_mw" model="res.partner" forcecreate="1">
             <field name="name">Michael Williams</field>
             <field name="email">williams@mycompany.example.com</field>
-            <field name="image_1920" type="base64" file="hr/static/img/partner_root-image.jpg"/>
+            <field name="image_1920" type="bytes" file="hr/static/img/employee_admin-image.webp"/>
             <field name="street">260 RoadStreet</field>
             <field name="city">New York</field>
             <field name="state_id"  model="res.country.state" search="[('code','=','NY')]"/>
@@ -99,7 +99,7 @@
         <record id="work_contact_sj" model="res.partner" forcecreate="1">
             <field name="name">Simon Jones</field>
             <field name="email">jones@mycompany.example.com</field>
-            <field name="image_1920" type="base64" file="hr/static/img/employee_qdp-image.png"/>
+            <field name="image_1920" type="bytes" file="hr/static/img/employee_qdp-image.webp"/>
             <field name="street">260 Broadway</field>
             <field name="city">New York</field>
             <field name="state_id"  model="res.country.state" search="[('code','=','NY')]"/>
@@ -121,14 +121,15 @@
             <field name="private_country_id" ref="base.us"/>
             <field name="private_phone">+1 555-555-5757</field>
             <field name="work_email">williams@mycompany.example.com</field>
-            <field name="department_id" ref="hr.dep_administration"/>
+            <field name="department_id" eval="ref('hr.dep_administration', raise_if_not_found=False)"/>
             <field name="job_id" ref="job_ceo"/>
             <field name="job_title">Chief Executive Officer</field>
             <field name="category_ids" eval="[Command.set([ref('employee_category_4'), ref('employee_category_demo')])]"/>
-            <field name="image_1920" type="base64" file="hr/static/img/partner_root-image.jpg"/>
+            <field name="image_1920" type="bytes" file="hr/static/img/employee_admin-image.webp"/>
             <field name="work_phone">(555)-768-6230</field>
             <field name="mobile_phone">(555)-768-6235</field>
             <field name="work_contact_id" ref="work_contact_mw"/>
+            <field name="employee_type_id" eval="ref('hr.contract_type_employee', raise_if_not_found=False)"/>
         </record>
         <record id="employee_eg" model="hr.employee" forcecreate="1">
             <field name="active">True</field>
@@ -145,12 +146,13 @@
             <field name="job_id" ref="job_consultant"/>
             <field name="job_title">Consultant</field>
             <field name="category_ids" eval="[Command.set([ref('employee_category_5'), ref('employee_category_demo')])]"/>
-            <field name="image_1920" type="base64" file="hr/static/img/employee_awa-image.jpg"/>
+            <field name="image_1920" type="bytes" file="hr/static/img/employee_awa-image.webp"/>
             <field name="work_phone">(555)-768-6230</field>
             <field name="mobile_phone">(555)-768-6235</field>
             <field name="work_contact_id" ref="work_contact_eg"/>
             <field name="coach_id" ref="employee_mw"/>
             <field name="parent_id" ref="employee_mw"/>
+            <field name="employee_type_id" eval="ref('hr.contract_type_employee', raise_if_not_found=False)"/>
         </record>
         <record id="employee_sj" model="hr.employee" forcecreate="1">
             <field name="active">True</field>
@@ -166,12 +168,13 @@
             <field name="job_id" ref="job_developer"/>
             <field name="job_title">Experienced Developer</field>
             <field name="category_ids" eval="[Command.set([ref('employee_category_4'), ref('employee_category_demo')])]"/>
-            <field name="image_1920" type="base64" file="hr/static/img/employee_qdp-image.png"/>
+            <field name="image_1920" type="bytes" file="hr/static/img/employee_qdp-image.webp"/>
             <field name="work_phone">(555)-768-6230</field>
             <field name="mobile_phone">(555)-768-6235</field>
             <field name="work_contact_id" ref="work_contact_sj"/>
             <field name="coach_id" ref="employee_mw"/>
             <field name="parent_id" ref="employee_mw"/>
+            <field name="employee_type_id" eval="ref('hr.contract_type_employee', raise_if_not_found=False)"/>
         </record>
     </data>
 </odoo>

@@ -12,6 +12,9 @@ const CarouselSliderEdit = (I) =>
                 "t-on-focusin": () => {},
                 "t-on-focusout": () => {},
             },
+            ".o_carousel_pause": {
+                "t-on-click": () => {},
+            },
         };
         // Pause carousel in edit mode.
         carouselOptions = { ride: false, pause: true, keyboard: false };
@@ -22,9 +25,7 @@ const CarouselSliderEdit = (I) =>
             patchDynamicContentEntry(this.dynamicContent, "_root", "t-att-data-bs-ride", undefined);
             super.setup();
         }
-        onContentChanged() {
-            this.computeMaxHeight();
-        }
+
         start() {
             super.start();
             // Monitor carousel size changes to update maxHeight
@@ -35,6 +36,10 @@ const CarouselSliderEdit = (I) =>
             );
             resizeObserver.observe(this.el);
             this.registerCleanup(() => resizeObserver.unobserve(this.el));
+        }
+
+        onContentChanged() {
+            this.computeMaxHeight();
         }
     };
 

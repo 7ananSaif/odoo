@@ -1,9 +1,7 @@
 import { registry } from "@web/core/registry";
 import { _t } from "@web/core/l10n/translation";
-import { computeComboItems } from "./utils/compute_combo_items";
-import { localization } from "@web/core/l10n/localization";
-import { formatDate, serializeDateTime } from "@web/core/l10n/dates";
 import { PosOrderAccounting } from "./accounting/pos_order_accounting";
+import { getStrNotes } from "./utils/order_change";
 
 const { DateTime } = luxon;
 
@@ -33,23 +31,7 @@ export class PosOrder extends PosOrderAccounting {
         this.name = vals.name || "/";
         this.nb_print = vals.nb_print || 0;
         this.to_invoice = vals.to_invoice || false;
-        this.setShippingDate(vals.shipping_date);
         this.state = vals.state || "draft";
-
-        if (!vals.last_order_preparation_change) {
-            this.last_order_preparation_change = {
-                lines: {},
-                metadata: {},
-                general_customer_note: "",
-                internal_note: "",
-                sittingMode: 0,
-            };
-        } else {
-            this.last_order_preparation_change =
-                typeof vals.last_order_preparation_change === "object"
-                    ? vals.last_order_preparation_change
-                    : JSON.parse(vals.last_order_preparation_change);
-        }
 
         this.general_customer_note = vals.general_customer_note || "";
         this.internal_note = vals.internal_note || "";
@@ -70,8 +52,6 @@ export class PosOrder extends PosOrderAccounting {
         super.initState();
         // !!Keep all uiState in one object!!
         this.uiState = {
-            unmerge: {},
-            lastPrints: [],
             lineToRefund: {},
             displayed: this.state !== "cancel",
             booked: false,
@@ -83,6 +63,9 @@ export class PosOrder extends PosOrderAccounting {
                 inputTipAmount: "",
             },
             requiredPartnerDetails: {},
+            tip: { value: false, type: false },
+            last_general_customer_note: this.general_customer_note || "",
+            last_internal_note: this.internal_note || "",
         };
     }
 
@@ -95,19 +78,23 @@ export class PosOrder extends PosOrderAccounting {
     }
 
     get config() {
-        return this.models["pos.config"].getFirst();
+        return this.models["pos.config"].get(odoo.pos_config_id);
     }
 
     get currency() {
         return this.config.currency_id;
     }
 
-    get pickingType() {
-        return this.models["stock.picking.type"].getFirst();
+    get orderCurrency() {
+        if (this.payment_ids.length === 0) {
+            return this.currency;
+        }
+
+        return this.payment_ids[0].currency;
     }
 
     get session() {
-        return this.models["pos.session"].getFirst();
+        return this.models["pos.session"].get(odoo.pos_session_id);
     }
 
     get finalized() {
@@ -118,8 +105,20 @@ export class PosOrder extends PosOrderAccounting {
         return (this.finalized && this.isSynced) || this.state === "cancel";
     }
 
-    get totalQuantity() {
-        return this.lines.reduce((sum, line) => sum + line.getQuantity(), 0);
+    get totalItemQuantity() {
+        return this.lines.reduce((sum, line) => {
+            if (this._isItemCountExcludedLine(line)) {
+                return sum;
+            } else if (line.getUnit()?.is_pos_groupable) {
+                return sum + line.getQuantity();
+            } else {
+                return sum + 1;
+            }
+        }, 0);
+    }
+
+    _isItemCountExcludedLine(line) {
+        return line.combo_line_ids?.length;
     }
 
     get isUnsyncedPaid() {
@@ -131,7 +130,7 @@ export class PosOrder extends PosOrderAccounting {
     }
 
     get presetDate() {
-        return this.preset_time?.toFormat(localization.dateFormat) || "";
+        return this.formatDateOrTime("preset_time", "date");
     }
 
     get isFutureDate() {
@@ -139,8 +138,8 @@ export class PosOrder extends PosOrderAccounting {
     }
 
     get presetTime() {
-        return this.preset_time && this.preset_time.isValid
-            ? this.preset_time.toFormat("HH:mm")
+        return this.preset_id && this.preset_time && this.preset_time.isValid
+            ? this.formatDateOrTime("preset_time", "time")
             : false;
     }
 
@@ -151,8 +150,8 @@ export class PosOrder extends PosOrderAccounting {
     get presetDateTime() {
         return this.preset_time?.isValid
             ? this.preset_time.hasSame(this.date_order, "day")
-                ? this.preset_time.toFormat(localization.timeFormat)
-                : this.preset_time.toFormat(`${localization.dateFormat} ${localization.timeFormat}`)
+                ? this.formatDateOrTime("preset_time", "time")
+                : this.formatDateOrTime("preset_time")
             : false;
     }
 
@@ -160,13 +159,13 @@ export class PosOrder extends PosOrderAccounting {
         if (this.partner_id) {
             return false;
         }
-        const splitPayment = this.payment_ids.some(
-            (payment) => payment.payment_method_id.split_transactions
+        const payLater = this.payment_ids.some(
+            (payment) => payment.payment_method_id.type == "pay_later"
         );
         const invalidPartnerPreset =
             (this.preset_id?.needsName && !this.floating_order_name) ||
             this.preset_id?.needsPartner;
-        return invalidPartnerPreset || this.isToInvoice() || Boolean(splitPayment);
+        return invalidPartnerPreset || this.isToInvoice() || Boolean(payLater);
     }
 
     get presetRequirementsFilled() {
@@ -197,6 +196,14 @@ export class PosOrder extends PosOrderAccounting {
         return this.is_refund === true;
     }
 
+    get isSelfOrder() {
+        return this.source === "mobile" || this.source === "kiosk";
+    }
+
+    get adjustableTipLine() {
+        return this.payment_ids.find((p) => p.canBeAdjusted());
+    }
+
     setPreset(preset) {
         this.setPricelist(preset.pricelist_id || this.config.pricelist_id);
         this.fiscal_position_id =
@@ -221,63 +228,13 @@ export class PosOrder extends PosOrderAccounting {
     get hasChange() {
         return this.lines.some((l) => l.uiState.hasChange);
     }
-    /**
-     * This function is called after the order has been successfully sent to the preparation tool(s).
-     * In the future, this status should be separated between the different preparation tools,
-     * so that if one of them returns an error, it is possible to send the information back to it
-     * without impacting the other tools.
-     */
-    updateLastOrderChange() {
-        const orderlineIdx = [];
-        this.lines.forEach((line) => {
-            orderlineIdx.push(line.preparationKey);
-
-            if (this.last_order_preparation_change.lines[line.preparationKey]) {
-                this.last_order_preparation_change.lines[line.preparationKey] = {
-                    ...this.last_order_preparation_change.lines[line.preparationKey],
-                    quantity: line.getQuantity(),
-                    note: line.getNote(),
-                    customer_note: line.getCustomerNote(),
-                };
-            } else {
-                this.last_order_preparation_change.lines[line.preparationKey] = {
-                    attribute_value_names: line.attribute_value_ids.map((a) => a.name),
-                    uuid: line.uuid,
-                    isCombo: Boolean(line?.combo_line_ids?.length),
-                    combo_parent_uuid: line?.combo_parent_id?.uuid,
-                    product_id: line.getProduct().id,
-                    name: line.getFullProductName(),
-                    basic_name: line.getProduct().name,
-                    display_name: line.getProduct().display_name,
-                    note: line.getNote(),
-                    quantity: line.getQuantity(),
-                    customer_note: line.getCustomerNote(),
-                };
-            }
-            line.setHasChange(false);
-            line.uiState.savedQuantity = line.getQuantity();
-        });
-        // Checks whether an orderline has been deleted from the order since it
-        // was last sent to the preparation tools or updated. If so we delete older changes.
-        for (const [key, change] of Object.entries(this.last_order_preparation_change.lines)) {
-            const orderline = this.models["pos.order.line"].getBy("uuid", change.uuid);
-            const lineNote = orderline?.note;
-            const changeNote = change?.note;
-            if (!orderline || (lineNote && changeNote && changeNote.trim() !== lineNote.trim())) {
-                delete this.last_order_preparation_change.lines[key];
-            }
-        }
-        this.last_order_preparation_change.general_customer_note = this.general_customer_note;
-        this.last_order_preparation_change.internal_note = this.internal_note;
-        this.last_order_preparation_change.sittingMode = this.preset_id?.id || 0;
-        this.last_order_preparation_change.metadata = {
-            serverDate: serializeDateTime(DateTime.now()),
-        };
-        this._markDirty();
-    }
 
     isEmpty() {
         return this.lines.length === 0;
+    }
+
+    isEmptyOrder() {
+        return this.getOrderlines().length === 0 && this.payment_ids.length === 0;
     }
 
     updateSavedQuantity() {
@@ -285,7 +242,7 @@ export class PosOrder extends PosOrderAccounting {
     }
 
     assertEditable() {
-        if (this.finalized) {
+        if (this.finalized && (this.nb_print || this.state == "done")) {
             throw new Error("Finalized Order cannot be modified");
         }
         return true;
@@ -321,89 +278,88 @@ export class PosOrder extends PosOrderAccounting {
         }
     }
 
+    setTip(amount, tipType, tipValue) {
+        this.is_tipped = !!amount;
+        this.tip_amount = amount || false;
+        this.uiState.tip.type = tipType || false;
+        this.uiState.tip.value = tipValue || amount || false;
+    }
+
     setPricelist(pricelist) {
         this.pricelist_id = pricelist ? pricelist : false;
-
         const lines_to_recompute = this.getLinesToCompute();
-
         for (const line of lines_to_recompute) {
-            if (line.isLotTracked()) {
-                const related_lines = [];
-                const price = line.product_id.product_tmpl_id.getPrice(
-                    pricelist,
-                    line.getQuantity(),
-                    line.getPriceExtra(),
-                    false,
-                    line.product_id,
-                    line,
-                    related_lines
-                );
-                related_lines.forEach((line) => line.setUnitPrice(price));
-            } else {
-                const newPrice = line.product_id.product_tmpl_id.getPrice(
-                    pricelist,
-                    line.getQuantity(),
-                    line.getPriceExtra(),
-                    false,
-                    line.product_id
-                );
-                line.setUnitPrice(newPrice);
-            }
+            this.setLinePriceFromPriceList(line, pricelist);
         }
-
         const attributes_prices = {};
         const combo_parent_lines = this.lines.filter(
             (line) => line.price_type === "original" && line.combo_line_ids?.length
         );
         for (const pLine of combo_parent_lines) {
             const { childLineFree, childLineExtra } = this.getFreeAndExtraChildLines(pLine);
-            attributes_prices[pLine.id] = computeComboItems(
-                pLine.product_id,
+            attributes_prices[pLine.uuid] = pLine.product_id.getComboPrice(
                 childLineFree,
-                pricelist,
-                this.models["decimal.precision"].getAll(),
-                this.models["product.template.attribute.value"].getAllBy("id"),
                 childLineExtra,
-                this.config_id.currency_id
+                pricelist
             );
         }
         const combo_children_lines = this.lines.filter(
             (line) => line.price_type === "original" && line.combo_parent_id
         );
         combo_children_lines.forEach((line) => {
-            const currentItem = attributes_prices[line.combo_parent_id.id].find(
+            const currentItem = attributes_prices[line.combo_parent_id.uuid].find(
                 (item) => item.combo_item_id.id === line.combo_item_id.id
             );
             line.setUnitPrice(currentItem.price_unit);
             // Removing to be able to have extras that are the same as free products
-            attributes_prices[line.combo_parent_id.id].splice(
-                attributes_prices[line.combo_parent_id.id].indexOf(currentItem),
+            attributes_prices[line.combo_parent_id.uuid].splice(
+                attributes_prices[line.combo_parent_id.uuid].indexOf(currentItem),
                 1
             );
         });
+    }
+
+    setLinePriceFromPriceList(line, pricelist) {
+        const newPrice = line.product_id.product_tmpl_id.getPrice(
+            pricelist,
+            line.getQuantity(),
+            line.getPriceExtra(),
+            false,
+            line.product_id
+        );
+        line.setUnitPrice(newPrice);
     }
 
     getFreeAndExtraChildLines(pLine) {
         const childLineFree = [];
         const childLineExtra = [];
         const comboRemainingFree = {};
+        const parentQty = pLine.getQuantity() || 1;
+
         for (const cLine of pLine.combo_line_ids) {
-            if (!(cLine.combo_item_id.combo_id.id in comboRemainingFree)) {
-                comboRemainingFree[cLine.combo_item_id.combo_id.id] =
-                    cLine.combo_item_id.combo_id.qty_free * pLine.qty;
+            const comboId = cLine.combo_item_id.combo_id.id;
+
+            if (!(comboId in comboRemainingFree)) {
+                comboRemainingFree[comboId] = cLine.combo_item_id.combo_id.qty_free * parentQty;
             }
-            const newQty = comboRemainingFree[cLine.combo_item_id.combo_id.id] - cLine.qty;
+
+            const childQty = cLine.getQuantity();
+            if (childQty <= 0) {
+                continue;
+            }
+
+            const newQty = comboRemainingFree[comboId] - childQty;
             const baseData = { combo_item_id: cLine.combo_item_id };
+
             if (cLine.attribute_value_ids) {
                 baseData.configuration = { attribute_value_ids: cLine.attribute_value_ids };
             }
-            if (cLine.qty) {
-                if (newQty >= 0) {
-                    comboRemainingFree[cLine.combo_item_id.combo_id.id] = newQty;
-                    childLineFree.push({ ...baseData, qty: cLine.qty, parentQty: pLine.qty });
-                } else {
-                    childLineExtra.push({ ...baseData, qty: cLine.qty });
-                }
+
+            if (newQty >= 0) {
+                comboRemainingFree[comboId] = newQty;
+                childLineFree.push({ ...baseData, qty: childQty / parentQty });
+            } else {
+                childLineExtra.push({ ...baseData, qty: childQty / parentQty });
             }
         }
         return { childLineFree, childLineExtra };
@@ -416,8 +372,19 @@ export class PosOrder extends PosOrderAccounting {
      * @param {Orderline} line
      * @returns {boolean} true if the line was removed, false otherwise
      */
-    removeOrderline(line) {
-        const linesToRemove = line.getAllLinesInCombo();
+    removeOrderline(line, deep = true) {
+        // Remove tip
+        if (this.config.iface_tipproduct && this.config.tip_product_id.id === line.product_id.id) {
+            this.setTip(false);
+        }
+
+        let linesToRemove = [];
+        if (deep) {
+            linesToRemove = line.getAllLinesInCombo();
+        } else {
+            linesToRemove = [line];
+        }
+
         for (const lineToRemove of linesToRemove) {
             if (lineToRemove.refunded_orderline_id?.uuid in this.uiState.lineToRefund) {
                 delete this.uiState.lineToRefund[lineToRemove.refunded_orderline_id.uuid];
@@ -463,30 +430,29 @@ export class PosOrder extends PosOrderAccounting {
     }
 
     /* ---- Payment Lines --- */
-    addPaymentline(payment_method) {
+    addPaymentline(payment_method, args = {}) {
         this.assertEditable();
 
-        if (this.electronicPaymentInProgress()) {
-            return {
-                status: false,
-                data: _t("There is already an electronic payment in progress."),
-            };
+        const { status: canSend, message } = payment_method.getPaymentInterfaceStates();
+        if (!canSend) {
+            return { status: false, data: message, size: "sm" };
         }
-
         const totalAmountDue = this.getDefaultAmountDueToPayIn(payment_method);
         const newPaymentLine = this.models["pos.payment"].create({
             pos_order_id: this,
             payment_method_id: payment_method,
+            foreign_currency_id: args.currency,
         });
         this.selectPaymentline(newPaymentLine);
         newPaymentLine.setAmount(totalAmountDue);
 
-        if (
-            (payment_method.payment_terminal && !this.isRefund) ||
-            payment_method.payment_method_type === "qr_code"
-        ) {
+        if ((payment_method.payment_interface && !this.isRefund) || payment_method.useBankQrCode) {
             newPaymentLine.setPaymentStatus("pending");
         }
+        if (payment_method.type === "pay_later") {
+            this.setToInvoice(true);
+        }
+
         return { status: true, data: newPaymentLine };
     }
 
@@ -508,21 +474,7 @@ export class PosOrder extends PosOrderAccounting {
     }
 
     selectPaymentline(line) {
-        if (line) {
-            this.uiState.selected_paymentline_uuid = line?.uuid;
-        } else {
-            this.uiState.selected_paymentline_uuid = undefined;
-        }
-    }
-
-    electronicPaymentInProgress() {
-        return this.payment_ids.some(function (pl) {
-            if (pl.payment_status) {
-                return !["done", "reversed"].includes(pl.payment_status);
-            } else {
-                return false;
-            }
-        });
+        this.uiState.selected_paymentline_uuid = line?.uuid;
     }
 
     _getIgnoredProductIdsTotalDiscount() {
@@ -551,22 +503,25 @@ export class PosOrder extends PosOrderAccounting {
         );
     }
 
-    isPaid() {
-        return this.orderHasZeroRemaining;
+    toBeValidate() {
+        // Return true if order has payment lines and no due is remaining.
+        if (this.payment_ids.length > 0) {
+            return this.orderHasZeroRemaining;
+        }
+        // Check if multiple payment methods are configured.
+        return this.config_id.payment_method_ids.length;
     }
 
     isRefundInProcess() {
         return (
             this.isRefund &&
-            this.payment_ids.some(
-                (pl) => pl.payment_method_id.payment_terminal && pl.payment_status !== "done"
-            )
+            this.payment_ids.some((pl) => pl.payment_provider && pl.payment_status !== "done")
         );
     }
 
     isPaidWithCash() {
         return !!this.payment_ids.find(function (pl) {
-            return pl.payment_method_id.is_cash_count;
+            return pl.payment_method_id.type === "cash";
         });
     }
 
@@ -602,7 +557,8 @@ export class PosOrder extends PosOrderAccounting {
     }
 
     getPartnerName() {
-        return this.partner_id ? this.partner_id.name : "";
+        // An address contact may have no name of its own.
+        return this.partner_id?.name || this.partner_id?.parent_name || "";
     }
 
     getCardHolderName() {
@@ -662,8 +618,11 @@ export class PosOrder extends PosOrderAccounting {
         );
 
         if (newPartner) {
-            newPartnerFiscalPosition =
-                this.findFiscalPosition(newPartner.fiscal_position_id) || defaultFiscalPosition;
+            const partnerFiscalPosition = this.findFiscalPosition(newPartner.fiscal_position_id);
+            const isFpAllowed =
+                partnerFiscalPosition &&
+                this.config.fiscal_position_ids.some((fp) => fp.id === partnerFiscalPosition.id);
+            newPartnerFiscalPosition = isFpAllowed ? partnerFiscalPosition : defaultFiscalPosition;
             newPartnerPricelist =
                 this.config.available_pricelist_ids.find(
                     (pricelist) => pricelist.id === newPartner.property_product_pricelist?.id
@@ -680,16 +639,6 @@ export class PosOrder extends PosOrderAccounting {
         if (!this.config.use_presets || !this.preset_id?.pricelist_id) {
             this.setPricelist(newPartnerPricelist);
         }
-    }
-
-    /* ---- Ship later --- */
-    //FIXME remove this
-    setShippingDate(shippingDate) {
-        this.shipping_date = shippingDate;
-    }
-    //FIXME remove this
-    getShippingDate() {
-        return formatDate(this.shipping_date);
     }
 
     getHasRefundLines() {
@@ -714,23 +663,17 @@ export class PosOrder extends PosOrderAccounting {
     }
 
     canBeValidated() {
-        return this.isPaid() && this._isValidEmptyOrder() && !this.isCustomerRequired;
+        return this.toBeValidate() && this._isValidEmptyOrder() && !this.isCustomerRequired;
     }
 
     // NOTE: Overrided in pos_loyalty to put loyalty rewards at this end of array.
     getOrderlines() {
-        return this.lines;
-    }
-
-    serializeForORM(opts = {}) {
-        const data = super.serializeForORM(opts);
-        if (
-            data.last_order_preparation_change &&
-            typeof data.last_order_preparation_change === "object"
-        ) {
-            data.last_order_preparation_change = JSON.stringify(data.last_order_preparation_change);
+        const regularLines = [];
+        const serviceFeeLines = [];
+        for (const line of this.lines) {
+            (line.isServiceFeeLine() ? serviceFeeLines : regularLines).push(line);
         }
-        return data;
+        return [...regularLines, ...serviceFeeLines];
     }
 
     get floatingOrderName() {
@@ -756,7 +699,10 @@ export class PosOrder extends PosOrderAccounting {
     }
 
     get globalDiscountPc() {
-        return this.discountLines?.[0]?.extra_tax_data?.discount_percentage || 0;
+        return {
+            value: this.discountLines?.[0]?.extra_tax_data?.discount_value || 0,
+            type: this.discountLines?.[0]?.extra_tax_data?.discount_type || "",
+        };
     }
 
     getName() {
@@ -773,6 +719,23 @@ export class PosOrder extends PosOrderAccounting {
         this.internal_note = note || "";
     }
 
+    get lastPrints() {
+        return this.print_history || [];
+    }
+    pushLastPrints(data) {
+        if (!this.print_history) {
+            this.print_history = [];
+        }
+        this.print_history.push({
+            addedQuantity: data.addedQuantity,
+            noteChange: data.noteChange,
+            noteUpdate: data.noteUpdate,
+            removedQuantity: data.removedQuantity,
+            internal_note: data.internal_note,
+            general_customer_note: data.general_customer_note,
+        });
+    }
+
     get showChange() {
         return !this.currency.isZero(this.change) && this.finalized;
     }
@@ -784,6 +747,409 @@ export class PosOrder extends PosOrderAccounting {
                 !(line.combo_line_ids?.length || line.combo_parent_id)
         );
     }
+
+    get prepLines() {
+        return this.prep_order_ids?.flatMap((po) => po.prep_line_ids);
+    }
+    get preparationCategories() {
+        return this.config.preparationCategories;
+    }
+
+    dataMaker(prepOrPosLine, quantity, opts = {}) {
+        const line = prepOrPosLine.pos_order_line_id || prepOrPosLine;
+        const product = line.product_id;
+        const attributes = line.attribute_value_ids || [];
+        return {
+            line: line,
+            data: {
+                uuid: line.uuid,
+                basic_name: line.order_id?.config_id.module_pos_restaurant
+                    ? line.product_id.name
+                    : line.product_id.display_name,
+                product_id: product.id,
+                attribute_value_names: attributes.map((a) => a.name),
+                quantity: quantity,
+                note: getStrNotes(line?.getNote?.() || false),
+                customer_note: getStrNotes(line?.getCustomerNote?.() || false),
+                pos_categ_id: product.pos_categ_ids[0]?.id || 0,
+                pos_categ_sequence: product.pos_categ_ids[0]?.sequence || 0,
+                group: (!opts.hideCourse && line?.getCourse?.()) || false,
+                combo_line_ids: line?.combo_line_ids?.map((l) => ({
+                    id: l.id,
+                    product_id: l.product_id.id,
+                })),
+                combo_parent_uuid: line?.combo_parent_id?.uuid,
+                uom_is_base_unit: line?.product_id?.uom_id?.id == line?.config?._unit_uom_id,
+            },
+        };
+    }
+
+    get preparationChanges() {
+        const changes = {
+            quantity: 0,
+            categoryCount: {},
+            addedQuantity: [],
+            removedQuantity: [],
+            noteUpdate: [],
+        };
+
+        const hasPreparationCategory = (product) => {
+            if (!product) {
+                return false;
+            }
+            return product.parentPosCategIds.some((id) => this.preparationCategories.has(id));
+        };
+
+        const addCategoryCount = (category, delta) => {
+            if (!changes.categoryCount[category.id]) {
+                changes.categoryCount[category.id] = { name: category.name, count: 0 };
+            }
+            changes.quantity += Math.abs(delta);
+            changes.categoryCount[category.id].count += delta;
+        };
+
+        for (const orderline of this.lines) {
+            const product = orderline.product_id;
+            const category = product.pos_categ_ids.find((c) =>
+                this.preparationCategories.has(c.id)
+            );
+            const shouldCountCategory = category && !orderline.combo_line_ids?.length;
+            const hasPrepaCategory =
+                hasPreparationCategory(product) ||
+                orderline.combo_line_ids?.some((line) => hasPreparationCategory(line.getProduct()));
+
+            if (!hasPrepaCategory) {
+                orderline.setHasChange(false);
+                continue;
+            }
+
+            const quantityDiff = orderline.qty - orderline.prepQty;
+            if (quantityDiff !== 0) {
+                changes[quantityDiff > 0 ? "addedQuantity" : "removedQuantity"].push(
+                    this.dataMaker(orderline, quantityDiff)
+                );
+                if (shouldCountCategory) {
+                    addCategoryCount(category, quantityDiff);
+                }
+            } else if (orderline.changeNote) {
+                changes.noteUpdate.push(this.dataMaker(orderline, orderline.qty));
+                if (shouldCountCategory) {
+                    changes.categoryCount["noteUpdate"] ??= { name: _t("Note"), count: 0 };
+                    changes.categoryCount["noteUpdate"].count += 1;
+                }
+            }
+            orderline.setHasChange(quantityDiff !== 0 || orderline.changeNote);
+        }
+
+        // Checks whether an orderline has been deleted from the order since it
+        // was last sent to the preparation tools. If so we addthis.prep_order_ids this to the changes.
+
+        const removedOrderlines =
+            this.prep_order_ids
+                ?.flatMap((o) => o.prep_line_ids)
+                .filter((l) => !l.pos_order_line_id && l.quantity > l.cancelled) ?? [];
+        const removedByKey = {};
+
+        for (const prepLine of removedOrderlines) {
+            const key = keyMaker(prepLine);
+            if (!removedByKey[key]) {
+                removedByKey[key] = { quantity: 0, prepLine };
+            }
+            removedByKey[key].quantity += prepLine.quantity - prepLine.cancelled;
+        }
+        for (const { quantity, prepLine } of Object.values(removedByKey)) {
+            if (quantity <= 0) {
+                continue;
+            }
+            const product = prepLine.product_id;
+            const category = product.pos_categ_ids.find((c) =>
+                this.preparationCategories.has(c.id)
+            );
+            const lineData = this.dataMaker(prepLine, -quantity);
+            changes.removedQuantity.push(lineData);
+            if (category && lineData.data.combo_line_ids?.length === 0) {
+                addCategoryCount(category, -quantity);
+            }
+        }
+
+        if (this.uiState.last_general_customer_note !== this.general_customer_note) {
+            changes.general_customer_note = this.general_customer_note;
+        }
+
+        if (this.uiState.last_internal_note !== this.internal_note) {
+            changes.internal_note = this.internal_note;
+        }
+
+        const noteCount = ["general_customer_note", "internal_note"].reduce(
+            (count, note) => count + (note in changes ? 1 : 0),
+            0
+        );
+
+        if (noteCount) {
+            changes.categoryCount["generalNoteUpdate"] = {
+                name: _t("Message"),
+                count: noteCount,
+            };
+        }
+
+        changes.categoryCount = Object.values(changes.categoryCount);
+
+        return changes;
+    }
+
+    /**
+     * Update the prep order group according to the given order changes.
+     * Used after printing the preparation ticket to update the prep lines.
+     */
+    updateLastOrderChange(opts = {}) {
+        if (opts.cancelled) {
+            this.prepLines?.forEach((pl) => (pl.cancelled = pl.quantity));
+        } else {
+            // We don't need to add note updates here since preparation display will always show
+            // the latest notes from the order lines.
+            const changes = this.preparationChanges;
+            const allChanges = [...changes.addedQuantity, ...changes.removedQuantity];
+
+            let prepOrder = null;
+            for (const change of allChanges) {
+                const line = change.line;
+                const data = change.data;
+
+                if (data.quantity > 0) {
+                    const order = (prepOrder ||= this.models["pos.prep.order"].create({
+                        pos_order_id: this,
+                    }));
+                    this.models["pos.prep.line"].create({
+                        prep_order_id: order,
+                        pos_order_line_id: line,
+                        product_id: line.getProduct().id,
+                        quantity: data.quantity,
+                        cancelled: 0,
+                        attribute_value_ids: line.attribute_value_ids,
+                    });
+                } else {
+                    let toCancel = -data.quantity;
+                    let prepLinesToCancel;
+                    if (line.model.name === "pos.order.line") {
+                        prepLinesToCancel = line.prep_line_ids;
+                    } else {
+                        const mainKey = keyMaker(line);
+                        prepLinesToCancel = [...this.prepLines].filter(
+                            (pl) => !pl.pos_order_line_id && keyMaker(pl) === mainKey
+                        );
+                    }
+                    for (const prepLine of prepLinesToCancel.toReversed()) {
+                        const lineQty = prepLine.quantity - prepLine.cancelled;
+                        const cancellable = Math.min(lineQty, toCancel);
+                        prepLine.cancelled += cancellable;
+                        toCancel -= cancellable;
+                        if (toCancel <= 0) {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Update last known state to avoid re-sending changes
+        this.uiState.last_general_customer_note = this.general_customer_note;
+        this.uiState.last_internal_note = this.internal_note;
+        this.lines.forEach((line) => {
+            line.setHasChange(false);
+            line.uiState.last_internal_note = line.getNote() || "";
+            line.uiState.last_customer_note = line.getCustomerNote() || "";
+            line.uiState.savedQuantity = line.getQuantity();
+        });
+    }
+    /**
+     * PoS config can have several printers with different preparation categories.
+     * This method allows to filter the changes for only the given categories.
+     */
+    getChanges(opts = {}) {
+        const changes = this.preparationChanges;
+        let addedQuantity = [];
+        let removedQuantity = [];
+        let noteUpdate = [];
+        if (opts.cancelled) {
+            removedQuantity = this.lines.map(
+                (l) =>
+                    this.dataMaker(
+                        l,
+                        l.prep_line_ids.reduce(
+                            (sum, obj) => sum + (obj.quantity - obj.cancelled),
+                            0
+                        )
+                    ).data
+            );
+        } else {
+            addedQuantity = changes.addedQuantity.map((c) => c.data);
+            removedQuantity = changes.removedQuantity.map((c) => c.data);
+            noteUpdate = changes.noteUpdate.map((c) => c.data);
+        }
+        return {
+            ...changes,
+            noteChange: false,
+            addedQuantity: addedQuantity,
+            removedQuantity: removedQuantity,
+            noteUpdate: noteUpdate,
+        };
+    }
+
+    get hasRemainingDue() {
+        return this.totalDue < 0 ? this.remainingDue < 0 : this.remainingDue > 0;
+    }
+
+    get remainingDueAmount() {
+        const amount = this.hasRemainingDue ? this.remainingDue : this.change;
+        return this.convertAmountToCurrency(amount, this.orderCurrency);
+    }
+
+    get remainingDueLabel() {
+        return this.hasRemainingDue ? _t("Remaining") : _t("Change");
+    }
+
+    get serviceFeeLines() {
+        return this.lines?.filter((line) => line.isServiceFeeLine());
+    }
+    removeAllServiceFeeLines() {
+        for (const line of this.serviceFeeLines) {
+            line.delete();
+        }
+    }
+    recomputeServiceFees() {
+        const taxKey = (taxIds) =>
+            taxIds
+                .map((tax) => tax.id)
+                .sort((a, b) => a - b)
+                .join("_");
+
+        if (this.state !== "draft") {
+            return;
+        }
+
+        // A refund order has no preset: its fee lines are the cashier's to refund.
+        if (this.isRefund) {
+            return;
+        }
+
+        if (!this.preset_id?.service_fee) {
+            this.removeAllServiceFeeLines();
+            return;
+        }
+
+        const preset = this.preset_id;
+        const serviceFeeProduct = preset?.service_fee_product_id;
+
+        const lines = this.getOrderlines();
+        const serviceFeeApplicableLines = lines.filter((line) => line.isServiceFeeApplicable());
+
+        if (serviceFeeApplicableLines.length === 0) {
+            this.removeAllServiceFeeLines();
+            return;
+        }
+
+        const feeLines = this.serviceFeeLines || [];
+        const serviceFeeLinesMap = {};
+        feeLines.forEach((line) => {
+            const key = taxKey(line.tax_ids);
+            serviceFeeLinesMap[key] = line;
+        });
+
+        // The cashier can scale and price a fixed fee. Both are stamped into
+        // extra_tax_data because the fee splits into one line per tax group, where
+        // neither `qty` nor `price_unit` holds the whole fee: the edited line is the
+        // one whose qty no longer matches the stamp, a priced one is still "manual".
+        // A price is read as the preset's amount: a target total, taxes included.
+        let feeQty = 1;
+        let feeAmount = preset.service_fee_amount;
+        if (preset.service_fee_type === "fixed" && feeLines.length) {
+            const editedLine = feeLines.find(
+                (line) =>
+                    line.extra_tax_data?.service_fee_qty != null &&
+                    (line.qty || 1) !== line.extra_tax_data.service_fee_qty
+            );
+            feeQty = (editedLine || feeLines[0]).qty || 1;
+            const pricedLine = feeLines.find((line) => line.price_type === "manual");
+            // A stored amount only holds for the preset it was set on.
+            const stampedLine = feeLines.find(
+                (line) =>
+                    line.extra_tax_data?.service_fee_amount != null &&
+                    line.extra_tax_data.service_fee_preset_id === preset.id
+            );
+            if (pricedLine) {
+                feeAmount = pricedLine.price_unit;
+            } else if (stampedLine) {
+                feeAmount = stampedLine.extra_tax_data.service_fee_amount;
+            }
+        }
+        const amount =
+            preset.service_fee_type === "percent"
+                ? preset.service_fee_amount * 100
+                : feeAmount * feeQty;
+
+        const serviceFeeBaseLines = this.getBaseLinesReducedToAmount(serviceFeeApplicableLines, {
+            product: serviceFeeProduct,
+            type: preset.service_fee_type,
+            amount,
+            qty: feeQty,
+            ignoreDiscount: preset.service_fee_based_on === "pre_discount",
+        });
+
+        for (const { baseLine, extraTaxData } of serviceFeeBaseLines) {
+            const key = taxKey(baseLine.tax_ids);
+            // Persist the cashier's quantity and amount for the next recompute.
+            extraTaxData.service_fee_qty = feeQty;
+            if (preset.service_fee_type === "fixed") {
+                extraTaxData.service_fee_amount = feeAmount;
+                extraTaxData.service_fee_preset_id = preset.id;
+            }
+            const existingLine = serviceFeeLinesMap[key];
+
+            if (existingLine) {
+                existingLine.extra_tax_data = extraTaxData;
+                // Reset `price_type` first: a manual price schedules this recompute
+                // (see pos_store), so the write-back would loop.
+                existingLine.price_type = "automatic";
+                existingLine.price_unit = baseLine.price_unit;
+                // Switching from a fixed preset to a percentage one drops the qty.
+                if (existingLine.qty !== feeQty) {
+                    existingLine.qty = feeQty;
+                }
+                // Keep the fee at the bottom of the order as courses come and go.
+                if (this.hasCourses?.()) {
+                    existingLine.course_id = this.getLastCourse();
+                }
+                delete serviceFeeLinesMap[key];
+            } else {
+                this.models["pos.order.line"].create({
+                    order_id: this,
+                    product_id: serviceFeeProduct,
+                    price_unit: baseLine.price_unit,
+                    tax_ids: [["link", ...baseLine.tax_ids]],
+                    product_tmpl_id: serviceFeeProduct.product_tmpl_id,
+                    qty: feeQty,
+                    price_type: "automatic",
+                    // course_id is only available when pos_restaurant is installed
+                    course_id: this.hasCourses?.() ? this.getLastCourse() : undefined,
+                    extra_tax_data: extraTaxData,
+                });
+            }
+        }
+
+        Object.values(serviceFeeLinesMap).forEach((line) => {
+            line.delete();
+        });
+    }
 }
+
+const keyMaker = (prepLine) => {
+    const objectKey = {
+        product_id: prepLine.product_id.id,
+        combo_parent_id: prepLine.combo_parent_id?.id,
+        combo_line_ids: prepLine.combo_line_ids.map((c) => c.id).sort(),
+        attribute_value_ids: prepLine.attribute_value_ids.map((a) => a.id).sort(),
+    };
+    return JSON.stringify(objectKey);
+};
 
 registry.category("pos_available_models").add(PosOrder.pythonModel, PosOrder);

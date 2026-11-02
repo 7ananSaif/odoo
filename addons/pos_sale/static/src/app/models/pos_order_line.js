@@ -1,18 +1,19 @@
 import { PosOrderline } from "@point_of_sale/app/models/pos_order_line";
 import { formatCurrency } from "@point_of_sale/app/models/utils/currency";
 import { patch } from "@web/core/utils/patch";
+import { accountTaxHelpers } from "@account/helpers/account_tax";
 
 patch(PosOrderline.prototype, {
-    setup(_defaultObj) {
-        super.setup(...arguments);
-        // It is possible that this orderline is initialized using server data,
-        // meaning, it is loaded from localStorage or from server. This means
-        // that some fields has already been assigned. Therefore, we only set the options
-        // when the original value is falsy.
-        if (this.sale_order_origin_id?.shipping_date) {
-            this.order_id.setShippingDate(this.sale_order_origin_id.shipping_date);
+    get orderDisplayProductName() {
+        if (this.config.default_product_id.id === this.product_id.id) {
+            return {
+                name: this.sale_order_line_id.name,
+                attributeString: "",
+            };
         }
+        return super.orderDisplayProductName;
     },
+
     get saleDetails() {
         let down_payment_details = [];
 
@@ -28,21 +29,18 @@ patch(PosOrderline.prototype, {
             total: formatCurrency(detail.total, this.currency),
         }));
     },
-    /**
-     * Set quantity based on the give sale order line.
-     * @param {'sale.order.line'} saleOrderLine
-     */
-    async setQuantityFromSOL(saleOrderLine) {
-        if (
-            this.product_id.type === "service" &&
-            !["sent", "draft"].includes(this.sale_order_origin_id.state)
-        ) {
-            this.setQuantity(saleOrderLine.qty_to_invoice);
-        } else {
-            this.setQuantity(
-                saleOrderLine.product_uom_qty -
-                    Math.max(saleOrderLine.qty_delivered, saleOrderLine.qty_invoiced)
-            );
+    getBaseLine(opts = {}) {
+        const extraTaxData = this.extra_tax_data;
+        const quantity = "quantity" in opts ? opts.quantity : this.getQuantity();
+        const storedQty = extraTaxData?.quantity;
+        const signFlipped = storedQty && quantity && Math.sign(storedQty) !== Math.sign(quantity);
+        if (signFlipped) {
+            return super.getBaseLine({
+                ...opts,
+                extra_tax_data:
+                    accountTaxHelpers.reverse_quantity_base_line_extra_tax_data(extraTaxData),
+            });
         }
+        return super.getBaseLine(opts);
     },
 });

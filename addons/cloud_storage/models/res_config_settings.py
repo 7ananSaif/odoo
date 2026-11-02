@@ -36,6 +36,8 @@ class ResConfigSettings(models.TransientModel):
         default=DEFAULT_CLOUD_STORAGE_MIN_FILE_SIZE,
     )
 
+    cloud_storage_upload_record_attachments = fields.Boolean(string='Upload Record Attachments', config_parameter='cloud_storage_upload_record_attachments')
+
     def _setup_cloud_storage_provider(self):
         """
         Setup the cloud storage provider and check the validity of the account
@@ -63,13 +65,13 @@ class ResConfigSettings(models.TransientModel):
     def get_values(self):
         res = super().get_values()
         ICP = self.env['ir.config_parameter']
-        res['cloud_storage_min_file_size_mb'] = int(ICP.get_param('cloud_storage_min_file_size', DEFAULT_CLOUD_STORAGE_MIN_FILE_SIZE)) / 1000000
+        res['cloud_storage_min_file_size_mb'] = ICP.get_int('cloud_storage_min_file_size', DEFAULT_CLOUD_STORAGE_MIN_FILE_SIZE) / 1000000
         return res
 
     def set_values(self):
         ICP = self.env['ir.config_parameter']
         cloud_storage_configuration_before = self._get_cloud_storage_configuration()
-        cloud_storage_provider_before = ICP.get_param('cloud_storage_provider')
+        cloud_storage_provider_before = ICP.get_str('cloud_storage_provider')
         if cloud_storage_provider_before and self.cloud_storage_provider != cloud_storage_provider_before:
             self._check_cloud_storage_uninstallable()
         self.cloud_storage_min_file_size = int(self.cloud_storage_min_file_size_mb * 1000000)
@@ -79,3 +81,5 @@ class ResConfigSettings(models.TransientModel):
             raise UserError(self.env._('Please configure the Cloud Storage before enabling it'))
         if cloud_storage_configuration and cloud_storage_configuration != cloud_storage_configuration_before:
             self._setup_cloud_storage_provider()
+        if self.cloud_storage_upload_record_attachments and not cloud_storage_configuration:
+            ICP.set_bool('cloud_storage_upload_record_attachments', False)

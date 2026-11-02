@@ -3,7 +3,6 @@
     'name': 'South Africa - Accounting',
     'icon': '/account/static/description/l10n.png',
     'countries': ['za'],
-    'version': '1.0',
     'category': 'Accounting/Localizations/Account Charts',
     'description': """
 This is the latest basic South African localisation necessary to run Odoo in ZA:
@@ -14,7 +13,6 @@ This is the latest basic South African localisation necessary to run Odoo in ZA:
     'website': 'https://www.odoo.com/documentation/latest/applications/finance/fiscal_localizations.html',
     'depends': [
         'account',
-        'base_vat',
     ],
     'auto_install': ['account'],
     'data': [

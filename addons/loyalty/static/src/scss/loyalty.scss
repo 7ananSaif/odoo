@@ -24,16 +24,17 @@
     }
 }
 
-.loyalty-templates-container {
-    pointer-events: auto;
+.o_loyalty_program_list_view_view .o_list_renderer:has(.o_view_nocontent) > .o_list_table {
+    display: none;
+}
 
-    .loyalty-template {
-        padding: map-get($spacers, 2) !important;
-        cursor: pointer !important;
-
-        &:hover {
-            background: var(--LoyaltyTemplate-background-hover, #{$o-gray-200});
-        }
+.loyalty-template {
+    &:hover {
+        background: var(--LoyaltyTemplate-background--hover, #{$o-gray-200});
+    }
+    &:focus-visible {
+        box-shadow: 0 0 0 #{$btn-focus-width} RGBA(#{$btn-link-focus-shadow-rgb}, .5);
+        outline: none;
     }
 }
 
@@ -47,5 +48,17 @@
 .o_loyalty_program_list_view_view .o_list_renderer .o_view_nocontent{
     @include media-breakpoint-down(lg){
         height: fit-content;
+    }
+}
+
+.o_nocontent_help:has(.loyalty-template) {
+    max-width: unset;
+
+    @include media-breakpoint-up(sm) {
+        max-width: 90%;
+    }
+
+    @include media-breakpoint-up(lg) {
+        max-width: 80%;
     }
 }

@@ -42,6 +42,7 @@ class ProductAttribute(models.Model):
             ('color', 'Color'),
             ('multi', 'Multi-checkbox'),
             ('image', 'Image'),
+            ('range', 'Range'),
         ],
         default='radio',
         required=True,
@@ -74,7 +75,7 @@ class ProductAttribute(models.Model):
         res = {
             attribute.id: count
             for attribute, count in self.env['product.template.attribute.line']._read_group(
-                domain=[('attribute_id', 'in', self.ids), ('product_tmpl_id.active', '=', 'True')],
+                domain=[('attribute_id', 'in', self.ids), ('product_tmpl_id.active', '=', True)],
                 groupby=['attribute_id'],
                 aggregates=['__count'],
             )
@@ -159,7 +160,7 @@ class ProductAttribute(models.Model):
             'name': _("Products"),
             'res_model': 'product.template.attribute.line',
             'view_mode': 'list,form',
-            'domain': [('attribute_id', '=', self.id), ('product_tmpl_id.active', '=', 'True')],
+            'domain': [('attribute_id', '=', self.id), ('product_tmpl_id.active', '=', True)],
         }
 
     # === TOOLING === #

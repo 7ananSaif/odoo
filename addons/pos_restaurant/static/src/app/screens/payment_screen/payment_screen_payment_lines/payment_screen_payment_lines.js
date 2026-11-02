@@ -1,22 +1,42 @@
 import { patch } from "@web/core/utils/patch";
 import { PaymentScreenPaymentLines } from "@point_of_sale/app/screens/payment_screen/payment_lines/payment_lines";
+import { _t } from "@web/core/l10n/translation";
 
 patch(PaymentScreenPaymentLines.prototype, {
     async sendPaymentAdjust(line) {
-        const prevAmount = line.get_amount();
-        const amountDiff =
-            line.pos_order_id.get_total_with_tax() - line.pos_order_id.get_total_paid();
+        const prevAmount = line.getAmount();
+        const amountDiff = line.pos_order_id.totalDue - line.pos_order_id.amountPaid;
         const newAmount = prevAmount + amountDiff;
 
-        line.set_amount(newAmount);
-        line.set_payment_status("waiting");
+        line.setAmount(newAmount);
+        line.setPaymentStatus("waiting");
 
         const isAdjustSuccessful =
-            await line.payment_method_id.payment_terminal?.send_payment_adjust(line.uuid);
+            await line.payment_method_id.payment_interface?.sendPaymentAdjust(line.uuid);
+
         if (!isAdjustSuccessful) {
-            line.set_amount(prevAmount);
+            line.setAmount(prevAmount);
         }
 
-        line.set_payment_status("done");
+        line.setPaymentStatus("done");
+    },
+
+    getPaymentActionState(line) {
+        const state = super.getPaymentActionState(line);
+
+        if (
+            (state.id === "paid" || state.id === "refunded") &&
+            line.canBeAdjusted() &&
+            line.pos_order_id.amountPaid < line.pos_order_id.priceIncl
+        ) {
+            state.actions.push({
+                id: "adjust_amount",
+                label: _t("Adjust Amount"),
+                action: () => this.sendPaymentAdjust(line),
+                severity: "warning",
+            });
+        }
+
+        return state;
     },
 });

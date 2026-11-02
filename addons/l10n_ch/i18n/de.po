@@ -3,22 +3,49 @@
 # * l10n_ch
 #
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
-# "Larissa Manderfeld (lman)" <lman@odoo.com>, 2025.
+# "Larissa Manderfeld (lman)" <lman@odoo.com>, 2026.
+# Odoo Translation Bot <c3p@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.1alpha1+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-30 19:05+0000\n"
-"PO-Revision-Date: 2025-12-23 09:30+0000\n"
-"Last-Translator: \"Larissa Manderfeld (lman)\" <lman@odoo.com>\n"
-"Language-Team: German <https://translate.odoo.com/projects/odoo-19-l10n/"
-"l10n_ch/de/>\n"
+"POT-Creation-Date: 2026-09-11 18:11+0000\n"
+"PO-Revision-Date: 2026-10-08 09:47+0000\n"
+"Last-Translator: Odoo Translation Bot <c3p@odoo.com>\n"
+"Language-Team: German <https://translate.odoo.com/projects/odoo-20/l10n_ch/"
+"de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: l10n_ch
+#: model:ir.module.module,description:base.module_l10n_ch
+msgid ""
+"\n"
+"Swiss localization\n"
+"==================\n"
+"This module defines a chart of account for Switzerland (Swiss PME/KMU 2015), "
+"taxes and enables the generation of a QR-bill when you print an invoice or "
+"send it by mail.\n"
+"The QR bill is attached to the invoice and eases its payment.\n"
+"\n"
+"A QR-bill will be generated if:\n"
+"    - The partner set on your invoice has a complete address (street, city, "
+"postal code and country) in Switzerland\n"
+"    - The option to generate the Swiss QR-code is selected on the invoice "
+"(done by default)\n"
+"    - A correct account number/QR IBAN is set on your bank journal\n"
+"    - (when using a QR-IBAN): the payment reference of the invoice is a QR-"
+"reference\n"
+"\n"
+"The generation of the QR-bill is automatic if you meet the previous "
+"criteria. The QR-bill will be appended after the invoice when printing or "
+"sending by mail.\n"
+"\n"
+msgstr ""
 
 #. module: l10n_ch
 #. odoo-python
@@ -97,6 +124,13 @@ msgid "Account Chart Template"
 msgstr "Kontenplanvorlage"
 
 #. module: l10n_ch
+#: model_terms:ir.ui.view,arch_db:l10n_ch.res_config_settings_view_form
+msgid ""
+"Add a QR-code to your invoices so that your customers can pay instantly with "
+"their mobile banking application."
+msgstr ""
+
+#. module: l10n_ch
 #. odoo-python
 #: code:addons/l10n_ch/wizard/qr_invoice_wizard.py:0
 msgid "All selected invoices must belong to the same Switzerland company"
@@ -109,8 +143,8 @@ msgstr "Saldo"
 
 #. module: l10n_ch
 #: model:ir.model,name:l10n_ch.model_res_partner_bank
-msgid "Bank Accounts"
-msgstr "Bankkonten"
+msgid "Bank Account"
+msgstr "Bankkonto"
 
 #. module: l10n_ch
 #: model:ir.model,name:l10n_ch.model_account_setup_bank_manual_config
@@ -158,6 +192,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_ch.field_account_chart_template__display_name
 #: model:ir.model.fields,field_description:l10n_ch.field_account_journal__display_name
 #: model:ir.model.fields,field_description:l10n_ch.field_account_move__display_name
+#: model:ir.model.fields,field_description:l10n_ch.field_account_move_send__display_name
 #: model:ir.model.fields,field_description:l10n_ch.field_account_payment__display_name
 #: model:ir.model.fields,field_description:l10n_ch.field_account_setup_bank_manual_config__display_name
 #: model:ir.model.fields,field_description:l10n_ch.field_ir_actions_report__display_name
@@ -166,6 +201,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_ch.field_res_partner_bank__display_name
 msgid "Display Name"
 msgstr "Name anzeigen"
+
+#. module: l10n_ch
+#. odoo-python
+#: code:addons/l10n_ch/models/account_move_send.py:0
+msgid "Errors occured during the generation of the \"Swiss QR bill\" QR-code."
+msgstr ""
 
 #. module: l10n_ch
 #: model:ir.model,name:l10n_ch.model_l10n_ch_qr_invoice_wizard
@@ -178,6 +219,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_ch.field_account_chart_template__id
 #: model:ir.model.fields,field_description:l10n_ch.field_account_journal__id
 #: model:ir.model.fields,field_description:l10n_ch.field_account_move__id
+#: model:ir.model.fields,field_description:l10n_ch.field_account_move_send__id
 #: model:ir.model.fields,field_description:l10n_ch.field_account_payment__id
 #: model:ir.model.fields,field_description:l10n_ch.field_account_setup_bank_manual_config__id
 #: model:ir.model.fields,field_description:l10n_ch.field_ir_actions_report__id
@@ -212,18 +254,18 @@ msgstr "Buchungssatz"
 #: model:ir.model.fields,field_description:l10n_ch.field_account_setup_bank_manual_config__l10n_ch_display_qr_bank_options
 #: model:ir.model.fields,field_description:l10n_ch.field_res_partner_bank__l10n_ch_display_qr_bank_options
 msgid "L10N Ch Display Qr Bank Options"
-msgstr "L10N Ch: QR-Code-Optionen anzeigen"
+msgstr "QR-Code-Optionen anzeigen"
 
 #. module: l10n_ch
 #: model:ir.model.fields,field_description:l10n_ch.field_account_bank_statement_line__l10n_ch_is_qr_valid
 #: model:ir.model.fields,field_description:l10n_ch.field_account_move__l10n_ch_is_qr_valid
 msgid "L10N Ch Is Qr Valid"
-msgstr "L10N Ch: Ist QR gültig"
+msgstr "Ist QR gültig"
 
 #. module: l10n_ch
 #: model:ir.model.fields,field_description:l10n_ch.field_account_payment__l10n_ch_reference_warning_msg
 msgid "L10N Ch Reference Warning Msg"
-msgstr "L10N Ch: Referenzwarnmeldung"
+msgstr "Referenzwarnmeldung"
 
 #. module: l10n_ch
 #: model:ir.model.fields,field_description:l10n_ch.field_l10n_ch_qr_invoice_wizard__write_uid
@@ -271,8 +313,8 @@ msgstr "Nur für Kundenrechnungen kann ein QR gedruckt werden."
 
 #. module: l10n_ch
 #: model:ir.model,name:l10n_ch.model_account_payment
-msgid "Payments"
-msgstr "Zahlungen"
+msgid "Payment"
+msgstr "Zahlung"
 
 #. module: l10n_ch
 #. odoo-python
@@ -330,6 +372,11 @@ msgid "QR-bill"
 msgstr "QR-Rechnung"
 
 #. module: l10n_ch
+#: model_terms:ir.ui.view,arch_db:l10n_ch.res_config_settings_view_form
+msgid "QR-bill & SEPA QR Codes"
+msgstr ""
+
+#. module: l10n_ch
 #: model:ir.actions.act_window,name:l10n_ch.l10n_ch_qr_invoice_wizard
 msgid "Qr Batch error Wizard"
 msgstr "Assistent für Fehler bei QR-Stapel"
@@ -343,6 +390,11 @@ msgstr "QR-Rechnungstext"
 #: model:ir.model,name:l10n_ch.model_ir_actions_report
 msgid "Report Action"
 msgstr "Berichtsaktion"
+
+#. module: l10n_ch
+#: model:ir.model,name:l10n_ch.model_account_move_send
+msgid "Shared Send Invoice Wizard Functions"
+msgstr ""
 
 #. module: l10n_ch
 #. odoo-python
@@ -365,6 +417,11 @@ msgstr "Schweizer QR-Rechnungsbericht"
 #: model:ir.model.fields.selection,name:l10n_ch.selection__account_journal__invoice_reference_model__ch
 msgid "Switzerland (12 34560 00103 88500 1000 19188)"
 msgstr "Schweiz (12 34560 00103 88500 1000 19188)"
+
+#. module: l10n_ch
+#: model:ir.module.module,shortdesc:base.module_l10n_ch
+msgid "Switzerland - Accounting"
+msgstr ""
 
 #. module: l10n_ch
 #: model:account.report,name:l10n_ch.tax_report
@@ -401,22 +458,17 @@ msgstr "Die Adresse des Debitors liegt nicht in der Schweiz."
 #. odoo-python
 #: code:addons/l10n_ch/models/res_bank.py:0
 msgid ""
-"The partner must have a complete postal address (street, zip, city and "
-"country)."
+"The partner must have the necessary postal address information (zip, city "
+"and country)."
 msgstr ""
-"Der Partner muss eine vollständige Postanschrift haben (Straße, "
-"Postleitzahl, Ort und Land)."
 
 #. module: l10n_ch
 #. odoo-python
 #: code:addons/l10n_ch/models/res_bank.py:0
 msgid ""
 "The partner set on the bank account meant to receive the payment (%s) must "
-"have a complete postal address (street, zip, city and country)."
+"have the necessary postal address information (zip, city and country)."
 msgstr ""
-"Der Partner des Bankkontos, auf das die Zahlung überwiesen werden soll (%s), "
-"muss eine vollständige Postanschrift haben (Straße, Postleitzahl, Ort und "
-"Land)."
 
 #. module: l10n_ch
 #: model_terms:ir.ui.view,arch_db:l10n_ch.l10n_ch_qr_invoice_wizard_form
@@ -439,6 +491,12 @@ msgstr ""
 
 #. module: l10n_ch
 #. odoo-python
+#: code:addons/l10n_ch/models/account_move_send.py:0
+msgid "View Partner(s)"
+msgstr ""
+
+#. module: l10n_ch
+#. odoo-python
 #: code:addons/l10n_ch/models/res_bank.py:0
 msgid ""
 "When using a QR-IBAN as the destination account of a QR-code, the payment "
@@ -455,3 +513,24 @@ msgid ""
 msgstr ""
 "Sie können für jede Art von Referenz verschiedene Modelle auswählen. Die "
 "Standardeinstellung ist die Odoo-Referenz."
+
+#. module: l10n_ch
+#. odoo-python
+#: code:addons/l10n_ch/models/account_move_send.py:0
+msgid "You might want to specify an address on the following partner(s)."
+msgstr ""
+
+#~ msgid ""
+#~ "The partner must have a complete postal address (street, zip, city and "
+#~ "country)."
+#~ msgstr ""
+#~ "Der Partner muss eine vollständige Postanschrift haben (Straße, "
+#~ "Postleitzahl, Ort und Land)."
+
+#~ msgid ""
+#~ "The partner set on the bank account meant to receive the payment (%s) "
+#~ "must have a complete postal address (street, zip, city and country)."
+#~ msgstr ""
+#~ "Der Partner des Bankkontos, auf das die Zahlung überwiesen werden soll "
+#~ "(%s), muss eine vollständige Postanschrift haben (Straße, Postleitzahl, "
+#~ "Ort und Land)."

@@ -1,6 +1,7 @@
+import { useSubEnv } from "@web/owl2/utils";
 import { expect, test } from "@odoo/hoot";
 import { animationFrame } from "@odoo/hoot-mock";
-import { Component, onWillStart, onWillUpdateProps, useState, useSubEnv, xml } from "@odoo/owl";
+import { Component, proxy, t, useEffect, useProps, xml } from "@odoo/owl";
 import {
     defineModels,
     fields,
@@ -42,7 +43,6 @@ defineModels([Animal]);
 
 test("simple rendering", async () => {
     class TestComponent extends Component {
-        static props = ["*"];
         static template = xml`<div class="o_test_component">Test component content</div>`;
     }
 
@@ -55,7 +55,6 @@ test("simple rendering", async () => {
 
 test("search model in sub env", async () => {
     class TestComponent extends Component {
-        static props = ["*"];
         static template = xml`<div class="o_test_component">Test component content</div>`;
     }
 
@@ -67,7 +66,7 @@ test("search model in sub env", async () => {
 
 test("search query props are passed as props to concrete component", async () => {
     class TestComponent extends Component {
-        static props = ["*"];
+        props = useProps();
         static template = xml`<div class="o_test_component">Test component content</div>`;
 
         setup() {
@@ -98,7 +97,6 @@ test("search query props are passed as props to concrete component", async () =>
 
 test("do not load search view description by default", async () => {
     class TestComponent extends Component {
-        static props = ["*"];
         static template = xml`<div class="o_test_component">Test component content</div>`;
     }
 
@@ -114,7 +112,6 @@ test("do not load search view description by default", async () => {
 
 test("load search view description if not provided and loadSearchView=true", async () => {
     class TestComponent extends Component {
-        static props = ["*"];
         static template = xml`<div class="o_test_component">Test component content</div>`;
     }
 
@@ -141,7 +138,6 @@ test("load search view description if not provided and loadSearchView=true", asy
 
 test("do not load the search view description if provided even if loadSearchView=true", async () => {
     class TestComponent extends Component {
-        static props = ["*"];
         static template = xml`<div class="o_test_component">Test component content</div>`;
     }
 
@@ -160,7 +156,6 @@ test("do not load the search view description if provided even if loadSearchView
 
 test("load view description if it is not complete and loadSearchView=true", async () => {
     class TestComponent extends Component {
-        static props = ["*"];
         static template = xml`<div class="o_test_component">Test component content</div>`;
     }
 
@@ -187,7 +182,6 @@ test("load view description if it is not complete and loadSearchView=true", asyn
 
 test("load view description with given id if it is not provided and loadSearchView=true", async () => {
     class TestComponent extends Component {
-        static props = ["*"];
         static components = { SearchBarMenu };
         static template = xml`<div class="o_test_component"><SearchBarMenu/></div>`;
     }
@@ -208,24 +202,22 @@ test("load view description with given id if it is not provided and loadSearchVi
         "Custom Filter...",
         "Name",
         "Custom Group\nCreated on\nDisplay name\nLast Modified on\nName",
-        "Save current search",
+        "Save search",
     ]);
 });
 
 test("toggle a filter render the underlying component with an updated domain", async () => {
+    const domains = [[], [[1, "=", 1]]];
+    let i = 0;
     class TestComponent extends Component {
-        static props = ["*"];
+        props = useProps();
         static components = { SearchBarMenu };
         static template = xml`<div class="o_test_component"><SearchBarMenu/></div>`;
 
         setup() {
-            onWillStart(() => {
-                expect.step("willStart");
-                expect(this.props.domain).toEqual([]);
-            });
-            onWillUpdateProps((nextProps) => {
-                expect.step("willUpdateProps");
-                expect(nextProps.domain).toEqual([[1, "=", 1]]);
+            useEffect(() => {
+                expect.step("useEffect");
+                expect(this.props.domain).toEqual(domains[i++]);
             });
         }
     }
@@ -234,41 +226,38 @@ test("toggle a filter render the underlying component with an updated domain", a
         resModel: "animal",
         searchViewId: 1,
     });
-    expect.verifySteps(["willStart"]);
+    expect.verifySteps(["useEffect"]);
 
     await toggleSearchBarMenu();
     await toggleMenuItem("True domain");
-    expect.verifySteps(["willUpdateProps"]);
+    expect.verifySteps(["useEffect"]);
 });
 
 test("react to prop 'domain' changes", async () => {
+    const vals = ["carnivorous", "herbivorous"];
+    let i = 0;
     class TestComponent extends Component {
-        static props = ["*"];
+        props = useProps();
         static template = xml`<div class="o_test_component">Test component content</div>`;
 
         setup() {
-            onWillStart(() => {
-                expect.step("willStart");
-                expect(this.props.domain).toEqual([["type", "=", "carnivorous"]]);
-            });
-            onWillUpdateProps((nextProps) => {
-                expect.step("willUpdateProps");
-                expect(nextProps.domain).toEqual([["type", "=", "herbivorous"]]);
+            useEffect(() => {
+                expect.step("useEffect");
+                expect(this.props.domain).toEqual([["type", "=", vals[i++]]]);
             });
         }
     }
 
     class Parent extends Component {
-        static props = ["*"];
         static template = xml`
-            <WithSearch t-props="searchState" t-slot-scope="search">
+            <WithSearch t-props="this.searchState" t-slot-scope="search">
                 <TestComponent domain="search.domain"/>
             </WithSearch>
         `;
         static components = { WithSearch, TestComponent };
         setup() {
             useSubEnv({ config: {} });
-            this.searchState = useState({
+            this.searchState = proxy({
                 resModel: "animal",
                 domain: [["type", "=", "carnivorous"]],
             });
@@ -276,11 +265,11 @@ test("react to prop 'domain' changes", async () => {
     }
 
     const parent = await mountWithCleanup(Parent);
-    expect.verifySteps(["willStart"]);
+    expect.verifySteps(["useEffect"]);
 
     parent.searchState.domain = [["type", "=", "herbivorous"]];
     await animationFrame();
-    expect.verifySteps(["willUpdateProps"]);
+    expect.verifySteps(["useEffect"]);
 });
 
 test("search defaults are removed from context at reload", async function () {
@@ -291,20 +280,13 @@ test("search defaults are removed from context at reload", async function () {
 
     class TestComponent extends Component {
         static template = xml`<div class="o_test_component">Test component content</div>`;
-        static props = { context: Object };
+        props = useProps({
+            context: t.object(),
+        });
         setup() {
-            onWillStart(() => {
-                expect.step("willStart");
+            useEffect(() => {
+                expect.step("useEffect");
                 expect(this.props.context).toEqual({
-                    lang: "en",
-                    tz: "taht",
-                    uid: 7,
-                    allowed_company_ids: [1],
-                });
-            });
-            onWillUpdateProps((nextProps) => {
-                expect.step("willUpdateProps");
-                expect(nextProps.context).toEqual({
                     lang: "en",
                     tz: "taht",
                     uid: 7,
@@ -315,9 +297,8 @@ test("search defaults are removed from context at reload", async function () {
     }
 
     class Parent extends Component {
-        static props = ["*"];
         static template = xml`
-            <WithSearch t-props="searchState" t-slot-scope="search">
+            <WithSearch t-props="this.searchState" t-slot-scope="search">
                 <TestComponent
                     context="search.context"
                 />
@@ -326,7 +307,7 @@ test("search defaults are removed from context at reload", async function () {
         static components = { WithSearch, TestComponent };
         setup() {
             useSubEnv({ config: {} });
-            this.searchState = useState({
+            this.searchState = proxy({
                 resModel: "animal",
                 domain: [["type", "=", "carnivorous"]],
                 context,
@@ -335,13 +316,13 @@ test("search defaults are removed from context at reload", async function () {
     }
 
     const parent = await mountWithCleanup(Parent);
-    expect.verifySteps(["willStart"]);
+    expect.verifySteps(["useEffect"]);
 
     expect(parent.searchState.context).toEqual(context);
 
     parent.searchState.domain = [["type", "=", "herbivorous"]];
 
     await animationFrame();
-    expect.verifySteps(["willUpdateProps"]);
+    expect.verifySteps(["useEffect"]);
     expect(parent.searchState.context).toEqual(context);
 });

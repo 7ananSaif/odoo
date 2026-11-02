@@ -1,4 +1,4 @@
-import { browser } from "@web/core/browser/browser";
+import { location, browser } from "@web/core/browser/browser";
 import { pyToJsLocale } from "@web/core/l10n/utils/locales";
 import { rpc } from "@web/core/network/rpc";
 import { Cache } from "@web/core/utils/cache";
@@ -39,6 +39,7 @@ export function _makeUser(session) {
         home_action_id: homeActionId,
         is_admin: isAdmin,
         is_internal_user: isInternalUser,
+        is_regular_user: isRegularUser,
         is_system: isSystem,
         is_public: isPublic,
         name,
@@ -51,6 +52,7 @@ export function _makeUser(session) {
         partner_write_date: writeDate,
         user_companies: userCompanies,
         groups = {},
+        bundle_params: bundleParams,
     } = session;
     const settings = user_settings || {};
 
@@ -119,17 +121,27 @@ export function _makeUser(session) {
         if (!userId) {
             return Promise.resolve(false);
         }
-        return rpc("/web/dataset/call_kw/res.users/has_group", {
+        const params = {
             model: "res.users",
             method: "has_group",
             args: [userId, group],
             kwargs: { context },
-        });
+        };
+        const cache = {
+            type: "disk",
+            callback: (updatedValue) => {
+                groupCache.cache[group] = Promise.resolve(updatedValue);
+            },
+        };
+        return rpc("/web/dataset/call_kw/res.users/has_group", params, { cache });
     };
     const getGroupCacheKey = (group) => group;
     const groupCache = new Cache(getGroupCacheValue, getGroupCacheKey);
     if (isInternalUser !== undefined) {
         groupCache.cache["base.group_user"] = Promise.resolve(isInternalUser);
+    }
+    if (isRegularUser !== undefined) {
+        groupCache.cache["base.group_user_regular"] = Promise.resolve(isRegularUser);
     }
     if (isSystem !== undefined) {
         groupCache.cache["base.group_system"] = Promise.resolve(isSystem);
@@ -155,7 +167,7 @@ export function _makeUser(session) {
     const getAccessRightCacheKey = (model, operation, ids) =>
         JSON.stringify([model, operation, ids]);
     const accessRightCache = new Cache(getAccessRightCacheValue, getAccessRightCacheKey);
-    const lang = pyToJsLocale(context?.lang);
+    const lang = pyToJsLocale(context?.lang || bundleParams?.lang);
 
     return {
         name,
@@ -163,6 +175,7 @@ export function _makeUser(session) {
         isAdmin,
         isSystem,
         isInternalUser,
+        isRegularUser,
         partnerId,
         homeActionId,
         showEffect,
@@ -245,7 +258,7 @@ export function _makeUser(session) {
             updateActiveCompanies(newCompanyIds, allowedCompanies, defaultCompany);
 
             if (options.reload) {
-                browser.location.reload();
+                location.reload();
             }
         },
     };

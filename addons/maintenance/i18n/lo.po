@@ -9,57 +9,36 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 11.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-16 13:48+0000\n"
-"PO-Revision-Date: 2026-06-06 19:38+0000\n"
+"POT-Creation-Date: 2026-09-18 17:38+0000\n"
+"PO-Revision-Date: 2026-10-19 01:37+0000\n"
 "Last-Translator: Bone NI <bounkirdni@gmail.com>\n"
-"Language-Team: Lao <https://translate.odoo.com/projects/odoo-19/maintenance/"
+"Language-Team: Lao <https://translate.odoo.com/projects/odoo-20/maintenance/"
 "lo/>\n"
 "Language: lo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: maintenance
-#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_kanban
-msgid "<b>Category:</b>"
-msgstr "<b>ໝວດໝູ່:</b>"
-
-#. module: maintenance
-#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_kanban
-msgid "<b>Model Number:</b>"
-msgstr "<b>ເລກແບບ:</b>"
-
-#. module: maintenance
-#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_kanban
-msgid "<b>Request to:</b>"
-msgstr "<b>ສົ່ງຄຳຮ້ອງເຖິງ:</b>"
-
-#. module: maintenance
-#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_kanban
-msgid "<b>Serial Number:</b>"
-msgstr "<b>ເລກລຳດັບ:</b>"
-
-#. module: maintenance
-#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_form
-msgid "<span class=\"badge text-bg-warning float-end\">Canceled</span>"
-msgstr "<span class=\"badge text-bg-warning float-end\">ຍົກເລີກແລ້ວ</span>"
-
-#. module: maintenance
-#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_form
-msgid "<span class=\"ml8\">hours</span>"
-msgstr "<span class=\"ml8\">ຊົ່ວໂມງ</span>"
+#: model:ir.module.module,description:base.module_maintenance
+msgid ""
+"\n"
+"Track equipment and maintenance requests"
+msgstr ""
+"\n"
+"ຕິດຕາມອຸປະກອນ ແລະ ຄຳຮ້ອງຂໍບຳລຸງຮັກສາ"
 
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.maintenance_team_kanban
 msgid "<span>Reporting</span>"
-msgstr "<span>ການລາຍງານ</span>"
+msgstr "<span>ບົດລາຍງານ</span>"
 
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.maintenance_team_kanban
 msgid "<span>Requests</span>"
-msgstr "<span>ຄຳຮ້ອງ</span>"
+msgstr "<span>ຄຳຮ້ອງຂໍ</span>"
 
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.view_maintenance_equipment_category_kanban
@@ -68,27 +47,29 @@ msgstr "<strong>ອຸປະກອນ:</strong>"
 
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.view_maintenance_equipment_category_kanban
-msgid "<strong>Maintenance:</strong>"
-msgstr "<strong>ການບຳລຸງຮັກສາ:</strong>"
+msgid "<strong>Maintenance: </strong>"
+msgstr "<strong>ການບຳລຸງຮັກສາ: </strong>"
 
 #. module: maintenance
-#: model:ir.model.fields,help:maintenance.field_maintenance_equipment_category__alias_defaults
-msgid "A Python dictionary that will be evaluated to provide default values when creating new records for this alias."
+#: model:ir.model.fields,help:maintenance.field_maintenance_team__alias_defaults
+msgid ""
+"A Python dictionary that will be evaluated to provide default values when "
+"creating new records for this alias."
 msgstr ""
-"Python dictionary ທີ່ຈະຖືກປະເມີນເພື່ອໃຫ້ຄ່າເລີ່ມຕົ້ນ ເມື່ອສ້າງບັນທຶກໃໝ່ສຳລັບນາມແຝງນີ້."
+"ພົດຈະນານຸກົມ Python ທີ່ຈະຖືກປະເມີນເພື່ອສະໜອງຄ່າເລີ່ມຕົ້ນ ເມື່ອສ້າງບັນທຶກໃໝ່ສຳລັບນາມແຝງນີ້."
 
 #. module: maintenance
 #: model:maintenance.equipment,name:maintenance.equipment_computer3
 #: model:maintenance.equipment,name:maintenance.equipment_computer5
 msgid "Acer Laptop"
-msgstr "ຄອມພິວເຕີພົກພາ Acer"
+msgstr "ແລັບທັອບ Acer"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__message_needaction
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__message_needaction
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_request__message_needaction
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_team__message_needaction
 msgid "Action Needed"
-msgstr "ຕ້ອງການການດຳເນີນການ"
+msgstr "ຕ້ອງດຳເນີນການ"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__active
@@ -106,7 +87,13 @@ msgstr "ກິດຈະກຳ"
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__activity_exception_decoration
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_request__activity_exception_decoration
 msgid "Activity Exception Decoration"
-msgstr "ການຕົບແຕ່ງກິດຈະກຳທີ່ຍົກເວັ້ນ"
+msgstr "ຮູບແບບຂໍ້ຍົກເວັ້ນກິດຈະກຳ"
+
+#. module: maintenance
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__activity_plans_ids
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_request__activity_plans_ids
+msgid "Activity Plans"
+msgstr "ແຜນກິດຈະກຳ"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__activity_state
@@ -145,53 +132,63 @@ msgstr "ເພີ່ມໝວດໝູ່ອຸປະກອນໃໝ່"
 #: model_terms:ir.actions.act_window,help:maintenance.hr_equipment_todo_request_action_from_dashboard
 #: model_terms:ir.actions.act_window,help:maintenance.maintenance_request_action_reports
 msgid "Add a new maintenance request"
-msgstr "ເພີ່ມຄຳຮ້ອງຂໍການບຳລຸງຮັກສາໃໝ່"
+msgstr "ເພີ່ມຄຳຮ້ອງຂໍບຳລຸງຮັກສາໃໝ່"
 
 #. module: maintenance
 #: model_terms:ir.actions.act_window,help:maintenance.hr_equipment_stage_action
 #: model_terms:ir.actions.act_window,help:maintenance.maintenance_dashboard_action
 msgid "Add a new stage in the maintenance request"
-msgstr "ເພີ່ມຂັ້ນຕອນໃໝ່ໃນຄຳຮ້ອງຂໍການບຳລຸງຮັກສາ"
+msgstr "ເພີ່ມຂັ້ນຕອນໃໝ່ໃນຄຳຮ້ອງຂໍບຳລຸງຮັກສາ"
 
 #. module: maintenance
 #: model_terms:ir.actions.act_window,help:maintenance.maintenance_team_action_settings
 msgid "Add a team in the maintenance request"
-msgstr "ເພີ່ມທີມງານໃນຄຳຮ້ອງຂໍການບຳລຸງຮັກສາ"
+msgstr "ເພີ່ມທີມງານໃນຄຳຮ້ອງຂໍບຳລຸງຮັກສາ"
 
 #. module: maintenance
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__alias_id
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_team__alias_id
 msgid "Alias"
 msgstr "ນາມແຝງ"
 
 #. module: maintenance
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__alias_contact
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_team__alias_contact
 msgid "Alias Contact Security"
-msgstr "ຄວາມປອດໄພຂອງການຕິດຕໍ່ນາມແຝງ"
+msgstr "ຄວາມປອດໄພຂອງຜູ້ຕິດຕໍ່ນາມແຝງ"
 
 #. module: maintenance
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__alias_name
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_team__alias_domain_id
+msgid "Alias Domain"
+msgstr "ໂດເມນນາມແຝງ"
+
+#. module: maintenance
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_team__alias_domain
+msgid "Alias Domain Name"
+msgstr "ຊື່ໂດເມນນາມແຝງ"
+
+#. module: maintenance
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_team__alias_full_name
+msgid "Alias Email"
+msgstr "ອີເມວນາມແຝງ"
+
+#. module: maintenance
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_team__alias_name
 msgid "Alias Name"
 msgstr "ຊື່ນາມແຝງ"
 
 #. module: maintenance
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__alias_status
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_team__alias_status
 msgid "Alias Status"
 msgstr "ສະຖານະນາມແຝງ"
 
 #. module: maintenance
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__alias_domain
-msgid "Alias domain"
-msgstr "ໂດເມນນາມແຝງ"
-
-#. module: maintenance
-#: model:ir.model.fields,help:maintenance.field_maintenance_equipment_category__alias_status
+#: model:ir.model.fields,help:maintenance.field_maintenance_team__alias_status
 msgid "Alias status assessed on the last message received."
-msgstr "ສະຖານະນາມແຝງທີ່ປະເມີນຈາກຂໍ້ຄວາມຫຼ້າສຸດທີ່ໄດ້ຮັບ."
+msgstr "ສະຖານະນາມແຝງຖືກປະເມີນຈາກຂໍ້ຄວາມຫຼ້າສຸດທີ່ໄດ້ຮັບ."
 
 #. module: maintenance
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__alias_model_id
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_team__alias_model_id
 msgid "Aliased Model"
-msgstr "ແບບຈຳລອງນາມແຝງ"
+msgstr "ໂມເດວທີ່ຕັ້ງນາມແຝງ"
 
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.maintenance_team_kanban
@@ -199,23 +196,29 @@ msgid "All"
 msgstr "ທັງໝົດ"
 
 #. module: maintenance
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_stage_view_form
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_stage_view_tree
+msgid "All Maintenance Teams"
+msgstr "ທີມງານບຳລຸງຮັກສາທັງໝົດ"
+
+#. module: maintenance
 #: model:ir.model.constraint,message:maintenance.constraint_maintenance_equipment_serial_no
 msgid "Another asset already exists with this serial number!"
-msgstr "ມີຊັບສິນອື່ນທີ່ໃຊ້ເລກລຳດັບນີ້ແລ້ວ!"
+msgstr "ມີຊັບສິນອື່ນທີ່ໃຊ້ເລກລຳດັບ (Serial Number) ນີ້ຢູ່ແລ້ວ!"
 
 #. module: maintenance
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_request__archive
-msgid "Archive"
-msgstr "ເກັບເຂົ້າຄັງ"
-
-#. module: maintenance
+#: model:ir.model.fields.selection,name:maintenance.selection__maintenance_request__state__approved
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_search
+msgid "Approved"
+msgstr "ອະນຸມັດແລ້ວ"
+
+#. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_form
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_search
 #: model_terms:ir.ui.view,arch_db:maintenance.maintenance_team_view_form
 #: model_terms:ir.ui.view,arch_db:maintenance.maintenance_team_view_search
 msgid "Archived"
-msgstr "ເກັບໄວ້ໃນຄັງແລ້ວ"
+msgstr "ຈັດເກັບແລ້ວ"
 
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_category_view_tree
@@ -239,23 +242,28 @@ msgid "Assigned to"
 msgstr "ມອບໝາຍໃຫ້"
 
 #. module: maintenance
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__message_attachment_count
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__message_attachment_count
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_request__message_attachment_count
-msgid "Attachment Count"
-msgstr "ຈຳນວນໄຟລ໌ຄັດຕິດ"
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_form
+msgid "Assignees"
+msgstr "ຜູ້ຮັບມອບໝາຍ"
 
 #. module: maintenance
-#: model:ir.model.fields.selection,name:maintenance.selection__maintenance_request__kanban_state__blocked
-#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_search
-#: model_terms:ir.ui.view,arch_db:maintenance.maintenance_team_kanban
-msgid "Blocked"
-msgstr "ຖືກບລັອກ"
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__message_attachment_count
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_request__message_attachment_count
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_team__message_attachment_count
+msgid "Attachment Count"
+msgstr "ຈຳນວນໄຟລ໌ຄັດຕິດ"
 
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_form
 msgid "Cancel"
 msgstr "ຍົກເລີກ"
+
+#. module: maintenance
+#: model:ir.model.fields.selection,name:maintenance.selection__maintenance_request__state__cancelled
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_search
+#: model_terms:ir.ui.view,arch_db:maintenance.maintenance_team_kanban
+msgid "Cancelled"
+msgstr "ຍົກເລີກແລ້ວ"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_request__category_id
@@ -270,6 +278,13 @@ msgstr "ໝວດໝູ່"
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_category_view_search
 msgid "Category Name"
 msgstr "ຊື່ໝວດໝູ່"
+
+#. module: maintenance
+#: model:ir.model.fields.selection,name:maintenance.selection__maintenance_request__state__changes_requested
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_search
+#: model_terms:ir.ui.view,arch_db:maintenance.maintenance_team_kanban
+msgid "Changes Requested"
+msgstr "ຮ້ອງຂໍການປ່ຽນແປງ"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_request__close_date
@@ -287,15 +302,22 @@ msgstr "ດັດຊະນີສີ"
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__note
 msgid "Comments"
-msgstr "ຄວາມຄິດເຫັນ"
+msgstr "ຄຳຄິດເຫັນ"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__company_id
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__company_id
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_mixin__company_id
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_request__company_id
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_team__company_id
 msgid "Company"
 msgstr "ບໍລິສັດ"
+
+#. module: maintenance
+#: model:ir.model.fields,help:maintenance.field_maintenance_equipment__estimated_next_failure
+#: model:ir.model.fields,help:maintenance.field_maintenance_mixin__estimated_next_failure
+msgid "Computed as Latest Failure Date + MTBF"
+msgstr "ຄິດໄລ່ຈາກ ວັນທີຂັດຂ້ອງຫຼ້າສຸດ + MTBF"
 
 #. module: maintenance
 #: model:maintenance.equipment.category,name:maintenance.equipment_computer
@@ -303,20 +325,30 @@ msgid "Computers"
 msgstr "ຄອມພິວເຕີ"
 
 #. module: maintenance
+#: model:ir.model,name:maintenance.model_res_config_settings
+msgid "Config Settings"
+msgstr "ການຕັ້ງຄ່າລະບົບ"
+
+#. module: maintenance
 #: model:ir.ui.menu,name:maintenance.menu_maintenance_configuration
 #: model_terms:ir.ui.view,arch_db:maintenance.maintenance_team_kanban
 msgid "Configuration"
-msgstr "ການຕັ້ງຄ່າ"
+msgstr "ການກຳນົດຄ່າ"
 
 #. module: maintenance
 #: model:ir.model.fields.selection,name:maintenance.selection__maintenance_request__maintenance_type__corrective
 msgid "Corrective"
-msgstr "ການແກ້ໄຂ"
+msgstr "ແກ້ໄຂບັນຫາ"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__cost
 msgid "Cost"
 msgstr "ຕົ້ນທຶນ"
+
+#. module: maintenance
+#: model_terms:ir.ui.view,arch_db:maintenance.res_config_settings_view_form
+msgid "Create custom worksheet templates"
+msgstr "ສ້າງແບບຟອມໃບງານກຳນົດເອງ"
 
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_search
@@ -348,40 +380,38 @@ msgstr "ສ້າງເມື່ອ"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__maintenance_open_count
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__maintenance_open_count
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_mixin__maintenance_open_count
 msgid "Current Maintenance"
 msgstr "ການບຳລຸງຮັກສາປັດຈຸບັນ"
 
 #. module: maintenance
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__alias_bounced_content
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_team__alias_bounced_content
 msgid "Custom Bounced Message"
-msgstr "ຂໍ້ຄວາມຕີກັບແບບກຳນົດເອງ"
+msgstr "ຂໍ້ຄວາມຕີກັບກຳນົດເອງ"
+
+#. module: maintenance
+#: model:ir.model.fields,field_description:maintenance.field_res_config_settings__module_maintenance_worksheet
+msgid "Custom Maintenance Worksheets"
+msgstr "ໃບງານບຳລຸງຮັກສາກຳນົດເອງ"
+
+#. module: maintenance
+#: model_terms:ir.ui.view,arch_db:maintenance.res_config_settings_view_form
+msgid "Custom Worksheets"
+msgstr "ໃບງານກຳນົດເອງ"
 
 #. module: maintenance
 #: model:ir.ui.menu,name:maintenance.menu_m_dashboard
 msgid "Dashboard"
-msgstr "ກະດານຂໍ້ມູນ"
-
-#. module: maintenance
-#: model:ir.model.fields,help:maintenance.field_maintenance_equipment__effective_date
-msgid "Date at which the equipment became effective. This date will be used to compute the Mean Time Between Failure."
-msgstr ""
-"ວັນທີທີ່ອຸປະກອນເລີ່ມມີຜົນໃຊ້ງານ. ວັນທີນີ້ຈະຖືກໃຊ້ເພື່ອຄິດໄລ່ໄລຍະເວລາສະເລ່ຍລະຫວ່າງການຂັດຂ້ອງ (MTBF)."
-
-#. module: maintenance
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__next_action_date
-msgid "Date of the next preventive maintenance"
-msgstr "ວັນທີຂອງການບຳລຸງຮັກສາປ້ອງກັນຄັ້ງຕໍ່ໄປ"
-
-#. module: maintenance
-#: model:ir.model.fields,help:maintenance.field_maintenance_request__request_date
-msgid "Date requested for the maintenance to happen"
-msgstr "ວັນທີທີ່ຮ້ອງຂໍໃຫ້ມີການບຳລຸງຮັກສາ"
+msgstr "ແຜງຄວບຄຸມ"
 
 #. module: maintenance
 #: model:ir.model.fields,help:maintenance.field_maintenance_request__schedule_date
-msgid "Date the maintenance team plans the maintenance.  It should not differ much from the Request Date. "
+msgid ""
+"Date the maintenance team plans the maintenance.  It should not differ much "
+"from the Request Date. "
 msgstr ""
-"ວັນທີທີມງານບຳລຸງຮັກສາວາງແຜນການບຳລຸງຮັກສາ. ມັນບໍ່ຄວນແຕກຕ່າງຈາກວັນທີຮ້ອງຂໍຫຼາຍປານໃດ. "
+"ວັນທີທີ່ທີມງານບຳລຸງຮັກສາວາງແຜນໄວ້. ບໍ່ຄວນແຕກຕ່າງຈາກວັນທີຮ້ອງຂໍຫຼາຍເກີນໄປ. "
 
 #. module: maintenance
 #: model:ir.model.fields,help:maintenance.field_maintenance_request__close_date
@@ -389,17 +419,17 @@ msgid "Date the maintenance was finished. "
 msgstr "ວັນທີການບຳລຸງຮັກສາສຳເລັດ. "
 
 #. module: maintenance
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__period
-msgid "Days between each preventive maintenance"
-msgstr "ຈຳນວນມື້ລະຫວ່າງການບຳລຸງຮັກສາປ້ອງກັນແຕ່ລະຄັ້ງ"
+#: model:ir.model.fields.selection,name:maintenance.selection__maintenance_request__repeat_unit__day
+msgid "Days"
+msgstr "ມື້"
 
 #. module: maintenance
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__alias_defaults
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_team__alias_defaults
 msgid "Default Values"
 msgstr "ຄ່າເລີ່ມຕົ້ນ"
 
 #. module: maintenance
-#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_kanban
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_card
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_kanban
 msgid "Delete"
 msgstr "ລຶບ"
@@ -413,13 +443,17 @@ msgstr "ຄຳອະທິບາຍ"
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__display_name
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__display_name
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_mixin__display_name
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_request__display_name
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_stage__display_name
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_team__display_name
+#: model:ir.model.fields,field_description:maintenance.field_res_config_settings__display_name
 msgid "Display Name"
-msgstr "ຊື່ທີ່ສະແດງ"
+msgstr "ຊື່ສະແດງ"
 
 #. module: maintenance
+#: model:ir.model.fields.selection,name:maintenance.selection__maintenance_request__state__done
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_search
 #: model_terms:ir.ui.view,arch_db:maintenance.maintenance_team_kanban
 msgid "Done"
 msgstr "ສຳເລັດ"
@@ -435,32 +469,43 @@ msgid "Duration in hours."
 msgstr "ໄລຍະເວລາເປັນຊົ່ວໂມງ."
 
 #. module: maintenance
-#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_kanban
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_card
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_kanban
 msgid "Edit..."
 msgstr "ແກ້ໄຂ..."
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__effective_date
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_mixin__effective_date
 msgid "Effective Date"
-msgstr "ວັນທີມີຜົນສັກສິດ"
+msgstr "ວັນທີມີຜົນບັງຄັບໃຊ້"
 
 #. module: maintenance
-#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_category_view_form
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_team__alias_email
+#: model_terms:ir.ui.view,arch_db:maintenance.maintenance_team_view_form
 msgid "Email Alias"
-msgstr "ນາມແຝງອີເມລ"
+msgstr "ອີເມວນາມແຝງ"
 
 #. module: maintenance
-#: model:ir.model.fields,help:maintenance.field_maintenance_equipment_category__alias_id
-msgid "Email alias for this equipment category. New emails will automatically create a new equipment under this category."
-msgstr ""
-"ນາມແຝງອີເມລສຳລັບໝວດໝູ່ອຸປະກອນນີ້. ອີເມລໃໝ່ຈະສ້າງອຸປະກອນໃໝ່ພາຍໃຕ້ໝວດໝູ່ນີ້ໂດຍອັດຕະໂນມັດ."
+#: model:ir.model.fields,help:maintenance.field_maintenance_team__alias_id
+msgid "Email alias for this maintenance team."
+msgstr "ອີເມວນາມແຝງສຳລັບທີມງານບຳລຸງຮັກສານີ້."
 
 #. module: maintenance
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_request__email_cc
-#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_form
-msgid "Email cc"
-msgstr "ອີເມລ cc"
+#: model:ir.model.fields,help:maintenance.field_maintenance_team__alias_domain
+msgid "Email domain e.g. 'example.com' in 'odoo@example.com'"
+msgstr "ໂດເມນອີເມວ ເຊັ່ນ: 'example.com' ໃນ 'odoo@example.com'"
+
+#. module: maintenance
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_request__repeat_until
+msgid "End Date"
+msgstr "ວັນທີສິ້ນສຸດ"
+
+#. module: maintenance
+#. odoo-python
+#: code:addons/maintenance/models/maintenance.py:0
+msgid "End date cannot be earlier than start date."
+msgstr "ວັນທີສິ້ນສຸດບໍ່ສາມາດມາກ່ອນວັນທີເລີ່ມຕົ້ນໄດ້."
 
 #. module: maintenance
 #: model:ir.actions.act_window,name:maintenance.hr_equipment_action
@@ -480,7 +525,7 @@ msgstr "ອຸປະກອນ"
 #: model:mail.message.subtype,name:maintenance.mt_cat_mat_assign
 #: model:mail.message.subtype,name:maintenance.mt_mat_assign
 msgid "Equipment Assigned"
-msgstr "ມອບໝາຍອຸປະກອນແລ້ວ"
+msgstr "ອຸປະກອນທີ່ຖືກມອບໝາຍ"
 
 #. module: maintenance
 #: model:ir.actions.act_window,name:maintenance.hr_equipment_category_action
@@ -510,10 +555,44 @@ msgid "Equipment Name"
 msgstr "ຊື່ອຸປະກອນ"
 
 #. module: maintenance
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__equipment_properties_definition
+msgid "Equipment Properties"
+msgstr "ຄຸນສົມບັດອຸປະກອນ"
+
+#. module: maintenance
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_form
+msgid "Estimated Next Failure"
+msgstr "ປະເມີນການຂັດຂ້ອງຄັ້ງຕໍ່ໄປ"
+
+#. module: maintenance
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__estimated_next_failure
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_mixin__estimated_next_failure
+msgid "Estimated time before next failure (in days)"
+msgstr "ໄລຍະເວລາປະເມີນກ່ອນການຂັດຂ້ອງຄັ້ງຕໍ່ໄປ (ເປັນມື້)"
+
+#. module: maintenance
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__expected_mtbf
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_mixin__expected_mtbf
+msgid "Expected MTBF"
+msgstr "MTBF ທີ່ຄາດຫວັງ"
+
+#. module: maintenance
+#: model:ir.model.fields,help:maintenance.field_maintenance_equipment__expected_mtbf
+#: model:ir.model.fields,help:maintenance.field_maintenance_mixin__expected_mtbf
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_form
+msgid "Expected Mean Time Between Failure"
+msgstr "ໄລຍະເວລາສະເລ່ຍລະຫວ່າງການຂັດຂ້ອງທີ່ຄາດຫວັງ (Expected MTBF)"
+
+#. module: maintenance
+#: model:ir.model.fields,help:maintenance.field_maintenance_request__schedule_end
+msgid "Expected completion date and time of the maintenance request."
+msgstr "ວັນທີ ແລະ ເວລາທີ່ຄາດວ່າຈະສຳເລັດຂອງຄຳຮ້ອງຂໍບຳລຸງຮັກສາ."
+
+#. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__fold
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_stage__fold
 msgid "Folded in Maintenance Pipe"
-msgstr "ພັບໄວ້ໃນຂັ້ນຕອນການບຳລຸງຮັກສາ"
+msgstr "ພັບໄວ້ໃນຂັ້ນຕອນບຳລຸງຮັກສາ"
 
 #. module: maintenance
 #: model_terms:ir.actions.act_window,help:maintenance.hr_equipment_request_action
@@ -522,41 +601,34 @@ msgstr "ພັບໄວ້ໃນຂັ້ນຕອນການບຳລຸງຮ
 #: model_terms:ir.actions.act_window,help:maintenance.hr_equipment_request_action_link
 #: model_terms:ir.actions.act_window,help:maintenance.hr_equipment_todo_request_action_from_dashboard
 #: model_terms:ir.actions.act_window,help:maintenance.maintenance_request_action_reports
-msgid "Follow the process of the request and communicate with the collaborator."
-msgstr "ຕິດຕາມຂັ້ນຕອນຂອງຄຳຮ້ອງຂໍ ແລະ ຕິດຕໍ່ສື່ສານກັບຜູ້ຮ່ວມງານ."
+msgid ""
+"Follow the process of the request and communicate with the collaborator."
+msgstr "ຕິດຕາມຂະບວນການຂອງຄຳຮ້ອງຂໍ ແລະ ຕິດຕໍ່ສື່ສານກັບຜູ້ຮ່ວມງານ."
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__message_follower_ids
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__message_follower_ids
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_request__message_follower_ids
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_team__message_follower_ids
 msgid "Followers"
 msgstr "ຜູ້ຕິດຕາມ"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__message_partner_ids
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__message_partner_ids
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_request__message_partner_ids
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_team__message_partner_ids
 msgid "Followers (Partners)"
 msgstr "ຜູ້ຕິດຕາມ (ຄູ່ຄ້າ)"
 
 #. module: maintenance
-#: model:ir.model.fields,help:maintenance.field_maintenance_equipment__activity_type_icon
-#: model:ir.model.fields,help:maintenance.field_maintenance_request__activity_type_icon
-msgid "Font awesome icon e.g. fa-tasks"
-msgstr "ໄອຄອນ Font awesome ເຊັ່ນ: fa-tasks"
+#: model:ir.model.fields.selection,name:maintenance.selection__maintenance_request__repeat_type__forever
+msgid "Forever"
+msgstr "ຕະຫຼອດໄປ"
 
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_search
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_search
 msgid "Future Activities"
 msgstr "ກິດຈະກຳໃນອະນາຄົດ"
-
-#. module: maintenance
-#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_category_view_search
-#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_search
-#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_search
-msgid "Group by..."
-msgstr "ຈັດກຸ່ມຕາມ..."
 
 #. module: maintenance
 #: model:maintenance.equipment,name:maintenance.equipment_printer1
@@ -567,12 +639,12 @@ msgstr "ເຄື່ອງພິມ HP Inkjet"
 #: model:maintenance.equipment,name:maintenance.equipment_computer11
 #: model:maintenance.equipment,name:maintenance.equipment_computer9
 msgid "HP Laptop"
-msgstr "ຄອມພິວເຕີພົກພາ HP"
+msgstr "ແລັບທັອບ HP"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__has_message
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__has_message
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_request__has_message
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_team__has_message
 msgid "Has Message"
 msgstr "ມີຂໍ້ຄວາມ"
 
@@ -584,21 +656,26 @@ msgstr "ສູງ"
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_search
 msgid "High-priority"
-msgstr "ຄວາມສຳຄັນສູງ"
+msgstr "ບູລິມະສິດສູງ"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__id
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__id
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_mixin__id
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_request__id
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_stage__id
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_team__id
+#: model:ir.model.fields,field_description:maintenance.field_res_config_settings__id
 msgid "ID"
-msgstr "ໄອດີ"
+msgstr "ໄອດີ (ID)"
 
 #. module: maintenance
-#: model:ir.model.fields,help:maintenance.field_maintenance_equipment_category__alias_parent_thread_id
-msgid "ID of the parent record holding the alias (example: project holding the task creation alias)"
-msgstr "ໄອດີຂອງບັນທຶກແມ່ທີ່ຖືນາມແຝງ (ຕົວຢ່າງ: ໂຄງການທີ່ຖືນາມແຝງການສ້າງໜ້າວຽກ)"
+#: model:ir.model.fields,help:maintenance.field_maintenance_team__alias_parent_thread_id
+msgid ""
+"ID of the parent record holding the alias (example: project holding the task "
+"creation alias)"
+msgstr ""
+"ໄອດີຂອງບັນທຶກແມ່ທີ່ຖືນາມແຝງ (ຕົວຢ່າງ: ໂຄງການທີ່ຖືນາມແຝງສຳລັບການສ້າງໜ້າວຽກ)"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__activity_exception_icon
@@ -610,34 +687,41 @@ msgstr "ໄອຄອນ"
 #: model:ir.model.fields,help:maintenance.field_maintenance_equipment__activity_exception_icon
 #: model:ir.model.fields,help:maintenance.field_maintenance_request__activity_exception_icon
 msgid "Icon to indicate an exception activity."
-msgstr "ໄອຄອນເພື່ອຊີ້ບອກກິດຈະກຳທີ່ຍົກເວັ້ນ."
+msgstr "ໄອຄອນເພື່ອສະແດງກິດຈະກຳທີ່ເປັນຂໍ້ຍົກເວັ້ນ."
 
 #. module: maintenance
 #: model:ir.model.fields,help:maintenance.field_maintenance_equipment__message_needaction
-#: model:ir.model.fields,help:maintenance.field_maintenance_equipment_category__message_needaction
 #: model:ir.model.fields,help:maintenance.field_maintenance_request__message_needaction
+#: model:ir.model.fields,help:maintenance.field_maintenance_team__message_needaction
 msgid "If checked, new messages require your attention."
-msgstr "ຖ້າໝາຍໄວ້, ຂໍ້ຄວາມໃໝ່ຕ້ອງການຄວາມສົນໃຈຈາກທ່ານ."
+msgstr "ຖ້າໝາຍຕິກ, ຂໍ້ຄວາມໃໝ່ຕ້ອງການຄວາມສົນໃຈຈາກທ່ານ."
 
 #. module: maintenance
 #: model:ir.model.fields,help:maintenance.field_maintenance_equipment__message_has_error
-#: model:ir.model.fields,help:maintenance.field_maintenance_equipment_category__message_has_error
 #: model:ir.model.fields,help:maintenance.field_maintenance_request__message_has_error
+#: model:ir.model.fields,help:maintenance.field_maintenance_team__message_has_error
 msgid "If checked, some messages have a delivery error."
-msgstr "ຖ້າໝາຍໄວ້, ບາງຂໍ້ຄວາມມີຂໍ້ຜິດພາດໃນການສົ່ງ."
+msgstr "ຖ້າໝາຍຕິກ, ມີບາງຂໍ້ຄວາມເກີດຂໍ້ຜິດພາດໃນການສົ່ງ."
 
 #. module: maintenance
-#: model:ir.model.fields,help:maintenance.field_maintenance_equipment_category__alias_bounced_content
-msgid "If set, this content will automatically be sent out to unauthorized users instead of the default message."
+#: model:ir.model.fields,help:maintenance.field_maintenance_team__alias_bounced_content
+msgid ""
+"If set, this content will automatically be sent out to unauthorized users "
+"instead of the default message."
 msgstr ""
-"ຖ້າຕັ້ງໄວ້, ເນື້ອຫານີ້ຈະຖືກສົ່ງໃຫ້ຜູ້ໃຊ້ທີ່ບໍ່ໄດ້ຮັບອະນຸຍາດໂດຍອັດຕະໂນມັດ ແທນທີ່ຈະເປັນຂໍ້ຄວາມເລີ່ມຕົ້ນ."
+"ຖ້າກຳນົດໄວ້, ເນື້ອຫານີ້ຈະຖືກສົ່ງໄປຫາຜູ້ໃຊ້ທີ່ບໍ່ໄດ້ຮັບອະນຸຍາດໂດຍອັດຕະໂນມັດ ແທນຂໍ້ຄວາມເລີ່ມຕົ້ນ."
 
 #. module: maintenance
-#: model:ir.model.fields.selection,name:maintenance.selection__maintenance_request__kanban_state__normal
+#: model:ir.model.fields.selection,name:maintenance.selection__maintenance_request__state__normal
 #: model:maintenance.stage,name:maintenance.stage_1
-#: model_terms:ir.ui.view,arch_db:maintenance.maintenance_team_kanban
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_search
 msgid "In Progress"
 msgstr "ກຳລັງດຳເນີນການ"
+
+#. module: maintenance
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_form
+msgid "Instructions"
+msgstr "ຄຳແນະນຳ"
 
 #. module: maintenance
 #: model:maintenance.team,name:maintenance.equipment_team_maintenance
@@ -650,16 +734,16 @@ msgid "Internal Notes"
 msgstr "ບັນທຶກພາຍໃນ"
 
 #. module: maintenance
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__message_is_follower
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__message_is_follower
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_request__message_is_follower
-msgid "Is Follower"
-msgstr "ເປັນຜູ້ຕິດຕາມ"
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__is_assigned
+msgid "Is Assigned"
+msgstr "ຖືກມອບໝາຍແລ້ວ"
 
 #. module: maintenance
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_request__kanban_state
-msgid "Kanban State"
-msgstr "ສະຖານະ Kanban"
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__message_is_follower
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_request__message_is_follower
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_team__message_is_follower
+msgid "Is Follower"
+msgstr "ເປັນຜູ້ຕິດຕາມ"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__write_uid
@@ -683,12 +767,23 @@ msgstr "ອັບເດດຫຼ້າສຸດເມື່ອ"
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_search
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_search
 msgid "Late Activities"
-msgstr "ກິດຈະກຳທີ່ຊ້າກວ່າກຳນົດ"
+msgstr "ກິດຈະກຳກາຍກຳນົດ"
 
 #. module: maintenance
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__location
-msgid "Location"
-msgstr "ສະຖານທີ່"
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_form
+msgid "Latest Failure"
+msgstr "ການຂັດຂ້ອງຫຼ້າສຸດ"
+
+#. module: maintenance
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__latest_failure_date
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_mixin__latest_failure_date
+msgid "Latest Failure Date"
+msgstr "ວັນທີຂັດຂ້ອງຫຼ້າສຸດ"
+
+#. module: maintenance
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_team__alias_incoming_local
+msgid "Local-part based incoming detection"
+msgstr "ການກວດຫາຂາເຂົ້າໂດຍອີງຕາມພາກສ່ວນທ້ອງຖິ່ນ (Local-part)"
 
 #. module: maintenance
 #: model:ir.ui.menu,name:maintenance.menu_m_reports_losses
@@ -701,36 +796,37 @@ msgid "Low"
 msgstr "ຕ່ຳ"
 
 #. module: maintenance
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__mtbf
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_mixin__mtbf
+msgid "MTBF"
+msgstr "MTBF"
+
+#. module: maintenance
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__mttr
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_mixin__mttr
+msgid "MTTR"
+msgstr "MTTR"
+
+#. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__maintenance_ids
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__maintenance_ids
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_mixin__maintenance_ids
+#: model:ir.module.module,shortdesc:base.module_maintenance
 #: model:ir.ui.menu,name:maintenance.menu_m_request
 #: model:ir.ui.menu,name:maintenance.menu_maintenance_title
+#: model:res.groups.privilege,name:maintenance.res_groups_privilege_maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_category_view_form
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_form
+#: model_terms:ir.ui.view,arch_db:maintenance.res_config_settings_view_form
 msgid "Maintenance"
 msgstr "ການບຳລຸງຮັກສາ"
 
 #. module: maintenance
-#: model:ir.ui.menu,name:maintenance.menu_m_request_calendar
-msgid "Maintenance Calendar"
-msgstr "ປະຕິທິນການບຳລຸງຮັກສາ"
-
-#. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__maintenance_count
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__maintenance_count
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_mixin__maintenance_count
 msgid "Maintenance Count"
 msgstr "ຈຳນວນການບຳລຸງຮັກສາ"
-
-#. module: maintenance
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__maintenance_duration
-#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_form
-msgid "Maintenance Duration"
-msgstr "ໄລຍະເວລາການບຳລຸງຮັກສາ"
-
-#. module: maintenance
-#: model:ir.model.fields,help:maintenance.field_maintenance_equipment__maintenance_duration
-msgid "Maintenance Duration in hours."
-msgstr "ໄລຍະເວລາການບຳລຸງຮັກສາເປັນຊົ່ວໂມງ."
 
 #. module: maintenance
 #: model:ir.model,name:maintenance.model_maintenance_equipment
@@ -743,36 +839,52 @@ msgid "Maintenance Equipment Category"
 msgstr "ໝວດໝູ່ອຸປະກອນບຳລຸງຮັກສາ"
 
 #. module: maintenance
+#: model:ir.model,name:maintenance.model_maintenance_mixin
+msgid "Maintenance Maintained Item"
+msgstr "ລາຍການທີ່ໄດ້ຮັບການບຳລຸງຮັກສາ"
+
+#. module: maintenance
 #: model:ir.model,name:maintenance.model_maintenance_request
 #: model:mail.activity.type,name:maintenance.mail_act_maintenance_request
+#: model:mail.activity.type,summary:maintenance.mail_act_maintenance_request
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_form
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_graph
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_pivot
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_tree
+#: model_terms:ir.ui.view,arch_db:maintenance.maintenance_request_view_activity
 msgid "Maintenance Request"
-msgstr "ຄຳຮ້ອງຂໍການບຳລຸງຮັກສາ"
+msgstr "ຄຳຮ້ອງຂໍບຳລຸງຮັກສາ"
 
 #. module: maintenance
 #: model:mail.message.subtype,name:maintenance.mt_cat_req_created
 msgid "Maintenance Request Created"
-msgstr "ສ້າງຄຳຮ້ອງຂໍການບຳລຸງຮັກສາແລ້ວ"
+msgstr "ສ້າງຄຳຮ້ອງຂໍບຳລຸງຮັກສາແລ້ວ"
+
+#. module: maintenance
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__equipment_req_properties_definition
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_request__equipment_req_properties
+msgid "Maintenance Request Properties"
+msgstr "ຄຸນສົມບັດຄຳຮ້ອງຂໍບຳລຸງຮັກສາ"
 
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_search
 msgid "Maintenance Request Search"
-msgstr "ຄົ້ນຫາຄຳຮ້ອງຂໍການບຳລຸງຮັກສາ"
+msgstr "ຄົ້ນຫາຄຳຮ້ອງຂໍບຳລຸງຮັກສາ"
 
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_stage_view_tree
 msgid "Maintenance Request Stage"
-msgstr "ຂັ້ນຕອນຄຳຮ້ອງຂໍການບຳລຸງຮັກສາ"
+msgstr "ຂັ້ນຕອນຄຳຮ້ອງຂໍບຳລຸງຮັກສາ"
 
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_stage_view_search
 msgid "Maintenance Request Stages"
-msgstr "ຂັ້ນຕອນຄຳຮ້ອງຂໍການບຳລຸງຮັກສາຕ່າງໆ"
+msgstr "ຂັ້ນຕອນຄຳຮ້ອງຂໍບຳລຸງຮັກສາ"
 
 #. module: maintenance
 #: model:mail.message.subtype,description:maintenance.mt_req_created
 msgid "Maintenance Request created"
-msgstr "ສ້າງຄຳຮ້ອງຂໍການບຳລຸງຮັກສາແລ້ວ"
+msgstr "ສ້າງຄຳຮ້ອງຂໍບຳລຸງຮັກສາແລ້ວ"
 
 #. module: maintenance
 #: model:ir.actions.act_window,name:maintenance.hr_equipment_request_action
@@ -780,25 +892,32 @@ msgstr "ສ້າງຄຳຮ້ອງຂໍການບຳລຸງຮັກສ
 #: model:ir.actions.act_window,name:maintenance.hr_equipment_request_action_from_equipment
 #: model:ir.actions.act_window,name:maintenance.hr_equipment_request_action_link
 #: model:ir.actions.act_window,name:maintenance.hr_equipment_todo_request_action_from_dashboard
-#: model:ir.actions.act_window,name:maintenance.maintenance_request_action_reports
-#: model:ir.ui.menu,name:maintenance.maintenance_request_reporting
 #: model:ir.ui.menu,name:maintenance.menu_m_request_form
 #: model_terms:ir.ui.view,arch_db:maintenance.maintenance_team_kanban
 msgid "Maintenance Requests"
-msgstr "ຄຳຮ້ອງຂໍການບຳລຸງຮັກສາທັງໝົດ"
+msgstr "ຄຳຮ້ອງຂໍບຳລຸງຮັກສາ"
+
+#. module: maintenance
+#: model:ir.actions.act_window,name:maintenance.maintenance_request_action_reports
+#: model:ir.ui.menu,name:maintenance.maintenance_request_reporting
+msgid "Maintenance Requests Analysis"
+msgstr "ການວິເຄາະຄຳຮ້ອງຂໍບຳລຸງຮັກສາ"
 
 #. module: maintenance
 #: model:ir.model,name:maintenance.model_maintenance_stage
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_stage_view_form
 msgid "Maintenance Stage"
 msgstr "ຂັ້ນຕອນການບຳລຸງຮັກສາ"
 
 #. module: maintenance
 #: model:ir.ui.menu,name:maintenance.menu_maintenance_stage_configuration
 msgid "Maintenance Stages"
-msgstr "ຂັ້ນຕອນການບຳລຸງຮັກສາຕ່າງໆ"
+msgstr "ຂັ້ນຕອນການບຳລຸງຮັກສາ"
 
 #. module: maintenance
+#: model:ir.model,name:maintenance.model_maintenance_team
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__maintenance_team_id
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_mixin__maintenance_team_id
 #: model_terms:ir.ui.view,arch_db:maintenance.maintenance_team_view_form
 #: model_terms:ir.ui.view,arch_db:maintenance.maintenance_team_view_tree
 msgid "Maintenance Team"
@@ -806,10 +925,10 @@ msgstr "ທີມງານບຳລຸງຮັກສາ"
 
 #. module: maintenance
 #: model:ir.actions.act_window,name:maintenance.maintenance_dashboard_action
-#: model:ir.model,name:maintenance.model_maintenance_team
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_stage__maintenance_team_ids
 #: model:ir.ui.menu,name:maintenance.menu_maintenance_teams
 msgid "Maintenance Teams"
-msgstr "ທີມງານບຳລຸງຮັກສາທັງໝົດ"
+msgstr "ທີມງານບຳລຸງຮັກສາ"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_request__maintenance_type
@@ -817,33 +936,54 @@ msgid "Maintenance Type"
 msgstr "ປະເພດການບຳລຸງຮັກສາ"
 
 #. module: maintenance
-#: model:ir.actions.server,name:maintenance.maintenance_requests_cron_ir_actions_server
-msgid "Maintenance: generate preventive maintenance requests"
-msgstr "ການບຳລຸງຮັກສາ: ສ້າງຄຳຮ້ອງຂໍການບຳລຸງຮັກສາປ້ອງກັນ"
+#: model:ir.model.fields,help:maintenance.field_maintenance_equipment__activity_type_icon
+#: model:ir.model.fields,help:maintenance.field_maintenance_request__activity_type_icon
+msgid "Material Symbols icon e.g. checklist"
+msgstr "ໄອຄອນ Material Symbols ເຊັ່ນ: checklist"
+
+#. module: maintenance
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_form
+msgid "Mean Time Between Failure"
+msgstr "ໄລຍະເວລາສະເລ່ຍລະຫວ່າງການຂັດຂ້ອງ (MTBF)"
+
+#. module: maintenance
+#: model:ir.model.fields,help:maintenance.field_maintenance_equipment__mtbf
+#: model:ir.model.fields,help:maintenance.field_maintenance_mixin__mtbf
+msgid ""
+"Mean Time Between Failure, computed based on done corrective maintenances."
+msgstr ""
+"ໄລຍະເວລາສະເລ່ຍລະຫວ່າງການຂັດຂ້ອງ, ຄິດໄລ່ຈາກການບຳລຸງຮັກສາແບບແກ້ໄຂທີ່ສຳເລັດແລ້ວ."
+
+#. module: maintenance
+#: model:ir.model.fields,help:maintenance.field_maintenance_equipment__mttr
+#: model:ir.model.fields,help:maintenance.field_maintenance_mixin__mttr
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_form
+msgid "Mean Time To Repair"
+msgstr "ໄລຍະເວລາສະເລ່ຍໃນການສ້ອມແປງ (MTTR)"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__message_has_error
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__message_has_error
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_request__message_has_error
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_team__message_has_error
 msgid "Message Delivery error"
 msgstr "ຂໍ້ຜິດພາດໃນການສົ່ງຂໍ້ຄວາມ"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__message_ids
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__message_ids
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_request__message_ids
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_team__message_ids
 msgid "Messages"
 msgstr "ຂໍ້ຄວາມ"
 
 #. module: maintenance
 #: model:maintenance.team,name:maintenance.equipment_team_metrology
 msgid "Metrology"
-msgstr "ມາດຕະວິທະຍາ"
+msgstr "ມາດຕະວິທະຍາ (Metrology)"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__model
 msgid "Model"
-msgstr "ແບບ"
+msgstr "ໂມເດວ"
 
 #. module: maintenance
 #: model:maintenance.equipment.category,name:maintenance.equipment_monitor
@@ -851,10 +991,21 @@ msgid "Monitors"
 msgstr "ຈໍພາບ"
 
 #. module: maintenance
+#: model:ir.model.fields.selection,name:maintenance.selection__maintenance_request__repeat_unit__month
+msgid "Months"
+msgstr "ເດືອນ"
+
+#. module: maintenance
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_search
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_search
+msgid "My Activities"
+msgstr "ກິດຈະກຳຂອງຂ້ອຍ"
+
+#. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__my_activity_date_deadline
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_request__my_activity_date_deadline
 msgid "My Activity Deadline"
-msgstr "ກຳນົດເວລາສິ້ນສຸດກິດຈະກຳຂອງຂ້ອຍ"
+msgstr "ກຳນົດເວລາກິດຈະກຳຂອງຂ້ອຍ"
 
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_search
@@ -876,36 +1027,36 @@ msgstr "ຊື່"
 #. module: maintenance
 #: model:maintenance.stage,name:maintenance.stage_0
 msgid "New Request"
-msgstr "ຄຳຮ້ອງໃໝ່"
+msgstr "ຄຳຮ້ອງຂໍໃໝ່"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__activity_calendar_event_id
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_request__activity_calendar_event_id
 msgid "Next Activity Calendar Event"
-msgstr "ເຫດການປະຕິທິນກິດຈະກຳຖັດໄປ"
+msgstr "ເຫດການປະຕິທິນກິດຈະກຳຕໍ່ໄປ"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__activity_date_deadline
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_request__activity_date_deadline
 msgid "Next Activity Deadline"
-msgstr "ກຳນົດເວລາສິ້ນສຸດກິດຈະກຳຖັດໄປ"
+msgstr "ກຳນົດເວລາກິດຈະກຳຕໍ່ໄປ"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__activity_summary
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_request__activity_summary
 msgid "Next Activity Summary"
-msgstr "ສະຫຼຸບກິດຈະກຳຖັດໄປ"
+msgstr "ສະຫຼຸບກິດຈະກຳຕໍ່ໄປ"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__activity_type_id
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_request__activity_type_id
 msgid "Next Activity Type"
-msgstr "ປະເພດກິດຈະກຳຖັດໄປ"
+msgstr "ປະເພດກິດຈະກຳຕໍ່ໄປ"
 
 #. module: maintenance
-#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_form
-msgid "Next Preventive Maintenance"
-msgstr "ການບຳລຸງຮັກສາປ້ອງກັນຄັ້ງຕໍ່ໄປ"
+#: model:res.groups.privilege,placeholder:maintenance.res_groups_privilege_maintenance
+msgid "No"
+msgstr "ບໍ່"
 
 #. module: maintenance
 #: model:ir.model.fields.selection,name:maintenance.selection__maintenance_request__priority__2
@@ -918,64 +1069,83 @@ msgid "Note"
 msgstr "ໝາຍເຫດ"
 
 #. module: maintenance
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_form
+msgid "Notes"
+msgstr "ໝາຍເຫດ"
+
+#. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__message_needaction_counter
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__message_needaction_counter
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_request__message_needaction_counter
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_team__message_needaction_counter
 msgid "Number of Actions"
 msgstr "ຈຳນວນການດຳເນີນການ"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_team__todo_request_count
 msgid "Number of Requests"
-msgstr "ຈຳນວນຄຳຮ້ອງ"
-
-#. module: maintenance
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_team__todo_request_count_block
-msgid "Number of Requests Blocked"
-msgstr "ຈຳນວນຄຳຮ້ອງທີ່ຖືກບລັອກ"
+msgstr "ຈຳນວນຄຳຮ້ອງຂໍ"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_team__todo_request_count_date
 msgid "Number of Requests Scheduled"
-msgstr "ຈຳນວນຄຳຮ້ອງທີ່ກຳນົດເວລາແລ້ວ"
+msgstr "ຈຳນວນຄຳຮ້ອງຂໍທີ່ມີກຳນົດເວລາ"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_team__todo_request_count_unscheduled
 msgid "Number of Requests Unscheduled"
-msgstr "ຈຳນວນຄຳຮ້ອງທີ່ຍັງບໍ່ໄດ້ກຳນົດເວລາ"
+msgstr "ຈຳນວນຄຳຮ້ອງຂໍທີ່ຍັງບໍ່ມີກຳນົດເວລາ"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_team__todo_request_count_high_priority
 msgid "Number of Requests in High Priority"
-msgstr "ຈຳນວນຄຳຮ້ອງທີ່ມີຄວາມສຳຄັນສູງ"
+msgstr "ຈຳນວນຄຳຮ້ອງຂໍທີ່ມີບູລິມະສິດສູງ"
+
+#. module: maintenance
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_team__todo_request_count_changes_requested
+msgid "Number of Requests with Changes Requested"
+msgstr "ຈຳນວນຄຳຮ້ອງຂໍທີ່ມີການຮ້ອງຂໍໃຫ້ປ່ຽນແປງ"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__message_has_error_counter
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__message_has_error_counter
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_request__message_has_error_counter
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_team__message_has_error_counter
 msgid "Number of errors"
 msgstr "ຈຳນວນຂໍ້ຜິດພາດ"
 
 #. module: maintenance
 #: model:ir.model.fields,help:maintenance.field_maintenance_equipment__message_needaction_counter
-#: model:ir.model.fields,help:maintenance.field_maintenance_equipment_category__message_needaction_counter
 #: model:ir.model.fields,help:maintenance.field_maintenance_request__message_needaction_counter
-msgid "Number of messages which requires an action"
-msgstr "ຈຳນວນຂໍ້ຄວາມທີ່ຕ້ອງການການດຳເນີນການ"
+#: model:ir.model.fields,help:maintenance.field_maintenance_team__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "ຈຳນວນຂໍ້ຄວາມທີ່ຕ້ອງການດຳເນີນການ"
 
 #. module: maintenance
 #: model:ir.model.fields,help:maintenance.field_maintenance_equipment__message_has_error_counter
-#: model:ir.model.fields,help:maintenance.field_maintenance_equipment_category__message_has_error_counter
 #: model:ir.model.fields,help:maintenance.field_maintenance_request__message_has_error_counter
+#: model:ir.model.fields,help:maintenance.field_maintenance_team__message_has_error_counter
 msgid "Number of messages with delivery error"
 msgstr "ຈຳນວນຂໍ້ຄວາມທີ່ມີຂໍ້ຜິດພາດໃນການສົ່ງ"
 
 #. module: maintenance
-#: model:ir.model.fields,help:maintenance.field_maintenance_equipment_category__alias_force_thread_id
-msgid "Optional ID of a thread (record) to which all incoming messages will be attached, even if they did not reply to it. If set, this will disable the creation of new records completely."
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_search
+#: model_terms:ir.ui.view,arch_db:maintenance.maintenance_team_kanban
+msgid "Open"
+msgstr "ເປີດ"
+
+#. module: maintenance
+#: model:ir.model.fields,help:maintenance.field_maintenance_team__alias_force_thread_id
+msgid ""
+"Optional ID of a thread (record) to which all incoming messages will be "
+"attached, even if they did not reply to it. If set, this will disable the "
+"creation of new records completely."
 msgstr ""
-"ໄອດີທາງເລືອກຂອງເທຣດ (ບັນທຶກ) ທີ່ຈະແນບຂໍ້ຄວາມເຂົ້າທັງໝົດ, ເຖິງແມ່ນວ່າພວກເຂົາຈະບໍ່ໄດ້ຕອບກັບກໍຕາມ. ຖ້າ"
-"ຕັ້ງໄວ້, ມັນຈະປິດການສ້າງບັນທຶກໃໝ່ຢ່າງສົມບູນ."
+"ໄອດີ (ID) ທາງເລືອກຂອງກະທູ້ (ບັນທຶກ) ທີ່ຈະແນບຂໍ້ຄວາມຂາເຂົ້າທັງໝົດໃສ່, ເຖິງແມ່ນວ່າຈະບໍ່ໄດ້ຕອບກັບກໍຕາ"
+"ມ. ຖ້າກຳນົດໄວ້, ຈະປິດການສ້າງບັນທຶກໃໝ່ໂດຍສິ້ນເຊີງ."
+
+#. module: maintenance
+#: model:ir.model.fields.selection,name:maintenance.selection__maintenance_equipment__equipment_assign_to__other
+msgid "Other"
+msgstr "ອື່ນໆ"
 
 #. module: maintenance
 #: model:ir.ui.menu,name:maintenance.menu_m_reports_oee
@@ -984,7 +1154,6 @@ msgstr "ປະສິດທິຜົນໂດຍລວມຂອງອຸປະກ
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__owner_user_id
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__alias_user_id
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_form
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_search
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_tree
@@ -992,21 +1161,24 @@ msgid "Owner"
 msgstr "ເຈົ້າຂອງ"
 
 #. module: maintenance
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__alias_parent_model_id
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_team__alias_parent_model_id
 msgid "Parent Model"
-msgstr "ແບບຈຳລອງແມ່"
+msgstr "ໂມເດວແມ່"
 
 #. module: maintenance
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__alias_parent_thread_id
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_team__alias_parent_thread_id
 msgid "Parent Record Thread ID"
-msgstr "ໄອດີເທຣດບັນທຶກແມ່"
+msgstr "ໄອດີກະທູ້ບັນທຶກແມ່"
 
 #. module: maintenance
-#: model:ir.model.fields,help:maintenance.field_maintenance_equipment_category__alias_parent_model_id
-msgid "Parent model holding the alias. The model holding the alias reference is not necessarily the model given by alias_model_id (example: project (parent_model) and task (model))"
+#: model:ir.model.fields,help:maintenance.field_maintenance_team__alias_parent_model_id
+msgid ""
+"Parent model holding the alias. The model holding the alias reference is not "
+"necessarily the model given by alias_model_id (example: project "
+"(parent_model) and task (model))"
 msgstr ""
-"ແບບຈຳລອງແມ່ທີ່ຖືນາມແຝງ. ແບບຈຳລອງທີ່ຖືການອ້າງອີງນາມແຝງບໍ່ຈຳເປັນຕ້ອງແມ່ນແບບຈຳລອງທີ່ໃຫ້ໂດຍ "
-"alias_model_id (ຕົວຢ່າງ: ໂຄງການ (ແບບຈຳລອງແມ່) ແລະ ໜ້າວຽກ (ແບບຈຳລອງ))"
+"ໂມເດວແມ່ທີ່ຖືນາມແຝງ. ໂມເດວທີ່ອ້າງອີງເຖິງນາມແຝງບໍ່ຈຳເປັນຕ້ອງເປັນໂມເດວທີ່ລະບຸໂດຍ alias_model_id "
+"(ຕົວຢ່າງ: ໂຄງການ (parent_model) ແລະ ໜ້າວຽກ (model))"
 
 #. module: maintenance
 #: model:maintenance.equipment.category,name:maintenance.equipment_phone
@@ -1014,33 +1186,28 @@ msgid "Phones"
 msgstr "ໂທລະສັບ"
 
 #. module: maintenance
-#: model:ir.model.fields,help:maintenance.field_maintenance_equipment_category__alias_contact
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_form
+msgid "Planned Date"
+msgstr "ວັນທີວາງແຜນ"
+
+#. module: maintenance
+#: model:ir.model.fields,help:maintenance.field_maintenance_team__alias_contact
 msgid ""
 "Policy to post a message on the document using the mailgateway.\n"
 "- everyone: everyone can post\n"
 "- partners: only authenticated partners\n"
-"- followers: only followers of the related document or members of following channels\n"
+"- followers: only followers of the related document or members of following "
+"channels\n"
 msgstr ""
-"ນະໂຍບາຍການໂພສຂໍ້ຄວາມໃສ່ເອກະສານໂດຍໃຊ້ mailgateway.\n"
+"ນະໂຍບາຍໃນການໂພສຂໍ້ຄວາມລົງໃນເອກະສານໂດຍໃຊ້ mailgateway.\n"
 "- ທຸກຄົນ: ທຸກຄົນສາມາດໂພສໄດ້\n"
-"- ຄູ່ຄ້າ: ສະເພາະຄູ່ຄ້າທີ່ຜ່ານການກວດສອບສິດເທົ່ານັ້ນ\n"
+"- ຄູ່ຄ້າ: ສະເພາະຄູ່ຄ້າທີ່ຜ່ານການຢືນຢັນຕົວຕົນເທົ່ານັ້ນ\n"
 "- ຜູ້ຕິດຕາມ: ສະເພາະຜູ້ຕິດຕາມເອກະສານທີ່ກ່ຽວຂ້ອງ ຫຼື ສະມາຊິກຂອງຊ່ອງທາງທີ່ຕິດຕາມເທົ່ານັ້ນ\n"
 
 #. module: maintenance
 #: model:ir.model.fields.selection,name:maintenance.selection__maintenance_request__maintenance_type__preventive
 msgid "Preventive"
-msgstr "ການປ້ອງກັນ"
-
-#. module: maintenance
-#. odoo-python
-#: code:addons/maintenance/models/maintenance.py:0
-msgid "Preventive Maintenance - %s"
-msgstr "ການບຳລຸງຮັກສາປ້ອງກັນ - %s"
-
-#. module: maintenance
-#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_form
-msgid "Preventive Maintenance Frequency"
-msgstr "ຄວາມຖີ່ຂອງການບຳລຸງຮັກສາປ້ອງກັນ"
+msgstr "ປ້ອງກັນໄວ້ກ່ອນ"
 
 #. module: maintenance
 #: model:maintenance.equipment.category,name:maintenance.equipment_printer
@@ -1050,32 +1217,33 @@ msgstr "ເຄື່ອງພິມ"
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_request__priority
 msgid "Priority"
-msgstr "ລະດັບຄວາມສຳຄັນ"
+msgstr "ບູລິມະສິດ"
 
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_form
 msgid "Product Information"
-msgstr "ຂໍ້ມູນຜະລິດຕະພັນ"
+msgstr "ຂໍ້ມູນສິນຄ້າ"
 
 #. module: maintenance
-#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_search
-msgid "Ready"
-msgstr "ພ້ອມແລ້ວ"
-
-#. module: maintenance
-#: model:ir.model.fields.selection,name:maintenance.selection__maintenance_request__kanban_state__done
-msgid "Ready for next stage"
-msgstr "ພ້ອມສຳລັບຂັ້ນຕອນຕໍ່ໄປ"
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__equipment_properties
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_search
+msgid "Properties"
+msgstr "ຄຸນສົມບັດ"
 
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_kanban
 msgid "Record Colour"
-msgstr "ສີຂອງບັນທຶກ"
+msgstr "ສີບັນທຶກ"
 
 #. module: maintenance
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__alias_force_thread_id
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_team__alias_force_thread_id
 msgid "Record Thread ID"
-msgstr "ໄອດີເທຣດບັນທຶກ"
+msgstr "ໄອດີກະທູ້ບັນທຶກ"
+
+#. module: maintenance
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_request__recurring_maintenance
+msgid "Recurrent"
+msgstr "ເກີດຂຶ້ນຊ້ຳ"
 
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_form
@@ -1088,14 +1256,23 @@ msgid "Repaired"
 msgstr "ສ້ອມແປງແລ້ວ"
 
 #. module: maintenance
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_request__repeat_interval
+msgid "Repeat Every"
+msgstr "ເຮັດຊ້ຳທຸກໆ"
+
+#. module: maintenance
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_request__repeat_unit
+msgid "Repeat Unit"
+msgstr "ຫົວໜ່ວຍການເຮັດຊ້ຳ"
+
+#. module: maintenance
 #: model:ir.ui.menu,name:maintenance.maintenance_reporting
 #: model:ir.ui.menu,name:maintenance.menu_m_reports
 msgid "Reporting"
-msgstr "ການລາຍງານ"
+msgstr "ບົດລາຍງານ"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_team__request_ids
-#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_form
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_search
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_kanban
 msgid "Request"
@@ -1107,41 +1284,23 @@ msgid "Request Created"
 msgstr "ສ້າງຄຳຮ້ອງຂໍແລ້ວ"
 
 #. module: maintenance
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_request__request_date
-msgid "Request Date"
-msgstr "ວັນທີຮ້ອງຂໍ"
-
-#. module: maintenance
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_request__done
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_stage__done
-msgid "Request Done"
-msgstr "ຄຳຮ້ອງຂໍສຳເລັດ"
-
-#. module: maintenance
-#. odoo-python
-#: code:addons/maintenance/models/maintenance.py:0
-msgid "Request planned for %s"
-msgstr "ຄຳຮ້ອງຂໍຖືກວາງແຜນໄວ້ສຳລັບ %s"
-
-#. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_form
 msgid "Requested By"
 msgstr "ຮ້ອງຂໍໂດຍ"
 
 #. module: maintenance
-#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_kanban
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_card
 msgid "Requested by:"
 msgstr "ຮ້ອງຂໍໂດຍ:"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_team__todo_request_ids
 msgid "Requests"
-msgstr "ຄຳຮ້ອງຂໍຕ່າງໆ"
+msgstr "ຄຳຮ້ອງຂໍ"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__technician_user_id
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_category_view_search
-#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_form
 msgid "Responsible"
 msgstr "ຜູ້ຮັບຜິດຊອບ"
 
@@ -1166,7 +1325,20 @@ msgstr "ກຳນົດເວລາແລ້ວ"
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_request__schedule_date
 msgid "Scheduled Date"
-msgstr "ວັນທີກຳນົດເວລາ"
+msgstr "ວັນທີກຳນົດ"
+
+#. module: maintenance
+#. odoo-python
+#: code:addons/maintenance/models/maintenance.py:0
+msgid ""
+"Scheduled Date and Scheduled End must either both be set or both be empty."
+msgstr ""
+"ວັນທີກຳນົດ ແລະ ວັນທີສິ້ນສຸດຕາມກຳນົດ ຕ້ອງຖືກກຳນົດທັງສອງ ຫຼື ປະວ່າງໄວ້ທັງສອງ."
+
+#. module: maintenance
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_request__schedule_end
+msgid "Scheduled End"
+msgstr "ສິ້ນສຸດຕາມກຳນົດ"
 
 #. module: maintenance
 #: model:maintenance.stage,name:maintenance.stage_4
@@ -1193,18 +1365,19 @@ msgstr "ລຳດັບ"
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__serial_no
 msgid "Serial Number"
-msgstr "ເລກລຳດັບ"
+msgstr "ເລກລຳດັບ (Serial Number)"
 
 #. module: maintenance
-#: model:ir.model.fields,help:maintenance.field_maintenance_request__archive
-msgid "Set archive to true to hide the maintenance request without deleting it."
-msgstr "ຕັ້ງຄ່າຄັງເປັນ ຈິງ ເພື່ອເຊື່ອງຄຳຮ້ອງຂໍການບຳລຸງຮັກສາ ໂດຍບໍ່ຕ້ອງລຶບມັນ."
+#: model:ir.actions.act_window,name:maintenance.action_maintenance_configuration
+#: model:ir.ui.menu,name:maintenance.menu_maintenance_config
+msgid "Settings"
+msgstr "ການຕັ້ງຄ່າ"
 
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_search
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_search
-msgid "Show all records which has next action date is before today"
-msgstr "ສະແດງບັນທຶກທັງໝົດທີ່ມີວັນທີດຳເນີນການຕໍ່ໄປກ່ອນມື້ນີ້"
+msgid "Show all records whose next activity date is past"
+msgstr "ສະແດງບັນທຶກທັງໝົດທີ່ວັນທີກິດຈະກຳຕໍ່ໄປກາຍກຳນົດແລ້ວ"
 
 #. module: maintenance
 #: model:maintenance.equipment.category,name:maintenance.equipment_software
@@ -1220,12 +1393,17 @@ msgstr "ຂັ້ນຕອນ"
 #. module: maintenance
 #: model:ir.actions.act_window,name:maintenance.hr_equipment_stage_action
 msgid "Stages"
-msgstr "ຂັ້ນຕອນຕ່າງໆ"
+msgstr "ຂັ້ນຕອນ"
+
+#. module: maintenance
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_request__state
+msgid "State"
+msgstr "ສະຖານະ"
 
 #. module: maintenance
 #: model:mail.message.subtype,name:maintenance.mt_req_status
 msgid "Status Changed"
-msgstr "ປ່ຽນສະຖານະແລ້ວ"
+msgstr "ປ່ຽນແປງສະຖານະແລ້ວ"
 
 #. module: maintenance
 #: model:ir.model.fields,help:maintenance.field_maintenance_equipment__activity_state
@@ -1236,20 +1414,20 @@ msgid ""
 "Today: Activity date is today\n"
 "Planned: Future activities."
 msgstr ""
-"ສະຖານະຕາມກິດຈະກຳ\n"
-"ກາຍກຳນົດ: ກາຍວັນທີກຳນົດແລ້ວ\n"
+"ສະຖານະອີງຕາມກິດຈະກຳ\n"
+"ກາຍກຳນົດ: ວັນຄົບກຳນົດຜ່ານໄປແລ້ວ\n"
 "ມື້ນີ້: ວັນທີກິດຈະກຳແມ່ນມື້ນີ້\n"
-"ວາງແຜນ: ກິດຈະກຳໃນອະນາຄົດ."
+"ວາງແຜນໄວ້: ກິດຈະກຳໃນອະນາຄົດ."
 
 #. module: maintenance
 #: model:mail.message.subtype,description:maintenance.mt_req_status
 msgid "Status changed"
-msgstr "ປ່ຽນສະຖານະແລ້ວ"
+msgstr "ປ່ຽນແປງສະຖານະແລ້ວ"
 
 #. module: maintenance
 #: model:maintenance.team,name:maintenance.equipment_team_subcontractor
 msgid "Subcontractor"
-msgstr "ຜູ້ຮັບເໝົາຊ່ວງ"
+msgstr "ຜູ້ຮັບເໝົາຕໍ່"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_request__name
@@ -1265,7 +1443,7 @@ msgstr "ທີມງານ"
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_team__member_ids
 msgid "Team Members"
-msgstr "ສະມາຊິກໃນທີມ"
+msgstr "ສະມາຊິກທີມງານ"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_team__name
@@ -1276,34 +1454,48 @@ msgstr "ຊື່ທີມງານ"
 #. module: maintenance
 #: model:ir.actions.act_window,name:maintenance.maintenance_team_action_settings
 msgid "Teams"
-msgstr "ທີມງານຕ່າງໆ"
+msgstr "ທີມງານ"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__technician_user_id
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_request__user_id
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_mixin__technician_user_id
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_search
 msgid "Technician"
 msgstr "ຊ່າງເຕັກນິກ"
 
 #. module: maintenance
-#: model:ir.model.fields,help:maintenance.field_maintenance_equipment_category__alias_model_id
-msgid "The model (Odoo Document Kind) to which this alias corresponds. Any incoming email that does not reply to an existing record will cause the creation of a new record of this model (e.g. a Project Task)"
-msgstr ""
-"ແບບຈຳລອງ (ປະເພດເອກະສານ Odoo) ທີ່ນາມແຝງນີ້ກ່ຽວຂ້ອງ. ອີເມລຂາເຂົ້າທີ່ບໍ່ໄດ້ຕອບກັບບັນທຶກທີ່ມີຢູ່ ຈະເຮັດໃ"
-"ຫ້ເກີດການສ້າງບັນທຶກໃໝ່ຂອງແບບຈຳລອງນີ້ (ຕົວຢ່າງ: ໜ້າວຽກໂຄງການ)"
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_request__user_ids
+msgid "Technicians"
+msgstr "ຊ່າງເຕັກນິກ"
 
 #. module: maintenance
-#: model:ir.model.fields,help:maintenance.field_maintenance_equipment_category__alias_name
-msgid "The name of the email alias, e.g. 'jobs' if you want to catch emails for <jobs@example.odoo.com>"
-msgstr ""
-"ຊື່ຂອງນາມແຝງອີເມລ, ເຊັ່ນ: 'jobs' ຖ້າທ່ານຕ້ອງການຮັບອີເມລສຳລັບ <jobs@example.odoo.com>"
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_request__instruction_text
+msgid "Text"
+msgstr "ຂໍ້ຄວາມ"
 
 #. module: maintenance
-#: model:ir.model.fields,help:maintenance.field_maintenance_equipment_category__alias_user_id
-msgid "The owner of records created upon receiving emails on this alias. If this field is not set the system will attempt to find the right owner based on the sender (From) address, or will use the Administrator account if no system user is found for that address."
+#: model:ir.model.fields,help:maintenance.field_maintenance_team__alias_model_id
+msgid ""
+"The model (Odoo Document Kind) to which this alias corresponds. Any incoming "
+"email that does not reply to an existing record will cause the creation of a "
+"new record of this model (e.g. a Project Task)"
 msgstr ""
-"ເຈົ້າຂອງບັນທຶກທີ່ສ້າງຂຶ້ນເມື່ອໄດ້ຮັບອີເມລຜ່ານນາມແຝງນີ້. ຖ້າບໍ່ໄດ້ກຳນົດຊ່ອງນີ້, ລະບົບຈະພະຍາຍາມຊອກຫາເຈົ້າຂອ"
-"ງທີ່ຖືກຕ້ອງຕາມທີ່ຢູ່ຜູ້ສົ່ງ (From), ຫຼື ຈະໃຊ້ບັນຊີ Administrator ຖ້າບໍ່ພົບຜູ້ໃຊ້ລະບົບສຳລັບທີ່ຢູ່ນັ້ນ."
+"ໂມເດວ (ປະເພດເອກະສານ Odoo) ທີ່ນາມແຝງນີ້ກົງກັນ. ອີເມວຂາເຂົ້າໃດໆ ທີ່ບໍ່ໄດ້ຕອບກັບບັນທຶກທີ່ມີຢູ່ແລ້ວ ຈະສ້າ"
+"ງບັນທຶກໃໝ່ຂອງໂມເດວນີ້ (ຕົວຢ່າງ: ໜ້າວຽກໂຄງການ)"
+
+#. module: maintenance
+#: model:ir.model.fields,help:maintenance.field_maintenance_team__alias_name
+msgid ""
+"The name of the email alias, e.g. 'jobs' if you want to catch emails for "
+"<jobs@example.odoo.com>"
+msgstr ""
+"ຊື່ຂອງອີເມວນາມແຝງ ເຊັ່ນ: 'jobs' ຖ້າທ່ານຕ້ອງການຮັບອີເມວສຳລັບ <jobs@example.odoo.com>"
+
+#. module: maintenance
+#. odoo-python
+#: code:addons/maintenance/models/maintenance.py:0
+msgid "The repeat interval cannot be less than 1."
+msgstr "ໄລຍະຫ່າງການເຮັດຊ້ຳບໍ່ສາມາດໜ້ອຍກວ່າ 1."
 
 #. module: maintenance
 #: model:res.groups,comment:maintenance.group_equipment_manager
@@ -1311,10 +1503,15 @@ msgid "The user will be able to manage equipment."
 msgstr "ຜູ້ໃຊ້ຈະສາມາດຈັດການອຸປະກອນໄດ້."
 
 #. module: maintenance
-#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_search
+#: model:ir.model.fields,help:maintenance.field_maintenance_equipment__effective_date
+#: model:ir.model.fields,help:maintenance.field_maintenance_mixin__effective_date
+msgid "This date will be used to compute the Mean Time Between Failure."
+msgstr "ວັນທີນີ້ຈະຖືກນຳໃຊ້ເພື່ອຄິດໄລ່ໄລຍະເວລາສະເລ່ຍລະຫວ່າງການຂັດຂ້ອງ (MTBF)."
+
+#. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.maintenance_team_kanban
 msgid "To Do"
-msgstr "ສິ່ງທີ່ຈະເຮັດ"
+msgstr "ສິ່ງທີ່ຕ້ອງເຮັດ"
 
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_search
@@ -1325,25 +1522,32 @@ msgstr "ກິດຈະກຳມື້ນີ້"
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.maintenance_team_kanban
 msgid "Top Priorities"
-msgstr "ຄວາມສຳຄັນສູງສຸດ"
+msgstr "ບູລິມະສິດສູງສຸດ"
 
 #. module: maintenance
 #: model_terms:ir.actions.act_window,help:maintenance.hr_equipment_action
 #: model_terms:ir.actions.act_window,help:maintenance.hr_equipment_action_from_category_form
 msgid ""
 "Track equipment and link it to an employee or department.\n"
-"                You will be able to manage allocations, issues and maintenance of your equipment."
+"                You will be able to manage allocations, issues and "
+"maintenance of your equipment."
 msgstr ""
-"ຕິດຕາມອຸປະກອນ ແລະ ເຊື່ອມໂຍງມັນກັບພະນັກງານ ຫຼື ພະແນກ.\n"
-"                ທ່ານຈະສາມາດຈັດການການຈັດສັນ, ບັນຫາ ແລະ ການບຳລຸງຮັກສາອຸປະກອນຂອງທ່ານ."
+"ຕິດຕາມອຸປະກອນ ແລະ ເຊື່ອມໂຍງກັບພະນັກງານ ຫຼື ພະແນກ.\n"
+"                ທ່ານຈະສາມາດຈັດການການຈັດສັນ, ບັນຫາ ແລະ ການບຳລຸງຮັກສາອຸປະກອນຂອງທ່ານໄດ້."
+
+#. module: maintenance
+#: model:ir.module.module,summary:base.module_maintenance
+msgid "Track equipment and manage maintenance requests"
+msgstr "ຕິດຕາມອຸປະກອນ ແລະ ຈັດການຄຳຮ້ອງຂໍບຳລຸງຮັກສາ"
 
 #. module: maintenance
 #: model:ir.model.fields,help:maintenance.field_maintenance_equipment__activity_exception_decoration
 #: model:ir.model.fields,help:maintenance.field_maintenance_request__activity_exception_decoration
 msgid "Type of the exception activity on record."
-msgstr "ປະເພດຂອງກິດຈະກຳທີ່ຍົກເວັ້ນໃນບັນທຶກ."
+msgstr "ປະເພດຂອງກິດຈະກຳຍົກເວັ້ນໃນບັນທຶກ."
 
 #. module: maintenance
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_kanban
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_search
 msgid "Unassigned"
 msgstr "ຍັງບໍ່ໄດ້ມອບໝາຍ"
@@ -1351,24 +1555,30 @@ msgstr "ຍັງບໍ່ໄດ້ມອບໝາຍ"
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_search
 msgid "Under Maintenance"
-msgstr "ກຳລັງບຳລຸງຮັກສາ"
+msgstr "ກຳລັງຢູ່ໃນການບຳລຸງຮັກສາ"
 
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_search
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_search
 msgid "Unread Messages"
-msgstr "ຂໍ້ຄວາມທີ່ຍັງບໍ່ໄດ້ອ່ານ"
+msgstr "ຂໍ້ຄວາມບໍ່ໄດ້ອ່ານ"
 
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_search
 #: model_terms:ir.ui.view,arch_db:maintenance.maintenance_team_kanban
 msgid "Unscheduled"
-msgstr "ຍັງບໍ່ໄດ້ກຳນົດເວລາ"
+msgstr "ຍັງບໍ່ມີກຳນົດເວລາ"
 
 #. module: maintenance
-#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_form
-msgid "Used in location"
-msgstr "ໃຊ້ໃນສະຖານທີ່"
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_request__repeat_type
+#: model:ir.model.fields.selection,name:maintenance.selection__maintenance_request__repeat_type__until
+msgid "Until"
+msgstr "ຈົນເຖິງ"
+
+#. module: maintenance
+#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__equipment_assign_to
+msgid "Used By"
+msgstr "ນຳໃຊ້ໂດຍ"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__partner_id
@@ -1379,7 +1589,7 @@ msgstr "ຜູ້ສະໜອງ"
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__partner_ref
 msgid "Vendor Reference"
-msgstr "ການອ້າງອີງຜູ້ສະໜອງ"
+msgstr "ເລກອ້າງອີງຜູ້ສະໜອງ"
 
 #. module: maintenance
 #: model:ir.model.fields.selection,name:maintenance.selection__maintenance_request__priority__0
@@ -1387,16 +1597,46 @@ msgid "Very Low"
 msgstr "ຕ່ຳຫຼາຍ"
 
 #. module: maintenance
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_category_view_form
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_form
+#: model_terms:ir.ui.view,arch_db:maintenance.maintenance_team_view_form
+#: model_terms:ir.ui.view,arch_db:maintenance.maintenance_team_view_tree
+msgid "Visible to all"
+msgstr "ມອງເຫັນໄດ້ທຸກຄົນ"
+
+#. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__warranty_date
 msgid "Warranty Expiration Date"
-msgstr "ວັນໝົດອາຍຸການຮັບປະກັນ"
+msgstr "ວັນທີໝົດອາຍຸການຮັບປະກັນ"
+
+#. module: maintenance
+#: model:ir.model.fields.selection,name:maintenance.selection__maintenance_request__repeat_unit__week
+msgid "Weeks"
+msgstr "ອາທິດ"
+
+#. module: maintenance
+#: model:ir.model.fields.selection,name:maintenance.selection__maintenance_request__repeat_unit__year
+msgid "Years"
+msgstr "ປີ"
 
 #. module: maintenance
 #. odoo-python
 #: code:addons/maintenance/models/maintenance.py:0
-msgid "You cannot delete an equipment category containing equipment or maintenance requests."
+msgid ""
+"You can’t delete an equipment category if some equipment or maintenance "
+"requests are linked to it."
 msgstr ""
-"ທ່ານບໍ່ສາມາດລຶບໝວດໝູ່ອຸປະກອນທີ່ມີອຸປະກອນ ຫຼື ຄຳຮ້ອງຂໍການບຳລຸງຮັກສາຢູ່ພາຍໃນ."
+"ທ່ານບໍ່ສາມາດລຶບໝວດໝູ່ອຸປະກອນໄດ້ ຖ້າຍັງມີອຸປະກອນ ຫຼື ຄຳຮ້ອງຂໍບຳລຸງຮັກສາເຊື່ອມໂຍງຢູ່."
+
+#. module: maintenance
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_form
+msgid "Your instructions"
+msgstr "ຄຳແນະນຳຂອງທ່ານ"
+
+#. module: maintenance
+#: model_terms:ir.ui.view,arch_db:maintenance.maintenance_team_view_form
+msgid "alias"
+msgstr "ນາມແຝງ"
 
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_form
@@ -1404,33 +1644,31 @@ msgid "days"
 msgstr "ມື້"
 
 #. module: maintenance
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_stage_view_form
+msgid "e.g. In Progress"
+msgstr "ເຊັ່ນ: ກຳລັງດຳເນີນການ"
+
+#. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.maintenance_team_view_form
 msgid "e.g. Internal Maintenance"
-msgstr "ຕົວຢ່າງ: ການບຳລຸງຮັກສາພາຍໃນ"
+msgstr "ເຊັ່ນ: ການບຳລຸງຮັກສາພາຍໃນ"
 
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_form
 msgid "e.g. LED Monitor"
-msgstr "ຕົວຢ່າງ: ຈໍພາບ LED"
+msgstr "ເຊັ່ນ: ຈໍພາບ LED"
 
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_category_view_form
 msgid "e.g. Monitors"
-msgstr "ຕົວຢ່າງ: ຈໍພາບ"
+msgstr "ເຊັ່ນ: ຈໍພາບ"
 
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_form
 msgid "e.g. Screen not working"
-msgstr "ຕົວຢ່າງ: ໜ້າຈໍບໍ່ເຮັດວຽກ"
+msgstr "ເຊັ່ນ: ໜ້າຈໍບໍ່ເຮັດວຽກ"
 
 #. module: maintenance
-#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_form
-msgid "hours"
-msgstr "ຊົ່ວໂມງ"
-
-#. module: maintenance
-#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_graph
-#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_pivot
-#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_tree
-msgid "maintenance Request"
-msgstr "ຄຳຮ້ອງຂໍການບຳລຸງຮັກສາ"
+#: model_terms:ir.ui.view,arch_db:maintenance.maintenance_team_view_form
+msgid "e.g. mycompany.com"
+msgstr "ເຊັ່ນ: mycompany.com"

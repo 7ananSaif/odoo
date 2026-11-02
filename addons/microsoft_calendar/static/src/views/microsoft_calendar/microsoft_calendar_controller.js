@@ -1,3 +1,4 @@
+import { render } from "@web/owl2/utils";
 import { _t } from "@web/core/l10n/translation";
 import { AttendeeCalendarController } from "@calendar/views/attendee_calendar/attendee_calendar_controller";
 import { user } from "@web/core/user";
@@ -13,11 +14,6 @@ patch(AttendeeCalendarController.prototype, {
     },
 
     async onMicrosoftSyncCalendar() {
-        await this.orm.call(
-            "res.users",
-            "restart_microsoft_synchronization",
-            [[user.userId]],
-        );
         const syncResult = await this.model.syncMicrosoftCalendar();
         if (syncResult.status === "need_auth") {
             window.location.assign(syncResult.url);
@@ -29,7 +25,6 @@ patch(AttendeeCalendarController.prototype, {
                     confirm: this.actionService.doAction.bind(this.actionService, syncResult.action),
                     confirmLabel: _t("Configure"),
                     cancel: () => {},
-                    cancelLabel: _t("Discard"),
                 });
             } else {
                 this.dialog.add(AlertDialog, {
@@ -39,18 +34,20 @@ patch(AttendeeCalendarController.prototype, {
             }
         } else {
             await this.model.load();
-            this.render(true);
+            render(this, true);
         }
     },
 
     async onStopMicrosoftSynchronization() {
-        await this.orm.call(
-            "res.users",
-            "stop_microsoft_synchronization",
-            [[user.userId]],
-        );
+        await this.orm.call("res.users", "stop_microsoft_synchronization");
+        this.model._loaded = false;
         await this.model.load();
-        this.render(true);
+        render(this, true);
+    },
+
+    async onRetryGoogleSync() {
+        await this.orm.call("res.users", "stop_microsoft_synchronization");
+        await this.onGoogleSyncCalendar();
     },
 
     async onUnpauseMicrosoftSynchronization() {
@@ -59,7 +56,8 @@ patch(AttendeeCalendarController.prototype, {
             "unpause_microsoft_synchronization",
             [[user.userId]],
         );
-        await this.onStopMicrosoftSynchronization();
-        this.render(true);
+        this.model._loaded = false;
+        await this.model.load();
+        render(this, true);
     }
 });

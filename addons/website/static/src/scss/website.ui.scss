@@ -62,7 +62,7 @@ $-mini-nav-size: 40px;
         border-radius: 0.25rem;
     }
 
-    &:hover, &:focus-within {
+    &:hover, &:focus-within, &:has(.o_web_hotkey_overlay) {
         &:before, .o_frontend_to_backend_icon {
             transform: scale(.3);
             transition-delay: 0ms;
@@ -108,8 +108,12 @@ body {
         display: none;
     }
 }
-[data-publish='off'] > *:not(.css_options) {
-    opacity: 0.5;
+[data-publish='off'] {
+    &:where(:not(:hover)) > *:not(.o_unpublished_badge),
+    &:where(:hover) .o_unpublished_badge {
+        pointer-events: none;
+        opacity: 0.5;
+    }
 }
 
 .js_publish_management > .js_publish_btn.btn-success {

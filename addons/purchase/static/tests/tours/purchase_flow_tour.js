@@ -1,4 +1,3 @@
-import { inputFiles } from "@web/../tests/utils";
 import { registry } from "@web/core/registry";
 import { stepUtils } from "@web_tour/tour_utils";
 
@@ -22,7 +21,7 @@ registry.category("web_tour.tours").add("test_basic_purchase_flow_with_minimal_a
             run: "click",
         },
         {
-            trigger: ".o_field_x2many_list_row_add > a",
+            trigger: ".o_field_x2many_list_row_add > button:contains('Add a product')",
             run: "click",
         },
         {
@@ -55,7 +54,7 @@ registry.category("web_tour.tours").add("test_basic_purchase_flow_with_minimal_a
         {
             content: "Upload the vendor bill",
             trigger: ".o_widget_purchase_file_uploader",
-            run: async () => {
+            async run({ inputFiles }) {
                 const testFile = new File(["Vendor, Bill"], "my_vendor_bill.png", {
                     type: "image/*",
                 });

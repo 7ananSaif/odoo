@@ -10,18 +10,41 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-11-14 15:21+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 13:37+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Serbian (Latin script) <https://translate.odoo.com/projects/"
-"odoo-19/event_sale/sr_Latn/>\n"
+"odoo-s19-4/event_sale/sr_Latn/>\n"
 "Language: sr@latin\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: event_sale
+#: model:ir.module.module,description:base.module_event_sale
+msgid ""
+"\n"
+"Creating registration with sales orders.\n"
+"========================================\n"
+"\n"
+"This module allows you to automate and connect your registration creation "
+"with\n"
+"your main sale flow and therefore, to enable the invoicing feature of "
+"registrations.\n"
+"\n"
+"It defines a new kind of service products that offers you the possibility "
+"to\n"
+"choose an event category associated with it. When you encode a sales order "
+"for\n"
+"that product, you will be able to choose an existing event of that category "
+"and\n"
+"when you confirm your sales order it will automatically create a "
+"registration for\n"
+"this event.\n"
+msgstr ""
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_registration_change_exception
@@ -34,7 +57,8 @@ msgstr ""
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_configurator_view_form
-msgid "<i class=\"fa fa-arrow-right\"/> Configure Events &amp; Tickets"
+msgid ""
+"<i class=\"oi\" data-icon=\"arrow_forward\"/> Configure Events &amp; Tickets"
 msgstr ""
 
 #. module: event_sale
@@ -56,6 +80,11 @@ msgstr "<span>Izmena registracije za učesnika:</span>"
 #: model_terms:ir.ui.view,arch_db:event_sale.event_configurator_view_form
 msgid "Add"
 msgstr "Dodaj"
+
+#. module: event_sale
+#: model:ir.model.fields,field_description:event_sale.field_event_event_configurator__additional_product_ids
+msgid "Additional Products"
+msgstr ""
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_configurator_view_form
@@ -303,6 +332,11 @@ msgstr "Ulaznica za događaj"
 #: model_terms:ir.ui.view,arch_db:event_sale.event_sale_report_view_search
 msgid "Event Type"
 msgstr "Vrsta događaja"
+
+#. module: event_sale
+#: model:ir.module.module,shortdesc:base.module_event_sale
+msgid "Events Sales"
+msgstr ""
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_sale_report_view_search
@@ -567,6 +601,13 @@ msgid "Select an Event"
 msgstr ""
 
 #. module: event_sale
+#: model:ir.model.fields,help:event_sale.field_event_event_configurator__additional_product_ids
+msgid ""
+"Select products to include with each registration. They will also show up "
+"separately on Sale Orders."
+msgstr ""
+
+#. module: event_sale
 #. odoo-python
 #: code:addons/event_sale/models/event_registration.py:0
 #: model:ir.model.fields,field_description:event_sale.field_event_event_configurator__event_slot_id
@@ -676,122 +717,3 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:event_sale.event_registration_change_exception
 msgid "to"
 msgstr "u"
-
-#~ msgid ""
-#~ "A description of the ticket that you want to communicate to your "
-#~ "customers."
-#~ msgstr "Opis ulaznice koji želite da komunicirate sa svojim klijentima."
-
-#~ msgid ""
-#~ "A storable product is a product for which you manage stock. The Inventory "
-#~ "app has to be installed.\n"
-#~ "A consumable product is a product for which stock is not managed.\n"
-#~ "A service is a non-material product you provide."
-#~ msgstr ""
-#~ "Proizvod koji se može skladištiti je proizvod za koji upravljate "
-#~ "zalihama. Aplikacija Inventar mora biti instalirana.\n"
-#~ "Potrošni proizvod je proizvod za koji se ne upravlja zalihama.\n"
-#~ "Usluga je nematerijalni proizvod koji pružate."
-
-#~ msgid "Cancel"
-#~ msgstr "Otkaži"
-
-#~ msgid "Configure an event"
-#~ msgstr "Podesi događaj"
-
-#~ msgid "Currency"
-#~ msgstr "Valuta"
-
-#~ msgid "Description"
-#~ msgstr "Opis"
-
-#~ msgid "Event Registration - Standard"
-#~ msgstr "Registracija za događaj - Standard"
-
-#~ msgid "Event Registration - VIP"
-#~ msgstr "Registracija za događaj - VIP"
-
-#~ msgid "Event Template Ticket"
-#~ msgstr "Šablon ulaznice za događaj"
-
-#~ msgid "Event Tickets"
-#~ msgstr "Ulaznice za događaj"
-
-#~ msgid "Group By"
-#~ msgstr "Grupiši po"
-
-#~ msgid "Ok"
-#~ msgstr "U redu"
-
-#~ msgid "Price"
-#~ msgstr "Cena"
-
-#~ msgid "Price Reduce"
-#~ msgstr "Smanjenje cene"
-
-#~ msgid "Price Reduce Tax inc"
-#~ msgstr "Smanjenje cene porez uklj"
-
-#~ msgid "Product Type"
-#~ msgstr "Tip proizvoda"
-
-#~ msgid "Product Variant"
-#~ msgstr "Varijante proizvoda"
-
-#~ msgid "Sales (Tax Excluded)"
-#~ msgstr "Prodaja (bez poreza)"
-
-#~ msgid "Sales End"
-#~ msgstr "Prodaja završava"
-
-#~ msgid "Sales Start"
-#~ msgstr "Prodaja počinje"
-
-#~ msgid "Skip"
-#~ msgstr "Preskoči"
-
-#~ msgid "Ticket changed from"
-#~ msgstr "Ulaznica promenjena iz"
-
-#~ msgid "Transaction"
-#~ msgstr "Transakcija"
-
-#~ msgid "please give attendee details."
-#~ msgstr "molimo unesite detalje polaznika."
-
-#~ msgid ""
-#~ "<span>Not enough seats available. All registrations were created as "
-#~ "\"Unconfirmed\" and can be updated later on.</span>"
-#~ msgstr ""
-#~ "<span>Nema dovoljno slobodnih mesta. Sve registracije su kreirane kao "
-#~ "\"Nepotvrđeno\" i kasnije se mogu ažurirati.</span>"
-
-#~ msgid "Is Paid"
-#~ msgstr "Je plaćeno"
-
-#~ msgid "Journal Entry"
-#~ msgstr "Unos u dnevnik"
-
-#~ msgid "Locked"
-#~ msgstr "Zaključano"
-
-#~ msgid "Mobile"
-#~ msgstr "Mobilni"
-
-#~ msgid "Not Paid"
-#~ msgstr "Nije plaćeno"
-
-#~ msgid "Not enough seats for all registrations"
-#~ msgstr "Nema dovoljno mesta za sve registracije"
-
-#~ msgid "Order Ref"
-#~ msgstr "Br. Porudžbine"
-
-#~ msgid "Paid"
-#~ msgstr "Plaćeno"
-
-#~ msgid "Quotation Template Line"
-#~ msgstr "Linija šablona ponude"
-
-#~ msgid "Quotation Template Option"
-#~ msgstr "Opcija šablona ponude"

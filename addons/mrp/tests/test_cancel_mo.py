@@ -1,15 +1,22 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo.tests import Form
-from datetime import datetime, timedelta
-
-from odoo.fields import Datetime as Dt
 from odoo.exceptions import UserError
 from odoo.addons.mrp.tests.common import TestMrpCommon
 
 
 class TestMrpCancelMO(TestMrpCommon):
+
+    _test_user_groups = (
+        'product.group_product_manager',  # FIXME: use base.group_user
+        'mrp.group_mrp_manager',
+        'mrp.group_mrp_routings',  # view visibility (duration/workorder fields) granted to cls.env.user in Common
+        'mrp.group_mrp_byproducts',  # view visibility (byproducts) granted to mrp users in Common
+        'stock.group_stock_manager',  # setup: warehouse/route/rule/orderpoint/location/picking_type config in test bodies
+        'uom.group_uom',  # view visibility (uom_id) granted to cls.env.user in Common
+    )
+
+    _test_user_name = 'Test Product Manager'
 
     def test_cancel_mo_without_routing_1(self):
         """ Cancel a Manufacturing Order with no routing, no production.
@@ -47,35 +54,6 @@ class TestMrpCancelMO(TestMrpCommon):
         self.assertEqual(manufacturing_order.move_finished_ids.state, 'cancel',
             "Cancelled MO finished move must be cancelled as well.")
 
-    def test_cancel_mo_without_routing_3(self):
-        """ Cancel a Manufacturing Order with no routing but some productions
-        after post inventory.
-        """
-        # Create MO
-        manufacturing_order = self.generate_mo(consumption='strict')[0]
-        # Produce some quantity (not all to avoid to done the MO when post inventory)
-        mo_form = Form(manufacturing_order)
-        mo_form.qty_producing = 2
-        manufacturing_order = mo_form.save()
-        # Post Inventory
-        manufacturing_order._post_inventory()
-        # Cancel the MO
-        manufacturing_order.action_cancel()
-        # Check MO is marked as done and its SML are done or cancelled
-        self.assertEqual(manufacturing_order.state, 'done', "MO should be in done state.")
-        self.assertEqual(manufacturing_order.move_raw_ids[0].state, 'done',
-            "Due to 'post_inventory', some move raw must stay in done state")
-        self.assertEqual(manufacturing_order.move_raw_ids[1].state, 'done',
-            "Due to 'post_inventory', some move raw must stay in done state")
-        self.assertEqual(manufacturing_order.move_raw_ids[2].state, 'cancel',
-            "The other move raw are cancelled like their MO.")
-        self.assertEqual(manufacturing_order.move_raw_ids[3].state, 'cancel',
-            "The other move raw are cancelled like their MO.")
-        self.assertEqual(manufacturing_order.move_finished_ids[0].state, 'done',
-            "Due to 'post_inventory', a move finished must stay in done state")
-        self.assertEqual(manufacturing_order.move_finished_ids[1].state, 'cancel',
-            "The other move finished is cancelled like its MO.")
-
     def test_unlink_mo(self):
         """ Try to unlink a Manufacturing Order, and check it's possible or not
         depending of the MO state (must be in cancel state to be unlinked, but
@@ -95,10 +73,11 @@ class TestMrpCancelMO(TestMrpCommon):
         mo_form = Form(manufacturing_order)
         mo_form.qty_producing = 2
         manufacturing_order = mo_form.save()
-        # Post Inventory
-        manufacturing_order._post_inventory()
+        backorder_action = manufacturing_order.button_mark_done()
+        backorder = Form(self.env['mrp.production.backorder'].with_context(**backorder_action['context']))
+        backorder.save().action_backorder()
         # Unlink the MO must raises an UserError since it cannot be really cancelled
-        self.assertEqual(manufacturing_order.exists().state, 'progress')
+        self.assertEqual(manufacturing_order.exists().state, 'done')
         with self.assertRaises(UserError):
             manufacturing_order.unlink()
 

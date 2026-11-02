@@ -4,20 +4,19 @@ from odoo import fields, models
 
 
 class Website(models.Model):
-    _inherit = 'website'
+    _inherit = "website"
 
-    warehouse_id = fields.Many2one('stock.warehouse', string='Warehouse')
+    warehouse_id = fields.Many2one("stock.warehouse", string="Warehouse")
 
-    def _get_product_available_qty(self, product, **kwargs):
-        """Give the available quantity of a given product.
-
-        NB: this method is only meant to be used on the shop before the checkout.
-        For checkout steps, please use `cart._get_free_qty` instead to consider
-        the chosen warehouse for delivery (website_sale_collect).
+    def _get_product_available_qty(self, product, *, warehouse_id=None, **kwargs):
+        """Override of `website_sale` to pass the default warehouse_id.
 
         :param product: product.product record
+        :param int warehouse_id: ID of the warehouse to check the product availability
         :param dict kwargs: unused parameters, available for overrides
         :return: available quantity
         :rtype: float
         """
-        return product.with_context(warehouse_id=self.warehouse_id.id).free_qty
+        if warehouse_id is None:
+            warehouse_id = self.warehouse_id.id
+        return super()._get_product_available_qty(product, warehouse_id=warehouse_id, **kwargs)

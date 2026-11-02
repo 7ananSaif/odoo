@@ -20,8 +20,7 @@ class AccountTax(models.Model):
         selection=[
             ('gst', 'GST'),
             ('tcs', 'TCS'),
-            ('tds_sale', 'TDS Sale'),
-            ('tds_purchase', 'TDS Purchase'),
+            ('tds', 'TDS'),
             ('nil_rated', 'Nil Rated'),
             ('exempt', 'Exempt'),
             ('non_gst', 'Non-GST'),
@@ -30,7 +29,6 @@ class AccountTax(models.Model):
     )
 
     # withholding related fields
-    l10n_in_section_id = fields.Many2one('l10n_in.section.alert', string="Section")
     l10n_in_tds_feature_enabled = fields.Boolean(related='company_id.l10n_in_tds_feature')
     l10n_in_tcs_feature_enabled = fields.Boolean(related='company_id.l10n_in_tcs_feature')
 

@@ -10,6 +10,10 @@ from odoo import Command
 @tagged('post_install', '-at_install')
 @skip('Temporary to fast merge new valuation')
 class TestStockLandedCostsLots(TestLotValuation):
+    _test_user_groups = ('base.group_user',)
+
+    _test_user_name = 'Test User'
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -27,7 +31,7 @@ class TestStockLandedCostsLots(TestLotValuation):
             'move_ids': [Command.create({
                 'product_id': self.product1.id,
                 'product_uom_qty': 15,
-                'product_uom': self.ref('uom.product_uom_unit'),
+                'uom_id': self.ref('uom.product_uom_unit'),
                 'location_id': self.supplier_location.id,
                 'location_dest_id': self.env.ref('stock.stock_location_stock').id,
                 'price_unit': 10,
@@ -45,7 +49,7 @@ class TestStockLandedCostsLots(TestLotValuation):
             'move_ids': [Command.create({
                 'product_id': product2.id,
                 'product_uom_qty': 10,
-                'product_uom': self.ref('uom.product_uom_unit'),
+                'uom_id': self.ref('uom.product_uom_unit'),
                 'location_id': self.supplier_location.id,
                 'location_dest_id': self.env.ref('stock.stock_location_stock').id,
                 'price_unit': 11,
@@ -142,7 +146,7 @@ class TestStockLandedCostsLots(TestLotValuation):
             'move_ids': [Command.create({
                 'product_id': product1.id,
                 'product_uom_qty': 5,
-                'product_uom': self.ref('uom.product_uom_unit'),
+                'uom_id': self.ref('uom.product_uom_unit'),
                 'location_id': self.supplier_location.id,
                 'location_dest_id': self.env.ref('stock.stock_location_stock').id,
                 'price_unit': 10000,

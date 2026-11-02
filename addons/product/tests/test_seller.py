@@ -107,12 +107,12 @@ class TestSeller(TransactionCase):
         # Supplierinfo pricing
 
         # I check cost price of LCD Monitor.
-        price = product._select_seller(partner_id=self.res_partner_4, quantity=1.0).price
+        price = product._select_seller(partner_id=self.res_partner_4, quantity=1.0)['price']
         msg = "Wrong cost price: LCD Monitor. should be 790 instead of %s" % price
         self.assertEqual(float_compare(price, 790, precision_digits=2), 0, msg)
 
         # I check cost price of LCD Monitor if more than 3 Unit.
-        price = product._select_seller(partner_id=self.res_partner_4, quantity=3.0).price
+        price = product._select_seller(partner_id=self.res_partner_4, quantity=3.0)['price']
         msg = "Wrong cost price: LCD Monitor if more than 3 Unit.should be 785 instead of %s" % price
         self.assertEqual(float_compare(price, 785, precision_digits=2), 0, msg)
 
@@ -128,7 +128,7 @@ class TestSeller(TransactionCase):
             'product_tmpl_id': product.product_tmpl_id.id,
             'price': price,
         } for price in (0.025, 0.022, 0.020)])
-        price = product._select_seller(partner_id=partner, quantity=201).price
+        price = product._select_seller(partner_id=partner, quantity=201)['price']
         self.assertAlmostEqual(price, 0.02, places=3, msg="Lowest price should be returned")
 
     def test_40_seller_min_qty_precision(self):
@@ -164,3 +164,23 @@ class TestSeller(TransactionCase):
         vendors.write({'product_id': False})
         self.assertEqual(vendors, self.product_consu.seller_ids,
             "Setting the product_id to False shouldn't affect seller_ids.")
+
+    def test_51_seller_ids(self):
+        """Test vendor selection when using select_seller with Partner_id False"""
+
+        self.env['product.supplierinfo'].create([
+            {
+                'partner_id': self.asustec.id,
+                'product_tmpl_id': self.product_consu.product_tmpl_id.id,
+                'price': 170,
+                'sequence': 1,
+            }, {
+                'partner_id': self.camptocamp.id,
+                'product_tmpl_id': self.product_consu.product_tmpl_id.id,
+                'price': 10,  # Wow so cheap
+                'sequence': 2,
+            }
+        ])
+
+        price = self.product_consu._select_seller(partner_id=False, quantity=1)['price']
+        self.assertEqual(price, 170, "Should select the first vendor pricelist when partner_id is false")

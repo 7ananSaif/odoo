@@ -11,6 +11,8 @@ from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 
 
 class TestPhCommon(AccountTestInvoicingCommon):
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     @AccountTestInvoicingCommon.setup_country('ph')
     def setUpClass(cls):
@@ -24,16 +26,14 @@ class TestPhCommon(AccountTestInvoicingCommon):
             'country_id': cls.env.ref('base.ph').id,
             'vat': '123-456-789-123',
         })
+        cls.company_data["company"].partner_id.l10n_ph_entity_type = 'corporation'
         cls.partner_a.write({
-            'name': 'Test Partner',
-            'first_name': 'John',
-            'middle_name': 'Doe',
-            'last_name': 'Smith',
+            'name': 'John Doe Smith',
             'street': '9 Super Street',
             'city': 'Super City',
             'zip': '8888',
             'country_id': cls.env.ref('base.ph').id,
-            'vat': '789-456-123-789',
+            'vat': '789-456-123',
         })
         cls.partner_b.write({
             'name': 'Test Partner Company',
@@ -43,7 +43,6 @@ class TestPhCommon(AccountTestInvoicingCommon):
             'city': 'Super City',
             'zip': '8888',
             'country_id': cls.env.ref('base.ph').id,
-            'is_company': True,
             'vat': '789-456-123-456',
         })
         cls.partner_c = cls.env['res.partner'].create({

@@ -1,8 +1,8 @@
-import { after, describe, expect, test } from "@odoo/hoot";
-import { Deferred, mockFetch } from "@odoo/hoot-mock";
+import { after, describe, expect, test, runAllTimers } from "@odoo/hoot";
+import { mockFetch } from "@odoo/hoot-mock";
 import { allowTranslations } from "@web/../tests/web_test_helpers";
 
-import { download, parse } from "@web/core/network/download";
+import { download, downloadFile, parse } from "@web/core/network/download";
 import { ConnectionLostError, RPCError } from "@web/core/network/rpc";
 
 describe.current.tags("headless");
@@ -88,7 +88,7 @@ test("handles success download", async () => {
         return new Blob(["some plain text file"], { type: "text/plain" });
     });
 
-    const deferred = new Deferred();
+    const deferred = Promise.withResolvers();
 
     // This part asserts the implementation detail in question
     const downloadOnClick = (ev) => {
@@ -108,6 +108,22 @@ test("handles success download", async () => {
 
     expect("a[download]").toHaveCount(0); // link will be added by download
     download({ data: { someKey: "someValue" }, url: "/some_url" });
-    await deferred;
+    await deferred.promise;
     expect.verifySteps(["fetching file", "file downloaded"]);
+});
+
+test("url with an apostrophe is fetched, not turned into a text blob", async () => {
+    allowTranslations();
+
+    const fileUrl = "/web/content/1?filename=file'name.zip&download=true";
+    mockFetch((url) => {
+        expect.step(url);
+        return new Response(new Blob(["zip"], { type: "application/zip" }), {
+            headers: { "Content-Disposition": "attachment; filename*=UTF-8''file%27name.zip" },
+        });
+    });
+
+    await downloadFile(fileUrl);
+    await runAllTimers();
+    expect.verifySteps([fileUrl]);
 });

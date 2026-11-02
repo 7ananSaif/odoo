@@ -6,7 +6,7 @@ patch(PosOrder.prototype, {
     serializeForORM(opts) {
         // Avoid serializing online payments, as their creation is not allowed in the backend without "online_account_payment_id"
         const onlinePaymentUUIDs = this.payment_ids
-            .filter((payment) => !payment.isSynced && payment.payment_method_id?.is_online_payment)
+            .filter((payment) => !payment.isSynced && payment.payment_method_id?.type === "online")
             .map((payment) => payment.uuid);
 
         const serialized = super.serializeForORM(opts);
@@ -16,5 +16,16 @@ patch(PosOrder.prototype, {
             );
         }
         return serialized;
+    },
+    get isCustomerRequired() {
+        const online_payments_customer_required = this.paymentsRequireCustomer(this.payment_ids);
+        return super.isCustomerRequired || (!this.partner_id && online_payments_customer_required);
+    },
+    paymentsRequireCustomer(payments) {
+        return payments?.some(
+            (payment) =>
+                payment.payment_method_id.type === "online" &&
+                payment.payment_method_id._customer_required
+        );
     },
 });

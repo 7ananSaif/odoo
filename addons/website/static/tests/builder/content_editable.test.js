@@ -1,9 +1,9 @@
 import { expect, test } from "@odoo/hoot";
 import { queryOne } from "@odoo/hoot-dom";
 import { xml } from "@odoo/owl";
+import { addBuilderOption } from "@html_builder/../tests/helpers";
 import { contains, onRpc } from "@web/../tests/web_test_helpers";
 import {
-    addOption,
     addPlugin,
     defineWebsiteModels,
     setupWebsiteBuilder,
@@ -70,7 +70,7 @@ test("Do not set contenteditable attribute on data-oe-readonly", async () => {
         };
     }
     addPlugin(TestPlugin);
-    addOption({
+    addBuilderOption({
         selector: ".target",
         template: xml`<BuilderButton classAction="'test-class'">Test</BuilderButton>`,
     });
@@ -109,7 +109,7 @@ test("feff on links are cleaned up", async () => {
     onRpc("ir.ui.view", "save", ({ args }) => {
         // Check that the saved content has no feff
         expect(args[1]).toBe(
-            `<div id="wrap" class="oe_structure oe_empty" data-oe-model="ir.ui.view" data-oe-id="539" data-oe-field="arch" data-editor-message-default="true" data-editor-message="DRAG BUILDING BLOCKS HERE"><section class="o_colored_level"><a href="http://test.test">texst</a></section></div>`
+            `<div id="wrap" class="oe_structure oe_empty" data-oe-model="ir.ui.view" data-oe-id="539" data-oe-field="arch" data-editor-message-default="true" data-editor-message="Drag blocks here"><section class="o_colored_level"><a href="http://test.test">texst</a></section></div>`
         );
         expect.step("save");
         return true;

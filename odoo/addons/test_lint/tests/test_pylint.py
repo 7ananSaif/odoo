@@ -13,15 +13,16 @@ import subprocess
 
 from odoo import tools
 from odoo.modules import Manifest
-from odoo.tests import TransactionCase
 from odoo.tools.which import which
+
+from .common import LintCase
 
 HERE = os.path.dirname(os.path.realpath(__file__))
 
 _logger = logging.getLogger(__name__)
 
 
-class TestPyLint(TransactionCase):
+class TestPyLint(LintCase):
     def _skip_test(self, reason):
         _logger.warning(reason)
         self.skipTest(reason)

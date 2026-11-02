@@ -5,7 +5,6 @@ import { stepUtils } from "@web_tour/tour_utils";
 import { markup } from "@odoo/owl";
 
 registry.category("web_tour.tours").add('survey_tour', {
-    url: "/odoo",
     steps: () => [
     ...stepUtils.goToAppSteps('survey.menu_surveys', markup(_t("Ready to change the way you <b>gather data</b>?"))),
 {
@@ -25,7 +24,7 @@ registry.category("web_tour.tours").add('survey_tour', {
     run: "click",
 },
 {
-    trigger: '.js_question-wrapper span:contains("How frequently")',
+    trigger: '.o_survey_question span:contains("How frequently")',
 },
 {
     trigger: 'button[type=submit]',
@@ -34,7 +33,7 @@ registry.category("web_tour.tours").add('survey_tour', {
     run: "click",
 },
 {
-    trigger: '.js_question-wrapper span:contains("How many")',
+    trigger: '.o_survey_question span:contains("How many")',
 },
 {
     trigger: 'button[type=submit]',
@@ -43,7 +42,7 @@ registry.category("web_tour.tours").add('survey_tour', {
     run: "click",
 },
 {
-    trigger: '.js_question-wrapper span:contains("How likely")',
+    trigger: '.o_survey_question span:contains("How likely")',
 },
 {
     trigger: 'button[value=finish]',

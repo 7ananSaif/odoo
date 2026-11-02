@@ -14,12 +14,6 @@ class StockRule(models.Model):
         """
         return procurement.values.get('sale_line_id'), super(StockRule, self)._get_procurements_to_merge_groupby(procurement)
 
-    def _get_partner_id(self, values, rule):
-        route_id = self.env['ir.model.data']._xmlid_to_res_id('stock_dropshipping.route_drop_shipping')
-        if route_id and rule.route_id.id == route_id:
-            return False
-        return super()._get_partner_id(values, rule)
-
     def _compute_picking_type_code_domain(self):
         super()._compute_picking_type_code_domain()
         for rule in self:
@@ -83,18 +77,13 @@ class StockPickingType(models.Model):
             if record.code == "dropship":
                 record.show_picking_type = True
 
+    def _compute_show_return_picking_type(self):
+        super()._compute_show_return_picking_type()
+        self.filtered(lambda pt: pt.code == 'dropship').show_return_picking_type = True
+
 
 class StockLot(models.Model):
     _inherit = 'stock.lot'
-
-    def _compute_partner_ids(self):
-        delivery_ids_by_lot = self._find_delivery_ids_by_lot()
-        for lot in self:
-            if delivery_ids_by_lot[lot.id]:
-                picking_ids = self.env['stock.picking'].browse(delivery_ids_by_lot[lot.id]).sorted(key='date_done', reverse=True)
-                lot.partner_ids = list(p.sale_id.partner_shipping_id.id if p.is_dropship else p.partner_id.id for p in picking_ids)
-            else:
-                lot.partner_ids = False
 
     def _get_outgoing_domain(self):
         res = super()._get_outgoing_domain()

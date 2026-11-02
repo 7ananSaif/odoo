@@ -1,23 +1,32 @@
 import { _t } from "@web/core/l10n/translation";
 import { PaymentInterface } from "@point_of_sale/app/utils/payment/payment_interface";
 import { AlertDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
-import { register_payment_method } from "@point_of_sale/app/services/pos_store";
+import { registry } from "@web/core/registry";
 import { logPosMessage } from "@point_of_sale/app/utils/pretty_console_log";
 const { DateTime } = luxon;
+
+const POLLING_INTERVAL_MS = 5000;
 
 export class PaymentAdyen extends PaymentInterface {
     setup() {
         super.setup(...arguments);
         this.paymentLineResolvers = {};
+        this.connectWebSocket("ADYEN_LATEST_RESPONSE", () => {
+            const pendingLine = this.pos.getPendingPaymentLine("adyen");
+
+            if (pendingLine) {
+                pendingLine.payment_method_id.payment_interface.handleAdyenStatusResponse();
+            }
+        });
     }
 
-    sendPaymentRequest(uuid) {
-        super.sendPaymentRequest(uuid);
-        return this._adyenPay(uuid);
+    async sendPaymentRequest(line) {
+        await super.sendPaymentRequest(...arguments);
+        return this._adyenPay(line.uuid);
     }
-    sendPaymentCancel(order, uuid) {
-        super.sendPaymentCancel(order, uuid);
-        return this._adyenCancel();
+    async sendPaymentCancel(line) {
+        await super.sendPaymentCancel(...arguments);
+        return this._adyenCancel(line);
     }
 
     setMostRecentServiceId(id) {
@@ -26,6 +35,30 @@ export class PaymentAdyen extends PaymentInterface {
 
     pendingAdyenline() {
         return this.pos.getPendingPaymentLine("adyen");
+    }
+
+    sendPaymentAdjust(uuid) {
+        var order = this.pos.getOrder();
+        var line = order.getPaymentlineByUuid(uuid);
+        var data = {
+            originalReference: line.transaction_id,
+            modificationAmount: {
+                value: parseInt(line.amount * Math.pow(10, this.pos.currency.decimal_places)),
+                currency: this.pos.currency.name,
+            },
+            merchantAccount: this.payment_method_id.adyen_merchant_account,
+            additionalData: {
+                industryUsage: "DelayedCharge",
+            },
+        };
+
+        return this._callAdyen(data, "adjust");
+    }
+
+    canBeAdjusted(uuid) {
+        var order = this.pos.getOrder();
+        var line = order.getPaymentlineByUuid(uuid);
+        return ["mc", "visa", "amex", "discover"].includes(line.card_type);
     }
 
     _handleOdooConnectionFailure(data = {}) {
@@ -44,13 +77,11 @@ export class PaymentAdyen extends PaymentInterface {
     }
 
     _callAdyen(data, operation = false) {
-        return this.pos.data
-            .silentCall("pos.payment.method", "proxy_adyen_request", [
-                [this.payment_method_id.id],
-                data,
-                operation,
-            ])
-            .catch(this._handleOdooConnectionFailure.bind(this));
+        return this.callPaymentMethod("proxy_adyen_request", [
+            [this.payment_method_id.id],
+            data,
+            operation,
+        ]).catch(this._handleOdooConnectionFailure.bind(this));
     }
 
     _adyenGetSaleId() {
@@ -99,31 +130,60 @@ export class PaymentAdyen extends PaymentInterface {
             },
         };
 
-        if (config.adyen_ask_customer_for_tip) {
-            data.SaleToPOIRequest.PaymentRequest.SaleData.SaleToAcquirerData =
-                "tenderOption=AskGratuity";
-        }
+        data.SaleToPOIRequest.PaymentRequest.SaleData.SaleToAcquirerData =
+            config.adyen_ask_customer_for_tip
+                ? "tenderOption=AskGratuity&authorisationType=PreAuth"
+                : "authorisationType=PreAuth";
 
         return data;
     }
 
-    _adyenPay(uuid) {
-        var order = this.pos.getOrder();
+    _adyenReversalData() {
+        const order = this.pos.getOrder();
+        const line = order.getSelectedPaymentline();
+        return {
+            SaleToPOIRequest: {
+                MessageHeader: Object.assign(this._adyenCommonMessageHeader(), {
+                    MessageCategory: "Reversal",
+                }),
+                ReversalRequest: {
+                    ReversalReason: "MerchantCancel",
+                    ReversedAmount: Math.abs(line.amount),
+                    OriginalPOITransaction: {
+                        POITransactionID: {
+                            TransactionID: line.uiState.adyenRefundTransactionId,
+                            TimeStamp: line.uiState.adyenRefundTransactionTimestamp,
+                        },
+                    },
+                    SaleData: {
+                        SaleToAcquirerData: `currency=${this.pos.currency.name}`,
+                        SaleTransactionID: {
+                            TransactionID: `${order.uuid}--${order.session_id.id}`,
+                            TimeStamp: DateTime.utc().toISO(),
+                        },
+                    },
+                },
+            },
+        };
+    }
 
-        if (order.getSelectedPaymentline().amount < 0) {
-            this._show_error(_t("Cannot process transactions with negative amount."));
-            return Promise.resolve();
+    _adyenPay(uuid) {
+        const order = this.pos.getOrder();
+        const line = order.payment_ids.find((paymentLine) => paymentLine.uuid === uuid);
+
+        if (line.amount < 0 && !line.uiState.adyenRefundTransactionId) {
+            this._show_error(_t("Cannot refund non-Adyen transactions via Adyen."));
+            return false;
         }
 
-        var data = this._adyenPayData();
-        var line = order.payment_ids.find((paymentLine) => paymentLine.uuid === uuid);
+        const data = line.amount < 0 ? this._adyenReversalData() : this._adyenPayData();
         line.setTerminalServiceId(this.most_recent_service_id);
         return this._callAdyen(data).then((data) => this._adyenHandleResponse(data));
     }
 
-    _adyenCancel(ignore_error) {
+    _adyenCancel(line, ignore_error) {
         var config = this.pos.config;
-        var previous_service_id = this.most_recent_service_id;
+        var previous_service_id = line?.terminalServiceId ?? this.most_recent_service_id;
         var header = Object.assign(this._adyenCommonMessageHeader(), {
             MessageCategory: "Abort",
         });
@@ -156,17 +216,25 @@ export class PaymentAdyen extends PaymentInterface {
         });
     }
 
-    _convertReceiptInfo(output_text) {
-        return output_text.reduce((acc, entry) => {
-            var params = new URLSearchParams(entry.Text);
-            if (params.get("name") && !params.get("value")) {
-                return acc + "\n" + params.get("name");
-            } else if (params.get("name") && params.get("value")) {
-                return `${acc}\n${params.get("name")}: ${params.get("value")}`;
-            }
+    _adyenCheckPaymentStatus(paymentServiceId, isRefund) {
+        const data = {
+            SaleToPOIRequest: {
+                MessageHeader: Object.assign(this._adyenCommonMessageHeader(), {
+                    MessageCategory: "TransactionStatus",
+                }),
+                TransactionStatusRequest: {
+                    ReceiptReprintFlag: true,
+                    DocumentQualifier: ["CustomerReceipt", "CashierReceipt"],
+                    MessageReference: {
+                        SaleID: this._adyenGetSaleId(),
+                        ServiceID: paymentServiceId,
+                        MessageCategory: isRefund ? "Reversal" : "Payment",
+                    },
+                },
+            },
+        };
 
-            return acc;
-        }, "");
+        return this._callAdyen(data, "payment_status");
     }
 
     /**
@@ -176,7 +244,7 @@ export class PaymentAdyen extends PaymentInterface {
     _adyenHandleResponse(response) {
         var line = this.pendingAdyenline();
 
-        if (!response || (response.error && response.error.status_code == 401)) {
+        if (!response || (response.error && [401, 403].includes(response.error.status_code))) {
             this._show_error(_t("Authentication failed. Please check your Adyen credentials."));
             if (line) {
                 line.setPaymentStatus("force_done");
@@ -210,10 +278,70 @@ export class PaymentAdyen extends PaymentInterface {
         }
     }
 
+    _adyenHandlePaymentStatus(response, paymentLine, resolve, pollingIntervalId) {
+        const transactionStatus = response.SaleToPOIResponse.TransactionStatusResponse.Response;
+
+        if (transactionStatus.Result === "Success") {
+            clearInterval(pollingIntervalId);
+            const repeatedResponseMessage =
+                response.SaleToPOIResponse.TransactionStatusResponse.RepeatedMessageResponse;
+            const body = repeatedResponseMessage.RepeatedResponseMessageBody;
+            const header = repeatedResponseMessage.MessageHeader;
+            this.processPaymentResponse(paymentLine, header, body);
+        } else if (transactionStatus.ErrorCondition === "NotFound") {
+            clearInterval(pollingIntervalId);
+            resolve(false);
+        }
+    }
+
     waitForPaymentConfirmation() {
         return new Promise((resolve) => {
-            this.paymentLineResolvers[this.pendingAdyenline().uuid] = resolve;
+            const paymentLine = this.pendingAdyenline();
+            const serviceId = paymentLine.terminalServiceId;
+            this.paymentLineResolvers[paymentLine.uuid] = resolve;
+
+            const intervalId = setInterval(async () => {
+                const isPaymentStillValid = () =>
+                    this.paymentLineResolvers[paymentLine.uuid] &&
+                    this.pendingAdyenline()?.terminalServiceId === serviceId &&
+                    paymentLine.payment_status === "waitingCard";
+
+                if (!isPaymentStillValid()) {
+                    clearInterval(intervalId);
+                    return;
+                }
+
+                const response = await this._adyenCheckPaymentStatus(
+                    serviceId,
+                    !!paymentLine.uiState.adyenRefundTransactionId
+                );
+                if (response && isPaymentStillValid()) {
+                    this._adyenHandlePaymentStatus(response, paymentLine, resolve, intervalId);
+                }
+            }, POLLING_INTERVAL_MS);
         });
+    }
+
+    processPaymentResponse(line, header, body) {
+        const paymentResponse = body.PaymentResponse ?? body.ReversalResponse;
+        const additionalResponse = new URLSearchParams(paymentResponse.Response.AdditionalResponse);
+        const isPaymentSuccessful = this.isPaymentSuccessful(header, paymentResponse.Response);
+        if (isPaymentSuccessful) {
+            this.handleSuccessResponse(line, paymentResponse, additionalResponse);
+        } else {
+            this._show_error(_t("Message from Adyen: %s", additionalResponse.get("message")));
+        }
+        // when starting to wait for the payment response we create a promise
+        // that will be resolved when the payment response is received.
+        // In case this resolver is lost ( for example on a refresh ) we
+        // we use the handle_payment_response method on the payment line
+        const resolver = this.paymentLineResolvers?.[line.uuid];
+        if (resolver) {
+            this.paymentLineResolvers[line.uuid] = null;
+            resolver(isPaymentSuccessful);
+        } else {
+            line.handlePaymentResponse(isPaymentSuccessful);
+        }
     }
 
     /**
@@ -221,11 +349,9 @@ export class PaymentAdyen extends PaymentInterface {
      * confirmation from Adyen is received via the webhook.
      */
     async handleAdyenStatusResponse() {
-        const notification = await this.pos.data.silentCall(
-            "pos.payment.method",
-            "get_latest_adyen_status",
-            [[this.payment_method_id.id]]
-        );
+        const notification = await this.callPaymentMethod("get_latest_adyen_status", [
+            [this.payment_method_id.id],
+        ]);
 
         if (!notification) {
             this._handleOdooConnectionFailure();
@@ -235,65 +361,29 @@ export class PaymentAdyen extends PaymentInterface {
         if (!line) {
             return;
         }
-        const response = notification.SaleToPOIResponse.PaymentResponse.Response;
-        const additional_response = new URLSearchParams(response.AdditionalResponse);
-        const isPaymentSuccessful = this.isPaymentSuccessful(notification, response);
-        if (isPaymentSuccessful) {
-            this.handleSuccessResponse(line, notification, additional_response);
-        } else {
-            this._show_error(_t("Message from Adyen: %s", additional_response.get("message")));
-        }
-        // when starting to wait for the payment response we create a promise
-        // that will be resolved when the payment response is received.
-        // In case this resolver is lost ( for example on a refresh ) we
-        // we use the handlePaymentResponse method on the payment line
-        const resolver = this.paymentLineResolvers?.[line?.uuid];
-        if (resolver) {
-            resolver(isPaymentSuccessful);
-        } else {
-            line?.handlePaymentResponse(isPaymentSuccessful);
-        }
+
+        const response = notification.SaleToPOIResponse;
+        const header = notification.SaleToPOIResponse.MessageHeader;
+
+        this.processPaymentResponse(line, header, response);
     }
-    isPaymentSuccessful(notification, response) {
+    isPaymentSuccessful(header, response) {
         return (
-            notification &&
-            notification.SaleToPOIResponse.MessageHeader.ServiceID ==
-                this.pendingAdyenline()?.terminalServiceId &&
+            header.ServiceID === this.pendingAdyenline().terminalServiceId &&
             response.Result === "Success"
         );
     }
-    handleSuccessResponse(line, notification, additional_response) {
+    handleSuccessResponse(line, payment_response, additional_response) {
         const config = this.pos.config;
-        const payment_response = notification.SaleToPOIResponse.PaymentResponse;
         const payment_result = payment_response.PaymentResult;
 
-        const cashier_receipt = payment_response.PaymentReceipt.find(
-            (receipt) => receipt.DocumentQualifier == "CashierReceipt"
-        );
-
-        if (cashier_receipt) {
-            line.setCashierReceipt(
-                this._convertReceiptInfo(cashier_receipt.OutputContent.OutputText)
-            );
-        }
-
-        const customer_receipt = payment_response.PaymentReceipt.find(
-            (receipt) => receipt.DocumentQualifier == "CustomerReceipt"
-        );
-
-        if (customer_receipt) {
-            line.setReceiptInfo(
-                this._convertReceiptInfo(customer_receipt.OutputContent.OutputText)
-            );
-        }
-
-        const tip_amount = payment_result.AmountsResp.TipAmount;
+        const tip_amount = payment_result?.AmountsResp?.TipAmount ?? 0;
         if (config.adyen_ask_customer_for_tip && tip_amount > 0) {
             this.pos.setTip(tip_amount);
             line.setAmount(payment_result.AmountsResp.AuthorizedAmount);
         }
 
-        line.transaction_id = additional_response.get("pspReference");
+        line.transaction_id = payment_response.POIData.POITransactionID.TransactionID;
         line.card_type = additional_response.get("cardType");
         line.cardholder_name = additional_response.get("cardHolderName") || "";
     }
@@ -309,4 +399,4 @@ export class PaymentAdyen extends PaymentInterface {
     }
 }
 
-register_payment_method("adyen", PaymentAdyen);
+registry.category("pos_payment_providers").add("adyen", PaymentAdyen);

@@ -23,12 +23,12 @@ class TestUI(HttpCase):
             "_perform_complete_place_search",
             lambda controller, *args, **kwargs: {
                 "country": [
-                    self.env["res.country"].search([("code", "=", "USA")]).id,
+                    self.env["res.country"].search([("code", "=", "US")]).id,
                     "United States",
                 ],
                 "state": [
                     self.env["res.country.state"]
-                    .search([("country_id.code", "=", "USA")])[0]
+                    .search([("country_id.code", "=", "US")])[0]
                     .id,
                     "Alabama",
                 ],
@@ -52,7 +52,7 @@ class TestUI(HttpCase):
                 ]
             },
         ):
-            self.env["ir.config_parameter"].sudo().set_param(
+            self.env["ir.config_parameter"].sudo().set_str(
                 "google_address_autocomplete.google_places_api_key", MOCK_API_KEY
             )
             self.start_tour(
@@ -60,7 +60,7 @@ class TestUI(HttpCase):
             )
 
     def test_google_api_calls(self):
-        self.env["ir.config_parameter"].sudo().set_param(
+        self.env["ir.config_parameter"].sudo().set_str(
             "google_address_autocomplete.google_places_api_key", MOCK_API_KEY
         )
 
@@ -152,16 +152,17 @@ class TestUI(HttpCase):
             headers={"Content-Type": "application/json"},
         )
 
+        australia = self.env.ref('base.au')
         res = json.loads(res.content)
         self.assertEqual(
             res["result"],
             {
-                "country": [13, "Australia"],
+                "country": [australia.id, "Australia"],
                 "number": "48",
                 "city": "Pyrmont",
                 "street": "Pirrama Road",
                 "zip": "2009",
-                "state": [2, "New South Wales"],
+                "state": [australia.state_ids[1].id, "New South Wales"],
                 "formatted_street_number": "48 Pirrama Road",
             },
         )
@@ -169,7 +170,7 @@ class TestUI(HttpCase):
         self.assertEqual(steps, ["/autocomplete/json", "/details/json"])
 
     def test_google_api_calls2(self):
-        self.env["ir.config_parameter"].sudo().set_param(
+        self.env["ir.config_parameter"].sudo().set_str(
             "google_address_autocomplete.google_places_api_key", MOCK_API_KEY
         )
 
@@ -236,7 +237,7 @@ class TestUI(HttpCase):
 
     @mute_logger("odoo.http")
     def test_no_access(self):
-        self.env["ir.config_parameter"].sudo().set_param(
+        self.env["ir.config_parameter"].sudo().set_str(
             "google_address_autocomplete.google_places_api_key", MOCK_API_KEY
         )
         self.patch(

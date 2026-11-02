@@ -11,7 +11,6 @@
             <rng:optional><rng:attribute name="string" /></rng:optional>
             <rng:optional><rng:attribute name="date_start" /></rng:optional>
             <rng:optional><rng:attribute name="date_stop" /></rng:optional>
-            <rng:optional><rng:attribute name="date_delay" /></rng:optional>
             <rng:optional><rng:attribute name="all_day" /></rng:optional>
             <rng:optional><rng:attribute name="aggregate" /></rng:optional>
             <rng:optional><rng:attribute name="form_view_id" /></rng:optional>
@@ -30,6 +29,7 @@
             <rng:optional><rng:attribute name="delete"/></rng:optional>
             <rng:optional><rng:attribute name="edit"/></rng:optional>
             <rng:optional><rng:attribute name="scales"/></rng:optional>
+            <rng:optional><rng:attribute name="schedule"/></rng:optional>
             <rng:optional><rng:attribute name="show_date_picker"/></rng:optional>
             <rng:optional><rng:attribute name="month_overflow"/></rng:optional>
             <rng:optional>
@@ -42,9 +42,26 @@
                     </rng:choice>
                 </rng:attribute>
             </rng:optional>
-            <rng:zeroOrMore>
-                <rng:ref name="field"/>
-            </rng:zeroOrMore>
+            <rng:interleave>
+                <rng:zeroOrMore>
+                    <rng:ref name="field"/>
+                </rng:zeroOrMore>
+                <rng:optional>
+                    <rng:element name="popover">
+                        <rng:optional><rng:attribute name="card_id"/></rng:optional>
+                        <rng:zeroOrMore>
+                            <rng:ref name="field"/>
+                        </rng:zeroOrMore>
+                        <rng:optional>
+                            <rng:element name="templates">
+                                <rng:oneOrMore>
+                                    <rng:ref name="any"/>
+                                </rng:oneOrMore>
+                            </rng:element>
+                        </rng:optional>
+                    </rng:element>
+                </rng:optional>
+            </rng:interleave>
         </rng:element>
     </rng:define>
     <rng:start>

@@ -1,12 +1,13 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 import logging
 import os
-import pytz
+from datetime import UTC
+from zoneinfo import ZoneInfo
 
 from odoo import _, api, fields, models, SUPERUSER_ID
 from odoo.fields import Domain
 from odoo.tools import email_normalize, format_date, formataddr
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 _logger = logging.getLogger(__name__)
 
 
@@ -58,7 +59,8 @@ class EventRegistration(models.Model):
     date_closed = fields.Datetime(
         string='Attended Date', compute='_compute_date_closed',
         readonly=False, store=True)
-    event_begin_date = fields.Datetime("Event Start Date", compute="_compute_event_begin_date", search="_search_event_begin_date")
+    event_begin_date = fields.Datetime(
+        "Event Start Date", compute="_compute_event_begin_date", store=True)  # Stored for the cohort view and portal 'order_by'
     event_end_date = fields.Datetime("Event End Date", compute="_compute_event_end_date", search="_search_event_end_date")
     event_date_range = fields.Char("Date Range", compute="_compute_date_range")
     event_organizer_id = fields.Many2one(string='Event Organizer', related='event_id.organizer_id', readonly=True)
@@ -77,6 +79,9 @@ class EventRegistration(models.Model):
              'Registered: registrations considered taken by a client\n'
              'Attended: registrations for which the attendee attended the event\n'
              'Cancelled: registrations cancelled manually')
+    remaining_entries = fields.Integer(string="Remaining Entries", compute="_compute_remaining_entries", tracking=True)
+    ticket_entry_limit = fields.Integer(string="Initial Entry Limit", related="event_ticket_id.entry_limit", tracking=True)
+    main_registration_id = fields.Many2one('event.registration', string='Main Registration', ondelete='restrict', index="btree_not_null")
     # questions
     registration_answer_ids = fields.One2many('event.registration.answer', 'registration_id', string='Attendee Answers')
     registration_answer_choice_ids = fields.One2many('event.registration.answer', 'registration_id', string='Attendee Selection Answers',
@@ -153,8 +158,8 @@ class EventRegistration(models.Model):
             if not registration.company_name and registration.partner_id:
                 registration.company_name = registration._synchronize_partner_values(
                     registration.partner_id,
-                    fnames={'company_name'},
-                ).get('company_name') or False
+                    fnames={'parent_name'},
+                ).get('parent_name') or False
 
     @api.depends('state')
     def _compute_date_closed(self):
@@ -173,22 +178,28 @@ class EventRegistration(models.Model):
                 lang_code=registration.partner_id.lang,
             )
 
-    @api.depends("event_id", "event_slot_id")
+    @api.depends("event_id", "event_slot_id", "event_id.date_begin", "event_slot_id.start_datetime")
     def _compute_event_begin_date(self):
         for registration in self:
             registration.event_begin_date = registration.event_slot_id.start_datetime or registration.event_id.date_begin
-
-    @api.model
-    def _search_event_begin_date(self, operator, value):
-        return Domain.OR([
-            ["&", ("event_slot_id", "!=", False), ("event_slot_id.start_datetime", operator, value)],
-            ["&", ("event_slot_id", "=", False), ("event_id.date_begin", operator, value)],
-        ])
 
     @api.depends("event_id", "event_slot_id")
     def _compute_event_end_date(self):
         for registration in self:
             registration.event_end_date = registration.event_slot_id.end_datetime or registration.event_id.date_end
+
+    @api.depends("ticket_entry_limit")
+    def _compute_remaining_entries(self):
+        sub_registrations = dict(self.env['event.registration']._read_group(
+            domain=[('main_registration_id', 'in', self.ids), ('state', '=', 'done')],
+            groupby=['main_registration_id'],
+            aggregates=['__count']
+        ))
+        for registration in self:
+            if registration.ticket_entry_limit > 1 and not registration.main_registration_id and registration.state != 'done':
+                registration.remaining_entries = max(0, (registration.ticket_entry_limit - sub_registrations.get(registration, 0)))
+            else:
+                registration.remaining_entries = 0
 
     @api.model
     def _search_event_end_date(self, operator, value):
@@ -248,7 +259,7 @@ class EventRegistration(models.Model):
             if event_id and attendee.event_id.id != event_id:
                 status = 'need_manual_confirmation'
             else:
-                attendee.action_set_done()
+                attendee.action_attend_event()
                 status = 'confirmed_registration'
         else:
             status = 'already_registered'
@@ -296,10 +307,9 @@ class EventRegistration(models.Model):
         return ret
 
     def _compute_display_name(self):
-        """ Custom display_name in case a registration is nott linked to an attendee
-        """
+        """Custom display_name when a registration is not linked to an attendee."""
         for registration in self:
-            registration.display_name = registration.name or f"#{registration.id}"
+            registration.display_name = registration.name or (f"#{registration.id}" if registration.id else _("New"))
 
     # ------------------------------------------------------------
     # ACTIONS / BUSINESS
@@ -311,12 +321,55 @@ class EventRegistration(models.Model):
     def action_confirm(self):
         self.write({'state': 'open'})
 
+    def action_confirm_and_reset(self):
+        self.write({'state': 'open', 'date_closed': False})
+
+    def action_attend_event(self):
+        for record in self:
+            if record.remaining_entries > 1:
+                new_record_fields = {
+                    'main_registration_id': record.id,
+                }
+                new_registration = record.copy(new_record_fields)
+                new_registration.action_set_done()
+                new_registration_link = new_registration._get_html_link(title=f"{new_registration.name}")
+                record._message_log(
+                    body=_(
+                        "New attendance by this attendee created at %(attendance_datetime)s, see %(attendance_link)s",
+                        attendance_datetime=fields.Datetime.to_string(new_registration.create_date),
+                        attendance_link=new_registration_link
+                    ),
+                    message_type='notification',
+                )
+            else:
+                record.action_set_done()
+
     def action_set_done(self):
         """ Close Registration """
         self.write({'state': 'done'})
 
     def action_cancel(self):
         self.write({'state': 'cancel'})
+
+    def action_cancel_last_sub_registration(self):
+        """ Cancel the last attendance of a registration to increase the amount it can be scanned by one.
+
+        :raises: UserError if one of the registrations is a sub-registrations, this method is meant to be used only on main registrations. """
+        if self.mapped("main_registration_id"):
+            raise UserError(
+                _("You cannot cancel the last attendance of the sub-registration with id: %(registration_id)s."
+                " Please try again from the original registration of this attendee.",
+                registration_id=self.filtered(lambda r: r.main_registration_id).ids)
+            )
+        # Find for each registration the last created sub-registration to cancel it
+        last_sub_registrations = self.env['event.registration']._read_group(
+            domain=[('main_registration_id', 'in', self.ids), ('state', '=', 'done')],
+            groupby=['main_registration_id'],
+            aggregates=['id:max']
+        )
+        self.env['event.registration'].browse(
+            [reg_id for main_reg, reg_id in last_sub_registrations]
+        ).action_cancel()
 
     def action_send_badge_email(self):
         """ Open a window to compose an email, with the template - 'event_badge'
@@ -364,7 +417,7 @@ class EventRegistration(models.Model):
             return
 
         # either trigger the cron, either run schedulers immediately (scaling choice)
-        async_scheduler = self.env['ir.config_parameter'].sudo().get_param('event.event_mail_async')
+        async_scheduler = self.env['ir.config_parameter'].sudo().get_bool('event.event_mail_async')
         if async_scheduler or self.env.context.get('import_file'):
             self.env.ref('event.event_mail_scheduler')._trigger()
             self.env.ref('mail.ir_cron_mail_scheduler_action')._trigger()
@@ -418,7 +471,7 @@ class EventRegistration(models.Model):
                     results[record.id]['email_to_lst'] = [formataddr((record.name or "", email_normalized))]
         return results
 
-    def _message_post_after_hook(self, message, msg_vals):
+    def _message_post_after_hook(self, message):
         if self.email and not self.partner_id:
             # we consider that posting a message with a specified recipient (not a follower, a specific one)
             # on a document without customer means that it was created through the chatter using
@@ -435,7 +488,7 @@ class EventRegistration(models.Model):
                 self.search([
                     ('partner_id', '=', False), email_domain, ('state', 'not in', ['cancel']),
                 ]).write({'partner_id': new_partner[0].id})
-        return super(EventRegistration, self)._message_post_after_hook(message, msg_vals)
+        return super()._message_post_after_hook(message)
 
     # ------------------------------------------------------------
     # TOOLS
@@ -446,8 +499,8 @@ class EventRegistration(models.Model):
 
         is_date_closed_today = False
         if self.date_closed:
-            event_tz = pytz.timezone(self.event_id.date_tz)
-            now = fields.Datetime.now(pytz.UTC).astimezone(event_tz)
+            event_tz = ZoneInfo(self.event_id.date_tz)
+            now = fields.Datetime.now().replace(tzinfo=UTC).astimezone(event_tz)
             closed_date = self.date_closed.astimezone(event_tz)
             is_date_closed_today = now.date() == closed_date.date()
 
@@ -464,4 +517,6 @@ class EventRegistration(models.Model):
             'badge_format': self.event_id.badge_format,
             'date_closed_formatted': format_date(env=self.env, value=self.date_closed, date_format='short') if self.date_closed else False,
             'is_date_closed_today': is_date_closed_today,
+            'remaining_entries': max(0, self.remaining_entries - 1),  # Anticipates the validation of the ticket to display the right amount
+            'ticket_entry_limit': self.ticket_entry_limit,
         }

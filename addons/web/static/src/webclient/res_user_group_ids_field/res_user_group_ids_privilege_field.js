@@ -1,12 +1,11 @@
+import { Component, usePlugin, useProps } from "@odoo/owl";
+import { DebugModePlugin } from "@web/core/debug_mode_plugin";
+import { usePopover } from "@web/core/popover/popover_hook";
 import { registry } from "@web/core/registry";
 import { BooleanField } from "@web/views/fields/boolean/boolean_field";
 import { SelectionField } from "@web/views/fields/selection/selection_field";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
-
-import { ResUserGroupIdsPopover } from "./res_user_group_ids_popover";
-
-import { Component } from "@odoo/owl";
-import { usePopover } from "@web/core/popover/popover_hook";
+import { ResUserGroupIdsPopover } from "@web/webclient/res_user_group_ids_field/res_user_group_ids_popover";
 
 /**
  * /!\ This widget is not meant to be used anywhere else than inside form view
@@ -16,10 +15,13 @@ import { usePopover } from "@web/core/popover/popover_hook";
 class ResUserGroupIdsPrivilegeField extends Component {
     static template = "web.ResUserGroupIdsPrivilegeField";
     static components = { BooleanField, SelectionField };
-    static props = { ...standardFieldProps };
+    props = useProps({
+        ...standardFieldProps,
+    });
+
+    debugMode = usePlugin(DebugModePlugin);
 
     setup() {
-        this.isDebug = odoo.debug;
         this.popover = usePopover(ResUserGroupIdsPopover);
         this.groups = this.env.resUserGroupsInfo.groups;
     }
@@ -52,11 +54,13 @@ class ResUserGroupIdsPrivilegeField extends Component {
             btn: true,
             "btn-link": true,
             "py-0": true,
-            fa: true,
-            "fa-info-circle": !isDisjoint,
-            "fa-exclamation-triangle": isDisjoint,
+            oi: true,
             "link-danger": isDisjoint,
         };
+    }
+
+    get infoButtonIcon() {
+        return this.isDisjoint ? "warning" : "info";
     }
 
     get isDisjoint() {

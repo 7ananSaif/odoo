@@ -7,8 +7,17 @@
             applyTo="'.o_wblog_post_name'"
             createAction="'createTag'"
             m2oField="'tag_ids'"
-            recordId="domState.blogId"
+            recordId="this.domState.blogId"
         />
     </BuilderRow>
 </t>
+
+<t t-inherit="website.BuilderOptions" t-inherit-mode="extension">
+    <xpath expr="//t[@id='page_options_hook']" position="after">
+        <blog_post_tags_option
+            selector="main:has(#o_wblog_post_main)"
+            editableOnly="false"/>
+    </xpath>
+</t>
+
 </templates>

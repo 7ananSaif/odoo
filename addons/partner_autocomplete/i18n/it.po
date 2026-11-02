@@ -7,14 +7,15 @@
 # Sergio Zanchetta <primes2h@gmail.com>, 2022
 # Luca Carlo, 2023
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Marianna Ciofani (cima)" <cima@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0beta\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-09-14 21:20+0000\n"
-"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
-"Language-Team: Italian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-11 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 14:34+0000\n"
+"Last-Translator: \"Marianna Ciofani (cima)\" <cima@odoo.com>\n"
+"Language-Team: Italian <https://translate.odoo.com/projects/odoo-s19-4/"
 "partner_autocomplete/it/>\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
@@ -22,7 +23,19 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=(n == 1) ? 0 : ((n != 0 && n % 1000000 == "
 "0) ? 1 : 2);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: partner_autocomplete
+#: model:ir.module.module,description:base.module_partner_autocomplete
+msgid ""
+"\n"
+"Auto-complete partner companies' data\n"
+msgstr ""
+
+#. module: partner_autocomplete
+#: model:ir.module.module,summary:base.module_partner_autocomplete
+msgid "Auto-complete partner companies' data"
+msgstr ""
 
 #. module: partner_autocomplete
 #: model:iap.service,description:partner_autocomplete.iap_service_partner_autocomplete
@@ -32,13 +45,13 @@ msgstr "Arricchisce automaticamente il contatto base usando i dati aziendali."
 #. module: partner_autocomplete
 #. odoo-javascript
 #: code:addons/partner_autocomplete/static/src/xml/partner_autocomplete.xml:0
-msgid "Buy more credits"
-msgstr "Acquista altri crediti"
+msgid "Buy"
+msgstr "Acquista"
 
 #. module: partner_autocomplete
 #: model:ir.model,name:partner_autocomplete.model_res_company
-msgid "Companies"
-msgstr "Aziende"
+msgid "Company"
+msgstr "Azienda"
 
 #. module: partner_autocomplete
 #: model:ir.model,name:partner_autocomplete.model_res_config_settings
@@ -65,9 +78,20 @@ msgid "Display Name"
 msgstr "Nome visualizzato"
 
 #. module: partner_autocomplete
+#: model:ir.actions.server,name:partner_autocomplete.model_res_partner_enrich
+msgid "Enrich"
+msgstr ""
+
+#. module: partner_autocomplete
 #: model:ir.model.fields,field_description:partner_autocomplete.field_res_company__iap_enrich_auto_done
 msgid "Enrich Done"
 msgstr "Arricchimento effettuato"
+
+#. module: partner_autocomplete
+#. odoo-python
+#: code:addons/partner_autocomplete/models/res_partner.py:0
+msgid "Enrich notification"
+msgstr ""
 
 #. module: partner_autocomplete
 #: model:iap.service,unit_name:partner_autocomplete.iap_service_partner_autocomplete
@@ -106,6 +130,13 @@ msgstr "Credito non sufficiente"
 
 #. module: partner_autocomplete
 #. odoo-python
+#: code:addons/partner_autocomplete/models/res_partner.py:0
+msgid ""
+"It seems that we didn't found some information for the following partners: %s"
+msgstr ""
+
+#. module: partner_autocomplete
+#. odoo-python
 #: code:addons/partner_autocomplete/models/iap_autocomplete_api.py:0
 msgid "No account token"
 msgstr "Nessun account token"
@@ -117,6 +148,12 @@ msgid "Not enough credits for Partner Autocomplete"
 msgstr "Crediti non sufficienti per l'autocompletamento del partner"
 
 #. module: partner_autocomplete
+#: model:iap.service,name:partner_autocomplete.iap_service_partner_autocomplete
+#: model:ir.module.module,shortdesc:base.module_partner_autocomplete
+msgid "Partner Autocomplete"
+msgstr ""
+
+#. module: partner_autocomplete
 #. odoo-javascript
 #: code:addons/partner_autocomplete/static/src/xml/partner_autocomplete.xml:0
 msgid "Search Worldwide 🌎"
@@ -124,6 +161,7 @@ msgstr "Cerca in tutto il mondo 🌎"
 
 #. module: partner_autocomplete
 #. odoo-javascript
+#: code:addons/partner_autocomplete/static/src/js/partner_autocomplete_additional_identifiers_list.js:0
 #: code:addons/partner_autocomplete/static/src/js/partner_autocomplete_fieldchar.js:0
 #: code:addons/partner_autocomplete/static/src/js/partner_autocomplete_many2one.js:0
 msgid "Searching Autocomplete..."
@@ -137,6 +175,12 @@ msgstr "Imposta token del conto"
 
 #. module: partner_autocomplete
 #. odoo-python
+#: code:addons/partner_autocomplete/models/res_partner.py:0
+msgid "Some errors occurred during the enrich: %s"
+msgstr ""
+
+#. module: partner_autocomplete
+#. odoo-python
 #: code:addons/partner_autocomplete/models/iap_autocomplete_api.py:0
 msgid "Test mode"
 msgstr "Modalità di prova"
@@ -146,36 +190,3 @@ msgstr "Modalità di prova"
 #: code:addons/partner_autocomplete/models/res_partner.py:0
 msgid "Unable to enrich company (no credit was consumed)."
 msgstr "Impossibile arricchire l'azienda (nessun credito consumato)."
-
-#~ msgid "Additional info"
-#~ msgstr "Informazioni aggiuntive"
-
-#~ msgid "Company database ID"
-#~ msgstr "ID database azienda"
-
-#~ msgid "Created by"
-#~ msgstr "Creato da"
-
-#~ msgid "Created on"
-#~ msgstr "Data creazione"
-
-#~ msgid "Is synched"
-#~ msgstr "È sincronizzato"
-
-#~ msgid "Last Updated by"
-#~ msgstr "Ultimo aggiornamento di"
-
-#~ msgid "Last Updated on"
-#~ msgstr "Ultimo aggiornamento il"
-
-#~ msgid "Partner"
-#~ msgstr "Partner"
-
-#~ msgid "Partner Autocomplete Sync"
-#~ msgstr "Sincronizzazione autocompletamento partner"
-
-#~ msgid "Partner created by Odoo Partner Autocomplete Service"
-#~ msgstr "Partner creato dal servizio di autocompletamento Odoo"
-
-#~ msgid "Placeholder"
-#~ msgstr "Segnaposto"

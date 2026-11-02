@@ -6,21 +6,39 @@
 # Martin Trigaux, 2022
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Kira Petersen François (peti)" <peti@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-09-14 21:20+0000\n"
-"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
-"Language-Team: Danish <https://translate.odoo.com/projects/odoo-19/sale_crm/"
-"da/>\n"
+"POT-Creation-Date: 2026-09-04 17:46+0000\n"
+"PO-Revision-Date: 2026-09-09 13:53+0000\n"
+"Last-Translator: \"Kira Petersen François (peti)\" <peti@odoo.com>\n"
+"Language-Team: Danish <https://translate.odoo.com/projects/odoo-master/"
+"sale_crm/da/>\n"
 "Language: da\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: sale_crm
+#: model:ir.module.module,description:base.module_sale_crm
+msgid ""
+"\n"
+"This module adds a shortcut on one or several opportunity cases in the CRM.\n"
+"===========================================================================\n"
+"\n"
+"This shortcut allows you to generate a sales order based on the selected "
+"case.\n"
+"If different cases are open (a list), it generates one sales order by case.\n"
+"The case is then closed and linked to the generated sales order.\n"
+"\n"
+"We suggest you to install this module, if you installed both the sale and "
+"the crm\n"
+"modules.\n"
+msgstr ""
 
 #. module: sale_crm
 #: model_terms:ir.ui.view,arch_db:sale_crm.crm_case_form_view_oppor
@@ -30,17 +48,7 @@ msgstr "<span class=\"o_stat_text\"> Ordrer</span>"
 #. module: sale_crm
 #: model:ir.model.fields,field_description:sale_crm.field_crm_quotation_partner__lead_id
 msgid "Associated Lead"
-msgstr "Tilknyttet kundeemne"
-
-#. module: sale_crm
-#: model_terms:ir.ui.view,arch_db:sale_crm.crm_quotation_partner_view_form
-msgid "Cancel"
-msgstr "Annullér"
-
-#. module: sale_crm
-#: model_terms:ir.ui.view,arch_db:sale_crm.crm_quotation_partner_view_form
-msgid "Confirm"
-msgstr "Bekræft"
+msgstr "Tilknyttet lead"
 
 #. module: sale_crm
 #: model:ir.model.fields.selection,name:sale_crm.selection__crm_quotation_partner__action__create
@@ -56,11 +64,6 @@ msgstr "Opret en salgsmulighed"
 #: model:ir.model,name:sale_crm.model_crm_quotation_partner
 msgid "Create new or use existing Customer on new Quotation"
 msgstr "Opret ny eller eksisterende kunde på nyt tilbud"
-
-#. module: sale_crm
-#: model_terms:ir.ui.view,arch_db:sale_crm.crm_case_form_view_oppor
-msgid "Create new quotation"
-msgstr "Opret nyt tilbud"
 
 #. module: sale_crm
 #: model:ir.model.fields,field_description:sale_crm.field_crm_quotation_partner__create_uid
@@ -83,7 +86,7 @@ msgstr "Kunde"
 #: model:ir.model.fields,field_description:sale_crm.field_crm_team__display_name
 #: model:ir.model.fields,field_description:sale_crm.field_sale_order__display_name
 msgid "Display Name"
-msgstr "Vis navn"
+msgstr "Visningsnavn"
 
 #. module: sale_crm
 #: model:ir.model.fields.selection,name:sale_crm.selection__crm_quotation_partner__action__nothing
@@ -97,6 +100,11 @@ msgid "Expected revenue has been updated based on the linked Sales Orders."
 msgstr ""
 "Forventet omsætning er blevet opdateret baseret på de tilknyttede "
 "salgsordrer."
+
+#. module: sale_crm
+#: model_terms:ir.ui.view,arch_db:sale_crm.crm_quotation_partner_view_form
+msgid "Go to Quotation"
+msgstr ""
 
 #. module: sale_crm
 #: model:ir.model.fields,field_description:sale_crm.field_crm_lead__id
@@ -119,7 +127,7 @@ msgstr "Sidst opdateret den"
 #. module: sale_crm
 #: model:ir.model,name:sale_crm.model_crm_lead
 msgid "Lead"
-msgstr "Kundeemne"
+msgstr "Lead"
 
 #. module: sale_crm
 #: model:ir.model.fields.selection,name:sale_crm.selection__crm_quotation_partner__action__exist
@@ -132,9 +140,7 @@ msgid "My Quotations"
 msgstr "Mine tilbud"
 
 #. module: sale_crm
-#: model:ir.actions.act_window,name:sale_crm.crm_quotation_partner_action
 #: model_terms:ir.ui.view,arch_db:sale_crm.crm_case_form_view_oppor
-#: model_terms:ir.ui.view,arch_db:sale_crm.crm_quotation_partner_view_form
 msgid "New Quotation"
 msgstr "Nyt tilbud"
 
@@ -152,6 +158,11 @@ msgstr "Antal salgsordrer"
 #: model:ir.model.fields,field_description:sale_crm.field_sale_order__opportunity_id
 msgid "Opportunity"
 msgstr "Salgsmulighed"
+
+#. module: sale_crm
+#: model:ir.module.module,shortdesc:base.module_sale_crm
+msgid "Opportunity to Quotation"
+msgstr ""
 
 #. module: sale_crm
 #: model:ir.model.fields,field_description:sale_crm.field_crm_lead__order_ids
@@ -195,35 +206,28 @@ msgid "Sales Team"
 msgstr "Salgsteam"
 
 #. module: sale_crm
+#: model_terms:ir.ui.view,arch_db:sale_crm.crm_quotation_partner_view_form
+msgid "Select a Customer"
+msgstr ""
+
+#. module: sale_crm
 #: model:ir.model.fields,field_description:sale_crm.field_crm_lead__sale_amount_total
 msgid "Sum of Orders"
 msgstr "Summen af ordrer"
 
 #. module: sale_crm
 #: model:ir.model.fields,help:sale_crm.field_crm_lead__sale_amount_total
-msgid "Untaxed Total of Confirmed Orders"
-msgstr "Total før moms for bekræftede salgsordrer"
+msgid "Total of Confirmed Orders"
+msgstr ""
+
+#. module: sale_crm
+#: model:ir.actions.act_window,name:sale_crm.crm_quotation_partner_action
+#: model_terms:ir.ui.view,arch_db:sale_crm.crm_quotation_partner_view_form
+msgid "Who should be linked to this new Quotation?"
+msgstr ""
 
 #. module: sale_crm
 #. odoo-python
 #: code:addons/sale_crm/wizard/crm_opportunity_to_quotation.py:0
 msgid "You can only apply this action from a lead."
-msgstr "Du kan kun anvende denne handling fra et kundeemne."
-
-#~ msgid "Invoiced in Sales Orders Target"
-#~ msgstr "Faktureret i salgsordre"
-
-#~ msgid "Last Modified on"
-#~ msgstr "Sidst ændret den"
-
-#~ msgid "Lead/Opportunity"
-#~ msgstr "Kundeemne/Salgsmulighed"
-
-#~ msgid "Log in the chatter from which opportunity the order originates"
-#~ msgstr "Log ind chatteren fra hvilken salgsmuligheden stammer fra"
-
-#~ msgid "Sales: Untaxed Total"
-#~ msgstr "Salg: Total uden moms"
-
-#~ msgid "User"
-#~ msgstr "Bruger"
+msgstr "Du kan kun anvende denne handling fra et lead."

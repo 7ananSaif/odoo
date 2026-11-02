@@ -73,8 +73,7 @@ class TestPregenerateTime(HttpCase):
     def test_logs_pregenerate_time(self):
         self.env['ir.qweb']._pregenerate_assets_bundles()
         start = time.time()
-        self.env.registry.clear_cache()
-        self.env.cache.invalidate()
+        self.env.transaction.clear()
         with self.profile(collectors=['sql', odoo.tools.profiler.PeriodicCollector(interval=0.01)], disable_gc=True):
             self.env['ir.qweb']._pregenerate_assets_bundles()
         duration = time.time() - start
@@ -89,7 +88,6 @@ class TestAssetsGenerateTime(TestAssetsGenerateTimeCommon):
 
     def test_assets_generate_time(self):
         thresholds = {
-            'web.qunit_suite_tests.js': 3.6,
             'project.webclient.js': 2.5,
             'point_of_sale.pos_assets_backend.js': 2.5,
             'web.assets_backend.js': 2.5,

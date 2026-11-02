@@ -8,17 +8,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-05-23 09:48+0000\n"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-10-22 10:31+0000\n"
 "Last-Translator: \"Larissa Manderfeld (lman)\" <lman@odoo.com>\n"
-"Language-Team: German <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: German <https://translate.odoo.com/projects/odoo-20/"
 "project_purchase/de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: project_purchase
 #: model:product.template,name:project_purchase.product_product_bricks_product_template
@@ -34,6 +34,7 @@ msgstr "Zement"
 #: model:ir.model.fields,field_description:project_purchase.field_project_project__display_name
 #: model:ir.model.fields,field_description:project_purchase.field_purchase_order__display_name
 #: model:ir.model.fields,field_description:project_purchase.field_purchase_order_line__display_name
+#: model:ir.model.fields,field_description:project_purchase.field_purchase_report__display_name
 msgid "Display Name"
 msgstr "Anzeigename"
 
@@ -41,31 +42,26 @@ msgstr "Anzeigename"
 #: model:ir.model.fields,field_description:project_purchase.field_project_project__id
 #: model:ir.model.fields,field_description:project_purchase.field_purchase_order__id
 #: model:ir.model.fields,field_description:project_purchase.field_purchase_order_line__id
+#: model:ir.model.fields,field_description:project_purchase.field_purchase_report__id
 msgid "ID"
 msgstr "ID"
 
 #. module: project_purchase
-#. odoo-python
-#: code:addons/project_purchase/models/project_project.py:0
-msgid "No purchase order found. Let's create one."
-msgstr "Keine Bestellung gefunden. Erstellen Sie eine!"
-
-#. module: project_purchase
-#. odoo-python
-#: code:addons/project_purchase/models/project_project.py:0
-msgid ""
-"Once you ordered your products from your supplier, confirm your request for "
-"quotation and it will turn into a purchase order."
-msgstr ""
-"Sobald Sie Ihre Produkte bei Ihrem Lieferanten bestellt haben, bestätigen "
-"Sie Ihre Angebotsanfrage, die anschließend in eine Bestellung umgewandelt "
-"wird."
+#: model:ir.module.module,summary:base.module_project_purchase
+msgid "Monitor purchase in project"
+msgstr "Einkauf im Projekt überwachen"
 
 #. module: project_purchase
 #: model:ir.model,name:project_purchase.model_project_project
 #: model:ir.model.fields,field_description:project_purchase.field_purchase_order__project_id
+#: model:ir.model.fields,field_description:project_purchase.field_purchase_report__project_id
 msgid "Project"
 msgstr "Projekt"
+
+#. module: project_purchase
+#: model:ir.module.module,shortdesc:base.module_project_purchase
+msgid "Project Purchase"
+msgstr "Projekt & Einkauf"
 
 #. module: project_purchase
 #: model:ir.model,name:project_purchase.model_purchase_order
@@ -78,12 +74,16 @@ msgid "Purchase Order Line"
 msgstr "Bestellzeile"
 
 #. module: project_purchase
-#. odoo-python
-#: code:addons/project_purchase/models/project_project.py:0
 #: model:ir.embedded.actions,name:project_purchase.project_embedded_action_purchase_orders
 #: model:ir.embedded.actions,name:project_purchase.project_embedded_action_purchase_orders_dashboard
+#: model_terms:ir.ui.view,arch_db:project_purchase.project_view_form_inherit_project_purchase
 msgid "Purchase Orders"
 msgstr "Bestellungen"
+
+#. module: project_purchase
+#: model:ir.model,name:project_purchase.model_purchase_report
+msgid "Purchase Report"
+msgstr "Einkaufsbericht"
 
 #. module: project_purchase
 #: model:product.template,name:project_purchase.product_product_sand_product_template

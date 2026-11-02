@@ -16,7 +16,7 @@ const { DateTime, Settings } = luxon;
  *  Format used to format a DateTime or to parse a formatted string.
  *  > Default: the session localization format.
  *
- * @typedef {luxon.DateTime} DateTime
+ * @typedef {import("luxon").DateTime} DateTime
  *
  * @typedef {[NullableDateTime, NullableDateTime]} NullableDateRange
  *
@@ -35,6 +35,9 @@ const { DateTime, Settings } = luxon;
  * @property {boolean} [showDate]
  *  Show the date in the final result.
  *  > Default: true.
+ * @property {boolean} [showWeekday]
+ *  Show the abbreviated weekday (e.g. "Mon") in the final result.
+ *  > Default: false.
  */
 
 /**
@@ -77,7 +80,7 @@ const normalizeFormatTable = {
     X: "HH:mm:ss",
 };
 
-const smartDateUnits = {
+export const smartDateUnits = {
     d: "days",
     m: "months",
     w: "weeks",
@@ -152,13 +155,13 @@ export function clampDate(desired, minDate, maxDate) {
  * Get the week year and week number of a given date as well as the starting
  * date of the week, in the user's locale settings.
  *
- * @param {Date | luxon.DateTime} date
- * @returns {{ year: number, week: number, startDate: luxon.DateTime }}
+ * @param {Date | DateTime} date
+ * @returns {{ year: number, week: number, startDate: DateTime }}
  *  the year the week is part of, and
  *  the ISO week number (1-53) of the Monday nearest to the locale's first day of the week
  */
 export function getLocalYearAndWeek(date) {
-    if (!date.isLuxonDateTime) {
+    if (date instanceof Date) {
         date = DateTime.fromJSDate(date);
     }
     const { weekStart } = localization;
@@ -174,11 +177,11 @@ export function getLocalYearAndWeek(date) {
     let diffDays, year;
     if (date < jan4) {
         // count from previous year if week falls before Jan 4
-        diffDays = date.diff(jan4.minus({ years: 1 }), "day").days
-        year = date.year - 1
+        diffDays = date.diff(jan4.minus({ years: 1 }), "day").days;
+        year = date.year - 1;
     } else {
         diffDays = date.diff(jan4, "day").days;
-        year = date.year
+        year = date.year;
     }
     return {
         year: year,
@@ -196,8 +199,8 @@ export function getLocalYearAndWeek(date) {
  * Intl API and the `getWeekInfo` method, which is not supported in all browsers.
  * See: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Locale/getWeekInfo#browser_compatibility
  *
- * @param {luxon.DateTime} date
- * @returns {luxon.DateTime}
+ * @param {DateTime} date
+ * @returns {DateTime}
  */
 export function getStartOfLocalWeek(date) {
     const { weekStart } = localization;
@@ -214,11 +217,44 @@ export function getStartOfLocalWeek(date) {
  * Intl API and the `getWeekInfo` method, which is not supported in all browsers.
  * See: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Locale/getWeekInfo#browser_compatibility
  *
- * @param {luxon.DateTime} date
- * @returns {luxon.DateTime}
+ * @param {DateTime} date
+ * @returns {DateTime}
  */
 export function getEndOfLocalWeek(date) {
     return getStartOfLocalWeek(date).plus({ days: 6 }).endOf("day");
+}
+
+/**
+ * Formats a bare number with the digits of the active numbering system, so that
+ * values interpolated by hand sit correctly next to the ones luxon renders.
+ *
+ * @param {number} value
+ * @returns {string}
+ */
+function formatLocalNumber(value) {
+    // both settings are null until the localization service has run
+    return new Intl.NumberFormat(Settings.defaultLocale ?? undefined, {
+        numberingSystem: Settings.defaultNumberingSystem ?? undefined,
+        useGrouping: false,
+    }).format(value);
+}
+
+/**
+ * Formats the week the given date belongs to, as its number followed by the
+ * days it spans, e.g.: Week 32, Aug 2 - Aug 8
+ * As in toLocaleDateString, the year is left out while it is the current one.
+ *
+ * @param {Date | DateTime} date
+ */
+export function formatLocalWeekRange(date) {
+    const { year, week, startDate } = getLocalYearAndWeek(date);
+    const format = { month: "short", day: "numeric" };
+    const result = _t("Week %(week)s, %(startDate)s - %(endDate)s", {
+        week: formatLocalNumber(week),
+        startDate: startDate.toLocaleString(format),
+        endDate: startDate.plus({ days: 6 }).toLocaleString(format),
+    });
+    return today().year === year ? result : `${result} ${formatLocalNumber(year)}`;
 }
 
 /**
@@ -310,8 +346,7 @@ function parseSmartDateInput(value) {
         const dayname = term.slice(1);
         if (Object.hasOwn(smartWeekdays, dayname) || dayname === "week_start") {
             const { weekStart } = localization;
-            const weekdayNumber =
-                dayname === "week_start" ? weekStart : smartWeekdays[dayname];
+            const weekdayNumber = dayname === "week_start" ? weekStart : smartWeekdays[dayname];
             let weekdayOffset =
                 ((weekdayNumber - weekStart + 7) % 7) - ((now.weekday - weekStart + 7) % 7);
             if (operator == "+" || operator == "-") {
@@ -464,7 +499,7 @@ export function toLocaleDateString(value) {
  */
 export function toLocaleDateTimeString(
     value,
-    options = { showDate: true, showTime: true, showSeconds: false }
+    options = { showDate: true, showTime: true, showSeconds: false, showWeekday: false }
 ) {
     if (!value) {
         return "";
@@ -481,6 +516,9 @@ export function toLocaleDateTimeString(
     if (options.showTime === false) {
         delete format.hour;
         delete format.minute;
+    }
+    if (options.showWeekday) {
+        format.weekday = "short";
     }
     if (today().year === value.year) {
         delete format.year;

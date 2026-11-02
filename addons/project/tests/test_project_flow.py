@@ -1,9 +1,12 @@
 from .test_project_base import TestProjectCommon
 from odoo import Command
 from odoo.addons.mail.tests.common import MailCase
+from odoo.tests import Form, tagged
+
 from odoo.exceptions import AccessError
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install, fails post install
 class TestProjectFlow(TestProjectCommon, MailCase):
 
     def test_project_process_project_manager_duplicate(self):
@@ -24,7 +27,7 @@ class TestProjectFlow(TestProjectCommon, MailCase):
             - 'another_parent_task' linked to the partner_3
         """
 
-        Task = self.env['project.task'].with_context({'tracking_disable': True})
+        Task = self.env['project.task']
 
         parent_task = Task.create({
             'name': 'Mother Task',
@@ -122,7 +125,7 @@ class TestProjectFlow(TestProjectCommon, MailCase):
 
     def test_rating(self):
         """Check if rating works correctly even when task is changed from project A to project B"""
-        Task = self.env['project.task'].with_context({'tracking_disable': True})
+        Task = self.env['project.task']
         first_task = Task.create({
             'name': 'first task',
             'user_ids': self.user_projectuser,
@@ -481,3 +484,55 @@ class TestProjectFlow(TestProjectCommon, MailCase):
         self.assertFalse(task1.user_ids)
         self.assertEqual(self.user_projectuser + self.user_projectmanager, task_2.user_ids)
         self.assertEqual(self.user_projectuser, task_3.user_ids)
+
+    def test_customer_can_access_public_project(self):
+        """Test that a customer is automatically added as a collaborator when the project is public."""
+        project = self.env['project.project'].create({
+            'name': 'Public Project',
+            'privacy_visibility': 'portal',
+            'partner_id': self.partner_1.id,
+        })
+
+        self.assertNotIn(
+            self.partner_1, project.message_partner_ids,
+            "Customer should no longer be automatically subscribed as a follower."
+        )
+
+        collaborator = project.collaborator_ids.filtered(lambda c: c.partner_id == self.partner_1)
+        self.assertTrue(
+            collaborator,
+            "Customer should be automatically added as a collaborator when visibility is set to 'portal'."
+        )
+
+        self.assertEqual(
+            collaborator.access_mode, 'view',
+            "The automatically created collaborator should have 'view' access mode by default."
+        )
+
+    def test_partner_follows_project_change_on_new_task(self):
+        """ Selecting the project of a new task should set the customer to that
+        project's customer. """
+        project = self.env['project.project'].create({
+            'name': 'Project with partner',
+            'partner_id': self.partner_2.id,
+        })
+        task_form = Form(self.env['project.task'])
+        task_form.project_id = self.project_pigs
+        task_form.project_id = project
+        self.assertEqual(task_form.partner_id, self.partner_2)
+
+    def test_partner_kept_on_existing_task_project_change(self):
+        """ Changing the project of an existing task should keep its customer,
+        which may already carry linked records. """
+        project = self.env['project.project'].create({
+            'name': 'Project with partner',
+            'partner_id': self.partner_2.id,
+        })
+        task = self.env['project.task'].create({
+            'name': 'Task',
+            'project_id': self.project_pigs.id,
+            'partner_id': self.partner_1.id,
+        })
+        with Form(task) as task_form:
+            task_form.project_id = project
+        self.assertEqual(task.partner_id, self.partner_1)

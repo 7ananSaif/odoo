@@ -8,17 +8,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2026-05-30 09:41+0000\n"
+"POT-Creation-Date: 2026-08-28 17:44+0000\n"
+"PO-Revision-Date: 2026-10-16 11:33+0000\n"
 "Last-Translator: \"Larissa Manderfeld (lman)\" <lman@odoo.com>\n"
-"Language-Team: German <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: German <https://translate.odoo.com/projects/odoo-20/"
 "website_event_exhibitor/de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: website_event_exhibitor
 #. odoo-javascript
@@ -50,33 +50,23 @@ msgstr ""
 "<a href=\"#\" class=\"btn btn-primary o_translate_inline\">Mehr erfahren</a>"
 
 #. module: website_event_exhibitor
-#: model_terms:ir.ui.view,arch_db:website_event_exhibitor.exhibitor_card
-msgid "<i class=\"fa fa-ban me-2\"/>Unpublished"
-msgstr "<i class=\"fa fa-ban me-2\"/>Unveröffentlicht"
-
-#. module: website_event_exhibitor
 #: model_terms:ir.ui.view,arch_db:website_event_exhibitor.event_sponsor_view_form
 msgid ""
-"<i class=\"fa fa-long-arrow-right mx-2\" aria-label=\"Arrow icon\" "
+"<i class=\"oi mx-2\" data-icon=\"east\" aria-label=\"Arrow icon\" "
 "title=\"Arrow\"/>"
 msgstr ""
-"<i class=\"fa fa-long-arrow-right mx-2\" aria-label=\"Arrow icon\" "
-"title=\"Pfeil\"/>"
-
-#. module: website_event_exhibitor
-#: model_terms:ir.ui.view,arch_db:website_event_exhibitor.exhibitor_aside
-msgid "<small class=\"badge text-bg-danger\">Unpublished</small>"
-msgstr "<small class=\"badge text-bg-danger\">Unveröffentlicht</small>"
-
-#. module: website_event_exhibitor
-#: model_terms:ir.ui.view,arch_db:website_event_exhibitor.exhibitors_main
-msgid "<span class=\"fa fa-plus me-1\"/> Add Exhibitors"
-msgstr "<span class=\"fa fa-plus me-1\"/> Aussteller hinzufügen"
+"<i class=\"oi mx-2\" data-icon=\"east\" aria-label=\"Arrow icon\" "
+"title=\"Arrow\"/>"
 
 #. module: website_event_exhibitor
 #: model_terms:ir.ui.view,arch_db:website_event_exhibitor.exhibitor_aside
 msgid "<span class=\"h5 m-3\">Other exhibitors</span>"
 msgstr "<span class=\"h5 m-3\">Andere Austeller</span>"
+
+#. module: website_event_exhibitor
+#: model_terms:ir.ui.view,arch_db:website_event_exhibitor.exhibitors_main
+msgid "<span class=\"oi me-1\" data-icon=\"add\"/> Add Exhibitors"
+msgstr "<span class=\"oi me-1\" data-icon=\"add\"/> Aussteller hinzufügen"
 
 #. module: website_event_exhibitor
 #: model_terms:ir.ui.view,arch_db:website_event_exhibitor.exhibitor_main
@@ -102,6 +92,11 @@ msgstr "Aktivitäten"
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor__activity_exception_decoration
 msgid "Activity Exception Decoration"
 msgstr "Kennzeichnung von Aktivitätsausnahmen"
+
+#. module: website_event_exhibitor
+#: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor__activity_plans_ids
+msgid "Activity Plans"
+msgstr "Aktivitätspläne"
 
 #. module: website_event_exhibitor
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor__activity_state
@@ -168,6 +163,18 @@ msgstr "Anzahl Anhänge"
 #: model_terms:ir.ui.view,arch_db:website_event_exhibitor.exhibitor_main
 msgid "Attendees will be able to join to meet"
 msgstr "Die Teilnehmer haben die Möglichkeit eines Treffens mit"
+
+#. module: website_event_exhibitor
+#: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor__publish_on
+msgid "Auto publish on"
+msgstr "Automatisch veröffentlichen am"
+
+#. module: website_event_exhibitor
+#: model:ir.model.fields,help:website_event_exhibitor.field_event_sponsor__publish_on
+msgid "Automatically publish the page on the chosen date and time."
+msgstr ""
+"Veröffentlichen Sie die Seite automatisch zum ausgewählten Datum und zur "
+"ausgewählten Uhrzeit."
 
 #. module: website_event_exhibitor
 #: model_terms:ir.ui.view,arch_db:website_event_exhibitor.exhibitor_main
@@ -329,6 +336,11 @@ msgid "Event"
 msgstr "Veranstaltung"
 
 #. module: website_event_exhibitor
+#: model:ir.module.module,shortdesc:base.module_website_event_exhibitor
+msgid "Event Exhibitors"
+msgstr "Aussteller"
+
+#. module: website_event_exhibitor
 #: model:ir.model,name:website_event_exhibitor.model_event_sponsor
 msgid "Event Sponsor"
 msgstr "Veranstaltungssponsor"
@@ -357,11 +369,24 @@ msgid "Event Template"
 msgstr "Veranstaltungsvorlage"
 
 #. module: website_event_exhibitor
+#: model:ir.module.module,summary:base.module_website_event_exhibitor
+msgid "Event: manage sponsors and exhibitors"
+msgstr "Veranstaltung: Verwaltung von Sponsoren und Ausstellern"
+
+#. module: website_event_exhibitor
+#. odoo-python
+#: code:addons/website_event_exhibitor/models/event_sponsor.py:0
+msgid "Events"
+msgstr "Veranstaltungen"
+
+#. module: website_event_exhibitor
 #: model:ir.model.fields.selection,name:website_event_exhibitor.selection__event_sponsor__exhibitor_type__exhibitor
 msgid "Exhibitor"
 msgstr "Aussteller"
 
 #. module: website_event_exhibitor
+#. odoo-python
+#: code:addons/website_event_exhibitor/models/event_sponsor.py:0
 #: model_terms:ir.ui.view,arch_db:website_event_exhibitor.event_sponsor_view_search
 #: model_terms:ir.ui.view,arch_db:website_event_exhibitor.exhibitors_topbar
 msgid "Exhibitors"
@@ -400,11 +425,6 @@ msgid "Followers (Partners)"
 msgstr "Follower (Partner)"
 
 #. module: website_event_exhibitor
-#: model:ir.model.fields,help:website_event_exhibitor.field_event_sponsor__activity_type_icon
-msgid "Font awesome icon e.g. fa-tasks"
-msgstr "FontAwesome-Icon, z. B. fa-tasks"
-
-#. module: website_event_exhibitor
 #: model:ir.model.fields.selection,name:website_event_exhibitor.selection__event_sponsor__exhibitor_type__sponsor
 msgid "Footer Logo Only"
 msgstr "Nur Fußzeilenlogo"
@@ -436,7 +456,7 @@ msgstr "Glücklich, Sponsor zu sein"
 #. module: website_event_exhibitor
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor__has_message
 msgid "Has Message"
-msgstr "Hat eine Nachricht"
+msgstr "Hat Nachricht"
 
 #. module: website_event_exhibitor
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_event_event__id
@@ -548,6 +568,11 @@ msgid "Logo"
 msgstr "Logo"
 
 #. module: website_event_exhibitor
+#: model:ir.model.fields,help:website_event_exhibitor.field_event_sponsor__activity_type_icon
+msgid "Material Symbols icon e.g. checklist"
+msgstr "Material-Symbols-Icon, z. B. Checkliste"
+
+#. module: website_event_exhibitor
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_website_event_menu__menu_type
 msgid "Menu Type"
 msgstr "Menüart"
@@ -610,7 +635,7 @@ msgstr "Kein Aussteller gefunden."
 #. module: website_event_exhibitor
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor__message_needaction_counter
 msgid "Number of Actions"
-msgstr "Anzahl Aktionen"
+msgstr "Anzahl der Aktionen"
 
 #. module: website_event_exhibitor
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor__message_has_error_counter
@@ -625,7 +650,7 @@ msgstr "Anzahl der Nachrichten, die eine Aktion erfordern"
 #. module: website_event_exhibitor
 #: model:ir.model.fields,help:website_event_exhibitor.field_event_sponsor__message_has_error_counter
 msgid "Number of messages with delivery error"
-msgstr "Anzahl Nachrichten mit Zustellungsfehler"
+msgstr "Anzahl der Nachrichten mit Zustellungsfehler."
 
 #. module: website_event_exhibitor
 #: model_terms:ir.ui.view,arch_db:website_event_exhibitor.event_sponsor_view_search
@@ -666,6 +691,11 @@ msgid "Published"
 msgstr "Veröffentlicht"
 
 #. module: website_event_exhibitor
+#: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor__published_date
+msgid "Published date"
+msgstr "Veröffentlichungsdatum"
+
+#. module: website_event_exhibitor
 #: model_terms:ir.actions.act_window,help:website_event_exhibitor.event_sponsor_type_action
 msgid ""
 "Rank your sponsors based on your own grading system (e.g. \"Gold, Silver, "
@@ -696,8 +726,8 @@ msgstr "SMS-Zustellungsfehler"
 
 #. module: website_event_exhibitor
 #: model_terms:ir.ui.view,arch_db:website_event_exhibitor.exhibitors_topbar
-msgid "Search an exhibitor ..."
-msgstr "Einen Aussteller suchen ..."
+msgid "Search an exhibitor..."
+msgstr "Einen Aussteller suchen …"
 
 #. module: website_event_exhibitor
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor__sequence
@@ -776,6 +806,8 @@ msgstr "Sponsorenbild"
 
 #. module: website_event_exhibitor
 #. odoo-javascript
+#. odoo-python
+#: code:addons/website_event_exhibitor/models/event_sponsor.py:0
 #: code:addons/website_event_exhibitor/static/src/website_builder/event_page_option.xml:0
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_event_event__sponsor_ids
 #: model_terms:ir.ui.view,arch_db:website_event_exhibitor.event_event_view_form
@@ -854,11 +886,6 @@ msgid "Type of the exception activity on record."
 msgstr "Typ der Ausnahmeaktivität im Datensatz."
 
 #. module: website_event_exhibitor
-#: model_terms:ir.ui.view,arch_db:website_event_exhibitor.event_sponsor_thumb_details
-msgid "Unpublished"
-msgstr "Unveröffentlicht"
-
-#. module: website_event_exhibitor
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor__website_published
 msgid "Visible on current website"
 msgstr "Auf der aktuellen Website sichtbar"
@@ -891,19 +918,9 @@ msgid "Website Event Menu"
 msgstr "Website-Veranstaltungsmenü"
 
 #. module: website_event_exhibitor
-#: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor__website_message_ids
-msgid "Website Messages"
-msgstr "Website-Nachrichten"
-
-#. module: website_event_exhibitor
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor__website_url
 msgid "Website URL"
 msgstr "Website-URL"
-
-#. module: website_event_exhibitor
-#: model:ir.model.fields,help:website_event_exhibitor.field_event_sponsor__website_message_ids
-msgid "Website communication history"
-msgstr "Website-Kommunikationsverlauf"
 
 #. module: website_event_exhibitor
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor__is_in_opening_hours
@@ -963,6 +980,11 @@ msgid ""
 msgstr ""
 "ist vorbei.\n"
 "<br/>"
+
+#. module: website_event_exhibitor
+#: model_terms:ir.ui.view,arch_db:website_event_exhibitor.exhibitors_topbar
+msgid "sponsor"
+msgstr "Sponsor"
 
 #. module: website_event_exhibitor
 #. odoo-javascript

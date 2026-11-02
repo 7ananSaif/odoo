@@ -102,15 +102,20 @@ export class ProjectTask extends models.Model {
             ["01_in_progress", "In Progress"],
             ["02_changes_requested", "Changes Requested"],
             ["03_approved", "Approved"],
-            ["1_canceled", "Cancelled"],
-            ["1_done", "Done"],
             ["04_waiting_normal", "Waiting Normal"],
+            // Hard-coded values read by the templates
+            ["1_done", "Done"],
+            ["1_canceled", "Cancelled"],
         ],
     });
     user_ids = fields.Many2many({
         string: "Assignees",
         relation: "res.users",
         falsy_value_label: "👤 Unassigned",
+    });
+    project_sharing_portal_user_ids = fields.Many2many({
+        string: "Assignable Portal Users",
+        relation: "res.users",
     });
     priority = fields.Selection({
         selection: [
@@ -119,6 +124,7 @@ export class ProjectTask extends models.Model {
         ],
     });
     partner_id = fields.Many2one({ string: "Partner", relation: "res.partner" });
+    company_id = fields.Many2one({ string: "Company", relation: "res.company" });
     planned_date_begin = fields.Datetime({ string: "Start Date" });
     date_deadline = fields.Datetime({ string: "Stop Date" });
     depend_on_ids = fields.Many2many({ relation: "project.task" });

@@ -8,10 +8,13 @@ class ProjectCollaborator(models.Model):
     _description = 'Collaborators in project shared'
 
     project_id = fields.Many2one('project.project', 'Project Shared', domain=[('privacy_visibility', 'in', ['portal', 'invited_users']), ('is_template', '=', False)], required=True, readonly=True, export_string_translation=False)
-    partner_id = fields.Many2one('res.partner', 'Collaborator', required=True, readonly=True, export_string_translation=False)
+    partner_id = fields.Many2one('res.partner', 'Collaborator', required=True, readonly=True, index=True, export_string_translation=False)
     partner_email = fields.Char(related='partner_id.email', export_string_translation=False)
-    limited_access = fields.Boolean('Limited Access', default=False, export_string_translation=False)
-
+    access_mode = fields.Selection([
+        ('view', 'View'),
+        ('edit', 'Edit'),
+        ('advanced_edit', 'Advanced Edit'),
+    ], string="Access Mode", default='view', required=True)
     _unique_collaborator = models.Constraint(
         'UNIQUE(project_id, partner_id)',
         'A collaborator cannot be selected more than once in the project sharing access. Please remove duplicate(s) and try again.',
@@ -44,15 +47,11 @@ class ProjectCollaborator(models.Model):
 
             When the first collaborator is added in the model then we need to enable the feature.
             In the inverse case, if no collaborator is stored in the model then we disable the feature.
-            To enable/disable the feature, we just need to enable/disable the ir.model.access and ir.rule
+            In order to enable/disable the feature, we just need to enable/disable the ir.access
             added to portal user that we do not want to give when we know the project sharing is unused.
 
             :param active: contains boolean value, True to enable the project sharing feature, otherwise we disable the feature.
         """
-        access_project_sharing_portal = self.env.ref('project.access_project_sharing_task_portal').sudo()
-        if access_project_sharing_portal.active != active:
-            access_project_sharing_portal.write({'active': active})
-
         task_portal_ir_rule = self.env.ref('project.project_task_rule_portal_project_sharing').sudo()
         if task_portal_ir_rule.active != active:
             task_portal_ir_rule.write({'active': active})

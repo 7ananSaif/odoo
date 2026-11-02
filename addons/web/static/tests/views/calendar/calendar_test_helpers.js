@@ -1,11 +1,12 @@
+import { advanceFrame, advanceTime, animationFrame } from "@odoo/hoot";
 import { click, drag, edit, hover, queryFirst, queryRect } from "@odoo/hoot-dom";
-import { advanceFrame, advanceTime, animationFrame } from "@odoo/hoot-mock";
 import { EventBus } from "@odoo/owl";
-import { contains, getMockEnv, swipeLeft, swipeRight } from "@web/../tests/web_test_helpers";
-
+import { contains, isSmall, swipeLeft, swipeRight } from "@web/../tests/web_test_helpers";
+import { hasTouch } from "@web/core/browser/feature_detection";
 import { createElement } from "@web/core/utils/xml";
 import { CalendarModel } from "@web/views/calendar/calendar_model";
 import { Field } from "@web/views/fields/field";
+import { TOUCH_SELECTION_THRESHOLD } from "@web/views/utils";
 
 export const DEFAULT_DATE = luxon.DateTime.local(2021, 7, 16, 8, 0, 0, 0);
 
@@ -134,6 +135,7 @@ export const FAKE_FILTER_SECTIONS = [
 
 export const FAKE_FIELDS = {
     id: { string: "Id", type: "integer" },
+    display_name: { string: "Display Name", type: "char" },
     user_id: { string: "User", type: "many2one", relation: "user", default: -1 },
     partner_id: {
         string: "Partner",
@@ -166,11 +168,16 @@ export const FAKE_MODEL = {
     canCreate: true,
     canDelete: true,
     canEdit: true,
+    data: {
+        filterSections: {},
+        range: null,
+        records: FAKE_RECORDS,
+        unusualDays: [],
+    },
     date: DEFAULT_DATE,
     fieldMapping: {
         date_start: "start_date",
         date_stop: "stop_date",
-        date_delay: "delay",
         all_day: "allday",
         color: "color",
     },
@@ -183,38 +190,36 @@ export const FAKE_MODEL = {
     hasAllDaySlot: true,
     hasEditDialog: false,
     quickCreate: false,
-    popoverFieldNodes: {
-        name: Field.parseFieldNode(
-            createElement("field", { name: "name" }),
-            { event: { fields: FAKE_FIELDS } },
-            "event",
-            "calendar"
-        ),
-        description: Field.parseFieldNode(
-            createElement("field", { name: "description" , class: "text-wrap"}),
-            { event: { fields: FAKE_FIELDS } },
-            "event",
-            "calendar"
-        ),
-    },
-    activeFields: {
-        name: {
-            context: "{}",
-            invisible: false,
-            readonly: false,
-            required: false,
-            onChange: false,
-        },
-        description: {
-            context: "{}",
-            invisible: false,
-            readonly: false,
-            required: false,
-            onChange: false,
+    meta: {
+        context: {},
+        fields: FAKE_FIELDS,
+        resModel: "event",
+        popover: {
+            cardId: false,
+            fields: [],
+            fieldNodes: {
+                name: Field.parseFieldNode(
+                    createElement("field", { name: "name" }),
+                    { event: { fields: FAKE_FIELDS } },
+                    "event",
+                    "calendar"
+                ),
+                description: Field.parseFieldNode(
+                    createElement("field", { name: "description", class: "text-wrap" }),
+                    { event: { fields: FAKE_FIELDS } },
+                    "event",
+                    "calendar"
+                ),
+            },
+            templates: {},
         },
     },
     rangeEnd: DEFAULT_DATE.endOf("month"),
     rangeStart: DEFAULT_DATE.startOf("month"),
+    visibleRange: {
+        start: DEFAULT_DATE.startOf("month"),
+        end: DEFAULT_DATE.endOf("month"),
+    },
     records: FAKE_RECORDS,
     resModel: "event",
     scale: "month",
@@ -237,6 +242,13 @@ export const FAKE_MODEL = {
  */
 function instantScrollTo(element) {
     element.scrollIntoView({ behavior: "instant", block: "center" });
+}
+
+async function waitForSelection() {
+    if (hasTouch()) {
+        await advanceTime(TOUCH_SELECTION_THRESHOLD);
+    }
+    await animationFrame();
 }
 
 /**
@@ -384,21 +396,23 @@ export async function selectTimeRange(startDateTime, endDateTime) {
         queryFirst(`.fc-timegrid-slot[data-time="${midTime}"]:eq(1)`, { visible: false })
     );
 
+    const rendererRect = queryRect(`.o_calendar_widget:first`);
     const startColumnRect = queryRect(`.fc-col-header-cell.fc-day[data-date="${startDate}"]`);
     const startRow = queryFirst(`.fc-timegrid-slot[data-time="${startTime}"]:eq(1)`);
     const endColumnRect = queryRect(`.fc-col-header-cell.fc-day[data-date="${endDate}"]`);
     const endRow = queryFirst(`.fc-timegrid-slot[data-time="${endTime}"]:eq(1)`);
     const optionStart = {
         relative: true,
-        position: { y: 1, x: startColumnRect.left },
+        position: { y: 1, x: startColumnRect.left - rendererRect.left },
+        pointerDownDuration: TOUCH_SELECTION_THRESHOLD,
     };
 
     await hover(startRow, optionStart);
     await animationFrame();
     const { drop } = await drag(startRow, optionStart);
-    await animationFrame();
+    await waitForSelection();
     await drop(endRow, {
-        position: { y: -1, x: endColumnRect.left },
+        position: { y: -1, x: endColumnRect.left - rendererRect.left },
         relative: true,
     });
 
@@ -419,8 +433,10 @@ export async function selectDateRange(startDate, endDate) {
     await hover(startCell);
     await animationFrame();
 
-    const { moveTo, drop } = await drag(startCell);
-    await animationFrame();
+    const { moveTo, drop } = await drag(startCell, {
+        pointerDownDuration: TOUCH_SELECTION_THRESHOLD,
+    });
+    await waitForSelection();
 
     await moveTo(endCell);
     await animationFrame();
@@ -443,18 +459,14 @@ export async function selectAllDayRange(startDate, endDate) {
     await hover(start);
     await animationFrame();
 
-    const { drop } = await drag(start);
-    await animationFrame();
+    const { drop } = await drag(start, { pointerDownDuration: TOUCH_SELECTION_THRESHOLD });
+    await waitForSelection();
 
     await drop(end);
     await animationFrame();
 }
 export async function closeCwPopOver() {
-    if (getMockEnv().isSmall) {
-        await contains(`.oi-arrow-left`).click();
-    } else {
-        await contains(`.o_cw_popover_close`).click();
-    }
+    await contains(`.o_card_popover_close`).click();
 }
 /**
  * @param {number} eventId
@@ -471,8 +483,10 @@ export async function moveEventToDate(eventId, date, options) {
     await hover(eventEl);
     await animationFrame();
 
-    const { drop, moveTo } = await drag(eventEl);
-    await animationFrame();
+    const { drop, moveTo } = await drag(eventEl, {
+        pointerDownDuration: TOUCH_SELECTION_THRESHOLD,
+    });
+    await waitForSelection();
 
     await moveTo(cell);
     await animationFrame();
@@ -505,17 +519,13 @@ export async function moveEventToTime(eventId, dateTime) {
     const { drop, moveTo } = await drag(eventEl, {
         position: { y: 1 },
         relative: true,
+        pointerDownDuration: TOUCH_SELECTION_THRESHOLD,
     });
-
-    if (getMockEnv().isSmall) {
-        await advanceTime(500);
-    }
-
-    await animationFrame();
+    await waitForSelection();
 
     await moveTo(row, {
         position: {
-            y: rowRect.y + 1,
+            y: rowRect.y + 0.5,
             x: columnRect.x + columnRect.width / 2,
         },
     });
@@ -526,6 +536,10 @@ export async function moveEventToTime(eventId, dateTime) {
 }
 
 export async function selectHourOnPicker(selectedValue) {
+    if (isSmall()) {
+        const fromFormat = selectedValue.includes(":") ? "H:mm" : "H";
+        selectedValue = luxon.DateTime.fromFormat(selectedValue, fromFormat).toFormat("HH:mm");
+    }
     await click(".o_time_picker_input:eq(0)");
     await animationFrame();
     await edit(selectedValue, { confirm: "enter" });
@@ -549,13 +563,9 @@ export async function moveEventToAllDaySlot(eventId, date) {
     const { drop, moveTo } = await drag(eventEl, {
         position: { y: 1 },
         relative: true,
+        pointerDownDuration: TOUCH_SELECTION_THRESHOLD,
     });
-
-    if (getMockEnv().isSmall) {
-        await advanceTime(500);
-    }
-
-    await animationFrame();
+    await waitForSelection();
 
     await moveTo(slot, {
         position: {
@@ -595,11 +605,23 @@ export async function resizeEventToTime(eventId, dateTime) {
 
     const column = findDateColumn(date);
     const columnRect = queryRect(column);
+    const rendererRect = queryRect(`.o_calendar_widget:first`);
 
-    await (
-        await drag(resizer)
-    ).drop(row, {
-        position: { x: columnRect.x, y: -1 },
+    if (hasTouch()) {
+        const { drop } = await drag(eventEl, {
+            pointerDownDuration: TOUCH_SELECTION_THRESHOLD,
+        });
+        await waitForSelection();
+        await drop(eventEl);
+        await waitForSelection();
+    }
+
+    const { drop } = await drag(resizer, {
+        pointerDownDuration: TOUCH_SELECTION_THRESHOLD,
+    });
+    await waitForSelection();
+    await drop(row, {
+        position: { x: columnRect.x - rendererRect.x, y: -1 },
         relative: true,
     });
     await advanceTime(500);
@@ -610,7 +632,7 @@ export async function resizeEventToTime(eventId, dateTime) {
  * @param {string} date
  * @returns {Promise<void>}
  */
-export async function resizeEventToDate(eventId, date) {
+export async function resizeEventToDate(eventId, date, fromStart = false) {
     const eventEl = findEvent(eventId);
     const slot = findAllDaySlot(date);
 
@@ -620,7 +642,9 @@ export async function resizeEventToDate(eventId, date) {
     await animationFrame();
 
     // Show the resizer
-    const resizer = queryFirst(".fc-event-resizer-end", { root: eventEl });
+    const resizer = queryFirst(fromStart ? ".fc-event-resizer-start" : ".fc-event-resizer-end", {
+        root: eventEl,
+    });
     Object.assign(resizer.style, { display: "block", height: "1px", bottom: "0" });
 
     instantScrollTo(slot);
@@ -658,13 +682,13 @@ export async function changeScale(scale) {
 }
 
 export async function displayCalendarPanel() {
-    if (getMockEnv().isSmall) {
+    if (isSmall()) {
         await contains(".o_calendar_container .o_other_calendar_panel").click();
     }
 }
 
 export async function hideCalendarPanel() {
-    if (getMockEnv().isSmall) {
+    if (isSmall()) {
         await contains(".o_calendar_container .o_other_calendar_panel").click();
     }
 }
@@ -674,11 +698,11 @@ export async function hideCalendarPanel() {
  * @returns {Promise<void>}
  */
 export async function navigate(direction) {
-    if (getMockEnv().isSmall) {
+    if (hasTouch()) {
         if (direction === "next") {
-            await swipeLeft(".o_calendar_widget");
+            await swipeLeft(".o_calendar_widget", { pointerDownDuration: 200 });
         } else {
-            await swipeRight(".o_calendar_widget");
+            await swipeRight(".o_calendar_widget", { pointerDownDuration: 200 });
         }
         await advanceFrame(16);
     } else {

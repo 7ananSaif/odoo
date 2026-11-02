@@ -1,4 +1,4 @@
-import { Component, markup, onRendered, onWillStart, useState } from "@odoo/owl";
+import { Component, markup, onMounted, onWillStart, proxy, useProps } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
 import { download } from "@web/core/network/download";
 import { registry } from "@web/core/registry";
@@ -6,7 +6,9 @@ import { useService } from "@web/core/utils/hooks";
 import { useSetupAction } from "@web/search/action_hook";
 import { Layout } from "@web/search/layout";
 import { SelectCreateDialog } from "@web/views/view_dialogs/select_create_dialog";
-import { standardActionServiceProps } from "@web/webclient/actions/action_service";
+import { standardActionServiceProps } from "@web/webclient/actions/action_plugin";
+import { DateTimeInput } from "@web/core/datetime/datetime_input";
+import { serializeDate } from "@web/core/l10n/dates";
 
 function sendCustomNotification(type, message) {
     return {
@@ -20,8 +22,8 @@ function sendCustomNotification(type, message) {
 }
 
 export class ProductPricelistReport extends Component {
-    static props = { ...standardActionServiceProps };
-    static components = { Layout };
+    props = useProps(standardActionServiceProps);
+    static components = { Layout, DateTimeInput };
     static template = "product.ProductPricelistReport";
 
     setup() {
@@ -38,12 +40,13 @@ export class ProductPricelistReport extends Component {
         this.activeModel = this.noProducts ? 'product.template' : active_model;
         this.defaultPricelistId = this.noProducts ? this.props.action.context.active_id : false;
 
-        this.state = useState({
+        this.state = proxy({
             displayPricelistTitle: pastState.displayPricelistTitle || false,
             html: "",
             pricelists: [],
             _quantities: pastState.quantities || [1, 5, 10],
             selectedPricelist: {},
+            date: luxon.DateTime.now(),
         });
 
         onWillStart(async () => {
@@ -59,7 +62,7 @@ export class ProductPricelistReport extends Component {
             this.renderHtml();
         });
 
-        onRendered(() => {
+        onMounted(() => {
             this.env.config.setDisplayName(_t("Pricelist Report"));
         });
 
@@ -105,13 +108,18 @@ export class ProductPricelistReport extends Component {
         this.state._quantities = value;
     }
 
+    get date() {
+        return this.state.date;
+    }
+
     get reportParams() {
         return {
             active_model: this.activeModel || 'product.template',
             active_ids: this.activeIds || [],
             display_pricelist_title: this.displayPricelistTitle || '',
-            pricelist_id: this.selectedPricelist.id || '',
+            pricelist_id: this.selectedPricelist?.id || '',
             quantities: this.quantities || [1],
+            date: serializeDate(this.date || luxon.DateTime.now()),
         };
     }
 
@@ -209,7 +217,6 @@ export class ProductPricelistReport extends Component {
             type: 'ir.actions.report',
             report_type: 'qweb-pdf',
             report_name: 'product.report_pricelist',
-            report_file: 'product.report_pricelist',
             data: this.reportParams,
         });
     }
@@ -274,6 +281,11 @@ export class ProductPricelistReport extends Component {
 
     onToggleDisplayPricelist() {
         this.state.displayPricelistTitle = !this.displayPricelistTitle;
+        this.renderHtml();
+    }
+
+    onDateChange(value) {
+        this.state.date = value;
         this.renderHtml();
     }
 }

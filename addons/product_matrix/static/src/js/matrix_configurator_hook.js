@@ -4,19 +4,25 @@ import { ProductMatrixDialog } from "./product_matrix_dialog";
 export function useMatrixConfigurator() {
     const dialog = useService("dialog");
 
-    const openDialog = (rootRecord, jsonInfo, productTemplateId, editedCellAttributes) => {
+    const openDialog = (
+        rootRecord, jsonInfo, productTemplate, editedCellAttributes, defaultSequence
+    ) => {
         const infos = JSON.parse(jsonInfo);
         dialog.add(ProductMatrixDialog, {
             header: infos.header,
             rows: infos.matrix,
+            dialogTitle: productTemplate.display_name,
             editedCellAttributes: editedCellAttributes.toString(),
-            product_template_id: productTemplateId,
+            product_template_id: productTemplate.id,
             record: rootRecord,
+            defaultSequence,
         });
     };
 
     const open = async (record, edit) => {
         const rootRecord = record.model.root;
+
+        const defaultSequence = record.data.sequence;
 
         // fetch matrix information from server;
         await rootRecord.update({
@@ -38,8 +44,9 @@ export function useMatrixConfigurator() {
         openDialog(
             rootRecord,
             rootRecord.data.grid,
-            record.data.product_template_id.id,
-            updatedLineAttributes
+            record.data.product_template_id,
+            updatedLineAttributes,
+            defaultSequence,
         );
 
         if (!edit) {

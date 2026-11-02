@@ -10,19 +10,22 @@
                 <div name="button_box" position="inside">
                     <button string="Putaway Rules"
                         class="oe_stat_button"
-                        icon="fa-random" name="%(category_open_putaway)d" type="action"
+                        icon="shuffle" name="%(category_open_putaway)d" type="action"
                         groups="stock.group_stock_multi_locations"/>
                 </div>
-                <group name="first" position="after">
-                    <group>
-                        <group name="logistics" string="Logistics">
-                            <field name="route_ids" widget="many2many_tags" groups="stock.group_adv_location"/>
-                            <field name="parent_route_ids" widget="many2many_tags" groups="stock.group_adv_location" invisible="not parent_route_ids"/>
-                            <field name="removal_strategy_id" options="{'no_create': True}"/>
-                            <field name="packaging_reserve_method" widget="radio" groups="uom.group_uom"/>
+                <notebook position="inside">
+                    <page name="stock" string="Logistics">
+                        <group>
+                            <group>
+                                <field name="route_ids" widget="many2many_tags" groups="stock.group_adv_location"/>
+                                <field name="parent_route_ids" widget="many2many_tags" groups="stock.group_adv_location" invisible="not parent_route_ids"/>
+                                <label for="removal_strategy_id" class="text-nowrap mr4"/>
+                                <field name="removal_strategy_id" nolabel="1" class="oe_inline"/>
+                                <field name="packaging_reserve_method" widget="radio" groups="uom.group_uom"/>
+                            </group>
                         </group>
-                    </group>
-                </group>
+                    </page>
+                </notebook>
             </field>
         </record>
 
@@ -89,30 +92,15 @@
             <field name="model">product.product</field>
             <field name="inherit_id" ref="product.product_product_tree_view"/>
             <field name="arch" type="xml">
-                <field name="type" position="after">
-                    <field
-                        name="qty_available"
-                        invisible="not is_storable"
-                        string="On Hand"
-                        optional="show"
-                        decoration-danger="virtual_available &lt; 0"
-                        decoration-warning="virtual_available == 0"
-                        decoration-bf="1"
-                        groups="stock.group_stock_user"
-                        sum="Total On Hand"
-                    />
-                    <field
-                        name="virtual_available"
-                        invisible="not is_storable"
-                        string="Forecasted"
-                        optional="show"
-                        decoration-danger="virtual_available &lt; 0"
-                        decoration-warning="virtual_available == 0"
-                        groups="stock.group_stock_user"
-                        sum="Total Forecasted"
-                    />
-                </field>
+                <xpath expr="//field[@name='qty_available']" position='attributes'>
+                    <attribute name="groups">stock.group_stock_user</attribute>
+                </xpath>
             </field>
+        </record>
+
+        <!-- Disable variant qty editing not using quants -->
+        <record id="product.product_view_list_qty" model="ir.ui.view">
+            <field name="active" eval="False"/>
         </record>
 
         <record id="view_stock_product_template_tree" model="ir.ui.view">
@@ -122,9 +110,11 @@
             <field name="arch" type="xml">
                 <field name="uom_id" position="before">
                     <field name="show_on_hand_qty_status_button" column_invisible="True" groups="stock.group_stock_user"/>
-                    <field name="qty_available" invisible="not show_on_hand_qty_status_button" string="On Hand" optional="show" decoration-danger="qty_available &lt; 0" groups="stock.group_stock_user" sum="Total On Hand"/>
-                    <field name="virtual_available" invisible="not show_on_hand_qty_status_button" string="Forecasted" optional="show" decoration-danger="virtual_available &lt; 0" decoration-bf="1" groups="stock.group_stock_user" sum="Total Forecasted"/>
                 </field>
+                <xpath expr="//field[@name='qty_available']" position="attributes">
+                    <attribute name="invisible">not show_on_hand_qty_status_button</attribute>
+                    <attribute name="groups">stock.group_stock_user</attribute>
+                </xpath>
                 <field name="default_code" position="after">
                     <field name="responsible_id" widget="many2one_avatar_user" optional="hide" groups="stock.group_stock_user"/>
                 </field>
@@ -174,20 +164,20 @@
         </record>
 
         <!-- view common to both template and product -->
-        <record id="view_template_property_form" model="ir.ui.view">
+        <record id="product_template_form_view_stock" model="ir.ui.view">
             <field name="name">product.template.stock.property.form.inherit</field>
             <field name="model">product.template</field>
             <field name="inherit_id" ref="product.product_template_form_view"/>
             <field name="arch" type="xml">
-                <field name="product_tooltip" position="after">
-                    <label for="is_storable" class="oe_inline" invisible="type != 'consu'"/>
-                    <div class="o_row w-100" invisible="type != 'consu'">
-                        <field name="is_storable"/>
-                        <field name="tracking" invisible="not is_storable" groups="stock.group_production_lot"/>
-                    </div>
-                    <field name="show_qty_update_button" invisible="1"/>
+                <xpath expr="//label[@for='is_storable']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//div[@name='tracking_and_qty_no_stock']" position="replace">
+                    <!-- Replace the single line tacking + qty without stock with 2 individual lines with stock (tracking + tracking method // qty) -->
+                    <field name="store_by" invisible="type != 'consu'" groups="stock.group_production_lot"/>
+                    <!-- Qty line if storable -->
                     <label for="qty_available" class="oe_inline" invisible="not is_storable or not product_variant_id" groups="stock.group_stock_user"/>
-                    <div class="o_row" invisible="not is_storable or not product_variant_id" groups="stock.group_stock_user">
+                    <div name="qty_available_with_stock" class="o_row" invisible="not is_storable or not product_variant_id" groups="stock.group_stock_user">
                         <a type="object" name="action_open_quants"
                            invisible="not show_qty_update_button" groups="stock.group_stock_manager">
                             <field name="qty_available" readonly="True"/>
@@ -198,12 +188,12 @@
                             <field name="uom_name" class="oe_inline"/>
                         </span>
                     </div>
-                </field>
-                <xpath expr="//group[@name='group_lots_and_weight']" position="inside">
-                    <label for="sale_delay" invisible="not sale_ok"/>
-                    <div invisible="not sale_ok">
-                        <field name="sale_delay" class="oe_inline" style="vertical-align:baseline"/> days
-                    </div>
+                </xpath>
+                <xpath expr="//field[@name='is_storable']" position="attributes">
+                    <attribute name="groups">!stock.group_production_lot</attribute>
+                    <attribute name="widget">boolean_toggle</attribute>
+                    <attribute name="options">{'autosave': False}</attribute>
+                    <attribute name="invisible">type != 'consu'</attribute>
                 </xpath>
                 <xpath expr="//group[@name='group_lots_and_weight']" position="before">
                     <field name="has_available_route_ids" invisible="1"/>
@@ -211,16 +201,16 @@
                         <label for="route_ids" invisible="not has_available_route_ids"/>
                         <div invisible="not has_available_route_ids">
                             <field name="route_ids" class="mb-0" widget="many2many_checkboxes"/>
-                            <button id="stock.view_diagram_button" string="View Diagram" type="action" name="%(action_open_routes)d" icon="oi-arrow-right"
+                            <button id="stock.view_diagram_button" string="View Diagram" type="action" name="%(action_open_routes)d" icon="east"
                                 class="btn btn-link pt-0" context="{'default_product_tmpl_id': id}"/>
                         </div>
                         <field name="route_from_categ_ids" widget="many2many_tags" invisible="not route_from_categ_ids"/>
                     </group>
                 </xpath>
                 <xpath expr="//group[@name='group_lots_and_weight']" position="after">
-                    <group string="Traceability" name="traceability" groups="stock.group_production_lot" invisible="tracking == 'none'">
-                        <label for="serial_prefix_format" string="Custom Lot/Serial" invisible="tracking == 'none'"/>
-                        <div class="d-flex" invisible="tracking == 'none'">
+                    <group string="Traceability" name="traceability" groups="stock.group_production_lot" invisible="store_by not in ['lot', 'serial']">
+                        <label for="serial_prefix_format" string="Custom Lot/Serial" groups="stock.group_production_lot" invisible="store_by not in ['lot', 'serial']"/>
+                        <div class="d-flex" groups="stock.group_production_lot" invisible="store_by not in ['lot', 'serial']">
                             <field name="serial_prefix_format" style="max-width: 150px;"/>
                             <field name="next_serial" style="max-width: 150px;"/>
                         </div>
@@ -257,9 +247,13 @@
                 <xpath expr="//kanban" position="inside">
                     <field name="show_on_hand_qty_status_button" groups="stock.group_stock_user"/>
                 </xpath>
-                <xpath expr="//field[@name='product_properties']" position="before">
-                    <div groups="stock.group_stock_user" t-if="record.show_on_hand_qty_status_button.raw_value">
-                        On hand: <field name="qty_available"/> <field name="uom_id" groups="uom.group_uom"/>
+                <xpath expr="//div[@name='on_hand_qty_kanban']" position="replace">
+                    <div groups="stock.group_stock_user" t-if="record.show_on_hand_qty_status_button.raw_value" class="d-flex gap-1 align-items-baseline">
+                        <strong>
+                            <field name="qty_available" digits="[16, 0]"/>
+                        </strong>
+                        <field name="uom_id" groups="uom.group_uom"/>
+                        <span class="text-muted">On Hand</span>
                     </div>
                 </xpath>
             </field>
@@ -289,7 +283,7 @@
                     <field name="qty_available"/>
                     <field name="free_qty"/>
                 </field>
-                <field name="product_template_attribute_value_ids" position="after">
+                <div name="o_kanban_price" position="after">
                     <div t-if="record.is_storable.raw_value" invisible="not context.get('display_stock')"
                          name="o_kanban_qty_available_and_on_hand">
                         <t name="qty_free" t-if="record.free_qty.raw_value != record.qty_available.raw_value">
@@ -302,7 +296,7 @@
                             <span class="text-muted small"> On Hand</span>
                         </t>
                     </div>
-                </field>
+                </div>
                 <a role="menuitem" type="open" position="after">
                     <a role="menuitem" type="object" name="action_product_forecast_report" class="dropdown-item border-top-0">View Availability</a>
                 </a>
@@ -318,27 +312,27 @@
                 <data>
                     <div name="button_box" position="inside">
                         <t groups="stock.group_stock_user">
-                            <field name="tracking" invisible="1"/>
+                            <field name="store_by" invisible="1"/>
                             <field name="show_on_hand_qty_status_button" invisible="1"/>
                             <field name="show_forecasted_qty_status_button" invisible="1"/>
                             <button type="object"
                                 name="action_product_forecast_report"
                                 invisible="not show_forecasted_qty_status_button"
                                 context="{'default_product_id': id, 'active_model': 'product.template'}"
-                                class="oe_stat_button" icon="fa-area-chart">
+                                class="oe_stat_button" icon="area_chart">
                                 <div class="d-flex flex-row gap-1 ms-1">
                                     <div class="o_field_widget o_stat_info flex-column align-items-end gap-1">
                                         <span class="o_stat_value">
-                                            <field name="qty_available" widget="statinfo" nolabel="1"/>
+                                            <field name="qty_available" widget="statinfo" nolabel="1" options="{'hide_trailing_zeros': true}"/>
                                         </span>
                                         <span class="o_stat_value" invisible="virtual_available != 0">
-                                            <field name="virtual_available" nolabel="1"/>
+                                            <field name="virtual_available" widget="statinfo" nolabel="1" options="{'hide_trailing_zeros': true}"/>
                                         </span>
                                         <span class="o_stat_value text-info" invisible="virtual_available &lt;= 0">
-                                            <field name="virtual_available" nolabel="1"/>
+                                            <field name="virtual_available" widget="statinfo" nolabel="1" options="{'hide_trailing_zeros': true}"/>
                                         </span>
                                         <span class="o_stat_value text-danger" invisible="virtual_available &gt;= 0">
-                                            <field name="virtual_available" nolabel="1"/>
+                                            <field name="virtual_available" widget="statinfo" nolabel="1" options="{'hide_trailing_zeros': true}"/>
                                         </span>
                                     </div>
                                     <div class="o_field_widget o_stat_info flex-column align-items-start gap-1">
@@ -355,7 +349,7 @@
                             <button type="object"
                                 name= "action_view_stock_move_lines"
                                 invisible="type != 'consu'"
-                                class="oe_stat_button" icon="fa-exchange"
+                                class="oe_stat_button" icon="sync_alt"
                                 groups="stock.group_stock_user">
                                 <div class="d-flex flex-column">
                                     <div class="o_field_widget o_stat_info align-items-baseline flex-row gap-1 me-1">
@@ -370,7 +364,7 @@
                             </button>
                             <button name="action_view_orderpoints" type="object"
                                 invisible="type != 'consu' or nbr_reordering_rules != 1"
-                                class="oe_stat_button" icon="fa-refresh">
+                                class="oe_stat_button" icon="cached">
                                 <div class="d-flex flex-column">
                                     <div class="o_field_widget o_stat_info align-items-baseline flex-row gap-1 me-1">
                                         <span class="o_stat_text">Min:</span>
@@ -385,20 +379,20 @@
                             <button type="object"
                                 name="action_view_orderpoints"
                                 invisible="not is_storable or nbr_reordering_rules == 1"
-                                class="oe_stat_button" icon="fa-refresh">
+                                class="oe_stat_button" icon="cached">
                                 <field name="nbr_reordering_rules" widget="statinfo"/>
                             </button>
                             <button type="object"
                                 name="action_open_product_lot"
-                                invisible="tracking == 'none'"
-                                class="oe_stat_button" icon="fa-bars" groups="stock.group_production_lot">
+                                invisible="store_by not in ['lot', 'serial']"
+                                class="oe_stat_button" icon="menu" groups="stock.group_production_lot">
                                 <div class="o_stat_info">
                                     <span class="o_stat_text">Lot/Serial Numbers</span>
                                 </div>
                             </button>
                             <button type="object"
                                 name="action_view_related_putaway_rules"
-                                class="oe_stat_button" icon="fa-random" groups="stock.group_stock_multi_locations"
+                                class="oe_stat_button" icon="shuffle" groups="stock.group_stock_multi_locations"
                                 invisible="type == 'service'"
                                 context="{
                                     'invisible_handle': True,
@@ -413,7 +407,7 @@
                                 groups="stock.group_stock_multi_locations"
                                 invisible="type == 'service'"
                                 class="oe_stat_button"
-                                icon="fa-cubes"/>
+                                icon="inventory_2"/>
                         </t>
                     </div>
                     <xpath expr="//button[@name='%(action_open_routes)d']" position="attributes">
@@ -435,27 +429,27 @@
                 <data>
                     <button name="action_open_documents" position="before">
                         <t groups="stock.group_stock_user">
-                            <field name="tracking" invisible="1"/>
+                            <field name="store_by" invisible="1"/>
                             <field name="show_on_hand_qty_status_button" invisible="1"/>
                             <field name="show_forecasted_qty_status_button" invisible="1"/>
                             <button type="object"
                                 name="action_product_tmpl_forecast_report"
                                 invisible="not show_forecasted_qty_status_button"
                                 context="{'default_product_tmpl_id': id}"
-                                class="oe_stat_button" icon="fa-area-chart">
+                                class="oe_stat_button" icon="area_chart">
                                 <div class="d-flex flex-row gap-1 ms-1">
                                     <div class="o_field_widget o_stat_info flex-column align-items-end gap-1">
                                         <span class="o_stat_value">
-                                            <field name="qty_available" widget="statinfo" nolabel="1"/>
+                                            <field name="qty_available" widget="statinfo" nolabel="1" options="{'hide_trailing_zeros': true}"/>
                                         </span>
                                         <span class="o_stat_value" invisible="virtual_available != 0">
-                                            <field name="virtual_available" nolabel="1"/>
+                                            <field name="virtual_available" widget="statinfo" nolabel="1" options="{'hide_trailing_zeros': true}"/>
                                         </span>
                                         <span class="o_stat_value text-info" invisible="virtual_available &lt;= 0">
-                                            <field name="virtual_available" nolabel="1"/>
+                                            <field name="virtual_available" widget="statinfo" nolabel="1" options="{'hide_trailing_zeros': true}"/>
                                         </span>
                                         <span class="o_stat_value text-danger" invisible="virtual_available &gt;= 0">
-                                            <field name="virtual_available" nolabel="1"/>
+                                            <field name="virtual_available" widget="statinfo" nolabel="1" options="{'hide_trailing_zeros': true}"/>
                                         </span>
                                     </div>
                                     <div class="o_field_widget o_stat_info flex-column align-items-start gap-1">
@@ -476,7 +470,7 @@
                             <button type="object"
                                 name="action_view_orderpoints"
                                 invisible="not is_storable or nbr_reordering_rules != 1"
-                                class="oe_stat_button" icon="fa-refresh">
+                                class="oe_stat_button" icon="cached">
                                 <div class="d-flex flex-column">
                                     <div class="o_field_widget o_stat_info align-items-baseline flex-row gap-1 me-1">
                                         <span class="o_stat_text">Min:</span>
@@ -492,13 +486,13 @@
                                 name="action_view_orderpoints"
                                 invisible="not is_storable or nbr_reordering_rules == 1"
                                 class="oe_stat_button"
-                                icon="fa-refresh">
+                                icon="cached">
                                 <field name="nbr_reordering_rules" widget="statinfo"/>
                             </button>
                             <button type="object"
                                 name= "action_view_stock_move_lines"
                                 invisible="type != 'consu'"
-                                class="oe_stat_button" icon="fa-exchange"
+                                class="oe_stat_button" icon="sync_alt"
                                 groups="stock.group_stock_user">
                                 <div class="d-flex flex-column">
                                     <div class="o_field_widget o_stat_info align-items-baseline flex-row gap-1 me-1">
@@ -513,15 +507,15 @@
                             </button>
                             <button type="object"
                                 name="action_open_product_lot"
-                                invisible="tracking == 'none'"
-                                class="oe_stat_button" icon="fa-bars" groups="stock.group_production_lot">
+                                invisible="store_by not in ['lot', 'serial']"
+                                class="oe_stat_button" icon="menu" groups="stock.group_production_lot">
                                 <div class="o_stat_info">
                                     <span class="o_stat_text">Lot/Serial Numbers</span>
                                 </div>
                             </button>
                             <button type="object"
                                 name="action_view_related_putaway_rules"
-                                class="oe_stat_button" icon="fa-random" groups="stock.group_stock_multi_locations"
+                                class="oe_stat_button" icon="shuffle" groups="stock.group_stock_multi_locations"
                                 invisible="type == 'service'"
                                 context="{
                                     'invisible_handle': True,
@@ -536,7 +530,7 @@
                                 groups="stock.group_stock_multi_locations"
                                 invisible="type == 'service'"
                                 class="oe_stat_button"
-                                icon="fa-cubes">
+                                icon="inventory_2">
                                 <div class="o_stat_info">
                                     <span class="o_stat_text">Storage Capacities</span>
                                 </div>
@@ -551,13 +545,6 @@
             </field>
         </record>
 
-        <record id="action_inventory_at_date" model="ir.actions.act_window">
-            <field name="name">Inventory at Date</field>
-            <field name="res_model">stock.quantity.history</field>
-            <field name="view_mode">form</field>
-            <field name="target">new</field>
-        </record>
-
         <!-- Stock Report View -->
         <record model="ir.ui.view" id="product_product_stock_tree">
             <field name="name">product.product.stock.list</field>
@@ -565,9 +552,7 @@
             <field name="priority" eval="100"/>
             <field name="arch" type="xml">
                 <list sample="1" js_class="stock_report_list_view" duplicate="0" default_order="is_favorite desc, default_code, name, id">
-                    <header>
-                        <button name="%(action_inventory_at_date)d" invisible="((context.get('inventory_mode') and not context.get('inventory_report_mode')) or context.get('no_at_date'))" string="Inventory at Date" type="action" class="btn-primary ms-1" display="always"/>
-                    </header>
+                    <header/> <!-- inherited in other module -->
                     <field name="id" column_invisible="True"/>
                     <field name="display_name" string="Product"/>
                     <field name="categ_id" optional="hide"/>
@@ -575,21 +560,21 @@
                             context="{'search_default_product_id': id, 'default_product_id': id}"> -->
                     <field name="qty_available" string="On Hand"
                            sum="Total On Hand" widget="stock_action_field"
-                           options="{ 'action_name': 'stock.action_view_inventory_tree' }"
+                           options="{ 'action_name': 'stock.action_view_quants', 'mute_empty': true }"
                            context="{ 'search_default_product_id': id, 'default_product_id': id }"/>
-                    <field name="free_qty" string="Free to Use" sum="Total Free to Use"/>
-                    <field name="incoming_qty" optional="show" sum="Total Incoming"/>
-                    <field name="outgoing_qty" optional="show" sum="Total Outgoing"/>
+                    <field name="free_qty" string="Free to Use" sum="Total Free to Use" decoration-muted="free_qty == 0"/>
+                    <field name="incoming_qty" optional="show" sum="Total Incoming" decoration-muted="incoming_qty == 0"/>
+                    <field name="outgoing_qty" optional="show" sum="Total Outgoing" decoration-muted="outgoing_qty == 0"/>
                     <field name="virtual_available" string="Forecasted" optional="hide" sum="Total Forecasted"/>
                     <field name="uom_id" widget="many2one_uom" groups="uom.group_uom" options="{'no_create': True}"/>
                     <button name="%(stock_move_line_action)d" string="History" type="action" class="btn-link"
-                        icon="fa-history" context="{'search_default_product_id': id, 'default_product_id': id}"/>
+                        icon="history" context="{'search_default_product_id': id, 'default_product_id': id}"/>
                     <button name="action_view_orderpoints" string="Replenishment" type="object" class="btn-link"
-                        icon="fa-refresh" context="{'search_default_product_id': id, 'is_stock_report': True}" />
+                        icon="refresh" context="{'search_default_product_id': id, 'is_stock_report': True}" />
                     <button name="%(action_view_quants)d" string="Locations" type="action" class="btn-link" groups="stock.group_stock_multi_locations"
-                        icon="fa-cubes" context="{'search_default_product_id': id, 'default_product_id': id}" invisible="qty_available == 0"/>
+                        icon="inventory_2" context="{'search_default_product_id': id, 'default_product_id': id}" invisible="qty_available == 0"/>
                     <button name="action_product_forecast_report" string="Forecast" type="object" class="btn-link"
-                        icon="fa-area-chart" context="{'default_product_id': id}" invisible="incoming_qty == 0 and outgoing_qty == 0"/>
+                        icon="area_chart" context="{'default_product_id': id}" invisible="incoming_qty == 0 and outgoing_qty == 0"/>
                 </list>
             </field>
         </record>
@@ -609,7 +594,7 @@
                 </filter>
                 <filter name="real_stock_negative" position="after">
                     <searchpanel>
-                        <field name="categ_id" icon="fa-filter" string="Category" enable_counters="1"/>
+                        <field name="categ_id" icon="filter_alt" icon_class="oi-filled" string="Category" enable_counters="1"/>
                     </searchpanel>
                 </filter>
             </field>
@@ -649,17 +634,8 @@
             </field>
         </record>
 
-        <record id="stock_product_normal_action" model="ir.actions.act_window">
-            <field name="name">Product Variants</field>
-            <field name="res_model">product.product</field>
-            <field name="view_mode">list,form,kanban</field>
-            <field name="search_view_id" ref="stock_product_search_form_view"/>
-        </record>
-
         <menuitem id="menu_product_variant_config_stock" name="Products" action="product_template_action_product"
             parent="stock.menu_stock_inventory_control" sequence="1"/>
-        <menuitem id="product_product_menu" name="Product Variants" action="stock_product_normal_action"
-            parent="menu_stock_inventory_control" sequence="2" groups="product.group_product_variant"/>
         <menuitem id="menu_product_stock" name="Stock" action="stock.action_product_stock_view"
         parent="stock.menu_warehouse_report" sequence="5"/>
 

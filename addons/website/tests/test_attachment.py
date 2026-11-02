@@ -8,8 +8,8 @@ class TestWebsiteAttachment(odoo.tests.HttpCase):
     def test_01_type_url_301_image(self):
         IMD = self.env['ir.model.data']
 
-        img1 = create_image_attachment(self.env, '/website/static/src/img/snippets_demo/s_banner.jpg', 's_banner_default_image.jpg')
-        img2 = create_image_attachment(self.env, '/web/image/test.an_image_url', 's_banner_default_image.jpg')
+        img1 = create_image_attachment(self.env, '/website/static/src/img/snippets_demo/s_banner.jpg', 'landscape_md_1.jpg')
+        img2 = create_image_attachment(self.env, '/web/image/test.an_image_url', 'landscape_md_1.jpg')
 
         IMD.create({
             'name': 'an_image_url',
@@ -37,14 +37,19 @@ class TestWebsiteAttachment(odoo.tests.HttpCase):
         self.assertEqual(req.status_code, 200)
 
     def test_02_image_quality(self):
-        self.start_tour(self.env['website'].get_client_action_url('/'), 'website_image_quality', login="admin")
+        self.start_tour(self.env['website'].get_client_action_url('/', True), 'website_image_quality', login="admin")
 
     def test_03_link_to_document(self):
-        text = b'Lorem Ipsum'
-        self.env['ir.attachment'].create({
+        Attachment = self.env['ir.attachment']
+        # hardcoded id for JS tour
+        self.env.cr.execute("SELECT setval(pg_get_serial_sequence(%s, 'id'), 437296, false)", (Attachment._table,))
+        Attachment.create({
             'name': 'sample.txt',
             'public': True,
             'mimetype': 'text/plain',
-            'raw': text,
+            'raw': b'Lorem Ipsum',
         })
-        self.start_tour(self.env['website'].get_client_action_url('/'), 'test_link_to_document', login="admin")
+        self.start_tour(self.env['website'].get_client_action_url('/', True), 'test_link_to_document', login="admin")
+
+    def test_04_image_srcset(self):
+        self.start_tour(self.env['website'].get_client_action_url('/', True), 'website_image_srcset', login="admin")

@@ -28,7 +28,6 @@
                             <field name="name"/>
                             <field name="domain"/>
                             <field name="logo" widget="image" class="oe_avatar w-auto float-start"/>
-                            <field name="language_count" invisible="1"/>
                             <field name="company_id" options="{'no_open': True, 'no_create': True}" groups="base.group_multi_company"/>
                             <field name="language_ids" widget="many2many_tags" options="{'no_open': True, 'no_create': True}"/>
                             <field name="default_lang_id" options="{'no_open': True, 'no_create': True}"
@@ -57,7 +56,7 @@
                 <xpath expr="//form" position="inside">
                     <footer>
                         <button name="create_and_redirect_configurator" type="object" string="Create" class="btn btn-primary" data-hotkey="q"/>
-                        <button string="Cancel" class="btn btn-secondary" special="cancel" data-hotkey="x"/>
+                        <button class="btn btn-secondary" special="cancel" data-hotkey="x"/>
                     </footer>
                 </xpath>
                 <xpath expr="//notebook" position="replace"/>
@@ -119,7 +118,7 @@
                             </group>
                         </group>
                         <label for="child_id" string="Child Menus"/>
-                        <field name="child_id">
+                        <field name="child_id" context="{'default_website_id': website_id}">
                             <list>
                                 <field name="sequence" widget="handle"/>
                                 <field name="name"/>
@@ -272,7 +271,7 @@
                                     </div>
                                 </div>
                                 <t t-else="">
-                                    <button class="position-absolute top-0 start-0 h-100 w-100 opacity-0" role="button" type="open" t-if="record.url.value"/>
+                                    <button class="position-absolute top-0 start-0 h-100 w-100 opacity-0" type="open" t-if="record.url.value"/>
                                 </t>
                             </div>
                             <div class="o_theme_preview_bottom mt-2 mb-3 px-2">
@@ -342,7 +341,7 @@
         <menuitem name="Website"
             id="menu_website_configuration"
             sequence="95"
-            groups="base.group_user"
+            groups="base.group_user_regular"
             web_icon="website,static/description/icon.png"/>
 
         <menuitem id="menu_site"
@@ -417,7 +416,7 @@
 
         <menuitem id="menu_website_technical_pages"
             parent="menu_content"
-            name="Technical Pages"
+            name="System Pages"
             sequence="90"
             action="action_website_technical_pages"/>
 
@@ -437,6 +436,7 @@
         <record id="website_configurator_todo" model="ir.actions.todo">
             <field name="name">Start Website Configurator</field>
             <field name="action_id" ref="action_open_website_configurator"/>
+            <field name="sequence">8</field>
         </record>
     </data>
 </odoo>

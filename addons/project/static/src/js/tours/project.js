@@ -5,7 +5,6 @@ import { stepUtils } from "@web_tour/tour_utils";
 import { markup } from "@odoo/owl";
 
 registry.category("web_tour.tours").add('project_tour', {
-    url: "/odoo",
     steps: () => [stepUtils.showAppsMenuItem(), {
     isActive: ["community"],
     trigger: '.o_app[data-menu-xmlid="project.menu_main_pm"]',
@@ -178,12 +177,12 @@ registry.category("web_tour.tours").add('project_tour', {
     run: "click",
 }, {
     isActive: ["auto"],
-    trigger: 'a[name="sub_tasks_page"]',
+    trigger: 'button[name="sub_tasks_page"]',
     content: _t('Open sub-tasks notebook section'),
     run: 'click',
 }, {
     isActive: ["auto"],
-    trigger: '.o_field_subtasks_one2many .o_list_renderer a[role="button"]',
+    trigger: '.o_field_subtasks_one2many .o_list_renderer .o_field_x2many_list_row_add button',
     content: _t('Add a sub-task'),
     run: 'click',
 }, {
@@ -193,6 +192,7 @@ registry.category("web_tour.tours").add('project_tour', {
     run: "edit New Sub-task",
 },
 {
+    isActive: ["auto"],
     trigger: ".o_form_project_tasks .o_form_dirty",
 },
 {
@@ -217,6 +217,7 @@ registry.category("web_tour.tours").add('project_tour', {
     run: "click",
 },
 {
+    isActive: ["auto"],
     trigger: ".o_widget_subtask_kanban_list .subtask_list",
 },
 {
@@ -226,6 +227,7 @@ registry.category("web_tour.tours").add('project_tour', {
     run: "click",
 },
 {
+    isActive: ["auto"],
     trigger: ".subtask_create_input",
 },
 {
@@ -240,6 +242,7 @@ registry.category("web_tour.tours").add('project_tour', {
     run: "click",
 },
 {
+    isActive: ["auto"],
     trigger: ".project_task_state_selection_menu.dropdown-menu",
 },
 {
@@ -248,6 +251,7 @@ registry.category("web_tour.tours").add('project_tour', {
     content: markup(_t("Mark the task as <b>Cancelled</b>")),
     run: "click",
 }, {
+    isActive: ["auto"],
     trigger: ".o-overlay-container:not(:visible):not(:has(.project_task_state_selection_menu))",
 }, {
     isActive: ["auto"],

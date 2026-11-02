@@ -1,4 +1,3 @@
-# -*- encoding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 {
     'name': 'Surveys',
@@ -21,16 +20,19 @@ sent mails with personal token for the invitation of the survey.
         'http_routing',
         'mail',
         'web_tour',
-        'gamification'],
+        'gamification',
+        'digest',
+    ],
     'data': [
         'report/survey_templates.xml',
         'report/survey_reports.xml',
+        'data/digest_data.xml',
         'data/ir_actions_server_data.xml',
         'data/mail_message_subtype_data.xml',
         'data/mail_template_data.xml',
         'data/survey_tour.xml',
         'security/survey_security.xml',
-        'security/ir.model.access.csv',
+        'views/digest_views.xml',
         'views/survey_menus.xml',
         'views/survey_survey_views.xml',
         'views/survey_user_views.xml',
@@ -43,6 +45,7 @@ sent mails with personal token for the invitation of the survey.
         'views/gamification_badge_views.xml',
         'wizard/survey_invite_views.xml',
         'views/res_partner_views.xml',
+        'security/ir.access.csv',
     ],
     'demo': [
         'data/gamification_badge_demo.xml',
@@ -55,7 +58,6 @@ sent mails with personal token for the invitation of the survey.
         'data/survey_demo_certification_user_input_line.xml',
         'data/survey_demo_conditional.xml',
     ],
-    'installable': True,
     'application': True,
     'sequence': 220,
     'assets': {
@@ -77,7 +79,7 @@ sent mails with personal token for the invitation of the survey.
             'survey/static/src/interactions/*',
         ],
         'survey.survey_user_input_session_assets': [
-            'survey/static/src/interactions/survey_session_colors.js',
+            'survey/static/src/interactions/utils.js',
             'survey/static/src/interactions/survey_session_chart.js',
             'survey/static/src/interactions/survey_session_text_answers.js',
             'survey/static/src/interactions/survey_session_leaderboard.js',

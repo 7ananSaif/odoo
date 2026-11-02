@@ -1,4 +1,4 @@
-import { Component, useRef, onPatched } from "@odoo/owl";
+import { Component, onPatched, signal, t, useProps } from "@odoo/owl";
 
 import { _t } from "@web/core/l10n/translation";
 import { useBus, useService } from "@web/core/utils/hooks";
@@ -11,16 +11,19 @@ export class HierarchyRenderer extends Component {
     static components = {
         HierarchyCard,
     };
-    static props = {
-        model: Object,
-        openRecord: Function,
-        archInfo: Object,
-    };
     static template = "web_hierarchy.HierarchyRenderer";
 
+    props = useProps({
+        model: t.object(),
+        openRecord: t.function(),
+        archInfo: t.object(),
+    });
+
+    rendererRef = signal.ref();
+
     setup() {
-        this.rendererRef = useRef("renderer");
         this.notification = useService("notification");
+        this.uiService = useService("ui");
         if (this.canDragAndDropRecord) {
             useHierarchyNodeDraggable({
                 ref: this.rendererRef,
@@ -68,17 +71,18 @@ export class HierarchyRenderer extends Component {
 
     onPatched() {
         let row;
+        const rendererEl = this.rendererRef();
         switch (this.scrollTarget) {
             case "none":
                 return;
             case "bottom":
-                row = this.rendererRef.el.querySelector(":scope .o_hierarchy_row:last-child");
+                row = rendererEl.querySelector(":scope .o_hierarchy_row:last-child");
                 break;
             case "up":
-                row = this.rendererRef.el.querySelector(":scope .o_hierarchy_row:first-child");
+                row = rendererEl.querySelector(":scope .o_hierarchy_row:first-child");
                 break;
             default:
-                row = this.rendererRef.el
+                row = rendererEl
                     .querySelector(`:scope .o_hierarchy_node[data-node-id="${this.scrollTarget}"]`)
                     ?.closest(".o_hierarchy_row");
         }
@@ -90,7 +94,7 @@ export class HierarchyRenderer extends Component {
     }
 
     get canDragAndDropRecord() {
-        return this.draggable && !this.env.isSmall;
+        return this.draggable && !this.uiService.isSmall;
     }
 
     get draggable() {
@@ -131,7 +135,9 @@ export class HierarchyRenderer extends Component {
                         parentResId = nodes[0].parentResId;
                         if (!nodes.every((node) => node.parentResId === parentResId)) {
                             this.notification.add(
-                                _t("Impossible to update the parent node of the dragged node because no parent has been found."),
+                                _t(
+                                    "Impossible to update the parent node of the dragged node because no parent has been found."
+                                ),
                                 {
                                     type: "danger",
                                 }
@@ -142,6 +148,9 @@ export class HierarchyRenderer extends Component {
                 }
             }
         }
-        await this.props.model.updateParentNode(element.dataset.nodeId, { parentResId, parentNodeId });
+        await this.props.model.updateParentNode(element.dataset.nodeId, {
+            parentResId,
+            parentNodeId,
+        });
     }
 }

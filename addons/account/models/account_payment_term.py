@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
-
 from odoo import api, fields, models, _, Command
 from odoo.exceptions import UserError, ValidationError
-from odoo.tools import format_date, formatLang, frozendict, date_utils
+from odoo.tools import SQL, format_date, formatLang, frozendict, date_utils
 from odoo.tools.float_utils import float_round
 
 from dateutil.relativedelta import relativedelta
@@ -18,7 +16,7 @@ class AccountPaymentTerm(models.Model):
         return [Command.create({'value': 'percent', 'value_amount': 100.0, 'nb_days': 0})]
 
     def _default_example_date(self):
-        return self.env.context.get('example_date') or fields.Date.today()
+        return self.env.context.get('example_date') or fields.Date.context_today(self)
 
     name = fields.Char(string='Payment Terms', translate=True, required=True)
     active = fields.Boolean(default=True, help="If the active field is set to False, it will allow you to hide the payment terms without removing it.")
@@ -27,7 +25,7 @@ class AccountPaymentTerm(models.Model):
     company_id = fields.Many2one('res.company', string='Company')
     fiscal_country_codes = fields.Char(compute='_compute_fiscal_country_codes')
     sequence = fields.Integer(required=True, default=10)
-    currency_id = fields.Many2one('res.currency', compute="_compute_currency_id")
+    currency_id = fields.Many2one('res.currency', compute="_compute_currency_id", compute_sql="_compute_sql_currency_id", compute_sudo=True)
 
     display_on_invoice = fields.Boolean(string='Show installment dates', default=True)
     example_amount = fields.Monetary(currency_field='currency_id', default=1000, store=False, readonly=True)
@@ -58,23 +56,23 @@ class AccountPaymentTerm(models.Model):
         for payment_term in self:
             payment_term.currency_id = payment_term.company_id.currency_id or self.env.company.currency_id
 
-    def _get_amount_due_after_discount(self, total_amount, untaxed_amount):
+    def _compute_sql_currency_id(self, table):
+        return SQL("COALESCE(%s, %s)", table.company_id.currency_id, self.env.company.currency_id.id)
+
+    def _get_amount_due_after_discount(self, total_amount, tax_amount, currency=False, cash_rounding=False):
         self.ensure_one()
+        currency = currency or self.currency_id
         if self.early_discount:
             percentage = self.discount_percentage / 100.0
             if self.early_pay_discount_computation in ('excluded', 'mixed'):
-                discount_amount_currency = (total_amount - untaxed_amount) * percentage
+                discount_amount_currency = (total_amount - tax_amount) * percentage
             else:
                 discount_amount_currency = total_amount * percentage
-            amount_due = self.currency_id.round(total_amount - discount_amount_currency)
-            if self.env.context.get('active_model') == 'account.move' and (active_id := self.env.context.get('active_id')):
-                move = self.env['account.move'].browse(active_id)
-                cash_rounding = move.invoice_cash_rounding_id
-                currency = move.currency_id
-                if cash_rounding:
-                    cash_rounding_difference = cash_rounding.compute_difference(currency, amount_due)
-                    if not currency.is_zero(cash_rounding_difference):
-                        amount_due = self.currency_id.round(amount_due + cash_rounding_difference)
+            amount_due = currency.round(total_amount - discount_amount_currency)
+            if cash_rounding:
+                cash_rounding_difference = cash_rounding.compute_difference(currency, amount_due)
+                if not currency.is_zero(cash_rounding_difference):
+                    amount_due = currency.round(amount_due + cash_rounding_difference)
             return amount_due
         return total_amount
 
@@ -124,7 +122,7 @@ class AccountPaymentTerm(models.Model):
                     amount = info_by_dates['amount']
                     example_preview += "<div>"
                     example_preview += _(
-                        "<b>%(count)s#</b> Installment of <b>%(amount)s</b> due on <b style='color: #704A66;'>%(date)s</b>",
+                        "<b>%(count)s</b> - Installment of <b>%(amount)s</b> due on <b style='color: #704A66;'>%(date)s</b>",
                         count=i+1,
                         amount=formatLang(self.env, amount, currency_obj=currency),
                         date=date,
@@ -272,11 +270,6 @@ class AccountPaymentTerm(models.Model):
             return None
         return format_date(self.env, self._get_last_discount_date(date_ref))
 
-    def copy_data(self, default=None):
-        default = dict(default or {})
-        vals_list = super().copy_data(default=default)
-        return [dict(vals, name=_("%s (copy)", line.name)) for line, vals in zip(self, vals_list)]
-
 
 class AccountPaymentTermLine(models.Model):
     _name = 'account.payment.term.line'
@@ -309,7 +302,7 @@ class AccountPaymentTermLine(models.Model):
 
     def _get_due_date(self, date_ref):
         self.ensure_one()
-        due_date = fields.Date.from_string(date_ref) or fields.Date.today()
+        due_date = fields.Date.from_string(date_ref) or fields.Date.context_today(self)
         if self.delay_type == 'days_after_end_of_month':
             return date_utils.end_of(due_date, 'month') + relativedelta(days=self.nb_days)
         elif self.delay_type == 'days_after_end_of_next_month':
@@ -320,7 +313,7 @@ class AccountPaymentTermLine(models.Model):
             except ValueError:
                 days_next_month = 1
 
-            if not days_next_month:
+            if days_next_month <= 0:
                 return date_utils.end_of(due_date + relativedelta(days=self.nb_days), 'month')
 
             return due_date + relativedelta(days=self.nb_days) + relativedelta(months=1, day=days_next_month)
@@ -329,7 +322,7 @@ class AccountPaymentTermLine(models.Model):
     @api.constrains('days_next_month')
     def _check_valid_char_value(self):
         for record in self:
-            if record.days_next_month and record.days_next_month.isnumeric():
+            if record.days_next_month and record.days_next_month.removeprefix('-').isnumeric():
                 if not (0 <= int(record.days_next_month) <= 31):
                     raise ValidationError(_('The days added must be between 0 and 31.'))
             else:

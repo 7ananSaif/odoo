@@ -3,11 +3,12 @@
 from datetime import datetime, timedelta
 
 from odoo.tests.common import TransactionCase, new_test_user
-from odoo.tests import Form
+from odoo.tests import tagged, Form
 from odoo.exceptions import AccessError
 from odoo.tools import mute_logger
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestAccessRights(TransactionCase):
 
     @classmethod
@@ -17,6 +18,7 @@ class TestAccessRights(TransactionCase):
         cls.john = new_test_user(cls.env, login='john', groups='base.group_user')
         cls.raoul = new_test_user(cls.env, login='raoul', groups='base.group_user')
         cls.george = new_test_user(cls.env, login='george', groups='base.group_user')
+        cls.user_internal_cynthia = new_test_user(cls.env, login='cynthia', groups='base.group_user')
         cls.portal = new_test_user(cls.env, login='pot', groups='base.group_portal')
         cls.admin_user = new_test_user(cls.env, login='admin_user', groups='base.group_partner_manager,base.group_user')
         cls.admin_system_user = new_test_user(cls.env, login='admin_system_user', groups='base.group_system')
@@ -27,6 +29,7 @@ class TestAccessRights(TransactionCase):
             'start': datetime(2020, 2, 2, 8, 0),
             'stop': datetime(2020, 2, 2, 18, 0),
             'user_id': user.id,
+            'calendar_id': user.primary_calendar_id.id,
             'partner_ids': [(4, self.george.partner_id.id, 0)],
             **values
         })
@@ -38,7 +41,7 @@ class TestAccessRights(TransactionCase):
         return [r[field] for r in data]
 
     # don't spam logs with ACL failures from portal
-    @mute_logger('odoo.addons.base.models.ir_rule')
+    @mute_logger('odoo.addons.base.models.ir_access')
     def test_privacy(self):
         event = self.create_event(
             self.john,
@@ -162,7 +165,7 @@ class TestAccessRights(TransactionCase):
     def test_event_default_privacy_as_private(self):
         """ Check the privacy of events with owner's event default privacy as 'private'. """
         # Set organizer default privacy as 'private' and create event privacies default, public, private and confidential.
-        self.george.with_user(self.george).calendar_default_privacy = 'private'
+        self.george.with_user(self.george).primary_calendar_id.calendar_default_privacy = 'private'
         default_event = self.create_event(self.george)
         public_event = self.create_event(self.george, privacy='public')
         private_event = self.create_event(self.george, privacy='private')
@@ -180,41 +183,56 @@ class TestAccessRights(TransactionCase):
         self.assertFalse(query_private_event, "Private event must be inaccessible to other users.")
         self.assertTrue(query_confidential_event, "Confidential event must be accessible to other internal users.")
 
-    def test_edit_private_event_of_other_user(self):
+    def test_edit_event_of_other_user(self):
         """
-        Ensure that it is not possible editing the private event of another user when the current user is not an
-        attendee/organizer of that event. Attendees should be able to edit it, others will receive AccessError on write.
+        Ensure that it is not possible editing the event of another user when the current user is not an
+        attendee/organizer/creator of that event. Attendees/organizer/creator should be able to edit it, others will receive AccessError on write.
         """
         def ensure_user_can_update_event(self, event, user):
+            self.assertTrue(event.with_user(user).user_can_edit)
             event.with_user(user).write({'name': user.name})
             self.assertEqual(event.name, user.name, 'Event name should be updated by user %s' % user.name)
 
-        # Prepare events attendees/partners including organizer (john) and another user (raoul).
+        # Prepare events attendees/partners/organizer including organizer (john) and another user (raoul).
         events_attendees = [
             (0, 0, {'partner_id': self.john.partner_id.id, 'state': 'accepted'}),
             (0, 0, {'partner_id': self.raoul.partner_id.id, 'state': 'accepted'})
         ]
         events_partners = [self.john.partner_id.id, self.raoul.partner_id.id]
+        events_organizer = self.john.id
 
-        # Set calendar default privacy as private and create a normal event, only attendees/organizer can edit it.
-        self.john.with_user(self.john).calendar_default_privacy = 'private'
+        # Set calendar default privacy as private and create a normal event, only attendees/organizer/creator can edit it.
+        self.john.with_user(self.john).primary_calendar_id.calendar_default_privacy = 'private'
         johns_default_privacy_event = self.create_event(self.john, name='my event with default privacy', attendee_ids=events_attendees, partner_ids=events_partners)
         ensure_user_can_update_event(self, johns_default_privacy_event, self.john)
         ensure_user_can_update_event(self, johns_default_privacy_event, self.raoul)
         with self.assertRaises(AccessError):
             self.assertEqual(len(self.john.res_users_settings_id), 1, "Res Users Settings for the user is not defined.")
-            self.assertEqual(self.john.res_users_settings_id.calendar_default_privacy, 'private', "Privacy field update was lost.")
+            self.assertEqual(self.john.primary_calendar_id.calendar_default_privacy, 'private', "Privacy field update was lost.")
             johns_default_privacy_event.with_user(self.george).write({'name': 'blocked-update-by-non-attendee'})
 
-        # Set calendar default privacy as public and create a private event, only attendees/organizer can edit it.
-        self.john.with_user(self.john).calendar_default_privacy = 'public'
+        # Set calendar default privacy as public and create a private event, only attendees/organizer/creator can edit it.
+        self.john.with_user(self.john).primary_calendar_id.calendar_default_privacy = 'public'
         johns_private_event = self.create_event(self.john, name='my private event', privacy='private', attendee_ids=events_attendees, partner_ids=events_partners)
         ensure_user_can_update_event(self, johns_private_event, self.john)
         ensure_user_can_update_event(self, johns_private_event, self.raoul)
         with self.assertRaises(AccessError):
             self.assertEqual(len(self.john.res_users_settings_id), 1, "Res Users Settings for the user is not defined.")
-            self.assertEqual(self.john.res_users_settings_id.calendar_default_privacy, 'public', "Privacy field update was lost.")
+            self.assertEqual(self.john.primary_calendar_id.calendar_default_privacy, 'public', "Privacy field update was lost.")
             johns_private_event.with_user(self.george).write({'name': 'blocked-update-by-non-attendee'})
+
+        # Create a private event for others, checks if creator can edit it.
+        johns_private_event_by_cynthia = self.create_event(self.user_internal_cynthia, name='random private event', privacy='private', user_id=events_organizer, attendee_ids=events_attendees, partner_ids=events_partners)
+        ensure_user_can_update_event(self, johns_private_event_by_cynthia, self.user_internal_cynthia)
+        with self.assertRaises(AccessError):
+            johns_private_event_by_cynthia.with_user(self.george).write({'name': 'blocked-update-by-non-creator'})
+
+        # Create a public event for others, checks if creator can edit it.
+        johns_public_event_by_cynthia = self.create_event(self.user_internal_cynthia, name='random public event', privacy='public', user_id=events_organizer, attendee_ids=events_attendees, partner_ids=events_partners)
+        ensure_user_can_update_event(self, johns_public_event_by_cynthia, self.user_internal_cynthia)
+        with self.assertRaises(AssertionError):
+            with Form(johns_public_event_by_cynthia.with_user(self.george)) as form:
+                form.name = "blocked-update-by-non-creator"
 
     def test_admin_cant_fetch_uninvited_private_events(self):
         """
@@ -316,27 +334,27 @@ class TestAccessRights(TransactionCase):
         """
         for privacy in ['public', 'private', 'confidential']:
             # Update normal user and administrator 'calendar_default_privacy' simulating their own update.
-            self.john.with_user(self.john).write({'calendar_default_privacy': privacy})
-            self.admin_system_user.with_user(self.admin_system_user).write({'calendar_default_privacy': privacy})
-            self.assertEqual(self.john.calendar_default_privacy, privacy, 'Normal user must be able to update its calendar default privacy.')
-            self.assertEqual(self.admin_system_user.calendar_default_privacy, privacy, 'Admin must be able to update its calendar default privacy.')
+            self.john.with_user(self.john).primary_calendar_id.write({'calendar_default_privacy': privacy})
+            self.admin_system_user.with_user(self.admin_system_user).primary_calendar_id.write({'calendar_default_privacy': privacy})
+            self.assertEqual(self.john.primary_calendar_id.calendar_default_privacy, privacy, 'Normal user must be able to update its calendar default privacy.')
+            self.assertEqual(self.admin_system_user.primary_calendar_id.calendar_default_privacy, privacy, 'Admin must be able to update its calendar default privacy.')
 
             # Update the Default 'calendar.default_privacy' as an administrator.
-            self.env['ir.config_parameter'].sudo().set_param("calendar.default_privacy", privacy)
+            self.env['ir.config_parameter'].sudo().set_str("calendar.default_privacy", privacy)
 
             # All calendar default privacy updates must be blocked during write.
             with self.assertRaises(AccessError):
-                self.john.with_user(self.admin_system_user).write({'calendar_default_privacy': privacy})
+                self.john.with_user(self.admin_system_user).primary_calendar_id.write({'calendar_default_privacy': privacy})
             with self.assertRaises(AccessError):
-                self.admin_system_user.with_user(self.john).write({'calendar_default_privacy': privacy})
+                self.admin_system_user.with_user(self.john).primary_calendar_id.write({'calendar_default_privacy': privacy})
 
     def test_check_private_event_conditions_by_internal_user(self):
         """ Ensure that internal user (non-admin) will see that admin's event is private. """
         # Update admin calendar_default_privacy with 'private' option. Create private event for admin.
-        self.admin_user.with_user(self.admin_user).write({'calendar_default_privacy': 'private'})
+        self.admin_user.with_user(self.admin_user).primary_calendar_id.write({'calendar_default_privacy': 'private'})
         admin_user_private_evt = self.create_event(self.admin_user, name='My Event', privacy=False, partner_ids=[self.admin_user.partner_id.id])
 
-        # Ensure that intrnal user will see the admin's event as private.
+        # Ensure that internal user will see the admin's event as private.
         self.assertTrue(
             admin_user_private_evt.with_user(self.raoul)._check_private_event_conditions(),
             "Privacy check must be True since the new event is private (following John's calendar default privacy)."
@@ -361,7 +379,6 @@ class TestAccessRights(TransactionCase):
             event_form.stop = datetime(2024, 1, 15, 10, 0)
             event_form.recurrency = True
             event_form.rrule_type_ui = 'yearly'
-            event_form.count = 3
             event_form.alarm_ids.add(alarm)
             event_form.partner_ids.add(self.john.partner_id)
             recurring_event = event_form.save()
@@ -372,3 +389,135 @@ class TestAccessRights(TransactionCase):
             form.partner_ids.add(self.raoul.partner_id)
 
         self.assertIn(self.raoul.partner_id.id, recurring_event.partner_ids.ids, "Partner should be added as attendee")
+
+    def test_res_record_with_allowed_records_for_non_admin(self):
+        """Ensure res_record compute and inverse behave correctly for accessible records."""
+        event = self.create_event(
+            user=self.john,
+            res_model_id=self.env['ir.model']._get_id('res.partner'),
+            res_id=self.george.partner_id.id,
+        )
+
+        record = event.with_user(self.john).res_record
+        self.assertEqual(record._name, 'res.partner')
+        self.assertEqual(record.id, self.george.partner_id.id)
+        self.assertEqual(
+            event.with_user(self.john).read(['res_record'])[0]['res_record'],
+            f'res.partner,{self.george.partner_id.id}',
+        )
+
+        event.with_user(self.john).write({
+            'res_record': f'res.partner,{self.raoul.partner_id.id}',
+        })
+
+        self.assertEqual(event.res_model_id.model, 'res.partner')
+        self.assertEqual(event.res_id, self.raoul.partner_id.id)
+        self.assertEqual(
+            event.with_user(self.john).read(['res_record'])[0]['res_record'],
+            f'res.partner,{self.raoul.partner_id.id}',
+        )
+
+    def test_res_record_with_not_allowed_records_for_non_admin(self):
+        """Ensure res_record works even if target records are not accessible."""
+        # Restricted by multi-company record rule
+        restricted_company = self.env['res.company'].create({
+            'name': 'Restricted Calendar Company',
+        })
+        restricted_partner = self.env['res.partner'].create({
+            'name': 'Restricted Calendar Partner',
+            'company_id': restricted_company.id,
+        })
+
+        # Restricted by an explicit ir.access rule denying read on this one record
+        blocked_partner = self.env['res.partner'].create({
+            'name': 'Fully Blocked Partner',
+        })
+        self.env['ir.access'].create({
+            'name': 'test_block_partner',
+            'model_id': self.env['ir.model']._get_id('res.partner'),
+            'operation': 'r',
+            'domain': [('id', '!=', blocked_partner.id)],
+        })
+
+        cases = [
+            ('multi-company rule', 'res.partner', restricted_partner.id, restricted_partner),
+            ('explicit deny rule', 'res.partner', blocked_partner.id, blocked_partner),
+        ]
+
+        for label, model, res_id, target in cases:
+            with self.subTest(scenario=label):
+                with self.assertRaises(AccessError):
+                    target.with_user(self.john).check_access('read')
+
+                compute_event = self.create_event(self.john)
+                compute_event.write({
+                    'res_model_id': self.env['ir.model']._get_id(model),
+                    'res_id': res_id,
+                })
+
+                record = compute_event.with_user(self.john).res_record
+                self.assertEqual(record._name, model)
+                self.assertEqual(record.id, res_id)
+                self.assertEqual(
+                    compute_event.with_user(self.john).read(['res_record'])[0]['res_record'],
+                    f'{model},{res_id}',
+                )
+
+                inverse_event = self.create_event(self.john)
+                inverse_event.with_user(self.john).write({
+                    'res_record': f'{model},{res_id}',
+                })
+
+                self.assertEqual(inverse_event.res_model_id.model, model)
+                self.assertEqual(inverse_event.res_id, res_id)
+                self.assertEqual(
+                    inverse_event.with_user(self.john).read(['res_record'])[0]['res_record'],
+                    f'{model},{res_id}',
+                )
+
+    def test_members_only(self):
+        members_only_event = self.create_event(self.george, name='members-only', privacy='members_only')
+        self.assertEqual(members_only_event.calendar_id, self.george.primary_calendar_id)
+
+        self.env['calendar.user'].with_user(self.george).create([
+            {
+                'calendar_id': self.george.primary_calendar_id.id,
+                'user_id': self.john.id,
+                'access_role': 'writer',
+            },
+        ])
+
+        self.assertTrue(
+            members_only_event.with_user(self.raoul)._check_private_event_conditions(),
+            "Privacy check must be True because Raul doesn't have access to the calendar."
+        )
+
+        self.assertFalse(
+            members_only_event.with_user(self.john)._check_private_event_conditions(),
+            "Privacy check must be False because John has access to the event calendar."
+        )
+
+    def test_private_event_without_organizer_default_privacy(self):
+        private_event = self.create_event(self.john, name='private-event', privacy='private')
+        private_event.user_id = False
+        self.assertFalse(
+            private_event.with_user(self.john)._check_private_event_conditions(),
+            "Privacy check must be False because John is the create_uid user, despite not being the organizer anymore."
+        )
+        self.assertFalse(
+            private_event.with_user(self.george)._check_private_event_conditions(),
+            "Privacy check must be False because George is an attendee."
+        )
+        self.assertTrue(
+            private_event.with_user(self.raoul)._check_private_event_conditions(),
+            "Privacy check must be True because Raul is not an attendee."
+        )
+
+        self.env.invalidate_all()
+        effective_privacy = self.read_event(self.raoul, private_event, 'effective_privacy')
+        self.assertEqual(effective_privacy, 'private', "The effective privacy must be 'private'")
+
+        # Ensure that no private field can be read by a public user, such as: 'name', 'location' and 'description'.
+        for (field, value) in [('name', 'Busy'), ('location', False), ('description', False)]:
+            hidden_information = self.read_event(self.raoul, private_event, field)
+            self.assertEqual(hidden_information, value, "The field '%s' information must be hidden." % field)

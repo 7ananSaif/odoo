@@ -9,52 +9,107 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-01 17:37+0000\n"
-"PO-Revision-Date: 2025-11-16 22:42+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Vietnamese <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-25 17:39+0000\n"
+"PO-Revision-Date: 2026-08-31 21:23+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Vietnamese <https://translate.odoo.com/projects/odoo-s19-4/"
 "payment_xendit/vi/>\n"
 "Language: vi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: payment_xendit
-#. odoo-python
-#: code:addons/payment_xendit/models/payment_transaction.py:0
-msgid ""
-"An error occurred during the processing of your payment (%s). Please try "
-"again."
+#: model:payment.method,name:payment_xendit.payment_method_7eleven
+msgid "7Eleven"
 msgstr ""
-"Đã xảy ra lỗi trong quá trình xử lý khoản thanh toán của bạn (%s). Vui lòng "
-"thử lại."
 
 #. module: payment_xendit
-#: model_terms:ir.ui.view,arch_db:payment_xendit.inline_form
-msgid "Card Code"
-msgstr "Mã thẻ"
+#: model:ir.module.module,summary:base.module_payment_xendit
+msgid "A payment provider for Indonesian and the Philippines."
+msgstr ""
 
 #. module: payment_xendit
-#: model_terms:ir.ui.view,arch_db:payment_xendit.inline_form
-msgid "Card Holder First Name"
-msgstr "Tên chủ thẻ"
+#: model:payment.method,name:payment_xendit.payment_method_akulaku
+msgid "Akulaku PayLater"
+msgstr ""
 
 #. module: payment_xendit
-#: model_terms:ir.ui.view,arch_db:payment_xendit.inline_form
-msgid "Card Holder Last Name"
-msgstr "Họ chủ thẻ"
+#: model:payment.method,name:payment_xendit.payment_method_amex
+msgid "American Express"
+msgstr ""
 
 #. module: payment_xendit
-#: model_terms:ir.ui.view,arch_db:payment_xendit.inline_form
-msgid "Card Number"
-msgstr "Số thẻ"
+#: model:payment.method,name:payment_xendit.payment_method_appota
+msgid "Appota"
+msgstr ""
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_bank_bca
+msgid "BCA"
+msgstr ""
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_bri
+msgid "BRI"
+msgstr ""
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_bangkok_bank
+msgid "Bangkok Bank"
+msgstr ""
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_bni
+msgid "Bank Negara Indonesia"
+msgstr ""
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_bank_permata
+msgid "Bank Permata"
+msgstr ""
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_bsi
+msgid "Bank Syariah Indonesia"
+msgstr ""
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_billease
+msgid "BillEase"
+msgstr ""
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_cimb_niaga
+msgid "CIMB Niaga"
+msgstr ""
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_card
+msgid "Card"
+msgstr ""
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_cashalo
+msgid "Cashalo"
+msgstr ""
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_cebuana
+msgid "Cebuana"
+msgstr ""
 
 #. module: payment_xendit
 #: model:ir.model.fields,field_description:payment_xendit.field_payment_provider__code
 msgid "Code"
 msgstr "Mã"
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_dana
+msgid "Dana"
+msgstr ""
 
 #. module: payment_xendit
 #: model:ir.model.fields,field_description:payment_xendit.field_payment_provider__display_name
@@ -63,14 +118,19 @@ msgid "Display Name"
 msgstr "Tên hiển thị"
 
 #. module: payment_xendit
-#: model_terms:ir.ui.view,arch_db:payment_xendit.inline_form
-msgid "Email"
-msgstr "Email"
+#: model:payment.method,name:payment_xendit.payment_method_fpx
+msgid "FPX"
+msgstr ""
 
 #. module: payment_xendit
-#: model_terms:ir.ui.view,arch_db:payment_xendit.inline_form
-msgid "Expiration"
-msgstr "Ngày hết hạn"
+#: model:payment.method,name:payment_xendit.payment_method_gcash
+msgid "GCash"
+msgstr ""
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_grabpay
+msgid "GrabPay"
+msgstr ""
 
 #. module: payment_xendit
 #: model:ir.model.fields,field_description:payment_xendit.field_payment_provider__id
@@ -79,32 +139,64 @@ msgid "ID"
 msgstr "ID"
 
 #. module: payment_xendit
-#. odoo-javascript
-#: code:addons/payment_xendit/static/src/interactions/payment_form.js:0
-msgid "Invalid CVN"
-msgstr "CVN không hợp lệ"
+#: model:payment.method,name:payment_xendit.payment_method_jcb
+msgid "JCB"
+msgstr ""
 
 #. module: payment_xendit
-#. odoo-javascript
-#: code:addons/payment_xendit/static/src/interactions/payment_form.js:0
-msgid "Invalid Card Number"
-msgstr "Số thẻ không hợp lệ"
+#: model:payment.method,name:payment_xendit.payment_method_jeniuspay
+msgid "JeniusPay"
+msgstr ""
 
 #. module: payment_xendit
-#. odoo-javascript
-#: code:addons/payment_xendit/static/src/interactions/payment_form.js:0
-msgid "Invalid Date"
-msgstr "Ngày không hợp lệ"
+#: model:payment.method,name:payment_xendit.payment_method_kredivo
+msgid "Kredivo"
+msgstr ""
 
 #. module: payment_xendit
-#: model_terms:ir.ui.view,arch_db:payment_xendit.inline_form
-msgid "John"
-msgstr "John"
+#: model:payment.method,name:payment_xendit.payment_method_krungthai_bank
+msgid "KrungThai Bank"
+msgstr ""
 
 #. module: payment_xendit
-#: model_terms:ir.ui.view,arch_db:payment_xendit.inline_form
-msgid "MM"
-msgstr "MM"
+#: model:payment.method,name:payment_xendit.payment_method_kfh
+msgid "Kuwait Finance House"
+msgstr ""
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_linepay
+msgid "LINE Pay"
+msgstr ""
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_linkaja
+msgid "LinkAja"
+msgstr ""
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_mandiri
+msgid "Mandiri"
+msgstr ""
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_mastercard
+msgid "MasterCard"
+msgstr ""
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_maya
+msgid "Maya"
+msgstr ""
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_ovo
+msgid "OVO"
+msgstr ""
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_paynow
+msgid "PayNow"
+msgstr ""
 
 #. module: payment_xendit
 #: model:ir.model,name:payment_xendit.model_payment_provider
@@ -112,25 +204,30 @@ msgid "Payment Provider"
 msgstr "Nhà cung cấp dịch vụ thanh toán"
 
 #. module: payment_xendit
+#: model:ir.module.module,shortdesc:base.module_payment_xendit
+msgid "Payment Provider: Xendit"
+msgstr ""
+
+#. module: payment_xendit
 #: model:ir.model,name:payment_xendit.model_payment_transaction
 msgid "Payment Transaction"
 msgstr "Giao dịch thanh toán"
 
 #. module: payment_xendit
-#. odoo-javascript
-#: code:addons/payment_xendit/static/src/interactions/payment_form.js:0
-msgid "Payment processing failed"
-msgstr "Xử lý thanh toán không thành công"
+#: model:payment.method,name:payment_xendit.payment_method_promptpay
+msgid "Prompt Pay"
+msgstr ""
 
 #. module: payment_xendit
-#: model_terms:ir.ui.view,arch_db:payment_xendit.inline_form
-msgid "Phone Number"
-msgstr "Số điện thoại"
+#: model:payment.method,name:payment_xendit.payment_method_qris
+msgid "QRIS"
+msgstr ""
 
 #. module: payment_xendit
-#: model_terms:ir.ui.view,arch_db:payment_xendit.payment_provider_form_xendit
-msgid "Public Key"
-msgstr "Mã khóa công khai"
+#. odoo-python
+#: code:addons/payment_xendit/models/payment_transaction.py:0
+msgid "Reason: %s"
+msgstr ""
 
 #. module: payment_xendit
 #: model_terms:ir.ui.view,arch_db:payment_xendit.payment_provider_form_xendit
@@ -138,14 +235,21 @@ msgid "Secret Key"
 msgstr "Mã khóa bí mật"
 
 #. module: payment_xendit
-#: model_terms:ir.ui.view,arch_db:payment_xendit.inline_form
-msgid "Smith"
-msgstr "Smith"
+#: model:payment.method,name:payment_xendit.payment_method_shopeepay
+msgid "ShopeePay"
+msgstr ""
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_scb
+msgid "Siam Commerical Bank"
+msgstr ""
 
 #. module: payment_xendit
 #. odoo-python
-#: code:addons/payment_xendit/controllers/main.py:0
-msgid "The access token doesn't match the transaction reference."
+#: code:addons/payment_xendit/models/payment_transaction.py:0
+msgid ""
+"The payment requires authentication from the customer, which isn't possible "
+"for this unattended transaction. Please ask the customer to pay manually."
 msgstr ""
 
 #. module: payment_xendit
@@ -154,9 +258,70 @@ msgid "The technical code of this payment provider."
 msgstr "Mã kỹ thuật của nhà cung cấp dịch vụ thanh toán này."
 
 #. module: payment_xendit
+#. odoo-python
+#: code:addons/payment_xendit/models/payment_transaction.py:0
+msgid "The transaction is not linked to a token."
+msgstr ""
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_touch_n_go
+msgid "Touch'n Go"
+msgstr ""
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_truemoney
+msgid "TrueMoney"
+msgstr ""
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_unionpay
+msgid "UnionPay"
+msgstr ""
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_uob
+msgid "United Overseas Bank"
+msgstr ""
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_visa
+msgid "VISA"
+msgstr ""
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_vnptwallet
+msgid "VNPT Money"
+msgstr ""
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_vpbank
+msgid "VP Bank"
+msgstr ""
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_vietcapital
+msgid "Viet Capital"
+msgstr ""
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_viettelpay
+msgid "Viettel Pay"
+msgstr ""
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_wechat_pay
+msgid "WeChat Pay"
+msgstr ""
+
+#. module: payment_xendit
 #: model_terms:ir.ui.view,arch_db:payment_xendit.payment_provider_form_xendit
 msgid "Webhook Token"
 msgstr "Token webhook"
+
+#. module: payment_xendit
+#: model:payment.method,name:payment_xendit.payment_method_woori
+msgid "Woori Bank"
+msgstr ""
 
 #. module: payment_xendit
 #: model:ir.model.fields.selection,name:payment_xendit.selection__payment_provider__code__xendit
@@ -179,30 +344,57 @@ msgid "Xendit Webhook Token"
 msgstr "Token Webhook Xendit"
 
 #. module: payment_xendit
-#: model_terms:ir.ui.view,arch_db:payment_xendit.inline_form
-msgid "YYYY"
-msgstr "YYYY"
+#: model:payment.method,name:payment_xendit.payment_method_zalopay
+msgid "Zalopay"
+msgstr ""
 
-#. module: payment_xendit
-#: model_terms:ir.ui.view,arch_db:payment_xendit.inline_form
-msgid "john.smith@example.com"
-msgstr "john.smith@example.com"
+#~ msgid "Card Code"
+#~ msgstr "Mã thẻ"
 
-#~ msgid "Could not establish the connection to the API."
-#~ msgstr "Không thể thiết lập kết nối với API."
+#~ msgid "Card Holder First Name"
+#~ msgstr "Tên chủ thẻ"
 
-#~ msgid "No transaction found matching reference %s."
-#~ msgstr "Không tìm thấy giao dịch nào khớp với mã %s."
+#~ msgid "Card Holder Last Name"
+#~ msgstr "Họ chủ thẻ"
 
-#~ msgid "Received data with missing reference."
-#~ msgstr "Dữ liệu đã nhận bị thiếu mã."
+#~ msgid "Card Number"
+#~ msgstr "Số thẻ"
 
-#~ msgid ""
-#~ "The communication with the API failed. Xendit gave us the following "
-#~ "information: '%s'"
-#~ msgstr ""
-#~ "Giao tiếp với API không thành công. Xendit đã cung cấp cho chúng tôi "
-#~ "thông tin sau: '%s'"
+#~ msgid "Email"
+#~ msgstr "Email"
 
-#~ msgid "The transaction is not linked to a token."
-#~ msgstr "Giao dịch không được liên kết với token."
+#~ msgid "Expiration"
+#~ msgstr "Ngày hết hạn"
+
+#~ msgid "Invalid CVN"
+#~ msgstr "CVN không hợp lệ"
+
+#~ msgid "Invalid Card Number"
+#~ msgstr "Số thẻ không hợp lệ"
+
+#~ msgid "Invalid Date"
+#~ msgstr "Ngày không hợp lệ"
+
+#~ msgid "John"
+#~ msgstr "John"
+
+#~ msgid "MM"
+#~ msgstr "MM"
+
+#~ msgid "Payment processing failed"
+#~ msgstr "Xử lý thanh toán không thành công"
+
+#~ msgid "Phone Number"
+#~ msgstr "Số điện thoại"
+
+#~ msgid "Public Key"
+#~ msgstr "Mã khóa công khai"
+
+#~ msgid "Smith"
+#~ msgstr "Smith"
+
+#~ msgid "YYYY"
+#~ msgstr "YYYY"
+
+#~ msgid "john.smith@example.com"
+#~ msgstr "john.smith@example.com"

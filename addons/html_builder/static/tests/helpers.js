@@ -1,21 +1,22 @@
 import { Builder } from "@html_builder/builder";
+import { BuilderOptionsPlugin } from "@html_builder/core/builder_options_plugin";
 import { CORE_PLUGINS } from "@html_builder/core/core_plugins";
-import { Img } from "@html_builder/core/img";
+import { Image } from "@html_builder/core/img";
 import { SetupEditorPlugin } from "@html_builder/core/setup_editor_plugin";
 import { revertPreview } from "@html_builder/core/utils";
+import { BackgroundShapeOptionPlugin } from "@html_builder/plugins/background_option/background_shape_option_plugin";
 import { unformat } from "@html_editor/../tests/_helpers/format";
 import { setContent } from "@html_editor/../tests/_helpers/selection";
 import { insertText } from "@html_editor/../tests/_helpers/user_actions";
 import { LocalOverlayContainer } from "@html_editor/local_overlay_container";
 import { Plugin } from "@html_editor/plugin";
-import { withSequence } from "@html_editor/utils/resource";
-import { defineMailModels } from "@mail/../tests/mail_test_helpers";
-import { after, queryFirst } from "@odoo/hoot";
-import { animationFrame, waitForNone, queryOne, waitFor, advanceTime, tick } from "@odoo/hoot-dom";
-import { Component, onMounted, useRef, useState, useSubEnv, xml } from "@odoo/owl";
+import { after, click, queryAll, queryFirst } from "@odoo/hoot";
+import { advanceTime, animationFrame, queryOne, tick, waitFor, waitForNone } from "@odoo/hoot-dom";
+import { Component, onMounted, proxy, signal, t, useProps, xml } from "@odoo/owl";
 import {
     contains,
     defineModels,
+    defineWebModels,
     models,
     mountWithCleanup,
     onRpc,
@@ -25,16 +26,19 @@ import {
 import { loadBundle } from "@web/core/assets";
 import { isBrowserFirefox } from "@web/core/browser/feature_detection";
 import { registry } from "@web/core/registry";
-import { uniqueId } from "@web/core/utils/functions";
 import { delay } from "@web/core/utils/concurrency";
+import { uniqueId } from "@web/core/utils/functions";
+
+// Avoid server requests for test snippet thumbnails.
+export const dummyThumbnailImg =
+    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z9DwHwAGBQKA3H7sNwAAAABJRU5ErkJggg==";
 
 export function patchWithCleanupImg() {
-    const defaultImg =
-        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z9DwHwAGBQKA3H7sNwAAAABJRU5ErkJggg==";
-    patchWithCleanup(Img, {
-        template: xml`<img t-att-data-src="props.src" t-att-alt="props.alt" t-att-class="props.class" t-att-style="props.style" t-att="props.attrs" src="${defaultImg}"/>`,
+    const defaultImg = dummyThumbnailImg;
+    patchWithCleanup(Image, {
+        template: xml`<img t-att-data-src="this.props.src" t-att-alt="this.props.alt" t-att-class="this.props.class" t-att-style="this.props.style" t-att="this.props.attrs" src="${defaultImg}"/>`,
     });
-    patchWithCleanup(Img.prototype, {
+    patchWithCleanup(Image.prototype, {
         loadImage: () => {},
         getSvg: function () {
             this.isSvg = () => false;
@@ -42,20 +46,27 @@ export function patchWithCleanupImg() {
     });
 }
 
+function withDefaultThumbnail(snippet) {
+    if (!/^\s*<div/.test(snippet) || snippet.includes("data-oe-thumbnail")) {
+        return snippet;
+    }
+    return snippet.replace("<div", `<div data-oe-thumbnail="${dummyThumbnailImg}"`);
+}
+
 export function getSnippetView(snippets) {
     const { snippet_groups, snippet_custom, snippet_structure, snippet_content } = snippets;
     return `
     <snippets id="snippet_groups" string="Categories">
-        ${(snippet_groups || []).join("")}
+        ${(snippet_groups || []).map(withDefaultThumbnail).join("")}
     </snippets>
     <snippets id="snippet_structure" string="Structure">
         ${(snippet_structure || []).join("")}
     </snippets>
     <snippets id="snippet_custom" string="Custom">
-        ${(snippet_custom || []).join("")}
+        ${(snippet_custom || []).map(withDefaultThumbnail).join("")}
     </snippets>
     <snippets id="snippet_content" string="Inner Content">
-        ${(snippet_content || []).join("")}
+        ${(snippet_content || []).map(withDefaultThumbnail).join("")}
     </snippets>`;
 }
 
@@ -76,6 +87,7 @@ export function getInnerContent({
  * @param {string} options.name - The display name of the snippet
  * @param {string} options.content - The HTML content of the snippet
  * @param {string[]} [options.keywords=[]] - Search keywords for the snippet
+ * @param {string} options.label - Search label for the snippet (tag)
  * @param {string} options.groupName - The snippet group (category) name
  * @param {string} [options.imagePreview=""] - URL to preview image
  * @param {string|number} [options.moduleId=""] - Module ID if snippet belongs to a module
@@ -86,43 +98,51 @@ export function getSnippetStructure({
     name,
     content,
     keywords = [],
+    label = "",
     groupName,
     imagePreview = "",
     moduleId = "",
     moduleDisplayName = "",
 }) {
     keywords = keywords.join(", ");
-    return `<div name="${name}" data-oe-snippet-id="123" data-o-image-preview="${imagePreview}" data-oe-keywords="${keywords}" data-o-group="${groupName}" data-module-id="${moduleId}" data-module-display-name="${moduleDisplayName}">${content}</div>`;
+    return `<div name="${name}" data-oe-snippet-id="123" data-o-image-preview="${imagePreview}" data-oe-keywords="${keywords}" data-o-label="${label}" data-o-group="${groupName}" data-module-id="${moduleId}" data-module-display-name="${moduleDisplayName}">${content}</div>`;
 }
 
 class BuilderContainer extends Component {
     static template = xml`
-        <div class="d-flex h-100 w-100" t-ref="container">
-            <div class="o_website_preview flex-grow-1" t-ref="website_preview">
+        <div class="d-flex h-100 w-100" t-ref="this.containerRef">
+            <div class="o_website_preview flex-grow-1" t-ref="this.websitePreviewRef">
                 <div class="o_iframe_container">
-                    <iframe class="h-100 w-100" t-ref="iframe" t-on-load="onLoad"/>
+                    <iframe class="h-100 w-100" t-ref="this.iframeRef" t-on-load="this.onLoad"/>
                     <div t-if="this.state.isMobile" class="o_mobile_preview_layout">
                         <img alt="phone" src="/html_builder/static/img/phone.svg"/>
                     </div>
                 </div>
             </div>
-            <LocalOverlayContainer localOverlay="overlayRef" identifier="env.localOverlayContainerKey"/>
-            <div t-if="state.isEditing" t-att-class="{'o_builder_sidebar_open': state.isEditing and state.showSidebar}" class="o-website-builder_sidebar border-start border-dark">
+            <LocalOverlayContainer localOverlay="this.overlayRef" identifier="this.localOverlayContainerKey"/>
+            <div t-if="this.state.isEditing" t-att-class="{'o_builder_sidebar_open': this.state.isEditing and this.state.showSidebar}" class="o-website-builder_sidebar border-start border-dark">
                 <Builder t-props="this.getBuilderProps()"/>
             </div>
         </div>`;
     static components = { Builder, LocalOverlayContainer };
-    static props = {
-        content: String,
-        editableSelector: String,
-        headerContent: String,
-        Plugins: Array,
-        onEditorLoad: Function,
-    };
+    props = useProps({
+        content: t.string(),
+        editableSelector: t.string(),
+        headerContent: t.string(),
+        Plugins: t.array(),
+        onEditorLoad: t.function(),
+        iframeLangDir: t.string(),
+        builderProps: t.object().optional(),
+    });
+
+    containerRef = signal.ref();
+    websitePreviewRef = signal.ref();
+    iframeRef = signal.ref();
+    overlayRef = signal.ref();
+    localOverlayContainerKey = uniqueId("test");
 
     setup() {
-        this.state = useState({ isMobile: false, isEditing: false, showSidebar: true });
-        this.iframeRef = useRef("iframe");
+        this.state = proxy({ isMobile: false, isEditing: false, showSidebar: true });
         const originalIframeLoaded = new Promise((resolve) => {
             this._originalIframeLoadedResolve = resolve;
         });
@@ -131,18 +151,18 @@ class BuilderContainer extends Component {
                 // Fix for Firefox < 148.
                 if (
                     isBrowserFirefox() &&
-                    !(this.iframeRef.el?.contentDocument.readyState === "complete")
+                    !(this.iframeRef()?.contentDocument.readyState === "complete")
                 ) {
                     await originalIframeLoaded;
                 }
 
-                const el = this.iframeRef.el;
+                const el = this.iframeRef();
                 el.contentDocument.body.innerHTML = `<div id="wrapwrap">${this.props.headerContent}<div id="wrap" class="oe_structure oe_empty" data-oe-model="ir.ui.view" data-oe-id="539" data-oe-field="arch">${this.props.content}</div></div>`;
+                if (this.props.iframeLangDir === "rtl") {
+                    el.contentDocument.body.querySelector("#wrapwrap").classList.add("o_rtl");
+                }
                 resolve(el);
             });
-        });
-        useSubEnv({
-            builderRef: useRef("container"),
         });
     }
 
@@ -152,17 +172,22 @@ class BuilderContainer extends Component {
 
     getBuilderProps() {
         return {
+            localOverlayContainerKey: this.localOverlayContainerKey,
             onEditorLoad: this.props.onEditorLoad,
             closeEditor: () => {},
             snippetsName: "",
             toggleMobile: () => {
                 this.state.isMobile = !this.state.isMobile;
             },
-            overlayRef: () => {},
+            overlayRef: this.overlayRef,
             editableSelector: this.props.editableSelector,
             iframeLoaded: this.iframeLoaded,
             isMobile: this.state.isMobile,
             Plugins: this.props.Plugins,
+            config: {
+                builderOptionsTemplate: "html_builder.TestBuilderOptions",
+            },
+            ...this.props.builderProps,
         };
     }
 }
@@ -202,17 +227,22 @@ export async function setupHTMLBuilder(
         dropzoneSelectors,
         snippets,
         styleContent,
+        iframeLangDir = "ltr",
+        patchImages = true,
+        builderProps,
     } = {}
 ) {
-    defineMailModels();
+    defineWebModels();
     defineModels([IrUiView]);
 
-    patchWithCleanupImg();
+    if (patchImages) {
+        patchWithCleanupImg();
+    }
 
     if (!snippets) {
         snippets = {
             snippet_groups: [
-                '<div name="A" data-oe-thumbnail="a.svg" data-oe-snippet-id="123" data-o-snippet-group="a"><section data-snippet="s_snippet_group"></section></div>',
+                '<div name="A" data-oe-snippet-id="123" data-o-snippet-group="a"><section data-snippet="s_snippet_group"></section></div>',
             ],
             snippet_structure: [
                 getSnippetStructure({
@@ -244,7 +274,7 @@ export async function setupHTMLBuilder(
         class P extends Plugin {
             static id = pluginId;
             resources = {
-                dropzone_selector: dropzoneSelectors,
+                dropzone_selectors: dropzoneSelectors,
             };
         }
         Plugins.push(P);
@@ -260,7 +290,7 @@ export async function setupHTMLBuilder(
         await tick();
         await lastUpdatePromise;
         await animationFrame();
-        await waitUntilIdle([comp.__owl__.app]);
+        await waitUntilIdle(comp);
     };
     patchWithCleanup(Builder.prototype, {
         setup() {
@@ -287,9 +317,26 @@ export async function setupHTMLBuilder(
         setup() {
             super.setup();
             _resolve();
-            editableContent = this.getEditableElements(
-                '.oe_structure.oe_empty, [data-oe-type="html"]'
-            )[0];
+            editableContent = this.editable.querySelector(
+                '.o_savable.oe_structure.oe_empty, .o_savable[data-oe-type="html"]'
+            );
+        },
+    });
+
+    // Remove as soon as the background shape are not always instantiated when
+    // entering in edit mode.
+    patchWithCleanup(BackgroundShapeOptionPlugin.prototype, {
+        getShapeStylePosition(shapeId, flip) {
+            if (!this.shapeStyles[this.convertShapeIdForStyleSearch(shapeId)]) {
+                return [50, 50];
+            }
+            return super.getShapeStylePosition(shapeId, flip);
+        },
+        getShapeStyleUrl(shapeId) {
+            if (!this.shapeStyles[this.convertShapeIdForStyleSearch(shapeId)]) {
+                return "";
+            }
+            return super.getShapeStyleUrl(shapeId);
         },
     });
 
@@ -303,6 +350,8 @@ export async function setupHTMLBuilder(
             onEditorLoad: (editor) => {
                 attachedEditor = editor;
             },
+            iframeLangDir,
+            builderProps,
         },
     });
     await comp.iframeLoaded;
@@ -318,8 +367,8 @@ export async function setupHTMLBuilder(
     return {
         getEditor: () => attachedEditor,
         getEditableContent: () => editableContent,
-        contentEl: comp.iframeRef.el.contentDocument.body.firstChild.firstChild,
-        builderEl: comp.env.builderRef.el.querySelector(".o-website-builder_sidebar"),
+        contentEl: comp.iframeRef().contentDocument.body.firstChild.firstChild,
+        builderEl: comp.containerRef().querySelector(".o-website-builder_sidebar"),
         waitSidebarUpdated,
     };
 }
@@ -331,59 +380,46 @@ export function addBuilderPlugin(Plugin) {
     });
 }
 
-export function addBuilderOption(Option) {
-    const pluginId = uniqueId("test-option");
+const testBuilderOptions = [];
+let isBuilderOptionPatched = false;
 
-    const P = {
-        [pluginId]: class extends Plugin {
-            static id = pluginId;
-            resources = {
-                builder_options: Option,
-            };
-        },
-    }[pluginId];
+export function addBuilderOption(option) {
+    if (!isBuilderOptionPatched) {
+        patchWithCleanup(BuilderOptionsPlugin.prototype, {
+            computeBuilderOptionsFromTemplate() {
+                const options = super.computeBuilderOptionsFromTemplate();
+                const normalizedTestOptions = testBuilderOptions.map(
+                    ({ optionAttributes, OptionComponent }, index) => {
+                        const optionName = `TestBuilderOption${index}`;
+                        if (!OptionComponent) {
+                            return this.createOptionClass(optionName, optionAttributes);
+                        }
+                        return this.createOptionClass(
+                            optionName,
+                            optionAttributes,
+                            OptionComponent
+                        );
+                    }
+                );
+                return [...options, ...normalizedTestOptions];
+            },
+        });
+        after(() => {
+            testBuilderOptions.length = 0;
+            isBuilderOptionPatched = false;
+        });
+        isBuilderOptionPatched = true;
+    }
 
-    addBuilderPlugin(P);
-}
-
-export function addLegacyBuilderOption({
-    selector,
-    exclude,
-    applyTo,
-    template,
-    Component,
-    sequence,
-    cleanForSave,
-    props,
-    editableOnly,
-    title,
-    reloadTarget,
-}) {
-    const pluginId = uniqueId("test-option");
-    const option = {
-        pluginId,
-        OptionComponent: Component,
-        template,
-        selector,
-        exclude,
-        applyTo,
-        sequence,
-        cleanForSave,
-        props,
-        editableOnly,
-        title,
-        reloadTarget,
+    const normalizeBuilderOption = (option) => {
+        const { Component: OptionComponent, ...optionAttributes } = option;
+        return {
+            optionAttributes,
+            OptionComponent,
+        };
     };
 
-    const P = {
-        [pluginId]: class extends Plugin {
-            static id = pluginId;
-            resources = {
-                builder_options: sequence ? withSequence(sequence, option) : option,
-            };
-        },
-    }[pluginId];
-    addBuilderPlugin(P);
+    testBuilderOptions.push(normalizeBuilderOption(option));
 }
 
 export function addBuilderAction(actions = {}) {
@@ -427,7 +463,7 @@ export function addDropZoneSelector(selector) {
     class P extends Plugin {
         static id = pluginId;
         resources = {
-            dropzone_selector: [selector],
+            dropzone_selectors: [selector],
         };
     }
 
@@ -452,7 +488,7 @@ export async function waitForSnippetDialog() {
 
 export async function modifyText(editor, editableContent) {
     setContent(editableContent, '<h1 class="title">H[]ello</h1>');
-    editor.shared.history.addStep();
+    editor.shared.history.commit();
     await insertText(editor, "1");
 }
 
@@ -492,6 +528,7 @@ export function createTestSnippets({ snippets: snippetConfigs = [], withName = f
             content,
             innerHTML,
             keywords = [],
+            label = "",
             imagePreview = "",
             moduleId,
             moduleDisplayName,
@@ -512,6 +549,7 @@ export function createTestSnippets({ snippets: snippetConfigs = [], withName = f
             groupName,
             content: finalContent,
             keywords,
+            label,
             imagePreview,
             moduleId,
             moduleDisplayName,
@@ -556,7 +594,7 @@ export async function setupHTMLBuilderWithDummySnippet(content) {
     const snippetsStructure = {
         snippets: {
             snippet_groups: [
-                '<div name="A" data-oe-thumbnail="a.svg" data-oe-snippet-id="123" data-o-snippet-group="a"><section data-snippet="s_snippet_group"></section></div>',
+                '<div name="A" data-oe-snippet-id="123" data-o-snippet-group="a"><section data-snippet="s_snippet_group"></section></div>',
             ],
             snippet_structure: snippetsDescription.map((snippetDesc) =>
                 getSnippetStructure(snippetDesc)
@@ -575,6 +613,14 @@ export async function editBuilderRangeValue(selector, newValue) {
     input.dispatchEvent(new Event("change"));
     await delay();
 }
+
+export async function unfoldAllOptionsGroups() {
+    for (const i of queryAll(".options-container-header i[data-icon='arrow_right']")) {
+        await click(i);
+    }
+    await animationFrame();
+}
+
 export const dummyCORSSrc = "/web/image/0-redirect/foo.jpg";
 
 export function setupCORSProtectedImg() {

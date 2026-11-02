@@ -1,53 +1,43 @@
 import * as Chrome from "@point_of_sale/../tests/pos/tours/utils/chrome_util";
 import * as Dialog from "@point_of_sale/../tests/generic_helpers/dialog_util";
+import * as Order from "@point_of_sale/../tests/generic_helpers/order_widget_util";
 import * as ProductScreen from "@point_of_sale/../tests/pos/tours/utils/product_screen_util";
 import * as PaymentScreen from "@point_of_sale/../tests/pos/tours/utils/payment_screen_util";
-import * as ReceiptScreen from "@point_of_sale/../tests/pos/tours/utils/receipt_screen_util";
+import * as FeedbackScreen from "@point_of_sale/../tests/pos/tours/utils/feedback_screen_util";
+import * as PosSale from "@pos_sale/../tests/tours/utils/pos_sale_utils";
 import { escapeRegExp } from "@web/core/utils/strings";
 import { registry } from "@web/core/registry";
 
-export function clickDownPaymentNumpad(num) {
-    return {
-        content: `click discount numpad button: ${num}`,
-        trigger: `.o_dialog div.numpad button:contains(/^${escapeRegExp(num)}$/)`,
-        run: "click",
-    };
-}
-
-export function addDownPayment(percentage, soNth, downPaymentType) {
-    const steps = [
-        ProductScreen.clickControlButton("Quotation/Order"),
+function addDownPayment(percentage, soNth, downPaymentType) {
+    const downPaymentTypeLabel = downPaymentType === "percent" ? "percentage" : "fixed amount";
+    return [
+        ProductScreen.clickControlButton("Quotation / Order"),
         {
             content: "Select the first SO",
             trigger: `.o_sale_order .o_data_row:nth-child(${soNth}) .o_data_cell:nth-child(1)`,
             run: "click",
         },
+        Dialog.is({ title: "What do you want to do?" }),
+        {
+            content: `Select 'Apply a down payment (${downPaymentTypeLabel})`,
+            trigger: `.modal-body button:contains(${downPaymentTypeLabel})`,
+            run: "click",
+        },
+        ...percentage.split("").map((num) => ({
+            content: `click discount numpad button: ${num}`,
+            trigger: `.o_dialog div.numpad button:contains(/^${escapeRegExp(num)}$/)`,
+            run: "click",
+        })),
+        {
+            content:
+                "Wait the input value is well filled before apply (just make keydown not wait for interactions)",
+            trigger: `.modal .input-symbol .input-value:contains(${percentage})`,
+        },
+        Dialog.proceed({ title: "Down payment", confirm: "Apply" }),
     ];
-    if (downPaymentType === "percent") {
-        steps.push({
-            content: "Select 'Apply a down payment (percentage)'",
-            trigger: ".modal-body button:contains('percentage')",
-            run: "click",
-        });
-    } else {
-        steps.push({
-            content: "Select 'Apply a down payment (fixed amount)'",
-            trigger: ".modal-body button:contains('fixed amount')",
-            run: "click",
-        });
-    }
-    for (const num of percentage.split("")) {
-        steps.push(clickDownPaymentNumpad(num));
-    }
-    steps.push({
-        content: "Select 'Apply'",
-        trigger: ".modal-dialog button.btn-primary:contains('Apply')",
-        run: "click",
-    });
-    return steps;
 }
 
-export function payAndInvoice(totalAmount) {
+function payAndInvoice(totalAmount) {
     return [
         ProductScreen.clickPayButton(),
 
@@ -58,8 +48,11 @@ export function payAndInvoice(totalAmount) {
         PaymentScreen.clickInvoiceButton(),
         PaymentScreen.clickValidate(),
 
-        ReceiptScreen.receiptAmountTotalIs(totalAmount),
-        ReceiptScreen.clickNextOrder(),
+        FeedbackScreen.isShown(),
+        FeedbackScreen.checkTicketData({
+            total_amount: totalAmount,
+        }),
+        FeedbackScreen.clickNextOrder(),
     ];
 }
 
@@ -320,5 +313,25 @@ registry
                 ProductScreen.checkTotalAmount("0.81"),
                 ProductScreen.checkTaxAmount("0.14"),
                 ...payAndInvoice("0.81"),
+            ].flat(),
+    });
+
+registry
+    .category("web_tour.tours")
+    .add("test_pos_settle_downpayment_with_fixed_and_percent_taxes_included", {
+        steps: () =>
+            [
+                Chrome.startPoS(),
+                Dialog.confirm("Open Register"),
+                ...addDownPayment("20", 1, "fixed"),
+                ProductScreen.checkTotalAmount("20.00"),
+                ProductScreen.clickPayButton(),
+                PaymentScreen.clickPaymentMethod("Bank"),
+                PaymentScreen.clickValidate(),
+                FeedbackScreen.clickNextOrder(),
+                ...PosSale.settleNthOrder(1),
+                Order.hasLine({ productName: "downpayment", price: "-20.00", priceUnit: "20.00" }),
+                ProductScreen.checkTotalAmount("80.00"),
+                ...payAndInvoice("80.00"),
             ].flat(),
     });

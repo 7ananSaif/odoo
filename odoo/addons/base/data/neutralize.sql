@@ -1,6 +1,10 @@
--- deactivate mail servers
+-- deactivate mail servers and drop their credentials: a neutralized database
+-- is meant to be copied around, and an archived server still ships a working
+-- password in every dump
 UPDATE ir_mail_server
-   SET active = false;
+   SET active = false,
+       smtp_user = NULL,
+       smtp_pass = NULL;
 
 -- insert dummy mail server to prevent using fallback servers specified using command line
 INSERT INTO ir_mail_server(name, smtp_port, smtp_host, smtp_encryption, active, smtp_authentication)
@@ -19,9 +23,9 @@ UPDATE ir_cron
 
 -- neutralization flag for the database
 INSERT INTO ir_config_parameter (key, value)
-VALUES ('database.is_neutralized', true)
+VALUES ('database.is_neutralized', 'True')
     ON CONFLICT (key) DO
-       UPDATE SET value = true;
+       UPDATE SET value = 'True';
 
 -- deactivate webhooks
 UPDATE ir_act_server

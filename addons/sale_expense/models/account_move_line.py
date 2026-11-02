@@ -13,7 +13,7 @@ class AccountMoveLine(models.Model):
         self.ensure_one()
         if self.expense_id:  # expense flow is different from vendor bill reinvoice flow
             return (
-                self.expense_id.product_id.expense_policy in {'sales_price', 'cost'}
+                self.expense_id.product_id.reinvoice_policy in {'sales_price', 'cost'}
                 and self.expense_id.sale_order_id
                 and self.display_type == 'product'
             )
@@ -42,7 +42,7 @@ class AccountMoveLine(models.Model):
                 'expense_ids': [Command.set(self.expense_id.ids)],
                 'analytic_distribution': self.analytic_distribution,
             })
-            if self.expense_id.product_id.expense_policy == 'sales_price' and self.expense_id.product_id.standard_price:
+            if self.expense_id.product_id.reinvoice_policy == 'sales_price' and self.expense_id.product_id.standard_price:
                 res.update({
                     'product_uom_qty': self.expense_id.quantity,
                 })

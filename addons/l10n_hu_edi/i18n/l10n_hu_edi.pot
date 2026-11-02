@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0+e\n"
+"Project-Id-Version: Odoo Server 20.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-30 19:07+0000\n"
-"PO-Revision-Date: 2025-12-30 19:07+0000\n"
+"POT-Creation-Date: 2026-10-23 18:26+0000\n"
+"PO-Revision-Date: 2026-10-23 18:26+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -39,6 +39,16 @@ msgid ""
 msgstr ""
 
 #. module: l10n_hu_edi
+#: model:ir.module.module,description:base.module_l10n_hu_edi
+msgid ""
+"\n"
+"* Electronically report invoices to the NAV (Hungarian Tax Agency) when issuing physical (paper) invoices.\n"
+"* Electronically receive vendor bills from the NAV.\n"
+"* Perform the Tax Audit Export (Adóhatósági Ellenőrzési Adatszolgáltatás) in NAV 3.0 format.\n"
+"* NAV Documentation: https://onlineszamla.nav.gov.hu/files/container/download/2025.10.09.%20EN_Online%20Invoice%20System%203.0%20Interface%20Specification%20.pdf\n"
+msgstr ""
+
+#. module: l10n_hu_edi
 #: model_terms:ir.ui.view,arch_db:l10n_hu_edi.product_template_form_view_l10n_hu_edi
 msgid "<span class=\"oe_inline o_form_label mx-3\"> : </span>"
 msgstr ""
@@ -50,17 +60,7 @@ msgstr ""
 
 #. module: l10n_hu_edi
 #: model_terms:ir.ui.view,arch_db:l10n_hu_edi.report_invoice_document
-msgid "<strong>Customer:</strong>"
-msgstr ""
-
-#. module: l10n_hu_edi
-#: model_terms:ir.ui.view,arch_db:l10n_hu_edi.report_invoice_document
 msgid "<strong>Payment Mode</strong>"
-msgstr ""
-
-#. module: l10n_hu_edi
-#: model_terms:ir.ui.view,arch_db:l10n_hu_edi.report_invoice_document
-msgid "<strong>Supplier:</strong>"
 msgstr ""
 
 #. module: l10n_hu_edi
@@ -111,16 +111,6 @@ msgid "Account Chart Template"
 msgstr ""
 
 #. module: l10n_hu_edi
-#: model:ir.model,name:l10n_hu_edi.model_account_move_reversal
-msgid "Account Move Reversal"
-msgstr ""
-
-#. module: l10n_hu_edi
-#: model:ir.model,name:l10n_hu_edi.model_account_move_send
-msgid "Account Move Send"
-msgstr ""
-
-#. module: l10n_hu_edi
 #: model:ir.model,name:l10n_hu_edi.model_account_debit_note
 msgid "Add Debit Note wizard"
 msgstr ""
@@ -131,6 +121,12 @@ msgstr ""
 msgid ""
 "All advance invoices must be paid and sent to NAV before the final invoice "
 "is issued."
+msgstr ""
+
+#. module: l10n_hu_edi
+#. odoo-python
+#: code:addons/l10n_hu_edi/models/account_move.py:0
+msgid "Amount mismatch detected."
 msgstr ""
 
 #. module: l10n_hu_edi
@@ -151,6 +147,18 @@ msgstr ""
 #. module: l10n_hu_edi
 #: model_terms:ir.ui.view,arch_db:l10n_hu_edi.report_invoice_document
 msgid "Bank Account:"
+msgstr ""
+
+#. module: l10n_hu_edi
+#. odoo-python
+#: code:addons/l10n_hu_edi/wizard/l10n_hu_edi_receive_bills_wizard.py:0
+msgid "Bills received from NAV"
+msgstr ""
+
+#. module: l10n_hu_edi
+#. odoo-python
+#: code:addons/l10n_hu_edi/wizard/l10n_hu_edi_receive_bills_wizard.py:0
+msgid "Bills were successfully received from NAV."
 msgstr ""
 
 #. module: l10n_hu_edi
@@ -239,7 +247,7 @@ msgstr ""
 
 #. module: l10n_hu_edi
 #: model:ir.model,name:l10n_hu_edi.model_res_company
-msgid "Companies"
+msgid "Company"
 msgstr ""
 
 #. module: l10n_hu_edi
@@ -297,18 +305,26 @@ msgid "Could not parse time of previous transaction"
 msgstr ""
 
 #. module: l10n_hu_edi
+#. odoo-python
+#: code:addons/l10n_hu_edi/models/account_move.py:0
+msgid "Could not retrieve the tax: %(tax_label)s for line '%(line)s'."
+msgstr ""
+
+#. module: l10n_hu_edi
 #: model:ir.model,website_form_label:l10n_hu_edi.model_res_partner
 msgid "Create a Customer"
 msgstr ""
 
 #. module: l10n_hu_edi
 #: model:ir.model.fields,field_description:l10n_hu_edi.field_l10n_hu_edi_cancellation__create_uid
+#: model:ir.model.fields,field_description:l10n_hu_edi.field_l10n_hu_edi_receive_bills_wizard__create_uid
 #: model:ir.model.fields,field_description:l10n_hu_edi.field_l10n_hu_edi_tax_audit_export__create_uid
 msgid "Created by"
 msgstr ""
 
 #. module: l10n_hu_edi
 #: model:ir.model.fields,field_description:l10n_hu_edi.field_l10n_hu_edi_cancellation__create_date
+#: model:ir.model.fields,field_description:l10n_hu_edi.field_l10n_hu_edi_receive_bills_wizard__create_date
 #: model:ir.model.fields,field_description:l10n_hu_edi.field_l10n_hu_edi_tax_audit_export__create_date
 msgid "Created on"
 msgstr ""
@@ -321,6 +337,11 @@ msgstr ""
 #. module: l10n_hu_edi
 #: model:ir.model.fields.selection,name:l10n_hu_edi.selection__uom_uom__l10n_hu_edi_code__cubic_meter
 msgid "Cubic meter"
+msgstr ""
+
+#. module: l10n_hu_edi
+#: model_terms:ir.ui.view,arch_db:l10n_hu_edi.report_invoice_document
+msgid "Customer:"
 msgstr ""
 
 #. module: l10n_hu_edi
@@ -339,6 +360,21 @@ msgid "Date To"
 msgstr ""
 
 #. module: l10n_hu_edi
+#: model:ir.model.fields,field_description:l10n_hu_edi.field_l10n_hu_edi_receive_bills_wizard__datetime_from
+msgid "Datetime From"
+msgstr ""
+
+#. module: l10n_hu_edi
+#: model:ir.model.fields,field_description:l10n_hu_edi.field_l10n_hu_edi_receive_bills_wizard__datetime_to
+msgid "Datetime To"
+msgstr ""
+
+#. module: l10n_hu_edi
+#: model_terms:ir.ui.view,arch_db:l10n_hu_edi.l10n_hu_edi_receive_bills_wizard_form
+msgid "Datetime range"
+msgstr ""
+
+#. module: l10n_hu_edi
 #: model:ir.model.fields.selection,name:l10n_hu_edi.selection__uom_uom__l10n_hu_edi_code__day
 msgid "Day"
 msgstr ""
@@ -349,6 +385,11 @@ msgid "Demo"
 msgstr ""
 
 #. module: l10n_hu_edi
+#: model_terms:ir.ui.view,arch_db:l10n_hu_edi.l10n_hu_edi_receive_bills_wizard_form
+msgid "Discard"
+msgstr ""
+
+#. module: l10n_hu_edi
 #: model:ir.model.fields,field_description:l10n_hu_edi.field_account_chart_template__display_name
 #: model:ir.model.fields,field_description:l10n_hu_edi.field_account_debit_note__display_name
 #: model:ir.model.fields,field_description:l10n_hu_edi.field_account_move__display_name
@@ -356,6 +397,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_hu_edi.field_account_move_send__display_name
 #: model:ir.model.fields,field_description:l10n_hu_edi.field_account_tax__display_name
 #: model:ir.model.fields,field_description:l10n_hu_edi.field_l10n_hu_edi_cancellation__display_name
+#: model:ir.model.fields,field_description:l10n_hu_edi.field_l10n_hu_edi_receive_bills_wizard__display_name
 #: model:ir.model.fields,field_description:l10n_hu_edi.field_l10n_hu_edi_tax_audit_export__display_name
 #: model:ir.model.fields,field_description:l10n_hu_edi.field_product_template__display_name
 #: model:ir.model.fields,field_description:l10n_hu_edi.field_res_company__display_name
@@ -475,6 +517,11 @@ msgid "Export"
 msgstr ""
 
 #. module: l10n_hu_edi
+#: model_terms:ir.ui.view,arch_db:l10n_hu_edi.l10n_hu_edi_receive_bills_wizard_form
+msgid "Fetch Bills"
+msgstr ""
+
+#. module: l10n_hu_edi
 #: model:ir.model.fields,field_description:l10n_hu_edi.field_l10n_hu_edi_tax_audit_export__filename
 msgid "File name"
 msgstr ""
@@ -531,6 +578,11 @@ msgid "Hungary"
 msgstr ""
 
 #. module: l10n_hu_edi
+#: model:ir.module.module,shortdesc:base.module_l10n_hu_edi
+msgid "Hungary - E-invoicing"
+msgstr ""
+
+#. module: l10n_hu_edi
 #: model:ir.model.fields,field_description:l10n_hu_edi.field_account_chart_template__id
 #: model:ir.model.fields,field_description:l10n_hu_edi.field_account_debit_note__id
 #: model:ir.model.fields,field_description:l10n_hu_edi.field_account_move__id
@@ -538,6 +590,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_hu_edi.field_account_move_send__id
 #: model:ir.model.fields,field_description:l10n_hu_edi.field_account_tax__id
 #: model:ir.model.fields,field_description:l10n_hu_edi.field_l10n_hu_edi_cancellation__id
+#: model:ir.model.fields,field_description:l10n_hu_edi.field_l10n_hu_edi_receive_bills_wizard__id
 #: model:ir.model.fields,field_description:l10n_hu_edi.field_l10n_hu_edi_tax_audit_export__id
 #: model:ir.model.fields,field_description:l10n_hu_edi.field_product_template__id
 #: model:ir.model.fields,field_description:l10n_hu_edi.field_res_company__id
@@ -666,6 +719,11 @@ msgid "Journal Entry"
 msgstr ""
 
 #. module: l10n_hu_edi
+#: model:ir.model,name:l10n_hu_edi.model_account_move_reversal
+msgid "Journal Entry Reversal"
+msgstr ""
+
+#. module: l10n_hu_edi
 #: model:ir.model.fields.selection,name:l10n_hu_edi.selection__account_tax__l10n_hu_tax_type__kbaet
 msgid "KBAET - intra-Community exempt supply, without new means of transport"
 msgstr ""
@@ -719,12 +777,14 @@ msgstr ""
 
 #. module: l10n_hu_edi
 #: model:ir.model.fields,field_description:l10n_hu_edi.field_l10n_hu_edi_cancellation__write_uid
+#: model:ir.model.fields,field_description:l10n_hu_edi.field_l10n_hu_edi_receive_bills_wizard__write_uid
 #: model:ir.model.fields,field_description:l10n_hu_edi.field_l10n_hu_edi_tax_audit_export__write_uid
 msgid "Last Updated by"
 msgstr ""
 
 #. module: l10n_hu_edi
 #: model:ir.model.fields,field_description:l10n_hu_edi.field_l10n_hu_edi_cancellation__write_date
+#: model:ir.model.fields,field_description:l10n_hu_edi.field_l10n_hu_edi_receive_bills_wizard__write_date
 #: model:ir.model.fields,field_description:l10n_hu_edi.field_l10n_hu_edi_tax_audit_export__write_date
 msgid "Last Updated on"
 msgstr ""
@@ -905,6 +965,12 @@ msgstr ""
 
 #. module: l10n_hu_edi
 #. odoo-python
+#: code:addons/l10n_hu_edi/wizard/l10n_hu_edi_receive_bills_wizard.py:0
+msgid "No bills received from NAV."
+msgstr ""
+
+#. module: l10n_hu_edi
+#. odoo-python
 #: code:addons/l10n_hu_edi/wizard/l10n_hu_edi_tax_audit_export.py:0
 msgid "No invoice to export!"
 msgstr ""
@@ -1080,6 +1146,11 @@ msgid ""
 msgstr ""
 
 #. module: l10n_hu_edi
+#: model:ir.model,name:l10n_hu_edi.model_l10n_hu_edi_receive_bills_wizard
+msgid "Receive Bills Wizard"
+msgstr ""
+
+#. module: l10n_hu_edi
 #: model:ir.model.fields.selection,name:l10n_hu_edi.selection__account_move__l10n_hu_edi_state__rejected
 msgid "Rejected"
 msgstr ""
@@ -1121,6 +1192,11 @@ msgid "Server Mode"
 msgstr ""
 
 #. module: l10n_hu_edi
+#: model:ir.model,name:l10n_hu_edi.model_account_move_send
+msgid "Shared Send Invoice Wizard Functions"
+msgstr ""
+
+#. module: l10n_hu_edi
 #: model_terms:ir.ui.view,arch_db:l10n_hu_edi.res_config_settings_form_inherit_l10n_hu_edi
 msgid "Signature Key"
 msgstr ""
@@ -1128,6 +1204,18 @@ msgstr ""
 #. module: l10n_hu_edi
 #: model:ir.model.fields.selection,name:l10n_hu_edi.selection__res_company__l10n_hu_tax_regime__sb
 msgid "Small Business"
+msgstr ""
+
+#. module: l10n_hu_edi
+#: model_terms:ir.ui.view,arch_db:l10n_hu_edi.report_invoice_document
+msgid "Supplier:"
+msgstr ""
+
+#. module: l10n_hu_edi
+#. odoo-javascript
+#: code:addons/l10n_hu_edi/static/src/views/sync_with_nav_btn/sync_with_nav_btn.js:0
+#: code:addons/l10n_hu_edi/static/src/views/sync_with_nav_btn/sync_with_nav_btn.xml:0
+msgid "Sync with NAV"
 msgstr ""
 
 #. module: l10n_hu_edi
@@ -1251,6 +1339,14 @@ msgstr ""
 #. odoo-python
 #: code:addons/l10n_hu_edi/models/account_move.py:0
 msgid ""
+"The gross total on the bill received from NAV and computed is not the same. "
+"Please check XML file in 'NAV 3.0' tab."
+msgstr ""
+
+#. module: l10n_hu_edi
+#. odoo-python
+#: code:addons/l10n_hu_edi/models/account_move.py:0
+msgid ""
 "The invoice was accepted by the NAV, but warnings were reported. To reverse,"
 " create a credit note / debit note."
 msgstr ""
@@ -1293,6 +1389,14 @@ msgstr ""
 #. module: l10n_hu_edi
 #: model_terms:ir.ui.view,arch_db:l10n_hu_edi.report_invoice_document
 msgid "The issuer of the invoice is <u>Small taxpayer</u>."
+msgstr ""
+
+#. module: l10n_hu_edi
+#. odoo-python
+#: code:addons/l10n_hu_edi/wizard/l10n_hu_edi_receive_bills_wizard.py:0
+msgid ""
+"The length of the interval specified by the query parameter can be up to 35 "
+"days."
 msgstr ""
 
 #. module: l10n_hu_edi

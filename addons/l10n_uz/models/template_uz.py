@@ -9,8 +9,6 @@ class AccountChartTemplate(models.AbstractModel):
     def _get_uz_template_data(self):
         return {
             'code_digits': 4,
-            'property_account_receivable_id': 'uz4010',
-            'property_account_payable_id': 'uz6010',
         }
 
     @template('uz', 'res.company')
@@ -29,6 +27,8 @@ class AccountChartTemplate(models.AbstractModel):
                 'income_account_id': 'uz9020',
                 'expense_currency_exchange_account_id': 'uz9620',
                 'income_currency_exchange_account_id': 'uz9540',
+                'receivable_account_id': 'uz4010',
+                'payable_account_id': 'uz6010',
                 'transfer_account_id': 'uz5710',
                 'account_journal_early_pay_discount_loss_account_id': 'uz9050',
             },

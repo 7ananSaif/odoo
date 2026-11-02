@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0+e\n"
+"Project-Id-Version: Odoo Server 19.5a1+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-03 19:17+0000\n"
-"PO-Revision-Date: 2026-04-03 19:17+0000\n"
+"POT-Creation-Date: 2026-08-28 18:23+0000\n"
+"PO-Revision-Date: 2026-08-28 18:23+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,33 +16,18 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: l10n_vn_edi_viettel
-#: model:ir.model.fields.selection,name:l10n_vn_edi_viettel.selection__l10n_vn_edi_viettel_sinvoice_template__template_invoice_type__1
-msgid "1 - Value-added invoice"
+#: model:ir.module.module,description:base.module_l10n_vn_edi_viettel
+msgid ""
+"\n"
+"Vietnam - E-invoicing\n"
+"=====================\n"
+"Using SInvoice by Viettel\n"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
-#: model:ir.model.fields.selection,name:l10n_vn_edi_viettel.selection__l10n_vn_edi_viettel_sinvoice_template__template_invoice_type__2
-msgid "2 - Sales invoice"
-msgstr ""
-
-#. module: l10n_vn_edi_viettel
-#: model:ir.model.fields.selection,name:l10n_vn_edi_viettel.selection__l10n_vn_edi_viettel_sinvoice_template__template_invoice_type__3
-msgid "3 - Public assets sales"
-msgstr ""
-
-#. module: l10n_vn_edi_viettel
-#: model:ir.model.fields.selection,name:l10n_vn_edi_viettel.selection__l10n_vn_edi_viettel_sinvoice_template__template_invoice_type__4
-msgid "4 - National reserve sales"
-msgstr ""
-
-#. module: l10n_vn_edi_viettel
-#: model:ir.model.fields.selection,name:l10n_vn_edi_viettel.selection__l10n_vn_edi_viettel_sinvoice_template__template_invoice_type__5
-msgid "5 - Invoice for national reserve sales"
-msgstr ""
-
-#. module: l10n_vn_edi_viettel
-#: model:ir.model.fields.selection,name:l10n_vn_edi_viettel.selection__l10n_vn_edi_viettel_sinvoice_template__template_invoice_type__6
-msgid "6 - Warehouse release note"
+#. odoo-python
+#: code:addons/l10n_vn_edi_viettel/models/sinvoice.py:0
+msgid "%(company)s: %(error)s"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
@@ -53,30 +38,13 @@ msgid ""
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
-#: model_terms:ir.actions.act_window,help:l10n_vn_edi_viettel.action_sinvoice_template
-msgid ""
-"A SInvoice template is used when sending invoices to SInvoice in order to know which\n"
-"                invoice template to use when rendering the invoice."
-msgstr ""
-
-#. module: l10n_vn_edi_viettel
-#: model:ir.model,name:l10n_vn_edi_viettel.model_account_move_reversal
-msgid "Account Move Reversal"
-msgstr ""
-
-#. module: l10n_vn_edi_viettel
-#: model:ir.model,name:l10n_vn_edi_viettel.model_account_move_send
-msgid "Account Move Send"
+#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_l10n_vn_edi_viettel_sinvoice_symbol__active
+msgid "Active"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
 #: model_terms:ir.actions.act_window,help:l10n_vn_edi_viettel.action_sinvoice_symbol
 msgid "Add a symbol"
-msgstr ""
-
-#. module: l10n_vn_edi_viettel
-#: model_terms:ir.actions.act_window,help:l10n_vn_edi_viettel.action_sinvoice_template
-msgid "Add a template"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
@@ -105,7 +73,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_account_bank_statement_line__l10n_vn_edi_agreement_document_date
 #: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_account_move__l10n_vn_edi_agreement_document_date
 #: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_account_move_reversal__l10n_vn_edi_agreement_document_date
-#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_l10n_vn_edi_viettel_cancellation__agreement_document_date
 msgid "Agreement Date"
 msgstr ""
 
@@ -113,40 +80,23 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_account_bank_statement_line__l10n_vn_edi_agreement_document_name
 #: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_account_move__l10n_vn_edi_agreement_document_name
 #: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_account_move_reversal__l10n_vn_edi_agreement_document_name
-#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_l10n_vn_edi_viettel_cancellation__agreement_document_name
 msgid "Agreement Name"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
-#: model_terms:ir.ui.view,arch_db:l10n_vn_edi_viettel.l10n_vn_edi_cancellation_form
 #: model_terms:ir.ui.view,arch_db:l10n_vn_edi_viettel.view_account_move_reversal_inherit_l10n_vn_edi
 msgid "Agreement document date..."
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
-#: model_terms:ir.ui.view,arch_db:l10n_vn_edi_viettel.l10n_vn_edi_cancellation_form
 #: model_terms:ir.ui.view,arch_db:l10n_vn_edi_viettel.view_account_move_reversal_inherit_l10n_vn_edi
 msgid "Agreement document name..."
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
-#: model:ir.model.fields.selection,name:l10n_vn_edi_viettel.selection__account_move__l10n_vn_edi_invoice_state__canceled
-msgid "Canceled"
-msgstr ""
-
-#. module: l10n_vn_edi_viettel
-#: model_terms:ir.ui.view,arch_db:l10n_vn_edi_viettel.res_config_settings_view_form_inherit_l10n_vn_edi
-msgid "Check the documentation to get credentials"
-msgstr ""
-
-#. module: l10n_vn_edi_viettel
-#: model_terms:ir.ui.view,arch_db:l10n_vn_edi_viettel.l10n_vn_edi_cancellation_form
-msgid "Close"
-msgstr ""
-
-#. module: l10n_vn_edi_viettel
 #: model:ir.model,name:l10n_vn_edi_viettel.model_res_company
-msgid "Companies"
+#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_l10n_vn_edi_viettel_sinvoice_symbol__company_id
+msgid "Company"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
@@ -156,7 +106,7 @@ msgstr ""
 
 #. module: l10n_vn_edi_viettel
 #. odoo-python
-#: code:addons/l10n_vn_edi_viettel/models/account_move.py:0
+#: code:addons/l10n_vn_edi_viettel/models/res_company.py:0
 msgid "Connection to the API failed, please try again later."
 msgstr ""
 
@@ -171,16 +121,12 @@ msgid "Create a Customer"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
-#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_l10n_vn_edi_viettel_cancellation__create_uid
 #: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_l10n_vn_edi_viettel_sinvoice_symbol__create_uid
-#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_l10n_vn_edi_viettel_sinvoice_template__create_uid
 msgid "Created by"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
-#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_l10n_vn_edi_viettel_cancellation__create_date
 #: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_l10n_vn_edi_viettel_sinvoice_symbol__create_date
-#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_l10n_vn_edi_viettel_sinvoice_template__create_date
 msgid "Created on"
 msgstr ""
 
@@ -191,19 +137,27 @@ msgid "Date of issue of the invoice on the e-invoicing system."
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
-#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_res_config_settings__l10n_vn_edi_default_symbol
-#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_res_partner__l10n_vn_edi_symbol
-#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_res_users__l10n_vn_edi_symbol
+#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_account_journal__l10n_vn_edi_default_symbol_id
+msgid "Default E-invoice Symbol"
+msgstr ""
+
+#. module: l10n_vn_edi_viettel
+#: model_terms:ir.ui.view,arch_db:l10n_vn_edi_viettel.account_journal_form_inherit_l10n_vn_edi_viettel
+msgid "Default SInvoice Symbol"
+msgstr ""
+
+#. module: l10n_vn_edi_viettel
+#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_res_company__l10n_vn_edi_symbol_id
+#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_res_config_settings__l10n_vn_edi_default_symbol_id
 msgid "Default Symbol"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
+#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_account_journal__display_name
 #: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_account_move__display_name
 #: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_account_move_reversal__display_name
 #: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_account_move_send__display_name
-#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_l10n_vn_edi_viettel_cancellation__display_name
 #: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_l10n_vn_edi_viettel_sinvoice_symbol__display_name
-#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_l10n_vn_edi_viettel_sinvoice_template__display_name
 #: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_res_company__display_name
 #: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_res_config_settings__display_name
 #: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_res_partner__display_name
@@ -211,13 +165,24 @@ msgid "Display Name"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
-#: model:ir.model,name:l10n_vn_edi_viettel.model_l10n_vn_edi_viettel_cancellation
-msgid "E-invoice cancellation wizard"
+#: model_terms:ir.ui.view,arch_db:l10n_vn_edi_viettel.account_journal_form_inherit_l10n_vn_edi_viettel
+msgid "E-Invoice"
+msgstr ""
+
+#. module: l10n_vn_edi_viettel
+#: model:ir.module.module,summary:base.module_l10n_vn_edi_viettel
+msgid "E-invoicing using SInvoice by Viettel"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
 #. odoo-python
-#: code:addons/l10n_vn_edi_viettel/models/account_move.py:0
+#: code:addons/l10n_vn_edi_viettel/models/sinvoice_service.py:0
+msgid "Error fetching custom fields from SInvoice: %s"
+msgstr ""
+
+#. module: l10n_vn_edi_viettel
+#. odoo-python
+#: code:addons/l10n_vn_edi_viettel/models/sinvoice_service.py:0
 msgid "Error when contacting SInvoice: %s."
 msgstr ""
 
@@ -241,17 +206,37 @@ msgstr ""
 
 #. module: l10n_vn_edi_viettel
 #. odoo-python
-#: code:addons/l10n_vn_edi_viettel/models/account_move.py:0
+#: code:addons/l10n_vn_edi_viettel/models/res_company.py:0
 msgid "Error while parsing API answer. Please try again later."
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
+#. odoo-python
+#: code:addons/l10n_vn_edi_viettel/models/sinvoice_service.py:0
+msgid "Failed to extract XML from SInvoice ZIP: %s"
+msgstr ""
+
+#. module: l10n_vn_edi_viettel
+#: model_terms:ir.ui.view,arch_db:l10n_vn_edi_viettel.view_l10n_vn_edi_viettel_sinvoice_symbol_list
+msgid "Fetch"
+msgstr ""
+
+#. module: l10n_vn_edi_viettel
+#: model:ir.actions.server,name:l10n_vn_edi_viettel.l10n_vn_edi_fetch_tax_code
+msgid "Fetch SInvoice with Taxcode"
+msgstr ""
+
+#. module: l10n_vn_edi_viettel
+#: model_terms:ir.ui.view,arch_db:l10n_vn_edi_viettel.res_config_settings_view_form_inherit_l10n_vn_edi
+msgid "Fetch Symbols"
+msgstr ""
+
+#. module: l10n_vn_edi_viettel
+#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_account_journal__id
 #: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_account_move__id
 #: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_account_move_reversal__id
 #: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_account_move_send__id
-#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_l10n_vn_edi_viettel_cancellation__id
 #: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_l10n_vn_edi_viettel_sinvoice_symbol__id
-#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_l10n_vn_edi_viettel_sinvoice_template__id
 #: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_res_company__id
 #: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_res_config_settings__id
 #: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_res_partner__id
@@ -259,11 +244,10 @@ msgid "ID"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
-#: model:ir.model.fields,help:l10n_vn_edi_viettel.field_res_partner__l10n_vn_edi_symbol
-#: model:ir.model.fields,help:l10n_vn_edi_viettel.field_res_users__l10n_vn_edi_symbol
+#: model:ir.model.fields,help:l10n_vn_edi_viettel.field_res_company__l10n_vn_edi_symbol_id
 msgid ""
 "If set, this symbol will be used as the default symbol for all invoices of "
-"this customer."
+"this company."
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
@@ -275,15 +259,22 @@ msgid ""
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
-#: model:ir.model.fields.selection,name:l10n_vn_edi_viettel.selection__account_move__l10n_vn_edi_adjustment_type__2
-#: model:ir.model.fields.selection,name:l10n_vn_edi_viettel.selection__account_move_reversal__l10n_vn_edi_adjustment_type__2
-msgid "Information adjustment"
+#. odoo-python
+#: code:addons/l10n_vn_edi_viettel/models/account_move.py:0
+msgid ""
+"In order to download the invoice's XML file, you must first send it to "
+"SInvoice"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
-#. odoo-python
-#: code:addons/l10n_vn_edi_viettel/models/account_move.py:0
-msgid "Invoice Cancellation"
+#: model_terms:ir.ui.view,arch_db:l10n_vn_edi_viettel.view_l10n_vn_edi_viettel_sinvoice_symbol_search
+msgid "Inactive"
+msgstr ""
+
+#. module: l10n_vn_edi_viettel
+#: model:ir.model.fields.selection,name:l10n_vn_edi_viettel.selection__account_move__l10n_vn_edi_adjustment_type__2
+#: model:ir.model.fields.selection,name:l10n_vn_edi_viettel.selection__account_move_reversal__l10n_vn_edi_adjustment_type__2
+msgid "Information adjustment"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
@@ -295,30 +286,9 @@ msgid "Invoice Number as appearing on SInvoice."
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
-#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_account_bank_statement_line__l10n_vn_edi_invoice_symbol
-#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_account_move__l10n_vn_edi_invoice_symbol
-msgid "Invoice Symbol"
-msgstr ""
-
-#. module: l10n_vn_edi_viettel
-#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_l10n_vn_edi_viettel_sinvoice_template__invoice_symbols_ids
-msgid "Invoice Symbols"
-msgstr ""
-
-#. module: l10n_vn_edi_viettel
-#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_l10n_vn_edi_viettel_sinvoice_symbol__invoice_template_id
-msgid "Invoice Template"
-msgstr ""
-
-#. module: l10n_vn_edi_viettel
 #. odoo-python
 #: code:addons/l10n_vn_edi_viettel/models/account_move.py:0
 msgid "Invoice sent to SInvoice"
-msgstr ""
-
-#. module: l10n_vn_edi_viettel
-#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_l10n_vn_edi_viettel_cancellation__invoice_id
-msgid "Invoice to cancel"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
@@ -328,21 +298,32 @@ msgid "Issue Date"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
+#: model_terms:ir.ui.view,arch_db:l10n_vn_edi_viettel.res_config_settings_view_form_inherit_l10n_vn_edi
+msgid "Issue E-invoice via SInvoice"
+msgstr ""
+
+#. module: l10n_vn_edi_viettel
+#: model:ir.model,name:l10n_vn_edi_viettel.model_account_journal
+msgid "Journal"
+msgstr ""
+
+#. module: l10n_vn_edi_viettel
 #: model:ir.model,name:l10n_vn_edi_viettel.model_account_move
 msgid "Journal Entry"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
-#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_l10n_vn_edi_viettel_cancellation__write_uid
+#: model:ir.model,name:l10n_vn_edi_viettel.model_account_move_reversal
+msgid "Journal Entry Reversal"
+msgstr ""
+
+#. module: l10n_vn_edi_viettel
 #: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_l10n_vn_edi_viettel_sinvoice_symbol__write_uid
-#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_l10n_vn_edi_viettel_sinvoice_template__write_uid
 msgid "Last Updated by"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
-#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_l10n_vn_edi_viettel_cancellation__write_date
 #: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_l10n_vn_edi_viettel_sinvoice_symbol__write_date
-#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_l10n_vn_edi_viettel_sinvoice_template__write_date
 msgid "Last Updated on"
 msgstr ""
 
@@ -355,6 +336,20 @@ msgstr ""
 #. module: l10n_vn_edi_viettel
 #: model_terms:ir.ui.view,arch_db:l10n_vn_edi_viettel.view_account_invoice_filter_inherit_l10n_vn_edi
 msgid "Need payment state update"
+msgstr ""
+
+#. module: l10n_vn_edi_viettel
+#. odoo-python
+#: code:addons/l10n_vn_edi_viettel/models/sinvoice_service.py:0
+msgid "No XML file found in the SInvoice ZIP response."
+msgstr ""
+
+#. module: l10n_vn_edi_viettel
+#. odoo-python
+#: code:addons/l10n_vn_edi_viettel/models/sinvoice.py:0
+msgid ""
+"No symbols found for company %s. Please check your configuration and try "
+"again."
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
@@ -389,6 +384,12 @@ msgstr ""
 
 #. module: l10n_vn_edi_viettel
 #. odoo-python
+#: code:addons/l10n_vn_edi_viettel/models/sinvoice.py:0
+msgid "Please select a Vietnamese company to fetch SInvoice symbol!"
+msgstr ""
+
+#. module: l10n_vn_edi_viettel
+#. odoo-python
 #: code:addons/l10n_vn_edi_viettel/models/account_move.py:0
 msgid ""
 "Please send the invoice to SInvoice before fetching the tax invoice files."
@@ -400,30 +401,23 @@ msgid "Ready to send"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
-#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_l10n_vn_edi_viettel_cancellation__reason
-msgid "Reason"
-msgstr ""
-
-#. module: l10n_vn_edi_viettel
-#: model_terms:ir.ui.view,arch_db:l10n_vn_edi_viettel.l10n_vn_edi_cancellation_form
-msgid "Reason..."
-msgstr ""
-
-#. module: l10n_vn_edi_viettel
 #: model:ir.model.fields.selection,name:l10n_vn_edi_viettel.selection__account_move__l10n_vn_edi_invoice_state__replaced
 msgid "Replaced"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
-#: model_terms:ir.ui.view,arch_db:l10n_vn_edi_viettel.l10n_vn_edi_cancellation_form
-msgid "Request Cancellation"
+#: model:ir.ui.menu,name:l10n_vn_edi_viettel.l10n_vn_edi_sinvoice_menu
+msgid "SInvoice"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
-#: model:ir.ui.menu,name:l10n_vn_edi_viettel.l10n_vn_edi_sinvoice_menu
-#: model_terms:ir.ui.view,arch_db:l10n_vn_edi_viettel.res_partner_view_from_inherit_l10n_vn_edi
-#: model_terms:ir.ui.view,arch_db:l10n_vn_edi_viettel.view_invoice_form_inherit_l10n_vn_edi
-msgid "SInvoice"
+#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_res_company__l10n_vn_edi_token
+msgid "SInvoice Access Token"
+msgstr ""
+
+#. module: l10n_vn_edi_viettel
+#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_res_company__l10n_vn_edi_token_expiry
+msgid "SInvoice Access Token Expiration Date"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
@@ -433,19 +427,49 @@ msgid "SInvoice Number"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
+#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_res_company__l10n_vn_edi_password
+#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_res_config_settings__l10n_vn_edi_password
+msgid "SInvoice Password"
+msgstr ""
+
+#. module: l10n_vn_edi_viettel
+#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_account_bank_statement_line__l10n_vn_edi_invoice_state
+#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_account_move__l10n_vn_edi_invoice_state
+msgid "SInvoice Status"
+msgstr ""
+
+#. module: l10n_vn_edi_viettel
+#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_account_bank_statement_line__l10n_vn_edi_invoice_symbol
+#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_account_move__l10n_vn_edi_invoice_symbol
+msgid "SInvoice Symbol"
+msgstr ""
+
+#. module: l10n_vn_edi_viettel
 #: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_res_company__l10n_vn_edi_username
 #: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_res_config_settings__l10n_vn_edi_username
 msgid "SInvoice Username"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
-#: model:ir.model,name:l10n_vn_edi_viettel.model_l10n_vn_edi_viettel_sinvoice_symbol
-msgid "SInvoice symbol"
+#. odoo-python
+#: code:addons/l10n_vn_edi_viettel/models/sinvoice_service.py:0
+msgid "SInvoice ZIP entry exceeds maximum allowed file size."
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
-#: model:ir.model,name:l10n_vn_edi_viettel.model_l10n_vn_edi_viettel_sinvoice_template
-msgid "SInvoice template"
+#: model_terms:ir.ui.view,arch_db:l10n_vn_edi_viettel.res_config_settings_view_form_inherit_l10n_vn_edi
+msgid "SInvoice account"
+msgstr ""
+
+#. module: l10n_vn_edi_viettel
+#. odoo-python
+#: code:addons/l10n_vn_edi_viettel/models/account_move.py:0
+msgid "SInvoice credentials are missing on company %s."
+msgstr ""
+
+#. module: l10n_vn_edi_viettel
+#: model:ir.model,name:l10n_vn_edi_viettel.model_l10n_vn_edi_viettel_sinvoice_symbol
+msgid "SInvoice symbol"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
@@ -488,41 +512,28 @@ msgid "Setup SInvoice"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
-#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_res_company__l10n_vn_edi_token
-msgid "Sinvoice Access Token"
-msgstr ""
-
-#. module: l10n_vn_edi_viettel
-#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_res_company__l10n_vn_edi_token_expiry
-msgid "Sinvoice Access Token Expiration Date"
-msgstr ""
-
-#. module: l10n_vn_edi_viettel
-#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_res_company__l10n_vn_edi_password
-#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_res_config_settings__l10n_vn_edi_password
-msgid "Sinvoice Password"
-msgstr ""
-
-#. module: l10n_vn_edi_viettel
-#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_account_bank_statement_line__l10n_vn_edi_invoice_state
-#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_account_move__l10n_vn_edi_invoice_state
-msgid "Sinvoice Status"
+#: model:ir.model,name:l10n_vn_edi_viettel.model_account_move_send
+msgid "Shared Send Invoice Wizard Functions"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
 #. odoo-python
-#: code:addons/l10n_vn_edi_viettel/models/account_move.py:0
-msgid "Sinvoice credentials are missing on company %s."
+#: code:addons/l10n_vn_edi_viettel/models/sinvoice.py:0
+msgid ""
+"Some companies encountered issues:\n"
+"\n"
+"%s"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
 #. odoo-python
-#: code:addons/l10n_vn_edi_viettel/models/account_move.py:0
+#: code:addons/l10n_vn_edi_viettel/models/sinvoice_service.py:0
 msgid "Something went wrong, please try again later: %s"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
 #: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_l10n_vn_edi_viettel_sinvoice_symbol__name
+#: model_terms:ir.ui.view,arch_db:l10n_vn_edi_viettel.view_l10n_vn_edi_viettel_sinvoice_symbol_search
 msgid "Symbol"
 msgstr ""
 
@@ -539,38 +550,21 @@ msgid "Technical field to store the transaction ID if needed"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
-#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_l10n_vn_edi_viettel_sinvoice_template__name
+#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_l10n_vn_edi_viettel_sinvoice_symbol__invoice_template_code
 msgid "Template Code"
-msgstr ""
-
-#. module: l10n_vn_edi_viettel
-#: model:ir.model.fields,field_description:l10n_vn_edi_viettel.field_l10n_vn_edi_viettel_sinvoice_template__template_invoice_type
-msgid "Template Invoice Type"
-msgstr ""
-
-#. module: l10n_vn_edi_viettel
-#: model:ir.actions.act_window,name:l10n_vn_edi_viettel.action_sinvoice_template
-#: model:ir.ui.menu,name:l10n_vn_edi_viettel.l10n_vn_edi_sinvoice_templates
-msgid "Templates"
-msgstr ""
-
-#. module: l10n_vn_edi_viettel
-#: model:ir.model.constraint,message:l10n_vn_edi_viettel.constraint_l10n_vn_edi_viettel_sinvoice_symbol_name_template_uniq
-msgid "The combination symbol/template must be unique!"
-msgstr ""
-
-#. module: l10n_vn_edi_viettel
-#. odoo-python
-#: code:addons/l10n_vn_edi_viettel/models/account_move.py:0
-msgid "The invoice has been canceled for reason: %(reason)s"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
 #. odoo-python
 #: code:addons/l10n_vn_edi_viettel/models/account_move.py:0
 msgid ""
-"The invoice has been canceled on sinvoice for reason: %(reason)sBut the "
-"cancellation in Odoo failed with error: %(error)s"
+"The Code Of Tax is not available for this invoice. Please make sure it has "
+"been processed on SInvoice side."
+msgstr ""
+
+#. module: l10n_vn_edi_viettel
+#: model:ir.model.constraint,message:l10n_vn_edi_viettel.constraint_l10n_vn_edi_viettel_sinvoice_symbol_name_template_uniq
+msgid "The combination symbol/template must be unique per company!"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
@@ -592,15 +586,29 @@ msgid "The street, state and country of company %s must be provided."
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
-#: model:ir.model.constraint,message:l10n_vn_edi_viettel.constraint_l10n_vn_edi_viettel_sinvoice_template_name_uniq
-msgid "The template code must be unique!"
+#. odoo-python
+#: code:addons/l10n_vn_edi_viettel/models/account_move.py:0
+msgid ""
+"This invoice uses a symbol without the tax authority's code. There is no "
+"code to be fetched."
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
-#: model:ir.model.fields,help:l10n_vn_edi_viettel.field_res_config_settings__l10n_vn_edi_default_symbol
+#: model:ir.model.fields,help:l10n_vn_edi_viettel.field_res_config_settings__l10n_vn_edi_default_symbol_id
+msgid "This is the symbol that will be used on invoices by default."
+msgstr ""
+
+#. module: l10n_vn_edi_viettel
+#: model_terms:ir.ui.view,arch_db:l10n_vn_edi_viettel.res_config_settings_view_form_inherit_l10n_vn_edi
 msgid ""
-"This is the symbol that will be used on partners that do not have a specific"
-" symbol on them."
+"Used for all non-POS invoices unless a specific symbol is defined in each "
+"Invoice journal."
+msgstr ""
+
+#. module: l10n_vn_edi_viettel
+#: model:ir.model.fields,help:l10n_vn_edi_viettel.field_account_journal__l10n_vn_edi_default_symbol_id
+msgid ""
+"Used for only this Journal. Leave it blank to use global default symbol."
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
@@ -611,6 +619,7 @@ msgstr ""
 #. module: l10n_vn_edi_viettel
 #. odoo-python
 #: code:addons/l10n_vn_edi_viettel/models/account_move.py:0
+#: code:addons/l10n_vn_edi_viettel/models/sinvoice.py:0
 msgid "VAT number is missing on company %s."
 msgstr ""
 
@@ -620,8 +629,24 @@ msgid "Vietnam (SInvoice)"
 msgstr ""
 
 #. module: l10n_vn_edi_viettel
+#: model:ir.module.module,shortdesc:base.module_l10n_vn_edi_viettel
+msgid "Vietnam - E-invoicing"
+msgstr ""
+
+#. module: l10n_vn_edi_viettel
 #: model_terms:ir.ui.view,arch_db:l10n_vn_edi_viettel.res_config_settings_view_form_inherit_l10n_vn_edi
-msgid "Vietnamese Integration"
+msgid "Vietnamese E-invoice Integration"
+msgstr ""
+
+#. module: l10n_vn_edi_viettel
+#: model_terms:ir.ui.view,arch_db:l10n_vn_edi_viettel.res_config_settings_view_form_inherit_l10n_vn_edi
+msgid "View Invoice Symbol List"
+msgstr ""
+
+#. module: l10n_vn_edi_viettel
+#. odoo-python
+#: code:addons/l10n_vn_edi_viettel/models/account_move.py:0
+msgid "XML file not yet available from Viettel."
 msgstr ""
 
 #. module: l10n_vn_edi_viettel

@@ -11,6 +11,7 @@ class WebsiteControllerPage(models.Model):
         'website.published.multi.mixin',
         'website.searchable.mixin',
     ]
+    _check_inherits_access = False
     _description = 'Model Page'
     _order = 'website_id, id DESC'
     _unique_name_slugified = models.Constraint(
@@ -122,7 +123,7 @@ class WebsiteControllerPage(models.Model):
 
         # Make sure website.is_menu_cache_disabled() will be recomputed
         if self:
-            self.env.registry.clear_cache('templates')
+            self.env.transaction.invalidate_ormcache('templates')
         return super().unlink()
 
     def open_website_url(self):

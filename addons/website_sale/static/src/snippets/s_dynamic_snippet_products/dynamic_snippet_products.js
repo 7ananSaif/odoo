@@ -4,6 +4,13 @@ import { registry } from "@web/core/registry";
 export class DynamicSnippetProducts extends DynamicSnippetCarousel {
     static selector = ".s_dynamic_snippet_products";
 
+    setup() {
+        super.setup();
+        if (this.el.classList.contains("s_dynamic_snippet_products_grid")) {
+            this.templateKey = "website_sale.s_dynamic_snippet.grid.layout";
+        }
+    }
+
     /**
      * Gets the category search domain
      */
@@ -12,11 +19,9 @@ export class DynamicSnippetProducts extends DynamicSnippetCarousel {
         let productCategoryId = this.el.dataset.productCategoryId;
         if (productCategoryId && productCategoryId !== "all") {
             if (productCategoryId === "current") {
-                productCategoryId = undefined;
-                const productCategoryFieldEl = this.el.closest("body").querySelector("#product_details .product_category_id");
-                if (productCategoryFieldEl) {
-                    productCategoryId = parseInt(productCategoryFieldEl.value);
-                }
+                productCategoryId = parseInt(document.querySelector(
+                    ".js_product [data-product-category-id]"
+                )?.dataset?.productCategoryId);
                 if (!productCategoryId) {
                     const mainObject = this.services.website_page.mainObject;
                     if (mainObject.model === "product.public.category") {
@@ -25,9 +30,11 @@ export class DynamicSnippetProducts extends DynamicSnippetCarousel {
                 }
                 if (!productCategoryId) {
                     // Try with categories from product, unfortunately the category hierarchy is not matched with this approach
-                    const productTemplateIdEl = this.el.closest("body").querySelector("#product_details .product_category_id");
-                    if (productTemplateIdEl) {
-                        searchDomain.push(["public_categ_ids.product_tmpl_ids", "=", parseInt(productTemplateIdEl.value)]);
+                    const productTemplateId = parseInt(document.querySelector(
+                        ".js_product [data-product-template-id]"
+                    )?.dataset?.productTemplateId);
+                    if (productTemplateId) {
+                        searchDomain.push(["public_categ_ids.product_tmpl_ids", "=", productTemplateId]);
                     }
                 }
             }
@@ -36,6 +43,22 @@ export class DynamicSnippetProducts extends DynamicSnippetCarousel {
             }
         }
         return searchDomain;
+    }
+
+    getRibbonSearchDomain() {
+        const productRibbonIds = JSON.parse(this.el.dataset.productRibbonIds || '[]');
+        if (!productRibbonIds.length) {
+            return [];
+        }
+        const ribbonIds = productRibbonIds.map(productRibbon => productRibbon.id);
+
+        return [
+            '|',
+                ['variant_ribbon_id', 'in', ribbonIds],
+                '&',
+                    ['variant_ribbon_id', '=', false],
+                    ['product_tmpl_id.website_ribbon_id', 'in', ribbonIds],
+        ];
     }
 
     getTagSearchDomain() {
@@ -54,6 +77,7 @@ export class DynamicSnippetProducts extends DynamicSnippetCarousel {
     getSearchDomain() {
         const searchDomain = super.getSearchDomain(...arguments);
         searchDomain.push(...this.getCategorySearchDomain());
+        searchDomain.push(...this.getRibbonSearchDomain());
         searchDomain.push(...this.getTagSearchDomain());
         const productNames = this.el.dataset.productNames;
         if (productNames) {
@@ -75,7 +99,7 @@ export class DynamicSnippetProducts extends DynamicSnippetCarousel {
             }
             searchDomain.push(...nameDomain);
         }
-        if (!this.el.dataset.showVariants) {
+        if (!this.el.dataset.splitVariants) {
             searchDomain.push("hide_variants");
         }
         return searchDomain;
@@ -84,10 +108,23 @@ export class DynamicSnippetProducts extends DynamicSnippetCarousel {
     /**
      * @override
      */
+    getQWebRenderOptions() {
+        const dataset = this.el.dataset;
+        return Object.assign(super.getQWebRenderOptions(...arguments), {
+            gridColumns: parseInt(dataset.gridColumns) || 4,
+            mobileColumns: parseInt(dataset.mobileColumns) || 2,
+        });
+    }
+
+    /**
+     * @override
+     */
     getRpcParameters() {
-        const productTemplateIdEl = document.body.querySelector("#product_details .product_template_id");
+        const productTemplateId = parseInt(document.querySelector(
+            ".js_product [data-product-template-id]"
+        )?.dataset?.productTemplateId);
         return Object.assign(super.getRpcParameters(...arguments), {
-            productTemplateId: productTemplateIdEl ? productTemplateIdEl.value : undefined,
+            productTemplateId: productTemplateId || undefined,
         });
     }
 }

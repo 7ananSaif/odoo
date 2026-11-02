@@ -12,9 +12,10 @@ export class Group extends DataPoint {
     /**
      * @param {import("./relational_model").Config} config
      */
-    setup(config, data) {
+    setup(config, data, { parent }) {
         super.setup(...arguments);
         this.groupByField = this.fields[config.groupByFieldName];
+        this._parent = parent;
         this.range = data.range;
         this._rawValue = data.rawValue;
         /** @type {number} */
@@ -30,7 +31,7 @@ export class Group extends DataPoint {
             List = this.model.constructor.DynamicRecordList;
         }
         /** @type {import("./dynamic_group_list").DynamicGroupList | import("./dynamic_record_list").DynamicRecordList} */
-        this.list = new List(this.model, config.list, data);
+        this.list = new List(this.model, config.list, data, { group: this });
         this._useGroupCountForList();
         if (config.record) {
             config.record.context = { ...config.record.context, ...config.context };
@@ -65,7 +66,7 @@ export class Group extends DataPoint {
         return record;
     }
 
-    async addNewRecord(_unused, atFirstPosition = false) {
+    async addNewRecord(atFirstPosition = false) {
         const canProceed = await this.model.root.leaveEditMode();
         if (canProceed) {
             const record = await this.list.addNewRecord(atFirstPosition);
@@ -92,15 +93,21 @@ export class Group extends DataPoint {
     }
 
     async toggle() {
-        if (this.config.isFolded) {
+        if (this.isFolded) {
             await this.list.load();
         }
         this._useGroupCountForList();
-        this.model._updateConfig(
-            this.config,
-            { isFolded: !this.config.isFolded },
-            { reload: false }
-        );
+        this.model._updateConfig(this.config, { isFolded: !this.isFolded }, { reload: false });
+    }
+
+    /**
+     * Toggles this group and all its siblings: opens all if this one is folded
+     * and folds all if this one is open.
+     *
+     * @returns {Promise}
+     */
+    async toggleAll() {
+        return this._parent._toggleAllGroups(!this.isFolded);
     }
 
     // -------------------------------------------------------------------------
@@ -108,6 +115,7 @@ export class Group extends DataPoint {
     // -------------------------------------------------------------------------
 
     _addRecord(record, index) {
+        record.group = this;
         this.list._addRecord(record, index);
         this.count++;
     }

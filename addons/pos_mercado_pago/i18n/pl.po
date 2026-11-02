@@ -8,10 +8,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~18.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:38+0000\n"
-"PO-Revision-Date: 2026-03-06 17:50+0000\n"
-"Last-Translator: \"Marta (wacm)\" <wacm@odoo.com>\n"
-"Language-Team: Polish <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-08-31 17:24+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Polish <https://translate.odoo.com/projects/odoo-s19-4/"
 "pos_mercado_pago/pl/>\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 5.16.1\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: pos_mercado_pago
 #: model_terms:ir.ui.view,arch_db:pos_mercado_pago.pos_payment_method_view_form_inherit_pos_mercado_pago
@@ -27,8 +27,25 @@ msgid "APP_USR-..."
 msgstr "APP_USR-..."
 
 #. module: pos_mercado_pago
+#. odoo-python
+#: code:addons/pos_mercado_pago/models/mercado_pago_pos_request.py:0
+msgid "Cannot decode Mercado Pago POS response. Error: %s"
+msgstr ""
+
+#. module: pos_mercado_pago
+#. odoo-javascript
+#: code:addons/pos_mercado_pago/static/src/app/utils/payment/payment_mercado_pago.js:0
+msgid "Cannot process transactions with negative amount."
+msgstr ""
+
+#. module: pos_mercado_pago
+#. odoo-javascript
+#: code:addons/pos_mercado_pago/static/src/app/utils/payment/payment_mercado_pago.js:0
+msgid "Complete the action on the Point device to continue."
+msgstr ""
+
+#. module: pos_mercado_pago
 #: model:ir.model.fields,field_description:pos_mercado_pago.field_pos_payment_method__display_name
-#: model:ir.model.fields,field_description:pos_mercado_pago.field_pos_session__display_name
 msgid "Display Name"
 msgstr "Nazwa wyświetlana"
 
@@ -54,9 +71,37 @@ msgstr "Wymuś PDV"
 
 #. module: pos_mercado_pago
 #: model:ir.model.fields,field_description:pos_mercado_pago.field_pos_payment_method__id
-#: model:ir.model.fields,field_description:pos_mercado_pago.field_pos_session__id
 msgid "ID"
 msgstr "ID"
+
+#. module: pos_mercado_pago
+#. odoo-javascript
+#: code:addons/pos_mercado_pago/static/src/app/utils/payment/payment_mercado_pago.js:0
+msgid ""
+"If the payment does not appear on the Point, press the 'Refresh' button on "
+"the device."
+msgstr ""
+
+#. module: pos_mercado_pago
+#: model:ir.module.module,summary:base.module_pos_mercado_pago
+msgid "Integrate your POS with the Mercado Pago Smart Point terminal"
+msgstr ""
+
+#. module: pos_mercado_pago
+#: model_terms:ir.ui.view,arch_db:pos_mercado_pago.pos_payment_method_view_form_inherit_pos_mercado_pago
+msgid "Mercado Pago"
+msgstr ""
+
+#. module: pos_mercado_pago
+#. odoo-javascript
+#: code:addons/pos_mercado_pago/static/src/app/utils/payment/payment_mercado_pago.js:0
+msgid "Mercado Pago %s"
+msgstr ""
+
+#. module: pos_mercado_pago
+#: model:ir.model.fields,field_description:pos_mercado_pago.field_pos_payment_method__mp_webhook_endpoint
+msgid "Mercado Pago Webhook Endpoint"
+msgstr ""
 
 #. module: pos_mercado_pago
 #: model:ir.model.fields,help:pos_mercado_pago.field_pos_payment_method__mp_bearer_token
@@ -77,9 +122,32 @@ msgstr ""
 "www.mercadopago.com.mx/developers/panel/app"
 
 #. module: pos_mercado_pago
+#. odoo-javascript
+#: code:addons/pos_mercado_pago/static/src/app/utils/payment/payment_mercado_pago.js:0
+msgid "Mercado Pago requires cancellations directly on the terminal."
+msgstr ""
+
+#. module: pos_mercado_pago
 #: model:ir.model.fields,field_description:pos_mercado_pago.field_pos_payment_method__mp_id_point_smart_complet
 msgid "Mp Id Point Smart Complet"
 msgstr "Punkt identyfikacyjny Mp Id Smart Complet"
+
+#. module: pos_mercado_pago
+#. odoo-python
+#: code:addons/pos_mercado_pago/models/pos_payment_method.py:0
+msgid "Original Mercado Pago payment not found on order %s"
+msgstr ""
+
+#. module: pos_mercado_pago
+#: model:ir.module.module,shortdesc:base.module_pos_mercado_pago
+msgid "POS Mercado Pago"
+msgstr ""
+
+#. module: pos_mercado_pago
+#. odoo-javascript
+#: code:addons/pos_mercado_pago/static/src/app/utils/payment/payment_mercado_pago.js:0
+msgid "Payment expired"
+msgstr ""
 
 #. module: pos_mercado_pago
 #. odoo-javascript
@@ -102,18 +170,6 @@ msgstr "Płatność została odrzucona"
 #. module: pos_mercado_pago
 #. odoo-javascript
 #: code:addons/pos_mercado_pago/static/src/app/utils/payment/payment_mercado_pago.js:0
-msgid "Payment has to be canceled on terminal"
-msgstr "Płatność musi zostać anulowana w terminalu"
-
-#. module: pos_mercado_pago
-#. odoo-javascript
-#: code:addons/pos_mercado_pago/static/src/app/utils/payment/payment_mercado_pago.js:0
-msgid "Payment not found (canceled/finished on terminal)"
-msgstr "Nie znaleziono płatności (anulowana/zakończona na terminalu)"
-
-#. module: pos_mercado_pago
-#. odoo-javascript
-#: code:addons/pos_mercado_pago/static/src/app/utils/payment/payment_mercado_pago.js:0
 msgid "Payment status could not be confirmed"
 msgstr "Nie można potwierdzić statusu płatności"
 
@@ -126,13 +182,8 @@ msgstr ""
 
 #. module: pos_mercado_pago
 #: model:ir.model,name:pos_mercado_pago.model_pos_payment_method
-msgid "Point of Sale Payment Methods"
-msgstr "Metody płatności punktu sprzedaży"
-
-#. module: pos_mercado_pago
-#: model:ir.model,name:pos_mercado_pago.model_pos_session
-msgid "Point of Sale Session"
-msgstr "Sesja punktu sprzedaży"
+msgid "Point of Sale Payment Method"
+msgstr "Metoda płatności Punktu Sprzedaży"
 
 #. module: pos_mercado_pago
 #: model:ir.model.fields,field_description:pos_mercado_pago.field_pos_payment_method__mp_webhook_secret_key
@@ -143,6 +194,18 @@ msgstr "Tajny klucz produkcyjny"
 #: model:ir.model.fields,field_description:pos_mercado_pago.field_pos_payment_method__mp_bearer_token
 msgid "Production user token"
 msgstr "Token użytkownika produkcyjnego"
+
+#. module: pos_mercado_pago
+#. odoo-javascript
+#: code:addons/pos_mercado_pago/static/src/app/utils/payment/payment_mercado_pago.js:0
+msgid "Refund failed"
+msgstr ""
+
+#. module: pos_mercado_pago
+#. odoo-javascript
+#: code:addons/pos_mercado_pago/static/src/app/utils/payment/payment_mercado_pago.js:0
+msgid "System error"
+msgstr ""
 
 #. module: pos_mercado_pago
 #: model:ir.model.fields,field_description:pos_mercado_pago.field_pos_payment_method__mp_id_point_smart
@@ -169,8 +232,16 @@ msgstr "Nieznany status płatności"
 
 #. module: pos_mercado_pago
 #: model_terms:ir.ui.view,arch_db:pos_mercado_pago.pos_payment_method_view_form_inherit_pos_mercado_pago
+msgid "Webhook Endpoint"
+msgstr ""
+
+#. module: pos_mercado_pago
+#. odoo-javascript
+#: code:addons/pos_mercado_pago/static/src/app/utils/payment/payment_mercado_pago.js:0
+msgid "You can only refund an order that was paid for with Mercado Pago."
+msgstr ""
+
+#. module: pos_mercado_pago
+#: model_terms:ir.ui.view,arch_db:pos_mercado_pago.pos_payment_method_view_form_inherit_pos_mercado_pago
 msgid "c2f3662..."
 msgstr "c2f3662..."
-
-#~ msgid "1494126963"
-#~ msgstr "1494126963"

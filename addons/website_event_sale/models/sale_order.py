@@ -1,8 +1,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import _, models
-from odoo.exceptions import UserError
-from odoo.tools import str2bool
+from odoo.exceptions import UserError, ValidationError
 
 
 class SaleOrder(models.Model):
@@ -54,7 +53,7 @@ class SaleOrder(models.Model):
         qty_added = new_qty - existing_qty
         warning = ''
         ticket_seats_available = ticket.event_id._get_seats_availability([(slot, ticket)])[0] if slot else ticket.seats_available
-        if ticket.seats_limited and ticket_seats_available <= 0:
+        if ticket.seats_limited and ticket_seats_available is not None and ticket_seats_available <= 0:
             # Remove existing line if exists and do not add a new one
             # if no ticket is available anymore
             new_qty = existing_qty
@@ -63,7 +62,7 @@ class SaleOrder(models.Model):
                 ticket=ticket.name,
                 event=ticket.event_id.name,
             )
-        elif ticket.seats_limited and qty_added > ticket_seats_available:
+        elif ticket.seats_limited and ticket_seats_available is not None and qty_added > ticket_seats_available:
             new_qty = existing_qty + ticket_seats_available
             warning = _(
                 'Sorry, only %(remaining_seats)d seats are still available for the %(ticket)s ticket for the %(event)s event%(slot)s.',
@@ -121,9 +120,9 @@ class SaleOrder(models.Model):
 
         return updated_line
 
-    def _filter_can_send_abandoned_cart_mail(self):
+    def _filter_can_send_abandoned_cart_followup(self):
         # Prevent carts with expired/sold out tickets from being subject of reminder emails
-        return super()._filter_can_send_abandoned_cart_mail().filtered(
+        return super()._filter_can_send_abandoned_cart_followup().filtered(
             lambda so: all(ticket.sale_available for ticket in so.order_line.event_ticket_id),
         )
 
@@ -133,10 +132,40 @@ class SaleOrder(models.Model):
         res = super()._needs_customer_address()
 
         if self.order_line and all(line.event_ticket_id for line in self.order_line):
-            return str2bool(
-                self.env["ir.config_parameter"].sudo().get_param(
-                    "website_event_sale.require_billing_details_for_events", "False"
-                )
+            return self.env["ir.config_parameter"].sudo().get_bool(
+                    "website_event_sale.require_billing_details_for_events"
             )
 
         return res
+
+    def _is_cart_ready_for_checkout(self):
+        """Override of `website_sale` to check if the user is trying to order a ticket that is no
+        longer available."""
+        ready = super()._is_cart_ready_for_checkout()
+        if not self.order_line.event_id:
+            return ready
+
+        # Check that there are enough seats available per ticket.
+        registration_domain = [
+            ('sale_order_id', '=', self.id),
+            ('event_ticket_id', '!=', False),
+            ('state', '!=', 'cancel'),
+        ]
+        registrations_per_event = self.env['event.registration'].sudo()._read_group(
+            registration_domain,
+            ['event_id'], ['id:recordset']
+        )
+        for event, registrations in registrations_per_event:
+            count_per_slot_ticket = self.env['event.registration'].sudo()._read_group(
+                [('id', 'in', registrations.ids)],
+                ['event_slot_id', 'event_ticket_id'], ['__count']
+            )
+            try:
+                event._verify_seats_availability(count_per_slot_ticket)
+            except ValidationError as exc:
+                self._add_blocking_alert(str(exc))
+                # Displayed in a little sign next to the order line.
+                registrations.sale_order_line_id._add_warning_alert(str(exc))
+                ready = False
+
+        return ready

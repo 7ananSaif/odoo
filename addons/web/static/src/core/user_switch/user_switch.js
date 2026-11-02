@@ -1,25 +1,26 @@
-import { Component, useRef, useState, useEffect } from "@odoo/owl";
+import { Component, Portal, proxy, signal, useOnChange } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { getLastConnectedUsers, setLastConnectedUsers } from "@web/core/user";
 import { imageUrl } from "@web/core/utils/urls";
 
 export class UserSwitch extends Component {
     static template = "web.login_user_switch";
-    static props = {};
+    static components = { Portal };
+
+    rootRef = signal.ref();
 
     setup() {
         const users = getLastConnectedUsers();
-        this.root = useRef("root");
-        this.state = useState({
+        this.state = proxy({
             users,
             displayUserChoice: users.length > 1,
         });
         this.form = document.querySelector("form.oe_login_form");
         this.form.classList.toggle("d-none", users.length > 1);
         this.form.querySelector(":placeholder-shown")?.focus();
-        useEffect(
-            (el) => el?.querySelector("button.list-group-item-action")?.focus(),
-            () => [this.root.el]
+        useOnChange(
+            () => [this.rootRef()],
+            (el) => el?.querySelector("button.list-group-item-action")?.focus()
         );
     }
 

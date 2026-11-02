@@ -1,8 +1,10 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+from datetime import datetime, time
 from dateutil.relativedelta import relativedelta
 
 from odoo import SUPERUSER_ID, api, Command, fields, models, _
+from odoo.fields import Domain
 from odoo.tools.float_utils import float_compare, float_is_zero, float_round
 from odoo.exceptions import UserError
 
@@ -32,7 +34,8 @@ class PurchaseOrderLine(models.Model):
     propagate_cancel = fields.Boolean('Propagate cancellation', default=True)
     forecasted_issue = fields.Boolean(compute='_compute_forecasted_issue')
     is_storable = fields.Boolean(related='product_id.is_storable')
-    location_final_id = fields.Many2one('stock.location', 'Location from procurement')
+    forecasted_location_id = fields.Many2one('stock.location', 'Forecasted Location', help='Location used in the computation of the forecast.')
+    date_promised = fields.Datetime('Promised Date', help="Delivery Date promised by the vendor. If the vendor delivers products after this date, their On-Time rate will be negatively impacted.")
 
     def _compute_qty_received_method(self):
         super(PurchaseOrderLine, self)._compute_qty_received_method()
@@ -48,7 +51,11 @@ class PurchaseOrderLine(models.Model):
             moves = moves.filtered(lambda r: fields.Date.context_today(r, r.date) <= accrual_date)
         return moves
 
-    @api.depends('move_ids.state', 'move_ids.product_uom', 'move_ids.quantity')
+    def _set_date_promised(self):
+        for line in self:
+            line.date_promised = line.date_planned
+
+    @api.depends('move_ids.state', 'move_ids.uom_id', 'move_ids.quantity')
     def _compute_qty_received(self):
         super()._compute_qty_received()
 
@@ -64,17 +71,17 @@ class PurchaseOrderLine(models.Model):
                     if move.state == 'done':
                         if move._is_purchase_return():
                             if not move.origin_returned_move_id or move.to_refund:
-                                total -= move.product_uom._compute_quantity(move.quantity, line.product_uom_id, rounding_method='HALF-UP')
+                                total -= move.uom_id._compute_quantity(move.quantity, line.uom_id, rounding_method='HALF-UP')
                         elif move.origin_returned_move_id and move.origin_returned_move_id._is_dropshipped() and not move._is_dropshipped_returned():
                             # Edge case: the dropship is returned to the stock, no to the supplier.
                             # In this case, the received quantity on the PO is set although we didn't
                             # receive the product physically in our stock. To avoid counting the
                             # quantity twice, we do nothing.
                             pass
-                        elif move.origin_returned_move_id and move.origin_returned_move_id._is_purchase_return() and not move.to_refund:
+                        elif move.origin_returned_move_id and move.origin_returned_move_id._is_purchase_return() and not move.to_refund or not move._should_count_for_quantity_received():
                             pass
                         else:
-                            total += move.product_uom._compute_quantity(move.quantity, line.product_uom_id, rounding_method='HALF-UP')
+                            total += move.uom_id._compute_quantity(move.quantity, line.uom_id, rounding_method='HALF-UP')
                 line._track_qty_received(total)
                 received_qties[line] = total
         return received_qties
@@ -82,10 +89,10 @@ class PurchaseOrderLine(models.Model):
     @api.depends('product_uom_qty', 'date_planned')
     def _compute_forecasted_issue(self):
         for line in self:
-            warehouse = line.order_id.picking_type_id.warehouse_id
+            warehouse = line.order_id.sudo().picking_type_id.warehouse_id  # sudo() in case of multi-company
             line.forecasted_issue = False
             if line.product_id:
-                virtual_available = line.product_id.with_context(warehouse_id=warehouse.id, to_date=line.date_planned).virtual_available
+                virtual_available = line.product_id.sudo().with_context(warehouse_id=warehouse.id, to_date=line.date_planned).virtual_available
                 if line.state == 'draft':
                     virtual_available += line.product_uom_qty
                 if virtual_available < 0:
@@ -94,15 +101,19 @@ class PurchaseOrderLine(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         lines = super().create(vals_list)
+        confirmed_lines = lines.filtered(lambda l: l.order_id.state == 'purchase' and not l.display_type)
         if not self.env.context.get('bypass_move_update'):
-            lines.filtered(lambda l: l.order_id.state == 'purchase')._create_or_update_picking()
+            confirmed_lines._create_or_update_picking()
+        confirmed_lines._set_date_promised()
         return lines
 
     def write(self, vals):
         values = vals
-        if values.get('date_planned'):
-            new_date = fields.Datetime.to_datetime(values['date_planned'])
-            self.filtered(lambda l: not l.display_type)._update_move_date_deadline(new_date)
+        if values.get('date_planned') or values.get('date_promised'):
+            new_date_planned = values.get('date_planned')
+            new_date_promised = values.get('date_promised')
+            self.filtered(lambda line: not line.display_type)._update_move_dates(new_date_planned, new_date_promised)
+
         lines = self.filtered(lambda l: l.order_id.state == 'purchase'
                                         and not l.display_type)
 
@@ -115,9 +126,9 @@ class PurchaseOrderLine(models.Model):
                 moves = line.move_ids.filtered(lambda s: s.state not in ('cancel', 'done') and s.product_id == line.product_id)
                 moves.write({'price_unit': line._get_stock_move_price_unit()})
         if 'product_qty' in values:
-            lines = lines.filtered(lambda l: l.product_uom_id.compare(previous_product_qty[l.id], l.product_qty) != 0)
+            lines = lines.filtered(lambda l: l.uom_id.compare(previous_product_qty[l.id], l.product_qty) != 0)
             lines.with_context(previous_product_qty=previous_product_uom_qty)._create_or_update_picking()
-        valuation_trigger = ['price_unit', 'product_qty', 'product_uom']
+        valuation_trigger = ['price_unit', 'product_qty', 'uom_id']
         if any(field in valuation_trigger for field in values):
             self.move_ids.filtered(lambda m: m.is_valued)._set_value()
         return result
@@ -158,19 +169,26 @@ class PurchaseOrderLine(models.Model):
     # Business methods
     # --------------------------------------------------
 
-    def _update_move_date_deadline(self, new_date):
-        """ Updates corresponding move picking line deadline dates that are not yet completed. """
+    def _update_move_dates(self, date_planned=False, date_promised=False):
+        """ Updates corresponding move picking line deadline dates or dates scheduled that are not yet completed. """
+        if not date_planned and not date_promised:
+            return False
         moves_to_update = self.move_ids.filtered(lambda m: m.state not in ('done', 'cancel'))
         if not moves_to_update:
             moves_to_update = self.move_dest_ids.filtered(lambda m: m.state not in ('done', 'cancel'))
         for move in moves_to_update:
-            move.date_deadline = new_date
+            if date_planned:
+                if move.picking_id.picking_type_code == "incoming":
+                    move.date = date_planned
+                else:
+                    move.date_deadline = date_planned
+            if date_promised and move.picking_id.picking_type_code == "incoming":
+                move.date_deadline = date_promised
 
     def _create_or_update_picking(self):
         for line in self:
             if line.product_id and line.product_id.type == 'consu':
-                rounding = line.product_uom_id.rounding
-                if float_compare(line.product_qty, line.qty_invoiced, precision_rounding=rounding) < 0 and line.invoice_lines:
+                if line.uom_id.compare(line.product_qty, line.qty_invoiced) < 0 and line.invoice_lines:
                     # If the quantity is now below the invoiced quantity, create an activity on the vendor bill
                     # inviting the user to create a refund.
                     line.invoice_lines[0].move_id.activity_schedule(
@@ -183,27 +201,36 @@ class PurchaseOrderLine(models.Model):
                 # Give priority to the pickings related to the line
                 moves_to_assign = line.order_id.picking_ids.move_ids.filtered(lambda m: not m.purchase_line_id and line.product_id == m.product_id)
                 moves_to_assign.purchase_line_id = line.id
+                previous_qty = self.env.context['previous_product_qty'][line.id] if 'previous_product_qty' in self.env.context else 0
+                diff_qty = line.product_qty - previous_qty
                 line_pickings = line.move_ids.picking_id.filtered(lambda p: p.state not in ('done', 'cancel') and p.location_dest_id.usage in ('internal', 'transit', 'customer'))
                 if line_pickings:
                     picking = line_pickings[0]
                 else:
                     pickings = line.order_id.picking_ids.filtered(lambda x: x.state not in ('done', 'cancel') and x.location_dest_id.usage in ('internal', 'transit', 'customer'))
                     picking = pickings and pickings[0] or False
-                if not picking:
-                    if not line.product_qty > line.qty_received:
-                        continue
-                    res = line.order_id._prepare_picking()
-                    picking = self.env['stock.picking'].create(res)
 
-                moves = line._create_stock_moves(picking)
-                moves._action_confirm()._action_assign()
+                # if no picking was found we look for OUT picking in case of -ve qty update before creating a new picking
+                if not picking and diff_qty < 0:
+                    out_pickings = line.move_ids.picking_id.filtered(lambda p: p.state not in ('done', 'cancel') and p.location_dest_id.usage in ('supplier'))
+                    picking = out_pickings[-1:] or False
+
+                if not picking and not line.product_qty > line.qty_received and line.product_qty > 0:
+                    continue
+                move = line._create_stock_moves(picking)
+
+                if diff_qty < 0 and move.location_dest_id.usage == 'supplier':
+                    move.product_uom_qty *= -1
+                    move.location_id = picking.location_id
+                    move.location_dest_id = move.forecasted_location_id = picking.location_dest_id
+                move.with_context(move_picking_partner_id=line.partner_id)._action_confirm()._action_assign()
 
     def _get_move_dests_initial_demand(self, move_dests):
         return self.product_id.uom_id._compute_quantity(
             sum(move_dests.filtered(lambda m: m.state != 'cancel' and m.location_dest_id.usage != 'supplier').mapped('product_qty')),
-            self.product_uom_id, rounding_method='HALF-UP')
+            self.uom_id, rounding_method='HALF-UP')
 
-    def _prepare_stock_moves(self, picking):
+    def _prepare_stock_moves(self, picking=False):
         """ Prepare the stock moves data for one order line. This function returns a list of
         dictionary ready to be used in stock.move's create()
         """
@@ -225,19 +252,21 @@ class PurchaseOrderLine(models.Model):
         else:
             qty_to_attach = move_dests_initial_demand - qty
 
-        if self.product_uom_id.compare(qty_to_attach, 0.0) > 0:
+        if self.uom_id.compare(qty_to_attach, 0.0) > 0:
             qty_to_push = self.product_qty - move_dests_initial_demand
-            product_uom_qty, product_uom = self.product_uom_id._adjust_uom_quantities(qty_to_attach, self.product_id.uom_id)
+            product_uom_qty, product_uom = self.uom_id._adjust_uom_quantities(qty_to_attach, self.product_id.uom_id)
             res.append(self._prepare_stock_move_vals(picking, price_unit, product_uom_qty, product_uom))
-        if not self.product_uom_id.is_zero(qty_to_push):
-            product_uom_qty, product_uom = self.product_uom_id._adjust_uom_quantities(qty_to_push, self.product_id.uom_id)
+        if not self.uom_id.is_zero(qty_to_push):
+            product_uom_qty, product_uom = self.uom_id._adjust_uom_quantities(qty_to_push, self.product_id.uom_id)
             extra_move_vals = self._prepare_stock_move_vals(picking, price_unit, product_uom_qty, product_uom)
             extra_move_vals['move_dest_ids'] = False  # don't attach
             res.append(extra_move_vals)
         return res
 
-    def _get_stock_move_price_unit(self):
+    def _get_stock_move_price_unit(self, at_date=False):
         self.ensure_one()
+        if not at_date:
+            at_date = fields.Date.today()
         order = self.order_id
         price_unit = self.price_unit_discounted
         price_unit_prec = self.env['decimal.precision'].precision_get('Product Price')
@@ -252,13 +281,12 @@ class PurchaseOrderLine(models.Model):
                 rounding_method="round_globally",
             )['total_void']
             price_unit = price_unit / qty
-        if self.product_uom_id.id != self.product_id.uom_id.id:
-            price_unit /= self.product_uom_id.factor
+        if self.uom_id.id != self.product_id.uom_id.id:
+            price_unit /= self.uom_id.factor
             price_unit *= self.product_id.uom_id.factor
         if order.currency_id != order.company_id.currency_id:
-            conversion_date = self.env.context.get('conversion_date', self.date_order) or fields.Date.today()
             price_unit = order.currency_id._convert(
-                price_unit, order.company_id.currency_id, self.company_id, conversion_date, round=False)
+                price_unit, order.company_id.currency_id, self.company_id, at_date, round=False)
         return float_round(price_unit, precision_digits=price_unit_prec)
 
     def _get_qty_procurement(self):
@@ -267,10 +295,10 @@ class PurchaseOrderLine(models.Model):
         outgoing_moves, incoming_moves = self._get_outgoing_incoming_moves()
         for move in outgoing_moves:
             qty_to_compute = move.quantity if move.state == 'done' else move.product_uom_qty
-            qty -= move.product_uom._compute_quantity(qty_to_compute, self.product_uom_id, rounding_method='HALF-UP')
+            qty -= move.uom_id._compute_quantity(qty_to_compute, self.uom_id, rounding_method='HALF-UP')
         for move in incoming_moves:
             qty_to_compute = move.quantity if move.state == 'done' else move.product_uom_qty
-            qty += move.product_uom._compute_quantity(qty_to_compute, self.product_uom_id, rounding_method='HALF-UP')
+            qty += move.uom_id._compute_quantity(qty_to_compute, self.uom_id, rounding_method='HALF-UP')
         return qty
 
     def _check_orderpoint_picking_type(self):
@@ -282,34 +310,45 @@ class PurchaseOrderLine(models.Model):
 
     def _prepare_stock_move_vals(self, picking, price_unit, product_uom_qty, product_uom):
         self.ensure_one()
-        self._check_orderpoint_picking_type()
-        product = self.product_id.with_context(lang=self.order_id.dest_address_id.lang or self.env.user.lang)
-        location_dest = self.env['stock.location'].browse(self.order_id._get_destination_location())
-        location_final = self.location_final_id or self.order_id._get_final_location_record()
+        purchase_line = self
+        if self.company_id != self.order_id.sudo().picking_type_id.company_id:
+            # Multi-company purchase order, need to sudo in some places.
+            purchase_line = purchase_line.sudo()
+        purchase_line._check_orderpoint_picking_type()
+        if not self.order_id.reference_ids:
+            self.order_id.reference_ids = self.order_id.reference_ids.create(self.order_id._prepare_reference_vals())
+        if not self.order_id.partner_id.property_stock_supplier.id:
+            raise UserError(_("You must set a Vendor Location for partner %(partner_name)s", partner_name=self.partner_id.name))
+        location_dest = picking.location_dest_id if picking else self.env['stock.location'].browse(self.order_id._get_destination_location())
+        location_final = self.forecasted_location_id or purchase_line.order_id._get_final_location_record()
         if location_final and location_final._child_of(location_dest):
             location_dest = location_final
         date_planned = self.date_planned or self.order_id.date_planned
+        origin = f"{self.order_id.name} - {self.order_id.partner_ref}" if self.order_id.partner_ref else self.order_id.name
+        if self.order_id.company_id != self.order_id.sudo().picking_type_id.company_id:
+            origin += f" ({self.order_id.company_id.name})"
         return {
             'product_id': self.product_id.id,
             'date': date_planned,
             'date_deadline': date_planned,
-            'location_id': self.order_id.partner_id.property_stock_supplier.id,
+            'location_id': picking.location_id.id if picking else self.order_id.partner_id.property_stock_supplier.id,
             'location_dest_id': location_dest.id,
-            'location_final_id': location_final.id,
-            'picking_id': picking.id,
-            'partner_id': self.order_id.dest_address_id.id,
+            'forecasted_location_id': location_final.id,
+            'picking_id': picking.id if picking else False,
+            'partner_id': self.order_id.dest_address_id.id or self.order_id.partner_id.id,
             'move_dest_ids': [(4, x) for x in self.move_dest_ids.ids],
             'state': 'draft',
             'purchase_line_id': self.id,
             'company_id': self.order_id.company_id.id,
             'price_unit': price_unit,
             'picking_type_id': self.order_id.picking_type_id.id,
+            'priority': self.order_id.priority,
             'reference_ids': [Command.set(self.order_id.reference_ids.ids)],
-            'origin': self.order_id.name,
+            'origin': origin,
             'propagate_cancel': self.propagate_cancel,
             'warehouse_id': self.order_id.picking_type_id.warehouse_id.id,
             'product_uom_qty': product_uom_qty,
-            'product_uom': product_uom.id,
+            'uom_id': product_uom.id,
             'sequence': self.sequence,
         }
 
@@ -334,11 +373,12 @@ class PurchaseOrderLine(models.Model):
         line_description = ''
         if values.get('product_description_variants'):
             line_description = values['product_description_variants']
-        supplier = values.get('supplier')
-        if not values.get('force_uom') and supplier.product_uom_id != product_uom:
-            product_qty = product_uom._compute_quantity(product_qty, supplier.product_uom_id)
-            product_uom = supplier.product_uom_id
-        res = self.with_context(procurement_values=values)._prepare_purchase_order_line(product_id, product_qty, product_uom, company_id, supplier.partner_id, po)
+        seller_info = values.get('supplier')
+        if not values.get('force_uom') and seller_info and seller_info['uom_id'] != product_uom:
+            product_qty = product_uom._compute_quantity(product_qty, seller_info['uom_id'])
+            product_uom = seller_info['uom_id']
+        partner = values.get('procurement_partner')
+        res = self.with_context(procurement_values=values)._prepare_purchase_order_line(product_id, product_qty, product_uom, company_id, partner, po)
         # We need to keep the vendor name set in _prepare_purchase_order_line. To avoid redundancy
         # in the line name, we add the line_description only if different from the product name.
         # This way, we shoud not lose any valuable information.
@@ -354,17 +394,24 @@ class PurchaseOrderLine(models.Model):
                 # shifted, we also need to shift the date_order.
                 po.date_order = fields.Datetime.to_datetime(po.date_order) + relativedelta(days=delta_days)
         res['move_dest_ids'] = [(4, x.id) for x in values.get('move_dest_ids', [])]
-        res['location_final_id'] = location_dest_id.id
+        res['forecasted_location_id'] = location_dest_id.id
         res['orderpoint_id'] = values.get('orderpoint_id', False) and values.get('orderpoint_id').id
         res['propagate_cancel'] = values.get('propagate_cancel')
         res['product_description_variants'] = values.get('product_description_variants')
         res['product_no_variant_attribute_value_ids'] = values.get('never_product_template_attribute_value_ids')
         return res
 
-    def _create_stock_moves(self, picking):
+    def _create_stock_moves(self, picking=False):
         values = []
         for line in self.filtered(lambda l: not l.display_type):
             for val in line._prepare_stock_moves(picking):
+                if line.order_id.picking_type_id.company_id != line.order_id.company_id:
+                    if line.order_id.partner_id.company_id and line.order_id.partner_id.company_id != line.order_id.picking_type_id.company_id:
+                        raise UserError(self.env._(
+                            "There is a mismatch between the company the Vendor is restricted to and the company receiving the purchased products. "
+                            "Please ensure the company is the same or that the Contact has no company restriction set."
+                            ))
+                    val['company_id'] = line.order_id.picking_type_id.company_id.id
                 values.append(val)
 
         return self.env['stock.move'].create(values)
@@ -377,10 +424,16 @@ class PurchaseOrderLine(models.Model):
         description_picking = ''
         if values.get('product_description_variants'):
             description_picking = values['product_description_variants']
+        has_temp_manual_orderpoint = (
+            values.get('orderpoint_id')
+            and values['orderpoint_id'].create_uid.id == SUPERUSER_ID
+            and values['orderpoint_id'].trigger == 'manual'
+        )
         lines = self.filtered(
             lambda l: l.propagate_cancel == values['propagate_cancel']
-            and (l.orderpoint_id in [values['orderpoint_id'], False] if values['orderpoint_id'] and not values['move_dest_ids'] else True)
-            and (l.product_uom_id == product_uom if values.get('force_uom') else True)
+            and (l.orderpoint_id in [values['orderpoint_id'], False] if values['orderpoint_id']
+            and not values['move_dest_ids'] and not has_temp_manual_orderpoint else True)
+            and (l.uom_id == product_uom if values.get('force_uom') else True)
         )
 
         # In case 'product_description_variants' is in the values, we also filter on the PO line
@@ -395,7 +448,7 @@ class PurchaseOrderLine(models.Model):
             name = product_lang.display_name
             if product_lang.description_purchase:
                 name += '\n' + product_lang.description_purchase
-            lines = lines.filtered(lambda l: (l.name == name + '\n' + description_picking) or (values.get('product_description_variants') in (product_lang.name, product_id.with_user(SUPERUSER_ID).name) and l.name == name))
+            lines = lines.filtered(lambda l: (l.label == name + '\n' + description_picking) or (values.get('product_description_variants') in (product_lang.name, product_id.with_user(SUPERUSER_ID).name) and l.name == name))
         return lines and lines.sorted(lambda l: l.orderpoint_id)[0] or self.env['purchase.order.line']
 
     def _get_outgoing_incoming_moves(self):
@@ -416,7 +469,7 @@ class PurchaseOrderLine(models.Model):
         if not self.move_ids or move_to_update:  # Only change the date if there is no move done or none
             super()._update_date_planned(updated_date)
         if move_to_update:
-            self._update_move_date_deadline(updated_date)
+            self._update_move_dates(date_planned=updated_date)
 
     @api.model
     def _update_qty_received_method(self):
@@ -426,3 +479,19 @@ class PurchaseOrderLine(models.Model):
     def _merge_po_line(self, rfq_line):
         super()._merge_po_line(rfq_line)
         self.move_dest_ids += rfq_line.move_dest_ids
+
+    def _get_accrual_domain(self, date=False):
+        """ Override of `purchase` to also match lines whose receipt (stock moves) settled
+        after `date`: nothing left to accrue today, but there was a receipt-side mismatch
+        back then.
+        """
+        domain = super()._get_accrual_domain(date)
+        if date:
+            # `self._get_accrual_domain()` (no date) gives the same eligibility restrictions
+            # `domain` was built with, without the OR'd candidate-matching; ANDing the stock
+            # move check onto it, then OR'ing that onto `domain`, extends the OR'd candidates
+            # with a receipt-side one without duplicating the eligibility restrictions here.
+            domain |= self._get_accrual_domain() & Domain([
+                ('move_ids.date', '>', datetime.combine(date, time.max)),
+            ])
+        return domain

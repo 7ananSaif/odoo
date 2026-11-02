@@ -7,7 +7,7 @@ import {
 
 defineWebsiteModels();
 
-test("saving page after footer visibility change should work when header is not present", async () => {
+test("skip saving page options when the relevant element is not in the DOM", async () => {
     mockService("website", {
         get currentWebsite() {
             return {
@@ -29,7 +29,11 @@ test("saving page after footer visibility change should work when header is not 
             <input type="hidden" class="o_page_option_data" autocomplete="off" name="header_color">
             <input type="hidden" class="o_page_option_data" autocomplete="off" name="header_text_color">
             <input type="hidden" class="o_page_option_data" autocomplete="off" name="header_visible">
-            <input type="hidden" class="o_page_option_data" autocomplete="off" name="footer_visible">`,
+            <input type="hidden" class="o_page_option_data" autocomplete="off" name="footer_visible">
+            <input type="hidden" class="o_page_option_data" autocomplete="off" name="breadcrumb_visible">
+            <input type="hidden" class="o_page_option_data" autocomplete="off" name="breadcrumb_overlay">
+            <input type="hidden" class="o_page_option_data" autocomplete="off" name="breadcrumb_color">
+            <input type="hidden" class="o_page_option_data" autocomplete="off" name="breadcrumb_text_color">`,
         footerContent: `
             <footer data-name="Footer">Footer Content</footer>`,
     });

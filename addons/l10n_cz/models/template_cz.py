@@ -1,5 +1,6 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-from odoo import api, models
+from odoo import models
+
 from odoo.addons.account.models.chart_template import template
 
 
@@ -10,10 +11,6 @@ class AccountChartTemplate(models.AbstractModel):
     def _get_cz_template_data(self):
         return {
             'code_digits': '6',
-            'use_storno_accounting': True,
-            'property_account_receivable_id': 'chart_cz_311000',
-            'property_account_payable_id': 'chart_cz_321000',
-            'property_stock_valuation_account_id': 'chart_cz_132000',
         }
 
     @template('cz', 'res.company')
@@ -34,15 +31,16 @@ class AccountChartTemplate(models.AbstractModel):
                 'account_purchase_tax_id': 'l10n_cz_21_receipt_domestic_supplies',
                 'expense_account_id': 'chart_cz_504000',
                 'income_account_id': 'chart_cz_604000',
-                'account_stock_journal_id': 'inventory_valuation',
+                'receivable_account_id': 'chart_cz_311000',
+                'payable_account_id': 'chart_cz_321000',
                 'account_stock_valuation_id': 'chart_cz_131000',
             },
         }
 
-    @api.model
-    def _get_demo_data_move(self, company=False):
-        data = super()._get_demo_data_move(company)
-        if company and company.account_fiscal_country_id.code == 'CZ':
+    @template(model='account.move', demo=True)
+    def _get_demo_data_move(self, template_code):
+        data = super()._get_demo_data_move(template_code)
+        if template_code == 'cz':
             for key in (
                 'demo_invoice_1',
                 'demo_invoice_2',
@@ -74,5 +72,37 @@ class AccountChartTemplate(models.AbstractModel):
             'chart_cz_131000': {
                 'account_stock_expense_id': 'chart_cz_504000',
                 'account_stock_variation_id': 'chart_cz_583000',
+            },
+            'chart_cz_021000': {
+                'asset_depreciation_account_id': 'chart_cz_081000',
+                'asset_expense_account_id': 'chart_cz_551000'
+            },
+            'chart_cz_022100': {
+                'asset_depreciation_account_id': 'chart_cz_082100',
+                'asset_expense_account_id': 'chart_cz_551000'
+            },
+            'chart_cz_022200': {
+                'asset_depreciation_account_id': 'chart_cz_082200',
+                'asset_expense_account_id': 'chart_cz_551000'
+            },
+            'chart_cz_022300': {
+                'asset_depreciation_account_id': 'chart_cz_082300',
+                'asset_expense_account_id': 'chart_cz_551000'
+            },
+            'chart_cz_022400': {
+                'asset_depreciation_account_id': 'chart_cz_082400',
+                'asset_expense_account_id': 'chart_cz_551000'
+            },
+            'chart_cz_022500': {
+                'asset_depreciation_account_id': 'chart_cz_082500',
+                'asset_expense_account_id': 'chart_cz_551000'
+            },
+            'chart_cz_022510': {
+                'asset_depreciation_account_id': 'chart_cz_082510',
+                'asset_expense_account_id': 'chart_cz_551000'
+            },
+            'chart_cz_022900': {
+                'asset_depreciation_account_id': 'chart_cz_082900',
+                'asset_expense_account_id': 'chart_cz_551000'
             },
         }

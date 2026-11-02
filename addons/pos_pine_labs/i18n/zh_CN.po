@@ -3,21 +3,52 @@
 # * pos_pine_labs
 #
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+# "Chloe Wang (chwa)" <chwa@odoo.com>, 2026.
+# 张飞虎 <feihu.zhang@live.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~18.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-09-16 15:34+0000\n"
-"Last-Translator: \"Tiffany Chang (tic)\" <tic@odoo.com>\n"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-10-11 13:33+0000\n"
+"Last-Translator: 张飞虎 <feihu.zhang@live.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://translate.odoo.com/"
-"projects/odoo-19/pos_pine_labs/zh_Hans/>\n"
+"projects/odoo-20/pos_pine_labs/zh_Hans/>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: pos_pine_labs
+#: model:ir.module.module,description:base.module_pos_pine_labs
+msgid ""
+"\n"
+"Allow Pine Labs POS payments\n"
+"==============================\n"
+"\n"
+"This module is available only for companies that use INR currency.\n"
+"It enables customers to pay for their orders using debit/credit cards and "
+"UPI through Pine Labs POS terminals.\n"
+"A Pine Labs merchant account is required to process transactions.\n"
+"Features include:\n"
+"\n"
+"* Quick payments by swiping, scanning, or tapping your credit/debit card or "
+"UPI QR code at the payment terminal.\n"
+"* Supported cards: Visa, MasterCard, RuPay.\n"
+msgstr ""
+"\n"
+"允许 Pine Labs POS 付款\n"
+"==============================\n"
+"\n"
+"本模块仅适用于使用 INR 币别的公司。\n"
+"客户可通过 Pine Labs POS 终端，使用借记卡/信用卡及 UPI 为其订单付款。\n"
+"处理交易需要一个 Pine Labs 商家账户。\n"
+"功能包括：\n"
+"\n"
+"* 在支付终端上刷、扫或轻触您的借记卡/信用卡或 UPI 二维码即可快速付款。\n"
+"* 支持的卡片：Visa、MasterCard、RuPay。\n"
 
 #. module: pos_pine_labs
 #: model:ir.model.fields,help:pos_pine_labs.field_pos_payment_method__pine_labs_client
@@ -71,6 +102,21 @@ msgstr "显示名称"
 #: model:ir.model.fields,field_description:pos_pine_labs.field_pos_payment_method__id
 msgid "ID"
 msgstr "ID"
+
+#. module: pos_pine_labs
+#: model:ir.module.module,summary:base.module_pos_pine_labs
+msgid "Integrate your POS with Pine Labs payment terminals"
+msgstr "将您的 POS 与 Pine Labs 支付终端集成"
+
+#. module: pos_pine_labs
+#: model:ir.module.module,shortdesc:base.module_pos_pine_labs
+msgid "POS Pine Labs"
+msgstr ""
+
+#. module: pos_pine_labs
+#: model_terms:ir.ui.view,arch_db:pos_pine_labs.pos_payment_method_view_form_inherit_pos_pine_labs
+msgid "Pine Labs"
+msgstr "Pine Labs"
 
 #. module: pos_pine_labs
 #: model:ir.model.fields,field_description:pos_pine_labs.field_pos_payment_method__pine_labs_allowed_payment_mode
@@ -136,17 +182,17 @@ msgstr "Pine Labs 取消付款请求失败"
 #. module: pos_pine_labs
 #: model:ir.model.fields,field_description:pos_pine_labs.field_pos_payment__pine_labs_plutus_transaction_ref
 msgid "PineLabs Transaction ID"
-msgstr ""
-
-#. module: pos_pine_labs
-#: model:ir.model,name:pos_pine_labs.model_pos_payment_method
-msgid "Point of Sale Payment Methods"
-msgstr "POS支付方式"
+msgstr "PineLabs 交易 ID"
 
 #. module: pos_pine_labs
 #: model:ir.model,name:pos_pine_labs.model_pos_payment
-msgid "Point of Sale Payments"
-msgstr "POS支付"
+msgid "Point of Sale Payment"
+msgstr "POS 支付"
+
+#. module: pos_pine_labs
+#: model:ir.model,name:pos_pine_labs.model_pos_payment_method
+msgid "Point of Sale Payment Method"
+msgstr "POS 销售点付款方式"
 
 #. module: pos_pine_labs
 #. odoo-javascript
@@ -193,6 +239,3 @@ msgstr "由于闲置，交易已失败"
 #: model:ir.model.fields.selection,name:pos_pine_labs.selection__pos_payment_method__pine_labs_allowed_payment_mode__upi
 msgid "Upi"
 msgstr "Upi"
-
-#~ msgid "Pine Labs PlutusTransactionReferenceID"
-#~ msgstr "Pine Labs PlutusTransactionReferenceID"

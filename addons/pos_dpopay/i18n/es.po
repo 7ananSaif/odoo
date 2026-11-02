@@ -5,19 +5,46 @@
 # "Noemi Pla Garcia (nopl)" <nopl@odoo.com>, 2026.
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0\n"
+"Project-Id-Version: Odoo Server saas~19.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-02-11 17:45+0000\n"
-"Last-Translator: \"Noemi Pla Garcia (nopl)\" <nopl@odoo.com>\n"
-"Language-Team: Spanish <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-10-16 17:41+0000\n"
+"PO-Revision-Date: 2026-08-31 17:36+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Spanish <https://translate.odoo.com/projects/odoo-s19-4/"
 "pos_dpopay/es/>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: pos_dpopay
+#: model:ir.module.module,description:base.module_pos_dpopay
+msgid ""
+"\n"
+"Allow DPO POS payments\n"
+"==============================\n"
+"\n"
+"It supports all currencies supported by the terminal device — primarily for "
+"use in the **African region**.\n"
+"It enables customers to pay for their orders using debit/credit cards and "
+"Mobile Money through DPO POS terminals.\n"
+"A DPO merchant account is required to process transactions.\n"
+"Features include:\n"
+"\n"
+"* Quick payments by swiping, scanning, or tapping your credit/debit card or "
+"Mobile Money (Airtel Money / M-Pesa) at the payment terminal.\n"
+"* Supported cards: Visa, MasterCard, American Express etc.\n"
+msgstr ""
+
+#. module: pos_dpopay
+#. odoo-python
+#: code:addons/pos_dpopay/models/pos_payment_method.py:0
+msgid ""
+"%s. Please ensure the device is online and confirm that the Merchant ID "
+"(MID) and Terminal ID (TID) are correct."
+msgstr ""
 
 #. module: pos_dpopay
 #: model:ir.model.fields,help:pos_dpopay.field_pos_payment_method__dpopay_bearer_token
@@ -131,8 +158,8 @@ msgstr ""
 #: model:ir.model.fields,help:pos_dpopay.field_pos_payment_method__dpopay_mid
 msgid "Enter the Merchant ID assigned by DPO Pay (e.g., 123456789012)."
 msgstr ""
-"Introduce el ID del comerciante asignado por DPO Pay "
-"(por ejemplo, 123456789012)."
+"Introduce el ID del comerciante asignado por DPO Pay (por ejemplo, "
+"123456789012)."
 
 #. module: pos_dpopay
 #: model:ir.model.fields,help:pos_dpopay.field_pos_payment_method__dpopay_tid
@@ -174,6 +201,11 @@ msgid "ID"
 msgstr "ID"
 
 #. module: pos_dpopay
+#: model:ir.module.module,summary:base.module_pos_dpopay
+msgid "Integrate your POS with DPO payment terminal."
+msgstr ""
+
+#. module: pos_dpopay
 #. odoo-python
 #: code:addons/pos_dpopay/models/pos_payment_method.py:0
 msgid "Invalid Chain ID. Please verify the configuration. %s"
@@ -208,24 +240,19 @@ msgid "Payment is unsuccessful."
 msgstr "No ha sido posible efectuar el pago."
 
 #. module: pos_dpopay
-#. odoo-python
-#: code:addons/pos_dpopay/models/pos_payment_method.py:0
-msgid ""
-"Please ensure the device is online and confirm that the Merchant ID (MID) "
-"and Terminal ID (TID) are correct. %s"
+#: model:ir.module.module,shortdesc:base.module_pos_dpopay
+msgid "PoS DPO Pay"
 msgstr ""
-"Asegúrate de que el dispositivo esté conectado a internet y confirma si el "
-"ID de comerciante (MID) y el ID de terminal (TID) son correctos. %s"
-
-#. module: pos_dpopay
-#: model:ir.model,name:pos_dpopay.model_pos_payment_method
-msgid "Point of Sale Payment Methods"
-msgstr "Métodos de pago en el punto de venta"
 
 #. module: pos_dpopay
 #: model:ir.model,name:pos_dpopay.model_pos_payment
-msgid "Point of Sale Payments"
+msgid "Point of Sale Payment"
 msgstr "Pagos en el punto de venta"
+
+#. module: pos_dpopay
+#: model:ir.model,name:pos_dpopay.model_pos_payment_method
+msgid "Point of Sale Payment Method"
+msgstr "Método de pago del punto de venta"
 
 #. module: pos_dpopay
 #: model:ir.model.fields,field_description:pos_dpopay.field_pos_payment__dpopay_rrn
@@ -291,3 +318,10 @@ msgid ""
 msgstr ""
 "No se puede obtener el token de portador de DPO Pay: comprueba el ID de "
 "cliente y el secreto de cliente."
+
+#~ msgid ""
+#~ "Please ensure the device is online and confirm that the Merchant ID (MID) "
+#~ "and Terminal ID (TID) are correct. %s"
+#~ msgstr ""
+#~ "Asegúrate de que el dispositivo esté conectado a internet y confirma si "
+#~ "el ID de comerciante (MID) y el ID de terminal (TID) son correctos. %s"

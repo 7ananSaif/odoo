@@ -4,22 +4,22 @@
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
 # Miriam Amatller Tura <sine2soft@gmail.com>, 2025.
-# "Noemi Pla Garcia (nopl)" <nopl@odoo.com>, 2025.
+# "Noemi Pla Garcia (nopl)" <nopl@odoo.com>, 2025, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:40+0000\n"
-"PO-Revision-Date: 2025-12-22 15:53+0000\n"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-09-09 14:02+0000\n"
 "Last-Translator: \"Noemi Pla Garcia (nopl)\" <nopl@odoo.com>\n"
-"Language-Team: Catalan <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Catalan <https://translate.odoo.com/projects/odoo-master/"
 "website_profile/ca/>\n"
 "Language: ca\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.email_validation_banner
@@ -29,6 +29,12 @@ msgid ""
 msgstr ""
 "<br/>\n"
 "            No l'ha rebut?"
+
+#. module: website_profile
+#. odoo-python
+#: code:addons/website_profile/models/res_users.py:0
+msgid "%(company_name)s Profile validation"
+msgstr ""
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_profile_header
@@ -51,33 +57,33 @@ msgstr ". Prova una altra cerca."
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_badges
-msgid "<i class=\"fa fa-arrow-right\"/> Get Badges"
-msgstr "<i class=\"fa fa-arrow-right\"/> Obtenir insígnies"
+msgid "<i class=\"oi me-1\" data-icon=\"east\"/>All Badges"
+msgstr "<i class=\"oi me-1\" data-icon=\"east\"/>Totes les insígnies"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_profile_header
-msgid "<i class=\"fa fa-pencil me-1\"/>EDIT"
-msgstr "<i class=\"fa fa-pencil me-1\"/>MODIFICAR"
+msgid "<i class=\"oi oi-filled me-1\" data-icon=\"edit\"/>EDIT"
+msgstr "<i class=\"oi oi-filled me-1\" data-icon=\"edit\"/>MODIFICAR"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_profile_content
-msgid "<i class=\"fa fa-pencil me-1\"/>Edit"
-msgstr "<i class=\"fa fa-pencil me-1\"/>Modificar"
+msgid "<i class=\"oi oi-filled me-1\" data-icon=\"edit\"/>Edit"
+msgstr "<i class=\"oi oi-filled me-1\" data-icon=\"edit\"/>Modificar"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_profile_header
-msgid "<i class=\"fa fa-pencil me-2\"/>EDIT PROFILE"
-msgstr "<i class=\"fa fa-pencil me-2\"/>MODIFICAR PERFIL"
+msgid "<i class=\"oi oi-filled me-2\" data-icon=\"edit\"/>EDIT PROFILE"
+msgstr "<i class=\"oi oi-filled me-2\" data-icon=\"edit\"/>MODIFICAR PERFIL"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_badges
-msgid "<i class=\"oi oi-arrow-right me-1\"/>All Badges"
-msgstr "<i class=\"oi oi-arrow-right me-1\"/>Totes les insígnies"
+msgid "<i class=\"oi\" data-icon=\"arrow_forward\"/> Get Badges"
+msgstr ""
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_badges
-msgid "<i class=\"oi oi-arrow-right\"/> All Badges"
-msgstr "<i class=\"oi oi-arrow-right\"/>Totes les insígnies"
+msgid "<i class=\"oi\" data-icon=\"east\"/> All Badges"
+msgstr "<i class=\"oi\" data-icon=\"east\"/>Totes les insígnies"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.badge_content
@@ -131,67 +137,20 @@ msgstr ""
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.users_page_header
 msgid "<strong class=\"mb-3 text-white me-2\">Rank by:</strong>"
-msgstr "<strong class=\"mb-3 text-white me-2\">Classificar per:</strong>"
+msgstr ""
 
 #. module: website_profile
 #: model:mail.template,body_html:website_profile.validation_email
 msgid ""
-"<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"padding-top: "
-"16px; background-color: #F1F1F1; color: #454748; width: 100%; border-"
-"collapse:separate;\"><tr><td align=\"center\">\n"
-"<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" "
-"style=\"padding: 16px; background-color: white; color: #454748; border-"
-"collapse:separate;\">\n"
-"<tbody>\n"
-"    <!-- HEADER -->\n"
-"    <tr>\n"
-"        <td align=\"center\" style=\"min-width: 590px;\">\n"
-"            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" "
-"width=\"590\" style=\"min-width: 590px; background-color: white; padding: "
-"0px 8px 0px 8px; border-collapse:separate;\">\n"
-"                <tr>\n"
-"                    <td valign=\"middle\">\n"
-"                        <span style=\"font-size: 20px; font-weight: bold;"
-"\">\n"
-"                            <t t-out=\"object.company_id.name or "
-"''\">YourCompany</t> Profile validation\n"
-"                        </span>\n"
-"                    </td>\n"
-"                    <td t-if=\"not user.company_id.uses_default_logo\" "
-"valign=\"middle\" align=\"right\">\n"
-"                        <img t-attf-src=\"/logo.png?"
-"company={{ user.company_id.id }}\" style=\"padding: 0px; margin: 0px; "
-"height: auto; width: 80px;\" t-att-alt=\"user.company_id.name\"/>\n"
-"                    </td>\n"
-"                </tr>\n"
-"                <tr>\n"
-"                    <td colspan=\"2\" style=\"text-align:center;\">\n"
-"                        <hr width=\"100%\" style=\"background-"
-"color:rgb(204,204,204);border:medium none;clear:both;display:block;font-"
-"size:0px;min-height:1px;line-height:0; margin:16px 0px 16px 0px;\"/>\n"
-"                    </td>\n"
-"                </tr>\n"
-"            </table>\n"
-"        </td>\n"
-"    </tr>\n"
-"    <!-- CONTENT -->\n"
-"    <tr>\n"
-"        <td align=\"center\" style=\"min-width: 590px;\">\n"
-"            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" "
-"width=\"590\" style=\"min-width: 590px; background-color: white; padding: "
-"0px 8px 0px 8px; border-collapse:separate;\">\n"
-"                <tr>\n"
-"                    <td valign=\"top\" style=\"font-size: 13px;\">\n"
-"                        <p style=\"margin: 0px; padding: 0px; font-size: "
-"13px;\">\n"
+"<t>\n"
 "                            Hello <t t-out=\"object.name or ''\">Marc Demo</"
 "t>,<br/><br/>\n"
 "                            You have been invited to validate your email in "
 "order to get access to \"<t t-out=\"object.company_id.name or "
 "''\">YourCompany</t>\" website.\n"
 "                            To validate your email, please click on the "
-"following link:\n"
-"                            </p><div style=\"margin: 16px 0px 16px 0px;\">\n"
+"button below:\n"
+"                            <div style=\"margin: 32px 0px 32px 0px;\">\n"
 "                                <a t-att-href=\"ctx.get('token_url')\" t-"
 "attf-style=\"background-color: {{object.company_id.email_secondary_color or "
 "'#875A7B'}}; padding: 8px 16px 8px 16px; text-decoration: none; color: "
@@ -201,194 +160,27 @@ msgid ""
 "                                </a>\n"
 "                            </div>\n"
 "                            Thanks for your participation!\n"
-"                        \n"
-"                    </td>\n"
-"                </tr>\n"
-"                <tr>\n"
-"                    <td style=\"text-align:center;\">\n"
-"                        <hr width=\"100%\" style=\"background-"
-"color:rgb(204,204,204);border:medium none;clear:both;display:block;font-"
-"size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;\"/>\n"
-"                    </td>\n"
-"                </tr>\n"
-"            </table>\n"
-"        </td>\n"
-"    </tr>\n"
-"    <!-- FOOTER -->\n"
-"    <tr>\n"
-"        <td align=\"center\" style=\"min-width: 590px;\">\n"
-"            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" "
-"width=\"590\" style=\" font-family: 'Verdana Regular'; color: #454748; min-"
-"width: 590px; background-color: white; font-size: 11px; padding: 0px 8px 0px "
-"8px; border-collapse:separate;\">\n"
-"                <tr>\n"
-"                    <td valign=\"middle\" align=\"left\">\n"
-"                         <t t-out=\"user.company_id.name or "
-"''\">YourCompany</t>\n"
-"                    </td>\n"
-"                    <td valign=\"middle\" align=\"right\" style=\"opacity: "
-"0.7;\">\n"
-"                        <t t-out=\"user.company_id.phone or ''\">+1 "
-"650-123-4567</t>\n"
-"                        <t t-if=\"user.company_id.email\">\n"
-"                            | <a t-attf-href=\"'mailto:%s' % "
-"{{ user.company_id.email }}\" style=\"text-decoration:none; color: "
-"#454748;\" t-out=\"user.company_id.email or ''\">info@yourcompany.com</a>\n"
-"                        </t>\n"
-"                        <t t-if=\"user.company_id.website\">\n"
-"                            | <a t-attf-href=\"{{ user.company_id.website }}"
-"\" style=\"text-decoration:none; color: #454748;\" t-"
-"out=\"user.company_id.website or ''\">http://www.example.com</a>\n"
-"                        </t>\n"
-"                    </td>\n"
-"                </tr>\n"
-"            </table>\n"
-"        </td>\n"
-"    </tr>\n"
-"</tbody>\n"
-"</table>\n"
-"</td></tr>\n"
-"<!-- POWERED BY -->\n"
-"<tr><td align=\"center\" style=\"min-width: 590px;\">\n"
-"    <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" "
-"style=\"min-width: 590px; background-color: #F1F1F1; color: #454748; "
-"padding: 8px; border-collapse:separate;\">\n"
-"        <tr><td style=\"text-align: center; font-size: 13px;\">\n"
-"            Powered by <a target=\"_blank\" href=\"https://www.odoo.com?"
-"utm_source=db&amp;utm_medium=forum\" t-attf-style=\"color: "
-"{{object.company_id.email_secondary_color or '#875A7B'}};\">Odoo</a>\n"
-"        </td></tr>\n"
-"    </table>\n"
-"</td></tr>\n"
-"</table>\n"
-"            "
+"            </t>"
 msgstr ""
-"<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"padding-top: "
-"16px; background-color: #F1F1F1; color: #454748; width: 100%; border-"
-"collapse:separate;\"><tr><td align=\"center\">\n"
-"<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" "
-"style=\"padding: 16px; background-color: white; color: #454748; border-"
-"collapse:separate;\">\n"
-"<tbody>\n"
-"    <!-- HEADER -->\n"
-"    <tr>\n"
-"        <td align=\"center\" style=\"min-width: 590px;\">\n"
-"            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" "
-"width=\"590\" style=\"min-width: 590px; background-color: white; padding: "
-"0px 8px 0px 8px; border-collapse:separate;\">\n"
-"                <tr>\n"
-"                    <td valign=\"middle\">\n"
-"                        <span style=\"font-size: 20px; font-weight: bold;"
-"\">\n"
-"                            Confirmació del perfil de <t t-"
-"out=\"object.company_id.name or ''\">LaSevaEmpresa</t>\n"
-"                        </span>\n"
-"                    </td>\n"
-"                    <td t-if=\"not user.company_id.uses_default_logo\" "
-"valign=\"middle\" align=\"right\">\n"
-"                        <img t-attf-src=\"/logo.png?"
-"company={{ user.company_id.id }}\" style=\"padding: 0px; margin: 0px; "
-"height: auto; width: 80px;\" t-att-alt=\"user.company_id.name\"/>\n"
-"                    </td>\n"
-"                </tr>\n"
-"                <tr>\n"
-"                    <td colspan=\"2\" style=\"text-align:center;\">\n"
-"                        <hr width=\"100%\" style=\"background-"
-"color:rgb(204,204,204);border:medium none;clear:both;display:block;font-"
-"size:0px;min-height:1px;line-height:0; margin:16px 0px 16px 0px;\"/>\n"
-"                    </td>\n"
-"                </tr>\n"
-"            </table>\n"
-"        </td>\n"
-"    </tr>\n"
-"    <!-- CONTENT -->\n"
-"    <tr>\n"
-"        <td align=\"center\" style=\"min-width: 590px;\">\n"
-"            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" "
-"width=\"590\" style=\"min-width: 590px; background-color: white; padding: "
-"0px 8px 0px 8px; border-collapse:separate;\">\n"
-"                <tr>\n"
-"                    <td valign=\"top\" style=\"font-size: 13px;\">\n"
-"                        <p style=\"margin: 0px; padding: 0px; font-size: "
-"13px;\">\n"
-"                            Hola <t t-out=\"object.name or ''\">Marc Demo</"
+"<t>\n"
+"                            Hola, <t t-out=\"object.name or ''\">Marc Demo</"
 "t>:<br/><br/>\n"
-"                            Agrairíem que validés el seu compte per accedir "
-"al lloc web de \"<t t-out=\"object.company_id.name or ''\">LaSevaEmpresa</"
-"t>\".\n"
-"                            Per validar el correu electrònic, si us plau "
-"faci clic al següent enllaç:\n"
-"                            </p><div style=\"margin: 16px 0px 16px 0px;\">\n"
+"                            T'hem convidat a validar la teva adreça "
+"electrònica per poder accedir al lloc web de «<t t-"
+"out=\"object.company_id.name or ''\">LaTevaEmpresa</t>».\n"
+"                            Per validar la teva adreça electrònica, fes clic "
+"al següent botó:\n"
+"                            <div style=\"margin: 32px 0px 32px 0px;\">\n"
 "                                <a t-att-href=\"ctx.get('token_url')\" t-"
 "attf-style=\"background-color: {{object.company_id.email_secondary_color or "
-"'#875A7B'}}; padding: 8px 16px 8px 16px; text-decoration: none; color: "
-"{{object.company_id.email_primary_color or '#FFFFFF'}}; border-radius: 5px; "
+"'#875A7B'}}; padding: 8px 16px 8px 16px; text-decoration: none; color: {"
+"{object.company_id.email_primary_color or '#FFFFFF'}}; border-radius: 5px; "
 "font-size:13px;\">\n"
-"                                    Confirmar el meu compte\n"
+"                                    Validar el meu compte\n"
 "                                </a>\n"
 "                            </div>\n"
 "                            Gràcies!\n"
-"                        \n"
-"                    </td>\n"
-"                </tr>\n"
-"                <tr>\n"
-"                    <td style=\"text-align:center;\">\n"
-"                        <hr width=\"100%\" style=\"background-"
-"color:rgb(204,204,204);border:medium none;clear:both;display:block;font-"
-"size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;\"/>\n"
-"                    </td>\n"
-"                </tr>\n"
-"            </table>\n"
-"        </td>\n"
-"    </tr>\n"
-"    <!-- FOOTER -->\n"
-"    <tr>\n"
-"        <td align=\"center\" style=\"min-width: 590px;\">\n"
-"            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" "
-"width=\"590\" style=\" font-family: 'Verdana Regular'; color: #454748; min-"
-"width: 590px; background-color: white; font-size: 11px; padding: 0px 8px 0px "
-"8px; border-collapse:separate;\">\n"
-"                <tr>\n"
-"                    <td valign=\"middle\" align=\"left\">\n"
-"                         <t t-out=\"user.company_id.name or "
-"''\">LaSevaEmpresa</t>\n"
-"                    </td>\n"
-"                    <td valign=\"middle\" align=\"right\" style=\"opacity: "
-"0.7;\">\n"
-"                        <t t-out=\"user.company_id.phone or ''\">+1 "
-"650-123-4567</t>\n"
-"                        <t t-if=\"user.company_id.email\">\n"
-"                            | <a t-attf-href=\"'mailto:%s' % "
-"{{ user.company_id.email }}\" style=\"text-decoration:none; color: "
-"#454748;\" t-out=\"user.company_id.email or ''\">info@lasevaempresa.com</a>\n"
-"                        </t>\n"
-"                        <t t-if=\"user.company_id.website\">\n"
-"                            | <a t-attf-href=\"{{ user.company_id.website }}"
-"\" style=\"text-decoration:none; color: #454748;\" t-"
-"out=\"user.company_id.website or ''\">http://www.exemple.com</a>\n"
-"                        </t>\n"
-"                    </td>\n"
-"                </tr>\n"
-"            </table>\n"
-"        </td>\n"
-"    </tr>\n"
-"</tbody>\n"
-"</table>\n"
-"</td></tr>\n"
-"<!-- POWERED BY -->\n"
-"<tr><td align=\"center\" style=\"min-width: 590px;\">\n"
-"    <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" "
-"style=\"min-width: 590px; background-color: #F1F1F1; color: #454748; "
-"padding: 8px; border-collapse:separate;\">\n"
-"        <tr><td style=\"text-align: center; font-size: 13px;\">\n"
-"            Desenvolupat per <a target=\"_blank\" href=\"https://"
-"www.odoo.com?utm_source=db&amp;utm_medium=forum\" t-attf-style=\"color: "
-"{{object.company_id.email_secondary_color or '#875A7B'}};\">Odoo</a>\n"
-"        </td></tr>\n"
-"    </table>\n"
-"</td></tr>\n"
-"</table>\n"
-"            "
+"            </t>"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.email_validation_banner
@@ -411,10 +203,15 @@ msgid "About"
 msgstr "Quant a"
 
 #. module: website_profile
+#: model:ir.module.module,summary:base.module_website_profile
+msgid "Access the website profile of the users"
+msgstr ""
+
+#. module: website_profile
 #. odoo-python
 #: code:addons/website_profile/controllers/main.py:0
 msgid "All Courses"
-msgstr "Tots els cursos"
+msgstr ""
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.users_page_header
@@ -428,6 +225,23 @@ msgid "All time"
 msgstr "Tot el temps"
 
 #. module: website_profile
+#: model:ir.module.module,description:base.module_website_profile
+msgid ""
+"Allows to access the website profile of the users and see their statistics "
+"(karma, badges, etc..)"
+msgstr ""
+
+#. module: website_profile
+#: model:ir.model.fields,field_description:website_profile.field_gamification_badge__publish_on
+msgid "Auto publish on"
+msgstr ""
+
+#. module: website_profile
+#: model:ir.model.fields,help:website_profile.field_gamification_badge__publish_on
+msgid "Automatically publish the page on the chosen date and time."
+msgstr ""
+
+#. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.badge_content
 #: model_terms:ir.ui.view,arch_db:website_profile.rank_badge_main
 #: model_terms:ir.ui.view,arch_db:website_profile.user_profile_content
@@ -438,8 +252,6 @@ msgstr "Insígnies"
 #: model_terms:ir.ui.view,arch_db:website_profile.user_badges
 msgid "Badges are your collection of achievements. Wear them proudly! <br/>"
 msgstr ""
-"Les teves insígnies mostren tot el que has aconseguit. Porta-les amb orgull!"
-"<br/>"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.badge_content
@@ -468,8 +280,10 @@ msgid "Can Publish"
 msgstr "Pot publicar"
 
 #. module: website_profile
+#. odoo-javascript
 #. odoo-python
 #: code:addons/website_profile/controllers/main.py:0
+#: code:addons/website_profile/static/src/components/profile_dialog/profile_dialog.xml:0
 msgid ""
 "Changing the country is not allowed once document(s) have been issued for "
 "your account. Please contact us directly for this operation."
@@ -478,8 +292,9 @@ msgstr ""
 #. module: website_profile
 #. odoo-javascript
 #: code:addons/website_profile/static/src/components/profile_dialog/profile_dialog.xml:0
+#: model:ir.model.fields,field_description:website_profile.field_res_users__city
 msgid "City"
-msgstr "Ciutat"
+msgstr ""
 
 #. module: website_profile
 #. odoo-javascript
@@ -495,6 +310,7 @@ msgstr "Tancar"
 #. module: website_profile
 #. odoo-javascript
 #: code:addons/website_profile/static/src/components/profile_dialog/profile_dialog.xml:0
+#: model:ir.model.fields,field_description:website_profile.field_res_users__country_id
 msgid "Country"
 msgstr "País"
 
@@ -508,14 +324,14 @@ msgstr "País..."
 #. odoo-javascript
 #: code:addons/website_profile/static/src/components/profile_dialog/profile_dialog.xml:0
 msgid "Discard"
-msgstr "Descartar"
+msgstr ""
 
 #. module: website_profile
 #: model:ir.model.fields,field_description:website_profile.field_gamification_badge__display_name
 #: model:ir.model.fields,field_description:website_profile.field_res_users__display_name
 #: model:ir.model.fields,field_description:website_profile.field_website__display_name
 msgid "Display Name"
-msgstr "Nom de visualització"
+msgstr ""
 
 #. module: website_profile
 #. odoo-javascript
@@ -533,13 +349,13 @@ msgstr "Modificar el perfil"
 #. odoo-javascript
 #: code:addons/website_profile/static/src/components/profile_dialog/profile_dialog.xml:0
 msgid "Email"
-msgstr "Correu electrònic"
+msgstr ""
 
 #. module: website_profile
 #. odoo-python
 #: code:addons/website_profile/controllers/main.py:0
 msgid "Forum"
-msgstr "Fòrum"
+msgstr ""
 
 #. module: website_profile
 #: model:mail.template,name:website_profile.validation_email
@@ -576,7 +392,7 @@ msgstr "¿Com puc aconseguir més punts?"
 #: model:ir.model.fields,field_description:website_profile.field_res_users__id
 #: model:ir.model.fields,field_description:website_profile.field_website__id
 msgid "ID"
-msgstr "ID"
+msgstr ""
 
 #. module: website_profile
 #: model:ir.model.fields,field_description:website_profile.field_gamification_badge__is_published
@@ -607,7 +423,7 @@ msgstr "Més informació"
 #. odoo-javascript
 #: code:addons/website_profile/static/src/components/profile_dialog/profile_dialog.xml:0
 msgid "Name"
-msgstr "Nom"
+msgstr ""
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_profile_sub_nav
@@ -638,13 +454,18 @@ msgstr "No s'ha trobat cap usuari per"
 #. odoo-python
 #: code:addons/website_profile/controllers/main.py:0
 msgid "Not have enough karma to view other users' profile."
-msgstr "No disposes de prou karma per accedir als perfils d'altres usuaris."
+msgstr ""
 
 #. module: website_profile
 #. odoo-javascript
 #: code:addons/website_profile/static/src/components/profile_dialog/profile_dialog.xml:0
 msgid "Public Profile"
-msgstr "Perfil públic"
+msgstr ""
+
+#. module: website_profile
+#: model:ir.model.fields,field_description:website_profile.field_gamification_badge__published_date
+msgid "Published date"
+msgstr ""
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.rank_badge_main
@@ -655,7 +476,7 @@ msgstr "Rangs"
 #. odoo-python
 #: code:addons/website_profile/controllers/main.py:0
 msgid "Ranks and Badges"
-msgstr "Rangs i insígnies"
+msgstr ""
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.profile_access_denied
@@ -680,12 +501,12 @@ msgstr "Enviat als visitants del fòrum per confirmar la seva adreça de correu"
 #. module: website_profile
 #: model:ir.model.fields,help:website_profile.field_gamification_badge__website_absolute_url
 msgid "The full absolute URL to access the document through the website."
-msgstr "L'URL absolut completa per accedir al document a través del lloc web."
+msgstr ""
 
 #. module: website_profile
 #: model:ir.model.fields,help:website_profile.field_gamification_badge__website_url
 msgid "The full relative URL to access the document through the website."
-msgstr "L'URL relatiu complet per accedir al document a través del lloc web."
+msgstr ""
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.users_page_header
@@ -702,12 +523,6 @@ msgstr "¡Aquest perfil és privat!"
 #: model_terms:ir.ui.view,arch_db:website_profile.users_page_header
 msgid "This week"
 msgstr "Aquesta setmana"
-
-#. module: website_profile
-#: model_terms:ir.ui.view,arch_db:website_profile.all_user_card
-#: model_terms:ir.ui.view,arch_db:website_profile.top3_user_card
-msgid "Unpublished"
-msgstr "No publicat"
 
 #. module: website_profile
 #. odoo-javascript
@@ -730,7 +545,7 @@ msgstr "Usuari"
 #. odoo-python
 #: code:addons/website_profile/controllers/main.py:0
 msgid "User Profiles"
-msgstr "Perfils d'usuari"
+msgstr ""
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.top3_user_card
@@ -749,6 +564,7 @@ msgstr "Correu electrònic de verificació enviat a"
 
 #. module: website_profile
 #: model:ir.model.fields,field_description:website_profile.field_gamification_badge__website_published
+#: model:ir.model.fields,field_description:website_profile.field_res_users__website_published
 msgid "Visible on current website"
 msgstr "Visible al lloc web actual"
 
@@ -762,12 +578,27 @@ msgstr "Lloc web"
 #. module: website_profile
 #: model:ir.model.fields,field_description:website_profile.field_gamification_badge__website_absolute_url
 msgid "Website Absolute URL"
-msgstr "URL absolut del lloc web"
+msgstr ""
+
+#. module: website_profile
+#: model:ir.model.fields,field_description:website_profile.field_res_users__website
+msgid "Website Link"
+msgstr ""
+
+#. module: website_profile
+#: model:ir.model.fields,field_description:website_profile.field_res_users__website_description
+msgid "Website Partner Full Description"
+msgstr ""
 
 #. module: website_profile
 #: model:ir.model.fields,field_description:website_profile.field_gamification_badge__website_url
 msgid "Website URL"
 msgstr "L'URL del lloc web"
+
+#. module: website_profile
+#: model:ir.module.module,shortdesc:base.module_website_profile
+msgid "Website profile"
+msgstr ""
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.rank_badge_main
@@ -778,7 +609,7 @@ msgstr "Quan acabes un curs o arribes a fites, et concedeixen insígnies."
 #. odoo-javascript
 #: code:addons/website_profile/static/src/components/profile_dialog/profile_dialog.js:0
 msgid "Write a few words about yourself..."
-msgstr "Explica'ns una mica sobre tu..."
+msgstr ""
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.all_user_card
@@ -787,15 +618,17 @@ msgid "XP"
 msgstr "XP"
 
 #. module: website_profile
+#. odoo-python
+#: code:addons/website_profile/controllers/main.py:0
+msgid "You are not allowed to edit this user"
+msgstr ""
+
+#. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.rank_badge_main
 msgid ""
 "You can score more points by answering quizzes at the end of each course "
-"content. Points can also be earned on the forum. Follow this link to the "
-"guidelines of the forum."
+"content. Points can also be earned on the forum."
 msgstr ""
-"Podeu puntuar més punts responent qüestionaris al final de cada contingut "
-"del curs. També es poden obtenir punts en el fòrum. Segueix aquest enllaç a "
-"les directrius del fòrum."
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.email_validation_banner
@@ -837,7 +670,7 @@ msgstr ""
 #. odoo-python
 #: code:addons/website_profile/controllers/main.py:0
 msgid "slides"
-msgstr "diapositives"
+msgstr ""
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.all_user_card
@@ -865,8 +698,6 @@ msgid ""
 "xp\n"
 "                        to level up!"
 msgstr ""
-"xp\n"
-"                        per pujar de nivell!"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.email_validation_banner
@@ -882,9 +713,3 @@ msgstr "{{ object.company_id.name }} Profile validation"
 #: model_terms:ir.ui.view,arch_db:website_profile.user_profile_sub_nav
 msgid "└ Users"
 msgstr "└ Usuaris"
-
-#~ msgid ""
-#~ "<a class=\"o_translate_inline\" t-attf-href=\"/\">Return to the website.</"
-#~ "a>"
-#~ msgstr ""
-#~ "<a class=\"o_translate_inline\" t-attf-href=\"/\">Tornar al lloc web.</a>"

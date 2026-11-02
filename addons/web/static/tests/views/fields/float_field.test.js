@@ -10,7 +10,7 @@ import {
     onRpc,
 } from "@web/../tests/web_test_helpers";
 
-import { Component, xml } from "@odoo/owl";
+import { Component, useProps, xml } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 
 class Partner extends models.Model {
@@ -214,15 +214,15 @@ test("use a formula", async () => {
         message: "The new value should be calculated properly.",
     });
 
-    await contains(".o_field_widget[name=float_field] input").edit("=2^3");
-    await clickSave();
-    expect(".o_field_widget input").toHaveValue("8.000", {
-        message: "The new value should be calculated properly.",
-    });
-
     await contains(".o_field_widget[name=float_field] input").edit("=100/3");
     await clickSave();
     expect(".o_field_widget input").toHaveValue("33.333", {
+        message: "The new value should be calculated properly.",
+    });
+
+    await contains(".o_field_widget[name=float_field] input").edit("=2^3");
+    await clickSave();
+    expect(".o_field_widget input").toHaveValue("8.000", {
         message: "The new value should be calculated properly.",
     });
 });
@@ -243,7 +243,7 @@ test("use incorrect formula", async () => {
     });
     expect(".o_form_editable").toHaveCount(1, { message: "form view should still be editable" });
 
-    await contains(".o_field_widget[name=float_field] input").edit("=3:2?+4", { confirm: false });
+    await contains(".o_field_widget[name=float_field] input").edit("=3*abc", { confirm: false });
     await clickSave();
 
     expect(".o_form_editable").toHaveCount(1, { message: "form view should still be editable" });
@@ -424,8 +424,8 @@ test("field with enable_formatting option as false in editable list view", async
 
 test("float field can be updated by another field/widget", async () => {
     class MyWidget extends Component {
-        static template = xml`<button t-on-click="onClick">do it</button>`;
-        static props = ["*"];
+        static template = xml`<button t-on-click="this.onClick">do it</button>`;
+        props = useProps();
         onClick() {
             const val = this.props.record.data.float_field;
             this.props.record.update({ float_field: val + 1 });

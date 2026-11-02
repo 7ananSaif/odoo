@@ -60,7 +60,7 @@ class WebsiteCustomer(GoogleMap):
         '/customers/industry/<model("res.partner.industry"):industry>/page/<int:page>',
         '/customers/industry/<model("res.partner.industry"):industry>/country/<model("res.country"):country>',
         '/customers/industry/<model("res.partner.industry"):industry>/country/<model("res.country"):country>/page/<int:page>',
-    ], type='http', auth="public", website=True, sitemap=sitemap_industry, list_as_website_content=_lt("Customers"))
+    ], type='http', auth="public", website=True, sitemap=sitemap_industry, list_as_website_content=_lt("Customers"), readonly=True)
     def customers(self, country=None, industry=None, page=0, **post):
         Tag = request.env['res.partner.tag']
         Partner = request.env['res.partner']
@@ -132,13 +132,13 @@ class WebsiteCustomer(GoogleMap):
             url += '/industry/%s' % industry.id
         if country:
             url += '/country/%s' % country.id
-        pager = request.website.pager(
+        pager = self.env.website.pager(
             url=url, total=partner_count, page=page, step=self._references_per_page,
             scope=7, url_args=post
         )
 
         partners = Partner.sudo().search(domain, offset=pager['offset'], limit=self._references_per_page)
-        google_maps_api_key = request.website.google_maps_api_key
+        google_maps_api_key = self.env.website.google_maps_api_key
 
         tags = Tag.search([('website_published', '=', True), ('partner_ids', 'in', partners.ids)], order='classname, name ASC')
         tag = tag_id and Tag.browse(tag_id) or False
@@ -162,7 +162,7 @@ class WebsiteCustomer(GoogleMap):
         return request.render("website_customer.index", values)
 
     # Do not use semantic controller due to SUPERUSER_ID
-    @http.route(['/customers/<partner_id>'], type='http', auth="public", website=True)
+    @http.route(['/customers/<partner_id>'], type='http', auth="public", website=True, readonly=True)
     def customers_detail(self, partner_id, **post):
         current_slug = partner_id
         _, partner_id = request.env['ir.http']._unslug(partner_id)

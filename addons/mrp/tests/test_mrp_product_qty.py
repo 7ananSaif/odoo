@@ -9,12 +9,20 @@ class TestMrpProductQty(TestMrpCommon):
     """Tests for ProductProduct._compute_mrp_product_qty which computes the
     total quantity of a product manufactured in the last 365 days based on
     done stock.move records linked to completed manufacturing orders."""
+    _test_user_groups = (
+        'product.group_product_manager',  # FIXME: use base.group_user
+        'mrp.group_mrp_manager',
+        'stock.group_stock_user',
+        'uom.group_uom',  # test_mrp_product_qty_uom_conversion sets uom_id (view field is groups="uom.group_uom")
+    )
+
+    _test_user_name = 'Test Product Manager'
 
     @classmethod
     def setUpClass(self):
         super().setUpClass()
         self.bom_1.product_qty = 1
-        self.bom_1.product_uom_id = self.uom_dozen
+        self.bom_1.uom_id = self.uom_dozen
 
     def _create_and_complete_mo(self, product, bom, qty=1.0, qty_producing=None):
         """Helper: create an MO, produce it, and mark it as done.
@@ -73,7 +81,7 @@ class TestMrpProductQty(TestMrpCommon):
         self.bom_1.byproduct_ids = [Command.create({
             'product_id': product_byproduct.id,
             'product_qty': 2,
-            'product_uom_id': product_byproduct.uom_id.id,
+            'uom_id': product_byproduct.uom_id.id,
             })]
 
         self.assertEqual(self.product_4.mrp_product_qty, 0.0)
@@ -120,7 +128,7 @@ class TestMrpProductQty(TestMrpCommon):
         mo_form = Form(self.env['mrp.production'])
         mo_form.product_id = self.product_4
         mo_form.bom_id = self.bom_1
-        mo_form.product_uom_id = self.uom_unit
+        mo_form.uom_id = self.uom_unit
         mo_form.product_qty = 6
         mo = mo_form.save()
         mo.action_confirm()

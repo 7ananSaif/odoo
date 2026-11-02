@@ -8,33 +8,52 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2026-05-30 09:37+0000\n"
-"Last-Translator: Nusara Boonma <nuboo@odoo.com>\n"
-"Language-Team: Thai <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 14:01+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Thai <https://translate.odoo.com/projects/odoo-s19-4/"
 "website_project/th/>\n"
 "Language: th\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: website_project
+#: model:ir.module.module,description:base.module_website_project
+msgid ""
+"\n"
+"Generate tasks in Project app from a form published on your website. This "
+"module requires the use of the *Form Builder* module in order to build the "
+"form.\n"
+msgstr ""
+
+#. module: website_project
+#: model:website.page,url:website_project.task_submitted_page
+msgid "/your-task-has-been-submitted"
+msgstr ""
+
+#. module: website_project
+#: model:ir.module.module,summary:base.module_website_project
+msgid "Add a task suggestion form to your website"
+msgstr ""
 
 #. module: website_project
 #. odoo-javascript
-#: code:addons/website_project/static/src/js/website_project_editor.js:0
+#: code:addons/website_project/static/src/js/website_project_editor.edit.js:0
 msgid "Ask Your Question"
 msgstr "ถามคำถามของคุณ"
 
 #. module: website_project
 #. odoo-javascript
-#: code:addons/website_project/static/src/js/website_project_editor.js:0
+#: code:addons/website_project/static/src/js/website_project_editor.edit.js:0
 msgid "Attach File"
 msgstr "แนบไฟล์"
 
 #. module: website_project
 #. odoo-javascript
-#: code:addons/website_project/static/src/js/website_project_editor.js:0
+#: code:addons/website_project/static/src/js/website_project_editor.edit.js:0
 #: model:ir.model.fields,field_description:website_project.field_project_task__partner_company_name
 msgid "Company Name"
 msgstr "ชื่อบริษัท"
@@ -63,13 +82,13 @@ msgstr "อีเมล"
 
 #. module: website_project
 #. odoo-javascript
-#: code:addons/website_project/static/src/js/website_project_editor.js:0
+#: code:addons/website_project/static/src/js/website_project_editor.edit.js:0
 msgid "Email Address"
 msgstr "ที่อยู่อีเมล"
 
 #. module: website_project
 #. odoo-javascript
-#: code:addons/website_project/static/src/js/website_project_editor.js:0
+#: code:addons/website_project/static/src/js/website_project_editor.edit.js:0
 msgid "Full Name"
 msgstr "ชื่อเต็ม"
 
@@ -86,9 +105,14 @@ msgstr "ไอดี"
 
 #. module: website_project
 #. odoo-javascript
-#: code:addons/website_project/static/src/js/website_project_editor.js:0
+#: code:addons/website_project/static/src/js/website_project_editor.edit.js:0
 msgid "Message Subject"
 msgstr "หัวเรื่องของข้อความ"
+
+#. module: website_project
+#: model:ir.module.module,shortdesc:base.module_website_project
+msgid "Online Task Submission"
+msgstr ""
 
 #. module: website_project
 #. odoo-python
@@ -108,7 +132,7 @@ msgstr ""
 
 #. module: website_project
 #. odoo-javascript
-#: code:addons/website_project/static/src/js/website_project_editor.js:0
+#: code:addons/website_project/static/src/js/website_project_editor.edit.js:0
 msgid "Phone Number"
 msgstr "หมายเลขโทรศัพท์"
 
@@ -126,6 +150,11 @@ msgstr "งาน"
 #. module: website_project
 #: model_terms:ir.ui.view,arch_db:website_project.task_submitted
 msgid "Task #"
+msgstr ""
+
+#. module: website_project
+#: model:website.page,name:website_project.task_submitted_page
+msgid "Task Submitted"
 msgstr ""
 
 #. module: website_project
@@ -148,6 +177,17 @@ msgid ""
 "        Make sure to use the right format and order e.g. Improve the "
 "configuration screen 5h #feature #v16 @Mitchell !"
 msgstr ""
+"ใช้คีย์เวิร์ดเหล่านี้ในหัวข้อเพื่อเพิ่มงานใหม่:\n"
+"\n"
+"   30h (30 ชั่วโมง) จัดสรรเวลา 30h (30 ชั่วโมง) ให้กับงานนี้\n"
+"   #แท็ก เพิ่มแท็กในงาน\n"
+"   @ผู้ใช้ มอบหมายงานให้กับผู้ใช้\n"
+"   !  ตั้งค่างานเป็นลำดับความสำคัญปานกลาง\n"
+"   !!  ตั้งค่างานเป็นลำดับความสำคัญสูง\n"
+"   !!!  ตั้งค่างานเป็นลำดับความสำคัญเร่งด่วน\n"
+"\n"
+"   ตรวจสอบให้แน่ใจว่าใช้รูปแบบและลำดับที่ถูกต้อง เช่น ปรับปรุงหน้าจอการกำหนดค่า 5h #ฟีเจอร์ "
+"#v16 @Mitchell !"
 
 #. module: website_project
 #: model_terms:ir.ui.view,arch_db:website_project.task_submitted

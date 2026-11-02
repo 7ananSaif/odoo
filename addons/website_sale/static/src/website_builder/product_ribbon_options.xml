@@ -6,7 +6,7 @@
                 action="'setRibbon'"
                 t-key="this.count.value"
                 className="'o_wsale_ribbon_select'"
-                t-on-click="() => state.ribbonEditMode = false"
+                t-on-click="() => this.state.ribbonEditMode = false"
             >
                 <BuilderSelectItem actionValue="''" id="'no_ribbon_opt'">
                     None
@@ -15,7 +15,7 @@
                     <BuilderSelectItem actionValue="ribbon.id" label="ribbon.name">
                         <div>
                             <t t-out="ribbon.name" />
-                            <span t-attf-class="fa fa-arrow-#{ribbon.position} ms-1"/>
+                            <span class="oi ms-1" t-attf-data-icon="#{ribbon.position === 'left' ? 'arrow_back' : 'arrow_forward'}"/>
                             <span
                                 t-attf-class="o_wsale_color_preview ms-1"
                                 t-attf-style="background-color: #{ribbon.bg_color}; border: {{(ribbon.bg_color == '#FFFFFF' || ribbon.bg_color == '') ? '2px solid #CCCCCC' : ''}};"
@@ -30,22 +30,24 @@
             </BuilderSelect>
             <BuilderButton
                 t-if="!this.isActiveItem('no_ribbon_opt')"
-                t-on-click="() => state.ribbonEditMode = !state.ribbonEditMode"
+                t-on-click="() => this.state.ribbonEditMode = !this.state.ribbonEditMode"
                 title.translate="Edit"
-                className="'fa fa-edit'"
+                icon="'edit'"
+                iconClass="'oi-filled'"
             />
             <BuilderButton
-                t-if="!state.ribbonEditMode"
+                t-if="!this.state.ribbonEditMode"
                 title.translate="Create"
                 action="'createRibbon'"
-                className="'fa fa-plus text-success border-0'"
+                icon="'add'"
+                className="'text-success border-0'"
                 style="'background-color: transparent !important;'"
                 preview="false"
-                t-on-click="() => state.ribbonEditMode = true"
+                t-on-click="() => this.state.ribbonEditMode = true"
             />
         </BuilderRow>
 
-        <t t-if="state.ribbonEditMode">
+        <t t-if="this.state.ribbonEditMode">
             <BuilderContext action="'modifyRibbon'">
                 <BuilderRow label.translate="Name" level="1">
                     <BuilderTextInput actionParam="'name'" />
@@ -71,8 +73,8 @@
                 </BuilderRow>
                 <BuilderRow label.translate="Position" level="1">
                     <BuilderSelect actionParam="'position'">
-                        <BuilderSelectItem actionValue="'left'">Left</BuilderSelectItem>
-                        <BuilderSelectItem actionValue="'right'">Right</BuilderSelectItem>
+                        <BuilderSelectItem ltrRtlMapping="'left-right'" actionValue="'left'">Left</BuilderSelectItem>
+                        <BuilderSelectItem ltrRtlMapping="'left-right'" actionValue="'right'">Right</BuilderSelectItem>
                     </BuilderSelect>
                 </BuilderRow>
             </BuilderContext>
@@ -81,7 +83,7 @@
                     action="'deleteRibbon'"
                     preview="false"
                     className="'o_we_bg_danger'"
-                    t-on-click="() => state.ribbonEditMode = false"
+                    t-on-click="() => this.state.ribbonEditMode = false"
                 >
                     Delete Ribbon
                 </BuilderButton>

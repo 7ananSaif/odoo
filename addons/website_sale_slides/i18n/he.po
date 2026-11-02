@@ -14,10 +14,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0beta\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-09-29 02:31+0000\n"
-"Last-Translator: or balmas <or@laylinetech.com>\n"
-"Language-Team: Hebrew <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 15:05+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Hebrew <https://translate.odoo.com/projects/odoo-s19-4/"
 "website_sale_slides/he/>\n"
 "Language: he\n"
 "MIME-Version: 1.0\n"
@@ -25,17 +25,17 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=4; plural=(n == 1) ? 0 : ((n == 2) ? 1 : ((n > 10 && "
 "n % 10 == 0) ? 2 : 3));\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: website_sale_slides
 #: model_terms:ir.ui.view,arch_db:website_sale_slides.course_option_buy_course_now
-msgid "<i class=\"fa fa-bolt\"/> Buy Now"
-msgstr "<i class=\"fa fa-bolt\"/> קנה עכשיו"
+msgid "<i class=\"oi\" data-icon=\"flash_on\"/> Buy Now"
+msgstr "<i class=\"oi\" data-icon=\"flash_on\"/> קנה עכשיו"
 
 #. module: website_sale_slides
 #: model_terms:ir.ui.view,arch_db:website_sale_slides.course_buy_course_button
-msgid "<i class=\"fa fa-shopping-cart\"/> Add to Cart"
-msgstr "<i class=\"fa fa-shopping-cart\"/> הוסף לעגלה"
+msgid "<i class=\"oi\" data-icon=\"shopping_cart\"/> Add to Cart"
+msgstr "<i class=\"oi\" data-icon=\"shopping_cart\"/> הוסף לעגלה"
 
 #. module: website_sale_slides
 #. odoo-python
@@ -58,7 +58,7 @@ msgstr "כפתור \"תקנה עכשיו\""
 #. odoo-javascript
 #: code:addons/website_sale_slides/static/src/xml/website_sale_slides_quiz.xml:0
 msgid "Buy the course to validate your answers!"
-msgstr "קנו את הקורס לאימות התשובות שלך!"
+msgstr ""
 
 #. module: website_sale_slides
 #. odoo-javascript
@@ -84,7 +84,7 @@ msgstr ""
 
 #. module: website_sale_slides
 #. odoo-javascript
-#: code:addons/website_sale_slides/static/src/website_builder/course_page_option_plugin.js:0
+#: code:addons/website_sale_slides/static/src/website_builder/course_page_option.xml:0
 msgid "Course Page"
 msgstr ""
 
@@ -165,7 +165,7 @@ msgstr ""
 msgid ""
 "Leaving the course and re-enrolling afterwards means that you'll be charged "
 "again."
-msgstr "אחרי עזיבת הקורס, אם תחליטו להצטרף שוב פעם אז תחוייבו גם פעם נוספת."
+msgstr ""
 
 #. module: website_sale_slides
 #: model_terms:ir.ui.view,arch_db:website_sale_slides.course_buy_course_button
@@ -235,16 +235,31 @@ msgid "Sales Order Line"
 msgstr ""
 
 #. module: website_sale_slides
+#: model:ir.module.module,shortdesc:base.module_website_sale_slides
+msgid "Sell Courses"
+msgstr ""
+
+#. module: website_sale_slides
+#: model:ir.module.module,summary:base.module_website_sale_slides
+msgid "Sell your courses online"
+msgstr ""
+
+#. module: website_sale_slides
+#: model:ir.module.module,description:base.module_website_sale_slides
+msgid "Sell your courses using the e-commerce features of the website."
+msgstr ""
+
+#. module: website_sale_slides
 #. odoo-javascript
 #: code:addons/website_sale_slides/static/src/xml/slide_course_join.xml:0
 msgid "Sign in"
-msgstr "התחבר"
+msgstr ""
 
 #. module: website_sale_slides
 #. odoo-javascript
 #: code:addons/website_sale_slides/static/src/xml/website_sale_slides_quiz.xml:0
 msgid "Sign in and buy the course to take the quiz"
-msgstr "היכנו למערכת וקנו את הקורס כדי לענות על השאלון"
+msgstr ""
 
 #. module: website_sale_slides
 #: model_terms:ir.ui.view,arch_db:website_sale_slides.course_buy_course_button
@@ -275,7 +290,7 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/website_sale_slides/static/src/xml/website_slides_unsubscribe.xml:0
 msgid "This course is paid."
-msgstr "קורס זה שולם."
+msgstr ""
 
 #. module: website_sale_slides
 #: model_terms:ir.ui.view,arch_db:website_sale_slides.slide_channel_view_tree_report
@@ -327,19 +342,3 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:website_sale_slides.course_buy_course_link
 msgid "to access resources"
 msgstr ""
-
-#~ msgid ""
-#~ "A storable product is a product for which you manage stock. The Inventory "
-#~ "app has to be installed.\n"
-#~ "A consumable product is a product for which stock is not managed.\n"
-#~ "A service is a non-material product you provide."
-#~ msgstr ""
-#~ "מוצר מנוהל מלאי הוא מוצר שעבורו מתבצע ניהול מלאי במערכת. יש להתקין את "
-#~ "יישום המלאי.מוצר לא מנוהל מלאי הוא מוצר אשר לא מתבצע עבורו ניהול מלאי "
-#~ "במערכת.שירות הוא מוצר לא חומרי שאתה מספק."
-
-#~ msgid "Product Type"
-#~ msgstr "סוג מוצר"
-
-#~ msgid "Website"
-#~ msgstr "אתר אינטרנט"

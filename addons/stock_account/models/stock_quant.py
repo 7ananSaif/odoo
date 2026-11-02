@@ -55,7 +55,7 @@ class StockQuant(models.Model):
                     quant.product_id.uom_id.is_zero(quant.quantity):
                 continue
             if quant.product_id.lot_valuated:
-                quantity = quant.lot_id.with_company(quant.company_id).product_qty
+                quantity = quant.lot_id.with_company(quant.company_id).with_context(owners=[False, self.env.company.partner_id.id]).product_qty
                 value = quant.lot_id.with_company(quant.company_id).total_value
             else:
                 quantity = quant.product_id.with_company(quant.company_id)._with_valuation_context().qty_available
@@ -64,12 +64,12 @@ class StockQuant(models.Model):
                 continue
             quant.value = quant.quantity * value / quantity
 
-    def _read_group_select(self, aggregate_spec, query):
+    def _read_group_select(self, table, aggregate_spec):
         # flag value as aggregatable, and manually sum the values from the
         # records in the group
         if aggregate_spec in ('value:sum', 'value:sum_currency'):
-            return super()._read_group_select('id:recordset', query)
-        return super()._read_group_select(aggregate_spec, query)
+            aggregate_spec = 'id:recordset'
+        return super()._read_group_select(table, aggregate_spec)
 
     def _read_group_postprocess_aggregate(self, aggregate_spec, raw_values):
         if aggregate_spec in ('value:sum', 'value:sum_currency'):
@@ -79,7 +79,7 @@ class StockQuant(models.Model):
 
     def _apply_inventory(self, date=None):
         for accounting_date, inventory_ids in groupby(self, key=lambda q: q.accounting_date):
-            inventories = self.env['stock.quant'].concat(*inventory_ids)
+            inventories = self.env['stock.quant'].concat(inventory_ids)
             if accounting_date:
                 super(StockQuant, inventories.with_context(force_period_date=accounting_date))._apply_inventory(date)
                 inventories.accounting_date = False
@@ -91,7 +91,7 @@ class StockQuant(models.Model):
         if not self.env.context.get('inventory_name'):
             force_period_date = self.env.context.get('force_period_date', False)
             if force_period_date:
-                if self.product_uom_id.is_zero(qty):
+                if self.uom_id.is_zero(qty):
                     name = _('Product Quantity Confirmed')
                 else:
                     name = _('Product Quantity Updated')

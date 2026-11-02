@@ -136,12 +136,8 @@ class EventMail(models.Model):
           slot (last registration, scheduled datetime, ...)
         """
         auto_commit = not modules.module.current_test
-        batch_size = int(
-            self.env['ir.config_parameter'].sudo().get_param('mail.batch_size')
-        ) or 50  # be sure to not have 0, as otherwise no iteration is done
-        cron_limit = int(
-            self.env['ir.config_parameter'].sudo().get_param('mail.render.cron.limit')
-        ) or 1000  # be sure to not have 0, as otherwise we will loop
+        batch_size = self.env['ir.config_parameter'].sudo().get_int('mail.batch_size') or 50  # be sure to not have 0, as otherwise no iteration is done
+        cron_limit = self.env['ir.config_parameter'].sudo().get_int('mail.render.cron.limit') or 1000  # be sure to not have 0, as otherwise we will loop
         scheduler_record = mail_slot or self
 
         # fetch registrations to contact
@@ -226,12 +222,8 @@ class EventMail(models.Model):
         context_registrations = self.env.context.get('event_mail_registration_ids')
 
         auto_commit = not modules.module.current_test
-        batch_size = int(
-            self.env['ir.config_parameter'].sudo().get_param('mail.batch_size')
-        ) or 50  # be sure to not have 0, as otherwise no iteration is done
-        cron_limit = int(
-            self.env['ir.config_parameter'].sudo().get_param('mail.render.cron.limit')
-        ) or 1000  # be sure to not have 0, as otherwise we will loop
+        batch_size = self.env['ir.config_parameter'].sudo().get_int('mail.batch_size') or 50  # be sure to not have 0, as otherwise no iteration is done
+        cron_limit = self.env['ir.config_parameter'].sudo().get_int('mail.render.cron.limit') or 1000  # be sure to not have 0, as otherwise we will loop
 
         # fillup on subscription lines (generate more than to render creating
         # mail.registration is less costly than rendering emails)
@@ -246,6 +238,7 @@ class EventMail(models.Model):
             ("mail_registration_ids", "not in", self.env["event.mail.registration"]._search(
                 [('scheduler_id', 'in', self.ids)]
             )),
+            ('main_registration_id', '=', False),
         ]
         if context_registrations:
             new_attendee_domain += [
@@ -287,13 +280,14 @@ class EventMail(models.Model):
                 self.env.invalidate_all()
 
     def _create_missing_mail_registrations(self, registrations):
+        batch_size = self.env['ir.config_parameter'].sudo().get_int('mail.batch_size') or 500  # be sure to not have 0, as otherwise no iteration is done
         new = self.env["event.mail.registration"]
         for scheduler in self:
-            for _chunk in tools.split_every(500, registrations.ids, self.env["event.registration"].browse):
+            for chunk in tools.split_every(batch_size, registrations.ids, self.env["event.registration"].browse):
                 new += self.env['event.mail.registration'].create([{
                     'registration_id': registration.id,
                     'scheduler_id': scheduler.id,
-                } for registration in registrations])
+                } for registration in chunk])
         return new
 
     def _refresh_mail_count_done(self, mail_slot=False):

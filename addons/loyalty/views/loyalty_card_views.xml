@@ -6,10 +6,11 @@
         <field name="arch" type="xml">
             <form>
                 <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
                     <group>
                         <group>
                             <field name="code" readonly="1"/>
-                            <field name="expiration_date"/>
+                            <field name="expiration_date" invisible="program_type == 'loyalty'"/>
                             <field name="partner_id"/>
                             <label string="Balance" for="points_display"/>
                             <button
@@ -27,7 +28,11 @@
                                 <list>
                                     <field name="description"/>
                                     <field name="order_id"/>
-                                    <field name="create_date" string="Date"/>
+                                    <field name="points_changed_date"/>
+                                    <field
+                                        name="expiration_date"
+                                        column_invisible="parent.program_type != 'loyalty'"
+                                    />
                                     <field name="issued"/>
                                     <field name="used"/>
                                 </list>
@@ -48,10 +53,10 @@
                 <field name="code" readonly="1"/>
                 <field name="create_date" optional="hide"/>
                 <field name="points_display" string="Balance"/>
-                <field name="expiration_date"/>
+                <field name="expiration_date" column_invisible="context.get('program_type') == 'loyalty'"/>
                 <field name="program_id"/>
                 <field name="partner_id"/>
-                <button name="action_coupon_send" string="Send" type="object" icon="fa-paper-plane-o"/>
+                <button name="action_coupon_send" string="Send" type="object" icon="send"/>
             </list>
         </field>
     </record>

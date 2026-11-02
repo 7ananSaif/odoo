@@ -13,10 +13,16 @@
 }
 
 .o_btn_loading {
+    position: relative;
     opacity: $btn-disabled-opacity;
 
-    .fa:not(.fa-spin) {
-        display: none;
+    .o_btn_loading_spinner {
+        @include o-position-absolute(-1px, -1px, -1px, -1px);
+        z-index: 1;
+        display: grid;
+        place-content: center;
+        background-color: rgba(255, 255, 255, 0.5);
+        border-radius: inherit;
     }
 }
 
@@ -64,6 +70,8 @@
     $-padding-h: var(--treeEntry-padding-h, #{map-get($spacers, 4)});
     $-padding-v: var(--treeEntry-padding-v, #{map-get($spacers, 2)});
 
+    --treeEntry-branch-top: calc(.5em + #{$-padding-v});
+
     padding-left: $-padding-h;
     position: relative;
 
@@ -78,17 +86,18 @@
         top: var(--treeEntry--before-top, 0);
         width: 1px;
         height: 100%;
+        z-index: 1;
     }
 
     &:after {
         display: var(--treeEntry--after-display, initial);
-        top: calc(.5em + #{$-padding-v});
+        top: var(--treeEntry-branch-top);
         width: var(--treeEntry--after-width, calc(#{$-padding-h} * .5));
         height: 1px;
     }
 
     &:last-of-type:before {
-        height: calc(.5em + #{$-padding-v});
+        height: var(--treeEntry-branch-top);
     }
 }
 
@@ -168,17 +177,6 @@ span.o_force_ltr {
     max-height: 64px;
 }
 
-// The dropdown action menu in the list views should only be visible if the
-// list view is rendered as a page and not as a modal.
-
-.modal {
-    .o_cp_action_menus {
-        .o-dropdown:has(.fa-cog) {
-            display: none;
-        }
-    }
-}
-
 .o_ui_app_icon {
     width: var(--oi-font-size, 1em);
 
@@ -200,4 +198,46 @@ span.o_force_ltr {
     border: unset;
     font-family: inherit;
     font-size: 100%;
+}
+
+// Chess-like background
+.o_preview_alpha_background {
+    @extend %o-preview-alpha-background;
+}
+
+// touch display property +²
+.o_touch_device {
+    .d-touch-none {
+        display: none !important;
+    }
+    .d-touch-inline {
+        display: inline !important;
+    }
+    .d-touch-inline-block {
+        display: inline-block !important;
+    }
+    .d-touch-block {
+        display: block !important;
+    }
+    .d-touch-grid {
+        display: grid !important;
+    }
+    .d-touch-inline-grid {
+        display: inline-grid !important;
+    }
+    .d-touch-table {
+        display: table !important;
+    }
+    .d-touch-table-cell {
+        display: table-cell !important;
+    }
+    .d-touch-table-row {
+        display: table-row !important;
+    }
+    .d-touch-flex {
+        display: flex !important;
+    }
+    .d-touch-inline-flex {
+        display: inline-flex !important;
+    }
 }

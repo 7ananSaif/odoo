@@ -1,5 +1,6 @@
+import { OverlayPlugin } from "@web/core/overlay/overlay_plugin";
 import { registry } from "@web/core/registry";
-import { Component } from "@odoo/owl";
+import { Component, usePlugin } from "@odoo/owl";
 import { useTime } from "@point_of_sale/app/hooks/time_hook";
 import { useService } from "@web/core/utils/hooks";
 
@@ -7,12 +8,16 @@ export class SaverScreen extends Component {
     static template = "point_of_sale.SaverScreen";
     static storeOnOrder = false;
     static updatePreviousScreen = false;
-    static props = [];
 
     setup() {
         this.time = useTime();
-        this.dialog = useService("dialog");
-        this.dialog.closeAll();
+        this.uiService = useService("ui");
+        this.overlayService = usePlugin(OverlayPlugin);
+        this.closeAllOverlays();
+    }
+
+    closeAllOverlays() {
+        this.overlayService.overlays.items().forEach((overlay) => overlay.remove());
     }
 }
 

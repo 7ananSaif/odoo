@@ -1,15 +1,12 @@
-import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
 import { stepUtils } from "@web_tour/tour_utils";
 
 registry.category("web_tour.tours").add('order_lunch_tour', {
-    url: "/odoo",
     steps: () => [
     stepUtils.showAppsMenuItem(),
 {
     trigger: '.o_app[data-menu-xmlid="lunch.menu_lunch"]',
-    content: _t("Start by accessing the lunch app."),
-    tooltipPosition: 'bottom',
+    content: "Start by accessing the lunch app.",
     run: "click",
 },
 {
@@ -26,26 +23,23 @@ registry.category("web_tour.tours").add('order_lunch_tour', {
     trigger: '.lunch_location input:value("Farm 1")',
 },
 {
-    trigger: ".o_kanban_record",
-    content: _t("Click on a product you want to order and is available."),
+    trigger: `.o_kanban_record:contains("Aaron's Pizza")`,
+    content: "Click on a product you want to order and is available.",
     run: 'click'
 },
 {
     trigger: 'textarea[id="note_0"]',
-    content: _t("Add additionnal information about your order."),
-    tooltipPosition: 'bottom',
+    content: "Add additionnal information about your order.",
     run: "edit allergy to peanuts",
 },
 {
     trigger: 'button[name="add_to_cart"]',
-    content: _t("Add your order to the cart."),
-    tooltipPosition: 'bottom',
+    content: "Add your order to the cart.",
     run: "click",
 },
 {
     trigger: 'button:contains("Order Now")',
-    content: _t("Validate your order"),
-    tooltipPosition: 'left',
+    content: "Validate your order",
     run: 'click',
 }, {
     trigger: ".o_lunch_widget_line li[name='o_lunch_order_line'] .badge:contains('Ordered')",

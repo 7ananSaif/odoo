@@ -43,6 +43,7 @@ class TestEventBoothSaleWData(TestEventBoothSaleCommon, TestSalesCommon):
         cls.event_booth_product.taxes_id = cls.tax_10
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestEventBoothSale(TestEventBoothSaleWData):
 
     @users('user_sales_salesman')
@@ -156,6 +157,8 @@ class TestEventBoothSale(TestEventBoothSaleWData):
 
 @tagged('post_install', '-at_install')
 class TestEventBoothSaleInvoice(AccountTestInvoicingCommon, TestEventBoothSaleWData):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):

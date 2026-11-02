@@ -13,6 +13,8 @@ import {
 import { describe, expect, test } from "@odoo/hoot";
 import { mockService, serverState } from "@web/../tests/web_test_helpers";
 
+import { range } from "@web/core/utils/numbers";
+
 describe.current.tags("desktop");
 defineMailModels();
 
@@ -22,15 +24,15 @@ test.skip("Form view not scrolled when switching record", async () => {
     const pyEnv = await startServer();
     const [partnerId_1, partnerId_2] = pyEnv["res.partner"].create([
         {
-            description: [...Array(60).keys()].join("\n"),
+            description: range(60).join("\n"),
             display_name: "Partner 1",
         },
         {
-            description: [...Array(60).keys()].join("\n"),
+            description: range(60).join("\n"),
             display_name: "Partner 2",
         },
     ]);
-    const messages = [...Array(60).keys()].map((id) => ({
+    const messages = range(60).map((id) => ({
         body: "not empty",
         model: "res.partner",
         res_id: id < 29 ? partnerId_1 : partnerId_2,
@@ -94,7 +96,7 @@ test("Attachments that have been unlinked from server should be visually unlinke
         resId: partnerId_1,
         resIds: [partnerId_1, partnerId_2],
     });
-    await contains("button[aria-label='Attach files']", { text: "2" });
+    await contains("button[aria-label='Attach files']:text('2')");
     // The attachment links are updated on (re)load,
     // so using pager is a way to reload the record "Partner1".
     await click(".o_pager_next");
@@ -102,7 +104,7 @@ test("Attachments that have been unlinked from server should be visually unlinke
     // Simulate unlinking attachment 1 from Partner 1.
     pyEnv["ir.attachment"].write([attachmentId_1], { res_id: 0 });
     await click(".o_pager_previous");
-    await contains("button[aria-label='Attach files']", { text: "1" });
+    await contains("button[aria-label='Attach files']:text('1')");
 });
 
 test("ellipsis button is not duplicated when switching from read to edit mode", async () => {
@@ -261,6 +263,6 @@ test("read more/less should appear only once for the signature", async () => {
     await click(".o-mail-Chatter-sendMessage");
     await insertText(".o-mail-Composer-input", "Example Body");
     await click("[name='open-full-composer']");
-    await contains(".o-mail-Message-body", { text: "Example Body", count: 1 });
+    await contains(".o-mail-Message-body:has(:text('Example Body'))");
     expect(".o-mail-Message .o-signature-container button.o-mail-ellipsis").toHaveCount(1);
 });

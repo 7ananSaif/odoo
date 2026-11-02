@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 {
     'name': 'Proxy features for account_edi',
     'description': """
@@ -9,15 +8,12 @@ Odoo database.
 - Encryption features allows to decrypt all the user's data when receiving it from the proxy.
 - Authentication offers an additionnal level of security to avoid impersonification, in case someone gains to the user's database.
     """,
-    'version': '1.0',
     'category': 'Accounting/Accounting',
     'depends': ['account', 'certificate'],
     'data': [
-        'security/ir.model.access.csv',
-        'security/account_edi_proxy_client_security.xml',
         'views/account_edi_proxy_user_views.xml',
+        'security/ir.access.csv',
     ],
-    'installable': True,
     'author': 'Odoo S.A.',
     'license': 'LGPL-3',
     'post_init_hook': '_create_demo_config_param',

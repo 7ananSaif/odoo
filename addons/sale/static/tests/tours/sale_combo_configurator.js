@@ -2,12 +2,11 @@ import { registry } from '@web/core/registry';
 import { stepUtils } from '@web_tour/tour_utils';
 import comboConfiguratorTourUtils from '@sale/js/tours/combo_configurator_tour_utils';
 import productConfiguratorTourUtils from '@sale/js/tours/product_configurator_tour_utils';
-import tourUtils from '@sale/js/tours/tour_utils';
+import * as tourUtils from '@sale/js/tours/tour_utils';
 
 registry
     .category('web_tour.tours')
     .add('sale_combo_configurator', {
-        url: '/odoo',
         steps: () => [
             ...stepUtils.goToAppSteps('sale.sale_menu_root', "Open the sales app"),
             ...tourUtils.createNewSalesOrder(),
@@ -51,14 +50,14 @@ registry
             comboConfiguratorTourUtils.assertPrice('93.00'),
             // Assert that the order's content is correct.
             ...comboConfiguratorTourUtils.saveConfigurator(),
-            tourUtils.checkSOLDescriptionContains("Combo product x 3"),
+            tourUtils.checkSOLDescriptionContains("Combo product"),
             tourUtils.checkSOLDescriptionContains(
                 "Product A1", "No variant attribute: B: Some custom value"
             ),
             tourUtils.checkSOLDescriptionContains("Product B2"),
             {
                 content: "Verify the combo item quantities",
-                trigger: 'td[name="product_uom_qty"]:contains(3.00)',
+                trigger: 'td[name="sol_qty"]:contains(3.00)',
             },
             {
                 content: "Verify the first combo item's unit price",
@@ -74,20 +73,19 @@ registry
             },
             // Assert that the combo configurator is opened with the previous selection when the
             // combo is edited.
-            tourUtils.editLineMatching("Combo product x 3"),
-            tourUtils.editConfiguration(),
+            tourUtils.editConfiguration("Combo product"),
             comboConfiguratorTourUtils.setQuantity(2),
             comboConfiguratorTourUtils.assertComboItemSelected("Product A1"),
             comboConfiguratorTourUtils.assertComboItemSelected("Product B2"),
             comboConfiguratorTourUtils.selectComboItem("Product A2"),
             // Assert that the order's content has been updated.
             ...comboConfiguratorTourUtils.saveConfigurator(),
-            tourUtils.checkSOLDescriptionContains("Combo product x 2"),
+            tourUtils.checkSOLDescriptionContains("Combo product"),
             tourUtils.checkSOLDescriptionContains("Product A2"),
             tourUtils.checkSOLDescriptionContains("Product B2"),
             {
                 content: "Verify the combo item quantities",
-                trigger: 'td[name="product_uom_qty"]:contains(2.00)',
+                trigger: 'td[name="sol_qty"]:contains(2.00)',
             },
             {
                 content: "Verify the first combo item's unit price",
@@ -109,7 +107,6 @@ registry
     registry
     .category('web_tour.tours')
     .add('sale_combo_configurator_with_optional_products', {
-        url: '/odoo',
         steps: () => [
             ...stepUtils.goToAppSteps('sale.sale_menu_root', "Open the sales app"),
             ...tourUtils.createNewSalesOrder(),

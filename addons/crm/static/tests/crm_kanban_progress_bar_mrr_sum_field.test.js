@@ -1,6 +1,6 @@
 import { defineMailModels } from "@mail/../tests/mail_test_helpers";
 import { beforeEach, expect, test } from "@odoo/hoot";
-import { animationFrame, Deferred, queryAllTexts } from "@odoo/hoot-dom";
+import { animationFrame, queryAllTexts } from "@odoo/hoot-dom";
 import {
     contains,
     defineModels,
@@ -33,6 +33,12 @@ class Stage extends models.Model {
         { id: 2, name: "Qualified" },
         { id: 3, name: "Won", is_won: true },
     ];
+}
+
+class Team extends models.Model {
+    _name = "crm.team";
+
+    name = fields.Char();
 }
 
 class Lead extends models.Model {
@@ -112,7 +118,7 @@ class Lead extends models.Model {
     ];
 }
 
-defineModels([Lead, Users, Stage]);
+defineModels([Lead, Users, Stage, Team]);
 defineMailModels();
 beforeEach(() => {
     patchWithCleanup(AnimatedNumber, { enableAnimations: false });
@@ -222,7 +228,7 @@ test("Progressbar: ensure correct MRR updation after state change", async () => 
 
 test.tags("desktop");
 test("Quickly drag&drop records when grouped by stage_id", async () => {
-    const def = new Deferred();
+    const def = Promise.withResolvers();
     await mountView({
         type: "kanban",
         resModel: "crm.lead",
@@ -241,7 +247,7 @@ test("Quickly drag&drop records when grouped by stage_id", async () => {
                 </kanban>`,
     });
     onRpc("web_save", async () => {
-        await def;
+        await def.promise;
     });
 
     expect(".o_kanban_group").toHaveCount(3);

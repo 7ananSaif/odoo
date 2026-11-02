@@ -1,3 +1,4 @@
+import { useEffect } from "@odoo/owl";
 import { before, describe, expect, test } from "@odoo/hoot";
 import {
     animationFrame,
@@ -7,27 +8,28 @@ import {
     setInputFiles,
     waitFor,
 } from "@odoo/hoot-dom";
-import { useEffect } from "@odoo/owl";
 import {
     contains,
     defineActions,
     defineModels,
     fields,
     getService,
-    getMockEnv,
+    isSmall,
     mockService,
     models,
     mountWebClient,
     onRpc,
     patchWithCleanup,
     serverState,
-    toggleActionMenu,
 } from "@web/../tests/web_test_helpers";
-import { browser } from "@web/core/browser/browser";
+import { location } from "@web/core/browser/browser";
+import { localization } from "@web/core/l10n/localization";
 import { redirect } from "@web/core/utils/urls";
 import { ImportAction } from "../src/import_action/import_action";
 import { ImportBlockUI } from "../src/import_block_ui";
 import { ImportDataProgress } from "../src/import_data_progress/import_data_progress";
+import { IMPORT_LANGUAGE_SEPARATOR } from "@base_import/import_model";
+import { user } from "@web/core/user";
 
 const FAKE_PREVIEW_HEADERS = ["Foo", "Bar", "Display name"];
 const FAKE_PREVIEW_DATA = [
@@ -37,7 +39,7 @@ const FAKE_PREVIEW_DATA = [
 ];
 
 class Partner extends models.Model {
-    name = fields.Char();
+    name = fields.Char({ translate: true });
     foo = fields.Char();
     bar = fields.Boolean({ model_name: "partner" });
     selection = fields.Selection({
@@ -74,7 +76,30 @@ class Partner extends models.Model {
 
 onRpc("has_group", () => true);
 
-defineModels([Partner]);
+class ResLang extends models.Model {
+    name = fields.Char();
+    code = fields.Char();
+    active = fields.Boolean();
+
+    get_installed() {
+        return this._filter([["active", "!=", false]]).map((val) => [val.code, val.name]);
+    }
+
+    _records = [
+        {
+            name: "English (US)",
+            code: "en_US",
+            active: true,
+        },
+        {
+            name: "French / Français",
+            code: "fr_FR",
+            active: false,
+        },
+    ];
+}
+
+defineModels([Partner, ResLang]);
 
 defineActions([
     {
@@ -137,14 +162,18 @@ function getFieldsTree() {
         id: k,
         fields: [],
     }));
-    return mappedFields.filter((e) => !["id", "__last_update", "name"].includes(e.id));
+    return mappedFields.filter((e) => !["id", "__last_update"].includes(e.id));
 }
 
 function getMatches(headers) {
     // basic implementation for testing purposes which matches if the first line is the
     // name of a field, or corresponds to the string value of a field from Partner
     const matches = [];
-    for (const header of headers) {
+    for (let header of headers) {
+        if (header.includes(IMPORT_LANGUAGE_SEPARATOR)) {
+            header = header.split(IMPORT_LANGUAGE_SEPARATOR)[0];
+        }
+
         if (Partner._fields[header]) {
             matches.push([header]);
         }
@@ -164,6 +193,14 @@ async function parsePreview(opts, overrides = {}) {
     const preview =
         overrides.preview ?? (opts.has_headers ? data : data.map((c, i) => [headers[i], ...c]));
     totalRows = overrides.rowCount ?? [...preview].sort((a, b) => b.length - a.length)[0].length;
+
+    const languages = headers.map((val) =>
+        opts.has_headers
+            ? val.includes(IMPORT_LANGUAGE_SEPARATOR)
+                ? val.split(IMPORT_LANGUAGE_SEPARATOR)[1]
+                : false
+            : false
+    );
 
     const errorValues = ["#NULL!", "#DIV/0!", "#VALUE!", "#REF!", "#NAME?", "#NUM!", "#N/A"];
     const error = preview.flat().find((cell) => errorValues.includes(cell));
@@ -188,6 +225,7 @@ async function parsePreview(opts, overrides = {}) {
             sheets: ["Template", "Template 2"],
         },
         preview,
+        languages,
     };
 }
 
@@ -314,24 +352,20 @@ describe("Import view", () => {
             "/web/dataset/call_kw/partner/get_import_templates",
             "/web/dataset/call_kw/base_import.import/create",
         ]);
-        expect(browser.location.href).toBe("https://www.hoot.test/odoo/action-2/import");
+        expect(location.href).toBe("https://www.hoot.test/odoo/action-2/import");
         expect(".o_import_action").toHaveCount(1);
-        expect(".o_nocontent_help .btn-outline-primary").toHaveCount(2);
-        expect(".o_nocontent_help > div:nth-of-type(2) .btn-outline-primary").toHaveText(
-            "Some Import Template"
-        );
-        expect(".o_nocontent_help > div:nth-of-type(2) .btn-outline-primary").toHaveProperty(
+        expect(".o_nocontent_help > div").toHaveCount(2);
+        expect(".o_nocontent_help > div:first").toHaveText("Some Import Template");
+        expect(".o_nocontent_help > div:first a").toHaveProperty(
             "href",
             "https://www.hoot.test" + templateURL
         );
-        expect(".o_nocontent_help > div:nth-of-type(3) .btn-outline-primary").toHaveText(
-            "Another Import Template"
-        );
-        expect(".o_nocontent_help > div:nth-of-type(3) .btn-outline-primary").toHaveProperty(
+        expect(".o_nocontent_help > div:last").toHaveText("Another Import Template");
+        expect(".o_nocontent_help > div:last a").toHaveProperty(
             "href",
             "https://www.hoot.test" + secondTemplateURL
         );
-        expect(".o_control_panel button").toHaveCount(2);
+        expect(".o_control_panel button").toHaveCount(1);
     });
 
     test("open import directlty from URL", async () => {
@@ -350,7 +384,7 @@ describe("Import view", () => {
             "/web/dataset/call_kw/partner/get_import_templates",
             "/web/dataset/call_kw/base_import.import/create",
         ]);
-        expect(browser.location.href).toBe("https://www.hoot.test/odoo/action-2/import");
+        expect(location.href).toBe("https://www.hoot.test/odoo/action-2/import");
         expect(".o_import_action").toHaveCount(1);
     });
 
@@ -385,11 +419,8 @@ describe("Import view", () => {
         ]);
         expect(".o_import_action .o_import_data_sidepanel").toHaveCount(1);
         expect(".o_import_action .o_import_data_content").toHaveCount(1);
-        expect(".o_import_data_sidepanel .fst-italic.truncate").toHaveText("fake_file", {
-            message: "filename is shown and can be truncated",
-        });
-        expect(".o_import_data_sidepanel .fst-italic:not(.truncate)").toHaveText(".xlsx", {
-            message: "file extension is displayed on its own",
+        expect(".o_last_breadcrumb_item").toHaveText("Import fake_file.xlsx", {
+            message: "filename is shown in breadcrumb",
         });
         expect(".o_import_data_sidepanel [name=o_import_sheet]").toHaveValue("Template");
 
@@ -544,72 +575,6 @@ describe("Import view", () => {
     });
 
     test.tags("desktop");
-    test("canceling import navigates back to the previous view", async () => {
-        Partner._views = {
-            list: `<list><field name="name"/></list>`,
-        };
-
-        class Users extends models.Model {
-            _name = "res.users";
-            has_group() {
-                return true;
-            }
-        }
-
-        defineModels([Users]);
-        defineActions([
-            {
-                id: 2,
-                res_model: "partner",
-                type: "ir.actions.act_window",
-                views: [[false, "list"]],
-            },
-        ]);
-
-        mockService("http", {
-            post(route, params) {
-                expect.step(route);
-                expect(params.ufile[0].name).toBe("fake_file.csv");
-                return super.post(route, params);
-            },
-        });
-
-        onRpc("base_import.import", "create", ({ route }) => expect.step(route));
-        onRpc("base_import.import", "parse_preview", ({ route }) => expect.step(route));
-
-        await mountWebClient();
-        await getService("action").doAction(2);
-
-        await waitFor(".o_list_view");
-        // Open the import action to import records
-        await toggleActionMenu();
-        await waitFor(".o-dropdown--menu");
-        expect(`.o_import_menu`).toHaveCount(1);
-        await contains(`.o_import_menu`).click();
-        expect.verifySteps(["/web/dataset/call_kw/base_import.import/create"]);
-
-        await waitFor(".o_import_action");
-        expect(".o_control_panel button").toHaveCount(2);
-        expect(".o_view_nocontent").toHaveCount(1);
-
-        // Upload a file
-        const file = new File(["fake_file"], "fake_file.csv", { type: "text/plain" });
-        await contains(".o_control_panel_main_buttons .o_import_file").click();
-        await setInputFiles([file]);
-        expect.verifySteps([
-            "/base_import/set_file",
-            "/web/dataset/call_kw/base_import.import/parse_preview",
-        ]);
-
-        // Click on 'Cancel' to go back to the previous view.
-        await waitFor(".o_import_data_content");
-        expect(".o_control_panel_main_buttons button").toHaveCount(4);
-        expect(".o_control_panel_main_buttons button:nth-of-type(3)").toHaveText("Cancel");
-        await contains(".o_control_panel_main_buttons button:nth-of-type(3)").click();
-        await waitFor(".o_list_view");
-    });
-
-    test.tags("desktop");
     test("drag-and-drop file support", async () => {
         onRpc("has_group", () => true);
         mockService("http", {
@@ -682,7 +647,7 @@ describe("Import view", () => {
             "action",
         ]);
         expect(".o_list_view").toHaveCount(1);
-        expect(browser.location.href).toBe(
+        expect(location.href).toBe(
             "https://www.hoot.test/odoo/action-2/import/imported-records"
         );
     });
@@ -743,28 +708,6 @@ describe("Import view", () => {
         expect(".o_import_data_sidepanel .o_import_formatting").toHaveCount(1);
     });
 
-    test("additional options in debug", async () => {
-        serverState.debug = "1";
-
-        await mountWebClient();
-        onRpc("base_import.import", "parse_preview", ({ route, args }) => {
-            expect.step(route);
-            expect(args[1].advanced).toBe(true);
-        });
-        await getService("action").doAction(1);
-
-        // Set and trigger the change of a file for the input
-        const file = new File(["fake_file"], "fake_file.csv", { type: "text/plain" });
-        await contains(".o_control_panel_main_buttons .o_import_file").click();
-        await setInputFiles([file]);
-        await animationFrame();
-        expect.verifySteps(["/web/dataset/call_kw/base_import.import/parse_preview"]);
-
-        expect(".o_import_data_sidepanel .o_import_debug_options").toHaveCount(1, {
-            message: "additional options are present in the side panel in debug mode",
-        });
-    });
-
     test("execute import with option 'use first row as headers'", async () => {
         mockService("notification", {
             add: (message) => {
@@ -789,7 +732,7 @@ describe("Import view", () => {
         await setInputFiles([file]);
         await animationFrame();
         await animationFrame();
-        expect(".o_import_data_sidepanel input[type=checkbox]").toBeChecked();
+        expect(".o_import_data_sidepanel input[type=checkbox]:first").toBeChecked();
         expect.verifySteps(["/web/dataset/call_kw/base_import.import/parse_preview"]);
         expect(
             ".o_import_data_content tr:eq(1) .o_import_file_column_cell > span:eq(0)"
@@ -822,8 +765,10 @@ describe("Import view", () => {
         );
 
         await contains(".o_import_data_content .o_select_menu").selectDropdownItem("Display name");
-        if (getMockEnv().isSmall) {
-            await contains(".o_control_panel_main_buttons button > .oi-ellipsis-v").click();
+        if (isSmall()) {
+            await contains(
+                ".o_control_panel_main_buttons button.o-control-panel-adaptive-dropdown"
+            ).click();
             await contains(".o-dropdown--menu button:visible").click();
         } else {
             await contains(".o_control_panel_main_buttons button:nth-child(2)").click();
@@ -864,16 +809,18 @@ describe("Import view", () => {
         await animationFrame();
         // For this test, we force the display of an error message if this field is set
         await contains(".o_import_data_content .o_select_menu").selectDropdownItem("Selection");
-        if (getMockEnv().isSmall) {
-            await contains(".o_control_panel_main_buttons button > .oi-ellipsis-v").click();
+        if (isSmall()) {
+            await contains(
+                ".o_control_panel_main_buttons button.o-control-panel-adaptive-dropdown"
+            ).click();
             await contains(".o-dropdown--menu button:visible").click();
         } else {
             await contains(".o_control_panel_main_buttons button:nth-child(2)").click();
         }
-        expect(".o_import_data_content .alert-danger:first").toHaveText(
-            "The file contains blocking errors (see below)",
-            { message: "a message is shown if the import was blocked" }
-        );
+        await animationFrame();
+        expect(".o_notification_fade").toHaveText("Import failed: see errors below", {
+            message: "a notification is shown if the import was blocked",
+        });
         expect(".o_import_report p").toHaveText("Incorrect value", {
             message: "the message is displayed in the view",
         });
@@ -927,16 +874,18 @@ describe("Import view", () => {
         await animationFrame();
         // For this test, we force the display of an error message if this field is set
         await contains(".o_import_data_content .o_select_menu").selectDropdownItem("Bar");
-        if (getMockEnv().isSmall) {
-            await contains(".o_control_panel_main_buttons button > .oi-ellipsis-v").click();
+        if (isSmall()) {
+            await contains(
+                ".o_control_panel_main_buttons button.o-control-panel-adaptive-dropdown"
+            ).click();
             await contains(".o-dropdown--menu button:visible").click();
         } else {
             await contains(".o_control_panel_main_buttons button:nth-child(2)").click();
         }
-        expect(".o_import_data_content .alert-danger:first").toHaveText(
-            "The file contains blocking errors (see below)",
-            { message: "a message is shown if the import was blocked" }
-        );
+        await animationFrame();
+        expect(".o_notification_fade").toHaveText("Import failed: see errors below", {
+            message: "a notification is shown if the import was blocked",
+        });
         expect(".o_import_field_boolean select").toHaveText(
             "Prevent import\nSet to: False\nSet to: True\nSkip record"
         );
@@ -983,10 +932,10 @@ describe("Import view", () => {
         await contains(".o_import_data_content .o_select_menu").selectDropdownItem("Many2Many");
         await contains(".o_control_panel_main_buttons button:first-child").click();
         expect.verifySteps(["execute_import"]);
-        expect(".o_import_data_content .alert-danger:first").toHaveText(
-            "The file contains blocking errors (see below)",
-            { message: "a message is shown if the import was blocked" }
-        );
+        await animationFrame();
+        expect(".o_notification_fade").toHaveText("Import failed: see errors below", {
+            message: "a notification is shown if the import was blocked",
+        });
         expect(".o_import_field_many2many select").toHaveText(
             "Prevent import\nSet value as empty\nSkip record\nCreate new values"
         );
@@ -997,8 +946,10 @@ describe("Import view", () => {
             message: "import is now successful",
         });
         await contains(".o_import_field_many2many select").select("import_skip_records");
-        if (getMockEnv().isSmall) {
-            await contains(".o_control_panel_main_buttons button > .oi-ellipsis-v").click();
+        if (isSmall()) {
+            await contains(
+                ".o_control_panel_main_buttons button.o-control-panel-adaptive-dropdown"
+            ).click();
             await contains(".o-dropdown--menu button:visible").click();
         } else {
             await contains(".o_control_panel_main_buttons button:nth-child(2)").click();
@@ -1037,10 +988,10 @@ describe("Import view", () => {
         await setInputFiles([file]);
         await animationFrame();
         await contains(".o_control_panel_main_buttons button:nth-child(1)").click();
-        expect(".o_import_data_content .alert-danger:first").toHaveText(
-            "The file contains blocking errors (see below)",
-            { message: "a message is shown if the import was blocked" }
-        );
+        await animationFrame();
+        expect(".o_notification_fade").toHaveText("Import failed: see errors below", {
+            message: "a notification is shown if the import was blocked",
+        });
         // Check that errors have been sorted and grouped
         expect(".o_import_report p").toHaveText("Multiple errors occurred in field Foo:");
         expect(".o_import_report li:first-child").toHaveText("Duplicate value at multiple rows");
@@ -1058,6 +1009,7 @@ describe("Import view", () => {
     });
 
     test("test import in batches", async () => {
+        serverState.debug = "1";
         let executeImportCount = 0;
 
         patchWithCleanup(ImportAction.prototype, {
@@ -1090,8 +1042,7 @@ describe("Import view", () => {
         await contains(".o_control_panel_main_buttons .o_import_file").click();
         await setInputFiles([file]);
         await animationFrame();
-        expect("input#o_import_batch_limit").toHaveValue("2000");
-        expect("input#o_import_row_start").toHaveValue("1");
+        expect("input#o_import_batch_limit").toHaveValue(2000);
 
         await contains("input#o_import_batch_limit").edit(1);
         await contains(".o_control_panel_main_buttons button:first").click();
@@ -1102,6 +1053,7 @@ describe("Import view", () => {
     });
 
     test("execute and pause import in batches", async () => {
+        serverState.debug = "1";
         patchWithCleanup(ImportAction.prototype, {
             get isBatched() {
                 // make sure the UI displays the batched import options
@@ -1121,16 +1073,13 @@ describe("Import view", () => {
         patchWithCleanup(ImportDataProgress.prototype, {
             setup() {
                 super.setup();
-                useEffect(
-                    () => {
-                        if (this.props.importProgress.step === 1) {
-                            // Trigger a pause at this step to resume later from the view
-                            expect.step("pause triggered during step 2");
-                            this.interrupt();
-                        }
-                    },
-                    () => [this.props.importProgress.step]
-                );
+                useEffect(() => {
+                    if (this.props.importProgress.step === 1) {
+                        // Trigger a pause at this step to resume later from the view
+                        expect.step("pause triggered during step 2");
+                        this.interrupt();
+                    }
+                });
 
                 expect(this.props.totalSteps).toBe(3, {
                     message: "progress bar receives the number of steps",
@@ -1155,8 +1104,10 @@ describe("Import view", () => {
         await setInputFiles([file]);
         await animationFrame();
         await contains("input#o_import_batch_limit").edit(1);
-        if (getMockEnv().isSmall) {
-            await contains(".o_control_panel_main_buttons button > .oi-ellipsis-v").click();
+        if (isSmall()) {
+            await contains(
+                ".o_control_panel_main_buttons button.o-control-panel-adaptive-dropdown"
+            ).click();
             await contains(".o-dropdown--menu button:visible").click();
         } else {
             await contains(".o_control_panel_main_buttons button:nth-child(2)").click();
@@ -1175,15 +1126,13 @@ describe("Import view", () => {
         expect(".o_control_panel_main_buttons button:nth-child(2)").toHaveText("Resume", {
             message: "button contains the right text",
         });
-        expect("input#o_import_row_start").toHaveValue("2", {
-            message: "the import will resume at line 2",
-        });
         expect(".o_notification_body").toHaveText("1 records successfully imported", {
             message: "display a notification with the quantity of imported values",
         });
     });
 
     test("test and pause import in batches", async () => {
+        serverState.debug = "1";
         patchWithCleanup(ImportAction.prototype, {
             get isBatched() {
                 // make sure the UI displays the batched import options
@@ -1203,16 +1152,13 @@ describe("Import view", () => {
         patchWithCleanup(ImportDataProgress.prototype, {
             setup() {
                 super.setup();
-                useEffect(
-                    () => {
-                        if (this.props.importProgress.step === 1) {
-                            // Trigger a pause at this step to resume later from the view
-                            expect.step("pause triggered during step 2");
-                            this.interrupt();
-                        }
-                    },
-                    () => [this.props.importProgress.step]
-                );
+                useEffect(() => {
+                    if (this.props.importProgress.step === 1) {
+                        // Trigger a pause at this step to resume later from the view
+                        expect.step("pause triggered during step 2");
+                        this.interrupt();
+                    }
+                });
 
                 expect(this.props.totalSteps).toBe(3, {
                     message: "progress bar receives the number of steps",
@@ -1244,44 +1190,10 @@ describe("Import view", () => {
         expect.verifySteps(["Block UI received the right text", "pause triggered during step 2"]);
         expect(".o_import_data_content .alert-info").toHaveText("Everything seems valid.");
         expect(".o_control_panel_main_buttons button:first").toHaveText("Import");
-        expect("input#o_import_row_start").toHaveValue("1", {
-            message: "the import will resume at line 1",
-        });
-    });
-
-    test("test in batches then reset starting row", async () => {
-        patchWithCleanup(ImportAction.prototype, {
-            get isBatched() {
-                // make sure the UI displays the batched import options
-                return true;
-            },
-        });
-
-        await mountWebClient();
-        onRpc("base_import.import", "execute_import", ({ args }) => executeImport(args, true));
-        await getService("action").doAction(1);
-
-        // Set and trigger the change of a file for the input
-        const file = new File(["fake_file"], "fake_file.xls", { type: "text/plain" });
-        await contains(".o_control_panel_main_buttons .o_import_file").click();
-        await setInputFiles([file]);
-        await animationFrame();
-        await contains("input#o_import_batch_limit").edit(1);
-        await contains(".o_control_panel_main_buttons button:first").click();
-
-        await animationFrame();
-        expect("input#o_import_row_start").toHaveValue("2");
-        await animationFrame();
-        expect("input#o_import_row_start").toHaveValue("3");
-
-        await animationFrame();
-        expect(".o_import_data_content .alert-info").toHaveText("Everything seems valid.");
-        expect("input#o_import_row_start").toHaveValue("1", {
-            message: "the actual import will resume at line 1",
-        });
     });
 
     test("execute import in batches until completion", async () => {
+        serverState.debug = "1";
         patchWithCleanup(ImportAction.prototype, {
             get isBatched() {
                 // make sure the UI displays the batched import options
@@ -1324,8 +1236,10 @@ describe("Import view", () => {
         // Set batch limit to 1. Total rows is 3. This will trigger 3 batches.
         await contains("input#o_import_batch_limit").edit(1);
 
-        if (getMockEnv().isSmall) {
-            await contains(".o_control_panel_main_buttons button > .oi-ellipsis-v").click();
+        if (isSmall()) {
+            await contains(
+                ".o_control_panel_main_buttons button.o-control-panel-adaptive-dropdown"
+            ).click();
             await contains(".o-dropdown--menu button:contains('Import')").click();
         } else {
             await contains(".o_control_panel_main_buttons button:contains('Import')").click();
@@ -1413,6 +1327,7 @@ describe("Import view", () => {
     });
 
     test("batch import relational fields", async () => {
+        serverState.debug = "1";
         let executeImportCount = 0;
 
         patchWithCleanup(ImportAction.prototype, {
@@ -1541,17 +1456,19 @@ describe("Import view", () => {
         await animationFrame();
         // For this test, we force the display of an error message if this field is set
         await contains(".o_import_data_content .o_select_menu").selectDropdownItem("Many2Many");
-        if (getMockEnv().isSmall) {
-            await contains(".o_control_panel_main_buttons button > .oi-ellipsis-v").click();
+        if (isSmall()) {
+            await contains(
+                ".o_control_panel_main_buttons button.o-control-panel-adaptive-dropdown"
+            ).click();
             await contains(".o-dropdown--menu button:visible").click();
         } else {
             await contains(".o_control_panel_main_buttons button:nth-child(2)").click();
         }
 
-        expect(".o_import_data_content .alert-danger:first").toHaveText(
-            "The file contains blocking errors (see below)",
-            { message: "A message is shown if the import was blocked" }
-        );
+        await animationFrame();
+        expect(".o_notification_fade").toHaveText("Import failed: see errors below", {
+            message: "a notification is shown if the import was blocked",
+        });
 
         expect("tr:nth-child(3) .o_import_file_column_cell span.text-truncate").toHaveText(
             "many2many_field/id",
@@ -1572,19 +1489,11 @@ describe("Import view", () => {
     });
 
     test("date format should be converted to strftime", async () => {
-        let parseCount = 0;
         redirect("/odoo/action-2");
         await mountWebClient();
-        onRpc("base_import.import", "parse_preview", async ({ args }) => {
-            parseCount++;
+        onRpc("base_import.import", "parse_preview", ({ args }) => {
             expect.step("parse_preview");
-            const response = await parsePreview(args[1]);
-            if (parseCount === 2) {
-                expect(response.options.date_format).toBe("%Y%m%d", {
-                    message: "server sends back a strftime formatted date",
-                });
-            }
-            return response;
+            return parsePreview(args[1]);
         });
         onRpc("base_import.import", "execute_import", ({ args }) => {
             expect.step("execute_import");
@@ -1599,18 +1508,17 @@ describe("Import view", () => {
         await contains(".o_control_panel_main_buttons .o_import_file").click();
         await setInputFiles([file]);
         await animationFrame();
-        await contains(".o_import_date_format#date_format-3").edit("YYYYMMDD");
+        await contains(".o_import_date_format#date_format-5").edit("YYYYMMDD");
 
-        // Parse the file again with the updated date format to check that
-        // the format is correctly formatted in the UI
-        await contains(".o_import_formatting button").click();
-        if (getMockEnv().isSmall) {
-            await contains(".o_control_panel_main_buttons button > .oi-ellipsis-v").click();
+        if (isSmall()) {
+            await contains(
+                ".o_control_panel_main_buttons button.o-control-panel-adaptive-dropdown"
+            ).click();
             await contains(".o-dropdown--menu button:visible").click();
         } else {
             await contains(".o_control_panel_main_buttons button:contains(Import):eq(0)").click();
         }
-        expect.verifySteps(["parse_preview", "parse_preview", "execute_import"]);
+        expect.verifySteps(["parse_preview", "execute_import"]);
         await waitFor(".o_list_view");
     });
 
@@ -1639,19 +1547,19 @@ describe("Import view", () => {
         });
 
         expect(".o_import_action").toHaveCount(1);
-        expect(".o_nocontent_help .btn-outline-primary").toHaveText("Some Import Template");
-        expect(".o_nocontent_help .btn-outline-primary").toHaveProperty(
+        expect(".o_nocontent_help a:first").toHaveText("Some Import Template");
+        expect(".o_nocontent_help a:first").toHaveProperty(
             "href",
             "https://www.hoot.test" + templateURL
         );
-        expect(".o_control_panel button:visible").toHaveCount(2);
+        expect(".o_control_panel button:visible").toHaveCount(1);
         expect.verifySteps([
             "/web/dataset/call_kw/team/get_import_templates",
             "/web/dataset/call_kw/base_import.import/create",
         ]);
 
         await runAllTimers(); // wait for router pushState
-        expect(browser.location.href).toBe("https://www.hoot.test/odoo/import?active_model=team");
+        expect(location.href).toBe("https://www.hoot.test/odoo/import?active_model=team");
     });
 
     test("model in params is the main model (retrocompatibility)", async () => {
@@ -1679,23 +1587,24 @@ describe("Import view", () => {
         });
 
         expect(".o_import_action").toHaveCount(1);
-        expect(".o_nocontent_help .btn-outline-primary").toHaveText("Some Import Template");
-        expect(".o_nocontent_help .btn-outline-primary").toHaveProperty(
+        expect(".o_nocontent_help a:first").toHaveText("Some Import Template");
+        expect(".o_nocontent_help a:first").toHaveProperty(
             "href",
             "https://www.hoot.test" + templateURL
         );
-        expect(".o_control_panel button:visible").toHaveCount(2);
+        expect(".o_control_panel button:visible").toHaveCount(1);
         expect.verifySteps([
             "/web/dataset/call_kw/team/get_import_templates",
             "/web/dataset/call_kw/base_import.import/create",
         ]);
 
         await runAllTimers(); // wait for router pushState
-        expect(browser.location.href).toBe("https://www.hoot.test/odoo/import?active_model=team");
+        expect(location.href).toBe("https://www.hoot.test/odoo/import?active_model=team");
     });
 
     test.tags("desktop");
     test("batched import doesn't exit when a failure occurs", async () => {
+        serverState.debug = "1";
         defineActions([
             {
                 id: 2,
@@ -1747,10 +1656,66 @@ describe("Import view", () => {
 
         await contains(".o_control_panel_main_buttons button:contains('Import')").click();
         await animationFrame();
-
-        expect(".alert-danger:eq(0)").toHaveText("The file contains blocking errors (see below)");
         expect(".o_import_report.alert-danger").toHaveText("Incorrect value");
-        expect.verifySteps([]);
+        expect.verifySteps(["Import failed: see errors below"]);
+    });
+
+    test("show translation column if more than one lang active", async () => {
+        // Enable French language
+        ResLang._records[1].active = true;
+        patchWithCleanup(user, {
+            lang: "en-US",
+        });
+        onRpc("base_import.import", "parse_preview", ({ args }) =>
+            parsePreview(args[1], {
+                headers: ["id", "name", "name@fr_FR"],
+                data: ["test_lang", "Normal name", "Nom en français"],
+            })
+        );
+        onRpc("base_import.import", "execute_import", ({ args }) => {
+            expect.step("execute_import");
+            expect(args[1]).toEqual([false, "name", "name@fr_FR"]);
+            expect(args[2]).toEqual(["id", "name", "name@fr_fr"]);
+        });
+        redirect("/odoo/action-2");
+        await mountWebClient();
+        await getService("action").doAction(1);
+
+        // Set and trigger the change of a file for the input
+        const file = new File(["fake_file"], "fake_file.xls", { type: "text/plain" });
+        await contains(".o_control_panel_main_buttons .o_import_file").click();
+        await setInputFiles([file]);
+        await animationFrame();
+
+        expect(".o_import_data_content table th").toHaveCount(4, {
+            message: "A new column should be present for the selection of the language",
+        });
+
+        expect(
+            ".o_import_data_content table tr:is(:nth-child(2), :nth-child(3)) td:nth-child(2)"
+        ).toHaveText("Name");
+        expect(".o_import_data_content table tr:nth-child(2) td:nth-child(3)").toHaveText(
+            "English (US)"
+        );
+        expect(
+            ".o_import_data_content table tr:nth-child(2) td:nth-child(3) .o_select_menu_toggler_slot span"
+        ).toHaveClass("text-muted");
+        expect(".o_import_data_content table tr:nth-child(3) td:nth-child(3)").toHaveText(
+            "French / Français"
+        );
+        await contains(
+            ".o_import_data_content table tr:nth-child(3) td:nth-child(3) [data-icon='close']"
+        ).click();
+        expect(".o_import_data_content table tr:nth-child(3) td:nth-child(3)").toHaveText(
+            "English (US)"
+        );
+        await contains(
+            ".o_import_data_content table tr:nth-child(3) td:nth-child(3) button"
+        ).click();
+        await contains(`.o-dropdown-item :contains("French / Français")`).click();
+
+        await contains(".o_control_panel_main_buttons button:first-child").click();
+        expect.verifySteps(["execute_import"]);
     });
 });
 
@@ -1772,6 +1737,70 @@ test("field selection has a clear button", async () => {
     expect("tr:nth-child(2) .o_select_menu").toHaveText("To import, select a field...");
 });
 
+test("locale separators only apply to CSV, not to other formats", async () => {
+    let importCount = 0;
+    onRpc("base_import.import", "execute_import", ({ args }) => {
+        importCount++;
+        expect.step(`import_${importCount}`);
+        if (importCount === 1) {
+            expect(args[3].float_thousand_separator).toBe(".", {
+                message: "CSV uses locale thousands separator",
+            });
+            expect(args[3].float_decimal_separator).toBe(",", {
+                message: "CSV uses locale decimal separator",
+            });
+        } else if (importCount === 2) {
+            expect(args[3].float_thousand_separator).toBe(",", {
+                message: "XLSX ignores locale and uses English thousands separator",
+            });
+            expect(args[3].float_decimal_separator).toBe(".", {
+                message: "XLSX ignores locale and uses English decimal separator",
+            });
+        } else {
+            expect(args[3].float_thousand_separator).toBe(".", {
+                message: "re-uploaded CSV restores locale thousands separator",
+            });
+            expect(args[3].float_decimal_separator).toBe(",", {
+                message: "re-uploaded CSV restores locale decimal separator",
+            });
+        }
+    });
+
+    await mountWebClient();
+    patchWithCleanup(localization, { thousandsSep: ".", decimalPoint: "," });
+    await getService("action").doAction(1);
+
+    const csvFile = new File(["fake_file"], "data.csv", { type: "text/plain" });
+    await contains(".o_control_panel_main_buttons .o_import_file").click();
+    await setInputFiles([csvFile]);
+    await animationFrame();
+    await contains(".o_control_panel_main_buttons button:first-child").click();
+    expect.verifySteps(["import_1"]);
+
+    const xlsxFile = new File(["fake_file"], "data.xlsx", { type: "text/plain" });
+    if (isSmall()) {
+        await contains(".o_control_panel_main_buttons button.o-control-panel-adaptive-dropdown").click();
+        await contains(".o-dropdown--menu .o_file_input_trigger").click();
+    } else {
+        await contains(".o_control_panel_main_buttons .o_file_input button").click();
+    }
+    await setInputFiles([xlsxFile]);
+    await animationFrame();
+    await contains(".o_control_panel_main_buttons button:first-child").click();
+    expect.verifySteps(["import_2"]);
+
+    const csvFile2 = new File(["fake_file"], "data.csv", { type: "text/plain" });
+    if (isSmall()) {
+        await contains(".o-dropdown--menu .o_file_input_trigger").click();
+    } else {
+        await contains(".o_control_panel_main_buttons .o_file_input button").click();
+    }
+    await setInputFiles([csvFile2]);
+    await animationFrame();
+    await contains(".o_control_panel_main_buttons button:first-child").click();
+    expect.verifySteps(["import_3"]);
+});
+
 describe("Import a CSV", () => {
     test("formatting options for date and datetime options", async () => {
         mockService("http", {
@@ -1789,20 +1818,20 @@ describe("Import a CSV", () => {
         await contains(".o_control_panel_main_buttons .o_import_file").click();
         await setInputFiles([file]);
         await animationFrame();
-        expect(".o_import_date_format").toHaveAttribute("list", "list-3", {
+        expect(".o_import_date_format").toHaveAttribute("list", "list-5", {
             message: "a datalist is associated to the date input",
         });
         expect("label:contains(Date Format) sup").toHaveCount(1, {
             message: "a tooltip is displayed on the label of the option",
         });
-        expect("datalist#list-3 option:first").toHaveValue("YYYY-MM-DD");
-        expect(".o_import_datetime_format").toHaveAttribute("list", "list-4", {
+        expect("datalist#list-5 option:first").toHaveValue("DD/MM/YYYY");
+        expect(".o_import_datetime_format").toHaveAttribute("list", "list-6", {
             message: "a datalist is associated to the datetime input",
         });
         expect("label:contains(Datetime Format) sup").toHaveCount(1, {
             message: "a tooltip is displayed on the label of the option",
         });
-        expect("datalist#list-4 option:first").toHaveValue("YYYY-MM-DD HH:mm:SS");
+        expect("datalist#list-6 option:first").toHaveValue("YYYY-MM-DD HH:mm:SS");
         expect(".o_import_action .o_import_data_content").toHaveCount(1);
         expect.verifySteps(["/base_import/set_file"]);
     });

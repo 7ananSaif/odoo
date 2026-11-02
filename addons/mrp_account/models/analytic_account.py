@@ -76,12 +76,11 @@ class AccountAnalyticAccount(models.Model):
 class AccountAnalyticLine(models.Model):
     _inherit = 'account.analytic.line'
 
-    category = fields.Selection(selection_add=[('manufacturing_order', 'Manufacturing Order')])
+    category = fields.Selection(selection_add=[('manufacturing_order', 'Manufacturing Orders')])
 
 
 class AccountAnalyticApplicability(models.Model):
     _inherit = 'account.analytic.applicability'
-    _description = "Analytic Plan's Applicabilities"
 
     business_domain = fields.Selection(
         selection_add=[

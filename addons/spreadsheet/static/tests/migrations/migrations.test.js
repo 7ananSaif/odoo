@@ -1,6 +1,8 @@
 import { describe, expect, test } from "@odoo/hoot";
-import { load } from "@odoo/o-spreadsheet";
+import { load, helpers } from "@odoo/o-spreadsheet";
 import { defineSpreadsheetActions, defineSpreadsheetModels } from "../helpers/data";
+
+const { schemeToColorScale } = helpers;
 
 defineSpreadsheetModels();
 defineSpreadsheetActions();
@@ -28,7 +30,7 @@ test("Odoo formulas are migrated", () => {
     expect(migratedData.sheets[0].cells.A1).toBe(`=PIVOT.VALUE("1")`);
     expect(migratedData.sheets[0].cells.A2).toBe(`=PIVOT.HEADER("1")`);
     expect(migratedData.sheets[0].cells.A3).toBe(`=ODOO.FILTER.LABEL("1")`);
-    expect(migratedData.sheets[0].cells.A4).toBe(`=ODOO.LIST("1")`);
+    expect(migratedData.sheets[0].cells.A4).toBe(`=ODOO.LIST.VALUE("1")`);
     expect(migratedData.sheets[0].cells.A5).toBe(`=ODOO.LIST.HEADER("1")`);
     expect(migratedData.sheets[0].cells.A6).toBe(`=ODOO.PIVOT.POSITION("1")`);
     expect(migratedData.sheets[0].cells.A7).toBe(`=PIVOT.VALUE("1")`);
@@ -135,9 +137,11 @@ test("List name default is model name", () => {
             1: {
                 name: "Name",
                 model: "Model",
+                columns: [],
             },
             2: {
                 model: "Model",
+                columns: [],
             },
         },
     };
@@ -211,6 +215,7 @@ test("fieldMatchings are moved from filters to their respective datasources", ()
         lists: {
             1: {
                 name: "Name",
+                columns: [],
             },
         },
         sheets: [
@@ -282,6 +287,7 @@ test("fieldMatchings offsets are correctly preserved after migration", () => {
         lists: {
             1: {
                 name: "Name",
+                columns: [],
             },
         },
         sheets: [
@@ -591,12 +597,12 @@ test("Chart cumulatedStart is set to true if cumulative at migration", () => {
     };
     const migratedData = load(data);
     const sheet = migratedData.sheets[0];
-    expect(sheet.figures[0].data.metaData.cumulatedStart).toBe(true);
-    expect(sheet.figures[0].data.cumulatedStart).toBe(true);
-    expect(sheet.figures[1].data.metaData.cumulatedStart).toBe(false);
-    expect(sheet.figures[1].data.cumulatedStart).toBe(false);
-    expect(sheet.figures[2].data.metaData.cumulatedStart).toBe(false);
-    expect(sheet.figures[2].data.cumulatedStart).toBe(false);
+    expect(sheet.figures[0].data.dataSource.metaData.cumulatedStart).toBe(true);
+    expect(sheet.figures[0].data.dataSource.cumulatedStart).toBe(true);
+    expect(sheet.figures[1].data.dataSource.metaData.cumulatedStart).toBe(false);
+    expect(sheet.figures[1].data.dataSource.cumulatedStart).toBe(false);
+    expect(sheet.figures[2].data.dataSource.metaData.cumulatedStart).toBe(false);
+    expect(sheet.figures[2].data.dataSource.cumulatedStart).toBe(false);
 });
 
 test("text global filter default value is now an array of strings", () => {
@@ -816,6 +822,60 @@ test("Date filters are migrated", () => {
     expect(filters[0].disabledPeriods).toBe(undefined);
 });
 
+test("Odoo Menu references are converted starting from 19.1.1", () => {
+    const data = {
+        version: "18.5.10",
+        chartOdooMenusReferences: {
+            chart1: "menu.menu_1",
+            chart2: "menu.menu_2",
+        },
+    };
+    const migratedData = load(data);
+    expect(migratedData.odooLinkReferences).toEqual({
+        chart1: { type: "odooMenu", odooMenuId: "menu.menu_1" },
+        chart2: { type: "odooMenu", odooMenuId: "menu.menu_2" },
+    });
+});
+
+test("Odoo geo charts color scales are migrated", () => {
+    const data = {
+        version: "18.5.10",
+        sheets: [
+            {
+                figures: [
+                    {
+                        id: "fig1",
+                        tag: "chart",
+                        data: {
+                            chartId: "chart1",
+                            type: "odoo_geo",
+                            colorScale: "reds",
+                        },
+                    },
+                    {
+                        id: "fig1",
+                        tag: "carousel",
+                        data: {
+                            chartDefinitions: {
+                                chart2: {
+                                    type: "odoo_geo",
+                                    colorScale: "greens",
+                                },
+                            },
+                        },
+                    },
+                ],
+            },
+        ],
+    };
+    const migratedData = load(data);
+    const figures = migratedData.sheets[0].figures;
+    expect(figures[0].data.colorScale).toEqual(schemeToColorScale("reds"));
+    expect(figures[1].data.chartDefinitions["chart2"].colorScale).toEqual(
+        schemeToColorScale("greens")
+    );
+});
+
 test("18.5.10: ODOO.FILTER.VALUE to ODOO.FILTER.LABEL in cells", () => {
     const data = {
         version: "18.4.14",
@@ -831,4 +891,18 @@ test("18.5.10: ODOO.FILTER.VALUE to ODOO.FILTER.LABEL in cells", () => {
     expect(migratedData.sheets[0].cells.A1).toBe(
         `=ODOO.FILTER.LABEL("MyFilter")+ODOO.FILTER.LABEL("AnotherFilter")`
     );
+});
+
+test("19.3.10: List columns are converted as objects", () => {
+    const data = {
+        version: "19.2.1",
+        lists: {
+            1: {
+                name: "My List",
+                columns: ["foo", "bar"],
+            },
+        },
+    };
+    const migratedData = load(data);
+    expect(migratedData.lists["1"].columns).toEqual([{ name: "foo" }, { name: "bar" }]);
 });

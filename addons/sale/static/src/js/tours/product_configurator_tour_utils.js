@@ -50,7 +50,7 @@ function decreaseProductQuantity(productName) {
         trigger: `
             ${productSelector(productName)}
             td.o_sale_product_configurator_qty
-            button:has(i.oi-minus)
+            button:has(i[data-icon="remove"])
         `,
         run: 'click',
     };
@@ -62,7 +62,7 @@ function increaseProductQuantity(productName) {
         trigger: `
             ${productSelector(productName)}
             td.o_sale_product_configurator_qty
-            button:has(i.oi-plus)
+            button:has(i[data-icon="add"])
         `,
         run: 'click',
     };
@@ -164,9 +164,7 @@ function selectAndSetCustomAttribute(
 function assertPriceTotal(total) {
     return {
         content: `Assert that the total is ${total}`,
-        trigger: `
-            .o_sale_product_configurator_dialog .o_configurator_price_total:contains("${total}"),
-        `,
+        trigger: `.o_sale_product_configurator_dialog .o_configurator_price_total:contains("${total}")`,
     };
 }
 

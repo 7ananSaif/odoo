@@ -6,15 +6,15 @@
 # Martin Trigaux, 2022
 # Sergio Zanchetta <primes2h@gmail.com>, 2022
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
-# "Marianna Ciofani (cima)" <cima@odoo.com>, 2025.
+# "Marianna Ciofani (cima)" <cima@odoo.com>, 2025, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-10-04 02:31+0000\n"
+"POT-Creation-Date: 2026-09-11 17:42+0000\n"
+"PO-Revision-Date: 2026-10-15 16:00+0000\n"
 "Last-Translator: \"Marianna Ciofani (cima)\" <cima@odoo.com>\n"
-"Language-Team: Italian <https://translate.odoo.com/projects/odoo-19/barcodes/"
+"Language-Team: Italian <https://translate.odoo.com/projects/odoo-20/barcodes/"
 "it/>\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
@@ -22,7 +22,7 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=(n == 1) ? 0 : ((n != 0 && n % 1000000 == "
 "0) ? 1 : 2);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: barcodes
 #. odoo-python
@@ -96,20 +96,16 @@ msgstr "Qualsiasi"
 
 #. module: barcodes
 #. odoo-javascript
-#: code:addons/barcodes/static/src/components/manual_barcode.xml:0
+#: code:addons/barcodes/static/src/components/barcode_input.xml:0
 msgid "Apply"
 msgstr "Applica"
 
 #. module: barcodes
 #. odoo-javascript
 #: code:addons/barcodes/static/src/components/barcode_scanner.xml:0
+#: model:ir.module.module,shortdesc:base.module_barcodes
 msgid "Barcode"
 msgstr "Codice a barre"
-
-#. module: barcodes
-#: model:ir.model,name:barcodes.model_barcodes_barcode_events_mixin
-msgid "Barcode Event Mixin"
-msgstr "Mixin evento codice a barre"
 
 #. module: barcodes
 #: model:ir.model,name:barcodes.model_barcode_nomenclature
@@ -137,9 +133,9 @@ msgid "Barcode Rule"
 msgstr "Regola codice a barre"
 
 #. module: barcodes
-#: model:ir.model.fields,field_description:barcodes.field_barcodes_barcode_events_mixin___barcode_scanned
-msgid "Barcode Scanned"
-msgstr "Codice a barre scansionato"
+#: model_terms:ir.ui.view,arch_db:barcodes.view_partner_barcodes_form
+msgid "Barcode must start with `042`"
+msgstr "Il codice a barre deve iniziare con `042`"
 
 #. module: barcodes
 #. odoo-javascript
@@ -148,9 +144,19 @@ msgid "Barcode: %(barcode)s"
 msgstr "Codice a barre: %(barcode)s"
 
 #. module: barcodes
+#. odoo-javascript
+#: code:addons/barcodes/static/src/components/barcode_view.xml:0
+msgid ""
+"Click the icon in the browser on the left of the address bar and toggle "
+"Camera permissions."
+msgstr ""
+"Fai clic sull’icona nel browser a sinistra della barra degli indirizzi e "
+"attiva o disattiva le autorizzazioni per la fotocamera."
+
+#. module: barcodes
 #: model:ir.model,name:barcodes.model_res_company
-msgid "Companies"
-msgstr "Aziende"
+msgid "Company"
+msgstr "Azienda"
 
 #. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_nomenclature__create_uid
@@ -167,7 +173,6 @@ msgstr "Data creazione"
 #. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_nomenclature__display_name
 #: model:ir.model.fields,field_description:barcodes.field_barcode_rule__display_name
-#: model:ir.model.fields,field_description:barcodes.field_barcodes_barcode_events_mixin__display_name
 #: model:ir.model.fields,field_description:barcodes.field_ir_http__display_name
 #: model:ir.model.fields,field_description:barcodes.field_res_company__display_name
 msgid "Display Name"
@@ -189,15 +194,21 @@ msgid "EAN-8"
 msgstr "EAN-8"
 
 #. module: barcodes
+#. odoo-javascript
+#: code:addons/barcodes/static/src/components/barcode_view.xml:0
+msgid "Edit access to scan"
+msgstr "Modifica l’accesso per scansionare"
+
+#. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_rule__encoding
 msgid "Encoding"
 msgstr "Codifica"
 
 #. module: barcodes
 #. odoo-javascript
-#: code:addons/barcodes/static/src/components/manual_barcode.js:0
-msgid "Enter a barcode..."
-msgstr "Inserisci un codice a barre..."
+#: code:addons/barcodes/static/src/components/barcode_input.js:0
+msgid "Enter a barcode"
+msgstr "Aggiungi un codice a barre"
 
 #. module: barcodes
 #: model:ir.model,name:barcodes.model_ir_http
@@ -207,21 +218,10 @@ msgstr "Instradamento HTTP"
 #. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_nomenclature__id
 #: model:ir.model.fields,field_description:barcodes.field_barcode_rule__id
-#: model:ir.model.fields,field_description:barcodes.field_barcodes_barcode_events_mixin__id
 #: model:ir.model.fields,field_description:barcodes.field_ir_http__id
 #: model:ir.model.fields,field_description:barcodes.field_res_company__id
 msgid "ID"
 msgstr "ID"
-
-#. module: barcodes
-#. odoo-python
-#: code:addons/barcodes/models/barcode_events_mixin.py:0
-msgid ""
-"In order to use barcodes.barcode_events_mixin, method on_barcode_scanned "
-"must be implemented"
-msgstr ""
-"Per utilizzare barcodes.barcode_events_mixin, il metodo on_barcode_scanned "
-"deve essere implementato"
 
 #. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_nomenclature__write_uid
@@ -239,6 +239,12 @@ msgstr "Ultimo aggiornamento il"
 #: model:ir.model.fields.selection,name:barcodes.selection__barcode_nomenclature__upc_ean_conv__none
 msgid "Never"
 msgstr "Mai"
+
+#. module: barcodes
+#. odoo-javascript
+#: code:addons/barcodes/static/src/components/barcode_view.xml:0
+msgid "No access to your camera"
+msgstr "Nessun accesso alla fotocamera"
 
 #. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_res_company__nomenclature_id
@@ -287,6 +293,11 @@ msgstr "Nome regola"
 #: model:ir.model.fields,field_description:barcodes.field_barcode_nomenclature__rule_ids
 msgid "Rules"
 msgstr "Regole"
+
+#. module: barcodes
+#: model:ir.module.module,summary:base.module_barcodes
+msgid "Scan and Parse Barcodes"
+msgstr "Scansione e analisi codici a barre"
 
 #. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_rule__sequence
@@ -417,11 +428,6 @@ msgstr ""
 "bassa per prime"
 
 #. module: barcodes
-#: model:ir.model.fields,help:barcodes.field_barcodes_barcode_events_mixin___barcode_scanned
-msgid "Value of the last barcode scanned."
-msgstr "Valore dell'ultimo codice a barre scansionato."
-
-#. module: barcodes
 #. odoo-python
 #: code:addons/barcodes/models/barcode_nomenclature.py:0
 msgid ""
@@ -430,5 +436,5 @@ msgstr ""
 "Non è possibile eliminare '%(name)s' perché si tratta della nomenclatura "
 "predefinita del codice a barre."
 
-#~ msgid "Barcode: "
-#~ msgstr "Codice a barre: "
+#~ msgid "Enter a barcode..."
+#~ msgstr "Inserisci un codice a barre..."

@@ -5,7 +5,8 @@ from odoo.addons.mail.tests.common import mail_new_test_user
 from odoo.addons.project.tests.test_project_base import TestProjectCommon
 from odoo import Command
 from odoo.exceptions import AccessError, ValidationError
-from odoo.tests.common import users
+from odoo.tests import Form
+from odoo.tests.common import tagged, users
 from odoo.tools import mute_logger
 
 class TestAccessRights(TestProjectCommon):
@@ -19,7 +20,10 @@ class TestAccessRights(TestProjectCommon):
         values = dict(name=name, project_id=self.project_pigs.id, **kwargs)
         return self.env['project.task'].with_user(with_user or self.env.user).create(values)
 
+
 class TestCRUDVisibilityFollowers(TestAccessRights):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     def setUp(self):
         super().setUp()
@@ -52,15 +56,16 @@ class TestCRUDVisibilityFollowers(TestAccessRights):
 
     @users('Portal user')
     def test_project_allowed_portal_no_read(self):
-        self.project_pigs.privacy_visibility = 'portal'
+        self.project_pigs.privacy_visibility = 'invited_users'
         self.project_pigs.message_subscribe(partner_ids=[self.env.user.partner_id.id])
-        self.project_pigs.privacy_visibility = 'followers'
-        with self.assertRaises(AccessError, msg="%s should not be able to read the project" % self.env.user.name):
+        with self.assertRaises(AccessError, msg="%s should not be able to read the project just by being a follower" % self.env.user.name):
             self.project_pigs.with_user(self.env.user).name
 
     @users('Internal user')
     def test_project_allowed_internal_read(self):
-        self.project_pigs.message_subscribe(partner_ids=[self.env.user.partner_id.id])
+        self.project_pigs.write({
+            'allowed_internal_user_ids': [(4, self.env.user.id)]
+        })
         self.project_pigs.flush_model()
         self.project_pigs.invalidate_model()
         self.project_pigs.with_user(self.env.user).name
@@ -72,15 +77,16 @@ class TestCRUDVisibilityFollowers(TestAccessRights):
 
     @users('Portal user')
     def test_task_allowed_portal_no_read(self):
-        self.project_pigs.privacy_visibility = 'portal'
+        self.project_pigs.privacy_visibility = 'invited_users'
         self.project_pigs.message_subscribe(partner_ids=[self.env.user.partner_id.id])
-        self.project_pigs.privacy_visibility = 'followers'
-        with self.assertRaises(AccessError, msg="%s should not be able to read the task" % self.env.user.name):
+        with self.assertRaises(AccessError, msg="%s should not be able to read the task just by following the parent project" % self.env.user.name):
             self.task.with_user(self.env.user).name
 
     @users('Internal user')
     def test_task_allowed_internal_read(self):
-        self.project_pigs.message_subscribe(partner_ids=[self.env.user.partner_id.id])
+        self.project_pigs.write({
+            'allowed_internal_user_ids': [(4, self.env.user.id)]
+        })
         self.task.flush_model()
         self.task.invalidate_model()
         self.task.with_user(self.env.user).name
@@ -112,7 +118,10 @@ class TestCRUDVisibilityFollowers(TestAccessRights):
         with self.assertRaises(AccessError, msg="%s should not be able to unlink the task" % self.env.user.name):
             self.task.with_user(self.env.user).unlink()
 
+
 class TestCRUDVisibilityPortal(TestAccessRights):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     def setUp(self):
         super().setUp()
@@ -138,7 +147,10 @@ class TestCRUDVisibilityPortal(TestAccessRights):
         self.task.invalidate_model()
         self.task.with_user(self.env.user).name
 
+
 class TestCRUDVisibilityEmployees(TestAccessRights):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     def setUp(self):
         super().setUp()
@@ -159,7 +171,10 @@ class TestCRUDVisibilityEmployees(TestAccessRights):
         self.task.invalidate_model()
         self.task.with_user(self.env.user).name
 
+
 class TestAllowedUsers(TestAccessRights):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     def setUp(self):
         super().setUp()
@@ -217,7 +232,11 @@ class TestAllowedUsers(TestAccessRights):
         self.task.message_subscribe(partner_ids=[self.portal.partner_id.id])
         self.assertNotIn(self.user.partner_id, self.task.message_partner_ids, "Internal user should have been removed from allowed users")
         self.project_pigs.write({'privacy_visibility': 'employees'})
-        self.assertNotIn(self.portal.partner_id, self.task.message_partner_ids, "Portal user should have been removed from allowed users")
+        self.assertIn(
+            self.portal.partner_id,
+            self.task.message_partner_ids,
+            "Portal user should NOT be removed from allowed users per the new spec"
+        )
 
     def test_write_task(self):
         self.user.group_ids |= self.env.ref('project.group_project_user')
@@ -254,9 +273,10 @@ class TestProjectPortalCommon(TestProjectCommon):
         self.task_6 = self.env['project.task'].with_context({'mail_create_nolog': True}).create({
             'name': 'Test5', 'user_ids': False, 'project_id': self.project_pigs.id})
 
+
 class TestPortalProject(TestProjectPortalCommon):
 
-    @mute_logger('odoo.addons.base.models.ir_model')
+    @mute_logger('odoo.addons.base.models.ir_access')
     def test_employee_project_access_rights(self):
         pigs = self.project_pigs
 
@@ -278,7 +298,7 @@ class TestPortalProject(TestProjectPortalCommon):
             'project_id': pigs.id})
         tmp_task.with_user(self.user_projectuser).unlink()
 
-    @mute_logger('odoo.addons.base.models.ir_model')
+    @mute_logger('odoo.addons.base.models.ir_access')
     def test_favorite_project_access_rights(self):
         pigs = self.project_pigs.with_user(self.user_projectuser)
 
@@ -288,7 +308,7 @@ class TestPortalProject(TestProjectPortalCommon):
         pigs.write({'is_favorite': True})
 
     @mute_logger('odoo.addons.base.ir.ir_model')
-    def test_followers_project_access_rights(self):
+    def test_team_members_project_access_rights(self):
         pigs = self.project_pigs
         pigs.write({'privacy_visibility': 'followers'})
         # Do: Alfred reads project -> ko (employee ko followers)
@@ -304,7 +324,7 @@ class TestPortalProject(TestProjectPortalCommon):
         # Do: Donovan reads project -> ko (public ko employee)
         self.assertRaises(AccessError, pigs.with_user(self.user_public).read, ['user_id'])
 
-        pigs.message_subscribe(partner_ids=[self.user_projectuser.partner_id.id])
+        pigs.write({'allowed_internal_user_ids': [(4, self.user_projectuser.id)]})
 
         # Do: Alfred reads project -> ok (follower ok followers)
         donkey = pigs.with_user(self.user_projectuser)
@@ -317,17 +337,16 @@ class TestPortalProject(TestProjectPortalCommon):
         self.env['project.task'].with_user(self.user_projectuser).with_context({'mail_create_nolog': True}).create({
             'name': 'Pigs task', 'project_id': pigs.id
         })
-        # not follower user should not be able to create a task
-        pigs.with_user(self.user_projectuser).message_unsubscribe(partner_ids=[self.user_projectuser.partner_id.id])
-        self.assertRaises(AccessError, self.env['project.task'].with_user(self.user_projectuser).with_context({
-            'mail_create_nolog': True}).create, {'name': 'Pigs task', 'project_id': pigs.id})
-
-        # Do: project user can create a task without project
+        # only team members users should be able to create a task
+        pigs.write({'allowed_internal_user_ids': [(3, self.user_projectuser.id)]})
         self.assertRaises(AccessError, self.env['project.task'].with_user(self.user_projectuser).with_context({
             'mail_create_nolog': True}).create, {'name': 'Pigs task', 'project_id': pigs.id})
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install, fails post install
 class TestAccessRightsPrivateTask(TestAccessRights):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):
@@ -417,27 +436,83 @@ class TestAccessRightsPrivateTask(TestAccessRights):
 
 class TestAccessRightsInvitedUsers(TestAccessRights):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         cls.project_pigs.privacy_visibility = 'invited_users'
         cls.project_user = mail_new_test_user(cls.env, 'Project user', groups='project.group_project_user')
 
-    @users('admin')
-    def test_admin_access_invited_project(self):
-        self.assertFalse(self.project_pigs.collaborator_ids)
-        self.assertEqual(self.project_pigs.with_user(self.env.user).name, 'Pigs')
+    def test_customer_access_invited_project(self):
+        self.project_pigs.write({'partner_id': self.partner_4.id})
+        self.assertIn(
+            self.partner_4,
+            self.project_pigs.collaborator_ids.partner_id,
+            "The auto-generated collaborator list should include partner_4."
+        )
+        collaborator = self.project_pigs.collaborator_ids.filtered(lambda c: c.partner_id == self.partner_4)
+
+        self.assertEqual(
+            collaborator.access_mode,
+            'view',
+            "The auto-generated collaborator should have 'view' access mode."
+        )
+        collab_user = self.partner_4.user_ids[0]
+        customer_project = self.project_pigs.with_user(collab_user)
+
+        self.assertEqual(
+            customer_project.name,
+            'Pigs',
+            "The customer should be able to read the project name with 'view' access."
+        )
+
+        with self.assertRaises(AccessError, msg="The collaborator only has 'view' access mode and should be blocked from writing."):
+            customer_project.write({'name': 'Hacked by Customer'})
 
     @users('Project user', 'Internal user', 'Portal user')
     def test_other_users_access_invited_project(self):
-        with self.assertRaises(AccessError, msg="The user is not a follower of the project, he's not supposed to have access to the project."):
+        with self.assertRaises(AccessError, msg="The user has no explicit access rights and should be blocked."):
             self.assertEqual(self.project_pigs.with_user(self.env.user).name, 'Pigs')
-        self.project_pigs.message_subscribe(partner_ids=[self.env.user.partner_id.id])
-        self.assertEqual(self.project_pigs.with_user(self.env.user).name, 'Pigs', "The user was set as a follower of the project, he's supposed to have access to the project.")
+
+        if self.env.user.share:
+            # Portal users need a collaborator record
+            self.env['project.collaborator'].sudo().create({
+                'project_id': self.project_pigs.id,
+                'partner_id': self.env.user.partner_id.id,
+                'access_mode': 'view',
+            })
+        else:
+            # Internal users need to be added as team members
+            self.project_pigs.sudo().write({
+                'allowed_internal_user_ids': [(4, self.env.user.id)]
+            })
+        self.assertEqual(
+            self.project_pigs.with_user(self.env.user).name,
+            'Pigs',
+            "The user was granted explicit access and should be able to read the project.")
 
     @users('admin')
     def test_admin_access_invited_task(self):
         self.assertEqual(self.task.with_user(self.env.user).name, 'Make the world a better place')
+
+    @users('Project user')
+    def test_assignee_access_invited_task(self):
+        self.project_pigs.privacy_visibility = 'followers'
+        self.task.user_ids = self.env.user
+
+        self.assertNotIn(self.env.user.partner_id, self.project_pigs.message_partner_ids)
+        self.env.invalidate_all()
+        task = self.task.with_user(self.env.user)
+        task_form = Form(task)
+        self.assertEqual(task_form.name, self.task.name)
+
+        self.assertEqual(task.allow_task_dependencies, self.task.sudo().allow_task_dependencies)
+        self.assertEqual(task.allow_recurring_tasks, self.task.sudo().allow_recurring_tasks)
+        self.assertEqual(task.is_template, self.task.sudo().is_template)
+
+        with self.assertRaises(AccessError, msg="The assignee is not a follower of the project, they're not supposed to have access to it."):
+            self.project_pigs.with_user(self.env.user).name
 
     @users('Project user', 'Internal user', 'Portal user')
     def test_other_users_access_invited_task(self):

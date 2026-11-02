@@ -2,26 +2,27 @@
 # This file contains the translation of the following modules:
 # * spreadsheet_account
 #
+# Weblate <noreply-mt-weblate@weblate.org>, 2026.
 # Bone NI <bounkirdni@gmail.com>, 2026.
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0\n"
+"Project-Id-Version: Odoo Server saas~19.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2026-06-07 18:02+0000\n"
+"POT-Creation-Date: 2026-09-11 17:43+0000\n"
+"PO-Revision-Date: 2026-10-24 13:32+0000\n"
 "Last-Translator: Bone NI <bounkirdni@gmail.com>\n"
-"Language-Team: Lao <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Lao <https://translate.odoo.com/projects/odoo-20/"
 "spreadsheet_account/lo/>\n"
 "Language: lo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: spreadsheet_account
 #. odoo-javascript
-#: code:addons/spreadsheet_account/static/src/plugins/accounting_plugin.js:0
+#: code:addons/spreadsheet_account/static/src/accounting_functions.js:0
 msgid "%s is not a valid year."
 msgstr "%s ບໍ່ແມ່ນປີທີ່ຖືກຕ້ອງ."
 
@@ -54,8 +55,8 @@ msgstr "ການກວດສອບເຊວ"
 
 #. module: spreadsheet_account
 #: model:ir.model,name:spreadsheet_account.model_res_company
-msgid "Companies"
-msgstr "ບັນດາບໍລິສັດ"
+msgid "Company"
+msgstr "ບໍລິສັດ"
 
 #. module: spreadsheet_account
 #. odoo-javascript
@@ -71,9 +72,21 @@ msgstr "ບັດເຄຣດິດ"
 
 #. module: spreadsheet_account
 #. odoo-javascript
+#: code:addons/spreadsheet_account/static/src/accounting_functions.js:0
+msgid "Currency not available for this company."
+msgstr "ສະກຸນເງິນບໍ່ມີໃຫ້ສຳລັບບໍລິສັດນີ້."
+
+#. module: spreadsheet_account
+#. odoo-javascript
 #: code:addons/spreadsheet_account/static/src/account_group_auto_complete.js:0
 msgid "Current Assets"
-msgstr "ຊັບສິນໝູນວຽນ"
+msgstr "ຊັບສິນໝຸນວຽນ"
+
+#. module: spreadsheet_account
+#. odoo-javascript
+#: code:addons/spreadsheet_account/static/src/fiscal_year_global_filter.js:0
+msgid "Current Fiscal Year"
+msgstr "ສົກປີງົບປະມານປະຈຸບັນ"
 
 #. module: spreadsheet_account
 #. odoo-javascript
@@ -103,13 +116,19 @@ msgstr "ຊື່ທີ່ສະແດງ"
 #. odoo-javascript
 #: code:addons/spreadsheet_account/static/src/account_group_auto_complete.js:0
 msgid "Equity"
-msgstr "ສ່ວນຂອງເຈົ້າຂອງ"
+msgstr "ທຶນ"
 
 #. module: spreadsheet_account
 #. odoo-javascript
 #: code:addons/spreadsheet_account/static/src/account_group_auto_complete.js:0
 msgid "Expenses"
-msgstr "ຄ່າໃຊ້ຈ່າຍ"
+msgstr "ລາຍຈ່າຍ"
+
+#. module: spreadsheet_account
+#. odoo-javascript
+#: code:addons/spreadsheet_account/static/src/fiscal_year_global_filter.js:0
+msgid "Fiscal Year"
+msgstr "ສົກປີງົບປະມານ"
 
 #. module: spreadsheet_account
 #. odoo-javascript
@@ -139,13 +158,13 @@ msgstr "ດຶງເອົາຍອດເງິນໜີ້ທັງໝົດສ
 #: model:ir.model.fields,field_description:spreadsheet_account.field_account_account__id
 #: model:ir.model.fields,field_description:spreadsheet_account.field_res_company__id
 msgid "ID"
-msgstr "ID"
+msgstr "ລະຫັດ"
 
 #. module: spreadsheet_account
 #. odoo-javascript
 #: code:addons/spreadsheet_account/static/src/account_group_auto_complete.js:0
 msgid "Income"
-msgstr "ລາຍໄດ້"
+msgstr "ລາຍຮັບ"
 
 #. module: spreadsheet_account
 #. odoo-javascript
@@ -237,7 +256,7 @@ msgstr "ສົ່ງຄືນວັນທີເລີ່ມຕົ້ນຂອງ
 #. odoo-javascript
 #: code:addons/spreadsheet_account/static/src/index.js:0
 msgid "See records"
-msgstr "ເບິ່ງບັນທຶກ"
+msgstr "ເບິ່ງຂໍ້ມູນ"
 
 #. module: spreadsheet_account
 #. odoo-javascript
@@ -246,20 +265,31 @@ msgid "Set to TRUE to include unposted entries."
 msgstr "ຕັ້ງເປັນ TRUE ເພື່ອລວມເອົາລາຍການທີ່ຍັງບໍ່ທັນໄດ້ລົງບັນຊີ."
 
 #. module: spreadsheet_account
+#: model:ir.module.module,shortdesc:base.module_spreadsheet_account
+msgid "Spreadsheet Accounting Formulas"
+msgstr "ສູດຄິດໄລ່ບັນຊີສະເປຣດຊີດ"
+
+#. module: spreadsheet_account
+#: model:ir.module.module,description:base.module_spreadsheet_account
+#: model:ir.module.module,summary:base.module_spreadsheet_account
+msgid "Spreadsheet Accounting formulas"
+msgstr "ສູດຄິດໄລ່ບັນຊີສະເປຣດຊີດ"
+
+#. module: spreadsheet_account
 #. odoo-javascript
-#: code:addons/spreadsheet_account/static/src/plugins/accounting_plugin.js:0
+#: code:addons/spreadsheet_account/static/src/accounting_functions.js:0
 msgid "The balance for given account tag could not be computed."
 msgstr "ບໍ່ສາມາດຄິດໄລ່ຍອດເຫຼືອສຳລັບແທັກບັນຊີທີ່ລະບຸໄດ້."
 
 #. module: spreadsheet_account
 #. odoo-javascript
-#: code:addons/spreadsheet_account/static/src/plugins/accounting_plugin.js:0
+#: code:addons/spreadsheet_account/static/src/accounting_functions.js:0
 msgid "The balance for given partners could not be computed."
 msgstr "ບໍ່ສາມາດຄິດໄລ່ຍອດເຫຼືອສຳລັບຄູ່ຄ້າທີ່ລະບຸໄດ້."
 
 #. module: spreadsheet_account
 #. odoo-javascript
-#: code:addons/spreadsheet_account/static/src/plugins/accounting_plugin.js:0
+#: code:addons/spreadsheet_account/static/src/accounting_functions.js:0
 msgid "The company fiscal year could not be found."
 msgstr "ບໍ່ພົບສົກປີງົບປະມານຂອງບໍລິສັດ."
 
@@ -320,7 +350,7 @@ msgstr ""
 
 #. module: spreadsheet_account
 #. odoo-javascript
-#: code:addons/spreadsheet_account/static/src/plugins/accounting_plugin.js:0
+#: code:addons/spreadsheet_account/static/src/accounting_functions.js:0
 msgid "The residual amount for given accounts could not be computed."
 msgstr "ບໍ່ສາມາດຄິດໄລ່ຈຳນວນເງິນຄົງຄ້າງສຳລັບບັນຊີທີ່ລະບຸໄດ້."
 

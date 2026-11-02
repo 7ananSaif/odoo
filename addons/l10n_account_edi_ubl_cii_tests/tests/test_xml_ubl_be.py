@@ -1,6 +1,3 @@
-import base64
-from lxml import etree
-
 from odoo import Command
 from odoo.addons.l10n_account_edi_ubl_cii_tests.tests.common import TestUBLCommon
 from odoo.addons.account.tests.test_account_move_send import TestAccountMoveSendCommon
@@ -9,6 +6,8 @@ from odoo.tests import tagged
 
 @tagged('post_install_l10n', 'post_install', '-at_install')
 class TestUBLBE(TestUBLCommon, TestAccountMoveSendCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     @TestUBLCommon.setup_country("be")
@@ -25,7 +24,7 @@ class TestUBLBE(TestUBLCommon, TestAccountMoveSendCommon):
             'city': "Ramillies",
             'vat': 'BE0202239951',
             'country_id': cls.env.ref('base.be').id,
-            'bank_ids': [(0, 0, {'acc_number': 'BE15001559627230', 'allow_out_payment': True})],
+            'bank_ids': [(0, 0, {'account_number': 'BE15001559627230', 'allow_out_payment': True})],
             'ref': 'ref_partner_1',
             'invoice_edi_format': 'ubl_bis3',
         })
@@ -38,7 +37,7 @@ class TestUBLBE(TestUBLCommon, TestAccountMoveSendCommon):
             'city': "Ramillies",
             'vat': 'BE0477472701',
             'country_id': cls.env.ref('base.be').id,
-            'bank_ids': [(0, 0, {'acc_number': 'BE90735788866632', 'allow_out_payment': True})],
+            'bank_ids': [(0, 0, {'account_number': 'BE90735788866632', 'allow_out_payment': True})],
             'ref': 'ref_partner_2',
             'invoice_edi_format': 'ubl_bis3',
         })
@@ -96,7 +95,7 @@ class TestUBLBE(TestUBLCommon, TestAccountMoveSendCommon):
         })
 
         cls.env['res.partner.bank'].sudo().create({
-            'acc_number': 'BE15001559627230',
+            'account_number': 'BE15001559627230',
             'partner_id': cls.company_data['company'].partner_id.id,
         })
 
@@ -295,7 +294,7 @@ class TestUBLBE(TestUBLCommon, TestAccountMoveSendCommon):
         and imported in the xml file
         """
         acc_bank = self.env['res.partner.bank'].create({
-            'acc_number': 'BE15001559627231',
+            'account_number': 'BE15001559627231',
             'partner_id': self.company_data['company'].partner_id.id,
             'allow_out_payment': True,
         })
@@ -321,7 +320,7 @@ class TestUBLBE(TestUBLCommon, TestAccountMoveSendCommon):
         attachment = invoice.ubl_cii_xml_id
         self.assertTrue(attachment)
 
-        xml_content = base64.b64decode(attachment.with_context(bin_size=False).datas)
+        xml_content = attachment.raw.content
         xml_etree = self.get_xml_tree_from_string(xml_content)
 
         self.assertEqual(
@@ -362,7 +361,7 @@ class TestUBLBE(TestUBLCommon, TestAccountMoveSendCommon):
 
     def test_import_invoice_xml_open_peppol_examples(self):
         self.env['res.partner.bank'].sudo().create({
-            'acc_number': 'IBAN32423940',
+            'account_number': 'IBAN32423940',
             'partner_id': self.company_data['company'].partner_id.id,
         })
         # Source: https://github.com/OpenPEPPOL/peppol-bis-invoice-3/tree/master/rules/examples
@@ -589,7 +588,7 @@ class TestUBLBE(TestUBLCommon, TestAccountMoveSendCommon):
         self.assertEqual(len(invoice_attachments), 2)
 
         # Send again.
-        wizard = self.create_send_and_print(invoice, sending_methods=['manual'])
+        wizard = self.create_send_and_print(invoice, no_invoice_reminder=True, sending_methods=['manual'])
         self.assertRecordValues(wizard, [{
             'sending_methods': ['manual'],
             'invoice_edi_format': 'ubl_bis3',

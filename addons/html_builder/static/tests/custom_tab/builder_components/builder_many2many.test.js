@@ -5,11 +5,10 @@ import {
 } from "@html_builder/../tests/helpers";
 import { BuilderAction } from "@html_builder/core/builder_action";
 import { describe, expect, test } from "@odoo/hoot";
-import { animationFrame, Deferred } from "@odoo/hoot-mock";
+import { animationFrame } from "@odoo/hoot-mock";
 import { xml } from "@odoo/owl";
 import { contains, defineModels, fields, models, onRpc } from "@web/../tests/web_test_helpers";
 import { delay } from "@web/core/utils/concurrency";
-import { BaseOptionComponent } from "@html_builder/core/utils";
 
 class Test extends models.Model {
     _name = "test";
@@ -36,12 +35,10 @@ test("many2many: find tag, select tag, unselect tag", async () => {
             expect(kwargs.domain).toEqual([["id", "not in", [1]]]);
         }
     });
-    addBuilderOption(
-        class extends BaseOptionComponent {
-            static selector = ".test-options-target";
-            static template = xml`<BuilderMany2Many dataAttributeAction="'test'" model="'test'" limit="10"/>`;
-        }
-    );
+    addBuilderOption({
+        selector: ".test-options-target",
+        template: xml`<BuilderMany2Many dataAttributeAction="'test'" model="'test'" limit="10"/>`,
+    });
     const { getEditableContent } = await setupHTMLBuilder(
         `<div class="test-options-target">b</div>`
     );
@@ -74,7 +71,7 @@ test("many2many: find tag, select tag, unselect tag", async () => {
     );
     expect("table tr").toHaveCount(2);
 
-    await contains("button.fa-minus").click();
+    await contains("button[data-icon='remove']").click();
     expect.verifySteps(["name_search", "name_search"]);
     expect(editableContent).toHaveInnerHTML(
         `<div class="test-options-target" data-test="[{&quot;id&quot;:2,&quot;display_name&quot;:&quot;Second&quot;,&quot;name&quot;:&quot;Second&quot;}]">b</div>`
@@ -84,8 +81,8 @@ test("many2many: find tag, select tag, unselect tag", async () => {
 });
 
 test("many2many: async load", async () => {
-    const defWillLoad = new Deferred();
-    const defDidApply = new Deferred();
+    const defWillLoad = Promise.withResolvers();
+    const defDidApply = Promise.withResolvers();
     onRpc("test", "name_search", () => [
         [1, "First"],
         [2, "Second"],
@@ -96,7 +93,7 @@ test("many2many: async load", async () => {
             static id = "testAction";
             async load({ value }) {
                 expect.step("load");
-                await defWillLoad;
+                await defWillLoad.promise;
                 return value;
             }
             apply({ editingElement, value }) {
@@ -108,12 +105,10 @@ test("many2many: async load", async () => {
             }
         },
     });
-    addBuilderOption(
-        class extends BaseOptionComponent {
-            static selector = ".test-options-target";
-            static template = xml`<BuilderMany2Many action="'testAction'" model="'test'" limit="10"/>`;
-        }
-    );
+    addBuilderOption({
+        selector: ".test-options-target",
+        template: xml`<BuilderMany2Many action="'testAction'" model="'test'" limit="10"/>`,
+    });
     const { getEditableContent } = await setupHTMLBuilder(
         `<div class="test-options-target">b</div>`
     );
@@ -130,8 +125,23 @@ test("many2many: async load", async () => {
     expect.verifySteps(["load"]);
     expect(editableContent).toHaveInnerHTML(`<div class="test-options-target">b</div>`);
     defWillLoad.resolve();
-    await defDidApply;
+    await defDidApply.promise;
     expect(editableContent).toHaveInnerHTML(
         `<div class="test-options-target" data-test="[{&quot;id&quot;:1,&quot;display_name&quot;:&quot;First&quot;,&quot;name&quot;:&quot;First&quot;}]">b</div>`
     );
+});
+
+test("many2many: support action that did not store the names of selected elements", async () => {
+    addBuilderOption({
+        selector: ".test-options-target",
+        template: xml`<BuilderMany2Many dataAttributeAction="'test'" model="'test'"/>`,
+    });
+    const { waitSidebarUpdated } = await setupHTMLBuilder(
+        `<div class="test-options-target" data-test='[{"id":1},{"id":3}]'>b</div>`
+    );
+    await contains(":iframe .test-options-target").click();
+    await waitSidebarUpdated();
+    expect("td [data-name=First]").toHaveCount(1);
+    expect("td [data-name=Second]").toHaveCount(0);
+    expect("td [data-name=Third]").toHaveCount(1);
 });

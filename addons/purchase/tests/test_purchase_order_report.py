@@ -3,12 +3,15 @@
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 from odoo.fields import Command
 from odoo.tests import Form, tagged
+from odoo.tools import mute_logger
 
 from datetime import datetime, timedelta
 
 
 @tagged('post_install', '-at_install')
 class TestPurchaseOrderReport(AccountTestInvoicingCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):
@@ -26,7 +29,7 @@ class TestPurchaseOrderReport(AccountTestInvoicingCommon):
                     'name': self.product_a.name,
                     'product_id': self.product_a.id,
                     'product_qty': 1.0,
-                    'product_uom_id': uom_dozen.id,
+                    'uom_id': uom_dozen.id,
                     'price_unit': 100.0,
                     'date_planned': datetime.today(),
                     'tax_ids': False,
@@ -35,7 +38,7 @@ class TestPurchaseOrderReport(AccountTestInvoicingCommon):
                     'name': self.product_b.name,
                     'product_id': self.product_b.id,
                     'product_qty': 1.0,
-                    'product_uom_id': uom_dozen.id,
+                    'uom_id': uom_dozen.id,
                     'price_unit': 200.0,
                     'date_planned': datetime.today(),
                     'tax_ids': False,
@@ -79,7 +82,8 @@ class TestPurchaseOrderReport(AccountTestInvoicingCommon):
         #                 ...
         #             )""")
         #     ...
-        f.purchase_vendor_bill_id = self.env['purchase.bill.union'].browse(-po.id)
+        with mute_logger('odoo.tests.form.onchange'):  # Mute "x PO lines added to the bill" notification
+            f.purchase_vendor_bill_id = self.env['purchase.bill.union'].browse(-po.id)
         invoice = f.save()
         invoice.action_post()
         po.flush_model()
@@ -137,7 +141,7 @@ class TestPurchaseOrderReport(AccountTestInvoicingCommon):
                     'display_type': 'line_note',
                     'product_id': False,
                     'product_qty': 0.0,
-                    'product_uom_id': False,
+                    'uom_id': False,
                     'price_unit': 0.0,
                     'tax_ids': False,
                 }),
@@ -146,7 +150,7 @@ class TestPurchaseOrderReport(AccountTestInvoicingCommon):
                     'display_type': 'line_section',
                     'product_id': False,
                     'product_qty': 0.0,
-                    'product_uom_id': False,
+                    'uom_id': False,
                     'price_unit': 0.0,
                     'tax_ids': False,
                 }),
@@ -256,13 +260,13 @@ class TestPurchaseOrderReport(AccountTestInvoicingCommon):
                 Command.create({
                     'product_id': product_01.id,
                     'product_qty': 2.0,
-                    'product_uom_id': uom_pairs.id,
+                    'uom_id': uom_pairs.id,
                     'price_unit': 200.0,
                 }),
                 Command.create({
                     'product_id': product_02.id,
                     'product_qty': 1.0,
-                    'product_uom_id': uom_dozens.id,
+                    'uom_id': uom_dozens.id,
                     'price_unit': 2400.0,
                 }),
             ],
@@ -276,3 +280,42 @@ class TestPurchaseOrderReport(AccountTestInvoicingCommon):
             {'product_id': product_01.id, 'volume': 20.0, 'weight': 20.0, 'price_average': 200.0, 'qty_to_be_billed': 2.0},
             {'product_id': product_02.id, 'volume': 60.0, 'weight': 60.0, 'price_average': 400.0, 'qty_to_be_billed': 6.0},
         ])
+
+    def test_purchase_report_multi_company_currency(self):
+        """
+        Test purchase report amount consolidation across companies with different currencies.
+
+        - PO 1 (USD): $100.0 at consolidation rate 1.0 -> $100.0
+        - PO 2 (EUR): €100.0 at consolidation rate 0.5 -> €50.0
+
+        Expected consolidated untaxed total: 150.0
+        """
+        company_2 = self.env['res.company'].create({
+            'name': 'Company 2',
+            'currency_id': self.other_currency.id,
+        })
+        companies = self.env.company + company_2
+        orders = self.env['purchase.order'].create([
+            {
+                'partner_id': self.partner_a.id,
+                'company_id': company.id,
+                'currency_id': company.currency_id.id,
+                'order_line': [
+                    Command.create({
+                        'product_id': self.product_a.id,
+                        'price_unit': 100.0,
+                    }),
+                ],
+            }
+            for company in companies
+        ])
+        orders.button_confirm()
+
+        res = self.env['purchase.report'].with_context(
+            allowed_company_ids=companies.ids,
+        )._read_group(
+            [('order_id', 'in', orders.ids)],
+            groupby=['date_approve:day'],
+            aggregates=['untaxed_total:sum'],
+        )
+        self.assertEqual(res[0][1], 150.0)

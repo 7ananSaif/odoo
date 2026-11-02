@@ -2,13 +2,15 @@
 
 from freezegun import freeze_time
 
-from odoo import _
+from odoo import Command, _
 from odoo.addons.l10n_in.tests.common import L10nInTestInvoicingCommon
 from odoo.tests import tagged
 
 
 @tagged("post_install_l10n", "post_install", "-at_install")
 class TestEwaybillJson(L10nInTestInvoicingCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):
@@ -26,6 +28,14 @@ class TestEwaybillJson(L10nInTestInvoicingCommon):
         cls.invoice_zero_qty.write({
             "invoice_line_ids": [(1, l_id, {"quantity": 0}) for l_id in cls.invoice_zero_qty.invoice_line_ids.ids]})
         cls.invoice_zero_qty.action_post()
+        cls.invoice_global_discount = cls.init_invoice("out_invoice", post=False, products=cls.product_a)
+        cls.invoice_global_discount.write({
+            "invoice_line_ids": [Command.create({
+                "name": "Global Discount Line",
+                "price_unit": -100.0,
+            })]
+        })
+        cls.invoice_global_discount.action_post()
 
     def test_edi_json(self):
         default_ewaybill_vals = {
@@ -47,6 +57,10 @@ class TestEwaybillJson(L10nInTestInvoicingCommon):
         ewaybill_invoice_zero_qty = Ewaybill.create({
             'account_move_id': self.invoice_zero_qty.id,
             **default_ewaybill_vals
+        })
+        ewaybill_global_discount = self.env["l10n.in.ewaybill"].create({
+            **default_ewaybill_vals,
+            "account_move_id": self.invoice_global_discount.id,
         })
         json_value = ewaybill_invoice._ewaybill_generate_direct_json()
         expected = {
@@ -80,7 +94,7 @@ class TestEwaybillJson(L10nInTestInvoicingCommon):
             {
               "productName": "product_a",
               "hsnCode": "111111",
-              "productDesc": "product_a",
+              "productDesc": "",
               "quantity": 1.0,
               "qtyUnit": "UNT",
               "taxableAmount": 900.0,
@@ -90,7 +104,7 @@ class TestEwaybillJson(L10nInTestInvoicingCommon):
             {
               "productName": "product_with_cess",
               "hsnCode": "333333",
-              "productDesc": "product_with_cess",
+              "productDesc": "",
               "quantity": 1.0,
               "qtyUnit": "UNT",
               "taxableAmount": 900.0,
@@ -121,7 +135,7 @@ class TestEwaybillJson(L10nInTestInvoicingCommon):
                 {
                   "productName": "product_a",
                   "hsnCode": "111111",
-                  "productDesc": "product_a",
+                  "productDesc": "",
                   "quantity": 1.0,
                   "qtyUnit": "DOZ",
                   "taxableAmount": 900.0 * 12,
@@ -131,7 +145,7 @@ class TestEwaybillJson(L10nInTestInvoicingCommon):
                 {
                   "productName": "product_with_cess",
                   "hsnCode": "333333",
-                  "productDesc": "product_with_cess",
+                  "productDesc": "",
                   "quantity": 1.0,
                   "qtyUnit": "DOZ",
                   "taxableAmount": 900.0 * 12,
@@ -148,7 +162,7 @@ class TestEwaybillJson(L10nInTestInvoicingCommon):
         expected.update({
             "docNo": "INV/18-19/0002",
             "itemList": [{
-                "productName": "product_a", "hsnCode": "111111", "productDesc": "product_a", "quantity": 1.0,
+                "productName": "product_a", "hsnCode": "111111", "productDesc": "", "quantity": 1.0,
                 "qtyUnit": "UNT", "taxableAmount": 0.0, "cgstRate": 0.0, "sgstRate": 0.0, 'igstRate': 0.0,
             }],
             "totalValue": 0.0,
@@ -167,7 +181,7 @@ class TestEwaybillJson(L10nInTestInvoicingCommon):
         expected.update({
             "docNo": "INV/18-19/0003",
             "itemList": [{
-                "productName": "product_a", "hsnCode": "111111", "productDesc": "product_a", "quantity": 0.0,
+                "productName": "product_a", "hsnCode": "111111", "productDesc": "", "quantity": 0.0,
                 "qtyUnit": "UNT", "taxableAmount": 0.0, "cgstRate": 0.0, "sgstRate": 0.0, 'igstRate': 0.0,
             }],
             "totalValue": 0.0,
@@ -180,6 +194,36 @@ class TestEwaybillJson(L10nInTestInvoicingCommon):
             "totInvValue": 0.0
         })
         self.assertDictEqual(json_value, expected, "Indian EDI with 0(zero) quantity sent json value is not matched")
+
+        # =================================== Global discount test =============================================
+        expected.update({
+            "docNo": "INV/18-19/0004",
+            "itemList": [
+                {
+                    "productName": "product_a",
+                    "hsnCode": "111111",
+                    "productDesc": "",
+                    "quantity": 1.0,
+                    "qtyUnit": "UNT",
+                    "taxableAmount": 1000.0,
+                    "cgstRate": 2.5,
+                    "sgstRate": 2.5,
+                }
+            ],
+            "totalValue": 1000.0,
+            "cgstValue": 25.0,
+            "sgstValue": 25.0,
+            "igstValue": 0.0,
+            "cessValue": 0.0,
+            "cessNonAdvolValue": 0.0,
+            "otherValue": -100.0,
+            "totInvValue": 950.0,
+        })
+        self.assertDictEqual(
+            ewaybill_global_discount._ewaybill_generate_direct_json(),
+            expected,
+            "Ewaybill with global discount failed"
+        )
 
     def test_ewaybill_zero_distance(self):
         """
@@ -271,12 +315,12 @@ class TestEwaybillJson(L10nInTestInvoicingCommon):
             "toAddr2": "",
             "toPlace": "Peebles",
             "toPincode": 999999,
-            "actToStateCode": 99,
+            "actToStateCode": 97,
             "toStateCode": 99,
             "itemList": [{
                 "productName": "product_a",
                 "hsnCode": "111111",
-                "productDesc": "product_a",
+                "productDesc": "",
                 "quantity": 1.0,
                 "qtyUnit": "UNT",
                 "taxableAmount": 1000.0,
@@ -331,7 +375,7 @@ class TestEwaybillJson(L10nInTestInvoicingCommon):
             "fromPincode": 365220,
             "fromStateCode": 24,
             "actFromStateCode": 24,
-            "toGstin": "36AAAAA1234AAZA",
+            "toGstin": "URP",
             "toTrdName": "SEZ Partner",
             "toAddr1": "Block no. 402",
             "toAddr2": "",
@@ -342,7 +386,7 @@ class TestEwaybillJson(L10nInTestInvoicingCommon):
             "itemList": [{
                 "productName": "product_a",
                 "hsnCode": "111111",
-                "productDesc": "product_a",
+                "productDesc": "",
                 "quantity": 1.0,
                 "qtyUnit": "UNT",
                 "taxableAmount": 1000.0,
@@ -410,7 +454,7 @@ class TestEwaybillJson(L10nInTestInvoicingCommon):
             {
               "productName": "product_a",
               "hsnCode": "111111",
-              "productDesc": "product_a",
+              "productDesc": "",
               "quantity": 1.0,
               "qtyUnit": "UNT",
               "taxableAmount": 900.0,
@@ -420,7 +464,7 @@ class TestEwaybillJson(L10nInTestInvoicingCommon):
             {
               "productName": "product_with_cess",
               "hsnCode": "333333",
-              "productDesc": "product_with_cess",
+              "productDesc": "",
               "quantity": 1.0,
               "qtyUnit": "UNT",
               "taxableAmount": 900.0,
@@ -457,3 +501,44 @@ class TestEwaybillJson(L10nInTestInvoicingCommon):
         })
         expected_msg = _('- Transporter %s does not have a valid GST Number', self.partner_b.name)
         self.assertEqual(ewaybill_invoice_2._check_transporter(), [expected_msg])
+
+    def test_ewaybill_cancel(self):
+        ewaybill_invoice = self.env['l10n.in.ewaybill'].create({
+            "name": "123456789012",
+            "account_move_id": self.invoice.id,
+            "cancel_reason": "1",
+        })
+        expected = {
+            "ewbNo": 123456789012,
+            "cancelRsnCode": 1,
+        }
+
+        with self.subTest(scenario="without remarks"):
+            cancel_json_value = ewaybill_invoice._get_cancellation_request_vals()
+            self.assertDictEqual(
+                cancel_json_value,
+                expected,
+                "Indian EDI cancellation JSON values do not match the expected values",
+            )
+
+        ewaybill_invoice.write({
+            "cancel_remarks": "Test Cancel Remarks",
+        })
+        expected['cancelRmrk'] = "Test Cancel Remarks"
+
+        with self.subTest(scenario="with remarks"):
+            cancel_json_value = ewaybill_invoice._get_cancellation_request_vals()
+            self.assertDictEqual(
+                cancel_json_value,
+                expected,
+                "Indian EDI cancellation JSON values with remarks do not match the expected values",
+            )
+
+    def test_ewaybill_access_accounting_user(self):
+        self.env.user.group_ids = self.env.ref('account.group_account_invoice')
+        ewaybill = self.env['l10n.in.ewaybill'].create({
+            'account_move_id': self.invoice.id,
+            'mode': False,
+            'type_id': self.env.ref('l10n_in_ewaybill.type_tax_invoice_sub_type_supply').id,
+        })
+        self.assertTrue(ewaybill)

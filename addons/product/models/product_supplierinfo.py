@@ -2,6 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import api, fields, models, _
+from odoo.exceptions import ValidationError
 
 
 class ProductSupplierinfo(models.Model):
@@ -22,10 +23,10 @@ class ProductSupplierinfo(models.Model):
         help="This vendor's product code will be used when printing a request for quotation. Keep empty to use the internal one.")
     sequence = fields.Integer(
         'Sequence', default=1, help="Assigns the priority to the list of product vendor.")
-    product_uom_id = fields.Many2one(
-        'uom.uom', 'Unit', compute='_compute_product_uom_id', store=True, readonly=False, required=True, precompute=True)
+    uom_id = fields.Many2one(
+        'uom.uom', 'Unit', compute='_compute_uom_id', store=True, readonly=False, required=True, precompute=True)
     min_qty = fields.Float(
-        'Quantity', default=0.0, required=True, digits="Product Unit",
+        'Quantity', default=1.0, required=True, digits="Product Unit",
         help="The quantity to purchase from this vendor to benefit from the unit price. If a vendor unit is set, quantity should be specified in this unit, otherwise it should be specified in the default unit of the product.")
     price = fields.Float(
         'Unit Price', min_display_digits='Product Price', default=0.0, help="The price to purchase a product")
@@ -57,10 +58,10 @@ class ProductSupplierinfo(models.Model):
         readonly=False)
 
     @api.depends('product_id', 'product_tmpl_id')
-    def _compute_product_uom_id(self):
+    def _compute_uom_id(self):
         for rec in self:
-            if not rec.product_uom_id:
-                rec.product_uom_id = rec.product_id.uom_id if rec.product_id else rec.product_tmpl_id.uom_id
+            if not rec.uom_id:
+                rec.uom_id = rec.product_id.uom_id if rec.product_id else rec.product_tmpl_id.uom_id
 
     @api.depends('product_id', 'product_tmpl_id')
     def _compute_price(self):
@@ -71,7 +72,7 @@ class ProductSupplierinfo(models.Model):
     def _compute_price_discounted(self):
         for rec in self:
             product_uom = (rec.product_id or rec.product_tmpl_id).uom_id
-            rec.price_discounted = rec.product_uom_id._compute_price(rec.price, product_uom) * (1 - rec.discount / 100)
+            rec.price_discounted = rec.uom_id._compute_price(rec.price, product_uom) * (1 - rec.discount / 100)
 
     @api.depends('product_id')
     def _compute_product_tmpl_id(self):
@@ -91,10 +92,34 @@ class ProductSupplierinfo(models.Model):
         if self.product_id and self.product_id not in self.product_tmpl_id.product_variant_ids:
             self.product_id = False
 
+    @api.constrains('date_start', 'date_end')
+    def _check_dates(self):
+        invalid_suppliers = self.filtered(lambda r: r.date_end and r.date_start and r.date_end < r.date_start)
+        if invalid_suppliers:
+            raise ValidationError(_(
+                "End date can't be earlier than the start date. Please check dates for vendor pricelist: %s", ', '.join(invalid_suppliers.mapped('partner_id.name'))
+            ))
+
+    def _get_seller_info(self):
+        if not self:
+            return {}
+        self.ensure_one()
+        return {
+            'supplierinfo': self,
+            'partner_id': self.partner_id,
+            'price': self.price,
+            'discount': self.discount,
+            'price_discounted': self.price_discounted,
+            'currency_id': self.currency_id,
+            'uom_id': self.uom_id,
+            'min_qty': self.min_qty,
+            'delay': self.delay,
+        }
+
     @api.model
     def get_import_templates(self):
         return [{
-            'label': _('Import Template for Vendor Pricelists'),
+            'label': _('Template for Vendor Pricelists'),
             'template': '/product/static/xls/product_supplierinfo.xls'
         }]
 
@@ -116,4 +141,5 @@ class ProductSupplierinfo(models.Model):
         return super().write(vals)
 
     def _get_filtered_supplier(self, company_id, product_id, params=False):
-        return self.filtered(lambda s: (not s.company_id or s.company_id.id == company_id.id) and (s.partner_id.sudo().active and (not s.product_id or s.product_id == product_id)))
+        return self.filtered(lambda s: (not s.company_id or s.company_id.id == company_id.id) and (s.partner_id.sudo().active and (not s.product_id or s.product_id == product_id))
+                             and (not params or not params.get('partner_id') or s.partner_id == params.get('partner_id')))

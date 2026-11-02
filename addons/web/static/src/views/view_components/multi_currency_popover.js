@@ -1,26 +1,27 @@
-import { Component, onWillStart, useExternalListener, useState } from "@odoo/owl";
+import { Component, onWillStart, proxy, t, useListener, useProps } from "@odoo/owl";
 import { getCurrency, getCurrencyRates } from "@web/core/currency";
+import { toLocaleDateString } from "@web/core/l10n/dates";
 import { user } from "@web/core/user";
 import { useService } from "@web/core/utils/hooks";
 import { formatMonetary } from "../fields/formatters";
 
 export class MultiCurrencyPopover extends Component {
     static template = "web.MultiCurrencyPopover";
-    static props = {
-        close: Function,
-        currencyIds: Array,
-        target: HTMLElement,
-        value: Number,
-    };
+    props = useProps({
+        close: t.function(),
+        currencyIds: t.array(),
+        target: t.instanceOf(HTMLElement),
+        value: t.number(),
+    });
 
     setup() {
         this.orm = useService("orm");
         this.defaultCurrency = user.activeCompany.currency_id;
-        this.state = useState({ rates: null });
+        this.state = proxy({ rates: null });
         onWillStart(async () => {
             this.state.rates = await getCurrencyRates();
         });
-        useExternalListener(window, "mouseover", (ev) => {
+        useListener(window, "mouseover", (ev) => {
             if (ev.target !== this.props.target) {
                 this.props.close();
             }
@@ -29,12 +30,13 @@ export class MultiCurrencyPopover extends Component {
 
     get currencies() {
         return this.props.currencyIds.reduce((currencies, currencyId) => {
-            if (currencyId !== this.defaultCurrency) {
+            if (currencyId && currencyId !== this.defaultCurrency && getCurrency(currencyId)) {
                 currencies.push({
                     ...getCurrency(currencyId),
                     id: currencyId,
-                    rate: this.state.rates[currencyId],
-                    value: this.props.value / this.state.rates[currencyId],
+                    rate: this.state.rates[currencyId].rate,
+                    date: toLocaleDateString(this.state.rates[currencyId].date),
+                    value: this.props.value / this.state.rates[currencyId].rate,
                 });
             }
             return currencies;

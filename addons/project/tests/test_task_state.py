@@ -2,7 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo.fields import Command
-from odoo.tests import tagged
+from odoo.tests import Form, tagged
 
 from odoo.addons.project.tests.test_project_base import TestProjectCommon
 
@@ -106,6 +106,13 @@ class TestTaskState(TestProjectCommon):
         self.task_1._onchange_project_id()
         self.assertEqual(self.task_1.state, '01_in_progress', "task_1 state should automatically switch back to in_progress when its project changes")
         self.assertEqual(self.task_2.state, '1_canceled', "task_2 state should remain to cancelled when its project changes")
+
+    def test_change_stage_in_form(self):
+        stage_won = self.env['project.task.type'].search([('name', '=', 'Won')])
+        with Form(self.task_1) as task_form:
+            task_form.state = '03_approved'
+            task_form.stage_id = stage_won
+            self.assertEqual(self.task_1.state, '01_in_progress', "task_1 state should switch back to in_progress when its stage changes in the form")
 
     def test_duplicate_dependent_task(self):
         self.task_1.write({
@@ -248,3 +255,35 @@ class TestTaskState(TestProjectCommon):
         self.assertEqual(self.task_1.state, '03_approved')
         self.project_goats.allow_task_dependencies = True
         self.assertEqual(self.task_1.state, '03_approved')
+
+    def test_project_move_state_preservation(self):
+        """ Test that state is preserved when moving to a project sharing the stage """
+        project_goats_copy = self.project_goats.copy()
+        self.task_1.write({
+            'state': '03_approved',
+        })
+        # Test state preservation when moving to shared stage
+        original_stage = self.task_1.stage_id
+        self.task_1.write({
+            'project_id': project_goats_copy.id,
+        })
+        self.assertEqual(self.task_1.stage_id, original_stage, "Stage should remain the same")
+        self.assertEqual(
+            self.task_1.state,
+            '03_approved',
+            "State should be preserved when moving to project with shared stages"
+        )
+        # Test state reset when moving to non-shared stage
+        self.task_1.write({
+            'project_id': self.project_pigs.id,
+        })
+        self.assertNotEqual(
+            self.task_1.stage_id,
+            original_stage,
+            "Stage should change when moving to a project with different stages"
+        )
+        self.assertEqual(
+            self.task_1.state,
+            '01_in_progress',
+            "Task state should change when moving to a project with non-shared stage."
+        )

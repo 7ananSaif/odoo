@@ -1,20 +1,20 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import logging
-import pytz
 import textwrap
 import urllib.parse
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
+from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
-from markupsafe import escape
 from urllib.parse import urlparse
 
 from odoo import _, api, Command, fields, models, tools
 from odoo.addons.base.models.res_partner import _tz_get
 from odoo.exceptions import ValidationError
 from odoo.fields import Datetime, Domain
-from odoo.tools import format_date, format_datetime, format_time, frozendict
+from odoo.models import Query
+from odoo.tools import format_date, frozendict
 from odoo.tools.mail import is_html_empty, html_to_inner_content
 from odoo.tools.misc import formatLang
 from odoo.tools.translate import html_translate
@@ -81,7 +81,7 @@ class EventEvent(models.Model):
     company_id = fields.Many2one(
         'res.company', string='Company', change_default=True,
         default=lambda self: self.env.company,
-        required=False)
+        required=False, index='btree_not_null')
     organizer_id = fields.Many2one(
         'res.partner', string='Organizer', tracking=True,
         default=lambda self: self.env.company.partner_id,
@@ -109,11 +109,11 @@ class EventEvent(models.Model):
         group_expand='_read_group_expand_full', tracking=True, copy=False)
     # Seats and computation
     seats_max = fields.Integer(
-        string='Maximum Attendees',
+        string='Maximum Seats',
         compute='_compute_seats_max', readonly=False, store=True,
         help="For each event you can define a maximum registration of seats(number of attendees), above this number the registrations are not accepted. "
         "If the event has multiple slots, this maximum number is applied per slot.")
-    seats_limited = fields.Boolean('Limit Attendees', required=True, compute='_compute_seats_limited',
+    seats_limited = fields.Boolean('Limit Registrations', required=True, compute='_compute_seats_limited',
                                    precompute=True, readonly=False, store=True)
     seats_reserved = fields.Integer(
         string='Number of Registrations',
@@ -169,13 +169,16 @@ class EventEvent(models.Model):
     address_id = fields.Many2one(
         'res.partner', string='Venue', default=lambda self: self.env.company.partner_id.id,
         check_company=True,
-        tracking=True
+        tracking=True,
+        index=True,
     )
+    # TODO remove address_search in master
     address_search = fields.Many2one(
         'res.partner', string='Address', compute='_compute_address_search', search='_search_address_search')
-    address_inline = fields.Char(
-        string='Venue (formatted for one line uses)', compute='_compute_address_inline',
-        compute_sudo=True)
+    contact_address_inline = fields.Char(
+        string="Venue (formatted for one line uses)",
+        related='address_id.contact_address_inline',
+    )
     country_id = fields.Many2one(
         'res.country', 'Country', related='address_id.country_id', readonly=False, store=True)
     event_url = fields.Char(
@@ -206,7 +209,7 @@ class EventEvent(models.Model):
         string='Specific Questions', domain=[('once_per_order', '=', False)])
 
     def _compute_use_barcode(self):
-        use_barcode = self.env['ir.config_parameter'].sudo().get_param('event.use_event_barcode') == 'True'
+        use_barcode = self.env['ir.config_parameter'].sudo().get_bool('event.use_event_barcode')
         for record in self:
             record.use_barcode = use_barcode
 
@@ -307,7 +310,7 @@ class EventEvent(models.Model):
         for event in self:
             event = event._set_tz_context()
             current_datetime = fields.Datetime.context_timestamp(event, fields.Datetime.now())
-            date_end_tz = event.date_end.astimezone(pytz.timezone(event.date_tz or 'UTC')) if event.date_end else False
+            date_end_tz = event.date_end.astimezone(ZoneInfo(event.date_tz or 'UTC')) if event.date_end else False
             event.event_registrations_open = event.kanban_state != 'cancel' and \
                 event.event_registrations_started and \
                 (date_end_tz >= current_datetime if date_end_tz else True) and \
@@ -436,6 +439,8 @@ class EventEvent(models.Model):
         if isinstance(value, Domain):
             domain = value.map_conditions(lambda cond: cond if cond.field_expr != 'display_name' else make_codomain(cond.value))
             return Domain('address_id', operator, domain)
+        if isinstance(value, Query):
+            return Domain('address_id', 'in', value)
         if operator == 'ilike' and isinstance(value, str):
             return Domain('address_id', 'any', make_codomain(value))
         # for the trivial "empty" case, there is no empty address
@@ -564,18 +569,6 @@ class EventEvent(models.Model):
                 event.ticket_instructions = event.event_type_id.ticket_instructions
 
     @api.depends('address_id')
-    def _compute_address_inline(self):
-        """Use venue address if available, otherwise its name, finally ''. """
-        for event in self:
-            if (event.address_id.contact_address or '').strip():
-                event.address_inline = ', '.join(
-                    frag.strip()
-                    for frag in event.address_id.contact_address.split('\n') if frag.strip()
-                )
-            else:
-                event.address_inline = event.address_id.name or ''
-
-    @api.depends('address_id')
     def _compute_event_url(self):
         """Reset url field as it should only be used for events with no physical location."""
         self.filtered('address_id').event_url = ''
@@ -638,6 +631,51 @@ class EventEvent(models.Model):
                     }
                 }
 
+    def _search(self, domain, *a, **kw):
+        domain = Domain(domain).optimize(self).map_conditions(
+            lambda c: self._search_address_search(c.operator, c.value) if c.field_expr == 'address_search' else c)
+        return super()._search(domain, *a, **kw)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        events = super().create(vals_list)
+        events.filtered('event_type_id')._sync_event_ticket_translations_from_type()
+        return events
+
+    def write(self, vals):
+        events_to_sync = self.env['event.event']
+        if vals.get('event_type_id'):
+            events_to_sync = self.filtered(
+                lambda event: event.event_type_id.id != vals['event_type_id']
+            )
+        res = super().write(vals)
+        if events_to_sync:
+            events_to_sync._sync_event_ticket_translations_from_type()
+        return res
+
+    def _sync_event_ticket_translations_from_type(self):
+        """ Copy ticket translations from the event template after tickets are stored.
+
+        Translatable fields copied via Command.create only get the active language;
+        restore the other languages from the template.
+        """
+        TemplateTicket = self.env['event.type.ticket']
+        translated_fnames = [
+            fname for fname in TemplateTicket._get_event_ticket_fields_whitelist()
+            if TemplateTicket._fields[fname].translate
+        ]
+        for event in self.filtered('event_type_id'):
+            event_tickets = event.event_ticket_ids.filtered(lambda ticket: not ticket.registration_ids)
+            for template_ticket in event.event_type_id.event_type_ticket_ids:
+                event_ticket = next(
+                    (ticket for ticket in event_tickets if ticket.name == template_ticket.name), None
+                )
+                if event_ticket:
+                    for fname in translated_fnames:
+                        if translations := template_ticket._get_stored_translations(fname):
+                            event_ticket[fname] = translations
+                    event_tickets -= event_ticket
+
     @api.depends('event_registrations_sold_out', 'seats_limited', 'seats_max', 'seats_available')
     @api.depends_context('name_with_seats_availability')
     def _compute_display_name(self):
@@ -658,16 +696,12 @@ class EventEvent(models.Model):
                 name = event.name
             event.display_name = name
 
-    def copy_data(self, default=None):
-        vals_list = super().copy_data(default=default)
-        return [dict(vals, name=self.env._("%s (copy)", event.name)) for event, vals in zip(self, vals_list)]
-
     def _mail_get_operation_for_mail_message_operation(self, message_operation):
         if (message_operation == 'create' and self.env.user.has_group('event.group_event_registration_desk')):
             # allow the registration desk users to post messages on Event
             # can not be done with "_mail_post_access" otherwise public user will be
             # able to post on published Event (see website_event)
-            return dict.fromkeys(self, 'read')
+            return [(Domain.TRUE, 'read')]
         return super()._mail_get_operation_for_mail_message_operation(message_operation)
 
     def _set_tz_context(self):
@@ -758,8 +792,9 @@ class EventEvent(models.Model):
 
     def action_open_slot_calendar(self):
         self.ensure_one()
-        now = datetime.now().astimezone(pytz.timezone(self.env.user.tz or 'UTC'))
+        now = datetime.now().astimezone(ZoneInfo(self.env.user.tz or 'UTC'))
         next_hour = now + timedelta(hours=1)
+        initial_date = min(max(datetime.now(), self.date_begin), self.date_end)
         return {
             'type': 'ir.actions.act_window',
             'name': _('Slots'),
@@ -770,16 +805,13 @@ class EventEvent(models.Model):
             'domain': [('event_id', '=', self.id)],
             'context': {
                 'default_event_id': self.id,
-                # Default hours for the list view and mobile quick create.
-                # Desktop calendar multi create using defaults in local storage
-                # (= the last selected time range or fallback on 12PM-1PM).
+                'default_date': initial_date,
+                # Default hours except for the desktop calendar multi create (multi create uses
+                # defaults from range picker saved in local storage or fallback on 12PM-1PM).
                 'default_start_hour': next_hour.hour,
                 'default_end_hour': (next_hour + timedelta(hours=1)).hour,
-                # To disable calendar days outside of event date range.
-                'event_calendar_range_start_date': self.date_begin.astimezone(pytz.timezone(self.date_tz)).date(),
-                'event_calendar_range_end_date': self.date_end.astimezone(pytz.timezone(self.date_tz)).date(),
                 # Calendar view initial date.
-                'initial_date': min(max(datetime.now(), self.date_begin), self.date_end),
+                'initial_date': initial_date,
             },
         }
 
@@ -796,8 +828,8 @@ class EventEvent(models.Model):
     def _get_date_range_str(self, start_datetime=False, lang_code=False):
         self.ensure_one()
         datetime = start_datetime or self.date_begin
-        today_tz = pytz.utc.localize(fields.Datetime.now()).astimezone(pytz.timezone(self.date_tz))
-        event_date_tz = pytz.utc.localize(datetime).astimezone(pytz.timezone(self.date_tz))
+        today_tz = fields.Datetime.now().replace(tzinfo=UTC).astimezone(ZoneInfo(self.date_tz))
+        event_date_tz = datetime.replace(tzinfo=UTC).astimezone(ZoneInfo(self.date_tz))
         diff = (event_date_tz.date() - today_tz.date())
         if diff.days <= 0:
             return _('today')
@@ -811,24 +843,25 @@ class EventEvent(models.Model):
             return _('next month')
         return _('on %(date)s', date=format_date(self.env, datetime, lang_code=lang_code, date_format='medium'))
 
-    def _get_external_description(self):
+    def _get_ics_description(self):
         """
         Description of the event shortened to maximum 1900 characters to
         leave some space for addition by sub-modules.
         Meant to be used for external content (ics/icalc/Gcal).
 
         Reference Docs for URL limit -: https://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers
+        :return: a plain string, crucially not markup nor html-safe (expected sanitized by calendar clients)
         """
         self.ensure_one()
         description = ''
         if self.event_share_url:
-            description = f'<a href="{escape(self.event_share_url)}">{escape(self.name)}</a>\n'
+            description = f'<a href="{self.event_share_url}">{self.name}</a>\n'
         description += textwrap.shorten(html_to_inner_content(self.description), 1900)
         return description
 
     def _get_external_description_url_encoded(self):
         """Get a url-encoded version of the description for mail templates."""
-        return urllib.parse.quote_plus(self._get_external_description())
+        return urllib.parse.quote_plus(self._get_ics_description())
 
     def _get_ics_file(self, slot=False):
         """ Returns iCalendar file for the event invitation.
@@ -845,17 +878,20 @@ class EventEvent(models.Model):
             start = slot.start_datetime if slot else event.date_begin
             end = slot.end_datetime if slot else event.date_end
 
-            cal_event.add('created').value = fields.Datetime.now().replace(tzinfo=pytz.timezone('UTC'))
-            cal_event.add('dtstart').value = start.astimezone(pytz.timezone(event.date_tz))
-            cal_event.add('dtend').value = end.astimezone(pytz.timezone(event.date_tz))
+            # vobject does *not* like datetime.UTC (this was fixed by
+            # py-vobject/vobject#88 which isn't even in 0.9.9, current release
+            # as of now)
+            cal_event.add('created').value = fields.Datetime.now().replace(tzinfo=ZoneInfo("UTC"))
+            cal_event.add('dtstart').value = start.astimezone(ZoneInfo(event.date_tz))
+            cal_event.add('dtend').value = end.astimezone(ZoneInfo(event.date_tz))
             cal_event.add('summary').value = event.name
-            external_description = event._get_external_description()
+            external_description = event._get_ics_description()
             cal_event.add('description').value = external_description
             xalt = cal_event.add('X-ALT-DESC')
             xalt.value = external_description
             xalt.params['FMTTYPE'] = ['text/html']
             if event.address_id:
-                cal_event.add('location').value = event.address_inline
+                cal_event.add('location').value = event.contact_address_inline or event.address_id.name
 
             result[event.id] = cal.serialize().encode('utf-8')
         return result

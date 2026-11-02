@@ -12,8 +12,8 @@ from odoo.exceptions import UserError, AccessDenied
 class PosPaymentMethod(models.Model):
     _inherit = 'pos.payment.method'
 
-    def _get_payment_terminal_selection(self):
-        return super()._get_payment_terminal_selection() + [('qfpay', 'QFPay')]
+    def _get_terminal_provider_selection(self):
+        return super()._get_terminal_provider_selection() + [('qfpay', 'QFPay')]
 
     qfpay_terminal_ip_address = fields.Char('QFPay Terminal IP Address', copy=False)
     qfpay_pos_key = fields.Char('QFPay POS Key', copy=False, groups='point_of_sale.group_pos_manager')
@@ -32,25 +32,22 @@ class PosPaymentMethod(models.Model):
     ], 'QFPay Payment Type', copy=False)
 
     @api.model
-    def _load_pos_data_fields(self, config_id):
-        params = super()._load_pos_data_fields(config_id)
+    def _load_pos_data_fields(self, config):
+        params = super()._load_pos_data_fields(config)
         params += ['qfpay_terminal_ip_address', 'qfpay_payment_type']
         return params
 
-    @api.constrains('use_payment_terminal')
+    @api.constrains('payment_provider')
     def _check_qfpay_terminal(self):
-        if any(record.use_payment_terminal == 'qfpay' and record.company_id.currency_id.name != 'HKD' for record in self):
+        if any(record.payment_provider == 'qfpay' and record.company_id.currency_id.name != 'HKD' for record in self):
             raise UserError(_('QFPay is only valid for HKD Currency'))
-
-    def _is_write_forbidden(self, fields):
-        return super()._is_write_forbidden(fields - {'qfpay_latest_response'})
 
     def qfpay_sign_request(self, payload):
         self.ensure_one()
         if not self.env.su and not self.env.user.has_group('point_of_sale.group_pos_user'):
             raise AccessDenied()
 
-        if self.use_payment_terminal != 'qfpay':
+        if self.payment_provider != 'qfpay':
             raise UserError(_('This method can only be used with QFPay payment terminal.'))
 
         key = self.sudo().qfpay_pos_key

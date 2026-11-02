@@ -22,10 +22,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2026-06-06 22:07+0000\n"
-"Last-Translator: \"Marta (wacm)\" <wacm@odoo.com>\n"
-"Language-Team: Polish <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 20:22+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Polish <https://translate.odoo.com/projects/odoo-s19-4/"
 "website_customer/pl/>\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
@@ -34,38 +34,43 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && "
 "(n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && "
 "n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: website_customer
+#: model:ir.module.module,description:base.module_website_customer
+msgid ""
+"\n"
+"Publish your customers as business references on your website to attract new "
+"potential prospects.\n"
+msgstr ""
+
+#. module: website_customer
+#: model_terms:ir.ui.view,arch_db:website_customer.details
+msgid "<i class=\"oi me-2\" data-icon=\"chevron_backward\"/>Back to references"
+msgstr ""
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.index
 msgid ""
-"<i class=\"fa fa-info-circle me-2\"/>\n"
+"<i class=\"oi me-2\" data-icon=\"info\"/>\n"
 "                        There are no matching customers found for the "
 "selected country. Displaying results across all countries instead."
 msgstr ""
-"<i class=\"fa fa-info-circle me-2\"/>\n"
-"                        Nie znaleziono żadnych pasujących klientów dla "
-"wybranego kraju. Zamiast tego wyświetlam wyniki ze wszystkich krajów."
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.opt_country
 msgid ""
-"<i class=\"fa fa-map-marker\" role=\"img\" aria-label=\"Open map\" "
-"title=\"Open map\"/>"
+"<i class=\"oi\" data-icon=\"location_on\" role=\"img\" aria-label=\"Open "
+"map\" title=\"Open map\"/>"
 msgstr ""
-"<i class=\"fa fa-map-marker\" role=\"img\" aria-label=\"Otwórz mapę\" "
-"title=\"Otwórz mapę\"/>"
-
-#. module: website_customer
-#: model_terms:ir.ui.view,arch_db:website_customer.details
-msgid "<i class=\"oi oi-chevron-left me-2\"/>Back to references"
-msgstr "<i class=\"oi oi-chevron-left me-2\"/>Powrót do referencji"
+"<i class=\"oi\" data-icon=\"location_on\" role=\"img\" aria-label=\"Open "
+"map\" title=\"Open map\"/>"
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.index
 #: model_terms:ir.ui.view,arch_db:website_customer.opt_tag_list
-msgid "<span class=\"fa fa-1x fa-tags\"/> All"
-msgstr "<span class=\"fa fa-1x fa-tags\"/> Wszystko"
+msgid "<span class=\"oi oi-1x\" data-icon=\"sell\"/> All"
+msgstr "<span class=\"oi oi-1x\" data-icon=\"sell\"/> Wszystko"
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.implemented_by_block
@@ -93,6 +98,16 @@ msgstr "Wszystkie gałęzie przemysłu"
 #: model_terms:ir.ui.view,arch_db:website_customer.res_partner_tag_view_search
 msgid "Archived"
 msgstr "Zarchiwizowane"
+
+#. module: website_customer
+#: model:ir.model.fields,field_description:website_customer.field_res_partner_tag__publish_on
+msgid "Auto publish on"
+msgstr "Opublikuj automatycznie"
+
+#. module: website_customer
+#: model:ir.model.fields,help:website_customer.field_res_partner_tag__publish_on
+msgid "Automatically publish the page on the chosen date and time."
+msgstr "Opublikuj stronę automatycznie we wybranej dacie i godzinie."
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.details
@@ -157,6 +172,11 @@ msgid "Created on"
 msgstr "Data utworzenia"
 
 #. module: website_customer
+#: model:ir.module.module,shortdesc:base.module_website_customer
+msgid "Customer References"
+msgstr ""
+
+#. module: website_customer
 #. odoo-python
 #: code:addons/website_customer/controllers/main.py:0
 msgid "Customers"
@@ -164,14 +184,9 @@ msgstr "Klienci"
 
 #. module: website_customer
 #. odoo-javascript
-#: code:addons/website_customer/static/src/website_builder/customer_filter_option.js:0
+#: code:addons/website_customer/static/src/website_builder/customer_filter_option.xml:0
 msgid "Customers Page"
 msgstr "Strona klientów"
-
-#. module: website_customer
-#: model_terms:ir.ui.view,arch_db:website_customer.details
-msgid "DROP BUILDING BLOCKS HERE TO MAKE THEM AVAILABLE ACROSS ALL CUSTOMERS"
-msgstr "UPUŚĆ BLOKI W TYM MIEJSCU, ABY BYŁY DOSTĘPNE DLA WSZYSTKICH KLIENTÓW"
 
 #. module: website_customer
 #: model:ir.model.fields,field_description:website_customer.field_res_partner__display_name
@@ -179,6 +194,11 @@ msgstr "UPUŚĆ BLOKI W TYM MIEJSCU, ABY BYŁY DOSTĘPNE DLA WSZYSTKICH KLIENTÓ
 #: model:ir.model.fields,field_description:website_customer.field_website__display_name
 msgid "Display Name"
 msgstr "Nazwa wyświetlana"
+
+#. module: website_customer
+#: model_terms:ir.ui.view,arch_db:website_customer.details
+msgid "Drag blocks here to add them on all customers"
+msgstr "Przeciągnij bloki tutaj, aby dodać je do wszystkich klientów"
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.index
@@ -293,6 +313,16 @@ msgid "Partners"
 msgstr "Kontrahenci"
 
 #. module: website_customer
+#: model:ir.module.module,summary:base.module_website_customer
+msgid "Publish your customer references"
+msgstr ""
+
+#. module: website_customer
+#: model:ir.model.fields,field_description:website_customer.field_res_partner_tag__published_date
+msgid "Published date"
+msgstr "Data opublikowania"
+
+#. module: website_customer
 #. odoo-python
 #: code:addons/website_customer/models/website.py:0
 #: model_terms:ir.ui.view,arch_db:website_customer.references_block
@@ -386,43 +416,3 @@ msgstr "Tagi strony"
 #: model_terms:ir.ui.view,arch_db:website_customer.opt_country
 msgid "World Map"
 msgstr "Mapa świata"
-
-#~ msgid ""
-#~ "<span class=\"fa fa-external-link\" role=\"img\" aria-label=\"External "
-#~ "link\" title=\"External link\"/>"
-#~ msgstr ""
-#~ "<span class=\"fa fa-external-link\" role=\"img\" aria-label=\"Zewnętrzny "
-#~ "odnośnik\" title=\"Zewnętrzny odnośnik\"/>"
-
-#~ msgid "Implemented By"
-#~ msgstr "Przygotowane przez"
-
-#~ msgid "Last Modified on"
-#~ msgstr "Data ostatniej modyfikacji"
-
-#~ msgid "No result found"
-#~ msgstr "Nic nie znaleziono"
-
-#~ msgid "Our References"
-#~ msgstr "Nasze referencje"
-
-#~ msgid "References Page"
-#~ msgstr "Strona referencji"
-
-#~ msgid "References by Country"
-#~ msgstr "Referencje według kraju"
-
-#~ msgid "References by Industries"
-#~ msgstr "Referencje według branż"
-
-#~ msgid "References by Tag"
-#~ msgstr "Referencje jako tagi"
-
-#~ msgid "The full URL to access the document through the website."
-#~ msgstr "Pełny adres URL dostępu do dokumentu przez stronę."
-
-#~ msgid "Trusted by millions worldwide"
-#~ msgstr "Zaufanie milionów na całym świecie"
-
-#~ msgid "reference(s))"
-#~ msgstr "referencje"

@@ -1,4 +1,5 @@
-import { Component, onWillRender, toRaw, useEffect, useRef, useState } from "@odoo/owl";
+import { onWillRender } from "@web/owl2/utils";
+import { Component, proxy, signal, t, toRaw, useOnChange, useProps } from "@odoo/owl";
 import { browser } from "@web/core/browser/browser";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { useHotkey } from "@web/core/hotkeys/hotkey_hook";
@@ -12,33 +13,35 @@ import { CallbackRecorder, useSetupAction } from "@web/search/action_hook";
 import { FormArchParser } from "@web/views/form/form_arch_parser";
 import { MultiCreatePopover } from "./multi_create_popover";
 
+export const multiSelectionButtonsProps = {
+    reactive: t.object({
+        onAdd: t.function(),
+        onCancel: t.function(),
+        onDelete: t.function(),
+        nbSelected: t.number(),
+        multiCreateView: t.string(),
+        resModel: t.string(),
+        context: t.object(),
+        showMultiCreateTimeRange: t.boolean(),
+        visible: t.boolean(),
+        multiCreateValues: t.object().optional(),
+    }),
+};
+
 export class MultiSelectionButtons extends Component {
     static template = "web.MultiSelectionButtons";
-    static props = {
-        reactive: {
-            type: Object,
-            shape: {
-                onAdd: Function,
-                onCancel: Function,
-                onDelete: Function,
-                nbSelected: Number,
-                multiCreateView: String,
-                resModel: String,
-                context: Object,
-                showMultiCreateTimeRange: Boolean,
-                visible: Boolean,
-                multiCreateValues: { type: Object, optional: true },
-            },
-        },
-    };
+    props = useProps(multiSelectionButtonsProps);
     static components = {
         Popover: MultiCreatePopover,
     };
 
+    addButtonRef = signal.ref();
+    rootRef = signal.ref();
+
     setup() {
         this.viewService = useService("view");
         this.dialogService = useService("dialog");
-        this.state = useState({ isReady: false });
+        this.state = proxy({ isReady: false });
         onWillRender(() => {
             if (this.props.reactive.visible && !this.state.isReady) {
                 this.loadMultiCreateView().then(() => {
@@ -67,10 +70,8 @@ export class MultiSelectionButtons extends Component {
                 }
             },
         });
-        this.addButtonRef = useRef("addButton");
-
-        const rootRef = useRef("root");
-        useEffect(
+        useOnChange(
+            () => [this.rootRef()],
             (el) => {
                 if (!el) {
                     return;
@@ -80,8 +81,7 @@ export class MultiSelectionButtons extends Component {
                 const { width } = el.getBoundingClientRect();
                 const left = Math.floor((parentWidth - width) / 2);
                 el.style.setProperty("left", `${left}px`);
-            },
-            () => [rootRef.el]
+            }
         );
 
         useHotkey("escape", () => {
@@ -171,9 +171,11 @@ export class MultiSelectionButtons extends Component {
         const values = Object.assign({}, multiCreateFormRecord.data);
         for (const [fieldName, data] of Object.entries(multiCreateFormRecord.data)) {
             if (["one2many", "many2many"].includes(multiCreateFormRecord.fields[fieldName].type)) {
-                values[fieldName] = data.records.map((record) =>
-                    Object.assign({ id: record.resId }, record.data)
-                );
+                const loadedByResId = new Map(data.records.map((r) => [r.resId, r]));
+                values[fieldName] = data.currentIds.map((id) => {
+                    const record = loadedByResId.get(id);
+                    return record ? Object.assign({ id: record.resId }, record.data) : { id };
+                });
             }
         }
         return values;
@@ -183,7 +185,7 @@ export class MultiSelectionButtons extends Component {
         if (this.multiCreatePopover.isOpen) {
             return;
         }
-        this.multiCreatePopover.open(this.addButtonRef.el, this.getMultiCreatePopoverProps());
+        this.multiCreatePopover.open(this.addButtonRef(), this.getMultiCreatePopoverProps());
     }
 
     onDelete() {

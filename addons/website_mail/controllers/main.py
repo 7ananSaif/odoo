@@ -9,6 +9,15 @@ class WebsiteMail(http.Controller):
 
     @http.route(['/website_mail/follow'], type='jsonrpc', auth="public", website=True)
     def website_message_subscribe(self, id=0, object=None, message_is_follower="on", email=False, **post):
+        """Subscribe the visitor to a record's followers, or unsubscribe them from it.
+
+        :param int id: id of the record to follow.
+        :param str object: model name of that record.
+        :param str message_is_follower: the visitor's current follower state; 'on' means
+            already following, so the call unsubscribes them - any other value subscribes them.
+        :param str email: address to subscribe, for visitors who are not logged in.
+        :return: False if the record does not exist, the resulting follower state otherwise.
+        """
         # TDE FIXME: check this method with new followers
         res_id = int(id)
         is_follower = message_is_follower == 'on'
@@ -19,8 +28,8 @@ class WebsiteMail(http.Controller):
         record.check_access('read')
 
         # search partner_id
-        if request.env.user != request.website.user_id:
-            partner_ids = request.env.user.partner_id.ids
+        if request.env.user != self.env.website.user_id:
+            partner_id = request.env.user.partner_id.id
         else:
             # mail_thread method
             try:
@@ -29,16 +38,23 @@ class WebsiteMail(http.Controller):
                 no_create = True
             else:
                 no_create = False
-            partner_ids = record.sudo()._partner_find_from_emails_single([email], no_create=no_create).ids
-        # add or remove follower
-        if is_follower:
-            record.sudo().message_unsubscribe(partner_ids)
-            return False
-        else:
+            thread_record = record if hasattr(record, "_partner_find_from_emails_single") else request.env['mail.thread']
+            partner_id = thread_record.sudo()._partner_find_from_emails_single([email], no_create=no_create).id
+
+        if not is_follower:
             # add partner to session
-            request.session['partner_id'] = partner_ids[0]
-            record.sudo().message_subscribe(partner_ids)
-            return True
+            request.session['partner_id'] = partner_id
+
+        self._subscribe_partner(record, partner_id, not is_follower)
+        return not is_follower
+
+    def _subscribe_partner(self, record, partner_id, subscribe):
+        """Subscribe the given partner on the record."""
+        if subscribe:
+            record.sudo().message_subscribe([partner_id])
+            return
+
+        record.sudo().message_unsubscribe([partner_id])
 
     @http.route(['/website_mail/is_follower'], type='jsonrpc', auth="public", website=True, readonly=True)
     def is_follower(self, records, **post):
@@ -56,14 +72,8 @@ class WebsiteMail(http.Controller):
                     {'res.model': [1, 2], 'res.model2': [1]}
                 ]
         """
-        user = request.env.user
-        partner = None
-        public_user = request.website.user_id
-        if user != public_user:
-            partner = request.env.user.partner_id
-        elif request.session.get('partner_id'):
-            partner = request.env['res.partner'].sudo().browse(request.session.get('partner_id'))
-
+        public_user = self.env.website.user_id
+        partner = self._get_user_partner()
         res = defaultdict(list)
         if partner:
             for model in records:
@@ -76,6 +86,14 @@ class WebsiteMail(http.Controller):
                 res[model].extend(res_id for [res_id] in mail_followers_ids)
 
         return [{
-            'is_user': user != public_user,
+            'is_user': request.env.user != public_user,
             'email': partner.email if partner else "",
         }, res]
+
+    def _get_user_partner(self):
+        """Return the effective partner of the current user."""
+        if request.env.user != self.env.website.user_id:
+            return request.env.user.partner_id
+        if pid := request.session.get('partner_id'):
+            return request.env['res.partner'].sudo().browse(pid)
+        return None

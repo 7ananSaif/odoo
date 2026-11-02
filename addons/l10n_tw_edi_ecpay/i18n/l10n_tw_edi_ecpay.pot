@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0+e\n"
+"Project-Id-Version: Odoo Server 19.5a1+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-30 19:09+0000\n"
-"PO-Revision-Date: 2025-12-30 19:09+0000\n"
+"POT-Creation-Date: 2026-08-28 18:23+0000\n"
+"PO-Revision-Date: 2026-08-28 18:23+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -24,6 +24,15 @@ msgid ""
 "    - Mobile Barcode: The carrier number format is / following 7 alphanumeric or +-. string.\n"
 "    - EasyCard or iPass: The carrier number is the card hidden code, the carrier number 2 is the card visible code.\n"
 "        "
+msgstr ""
+
+#. module: l10n_tw_edi_ecpay
+#: model:ir.module.module,description:base.module_l10n_tw_edi_ecpay
+msgid ""
+"\n"
+"Taiwan - E-invoicing\n"
+"=====================\n"
+"This module allows the user to send their invoices to the Ecpay system.\n"
 msgstr ""
 
 #. module: l10n_tw_edi_ecpay
@@ -107,16 +116,6 @@ msgstr ""
 #. module: l10n_tw_edi_ecpay
 #: model:ir.model.fields.selection,name:l10n_tw_edi_ecpay.selection__l10n_tw_edi_invoice_print__print_format_b2b__2
 msgid "A5 printing "
-msgstr ""
-
-#. module: l10n_tw_edi_ecpay
-#: model:ir.model,name:l10n_tw_edi_ecpay.model_account_move_reversal
-msgid "Account Move Reversal"
-msgstr ""
-
-#. module: l10n_tw_edi_ecpay
-#: model:ir.model,name:l10n_tw_edi_ecpay.model_account_move_send
-msgid "Account Move Send"
 msgstr ""
 
 #. module: l10n_tw_edi_ecpay
@@ -207,14 +206,13 @@ msgid ""
 msgstr ""
 
 #. module: l10n_tw_edi_ecpay
-#: model_terms:ir.ui.view,arch_db:l10n_tw_edi_ecpay.l10n_tw_edi_invoice_cancel_form
 #: model_terms:ir.ui.view,arch_db:l10n_tw_edi_ecpay.l10n_tw_edi_invoice_print_form
 msgid "Close"
 msgstr ""
 
 #. module: l10n_tw_edi_ecpay
 #: model:ir.model,name:l10n_tw_edi_ecpay.model_res_company
-msgid "Companies"
+msgid "Company"
 msgstr ""
 
 #. module: l10n_tw_edi_ecpay
@@ -329,6 +327,11 @@ msgstr ""
 #. odoo-python
 #: code:addons/l10n_tw_edi_ecpay/models/account_move.py:0
 msgid "Duty free with special tax type cannot be mixed with other tax types."
+msgstr ""
+
+#. module: l10n_tw_edi_ecpay
+#: model:ir.module.module,summary:base.module_l10n_tw_edi_ecpay
+msgid "E-invoicing using ECpay"
 msgstr ""
 
 #. module: l10n_tw_edi_ecpay
@@ -605,6 +608,11 @@ msgid "Journal Entry"
 msgstr ""
 
 #. module: l10n_tw_edi_ecpay
+#: model:ir.model,name:l10n_tw_edi_ecpay.model_account_move_reversal
+msgid "Journal Entry Reversal"
+msgstr ""
+
+#. module: l10n_tw_edi_ecpay
 #: model:ir.model,name:l10n_tw_edi_ecpay.model_account_move_line
 msgid "Journal Item"
 msgstr ""
@@ -802,6 +810,11 @@ msgid "Send to Ecpay (Issue Allowance)"
 msgstr ""
 
 #. module: l10n_tw_edi_ecpay
+#: model:ir.model,name:l10n_tw_edi_ecpay.model_account_move_send
+msgid "Shared Send Invoice Wizard Functions"
+msgstr ""
+
+#. module: l10n_tw_edi_ecpay
 #: model:ir.model.fields.selection,name:l10n_tw_edi_ecpay.selection__account_move__l10n_tw_edi_invoice_type__08
 msgid "Special Invoice"
 msgstr ""
@@ -822,6 +835,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_tw_edi_ecpay.field_res_company__l10n_tw_edi_ecpay_staging_mode
 #: model:ir.model.fields,field_description:l10n_tw_edi_ecpay.field_res_config_settings__l10n_tw_edi_ecpay_staging_mode
 msgid "Staging mode"
+msgstr ""
+
+#. module: l10n_tw_edi_ecpay
+#: model:ir.module.module,shortdesc:base.module_l10n_tw_edi_ecpay
+msgid "Taiwan - E-invoicing"
 msgstr ""
 
 #. module: l10n_tw_edi_ecpay

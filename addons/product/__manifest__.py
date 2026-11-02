@@ -28,7 +28,7 @@ Print product labels with barcode.
     'data': [
         'data/product_data.xml',
         'security/product_security.xml',
-        'security/ir.model.access.csv',
+        'data/product_attribute_data.xml',
 
         'wizard/product_label_layout_views.xml',
         'wizard/update_product_attribute_value_views.xml',
@@ -38,6 +38,7 @@ Print product labels with barcode.
         'views/res_config_settings_views.xml',
         'views/product_attribute_views.xml',
         'views/product_attribute_value_views.xml',
+        'views/product_base_unit_views.xml',
         'views/product_category_views.xml',
         'views/product_combo_views.xml',
         'views/product_document_views.xml',
@@ -53,8 +54,8 @@ Print product labels with barcode.
         'report/product_reports.xml',
         'report/product_product_templates.xml',
         'report/product_template_templates.xml',
-        'report/product_packaging.xml',
         'report/product_pricelist_report_templates.xml',
+        'security/ir.access.csv',
     ],
     'demo': [
         'data/product_attribute_demo.xml',
@@ -63,15 +64,13 @@ Print product labels with barcode.
         'data/product_document_demo.xml',
         'data/product_supplierinfo_demo.xml',
     ],
-    'installable': True,
     'assets': {
         'web.assets_backend': [
             'product/static/src/js/**/*',
             'product/static/src/product_catalog/**/*.js',
             'product/static/src/product_catalog/**/*.xml',
             'product/static/src/product_catalog/**/*.scss',
-            'product/static/src/product_name_and_description/**/*.js',
-            'product/static/src/scss/product_form.scss',
+            'product/static/src/scss/product_template_views.scss',
         ],
         'web.report_assets_common': [
             'product/static/src/scss/report_label_sheet.scss',

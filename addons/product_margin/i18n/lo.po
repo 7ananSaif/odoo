@@ -1,209 +1,220 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# * product_margin
+# 	* product_margin
 #
-# Bone NI <bounkirdni@gmail.com>, 2026.
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0\n"
+"Project-Id-Version: Odoo Server 19.2a1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-06-07 18:02+0000\n"
-"Last-Translator: Bone NI <bounkirdni@gmail.com>\n"
-"Language-Team: Lao <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 17:57+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Lao <https://translate.odoo.com/projects/odoo-s19-4/"
 "product_margin/lo/>\n"
 "Language: lo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: product_margin
+#: model:ir.module.module,description:base.module_product_margin
+msgid ""
+"\n"
+"Adds a reporting menu in products that computes sales, purchases, margins "
+"and other interesting indicators based on invoices.\n"
+"=============================================================================================================================\n"
+"\n"
+"The wizard to launch the report has several options to help you get the data "
+"you need.\n"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,field_description:product_margin.field_product_product__purchase_num_invoiced
 msgid "# Invoiced in Purchase"
-msgstr "# ອອກໃບແຈ້ງໜີ້ໃນການຊື້"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,field_description:product_margin.field_product_product__sale_num_invoiced
 msgid "# Invoiced in Sale"
-msgstr "# ອອກໃບແຈ້ງໜີ້ໃນການຂາຍ"
+msgstr ""
 
 #. module: product_margin
 #: model_terms:ir.ui.view,arch_db:product_margin.view_product_margin_tree
 msgid "# Purchased"
-msgstr "# ທີ່ຊື້ແລ້ວ"
+msgstr ""
 
 #. module: product_margin
 #: model_terms:ir.ui.view,arch_db:product_margin.view_product_margin_form
 msgid "Analysis Criteria"
-msgstr "ເກນການວິເຄາະ"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,help:product_margin.field_product_product__sale_avg_price
 msgid "Avg. Price in Customer Invoices."
-msgstr "ລາຄາສະເລ່ຍໃນໃບແຈ້ງໜີ້ລູກຄ້າ."
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,help:product_margin.field_product_product__purchase_avg_price
 msgid "Avg. Price in Vendor Bills"
-msgstr "ລາຄາສະເລ່ຍໃນໃບເກັບເງິນຜູ້ສະໜອງ"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,field_description:product_margin.field_product_product__purchase_avg_price
 msgid "Avg. Purchase Unit Price"
-msgstr "ລາຄາຫົວໜ່ວຍການຊື້ສະເລ່ຍ"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,field_description:product_margin.field_product_product__sale_avg_price
 msgid "Avg. Sale Unit Price"
-msgstr "ລາຄາຫົວໜ່ວຍການຂາຍສະເລ່ຍ"
+msgstr ""
 
 #. module: product_margin
 #: model_terms:ir.ui.view,arch_db:product_margin.view_product_margin_form
 msgid "Avg. Unit Price"
-msgstr "ລາຄາຫົວໜ່ວຍສະເລ່ຍ"
-
-#. module: product_margin
-#: model_terms:ir.ui.view,arch_db:product_margin.product_margin_form_view
-msgid "Cancel"
-msgstr "ຍົກເລີກ"
+msgstr ""
 
 #. module: product_margin
 #: model_terms:ir.ui.view,arch_db:product_margin.view_product_margin_form
 msgid "Catalog Price"
-msgstr "ລາຄາຕາມລາຍການ"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,field_description:product_margin.field_product_margin__create_uid
 msgid "Created by"
-msgstr "ສ້າງໂດຍ"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,field_description:product_margin.field_product_margin__create_date
 msgid "Created on"
-msgstr "ສ້າງເມື່ອ"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,field_description:product_margin.field_product_margin__display_name
 #: model:ir.model.fields,field_description:product_margin.field_product_product__display_name
 msgid "Display Name"
-msgstr "ຊື່ທີ່ສະແດງ"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields.selection,name:product_margin.selection__product_margin__invoice_state__draft_open_paid
 #: model:ir.model.fields.selection,name:product_margin.selection__product_product__invoice_state__draft_open_paid
 msgid "Draft, Open and Paid"
-msgstr "ຮ່າງ, ຄ້າງຈ່າຍ ແລະ ຈ່າຍແລ້ວ"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,field_description:product_margin.field_product_product__expected_margin
 msgid "Expected Margin"
-msgstr "ກຳໄລທີ່ຄາດໄວ້"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,field_description:product_margin.field_product_product__expected_margin_rate
 msgid "Expected Margin (%)"
-msgstr "ອັດຕາກຳໄລທີ່ຄາດໄວ້ (%)"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,field_description:product_margin.field_product_product__sale_expected
 msgid "Expected Sale"
-msgstr "ຍອດຂາຍທີ່ຄາດໄວ້"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,help:product_margin.field_product_product__expected_margin
 msgid "Expected Sale - Normal Cost"
-msgstr "ຍອດຂາຍທີ່ຄາດໄວ້ - ຕົ້ນທຶນປົກກະຕີ"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,help:product_margin.field_product_product__sales_gap
 msgid "Expected Sale - Turn Over"
-msgstr "ຍອດຂາຍທີ່ຄາດໄວ້ - ຍອດຂາຍຕົວຈິງ"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,help:product_margin.field_product_product__expected_margin_rate
 msgid "Expected margin * 100 / Expected Sale"
-msgstr "ກຳໄລທີ່ຄາດໄວ້ * 100 / ຍອດຂາຍທີ່ຄາດໄວ້"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,field_description:product_margin.field_product_margin__from_date
 msgid "From"
-msgstr "ຈາກ"
+msgstr ""
 
 #. module: product_margin
 #: model_terms:ir.ui.view,arch_db:product_margin.product_margin_form_view
 msgid "General Information"
-msgstr "ຂໍ້ມູນທົ່ວໄປ"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,field_description:product_margin.field_product_margin__id
 #: model:ir.model.fields,field_description:product_margin.field_product_product__id
 msgid "ID"
-msgstr "ລະຫັດ (ID)"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,field_description:product_margin.field_product_margin__invoice_state
 #: model:ir.model.fields,field_description:product_margin.field_product_product__invoice_state
 msgid "Invoice State"
-msgstr "ສະຖານະໃບແຈ້ງໜີ້"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,field_description:product_margin.field_product_margin__write_uid
 msgid "Last Updated by"
-msgstr "ອັບເດດລ້າສຸດໂດຍ"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,field_description:product_margin.field_product_margin__write_date
 msgid "Last Updated on"
-msgstr "ອັບເດດລ້າສຸດເມື່ອ"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,field_description:product_margin.field_product_product__date_from
 msgid "Margin Date From"
-msgstr "ກຳໄລຈາກວັນທີ"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,field_description:product_margin.field_product_product__date_to
 msgid "Margin Date To"
-msgstr "ກຳໄລເຖິງວັນທີ"
+msgstr ""
 
 #. module: product_margin
 #: model_terms:ir.ui.view,arch_db:product_margin.view_product_margin_form
 msgid "Margins"
-msgstr "ກຳໄລ"
+msgstr ""
+
+#. module: product_margin
+#: model:ir.module.module,shortdesc:base.module_product_margin
+msgid "Margins by Products"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,field_description:product_margin.field_product_product__normal_cost
 msgid "Normal Cost"
-msgstr "ຕົ້ນທຶນປົກກະຕີ"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,help:product_margin.field_product_product__purchase_gap
 msgid "Normal Cost - Total Cost"
-msgstr "ຕົ້ນທຶນປົກກະຕີ - ຕົ້ນທຶນທັງໝົດ"
+msgstr ""
 
 #. module: product_margin
 #: model_terms:ir.ui.view,arch_db:product_margin.product_margin_form_view
 msgid "Open Margins"
-msgstr "ເປີດເບິ່ງກຳໄລ"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields.selection,name:product_margin.selection__product_margin__invoice_state__open_paid
 #: model:ir.model.fields.selection,name:product_margin.selection__product_product__invoice_state__open_paid
 msgid "Open and Paid"
-msgstr "ຄ້າງຈ່າຍ ແລະ ຈ່າຍແລ້ວ"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields.selection,name:product_margin.selection__product_margin__invoice_state__paid
 #: model:ir.model.fields.selection,name:product_margin.selection__product_product__invoice_state__paid
 msgid "Paid"
-msgstr "ຈ່າຍແລ້ວ"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model,name:product_margin.model_product_margin
 msgid "Product Margin"
-msgstr "ກຳໄລສິນຄ້າ"
+msgstr ""
 
 #. module: product_margin
 #. odoo-python
@@ -213,116 +224,115 @@ msgstr "ກຳໄລສິນຄ້າ"
 #: model_terms:ir.ui.view,arch_db:product_margin.view_product_margin_graph
 #: model_terms:ir.ui.view,arch_db:product_margin.view_product_margin_tree
 msgid "Product Margins"
-msgstr "ກຳໄລສິນຄ້າ"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.ui.menu,name:product_margin.menu_action_product_margin
 msgid "Product Margins…"
-msgstr "ກຳໄລສິນຄ້າ…"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model,name:product_margin.model_product_product
 msgid "Product Variant"
-msgstr "ຊະນິດຍ່ອຍສິນຄ້າ"
+msgstr ""
 
 #. module: product_margin
 #: model_terms:ir.ui.view,arch_db:product_margin.product_margin_form_view
 msgid "Properties categories"
-msgstr "ໝວດໝູ່ຄຸນສົມບັດ"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,field_description:product_margin.field_product_product__purchase_gap
 msgid "Purchase Gap"
-msgstr "ສ່ວນຕ່າງການຊື້"
+msgstr ""
 
 #. module: product_margin
 #: model_terms:ir.ui.view,arch_db:product_margin.view_product_margin_form
 msgid "Purchases"
-msgstr "ການຊື້"
+msgstr ""
 
 #. module: product_margin
 #: model_terms:ir.ui.view,arch_db:product_margin.view_product_margin_form
 msgid "Sales"
-msgstr "ການຂາຍ"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,field_description:product_margin.field_product_product__sales_gap
 #: model_terms:ir.ui.view,arch_db:product_margin.view_product_margin_tree
 msgid "Sales Gap"
-msgstr "ສ່ວນຕ່າງການຂາຍ"
+msgstr ""
 
 #. module: product_margin
 #: model_terms:ir.ui.view,arch_db:product_margin.view_product_margin_form
 msgid "Standard Price"
-msgstr "ລາຄາມາດຕະຖານ"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,help:product_margin.field_product_product__normal_cost
 msgid "Sum of Multiplication of Cost price and quantity of Vendor Bills"
-msgstr "ຜົນລວມຂອງ (ລາຄາຕົ້ນທຶນ ຄູນ ຈຳນວນ) ໃນໃບເກັບເງິນຜູ້ສະໜອງ"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,help:product_margin.field_product_product__turnover
 msgid ""
 "Sum of Multiplication of Invoice price and quantity of Customer Invoices"
-msgstr "ຜົນລວມຂອງ (ລາຄາໃບແຈ້ງໜີ້ ຄູນ ຈຳນວນ) ໃນໃບແຈ້ງໜີ້ລູກຄ້າ"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,help:product_margin.field_product_product__total_cost
 msgid "Sum of Multiplication of Invoice price and quantity of Vendor Bills "
-msgstr "ຜົນລວມຂອງ (ລາຄາໃບແຈ້ງໜີ້ ຄູນ ຈຳນວນ) ໃນໃບເກັບເງິນຜູ້ສະໜອງ "
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,help:product_margin.field_product_product__sale_expected
 msgid ""
-"Sum of Multiplication of Sale Catalog price and quantity of Customer "
-"Invoices"
-msgstr "ຜົນລວມຂອງ (ລາຄາຕາມລາຍການຂາຍ ຄູນ ຈຳນວນ) ໃນໃບແຈ້ງໜີ້ລູກຄ້າ"
+"Sum of Multiplication of Sale Catalog price and quantity of Customer Invoices"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,help:product_margin.field_product_product__sale_num_invoiced
 msgid "Sum of Quantity in Customer Invoices"
-msgstr "ຜົນລວມຂອງຈຳນວນໃນໃບແຈ້ງໜີ້ລູກຄ້າ"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,help:product_margin.field_product_product__purchase_num_invoiced
 msgid "Sum of Quantity in Vendor Bills"
-msgstr "ຜົນລວມຂອງຈຳນວນໃນໃບເກັບເງິນຜູ້ສະໜອງ"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,field_description:product_margin.field_product_margin__to_date
 msgid "To"
-msgstr "ຫາ"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,field_description:product_margin.field_product_product__total_cost
 #: model_terms:ir.ui.view,arch_db:product_margin.view_product_margin_tree
 msgid "Total Cost"
-msgstr "ຕົ້ນທຶນທັງໝົດ"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,field_description:product_margin.field_product_product__total_margin
 #: model_terms:ir.ui.view,arch_db:product_margin.view_product_margin_tree
 msgid "Total Margin"
-msgstr "ກຳໄລທັງໝົດ"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,field_description:product_margin.field_product_product__total_margin_rate
 msgid "Total Margin Rate(%)"
-msgstr "ອັດຕາກຳໄລທັງໝົດ(%)"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,help:product_margin.field_product_product__total_margin_rate
 msgid "Total margin * 100 / Turnover"
-msgstr "ກຳໄລທັງໝົດ * 100 / ຍອດຂາຍ"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,field_description:product_margin.field_product_product__turnover
 #: model_terms:ir.ui.view,arch_db:product_margin.view_product_margin_tree
 msgid "Turnover"
-msgstr "ຍອດຂາຍ"
+msgstr ""
 
 #. module: product_margin
 #: model:ir.model.fields,help:product_margin.field_product_product__total_margin
 msgid "Turnover - Total cost"
-msgstr "ຍອດຂາຍ - ຕົ້ນທຶນທັງໝົດ"
+msgstr ""

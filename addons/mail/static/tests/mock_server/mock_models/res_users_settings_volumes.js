@@ -3,6 +3,10 @@ import { models } from "@web/../tests/web_test_helpers";
 export class ResUsersSettingsVolumes extends models.ServerModel {
     _name = "res.users.settings.volumes";
 
+    _store_volume_fields(res) {
+        res.extend(["guest_id", "partner_id", "user_setting_id", "volume"]);
+    }
+
     /** @param {number[]} ids */
     discuss_users_settings_volume_format(ids) {
         /** @type {import("mock_models").MailGuest} */
@@ -23,7 +27,6 @@ export class ResUsersSettingsVolumes extends models.ServerModel {
             if (relatedGuest) {
                 guest_id = {
                     id: relatedGuest.id,
-                    name: relatedGuest.name,
                 };
             }
             return {

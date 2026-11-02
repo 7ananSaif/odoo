@@ -1,22 +1,82 @@
-import { fields, OR, Record } from "@mail/core/common/record";
+import { fields, OR, Record } from "@mail/model/export";
 import {
     convertBrToLineBreak,
+    prepareBodyForEditing,
     generatePartnerMentionElement,
-    getNonEditableMentions,
     prettifyMessageText,
 } from "@mail/utils/common/format";
+import { createElementFromContent, getInnerHtml } from "@mail/utils/common/html";
 import { markup } from "@odoo/owl";
-import { createDocumentFragmentFromContent, isHtmlEmpty } from "@web/core/utils/html";
+import { isHtmlEmpty } from "@web/core/utils/html";
 import { nbsp } from "@web/core/utils/strings";
 
 export class Composer extends Record {
     static id = OR("thread", "message");
 
+    setup() {
+        super.setup(...arguments);
+        this.onChange(
+            () => [this.composerText],
+            function onChangeComposerText(composerText) {
+                if (this.updateFrom === "html") {
+                    this.updateFrom = undefined;
+                    return;
+                }
+                const validMentions = this.store.getMentionsFromText(composerText, {
+                    mentionedPartners: this.mentionedPartners,
+                    mentionedRoles: this.mentionedRoles,
+                    thread: this.targetThread,
+                });
+                const prettifiedHtml = prettifyMessageText(composerText, {
+                    validMentions,
+                    thread: this.targetThread,
+                    trim: false,
+                });
+                if (this.composerHtml.toString() !== prettifiedHtml.toString()) {
+                    this.updateFrom = "text";
+                    this.composerHtml = prettifiedHtml;
+                }
+            },
+            { immediate: true, initialRun: false }
+        );
+        this.onChange(
+            () => [this.composerHtml],
+            function onChangeComposerHtml(composerHtml) {
+                if (this.updateFrom === "text") {
+                    this.updateFrom = undefined;
+                    return;
+                }
+                const prettifiedText = isHtmlEmpty(composerHtml)
+                    ? ""
+                    : convertBrToLineBreak(composerHtml, { trim: false });
+                if (this.composerText !== prettifiedText) {
+                    this.updateFrom = "html";
+                    this.composerText = prettifiedText;
+                }
+            },
+            { immediate: true, initialRun: false }
+        );
+        this.onChange(
+            () => [this.isFocused, this.thread],
+            function onChangeIsFocused(isFocused, thread) {
+                if (thread && isFocused) {
+                    thread.isFocusedCounter++;
+                    return () => thread.isFocusedCounter--;
+                }
+            },
+            { immediate: true }
+        );
+    }
+
     clear() {
         this.attachments.length = 0;
         this.replyToMessage = undefined;
         this.restoredFromFullComposer = false;
-        this.composerHtml = markup("<div class='o-paragraph'><br></div>");
+        if (this.updateFrom === "html") {
+            this.composerHtml = markup("<div class='o-paragraph'><br></div>");
+        } else {
+            this.composerText = "";
+        }
         Object.assign(this.selection, {
             start: 0,
             end: 0,
@@ -45,79 +105,37 @@ export class Composer extends Record {
     attachments = fields.Many("ir.attachment");
     /** @type {boolean} */
     emailAddSignature = true;
+    isEditComposerVisible = false;
     message = fields.One("mail.message");
     mentionedPartners = fields.Many("res.partner");
     mentionedRoles = fields.Many("res.role");
-    mentionedChannels = fields.Many("Thread");
     cannedResponses = fields.Many("mail.canned.response");
     isDirty = false;
-    composerText = fields.Attr("", {
-        onUpdate() {
-            if (this.updateFrom === "html") {
-                this.updateFrom = undefined;
-                return;
-            }
-            const validMentions = this.store.getMentionsFromText(this.composerText, {
-                mentionedChannels: this.mentionedChannels,
-                mentionedPartners: this.mentionedPartners,
-                mentionedRoles: this.mentionedRoles,
-                thread: this.targetThread,
-            });
-            const prettifiedHtml = prettifyMessageText(this.composerText, {
-                validMentions,
-                thread: this.targetThread,
-            });
-            if (this.composerHtml.toString() !== prettifiedHtml.toString()) {
-                this.updateFrom = "text";
-                this.composerHtml = prettifiedHtml;
-            }
-        },
-    });
+    composerText = "";
     composerHtml = fields.Html(markup("<div class='o-paragraph'><br></div>"), {
         compute() {
             if (this.syncHtmlWithMessage) {
                 return (
-                    getNonEditableMentions(this.message.body) ||
+                    prepareBodyForEditing(this.message.body) ||
                     markup("<div class='o-paragraph'><br></div>")
                 );
             }
             return this.composerHtml;
         },
-        onUpdate() {
-            if (this.updateFrom === "text") {
-                this.updateFrom = undefined;
-                return;
-            }
-            const prettifiedText = isHtmlEmpty(this.composerHtml)
-                ? ""
-                : convertBrToLineBreak(this.composerHtml);
-            if (this.composerText !== prettifiedText) {
-                this.updateFrom = "html";
-                this.composerText = prettifiedText;
-            }
-        },
     });
-    thread = fields.One("Thread");
+    thread = fields.One("mail.thread");
     /** @type {{ start: number, end: number, direction: "forward" | "backward" | "none"}}*/
-    selection = {
-        start: 0,
-        end: 0,
-        direction: "none",
-    };
+    selection = fields.Attr(
+        {
+            start: 0,
+            end: 0,
+            direction: "none",
+        },
+        { asProxy: true }
+    );
     /** @type {boolean} */
     forceCursorMove;
-    isFocused = fields.Attr(false, {
-        /** @this {import("models").Composer} */
-        onUpdate() {
-            if (this.thread) {
-                if (this.isFocused) {
-                    this.thread.isFocusedCounter++;
-                } else {
-                    this.thread.isFocusedCounter--;
-                }
-            }
-        },
-    });
+    isFocused = false;
     autofocus = 0;
     /** When set, this means the composer content was restored from local storage, and content was saved from full composer */
     restoredFromFullComposer = false;
@@ -143,7 +161,7 @@ export class Composer extends Record {
             }
             return;
         }
-        const composerBody = createDocumentFragmentFromContent(this.composerHtml).body;
+        const composerBody = createElementFromContent(this.composerHtml);
         if (
             composerBody.querySelector(
                 `a.o_mail_redirect[data-oe-model="res.partner"][data-oe-id="${message.author.id}"]`
@@ -155,7 +173,7 @@ export class Composer extends Record {
             generatePartnerMentionElement(message.author, this.thread),
             nbsp
         );
-        this.composerHtml = markup(composerBody.innerHTML);
+        this.composerHtml = getInnerHtml(composerBody);
     }
 }
 

@@ -1,28 +1,21 @@
-import {
-    clickOnEditAndWaitEditMode,
-    clickOnSave,
-    clickOnSnippet,
-    registerWebsitePreviewTour,
-} from "@website/js/tours/tour_utils";
+import { registry } from "@web/core/registry";
+import { clickOnEditAndWaitEditMode, clickOnSnippet } from "@website/js/tours/tour_utils";
 
-registerWebsitePreviewTour(
-    "blog_context_and_social_media",
-    {
-        url: "/blog",
-    },
-    () => [
+registry.category("web_tour.tours").add("blog_context_and_social_media", {
+    steps: () => [
         {
             content: "Ensure we are in blog page",
             trigger: ":iframe html[data-view-xmlid='website_blog.blog_post_short']",
         },
         {
             content: "Click on 'aaa Blog Test' Blog",
-            trigger: ":iframe .website_blog nav .nav-item a:contains('aaa Blog Test')",
+            trigger: ":iframe .website_blog .o_wblog_category li a:contains('aaa Blog Test')",
             run: "click",
         },
         {
             content: "Check that 'aaa Blog Test' Blog is open",
-            trigger: ":iframe .website_blog nav .nav-item a.active:contains('aaa Blog Test')",
+            trigger:
+                ":iframe .website_blog .o_wblog_category li a.active:contains('aaa Blog Test')",
         },
         {
             content: "Click on New Post",
@@ -36,12 +29,7 @@ registerWebsitePreviewTour(
         },
         {
             content: "Check in dialog current Selected Blog is 'aaa Blog Test'",
-            trigger: ".modal-dialog .o_field_widget[name='blog_id'] .o_input",
-            run: function () {
-                if (this.anchor.value !== "aaa Blog Test") {
-                    console.error("Current selected blog should be 'aaa Blog Test'");
-                }
-            },
+            trigger: ".modal-dialog .o_field_widget[name='blog_id'] .o_input:value(aaa Blog Test)",
         },
         {
             content: "Click on Discard",
@@ -65,42 +53,16 @@ registerWebsitePreviewTour(
             run: "click",
         },
         {
-            content: "Go to 'All' blogs",
-            trigger: ":iframe a[href='/blog']",
-            run: "click",
-        },
-        ...clickOnEditAndWaitEditMode(),
-        {
-            content: "Open inline editor on blog landing title",
-            trigger: ":iframe #o_wblog_blog_top .h1",
-            run: "dblclick",
-        },
-        {
-            content: "Edit the blog landing title",
-            trigger: ":iframe #o_wblog_blog_top .h1[contenteditable='true']",
-            run: "editor Latest Posts Edited",
-        },
-        {
-            trigger: ":iframe #o_wblog_blog_top .h1:contains('Latest Posts Edited')",
-        },
-        ...clickOnSave(),
-        {
-            content: "Ensure the title was saved and remains editable",
-            trigger: ":iframe #o_wblog_blog_top .h1:contains('Latest Posts Edited')",
-            run() {
-                if (this.anchor.classList.contains("o_not_editable")) {
-                    console.error("Latest Posts heading should not keep the o_not_editable class.");
-                }
-            },
+            trigger: "body:not(.o_builder_open)",
         },
         {
             content: "Click on the first article",
-            trigger: ":iframe article[name='blog_post'] a",
+            trigger: ":iframe article[name='blog_post'] a.o_blog_post_title",
             run: "click",
         },
         {
-            content: "Check the blog info is available",
-            trigger: ":iframe #o_wblog_post_info",
+            content: "Check the post comment counter is available",
+            trigger: ":iframe .o_wblog_post_info",
         },
-    ]
-);
+    ],
+});

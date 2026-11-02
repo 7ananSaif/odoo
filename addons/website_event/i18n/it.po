@@ -13,10 +13,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:35+0000\n"
-"PO-Revision-Date: 2026-01-23 07:36+0000\n"
+"POT-Creation-Date: 2026-09-11 17:42+0000\n"
+"PO-Revision-Date: 2026-10-22 14:17+0000\n"
 "Last-Translator: \"Marianna Ciofani (cima)\" <cima@odoo.com>\n"
-"Language-Team: Italian <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Italian <https://translate.odoo.com/projects/odoo-20/"
 "website_event/it/>\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
@@ -24,7 +24,7 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=(n == 1) ? 0 : ((n != 0 && n % 1000000 == "
 "0) ? 1 : 2);\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: website_event
 #: model:ir.model.fields,field_description:website_event.field_website_visitor__event_registration_count
@@ -91,149 +91,101 @@ msgstr ""
 "eventi.</em>"
 
 #. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.modal_ticket_registration
-msgid "<i class=\"fa fa-ban me-2\"/>Sold Out"
-msgstr "<i class=\"fa fa-ban me-2\"/>Tutto esaurito"
+#: model_terms:ir.ui.view,arch_db:website_event.event_pages_kanban_view
+msgid "<i class=\"oi me-1\" data-icon=\"public\" title=\"Website\"/>"
+msgstr "<i class=\"oi me-1\" data-icon=\"public\" title=\"Sito web\"/>"
 
 #. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.events_list
-msgid "<i class=\"fa fa-ban me-2\"/>Unpublished"
-msgstr "<i class=\"fa fa-ban me-2\"/>Non pubblicato"
-
-#. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.s_dynamic_snippet_events_single_card_preview_data
-msgid "<i class=\"fa fa-calendar me-2\" role=\"presentation\"/>August 23, 2025"
-msgstr "<i class=\"fa fa-calendar me-2\" role=\"presentation\"/>23 agosto 2025"
+#: model_terms:ir.ui.view,arch_db:website_event.event_card
+msgid ""
+"<i class=\"oi me-2 text-muted\" data-icon=\"location_on\" title=\"Location\"/"
+">"
+msgstr ""
+"<i class=\"oi me-2 text-muted\" data-icon=\"location_on\" title=\"Luogo\"/>"
 
 #. module: website_event
 #: model_terms:ir.ui.view,arch_db:website_event.modal_slot_registration
-msgid "<i class=\"fa fa-caret-left me-2\"/><small>Previous</small>"
-msgstr "<i class=\"fa fa-caret-left me-2\"/><small>Precedente</small>"
+msgid "<i class=\"oi me-2\" data-icon=\"arrow_left\"/><small>Previous</small>"
+msgstr ""
+"<i class=\"oi me-2\" data-icon=\"arrow_left\"/><small>Precedente</small>"
+
+#. module: website_event
+#: model_terms:ir.ui.view,arch_db:website_event.modal_ticket_registration
+msgid "<i class=\"oi me-2\" data-icon=\"block\"/>Sold Out"
+msgstr "<i class=\"oi me-2\" data-icon=\"block\"/>Tutto esaurito"
 
 #. module: website_event
 #: model_terms:ir.ui.view,arch_db:website_event.event_description_full
-msgid "<i class=\"fa fa-check me-2\" role=\"img\"/>Registered"
-msgstr "<i class=\"fa fa-check me-2\" role=\"img\"/>Registrato"
+msgid "<i class=\"oi me-2\" data-icon=\"check\" role=\"img\"/>Registered"
+msgstr "<i class=\"oi me-2\" data-icon=\"check\" role=\"img\"/>Registrato"
 
 #. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.events_list
-msgid "<i class=\"fa fa-check me-2\"/>Registered"
-msgstr "<i class=\"fa fa-check me-2\"/>Registrati"
+#: model_terms:ir.ui.view,arch_db:website_event.event_card
+msgid "<i class=\"oi me-2\" data-icon=\"check\"/>Registered"
+msgstr "<i class=\"oi me-2\" data-icon=\"check\"/>Registrati"
+
+#. module: website_event
+#: model_terms:ir.ui.view,arch_db:website_event.s_dynamic_snippet_events_single_aside_preview_data
+msgid ""
+"<i class=\"oi me-2\" data-icon=\"location_on\" role=\"presentation\"/>\n"
+"                                    <span> Los Angeles, CA, United States</"
+"span>"
+msgstr ""
+"<i class=\"oi me-2\" data-icon=\"location_on\" role=\"presentation\"/>\n"
+"                                    <span> Los Angeles, CA, Stati Uniti</"
+"span>"
 
 #. module: website_event
 #: model_terms:ir.ui.view,arch_db:website_event.s_dynamic_snippet_events_single_card_preview_data
-msgid "<i class=\"fa fa-clock-o me-2\" role=\"presentation\"/>8:15 PM"
-msgstr "<i class=\"fa fa-clock-o me-2\" role=\"presentation\"/>20:15"
+msgid ""
+"<i class=\"oi me-2\" data-icon=\"location_on\" role=\"presentation\"/>Los "
+"Los Angeles, CA, United States"
+msgstr ""
+"<i class=\"oi me-2\" data-icon=\"location_on\" role=\"presentation\"/>Los "
+"Angeles, CA, Stati Uniti"
 
 #. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.index_sidebar_follow_us
+#: model_terms:ir.ui.view,arch_db:website_event.s_dynamic_snippet_events_single_card_preview_data
 msgid ""
-"<i class=\"fa fa-discord text-discord\" aria-label=\"Discord\" "
-"title=\"Discord\"/>"
+"<i class=\"oi me-2\" data-icon=\"schedule\" role=\"presentation\"/>8:15 PM"
 msgstr ""
-"<i class=\"fa fa-discord text-discord\" aria-label=\"Discord\" "
-"title=\"Discord\"/>"
-
-#. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.index_sidebar_follow_us
-msgid ""
-"<i class=\"fa fa-facebook text-facebook\" aria-label=\"Facebook\" "
-"title=\"Facebook\"/>"
-msgstr ""
-"<i class=\"fa fa-facebook text-facebook\" aria-label=\"Facebook\" "
-"title=\"Facebook\"/>"
+"<i class=\"oi me-2\" data-icon=\"schedule\" role=\"presentation\"/>20:15"
 
 #. module: website_event
 #: model_terms:ir.ui.view,arch_db:website_event.registration_configure_tickets_button
 msgid ""
-"<i class=\"fa fa-gear me-1\" role=\"img\" aria-label=\"Configure\" "
-"title=\"Configure event tickets\"/><em>Configure Tickets</em>"
+"<i class=\"oi oi-filled me-1\" data-icon=\"settings\" role=\"img\" aria-"
+"label=\"Configure\" title=\"Configure event tickets\"/><em>Configure "
+"Tickets</em>"
 msgstr ""
-"<i class=\"fa fa-gear me-1\" role=\"img\" aria-label=\"Configura\" "
-"title=\"Configura biglietti evento\"/><em>Configura biglietti</em>"
-
-#. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.index_sidebar_follow_us
-msgid ""
-"<i class=\"fa fa-github text-github\" aria-label=\"Github\" title=\"Github\"/"
-">"
-msgstr ""
-"<i class=\"fa fa-github text-github\" aria-label=\"GitHub\" title=\"GitHub\"/"
-">"
-
-#. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.event_pages_kanban_view
-msgid "<i class=\"fa fa-globe me-1\" title=\"Website\"/>"
-msgstr "<i class=\"fa fa-globe me-1\" title=\"Sito web\"/>"
-
-#. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.index_sidebar_follow_us
-msgid ""
-"<i class=\"fa fa-instagram text-instagram\" aria-label=\"Instagram\" "
-"title=\"Instagram\"/>"
-msgstr ""
-"<i class=\"fa fa-instagram text-instagram\" aria-label=\"Instagram\" "
-"title=\"Instagram\"/>"
-
-#. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.index_sidebar_follow_us
-msgid ""
-"<i class=\"fa fa-linkedin text-linkedin\" aria-label=\"LinkedIn\" "
-"title=\"LinkedIn\"/>"
-msgstr ""
-"<i class=\"fa fa-linkedin text-linkedin\" aria-label=\"LinkedIn\" "
-"title=\"LinkedIn\"/>"
-
-#. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.events_list
-msgid "<i class=\"fa fa-map-marker me-2 text-muted\" title=\"Location\"/>"
-msgstr "<i class=\"fa fa-map-marker me-2 text-muted\" title=\"Luogo\"/>"
+"<i class=\"oi oi-filled me-1\" data-icon=\"settings\" role=\"img\" aria-"
+"label=\"Configura\" title=\"Configura biglietti evento\"/><em>Configura "
+"biglietti</em>"
 
 #. module: website_event
 #: model_terms:ir.ui.view,arch_db:website_event.s_dynamic_snippet_events_single_card_preview_data
 msgid ""
-"<i class=\"fa fa-map-marker me-2\" role=\"presentation\"/>Los Los Angeles, "
-"CA, United States"
+"<i class=\"oi oi-filled me-2\" data-icon=\"calendar_today\" "
+"role=\"presentation\"/>August 23, 2025"
 msgstr ""
-"<i class=\"fa fa-map-marker me-2\" role=\"presentation\"/>Los Angeles, CA, "
-"Stati Uniti"
-
-#. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.event_description_full
-msgid "<i class=\"fa fa-map-marker\" title=\"Location\"/> Online event"
-msgstr "<i class=\"fa fa-map-marker\" title=\"Location\"/> Evento online"
-
-#. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.index_sidebar_follow_us
-msgid ""
-"<i class=\"fa fa-tiktok text-tiktok\" aria-label=\"TikTok\" title=\"TikTok\"/"
-">"
-msgstr ""
-"<i class=\"fa fa-tiktok text-tiktok\" aria-label=\"TikTok\" title=\"TikTok\"/"
-">"
-
-#. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.index_sidebar_follow_us
-msgid "<i class=\"fa fa-twitter text-twitter\" aria-label=\"X\" title=\"X\"/>"
-msgstr "<i class=\"fa fa-twitter text-twitter\" aria-label=\"X\" title=\"X\"/>"
-
-#. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.index_sidebar_follow_us
-msgid ""
-"<i class=\"fa fa-youtube-play text-youtube\" aria-label=\"Youtube\" "
-"title=\"Youtube\"/>"
-msgstr ""
-"<i class=\"fa fa-youtube-play text-youtube\" aria-label=\"YouTube\" "
-"title=\"YouTube\"/>"
+"<i class=\"oi oi-filled me-2\" data-icon=\"calendar_today\" "
+"role=\"presentation\"/>23 agosto, 2025"
 
 #. module: website_event
 #: model_terms:ir.ui.view,arch_db:website_event.navbar
 msgid ""
-"<i class=\"oi oi-chevron-left\"/>\n"
+"<i class=\"oi\" data-icon=\"chevron_backward\"/>\n"
 "                <span>All Events</span>"
 msgstr ""
-"<i class=\"oi oi-chevron-left\"/>\n"
+"<i class=\"oi\" data-icon=\"chevron_backward\"/>\n"
 "                <span>Tutti gli eventi</span>"
+
+#. module: website_event
+#: model_terms:ir.ui.view,arch_db:website_event.event_description_full
+msgid ""
+"<i class=\"oi\" data-icon=\"location_on\" title=\"Location\"/> Online event"
+msgstr ""
+"<i class=\"oi\" data-icon=\"location_on\" title=\"Location\"/> Evento online"
 
 #. module: website_event
 #: model_terms:ir.ui.view,arch_db:website_event.event_description_dates
@@ -252,30 +204,17 @@ msgstr "<small class=\"text-muted\">Aggiungi al calendario:</small>"
 
 #. module: website_event
 #: model_terms:ir.ui.view,arch_db:website_event.modal_slot_registration
-msgid "<small>Next</small><i class=\"fa fa-caret-right ms-2\"/>"
-msgstr "<small>Successivo</small><i class=\"fa fa-caret-right ms-2\"/>"
-
-#. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.s_speaker_bio
-msgid ""
-"<span class=\"badge text-bg-secondary text-uppercase "
-"o_wevent_badge\">Speaker</span>"
+msgid "<small>Next</small><i class=\"oi ms-2\" data-icon=\"arrow_right\"/>"
 msgstr ""
-"<span class=\"badge text-bg-secondary text-uppercase "
-"o_wevent_badge\">Relatore</span>"
-
-#. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.events_list
-msgid "<span class=\"fa fa-plus me-1\"/> Create an Event"
-msgstr "<span class=\"fa fa-plus me-1\"/> Crea un evento"
+"<small>Successivo</small><i class=\"oi ms-2\" data-icon=\"arrow_right\"/>"
 
 #. module: website_event
 #: model_terms:ir.ui.view,arch_db:website_event.s_dynamic_snippet_events_single_entry_preview_data
 msgid ""
-"<span class=\"fs-5\"><i class=\"fa fa-map-marker me-2\" "
+"<span class=\"fs-5\"><i class=\"oi me-2\" data-icon=\"location_on\" "
 "role=\"presentation\"/>Los Angeles, CA, United States</span>"
 msgstr ""
-"<span class=\"fs-5\"><i class=\"fa fa-map-marker me-2\" "
+"<span class=\"fs-5\"><i class=\"oi me-2\" data-icon=\"location_on\" "
 "role=\"presentation\"/>Los Angeles, CA, Stati Uniti</span>"
 
 #. module: website_event
@@ -290,24 +229,26 @@ msgstr ""
 #. module: website_event
 #: model_terms:ir.ui.view,arch_db:website_event.s_dynamic_snippet_events_single_badge_preview_data
 msgid ""
-"<span class=\"o_cc o_cc1 d-inline-flex align-items-center justify-content-"
-"center gap-3 border rounded py-2 px-3 rounded-pill\">\n"
-"                    <i class=\"fa fa-calendar\" role=\"presentation\"/>\n"
+"<span class=\"o_cc o_cc1 d-inline-flex justify-content-center flex-wrap "
+"gap-3 my-3 border py-2 px-3 rounded-pill\">\n"
+"                    <i class=\"oi oi-filled\" data-icon=\"calendar_today\" "
+"role=\"presentation\"/>\n"
 "                    <strong>Harmony Under the Stars</strong>\n"
 "                    <span class=\"text-muted\">August 23, 2025 - 8:15 PM</"
 "span>\n"
-"                    <span class=\"text-primary\">Register <i class=\"fa fa-"
-"long-arrow-right\" role=\"presentation\"/></span>\n"
+"                    <span class=\"text-primary\">Register <i class=\"oi\" "
+"data-icon=\"east\" role=\"presentation\"/></span>\n"
 "                </span>"
 msgstr ""
-"<span class=\"o_cc o_cc1 d-inline-flex align-items-center justify-content-"
-"center gap-3 border rounded py-2 px-3 rounded-pill\">\n"
-"                    <i class=\"fa fa-calendar\" role=\"presentation\"/>\n"
+"<span class=\"o_cc o_cc1 d-inline-flex justify-content-center flex-wrap "
+"gap-3 my-3 border py-2 px-3 rounded-pill\">\n"
+"                    <i class=\"oi oi-filled\" data-icon=\"calendar_today\" "
+"role=\"presentation\"/>\n"
 "                    <strong>Armonia sotto le stelle</strong>\n"
-"                    <span class=\"text-muted\">23 agosto 2025 - 20:15 </"
+"                    <span class=\"text-muted\">23 agosto 2025 - 20:15</"
 "span>\n"
-"                    <span class=\"text-primary\">Registrati <i class=\"fa fa-"
-"long-arrow-right\" role=\"presentation\"/></span>\n"
+"                    <span class=\"text-primary\">Registrati <i class=\"oi\" "
+"data-icon=\"east\" role=\"presentation\"/></span>\n"
 "                </span>"
 
 #. module: website_event
@@ -347,54 +288,58 @@ msgstr ""
 "class=\"o_countdown_metric\"/>"
 
 #. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.dynamic_filter_template_event_event_single_badge
-msgid ""
-"<span class=\"text-primary text-nowrap\">Register Now <i class=\"fa fa-long-"
-"arrow-right\"/></span>"
-msgstr ""
-"<span class=\"text-primary text-nowrap\">Registrati ora<i class=\"fa fa-long-"
-"arrow-right\"/></span>"
+#: model_terms:ir.ui.view,arch_db:website_event.events_list
+msgid "<span class=\"oi me-1\" data-icon=\"add\"/> Create an Event"
+msgstr "<span class=\"oi me-1\" data-icon=\"add\"/> Crea un evento"
 
 #. module: website_event
 #: model_terms:ir.ui.view,arch_db:website_event.modal_ticket_registration
 msgid ""
-"<span itemprop=\"availability\" content=\"http://schema.org/SoldOut\" "
-"class=\"text-danger\">\n"
-"                                        <i class=\"fa fa-ban me-2\"/>Sold "
-"Out\n"
+"<span class=\"text-danger\">\n"
+"                                        <i class=\"oi me-2\" data-"
+"icon=\"block\"/>Sold Out\n"
 "                                    </span>"
 msgstr ""
-"<span itemprop=\"availability\" content=\"http://schema.org/SoldOut\" "
-"class=\"text-danger\">\n"
-"                                    <i class=\"fa fa-ban me-2\"/>Tutto "
-"esaurito\n"
-"                                </span>"
+"<span class=\"text-danger\">\n"
+"                                        <i class=\"oi me-2\" data-"
+"icon=\"block\"/>Esaurito\n"
+"                                    </span>"
 
 #. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.s_dynamic_snippet_events_single_aside_preview_data
+#: model_terms:ir.ui.view,arch_db:website_event.dynamic_filter_template_event_event_single_badge
 msgid ""
-"<span><i class=\"fa fa-calendar me-2\" role=\"presentation\"/>August 23, "
-"2025 at 8:15 PM</span>"
+"<span class=\"text-primary text-nowrap\">Register Now <i class=\"oi\" data-"
+"icon=\"east\"/></span>"
 msgstr ""
-"<span><i class=\"fa fa-calendar me-2\" role=\"presentation\"/>23 agosto 2025 "
-"alle 20:15</span>"
+"<span class=\"text-primary text-nowrap\">Registrati ora <i class=\"oi\" data-"
+"icon=\"east\"/></span>"
 
 #. module: website_event
 #: model_terms:ir.ui.view,arch_db:website_event.s_dynamic_snippet_events_single_offset_preview_data
 msgid ""
-"<span><i class=\"fa fa-clock-o me-2\" role=\"presentation\"/>8:15 PM</span>"
+"<span><i class=\"oi me-2\" data-icon=\"location_on\" role=\"presentation\"/"
+">Los Angeles, CA, United States</span>"
 msgstr ""
-"<span><i class=\"fa fa-clock-o me-2\" role=\"presentation\"/>20:15</span>"
+"<span><i class=\"oi me-2\" data-icon=\"location_on\" role=\"presentation\"/"
+">Los Angeles, CA, Stati Uniti</span>"
+
+#. module: website_event
+#: model_terms:ir.ui.view,arch_db:website_event.s_dynamic_snippet_events_single_offset_preview_data
+msgid ""
+"<span><i class=\"oi me-2\" data-icon=\"schedule\" role=\"presentation\"/"
+">8:15 PM</span>"
+msgstr ""
+"<span><i class=\"oi me-2\" data-icon=\"schedule\" role=\"presentation\"/"
+">20:15</span>"
 
 #. module: website_event
 #: model_terms:ir.ui.view,arch_db:website_event.s_dynamic_snippet_events_single_aside_preview_data
-#: model_terms:ir.ui.view,arch_db:website_event.s_dynamic_snippet_events_single_offset_preview_data
 msgid ""
-"<span><i class=\"fa fa-map-marker me-2\" role=\"presentation\"/>Los Angeles, "
-"CA, United States</span>"
+"<span><i class=\"oi oi-filled me-2\" data-icon=\"calendar_today\" "
+"role=\"presentation\"/>August 23, 2025 at 8:15 PM</span>"
 msgstr ""
-"<span><i class=\"fa fa-map-marker me-2\" role=\"presentation\"/>Los Angeles, "
-"CA, Stati Uniti</span>"
+"<span><i class=\"oi oi-filled me-2\" data-icon=\"calendar_today\" "
+"role=\"presentation\"/>23 agosto 2025 alle 20:15</span>"
 
 #. module: website_event
 #: model_terms:ir.ui.view,arch_db:website_event.event_location
@@ -554,8 +499,7 @@ msgid "All"
 msgstr "Tutti"
 
 #. module: website_event
-#. odoo-python
-#: code:addons/website_event/controllers/main.py:0
+#: model_terms:ir.ui.view,arch_db:website_event.event_location
 msgid "All Countries"
 msgstr "Tutte le nazioni"
 
@@ -568,9 +512,10 @@ msgid "All Events"
 msgstr "Tutti gli eventi"
 
 #. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.event_location
-msgid "All countries"
-msgstr "Tutte le nazioni"
+#. odoo-javascript
+#: code:addons/website_event/static/src/website_builder/event_page_option_plugin.js:0
+msgid "All events"
+msgstr "Tutti gli eventi"
 
 #. module: website_event
 #: model:event.question,title:website_event.event_question_allergies
@@ -582,20 +527,6 @@ msgstr "Allergie"
 msgid "Allows to display and manage event-specific menus on website."
 msgstr ""
 "Permette di visualizzare e gestire i menu specifici dell'evento sul sito web."
-
-#. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.s_speaker_bio
-msgid ""
-"At just 13 years old, John DOE was already starting to develop his first "
-"business applications for customers. After mastering civil engineering, he "
-"founded TinyERP. This was the first phase of OpenERP which would later "
-"became Odoo, the most installed open-source business software worldwide."
-msgstr ""
-"A soli 13 anni Mario ROSSI aveva già iniziato a sviluppare la sua prima "
-"applicazione aziendale per i clienti. Dopo la laurea magistrale in "
-"ingegneria civile ha fondato TinyERP, la prima tappa di OpenERP che più "
-"tardi sarebbe diventato Odoo, il software aziendale open source più "
-"installato al mondo."
 
 #. module: website_event
 #: model_terms:ir.ui.view,arch_db:website_event.registration_attendee_details
@@ -618,6 +549,20 @@ msgid "Author"
 msgstr "Autore"
 
 #. module: website_event
+#: model:ir.model.fields,field_description:website_event.field_event_event__publish_on
+#: model:ir.model.fields,field_description:website_event.field_event_tag__publish_on
+#: model:ir.model.fields,field_description:website_event.field_event_tag_category__publish_on
+msgid "Auto publish on"
+msgstr "Pubblicazione automatica il"
+
+#. module: website_event
+#: model:ir.model.fields,help:website_event.field_event_event__publish_on
+#: model:ir.model.fields,help:website_event.field_event_tag__publish_on
+#: model:ir.model.fields,help:website_event.field_event_tag_category__publish_on
+msgid "Automatically publish the page on the chosen date and time."
+msgstr "Pubblica automaticamente la pagina nella data e nell'ora selezionate."
+
+#. module: website_event
 #: model_terms:ir.ui.view,arch_db:website_event.navbar
 msgid "Back to All Events"
 msgstr "Torna a tutti gli eventi"
@@ -632,6 +577,11 @@ msgstr "Torna a {{0}}"
 #: model:event.question.answer,name:website_event.event_question_about_2_answer_1
 msgid "Blog Post"
 msgstr "Articolo blog"
+
+#. module: website_event
+#: model:ir.model.fields,field_description:website_event.field_event_event__breadcrumb_visible
+msgid "Breadcrumb Visible"
+msgstr "Percorso visibile"
 
 #. module: website_event
 #. odoo-python
@@ -653,13 +603,7 @@ msgid "Can Publish"
 msgstr "Può pubblicare"
 
 #. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.modal_ticket_registration
-#: model_terms:ir.ui.view,arch_db:website_event.registration_attendee_details
-msgid "Cancel"
-msgstr "Annulla"
-
-#. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.events_list
+#: model_terms:ir.ui.view,arch_db:website_event.event_card
 msgid "Cancelled"
 msgstr "Annullato"
 
@@ -668,6 +612,18 @@ msgstr "Annullato"
 #: code:addons/website_event/static/src/website_builder/events_list_page_option.xml:0
 msgid "Card design"
 msgstr "Design carte"
+
+#. module: website_event
+#. odoo-javascript
+#: code:addons/website_event/static/src/js/tours/event_tour.js:0
+msgid "Click on the <b>Content</b> category."
+msgstr "Fai clic sulla categoria <b>Contenuto</b>."
+
+#. module: website_event
+#. odoo-javascript
+#: code:addons/website_event/static/src/js/tours/event_tour.js:0
+msgid "Click on the <b>Image - Text</b> building block."
+msgstr "Fai clic sul blocco di costruzione <b>Immagine - Testo</b>."
 
 #. module: website_event
 #: model_terms:ir.ui.view,arch_db:website_event.display_timer_alert_widget
@@ -695,11 +651,6 @@ msgstr "Comunità"
 #: model:ir.model.fields.selection,name:website_event.selection__website_event_menu__menu_type__community
 msgid "Community Menu"
 msgstr "Menù per la comunità"
-
-#. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.s_speaker_bio
-msgid "Company"
-msgstr "Azienda"
 
 #. module: website_event
 #. odoo-python
@@ -795,10 +746,10 @@ msgstr ""
 "            Nota che l'evento è sempre disponibile tramite link."
 
 #. module: website_event
-#. odoo-javascript
-#: code:addons/website_event/static/src/website_builder/event_searchbar_option_plugin.js:0
-msgid "Description"
-msgstr "Descrizione"
+#: model_terms:ir.ui.view,arch_db:website_event.modal_ticket_registration
+#: model_terms:ir.ui.view,arch_db:website_event.registration_attendee_details
+msgid "Discard"
+msgstr "Abbandona"
 
 #. module: website_event
 #: model:ir.model.fields,field_description:website_event.field_event_event__display_name
@@ -811,6 +762,7 @@ msgstr "Descrizione"
 #: model:ir.model.fields,field_description:website_event.field_website_event_menu__display_name
 #: model:ir.model.fields,field_description:website_event.field_website_menu__display_name
 #: model:ir.model.fields,field_description:website_event.field_website_snippet_filter__display_name
+#: model:ir.model.fields,field_description:website_event.field_website_track__display_name
 #: model:ir.model.fields,field_description:website_event.field_website_visitor__display_name
 msgid "Display Name"
 msgstr "Nome visualizzato"
@@ -825,6 +777,15 @@ msgstr "Visualizzare menù dedicato nel sito web"
 #: model:ir.model.fields,help:website_event.field_event_type__community_menu
 msgid "Display community tab on website"
 msgstr "Visualizza scheda della comunità nel sito web"
+
+#. module: website_event
+#: model:ir.model.fields,help:website_event.field_event_event__subtitle
+msgid ""
+"Displayed on website and used as description when the event is added to a "
+"third-party calendar."
+msgstr ""
+"Mostrato sul sito web e utilizzato come descrizione quando l’evento viene "
+"aggiunto a un calendario di terze parti."
 
 #. module: website_event
 #. odoo-javascript
@@ -843,6 +804,16 @@ msgid "Download Tickets"
 msgstr "Scarica biglietti"
 
 #. module: website_event
+#: model_terms:ir.ui.view,arch_db:website_event.layout
+msgid "Drag blocks here to add them on all events"
+msgstr "Trascina i blocchi qui per aggiungerli a tutti gli eventi"
+
+#. module: website_event
+#: model_terms:ir.ui.view,arch_db:website_event.snippets
+msgid "Dynamic Carousel"
+msgstr "Carosello dinamico"
+
+#. module: website_event
 #: model_terms:ir.ui.view,arch_db:website_event.s_event_upcoming_snippet_card_preview_data
 msgid "Enhance your architectural business and improve professional skills."
 msgstr ""
@@ -852,6 +823,7 @@ msgstr ""
 #. module: website_event
 #: model:ir.model,name:website_event.model_event_event
 #: model:ir.model.fields,field_description:website_event.field_website_event_menu__event_id
+#: model:ir.model.fields,field_description:website_event.field_website_track__event_id
 #: model_terms:ir.ui.view,arch_db:website_event.snippets
 msgid "Event"
 msgstr "Evento"
@@ -860,12 +832,6 @@ msgstr "Evento"
 #: model:ir.model.fields,field_description:website_event.field_event_event__community_menu_ids
 msgid "Event Community Menus"
 msgstr "Menù evento per Community"
-
-#. module: website_event
-#. odoo-javascript
-#: code:addons/website_event/static/src/website_builder/event_searchbar_option_plugin.js:0
-msgid "Event Date"
-msgstr "Data evento"
 
 #. module: website_event
 #: model_terms:ir.ui.view,arch_db:website_event.registration_complete
@@ -878,9 +844,9 @@ msgid "Event Info"
 msgstr "Info evento"
 
 #. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.events_list
-msgid "Event Info <i class=\"fa fa-chevron-right\"/>"
-msgstr "Informazioni evento <i class=\"fa fa-chevron-right\"/>"
+#: model_terms:ir.ui.view,arch_db:website_event.event_card
+msgid "Event Info <i class=\"oi\" data-icon=\"chevron_right\"/>"
+msgstr "Informazioni evento <i class=\"oi\" data-icon=\"chevron_right\"/>"
 
 #. module: website_event
 #: model:ir.model.fields,field_description:website_event.field_event_event__menu_id
@@ -889,7 +855,7 @@ msgstr "Menù evento"
 
 #. module: website_event
 #. odoo-javascript
-#: code:addons/website_event/static/src/website_builder/event_page_option_plugin.js:0
+#: code:addons/website_event/static/src/website_builder/event_page_option.xml:0
 msgid "Event Page"
 msgstr "Pagina evento"
 
@@ -921,6 +887,7 @@ msgstr "Slot evento"
 #. module: website_event
 #: model:ir.model.fields,field_description:website_event.field_event_event__subtitle
 #: model_terms:ir.ui.view,arch_db:website_event.event_description_full
+#: model_terms:ir.ui.view,arch_db:website_event.event_event_view_form
 msgid "Event Subtitle"
 msgstr "Sottotitolo evento"
 
@@ -936,7 +903,7 @@ msgstr "Categoria etichetta evento"
 
 #. module: website_event
 #. odoo-javascript
-#: code:addons/website_event/static/src/website_builder/dynamic_snippet_events_option.xml:0
+#: code:addons/website_event/static/src/website_builder/dynamic_snippet_events_shared_option.xml:0
 msgid "Event Tags"
 msgstr "Etichette evento"
 
@@ -951,10 +918,27 @@ msgid "Event Title"
 msgstr "Titolo evento"
 
 #. module: website_event
+#: model:ir.model.fields,field_description:website_event.field_website_visitor__visitor_event_count
+#: model_terms:ir.ui.view,arch_db:website_event.website_visitor_view_form
+msgid "Event Views"
+msgstr "Visualizzazioni eventi"
+
+#. module: website_event
+#: model:ir.actions.act_window,name:website_event.website_event_visitor_event_action
+msgid "Event Views History"
+msgstr "Cronologia visualizzazioni eventi"
+
+#. module: website_event
 #: model:mail.message.subtype,description:website_event.mt_event_published
 #: model:mail.message.subtype,name:website_event.mt_event_published
 msgid "Event published"
 msgstr "Evento pubblicato"
+
+#. module: website_event
+#: model:mail.message.subtype,description:website_event.mt_event_scheduled
+#: model:mail.message.subtype,name:website_event.mt_event_scheduled
+msgid "Event scheduled"
+msgstr "Evento programmato"
 
 #. module: website_event
 #: model:mail.message.subtype,description:website_event.mt_event_unpublished
@@ -963,16 +947,25 @@ msgid "Event unpublished"
 msgstr "Evento nascosto"
 
 #. module: website_event
+#: model:mail.message.subtype,description:website_event.mt_event_unscheduled
+#: model:mail.message.subtype,name:website_event.mt_event_unscheduled
+msgid "Event unscheduled"
+msgstr "Evento non programmato"
+
+#. module: website_event
 #. odoo-javascript
 #. odoo-python
 #: code:addons/website_event/controllers/main.py:0
+#: code:addons/website_event/models/event_event.py:0
 #: code:addons/website_event/models/website.py:0
 #: code:addons/website_event/static/src/website_builder/dynamic_snippet_events_option.xml:0
-#: code:addons/website_event/static/src/website_builder/event_searchbar_option.xml:0
+#: model:ir.model.fields,field_description:website_event.field_website_visitor__event_ids
+#: model:ir.module.module,shortdesc:base.module_website_event
 #: model:ir.ui.menu,name:website_event.menu_event_pages
 #: model:website.menu,name:website_event.menu_events
 #: model_terms:ir.ui.view,arch_db:website_event.index_topbar
 #: model_terms:ir.ui.view,arch_db:website_event.snippets
+#: model_terms:ir.ui.view,arch_db:website_event.website_event_visitor_page_view_search
 msgid "Events"
 msgstr "Eventi"
 
@@ -1019,7 +1012,7 @@ msgid "Filters"
 msgstr "Filtri"
 
 #. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.event_description_full
+#: model_terms:ir.ui.view,arch_db:website_event.opt_event_share_block
 msgid ""
 "Find out what people see and say about this event, and join the conversation."
 msgstr ""
@@ -1039,19 +1032,14 @@ msgid "Follow Us"
 msgstr "Seguici"
 
 #. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.layout
-msgid "Following content will appear on all events."
-msgstr "Il seguente contenuto comparirà su tutti gli eventi."
-
-#. module: website_event
 #: model:ir.model.fields,field_description:website_event.field_event_event__footer_visible
 msgid "Footer Visible"
 msgstr "Piè di pagina visibile"
 
 #. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.events_list
-msgid "Get Tickets <i class=\"fa fa-chevron-right\"/>"
-msgstr "Acquista i biglietti <i class=\"fa fa-chevron-right\"/>"
+#: model_terms:ir.ui.view,arch_db:website_event.event_card
+msgid "Get Tickets <i class=\"oi\" data-icon=\"chevron_right\"/>"
+msgstr "Acquista i biglietti <i class=\"oi\" data-icon=\"chevron_right\"/>"
 
 #. module: website_event
 #: model_terms:ir.ui.view,arch_db:website_event.event_description_full
@@ -1140,9 +1128,25 @@ msgstr "Come sei venuto a conoscenza dell'evento"
 #: model:ir.model.fields,field_description:website_event.field_website_event_menu__id
 #: model:ir.model.fields,field_description:website_event.field_website_menu__id
 #: model:ir.model.fields,field_description:website_event.field_website_snippet_filter__id
+#: model:ir.model.fields,field_description:website_event.field_website_track__id
 #: model:ir.model.fields,field_description:website_event.field_website_visitor__id
 msgid "ID"
 msgstr "ID"
+
+#. module: website_event
+#. odoo-javascript
+#: code:addons/website_event/static/src/website_builder/events_list_page_option.xml:0
+msgid ""
+"If enabled, online events will be included when user filters by country."
+msgstr ""
+"Se abilitato, gli eventi online saranno inclusi quando l'utente filtra per "
+"Paese."
+
+#. module: website_event
+#. odoo-javascript
+#: code:addons/website_event/static/src/website_builder/events_list_page_option.xml:0
+msgid "Include online"
+msgstr "Includi online"
 
 #. module: website_event
 #: model_terms:ir.ui.view,arch_db:website_event.s_dynamic_snippet_events_single_aside_preview_data
@@ -1196,24 +1200,14 @@ msgid "Is Published"
 msgstr "È pubblicato"
 
 #. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.s_speaker_bio
-msgid "John DOE"
-msgstr "Mario ROSSI"
-
-#. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.s_speaker_bio
-msgid "John Doe's avatar"
-msgstr "Avatar di John Doe"
-
-#. module: website_event
 #: model_terms:ir.ui.view,arch_db:website_event.registration_ticket_access
 msgid "Join online"
 msgstr "Partecipa online"
 
 #. module: website_event
 #: model_terms:ir.ui.view,arch_db:website_event.registration_ticket_access
-msgid "Join online <i class=\"ms-1 fa fa-globe\"/>"
-msgstr "Partecipa online <i class=\"ms-1 fa fa-globe\"/>"
+msgid "Join online <i class=\"oi ms-1\" data-icon=\"public\"/>"
+msgstr "Partecipa online <i class=\"oi ms-1\" data-icon=\"public\"/>"
 
 #. module: website_event
 #: model:ir.model.fields,field_description:website_event.field_website_event_menu__write_uid
@@ -1348,6 +1342,11 @@ msgstr ""
 "ricerca."
 
 #. module: website_event
+#: model_terms:ir.actions.act_window,help:website_event.website_event_visitor_event_action
+msgid "No event views yet for this visitor"
+msgstr "Nessuna visualizzazione di eventi per questo visitatore"
+
+#. module: website_event
 #: model_terms:ir.ui.view,arch_db:website_event.events_list
 msgid "No events scheduled yet"
 msgstr "Non ci sono ancora eventi programmati"
@@ -1377,6 +1376,294 @@ msgstr "Eventi online"
 #: code:addons/website_event/models/website_snippet_filter.py:0
 msgid "OpenWood Collection Online Reveal"
 msgstr "Collezione OpenWood svelata online"
+
+#. module: website_event
+#: model:ir.module.module,description:base.module_website_event
+msgid ""
+"Organize Events, Trainings & Webinars\n"
+"-------------------------------------\n"
+"\n"
+"### Schedule, Promote, Sell, Organize\n"
+"\n"
+"Organize, promote and sell events online. Whether you organize meetings, "
+"conferences, trainings or webinars, Odoo gives you all the features you need "
+"to manage your events.\n"
+"\n"
+"Create Awesome Event Pages\n"
+"--------------------------\n"
+"\n"
+"### Get rid of old WYSIWYG editors\n"
+"\n"
+"Create beautiful event pages by drag & droping well designed *'Building "
+"Blocks'*. Publish event photos, speakers, schedule, etc.\n"
+"\n"
+"Odoo's unique *'edit inline'* approach makes website creation surprisingly "
+"easy. \"Want to introduce a speaker? to change the price of a ticket? to "
+"update a banner? promote sponsors?\" just click and change.\n"
+"\n"
+"Sell Tickets Online\n"
+"-------------------\n"
+"\n"
+"### Automate the registration and payment process\n"
+"\n"
+"Sell registrations to your event with the multi-ticketing feature. Events "
+"can be free or for a fee. Attendees can pay online with a credit card or on "
+"invoice, based on your configuration.\n"
+"\n"
+"Boost your sales with early-bird prices, special conditions for members, or "
+"extra services with multiple tickets.\n"
+"\n"
+"A Clean Google Analytics Integration\n"
+"------------------------------------\n"
+"\n"
+"### Control your sales funnel with Google Analytics\n"
+"\n"
+"Get a clear visibility of your sales funnel. Odoo's Google Analytics "
+"trackers are configured by default to track all kind of events related to "
+"shopping carts, call-to-actions, etc.\n"
+"\n"
+"As Odoo marketing tools (mass mailing, campaigns, etc) are also linked with "
+"Google Analytics, you get a full view of your business.\n"
+"\n"
+"Promote Events Efficiently\n"
+"--------------------------\n"
+"\n"
+"### Mass Mailing & Social Media\n"
+"\n"
+"Use the segmentation, the social network integration and mass mailing "
+"features to promote your events to the right audience. Setup automated "
+"emails to attendees to send them last minute details.\n"
+"\n"
+"Designer-Friendly Themes\n"
+"------------------------\n"
+"\n"
+"### Designers love working on Odoo\n"
+"\n"
+"Themes are awesome and easy to design. You don't need to develop to create "
+"new pages, themes or building blocks. We use a clean HTML structure, a "
+"[bootstrap](http://getbootstrap.com/) CSS and our modularity allows to "
+"distribute your themes easily.\n"
+"\n"
+"The building block approach allows the website to stay clean after the end-"
+"users start creating new contents.\n"
+"\n"
+"Make Your Event More Visible\n"
+"----------------------------\n"
+"\n"
+"### SEO tools at your finger tips\n"
+"\n"
+"SEO tools are ready to use, with no configuration required. Odoo suggests "
+"keywords according to Google most searched terms, Google Analytics tracks "
+"your shopping cart events and sitemap are created automatically.\n"
+"\n"
+"We even do structured content automatically to promote your events and "
+"products efficiently in Google.\n"
+"\n"
+"Leverage Social Media\n"
+"---------------------\n"
+"\n"
+"### Optimize: from Ads to Conversions\n"
+"\n"
+"Create new landing pages easily with the Odoo inline editing feature. Send "
+"visitors of your different marketing campaigns to event landing pages to "
+"optimize conversions.\n"
+"\n"
+"And Much More...\n"
+"----------------\n"
+"\n"
+"### Schedule\n"
+"\n"
+"-   Calendar of Events\n"
+"-   Publish related documents\n"
+"-   Ressources allocation\n"
+"-   Automate purchases (catering...)\n"
+"-   Multiple locations and organizers\n"
+"-   Mobile Interface\n"
+"\n"
+"### Sell\n"
+"\n"
+"-   Online or offline sales\n"
+"-   Automated invoicing\n"
+"-   Cancellation policies\n"
+"-   Specific prices for members\n"
+"-   Dashboards and reporting\n"
+"\n"
+"### Organize\n"
+"\n"
+"-   Advanced Planification\n"
+"-   Print Badges\n"
+"-   Automate Follow-up Emails\n"
+"-   Min/Max capacities\n"
+"-   Manage classes and ressources\n"
+"-   Create group of attendees\n"
+"-   Automate statisfaction surveys\n"
+"\n"
+"Fully Integrated With Others Apps\n"
+"---------------------------------\n"
+"\n"
+"### Get hundreds of open source apps for free\n"
+"\n"
+"\n"
+"### eCommerce\n"
+"\n"
+"Promote products, sell online, optimize visitors' shopping experiences.\n"
+"\n"
+"\n"
+"### Blog\n"
+"\n"
+"Write news, attract new visitors, build customer loyalty.\n"
+"\n"
+"\n"
+"### Our Team\n"
+"\n"
+"Create a great \"About us\" page by presenting your team efficiently.\n"
+msgstr ""
+"Organizza eventi, corsi di formazione e webinar\n"
+"-------------------------------------\n"
+"\n"
+"### Programma, promuovi, vendi, organizza\n"
+"\n"
+"Organizza, promuovi r vendi eventi online. Odoo offre tutte le funzionalità "
+"di cui hai bisogno per gestire gli eventi, sia che si tratti di riunioni, "
+"conferenze che di corsi di formazione o webinar.\n"
+"\n"
+"Crea fantastiche pagine evento\n"
+"--------------------------\n"
+"\n"
+"### Sbarazzati dei vecchi editor WYSIWYG\n"
+"\n"
+"Crea fantastiche pagine per gli eventi trascinando e rilasciando \"blocchi "
+"di costruzione\"*. Pubblica le foto dell'evento, gli oratori, il programma, "
+"ecc.\n"
+"\n"
+"L'approccio unico e *'edit inline'* di Odoo rende la creazione di un sito "
+"web sorprendentemente semplice. \"Vuoi presentare un oratore? modificare il "
+"prezzo di un biglietto? aggiornare un banner? promuovere degli sponsor?\" è "
+"sufficiente fare clic e apportare la modifica.\n"
+"\n"
+"Vendi biglietti online\n"
+"-------------------\n"
+"\n"
+"### Automatizza la registrazione e il processo di pagamento\n"
+"\n"
+"Vendi le iscrizioni all'evento con la funzione multi-ticketing. Gli eventi "
+"possono essere gratuiti o a pagamento. I partecipanti possono pagare online "
+"con carta di credito o su fattura, in base alla vostra configurazione.\n"
+"\n"
+"Aumenta le vendite con prezzi early-bird, condizioni speciali per i soci o "
+"servizi extra con biglietti multipli.\n"
+"\n"
+"Integrazione Google Analytics chiara\n"
+"------------------------------------\n"
+"\n"
+"### Controlla il flusso delle vendite con Google Analytics\n"
+"\n"
+"Ottieni una panoramica chiara delle vendite. I tracker di Odoo per Google "
+"Analytics sono configurati in maniera predefinita per tracciare qualsiasi "
+"tipo di evento legato a carrelli della spesa, pulsanti call-to-action, ecc.\n"
+"\n"
+"Dato che gli strumenti per il marketing di Odoo (mass mailing, campagne, "
+"ecc) sono collegati anche a Google Analytics, avrai una visione completa "
+"della tua azienda.\n"
+"\n"
+"Promuovi gli eventi in maniera efficace\n"
+"--------------------------\n"
+"\n"
+"### Mass ailing e social network\n"
+"\n"
+"Utilizza la segmentazione, l'integrazione con i social network e le funzioni "
+"di mailing di massa per promuovere gli eventi al pubblico giusto. Configura "
+"l'invio di e-mail automatiche ai partecipanti per fornire loro i dettagli di "
+"cui hanno bisogno.\n"
+"\n"
+"Temi a prova di designer\n"
+"------------------------\n"
+"\n"
+"### I designer amano lavorare con Odoo\n"
+"\n"
+"I temi sono fantastici e semplici da progettare. Non c'è bisogno di essere "
+"in grado di sviluppare per creare nuove pagine, temi o blocchi di "
+"costruzione. Utilizziamo una struttura HTML chiara, un [bootstrap](http://"
+"getbootstrap.com/) CSS e la nostra modularità permette di distribuire "
+"facilmente i temi.\n"
+"\n"
+"L'approccio a blocchi permette al sito web di rimanere pulito anche dopo che "
+"gli utenti finali hanno iniziato a creare nuovi contenuti.\n"
+"\n"
+"Rendi il tuo evento più visibile\n"
+"----------------------------\n"
+"\n"
+"### Strumenti SEO a portata di mano\n"
+"\n"
+"Gli strumenti SEO sono pronti all'uso senza doverli cofigurare in "
+"precedenza. Odoo consiglia parole chiave secondo i termini più cercati su "
+"Google, Google Analytics traccia i carrelli che comprendono l'evento e crea "
+"automaticamente mappe del sito.\n"
+"\n"
+"Realizziamo anche contenuti strutturati in modo automatico per promuovere "
+"efficacemente gli eventi e i prodotti su Google.\n"
+"\n"
+"Sfrutta i social network\n"
+"---------------------\n"
+"\n"
+"### Ottimizza: dalla pubblicità alle conversioni\n"
+"\n"
+"Crea facilmente nuove pagine di destinazione con la funzionalità di modifica "
+"in linea di Odoo. Indirizza i visitatori delle diverse campagne di marketing "
+"verso le pagine di destinazione degli eventi per ottimizzare le "
+"conversioni.\n"
+"\n"
+"E molto di più...\n"
+"----------------\n"
+"\n"
+"### Pianifica\n"
+"\n"
+"- Calendario degli eventi\n"
+"- Pubblica documenti correlati\n"
+"- Distribuisci le risorse\n"
+"- Automatizza gli acquisti (catering...)\n"
+"- Organizzatori e luoghi multipli\n"
+"- Interfaccia mobile\n"
+"\n"
+"### Vendi\n"
+"\n"
+"-  Vendite online od offline\n"
+"-  Fatturazione automatizzata\n"
+"-  Politiche di cancellazione\n"
+"-  Prezzi specifici per membri\n"
+"-   Dashboard e resoconti\n"
+"\n"
+"### Organizza\n"
+"\n"
+"-  Pianificazione avanzata\n"
+"-  Stampa di badge\n"
+"-  Automatizza le e-mail di follow-up\n"
+"-  Capacità Min/Max\n"
+"-  Gestisci lezioni e risorse\n"
+"-  Crea gruppi di partecipanti\n"
+"-  Automatizza i sondaggi di soddisfazione\n"
+"\n"
+"Completamente integrata con le altre app\n"
+"---------------------------------\n"
+"\n"
+"### Ottieni centinaia di app open source gratuite\n"
+"\n"
+"\n"
+"### eCommerce\n"
+"\n"
+"Promuovi prodotti, vendi online, ottimizza le esperienze di acquisto dei "
+"visitatori.\n"
+"\n"
+"\n"
+"### Blog\n"
+"\n"
+"Pubblica news, attrai nuovi visitatori, fidelizza i clienti.\n"
+"\n"
+"\n"
+"### Il nostro team\n"
+"\n"
+"Crea la pagina \"Chi siamo\" page e presenta il tuo team in maniera "
+"efficace.\n"
 
 #. module: website_event
 #. odoo-javascript
@@ -1447,10 +1734,28 @@ msgid "Publish"
 msgstr "Pubblicata"
 
 #. module: website_event
+#: model:ir.module.module,summary:base.module_website_event
+msgid "Publish events, sell tickets"
+msgstr ""
+
+#. module: website_event
+#: model_terms:ir.ui.view,arch_db:website_event.event_event_view_form
+msgid "Publish on"
+msgstr "Pubblica su"
+
+#. module: website_event
+#: model_terms:ir.ui.view,arch_db:website_event.event_event_view_form
 #: model_terms:ir.ui.view,arch_db:website_event.event_event_view_search
 #: model_terms:ir.ui.view,arch_db:website_event.event_pages_kanban_view
 msgid "Published"
 msgstr "Pubblicato"
+
+#. module: website_event
+#: model:ir.model.fields,field_description:website_event.field_event_event__published_date
+#: model:ir.model.fields,field_description:website_event.field_event_tag__published_date
+#: model:ir.model.fields,field_description:website_event.field_event_tag_category__published_date
+msgid "Published date"
+msgstr "Data pubblicazione"
 
 #. module: website_event
 #. odoo-javascript
@@ -1475,13 +1780,6 @@ msgid "Register"
 msgstr "Registrati"
 
 #. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.s_dynamic_snippet_events_single_aside_preview_data
-msgid ""
-"Register <i class=\"fa fa-long-arrow-right ms-2\" role=\"presentation\"/>"
-msgstr ""
-"Registrati <i class=\"fa fa-long-arrow-right ms-2\" role=\"presentation\"/>"
-
-#. module: website_event
 #: model:ir.model.fields,field_description:website_event.field_event_event__register_menu
 msgid "Register Menu"
 msgstr "Menu registrati"
@@ -1499,22 +1797,23 @@ msgstr "Registrati ora"
 
 #. module: website_event
 #: model_terms:ir.ui.view,arch_db:website_event.dynamic_filter_template_event_event_single_aside
-msgid ""
-"Register Now <i class=\"fa fa-long-arrow-right\" role=\"presentation\"/>"
+msgid "Register Now <i class=\"oi\" data-icon=\"east\" role=\"presentation\"/>"
 msgstr ""
-"Registrati ora <i class=\"fa fa-long-arrow-right\" role=\"presentation\"/>"
 
 #. module: website_event
 #: model_terms:ir.ui.view,arch_db:website_event.dynamic_filter_template_event_event_single_card
-msgid "Register<i class=\"fa fa-long-arrow-right ms-2\" role=\"img\"/>"
-msgstr "Registrati<i class=\"fa fa-long-arrow-right ms-2\" role=\"img\"/>"
+msgid "Register<i class=\"oi ms-2\" data-icon=\"east\" role=\"img\"/>"
+msgstr ""
 
 #. module: website_event
 #: model_terms:ir.ui.view,arch_db:website_event.s_dynamic_snippet_events_single_card_preview_data
-msgid ""
-"Register<i class=\"fa fa-long-arrow-right ms-2\" role=\"presentation\"/>"
+msgid "Register<i class=\"oi ms-2\" data-icon=\"east\" role=\"presentation\"/>"
 msgstr ""
-"Registrati<i class=\"fa fa-long-arrow-right ms-2\" role=\"presentation\"/>"
+
+#. module: website_event
+#: model_terms:ir.ui.view,arch_db:website_event.s_dynamic_snippet_events_single_aside_preview_data
+msgid "Register<i class=\"oi\" data-icon=\"east\" role=\"presentation\"/>"
+msgstr ""
 
 #. module: website_event
 #: model:ir.model.fields,field_description:website_event.field_website_visitor__event_registered_ids
@@ -1556,17 +1855,17 @@ msgid "Registrations"
 msgstr "Registrazioni"
 
 #. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.events_list
+#: model_terms:ir.ui.view,arch_db:website_event.event_card
 msgid "Registrations Closed"
 msgstr "Registrazioni chiuse"
 
 #. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.events_list
+#: model_terms:ir.ui.view,arch_db:website_event.event_card
 msgid "Registrations not open"
 msgstr "Registrazioni non aperte"
 
 #. module: website_event
-#: model_terms:ir.ui.view,arch_db:website_event.events_list
+#: model_terms:ir.ui.view,arch_db:website_event.event_card
 msgid "Registrations not yet open"
 msgstr "Registrazioni non ancora aperte"
 
@@ -1636,6 +1935,12 @@ msgid "Sample"
 msgstr "Campione"
 
 #. module: website_event
+#: model_terms:ir.ui.view,arch_db:website_event.event_pages_kanban_view
+#: model_terms:ir.ui.view,arch_db:website_event.event_pages_tree_view
+msgid "Scheduled"
+msgstr "Programmati"
+
+#. module: website_event
 #. odoo-python
 #: code:addons/website_event/models/event_event.py:0
 #: model_terms:ir.ui.view,arch_db:website_event.event_time
@@ -1643,8 +1948,13 @@ msgid "Scheduled Events"
 msgstr "Eventi programmati"
 
 #. module: website_event
+#: model_terms:ir.ui.view,arch_db:website_event.event_card
+msgid "Scheduled for"
+msgstr "Programmato per"
+
+#. module: website_event
 #: model_terms:ir.ui.view,arch_db:website_event.index_topbar
-msgid "Search an event.."
+msgid "Search an event..."
 msgstr "Cerca un evento..."
 
 #. module: website_event
@@ -1684,13 +1994,18 @@ msgstr ""
 #. module: website_event
 #. odoo-javascript
 #: code:addons/website_event/static/src/website_builder/event_page_option.xml:0
-#: model_terms:ir.ui.view,arch_db:website_event.event_description_full
+#: model_terms:ir.ui.view,arch_db:website_event.opt_event_share_block
 msgid "Share"
 msgstr "Condividi"
 
 #. module: website_event
+#: model_terms:ir.ui.view,arch_db:website_event.event_event_view_form
+msgid "Short description for website and calendars."
+msgstr "Breve descrizione per il sito web e i calendari."
+
+#. module: website_event
 #. odoo-javascript
-#: code:addons/website_event/static/src/website_builder/dynamic_snippet_events_option.xml:0
+#: code:addons/website_event/static/src/website_builder/dynamic_snippet_events_shared_option.xml:0
 msgid "Show location"
 msgstr "Mostra luogo"
 
@@ -1702,7 +2017,7 @@ msgstr "Mostra su sito web"
 
 #. module: website_event
 #. odoo-javascript
-#: code:addons/website_event/static/src/website_builder/dynamic_snippet_events_option.xml:0
+#: code:addons/website_event/static/src/website_builder/dynamic_snippet_events_shared_option.xml:0
 msgid "Show time"
 msgstr "Mostra orario"
 
@@ -1726,12 +2041,13 @@ msgstr "Fasce orarie"
 #. module: website_event
 #: model:event.question.answer,name:website_event.event_question_about_0_answer_0
 #: model:event.question.answer,name:website_event.event_question_about_2_answer_0
+#: model_terms:ir.ui.view,arch_db:website_event.index_sidebar_follow_us
 msgid "Social Media"
 msgstr "Social network"
 
 #. module: website_event
+#: model_terms:ir.ui.view,arch_db:website_event.event_card
 #: model_terms:ir.ui.view,arch_db:website_event.event_description_dates
-#: model_terms:ir.ui.view,arch_db:website_event.events_list
 #: model_terms:ir.ui.view,arch_db:website_event.modal_ticket_registration
 msgid "Sold Out"
 msgstr "Esauriti"
@@ -1837,6 +2153,16 @@ msgid "Top Bar Filter"
 msgstr "Filtro barra superiore"
 
 #. module: website_event
+#: model:ir.model.fields,help:website_event.field_website_visitor__visitor_event_count
+msgid "Total number of views on events"
+msgstr ""
+
+#. module: website_event
+#: model_terms:ir.ui.view,arch_db:website_event.event_event_view_form
+msgid "Unschedule"
+msgstr "Annulla"
+
+#. module: website_event
 #. odoo-python
 #: code:addons/website_event/models/website_visitor.py:0
 msgid "Unsupported 'Not In' operation on visitors registrations"
@@ -1866,6 +2192,12 @@ msgid "Use this paragraph to write a short text about your events or company."
 msgstr ""
 "Utilizza questo paragrafo per scrivere un breve testo riguardante gli eventi "
 "o l'azienda."
+
+#. module: website_event
+#. odoo-javascript
+#: code:addons/website_event/static/src/js/tours/event_tour.js:0
+msgid "Use this shortcut to easily access your event web page."
+msgstr ""
 
 #. module: website_event
 #: model:ir.model.fields,help:website_event.field_website_event_menu__view_id
@@ -1910,9 +2242,19 @@ msgid "Visible on current website"
 msgstr "Visibile nel sito web corrente"
 
 #. module: website_event
+#: model:ir.model,name:website_event.model_website_track
+msgid "Visited Page"
+msgstr ""
+
+#. module: website_event
 #: model:ir.model.fields,field_description:website_event.field_event_registration__visitor_id
 msgid "Visitor"
 msgstr "Visitatore"
+
+#. module: website_event
+#: model_terms:ir.ui.view,arch_db:website_event.website_event_visitor_page_view_tree
+msgid "Visitor Event Views History"
+msgstr ""
 
 #. module: website_event
 #: model_terms:ir.ui.view,arch_db:website_event.events_list
@@ -2068,6 +2410,11 @@ msgid "date_end"
 msgstr "date_end"
 
 #. module: website_event
+#: model_terms:ir.ui.view,arch_db:website_event.index_topbar
+msgid "events"
+msgstr "eventi"
+
+#. module: website_event
 #: model_terms:ir.ui.view,arch_db:website_event.event_description_dates
 msgid "iCal"
 msgstr "iCal"
@@ -2086,189 +2433,3 @@ msgstr "w-100"
 #: model_terms:ir.ui.view,arch_db:website_event.event_description_full
 msgid "w-100 py-sm-3 mt-sm-2"
 msgstr "w-100 py-sm-3 mt-sm-2"
-
-#~ msgid "(Ref:"
-#~ msgstr "(Ref:"
-
-#~ msgid ""
-#~ ")\n"
-#~ "                                <i class=\"fa fa-long-arrow-down d-block "
-#~ "text-muted mx-3 my-2\" style=\"font-size: 1.5rem\"/>"
-#~ msgstr ""
-#~ ")\n"
-#~ "                                <i class=\"fa fa-long-arrow-down d-block "
-#~ "text-muted mx-3 my-2\" style=\"font-size: 1.5rem\"/>"
-
-#~ msgid "<b>Drag and Drop</b> this snippet below the event title."
-#~ msgstr "<b>Trascina e rilascia</b> lo snippet sotto il titolo dell'evento."
-
-#~ msgid ""
-#~ "<font style=\"font-size: 62px;\" "
-#~ "class=\"o_default_snippet_text\">Introduction</font>"
-#~ msgstr ""
-#~ "<font style=\"font-size: 62px;\" "
-#~ "class=\"o_default_snippet_text\">Introduzione</font>"
-
-#~ msgid "<i class=\"fa fa-fw fa-calendar\"/> Add to Google Calendar"
-#~ msgstr "<i class=\"fa fa-fw fa-calendar\"/> Aggiungi al calendario Google"
-
-#~ msgid "<i class=\"fa fa-fw fa-calendar\"/> Add to iCal/Outlook"
-#~ msgstr "<i class=\"fa fa-fw fa-calendar\"/> Aggiungi a iCal/Outlook"
-
-#~ msgid ""
-#~ "<i class=\"fa fa-long-arrow-left me-2\"/>\n"
-#~ "                            <span>All Events</span>"
-#~ msgstr ""
-#~ "<i class=\"fa fa-long-arrow-left me-2\"/>\n"
-#~ "                            <span>Tutti gli eventi</span>"
-
-#~ msgid ""
-#~ "<i class=\"fa fa-twitter text-twitter\" aria-label=\"Twitter\" "
-#~ "title=\"Twitter\"/>"
-#~ msgstr ""
-#~ "<i class=\"fa fa-twitter text-twitter\" aria-label=\"Twitter\" "
-#~ "title=\"Twitter\"/>"
-
-#~ msgid ""
-#~ "<span class=\"py-2 o_wevent_registration_title text-start\">Tickets</span>"
-#~ msgstr ""
-#~ "<span class=\"py-2 o_wevent_registration_title text-start\">Biglietti</"
-#~ "span>"
-
-#~ msgid "<span class=\"text-dark fw-bold align-middle px-2\">Qty</span>"
-#~ msgstr "<span class=\"text-dark fw-bold align-middle px-2\">Qtà</span>"
-
-#~ msgid ""
-#~ "<span itemprop=\"availability\" content=\"http://schema.org/SoldOut\" "
-#~ "class=\"text-danger\">\n"
-#~ "                                    <i class=\"fa fa-ban me-2\"/>Sold "
-#~ "Out\n"
-#~ "                                </span>"
-#~ msgstr ""
-#~ "<span itemprop=\"availability\" content=\"http://schema.org/SoldOut\" "
-#~ "class=\"text-danger\">\n"
-#~ "                                    <i class=\"fa fa-ban me-2\"/>Tutto "
-#~ "esaurito\n"
-#~ "                                </span>"
-
-#~ msgid ""
-#~ "<span>Tickets</span>\n"
-#~ "                        <span class=\"btn p-0 close d-none\">×</span>"
-#~ msgstr ""
-#~ "<span>Biglietti</span>\n"
-#~ "                        <span class=\"btn p-0 close d-none\">×</span>"
-
-#~ msgid "Add to Calendar"
-#~ msgstr "Aggiungi al calendario"
-
-#~ msgid "Cards"
-#~ msgstr "Schede"
-
-#~ msgid "Date &amp; Time"
-#~ msgstr "Data e ora"
-
-#~ msgid "Email"
-#~ msgstr "E-mail"
-
-#~ msgid "End -"
-#~ msgstr "Fine -"
-
-#~ msgid "Event Location"
-#~ msgstr "Luogo evento"
-
-#~ msgid "Event Name"
-#~ msgstr "Nome evento"
-
-#~ msgid "Event not found!"
-#~ msgstr "Evento non trovato"
-
-#~ msgid "Events Page"
-#~ msgstr "Pagina eventi"
-
-#~ msgid "Extra Register Button"
-#~ msgstr "Pulsante extra registrati"
-
-#~ msgid "Fold Tickets Details"
-#~ msgstr "Dettagli biglietti finiti"
-
-#~ msgid "Get the direction"
-#~ msgstr "Ottieni indicazioni"
-
-#~ msgid "Google"
-#~ msgstr "Google"
-
-#~ msgid "Location Menu"
-#~ msgstr "Menu luogo"
-
-#~ msgid "Location Menus"
-#~ msgstr "Menu luogo"
-
-#~ msgid "No events found."
-#~ msgstr "Nessun evento trovato."
-
-#~ msgid "Phone"
-#~ msgstr "Telefono"
-
-#~ msgid "Please select at least one ticket."
-#~ msgstr "Selezionare almeno un biglietto."
-
-#~ msgid "Questions"
-#~ msgstr "Domande"
-
-#~ msgid "Ref:"
-#~ msgstr "Ref:"
-
-#~ msgid "Register Button"
-#~ msgstr "Pulsante registrazione"
-
-#~ msgid "Registrations are <b>closed</b>"
-#~ msgstr "Le registrazioni sono <b>chiuse</b>"
-
-#~ msgid "Restrict publishing to this website."
-#~ msgstr "Limita la pubblicazione a questo sito web."
-
-#~ msgid "Return to the event list."
-#~ msgstr "Torna all'elenco eventi."
-
-#~ msgid "SHARE"
-#~ msgstr "CONDIVIDI"
-
-#~ msgid "Search an event..."
-#~ msgstr "Cerca un evento..."
-
-#~ msgid "Sorry, the requested event is not available anymore."
-#~ msgstr "L'evento richiesto non è più disponibile."
-
-#~ msgid "Start -"
-#~ msgstr "Inizio -"
-
-#~ msgid "Start → End"
-#~ msgstr "Inizio → Fine"
-
-#~ msgid "Templates"
-#~ msgstr "Modelli"
-
-#~ msgid "The full URL to access the document through the website."
-#~ msgstr "URL completo per accedere al documento dal sito web."
-
-#~ msgid "Ticket Sales starting on"
-#~ msgstr "La vendita dei biglietti inizia il"
-
-#~ msgid "Tickets for this Event are <b>Sold Out</b>"
-#~ msgstr "I biglietti per questo evento sono <b>esauriti</b>"
-
-#~ msgid "Toggle navigation"
-#~ msgstr "Commuta navigazione"
-
-#~ msgid "Use the top button '<b>+ New</b>' to create an event."
-#~ msgstr ""
-#~ "Per creare un evento utilizza il pulsante \"<b>+ Nuovo</b>\" in alto."
-
-#~ msgid "Which field are you working in"
-#~ msgstr "Attuale settore lavorativo"
-
-#~ msgid "e.g. \"Conference for Architects\""
-#~ msgstr "ad es. \"Conferenza per architetti\""
-
-#~ msgid "iCal/Outlook"
-#~ msgstr "iCal/Outlook"

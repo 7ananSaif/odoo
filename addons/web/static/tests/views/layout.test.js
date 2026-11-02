@@ -1,18 +1,11 @@
+import { useSubEnv } from "@web/owl2/utils";
 import { expect, test } from "@odoo/hoot";
 import { animationFrame } from "@odoo/hoot-mock";
+import { Component, onWillStart, proxy, useProps, xml } from "@odoo/owl";
 import {
-    Component,
-    onWillStart,
-    reactive,
-    useChildSubEnv,
-    useState,
-    useSubEnv,
-    xml,
-} from "@odoo/owl";
-import {
+    assignTestEnv,
     defineModels,
     fields,
-    makeMockEnv,
     models,
     mountWithCleanup,
     mountWithSearch,
@@ -54,18 +47,17 @@ defineModels([Foo]);
 
 test(`Simple rendering`, async () => {
     class ToyComponent extends Component {
-        static props = ["*"];
+        props = useProps();
         static template = xml`
-            <Layout className="'o_view_sample_data'" display="props.display">
+            <Layout className="'o_view_sample_data'" display="this.props.display">
                 <div class="toy_content"/>
             </Layout>
         `;
         static components = { Layout };
     }
 
-    await mountWithCleanup(ToyComponent, {
-        env: await makeMockEnv({ config: {} }),
-    });
+    assignTestEnv({ config: {} });
+    await mountWithCleanup(ToyComponent);
     expect(`.o_view_sample_data`).toHaveCount(1);
     expect(`.o_control_panel`).toHaveCount(0);
     expect(`.o_component_with_search_panel`).toHaveCount(0);
@@ -75,10 +67,10 @@ test(`Simple rendering`, async () => {
 
 test(`Simple rendering: with search`, async () => {
     class ToyComponent extends Component {
-        static props = ["*"];
+        props = useProps();
         static template = xml`
-            <Layout display="props.display">
-                <t t-set-slot="layout-actions">
+            <Layout display="this.props.display">
+                <t t-set-slot="control-panel-actions">
                     <div class="toy_search_bar"/>
                 </t>
                 <div class="toy_content"/>
@@ -99,7 +91,6 @@ test(`Simple rendering: with search`, async () => {
 
 test(`Rendering with default ControlPanel and SearchPanel`, async () => {
     class ToyComponent extends Component {
-        static props = ["*"];
         static template = xml`
             <Layout className="'o_view_sample_data'" display="{ controlPanel: {}, searchPanel: true }">
                 <div class="toy_content"/>
@@ -114,18 +105,17 @@ test(`Rendering with default ControlPanel and SearchPanel`, async () => {
             });
             useSubEnv({ searchModel: this.searchModel });
             onWillStart(async () => {
-                await this.searchModel.load({ resModel: "foo" , searchViewId: false});
+                await this.searchModel.load({ resModel: "foo", searchViewId: false });
             });
         }
     }
 
-    await mountWithCleanup(ToyComponent, {
-        env: await makeMockEnv({
-            config: {
-                breadcrumbs: getDefaultConfig().breadcrumbs,
-            },
-        }),
+    assignTestEnv({
+        config: {
+            breadcrumbs: getDefaultConfig().breadcrumbs,
+        },
     });
+    await mountWithCleanup(ToyComponent);
     expect(`.o_search_panel`).toHaveCount(1);
     expect(`.o_control_panel`).toHaveCount(1);
     expect(`.o_breadcrumb`).toHaveCount(1);
@@ -136,9 +126,8 @@ test(`Rendering with default ControlPanel and SearchPanel`, async () => {
 test(`Nested layouts`, async () => {
     // Component C: bottom (no control panel)
     class ToyC extends Component {
-        static props = ["*"];
         static template = xml`
-            <Layout className="'toy_c'" display="display">
+            <Layout className="'toy_c'" display="this.display">
                 <div class="toy_c_content"/>
             </Layout>
         `;
@@ -154,15 +143,14 @@ test(`Nested layouts`, async () => {
 
     // Component B: center (with custom search panel)
     class SearchPanel extends Component {
-        static props = ["*"];
         static template = xml`<div class="o_toy_search_panel"/>`;
     }
 
     class ToyB extends Component {
-        static props = ["*"];
+        props = useProps();
         static template = xml`
-            <Layout className="'toy_b'" display="props.display">
-                <t t-set-slot="layout-actions">
+            <Layout className="'toy_b'" display="this.props.display">
+                <t t-set-slot="control-panel-actions">
                     <div class="toy_b_breadcrumbs"/>
                 </t>
                 <ToyC/>
@@ -170,7 +158,7 @@ test(`Nested layouts`, async () => {
         `;
         static components = { Layout, ToyC };
         setup() {
-            useChildSubEnv({
+            useSubEnv({
                 config: {
                     ...getDefaultConfig(),
                     SearchPanel,
@@ -181,13 +169,13 @@ test(`Nested layouts`, async () => {
 
     // Component A: top
     class ToyA extends Component {
-        static props = ["*"];
+        props = useProps();
         static template = xml`
-            <Layout className="'toy_a'" display="props.display">
-                <t t-set-slot="layout-actions">
+            <Layout className="'toy_a'" display="this.props.display">
+                <t t-set-slot="control-panel-actions">
                     <div class="toy_a_search"/>
                 </t>
-                <ToyB display="props.display"/>
+                <ToyB display="this.props.display"/>
             </Layout>
         `;
         static components = { Layout, ToyB };
@@ -209,9 +197,9 @@ test(`Nested layouts`, async () => {
 
 test(`Custom control panel`, async () => {
     class ToyComponent extends Component {
-        static props = ["*"];
+        props = useProps();
         static template = xml`
-            <Layout display="props.display">
+            <Layout display="this.props.display">
                 <div class="o_toy_content"/>
             </Layout>
         `;
@@ -219,7 +207,6 @@ test(`Custom control panel`, async () => {
     }
 
     class ControlPanel extends Component {
-        static props = ["*"];
         static template = xml`<div class="o_toy_search_panel"/>`;
     }
 
@@ -238,9 +225,9 @@ test(`Custom control panel`, async () => {
 
 test(`Custom search panel`, async () => {
     class ToyComponent extends Component {
-        static props = ["*"];
+        props = useProps();
         static template = xml`
-            <Layout display="props.display">
+            <Layout display="this.props.display">
                 <div class="o_toy_content"/>
             </Layout>
         `;
@@ -248,7 +235,6 @@ test(`Custom search panel`, async () => {
     }
 
     class SearchPanel extends Component {
-        static props = ["*"];
         static template = xml`<div class="o_toy_search_panel"/>`;
     }
 
@@ -266,13 +252,13 @@ test(`Custom search panel`, async () => {
 });
 
 test(`Simple rendering: with dynamically displayed search`, async () => {
-    const state = reactive({ displayLayoutActions: true });
+    const state = proxy({ displayControlPanelActions: true });
 
     class ToyComponent extends Component {
-        static props = ["*"];
+        props = useProps();
         static template = xml`
-            <Layout display="display">
-                <t t-set-slot="layout-actions">
+            <Layout display="this.display">
+                <t t-set-slot="control-panel-actions">
                     <div class="toy_search_bar"/>
                 </t>
                 <div class="toy_content"/>
@@ -281,7 +267,7 @@ test(`Simple rendering: with dynamically displayed search`, async () => {
         static components = { Layout };
 
         setup() {
-            this.state = useState(state);
+            this.state = proxy(state);
         }
 
         get display() {
@@ -289,7 +275,7 @@ test(`Simple rendering: with dynamically displayed search`, async () => {
                 ...this.props.display,
                 controlPanel: {
                     ...this.props.display.controlPanel,
-                    layoutActions: this.state.displayLayoutActions,
+                    actions: this.state.displayControlPanelActions,
                 },
             };
         }
@@ -304,7 +290,7 @@ test(`Simple rendering: with dynamically displayed search`, async () => {
     expect(`.o_cp_searchview`).toHaveCount(0);
     expect(`.o_content > .toy_content`).toHaveCount(1);
 
-    state.displayLayoutActions = false;
+    state.displayControlPanelActions = false;
     await animationFrame();
     expect(`.o_control_panel .o_control_panel_actions .toy_search_bar`).toHaveCount(0);
     expect(`.o_component_with_search_panel .o_search_panel`).toHaveCount(1);

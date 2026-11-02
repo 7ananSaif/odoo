@@ -11,10 +11,6 @@ const steps = [
         trigger: ".o_avatar_card:contains(test_employee@test.com)",
     },
     {
-        content: "Check that the employee's department is displayed",
-        trigger: ".o_avatar_card:contains(Test Department)",
-    },
-    {
         content: "Check that the employee's work phone is displayed",
         trigger: ".o_avatar_card:contains(123456789)",
     },
@@ -35,7 +31,7 @@ registry.category("web_tour.tours").add("avatar_card_tour", {
             trigger: ".o-mail-ActivityMenu-counter:text('2')",
         },
         {
-            trigger: ".o_switch_company_menu button",
+            trigger: "button.o_switch_company_menu",
             run: "click",
         },
         {

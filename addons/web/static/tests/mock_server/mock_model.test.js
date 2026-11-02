@@ -4,7 +4,7 @@ import {
     defineModels,
     fields,
     getService,
-    makeMockEnv,
+    makeTestApp,
     makeMockServer,
     models,
 } from "@web/../tests/web_test_helpers";
@@ -48,7 +48,7 @@ test("model name can be implicitly extracted from its constructor name", async (
 });
 
 test("model should be defined on the mock server", async () => {
-    await makeMockEnv();
+    await makeTestApp();
 
     await expect(getService("orm").searchRead("oui", [], ["id", "name"])).resolves.toEqual([
         {
@@ -99,7 +99,11 @@ test("models can be extended by having the same name", async () => {
 
     defineModels([First, Second]);
 
-    await makeMockEnv();
+    await makeTestApp();
+
+    expect(MockServer.env["same.model"]).toBeInstanceOf(Second);
+    expect(MockServer.env["same.model"]._fields.description.type).toBe("text");
+    expect(MockServer.env["same.model"]._fields).not.toInclude("title");
 
     expect(MockServer.env["same.model"]).toBeInstanceOf(Second);
     expect(MockServer.env["same.model"]._fields.description.type).toBe("text");
@@ -133,12 +137,26 @@ test("cannot access _records on models after init", async () => {
     expect(env["oui"]).toHaveLength(1);
 });
 
+test("can create generic field", async () => {
+    Oui._fields.generic = fields.Generic({ type: "blublu" });
+
+    const { env } = await makeMockServer();
+
+    expect(env["oui"]._fields.generic.type).toBe("blublu");
+});
+
+test("cannot create generic field without type", async () => {
+    Oui._fields.generic = fields.Generic();
+
+    await expect(makeMockServer()).rejects.toThrow(/missing key/i);
+});
+
 describe("level 1", () => {
     Oui._fields.age = fields.Integer();
     Oui._records[0].age = 42;
 
     test("model can be overridden at a suite level", async () => {
-        await makeMockEnv();
+        await makeTestApp();
 
         await expect(
             getService("orm").searchRead("oui", [], ["id", "name", "age"])
@@ -155,7 +173,7 @@ describe("level 1", () => {
         Oui._fields.surname = fields.Char();
         Oui._records[0].surname = "doedoe";
 
-        await makeMockEnv();
+        await makeTestApp();
 
         await expect(
             getService("orm").searchRead("oui", [], ["id", "name", "age", "surname", "create_date"])
@@ -175,7 +193,7 @@ describe("level 1", () => {
         Oui._records[0].email = "john@doe.com";
 
         test("model overrides are incremental", async () => {
-            await makeMockEnv();
+            await makeTestApp();
 
             await expect(
                 getService("orm").searchRead("oui", [], ["id", "name", "age", "email"])

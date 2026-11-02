@@ -1,4 +1,4 @@
-import { Component, onWillUpdateProps, useRef } from "@odoo/owl";
+import { Component, onWillUpdateProps, signal, useProps } from "@odoo/owl";
 import { CheckBox } from "@web/core/checkbox/checkbox";
 import { Dropdown } from "@web/core/dropdown/dropdown";
 import { DropdownState } from "@web/core/dropdown/dropdown_hooks";
@@ -8,9 +8,9 @@ import { _t } from "@web/core/l10n/translation";
 import { download } from "@web/core/network/download";
 import { usePopover } from "@web/core/popover/popover_hook";
 import { registry } from "@web/core/registry";
-import { user } from "@web/core/user";
 import { sortBy } from "@web/core/utils/arrays";
 import { useService } from "@web/core/utils/hooks";
+import { getAggregateCurrencyId } from "@web/model/currency_aggregates";
 import { CustomGroupByItem } from "@web/search/custom_group_by_item/custom_group_by_item";
 import { PropertiesGroupByItem } from "@web/search/properties_group_by_item/properties_group_by_item";
 import { getIntervalOptions } from "@web/search/utils/dates";
@@ -46,14 +46,16 @@ export class PivotRenderer extends Component {
         PropertiesGroupByItem,
         ReportViewMeasures,
     };
-    static props = ["model", "buttonTemplate"];
+    props = useProps(["model", "buttonTemplate"]);
+
+    tableRef = signal.ref();
 
     setup() {
         this.actionService = useService("action");
+        this.uiService = useService("ui");
         this.model = this.props.model;
         this.table = this.model.getTable();
         this.l10n = localization;
-        this.tableRef = useRef("table");
 
         this.dropdown = {
             state: new DropdownState({
@@ -105,15 +107,14 @@ export class PivotRenderer extends Component {
             Object.assign(formatOptions, formatter.extractOptions(fieldInfo));
         }
         if (formatType === "monetary") {
-            if (cell.currencyIds.length > 1) {
-                formatOptions.currencyId = user.activeCompany.currency_id;
+            formatOptions.currencyId = getAggregateCurrencyId(field, cell.currencyIds);
+            if (formatOptions.currencyId && cell.currencyIds.length > 1) {
                 return {
                     rawValue: cell.value,
                     value: formatter(cell.value, formatOptions),
                     currencies: cell.currencyIds,
                 };
             }
-            formatOptions.currencyId = cell.currencyIds[0];
         }
         return { value: formatter(cell.value, formatOptions) };
     }
@@ -237,16 +238,16 @@ export class PivotRenderer extends Component {
         if (ev.currentTarget.tagName === "TH") {
             index += 1; // row groupbys column
         }
-        this.tableRef.el
-            .querySelectorAll("td:nth-child(" + (index + 1) + ")")
+        this.tableRef()
+            ?.querySelectorAll("td:nth-child(" + (index + 1) + ")")
             .forEach((elt) => elt.classList.add("o_cell_hover"));
     }
     /**
      * Remove the hover on the columns.
      */
     onMouseLeave() {
-        this.tableRef.el
-            .querySelectorAll(".o_cell_hover")
+        this.tableRef()
+            ?.querySelectorAll(".o_cell_hover")
             .forEach((elt) => elt.classList.remove("o_cell_hover"));
     }
 

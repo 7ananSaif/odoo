@@ -1,22 +1,29 @@
-import { Component } from "@odoo/owl";
+import { Component, signal, t, useProps } from "@odoo/owl";
 import { Dropdown } from "@web/core/dropdown/dropdown";
 import { toolbarButtonProps } from "../toolbar/toolbar";
 import { closestElement } from "@html_editor/utils/dom_traversal";
-import { useDropdownAutoVisibility } from "@html_editor/dropdown_autovisibility_hook";
-import { useChildRef } from "@web/core/utils/hooks";
+import {
+    useDropdownAutoVisibility,
+    useToolbarDropdownFocus,
+} from "@html_editor/toolbar_dropdown_hook";
+import { DropdownItem } from "@web/core/dropdown/dropdown_item";
+import { useDropdownState } from "@web/core/dropdown/dropdown_hooks";
 
 export class ListSelector extends Component {
     static template = "html_editor.ListSelector";
-    static props = {
+    props = useProps({
         ...toolbarButtonProps,
-        getButtons: Function,
-        getListMode: Function,
-        key: Object,
-    };
-    static components = { Dropdown };
+        getButtons: t.function(),
+        getListMode: t.function(),
+    });
+    static components = { Dropdown, DropdownItem };
+
+    listSelector = signal.ref();
 
     setup() {
-        this.menuRef = useChildRef();
+        this.menuRef = signal.ref();
+        this.dropdown = useDropdownState();
+        useToolbarDropdownFocus(this.dropdown, this.listSelector);
         useDropdownAutoVisibility(this.env.overlayState, this.menuRef);
     }
     getActiveMode() {

@@ -4,9 +4,17 @@ import {
     many2ManyBinaryField,
     Many2ManyBinaryField,
 } from "@web/views/fields/many2many_binary/many2many_binary_field";
+import { Many2XBinary } from "@web/views/fields/many2x_binary/many2x_binary";
+
+export class MailComposerAttachmentBinary extends Many2XBinary {
+    static template = "mail.MailComposerAttachmentBinary";
+}
 
 export class MailComposerAttachmentList extends Many2ManyBinaryField {
-    static template = "mail.MailComposerAttachmentList";
+    static components = {
+        ...Many2ManyBinaryField.components,
+        Many2XBinary: MailComposerAttachmentBinary,
+    };
     /** @override */
     setup() {
         super.setup();
@@ -21,7 +29,7 @@ export class MailComposerAttachmentList extends Many2ManyBinaryField {
         super.onFileRemove(fileId);
         const attachment = this.mailStore["ir.attachment"].insert(fileId);
         if (attachment && attachment.res_model === "mail.compose.message") {
-            await this.attachmentUploadService.unlink(attachment);
+            await this.attachmentUploadService.unlink([attachment]);
         }
         this.env.fullComposerBus?.trigger("ATTACHMENT_REMOVED", {
             id: attachment.id,

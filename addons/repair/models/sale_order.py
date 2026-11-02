@@ -50,6 +50,17 @@ class SaleOrder(models.Model):
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
+    repair_service_line_id = fields.Many2one('repair.service.line', check_company=True, copy=False, index='btree_not_null')
+
+    @api.depends('repair_service_line_id.description')
+    def _compute_name(self):
+        super()._compute_name()
+        for line in self:
+            if line.repair_service_line_id and line.repair_service_line_id.description:
+                line.name = line.repair_service_line_id.description
+            elif len(line.move_ids) == 1 and line.move_ids.repair_id and line.move_ids.description_picking_manual:
+                line.name = line.move_ids.description_picking
+
     def _prepare_qty_delivered(self):
         repair_delivered_qties = defaultdict(float)
         remaining_so_lines = self
@@ -96,12 +107,14 @@ class SaleOrderLine(models.Model):
                 binded_ro_ids.action_repair_cancel_draft()
                 binded_ro_ids._action_repair_confirm()
                 continue
-            if line.product_template_id.sudo().service_tracking != 'repair' or line.move_ids.sudo().repair_id or line.product_uom_id.compare(line.product_uom_qty, 0) <= 0:
+            if line.product_template_id.sudo().service_tracking != 'repair' or line.move_ids.sudo().repair_id or line.repair_service_line_id.repair_id \
+                or line.product_uom_id.compare(line.product_uom_qty, 0) <= 0:
                 continue
 
             order = line.order_id
             new_repair_vals.append({
                 'state': 'confirmed',
+                'company_id': order.company_id.id,
                 'partner_id': order.partner_id.id,
                 'sale_order_id': order.id,
                 'sale_order_line_id': line.id,

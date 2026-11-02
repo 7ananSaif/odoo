@@ -11,8 +11,9 @@ import { orderByToString } from "@web/search/utils/order_by";
 
 import * as spreadsheet from "@odoo/o-spreadsheet";
 import { LOADING_ERROR } from "@spreadsheet/data_sources/data_source";
+import { getFullFieldStringFromPath } from "../data_sources/data_source";
 
-const { toNumber } = spreadsheet.helpers;
+const { toNumber, deepEquals } = spreadsheet.helpers;
 const { DEFAULT_LOCALE } = spreadsheet.constants;
 
 /**
@@ -29,6 +30,8 @@ const { DEFAULT_LOCALE } = spreadsheet.constants;
  * @property {Object} context
  */
 
+export const SEARCH_COUNT_LIMIT = 10_000;
+
 export class ListDataSource extends OdooViewsDataSource {
     /**
      * @override
@@ -36,7 +39,6 @@ export class ListDataSource extends OdooViewsDataSource {
      * @param {Object} params
      * @param {ListMetaData} params.metaData
      * @param {ListSearchParams} params.searchParams
-     * @param {number} params.limit
      */
     constructor(services, params) {
         super(services, params);
@@ -44,9 +46,15 @@ export class ListDataSource extends OdooViewsDataSource {
         this.maxPositionFetched = 0;
         this.data = [];
         this.fieldPathsToFetch = new Set(["id"]);
+        this.fieldPathDefinitionsToFetch = new Set(params.columns.map((col) => col.name));
+        this.definitionColumns = params.columns
+            .filter((col) => !col.computedBy)
+            .map((col) => col.name);
         this.alreadyFetchedFieldPaths = new Set();
         this.fieldService = services.env.services.field;
         this.fieldPathsToFieldMap = {};
+        this._recordConcurrency = {};
+        this._recordsCount = {};
     }
 
     /**
@@ -55,6 +63,34 @@ export class ListDataSource extends OdooViewsDataSource {
      */
     increaseMaxPosition(position) {
         this.maxPosition = Math.max(this.maxPosition, position);
+    }
+
+    onDefinitionChange(nextDefinition) {
+        let shouldReload = false;
+        const searchParams = JSON.parse(JSON.stringify(nextDefinition.searchParams));
+        if (!deepEquals(this._initialSearchParams, searchParams)) {
+            this._initialSearchParams = searchParams;
+            this._customDomain = this._initialSearchParams.domain;
+            shouldReload = true;
+        }
+        const columns = nextDefinition.columns
+            .filter((col) => !col.computedBy)
+            .map((col) => col.name);
+        if (!deepEquals([...this.definitionColumns].sort(), [...columns].sort())) {
+            this.definitionColumns = columns;
+            columns.forEach((col) => this.fieldPathDefinitionsToFetch.add(col));
+            shouldReload = true;
+        }
+
+        const resModel = JSON.parse(JSON.stringify(nextDefinition.metaData)).resModel;
+        if (!deepEquals(this._metaData.resModel, resModel)) {
+            this._metaData = { resModel };
+            shouldReload = true;
+        }
+
+        if (shouldReload) {
+            this._triggerFetching();
+        }
     }
 
     isModelValid() {
@@ -68,6 +104,19 @@ export class ListDataSource extends OdooViewsDataSource {
         if (!this.alreadyFetchedFieldPaths.has(fieldPath)) {
             this.fieldPathsToFetch.add(fieldPath);
         }
+    }
+
+    async getRecordsCount({ fullCount } = { fullCount: false }) {
+        const key = fullCount ? "full" : "partial";
+        if (!this._recordsCount[key]) {
+            const { domain, context } = this._searchParams;
+            const limit = fullCount ? undefined : SEARCH_COUNT_LIMIT;
+            this._recordsCount[key] = this._orm.searchCount(this._metaData.resModel, domain, {
+                context,
+                limit,
+            });
+        }
+        return this._recordsCount[key];
     }
 
     async load(params) {
@@ -84,14 +133,16 @@ export class ListDataSource extends OdooViewsDataSource {
 
     async _load() {
         await super._load();
+        // invalidate record count cache
+        this._recordsCount = {};
         this.fieldPathsToFieldMap = {};
+        const { domain, orderBy, context } = this._searchParams;
         const specification = await this._getReadSpec();
         this.alreadyFetchedFieldPaths = new Set([...this.fieldPathsToFetch]);
         if (this.maxPosition === 0) {
             this.data = [];
             return;
         }
-        const { domain, orderBy, context } = this._searchParams;
         const { records } = await this._orm.webSearchRead(this._metaData.resModel, domain, {
             specification,
             order: orderByToString(orderBy),
@@ -136,6 +187,24 @@ export class ListDataSource extends OdooViewsDataSource {
                     this._addSpecForFieldPath(spec[field.name].fields, newPathInfo);
                 }
                 break;
+            case "properties": {
+                spec[field.name] = {};
+                const propertyFields = othersModelsInfo[0]?.fieldDefs;
+                for (const propertyName of rest) {
+                    if (propertyFields[propertyName]?.type === "monetary") {
+                        spec[propertyFields[propertyName].currency_field] = {
+                            fields: {
+                                ...spec[propertyFields[propertyName].currency_field]?.fields,
+                                name: {},
+                                symbol: {},
+                                decimal_places: {},
+                                position: {},
+                            },
+                        };
+                    }
+                }
+                break;
+            }
             default:
                 spec[field.name] = {};
                 break;
@@ -147,8 +216,10 @@ export class ListDataSource extends OdooViewsDataSource {
      * Get the fields to fetch from the server.
      */
     async _getReadSpec() {
+        // FIXME: this method both populates fieldPathsToFieldMap and returns the spec for the read.
+        // This is not ideal and should be split in two methods but would require to store additional info
         const allFieldPaths = await Promise.all(
-            [...this.fieldPathsToFetch].map((fieldPath) =>
+            [...this.fieldPathsToFetch.union(this.fieldPathDefinitionsToFetch)].map((fieldPath) =>
                 fieldPath
                     ? this.fieldService.loadPath(this._metaData.resModel, fieldPath)
                     : { isInvalid: "path" }
@@ -157,9 +228,16 @@ export class ListDataSource extends OdooViewsDataSource {
         const validFieldPaths = allFieldPaths.filter((result) => !result.isInvalid);
         const spec = {};
         for (const pathInfo of validFieldPaths) {
-            this.fieldPathsToFieldMap[pathInfo.names.join(".")] =
-                pathInfo.modelsInfo.at(-1).fieldDefs[pathInfo.names.at(-1)];
-            this._addSpecForFieldPath(spec, pathInfo);
+            const { names, modelsInfo } = pathInfo;
+            const fieldPath = names.join(".");
+            this.fieldPathsToFieldMap[fieldPath] = {
+                ...modelsInfo.at(-1).fieldDefs[names.at(-1)],
+                fullString: getFullFieldStringFromPath(pathInfo),
+            };
+
+            if (this.fieldPathsToFetch.has(fieldPath)) {
+                this._addSpecForFieldPath(spec, pathInfo);
+            }
         }
         return spec;
     }
@@ -176,7 +254,6 @@ export class ListDataSource extends OdooViewsDataSource {
 
     /**
      * @param {string} fieldPath
-     * @returns {string | EvaluationError}
      */
     getListHeaderValue(fieldPath) {
         this.addFieldPathToFetch(fieldPath);
@@ -201,19 +278,22 @@ export class ListDataSource extends OdooViewsDataSource {
                 _t("The field %s does not exist or you do not have access to that field", fieldPath)
             );
         }
-        return field.string;
+        return { value: field.string };
     }
 
     /**
      * @returns {object | object[]}
      */
     _getRecordFromRelation(mainRecord, fieldPath) {
+        const field = this.getFieldFromFieldPath(fieldPath);
         const fields = fieldPath.split(".");
         let record = mainRecord;
         // The last item of fields is the name of the field. As we want to
         // get the record on which the field is defined, we need to iterate until
         // the penultimate item of fields.
-        for (let i = 0; i < fields.length - 1; i++) {
+        // Property fields have an additional depth level (eg. root_property.property_name)
+        const end = field.is_property ? fields.length - 2 : fields.length - 1;
+        for (let i = 0; i < end; i++) {
             if (Array.isArray(record)) {
                 record = record.map((r) => r[fields[i]]).flat();
             } else {
@@ -261,10 +341,22 @@ export class ListDataSource extends OdooViewsDataSource {
         if (!record) {
             return "";
         }
+        if (field.is_property) {
+            const fieldParts = fieldPath.split(".");
+            const propertyField = fieldParts.pop();
+            const rootPropertyField = fieldParts.pop();
+            const propertyValue = record[rootPropertyField].find((p) => p.name === propertyField);
+            return propertyValue ? this._parsePropertyFieldServerValue(field, propertyValue) : "";
+        }
         const lastField = fieldPath.split(".").at(-1);
         if (Array.isArray(record)) {
+            if (record.length === 1) {
+                // avoid stringifying the value if there is only one record
+                return this._parseServerValue(field, record[0][lastField]);
+            }
+            // stringify to csv
+            // known limitation: the values are not localized.
             // remove duplicates?
-            // needs to be formatted...
             return record.map((r) => this._parseServerValue(field, r[lastField])).join(", ");
         }
         return this._parseServerValue(field, record[lastField]);
@@ -293,8 +385,7 @@ export class ListDataSource extends OdooViewsDataSource {
             case "datetime":
                 return value ? toNumber(this._formatDateTime(value), DEFAULT_LOCALE) : "";
             case "properties": {
-                const properties = value || [];
-                return properties.map((property) => property.string).join(", ");
+                return new EvaluationError(_t("Please specify the property field name"));
             }
             case "json":
                 return new EvaluationError(_t('Fields of type "%s" are not supported', "json"));
@@ -307,6 +398,37 @@ export class ListDataSource extends OdooViewsDataSource {
         }
     }
 
+    _parsePropertyFieldServerValue(field, propertyValue) {
+        const { type, value } = propertyValue;
+        if (!value) {
+            return "";
+        }
+        switch (type) {
+            case "date":
+                return toNumber(this._formatDate(value), DEFAULT_LOCALE);
+            case "datetime":
+                return toNumber(this._formatDateTime(value), DEFAULT_LOCALE);
+            case "many2one":
+                return value[1];
+            case "many2many":
+                return value.map((v) => v[1]).join(", ");
+            case "tags":
+                return value
+                    .map((tagId) => {
+                        const tag = field.tags.find((tag) => tag[0] === tagId);
+                        return tag ? tag[1] : "";
+                    })
+                    .join(", ");
+            case "selection": {
+                const key = value;
+                const selectedOption = field.selection.find((array) => array[0] === key);
+                return selectedOption ? selectedOption[1] : "";
+            }
+            default:
+                return value;
+        }
+    }
+
     /**
      * @param {number} position
      * @param {string} fieldPath
@@ -315,9 +437,7 @@ export class ListDataSource extends OdooViewsDataSource {
      */
     getListCurrency(position, fieldPath, currencyFieldName) {
         this.assertIsValid();
-        const currency = this._getRecordFromRelation(this.data[position], fieldPath)?.[
-            currencyFieldName
-        ];
+        const currency = this._getCurrency(position, fieldPath, currencyFieldName);
         if (!currency) {
             return undefined;
         }
@@ -336,6 +456,27 @@ export class ListDataSource extends OdooViewsDataSource {
     //--------------------------------------------------------------------------
     // Private
     //--------------------------------------------------------------------------
+
+    /**
+     * @param {object | object[]} recordOrRecords
+     * @param {string} currencyFieldName
+     * @returns {import("@spreadsheet/currency/currency_data_source").Currency | undefined}
+     */
+    _getCurrency(position, fieldPath, currencyFieldName) {
+        const recordOrRecords = this._getRecordFromRelation(this.data[position], fieldPath);
+        if (Array.isArray(recordOrRecords)) {
+            const currencyIds = new Set(
+                recordOrRecords.map((r) => r[currencyFieldName] && r[currencyFieldName].id)
+            );
+            if (currencyIds.size > 1) {
+                // if there are multiple currencies,
+                // we cannot know which one to use, so we return undefined
+                return undefined;
+            }
+            return recordOrRecords[0]?.[currencyFieldName];
+        }
+        return recordOrRecords?.[currencyFieldName];
+    }
 
     _formatDateTime(dateValue) {
         const date = deserializeDateTime(dateValue);
@@ -376,7 +517,7 @@ export class ListDataSource extends OdooViewsDataSource {
         return {
             resModel: data.resModel,
             type: "list",
-            fields: data.columns,
+            fields: [...this.fieldPathsToFetch],
             groupby: undefined,
             domain: this._searchParams.domain,
         };

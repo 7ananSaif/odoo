@@ -1,4 +1,5 @@
-import { MediaDialog, TABS } from "@html_editor/main/media/media_dialog/media_dialog";
+import { MediaDialog } from "@html_editor/main/media/media_dialog/media_dialog";
+import { TABS } from "@html_editor/main/media/media_dialog/media_dialog_utils"
 import { patch } from "@web/core/utils/patch";
 import { useService } from "@web/core/utils/hooks";
 
@@ -8,7 +9,7 @@ patch(MediaDialog.prototype, {
         this.unsplashService = useService("unsplash");
     },
 
-    async save() {
+    async preProcessSave() {
         const selectedImages = this.selectedMedia[TABS.IMAGES.id];
         if (selectedImages) {
             const unsplashRecords = selectedImages.filter(
@@ -34,6 +35,6 @@ patch(MediaDialog.prototype, {
                 );
             }
         }
-        return super.save(...arguments);
+        return super.preProcessSave(...arguments);
     },
 });

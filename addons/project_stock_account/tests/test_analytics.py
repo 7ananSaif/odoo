@@ -1,13 +1,14 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from unittest import skip
-
 from odoo.exceptions import ValidationError
+from odoo.tests import tagged
+
 from odoo.addons.stock.tests.common import TestStockCommon
 
 
-@skip('Temporary to fast merge new valuation')
 class TestAnalytics(TestStockCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):
@@ -52,7 +53,7 @@ class TestAnalytics(TestStockCommon):
         })
         picking_out.picking_type_id.analytic_costs = True
         move_values = {
-            'product_uom': self.uom_unit.id,
+            'uom_id': self.uom_unit.id,
             'picking_id': picking_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
@@ -99,7 +100,7 @@ class TestAnalytics(TestStockCommon):
         })
         picking_in.picking_type_id.analytic_costs = True
         move_values = {
-            'product_uom': self.uom_unit.id,
+            'uom_id': self.uom_unit.id,
             'picking_id': picking_in.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
@@ -131,17 +132,6 @@ class TestAnalytics(TestStockCommon):
         self.assertEqual(analytic_line2[self.plan1_name], self.analytic_account1)
         self.assertEqual(analytic_line2[self.plan2_name], self.analytic_account2)
 
-        self.assertDictEqual(
-            self.project._get_profitability_items(False),
-            {
-                'revenues': {'data': [], 'total': {'invoiced': 0.0, 'to_invoice': 0.0}},
-                'costs': {
-                    'data': [{'id': 'other_costs', 'sequence': 15, 'billed': 1300.0, 'to_bill': 0.0}],
-                    'total': {'billed': 1300.0, 'to_bill': 0.0}
-                }
-            }
-        )
-
     def test_mandatory_analytic_plan_picking(self):
         self.env['account.analytic.applicability'].create({
             'business_domain': 'stock_picking',
@@ -157,7 +147,7 @@ class TestAnalytics(TestStockCommon):
         picking_in.picking_type_id.analytic_costs = True
         self.project[self.plan1_name] = False  # Remove the mandatory plan from the project linked to the picking
         self.MoveObj.create({
-            'product_uom': self.uom_unit.id,
+            'uom_id': self.uom_unit.id,
             'picking_id': picking_in.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,

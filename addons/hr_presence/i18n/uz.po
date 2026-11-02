@@ -14,22 +14,32 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-10-08 18:38+0000\n"
-"Last-Translator: \n"
-"Language-Team: \n"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 16:34+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Uzbek <https://translate.odoo.com/projects/odoo-s19-4/"
+"hr_presence/uz/>\n"
 "Language: uz\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: hr_presence
-#. odoo-python
-#: code:addons/hr_presence/models/hr_employee.py:0
-#, fuzzy
-msgid "%(name)s has been noted as %(state)s today"
-msgstr "%(name)s bugun %(state)s deb qayd etildi"
+#: model:ir.module.module,description:base.module_hr_presence
+msgid ""
+"\n"
+"Control Employees Presence\n"
+"==========================\n"
+"\n"
+"Based on:\n"
+"    * The IP Address\n"
+"    * The User's Session\n"
+"    * The Sent Emails\n"
+"\n"
+"Allows to contact directly the employee in case of unjustified absence.\n"
+msgstr ""
 
 #. module: hr_presence
 #: model:mail.template,body_html:hr_presence.mail_template_presence
@@ -62,24 +72,15 @@ msgstr ""
 "qaratganingiz uchun tashakkur. <br/>Hurmat bilan,<br/><br/> </div>"
 
 #. module: hr_presence
-#: model:ir.model.fields.selection,name:hr_presence.selection__hr_employee__hr_presence_state_display__absent
-#: model:ir.model.fields.selection,name:hr_presence.selection__hr_employee_public__hr_presence_state_display__absent
 #: model_terms:ir.ui.view,arch_db:hr_presence.hr_employee_view_search
 #, fuzzy
 msgid "Absent"
 msgstr "Yo‘q"
 
 #. module: hr_presence
-#: model:ir.actions.server,name:hr_presence.action_hr_employee_presence_log
-#, fuzzy
-msgid "Add a log note"
-msgstr "Jurnal qaydini qo‘shish"
-
-#. module: hr_presence
 #: model:ir.model,name:hr_presence.model_res_company
-#, fuzzy
-msgid "Companies"
-msgstr "Kompaniyalar"
+msgid "Company"
+msgstr ""
 
 #. module: hr_presence
 #: model:ir.model,name:hr_presence.model_res_config_settings
@@ -118,6 +119,11 @@ msgid "Employee"
 msgstr "Xodim"
 
 #. module: hr_presence
+#: model:ir.module.module,shortdesc:base.module_hr_presence
+msgid "Employee Presence Control"
+msgstr ""
+
+#. module: hr_presence
 #: model:sms.template,name:hr_presence.sms_template_data_hr_presence
 #, fuzzy
 msgid "Employee: Presence Reminder"
@@ -152,13 +158,6 @@ msgstr ""
 #, fuzzy
 msgid "Hr Presence Last Compute Date"
 msgstr "HR mavjudligi oxirgi hisoblash sanasi"
-
-#. module: hr_presence
-#: model:ir.model.fields,field_description:hr_presence.field_hr_employee__hr_presence_state_display
-#: model:ir.model.fields,field_description:hr_presence.field_hr_employee_public__hr_presence_state_display
-#, fuzzy
-msgid "Hr Presence State Display"
-msgstr "HR mavjudlik holati ko‘rsatkichi"
 
 #. module: hr_presence
 #: model:ir.model.fields,field_description:hr_presence.field_hr_employee__id
@@ -199,32 +198,11 @@ msgid "Manually Set Present"
 msgstr "Mavjudlikni qo‘lda belgilash"
 
 #. module: hr_presence
-#: model:ir.model.fields.selection,name:hr_presence.selection__hr_employee__hr_presence_state_display__out_of_working_hour
-#: model:ir.model.fields.selection,name:hr_presence.selection__hr_employee_public__hr_presence_state_display__out_of_working_hour
-#: model_terms:ir.ui.view,arch_db:hr_presence.hr_employee_view_search
-#, fuzzy
-msgid "Off-Hours"
-msgstr "Ish vaqtidan tashqari"
-
-#. module: hr_presence
 #. odoo-javascript
-#: code:addons/hr_presence/static/src/search/hr_presence_cog_menu/hr_presence_cog_menu.xml:0
+#: code:addons/hr_presence/static/src/presence_cog_menu/presence_cog_menu.xml:0
 #, fuzzy
 msgid "Presence Control"
 msgstr "Mavjudlikni nazorat qilish"
-
-#. module: hr_presence
-#: model_terms:ir.ui.view,arch_db:hr_presence.hr_employee_view_search
-#, fuzzy
-msgid "Presence/Absence"
-msgstr "Borlik/yo‘qlik"
-
-#. module: hr_presence
-#: model:ir.model.fields.selection,name:hr_presence.selection__hr_employee__hr_presence_state_display__present
-#: model:ir.model.fields.selection,name:hr_presence.selection__hr_employee_public__hr_presence_state_display__present
-#, fuzzy
-msgid "Present"
-msgstr "Mavjud"
 
 #. module: hr_presence
 #: model:ir.model,name:hr_presence.model_hr_employee_public
@@ -235,14 +213,9 @@ msgstr "Davlat xizmatchisi"
 #. module: hr_presence
 #. odoo-python
 #: code:addons/hr_presence/models/hr_employee.py:0
-#, fuzzy
-msgid "Send SMS"
-msgstr "SMS yuborish"
-
-#. module: hr_presence
 #: model:ir.actions.server,name:hr_presence.action_hr_employee_presence_sms
 #, fuzzy
-msgid "Send a SMS"
+msgid "Send SMS"
 msgstr "SMS yuborish"
 
 #. module: hr_presence

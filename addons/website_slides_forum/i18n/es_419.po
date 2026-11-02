@@ -3,21 +3,22 @@
 # * website_slides_forum
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Fernanda Alvarez (mfar)" <mfar@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-09-17 07:46+0000\n"
-"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-09-11 16:32+0000\n"
+"Last-Translator: \"Fernanda Alvarez (mfar)\" <mfar@odoo.com>\n"
 "Language-Team: Spanish (Latin America) <https://translate.odoo.com/projects/"
-"odoo-19/website_slides_forum/es_419/>\n"
+"odoo-master/website_slides_forum/es_419/>\n"
 "Language: es_419\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: website_slides_forum
 #: model_terms:forum.forum,faq:website_slides_forum.forum_forum_demo_channel_0
@@ -149,11 +150,11 @@ msgstr ""
 #. module: website_slides_forum
 #: model_terms:ir.ui.view,arch_db:website_slides_forum.slide_fullscreen
 msgid ""
-"<i class=\"fa fa-comments\"/><span class=\"ms-1 d-none d-md-inline-"
-"block\">Forum</span>"
+"<i class=\"oi oi-filled\" data-icon=\"forum\"/><span class=\"ms-1 d-none d-"
+"md-inline-block\">Forum</span>"
 msgstr ""
-"<i class=\"fa fa-comments\"/><span class=\"ms-1 d-none d-md-inline-"
-"block\">Foro</span>"
+"<i class=\"oi oi-filled\" data-icon=\"forum\"/><span class=\"ms-1 d-none d-"
+"md-inline-block\">Foro</span>"
 
 #. module: website_slides_forum
 #: model_terms:forum.forum,faq:website_slides_forum.forum_forum_demo_channel_0
@@ -185,9 +186,18 @@ msgstr ""
 "preguntas y respuestas?</span>"
 
 #. module: website_slides_forum
-#: model_terms:ir.ui.view,arch_db:website_slides_forum.website_slides_forum_breadcrumb
-msgid "<strong>Forum</strong>"
-msgstr "<strong>Foro</strong>"
+#: model:ir.module.module,description:base.module_website_slides_forum
+msgid ""
+"A Slide channel can be linked to forum. Also, profiles from slide and forum "
+"are regrouped together"
+msgstr ""
+"Un canal de diapositivas puede vincularse a un foro; además, los perfiles de "
+"diapositivas y foros se agrupan"
+
+#. module: website_slides_forum
+#: model:ir.module.module,summary:base.module_website_slides_forum
+msgid "Allows to link forum on a course"
+msgstr "Permite vincular un foro a un curso"
 
 #. module: website_slides_forum
 #: model:forum.forum,name:website_slides_forum.forum_forum_demo_channel_0
@@ -196,8 +206,8 @@ msgstr "Fundamentos de jardinería"
 
 #. module: website_slides_forum
 #: model_terms:ir.ui.view,arch_db:website_slides_forum.forum_all_all_entries
-msgid "Check out our courses <i class=\"fa fa-long-arrow-right\"/>"
-msgstr "Conozca nuestros cursos<i class=\"fa fa-long-arrow-right\"/>"
+msgid "Check out our courses <i class=\"oi\" data-icon=\"east\"/>"
+msgstr "Conozca nuestros cursos<i class=\"oi\" data-icon=\"east\"/>"
 
 #. module: website_slides_forum
 #: model_terms:ir.actions.act_window,help:website_slides_forum.forum_post_action_channel
@@ -291,6 +301,11 @@ msgid ""
 "Forum linked to a Course, the visibility is the one applied on the course."
 msgstr ""
 "Foro vinculado a un curso, la visibilidad es la que se aplica en el curso."
+
+#. module: website_slides_forum
+#: model:ir.module.module,shortdesc:base.module_website_slides_forum
+msgid "Forum on Courses"
+msgstr "Foro en cursos"
 
 #. module: website_slides_forum
 #: model:ir.actions.act_window,name:website_slides_forum.forum_forum_action_channel
@@ -395,12 +410,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:website_slides_forum.field_forum_forum__visibility
 msgid "Show Course To"
 msgstr "Mostrar curso a"
-
-#. module: website_slides_forum
-#. odoo-javascript
-#: code:addons/website_slides_forum/static/src/website_builder/slides_forum_page_option_plugin.js:0
-msgid "Slides Forum Snippet Options"
-msgstr "Opciones del snippet de foro y presentaciones"
 
 #. module: website_slides_forum
 #: model_terms:forum.forum,faq:website_slides_forum.forum_forum_demo_channel_0

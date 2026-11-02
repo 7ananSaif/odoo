@@ -1,3 +1,4 @@
+import { registry } from "@web/core/registry";
 import {
     changeOptionInPopover,
     clickOnEditAndWaitEditMode,
@@ -5,7 +6,8 @@ import {
     clickOnSnippet,
     insertSnippet,
     goBackToBlocks,
-    registerWebsitePreviewTour,
+    unfoldOptionsGroup,
+    waitForEditMode,
 } from "@website/js/tours/tour_utils";
 
 const snippets = [
@@ -31,13 +33,13 @@ const snippets = [
     },
 ];
 function checkEyeIcon(snippetName, visible) {
-    const eyeIcon = visible ? "fa-eye" : "fa-eye-slash";
+    const eyeIcon = visible ? "visibility" : "visibility_off";
     const openOrClose = visible ? "open" : "close";
     const endExplanation = `should be ${openOrClose} in the "Invisible Elements" panel`;
     const invisibleElPanel = "o_we_invisible_el_panel";
     return {
         content: `The eye icon of ${snippetName} ${endExplanation}`,
-        trigger: `.${invisibleElPanel} .o_we_invisible_entry:contains("${snippetName}") i.${eyeIcon}`,
+        trigger: `.${invisibleElPanel} .o_we_invisible_entry:contains("${snippetName}") i[data-icon="${eyeIcon}"]`,
     };
 }
 function checkEyesIconAfterSave(footerIsHidden = true) {
@@ -52,13 +54,9 @@ function checkEyesIconAfterSave(footerIsHidden = true) {
     }
     return eyeIconChecks;
 }
-registerWebsitePreviewTour(
-    "conditional_visibility_1",
-    {
-        edition: true,
-        url: "/",
-    },
-    () => [
+registry.category("web_tour.tours").add("conditional_visibility_1", {
+    steps: () => [
+        waitForEditMode,
         ...insertSnippet(snippets[0]),
         ...clickOnSnippet(snippets[0]),
         ...changeOptionInPopover("Text - Image", "Visibility", "Conditionally"),
@@ -109,16 +107,12 @@ registerWebsitePreviewTour(
                 }
             },
         },
-    ]
-);
+    ],
+});
 
-registerWebsitePreviewTour(
-    "conditional_visibility_3",
-    {
-        edition: true,
-        url: "/",
-    },
-    () => [
+registry.category("web_tour.tours").add("conditional_visibility_3", {
+    steps: () => [
+        waitForEditMode,
         checkEyeIcon("Text - Image", true),
         // Drag a "Banner" snippet on the website.
         ...insertSnippet(snippets[1]),
@@ -156,7 +150,7 @@ registerWebsitePreviewTour(
             trigger: ":iframe #wrapwrap header",
             run: "click",
         },
-        ...changeOptionInPopover("Header", "Header Position", "[data-action-value='hidden']"),
+        ...changeOptionInPopover("Header", "Header Position", "hidden"),
         checkEyeIcon("Header", false),
         ...clickOnSnippet(snippets[1]),
         ...changeOptionInPopover("Banner", "Visibility", "Conditionally"),
@@ -169,22 +163,23 @@ registerWebsitePreviewTour(
         ...clickOnSave(),
         ...clickOnEditAndWaitEditMode(),
         ...checkEyesIconAfterSave(),
-    ]
-);
+    ],
+});
 
-registerWebsitePreviewTour(
-    "conditional_visibility_4",
-    {
-        edition: true,
-        url: "/",
-    },
-    () => [
+registry.category("web_tour.tours").add("conditional_visibility_4", {
+    steps: () => [
+        waitForEditMode,
         // Click on the "Text-Image" snippet.
         ...clickOnSnippet(snippets[0]),
         {
             content: "Click on the 'move down' option",
-            trigger: ".o_overlay_options button.fa-angle-down",
+            trigger: ".o_overlay_options button[data-icon='keyboard_arrow_down']",
             run: "click",
+        },
+        {
+            content: "Check that Banner is now before Text - Image in the panel",
+            trigger:
+                ".o_we_invisible_el_panel .o_we_invisible_entry:contains('Banner') ~ .o_we_invisible_entry:contains('Text - Image')",
         },
         ...checkEyesIconAfterSave(),
         {
@@ -203,25 +198,35 @@ registerWebsitePreviewTour(
         // Click on the "Banner" snippet.
         ...clickOnSnippet(snippets[1]),
         {
+            content: "Wait for the target to be the banner (by looking at its options)",
+            trigger: ".options-container[data-container-title=Banner]",
+        },
+        {
+            content: "Move the mouse away to make sure no option is still being previewed",
+            trigger: "body",
+            run: "hover",
+        },
+        {
             content: "Drag the 'Banner' snippet to the end of the page",
             trigger: ".o_overlay_options button.o_move_handle",
             run: "drag_and_drop :iframe #wrapwrap footer",
+        },
+        {
+            content: "Check that Text - Image is now before Banner in the panel",
+            trigger:
+                ".o_we_invisible_el_panel .o_we_invisible_entry:contains('Text - Image') ~ .o_we_invisible_entry:contains('Banner')",
         },
         ...checkEyesIconAfterSave(false),
         {
             content: "Check the order on the 'Invisible Elements' panel",
             trigger: ".o_we_invisible_el_panel div:nth-child(3):contains('Text - Image')",
         },
-    ]
-);
+    ],
+});
 
-registerWebsitePreviewTour(
-    "conditional_visibility_5",
-    {
-        edition: true,
-        url: "/",
-    },
-    () => [
+registry.category("web_tour.tours").add("conditional_visibility_5", {
+    steps: () => [
+        waitForEditMode,
         {
             content: "Toggle the visibility of the Footer",
             trigger: ".o_we_invisible_el_panel .o_we_invisible_entry:contains('Footer')",
@@ -238,6 +243,7 @@ registerWebsitePreviewTour(
             trigger: ":iframe .s_text_image[data-snippet=s_image_text] img",
             run: "click",
         },
+        ...unfoldOptionsGroup("Column"),
         {
             content: "Change visibility of the 'Image - Text' snippet",
             trigger:
@@ -329,5 +335,5 @@ registerWebsitePreviewTour(
             content: "Check that the 'Image - Text' entry is in the 'Invisible Elements' panel",
             trigger: ".o_we_invisible_el_panel .o_we_invisible_entry:contains('Image - Text')",
         },
-    ]
-);
+    ],
+});

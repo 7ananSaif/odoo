@@ -6,6 +6,7 @@ from markupsafe import Markup
 from odoo import Command, _, api, models, modules, tools
 from odoo.exceptions import UserError, ValidationError
 
+from odoo.addons.account.tools import after_commit
 
 _logger = logging.getLogger(__name__)
 
@@ -16,16 +17,16 @@ class AccountMoveSend(models.AbstractModel):
     and 'account.move.send.wizard' for single invoice sending wizard (sync).
     """
     _name = 'account.move.send'
-    _description = "Account Move Send"
+    _description = "Shared Send Invoice Wizard Functions"
 
     # -------------------------------------------------------------------------
     # DEFAULTS
     # -------------------------------------------------------------------------
 
     @api.model
-    def _get_default_sending_methods(self, move) -> set:
+    def _get_default_sending_methods(self, move) -> list:
         """ By default, we use the sending method set on the partner or email. """
-        return {move.commercial_partner_id.with_company(move.company_id).invoice_sending_method or 'email'}
+        return [move.commercial_partner_id.with_company(move.company_id).invoice_sending_method or 'email']
 
     @api.model
     def _get_all_extra_edis(self) -> dict:
@@ -35,10 +36,10 @@ class AccountMoveSend(models.AbstractModel):
         return {}
 
     @api.model
-    def _get_default_extra_edis(self, move) -> set:
+    def _get_default_extra_edis(self, move) -> list:
         """ By default, we use all applicable extra EDIs. """
         extra_edis = self._get_all_extra_edis()
-        return {edi_key for edi_key, edi_vals in extra_edis.items() if edi_vals['is_applicable'](move)}
+        return [edi_key for edi_key, edi_vals in extra_edis.items() if edi_vals['is_applicable'](move)]
 
     @api.model
     def _get_default_invoice_edi_format(self, move, **kwargs) -> str:
@@ -73,8 +74,8 @@ class AccountMoveSend(models.AbstractModel):
             return custom_settings.get(key) if key in custom_settings else move.sending_data.get(key) if from_cron else default_value
 
         vals = {
-            'sending_methods': get_setting('sending_methods', default_value=self._get_default_sending_methods(move)) or {},
-            'extra_edis': get_setting('extra_edis', default_value=self._get_default_extra_edis(move)) or {},
+            'sending_methods': get_setting('sending_methods', default_value=self._get_default_sending_methods(move)) or [],
+            'extra_edis': get_setting('extra_edis', default_value=self._get_default_extra_edis(move)) or [],
             'pdf_report': get_setting('pdf_report') or self._get_default_pdf_report_id(move),
             'author_user_id': get_setting('author_user_id', from_cron=from_cron) or self.env.user.id,
             'author_partner_id': get_setting('author_partner_id', from_cron=from_cron) or self.env.user.partner_id.id,
@@ -92,8 +93,8 @@ class AccountMoveSend(models.AbstractModel):
                 'reply_to': get_setting('reply_to') or self._get_mail_default_field_value_from_template(mail_template, mail_lang, move, 'reply_to'),
             })
         # Add mail attachments if sending methods support them
-        if self._display_attachments_widget(vals['invoice_edi_format'], vals['sending_methods']):
-            mail_attachments_widget = self._get_default_mail_attachments_widget(
+        if self._display_attachments_widget(vals['invoice_edi_format'], vals['sending_methods'] + vals['extra_edis']):
+            mail_attachments_widget = self.with_context(sending_method=vals['sending_methods'])._get_default_mail_attachments_widget(
                 move,
                 mail_template,
                 invoice_edi_format=vals['invoice_edi_format'],
@@ -102,6 +103,15 @@ class AccountMoveSend(models.AbstractModel):
             )
             vals['mail_attachments_widget'] = get_setting('mail_attachments_widget', default_value=mail_attachments_widget)
         return vals
+
+    @api.model
+    def _get_applicable_sending_methods(self, move, move_data=None):
+        sending_settings = move_data or self._get_default_sending_settings(move)
+        return [
+            sending_method
+            for sending_method in sending_settings['sending_methods']
+            if self._is_applicable_to_move(sending_method, move, **sending_settings)
+        ]
 
     # -------------------------------------------------------------------------
     # ALERTS
@@ -196,7 +206,7 @@ class AccountMoveSend(models.AbstractModel):
         partners = self.env['res.partner'].with_company(move.company_id)
         if mail_template.use_default_to:
             defaults = move._message_get_default_recipients()[move.id]
-            email_cc = defaults['email_to']
+            email_cc = defaults['email_cc']
             email_to = defaults['email_to']
             partners |= partners.browse(defaults['partner_ids'])
         else:
@@ -214,10 +224,11 @@ class AccountMoveSend(models.AbstractModel):
             no_create=False,
         )
 
-        if not mail_template.use_default_to and mail_template.partner_to:
-            partner_to = self._get_mail_default_field_value_from_template(mail_template, mail_lang, move, 'partner_to')
-            partner_ids = mail_template._parse_partner_to(partner_to)
-            partners |= self.env['res.partner'].sudo().browse(partner_ids).exists()
+        if not mail_template.use_default_to and (mail_template.partner_to or mail_template.partner_cc):
+            for field in ('partner_to', 'partner_cc'):
+                field_partners = self._get_mail_default_field_value_from_template(mail_template, mail_lang, move, field)
+                partner_ids = mail_template._parse_partner_list_ids(field_partners)
+                partners |= self.env['res.partner'].sudo().browse(partner_ids).exists()
         return partners if self.env.context.get('allow_partners_without_mail') else partners.filtered('email')
 
     # -------------------------------------------------------------------------
@@ -339,7 +350,7 @@ class AccountMoveSend(models.AbstractModel):
         if move.state != 'posted':
             constraints['not_posted'] = _("You can't generate invoices that are not posted.")
         if not move.is_sale_document(include_receipts=True):
-            constraints['not_sale_document'] = _("You can only generate sales documents.")
+            constraints['not_sale_document'] = _("You can only generate sales documents or purchase documents for self-billing.")
         return constraints
 
     @api.model
@@ -740,7 +751,7 @@ class AccountMoveSend(models.AbstractModel):
         }
 
         # Use batch to avoid memory error
-        batch_size = self.env['ir.config_parameter'].sudo().get_param('account.pdf_generation_batch', '80')
+        batch_size = self.env['ir.config_parameter'].sudo().get_int('account.pdf_generation_batch') or 80
         batches = []
         pdf_to_generate = {}
         for invoice, invoice_data in invoices_data_pdf.items():
@@ -813,6 +824,38 @@ class AccountMoveSend(models.AbstractModel):
         ) if 'sending_methods' in custom_settings else True
 
     @api.model
+    def _generate_and_send_invoices_post_commit(self, moves, **kwargs):
+        """ Generate and send the moves once the current transaction is committed.
+        The moves are flagged as being sent in the current transaction, so that the ones that could not
+        be sent after the commit (locked or failing) are processed later by the sending cron.
+        :param moves: account.move to process
+        :param kwargs: see `_generate_and_send_invoices`
+        """
+        moves.filtered(lambda m: not m.sending_data).sending_data = {
+            'author_user_id': self.env.user.id,
+            'author_partner_id': self.env.user.partner_id.id,
+        }
+        self._generate_and_send_pending_invoices(moves, **kwargs)
+
+    @api.model
+    @after_commit
+    def _generate_and_send_pending_invoices(
+        self, moves, from_cron=False, allow_raising=True, allow_fallback_pdf=False, **custom_settings
+    ):
+        moves = moves.try_lock_for_update().filtered('sending_data')
+        if not moves:
+            return
+        if allow_fallback_pdf:
+            moves.is_move_sent = True
+        self._generate_and_send_invoices(
+            moves,
+            from_cron=from_cron,
+            allow_raising=allow_raising,
+            allow_fallback_pdf=allow_fallback_pdf,
+            **custom_settings,
+        )
+
+    @api.model
     def _generate_and_send_invoices(self, moves, from_cron=False, allow_raising=True, allow_fallback_pdf=False, **custom_settings):
         """ Generate and send the moves given custom_settings if provided, else their default configuration set on related partner/company.
         :param moves: account.move to process
@@ -829,8 +872,25 @@ class AccountMoveSend(models.AbstractModel):
             for move in moves
         }
 
+        moves_without_sending_method = self.env['account.move']
+        if from_cron:
+            moves_without_sending_method = moves.filtered(
+                lambda move: not moves_data[move]['extra_edis']
+                and not self._get_applicable_sending_methods(move, moves_data[move])
+            )
+
         # Generate all invoice documents (PDF and electronic documents if relevant).
         self._generate_invoice_documents(moves_data, allow_fallback_pdf=allow_fallback_pdf)
+
+        for move in moves_without_sending_method:
+            if not moves_data[move].get('error'):
+                moves_data[move]['error'] = {
+                    'error_title': _("Invoice generated but not sent."),
+                    'errors': [_(
+                        "No valid sending method could be applied, so this invoice was not sent automatically. "
+                        "Please configure a sending method and send it manually."
+                    )],
+                }
 
         # Manage errors.
         errors = {move: move_data for move, move_data in moves_data.items() if move_data.get('error')}

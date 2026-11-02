@@ -18,21 +18,33 @@
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
 # DeepL <noreply-mt-deepl@weblate.org>, 2025.
 # Odoo Turkish Import <dyki+tr@odoo.com>, 2025.
+# Burkay Yıldızhan <seyil@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-05 19:30+0000\n"
-"PO-Revision-Date: 2025-11-21 14:46+0000\n"
-"Last-Translator: Odoo Turkish Import <dyki+tr@odoo.com>\n"
-"Language-Team: Turkish <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-10-14 13:34+0000\n"
+"Last-Translator: Burkay Yıldızhan <seyil@odoo.com>\n"
+"Language-Team: Turkish <https://translate.odoo.com/projects/odoo-20/"
 "website_links/tr/>\n"
 "Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: website_links
+#: model:ir.module.module,description:base.module_website_links
+msgid ""
+"\n"
+"Generate short links with analytics trackers (UTM) to share your pages "
+"through marketing campaigns.\n"
+"Those trackers can be used in Google Analytics to track clicks and visitors, "
+"or in Odoo reports to analyze the efficiency of those campaigns in terms of "
+"lead generation, related revenues (sales orders), recruitment, etc.\n"
+msgstr ""
 
 #. module: website_links
 #. odoo-javascript
@@ -44,15 +56,23 @@ msgstr "# Tıklanma sayısı"
 #: model_terms:ir.ui.view,arch_db:website_links.create_shorten_url
 msgid ""
 "<a class=\"copy-to-clipboard btn btn-success text-nowrap "
-"o_translate_inline\"><i class=\"fa fa-copy me-2\"/>Copy</a>"
+"o_translate_inline\"><i class=\"oi me-2\" data-icon=\"content_copy\"/>Copy</"
+"a>\n"
+"                                        <a class=\"download-qr-code btn btn-"
+"info text-nowrap o_translate_inline\"><i class=\"oi align-middle me-2\" data-"
+"icon=\"qr_code\"/>Download QR Code</a>"
 msgstr ""
-"<a class=\"copy-to-clipboard btn btn-success text-nowrap "
-"o_translate_inline\"><i class=\"fa fa-copy me-2\"/>Kopyala</a>"
 
 #. module: website_links
 #: model_terms:ir.ui.view,arch_db:website_links.graphs
-msgid "<i class=\"fa fa-copy me-2\"/>Copy"
-msgstr "<i class=\"fa fa-copy me-2\"/>Anlaşıldı"
+msgid ""
+"<i class=\"oi align-middle me-2\" data-icon=\"qr_code\"/>Download QR Code"
+msgstr ""
+
+#. module: website_links
+#: model_terms:ir.ui.view,arch_db:website_links.graphs
+msgid "<i class=\"oi me-2\" data-icon=\"content_copy\"/>Copy"
+msgstr "<i class=\"oi me-2\" data-icon=\"content_copy\"/>Anlaşıldı"
 
 #. module: website_links
 #: model_terms:ir.ui.view,arch_db:website_links.graphs
@@ -181,6 +201,11 @@ msgid "Generate Link Tracker"
 msgstr "Bağlantı İzleyici Oluştur"
 
 #. module: website_links
+#: model:ir.module.module,summary:base.module_website_links
+msgid "Generate trackable & short URLs"
+msgstr ""
+
+#. module: website_links
 #: model:ir.model.fields,field_description:website_links.field_link_tracker__id
 msgid "ID"
 msgstr "ID"
@@ -209,6 +234,7 @@ msgstr "Bağlantı Kopyalandı!"
 
 #. module: website_links
 #: model:ir.model,name:website_links.model_link_tracker
+#: model:ir.module.module,shortdesc:base.module_website_links
 #: model:ir.ui.menu,name:website_links.menu_link_tracker
 #: model_terms:ir.ui.view,arch_db:website_links.graphs
 msgid "Link Tracker"
@@ -368,125 +394,3 @@ msgstr "Örneğin LinkedIn, Facebook, İlanlar, ..."
 #: model_terms:ir.ui.view,arch_db:website_links.create_shorten_url
 msgid "e.g. https://www.odoo.com/contactus"
 msgstr "örn. https://www.odoo.com/contactus"
-
-#~ msgid ""
-#~ "<span class=\"o_website_links_short_url d-flex align-items-center text-"
-#~ "nowrap text-truncate\" id=\"short_url\"><span id=\"short-url-host\" "
-#~ "class=\"text-truncate\"/><span id=\"o_website_links_code\"/></span>\n"
-#~ "                                        <span "
-#~ "class=\"o_website_links_edit_tools text-nowrap\" style=\"display:none;"
-#~ "\">\n"
-#~ "                                            <a role=\"button\" "
-#~ "class=\"o_website_links_ok_edit btn btn-sm btn-primary "
-#~ "o_translate_inline\" href=\"#\">ok</a> or\n"
-#~ "                                            <a "
-#~ "class=\"o_website_links_cancel_edit o_translate_inline\" "
-#~ "href=\"#\">cancel</a>\n"
-#~ "                                        </span>"
-#~ msgstr ""
-#~ "<span class=\"o_website_links_short_url d-flex align-items-center text-"
-#~ "nowrap text-truncate\" id=\"short_url\"><span id=\"short-url-host\" "
-#~ "class=\"text-truncate\"/><span id=\"o_website_links_code\"/></span>\n"
-#~ "                                       <span "
-#~ "class=\"o_website_links_edit_tools text-nowrap\" style=\"display:none;"
-#~ "\">\n"
-#~ "                                            <a role=\"button\" "
-#~ "class=\"o_website_links_ok_edit btn btn-sm btn-primary "
-#~ "o_translate_inline\" href=\"#\">tamam</a> veya\n"
-#~ "                                           <a "
-#~ "class=\"o_website_links_cancel_edit o_translate_inline\" href=\"#\">iptal "
-#~ "et</a>\n"
-#~ "                                        </span>"
-
-#~ msgid ""
-#~ "<a class=\"copy-to-clipboard btn btn-sm btn-primary o_translate_inline\" "
-#~ "t-att-data-clipboard-text=\"short_url\"><i class=\"fa fa-copy me-2\"/"
-#~ ">Copy</a>"
-#~ msgstr ""
-#~ "<a class=\"copy-to-clipboard btn btn-sm btn-primary o_translate_inline\" "
-#~ "t-att-data-clipboard-text=\"short_url\"><i class=\"fa fa-copy me-2\"/"
-#~ ">Kopyala</a>"
-
-#~ msgid " clicks"
-#~ msgstr " tıklamalar"
-
-#~ msgid " countries"
-#~ msgstr " ülkeler"
-
-#~ msgid ""
-#~ "Campaign <i class=\"fa fa-info-circle\" data-bs-toggle=\"tooltip\" data-"
-#~ "bs-placement=\"top\" role=\"img\" aria-label=\"Tooltip info\" "
-#~ "title=\"Defines the context of your link. It might be an event you want "
-#~ "to promote or a special promotion.\"/>"
-#~ msgstr ""
-#~ "Kampanya <i class=\"fa fa-info-circle\" data-bs-toggle=\"tooltip\" data-"
-#~ "bs-placement=\"top\" role=\"img\" aria-label=\"Tooltip info\" "
-#~ "title=\"Defines the context of your link. It might be an event you want "
-#~ "to promote or a special promotion.\"/>"
-
-#~ msgid "Copied"
-#~ msgstr "Kopyalanan"
-
-#~ msgid "Generating link..."
-#~ msgstr "Bağlantı oluşturuluyor..."
-
-#~ msgid "Get tracked link"
-#~ msgstr "İzlenen bağlantıyı al"
-
-#~ msgid "Icon"
-#~ msgstr "İkon"
-
-#~ msgid ""
-#~ "Medium <i class=\"fa fa-info-circle\" data-bs-toggle=\"tooltip\" data-bs-"
-#~ "placement=\"top\" role=\"img\" aria-label=\"Tooltip info\" "
-#~ "title=\"Defines the medium used to share your link. It might be an email, "
-#~ "or a Facebook Ads for instance.\"/>"
-#~ msgstr ""
-#~ "Orta <i class=\"fa fa-info-circle\" data-bs-toggle=\"tooltip\" data-bs-"
-#~ "placement=\"top\" role=\"img\" aria-label=\"Tooltip info\" "
-#~ "title=\"Defines the medium used to share your link. It might be an email, "
-#~ "or a Facebook Ads for instance.\"/>"
-
-#~ msgid "Most Clicked"
-#~ msgstr "En Fazla Tıklanan"
-
-#~ msgid "No data"
-#~ msgstr "Veri yok"
-
-#~ msgid "Recently Used"
-#~ msgstr "Şuanda Kullanılan"
-
-#~ msgid ""
-#~ "Source <i class=\"fa fa-info-circle\" data-bs-toggle=\"tooltip\" data-bs-"
-#~ "placement=\"top\" role=\"img\" aria-label=\"Tooltip info\" "
-#~ "title=\"Defines the source from which your traffic will come from, "
-#~ "Facebook or Twitter for instance.\"/>"
-#~ msgstr ""
-#~ "Kaynak <i class=\"fa fa-info-circle\" data-bs-toggle=\"tooltip\" data-bs-"
-#~ "placement=\"top\" role=\"img\" aria-label=\"Tooltip info\" "
-#~ "title=\"Defines the source from which your traffic will come from, "
-#~ "Facebook or Twitter for instance.\"/>"
-
-#~ msgid "Stats"
-#~ msgstr "İstatistikler"
-
-#~ msgid "URL"
-#~ msgstr "URL"
-
-#~ msgid "Unable to get recent links"
-#~ msgstr "Mevcut linkler alınamadı"
-
-#~ msgid "You don't have any recent links."
-#~ msgstr "Yakın zamanda hiç bağlantınız yok."
-
-#~ msgid "cancel"
-#~ msgstr "iptal"
-
-#~ msgid "copy"
-#~ msgstr "kopya"
-
-#~ msgid "ok"
-#~ msgstr "tamam"
-
-#~ msgid "or"
-#~ msgstr "veya"

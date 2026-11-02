@@ -13,56 +13,22 @@ class ResPartner(models.Model):
     """ Update partner to add a field about notification preferences. Add a generic opt-out field that can be used
        to restrict usage of automatic email templates. """
     _name = 'res.partner'
-    _inherit = ['res.partner', 'mail.activity.mixin', 'mail.thread.blacklist']
+    _inherit = ['mail.thread.blacklist', 'res.partner', 'mail.activity.mixin']
+    _explanation = "Adds communication and activity management to contacts. It enables the chatter (message history), email blacklisting, and the ability to schedule activities."
     _mail_flat_thread = False
+    _mail_post_access = 'read'
 
     # override to add and order tracking
     name = fields.Char(tracking=1)
     email = fields.Char(tracking=1)
+    email_normalized = fields.Char(index='btree_not_null')
     phone = fields.Char(tracking=2)
     parent_id = fields.Many2one(tracking=3)
     user_id = fields.Many2one(tracking=4)
     vat = fields.Char(tracking=5)
     # tracked field used for chatter logging purposes
     # we need this to be readable inline as tracking messages use inline HTML nodes
-    contact_address_inline = fields.Char(compute='_compute_contact_address_inline', string='Inlined Complete Address', tracking=True)
-    # sudo: res.partner - can access presence of accessible partner
-    im_status = fields.Char("IM Status", compute="_compute_im_status", compute_sudo=True)
-    offline_since = fields.Datetime("Offline since", compute="_compute_im_status", compute_sudo=True)
-
-    @api.depends('contact_address')
-    def _compute_contact_address_inline(self):
-        """Compute an inline-friendly address based on contact_address."""
-        for partner in self:
-            # replace any successive \n with a single comma
-            partner.contact_address_inline = re.sub(r'\n(\s|\n)*', ', ', partner.contact_address).strip().strip(',')
-
-    @api.depends("user_ids.manual_im_status", "user_ids.presence_ids.status")
-    def _compute_im_status(self):
-        for partner in self:
-            all_status = partner.user_ids.presence_ids.mapped(
-                lambda p: "offline" if p.status == "offline" else p.user_id.manual_im_status or p.status
-            )
-            partner.im_status = (
-                "online"
-                if "online" in all_status
-                else "away"
-                if "away" in all_status
-                else "busy"
-                if "busy" in all_status
-                else "offline"
-                if partner.user_ids
-                else "im_partner"
-            )
-            partner.offline_since = (
-                max(partner.user_ids.presence_ids.mapped("last_poll"), default=None)
-                if partner.im_status == "offline"
-                else None
-            )
-        odoobot_id = self.env['ir.model.data']._xmlid_to_res_id('base.partner_root')
-        odoobot = self.env['res.partner'].browse(odoobot_id)
-        if odoobot in self:
-            odoobot.im_status = 'bot'
+    contact_address_inline = fields.Char(tracking=True)
 
     # pseudo computes
 
@@ -80,12 +46,29 @@ class ResPartner(models.Model):
     # MESSAGING
     # ------------------------------------------------------------
 
+    def _update_address(self, vals):
+        if (
+            not self.env.context.get('tracking_disable')
+            and not self.env.context.get('mail_notrack')
+            and any(fname in vals for fname in self._address_fields())
+        ):
+            self._track_prepare({'contact_address_inline'})
+        return super()._update_address(vals)
+
     def _mail_get_partners(self, introspect_fields=False):
         return dict((partner.id, partner) for partner in self)
 
     # ------------------------------------------------------------
     # ORM
     # ------------------------------------------------------------
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        # partner being created in a lot of use cases, by default consider creator
+        # want to follow the record
+        mail_create_nosubscribe = self.env.context.get('mail_create_nosubscribe', True)
+        return super(ResPartner, self.with_context(mail_create_nosubscribe=mail_create_nosubscribe)).create(vals_list)
+
     @api.model
     def _get_view_cache_key(self, view_id=None, view_type='form', **options):
         """Add context variable force_email in the key as _get_view depends on it."""
@@ -235,15 +218,6 @@ class ResPartner(models.Model):
     # DISCUSS
     # ------------------------------------------------------------
 
-    def _get_im_status_access_token(self):
-        """Return a scoped access token for the `im_status` field. The token is used in
-        `ir_websocket._prepare_subscribe_data` to grant access to presence channels.
-
-        :rtype: str
-        """
-        self.ensure_one()
-        return limited_field_access_token(self, "im_status", scope="mail.presence")
-
     def _get_mention_token(self):
         """Return a scoped limited access token that indicates the current partner
         can be mentioned in messages.
@@ -253,62 +227,56 @@ class ResPartner(models.Model):
         self.ensure_one()
         return limited_field_access_token(self, "id", scope="mail.message_mention")
 
-    def _get_store_mention_fields(self):
-        return [Store.Attr("mention_token", lambda p: p._get_mention_token())]
+    def _store_avatar_fields(self, res: Store.FieldList):
+        res.attr("avatar_128_access_token", lambda p: p._get_avatar_128_access_token())
+        res.attr("write_date")
 
-    def _get_store_avatar_card_fields(self, target):
-        fields = [
-            "im_status",
-            "name",
-            "partner_share",
-        ]
-        if target.is_internal(self.env):
-            fields.extend(["email", "phone"])
-        return fields
+    def _store_im_status_fields(self, res: Store.FieldList):
+        # sudo: res.users - can access IM status of accessible partners
+        res.many("user_ids", "_store_im_status_fields", sudo=True)
 
-    def _field_store_repr(self, field_name):
-        if field_name == "avatar_128":
-            return [
-                Store.Attr("avatar_128_access_token", lambda p: p._get_avatar_128_access_token()),
-                "write_date",
-            ]
-        if field_name == "im_status":
-            return [
-                "im_status",
-                Store.Attr("im_status_access_token", lambda p: p._get_im_status_access_token()),
-            ]
-        return [field_name]
+    def _store_mention_fields(self, res: Store.FieldList):
+        res.attr("mention_token", lambda p: p._get_mention_token())
 
-    def _to_store_defaults(self, target: Store.Target):
-        res = [
-            "active",
-            "avatar_128",
-            "im_status",
-            "is_company",
-            # sudo: res.partner - to access portal user of another company in chatter
-            Store.One("main_user_id", ["partner_id", "share"], sudo=True),
-            "name",
-        ]
-        if target.is_internal(self.env):
-            res.append("email")
-        return res
+    def _store_avatar_card_fields(self, res: Store.FieldList):
+        res.extend(["name", "partner_share"])
+        self._store_avatar_fields(res)
+        res.from_method("_store_im_status_fields", internal=True)
+        # sudo: can access avatar card fields of user of accessible partner
+        res.one("main_user_id", "_store_avatar_card_fields", sudo=True)
+        if res.is_for_internal_users():
+            res.extend(["email", "phone", "tz"])
+
+    def _store_partner_fields(self, res: Store.FieldList):
+        res.extend(["active", "is_company", "name", "partner_share"])
+        self._store_avatar_fields(res)
+        res.from_method("_store_im_status_fields", internal=True)
+        # sudo: to access portal user of another company in chatter
+        res.one("main_user_id", "_store_main_user_fields", sudo=True)
+        res.extend(["email", "tz"], internal=True)
 
     @api.readonly
     @api.model
-    def get_mention_suggestions(self, search, limit=8):
+    def get_mention_suggestions(self, search, limit=8, internal_users_only=False):
         """ Return 'limit'-first partners' such that the name or email matches a 'search' string.
             Prioritize partners that are also (internal) users, and then extend the research to all partners.
-            The return format is a list of partner data (as per returned by `_to_store()`).
         """
         domain = self._get_mention_suggestions_domain(search)
-        partners = self._search_mention_suggestions(domain, limit)
-        store = Store().add(partners, extra_fields=partners._get_store_mention_fields())
+        if internal_users_only:
+            domain &= Domain("partner_share", "=", False)
+        store = Store().add(
+            self._search_mention_suggestions(domain, limit),
+            lambda res: (
+                res.from_method("_store_partner_fields"),
+                res.from_method("_store_mention_fields"),
+            ),
+        )
         try:
             roles = self.env["res.role"].search([("name", "ilike", search)], limit=8)
-            store.add(roles, "name")
+            store.add(roles, ["name", "user_ids_count"])
         except AccessError:
             pass
-        return store.get_result()
+        return store
 
     @api.model
     def _get_mention_suggestions_domain(self, search):
@@ -336,9 +304,3 @@ class ResPartner(models.Model):
             query = self._search(Domain('id', 'not in', partners.ids) & domain, limit=remaining_limit)
             partners |= self.browse(query)
         return partners
-
-    @api.model
-    def _get_current_persona(self):
-        if not self.env.user or self.env.user._is_public():
-            return (self.env["res.partner"], self.env["mail.guest"]._get_guest_from_context())
-        return (self.env.user.partner_id, self.env["mail.guest"])

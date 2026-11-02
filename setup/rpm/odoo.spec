@@ -32,10 +32,10 @@ customizable reports, and XML-RPC interfaces.
 %autosetup
 
 %build
-%py3_build
+%pyproject_wheel
 
 %install
-%py3_install
+%pyproject_install
 
 %post
 #!/bin/sh
@@ -103,11 +103,12 @@ EOF
 
 %files
 %{_bindir}/odoo
-%{python3_sitelib}/%{name}-*.egg-info
+%{python3_sitelib}/%{name}-*.dist-info
 %{python3_sitelib}/%{name}
 %pycached %exclude %{python3_sitelib}/doc/cla/stats.py
 %pycached %exclude %{python3_sitelib}/setup/*.py
 %exclude %{python3_sitelib}/setup/odoo
+%exclude %{python3_sitelib}/setup/iot_box_builder/
 
 %changelog
 * %{build_date} Christophe Monniez <moc@odoo.com> - %{version}-%{release}

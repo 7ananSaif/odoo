@@ -1,15 +1,13 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-from odoo import fields, Command
+from odoo import api, fields, Command
 from odoo.models import BaseModel
-from odoo.tests import Form, HttpCase, new_test_user, tagged, save_test_file
-from odoo.tools import config, file_path, file_open
+from odoo.tests import HttpCase, new_test_user, tagged, save_test_file
+from odoo.tools import BinaryValue, config, file_path, file_open
 from odoo.tools.float_utils import float_round
 
 from odoo.addons.product.tests.common import ProductCommon
 
 import json
-import base64
 import copy
 import logging
 import re
@@ -45,6 +43,8 @@ def skip_unless_external(func):
 
 class AccountTestInvoicingCommon(ProductCommon):
     # to override by the helper methods setup_country and setup_chart_template to adapt to a localization
+    _test_user_groups = None  # FIXME list needed groups
+
     chart_template = False
     country_code = False
     extra_tags = ('-standard', 'external') if 'EXTERNAL_MODE' in (config['test_tags'] or {}) else ()
@@ -59,7 +59,7 @@ class AccountTestInvoicingCommon(ProductCommon):
         def _decorator(function):
             @wraps(function)
             def wrapper(self):
-                self.country_code = country_code.upper()
+                self.country_code = country_code[:2].upper()
                 function(self)
             return wrapper
 
@@ -98,14 +98,14 @@ class AccountTestInvoicingCommon(ProductCommon):
         # ==== Products ====
         cls.product_a = cls._create_product(
             name='product_a',
-            lst_price=1000.0,
+            list_price=1000.0,
             standard_price=800.0,
             uom_id=cls.uom_unit.id,
         )
         cls.product_b = cls._create_product(
             name='product_b',
             uom_id=cls.uom_dozen.id,
-            lst_price=200.0,
+            list_price=200.0,
             standard_price=160.0,
             property_account_income_id=cls.copy_account(cls.company_data['default_account_revenue']).id,
             property_account_expense_id=cls.copy_account(cls.company_data['default_account_expense']).id,
@@ -215,11 +215,6 @@ class AccountTestInvoicingCommon(ProductCommon):
             ],
         })
 
-    def setUp(self):
-        # Clear the cursor cache to avoid missing error
-        self.env.cr.cache.pop('retrieved_tax_map', None)
-        super().setUp()
-
     @classmethod
     def change_company_country(cls, company, country):
         company.country_id = country
@@ -276,6 +271,11 @@ class AccountTestInvoicingCommon(ProductCommon):
                 create_values['country_id'] = country.id
             if 'currency_id' not in create_values:
                 create_values['currency_id'] = country.currency_id.id
+
+        if 'account_opening_date' not in create_values:
+            # To ease tests on returns: don't create the returns by default ; TestAccountReturn assigns that field while patching the return generation
+            create_values['account_opening_date'] = False
+
         company = super()._create_company(**create_values)
         cls._use_chart_template(company, cls.chart_template)
         # if the currency_id was defined explicitly (or via the country), it should override the one from the coa
@@ -314,8 +314,8 @@ class AccountTestInvoicingCommon(ProductCommon):
         if 'rates' not in kwargs:
             return super().setup_other_currency(code, rates=[
                 ('1900-01-01', 1.0),
-                ('2016-01-01', 3.0),
-                ('2017-01-01', 2.0),
+                ('2015-12-31', 3.0),
+                ('2016-12-31', 2.0),
             ], **kwargs)
         return super().setup_other_currency(code, **kwargs)
 
@@ -327,6 +327,9 @@ class AccountTestInvoicingCommon(ProductCommon):
 
         # Install the chart template
         cls.env['account.chart.template'].try_loading(chart_template_ref, company=company, install_demo=False)
+        # The new company only exists in this transaction, so the planner has no statistics for it
+        cls.env.flush_all()
+        cls.env.cr.execute("ANALYZE account_account, account_account_res_company_rel")
         if not company.account_fiscal_country_id:
             company.account_fiscal_country_id = cls.env.ref('base.us')
 
@@ -356,8 +359,16 @@ class AccountTestInvoicingCommon(ProductCommon):
                     *account_company_domain,
                     ('account_type', '=', 'liability_payable')
                 ], limit=1),
-            'default_tax_account_receivable': company.account_purchase_tax_id.tax_group_id.tax_receivable_account_id,
-            'default_tax_account_payable': company.account_sale_tax_id.tax_group_id.tax_payable_account_id,
+            'default_tax_account_receivable': AccountAccount.search([
+                    *account_company_domain,
+                    ('account_type', '=', 'asset_receivable'),
+                    ('non_trade', '=', True),
+                ], limit=1),
+            'default_tax_account_payable': AccountAccount.search([
+                    *account_company_domain,
+                    ('account_type', '=', 'liability_payable'),
+                    ('non_trade', '=', True),
+                ], limit=1),
             'default_account_assets': AccountAccount.search([
                     *account_company_domain,
                     ('account_type', '=', 'asset_fixed')
@@ -391,6 +402,7 @@ class AccountTestInvoicingCommon(ProductCommon):
             'default_journal_cash': cls.env['account.journal'].create({
                 'type': 'cash',
                 'name': 'Cash',
+                'code': 'CASH1',
                 'company_id': company.id,
             }),
             'default_journal_credit': cls.env['account.journal'].create({
@@ -429,9 +441,6 @@ class AccountTestInvoicingCommon(ProductCommon):
     # -------------------------------------------------------------------------
 
     def group_of_taxes(self, taxes, **kwargs):
-        # Clear the cursor cache to avoid missing error
-        self.env.cr.cache.pop('retrieved_tax_map', None)
-
         self.tax_number += 1
         return self.env['account.tax'].create({
             'name': f"group_({self.tax_number})",
@@ -441,9 +450,6 @@ class AccountTestInvoicingCommon(ProductCommon):
         })
 
     def percent_tax(self, amount, **kwargs):
-        # Clear the cursor cache to avoid missing error
-        self.env.cr.cache.pop('retrieved_tax_map', None)
-
         self.tax_number += 1
         return self.env['account.tax'].create({
             'name': f"percent_{amount}_({self.tax_number})",
@@ -453,9 +459,6 @@ class AccountTestInvoicingCommon(ProductCommon):
         })
 
     def division_tax(self, amount, **kwargs):
-        # Clear the cursor cache to avoid missing error
-        self.env.cr.cache.pop('retrieved_tax_map', None)
-
         self.tax_number += 1
         return self.env['account.tax'].create({
             'name': f"division_{amount}_({self.tax_number})",
@@ -465,9 +468,6 @@ class AccountTestInvoicingCommon(ProductCommon):
         })
 
     def fixed_tax(self, amount, **kwargs):
-        # Clear the cursor cache to avoid missing error
-        self.env.cr.cache.pop('retrieved_tax_map', None)
-
         self.tax_number += 1
         return self.env['account.tax'].create({
             'name': f"fixed_{amount}_({self.tax_number})",
@@ -478,9 +478,6 @@ class AccountTestInvoicingCommon(ProductCommon):
 
     def python_tax(self, formula, **kwargs):
         self.ensure_installed('account_tax_python')
-
-        # Clear the cursor cache to avoid missing error
-        self.env.cr.cache.pop('retrieved_tax_map', None)
 
         self.tax_number += 1
         return self.env['account.tax'].create({
@@ -495,7 +492,6 @@ class AccountTestInvoicingCommon(ProductCommon):
     def setup_armageddon_tax(cls, tax_name, company_data, **kwargs):
         type_tax_use = kwargs.get('type_tax_use', 'sale')
         cash_basis_transition_account = company_data['default_account_tax_sale'] and company_data['default_account_tax_sale'].copy()
-        cash_basis_transition_account.reconcile = True
         return cls.env['account.tax'].create({
             'name': '%s (group)' % tax_name,
             'amount_type': 'group',
@@ -575,52 +571,33 @@ class AccountTestInvoicingCommon(ProductCommon):
         })
 
     @classmethod
-    def init_invoice(cls, move_type, partner=None, invoice_date=None, post=False, products=None, amounts=None, taxes=None, company=False, currency=None, journal=None):
+    def init_invoice(cls, move_type, partner=None, invoice_date='2019-01-01', post=False, products=None, amounts=None, taxes=None, company=None, currency=None, journal=None):
         """ This method is deprecated. Please call ``_create_invoice`` instead. """
-        products = [] if products is None else products
-        amounts = [] if amounts is None else amounts
-        move_form = Form(cls.env['account.move'] \
-                    .with_company(company or cls.env.company) \
-                    .with_context(default_move_type=move_type))
-        move_form.invoice_date = invoice_date or fields.Date.from_string('2019-01-01')
-        # According to the state or type of the invoice, the date field is sometimes visible or not
-        # Besides, the date field can be put multiple times in the view
-        # "invisible": "['|', ('state', '!=', 'draft'), ('auto_post', '!=', 'at_date')]"
-        # "invisible": ['|', '|', ('state', '!=', 'draft'), ('auto_post', '=', 'no'), ('auto_post', '=', 'at_date')]
-        # "invisible": "['&', ('move_type', 'in', ['out_invoice', 'out_refund', 'out_receipt']), ('quick_edit_mode', '=', False)]"
-        # :TestAccountMoveOutInvoiceOnchanges, :TestAccountMoveOutRefundOnchanges, .test_00_debit_note_out_invoice, :TestAccountEdi
-        if not move_form._get_modifier('date', 'invisible'):
-            move_form.date = move_form.invoice_date
-        move_form.partner_id = partner or cls.partner_a
-        # The journal_id field is invisible when there is only one available journal for the move type.
-        if journal and not move_form._get_modifier('journal_id', 'invisible'):
-            move_form.journal_id = journal
-        if currency:
-            move_form.currency_id = currency
+        if isinstance(taxes, list):
+            sum_tax = cls.env['account.tax']
+            for tax in taxes:
+                sum_tax += tax
+            taxes = sum_tax
+        invoice_line_ids = [
+            cls._prepare_invoice_line(product_id=product, tax_ids=taxes)
+            for product in (products or [])
+        ]
+        invoice_line_ids += [
+            cls._prepare_invoice_line(name='test line', price_unit=amount, tax_ids=taxes)
+            for amount in (amounts or [])
+        ]
 
-        for product in (products or []):
-            with move_form.invoice_line_ids.new() as line_form:
-                line_form.product_id = product
-                if taxes is not None:
-                    line_form.tax_ids.clear()
-                    for tax in taxes:
-                        line_form.tax_ids.add(tax)
-
-        for amount in (amounts or []):
-            with move_form.invoice_line_ids.new() as line_form:
-                line_form.name = "test line"
-                line_form.price_unit = amount
-                if taxes is not None:
-                    line_form.tax_ids.clear()
-                    for tax in taxes:
-                        line_form.tax_ids.add(tax)
-
-        rslt = move_form.save()
-
-        if post:
-            rslt.action_post()
-
-        return rslt
+        return cls._create_invoice(
+            move_type=move_type,
+            partner_id=partner or cls.partner_a,
+            company_id=company or cls.env.company,
+            currency_id=currency,
+            journal_id=journal,
+            date=invoice_date,
+            invoice_date=invoice_date,
+            invoice_line_ids=invoice_line_ids,
+            post=post,
+        )
 
     @classmethod
     def init_payment(cls, amount, post=False, date=None, partner=None, currency=None):
@@ -716,6 +693,18 @@ class AccountTestInvoicingCommon(ProductCommon):
         return Command.create(invoice_line_args)
 
     @classmethod
+    def _prepare_entry_line(cls, account_id=None, debit=0.0, credit=0.0, **line_args):
+        assert account_id, "`account_id` must be provided for an entry line."
+        entry_line_args = {
+            'account_id': account_id,
+            'debit': debit,
+            'credit': credit,
+            **line_args,
+        }
+        cls._prepare_record_kwargs('account.move.line', entry_line_args)
+        return Command.create(entry_line_args)
+
+    @classmethod
     def _prepare_order_line(cls, price_unit=None, product_id=None, product_uom_qty=1.0, tax_ids=None, **line_args):
         assert price_unit is not None or product_id is not None, "Either `price_unit` or `product_id` must be filled!"
         cls.ensure_installed('sale')
@@ -759,13 +748,15 @@ class AccountTestInvoicingCommon(ProductCommon):
         # QoL: delete all keys with None value from invoice_args
         cls._prepare_record_kwargs('account.move', invoice_args)
 
+        if "line_ids" not in invoice_args and "invoice_line_ids" not in invoice_args:
+            invoice_args["invoice_line_ids"] = [  # default invoice_line_ids
+                cls._prepare_invoice_line(product_id=cls.product_a),
+                cls._prepare_invoice_line(product_id=cls.product_b),
+            ]
+
         invoice = cls.env['account.move'].create([{
             'move_type': move_type,
             'partner_id': cls.partner_a.id,
-            'invoice_line_ids': [  # default invoice_line_ids
-                cls._prepare_invoice_line(product_id=cls.product_a),
-                cls._prepare_invoice_line(product_id=cls.product_b),
-            ],
             **invoice_args,
         }])
 
@@ -794,14 +785,16 @@ class AccountTestInvoicingCommon(ProductCommon):
         )
 
     @classmethod
-    def _create_account_move_send_wizard_single(cls, move, **kwargs):
+    def _create_account_move_send_wizard_single(cls, move, *, as_user=None, no_invoice_reminder=False, **kwargs):
         return cls.env['account.move.send.wizard']\
-            .with_context(active_model='account.move', active_ids=move.ids)\
+            .with_user(as_user)\
+            .with_context(active_model='account.move', active_ids=move.ids, no_invoice_reminder=no_invoice_reminder)\
             .create(kwargs)
 
     @classmethod
-    def _create_account_move_send_wizard_multi(cls, moves, **kwargs):
+    def _create_account_move_send_wizard_multi(cls, moves, *, as_user=None, **kwargs):
         return cls.env['account.move.send.batch.wizard']\
+            .with_user(as_user)\
             .with_context(active_model='account.move', active_ids=moves.ids)\
             .create(kwargs)
 
@@ -1034,19 +1027,30 @@ class AccountTestInvoicingCommon(ProductCommon):
             current_amounts = {}
         self.assertDictEqual(current_amounts, expected_amounts)
 
-    def assert_invoice_outstanding_reconciled_widget(self, invoice, expected_amounts):
+    def assert_invoice_outstanding_reconciled_widget(self, invoice, expected_amounts, expected_exchange_info=None):
         """ Check the outstanding widget after the reconciliation.
-        :param invoice:             An invoice.
-        :param expected_amounts:    A map <move_id> -> <amount>
+        :param invoice:                     An invoice.
+        :param expected_amounts:            A map <move_id> -> <amount>
+        :param expected_exchange_info:      (Optional) Dictionary containing:
+            line_ids            List of Reconciled exchange IDs (integers)
+            exchange_amount     Total exchange amount
         """
         invoice.invalidate_recordset(['invoice_payments_widget'])
         widget_vals = invoice.invoice_payments_widget
 
         if widget_vals:
             current_amounts = {vals['move_id']: vals['amount'] for vals in widget_vals['content']}
+            expected_exchange_info = expected_exchange_info or {'line_ids': [], 'exchange_amount': 0.0}
+            current_exchange_info = {
+                'line_ids': widget_vals['exchange_info']['line_ids'],
+                'exchange_amount': widget_vals['exchange_info']['exchange_amount'],
+            }
         else:
             current_amounts = {}
+            current_exchange_info = {}
+
         self.assertDictEqual(current_amounts, expected_amounts)
+        self.assertDictEqual(current_exchange_info, expected_exchange_info or {})
 
     def _assert_tax_totals_summary(self, tax_totals, expected_results, soft_checking=False):
         """ Assert the tax totals.
@@ -1372,7 +1376,7 @@ class AccountTestInvoicingCommon(ProductCommon):
 
     def assert_xml(
             self,
-            xml_element: str | bytes | etree._Element,
+            xml_element: str | bytes | BinaryValue | etree._Element,
             test_name: str,
             subfolder='',
             xpath_to_apply='',
@@ -1401,6 +1405,8 @@ class AccountTestInvoicingCommon(ProductCommon):
         test_file_path = self._get_test_file_path(file_name, subfolder=subfolder)
         if isinstance(xml_element, str):
             xml_element = xml_element.encode()
+        elif isinstance(xml_element, BinaryValue):
+            xml_element = xml_element.content
         if isinstance(xml_element, bytes):
             xml_element = etree.fromstring(xml_element)
 
@@ -1639,7 +1645,7 @@ class AccountTestInvoicingCommon(ProductCommon):
         :param attachment:  An ir.attachment.
         :return:            An instance of etree.
         '''
-        return etree.fromstring(base64.b64decode(attachment.with_context(bin_size=False).datas))
+        return etree.fromstring(attachment.raw.content)
 
     @classmethod
     def get_xml_tree_from_string(cls, xml_tree_str):
@@ -1650,6 +1656,34 @@ class AccountTestInvoicingCommon(ProductCommon):
         return etree.fromstring(xml_tree_str)
 
 
+class AccountTestInvoicingWithBanksCommon(AccountTestInvoicingCommon):
+    _test_user_groups = None  # FIXME list needed groups
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.partner_bank_account1 = cls.env['res.partner.bank'].create({
+            'account_number': "0123456789",
+            'partner_id': cls.partner_a.id,
+            'allow_out_payment': True,
+        })
+        cls.partner_bank_account2 = cls.env['res.partner.bank'].create({
+            'account_number': "9876543210",
+            'partner_id': cls.partner_a.id,
+            'allow_out_payment': True,
+        })
+        cls.comp_bank_account1 = cls.env['res.partner.bank'].create({
+            'account_number': "985632147",
+            'partner_id': cls.env.company.partner_id.id,
+            'allow_out_payment': True,
+        })
+        cls.comp_bank_account2 = cls.env['res.partner.bank'].create({
+            'account_number': "741258963",
+            'partner_id': cls.env.company.partner_id.id,
+            'allow_out_payment': True,
+        })
+
+
 class AccountTestMockOnlineSyncCommon(HttpCase):
     def start_tour(self, url_path, tour_name, **kwargs):
         with self.mock_online_sync_favorite_institutions():
@@ -1658,6 +1692,7 @@ class AccountTestMockOnlineSyncCommon(HttpCase):
     @classmethod
     @contextmanager
     def mock_online_sync_favorite_institutions(cls):
+        @api.model
         def get_institutions(*args, **kwargs):
             return [
                 {
@@ -1682,11 +1717,15 @@ class AccountTestMockOnlineSyncCommon(HttpCase):
 
 
 class AccountTestInvoicingHttpCommon(AccountTestInvoicingCommon, AccountTestMockOnlineSyncCommon):
+    _test_user_groups = None  # FIXME list needed groups
+
     pass
 
 
 @tagged('is_tour')
 class TestTaxCommon(AccountTestInvoicingHttpCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):
@@ -1857,7 +1896,7 @@ class TestTaxCommon(AccountTestInvoicingHttpCommon):
     def convert_document_to_invoice(self, document):
         invoice_date = '2020-01-01'
         currency = document['currency']
-        self._ensure_rate(currency, invoice_date, document['rate'])
+        self._ensure_rate(currency, '2019-12-31', document['rate'])
         invoice = self.env['account.move'].create({
             'move_type': 'out_invoice',
             'invoice_date': invoice_date,
@@ -1874,13 +1913,13 @@ class TestTaxCommon(AccountTestInvoicingHttpCommon):
         if not self.js_tests:
             return
 
-        self.env['ir.config_parameter'].set_param(
+        self.env['ir.config_parameter'].set_str(
             'account.tests_shared_js_python',
             json.dumps([test for test, _expected_values, _assert_function in self.js_tests]),
         )
 
         self.start_tour('/account/init_tests_shared_js_python', 'tests_shared_js_python', login=self.env.user.login)
-        results = json.loads(self.env['ir.config_parameter'].get_param('account.tests_shared_js_python', '[]'))
+        results = json.loads(self.env['ir.config_parameter'].get_str('account.tests_shared_js_python') or '[]')
 
         self.assertEqual(len(results), len(self.js_tests))
         for index, (js_test, expected_values, assert_function), r in zip(count(1), self.js_tests, results):
@@ -2322,6 +2361,8 @@ class TestTaxCommon(AccountTestInvoicingHttpCommon):
 
 
 class TestAccountMergeCommon(AccountTestInvoicingCommon):
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

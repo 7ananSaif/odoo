@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-import re
-from datetime import datetime
-
 import odoo.tests
+import re
 from odoo.addons.http_routing.tests.common import MockRequest
+from odoo.addons.website_blog.controllers.main import WebsiteBlog
 from odoo.addons.website_blog.tests.common import TestWebsiteBlogCommon
+from datetime import datetime
 
 
 @odoo.tests.tagged('post_install', '-at_install')
@@ -17,20 +17,18 @@ class TestWebsiteBlogUi(odoo.tests.HttpCase, TestWebsiteBlogCommon):
         blog = cls.env['blog.blog'].create({
             "name": 'aaa Blog Test',
             "subtitle": 'Blog Test Subtitle',
-            "cover_properties": """{"background-image": "url('/website_blog/static/src/img/blog_1.jpeg')", "resize_class": "o_record_has_cover o_half_screen_height", "opacity": "0.4"}""",
+            "cover_properties": """{"background-image": "url('/website_blog/static/src/img/blog_1.webp')", "resize_class": "o_record_has_cover o_half_screen_height", "opacity": "0.4"}""",
         })
 
-        blog_tag = cls.env.ref('website_blog.blog_tag_2', raise_if_not_found=False)
-        if not blog_tag:
-            blog_tag = cls.env['blog.tag'].create({'name': 'adventure'})
+        cls.blog_tags = cls.env['blog.tag'].create([{'name': "Tour Tag 1"}, {'name': "Tour Tag 2"}])
         cls.blog_post = cls.env['blog.post'].create({
             "name": "Post Test",
             "subtitle": "Subtitle Test",
             "blog_id": blog.id,
-            "author_id": cls.env.user.id,
-            "tag_ids": [(4, blog_tag.id)],
+            "author_id": cls.env.user.partner_id.id,
+            "tag_ids": [(4, cls.blog_tags[0].id)],
             "is_published": True,
-            "cover_properties": """{"background-image": "url('/website_blog/static/src/img/cover_1.jpg')", "resize_class": "o_record_has_cover o_half_screen_height", "opacity": "0"}""",
+            "cover_properties": """{"background-image": "url('/website_blog/static/src/img/cover_1.webp')", "resize_class": "o_record_has_cover o_half_screen_height", "opacity": "0"}""",
         })
 
     def test_admin(self):
@@ -56,36 +54,29 @@ class TestWebsiteBlogUi(odoo.tests.HttpCase, TestWebsiteBlogCommon):
 
     def test_autocomplete_with_date(self):
         self.env.ref('website_blog.opt_blog_sidebar_show').active = True
+        self.env.ref('website_blog.opt_sidebar_blog_index_archives').active = True
         self.env.ref('website_blog.opt_sidebar_blog_index_follow_us').active = False
         self.start_tour("/blog", 'blog_autocomplete_with_date')
 
     def test_blog_context_and_social_media(self):
-        self.env.ref('website.default_website').write({
-            'social_facebook': "https://www.facebook.com/Odoo",
-            'social_twitter': 'https://twitter.com/Odoo',
-            'social_linkedin': 'https://www.linkedin.com/company/odoo',
-            'social_youtube': 'https://www.youtube.com/user/OpenERPonline',
-            'social_github': 'https://github.com/odoo',
-            'social_instagram': 'https://www.instagram.com/explore/tags/odoo/',
-            'social_tiktok': 'https://www.tiktok.com/@odoo',
-            'social_discord': 'https://discord.com/servers/discord-town-hall-169256939211980800',
-        })
+        # Create a second blog to make the blog navigation appear (only shows when len(blogs) > 1)
+        self.env['blog.blog'].create({'name': 'Second Blog'})
         self.env.ref('website_blog.opt_blog_sidebar_show').active = True
-        self.start_tour("/blog", "blog_context_and_social_media", login="admin")
+        # Sidebar markup only renders when at least one sidebar block is enabled (see opt_blog_sidebar_show).
+        # Follow Us provides the s_social_media snippet exercised by the tour.
+        self.env.ref('website_blog.opt_sidebar_blog_index_follow_us').active = True
+        self.start_tour(self.env["website"].get_client_action_url("/blog"), "blog_context_and_social_media", login="admin")
 
     def test_blog_social_image(self):
-        with MockRequest(self.env, website=self.env.ref('website.default_website'), url_root='http://example.com'):
+        with MockRequest(self.env, website=self.env.ref('base.default_website'), url_root='http://example.com'):
             meta = self.blog_post.get_website_meta()
-            self.assertEqual(meta['opengraph_meta']['og:image'], 'http://example.com/website_blog/static/src/img/cover_1.jpg')
-            self.assertEqual(meta['twitter_meta']['twitter:image'], 'http://example.com/website_blog/static/src/img/cover_1.jpg')
-            self.blog_post.cover_properties = """{"background-image": "url(\\"/2.jpg\\")"}"""
+            self.assertEqual(meta['opengraph_meta']['og:image'], 'http://example.com/website_blog/static/src/img/cover_1.webp')
+            self.blog_post.cover_properties = """{"background-image": "url(\\"/2.webp\\")"}"""
             meta = self.blog_post.get_website_meta()
-            self.assertEqual(meta['opengraph_meta']['og:image'], 'http://example.com/2.jpg')
-            self.assertEqual(meta['twitter_meta']['twitter:image'], 'http://example.com/2.jpg')
-            self.blog_post.cover_properties = """{"background-image": "url(/3.jpg)"}"""
+            self.assertEqual(meta['opengraph_meta']['og:image'], 'http://example.com/2.webp')
+            self.blog_post.cover_properties = """{"background-image": "url(/3.webp)"}"""
             meta = self.blog_post.get_website_meta()
-            self.assertEqual(meta['opengraph_meta']['og:image'], 'http://example.com/3.jpg')
-            self.assertEqual(meta['twitter_meta']['twitter:image'], 'http://example.com/3.jpg')
+            self.assertEqual(meta['opengraph_meta']['og:image'], 'http://example.com/3.webp')
 
     def test_avatar_comment(self):
         mail_message = self.env['mail.message'].create({
@@ -95,11 +86,13 @@ class TestWebsiteBlogUi(odoo.tests.HttpCase, TestWebsiteBlogCommon):
             'subtype_id': self.ref('mail.mt_comment'),
         })
         portal_message = mail_message.portal_message_format()
-        response = self.url_open(portal_message[0]['author_avatar_url'])
+        response = self.url_open(
+            f"/web/image/res.partner/{self.user_public.partner_id.id}/avatar_128?access_token={portal_message[0]['author_id']['avatar_128_access_token']}",
+        )
         # Ensure that the avatar is visible
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers.get('Content-Type'), 'image/svg+xml; charset=utf-8')
-        self.assertRegex(response.headers.get('Content-Disposition', ''), r'mail_message-\d+-author_avatar\.svg')
+        self.assertRegex(response.headers.get('Content-Disposition', ''), fr'{self.user_public.partner_id.name}.svg')
 
     def test_sidebar_with_date_and_tag(self):
         Blog = self.env['blog.blog']
@@ -112,7 +105,7 @@ class TestWebsiteBlogUi(odoo.tests.HttpCase, TestWebsiteBlogCommon):
         blog_post_1 = Post.create({
             'name': 'First Blog Post',
             'blog_id': Blog1.id,
-            'author_id': self.env.user.id,
+            'author_id': self.env.user.partner_id.id,
             'is_published': True,
             'published_date': datetime(2025, 2, 10, 12, 0, 0),
         })
@@ -121,39 +114,88 @@ class TestWebsiteBlogUi(odoo.tests.HttpCase, TestWebsiteBlogCommon):
         blog_post_2 = Post.create({
             'name': 'Second Blog Post',
             'blog_id': Blog2.id,
-            'author_id': self.env.user.id,
+            'author_id': self.env.user.partner_id.id,
             'is_published': True,
             'published_date': datetime(2025, 1, 15, 14, 30, 0),
         })
 
         self.env.ref("website_blog.opt_blog_sidebar_show").active = True
+        self.env.ref("website_blog.opt_sidebar_blog_index_archives").active = True
         self.env.ref("website_blog.opt_blog_post_sidebar").active = True
-        self.start_tour("/blog", "blog_sidebar_with_date_and_tag", login="admin")
+        # Post sidebar "Add some" / #edit-in-backend lives in the Tags block (empty tags, managers).
+        self.env.ref("website_blog.opt_blog_post_tags_display").active = True
+        self.start_tour(self.env["website"].get_client_action_url("/blog"), "blog_sidebar_with_date_and_tag", login="admin")
 
-        blog_tag = self.env.ref('website_blog.blog_tag_5', raise_if_not_found=False)
-        if not blog_tag:
-            blog_tag = self.env['blog.tag'].create({'name': "discovery"})
-        blog_post_1.write({'tag_ids': [(4, blog_tag.id)]})
-        blog_post_2.write({'tag_ids': [(4, blog_tag.id)]})
+        (blog_post_1 | blog_post_2).tag_ids = self.blog_tags
 
-        self.start_tour("/blog", "blog_tags_with_date", login="admin")
+        # Activate tags in sidebar for blog_tags_with_date tour
+        self.env.ref("website_blog.opt_sidebar_blog_index_tags").active = True
+        self.start_tour(self.env["website"].get_client_action_url("/blog"), "blog_tags_with_date", login="admin")
+
+    def test_sidebar_tags_are_filtered_by_blog_scope(self):
+        Blog = self.env['blog.blog']
+        Post = self.env['blog.post']
+        Tag = self.env['blog.tag']
+        TagCategory = self.env['blog.tag.category']
+
+        category = TagCategory.create({'name': 'Scoped Category'})
+        used_tag = Tag.create({'name': 'Scoped Used Tag', 'category_id': category.id})
+        unused_tag = Tag.create({'name': 'Scoped Unused Tag', 'category_id': category.id})
+        other_blog_tag = Tag.create({'name': 'Scoped Other Blog Tag', 'category_id': category.id})
+
+        blog = Blog.create({'name': 'Scoped Blog'})
+        other_blog = Blog.create({'name': 'Scoped Other Blog'})
+        Post.create({
+            'name': 'Scoped Blog Post',
+            'blog_id': blog.id,
+            'author_id': self.env.user.partner_id.id,
+            'tag_ids': [(4, used_tag.id)],
+            'is_published': True,
+        })
+        Post.create({
+            'name': 'Scoped Other Blog Post',
+            'blog_id': other_blog.id,
+            'author_id': self.env.user.partner_id.id,
+            'tag_ids': [(4, other_blog_tag.id)],
+            'is_published': True,
+        })
+
+        self.env.ref('website_blog.opt_blog_sidebar_show').active = True
+        # Activate tags in sidebar
+        self.env.ref("website_blog.opt_sidebar_blog_index_tags").active = True
+        response = self.url_open(blog.website_url)
+
+        self.assertIn(category.name, response.text)
+        self.assertIn(used_tag.name, response.text)
+        self.assertNotIn(unused_tag.name, response.text)
+        self.assertNotIn(other_blog_tag.name, response.text)
+
+    def test_blog_access_rights(self):
+        group_website_blog_manager_id = self.ref("website_blog.group_website_blog_manager")
+        group_website_designer_id = self.ref("website.group_website_designer")
+        group_employee_id = self.ref("base.group_user")
+        self.env["res.users"].with_context({"no_reset_password": True}).create({
+            "name": "Adam Blog Manager",
+            "login": "adam",
+            "email": "adam.manager@example.com",
+            "group_ids": [(6, 0, [group_website_blog_manager_id, group_employee_id])],
+        })
+        self.start_tour(self.env["website"].get_client_action_url("/blog"), "blog_manager", login="adam")
+        self.env["res.users"].with_context({"no_reset_password": True}).create({
+            "name": "Eve Employee",
+            "login": "eve",
+            "email": "eve.employee@example.com",
+            "group_ids": [(6, 0, [group_website_designer_id, group_employee_id])],
+        })
+        self.start_tour(self.env["website"].get_client_action_url("/blog"), "blog_no_manager", login="eve")
 
     def test_blog_posts_dynamic_snippet_options(self):
-        self.start_tour(self.env['website'].get_client_action_url('/'), 'blog_posts_dynamic_snippet_options', login='admin')
+        self.start_tour(self.env['website'].get_client_action_url('/', True, True), 'blog_posts_dynamic_snippet_options', login='admin')
 
     def test_blog_posts_dynamic_snippet_visibility(self):
-        # Checks snippets visibility with or without content.
-        def start_visibility_tour(blog_posts, publish):
-            url = self.env['website'].get_client_action_url('/')
-            tour_before, tour_after = ('empty', 'visible') if publish else ('visible', 'empty')
-            self.start_tour(url, f'blog_posts_dynamic_snippet_{tour_before}', login='admin')
-            blog_posts.write({'website_published': publish})
-            self.start_tour(url, f'blog_posts_dynamic_snippet_{tour_after}', login='admin')
-
-        # 1. Visibility for new snippets created starting from `19.0` (`o_dynamic_snippet_loading`):
-        self.start_tour(self.env['website'].get_client_action_url('/'), 'blog_posts_dynamic_snippet_edit', login='admin')
+        self.start_tour(self.env['website'].get_client_action_url('/', True), 'blog_posts_dynamic_snippet_edit', login='admin')
         homepage_view = self.env['ir.ui.view'].search([
-            ('website_id', '=', self.env.ref('website.default_website').id),
+            ('website_id', '=', self.env.ref('base.default_website').id),
             ('key', '=', 'website.homepage'),
         ])
         # Unpublish blog posts so the dynamic snippet can't show content.
@@ -161,32 +203,44 @@ class TestWebsiteBlogUi(odoo.tests.HttpCase, TestWebsiteBlogCommon):
         blog_posts.write({'website_published': False})
         self.start_tour(self.env['website'].get_client_action_url('/'), 'blog_posts_dynamic_snippet_empty', login='admin')
 
-        # 2. Compatibility for snippets created in `18.2` (`s_dynamic_empty`):
-        homepage_view_arch_1 = homepage_view.arch_db.replace('o_dynamic_snippet_loading', 's_dynamic_empty')
-        homepage_view.write({'arch': homepage_view_arch_1})
-        start_visibility_tour(blog_posts, True)
-
-        # 3. Compatibility for snippets before `18.0` and never edited (`o_dynamic_empty`):
-        homepage_view_arch_2 = homepage_view.arch_db.replace('s_dynamic_empty', 'o_dynamic_empty')
-        homepage_view.write({'arch': homepage_view_arch_2})
-        start_visibility_tour(blog_posts, False)
-
-        # 4. Compatibility for snippets from before `18.0` and edited in `18.0` (`o_dynamic_empty` & `o_dynamic_snippet_empty`).
-        homepage_view_arch_3 = homepage_view.arch_db.replace('o_dynamic_empty', 'o_dynamic_empty o_dynamic_snippet_empty')
-        homepage_view.write({'arch': homepage_view_arch_3})
-        start_visibility_tour(blog_posts, True)
-
-        # 5. Compatibility for snippets created in `18.0` and never edited (`s_dynamic_empty` & `o_dynamic_snippet_empty`).
-        homepage_view_arch_4 = homepage_view.arch_db.replace('o_dynamic_empty', 's_dynamic_empty')
-        homepage_view.write({'arch': homepage_view_arch_4})
-        start_visibility_tour(blog_posts, False)
-
-        # 6. Compatibility for snippets created in `19.0` and never edited (no visibility class).
-        homepage_view_arch_5 = homepage_view.arch_db.replace('s_dynamic_empty o_dynamic_snippet_empty', '')
-        homepage_view.write({'arch': homepage_view_arch_5})
-        start_visibility_tour(blog_posts, True)
-
         # Visibility for misconfigured snippets.
         homepage_view_arch_misconfigured = re.sub(r'data-filter-id="\d+"', 'data-filter-id="-1"', homepage_view.arch_db)
         homepage_view.write({'arch': homepage_view_arch_misconfigured})
         self.start_tour(self.env['website'].get_client_action_url('/'), 'blog_posts_dynamic_snippet_misconfigured', login='admin')
+
+    def test_next_article(self):
+        blog1, blog2 = self.env['blog.blog'].create([
+            {'name': "Blog Test"},
+            {'name': "Blog Test 2", 'website_id': self.env['website'].create({'name': 'Website Test 2'}).id},
+        ])
+        post1, post2, post3, post4, post5, post6 = self.env['blog.post'].create([
+            {'name': "Post Test 1", 'blog_id': blog1.id, 'is_published': True},
+            {'name': "Post Test 2", 'blog_id': blog1.id, 'is_published': True},
+            {'name': "Post Test 3", 'blog_id': blog1.id, 'is_published': False},
+            {'name': "Post Test 4", 'blog_id': blog1.id, 'is_published': True},
+            {'name': "Post Test 5", 'blog_id': blog1.id, 'is_published': True},
+            {'name': "Post Test 6", 'blog_id': blog2.id, 'is_published': True},
+        ])
+        post2.recommended_next_post_id = post4
+        post4.recommended_next_post_id = post3
+        post5.recommended_next_post_id = post6
+
+        website = self.env.ref('base.default_website')
+        controller = WebsiteBlog()
+
+        cases = [(self.env, post1, post5, "Next post should be Post5 according to chronological order"),
+            (self.env, post2, post4, "Next post should be Post4 as it is set manually"),
+            (self.env(user=self.env.ref('base.public_user')), post4, post2, "Fallback to next published post when recommended post is not published"),
+            (self.env, post5, post4, "Next post should be Post4 as Post6 is not in the same blog")]
+
+        for env, current_post, expected_post, message in cases:
+            with MockRequest(env, website=website) as mock_request:
+                def fake_render(_, values):
+                    self.assertEqual(values['next_post'], expected_post, message)
+
+                mock_request.session.touch = lambda: None
+                mock_request.render = fake_render
+                controller.blog_post(
+                    blog1.with_env(mock_request.env),
+                    current_post.with_env(mock_request.env),
+                )

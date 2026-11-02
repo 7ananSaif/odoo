@@ -1,7 +1,7 @@
 export const addProductLineToOrder = async (
     store,
     order,
-    { templateId = 1, productId = 1, qty = 1, price_unit = 10, ...extraFields } = {},
+    { templateId = 60, productId = 60, qty = 1, price_unit = 10, ...extraFields } = {},
     opts = {}
 ) => {
     const template = store.models["product.template"].get(templateId);
@@ -15,7 +15,14 @@ export const addProductLineToOrder = async (
         ...extraFields,
     };
 
-    const line = await store.addLineToOrder(lineData, order, opts);
+    const line = await store.addLineToOrder(lineData, order, opts, false);
 
     return line;
+};
+
+export const deactivateAllProgramsExcept = (store, keepIds) => {
+    const to_delete = store.models["loyalty.program"]
+        .getAllIds()
+        .filter((id) => !keepIds.includes(id));
+    store.models["loyalty.program"].deleteMany(store.models["loyalty.program"].readMany(to_delete));
 };

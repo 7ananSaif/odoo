@@ -21,7 +21,7 @@
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                         <button name="action_view_livechat_channels" type="object" class="oe_stat_button"
-                                icon="fa-comments" invisible="livechat_channel_count == 0">
+                                icon="forum" icon_class="oi-filled" invisible="livechat_channel_count == 0">
                             <field name="livechat_channel_count" string="Channels" widget="statinfo"/>
                         </button>
                     </div>
@@ -70,9 +70,11 @@
         <field name="view_mode">list,form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                Create a Chatbot
+                No chatbots found. Let's create one!
             </p><p>
-                You can create a new Chatbot with a defined script to speak to your website visitors.
+                Set up a bot with a defined script to chat with your website visitors.
+                Qualify and forward conversations to your live chat agents, and generate leads or
+                support tickets automatically.
             </p>
         </field>
     </record>

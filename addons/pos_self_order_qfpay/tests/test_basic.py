@@ -9,6 +9,8 @@ from odoo.tests.common import tagged
 @tagged("post_install", "-at_install")
 class TestSelfOrderKioskQFPay(TestPointOfSaleHttpCommon, AccountTestInvoicingCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -24,28 +26,31 @@ class TestSelfOrderKioskQFPay(TestPointOfSaleHttpCommon, AccountTestInvoicingCom
             'self_ordering_service_mode': 'counter',
             'payment_method_ids': [Command.create({
                 'name': 'Qfpay',
+                'type': 'bank',
                 "qfpay_pos_key": "my_qfpay_pos_key",
                 "qfpay_notification_key": "my_qfpay_notification_key",
-                "use_payment_terminal": "qfpay",
+                "payment_provider": "qfpay",
                 "payment_method_type": "terminal",
                 "qfpay_payment_type": "card_payment",
                 "journal_id": cls.bank_journal.id,
             })],
+            'self_ordering_default_user_id': cls.pos_admin.id,
         })
 
         cls.env['pos.payment.method'].create({
             'name': 'Qfpay 2',
-            'use_payment_terminal': 'qfpay',
+            'payment_provider': 'qfpay',
+            'type': 'bank',
         })
 
     def test_kiosk_qfpay(self):
         res = self.pos_config.load_self_data()
-        pm = res.get('pos.payment.method', [])
+        pm = res.get('pos.payment.method', {}).get('records', [])
         self.assertEqual(len(pm), 1, 'Only one payment method should be loaded')
         self.assertEqual(pm[0]['name'], 'Qfpay', 'The loaded payment method should be Qfpay')
 
-        after_pay_kds = self.env['pos.config']._supported_kiosk_payment_terminal()
-        self.assertTrue('qfpay' in after_pay_kds, 'The orders payed with qfpay should be sent to Kitchen Display/Printer only after being paid')
+        qfpay_is_valid_self_payment_method = self.pos_config.has_valid_self_payment_method()
+        self.assertTrue(qfpay_is_valid_self_payment_method, 'The orders payed with qfpay should be sent to Kitchen Display/Printer only after being paid')
 
     def test_tour_kiosk_qfpay_order(self):
         self.pos_config.with_user(self.pos_user).open_ui()

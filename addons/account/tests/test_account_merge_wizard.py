@@ -5,6 +5,8 @@ from odoo.tests import tagged
 
 @tagged('post_install', '-at_install')
 class TestAccountMergeWizard(TestAccountMergeCommon):
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -273,11 +275,11 @@ class TestAccountMergeWizard(TestAccountMergeCommon):
         self.assertRecordValues(wizard.wizard_line_ids, expected_wizard_line_vals)
 
     def test_merge_accounts_company_dependent_related(self):
-        payable_accounts = self.env['account.account'].search([('name', '=', 'Account Payable')])
+        payable_accounts = self.env['account.account'].search([('name', '=', 'Accounts Payable')])
         self.assertEqual(len(payable_accounts), 2)
         wizard = self._create_account_merge_wizard(payable_accounts)
         wizard.action_merge()
-        payable_accounts = self.env['account.account'].search([('name', '=', 'Account Payable')])
+        payable_accounts = self.env['account.account'].search([('name', '=', 'Accounts Payable')])
         self.assertEqual(len(payable_accounts), 1)
         for company in self.env.companies:
             partner_payable_account = self.partner_a.with_company(company).property_account_payable_id.exists()

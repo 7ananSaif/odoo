@@ -1,7 +1,6 @@
 {
-    'author': 'Odoo',
+    'author': 'Odoo S.A.',
     'name': 'Romania - E-invoicing',
-    'version': '1.0',
     'category': 'Accounting/Localizations/EDI',
     'description': """
 E-invoice implementation for Romania
@@ -13,20 +12,19 @@ E-invoice implementation for Romania
     ],
     'data': [
         'data/ir_cron.xml',
-        'security/ir.model.access.csv',
+        'data/l10n_ro.cpv.code.csv',
         'views/account_move_views.xml',
         'views/res_config_settings_views.xml',
+        'views/product_views.xml',
+        'wizard/account_move_fetch_invoices_wizard.xml',
+        'security/ir.access.csv',
     ],
-    'installable': True,
     'auto_install': True,
     'uninstall_hook': 'uninstall_hook',
     'license': 'LGPL-3',
     'assets': {
         'web.assets_backend': [
             'l10n_ro_edi/static/src/components/*',
-        ],
-        'web.tests_assets': [
-            'l10n_ro_edi/static/tests/legacy/helpers/mock_server.js',
         ],
     }
 }

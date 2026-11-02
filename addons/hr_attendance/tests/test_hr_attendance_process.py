@@ -1,16 +1,15 @@
-# -*- coding: utf-8 -*-
-
-import pytz
-from datetime import datetime
-from unittest.mock import patch
+from datetime import UTC, date, datetime, timedelta
+from zoneinfo import ZoneInfo
 
 from odoo import fields
+from odoo.addons.hr_attendance.controllers.main import HrAttendance
+from odoo.exceptions import ValidationError
 from odoo.tests import Form, new_test_user
-from odoo.tests.common import tagged, TransactionCase, freeze_time
+from odoo.tests.common import HttpCase, tagged, TransactionCase, freeze_time
 
 
 @tagged('attendance_process')
-class TestHrAttendance(TransactionCase):
+class TestHrAttendance(HttpCase, TransactionCase):
     """Test for presence validity"""
 
     @classmethod
@@ -22,7 +21,6 @@ class TestHrAttendance(TransactionCase):
             'name': "François Russie",
             'user_id': cls.user.id,
             'pin': '1234',
-            'ruleset_id': False,
         })
         cls.employee_kiosk = cls.env['hr.employee'].create({
             'name': "Machiavel",
@@ -36,6 +34,16 @@ class TestHrAttendance(TransactionCase):
                 # Explicitly NOT adding: hr_attendance.group_hr_attendance_user
             ])]
         })
+        cls.company = cls.env.company
+        cls.employee = cls.env['hr.employee'].create({'name': 'Employee', 'tz': 'UTC'})
+        cls.other_employee = cls.env['hr.employee'].create({'name': 'Other Employee', 'tz': 'UTC'})
+        cls.jpn_employee = cls.env['hr.employee'].create({'name': 'Japan Employee', 'tz': 'Asia/Tokyo'})
+        cls.honolulu_employee = cls.env['hr.employee'].create({'name': 'Honolulu Employee', 'tz': 'Pacific/Honolulu'})
+        cls.no_contract_employee = cls.env['hr.employee'].create({'name': 'No Contract Employee', 'tz': 'UTC'})
+        cls.future_contract_employee = cls.env['hr.employee'].create({'name': 'Future Contract Employee', 'tz': 'UTC'})
+        cls.flexible_employee = cls.env['hr.employee'].create({'name': 'Flexible Employee', 'tz': 'UTC'})
+        # disable any time rules to run this test class in isolation
+        cls.env['hr.time.rule'].search([]).write({'active': False})
 
     def setUp(self):
         super().setUp()
@@ -49,6 +57,18 @@ class TestHrAttendance(TransactionCase):
         assert self.test_employee.attendance_state == 'checked_in'
         self.test_employee._attendance_action_change()
         assert self.test_employee.attendance_state == 'checked_out'
+
+    def test_employee_without_user_presence_state(self):
+        # Employee without linked user should update presence state on check in / check out
+        self.assertFalse(self.employee_kiosk.user_id)
+        self.assertEqual(self.employee_kiosk.attendance_state, 'checked_out')
+        self.assertNotEqual(self.employee_kiosk.hr_presence_state, 'present')
+        self.employee_kiosk._attendance_action_change()
+        self.assertEqual(self.employee_kiosk.attendance_state, 'checked_in')
+        self.assertEqual(self.employee_kiosk.hr_presence_state, 'present')
+        self.employee_kiosk._attendance_action_change()
+        self.assertEqual(self.employee_kiosk.attendance_state, 'checked_out')
+        self.assertNotEqual(self.employee_kiosk.hr_presence_state, 'present')
 
     def test_employee_group_id(self):
         # Create attendance for one of them
@@ -83,16 +103,17 @@ class TestHrAttendance(TransactionCase):
 
         grouped_employee_ids = [g['employee_id'][0] for g in groups]
 
-        # Check that both employees appears
-        self.assertIn(self.test_employee.id, grouped_employee_ids)
+        # Result should still be the same - test_employee is only added in
+        # overridden get_gantt_data()
+        self.assertNotIn(self.test_employee.id, grouped_employee_ids)
         self.assertIn(self.employee_kiosk.id, grouped_employee_ids)
 
     def test_hours_today(self):
         """ Test day start is correctly computed according to the employee's timezone """
 
         def tz_datetime(year, month, day, hour, minute):
-            tz = pytz.timezone('Europe/Brussels')
-            return tz.localize(datetime(year, month, day, hour, minute)).astimezone(pytz.utc).replace(tzinfo=None)
+            tz = ZoneInfo('Europe/Brussels')
+            return datetime(year, month, day, hour, minute).replace(tzinfo=tz).astimezone(UTC).replace(tzinfo=None)
 
         employee = self.env['hr.employee'].create({'name': 'Cunégonde', 'tz': 'Europe/Brussels'})
         self.env['hr.attendance'].create({
@@ -106,7 +127,8 @@ class TestHrAttendance(TransactionCase):
         })
 
         # now = 2019/3/2 14:00 in the employee's timezone
-        with patch.object(fields.Datetime, 'now', lambda: tz_datetime(2019, 3, 2, 14, 0).astimezone(pytz.utc).replace(tzinfo=None)):
+        employee_now = tz_datetime(2019, 3, 2, 14, 0).astimezone(UTC).replace(tzinfo=None)
+        with self.mock_datetime_and_now(employee_now):
             self.assertEqual(employee.hours_today, 5, "It should have counted 5 hours")
 
     def test_remove_check_in_value_from_attendance(self):
@@ -123,11 +145,107 @@ class TestHrAttendance(TransactionCase):
             'employee_id': self.test_employee.id,
         })
 
-        with freeze_time("2024-01-01 17:00:00"):
+        with freeze_time("2024-01-01 16:00:00"):
             self.test_employee.action_archive()
             self.assertEqual(test_attendance.check_out, fields.Datetime.now())
             self.assertEqual(test_attendance.worked_hours, 8.0)
 
+    def test_break_duration_updates_worked_hours(self):
+        attendance = self.env['hr.attendance'].create({
+            'employee_id': self.test_employee.id,
+            'check_in': '2024-01-01 08:00:00',
+            'check_out': '2024-01-01 17:00:00',
+        })
+        initial_hours = attendance.worked_hours
+        with self.mock_datetime_and_now(datetime(2024, 1, 1, 18, 0, 0)):
+            self.test_employee.invalidate_recordset(['hours_today'])
+            initial_hours_today = self.test_employee.hours_today
+            attendance.break_duration = 1.0
+            self.assertAlmostEqual(attendance.worked_hours, max(initial_hours - 1.0, 0.0))
+            self.assertAlmostEqual(self.test_employee.hours_today, attendance.worked_hours)
+            self.assertAlmostEqual(self.test_employee.hours_today, initial_hours_today - 1.0)
+        with self.assertRaises(ValidationError):
+            attendance.break_duration = -1
+        with self.assertRaises(ValidationError):
+            attendance.break_duration = 12
+
+    def test_hours_today_splits_break_proportionally_across_cross_midnight_attendance(self):
+        employee = self.env['hr.employee'].create({
+            'name': 'Cross Midnight',
+            'date_version': date(2023, 1, 1),
+            'tz': 'UTC',
+        })
+        self.env['hr.attendance'].create({
+            'employee_id': employee.id,
+            'check_in': datetime(2024, 1, 1, 20),
+            'check_out': datetime(2024, 1, 2, 2),
+            'break_duration': 3,
+        })
+
+        with self.mock_datetime_and_now(datetime(2024, 1, 2, 3)):
+            employee.invalidate_recordset(['hours_today'])
+            self.assertAlmostEqual(employee.hours_today, 1, places=6)
+
+    def test_hours_today_keeps_full_break_before_midnight_checkout(self):
+        employee = self.env['hr.employee'].create({'name': 'Midnight Checkout', 'tz': 'UTC'})
+        self.env['hr.attendance'].create({
+            'employee_id': employee.id,
+            'check_in': datetime(2024, 1, 1, 22),
+            'check_out': datetime(2024, 1, 2),
+            'break_duration': 2,
+        })
+
+        with self.mock_datetime_and_now(datetime(2024, 1, 1, 23)):
+            employee.invalidate_recordset(['hours_today'])
+            self.assertAlmostEqual(employee.hours_today, 0, places=6)
+
+    @freeze_time("2024-01-02 12:00:00")
+    def test_user_attendance_details_are_opt_in(self):
+        employee = self.env['hr.employee'].create({
+            'name': 'Opt-in Employee',
+            'date_version': date(2023, 1, 1),
+            'tz': 'UTC',
+        })
+        now = fields.Datetime.now()
+        self.env['hr.attendance'].create({
+            'employee_id': employee.id,
+            'check_in': datetime(2024, 1, 1, 22),
+            'check_out': datetime(2024, 1, 2, 2),
+            'break_duration': 1,
+        })
+        future_attendance = self.env['hr.attendance'].create({
+            'employee_id': employee.id,
+            'check_in': now + timedelta(hours=2),
+            'check_out': now + timedelta(hours=3),
+        })
+        tomorrow_attendance = self.env['hr.attendance'].create({
+            'employee_id': employee.id,
+            'check_in': now + timedelta(days=1),
+            'check_out': now + timedelta(days=1, hours=1),
+        })
+        future_open_attendance = self.env['hr.attendance'].create({
+            'employee_id': employee.id,
+            'check_in': now + timedelta(hours=4),
+        })
+
+        public_payload = HrAttendance._get_user_attendance_data(employee)
+        self.assertNotIn('last_attendance', public_payload)
+        self.assertNotIn('in_location', public_payload['today_attendance_ids'][0])
+        self.assertNotIn('can_edit', public_payload['today_attendance_ids'][0])
+        self.assertEqual(public_payload['hours_today'], 1.5)
+        self.assertEqual(public_payload['hours_previously_today'], 0)
+
+        user_payload = HrAttendance._get_user_attendance_data(
+            employee,
+            include_attendance_details=True,
+        )
+        self.assertNotIn('last_attendance', user_payload)
+        self.assertIn('in_location', user_payload['today_attendance_ids'][0])
+        self.assertIn('can_edit', user_payload['today_attendance_ids'][0])
+        attendance_ids = [attendance['id'] for attendance in user_payload['today_attendance_ids']]
+        self.assertIn(future_attendance.id, attendance_ids)
+        self.assertIn(future_open_attendance.id, attendance_ids)
+        self.assertNotIn(tomorrow_attendance.id, attendance_ids)
     # @freeze_time("2024-02-1")
     # def test_change_in_out_mode_when_manual_modification(self):
     #     TODO naja: cron should work eventually when the adjustment feature is back
@@ -173,3 +291,431 @@ class TestHrAttendance(TransactionCase):
             self.test_employee.with_user(self.hr_user).action_archive()
             self.assertTrue(not self.test_employee.active, "Employee should be archived successfully with sudo()")
             self.assertEqual(test_attendance.check_out, fields.Datetime.now(), "Attendance should be checked out at the time of archiving")
+
+    def test_attendance_multicompany(self):
+        """Test that the attendance is for the currently selected company, not default company of user"""
+
+        first_company = self.user.employee_id.company_id
+        self.assertTrue(first_company)
+
+        other_company = self.env["res.company"].create({
+            "name": "Test"
+        })
+        other_employee = self.env["hr.employee"].create({
+            "name": self.user.name,
+            "company_id": other_company.id,
+            "user_id": self.user.id
+        })
+
+        self.user.password = 'password'
+        self.authenticate(self.user.login, 'password')
+
+        # first case check when no cids sent, second case check when cids included
+        test_cases = [
+            ("", self.user.employee_id.id),
+            (f"{other_company.id}-{first_company.id}", other_employee.id),
+        ]
+
+        for cids, expected_employee_id in test_cases:
+            with self.subTest(expected_employee_id=expected_employee_id):
+                self.opener.cookies.set('cids', cids)
+                employee = self.make_jsonrpc_request("/hr_attendance/systray_check_in_out", {})
+                self.assertEqual(employee["id"], expected_employee_id)
+
+    @freeze_time("2026-02-26 07:00:00")
+    def test_auto_check_out_specific_time(self):
+        """Test various check-in times with 06:00 cutoff"""
+        self.company.write({
+            'auto_check_out': True,
+            'auto_check_out_mode': 'specific_time',
+            'auto_check_out_specific_time': 6.0,
+        })
+        night_shift, before_cutoff, one_min_before, midnight, just_after_midnight, already_checked, flexible = self.env['hr.attendance'].create([
+            {'employee_id': self.employee.id, 'check_in': datetime(2026, 2, 25, 22, 0)},
+            {'employee_id': self.other_employee.id, 'check_in': datetime(2026, 2, 26, 1, 0)},
+            {'employee_id': self.jpn_employee.id, 'check_in': datetime(2026, 2, 25, 15, 0)},
+            {'employee_id': self.honolulu_employee.id, 'check_in': datetime(2026, 2, 25, 12, 0)},
+            {'employee_id': self.no_contract_employee.id, 'check_in': datetime(2026, 2, 25, 23, 1)},
+            {'employee_id': self.future_contract_employee.id, 'check_in': datetime(2026, 2, 26, 1, 0), 'check_out': datetime(2026, 2, 26, 4, 30)},
+            {'employee_id': self.flexible_employee.id, 'check_in': datetime(2026, 2, 26, 1, 0)},
+        ])
+        initial_checkout = already_checked.check_out
+        self.assertEqual(night_shift.check_out, False)
+        self.env['hr.attendance']._cron_auto_check_out_specific_time()
+        self.assertEqual(night_shift.check_out, datetime(2026, 2, 26, 6, 0))
+        self.assertEqual(night_shift.out_mode, 'auto_check_out')
+        self.assertEqual(before_cutoff.check_out, datetime(2026, 2, 26, 6, 0))
+        # 06:00 JST = 21:00 UTC previous day (JST = UTC+09:00)
+        self.assertEqual(one_min_before.check_out, datetime(2026, 2, 25, 21, 0))
+        # 06:00 HST = 16:00 UTC (HST = UTC-10:00)
+        self.assertEqual(midnight.check_out, datetime(2026, 2, 25, 16, 0))
+        self.assertEqual(just_after_midnight.check_out, datetime(2026, 2, 26, 6, 0))
+        self.assertEqual(already_checked.check_out, initial_checkout)
+        self.assertEqual(flexible.check_out, datetime(2026, 2, 26, 6, 0))
+
+    @freeze_time("2026-02-27 13:00:00")
+    def test_auto_check_out_specific_time_old_attendances(self):
+        """Test multiday forgotten and backdated attendances"""
+        self.company.write({
+            'auto_check_out': True,
+            'auto_check_out_mode': 'specific_time',
+            'auto_check_out_specific_time': 6.0,
+        })
+        multiday, backdated, very_old = self.env['hr.attendance'].create([
+            {'employee_id': self.employee.id, 'check_in': datetime(2026, 2, 24, 1, 0)},
+            {'employee_id': self.other_employee.id, 'check_in': datetime(2026, 2, 25, 2, 0)},
+            {'employee_id': self.jpn_employee.id, 'check_in': datetime(2026, 2, 25, 16, 0)},
+        ])
+        self.env['hr.attendance']._cron_auto_check_out_specific_time()
+        self.assertEqual(multiday.check_out, datetime(2026, 2, 24, 6, 0))
+        self.assertEqual(backdated.check_out, datetime(2026, 2, 25, 6, 0))
+        self.assertEqual(very_old.check_out, datetime(2026, 2, 25, 21, 0))
+
+    @freeze_time("2026-02-27 00:30:00")
+    def test_auto_check_out_specific_time_edge_times(self):
+        """Test cutoff times at start and end of day"""
+        self.company.write({
+            'auto_check_out': True,
+            'auto_check_out_mode': 'specific_time',
+            'auto_check_out_specific_time': 23.98,
+        })
+        end_of_day = self.env['hr.attendance'].create({
+            'employee_id': self.employee.id,
+            'check_in': datetime(2026, 2, 26, 4, 30),
+        })
+        self.env['hr.attendance']._cron_auto_check_out_specific_time()
+        self.assertEqual(end_of_day.check_out, datetime(2026, 2, 26, 23, 59))
+        with freeze_time("2026-02-26 07:00:00"):
+            self.company.write({'auto_check_out_specific_time': 0.0})
+            start_of_day = self.env['hr.attendance'].create({
+                'employee_id': self.other_employee.id,
+                'check_in': datetime(2026, 2, 25, 16, 30),
+            })
+            self.env['hr.attendance']._cron_auto_check_out_specific_time()
+            self.assertEqual(start_of_day.check_out, datetime(2026, 2, 26, 0, 0))
+
+    def test_auto_check_out_two_weeks_calendar(self):
+        """Test case: two weeks calendar with different attendances depending on the week. No morning attendance on
+        wednesday of the first week."""
+        self.company.write({
+            'auto_check_out': True,
+            'auto_check_out_tolerance': 0
+        })
+        self.employee.resource_calendar_id.write({
+            'calendar_type': 'variable',
+            'attendance_ids': [(5, 0, 0),
+                               (0, 0, {'date': datetime(2025, 3, 5), 'hour_from': 12, 'hour_to': 16}),
+                               (0, 0, {'date': datetime(2025, 3, 12), 'hour_from': 8, 'hour_to': 16})],
+        })
+
+        with freeze_time("2025-03-05 22:00:00"):
+            att = self.env['hr.attendance'].create({
+                'employee_id': self.employee.id,
+                'check_in': datetime(2025, 3, 5, 8, 0)
+            })
+            self.env['hr.attendance']._cron_auto_check_out()
+            self.assertEqual(att.worked_hours, 4)
+            self.assertEqual(att.check_out, datetime(2025, 3, 5, 12, 0))
+
+        with freeze_time("2025-03-12 22:00:00"):
+            att = self.env['hr.attendance'].create({
+                'employee_id': self.employee.id,
+                'check_in': datetime(2025, 3, 12, 8, 0),
+            })
+            self.env['hr.attendance']._cron_auto_check_out()
+            self.assertEqual(att.worked_hours, 8)
+            self.assertEqual(att.check_out, datetime(2025, 3, 12, 16, 0))
+
+
+@tagged('attendance_process')
+class TestAbsenceDetectionCron(TransactionCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.env.company.absence_management = True
+        cls.env.company.tz = 'UTC'
+        cls.env.company.resource_calendar_id = cls.env['resource.calendar'].create({
+            'name': '40h/week',
+            'attendance_ids': [
+                (0, 0, {'dayofweek': wd, 'hour_from': h, 'hour_to': h + 4})
+                for wd in ['0', '1', '2', '3', '4']
+                for h in [8, 13]
+            ],
+        })
+        cls.att_type = cls.env.company._get_default_attendance_work_entry_type()
+        cls.env.company.attendance_work_entry_type_id = cls.att_type
+
+        cls.env['hr.time.rule'].search([]).write({'active': False})
+
+        cls.absent_employee = cls.env['hr.employee'].create({
+            'name': 'Absent Employee',
+            'tz': 'UTC',
+            'date_version': '2020-01-01',
+            'contract_date_start': '2020-01-01',
+            'wage': 3000,
+        })
+
+    @freeze_time('2024-01-02 06:00:00')  # yesterday = 2024-01-01 (Monday)
+    def test_absence_no_rule_discards_technical(self):
+        """Absent employee with no undertime rule: technical attendance is created then discarded."""
+        self.env['hr.attendance']._cron_absence_detection()
+
+        atts = self.env['hr.attendance'].search([('employee_id', '=', self.absent_employee.id)])
+        self.assertFalse(atts,
+                         "No undertime rule fired → technical attendance must be discarded")
+
+    @freeze_time('2024-01-02 06:00:00')  # yesterday = 2024-01-01 (Monday)
+    def test_absence_undertime_rule_creates_output(self):
+        """Absent employee with an undertime rule: full scheduled day becomes an undertime output."""
+        undertime_wet = self.env['hr.work.entry.type'].create({
+            'name': 'Undertime', 'code': 'UT_CRON_TEST',
+        })
+        self.env['hr.time.rule'].create({
+            'name': 'Daily Undertime',
+            'threshold_operator': 'less_than',
+            'calendar_source': 'employee',
+            'quantity_period': 'day',
+            'work_entry_type_id': undertime_wet.id,
+            'condition_work_entry_type_ids': [(4, self.att_type.id)],
+        })
+
+        self.env['hr.attendance']._cron_absence_detection()
+
+        tech_atts = self.env['hr.attendance'].search([
+            ('employee_id', '=', self.absent_employee.id),
+            ('in_mode', '=', 'technical'),
+        ])
+        self.assertEqual(len(tech_atts), 1,
+                         "Technical attendance must be kept when it produced an output")
+
+        output_atts = self.env['hr.attendance'].search([
+            ('employee_id', '=', self.absent_employee.id),
+            ('time_rule_id', '!=', False),
+        ])
+        self.assertAlmostEqual(
+            sum(a.worked_hours for a in output_atts), 8.0, places=2,
+            msg="Full 8h schedule missed → 8h undertime output attendance",
+        )
+
+    @freeze_time('2024-01-02 06:00:00')  # yesterday = 2024-01-01 (Monday)
+    def test_undertime_output_ignores_refused_attendance(self):
+        """A refused attendance does not prevent the undertime output from covering its span."""
+        undertime_wet = self.env['hr.work.entry.type'].create({
+            'name': 'Undertime', 'code': 'UT_REFUSED_TEST',
+        })
+        rule = self.env['hr.time.rule'].create({
+            'name': 'Daily Undertime',
+            'threshold_operator': 'less_than',
+            'calendar_source': 'employee',
+            'quantity_period': 'day',
+            'work_entry_type_id': undertime_wet.id,
+            'condition_work_entry_type_ids': [(4, self.att_type.id)],
+        })
+        self.env['hr.attendance'].create({
+            'employee_id': self.absent_employee.id,
+            'check_in': datetime(2024, 1, 1, 8, 0),
+            'check_out': datetime(2024, 1, 1, 12, 0),
+            'state': 'refused',
+        })
+        self.env['hr.attendance'].create({
+            'employee_id': self.absent_employee.id,
+            'check_in': datetime(2024, 1, 1, 13, 0),
+            'check_out': datetime(2024, 1, 1, 14, 0),
+        })
+        outputs = self.env['hr.attendance'].search([
+            ('employee_id', '=', self.absent_employee.id),
+            ('time_rule_id', '=', rule.id),
+        ], order='check_in')
+        self.assertEqual(
+            [(a.check_in, a.check_out) for a in outputs],
+            [(datetime(2024, 1, 1, 8, 0), datetime(2024, 1, 1, 12, 0)),
+             (datetime(2024, 1, 1, 14, 0), datetime(2024, 1, 1, 17, 0))],
+        )
+
+    @freeze_time('2024-01-02 06:00:00')  # yesterday = 2024-01-01 (Monday)
+    def test_absence_undertime_rule_timezones(self):
+        """The absence is detected on the local day of the employee, whatever their timezone."""
+        undertime_wet = self.env['hr.work.entry.type'].create({
+            'name': 'Undertime', 'code': 'UT_CRON_TZ_TEST',
+        })
+        rule = self.env['hr.time.rule'].create({
+            'name': 'Daily Undertime',
+            'threshold_operator': 'less_than',
+            'calendar_source': 'employee',
+            'quantity_period': 'day',
+            'work_entry_type_id': undertime_wet.id,
+            'condition_work_entry_type_ids': [(4, self.att_type.id)],
+        })
+        self.absent_employee.contract_date_end = '2023-12-31'
+        for tz in ('Europe/Brussels', 'Asia/Tokyo', 'Pacific/Honolulu', 'UTC'):
+            employee = self.env['hr.employee'].create({
+                'name': f'Absent Employee {tz}',
+                'tz': tz,
+                'date_version': '2020-01-01',
+                'contract_date_start': '2020-01-01',
+                'wage': 3000,
+            })
+            self.env['hr.attendance']._cron_absence_detection()
+            outputs = self.env['hr.attendance'].search([
+                ('employee_id', '=', employee.id),
+                ('time_rule_id', '=', rule.id),
+            ])
+            self.assertAlmostEqual(sum(outputs.mapped('worked_hours')), 8.0, places=2, msg=tz)
+            self.assertEqual(set(outputs.mapped('date')), {date(2024, 1, 1)}, tz)
+            employee.contract_date_end = '2023-12-31'
+
+    @freeze_time('2024-01-02 06:00:00')  # yesterday = 2024-01-01 (Monday)
+    def test_absence_after_contract_end(self):
+        """Employee whose contract ended before yesterday is not targeted by the cron."""
+        undertime_wet = self.env['hr.work.entry.type'].create({
+            'name': 'Undertime', 'code': 'UT_CRON_TEST',
+        })
+        self.env['hr.time.rule'].create({
+            'name': 'Daily Undertime',
+            'threshold_operator': 'less_than',
+            'calendar_source': 'employee',
+            'quantity_period': 'day',
+            'work_entry_type_id': undertime_wet.id,
+            'condition_work_entry_type_ids': [(4, self.att_type.id)],
+        })
+        self.absent_employee.contract_date_end = '2023-12-31'
+
+        self.env['hr.attendance']._cron_absence_detection()
+
+        atts = self.env['hr.attendance'].search([('employee_id', '=', self.absent_employee.id)])
+        self.assertFalse(atts, "No technical attendance must be created after the end of the contract")
+
+    @freeze_time('2024-01-02 06:00:00')  # yesterday = 2024-01-01 (Monday)
+    def test_checked_in_employee_not_targeted(self):
+        """Employee who already checked in yesterday is not touched by the cron."""
+        self.env['hr.attendance'].create({
+            'employee_id': self.absent_employee.id,
+            'check_in': datetime(2024, 1, 1, 8, 0),
+            'check_out': datetime(2024, 1, 1, 16, 0),
+        })
+        before = self.env['hr.attendance'].search([('employee_id', '=', self.absent_employee.id)])
+
+        self.env['hr.attendance']._cron_absence_detection()
+
+        after = self.env['hr.attendance'].search([('employee_id', '=', self.absent_employee.id)])
+        self.assertEqual(
+            before.ids, after.ids,
+            "Cron must not create technical attendances for employees who already checked in",
+        )
+
+
+@tagged('attendance_process')
+class TestAttendanceValidationTimeRules(TransactionCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.env.company.resource_calendar_id = cls.env['resource.calendar'].create({
+            'name': '40h/week',
+            'attendance_ids': [
+                (0, 0, {'dayofweek': wd, 'hour_from': h, 'hour_to': h + 4})
+                for wd in ['0', '1', '2', '3', '4']
+                for h in [8, 13]
+            ],
+        })
+        cls.att_type = cls.env.company._get_default_attendance_work_entry_type()
+        cls.env.company.attendance_work_entry_type_id = cls.att_type
+        cls.env['hr.time.rule'].search([]).write({'active': False})
+        cls.overtime_type = cls.env['hr.work.entry.type'].create({
+            'name': 'Overtime', 'code': 'OT_VALIDATION_TEST',
+        })
+        cls.rule = cls.env['hr.time.rule'].create({
+            'name': 'Daily Overtime',
+            'calendar_source': 'employee',
+            'quantity_period': 'day',
+            'work_entry_type_id': cls.overtime_type.id,
+            'condition_work_entry_type_ids': [(4, cls.att_type.id)],
+        })
+        cls.employee = cls.env['hr.employee'].create({
+            'name': 'Validated Employee',
+            'tz': 'UTC',
+            'date_version': '2020-01-01',
+            'contract_date_start': '2020-01-01',
+            'wage': 3000,
+        })
+
+    def _get_overtime_hours(self):
+        outputs = self.env['hr.attendance'].search([
+            ('employee_id', '=', self.employee.id),
+            ('time_rule_id', '=', self.rule.id),
+            ('state', '=', 'validated'),
+        ])
+        return sum(outputs.mapped('worked_hours'))
+
+    def _create_9h_attendance(self):
+        return self.env['hr.attendance'].create({
+            'employee_id': self.employee.id,
+            'check_in': datetime(2024, 1, 1, 8, 0),  # Monday, 8h expected
+            'check_out': datetime(2024, 1, 1, 17, 0),
+        })
+
+    @freeze_time('2024-01-03 06:00:00')
+    def test_no_validation_runs_time_rules(self):
+        self.env.company.attendance_validation = 'no_validation'
+        self._create_9h_attendance()
+        self.assertAlmostEqual(self._get_overtime_hours(), 1.0)
+
+    @freeze_time('2024-01-03 06:00:00')
+    def test_tolerance_validation_runs_time_rules(self):
+        self.env.company.attendance_validation = 'tolerance_validation'
+        self.env.company.attendance_validation_tolerance = 1.0
+        attendance = self._create_9h_attendance()
+        self.assertEqual(attendance.state, 'validated')
+        self.assertAlmostEqual(self._get_overtime_hours(), 1.0)
+
+    @freeze_time('2024-01-03 06:00:00')
+    def test_tolerance_validation_on_check_out_runs_time_rules(self):
+        self.env.company.attendance_validation = 'tolerance_validation'
+        self.env.company.attendance_validation_tolerance = 1.0
+        attendance = self.env['hr.attendance'].create({
+            'employee_id': self.employee.id,
+            'check_in': datetime(2024, 1, 1, 8, 0),
+        })
+        self.assertEqual(attendance.state, 'draft')
+        attendance.check_out = datetime(2024, 1, 1, 17, 0)
+        self.assertEqual(attendance.state, 'validated')
+        self.assertAlmostEqual(self._get_overtime_hours(), 1.0)
+
+    @freeze_time('2024-01-03 06:00:00')
+    def test_overtime_rule_timezones(self):
+        """The schedule of the local day is compared with the attendances of that day."""
+        for tz in ('Asia/Tokyo', 'Pacific/Honolulu', 'Europe/Brussels'):
+            employee = self.env['hr.employee'].create({
+                'name': f'Employee {tz}',
+                'tz': tz,
+                'date_version': '2020-01-01',
+                'contract_date_start': '2020-01-01',
+                'wage': 3000,
+            })
+
+            def to_utc(hour, tz=tz):
+                local = datetime(2024, 1, 1, hour, tzinfo=ZoneInfo(tz))  # Monday
+                return local.astimezone(UTC).replace(tzinfo=None)
+
+            self.env['hr.attendance'].create([{
+                'employee_id': employee.id,
+                'check_in': to_utc(start),
+                'check_out': to_utc(stop),
+            } for start, stop in ((8, 12), (13, 17))])
+            outputs = self.env['hr.attendance'].search([
+                ('employee_id', '=', employee.id),
+                ('time_rule_id', '=', self.rule.id),
+            ])
+            self.assertFalse(outputs, tz)
+
+            self.env['hr.attendance'].create({
+                'employee_id': employee.id,
+                'check_in': to_utc(17),
+                'check_out': to_utc(18),
+            })
+            outputs = self.env['hr.attendance'].search([
+                ('employee_id', '=', employee.id),
+                ('time_rule_id', '=', self.rule.id),
+            ])
+            self.assertAlmostEqual(sum(outputs.mapped('worked_hours')), 1.0, places=2, msg=tz)

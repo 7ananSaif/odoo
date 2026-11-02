@@ -1,9 +1,9 @@
 import { useDomState } from "@html_builder/core/utils";
 import { ImageToolOption } from "@html_builder/plugins/image/image_tool_option";
-import { patch } from "@web/core/utils/patch";
+import { registry } from "@web/core/registry";
 
-// Deprecated, To remove in master
 export class MassMailingImageToolOption extends ImageToolOption {
+    static id = "mass_mailing_image_tool_option";
     static template = "mass_mailing.ImageToolOption";
     setup() {
         super.setup();
@@ -13,11 +13,4 @@ export class MassMailingImageToolOption extends ImageToolOption {
     }
 }
 
-patch(ImageToolOption.prototype, {
-    setup() {
-        super.setup();
-        this.massMailingState = useDomState((editingElement) => ({
-            isImgFluid: editingElement.classList.contains("img-fluid"),
-        }));
-    },
-});
+registry.category("mass_mailing-options").add(MassMailingImageToolOption.id, MassMailingImageToolOption);

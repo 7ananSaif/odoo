@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo.fields import Command
@@ -82,7 +81,7 @@ class TestMrpMulticompany(common.TransactionCase):
         })
         mo = self.env['mrp.production'].create({
             'product_id': product_a.id,
-            'product_uom_id': product_a.uom_id.id,
+            'uom_id': product_a.uom_id.id,
             'company_id': self.company_b.id,
         })
         with self.assertRaises(UserError):

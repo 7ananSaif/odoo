@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0+e\n"
+"Project-Id-Version: Odoo Server 19.5a1+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-01 18:03+0000\n"
-"PO-Revision-Date: 2026-05-01 18:03+0000\n"
+"POT-Creation-Date: 2026-09-11 18:11+0000\n"
+"PO-Revision-Date: 2026-09-11 18:11+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -98,7 +98,7 @@ msgstr ""
 
 #. module: l10n_din5008
 #: model:ir.model,name:l10n_din5008.model_res_company
-msgid "Companies"
+msgid "Company"
 msgstr ""
 
 #. module: l10n_din5008
@@ -112,11 +112,6 @@ msgid "Company Document Layout"
 msgstr ""
 
 #. module: l10n_din5008
-#: model:ir.model.fields,field_description:l10n_din5008.field_base_document_layout__company_registry
-msgid "Company ID"
-msgstr ""
-
-#. module: l10n_din5008
 #: model:ir.model,name:l10n_din5008.model_res_config_settings
 msgid "Config Settings"
 msgstr ""
@@ -124,6 +119,11 @@ msgstr ""
 #. module: l10n_din5008
 #: model_terms:ir.ui.view,arch_db:l10n_din5008.report_invoice_document
 msgid "Credit Note"
+msgstr ""
+
+#. module: l10n_din5008
+#: model:ir.module.module,shortdesc:base.module_l10n_din5008
+msgid "DIN 5008"
 msgstr ""
 
 #. module: l10n_din5008
@@ -221,13 +221,13 @@ msgid "Invoice Date"
 msgstr ""
 
 #. module: l10n_din5008
-#: model_terms:ir.ui.view,arch_db:l10n_din5008.report_invoice_document
-msgid "Invoice Date Due"
+#: model_terms:ir.ui.view,arch_db:l10n_din5008.report_invoice_wizard_preview
+msgid "Invoice Date:"
 msgstr ""
 
 #. module: l10n_din5008
-#: model_terms:ir.ui.view,arch_db:l10n_din5008.report_invoice_wizard_preview
-msgid "Invoice Date:"
+#: model_terms:ir.ui.view,arch_db:l10n_din5008.report_invoice_document
+msgid "Invoice Due Date"
 msgstr ""
 
 #. module: l10n_din5008
@@ -291,6 +291,16 @@ msgid "SO/2021/45678"
 msgstr ""
 
 #. module: l10n_din5008
+#: model_terms:ir.ui.view,arch_db:l10n_din5008.report_invoice_document
+msgid "Self Billing"
+msgstr ""
+
+#. module: l10n_din5008
+#: model_terms:ir.ui.view,arch_db:l10n_din5008.report_invoice_document
+msgid "Self Billing Credit Note"
+msgstr ""
+
+#. module: l10n_din5008
 #: model:ir.model.fields,field_description:l10n_din5008.field_res_company__has_position_column
 #: model:ir.model.fields,field_description:l10n_din5008.field_res_config_settings__has_position_column
 msgid "Show Position Column in Reports"
@@ -313,7 +323,6 @@ msgstr ""
 
 #. module: l10n_din5008
 #: model_terms:ir.ui.view,arch_db:l10n_din5008.external_layout_din5008
-#: model_terms:ir.ui.view,arch_db:l10n_din5008.report_invoice_document
 msgid "Tax ID"
 msgstr ""
 
@@ -323,15 +332,8 @@ msgid "The country to use the tax reports from for this company"
 msgstr ""
 
 #. module: l10n_din5008
-#: model:ir.model.fields,help:l10n_din5008.field_base_document_layout__company_registry
-msgid ""
-"The registry number of the company. Use it if it is different from the Tax "
-"ID. It must be unique across all partners of a same country"
-msgstr ""
-
-#. module: l10n_din5008
-#: model_terms:ir.ui.view,arch_db:l10n_din5008.report_invoice_document
-msgid "VAT"
+#: model:ir.module.module,description:base.module_l10n_din5008
+msgid "This is the base module that defines the DIN 5008 standard in Odoo."
 msgstr ""
 
 #. module: l10n_din5008

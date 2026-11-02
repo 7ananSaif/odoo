@@ -21,7 +21,6 @@ function compileChatter(node, params) {
         threadModel: "__comp__.props.record.resModel",
         record: "__comp__.props.record",
         saveRecord: "() => __comp__.save and __comp__.save()",
-        highlightMessageId: "__comp__.highlightMessageId",
     });
     const chatterContainerHookXml = createElement("div");
     chatterContainerHookXml.classList.add("o-mail-ChatterContainer", "o-mail-Form-chatter");
@@ -36,8 +35,7 @@ function compileAttachmentPreview(node, params) {
     const webClientViewAttachmentViewContainerXml = createElement("t");
     setAttributes(webClientViewAttachmentViewContainerXml, {
         "t-component": "__comp__.mailComponents.AttachmentView",
-        threadId: "__comp__.props.record.resId or undefined",
-        threadModel: "__comp__.props.record.resModel",
+        thread: "__comp__.thread",
     });
     append(webClientViewAttachmentViewContainerHookXml, webClientViewAttachmentViewContainerXml);
     return webClientViewAttachmentViewContainerHookXml;
@@ -82,7 +80,7 @@ patch(FormCompiler.prototype, {
         if (webClientViewAttachmentViewHookXml) {
             // in sheet bg (attachment viewer present)
             setAttributes(webClientViewAttachmentViewHookXml, {
-                "t-if": `__comp__.mailLayout(${hasPreview}).includes("COMBO")`,
+                "t-if": `__comp__.mailLayout(${hasPreview}) == "COMBO"`,
             });
             const sheetBgChatterContainerHookXml = chatterContainerHookXml.cloneNode(true);
             sheetBgChatterContainerHookXml.classList.add("o-isInFormSheetBg", "w-auto");
@@ -101,7 +99,7 @@ patch(FormCompiler.prototype, {
         // after sheet bg (standard position, either aside or below)
         setAttributes(chatterContainerXml, {
             isInFormSheetBg: `["COMBO", "BOTTOM_CHATTER"].includes(__comp__.mailLayout(${hasPreview}))`,
-            isChatterAside: `["SIDE_CHATTER", "EXTERNAL_COMBO_XXL", "EXTERNAL_COMBO"].includes(__comp__.mailLayout(${hasPreview}))`,
+            isChatterAside: `["SIDE_CHATTER", "EXTERNAL_COMBO_XXL"].includes(__comp__.mailLayout(${hasPreview}))`,
         });
         const { ["t-if"]: tIf } = extractAttributes(chatterContainerHookXml, ["t-if"]);
         setAttributes(chatterContainerHookXml, {

@@ -1,122 +1,115 @@
+import { Component, t, usePlugin, useProps, xml } from "@odoo/owl";
+import { DebugModePlugin } from "@web/core/debug_mode_plugin";
 import { Domain } from "@web/core/domain";
+import { OfflinePlugin } from "@web/core/offline/offline_plugin";
 import { evaluateBooleanExpr, evaluateExpr } from "@web/core/py_js/py";
 import { registry } from "@web/core/registry";
-import { utils } from "@web/core/ui/ui_service";
+import { utils } from "@web/core/ui/ui_utils";
 import { exprToBoolean } from "@web/core/utils/strings";
 import { getFieldContext } from "@web/model/relational_model/utils";
 import { X2M_TYPES, getClassNameFromDecoration } from "@web/views/utils";
 import { getTooltipInfo } from "./field_tooltip";
 
-import { Component, xml } from "@odoo/owl";
-
 const isSmall = utils.isSmall;
 
+const formatterRegistry = registry.category("formatters");
 const viewRegistry = registry.category("views");
 const fieldRegistry = registry.category("fields");
 
-const validFieldTypes = [
-    "binary",
-    "boolean",
-    "json",
-    "integer",
-    "float",
-    "monetary",
-    "properties",
-    "properties_definition",
-    "reference",
-    "many2one_reference",
-    "many2one",
-    "one2many",
-    "many2many",
-    "selection",
-    "date",
-    "datetime",
-    "char",
-    "text",
-    "html",
-];
+const validFieldTypes = {
+    binary: { availableOffline: false },
+    boolean: { availableOffline: true },
+    json: { availableOffline: true },
+    integer: { availableOffline: true },
+    float: { availableOffline: true },
+    monetary: { availableOffline: true },
+    properties: { availableOffline: false },
+    properties_definition: { availableOffline: false },
+    reference: { availableOffline: false },
+    many2one_reference: { availableOffline: false },
+    many2one: { availableOffline: true },
+    one2many: { availableOffline: false },
+    many2many: { availableOffline: true },
+    selection: { availableOffline: true },
+    date: { availableOffline: true },
+    datetime: { availableOffline: true },
+    char: { availableOffline: true },
+    text: { availableOffline: true },
+    html: { availableOffline: true },
+};
 
-const supportedInfoValidation = {
-    type: Array,
-    element: Object,
-    shape: {
-        label: String,
-        name: String,
-        type: String,
-        availableTypes: { type: Array, element: String, optional: true },
-        default: { type: String, optional: true },
-        help: { type: String, optional: true },
-        choices: /* choices if type == selection */ {
-            type: Array,
-            element: Object,
-            shape: { label: String, value: String },
-            optional: true,
-        },
+const supportedInfoValidation = t.array(
+    t.object({
+        label: t.string(),
+        name: t.string(),
+        type: t.string(),
+        availableTypes: t.array(t.string()).optional(),
+        default: t.any().optional(),
+        help: t.string().optional(),
+        choices: /* choices if type == selection */ t
+            .array(
+                t.object({
+                    label: t.string(),
+                    value: t.any(),
+                })
+            )
+            .optional(),
         /**
          * If true, the listed fields come from the relation.
          * e.g.: the field is a relational one like many2many_tags, so
          * property 'field' will search on the relation.
          * */
-        isRelationalField: { type: Boolean, optional: false },
-    },
-    optional: true,
-};
+        isRelationalField: t.boolean().optional(),
+    })
+);
 
-fieldRegistry.addValidation({
-    component: { validate: (c) => c.prototype instanceof Component },
-    displayName: { type: String, optional: true },
-    supportedAttributes: supportedInfoValidation,
-    supportedOptions: supportedInfoValidation,
-    supportedTypes: {
-        type: Array,
-        element: String,
-        optional: true,
-        validate: (array) => array.every((x) => validFieldTypes.includes(x)),
-    },
-    extractProps: { type: Function, optional: true },
-    isEmpty: { type: Function, optional: true },
-    isValid: { type: Function, optional: true }, // Override the validation for the validation visual feedbacks
-    additionalClasses: { type: Array, element: String, optional: true },
-    fieldDependencies: {
-        type: [Function, { type: Array, element: Object, shape: { name: String, type: String } }],
-        optional: true,
-    },
-    relatedFields: {
-        type: [
-            Function,
-            {
-                type: Array,
-                element: Object,
-                shape: {
-                    name: String,
-                    type: String,
-                    readonly: { type: Boolean, optional: true },
-                    selection: { type: Array, element: { type: Array, element: String } },
-                    optional: true,
-                },
-            },
-        ],
-        optional: true,
-    },
-    useSubView: { type: Boolean, optional: true },
-    label: { type: [String, { value: false }], optional: true },
-    listViewWidth: {
-        type: [
-            Number,
-            {
-                type: Array,
-                element: Number,
-                validate: (array) => array.length === 1 || array.length === 2,
-            },
-            Function,
-        ],
-        optional: true,
-    },
-});
+fieldRegistry.addValidation(
+    t.object({
+        component: t.component(),
+        displayName: t.string().optional(),
+        supportedAttributes: supportedInfoValidation.optional(),
+        supportedOptions: supportedInfoValidation.optional(),
+        supportedTypes: t
+            .customValidator(t.array(t.string()), (array) =>
+                array.every((x) => x in validFieldTypes)
+            )
+            .optional(),
+        extractProps: t.function().optional(),
+        isEmpty: t.function().optional(),
+        isValid: t.function().optional(), // Override the validation for the validation visual feedbacks
+        additionalClasses: t.array(t.string()).optional(),
+        fieldDependencies: t
+            .or([t.function(), t.array(t.object({ name: t.string(), type: t.string() }))])
+            .optional(),
+        relatedFields: t
+            .or([
+                t.function(),
+                t.array(
+                    t.object({
+                        name: t.string(),
+                        type: t.string(),
+                        readonly: t.boolean().optional(),
+                        selection: t.array(t.tuple([t.any(), t.string()])).optional(),
+                    })
+                ),
+            ])
+            .optional(),
+        useSubView: t.boolean().optional(),
+        label: t.or([t.string(), t.literal(false)]).optional(),
+        listViewWidth: t
+            .or([
+                t.number(),
+                t.tuple([t.number()]),
+                t.tuple([t.number(), t.number()]),
+                t.function(),
+            ])
+            .optional(),
+    })
+);
 
 class DefaultField extends Component {
     static template = xml``;
-    static props = ["*"];
+    props = useProps();
 }
 
 export function getFieldFromRegistry(fieldType, widget, viewType, jsClass) {
@@ -143,7 +136,10 @@ export function getFieldFromRegistry(fieldType, widget, viewType, jsClass) {
 }
 
 export function fieldVisualFeedback(field, record, fieldName, fieldInfo) {
-    const readonly = evaluateBooleanExpr(fieldInfo.readonly, record.evalContextWithVirtualIds);
+    const readonly =
+        fieldInfo.viewType === "form" && !record.isInEdition
+            ? true
+            : evaluateBooleanExpr(fieldInfo.readonly, record.evalContextWithVirtualIds);
     const required = evaluateBooleanExpr(fieldInfo.required, record.evalContextWithVirtualIds);
     const inEdit = record.isInEdition;
 
@@ -220,7 +216,9 @@ export function getPropertyFieldInfo(propertyField) {
 }
 export class Field extends Component {
     static template = "web.Field";
-    static props = ["fieldInfo?", "*"];
+    // Field forwards arbitrary props to the underlying field component, so it
+    // accepts any prop (fieldInfo among them).
+    props = useProps();
     static parseFieldNode = function (node, models, modelName, viewType, jsClass) {
         const name = node.getAttribute("name");
         const widget = node.getAttribute("widget");
@@ -244,6 +242,7 @@ export class Field extends Component {
             decorations: {},
             attrs: {},
             domain: undefined,
+            group_expand: !!fields[name].group_expand,
         };
 
         for (const attr of ["invisible", "column_invisible", "readonly", "required"]) {
@@ -354,7 +353,10 @@ export class Field extends Component {
         return fieldInfo;
     };
 
+    debugMode = usePlugin(DebugModePlugin);
+
     setup() {
+        this.offlinePlugin = usePlugin(OfflinePlugin);
         if (this.props.fieldInfo) {
             this.field = this.props.fieldInfo.field;
         } else {
@@ -409,7 +411,13 @@ export class Field extends Component {
 
     get fieldComponentProps() {
         const record = this.props.record;
-        let readonly = this.props.readonly || false;
+        // Disable edition in offline mode, except for a some fields
+        let readonly =
+            this.props.readonly ||
+            (this.offlinePlugin.isOffline() &&
+                !validFieldTypes[this.props.record.fields[this.props.name].type]
+                    .availableOffline) ||
+            false;
 
         let propsFromNode = {};
         if (this.props.fieldInfo) {
@@ -425,10 +433,12 @@ export class Field extends Component {
                         attrs: { ...fieldInfo.attrs, ...this.props.attrs },
                     };
                 }
-                if (fieldInfo.attrs.placeholder || fieldInfo.options.placeholder_field) {
-                    fieldInfo.placeholder =
-                        record.data[fieldInfo.options.placeholder_field] ||
-                        fieldInfo.attrs.placeholder;
+                if (fieldInfo.options.placeholder_field) {
+                    const placeholderField = fieldInfo.options.placeholder_field;
+                    const formatter = formatterRegistry.get(record.fields[placeholderField].type);
+                    fieldInfo.placeholder = formatter(record.data[placeholderField]);
+                } else if (fieldInfo.attrs.placeholder) {
+                    fieldInfo.placeholder = fieldInfo.attrs.placeholder;
                 }
 
                 const dynamicInfo = {
@@ -473,10 +483,16 @@ export class Field extends Component {
                 field: this.props.record.fields[this.props.name],
                 fieldInfo: this.props.fieldInfo || {},
             });
-            if (Boolean(odoo.debug) || (tooltip && JSON.parse(tooltip).field.help)) {
+            if (this.debugMode.isActive() || (tooltip && JSON.parse(tooltip).field.help)) {
                 return tooltip;
             }
         }
         return false;
+    }
+    onFieldFocus(isActive) {
+        const formLabelSelector = `.o_cell:has(+ .o_cell .o_field_widget[name=${this.props.name}]) .o_form_label`;
+        document
+            .querySelector(`label[for=${this.fieldComponentProps.id}], ${formLabelSelector}`)
+            ?.classList.toggle("o_label_active", isActive);
     }
 }

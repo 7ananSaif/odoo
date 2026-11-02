@@ -1,40 +1,47 @@
-import { Component, useState } from "@odoo/owl";
-import { Dropdown } from "@web/core/dropdown/dropdown";
+import { Component, proxy, t, useProps, useScope } from "@odoo/owl";
 import { PropertiesGroupByItem } from "@web/search/properties_group_by_item/properties_group_by_item";
+import { SearchBarDropdown } from "../search_bar_dropdown";
+import { dropdownProps } from "@web/core/dropdown/dropdown";
 import { DropdownItem } from "@web/core/dropdown/dropdown_item";
 import { registry } from "@web/core/registry";
 import { sortBy } from "@web/core/utils/arrays";
 import { useBus, useService } from "@web/core/utils/hooks";
+import { location } from "@web/core/browser/browser";
+import { hasTouch } from "@web/core/browser/feature_detection";
+import { useCommand } from "@web/core/commands/command_hook";
 import { AccordionItem } from "@web/core/dropdown/accordion_item";
+import { AlertDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { CustomGroupByItem } from "@web/search/custom_group_by_item/custom_group_by_item";
 import { CheckboxItem } from "@web/core/dropdown/checkbox_item";
 import { FACET_ICONS, GROUPABLE_TYPES } from "@web/search/utils/misc";
+import { _t } from "@web/core/l10n/translation";
+import { render } from "@web/owl2/utils";
+import { condition } from "@web/core/tree_editor/condition_tree";
+import { domainFromTree } from "@web/core/tree_editor/domain_from_tree";
+import { constructDateRange } from "@web/search/utils/dates";
 
 const favoriteMenuRegistry = registry.category("favoriteMenu");
 
 export class SearchBarMenu extends Component {
     static template = "web.SearchBarMenu";
     static components = {
-        Dropdown,
+        SearchBarDropdown,
         DropdownItem,
         CheckboxItem,
         CustomGroupByItem,
         AccordionItem,
         PropertiesGroupByItem,
     };
-    static props = {
-        slots: {
-            type: Object,
-            optional: true,
-            shape: {
-                default: { optional: true },
-            },
-        },
-        dropdownState: { ...Dropdown.props.state },
-    };
+    props = useProps({
+        dropdownState: dropdownProps.state,
+        popoverWillCloseOnClickAway: t.function().optional(() => () => true),
+    });
+
+    scope = useScope();
 
     setup() {
         this.facet_icons = FACET_ICONS;
+        this.hasTouch = hasTouch();
         // Filter
         this.actionService = useService("action");
         // GroupBy
@@ -46,19 +53,73 @@ export class SearchBarMenu extends Component {
         }
         this.fields = sortBy(fields, "string");
         // Favorite
-        this.state = useState({ sharedFavoritesExpanded: false });
-        useBus(this.env.searchModel, "update", this.render);
+        this.state = proxy({ sharedFavoritesExpanded: false });
+        useBus(this.env.searchModel, "update", () => render(this));
+        this.dialogService = useService("dialog");
+        this.notificationService = useService("notification");
+
+        // Add Share command
+        if (this.env.config.actionId && !this.env.inDialog) {
+            // TODO JESC FIXME BUG CLOSING SOME DIALOG (LIKE INVOICE), WRONG ACTIVE ELEMENT
+            useCommand(_t("Share"), () => this.shareViewUrl(), {
+                hotkey: "alt+shift+h",
+                hotkeyOptions: { bypassEditableProtection: true },
+            });
+        }
     }
 
-    // Filter Panel
     get filterItems() {
-        return this.env.searchModel.getSearchItems((searchItem) =>
-            ["filter", "dateFilter"].includes(searchItem.type)
-        );
+        const show = ["filter", "dateFilter", "parentFilter", "lazyParentFilter", "relativeFilter"];
+        return this.env.searchModel.getSearchItems((item) => show.includes(item.type));
     }
 
-    async onAddCustomFilterClick() {
+    /**
+     * Filter out top level items that are only shown nested (eg. relative filters)
+     * (It was a hard and debatable design decision to model relative filters as top
+     * level items even though they are only shown nested, to avoid much refactoring)
+     */
+    get displayedFilterItems() {
+        const relativeItems = new Map();
+        const displayed = [];
+        for (const item of this.filterItems) {
+            if (item.type === "relativeFilter") {
+                relativeItems.set(item.id, item);
+            } else {
+                displayed.push(item);
+            }
+        }
+        for (const item of displayed) {
+            item.relativeItem = relativeItems.get(item.relativeFilterId) ?? null;
+        }
+        return displayed;
+    }
+
+    onAddCustomFilterClick() {
         this.env.searchModel.spawnCustomFilterDialog();
+    }
+
+    /** Opens a domain editor dialog for the given item, default to "is in" "today" option */
+    onAddCustomDateFilterClick(item) {
+        const { fieldName, fieldType, endFieldName, endFieldType } = item;
+        let domain;
+        if (endFieldName) {
+            // The value editors of the dialog cannot read smart dates back
+            // ("today +1d"), so the range is prefilled with the bounds of the
+            // current day instead of with the relative "today" option.
+            const range = constructDateRange({
+                referenceMoment: this.env.searchModel.referenceMoment,
+                fieldName,
+                fieldType,
+                endFieldName,
+                endFieldType,
+                granularity: "day",
+                setParam: {},
+            });
+            domain = range.domain.toString();
+        } else {
+            domain = domainFromTree(condition(fieldName, "in range", [fieldType, "today"]));
+        }
+        this.env.searchModel.spawnCustomFilterDialog({ domain });
     }
 
     /**
@@ -68,10 +129,30 @@ export class SearchBarMenu extends Component {
      */
     onFilterSelected({ itemId, optionId }) {
         if (optionId) {
-            this.env.searchModel.toggleDateFilter(itemId, optionId);
+            this.env.searchModel.toggleParentFilter(itemId, optionId);
         } else {
             this.env.searchModel.toggleSearchItem(itemId);
         }
+    }
+
+    onRelativeFilterSelected({ itemId, optionId }) {
+        this.env.searchModel.toggleRelativeFilter(itemId, optionId);
+    }
+
+    hasActiveOption(item, relativeItem) {
+        return item.isActive || (relativeItem?.options?.some((o) => o.isActive) ?? false);
+    }
+
+    async onToggle({ itemId, optionsParams }) {
+        if (optionsParams.toBeLoaded) {
+            await this.env.searchModel.loadLazyParentFilter(itemId);
+            render(this);
+        }
+    }
+
+    async onLoadMoreOptions({ itemId }) {
+        await this.env.searchModel.loadMoreOptions(itemId);
+        render(this);
     }
 
     // GroupBy Panel
@@ -145,7 +226,7 @@ export class SearchBarMenu extends Component {
     get otherItems() {
         const registryMenus = [];
         for (const item of favoriteMenuRegistry.getAll()) {
-            if ("isDisplayed" in item ? item.isDisplayed(this.env) : true) {
+            if ("isDisplayed" in item ? this.scope.run(() => item.isDisplayed(this.env)) : true) {
                 registryMenus.push({
                     Component: item.Component,
                     groupNumber: item.groupNumber,
@@ -170,5 +251,42 @@ export class SearchBarMenu extends Component {
             },
             res_id: this.env.searchModel.searchItems[itemId].serverSideId,
         });
+    }
+
+    /**
+     * Adds encoded active filters to the current url and copies it to the user's
+     * clipboard if possible. This url is parsed to reactivate filters if in route.
+     */
+    async shareViewUrl() {
+        let shareUrl = location.href;
+        const extra = this.env.searchModel.generateQueryString();
+        if (extra) {
+            const [base, hash = ""] = location.href.split("#");
+            shareUrl = base + (base.includes("?") ? "&" : "?") + extra + (hash ? "#" + hash : "");
+        }
+
+        try {
+            await navigator.clipboard.writeText(shareUrl);
+        } catch {
+            // Can fail in some context like if the browser is unsafe.
+            this.dialogService.add(AlertDialog, {
+                title: _t("Share the current view"),
+                body: _t(
+                    "You can use the link below to share the current view with its filters: \n\n %(url)s",
+                    { url: shareUrl }
+                ),
+            });
+            return;
+        }
+
+        const maxSafeUrlLength = 2000; // Chrome v.143. working up to 450000 chars and firefox > 500000 chars
+        if (shareUrl.length < maxSafeUrlLength) {
+            this.notificationService.add(_t("Link copied to clipboard"), { type: "success" });
+        } else {
+            this.notificationService.add(
+                _t("Warning: Link copied to clipboard might be too long for some browsers"),
+                { type: "warning" }
+            );
+        }
     }
 }

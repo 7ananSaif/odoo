@@ -1,10 +1,10 @@
-import { BaseOptionComponent, useDomState } from "@html_builder/core/utils";
-import { _t } from "@web/core/l10n/translation";
+import { BaseOptionComponent } from "@html_builder/core/base_option_component";
+import { useDomState } from "@html_builder/core/utils";
+import { registry } from "@web/core/registry";
 
 export class CoverPropertiesOption extends BaseOptionComponent {
+    static id = "cover_properties_option";
     static template = "website.CoverPropertiesOption";
-    static selector = ".o_record_cover_container";
-    static editableOnly = false;
 
     setup() {
         super.setup();
@@ -12,16 +12,7 @@ export class CoverPropertiesOption extends BaseOptionComponent {
             useTextAlign: editingElement.dataset.use_text_align === "True",
             useSize: editingElement.dataset.use_size === "True",
         }));
-        this.coverSizeClasses = Object.keys(coverSizeClassLabels);
-    }
-
-    coverSizeLabel(className) {
-        return coverSizeClassLabels[className];
     }
 }
 
-export const coverSizeClassLabels = {
-    o_full_screen_height: _t("Full Screen"),
-    o_half_screen_height: _t("Half Screen"),
-    cover_auto: _t("Fit text"),
-};
+registry.category("website-options").add(CoverPropertiesOption.id, CoverPropertiesOption);

@@ -1,24 +1,25 @@
-import { Component, onMounted, useRef, useState, xml } from "@odoo/owl";
-import { ACTIVE_ELEMENT_CLASS, Navigator, useNavigation } from "@web/core/navigation/navigation";
-import { useAutofocus } from "@web/core/utils/hooks";
-import { describe, destroy, expect, test } from "@odoo/hoot";
 import {
-    hover,
-    press,
+    animationFrame,
     click,
+    describe,
+    expect,
+    hover,
+    manuallyDispatchProgrammaticEvent,
+    press,
     queryAllTexts,
     queryOne,
-    manuallyDispatchProgrammaticEvent,
-} from "@odoo/hoot-dom";
-import { animationFrame } from "@odoo/hoot-mock";
-import { mountWithCleanup, patchWithCleanup } from "@web/../tests/web_test_helpers";
+    test,
+} from "@odoo/hoot";
+import { Component, onMounted, proxy, signal, xml } from "@odoo/owl";
+import { destroyApp, mountWithCleanup, patchWithCleanup } from "@web/../tests/web_test_helpers";
+import { ACTIVE_ELEMENT_CLASS, Navigator, useNavigation } from "@web/core/navigation/navigation";
+import { useAutofocus } from "@web/core/utils/hooks";
 
 class BasicHookParent extends Component {
-    static props = [];
     static template = xml`
-        <button class="outside" t-ref="outsideRef">outside target</button>
-        <div class="container" t-ref="containerRef">
-            <button class="o-navigable one" t-on-click="() => this.onClick(1)">target one</button>
+        <button class="outside" t-ref="this.outsideRef">outside target</button>
+        <div class="container" t-ref="this.containerRef">
+            <button class="o-navigable one" tabindex="0" t-on-click="() => this.onClick(1)">target one</button>
             <div class="o-navigable two" tabindex="0" t-on-click="() => this.onClick(2)">target two</div>
             <input class="o-navigable three" t-on-click="() => this.onClick(3)"/><br/>
             <button class="no-nav-class">skipped</button><br/>
@@ -29,9 +30,11 @@ class BasicHookParent extends Component {
         </div>
     `;
 
+    outsideRef = signal.ref();
+    containerRef = signal.ref();
+
     setup() {
-        useAutofocus({ refName: "outsideRef" });
-        this.navigation = useNavigation("containerRef", this.navOptions);
+        this.navigation = useNavigation(this.containerRef, this.navOptions);
         onMounted(() => this.navigation.items[0]?.setActive());
     }
 
@@ -73,7 +76,7 @@ test("default navigation", async () => {
     await navigate("home", ".one");
 
     await navigate("tab", ".two");
-    await navigate("shift+tab", ".one");
+    await navigate(["shift", "tab"], ".one");
 
     await navigate("arrowleft", ".one");
     await navigate("arrowright", ".one");
@@ -143,6 +146,13 @@ test("navigation with virtual focus", async () => {
             isNavigationAvailable: () => true,
         };
 
+        setup() {
+            super.setup();
+            // Real focus is expected to stay on this unrelated, autofocused
+            // button throughout: virtual focus never touches real DOM focus.
+            useAutofocus({ ref: this.outsideRef });
+        }
+
         onClick(id) {
             expect.step(id);
         }
@@ -164,7 +174,7 @@ test("navigation with virtual focus", async () => {
     await navigate("home", ".one");
 
     await navigate("tab", ".two");
-    await navigate("shift+tab", ".one");
+    await navigate(["shift", "tab"], ".one");
 
     await press("enter");
     await animationFrame();
@@ -210,26 +220,26 @@ test("navigation disabled when component is destroyed", async () => {
             super._destroy();
         },
     });
-    const component = await mountWithCleanup(BasicHookParent);
+    await mountWithCleanup(BasicHookParent);
     await expect.waitForSteps(["enable"]);
-    destroy(component);
+    destroyApp();
     await expect.waitForSteps(["disable"]);
 });
 
 test("insert item before current", async () => {
     class TestComp extends Component {
-        static props = [];
         static template = xml`
-            <div class="container" t-ref="containerRef">
-                <t t-foreach="state.items" t-as="item" t-key="item">
-                    <div class="o-navigable" t-attf-class="item-{{item}}" tabindex="0" t-esc="item"/>
+            <div class="container" t-ref="this.containerRef">
+                <t t-foreach="this.state.items" t-as="item" t-key="item">
+                    <div class="o-navigable" t-attf-class="item-{{item}}" tabindex="0" t-out="item"/>
                 </t>
             </div>
         `;
 
+        containerRef = signal.ref();
         setup() {
-            this.navigation = useNavigation("containerRef");
-            this.state = useState({ items: [1, 2, 3] });
+            this.navigation = useNavigation(this.containerRef);
+            this.state = proxy({ items: [1, 2, 3] });
             onMounted(() => this.navigation.items[0].setActive());
         }
     }
@@ -283,20 +293,21 @@ test("non-navigable dom update does NOT cause re-focus", async () => {
     // of one of the navigable item.
 
     class Parent extends Component {
-        static props = [];
         static template = xml`
-            <button class="outside" t-ref="outsideRef">outside target</button>
-            <div class="container" t-ref="containerRef">
+            <button class="outside" t-ref="this.outsideRef">outside target</button>
+            <div class="container" t-ref="this.containerRef">
                 <button class="o-navigable one" t-on-click="() => this.onClick(1)">target one</button>
-                <div class="test-non-navigable" t-if="state.show">
+                <div class="test-non-navigable" t-if="this.state.show">
                 </div>
             </div>
         `;
 
+        outsideRef = signal.ref();
+        containerRef = signal.ref();
         setup() {
-            this.navigation = useNavigation("containerRef");
+            this.navigation = useNavigation(this.containerRef);
             onMounted(() => this.navigation.items[0]?.setActive());
-            this.state = useState({ show: false });
+            this.state = proxy({ show: false });
         }
     }
 
@@ -315,16 +326,16 @@ test("non-navigable dom update does NOT cause re-focus", async () => {
 
 test("mousehover only set active if navigation is availible", async () => {
     class Parent extends Component {
-        static props = [];
         static template = xml`
-            <div class="container" t-ref="containerRef">
+            <div class="container" t-ref="this.containerRef">
                 <button class="o-navigable one">target one</button>
                 <button class="o-navigable two">target two</button>
             </div>
         `;
 
+        containerRef = signal.ref();
         setup() {
-            this.navigation = useNavigation("containerRef");
+            this.navigation = useNavigation(this.containerRef);
         }
     }
 
@@ -352,17 +363,17 @@ test("mousehover only set active if navigation is availible", async () => {
 
 test("active item is unset when focusing out", async () => {
     class Parent extends Component {
-        static props = [];
         static template = xml`
             <button class="outside">outside</button>
-            <div class="container" t-ref="containerRef">
+            <div class="container" t-ref="this.containerRef">
                 <button class="o-navigable one">target one</button>
                 <button class="o-navigable two">target two</button>
             </div>
         `;
 
+        containerRef = signal.ref();
         setup() {
-            this.navigation = useNavigation("containerRef");
+            this.navigation = useNavigation(this.containerRef);
         }
     }
 
@@ -380,49 +391,96 @@ test("active item is unset when focusing out", async () => {
 
 test("set focused element as active item", async () => {
     class Parent extends Component {
-        static props = [];
         static template = xml`
-            <div class="container" t-ref="containerRef">
-                <input class="o-navigable one" id="input" t-ref="autofocus"/>
+            <div class="container" t-ref="this.containerRef">
+                <input class="o-navigable one" id="input" t-ref="this.inputRef"/>
                 <button class="o-navigable two">target two</button>
                 <button class="o-navigable three">target three</button>
             </div>
         `;
 
+        containerRef = signal.ref();
+        inputRef = signal.ref();
         setup() {
-            this.inputRef = useAutofocus();
-            this.navigation = useNavigation("containerRef");
+            useAutofocus({ ref: this.inputRef });
+            this.navigation = useNavigation(this.containerRef);
         }
     }
 
     const component = await mountWithCleanup(Parent);
-    expect(component.inputRef.el).toBeFocused();
+    expect(component.inputRef()).toBeFocused();
     expect(component.navigation.activeItem).not.toBeEmpty();
-    expect(component.navigation.activeItem.el).toBe(component.inputRef.el);
+    expect(component.navigation.activeItem.el).toBe(component.inputRef());
+});
+
+test("browser default navigation is not captured", async () => {
+    async function navigate(hotkey, focused) {
+        await press(hotkey);
+        await animationFrame();
+        expect(focused).toBeFocused();
+    }
+
+    class Parent extends Component {
+        static template = xml`
+            <button class="outside-one" t-ref="this.outsideRef">outside one</button>
+            <div class="container" t-ref="this.containerRef">
+                <button class="o-navigable inside-one">inside one</button>
+                <button class="o-navigable inside-two">inside two</button>
+            </div>
+            <button class="outside-two">outside two</button>
+        `;
+
+        outsideRef = signal.ref();
+        containerRef = signal.ref();
+        setup() {
+            useAutofocus({ ref: this.outsideRef });
+            this.navigation = useNavigation(this.containerRef, {});
+        }
+    }
+
+    await mountWithCleanup(Parent);
+    expect(".outside-one").toBeFocused();
+
+    await navigate("tab", ".inside-one.focus");
+    expect(".focus").toHaveCount(1);
+
+    await navigate("tab", ".inside-two.focus");
+    expect(".focus").toHaveCount(1);
+
+    await navigate("tab", ".outside-two");
+    expect(".focus").toHaveCount(0);
+
+    await navigate(["shift", "tab"], ".inside-two.focus");
+    expect(".focus").toHaveCount(1);
+
+    await navigate(["shift", "tab"], ".inside-one.focus");
+    expect(".focus").toHaveCount(1);
+
+    await navigate(["shift", "tab"], ".outside-one");
+    expect(".focus").toHaveCount(0);
 });
 
 test("focus not stolen from search input during typing, hovering, and clearing", async () => {
     class FakeSearchList extends Component {
         static template = xml`
-            <div t-ref="container">
+            <div t-ref="this.containerRef">
                 <input
-                    t-ref="inputRef"
+                    t-ref="this.inputRef"
                     class="o-navigable"
                     type="text"
-                    t-on-input="onSearch"
+                    t-on-input="this.onSearch"
                     placeholder="Search..."
                 />
-                <t t-foreach="visibleItems" t-as="item" t-key="item">
-                    <div class="o-navigable fake-item" tabindex="0" t-esc="item"/>
+                <t t-foreach="this.visibleItems" t-as="item" t-key="item">
+                    <div class="o-navigable fake-item" tabindex="0" t-out="item"/>
                 </t>
             </div>
         `;
-        static props = [];
 
+        containerRef = signal.ref();
+        inputRef = signal.ref();
         setup() {
-            this.containerRef = useRef("container");
-            this.inputRef = useRef("inputRef");
-            this.state = useState({
+            this.state = proxy({
                 searchFilter: "",
                 allItems: Array.from({ length: 10 }, (_, i) => `Item ${i + 1}`),
             });

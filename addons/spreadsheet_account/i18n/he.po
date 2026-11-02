@@ -2,15 +2,15 @@
 # This file contains the translation of the following modules:
 # * spreadsheet_account
 #
-# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-11-17 12:59+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Hebrew <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-11 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 16:54+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Hebrew <https://translate.odoo.com/projects/odoo-s19-4/"
 "spreadsheet_account/he/>\n"
 "Language: he\n"
 "MIME-Version: 1.0\n"
@@ -18,11 +18,11 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=4; plural=(n == 1) ? 0 : ((n == 2) ? 1 : ((n > 10 && "
 "n % 10 == 0) ? 2 : 3));\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: spreadsheet_account
 #. odoo-javascript
-#: code:addons/spreadsheet_account/static/src/plugins/accounting_plugin.js:0
+#: code:addons/spreadsheet_account/static/src/accounting_functions.js:0
 msgid "%s is not a valid year."
 msgstr ""
 
@@ -53,8 +53,9 @@ msgstr ""
 
 #. module: spreadsheet_account
 #: model:ir.model,name:spreadsheet_account.model_res_company
-msgid "Companies"
-msgstr "חברות"
+#, fuzzy
+msgid "Company"
+msgstr "חברה"
 
 #. module: spreadsheet_account
 #. odoo-javascript
@@ -70,9 +71,21 @@ msgstr "כרטיס אשראי"
 
 #. module: spreadsheet_account
 #. odoo-javascript
+#: code:addons/spreadsheet_account/static/src/accounting_functions.js:0
+msgid "Currency not available for this company."
+msgstr ""
+
+#. module: spreadsheet_account
+#. odoo-javascript
 #: code:addons/spreadsheet_account/static/src/account_group_auto_complete.js:0
 msgid "Current Assets"
 msgstr "נכסים שוטפים"
+
+#. module: spreadsheet_account
+#. odoo-javascript
+#: code:addons/spreadsheet_account/static/src/fiscal_year_global_filter.js:0
+msgid "Current Fiscal Year"
+msgstr ""
 
 #. module: spreadsheet_account
 #. odoo-javascript
@@ -109,6 +122,13 @@ msgstr "הון עצמי"
 #: code:addons/spreadsheet_account/static/src/account_group_auto_complete.js:0
 msgid "Expenses"
 msgstr "הוצאות"
+
+#. module: spreadsheet_account
+#. odoo-javascript
+#: code:addons/spreadsheet_account/static/src/fiscal_year_global_filter.js:0
+#, fuzzy
+msgid "Fiscal Year"
+msgstr "שנת כספים"
 
 #. module: spreadsheet_account
 #. odoo-javascript
@@ -245,20 +265,31 @@ msgid "Set to TRUE to include unposted entries."
 msgstr ""
 
 #. module: spreadsheet_account
+#: model:ir.module.module,shortdesc:base.module_spreadsheet_account
+msgid "Spreadsheet Accounting Formulas"
+msgstr ""
+
+#. module: spreadsheet_account
+#: model:ir.module.module,description:base.module_spreadsheet_account
+#: model:ir.module.module,summary:base.module_spreadsheet_account
+msgid "Spreadsheet Accounting formulas"
+msgstr ""
+
+#. module: spreadsheet_account
 #. odoo-javascript
-#: code:addons/spreadsheet_account/static/src/plugins/accounting_plugin.js:0
+#: code:addons/spreadsheet_account/static/src/accounting_functions.js:0
 msgid "The balance for given account tag could not be computed."
 msgstr ""
 
 #. module: spreadsheet_account
 #. odoo-javascript
-#: code:addons/spreadsheet_account/static/src/plugins/accounting_plugin.js:0
+#: code:addons/spreadsheet_account/static/src/accounting_functions.js:0
 msgid "The balance for given partners could not be computed."
 msgstr ""
 
 #. module: spreadsheet_account
 #. odoo-javascript
-#: code:addons/spreadsheet_account/static/src/plugins/accounting_plugin.js:0
+#: code:addons/spreadsheet_account/static/src/accounting_functions.js:0
 msgid "The company fiscal year could not be found."
 msgstr ""
 
@@ -316,7 +347,7 @@ msgstr ""
 
 #. module: spreadsheet_account
 #. odoo-javascript
-#: code:addons/spreadsheet_account/static/src/plugins/accounting_plugin.js:0
+#: code:addons/spreadsheet_account/static/src/accounting_functions.js:0
 msgid "The residual amount for given accounts could not be computed."
 msgstr ""
 

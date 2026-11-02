@@ -10,14 +10,14 @@ from . import res_groups
 from . import res_partner
 from . import im_livechat_channel
 from . import im_livechat_expertise
+from . import ir_http
 from . import ir_qweb
 from . import ir_websocket
 from . import discuss_channel
 from . import discuss_channel_member
 from . import discuss_channel_rtc_session
 from . import im_livechat_channel_member_history
-from . import im_livechat_conversation_tag
 from . import mail_message
 from . import res_users_settings
-from . import rating_rating
 from . import digest
+from . import utm

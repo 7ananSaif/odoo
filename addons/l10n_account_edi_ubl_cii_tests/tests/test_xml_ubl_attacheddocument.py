@@ -5,6 +5,8 @@ from odoo.tests import tagged
 @tagged('post_install_l10n', 'post_install', '-at_install')
 class TestUBLAttachedDocument(TestUBLCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     @TestUBLCommon.setup_country('au')
     def setUpClass(cls):
@@ -22,7 +24,7 @@ class TestUBLAttachedDocument(TestUBLCommon):
             'phone': '+31 180 6 225789',
             'email': 'info@outlook.au',
             'country_id': cls.env.ref('base.au').id,
-            'bank_ids': [(0, 0, {'acc_number': '000099998B57'})],
+            'bank_ids': [(0, 0, {'account_number': '000099998B57'})],
             'ref': 'ref_partner_1',
             'invoice_edi_format': 'ubl_a_nz',
         })
@@ -34,7 +36,7 @@ class TestUBLAttachedDocument(TestUBLCommon):
             'city': "Canberra",
             'vat': '53 930 548 027',
             'country_id': cls.env.ref('base.au').id,
-            'bank_ids': [(0, 0, {'acc_number': '93999574162167'})],
+            'bank_ids': [(0, 0, {'account_number': '93999574162167'})],
             'ref': 'ref_partner_2',
             'invoice_edi_format': 'ubl_a_nz',
         })

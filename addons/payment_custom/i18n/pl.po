@@ -13,10 +13,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~12.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2026-01-13 15:32+0000\n"
-"Last-Translator: \"Marta (wacm)\" <wacm@odoo.com>\n"
-"Language-Team: Polish <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-11 17:44+0000\n"
+"PO-Revision-Date: 2026-08-31 15:19+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Polish <https://translate.odoo.com/projects/odoo-s19-4/"
 "payment_custom/pl/>\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
@@ -25,33 +25,45 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && "
 "(n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && "
 "n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: payment_custom
-#: model_terms:ir.ui.view,arch_db:payment_custom.custom_state_header
-msgid ""
-"<small class=\"text-center text-wrap lh-sm\">Scan me in your banking app</"
-"small>"
+#: model_terms:ir.ui.view,arch_db:payment_custom.custom_payment_transfer_details
+msgid "<b>Amount:</b>"
 msgstr ""
-"<small class=\"text-center text-wrap lh-sm\">Zeskanuj mnie w swojej "
-"aplikacji bankowej</small>"
 
 #. module: payment_custom
-#: model_terms:ir.ui.view,arch_db:payment_custom.custom_state_header
-msgid "<strong class=\"mt-auto\">Communication: </strong>"
-msgstr "<strong class=\"mt-auto\">Komunikacja: </strong>"
+#: model_terms:ir.ui.view,arch_db:payment_custom.custom_payment_transfer_details
+msgid "<b>Bank Account:</b>"
+msgstr ""
 
 #. module: payment_custom
-#. odoo-python
-#: code:addons/payment_custom/models/payment_provider.py:0
+#: model_terms:ir.ui.view,arch_db:payment_custom.custom_payment_transfer_details
+msgid "<b>Beneficiary:</b>"
+msgstr ""
+
+#. module: payment_custom
+#: model_terms:ir.ui.view,arch_db:payment_custom.custom_payment_transfer_details
+msgid "<b>Communication:</b>"
+msgstr ""
+
+#. module: payment_custom
+#: model_terms:ir.ui.view,arch_db:payment_custom.custom_payment_transfer_details
+msgid ""
+"<small class=\"text-center text-wrap lh-sm\">\n"
+"                            Scan me in your banking app\n"
+"                        </small>"
+msgstr ""
+
+#. module: payment_custom
+#: model:ir.module.module,summary:base.module_payment_custom
+msgid "A payment provider for custom flows like wire transfers."
+msgstr ""
+
+#. module: payment_custom
+#: model:ir.model.fields,field_description:payment_custom.field_payment_provider__partner_bank_id
 msgid "Bank Account"
 msgstr "Konto bankowe"
-
-#. module: payment_custom
-#. odoo-python
-#: code:addons/payment_custom/models/payment_provider.py:0
-msgid "Bank Accounts"
-msgstr "Konta bankowe"
 
 #. module: payment_custom
 #: model:ir.model.fields,field_description:payment_custom.field_payment_provider__code
@@ -85,7 +97,8 @@ msgid "Enable the use of QR-codes when paying by wire transfer."
 msgstr "Włącz kody QR podczas płatności przelewem."
 
 #. module: payment_custom
-#: model_terms:ir.ui.view,arch_db:payment_custom.custom_state_header
+#. odoo-python
+#: code:addons/payment_custom/models/payment_transaction.py:0
 msgid "Finalize your payment"
 msgstr "Sfinalizuj płatność"
 
@@ -96,7 +109,7 @@ msgid "ID"
 msgstr "ID"
 
 #. module: payment_custom
-#: model_terms:ir.ui.view,arch_db:payment_custom.custom_state_header
+#: model_terms:ir.ui.view,arch_db:payment_custom.custom_payment_transfer_details
 msgid "OR"
 msgstr "LUB"
 
@@ -106,25 +119,35 @@ msgid "Only custom providers should have a custom mode."
 msgstr "Tylko niestandardowi dostawcy powinni mieć tryb niestandardowy."
 
 #. module: payment_custom
+#: model_terms:ir.ui.view,arch_db:payment_custom.payment_provider_form
+msgid "Others"
+msgstr ""
+
+#. module: payment_custom
+#: model:ir.model.fields,field_description:payment_custom.field_payment_provider__company_partner_id
+msgid "Partner"
+msgstr ""
+
+#. module: payment_custom
+#: model:ir.model.fields.selection,name:payment_custom.selection__payment_provider__custom_mode__pay_on_invoice
+#: model:payment.method,name:payment_custom.payment_method_pay_on_invoice
+msgid "Pay on Invoice"
+msgstr ""
+
+#. module: payment_custom
 #: model:ir.model,name:payment_custom.model_payment_provider
 msgid "Payment Provider"
 msgstr "Operator płatności"
 
 #. module: payment_custom
+#: model:ir.module.module,shortdesc:base.module_payment_custom
+msgid "Payment Provider: Custom Payment Modes"
+msgstr ""
+
+#. module: payment_custom
 #: model:ir.model,name:payment_custom.model_payment_transaction
 msgid "Payment Transaction"
 msgstr "Transakcja płatnicza"
-
-#. module: payment_custom
-#. odoo-python
-#: code:addons/payment_custom/models/payment_provider.py:0
-msgid "Please use the following transfer details"
-msgstr "Proszę użyć następujących danych do przelewu"
-
-#. module: payment_custom
-#: model_terms:ir.ui.view,arch_db:payment_custom.payment_provider_form
-msgid "Reload Pending Message"
-msgstr "Ponowne ładowanie wiadomości oczekującej"
 
 #. module: payment_custom
 #. odoo-python
@@ -142,18 +165,3 @@ msgstr "Kod techniczny tego dostawcy usług płatniczych."
 #: model:payment.method,name:payment_custom.payment_method_wire_transfer
 msgid "Wire Transfer"
 msgstr "Przelew bankowy"
-
-#~ msgid "; multiple order found"
-#~ msgstr "; znaleziono wielokrotne zamówienie"
-
-#~ msgid "; no order found"
-#~ msgstr "; nie znaleziono zamówienia"
-
-#~ msgid "Payment Acquirer"
-#~ msgstr "Beneficjent płatności"
-
-#~ msgid "Provider"
-#~ msgstr "Dostawca"
-
-#~ msgid "received data for reference %s"
-#~ msgstr "odebrane dane do referencji %s"

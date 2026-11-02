@@ -8,17 +8,34 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-06 18:37+0000\n"
-"PO-Revision-Date: 2026-06-06 13:28+0000\n"
+"POT-Creation-Date: 2026-09-04 17:45+0000\n"
+"PO-Revision-Date: 2026-09-09 14:04+0000\n"
 "Last-Translator: \"Larissa Manderfeld (lman)\" <lman@odoo.com>\n"
-"Language-Team: German <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: German <https://translate.odoo.com/projects/odoo-master/"
 "pos_online_payment/de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: pos_online_payment
+#: model_terms:ir.ui.view,arch_db:pos_online_payment.pos_payment_status
+msgid ""
+"<i class=\"oi me-2\" data-icon=\"lock\"/>Payment secured · Don't close this "
+"window"
+msgstr ""
+
+#. module: pos_online_payment
+#: model_terms:ir.ui.view,arch_db:pos_online_payment.pos_payment_status
+msgid "<span class=\"text-500\">Order</span>"
+msgstr ""
+
+#. module: pos_online_payment
+#: model_terms:ir.ui.view,arch_db:pos_online_payment.pos_payment_status
+msgid "<span class=\"text-500\">Total</span>"
+msgstr ""
 
 #. module: pos_online_payment
 #: model_terms:ir.ui.view,arch_db:pos_online_payment.pay
@@ -26,19 +43,12 @@ msgid "<strong>Error:</strong> The currency is missing or invalid."
 msgstr "<strong>Fehler:</strong> Währung fehlt oder ist ungültig."
 
 #. module: pos_online_payment
-#: model_terms:ir.ui.view,arch_db:pos_online_payment.pay_confirmation
-msgid "<strong>Error:</strong> There was a problem during the payment process."
-msgstr ""
-"<strong>Fehler:</strong> Während des Zahlvorgangs ist ein Problem "
-"aufgetreten."
-
-#. module: pos_online_payment
 #. odoo-python
 #: code:addons/pos_online_payment/models/pos_config.py:0
 msgid "A POS config cannot have more than one online payment method."
 msgstr ""
 "Eine Kassensystem-Konfiguration kann nicht mehr als eine Online-"
-"Zahlungsmethode enthalten."
+"Zahlungsmethode haben."
 
 #. module: pos_online_payment
 #. odoo-python
@@ -68,25 +78,24 @@ msgid ""
 "set, of the POS config."
 msgstr ""
 "Alle für eine Online-Zahlungsmethode konfigurierten Zahlungsanbieter müssen "
-"dieselbe Währung verwenden wie das Verkaufsjournal der Kassensystem-"
-"Konfiguration oder, falls dieses nicht festgelegt ist, die "
-"Unternehmenswährung."
+"dieselbe Währung wie die in den Kassensystem-Konfigurationen für das "
+"Verkaufsjournal angegebene oder die Unternehmenswährung, falls vorherige "
+"nicht festgelegt wurde, verwenden."
 
 #. module: pos_online_payment
 #: model:ir.model.fields,field_description:pos_online_payment.field_pos_payment_method__online_payment_provider_ids
 msgid "Allowed Providers"
-msgstr "Zulässige Anbieter"
+msgstr "Erlaubte Anbieter"
+
+#. module: pos_online_payment
+#: model_terms:ir.ui.view,arch_db:pos_online_payment.pos_payment_status
+msgid "Almost there!"
+msgstr "Fast geschafft!"
 
 #. module: pos_online_payment
 #: model_terms:ir.ui.view,arch_db:pos_online_payment.pay_confirmation
 msgid "Amount"
 msgstr "Betrag"
-
-#. module: pos_online_payment
-#. odoo-javascript
-#: code:addons/pos_online_payment/static/src/app/components/popups/online_payment_popup/online_payment_popup.xml:0
-msgid "Amount:"
-msgstr "Betrag:"
 
 #. module: pos_online_payment
 #: model_terms:ir.ui.view,arch_db:pos_online_payment.pay
@@ -135,7 +144,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:pos_online_payment.field_pos_order__display_name
 #: model:ir.model.fields,field_description:pos_online_payment.field_pos_payment__display_name
 #: model:ir.model.fields,field_description:pos_online_payment.field_pos_payment_method__display_name
-#: model:ir.model.fields,field_description:pos_online_payment.field_pos_session__display_name
 msgid "Display Name"
 msgstr "Anzeigename"
 
@@ -151,7 +159,6 @@ msgstr "Hat einen Online-Zahlungsanbieter"
 #: model:ir.model.fields,field_description:pos_online_payment.field_pos_order__id
 #: model:ir.model.fields,field_description:pos_online_payment.field_pos_payment__id
 #: model:ir.model.fields,field_description:pos_online_payment.field_pos_payment_method__id
-#: model:ir.model.fields,field_description:pos_online_payment.field_pos_session__id
 msgid "ID"
 msgstr "ID"
 
@@ -174,6 +181,15 @@ msgid "Invoice could not be generated"
 msgstr "Rechnung konnte nicht generiert werden"
 
 #. module: pos_online_payment
+#. odoo-python
+#: code:addons/pos_online_payment/controllers/payment_portal.py:0
+msgid ""
+"It looks like a payment for this order is already being processed — maybe "
+"from this device, maybe from another. If you continue, you risk to pay the "
+"order twice. Only continue if you're sure the earlier attempt was abandoned."
+msgstr ""
+
+#. module: pos_online_payment
 #: model:ir.model.fields,field_description:pos_online_payment.field_pos_order__next_online_payment_amount
 msgid "Next online payment amount to pay"
 msgstr "Nächster zu zahlender Online-Zahlungsbetrag"
@@ -186,7 +202,6 @@ msgstr "Online"
 #. module: pos_online_payment
 #. odoo-python
 #: code:addons/pos_online_payment/models/pos_payment_method.py:0
-#: model:ir.model.fields,field_description:pos_online_payment.field_pos_payment_method__is_online_payment
 msgid "Online Payment"
 msgstr "Online-Zahlung"
 
@@ -194,6 +209,12 @@ msgstr "Online-Zahlung"
 #: model:ir.model.fields,field_description:pos_online_payment.field_pos_order__online_payment_method_id
 msgid "Online Payment Method"
 msgstr "Online-Zahlungsmethode"
+
+#. module: pos_online_payment
+#. odoo-python
+#: code:addons/pos_online_payment/models/pos_payment_method.py:0
+msgid "Online Payment Transfer"
+msgstr ""
 
 #. module: pos_online_payment
 #: model:ir.model.fields,field_description:pos_online_payment.field_pos_payment__online_account_payment_id
@@ -210,7 +231,7 @@ msgstr "Online-Zahlung nicht verfügbar"
 #. odoo-javascript
 #: code:addons/pos_online_payment/static/src/app/utils/order_payment_validation.js:0
 msgid "Online payments cannot have a negative amount (%s: %s)."
-msgstr "Online-Zahlungen können keinen negativen Betrag haben (%s: %s)."
+msgstr "Online-Zahlungen können keinen negativen Betrag haben (%s:%s)"
 
 #. module: pos_online_payment
 #: model_terms:ir.ui.view,arch_db:pos_online_payment.pay_confirmation
@@ -226,12 +247,6 @@ msgstr "Auftrags-ID"
 #: model_terms:ir.ui.view,arch_db:pos_online_payment.pay_confirmation
 msgid "Order Reference"
 msgstr "Auftragsreferenz"
-
-#. module: pos_online_payment
-#. odoo-javascript
-#: code:addons/pos_online_payment/static/src/app/components/popups/online_payment_popup/online_payment_popup.xml:0
-msgid "Order reference:"
-msgstr "Auftragsreferenz:"
 
 #. module: pos_online_payment
 #. odoo-javascript
@@ -251,14 +266,16 @@ msgid "POS Order"
 msgstr "Kassenauftrag"
 
 #. module: pos_online_payment
+#. odoo-python
+#: code:addons/pos_online_payment/models/pos_payment_method.py:0
+msgid "POS Receivable Transfer"
+msgstr ""
+
+#. module: pos_online_payment
+#: model:ir.model,name:pos_online_payment.model_account_payment
 #: model_terms:ir.ui.view,arch_db:pos_online_payment.pay
 msgid "Payment"
 msgstr "Zahlung"
-
-#. module: pos_online_payment
-#: model_terms:ir.ui.view,arch_db:pos_online_payment.pay_confirmation
-msgid "Payment Confirmation"
-msgstr "Zahlungsbestätigung"
 
 #. module: pos_online_payment
 #: model_terms:ir.ui.view,arch_db:pos_online_payment.pos_payment_method_view_form_inherit_pos_online_payment
@@ -277,11 +294,6 @@ msgid "Payment provider requirement"
 msgstr "Anforderungen an Zahlungsanbieter"
 
 #. module: pos_online_payment
-#: model:ir.model,name:pos_online_payment.model_account_payment
-msgid "Payments"
-msgstr "Zahlungen"
-
-#. module: pos_online_payment
 #. odoo-javascript
 #: code:addons/pos_online_payment/static/src/app/utils/order_payment_validation.js:0
 msgid "Please ensure you have a customer with an email address on this order."
@@ -296,23 +308,23 @@ msgstr "Kassensystem-Konfiguration"
 
 #. module: pos_online_payment
 #: model:ir.model,name:pos_online_payment.model_pos_order
-msgid "Point of Sale Orders"
-msgstr "Kassenaufträge"
-
-#. module: pos_online_payment
-#: model:ir.model,name:pos_online_payment.model_pos_payment_method
-msgid "Point of Sale Payment Methods"
-msgstr "Zahlungsmethoden des Kassensystems"
+msgid "Point of Sale Order"
+msgstr "Kassenauftrag"
 
 #. module: pos_online_payment
 #: model:ir.model,name:pos_online_payment.model_pos_payment
-msgid "Point of Sale Payments"
-msgstr "Kassenzahlungen"
+msgid "Point of Sale Payment"
+msgstr "Zahlung am Kassensystem"
 
 #. module: pos_online_payment
-#: model:ir.model,name:pos_online_payment.model_pos_session
-msgid "Point of Sale Session"
-msgstr "Kassensitzung"
+#: model:ir.model,name:pos_online_payment.model_pos_payment_method
+msgid "Point of Sale Payment Method"
+msgstr "Zahlungsmethode am Kassensystem"
+
+#. module: pos_online_payment
+#: model:ir.module.module,shortdesc:base.module_pos_online_payment
+msgid "Point of Sale online payment"
+msgstr ""
 
 #. module: pos_online_payment
 #: model_terms:ir.ui.view,arch_db:pos_online_payment.pay_confirmation
@@ -321,27 +333,14 @@ msgstr "Verarbeitet von"
 
 #. module: pos_online_payment
 #. odoo-javascript
-#: code:addons/pos_online_payment/static/src/app/components/popups/online_payment_popup/online_payment_popup.xml:0
-msgid "QR Code to pay"
-msgstr "QR-Code zum Bezahlen"
-
-#. module: pos_online_payment
-#. odoo-javascript
-#: code:addons/pos_online_payment/static/src/app/components/popups/online_payment_popup/online_payment_popup.xml:0
-msgid "Scan the QR code to pay"
-msgstr "Zum Bezahlen, den QR-Code scannen"
-
-#. module: pos_online_payment
-#. odoo-javascript
-#: code:addons/pos_online_payment/static/src/app/components/popups/online_payment_popup/online_payment_popup.xml:0
-msgid "Scan to pay"
-msgstr "Zum Bezahlen scannen"
-
-#. module: pos_online_payment
-#. odoo-javascript
 #: code:addons/pos_online_payment/static/src/app/utils/order_payment_validation.js:0
 msgid "Server error"
 msgstr "Serverfehler"
+
+#. module: pos_online_payment
+#: model_terms:ir.ui.view,arch_db:pos_online_payment.pos_payment_status
+msgid "Skip <i class=\"oi ms-1\" data-icon=\"east\"/>"
+msgstr ""
 
 #. module: pos_online_payment
 #. odoo-python
@@ -387,8 +386,8 @@ msgstr "Der mit der Zahlung verbundene Kassenauftrag"
 #. module: pos_online_payment
 #. odoo-javascript
 #: code:addons/pos_online_payment/static/src/app/utils/order_payment_validation.js:0
-msgid "The QR Code for paying could not be generated."
-msgstr "Der QR-Code zum Bezahlen konnte nicht generiert werden."
+msgid "The QR code payment could not be generated."
+msgstr "Die QR-Code-Zahlung konnte nicht generiert werden."
 
 #. module: pos_online_payment
 #. odoo-python
@@ -420,14 +419,6 @@ msgstr "Der Auftrag wurde storniert."
 #: code:addons/pos_online_payment/static/src/app/utils/order_payment_validation.js:0
 msgid "The order has not been saved correctly on the server."
 msgstr "Der Auftrag wurde nicht korrekt auf dem Server gespeichert."
-
-#. module: pos_online_payment
-#. odoo-python
-#: code:addons/pos_online_payment/models/pos_session.py:0
-msgid "The partner of the POS online payment (id=%d) could not be found"
-msgstr ""
-"Der Partner der Online-Zahlung im Kassensystem (id=%d) konnte nicht gefunden "
-"werden"
 
 #. module: pos_online_payment
 #. odoo-python
@@ -558,6 +549,12 @@ msgid "Transaction Reference"
 msgstr "Transaktionsreferenz"
 
 #. module: pos_online_payment
+#. odoo-python
+#: code:addons/pos_online_payment/models/pos_payment_method.py:0
+msgid "Transfer Online payment %(account_name)s => %(pos_receivable_name)s"
+msgstr ""
+
+#. module: pos_online_payment
 #: model_terms:ir.ui.view,arch_db:pos_online_payment.pay_confirmation
 msgid "Try again"
 msgstr "Erneut versuchen"
@@ -574,13 +571,9 @@ msgid "Updated online payments"
 msgstr "Aktualisierte Online-Zahlungen"
 
 #. module: pos_online_payment
-#: model:ir.model.fields,help:pos_online_payment.field_pos_payment_method__is_online_payment
-msgid ""
-"Use this payment method for online payments (payments made on a web page "
-"with online payment providers)"
-msgstr ""
-"Verwenden Sie diese Zahlungsmethode für Online-Zahlungen (Zahlungen, die auf "
-"einer Webseite mit Online-Zahlungsanbietern erfolgen)"
+#: model_terms:ir.ui.view,arch_db:pos_online_payment.pos_payment_status
+msgid "We're confirming your payment."
+msgstr "Wir bestätigen Ihre Zahlung."
 
 #. module: pos_online_payment
 #. odoo-javascript
@@ -592,6 +585,19 @@ msgstr "Ja"
 #: model_terms:ir.ui.view,arch_db:pos_online_payment.pos_payment_method_view_form_inherit_pos_online_payment
 msgid "You have not activated any"
 msgstr "Sie haben noch keinen"
+
+#. module: pos_online_payment
+#: model_terms:ir.ui.view,arch_db:pos_online_payment.pos_payment_status
+msgid ""
+"You should receive an email confirming your payment within a few minutes.<br/"
+">\n"
+"                        Don't hesitate to contact us if you don't receive it."
+msgstr ""
+
+#. module: pos_online_payment
+#: model_terms:ir.ui.view,arch_db:pos_online_payment.pos_payment_status
+msgid "Your payment is on its way!"
+msgstr "Ihre Zahlung ist unterwegs!"
 
 #. module: pos_online_payment
 #: model_terms:ir.ui.view,arch_db:pos_online_payment.pos_payment_method_view_form_inherit_pos_online_payment

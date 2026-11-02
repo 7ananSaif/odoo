@@ -1,7 +1,6 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 {
     "name": "Peruvian - Point of Sale with Pe Doc",
-    "version": "1.0",
     "category": "Accounting/Localizations/Point of Sale",
     "author": "Vauxoo, Odoo S.A.",
     "description": """
@@ -15,11 +14,11 @@ Install this if you are using the Point of Sale app in Peru.
     "data": [
         "data/res_partner_data.xml",
         "views/templates.xml",
+        "views/res_partner_views.xml",
     ],
     "assets": {
         "point_of_sale._assets_pos": ["l10n_pe_pos/static/src/**/*"],
     },
-    "installable": True,
     "auto_install": True,
     "license": "LGPL-3",
 }

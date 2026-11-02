@@ -7,17 +7,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-09-29 19:47+0000\n"
-"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
-"Language-Team: Hungarian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-08-31 17:56+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Hungarian <https://translate.odoo.com/projects/odoo-s19-4/"
 "sale_pdf_quote_builder/hu/>\n"
 "Language: hu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: sale_pdf_quote_builder
 #: model:ir.actions.report,print_report_name:sale_pdf_quote_builder.action_report_saleorder_raw
@@ -27,11 +27,6 @@ msgid ""
 msgstr ""
 "(object.state in ('draft', 'sent') and 'Ajánlat - %s' % (object.name)) or "
 "'Rendelés - %s' % (object.name)"
-
-#. module: sale_pdf_quote_builder
-#: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.sale_order_template_form
-msgid "<i class=\"fa fa-arrow-right\"/> Link to the demo video"
-msgstr ""
 
 #. module: sale_pdf_quote_builder
 #: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.quotation_document_kanban
@@ -91,33 +86,6 @@ msgid "All files uploaded"
 msgstr "Minden fájl feltöltve"
 
 #. module: sale_pdf_quote_builder
-#: model:ir.model.fields,help:sale_pdf_quote_builder.field_product_document__attached_on_sale
-msgid ""
-"Allows you to share the document with your customers within a sale.\n"
-"Leave it empty if you don't want to share this document with sales "
-"customer.\n"
-"On quote: the document will be sent to and accessible by customers at any "
-"time.\n"
-"e.g. this option can be useful to share Product description files.\n"
-"On order confirmation: the document will be sent to and accessible by "
-"customers.\n"
-"e.g. this option can be useful to share User Manual or digital content "
-"bought on ecommerce. \n"
-"Inside quote: The document will be included in the pdf of the quotation and "
-"sale order between the header pages and the quote table. "
-msgstr ""
-"Lehetővé teszi dokumentumok megosztását a vevőkkel az értékesítés során.\n"
-"Ajánlatadás során: a dokumentum elküldésre kerül és elérhetővé válik a vevő "
-"számára is.\n"
-"pld: hasznos lehet terméket bemutató fájlok megosztására.\n"
-"Rendelés megerősítésekor: a dokumentum elküldésre kerül és elérhetővé válik "
-"a vevő számára is.\n"
-"pld: hasznos lehet kézikönyvek vagy webshopban vásárolt digitális tartalmak "
-"megosztására. \n"
-"Ajánlaton belül: a dokumentum az ajánlati pdf fejléce és az ajánlati "
-"táblázat közé kerül beszúrásra. "
-
-#. module: sale_pdf_quote_builder
 #: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.quotation_document_kanban
 #: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.quotation_document_search_view
 msgid "Archived"
@@ -144,6 +112,11 @@ msgid "Available Quotation Documents"
 msgstr ""
 
 #. module: sale_pdf_quote_builder
+#: model:ir.module.module,description:base.module_sale_pdf_quote_builder
+msgid "Build nice quotations"
+msgstr ""
+
+#. module: sale_pdf_quote_builder
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__checksum
 msgid "Checksum/SHA1"
 msgstr "Ellenőrző összeg/SHA1"
@@ -161,6 +134,10 @@ msgstr "Vállalat"
 
 #. module: sale_pdf_quote_builder
 #: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.product_document_form
+msgid "Configure"
+msgstr ""
+
+#. module: sale_pdf_quote_builder
 #: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.quotation_document_form
 msgid "Configure dynamic fields"
 msgstr "Dinamikus mezők konfigurálása"
@@ -240,19 +217,14 @@ msgid "Download"
 msgstr "Letöltés"
 
 #. module: sale_pdf_quote_builder
-#: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.sale_order_template_form
-msgid "Download examples"
-msgstr "Példák letöltése"
-
-#. module: sale_pdf_quote_builder
 #: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.quotation_document_kanban
 msgid "Edit"
 msgstr "Szerkesztés"
 
 #. module: sale_pdf_quote_builder
-#: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__datas
-msgid "File Content (base64)"
-msgstr "Fájltartalom (base64)"
+#: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_product_document__form_field_ids
+msgid "Fields"
+msgstr ""
 
 #. module: sale_pdf_quote_builder
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__raw
@@ -284,7 +256,6 @@ msgid "Form Fields"
 msgstr "Űrlap mezők"
 
 #. module: sale_pdf_quote_builder
-#: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_product_document__form_field_ids
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__form_field_ids
 msgid "Form Fields Included"
 msgstr "Használt űrlapmezők"
@@ -381,11 +352,6 @@ msgid "Indexed Content"
 msgstr "Indexált tartalom"
 
 #. module: sale_pdf_quote_builder
-#: model:ir.model.fields.selection,name:sale_pdf_quote_builder.selection__product_document__attached_on_sale__inside
-msgid "Inside quote pdf"
-msgstr "Ajánlati pdf-en belül"
-
-#. module: sale_pdf_quote_builder
 #. odoo-python
 #: code:addons/sale_pdf_quote_builder/models/sale_pdf_form_field.py:0
 msgid ""
@@ -427,7 +393,7 @@ msgstr "Nyilvános dokumentum"
 
 #. module: sale_pdf_quote_builder
 #. odoo-python
-#: code:addons/sale_pdf_quote_builder/utils.py:0
+#: code:addons/sale_pdf_quote_builder/models/sale_pdf_form_field.py:0
 msgid ""
 "It seems that we're not able to process this pdf inside a quotation. It is "
 "either encrypted, or encoded in a format we do not support."
@@ -475,15 +441,14 @@ msgstr "Nem"
 
 #. module: sale_pdf_quote_builder
 #. odoo-python
-#: code:addons/sale_pdf_quote_builder/models/product_document.py:0
-msgid "Only PDF documents can be attached inside a quote."
-msgstr "Csak PDF dokumentumokat lehet csatolni az ajánlathoz."
-
-#. module: sale_pdf_quote_builder
-#. odoo-python
 #: code:addons/sale_pdf_quote_builder/models/quotation_document.py:0
 msgid "Only PDF documents can be used as header or footer."
 msgstr "Csak PDF dokumentumokat lehet használni fejlécként vagy láblécként."
+
+#. module: sale_pdf_quote_builder
+#: model:ir.model,name:sale_pdf_quote_builder.model_sale_order_template
+msgid "Order Templates"
+msgstr ""
 
 #. module: sale_pdf_quote_builder
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__original_id
@@ -513,12 +478,6 @@ msgid "Please use only relational fields until the last value of your path."
 msgstr "Kérjük, csak relációs mezőket használjon az útvonal utolsó értékéig."
 
 #. module: sale_pdf_quote_builder
-#. odoo-python
-#: code:addons/sale_pdf_quote_builder/models/sale_order.py:0
-msgid "Product"
-msgstr "Termék"
-
-#. module: sale_pdf_quote_builder
 #: model:ir.model,name:sale_pdf_quote_builder.model_product_document
 #: model:ir.model.fields.selection,name:sale_pdf_quote_builder.selection__sale_pdf_form_field__document_type__product_document
 msgid "Product Document"
@@ -529,31 +488,6 @@ msgstr "Termék dokumentum"
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_sale_pdf_form_field__product_document_ids
 msgid "Product Documents"
 msgstr "Termék dokumentumok"
-
-#. module: sale_pdf_quote_builder
-#: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.sale_order_template_form
-msgid ""
-"Provide header pages and footer pages to compose an attractive quotation "
-"with more information\n"
-"                        about your company, your products and you services. "
-"<br/>\n"
-"                        The pdf of your quotes will be built by putting "
-"together header pages, product descriptions,\n"
-"                        details of the quote and then the footer pages. <br/"
-">\n"
-"                        If empty, it will use those define in the company "
-"settings. <br/>"
-msgstr ""
-"Használjon fejléc és lábléc oldalakat vonzó ajánlatok elkészítéséhez "
-"bővített infomációkkal\n"
-"                        a vállalatról, termékekről és szolgáltatásokról. <br/"
-">\n"
-"                        Az ajánlati PDF összeállítása során egyesítésre "
-"kerülnek a fejléc oldalak, termék leírások,\n"
-"                        az ajánlat részletei és végül a lábléc oldalak. <br/"
-">\n"
-"                        Ha üres, akkor a vállalati beállításoknál megadott "
-"kerül használatra. <br/>"
 
 #. module: sale_pdf_quote_builder
 #: model:ir.actions.report,name:sale_pdf_quote_builder.action_report_saleorder_raw
@@ -571,7 +505,6 @@ msgid "Quotation Documents"
 msgstr "Ajánlati dokumentumok"
 
 #. module: sale_pdf_quote_builder
-#: model:ir.model,name:sale_pdf_quote_builder.model_sale_order_template
 #: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.quotation_document_search_view
 msgid "Quotation Template"
 msgstr "Ajánlati sablon"
@@ -593,11 +526,6 @@ msgid "Quote Builder"
 msgstr "Ajánlat építő"
 
 #. module: sale_pdf_quote_builder
-#: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.sale_order_template_form
-msgid "Quote Builder Demo Video"
-msgstr ""
-
-#. module: sale_pdf_quote_builder
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__ir_attachment_id
 msgid "Related attachment"
 msgstr "Kapcsolódó melléklet"
@@ -606,6 +534,16 @@ msgstr "Kapcsolódó melléklet"
 #: model:ir.model,name:sale_pdf_quote_builder.model_ir_actions_report
 msgid "Report Action"
 msgstr "Kimutatás művelet"
+
+#. module: sale_pdf_quote_builder
+#: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__res_access_read
+msgid "Res Access Read"
+msgstr ""
+
+#. module: sale_pdf_quote_builder
+#: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__res_access_write
+msgid "Res Access Write"
+msgstr ""
 
 #. module: sale_pdf_quote_builder
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__res_field
@@ -628,11 +566,6 @@ msgid "Resource Name"
 msgstr "Erőforrás neve"
 
 #. module: sale_pdf_quote_builder
-#: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_product_document__attached_on_sale
-msgid "Sale : Visible at"
-msgstr "Értékesítés : Megtekinthető"
-
-#. module: sale_pdf_quote_builder
 #: model:ir.actions.server,name:sale_pdf_quote_builder.cron_post_upgrade_assign_missing_form_fields_ir_actions_server
 msgid "Sale Pdf Quote Builder: assign form fields to documents post upgrade"
 msgstr ""
@@ -648,6 +581,11 @@ msgstr "Vevői rendelés"
 #: model:ir.model,name:sale_pdf_quote_builder.model_sale_order_line
 msgid "Sales Order Line"
 msgstr "Vevői rendelés sor"
+
+#. module: sale_pdf_quote_builder
+#: model:ir.module.module,shortdesc:base.module_sale_pdf_quote_builder
+msgid "Sales PDF Quotation Builder"
+msgstr ""
 
 #. module: sale_pdf_quote_builder
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__sequence
@@ -735,14 +673,6 @@ msgstr "Weboldal"
 
 #. module: sale_pdf_quote_builder
 #. odoo-python
-#: code:addons/sale_pdf_quote_builder/models/product_document.py:0
-msgid "When attached inside a quote, the document must be a file, not a URL."
-msgstr ""
-"Ha ajánlaton belül kerül csatolásra, akkor a dokumentum csak fájl lehet, URL "
-"nem lehetséges."
-
-#. module: sale_pdf_quote_builder
-#. odoo-python
 #: code:addons/sale_pdf_quote_builder/models/ir_actions_report.py:0
 msgid "Yes"
 msgstr "Igen"
@@ -760,6 +690,3 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.quotation_document_form
 msgid "on"
 msgstr "ezen:"
-
-#~ msgid "Group By"
-#~ msgstr "Csoportosítás"

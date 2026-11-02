@@ -6,6 +6,7 @@
     margin: 0;
     background-color: #f0eeee;
     color: $o-gray-900;
+    color-scheme: $o-webclient-color-scheme;
     -webkit-user-select: none;
        -moz-user-select: none;
             user-select: none;
@@ -65,7 +66,6 @@ html {
     }
     .pos .modal-content{
         max-height: 92dvh;
-        border-radius: 1rem 1rem 0 0;
         animation: popUp 0.2s ease-in-out forwards;
     }
     .pos .modal-body{
@@ -97,4 +97,13 @@ html {
     button.o-default-button:not(:only-child) {
         display: none;
     }
+}
+
+.pos-logo {
+    height: $pos-navbar-height / 1.5;
+    min-width: $pos-navbar-height * 2;
+    background-image: var(--navbar-logo, url("/web/static/img/odoo_logo.svg"));
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
 }

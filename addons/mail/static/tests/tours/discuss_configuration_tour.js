@@ -2,7 +2,6 @@ import { registry } from "@web/core/registry";
 import { stepUtils } from "@web_tour/tour_utils";
 
 registry.category("web_tour.tours").add("discuss_configuration_tour", {
-    url: "/odoo",
     steps: () => [
         stepUtils.showAppsMenuItem(),
         {
@@ -10,23 +9,26 @@ registry.category("web_tour.tours").add("discuss_configuration_tour", {
             run: "click",
         },
         {
-            trigger: ".o_main_navbar button:contains('Configuration')",
+            trigger: ".o_main_navbar button:text('Configuration')",
             run: "click",
         },
         {
-            trigger: ".dropdown-menu a:contains('Notification')",
+            trigger: ".dropdown-menu .dropdown-header:text('User Settings')",
+        },
+        {
+            trigger: ".dropdown-menu .dropdown-item:text('Notifications')",
             run: "click",
         },
         {
-            trigger: "button:contains('All Messages')",
+            trigger: "button:text('All Messages')",
             run: "click",
         },
         {
-            trigger: "button:contains('Mentions Only')",
+            trigger: "button:text('Mentions Only')",
             run: "click",
         },
         {
-            trigger: "button:contains('Nothing')",
+            trigger: "button:text('Nothing')",
             run: "click",
         },
         {
@@ -34,45 +36,61 @@ registry.category("web_tour.tours").add("discuss_configuration_tour", {
             run: "click",
         },
         {
-            trigger: ".o_main_navbar button:contains('Configuration')",
+            trigger: ".o_main_navbar button:text('Configuration')",
             run: "click",
         },
         {
-            trigger: ".dropdown-menu a:contains('Voice & Video')",
+            trigger: ".dropdown-menu .dropdown-header:text('User Settings')",
+        },
+        {
+            trigger: ".dropdown-menu .dropdown-item:text('Voice & Video')",
             run: "click",
         },
         {
-            trigger: "select[name='inputDevice']",
+            trigger: ".o-mail-DeviceSelect-button[data-kind='audioinput']",
         },
         {
-            trigger: "button:contains('Voice Detection')",
+            trigger: "input[title='Voice detection sensitivity']",
+        },
+        {
+            trigger: "label[aria-label='Enable Push-to-talk']",
             run: "click",
         },
         {
-            trigger: "span:contains('Voice detection sensitivity')",
+            trigger: "span:text('Click the button below to register a new shortcut.')",
         },
         {
-            trigger: "button:contains('Push to Talk')",
+            trigger: "input[title='Delay after releasing push-to-talk']",
+        },
+        {
+            trigger: "button[title='Video']",
             run: "click",
-        },
-        {
-            trigger: "label:contains('Push-to-talk key')",
-        },
-        {
-            trigger: "label:contains('Delay after releasing push-to-talk')",
-        },
-        {
-            trigger: "input[aria-label='Show video participants only']",
         },
         {
             trigger: "input[aria-label='Blur video background']",
             run: "click",
         },
         {
-            trigger: "label:contains('Background blur intensity')",
+            trigger: "div[title='Background blur intensity'] span:has(:text('Intensity'))",
         },
         {
-            trigger: "label:contains('Edge blur intensity')",
+            trigger: "div[title='Edge blur intensity'] span:has(:text('Edge Softness'))",
+        },
+        {
+            trigger: ".modal-header button[aria-label='Close']",
+            run: "click",
+        },
+        {
+            trigger: ".o_main_navbar button:text('Configuration')",
+            run: "click",
+        },
+        {
+            trigger: ".dropdown-menu a:text('Settings')",
+            expectUnloadPage: true,
+            run: "click",
+        },
+        {
+            trigger: "#discuss_setting",
         },
     ],
 });

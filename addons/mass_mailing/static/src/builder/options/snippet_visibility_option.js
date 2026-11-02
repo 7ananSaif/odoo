@@ -1,6 +1,10 @@
-import { BaseOptionComponent, useDomState } from "@html_builder/core/utils";
+import { BaseOptionComponent } from "@html_builder/core/base_option_component";
+import { useDomState } from "@html_builder/core/utils";
+import { usePlugin } from "@odoo/owl";
+import { DebugModePlugin } from "@web/core/debug_mode_plugin";
 import { Domain } from "@web/core/domain";
 import { DomainSelectorDialog } from "@web/core/domain_selector_dialog/domain_selector_dialog";
+import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 
 /**
@@ -8,16 +12,17 @@ import { useService } from "@web/core/utils/hooks";
  * a domain.
  */
 export class SnippetVisibilityOption extends BaseOptionComponent {
+    static id = "snippet_visibility_option";
     static template = "mass_mailing.VisibilityOption";
-    static selector = "section";
     static dependencies = ["mass_mailing.SnippetVisibility"];
+
+    debugMode = usePlugin(DebugModePlugin);
 
     setup() {
         super.setup();
         this.getModel = this.dependencies["mass_mailing.SnippetVisibility"].getModel;
         this.treeProcessor = useService("tree_processor");
         this.dialog = useService("dialog");
-        this.historyPlugin = this.env.editor.shared.history;
         this.overlayButtonsPlugin = this.env.editor.shared.overlayButtons;
 
         this.state = useDomState((editingElement) => {
@@ -41,7 +46,11 @@ export class SnippetVisibilityOption extends BaseOptionComponent {
      */
     async parseTree(domain) {
         const resModel = this.getModel();
-        const tree = await this.treeProcessor.treeFromDomain(resModel, domain, !this.env.debug);
+        const tree = await this.treeProcessor.treeFromDomain(
+            resModel,
+            domain,
+            !this.debugMode.isActive()
+        );
         // Extract subtrees connected by an `&`, Odoo Standard for domain facets
         const trees = !tree.negate && tree.value === "&" ? tree.children : [tree];
         this.state.facets = await Promise.all(
@@ -58,7 +67,7 @@ export class SnippetVisibilityOption extends BaseOptionComponent {
             {
                 resModel: this.getModel(),
                 domain: this.state.domain.toString(),
-                isDebugMode: !!this.env.debug,
+                isDebugMode: this.debugMode.isActive(),
                 onConfirm: (domain) => {
                     const newDomain = new Domain(domain);
                     this.state.domain = newDomain;
@@ -77,3 +86,5 @@ export class SnippetVisibilityOption extends BaseOptionComponent {
         );
     }
 }
+
+registry.category("mass_mailing-options").add(SnippetVisibilityOption.id, SnippetVisibilityOption);

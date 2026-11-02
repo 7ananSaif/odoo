@@ -1,4 +1,4 @@
-from odoo.tests.common import TransactionCase, new_test_user
+from odoo.tests.common import tagged, TransactionCase, new_test_user
 
 
 class TestTodoOnboardingUsers(TransactionCase):

@@ -1,98 +1,114 @@
-# -*- coding: utf-8 -*-
-# Part of Odoo. See LICENSE file for full copyright and licensing details.
-
-from collections import defaultdict
-
-from odoo import _, models
-from odoo.exceptions import UserError
+from odoo import models
+from odoo.tools import html_sanitize
 
 
-def _prepare_data(env, docids, data):
-    # change product ids by actual product object to get access to fields in xml template
-    # we needed to pass ids because reports only accepts native python types (int, float, strings, ...)
+# Encode ZPL control and QWeb-sensitive characters as sequences decoded by ^FH.
+ZPL_TRANSLATE = {character: f'_{character:02X}' for character in map(ord, '_^~<>&"\'')}
 
-    layout_wizard = env['product.label.layout'].browse(data.get('layout_wizard'))
-    if data.get('active_model') == 'product.template':
-        Product = env['product.template'].with_context(display_default_code=False)
-    elif data.get('active_model') == 'product.product':
-        Product = env['product.product'].with_context(display_default_code=False)
-    elif data.get("studio") and docids:
-        # special case: users trying to customize labels
-        products = env['product.template'].with_context(display_default_code=False).browse(docids)
-        quantity_by_product = defaultdict(list)
-        for product in products:
-            quantity_by_product[product].append((product.barcode, 1))
-        return {
-            'quantity': quantity_by_product,
-            'page_numbers': 1,
-            'pricelist': layout_wizard.pricelist_id,
-        }
-    else:
-        raise UserError(_('Product model not defined, Please contact your administrator.'))
 
-    if not layout_wizard:
-        return {}
+class ReportLabelBase(models.AbstractModel):
+    _name = 'report.product.label.base'
+    _description = 'Base Label Report'
 
-    total = 0
-    qty_by_product_in = data.get('quantity_by_product')
-    # search for products all at once, ordered by name desc since popitem() used in xml to print the labels
-    # is LIFO, which results in ordering by product name in the report
-    products = Product.search([('id', 'in', [int(p) for p in qty_by_product_in.keys()])], order='name desc')
-    quantity_by_product = defaultdict(list)
-    for product in products:
-        q = qty_by_product_in[str(product.id)]
-        quantity_by_product[product].append((product.barcode, q))
-        total += q
-    if data.get('custom_barcodes'):
-        # we expect custom barcodes format as: {product: [(barcode, qty_of_barcode)]}
-        for product, barcodes_qtys in data.get('custom_barcodes').items():
-            quantity_by_product[Product.browse(int(product))] += (barcodes_qtys)
-            total += sum(qty for _, qty in barcodes_qtys)
-
-    return {
-        'quantity': quantity_by_product,
-        'page_numbers': (total - 1) // (layout_wizard.rows * layout_wizard.columns) + 1,
-        'price_included': data.get('price_included'),
-        'extra_html': layout_wizard.extra_html,
-        'pricelist': layout_wizard.pricelist_id,
+    _label_defaults = {
+        'barcode_type': 'barcode',
+        'barcode_value': '',
+        'barcode_text': '',
+        'copies': 1,
+        'extra_content': '',
+        'name': '',
+        'primary_value': '',
+        'reference': '',
+        'secondary_text': '',
+        'secondary_value': '',
+        'secondary_value_suffix': '',
     }
 
+    def _prepare_invisible_label(self):
+        return {'invisible': True}
 
-class ReportProductReport_Producttemplatelabel2x7(models.AbstractModel):
-    _name = 'report.product.report_producttemplatelabel2x7'
-    _description = 'Product Label Report 2x7'
+    def _prepare_rendering_labels(self, labels):
+        rendering_labels = []
+        for label in labels:
+            rendering_label = {
+                **self._label_defaults,
+                **label,
+                'invisible': False,
+            }
+            rendering_label['extra_content'] = html_sanitize(label.get('extra_content') or '')
+            rendering_labels.append(rendering_label)
+        return rendering_labels
+
+    def _expand_labels(self, labels):
+        return [
+            dict(label)
+            for label in labels
+            for _copy in range(label['copies'])
+        ]
+
+    def _prepare_report_values(self, data):
+        return {
+            'labels': self._expand_labels(self._prepare_rendering_labels(data['labels'])),
+            'label_template': data['label_template'],
+        }
+
+    def _organize_labels(self, labels, rows=1, columns=1):
+        slots_per_page = rows * columns
+        if not labels:
+            return []
+
+        organized_pages = []
+        for page_start in range(0, len(labels), slots_per_page):
+            page_labels = list(labels[page_start:page_start + slots_per_page])
+            while len(page_labels) < slots_per_page:
+                page_labels.append(self._prepare_invisible_label())
+            organized_pages.append([
+                page_labels[row_start:row_start + columns]
+                for row_start in range(0, slots_per_page, columns)
+            ])
+        return organized_pages
+
+    def _get_report_label_values(self, labels, rows, columns):
+        label_pages = self._organize_labels(labels, rows=rows, columns=columns)
+        return {
+            'label_pages': label_pages,
+            'page_numbers': len(label_pages),
+        }
+
+
+class ReportLabelPdf(models.AbstractModel):
+    _name = 'report.product.report_product_label_pdf'
+    _inherit = 'report.product.label.base'
+    _description = 'Label PDF Report'
 
     def _get_report_values(self, docids, data):
-        return _prepare_data(self.env, docids, data)
+        layout = data['layout']
+        report_values = self._prepare_report_values(data)
+        labels = report_values.pop('labels')
+        report_values.update(self._get_report_label_values(labels, layout['rows'], layout['columns']))
+        return report_values
 
 
-class ReportProductReport_Producttemplatelabel4x7(models.AbstractModel):
-    _name = 'report.product.report_producttemplatelabel4x7'
-    _description = 'Product Label Report 4x7'
-
-    def _get_report_values(self, docids, data):
-        return _prepare_data(self.env, docids, data)
-
-
-class ReportProductReport_Producttemplatelabel4x12(models.AbstractModel):
-    _name = 'report.product.report_producttemplatelabel4x12'
-    _description = 'Product Label Report 4x12'
+class ReportLabelDymo(models.AbstractModel):
+    _name = 'report.product.report_product_label_dymo'
+    _inherit = 'report.product.label.base'
+    _description = 'Label Dymo Report'
 
     def _get_report_values(self, docids, data):
-        return _prepare_data(self.env, docids, data)
+        report_values = self._prepare_report_values(data)
+        report_values['page_numbers'] = len(report_values['labels'])
+        return report_values
 
 
-class ReportProductReport_Producttemplatelabel4x12noprice(models.AbstractModel):
-    _name = 'report.product.report_producttemplatelabel4x12noprice'
-    _description = 'Product Label Report 4x12 No Price'
-
-    def _get_report_values(self, docids, data):
-        return _prepare_data(self.env, docids, data)
-
-
-class ReportProductReport_Producttemplatelabel_Dymo(models.AbstractModel):
-    _name = 'report.product.report_producttemplatelabel_dymo'
-    _description = 'Product Label Report'
+class ReportLabelZpl(models.AbstractModel):
+    _name = 'report.product.report_product_label_zpl'
+    _inherit = 'report.product.label.base'
+    _description = 'Label ZPL Report'
 
     def _get_report_values(self, docids, data):
-        return _prepare_data(self.env, docids, data)
+        report_values = self._prepare_report_values(data)
+        for label in report_values['labels']:
+            for key, value in label.items():
+                if key != 'barcode_type' and isinstance(value, str):
+                    label[key] = value.translate(ZPL_TRANSLATE)
+        return report_values

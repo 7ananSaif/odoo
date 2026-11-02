@@ -2,12 +2,12 @@ import {
     clickOnSave,
     insertSnippet,
     registerWebsitePreviewTour,
+    unfoldOptionsGroup,
 } from "@website/js/tours/tour_utils";
 
 registerWebsitePreviewTour(
     "snippet_popup_esc",
     {
-        url: "/",
         edition: true,
     },
     () => [
@@ -21,6 +21,7 @@ registerWebsitePreviewTour(
             trigger: ":iframe .s_popup .modal-content .btn:contains('New customer')",
             run: "click",
         },
+        ...unfoldOptionsGroup("Popup"),
         {
             content: "Remove the 'New customer' button so the popup has no focusable elements",
             trigger: ".options-container[data-container-title=Button] [title='Remove this block']",

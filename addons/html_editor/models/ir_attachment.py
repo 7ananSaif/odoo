@@ -3,7 +3,7 @@
 from urllib.parse import quote
 
 from odoo import api, models, fields
-from odoo.tools.image import base64_to_image
+from odoo.tools.image import binary_to_image
 from odoo.exceptions import UserError
 
 SUPPORTED_IMAGE_MIMETYPES = {
@@ -24,7 +24,12 @@ class IrAttachment(models.Model):
     image_src = fields.Char(compute='_compute_image_src')
     image_width = fields.Integer(compute='_compute_image_size')
     image_height = fields.Integer(compute='_compute_image_size')
-    original_id = fields.Many2one('ir.attachment', string="Original (unoptimized, unresized) attachment", index='btree_not_null')
+    original_id = fields.Many2one(
+        'ir.attachment',
+        string="Original (unoptimized, unresized) attachment",
+        index='btree_not_null',
+        ondelete='cascade',
+    )
 
     def _compute_local_url(self):
         for attachment in self:
@@ -42,7 +47,10 @@ class IrAttachment(models.Model):
                 continue
 
             if attachment.type == 'url':
-                if attachment.url.startswith('/'):
+                # Only check if the url starts with a '/' is not enough to
+                # define that it is a local url as it could also be an external
+                # protocol relative url.
+                if attachment.url.startswith('/') and not attachment.url.startswith('//'):
                     # Local URL
                     attachment.image_src = attachment.url
                 else:
@@ -50,7 +58,7 @@ class IrAttachment(models.Model):
                     attachment.image_src = '/web/image/%s-redirect/%s' % (attachment.id, name)
             else:
                 # Adding unique in URLs for cache-control
-                unique = attachment.checksum[:8]
+                unique = attachment.checksum[:8] if attachment.checksum else '0'
                 if attachment.url:
                     # For attachments-by-url, unique is used as a cachebuster. They
                     # currently do not leverage max-age headers.
@@ -60,11 +68,11 @@ class IrAttachment(models.Model):
                     name = quote(attachment.name)
                     attachment.image_src = '/web/image/%s-%s/%s' % (attachment.id, unique, name)
 
-    @api.depends('datas')
+    @api.depends('raw')
     def _compute_image_size(self):
         for attachment in self:
             try:
-                image = base64_to_image(attachment.datas)
+                image = binary_to_image(attachment.raw or b'')
                 attachment.image_width = image.width
                 attachment.image_height = image.height
             except UserError:
@@ -74,7 +82,15 @@ class IrAttachment(models.Model):
     def _get_media_info(self):
         """Return a dict with the values that we need on the media dialog."""
         self.ensure_one()
-        return self._read_format(['id', 'name', 'description', 'mimetype', 'checksum', 'url', 'type', 'res_id', 'res_model', 'public', 'access_token', 'image_src', 'image_width', 'image_height', 'original_id'])[0]
+        return self._read_format(self._get_media_fields())[0]
+
+    @api.model
+    def _get_media_fields(self):
+        return [
+            'original_id', 'id', 'name', 'description', 'mimetype',
+            'checksum', 'url', 'type', 'res_id', 'res_model',
+            'public', 'access_token', 'image_src', 'image_width', 'image_height',
+        ]
 
     def _can_bypass_rights_on_media_dialog(self, **attachment_data):
         """ This method is meant to be overridden, for instance to allow to
@@ -84,3 +100,6 @@ class IrAttachment(models.Model):
         - Non admin user uploading an unsplash image (bypass binary/url check)
         """
         return False
+
+    def _get_mimetype_exempt_groups(self):
+        return []

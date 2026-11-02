@@ -3,10 +3,11 @@
 
 import time
 
-from odoo.tests.common import TransactionCase
+from odoo.tests.common import tagged, TransactionCase
 from odoo.exceptions import AccessError
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestEquipmentMulticompany(TransactionCase):
 
     def test_00_equipment_multicompany_user(self):
@@ -130,8 +131,8 @@ class TestEquipmentMulticompany(TransactionCase):
         # Now there are total 2 equipment created and can view by equipment_manager user
         self.assertEqual(Equipment.with_user(equipment_manager).with_context(allowed_company_ids=cids).search_count([]), 2)
 
-        # And there is total 1 equipment can be view by Normal User ( Which user is followers)
-        self.assertEqual(Equipment.with_user(user).search_count([]), 1)
+        # Users can view all equipments.
+        self.assertEqual(Equipment.with_user(user).search_count([]), 2)
 
         # create an equipment team BY user
         with self.assertRaises(AccessError):
@@ -158,7 +159,7 @@ class TestEquipmentMulticompany(TransactionCase):
         MaintenanceRequest.with_user(user).create({
             'name': 'Some keys are not working',
             'company_id': company_b.id,
-            'user_id': user.id,
+            'user_ids': [user.id],
             'owner_user_id': user.id,
         })
 
@@ -166,7 +167,7 @@ class TestEquipmentMulticompany(TransactionCase):
         MaintenanceRequest.with_user(equipment_manager).create({
             'name': 'Battery drains fast',
             'company_id': company_a.id,
-            'user_id': equipment_manager.id,
+            'user_ids': [equipment_manager.id],
             'owner_user_id': equipment_manager.id,
         })
 

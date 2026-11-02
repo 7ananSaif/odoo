@@ -1,10 +1,8 @@
 {
     'name': 'POS Glory Cash Machines',
-    'version': '1.0',
     'category': 'Sales/Point of Sale',
     'summary': 'Integrate your POS with a Glory automatic cash payment device',
     'depends': ['point_of_sale'],
-    'installable': True,
     'data': [
         'views/pos_payment_method_views.xml',
     ],
@@ -12,6 +10,11 @@
         'web.assets_backend': [
             'pos_glory_cash/static/src/**/*',
             ('remove', 'pos_glory_cash/static/src/app/**/*'),
+        ],
+        'point_of_sale.payment_terminals': [
+            'pos_glory_cash/static/src/**/*',
+            ('remove', 'pos_glory_cash/static/src/backend/**/*'),
+            ('remove', 'pos_glory_cash/static/src/app/screens/**/*'),
         ],
         'point_of_sale._assets_pos': [
             'pos_glory_cash/static/src/**/*',

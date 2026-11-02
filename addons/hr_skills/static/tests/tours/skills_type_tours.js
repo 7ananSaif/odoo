@@ -2,7 +2,6 @@ import { registry } from "@web/core/registry";
 import { stepUtils } from "@web_tour/tour_utils";
 
 registry.category("web_tour.tours").add("hr_skills_type_tour", {
-    url: "/odoo",
     steps: () => [
         stepUtils.showAppsMenuItem(),
         {
@@ -31,7 +30,7 @@ registry.category("web_tour.tours").add("hr_skills_type_tour", {
             run: "edit Cooking Skill",
         },
         {
-            trigger: "div[name=skill_ids] .o_field_x2many_list_row_add a",
+            trigger: "div[name=skill_ids] .o_field_x2many_list_row_add button",
             run: "click",
         },
         {
@@ -39,7 +38,7 @@ registry.category("web_tour.tours").add("hr_skills_type_tour", {
             run: "edit Macaroon",
         },
         {
-            trigger: "div[name=skill_level_ids] .o_field_x2many_list_row_add a",
+            trigger: "div[name=skill_level_ids] .o_field_x2many_list_row_add button",
             run: "click",
         },
         {
@@ -51,7 +50,7 @@ registry.category("web_tour.tours").add("hr_skills_type_tour", {
             run: "click",
         },
         {
-            trigger: "div[name=skill_level_ids] .o_field_x2many_list_row_add a",
+            trigger: "div[name=skill_level_ids] .o_field_x2many_list_row_add button",
             run: "click",
         },
         {
@@ -63,7 +62,7 @@ registry.category("web_tour.tours").add("hr_skills_type_tour", {
             run: "click",
         },
         {
-            trigger: "div[name=skill_level_ids] .o_field_x2many_list_row_add a",
+            trigger: "div[name=skill_level_ids] .o_field_x2many_list_row_add button",
             run: "click",
         },
         {

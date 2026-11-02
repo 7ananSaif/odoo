@@ -6,6 +6,8 @@ from odoo.tests import tagged
 
 @tagged("post_install", "-at_install")
 class TestPoSSaleLoyalty(TestPointOfSaleHttpCommon):
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def get_default_groups(cls):
         groups = super().get_default_groups()
@@ -138,7 +140,6 @@ class TestPoSSaleLoyalty(TestPointOfSaleHttpCommon):
         loyalty_card = self.env['loyalty.card'].create({
             'program_id': loyalty_program.id,
             'partner_id': self.partner_a.id,
-            'points': 0,
             'code': 'LOYALTY123',
         })
         sale_order = self.env['sale.order'].create({
@@ -151,7 +152,7 @@ class TestPoSSaleLoyalty(TestPointOfSaleHttpCommon):
         })
         sale_order.action_confirm()
         self.assertEqual(loyalty_card.points, 1)
-        self.env['ir.config_parameter'].set_param('point_of_sale.limited_customer_count', '0')
+        self.env['ir.config_parameter'].set_str('point_of_sale.limited_customer_count', '0')
         self.main_pos_config.open_ui()
         self.start_pos_tour('test_sale_order_loyalty_card_can_be_used_in_pos')
         order = self.main_pos_config.current_session_id.order_ids[0]

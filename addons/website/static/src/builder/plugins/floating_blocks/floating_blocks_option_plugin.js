@@ -1,27 +1,28 @@
 import { Plugin } from "@html_editor/plugin";
 import { registry } from "@web/core/registry";
-import { withSequence } from "@html_editor/utils/resource";
-import { after } from "@html_builder/utils/option_sequence";
-import { DEVICE_VISIBILITY } from "@website/builder/option_sequence";
-import { renderToElement } from "@web/core/utils/render";
 import { BuilderAction } from "@html_builder/core/builder_action";
-import { BaseOptionComponent } from "@html_builder/core/utils";
-
-export class FloatingBlocksOption extends BaseOptionComponent {
-    static template = "website.FloatingBlocksOption";
-    static selector = ".s_floating_blocks";
-}
+import { scrollTo } from "@html_builder/utils/scrolling";
 
 export class FloatingBlocksOptionPlugin extends Plugin {
     static id = "floatingBlocksOptionPlugin";
     /** @type {import("plugins").WebsiteResources} */
     resources = {
-        builder_options: [withSequence(after(DEVICE_VISIBILITY), FloatingBlocksOption)],
         builder_actions: {
             FloatingBlocksRoundnessAction,
             AddFloatingBlockCardAction,
         },
+        on_prepare_drag_handlers: this.prepareDrag.bind(this),
     };
+
+    prepareDrag() {
+        // Prevent the blocks from overlapping during the drag and drop.
+        const floatingBlocksEls = this.editable.querySelectorAll(".s_floating_blocks");
+        floatingBlocksEls.forEach((el) => el.classList.add("o_disable_cards_overlap"));
+        const restore = () => {
+            floatingBlocksEls.forEach((el) => el.classList.remove("o_disable_cards_overlap"));
+        };
+        return restore;
+    }
 }
 
 export class FloatingBlocksRoundnessAction extends BuilderAction {
@@ -43,12 +44,16 @@ export class FloatingBlocksRoundnessAction extends BuilderAction {
 }
 export class AddFloatingBlockCardAction extends BuilderAction {
     static id = "addFloatingBlockCard";
-    static dependencies = ["builderOptions"];
+    static dependencies = ["builderOptions", "websiteBridge"];
     apply({ editingElement: el }) {
-        const newCardEl = renderToElement("website.s_floating_blocks.new_card");
+        const newCardEl = this.dependencies.websiteBridge.renderToElement(
+            "website.s_floating_blocks.new_card"
+        );
         const wrapperEl = el.querySelector(".s_floating_blocks_wrapper");
         wrapperEl.appendChild(newCardEl);
-        newCardEl.scrollIntoView({ behavior: "smooth", block: "center" });
+        const viewportHeight = this.document.defaultView.innerHeight;
+        const newCardHeight = newCardEl.getBoundingClientRect().height;
+        scrollTo(newCardEl, { forcedOffset: viewportHeight / 2 - newCardHeight / 2 });
         this.dependencies.builderOptions.setNextTarget(newCardEl);
     }
 }

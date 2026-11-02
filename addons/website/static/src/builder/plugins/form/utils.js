@@ -1,9 +1,9 @@
 import { _t } from "@web/core/l10n/translation";
-import { escape } from "@web/core/utils/strings";
-import { renderToElement } from "@web/core/utils/render";
-import { generateHTMLId } from "@html_builder/utils/utils_css";
+import { localeCompare } from "@web/core/l10n/utils";
+import { generateHTMLId } from "@web/core/utils/strings";
 import { isSmallInteger } from "@html_builder/utils/utils";
 
+const DESCRIPTION_POSITION_PREFIX = "s_website_form_description_";
 export const VISIBILITY_DATASET = [
     "visibilityDependency",
     "visibilityCondition",
@@ -12,46 +12,15 @@ export const VISIBILITY_DATASET = [
 ];
 
 /**
- * Returns the parsed data coming from the data-for element for the given form.
- * TODO Note that we should rely on the same util as the website form interaction.
- * Maybe this will need to be deleted.
- *
- * @param {string} formId
- * @param {HTMLElement} parentEl
- * @returns {Object|undefined} the parsed data
- */
-export function getParsedDataFor(formId, parentEl) {
-    const dataForEl = parentEl.querySelector(`[data-for='${formId}']`);
-    if (!dataForEl) {
-        return;
-    }
-    return JSON.parse(
-        dataForEl.dataset.values
-            // replaces `True` by `true` if they are after `,` or `:` or `[`
-            .replace(/([,:[]\s*)True/g, "$1true")
-            // replaces `False` and `None` by `""` if they are after `,` or `:` or `[`
-            .replace(/([,:[]\s*)(False|None)/g, '$1""')
-            // replaces the `'` by `"` if they are before `,` or `:` or `]` or `}`
-            .replace(/'(\s*[,:\]}])/g, '"$1')
-            // replaces the `'` by `"` if they are after `{` or `[` or `,` or `:`
-            .replace(/([{[:,]\s*)'/g, '$1"')
-    );
-}
-
-/**
  * Returns a field object
  *
  * @param {string} type the type of the field
- * @param {string} label The label of the field. Also used as the field's
- *                       name if no `name` is provided.
- * @param {string} [name] The name of the field. Falls back to `label` if
- *                        not specified
+ * @param {string} [name] The name of the field.
  * @returns {Object}
  */
-export function getCustomField(type, label, name = "") {
+export function getCustomField(type, name) {
     return {
-        name: name || label,
-        string: label,
+        name: name,
         custom: true,
         type: type,
         // Default values for x2many fields and selection
@@ -83,12 +52,14 @@ export const isRequiredMark = (el) => el.classList.contains("o_mark_required");
  */
 export function getDefaultFormat(el) {
     return {
-        labelWidth: el.querySelector(".s_website_form_label").style.width,
+        labelWidth: el.querySelector(".s_website_form_label")?.style.width,
         labelPosition: "left",
         multiPosition: "horizontal",
         requiredMark: isRequiredMark(el),
         optionalMark: isOptionalMark(el),
         mark: getMark(el),
+        textPosition: getFieldType(el) === "boolean" ? "top" : "stacked",
+        labelInvisible: false,
     };
 }
 
@@ -119,11 +90,11 @@ export function getQuotesEncodedName(name) {
  * @param {Object} field
  * @returns {HTMLElement}
  */
-export function renderField(field, resetId = false) {
+export function renderField(field, renderToElement) {
     if (!field.id) {
         field.id = generateHTMLId();
     }
-    const params = { field: { ...field }, defaultName: escape(field.string || _t("Field")) };
+    const params = { field: { ...field } };
     if (["url", "email", "tel"].includes(field.type)) {
         params.field.inputType = field.type;
     }
@@ -133,13 +104,13 @@ export function renderField(field, resetId = false) {
     if (field.type === "one2many" && field.relation !== "ir.attachment") {
         params.field.isCheck = true;
     }
-    if (field.custom && !field.string) {
-        params.field.string = field.name;
-    }
     if (field.description) {
-        params.default_description = _t("Describe your field here.");
-    } else if (["email_cc", "email_to"].includes(field.name)) {
-        params.default_description = _t("Separate email addresses with a comma.");
+        params.default_description = "website.form_field_default_description";
+        if (field.type === "boolean") {
+            params.default_description = "website.form_field_default_description_boolean";
+        } else if (["email_cc", "email_to"].includes(field.name)) {
+            params.default_description = "website.form_field_default_description_email_to";
+        }
     }
     const template = document.createElement("template");
     const renderType = field.type === "tags" ? "many2many" : field.type;
@@ -148,20 +119,20 @@ export function renderField(field, resetId = false) {
         const descriptionEl = template.content.querySelector(".s_website_form_field_description");
         descriptionEl.replaceWith(field.description);
     }
+    const labelContentEl = template.content.querySelector(".s_website_form_label_content");
+    if (field.label) {
+        labelContentEl.replaceChildren(...field.label.childNodes);
+    } else {
+        labelContentEl.textContent = field.string_in_website_lang ?? field.string ?? field.name;
+    }
     template.content
         .querySelectorAll("input.datetimepicker-input")
-        .forEach((el) => (el.value = field.propertyValue));
+        .forEach((el) => (el.value = field.propertyValue || ""));
     template.content.querySelectorAll("[name]").forEach((el) => {
         el.name = getQuotesEncodedName(el.name);
     });
     template.content.querySelectorAll("[data-name]").forEach((el) => {
         el.dataset.name = getQuotesEncodedName(el.dataset.name);
-    });
-    // TODO remove this part in master and add offset classes in xml
-    template.content.querySelectorAll(".s_website_form_field").forEach((el) => {
-        if (field.formatInfo.offset) {
-            el.classList.add(field.formatInfo.offset);
-        }
     });
     return template.content.firstElementChild;
 }
@@ -223,6 +194,11 @@ export function getFieldFormat(fieldEl) {
         requiredMark: requiredMark,
         optionalMark: optionalMark,
         mark: mark && mark.textContent,
+        textPosition:
+            getFieldType(fieldEl) == "boolean" ? getDescriptionPosition(fieldEl) : "stacked",
+        labelInvisible:
+            !!fieldEl.querySelector(".s_website_form_label")?.classList.contains("invisible") ||
+            getLabelPosition(fieldEl) === "none",
     };
     return format;
 }
@@ -243,7 +219,7 @@ export function isFieldCustom(fieldEl) {
  * @param {HTMLElement} fieldEl
  * @returns {string}
  */
-export function getFieldName(fieldEl = this.$target[0]) {
+export function getFieldName(fieldEl) {
     const multipleName = fieldEl.querySelector(".s_website_form_multiple");
     return multipleName
         ? multipleName.dataset.name
@@ -272,25 +248,46 @@ export function setActiveProperties(fieldEl, field) {
         'input[type="text"], input[type="email"], input[type="number"], input[type="tel"], input[type="url"], textarea'
     );
     const fileInputEl = fieldEl.querySelector("input[type=file]");
+    const selectInputEl = fieldEl.querySelector("select");
     const description = fieldEl.querySelector(".s_website_form_field_description");
+    const label = fieldEl.querySelector(".s_website_form_label_content");
     field.placeholder = input?.placeholder || "";
     if (input) {
         // textarea value has no attribute,  date/datetime timestamp property is formated
         field.value = input.getAttribute("value") || input.value;
+        if (input.hasAttribute("minLength")) {
+            field.minLength = parseInt(input.getAttribute("minLength"));
+        }
+        if (input.hasAttribute("maxLength")) {
+            field.maxLength = parseInt(input.getAttribute("maxLength"));
+        }
     } else if (field.type === "boolean") {
         field.value = !!fieldEl.querySelector('input[type="checkbox"][checked]');
     } else if (fileInputEl) {
         field.maxFilesNumber = fileInputEl.dataset.maxFilesNumber;
         field.maxFileSize = fileInputEl.dataset.maxFileSize;
+        if (fileInputEl.hasAttribute("accept")) {
+            field.accept = fileInputEl.getAttribute("accept");
+        }
+    } else if (selectInputEl) {
+        const emptyOptionEl = selectInputEl.querySelector(".s_website_form_empty_option");
+        field.allowEmpty = !!emptyOptionEl;
+        field.placeholder = emptyOptionEl?.textContent || _t("Please choose any one option");
     }
     // property value is needed for date/datetime (formated date).
     field.propertyValue = input && input.value;
     field.description = description;
+    field.label = label;
     field.rows = textarea && textarea.rows;
     field.required = classList.contains("s_website_form_required");
     field.modelRequired = classList.contains("s_website_form_model_required");
     field.hidden = classList.contains("s_website_form_field_hidden");
     field.formatInfo = getFieldFormat(fieldEl);
+    // this is needed to link states to the country
+    if (field.name === "state_id") {
+        field.linkStateToCountry =
+            fieldEl.querySelector(".s_website_form_input").dataset.linkStateToCountry !== "false";
+    }
 }
 
 /**
@@ -312,6 +309,16 @@ export function replaceFieldElement(oldFieldEl, fieldEl) {
     [...fieldEl.childNodes].forEach((node) => oldFieldEl.appendChild(node));
     [...fieldEl.attributes].forEach((el) => oldFieldEl.removeAttribute(el.nodeName));
     [...fieldEl.attributes].forEach((el) => oldFieldEl.setAttribute(el.nodeName, el.nodeValue));
+    if (!["selection", "many2one"].includes(oldFieldEl.dataset.type)) {
+        const dataAttributesToRemove = [
+            "otherOptionAllowed",
+            "otherOptionLabel",
+            "otherOptionPlaceholder",
+        ];
+        for (const dataAttribute of dataAttributesToRemove) {
+            delete oldFieldEl.dataset[dataAttribute];
+        }
+    }
     if (hasConditionalVisibility) {
         oldFieldEl.classList.add("s_website_form_field_hidden_if", "d-none");
     }
@@ -333,7 +340,7 @@ export function replaceFieldElement(oldFieldEl, fieldEl) {
         }
     }
     const newInputEl = oldFieldEl.querySelector("input");
-    if (newInputEl) {
+    if (newInputEl && previousName === newName && previousType === newType) {
         newInputEl.dataset.fillWith = dataFillWith;
     }
 }
@@ -347,13 +354,11 @@ export function replaceFieldElement(oldFieldEl, fieldEl) {
  */
 export function getActiveField(fieldEl, { noRecords, fields } = {}) {
     let field;
-    const labelText = fieldEl.querySelector(".s_website_form_label_content")?.innerText || "";
     if (isFieldCustom(fieldEl)) {
         const inputName = fieldEl.querySelector(".s_website_form_input").getAttribute("name");
-        field = getCustomField(fieldEl.dataset.type, labelText, inputName);
+        field = getCustomField(fieldEl.dataset.type, inputName);
     } else {
         field = Object.assign({}, fields[getFieldName(fieldEl)]);
-        field.string = labelText;
         field.type = getFieldType(fieldEl);
     }
     if (!noRecords) {
@@ -508,22 +513,52 @@ export function getModelName(formEl) {
     return formEl.dataset.model_name || "mail.mail";
 }
 
+export function getFormCacheKey(formEl) {
+    // Combine model and fields into cache key.
+    const model = getModelName(formEl);
+    const propertyOrigins = {};
+    const parts = [model];
+    for (const hiddenInputEl of [...formEl.querySelectorAll("input[type=hidden]")].sort(
+        (firstEl, secondEl) => localeCompare(firstEl.name, secondEl.name)
+    )) {
+        // Pushing using the name order to avoid being impacted by the
+        // order of hidden fields within the DOM.
+        parts.push(hiddenInputEl.name);
+        parts.push(hiddenInputEl.value);
+        propertyOrigins[hiddenInputEl.name] = hiddenInputEl.value;
+    }
+    const cacheKey = parts.join("/");
+    return { cacheKey, model, propertyOrigins };
+}
+
 export function getListItems(fieldEl) {
     const selectEl = getSelect(fieldEl);
     const multipleInputsEl = getMultipleInputs(fieldEl);
     let options = [];
     if (selectEl) {
-        options = [...selectEl.querySelectorAll("option")];
+        options = [
+            ...selectEl.querySelectorAll(
+                "option:not([value='_other'], .s_website_form_empty_option)"
+            ),
+        ];
     } else if (multipleInputsEl) {
-        options = [...multipleInputsEl.querySelectorAll(".checkbox input, .radio input")];
+        options = [
+            ...multipleInputsEl.querySelectorAll(
+                ".checkbox input, .radio input:not([value='_other'])"
+            ),
+        ];
     }
     return options.map((opt) => {
         const name = selectEl ? opt : opt.nextElementSibling;
-        return {
+        const res = {
             id: isSmallInteger(opt.value) ? parseInt(opt.value) : opt.value,
             display_name: name.textContent.trim(),
             selected: selectEl ? opt.selected : opt.checked,
         };
+        if (opt.dataset.countryId) {
+            res.country_id = [parseInt(opt.dataset.countryId), ""];
+        }
+        return res;
     });
 }
 
@@ -545,9 +580,46 @@ export function setVisibilityDependency(fieldEl, value) {
  * @param {HTMLElement} fieldEl - The original field element to be re-rendered.
  * @param {Object<string, Object>} fields - A map of all fields in the form.
  */
-export function rerenderField(fieldEl, fields) {
+export function rerenderField(fieldEl, renderToElement, fields) {
     const field = getActiveField(fieldEl, { fields });
     delete field.id;
-    const newFieldEl = renderField(field);
+    const newFieldEl = renderField(field, renderToElement);
     replaceFieldElement(fieldEl, newFieldEl);
+}
+
+/**
+ * Returns the field description layout (currently used for checkbox fields).
+ *
+ * @param {HTMLElement} fieldEl
+ */
+export function getDescriptionPosition(fieldEl) {
+    const descriptionEl = fieldEl.querySelector(".s_website_form_field_description");
+    if (!descriptionEl || descriptionEl.classList.contains("d-none")) {
+        return "none";
+    } else {
+        const descriptionPositionClass = [...fieldEl.classList].find((cls) =>
+            cls.startsWith(DESCRIPTION_POSITION_PREFIX)
+        );
+        return descriptionPositionClass
+            ? descriptionPositionClass.replace(DESCRIPTION_POSITION_PREFIX, "")
+            : "stacked";
+    }
+}
+
+/**
+ * Returns the type to use by default to display the given model field. A
+ * single-choice field is shown as a dropdown ("many2one") when it has more
+ * than five options. Any other field keeps its type.
+ *
+ * @param {Object} field a model field
+ * @returns {string}
+ */
+export function getDefaultFieldType(field) {
+    const isSingleChoice =
+        field.type === "selection" ||
+        (field.type === "many2one" && field.relation !== "ir.attachment");
+    if (isSingleChoice && field.records?.length > 5) {
+        return "many2one";
+    }
+    return field.type;
 }

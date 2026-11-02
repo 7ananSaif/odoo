@@ -1,15 +1,9 @@
 import { models, Command } from "@web/../tests/web_test_helpers";
 
+const { DateTime } = luxon;
+
 export class PosOrder extends models.ServerModel {
     _name = "pos.order";
-
-    get_preparation_change(id) {
-        const read = this.read([id]);
-        const changes = read[0]?.last_order_preparation_change || "{}";
-        return {
-            last_order_preparation_change: changes,
-        };
-    }
 
     read_pos_orders(domain) {
         const results = this.search(domain, this._load_pos_data_fields(), false);
@@ -20,7 +14,11 @@ export class PosOrder extends models.ServerModel {
         return [];
     }
 
-    action_pos_order_cancel(self) {
+    _load_pos_data_dependencies() {
+        return ["res.partner"];
+    }
+
+    cancel_order_from_pos(self) {
         const records = this.browse(self);
         const orderIds = [];
 
@@ -49,6 +47,7 @@ export class PosOrder extends models.ServerModel {
 
         const orderIds = [];
         for (const record of data) {
+            record.write_date = DateTime.now().toFormat("yyyy-MM-dd HH:mm:ss");
             const record_uuid_mapping = record.relations_uuid_mapping || {};
             delete record.relations_uuid_mapping;
             if (record.id) {
@@ -91,8 +90,35 @@ export class PosOrder extends models.ServerModel {
                 }
             }
         }
-
         return this.read_pos_data(orderIds, data, this.config_id);
+    }
+
+    record_uuid_mapping(uuidMapping) {
+        for (const [model, data] of Object.entries(uuidMapping)) {
+            for (const [uuid, fields] of Object.entries(data)) {
+                const record = this.env[model].search_read([["uuid", "=", uuid]], []);
+                if (record.length === 0) {
+                    continue;
+                }
+
+                for (const [fieldName, vals] of Object.entries(fields)) {
+                    const relation = this.env[model]._fields[fieldName].relation;
+                    if (!relation) {
+                        continue;
+                    }
+
+                    const rels = this.env[relation].search_read([["uuid", "in", vals]], ["id"]);
+                    const ids = rels.map((r) => r.id);
+                    if (ids.length === 0) {
+                        continue;
+                    }
+
+                    const value = Array.isArray(vals) ? [...ids, ...record[fieldName]] : ids[0];
+                    console.log("David ", value);
+                    this.env[model].write([record[0].id], { [fieldName]: value });
+                }
+            }
+        }
     }
 
     read_pos_data(orderIds, data, config_id) {
@@ -100,8 +126,9 @@ export class PosOrder extends models.ServerModel {
         const posSession = [];
         const posPayment = [];
         const posOrderLine = [];
-        const posPackOperationLot = [];
         const posCustomAttributeValue = [];
+        const posPrepOrder = [];
+        const posPrepLine = [];
         const readOrder = this.read(orderIds, this._load_pos_data_fields(config_id), false);
 
         for (const order of readOrder) {
@@ -117,12 +144,6 @@ export class PosOrder extends models.ServerModel {
                 this.env["pos.payment"]._load_pos_data_fields(config_id),
                 false
             );
-            const packLotLineIds = lines.flatMap((line) => line.pack_lot_ids);
-            const packLotLines = this.env["pos.pack.operation.lot"].read(
-                packLotLineIds,
-                this.env["pos.pack.operation.lot"]._load_pos_data_fields(config_id),
-                false
-            );
             const customAttributeValueIds = lines.flatMap(
                 (line) => line.custom_attribute_value_ids
             );
@@ -132,9 +153,29 @@ export class PosOrder extends models.ServerModel {
                 false
             );
 
+            let prepOrders = [];
+            let prepLines = [];
+
+            if (order.prep_order_ids.length > 0) {
+                prepOrders = this.env["pos.prep.order"].read(
+                    order.prep_order_ids,
+                    this.env["pos.prep.order"]._load_pos_data_fields(config_id),
+                    false
+                );
+            }
+
+            if (prepOrders.length > 0) {
+                prepLines = this.env["pos.prep.line"].read(
+                    prepOrders.flatMap((po) => po.prep_line_ids),
+                    this.env["pos.prep.line"]._load_pos_data_fields(config_id),
+                    false
+                );
+            }
+
+            posPrepOrder.push(...prepOrders);
+            posPrepLine.push(...prepLines);
             posOrderLine.push(...lines);
             posPayment.push(...payments);
-            posPackOperationLot.push(...packLotLines);
             posCustomAttributeValue.push(...customAttributeValues);
         }
 
@@ -143,20 +184,16 @@ export class PosOrder extends models.ServerModel {
             "pos.session": posSession,
             "pos.payment": posPayment,
             "pos.order.line": posOrderLine,
-            "pos.pack.operation.lot": posPackOperationLot,
             "product.attribute.custom.value": posCustomAttributeValue,
+            "pos.prep.order": posPrepOrder,
+            "pos.prep.line": posPrepLine,
         };
     }
 
-    get_stock_reports_to_print() {
-        return [
-            {
-                type: "ir.actions.report",
-                report_name: "stock.report_return_document",
-                report_type: "qweb-pdf",
-                report_file: "return_slip",
-                name: "Return slip",
-            },
-        ];
+    search_order_ids(config_id, domain, limit, offset) {
+        return {
+            ordersInfo: [],
+            totalCount: 0,
+        };
     }
 }

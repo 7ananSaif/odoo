@@ -9,6 +9,7 @@ from unittest.mock import patch
 from freezegun import freeze_time
 
 from odoo import Command, fields
+from odoo.exceptions import UserError
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 from odoo.tests import tagged
 
@@ -16,27 +17,26 @@ from odoo.tests import tagged
 @tagged('post_install_l10n', 'post_install', '-at_install')
 class TestVNEDI(AccountTestInvoicingCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     @AccountTestInvoicingCommon.setup_country('vn')
     def setUpClass(cls):
         super().setUpClass()
 
         # Setup the default symbol and template.
-        cls.template = cls.env['l10n_vn_edi_viettel.sinvoice.template'].create({
-            'name': '1/001',
-            'template_invoice_type': '1',
-        })
+        cls.template = '1/001'
         cls.symbol = cls.env['l10n_vn_edi_viettel.sinvoice.symbol'].create({
             'name': 'K24TUT',
-            'invoice_template_id': cls.template.id,
+            'invoice_template_code': cls.template,
         })
-        cls.env['ir.default'].set(
-            'res.partner',
-            'l10n_vn_edi_symbol',
-            cls.symbol.id,
-            company_id=cls.env.company.id
-        )
-
+        cls.c_symbol = cls.env['l10n_vn_edi_viettel.sinvoice.symbol'].create({
+            'name': 'C24TUT',
+            'invoice_template_code': cls.template,
+        })
+        cls.env.company.write({
+            'l10n_vn_edi_symbol_id': cls.symbol.id,
+        })
         # Setup a vietnamese address on the partner and company.
         cls.partner_a.write({
             'street': '121 Hang Bac Street',
@@ -76,19 +76,6 @@ class TestVNEDI(AccountTestInvoicingCommon):
         self.assertEqual(invoice.l10n_vn_edi_invoice_state, 'ready_to_send')
 
     @freeze_time('2024-01-01')
-    def test_default_symbol_on_partner(self):
-        """ Ensure that the default symbol is set correctly if set on the partner of the invoice. """
-        self.partner_a.l10n_vn_edi_symbol = self.env['l10n_vn_edi_viettel.sinvoice.symbol'].create({
-            'name': 'K24TUD',
-            'invoice_template_id': self.template.id,
-        })
-        invoice = self.init_invoice(
-            move_type='out_invoice',
-            products=self.product_a,
-        )
-        self.assertEqual(invoice.l10n_vn_edi_invoice_symbol.id, self.partner_a.l10n_vn_edi_symbol.id)
-
-    @freeze_time('2024-01-01')
     def test_json_data_generation(self):
         """ Test the data dict generated to ensure consistency with the data we set in the system. """
         invoice = self.init_invoice(
@@ -102,7 +89,6 @@ class TestVNEDI(AccountTestInvoicingCommon):
             {
                 'generalInvoiceInfo': {
                     'transactionUuid': mock.ANY,  # Random, not important.
-                    'invoiceType': '1',
                     'templateCode': '1/001',
                     'invoiceSeries': 'K24TUT',
                     'invoiceIssuedDate': 1704067200000,
@@ -136,7 +122,7 @@ class TestVNEDI(AccountTestInvoicingCommon):
                 'payments': [{'paymentMethodName': 'TM/CK'}],
                 'itemInfo': [{
                     'itemCode': 'BN/1035',
-                    'itemName': '[BN/1035] product_a',
+                    'itemName': 'product_a',
                     'unitName': 'Units',
                     'unitPrice': 1000.0,
                     'quantity': 1.0,
@@ -172,7 +158,6 @@ class TestVNEDI(AccountTestInvoicingCommon):
             {
                 'generalInvoiceInfo': {
                     'transactionUuid': mock.ANY,  # Random, not important.
-                    'invoiceType': '1',
                     'templateCode': '1/001',
                     'invoiceSeries': 'K24TUT',
                     'invoiceIssuedDate': 1704067200000,
@@ -372,32 +357,6 @@ class TestVNEDI(AccountTestInvoicingCommon):
         self.assertNotEqual(invoice.l10n_vn_edi_sinvoice_pdf_file, False)
         self.assertNotEqual(invoice.l10n_vn_edi_sinvoice_file, False)
 
-    @freeze_time('2024-01-01')
-    def test_cancel_invoice(self):
-        """ Ensure that trying to cancel a sent invoice returns the wizard action, and test the wizard flow. """
-        invoice = self.init_invoice(
-            move_type='out_invoice',
-            products=self.product_a,
-            taxes=self.tax_sale_a,
-            post=True,
-            currency=self.other_currency,
-        )
-        self._send_invoice(invoice)
-        # Trying to cancel a sent invoice should result in an action to open the cancellation wizard.
-        action = invoice.button_request_cancel()
-        self.assertEqual(action['res_model'], 'l10n_vn_edi_viettel.cancellation')
-        with patch('odoo.addons.l10n_vn_edi_viettel.models.account_move._l10n_vn_edi_send_request', return_value=(None, None)):
-            self.env['l10n_vn_edi_viettel.cancellation'].create({
-                'invoice_id': invoice.id,
-                'reason': 'Unwanted',
-                'agreement_document_name': 'N/A',
-                'agreement_document_date': fields.Datetime.now(),
-            }).button_request_cancel()
-        # Both states should be canceled, but the e-invoicing data should still be there
-        self.assertEqual(invoice.l10n_vn_edi_invoice_state, 'canceled')
-        self.assertEqual(invoice.state, 'cancel')
-        self.assertNotEqual(invoice.l10n_vn_edi_invoice_number, False)
-
     def test_access_token(self):
         """ Ensure that we can fetch access tokens as you would expect. """
         invoice = self.init_invoice(
@@ -413,20 +372,20 @@ class TestVNEDI(AccountTestInvoicingCommon):
         }
 
         # Do a few tests to ensure that the access token is handled correctly.
-        with patch('odoo.addons.l10n_vn_edi_viettel.models.account_move._l10n_vn_edi_send_request', return_value=(request_response, None)):
+        with patch('odoo.addons.l10n_vn_edi_viettel.models.sinvoice_service.SInvoiceService.get_access_token', return_value=(request_response, None)):
             # First ensure that fetching the token will set the value correctly on the company.
             with freeze_time('2024-01-01 02:00:00'):
-                invoice._l10n_vn_edi_get_access_token()
+                invoice.company_id._l10n_vn_edi_get_access_token()
                 self.assertEqual(invoice.company_id.l10n_vn_edi_token, '123')
                 self.assertEqual(invoice.company_id.l10n_vn_edi_token_expiry, datetime.strptime('2024-01-01 02:10:00', '%Y-%m-%d %H:%M:%S'))
             # Second fetch should not set anything as the token isn't expired.
             with freeze_time('2024-01-01 02:05:00'):
-                invoice._l10n_vn_edi_get_access_token()
+                invoice.company_id._l10n_vn_edi_get_access_token()
                 self.assertEqual(invoice.company_id.l10n_vn_edi_token, '123')
                 self.assertEqual(invoice.company_id.l10n_vn_edi_token_expiry, datetime.strptime('2024-01-01 02:10:00', '%Y-%m-%d %H:%M:%S'))
             # Third fetch will get a new token due as it expired
             with freeze_time('2024-01-01 02:15:00'):
-                invoice._l10n_vn_edi_get_access_token()
+                invoice.company_id._l10n_vn_edi_get_access_token()
                 self.assertEqual(invoice.company_id.l10n_vn_edi_token, '123')
                 self.assertEqual(invoice.company_id.l10n_vn_edi_token_expiry, datetime.strptime('2024-01-01 02:25:00', '%Y-%m-%d %H:%M:%S'))
 
@@ -447,6 +406,7 @@ class TestVNEDI(AccountTestInvoicingCommon):
             'result': {
                 'reservationCode': '123456',
                 'invoiceNo': 'K24TUT01',
+                'codeOfTax': '1234567890'
             },
             'access_token': '123',  # In reality, it wouldn't be set here, but for convenience in the tests we'll "cheat"
             'expires_in': '60',
@@ -454,7 +414,8 @@ class TestVNEDI(AccountTestInvoicingCommon):
 
         with patch('odoo.addons.l10n_vn_edi_viettel.models.account_move.AccountMove._l10n_vn_edi_fetch_invoice_pdf_file_data', return_value=pdf_response), \
              patch('odoo.addons.l10n_vn_edi_viettel.models.account_move.AccountMove._l10n_vn_edi_fetch_invoice_xml_file_data', return_value=xml_response), \
-             patch('odoo.addons.l10n_vn_edi_viettel.models.account_move._l10n_vn_edi_send_request', return_value=(request_response, None)):
+             patch('odoo.addons.l10n_vn_edi_viettel.models.sinvoice_service.SInvoiceService.create_invoice', return_value=({'invoiceNo': 'K24TUT01', 'reservationCode': '123456', 'codeOfTax': '1234567890'}, None)), \
+             patch('odoo.addons.l10n_vn_edi_viettel.models.sinvoice_service.SInvoiceService.get_access_token', return_value=(request_response, None)):
             self.env['account.move.send.wizard'].with_context(active_model=invoice._name, active_ids=invoice.ids).create({}).action_send_and_print()
 
     @freeze_time('2024-01-01')
@@ -715,7 +676,7 @@ class TestVNEDI(AccountTestInvoicingCommon):
         }, ""
 
         with patch(
-            'odoo.addons.l10n_vn_edi_viettel.models.account_move.AccountMove._l10n_vn_edi_fetch_invoice_file_data',
+            'odoo.addons.l10n_vn_edi_viettel.models.sinvoice_service.SInvoiceService.get_invoice_file',
             return_value=zip_response,
         ):
             result, error = invoice._l10n_vn_edi_fetch_invoice_xml_file_data()
@@ -752,7 +713,7 @@ class TestVNEDI(AccountTestInvoicingCommon):
         }, ""
 
         with patch(
-            'odoo.addons.l10n_vn_edi_viettel.models.account_move.AccountMove._l10n_vn_edi_fetch_invoice_file_data',
+            'odoo.addons.l10n_vn_edi_viettel.models.sinvoice_service.SInvoiceService.get_invoice_file',
             return_value=zip_response,
         ):
             result, error = invoice._l10n_vn_edi_fetch_invoice_xml_file_data()
@@ -784,10 +745,77 @@ class TestVNEDI(AccountTestInvoicingCommon):
         }, ""
 
         with patch(
-            'odoo.addons.l10n_vn_edi_viettel.models.account_move.AccountMove._l10n_vn_edi_fetch_invoice_file_data',
+            'odoo.addons.l10n_vn_edi_viettel.models.sinvoice_service.SInvoiceService.get_invoice_file',
             return_value=zip_response,
         ):
             result, error = invoice._l10n_vn_edi_fetch_invoice_xml_file_data()
 
         self.assertTrue(error, "Expected an error when no XML file is present in the ZIP.")
         self.assertFalse(result, "Expected no result when no XML file is found.")
+
+    def test_reverse_moves_with_c_symbol_approved(self):
+        invoice = self.init_invoice(
+            move_type='out_invoice',
+            products=self.product_a,
+            taxes=self.tax_sale_a,
+            post=True,
+            currency=self.other_currency,
+        )
+
+        invoice.l10n_vn_edi_invoice_symbol = self.c_symbol
+        self._send_invoice(invoice)
+
+        move_reversal = self.env['account.move.reversal'].with_context(active_model="account.move", active_ids=invoice.ids).create({
+            'journal_id': invoice.journal_id.id,
+        })
+
+        request_response = {
+            'access_token': '123',
+            'expires_in': '600',
+        }
+        lookup_response = {
+            'result': [{
+                'exchangeStatus': 'INVOICE_HAS_CODE_APPROVED',
+            }]
+        }
+
+        with patch('odoo.addons.l10n_vn_edi_viettel.models.sinvoice_service.SInvoiceService.get_access_token', return_value=(request_response, None)), \
+             patch('odoo.addons.l10n_vn_edi_viettel.models.sinvoice_service.SInvoiceService.lookup_invoice', return_value=(lookup_response, None)):
+            reversal = move_reversal.reverse_moves()
+
+        self.assertEqual(invoice.l10n_vn_edi_invoice_state, 'adjusted')
+        reverse_move = self.env['account.move'].browse(reversal['res_id'])
+        self.assertTrue(reverse_move.exists())
+
+    def test_reverse_moves_with_c_symbol_not_approved(self):
+        invoice = self.init_invoice(
+            move_type='out_invoice',
+            products=self.product_a,
+            taxes=self.tax_sale_a,
+            post=True,
+            currency=self.other_currency,
+        )
+        invoice.l10n_vn_edi_invoice_symbol = self.c_symbol
+        self._send_invoice(invoice)
+
+        move_reversal = self.env['account.move.reversal'].with_context(active_model="account.move", active_ids=invoice.ids).create({
+            'journal_id': invoice.journal_id.id,
+        })
+
+        request_response = {
+            'access_token': '123',
+            'expires_in': '600',
+        }
+        lookup_response = {
+            'result': [{
+                'exchangeStatus': 'INVOICE_HAS_CODE_NOT_APPROVED',
+            }]
+        }
+
+        with patch('odoo.addons.l10n_vn_edi_viettel.models.sinvoice_service.SInvoiceService.get_access_token', return_value=(request_response, None)), \
+             patch('odoo.addons.l10n_vn_edi_viettel.models.sinvoice_service.SInvoiceService.lookup_invoice', return_value=(lookup_response, None)):
+            with self.assertRaises(UserError) as error:
+                move_reversal.reverse_moves()
+            self.assertIn('has not been approved by the tax authorities', str(error.exception))
+
+        self.assertEqual(invoice.l10n_vn_edi_invoice_state, 'sent')

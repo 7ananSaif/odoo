@@ -8,8 +8,7 @@ import {
     startServer,
 } from "@mail/../tests/mail_test_helpers";
 import { describe, expect, test } from "@odoo/hoot";
-import { Deferred } from "@odoo/hoot-mock";
-import { asyncStep, mockService, onRpc, waitForSteps } from "@web/../tests/web_test_helpers";
+import { mockService, onRpc } from "@web/../tests/web_test_helpers";
 
 describe.current.tags("desktop");
 defineMailModels();
@@ -18,56 +17,30 @@ test("activity mark done popover simplest layout", async () => {
     const pyEnv = await startServer();
     const partnerId = pyEnv["res.partner"].create({});
     pyEnv["mail.activity"].create({
-        activity_category: "not_upload_file",
         can_write: true,
         res_id: partnerId,
         res_model: "res.partner",
     });
     await start();
     await openFormView("res.partner", partnerId);
-    await click(".btn", { text: "Mark Done" });
+    await click(".btn:text('Done')");
     await contains(".o-mail-ActivityMarkAsDone");
     await contains(".o-mail-ActivityMarkAsDone textarea[placeholder='Write Feedback']");
     await contains(".o-mail-ActivityMarkAsDone button[aria-label='Done and Schedule Next']");
     await contains(".o-mail-ActivityMarkAsDone button[aria-label='Done']");
-    await contains(".o-mail-ActivityMarkAsDone button", { text: "Discard" });
-});
-
-test("activity with force next mark done popover simplest layout", async () => {
-    const pyEnv = await startServer();
-    const partnerId = pyEnv["res.partner"].create({});
-    const activityTypeId = pyEnv["mail.activity.type"].create({
-        name: "TriggerType",
-        chaining_type: "trigger",
-    });
-    pyEnv["mail.activity"].create({
-        activity_category: "not_upload_file",
-        activity_type_id: activityTypeId,
-        can_write: true,
-        res_id: partnerId,
-        res_model: "res.partner",
-    });
-    await start();
-    await openFormView("res.partner", partnerId);
-    await click(".btn", { text: "Mark Done" });
-    await contains(".o-mail-ActivityMarkAsDone");
-    await contains(".o-mail-ActivityMarkAsDone textarea[placeholder='Write Feedback']");
-    await contains(".o-mail-ActivityMarkAsDone button[aria-label='Done and Schedule Next']");
-    await contains(".o-mail-ActivityMarkAsDone button[aria-label='Done']", { count: 0 });
-    await contains(".o-mail-ActivityMarkAsDone button", { text: "Discard" });
+    await contains(".o-mail-ActivityMarkAsDone button:text('Discard')");
 });
 
 test("activity mark done popover mark done without feedback", async () => {
     const pyEnv = await startServer();
     const partnerId = pyEnv["res.partner"].create({});
     const activityId = pyEnv["mail.activity"].create({
-        activity_category: "not_upload_file",
         can_write: true,
         res_id: partnerId,
         res_model: "res.partner",
     });
     onRpc("mail.activity", "action_feedback", ({ args, kwargs }) => {
-        asyncStep("action_feedback");
+        expect.step("action_feedback");
         expect(args).toHaveLength(1);
         expect(args[0]).toHaveLength(1);
         expect(args[0][0]).toBe(activityId);
@@ -78,22 +51,21 @@ test("activity mark done popover mark done without feedback", async () => {
     });
     await start();
     await openFormView("res.partner", partnerId);
-    await click(".btn", { text: "Mark Done" });
+    await click(".btn:text('Done')");
     await click(".o-mail-ActivityMarkAsDone button[aria-label='Done']");
-    await waitForSteps(["action_feedback"]);
+    await expect.waitForSteps(["action_feedback"]);
 });
 
 test("activity mark done popover mark done with feedback", async () => {
     const pyEnv = await startServer();
     const partnerId = pyEnv["res.partner"].create({});
     const activityId = pyEnv["mail.activity"].create({
-        activity_category: "not_upload_file",
         can_write: true,
         res_id: partnerId,
         res_model: "res.partner",
     });
     onRpc("mail.activity", "action_feedback", ({ args, kwargs, method }) => {
-        asyncStep(method);
+        expect.step(method);
         expect(args).toHaveLength(1);
         expect(args[0]).toHaveLength(1);
         expect(args[0][0]).toBe(activityId);
@@ -110,26 +82,25 @@ test("activity mark done popover mark done with feedback", async () => {
     });
     await start();
     await openFormView("res.partner", partnerId);
-    await click(".btn", { text: "Mark Done" });
+    await click(".btn:text('Done')");
     await insertText(
         ".o-mail-ActivityMarkAsDone textarea[placeholder='Write Feedback']",
         "This task is done"
     );
     await click(".o-mail-ActivityMarkAsDone button[aria-label='Done']");
-    await waitForSteps(["action_feedback"]);
+    await expect.waitForSteps(["action_feedback"]);
 });
 
 test("activity mark done popover mark done and schedule next", async () => {
     const pyEnv = await startServer();
     const partnerId = pyEnv["res.partner"].create({});
     const activityId = pyEnv["mail.activity"].create({
-        activity_category: "not_upload_file",
         can_write: true,
         res_id: partnerId,
         res_model: "res.partner",
     });
     onRpc("mail.activity", "action_feedback_schedule_next", ({ args, kwargs, method }) => {
-        asyncStep(method);
+        expect.step(method);
         expect(args).toHaveLength(1);
         expect(args[0]).toHaveLength(1);
         expect(args[0][0]).toBe(activityId);
@@ -145,7 +116,7 @@ test("activity mark done popover mark done and schedule next", async () => {
     mockService("action", {
         doAction(action) {
             if (action?.res_model !== "res.partner") {
-                asyncStep("activity_action");
+                expect.step("activity_action");
                 throw new Error(
                     "The do-action event should not be triggered when the route doesn't return an action"
                 );
@@ -155,20 +126,19 @@ test("activity mark done popover mark done and schedule next", async () => {
     });
     await start();
     await openFormView("res.partner", partnerId);
-    await click(".btn", { text: "Mark Done" });
+    await click(".btn:text('Done')");
     await insertText(
         ".o-mail-ActivityMarkAsDone textarea[placeholder='Write Feedback']",
         "This task is done"
     );
     await click(".o-mail-ActivityMarkAsDone button[aria-label='Done and Schedule Next']");
-    await waitForSteps(["action_feedback_schedule_next"]);
+    await expect.waitForSteps(["action_feedback_schedule_next"]);
 });
 
 test("[technical] activity mark done & schedule next with new action", async () => {
     const pyEnv = await startServer();
     const partnerId = pyEnv["res.partner"].create({});
     pyEnv["mail.activity"].create({
-        activity_category: "not_upload_file",
         can_write: true,
         res_id: partnerId,
         res_model: "res.partner",
@@ -176,12 +146,12 @@ test("[technical] activity mark done & schedule next with new action", async () 
     onRpc("mail.activity", "action_feedback_schedule_next", () => ({
         type: "ir.actions.act_window",
     }));
-    const def = new Deferred();
+    const { promise: doActionCalled, resolve: resolveDoActionCalled } = Promise.withResolvers();
     mockService("action", {
         doAction(action) {
             if (action?.res_model !== "res.partner") {
-                def.resolve();
-                asyncStep("activity_action");
+                resolveDoActionCalled();
+                expect.step("activity_action");
                 expect(action).toEqual(
                     { type: "ir.actions.act_window" },
                     { message: "The content of the action should be correct" }
@@ -193,8 +163,8 @@ test("[technical] activity mark done & schedule next with new action", async () 
     });
     await start();
     await openFormView("res.partner", partnerId);
-    await click(".btn", { text: "Mark Done" });
+    await click(".btn:text('Done')");
     await click(".o-mail-ActivityMarkAsDone button[aria-label='Done and Schedule Next']");
-    await def;
-    await waitForSteps(["activity_action"]);
+    await doActionCalled;
+    await expect.waitForSteps(["activity_action"]);
 });

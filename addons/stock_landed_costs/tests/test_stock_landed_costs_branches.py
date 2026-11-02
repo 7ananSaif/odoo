@@ -10,6 +10,8 @@ from odoo.tests import tagged, Form
 @skip('Temporary to fast merge new valuation')
 class TestStockLandedCostsBranches(TestStockValuationLCCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -42,7 +44,7 @@ class TestStockLandedCostsBranches(TestStockValuationLCCommon):
                 'picking_type_id': warehouse.in_type_id.id,
                 'product_id': self.product1.id,
                 'product_uom_qty': 1,
-                'product_uom': self.product1.uom_id.id,
+                'uom_id': self.product1.uom_id.id,
                 'price_unit': 10,
             })],
         })

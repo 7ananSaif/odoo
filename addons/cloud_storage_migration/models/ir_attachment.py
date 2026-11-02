@@ -51,31 +51,25 @@ class CloudStorageAttachmentMigration(models.Model):
         ``cloud_storage_migration_min_attachment_id``
         """
         ICP = self.env['ir.config_parameter']
-        if not ICP.get_param('cloud_storage_provider'):
+        if not ICP.get_str('cloud_storage_provider'):
             raise UserError(_("Cloud storage provider is not configured"))
 
         # check ir.config_parameter values' formats are correct
         cron = self.env.ref('cloud_storage_migration.ir_cron_manual_migrate_local_to_cloud_storage')
-        min_file_size = int(ICP.get_param('cloud_storage_min_file_size', DEFAULT_CLOUD_STORAGE_MIN_FILE_SIZE))
-        max_file_size = int(ICP.get_param('cloud_storage_migration_max_file_size', 10**9))  # default 1GB
-        max_batch_file_size = int(ICP.get_param('cloud_storage_migration_max_batch_file_size', 10**10))  # default 10GB
-        message_model_names = ICP.get_param('cloud_storage_migration_message_models', '').split(',')
+        min_file_size = ICP.get_int('cloud_storage_min_file_size', DEFAULT_CLOUD_STORAGE_MIN_FILE_SIZE)
+        max_file_size = ICP.get_int('cloud_storage_migration_max_file_size', 10**9)  # default 1GB
+        max_batch_file_size = ICP.get_int('cloud_storage_migration_max_batch_file_size', 10**9)  # default 1GB
+        message_model_names = ICP.get_str('cloud_storage_migration_message_models').split(',')
         message_model_names = tuple(m_ for m in message_model_names if (m_ := m.strip()) and m_ in self.env)
-        all_model_names = ICP.get_param('cloud_storage_migration_all_models', '').split(',')
+        all_model_names = ICP.get_str('cloud_storage_migration_all_models').split(',')
         all_model_names = tuple(m_ for m in all_model_names if (m_ := m.strip()) and m_ in self.env)
         if not message_model_names and not all_model_names:
             raise UserError(_("No model for cloud storage migration"))
 
-        max_attachment_id = int(ICP.get_param('cloud_storage_migration_max_attachment_id', 0))
+        max_attachment_id = ICP.get_int('cloud_storage_migration_max_attachment_id', 0)
         if not max_attachment_id:
             max_attachment_id = self.env['ir.attachment'].sudo().search_fetch([], ['id'], limit=1, order='id desc').id or 1
-            ICP.set_param('cloud_storage_migration_max_attachment_id', max_attachment_id)
-
-        if request:
-            # Don't upload in HTTP server, if the method is called by ``Manually Run`` button from web client
-            # The cron job should be rescheduled asap in cron server
-            cron._trigger()
-            return
+            ICP.set_int('cloud_storage_migration_max_attachment_id', max_attachment_id)
 
         def commit_min_attachment_id(attachment_id):
             # directly write data of ir_config_parameter to avoid invalidating ormcache
@@ -86,8 +80,9 @@ class CloudStorageAttachmentMigration(models.Model):
         # ``config['limit_time_real_cron'] == 0`` means unlimited time for cron worker,
         # but will fallback to ``config['limit_time_real']`` for cron thread
         # here we use ``config['limit_time_real']`` for simplicity
-        if config['limit_time_real_cron'] and config['limit_time_real_cron'] > 0:
-            limit_time_real = config['limit_time_real_cron']
+        if not request:
+            if config['limit_time_real_cron'] and config['limit_time_real_cron'] > 0:
+                limit_time_real = config['limit_time_real_cron']
         # use half of the time limit to mitigate the timeout problem
         log_msg = f'Starting cloud storage migration with timeout {limit_time_real // 2} seconds'
         if max_batch_file_size:
@@ -129,6 +124,7 @@ class CloudStorageAttachmentMigration(models.Model):
             AND ia.res_field IS NULL
             AND ia.store_fname IS NOT NULL
             AND (%(check_model)s)
+            AND ia.res_model != ALL(%(unsupported_models)s)
             AND ia.file_size BETWEEN %(min_file_size)s AND %(max_file_size)s
             AND ia.create_date < %(create_date)s
             %(check_documents)s
@@ -137,6 +133,7 @@ class CloudStorageAttachmentMigration(models.Model):
         """,
             max_attachment_id=max_attachment_id,
             check_model=check_model,
+            unsupported_models=list(self._get_cloud_storage_unsupported_models()),
             # ignore if attachment is too small or too large
             min_file_size=min_file_size,
             max_file_size=max_file_size,
@@ -180,7 +177,7 @@ class CloudStorageAttachmentMigration(models.Model):
                 _logger.info('uploaded attachment %s (%s bytes) to cloud storage', attachment.id, file_size)
             except Exception as e:  # noqa: BLE001
                 _logger.warning('Failed to upload attachment %s (%s bytes) to cloud storage: %s', attachment.id, file_size, e)
-                self.env.cr.rollback()
+                self.env['ir.cron']._rollback_progress()
 
             if end_time < time.monotonic():
                 _logger.info('Timeout reached for cloud storage migration')

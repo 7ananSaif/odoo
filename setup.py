@@ -34,6 +34,7 @@ setup(
         'geoip2',
         'gevent',
         'greenlet',
+        'h11',
         'idna',
         'Jinja2',
         'lxml',  # windows binary http://www.lfd.uci.edu/~gohlke/pythonlibs/
@@ -49,11 +50,10 @@ setup(
         'psutil',  # windows binary code.google.com/p/psutil/downloads/list
         'psycopg2 >= 2.2',
         'pyopenssl',
-        'PyPDF2',
+        'pypdf',
         'pyserial',
         'python-dateutil',
         'python-stdnum',
-        'pytz',
         'pyusb >= 1.0.0b1',
         'qrcode',
         'reportlab',  # windows binary pypi.python.org/pypi/reportlab
@@ -64,7 +64,6 @@ setup(
         'werkzeug',
         'xlrd',
         'xlsxwriter',
-        'xlwt',
         'zeep',
     ],
     python_requires='>=' + ".".join(map(str, MIN_PY_VERSION)),

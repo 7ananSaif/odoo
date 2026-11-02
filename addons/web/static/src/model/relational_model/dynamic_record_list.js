@@ -8,11 +8,17 @@ export class DynamicRecordList extends DynamicList {
     static type = "DynamicRecordList";
 
     /**
-     * @param {import("./relational_model").Config} config
+     * @param {import("./relational_model").Config} _config
      * @param {Object} data
+     * @param {Object} [options]
+     * @param {import("./group").Group} [options.group]
      */
-    setup(config, data) {
-        super.setup(config);
+    setup(_config, data, { group } = {}) {
+        super.setup(...arguments);
+
+        /** set only when this list is a group's content */
+        this.group = group;
+        this.records = [];
         this._setData(data);
     }
 
@@ -38,7 +44,7 @@ export class DynamicRecordList extends DynamicList {
     /**
      * @param {number} resId
      * @param {boolean} [atFirstPosition]
-     * @returns {Promise<Record>} the newly created record
+     * @returns {Promise<RelationalRecord>} the newly created record
      */
     addExistingRecord(resId, atFirstPosition) {
         return this.model.mutex.exec(async () => {
@@ -51,11 +57,15 @@ export class DynamicRecordList extends DynamicList {
 
     /**
      * @param {boolean} [atFirstPosition=false]
-     * @returns {Promise<Record>}
+     * @returns {Promise<RelationalRecord>}
      */
     addNewRecord(atFirstPosition = false) {
         return this.model.mutex.exec(async () => {
-            await this._leaveSampleMode();
+            if (this.model.useSampleModel) {
+                // leave sample mode
+                this._setData({ records: [], length: 0 });
+                this.model.useSampleModel = false;
+            }
             return this._addNewRecord(atFirstPosition);
         });
     }
@@ -71,8 +81,11 @@ export class DynamicRecordList extends DynamicList {
         return this.count;
     }
 
-    moveRecord(dataRecordId, _dataGroupId, refId, _targetGroupId) {
-        return this.resequence(dataRecordId, refId);
+    /**
+     * @param {string[]} recordIds ids of the records moved together, in display order
+     */
+    moveRecords(recordIds, refId, _targetGroupId) {
+        return this.resequence(recordIds, refId);
     }
 
     removeRecord(record) {
@@ -88,10 +101,9 @@ export class DynamicRecordList extends DynamicList {
         return record;
     }
 
-    async resequence(movedRecordId, targetRecordId) {
-        return this.model.mutex.exec(
-            async () =>
-                await this._resequence(this.records, this.resModel, movedRecordId, targetRecordId)
+    async resequence(movedRecordIds, targetRecordId) {
+        return this.model.mutex.exec(() =>
+            this._resequence(this.records, this.resModel, movedRecordIds, targetRecordId)
         );
     }
 
@@ -100,14 +112,22 @@ export class DynamicRecordList extends DynamicList {
     // -------------------------------------------------------------------------
 
     async _addNewRecord(atFirstPosition) {
-        const values = await this.model._loadNewRecord({
-            resModel: this.resModel,
-            activeFields: this.activeFields,
-            fields: this.fields,
-            context: this.context,
-        });
+        const { promise, resolve } = Promise.withResolvers();
+        const values = await this.model._loadNewRecord(
+            {
+                resModel: this.resModel,
+                activeFields: this.activeFields,
+                fields: this.fields,
+                context: this.context,
+                isMonoRecord: true,
+            },
+            {
+                cache: this.model._getCacheParams({ ...this.config, isMonoRecord: true }, promise),
+            }
+        );
         const record = this._createRecordDatapoint(values, "edit");
         this._addRecord(record, atFirstPosition ? 0 : this.records.length);
+        resolve({ root: record, loadId: this.config.loadId });
         return record;
     }
 
@@ -130,7 +150,7 @@ export class DynamicRecordList extends DynamicList {
                 mode,
             },
             data,
-            { manuallyAdded: !data.id }
+            { group: this.group, manuallyAdded: !data.id }
         );
     }
 

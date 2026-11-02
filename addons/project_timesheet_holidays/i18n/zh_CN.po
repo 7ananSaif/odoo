@@ -7,21 +7,39 @@
 # Jeffery CHEN <jeffery9@gmail.com>, 2022
 # Martin Trigaux, 2022
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+# "Chloe Wang (chwa)" <chwa@odoo.com>, 2026.
+# 张飞虎 <feihu.zhang@live.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-05 19:29+0000\n"
-"PO-Revision-Date: 2025-09-16 15:28+0000\n"
-"Last-Translator: \"Tiffany Chang (tic)\" <tic@odoo.com>\n"
+"POT-Creation-Date: 2026-10-09 17:40+0000\n"
+"PO-Revision-Date: 2026-10-11 13:33+0000\n"
+"Last-Translator: 张飞虎 <feihu.zhang@live.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://translate.odoo.com/"
-"projects/odoo-19/project_timesheet_holidays/zh_Hans/>\n"
+"projects/odoo-20/project_timesheet_holidays/zh_Hans/>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: project_timesheet_holidays
+#: model:ir.module.module,description:base.module_project_timesheet_holidays
+msgid ""
+"\n"
+"Bridge module to integrate leaves in timesheet\n"
+"================================================\n"
+"\n"
+"This module allows to automatically log timesheets when employees are\n"
+"on leaves. Project and task can be configured company-wide.\n"
+msgstr ""
+"\n"
+"将休假集成到工时表的桥接模块\n"
+"================================================\n"
+"\n"
+"本模块允许在员工休假时自动记录工时表。项目和任务可在公司范围内配置。\n"
 
 #. module: project_timesheet_holidays
 #: model:ir.model,name:project_timesheet_holidays.model_account_analytic_line
@@ -35,7 +53,7 @@ msgstr "分析行"
 
 #. module: project_timesheet_holidays
 #: model:ir.model,name:project_timesheet_holidays.model_res_company
-msgid "Companies"
+msgid "Company"
 msgstr "公司"
 
 #. module: project_timesheet_holidays
@@ -51,6 +69,7 @@ msgstr "创建一个任务"
 #. module: project_timesheet_holidays
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_account_analytic_line__display_name
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_hr_employee__display_name
+#: model:ir.model.fields,field_description:project_timesheet_holidays.field_hr_employee_departure__display_name
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_hr_leave__display_name
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_project_task__display_name
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_res_company__display_name
@@ -65,8 +84,14 @@ msgid "Employee"
 msgstr "员工"
 
 #. module: project_timesheet_holidays
+#: model:ir.model,name:project_timesheet_holidays.model_hr_employee_departure
+msgid "Employee Departure"
+msgstr "员工离职"
+
+#. module: project_timesheet_holidays
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_account_analytic_line__id
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_hr_employee__id
+#: model:ir.model.fields,field_description:project_timesheet_holidays.field_hr_employee_departure__id
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_hr_leave__id
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_project_task__id
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_res_company__id
@@ -97,6 +122,11 @@ msgid "Resource Time Off Detail"
 msgstr "休假详细信息"
 
 #. module: project_timesheet_holidays
+#: model:ir.module.module,summary:base.module_project_timesheet_holidays
+msgid "Schedule timesheet when on time off"
+msgstr "休假时安排工时表"
+
+#. module: project_timesheet_holidays
 #: model:ir.model,name:project_timesheet_holidays.model_project_task
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_account_analytic_line__task_id
 #: model_terms:ir.ui.view,arch_db:project_timesheet_holidays.res_config_settings_view_form
@@ -107,8 +137,7 @@ msgstr "任务"
 #: model:ir.model.fields,help:project_timesheet_holidays.field_res_config_settings__internal_project_id
 msgid ""
 "The default project used when automatically generating timesheets via time "
-"off requests. You can specify another project on each time off type "
-"individually."
+"off requests. You can specify another project on each time type individually."
 msgstr ""
 "通过休假请求自动生成工时表时使用的默认项目。 您可以在每个休假类型上单独指定另"
 "一个项目。"
@@ -117,10 +146,10 @@ msgstr ""
 #: model:ir.model.fields,help:project_timesheet_holidays.field_res_config_settings__leave_timesheet_task_id
 msgid ""
 "The default task used when automatically generating timesheets via time off "
-"requests. You can specify another task on each time off type individually."
+"requests. You can specify another task on each time type individually."
 msgstr ""
-"通过休假请求自动生成工时表时使用的默认任务。 您可以在每个休假类型上单独指定另"
-"一个任务。"
+"通过休假申请自动生成工时表时使用的默认任务。您可以为每种时间类型单独指定其他"
+"任务。"
 
 #. module: project_timesheet_holidays
 #. odoo-python
@@ -146,14 +175,33 @@ msgstr "任务休息时间"
 
 #. module: project_timesheet_holidays
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_project_task__leave_types_count
-msgid "Time Off Types Count"
-msgstr "休假类型计数"
+msgid "Time Types Count"
+msgstr "时间类型数量"
+
+#. module: project_timesheet_holidays
+#: model:ir.module.module,shortdesc:base.module_project_timesheet_holidays
+msgid "Timesheet when on Time Off"
+msgstr "休假时的工时表"
+
+#. module: project_timesheet_holidays
+#. odoo-python
+#: code:addons/project_timesheet_holidays/models/account_analytic.py:0
+msgid "Timesheets linked to public holidays cannot be deleted."
+msgstr "与公共假日关联的工时单无法删除。"
 
 #. module: project_timesheet_holidays
 #. odoo-python
 #: code:addons/project_timesheet_holidays/models/account_analytic.py:0
 msgid "Timesheets linked to public holidays cannot be modified."
-msgstr ""
+msgstr "与公共假日相关的工时单无法修改。"
+
+#. module: project_timesheet_holidays
+#. odoo-python
+#: code:addons/project_timesheet_holidays/models/account_analytic.py:0
+msgid ""
+"Timesheets related to time off cannot be created or modified. Please manage "
+"your requests in the Time Off app instead."
+msgstr "与休假相关的工时单无法创建或修改。请改在“休假”应用中管理您的休假申请。"
 
 #. module: project_timesheet_holidays
 #: model:ir.model.fields,help:project_timesheet_holidays.field_project_task__display_name
@@ -170,6 +218,17 @@ msgid ""
 "        Make sure to use the right format and order e.g. Improve the "
 "configuration screen 5h #feature #v16 @Mitchell !"
 msgstr ""
+"在新的任务标题中，使用这些关键字进行设置：\n"
+"\n"
+"        30h：向任务分配 30 小时\n"
+"        #标签名称：为任务设置标签\n"
+"        @用户名：将任务指派给用户\n"
+"        !：将任务设为中等优先级别\n"
+"        !!：将任务设为高优先级别\n"
+"        !!!：将任务设为紧急\n"
+"\n"
+"        记得使用正确格式及顺序，例如：改进配置画面 5h #特色功能 #v16 "
+"@Mitchell!"
 
 #. module: project_timesheet_holidays
 #. odoo-python
@@ -181,68 +240,12 @@ msgstr "查看休假"
 #. odoo-python
 #: code:addons/project_timesheet_holidays/models/account_analytic.py:0
 msgid ""
-"You cannot create timesheets for a task that is linked to a time off type. "
-"Please use the Time Off application to request new time off instead."
-msgstr ""
-"您不能为已链接到休假类型的任务创建时间表。请使用 \"休假 \"应用程序申请新的休"
-"假。"
-
-#. module: project_timesheet_holidays
-#. odoo-python
-#: code:addons/project_timesheet_holidays/models/account_analytic.py:0
-msgid "You cannot delete timesheets that are linked to global time off."
-msgstr "您不能删除已链接到全局休假的工时单。"
-
-#. module: project_timesheet_holidays
-#. odoo-python
-#: code:addons/project_timesheet_holidays/models/account_analytic.py:0
-msgid ""
 "You cannot delete timesheets that are linked to time off requests. Please "
 "cancel your time off request from the Time Off application instead."
 msgstr "您不能删除链接到休假请求的工时表，请从休假应用程序中取消您的休假请求。"
 
 #. module: project_timesheet_holidays
 #. odoo-python
-#: code:addons/project_timesheet_holidays/models/account_analytic.py:0
-msgid ""
-"You cannot modify timesheets that are linked to time off requests. Please "
-"use the Time Off application to modify your time off requests instead."
-msgstr ""
-"您不能修改链接到休假请求的工时表，请使用休假应用程序来修改您的休假请求."
-
-#. module: project_timesheet_holidays
-#. odoo-python
 #: code:addons/project_timesheet_holidays/__init__.py:0
 msgid "allow_timesheets"
 msgstr "allow_timesheets"
-
-#~ msgid ""
-#~ "Both the internal project and task are required to generate a timesheet "
-#~ "for the time off %s. If you don't want a timesheet, you should leave the "
-#~ "internal project and task empty."
-#~ msgstr ""
-#~ "内部项目和任务都需要为休假%s的时间生成工时表。如果您不想要工时表，您应该把"
-#~ "内部项目和任务留空。"
-
-#~ msgid "Generate Timesheet"
-#~ msgstr "生成工时表"
-
-#~ msgid "Global Time Off"
-#~ msgstr "公共休假"
-
-#~ msgid ""
-#~ "If checked, when validating a time off, timesheet will be generated in "
-#~ "the Vacation Project of the company."
-#~ msgstr "如果勾选，当验证休假时，将在公司的休假项目中生成工时表。"
-
-#~ msgid "Is Time off Task"
-#~ msgstr "休假任务"
-
-#~ msgid "Operation not supported"
-#~ msgstr "不支持该作业"
-
-#~ msgid "Time Off (%s/%s)"
-#~ msgstr "休息时间（%s/%s）。"
-
-#~ msgid "Time Off Type"
-#~ msgstr "休假类型"

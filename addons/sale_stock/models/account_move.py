@@ -1,32 +1,13 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from collections import defaultdict
 
-from odoo import models, api, fields
-from odoo.tools import float_is_zero, float_compare
+from odoo import api, fields, models
 from odoo.tools.misc import formatLang
 
 
 class AccountMove(models.Model):
     _inherit = 'account.move'
-
-    def _stock_account_get_last_step_stock_moves(self):
-        """ Overridden from stock_account.
-        Returns the stock moves associated to this invoice."""
-        rslt = super()._stock_account_get_last_step_stock_moves()
-        for invoice in self:
-            if invoice.move_type not in ['out_invoice', 'out_refund']:
-                continue
-            if (invoice.move_type == 'out_invoice' or (
-                invoice.move_type == 'out_refund' and any(invoice.invoice_line_ids.sale_line_ids.mapped('is_downpayment')))
-            ):
-                rslt += invoice.mapped('invoice_line_ids.sale_line_ids.move_ids').filtered(lambda x: x.state == 'done' and x.location_dest_id.usage == 'customer')
-            else:
-                rslt += invoice.mapped('reversed_entry_id.invoice_line_ids.sale_line_ids.move_ids').filtered(lambda x: x.state == 'done' and x.location_id.usage == 'customer')
-                # Add refunds generated from the SO
-                rslt += invoice.mapped('invoice_line_ids.sale_line_ids.move_ids').filtered(lambda x: x.state == 'done' and x.location_id.usage == 'customer')
-        return rslt
 
     def _get_invoiced_lot_values(self):
         """ Get and prepare data to show a table of invoiced lot on the invoice's report. """
@@ -38,16 +19,19 @@ class AccountMove(models.Model):
             return res
 
         current_invoice_amls = self.invoice_line_ids.filtered(lambda aml: aml.display_type == 'product' and aml.product_id and aml.product_id.type == 'consu' and aml.quantity)
-        all_invoices_amls = current_invoice_amls.sale_line_ids.invoice_lines.filtered(lambda aml: aml._filter_aml_lot_valuation()).sorted(lambda aml: (aml.date, aml.move_name, aml.id))
+        all_invoices_amls = current_invoice_amls.sale_line_ids.invoice_lines.filtered(
+            lambda aml: aml._filter_aml_lot_valuation()
+        ).sorted(lambda aml: (aml.date, aml.move_id.id, aml.id))
         index = all_invoices_amls.ids.index(current_invoice_amls[:1].id) if current_invoice_amls[:1] in all_invoices_amls else 0
         previous_amls = all_invoices_amls[:index]
         invoiced_qties = current_invoice_amls._get_invoiced_qty_per_product()
         invoiced_products = invoiced_qties.keys()
 
         if self.move_type == 'out_invoice':
-            # filter out the invoices that have been fully refund and re-invoice otherwise, the quantities would be
-            # consumed by the reversed invoice and won't be print on the new draft invoice
-            previous_amls = previous_amls.filtered(lambda aml: aml.move_id.payment_state != 'reversed')
+            # Ignore a reversed invoice only if its reversing move also precedes the invoice being rendered.
+            previous_amls = previous_amls.filtered(
+                lambda aml: aml.move_id.payment_state != 'reversed' or not (aml.move_id.reversal_move_ids & previous_amls.move_id)
+            )
 
         previous_qties_invoiced = previous_amls._get_invoiced_qty_per_product()
 
@@ -66,7 +50,7 @@ class AccountMove(models.Model):
                 continue
             product = sml.product_id
             product_uom = product.uom_id
-            quantity = sml.product_uom_id._compute_quantity(sml.quantity, product_uom)
+            quantity = sml.uom_id._compute_quantity(sml.quantity, product_uom)
 
             # is it a stock return considering the document type (should it be it thought of as positively or negatively?)
             is_stock_return = (
@@ -95,18 +79,18 @@ class AccountMove(models.Model):
             # access the lot as a superuser in order to avoid an error
             # when a user prints an invoice without having the stock access
             lot = lot.sudo()
-            if lot.product_uom_id.is_zero(invoiced_qties[lot.product_id]) or lot.product_uom_id.compare(qty, 0) <= 0:
+            if lot.uom_id.is_zero(invoiced_qties[lot.product_id]) or lot.uom_id.compare(qty, 0) <= 0:
                 continue
             invoiced_lot_qty = min(qty, invoiced_qties[lot.product_id])
             invoiced_qties[lot.product_id] -= invoiced_lot_qty
             res.append({
                 'product_name': lot.product_id.display_name,
                 'quantity': formatLang(self.env, invoiced_lot_qty, dp='Product Unit'),
-                'uom_name': lot.product_uom_id.name,
+                'uom_name': lot.uom_id.name,
                 'lot_name': lot.name,
                 # The lot id is needed by localizations to inherit the method and add custom fields on the invoice's report.
                 'lot_id': lot.id,
-            })
+            } | self._extract_extra_invoiced_lot_values(lot))
 
         return res
 
@@ -115,28 +99,13 @@ class AccountMove(models.Model):
         # EXTENDS 'account'
         super()._compute_delivery_date()
         for move in self:
+            if move.state != 'draft':
+                continue
             sale_order_effective_date = list(filter(None, move.line_ids.sale_line_ids.order_id.mapped('effective_date')))
             effective_date_res = max(sale_order_effective_date) if sale_order_effective_date else False
             # if multiple sale order we take the bigger effective_date
             if effective_date_res:
                 move.delivery_date = fields.Datetime.context_timestamp(self, effective_date_res)
-
-    @api.depends('line_ids.sale_line_ids.order_id')
-    def _compute_incoterm_location(self):
-        super()._compute_incoterm_location()
-        for move in self:
-            sale_locations = move.line_ids.sale_line_ids.order_id.mapped('incoterm_location')
-            incoterm_res = next((incoterm for incoterm in sale_locations if incoterm), False)
-            # if multiple purchase order we take an incoterm that is not false
-            if incoterm_res:
-                move.incoterm_location = incoterm_res
-
-    def _get_anglo_saxon_price_ctx(self):
-        ctx = super()._get_anglo_saxon_price_ctx()
-        move_is_downpayment = self.invoice_line_ids.filtered(
-            lambda line: any(line.sale_line_ids.mapped("is_downpayment"))
-        )
-        return dict(ctx, move_is_downpayment=move_is_downpayment)
 
     def _get_protected_vals(self, vals, records):
         res = super()._get_protected_vals(vals, records)
@@ -152,45 +121,23 @@ class AccountMove(models.Model):
 class AccountMoveLine(models.Model):
     _inherit = "account.move.line"
 
-    def _get_stock_moves(self):
-        return super()._get_stock_moves() | self._get_sale_stock_move()
-
-    def _get_sale_stock_move(self):
-        return self.sale_line_ids.move_ids
+    @api.depends(
+        'cogs_origin_id.sale_line_ids.move_ids.state', 'sale_line_ids.move_ids.state',
+        'cogs_origin_id.sale_line_ids.move_ids.value', 'sale_line_ids.move_ids.value')
+    def _compute_cogs_move_ids(self):
+        super()._compute_cogs_move_ids()
+        for aml in self:
+            if aml.cogs_origin_id:
+                moves = aml.cogs_origin_id.sale_line_ids.move_ids
+            elif aml.sale_line_ids:
+                moves = aml.sale_line_ids.move_ids
+            else:
+                continue
+            aml.cogs_move_ids |= moves.filtered(lambda m:
+                (m.is_valued or any(ml._is_consigned_valued_line() for ml in m.move_line_ids))
+                and any(loc.usage in ['customer', 'transit'] for loc in [m.location_id, m.location_dest_id])
+            )
 
     def _sale_can_be_reinvoice(self):
         self.ensure_one()
         return self.move_type != 'entry' and self.display_type != 'cogs' and super()._sale_can_be_reinvoice()
-
-    def _get_cogs_qty(self):
-        self.ensure_one()
-        valuation_account = self.product_id.product_tmpl_id.get_product_accounts(fiscal_pos=self.move_id.fiscal_position_id)['stock_valuation']
-        sale_lines = self.sale_line_ids
-        posted_cogs_lines = sale_lines.order_id.invoice_ids.filtered(lambda m: m.move_type == 'out_invoice').line_ids.filtered(
-            lambda line: line.display_type == 'cogs' and line.account_id == valuation_account and line.cogs_origin_id.sale_line_ids & sale_lines
-        )
-        posted_cogs_qty_prod_uom = sum(posted_cogs_lines.mapped(
-            lambda line: line.product_uom_id._compute_quantity(line.quantity, line.product_id.uom_id)
-             * (-1 if line.move_id.move_type == "out_refund" else 1)
-        ))
-        return posted_cogs_qty_prod_uom + super()._get_cogs_qty()
-
-    def _get_posted_cogs_value(self):
-        self.ensure_one()
-        valuation_account = self.product_id.product_tmpl_id.get_product_accounts(fiscal_pos=self.move_id.fiscal_position_id)['stock_valuation']
-        sale_lines = self.sale_line_ids
-        posted_cogs_value = - sum(sale_lines.order_id.invoice_ids.filtered(lambda m: m.move_type == 'out_invoice').line_ids.filtered(
-            lambda line: line.display_type == 'cogs' and line.account_id == valuation_account and line.cogs_origin_id.sale_line_ids & sale_lines
-        ).mapped('balance'))
-        return posted_cogs_value + super()._get_posted_cogs_value()
-
-    def _get_lines_from_original_invoice(self):
-        original_lines = super()._get_lines_from_original_invoice()
-        if self.move_id.move_type == 'out_refund' and not self.move_id.reversed_entry_id:
-            original_lines += self.sale_line_ids.invoice_lines.move_id.filtered(
-                lambda m: m.move_type == "out_invoice"
-            ).line_ids.filtered(
-                lambda l: l.display_type == 'cogs' and l.product_id == self.product_id and
-                l.product_uom_id == self.product_uom_id and l.price_unit >= 0
-            )
-        return original_lines

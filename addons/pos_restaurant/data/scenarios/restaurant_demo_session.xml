@@ -32,6 +32,7 @@
             <field name="amount_return">0.0</field>
             <field name="ticket_code">cs24t</field>
             <field name="preset_id" eval="ref('pos_takein_preset', raise_if_not_found=False)"/>
+            <field name="date_order" eval="(DateTime.today() + relativedelta(days=-1)).strftime('%Y-%m-%d %H:%M:%S')" />
         </record>
 
         <record id="pos_closed_orderline_3_1_1" model="pos.order.line" forcecreate="False">
@@ -72,6 +73,7 @@
             <field name="amount_return">0.0</field>
             <field name="ticket_code">bg3yt</field>
             <field name="preset_id" eval="ref('pos_takein_preset', raise_if_not_found=False)"/>
+            <field name="date_order" eval="(DateTime.today() + relativedelta(days=-1)).strftime('%Y-%m-%d %H:%M:%S')" />
         </record>
 
         <record id="pos_closed_orderline_3_2_1" model="pos.order.line" forcecreate="False">
@@ -94,7 +96,7 @@
             <value eval="{'state': 'paid'}"/>
         </function>
 
-        <function model="pos.session" name="action_pos_session_closing_control"
+        <function model="pos.session" name="close_session_from_ui"
             eval="[[ref('pos_closed_session_3')]]" />
 
         <!-- Closed Session 4 -->
@@ -118,6 +120,7 @@
             <field name="amount_return">0.0</field>
             <field name="ticket_code">kq9ty</field>
             <field name="preset_id" eval="ref('pos_takein_preset', raise_if_not_found=False)"/>
+            <field name="date_order" eval="(DateTime.today() + relativedelta(hours=-1)).strftime('%Y-%m-%d %H:%M:%S')" />
         </record>
 
         <record id="pos_closed_orderline_4_1_1" model="pos.order.line" forcecreate="False">
@@ -158,6 +161,7 @@
             <field name="amount_return">0.0</field>
             <field name="ticket_code">ij0ty</field>
             <field name="preset_id" eval="ref('pos_takein_preset', raise_if_not_found=False)"/>
+            <field name="date_order" eval="(DateTime.today() + relativedelta(hours=-3)).strftime('%Y-%m-%d %H:%M:%S')" />
         </record>
 
         <record id="pos_closed_orderline_4_2_1" model="pos.order.line" forcecreate="False">
@@ -181,12 +185,61 @@
             <value eval="{'state': 'paid'}"/>
         </function>
 
-        <function model="pos.session" name="action_pos_session_closing_control"
+        <record id="pos_closed_order_4_3" model="pos.order" forcecreate="False">
+            <field name="session_id" ref="pos_closed_session_4" />
+            <field name="company_id" ref="base.main_company" />
+            <field name="state">paid</field>
+            <field name="amount_total">6.60</field>
+            <field name="amount_tax">0.0</field>
+            <field name="amount_paid">6.60</field>
+            <field name="amount_return">0.0</field>
+            <field name="ticket_code">rp28c</field>
+            <field name="preset_id" eval="ref('pos_takein_preset', raise_if_not_found=False)"/>
+            <field name="date_order" eval="(DateTime.today() + relativedelta(hours=-1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        </record>
+
+        <record id="pos_closed_orderline_4_3_1" model="pos.order.line" forcecreate="False">
+            <field name="product_id" ref="coke" />
+            <field name="price_subtotal">2.20</field>
+            <field name="price_subtotal_incl">2.20</field>
+            <field name="price_unit">2.20</field>
+            <field name="qty">1</field>
+            <field name="order_id" ref="pos_closed_order_4_3" />
+            <field name="full_product_name">Coca-Cola</field>
+        </record>
+
+        <record id="pos_closed_orderline_4_3_2" model="pos.order.line" forcecreate="False">
+            <field name="product_id" ref="minute_maid" />
+            <field name="price_subtotal">4.40</field>
+            <field name="price_subtotal_incl">4.40</field>
+            <field name="price_unit">2.20</field>
+            <field name="qty">2</field>
+            <field name="order_id" ref="pos_closed_order_4_3" />
+            <field name="full_product_name">Coca-Cola</field>
+        </record>
+
+        <record id="pos_payment_5" model="pos.payment" forcecreate="False">
+            <field name="payment_method_id" ref="pos_restaurant.payment_method" />
+            <field name="pos_order_id" ref="pos_closed_order_4_3" />
+            <field name="amount">6.60</field>
+        </record>
+
+        <function model="pos.order" name="write">
+            <value eval="[ref('pos_closed_order_4_3')]"/>
+            <value eval="{'state': 'paid'}"/>
+        </function>
+
+        <function model="pos.session" name="close_session_from_ui"
             eval="[[ref('pos_closed_session_4')]]" />
 
         <!-- Open Session -->
         <record id="customer_1" model="res.partner">
             <field name="name">John Doe</field>
+            <field name="street">404 Monolith Tower</field>
+            <field name="city">West Hollywood</field>
+            <field name="state_id" ref='base.state_us_5'/>
+            <field name="zip">94523</field>
+            <field name="country_id" ref="base.us"/>
         </record>
 
         <record id="pos_open_session_2" model="pos.session" forcecreate="False">
@@ -278,7 +331,9 @@
             <field name="table_id" ref="table_04" />
             <field name="customer_count">5</field>
             <field name="ticket_code">qrs2t</field>
-            <field name="preset_id" eval="ref('pos_takein_preset', raise_if_not_found=False)"/>
+            <field name="preset_id" eval="ref('pos_takeout_preset', raise_if_not_found=False)"/>
+            <field name="preset_time"
+                eval="(DateTime.today()).strftime('%Y-%m-%d %H:%M:%S')" />
         </record>
 
         <record id="pos_orderline_6" model="pos.order.line" forcecreate="False">
@@ -313,7 +368,7 @@
             <field name="table_id" ref="table_06" />
             <field name="customer_count">1</field>
             <field name="ticket_code">cv34t</field>
-            <field name="preset_id" eval="ref('pos_takein_preset', raise_if_not_found=False)"/>
+            <field name="preset_id" eval="ref('pos_delivery_preset', raise_if_not_found=False)"/>
         </record>
 
         <record id="pos_orderline_8" model="pos.order.line" forcecreate="False">
@@ -325,8 +380,5 @@
             <field name="order_id" ref="pos_open_order_5" />
             <field name="full_product_name">Pizza 4 Formaggi</field>
         </record>
-
-        <function model="pos.session" name="_set_last_order_preparation_change"
-            eval="[[ref('pos_open_order_2'), ref('pos_open_order_3'), ref('pos_open_order_4')]]"/>
     </data>
 </odoo>

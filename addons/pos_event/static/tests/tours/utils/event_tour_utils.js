@@ -1,22 +1,34 @@
 // Part of Odoo. See LICENSE file for full copyright and licensing details.
-export function increaseQuantityOfTicket(ticket) {
+import * as ProductScreen from "@point_of_sale/../tests/pos/tours/utils/product_screen_util";
+
+export function SettleEventRegistration(n = 1) {
     return [
+        ...ProductScreen.clickControlButton("Quotation / Order"),
         {
-            content: `increase quantity`,
-            trigger: `.modal .o_event_configurator_popup div:contains('${ticket}') .fa.fa-plus`,
+            content: `select nth order`,
+            trigger: `.modal:not(.o_inactive_modal) table.o_list_table tbody tr.o_data_row:nth-child(${n}) td`,
+            run: "click",
+        },
+        {
+            content: `Choose to settle the order`,
+            trigger: `.modal:not(.o_inactive_modal) .selection-item:contains('Settle the order')`,
             run: "click",
         },
     ];
 }
 
-export function decreaseQuantityOfTicket(ticket) {
+export function increaseQuantityOfTicket(ticket) {
     return [
         {
-            content: `decrease quantity`,
-            trigger: `.modal .o_event_configurator_popup div:contains('${ticket}') .fa.fa-minus`,
+            content: `increase quantity`,
+            trigger: `.modal .o_event_configurator_popup div:contains('${ticket}') [data-icon="add"]`,
             run: "click",
         },
     ];
+}
+
+export function increaseQuantityOfTicketBy(ticket, number) {
+    return Array.from({ length: number }, () => increaseQuantityOfTicket(ticket)).flat();
 }
 
 export function answerTicketSelectQuestion(ticketNumber, question, answer) {
@@ -55,36 +67,6 @@ export function answerGlobalTextQuestion(question, answer) {
             content: `Answer question ${question} with ${answer} for global`,
             trigger: `.global_question:contains('${question}') input`,
             run: `edit ${answer}`,
-        },
-    ];
-}
-
-export function pickTicket(name) {
-    return [
-        {
-            content: `pick ticket with name: ${name}`,
-            trigger: `.modal .o-event-ticket:contains('${name}')`,
-            run: "click",
-        },
-    ];
-}
-
-export function printTicket(mode) {
-    return [
-        {
-            content: `print ticket with mode: ${mode}`,
-            trigger: `.o-event-button .o-event-${mode}`,
-            run: "click",
-        },
-    ];
-}
-
-export function eventRemainingSeat(name, seats) {
-    return [
-        {
-            content: `check remaining seats for ${name}`,
-            trigger: `article:contains('${name}'):contains('${seats} left')`,
-            run: "click",
         },
     ];
 }

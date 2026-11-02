@@ -1,6 +1,7 @@
 import { patch } from "@web/core/utils/patch";
 import { ControlButtons } from "@point_of_sale/app/screens/product_screen/control_buttons/control_buttons";
 import { SelectCreateDialog } from "@web/views/view_dialogs/select_create_dialog";
+import { _t } from "@web/core/l10n/translation";
 
 patch(ControlButtons.prototype, {
     onClickQuotation() {
@@ -13,16 +14,22 @@ patch(ControlButtons.prototype, {
             ["state", "!=", "cancel"],
             ["invoice_status", "!=", "invoiced"],
             ["currency_id", "=", this.pos.currency.id],
+            // A down payment still has to be deducted when settling the order
+            "|",
             ["amount_unpaid", ">", 0],
+            ["order_line.is_downpayment", "=", true],
         ];
-        if (this.pos.getOrder()?.getPartner()) {
-            domain = [
-                ...domain,
-                ["partner_id", "any", [["id", "child_of", [this.pos.getOrder().getPartner().id]]]],
-            ];
+
+        const saleOrderIds = this.pos
+            .getOrder()
+            ?.lines?.map((l) => l.sale_order_origin_id?.id)
+            .filter(Boolean);
+        if (saleOrderIds?.length) {
+            domain = [...domain, ["id", "not in", saleOrderIds]];
         }
 
         this.dialog.add(SelectCreateDialog, {
+            title: _t("Quotation / Order"),
             resModel: "sale.order",
             noCreate: true,
             multiSelect: false,

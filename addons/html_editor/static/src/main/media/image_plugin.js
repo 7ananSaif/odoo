@@ -1,56 +1,53 @@
+import { proxy } from "@odoo/owl";
 import { Plugin } from "../../plugin";
 import { _t } from "@web/core/l10n/translation";
 import { isImageUrl } from "@html_editor/utils/url";
-import { ImageDescription, ImageDescriptionPopover } from "./image_description";
 import { ImageToolbarDropdown } from "./image_toolbar_dropdown";
-import { createFileViewer } from "@web/core/file_viewer/file_viewer_hook";
 import { isHtmlContentSupported } from "@html_editor/core/selection_plugin";
 import { boundariesOut } from "@html_editor/utils/position";
 import { READ, withSequence } from "@html_editor/utils/resource";
-import { ImageTransformButton } from "./image_transform_button";
 import { callbacksForCursorUpdate } from "@html_editor/utils/selection";
 import { closestBlock } from "@html_editor/utils/blocks";
 import { fillEmpty } from "@html_editor/utils/dom";
-import { reactive } from "@odoo/owl";
-
-function hasShape(imagePlugin, shapeName) {
-    return () => imagePlugin.isSelectionShaped(shapeName);
-}
-
-export const IMAGE_SHAPES = ["rounded", "rounded-circle", "shadow", "img-thumbnail"];
+import { isElementOverlappingAnyFloatingImage } from "@html_editor/utils/dom_info";
+import { ImageAlignSelector } from "./image_align_selector";
 
 const IMAGE_PADDING = [
-    { name: "None", value: 0 },
-    { name: "Small", value: 1 },
-    { name: "Medium", value: 2 },
-    { name: "Large", value: 3 },
-    { name: "XL", value: 5 },
+    { name: _t("None"), value: 0 },
+    { name: _t("Small"), value: 1 },
+    { name: _t("Medium"), value: 2 },
+    { name: _t("Large"), value: 3 },
+    { name: _t("XL"), value: 5 },
 ];
 
 const IMAGE_SIZE = [
-    { name: "Default", value: "" },
-    { name: "100%", value: "100%" },
-    { name: "50%", value: "50%" },
-    { name: "25%", value: "25%" },
+    { name: _t("Default"), value: "" },
+    { name: _t("100%"), value: "100%" },
+    { name: _t("50%"), value: "50%" },
+    { name: _t("25%"), value: "25%" },
+];
+
+const IMAGE_ALIGNMENT = [
+    { icon: "format_image_inline_left", value: "", title: _t("Inline") },
+    { icon: "format_image_left", value: "float-start", title: _t("Wrap text") },
+    { icon: "format_image_front", value: "d-block", title: _t("Break text") },
 ];
 
 /**
  * @typedef { Object } ImageShared
  * @property { ImagePlugin['getTargetedImage'] } getTargetedImage
  * @property { ImagePlugin['previewImage'] } previewImage
- * @property { ImagePlugin['resetImageTransformation'] } resetImageTransformation
  */
 
 /**
  * @typedef {((img: HTMLImageElement) => void | true)[]} delete_image_overrides
- * @typedef {((img: HTMLImageElement) => boolean)[]} image_name_predicates
+ * @typedef {((img: HTMLImageElement) => boolean)[]} image_name_providers
  */
 
 export class ImagePlugin extends Plugin {
     static id = "image";
-    static dependencies = ["history", "dom", "selection", "overlay"];
-    static shared = ["getTargetedImage", "previewImage", "resetImageTransformation"];
-    static defaultConfig = { allowImageTransform: true };
+    static dependencies = ["history", "dom", "selection"];
+    static shared = ["getTargetedImage", "previewImage"];
     toolbarNamespace = "image";
     /** @type {import("plugins").EditorResources} */
     resources = {
@@ -58,43 +55,16 @@ export class ImagePlugin extends Plugin {
             {
                 id: "deleteImage",
                 description: _t("Remove (DELETE) image"),
-                icon: "fa-trash text-danger",
+                icon: "delete",
+                iconClass: "oi-filled text-danger",
                 run: this.deleteImage.bind(this),
                 isAvailable: isHtmlContentSupported,
             },
             {
                 id: "previewImage",
                 description: _t("Preview image"),
-                icon: "fa-search-plus",
+                icon: "zoom_in",
                 run: this.previewImage.bind(this),
-                isAvailable: isHtmlContentSupported,
-            },
-            {
-                id: "setImageShapeRounded",
-                description: _t("Set shape: Rounded"),
-                icon: "fa-square",
-                run: () => this.setImageShape("rounded", { excludeClasses: ["rounded-circle"] }),
-                isAvailable: isHtmlContentSupported,
-            },
-            {
-                id: "setImageShapeCircle",
-                description: _t("Set shape: Circle"),
-                icon: "fa-circle-o",
-                run: () => this.setImageShape("rounded-circle", { excludeClasses: ["rounded"] }),
-                isAvailable: isHtmlContentSupported,
-            },
-            {
-                id: "setImageShapeShadow",
-                description: _t("Set shape: Shadow"),
-                icon: "fa-sun-o",
-                run: () => this.setImageShape("shadow"),
-                isAvailable: isHtmlContentSupported,
-            },
-            {
-                id: "setImageShapeThumbnail",
-                description: _t("Set shape: Thumbnail"),
-                icon: "fa-picture-o",
-                run: () => this.setImageShape("img-thumbnail"),
                 isAvailable: isHtmlContentSupported,
             },
             {
@@ -114,78 +84,53 @@ export class ImagePlugin extends Plugin {
             },
         ],
         toolbar_groups: [
-            withSequence(23, { id: "image_preview", namespaces: ["image"] }),
-            withSequence(24, { id: "image_description", namespaces: ["image"] }),
-            withSequence(25, { id: "image_shape", namespaces: ["image"] }),
-            withSequence(26, { id: "image_padding", namespaces: ["image"] }),
-            withSequence(26, { id: "image_size", namespaces: ["image"] }),
             withSequence(26, { id: "image_modifiers", namespaces: ["image"] }),
-            withSequence(32, { id: "image_delete", namespaces: ["image"] }),
+            withSequence(28, { id: "image_actions", namespaces: ["image"] }),
+            withSequence(34, { id: "image_delete", namespaces: ["image"] }),
         ],
         toolbar_items: [
-            {
-                id: "image_preview",
-                groupId: "image_preview",
-                commandId: "previewImage",
-            },
-            {
-                id: "image_description",
-                description: _t("Edit media description"),
-                groupId: "image_description",
-                Component: ImageDescription,
+            withSequence(10, {
+                id: "image_alignment",
+                description: _t("Set image alignment"),
+                groupId: "image_modifiers",
+                Component: ImageAlignSelector,
                 props: {
-                    openImageDescriptionPopover: this.openImageDescriptionPopover.bind(this),
+                    items: IMAGE_ALIGNMENT,
+                    getDisplay: () => this.imageAlignment,
+                    focusEditable: () => this.dependencies.selection.focusEditable(),
+                    onSelected: (item) => {
+                        this.setImageAlignment(item);
+                    },
                 },
                 isAvailable: isHtmlContentSupported,
-            },
-            {
-                id: "shape_rounded",
-                groupId: "image_shape",
-                commandId: "setImageShapeRounded",
-                isActive: hasShape(this, "rounded"),
-            },
-            {
-                id: "shape_circle",
-                groupId: "image_shape",
-                commandId: "setImageShapeCircle",
-                isActive: hasShape(this, "rounded-circle"),
-            },
-            {
-                id: "shape_shadow",
-                groupId: "image_shape",
-                commandId: "setImageShapeShadow",
-                isActive: hasShape(this, "shadow"),
-            },
-            {
-                id: "shape_thumbnail",
-                groupId: "image_shape",
-                commandId: "setImageShapeThumbnail",
-                isActive: hasShape(this, "img-thumbnail"),
-            },
-            {
+            }),
+            withSequence(30, {
                 id: "image_padding",
-                groupId: "image_padding",
+                groupId: "image_modifiers",
                 description: _t("Set image padding"),
                 Component: ImageToolbarDropdown,
                 props: {
                     name: "image_padding",
-                    icon: "html_editor.ImagePaddingIcon",
+                    icon: "padding",
                     items: IMAGE_PADDING,
+                    focusEditable: () => this.dependencies.selection.focusEditable(),
                     onSelected: (item) => {
                         this.setImagePadding({ size: item.value });
                     },
                 },
                 isAvailable: isHtmlContentSupported,
-            },
+            }),
             {
                 id: "image_size",
-                groupId: "image_size",
+                groupId: "image_actions",
                 description: _t("Resize image"),
                 Component: ImageToolbarDropdown,
                 props: {
                     name: "image_size",
                     getDisplay: () => this.imageSize,
                     items: IMAGE_SIZE,
+                    focusEditable: () => this.dependencies.selection.focusEditable(),
+                    icon: "resize",
                     onSelected: (item) => {
                         this.resizeImage({ size: item.value });
                         this.updateImageParams();
@@ -195,13 +140,9 @@ export class ImagePlugin extends Plugin {
                     isHtmlContentSupported(selection) && (this.config.allowImageResize ?? true),
             },
             {
-                id: "image_transform",
-                groupId: "image_modifiers",
-                description: _t("Transform the picture (click twice to reset transformation)"),
-                Component: ImageTransformButton,
-                props: this.getImageTransformProps(),
-                isAvailable: (selection) =>
-                    this.config.allowImageTransform && isHtmlContentSupported(selection),
+                id: "image_preview",
+                groupId: "image_actions",
+                commandId: "previewImage",
             },
             {
                 id: "image_delete",
@@ -211,31 +152,34 @@ export class ImagePlugin extends Plugin {
         ],
 
         /** Handlers */
-        selectionchange_handlers: withSequence(READ, this.updateImageParams.bind(this)),
-        post_undo_handlers: this.updateImageParams.bind(this),
-        post_redo_handlers: this.updateImageParams.bind(this),
+        on_selectionchange_handlers: withSequence(READ, this.updateImageParams.bind(this)),
+        on_history_commit_undone_handlers: this.updateImageParams.bind(this),
+        on_history_commit_redone_handlers: this.updateImageParams.bind(this),
+        should_show_hint_predicates: (node) => {
+            if (isElementOverlappingAnyFloatingImage(closestBlock(node))) {
+                return false;
+            }
+        },
 
         /** Providers */
         paste_media_url_command_providers: this.getCommandForImageUrlPaste.bind(this),
     };
 
     setup() {
-        this.imageSize = reactive({ displayName: "Default" });
+        this.imageSize = proxy({ displayName: "Default" });
         this.addDomListener(this.editable, "pointerdown", (e) => {
             const selection = this.dependencies.selection.getEditableSelection();
             if (selection.isCollapsed && e.target.tagName === "IMG") {
                 this.setSelectionAroundImage(e.target);
             }
         });
-        this.addDomListener(this.editable, "pointerup", (e) => {
+        this.imageAlignment = proxy({ displayIcon: "format_image_inline_left" });
+        this.addDomListener(this.editable, "click", (e) => {
             if (e.target.tagName === "IMG") {
                 this.setSelectionAroundImage(e.target);
             }
         });
-        this.fileViewer = createFileViewer();
-        this.overlay = this.dependencies.overlay.createOverlay(ImageDescriptionPopover, {
-            className: "popover",
-        });
+        this.fileViewer = this.services.fileViewer();
     }
 
     destroy() {
@@ -247,7 +191,35 @@ export class ImagePlugin extends Plugin {
         if (!targetedImg) {
             return "Default";
         }
-        return targetedImg.style.width || "Default";
+        return targetedImg.style.width || `${targetedImg.width}px`;
+    }
+
+    /**
+     * @returns {string} icon class
+     */
+    get imageAlignmentIcon() {
+        const targetedImg = this.getTargetedImage();
+        if (targetedImg) {
+            for (const { value, icon } of IMAGE_ALIGNMENT) {
+                if (value && targetedImg.classList.contains(value)) {
+                    return icon;
+                }
+            }
+        }
+        return "format_image_inline_left";
+    }
+
+    setImageAlignment(alignment) {
+        const targetedImg = this.getTargetedImage();
+        if (!targetedImg) {
+            return;
+        }
+        targetedImg.classList.remove(...IMAGE_ALIGNMENT.map(({ value }) => value).filter(Boolean));
+        if (alignment.value) {
+            targetedImg.classList.add(alignment.value);
+        }
+        this.imageAlignment.displayIcon = alignment.icon;
+        this.dependencies.history.commit();
     }
 
     setImagePadding({ size } = {}) {
@@ -261,7 +233,7 @@ export class ImagePlugin extends Plugin {
             }
         }
         targetedImg.classList.add(`p-${size}`);
-        this.dependencies.history.addStep();
+        this.dependencies.history.commit();
     }
     resizeImage({ size } = {}) {
         const targetedImg = this.getTargetedImage();
@@ -269,21 +241,7 @@ export class ImagePlugin extends Plugin {
             return;
         }
         targetedImg.style.width = size || "";
-        this.dependencies.history.addStep();
-    }
-
-    setImageShape(className, { excludeClasses = [] } = {}) {
-        const targetedImg = this.getTargetedImage();
-        if (!targetedImg) {
-            return;
-        }
-        for (const classString of excludeClasses) {
-            if (targetedImg.classList.contains(classString)) {
-                targetedImg.classList.remove(classString);
-            }
-        }
-        targetedImg.classList.toggle(className);
-        this.dependencies.history.addStep();
+        this.dependencies.history.commit();
     }
 
     previewImage() {
@@ -293,7 +251,7 @@ export class ImagePlugin extends Plugin {
         }
         let imageName;
         // Keep the result from the first predicate that returns something.
-        this.getResource("image_name_predicates").find((p) => {
+        this.getResource("image_name_providers").find((p) => {
             imageName = p(targetedImg);
             return imageName;
         });
@@ -305,6 +263,7 @@ export class ImagePlugin extends Plugin {
             downloadUrl: targetedImg.src,
         };
         this.document.getSelection().collapseToEnd();
+        this.document.activeElement.blur();
         this.fileViewer.open(fileModel);
     }
 
@@ -320,7 +279,7 @@ export class ImagePlugin extends Plugin {
             targetedImg.remove();
             cursors.restore();
             fillEmpty(blockEl);
-            this.dependencies.history.addStep();
+            this.dependencies.history.commit();
         }
     }
 
@@ -341,12 +300,6 @@ export class ImagePlugin extends Plugin {
         return targetedNodes.length > 0;
     }
 
-    getImageAttribute(attributeName) {
-        const targetedNodes = this.dependencies.selection.getTargetedNodes();
-        const targetedImg = targetedNodes.find((node) => node.tagName === "IMG");
-        return targetedImg.getAttribute(attributeName) || undefined;
-    }
-
     /**
      * @param {string} url
      */
@@ -355,79 +308,24 @@ export class ImagePlugin extends Plugin {
             return {
                 title: _t("Embed Image"),
                 description: _t("Embed the image in the document."),
-                icon: "fa-image",
+                icon: "image",
                 run: () => {
-                    this.dispatchTo(
-                        "before_paste_handlers",
+                    this.trigger(
+                        "on_will_paste_handlers",
                         this.dependencies.selection.getEditableSelection()
                     );
                     const img = this.document.createElement("IMG");
                     img.setAttribute("src", url);
                     this.dependencies.dom.insert(img);
-                    this.dependencies.history.addStep();
+                    this.dependencies.history.commit();
                 },
             };
         }
     }
 
-    updateImageDescription({ description, tooltip } = {}) {
-        const targetedImg = this.getTargetedImage();
-        if (!targetedImg) {
-            return;
-        }
-        targetedImg.setAttribute("alt", description);
-        targetedImg.setAttribute("title", tooltip);
-        this.dependencies.history.addStep();
-    }
-
-    resetImageTransformation(image) {
-        const stylePropertiesToRemove = [
-            "transform",
-            "transform-box",
-            "transform-origin",
-            "transform-style",
-            "width",
-            "height",
-        ];
-        for (const styleProperty of stylePropertiesToRemove) {
-            image.style.removeProperty(styleProperty);
-        }
-        this.dependencies.history.addStep();
-    }
-
-    getImageTransformProps() {
-        return {
-            id: "image_transform",
-            icon: "fa-object-ungroup",
-            title: _t("Transform the picture (click twice to reset transformation)"),
-            getTargetedImage: this.getTargetedImage.bind(this),
-            resetImageTransformation: this.resetImageTransformation.bind(this),
-            addStep: this.dependencies.history.addStep.bind(this),
-            document: this.document,
-            editable: this.editable,
-            activeTitle: _t("Click again to reset transformation"),
-        };
-    }
-
     updateImageParams() {
         this.imageSize.displayName = this.imageSizeName;
-    }
-
-    openImageDescriptionPopover() {
-        const image = this.getTargetedImage();
-        if (image) {
-            this.overlay.open({
-                target: image,
-                props: {
-                    close: () => this.overlay.close(),
-                    description: this.getImageAttribute("alt"),
-                    tooltip: this.getImageAttribute("title"),
-                    onConfirm: (description, tooltip) => {
-                        this.updateImageDescription({ description, tooltip });
-                    },
-                },
-            });
-        }
+        this.imageAlignment.displayIcon = this.imageAlignmentIcon;
     }
 
     setSelectionAroundImage(img) {

@@ -103,11 +103,7 @@ export function hasTextColorClass(element, mode) {
         return false;
     }
     const classRegex = mode === "color" ? TEXT_CLASSES_REGEX : BG_CLASSES_REGEX;
-    const parent = element.parentNode;
-    return (
-        classRegex.test(element.className) &&
-        (!parent || getComputedStyle(element)[mode] !== getComputedStyle(parent)[mode])
-    );
+    return classRegex.test(element.className);
 }
 
 /**
@@ -163,16 +159,26 @@ export function hasAnyNodesColor(nodes, mode) {
     return false;
 }
 
-export function getTextColorOrClass(node) {
+export function getColorOrClass(node, mode = "color") {
     if (!node) {
         return null;
     }
-    if (node.style.color) {
-        return { type: "style", value: node.style.color };
+    const classRegex = mode === "color" ? TEXT_CLASSES_REGEX : BG_CLASSES_REGEX;
+    const colorClass = [...node.classList].find((cls) => classRegex.test(cls));
+    if (colorClass) {
+        return { type: "class", value: colorClass };
     }
-    const textColorClass = [...node.classList].find((cls) => TEXT_CLASSES_REGEX.test(cls));
-    if (textColorClass) {
-        return { type: "class", value: textColorClass };
+    if (isColorGradient(node.style["background-image"])) {
+        const isTextGradient = node.classList.contains("text-gradient");
+        if (
+            (mode === "color" && isTextGradient) ||
+            (mode === "backgroundColor" && !isTextGradient)
+        ) {
+            return { type: "gradient", value: node.style["background-image"] };
+        }
+    }
+    if (node.style[mode] && node.style[mode] !== "inherit") {
+        return { type: "style", value: node.style[mode] };
     }
     return null;
 }

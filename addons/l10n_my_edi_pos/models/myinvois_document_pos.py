@@ -1,10 +1,10 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-import itertools
-
-from dateutil.relativedelta import relativedelta
+import re
 
 from odoo import api, fields, models
-from odoo.tools import date_utils
+
+# pos_reference looks like "{year}{device_identifier}-{config_id}-{number}" (see pos.config._get_next_order_refs).
+POS_REFERENCE_RE = re.compile(r'^(?P<device>.+)-\d+-(?P<number>\d+)$')
 
 
 class MyInvoisDocumentPoS(models.Model):
@@ -65,18 +65,6 @@ class MyInvoisDocumentPoS(models.Model):
             latest_order = consolidated_invoice.pos_order_ids[0]
             consolidated_invoice.pos_order_date_range = f"{first_order.date_order.date()} to {latest_order.date_order.date()}"
 
-    # -----------------------
-    # CRUD, inherited methods
-    # -----------------------
-
-    def _get_starting_sequence(self):
-        """ In the PoS, a document represents a Consolidated INVoice. """
-        self.ensure_one()
-        if not self.pos_order_ids:
-            return super()._get_starting_sequence()
-
-        return "CINV/%04d/00000" % self.myinvois_issuance_date.year
-
     # --------------
     # Action methods
     # --------------
@@ -98,41 +86,13 @@ class MyInvoisDocumentPoS(models.Model):
                 'type': 'ir.actions.act_window',
                 'res_model': 'pos.order',
                 'view_mode': 'list,form',
-                'views': [(False, 'list'), (False, 'form')],
+                # A dedicated list view is used so that the orders are listed in the order in which they are
+                # reported on the consolidated invoice, rather than in the default reverse chronological one.
+                'views': [(self.env.ref('l10n_my_edi_pos.view_pos_order_tree_consolidated').id, 'list'), (False, 'form')],
                 'domain': [('id', 'in', self.pos_order_ids.ids)],
             }
 
         return action_vals
-
-    def action_open_consolidate_invoice_wizard(self):
-        """
-        Open the wizard, and set a default date_from/date_to based on the current date as well as already existing
-        consolidated invoices.
-        """
-        latest_consolidated_invoice = self.env['myinvois.document'].search([
-            ('company_id', '=', self.env.company.id),
-            ('myinvois_state', 'in', ['in_progress', 'valid']),
-            ('pos_order_ids', '!=', False),
-        ], limit=1)
-        if latest_consolidated_invoice:
-            default_date_from = latest_consolidated_invoice.myinvois_issuance_date + relativedelta(days=1)
-        else:
-            default_date_from = date_utils.start_of(fields.Date.context_today(self) - relativedelta(months=1), 'month')
-        default_date_to = date_utils.end_of(default_date_from, 'month')
-
-        return {
-            'name': self.env._('Create Consolidated Invoice'),
-            'res_model': 'myinvois.consolidate.invoice.wizard',
-            'view_mode': 'form',
-            'views': [[False, 'form']],
-            'target': 'new',
-            'context': {
-                'default_date_from': default_date_from,
-                'default_date_to': default_date_to,
-                'default_consolidation_type': 'pos',
-            },
-            'type': 'ir.actions.act_window',
-        }
 
     def action_show_myinvois_documents(self):
         """
@@ -215,32 +175,59 @@ class MyInvoisDocumentPoS(models.Model):
         There is no requirement asking to split per sequence (and thus config), but we still do so to make it easier to
         submit per PoS if wanted.
 
+        Two orders are only reported on the same line when they are continuous on all of the following:
+        - `sequence_number`, a gapless counter local to a single config, assigned when the order reaches the database.
+          A gap means that an order in between was left out of the batch, invoiced separately for example.
+        - Their receipt reference: same device, and the receipt number incrementing by one. That number is a counter
+          local to a single device, so two orders taken on different devices can carry adjacent numbers without being
+          consecutive receipts.
+        - Being of the same kind, a receipt made exclusively of refund lines never sharing a line with the sales it
+          follows, so that neither is hidden inside the total of the other.
+        Requiring all three keeps every line readable as a plain "first-last" range of comparable receipts.
+
+        The two counters not being held at the same level, several devices selling under one config split lines that
+        a single device would have kept together: the receipt of another device sitting in between leaves a gap in
+        `sequence_number` between two receipts that do follow each other on their own. We accept these extra lines,
+        `sequence_number` being the only one of the two counters the server assigns itself - `pos_reference` is
+        written by the device, numbering from its own storage and handing the numbers of deleted orders back out
+        later, so it cannot vouch on its own that nothing was left out of the batch.
+
         :param pos_order_ids: The orders to separate.
         :return: A dict of pos order per config, for each config having a list of recordset each representing a single line in the xml.
         """
         lines_per_config = {}
-        # We start by gathering the sessions involved in this process, and loop on their orders.
-        sorted_orders_to_consolidated = pos_order_ids.sorted(reverse=True)
-        sorted_session_orders = (
-            sorted_orders_to_consolidated.session_id.order_ids.sorted(reverse=True)
-        )
-        # During the loop, we want to gather "lines".
-        # One line can be comprised of any number of orders as long as they are continuous.
-        continuous_orders = []
-        for config, orders in itertools.groupby(sorted_session_orders, key=lambda o: o["config_id"]):
-            config_lines = []
-            for order in orders:
-                if continuous_orders and order not in pos_order_ids:
-                    config_lines.append(self.env["pos.order"].browse(continuous_orders))
-                    continuous_orders = []
-                elif order in pos_order_ids:
-                    continuous_orders.append(order.id)
+        # We don't mix orders from different configs in a single line as they have different sequences.
+        # `_order` being reverse chronological, sorting in reverse yields the oldest orders first, so that the
+        # consolidated invoices follow the order they were sold in.
+        for config, orders in pos_order_ids.sorted(reverse=True).grouped('config_id').items():
+            config_line_ids = []
+            previous_order = self.env['pos.order']
+            previous_reference = None
+            previous_is_refund = False
+            for order in orders.sorted('sequence_number'):
+                reference = POS_REFERENCE_RE.match(order.pos_reference or '')
+                # An order mixing refund lines with new sales is a receipt in its own right, reported like any
+                # other with the amounts it refunded already deducted from it.
+                is_refund = bool(order.lines) and all(line.refunded_orderline_id for line in order.lines)
+                is_continuous = (
+                    previous_order
+                    and is_refund == previous_is_refund
+                    and order.sequence_number == previous_order.sequence_number + 1
+                    and reference and previous_reference
+                    and reference['device'] == previous_reference['device']
+                    and int(reference['number']) == int(previous_reference['number']) + 1
+                )
+                if is_continuous:
+                    config_line_ids[-1].append(order.id)
+                else:
+                    config_line_ids.append([order.id])
+                previous_order = order
+                previous_reference = reference
+                previous_is_refund = is_refund
 
-            # We don't mix orders from different configs in a single line as they have different sequences.
-            if continuous_orders:
-                config_lines.append(self.env["pos.order"].browse(continuous_orders))
-                continuous_orders = []
-            lines_per_config.setdefault(config, []).extend(config_lines)
+            lines_per_config[config] = [
+                pos_order_ids.browse(line_ids) for line_ids in config_line_ids
+            ]
 
         return lines_per_config
 
@@ -253,8 +240,17 @@ class MyInvoisDocumentPoS(models.Model):
         """
         if record and record._name == 'pos.order':
             AccountTax = self.env["account.tax"]
-            base_lines = record._prepare_tax_base_line_values()
+            base_lines = record.lines._prepare_base_lines_for_taxes_computation()
             AccountTax._add_tax_details_in_base_lines(base_lines, self.company_id)
             AccountTax._round_base_lines_tax_details(base_lines, self.company_id)
             return base_lines
         return super()._get_record_rounded_base_lines(record)
+
+    def _base_line_should_be_negated(self, base_line):
+        """
+        In the PoS, we will merge refunds and their original orders in a single line, in which case the
+        refund should reduce the amount of the merged line.
+        """
+        if base_line["record"] and base_line["record"]._name == 'pos.order.line':
+            return base_line["is_refund"]
+        return super()._base_line_should_be_negated(base_line)

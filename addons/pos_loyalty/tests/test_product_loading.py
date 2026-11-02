@@ -8,6 +8,8 @@ from odoo.addons.point_of_sale.tests.test_frontend import TestPointOfSaleHttpCom
 
 @tagged('post_install', '-at_install')
 class TestPOSLoyaltyProductLoading(TestPointOfSaleHttpCommon):
+    _test_user_groups = None  # FIXME list needed groups
+
     def test_loyalty_product_loading(self):
         """ Test that loyalty products are loaded correctly in the PoS session. """
         new_product = self.env['product.product'].create({
@@ -35,27 +37,45 @@ class TestPOSLoyaltyProductLoading(TestPointOfSaleHttpCommon):
             })],
         })
 
-        self.env['ir.config_parameter'].sudo().set_param('point_of_sale.limited_product_count', 1)
+        self.env['ir.config_parameter'].sudo().set_int('point_of_sale.limited_product_count', 1)
 
         self.main_pos_config.open_ui()
         current_session = self.main_pos_config.current_session_id
 
-        data = current_session.with_context(
-            pos_limited_loading=True,
-        ).load_data(['pos.config', 'product.template'])
+        data = current_session.load_data({
+            'models': ['pos.config', 'product.template', 'product.product'],
+            'only_records': True,
+        })
 
-        self.assertIn(new_product.product_tmpl_id.id, [product['id'] for product in data['product.template']],
+        product = next((n for n in data['product.product'] if n['id'] == new_product.id and n['_is_pos_special_product']), None)
+        self.assertIsNone(product,
+                        "Loyalty product should not be _is_pos_special_product when program is inactive.")
+
+        data = current_session.load_data({
+            'models': ['pos.config', 'product.template', 'product.product'],
+            'only_records': True,
+        })
+
+        product = next((n for n in data['product.template'] if n['id'] == new_product.product_tmpl_id.id), None)
+        self.assertIsNotNone(product,
                         "Loyalty product should be loaded in the PoS session when program is active.")
+
+        self.assertIsNone(next((n for n in data['product.product'] if n['id'] == new_product.id and n['_is_pos_special_product']), None),
+                        "Loyalty product should not be _is_pos_special_product since it is loaded.")
 
         # Make the product not available in the PoS
         new_product.write({'available_in_pos': False})
 
-        data = current_session.with_context(
-            pos_limited_loading=True,
-        ).load_data(['pos.config', 'product.template'])
+        data = current_session.load_data({
+            'models': ['pos.config', 'product.template', 'product.product'],
+            'only_records': True,
+        })
 
         self.assertIn(new_product.product_tmpl_id.id, [product['id'] for product in data['product.template']],
                         "Loyalty product should be loaded in the PoS session when it is used in a program, even if not available in the PoS.")
+
+        self.assertIsNotNone(next((n for n in data['product.product'] if n['id'] == new_product.id and n['_is_pos_special_product']), None),
+                        "Loyalty product should be in _pos_special_products_ids since it is loaded but not available in the PoS.")
 
     def test_product_loading_without_gift_card(self):
         """
@@ -69,6 +89,7 @@ class TestPOSLoyaltyProductLoading(TestPointOfSaleHttpCommon):
         company_b = company_b_data['company']
         payment_method = self.env['pos.payment.method'].create({
             'name': 'Cash',
+            'type': 'cash',
             'receivable_account_id': company_b_data['default_account_receivable'].id,
             'journal_id': company_b_data['default_journal_cash'].id,
             'company_id': company_b.id,
@@ -77,12 +98,11 @@ class TestPOSLoyaltyProductLoading(TestPointOfSaleHttpCommon):
             'name': 'new pos',
             'company_id': company_b.id,
             'journal_id': company_b_data['default_journal_sale'].id,
-            'invoice_journal_id': company_b_data['default_journal_sale'].id,
             'payment_method_ids': [Command.set([payment_method.id])],
         })
         pos_config.open_ui()
         current_session = pos_config.current_session_id
-        data = current_session.with_company(company_b).load_data(['pos.config', 'product.template'])
+        data = current_session.with_company(company_b).load_data({'models': ['pos.config', 'product.template'], 'only_records': True})
         self.assertTrue(len(data['product.template']) > 0)
         self.assertNotIn(gift_card.product_tmpl_id.id, [product['id'] for product in data['product.template']],
                         "Product should be loaded in the PoS session, even if Gift card is not available in the PoS.")

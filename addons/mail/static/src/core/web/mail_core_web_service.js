@@ -1,4 +1,4 @@
-import { reactive } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 
 import { registry } from "@web/core/registry";
 
@@ -26,37 +26,38 @@ export class MailCoreWeb {
             } else if (payload.activity_deleted) {
                 countDiff = -1;
             }
-            this.store.activityCounter += countDiff;
+            this.store.activityCounter = Math.max(this.store.activityCounter + countDiff, 0);
         });
-        this.env.bus.addEventListener("mail.message/delete", ({ detail: { message, notifId } }) => {
-            if (message.needaction && notifId > this.store.inbox.counter_bus_id) {
-                this.store.inbox.counter--;
-            }
-            if (message.starred && notifId > this.store.starred.counter_bus_id) {
-                this.store.starred.counter--;
+        this.env.bus.addEventListener("mail.message/delete", ({ detail: { message } }) => {
+            if (message.needaction) {
+                this._dropFromNotificationCounter([message.id]);
             }
         });
-        this.busService.subscribe("mail.message/inbox", (payload, { id: notifId }) => {
+        this.busService.subscribe("mail.message/notification", (payload, { id: notifId }) => {
             const { message_id: messageId, store_data } = payload;
             this.store.insert(store_data);
             /** @type {import("models").Message} */
             const message = this.store["mail.message"].get(messageId);
-            const inbox = this.store.inbox;
-            if (notifId > inbox.counter_bus_id) {
-                inbox.counter++;
-            }
-            inbox.messages.add(message);
             if (message.thread && notifId > message.thread.message_needaction_counter_bus_id) {
                 message.thread.message_needaction_counter++;
             }
-            if (this.store.self_partner?.im_status?.includes("busy")) {
-                return;
+            if (this.store.self_user?.im_status !== "busy") {
+                this.store.env.services["mail.out_of_focus"].notify(message);
             }
-            this.store.env.services["mail.out_of_focus"].notify(message);
+        });
+        this.busService.subscribe("mail.message/mark_as_unread", (payload, { id: notifId }) => {
+            const { message_ids: messageIds, store_data } = payload;
+            this.store.insert(store_data);
+            for (const messageId of messageIds) {
+                const message = this.store["mail.message"].get(messageId);
+                if (message.thread && notifId > message.thread.message_needaction_counter_bus_id) {
+                    message.thread.message_needaction_counter++;
+                }
+            }
         });
         this.busService.subscribe("mail.message/mark_as_read", (payload, { id: notifId }) => {
-            const { message_ids: messageIds, needaction_inbox_counter } = payload;
-            const inbox = this.store.inbox;
+            const { message_ids: messageIds } = payload;
+            const unloadedMessageIds = [];
             for (const messageId of messageIds) {
                 // We need to ignore all not yet known messages because we don't want them
                 // to be shown partially as they would be linked directly to cache.
@@ -65,9 +66,10 @@ export class MailCoreWeb {
                 // (just imagine you mark 1000 messages as read ... )
                 const message = this.store["mail.message"].get(messageId);
                 if (!message) {
+                    unloadedMessageIds.push(messageId);
                     continue;
                 }
-                // update thread counter (before removing message from Inbox, to ensure isNeedaction check is correct)
+                // update thread counter before needaction changes
                 const thread = message.thread;
                 if (
                     thread &&
@@ -77,20 +79,29 @@ export class MailCoreWeb {
                 ) {
                     thread.message_needaction_counter--;
                 }
-                // move messages from Inbox to history
                 message.needaction = false;
-                inbox.messages.delete({ id: messageId });
-                const history = this.store.history;
-                history.messages.add(message);
+                message.needaction_done = true;
             }
-            if (notifId > inbox.counter_bus_id) {
-                inbox.counter = needaction_inbox_counter;
-                inbox.counter_bus_id = notifId;
-            }
-            if (inbox.counter > inbox.messages.length) {
-                inbox.fetchMoreMessages();
+            if (unloadedMessageIds.length) {
+                this._dropFromNotificationCounter(unloadedMessageIds);
             }
         });
+    }
+
+    /**
+     * Drops the given messages from `init_counter_ids`, the ids the notification tab
+     * counts as long as they are not loaded client-side.
+     *
+     * @param {number[]} messageIds
+     */
+    _dropFromNotificationCounter(messageIds) {
+        const tab = this.store.messagingMenu.notificationTab;
+        // Notifications handled by email have no tab, hence no counter to update.
+        if (!tab) {
+            return;
+        }
+        const droppedIds = new Set(messageIds);
+        tab.init_counter_ids = tab.init_counter_ids.filter((id) => !droppedIds.has(id));
     }
 }
 
@@ -101,7 +112,7 @@ export const mailCoreWeb = {
      * @param {import("services").ServiceFactories} services
      */
     start(env, services) {
-        const mailCoreWeb = reactive(new MailCoreWeb(env, services));
+        const mailCoreWeb = proxy(new MailCoreWeb(env, services));
         mailCoreWeb.setup();
         return mailCoreWeb;
     },

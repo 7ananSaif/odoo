@@ -1,13 +1,10 @@
 .o_control_panel {
     border-bottom: var(--ControlPanel-border-bottom, #{$o-control-panel-border-bottom});
+    padding-bottom: var(--ControlPanel-padding-bottom, #{map-get($spacers, 2)});
     background-color: $o-control-panel-background-color;
     @include media-only(screen) {
         .o_control_panel_breadcrumbs {
             --#{$variable-prefix}breadcrumb-font-size: #{$small-font-size};
-
-            @include media-breakpoint-up(md) {
-                min-width: 200px;
-            }
         }
 
         @include media-breakpoint-down(md) {
@@ -30,14 +27,6 @@
         @include media-breakpoint-up(xl) {
             .o_control_panel_actions {
                 min-width: MIN(600px, 33%);
-            }
-        }
-
-        .o_cp_switch_buttons {
-            .btn, .btn:focus, .btn.active {
-                // Boostrap plays around with the z-index of buttons, but this is not needed here
-                // It was causing issues with the hotkey overlay
-                z-index: 0;
             }
         }
     }
@@ -115,48 +104,6 @@
     .o_cp_pager {
         display: flex;
         margin-left: auto;
-    }
-}
-
-.o_dragged_embedded_action {
-    transition: transform 0.5s;
-    transform: rotate(2deg);
-    opacity: 0.8;
-}
-
-.o_embedded_actions {
-    max-height: 500px;
-    transition: opacity 0.5s, max-height 0.5s ease;
-
-    &.o-fade-leave, &.o-fade-enter {
-        opacity: 0;
-        max-height: 0;
-    }
-
-    &::before, &::after {
-        flex: 1 1 0;
-        height: 1px;
-        background-color: $border-color;
-        content: "";
-    }
-
-    &:where(:not(:has(.o_dragged_embedded_action))) {
-        overflow: hidden;
-    }
-}
-
-.o_embedded_actions_dropdown_menu {
-    .o_icon_right {
-        transform: translate(-0.45em, 0);
-    }
-
-    .o_save_current_view {
-        &:before {
-            margin-inline-end: map-get($spacers, 1);
-            font-family: FontAwesome;
-            opacity: $o-opacity-muted;
-            content: "\f0c7";
-        }
     }
 }
 

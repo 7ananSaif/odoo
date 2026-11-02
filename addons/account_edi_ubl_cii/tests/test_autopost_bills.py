@@ -1,4 +1,3 @@
-import base64
 from datetime import datetime, date, timedelta
 from xml.etree import ElementTree as et
 
@@ -12,6 +11,8 @@ from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 @tagged('post_install', '-at_install')
 class TestAutoPostBills(AccountTestInvoicingCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     def import_facturx(self, filename='facturx_out_invoice.xml', ref=None, date=None):
         self.env.cr._now = datetime.now()  # reset transaction's NOW, otherwise all move will have the same create_date
         with (file_open(f"account_edi_ubl_cii/tests/test_files/{filename}", 'rb', filter_ext=('.xml',)) as file):
@@ -23,7 +24,7 @@ class TestAutoPostBills(AccountTestInvoicingCommon):
                 tree.find('./{*}ExchangedDocument/{*}IssueDateTime/{*}DateTimeString').text = date
             attachment = self.env['ir.attachment'].create({
                 'name': 'test_file.xml',
-                'datas': base64.encodebytes(et.tostring(tree.getroot())),
+                'raw': et.tostring(tree.getroot()),
             })
             return self.company_data['default_journal_purchase'].with_context(disable_abnormal_invoice_detection=False)._create_document_from_attachment(attachment.id)
 

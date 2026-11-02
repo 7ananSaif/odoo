@@ -1,83 +1,74 @@
-import { Component, onMounted, onWillStart, onWillUnmount, useState, useSubEnv } from "@odoo/owl";
+import { useSubEnv } from "@web/owl2/utils";
+import { Component, onMounted, onWillUnmount, useProps, proxy, t } from "@odoo/owl";
 import { Dialog } from '@web/core/dialog/dialog';
 import { _t } from "@web/core/l10n/translation";
 import { rpc } from "@web/core/network/rpc";
+import { registry } from '@web/core/registry';
+import { useService } from '@web/core/utils/hooks';
+import { ProductCombo } from '../models/product_combo';
 import { ProductList } from "../product_list/product_list";
 import { formatCurrency } from '@web/core/currency';
+import { useHotkey } from "@web/core/hotkeys/hotkey_hook";
 
 export class ProductConfiguratorDialog extends Component {
     static components = { Dialog, ProductList};
     static template = 'sale.ProductConfiguratorDialog';
-    static props = {
-        productTemplateId: Number,
-        ptavIds: { type: Array, element: Number },
-        customPtavs: {
-            type: Array,
-            element: Object,
-            shape: {
-                id: Number,
-                value: String,
-            }
-        },
-        quantity: Number,
-        productUOMId: { type: Number, optional: true },
-        companyId: { type: Number, optional: true },
-        pricelistId: { type: Number, optional: true },
-        currencyId: { type: Number, optional: true },
-        selectedComboItems: {
-            type: Array,
-            element: Object,
-            shape: {
-                name: String,
-            },
-            optional: true,
-        },
-        soDate: String,
-        size: {
-            type: String,
-            optional: true,
-            validate: (s) => ["sm", "md", "lg", "xl", "fs", "fullscreen"].includes(s),
-        },
-        edit: { type: Boolean, optional: true },
-        options: {
-            type: Object,
-            optional: true,
-            shape: {
-                canChangeVariant: { type: Boolean, optional: true },
-                showQuantity : { type: Boolean, optional: true },
-                showPrice : { type: Boolean, optional: true },
-                showPackaging: { type: Boolean, optional: true },
-            },
-        },
-        save: Function,
-        discard: Function,
-        close: Function, // This is the close from the env of the Dialog Component
-    };
-    static defaultProps = {
-        edit: false,
-    }
+
+    props = useProps({
+        productTemplateId: t.number(),
+        products: t.array(),
+        optionalProducts: t.array(),
+        customPtavs: t.array(
+            t.object({
+                id: t.number(),
+                value: t.string(),
+            })
+        ),
+        companyId: t.number().optional(),
+        pricelistId: t.number().optional(),
+        currencyId: t.number().optional(),
+        selectedComboItems: t
+            .array(
+                t.object({
+                    name: t.string(),
+                })
+            )
+            .optional(),
+        soDate: t.string(),
+        size: t.selection(["sm", "md", "lg", "xl", "fs", "fullscreen"]).optional(),
+        edit: t.boolean().optional(false),
+        options: t
+            .object({
+                canChangeVariant: t.boolean().optional(),
+                showQuantity: t.boolean().optional(),
+                showPrice: t.boolean().optional(),
+            })
+            .optional(),
+        save: t.function(),
+        discard: t.function(),
+        close: t.function(), // This is the close from the env of the Dialog Component
+    });
 
     setup() {
         this.title = _t("Configure your product");
+        this.dialog = useService("dialog");
         this.env.dialogData.dismiss = !this.props.edit && this.props.discard.bind(this);
-        this.state = useState({
+        this.state = proxy({
             products: [],
             optionalProducts: [],
         });
-        // Nest the currency id in an object so that it stays up to date in the `env`, even if we
-        // modify it in `onWillStart` afterwards.
-        this.currency = { id: this.props.currencyId };
-        this.getValuesUrl = '/sale/product_configurator/get_values';
         this.createProductUrl = '/sale/product_configurator/create_product';
         this.updateCombinationUrl = '/sale/product_configurator/update_combination';
         this.getOptionalProductsUrl = '/sale/product_configurator/get_optional_products';
+        this.getComboDataUrl = '/sale/combo_configurator/get_data';
+
+        useHotkey("enter", this.onEnterKeyPress.bind(this), { bypassEditableProtection: true });
 
         useSubEnv({
             mainProductTmplId: this.props.productTemplateId,
-            currency: this.currency,
+            currencyId: this.props.currencyId,
             canChangeVariant: this.props.options?.canChangeVariant ?? true,
             showQuantity: this.props.options?.showQuantity ?? true,
-            showPackaging: this.props.options?.showPackaging ?? true,
             showPrice: this.props.options?.showPrice ?? true,
             addProduct: this._addProduct.bind(this),
             removeProduct: this._removeProduct.bind(this),
@@ -88,32 +79,23 @@ export class ProductConfiguratorDialog extends Component {
             isPossibleCombination: this._isPossibleCombination,
         });
 
-        onWillStart(async () => {
-            const {
-                products,
-                optional_products,
-                currency_id,
-            } = await this._loadData(this.props.edit);
+        // If the product configurator is opened after the combo configurator (which happens if
+        // a combo product has optional products), props.products will contain a single product
+        // (i.e. the combo product), which should be linked to the previously selected combo
+        // items.
 
-            // If the product configurator is opened after the combo configurator (which happens if
-            // a combo product has optional products), `_loadData` will return a single product
-            // (i.e. the combo product), which should be linked to the previously selected combo
-            // items.
-            products[0].selectedComboItems = this.props.selectedComboItems || [];
+        this.props.products[0].selectedComboItems = this.props.selectedComboItems || [];
 
-            this.state.products = products;
-            this.state.optionalProducts = optional_products;
-            for (const customPtav of this.props.customPtavs) {
-                this._updatePTAVCustomValue(
-                    this.env.mainProductTmplId,
-                    customPtav.id,
-                    customPtav.value
-                );
-            }
-            this._checkExclusions(this.state.products[0]);
-            // Use the currency id retrieved from the server if none was provided in the props.
-            this.currency.id ??= currency_id;
-        });
+        this.state.products = this.props.products;
+        this.state.optionalProducts = this.props.optionalProducts;
+        for (const customPtav of this.props.customPtavs) {
+            this._updatePTAVCustomValue(
+                this.env.mainProductTmplId,
+                customPtav.id,
+                customPtav.value
+            );
+        }
+        this._checkExclusions(this.state.products[0]);
 
         onMounted(() => this.env.bus.trigger("FORM-CONTROLLER:FORM-IN-DIALOG:ADD"));
         onWillUnmount(() => this.env.bus.trigger("FORM-CONTROLLER:FORM-IN-DIALOG:REMOVE"));
@@ -133,28 +115,12 @@ export class ProductConfiguratorDialog extends Component {
             (sum, product) => sum + product.price * product.quantity,
             0
         );
-        return formatCurrency(total, this.currency.id);
+        return formatCurrency(total, this.props.currencyId);
     }
 
     //--------------------------------------------------------------------------
     // Data Exchanges
     //--------------------------------------------------------------------------
-
-    async _loadData(onlyMainProduct) {
-        return rpc(this.getValuesUrl, {
-            product_template_id: this.props.productTemplateId,
-            quantity: this.props.quantity,
-            currency_id: this.currency.id,
-            so_date: this.props.soDate,
-            product_uom_id: this.props.productUOMId,
-            company_id: this.props.companyId,
-            pricelist_id: this.props.pricelistId,
-            ptav_ids: this.props.ptavIds,
-            only_main_product: onlyMainProduct,
-            show_packaging: this.env.showPackaging,
-            ...this._getAdditionalRpcParams(),
-        });
-    }
 
     async _createProduct(product) {
         return rpc(this.createProductUrl, {
@@ -167,7 +133,7 @@ export class ProductConfiguratorDialog extends Component {
         return rpc(this.updateCombinationUrl, {
             product_template_id: product.product_tmpl_id,
             ptav_ids: this._getCombination(product),
-            currency_id: this.currency.id,
+            currency_id: this.props.currencyId,
             so_date: this.props.soDate,
             quantity: quantity,
             product_uom_id: uomId,
@@ -180,9 +146,7 @@ export class ProductConfiguratorDialog extends Component {
     async _getOptionalProducts(product) {
         return rpc(this.getOptionalProductsUrl, {
             product_template_id: product.product_tmpl_id,
-            ptav_ids: this._getCombination(product),
-            parent_ptav_ids: this._getParentsCombination(product),
-            currency_id: this.currency.id,
+            currency_id: this.props.currencyId,
             so_date: this.props.soDate,
             company_id: this.props.companyId,
             pricelist_id: this.props.pricelistId,
@@ -196,6 +160,15 @@ export class ProductConfiguratorDialog extends Component {
      * @return {Object} - The additional RPC params.
      */
     _getAdditionalRpcParams() {
+        return {};
+    }
+
+    /**
+     * Hook to append additional dialog props in overriding modules.
+     *
+     * @return {Object} - The additional dialog props.
+     */
+    _getAdditionalDialogProps() {
         return {};
     }
 
@@ -213,6 +186,16 @@ export class ProductConfiguratorDialog extends Component {
             p => p.product_tmpl_id === productTmplId
         );
         if (index >= 0) {
+            const optionalProduct = this.state.optionalProducts[index];
+            if (optionalProduct.product_type === 'combo') {
+                const comboData = await this._configureOptionalComboProduct(optionalProduct);
+                if (!comboData) {
+                    return;
+                }
+                optionalProduct.quantity = comboData.quantity;
+                optionalProduct.price = comboData.price;
+                optionalProduct.selectedComboItems = comboData.selectedComboItems;
+            }
             this.state.products.push(...this.state.optionalProducts.splice(index, 1));
             // Fetch optional product from the server with the parent combination.
             const product = this._findProduct(productTmplId);
@@ -225,6 +208,75 @@ export class ProductConfiguratorDialog extends Component {
     }
 
     /**
+     * When an optional product is a combo, open the combo configurator so that its items can be
+     * selected before the product is added to the list.
+     *
+     * Note: the optional combo product has not been saved yet, so it has no linked line to rely on
+     * to retrieve the selected combo items. We therefore request the combo data from scratch so that
+     * the user can pick the items in the configurator.
+     *
+     * @param {Object} product The optional combo product to configure.
+     * @return {Promise<Object|false>} Data about the configured combo (quantity, price and selected
+     *     combo items), or `false` if the user discarded the configurator.
+     */
+    async _configureOptionalComboProduct(product) {
+        const ComboConfiguratorDialog = registry.category('sale_configurator_dialogs').get('combo');
+        const { combos, ...remainingData } = await rpc(this.getComboDataUrl, {
+            product_tmpl_id: product.product_tmpl_id,
+            currency_id: this.props.currencyId,
+            quantity: product.quantity,
+            date: this.props.soDate,
+            company_id: this.props.companyId,
+            pricelist_id: this.props.pricelistId,
+            selected_combo_items: [],
+            ...this._getAdditionalRpcParams(),
+        });
+        const comboChoices = combos.map(combo => new ProductCombo(combo));
+        const preselectedComboItems = comboChoices
+            .map(combo => combo.preselectedComboItem)
+            .filter(Boolean);
+        if (preselectedComboItems.length === comboChoices.length) {
+            const extraPrice = preselectedComboItems.reduce(
+                (price, item) => price + item.totalExtraPrice, 0
+            );
+            return this._getOptionalComboData(
+                { quantity: remainingData.quantity, price: remainingData.price + extraPrice },
+                preselectedComboItems
+            );
+        }
+        return new Promise(resolve => {
+            this.dialog.add(ComboConfiguratorDialog, {
+                combos: comboChoices,
+                ...remainingData,
+                company_id: this.props.companyId,
+                pricelist_id: this.props.pricelistId,
+                date: this.props.soDate,
+                save: async (comboProductData, selectedComboItems) => {
+                    resolve(this._getOptionalComboData(comboProductData, selectedComboItems));
+                },
+                discard: () => resolve(false),
+                ...this._getAdditionalDialogProps(),
+            });
+        });
+    }
+
+    /**
+     * Return the configured combo data, in the format expected to update the optional combo
+     * product.
+     *
+     * @param {Object} comboProductData The combo data (quantity and price).
+     * @param {ProductComboItem[]} selectedComboItems The selected combo items.
+     * @return {Object} The configured combo data.
+     */
+    _getOptionalComboData(comboProductData, selectedComboItems) {
+        return {
+            quantity: comboProductData.quantity,
+            price: comboProductData.price,
+            selectedComboItems,
+        };
+    }
+
+    /**
      * Remove the product and his optional products from the list of products.
      *
      * @param {Number} productTmplId - The product template id, as a `product.template` id.
@@ -232,7 +284,11 @@ export class ProductConfiguratorDialog extends Component {
     _removeProduct(productTmplId) {
         const index = this.state.products.findIndex(p => p.product_tmpl_id === productTmplId);
         if (index >= 0) {
-            this.state.optionalProducts.push(...this.state.products.splice(index, 1));
+            const [removedProduct] = this.state.products.splice(index, 1);
+            if (removedProduct.selectedComboItems) {
+                removedProduct.selectedComboItems = undefined;
+            }
+            this.state.optionalProducts.push(removedProduct);
             for (const childProduct of this._getChildProducts(productTmplId)) {
                 this._removeProduct(childProduct.product_tmpl_id);
                 this.state.optionalProducts.splice(
@@ -330,6 +386,11 @@ export class ProductConfiguratorDialog extends Component {
         if (this._isPossibleCombination(product)) {
             const updatedValues = await this._updateCombination(product, product.quantity, product.uom.id);
             Object.assign(product, updatedValues);
+            if (product.available_uoms?.length) {
+                if (!product.available_uoms.find(uom => uom.id === product.uom.id)) {
+                    product.uom = product.available_uoms[0];
+                }
+            }
             // When a combination should exist but was deleted from the database, it should not be
             // selectable and considered as an exclusion.
             if (!product.id && product.attribute_lines.every(ptal => ptal.create_variant === "always")) {
@@ -362,9 +423,7 @@ export class ProductConfiguratorDialog extends Component {
     _checkExclusions(product) {
         const combination = this._getCombination(product);
         const exclusions = product.exclusions;
-        const parentExclusions = product.parent_exclusions;
         const archivedCombinations = product.archived_combinations;
-        const parentCombination = this._getParentsCombination(product);
         const childProducts = this._getChildProducts(product.product_tmpl_id)
         const ptavList = product.attribute_lines.flat().flatMap(ptal => ptal.attribute_values)
         ptavList.map(ptav => ptav.excluded = false); // Reset all the values
@@ -373,16 +432,6 @@ export class ProductConfiguratorDialog extends Component {
             for(const ptavId of combination) {
                 for(const excludedPtavId of exclusions[ptavId]) {
                     ptavList.find(ptav => ptav.id === excludedPtavId).excluded = true;
-                }
-            }
-        }
-        if (parentCombination) {
-            for(const ptavId of parentCombination) {
-                for(const excludedPtavId of (parentExclusions[ptavId]||[])) {
-                    const ptav = ptavList.find(ptav => ptav.id === excludedPtavId);
-                    if (ptav) {
-                        ptav.excluded = true; // Assign only if the element exists
-                    }
                 }
             }
         }
@@ -519,6 +568,18 @@ export class ProductConfiguratorDialog extends Component {
     }
 
     /**
+     * Confirm on pressing enter
+     */
+    onEnterKeyPress() {
+        const activeEl = document.activeElement;
+        if (activeEl && activeEl.tagName === "BUTTON") {
+            activeEl.click();
+        } else {
+            this.onConfirm({});
+        }
+    }
+
+    /**
      * Discard the modal.
      */
     onDiscard() {
@@ -528,3 +589,5 @@ export class ProductConfiguratorDialog extends Component {
         this.props.close();
     }
 }
+
+registry.category('sale_configurator_dialogs').add('product', ProductConfiguratorDialog);

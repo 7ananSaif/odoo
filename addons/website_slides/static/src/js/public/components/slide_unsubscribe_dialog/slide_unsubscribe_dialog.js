@@ -1,4 +1,4 @@
-import { Component, useState } from "@odoo/owl";
+import { Component, proxy, t, useProps } from "@odoo/owl";
 import { CheckBox } from "@web/core/checkbox/checkbox";
 import { Dialog } from "@web/core/dialog/dialog";
 import { _t } from "@web/core/l10n/translation";
@@ -7,27 +7,26 @@ import { rpc } from "@web/core/network/rpc";
 export class SlideUnsubscribeDialog extends Component {
     static template = "website_slides.SlideUnsubscribeDialog";
     static components = { CheckBox, Dialog };
-    static props = {
-        channelId: Number,
-        isFollower: { type: String, optional: true },
-        visibility: String,
-        enroll: { type: String, optional: true },
-        close: Function,
-    };
+    props = useProps({
+        channelId: t.number(),
+        isFollower: t.boolean().optional(),
+        visibility: t.string(),
+        enroll: t.string().optional(),
+        close: t.function(),
+    });
 
     setup() {
-        this.state = useState({
+        this.state = proxy({
             buttonDisabled: false,
         });
         this.channelID = parseInt(this.props.channelId, 10);
-        this.isFollower = this.props.isFollower === "True";
         this.updateState("subscription");
-        this.isChecked = this.isFollower;
+        this.isChecked = this.props.isFollower;
     }
 
     updateState(mode) {
         if (mode === "subscription") {
-            this.state.title = this.isFollower ? _t("Subscribe") : _t("Notifications");
+            this.state.title = this.props.isFollower ? _t("Subscribe") : _t("Notifications");
             this.state.mode = "subscription";
         } else if (mode === "leave") {
             this.state.title = _t("Leave the course");
@@ -67,7 +66,7 @@ export class SlideUnsubscribeDialog extends Component {
         }
         this.state.buttonDisabled = true;
 
-        if (this.isFollower === this.isChecked) {
+        if (this.props.isFollower === this.isChecked) {
             this.props.close();
         } else {
             await rpc(`/slides/channel/${this.isChecked ? "subscribe" : "unsubscribe"}`, {

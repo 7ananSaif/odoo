@@ -21,6 +21,13 @@ class EventEvent(models.Model):
     tracks_tag_ids = fields.Many2many(
         'event.track.tag', relation='event_track_tags_rel', string='Track Tags',
         compute='_compute_tracks_tag_ids', store=True)
+    location_display_background = fields.Image("Location Display Background")
+    location_display_upcoming_track_count = fields.Selection(
+        selection=[('2', "2"), ('3', "3"), ('4', "4"), ('5', "5")],
+        string="Coming Up Sessions",
+        default='3',
+        required=True,
+    )
 
     def _compute_track_count(self):
         data = self.env['event.track']._read_group([('stage_id.is_cancel', '!=', True)], ['event_id'], ['__count'])
@@ -59,9 +66,36 @@ class EventEvent(models.Model):
     # BUSINESS METHODS
     # ------------------------------------------------------------
 
+    def action_view_track_locations(self):
+        self.ensure_one()
+        action = self.env['ir.actions.actions']._for_xml_id('website_event_track.action_event_track_location')
+        action.update({
+            'name': self.env._("Track Locations"),
+            'domain': [('id', 'in', self.track_ids.location_id.ids)],
+        })
+        return action
+
     def _has_published_track(self):
         self.ensure_one()
         return bool(self.track_ids.filtered('is_published'))
+
+    def _prepare_jsonld_vals(self):
+        vals = super()._prepare_jsonld_vals()
+        if not vals:
+            return vals
+        performers = {
+            # sudo only reads is_company to pick the schema type; the displayed
+            # name comes from the track's own partner_name, never the partner.
+            track.partner_name: 'Organization' if track.partner_id.sudo().is_company else 'Person'
+            for track in self.track_ids
+            if track.is_published and track.partner_name
+        }
+        if performers:
+            vals['performer'] = [
+                {'@type': schema_type, 'name': name}
+                for name, schema_type in performers.items()
+            ]
+        return vals
 
     # ------------------------------------------------------------
     # WEBSITE MENU MANAGEMENT

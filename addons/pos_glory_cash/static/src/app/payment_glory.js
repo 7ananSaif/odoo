@@ -3,6 +3,7 @@ import { CancelDialog } from "@pos_glory_cash/app/components/cancel_dialog";
 import { GLORY_STATUS_STRING } from "@pos_glory_cash/utils/constants";
 import { AlertDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
+import { registry } from "@web/core/registry";
 import { GloryService } from "@pos_glory_cash/glory_service";
 
 const CONNECT_TIMEOUT_MS = 5000;
@@ -16,7 +17,8 @@ export class PaymentGlory extends PaymentInterface {
         this.gloryService.connect(
             this.payment_method_id.glory_websocket_address,
             this.payment_method_id.glory_username,
-            this.payment_method_id.glory_password
+            this.payment_method_id.glory_password,
+            this.payment_method_id.glory_use_lna
         );
 
         setTimeout(() => {
@@ -114,12 +116,12 @@ export class PaymentGlory extends PaymentInterface {
         );
     }
 
-    async sendPaymentRequest() {
+    async sendPaymentRequest(line) {
         if (!this.paymentLine) {
             return false;
         }
 
-        if (this.paymentLine.amount < 0 && this.pos.getCashier()._role !== "manager") {
+        if (this.paymentLine.amount < 0 && this.pos.accessRight.loggedCashier._role !== "manager") {
             this.showError(_t("Only managers can withdraw cash from the cash machine."));
             return false;
         }
@@ -197,7 +199,7 @@ export class PaymentGlory extends PaymentInterface {
         }
     }
 
-    async sendPaymentCancel() {
+    async sendPaymentCancel(line) {
         const cancelResult = await this.gloryService.initiatePaymentCancel();
 
         if (cancelResult === "DISCONNECTED") {
@@ -215,42 +217,14 @@ export class PaymentGlory extends PaymentInterface {
      * @param {{ status: string, cashGiven?: number, cashReturned?: number, transactionId?: string }} paymentResponse
      */
     setPaymentInfo(paymentResponse) {
-        const isSuccessful = paymentResponse.status === "SUCCESS";
         const { transactionId, cashGiven, cashReturned } = paymentResponse;
         this.paymentLine.transaction_id = transactionId;
-        this.paymentLine.setAmount(this.gloryAmountToPosAmount(cashGiven));
-        this.paymentLine.setReceiptInfo(
-            this.makeReceiptMessage(transactionId, cashGiven, cashReturned, isSuccessful)
-        );
-    }
-
-    /**
-     * @param {string} transactionId
-     * @param {number} amountDeposited
-     * @param {number} amountReturned
-     * @param {boolean} isSuccessful
-     * @returns {string}
-     */
-    makeReceiptMessage(transactionId, amountDeposited, amountReturned, isSuccessful) {
-        const header = isSuccessful
-            ? _t("GLORY TRANSACTION SUCCESSFUL")
-            : _t("GLORY TRANSACTION CANCELLED");
-        const transactionIdLine = _t("Transaction ID: %s", transactionId);
-        const depositedLine = _t(
-            "Cash deposited: %s",
-            this.env.utils.formatCurrency(this.gloryAmountToPosAmount(amountDeposited))
-        );
-        const changeGivenLine = _t(
-            "Change given: %s",
-            this.env.utils.formatCurrency(this.gloryAmountToPosAmount(amountReturned))
-        );
-
-        return `${header}\n${transactionIdLine}\n${depositedLine}\n${changeGivenLine}\n\n`;
+        this.paymentLine.setAmount(this.gloryAmountToPosAmount(cashGiven - cashReturned));
     }
 
     gloryAmountToPosAmount(amountInCents) {
         const amount = amountInCents / Math.pow(10, this.pos.currency.decimal_places);
-        return this.env.utils.roundCurrency(amount);
+        return this.pos.config.currency_id.round(amount);
     }
 
     showError(msg, title) {
@@ -278,3 +252,5 @@ export class PaymentGlory extends PaymentInterface {
         });
     }
 }
+
+registry.category("pos_payment_providers").add("glory", PaymentGlory);

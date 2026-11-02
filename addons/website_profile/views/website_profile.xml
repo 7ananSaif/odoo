@@ -8,7 +8,7 @@
                     <!-- Desktop Mode -->
                     <div t-if="url_from" class="o_wprofile_all_users_nav_btn_container col pe-0 flex-grow-0 d-none d-md-flex">
                         <a t-att-href="url_from" class="o_wprofile_all_users_nav_btn btn text-nowrap">
-                            <i class="oi oi-chevron-left small"/> <t t-out="url_from_label"/>
+                            <i class="oi small" data-icon="chevron_backward"/> <t t-out="url_from_label"/>
                         </a>
                     </div>
                     <nav aria-label="breadcrumb" class="col d-none d-md-flex">
@@ -27,7 +27,7 @@
                         <form t-attf-action="/profile/users" role="search" method="get">
                             <div class="input-group o_wprofile_course_nav_search ms-1 position-relative">
                                 <button class="btn btn-link text-white border-1 rounded-0 pe-1 me-2" type="submit" aria-label="Search" title="Search">
-                                    <i class="fa fa-search border-1"></i>
+                                    <i class="oi border-1" data-icon="search"></i>
                                 </button>
                                 <input type="text" class="form-control border-0 rounded-0 bg-transparent text-white ms-auto" name="search" placeholder="Search users"/>
                                 <input type="hidden" name="group_by" t-att-value="group_by"/>
@@ -40,7 +40,7 @@
                         <div class="btn-group d-flex justify-content-between gap-1" role="group" aria-label="Mobile sub-nav">
                             <div t-if="url_from" class="btn-group">
                                 <a t-att-href="url_from" class="btn bg-black-25 text-white">
-                                    <i class="oi oi-chevron-left small"/>
+                                    <i class="oi small" data-icon="chevron_backward"/>
                                 </a>
                             </div>
 
@@ -49,19 +49,19 @@
 
                                 <ul class="dropdown-menu">
                                     <a class="dropdown-item" t-att-href="home_url or '/'">Home</a>
-                                    <a class="dropdown-item" href="/profile/users">&#9492; Users</a>
-                                    <a t-if="view_user" class="dropdown-item">&#9492; <t t-out="view_user"/></a>
+                                    <a class="dropdown-item" href="/profile/users">└ Users</a>
+                                    <a t-if="view_user" class="dropdown-item">└ <t t-out="view_user"/></a>
                                 </ul>
                             </div>
 
                             <div class="btn-group">
-                                <a class="btn bg-black-25 text-white dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-search"></i></a>
+                                <a class="btn bg-black-25 text-white dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="oi" data-icon="search"></i></a>
                                 <div class="dropdown-menu dropdown-menu-end w-100">
                                     <form class="px-3" t-attf-action="/profile/users" role="search" method="get">
                                         <div class="input-group">
                                             <input type="text" class="form-control" name="search" placeholder="Search users"/>
                                             <button class="btn btn-primary" type="submit" aria-label="Search" title="Search">
-                                                <i class="fa fa-search"/>
+                                                <i class="oi" data-icon="search"/>
                                             </button>
                                         </div>
                                     </form>
@@ -91,20 +91,19 @@
 
     <template id="user_profile_header" name="Profile Page Header">
         <div class="o_wprofile_header o_wprofile_gradient position-relative text-white">
-            <t t-call="website_profile.user_profile_sub_nav">
-                <t t-set="view_user"><t t-out="user.name"/></t>
-            </t>
+            <t t-set="view_user"><t t-out="user.name"/></t>
+            <t t-call="website_profile.user_profile_sub_nav" view_user="view_user"/>
 
             <div class="container pb-3 pb-md-0 pt-2 pt-md-5">
                 <div class="row">
                     <!-- ==== Header Left ==== -->
                     <div class="col-12 col-md-4 col-lg-3">
-                        <div t-attf-class="d-flex align-items-start h-100 #{'justify-content-between' if (request.env.user == user) else 'justify-content-around' }">
+                        <div t-attf-class="d-flex align-items-start h-100 #{'justify-content-between' if (env.user == user) else 'justify-content-around' }">
                             <div class="o_wprofile_pict d-inline-block mb-3 mb-md-0" t-attf-style="background-image: url(#{website.image_url(user, 'avatar_1024')});"/>
-                            <a class="o_wprofile_editor btn btn-primary d-inline-block d-md-none"
-                                t-if="(request.env.user == user and user.karma != 0) or request.env.user._is_admin()"
-                                t-att-data-user-id="user.id">
-                                <i class="fa fa-pencil me-1"/>EDIT
+                            <a class="btn o_wprofile_editor btn-primary d-inline-block d-md-none"
+                                t-if="(env.user == user and user.karma != 0) or env.user._is_admin()"
+                                t-att-data-user-id="user.id" t-att-data-can-edit-country="'true' if user.partner_id._can_edit_country() else None">
+                                <i class="oi oi-filled me-1" data-icon="edit"/>EDIT
                             </a>
                         </div>
                     </div>
@@ -115,22 +114,22 @@
                             <h1 class="o_card_people_name">
                                 <span t-field="user.name"/><small t-if="user.karma == 0"> (not verified)</small>
                             </h1>
-                            <a class="btn o_wprofile_editor btn-primary d-none d-md-inline-block" t-if="(request.env.user == user and user.karma != 0) or request.env.user._is_admin()"
-                                t-att-data-user-id="user.id">
-                                <i class="fa fa-pencil me-2"/>EDIT PROFILE
+                            <a class="btn o_wprofile_editor btn-primary d-none d-md-inline-block" t-if="(env.user == user and user.karma != 0) or env.user._is_admin()"
+                                t-att-data-user-id="user.id" t-att-data-can-edit-country="'true' if user.partner_id._can_edit_country() else None">
+                                <i class="oi oi-filled me-2" data-icon="edit"/>EDIT PROFILE
                             </a>
                         </div>
 
                         <div class="d-flex flex-column justify-content-center flex-grow-1 mb-0 mb-md-5">
-                            <div t-if="user.partner_id.company_name" class="lead mb-2">
-                                <i class="fa fa-building-o fa-fw me-1"/><span t-field="user.partner_id.company_name"/>
+                            <div t-if="user.partner_id.parent_name" class="lead mb-2">
+                                <i class="oi oi-fw me-1" data-icon="business"/><span t-field="user.partner_id.parent_name"/>
                             </div>
                             <div t-if="user.city or user.country_id" class="lead mb-2">
-                                <i class="fa fa-map-marker fa-fw me-1"/>
+                                <i class="oi oi-fw me-1" data-icon="location_on"/>
                                 <span t-field="user.city"/><span class="text-nowrap ms-1" t-if="user.country_id">(<span t-field="user.country_id"/>)</span>
                             </div>
                             <div t-if="user.website" class="lead mb-2">
-                                <i class="fa fa-globe fa-fw me-1"/><span t-field="user.website"/>
+                                <i class="oi oi-fw me-1" data-icon="public"/><span t-field="user.website"/>
                             </div>
                         </div>
                     </div>
@@ -157,9 +156,8 @@
                         <div class="collapse d-md-block" id="o_wprofile_sidebar_collapse">
                             <t t-set="next_rank_id" t-value="user._get_next_rank()"/>
                             <small t-if="next_rank_id" class="fw-bold mt-1">Next rank:</small>
-                            <t t-if="next_rank_id or user.rank_id" t-call="website_profile.profile_next_rank_card">
-                                <t t-set="img_max_width" t-value="'40%'"/>
-                            </t>
+                            <t t-if="next_rank_id or user.rank_id" t-call="website_profile.profile_next_rank_card"
+                                img_max_width.f="40%"/>
 
                             <table class="table table-sm w-100" id="o_wprofile_sidebar_table">
                                 <tbody>
@@ -187,20 +185,19 @@
                     <div class="tab-content py-4 o_wprofile_tabs_content mb-4" id="profile_extra_info_tabcontent">
                         <div role="tabpanel" t-attf-class="tab-pane #{ 'show active' if not active_tab or active_tab == 'about' else '' }" id="profile_tab_content_about">
                             <div class="o_wprofile_email_validation_container">
-                                <t t-call="website_profile.email_validation_banner">
-                                    <t t-set="redirect_url" t-value="'/profile/user/%s' % user.id"/>
-                                    <t t-set="additional_validation_email_message"/>
-                                </t>
+                                <t t-call="website_profile.email_validation_banner"
+                                    redirect_url="'/profile/user/%s' % user.id"
+                                    additional_validation_email_message.translate=""/>
                             </div>
                             <div id="profile_about_badge" class="mb32">
                                 <h5 class="border-bottom pb-1">Badges</h5>
-                                <t t-call="website_profile.user_badges"></t>
+                                <t t-call="website_profile.user_badges"/>
                             </div>
                             <div t-if="user.partner_id.website_description" class="mb32">
-                                <t t-if="request.env.user == user and user.karma != 0 or request.env.user._is_admin()">
+                                <t t-if="env.user == user and user.karma != 0 or env.user._is_admin()">
                                     <a href="#" class="o_wprofile_editor btn btn-link float-end"
-                                        t-att-data-user-id="user.id" data-focus-website-description="true">
-                                        <i class="fa fa-pencil me-1"/>Edit
+                                        t-att-data-user-id="user.id" t-att-data-can-edit-country="'true' if user.partner_id._can_edit_country() else None" data-focus-website-description="true">
+                                        <i class="oi oi-filled me-1" data-icon="edit"/>Edit
                                     </a>
                                 </t>
                                 <h5 class="border-bottom pb-1">Biography</h5>
@@ -250,7 +247,7 @@
                     t-attf-style="max-width: {{img_max_width or '50%'}};"
                     t-options="{'widget': 'image', 'preview_image': 'image_128'}"/>
                 <h4 class="text-center" t-field="rank_id.name"/>
-                <small class="w-50 text-center">
+                <small class="w-75 text-center o_line_clamp">
                     <t t-set="karma_value" t-value="next_rank_id.karma_min - user.karma if next_rank_id else user.karma"/>
                     <t t-if="next_rank_id">
                         Get
@@ -290,21 +287,21 @@
                 </t>
             </t>
         </div>
-         <div class="mb-3" t-elif="request.env.user == user">
+         <div class="mb-3" t-elif="env.user == user">
             Badges are your collection of achievements. Wear them proudly! <br />
             <a t-if="not user.badge_ids and badge_category" t-attf-href="/profile/ranks_badges?badge_category=#{badge_category}"
-            class="btn-link"><i class="fa fa-arrow-right"/> Get Badges</a>
+            class="btn-link"><i class="oi" data-icon="arrow_forward"/> Get Badges</a>
             <a t-else="" t-attf-href="/profile/ranks_badges"
-            class="btn-link"><i class="fa fa-arrow-right"/> Get Badges</a>
+            class="btn-link"><i class="oi" data-icon="arrow_forward"/> Get Badges</a>
         </div>
         <div t-else="" class="mb-3 d-inline-block">
             <p class="text-muted">No badges yet!</p>
         </div>
-        <div t-if="request.env.user.id != user.id" class="text-end d-inline-block pull-right">
+        <div t-if="env.user.id != user.id" class="text-end d-inline-block pull-right">
             <a t-if="not user.badge_ids and badge_category" t-attf-href="/profile/ranks_badges?badge_category=#{badge_category}"
-            class="btn-link btn-sm"><i class="oi oi-arrow-right"/> All Badges</a>
+            class="btn-link btn-sm"><i class="oi" data-icon="east"/> All Badges</a>
             <a t-else="" t-attf-href="/profile/ranks_badges"
-            class="btn-link btn-sm"><i class="oi oi-arrow-right me-1"/>All Badges</a>
+            class="btn-link btn-sm"><i class="oi me-1" data-icon="east"/>All Badges</a>
         </div>
     </template>
 
@@ -327,7 +324,7 @@
                         <h5>How do I earn badges?</h5>
                         <p>When you finish a course or reach milestones, you're awarded badges.</p>
                         <h5>How do I score more points?</h5>
-                        <p>You can score more points by answering quizzes at the end of each course content. Points can also be earned on the forum. Follow this link to the guidelines of the forum.</p>
+                        <p>You can score more points by answering quizzes at the end of each course content. Points can also be earned on the forum.</p>
                     </div>
                     <div class="col-12 col-md-5 col-lg-4">
                         <div class="card">
@@ -448,7 +445,7 @@
         <div class="container mb32">
             <div class="row mb-3">
                 <div class="col-md-4 d-flex flex-grow-1" t-foreach="top3_users" t-as="user" t-attf-onclick="location.href='/profile/user/#{user['id']}';">
-                    <t t-call="website_profile.top3_user_card"></t>
+                    <t t-call="website_profile.top3_user_card"/>
                 </div>
             </div>
             <div class="table-responsive" t-if="users">
@@ -465,8 +462,7 @@
                         </tr>
                         <t t-set='user' t-value='my_user'/>
                         <tr t-attf-onclick="location.href='/profile/user/#{user['id']}';" t-attf-class="o_wprofile_pointer bg-white o_wprofile_border_focus">
-                            <t t-call="website_profile.all_user_card">
-                            </t>
+                            <t t-call="website_profile.all_user_card"/>
                         </tr>
                     </t>
                 </table>
@@ -490,7 +486,6 @@
                     <img class="position-absolute" t-attf-src="/website_profile/static/src/img/rank_#{user_index + 1}.svg" alt="User rank" style="bottom: 0; right: -10px"/>
                 </div>
                 <h3 class="mt-2 mb-0" t-out="user['name']"></h3>
-                <span class="badge text-bg-danger fw-normal" t-if="not user['website_published']">Unpublished</span>
                 <strong class="text-muted" t-out="user['rank']"/>
                 <div class="h3 my-2" t-if="user['karma_gain']">
                     <span t-attf-class="badge #{ 'text-bg-success' if user['karma_gain'] > 0 else 'text-bg-warning'}">
@@ -529,9 +524,6 @@
             </t>
         </td>
         <td class="align-middle fw-bold text-end text-nowrap">
-            <span t-if="not user['website_published']" class="badge text-bg-danger fw-normal m-1">Unpublished</span>
-        </td>
-        <td class="align-middle fw-bold text-end text-nowrap">
             <b t-out="user['karma']"/> <span class="text-muted small fw-bold">XP</span>
         </td>
         <td class="align-middle fw-bold text-end pe-3 text-nowrap all_user_badge_count">
@@ -543,27 +535,28 @@
     <template id="pager_nobox" name="Pager (not box display)">
         <ul t-if="pager['page_count'] > 1" t-attf-class="o_wprofile_pager fw-bold pagination m-0">
             <li t-attf-class="page-item o_wprofile_pager_arrow #{'disabled' if pager['page']['num'] == 1 else ''}">
-                <a t-att-href=" pager['page_first']['url'] if pager['page']['num'] != 1 else None" class="page-link"><i class="fa fa-step-backward"/></a>
+                <a t-att-href=" pager['page_first']['url'] if pager['page']['num'] != 1 else None" class="page-link"><i class="oi" data-icon="skip_previous"/></a>
             </li>
             <li t-attf-class="page-item o_wprofile_pager_arrow #{'disabled' if pager['page']['num'] == 1 else ''}">
-                <a t-att-href=" pager['page_previous']['url'] if pager['page']['num'] != 1 else None" class="page-link"><i class="fa fa-caret-left"/></a>
+                <a t-att-href=" pager['page_previous']['url'] if pager['page']['num'] != 1 else None" class="page-link"><i class="oi" data-icon="arrow_left"/></a>
             </li>
             <t t-foreach="pager['pages']" t-as="page">
                 <li t-attf-class="page-item #{'active disabled bg-primary rounded-circle' if page['num'] == pager['page']['num'] else ''}"> <a t-att-href="page['url']" class="page-link" t-out="page['num']"/></li>
             </t>
             <li t-attf-class="page-item o_wprofile_pager_arrow #{'disabled' if pager['page']['num'] == pager['page_count'] else ''}">
-                <a t-att-href="pager['page_next']['url'] if pager['page']['num'] != pager['page_count'] else None" class="page-link"><i class="fa fa-caret-right"/></a>
+                <a t-att-href="pager['page_next']['url'] if pager['page']['num'] != pager['page_count'] else None" class="page-link"><i class="oi" data-icon="arrow_right"/></a>
             </li>
             <li t-attf-class="page-item o_wprofile_pager_arrow #{'disabled' if pager['page']['num'] == pager['page_count'] else ''}">
-                <a t-att-href=" pager['page_last']['url'] if pager['page']['num'] != pager['page_count'] else None" class="page-link"><i class="fa fa-step-forward"/></a>
+                <a t-att-href=" pager['page_last']['url'] if pager['page']['num'] != pager['page_count'] else None" class="page-link"><i class="oi" data-icon="skip_next"/></a>
             </li>
         </ul>
     </template>
 
     <template id="email_validation_banner">
-        <t t-set="send_alert_classes" t-value="send_alert_classes if send_alert_classes else 'alert alert-danger alert-dismissable'"/>
-        <t t-set="done_alert_classes" t-value="done_alert_classes if done_alert_classes else 'alert alert-success alert-dismissable'"/>
+        <t t-set="send_alert_classes" t-value="send_alert_classes if send_alert_classes else 'alert alert-danger alert-dismissible'"/>
+        <t t-set="done_alert_classes" t-value="done_alert_classes if done_alert_classes else 'alert alert-success alert-dismissible'"/>
         <t t-set="my_account_redirect" t-value="'/my/account?redirect='+redirect_url"/>
+        <t t-set="user" t-value="env.user"/>
 
         <div t-if="not is_public_user and not user.email" t-att-class="send_alert_classes" role="alert">
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>

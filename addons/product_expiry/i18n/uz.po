@@ -14,15 +14,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-10-08 18:38+0000\n"
-"Last-Translator: \n"
-"Language-Team: \n"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-08-31 17:37+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Uzbek <https://translate.odoo.com/projects/odoo-s19-4/"
+"product_expiry/uz/>\n"
 "Language: uz\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: product_expiry
 #. odoo-python
@@ -37,6 +39,24 @@ msgstr "--%(date)s da muddati tugaydi--"
 #, fuzzy
 msgid "\t--Expired--"
 msgstr "--Muddati tugagan--"
+
+#. module: product_expiry
+#: model:ir.module.module,description:base.module_product_expiry
+msgid ""
+"\n"
+"Track different dates on products and production lots.\n"
+"======================================================\n"
+"\n"
+"Following dates can be tracked:\n"
+"-------------------------------\n"
+"    - end of life\n"
+"    - best before date\n"
+"    - removal date\n"
+"    - alert date\n"
+"\n"
+"Also implements the removal strategy First Expiry First Out (FEFO) widely "
+"used, for example, in food industries.\n"
+msgstr ""
 
 #. module: product_expiry
 #: model_terms:ir.ui.view,arch_db:product_expiry.view_move_form_expiry
@@ -56,15 +76,11 @@ msgstr ""
 
 #. module: product_expiry
 #: model_terms:ir.ui.view,arch_db:product_expiry.view_production_lot_view_kanban
-#, fuzzy
 msgid ""
-"<span title=\"Alert\" class=\"fa fa-exclamation-triangle text-danger me-2\" "
+"<span title=\"Alert\" class=\"oi text-danger me-2\" data-icon=\"warning\" "
 "invisible=\"product_qty &lt;= 0 or not product_expiry_alert or not "
 "expiration_date\"/>"
 msgstr ""
-"<span title=\"Ogohlantirish\" class=\"fa fa-exclamation-triangle text-danger "
-"me-2\" invisible=\"product_qty &lt;= 0 or not product_expiry_alert or not "
-"expiration_date\"/>"
 
 #. module: product_expiry
 #: model_terms:ir.ui.view,arch_db:product_expiry.view_product_form_expiry
@@ -77,6 +93,11 @@ msgstr "<span> kundan so‘ng qabul qilindi</span>"
 #, fuzzy
 msgid "<span> days before expiration date</span>"
 msgstr "Yaroqlilik muddati tugashidan <span> kun oldin</span>"
+
+#. module: product_expiry
+#: model:ir.model,name:product_expiry.model_res_groups
+msgid "Access Groups"
+msgstr ""
 
 #. module: product_expiry
 #: model:ir.model.fields,field_description:product_expiry.field_product_product__alert_time
@@ -134,6 +155,7 @@ msgstr ""
 
 #. module: product_expiry
 #: model_terms:ir.ui.view,arch_db:product_expiry.report_lot_label_expiry
+#: model_terms:ir.ui.view,arch_db:product_expiry.report_lot_qr_label_expiry
 #, fuzzy
 msgid "B.b."
 msgstr "Eng yaxshi muddati"
@@ -156,6 +178,11 @@ msgstr "Eng yaxshi foydalanish muddati"
 #, fuzzy
 msgid "Best before Date"
 msgstr "Eng yaxshi foydalanish muddati"
+
+#. module: product_expiry
+#: model:ir.model,name:product_expiry.model_lot_label_layout
+msgid "Choose the sheet layout to print lot labels"
+msgstr ""
 
 #. module: product_expiry
 #: model:ir.model,name:product_expiry.model_res_config_settings
@@ -219,12 +246,6 @@ msgid "Description"
 msgstr "Tavsif"
 
 #. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.confirm_expiry_view
-#, fuzzy
-msgid "Discard"
-msgstr "Bekor qilish"
-
-#. module: product_expiry
 #: model:ir.model.fields,field_description:product_expiry.field_res_config_settings__group_expiry_date_on_delivery_slip
 #, fuzzy
 msgid "Display Expiration Dates on Delivery Slips"
@@ -232,10 +253,12 @@ msgstr "Yetkazib berish varaqalarida yaroqlilik muddatlarini ko‘rsatish"
 
 #. module: product_expiry
 #: model:ir.model.fields,field_description:product_expiry.field_expiry_picking_confirmation__display_name
+#: model:ir.model.fields,field_description:product_expiry.field_lot_label_layout__display_name
 #: model:ir.model.fields,field_description:product_expiry.field_product_product__display_name
 #: model:ir.model.fields,field_description:product_expiry.field_product_template__display_name
 #: model:ir.model.fields,field_description:product_expiry.field_report_stock_quantity__display_name
 #: model:ir.model.fields,field_description:product_expiry.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:product_expiry.field_res_groups__display_name
 #: model:ir.model.fields,field_description:product_expiry.field_stock_forecasted_product_product__display_name
 #: model:ir.model.fields,field_description:product_expiry.field_stock_lot__display_name
 #: model:ir.model.fields,field_description:product_expiry.field_stock_move__display_name
@@ -243,12 +266,15 @@ msgstr "Yetkazib berish varaqalarida yaroqlilik muddatlarini ko‘rsatish"
 #: model:ir.model.fields,field_description:product_expiry.field_stock_picking__display_name
 #: model:ir.model.fields,field_description:product_expiry.field_stock_quant__display_name
 #: model:ir.model.fields,field_description:product_expiry.field_stock_rule__display_name
+#: model:ir.model.fields,field_description:product_expiry.field_stock_traceability_report__display_name
 #, fuzzy
 msgid "Display Name"
 msgstr "Ko‘rsatiladigan nom"
 
 #. module: product_expiry
 #: model_terms:ir.ui.view,arch_db:product_expiry.report_lot_label_expiry
+#: model_terms:ir.ui.view,arch_db:product_expiry.report_lot_qr_label_expiry
+#: model_terms:ir.ui.view,arch_db:product_expiry.report_package_barcode_content_inherit_expiry
 #, fuzzy
 msgid "Exp."
 msgstr "Mud."
@@ -266,11 +292,14 @@ msgid "Expiration Alerts"
 msgstr "Muddati tugashi haqida ogohlantirishlar"
 
 #. module: product_expiry
+#. odoo-javascript
+#: code:addons/product_expiry/static/src/stock_traceability_report_backend.xml:0
 #: model:ir.model.fields,field_description:product_expiry.field_product_product__expiration_time
 #: model:ir.model.fields,field_description:product_expiry.field_product_template__expiration_time
 #: model:ir.model.fields,field_description:product_expiry.field_stock_lot__expiration_date
 #: model:ir.model.fields,field_description:product_expiry.field_stock_move_line__expiration_date
 #: model:ir.model.fields,field_description:product_expiry.field_stock_quant__expiration_date
+#: model_terms:ir.ui.view,arch_db:product_expiry.report_stock_body_print
 #: model_terms:ir.ui.view,arch_db:product_expiry.stock_report_delivery_document_inherit_product_expiry
 #: model_terms:ir.ui.view,arch_db:product_expiry.view_product_form_expiry
 #, fuzzy
@@ -355,10 +384,12 @@ msgstr "Bepul foydalanish miqdori"
 
 #. module: product_expiry
 #: model:ir.model.fields,field_description:product_expiry.field_expiry_picking_confirmation__id
+#: model:ir.model.fields,field_description:product_expiry.field_lot_label_layout__id
 #: model:ir.model.fields,field_description:product_expiry.field_product_product__id
 #: model:ir.model.fields,field_description:product_expiry.field_product_template__id
 #: model:ir.model.fields,field_description:product_expiry.field_report_stock_quantity__id
 #: model:ir.model.fields,field_description:product_expiry.field_res_config_settings__id
+#: model:ir.model.fields,field_description:product_expiry.field_res_groups__id
 #: model:ir.model.fields,field_description:product_expiry.field_stock_forecasted_product_product__id
 #: model:ir.model.fields,field_description:product_expiry.field_stock_lot__id
 #: model:ir.model.fields,field_description:product_expiry.field_stock_move__id
@@ -366,6 +397,7 @@ msgstr "Bepul foydalanish miqdori"
 #: model:ir.model.fields,field_description:product_expiry.field_stock_picking__id
 #: model:ir.model.fields,field_description:product_expiry.field_stock_quant__id
 #: model:ir.model.fields,field_description:product_expiry.field_stock_rule__id
+#: model:ir.model.fields,field_description:product_expiry.field_stock_traceability_report__id
 #, fuzzy
 msgid "ID"
 msgstr "ID"
@@ -500,10 +532,14 @@ msgid "Product Variant"
 msgstr "Mahsulot varianti"
 
 #. module: product_expiry
+#: model:ir.module.module,shortdesc:base.module_product_expiry
+msgid "Products Expiration Date"
+msgstr ""
+
+#. module: product_expiry
 #: model:ir.model,name:product_expiry.model_stock_quant
-#, fuzzy
-msgid "Quants"
-msgstr "Kvantlar"
+msgid "Quant"
+msgstr ""
 
 #. module: product_expiry
 #: model:ir.model.fields,field_description:product_expiry.field_product_product__removal_time
@@ -618,9 +654,13 @@ msgstr "Hozir chiqarish"
 #. module: product_expiry
 #. odoo-javascript
 #: code:addons/product_expiry/static/src/forecasted_details.xml:0
-#, fuzzy
 msgid "To remove on"
-msgstr "Chiqarish sanasi"
+msgstr ""
+
+#. module: product_expiry
+#: model:ir.model,name:product_expiry.model_stock_traceability_report
+msgid "Traceability Report"
+msgstr ""
 
 #. module: product_expiry
 #: model:ir.model,name:product_expiry.model_stock_picking
@@ -681,104 +721,121 @@ msgstr ""
 "etishni xohlayotganingizni tasdiqlaysizmi?"
 
 #. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-#, fuzzy
-msgid "^A0N,44,33^FDUse by:"
-msgstr "^A0N,44,33^FDIste'mol muddati:"
+#: model_terms:ir.ui.view,arch_db:product_expiry.alternative_zpl_lot_label_qr_expiry
+msgid "^A0N,16^TBN,246,23^FH^FD"
+msgstr ""
 
 #. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-#, fuzzy
-msgid ""
-"^BCN,100,Y,N,N\n"
-"^FD"
-msgstr "^BCN,100,Y,N,N ^FD"
+#: model_terms:ir.ui.view,arch_db:product_expiry.alternative_zpl_lot_label_qr_expiry
+msgid "^A0N,16^TBN,246,23^FH^FDB.b."
+msgstr ""
 
 #. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-#, fuzzy
-msgid "^FO100,150"
-msgstr "^FO100,150"
+#: model_terms:ir.ui.view,arch_db:product_expiry.report_lot_label_zpl_expiry
+msgid "^A0N,21,16^FB170,1,0,R^FH^FDExp."
+msgstr ""
 
 #. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-#, fuzzy
-msgid ""
-"^FO100,150\n"
-"^A0N,44,33^FDBest before:"
-msgstr "^FO100,150 ^A0N,44,33^FDEng yaxshi muddati:"
+#: model_terms:ir.ui.view,arch_db:product_expiry.alternative_zpl_lot_label_qr_expiry
+msgid "^FO155,"
+msgstr ""
 
 #. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-#, fuzzy
-msgid ""
-"^FO100,150\n"
-"^A0N,44,33^FDUse by:"
-msgstr "^FO100,150 ^A0N,44,33^FDIste'mol muddati:"
+#: model_terms:ir.ui.view,arch_db:product_expiry.alternative_zpl_lot_label_qr_expiry
+msgid "^FO155,145^A0N,16^TBN,246,23^FH^FDExp."
+msgstr ""
 
 #. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-#, fuzzy
-msgid "^FO100,200"
-msgstr "^FO100,200"
+#: model_terms:ir.ui.view,arch_db:product_expiry.report_lot_label_zpl_expiry
+msgid "^FO222,22"
+msgstr ""
 
 #. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-#, fuzzy
-msgid ""
-"^FO100,200\n"
-"^A0N,44,33^FDUse by:"
-msgstr "^FO100,200 ^A0N,44,33^FDIste'mol muddati:"
+#: model_terms:ir.ui.view,arch_db:product_expiry.report_lot_label_zpl_expiry
+msgid "^FO222,22^A0N,21,16^FB170,1,0,R^FH^FDB.b."
+msgstr ""
 
 #. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-#, fuzzy
-msgid "^FO100,200^BY3"
-msgstr "^FO100,200^BY3"
+#: model_terms:ir.ui.view,arch_db:product_expiry.report_lot_label_zpl_expiry
+msgid "^FO222,44"
+msgstr ""
 
 #. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-#, fuzzy
-msgid ""
-"^FO100,50\n"
-"^A0N,44,33^FD"
-msgstr "^FO100,50 ^A0N,44,33^FD"
-
-#. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
+#: model_terms:ir.ui.view,arch_db:product_expiry.alternative_zpl_lot_label_qr_expiry
+#: model_terms:ir.ui.view,arch_db:product_expiry.report_lot_label_zpl_expiry
 #, fuzzy
 msgid "^FS"
 msgstr "^FS"
-
-#. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-#, fuzzy
-msgid ""
-"^FS\n"
-"^FO100,100\n"
-"^A0N,44,33^FDLN/SN:"
-msgstr "^FS ^FO100,100 ^A0N,44,33^FDLN/SN:"
-
-#. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-#, fuzzy
-msgid ""
-"^FS\n"
-"^FO100,200^BY3\n"
-"^BCN,100,Y,N,N\n"
-"^FD"
-msgstr "^FS ^FO100,200^BY3 ^BCN,100,Y,N,N ^FD"
-
-#. module: product_expiry
-#: model_terms:ir.ui.view,arch_db:product_expiry.label_lot_template_view_expiry
-#, fuzzy
-msgid ""
-"^FS\n"
-"^FO100,250^BY3"
-msgstr "^FS ^FO100,250^BY3"
 
 #. module: product_expiry
 #: model:product.removal,method:product_expiry.removal_fefo
 #, fuzzy
 msgid "fefo"
 msgstr "fefo"
+
+#, fuzzy
+#~ msgid "^A0N,44,33^FDUse by:"
+#~ msgstr "^A0N,44,33^FDIste'mol muddati:"
+
+#, fuzzy
+#~ msgid ""
+#~ "^BCN,100,Y,N,N\n"
+#~ "^FD"
+#~ msgstr "^BCN,100,Y,N,N ^FD"
+
+#, fuzzy
+#~ msgid "^FO100,150"
+#~ msgstr "^FO100,150"
+
+#, fuzzy
+#~ msgid ""
+#~ "^FO100,150\n"
+#~ "^A0N,44,33^FDBest before:"
+#~ msgstr "^FO100,150 ^A0N,44,33^FDEng yaxshi muddati:"
+
+#, fuzzy
+#~ msgid ""
+#~ "^FO100,150\n"
+#~ "^A0N,44,33^FDUse by:"
+#~ msgstr "^FO100,150 ^A0N,44,33^FDIste'mol muddati:"
+
+#, fuzzy
+#~ msgid "^FO100,200"
+#~ msgstr "^FO100,200"
+
+#, fuzzy
+#~ msgid ""
+#~ "^FO100,200\n"
+#~ "^A0N,44,33^FDUse by:"
+#~ msgstr "^FO100,200 ^A0N,44,33^FDIste'mol muddati:"
+
+#, fuzzy
+#~ msgid "^FO100,200^BY3"
+#~ msgstr "^FO100,200^BY3"
+
+#, fuzzy
+#~ msgid ""
+#~ "^FO100,50\n"
+#~ "^A0N,44,33^FD"
+#~ msgstr "^FO100,50 ^A0N,44,33^FD"
+
+#, fuzzy
+#~ msgid ""
+#~ "^FS\n"
+#~ "^FO100,100\n"
+#~ "^A0N,44,33^FDLN/SN:"
+#~ msgstr "^FS ^FO100,100 ^A0N,44,33^FDLN/SN:"
+
+#, fuzzy
+#~ msgid ""
+#~ "^FS\n"
+#~ "^FO100,200^BY3\n"
+#~ "^BCN,100,Y,N,N\n"
+#~ "^FD"
+#~ msgstr "^FS ^FO100,200^BY3 ^BCN,100,Y,N,N ^FD"
+
+#, fuzzy
+#~ msgid ""
+#~ "^FS\n"
+#~ "^FO100,250^BY3"
+#~ msgstr "^FS ^FO100,250^BY3"

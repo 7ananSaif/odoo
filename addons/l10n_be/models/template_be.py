@@ -13,9 +13,6 @@ class AccountChartTemplate(models.AbstractModel):
             'name': _('Base'),
             'visible': False,
             'code_digits': '6',
-            'property_account_receivable_id': 'a400',
-            'property_account_payable_id': 'a440',
-            'downpayment_account_id': 'a46',
         }
 
     @template('be', 'res.company')
@@ -40,7 +37,9 @@ class AccountChartTemplate(models.AbstractModel):
                 'transfer_account_id': 'a58',
                 'expense_account_id': 'a600',
                 'income_account_id': 'a7000',
-                'account_stock_journal_id': 'inventory_valuation',
+                'receivable_account_id': 'a400',
+                'payable_account_id': 'a440',
+                'downpayment_account_id': 'a46',
                 'account_stock_valuation_id': 'a300',
             },
         }
@@ -77,6 +76,17 @@ class AccountChartTemplate(models.AbstractModel):
         be_account = self.with_company(company).ref('a6560', raise_if_not_found=False)
         return be_account or super()._get_bank_fees_reco_account(company)
 
+    def _load(self, template_code, company, install_demo, force_create=True):
+        to_reset = False
+        if company.chart_template == 'be_comp':
+            to_reset = self.ref('cash_rounding_be_comp_05', raise_if_not_found=False)
+        elif company.chart_template == 'be_asso':
+            to_reset = self.ref('cash_rounding_be_asso_05', raise_if_not_found=False)
+
+        if to_reset and (to_reset.profit_account_id or to_reset.loss_account_id):
+            to_reset.write({'profit_account_id': False, 'loss_account_id': False})
+        return super()._load(template_code, company, install_demo, force_create=force_create)
+
     def _post_load_data(self, template_code, company, template_data):
         super()._post_load_data(template_code, company, template_data)
         if template_code in ('be_comp', 'be_asso') and \
@@ -87,6 +97,27 @@ class AccountChartTemplate(models.AbstractModel):
     @template('be', 'account.account')
     def _get_be_account_account(self):
         return {
+            'a215000': {'asset_depreciation_account_id': 'a215009', 'asset_expense_account_id': 'a6301'},
+            'a221000': {'asset_depreciation_account_id': 'a221009', 'asset_expense_account_id': 'a6302'},
+            'a222000': {'asset_depreciation_account_id': 'a222009', 'asset_expense_account_id': 'a6302'},
+            'a223000': {'asset_depreciation_account_id': 'a223009', 'asset_expense_account_id': 'a6302'},
+            'a230000': {'asset_depreciation_account_id': 'a230009', 'asset_expense_account_id': 'a6302'},
+            'a240000': {'asset_depreciation_account_id': 'a240009', 'asset_expense_account_id': 'a6302'},
+            'a241000': {'asset_depreciation_account_id': 'a241009', 'asset_expense_account_id': 'a6302'},
+            'a241001': {'asset_depreciation_account_id': 'a241009', 'asset_expense_account_id': 'a6302'},
+            'a241100': {'asset_depreciation_account_id': 'a241109', 'asset_expense_account_id': 'a6302'},
+            'a241101': {'asset_depreciation_account_id': 'a241109', 'asset_expense_account_id': 'a6302'},
+            'a241200': {'asset_depreciation_account_id': 'a241209', 'asset_expense_account_id': 'a6302'},
+            'a241201': {'asset_depreciation_account_id': 'a241209', 'asset_expense_account_id': 'a6302'},
+            'a241300': {'asset_depreciation_account_id': 'a241309', 'asset_expense_account_id': 'a6302'},
+            'a241301': {'asset_depreciation_account_id': 'a241309', 'asset_expense_account_id': 'a6302'},
+            'a241400': {'asset_depreciation_account_id': 'a241409', 'asset_expense_account_id': 'a6302'},
+            'a241401': {'asset_depreciation_account_id': 'a241409', 'asset_expense_account_id': 'a6302'},
+            'a252000': {'asset_depreciation_account_id': 'a252009', 'asset_expense_account_id': 'a6302'},
+            'a252100': {'asset_depreciation_account_id': 'a252109', 'asset_expense_account_id': 'a6302'},
+            'a252200': {'asset_depreciation_account_id': 'a252209', 'asset_expense_account_id': 'a6302'},
+            'a252300': {'asset_depreciation_account_id': 'a252309', 'asset_expense_account_id': 'a6302'},
+            'a252400': {'asset_depreciation_account_id': 'a252409', 'asset_expense_account_id': 'a6302'},
             'a300': {
                 'account_stock_expense_id': 'a600',
                 'account_stock_variation_id': 'a6090',

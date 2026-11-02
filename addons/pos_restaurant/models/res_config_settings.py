@@ -1,35 +1,12 @@
-# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import fields, models, api
+from odoo import fields, models
 
 
 class ResConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
 
     pos_floor_ids = fields.Many2many(related='pos_config_id.floor_ids', readonly=False)
-    pos_iface_printbill = fields.Boolean(compute='_compute_pos_module_pos_restaurant', store=True, readonly=False)
-    pos_iface_splitbill = fields.Boolean(compute='_compute_pos_module_pos_restaurant', store=True, readonly=False)
-    pos_set_tip_after_payment = fields.Boolean(compute='_compute_pos_set_tip_after_payment', store=True, readonly=False)
     pos_default_screen = fields.Selection(related="pos_config_id.default_screen", readonly=False)
-
-    @api.depends('pos_module_pos_restaurant', 'pos_config_id')
-    def _compute_pos_module_pos_restaurant(self):
-        for res_config in self:
-            if not res_config.pos_module_pos_restaurant:
-                res_config.update({
-                    'pos_iface_printbill': False,
-                    'pos_iface_splitbill': False,
-                })
-            else:
-                res_config.update({
-                    'pos_iface_printbill': res_config.pos_config_id.iface_printbill,
-                    'pos_iface_splitbill': res_config.pos_config_id.iface_splitbill,
-                })
-
-    @api.depends('pos_iface_tipproduct', 'pos_config_id')
-    def _compute_pos_set_tip_after_payment(self):
-        for res_config in self:
-            if res_config.pos_iface_tipproduct:
-                res_config.pos_set_tip_after_payment = res_config.pos_config_id.set_tip_after_payment
-            else:
-                res_config.pos_set_tip_after_payment = False
+    pos_use_course_allocation = fields.Boolean(related='pos_config_id.use_course_allocation', readonly=False)
+    pos_use_show_items_on_course_ticket = fields.Boolean(related='pos_config_id.use_show_items_on_course_ticket', readonly=False)

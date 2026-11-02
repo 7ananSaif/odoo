@@ -1,19 +1,19 @@
+import { EDITOR_MUTATION_TYPES } from "@html_editor/core/dom_observer_plugin";
 import { Plugin } from "@html_editor/plugin";
 import { closestElement } from "@html_editor/utils/dom_traversal";
-import { withSequence } from "@html_editor/utils/resource";
 
 /**
- * @typedef {((arg: { sourceEl: HTMLElement, targetEl: HTMLElement }) => void)[]} after_replication_handlers
+ * @typedef {((arg: { sourceEl: HTMLElement, targetEl: HTMLElement }) => void)[]} on_replicated_handlers
  */
 
 export class FieldChangeReplicationPlugin extends Plugin {
     static id = "fieldChangeReplication";
-    static dependencies = ["dom"];
+    static dependencies = ["dom", "domReferenceMap"];
 
     /** @type {import("plugins").BuilderResources} */
     resources = {
-        handleNewRecords: this.handleMutations.bind(this),
-        normalize_handlers: withSequence(9000, this.normalizeHandler.bind(this)),
+        on_pending_mutations_staged_handlers: this.handleMutations.bind(this),
+        on_pending_mutations_normalized_handlers: this.onNormalizedPendingMutations.bind(this),
     };
 
     setup() {
@@ -21,30 +21,39 @@ export class FieldChangeReplicationPlugin extends Plugin {
     }
 
     /**
-     * @param { import("@html_editor/core/history_plugin").HistoryMutationRecord[] } records
+     * @param { import("@html_editor/core/dom_observer_plugin").SerializedMutation[] } mutations
      */
-    handleMutations(records) {
-        records
-            .filter((r) => !(r.type === "attributes" && r.attributeName.startsWith("data-oe-t")))
-            .map((r) =>
-                closestElement(r.target, "[data-oe-model], [data-oe-translation-source-sha]")
+    handleMutations(mutations) {
+        mutations
+            .filter((m) => !m.isAutomatic)
+            .filter(
+                (m) =>
+                    !(
+                        m.type === EDITOR_MUTATION_TYPES.ATTRIBUTES &&
+                        m.attributeName.startsWith("data-oe-t")
+                    )
             )
+            .map((m) => {
+                let nodeId = m.nodeId;
+                // TODO: Wouldn't doing this only for "remove" be enough?
+                if (
+                    [EDITOR_MUTATION_TYPES.ADD, EDITOR_MUTATION_TYPES.REMOVE].includes(m.type) &&
+                    m.parentNodeId
+                ) {
+                    nodeId = m.parentNodeId;
+                }
+                return closestElement(
+                    this.dependencies.domReferenceMap.getNodeById(nodeId),
+                    "[data-oe-model], [data-oe-translation-source-sha]"
+                );
+            })
             .filter(Boolean)
-            // Do not forward "unstyled" copies to other nodes.
-            .filter((fieldEl) => !fieldEl.classList.contains("o_translation_without_style"))
             .forEach((fieldEl) => this.fieldsToReplicate.add(fieldEl));
     }
 
-    /**
-     * @param { Node } commonAncestor
-     * @param { "original"|"undo"|"redo"|"restore" } stepState
-     */
-    normalizeHandler(commonAncestor, stepState) {
+    onNormalizedPendingMutations() {
         const fields = this.fieldsToReplicate;
         this.fieldsToReplicate = new Set();
-        if (stepState !== "original") {
-            return;
-        }
         const touchedEls = new Set();
         for (const sourceEl of fields) {
             const same = (attribute, quote = '"') =>
@@ -94,28 +103,18 @@ export class FieldChangeReplicationPlugin extends Plugin {
                 const cloneEl = sourceEl.cloneNode(true);
                 cloneEl.toggleAttribute("contenteditable", sourceEl.isContentEditable);
                 this.dependencies.dom.removeSystemProperties(cloneEl);
-                this.dispatchTo("clean_for_save_handlers", { root: cloneEl });
+                this.processThrough("clean_for_save_processors", cloneEl);
                 for (const targetEl of targetEls) {
-                    if (targetEl.classList.contains("o_translation_without_style")) {
-                        // For generated elements such as the navigation
-                        // labels of website's table of content, only the
-                        // text of the referenced translation must be used.
-                        if (targetEl.innerText !== cloneEl.innerText) {
-                            targetEl.innerText = cloneEl.innerText;
-                            touchedEls.add(targetEl);
-                        }
-                    } else {
-                        if (targetEl.innerHTML !== cloneEl.innerHTML) {
-                            targetEl.replaceChildren(...cloneEl.cloneNode(true).childNodes);
-                            touchedEls.add(targetEl);
-                        }
+                    if (targetEl.innerHTML !== cloneEl.innerHTML) {
+                        targetEl.replaceChildren(...cloneEl.cloneNode(true).childNodes);
+                        touchedEls.add(targetEl);
                     }
-                    this.dispatchTo("after_replication_handlers", { sourceEl, targetEl });
+                    this.trigger("on_replicated_handlers", { sourceEl, targetEl });
                 }
             }
         }
         for (const touchedEl of touchedEls) {
-            this.dispatchTo("normalize_handlers", touchedEl);
+            this.dependencies.dom.normalize(touchedEl);
         }
     }
 }

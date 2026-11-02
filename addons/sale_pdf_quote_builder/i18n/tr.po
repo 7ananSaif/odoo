@@ -10,17 +10,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-11-21 14:46+0000\n"
-"Last-Translator: Odoo Turkish Import <dyki+tr@odoo.com>\n"
-"Language-Team: Turkish <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-08-31 17:57+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Turkish <https://translate.odoo.com/projects/odoo-s19-4/"
 "sale_pdf_quote_builder/tr/>\n"
 "Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: sale_pdf_quote_builder
 #: model:ir.actions.report,print_report_name:sale_pdf_quote_builder.action_report_saleorder_raw
@@ -30,11 +30,6 @@ msgid ""
 msgstr ""
 "(object.state in ('draft', 'sent') and 'Teklif - %s' % (object.name)) or "
 "'Sipariş - %s' % (object.name)"
-
-#. module: sale_pdf_quote_builder
-#: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.sale_order_template_form
-msgid "<i class=\"fa fa-arrow-right\"/> Link to the demo video"
-msgstr "<i class=\"fa fa-arrow-right\"/> Demo videosunun bağlantısı"
 
 #. module: sale_pdf_quote_builder
 #: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.quotation_document_kanban
@@ -94,33 +89,6 @@ msgid "All files uploaded"
 msgstr "Tüm dosyalar yüklendi"
 
 #. module: sale_pdf_quote_builder
-#: model:ir.model.fields,help:sale_pdf_quote_builder.field_product_document__attached_on_sale
-msgid ""
-"Allows you to share the document with your customers within a sale.\n"
-"Leave it empty if you don't want to share this document with sales "
-"customer.\n"
-"On quote: the document will be sent to and accessible by customers at any "
-"time.\n"
-"e.g. this option can be useful to share Product description files.\n"
-"On order confirmation: the document will be sent to and accessible by "
-"customers.\n"
-"e.g. this option can be useful to share User Manual or digital content "
-"bought on ecommerce. \n"
-"Inside quote: The document will be included in the pdf of the quotation and "
-"sale order between the header pages and the quote table. "
-msgstr ""
-"Bir satış kapsamında müşterilerinizle belge paylaşmanızı sağlar.\n"
-"Bu belgeyi satış müşterisiyle paylaşmak istemiyorsanız boş bırakın.\n"
-"Teklifte: Belge müşterilere gönderilir ve istedikleri zaman erişilebilir "
-"olur.\n"
-"örn. Bu seçenek, Ürün tanım dosyalarını paylaşmak için yararlı olabilir.\n"
-"Sipariş onayında: Belge müşterilere gönderilir ve erişilebilir olur.\n"
-"örn. Bu seçenek, Kullanıcı Kılavuzu veya e-ticaretten satın alınan dijital "
-"içerikleri paylaşmak için yararlı olabilir. \n"
-"Teklif içinde: Belge, teklif ve satış siparişi PDF’inin başlık sayfaları ile "
-"teklif tablosu arasına eklenir. "
-
-#. module: sale_pdf_quote_builder
 #: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.quotation_document_kanban
 #: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.quotation_document_search_view
 msgid "Archived"
@@ -147,6 +115,11 @@ msgid "Available Quotation Documents"
 msgstr "Mevcut Teklif Belgeleri"
 
 #. module: sale_pdf_quote_builder
+#: model:ir.module.module,description:base.module_sale_pdf_quote_builder
+msgid "Build nice quotations"
+msgstr ""
+
+#. module: sale_pdf_quote_builder
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__checksum
 msgid "Checksum/SHA1"
 msgstr "Checksum/SHA1"
@@ -164,6 +137,10 @@ msgstr "Firma"
 
 #. module: sale_pdf_quote_builder
 #: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.product_document_form
+msgid "Configure"
+msgstr ""
+
+#. module: sale_pdf_quote_builder
 #: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.quotation_document_form
 msgid "Configure dynamic fields"
 msgstr "Dinamik alanları yapılandırın"
@@ -243,19 +220,14 @@ msgid "Download"
 msgstr "İndir"
 
 #. module: sale_pdf_quote_builder
-#: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.sale_order_template_form
-msgid "Download examples"
-msgstr "Örnekleri indir"
-
-#. module: sale_pdf_quote_builder
 #: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.quotation_document_kanban
 msgid "Edit"
 msgstr "Düzenle"
 
 #. module: sale_pdf_quote_builder
-#: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__datas
-msgid "File Content (base64)"
-msgstr "Dosya İçeriği (base64)"
+#: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_product_document__form_field_ids
+msgid "Fields"
+msgstr ""
 
 #. module: sale_pdf_quote_builder
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__raw
@@ -287,7 +259,6 @@ msgid "Form Fields"
 msgstr "Form Alanları"
 
 #. module: sale_pdf_quote_builder
-#: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_product_document__form_field_ids
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__form_field_ids
 msgid "Form Fields Included"
 msgstr "Form Alanları Dahil"
@@ -386,11 +357,6 @@ msgid "Indexed Content"
 msgstr "İndekslenen İçerik"
 
 #. module: sale_pdf_quote_builder
-#: model:ir.model.fields.selection,name:sale_pdf_quote_builder.selection__product_document__attached_on_sale__inside
-msgid "Inside quote pdf"
-msgstr "Teklif İçi PDF’i"
-
-#. module: sale_pdf_quote_builder
 #. odoo-python
 #: code:addons/sale_pdf_quote_builder/models/sale_pdf_form_field.py:0
 msgid ""
@@ -432,7 +398,7 @@ msgstr "Bu genel belgemi"
 
 #. module: sale_pdf_quote_builder
 #. odoo-python
-#: code:addons/sale_pdf_quote_builder/utils.py:0
+#: code:addons/sale_pdf_quote_builder/models/sale_pdf_form_field.py:0
 msgid ""
 "It seems that we're not able to process this pdf inside a quotation. It is "
 "either encrypted, or encoded in a format we do not support."
@@ -480,15 +446,14 @@ msgstr "Hayır"
 
 #. module: sale_pdf_quote_builder
 #. odoo-python
-#: code:addons/sale_pdf_quote_builder/models/product_document.py:0
-msgid "Only PDF documents can be attached inside a quote."
-msgstr "Bir teklifin içine yalnızca PDF belgeleri eklenebilir."
-
-#. module: sale_pdf_quote_builder
-#. odoo-python
 #: code:addons/sale_pdf_quote_builder/models/quotation_document.py:0
 msgid "Only PDF documents can be used as header or footer."
 msgstr "Üstbilgi veya altbilgi olarak yalnızca PDF belgeleri kullanılabilir."
+
+#. module: sale_pdf_quote_builder
+#: model:ir.model,name:sale_pdf_quote_builder.model_sale_order_template
+msgid "Order Templates"
+msgstr ""
 
 #. module: sale_pdf_quote_builder
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__original_id
@@ -520,12 +485,6 @@ msgstr ""
 "Lütfen yolunuzun son değerine kadar yalnızca ilişkisel alanları kullanın."
 
 #. module: sale_pdf_quote_builder
-#. odoo-python
-#: code:addons/sale_pdf_quote_builder/models/sale_order.py:0
-msgid "Product"
-msgstr "Ürün"
-
-#. module: sale_pdf_quote_builder
 #: model:ir.model,name:sale_pdf_quote_builder.model_product_document
 #: model:ir.model.fields.selection,name:sale_pdf_quote_builder.selection__sale_pdf_form_field__document_type__product_document
 msgid "Product Document"
@@ -536,31 +495,6 @@ msgstr "Ürün Dokümanı"
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_sale_pdf_form_field__product_document_ids
 msgid "Product Documents"
 msgstr "Ürün Belgeleri"
-
-#. module: sale_pdf_quote_builder
-#: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.sale_order_template_form
-msgid ""
-"Provide header pages and footer pages to compose an attractive quotation "
-"with more information\n"
-"                        about your company, your products and you services. "
-"<br/>\n"
-"                        The pdf of your quotes will be built by putting "
-"together header pages, product descriptions,\n"
-"                        details of the quote and then the footer pages. <br/"
-">\n"
-"                        If empty, it will use those define in the company "
-"settings. <br/>"
-msgstr ""
-"Daha fazla bilgi içeren çekici bir teklif oluşturmak için üstbilgi sayfaları "
-"ve altbilgi sayfaları ekleyin\n"
-"                        Şirketiniz, ürünleriniz ve hizmetleriniz hakkında. "
-"<br/>\n"
-"                        Tekliflerinizin pdf'i, başlık sayfaları, ürün "
-"açıklamaları bir araya getirilerek oluşturulacaktır,\n"
-"                        teklifin ayrıntıları ve ardından altbilgi sayfaları. "
-"<br/>\n"
-"                        Boşsa, şirket ayarlarında tanımlananları "
-"kullanacaktır. <br/>"
 
 #. module: sale_pdf_quote_builder
 #: model:ir.actions.report,name:sale_pdf_quote_builder.action_report_saleorder_raw
@@ -578,7 +512,6 @@ msgid "Quotation Documents"
 msgstr "Teklif Belgeleri"
 
 #. module: sale_pdf_quote_builder
-#: model:ir.model,name:sale_pdf_quote_builder.model_sale_order_template
 #: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.quotation_document_search_view
 msgid "Quotation Template"
 msgstr "Teklif Şablonu"
@@ -600,11 +533,6 @@ msgid "Quote Builder"
 msgstr "Teklif Oluşturucu"
 
 #. module: sale_pdf_quote_builder
-#: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.sale_order_template_form
-msgid "Quote Builder Demo Video"
-msgstr "Teklif Oluşturucu Demo Videosu"
-
-#. module: sale_pdf_quote_builder
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__ir_attachment_id
 msgid "Related attachment"
 msgstr "İlgili ekli dosya"
@@ -613,6 +541,16 @@ msgstr "İlgili ekli dosya"
 #: model:ir.model,name:sale_pdf_quote_builder.model_ir_actions_report
 msgid "Report Action"
 msgstr "Rapor işlemi"
+
+#. module: sale_pdf_quote_builder
+#: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__res_access_read
+msgid "Res Access Read"
+msgstr ""
+
+#. module: sale_pdf_quote_builder
+#: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__res_access_write
+msgid "Res Access Write"
+msgstr ""
 
 #. module: sale_pdf_quote_builder
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__res_field
@@ -635,11 +573,6 @@ msgid "Resource Name"
 msgstr "Kaynak Adı"
 
 #. module: sale_pdf_quote_builder
-#: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_product_document__attached_on_sale
-msgid "Sale : Visible at"
-msgstr "Satış: Görünürlük Konumu"
-
-#. module: sale_pdf_quote_builder
 #: model:ir.actions.server,name:sale_pdf_quote_builder.cron_post_upgrade_assign_missing_form_fields_ir_actions_server
 msgid "Sale Pdf Quote Builder: assign form fields to documents post upgrade"
 msgstr ""
@@ -655,6 +588,11 @@ msgstr "Satış Siparişi"
 #: model:ir.model,name:sale_pdf_quote_builder.model_sale_order_line
 msgid "Sales Order Line"
 msgstr "Satış Sipariş Satırı"
+
+#. module: sale_pdf_quote_builder
+#: model:ir.module.module,shortdesc:base.module_sale_pdf_quote_builder
+msgid "Sales PDF Quotation Builder"
+msgstr ""
 
 #. module: sale_pdf_quote_builder
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__sequence
@@ -742,13 +680,6 @@ msgstr "Websitesi"
 
 #. module: sale_pdf_quote_builder
 #. odoo-python
-#: code:addons/sale_pdf_quote_builder/models/product_document.py:0
-msgid "When attached inside a quote, the document must be a file, not a URL."
-msgstr ""
-"Bir teklifin içine eklendiğinde, belge bir URL değil, bir dosya olmalıdır."
-
-#. module: sale_pdf_quote_builder
-#. odoo-python
 #: code:addons/sale_pdf_quote_builder/models/ir_actions_report.py:0
 msgid "Yes"
 msgstr "Evet"
@@ -766,6 +697,3 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.quotation_document_form
 msgid "on"
 msgstr ":"
-
-#~ msgid "Group By"
-#~ msgstr "Grupla"

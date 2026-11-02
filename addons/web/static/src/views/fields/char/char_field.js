@@ -5,37 +5,40 @@ import { useDynamicPlaceholder } from "../dynamic_placeholder_hook";
 import { formatChar } from "../formatters";
 import { useInputField } from "../input_field_hook";
 import { standardFieldProps } from "../standard_field_props";
-import { TranslationButton } from "../translation_button";
+import { TranslationButton } from "../translation/translation";
 
-import { Component, useEffect, useExternalListener, useRef } from "@odoo/owl";
+import { Component, onMounted, onPatched, signal, t, useListener, useProps } from "@odoo/owl";
+
+export const charFieldProps = {
+    ...standardFieldProps,
+    autocomplete: t.string().optional(),
+    isPassword: t.boolean().optional(),
+    placeholder: t.string().optional(),
+    dynamicPlaceholder: t.boolean().optional(false),
+    dynamicPlaceholderModelReferenceField: t.string().optional(),
+};
 
 export class CharField extends Component {
     static template = "web.CharField";
     static components = {
         TranslationButton,
     };
-    static props = {
-        ...standardFieldProps,
-        autocomplete: { type: String, optional: true },
-        isPassword: { type: Boolean, optional: true },
-        placeholder: { type: String, optional: true },
-        dynamicPlaceholder: { type: Boolean, optional: true },
-        dynamicPlaceholderModelReferenceField: { type: String, optional: true },
-    };
-    static defaultProps = { dynamicPlaceholder: false };
+    props = useProps(charFieldProps);
+    input = signal.ref();
 
     setup() {
-        this.input = useRef("input");
         if (this.props.dynamicPlaceholder) {
             this.dynamicPlaceholder = useDynamicPlaceholder(this.input);
-            useExternalListener(document, "keydown", this.dynamicPlaceholder.onKeydown);
-            useEffect(() =>
+            useListener(document, "keydown", this.dynamicPlaceholder.onKeydown);
+            const updateModel = () =>
                 this.dynamicPlaceholder.updateModel(
                     this.props.dynamicPlaceholderModelReferenceField
-                )
-            );
+                );
+            onMounted(updateModel);
+            onPatched(updateModel);
         }
         useInputField({
+            ref: this.input,
             getValue: () => this.props.record.data[this.props.name] || "",
             parse: (v) => this.parse(v),
         });
@@ -50,7 +53,7 @@ export class CharField extends Component {
         return this.props.record.fields[this.props.name].size;
     }
     get isTranslatable() {
-        return this.props.record.fields[this.props.name].translate;
+        return this.props.record.isFieldTranslatable(this.props.name);
     }
     get formattedValue() {
         return formatChar(this.props.record.data[this.props.name], {
@@ -69,7 +72,9 @@ export class CharField extends Component {
     }
 
     onBlur() {
-        this.selectionStart = this.input.el.selectionStart;
+        if (this.input()) {
+            this.selectionStart = this.input().selectionStart;
+        }
     }
 
     async onDynamicPlaceholderOpen() {
@@ -80,20 +85,20 @@ export class CharField extends Component {
 
     async onDynamicPlaceholderValidate(chain, defaultValue) {
         if (chain) {
-            this.input.el.focus();
+            this.input().focus();
             const dynamicPlaceholder = ` {{object.${chain}${
                 defaultValue?.length ? ` ||| ${defaultValue}` : ""
             }}}`;
-            this.input.el.setRangeText(
+            this.input().setRangeText(
                 dynamicPlaceholder,
                 this.selectionStart,
                 this.selectionStart,
                 "end"
             );
             // trigger events to make the field dirty
-            this.input.el.dispatchEvent(new InputEvent("input"));
-            this.input.el.dispatchEvent(new KeyboardEvent("keydown"));
-            this.input.el.focus();
+            this.input().dispatchEvent(new InputEvent("input"));
+            this.input().dispatchEvent(new KeyboardEvent("keydown"));
+            this.input().focus();
         }
     }
 }

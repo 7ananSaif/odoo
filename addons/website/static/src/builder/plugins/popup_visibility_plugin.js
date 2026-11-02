@@ -1,4 +1,7 @@
+import { usePlugin } from "@odoo/owl";
 import { Plugin } from "@html_editor/plugin";
+import { selectElements } from "@html_editor/utils/dom_traversal";
+import { BootstrapInstance } from "@web/core/utils/bootstrap_plugin";
 import { registry } from "@web/core/registry";
 import { patch } from "@web/core/utils/patch";
 
@@ -10,34 +13,41 @@ import { patch } from "@web/core/utils/patch";
 
 export class PopupVisibilityPlugin extends Plugin {
     static id = "popupVisibilityPlugin";
-    static dependencies = ["visibility", "history"];
+    static dependencies = ["visibility", "domObserver", "domReferenceMap"];
     static shared = ["onTargetShow", "onTargetHide"];
 
     /** @type {import("plugins").WebsiteResources} */
     resources = {
-        target_show: this.onTargetShow.bind(this),
-        target_hide: this.onTargetHide.bind(this),
-        clean_for_save_handlers: this.cleanForSave.bind(this),
-        on_restore_containers_handlers: this.hidePopupsWithoutTarget.bind(this),
-        on_reveal_target_handlers: this.hidePopupsWithoutTarget.bind(this),
-        attribute_change_processors: ({ target, attributeName, value }) => {
+        on_target_shown_handlers: this.onTargetShow.bind(this),
+        on_target_hidden_handlers: this.onTargetHide.bind(this),
+        clean_for_save_processors: this.cleanForSave.bind(this),
+        on_will_restore_containers_handlers: this.hidePopupsWithoutTarget.bind(this),
+        on_target_revealed_handlers: this.hidePopupsWithoutTarget.bind(this),
+        attributes_mutation_value_processors: (value, { mutation }) => {
+            const { nodeId, attributeName } = mutation;
             // On hide/show of the popup, the `style` attribute of the modal in
             // the popup is changed. This also happens with the option
-            // "Backdrop" on the popup. When reverting/re-applying steps that
+            // "Backdrop" on the popup. When reverting/re-applying commits that
             // are supposed to change the option, we do not want to also change
             // whether the popup is hidden of not. Here, we keep the `display`
             // property in the `style` attribute unchanged when the history
-            // revert/re-apply a step that modified it.
-            if (attributeName === "style" && target.matches(".s_popup > .modal")) {
-                const re = /display: .*?;/;
-                const currentDisplay = target.attributes.style?.value.match(re)?.[0] ?? "";
-                value = re.test(value) ? value.replace(re, currentDisplay) : value + currentDisplay;
+            // revert/re-apply a commit that modified it.
+            if (attributeName === "style") {
+                const target = this.dependencies.domReferenceMap.getNodeById(nodeId);
+                if (target.matches(".s_popup > .modal")) {
+                    const re = /display: .*?;/;
+                    const currentDisplay = target.attributes.style?.value.match(re)?.[0] ?? "";
+                    return re.test(value)
+                        ? value.replace(re, currentDisplay)
+                        : value + currentDisplay;
+                }
             }
             return value;
         },
     };
 
     setup() {
+        this.bootstrap = usePlugin(BootstrapInstance);
         this.addDomListener(this.editable, "click", (ev) => {
             // Note: links are excluded here so that internal modal buttons do
             // not close the popup as we want to allow edition of those buttons.
@@ -47,17 +57,17 @@ export class PopupVisibilityPlugin extends Plugin {
                 this.dependencies.visibility.hideElement(popupEl);
             }
         });
-        const history = this.dependencies.history;
+        const domObserver = this.dependencies.domObserver;
         this.unpatchModal = this.window.Modal // null in tests without loadAssetsFrontendJS
             ? patch(this.window.Modal.prototype, {
                   _hideModal() {
-                      return history.ignoreDOMMutations(() => super._hideModal());
+                      return domObserver.ignore(() => super._hideModal());
                   },
                   show() {
-                      return history.ignoreDOMMutations(() => super.show());
+                      return domObserver.ignore(() => super.show());
                   },
                   hide() {
-                      return history.ignoreDOMMutations(() => super.hide());
+                      return domObserver.ignore(() => super.hide());
                   },
               })
             : () => {};
@@ -73,7 +83,7 @@ export class PopupVisibilityPlugin extends Plugin {
         // save (see save plugin) and Bootstrap moves it if it is not within the
         // document (see Bootstrap Modal's _showElement).
         if (targetEl.matches(".s_popup") && this.editable.contains(targetEl)) {
-            this.window.Modal.getOrCreateInstance(targetEl.querySelector(".modal")).show();
+            this.toggleModal(targetEl, true);
         }
     }
 
@@ -81,21 +91,44 @@ export class PopupVisibilityPlugin extends Plugin {
         // Do not use Bootstrap to close the popup, as we are cleaning a
         // clone of it. Instead, hide it manually (see `cleanForSave`).
         if (targetEl.matches(".s_popup") && !isCleaning) {
-            this.window.Modal.getOrCreateInstance(targetEl.querySelector(".modal")).hide();
+            this.toggleModal(targetEl, false);
         }
     }
 
-    cleanForSave({ root: rootEl }) {
+    toggleModal(targetEl, show) {
+        const modalEl = targetEl.querySelector(".modal");
+        const modalInstance = this.bootstrap.getOrCreateInstance(this.window.Modal, modalEl);
+        modalEl.dispatchEvent(new Event("transitionend"));
+        // Ensures Bootstrap events are triggered even if the popup is
+        // still transitioning.
+        modalInstance._isTransitioning = false;
+        if (show) {
+            modalInstance.show();
+        } else {
+            modalInstance.hide();
+        }
+    }
+
+    cleanForSave(rootEl) {
         // Hide the popups manually, as we cannot rely on the `onTargetHide`
         // flow since the cleaned popup is a clone and is not in the DOM.
         for (const modalEl of rootEl.querySelectorAll(".s_popup .modal.show")) {
             modalEl.parentElement.dataset.invisible = "1";
-            // Do not call .hide() directly, because it is queued whereas
-            // .dispose() is not.
+            // Do not call `.hide()`, because it is queued (parts of its effects
+            // happens asynchronously and delayed).
             modalEl.classList.remove("show");
-            this.window.Modal.getOrCreateInstance(modalEl)._hideModal();
-            this.window.Modal.getInstance(modalEl).dispose();
+            this.bootstrap.getOrCreateInstance(this.window.Modal, modalEl)._hideModal();
         }
+
+        // Delete all empty popups upon save
+        for (const popupEl of selectElements(rootEl, ".s_popup")) {
+            const isPopupEmpty = !popupEl.querySelector(".oe_structure > *:not(.s_popup_close)");
+            if (isPopupEmpty) {
+                popupEl.remove();
+            }
+        }
+
+        return rootEl;
     }
 
     /**
@@ -119,3 +152,4 @@ export class PopupVisibilityPlugin extends Plugin {
 }
 
 registry.category("website-plugins").add(PopupVisibilityPlugin.id, PopupVisibilityPlugin);
+registry.category("translation-plugins").add(PopupVisibilityPlugin.id, PopupVisibilityPlugin);

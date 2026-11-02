@@ -1,4 +1,13 @@
-import { Component, onPatched, onWillDestroy, useEffect, useRef, useState } from "@odoo/owl";
+import {
+    Component,
+    onPatched,
+    onWillDestroy,
+    proxy,
+    signal,
+    t,
+    useListener,
+    useProps,
+} from "@odoo/owl";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { Dropdown } from "@web/core/dropdown/dropdown";
 import { DropdownItem } from "@web/core/dropdown/dropdown_item";
@@ -9,6 +18,7 @@ import { registry } from "@web/core/registry";
 import { useBus, useService } from "@web/core/utils/hooks";
 import { useSortable } from "@web/core/utils/sortable_owl";
 import { MOVABLE_RECORD_TYPES } from "@web/model/relational_model/dynamic_group_list";
+import { getMultiDragRecordIds, startMultiDrag, stopMultiDrag } from "@web/views/multi_drag";
 import { isNull } from "@web/views/utils";
 import { ColumnProgress } from "@web/views/view_components/column_progress";
 import { useBounceButton } from "@web/views/view_hook";
@@ -36,6 +46,24 @@ function validateColumnQuickCreateExamples(data) {
     }
 }
 
+export const kanbanRendererProps = {
+    archInfo: t.any(),
+    Compiler: t.any(),
+    list: t.any(),
+    deleteRecord: t.any(),
+    openRecord: t.any(),
+    readonly: t.any().optional(),
+    forceGlobalClick: t.any().optional(),
+    noContentHelp: t.any().optional(),
+    scrollTop: t.any().optional(() => () => {}),
+    canQuickCreate: t.any().optional(),
+    quickCreateState: t.any().optional(),
+    progressBarState: t.any().optional(),
+    addLabel: t.any().optional(),
+    onAdd: t.any().optional(),
+    tooltipInfo: t.any().optional({}),
+};
+
 export class KanbanRenderer extends Component {
     static template = "web.KanbanRenderer";
     static components = {
@@ -49,41 +77,23 @@ export class KanbanRenderer extends Component {
         Widget,
         ActionHelper,
     };
-    static props = [
-        "archInfo",
-        "Compiler",
-        "list",
-        "deleteRecord",
-        "openRecord",
-        "readonly?",
-        "forceGlobalClick?",
-        "noContentHelp?",
-        "scrollTop?",
-        "canQuickCreate?",
-        "quickCreateState?",
-        "progressBarState?",
-        "addLabel?",
-        "onAdd?",
-    ];
+    props = useProps(kanbanRendererProps);
 
-    static defaultProps = {
-        scrollTop: () => {},
-        quickCreateState: { groupId: false },
-        tooltipInfo: {},
-    };
+    rootRef = signal.ref();
 
     setup() {
         this.dialogClose = [];
         /**
          * @type {{ processedIds: string[], columnQuickCreateIsFolded: boolean }}
          */
-        this.state = useState({
+        this.state = proxy({
             selectionAvailable: false,
             processedIds: [],
             columnQuickCreateIsFolded:
                 !this.props.list.isGrouped || this.props.list.groups.length > 0,
         });
         this.dialog = useService("dialog");
+        this.uiService = useService("ui");
         this.exampleData = registry
             .category("kanban_examples")
             .get(this.props.archInfo.examples, null);
@@ -95,7 +105,7 @@ export class KanbanRenderer extends Component {
         // Sortable
         let dataRecordId;
         let dataGroupId;
-        this.rootRef = useRef("root");
+        this.multiDragRecordIds = null;
         if (this.canUseSortable) {
             useSortable({
                 enable: () => this.canResequenceRecords,
@@ -106,23 +116,34 @@ export class KanbanRenderer extends Component {
                 groups: () => this.props.list.isGrouped && ".o_kanban_group",
                 connectGroups: () => this.canMoveRecords,
                 cursor: "move",
-                placeholderClasses: ["visible", "opacity-50", "my-2"],
+                placeholderClasses: ["visible", "opacity-50", "my-2", "pe-none"],
                 // Hooks
                 onDragStart: (params) => {
-                    const { element, group } = params;
+                    const { element } = params;
                     dataRecordId = element.dataset.id;
-                    dataGroupId = group && group.dataset.id;
-                    if (this.props.list.selection?.length) {
-                        this.props.list.selection.forEach((record) => {
-                            record.toggleSelection(false);
+                    this.multiDragRecordIds = getMultiDragRecordIds(this.props.list, dataRecordId, {
+                        // a selection spans the whole view: when records may not change
+                        // column, only drag along the ones already in the dragged column
+                        sameGroupOnly: !this.canMoveRecords,
+                    });
+                    if (this.multiDragRecordIds) {
+                        startMultiDrag(this.rootRef(), element, this.multiDragRecordIds, {
+                            recordSelector: ".o_kanban_record",
+                            placeholderTag: "div",
+                            placeholderClass:
+                                "d-flex align-items-center justify-content-center fw-bold flex-grow-1 text-center",
                         });
+                    } else {
+                        for (const record of this.props.list.selection) {
+                            record.toggleSelection(false);
+                        }
                     }
                     return this.sortStart(params);
                 },
                 onDragEnd: (params) => this.sortStop(params),
                 onGroupEnter: (params) => this.sortRecordGroupEnter(params),
                 onGroupLeave: (params) => this.sortRecordGroupLeave(params),
-                onDrop: (params) => this.sortRecordDrop(dataRecordId, dataGroupId, params),
+                onDrop: (params) => this.sortRecordDrop(dataRecordId, params),
             });
             useSortable({
                 enable: () => this.canResequenceGroups,
@@ -170,7 +191,7 @@ export class KanbanRenderer extends Component {
                 if (model.useSampleModel || !model.hasData()) {
                     return;
                 }
-                const firstCard = this.rootRef.el.querySelector(".o_kanban_record");
+                const firstCard = this.rootRef().querySelector(".o_kanban_record");
                 if (firstCard) {
                     // Focus first kanban card
                     firstCard.focus();
@@ -181,14 +202,6 @@ export class KanbanRenderer extends Component {
         useHotkey(
             "Enter",
             ({ target }) => {
-                if (target.closest(".o_kanban_selection_active") !== null) {
-                    return;
-                }
-
-                if (!target.classList.contains("o_kanban_record")) {
-                    return;
-                }
-
                 if (this.props.archInfo.canOpenRecords) {
                     target.click();
                     return;
@@ -200,20 +213,34 @@ export class KanbanRenderer extends Component {
                     firstLink.click();
                 }
             },
-            { area: () => this.rootRef.el }
+            {
+                area: () => this.rootRef(),
+                isAvailable: (target) => {
+                    if (this.props.quickCreateState?.isOpen) {
+                        return false;
+                    }
+                    if (target.closest(".o_kanban_selection_active") !== null) {
+                        return false;
+                    }
+                    if (!target.classList.contains("o_kanban_record")) {
+                        return false;
+                    }
+                    return true;
+                },
+            }
         );
 
         useHotkey("space", ({ target }) => this.onSpaceKeyPress(target), {
-            area: () => this.rootRef.el,
-            isAvailable: () => !this.props.quickCreateState.groupId,
+            area: () => this.rootRef(),
+            isAvailable: () => !this.props.quickCreateState?.groupId,
         });
 
         useHotkey("shift+space", ({ target }) => this.onSpaceKeyPress(target, true), {
-            area: () => this.rootRef.el,
-            isAvailable: () => !this.props.quickCreateState.groupId,
+            area: () => this.rootRef(),
+            isAvailable: () => !this.props.quickCreateState?.groupId,
         });
 
-        const arrowsOptions = { area: () => this.rootRef.el, allowRepeat: true };
+        const arrowsOptions = { area: () => this.rootRef(), allowRepeat: true };
         if (this.env.searchModel) {
             useHotkey(
                 "ArrowUp",
@@ -236,19 +263,9 @@ export class KanbanRenderer extends Component {
         const handleAltKeyUp = () => {
             this.state.selectionAvailable = false;
         };
-        useEffect(
-            () => {
-                window.addEventListener("keydown", handleAltKeyDown);
-                window.addEventListener("keyup", handleAltKeyUp);
-                window.addEventListener("blur", handleAltKeyUp);
-                return () => {
-                    window.removeEventListener("keydown", handleAltKeyDown);
-                    window.removeEventListener("keyup", handleAltKeyUp);
-                    window.removeEventListener("blur", handleAltKeyUp);
-                };
-            },
-            () => []
-        );
+        useListener(window, "keydown", handleAltKeyDown);
+        useListener(window, "keyup", handleAltKeyUp);
+        useListener(window, "blur", handleAltKeyUp);
 
         // After a group is unfolded through onGroupClick, we want to scroll towards
         // the next group if it exists and is folded, and to the unfolded group
@@ -261,18 +278,21 @@ export class KanbanRenderer extends Component {
                 );
                 let groupIdToFocus = this.lastOpenedGroupId;
                 if (
+                    lastOpenedGroupIndex >= 0 &&
                     lastOpenedGroupIndex < groups.length - 1 &&
                     groups[lastOpenedGroupIndex + 1].group.isFolded
                 ) {
                     groupIdToFocus = groups[lastOpenedGroupIndex + 1].group.id;
                 }
-                const groupEl = this.rootRef.el.querySelector(
+                const groupEl = this.rootRef().querySelector(
                     `.o_kanban_group[data-id="${groupIdToFocus}"]`
                 );
-                const rect = groupEl.getBoundingClientRect();
-                // Don't scroll if the group to focus is completely inside of the viewport
-                if (rect.x + rect.width > window.innerWidth) {
-                    groupEl.scrollIntoView({ behavior: "smooth", inline: "end" });
+                if (groupEl) {
+                    const rect = groupEl.getBoundingClientRect();
+                    // Don't scroll if the group to focus is completely inside of the viewport
+                    if (rect.x + rect.width > window.innerWidth) {
+                        groupEl.scrollIntoView({ behavior: "smooth", inline: "end" });
+                    }
                 }
                 delete this.lastOpenedGroupId;
             }
@@ -284,7 +304,7 @@ export class KanbanRenderer extends Component {
     // ------------------------------------------------------------------------
 
     get canUseSortable() {
-        return !this.env.isSmall;
+        return !this.uiService.isSmall;
     }
 
     get canMoveRecords() {
@@ -326,10 +346,17 @@ export class KanbanRenderer extends Component {
     get canResequenceRecords() {
         const { isGrouped, orderBy } = this.props.list;
         const { handleField, recordsDraggable } = this.props.archInfo;
+        const indexToCheck = this.getResequenceOrderIndex();
         return Boolean(
             recordsDraggable &&
-                (isGrouped || (handleField && (!orderBy[0] || orderBy[0].name === handleField)))
+                (isGrouped ||
+                    (handleField &&
+                        (!orderBy[indexToCheck] || orderBy[indexToCheck].name === handleField)))
         );
+    }
+
+    getResequenceOrderIndex() {
+        return 0;
     }
 
     get canShowExamples() {
@@ -344,7 +371,7 @@ export class KanbanRenderer extends Component {
             return true;
         }
         if (isGrouped) {
-            if (this.props.quickCreateState.groupId) {
+            if (this.props.quickCreateState?.isOpen) {
                 return false;
             }
             if (this.canCreateGroup() && !this.state.columnQuickCreateIsFolded) {
@@ -393,7 +420,7 @@ export class KanbanRenderer extends Component {
         if (!group.count) {
             classes.push("o_kanban_no_records");
         }
-        if (!this.env.isSmall && group.isFolded) {
+        if (!this.uiService.isSmall && group.isFolded) {
             classes.push("o_column_folded", "flex-basis-0");
         }
         if (this.props.progressBarState && !group.isFolded) {
@@ -467,11 +494,6 @@ export class KanbanRenderer extends Component {
         } else {
             this.props.progressBarState?.updateCounts(group);
         }
-        this.props.quickCreateState.groupId = mode === "add" ? group.id : false;
-    }
-
-    cancelQuickCreate() {
-        this.props.quickCreateState.groupId = false;
     }
 
     async deleteGroup(group) {
@@ -528,7 +550,7 @@ export class KanbanRenderer extends Component {
     // ------------------------------------------------------------------------
 
     async onGroupClick(group, ev) {
-        if (!this.env.isSmall && group.isFolded) {
+        if (!this.uiService.isSmall && group.isFolded) {
             this.lastOpenedGroupId = group.id;
             await group.toggle();
             this.props.scrollTop();
@@ -580,7 +602,6 @@ export class KanbanRenderer extends Component {
 
     /**
      * @param {string} dataRecordId
-     * @param {string} dataGroupId
      * @param {Object} params
      * @param {HTMLElement} params.element
      * @param {HTMLElement} [params.group]
@@ -588,7 +609,7 @@ export class KanbanRenderer extends Component {
      * @param {HTMLElement} [params.parent]
      * @param {HTMLElement} [params.previous]
      */
-    async sortRecordDrop(dataRecordId, dataGroupId, { element, parent, previous }) {
+    async sortRecordDrop(dataRecordId, { element, parent, previous }) {
         if (
             !this.props.list.isGrouped ||
             parent.classList.contains("o_kanban_hover") ||
@@ -600,18 +621,23 @@ export class KanbanRenderer extends Component {
                 // in the model. In that case, we can't to anything else than abort.
                 return;
             }
-            this.toggleProcessing(dataRecordId, true);
+            const recordIds = this.multiDragRecordIds || [dataRecordId];
+            // every moved card is processing, not only the one under the pointer
+            const toggleProcessing = (isProcessing) =>
+                recordIds.forEach((id) => this.toggleProcessing(id, isProcessing));
+            toggleProcessing(true);
 
             parent?.classList.remove("o_kanban_hover");
-            while (previous && !previous.dataset.id) {
+            // skip cards with no id, and cards hidden as part of this same multi drag
+            while (previous && (!previous.dataset.id || recordIds.includes(previous.dataset.id))) {
                 previous = previous.previousElementSibling;
             }
             const refId = previous ? previous.dataset.id : null;
             const targetGroupId = parent?.dataset.id;
             try {
-                await this.props.list.moveRecord(dataRecordId, dataGroupId, refId, targetGroupId);
+                await this.props.list.moveRecords(recordIds, refId, targetGroupId);
             } finally {
-                this.toggleProcessing(dataRecordId, false);
+                toggleProcessing(false);
             }
         }
     }
@@ -647,6 +673,13 @@ export class KanbanRenderer extends Component {
      * @param {HTMLElement} [params.group]
      */
     sortStop({ element, group }) {
+        if (this.multiDragRecordIds) {
+            this.multiDragRecordIds = null;
+            // `onDrop` isn't awaited before `onDragEnd`, so this runs right after the
+            // synchronous part of `sortRecordDrop`: the cards are back in their new
+            // position in the model by then, and all reappear there at the next render
+            stopMultiDrag(this.rootRef());
+        }
         element.classList.remove("shadow");
         if (group) {
             group.classList.remove("o_kanban_hover");

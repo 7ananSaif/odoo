@@ -196,15 +196,30 @@ class TestResPartner(TransactionCase):
             },
         ])
 
+    def test_is_company_from_codice_fiscale(self):
+        """Test that the is_company field is correctly computed from the l10n_it_codice_fiscale"""
+        partner = self.env['res.partner'].create({
+            'name': 'test',
+            'country_id': self.italy.id,
+            'vat': 'IT14475210960',
+        })
+        for cf, expected in [
+            ('MRTMTT91D08F205J', False),
+            ('12345670546', True),
+            ('IT12345670546', True),
+            ('', False),
+        ]:
+            partner.l10n_it_codice_fiscale = cf
+            self.assertEqual(partner.is_company, expected, f"CF={cf!r}")
+
     def test_create_company(self):
         """Test that when creating a company from an individual, l10n_it values are propagated"""
         individual_partner = self.env['res.partner'].create({
-            'company_name': 'Mario Bros. Plumbing',
+            'parent_name': 'Mario Bros. Plumbing',
             'name': 'Mario',
             'l10n_it_codice_fiscale': '12345670546',
             'l10n_it_pa_index': '1231231',
         })
-        individual_partner.create_company()
         self.assertRecordValues(individual_partner.parent_id, [{
             'name': 'Mario Bros. Plumbing',
             'l10n_it_codice_fiscale': '12345670546',

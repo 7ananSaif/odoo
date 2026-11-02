@@ -7,6 +7,15 @@ from odoo.addons.mrp.tests.common import TestMrpCommon
 @tagged('post_install', '-at_install')
 class TestRepairTraceability(TestMrpCommon):
 
+    _test_user_groups = (
+        'product.group_product_manager',  # FIXME: use base.group_user
+        'stock.group_stock_manager',  # subject: repair orders, lots & traceability
+        'mrp.group_mrp_manager',  # subject: manufacturing/BoM linked to repairs
+        'mrp.group_mrp_routings',  # workorder/workcenter fields set via MO Form (groups="mrp.group_mrp_routings")
+    )
+
+    _test_user_name = 'Test Product Manager'
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -20,6 +29,7 @@ class TestRepairTraceability(TestMrpCommon):
         product_to_repair = self.env['product.product'].create({
             'name': 'product first serial to act repair',
             'tracking': 'serial',
+            'is_storable': True,
         })
         ptrepair_lot = self.env['stock.lot'].create({
             'name': 'A1',
@@ -28,11 +38,16 @@ class TestRepairTraceability(TestMrpCommon):
         product_to_remove = self.env['product.product'].create({
             'name': 'other first serial to remove with repair',
             'tracking': 'serial',
+            'is_storable': True,
         })
         ptremove_lot = self.env['stock.lot'].create({
             'name': 'B2',
             'product_id': product_to_remove.id,
         })
+        # Add stock for the component so move lines are created during reservation
+        self.env['stock.quant']._update_available_quantity(
+            product_to_remove, self.stock_location, 1, lot_id=ptremove_lot
+        )
         # Create a manufacturing order with product (with SN A1)
         mo_form = Form(self.env['mrp.production'])
         mo_form.product_id = product_to_repair
@@ -41,6 +56,7 @@ class TestRepairTraceability(TestMrpCommon):
             move.product_uom_qty = 1
         mo = mo_form.save()
         mo.action_confirm()
+        mo.action_assign()
         # Set serial to A1
         mo.lot_producing_ids = ptrepair_lot
         # Set component serial to B2
@@ -57,11 +73,18 @@ class TestRepairTraceability(TestMrpCommon):
             ro = ro_form.save()
         ro.action_validate()
         ro.move_ids[0].lot_ids = ptremove_lot # Remove product Serial B2 from the product.
-        ro.action_repair_start()
         ro.move_ids.picked = True
         ro.action_repair_end()
 
         # Create a manufacturing order with product (with SN A2)
+        ptremove_lot2 = self.env['stock.lot'].create({
+            'name': 'B3',
+            'product_id': product_to_remove.id,
+        })
+        # Add stock for the component so move lines are created during reservation
+        self.env['stock.quant']._update_available_quantity(
+            product_to_remove, self.stock_location, 1, lot_id=ptremove_lot2
+        )
         mo2_form = Form(self.env['mrp.production'])
         mo2_form.product_id = product_to_repair
         with mo2_form.move_raw_ids.new() as move:
@@ -125,7 +148,6 @@ class TestRepairTraceability(TestMrpCommon):
         ro = ro_form.save()
         ro.action_validate()
         ro.move_ids[0].lot_ids = sn_lot
-        ro.action_repair_start()
         ro.move_ids.picked = True
         ro.action_repair_end()
         mo = produce_one(finished, component)
@@ -143,7 +165,6 @@ class TestRepairTraceability(TestMrpCommon):
         ro = ro_form.save()
         ro.action_validate()
         ro.move_ids[0].lot_ids = sn_lot
-        ro.action_repair_start()
         ro.action_repair_end()
         self.assertEqual(ro.state, 'done')
         # Add the component into the product
@@ -156,7 +177,6 @@ class TestRepairTraceability(TestMrpCommon):
         ro = ro_form.save()
         ro.action_validate()
         ro.move_ids[0].lot_ids = sn_lot
-        ro.action_repair_start()
         ro.action_repair_end()
         self.assertEqual(ro.state, 'done')
         # Removing it a second time
@@ -169,7 +189,6 @@ class TestRepairTraceability(TestMrpCommon):
         ro = ro_form.save()
         ro.action_validate()
         ro.move_ids[0].lot_ids = sn_lot
-        ro.action_repair_start()
         ro.action_repair_end()
         self.assertEqual(ro.state, 'done')
         # check if the removed component can be used in a new MO
@@ -206,7 +225,6 @@ class TestRepairTraceability(TestMrpCommon):
         ro = ro_form.save()
         ro.action_validate()
         ro.move_ids[0].lot_ids = sn_lot
-        ro.action_repair_start()
         ro.action_repair_end()
 
         self.env['stock.quant']._update_available_quantity(component, self.stock_location, 1, lot_id=sn_lot)
@@ -293,13 +311,15 @@ class TestRepairTraceability(TestMrpCommon):
             ],
         })
         ro.action_validate()
-        ro.action_repair_start()
         ro.action_repair_end()
+        # Skip consumption warning
+        consumption_warning = self.env['repair.consumption.warning'].create({'repair_id': ro.id})
+        consumption_warning.action_confirm()
 
         sm = self.env['stock.move'].create({
             'product_id': component.id,
             'product_uom_qty': 1,
-            'product_uom': component.uom_id.id,
+            'uom_id': component.uom_id.id,
             'location_id': scrap_location_id,
             'location_dest_id': self.stock_location.id,
         })
@@ -335,6 +355,5 @@ class TestRepairTraceability(TestMrpCommon):
             'picking_type_id': self.warehouse_1.repair_type_id.id,
         })
         ro.action_validate()
-        ro.action_repair_start()
         ro.action_repair_end()
         self.assertEqual(ro.state, 'done')

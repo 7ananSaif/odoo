@@ -1,6 +1,6 @@
 import { expect, getFixture, test } from "@odoo/hoot";
 import { queryAllTexts, scroll } from "@odoo/hoot-dom";
-import { Deferred, animationFrame, mockDate } from "@odoo/hoot-mock";
+import { animationFrame, mockDate } from "@odoo/hoot-mock";
 import { getPickerCell } from "@web/../tests/core/datetime/datetime_test_helpers";
 import { SELECTORS } from "@web/../tests/core/domain_selector/domain_selector_helpers";
 import {
@@ -397,7 +397,7 @@ test("basic domain field: show the selection", async function () {
     // click on a record -> should not open the record
     // we don't actually check that it doesn't open the record because even
     // if it tries to, it will crash as we don't define an arch in this test
-    await contains(".modal .o_list_view .o_data_row .o_data_cell[data-tooltip='gold']").click();
+    await contains(".modal .o_list_view .o_data_row .o_data_cell:text('gold')").click();
 });
 
 test.tags("desktop");
@@ -589,8 +589,8 @@ test("domain field: does not wait for the count to render", async function () {
         },
     ];
 
-    const def = new Deferred();
-    onRpc("search_count", () => def);
+    const def = Promise.withResolvers();
+    onRpc("search_count", () => def.promise);
 
     await mountView({
         type: "form",
@@ -603,13 +603,13 @@ test("domain field: does not wait for the count to render", async function () {
             </form>`,
     });
 
-    expect(".o_field_domain_panel .fa-circle-o-notch.fa-spin").toHaveCount(1);
+    expect(".o_field_domain_panel [data-icon='autorenew'].oi-spin").toHaveCount(1);
     expect(".o_field_domain_panel .o_domain_show_selection_button").toHaveCount(0);
 
     def.resolve();
     await animationFrame();
 
-    expect(".o_field_domain_panel .fa-circle-o-notch .fa-spin").toHaveCount(0);
+    expect(".o_field_domain_panel [data-icon='autorenew'] .oi-spin").toHaveCount(0);
     expect(".o_field_domain_panel .o_domain_show_selection_button").toHaveCount(1);
     expect(".o_domain_show_selection_button").toHaveText("2 record(s)");
 });
@@ -934,9 +934,9 @@ test("invalid value in domain field with 'inDialog' options", async function () 
 test("edit domain button is available even while loading records count", async function () {
     Partner._fields.name.default = "[]";
     serverState.debug = "1";
-    const searchCountDeffered = new Deferred();
+    const searchCountDeffered = Promise.withResolvers();
     onRpc("/web/domain/validate", () => true);
-    onRpc("search_count", () => searchCountDeffered);
+    onRpc("search_count", () => searchCountDeffered.promise);
     await mountView({
         type: "form",
         resModel: "partner",
@@ -993,7 +993,7 @@ test("debug input corrections don't need a focus out to be saved", async functio
     await contains(".o_form_button_save").click();
     expect(".o_field_domain").toHaveClass("o_field_invalid");
     await contains(SELECTORS.debugArea).edit("[('id', '=', 1)]", { confirm: false });
-    expect(".o_form_status_indicator span i.fa-warning").toHaveCount(0);
+    expect(".o_form_status_indicator span i[data-icon='warning']").toHaveCount(0);
     expect(".o_form_button_save[disabled]").toHaveCount(0);
     expect(".o_form_button_save").toHaveCount(1);
 });
@@ -1022,7 +1022,7 @@ test("quick check on save if domain has been edited via the debug input", async 
     await contains(SELECTORS.debugArea).edit("[['id', '!=', False]]");
     await contains("button.o_form_button_save").click();
     await animationFrame();
-    expect.verifySteps(["validate model", "validate model"]);
+    expect.verifySteps(["validate model"]);
     expect(".o_domain_show_selection_button").toHaveText("4 record(s)");
 });
 test("domain field can be foldable", async function () {
@@ -1141,7 +1141,7 @@ test("foldable domain field unfolds and hides caret when domain is invalid", asy
             </form>`,
     });
     expect(".o_field_domain span").toHaveText("Invalid domain");
-    expect(".fa-caret-down").toHaveCount(0);
+    expect("[data-icon='arrow_drop_down']").toHaveCount(0);
     expect(".o_domain_selector_row").toHaveText("This domain is not supported.\nReset domain");
     await contains(".o_domain_selector_row button").click();
     expect(".o_field_domain span:first").toHaveText("Match all records");
@@ -1168,9 +1168,9 @@ test("folded domain field with any operator", async function () {
 
 test("foldable domain, search_count delayed", async function () {
     Partner._records[0].foo = '[("id", "=", 1)]';
-    const def = new Deferred();
+    const def = Promise.withResolvers();
     onRpc("search_count", async () => {
-        await def;
+        await def.promise;
     });
 
     await mountView({
@@ -1236,7 +1236,7 @@ test("allow_expressions = true", async function () {
         context: { path: "name", name: "name" },
     });
 
-    await contains(SELECTORS.debugArea).edit(`[("name", "=", [name])]`);
+    await contains(SELECTORS.debugArea).edit(`[("name", "=", name)]`);
     await animationFrame();
     expect(".o_field_domain").not.toHaveClass("o_field_invalid");
     expect.verifySteps(["The domain involves non-literals. Their evaluation might fail."]);
@@ -1270,7 +1270,7 @@ test("allow_expressions = false (default)", async function () {
         context: { path: "name", name: "name" },
     });
 
-    await contains(SELECTORS.debugArea).edit(`[("name", "=", [name])]`);
+    await contains(SELECTORS.debugArea).edit(`[("name", "=", name)]`);
     await animationFrame();
     expect(".o_field_domain").toHaveClass("o_field_invalid");
     expect.verifySteps(["The domain should not involve non-literals"]);

@@ -9,21 +9,34 @@
 # Jarmo Kortetjärvi <jarmo.kortetjarvi@gmail.com>, 2022
 # Ossi Mantylahti <ossi.mantylahti@obs-solutions.fi>, 2023
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+# Saara Hakanen <sahak@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0beta\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-09-16 15:26+0000\n"
-"Last-Translator: \"Tiffany Chang (tic)\" <tic@odoo.com>\n"
-"Language-Team: Finnish <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-11 17:43+0000\n"
+"PO-Revision-Date: 2026-09-09 13:57+0000\n"
+"Last-Translator: Saara Hakanen <sahak@odoo.com>\n"
+"Language-Team: Finnish <https://translate.odoo.com/projects/odoo-master/"
 "partner_autocomplete/fi/>\n"
 "Language: fi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: partner_autocomplete
+#: model:ir.module.module,description:base.module_partner_autocomplete
+msgid ""
+"\n"
+"Auto-complete partner companies' data\n"
+msgstr ""
+
+#. module: partner_autocomplete
+#: model:ir.module.module,summary:base.module_partner_autocomplete
+msgid "Auto-complete partner companies' data"
+msgstr ""
 
 #. module: partner_autocomplete
 #: model:iap.service,description:partner_autocomplete.iap_service_partner_autocomplete
@@ -33,13 +46,13 @@ msgstr "Rikasta yhteystietokantaasi automaattisesti lisäämällä yritystiedot.
 #. module: partner_autocomplete
 #. odoo-javascript
 #: code:addons/partner_autocomplete/static/src/xml/partner_autocomplete.xml:0
-msgid "Buy more credits"
-msgstr "Osta lisää krediittejä"
+msgid "Buy"
+msgstr "Osta"
 
 #. module: partner_autocomplete
 #: model:ir.model,name:partner_autocomplete.model_res_company
-msgid "Companies"
-msgstr "Yritykset"
+msgid "Company"
+msgstr "Yritys"
 
 #. module: partner_autocomplete
 #: model:ir.model,name:partner_autocomplete.model_res_config_settings
@@ -66,9 +79,20 @@ msgid "Display Name"
 msgstr "Näyttönimi"
 
 #. module: partner_autocomplete
+#: model:ir.actions.server,name:partner_autocomplete.model_res_partner_enrich
+msgid "Enrich"
+msgstr ""
+
+#. module: partner_autocomplete
 #: model:ir.model.fields,field_description:partner_autocomplete.field_res_company__iap_enrich_auto_done
 msgid "Enrich Done"
 msgstr "Rikastus valmis"
+
+#. module: partner_autocomplete
+#. odoo-python
+#: code:addons/partner_autocomplete/models/res_partner.py:0
+msgid "Enrich notification"
+msgstr ""
 
 #. module: partner_autocomplete
 #: model:iap.service,unit_name:partner_autocomplete.iap_service_partner_autocomplete
@@ -107,6 +131,13 @@ msgstr "Ei riittävästi krediittejä"
 
 #. module: partner_autocomplete
 #. odoo-python
+#: code:addons/partner_autocomplete/models/res_partner.py:0
+msgid ""
+"It seems that we didn't found some information for the following partners: %s"
+msgstr ""
+
+#. module: partner_autocomplete
+#. odoo-python
 #: code:addons/partner_autocomplete/models/iap_autocomplete_api.py:0
 msgid "No account token"
 msgstr "Ei tilin tunnistetta"
@@ -118,6 +149,12 @@ msgid "Not enough credits for Partner Autocomplete"
 msgstr "Ei tarpeeksi krediittejä kumppanin automaattista täydennystä varten"
 
 #. module: partner_autocomplete
+#: model:iap.service,name:partner_autocomplete.iap_service_partner_autocomplete
+#: model:ir.module.module,shortdesc:base.module_partner_autocomplete
+msgid "Partner Autocomplete"
+msgstr ""
+
+#. module: partner_autocomplete
 #. odoo-javascript
 #: code:addons/partner_autocomplete/static/src/xml/partner_autocomplete.xml:0
 msgid "Search Worldwide 🌎"
@@ -125,6 +162,7 @@ msgstr "Etsi maailmanlaajuisesti 🌎"
 
 #. module: partner_autocomplete
 #. odoo-javascript
+#: code:addons/partner_autocomplete/static/src/js/partner_autocomplete_additional_identifiers_list.js:0
 #: code:addons/partner_autocomplete/static/src/js/partner_autocomplete_fieldchar.js:0
 #: code:addons/partner_autocomplete/static/src/js/partner_autocomplete_many2one.js:0
 msgid "Searching Autocomplete..."
@@ -134,7 +172,13 @@ msgstr "Etsitään automaattista täydennystä..."
 #. odoo-javascript
 #: code:addons/partner_autocomplete/static/src/xml/partner_autocomplete.xml:0
 msgid "Set Your Account Token"
-msgstr "Aseta tilisi tunniste"
+msgstr "Määritä tilisi tunniste"
+
+#. module: partner_autocomplete
+#. odoo-python
+#: code:addons/partner_autocomplete/models/res_partner.py:0
+msgid "Some errors occurred during the enrich: %s"
+msgstr ""
 
 #. module: partner_autocomplete
 #. odoo-python
@@ -147,41 +191,3 @@ msgstr "Testitila"
 #: code:addons/partner_autocomplete/models/res_partner.py:0
 msgid "Unable to enrich company (no credit was consumed)."
 msgstr "Yritystietoja ei voitu rikastaa (luottoa ei kulutettu)."
-
-#~ msgid "Additional info"
-#~ msgstr "Lisätietoja"
-
-#~ msgid "Company auto-completed by Odoo Partner Autocomplete Service"
-#~ msgstr ""
-#~ "Odoo Partner Autocomplete Service -palvelun automaattisesti täydentämä "
-#~ "yritys"
-
-#~ msgid "Company database ID"
-#~ msgstr "Yrityksen tietokannan ID"
-
-#~ msgid "Created by"
-#~ msgstr "Luonut"
-
-#~ msgid "Created on"
-#~ msgstr "Luotu"
-
-#~ msgid "Is synched"
-#~ msgstr "On synkronoitu"
-
-#~ msgid "Last Updated by"
-#~ msgstr "Viimeksi päivittänyt"
-
-#~ msgid "Last Updated on"
-#~ msgstr "Viimeksi päivitetty"
-
-#~ msgid "Partner"
-#~ msgstr "Kumppani"
-
-#~ msgid "Partner Autocomplete Sync"
-#~ msgstr "Partnerin automaattisen täydennyksen synkronointi"
-
-#~ msgid "Partner created by Odoo Partner Autocomplete Service"
-#~ msgstr "Odoo Partner Autocomplete Service -palvelun luoma partneri"
-
-#~ msgid "Placeholder"
-#~ msgstr "Paikanpitäjä"

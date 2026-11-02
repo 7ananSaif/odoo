@@ -102,6 +102,7 @@
             <field name="priority">32</field>
             <field name="arch" type="xml">
                 <search string="Opportunities Analysis">
+                    <field name="name" string="Opportunity"/>
                     <filter string="My Pipeline" name="my"
                             domain="[('user_id', '=', uid)]"/>
                     <separator/>
@@ -115,7 +116,7 @@
                     <filter string="Won" name="filter_won_status_won"
                             domain="[('won_status', '=', 'won')]"/>
                     <filter string="Lost" name="filter_won_status_lost"
-                            domain="[('won_status', '=', 'lost')]"/>
+                            domain="[('active', '=', False), ('won_status', '=', 'lost')]"/>
                     <field name="team_id" context="{'invisible_team': False}"/>
                     <field name="user_id" string="Salesperson"/>
                     <separator/>
@@ -181,7 +182,12 @@
             <field name="res_model">crm.lead</field>
             <field name="view_mode">graph,pivot,list,form</field>
             <field name="search_view_id" ref="crm.crm_opportunity_report_view_search"/>
-            <field name="context">{'search_default_filter_opportunity': True, 'search_default_current': True}</field>
+            <field name="context">{
+                'search_default_filter_opportunity': True,
+                'search_default_current': True,
+                'show_lead_gen_button': True,
+                'show_team_switcher': True,
+            }</field>
             <field name="view_ids"
                    eval="[(5, 0, 0),
                           (0, 0, {'view_mode': 'graph', 'view_id': ref('crm_opportunity_report_view_graph')}),

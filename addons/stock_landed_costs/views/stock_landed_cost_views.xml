@@ -8,12 +8,19 @@
             <field name="arch" type="xml">
                 <form string="Landed Costs">
                     <field name="company_id" invisible="1"/>
+                    <field name="allowed_product_ids" invisible="1"/>
                     <header>
                         <button name="button_validate" string="Validate" invisible="state != 'draft'" class="oe_highlight" type="object"/>
                         <button name="button_cancel" string="Cancel" invisible="state != 'draft'" type="object"/>
                         <field name="state" widget="statusbar" statusbar_visible="draft,done"/>
                     </header>
                     <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button class="oe_stat_button" name="action_view_pickings" icon="local_shipping"
+                                type="object" invisible="pickings_count == 0">
+                                <field name="pickings_count" string="Transfers" widget="statinfo"/>
+                            </button>
+                        </div>
                         <div class="oe_title">
                             <label for="name" string="Landed Cost"/>
                             <h1>
@@ -62,6 +69,11 @@
                                             context="{'default_landed_cost_ok': True, 'default_type': 'service'}"/>
                                         <field name="name"/>
                                         <field name="account_id" options="{'no_create': True}"/>
+                                        <field name="apply_on_product_ids"
+                                            options="{'no_create': True}"
+                                            widget="many2many_tags"
+                                            domain="[('id', 'in', parent.allowed_product_ids)]"
+                                            placeholder="All Products"/>
                                         <field name="split_method"/>
                                         <field name="price_unit"/>
                                         <field name="currency_id" column_invisible="True"/>
@@ -69,7 +81,7 @@
                                 </field>
                                 <group class="oe_subtotal_footer">
                                     <field name="currency_id" invisible="1"/>
-                                    <field name="amount_total"/>
+                                    <field name="amount_total" class="mb-3 mb-md-0"/>
                                     <button colspan="2" name="compute_landed_cost" string="Compute" type="object" class="float-end btn-secondary" invisible="state != 'draft'"/>
                                 </group>
                             </page>
@@ -153,7 +165,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-6">
-                                    <i class="fa fa-clock-o" title="Date" role="img" aria-label="Date"/><field name="date"/>
+                                    <i class="oi" data-icon="schedule" title="Date" role="img" aria-label="Date"/><field name="date"/>
                                 </div>
                                 <field name="account_journal_id" class="col-6 text-end" readonly="state == 'done'"/>
                             </div>

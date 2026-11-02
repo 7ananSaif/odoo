@@ -23,9 +23,20 @@
             Note that the field 'category_id' is set later in
             base/data/ir_module_category_data.xml
         -->
+        <record model="res.groups" id="group_user">
+            <field name="name">Role / User</field>
+            <field name="comment">Access to the home menu with limited access</field>
+        </record>
+
+        <record model="res.groups" id="group_user_regular">
+            <field name="name">Is regular user</field>
+            <field name="comment">Base group for regular privilege tier (higher than light user)</field>
+            <field name="api_key_duration">90.0</field>
+        </record>
+
         <record model="res.groups" id="group_erp_manager">
             <field name="name">Access Rights</field>
-            <field name="implied_ids" eval="[Command.link(ref('group_user'))]"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
         </record>
 
         <record model="res.groups" id="group_sanitize_override">
@@ -37,12 +48,6 @@
             <field name="comment">Access to the settings to configure the apps</field>
             <field name="implied_ids" eval="[Command.link(ref('group_erp_manager')), Command.link(ref('group_sanitize_override'))]"/>
             <field name="user_ids" eval="[Command.link(ref('base.user_root')), Command.link(ref('base.user_admin'))]"/>
-        </record>
-
-        <record model="res.groups" id="group_user">
-            <field name="name">Role / User</field>
-            <field name="comment">Access to the home menu</field>
-            <field name="api_key_duration">90.0</field>
         </record>
 
         <record model="res.groups" id="group_multi_company">
@@ -68,26 +73,26 @@
         <record model="res.groups" id="group_partner_manager">
             <field name="name">Creation</field>
             <field name="user_ids" eval="[Command.link(ref('base.user_root'))]"/>
-            <field name="implied_by_ids" eval="[Command.link(ref('base.group_system'))]"/>
+            <field name="implied_ids" eval="[(4, ref('group_user'))]"/>
+            <field name="implied_by_ids" eval="[Command.link(ref('base.group_erp_manager'))]"/>
             <field name="privilege_id" ref="res_groups_privilege_contact"/>
         </record>
-        <!--
-            A group dedicated to the portal users, making groups
-            restrictions more convenient.
-        -->
+
         <record model="res.groups" id="group_portal">
             <field name="name">Role / Portal</field>
             <field name="comment">Portal members have specific access rights (such as record rules and restricted menus).
                 They usually do not belong to the usual Odoo groups.</field>
         </record>
-        <!--
-            A group dedicated to the public user only, making groups
-            restrictions more convenient.
-        -->
         <record model="res.groups" id="group_public">
             <field name="name">Role / Public</field>
             <field name="comment">Public users have specific access rights (such as record rules and restricted menus).
-                They usually do not belong to the usual Odoo groups.</field>
+                They usually do not belong to the usual Odoo groups.
+                This makes group restrictions more convenient.</field>
+        </record>
+        <record model="res.groups" id="group_everyone">
+            <field name="name">Role / Everyone</field>
+            <field name="implied_by_ids" eval="[Command.link(ref('base.group_portal')), Command.link(ref('base.group_public')), Command.link(ref('base.group_user'))]"/>
+            <field name="comment">Includes all users. This makes group restrictions more convenient.</field>
         </record>
 
         <record id="public_user" model="res.users">

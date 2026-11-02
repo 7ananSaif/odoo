@@ -4,22 +4,53 @@
 #
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
-# "Chloe Wang (chwa)" <chwa@odoo.com>, 2025.
+# "Chloe Wang (chwa)" <chwa@odoo.com>, 2025, 2026.
+# 张飞虎 <feihu.zhang@live.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~18.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-12-03 14:27+0000\n"
-"Last-Translator: \"Chloe Wang (chwa)\" <chwa@odoo.com>\n"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-10-11 13:33+0000\n"
+"Last-Translator: 张飞虎 <feihu.zhang@live.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://translate.odoo.com/"
-"projects/odoo-19/auth_totp/zh_Hans/>\n"
+"projects/odoo-20/auth_totp/zh_Hans/>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: auth_totp
+#: model:ir.module.module,description:base.module_auth_totp
+msgid ""
+"\n"
+"Two-Factor Authentication (TOTP)\n"
+"================================\n"
+"Allows users to configure two-factor authentication on their user account\n"
+"for extra security, using time-based one-time passwords (TOTP).\n"
+"\n"
+"Once enabled, the user will need to enter a 6-digit code as provided\n"
+"by their authenticator app before being granted access to the system.\n"
+"All popular authenticator apps are supported.\n"
+"\n"
+"Note: logically, two-factor prevents password-based RPC access for users\n"
+"where it is enabled. In order to be able to execute RPC scripts, the user\n"
+"can setup API keys to replace their main password.\n"
+msgstr ""
+"\n"
+"双因素身份验证（TOTP）\n"
+"================================\n"
+"允许用户为增强安全性，在其用户账户上配置双因素身份验证，\n"
+"使用基于时间的一次性密码（TOTP）。\n"
+"\n"
+"启用后，用户需要先输入身份验证器应用提供的 6 位验证码，\n"
+"才能获准访问系统。\n"
+"支持所有主流的身份验证器应用。\n"
+"\n"
+"注意：从逻辑上讲，启用双因素验证后会阻止用户通过密码进行 RPC 访问。\n"
+"如需执行 RPC 脚本，用户可以设置 API 密钥来替代其主密码。\n"
 
 #. module: auth_totp
 #. odoo-python
@@ -39,30 +70,30 @@ msgid "2-Factor authentication is now enabled."
 msgstr "双重身份认证现已启用。"
 
 #. module: auth_totp
-#: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_field
 #: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_form
 msgid ""
-"<i class=\"fa fa-check text-success\"/>\n"
-"                        <span class=\"fw-bold ms-1 me-2\">\n"
-"                            Enabled\n"
-"                        </span>"
-msgstr ""
-"<i class=\"fa fa-check text-success\"/>\n"
-"                        <span class=\"fw-bold ms-1 me-2\">\n"
-"                            启用\n"
-"                        </span>"
-
-#. module: auth_totp
-#: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_form
-msgid ""
-"<i class=\"fa fa-remove text-danger\"/>\n"
+"<i class=\"oi text-danger\" data-icon=\"close\"/>\n"
 "                        <span class=\"fw-bold ms-1\">\n"
 "                            Disabled\n"
 "                        </span>"
 msgstr ""
-"<i class=\"fa fa-remove text-danger\"/>\n"
+"<i class=\"oi text-danger\" data-icon=\"close\"/>\n"
 "                        <span class=\"fw-bold ms-1\">\n"
 "                            禁用\n"
+"                        </span>"
+
+#. module: auth_totp
+#: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_field
+#: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_form
+msgid ""
+"<i class=\"oi text-success\" data-icon=\"check\"/>\n"
+"                        <span class=\"fw-bold ms-1 me-2\">\n"
+"                            Enabled\n"
+"                        </span>"
+msgstr ""
+"<i class=\"oi text-success\" data-icon=\"check\"/>\n"
+"                        <span class=\"fw-bold ms-1 me-2\">\n"
+"                            启用\n"
 "                        </span>"
 
 #. module: auth_totp
@@ -83,14 +114,15 @@ msgid "Add this key in your Authenticator app"
 msgstr "在您的验证器应用程序中添加此密钥"
 
 #. module: auth_totp
-#: model_terms:ir.ui.view,arch_db:auth_totp.auth_totp_form
-msgid "Authentication Code"
-msgstr "认证码"
-
-#. module: auth_totp
 #: model:ir.model,name:auth_totp.model_auth_totp_device
 msgid "Authentication Device"
 msgstr "认证设备"
+
+#. module: auth_totp
+#. odoo-javascript
+#: code:addons/auth_totp/static/src/services/check_identity/check_identity.xml:0
+msgid "Authentication code"
+msgstr "验证码"
 
 #. module: auth_totp
 #: model_terms:ir.ui.view,arch_db:auth_totp.auth_totp_form
@@ -101,6 +133,15 @@ msgstr "取消"
 #: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_wizard
 msgid "Cannot scan it?"
 msgstr "无法扫描？"
+
+#. module: auth_totp
+#: model_terms:ir.ui.view,arch_db:auth_totp.auth_totp_form
+msgid ""
+"Check your Authenticator app for your code.\n"
+"                        <br/>"
+msgstr ""
+"请在您的身份验证器应用中查看验证码。\n"
+"                        <br/>"
 
 #. module: auth_totp
 #: model:ir.model.fields.selection,name:auth_totp.selection__auth_totp_rate_limit_log__limit_type__code_check
@@ -141,14 +182,10 @@ msgid "Disable two-factor authentication"
 msgstr "禁用双因素认证"
 
 #. module: auth_totp
-#: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_wizard
-msgid "Discard"
-msgstr "丢弃"
-
-#. module: auth_totp
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_device__display_name
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_rate_limit_log__display_name
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_wizard__display_name
+#: model:ir.model.fields,field_description:auth_totp.field_ir_http__display_name
 #: model:ir.model.fields,field_description:auth_totp.field_res_users__display_name
 msgid "Display Name"
 msgstr "显示名称"
@@ -170,14 +207,30 @@ msgid "Enable Two-Factor Authentication"
 msgstr "启用双因素身份验证"
 
 #. module: auth_totp
+#: model_terms:ir.ui.view,arch_db:auth_totp.auth_totp_form
+msgid "Enter code"
+msgstr "输入验证码"
+
+#. module: auth_totp
+#: model_terms:ir.ui.view,arch_db:auth_totp.auth_totp_form
+msgid "Enter verification code"
+msgstr "输入验证码"
+
+#. module: auth_totp
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_device__expiration_date
 msgid "Expiration Date"
 msgstr "有效期"
 
 #. module: auth_totp
+#: model:ir.model,name:auth_totp.model_ir_http
+msgid "HTTP Routing"
+msgstr "HTTP 路由"
+
+#. module: auth_totp
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_device__id
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_rate_limit_log__id
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_wizard__id
+#: model:ir.model.fields,field_description:auth_totp.field_ir_http__id
 #: model:ir.model.fields,field_description:auth_totp.field_res_users__id
 msgid "ID"
 msgstr "ID"
@@ -206,11 +259,6 @@ msgid "Last Updated on"
 msgstr "上次更新日期"
 
 #. module: auth_totp
-#: model_terms:ir.ui.view,arch_db:auth_totp.auth_totp_form
-msgid "Learn More"
-msgstr "了解更多"
-
-#. module: auth_totp
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_rate_limit_log__limit_type
 msgid "Limit Type"
 msgstr "限制类型"
@@ -219,6 +267,14 @@ msgstr "限制类型"
 #: model_terms:ir.ui.view,arch_db:auth_totp.auth_totp_form
 msgid "Log in"
 msgstr "登录"
+
+#. module: auth_totp
+#. odoo-javascript
+#: code:addons/auth_totp/static/src/services/check_identity/check_identity.xml:0
+msgid ""
+"Open your two-factor authenticator (TOTP) app or browser extension to view "
+"your authentication code."
+msgstr "打开您的双重验证器（TOTP）应用或浏览器扩展程序以查看验证码。"
 
 #. module: auth_totp
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_wizard__qrcode
@@ -257,16 +313,6 @@ msgid "The verification code should only contain numbers"
 msgstr "验证码应只包含数字"
 
 #. module: auth_totp
-#: model_terms:ir.ui.view,arch_db:auth_totp.auth_totp_form
-msgid ""
-"To login, enter below the six-digit authentication code provided by your "
-"Authenticator app.\n"
-"                        <br/>"
-msgstr ""
-"如需登录，请在下方输入由 Authenticator 应用程序提供的六位数验证码。\n"
-"                       <br/>"
-
-#. module: auth_totp
 #: model:ir.model.fields,field_description:auth_totp.field_res_users__totp_last_counter
 msgid "Totp Last Counter"
 msgstr "TOTP 最后计数器"
@@ -282,13 +328,17 @@ msgid "Trusted Devices"
 msgstr "受信任的设备"
 
 #. module: auth_totp
+#: model:ir.module.module,shortdesc:base.module_auth_totp
+msgid "Two-Factor Authentication (TOTP)"
+msgstr "双因素身份验证（TOTP）"
+
+#. module: auth_totp
 #. odoo-python
 #: code:addons/auth_totp/models/res_users.py:0
 msgid "Two-Factor Authentication Activation"
 msgstr "双因子认证激活"
 
 #. module: auth_totp
-#: model_terms:ir.ui.view,arch_db:auth_totp.auth_totp_form
 #: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_field
 #: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_form
 msgid "Two-factor Authentication"
@@ -333,6 +383,12 @@ msgid "Url"
 msgstr "Url"
 
 #. module: auth_totp
+#. odoo-javascript
+#: code:addons/auth_totp/static/src/services/check_identity/check_identity.xml:0
+msgid "Use your authenticator app"
+msgstr "使用您的身份验证器应用"
+
+#. module: auth_totp
 #: model:ir.model,name:auth_totp.model_res_users
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_device__user_id
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_rate_limit_log__user_id
@@ -364,9 +420,21 @@ msgid "Verification failed, please use the latest 6-digit code"
 msgstr "验证失败，请使用最新的 6 位代码"
 
 #. module: auth_totp
+#. odoo-javascript
+#: code:addons/auth_totp/static/src/services/check_identity/check_identity.xml:0
+msgid "Verify"
+msgstr "验证"
+
+#. module: auth_totp
 #: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_wizard
 msgid "Write the code given by your app"
 msgstr "编写应用程序给出的代码"
+
+#. module: auth_totp
+#. odoo-javascript
+#: code:addons/auth_totp/static/src/services/check_identity/check_identity.xml:0
+msgid "XXXXXX"
+msgstr "XXXXXX"
 
 #. module: auth_totp
 #. odoo-python
@@ -384,105 +452,19 @@ msgid ""
 "again later."
 msgstr "您已达到账户验证码请求限制，请稍后再试。"
 
-#. module: auth_totp
-#: model_terms:ir.ui.view,arch_db:auth_totp.auth_totp_form
-msgid "e.g. 123456"
-msgstr "例如：123456"
+#~ msgid "Authentication Code"
+#~ msgstr "认证码"
+
+#~ msgid "Learn More"
+#~ msgstr "了解更多"
 
 #~ msgid ""
-#~ "<span class=\"d-md-none d-block\">Or install an authenticator app</span>\n"
-#~ "                                        <span class=\"d-none d-md-"
-#~ "block\">Install an authenticator app on your mobile device</span>"
+#~ "To login, enter below the six-digit authentication code provided by your "
+#~ "Authenticator app.\n"
+#~ "                        <br/>"
 #~ msgstr ""
-#~ "<span class=\"d-md-none d-block\">或者安装一个认证器应用程序</span>\n"
-#~ "                                        <span class=\"d-none d-md-block\">"
-#~ "在您的移动设备上安装一个认证器应用程序</span>"
+#~ "如需登录，请在下方输入由 Authenticator 应用程序提供的六位数验证码。\n"
+#~ "                       <br/>"
 
-#~ msgid ""
-#~ "<span class=\"d-none d-md-block\">When requested to do so, scan the "
-#~ "barcode below</span>\n"
-#~ "                                    <span class=\"d-block d-md-"
-#~ "none\">When requested to do so, copy the key below</span>"
-#~ msgstr ""
-#~ "<span class=\"d-none d-md-block\">当被要求这样做时，请扫描下面的条形码。</"
-#~ "span>\n"
-#~ "                                    <span class=\"d-block d-md-none\">当被"
-#~ "要求这样做的时候，请复制下面的钥匙</span>"
-
-#~ msgid ""
-#~ "<span class=\"text-muted\">Popular ones include Authy, Google "
-#~ "Authenticator or the Microsoft Authenticator.</span>"
-#~ msgstr ""
-#~ "<span class=\"text-muted\">常用的包括 Authy、Google Authenticator 或 "
-#~ "Microsoft Authenticator。</span>"
-
-#~ msgid ""
-#~ "<span invisible=\"not totp_enabled\" class=\"text-muted\">This account is "
-#~ "protected!</span>"
-#~ msgstr ""
-#~ "<span invisible=\"not totp_enabled\" class=\"text-muted\">此账户受保护！</"
-#~ "span>"
-
-#~ msgid ""
-#~ "<span invisible=\"not totp_enabled\" class=\"text-muted\">Your account is "
-#~ "protected!</span>"
-#~ msgstr ""
-#~ "<span invisible=\"not totp_enabled\" class=\"text-muted\">您的账户受到保"
-#~ "护！</span>"
-
-#~ msgid "Added On"
-#~ msgstr "已添加"
-
-#~ msgid ""
-#~ "Are you sure? The user may be asked to enter two-factor codes again on "
-#~ "those devices"
-#~ msgstr "您确定吗？用户可能会被要求在这些设备上再次输入双因素代码"
-
-#~ msgid ""
-#~ "Are you sure? You may be asked to enter two-factor codes again on those "
-#~ "devices"
-#~ msgstr "您确定吗？您可能会被要求在这些设备上再次输入双因素代码"
-
-#~ msgid "Authenticator App Setup"
-#~ msgstr "认证器应用程序的设置"
-
-#~ msgid "Click on this link to open your authenticator app"
-#~ msgstr "点击此链接，打开您的认证器应用程序"
-
-#~ msgid "Device"
-#~ msgstr "设备"
-
-#~ msgid "Disable 2FA"
-#~ msgstr "禁用2FA"
-
-#~ msgid "Enter your six-digit code below"
-#~ msgstr "在下面输入您的六位数代码"
-
-#~ msgid "Look for an \"Add an account\" button"
-#~ msgstr "寻找一个 \"添加账户 \"的按钮"
-
-#~ msgid "On Apple Store"
-#~ msgstr "在苹果应用商店"
-
-#~ msgid "On Google Play"
-#~ msgstr "在谷歌应用市场"
-
-#~ msgid "Revoke"
-#~ msgstr "撤销"
-
-#~ msgid "Revoke All"
-#~ msgstr "全部撤销"
-
-#~ msgid ""
-#~ "Two-factor Authentication (\"2FA\") is a system of double "
-#~ "authentication.\n"
-#~ "                        The first one is done with your password and the "
-#~ "second one with a code you get from a dedicated mobile app.\n"
-#~ "                        Popular ones include Authy, Google Authenticator "
-#~ "or the Microsoft Authenticator."
-#~ msgstr ""
-#~ "双因素认证（“2FA”）是一种双重认证系统\n"
-#~ "                        第一个是您的密码，第二个是您从一个专门的移动应用程"
-#~ "序获得的代码。\n"
-#~ "                        常用的包括 Authy、Google Authenticator 或 "
-#~ "Microsoft Authenticator。"
+#~ msgid "e.g. 123456"
+#~ msgstr "例如：123456"

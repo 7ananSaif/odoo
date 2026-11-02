@@ -4,7 +4,7 @@ from urllib.parse import urlencode
 
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
-from odoo.tools.sql import create_column, column_exists
+from odoo.tools import BinaryBytes
 
 
 class PosOrder(models.Model):
@@ -12,7 +12,7 @@ class PosOrder(models.Model):
 
     l10n_jo_edi_pos_return_reason = fields.Char(string="Return Reason", help="Return Reason reported to JoFotara")
     l10n_jo_edi_pos_enabled = fields.Boolean(related='company_id.l10n_jo_edi_pos_enabled')
-    l10n_jo_edi_pos_uuid = fields.Char(string="Order UUID", copy=False, compute='_compute_l10n_jo_edi_pos_uuid', store=True)
+    l10n_jo_edi_pos_uuid = fields.Char(string="Order UUID", copy=False, compute='_compute_l10n_jo_edi_pos_uuid', store=True, init_storage=lambda model: None)
     l10n_jo_edi_pos_qr = fields.Char(string="QR", copy=False)
     l10n_jo_edi_pos_state = fields.Selection(
         selection=[('to_send', 'To Send'), ('sent', 'Sent'), ('demo', 'Sent (Demo)')],
@@ -35,11 +35,6 @@ class PosOrder(models.Model):
         string="Jordan E-Invoice XML",
         help="Jordan: e-invoice XML.",
     )
-
-    def _auto_init(self):
-        if not column_exists(self.env.cr, 'pos_order', 'l10n_jo_edi_pos_uuid'):
-            create_column(self.env.cr, 'pos_order', 'l10n_jo_edi_pos_uuid', 'char')
-        return super()._auto_init()
 
     @api.depends('country_code')
     def _compute_l10n_jo_edi_pos_uuid(self):
@@ -93,7 +88,8 @@ class PosOrder(models.Model):
     def _l10n_jo_edi_pos_get_xml_attachment_name(self):
         return f"{self.name.replace('/', '_')}_edi.xml"
 
-    def _l10n_jo_validate_fields(self):
+    def _l10n_jo_edi_get_field_errors(self):
+        self.ensure_one()
         error_msgs = []
         if self.refunded_order_id:
             if self.refunded_order_id.l10n_jo_edi_pos_state not in ['sent', 'demo']:
@@ -119,11 +115,15 @@ class PosOrder(models.Model):
             elif self.company_id.l10n_jo_edi_taxpayer_type == 'special' and len(line.tax_ids) != 2:
                 error_msgs.append(self.env._("One special and one general tax per order line are expected for taxpayers registered in the special tax"))
 
-        return "\n".join(error_msgs)
+        return error_msgs
+
+    def _l10n_jo_edi_get_validation_errors(self):
+        self.ensure_one()
+        return self.company_id._l10n_jo_edi_get_config_errors() + self._l10n_jo_edi_get_field_errors()
 
     def _l10n_jo_edi_send(self):
         for order in self:
-            if error_messages := order.company_id._l10n_jo_validate_config() or order._l10n_jo_validate_fields() or order._submit_to_jofotara():
+            if error_messages := "\n".join(order._l10n_jo_edi_get_validation_errors()) or order._submit_to_jofotara():
                 order.l10n_jo_edi_pos_state = 'to_send'
                 order.l10n_jo_edi_pos_error = error_messages
                 # avoid creating an invoice in case of JoFotara sync failure
@@ -165,15 +165,15 @@ class PosOrder(models.Model):
     @api.depends('country_code', 'l10n_jo_edi_pos_error')
     def _compute_l10n_jo_edi_pos_computed_xml(self):
         for order in self:
-            if order.country_code == 'JO' and not order.l10n_jo_edi_pos_error:
+            if order.country_code == 'JO' and order.l10n_jo_edi_pos_error:
                 xml_content = order.env['pos.edi.xml.ubl_21.jo']._export_pos_order(order)[0]
-                order.l10n_jo_edi_pos_computed_xml = base64.b64encode(xml_content)
+                order.l10n_jo_edi_pos_computed_xml = BinaryBytes(xml_content)
             else:
                 order.l10n_jo_edi_pos_computed_xml = False
 
     def download_l10n_jo_edi_pos_computed_xml(self):
-        if error_message := self.company_id._l10n_jo_validate_config() or self._l10n_jo_validate_fields():
-            raise ValidationError(self.env._("The following errors have to be fixed in order to create an XML:\n") + error_message)
+        if error_msgs := self._l10n_jo_edi_get_validation_errors():
+            raise ValidationError(self.env._("The following errors have to be fixed in order to create an XML:\n") + "\n".join(error_msgs))
         params = urlencode({
             'model': self._name,
             'id': self.id,
@@ -182,7 +182,7 @@ class PosOrder(models.Model):
             'mimetype': 'application/xml',
             'download': 'true',
         })
-        return {'type': 'ir.actions.act_url', 'url': '/web/content/?' + params, 'target': 'new'}
+        return {'type': 'ir.actions.act_url', 'url': f'/web/content/?{params}', 'target': 'self'}
 
     def _is_single_jo_order(self):
         return len(self) == 1 and self.country_code == 'JO'
@@ -202,9 +202,8 @@ class PosOrder(models.Model):
             'preferred_payment_method_line_id': self.env['account.payment.method.line'].search([], limit=1).id,
         }
 
-    def _create_invoice(self, move_vals):
-        # EXTENDS 'point_of_sale'
-        invoice = super()._create_invoice(move_vals)
+    def _generate_pos_order_invoice(self):
+        invoice = super()._generate_pos_order_invoice()
         self._link_xml_and_qr_to_invoice(invoice)
         return invoice
 
@@ -218,7 +217,7 @@ class PosOrder(models.Model):
                     "res_id": invoice.id,
                     "res_field": "l10n_jo_edi_xml_attachment_file",
                     "name": f'{self.name}_edi.xml',
-                    "datas": self.l10n_jo_edi_pos_xml_attachment_id.datas,
+                    "raw": self.l10n_jo_edi_pos_xml_attachment_id.raw,
                 }
             )
         if invoice and self.l10n_jo_edi_pos_qr:

@@ -23,64 +23,63 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { Component, onMounted, useExternalListener, useRef } from "@odoo/owl";
-import { useHotkey } from "@web/core/hotkeys/hotkey_hook";
 import { usePositionHook } from "@html_editor/position_hook";
+import { removeStyle } from "@html_editor/utils/dom";
 import { closestElement } from "@html_editor/utils/dom_traversal";
+import { Component, onMounted, useProps, signal, t, useListener } from "@odoo/owl";
+import { useCrossDocumentListener } from "../../utils/hooks";
 
 const rad = Math.PI / 180;
 const MIN_IMAGE_SIZE = 20;
 
 export class ImageTransformation extends Component {
     static template = "html_editor.ImageTransformation";
-    static props = {
-        document: { validate: (p) => p.nodeType === Node.DOCUMENT_NODE },
-        editable: { validate: (p) => p.nodeType === Node.ELEMENT_NODE },
-        image: { validate: (p) => p.tagName === "IMG" },
-        destroy: { type: Function },
-        onChange: { type: Function, optional: true },
-        onApply: { type: Function, optional: true },
-        onComponentMounted: { type: Function, optional: true },
-    };
-    static defaultProps = {
-        onComponentMounted: () => {},
-    };
+
+    props = useProps({
+        destroy: t.function(),
+        document: t.customValidator(t.object(), (p) => p.nodeType === Node.DOCUMENT_NODE),
+        editable: t.customValidator(t.object(), (p) => p.nodeType === Node.ELEMENT_NODE),
+        image: t.customValidator(t.object(), (p) => p.tagName === "IMG"),
+        onApply: t.function().optional(),
+        onChange: t.function().optional(),
+        onComponentMounted: t.function().optional(() => () => {}),
+    });
+
+    transfoContainer = signal.ref();
+    transfoControls = signal.ref();
+    transfoCenter = signal.ref();
 
     setup() {
         this.isCurrentlyTransforming = false;
         this.document = this.props.document;
         this.image = this.props.image;
-        this.transfoContainer = useRef("transfoContainer");
-        this.transfoControls = useRef("transfoControls");
-        this.transfoCenter = useRef("transfoCenter");
         this.computeImageTransformations();
         onMounted(() => {
             this.positionTransfoContainer();
             this.props.onComponentMounted();
         });
-        useExternalListener(window, "mousemove", this.mouseMove);
-        useExternalListener(window, "mouseup", this.mouseUp);
-        if (this.document.defaultView.frameElement) {
-            const iframeWindow = this.document.defaultView;
-            useExternalListener(iframeWindow, "mousemove", this.mouseMove);
-            useExternalListener(iframeWindow, "mouseup", this.mouseUp);
-        }
+        const iframeWindow = this.document.defaultView;
+        useCrossDocumentListener(iframeWindow, "mousemove", this.mouseMove.bind(this));
+        useCrossDocumentListener(iframeWindow, "mouseup", this.mouseUp.bind(this));
         // When a character key is pressed and the image gets deleted,
         // close the image transform via selectionchange.
-        useExternalListener(this.document, "selectionchange", () => this.destroy());
+        useListener(this.document, "selectionchange", () => this.destroy());
         // Backspace/Delete don’t trigger selectionchange on image
         // delete in Chrome, so we use keydown event.
-        useExternalListener(this.document, "keydown", (ev) => {
+        useListener(this.document, "keydown", (ev) => {
             if (["Backspace", "Delete"].includes(ev.key)) {
                 this.destroy();
             }
         });
-        useHotkey("escape", () => this.destroy());
-        usePositionHook({ el: this.props.editable }, this.document, () => {
-            if (!this.isCurrentlyTransforming) {
-                this.resetHandlers();
+        usePositionHook(
+            () => this.props.editable,
+            this.document,
+            () => {
+                if (!this.isCurrentlyTransforming) {
+                    this.resetHandlers();
+                }
             }
-        });
+        );
     }
 
     destroy() {
@@ -89,7 +88,7 @@ export class ImageTransformation extends Component {
     }
 
     mouseMove(ev) {
-        if (!this.transfo.active) {
+        if (!this.transfo.active?.type) {
             return;
         }
         ev.preventDefault();
@@ -127,23 +126,6 @@ export class ImageTransformation extends Component {
 
             // reset position : don't move center
             this.positionTransfoContainer();
-            const new_center = this.getOffset(this.transfoCenter.el);
-            const x = center.left - new_center.left;
-            const y = center.top - new_center.top;
-            const angle = ang * rad;
-            settings.translatex += x * Math.cos(angle) - y * Math.sin(-angle);
-            settings.translatey += -x * Math.sin(angle) + y * Math.cos(-angle);
-        } else if (this.transfo.active.type == "position") {
-            const angle = settings.angle * rad;
-            const x = pageX - this.transfo.active.pageX;
-            const y = pageY - this.transfo.active.pageY;
-            this.transfo.active.pageX = pageX;
-            this.transfo.active.pageY = pageY;
-            const dx = x * Math.cos(angle) - y * Math.sin(-angle);
-            const dy = -x * Math.sin(angle) + y * Math.cos(-angle);
-
-            settings.translatex += dx;
-            settings.translatey += dy;
         } else if (this.transfo.active.type.length === 2) {
             const width = this.transfo.active.width;
             const height = this.transfo.active.height;
@@ -194,8 +176,6 @@ export class ImageTransformation extends Component {
         }
 
         settings.angle = Math.round(settings.angle);
-        settings.translatex = Math.round(settings.translatex);
-        settings.translatey = Math.round(settings.translatey);
 
         // When rotating, the offset used for the rotation center must be stable.
         // getOffset normally includes CSS transforms, which would move the
@@ -246,8 +226,7 @@ export class ImageTransformation extends Component {
         if (this.transfo.active) {
             return;
         }
-        this.isCurrentlyTransforming = true;
-        let type = "position";
+        let type;
         const target = ev.target.closest("div");
 
         if (target.classList.contains("transfo-rotator")) {
@@ -270,6 +249,11 @@ export class ImageTransformation extends Component {
             type = "mr";
         }
 
+        // No transformation handle was clicked.
+        if (!type) {
+            return;
+        }
+        this.isCurrentlyTransforming = true;
         const { pageX, pageY } = this.normalizeCoordinates(ev);
         this.transfo.active = {
             type: type,
@@ -277,7 +261,7 @@ export class ImageTransformation extends Component {
             pageY: pageY,
             width: parseFloat(getComputedStyle(this.image).width),
             height: parseFloat(getComputedStyle(this.image).height),
-            center: this.getOffset(this.transfoCenter.el),
+            center: this.getOffset(this.transfoCenter()),
         };
     }
 
@@ -292,30 +276,11 @@ export class ImageTransformation extends Component {
                 ? parseFloat(transform.match(/rotate\(([^)]+)deg\)/)[1])
                 : 0;
 
-        this.image.style.transform = "";
+        removeStyle(this.image, "transform");
 
         this.transfo.settings.pos = this.getOffset(this.image);
         this.transfo.settings.width = parseFloat(getComputedStyle(this.image).width);
         this.transfo.settings.height = parseFloat(getComputedStyle(this.image).height);
-
-        const translatex = transform.match(/translateX\(([0-9.-]+)(%|px)\)/);
-        const translatey = transform.match(/translateY\(([0-9.-]+)(%|px)\)/);
-        this.transfo.settings.translate = "%";
-
-        if (translatex && translatex[2] === "%") {
-            this.transfo.settings.translatexp = parseFloat(translatex[1]);
-            this.transfo.settings.translatex =
-                (this.transfo.settings.translatexp / 100) * this.transfo.settings.width;
-        } else {
-            this.transfo.settings.translatex = translatex ? parseFloat(translatex[1]) : 0;
-        }
-        if (translatey && translatey[2] === "%") {
-            this.transfo.settings.translateyp = parseFloat(translatey[1]);
-            this.transfo.settings.translatey =
-                (this.transfo.settings.translateyp / 100) * this.transfo.settings.height;
-        } else {
-            this.transfo.settings.translatey = translatey ? parseFloat(translatey[1]) : 0;
-        }
 
         this.transfo.settings.css = window.getComputedStyle(this.image, null);
         this.transfo.settings.rotationStep = 5;
@@ -325,45 +290,27 @@ export class ImageTransformation extends Component {
         const settings = this.transfo.settings;
         const width = parseFloat(getComputedStyle(this.image).width);
         const height = parseFloat(getComputedStyle(this.image).height);
-        settings.translatexp = Math.round((settings.translatex / width) * 1000) / 10;
-        settings.translateyp = Math.round((settings.translatey / height) * 1000) / 10;
 
         this.setImageTransformation(this.image);
 
-        this.transfoContainer.el.style.position = "absolute";
-        this.transfoContainer.el.style.width = width + "px";
-        this.transfoContainer.el.style.height = height + "px";
-        this.transfoContainer.el.style.top = settings.pos.top + "px";
-        this.transfoContainer.el.style.left = settings.pos.left + "px";
+        const container = this.transfoContainer();
+        container.style.position = "absolute";
+        container.style.width = width + "px";
+        container.style.height = height + "px";
+        container.style.top = settings.pos.top + "px";
+        container.style.left = settings.pos.left + "px";
 
-        const controls = this.transfoControls.el;
+        const controls = this.transfoControls();
 
         this.setImageTransformation(controls);
         controls.style.width = width + "px";
         controls.style.height = height + "px";
-        controls.style.cursor = "move";
     }
 
     setImageTransformation(element) {
         let transform = "";
         if (this.transfo.settings.angle !== 0) {
             transform += " rotate(" + this.transfo.settings.angle + "deg) ";
-        }
-        if (this.transfo.settings.translatex) {
-            transform +=
-                " translateX(" +
-                (this.transfo.settings.translate === "%"
-                    ? this.transfo.settings.translatexp + "%"
-                    : this.transfo.settings.translatex + "px") +
-                ") ";
-        }
-        if (this.transfo.settings.translatey) {
-            transform +=
-                " translateY(" +
-                (this.transfo.settings.translate === "%"
-                    ? this.transfo.settings.translateyp + "%"
-                    : this.transfo.settings.translatey + "px") +
-                ") ";
         }
         element.style.transform = transform;
     }

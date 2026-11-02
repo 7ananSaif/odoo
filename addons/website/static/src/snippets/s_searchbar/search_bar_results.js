@@ -2,7 +2,7 @@ import { registry } from "@web/core/registry";
 import { Interaction } from "@web/public/interaction";
 
 import { isBrowserSafari } from "@web/core/browser/feature_detection";
-import { browser } from "@web/core/browser/browser";
+import { location } from "@web/core/browser/browser";
 import { verifyHttpsUrl } from "@website/utils/misc";
 
 export class SearchBarResults extends Interaction {
@@ -22,7 +22,7 @@ export class SearchBarResults extends Interaction {
                     "max-height": `max(40vh, ${
                         document.body.clientHeight - bcr.bottom - 16
                     }px) !important`,
-                    "min-width": this.autocompleteMinWidth,
+                    "min-width": `${this.autocompleteMinWidth}px`,
                 };
             },
             "t-att-class": () => ({
@@ -141,7 +141,7 @@ export class SearchBarResults extends Interaction {
      * @param {PointerEvent} ev
      */
     onExtraLinkClick(ev) {
-        browser.location.href = verifyHttpsUrl(ev.currentTarget.dataset.target);
+        location.href = verifyHttpsUrl(ev.currentTarget.dataset.target);
     }
 }
 

@@ -2,7 +2,7 @@ import { Plugin } from "@html_editor/plugin";
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
 
-class EventSearchbarOptionPlugin extends Plugin {
+export class EventSearchbarOptionPlugin extends Plugin {
     static id = "eventSearchbarOption";
 
     resources = {
@@ -15,18 +15,6 @@ class EventSearchbarOptionPlugin extends Plugin {
             {
                 label: _t("Date (new to old)"),
                 orderBy: "date_end desc",
-                dependency: "search_events_opt",
-            },
-        ],
-        searchbar_option_display_items: [
-            {
-                label: _t("Description"),
-                dataAttribute: "displayDescription",
-                dependency: "search_events_opt",
-            },
-            {
-                label: _t("Event Date"),
-                dataAttribute: "displayDetail",
                 dependency: "search_events_opt",
             },
         ],

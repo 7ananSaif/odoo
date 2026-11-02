@@ -3,6 +3,7 @@ import { registry } from "@web/core/registry";
 import { Plugin } from "../../plugin";
 import { ImageCrop } from "./image_crop";
 import { isHtmlContentSupported } from "@html_editor/core/selection_plugin";
+import { withSequence } from "@html_editor/utils/resource";
 
 /**
  * @typedef { Object } ImageCropShared
@@ -20,16 +21,16 @@ export class ImageCropPlugin extends Plugin {
                 id: "cropImage",
                 run: this.openCropImage.bind(this),
                 description: _t("Crop image"),
-                icon: "fa-crop",
+                icon: "crop",
                 isAvailable: isHtmlContentSupported,
             },
         ],
         toolbar_items: [
-            {
+            withSequence(40, {
                 id: "image_crop",
                 commandId: "cropImage",
                 groupId: "image_modifiers",
-            },
+            }),
         ],
     };
 
@@ -55,7 +56,7 @@ export class ImageCropPlugin extends Plugin {
                             newDataset,
                         });
                     updateImageAttributes();
-                    this.dependencies.history.addStep();
+                    this.dependencies.history.commit();
                 },
                 document: this.document,
                 ...imageCropProps,

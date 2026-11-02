@@ -11,17 +11,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0beta\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-04-24 12:07+0000\n"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-10-22 12:00+0000\n"
 "Last-Translator: \"Larissa Manderfeld (lman)\" <lman@odoo.com>\n"
-"Language-Team: German <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: German <https://translate.odoo.com/projects/odoo-20/"
 "hr_gamification/de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: hr_gamification
 #: model_terms:ir.actions.act_window,help:hr_gamification.goals_menu_groupby_action2
@@ -127,12 +127,6 @@ msgid "Direct Badge"
 msgstr "Direktes Abzeichen"
 
 #. module: hr_gamification
-#: model_terms:ir.ui.view,arch_db:hr_gamification.view_badge_wizard_reward
-#: model_terms:ir.ui.view,arch_db:hr_gamification.view_current_badge_form
-msgid "Discard"
-msgstr "Verwerfen"
-
-#. module: hr_gamification
 #: model:ir.model.fields,field_description:hr_gamification.field_gamification_badge__display_name
 #: model:ir.model.fields,field_description:hr_gamification.field_gamification_badge_user__display_name
 #: model:ir.model.fields,field_description:hr_gamification.field_gamification_badge_user_wizard__display_name
@@ -213,6 +207,11 @@ msgid "Granted by"
 msgstr "Vergeben von"
 
 #. module: hr_gamification
+#: model:ir.module.module,shortdesc:base.module_hr_gamification
+msgid "HR Gamification"
+msgstr "Personalwesen & Gamification"
+
+#. module: hr_gamification
 #: model:ir.model.fields,field_description:hr_gamification.field_hr_employee__has_badges
 #: model:ir.model.fields,field_description:hr_gamification.field_hr_employee_public__has_badges
 msgid "Has Badges"
@@ -232,6 +231,12 @@ msgstr "Hat Zugriff zum Bearbeiten/Löschen"
 #: model:ir.model.fields,field_description:hr_gamification.field_res_users__id
 msgid "ID"
 msgstr "ID"
+
+#. module: hr_gamification
+#: model_terms:ir.ui.view,arch_db:hr_gamification.hr_employee_public_view_form
+#: model_terms:ir.ui.view,arch_db:hr_gamification.hr_hr_employee_view_form
+msgid "No Badges granted."
+msgstr "Es wurden keine Abzeichen vergeben."
 
 #. module: hr_gamification
 #: model:ir.model,name:hr_gamification.model_hr_employee_public
@@ -262,14 +267,20 @@ msgstr ""
 "Der ausgewählte Mitarbeiter entspricht nicht dem ausgewählten Benutzer."
 
 #. module: hr_gamification
-#: model_terms:ir.ui.view,arch_db:hr_gamification.hr_employee_public_view_form
-#: model_terms:ir.ui.view,arch_db:hr_gamification.hr_hr_employee_view_form
+#: model:ir.module.module,description:base.module_hr_gamification
 msgid ""
-"There are no badges for this employee.<br/>\n"
-"                                It's time to allow the first one."
+"Use the HR resources for the gamification process.\n"
+"\n"
+"The HR officer can now manage challenges and badges.\n"
+"This allow the user to send badges to employees instead of simple users.\n"
+"Badge received are displayed on the user profile.\n"
 msgstr ""
-"Für diesen Mitarbeiter gibt es noch keine Abzeichen.<br/>\n"
-"                                Vergeben Sie das erste Abzeichen!"
+"Binden Sie ihre Mitarbeiter im Gamification-Prozess ein.\n"
+"\n"
+"Der Personalsachbearbeiter kann nun Herausforderungen und Abzeichen "
+"verwalten.\n"
+"Dies erlaubt es dem Benutzer Abzeichen an Mitarbeiter anstatt nur an "
+"Benutzer zu senden. Erhaltene Abzeichen werden im Benutzerprofil angezeigt.\n"
 
 #. module: hr_gamification
 #: model:ir.model,name:hr_gamification.model_res_users
@@ -299,36 +310,9 @@ msgstr "Sie können sich selbst keine Abzeichen verleihen."
 msgid "on"
 msgstr "am"
 
-#~ msgid ""
-#~ "Badges are rewards of good work. Give them to people you believe deserve "
-#~ "it."
-#~ msgstr ""
-#~ "Auszeichnungen sind Belohnungen für gute Arbeit. Belohnen Sie so die "
-#~ "Mitarbeiter, die sich eine Anerkennung verdient haben."
-
-#~ msgid "Basic Employee"
-#~ msgstr "Basis-Mitarbeiter"
-
-#~ msgid "Cancel"
-#~ msgstr "Abbrechen"
-
-#~ msgid "Grant this employee his first badge"
-#~ msgstr "Gib dem Mitarbeiter seinen ersten Pin"
-
-#~ msgid "Received Badges"
-#~ msgstr "Auszeichnungen"
-
-#~ msgid "Related user name for the resource to manage its access."
-#~ msgstr ""
-#~ "Der mit der Ressource verbunden Benutzer für die Zugriffsberechtigung"
-
-#~ msgid "Reward Employee"
-#~ msgstr "Mitarbeiter belohnen"
-
-#~ msgid "You can send badges only to employees linked to a user."
-#~ msgstr ""
-#~ "Es können nur Auszeichnungen an Mitarbeiter/Mitarbeiterinnen vergeben "
-#~ "werden, die mit einem Benutzer verbunden sind."
-
-#~ msgid "to reward this employee for a good action"
-#~ msgstr "um diesen Mitarbeiter für seine gute Arbeit zu belohnen"
+msgid ""
+"There are no badges for this employee.<br/>\n"
+"                                It's time to allow the first one."
+msgstr ""
+"Für diesen Mitarbeiter gibt es noch keine Abzeichen.<br/>\n"
+"                                Vergeben Sie das erste Abzeichen!"

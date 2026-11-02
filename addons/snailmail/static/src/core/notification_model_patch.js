@@ -6,7 +6,7 @@ import { _t } from "@web/core/l10n/translation";
 const notificationPatch = {
     get icon() {
         if (this.notification_type === "snail") {
-            return "fa fa-paper-plane";
+            return "send";
         }
         return super.icon;
     },
@@ -14,17 +14,25 @@ const notificationPatch = {
     get statusIcon() {
         if (this.notification_type === "snail") {
             switch (this.notification_status) {
+                case "process":
+                    return "local_shipping";
                 case "sent":
-                    return "fa fa-check";
+                    return "check";
                 case "ready":
-                    return "fa fa-clock-o";
+                    return "schedule";
                 case "canceled":
-                    return "fa fa-trash-o";
+                    return "delete";
                 default:
-                    return "fa fa-exclamation text-danger";
+                    return "priority_high";
             }
         }
         return super.statusIcon;
+    },
+    get statusIconClass() {
+        if (["sent", "ready", "canceled"].includes(this.notification_status)) {
+            return "text-danger";
+        }
+        return "";
     },
     get failureMessage() {
         switch (this.failure_type) {
@@ -40,6 +48,8 @@ const notificationPatch = {
                 return _t("Format Error");
             case "sn_error":
                 return _t("Unknown Error");
+            case "sn_undeliverable":
+                return _t("Letter Undeliverable");
             default:
                 return super.failureMessage;
         }
@@ -47,12 +57,16 @@ const notificationPatch = {
     get statusTitle() {
         if (this.notification_type === "snail") {
             switch (this.notification_status) {
+                case "process":
+                    return _t("Dispatched");
                 case "sent":
                     return _t("Sent");
                 case "ready":
                     return _t("Awaiting Dispatch");
                 case "canceled":
                     return _t("Cancelled");
+                case "bounce":
+                    return _t("Bounced");
                 default:
                     return _t("Error");
             }

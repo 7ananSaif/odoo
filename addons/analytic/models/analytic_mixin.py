@@ -4,7 +4,8 @@ from collections import defaultdict
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Domain
-from odoo.tools import SQL, Query, unique
+from odoo.models import Query
+from odoo.tools import SQL, frozendict, unique
 from odoo.tools.float_utils import float_compare, float_round
 from odoo.tools.sql import table_exists
 
@@ -109,55 +110,64 @@ class AnalyticMixin(models.AbstractModel):
         # keys can be comma-separated ids, we will split those into an array and then make an array comparison with the list of ids to check
         ids = [str(id_) for id_ in ids if id_]  # list of ids -> list of string
         if operator == 'in':
-            return Domain.custom(to_sql=lambda model, alias, query: SQL(
+            return Domain.custom(to_sql=lambda table: SQL(
                 "%s && %s",
-                self._query_analytic_accounts(alias),
+                self._query_analytic_accounts(table._alias),
                 ids,
             ))
         else:
-            return Domain.custom(to_sql=lambda model, alias, query: SQL(
+            return Domain.custom(to_sql=lambda table: SQL(
                 "(NOT %s && %s OR %s IS NULL)",
-                self._query_analytic_accounts(alias),
+                self._query_analytic_accounts(table._alias),
                 ids,
-                model._field_to_sql(alias, 'analytic_distribution', query),
+                table.analytic_distribution,
             ))
 
-    def _read_group_groupby(self, alias: str, groupby_spec: str, query: Query) -> SQL:
+    @api.constrains('analytic_distribution')
+    def _check_analytic_distribution(self):
+        for record in self:
+            if any(
+                not part.isdigit()
+                for key in (record.analytic_distribution or {})
+                for part in key.split(',')
+            ):
+                raise ValidationError(_("Wrong analytic distribution format"))
+
+    def _read_group_groupby(self, table, groupby_spec) -> SQL:
         """To group by `analytic_distribution`, we first need to separate the analytic_ids and associate them with the ids to be counted
         Do note that only '__count' can be passed in the `aggregates`"""
         if groupby_spec == 'analytic_distribution':
-            query._tables = {
-                'distribution': SQL(
+            query = table._query
+            query._joins = {
+                'distribution': (SQL(), SQL(
                     r"""(SELECT DISTINCT %s, (regexp_matches(jsonb_object_keys(%s), '\d+', 'g'))[1]::int AS account_id FROM %s WHERE %s)""",
                     self._get_count_id(query),
-                    self._field_to_sql(self._table, 'analytic_distribution', query),
+                    table.analytic_distribution,
                     query.from_clause,
                     query.where_clause,
-                )
+                ), SQL())
             }
 
             # After using the from and where clauses in the nested query, they are no longer needed in the main one
-            query._joins = {}
             query._where_clauses = []
             return SQL("account_id")
 
-        return super()._read_group_groupby(alias, groupby_spec, query)
+        return super()._read_group_groupby(table, groupby_spec)
 
-    def _read_group_select(self, aggregate_spec: str, query: Query) -> SQL:
-        if query.table == 'distribution' and aggregate_spec != '__count':
+    def _read_group_select(self, table, aggregate_spec: str) -> SQL:
+        if table._alias == 'distribution' and aggregate_spec != '__count':
             raise ValueError(f"analytic_distribution grouping does not accept {aggregate_spec} as aggregate.")
-        return super()._read_group_select(aggregate_spec, query)
+        return super()._read_group_select(table, aggregate_spec)
 
     def _get_count_id(self, query):
-        ids = {
-            'account_move_line': "move_id",
-            'purchase_order_line': "order_id",
-            'account_asset': "id",
-            'hr_expense': "id",
-        }
-        if query.table not in ids:
-            raise ValueError(f"{query.table} does not support analytic_distribution grouping.")
-        return SQL(ids.get(query.table))
+        match query.table._alias:
+            case 'account_move_line':
+                return SQL('move_id')
+            case 'purchase_order_line':
+                return SQL('order_id')
+            case 'account_asset' | 'hr_expense':
+                return SQL('id')
+        raise ValueError(f"{query.table._alias} does not support analytic_distribution grouping.")
 
     def filtered_domain(self, domain):
         # Filter based on the accounts used (i.e. allowing a name_search) instead of the distribution
@@ -168,9 +178,47 @@ class AnalyticMixin(models.AbstractModel):
 
     def write(self, vals):
         """ Format the analytic_distribution float value, so equality on analytic_distribution can be done """
+        if 'analytic_distribution' in vals:
+            self._clean_stale_analytic_distributions()
+
         decimal_precision = self.env['decimal.precision'].precision_get('Percentage Analytic')
         vals = self._sanitize_values(vals, decimal_precision)
         return super().write(vals)
+
+    def _clean_stale_analytic_distributions(self):
+        """Persist the removal of deleted analytic accounts, in batch."""
+        if not self or self.env.context.get('skip_analytic_sync'):
+            return
+
+        distributions = {
+            record.id: record.analytic_distribution
+            for record in self if record.analytic_distribution
+        }
+        account_ids = {
+            int(account_id)
+            for distribution in distributions.values()
+            for key in distribution if key != '__update__'
+            for account_id in key.split(',') if account_id.isdigit()
+        }
+        existing_ids = set(self.env['account.analytic.account'].browse(list(account_ids)).exists().ids)
+
+        to_write = defaultdict(list)
+        for record_id, distribution in distributions.items():
+            cleaned = defaultdict(float)
+            for key, percentage in distribution.items():
+                if key == '__update__':
+                    cleaned[key] = percentage
+                    continue
+                valid_ids = [account_id for account_id in key.split(',') if account_id.isdigit() and int(account_id) in existing_ids]
+                if valid_ids:
+                    cleaned[','.join(valid_ids)] += percentage
+            if cleaned != distribution:
+                to_write[frozendict(cleaned)].append(record_id)
+
+        for cleaned, ids in to_write.items():
+            records = self.browse(ids).with_context(skip_analytic_sync=True)
+            records.analytic_distribution = cleaned
+            records.flush_recordset(['analytic_distribution'])
 
     @api.model_create_multi
     def create(self, vals_list):

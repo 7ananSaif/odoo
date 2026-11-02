@@ -1,25 +1,29 @@
-import { Component, useEffect, useRef, useState } from "@odoo/owl";
+import { Component, proxy, signal, t, useOnChange, useProps } from "@odoo/owl";
 import { simplifyString } from "@api_doc/utils/doc_model_search";
 
 export class DocSidebar extends Component {
     static template = "web.DocSidebar";
 
     static components = {};
-    static props = {};
+
+    props = useProps({
+        onModelSelected: t.function().optional(),
+    });
+
+    containerRef = signal.ref();
 
     setup() {
-        this.containerRef = useRef("containerRef");
-        this.modelStore = useState(this.env.modelStore);
-        this.state = useState({
+        this.modelStore = proxy(this.env.modelStore);
+        this.state = proxy({
             collapseAddons: {},
             searchValue: "",
         });
 
-        useEffect(
-            () => {
-                this.containerRef.el?.querySelector(":scope .o_active")?.scrollIntoView();
-            },
-            () => [this.containerRef.el]
+        useOnChange(
+            () => [this.containerRef()],
+            (containerEl) => {
+                containerEl?.querySelector(":scope .o_active")?.scrollIntoView();
+            }
         );
 
         for (const addon of this.filteredAddons) {
@@ -29,14 +33,19 @@ export class DocSidebar extends Component {
         }
     }
 
+    selectModel(model) {
+        this.modelStore.setActiveModel({ model });
+        this.props.onModelSelected?.();
+    }
+
     onSearchInput(event) {
         this.state.searchValue = event.target.value;
-        this.containerRef.el.scrollTop = 0;
+        this.containerRef().scrollTop = 0;
     }
 
     _toggleAllAddons(isCollapsed) {
         const allAddons = this.filteredAddons;
-        allAddons.forEach((a) => this.state.collapseAddons[a.name] = !isCollapsed);
+        allAddons.forEach((a) => (this.state.collapseAddons[a.name] = !isCollapsed));
     }
 
     toggleAddon(event, addonName) {

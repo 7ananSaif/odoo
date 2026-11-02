@@ -5,10 +5,9 @@ import {
     setupHTMLBuilder,
 } from "@html_builder/../tests/helpers";
 import { BuilderAction } from "@html_builder/core/builder_action";
-import { BaseOptionComponent } from "@html_builder/core/utils";
 import { Plugin } from "@html_editor/plugin";
 import { expect, test, describe } from "@odoo/hoot";
-import { animationFrame, queryOne } from "@odoo/hoot-dom";
+import { animationFrame } from "@odoo/hoot-dom";
 import { xml } from "@odoo/owl";
 import { contains } from "@web/../tests/web_test_helpers";
 
@@ -23,12 +22,10 @@ test("Undo/Redo correctly restores the stored container target", async () => {
             }
         },
     });
-    addBuilderOption(
-        class extends BaseOptionComponent {
-            static selector = ".test-options-target";
-            static template = xml`<BuilderButton action="'customAction'">Test</BuilderButton>`;
-        }
-    );
+    addBuilderOption({
+        selector: ".test-options-target",
+        template: xml`<BuilderButton action="'customAction'">Test</BuilderButton>`,
+    });
     await setupHTMLBuilder(`
         <div data-name="Target 1" class="test-options-target target1">
             Homepage
@@ -45,9 +42,9 @@ test("Undo/Redo correctly restores the stored container target", async () => {
     await contains(":iframe .target2").click();
     expect(".options-container").toHaveAttribute("data-container-title", "Target 2");
 
-    await contains(".o-snippets-top-actions .fa-undo").click();
+    await contains(".o-snippets-top-actions [data-icon='undo']").click();
     expect(".options-container").toHaveAttribute("data-container-title", "Target 1");
-    await contains(".o-snippets-top-actions .fa-repeat").click();
+    await contains(".o-snippets-top-actions [data-icon='redo']").click();
     expect(".options-container").toHaveCount(0);
 });
 
@@ -60,12 +57,10 @@ test("Undo/Redo multiple actions always restores the action container target", a
             }
         },
     });
-    addBuilderOption(
-        class extends BaseOptionComponent {
-            static selector = ".test-options-target";
-            static template = xml`<BuilderButton action="'customAction'">Test</BuilderButton>`;
-        }
-    );
+    addBuilderOption({
+        selector: ".test-options-target",
+        template: xml`<BuilderButton action="'customAction'">Test</BuilderButton>`,
+    });
     await setupHTMLBuilder(`
         <div data-name="Target 1" class="test-options-target target1">
             Homepage
@@ -84,15 +79,15 @@ test("Undo/Redo multiple actions always restores the action container target", a
     await contains("[data-action-id='customAction']").click();
     expect(":iframe .test-options-target.test").toHaveCount(2);
     // Undo everything.
-    await contains(".o-snippets-top-actions .fa-undo").click();
+    await contains(".o-snippets-top-actions [data-icon='undo']").click();
     expect(".options-container").toHaveAttribute("data-container-title", "Target 2");
-    await contains(".o-snippets-top-actions .fa-undo").click();
+    await contains(".o-snippets-top-actions [data-icon='undo']").click();
     expect(".options-container").toHaveAttribute("data-container-title", "Target 1");
     expect(":iframe .test-options-target.test").toHaveCount(0);
     // Redo everything.
-    await contains(".o-snippets-top-actions .fa-repeat").click();
+    await contains(".o-snippets-top-actions [data-icon='redo']").click();
     expect(".options-container").toHaveAttribute("data-container-title", "Target 1");
-    await contains(".o-snippets-top-actions .fa-repeat").click();
+    await contains(".o-snippets-top-actions [data-icon='redo']").click();
     expect(".options-container").toHaveAttribute("data-container-title", "Target 2");
     expect(":iframe .test-options-target.test").toHaveCount(2);
 });
@@ -108,12 +103,10 @@ test("Undo/Redo an action that activates another target restores the old one on 
             }
         },
     });
-    addBuilderOption(
-        class extends BaseOptionComponent {
-            static selector = ".test-options-target";
-            static template = xml`<BuilderButton action="'customAction'">Test</BuilderButton>`;
-        }
-    );
+    addBuilderOption({
+        selector: ".test-options-target",
+        template: xml`<BuilderButton action="'customAction'">Test</BuilderButton>`,
+    });
     const { getEditor } = await setupHTMLBuilder(`
         <div data-name="Target 1" class="test-options-target target1">
             Homepage
@@ -130,9 +123,9 @@ test("Undo/Redo an action that activates another target restores the old one on 
     await contains("[data-action-id='customAction']").click();
     expect(".options-container").toHaveAttribute("data-container-title", "Target 2");
     // Undo everything.
-    await contains(".o-snippets-top-actions .fa-undo").click();
+    await contains(".o-snippets-top-actions [data-icon='undo']").click();
     expect(".options-container").toHaveAttribute("data-container-title", "Target 1");
-    await contains(".o-snippets-top-actions .fa-repeat").click();
+    await contains(".o-snippets-top-actions [data-icon='redo']").click();
     expect(".options-container").toHaveAttribute("data-container-title", "Target 2");
 });
 
@@ -147,12 +140,10 @@ test("Undo/Redo an action that deactivates the containers restores the old one o
             }
         },
     });
-    addBuilderOption(
-        class extends BaseOptionComponent {
-            static selector = ".test-options-target";
-            static template = xml`<BuilderButton action="'customAction'">Test</BuilderButton>`;
-        }
-    );
+    addBuilderOption({
+        selector: ".test-options-target",
+        template: xml`<BuilderButton action="'customAction'">Test</BuilderButton>`,
+    });
     const { getEditor } = await setupHTMLBuilder(`
         <div data-name="Target 1" class="test-options-target target1">
             Homepage
@@ -166,11 +157,103 @@ test("Undo/Redo an action that deactivates the containers restores the old one o
     expect(".options-container").toHaveCount(0);
     expect("button[data-name='blocks']").toHaveClass("active");
     // Undo everything.
-    await contains(".o-snippets-top-actions .fa-undo").click();
+    await contains(".o-snippets-top-actions [data-icon='undo']").click();
     expect(".options-container").toHaveAttribute("data-container-title", "Target 1");
-    await contains(".o-snippets-top-actions .fa-repeat").click();
+    await contains(".o-snippets-top-actions [data-icon='redo']").click();
     expect(".options-container").toHaveCount(0);
     expect("button[data-name='blocks']").toHaveClass("active");
+});
+
+test("Undoing an action that deactivates target followed by another action does not deactivate target", async () => {
+    let editor;
+    addBuilderAction({
+        customAction: class extends BuilderAction {
+            static id = "customAction";
+            apply({ editingElement }) {
+                editingElement.classList.add("test");
+                editor.shared.builderOptions.setNextTarget(false);
+            }
+        },
+        otherAction: class extends BuilderAction {
+            static id = "otherAction";
+            apply({ editingElement }) {
+                editingElement.classList.add("other-test");
+            }
+        },
+    });
+    addBuilderOption({
+        selector: ".test-options-target",
+        template: xml`<BuilderButton action="'customAction'">Test</BuilderButton>`,
+    });
+    addBuilderOption({
+        selector: ".test-options-target",
+        template: xml`<BuilderButton action="'otherAction'">Test</BuilderButton>`,
+    });
+    const { getEditor } = await setupHTMLBuilder(`
+        <div data-name="Target 1" class="test-options-target target1">
+            Homepage
+        </div>
+    `);
+    editor = getEditor();
+
+    await contains(":iframe .target1").click();
+    expect(".options-container").toHaveAttribute("data-container-title", "Target 1");
+    await contains("[data-action-id='customAction']").click();
+    expect(".options-container").toHaveCount(0);
+    expect("button[data-name='blocks']").toHaveClass("active");
+
+    await contains(".o-snippets-top-actions [data-icon='undo']").click();
+    expect(".options-container").toHaveAttribute("data-container-title", "Target 1");
+
+    await contains("[data-action-id='otherAction']").click();
+    expect(".options-container").toHaveAttribute("data-container-title", "Target 1");
+});
+
+test("Reverting a preview after an action that deactivates target does not deactivate target", async () => {
+    let editor;
+    addBuilderAction({
+        customAction: class extends BuilderAction {
+            static id = "customAction";
+            apply({ editingElement }) {
+                editingElement.classList.add("test");
+                editor.shared.builderOptions.setNextTarget(false);
+            }
+        },
+        otherAction: class extends BuilderAction {
+            static id = "otherAction";
+            apply({ editingElement }) {
+                editingElement.classList.add("other-test");
+            }
+        },
+    });
+    addBuilderOption({
+        selector: ".test-options-target",
+        template: xml`<BuilderButton action="'customAction'">Test</BuilderButton>`,
+    });
+    addBuilderOption({
+        selector: ".test-options-target",
+        template: xml`<BuilderButton action="'otherAction'">Test</BuilderButton>`,
+    });
+    const { getEditor } = await setupHTMLBuilder(`
+        <div data-name="Target 1" class="test-options-target target1">
+            Homepage
+        </div>
+    `);
+    editor = getEditor();
+
+    await contains(":iframe .target1").click();
+    expect(".options-container").toHaveAttribute("data-container-title", "Target 1");
+    await contains("[data-action-id='customAction']").click();
+    expect(".options-container").toHaveCount(0);
+    expect("button[data-name='blocks']").toHaveClass("active");
+
+    await contains(":iframe .target1").click();
+    expect(".options-container").toHaveAttribute("data-container-title", "Target 1");
+    await contains("[data-action-id='otherAction']").hover();
+    expect(":iframe .target1").toHaveClass("other-test");
+    await contains(":iframe .target1").hover();
+    expect(":iframe .target1").not.toHaveClass("other-test");
+    expect(".options-container").toHaveAttribute("data-container-title", "Target 1");
 });
 
 test("Containers fallback to a valid ancestor if the target disappears and restore it on undo", async () => {
@@ -188,18 +271,14 @@ test("Containers fallback to a valid ancestor if the target disappears and resto
             }
         },
     });
-    addBuilderOption(
-        class extends BaseOptionComponent {
-            static selector = ".test-options-target";
-            static template = xml`<BuilderButton action="'targetAction'">Test</BuilderButton>`;
-        }
-    );
-    addBuilderOption(
-        class extends BaseOptionComponent {
-            static selector = ".test-ancestor";
-            static template = xml`<BuilderButton action="'ancestorAction'">Ancestor selected</BuilderButton>`;
-        }
-    );
+    addBuilderOption({
+        selector: ".test-options-target",
+        template: xml`<BuilderButton action="'targetAction'">Test</BuilderButton>`,
+    });
+    addBuilderOption({
+        selector: ".test-ancestor",
+        template: xml`<BuilderButton action="'ancestorAction'">Ancestor selected</BuilderButton>`,
+    });
     await setupHTMLBuilder(`
         <div data-name="Ancestor" class="test-ancestor">
             Hey I'm an ancestor
@@ -218,18 +297,16 @@ test("Containers fallback to a valid ancestor if the target disappears and resto
     expect(".options-container[data-container-title='Target 1']").toHaveCount(0);
     expect("[data-action-id='ancestorAction']").toHaveCount(1);
 
-    await contains(".o-snippets-top-actions .fa-undo").click();
+    await contains(".o-snippets-top-actions [data-icon='undo']").click();
     expect(".options-container[data-container-title='Ancestor']").toHaveCount(1);
     expect(".options-container[data-container-title='Target 1']").toHaveCount(1);
 });
 
 test("Do not activate/update containers if the element clicked is excluded", async () => {
-    addBuilderOption(
-        class extends BaseOptionComponent {
-            static selector = ".test-options-target";
-            static template = xml`<BuilderButton classAction="'test'">Test</BuilderButton>`;
-        }
-    );
+    addBuilderOption({
+        selector: ".test-options-target",
+        template: xml`<BuilderButton classAction="'test'">Test</BuilderButton>`,
+    });
     await setupHTMLBuilder(`
         <div data-name="Target 1" class="test-options-target target1 o_we_no_overlay">
             Homepage
@@ -257,24 +334,18 @@ test("Do not show parent container for no_parent_containers targets", async () =
         };
     }
     addBuilderPlugin(TestPlugin);
-    addBuilderOption(
-        class extends BaseOptionComponent {
-            static selector = ".test-parent-target";
-            static template = xml`<BuilderButton classAction="'test'">Test</BuilderButton>`;
-        }
-    );
-    addBuilderOption(
-        class extends BaseOptionComponent {
-            static selector = ".test-child-target";
-            static template = xml`<BuilderButton classAction="'test'">Test</BuilderButton>`;
-        }
-    );
-    addBuilderOption(
-        class extends BaseOptionComponent {
-            static selector = ".test-grand-child-target";
-            static template = xml`<BuilderButton classAction="'test'">Test</BuilderButton>`;
-        }
-    );
+    addBuilderOption({
+        selector: ".test-parent-target",
+        template: xml`<BuilderButton classAction="'test'">Test</BuilderButton>`,
+    });
+    addBuilderOption({
+        selector: ".test-child-target",
+        template: xml`<BuilderButton classAction="'test'">Test</BuilderButton>`,
+    });
+    addBuilderOption({
+        selector: ".test-grand-child-target",
+        template: xml`<BuilderButton classAction="'test'">Test</BuilderButton>`,
+    });
     await setupHTMLBuilder(`
         <div data-name="Parent" class="test-parent-target">
             Parent
@@ -301,35 +372,101 @@ test("Do not show parent container for no_parent_containers targets", async () =
     expect(".options-container").toHaveAttribute("data-container-title", "Parent");
 });
 
-test("Update containers if they changed", async () => {
+test("Option containers should update reactively", async () => {
     class TestPlugin extends Plugin {
         static id = "test";
         resources = {
-            clone_disabled_reason_providers: ({ el, reasons }) => {
-                if (el.classList.contains("clonedisabled")) {
-                    reasons.push("Test reason");
+            clone_disabled_reason_providers: (el) => {
+                if (el.classList.contains("disabled_clone")) {
+                    return "Test reason";
                 }
+            },
+            container_title: {
+                selector: ".test-options-target",
+                getTitleExtraInfo: (el) =>
+                    el.classList.contains("disabled_clone") ? " disabled clone" : " enabled clone",
             },
         };
     }
+
     addBuilderPlugin(TestPlugin);
-    addBuilderOption(
-        class extends BaseOptionComponent {
-            static selector = ".test-options-target";
-            static template = xml`<BuilderButton classAction="'test'">Test</BuilderButton>`;
-        }
-    );
-    const { getEditor } = await setupHTMLBuilder(`
+    addBuilderOption({
+        title: "Test",
+        selector: ".test-options-target",
+        template: xml`<BuilderButton classAction="'disabled_clone'">Disable clone</BuilderButton>`,
+    });
+    await setupHTMLBuilder(`
         <div data-name="Target" class="test-options-target target1">
             Homepage
         </div>
     `);
     await contains(":iframe .target1").click();
     expect(".oe_snippet_clone").not.toHaveAttribute("disabled");
-    const target = queryOne(":iframe .target1");
-    target.classList.add("clonedisabled");
-    const editor = getEditor();
-    editor.shared.history.addStep();
+    expect(".options-container-label").toHaveText("Test enabled clone");
+    await contains("[data-class-action='disabled_clone']").click();
     await animationFrame();
     expect(".oe_snippet_clone").toHaveAttribute("disabled");
+    expect(".options-container-label").toHaveText("Test disabled clone");
+});
+
+test("Option containers dispatched to plugins are updated reactively", async () => {
+    class TestPlugin extends Plugin {
+        static id = "testPlugin";
+        static shared = ["isRemoveDisabled"];
+
+        resources = {
+            builder_actions: { TestAction },
+            remove_disabled_reason_providers: (el) => {
+                if (el.classList.contains("not_removable")) {
+                    return "Class list has 'not_removable'";
+                }
+            },
+            on_current_options_containers_changed_handlers: (containers) => {
+                expect.step("containers update dispatched");
+                this.optionContainers = containers;
+            },
+        };
+
+        isRemoveDisabled(el) {
+            return !this.optionContainers.find((container) => container.element === el)
+                .removeDisabledReason;
+        }
+    }
+
+    class TestAction extends BuilderAction {
+        static id = "testAction";
+        static dependencies = ["testPlugin"];
+        apply({ editingElement }) {
+            const isRemoveDisabled = this.dependencies.testPlugin.isRemoveDisabled(editingElement);
+            editingElement.textContent = isRemoveDisabled ? "Yes" : "No";
+        }
+    }
+
+    addBuilderPlugin(TestPlugin);
+    addBuilderOption({
+        title: "Test",
+        selector: ".target",
+        template: xml`
+            <BuilderButton classAction="'not_removable'">Disable remove</BuilderButton>
+            <BuilderButton action="'testAction'">Check if disabled</BuilderButton>
+        `,
+    });
+    await setupHTMLBuilder(`
+        <div data-name="Target">
+            <div> Is removable? <p class="target">-</p></div>
+        </div>
+    `);
+
+    await contains(":iframe .target").click();
+    expect.verifySteps(["containers update dispatched"]);
+    await contains("button[data-action-id='testAction']").click();
+    expect(":iframe .target").toHaveText("Yes");
+    // now modify target to change some option containers properties, and check
+    // if the update is handled reactively
+    await contains("[data-class-action='not_removable']").click();
+    await contains("button[data-action-id='testAction']").click();
+    expect(":iframe .target").toHaveText("No");
+    // check that containers weren't dispatched to the plugin and they were
+    // updated reactively
+    expect.verifySteps([]);
 });

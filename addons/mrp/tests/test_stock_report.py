@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo.tests import Form
@@ -34,7 +33,7 @@ class TestMrpStockReports(TestReportsCommon):
         bom_chococake = self.env['mrp.bom'].create({
             'product_id': product_chococake.id,
             'product_tmpl_id': product_chococake.product_tmpl_id.id,
-            'product_uom_id': product_chococake.uom_id.id,
+            'uom_id': product_chococake.uom_id.id,
             'product_qty': 1.0,
             'type': 'normal',
             'bom_line_ids': [
@@ -46,7 +45,7 @@ class TestMrpStockReports(TestReportsCommon):
         bom_double_chococake = self.env['mrp.bom'].create({
             'product_id': product_double_chococake.id,
             'product_tmpl_id': product_double_chococake.product_tmpl_id.id,
-            'product_uom_id': product_double_chococake.uom_id.id,
+            'uom_id': product_double_chococake.uom_id.id,
             'product_qty': 1.0,
             'type': 'normal',
             'bom_line_ids': [
@@ -133,7 +132,7 @@ class TestMrpStockReports(TestReportsCommon):
         bom = self.env['mrp.bom'].create({
             'product_id': product_apple_pie.id,
             'product_tmpl_id': product_apple_pie.product_tmpl_id.id,
-            'product_uom_id': product_apple_pie.uom_id.id,
+            'uom_id': product_apple_pie.uom_id.id,
             'product_qty': 1.0,
             'type': 'normal',
             'bom_line_ids': [
@@ -146,9 +145,9 @@ class TestMrpStockReports(TestReportsCommon):
         mo_form.bom_id = bom
         mo_form.product_qty = 4
         mo_1 = mo_form.save()
+        mo_1.picking_type_id.create_backorder = 'ask'
         mo_1.action_confirm()
         pick = mo_1.move_raw_ids.move_orig_ids.picking_id
-        pick.picking_type_id.show_operations = True  # Could be false without demo data, as the lot group is disabled
         pick_form = Form(pick)
         with Form(pick.move_ids, view='stock.view_stock_move_operations') as form:
             with form.move_line_ids.edit(0) as move_line:
@@ -235,7 +234,7 @@ class TestMrpStockReports(TestReportsCommon):
             'product_tmpl_id': superkit.product_tmpl_id.id,
             'product_qty': 1,
             'type': 'phantom',
-            'product_uom_id': superkit.uom_id.id,
+            'uom_id': superkit.uom_id.id,
             'bom_line_ids': [
                 (0, 0, {'product_id': compo01.id, 'product_qty': 6}),
                 (0, 0, {'product_id': compo02.id, 'product_qty': 6}),
@@ -359,7 +358,7 @@ class TestMrpStockReports(TestReportsCommon):
         self.env['mrp.bom'].create({
             'product_id': product_chococake.id,
             'product_tmpl_id': product_chococake.product_tmpl_id.id,
-            'product_uom_id': product_chococake.uom_id.id,
+            'uom_id': product_chococake.uom_id.id,
             'product_qty': 1.0,
             'type': 'normal',
             'bom_line_ids': [
@@ -381,10 +380,9 @@ class TestMrpStockReports(TestReportsCommon):
         })
 
         mo.action_confirm()
-        # check that the mo and bom cost are correctly calculated after mo confirmation
+        # Check that the MO cost is correctly calculated after MO confirmation.
         overview_values = self.env['report.mrp.report_mo_overview'].get_report_values(mo.id)
         self.assertEqual(round(overview_values['data']['operations']['summary']['mo_cost'], 2), 14.45)
-        self.assertEqual(round(overview_values['data']['operations']['summary']['bom_cost'], 2), 14.44)
         mo.button_mark_done()
         mo.qty_produced = 0.
 
@@ -428,7 +426,7 @@ class TestMrpStockReports(TestReportsCommon):
         bom = self.env['mrp.bom'].create({
             'product_id': final_product.id,
             'product_tmpl_id': final_product.product_tmpl_id.id,
-            'product_uom_id': final_product.uom_id.id,
+            'uom_id': final_product.uom_id.id,
             'product_qty': 1.0,
             'type': 'normal',
             'bom_line_ids': [
@@ -515,10 +513,8 @@ class TestMrpStockReports(TestReportsCommon):
     def test_report_price_variants(self):
         """
         This tests the MO's report price when a variant is involved. It makes sure
-        that the BoM price takes only the current variant and not all of them. It also
-        tests that the lines that were removed from the MO but are still in the bom are
-        used in the BoM cost computing. Lastly, it makes sure that Kits are also accounted
-        for and used in the BoM cost as they should.
+        that the MO cost takes only the current variant and not all of them. It also
+        tests that Kits are accounted for and used in the MO cost as they should.
         """
         # Create a color variant, which will be used to create a Product
         attribute_color = self.env['product.attribute'].create({'name': 'Color'})
@@ -631,14 +627,12 @@ class TestMrpStockReports(TestReportsCommon):
             'bom_id': bom_normal.id,
         })
         mo_report = self.env['report.mrp.report_mo_overview'].get_report_values(mo.id)
-        self.assertEqual(mo_report['data']['extras']['unit_bom_cost'], mo_report['data']['extras']['unit_mo_cost'], 'The BoM unit cost should be equal to the sum of the products of said BoM')
-        # Check that the missing components (the components that were removed from the MO but are still in the BoM)
-        # are taken into account when computing the BoM cost
+        self.assertEqual(mo_report['data']['extras']['unit_mo_cost'], 120, 'The MO unit cost should be equal to the sum of the standard prices of all products in the BoM')
+        # Check that the MO cost follows the component lines still present on the MO.
         mo.move_raw_ids.filtered(lambda m: m.product_id == missing_product.product_variant_id and m.bom_line_id.bom_id.type != 'phantom').unlink()
-        # When a product has two possible variants, and then is deleted, it should be taken in the missing components
         mo.move_raw_ids.filtered(lambda m: m.product_id == black_white_product and m.bom_line_id.bom_id.type != 'phantom').unlink()
         mo_report = self.env['report.mrp.report_mo_overview'].get_report_values(mo.id)
-        self.assertEqual(mo_report['data']['extras']['unit_bom_cost'], mo_report['data']['extras']['unit_mo_cost'] + missing_product.standard_price + black_white_product.standard_price, 'The BoM unit cost should take the missing components into account, which are the deleted MO lines')
+        self.assertEqual(mo_report['data']['extras']['unit_mo_cost'], 55, 'The MO unit cost should only include the remaining MO component lines')
 
     def test_mo_overview_operation_cost(self):
         """ Test that operations correctly compute their cost depending on their cost_mode. """
@@ -680,21 +674,52 @@ class TestMrpStockReports(TestReportsCommon):
 
         overview_values = self.env['report.mrp.report_mo_overview'].get_report_values(mo.id)
         self.assertEqual(overview_values['data']['operations']['details'][0]['mo_cost'], 33.0)
-        self.assertEqual(overview_values['data']['operations']['details'][0]['real_cost'], 5.5)
         self.assertEqual(overview_values['data']['operations']['details'][1]['mo_cost'], 33.0)
-        self.assertEqual(overview_values['data']['operations']['details'][1]['real_cost'], 33.0)
 
-        # Costs should stay the same for a done MO and/or if the cost_mode of the operation is changed
+        # Once the MO is done, the MO cost column uses the actual cost.
         mo.button_mark_done()
         bom_baguette.operation_ids.filtered(lambda o: o.cost_mode == 'estimated').cost_mode = 'actual'
         overview_values = self.env['report.mrp.report_mo_overview'].get_report_values(mo.id)
-        self.assertEqual(overview_values['data']['operations']['details'][0]['mo_cost'], 33.0)
-        self.assertEqual(overview_values['data']['operations']['details'][0]['real_cost'], 5.5)
+        self.assertEqual(overview_values['data']['operations']['details'][0]['mo_cost'], 5.5)
         self.assertEqual(overview_values['data']['operations']['details'][1]['mo_cost'], 33.0)
-        self.assertEqual(overview_values['data']['operations']['details'][1]['real_cost'], 33.0)
+
+    def test_mo_overview_decorators(self):
+        """Test MO overview decorators for overconsumed components and operation duration.
+        """
+        workcenter = self.env['mrp.workcenter'].create({'name': 'Workcenter'})
+        bom = self.env['mrp.bom'].create({
+            'product_tmpl_id': self.product1.product_tmpl_id.id,
+            'bom_line_ids': [Command.create({'product_id': self.product.id})],
+            'operation_ids': [Command.create({
+                'name': 'Operation',
+                'workcenter_id': workcenter.id,
+            })],
+        })
+        mo = self.env['mrp.production'].create({'bom_id': bom.id})
+        mo.action_confirm()
+        overview_data = self.env['report.mrp.report_mo_overview'].get_report_values(mo.id)['data']
+        self.assertFalse(overview_data['components'][0]['summary'].get('quantity_decorator'))
+        self.assertFalse(overview_data['components'][0]['summary'].get('qty_consumed_decorator'))
+        self.assertFalse(overview_data['operations']['summary'].get('quantity_decorator'))
+        self.assertFalse(overview_data['operations']['details'][0].get('quantity_decorator'))
+
+        mo.move_raw_ids.quantity = 2
+        mo.workorder_ids.duration = 90
+        overview_data = self.env['report.mrp.report_mo_overview'].get_report_values(mo.id)['data']
+        self.assertFalse(overview_data['components'][0]['summary'].get('quantity_decorator'))
+        self.assertEqual(overview_data['components'][0]['summary']['qty_consumed_decorator'], 'danger')
+        self.assertEqual(overview_data['operations']['summary']['quantity_decorator'], 'danger')
+        self.assertEqual(overview_data['operations']['details'][0]['quantity_decorator'], 'danger')
+
+        mo.move_raw_ids.picked = True
+        Form.from_action(self.env, mo.button_mark_done()).save().action_confirm()
+        overview_data = self.env['report.mrp.report_mo_overview'].get_report_values(mo.id)['data']
+        self.assertEqual(overview_data['components'][0]['summary']['quantity_decorator'], 'danger')
+        self.assertEqual(overview_data['operations']['summary']['quantity_decorator'], 'danger')
+        self.assertEqual(overview_data['operations']['details'][0]['quantity_decorator'], 'danger')
 
     def test_mo_overview_with_different_uom(self):
-        """Ensure that the MO overview correctly computes costs
+        """Ensure that the MO overview correctly compute MO cost
         when the product UoM differs from the BoM UoM.
 
         In this case, the product is defined in Unit while the BoM
@@ -703,7 +728,7 @@ class TestMrpStockReports(TestReportsCommon):
         self.env['mrp.bom'].create({
             'product_id': self.product.id,
             'product_tmpl_id': self.product.product_tmpl_id.id,
-            'product_uom_id': self.env.ref('uom.product_uom_dozen').id,
+            'uom_id': self.env.ref('uom.product_uom_dozen').id,
             'product_qty': 1.0,
             'bom_line_ids': [Command.create({
                 'product_id': self.product1.id,
@@ -718,16 +743,15 @@ class TestMrpStockReports(TestReportsCommon):
         })
 
         mo.action_confirm()
-        # check that the mo and bom cost are correctly calculated after mo confirmation
+        # Check that the MO cost is correctly calculated after MO confirmation.
         overview_values = self.env['report.mrp.report_mo_overview'].get_report_values(mo.id)
-        self.assertEqual(overview_values['data']['components'][0]['summary']['bom_cost'], 120)
         self.assertEqual(overview_values['data']['components'][0]['summary']['mo_cost'], 120)
 
         # Test without BoM
         mo_no_bom = self.env['mrp.production'].create({
             'name': 'MO without BoM',
             'product_id': self.product.id,
-            'product_uom_id': self.env.ref('uom.product_uom_dozen').id,
+            'uom_id': self.env.ref('uom.product_uom_dozen').id,
             'product_qty': 1.0,
             'bom_id': False,
             'move_raw_ids': [Command.create({
@@ -737,5 +761,82 @@ class TestMrpStockReports(TestReportsCommon):
         })
         mo_no_bom.action_confirm()
         overview_values_no_bom = self.env['report.mrp.report_mo_overview'].get_report_values(mo_no_bom.id)
-        self.assertEqual(overview_values_no_bom['data']['components'][0]['summary']['bom_cost'], 120)
         self.assertEqual(overview_values_no_bom['data']['components'][0]['summary']['mo_cost'], 120)
+
+    def test_forecast_report_cross_warehouse_mo(self):
+        """
+        Test that when an MO is planned between two warehouses,
+        the forecast header report correctly computes the incoming
+        quantity for correct warehouse.
+        """
+        wh1 = self.env.ref('stock.warehouse0')
+        wh2 = self.wh_2
+        mo = self.env['mrp.production'].create({
+            'product_id': self.product.id,
+            'product_qty': 10,
+            'location_src_id': wh1.lot_stock_id.id,
+            'location_dest_id': wh2.lot_stock_id.id,
+        })
+        mo.action_confirm()
+        self.assertEqual(self.product.with_context(warehouse_id=wh1.id).incoming_qty, 0)
+        self.assertEqual(self.product.with_context(warehouse_id=wh2.id).incoming_qty, 10)
+
+    def test_stock_reception_action_assign_sets_group_ids(self):
+        """In this test we check if action_assign correctly links the MO's using the production groups.
+        We expect action_assign to correctly set parent_ids and child_ids in the group. Analog we expect
+        action_unassign to remove them.
+        """
+        warehouse = self.wh_2
+        route_mto = warehouse.mto_pull_id.route_id
+        route_mto.active = True
+
+        component, sub_component, part1, part2 = self.env['product.product'].create([
+            {'name': 'Component'},
+            {'name': 'Sub Component', 'route_ids': [Command.set([route_mto.id])]},
+            {'name': 'Part 1'},
+            {'name': 'Part 2'}
+        ])
+
+        component_bom = self.env['mrp.bom'].create({
+            'product_tmpl_id': component.product_tmpl_id.id,
+            'product_qty': 1.0,
+            'bom_line_ids': [
+                Command.create({'product_id': sub_component.id, 'product_qty': 1.0}),
+            ],
+        })
+        sub_component_bom = self.env['mrp.bom'].create({
+            'product_tmpl_id': sub_component.product_tmpl_id.id,
+            'product_qty': 1.0,
+            'bom_line_ids': [
+                Command.create({'product_id': part1.id, 'product_qty': 1.0}),
+                Command.create({'product_id': part2.id, 'product_qty': 1.0})
+            ],
+        })
+        component_mo = self.env['mrp.production'].create({
+            'bom_id': component_bom.id,
+            'product_qty': 1,
+        })
+        component_mo.action_confirm()
+        self.assertEqual(len(component_mo.production_group_id.child_ids), 1)
+        component_mo.production_group_id.child_ids.production_ids.action_cancel()
+        sub_component_mo = self.env['mrp.production'].create({
+            'product_id': sub_component.id,
+            'bom_id': sub_component_bom.id,
+            'product_qty': 1,
+        })
+
+        sub_component_mo.action_confirm()
+        in_move = sub_component_mo.move_finished_ids
+        out_move = component_mo.move_raw_ids
+        self.assertEqual(len(in_move), 1)
+        self.assertEqual(len(out_move), 1)
+        self.env['stock.allocation.report'].action_assign(in_move.ids, out_move.ids, 1)
+
+        component_mo_group = component_mo.production_group_id
+        sub_component_mo_group = sub_component_mo.production_group_id
+        self.assertIn(sub_component_mo_group.id, component_mo_group.child_ids.ids)
+        self.assertIn(component_mo_group.id, sub_component_mo_group.parent_ids.ids)
+
+        self.env['stock.allocation.report'].action_unassign(in_move.ids, out_move.ids, 1)
+        self.assertNotIn(sub_component_mo_group.id, component_mo_group.child_ids.ids)
+        self.assertNotIn(component_mo_group.id, sub_component_mo_group.parent_ids.ids)

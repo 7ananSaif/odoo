@@ -3,16 +3,15 @@ import { goToTheme, registerWebsitePreviewTour } from "@website/js/tours/tour_ut
 registerWebsitePreviewTour(
     "website_snippets_menu_tabs",
     {
-        url: "/",
         edition: true,
     },
     () => [
         ...goToTheme(),
         {
-            trigger: "div[data-container-title='Colors'] div.we-bg-options-container",
+            trigger: "div[data-container-title='Website'] div.we-bg-options-container",
         },
         {
-            content: "Click on the empty 'DRAG BUILDING BLOCKS HERE' area.",
+            content: "Click on the empty 'Drag blocks here' area.",
             trigger: ":iframe main > .oe_structure.oe_empty",
             run: "click",
         },

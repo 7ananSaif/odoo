@@ -33,6 +33,9 @@ class ProjectProject(models.Model):
     is_project_overtime = fields.Boolean('Project in Overtime', compute='_compute_remaining_hours', search='_search_is_project_overtime', compute_sudo=True, export_string_translation=False)
     allocated_hours = fields.Float(string='Allocated Time', tracking=True)
     effective_hours = fields.Float(string='Time Spent', compute='_compute_remaining_hours', compute_sudo=True)
+    stat_timesheet_value = fields.Char(compute='_compute_timesheet_stat_values', export_string_translation=False)
+    stat_extra_time_value = fields.Char(compute='_compute_timesheet_stat_values', export_string_translation=False)
+    stat_success_rate = fields.Float(compute='_compute_timesheet_stat_values', export_string_translation=False)
 
     def _compute_encode_uom_in_days(self):
         self.encode_uom_in_days = self.env.company.timesheet_encode_uom_id == self.env.ref('uom.product_uom_day')
@@ -62,7 +65,7 @@ class ProjectProject(models.Model):
         sql = Company._search(
             [('internal_project_id', '!=', False)],
             active_test=False, bypass_access=True,
-        ).subselect("internal_project_id")
+        ).subselect(SQL("internal_project_id"))
         return [('id', operator, sql)]
 
     @api.depends('allow_timesheets', 'timesheet_ids.unit_amount', 'allocated_hours')
@@ -78,6 +81,44 @@ class ProjectProject(models.Model):
             project.remaining_hours = project.allocated_hours - project.effective_hours
             project.is_project_overtime = project.remaining_hours < 0
 
+    @api.depends('allow_timesheets', 'total_timesheet_time', 'allocated_hours', 'timesheet_encode_uom_id')
+    def _compute_timesheet_stat_values(self):
+        for project in self:
+            encode_uom = project.timesheet_encode_uom_id
+            uom_ratio = self.env.ref('uom.product_uom_hour').factor / encode_uom.factor
+
+            stat_timesheet_value = False
+            stat_extra_time_value = False
+            success_rate = False
+
+            allocated = project.allocated_hours * uom_ratio
+            effective = project.total_timesheet_time
+            if allocated:
+                success_rate = round(100 * effective / allocated)
+                stat_timesheet_value = self.env._(
+                        "%(effective)s / %(allocated)s %(uom_name)s",
+                        effective=round(effective),
+                        allocated=round(allocated),
+                        uom_name=encode_uom.name,
+                    )
+                if success_rate > 100:
+                    stat_extra_time_value = self.env._(
+                        "%(exceeding_hours)s %(uom_name)s (+%(exceeding_rate)s%%)",
+                        exceeding_hours=round(effective - allocated),
+                        uom_name=encode_uom.name,
+                        exceeding_rate=round(100 * (effective - allocated) / allocated),
+                    )
+            else:
+                stat_timesheet_value = self.env._(
+                    "%(effective)s %(uom_name)s",
+                    effective=round(effective),
+                    uom_name=encode_uom.name,
+                )
+
+            project.stat_timesheet_value = stat_timesheet_value
+            project.stat_extra_time_value = stat_extra_time_value
+            project.stat_success_rate = success_rate
+
     @api.model
     def _search_is_project_overtime(self, operator, value):
         if operator not in ('in', 'not in'):
@@ -86,14 +127,12 @@ class ProjectProject(models.Model):
         sql = SQL("""(
             SELECT Project.id
               FROM project_project AS Project
-              JOIN project_task AS Task
-                ON Project.id = Task.project_id
+              JOIN account_analytic_line AS aal
+                ON Project.id = aal.project_id
              WHERE Project.allocated_hours > 0
                AND Project.allow_timesheets = TRUE
-               AND Task.parent_id IS NULL
-               AND Task.state IN ('01_in_progress', '02_changes_requested', '03_approved', '04_waiting_normal')
           GROUP BY Project.id
-            HAVING Project.allocated_hours - SUM(Task.effective_hours) < 0
+            HAVING Project.allocated_hours - SUM(aal.unit_amount) < 0
         )""")
         return [('id', operator, sql)]
 
@@ -129,6 +168,19 @@ class ProjectProject(models.Model):
             # Now convert to the proper unit of measure set in the settings
             total_time /= project.timesheet_encode_uom_id.factor
             project.total_timesheet_time = float_round(total_time, precision_digits=2)
+
+    def action_print_timesheets(self):
+        if not self.timesheet_ids:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'message': self.env._('There are no timesheets to print for this project'),
+                    'type': 'warning',
+                    'sticky': False,
+                }
+            }
+        return self.env.ref('hr_timesheet.timesheet_report_project').report_action(self)
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -216,74 +268,6 @@ class ProjectProject(models.Model):
     # ----------------------------
     #  Project Updates
     # ----------------------------
-
-    def _get_stat_buttons(self):
-        buttons = super()._get_stat_buttons()
-        if not self.allow_timesheets or not self.env.user.has_group("hr_timesheet.group_hr_timesheet_user"):
-            return buttons
-
-        encode_uom = self.env.company.timesheet_encode_uom_id
-        uom_ratio = self.env.ref('uom.product_uom_hour').factor / encode_uom.factor
-
-        allocated = self.allocated_hours * uom_ratio
-        effective = self.total_timesheet_time
-        color = ""
-        if allocated:
-            number = f"{round(effective)} / {round(allocated)} {encode_uom.name}"
-            success_rate = round(100 * effective / allocated)
-            if success_rate > 100:
-                number = self.env._(
-                    "%(effective)s / %(allocated)s %(uom_name)s",
-                    effective=round(effective),
-                    allocated=round(allocated),
-                    uom_name=encode_uom.name,
-                )
-                color = "text-danger"
-            else:
-                number = self.env._(
-                    "%(effective)s / %(allocated)s %(uom_name)s (%(success_rate)s%%)",
-                    effective=round(effective),
-                    allocated=round(allocated),
-                    uom_name=encode_uom.name,
-                    success_rate=success_rate,
-                )
-                if success_rate >= 80:
-                    color = "text-warning"
-                else:
-                    color = "text-success"
-        else:
-            number = self.env._(
-                    "%(effective)s %(uom_name)s",
-                    effective=round(effective),
-                    uom_name=encode_uom.name,
-                )
-
-        buttons.append({
-            "icon": f"clock-o {color}",
-            "text": self.env._("Timesheets"),
-            "number": number,
-            "action_type": "object",
-            "action": "action_project_timesheets",
-            "show": True,
-            "sequence": 2,
-        })
-        if allocated and success_rate > 100:
-            buttons.append({
-                "icon": f"warning {color}",
-                "text": self.env._("Extra Time"),
-                "number": self.env._(
-                    "%(exceeding_hours)s %(uom_name)s (+%(exceeding_rate)s%%)",
-                    exceeding_hours=round(effective - allocated),
-                    uom_name=encode_uom.name,
-                    exceeding_rate=round(100 * (effective - allocated) / allocated),
-                ),
-                "action_type": "object",
-                "action": "action_project_timesheets",
-                "show": True,
-                "sequence": 3,
-            })
-
-        return buttons
 
     def action_view_tasks(self):
         # Using the timesheet filter hide context

@@ -12,6 +12,7 @@
     email_notification_allow_header and has_button_access)"/>
 <t t-set="show_footer" t-value="email_notification_force_footer or (
     email_notification_allow_footer and show_header and author_user and author_user._is_internal())"/>
+<t t-set="subtitles_highlight_index" t-value="subtitles_highlight_index or 0"/>
 <!-- HEADER -->
 <t t-call="mail.notification_preview"/>
 <div style="max-width: 900px; width: 100%;">
@@ -38,9 +39,11 @@
                                 </td>
                                 <td t-if="has_button_access">&amp;nbsp;&amp;nbsp;</td>
                                 <td t-if="subtitles" style="font-size: 12px;">
-                                     <t t-foreach="subtitles" t-as="subtitle">
-                                        <span t-attf-style="{{ 'font-weight:bold;' if subtitle_first else '' }}"
-                                              t-out="subtitle"/>
+                                    <t t-foreach="subtitles" t-as="subtitle">
+                                        <span t-out="subtitle" t-attf-style="{{
+                                            'font-size: 20px; font-weight: bold;' if subtitles_highlight_index == subtitle_index and subtitle_index > 0
+                                            else 'font-weight:bold;' if subtitles_highlight_index == subtitle_index and subtitle_index == 0 else ''}}"
+                                        />
                                         <br t-if="not subtitle_last"/>
                                     </t>
                                 </td>
@@ -62,12 +65,7 @@
 </div>
 <!-- CONTENT -->
 <div t-out="message.body" style="font-size: 13px;"/>
-<ul t-if="tracking_values">
-    <t t-foreach="tracking_values" t-as="tracking">
-        <li><t t-out="tracking[0]"/>: <t t-if="tracking[1]" t-out="tracking[1]"/><em t-else="">None</em> &#8594; <t t-if="tracking[2]" t-out="tracking[2]"/><em t-else="">None</em></li>
-    </t>
-</ul>
-<t class="o_signature">
+<t name="o_signature">
     <div t-if="email_add_signature and not is_html_empty(signature)" t-out="signature" class="o_signature" style="font-size: 13px;"/>
 </t>
 <!-- FOOTER -->
@@ -84,7 +82,7 @@
 </div>
 <div t-if="show_footer" style="color: #555555; font-size:11px;">
     Powered by <a target="_blank" href="https://www.odoo.com?utm_source=db&amp;utm_medium=email"
-                  t-att-style="'color: ' + (company.email_secondary_color or '#875A7B') + ';'">Odoo</a>
+              t-attf-style="color: {{company.email_secondary_color or '#875A7B'}};">Odoo</a>
     <span t-if="show_unfollow" id="mail_unfollow">
         | <a href="/mail/unfollow" style="text-decoration:none; color:#555555;">Unfollow</a>
     </span>
@@ -142,14 +140,14 @@
     <tr>
         <td align="center" style="min-width: 590px; padding: 0 8px 0 8px; font-size:11px;">
             <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 4px 0px;"/>
-            <b t-out="company.name"/><br/>
-            <div style="color: #999999;">
+            <b t-out="company.name" style="font-size:11px;"/><br/>
+            <p style="color: #999999; margin-top:2px; font-size:11px;">
                 <t t-out="company.phone"/>
                 <t t-if="company.email and company.phone"> |</t>
                 <a t-if="company.email" t-att-href="'mailto:%s' % company.email" style="text-decoration:none; color: #999999;" t-out="company.email"/>
                 <t t-if="company.website and (company.phone or company.email)"> |</t>
                 <a t-if="company.website" t-att-href="'%s' % company.website" style="text-decoration:none; color: #999999;" t-out="company.website"/>
-            </div>
+            </p>
         </td>
     </tr>
 </tbody>
@@ -157,8 +155,8 @@
 </td></tr>
 <!-- POWERED BY -->
 <tr><td align="center" style="min-width: 590px;">
-        Powered by <a target="_blank" href="https://www.odoo.com?utm_source=db&amp;utm_medium=email"
-                      t-att-style="'color: ' + (company.email_secondary_color or '#875A7B') + ';'">Odoo</a>
+    Powered by <a target="_blank" href="https://www.odoo.com?utm_source=db&amp;utm_medium=email"
+              t-attf-style="color: {{company.email_secondary_color or '#875A7B'}};">Odoo</a>
     <span t-if="show_unfollow" id="mail_unfollow">
         | <a href="/mail/unfollow" style="text-decoration:none; color:#555555;">Unfollow</a>
     </span>
@@ -170,11 +168,6 @@
 
         <template id="notification_preview">
 <div style="display: none; max-height: 0px; overflow: hidden; color:#fff; font-size:0px; line-height:0px">
-    <t t-if="tracking_values">
-        <t t-out="tracking_values[0][0]"/>: <t t-out="tracking_values[0][1]"/> &#8594; <t t-out="tracking_values[0][2]"/>
-        <t t-if="len(tracking_values) > 1"> |...</t>
-        <t t-if="message.preview"> | </t>
-    </t>
     <t t-if="subtype_internal">Internal communication: </t><t t-out="message.preview"/>
     <!--Trailing whitespace to push back email content so that it doesn't appear in preview. Specific characters to use may change over time -->
     <t t-out="'&#847; &#8203; ' * 140"/>
@@ -184,8 +177,8 @@
         <template id="mail_notification_layout_with_responsible_signature"
                   name="Mail: mail notification layout with responsible signature (user_id of the record)"
                   inherit_id="mail.mail_notification_layout" primary="True">
-            <xpath expr="//t[hasclass('o_signature')]" position="replace">
-                <t class="o_signature">
+            <xpath expr="//t[@name='o_signature']" position="replace">
+                <t name="o_signature">
                     <div t-if="email_add_signature and record and 'user_id' in record and record.user_id and not record.env.user._is_superuser() and not is_html_empty(record.user_id.sudo().signature)"
                          t-out="record.user_id.sudo().signature" class="o_signature" style="font-size: 13px;"/>
                 </t>

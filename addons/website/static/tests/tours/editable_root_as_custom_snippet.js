@@ -12,18 +12,12 @@ registerWebsitePreviewTour(
     "editable_root_as_custom_snippet",
     {
         edition: true,
-        url: "/custom-page",
     },
     () => [
         ...clickOnSnippet(
-            ".s_title.custom[data-oe-model][data-oe-id][data-oe-field][data-oe-xpath]"
+            ".s_title.o_savable.custom[data-oe-model][data-oe-id][data-oe-field][data-oe-xpath]"
         ),
         changeOption("Title", ".oe_snippet_save"),
-        {
-            content: "Confirm modal",
-            trigger: ".modal-footer .btn-primary",
-            run: "click",
-        },
         goBackToBlocks(),
         {
             content: "Wait for the custom category to appear in the panel",
@@ -44,7 +38,7 @@ registerWebsitePreviewTour(
         {
             content: "Check that the custom snippet does not have branding",
             trigger:
-                ":iframe #wrap .s_title.custom:not([data-oe-model]):not([data-oe-id]):not([data-oe-field]):not([data-oe-xpath])",
+                ":iframe #wrap .s_title.custom:not([data-oe-model]):not([data-oe-id]):not([data-oe-field]):not([data-oe-xpath]):not(.o_savable)",
         },
     ]
 );

@@ -1,8 +1,8 @@
 import {
     Counter,
-    embedding,
     EmbeddedWrapper,
     EmbeddedWrapperMixin,
+    embedding,
     namedCounter,
     NamedCounter,
     OffsetCounter,
@@ -10,15 +10,25 @@ import {
     SavedCounter,
     savedCounter,
 } from "@html_editor/../tests/_helpers/embedded_component";
+import { nodeToTree } from "@html_editor/core/dom_reference_map_plugin";
 import {
     getEditableDescendants,
     StateChangeManager,
 } from "@html_editor/others/embedded_component_utils";
-import { MAIN_PLUGINS } from "@html_editor/plugin_sets";
+import { Plugin } from "@html_editor/plugin";
 import { parseHTML } from "@html_editor/utils/html";
-import { beforeEach, describe, expect, getFixture, test } from "@odoo/hoot";
-import { click, queryFirst, waitFor } from "@odoo/hoot-dom";
-import { animationFrame, tick } from "@odoo/hoot-mock";
+import {
+    animationFrame,
+    beforeEach,
+    click,
+    describe,
+    expect,
+    getFixture,
+    queryFirst,
+    test,
+    tick,
+    waitFor,
+} from "@odoo/hoot";
 import {
     App,
     Component,
@@ -27,25 +37,24 @@ import {
     onWillDestroy,
     onWillStart,
     onWillUnmount,
-    useRef,
-    useState,
+    signal,
+    t,
+    useProps,
     xml,
 } from "@odoo/owl";
+import { assignTestEnv, patchWithCleanup } from "@web/../tests/web_test_helpers";
+import { renderToElement } from "@web/core/utils/render";
 import { EmbeddedComponentPlugin } from "../src/others/embedded_component_plugin";
+import { cleanHints, processThroughCleanForSave } from "./_helpers/dispatch";
 import { setupEditor } from "./_helpers/editor";
 import { unformat } from "./_helpers/format";
 import { getContent, setSelection } from "./_helpers/selection";
-import { addStep, deleteBackward, deleteForward, redo, undo } from "./_helpers/user_actions";
-import { makeMockEnv, patchWithCleanup } from "@web/../tests/web_test_helpers";
-import { Deferred } from "@web/core/utils/concurrency";
-import { Plugin } from "@html_editor/plugin";
-import { cleanHints, dispatchCleanForSave } from "./_helpers/dispatch";
 import { expectElementCount } from "./_helpers/ui_expectations";
-import { renderToElement } from "@web/core/utils/render";
+import { commit, deleteBackward, deleteForward, redo, undo } from "./_helpers/user_actions";
 
 function getConfig(components) {
     return {
-        Plugins: [...MAIN_PLUGINS, EmbeddedComponentPlugin],
+        includePlugins: [EmbeddedComponentPlugin],
         resources: {
             embedded_components: components,
         },
@@ -67,7 +76,7 @@ describe("Mount and Destroy embedded components", () => {
         );
     });
 
-    test("can mount a embedded component from a step", async () => {
+    test("can mount a embedded component from a commit", async () => {
         const { el, editor } = await setupEditor(`<p>a[]b</p>`, {
             config: getConfig([embedding("counter", Counter)]),
         });
@@ -75,7 +84,7 @@ describe("Mount and Destroy embedded components", () => {
         editor.shared.dom.insert(
             parseHTML(editor.document, `<span data-embedded="counter"></span>`)
         );
-        editor.shared.history.addStep();
+        editor.shared.history.commit();
         expect(getContent(el)).toBe(
             `<p>a<span data-embedded="counter" data-oe-protected="true" contenteditable="false"></span>[]b</p>`
         );
@@ -96,11 +105,11 @@ describe("Mount and Destroy embedded components", () => {
             setup() {
                 onMounted(() => {
                     steps.push("mounted");
-                    expect(this.ref.el.isConnected).toBe(true);
+                    expect(this.ref().isConnected).toBe(true);
                 });
                 onWillUnmount(() => {
                     steps.push("willunmount");
-                    expect(this.ref.el.isConnected).toBe(true);
+                    expect(this.ref().isConnected).toBe(true);
                 });
                 onWillDestroy(() => steps.push("willdestroy"));
             }
@@ -123,11 +132,11 @@ describe("Mount and Destroy embedded components", () => {
             setup() {
                 onMounted(() => {
                     steps.push("mounted");
-                    expect(this.ref.el.isConnected).toBe(true);
+                    expect(this.ref().isConnected).toBe(true);
                 });
                 onWillUnmount(() => {
                     steps.push("willunmount");
-                    expect(this.ref.el?.isConnected).toBe(true);
+                    expect(this.ref()?.isConnected).toBe(true);
                 });
             }
         }
@@ -153,11 +162,11 @@ describe("Mount and Destroy embedded components", () => {
             setup() {
                 onMounted(() => {
                     expect.step("mounted");
-                    expect(this.ref.el.isConnected).toBe(true);
+                    expect(this.ref().isConnected).toBe(true);
                 });
                 onWillUnmount(() => {
                     expect.step("willunmount");
-                    expect(this.ref.el?.isConnected).toBe(true);
+                    expect(this.ref()?.isConnected).toBe(true);
                 });
             }
         }
@@ -167,7 +176,7 @@ describe("Mount and Destroy embedded components", () => {
         editor.shared.dom.insert(
             parseHTML(editor.document, `<span data-embedded="counter"></span>`)
         );
-        editor.shared.history.addStep();
+        editor.shared.history.commit();
         await animationFrame();
         expect.verifySteps(["mounted"]);
         expect(getContent(el)).toBe(
@@ -191,11 +200,11 @@ describe("Mount and Destroy embedded components", () => {
             setup() {
                 onMounted(() => {
                     expect.step("mounted");
-                    expect(this.ref.el.isConnected).toBe(true);
+                    expect(this.ref().isConnected).toBe(true);
                 });
                 onWillUnmount(() => {
                     expect.step("willunmount");
-                    expect(this.ref.el?.isConnected).toBe(true);
+                    expect(this.ref()?.isConnected).toBe(true);
                 });
             }
         }
@@ -206,7 +215,7 @@ describe("Mount and Destroy embedded components", () => {
             }
         );
 
-        editor.shared.history.stageSelection();
+        editor.shared.selection.stageSelection();
 
         expect(getContent(el)).toBe(
             `<p>a<span data-embedded="counter" data-oe-protected="true" contenteditable="false"><span class="counter">Counter:0</span></span>[]</p>`
@@ -254,7 +263,7 @@ describe("Mount and Destroy embedded components", () => {
                 config: getConfig([embedding("counter", Test)]),
             }
         );
-        editor.shared.history.stageSelection();
+        editor.shared.selection.stageSelection();
         expect(getContent(el)).toBe(
             `<p>a<span data-embedded="counter" data-oe-protected="true" contenteditable="false"><span class="counter">Counter:0</span></span>[]</p>`
         );
@@ -266,7 +275,7 @@ describe("Mount and Destroy embedded components", () => {
         editor.shared.dom.insert(
             parseHTML(editor.document, `<span data-embedded="counter"></span>`)
         );
-        editor.shared.history.addStep();
+        editor.shared.history.commit();
         await animationFrame();
         expect.verifySteps(["mounted"]);
         expect(getContent(el)).toBe(
@@ -310,31 +319,33 @@ describe("Mount and Destroy embedded components", () => {
         class RecursiveComponent extends Component {
             static template = xml`
                 <div>
-                    <div t-on-click="increment" t-att-class="'click count-' + props.index">Count:<t t-esc="state.value"/></div>
-                    <div t-ref="innerEditable" t-att-class="'innerEditable-' + props.index"/>
+                    <div t-on-click="this.increment" t-att-class="'click count-' + this.props.index">Count:<t t-out="this.value()" /></div>
+                    <div t-ref="this.innerEditableRef" t-att-class="'innerEditable-' + this.props.index" />
                 </div>
             `;
-            static props = {
-                innerValue: HTMLElement,
-                index: Number,
-            };
+
+            props = useProps({
+                innerValue: t.instanceOf(HTMLElement),
+                index: t.number(),
+            });
+
+            innerEditableRef = signal.ref();
+            value = signal(this.props.index);
+
             setup() {
-                this.innerEditableRef = useRef("innerEditable");
-                this.state = useState({
-                    value: this.props.index,
-                });
                 onMounted(() => {
                     this.props.innerValue.dataset.oeProtected = "false";
                     this.props.innerValue.setAttribute("contenteditable", "true");
-                    this.innerEditableRef.el.append(this.props.innerValue);
+                    this.innerEditableRef().append(this.props.innerValue);
                     expect.step(`mount ${this.props.index}`);
                 });
                 onWillDestroy(() => {
                     expect.step(`destroy ${this.props.index}`);
                 });
             }
+
             increment() {
-                this.state.value++;
+                this.value.set(this.value() + 1);
             }
         }
         let index = 1;
@@ -380,8 +391,8 @@ describe("Mount and Destroy embedded components", () => {
         for (const index of indexOrder) {
             embeddedComponentPlugin.mountComponent(...orderedMountInfos[index]);
         }
-        // Validate the step, but the mounting process already started.
-        editor.shared.history.addStep();
+        // Validate the commit, but the mounting process already started.
+        editor.shared.history.commit();
         await animationFrame();
         expect.verifySteps(["mount 1", "mount 2", "mount 3"]);
         expect(getContent(el)).toBe(
@@ -476,7 +487,7 @@ describe("Mount and Destroy embedded components", () => {
         );
         const host = el.querySelector("[data-embedded='counter']");
         host.remove();
-        editor.shared.history.addStep();
+        editor.shared.history.commit();
         expect.verifySteps(["destroyed counter"]);
         // Verify that there is no potential host outside of the editable,
         // because removed hosts are put back in the DOM and destroyed next to
@@ -507,7 +518,7 @@ describe("Mount and Destroy embedded components", () => {
         );
         const parent = el.querySelector(".parent");
         parent.remove();
-        editor.shared.history.addStep();
+        editor.shared.history.commit();
         expect.verifySteps(["destroyed counter"]);
         // Verify that there is no potential host outside of the editable,
         // because removed hosts are put back in the DOM and destroyed next to
@@ -531,7 +542,7 @@ describe("Selection after embedded component insertion", () => {
         editor.shared.dom.insert(
             parseHTML(editor.document, `<span data-embedded="counter">a</span>`)
         );
-        editor.shared.history.addStep();
+        editor.shared.history.commit();
         await animationFrame();
         expect(getContent(el)).toBe(
             `<p><span data-embedded="counter" data-oe-protected="true" contenteditable="false"><span class="counter">Counter:0</span></span>[]</p>`
@@ -544,7 +555,7 @@ describe("Selection after embedded component insertion", () => {
         editor.shared.dom.insert(
             parseHTML(editor.document, `<span data-embedded="counter"></span>`)
         );
-        editor.shared.history.addStep();
+        editor.shared.history.commit();
         await animationFrame();
         expect(getContent(el)).toBe(
             `<p>a<span data-embedded="counter" data-oe-protected="true" contenteditable="false"><span class="counter">Counter:0</span></span>[]</p>`
@@ -557,7 +568,7 @@ describe("Selection after embedded component insertion", () => {
         editor.shared.dom.insert(
             parseHTML(editor.document, `<span data-embedded="counter"></span>`)
         );
-        editor.shared.history.addStep();
+        editor.shared.history.commit();
         await animationFrame();
         expect(getContent(el)).toBe(
             `<p><span data-embedded="counter" data-oe-protected="true" contenteditable="false"><span class="counter">Counter:0</span></span>[]a</p>`
@@ -570,7 +581,7 @@ describe("Selection after embedded component insertion", () => {
         editor.shared.dom.insert(
             parseHTML(editor.document, `<span data-embedded="counter"></span>`)
         );
-        editor.shared.history.addStep();
+        editor.shared.history.commit();
         await animationFrame();
         expect(getContent(el)).toBe(
             `<p>a<span data-embedded="counter" data-oe-protected="true" contenteditable="false"><span class="counter">Counter:0</span></span>[]b</p>`
@@ -581,11 +592,11 @@ describe("Selection after embedded component insertion", () => {
             config: getConfig([embedding("counter", Counter)]),
         });
         editor.shared.dom.insert(parseHTML(editor.document, `<div data-embedded="counter"></div>`));
-        editor.shared.history.addStep();
-        // Insertion triggers selectionchange & addStep creates selection
-        // placeholder.fixSelectionInsideEditableRoot moves selection into it,
-        // trigger another selectionchange that removes selection placeholder.
-        // So we must wait for the o-we-hint.
+        editor.shared.history.commit();
+        // Insertion triggers `selectionchange` and `commit` creates a selection
+        // placeholder. `fixSelectionInsideEditableRoot` moves the selection
+        // into it and triggers another `selectionchange` that removes the
+        // selection placeholder. So we must wait for the `.o-we-hint`.
         await waitFor(".o-we-hint");
         cleanHints(editor);
         expect(getContent(el)).toBe(
@@ -600,11 +611,11 @@ describe("Selection after embedded component insertion", () => {
             config: getConfig([embedding("counter", Counter)]),
         });
         editor.shared.dom.insert(parseHTML(editor.document, `<div data-embedded="counter"></div>`));
-        editor.shared.history.addStep();
-        // Insertion triggers selectionchange & addStep creates selection
-        // placeholder.fixSelectionInsideEditableRoot moves selection into it,
-        // trigger another selectionchange that removes selection placeholder.
-        // So we must wait for the o-we-hint.
+        editor.shared.history.commit();
+        // Insertion triggers `selectionchange` and `commit` creates a selection
+        // placeholder. `fixSelectionInsideEditableRoot` moves the selection
+        // into it and triggers another `selectionchange` that removes the
+        // selection placeholder. So we must wait for the `.o-we-hint`.
         await waitFor(".o-we-hint");
         cleanHints(editor);
         expect(getContent(el)).toBe(
@@ -619,7 +630,7 @@ describe("Selection after embedded component insertion", () => {
             config: getConfig([embedding("counter", Counter)]),
         });
         editor.shared.dom.insert(parseHTML(editor.document, `<div data-embedded="counter"></div>`));
-        editor.shared.history.addStep();
+        editor.shared.history.commit();
         await animationFrame();
         cleanHints(editor);
         expect(getContent(el)).toBe(
@@ -634,7 +645,7 @@ describe("Selection after embedded component insertion", () => {
             config: getConfig([embedding("counter", Counter)]),
         });
         editor.shared.dom.insert(parseHTML(editor.document, `<div data-embedded="counter"></div>`));
-        editor.shared.history.addStep();
+        editor.shared.history.commit();
         await animationFrame();
         cleanHints(editor);
         expect(getContent(el)).toBe(
@@ -649,10 +660,12 @@ describe("Selection after embedded component insertion", () => {
 describe("Mount processing", () => {
     test("embedded component get proper props", async () => {
         class Test extends Counter {
-            static props = ["initialCount"];
+            props = useProps({
+                initialCount: t.any(),
+            });
             setup() {
                 expect(this.props.initialCount).toBe(10);
-                this.state.value = this.props.initialCount;
+                this.value.set(this.props.initialCount);
             }
         }
         const { el } = await setupEditor(`<p><span data-embedded="counter"></span></p>`, {
@@ -666,10 +679,12 @@ describe("Mount processing", () => {
 
     test("embedded component can compute props from element", async () => {
         class Test extends Counter {
-            static props = ["initialCount"];
+            props = useProps({
+                initialCount: t.any(),
+            });
             setup() {
                 expect(this.props.initialCount).toBe(10);
-                this.state.value = this.props.initialCount;
+                this.value.set(this.props.initialCount);
             }
         }
         const { el } = await setupEditor(
@@ -690,14 +705,15 @@ describe("Mount processing", () => {
 
     test("embedded component can set attributes on host element", async () => {
         class Test extends Counter {
-            static props = ["host"];
+            props = useProps({
+                host: t.any(),
+            });
             setup() {
-                const initialCount = parseInt(this.props.host.dataset.count);
-                this.state.value = initialCount;
+                this.value.set(parseInt(this.props.host.dataset.count));
             }
             increment() {
                 super.increment();
-                this.props.host.dataset.count = this.state.value;
+                this.props.host.dataset.count = this.value();
             }
         }
         const { el } = await setupEditor(
@@ -727,10 +743,9 @@ describe("Mount processing", () => {
             }
         }
 
-        const rootEnv = await makeMockEnv();
+        assignTestEnv({ somevalue: 1 });
         await setupEditor(`<p><span data-embedded="counter"></span></p>`, {
             config: getConfig([embedding("counter", Test)]),
-            env: Object.assign(rootEnv, { somevalue: 1 }),
         });
         expect(env.somevalue).toBe(1);
     });
@@ -745,53 +760,50 @@ describe("Mount processing", () => {
     });
 
     test("Host child nodes are removed synchronously with the insertion of owl rendered nodes during mount", async () => {
-        const asyncControl = new Deferred();
-        asyncControl.then(() => {
+        const asyncControl = Promise.withResolvers();
+        asyncControl.promise.then(() => {
             expect.step("minimal asynchronous time");
         });
         patchWithCleanup(App.prototype, {
             createRoot(Root, config) {
-                if (Root.name !== "LabeledCounter") {
-                    return super.createRoot(...arguments);
-                }
                 const root = super.createRoot(...arguments);
+                if (Root.name !== "LabeledCounter") {
+                    return root;
+                }
                 const mount = root.mount;
                 root.mount = (target, options) => {
-                    const result = mount(target, options);
                     if (target.dataset.embedded === "labeledCounter") {
-                        const fiber = root.node.fiber;
-                        const fiberComplete = fiber.complete;
-                        fiber.complete = function () {
-                            expect.step("html prop suppression");
-                            asyncControl.resolve();
-                            fiberComplete.call(this);
-                        };
+                        // `mount` is called synchronously after the host child
+                        // nodes suppression, and it inserts the owl rendered
+                        // nodes and runs `mounted` callbacks synchronously.
+                        expect.step("html prop suppression");
+                        asyncControl.resolve();
                     }
-                    return result;
+                    return mount(target, options);
                 };
                 return root;
             },
         });
-        const delayedWillStart = new Deferred();
+        const delayedWillStart = Promise.withResolvers();
         class LabeledCounter extends Counter {
             static template = xml`
-                <span t-ref="root" class="counter" t-on-click="increment">
-                    <span t-ref="label"/>:<t t-esc="state.value"/>
+                <span t-ref="this.ref" class="counter" t-on-click="this.increment">
+                    <span t-ref="this.labelRef"/>:<t t-out="this.value()"/>
                 </span>
             `;
-            static props = {
-                label: HTMLElement,
-            };
-            labelRef = useRef("label");
+            props = useProps({
+                label: t.instanceOf(HTMLElement),
+            });
+            labelRef = signal.ref();
             setup() {
                 onWillStart(async () => {
                     expect.step("willstart");
-                    await delayedWillStart;
+                    await delayedWillStart.promise;
                 });
                 onMounted(() => {
                     this.props.label.dataset.oeProtected = "false";
                     this.props.label.setAttribute("contenteditable", "true");
-                    this.labelRef.el.append(this.props.label);
+                    this.labelRef().append(this.props.label);
                     expect.step("html prop insertion");
                 });
             }
@@ -865,7 +877,7 @@ describe("Mount processing", () => {
             static id = "simple";
             static dependencies = ["selection", "embeddedComponents", "dom", "history"];
             resources = {
-                mount_component_handlers: this.setupNewComponent.bind(this),
+                on_will_mount_component_handlers: this.setupNewComponent.bind(this),
             };
 
             setupNewComponent({ name, env }) {
@@ -879,14 +891,14 @@ describe("Mount processing", () => {
             insertElement(element) {
                 const html = parseHTML(this.document, element);
                 this.dependencies.dom.insert(html);
-                this.dependencies.history.addStep();
+                this.dependencies.history.commit();
             }
         }
 
         class EmbeddedCounter extends Counter {
             static template = xml`
-                <span class="counter" t-on-click="increment">
-                    <t t-esc="state.value"/>
+                <span class="counter" t-on-click="this.increment">
+                    <t t-out="this.value()"/>
                 </span>
             `;
             setup() {
@@ -895,7 +907,7 @@ describe("Mount processing", () => {
             }
         }
         const config = getConfig([embedding("embeddedCounter", EmbeddedCounter)]);
-        config.Plugins.push(SimplePlugin);
+        config.includePlugins.push(SimplePlugin);
         const { plugins } = await setupEditor(`<p>[]a</p>`, { config });
         const simplePlugin = plugins.get("simple");
         simplePlugin.insertElement("<div data-embedded='embeddedCounter'/>");
@@ -913,7 +925,7 @@ describe("Mount processing", () => {
                 expect.step("onComponentInserted")
             );
         plugins.get("dom").insert(host);
-        addStep(editor);
+        commit(editor);
         await animationFrame();
         // First mount
         expect(getContent(el)).toBe(
@@ -921,7 +933,7 @@ describe("Mount processing", () => {
         );
         expect.verifySteps(["onComponentInserted"]);
         deleteBackward(editor);
-        addStep(editor);
+        commit(editor);
         expect(getContent(el)).toBe(`<p>[]after</p>`);
         undo(editor);
         await animationFrame();
@@ -942,13 +954,13 @@ describe("Mount processing", () => {
                 expect.step("onComponentInserted")
             );
         plugins.get("dom").insert(host);
-        addStep(editor);
+        commit(editor);
         expect(getContent(el)).toBe(
             `<p><span data-embedded="counter" data-oe-protected="true" contenteditable="false"></span>[]after</p>`
         );
         // Don't wait for the component to mount, and remove the host
         deleteBackward(editor);
-        addStep(editor);
+        commit(editor);
         expect(getContent(el)).toBe(`<p>[]after</p>`);
         undo(editor);
         await animationFrame();
@@ -991,8 +1003,7 @@ describe("In-editor manipulations", () => {
                 config: getConfig([embedding("counter", Counter)]),
             }
         );
-        const clone = el.cloneNode(true);
-        dispatchCleanForSave(editor, { root: clone });
+        const clone = processThroughCleanForSave(editor, el.cloneNode(true));
         expect(getContent(clone)).toBe(`<div><p>a</p></div><div data-embedded="counter"></div>`);
     });
 
@@ -1016,8 +1027,12 @@ describe("In-editor manipulations", () => {
                 config: getConfig([embedding("counter", Counter)]),
             }
         );
-        const historyPlugin = plugins.get("history");
-        const node = historyPlugin._unserializeNode(historyPlugin.serializeNode(el))[0];
+        const domReferenceMapPlugin = plugins.get("domReferenceMap");
+        const serializedEditable = domReferenceMapPlugin.serializeTree(nodeToTree(el));
+        // Unserialize on a clean map.
+        domReferenceMapPlugin.idToNodeMap = new Map();
+        domReferenceMapPlugin.nodeToIdMap = new Map();
+        const node = domReferenceMapPlugin.unserializeNode(serializedEditable);
         expect(getContent(node, { sortAttrs: true })).toBe(
             `<p data-selection-placeholder=""><br></p><div><p>a</p></div><p data-selection-placeholder=""><br></p><div contenteditable="false" data-embedded="counter" data-oe-protected="true"></div><p data-selection-placeholder=""><br></p>`
         );
@@ -1028,7 +1043,7 @@ describe("In-editor manipulations", () => {
             `<div data-embedded="unknown"><p>UNKNOWN</p></div>`,
             { config: getConfig([]) }
         );
-        dispatchCleanForSave(editor, { root: el });
+        processThroughCleanForSave(editor, el);
         expect(getContent(el)).toBe(`<div data-embedded="unknown"><p>UNKNOWN</p></div>`);
     });
 
@@ -1037,8 +1052,12 @@ describe("In-editor manipulations", () => {
             `<div data-embedded="unknown"><p>UNKNOWN</p></div>`,
             { config: getConfig([]) }
         );
-        const historyPlugin = plugins.get("history");
-        const node = historyPlugin._unserializeNode(historyPlugin.serializeNode(el))[0];
+        const domReferenceMapPlugin = plugins.get("domReferenceMap");
+        const serializedEditable = domReferenceMapPlugin.serializeTree(nodeToTree(el));
+        // Unserialize on a clean map.
+        domReferenceMapPlugin.idToNodeMap = new Map();
+        domReferenceMapPlugin.nodeToIdMap = new Map();
+        const node = domReferenceMapPlugin.unserializeNode(serializedEditable);
         expect(getContent(node)).toBe(
             `<p data-selection-placeholder=""><br></p><div data-embedded="unknown"><p>UNKNOWN</p></div><p data-selection-placeholder=""><br></p>`
         );
@@ -1123,7 +1142,7 @@ describe("editable descendants", () => {
                 `)
             )
         );
-        addStep(editor);
+        commit(editor);
         await animationFrame();
         expect(getContent(el)).toBe(
             unformat(`
@@ -1149,7 +1168,7 @@ describe("editable descendants", () => {
         undo(editor);
         await animationFrame();
         expect(getContent(el)).toBe(`<p>[]after</p>`);
-        expect(plugins.get("history").currentStep.mutations.length).toBe(0);
+        expect(plugins.get("domObserver").mutations.length).toBe(0);
     });
 
     test("editable descendants are extracted and put back in place when a patch is changing the template shape", async () => {
@@ -1182,7 +1201,7 @@ describe("editable descendants", () => {
                 ]),
             }
         );
-        wrapper.state.switch = true;
+        wrapper.switch.set(true);
         await animationFrame();
         expect.verifySteps(["patched"]);
         expect(getContent(el)).toBe(
@@ -1207,12 +1226,12 @@ describe("editable descendants", () => {
                 <p data-selection-placeholder=""><br></p>
             `)
         );
-        // No mutation should be added to the next step
-        editor.shared.history.addStep();
-        const historyPlugin = plugins.get("history");
-        const historySteps = editor.shared.history.getHistorySteps();
-        expect(historySteps.length).toBe(1);
-        expect(historyPlugin.currentStep.mutations).toEqual([]);
+        // No mutation should be added to the next commit
+        editor.shared.history.commit();
+        const historyCommits = editor.shared.history.getCommits();
+        expect(historyCommits.length).toBe(1);
+        const domObserverPlugin = plugins.get("domObserver");
+        expect(domObserverPlugin.mutations).toEqual([]);
     });
 
     test("editable descendants are extracted and put back in place during cleanforsave", async () => {
@@ -1235,8 +1254,7 @@ describe("editable descendants", () => {
                 ]),
             }
         );
-        const clone = el.cloneNode(true);
-        dispatchCleanForSave(editor, { root: clone });
+        const clone = processThroughCleanForSave(editor, el.cloneNode(true));
         expect(getContent(clone)).toBe(
             unformat(`
                 <div data-embedded="wrapper">
@@ -1271,8 +1289,12 @@ describe("editable descendants", () => {
                 ]),
             }
         );
-        const historyPlugin = plugins.get("history");
-        const node = historyPlugin._unserializeNode(historyPlugin.serializeNode(el))[0];
+        const domReferenceMapPlugin = plugins.get("domReferenceMap");
+        const serializedEditable = domReferenceMapPlugin.serializeTree(nodeToTree(el));
+        // Unserialize on a clean map.
+        domReferenceMapPlugin.idToNodeMap = new Map();
+        domReferenceMapPlugin.nodeToIdMap = new Map();
+        const node = domReferenceMapPlugin.unserializeNode(serializedEditable);
         expect(getContent(node, { sortAttrs: true })).toBe(
             unformat(`
                 <p data-selection-placeholder=""><br></p>
@@ -1370,9 +1392,9 @@ describe("editable descendants", () => {
                 </div>
             `)
         );
-        addStep(editor);
         // Set the selection before the component is mounted
         plugins.get("selection").setCursorStart(el.querySelector("[data-embedded-editable] p"));
+        commit(editor);
         expect(getContent(el)).toBe(
             unformat(`
                 <p data-selection-placeholder=""><br></p>
@@ -1440,9 +1462,7 @@ describe("Embedded state", () => {
         expect(counter.embeddedState).toEqual({
             baseValue: 2,
         });
-        expect(counter.state).toEqual({
-            value: 1,
-        });
+        expect(counter.value()).toBe(1);
     });
 
     test("Adding a new property in the embedded state should re-render and write on embedded attributes", async () => {
@@ -1550,7 +1570,7 @@ describe("Embedded state", () => {
                 baseValue: 5,
             },
         });
-        editor.shared.history.addStep();
+        editor.shared.history.commit();
         await animationFrame();
         expect(getContent(el)).toBe(
             `<p><span data-embedded="counter" data-embedded-props='{"baseValue":4}' data-oe-protected="true" contenteditable="false" data-embedded-state='{"stateChangeId":-1,"previous":{"baseValue":1},"next":{"baseValue":5}}'><span class="counter">Counter:4</span></span></p>`
@@ -1567,9 +1587,7 @@ describe("Embedded state", () => {
         expect(counter.embeddedState).toEqual({
             baseValue: 4,
         });
-        expect(counter.state).toEqual({
-            value: 1,
-        });
+        expect(counter.value()).toEqual(1);
     });
 
     test("Re-write the same value on `data-embedded-state` does not update the embedded state", async () => {

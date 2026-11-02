@@ -1,13 +1,8 @@
 {
     'name' : 'IM Bus',
-    'version': '1.0',
     'category': 'Hidden',
     'description': "Instant Messaging Bus allow you to send messages to users, in live.",
     'depends': ['base', 'web'],
-    'data': [
-        'security/ir.model.access.csv',
-    ],
-    'installable': True,
     'auto_install': True,
     'assets': {
         'web.assets_backend': [
@@ -20,8 +15,8 @@
         'web.assets_frontend': [
             'bus/static/src/*.js',
             'bus/static/src/services/**/*.js',
-            ('remove', 'bus/static/src/services/assets_watchdog_service.js'),
-            ('remove', 'bus/static/src/simple_notification_service.js'),
+            ('remove', 'bus/static/src/services/assets_watchdog_plugin.js'),
+            ('remove', 'bus/static/src/simple_notification_plugin.js'),
             'bus/static/src/workers/*',
             ('remove', 'bus/static/src/workers/bus_worker_script.js'),
         ],
@@ -31,6 +26,7 @@
         ],
         'bus.websocket_worker_assets': [
             'web/static/src/module_loader.js',
+            'web/static/src/polyfills/promise.js',
             'bus/static/src/workers/*',
         ],
     },

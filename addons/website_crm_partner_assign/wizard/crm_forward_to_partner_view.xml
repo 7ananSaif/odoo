@@ -21,7 +21,7 @@
                             <field name="lead_location" readonly="1"/>
                             <field name="partner_assigned_id"/>
                             <field name="partner_location" readonly="1"/>
-                            <field name="lead_link" column_invisible="True"/>
+                            <field name="lead_link" column_invisible="True"/>  <!-- Set via the default_get of the parent wizard. required to save it. -->
                         </list>
                     </field>
                     <notebook colspan="4" groups="base.group_no_one">
@@ -31,7 +31,7 @@
                     </notebook>
                     <footer>
                         <button name="action_forward" string="Send" type="object" class="btn-primary" data-hotkey="q"/>
-                        <button string="Cancel" special="cancel" data-hotkey="x" class="btn-secondary"/>
+                        <button special="cancel" data-hotkey="x" class="btn-secondary"/>
                     </footer>
                 </form>
             </field>

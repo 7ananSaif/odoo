@@ -8,6 +8,8 @@ from odoo.exceptions import UserError
 @tagged('post_install', '-at_install')
 class TestAccruedTimeSheetSaleOrders(TestCommonSaleTimesheet):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -48,6 +50,7 @@ class TestAccruedTimeSheetSaleOrders(TestCommonSaleTimesheet):
         wizard = self.env['account.accrued.orders.wizard'].with_context({
             'active_model': 'sale.order',
             'active_ids': self.sale_order.ids,
+            'default_accrual_type': 'invoice_to_be_issued',
         }).create({
             'account_id': self.company_data['default_account_expense'].id,
             'date': '2020-01-01',
@@ -99,6 +102,7 @@ class TestAccruedTimeSheetSaleOrders(TestCommonSaleTimesheet):
         wizard = self.env['account.accrued.orders.wizard'].with_context({
             'active_model': 'sale.order',
             'active_ids': self.sale_order.ids,
+            'default_accrual_type': 'invoice_to_be_issued',
         }).create({
             'account_id': self.company_data['default_account_expense'].id,
             'date': '2020-01-02',

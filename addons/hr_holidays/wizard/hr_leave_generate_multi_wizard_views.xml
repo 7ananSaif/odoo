@@ -5,13 +5,8 @@
         <field name="arch" type="xml">
             <form string="Generate time off for multiple employees">
                 <group>
-                    <field name="holiday_status_id" domain="[('requires_allocation', '=', False)]" class="w-100"/>
-                    <field name="allocation_mode" string="Mode" groups="hr_holidays.group_hr_holidays_user"/>
-                    <field name="employee_ids" invisible="allocation_mode != 'employee'" required="allocation_mode == 'employee'" 
-                    widget="many2many_avatar_employee" placeholder="Everyone"/>
-                    <field name="company_id" invisible="allocation_mode != 'company'"/>
-                    <field name="department_id" invisible="allocation_mode != 'department'" required="allocation_mode == 'department'"/>
-                    <field name="category_id" invisible="allocation_mode != 'category'" required="allocation_mode == 'category'"/>
+                    <field name="employee_ids" widget="many2many_avatar_employee" placeholder="All Employees"/>
+                    <field name="valid_work_entry_type_ids" invisible="1"/>
                     <label for="date_from" string="Dates"/>
                     <field
                         name="date_from"
@@ -19,11 +14,34 @@
                         options="{'end_date_field': 'date_to'}"
                         class="w-50" nolabel="1"/>
                     <field name="date_to" invisible="1" />
+                    <!-- half day or custom hours-->
+                    <label for="date_from_period" invisible="work_entry_type_request_unit != 'half_day'" string="Day Period"/>
+                    <div class="o_row" invisible="work_entry_type_request_unit != 'half_day'">
+                        <field name="date_from_period" invisible="work_entry_type_request_unit != 'half_day'" required="work_entry_type_request_unit == 'half_day'" class="o_hr_narrow_field me-2"/>
+                        <field name="date_to_period" invisible="work_entry_type_request_unit != 'half_day'" required="work_entry_type_request_unit == 'half_day'" class="o_hr_narrow_field"/>
+                    </div>
+                    <label for="hour_from" invisible="work_entry_type_request_unit != 'hour'" string="Hours"/>
+                    <div class="o_row" invisible="work_entry_type_request_unit != 'hour'">
+                        <field name="hour_from" required="work_entry_type_request_unit != 'hour'" widget="float_time_selection" class="o_hr_narrow_field me-2"/>
+                        <field name="hour_to" required="work_entry_type_request_unit != 'hour'" widget="float_time_selection" class="o_hr_narrow_field"/>
+                    </div>
+                    <field name="work_entry_type_id" widget="many2one_work_entry_type" class="w-100"
+                        domain="[
+                            ('id', 'in', allowed_work_entry_type_ids),
+                            '|',
+                                ('requires_allocation', '=', False),
+                                '&amp;',
+                                    ('has_valid_allocation', '=', True),
+                                    '|',
+                                        ('allows_negative', '=', True),
+                                        '&amp;',
+                                            ('virtual_remaining_leaves', '>', 0),
+                                            ('allows_negative', '=', False),]"/>
                 </group>
                 <field name="name" widget="text" placeholder="e.g. Extra recuperation, Company unavailability, ..."/>
                 <footer>
                     <button name="action_generate_time_off" type="object" class="btn-primary" string="Generate Time Off" accesskey="c"/>
-                    <button special="cancel" string="Discard" close="1" accesskey="j" />
+                    <button special="cancel" close="1" accesskey="j"/>
                 </footer>
             </form>
         </field>

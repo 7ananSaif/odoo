@@ -2,8 +2,10 @@ import logging
 import re
 from stdnum.in_ import pan
 
+from requests import RequestException
+
 from odoo import api, fields, models, _
-from odoo.exceptions import UserError, AccessError, ValidationError
+from odoo.exceptions import UserError, ValidationError
 from odoo.addons.l10n_in.models.iap_account import IAP_SERVICE_NAME
 from odoo.tools.misc import clean_context
 
@@ -30,6 +32,7 @@ class ResPartner(models.Model):
     l10n_in_pan_entity_id = fields.Many2one(
         comodel_name='l10n_in.pan.entity',
         string="PAN",
+        index='btree_not_null',
         ondelete='restrict',
         help="PAN enables the department to link all transactions of the person with the department.\n"
              "These transactions include taxpayments, TDS/TCS credits, returns of income/wealth/gift/FBT,"
@@ -74,12 +77,18 @@ class ResPartner(models.Model):
         for partner in self:
             partner.display_pan_warning = partner.vat and partner.l10n_in_pan_entity_id and partner.l10n_in_pan_entity_id.name != partner.vat[2:12]
 
-    @api.depends('company_id.l10n_in_is_gst_registered', 'company_id.l10n_in_gstin_status_feature')
+    @api.depends('company_id.l10n_in_gst_registration_type', 'company_id.l10n_in_gstin_status_feature')
     def _compute_l10n_in_gst_registered_and_status(self):
         for record in self:
             company = record.company_id or self.env.company
-            record.l10n_in_is_gst_registered_enabled = company.l10n_in_is_gst_registered
+            record.l10n_in_is_gst_registered_enabled = bool(company.l10n_in_gst_registration_type)
             record.l10n_in_gstin_status_feature_enabled = company.l10n_in_gstin_status_feature
+
+    def _inverse_vat(self):
+        super()._inverse_vat()
+        for partner in self:
+            if partner.country_code == 'IN':
+                partner.ref_company_ids._update_l10n_in_gst_registration_type()
 
     @api.onchange('vat')
     def _onchange_l10n_in_gst_status(self):
@@ -130,7 +139,7 @@ class ResPartner(models.Model):
         self.check_access('write')
         if self.env.company.sudo().account_fiscal_country_id.code != 'IN':
             raise UserError(_('You must be logged in an Indian company to use this feature'))
-        if not self.vat:
+        if not self.has_vat:
             raise ValidationError(_("Please enter the GSTIN"))
         if not self.env.company.l10n_in_gstin_status_feature:
             raise ValidationError(_("This feature is not activated. Go to Settings to activate this feature."))
@@ -146,10 +155,10 @@ class ResPartner(models.Model):
                 '/iap/l10n_in_reports/1/public/search',
                 "l10n_in.endpoint"
             )
-        except AccessError:
+        except RequestException:
             raise UserError(_("Unable to connect with GST network"))
         if response.get('error') and any(e.get('code') == 'no-credit' for e in response['error']):
-            return self.env["bus.bus"]._sendone(self.env.user.partner_id, "iap_notification",
+            return self.env.user._bus_send("iap_notification",
                 {
                     "type": "no_credit",
                     "title": _("Not enough credits to check GSTIN status"),
@@ -201,7 +210,7 @@ class ResPartner(models.Model):
             )
         self.write({
             "l10n_in_gstin_verified_status": l10n_in_gstin_verified_status,
-            "l10n_in_gstin_verified_date": fields.Date.today(),
+            "l10n_in_gstin_verified_date": fields.Date.context_today(self),
         })
         return {
             "type": "ir.actions.client",
@@ -247,7 +256,6 @@ class ResPartner(models.Model):
         partner_data.update({
             'country_id': partner_data.get('country_id', {}).get('id'),
             'state_id': partner_data.get('state_id', {}).get('id'),
-            'company_type': 'company',
             'l10n_in_gst_treatment': partner_data.get('l10n_in_gst_treatment', 'regular'),
         })
         return partner_data

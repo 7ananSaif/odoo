@@ -3,13 +3,17 @@
 from odoo import Command
 from odoo.tests import Form
 
-from odoo.addons.project_purchase.tests.test_project_profitability import TestProjectPurchaseProfitability
+from odoo.addons.purchase.tests.test_purchase_invoice import TestPurchaseToInvoiceCommon
+from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 
 
-class TestProjectPurchase(TestProjectPurchaseProfitability):
+class TestProjectPurchase(TestPurchaseToInvoiceCommon, AccountTestInvoicingCommon):
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.env.user.group_ids += cls.env.ref('project.group_project_manager')
         cls.project_plan, _other_plans = cls.env['account.analytic.plan']._get_all_plans()
         cls.proj_analytic_account = cls.env['account.analytic.account'].create({
             'name': 'AA of Project',
@@ -21,6 +25,7 @@ class TestProjectPurchase(TestProjectPurchaseProfitability):
         })
 
         # Create additional analytic plans at setup to avoid adding fields in project.project between tests
+        cls.analytic_plan = cls.env['account.analytic.plan'].create({'name': 'Plan A'})
         cls.analytic_plan_1 = cls.env['account.analytic.plan'].create({'name': 'Purchase Project Plan 1'})
         cls.analytic_plan_2 = cls.env['account.analytic.plan'].create({'name': 'Purchase Project Plan 2'})
         cls.analytic_account_1 = cls.env['account.analytic.account'].create({
@@ -31,6 +36,11 @@ class TestProjectPurchase(TestProjectPurchaseProfitability):
             'name': 'Analytic Account - Plan 2',
             'plan_id': cls.analytic_plan_2.id,
         })
+        cls.analytic_account = cls.env['account.analytic.account'].create({
+            'name': 'Project - AA',
+            'code': 'AA-1234',
+            'plan_id': cls.analytic_plan.id,
+        })
 
     def test_project_on_pol_with_analytic_distribution_model(self):
         """ If a line has a distribution coming from an analytic distribution model, and the PO has a project,
@@ -39,16 +49,15 @@ class TestProjectPurchase(TestProjectPurchaseProfitability):
         """
         # We create one distribution model with two accounts in one line, based on product
         # and a second model with a different plan, based on partner
-        distribution_model_product = self.env['account.analytic.distribution.model'].create({
+        self.env['account.analytic.distribution.model'].create([{
             'product_id': self.product_order.id,
             'analytic_distribution': {','.join([str(self.analytic_account_1.id), str(self.analytic_account_2.id)]): 100},
             'company_id': self.company.id,
-        })
-        distribution_model_partner = self.env['account.analytic.distribution.model'].create({
+        }, {
             'partner_id': self.partner_a.id,
             'analytic_distribution': {self.analytic_account.id: 100},
             'company_id': self.company.id,
-        })
+        }])
 
         purchase_order = self.env['purchase.order'].create({
             'partner_id': self.partner_a.id,
@@ -58,14 +67,13 @@ class TestProjectPurchase(TestProjectPurchaseProfitability):
         })
         self.assertEqual(
             purchase_order.order_line.analytic_distribution,
-            distribution_model_product.analytic_distribution | distribution_model_partner.analytic_distribution
+            {f"{self.analytic_account.id},{self.analytic_account_1.id},{self.analytic_account_2.id}": 100}
         )
 
         # When we add a project to the PO, it should keep the previous accounts + the project account
         purchase_order.project_id = self.project1
         expected_distribution_project = {
-            f"{self.analytic_account_1.id},{self.analytic_account_2.id},{self.project1.account_id.id}": 100,
-            f"{self.analytic_account.id},{self.project1.account_id.id}": 100,
+            f"{self.analytic_account.id},{self.analytic_account_1.id},{self.analytic_account_2.id},{self.project1.account_id.id}": 100,
         }
         self.assertEqual(purchase_order.order_line.analytic_distribution, expected_distribution_project)
 

@@ -1,18 +1,12 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-import warnings
-
 from collections import defaultdict, OrderedDict
-from datetime import datetime
-from dateutil.relativedelta import relativedelta
 from functools import partial
-from operator import itemgetter
 
 from odoo import http, _
 from odoo.addons.website.controllers.form import WebsiteForm
 from odoo.fields import Domain
 from odoo.http import request
-from odoo.tools import email_normalize, escape_psql
 from odoo.tools.translate import LazyTranslate
 
 _lt = LazyTranslate(__name__)
@@ -29,7 +23,7 @@ class WebsiteHrRecruitment(WebsiteForm):
         '/jobs',
         '/jobs/page/<int:page>',
     ], type='http', auth="public", website=True, sitemap=sitemap_jobs, list_as_website_content=_lt("Jobs"))
-    def jobs(self, country_id=None, all_countries=False, department_id=None, office_id=None, contract_type_id=None,
+    def jobs(self, country_id=None, all_countries=False, department_id=None, office_id=None, employee_type_id=None,
              is_remote=False, is_other_department=False, is_untyped=None,  industry_id=None, is_industry_untyped=False,
              noFuzzy=False, page=1, search=None, **kwargs):
         """ This method is returning the job page.
@@ -42,7 +36,7 @@ class WebsiteHrRecruitment(WebsiteForm):
                 'department_id': department.id,
                 'address_id': office.id,
                 'industry_id': industry.id,
-                'contract_type_id': contract_type.id,
+                'employee_type_id': contract_type.id,
             }
 
             all_fields = all(
@@ -52,7 +46,8 @@ class WebsiteHrRecruitment(WebsiteForm):
             )
             if not all_fields or (
                 country_filter and not (
-                    job.address_id and job.address_id.country_id == country
+                    not job.address_id or
+                    (job.address_id and job.address_id.country_id == country)
                 )
             ):
                 return False
@@ -60,7 +55,7 @@ class WebsiteHrRecruitment(WebsiteForm):
                 'department_id': is_other_department,
                 'address_id': is_remote and filter_to_disable != 'country_id',
                 'industry_id': is_industry_untyped,
-                'contract_type_id': is_untyped,
+                'employee_type_id': is_untyped,
             }
             return all(
                 not job[job_field]
@@ -91,7 +86,7 @@ class WebsiteHrRecruitment(WebsiteForm):
             fields_and_filters = {
                 ('address_id', 'count_per_office'),
                 ('department_id', 'count_per_department'),
-                ('contract_type_id', 'count_per_employment_type'),
+                ('employee_type_id', 'count_per_employment_type'),
                 ('industry_id', 'count_per_industry'),
             }
             for field, alias in fields_and_filters:
@@ -110,30 +105,29 @@ class WebsiteHrRecruitment(WebsiteForm):
             return int(query_arg) if query_arg and query_arg.isdigit() else False
 
         env = request.env(context=dict(request.env.context, show_address=True, no_tag_br=True))
-        website = request.website
         department = env['hr.department'].browse(to_int(department_id)).exists().sudo()
         country = env['res.country'].browse(to_int(country_id)).exists()
         office = env['res.partner'].browse(to_int(office_id)).exists()
-        contract_type = env['hr.contract.type'].browse(to_int(contract_type_id)).exists().sudo()
+        contract_type = env['hr.employee.type'].browse(to_int(employee_type_id)).exists().sudo()
         industry = env['res.partner.industry'].browse(to_int(industry_id)).exists().sudo()
 
         if not (country or department or office or contract_type or all_countries) \
             and (code := request.geoip.country_code) \
                 and (country := env['res.country'].search([('code', '=', code)], limit=1)):
             country_count = env['hr.job'].sudo().search_count(
-                website.website_domain()
+                self.env.website.website_domain()
                 & Domain('address_id.country_id', '=', country.id)
                 & Domain('is_published', '=', True)
             )
             if not country_count:
                 country = False
 
-        _total_not_used, details, fuzzy_search_term = website._search_with_fuzzy(
+        _total_not_used, details, fuzzy_search_term = self.env.website._search_with_fuzzy(
             "jobs", search,
+            offset=0,
             limit=self._jobs_per_page * 50,
             order="is_published desc, sequence, no_of_recruitment desc",
             options={
-                'displayDescription': True,
                 'allowFuzzy': not noFuzzy,
             }
         )
@@ -141,7 +135,7 @@ class WebsiteHrRecruitment(WebsiteForm):
         job_filter_values = get_filter_snippets_display_values(searched_jobs)
         found_jobs = searched_jobs.filtered(job_filtering_condition)
         total = len(found_jobs)
-        pager = website.pager(
+        pager = self.env.website.pager(
             url=request.httprequest.path.partition('/page/')[0],
             url_args=request.httprequest.args,
             total=total,
@@ -152,10 +146,11 @@ class WebsiteHrRecruitment(WebsiteForm):
         jobs_to_display = found_jobs[offset:offset + self._jobs_per_page]
         return request.render("website_hr_recruitment.index", {
             'jobs': jobs_to_display,
+            'structured_data': jobs_to_display._render_jsonld(),
             'country_id': country,
             'department_id': department,
             'office_id': office,
-            'contract_type_id': contract_type,
+            'employee_type_id': contract_type,
             'industry_id': industry,
             'is_remote': is_remote,
             'is_other_department': is_other_department,
@@ -175,7 +170,13 @@ class WebsiteHrRecruitment(WebsiteForm):
         })
         return f"/jobs/{request.env['ir.http']._slug(job)}"
 
-    @http.route('''/jobs/detail/<model("hr.job"):job>''', type='http', auth="public", website=True, sitemap=True)
+    def sitemap_jobs_detail(env, rule, qs):
+        slug = env['ir.http']._slug
+        for job in env['hr.job'].search([('is_published', '=', True)]):
+            if not qs or qs.lower() in f'/jobs/{slug(job)}':
+                yield {'loc': f'/jobs/{slug(job)}'}
+
+    @http.route('''/jobs/detail/<model("hr.job"):job>''', type='http', auth="public", website=True, sitemap=sitemap_jobs_detail)
     def jobs_detail(self, job, **kwargs):
         redirect_url = f"/jobs/{request.env['ir.http']._slug(job)}"
         return request.redirect(redirect_url, code=301)
@@ -183,6 +184,7 @@ class WebsiteHrRecruitment(WebsiteForm):
     @http.route('''/jobs/<model("hr.job"):job>''', type='http', auth="public", website=True, sitemap=True)
     def job(self, job, **kwargs):
         return request.render("website_hr_recruitment.detail", {
+            'structured_data': job._render_jsonld(is_detail_page=True),
             'job': job,
             'main_object': job,
         })
@@ -200,68 +202,17 @@ class WebsiteHrRecruitment(WebsiteForm):
             'default': default,
         })
 
-    @http.route('/website_hr_recruitment/check_recent_application', type='jsonrpc', auth="public", website=True)
-    def check_recent_application(self, field, value, job_id):
-        def refused_applicants_condition(applicant):
-            return not applicant.active \
-                and applicant.job_id.id == int(job_id) \
-                and applicant.create_date >= (datetime.now() - relativedelta(months=6))
-
-        field_domain = {
-            'name': [('partner_name', '=ilike', escape_psql(value))],
-            'email': [('email_normalized', '=', email_normalize(value))],
-            'phone': [('partner_phone', '=', value)],
-            'linkedin': [('linkedin_profile', '=ilike', escape_psql(value))],
-        }.get(field, Domain.FALSE)
-
-        applications_by_status = http.request.env['hr.applicant'].sudo().search(Domain.AND([
-            field_domain,
-            [
-                ('job_id.website_id', 'in', [http.request.website.id, False]),
-                ('application_status', 'in', ['ongoing', 'refused']),
-            ]
-        ]), order='create_date DESC').grouped('application_status')
-        refused_applicants = applications_by_status.get('refused', http.request.env['hr.applicant'])
-        if any(applicant for applicant in refused_applicants if refused_applicants_condition(applicant)):
-            return {
-                'message':  _(
-                    'We\'ve found a previous closed application in our system within the last 6 months.'
-                    ' Please consider before applying in order not to duplicate efforts.'
-                )
-            }
-
-        if 'ongoing' not in applications_by_status:
-            return {'message': None}
-
-        ongoing_application = applications_by_status.get('ongoing')[0]
-        if ongoing_application.job_id.id == int(job_id):
-            recruiter_contact = "" if not ongoing_application.user_id else _(
-                ' In case of issue, contact %(contact_infos)s',
-                contact_infos=", ".join(
-                    [value for value in itemgetter('name', 'email', 'phone')(ongoing_application.user_id) if value]
-                ))
-            return {
-                'message':  _(
-                    'An application already exists for %(value)s.'
-                    ' Duplicates might be rejected. %(recruiter_contact)s',
-                    value=value,
-                    recruiter_contact=recruiter_contact
-                )
-            }
-
-        return {
-            'message':  _(
-                'We found a recent application with a similar name, email, phone number.'
-                ' You can continue if it\'s not a mistake.'
-            )
-        }
-
     def extract_data(self, model_sudo, values):
         short_introduction = values.get("short_introduction", None)
         data = super().extract_data(model_sudo, values)
         if short_introduction:
-            introduction_label = self.env._("Short introduction from applicant")
+            introduction_label = self.env._("Short Introduction")
             data["custom"] = data["custom"].replace("short_introduction", introduction_label)
+        if model_sudo.model == "hr.applicant":
+            if not request.cookies.get('odoo_utm_medium'):
+                website_medium = request.env['utm.mixin']._utm_ref('utm.utm_medium_website')
+                if website_medium:
+                    data['record']['medium_id'] = website_medium.id
         return data
 
     def _should_log_authenticate_message(self, record):

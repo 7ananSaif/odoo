@@ -1,4 +1,5 @@
-import { reactive } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
+import { parseDate } from "@web/core/l10n/dates";
 import { rpc } from "@web/core/network/rpc";
 import { user } from "@web/core/user";
 import { formatFloat, humanNumber } from "@web/core/utils/numbers";
@@ -14,10 +15,18 @@ export function getCurrency(id) {
 }
 
 export async function getCurrencyRates() {
-    const rates = reactive({});
+    const rates = proxy({});
 
     function recordsToRates(records) {
-        return Object.fromEntries(records.map((r) => [r.id, r.inverse_rate]));
+        return Object.fromEntries(
+            records.map((r) => [
+                r.id,
+                {
+                    rate: r.inverse_rate,
+                    date: parseDate(r.rate_date),
+                },
+            ])
+        );
     }
 
     const model = "res.currency";
@@ -30,7 +39,7 @@ export async function getCurrencyRates() {
     const params = {
         model,
         method,
-        args: [Object.keys(currencies).map(Number), ["inverse_rate"]],
+        args: [Object.keys(currencies).map(Number), ["inverse_rate", "rate_date"]],
         kwargs: { context },
     };
     const records = await rpc(url, params, {
@@ -75,7 +84,7 @@ export async function getCurrencyRates() {
 export function formatCurrency(amount, currencyId, options = {}) {
     const currency = getCurrency(currencyId);
 
-    const digits = (options.digits !== undefined)? options.digits : (currency && currency.digits)
+    const digits = options.digits !== undefined ? options.digits : currency && currency.digits;
 
     let formattedAmount;
     if (options.humanReadable) {
@@ -84,7 +93,11 @@ export function formatCurrency(amount, currencyId, options = {}) {
             minDigits: options.minDigits,
         });
     } else {
-        formattedAmount = formatFloat(amount, { digits, minDigits: options.minDigits, trailingZeros: options.trailingZeros });
+        formattedAmount = formatFloat(amount, {
+            digits,
+            minDigits: options.minDigits,
+            trailingZeros: options.trailingZeros,
+        });
     }
 
     if (!currency || options.noSymbol) {

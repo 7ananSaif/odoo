@@ -5,22 +5,22 @@
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
-# "Manon Rondou (ronm)" <ronm@odoo.com>, 2025.
+# "Manon Rondou (ronm)" <ronm@odoo.com>, 2025, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-11-18 17:10+0000\n"
-"Last-Translator: \"Manon Rondou (ronm)\" <ronm@odoo.com>\n"
-"Language-Team: French <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-04 17:46+0000\n"
+"PO-Revision-Date: 2026-08-31 16:50+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: French <https://translate.odoo.com/projects/odoo-s19-4/"
 "hr_recruitment_skills/fr/>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: hr_recruitment_skills
 #: model:ir.model,name:hr_recruitment_skills.model_hr_applicant
@@ -37,6 +37,11 @@ msgstr "Postuler"
 #: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_applicant_skill_view_form
 msgid "Category"
 msgstr "Catégorie"
+
+#. module: hr_recruitment_skills
+#: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant_skill__certificate_file
+msgid "Certificate"
+msgstr "Certificat"
 
 #. module: hr_recruitment_skills
 #: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant_skill__color
@@ -59,6 +64,16 @@ msgid "Current Applicant Skill"
 msgstr "Compétence actuelle du candidat"
 
 #. module: hr_recruitment_skills
+#: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__degree_score
+msgid "Degree Score"
+msgstr ""
+
+#. module: hr_recruitment_skills
+#: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__is_degree_score_matching
+msgid "Degree Score Matching"
+msgstr ""
+
+#. module: hr_recruitment_skills
 #: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__display_name
 #: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant_skill__display_name
 #: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_job__display_name
@@ -78,13 +93,19 @@ msgid "ID"
 msgstr "ID"
 
 #. module: hr_recruitment_skills
+#: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__job_expected_degree
+msgid "Job Degree"
+msgstr ""
+
+#. module: hr_recruitment_skills
 #: model:ir.model,name:hr_recruitment_skills.model_hr_job
 msgid "Job Position"
 msgstr "Poste"
 
 #. module: hr_recruitment_skills
 #. odoo-javascript
-#: code:addons/hr_recruitment_skills/static/src/fields/skill_match_gauge_field/skill_match_gauge_field.xml:0
+#: code:addons/hr_recruitment_skills/static/src/components/match_scores_gauge/match_scores_gauge.js:0
+#: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_applicant_view_form
 msgid "Job Position Matching"
 msgstr "Correspondance avec le poste"
 
@@ -104,7 +125,12 @@ msgid "Levels Count"
 msgstr "Nombre de niveaux"
 
 #. module: hr_recruitment_skills
-#: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.crm_case_tree_view_job
+#: model:ir.module.module,summary:base.module_hr_recruitment_skills
+msgid "Manage skills of your employees"
+msgstr ""
+
+#. module: hr_recruitment_skills
+#: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_job_list_inherit_hr_recruitment_skills
 msgid "Matching"
 msgstr "Lettrage"
 
@@ -115,12 +141,14 @@ msgid "Matching Applicants"
 msgstr "Candidats correspondants"
 
 #. module: hr_recruitment_skills
-#: model:ir.actions.act_window,name:hr_recruitment_skills.action_find_matching_job
-msgid "Matching Positions"
-msgstr "Postes correspondants"
+#: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__matching_skill_ids
+msgid "Matching Factors"
+msgstr ""
 
 #. module: hr_recruitment_skills
 #: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__matching_score
+#: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.crm_case_tree_view_job
+#: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_applicant_view_search_bis
 msgid "Matching Score"
 msgstr "Score de correspondance"
 
@@ -130,12 +158,37 @@ msgid "Matching Score(%)"
 msgstr "Score correspondant (%)"
 
 #. module: hr_recruitment_skills
-#: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__matching_skill_ids
+#: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_job__matching_applicant_skill_ids
 msgid "Matching Skills"
 msgstr "Compétences correspondantes"
 
 #. module: hr_recruitment_skills
+#. odoo-javascript
+#: code:addons/hr_recruitment_skills/static/src/components/search_job_applicant_menu/search_job_applicant_menu.xml:0
+#: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.view_hr_job_form
+#: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.view_hr_job_kanban
+msgid "Matching Talents"
+msgstr "Talents correspondants"
+
+#. module: hr_recruitment_skills
+#. odoo-javascript
+#: code:addons/hr_recruitment_skills/static/src/components/match_scores_gauge/match_scores_gauge.js:0
+msgid "Max Value"
+msgstr ""
+
+#. module: hr_recruitment_skills
+#. odoo-javascript
+#: code:addons/hr_recruitment_skills/static/src/components/match_scores_gauge/match_scores_gauge.js:0
+msgid "Max Value Field"
+msgstr ""
+
+#. module: hr_recruitment_skills
 #: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__missing_skill_ids
+msgid "Missing Factors"
+msgstr ""
+
+#. module: hr_recruitment_skills
+#: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_job__missing_applicant_skill_ids
 msgid "Missing Skills"
 msgstr "Compétences manquantes"
 
@@ -147,8 +200,8 @@ msgstr "Se rendre à ce poste"
 #. module: hr_recruitment_skills
 #. odoo-python
 #: code:addons/hr_recruitment_skills/models/hr_job.py:0
-msgid "No Matching Applicants"
-msgstr "Pas de candidats correspondants"
+msgid "No Matching Talents"
+msgstr "Aucun talent correspondant"
 
 #. module: hr_recruitment_skills
 #: model:ir.model.fields,help:hr_recruitment_skills.field_hr_applicant_skill__levels_count
@@ -167,11 +220,21 @@ msgstr ""
 "Progression d'une connaissance nulle (0%) à complètement maitrisée (100%)."
 
 #. module: hr_recruitment_skills
+#: model:ir.module.module,shortdesc:base.module_hr_recruitment_skills
+msgid "Recruitment - Skills Management"
+msgstr ""
+
+#. module: hr_recruitment_skills
 #. odoo-javascript
-#: code:addons/hr_recruitment_skills/static/src/components/search_job_applicant_menu/search_job_applicant_menu.xml:0
-#: model:ir.actions.server,name:hr_recruitment_skills.action_applicant_search_applicant
-msgid "Search Matching Applicants"
-msgstr "Rechercher des candidats correspondants"
+#: code:addons/hr_recruitment_skills/static/src/components/match_scores_gauge/match_scores_gauge.js:0
+msgid "Remaining"
+msgstr ""
+
+#. module: hr_recruitment_skills
+#. odoo-javascript
+#: code:addons/hr_recruitment_skills/static/src/components/match_scores_gauge/match_scores_gauge.js:0
+msgid "Score Fields"
+msgstr ""
 
 #. module: hr_recruitment_skills
 #: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__skill_ids
@@ -201,11 +264,18 @@ msgstr "Niveau de compétence pour un candidat"
 
 #. module: hr_recruitment_skills
 #: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__applicant_skill_ids
+#: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.crm_case_tree_view_job
 #: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_applicant_skill_view_form
 #: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_applicant_view_form
 #: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_applicant_view_search
+#: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_applicant_view_search_bis
 msgid "Skills"
 msgstr "Compétences"
+
+#. module: hr_recruitment_skills
+#: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__skills_score
+msgid "Skills Score"
+msgstr ""
 
 #. module: hr_recruitment_skills
 #: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_applicant_skill_view_form
@@ -214,9 +284,9 @@ msgstr "La date de fin doit être postérieure à la date de début."
 
 #. module: hr_recruitment_skills
 #. odoo-javascript
-#: code:addons/hr_recruitment_skills/static/src/fields/skill_match_gauge_field/skill_match_gauge_field.js:0
-msgid "This score reflects skills and degree match"
-msgstr "Ce score reflète la correspondance entre les compétences et le diplôme"
+#: code:addons/hr_recruitment_skills/static/src/components/match_scores_gauge/match_scores_gauge.js:0
+msgid "Title"
+msgstr ""
 
 #. module: hr_recruitment_skills
 #: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_applicant_skill_view_form
@@ -242,11 +312,11 @@ msgstr "Arrêt de validité"
 #. odoo-python
 #: code:addons/hr_recruitment_skills/models/hr_job.py:0
 msgid ""
-"We do not have any applicants who meet the skill requirements for this job "
+"We do not have any talents who meet the skill requirements for this job "
 "position in the database at the moment."
 msgstr ""
-"Nous n'avons actuellement aucun candidat dans notre base de données qui "
-"correspond aux compétences requises pour ce poste."
+"Nous n’avons actuellement aucun talent dans la base de données qui réponde "
+"aux exigences de compétences pour ce poste."
 
 #. module: hr_recruitment_skills
 #: model:ir.model.fields,help:hr_recruitment_skills.field_hr_applicant_skill__is_certification
@@ -257,19 +327,3 @@ msgstr "si coché, ce type de compétence devient un type de certification"
 #: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_applicant_skill_view_form
 msgid "indefinite"
 msgstr "indéfini"
-
-#~ msgid "Expected Skills"
-#~ msgstr "Compétences attendues"
-
-#~ msgid "The skill %(name)s and skill type %(type)s doesn't match"
-#~ msgstr ""
-#~ "La compétence %(name)s et le type de compétences %(type)s ne "
-#~ "correspondent pas"
-
-#~ msgid "The skill level %(level)s is not valid for skill type: %(type)s"
-#~ msgstr ""
-#~ "Le niveau de compétence %(level)s n'est pas valide pour le type de "
-#~ "compétences : %(type)s"
-
-#~ msgid "Two levels for the same skill is not allowed"
-#~ msgstr "Deux niveaux pour la même compétence ne sont pas autorisés"

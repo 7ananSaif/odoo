@@ -15,10 +15,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-11-27 09:02+0000\n"
-"Last-Translator: Adrian Cocos <adrian.cocos@capps.ai>\n"
-"Language-Team: Romanian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 13:37+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Romanian <https://translate.odoo.com/projects/odoo-s19-4/"
 "event_sale/ro/>\n"
 "Language: ro\n"
 "MIME-Version: 1.0\n"
@@ -26,7 +26,30 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
 "20)) ? 1 : 2;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: event_sale
+#: model:ir.module.module,description:base.module_event_sale
+msgid ""
+"\n"
+"Creating registration with sales orders.\n"
+"========================================\n"
+"\n"
+"This module allows you to automate and connect your registration creation "
+"with\n"
+"your main sale flow and therefore, to enable the invoicing feature of "
+"registrations.\n"
+"\n"
+"It defines a new kind of service products that offers you the possibility "
+"to\n"
+"choose an event category associated with it. When you encode a sales order "
+"for\n"
+"that product, you will be able to choose an existing event of that category "
+"and\n"
+"when you confirm your sales order it will automatically create a "
+"registration for\n"
+"this event.\n"
+msgstr ""
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_registration_change_exception
@@ -39,8 +62,11 @@ msgstr ""
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_configurator_view_form
-msgid "<i class=\"fa fa-arrow-right\"/> Configure Events &amp; Tickets"
-msgstr "<i class=\"fa fa-arrow-right\"/> Configurează Evenimente &amp; Bilete"
+msgid ""
+"<i class=\"oi\" data-icon=\"arrow_forward\"/> Configure Events &amp; Tickets"
+msgstr ""
+"<i class=\"oi\" data-icon=\"arrow_forward\"/> Configurează Evenimente &amp; "
+"Bilete"
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_registration_ticket_view_form
@@ -61,6 +87,11 @@ msgstr "<span>Modificare înregistrare pentru participant:</span>"
 #: model_terms:ir.ui.view,arch_db:event_sale.event_configurator_view_form
 msgid "Add"
 msgstr "Adaugă"
+
+#. module: event_sale
+#: model:ir.model.fields,field_description:event_sale.field_event_event_configurator__additional_product_ids
+msgid "Additional Products"
+msgstr ""
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_configurator_view_form
@@ -308,6 +339,11 @@ msgstr "Bilet"
 #: model_terms:ir.ui.view,arch_db:event_sale.event_sale_report_view_search
 msgid "Event Type"
 msgstr "Tipul Evenimentului"
+
+#. module: event_sale
+#: model:ir.module.module,shortdesc:base.module_event_sale
+msgid "Events Sales"
+msgstr ""
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_sale_report_view_search
@@ -573,6 +609,13 @@ msgid "Select an Event"
 msgstr "Selectează un eveniment"
 
 #. module: event_sale
+#: model:ir.model.fields,help:event_sale.field_event_event_configurator__additional_product_ids
+msgid ""
+"Select products to include with each registration. They will also show up "
+"separately on Sale Orders."
+msgstr ""
+
+#. module: event_sale
 #. odoo-python
 #: code:addons/event_sale/models/event_registration.py:0
 #: model:ir.model.fields,field_description:event_sale.field_event_event_configurator__event_slot_id
@@ -683,104 +726,3 @@ msgstr "vă rugăm să furnizați detaliile participantului."
 #: model_terms:ir.ui.view,arch_db:event_sale.event_registration_change_exception
 msgid "to"
 msgstr "la"
-
-#~ msgid ""
-#~ "A description of the ticket that you want to communicate to your "
-#~ "customers."
-#~ msgstr "O descriere a biletului pe care doriți să le comunicați clienților."
-
-#~ msgid ""
-#~ "A storable product is a product for which you manage stock. The Inventory "
-#~ "app has to be installed.\n"
-#~ "A consumable product is a product for which stock is not managed.\n"
-#~ "A service is a non-material product you provide."
-#~ msgstr ""
-#~ "Un produs stocabil este un produs pentru care gestionați stocul. "
-#~ "Aplicația \"Inventar\" trebuie instalată.\n"
-#~ "Un produs consumabil, pe de altă parte, este un produs pentru care nu "
-#~ "este gestionat stocul.\n"
-#~ "Un serviciu este un produs nematerial pe care îl oferiți."
-
-#~ msgid "Cancel"
-#~ msgstr "Anulează"
-
-#~ msgid "Configure an event"
-#~ msgstr "Configurați un eveniment"
-
-#~ msgid "Currency"
-#~ msgstr "Moneda"
-
-#~ msgid "Description"
-#~ msgstr "Descriere"
-
-#~ msgid "Event Template Ticket"
-#~ msgstr "Bilet Șablon Eveniment"
-
-#~ msgid "Event Tickets"
-#~ msgstr "Bilete"
-
-#~ msgid "Group By"
-#~ msgstr "Grupează după"
-
-#~ msgid "Is Paid"
-#~ msgstr "Este Plătit"
-
-#~ msgid "Journal Entry"
-#~ msgstr "Notă contabilă"
-
-#~ msgid "Locked"
-#~ msgstr "Închisă"
-
-#~ msgid "Mobile"
-#~ msgstr "Mobil"
-
-#~ msgid "Not Paid"
-#~ msgstr "Neplătită"
-
-#~ msgid "Ok"
-#~ msgstr "Ok"
-
-#~ msgid "Order Ref"
-#~ msgstr "Ref comandă"
-
-#~ msgid "Paid"
-#~ msgstr "Plătit"
-
-#~ msgid "Price"
-#~ msgstr "Preț"
-
-#~ msgid "Price Reduce"
-#~ msgstr "Reducere preț"
-
-#~ msgid "Price Reduce Tax inc"
-#~ msgstr "Reducere preț cu taxe"
-
-#~ msgid "Product Type"
-#~ msgstr "Tip produs"
-
-#~ msgid "Product Variant"
-#~ msgstr "Variantă produs"
-
-#~ msgid "Quotation Template Line"
-#~ msgstr "Linia șablonului de ofertare"
-
-#~ msgid "Quotation Template Option"
-#~ msgstr "Opțiunea șablon de ofertă"
-
-#~ msgid "Sales (Tax Excluded)"
-#~ msgstr "Vânzări (fără taxe)"
-
-#~ msgid "Sales End"
-#~ msgstr "Sfârșitul vânzărilor"
-
-#~ msgid "Sales Start"
-#~ msgstr "Începutul vânzărilor"
-
-#~ msgid "Skip"
-#~ msgstr "Omite"
-
-#~ msgid "Ticket changed from"
-#~ msgstr "Biletul s-a schimbat din"
-
-#~ msgid "Transaction"
-#~ msgstr "Tranzacție"

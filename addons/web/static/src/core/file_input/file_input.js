@@ -1,4 +1,4 @@
-import { Component, onMounted, useRef, useState } from "@odoo/owl";
+import { Component, onMounted, proxy, signal, status, t, useProps } from "@odoo/owl";
 import { useFileUploader } from "@web/core/utils/files";
 
 /**
@@ -21,31 +21,24 @@ import { useFileUploader } from "@web/core/utils/files";
  */
 export class FileInput extends Component {
     static template = "web.FileInput";
-    static defaultProps = {
-        acceptedFileExtensions: "*",
-        hidden: false,
-        multiUpload: false,
-        onUpload: () => {},
-        route: "/web/binary/upload_attachment",
-        beforeOpen: async () => true,
-    };
-    static props = {
-        acceptedFileExtensions: { type: String, optional: true },
-        autoOpen: { type: Boolean, optional: true },
-        hidden: { type: Boolean, optional: true },
-        multiUpload: { type: Boolean, optional: true },
-        onUpload: { type: Function, optional: true },
-        beforeOpen: { type: Function, optional: true },
-        resId: { type: Number, optional: true },
-        resModel: { type: String, optional: true },
-        route: { type: String, optional: true },
-        "*": true,
-    };
+    props = useProps({
+        acceptedFileExtensions: t.string().optional("*"),
+        autoOpen: t.boolean().optional(),
+        hidden: t.boolean().optional(false),
+        multiUpload: t.boolean().optional(false),
+        onUpload: t.function().optional(() => () => {}),
+        onWillUploadFiles: t.function().optional(),
+        beforeOpen: t.function().optional(() => async () => true),
+        resId: t.number().optional(),
+        resModel: t.string().optional(),
+        route: t.string().optional("/web/binary/upload_attachment"),
+    });
+
+    fileInputRef = signal.ref();
 
     setup() {
         this.uploadFiles = useFileUploader();
-        this.fileInputRef = useRef("file-input");
-        this.state = useState({
+        this.state = proxy({
             // Disables upload button if currently uploading.
             isDisable: false,
         });
@@ -61,7 +54,7 @@ export class FileInput extends Component {
         const { resId, resModel } = this.props;
         const params = {
             csrf_token: odoo.csrf_token,
-            ufile: [...this.fileInputRef.el.files],
+            ufile: [...(this.fileInputRef()?.files ?? [])],
         };
         if (resModel) {
             params.model = resModel;
@@ -96,15 +89,21 @@ export class FileInput extends Component {
             }
         }
         const parsedFileData = await this.uploadFiles(this.props.route, httpParams);
+        if (status(this) === "destroyed") {
+            // The component was destroyed while the upload was in flight (its
+            // dialog was closed, or the user navigated away). Nobody is left to
+            // receive the uploaded files, and the input ref no longer exists.
+            return;
+        }
         if (parsedFileData) {
             // When calling onUpload, also pass the files to allow to get data like their names
-            this.props.onUpload(
-                parsedFileData,
-                this.fileInputRef.el ? this.fileInputRef.el.files : []
-            );
+            this.props.onUpload(parsedFileData, this.fileInputRef()?.files ?? []);
             // Because the input would not trigger this method if the same file name is uploaded,
             // we must clear the value after handling the upload
-            this.fileInputRef.el.value = null;
+            const el = this.fileInputRef();
+            if (el) {
+                el.value = null;
+            }
         }
         this.state.isDisable = false;
     }
@@ -114,7 +113,7 @@ export class FileInput extends Component {
      */
     async onTriggerClicked() {
         if (await this.props.beforeOpen()) {
-            this.fileInputRef.el.click();
+            this.fileInputRef()?.click();
         }
     }
 }

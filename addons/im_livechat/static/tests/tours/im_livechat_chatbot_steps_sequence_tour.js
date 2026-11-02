@@ -4,7 +4,7 @@ import { stepUtils } from "@web_tour/tour_utils";
 function createChatbotSteps(...stepMessages) {
     return [
         {
-            trigger: "div[name='script_step_ids'] .o_field_x2many_list_row_add a",
+            trigger: "div[name='script_step_ids'] .o_field_x2many_list_row_add button",
             run: "click",
         },
         ...stepMessages
@@ -64,7 +64,6 @@ const commonSteps = [
  * Simply create a few steps in order to check the sequences.
  */
 registry.category("web_tour.tours").add("im_livechat_chatbot_steps_sequence_tour", {
-    url: "/odoo",
     steps: () => [
         ...commonSteps,
         {
@@ -77,7 +76,6 @@ registry.category("web_tour.tours").add("im_livechat_chatbot_steps_sequence_tour
  * Same as above, with an extra drag&drop at the end.
  */
 registry.category("web_tour.tours").add("im_livechat_chatbot_steps_sequence_with_move_tour", {
-    url: "/odoo",
     steps: () => [
         ...commonSteps,
         ...createChatbotSteps("Step 4", "Step 5"),

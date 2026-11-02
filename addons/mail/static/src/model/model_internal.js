@@ -1,3 +1,4 @@
+import { markRaw } from "@odoo/owl";
 import { ATTR_SYM, MANY_SYM, ONE_SYM } from "./misc";
 
 export class ModelInternal {
@@ -13,22 +14,54 @@ export class ModelInternal {
     fieldsHtml = new Map();
     /** @type {Map<string, string>} */
     fieldsTargetModel = new Map();
-    /** @type {Map<string, () => any>} */
+    /** @type {Map<string, () => Function[]>} */
     fieldsCompute = new Map();
     /** @type {Map<string, boolean>} */
     fieldsEager = new Map();
+    /**
+     * Names declared with `computed()`. Each record holds the
+     * declaration as its own property until its first read replaces it with an
+     * owl computed in `RecordInternal.fieldsComputed`.
+     *
+     * @type {Set<string>}
+     */
+    fieldsComputable = new Set();
     /** @type {Map<string, string>} */
     fieldsInverse = new Map();
     /** @type {Map<string, () => void>} */
     fieldsOnAdd = new Map();
     /** @type {Map<string, () => void>} */
     fieldsOnDelete = new Map();
-    /** @type {Map<string, () => void>} */
-    fieldsOnUpdate = new Map();
-    /** @type {Map<string, () => number>} */
-    fieldsSort = new Map();
     /** @type {Map<string, string>} */
     fieldsType = new Map();
+    /**
+     * Fields whose value is mutated in place, so a read returns it as a proxy.
+     *
+     * @type {Set<string>}
+     */
+    fieldsAttrAsProxy = new Set();
+    /**
+     * Set of field names on the current model that are _inherits fields.
+     *
+     * @type {Set<string>}
+     */
+    inheritsFields = new Set();
+    /**
+     * Set of field names on the current model that are the inverse of _inherits fields.
+     *
+     * @type {Set<string>}
+     */
+    inheritsInverseFields = new Set();
+    /**
+     * Map of field name to the name of the relation field through which this field should be read.
+     *
+     * @type {Map<string, string>}
+     * */
+    parentFields = new Map();
+
+    constructor() {
+        markRaw(this);
+    }
 
     prepareField(fieldName, data) {
         this.fields.set(fieldName, true);
@@ -66,10 +99,6 @@ export class ModelInternal {
                     this.fieldsEager.set(fieldName, value);
                     break;
                 }
-                case "sort": {
-                    this.fieldsSort.set(fieldName, value);
-                    break;
-                }
                 case "inverse": {
                     this.fieldsInverse.set(fieldName, value);
                     break;
@@ -82,8 +111,11 @@ export class ModelInternal {
                     this.fieldsOnDelete.set(fieldName, value);
                     break;
                 }
-                case "onUpdate": {
-                    this.fieldsOnUpdate.set(fieldName, value);
+                case "asProxy": {
+                    if (!value) {
+                        break;
+                    }
+                    this.fieldsAttrAsProxy.add(fieldName);
                     break;
                 }
                 case "type": {

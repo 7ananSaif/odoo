@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
     'name': 'Accounting - MRP',
-    'version': '1.0',
     'category': 'Supply Chain/Manufacturing',
     'summary': 'Analytic accounting in Manufacturing',
     'description': """
@@ -20,14 +18,16 @@ If the automated inventory valuation is active, the necessary accounting entries
     'website': 'https://www.odoo.com/app/manufacturing',
     'depends': ['mrp', 'stock_account'],
     "data": [
-        'security/ir.model.access.csv',
         "views/product_views.xml",
+        'views/mrp_bom_views.xml',
         "views/mrp_production_views.xml",
         "views/analytic_account_views.xml",
         "views/account_move_views.xml",
         "views/mrp_workcenter_views.xml",
         "report/report_mrp_templates.xml",
+        "report/mrp_report_mo_overview.xml",
         "wizard/mrp_wip_accounting.xml",
+        'security/ir.access.csv',
     ],
     'demo': [
         'data/mrp_account_demo.xml',
@@ -37,9 +37,7 @@ If the automated inventory valuation is active, the necessary accounting entries
             'mrp_account/static/src/**/*',
         ],
     },
-    'installable': True,
     'auto_install': True,
-    'post_init_hook': '_configure_journals',
     'author': 'Odoo S.A.',
     'license': 'LGPL-3',
 }

@@ -7,6 +7,23 @@
         border: 0;
         padding: 0;
     }
+    .tab-pane.active:has(> div[name="google_map_iframe"]) {
+        padding: 0;
+        div[name="google_map_iframe"] {
+            margin: 0 var(--Notebook-margin-x, -16px) calc(var(--formView-sheet-padding-y, 16px) * -1);
+            border-radius: 0 0 var(--formView-sheet-border-radius, 0) var(--formView-sheet-border-radius, 0);
+            overflow: hidden;
+
+            div.o_readonly {
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            @include media-breakpoint-down(sm) {
+                margin: 0 0 calc(var(--formView-sheet-padding-y, 16px) * -1);
+            }
+        }
+    }
 }
 
 .o_form_view.o_form_project_tasks .o_notebook > .tab-content > .tab-pane > :first-child.o_field_html .o_readonly {
@@ -36,14 +53,6 @@
     }
 }
 
-.oe_title .o_favorite i.fa {
-    font-size: inherit;
-}
-
-.o_data_cell .o_favorite i.fa {
-    font-size: 1.35em;
-}
-
 .o_project_task_kanban_view .o_kanban_quick_create .o_field_widget .o_input  {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -54,4 +63,8 @@
     @media only screen and (max-width: 650px) {
         margin-top: 10px;
     }
+}
+
+.project_quick_create_task_form_group {
+    padding-bottom: 0.5rem;
 }

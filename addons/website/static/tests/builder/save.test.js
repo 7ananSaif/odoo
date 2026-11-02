@@ -1,7 +1,7 @@
 import { setSelection } from "@html_editor/../tests/_helpers/selection";
 import { insertText } from "@html_editor/../tests/_helpers/user_actions";
 import { describe, expect, test } from "@odoo/hoot";
-import { animationFrame, click, Deferred, queryOne, waitFor } from "@odoo/hoot-dom";
+import { animationFrame, click, queryOne, waitFor } from "@odoo/hoot-dom";
 import {
     contains,
     defineActions,
@@ -9,20 +9,22 @@ import {
     models,
     onRpc,
     patchWithCleanup,
+    makeServerError,
 } from "@web/../tests/web_test_helpers";
 import { WebsiteBuilderClientAction } from "@website/client_actions/website_preview/website_builder_action";
 import {
     addActionOption,
-    addOption,
     addPlugin,
     defineWebsiteModels,
     setupWebsiteBuilder,
 } from "@website/../tests/builder/website_helpers";
 import {
+    addBuilderOption,
     exampleContent,
     getDragHelper,
     getDragMoveHelper,
     modifyText,
+    unfoldAllOptionsGroups,
     waitForEndOfOperation,
     wrapExample,
 } from "@html_builder/../tests/helpers";
@@ -31,6 +33,8 @@ import { BuilderAction } from "@html_builder/core/builder_action";
 import { Plugin } from "@html_editor/plugin";
 import { registry } from "@web/core/registry";
 import { WebsiteBuilder } from "@website/builder/website_builder";
+import { selectElements } from "@html_editor/utils/dom_traversal";
+import { withSequence } from "@html_editor/utils/resource";
 
 defineWebsiteModels();
 
@@ -43,10 +47,10 @@ test("basic save", async () => {
     await contains(".o-snippets-top-actions button:contains(Save)").click();
     expect(resultSave.length).toBe(1);
     expect(resultSave[0]).toBe(
-        '<div id="wrap" class="oe_structure oe_empty" data-oe-model="ir.ui.view" data-oe-id="539" data-oe-field="arch" data-editor-message-default="true" data-editor-message="DRAG BUILDING BLOCKS HERE"><h1 class="title">H1ello</h1></div>'
+        '<div id="wrap" class="oe_structure oe_empty" data-oe-model="ir.ui.view" data-oe-id="539" data-oe-field="arch" data-editor-message-default="true" data-editor-message="Drag blocks here"><h1 class="title">H1ello</h1></div>'
     );
     expect(":iframe #wrap").not.toHaveClass("o_dirty");
-    expect(":iframe #wrap").not.toHaveClass("o_editable");
+    expect(":iframe #wrap").not.toHaveClass("o_savable");
     expect(":iframe #wrap .title:contains('H1ello')").toHaveCount(1);
 });
 
@@ -55,18 +59,18 @@ test("nothing to save", async () => {
     const { getEditor, getEditableContent } = await setupWebsiteBuilder(exampleContent);
     await modifyText(getEditor(), getEditableContent());
     await animationFrame();
-    await contains(".o-snippets-menu button.fa-undo").click();
+    await contains(".o-snippets-menu button[data-icon='undo']").click();
     await contains(".o-snippets-top-actions button:contains(Save)").click();
     expect(resultSave.length).toBe(0);
     expect(":iframe #wrap").not.toHaveClass("o_dirty");
-    expect(":iframe #wrap").not.toHaveClass("o_editable");
+    expect(":iframe #wrap").not.toHaveClass("o_savable");
     expect(":iframe #wrap .title:contains('Hello')").toHaveCount(1);
 });
 
 test("failure to save does not block the builder", async () => {
     expect.errors(1);
-    let deferred = new Deferred();
-    onRpc("ir.ui.view", "save", async () => await deferred);
+    let deferred = Promise.withResolvers();
+    onRpc("ir.ui.view", "save", async () => await deferred.promise);
     const { getEditor, getEditableContent } = await setupWebsiteBuilder(exampleContent);
     await modifyText(getEditor(), getEditableContent());
 
@@ -80,7 +84,7 @@ test("failure to save does not block the builder", async () => {
     expect(".o-snippets-top-actions button:contains(Save)").not.toHaveClass("o_btn_loading");
     expect(".o-snippets-top-actions button:contains(Discard)").not.toHaveAttribute("disabled");
 
-    deferred = new Deferred();
+    deferred = Promise.withResolvers();
     await contains(".o-snippets-top-actions button:contains(Save)").click();
     expect(".o-snippets-top-actions button:contains(Save)").toHaveClass("o_btn_loading");
     expect(".o-snippets-top-actions button:contains(Discard)").toHaveAttribute("disabled");
@@ -96,20 +100,20 @@ test("discard modified elements", async () => {
     await contains(".o-snippets-top-actions button[data-action='cancel']").click();
     await contains(".modal-content button.btn-primary").click();
     expect(":iframe #wrap").not.toHaveClass("o_dirty");
-    expect(":iframe #wrap").not.toHaveClass("o_editable");
+    expect(":iframe #wrap").not.toHaveClass("o_savable");
     expect(":iframe #wrap .title:contains('Hello')").toHaveCount(1);
 });
 
 test("discard without any modifications", async () => {
     patchWithCleanup(WebsiteBuilderClientAction.prototype, {
-        async reloadIframeAndCloseEditor() {
-            this.websiteContent.el.contentDocument.body.innerHTML = wrapExample;
+        async closeEditor() {
+            this.websiteContent().contentDocument.body.innerHTML = wrapExample;
         },
     });
     await setupWebsiteBuilder(exampleContent);
     await contains(".o-snippets-top-actions button[data-action='cancel']").click();
     expect(":iframe #wrap").not.toHaveClass("o_dirty");
-    expect(":iframe #wrap").not.toHaveClass("o_editable");
+    expect(":iframe #wrap").not.toHaveClass("o_savable");
     expect(":iframe #wrap .title:contains('Hello')").toHaveCount(1);
 });
 
@@ -191,14 +195,14 @@ test("reload save with target, then discard and edit again should not reselect t
             }
         },
     });
-    addOption({
+    addBuilderOption({
         selector: ".test-option",
         template: xml`<BuilderButton action="'testAction'"/>`,
         reloadTarget: true,
     });
-    const deferred = new Deferred();
+    const deferred = Promise.withResolvers();
     await setupWebsiteBuilder(`<div class="test-option">b</div>`, {
-        delayReload: async () => await deferred,
+        delayReload: async () => await deferred.promise,
     });
     await contains(":iframe .test-option").click();
     await contains("[data-action-id=testAction]").click();
@@ -206,7 +210,7 @@ test("reload save with target, then discard and edit again should not reselect t
     deferred.resolve();
     expect.verifySteps(["save"]);
     await animationFrame();
-    // NOTE: the goal of the following assertion is to ensure that the relaod is
+    // NOTE: the goal of the following assertion is to ensure that the reload is
     // completed. This relies on the "save" mocked for this test that does
     // nothing to save anything and the reload (mocked in `setupWebsiteBuilder`)
     // resets to initial content
@@ -216,6 +220,54 @@ test("reload save with target, then discard and edit again should not reselect t
     await contains(".o-snippets-top-actions button[data-action='cancel']").click();
     await contains(".o_edit_website_container button").click();
     expect(".o-website-builder_sidebar button[data-name=blocks]").toHaveClass("active");
+});
+
+test("reload should reopen the builder with the reloadable target, and the same unfolded groups", async () => {
+    onRpc("ir.ui.view", "save", ({ args }) => {
+        expect.step("save");
+        return true;
+    });
+    addActionOption({
+        testAction: class extends BuilderAction {
+            static id = "testAction";
+            reload = {};
+            apply({ editingElement }) {
+                editingElement.dataset.applied = "true";
+            }
+        },
+    });
+    addBuilderOption({
+        selector: ".test-option",
+        template: xml`<BuilderButton action="'testAction'"/>`,
+        reloadTarget: true,
+    });
+    addBuilderOption({
+        selector: ".parent-option",
+        template: xml`<BuilderButton classAction="'parent-option-applied'"/>`,
+    });
+    const deferred = Promise.withResolvers();
+    await setupWebsiteBuilder(`<div class="parent-option"><div class="test-option">b</div></div>`, {
+        delayReload: async () => await deferred.promise,
+    });
+    await contains(":iframe .test-option").click();
+    expect(".options-container-header:has(i[data-icon='arrow_right'])").toHaveCount(1);
+    expect(".options-container-header:has(i[data-icon='arrow_drop_down'])").toHaveCount(1);
+    await unfoldAllOptionsGroups();
+    await contains("[data-action-id=testAction]").click();
+    expect(":iframe .test-option").toHaveAttribute("data-applied");
+    expect(".options-container-header:has(i[data-icon='arrow_right'])").toHaveCount(0);
+    expect(".options-container-header:has(i[data-icon='arrow_drop_down'])").toHaveCount(2);
+    deferred.resolve();
+    expect.verifySteps(["save"]);
+    await animationFrame();
+    // NOTE: the goal of the following assertion is to ensure that the reload is
+    // completed. This relies on the "save" mocked for this test that does
+    // nothing to save anything and the reload (mocked in `setupWebsiteBuilder`)
+    // resets to initial content
+    expect(":iframe .test-option").not.toHaveAttribute("data-applied");
+
+    expect(".options-container-header:has(i[data-icon='arrow_right'])").toHaveCount(0);
+    expect(".options-container-header:has(i[data-icon='arrow_drop_down'])").toHaveCount(2);
 });
 
 test("preview shouldn't let o_dirty", async () => {
@@ -231,25 +283,23 @@ test("preview shouldn't let o_dirty", async () => {
     class TestPlugin extends Plugin {
         static id = "TestPlugin";
         resources = {
-            normalize_handlers: (root) => {
+            normalize_processors: (root) => {
                 const el = root.querySelector(".test-option");
                 if (editorIsStart && el.dataset.applied !== "true") {
                     // apply a mutation when we remove the preview
                     el.classList.add("test");
                 }
+                return root;
             },
         };
     }
     addPlugin(TestPlugin);
-    addOption({
+    addBuilderOption({
         selector: ".test-option",
         template: xml`<BuilderButton action="'testAction'"/>`,
         reloadTarget: true,
     });
-    const deferred = new Deferred();
-    await setupWebsiteBuilder(`<div class="test-option">b</div>`, {
-        delayReload: async () => await deferred,
-    });
+    await setupWebsiteBuilder(`<div class="test-option">b</div>`);
     editorIsStart = true;
     await contains(":iframe .test-option").click();
     await contains("[data-action-id=testAction]").hover(); // preview
@@ -271,7 +321,7 @@ test("Drag and drop from sidebar should only mark the concerned elements as dirt
             <section class="s_dummy_snippet_2" style="height: 100px;">
                 <div><p>Hello</p></div>
             </section>
-        </div>    
+        </div>
     `);
 
     // Dragging in outer view then in inner view should only apply dirty on the
@@ -283,11 +333,11 @@ test("Drag and drop from sidebar should only mark the concerned elements as dirt
     await dragUtils.drop(getDragHelper());
     await waitForEndOfOperation();
     expect(":iframe .s_dummy_snippet_2 p").toHaveCount(2);
-    expect(":iframe .view.o_editable").toHaveClass("o_dirty");
+    expect(":iframe .view.o_savable").toHaveClass("o_dirty");
     expect(":iframe #wrap").not.toHaveClass("o_dirty");
     expect(":iframe .o_dirty").toHaveCount(1);
     // Undo
-    await contains(".o-website-builder_sidebar .fa-undo").click();
+    await contains(".o-website-builder_sidebar [data-icon='undo']").click();
     expect(":iframe .o_dirty").toHaveCount(0);
 
     // Dragging in inner view then in outer view should only apply dirty on the
@@ -299,11 +349,11 @@ test("Drag and drop from sidebar should only mark the concerned elements as dirt
     await dragUtils.drop(getDragHelper());
     await waitForEndOfOperation();
     expect(":iframe .s_dummy_snippet_1 p").toHaveCount(2);
-    expect(":iframe .view.o_editable").not.toHaveClass("o_dirty");
+    expect(":iframe .view.o_savable").not.toHaveClass("o_dirty");
     expect(":iframe #wrap").toHaveClass("o_dirty");
     expect(":iframe .o_dirty").toHaveCount(1);
     // Undo
-    await contains(".o-website-builder_sidebar .fa-undo").click();
+    await contains(".o-website-builder_sidebar [data-icon='undo']").click();
     expect(":iframe .o_dirty").toHaveCount(0);
 
     // Dragging over the views then dropping in the sidebar to cancel should not
@@ -339,7 +389,7 @@ test("Drag and drop from the page should only mark the concerned elements as dir
             <section class="s_dummy_snippet_3" style="height: 100px;">
                 <div><p>Hello</p></div>
             </section>
-        </div>      
+        </div>
     `);
 
     // Drag and dropping at the same place should cancel everything and not mark
@@ -351,7 +401,7 @@ test("Drag and drop from the page should only mark the concerned elements as dir
     await dragUtils.moveTo(":iframe .s_dummy_snippet_1 .oe_drop_zone:nth-child(3)");
     await dragUtils.drop(getDragMoveHelper());
     await waitForEndOfOperation();
-    expect(".o-website-builder_sidebar .fa-undo").toHaveAttribute("disabled");
+    expect(".o-website-builder_sidebar [data-icon='undo']").toHaveAttribute("disabled");
     expect(":iframe .o_dirty").toHaveCount(0);
 
     // Dragging across views and dropping in the original one should only apply
@@ -365,11 +415,11 @@ test("Drag and drop from the page should only mark the concerned elements as dir
     await waitForEndOfOperation();
     expect(":iframe .s_dummy_snippet_1 .s_alert:nth-child(1)").toHaveCount(1);
     expect(":iframe #wrap").toHaveClass("o_dirty");
-    expect(":iframe .view_1.o_editable").not.toHaveClass("o_dirty");
-    expect(":iframe .view_2.o_editable").not.toHaveClass("o_dirty");
+    expect(":iframe .view_1.o_savable").not.toHaveClass("o_dirty");
+    expect(":iframe .view_2.o_savable").not.toHaveClass("o_dirty");
     expect(":iframe .o_dirty").toHaveCount(1);
     // Undo
-    await contains(".o-website-builder_sidebar .fa-undo").click();
+    await contains(".o-website-builder_sidebar [data-icon='undo']").click();
     expect(":iframe .o_dirty").toHaveCount(0);
 
     // Dragging across views and dropping in another one should only apply dirty
@@ -382,11 +432,11 @@ test("Drag and drop from the page should only mark the concerned elements as dir
     await waitForEndOfOperation();
     expect(":iframe .s_dummy_snippet_3 .s_alert:nth-child(1)").toHaveCount(1);
     expect(":iframe #wrap").toHaveClass("o_dirty");
-    expect(":iframe .view_1.o_editable").not.toHaveClass("o_dirty");
-    expect(":iframe .view_2.o_editable").toHaveClass("o_dirty");
+    expect(":iframe .view_1.o_savable").not.toHaveClass("o_dirty");
+    expect(":iframe .view_2.o_savable").toHaveClass("o_dirty");
     expect(":iframe .o_dirty").toHaveCount(2);
     // Undo
-    await contains(".o-website-builder_sidebar .fa-undo").click();
+    await contains(".o-website-builder_sidebar [data-icon='undo']").click();
     expect(":iframe .o_dirty").toHaveCount(0);
 });
 
@@ -411,9 +461,8 @@ function setupSaveAndReloadIframe() {
         return true;
     });
     patchWithCleanup(WebsiteBuilderClientAction.prototype, {
-        async reloadIframeAndCloseEditor() {
-            this.websiteContent.el.contentDocument.body.innerHTML =
-                resultSave.at(-1) || wrapExample;
+        async closeEditor() {
+            this.websiteContent().contentDocument.body.innerHTML = resultSave.at(-1) || wrapExample;
         },
     });
     return resultSave;
@@ -421,7 +470,6 @@ function setupSaveAndReloadIframe() {
 
 test("'Switch Theme' after a mutation should only ask one confirmation", async () => {
     class MockSwitchThemeAction extends Component {
-        static props = ["*"];
         static template = xml`<div class="mock-switch-theme"></div>`;
     }
     defineActions([
@@ -438,7 +486,7 @@ test("'Switch Theme' after a mutation should only ask one confirmation", async (
     await modifyText(getEditor(), getEditableContent());
     await contains(`.o-snippets-tabs button[data-name="theme"]`).click();
     await contains(`.o_theme_tab button[data-action-id="switchTheme"]`).click();
-    expect(".modal main").toHaveText(/Changing theme/);
+    expect(".modal main").toHaveText(/Changing the theme/);
     await contains(`.modal button:contains(Ok)`).click();
     expect(".modal").toHaveCount(0, {
         message: "There should not be the modal telling changes will be lost",
@@ -479,13 +527,13 @@ describe("Add Language", () => {
 
     test("should hide the sidebar, and should return to editor if save failed", async () => {
         expect.errors(1);
-        const deferSave = new Deferred();
+        const deferSave = Promise.withResolvers();
         addPlugin(
             class extends Plugin {
                 static id = "test";
                 resources = {
-                    save_handlers: async () => {
-                        await deferSave;
+                    on_ready_to_save_document_handlers: async () => {
+                        await deferSave.promise;
                         throw "save fails for the test";
                     },
                 };
@@ -520,7 +568,7 @@ test("attempt to prevent closing window with unsaved changes", async () => {
         },
         async save() {
             expect.step("save - start");
-            await super.save();
+            await super.save(...arguments);
             expect.step("save - end");
         },
     });
@@ -539,11 +587,11 @@ test("attempt to prevent closing window with unsaved changes", async () => {
             expect.step(`defaultPrevented ${tag}`);
         }
     }
-    const deferSave = new Deferred();
+    const deferSave = Promise.withResolvers();
     addPlugin(
         class extends Plugin {
             static id = "test";
-            resources = { save_handlers: () => deferSave };
+            resources = { on_ready_to_save_document_handlers: () => deferSave.promise };
         }
     );
     setupSaveAndReloadIframe();
@@ -582,4 +630,121 @@ test("attempt to prevent closing window with unsaved changes", async () => {
 
     deferSave.resolve();
     await expect.waitForSteps(["save - end"]);
+});
+
+test("Modifying an element inside '.o_not_editable' should not mark this element as 'dirty'", async () => {
+    // An example of such a situation is a change of the blog author that makes
+    // a change of the author avatar accordingly.
+    addBuilderOption({
+        selector: ".test",
+        editableOnly: false,
+        template: xml`<BuilderButton classAction="'x'"/>`,
+    });
+    await setupWebsiteBuilder(`
+        <div class="o_not_editable" data-oe-model="model" data-oe-id="1" data-oe-field="field">
+            <p class="test">Test</p>
+        </div>
+    `);
+    await contains(`:iframe .test`).click();
+    await contains("[data-class-action='x']").click();
+    expect(":iframe [data-oe-model='model']").not.toHaveClass("o_dirty");
+});
+
+test("Validation errors are caught on save", async () => {
+    onRpc("ir.ui.view", "save", () => {
+        throw makeServerError({
+            message: "A Validation Error",
+            type: "ValidationError",
+        });
+    });
+    const { getEditor } = await setupWebsiteBuilder(`
+        <h2 class="test-target">
+            <span>Text</span>
+        </h2>
+    `);
+    // Change the span text content and save
+    const el = queryOne(":iframe .test-target");
+    setSelection({ anchorNode: el.childNodes[0], anchorOffset: 1 });
+    await insertText(getEditor(), "x");
+    await contains(".o-snippets-top-actions button:contains(Save)").click();
+    expect(
+        ".o_notification_manager .o_notification_content:contains('One or more fields were not valid.')"
+    ).toHaveCount(1);
+});
+
+test("Errors different than validation errors are not caught on save", async () => {
+    expect.errors(1);
+    onRpc("ir.ui.view", "save", () => {
+        throw makeServerError({
+            message: "Not A Validation Error",
+        });
+    });
+    const { getEditor } = await setupWebsiteBuilder(`
+        <h2 class="test-target">
+            <span>Text</span>
+        </h2>
+    `);
+    // Change the span text content and save
+    const el = queryOne(":iframe .test-target");
+    setSelection({ anchorNode: el.childNodes[0], anchorOffset: 1 });
+    await insertText(getEditor(), "x");
+    await contains(".o-snippets-top-actions button:contains(Save)").click();
+    expect.verifyErrors(["RPC_ERROR: Not A Validation Error"]);
+});
+
+test("should not add o_dirty for mutations done by normalize called by commit", async () => {
+    addPlugin(
+        class extends Plugin {
+            static id = "test_plugin_mutation";
+            static dependencies = ["domObserver"];
+            // static dependencies = ["history"];
+            /** @type {import("plugins").WebsiteResources} */
+            resources = {
+                normalize_processors: [
+                    withSequence(1, (root) => {
+                        for (const el of selectElements(root, ".test-content")) {
+                            el.dataset.counter = parseInt(el.dataset.counter) + 1;
+                        }
+                        return root;
+                    }),
+                    withSequence(2, (root) => {
+                        this.dependencies.domObserver.ignore(() => {
+                            // this.dependencies.history.ignoreDOMMutations(() => {
+                            for (const el of selectElements(root, ".test-sibling")) {
+                                el.dataset.counter = parseInt(el.dataset.counter) + 1;
+                            }
+                        });
+                        return root;
+                    }),
+                ],
+            };
+        }
+    );
+    const { getEditor } = await setupWebsiteBuilder("", {
+        headerContent: `
+            <div class="test-parent">
+                <div class="test-target" data-oe-model="stuff">
+                    <div class="test-content" data-counter="0">Hello</div>
+                <div>
+                <div class="test-sibling" data-oe-model="stuff" data-counter="0">
+                    Hello
+                <div>
+            </div>
+        `,
+    });
+    const editor = getEditor();
+
+    expect(":iframe .test-target").toHaveClass("o_savable");
+    expect(":iframe .test-target").not.toHaveClass("o_dirty");
+    expect(":iframe .test-content").toHaveAttribute("data-counter", "1");
+    expect(":iframe .test-sibling").toHaveAttribute("data-counter", "1");
+
+    queryOne(":iframe .test-parent").dataset.changed = true;
+    setSelection({ anchorNode: queryOne(":iframe .test-sibling") });
+    await insertText(editor, "X");
+
+    expect(":iframe .test-sibling").toHaveClass("o_dirty");
+    expect(":iframe .test-target").not.toHaveClass("o_dirty");
+    expect(":iframe .test-content").toHaveAttribute("data-counter", "2");
+    expect(":iframe .test-sibling").toHaveAttribute("data-counter", "2");
 });

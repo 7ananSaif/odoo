@@ -1,18 +1,19 @@
-import { Component, useState, onWillStart } from "@odoo/owl";
+import { Component, onWillStart, proxy, t, useProps } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
 import { useService } from "@web/core/utils/hooks";
 
 export class ImportDataOptions extends Component {
     static template = "ImportDataOptions";
-    static props = {
-        importOptions: { type: Object, optional: true },
-        fieldInfo: { type: Object },
-        onOptionChanged: { type: Function },
-    };
+
+    props = useProps({
+        importOptions: t.object().optional(),
+        fieldInfo: t.object(),
+        onOptionChanged: t.function(),
+    });
 
     setup() {
         this.orm = useService("orm");
-        this.state = useState({
+        this.state = proxy({
             options: [],
         });
         this.currentModel = this.props.fieldInfo.comodel_name || this.props.fieldInfo.model_name;

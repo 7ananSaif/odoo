@@ -1,6 +1,5 @@
-import { Component, useRef } from "@odoo/owl";
+import { Component, signal, t, useProps } from "@odoo/owl";
 
-import { useBus } from "@web/core/utils/hooks";
 import { useModel } from "@web/model/model";
 import { addFieldDependencies, extractFieldsFromArchInfo } from "@web/model/relational_model/utils";
 import { useSetupAction } from "@web/search/action_hook";
@@ -19,19 +18,24 @@ export class HierarchyController extends Component {
         SearchBar,
         ActionHelper,
     };
-    static props = {
-        ...standardViewProps,
-        Model: Function,
-        Renderer: Function,
-        buttonTemplate: String,
-        archInfo: Object,
-    };
     static template = "web_hierarchy.HierarchyView";
 
+    props = useProps({
+        ...standardViewProps,
+        Model: t.function(),
+        Renderer: t.function(),
+        buttonTemplate: t.string(),
+        archInfo: t.object(),
+    });
+
+    rootRef = signal.ref();
+
     setup() {
-        this.rootRef = useRef("root");
         const { parentFieldName, childFieldName } = this.props.archInfo;
-        const { activeFields, fields } = extractFieldsFromArchInfo(this.props.archInfo, this.props.fields);
+        const { activeFields, fields } = extractFieldsFromArchInfo(
+            this.props.archInfo,
+            this.props.fields
+        );
         const additionalFields = [{ name: parentFieldName }];
         if (childFieldName) {
             additionalFields.push({ name: childFieldName });
@@ -47,13 +51,6 @@ export class HierarchyController extends Component {
             parentFieldName,
             childFieldName,
         });
-        useBus(
-            this.model.bus,
-            "update",
-            () => {
-                this.render(true);
-            }
-        );
         useViewButtons(this.rootRef, {
             beforeExecuteAction: this.beforeExecuteActionButton.bind(this),
             afterExecuteAction: this.afterExecuteActionButton.bind(this),
@@ -61,11 +58,9 @@ export class HierarchyController extends Component {
         });
         useSetupAction({
             rootRef: this.rootRef,
-            getLocalState: () => {
-                return {
-                    modelState: this.model.exportState(),
-                };
-            },
+            getLocalState: () => ({
+                modelState: this.model.exportState(),
+            }),
         });
         this.searchBarToggler = useSearchBarToggler();
     }

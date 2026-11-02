@@ -4,7 +4,6 @@ import { registry } from "@web/core/registry";
 import { stepUtils } from "@web_tour/tour_utils";
 
 registry.category("web_tour.tours").add("hr_holidays_tour", {
-    url: "/odoo",
     steps: () => [
         stepUtils.showAppsMenuItem(),
         {
@@ -14,18 +13,24 @@ registry.category("web_tour.tours").add("hr_holidays_tour", {
             run: "click",
         },
         {
-            trigger: "button.btn-time-off",
+            trigger: ".o-dropdown-caret",
+            content: _t("Click on this button to request time-off or allocation"),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".o-dropdown-item:nth-child(1)",
             content: _t("Click on this button to request a time-off"),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: 'div[name="holiday_status_id"] input',
-            content: _t("Let's try to create a Sick Time Off, select it in the list"),
+            trigger: 'div[name="work_entry_type_id"] input',
+            content: _t("Let's try to create a sick time off, select it in the list"),
             run: "click",
         },
         {
-            trigger: ".ui-autocomplete .ui-menu-item a:contains('Sick Time Off')",
+            trigger: ".ui-autocomplete .ui-menu-item a:contains('Guaranted monthly wage illness')",
             tooltipPosition: "right",
             run: "click",
         },
@@ -52,7 +57,7 @@ registry.category("web_tour.tours").add("hr_holidays_tour", {
         },
         {
             trigger: 'div[name="name"] textarea',
-            content: _t("Add some description for the people that will validate it"),
+            content: _t("Add some description for the leave"),
             run: "click",
             tooltipPosition: "right",
         },
@@ -64,7 +69,7 @@ registry.category("web_tour.tours").add("hr_holidays_tour", {
         },
         {
             trigger: 'button[data-menu-xmlid="hr_holidays.menu_hr_holidays_management"]',
-            content: _t("Let's go validate it"),
+            content: _t("Let's go check it"),
             tooltipPosition: "bottom",
             run: "click",
         },
@@ -86,15 +91,9 @@ registry.category("web_tour.tours").add("hr_holidays_tour", {
             run: "click",
         },
         {
-            trigger: 'button[name="action_approve"]',
-            content: _t("Let's approve it"),
-            tooltipPosition: "bottom",
-            run: "click",
-        },
-        {
             isActive: ["auto"],
             trigger: `tr.o_data_row:first:not(:has(button[name="action_approve"])),table tbody:not(tr.o_data_row)`,
-            content: "Verify leave is approved",
+            content: "Verify leave has been automatically approved as it has been created by an admin",
         },
     ],
 });

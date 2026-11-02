@@ -1,3 +1,5 @@
+import { untrack } from "@odoo/owl";
+
 import { registry } from "@web/core/registry";
 
 /** @typedef {import("./record").Record} Record */
@@ -5,6 +7,7 @@ import { registry } from "@web/core/registry";
 
 export const modelRegistry = registry.category("discuss.model");
 
+export const COMPUTED_SYM = Symbol("computed");
 export const FIELD_DEFINITION_SYM = Symbol("field_definition");
 /** @typedef {ATTR_SYM|MANY_SYM|ONE_SYM} FIELD_SYM */
 export const ATTR_SYM = Symbol("attr");
@@ -14,9 +17,6 @@ export const OR_SYM = Symbol("or");
 const AND_SYM = Symbol("and");
 export const IS_RECORD_SYM = Symbol("isRecord");
 export const IS_FIELD_SYM = Symbol("isField");
-/** @deprecated equivalent to IS_DELETED_SYM */
-export const IS_DELETING_SYM = Symbol("isDeleting");
-export const IS_DELETED_SYM = Symbol("isDeleted");
 export const STORE_SYM = Symbol("store");
 
 export function AND(...args) {
@@ -26,9 +26,46 @@ export function OR(...args) {
     return [OR_SYM, ...args];
 }
 
-export function isCommand(data) {
-    return ["ADD", "DELETE", "ADD.noinv", "DELETE.noinv"].includes(data?.[0]?.[0]);
+const COMMANDS = new Set(["ADD", "DELETE", "ADD.noinv", "DELETE.noinv", "REPLACE"]);
+
+export function isCommandList(data) {
+    return Array.isArray(data) && data.length > 0 && data.every((cmd) => isCommand(cmd));
 }
+
+export function isCommand(data) {
+    return COMMANDS.has(data?.[0]);
+}
+
+/**
+ * Normalize a list of many commands.
+ *
+ * @param {Array|Object|null|false|undefined} command Many command. Can
+ * either be:
+ * - A falsy value or an empty array: interpreted as a "clear" command.
+ * - An object: interpreted as a replace.
+ * - A command.
+ * - An array of commands.
+ * - An array of raw values: interpreted as a replace.
+ * @returns {Array<[string, any[]]>} Normalized list of `[mode, value]` arrays.
+ */
+export function normalizeManyCommands(command) {
+    const ensureArrayValue = (cmd) => [cmd[0], Array.isArray(cmd[1]) ? cmd[1] : [cmd[1]]];
+    if (!command || (Array.isArray(command) && command.length === 0)) {
+        return [["REPLACE", []]];
+    }
+    if (isCommandList(command)) {
+        return command.map(ensureArrayValue);
+    }
+    if (isCommand(command)) {
+        return [ensureArrayValue(command)];
+    }
+    const replaceCmdList = ensureArrayValue(["REPLACE", command]);
+    if (replaceCmdList[1].some((val) => isCommand(val))) {
+        throw new Error("Many commands cannot mix raw values and commands");
+    }
+    return [replaceCmdList];
+}
+
 /**
  * @param {typeof import("./record").Record} Model
  * @param {string} fieldName
@@ -58,6 +95,10 @@ export function isFieldDefinition(val) {
     return val?.[FIELD_DEFINITION_SYM];
 }
 
+export function isComputedDefinition(val) {
+    return val?.[COMPUTED_SYM];
+}
+
 export const fields = {
     /**
      * @template {keyof import("models").Models} M
@@ -76,8 +117,6 @@ export const fields = {
      *   in the relation.
      * @param {(this: Record, r: import("models").Models[M]) => void} [param1.onDelete] function that is called when a record is removed
      *   from the relation.
-     * @param {(this: Record) => void} [param1.onUpdate] function that is called when the field value is updated.
-     *   This is called at least once at record creation.
      * @returns {import("models").Models[M]}
      */
     One(targetModel, param1) {
@@ -100,10 +139,6 @@ export const fields = {
      *   in the relation.
      * @param {(this: Record, r: import("models").Models[M]) => void} [param1.onDelete] function that is called when a record is removed
      *   from the relation.
-     * @param {(this: Record) => void} [param1.onUpdate] function that is called when the field value is updated.
-     *   This is called at least once at record creation.
-     * @param {(this: Record, r1: import("models").Models[M], r2: import("models").Models[M]) => number} [param1.sort] if defined, this field
-     *   is automatically sorted by this function.
      * @returns {import("models").Models[M][]}
      */
     Many(targetModel, param1) {
@@ -121,10 +156,8 @@ export const fields = {
      *   they are computed when dependencies change AND when this field is being used. In eager mode,
      *   the field is immediately (re-)computed when dependencies changes, which matches the built-in
      *   behaviour of OWL reactive.
-     * @param {(this: Record) => void} [param1.onUpdate] function that is called when the field value is updated.
-     *   This is called at least once at record creation.
-     * @param {(this: Record, Object, Object) => number} [param1.sort] if defined, this field is automatically sorted
-     *   by this function.
+     * @param {boolean} [param1.asProxy=false] a read returns the value as a proxy, so that
+     *   mutating its content is observed too. Only for an object, an array, a Map or a Set.
      * @param {'datetime'|'date'} [param1.type] if defined, automatically transform to a
      * specific type.
      * @returns {T}
@@ -145,8 +178,6 @@ export const fields = {
      *   they are computed when dependencies change AND when this field is being used. In eager mode,
      *   the field is immediately (re-)computed when dependencies changes, which matches the built-in
      *   behaviour of OWL reactive.
-     * @param {(this: Record) => void} [param1.onUpdate] function that is called when the field value is updated.
-     *   This is called at least once at record creation.
      * @returns {string|markup }
      */
     Html(def, param1) {
@@ -169,9 +200,7 @@ export const fields = {
      *   they are computed when dependencies change AND when this field is being used. In eager mode,
      *   the field is immediately (re-)computed when dependencies changes, which matches the built-in
      *   behaviour of OWL reactive.
-     * @param {(this: Record) => void} [param0.onUpdate] function that is called when the field value is updated.
-     *   This is called at least once at record creation.
-     * @returns {luxon.DateTime}
+     * @returns {import("luxon").DateTime}
      */
     Date(param0) {
         return {
@@ -191,9 +220,7 @@ export const fields = {
      *   they are computed when dependencies change AND when this field is being used. In eager mode,
      *   the field is immediately (re-)computed when dependencies changes, which matches the built-in
      *   behaviour of OWL reactive.
-     * @param {(this: Record) => void} [param0.onUpdate] function that is called when the field value is updated.
-     *   This is called at least once at record creation.
-     * @returns {luxon.DateTime}
+     * @returns {import("luxon").DateTime}
      */
     Datetime(param0) {
         return {
@@ -204,3 +231,35 @@ export const fields = {
         };
     },
 };
+
+export function makeRecordFieldLocalId(recordLocalId, fieldName) {
+    return `${recordLocalId}:${fieldName}`;
+}
+
+export const technicalKeysOnRecords = new Set(["_", "_proxy", "_raw", "env", "Model"]);
+
+/**
+ * Wraps the given methods so they run untracked: reactive reads inside them
+ * never subscribe the caller's computation. Applied once at module load on a
+ * class prototype (or the class itself for statics); the wrapper runs on the
+ * call receiver. Defined non-enumerable, like the class methods it shadows.
+ *
+ * @param {Object} object
+ * @param {string[]} names
+ */
+export function untrackFunctions(object, names) {
+    for (const name of names) {
+        const originalFn = object[name];
+        Object.defineProperty(object, name, {
+            configurable: true,
+            enumerable: false,
+            value: function untrackFunctionsValue(...args) {
+                const self = this;
+                return untrack(function untrackFunctionsValueUntracked() {
+                    return originalFn.apply(self, args);
+                });
+            },
+            writable: true,
+        });
+    }
+}

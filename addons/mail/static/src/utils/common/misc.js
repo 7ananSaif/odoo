@@ -1,8 +1,5 @@
-import { reactive } from "@odoo/owl";
 import { AssetsLoadingError, getBundle } from "@web/core/assets";
 import { memoize } from "@web/core/utils/functions";
-import { rpc } from "@web/core/network/rpc";
-import { effect } from "@web/core/utils/reactive";
 
 export function assignDefined(obj, data, keys = Object.keys(data)) {
     for (const key of keys) {
@@ -65,15 +62,6 @@ export const mailGlobal = {
     isInTest: false,
 };
 
-/**
- * Use `rpc` instead.
- *
- * @deprecated
- */
-export function rpcWithEnv() {
-    return rpc;
-}
-
 // todo: move this some other place in the future
 export function isDragSourceExternalFile(dataTransfer) {
     const dragDataType = dataTransfer.types;
@@ -84,38 +72,6 @@ export function isDragSourceExternalFile(dataTransfer) {
         return dragDataType.includes("Files");
     }
     return false;
-}
-
-/**
- * @param {Object} target
- * @param {string|string[]} key
- * @param {Function} callback
- */
-export function onChange(target, key, callback) {
-    let proxy;
-    function _observe() {
-        // access proxy[key] only once to avoid triggering reactive get() many times
-        const val = proxy[key];
-        if (typeof val === "object" && val !== null) {
-            void Object.keys(val);
-        }
-        if (Array.isArray(val)) {
-            void val.length;
-            void val.forEach((i) => i);
-        }
-    }
-    if (Array.isArray(key)) {
-        for (const k of key) {
-            onChange(target, k, callback);
-        }
-        return;
-    }
-    proxy = reactive(target, () => {
-        _observe();
-        callback();
-    });
-    _observe();
-    return proxy;
 }
 
 /**
@@ -134,7 +90,7 @@ export function closeStream(stream) {
  *  greater than date2, and 0 if they are equal.
  */
 export function compareDatetime(date1, date2) {
-    if (date1?.ts === date2?.ts) {
+    if (date1?.valueOf() === date2?.valueOf()) {
         return 0;
     }
     if (!date1) {
@@ -143,7 +99,8 @@ export function compareDatetime(date1, date2) {
     if (!date2) {
         return 1;
     }
-    return date1.ts - date2.ts;
+    // an invalid date has no millis, and a NaN comparator makes the sort unstable
+    return date1.valueOf() - date2.valueOf() || 0;
 }
 
 /**
@@ -153,13 +110,21 @@ export function compareDatetime(date1, date2) {
  * @param {string} v2 - The second version string to compare.
  * @return {number} -1 if v1 is less than v2, 1 if v1 is greater than v2, and 0 if they are equal.
  */
-function compareVersion(v1, v2) {
+export function compareVersion(v1, v2) {
     const parts1 = v1.split(".");
     const parts2 = v2.split(".");
 
     for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
-        const num1 = parseInt(parts1[i]) || 0;
-        const num2 = parseInt(parts2[i]) || 0;
+        let rawPart1 = parts1[i];
+        let rawPart2 = parts2[i];
+        if (typeof rawPart1 === "string" && rawPart1.startsWith("saas~")) {
+            rawPart1 = rawPart1.substring("saas~".length);
+        }
+        if (typeof rawPart2 === "string" && rawPart2.startsWith("saas~")) {
+            rawPart2 = rawPart2.substring("saas~".length);
+        }
+        const num1 = parseInt(rawPart1) || 0;
+        const num2 = parseInt(rawPart2) || 0;
         if (num1 < num2) {
             return -1;
         }
@@ -235,102 +200,6 @@ export const hasHardwareAcceleration = memoize(() => {
 });
 
 /**
- * Runs a reactive effect whenever the dependencies change. The effect receives
- * the current values returned by `dependencies`. If the effect returns a
- * cleanup function, it is run before the next execution.
- *
- * @template {object[]} T
- * @param {Object} options
- * @param {(...dependencies: any[]) => void | (() => void)} options.effect The
- *        effect callback. May return a cleanup function.
- * @param {(...args: [...T]) => Object|Array} options.dependencies Returns an array of
- *        values to track. The effect is called only if these values change.
- * @param {[...T]} options.reactiveTargets Objects that the effect depends on.
- */
-export function effectWithCleanup({ effect: effectFn, dependencies, reactiveTargets }) {
-    let cleanup;
-    let prevDependencies;
-    effect((...deps) => {
-        const nextDependencies = dependencies(...deps);
-        const changed =
-            !prevDependencies ||
-            (Array.isArray(nextDependencies)
-                ? nextDependencies.some((v, i) => v !== prevDependencies[i])
-                : Object.keys(nextDependencies).some(
-                      (key) => nextDependencies[key] !== prevDependencies[key]
-                  ));
-        if (changed) {
-            prevDependencies = Array.isArray(nextDependencies)
-                ? [...nextDependencies]
-                : { ...nextDependencies };
-            cleanup?.();
-            cleanup = Array.isArray(nextDependencies)
-                ? effectFn(...nextDependencies)
-                : effectFn({ ...nextDependencies });
-        }
-    }, reactiveTargets);
-}
-
-/**
- * A thin wrapper around `effectWithCleanup` that debounces the cleanup phase:
- * setup runs immediately when activated, while cleanup is delayed until the
- * predicate remains false for `delay` ms.
- *
- * Setup is executed again only after cleanup has completed, ensuring symmetry
- * between setup and cleanup.
- *
- * @template T - type of reactive targets
- * @template D - type of dependencies
- * @param {Object} options
- * @param {(dependencies: D) => (() => void)} options.effect Function called
- * when the predicate becomes true and the effect is not active. Receives the
- * values returned by `dependencies`.
- * @param {number} options.delay Debounce delay in milliseconds before running
- * cleanup.
- * @param {(...targets: T) => D} options.dependencies Function returning an
- * array of values tracked by the effect; passed to setup/cleanup.
- * @param {(...targets: T) => boolean} options.predicate Function returning a
- * boolean to determine whether the effect should be activated.
- * @param {[...T]} options.reactiveTargets Array of reactive objects that the
- * effect depends on.
- */
-export function effectWithDebouncedCleanup({
-    delay,
-    dependencies,
-    effect: effectFn,
-    predicate,
-    reactiveTargets,
-}) {
-    let timeout;
-    let active = false;
-    let cleanup;
-    effectWithCleanup({
-        effect(ctx) {
-            const { predicate, ...deps } = ctx;
-            if (!predicate) {
-                return;
-            }
-            clearTimeout(timeout);
-            if (!active) {
-                cleanup = effectFn(deps);
-                active = true;
-            }
-            return () => {
-                timeout = setTimeout(() => {
-                    cleanup();
-                    active = false;
-                }, delay);
-            };
-        },
-        dependencies: (...targets) => ({
-            predicate: predicate(...targets),
-            ...dependencies(...targets),
-        }),
-        reactiveTargets,
-    });
-}
-
-/**
  * @param {HTMLElement} targetNode
  * @param {string} bundleName
  */
@@ -361,3 +230,78 @@ export async function loadCssFromBundle(targetNode, bundleName) {
         }
     }
 }
+
+export const extractAccentColor = memoize((src, brightnessThreshold = 0.45) => {
+    const threshold = Math.max(0, Math.min(1, brightnessThreshold));
+
+    const toTargetBrightness = (r, g, b) => {
+        const scale = (threshold * 255) / Math.max(r, g, b, 1);
+        let nr = r * scale,
+            ng = g * scale,
+            nb = b * scale;
+        if (threshold > 0.5) {
+            const mix = (threshold - 0.5) * 2;
+            nr += (255 - nr) * mix;
+            ng += (255 - ng) * mix;
+            nb += (255 - nb) * mix;
+        }
+        return { r: Math.round(nr), g: Math.round(ng), b: Math.round(nb) };
+    };
+
+    const [SIZE, ALPHA_FLOOR, BLACK_FLOOR, WHITE_CEILING] = [8, 128, 20, 230];
+    const FALLBACK = toTargetBrightness(128, 128, 128);
+
+    return new Promise((resolve) => {
+        const img = Object.assign(new Image(), {
+            crossOrigin: "Anonymous",
+            onerror: () => resolve(FALLBACK),
+            onload: () => {
+                try {
+                    const canvas = document.createElement("canvas");
+                    canvas.width = canvas.height = SIZE;
+                    const ctx = canvas.getContext("2d");
+                    ctx.drawImage(img, 0, 0, SIZE, SIZE);
+                    const { data } = ctx.getImageData(0, 0, SIZE, SIZE);
+
+                    let wR = 0,
+                        wG = 0,
+                        wB = 0,
+                        total = 0;
+                    const accumulate = (x, y) => {
+                        const idx = (y * SIZE + x) * 4;
+                        const r = data[idx],
+                            g = data[idx + 1],
+                            b = data[idx + 2],
+                            a = data[idx + 3];
+                        if (
+                            a < ALPHA_FLOOR ||
+                            Math.max(r, g, b) < BLACK_FLOOR ||
+                            Math.min(r, g, b) > WHITE_CEILING
+                        ) {
+                            return;
+                        }
+                        wR += r;
+                        wG += g;
+                        wB += b;
+                        total++;
+                    };
+
+                    for (let i = 0; i < SIZE; i++) {
+                        accumulate(i, 0); // top
+                        accumulate(0, i); // left
+                        accumulate(SIZE - 1, i); // right
+                    }
+
+                    resolve(
+                        total > 0
+                            ? toTargetBrightness(wR / total, wG / total, wB / total)
+                            : FALLBACK
+                    );
+                } catch {
+                    resolve(FALLBACK);
+                }
+            },
+        });
+        img.src = src;
+    });
+});

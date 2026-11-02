@@ -1,7 +1,7 @@
-import { BaseOptionComponent, useDomState } from "@html_builder/core/utils";
-import { onWillStart, onWillUpdateProps, useState } from "@odoo/owl";
+import { BaseOptionComponent } from "@html_builder/core/base_option_component";
+import { useDomState } from "@html_builder/core/utils";
+import { onWillStart, onWillUpdateProps, proxy, useProps, t } from "@odoo/owl";
 import { FormActionFieldsOption } from "./form_action_fields_option";
-import { FormModelRequiredFieldAlert } from "./form_model_required_field_alert";
 import {
     getDependencyEl,
     getFieldName,
@@ -11,26 +11,48 @@ import {
     getModelName,
 } from "./utils";
 import { formatDate, formatDateTime } from "@web/core/l10n/dates";
+import { _t } from "@web/core/l10n/translation";
 
 const { DateTime } = luxon;
+
+export const RANGE_COMPARATORS = ["between", "!between"];
+
+export const formFieldOptionProps = {
+    redrawSequence: t.number().optional(),
+};
 
 export class FormFieldOption extends BaseOptionComponent {
     static template = "website.s_website_form_field_option";
     static dependencies = ["websiteFormOption"];
-    static props = {
-        redrawSequence: { type: Number, optional: true },
-    };
-    static components = { FormActionFieldsOption, FormModelRequiredFieldAlert };
+    props = useProps(formFieldOptionProps);
+    static components = { FormActionFieldsOption };
 
     setup() {
         super.setup();
+        this.customFieldsData = [
+            { name: _t("Text"), value: "char" },
+            { name: _t("Long Text"), value: "text" },
+            { name: _t("Email"), value: "email" },
+            { name: _t("Telephone"), value: "tel" },
+            { name: _t("Url"), value: "url" },
+            { name: _t("Number"), value: "integer" },
+            { name: _t("Decimal Number"), value: "float" },
+            { name: _t("Checkbox"), value: "boolean", id: "custom_field_boolean_opt" },
+            { name: _t("Multiple Checkboxes"), value: "one2many" },
+            { name: _t("Radio Buttons"), value: "selection" },
+            { name: _t("Selection"), value: "many2one" },
+            { name: _t("Date"), value: "date" },
+            { name: _t("Date & Time"), value: "datetime" },
+            { name: _t("File Upload"), value: "binary" },
+        ];
         const { loadFieldOptionData } = this.dependencies.websiteFormOption;
-        this.state = useState({
+        this.state = proxy({
             availableFields: [],
             conditionInputs: [],
             conditionValueList: [],
             dependencyEl: null,
             valueList: null,
+            fieldTypeItems: [],
         });
         this.domState = useDomState((el) => {
             const modelName = getModelName(el.closest("form"));
@@ -40,7 +62,6 @@ export class FormFieldOption extends BaseOptionComponent {
                 elClassList: [...el.classList],
                 fieldName,
                 modelName,
-                fieldTranslatedName: el.dataset.translatedName,
             };
         });
         this.format = {
@@ -59,6 +80,7 @@ export class FormFieldOption extends BaseOptionComponent {
                     isFormDate: false,
                     isFormDateTime: false,
                     hasDateTimePicker: false,
+                    isMultipleInputs: false,
                 };
             }
 
@@ -70,6 +92,7 @@ export class FormFieldOption extends BaseOptionComponent {
                 isFormDate: !!dependencyEl.closest(".s_website_form_date"),
                 isFormDateTime: !!dependencyEl.closest(".s_website_form_datetime"),
                 hasDateTimePicker: dependencyEl.classList.contains("datetimepicker-input"),
+                isMultipleInputs: !!dependencyEl.closest(".s_website_form_multiple"),
             };
         });
 
@@ -95,20 +118,33 @@ export class FormFieldOption extends BaseOptionComponent {
                 isFormDateTime: !!currentFieldInputEl.closest(".s_website_form_datetime"),
                 hasDateTimePicker: currentFieldInputEl.classList.contains("datetimepicker-input"),
                 isTextArea: currentFieldInputEl.nodeName === "TEXTAREA",
+                minLength: currentFieldInputEl.minLength,
+                maxLength: currentFieldInputEl.maxLength,
             };
+        });
+
+        this.canLinkStateToCountry = useDomState((el) => {
+            const formEl = el.closest("form");
+            const hasCountryField = !!formEl.querySelector(
+                ".s_website_form_input[name='country_id']"
+            );
+            return { value: getFieldName(el) === "state_id" && hasCountryField };
         });
 
         onWillStart(async () => {
             const el = this.env.getEditingElement();
             const fieldOptionData = await loadFieldOptionData(el);
+            this.state.fields = fieldOptionData.fields;
             this.state.availableFields.push(...fieldOptionData.availableFields);
             this.state.conditionInputs.push(...fieldOptionData.conditionInputs);
             this.state.valueList = fieldOptionData.valueList;
             this.state.conditionValueList.push(...fieldOptionData.conditionValueList);
+            this.computeFieldTypeItems(fieldOptionData);
         });
         onWillUpdateProps(async (props) => {
             const el = this.env.getEditingElement();
             const fieldOptionData = await loadFieldOptionData(el);
+            this.state.fields = fieldOptionData.fields;
             this.state.availableFields.length = 0;
             this.state.availableFields.push(...fieldOptionData.availableFields);
             this.state.conditionInputs.length = 0;
@@ -116,6 +152,7 @@ export class FormFieldOption extends BaseOptionComponent {
             this.state.valueList = fieldOptionData.valueList;
             this.state.conditionValueList.length = 0;
             this.state.conditionValueList.push(...fieldOptionData.conditionValueList);
+            this.computeFieldTypeItems(fieldOptionData);
         });
         // TODO select field's hack ?
     }
@@ -148,6 +185,82 @@ export class FormFieldOption extends BaseOptionComponent {
         );
     }
     /**
+     * Computes the configuration for the builder list input field used
+     * for validation based on the type of the current field input.
+     *
+     * @returns {Object} An object containing the title and default
+     * value for the builder list.
+     */
+    get multiTextRequirementConfig() {
+        const el = this.env.getEditingElement();
+        const isDomainComparator = el.dataset.requirementComparator === "domain";
+        const isEmail = el.dataset.type === "email";
+        let title = _t("Enter words");
+        if (isDomainComparator) {
+            title = _t("Enter email domains (e.g., gmail.com)");
+        } else if (isEmail) {
+            title = _t("Enter words for local part of the email");
+        }
+        return {
+            title,
+            tooltip: _t("At least one of these words should match"),
+            defaultValue: isDomainComparator ? "example.com" : _t("example"),
+        };
+    }
+    /**
+     * Determines the visibility of the builder list input field used for
+     * validation.
+     *
+     * @returns {boolean} Whether the builder list input should be visible.
+     */
+    get isMultipleTextConditionForRequirementOptionVisible() {
+        const el = this.env.getEditingElement();
+        return el.dataset.requirementComparator && this.isTextField;
+    }
+    /**
+     * Determines the visibility of the "today" toggle button and the end
+     * date input.
+     *
+     * @returns {boolean}
+     */
+    get isRangeComparator() {
+        return RANGE_COMPARATORS.includes(this.domState.elDataset.requirementComparator);
+    }
+    /**
+     * Label of the date requirement condition (start) row, depending on the
+     * selected comparator.
+     *
+     * @returns {string}
+     */
+    get dateRequirementConditionLabel() {
+        return this.isRangeComparator ? _t("Start date") : _t("Date");
+    }
+    /**
+     * Start date of a range requirement, used to restrict the end date picker
+     * so it cannot be set before the start date.
+     *
+     * @returns {DateTime|undefined}
+     */
+    get requirementStartDate() {
+        const value = parseInt(this.domState.elDataset.requirementCondition);
+        return Number.isNaN(value) ? undefined : DateTime.fromSeconds(value);
+    }
+    /**
+     * Determines the visibility of the character limit checkbox used for
+     * validation.
+     *
+     * @returns {boolean} Whether the character limit option should be visible.
+     */
+    get isTextField() {
+        return (
+            !this.domStateCurrentFieldInput.hasDateTimePicker &&
+            (this.domStateCurrentFieldInput.isTextArea ||
+                ["text", "email", "tel", "url", "search", "password"].includes(
+                    this.domStateCurrentFieldInput.type
+                ))
+        );
+    }
+    /**
      * Determines the visibility of the text condition input field used for
      * validation.
      *
@@ -155,12 +268,10 @@ export class FormFieldOption extends BaseOptionComponent {
      */
     get isTextConditionForRequirementOptionVisible() {
         const el = this.env.getEditingElement();
-        const currentFieldInputEl = getCurrentFieldInputEl(el);
         return (
             el.dataset.requirementComparator &&
             !this.domStateCurrentFieldInput.hasDateTimePicker &&
-            (this.domStateCurrentFieldInput.isTextArea ||
-                this.canHaveTextValidationCondition.includes(currentFieldInputEl.type))
+            this.domStateCurrentFieldInput.type === "number"
         );
     }
     get isTextConditionOperatorVisible() {
@@ -180,7 +291,19 @@ export class FormFieldOption extends BaseOptionComponent {
     }
     get isExistingFieldSelectType() {
         const el = this.env.getEditingElement();
-        return !isFieldCustom(el) && ["selection", "many2one"].includes(el.dataset.type);
+        return (
+            !isFieldCustom(el) &&
+            ["selection", "many2one", "many2many"].includes(el.dataset.type) &&
+            !el.querySelector("input[type='file']")
+        );
+    }
+    get isExistingFieldSelectTypeMultiple() {
+        const el = this.env.getEditingElement();
+        return !isFieldCustom(el) && this.state.fields[getFieldName(el)].type === "many2many";
+    }
+    get isOtherOptionSupported() {
+        const el = this.env.getEditingElement();
+        return isFieldCustom(el) && ["selection", "many2one"].includes(el.dataset.type);
     }
     get isMultipleInputs() {
         const el = this.env.getEditingElement();
@@ -195,5 +318,57 @@ export class FormFieldOption extends BaseOptionComponent {
             fieldEl.classList.contains("s_website_form_custom") ||
             ["one2many", "many2many"].includes(fieldEl.dataset.type)
         );
+    }
+    get isMultiSelectVisible() {
+        const el = this.env.getEditingElement();
+        const dependencyEl = getDependencyEl(el);
+        const containerEl = dependencyEl.closest(".s_website_form_field");
+        return (
+            (["checkbox", "radio"].includes(dependencyEl.type) ||
+                dependencyEl.nodeName === "SELECT" ||
+                containerEl?.dataset.type === "record") &&
+            ["contains", "!contains"].includes(el.dataset.visibilityComparator)
+        );
+    }
+    /**
+     * Dynamic key to force BuilderList to re-render when field type changes.
+     */
+    get getFieldKey() {
+        if (this.domState.elClassList.includes("s_website_form_custom")) {
+            return this.domState.elDataset.type;
+        }
+        return this.domState.fieldName;
+    }
+    /**
+     * Generate the entries for the field type selector.
+     */
+    computeFieldTypeItems(fieldOptionData) {
+        const customFieldItems = this.customFieldsData.map((field) => ({
+            label: field.name,
+            props: {
+                id: field.id,
+                action: "customField",
+                actionValue: field.value,
+            },
+            attrs: {
+                "data-action-id": "customField",
+                "data-action-value": field.value,
+            },
+        }));
+        const existingFieldItems = fieldOptionData.availableFields.map((field) => ({
+            label: field.string,
+            props: {
+                action: "existingField",
+                actionValue: field.name,
+            },
+            attrs: {
+                "data-action-id": "existingField",
+                "data-action-value": field.name,
+            },
+        }));
+        this.state.fieldTypeItems = [
+            { label: _t("Custom Field"), choices: customFieldItems },
+            { label: _t("Existing fields"), choices: existingFieldItems },
+        ];
     }
 }

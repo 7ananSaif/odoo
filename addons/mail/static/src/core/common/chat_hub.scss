@@ -1,6 +1,9 @@
 .o-mail-ChatHub-bubbles {
     width: $o-mail-ChatHub-bubblesWidth;
     z-index: $o-mail-NavigableList-zIndex - 1;
+}
+
+.o-mail-ChatHub:not(.o-dragged) .o-mail-ChatHub-bubbles {
     bottom: calc(#{var(--mail-ChatHub-bubbles-bottom, 0px)} + #{var(--mail-ChatHub-bubbles-bottomLift, 0px)});
 
     &.o-liftUp {
@@ -15,9 +18,12 @@
 
 .o-mail-ChatHub-bubbleBtn {
     padding: 0 !important;
-    border: none !important;
     border-radius: 50%;
     box-shadow: $box-shadow-sm;
+
+    &:not(.o-bordered) {
+        border: none !important;
+    }
 }
 
 .o-mail-ChatHub-hiddenAvatar {
@@ -79,34 +85,17 @@
 
 .o-mail-ChatHub-option {
     &:hover, &.o-active {
-        background-color: $o-gray-300;
         cursor: pointer;
     }
 }
 
 .o-mail-ChatHub-optionsBtn {
-    font-size: 15px;
-    width: 24px !important;
-    height: 24px !important;
-    border: $border-width solid transparent !important;
-
-    &.o-bubblesHover {
-        border-color: mix($o-gray-200, $o-gray-300) !important;
-
-        i {
-            opacity: 50%;
-        }
+    // Half-lit while only the bubbles stack is hovered.
+    &.o-bubblesHover:before {
+        opacity: 50%;
     }
 
-    &:hover {
-        border-color: $o-gray-300 !important;
-    }
-    &.show {
-        border-color: mix($o-gray-300, $o-gray-400) !important;
-    }
-    &:hover, &.show {
-        i {
-            opacity: 100%;
-        }
+    &:hover:before, &.show:before {
+        opacity: 100%;
     }
 }

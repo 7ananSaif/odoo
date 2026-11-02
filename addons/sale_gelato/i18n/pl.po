@@ -10,10 +10,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-24 17:37+0000\n"
-"PO-Revision-Date: 2026-02-25 14:51+0000\n"
-"Last-Translator: \"Marta (wacm)\" <wacm@odoo.com>\n"
-"Language-Team: Polish <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 18:11+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Polish <https://translate.odoo.com/projects/odoo-s19-4/"
 "sale_gelato/pl/>\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
@@ -21,7 +21,7 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: sale_gelato
 #: model:mail.template,body_html:sale_gelato.order_status_update
@@ -58,12 +58,11 @@ msgid ""
 "                    <br/><br/>\n"
 "                </t>\n"
 "                Thank you,\n"
-"                <t t-if=\"object.user_id.name\" data-o-mail-quote-"
-"container=\"1\">\n"
+"                <t t-if=\"object.user_id.name\">\n"
 "                    <br/>\n"
 "                    <div data-o-mail-quote=\"1\">--<br data-o-mail-"
-"quote=\"1\"/><t t-out=\"object.user_id.name or ''\" data-o-mail-"
-"quote=\"1\">Mitchell Admin</t></div>\n"
+"quote=\"1\"/><t t-out=\"object.user_id.name or ''\">Mitchell Admin</t></"
+"div>\n"
 "                </t>\n"
 "            </div>\n"
 "        "
@@ -73,17 +72,17 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sale_gelato.product_template_form
 msgid ""
 "<i title=\"All print images are set\" invisible=\"gelato_missing_images\" "
-"class=\"fa fa-check-circle text-success fs-3 me-3\"/>\n"
+"class=\"oi oi-filled text-success fs-3 me-3\" data-icon=\"check_circle\"/>\n"
 "                        <i title=\"Some print images are missing\" "
-"invisible=\"not gelato_missing_images\" class=\"fa fa-question-circle text-"
-"danger fs-3 me-3\"/>"
+"invisible=\"not gelato_missing_images\" class=\"oi text-danger fs-3 me-3\" "
+"data-icon=\"help\"/>"
 msgstr ""
 "<i title=\"Wszystkie drukowane obrazy są skonfigurowane\" "
-"invisible=\"gelato_missing_images\" class=\"fa fa-check-circle text-success "
-"fs-3 me-3\"/>\n"
+"invisible=\"gelato_missing_images\" class=\"oi oi-filled text-success fs-3 "
+"me-3\" data-icon=\"check_circle\"/>\n"
 "                        <i title=\"Brakuje niektórych obrazów do druku\" "
-"invisible=\"not gelato_missing_images\" class=\"fa fa-question-circle text-"
-"danger fs-3 me-3\"/>"
+"invisible=\"not gelato_missing_images\" class=\"oi text-danger fs-3 me-3\" "
+"data-icon=\"help\"/>"
 
 #. module: sale_gelato
 #: model_terms:ir.ui.view,arch_db:sale_gelato.res_config_settings_form
@@ -92,13 +91,13 @@ msgstr "Klucz API"
 
 #. module: sale_gelato
 #: model:ir.model,name:sale_gelato.model_res_company
-msgid "Companies"
-msgstr "Firmy"
+msgid "Company"
+msgstr "Firma"
 
 #. module: sale_gelato
 #: model:ir.model,name:sale_gelato.model_res_config_settings
 msgid "Config Settings"
-msgstr "Konfiguracja ustawień"
+msgstr "Ustawienia konfiguracji"
 
 #. module: sale_gelato
 #: model:ir.model,name:sale_gelato.model_res_partner
@@ -121,6 +120,11 @@ msgstr "Nie udało się zsynchronizować z Gelato"
 #: model:ir.model,website_form_label:sale_gelato.model_res_partner
 msgid "Create a Customer"
 msgstr "Utwórz klienta"
+
+#. module: sale_gelato
+#: model:ir.model,name:sale_gelato.model_delivery_carrier
+msgid "Delivery Method"
+msgstr ""
 
 #. module: sale_gelato
 #: model:ir.model.fields,field_description:sale_gelato.field_delivery_carrier__display_name
@@ -148,7 +152,7 @@ msgstr "Ekspresowa dostawa (Gelato)"
 
 #. module: sale_gelato
 #: model:ir.model.fields.selection,name:sale_gelato.selection__delivery_carrier__delivery_type__gelato
-#: model_terms:ir.ui.view,arch_db:sale_gelato.product_product_easy_form
+#: model:ir.module.module,shortdesc:base.module_sale_gelato
 #: model_terms:ir.ui.view,arch_db:sale_gelato.product_product_normal_form
 #: model_terms:ir.ui.view,arch_db:sale_gelato.product_template_form
 msgid "Gelato"
@@ -188,6 +192,11 @@ msgid "Gelato Template Reference"
 msgstr "Odnośnik szablonu Gelato"
 
 #. module: sale_gelato
+#: model:ir.model.fields,field_description:sale_gelato.field_product_product__gelato_variant_image_ids
+msgid "Gelato Variant Print Images"
+msgstr ""
+
+#. module: sale_gelato
 #: model:ir.model.fields,field_description:sale_gelato.field_res_company__gelato_webhook_secret
 #: model:ir.model.fields,field_description:sale_gelato.field_res_config_settings__gelato_webhook_secret
 msgid "Gelato Webhook Secret"
@@ -195,7 +204,7 @@ msgstr "Klucz Webhook Gelato"
 
 #. module: sale_gelato
 #. odoo-python
-#: code:addons/sale_gelato/controlers/main.py:0
+#: code:addons/sale_gelato/controllers/main.py:0
 msgid ""
 "Gelato could not proceed with the fulfillment of order %(order_reference)s: %"
 "(gelato_message)s"
@@ -205,13 +214,13 @@ msgstr ""
 
 #. module: sale_gelato
 #. odoo-python
-#: code:addons/sale_gelato/controlers/main.py:0
+#: code:addons/sale_gelato/controllers/main.py:0
 msgid "Gelato has canceled order %(reference)s."
 msgstr ""
 
 #. module: sale_gelato
 #. odoo-python
-#: code:addons/sale_gelato/controlers/main.py:0
+#: code:addons/sale_gelato/controllers/main.py:0
 msgid "Gelato has returned order %(reference)s."
 msgstr "Gelato zwrócił zamówienie %(reference)s."
 
@@ -219,6 +228,11 @@ msgstr "Gelato zwrócił zamówienie %(reference)s."
 #: model:mail.template,name:sale_gelato.order_status_update
 msgid "Gelato: Order status update"
 msgstr "Gelato: Aktualizacja statusu zamówienia"
+
+#. module: sale_gelato
+#: model_terms:ir.ui.view,arch_db:sale_gelato.product_product_normal_form
+msgid "Generate Print Images"
+msgstr ""
 
 #. module: sale_gelato
 #: model:ir.model.fields,field_description:sale_gelato.field_delivery_carrier__id
@@ -257,11 +271,23 @@ msgstr "Brakujące obrazy do druku"
 
 #. module: sale_gelato
 #. odoo-python
+#: code:addons/sale_gelato/models/product_product.py:0
+msgid "Missing images have been successfully created."
+msgstr ""
+
+#. module: sale_gelato
+#. odoo-python
 #: code:addons/sale_gelato/models/product_template.py:0
 msgid "Missing product variants and images have been successfully created."
 msgstr "Brakujące warianty produktu i obrazy zostały pomyślnie utworzone."
 
 #. module: sale_gelato
+#: model:ir.module.module,summary:base.module_sale_gelato
+msgid "Place orders through Gelato's print-on-demand service"
+msgstr ""
+
+#. module: sale_gelato
+#: model_terms:ir.ui.view,arch_db:sale_gelato.product_product_normal_form
 #: model_terms:ir.ui.view,arch_db:sale_gelato.product_template_form
 msgid "Print Images"
 msgstr "Drukuj obrazy"
@@ -283,7 +309,6 @@ msgid "Product Document"
 msgstr "Dokument produktu"
 
 #. module: sale_gelato
-#: model_terms:ir.ui.view,arch_db:sale_gelato.product_product_easy_form
 #: model_terms:ir.ui.view,arch_db:sale_gelato.product_product_normal_form
 #: model_terms:ir.ui.view,arch_db:sale_gelato.product_template_form
 msgid "Product UID"
@@ -315,11 +340,6 @@ msgid "Sent to the customer when Gelato updates the status of an order"
 msgstr "Wysłano do klienta, kiedy Gelato zaktualizuje status zamówienia"
 
 #. module: sale_gelato
-#: model:ir.model,name:sale_gelato.model_delivery_carrier
-msgid "Shipping Methods"
-msgstr "Sposoby dostawy"
-
-#. module: sale_gelato
 #: model:delivery.carrier,name:sale_gelato.standard_delivery
 #: model:ir.model.fields.selection,name:sale_gelato.selection__delivery_carrier__gelato_shipping_service_type__normal
 msgid "Standard Delivery"
@@ -337,6 +357,13 @@ msgid "Successfully synchronized with Gelato"
 msgstr "Pomyślnie zsynchronizowane z Gelato"
 
 #. module: sale_gelato
+#. odoo-python
+#: code:addons/sale_gelato/models/product_product.py:0
+msgid "Successfully updated print images."
+msgstr ""
+
+#. module: sale_gelato
+#: model_terms:ir.ui.view,arch_db:sale_gelato.product_product_normal_form
 #: model_terms:ir.ui.view,arch_db:sale_gelato.product_template_form
 msgid "Synchronize"
 msgstr "Synchronizuj"
@@ -354,13 +381,25 @@ msgstr "Odniesienie do szablonu"
 
 #. module: sale_gelato
 #. odoo-python
+#: code:addons/sale_gelato/models/sale_order.py:0
+msgid "The address is incorrect."
+msgstr ""
+
+#. module: sale_gelato
+#. odoo-python
 #: code:addons/sale_gelato/models/delivery_carrier.py:0
 msgid "The delivery method is not available for this order."
 msgstr "Metoda dostawy nie jest dostępna dla tego zamówienia."
 
 #. module: sale_gelato
 #. odoo-python
-#: code:addons/sale_gelato/models/sale_order.py:0
+#: code:addons/sale_gelato/models/res_partner.py:0
+msgid "The following address fields are too long: %s"
+msgstr ""
+
+#. module: sale_gelato
+#. odoo-python
+#: code:addons/sale_gelato/models/res_partner.py:0
 msgid "The following required address fields are missing: %s"
 msgstr "Brakuje następujących wymaganych pól adresu: %s"
 
@@ -382,15 +421,26 @@ msgstr ""
 "Powód: %(error_message)s"
 
 #. module: sale_gelato
-#. odoo-python
-#: code:addons/sale_gelato/models/sale_order.py:0
-msgid "Unable to confirm the order %s on Gelato."
+#: model:ir.model.fields,help:sale_gelato.field_product_product__gelato_image_ids
+#: model:ir.model.fields,help:sale_gelato.field_product_product__gelato_variant_image_ids
+#: model:ir.model.fields,help:sale_gelato.field_product_template__gelato_image_ids
+msgid ""
+"To ensure a good printing result, upload a PNG of the entire printing area "
+"with your graphics correctly placed on it."
 msgstr ""
 
 #. module: sale_gelato
 #. odoo-python
 #: code:addons/sale_gelato/models/sale_order.py:0
-msgid "Unable to delete the order %s on Gelato."
+msgid ""
+"Unable to confirm the order %(order_reference)s on Gelato.%(error_message)s"
+msgstr ""
+
+#. module: sale_gelato
+#. odoo-python
+#: code:addons/sale_gelato/models/sale_order.py:0
+msgid ""
+"Unable to delete the order %(order_reference)s on Gelato.%(error_message)s"
 msgstr ""
 
 #. module: sale_gelato
@@ -408,97 +458,12 @@ msgstr ""
 "zamówieniu."
 
 #. module: sale_gelato
+#. odoo-python
+#: code:addons/sale_gelato/models/sale_order_line.py:0
+msgid "You cannot order unconfigured Gelato products."
+msgstr ""
+
+#. module: sale_gelato
 #: model:mail.template,subject:sale_gelato.order_status_update
 msgid "{{ object.reference }}"
 msgstr "{{ object.reference }}"
-
-#~ msgid ""
-#~ "<div style=\"margin: 0px; padding: 0px;\">\n"
-#~ "                <p style=\"margin: 0px; padding: 0px; font-size: 13px;"
-#~ "\">\n"
-#~ "                    Hello <t t-out=\"object.partner_id.name or "
-#~ "''\">Brandon Freeman</t>,<br/><br/>\n"
-#~ "                    <!-- Order in transit body -->\n"
-#~ "                    <t t-if=\"ctx.get('tracking_data')\">\n"
-#~ "                        We are glad to inform you that your order is in "
-#~ "transit.\n"
-#~ "                        <t t-if=\"len(ctx['tracking_data']) == 1\">\n"
-#~ "                            <t t-set=\"tracking_url\" t-"
-#~ "value=\"list(ctx['tracking_data'].keys())[0]\"/>\n"
-#~ "                            Your tracking number is <a t-attf-"
-#~ "href=\"tracking_url\" t-out=\"ctx['tracking_data'][tracking_url]\"/>.\n"
-#~ "                            <br/><br/>\n"
-#~ "                        </t>\n"
-#~ "                        <t t-else=\"\">\n"
-#~ "                            Your tracking numbers are:\n"
-#~ "                            <ul>\n"
-#~ "                                <li t-foreach=\"ctx['tracking_data']\" t-"
-#~ "as=\"tracking_url\">\n"
-#~ "                                    <a t-attf-href=\"{{tracking_url}}\" t-"
-#~ "out=\"ctx['tracking_data'][tracking_url]\"/>\n"
-#~ "                                </li>\n"
-#~ "                            </ul>\n"
-#~ "                        </t>\n"
-#~ "                    </t>\n"
-#~ "                    <!-- Order delivered body -->\n"
-#~ "                    <t t-if=\"ctx.get('order_delivered')\">\n"
-#~ "                        We are glad to inform you that your order has "
-#~ "been delivered.\n"
-#~ "                        <br/><br/>\n"
-#~ "                    </t>\n"
-#~ "                    Thank you,\n"
-#~ "                    <t t-if=\"object.user_id.name\" data-o-mail-quote-"
-#~ "container=\"1\">\n"
-#~ "                        <br/>\n"
-#~ "                        <div data-o-mail-quote=\"1\">--<br data-o-mail-"
-#~ "quote=\"1\"/><t t-out=\"object.user_id.name or ''\" data-o-mail-"
-#~ "quote=\"1\">Mitchell Admin</t></div>\n"
-#~ "                    </t>\n"
-#~ "                </p>\n"
-#~ "            </div>\n"
-#~ "        "
-#~ msgstr ""
-#~ "<div style=\"margin: 0px; padding: 0px;\">\n"
-#~ "                <p style=\"margin: 0px; padding: 0px; font-size: 13px;"
-#~ "\">\n"
-#~ "                    Dzień dobry <t t-out=\"object.partner_id.name or "
-#~ "''\">Brandon Freeman</t>,<br/><br/>\n"
-#~ "                    <!-- Order in transit body -->\n"
-#~ "                    <t t-if=\"ctx.get('tracking_data')\">\n"
-#~ "                        Z radością informujemy, że Twoje zamówienie jest "
-#~ "już w drodze.\n"
-#~ "                        <t t-if=\"len(ctx['tracking_data']) == 1\">\n"
-#~ "                            <t t-set=\"tracking_url\" t-"
-#~ "value=\"list(ctx['tracking_data'].keys())[0]\"/>\n"
-#~ "                            Oto numer śledzenia zamówienia: <a t-attf-"
-#~ "href=\"tracking_url\" t-out=\"ctx['tracking_data'][tracking_url]\"/>.\n"
-#~ "                            <br/><br/>\n"
-#~ "                        </t>\n"
-#~ "                        <t t-else=\"\">\n"
-#~ "                            Oto numery śledzenia zamówień:\n"
-#~ "                            <ul>\n"
-#~ "                                <li t-foreach=\"ctx['tracking_data']\" t-"
-#~ "as=\"tracking_url\">\n"
-#~ "                                    <a t-attf-href=\"{{tracking_url}}\" t-"
-#~ "out=\"ctx['tracking_data'][tracking_url]\"/>\n"
-#~ "                                </li>\n"
-#~ "                            </ul>\n"
-#~ "                        </t>\n"
-#~ "                    </t>\n"
-#~ "                    <!-- Order delivered body -->\n"
-#~ "                    <t t-if=\"ctx.get('order_delivered')\">\n"
-#~ "                        Z przyjemnością informujemy, że Twoje zamówienie "
-#~ "zostało dostarczone.\n"
-#~ "                        <br/><br/>\n"
-#~ "                    </t>\n"
-#~ "                    Dziękujemy,\n"
-#~ "                    <t t-if=\"object.user_id.name\" data-o-mail-quote-"
-#~ "container=\"1\">\n"
-#~ "                        <br/>\n"
-#~ "                        <div data-o-mail-quote=\"1\">--<br data-o-mail-"
-#~ "quote=\"1\"/><t t-out=\"object.user_id.name or ''\" data-o-mail-"
-#~ "quote=\"1\">Mitchell Admin</t></div>\n"
-#~ "                    </t>\n"
-#~ "                </p>\n"
-#~ "            </div>\n"
-#~ "        "

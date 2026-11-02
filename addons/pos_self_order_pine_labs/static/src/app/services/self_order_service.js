@@ -8,7 +8,7 @@ patch(SelfOrder.prototype, {
         await super.setup(...arguments);
 
         const pineLabsPaymentMethod = this.models["pos.payment.method"].find(
-            (p) => p.use_payment_terminal === "pine_labs"
+            (p) => p.payment_provider === "pine_labs"
         );
 
         if (pineLabsPaymentMethod) {
@@ -19,14 +19,6 @@ patch(SelfOrder.prototype, {
                 this.handlePineLabsError.bind(this)
             );
         }
-    },
-
-    filterPaymentMethods(pms) {
-        const filteredPaymentMethods = super.filterPaymentMethods(...arguments);
-        const pineLabsPaymentMethods = pms.filter(
-            (rec) => rec.use_payment_terminal === "pine_labs"
-        );
-        return [...new Set([...filteredPaymentMethods, ...pineLabsPaymentMethods])];
     },
 
     handlePineLabsError(error, type) {

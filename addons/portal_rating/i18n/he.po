@@ -7,15 +7,15 @@
 # Yihya Hugirat <hugirat@gmail.com>, 2022
 # ZVI BLONDER <ZVIBLONDER@gmail.com>, 2022
 # Ha Ketem <haketem@gmail.com>, 2022
-# or balmas <or@laylinetech.com>, 2026.
+# Weblate <noreply-mt-weblate@weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0beta\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-05-30 09:40+0000\n"
-"Last-Translator: or balmas <or@laylinetech.com>\n"
-"Language-Team: Hebrew <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 15:19+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Hebrew <https://translate.odoo.com/projects/odoo-s19-4/"
 "portal_rating/he/>\n"
 "Language: he\n"
 "MIME-Version: 1.0\n"
@@ -23,12 +23,21 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=4; plural=(n == 1) ? 0 : ((n == 2) ? 1 : ((n > 10 && "
 "n % 10 == 0) ? 2 : 3));\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: portal_rating
+#: model:ir.module.module,description:base.module_portal_rating
+msgid ""
+"\n"
+"Bridge module adding rating capabilities on portal. It includes notably\n"
+"inclusion of rating directly within the customer portal discuss widget.\n"
+msgstr ""
 
 #. module: portal_rating
 #: model_terms:ir.ui.view,arch_db:portal_rating.rating_rating_view_form
+#, fuzzy
 msgid "<span> on </span>"
-msgstr ""
+msgstr "<span> ב </span>"
 
 #. module: portal_rating
 #: model_terms:ir.ui.view,arch_db:portal_rating.rating_rating_view_form
@@ -44,19 +53,14 @@ msgstr "הוסף חוות דעת"
 
 #. module: portal_rating
 #. odoo-javascript
-#: code:addons/portal_rating/static/src/xml/portal_tools.xml:0
-msgid "Average"
-msgstr "ממוצע"
-
-#. module: portal_rating
-#. odoo-javascript
+#: code:addons/portal_rating/static/src/chatter/portal/portal_chatter_patch.xml:0
 #: code:addons/portal_rating/static/src/xml/portal_rating_composer.xml:0
 msgid "Close"
 msgstr "סגור"
 
 #. module: portal_rating
 #. odoo-javascript
-#: code:addons/portal_rating/static/src/chatter/frontend/message_patch.xml:0
+#: code:addons/portal_rating/static/src/chatter/portal/message_patch.xml:0
 #: model_terms:ir.ui.view,arch_db:portal_rating.rating_rating_view_form
 msgid "Comment"
 msgstr "הערה"
@@ -73,26 +77,23 @@ msgstr "הגיב ב"
 
 #. module: portal_rating
 #. odoo-javascript
-#: code:addons/portal_rating/static/src/chatter/frontend/message_patch.xml:0
+#: code:addons/portal_rating/static/src/chatter/portal/message_patch.xml:0
+#, fuzzy
 msgid "Delete"
-msgstr "מחק"
-
-#. module: portal_rating
-#. odoo-javascript
-#: code:addons/portal_rating/static/src/xml/portal_tools.xml:0
-msgid "Details"
-msgstr "פרטים"
+msgstr "מחיקה"
 
 #. module: portal_rating
 #: model:ir.model.fields,field_description:portal_rating.field_ir_http__display_name
 #: model:ir.model.fields,field_description:portal_rating.field_mail_message__display_name
 #: model:ir.model.fields,field_description:portal_rating.field_rating_rating__display_name
+#, fuzzy
 msgid "Display Name"
-msgstr ""
+msgstr "שם לתצוגה"
 
 #. module: portal_rating
 #. odoo-javascript
-#: code:addons/portal_rating/static/src/chatter/frontend/message_patch.xml:0
+#: code:addons/portal_rating/static/src/chatter/portal/message_patch.xml:0
+#, fuzzy
 msgid "Edit"
 msgstr "ערוך"
 
@@ -100,22 +101,25 @@ msgstr "ערוך"
 #. odoo-javascript
 #: code:addons/portal_rating/static/src/interactions/portal_rating_composer.js:0
 #: model_terms:ir.ui.view,arch_db:portal_rating.rating_stars_static_popup_composer
+#, fuzzy
 msgid "Edit Review"
-msgstr ""
+msgstr "ערוך ביקורת"
 
 #. module: portal_rating
 #. odoo-javascript
-#: code:addons/portal_rating/static/src/chatter/frontend/composer_patch.xml:0
+#: code:addons/portal_rating/static/src/chatter/portal/composer_patch.xml:0
 #: code:addons/portal_rating/static/src/xml/portal_tools.xml:0
+#, fuzzy
 msgid "Empty star"
-msgstr ""
+msgstr "כוכב ריק"
 
 #. module: portal_rating
 #. odoo-javascript
-#: code:addons/portal_rating/static/src/chatter/frontend/composer_patch.xml:0
+#: code:addons/portal_rating/static/src/chatter/portal/composer_patch.xml:0
 #: code:addons/portal_rating/static/src/xml/portal_tools.xml:0
+#, fuzzy
 msgid "Full star"
-msgstr ""
+msgstr "כוכב מלא"
 
 #. module: portal_rating
 #: model:ir.model,name:portal_rating.model_ir_http
@@ -132,14 +136,21 @@ msgstr "חצי כוכב"
 #: model:ir.model.fields,field_description:portal_rating.field_ir_http__id
 #: model:ir.model.fields,field_description:portal_rating.field_mail_message__id
 #: model:ir.model.fields,field_description:portal_rating.field_rating_rating__id
+#, fuzzy
 msgid "ID"
-msgstr ""
+msgstr "מזהה"
 
 #. module: portal_rating
 #. odoo-python
 #: code:addons/portal_rating/controllers/portal_rating.py:0
 msgid "Invalid rating"
 msgstr "דירוג לא חוקי"
+
+#. module: portal_rating
+#. odoo-javascript
+#: code:addons/portal_rating/static/src/xml/portal_tools.xml:0
+msgid "Log in"
+msgstr ""
 
 #. module: portal_rating
 #: model:ir.model,name:portal_rating.model_mail_message
@@ -149,24 +160,39 @@ msgstr "הודעה"
 #. module: portal_rating
 #. odoo-javascript
 #: code:addons/portal_rating/static/src/xml/portal_rating_composer.xml:0
+#, fuzzy
 msgid "Modify your review"
 msgstr "שנה את הביקורת שלך"
 
 #. module: portal_rating
 #. odoo-javascript
-#: code:addons/portal_rating/static/src/interactions/portal_rating_composer.js:0
-msgid "Post review"
+#: code:addons/portal_rating/static/src/chatter/portal/portal_chatter_patch.xml:0
+msgid "No reviews yet."
 msgstr ""
+
+#. module: portal_rating
+#: model:ir.module.module,shortdesc:base.module_portal_rating
+msgid "Portal Rating"
+msgstr ""
+
+#. module: portal_rating
+#. odoo-javascript
+#: code:addons/portal_rating/static/src/interactions/portal_rating_composer.js:0
+#, fuzzy
+msgid "Post review"
+msgstr "פרסם ביקורת"
 
 #. module: portal_rating
 #. odoo-javascript
 #: code:addons/portal_rating/static/src/xml/portal_tools.xml:0
+#, fuzzy
 msgid "Progress bar"
-msgstr ""
+msgstr "בר התקדמות"
 
 #. module: portal_rating
 #. odoo-javascript
-#: code:addons/portal_rating/static/src/chatter/frontend/message_patch.xml:0
+#: code:addons/portal_rating/static/src/chatter/portal/message_patch.xml:0
+#, fuzzy
 msgid "Published on"
 msgstr "פורסם ב"
 
@@ -182,12 +208,6 @@ msgstr "דירוג"
 
 #. module: portal_rating
 #. odoo-javascript
-#: code:addons/portal_rating/static/src/xml/portal_tools.xml:0
-msgid "Remove Selection"
-msgstr "הסר את הבחירה"
-
-#. module: portal_rating
-#. odoo-javascript
 #: code:addons/portal_rating/static/src/interactions/portal_rating_composer.js:0
 #: model_terms:ir.ui.view,arch_db:portal_rating.rating_stars_static_popup_composer
 msgid "Review"
@@ -195,71 +215,62 @@ msgstr "בדוק"
 
 #. module: portal_rating
 #. odoo-javascript
+#: code:addons/portal_rating/static/src/chatter/portal/message_patch.xml:0
+msgid "Show less"
+msgstr ""
+
+#. module: portal_rating
+#. odoo-javascript
+#: code:addons/portal_rating/static/src/chatter/portal/message_patch.xml:0
+msgid "Show more"
+msgstr ""
+
+#. module: portal_rating
+#. odoo-javascript
 #: code:addons/portal_rating/static/src/interactions/portal_composer.js:0
+#, fuzzy
 msgid ""
 "The rating is required. Please make sure to select one before sending your "
 "review."
+msgstr "הדירוג נדרש. אנא ודא שבחרת דירוג לפני שליחת הביקורת שלך."
+
+#. module: portal_rating
+#. odoo-javascript
+#: code:addons/portal_rating/static/src/xml/portal_tools.xml:0
+msgid "To post a review"
 msgstr ""
 
 #. module: portal_rating
 #. odoo-javascript
 #: code:addons/portal_rating/static/src/interactions/portal_rating_composer.js:0
+#, fuzzy
 msgid "Update review"
-msgstr ""
+msgstr "עדכן ביקורת"
 
 #. module: portal_rating
 #. odoo-python
 #: code:addons/portal_rating/models/rating_rating.py:0
+#, fuzzy
 msgid "Updating rating comment require write access on related record"
-msgstr ""
+msgstr "עדכון תגובת הדירוג דורש גישת כתיבה לרשומה הרלוונטית."
 
 #. module: portal_rating
 #. odoo-javascript
+#: code:addons/portal_rating/static/src/chatter/portal/portal_chatter_patch.xml:0
 #: code:addons/portal_rating/static/src/xml/portal_rating_composer.xml:0
+#: code:addons/portal_rating/static/src/xml/portal_tools.xml:0
+#, fuzzy
 msgid "Write a review"
 msgstr "כתיבת פרגון או ביקורת"
 
 #. module: portal_rating
 #. odoo-javascript
 #: code:addons/portal_rating/static/src/xml/portal_tools.xml:0
-msgid "comments"
+msgid "review"
 msgstr ""
 
 #. module: portal_rating
 #. odoo-javascript
 #: code:addons/portal_rating/static/src/xml/portal_tools.xml:0
-msgid "stars"
-msgstr "כוכבים"
-
-#~ msgid "Cancel"
-#~ msgstr "בטל"
-
-#~ msgid "I don't like it"
-#~ msgstr "אני לא אוהב את זה"
-
-#~ msgid "I hate it"
-#~ msgstr "אני שונא את זה"
-
-#~ msgid "I like it"
-#~ msgstr "אני מחבב את זה"
-
-#~ msgid "I love it"
-#~ msgstr "אני אוהב את זה"
-
-#~ msgid "It's okay"
-#~ msgstr "זה בסדר"
-
-#~ msgid "Loading..."
-#~ msgstr "טוען..."
-
-#~ msgid "Post comment"
-#~ msgstr "פרסם תגובה"
-
-#~ msgid "Update comment"
-#~ msgstr "עדכן תגובה"
-
-#~ msgid "Write your comment"
-#~ msgstr "כתוב את התגובה שלך"
-
-#~ msgid "avatar"
-#~ msgstr "אווטר"
+msgid "reviews"
+msgstr ""

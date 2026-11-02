@@ -1,37 +1,33 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import api, fields, models, _
+from odoo import api, fields, models
 from odoo.exceptions import UserError
-from odoo.tools.sql import column_exists, create_column
+from odoo.fields import Domain
 
 
 class StockRoute(models.Model):
     _inherit = "stock.route"
 
-    shipping_selectable = fields.Boolean("Applicable on Shipping Methods")
+    shipping_selectable = fields.Boolean("Applicable on Delivery Methods")
 
 
 class StockMove(models.Model):
     _inherit = 'stock.move'
 
-    def _auto_init(self):
-        if not column_exists(self.env.cr, "stock_move", "weight"):
-            # In case of a big database with a lot of stock moves, the RAM gets exhausted
-            # To prevent a process from being killed We create the column 'weight' manually
-            # Then we do the computation in a query by multiplying product weight with qty
-            create_column(self.env.cr, "stock_move", "weight", "numeric")
-            self.env.cr.execute("""
+    weight = fields.Float(compute='_cal_move_weight', digits='Stock Weight', store=True, compute_sudo=True,
+        # In case of a big database with a lot of stock moves, the RAM gets exhausted
+        # To prevent a process from being killed We create the column 'weight' manually
+        # Then we do the computation in a query by multiplying product weight with qty
+        init_storage=lambda model: model.env.cr.execute("""
                 UPDATE stock_move move
                 SET weight = move.product_qty * product.weight
                 FROM product_product product
                 WHERE move.product_id = product.id
                 AND move.state != 'cancel'
-                """)
-        return super()._auto_init()
+                """),
+    )
 
-    weight = fields.Float(compute='_cal_move_weight', digits='Stock Weight', store=True, compute_sudo=True)
-
-    @api.depends('product_id', 'product_uom_qty', 'product_uom')
+    @api.depends('product_id', 'product_uom_qty', 'uom_id')
     def _cal_move_weight(self):
         moves_with_weight = self.filtered(lambda moves: moves.product_id.weight > 0.00)
         for move in moves_with_weight:
@@ -58,6 +54,19 @@ class StockMove(models.Model):
         keys = super(StockMove, self)._key_assign_picking()
         return keys + (self.sale_line_id.order_id.carrier_id,)
 
+    def _prepare_return_data(self):
+        """Override of `sale.stock` to include label url if set on the delivery method."""
+        data = super()._prepare_return_data()
+        if (
+            self.picking_id.carrier_id.get_return_label_from_portal
+            and self.picking_id.return_label_ids
+        ):
+            label = self.picking_id.return_label_ids[:1]
+            data["shipping_label_url"] = (
+                f"/web/content/{label.id}?access_token={label.access_token or ''}"
+            )
+        return data
+
 
 class StockMoveLine(models.Model):
     _inherit = 'stock.move.line'
@@ -66,7 +75,7 @@ class StockMoveLine(models.Model):
     destination_country_code = fields.Char(related='picking_id.destination_country_code')
     carrier_id = fields.Many2one(related='picking_id.carrier_id')
 
-    @api.depends('quantity', 'product_uom_id', 'product_id', 'move_id.sale_line_id', 'move_id.sale_line_id.price_reduce_taxinc', 'move_id.sale_line_id.product_uom_id')
+    @api.depends('quantity', 'uom_id', 'product_id', 'move_id.sale_line_id', 'move_id.sale_line_id.price_reduce_taxinc', 'move_id.sale_line_id.product_uom_id')
     def _compute_sale_price(self):
         for move_line in self:
             sale_line_id = move_line.move_id.sale_line_id
@@ -74,15 +83,14 @@ class StockMoveLine(models.Model):
                 # Compute the total price (tax included) for the actually delivered quantity
                 # using the same tax logic as the sale order line and purchase order line.
                 base_line = sale_line_id._prepare_base_line_for_taxes_computation()
-                qty = move_line.product_uom_id._compute_quantity(move_line.quantity, sale_line_id.product_uom_id)
+                qty = move_line.uom_id._compute_quantity(move_line.quantity, sale_line_id.product_uom_id)
                 base_line.update({'quantity': qty})
                 self.env['account.tax']._add_tax_details_in_base_line(base_line, sale_line_id.company_id)
                 tax_results = base_line['tax_details']
                 move_line.sale_price = sale_line_id.currency_id.round(tax_results['raw_total_included_currency'])
             else:
-                # For kits, use the regular unit price
                 unit_price = move_line.product_id.list_price
-                qty = move_line.product_uom_id._compute_quantity(move_line.quantity, move_line.product_id.uom_id)
+                qty = move_line.uom_id._compute_quantity(move_line.quantity, move_line.product_id.uom_id)
                 move_line.sale_price = unit_price * qty
         super(StockMoveLine, self)._compute_sale_price()
 
@@ -96,7 +104,7 @@ class StockMoveLine(models.Model):
         """
         aggregated_move_lines = super()._get_aggregated_product_quantities(**kwargs)
         for aggregated_move_line in aggregated_move_lines:
-            hs_code = aggregated_move_lines[aggregated_move_line]['product'].product_tmpl_id.hs_code
+            hs_code = aggregated_move_lines[aggregated_move_line]['product'].hs_code
             aggregated_move_lines[aggregated_move_line]['hs_code'] = hs_code
         return aggregated_move_lines
 
@@ -110,6 +118,8 @@ class StockMoveLine(models.Model):
 
     def _post_put_in_pack_hook(self, package):
         weight = self.env.context.get('weight')
+        if not weight and self.carrier_id:
+            weight = package._get_weight(self.picking_id[:1].id).get(package, 0.0)
         if weight:
             package.shipping_weight = weight
         return super()._post_put_in_pack_hook(package)
@@ -132,3 +142,13 @@ class StockMoveLine(models.Model):
         if self.carrier_id:
             return True
         return super()._should_set_package()
+
+    def _get_potential_existing_waves_extra_domain(self, domain_list, picking_type):
+        domain_list = super()._get_potential_existing_waves_extra_domain(domain_list, picking_type)
+        if picking_type.batch_group_by_carrier:
+            domain_list.append(Domain('picking_ids.carrier_id', 'in', self.carrier_id.ids))
+        return domain_list
+
+    def _is_new_potential_line_extra(self, potential_line, picking_type):
+        res = super()._is_new_potential_line_extra(potential_line, picking_type)
+        return res or (picking_type.batch_group_by_carrier and self.carrier_id != potential_line.carrier_id)

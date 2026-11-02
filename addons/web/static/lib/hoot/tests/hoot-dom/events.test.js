@@ -42,7 +42,7 @@ import { mountForTest, parseUrl } from "../local_helpers";
 /**
  * @param {Event} ev
  */
-const formatEvent = (ev) => {
+function formatEvent(ev) {
     const { currentTarget, type } = ev;
     const id = currentTarget.id ? `#${currentTarget.id}` : currentTarget.tagName.toLowerCase();
     let formatted = "";
@@ -78,14 +78,14 @@ const formatEvent = (ev) => {
     }
 
     return `${type}${formatted}@${id}`;
-};
+}
 
 /**
  * @param {import("../../helpers/dom").Target} target
  * @param {(ev: Event) => string} [formatStep]
  */
-const monitorEvents = (target, formatStep) => {
-    const handleEvent = (element, type) =>
+function monitorEvents(target, formatStep) {
+    function handleEvent(element, type) {
         after(
             on(element, type, (ev) => {
                 const formattedStep = formatStep(ev);
@@ -94,6 +94,7 @@ const monitorEvents = (target, formatStep) => {
                 }
             })
         );
+    }
 
     formatStep ||= formatEvent;
 
@@ -109,7 +110,7 @@ const monitorEvents = (target, formatStep) => {
             handleEvent(element, type);
         }
     }
-};
+}
 
 const ADDITIONAL_EVENT_TYPES = ["focusin", "focusout"];
 const BLACK_LISTED_EVENT_TYPES = ["selectionchange"];
@@ -489,6 +490,67 @@ describe(parseUrl(import.meta.url), () => {
         await click("button");
 
         expect.verifySteps(["pointerdown:0(1)@button", "pointerup:0@button", "click:0@button"]);
+    });
+
+    test("click on touch: slow listener does not suppress the click", async () => {
+        mockTouch(true);
+
+        await mountForTest(/* xml */ `<button type="button">Click me</button>`);
+
+        on("button", "pointerdown", () => advanceTime(600));
+
+        await hover("button");
+        monitorEvents("button");
+
+        await click("button");
+
+        expect.verifySteps([
+            "pointerdown:0(1)@button",
+            "focus@button",
+            "focusin@button",
+            "pointerup:0@button",
+            "click:0@button",
+        ]);
+    });
+
+    test("click on touch: a held pointer suppresses the click", async () => {
+        mockTouch(true);
+
+        await mountForTest(/* xml */ `<button type="button">Click me</button>`);
+
+        await hover("button");
+        monitorEvents("button");
+
+        await pointerDown("button");
+        await advanceTime(600);
+        await pointerUp("button");
+
+        expect.verifySteps([
+            "pointerdown:0(1)@button",
+            "focus@button",
+            "focusin@button",
+            "pointerup:0@button",
+        ]);
+    });
+
+    test("click on touch: a held drag suppresses the click on drop", async () => {
+        mockTouch(true);
+
+        await mountForTest(/* xml */ `<button type="button">Click me</button>`);
+
+        await hover("button");
+        monitorEvents("button");
+
+        const { drop } = await drag("button");
+        await advanceTime(600);
+        await drop();
+
+        expect.verifySteps([
+            "pointerdown:0(1)@button",
+            "focus@button",
+            "focusin@button",
+            "pointerup:0@button",
+        ]);
     });
 
     test("click: iframe", async () => {
@@ -1534,6 +1596,20 @@ describe(parseUrl(import.meta.url), () => {
         ]);
     });
 
+    test("hover and leave: shadow root", async () => {
+        await mountForTest(/* xml */ `<div class="container" />`);
+        const shadow = queryOne(".container").attachShadow({ mode: "open" });
+        const button = document.createElement("button");
+        shadow.appendChild(button);
+        for (const type of ["mouseenter", "mouseleave"]) {
+            button.addEventListener(type, () => expect.step(type));
+        }
+        await hover(".container:shadow button");
+        expect.verifySteps(["mouseenter"]);
+        await leave();
+        expect.verifySteps(["mouseleave"]);
+    });
+
     test("keyDown", async () => {
         await mountForTest(/* xml */ `<input type="text" />`);
 
@@ -2101,9 +2177,8 @@ describe(parseUrl(import.meta.url), () => {
     test("can trigger synthetic event handlers", async () => {
         await mountForTest(
             class extends Component {
-                static props = {};
                 static template = xml`
-                    <button t-on-click.synthetic="onClick">Click me</button>
+                    <button t-on-click.synthetic="this.onClick">Click me</button>
                 `;
 
                 onClick() {
@@ -2120,9 +2195,8 @@ describe(parseUrl(import.meta.url), () => {
     test("synthetic event handlers are not cleaned up between tests", async () => {
         await mountForTest(
             class extends Component {
-                static props = {};
                 static template = xml`
-                    <button t-on-click.synthetic="onClick">Click me</button>
+                    <button t-on-click.synthetic="this.onClick">Click me</button>
                 `;
 
                 onClick() {

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import unittest
@@ -42,10 +41,9 @@ class TestMrpSerialMassProducePerformance(common.TransactionCase):
         bom = self.env['mrp.bom'].create({
             'product_id': finished.id,
             'product_tmpl_id': finished.product_tmpl_id.id,
-            'product_uom_id': finished.uom_id.id,
+            'uom_id': finished.uom_id.id,
             'product_qty': 1.0,
             'type': 'normal',
-            'consumption': 'flexible',
             'bom_line_ids': [(0, 0, {'product_id': p[0]['id'], 'product_qty': 1}) for p in raw_materials]
         })
 
@@ -59,7 +57,7 @@ class TestMrpSerialMassProducePerformance(common.TransactionCase):
         mo.action_confirm()
 
         for i in range(raw_materials_count):
-            if raw_materials[i].tracking == 'none':
+            if not raw_materials[i].tracking:
                 self.env['stock.quant'].with_context(inventory_mode=True).create({
                     'product_id': raw_materials[i].id,
                     'inventory_quantity': total_quantity,
@@ -78,7 +76,7 @@ class TestMrpSerialMassProducePerformance(common.TransactionCase):
                         'lot_id': lot.id,
                     })._apply_inventory()
                     qty -= 10
-            else:
+            elif raw_materials[i].tracking == 'serial':
                 for _ in range(total_quantity):
                     lot = self.env['stock.lot'].create({
                         'product_id': raw_materials[i].id,

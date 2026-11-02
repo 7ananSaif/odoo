@@ -3,6 +3,7 @@ import { animationFrame } from "@odoo/hoot-mock";
 import { Spreadsheet } from "@odoo/o-spreadsheet";
 import { makeSpreadsheetMockEnv } from "@spreadsheet/../tests/helpers/model";
 import {
+    getMockEnv,
     getService,
     makeMockServer,
     MockServer,
@@ -11,6 +12,9 @@ import {
 } from "@web/../tests/web_test_helpers";
 import { loadBundle } from "@web/core/assets";
 import { WebClient } from "@web/webclient/webclient";
+import { getDashboardServerData } from "./data";
+import { DashboardLoader } from "../../src/bundle/dashboard_action/dashboard_loader_service";
+import { MobileFigureContainer } from "../../src/bundle/dashboard_action/mobile_figure_container/mobile_figure_container";
 /**
  * @param {object} params
  * @param {object} [params.serverData]
@@ -20,10 +24,19 @@ import { WebClient } from "@web/webclient/webclient";
  */
 export async function createSpreadsheetDashboard(params = {}) {
     let model = undefined;
+    let env = undefined;
     patchWithCleanup(Spreadsheet.prototype, {
         setup() {
             super.setup();
             model = this.env.model;
+            env = this.env;
+        },
+    });
+    patchWithCleanup(MobileFigureContainer.prototype, {
+        setup() {
+            super.setup();
+            model = this.env.model;
+            env = this.env;
         },
     });
 
@@ -38,7 +51,7 @@ export async function createSpreadsheetDashboard(params = {}) {
         },
     });
 
-    return { model, fixture: getFixture() };
+    return { model, fixture: getFixture(), env };
 }
 
 export async function createDashboardActionWithData(data) {
@@ -49,7 +62,25 @@ export async function createDashboardActionWithData(data) {
     const [dashboard] = MockServer.env["spreadsheet.dashboard"];
     dashboard.spreadsheet_data = json;
     dashboard.json_data = json;
-    const { fixture, model } = await createSpreadsheetDashboard({ spreadsheetId: dashboard.id });
+    const { fixture, model, env } = await createSpreadsheetDashboard({
+        spreadsheetId: dashboard.id,
+    });
     await animationFrame();
-    return { fixture, model };
+    return { fixture, model, env };
+}
+
+/**
+ * @param {object} [params]
+ * @param {object} [params.serverData]
+ * @param {function} [params.mockRPC]
+ * @returns {Promise<DashboardLoader>}
+ */
+export async function createDashboardLoader(params = {}) {
+    await makeSpreadsheetMockEnv({
+        serverData: params.serverData || getDashboardServerData(),
+        mockRPC: params.mockRPC,
+    });
+    const env = getMockEnv();
+    const orm = getService("orm");
+    return new DashboardLoader(env, orm);
 }

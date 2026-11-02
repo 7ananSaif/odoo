@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
-import base64
 import io
 import re
 
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
+from odoo.addons.base.tests.files import PDF_RAW
 from odoo.exceptions import RedirectWarning
-from odoo.tools import pdf
+from odoo.tools import BinaryBytes, pdf
 from odoo.tests import tagged
 from odoo.tools import file_open, mute_logger
 from odoo.tools.pdf import PdfFileReader, PdfFileWriter
@@ -14,9 +13,11 @@ from odoo.tools.pdf import PdfFileReader, PdfFileWriter
 @tagged('post_install', '-at_install')
 class TestIrActionsReport(AccountTestInvoicingCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     def setUp(self):
         super().setUp()
-        self.file = file_open('base/tests/minimal.pdf', 'rb').read()
+        self.file = BinaryBytes(PDF_RAW)
         self.minimal_reader_buffer = io.BytesIO(self.file)
         self.minimal_pdf_reader = pdf.OdooPdfFileReader(self.minimal_reader_buffer)
 
@@ -35,7 +36,7 @@ class TestIrActionsReport(AccountTestInvoicingCommon):
         })
 
         in_invoice_1.message_main_attachment_id = self.env['ir.attachment'].create({
-            'datas': base64.b64encode(self.file),
+            'raw': self.file,
             'name': attach_name,
             'mimetype': 'application/pdf',
             'res_model': 'account.move',
@@ -53,12 +54,11 @@ class TestIrActionsReport(AccountTestInvoicingCommon):
         """
         attach_name = 'original_vendor_bill.pdf'
         # we need to encrypt the file
-        with file_open('base/tests/minimal.pdf', 'rb') as pdf_file:
+        with file_open('base/tests/files/file.pdf', 'rb') as pdf_file:
             pdf_reader = PdfFileReader(pdf_file)
             pdf_writer = PdfFileWriter()
-            for page_num in range(pdf_reader.getNumPages()):
-                pdf_writer.addPage(pdf_reader.getPage(page_num))
-            # Encrypt the PDF
+            pdf_writer.append_pages_from_reader(pdf_reader)
+            # Encrypt the PDF_RAW
             pdf_writer.encrypt('')
             # Get the binary
             output_buffer = io.BytesIO()

@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
+import contextlib
 import datetime
 import logging
+import json
 from ast import literal_eval
 
 import requests
@@ -24,8 +26,8 @@ class Publisher_WarrantyContract(AbstractModel):
         Users = self.env['res.users']
         IrParamSudo = self.env['ir.config_parameter'].sudo()
 
-        dbuuid = IrParamSudo.get_param('database.uuid')
-        db_create_date = IrParamSudo.get_param('database.create_date')
+        dbuuid = IrParamSudo.get_str('database.uuid')
+        db_create_date = IrParamSudo.get_str('database.create_date')
         limit_date = fields.Datetime.now() - datetime.timedelta(15)
         nbr_users = Users.search_count([('active', '=', True)])
         nbr_active_users = Users.search_count([("login_date", ">=", limit_date), ('active', '=', True)])
@@ -34,19 +36,25 @@ class Publisher_WarrantyContract(AbstractModel):
         if "share" in Users._fields:
             nbr_share_users = Users.search_count([("share", "=", True), ('active', '=', True)])
             nbr_active_share_users = Users.search_count([("share", "=", True), ("login_date", ">=", limit_date), ('active', '=', True)])
+        nbr_light_users = Users.search_count([("role", "=", "light_user"), ("active", "=", True)])
+        nbr_active_light_users = Users.search_count([
+            ("role", "=", "light_user"), ("login_date", ">=", limit_date), ("active", "=", True),
+        ])
         user = self.env.user
         domain = [('application', '=', True), ('state', 'in', ['installed', 'to upgrade', 'to remove'])]
         apps = self.env['ir.module.module'].sudo().search_read(domain, ['name'])
 
-        enterprise_code = IrParamSudo.get_param('database.enterprise_code')
+        enterprise_code = IrParamSudo.get_str('database.enterprise_code')
 
-        web_base_url = IrParamSudo.get_param('web.base.url')
+        web_base_url = IrParamSudo.get_str('web.base.url')
         msg = {
             "dbuuid": dbuuid,
             "nbr_users": nbr_users,
             "nbr_active_users": nbr_active_users,
             "nbr_share_users": nbr_share_users,
             "nbr_active_share_users": nbr_active_share_users,
+            "nbr_light_users": nbr_light_users,
+            "nbr_active_light_users": nbr_active_light_users,
             "dbname": self.env.cr.dbname,
             "db_create_date": db_create_date,
             "version": release.version,
@@ -66,7 +74,7 @@ class Publisher_WarrantyContract(AbstractModel):
         Utility method to send a publisher warranty get logs messages.
         """
         msg = self._get_message()
-        arguments = {'arg0': str(msg), "action": "update"}
+        arguments = {'arg0': json.dumps(msg), "action": "update"}
 
         url = config.get("publisher_warranty_url")
 
@@ -92,21 +100,19 @@ class Publisher_WarrantyContract(AbstractModel):
                 raise UserError(_("Error during communication with the publisher warranty server."))
             # old behavior based on res.log; now on mail.message, that is not necessarily installed
             user = self.env['res.users'].sudo().browse(SUPERUSER_ID)
-            poster = self.sudo().env.ref('mail.channel_all_employees')
-            for message in result["messages"]:
-                try:
-                    poster.message_post(body=message, subtype_xmlid='mail.mt_comment', partner_ids=[user.partner_id.id])
-                except Exception:
-                    pass
+            if poster := self.sudo().env.ref('mail.channel_all_employees', raise_if_not_found=False):
+                for message in result["messages"]:
+                    with contextlib.suppress(Exception):
+                        poster.message_post(body=message, subtype_xmlid='mail.mt_comment', partner_ids=[user.partner_id.id])
             if result.get('enterprise_info'):
                 # Update expiration date
-                set_param = self.env['ir.config_parameter'].sudo().set_param
-                set_param('database.expiration_date', result['enterprise_info'].get('expiration_date'))
-                set_param('database.expiration_reason', result['enterprise_info'].get('expiration_reason', 'trial'))
-                set_param('database.enterprise_code', result['enterprise_info'].get('enterprise_code'))
-                set_param('database.already_linked_subscription_url', result['enterprise_info'].get('database_already_linked_subscription_url'))
-                set_param('database.already_linked_email', result['enterprise_info'].get('database_already_linked_email'))
-                set_param('database.already_linked_send_mail_url', result['enterprise_info'].get('database_already_linked_send_mail_url'))
+                set_str = self.env['ir.config_parameter'].sudo().set_str
+                set_str('database.expiration_date', result['enterprise_info'].get('expiration_date'))
+                set_str('database.expiration_reason', result['enterprise_info'].get('expiration_reason', 'trial'))
+                set_str('database.enterprise_code', result['enterprise_info'].get('enterprise_code'))
+                set_str('database.already_linked_subscription_url', result['enterprise_info'].get('database_already_linked_subscription_url'))
+                set_str('database.already_linked_email', result['enterprise_info'].get('database_already_linked_email'))
+                set_str('database.already_linked_send_mail_url', result['enterprise_info'].get('database_already_linked_send_mail_url'))
 
         except Exception:
             if cron_mode:

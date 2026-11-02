@@ -1,27 +1,27 @@
 import { Plugin } from "@html_editor/plugin";
 import { registry } from "@web/core/registry";
-import { withSequence } from "@html_editor/utils/resource";
-import { SNIPPET_SPECIFIC } from "@html_builder/utils/option_sequence";
 import { BuilderAction } from "@html_builder/core/builder_action";
-import { BaseOptionComponent, useDomState } from "@html_builder/core/utils";
+import { BaseOptionComponent } from "@html_builder/core/base_option_component";
+import { useDomState } from "@html_builder/core/utils";
 
 /**
  * @typedef {((
  *      activeItemEl: HTMLElement,
  *      optionName: string
- * ) => HTMLElement[])[]} get_gallery_items_handlers
+ * ) => HTMLElement[])[]} gallery_items_providers
  * @typedef {((
  *      activeItemEl: HTMLElement,
  *      itemEls: HTMLElement[],
  *      optionName: string
- * ) => void)[]} reorder_items_handlers
+ * ) => HTMLElement)[]} reorder_items_processors
  */
 
 export class GalleryElementOption extends BaseOptionComponent {
+    static id = "gallery_element_option";
     static template = "website.GalleryElementOption";
-    static selector =
-        ".s_image_gallery img, .s_carousel .carousel-item, .s_quotes_carousel .carousel-item, .s_carousel_intro .carousel-item, .s_carousel_cards .carousel-item";
+
     setup() {
+        super.setup();
         this.state = useDomState((editingElement) => {
             const isImageWall = editingElement.closest('[data-snippet="s_images_wall"]');
             if (isImageWall) {
@@ -50,7 +50,6 @@ export class GalleryElementOptionPlugin extends Plugin {
 
     /** @type {import("plugins").WebsiteResources} */
     resources = {
-        builder_options: [withSequence(SNIPPET_SPECIFIC, GalleryElementOption)],
         builder_actions: {
             SetGalleryElementPositionAction,
         },
@@ -66,10 +65,9 @@ export class SetGalleryElementPositionAction extends BuilderAction {
 
         // Get the items to reorder.
         activeItemEl = activeItemEl.closest("a") || activeItemEl;
-        const itemEls = [];
-        for (const getGalleryItems of this.getResource("get_gallery_items_handlers")) {
-            itemEls.push(...getGalleryItems(activeItemEl, optionName));
-        }
+        const itemEls = this.getResource("gallery_items_providers").flatMap((fn) =>
+            fn(activeItemEl, optionName)
+        );
 
         // Reorder the items.
         const oldPosition = itemEls.indexOf(activeItemEl);
@@ -95,8 +93,9 @@ export class SetGalleryElementPositionAction extends BuilderAction {
         }
 
         // Update the DOM with the new items order.
-        this.dispatchTo("reorder_items_handlers", activeItemEl, itemEls, optionName);
+        this.processThrough("reorder_items_processors", activeItemEl, itemEls, optionName);
     }
 }
 
 registry.category("website-plugins").add(GalleryElementOptionPlugin.id, GalleryElementOptionPlugin);
+registry.category("website-options").add(GalleryElementOption.id, GalleryElementOption);

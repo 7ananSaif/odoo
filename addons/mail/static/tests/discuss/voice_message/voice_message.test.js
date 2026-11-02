@@ -8,32 +8,32 @@ import {
     start,
     startServer,
 } from "@mail/../tests/mail_test_helpers";
-import { describe, globals, test } from "@odoo/hoot";
-import { Deferred, mockDate } from "@odoo/hoot-mock";
-import { Command, patchWithCleanup, serverState } from "@web/../tests/web_test_helpers";
+import { describe, globals, mockDate, test, waitFor } from "@odoo/hoot";
+import { Command, serverState } from "@web/../tests/web_test_helpers";
 
+import { Mp3Encoder } from "@mail/discuss/voice_message/common/mp3_encoder";
 import { loadLamejs } from "@mail/discuss/voice_message/common/voice_message_service";
 import { VoicePlayer } from "@mail/discuss/voice_message/common/voice_player";
 import { patchable } from "@mail/discuss/voice_message/common/voice_recorder";
-import { Mp3Encoder } from "@mail/discuss/voice_message/common/mp3_encoder";
+import { patch } from "@web/core/utils/patch";
 
 describe.current.tags("desktop");
 defineMailModels();
 
 test("make voice message in chat", async () => {
     const file = new File([new Uint8Array(25000)], "test.mp3", { type: "audio/mp3" });
-    const voicePlayerDrawing = new Deferred();
-    patchWithCleanup(Mp3Encoder.prototype, {
+    const { promise: voicePlayerDrawn, resolve: resolveVoicePlayerDrawn } = Promise.withResolvers();
+    patch(Mp3Encoder.prototype, {
         encode() {},
         finish() {
             return Array(500).map(() => new Int8Array());
         },
     });
-    patchWithCleanup(patchable, { makeFile: () => file });
-    patchWithCleanup(VoicePlayer.prototype, {
+    patch(patchable, { makeFile: () => file });
+    patch(VoicePlayer.prototype, {
         async drawWave(...args) {
             const res = await super.drawWave(...args);
-            voicePlayerDrawing.resolve();
+            resolveVoicePlayerDrawn();
             return res;
         },
         async fetchFile() {
@@ -49,6 +49,12 @@ test("make voice message in chat", async () => {
     });
     mockGetMedia();
     const resources = patchVoiceMessageAudio();
+    patch(AudioContext.prototype, {
+        resume() {
+            // Simulate a long delay for 'resume' to resolve
+            return new Promise(() => {});
+        },
+    });
     const pyEnv = await startServer();
     const partnerId = pyEnv["res.partner"].create({ name: "Demo" });
     const channelId = pyEnv["discuss.channel"].create({
@@ -65,7 +71,7 @@ test("make voice message in chat", async () => {
     await contains(".dropdown-item:contains('Voice Message')");
     mockDate("2023-07-31 13:00:00");
     await click(".dropdown-item:contains('Voice Message')");
-    await contains(".o-mail-VoiceRecorder", { text: "00 : 00" });
+    await contains(".o-mail-VoiceRecorder:text('00 : 00')");
     /**
      * Simulate 10 sec elapsed.
      * `patchDate` does not freeze the time, it merely changes the value of "now" at the time it was
@@ -83,14 +89,14 @@ test("make voice message in chat", async () => {
     mockDate("2023-07-31 13:00:10.500");
     // simulate some microphone data
     resources.audioProcessor.process([[new Float32Array(128)]]);
-    await contains(".o-mail-VoiceRecorder", { text: "00 : 10" });
+    await waitFor(".o-mail-VoiceRecorder:text('00 : 10')");
     await click(".o-mail-Composer button[title='Stop Recording']");
     await contains(".o-mail-VoicePlayer");
     // wait for audio stream decode + drawing of waves
-    await voicePlayerDrawing;
+    await voicePlayerDrawn;
     await contains(".o-mail-VoicePlayer button[title='Play']");
     await contains(".o-mail-VoicePlayer canvas", { count: 2 }); // 1 for global waveforms, 1 for played waveforms
-    await contains(".o-mail-VoicePlayer", { text: "00 : 03" }); // duration of call-invitation_.mp3
+    await contains(".o-mail-VoicePlayer:text('00 : 03')"); // duration of call-invitation_.mp3
     await click(".o-mail-Composer button[title='More Actions']");
     await contains(".dropdown-item:contains('Attach Files')"); // check menu loaded
     await contains(".dropdown-item:contains('Voice Message')", { count: 0 }); // only 1 voice message at a time

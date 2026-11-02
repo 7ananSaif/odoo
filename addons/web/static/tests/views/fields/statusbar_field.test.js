@@ -1,7 +1,6 @@
-import { expect, resize, test } from "@odoo/hoot";
+import { expect, resize, test, waitFor } from "@odoo/hoot";
 import {
     click,
-    Deferred,
     edit,
     press,
     queryAll,
@@ -28,7 +27,9 @@ import {
     pagerPrevious,
 } from "@web/../tests/web_test_helpers";
 import { EventBus } from "@odoo/owl";
+import { range } from "@web/core/utils/numbers";
 import { WebClient } from "@web/webclient/webclient";
+import { patch } from "@web/core/utils/patch";
 
 class Partner extends models.Model {
     name = fields.Char();
@@ -130,6 +131,33 @@ test("static statusbar widget on many2one field", async () => {
     expect('.o_statusbar_status button[data-value="4"]').toHaveClass("o_arrow_button_current");
 });
 
+test.tags("desktop");
+test("[Offline] static statusbar widget on many2one field", async () => {
+    Partner._fields.trululu = fields.Many2one({
+        relation: "partner",
+        domain: "[('bar', '=', True)]",
+    });
+    Partner._records[1].bar = false;
+    onRpc("partner", "search_read", () => new Response("", { status: 502 }));
+
+    await mountView({
+        type: "form",
+        resModel: "partner",
+        resId: 1,
+        arch: /* xml */ `
+            <form>
+                <header>
+                    <field name="trululu" widget="statusbar" />
+                </header>
+            </form>
+        `,
+    });
+    expect(queryAllTexts(".o_form_statusbar")).toEqual(["aaa"]);
+    expect(".o_statusbar_status button:not(.dropdown-toggle)").toHaveCount(1);
+    expect(".o_statusbar_status button:disabled:not(.d-none)").toHaveCount(1);
+    expect('.o_statusbar_status button[data-value="4"]').toHaveClass("o_arrow_button_current");
+});
+
 test("folded statusbar widget on selection field has selected value in the toggler", async () => {
     mockService("ui", (env) => {
         Object.defineProperty(env, "isSmall", {
@@ -163,7 +191,7 @@ test("static statusbar widget on many2one field with domain", async () => {
     serverState.userId = 17;
 
     onRpc("search_read", ({ kwargs }) => {
-        expect(kwargs.domain).toEqual(["|", ["id", "=", 4], ["user_id", "=", 17]], {
+        expect(kwargs.domain).toEqual([["user_id", "=", 17]], {
             message: "search_read should sent the correct domain",
         });
     });
@@ -365,7 +393,7 @@ test("clickable statusbar should change m2o fetching domain in edit mode", async
     });
 
     expect(".o_statusbar_status button:not(.dropdown-toggle)").toHaveCount(3);
-    await click(".o_statusbar_status button:not(.dropdown-toggle):eq(-1)");
+    await click(".o_statusbar_status button:not(.dropdown-toggle):eq(1)");
     await animationFrame();
     expect(".o_statusbar_status button:not(.dropdown-toggle)").toHaveCount(2);
 });
@@ -603,28 +631,6 @@ test("hotkeys are unavailable if readonly", async () => {
     await press(["alt", "x"]); // Move to next
     await animationFrame();
     expect(".modal").toHaveCount(0, { message: "command palette should not open" });
-});
-
-test("auto save record when field toggled", async () => {
-    onRpc("web_save", () => expect.step("web_save"));
-    await mountView({
-        type: "form",
-        resModel: "partner",
-        resId: 1,
-        arch: /* xml */ `
-            <form>
-                <header>
-                    <field name="trululu" widget="statusbar" options="{'clickable': 1}" />
-                </header>
-            </form>
-        `,
-    });
-
-    await click(
-        ".o_statusbar_status button.btn:not(.dropdown-toggle):not(:disabled):not(.o_arrow_button_current):eq(-1)"
-    );
-    await animationFrame();
-    expect.verifySteps(["web_save"]);
 });
 
 test("For the same record, a single rpc is done to recover the specialData", async () => {
@@ -917,14 +923,14 @@ test("correctly load statusbar when dynamic domain changes", async () => {
         `,
     });
     expect(queryAllTexts(".o_statusbar_status button:not(.d-none)")).toEqual(["Stage Project 1"]);
-    expect.verifySteps([["|", ["id", "=", 1], ["project_ids", "in", 1]]]);
+    expect.verifySteps([[["project_ids", "in", 1]]]);
     await click(`[name="project_id"] .dropdown input`);
     await animationFrame();
     await click(`[name="project_id"] .dropdown .dropdown-menu .ui-menu-item:contains("Project 2")`);
     await animationFrame();
 
     expect(queryAllTexts(".o_statusbar_status button:not(.d-none)")).toEqual(["Stage Project 2"]);
-    expect.verifySteps([["|", ["id", "=", 2], ["project_ids", "in", 2]]]);
+    expect.verifySteps([[["project_ids", "in", 2]]]);
     await clickSave();
     expect(queryAllTexts(".o_statusbar_status button:not(.d-none)")).toEqual(["Stage Project 2"]);
     expect.verifySteps([]);
@@ -1119,7 +1125,7 @@ test("cache: update current status if it changed", async () => {
 
     onRpc("has_group", () => true);
     let def;
-    onRpc("web_read", () => def);
+    onRpc("web_read", () => def?.promise);
     await mountWithCleanup(WebClient);
     await getService("action").doAction({
         id: 1,
@@ -1155,7 +1161,7 @@ test("cache: update current status if it changed", async () => {
     // re-open last record and use to pager to reach the record we just moved
     await contains(".o_kanban_record:contains(third record)").click();
     await pagerPrevious();
-    def = new Deferred();
+    def = Promise.withResolvers();
     await pagerPrevious();
     // retrieved from the cache => former value
     expect(".o_last_breadcrumb_item").toHaveText("second record");
@@ -1172,10 +1178,7 @@ test("[adjust] statusbar with a lot of stages, click to change stage", async () 
     resize({ width: 800 });
     class Stage extends models.Model {
         name = fields.Char();
-        _records = Array.from(Array(6).keys()).map((i) => {
-            const id = i + 1;
-            return { id, name: `Stage with very long name ${id}` };
-        });
+        _records = range(1, 7).map((id) => ({ id, name: `Stage with very long name ${id}` }));
     }
     defineModels([Stage]);
     Partner._fields.stage_id = { type: "many2one", relation: "stage" };
@@ -1258,4 +1261,117 @@ test("[adjust] statusbar with a lot of stages, click to change stage", async () 
         "Stage with very long name 5",
         "Stage with very long name 6",
     ]);
+});
+
+test.tags("desktop");
+test("statusbar ignores sub-pixel measurement noise", async () => {
+    // Some browser zoom/OS scaling combinations make the statusbar's
+    // measured height come out a fraction of a pixel taller than a
+    // genuine single line (rects are rounded to physical pixels). This
+    // must not be mistaken for real wrapping and collapse everything
+    // into a single dropdown.
+    class Stage extends models.Model {
+        name = fields.Char();
+        _records = [
+            { id: 1, name: "New" },
+            { id: 2, name: "Qualified" },
+            { id: 3, name: "Won" },
+        ];
+    }
+    defineModels([Stage]);
+    Partner._fields.stage_id = fields.Many2one({ relation: "stage" });
+    Partner._records[0].stage_id = 1;
+
+    patch(Element.prototype, {
+        getBoundingClientRect() {
+            const rect = super.getBoundingClientRect();
+            if (this.matches(".o_statusbar_status")) {
+                return { ...rect.toJSON(), height: rect.height + 0.4 };
+            }
+            return rect;
+        },
+    });
+
+    await mountView({
+        type: "form",
+        resModel: "partner",
+        resId: 1,
+        arch: /* xml */ `
+            <form>
+                <header>
+                    <field name="stage_id" widget="statusbar" options="{'clickable': 1}" />
+                </header>
+            </form>
+        `,
+    });
+
+    expect(".o_statusbar_status button:visible:not(.dropdown-toggle)").toHaveCount(3);
+    expect(".o_statusbar_status button.dropdown-toggle:visible").toHaveCount(0);
+});
+
+test("correctly rerenders when rpc comes back after a while", async () => {
+    Partner._fields.parent_id = fields.Many2one({ relation: "partner" });
+
+    Partner._records = [
+        {
+            name: "1",
+            id: 1,
+            trululu: 11,
+        },
+        {
+            name: "2",
+            id: 2,
+            trululu: 21,
+        },
+        {
+            name: "11",
+            id: 11,
+            parent_id: 1,
+        },
+        {
+            name: "12",
+            id: 12,
+            parent_id: 1,
+        },
+        {
+            name: "21",
+            id: 21,
+            parent_id: 2,
+        },
+        {
+            name: "22",
+            id: 22,
+            parent_id: 2,
+        },
+    ];
+
+    let def;
+    onRpc("search_read", async ({ kwargs }) => {
+        await def?.promise;
+        expect.step(`search_read: ${kwargs.domain}`);
+    });
+    await mountView({
+        type: "form",
+        resModel: "partner",
+        resId: 1,
+        resIds: [1, 2],
+        arch: /* xml */ `
+            <form>
+                <header>
+                    <field name="trululu" widget="statusbar" domain="[['parent_id', '=', id]]" options="{'clickable': true}" />
+                </header>
+            </form>
+        `,
+    });
+    expect.verifySteps(["search_read: parent_id,=,1"]);
+    def = Promise.withResolvers();
+    await contains(".o_pager_next").click();
+    await waitFor(".o_last_breadcrumb_item:contains(2)");
+    def.resolve();
+    await def.promise;
+    expect.verifySteps(["search_read: parent_id,=,2"]);
+
+    await animationFrame();
+    const statuses = queryAll(".o_field_statusbar[name='trululu'] .o_arrow_button_wrap");
+    expect([...statuses].map((el) => el.textContent)).toEqual(["22", "21"]);
 });

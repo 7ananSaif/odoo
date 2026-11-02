@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import contextvars
 import copy
+import enum
 import logging
+import math
 import os
 import threading
 import time
@@ -15,11 +17,11 @@ from dateutil.relativedelta import relativedelta
 
 from odoo import api, fields, models, sql_db
 from odoo.exceptions import LockError, UserError
-from odoo.http import serialize_exception
+from odoo.http.dispatcher import serialize_exception
 from odoo.modules import Manifest
-from odoo.modules.registry import Registry
-from odoo.tools import SQL
+from odoo.tools import SQL, config
 from odoo.tools.constants import GC_UNLINK_LIMIT
+from odoo.tools.func import deprecated
 
 if typing.TYPE_CHECKING:
     from collections.abc import Iterable
@@ -31,7 +33,7 @@ _logger = logging.getLogger(__name__)
 BASE_VERSION = Manifest.for_addon('base')['version']
 MAX_FAIL_TIME = timedelta(hours=5)  # chosen with a fair roll of the dice
 MIN_RUNS_PER_JOB = 10
-MIN_TIME_PER_JOB = 10  # seconds
+MIN_TIME_PER_JOB = 120  # seconds
 CONSECUTIVE_TIMEOUT_FOR_FAILURE = 3
 MIN_FAILURE_COUNT_BEFORE_DEACTIVATION = 5
 MIN_DELTA_BEFORE_DEACTIVATION = timedelta(days=7)
@@ -58,7 +60,7 @@ _intervalTypes = {
 }
 
 
-class CompletionStatus:  # inherit from enum.StrEnum in 3.11
+class CompletionStatus(enum.StrEnum):
     FULLY_DONE = 'fully done'
     PARTIALLY_DONE = 'partially done'
     FAILED = 'failed'
@@ -98,7 +100,7 @@ class IrCron(models.Model):
     # See also odoo.cron
     _name = 'ir.cron'
     _order = 'cron_name, id'
-    _description = 'Scheduled Actions'
+    _description = 'Scheduled Action'
     _allow_sudo_commands = False
 
     _inherits = {'ir.actions.server': 'ir_actions_server_id'}
@@ -219,7 +221,6 @@ class IrCron(models.Model):
         The `cron_cr` is used to lock the currently processed job and relased
         by committing after each job.
         """
-        db_name = cron_cr.dbname
         for job_id in job_ids:
             try:
                 job = IrCron._acquire_one_job(cron_cr, job_id)
@@ -231,9 +232,10 @@ class IrCron(models.Model):
                 _logger.debug("job %s is being processed by another worker, skip", job_id)
                 continue
             _logger.debug("job %s acquired", job_id)
-            # take into account overridings of _process_job() on that database
-            registry = Registry(db_name).check_signaling()
-            registry[IrCron._name]._process_job(cron_cr, job)
+            # take into account overridings of _process_job() on that database, check_signaling
+            registry = api.Environment(cron_cr, api.SUPERUSER_ID, {}).registry
+            # run each job in an insolated context from other jobs
+            contextvars.copy_context().run(registry[IrCron._name]._process_job, cron_cr, job)
             cron_cr.commit()
             _logger.debug("job %s updated and released", job_id)
 
@@ -244,7 +246,7 @@ class IrCron(models.Model):
             SELECT latest_version
             FROM ir_module_module
              WHERE name='base'
-        """)
+        """, log_exceptions=False)
         (version,) = cron_cr.fetchone()
         if version is None:
             raise BadModuleState()
@@ -278,7 +280,8 @@ class IrCron(models.Model):
         # because the db has zombie states and we force a call to
         # reset_module_states.
         from odoo.modules.loading import reset_modules_state  # noqa: PLC0415
-        reset_modules_state(cr.dbname)
+        reset_modules_state(cr)
+        cr.commit()
 
     @staticmethod
     def _get_ready_sql_condition(cr: BaseCursor) -> SQL:
@@ -369,7 +372,7 @@ class IrCron(models.Model):
         except psycopg2.extensions.TransactionRollbackError:
             # A serialization error can occur when another cron worker
             # commits the new `nextcall` value of a cron it just ran and
-            # that commit occured just before this query. The error is
+            # that commit occurred just before this query. The error is
             # genuine and the job should be skipped in this cron worker.
             raise
         except Exception as exc:
@@ -603,6 +606,24 @@ class IrCron(models.Model):
                     count=MIN_FAILURE_COUNT_BEFORE_DEACTIVATION,
                     time=now,
                 ))
+            elif (
+                # the minimum time has passed, and the fail count is low
+                first_failure_date + MIN_DELTA_BEFORE_DEACTIVATION < now
+                and MIN_FAILURE_COUNT_BEFORE_DEACTIVATION // 2 <= failure_count <= MIN_FAILURE_COUNT_BEFORE_DEACTIVATION
+            ) or (
+                # we fail often but we have some time before deactivation
+                failure_count > MIN_FAILURE_COUNT_BEFORE_DEACTIVATION
+                and first_failure_date + MIN_DELTA_BEFORE_DEACTIVATION / 2 < now
+                # throttle: number with 1 digit followed only by 0's
+                and len(str(failure_count).rstrip('0')) == 1
+            ):
+                self._notify_admin(self.env._(
+                    "Cron job %(name)s (%(id)s) is failing and will be deactivated if you don't take action. "
+                    "More information can be found in the server logs around %(time)s.",
+                    name=repr(job['cron_name']),
+                    id=job['id'],
+                    time=now,
+                ))
         else:
             failure_count = 0
             first_failure_date = None
@@ -674,10 +695,6 @@ class IrCron(models.Model):
         is the user calling this method. """
         self.ensure_one()
         try:
-            if self.pool != self.pool.check_signaling():
-                # the registry has changed, reload self in the new registry
-                self.env.transaction.reset()
-
             _logger.debug(
                 "cron.object.execute(%r, %d, '*', %r, %d)",
                 self.env.cr.dbname,
@@ -687,10 +704,8 @@ class IrCron(models.Model):
             )
             self.env['ir.actions.server'].browse(server_action_id).run()
             self.env.flush_all()
-            self.pool.signal_changes()
             self.env.cr.commit()
         except Exception:
-            self.pool.reset_changes()
             self.env.cr.rollback()
             raise
 
@@ -722,7 +737,7 @@ class IrCron(models.Model):
     def toggle(self, model, domain):
         # Prevent deactivated cron jobs from being re-enabled through side effects on
         # neutralized databases.
-        if self.env['ir.config_parameter'].sudo().get_param('database.is_neutralized'):
+        if self.env['ir.config_parameter'].sudo().get_bool('database.is_neutralized'):
             return True
 
         active = bool(self.env[model].search_count(domain))
@@ -732,7 +747,7 @@ class IrCron(models.Model):
             return True
         return self.write({'active': active})
 
-    def _trigger(self, at: datetime | Iterable[datetime] | None = None):
+    def _trigger(self, at: datetime | Iterable[datetime] | None = None, *, coalesce: int = 0):
         """
         Schedule a cron job to be executed soon independently of its
         ``nextcall`` field value.
@@ -749,6 +764,9 @@ class IrCron(models.Model):
         :param at:
             When to execute the cron, at one or several moments in time
             instead of as soon as possible.
+        :param coalesce: coalescing window, in minutes, every trigger
+            is shifted to the end of the window, this allows limiting
+            the number or frequency of wakeups for less pressing triggers
         :return: the created triggers records
         """
         if at is None:
@@ -759,6 +777,14 @@ class IrCron(models.Model):
             at_list = list(at)
             assert all(isinstance(at, datetime) for at in at_list)
 
+        if coalesce:
+            factor = coalesce * 60
+            at_list = [
+                datetime.fromtimestamp(
+                    math.ceil(dt.timestamp() / factor) * factor,
+                )
+                for dt in at_list
+            ]
         return self._trigger_list(at_list)
 
     def _trigger_list(self, at_list: list[datetime]):
@@ -796,7 +822,7 @@ class IrCron(models.Model):
         The ODOO_NOTIFY_CRON_CHANGES environment variable allows to force the notifydb on both
         IrCron modification and on trigger creation (regardless of call_at)
         """
-        with sql_db.db_connect('postgres').cursor() as cr:
+        with sql_db.db_connect(config['db_system']).cursor() as cr:
             cr.execute(SQL("SELECT %s('cron_trigger', %s)", SQL.identifier(ODOO_NOTIFY_FUNCTION), self.env.cr.dbname))
         _logger.debug("cron workers notified")
 
@@ -820,7 +846,7 @@ class IrCron(models.Model):
         }])
         return self.with_context(ir_cron_progress_id=progress.id), progress
 
-    @api.deprecated("Since 19.0, use _commit_progress")
+    @deprecated("Since 19.0, use _commit_progress")
     def _notify_progress(self, *, done: int, remaining: int, deactivate: bool = False):
         """
         Log the progress of the cron job.
@@ -865,6 +891,8 @@ class IrCron(models.Model):
         :param deactivate: deactivate the cron after running it
         :return: remaining time (seconds) for the cron run
         """
+        # Typical use case:
+        # https://www.odoo.com/documentation/latest/developer/reference/backend/actions.html#writing-cron-functions
         ctx = self.env.context
         progress = self.env['ir.cron.progress'].sudo().browse(ctx.get('ir_cron_progress_id'))
         if not progress:
@@ -887,6 +915,11 @@ class IrCron(models.Model):
         self.env.cr.commit()
         return max(ctx.get('cron_end_time', float('inf')) - time.monotonic(), 0)
 
+    @api.model
+    def _rollback_progress(self) -> None:
+        """The rollback with the same logic as the commit for cron jobs."""
+        self.env.cr.rollback()
+
     def action_open_parent_action(self):
         return self.ir_actions_server_id.action_open_parent_action()
 
@@ -896,7 +929,7 @@ class IrCron(models.Model):
 
 class IrCronTrigger(models.Model):
     _name = 'ir.cron.trigger'
-    _description = 'Triggered actions'
+    _description = 'Triggered Action'
     _rec_name = 'cron_id'
     _allow_sudo_commands = False
 
@@ -917,7 +950,7 @@ class IrCronTrigger(models.Model):
 
 class IrCronProgress(models.Model):
     _name = 'ir.cron.progress'
-    _description = 'Progress of Scheduled Actions'
+    _description = 'Progress of Scheduled Action'
     _rec_name = 'cron_id'
 
     cron_id = fields.Many2one("ir.cron", required=True, index=True, ondelete='cascade')

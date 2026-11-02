@@ -20,13 +20,25 @@ Activates:
     'author': 'Odoo S.A., Drysharks Consulting and Trading Ltd.',
     'depends': [
         'account',
+        'contacts',
     ],
     'auto_install': ['account'],
     'data': [
+        'security/ir.access.csv',
         'data/account_tax_report_data.xml',
+        'data/account_tax_report_stamp_tax.xml',
+        'data/l10n_tr.tax.office.csv',
+        'views/l10n_tr_tax_office_views.xml',
+        'views/res_company_views.xml',
+        'views/res_partner_views.xml',
     ],
     'demo': [
         'demo/demo_company.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'l10n_tr/static/src/js/dynamic_list.js',
+        ],
+    },
     'license': 'LGPL-3',
 }

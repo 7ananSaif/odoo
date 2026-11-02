@@ -1,3 +1,4 @@
+import { proxy } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
 import { patch } from "@web/core/utils/patch";
 import { KeepLast } from "@web/core/utils/concurrency";
@@ -6,14 +7,13 @@ import { useService } from "@web/core/utils/hooks";
 import { ImageSelector } from "@html_editor/main/media/media_dialog/image_selector";
 
 import { UnsplashError } from "../unsplash_error/unsplash_error";
-import { useState } from "@odoo/owl";
 
 patch(ImageSelector.prototype, {
     setup() {
         super.setup();
         this.unsplash = useService("unsplash");
         this.keepLastUnsplash = new KeepLast();
-        this.unsplashState = useState({
+        this.unsplashState = proxy({
             unsplashRecords: [],
             isFetchingUnsplash: false,
             isMaxed: false,

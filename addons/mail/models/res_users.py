@@ -6,7 +6,9 @@ import contextlib
 from odoo import _, api, Command, fields, models, modules, tools
 from odoo.exceptions import UserError
 from odoo.http import request
-from odoo.tools import email_normalize, str2bool
+from odoo.tools import email_normalize, split_every
+from odoo.tools.misc import limited_field_access_token
+from odoo.addons.base.models.res_users import NO_GROUP_CHANGE_LOG
 from odoo.addons.mail.tools.discuss import Store
 
 
@@ -17,7 +19,14 @@ class ResUsers(models.Model):
         - add a welcome message
         - add suggestion preference
     """
-    _inherit = 'res.users'
+    _name = "res.users"
+    _inherit = ['mail.thread', 'mail.activity.mixin', 'res.users']
+    _mail_post_access = 'read'
+
+    name = fields.Char(tracking=1)
+    email = fields.Char(tracking=2)
+    phone = fields.Char(tracking=3)
+    login = fields.Char(tracking=4)
 
     role_ids = fields.Many2many(
         "res.role",
@@ -31,17 +40,29 @@ class ResUsers(models.Model):
         ('inbox', 'In Odoo')],
         'Notification', required=True, default='email',
         compute='_compute_notification_type', inverse='_inverse_notification_type', store=True,
-        help="Policy on how to handle Chatter notifications:\n"
-             "- By Emails: notifications are sent to your email address\n"
-             "- In Odoo: notifications appear in your Odoo Inbox")
+        user_writeable=True,
+        help="How notifications for document messages and system updates are delivered:\n"
+             "- By email: Notifications are sent to your email address.\n"
+             "- In Odoo: Notifications appear in your Odoo inbox.")
     presence_ids = fields.One2many("mail.presence", "user_id", groups="base.group_system")
     # OOO management
-    out_of_office_from = fields.Datetime()
-    out_of_office_to = fields.Datetime()
-    out_of_office_message = fields.Html('Vacation Responder')
+    out_of_office_from = fields.Datetime(user_writeable=True)
+    out_of_office_to = fields.Datetime(user_writeable=True)
+    out_of_office_message = fields.Html('Vacation Responder', user_writeable=True)
     is_out_of_office = fields.Boolean('Out of Office', compute='_compute_is_out_of_office')
     # sudo: res.users - can access presence of accessible user
-    im_status = fields.Char("IM Status", compute="_compute_im_status", compute_sudo=True)
+    im_status = fields.Selection(
+        [
+            ("online", "Online"),
+            ("away", "Away"),
+            ("busy", "Do Not Disturb"),
+            ("offline", "Offline"),
+        ],
+        "IM Status",
+        compute="_compute_im_status",
+        compute_sudo=True,
+    )
+    offline_since = fields.Datetime("Offline since", compute="_compute_im_status", compute_sudo=True)
     manual_im_status = fields.Selection(
         [("away", "Away"), ("busy", "Do Not Disturb"), ("offline", "Offline")],
         string="IM status manually set by the user",
@@ -51,7 +72,6 @@ class ResUsers(models.Model):
         "ir.mail_server",
         "Outgoing Mail Server",
         compute='_compute_outgoing_mail_server_id',
-        groups='base.group_user',
     )
     outgoing_mail_server_type = fields.Selection(
         [('default', 'Default')],
@@ -59,12 +79,11 @@ class ResUsers(models.Model):
         compute='_compute_outgoing_mail_server_id',
         required=True,
         default='default',
-        groups='base.group_user',
     )
-    has_external_mail_server = fields.Boolean(compute='_compute_has_external_mail_server')
+    has_external_mail_server = fields.Boolean(compute='_compute_has_external_mail_server', compute_sudo=True)
 
     def _compute_has_external_mail_server(self):
-        self.has_external_mail_server = self.env['ir.config_parameter'].sudo().get_param(
+        self.has_external_mail_server = self.env['ir.config_parameter'].sudo().get_bool(
             'base_setup.default_external_email_server')
 
     _notification_type = models.Constraint(
@@ -92,7 +111,7 @@ class ResUsers(models.Model):
         # Special case: internal users with inbox notifications converted to portal must be converted to email users
         new_portal_users = self.filtered_domain([('share', '=', True), ('notification_type', '=', 'inbox')])
         new_portal_users.notification_type = 'email'
-        new_portal_users.write({"group_ids": [Command.unlink(inbox_group_id)]})
+        new_portal_users.with_context(no_group_change_log=NO_GROUP_CHANGE_LOG).write({"group_ids": [Command.unlink(inbox_group_id)]})
 
     @api.depends('out_of_office_from', 'out_of_office_to')
     def _compute_is_out_of_office(self):
@@ -108,27 +127,41 @@ class ResUsers(models.Model):
                 user.is_out_of_office = (user.out_of_office_from <= now)
         (self - todo).is_out_of_office = False
 
-    @api.depends("manual_im_status", "presence_ids.status")
+    @api.depends("active", "manual_im_status", "presence_ids.status")
     def _compute_im_status(self):
+        self.fetch(["active", "manual_im_status", "presence_ids"])
         for user in self:
+            if not user.active:
+                user.im_status = False
+                user.offline_since = None
+                continue
             user.im_status = (
                 "offline"
                 if user.presence_ids.status in ["offline", False]
                 else user.manual_im_status or user.presence_ids.status
             )
+            user.offline_since = user.presence_ids.last_poll if user.im_status == "offline" else None
 
     def _inverse_notification_type(self):
         inbox_group = self.env.ref('mail.group_mail_notification_type_inbox')
         inbox_users = self.filtered(lambda user: user.notification_type == 'inbox')
-        inbox_users.write({"group_ids": [Command.link(inbox_group.id)]})
-        (self - inbox_users).write({"group_ids": [Command.unlink(inbox_group.id)]})
+
+        # only write on users whose groups change, to avoid useless cache invalidations
+        inbox_users.with_context(no_group_change_log=NO_GROUP_CHANGE_LOG).sudo().filtered(lambda user: inbox_group not in user.group_ids).write({"group_ids": [Command.link(inbox_group.id)]})
+        (self - inbox_users).with_context(no_group_change_log=NO_GROUP_CHANGE_LOG).sudo().filtered(lambda user: inbox_group in user.group_ids).write({"group_ids": [Command.unlink(inbox_group.id)]})
 
     @api.depends_context("uid")
     def _compute_can_edit_role(self):
         self.can_edit_role = self.env["res.role"].sudo(False).has_access("write")
 
     @api.depends("email")
+    @api.depends_context("uid")
     def _compute_outgoing_mail_server_id(self):
+        if not (self.env.su or self.env.user.has_group('base.group_user')):
+            self.outgoing_mail_server_id = False
+            self.outgoing_mail_server_type = 'default'
+            # compute only for the current user
+            self = self.filtered(lambda u: u._origin == self.env.user).with_prefetch()  # noqa: PLW0642
         mail_servers = self.env['ir.mail_server'].sudo().search(fields.Domain.AND([
             [('from_filter', 'ilike', '_@_')],
             fields.Domain.OR([[
@@ -148,33 +181,14 @@ class ResUsers(models.Model):
                 else 'default'
             )
 
+    @api.onchange('out_of_office_from')
+    def _onchange_out_of_office_from(self):
+        if not self.out_of_office_from:
+            self.out_of_office_to = False
+
     # ------------------------------------------------------------
     # CRUD
     # ------------------------------------------------------------
-
-    @property
-    def SELF_READABLE_FIELDS(self):
-        return super().SELF_READABLE_FIELDS + [
-            "can_edit_role",
-            "is_out_of_office",
-            "notification_type",
-            "out_of_office_from",
-            "out_of_office_message",
-            "out_of_office_to",
-            "role_ids",
-            "has_external_mail_server",
-            "outgoing_mail_server_id",
-            "outgoing_mail_server_type",
-        ]
-
-    @property
-    def SELF_WRITEABLE_FIELDS(self):
-        return super().SELF_WRITEABLE_FIELDS + [
-            "notification_type",
-            "out_of_office_from",
-            "out_of_office_message",
-            "out_of_office_to",
-        ]
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -187,9 +201,9 @@ class ResUsers(models.Model):
             for user in users:
                 if user._is_portal():
                     body = user._get_portal_access_update_body(True)
-                    user.partner_id.message_post(
+                    user.message_post(
                         body=body,
-                        message_type='notification',
+                        message_type='tracking',
                         subtype_xmlid='mail.mt_note'
                     )
         return users
@@ -220,9 +234,9 @@ class ResUsers(models.Model):
                 portal_access_changed = user_has_group != user_portal_access_dict[user.id]
                 if portal_access_changed:
                     body = user._get_portal_access_update_body(user_has_group)
-                    user.partner_id.message_post(
+                    user.message_post(
                         body=body,
-                        message_type='notification',
+                        message_type='tracking',
                         subtype_xmlid='mail.mt_note'
                     )
 
@@ -251,14 +265,49 @@ class ResUsers(models.Model):
                 )
         if "notification_type" in vals:
             for user in user_notification_type_modified:
-                Store(bus_channel=user).add(user, "notification_type").bus_send()
+                Store(bus_channel=user).add(user, ["notification_type"])
 
         return write_res
 
     def action_archive(self):
-        activities_to_delete = self.env['mail.activity'].sudo().search([('user_id', 'in', self.ids)])
-        activities_to_delete.unlink()
+        activities_sudo = self.env['mail.activity'].sudo().search_fetch(
+            [('user_id', 'in', self.ids)],
+            ['res_model', 'role_id', 'create_uid', 'user_id'],
+        )
+        record_activities_sudo = activities_sudo.filtered('res_model')
+        if personal_activities_sudo := activities_sudo - record_activities_sudo:
+            personal_activities_sudo.unlink()
+        to_unassign_sudo = record_activities_sudo.filtered(
+            lambda a: a.role_id or not a.create_uid.active or a.create_uid in self)
+        if to_unassign_sudo:
+            to_unassign_sudo.user_id = False
+        if to_reassign_sudo := (record_activities_sudo - to_unassign_sudo).grouped('create_uid'):
+            for creator_sudo, activities_sudo in to_reassign_sudo.items():
+                activities_sudo.user_id = creator_sudo
         return super().action_archive()
+
+    # The goal here is to log group changes in the user's chatter for a nice UX. However this is
+    # inherently insecure as administrators can always modify these messages. Therefore we must
+    # also log these changes in a more secure manner.
+    def _log_group_changes(self, vals, old_group_ids, editing_groups=None):
+        # always log through super first since the function in base simply uses _logger and should not throw any (permission) exceptions
+        super()._log_group_changes(vals, old_group_ids, editing_groups)
+        user_logs = {}
+        # In this case we use normal sets to make logic operations easier than using recordsets, however
+        # this causes the cache to not prefetch all display names, therefore we do it manually here.
+        self.group_ids.fetch(['display_name'])
+        for user in self:
+            old_groups = set(old_group_ids[user.id])
+            new_groups = set(user.sudo().group_ids.ids)
+            added = self.env['res.groups'].browse(new_groups - old_groups)
+            removed = self.env['res.groups'].browse(old_groups - new_groups)
+            if added or removed:
+                user_logs[user.id] = self.env['ir.qweb']._render('mail.group_change_template', {
+                    'added': sorted(added, key=lambda group: group.display_name.lower()),
+                    'removed': sorted(removed, key=lambda group: group.display_name.lower()),
+                })
+        for user_logs_batch in split_every(1000, user_logs.items(), dict):
+            self.browse(user_logs_batch.keys())._message_log_batch(user_logs_batch, message_type='tracking')
 
     def _notify_security_setting_update(self, subject, content, mail_values=None, **kwargs):
         """ This method is meant to be called whenever a sensitive update is done on the user's account.
@@ -273,7 +322,8 @@ class ResUsers(models.Model):
 
         mail_create_values = []
         for user in self:
-            body_html = self.env['mail.render.mixin']._render_template(
+            user_lang = user.lang or self.env.lang or 'en_US'
+            body_html = self.env['mail.render.mixin'].with_context(lang=user_lang)._render_template(
                 'mail.account_security_alert',
                 model='res.users',
                 res_ids=user.ids,
@@ -316,7 +366,7 @@ class ResUsers(models.Model):
 
     def _notify_security_setting_update_prepare_values(self, content, **kwargs):
         """"Prepare rendering values for the 'mail.account_security_alert' qweb template."""
-        reset_password_enabled = str2bool(self.env['ir.config_parameter'].sudo().get_param("auth_signup.reset_password", True))
+        reset_password_enabled = self.env['ir.config_parameter'].sudo().get_bool("auth_signup.reset_password")
 
         values = {
             'browser': False,
@@ -331,9 +381,10 @@ class ResUsers(models.Model):
         if not request:
             return values
 
-        city = request.geoip.get('city') or False
-        region = request.geoip.get('region_name') or False
-        country = request.geoip.get('country') or False
+        city = request.geoip.city.name or False
+        subdivisons = request.geoip.subdivisions
+        region = subdivisons[0].iso_code if subdivisons and subdivisons[0].iso_code else False
+        country = request.geoip.country_name or False
         if country:
             if region and city:
                 values['location_address'] = _("Near %(city)s, %(region)s, %(country)s", city=city, region=region, country=country)
@@ -387,80 +438,90 @@ class ResUsers(models.Model):
     # DISCUSS
     # ------------------------------------------------------------
 
-    @api.model
-    def _init_store_data(self, store: Store):
-        """Initialize the store of the user."""
+    def _get_im_status_access_token(self):
+        """Return a scoped access token for the `im_status` field. The token is used in
+        `ir_websocket._prepare_subscribe_data` to grant access to presence channels.
+
+        :rtype: str
+        """
+        self.ensure_one()
+        return limited_field_access_token(self, "im_status", scope="mail.presence")
+
+    def _store_init_global_fields(self, res: Store.FieldList):
         xmlid_to_res_id = self.env["ir.model.data"]._xmlid_to_res_id
         # sudo: res.partner - exposing OdooBot data is considered acceptable
         odoobot = self.env.ref("base.partner_root").sudo()
-        if not self.env.user._is_public():
-            odoobot = odoobot.with_prefetch((odoobot + self.env.user.partner_id).ids)
-        store.add_global_values(
-            action_discuss_id=xmlid_to_res_id("mail.action_discuss"),
-            hasLinkPreviewFeature=self.env["mail.link.preview"]._is_link_preview_enabled(),
-            internalUserGroupId=self.env.ref("base.group_user").id,
-            mt_comment=xmlid_to_res_id("mail.mt_comment"),
-            mt_note=xmlid_to_res_id("mail.mt_note"),
-            odoobot=Store.One(odoobot),
-        )
-        if not self.env.user._is_public():
-            settings = self.env["res.users.settings"]._find_or_create_for_user(self.env.user)
-            store.add_global_values(
-                self_partner=Store.One(
-                    self.env.user.partner_id,
-                    [
-                        "active",
-                        "avatar_128",
-                        "im_status",
-                        Store.One(
-                            "main_user_id",
-                            [
-                                Store.Attr("is_admin", lambda u: u._is_admin()),
-                                "notification_type",
-                                "partner_id",
-                                "share",
-                                "signature",
-                            ],
-                        ),
-                        "name",
-                    ],
-                ),
-                settings=settings._res_users_settings_format(),
-            )
+        if not self._is_public():
+            odoobot = odoobot.with_prefetch((odoobot + self.partner_id).ids)
+        res.attr("action_discuss_id", xmlid_to_res_id("mail.action_discuss"))
+        res.attr("emailActivityTypeId", xmlid_to_res_id("mail.mail_activity_data_email"))
+        res.attr("hasLinkPreviewFeature", self.env["mail.link.preview"]._is_link_preview_enabled())
+        res.attr("internalUserGroupId", self.env.ref("base.group_user").id)
+        res.attr("mt_comment", xmlid_to_res_id("mail.mt_comment"))
+        res.attr("mt_important_notification", xmlid_to_res_id("mail.mt_important_notification"))
+        res.attr("mt_note", xmlid_to_res_id("mail.mt_note"))
+        res.one("odoobot", "_store_partner_fields", value=odoobot)
+        if not self._is_public():
+            res.one("self_user", "_store_init_fields", value=self)
         if guest := self.env["mail.guest"]._get_guest_from_context():
-            # sudo() => adding current guest data is acceptable
-            store.add_global_values(self_guest=Store.One(guest.sudo(), ["avatar_128", "name"]))
-
-    def _init_messaging(self, store: Store):
-        self.ensure_one()
-        self = self.with_user(self)
-        # sudo: bus.bus: reading non-sensitive last id
-        bus_last_id = self.env["bus.bus"].sudo()._bus_last_id()
-        store.add_global_values(
-            inbox={
-                "counter": self.partner_id._get_needaction_count(),
-                "counter_bus_id": bus_last_id,
-                "id": "inbox",
-                "model": "mail.box",
-            },
-            starred={
-                "counter": self.env["mail.message"].search_count(
-                    [("starred_partner_ids", "in", self.partner_id.ids)]
+            res.one(
+                "self_guest",
+                lambda res: (
+                    res.from_method("_store_avatar_fields"),
+                    res.from_method("_store_im_status_fields"),
                 ),
-                "counter_bus_id": bus_last_id,
-                "id": "starred",
-                "model": "mail.box",
-            },
+                # sudo: mail.guest - guest can read its own init fields
+                value=guest.sudo(),
+            )
+
+    def _store_init_fields(self, res: Store.FieldList):
+        res.one(
+            "partner_id",
+            lambda res: (
+                res.extend(["active", "name", "tz"]),
+                res.one("main_user_id", ["partner_id"]),
+                res.from_method("_store_avatar_fields"),
+            ),
         )
+        res.attr("is_admin", lambda u: u._is_admin())
+        res.extend(["notification_type", "share", "signature"])
+        res.from_method("_store_im_status_fields")
+
+    def _store_main_user_fields(self, res: Store.FieldList):
+        res.extend(["active", "partner_id", "share"])
+
+    def _store_im_status_fields(self, res: Store.FieldList):
+        res.attr("im_status")
+        res.attr("im_status_access_token", lambda p: p._get_im_status_access_token())
+        res.one("partner_id", "_store_im_status_fields")
+
+    def _store_manual_im_status_fields(self, res: Store.FieldList):
+        res.attr("im_status")
+
+    def _store_user_fields(self, res: Store.FieldList):
+        res.one("partner_id", "_store_partner_fields")
+
+    @api.model
+    @api.readonly
+    def _get_activities_to_assign_count(self):
+        """Activities targeting one of the current user's roles (including archived), not yet assigned to anyone."""
+        role_ids = self.env.user.with_context(active_test=False).role_ids.ids
+        return self.env['mail.activity'].search_count([
+            ('user_id', '=', False),
+            ('role_id', 'in', role_ids),
+        ])
 
     @api.model
     def _get_activity_groups(self):
-        search_limit = int(self.env['ir.config_parameter'].sudo().get_param('mail.activity.systray.limit', 1000))
+        search_limit = self.env['ir.config_parameter'].sudo().get_int('mail.activity.systray.limit') or 1000
         activities = self.env["mail.activity"].search(
             [("user_id", "=", self.env.uid)],
             order='id desc', limit=search_limit,
         )
+        return self._divide_activities_in_groups(activities)
 
+    def _divide_activities_in_groups(self, activities):
+        """Group activities per model for the systray. Only the most urgent activity is kept per record."""
         user_company_ids = self.env.user.company_ids.ids
         is_all_user_companies_allowed = set(user_company_ids) == set(self.env.context.get('allowed_company_ids') or [])
 
@@ -472,11 +533,8 @@ class ResUsers(models.Model):
                 activities_rec_groups[activity.res_model][activity.res_id] += activity
             else:
                 activities_rec_groups["mail.activity"][activity.id] += activity
-        model_activity_states = {
-            'mail.activity': {'overdue_count': 0, 'today_count': 0, 'planned_count': 0, 'total_count': 0}
-        }
         for model_name, activities_by_record in activities_rec_groups.items():
-            res_ids = activities_by_record.keys()
+            res_ids = [id_ for id_ in activities_by_record if id_]
             Model = self.env[model_name]
             has_model_access_right = Model.has_access('read')
             # also filters out non existing records (db cascade)
@@ -490,53 +548,51 @@ class ResUsers(models.Model):
             if has_model_access_right and unallowed_records and not is_all_user_companies_allowed:
                 unallowed_records -= (unallowed_records & existing).with_context(
                     allowed_company_ids=user_company_ids)._filtered_access('read')
-            model_activity_states[model_name] = {'overdue_count': 0, 'today_count': 0, 'planned_count': 0, 'total_count': 0}
-            for record_id, activities in activities_by_record.items():
+            for record_id, record_activities in activities_by_record.items():
+                most_urgent = min(record_activities, key=lambda a: (a.date_deadline, a.id))
                 if record_id in unallowed_records.ids:
-                    model_key = 'mail.activity'
-                    activities_model_groups['mail.activity'] += activities
+                    activities_model_groups['mail.activity'] += most_urgent
                 elif record_id in allowed_records.ids:
-                    model_key = model_name
-                    activities_model_groups[model_name] += activities
+                    activities_model_groups[model_name] += most_urgent
                 elif record_id:
                     continue
 
-                if 'overdue' in activities.mapped('state'):
-                    model_activity_states[model_key]['overdue_count'] += 1
-                    model_activity_states[model_key]['total_count'] += 1
-                elif 'today' in activities.mapped('state'):
-                    model_activity_states[model_key]['today_count'] += 1
-                    model_activity_states[model_key]['total_count'] += 1
-                else:
-                    model_activity_states[model_key]['planned_count'] += 1
-
         model_ids = [self.env["ir.model"]._get_id(name) for name in activities_model_groups]
-        user_activities = {}
-        for model_name, activities in activities_model_groups.items():
-            Model = self.env[model_name]
-            module = Model._original_module
-            icon = module and modules.module.get_module_icon(module)
-            model = self.env["ir.model"]._get(model_name).with_prefetch(model_ids)
-            user_activities[model_name] = {
-                "id": model.id,
-                "name": model.name if model_name != "mail.activity" else _("Other activities"),
-                "model": model_name,
-                "type": "activity",
-                "icon": icon,
-                # activity more important than archived status, active_test is too broad
-                "domain": [('active', 'in', [True, False])] if model_name != "mail.activity" and "active" in Model else [],
-                "total_count": model_activity_states[model_name]['total_count'],
-                "today_count": model_activity_states[model_name]['today_count'],
-                "overdue_count": model_activity_states[model_name]['overdue_count'],
-                "planned_count": model_activity_states[model_name]['planned_count'],
-                "view_type": getattr(Model, '_systray_view', 'list'),
-            }
-            if model_name == 'mail.activity':
-                user_activities[model_name]['activity_ids'] = activities.ids
-        return list(user_activities.values())
+        self.env['ir.model'].sudo().browse(model_ids).fetch(['name'])
 
-    def _get_store_avatar_card_fields(self, target):
-        return ["share", Store.One("partner_id", self.partner_id._get_store_avatar_card_fields(target))]
+        return [
+            self._format_activity_group(model_name, activities)
+            for model_name, activities in activities_model_groups.items()
+        ]
+
+    def _format_activity_group(self, model_name, activities):
+        Model = self.env[model_name]
+        module = Model._original_module
+        icon = (module and modules.module.get_module_icon(module)) or "/base/static/description/icon.png"
+        model = self.env['ir.model']._get(model_name)
+        states = activities.mapped('state')
+
+        return {
+            "id": model.id,
+            "name": model.name if model_name != "mail.activity" else _("Other Activities"),
+            "model": model_name,
+            "type": "activity",
+            "icon": icon,
+            # activity more important than archived status, active_test is too broad
+            "domain": [('active', 'in', [True, False])] if model_name != "mail.activity" and "active" in Model else [],
+            "total_count": states.count('overdue') + states.count('today'),
+            "today_count": states.count('today'),
+            "overdue_count": states.count('overdue'),
+            "planned_count": states.count('planned'),
+            "view_type": getattr(Model, '_systray_view', 'list'),
+            "activity_ids": activities.ids,
+        }
+
+    def _store_avatar_card_fields(self, res: Store.FieldList):
+        res.attr("share")
+        res.one("partner_id", "_store_avatar_card_fields")
+        res.attr("is_public", lambda u: u._is_public())
+        res.from_method("_store_im_status_fields", internal=True)
 
     # ------------------------------------------------------------
     # Mail Servers
@@ -658,3 +714,9 @@ class ResUsers(models.Model):
     @api.model
     def _get_mail_server_setup_end_action(self, smtp_server):
         raise NotImplementedError()
+
+    @api.model
+    def _get_current_persona(self):
+        if not self.env.user or self.env.user._is_public():
+            return (self.env["res.users"], self.env["mail.guest"]._get_guest_from_context())
+        return (self.env.user, self.env["mail.guest"])

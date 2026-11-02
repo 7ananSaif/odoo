@@ -1,6 +1,6 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from datetime import timedelta
+from datetime import datetime, time, timedelta
 from collections import defaultdict
 
 from odoo import api, fields, models, _
@@ -15,19 +15,13 @@ class SaleOrderLine(models.Model):
     qty_delivered_method = fields.Selection(selection_add=[('stock_move', 'Stock Moves')])
     route_ids = fields.Many2many('stock.route', string='Routes', domain=[('sale_selectable', '=', True)], ondelete='restrict')
     move_ids = fields.One2many('stock.move', 'sale_line_id', string='Stock Moves')
-    virtual_available_at_date = fields.Float(compute='_compute_qty_at_date', digits='Product Unit')
-    scheduled_date = fields.Datetime(compute='_compute_qty_at_date')
     forecast_expected_date = fields.Datetime(compute='_compute_qty_at_date')
     free_qty_today = fields.Float(compute='_compute_qty_at_date', digits='Product Unit')
-    qty_available_today = fields.Float(compute='_compute_qty_at_date')
     warehouse_id = fields.Many2one('stock.warehouse', compute='_compute_warehouse_id', store=True)
     qty_to_deliver = fields.Float(compute='_compute_qty_to_deliver', digits='Product Unit')
     is_mto = fields.Boolean(compute='_compute_is_mto')
     display_qty_widget = fields.Boolean(compute='_compute_qty_to_deliver')
-    is_storable = fields.Boolean(related='product_id.is_storable')
-    customer_lead = fields.Float(
-        compute='_compute_customer_lead', store=True, readonly=False, precompute=True,
-        inverse='_inverse_customer_lead')
+    customer_lead = fields.Integer(store=True, readonly=False, inverse='_inverse_customer_lead')
 
     @api.depends('route_ids', 'order_id.warehouse_id', 'product_id')
     def _compute_warehouse_id(self):
@@ -64,8 +58,9 @@ class SaleOrderLine(models.Model):
             else:
                 line.display_qty_widget = False
 
-    def _read_qties(self, date, wh):
-        return self.mapped('product_id').with_context(to_date=date, warehouse_id=wh).read([
+    def _read_qties(self, date, wh_id):
+        # sudo needed in case cross company warehouse
+        return self.mapped('product_id').with_context(to_date=date, warehouse_id=wh_id).sudo().read([
             'qty_available',
             'free_qty',
             'virtual_available',
@@ -110,7 +105,7 @@ class SaleOrderLine(models.Model):
             line.qty_available_today = 0
             line.free_qty_today = 0
             for move in moves:
-                line.qty_available_today += move.product_uom._compute_quantity(move.quantity, line.product_uom_id)
+                line.qty_available_today += move.uom_id._compute_quantity(move.quantity, line.product_uom_id)
                 line.free_qty_today += move.product_id.uom_id._compute_quantity(move.forecast_availability, line.product_uom_id)
             line.scheduled_date = line.order_id.commitment_date or line._expected_date()
             line.virtual_available_at_date = False
@@ -123,10 +118,10 @@ class SaleOrderLine(models.Model):
         for line in self.filtered(lambda l: l.state in ('draft', 'sent')):
             if not (line.product_id and line.display_qty_widget):
                 continue
-            grouped_lines[(line.warehouse_id.id, line.order_id.commitment_date or line._expected_date())] |= line
+            grouped_lines[line.warehouse_id, line.order_id.commitment_date or line._expected_date()] |= line
 
         for (warehouse, scheduled_date), lines in grouped_lines.items():
-            product_qties = lines._read_qties(scheduled_date, warehouse)
+            product_qties = lines._read_qties(scheduled_date, warehouse.id)
             qties_per_product = {
                 product['id']: (product['qty_available'], product['free_qty'], product['virtual_available'])
                 for product in product_qties
@@ -166,8 +161,8 @@ class SaleOrderLine(models.Model):
             product = line.product_id
             product_routes = line.route_ids or (product.route_ids + product.categ_id.total_route_ids)
 
-            # Check MTO
-            mto_route = line.warehouse_id.mto_pull_id.route_id
+            # Check MTO. sudo needed in case cross-company warehouse
+            mto_route = line.warehouse_id.sudo().mto_pull_id.route_id
             if not mto_route:
                 try:
                     mto_route = self.env['stock.warehouse']._find_or_create_global_route('stock.route_warehouse0_mto', _('Replenish on Order (MTO)'), create=False)
@@ -180,37 +175,38 @@ class SaleOrderLine(models.Model):
             else:
                 line.is_mto = False
 
-    @api.depends('product_id')
-    def _compute_qty_delivered_method(self):
-        """ Stock module compute delivered qty for product [('type', '=', 'consu')]
-            For SO line coming from expense, no picking should be generate: we don't manage stock for
-            those lines, even if the product is a storable.
-        """
-        super(SaleOrderLine, self)._compute_qty_delivered_method()
+    def _get_consu_qty_delivered_method(self):
+        return 'stock_move'
 
-        for line in self:
-            if not line.is_expense and line.product_id.type == 'consu':
-                line.qty_delivered_method = 'stock_move'
-
-    @api.depends('move_ids.state', 'move_ids.location_dest_usage', 'move_ids.quantity', 'move_ids.product_uom')
+    @api.depends('move_ids.state', 'move_ids.location_dest_usage', 'move_ids.quantity', 'move_ids.uom_id')
     def _compute_qty_delivered(self):
-        super(SaleOrderLine, self)._compute_qty_delivered()
+        super()._compute_qty_delivered()
 
     def _prepare_qty_delivered(self):
         delivered_qties = super()._prepare_qty_delivered()
         for line in self:  # TODO: maybe one day, this should be done in SQL for performance sake
             if line.qty_delivered_method == 'stock_move':
-                qty = 0.0
+                qty = 0.
+                if line.order_id.sudo().warehouse_id.company_id != self.order_id.company_id:
+                    # If the selected warehouse belongs to another company, need to fetch their moves regardless.
+                    line = line.sudo()
                 outgoing_moves, incoming_moves = line._get_outgoing_incoming_moves()
                 for move in outgoing_moves:
                     if move.state != 'done':
                         continue
-                    qty += move.product_uom._compute_quantity(move.quantity, line.product_uom_id, rounding_method='HALF-UP')
+                    qty += move.uom_id._compute_quantity(move.quantity, line.product_uom_id, rounding_method='HALF-UP')
                 for move in incoming_moves:
-                    if move.state != 'done' or (not move.origin_returned_move_id and line.product_uom_qty > 0 and not move.picking_id.return_id):
+                    # An unlinked move coming from a customer is still a real return, only skip unlinked non-returns (dropship receipts).
+                    if move.state != 'done' or (
+                        not move.origin_returned_move_id
+                        and not move.location_id._is_outgoing()
+                        and line.product_uom_qty > 0
+                        and not move.picking_id.return_id
+                    ):
                         continue
-                    qty -= move.product_uom._compute_quantity(move.quantity, line.product_uom_id, rounding_method='HALF-UP')
-                delivered_qties[line] = qty
+                    qty -= move.uom_id._compute_quantity(move.quantity, line.product_uom_id, rounding_method='HALF-UP')
+
+                delivered_qties[line] += qty
         return delivered_qties
 
     def _compute_invoice_status(self):
@@ -223,6 +219,7 @@ class SaleOrderLine(models.Model):
                 at_least_one_done = at_least_one_done or move.state == 'done'
             return at_least_one_done
         super()._compute_invoice_status()
+        precision = self.env['decimal.precision'].precision_get('Product Unit')
         for line in self:
             # We handle the following specific situation: a physical product is partially delivered,
             # but we would like to set its invoice status to 'Fully Invoiced'. The use case is for
@@ -235,14 +232,16 @@ class SaleOrderLine(models.Model):
                 and line.product_id.invoice_policy == 'delivery'
                 and line.move_ids
                 and check_moves_state(line.move_ids)
-                and not float_is_zero(line.qty_delivered, precision_rounding=line.product_uom_id.rounding)
+                and not float_is_zero(line.qty_delivered, precision_digits=precision)
             ):
                 line.invoice_status = 'invoiced'
 
     @api.model_create_multi
     def create(self, vals_list):
         lines = super().create(vals_list)
-        lines.filtered(lambda line: line.state == 'sale')._action_launch_stock_rule()
+        lines.filtered(
+            lambda line: line.state == 'sale' and line.product_id.type == 'consu'
+        )._action_launch_stock_rule()
         return lines
 
     def write(self, vals):
@@ -263,12 +262,6 @@ class SaleOrderLine(models.Model):
             if line.move_ids.filtered(lambda m: m.state != 'cancel'):
                 line.product_updatable = False
 
-    @api.depends('product_id')
-    def _compute_customer_lead(self):
-        super()._compute_customer_lead() # Reset customer_lead when the product is modified
-        for line in self:
-            line.customer_lead = line.product_id.sale_delay
-
     def _inverse_customer_lead(self):
         for line in self:
             if line.state == 'sale' and not line.order_id.commitment_date:
@@ -284,6 +277,8 @@ class SaleOrderLine(models.Model):
         self.ensure_one()
         # Use the delivery date if there is else use date_order and lead time
         date_deadline = self.order_id.commitment_date or self._expected_date()
+        if not self.order_id.commitment_date and self.order_id.picking_policy == 'one':
+            date_deadline = self.order_id.expected_date
         date_planned = date_deadline - timedelta(days=self.order_id.company_id.security_lead)
         values.update({
             'origin': self.order_id.name,
@@ -292,11 +287,11 @@ class SaleOrderLine(models.Model):
             'date_planned': date_planned,
             'date_deadline': date_deadline,
             'route_ids': self.route_ids,
-            'warehouse_id': self.warehouse_id,
+            'warehouse_id': self.sudo().warehouse_id,  # sudo() in case cross-company warehouse
             'partner_id': self.order_id.partner_shipping_id.id,
-            'location_final_id': self._get_location_final(),
+            'forecasted_location_id': self._get_location_final(),
             'product_description_variants': self.with_context(lang=self.order_id.partner_id.lang)._get_sale_order_line_multiline_description_variants().strip(),
-            'company_id': self.order_id.company_id,
+            'company_id': self.sudo().warehouse_id.company_id or self.order_id.company_id,  # sudo() in case cross-company warehouse
             'sequence': self.sequence,
             'never_product_template_attribute_value_ids': self.product_no_variant_attribute_value_ids,
             'packaging_uom_id': self.product_uom_id,
@@ -314,10 +309,10 @@ class SaleOrderLine(models.Model):
         outgoing_moves, incoming_moves = self._get_outgoing_incoming_moves(strict=False)
         for move in outgoing_moves:
             qty_to_compute = move.quantity if move.state == 'done' else move.product_uom_qty
-            qty += move.product_uom._compute_quantity(qty_to_compute, self.product_uom_id, rounding_method='HALF-UP')
+            qty += move.uom_id._compute_quantity(qty_to_compute, self.product_uom_id, rounding_method='HALF-UP')
         for move in incoming_moves:
             qty_to_compute = move.quantity if move.state == 'done' else move.product_uom_qty
-            qty -= move.product_uom._compute_quantity(qty_to_compute, self.product_uom_id, rounding_method='HALF-UP')
+            qty -= move.uom_id._compute_quantity(qty_to_compute, self.product_uom_id, rounding_method='HALF-UP')
         return qty
 
     def _get_outgoing_incoming_moves(self, strict=True):
@@ -329,16 +324,21 @@ class SaleOrderLine(models.Model):
         outgoing_moves_ids = set()
         incoming_moves_ids = set()
 
-        moves = self.move_ids.filtered(lambda r: r.state != 'cancel' and r.location_dest_usage != 'inventory' and self.product_id == r.product_id)
+        moves = self.move_ids.filtered(lambda m: m.location_dest_usage != 'inventory' and self.product_id == m.product_id)
         if moves and not strict:
             # The first move created was the one created from the intial rule that started it all.
+            # Look at every move ever created for this line, including cancelled ones: if the
+            # triggering move gets cancelled later on (e.g. SO cancellation), the rule that started
+            # the chain must stay the same, otherwise remaining done moves get wrongly re-classified.
             sorted_moves = moves.sorted('id')
             triggering_rule_ids = []
             seen_wh_ids = set()
             for move in sorted_moves:
-                if move.warehouse_id.id not in seen_wh_ids and move.rule_id:
+                # A move without warehouse (created by a rule without warehouse) does not start a new chain
+                if move.warehouse_id.id not in seen_wh_ids and move.rule_id and (move.warehouse_id or not triggering_rule_ids):
                     triggering_rule_ids.append(move.rule_id.id)
                     seen_wh_ids.add(move.warehouse_id.id)
+        moves = moves.filtered(lambda m: m.state != 'cancel')
         if self.env.context.get('accrual_entry_date'):
             accrual_date = fields.Date.from_string(self.env.context['accrual_entry_date'])
             moves = moves.filtered(lambda r: fields.Date.context_today(r, r.date) <= accrual_date)
@@ -347,14 +347,14 @@ class SaleOrderLine(models.Model):
             if not move._is_dropshipped_returned() and (
                 (strict and move.location_dest_id._is_outgoing()) or (
                 not strict and move.rule_id.id in triggering_rule_ids and
-                (move.location_final_id or move.location_dest_id)._is_outgoing()
+                (move.forecasted_location_id or move.location_dest_id)._is_outgoing()
             )):
                 if not move.origin_returned_move_id or (move.origin_returned_move_id and move.to_refund):
                     outgoing_moves_ids.add(move.id)
             elif move.to_refund and (
                 (strict and move._is_incoming() or move.location_id._is_outgoing()) or (
                 not strict and move.rule_id.id in triggering_rule_ids and
-                (move.location_final_id or move.location_dest_id).usage == 'internal'
+                (move.forecasted_location_id or move.location_dest_id).usage == 'internal'
             )):
                 incoming_moves_ids.add(move.id)
 
@@ -368,9 +368,12 @@ class SaleOrderLine(models.Model):
 
     def _create_procurements(self, product_qty, procurement_uom, values):
         self.ensure_one()
+        origin = self.order_id.name
+        if self.order_id.company_id != self.sudo().warehouse_id.company_id:
+            origin += f" ({self.order_id.company_id.name})"
         return [self.env['stock.rule'].Procurement(
             self.product_id, product_qty, procurement_uom, self._get_location_final(),
-            self.product_id.display_name, self.order_id.name, self.order_id.company_id, values)]
+            self.product_id.display_name, origin, self.order_id.company_id, values)]
 
     def _action_launch_stock_rule(self, *, previous_product_uom_qty=False):
         """
@@ -422,37 +425,43 @@ class SaleOrderLine(models.Model):
 
     #=== HOOKS ===#
 
-    # FIXME VFE this hook is supported on the order, not the order line
-    def _get_action_add_from_catalog_extra_context(self, order):
-        extra_context = super()._get_action_add_from_catalog_extra_context(order)
-        extra_context.update(warehouse_id=order.warehouse_id.id)
-        return extra_context
-
-    def _get_product_catalog_lines_data(self, **kwargs):
-        """ Override of `sale` to add the delivered quantity.
-
-        :rtype: dict
-        :return: A dict with the following structure:
-            {
-                'deliveredQty': float,
-                'quantity': float,
-                'price': float,
-                'readOnly': bool,
-            }
-        """
-        res = super()._get_product_catalog_lines_data(**kwargs)
-        res['deliveredQty'] = sum(
-            self.mapped(
-                lambda line: line.product_uom_id._compute_quantity(
-                    qty=line.qty_delivered,
-                    to_unit=line.product_id.uom_id,
+    def _get_product_catalog_lines_data(self, *args, **kwargs) -> dict:
+        """Override of `sale` to add the delivered quantity."""
+        return {
+            **super()._get_product_catalog_lines_data(*args, **kwargs),
+            "deliveredQty": sum(
+                self.mapped(
+                    lambda line: line.product_uom_id._compute_quantity(
+                        qty=line.qty_delivered, to_unit=self._get_product_uom()
+                    )
                 )
-            )
+            ),
+        }
+
+    def _is_returnable(self):
+        """Return whether this line contains a product eligible for return."""
+        self.ensure_one()
+        return (
+            self.product_type == "consu"
+            and self._is_product_line()
+            and self.has_valued_move_ids()
+            and not self.combo_item_id
         )
-        return res
 
     def has_valued_move_ids(self):
-        return (
-            any(move.state not in ('cancel', 'draft') for move in self.move_ids)
-            or super().has_valued_move_ids()  # TODO: remove in master
-        )
+        return any(move.state not in ('cancel', 'draft') for move in self.move_ids)
+
+    def _get_accrual_domain(self, date=False):
+        """ Override of `sale` to also match lines whose delivery (stock moves) settled after
+        `date`: nothing left to accrue today, but there was a delivery-side mismatch back then.
+        """
+        domain = super()._get_accrual_domain(date)
+        if date:
+            # `self._get_accrual_domain()` (no date) gives the same eligibility restrictions
+            # `domain` was built with, without the OR'd candidate-matching; ANDing the stock
+            # move check onto it, then OR'ing that onto `domain`, extends the OR'd candidates
+            # with a delivery-side one without duplicating the eligibility restrictions here.
+            domain |= self._get_accrual_domain() & Domain([
+                ("move_ids.date", ">", datetime.combine(date, time.max)),
+            ])
+        return domain

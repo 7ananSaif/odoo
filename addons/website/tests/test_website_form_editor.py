@@ -1,6 +1,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo.exceptions import ValidationError
+from odoo.exceptions import AccessError, ValidationError
+from odoo.fields import Domain
 from odoo.http import request
 from odoo.tests.common import TransactionCase, tagged
 
@@ -21,12 +22,12 @@ class TestWebsiteFormEditor(HttpCaseWithUserPortal):
         })
 
     def test_tour(self):
-        self.start_tour(self.env['website'].get_client_action_url('/'), 'website_form_editor_tour', login='admin', timeout=240)
+        self.start_tour(self.env['website'].get_client_action_url('/', True), 'website_form_editor_tour', login='admin', timeout=240)
         self.start_tour('/', 'website_form_editor_tour_submit')
         self.start_tour('/', 'website_form_editor_tour_results', login="admin")
 
     def test_website_form_contact_us_edition_with_email(self):
-        self.start_tour('/odoo', 'website_form_contactus_edition_with_email', login="admin")
+        self.start_tour(self.env['website'].get_client_action_url('/contactus', True), 'website_form_contactus_edition_with_email', login="admin")
         self.start_tour('/contactus', 'website_form_contactus_submit', login="portal")
         mail = self.env['mail.mail'].search([], order='id desc', limit=1)
         self.assertEqual(
@@ -36,7 +37,7 @@ class TestWebsiteFormEditor(HttpCaseWithUserPortal):
 
     def test_website_form_contact_us_edition_no_email(self):
         self.env.company.email = 'website_form_contactus_edition_no_email@mail.com'
-        self.start_tour('/odoo', 'website_form_contactus_edition_no_email', login="admin")
+        self.start_tour(self.env['website'].get_client_action_url('/contactus', True), 'website_form_contactus_edition_no_email', login="admin")
         self.start_tour('/contactus', 'website_form_contactus_submit', login="portal")
         mail = self.env['mail.mail'].search([], order='id desc', limit=1)
         self.assertEqual(
@@ -45,29 +46,29 @@ class TestWebsiteFormEditor(HttpCaseWithUserPortal):
             'The email was not edited, the form should still have been sent to the company email')
 
     def test_website_form_conditional_required_checkboxes(self):
-        self.start_tour('/', 'website_form_conditional_required_checkboxes', login="admin")
+        self.start_tour(self.env['website'].get_client_action_url('/', True), 'website_form_conditional_required_checkboxes', login="admin")
 
     def test_contactus_form_email_stay_dynamic(self):
         # The contactus form should always be sent to the company email except
         # if the user explicitly changed it in the options.
         self.env.company.email = 'before.change@mail.com'
-        self.start_tour('/contactus', 'website_form_contactus_change_random_option', login="admin")
+        self.start_tour(self.env['website'].get_client_action_url('/contactus', True), 'website_form_contactus_change_random_option', login="admin")
         self.env.company.email = 'after.change@mail.com'
         self.start_tour('/contactus', 'website_form_contactus_check_changed_email', login="portal")
 
     def test_website_form_editable_content(self):
-        self.start_tour('/', 'website_form_editable_content', login="admin")
+        self.start_tour(self.env['website'].get_client_action_url('/', True), 'website_form_editable_content', login="admin")
 
     def test_website_form_special_characters(self):
-        self.start_tour('/', 'website_form_special_characters', login='admin')
+        self.start_tour(self.env['website'].get_client_action_url('/', True), 'website_form_special_characters', login='admin')
         mail = self.env['mail.mail'].search([], order='id desc', limit=1)
         self.assertIn('Test1&#34;&#39;', mail.body_html, 'The single quotes and double quotes characters should be visible on the received mail')
 
     def test_website_form_nested_forms(self):
-        self.start_tour('/my/account', 'website_form_nested_forms', login='admin')
+        self.start_tour(self.env["website"].get_client_action_url('/my/account', True), 'website_form_nested_forms', login='admin')
 
     def test_website_form_duplicate_field_ids(self):
-        self.start_tour('/', 'website_form_duplicate_field_ids', login='admin')
+        self.start_tour(self.env["website"].get_client_action_url('/', True), 'website_form_duplicate_field_ids', login='admin')
 
 
 @tagged('post_install', '-at_install')
@@ -84,7 +85,7 @@ class TestWebsiteForm(TransactionCase):
         })
 
     def test_website_form_html_escaping(self):
-        website = self.env['website'].browse(1)
+        website = self.env.ref('base.default_website')
         WebsiteFormController = WebsiteForm()
         with MockRequest(self.env, website=website):
             WebsiteFormController.insert_record(
@@ -102,25 +103,26 @@ class TestWebsiteForm(TransactionCase):
         self.env['ir.model.fields'].formbuilder_whitelist('res.partner', ['name'])
         WebsiteFormController = WebsiteForm()
         original_insert_record = WebsiteFormController.insert_record
-        test_sp = self.env.cr.savepoint()
-        def dummy_insert_record(*args, **kwargs):
-            res = original_insert_record(*args, **kwargs)
-            # delete website_form savepoint by rollbacking to test savepoint
-            self.env.cr.execute('ROLLBACK TO SAVEPOINT "%s"' % test_sp.name)
-            return res
-        WebsiteFormController.insert_record = dummy_insert_record
-        with MockRequest(self.env):
+
+        with (
+            self.enter_registry_test_mode(),
+            self.env.registry.cursor() as test_cr,
+            MockRequest(self.env(cr=test_cr)),
+        ):
+            def dummy_insert_record(*args, **kwargs):
+                res = original_insert_record(*args, **kwargs)
+                test_cr.commit()
+                return res
+            WebsiteFormController.insert_record = dummy_insert_record
             request.params = {
                 'model_name': 'res.partner',
                 'name': 'test partner',
             }
-            with self.assertLogs(level='ERROR'):
-                response = WebsiteFormController.website_form(
-                    **request.params,
-                )
+            response = WebsiteFormController.website_form(
+                **request.params,
+            )
             self.assertEqual(response.status_code, 200)
             self.assertTrue(response.data.startswith(b'{"id":'))
-        test_sp.close(rollback=True)
 
     def test_cannot_delete_field_used_in_website_form(self):
         """
@@ -142,3 +144,64 @@ class TestWebsiteForm(TransactionCase):
         with self.assertRaises(ValidationError):
             self.test_field.unlink()
         self.assertTrue(self.test_field.exists())
+
+    def test_can_delete_field_when_no_access_other_field(self):
+        """
+        Tests that a user without access to an html field checked by the website form delete hook can still delete other fields
+        """
+        self.test_field_2 = self.env['ir.model.fields'].create({
+            'name': 'x_test_field_2',
+            'model_id': self.partner_model.id,
+            'ttype': 'html',
+            'field_description': 'test2',
+            'sanitize': False,
+        })
+        user = self.env['res.users'].create({
+            'name': 'A User',
+            'login': 'a_user',
+            'email': 'a@user.com',
+            'group_ids': [(6, 0, [self.env.ref('base.group_system').id])],
+        })
+        self.env['ir.access'].create({
+            'name': 'Read Restriction',
+            'model_id': self.partner_model.id,
+            'operation': 'r',
+            'domain': Domain.FALSE
+        })
+        with self.with_user(user.login):
+            with self.assertRaises(AccessError):
+                self.env['res.partner'].search([])
+            activity_model = self.env['ir.model'].search([('model', '=', 'mail.activity')])
+            other_test_field = self.env['ir.model.fields'].create({
+                'name': 'x_test_field',
+                'model_id': activity_model.id,
+                'ttype': 'char',
+                'field_description': 'test',
+            })
+            other_test_field.unlink()
+            self.assertFalse(other_test_field.exists())
+
+    def test_reference_field_not_offered_in_form_builder(self):
+        """
+        Reference-type fields have no input template in the website form
+        builder, so they must not appear in the field list it offers
+        """
+        self.env["ir.model.fields"].create(
+            {
+                "name": "x_test_website_form_ref",
+                "field_description": "Test Reference",
+                "model_id": self.env["ir.model"]._get("res.partner").id,
+                "ttype": "reference",
+                "selection_ids": [(0, 0, {"value": "res.partner", "name": "Contact"})],
+            },
+        )
+
+        authorized_fields = self.env["ir.model"].get_authorized_fields(
+            "res.partner",
+            [],
+        )
+        self.assertNotIn(
+            "x_test_website_form_ref",
+            authorized_fields,
+            "Reference fields must not be offered in the website form builder.",
+        )

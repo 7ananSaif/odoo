@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0\n"
+"Project-Id-Version: Odoo Server 20.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:35+0000\n"
-"PO-Revision-Date: 2026-01-25 18:35+0000\n"
+"POT-Creation-Date: 2026-09-25 17:37+0000\n"
+"PO-Revision-Date: 2026-09-25 17:37+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,13 +16,71 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: sale_management
-#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_form
-msgid "<span invisible=\"not require_payment\">of</span>"
+#: model:ir.module.module,description:base.module_sale_management
+msgid ""
+"\n"
+"Manage sales quotations and orders\n"
+"==================================\n"
+"\n"
+"This application allows you to manage your sales goals in an effective and efficient manner by\n"
+"keeping track of all sales orders and history.\n"
+"\n"
+"It handles the full sales workflow:\n"
+"\n"
+"* **Quotation** -> **Sales order** -> **Invoice**\n"
+"\n"
+"Preferences (only with Warehouse Management installed)\n"
+"------------------------------------------------------\n"
+"\n"
+"If you also installed the Warehouse Management, you can deal with the following preferences:\n"
+"\n"
+"* Shipping: Choice of delivery at once or partial delivery\n"
+"* Invoicing: choose how invoices will be paid\n"
+"* Incoterms: International Commercial terms\n"
+"\n"
+"\n"
+"With this module you can personnalize the sales order and invoice report with\n"
+"categories, subtotals or page-breaks.\n"
+"\n"
+"The Dashboard for the Sales Manager will include\n"
+"------------------------------------------------\n"
+"* My Quotations\n"
+"* Monthly Turnover (Graph)\n"
+msgstr ""
+
+#. module: sale_management
+#. odoo-python
+#: code:addons/sale_management/models/sale_order_template_line.py:0
+msgid "%(attribute)s: %(values)s"
+msgstr ""
+
+#. module: sale_management
+#. odoo-python
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid "Acoustic ceiling"
+msgstr ""
+
+#. module: sale_management
+#. odoo-python
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid "Acoustic underlay"
+msgstr ""
+
+#. module: sale_management
+#. odoo-python
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid "Acoustic wall insulation"
 msgstr ""
 
 #. module: sale_management
 #: model:ir.model.fields,field_description:sale_management.field_sale_order_template__active
 msgid "Active"
+msgstr ""
+
+#. module: sale_management
+#. odoo-javascript
+#: code:addons/sale_management/static/src/fields/sale_order_line_field/sale_order_line_field.xml:0
+msgid "Add Section"
 msgstr ""
 
 #. module: sale_management
@@ -62,8 +120,48 @@ msgid "Archived"
 msgstr ""
 
 #. module: sale_management
-#: model:ir.model,name:sale_management.model_res_company
-msgid "Companies"
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__product_template_attribute_value_ids
+msgid "Attribute Values"
+msgstr ""
+
+#. module: sale_management
+#. odoo-javascript
+#: code:addons/sale_management/static/src/components/product_catalog/kanban_controller.js:0
+msgid "Back to Template"
+msgstr ""
+
+#. module: sale_management
+#. odoo-python
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid "Brainstorm Whiteboard"
+msgstr ""
+
+#. module: sale_management
+#. odoo-python
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid ""
+"Camera\n"
+"PTZ conference camera, auto-framing"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template__user_has_access
+msgid "Can User access"
+msgstr ""
+
+#. module: sale_management
+#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_form
+msgid "Catalog"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__collapse_composition
+msgid "Collapse Composition"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__collapse_prices
+msgid "Collapse Prices"
 msgstr ""
 
 #. module: sale_management
@@ -74,8 +172,19 @@ msgid "Company"
 msgstr ""
 
 #. module: sale_management
+#. odoo-python
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid "Conference Room"
+msgstr ""
+
+#. module: sale_management
 #: model:ir.model,name:sale_management.model_res_config_settings
 msgid "Config Settings"
+msgstr ""
+
+#. module: sale_management
+#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_form
+msgid "Confirmation"
 msgstr ""
 
 #. module: sale_management
@@ -84,8 +193,9 @@ msgid "Confirmation Mail"
 msgstr ""
 
 #. module: sale_management
-#: model_terms:ir.ui.view,arch_db:sale_management.res_config_settings_view_form
-msgid "Create standardized offers with default products"
+#. odoo-python
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid "Connectivity"
 msgstr ""
 
 #. module: sale_management
@@ -106,13 +216,19 @@ msgid "Created on"
 msgstr ""
 
 #. module: sale_management
-#: model:ir.model.fields,field_description:sale_management.field_res_company__sale_order_template_id
-msgid "Default Sale Template"
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template__currency_id
+msgid "Currency"
 msgstr ""
 
 #. module: sale_management
-#: model:ir.model.fields,field_description:sale_management.field_res_config_settings__company_so_template_id
-msgid "Default Template"
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__product_custom_attribute_value_ids
+msgid "Custom Values"
+msgstr ""
+
+#. module: sale_management
+#. odoo-javascript
+#: code:addons/sale_management/static/src/fields/sale_order_line_field/sale_order_line_field.xml:0
+msgid "Delete"
 msgstr ""
 
 #. module: sale_management
@@ -127,8 +243,26 @@ msgid "Digest"
 msgstr ""
 
 #. module: sale_management
+#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_form
+msgid "Disc %"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__discount
+msgid "Discount (%)"
+msgstr ""
+
+#. module: sale_management
+#. odoo-python
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid ""
+"Display / TV\n"
+"65\" 4K screen + wall mount + HDMI/USB-C inputs"
+msgstr ""
+
+#. module: sale_management
 #: model:ir.model.fields,field_description:sale_management.field_digest_digest__display_name
-#: model:ir.model.fields,field_description:sale_management.field_res_company__display_name
+#: model:ir.model.fields,field_description:sale_management.field_product_attribute_custom_value__display_name
 #: model:ir.model.fields,field_description:sale_management.field_res_config_settings__display_name
 #: model:ir.model.fields,field_description:sale_management.field_sale_order__display_name
 #: model:ir.model.fields,field_description:sale_management.field_sale_order_line__display_name
@@ -143,9 +277,19 @@ msgid "Display Type"
 msgstr ""
 
 #. module: sale_management
+#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_form
+msgid "Enter a Description"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__product_no_variant_attribute_value_ids
+msgid "Extra Values"
+msgstr ""
+
+#. module: sale_management
 #. odoo-python
-#: code:addons/sale_management/models/digest.py:0
-msgid "Do not have access, skip this data for user's digest email"
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid "Flooring parquet"
 msgstr ""
 
 #. module: sale_management
@@ -154,13 +298,29 @@ msgid "Forbidden product, quantity and UoM on non-accountable sale quote line"
 msgstr ""
 
 #. module: sale_management
+#: model:ir.model.constraint,message:sale_management.constraint_sale_order_template_line_section_fields_null
+msgid ""
+"Forbidden section quantity or section UoM on non section sale quote line"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.module.module,summary:base.module_sale_management
+msgid "From quotations to invoices"
+msgstr ""
+
+#. module: sale_management
 #: model:ir.model.fields,help:sale_management.field_sale_order_template_line__sequence
 msgid "Gives the sequence order when displaying a list of sale quote lines."
 msgstr ""
 
 #. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template__has_productless_lines
+msgid "Has Productless Lines"
+msgstr ""
+
+#. module: sale_management
 #: model:ir.model.fields,field_description:sale_management.field_digest_digest__id
-#: model:ir.model.fields,field_description:sale_management.field_res_company__id
+#: model:ir.model.fields,field_description:sale_management.field_product_attribute_custom_value__id
 #: model:ir.model.fields,field_description:sale_management.field_res_config_settings__id
 #: model:ir.model.fields,field_description:sale_management.field_sale_order__id
 #: model:ir.model.fields,field_description:sale_management.field_sale_order_line__id
@@ -179,18 +339,44 @@ msgstr ""
 #. module: sale_management
 #: model:ir.model.fields,help:sale_management.field_sale_order_template__active
 msgid ""
-"If unchecked, it will allow you to hide the quotation template without "
-"removing it."
+"If unchecked, it will allow you to hide the Order template without removing "
+"it."
+msgstr ""
+
+#. module: sale_management
+#. odoo-python
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid "Individual Work Station"
+msgstr ""
+
+#. module: sale_management
+#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_form
+msgid "Invoicing"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__mandatory_product
+msgid "Is Product Mandatory"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__is_configurable_product
+msgid "Is the product configurable?"
 msgstr ""
 
 #. module: sale_management
 #: model:ir.model.fields,field_description:sale_management.field_sale_order_template__journal_id
-msgid "Invoicing Journal"
+msgid "Journal"
 msgstr ""
 
 #. module: sale_management
 #: model:ir.model.fields,field_description:sale_management.field_digest_digest__kpi_all_sale_total_value
 msgid "Kpi All Sale Total Value"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__label
+msgid "Label"
 msgstr ""
 
 #. module: sale_management
@@ -212,8 +398,34 @@ msgid "Lines"
 msgstr ""
 
 #. module: sale_management
+#. odoo-python
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid ""
+"Microphone system\n"
+"Ceiling/table array mic with echo cancellation"
+msgstr ""
+
+#. module: sale_management
 #: model:ir.model.constraint,message:sale_management.constraint_sale_order_template_line_accountable_product_id_required
-msgid "Missing required product and UoM on accountable sale quote line."
+msgid "Missing required UoM on accountable sale quote line."
+msgstr ""
+
+#. module: sale_management
+#. odoo-javascript
+#: code:addons/sale_management/static/src/views/components/template_dropdown.xml:0
+msgid "New"
+msgstr ""
+
+#. module: sale_management
+#. odoo-javascript
+#: code:addons/sale_management/static/src/views/components/template_dropdown.xml:0
+msgid "New Quotation"
+msgstr ""
+
+#. module: sale_management
+#. odoo-javascript
+#: code:addons/sale_management/static/src/fields/sale_order_line_field/sale_order_line_field.xml:0
+msgid "New Section"
 msgstr ""
 
 #. module: sale_management
@@ -228,13 +440,31 @@ msgid "Number of days for the validity date computation of the quotation"
 msgstr ""
 
 #. module: sale_management
-#: model:ir.model.fields,field_description:sale_management.field_sale_order_template__require_payment
-msgid "Online Payment"
+#: model:sale.order.template,name:sale_management.sale_order_template_1
+msgid "Office Furniture"
 msgstr ""
 
 #. module: sale_management
 #: model:ir.model.fields,field_description:sale_management.field_sale_order_template__require_signature
 msgid "Online Signature"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.model.constraint,message:sale_management.constraint_product_attribute_custom_value_sotl_custom_value_unique
+msgid ""
+"Only one Custom Value is allowed per Attribute Value per Quotation Template "
+"Line."
+msgstr ""
+
+#. module: sale_management
+#. odoo-python
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid "Open Space Renovation"
+msgstr ""
+
+#. module: sale_management
+#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_form_quote
+msgid "Optional"
 msgstr ""
 
 #. module: sale_management
@@ -246,7 +476,12 @@ msgstr ""
 #. module: sale_management
 #. odoo-python
 #: code:addons/sale_management/models/sale_order_template.py:0
-msgid "Optional Products Section"
+msgid "Options"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.model,name:sale_management.model_sale_order_template
+msgid "Order Templates"
 msgstr ""
 
 #. module: sale_management
@@ -255,8 +490,14 @@ msgid "Parent Section Line"
 msgstr ""
 
 #. module: sale_management
+#. odoo-python
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid "Parquet installation"
+msgstr ""
+
+#. module: sale_management
 #: model:ir.model.fields,field_description:sale_management.field_sale_order_template__prepayment_percent
-msgid "Prepayment percentage"
+msgid "Prepayment"
 msgstr ""
 
 #. module: sale_management
@@ -267,7 +508,23 @@ msgstr ""
 
 #. module: sale_management
 #: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__product_id
+#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_form
 msgid "Product"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.model,name:sale_management.model_product_attribute_custom_value
+msgid "Product Attribute Custom Value"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__product_template_id
+msgid "Product Template"
+msgstr ""
+
+#. module: sale_management
+#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_form
+msgid "Product Variant"
 msgstr ""
 
 #. module: sale_management
@@ -276,21 +533,23 @@ msgid "Quantity"
 msgstr ""
 
 #. module: sale_management
+#: model:ir.model.fields.selection,name:sale_management.selection__sale_order_template__template_type__quotation
+msgid "Quotation"
+msgstr ""
+
+#. module: sale_management
 #: model:ir.model.fields,field_description:sale_management.field_sale_order_template__number_of_days
 msgid "Quotation Duration"
 msgstr ""
 
 #. module: sale_management
-#: model:ir.model,name:sale_management.model_sale_order_template
-#: model:ir.model.fields,field_description:sale_management.field_sale_order__sale_order_template_id
-#: model:ir.model.fields,field_description:sale_management.field_sale_order_template__name
-#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_form
 #: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_tree
 msgid "Quotation Template"
 msgstr ""
 
 #. module: sale_management
 #: model:ir.model,name:sale_management.model_sale_order_template_line
+#: model:ir.model.fields,field_description:sale_management.field_product_attribute_custom_value__sale_order_template_line_id
 msgid "Quotation Template Line"
 msgstr ""
 
@@ -305,11 +564,7 @@ msgid "Quotation Template Reference"
 msgstr ""
 
 #. module: sale_management
-#: model:ir.actions.act_window,name:sale_management.sale_order_template_action
-#: model:ir.model.fields,field_description:sale_management.field_res_config_settings__group_sale_order_template
-#: model:ir.ui.menu,name:sale_management.sale_order_template_menu
-#: model:res.groups,name:sale_management.group_sale_order_template
-#: model_terms:ir.ui.view,arch_db:sale_management.res_config_settings_view_form
+#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_search
 msgid "Quotation Templates"
 msgstr ""
 
@@ -331,13 +586,7 @@ msgid ""
 msgstr ""
 
 #. module: sale_management
-#: model:ir.model.fields,help:sale_management.field_sale_order_template__require_payment
-msgid ""
-"Request an online payment to the customer in order to confirm orders "
-"automatically."
-msgstr ""
-
-#. module: sale_management
+#: model:ir.module.module,shortdesc:base.module_sale_management
 #: model_terms:ir.ui.view,arch_db:sale_management.digest_digest_view_form
 msgid "Sales"
 msgstr ""
@@ -353,14 +602,58 @@ msgid "Sales Order Line"
 msgstr ""
 
 #. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template__team_ids
+msgid "Sales Team"
+msgstr ""
+
+#. module: sale_management
+#. odoo-javascript
+#: code:addons/sale_management/static/src/fields/sale_order_line_field/sale_order_line_field.xml:0
+msgid "Save as Template"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.actions.server,name:sale_management.model_sale_order_action_create_quotation_template
+msgid "Save as template"
+msgstr ""
+
+#. module: sale_management
 #: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_search
 msgid "Search Quotation Template"
 msgstr ""
 
 #. module: sale_management
+#: model:ir.model.fields.selection,name:sale_management.selection__sale_order_template__template_type__section
 #: model:ir.model.fields.selection,name:sale_management.selection__sale_order_template_line__display_type__line_section
 #: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_form
 msgid "Section"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__section_qty
+msgid "Section Quantity"
+msgstr ""
+
+#. module: sale_management
+#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_search
+msgid "Section Templates"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__section_uom_id
+msgid "Section Unit of Measure"
+msgstr ""
+
+#. module: sale_management
+#. odoo-javascript
+#: code:addons/sale_management/static/src/fields/sale_order_line_field/sale_order_line_field.js:0
+msgid "Section template %s created successfully"
+msgstr ""
+
+#. module: sale_management
+#. odoo-javascript
+#: code:addons/sale_management/static/src/fields/sale_order_line_field/sale_order_line_field.js:0
+msgid "Section template %s updated successfully"
 msgstr ""
 
 #. module: sale_management
@@ -385,6 +678,16 @@ msgid "Set Optional"
 msgstr ""
 
 #. module: sale_management
+#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_form
+msgid "Settings"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template__share_template
+msgid "Share"
+msgstr ""
+
+#. module: sale_management
 #: model_terms:digest.tip,tip_description:sale_management.digest_tip_sale1_management_0
 msgid ""
 "Struggling with a complex product catalog? Try out the Product Configurator "
@@ -393,8 +696,38 @@ msgid ""
 msgstr ""
 
 #. module: sale_management
+#. odoo-python
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid "Subfloor preparation"
+msgstr ""
+
+#. module: sale_management
 #: model:ir.model.fields.selection,name:sale_management.selection__sale_order_template_line__display_type__line_subsection
 msgid "Subsection"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__tax_ids
+msgid "Taxes"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order__sale_order_template_id
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template__name
+msgid "Template"
+msgstr ""
+
+#. module: sale_management
+#. odoo-python
+#: code:addons/sale_management/models/sale_order.py:0
+msgid "Template from %s"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.actions.act_window,name:sale_management.sale_order_template_action
+#: model:ir.ui.menu,name:sale_management.sale_order_template_menu
+#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_form
+msgid "Templates"
 msgstr ""
 
 #. module: sale_management
@@ -439,8 +772,24 @@ msgid "Tip: Sell or buy products in bulk with matrixes"
 msgstr ""
 
 #. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template__template_type
+#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_search
+msgid "Type"
+msgstr ""
+
+#. module: sale_management
+#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_form
+msgid "Type to find a product..."
+msgstr ""
+
+#. module: sale_management
 #: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__product_uom_id
 msgid "Unit"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__price_unit
+msgid "Unit Price"
 msgstr ""
 
 #. module: sale_management
@@ -465,10 +814,28 @@ msgstr ""
 
 #. module: sale_management
 #. odoo-python
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid "Whiteboard"
+msgstr ""
+
+#. module: sale_management
+#. odoo-python
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid "Whiteboard Pen"
+msgstr ""
+
+#. module: sale_management
+#. odoo-python
 #: code:addons/sale_management/models/sale_order_template_line.py:0
 msgid ""
 "You cannot change the type of a sale quote line. Instead you should delete "
 "the current line and create a new line of the proper type."
+msgstr ""
+
+#. module: sale_management
+#. odoo-javascript
+#: code:addons/sale_management/static/src/fields/sale_order_line_field/sale_order_line_field.js:0
+msgid "You cannot save a section with combo lines as a template"
 msgstr ""
 
 #. module: sale_management

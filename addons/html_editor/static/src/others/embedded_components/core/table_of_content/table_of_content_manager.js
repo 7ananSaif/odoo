@@ -1,19 +1,23 @@
-import { batched, reactive } from "@odoo/owl";
+import { batched, proxy } from "@odoo/owl";
 import { closestScrollableY, scrollTo } from "@web/core/utils/scrolling";
 
 export const HEADINGS = ["H1", "H2", "H3", "H4", "H5", "H6"];
 
 export class TableOfContentManager {
+    /**
+     * @param {import("@odoo/owl").Signal<HTMLElement> | (() => HTMLElement)} containerRef
+     */
     constructor(containerRef) {
         this.containerRef = containerRef;
-        this.structure = reactive({
+        this.structure = proxy({
             headings: [],
+            isNew: true,
         });
         this.batchedUpdateStructure = batched(this.updateStructure.bind(this));
     }
 
     getContainerEl() {
-        return this.containerRef.el;
+        return this.containerRef();
     }
 
     /**
@@ -43,16 +47,25 @@ export class TableOfContentManager {
         const { target } = heading;
         let offset = 0;
         const scrollable = closestScrollableY(target);
-        for (const el of scrollable.children) {
-            const { position, top, height } = getComputedStyle(el);
-            if (position === "sticky" && parseInt(top) === 0) {
-                offset = Math.max(offset, parseInt(height));
+        if (scrollable) {
+            for (const el of scrollable.children) {
+                const { position, top, height } = getComputedStyle(el);
+                if (position === "sticky" && parseInt(top) === 0) {
+                    offset = Math.max(offset, parseInt(height));
+                }
             }
+
+            // calculate offset to scroll heading near 1/3 of the screen
+            const { top, bottom } = scrollable.getBoundingClientRect();
+            const scrollableOffset = (bottom - top) / 3;
+            // change offset based on scroll direction
+            const { top: targetTop } = target.getBoundingClientRect();
+            offset = top > targetTop ? -scrollableOffset - offset : scrollableOffset * 2;
+            scrollTo(target, { behavior: "smooth", offset: offset }).then(() => {
+                // Scroll again in case we actually went downwards.
+                scrollTo(target, { behavior: "smooth" });
+            });
         }
-        scrollTo(target, { behavior: "smooth", offset: -offset }).then(() => {
-            // Scroll again in case we actually went downwards.
-            scrollTo(target, { behavior: "smooth" });
-        });
         target.classList.add("o_embedded_toc_header_highlight");
         window.setTimeout(() => {
             target.classList.remove("o_embedded_toc_header_highlight");
@@ -77,5 +90,6 @@ export class TableOfContentManager {
                 target: heading,
             };
         });
+        this.structure.isNew = false;
     }
 }

@@ -20,13 +20,14 @@ class TestPosSafaricom(TransactionCase):
         # Create M-PESA Express payment method
         cls.mpesa_express = cls.env['pos.payment.method'].create({
             'name': 'M-PESA Express',
-            'use_payment_terminal': 'safaricom',
+            'payment_provider': 'safaricom',
             'safaricom_payment_type': 'mpesa_express',
             'safaricom_test_mode': True,
             'consumer_key': 'test_consumer_key',
             'consumer_secret': 'test_consumer_secret',
             'business_short_code': '174379-174379',
             'passkey': 'test_passkey',
+            'type': 'bank',
             'company_id': cls.company.id,
         })
 
@@ -35,8 +36,9 @@ class TestPosSafaricom(TransactionCase):
             # Create Lipa na M-PESA payment method
             cls.lipa_na_mpesa = cls.env['pos.payment.method'].create({
                 'name': 'Lipa na M-PESA',
-                'use_payment_terminal': 'safaricom',
+                'payment_provider': 'safaricom',
                 'safaricom_payment_type': 'lipa_na_mpesa',
+                'type': 'bank',
                 'safaricom_test_mode': True,
                 'consumer_key': 'test_consumer_key',
                 'consumer_secret': 'test_consumer_secret',
@@ -65,7 +67,8 @@ class TestPosSafaricom(TransactionCase):
         """Test OAuth token retrieval with missing credentials"""
         payment_method = self.env['pos.payment.method'].create({
             'name': 'Test Missing Credentials',
-            'use_payment_terminal': 'safaricom',
+            'type': 'bank',
+            'payment_provider': 'safaricom',
             'safaricom_payment_type': 'mpesa_express',
             'company_id': self.company.id,
         })

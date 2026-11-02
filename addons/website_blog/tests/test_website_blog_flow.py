@@ -1,8 +1,9 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 import json
 
+from werkzeug.exceptions import NotFound
 from odoo.exceptions import UserError, ValidationError
-from odoo.tests.common import users, HttpCase, tagged
+from odoo.tests.common import users, HttpCase, tagged, TransactionCase
 from odoo.addons.http_routing.tests.common import MockRequest
 from odoo.addons.website_blog.tests.common import TestWebsiteBlogCommon
 from odoo.addons.mail.controllers.thread import ThreadController
@@ -45,15 +46,24 @@ class TestWebsiteBlogFlow(TestWebsiteBlogCommon):
             self.user_public.partner_id, self.test_blog_post.message_partner_ids,
             'website_blog: subscribing to a blog should not subscribe to its posts')
 
-        # Publish the blog
-        self.test_blog_post.write({'website_published': True})
+        # Publish the blog post at a future date
+        self.test_blog_post.write({"website_published": False, "publish_on": '2050-01-01 00:00:00', "published_date": False})
+
+        publish_message = next((m for m in self.test_blog_post.blog_id.message_ids if m.subtype_id.id == self.ref('website_blog.mt_blog_blog_published')), None)
+        self.assertTrue(
+            not publish_message or publish_message.notified_partner_ids != (self.user_employee.partner_id | self.user_public.partner_id),
+            'website_blog: people following a blog should not be notified of a post that will be published in the future')
+
+        # Publish the blog post now
+        self.test_blog_post.write({"website_published": True, "publish_on": False, "published_date": False})
 
         # Check publish message has been sent to blog followers
         publish_message = next((m for m in self.test_blog_post.blog_id.message_ids if m.subtype_id.id == self.ref('website_blog.mt_blog_blog_published')), None)
+        self.assertTrue(publish_message)
         self.assertEqual(
             publish_message.notified_partner_ids,
             self.user_employee.partner_id | self.user_public.partner_id,
-            'website_blog: peuple following a blog should be notified of a published post')
+            'website_blog: people following a blog should be notified of a published post')
 
         # Armand posts a message -> becomes follower
         self.test_blog_post.with_user(self.user_employee).message_post(
@@ -66,13 +76,42 @@ class TestWebsiteBlogFlow(TestWebsiteBlogCommon):
             self.user_employee.partner_id, self.test_blog_post.message_partner_ids,
             'website_blog: people commenting a post should follow it afterwards')
 
+    @users('cedric', 'portal_user')
+    def test_blog_post_comment_permissions(self):
+        """ Test that public and portal users are prevented from posting comments via RPC
+        when comments are disabled in the website editor options. """
+        def post_comment(body):
+            ThreadController().mail_message_post(
+                "blog.post",
+                self.test_blog_post.id,
+                {
+                    "body": f"<p>{body}</p>",
+                    "message_type": "comment",
+                    "subtype_xmlid": "mail.mt_comment",
+                },
+            )
+            return self.env['mail.message'].search([
+                ('model', '=', 'blog.post'),
+                ('res_id', '=', self.test_blog_post.id),
+                ('body', "=", f'<p>{body}</p>'),
+            ])
+
+        opt_blog_post_comment_view = self.env.ref('website_blog.opt_blog_post_comment').sudo()
+        opt_blog_post_comment_view.active = False
+        with MockRequest(self.env):
+            with self.assertRaises(NotFound):
+                post_comment("UNAUTHENTICATED_BOT_SPAM_TEST")
+            opt_blog_post_comment_view.active = True
+            self.assertTrue(post_comment("ALLOWED_PUBLIC_COMMENT"))
+
     @users('portal_user')
     def test_blog_comment(self):
         """Test comment on blog post with attachment."""
+        self.env.ref('website_blog.opt_blog_post_comment').sudo().active = True
         attachment = self.env['ir.attachment'].sudo().create({
             'name': 'some_attachment.pdf',
             'res_model': 'mail.compose.message',
-            'datas': 'test',
+            'raw': b'test',
             'type': 'binary',
         })
 
@@ -93,7 +132,7 @@ class TestWebsiteBlogFlow(TestWebsiteBlogCommon):
         second_attachment = self.env['ir.attachment'].sudo().create({
             'name': 'some_attachment.pdf',
             'res_model': 'mail.compose.message',
-            'datas': 'test',
+            'raw': b'test',
             'type': 'binary',
         })
 
@@ -111,6 +150,31 @@ class TestWebsiteBlogFlow(TestWebsiteBlogCommon):
         self.assertFalse(self.env['mail.message'].sudo().search(
             [('model', '=', 'blog.post'), ('attachment_ids', 'in', second_attachment.ids)]))
 
+    def test_blog_notification_website_domain(self):
+        backend_domain = 'https://backend.example'
+        self.env['ir.config_parameter'].sudo().set_str('web.base.url', backend_domain)
+        rendered_html = self.env['ir.qweb']._render(
+            'website_blog.blog_post_template_new_post',
+            {
+                'post': self.test_blog_post,
+                'object': self.test_blog,
+            }
+        )
+        self.assertIn(f'href="{backend_domain}/blog/', rendered_html)
+
+        frontend_domain = 'https://frontend.example'
+        website = self.env['website'].search([], limit=1)
+        website.domain = frontend_domain
+        self.test_blog.website_id = website
+        rendered_html = self.env['ir.qweb']._render(
+            'website_blog.blog_post_template_new_post',
+            {
+                'post': self.test_blog_post,
+                'object': self.test_blog,
+            }
+        )
+        self.assertIn(f'href="{frontend_domain}/blog/', rendered_html)
+
     def test_website_blog_teaser_content(self):
         """ Make sure that the content of the post is correctly rendered in
             proper plain text. """
@@ -118,6 +182,13 @@ class TestWebsiteBlogFlow(TestWebsiteBlogCommon):
         self.test_blog_post.content = "<h2>Test Content</h2>"
 
         self.assertEqual(self.test_blog_post.teaser, "Test Content...")
+
+    def test_blog_post_jsonld_image_from_content(self):
+        """ Without a cover, the JSON-LD image is the first image of the
+            content, even when it is hosted on another website. """
+        external_image = 'https://download.odoocdn.com/icons/website/static/description/icon.svg'
+        self.test_blog_post.content = f'<p><img src="{external_image}"></p>'
+        self.assertEqual(self.test_blog_post._prepare_jsonld_vals()['image'], external_image)
 
 
 @tagged('-at_install', 'post_install')
@@ -188,8 +259,8 @@ class TestWebsiteBlogTranslationFlow(HttpCase, TestWebsiteBlogCommon):
         # Setup
         br_lang = self.env['res.lang']._activate_lang('pt_BR')
         en_lang = self.env['res.lang']._activate_lang('en_US')
-        
-        website = self.env['website'].browse(1)
+
+        website = self.env.ref('base.default_website')
         website.language_ids += br_lang
         website.default_lang_id = br_lang
 
@@ -206,7 +277,7 @@ class TestWebsiteBlogTranslationFlow(HttpCase, TestWebsiteBlogCommon):
         })
         self.assertEqual('Todos os blogs', blog_post.with_context(lang=br_lang.code).content)
         self.assertEqual('All blogs', blog_post.with_context(lang=en_lang.code).content)
-        
+
         # Test updating translation
         payload = self.build_rpc_payload({
             'model': blog_post._name,
@@ -217,6 +288,20 @@ class TestWebsiteBlogTranslationFlow(HttpCase, TestWebsiteBlogCommon):
         self.url_open('/website/field/translation/update', data=json.dumps(payload), headers=self.headers)
         self.assertEqual('Todos os blogs', blog_post.with_context(lang=br_lang.code).content)
         self.assertEqual('Updated blogs', blog_post.with_context(lang=en_lang.code).content)
+
+    def test_url_with_falsy_value(self):
+        """Test that accessing a tag without id in the url does not crash."""
+        blog = self.env['blog.blog'].create({'name': 'Test Blog'})
+        blog_tag = self.env['blog.tag'].create({'name': 'demo'})
+        self.env['blog.post'].create({
+            'name': 'Test Blog Post',
+            'blog_id': blog.id,
+            'tag_ids': [(6, 0, [blog_tag.id])],
+            'author_id': self.env.user.partner_id.id,
+            'is_published': True,
+        })
+        response = self.url_open('/blog/tag/demo')
+        self.assertEqual(response.status_code, 200)
 
     def test_cannot_delete_field_used_in_website_blog(self):
         self.partner_model = self.env['ir.model'].search([('model', '=', 'res.partner')])
@@ -238,3 +323,91 @@ class TestWebsiteBlogTranslationFlow(HttpCase, TestWebsiteBlogCommon):
             self.test_field.unlink()
 
         self.assertTrue(self.test_field.exists())
+
+
+@tagged("-at_install", "post_install")
+class TestBlogSearch(TransactionCase):
+
+    def setUp(self):
+        super().setUp()
+        self.website = self.env.ref("base.default_website")
+        # Blog
+        self.blog = self.env['blog.blog'].create({
+            'name': 'Test Blog',
+        })
+        # Categories
+        self.cat_a = self.env['blog.tag.category'].create({'name': 'Cat A'})
+        self.cat_b = self.env['blog.tag.category'].create({'name': 'Cat B'})
+        # Tags
+        self.tag_a1 = self.env['blog.tag'].create({
+            'name': 'A1',
+            'category_id': self.cat_a.id,
+        })
+        self.tag_a2 = self.env['blog.tag'].create({
+            'name': 'A2',
+            'category_id': self.cat_a.id,
+        })
+        self.tag_b1 = self.env['blog.tag'].create({
+            'name': 'B1',
+            'category_id': self.cat_b.id,
+        })
+        # Posts
+        self.post_a1 = self.env['blog.post'].create({
+            'name': 'Post A1',
+            'blog_id': self.blog.id,
+            'tag_ids': [(6, 0, [self.tag_a1.id])],
+            'website_published': True,
+        })
+        self.post_a2 = self.env['blog.post'].create({
+            'name': 'Post A2',
+            'blog_id': self.blog.id,
+            'tag_ids': [(6, 0, [self.tag_a2.id])],
+            'website_published': True,
+        })
+        self.post_a1_b1 = self.env['blog.post'].create({
+            'name': 'Post A1 B1',
+            'blog_id': self.blog.id,
+            'tag_ids': [(6, 0, [self.tag_a1.id, self.tag_b1.id])],
+            'website_published': True,
+        })
+
+    def test_tag_same_category_or(self):
+        """A1 + A2 => OR logic"""
+        options = {
+            "tag": f"{self.tag_a1.id},{self.tag_a2.id}",
+        }
+        results_count, details, _ = self.website._search_with_fuzzy(
+            "blog_post", "", 0, 10, "name asc", options
+        )
+        results = details[0].get('results', [])
+        self.assertEqual(results_count, 3, "Should return all posts with A1 or A2")
+        self.assertIn(self.post_a1, results)
+        self.assertIn(self.post_a2, results)
+        self.assertIn(self.post_a1_b1, results)
+
+    def test_tag_cross_category_and(self):
+        """A1 + B1 => AND logic"""
+        options = {
+            "tag": f"{self.tag_a1.id},{self.tag_b1.id}",
+        }
+        results_count, details, _ = self.website._search_with_fuzzy(
+            "blog_post", "", 0, 10, "name asc", options
+        )
+        results = details[0].get('results', [])
+        self.assertEqual(results_count, 1, "Should return only posts matching both categories")
+        self.assertNotIn(self.post_a1, results)
+        self.assertNotIn(self.post_a2, results)
+        self.assertIn(self.post_a1_b1, results)
+
+    def test_tag_single(self):
+        options = {
+            "tag": f"{self.tag_a1.id}",
+        }
+        results_count, details, _ = self.website._search_with_fuzzy(
+            "blog_post", "", 0, 10, "name asc", options
+        )
+        results = details[0].get('results', [])
+        self.assertEqual(results_count, 2)
+        self.assertIn(self.post_a1, results)
+        self.assertNotIn(self.post_a2, results)
+        self.assertIn(self.post_a1_b1, results)

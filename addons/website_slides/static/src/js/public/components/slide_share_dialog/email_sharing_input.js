@@ -3,22 +3,23 @@ import { session } from "@web/session";
 import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
 
-import { Component, useRef, useState } from "@odoo/owl";
+import { Component, proxy, signal, t, useProps } from "@odoo/owl";
 
 export class EmailSharingInput extends Component {
     static template = "website_slides.EmailSharingInput";
-    static props = {
-        id: { type: Number },
-        isChannel: { type: Boolean, optional: true },
-        isFullscreen: { type: Boolean, optional: true },
-        category: { type: String, optional: true },
-    };
+    props = useProps({
+        id: t.number(),
+        isChannel: t.boolean().optional(),
+        isFullscreen: t.boolean().optional(),
+        category: t.string().optional(),
+    });
+
+    inputRef = signal.ref();
 
     setup() {
         this.notification = useService("notification");
-        this.input = useRef("input");
         this.isWebsiteUser = session.is_website_user;
-        this.state = useState({
+        this.state = proxy({
             isDone: false,
             isInvalid: false,
         });
@@ -32,7 +33,7 @@ export class EmailSharingInput extends Component {
     }
 
     async onShareByEmailClick() {
-        const emails = this.input.el.value;
+        const emails = this.inputRef()?.value;
         if (emails) {
             const type = this.props.isChannel ? "channel" : "slide";
             const done = await rpc(`/slides/${type}/send_share_email`, {
@@ -51,6 +52,6 @@ export class EmailSharingInput extends Component {
     setInvalid() {
         this.state.isInvalid = true;
         this.notification.add(_t("Please enter valid email(s)"), { type: "danger" });
-        this.input.el.focus();
+        this.inputRef()?.focus();
     }
 }

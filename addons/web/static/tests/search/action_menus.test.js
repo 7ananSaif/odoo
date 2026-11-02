@@ -2,6 +2,7 @@ import {
     contains,
     defineModels,
     fields,
+    mockOffline,
     models,
     mountView,
     onRpc,
@@ -158,7 +159,7 @@ test("render ActionMenus in form view", async () => {
     ]);
 
     // select CogMenu
-    await contains(`div.o_control_panel_breadcrumbs_actions i.fa-cog`).click();
+    await contains(`.o_cp_action_menus i[data-icon="more_vert"]`).click();
 
     // select Print dropdown
     await contains(`button.o-dropdown:contains(Print)`).click();
@@ -175,7 +176,7 @@ test("render ActionMenus in form view", async () => {
     await contains(`button.o_form_button_save`).click();
     expect(`.o_pager_counter`).toHaveText("2 / 2");
     expect.verifySteps(["onchange", "web_save"]);
-    await contains(`div.o_control_panel_breadcrumbs_actions i.fa-cog`).click();
+    await contains(`.o_cp_action_menus i[data-icon="more_vert"]`).click();
     await contains(`button.o-dropdown:contains(Print)`).click();
     expect(queryAllTexts(`.o-dropdown--menu-submenu span.o-dropdown-item`)).toEqual([
         "Some Report always visible",
@@ -186,7 +187,7 @@ test("render ActionMenus in form view", async () => {
     // switch back to first record
     await contains(`.o_pager_previous`).click();
     expect(`.o_pager_counter`).toHaveText("1 / 2");
-    await contains(`div.o_control_panel_breadcrumbs_actions i.fa-cog`).click();
+    await contains(`.o_cp_action_menus i[data-icon="more_vert"]`).click();
     await contains(`button.o-dropdown:contains(Print)`).click();
     expect(queryAllTexts(`.o-dropdown--menu-submenu span.o-dropdown-item`)).toEqual([
         "Some Report always visible",
@@ -290,4 +291,63 @@ test("static action items are properly ordered and styled", async () => {
 
     expect(queryAllTexts(`.o_menu_item`)).toEqual(["Export", "Duplicate", "Delete"]);
     expect(`.o_menu_item:last`).toHaveClass("text-danger");
+});
+
+test("separator rendered only to separate group", async () => {
+    await mountView({
+        type: "list",
+        resModel: "foo",
+        actionMenus: {
+            action: [
+                {
+                    name: "Custom Action",
+                    id: 42,
+                    groupNumber: 100,
+                },
+            ],
+            print: [],
+        },
+        loadActionMenus: true,
+        arch: /* xml */ `
+            <list>
+                <field name="value"/>
+            </list>
+        `,
+    });
+
+    await contains(`thead .o_list_record_selector input`).click();
+    await contains(`div.o_control_panel .o_cp_action_menus .dropdown-toggle`).click();
+
+    // There should be exactly one separator between the two groups and none before the first item.
+    expect(`.o-dropdown--menu .dropdown-divider`).toHaveCount(1);
+});
+
+test("[Offline] render ActionMenus in form view", async () => {
+    const setOffline = mockOffline();
+    await mountView({
+        type: "form",
+        resModel: "foo",
+        resId: 1,
+        actionMenus: {
+            action: [],
+            print: printItems,
+        },
+        loadActionMenus: true,
+        arch: /* xml */ `
+              <form>
+                  <field name="value"/>
+              </form>
+         `,
+    });
+
+    await setOffline(true);
+
+    // select CogMenu
+    await contains(`.o_cp_action_menus button[aria-label='Actions menu']`).click();
+
+    expect(queryAllTexts(`.o-dropdown--menu span.o-dropdown-item`)).toEqual([
+        "No report available.",
+        "Duplicate",
+        "Delete",
+    ]);
 });

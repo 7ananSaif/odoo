@@ -1,7 +1,10 @@
-import { Component } from "@odoo/owl";
+import { Component, t, usePlugin, useProps } from "@odoo/owl";
+import { DebugModePlugin } from "@web/core/debug_mode_plugin";
 import { useDropdownCloser } from "@web/core/dropdown/dropdown_hooks";
+import { _t } from "@web/core/l10n/translation";
 import { pick } from "@web/core/utils/objects";
 import { debounce as debounceFn } from "@web/core/utils/timing";
+import { useViewButtonHandler } from "@web/views/view_button/view_button_hook";
 
 const explicitRankClasses = [
     "btn-primary",
@@ -20,46 +23,38 @@ const odooToBootstrapClasses = {
 
 function iconFromString(iconString) {
     const icon = {};
-    if (iconString.startsWith("fa-")) {
-        icon.tag = "i";
-        icon.class = `o_button_icon fa fa-fw ${iconString}`;
-    } else if (iconString.startsWith("oi-")) {
-        icon.tag = "i";
-        icon.class = `o_button_icon oi oi-fw ${iconString}`;
-    } else {
-        icon.tag = "img";
-        icon.src = iconString;
-    }
+    icon.tag = "i";
+    icon.class = `o_button_icon oi`;
+    icon.name = iconString;
     return icon;
 }
 
+export const viewButtonProps = {
+    id: t.any().optional(),
+    tag: t.any().optional("button"),
+    record: t.any().optional(),
+    attrs: t.any().optional({}),
+    className: t.any().optional(""),
+    context: t.any().optional(),
+    clickParams: t.any().optional({}),
+    icon: t.any().optional(),
+    iconClass: t.string().optional(""),
+    defaultRank: t.any().optional(),
+    disabled: t.any().optional(),
+    size: t.any().optional(),
+    tabindex: t.any().optional(),
+    title: t.any().optional(),
+    style: t.any().optional(),
+    string: t.any().optional(),
+    onClick: t.any().optional(),
+};
+
 export class ViewButton extends Component {
     static template = "web.views.ViewButton";
-    static props = [
-        "id?",
-        "tag?",
-        "record?",
-        "attrs?",
-        "className?",
-        "context?",
-        "clickParams?",
-        "icon?",
-        "defaultRank?",
-        "disabled?",
-        "size?",
-        "tabindex?",
-        "title?",
-        "style?",
-        "string?",
-        "slots?",
-        "onClick?",
-    ];
-    static defaultProps = {
-        tag: "button",
-        className: "",
-        clickParams: {},
-        attrs: {},
-    };
+    props = useProps(viewButtonProps);
+
+    debugMode = usePlugin(DebugModePlugin);
+    handleViewButton = useViewButtonHandler();
 
     setup() {
         if (this.props.icon) {
@@ -70,9 +65,9 @@ export class ViewButton extends Component {
             this.onClick = debounceFn(this.onClick.bind(this), debounce, true);
         }
         this.tooltip = JSON.stringify({
-            debug: Boolean(odoo.debug),
+            debug: this.debugMode.isActive(),
             button: {
-                string: this.props.string,
+                string: this.buttonLabel,
                 help: this.clickParams.help,
                 context: this.clickParams.context,
                 invisible: this.props.attrs.invisible,
@@ -90,12 +85,19 @@ export class ViewButton extends Component {
         this.dropdownControl = useDropdownCloser();
     }
 
+    get buttonLabel() {
+        if (this.props.string === undefined && this.clickParams.special === "cancel") {
+            return _t("Discard");
+        }
+        return this.props.string;
+    }
+
     get clickParams() {
         return { context: this.props.context, ...this.props.clickParams };
     }
 
     get hasBigTooltip() {
-        return Boolean(odoo.debug) || this.clickParams.help;
+        return this.debugMode.isActive() || this.clickParams.help;
     }
 
     get hasSmallToolTip() {
@@ -119,7 +121,7 @@ export class ViewButton extends Component {
             return this.props.onClick();
         }
 
-        this.env.onClickViewButton({
+        this.handleViewButton({
             clickParams: this.clickParams,
             getResParams: () =>
                 pick(

@@ -1,4 +1,6 @@
+import { selfClosingHtmlTags } from "@html_editor/utils/dom_info";
 import { manuallyDispatchProgrammaticEvent, animationFrame } from "@odoo/hoot-dom";
+import { closestElement, getCommonAncestor } from "@html_editor/utils/dom_traversal";
 
 /**
  * @param {Node} node
@@ -38,8 +40,6 @@ function getTextContent(node, selection, options) {
     }
     return text.replace(/\u00a0/g, "&nbsp;");
 }
-
-const VOID_ELEMS = new Set(["BR", "IMG", "INPUT", "HR"]);
 
 function _getElemContent(el, selection, options) {
     let result = "";
@@ -85,7 +85,7 @@ function getElemContent(el, selection, options) {
         attrs.push(`${attr.name}=${valueLimiter}${attr.value}${valueLimiter}`);
     }
     const attrStr = (attrs.length ? " " : "") + attrs.join(" ");
-    return VOID_ELEMS.has(el.tagName)
+    return selfClosingHtmlTags.includes(el.tagName)
         ? `<${tag + attrStr}>`
         : `<${tag + attrStr}>${_getElemContent(el, selection, options)}</${tag}>`;
 }
@@ -128,9 +128,23 @@ export function setSelection({
     anchorOffset,
     focusNode = anchorNode,
     focusOffset = anchorOffset,
+    isMouseEventSimulated = false,
 }) {
+    // Simulate the "mousedown" event before selecting (= start of selection).
+    if (isMouseEventSimulated) {
+        manuallyDispatchProgrammaticEvent(closestElement(anchorNode), "mousedown", { detail: 1 });
+    }
+
+    // Set the selection.
     const selection = anchorNode.ownerDocument.getSelection();
     selection.setBaseAndExtent(anchorNode, anchorOffset, focusNode, focusOffset);
+
+    // Simulate the "mousedown" and "click" events (= end of selection).
+    if (isMouseEventSimulated) {
+        const commonAncestor = getCommonAncestor([anchorNode, focusNode]);
+        manuallyDispatchProgrammaticEvent(closestElement(focusNode), "mouseup", { detail: 1 });
+        manuallyDispatchProgrammaticEvent(closestElement(commonAncestor), "click", { detail: 1 });
+    }
 }
 
 export function moveSelectionOutsideEditor() {

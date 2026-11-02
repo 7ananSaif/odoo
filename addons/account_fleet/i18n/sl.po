@@ -7,10 +7,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~18.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-09-16 21:31+0000\n"
-"Last-Translator: \"Tiffany Chang (tic)\" <tic@odoo.com>\n"
-"Language-Team: Slovenian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-08-31 12:51+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Slovenian <https://translate.odoo.com/projects/odoo-s19-4/"
 "account_fleet/sl/>\n"
 "Language: sl\n"
 "MIME-Version: 1.0\n"
@@ -18,7 +18,12 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=4; plural=n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || "
 "n%100==4 ? 2 : 3;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: account_fleet
+#: model_terms:ir.ui.view,arch_db:account_fleet.report_invoice_document
+msgid "1-ABC-123"
+msgstr ""
 
 #. module: account_fleet
 #: model_terms:ir.ui.view,arch_db:account_fleet.fleet_vehicle_log_services_view_form
@@ -37,6 +42,19 @@ msgstr ""
 "</span>"
 
 #. module: account_fleet
+#: model_terms:ir.ui.view,arch_db:account_fleet.fleet_vehicle_log_services_view_form
+msgid ""
+"<span class=\"o_stat_value\">New</span>\n"
+"                                <span class=\"o_stat_text\">Service's Bill</"
+"span>"
+msgstr ""
+
+#. module: account_fleet
+#: model:ir.model,name:account_fleet.model_account_account
+msgid "Account"
+msgstr ""
+
+#. module: account_fleet
 #: model:ir.model.fields,field_description:account_fleet.field_fleet_vehicle__account_move_ids
 msgid "Account Move"
 msgstr "Premik računa"
@@ -45,6 +63,11 @@ msgstr "Premik računa"
 #: model:ir.model.fields,field_description:account_fleet.field_fleet_vehicle_log_services__account_move_line_id
 msgid "Account Move Line"
 msgstr "Vrstica za premikanje računa"
+
+#. module: account_fleet
+#: model:ir.module.module,shortdesc:base.module_account_fleet
+msgid "Accounting/Fleet bridge"
+msgstr ""
 
 #. module: account_fleet
 #. odoo-python
@@ -63,6 +86,13 @@ msgid "Bills Count"
 msgstr "Število računov"
 
 #. module: account_fleet
+#: model:ir.model.fields,help:account_fleet.field_account_account__is_vehicle_account
+msgid ""
+"Check this box if a vehicle has to be linked to the account, when creating a "
+"bill for an expense or when creating an asset."
+msgstr ""
+
+#. module: account_fleet
 #: model:ir.model.fields,field_description:account_fleet.field_fleet_vehicle_log_services__amount
 msgid "Cost"
 msgstr "Lastna cena"
@@ -78,18 +108,22 @@ msgid "Creation Date"
 msgstr "Datum nastanka"
 
 #. module: account_fleet
+#: model:ir.model.fields,field_description:account_fleet.field_account_account__display_name
 #: model:ir.model.fields,field_description:account_fleet.field_account_automatic_entry_wizard__display_name
 #: model:ir.model.fields,field_description:account_fleet.field_account_move__display_name
 #: model:ir.model.fields,field_description:account_fleet.field_account_move_line__display_name
+#: model:ir.model.fields,field_description:account_fleet.field_account_tax__display_name
 #: model:ir.model.fields,field_description:account_fleet.field_fleet_vehicle__display_name
 #: model:ir.model.fields,field_description:account_fleet.field_fleet_vehicle_log_services__display_name
 msgid "Display Name"
 msgstr "Prikazani naziv"
 
 #. module: account_fleet
+#: model:ir.model.fields,field_description:account_fleet.field_account_account__id
 #: model:ir.model.fields,field_description:account_fleet.field_account_automatic_entry_wizard__id
 #: model:ir.model.fields,field_description:account_fleet.field_account_move__id
 #: model:ir.model.fields,field_description:account_fleet.field_account_move_line__id
+#: model:ir.model.fields,field_description:account_fleet.field_account_tax__id
 #: model:ir.model.fields,field_description:account_fleet.field_fleet_vehicle__id
 #: model:ir.model.fields,field_description:account_fleet.field_fleet_vehicle_log_services__id
 msgid "ID"
@@ -106,15 +140,34 @@ msgid "Journal Item"
 msgstr "Postavka"
 
 #. module: account_fleet
+#: model:ir.module.module,summary:base.module_account_fleet
+msgid "Manage accounting with fleets"
+msgstr ""
+
+#. module: account_fleet
 #: model:ir.model.fields,field_description:account_fleet.field_account_move_line__need_vehicle
 msgid "Need Vehicle"
 msgstr "Potrebujete vozilo"
+
+#. module: account_fleet
+#: model:ir.model.fields,field_description:account_fleet.field_account_account__is_vehicle_account
+msgid "Requires vehicle"
+msgstr ""
 
 #. module: account_fleet
 #. odoo-python
 #: code:addons/account_fleet/models/account_move.py:0
 msgid "Service Vendor Bill: %s"
 msgstr "Račun ponudnika storitev:%s"
+
+#. module: account_fleet
+#. odoo-python
+#: code:addons/account_fleet/models/account_move.py:0
+#: model:ir.model.fields,field_description:account_fleet.field_account_bank_statement_line__service_count
+#: model:ir.model.fields,field_description:account_fleet.field_account_move__service_count
+#: model_terms:ir.ui.view,arch_db:account_fleet.view_move_form
+msgid "Services"
+msgstr ""
 
 #. module: account_fleet
 #: model:ir.model,name:account_fleet.model_fleet_vehicle_log_services
@@ -125,6 +178,11 @@ msgstr "Servisi za vozilo"
 #: model:ir.model.fields,field_description:account_fleet.field_fleet_vehicle_log_services__account_move_state
 msgid "Status"
 msgstr "Status"
+
+#. module: account_fleet
+#: model:ir.model,name:account_fleet.model_account_tax
+msgid "Tax"
+msgstr ""
 
 #. module: account_fleet
 #: model:ir.model,name:account_fleet.model_fleet_vehicle
@@ -152,11 +210,15 @@ msgstr ""
 #. odoo-python
 #: code:addons/account_fleet/models/fleet_vehicle_log_services.py:0
 msgid ""
-"You cannot modify amount of services linked to an account move line. Do it "
-"on the related accounting entry instead."
+"You cannot modify the amount of services linked to a journal item. Do it on "
+"the related accounting entry instead."
 msgstr ""
-"Količine storitev, povezanih s postavko prenosa računa, ne morete "
-"spremeniti. To storite v povezanem računovodskem vnosu."
+
+#. module: account_fleet
+#. odoo-python
+#: code:addons/account_fleet/models/account_move.py:0
+msgid "account_move_line_id"
+msgstr ""
 
 #. module: account_fleet
 #: model_terms:ir.ui.view,arch_db:account_fleet.fleet_vehicle_view_form

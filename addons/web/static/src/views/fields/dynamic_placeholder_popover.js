@@ -1,8 +1,9 @@
-import { useAutofocus } from "@web/core/utils/hooks";
+import { Component, onWillStart, proxy, signal, usePlugin, useProps } from "@odoo/owl";
+import { DebugModePlugin } from "@web/core/debug_mode_plugin";
 import { ModelFieldSelectorPopover } from "@web/core/model_field_selector/model_field_selector_popover";
-import { Component, onWillStart, useState } from "@odoo/owl";
-import { user } from "@web/core/user";
 import { registry } from "@web/core/registry";
+import { user } from "@web/core/user";
+import { useAutofocus } from "@web/core/utils/hooks";
 
 const allowedQwebExpressionsService = {
     dependencies: ["orm"],
@@ -28,11 +29,15 @@ export class DynamicPlaceholderPopover extends Component {
     static components = {
         ModelFieldSelectorPopover,
     };
-    static props = ["resModel", "validate", "close"];
+    props = useProps(["resModel", "validate", "close"]);
+
+    autofocusRef = signal.ref();
+
+    debugMode = usePlugin(DebugModePlugin);
 
     setup() {
-        useAutofocus();
-        this.state = useState({
+        useAutofocus({ ref: this.autofocusRef });
+        this.state = proxy({
             path: "",
             isPathSelected: false,
             defaultValue: "",
@@ -68,7 +73,7 @@ export class DynamicPlaceholderPopover extends Component {
     setPath(path, fieldInfo) {
         this.state.path = path;
         this.state.fieldName = fieldInfo?.string;
-        this.fieldType = fieldInfo?.type
+        this.fieldType = fieldInfo?.type;
     }
     setDefaultValue(value) {
         this.state.defaultValue = value;

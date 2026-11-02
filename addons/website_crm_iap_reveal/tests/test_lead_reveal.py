@@ -4,7 +4,7 @@
 from odoo import exceptions
 from odoo.addons.crm.tests.common import TestCrmCommon
 from odoo.addons.website_crm_iap_reveal.tests.common import MockIAPReveal
-from odoo.tests.common import users
+from odoo.tests.common import tagged, users
 
 
 class TestLeadMine(TestCrmCommon, MockIAPReveal):
@@ -12,9 +12,9 @@ class TestLeadMine(TestCrmCommon, MockIAPReveal):
     @classmethod
     def setUpClass(cls):
         super(TestLeadMine, cls).setUpClass()
-        cls.registry_enter_test_mode_cls()
+        cls.enterClassContext(cls.registry_test_mode())
 
-        cls.test_industry_tags = cls.env.ref('crm_iap_mine.crm_iap_mine_industry_33') + cls.env.ref('crm_iap_mine.crm_iap_mine_industry_148')
+        cls.test_industry_tags = cls.env.ref('crm_iap_mine.crm_iap_mine_industry_28') + cls.env.ref('crm_iap_mine.crm_iap_mine_industry_10')
         cls.test_roles = cls.env.ref('crm_iap_mine.crm_iap_mine_role_11') + cls.env.ref('crm_iap_mine.crm_iap_mine_role_19')
         cls.test_seniority = cls.env.ref('crm_iap_mine.crm_iap_mine_seniority_2')
 
@@ -154,7 +154,7 @@ class TestLeadMine(TestCrmCommon, MockIAPReveal):
             else:
                 rule = self.test_request_1
 
-            lead = self._new_leads.filtered(lambda lead: lead.name == '%s GmbH - %s' % (base_name, rule.suffix))
+            lead = self._new_leads.filtered(lambda lead: lead.name == f"{base_name} GmbH's opportunity - {rule.suffix}")
             self.assertTrue(bool(lead))
 
             # mine information

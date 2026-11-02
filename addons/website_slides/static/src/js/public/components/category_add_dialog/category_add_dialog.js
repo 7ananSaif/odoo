@@ -1,27 +1,33 @@
-import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
+import { useProps, signal, t } from "@odoo/owl";
+import {
+    ConfirmationDialog,
+    confirmationDialogProps,
+} from "@web/core/confirmation_dialog/confirmation_dialog";
 import { useAutofocus } from "@web/core/utils/hooks";
 
 export class CategoryAddDialog extends ConfirmationDialog {
     static template = "website_slides.CategoryAddDialog";
-    static props = {
-        ...ConfirmationDialog.props,
-        channelId: String,
-    };
+    props = useProps({
+        ...confirmationDialogProps,
+        channelId: t.string(),
+    });
+
+    inputRef = signal.ref();
 
     setup() {
         super.setup();
-        this.inputRef = useAutofocus();
+        useAutofocus({ ref: this.inputRef });
         this.csrf_token = odoo.csrf_token;
         this.lastInputValue;
     }
 
     _confirm() {
         this.execButton(() => {
-            if (this.inputRef.el.value === this.lastInputValue) {
+            if (this.inputRef().value === this.lastInputValue) {
                 return;
             }
-            this.lastInputValue = this.inputRef.el.value;
-            return this.props.confirm({ formEl: this.modalRef.el.querySelector("form") });
+            this.lastInputValue = this.inputRef().value;
+            return this.props.confirm({ formEl: this.modalRef().querySelector("form") });
         });
     }
 }

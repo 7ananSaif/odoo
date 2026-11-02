@@ -2,6 +2,7 @@ import { ask } from "@point_of_sale/app/utils/make_awaitable_dialog";
 import { PaymentInterface } from "@point_of_sale/app/utils/payment/payment_interface";
 import { CashdroService } from "@pos_cashdro/cashdro_service";
 import { AlertDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
+import { registry } from "@web/core/registry";
 import { _t } from "@web/core/l10n/translation";
 
 export class PaymentCashdro extends PaymentInterface {
@@ -94,7 +95,7 @@ export class PaymentCashdro extends PaymentInterface {
         const { totalin, totalout, operationid } = paymentResult.operation;
         const moneyIn = this.cashdroAmountToPosAmount(totalin);
         const moneyOut = Math.abs(this.cashdroAmountToPosAmount(totalout));
-        const netAmount = this.env.utils.roundCurrency(moneyIn - moneyOut);
+        const netAmount = this.pos.config.currency_id.round(moneyIn - moneyOut);
         if (netAmount == 0) {
             // Payment was cancelled
             if (this.cancellationResolver) {
@@ -103,12 +104,7 @@ export class PaymentCashdro extends PaymentInterface {
             }
             return false;
         }
-        if (this.paymentLine.pos_order_id.remainingDue === 0 && this.paymentLine.amount > 0) {
-            // In this case, the POS will automatically add the 'Change' line
-            this.paymentLine.setAmount(moneyIn);
-        } else {
-            this.paymentLine.setAmount(netAmount);
-        }
+        this.paymentLine.setAmount(netAmount);
         this.paymentLine.transaction_id = operationid;
 
         return true;
@@ -162,7 +158,7 @@ export class PaymentCashdro extends PaymentInterface {
             amountInCents = parseInt(amountInCents);
         }
         const amount = amountInCents / Math.pow(10, this.pos.currency.decimal_places);
-        return this.env.utils.roundCurrency(amount);
+        return this.pos.config.currency_id.round(amount);
     }
 
     /** @param {string} message */
@@ -173,3 +169,5 @@ export class PaymentCashdro extends PaymentInterface {
         });
     }
 }
+
+registry.category("pos_payment_providers").add("cashdro", PaymentCashdro);

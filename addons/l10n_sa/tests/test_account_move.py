@@ -9,6 +9,8 @@ from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 @tagged('post_install_l10n', 'post_install', '-at_install')
 class TestSaAccountMove(AccountTestInvoicingCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @freeze_time('2026-06-15 14:00:00')
     def test_normalized_confirmation_datetime_future_date_rejected(self):
         """
@@ -41,3 +43,23 @@ class TestSaAccountMove(AccountTestInvoicingCommon):
         """
         result = self.env['account.move']._get_normalized_l10n_sa_confirmation_datetime(date(2026, 6, 16), time(5, 0, 0))
         self.assertEqual(result, datetime(2026, 6, 15, 23, 0, 0))
+
+    def test_get_discount_amount_with_partial_discount(self):
+        line = self.env['account.move.line'].new({
+            'currency_id': self.company_data['company'].currency_id.id,
+            'discount': 10.0,
+            'quantity': 2.0,
+            'price_unit': 100.0,
+            'price_subtotal': 180.0,
+        })
+        self.assertEqual(line._get_discount_amount(), 20.0)
+
+    def test_get_discount_amount_with_full_discount(self):
+        line = self.env['account.move.line'].new({
+            'currency_id': self.company_data['company'].currency_id.id,
+            'discount': 100.0,
+            'quantity': 3.0,
+            'price_unit': 50.0,
+            'price_subtotal': 0.0,
+        })
+        self.assertEqual(line._get_discount_amount(), 150.0)

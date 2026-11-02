@@ -11,16 +11,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~14.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2022-09-22 05:44+0000\n"
-"Last-Translator: Martin Trigaux, 2022\n"
-"Language-Team: Latvian (https://app.transifex.com/odoo/teams/41243/lv/)\n"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-08-31 16:13+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Latvian <https://translate.odoo.com/projects/odoo-s19-4/"
+"account_tax_python/lv/>\n"
 "Language: lv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : "
-"2);\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2;\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: account_tax_python
 #: model:ir.model.fields,help:account_tax_python.field_account_tax__amount_type
@@ -38,6 +39,19 @@ msgid ""
 msgstr ""
 
 #. module: account_tax_python
+#: model:ir.module.module,description:base.module_account_tax_python
+msgid ""
+"\n"
+"A tax defined as python code consists of two snippets of python code which "
+"are executed in a local environment containing data such as the unit price, "
+"product or partner.\n"
+"\n"
+"\"Applicable Code\" defines if the tax is to be applied.\n"
+"\n"
+"\"Python Code\" defines the amount of the tax.\n"
+msgstr ""
+
+#. module: account_tax_python
 #: model:ir.model.fields,help:account_tax_python.field_account_tax__formula
 msgid ""
 "Compute the amount of the tax.\n"
@@ -51,6 +65,11 @@ msgstr ""
 #. module: account_tax_python
 #: model:ir.model.fields.selection,name:account_tax_python.selection__account_tax__amount_type__code
 msgid "Custom Formula"
+msgstr ""
+
+#. module: account_tax_python
+#: model:ir.module.module,shortdesc:base.module_account_tax_python
+msgid "Define Taxes as Python Code"
 msgstr ""
 
 #. module: account_tax_python
@@ -143,34 +162,7 @@ msgstr ""
 msgid "Unknown identifier: %s"
 msgstr ""
 
-#~ msgid ""
-#~ "\n"
-#~ "    - Group of Taxes: The tax is a set of sub taxes.\n"
-#~ "    - Fixed: The tax amount stays the same whatever the price.\n"
-#~ "    - Percentage of Price: The tax amount is a % of the price:\n"
-#~ "        e.g 100 * (1 + 10%) = 110 (not price included)\n"
-#~ "        e.g 110 / (1 + 10%) = 100 (price included)\n"
-#~ "    - Percentage of Price Tax Included: The tax amount is a division of "
-#~ "the price:\n"
-#~ "        e.g 180 / (1 - 10%) = 200 (not price included)\n"
-#~ "        e.g 200 * (1 - 10%) = 180 (price included)\n"
-#~ "        "
-#~ msgstr ""
-#~ "\n"
-#~ "Nodokļu grupa: nodoklis ir apakšnodokļu kopums.\n"
-#~ "- Fiksēts: Nodokļa summa nemainās neatkarīgi no cenas.\n"
-#~ "- Cenas procentuālā daļa: Nodokļa summa ir% no cenas:\n"
-#~ "piem., 100 * (1 + 10%) = 110 (bez cenas)\n"
-#~ "piem., 110 / (1 + 10%) = 100 (iekļauta cena)\n"
-#~ "- Cenā iekļautā procentuālā daļa: nodokļa summa ir cenas dalījums:\n"
-#~ "piemēram, 180 / (1 - 10%) = 200 (nav iekļauta cena)\n"
-#~ "piem., 200 * (1 - 10%) = 180 (iekļauta cena)"
-
-#~ msgid "Applicable Code"
-#~ msgstr "Attiecināmais kods"
-
-#~ msgid "Python Code"
-#~ msgstr "Python Code"
-
-#~ msgid "Templates for Taxes"
-#~ msgstr "Nodokļu sagataves?"
+#. module: account_tax_python
+#: model:ir.module.module,summary:base.module_account_tax_python
+msgid "Use python code to define taxes"
+msgstr ""

@@ -52,7 +52,7 @@ class TestSmsTemplateAccessRights(TransactionCase):
                 sms_template.unlink()
 
     @users('user_system')
-    @mute_logger('odoo.models.unlink', 'odoo.addons.base.models.ir_model')
+    @mute_logger('odoo.models.unlink', 'odoo.addons.base.models.ir_access')
     def test_access_rights_system(self):
         admin = self.env.ref('base.user_admin')
         for sms_template in self.env['sms.template'].browse(self.sms_templates.ids):
@@ -72,7 +72,7 @@ class TestSmsTemplateAccessRights(TransactionCase):
 
     @users('user_employee')
     def test_sms_template_rendering_restricted(self):
-        self.env['ir.config_parameter'].sudo().set_param('mail.restrict.template.rendering', True)
+        self.env['ir.config_parameter'].sudo().set_bool('mail.restrict.template.rendering', True)
         self.basic_user.group_ids -= self.env.ref('mail.group_mail_template_editor')
 
         sms_composer = self.env['sms.composer'].create({
@@ -96,7 +96,7 @@ class TestSmsTemplateAccessRights(TransactionCase):
 
     @users('user_system')
     def test_sms_template_rendering_unrestricted(self):
-        self.env['ir.config_parameter'].sudo().set_param('mail.restrict.template.rendering', True)
+        self.env['ir.config_parameter'].sudo().set_bool('mail.restrict.template.rendering', True)
 
         sms_composer = self.env['sms.composer'].create({
             'composition_mode': 'comment',

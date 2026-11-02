@@ -1,58 +1,67 @@
 import { _t } from "@web/core/l10n/translation";
 import { patch } from "@web/core/utils/patch";
 
-import { HrPresenceStatus, hrPresenceStatus } from "@hr/components/hr_presence_status/hr_presence_status";
-import { HrPresenceStatusPrivate, hrPresenceStatusPrivate } from "@hr/components/hr_presence_status_private/hr_presence_status_private";
 import {
-    HrPresenceStatusPill,
-    hrPresenceStatusPill,
-} from "@hr/components/hr_presence_status_pill/hr_presence_status_pill";
+    HrPresenceStatus,
+    hrPresenceStatus,
+} from "@hr/components/hr_presence_status/hr_presence_status";
 import {
-    HrPresenceStatusPrivatePill,
-    hrPresenceStatusPrivatePill,
-} from "@hr/components/hr_presence_status_private_pill/hr_presence_status_private_pill";
+    HrPresenceStatusPrivate,
+    hrPresenceStatusPrivate,
+} from "@hr/components/hr_presence_status_private/hr_presence_status_private";
 
 const patchHrPresenceStatus = () => ({
-
     get label() {
         if (this.value.includes("holiday")) {
-            return _t("%(label)s, back on %(date)s",
-                {
-                    label: super.label,
-                    date: this.props.record.data['leave_date_to'].toLocaleString(
-                        {
-                            day: 'numeric',
-                            month: 'short',
-                            year: 'numeric',
-                        }
-                    )
-                }
-            )
+            return _t("%(label)s, back on %(date)s", {
+                label:
+                    this.value !== false
+                        ? this.options.find(([value, label]) => value === this.value)[1]
+                        : "",
+                date: this.props.record.data["leave_date_to"].toLocaleString({
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                }),
+            });
+        } else if (this.location) {
+            return this.props.record.data.work_location_name || _t("Unspecified");
         }
-        return super.label
+        return super.label;
     },
 
     get icon() {
-        if (this.value.startsWith("presence_holiday")) {
-            return "fa-plane";
+        if (this.value?.includes("holiday")) {
+            return "travel";
+        } else if (this.location) {
+            switch (this.location) {
+                case "home":
+                    return "home";
+                case "office":
+                    return "business";
+                case "other":
+                    return "location_on";
+            }
         }
         return super.icon;
     },
 
     get color() {
-        if (this.value.startsWith("presence_holiday")) {
-            return `${this.value === "presence_holiday_present" ? "text-success" : "o_icon_employee_absent"}`;
-        }
-        return super.color;
-    },
-});
-
-const patchHrPresenceStatusPill = () => ({
-    get color() {
-        if (this.value.startsWith("presence_holiday")) {
-            return this.value === "presence_holiday_present"
-                ? "btn-outline-success"
-                : "btn-outline-warning";
+        if (this.value?.includes("holiday")) {
+            return `${
+                this.value === "presence_holiday_present"
+                    ? "text-success"
+                    : "o_icon_employee_absent"
+            }`;
+        } else if (this.location) {
+            let color = "text-muted";
+            if (this.props.record.data.hr_presence_state !== "out_of_working_hour") {
+                color =
+                    this.props.record.data.hr_presence_state === "present"
+                        ? "text-success"
+                        : "o_icon_employee_absent";
+            }
+            return color;
         }
         return super.color;
     },
@@ -63,29 +72,24 @@ patch(HrPresenceStatus.prototype, patchHrPresenceStatus());
 patch(HrPresenceStatusPrivate.prototype, patchHrPresenceStatus());
 
 // Applies patch on one component and the other should be affected also, since it's extended from it.
-patch(HrPresenceStatusPill.prototype, patchHrPresenceStatusPill());
-
-const patchHrPresenceStatusPrivate = () => ({
+patch(HrPresenceStatusPrivate.prototype, {
     get label() {
-        if (this.props.record.data.current_leave_id){
-            let label = this.props.record.data.current_leave_id.display_name;
+        if (this.props.record.data.current_work_entry_type_id) {
+            let label = this.props.record.data.current_work_entry_type_id.display_name;
             if (this.props.record.data.leave_date_to) {
-                label += _t(", back on ") + this.props.record.data['leave_date_to'].toLocaleString(
-                    {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric',
-                    }
-                )
+                label +=
+                    _t(", back on ") +
+                    this.props.record.data["leave_date_to"].toLocaleString({
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                    });
             }
             return label;
         }
         return super.label;
-    }
+    },
 });
-// Applies patch to hr_presence_status_private to display the time off type instead of default label
-patch(HrPresenceStatusPrivate.prototype, patchHrPresenceStatusPrivate());
-patch(HrPresenceStatusPrivatePill.prototype, patchHrPresenceStatusPrivate());
 
 Object.assign(hrPresenceStatus, {
     fieldDependencies: [
@@ -98,21 +102,6 @@ Object.assign(hrPresenceStatusPrivate, {
     fieldDependencies: [
         ...hrPresenceStatusPrivate.fieldDependencies,
         ...hrPresenceStatus.fieldDependencies,
-        { name: "current_leave_id", type:"many2one"},
-    ],
-});
-
-Object.assign(hrPresenceStatusPill, {
-    fieldDependencies: [
-        ...hrPresenceStatusPill.fieldDependencies,
-        { name: "leave_date_to", type: "date" },
-    ],
-});
-
-Object.assign(hrPresenceStatusPrivatePill, {
-    fieldDependencies: [
-        ...hrPresenceStatusPrivatePill.fieldDependencies,
-        ...hrPresenceStatusPill.fieldDependencies,
-        { name: "current_leave_id", type: "many2one" },
+        { name: "current_work_entry_type_id", type: "many2one" },
     ],
 });

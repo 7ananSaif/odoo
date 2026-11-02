@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
@@ -12,7 +11,7 @@ Shorten URLs and use them to track clicks and UTMs
     'data': [
         'views/link_tracker_views.xml',
         'views/utm_campaign_views.xml',
-        'security/ir.model.access.csv',
+        'security/ir.access.csv',
     ],
     'author': 'Odoo S.A.',
     'license': 'LGPL-3',

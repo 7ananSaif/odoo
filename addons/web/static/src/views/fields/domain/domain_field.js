@@ -1,4 +1,5 @@
-import { Component, useState } from "@odoo/owl";
+import { Component, proxy, t, untrack, usePlugin, useProps } from "@odoo/owl";
+import { DebugModePlugin } from "@web/core/debug_mode_plugin";
 import { Domain, InvalidDomainError } from "@web/core/domain";
 import { DomainSelector } from "@web/core/domain_selector/domain_selector";
 import { useGetDefaultLeafDomain } from "@web/core/domain_selector/utils";
@@ -13,26 +14,24 @@ import { useRecordObserver } from "@web/model/relational_model/utils";
 import { SelectCreateDialog } from "@web/views/view_dialogs/select_create_dialog";
 import { standardFieldProps } from "../standard_field_props";
 
+export const domainFieldProps = {
+    ...standardFieldProps,
+    context: t.object().optional(),
+    editInDialog: t.boolean().optional(false),
+    resModel: t.string().optional(),
+    isFoldable: t.boolean().optional(false),
+    countLimit: t.number().optional(10000),
+    allowExpressions: t.boolean().optional(false),
+};
+
 export class DomainField extends Component {
     static template = "web.DomainField";
     static components = {
         DomainSelector,
     };
-    static props = {
-        ...standardFieldProps,
-        context: { type: Object, optional: true },
-        editInDialog: { type: Boolean, optional: true },
-        resModel: { type: String, optional: true },
-        isFoldable: { type: Boolean, optional: true },
-        countLimit: { type: Number, optional: true },
-        allowExpressions: { type: Boolean, optional: true },
-    };
-    static defaultProps = {
-        editInDialog: false,
-        isFoldable: false,
-        countLimit: 10000,
-        allowExpressions: false,
-    };
+    props = useProps(domainFieldProps);
+
+    debugMode = usePlugin(DebugModePlugin);
 
     setup() {
         this.orm = useService("orm");
@@ -41,7 +40,7 @@ export class DomainField extends Component {
         this.getDefaultLeafDomain = useGetDefaultLeafDomain();
         this.addDialog = useOwnedDialogs();
 
-        this.state = useState({
+        this.state = proxy({
             isValid: null,
             recordCount: null,
             hasLimitedCount: null,
@@ -50,8 +49,8 @@ export class DomainField extends Component {
         });
 
         this.debugDomain = null;
-        useRecordObserver(async (record, nextProps) => {
-            nextProps = { ...nextProps, record };
+        useRecordObserver(async (record) => {
+            const nextProps = untrack(() => ({ ...this.props }));
             if (this.debugDomain && this.props.readonly !== nextProps.readonly) {
                 this.debugDomain = null;
             }
@@ -59,7 +58,7 @@ export class DomainField extends Component {
                 this.state.isValid = await this.quickValidityCheck(nextProps);
                 if (!this.state.isValid) {
                     this.state.recordCount = 0;
-                    nextProps.record.setInvalidField(nextProps.name);
+                    record.setInvalidField(nextProps.name);
                 }
             } else {
                 this.checkProps(nextProps); // not awaited
@@ -162,7 +161,11 @@ export class DomainField extends Component {
         let promises = [];
         const domain = this.getDomain(props);
         try {
-            const tree = await this.treeProcessor.treeFromDomain(resModel, domain, !this.env.debug);
+            const tree = await this.treeProcessor.treeFromDomain(
+                resModel,
+                domain,
+                !this.debugMode.isActive()
+            );
             const trees = !tree.negate && tree.value === "&" ? tree.children : [tree];
             promises = trees.map((tree) =>
                 this.treeProcessor.getDomainTreeDescription(resModel, tree)
@@ -245,7 +248,7 @@ export class DomainField extends Component {
         this.addDialog(DomainSelectorDialog, {
             resModel: this.getResModel(),
             domain: this.getDomain(),
-            isDebugMode: !!this.env.debug,
+            isDebugMode: this.debugMode.isActive(),
             onConfirm: this.update.bind(this),
         });
     }
@@ -259,7 +262,7 @@ export class DomainField extends Component {
         if (domain.isInvalid) {
             return false;
         }
-        return rpc("/web/domain/validate", { model: resModel, domain });
+        return rpc("/web/domain/validate", { model: resModel, domain }, { cache: true });
     }
 
     update(domain, isDebugEdited = false) {
@@ -325,6 +328,7 @@ export const domainField = {
         },
     ],
     supportedTypes: ["char", "text"],
+    additionalClasses: ["w-100"],
     isEmpty: () => false,
     extractProps({ options }, dynamicInfo) {
         return {

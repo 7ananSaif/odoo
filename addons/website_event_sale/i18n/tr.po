@@ -12,24 +12,31 @@
 # İlknur Gözütok, 2023
 # Halil, 2023
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
-# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025, 2026.
 # DeepL <noreply-mt-deepl@weblate.org>, 2025.
 # Odoo Turkish Import <dyki+tr@odoo.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-15 17:36+0000\n"
-"PO-Revision-Date: 2025-11-21 14:46+0000\n"
-"Last-Translator: Odoo Turkish Import <dyki+tr@odoo.com>\n"
-"Language-Team: Turkish <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 18:22+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Turkish <https://translate.odoo.com/projects/odoo-s19-4/"
 "website_event_sale/tr/>\n"
 "Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: website_event_sale
+#: model:ir.module.module,description:base.module_website_event_sale
+msgid ""
+"\n"
+"Sell event tickets through eCommerce app.\n"
+msgstr ""
 
 #. module: website_event_sale
 #: model_terms:ir.ui.view,arch_db:website_event_sale.event_confirmation
@@ -43,17 +50,17 @@ msgstr "<b>Başla</b>"
 
 #. module: website_event_sale
 #: model_terms:ir.ui.view,arch_db:website_event_sale.event_confirmation
-msgid "<i class=\"fa fa-check me-2\" role=\"img\"/>Registered"
-msgstr "<i class=\"fa fa-check me-2\" role=\"img\"/>Kaydoldu"
+msgid "<i class=\"oi me-2\" data-icon=\"check\" role=\"img\"/>Registered"
+msgstr "<i class=\"oi me-2\" data-icon=\"check\" role=\"img\"/>Kaydoldu"
 
 #. module: website_event_sale
 #: model_terms:ir.ui.view,arch_db:website_event_sale.registration_attendee_details
 msgid ""
 "<span>Sign In</span>\n"
-"                <span class=\"fa fa-sign-in\"/>"
+"                <span class=\"oi\" data-icon=\"login\"/>"
 msgstr ""
 "<span>Giriş Yapın</span>\n"
-"                <span class=\"fa fa-sign-in\"/>"
+"                <span class=\"oi\" data-icon=\"login\"/>"
 
 #. module: website_event_sale
 #. odoo-python
@@ -66,21 +73,12 @@ msgstr ""
 "öğesi uygulanamaz."
 
 #. module: website_event_sale
-#. odoo-python
-#: code:addons/website_event_sale/models/product_pricelist.py:0
-msgid ""
-"A pricelist item with a positive min. quantity will not be applied to the "
-"event tickets products."
-msgstr ""
-"Etkinlik biletleri ürünlerine minimum miktarı pozitif olan bir fiyat listesi "
-"uygulanmayacaktır."
-
-#. module: website_event_sale
 #: model_terms:ir.ui.view,arch_db:website_event_sale.registration_attendee_details
 msgid "Confirm Registration"
 msgstr "Kaydı Onayla"
 
 #. module: website_event_sale
+#: model:ir.model.fields,field_description:website_event_sale.field_event_event__display_name
 #: model:ir.model.fields,field_description:website_event_sale.field_event_event_ticket__display_name
 #: model:ir.model.fields,field_description:website_event_sale.field_event_sale_report__display_name
 #: model:ir.model.fields,field_description:website_event_sale.field_product_pricelist_item__display_name
@@ -90,6 +88,11 @@ msgstr "Kaydı Onayla"
 #: model:ir.model.fields,field_description:website_event_sale.field_sale_order_line__display_name
 msgid "Display Name"
 msgstr "İsim Göster"
+
+#. module: website_event_sale
+#: model:ir.model,name:website_event_sale.model_event_event
+msgid "Event"
+msgstr ""
 
 #. module: website_event_sale
 #: model:ir.model,name:website_event_sale.model_event_sale_report
@@ -103,8 +106,9 @@ msgstr "Etkinlik Altyazısı"
 
 #. module: website_event_sale
 #: model:ir.model,name:website_event_sale.model_event_event_ticket
+#, fuzzy
 msgid "Event Ticket"
-msgstr ""
+msgstr "Etkinlik Bileti"
 
 #. module: website_event_sale
 #: model:ir.model.fields,field_description:website_event_sale.field_product_product__event_ticket_ids
@@ -132,6 +136,7 @@ msgid "Go to Payment"
 msgstr "Ödeme bölümüne git"
 
 #. module: website_event_sale
+#: model:ir.model.fields,field_description:website_event_sale.field_event_event__id
 #: model:ir.model.fields,field_description:website_event_sale.field_event_event_ticket__id
 #: model:ir.model.fields,field_description:website_event_sale.field_event_sale_report__id
 #: model:ir.model.fields,field_description:website_event_sale.field_product_pricelist_item__id
@@ -141,6 +146,11 @@ msgstr "Ödeme bölümüne git"
 #: model:ir.model.fields,field_description:website_event_sale.field_sale_order_line__id
 msgid "ID"
 msgstr "ID"
+
+#. module: website_event_sale
+#: model:ir.module.module,shortdesc:base.module_website_event_sale
+msgid "Online Event Ticketing"
+msgstr ""
 
 #. module: website_event_sale
 #: model:ir.model,name:website_event_sale.model_product_pricelist_item
@@ -172,6 +182,11 @@ msgstr "Satış Siparişi"
 #: model:ir.model,name:website_event_sale.model_sale_order_line
 msgid "Sales Order Line"
 msgstr "Satış Sipariş Satırı"
+
+#. module: website_event_sale
+#: model:ir.module.module,summary:base.module_website_event_sale
+msgid "Sell event tickets online"
+msgstr ""
 
 #. module: website_event_sale
 #. odoo-python
@@ -223,45 +238,3 @@ msgstr "Sepetinizdeki etkinlik bileti miktarını manuel olarak yükseltemezsini
 #: model_terms:ir.ui.view,arch_db:website_event_sale.modal_ticket_registration
 msgid "to"
 msgstr "den"
-
-#~ msgid ""
-#~ "<i class=\"fa fa-ban me-2\"/>\n"
-#~ "                                            Unpublished"
-#~ msgstr ""
-#~ "<i class=\"fa fa-ban me-2\"/>\n"
-#~ "                                            Yayımlanmamış"
-
-#~ msgid ""
-#~ "<small class=\"o_wevent_participating text-bg-success\">\n"
-#~ "                                            <i class=\"fa fa-check me-2\"/"
-#~ ">\n"
-#~ "                                            Registered\n"
-#~ "                                        </small>"
-#~ msgstr ""
-#~ "<small class=\"o_wevent_participating text-bg-success\">\n"
-#~ "                                            <i class=\"fa fa-check me-2\"/"
-#~ ">\n"
-#~ "                                            Kayıtlı\n"
-#~ "                                        </small>"
-
-#~ msgid "Go to Event"
-#~ msgstr "Etkinliğe git"
-
-#~ msgid ""
-#~ "Sorry, only %(remaining_seats)d seats are still available for the %"
-#~ "(ticket)s ticket for the %(event)s event."
-#~ msgstr ""
-#~ "Maalesef %(remaining_seats)d etkinliği için %(ticket)s bileti için "
-#~ "yalnızca%(event)s koltukta kullanılabilir."
-
-#~ msgid "We are looking forward to meeting you at the following"
-#~ msgstr "Sizinle aşağıdaki buluşmayı dört gözle bekliyoruz:"
-
-#~ msgid "Website"
-#~ msgstr "Websitesi"
-
-#~ msgid "event"
-#~ msgstr "etkinlik"
-
-#~ msgid "events"
-#~ msgstr "etkinlikler"

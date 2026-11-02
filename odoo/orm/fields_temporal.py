@@ -1,30 +1,32 @@
 from __future__ import annotations
 
 import typing
-from datetime import date, datetime, time
-
-import pytz
+from datetime import date, datetime, time, UTC
+from zoneinfo import ZoneInfo
 
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT
-from odoo.tools import SQL, date_utils
+from odoo.tools import SQL, date_utils, get_lang
 
 from .fields import Field, _logger
-from .utils import parse_field_expr, READ_GROUP_NUMBER_GRANULARITY
+from .utils import (
+    READ_GROUP_ALL_TIME_GRANULARITY,
+    READ_GROUP_NUMBER_GRANULARITY,
+    READ_GROUP_TIME_GRANULARITY,
+    parse_field_expr,
+)
 
 if typing.TYPE_CHECKING:
     from collections.abc import Callable
-    from odoo.tools import Query
 
     from .models import BaseModel
-
-T = typing.TypeVar("T")
+    from .query import FieldSQL
 
 DATE_LENGTH = len(date.today().strftime(DATE_FORMAT))
 DATETIME_LENGTH = len(datetime.now().strftime(DATETIME_FORMAT))
 
 
-class BaseDate(Field[T | typing.Literal[False]], typing.Generic[T]):
+class BaseDate[T](Field[T | typing.Literal[False]]):
     """ Common field properties for Date and Datetime. """
 
     start_of = staticmethod(date_utils.start_of)
@@ -51,7 +53,7 @@ class BaseDate(Field[T | typing.Literal[False]], typing.Generic[T]):
             case 'year_number':
                 return lambda value: value.year
             case 'quarter_number':
-                return lambda value: value.month // 4 + 1
+                return lambda value: (value.month - 1) // 3 + 1
             case 'month_number':
                 return lambda value: value.month
             case 'iso_week_number':
@@ -61,7 +63,7 @@ class BaseDate(Field[T | typing.Literal[False]], typing.Generic[T]):
             case 'day_of_month':
                 return lambda value: value.day
             case 'day_of_week':
-                return lambda value: value.timetuple().tm_wday
+                return lambda value: value.isoweekday() % 7
             case 'hour_number' if self.type == 'datetime':
                 return lambda value: value.hour
             case 'minute_number' if self.type == 'datetime':
@@ -77,21 +79,40 @@ class BaseDate(Field[T | typing.Literal[False]], typing.Generic[T]):
             f"Only {', '.join(READ_GROUP_NUMBER_GRANULARITY.keys())} are supported"
         )
 
-    def property_to_sql(self, field_sql: SQL, property_name: str, model: BaseModel, alias: str, query: Query) -> SQL:
-        sql_expr = field_sql
-        if self.type == 'datetime' and (timezone := model.env.context.get('tz')):
+    def property_to_sql(self, field_sql: FieldSQL, property_name: str) -> SQL:
+        return self._generic_property_to_sql(self.type, field_sql, property_name, field_sql._table._model)
+
+    @staticmethod
+    def _generic_property_to_sql(ftype: typing.Literal['date', 'datetime'], sql_expr: SQL, property_name: str, model: BaseModel) -> SQL:
+        if ftype == 'datetime' and (timezone := model.env.context.get('tz')):
             # only use the timezone from the context
-            if timezone in pytz.all_timezones_set:
+            if timezone in date_utils.all_timezones:
                 sql_expr = SQL("timezone(%s, timezone('UTC', %s))", timezone, sql_expr)
             else:
                 _logger.warning("Grouping in unknown / legacy timezone %r", timezone)
         if property_name == 'tz':
             # set only the timezone
             return sql_expr
-        if property_name not in READ_GROUP_NUMBER_GRANULARITY:
-            raise ValueError(f'Error when processing the granularity {property_name} is not supported. Only {", ".join(READ_GROUP_NUMBER_GRANULARITY.keys())} are supported')
-        granularity = READ_GROUP_NUMBER_GRANULARITY[property_name]
-        sql_expr = SQL('date_part(%s, %s)', granularity, sql_expr)
+        if property_name in READ_GROUP_NUMBER_GRANULARITY:
+            granularity = READ_GROUP_NUMBER_GRANULARITY[property_name]
+            return SQL('date_part(%s, %s)', granularity, sql_expr)
+
+        if property_name == 'week':
+            # first_week_day: 0=Monday, 1=Tuesday, ...
+            first_week_day = int(get_lang(model.env).week_start) - 1
+            days_offset = first_week_day and 7 - first_week_day
+            interval = f"-{days_offset} DAY"
+            sql_expr = SQL(
+                "(date_trunc('week', %s::timestamp - INTERVAL %s) + INTERVAL %s)",
+                sql_expr, interval, interval,
+            )
+        elif property_name in READ_GROUP_TIME_GRANULARITY:
+            sql_expr = SQL("date_trunc(%s, %s::timestamp)", property_name, sql_expr)
+        else:
+            raise ValueError(f'Error when processing the granularity {property_name} is not supported. Only {", ".join(READ_GROUP_ALL_TIME_GRANULARITY.keys())} are supported')
+        if ftype == 'date':
+            # If the granularity uses date_trunc, we need to convert the timestamp back to a date.
+            sql_expr = SQL("%s::date", sql_expr)
         return sql_expr
 
     def convert_to_column(self, value, record, values=None, validate=True):
@@ -130,7 +151,7 @@ class Date(BaseDate[date]):
         """
         today = timestamp or datetime.now()
         tz = record.env.tz
-        today_utc = pytz.utc.localize(today, is_dst=False)  # UTC = no DST
+        today_utc = today.replace(tzinfo=UTC)
         today = today_utc.astimezone(tz)
         return today.date()
 
@@ -172,13 +193,7 @@ class Date(BaseDate[date]):
         """
         return value.strftime(DATE_FORMAT) if value else False
 
-    def convert_to_cache(self, value, record, validate=True):
-        if not value:
-            return None
-        if isinstance(value, datetime):
-            # TODO: better fix data files (crm demo data)
-            value = value.date()
-            # raise TypeError("%s (field %s) must be string or date, not datetime." % (value, self))
+    def convert_to_cache(self, value, records, validate=True):
         return self.to_date(value)
 
     def convert_to_export(self, value, record):
@@ -224,7 +239,7 @@ class Datetime(BaseDate[datetime]):
         """
         assert isinstance(timestamp, datetime), 'Datetime instance expected'
         tz = record.env.tz
-        utc_timestamp = pytz.utc.localize(timestamp, is_dst=False)  # UTC = no DST
+        utc_timestamp = timestamp.replace(tzinfo=UTC)
         timestamp = utc_timestamp.astimezone(tz)
         return timestamp
 
@@ -245,8 +260,8 @@ class Datetime(BaseDate[datetime]):
                 return value
             return datetime.combine(value, time.min)
 
-        # TODO: fix data files
-        return datetime.strptime(value, DATETIME_FORMAT[:len(value)-2])
+        # support providing a partial value like "2020-04"
+        return datetime.strptime(value, DATETIME_FORMAT[:len(value) - 2])
 
     # kept for backwards compatibility, but consider `from_string` as deprecated, will probably
     # be removed after V12
@@ -274,14 +289,14 @@ class Datetime(BaseDate[datetime]):
             dt = self.__get__(record)
             if not dt:
                 return False
-            if (tz := record.env.context.get('tz')) and tz in pytz.all_timezones_set:
+            if (tz := record.env.context.get('tz')) and tz in date_utils.all_timezones:
                 # only use the timezone from the context
-                dt = dt.astimezone(pytz.timezone(tz))
+                dt = dt.astimezone(ZoneInfo(tz))
             return get_property(dt)
 
         return getter
 
-    def convert_to_cache(self, value, record, validate=True):
+    def convert_to_cache(self, value, records, validate=True):
         return self.to_datetime(value)
 
     def convert_to_export(self, value, record):

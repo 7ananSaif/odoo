@@ -4,12 +4,31 @@ import { useService, useAutofocus } from "@web/core/utils/hooks";
 import { sprintf } from "@web/core/utils/strings";
 import { WebsiteDialog } from "./dialog";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
-import { FormViewDialog } from "@web/views/view_dialogs/form_view_dialog";
+import { FormViewDialog, formViewDialogProps } from "@web/views/view_dialogs/form_view_dialog";
 import { formView } from "@web/views/form/form_view";
 import { renderToFragment } from "@web/core/utils/render";
-import { Component, onWillDestroy, useEffect, useRef, useState, xml } from "@odoo/owl";
-import { FormController } from "@web/views/form/form_controller";
+import {
+    Component,
+    onMounted,
+    onWillDestroy,
+    useProps,
+    signal,
+    xml,
+    proxy,
+    t,
+    usePlugin,
+} from "@odoo/owl";
+import { FormController, formControllerProps } from "@web/views/form/form_controller";
 import { registry } from "@web/core/registry";
+import { addLoadingEffect } from "@web/core/utils/ui";
+import { BootstrapInstance } from "@web/core/utils/bootstrap_plugin";
+
+export const pageDependenciesProps = {
+    resIds: t.array(),
+    resModel: t.string(),
+    mode: t.string(),
+    onDependenciesLoaded: t.function().optional(),
+};
 
 export class PageDependencies extends Component {
     static template = "website.PageDependencies";
@@ -20,27 +39,24 @@ export class PageDependencies extends Component {
             <div class="popover-body"/>
         </div>
     `;
-    static props = {
-        resIds: Array,
-        resModel: String,
-        mode: String,
-    };
+    static propShape = pageDependenciesProps;
+    props = useProps(this.constructor.propShape);
+
+    action = signal.ref();
 
     setup() {
         super.setup();
+        this.bootstrap = usePlugin(BootstrapInstance);
         this.orm = useService("orm");
 
-        this.action = useRef("action");
         this.sprintf = sprintf;
 
-        useEffect(
-            () => {
-                this.fetchDependencies();
-            },
-            () => []
-        );
-        this.state = useState({
-            dependencies: {},
+        onMounted(() => {
+            this.fetchDependencies();
+        });
+        this.state = proxy({
+            dependencies: null,
+            dependencyCount: 0,
         });
 
         onWillDestroy(async () => {
@@ -57,10 +73,13 @@ export class PageDependencies extends Component {
             this.props.resModel,
             await this.getResIds(),
         ]);
+        const dependencyCount = Object.values(this.state.dependencies).flat().length;
+        this.state.dependencyCount = dependencyCount;
+        this.props.onDependenciesLoaded?.(dependencyCount);
     }
 
     showDependencies() {
-        const popover = window.Popover.getOrCreateInstance(this.action.el, {
+        const popover = this.bootstrap.getOrCreateInstance(window.Popover, this.action(), {
             title: _t("Dependencies"),
             boundary: "viewport",
             placement: "right",
@@ -74,7 +93,7 @@ export class PageDependencies extends Component {
     }
 
     async destroyDependenciesPopover() {
-        const actionEl = this.action.el;
+        const actionEl = this.action();
         const popover = window.Popover.getInstance(actionEl);
         if (popover) {
             // If popover is hiding (animation), wait for the animation to
@@ -88,16 +107,16 @@ export class PageDependencies extends Component {
                     actionEl.addEventListener("hidden.bs.popover", handler);
                 });
             }
-            popover.dispose();
+            this.bootstrap.disposeBootstrapInstance(popover);
         }
     }
 }
 
 export class FormPageDependencies extends PageDependencies {
-    static props = {
+    static propShape = {
         ...standardFieldProps,
-        ...PageDependencies.props,
-        resIds: { type: Array, optional: true },
+        ...pageDependenciesProps,
+        resIds: t.array().optional(),
     };
 
     async getResIds() {
@@ -131,20 +150,28 @@ export class DeletePageDialog extends Component {
         CheckBox,
         WebsiteDialog,
     };
-    static props = {
-        resIds: Array,
-        resModel: String,
-        onDelete: { type: Function, optional: true },
-        close: Function,
-        hasNewPageTemplate: { type: Boolean, optional: true },
-    };
+    props = useProps({
+        resIds: t.array(),
+        resModel: t.string(),
+        onDelete: t.function().optional(),
+        close: t.function(),
+        hasNewPageTemplate: t.boolean().optional(),
+    });
 
     setup() {
         this.website = useService("website");
 
-        this.state = useState({
+        this.state = proxy({
             confirm: false,
+            hasDependencies: false,
         });
+        this.onDependenciesLoaded = this.onDependenciesLoaded.bind(this);
+    }
+
+    onDependenciesLoaded(dependencyCount) {
+        this.state.hasDependencies = dependencyCount > 0;
+        // To enable the delete button if there are no dependencies.
+        this.state.confirm = dependencyCount === 0;
     }
 
     onConfirmCheckboxChange(checked) {
@@ -160,25 +187,28 @@ export class DeletePageDialog extends Component {
 export class DuplicatePageDialog extends Component {
     static components = { WebsiteDialog };
     static template = "website.DuplicatePageDialog";
-    static props = {
-        onDuplicate: Function,
-        close: Function,
-        pageIds: { type: Array, element: Number },
-    };
+    props = useProps({
+        onDuplicate: t.function(),
+        close: t.function(),
+        pageIds: t.array(t.number()),
+    });
+    autofocusRef = signal.ref();
 
     setup() {
         this.orm = useService("orm");
         this.website = useService("website");
-        useAutofocus();
+        useAutofocus({ ref: this.autofocusRef });
 
-        this.state = useState({
+        this.state = proxy({
             name: "",
         });
     }
 
-    async duplicate() {
-        const duplicates = [];
-        if (this.state.name) {
+    async duplicate(ev) {
+        const duplicateButton = ev.currentTarget;
+        duplicateButton.disabled = true;
+        try {
+            const duplicates = [];
             for (let count = 0; count < this.props.pageIds.length; count++) {
                 const name = this.state.name + (count ? ` ${count + 1}` : "");
                 duplicates.push(
@@ -188,17 +218,20 @@ export class DuplicatePageDialog extends Component {
                     ])
                 );
             }
+            this.props.onDuplicate(duplicates);
+            this.props.close();
+        } finally {
+            duplicateButton.disabled = false;
         }
-        this.props.onDuplicate(duplicates);
     }
 }
 
 export class PagePropertiesFormController extends FormController {
-    static props = {
-        ...FormController.props,
-        clonePage: { type: Function, optional: true },
-        deletePage: { type: Function, optional: true },
-    };
+    props = useProps({
+        ...formControllerProps,
+        clonePage: t.function().optional(),
+        deletePage: t.function().optional(),
+    });
 }
 
 registry.category("views").add("page_properties_dialog_form", {
@@ -207,18 +240,13 @@ registry.category("views").add("page_properties_dialog_form", {
 });
 
 export class PagePropertiesDialog extends FormViewDialog {
-    static props = {
-        ...FormViewDialog.props,
-        onClose: { type: Function, optional: true },
-        resModel: { type: String, optional: true },
-    };
-
-    static defaultProps = {
-        ...FormViewDialog.defaultProps,
-        title: _t("Page Properties"),
-        size: "md",
-        onClose: () => {},
-    };
+    props = useProps({
+        ...formViewDialogProps,
+        onClose: t.function().optional(() => () => {}),
+        resModel: t.string().optional(),
+        title: t.string().optional(_t("Page Properties")),
+        size: t.selection(["sm", "md", "lg", "xl", "fs", "fullscreen"]).optional("md"),
+    });
 
     setup() {
         super.setup();
@@ -240,7 +268,7 @@ export class PagePropertiesDialog extends FormViewDialog {
             ),
             ...(this.isPage
                 ? {
-                      buttonTemplate: "website.PagePropertiesDialogButtons",
+                      buttonDialogTemplate: "website.PagePropertiesDialogButtons",
                       clonePage: this.clonePage.bind(this),
                       deletePage: this.deletePage.bind(this),
                   }
@@ -282,7 +310,8 @@ export class PagePropertiesDialog extends FormViewDialog {
         });
     }
 
-    async deletePage() {
+    async deletePage(ev) {
+        const restoreButton = addLoadingEffect(ev.currentTarget);
         const pageIds = [this.targetId];
         const newPageTemplateFields = await this.orm.read("website.page", pageIds, [
             "is_new_page_template",
@@ -298,5 +327,6 @@ export class PagePropertiesDialog extends FormViewDialog {
             },
             hasNewPageTemplate: newPageTemplateFields[0].is_new_page_template,
         });
+        restoreButton();
     }
 }

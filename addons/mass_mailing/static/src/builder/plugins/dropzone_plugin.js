@@ -2,11 +2,11 @@ import { Plugin } from "@html_editor/plugin";
 import { isPhrasingContent } from "@html_editor/utils/dom_info";
 import { registry } from "@web/core/registry";
 
-class DropzonePlugin extends Plugin {
+export class DropzonePlugin extends Plugin {
     static id = "mass_mailing.DropzonePlugin";
 
     resources = {
-        dropzone_selector: [
+        dropzone_selectors: [
             {
                 selector:
                     ".s_mail_blockquote, .s_mail_alert, .s_rating, .s_hr, .s_mail_text_highlight",
@@ -54,7 +54,11 @@ class DropzonePlugin extends Plugin {
         ],
         // Prevent dropping as phrasingContent siblings (reduces the amount of drop zones for
         // HR block).
-        filter_for_sibling_dropzone_predicates: (el) => isPhrasingContent(el),
+        is_valid_for_sibling_dropzone_predicates: (el) => {
+            if (isPhrasingContent(el)) {
+                return false;
+            }
+        },
     };
 
     get noOptionsSelector() {

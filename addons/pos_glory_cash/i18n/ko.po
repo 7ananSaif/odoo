@@ -3,22 +3,22 @@
 # * pos_glory_cash
 #
 # "Kwanghee Park (kwpa)" <kwpa@odoo.com>, 2025, 2026.
-# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-05 19:29+0000\n"
-"PO-Revision-Date: 2026-02-11 17:43+0000\n"
-"Last-Translator: \"Kwanghee Park (kwpa)\" <kwpa@odoo.com>\n"
-"Language-Team: Korean <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 19:10+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Korean <https://translate.odoo.com/projects/odoo-s19-4/"
 "pos_glory_cash/ko/>\n"
 "Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: pos_glory_cash
 #. odoo-javascript
@@ -29,6 +29,7 @@ msgstr "차이 계산"
 #. module: pos_glory_cash
 #. odoo-javascript
 #: code:addons/pos_glory_cash/static/src/app/components/cancel_dialog.xml:0
+#, fuzzy
 msgid "Cancel Operation"
 msgstr "작업 취소"
 
@@ -50,6 +51,11 @@ msgid "Cash Machine IP"
 msgstr "현금 인출기 IP"
 
 #. module: pos_glory_cash
+#: model:ir.model.fields,field_description:pos_glory_cash.field_pos_payment_method__glory_use_lna
+msgid "Cash Machine Local Network Access"
+msgstr ""
+
+#. module: pos_glory_cash
 #: model:ir.model.fields,field_description:pos_glory_cash.field_pos_payment_method__glory_password
 msgid "Cash Machine Password"
 msgstr "현금 인출기 비밀번호"
@@ -58,18 +64,6 @@ msgstr "현금 인출기 비밀번호"
 #: model:ir.model.fields,field_description:pos_glory_cash.field_pos_payment_method__glory_username
 msgid "Cash Machine Username"
 msgstr "현금 인출기 사용자 이름"
-
-#. module: pos_glory_cash
-#. odoo-javascript
-#: code:addons/pos_glory_cash/static/src/app/payment_glory.js:0
-msgid "Cash deposited: %s"
-msgstr "현금 예치금: %s"
-
-#. module: pos_glory_cash
-#. odoo-javascript
-#: code:addons/pos_glory_cash/static/src/app/screens/payment_screen/payment_lines/payment_lines.xml:0
-msgid "Cash inserted:"
-msgstr "현금 투입액:"
 
 #. module: pos_glory_cash
 #. odoo-javascript
@@ -91,13 +85,8 @@ msgstr "현금 인출기 상태:"
 
 #. module: pos_glory_cash
 #. odoo-javascript
-#: code:addons/pos_glory_cash/static/src/app/payment_glory.js:0
-msgid "Change given: %s"
-msgstr "거스름돈: %s"
-
-#. module: pos_glory_cash
-#. odoo-javascript
 #: code:addons/pos_glory_cash/static/src/app/components/cancel_dialog.xml:0
+#, fuzzy
 msgid "Close"
 msgstr "닫기"
 
@@ -131,7 +120,7 @@ msgstr "추가 현금 계수"
 #. odoo-javascript
 #: code:addons/pos_glory_cash/static/src/backend/glory_admin_buttons/glory_admin_buttons.xml:0
 msgid "Current cash machine status:"
-msgstr "현재 현금 인출기 상태:"
+msgstr "현금 출납기 현재 상태:"
 
 #. module: pos_glory_cash
 #. odoo-javascript
@@ -153,6 +142,7 @@ msgstr "표기명"
 #. module: pos_glory_cash
 #. odoo-javascript
 #: code:addons/pos_glory_cash/static/src/backend/glory_admin_buttons/glory_admin_buttons.xml:0
+#, fuzzy
 msgid "Download Logs"
 msgstr "로그 다운로드"
 
@@ -185,18 +175,6 @@ msgid ""
 msgstr ""
 
 #. module: pos_glory_cash
-#. odoo-javascript
-#: code:addons/pos_glory_cash/static/src/app/payment_glory.js:0
-msgid "GLORY TRANSACTION CANCELLED"
-msgstr "GLORY 작업 취소됨"
-
-#. module: pos_glory_cash
-#. odoo-javascript
-#: code:addons/pos_glory_cash/static/src/app/payment_glory.js:0
-msgid "GLORY TRANSACTION SUCCESSFUL"
-msgstr "GLORY 작업 성공함"
-
-#. module: pos_glory_cash
 #: model_terms:ir.ui.view,arch_db:pos_glory_cash.pos_payment_method_view_form_inherit_pos_glory_cash
 msgid "Glory Settings"
 msgstr "순위 설정"
@@ -219,6 +197,11 @@ msgid "Initializing"
 msgstr "초기화"
 
 #. module: pos_glory_cash
+#: model:ir.module.module,summary:base.module_pos_glory_cash
+msgid "Integrate your POS with a Glory automatic cash payment device"
+msgstr ""
+
+#. module: pos_glory_cash
 #. odoo-javascript
 #: code:addons/pos_glory_cash/static/src/app/payment_glory.js:0
 msgid "Only managers can withdraw cash from the cash machine."
@@ -227,17 +210,30 @@ msgstr ""
 #. module: pos_glory_cash
 #. odoo-javascript
 #: code:addons/pos_glory_cash/static/src/backend/glory_admin_buttons/glory_admin_buttons.xml:0
+#, fuzzy
 msgid "Open Admin Page"
 msgstr "관리자 페이지 열기"
 
 #. module: pos_glory_cash
+#: model:ir.module.module,shortdesc:base.module_pos_glory_cash
+msgid "POS Glory Cash Machines"
+msgstr ""
+
+#. module: pos_glory_cash
+#. odoo-javascript
+#: code:addons/pos_glory_cash/static/src/backend/glory_admin_buttons/glory_admin_buttons.js:0
+msgid "Please configure the IP address before opening the admin page"
+msgstr ""
+
+#. module: pos_glory_cash
 #: model:ir.model,name:pos_glory_cash.model_pos_payment_method
-msgid "Point of Sale Payment Methods"
+msgid "Point of Sale Payment Method"
 msgstr "POS 결제 수단"
 
 #. module: pos_glory_cash
 #. odoo-javascript
 #: code:addons/pos_glory_cash/static/src/backend/glory_admin_buttons/glory_admin_buttons.xml:0
+#, fuzzy
 msgid "Reset Cash Machine"
 msgstr "현금 자동 입출금기 재설정"
 
@@ -346,12 +342,6 @@ msgstr ""
 
 #. module: pos_glory_cash
 #. odoo-javascript
-#: code:addons/pos_glory_cash/static/src/app/payment_glory.js:0
-msgid "Transaction ID: %s"
-msgstr "거래 ID: %s"
-
-#. module: pos_glory_cash
-#. odoo-javascript
 #: code:addons/pos_glory_cash/static/src/utils/constants.js:0
 msgid "Waiting for cancellation"
 msgstr "취소 대기 중"
@@ -372,7 +362,7 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/pos_glory_cash/static/src/utils/constants.js:0
 msgid "Waiting for coin overflow removal"
-msgstr ""
+msgstr "코인 초과 처리 대기 중"
 
 #. module: pos_glory_cash
 #. odoo-javascript
@@ -391,21 +381,3 @@ msgstr "현금 투입 대기 중"
 #: code:addons/pos_glory_cash/static/src/utils/constants.js:0
 msgid "Waiting for inventory"
 msgstr "재고 관리 대기 중"
-
-#~ msgid "Request sent"
-#~ msgstr "요청 전송"
-
-#~ msgid "Are you sure you want to reset the cash machine?"
-#~ msgstr "현금 인출기를 초기화할까요?"
-
-#~ msgid "Discard"
-#~ msgstr "취소"
-
-#~ msgid "Download logs"
-#~ msgstr "다운로드 로그"
-
-#~ msgid "Reset"
-#~ msgstr "초기화"
-
-#~ msgid "Reset cash machine"
-#~ msgstr "현금 입출금기 초기화"

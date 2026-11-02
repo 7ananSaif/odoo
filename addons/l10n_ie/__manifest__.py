@@ -8,11 +8,9 @@
     "description": """
 This is the base module to manage the accounting chart for Republic of Ireland in Odoo.
     """,
-    "author": "Odoo SA",
+    "author": "Odoo S.A.",
     "depends": [
         "account",
-        "base_iban",
-        "base_vat",
         "account_edi_ubl_cii",
     ],
     'auto_install': ['account'],

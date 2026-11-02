@@ -1,61 +1,59 @@
-import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
+import { FrequentEmojiPlugin } from "@web/core/emoji_picker/frequent_emoji_plugin";
+import { Action } from "@mail/core/common/action";
+import { Component, signal, t, useListener, usePlugin, useProps } from "@odoo/owl";
 import { Dropdown } from "@web/core/dropdown/dropdown";
 import { useDropdownState } from "@web/core/dropdown/dropdown_hooks";
-import { loadEmoji, useEmojiPicker } from "@web/core/emoji_picker/emoji_picker";
+import { emojiLoader, useLoadEmoji } from "@web/core/emoji_picker/emoji_loader";
+import { useEmojiPicker } from "@web/core/emoji_picker/emoji_picker";
 import { useService } from "@web/core/utils/hooks";
 
-/**
- * @typedef {Object} Props
- * @property {Object} action
- * @property {Object} [classNames]
- * @property {import("models").Message} message
- * @property {boolean} [messageActive]
- * @extends {Component<Props, Env>}
- */
+/** @typedef {import("@web/core/emoji_picker/emoji_picker").EmojiPicker} EmojiPicker */
+
 export class QuickReactionMenu extends Component {
     static template = "mail.QuickReactionMenu";
-    static props = {
-        action: Object,
-        classNames: { type: Object, optional: true },
-        message: Object,
-        messageActive: { type: Boolean, optional: true },
-    };
     static components = { Dropdown };
     static DEFAULT_EMOJIS = ["👍", "❤️", "🤣", "😯", "😅", "🙏"];
 
+    toggle = signal.ref();
+
     setup() {
-        this.toggle = useRef("toggle");
+        super.setup(...arguments);
         this.store = useService("mail.store");
+        this.props = useProps({
+            action: t.instanceOf(Action),
+            classNames: t.record(t.boolean()).optional(),
+            message: t.instanceOf(this.store["mail.message"]),
+            messageActive: t.boolean().optional(),
+        });
         this.ui = useService("ui");
+        this.loadEmoji = useLoadEmoji();
         this.picker = useEmojiPicker(
             null,
-            { onSelect: this.toggleReaction.bind(this), class: "overflow-hidden rounded-2" },
+            { onSelect: this.toggleReaction.bind(this), class: "overflow-hidden" },
             {
                 position: "bottom-middle",
                 popoverClass: "o-mail-QuickReactionMenu-pickerPopover",
             }
         );
-        this.dropdown = useState(
-            useDropdownState({
-                onClose: () => {
-                    const currentThread = this.env.getCurrentThread?.();
-                    if (!currentThread || currentThread.notEq(this.props.message.thread)) {
-                        return;
-                    }
-                    if (currentThread.messageInEdition) {
-                        currentThread.messageInEdition.composer.autofocus++;
-                    } else {
-                        currentThread.composer.autofocus++;
-                    }
-                },
-            })
-        );
-        this.frequentEmojiService = useService("web.frequent.emoji");
-        useExternalListener(window, "keydown", async (ev) => {
+        this.dropdown = useDropdownState({
+            onClose: () => {
+                const currentThread = this.env.getCurrentThread?.();
+                if (!currentThread || currentThread.notEq(this.props.message.thread)) {
+                    return;
+                }
+                if (currentThread.messageInEdition) {
+                    currentThread.messageInEdition.composer.autofocus++;
+                } else {
+                    currentThread.composer.autofocus++;
+                }
+            },
+        });
+        this.frequentEmojiService = usePlugin(FrequentEmojiPlugin);
+        useListener(window, "keydown", async (ev) => {
             if (
                 !this.dropdown.isOpen ||
                 this.picker.isOpen ||
-                !this.toggle.el?.contains(ev.target) ||
+                !this.toggle()?.contains(ev.target) ||
                 ["Shift", "Control", "Meta", "Alt"].includes(ev.key)
             ) {
                 return;
@@ -73,13 +71,11 @@ export class QuickReactionMenu extends Component {
     }
 
     getEmojiShortcode(emoji) {
-        return this.store.emojiLoader.loaded?.emojiValueToShortcodes?.[emoji]?.[0] ?? "?";
+        return emojiLoader.getShortCode(emoji);
     }
 
     onClick() {
-        if (!this.store.emojiLoader.isLoaded) {
-            loadEmoji();
-        }
+        this.loadEmoji();
         if (this.ui.isSmall) {
             this.props.action.onSelected();
         } else {
@@ -92,7 +88,11 @@ export class QuickReactionMenu extends Component {
         }
     }
 
-    toggleReaction(emoji) {
+    /**
+     * @param {string} emoji
+     * @param {boolean} [resetOnSelect=true] {@link EmojiPicker.selectEmoji}
+     */
+    toggleReaction(emoji, resetOnSelect = true) {
         const reaction = this.props.message.reactions.find(
             (r) => r.content === emoji && this.props.message.effectiveSelf.in(r.personas)
         );
@@ -102,8 +102,10 @@ export class QuickReactionMenu extends Component {
             this.props.message.react(emoji);
             this.frequentEmojiService.incrementEmojiUsage(emoji);
         }
-        this.dropdown.close();
-        this.picker.close();
+        if (resetOnSelect) {
+            this.dropdown.close();
+            this.picker.close();
+        }
     }
 
     get attClass() {
@@ -128,7 +130,7 @@ export class QuickReactionMenu extends Component {
 
     get mostFrequentEmojis() {
         const numberOfEmojis = 6;
-        const mostFrequent = this.frequentEmojiService.getMostFrequent(numberOfEmojis);
+        const mostFrequent = this.frequentEmojiService.mostFrequent().slice(0, numberOfEmojis);
         return mostFrequent.concat(
             QuickReactionMenu.DEFAULT_EMOJIS.filter((emoji) => !mostFrequent.includes(emoji)).slice(
                 0,

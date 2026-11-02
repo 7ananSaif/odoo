@@ -1,20 +1,24 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from ast import literal_eval
 import logging
-import pytz
-
+from ast import literal_eval
 from collections import defaultdict, Counter
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
+
 from dateutil.relativedelta import MO, relativedelta
 
 from odoo import api, fields, models, _
-from odoo.exceptions import AccessError
-from odoo.tools import is_html_empty
-from odoo.tools.misc import clean_context, get_lang, groupby
+from odoo.exceptions import AccessError, MissingError, UserError
+from odoo.fields import Domain
+from odoo.tools import OrderedSet, is_html_empty
+from odoo.tools.constants import IN_MAX
+from odoo.tools.misc import clean_context, format_date, groupby
+from odoo.addons.base.models.ir_attachment import condition_values
 from odoo.addons.mail.tools.discuss import Store
+from .mail_message import MAX_COMODELS_FOR_DOMAIN, MAX_SEARCH_LIMIT, _find_allowed_doc_ids, exists_in_cache
 
 _logger = logging.getLogger(__name__)
+SECURITY_FIELDS = ('res_model', 'res_id', 'user_id')
 
 
 class MailActivity(models.Model):
@@ -27,6 +31,7 @@ class MailActivity(models.Model):
     _description = 'Activity'
     _order = 'date_deadline ASC, id ASC'
     _rec_name = 'summary'
+    _access_domain_heavy = True
 
     @api.model
     def default_get(self, fields):
@@ -57,26 +62,54 @@ class MailActivity(models.Model):
     res_model = fields.Char(
         'Related Document Model',
         index=True, related='res_model_id.model', precompute=True, store=True, readonly=True)
+    res_model_name = fields.Char(string='Model', related='res_model_id.display_name')
     res_id = fields.Many2oneReference(string='Related Document ID', index=True, model_field='res_model')
     res_name = fields.Char(
         'Document Name', compute='_compute_res_name', compute_sudo=True, store=True,
         readonly=True)
+    res_access_read = fields.Boolean(
+        groups=fields.NO_ACCESS,
+        compute=lambda self: self._compute_res_access('read'),
+        search=lambda self, operator, value: self._search_res_access('read', operator),
+        compute_sudo=True, depends_context=('uid',))
+    res_access_write = fields.Boolean(
+        groups=fields.NO_ACCESS,
+        compute=lambda self: self._compute_res_access('write'),
+        search=lambda self, operator, value: self._search_res_access('write', operator),
+        compute_sudo=True, depends_context=('uid',))
+    res_access_create = fields.Boolean(
+        groups=fields.NO_ACCESS,
+        compute=lambda self: self._compute_res_access('create'),
+        search=lambda self, operator, value: self._search_res_access('create', operator),
+        compute_sudo=True, depends_context=('uid',))
+    res_access_unlink = fields.Boolean(
+        groups=fields.NO_ACCESS,
+        compute=lambda self: self._compute_res_access('unlink'),
+        search=lambda self, operator, value: self._search_res_access('unlink', operator),
+        compute_sudo=True, depends_context=('uid',))
+
     # activity
     activity_type_id = fields.Many2one(
         'mail.activity.type', string='Activity Type',
-        domain="['|', ('res_model', '=', False), ('res_model', '=', res_model)]", ondelete='restrict',
+        domain="['|', ('res_model', '=', False), ('res_model', '=', res_model)]", ondelete='restrict', index='btree_not_null',
         default=_default_activity_type)
     activity_category = fields.Selection(related='activity_type_id.category', readonly=True)
     activity_decoration = fields.Selection(related='activity_type_id.decoration_type', readonly=True)
     icon = fields.Char('Icon', related='activity_type_id.icon', readonly=True)
-    summary = fields.Char('Summary')
-    note = fields.Html('Note', sanitize_style=True)
-    date_deadline = fields.Date('Due Date', index=True, required=True, default=fields.Date.context_today)
+    activity_plan_id = fields.Many2one('mail.activity.plan', string='Plan', ondelete='set null', copy=False)
+    activity_template_id = fields.Many2one('mail.activity.plan.template', string='Generated From',
+                                           index='btree_not_null')
+    phone = fields.Char('Phone', compute='_compute_phone', readonly=False, store=True)
+    summary = fields.Char('Summary', compute='_compute_summary', precompute=True, store=True, readonly=False)
+    note = fields.Html('Note', sanitize_style=True, compute='_compute_note', precompute=True, store=True, readonly=False)
+    date_deadline = fields.Date('Due Date', index=True, required=True,
+        compute='_compute_date_deadline', precompute=True, store=True, readonly=False)
     date_done = fields.Date('Done Date', compute='_compute_date_done', store=True)
     feedback = fields.Text('Feedback')
     automated = fields.Boolean(
         'Automated activity', readonly=True,
         help='Indicates this activity has been created automatically and not by any user.')
+    technical_usage = fields.Selection(selection=[('none', 'Non Technical')], default='none', readonly=True, help="Technical identifier")
     # Attachments are linked to a document through model / res_id and to the activity through this field.
     attachment_ids = fields.Many2many(
         'ir.attachment', 'activity_attachment_rel',
@@ -87,7 +120,14 @@ class MailActivity(models.Model):
     # description
     user_id = fields.Many2one(
         'res.users', 'Assigned to',
-        index=True, required=False, ondelete='cascade')
+        index=True, required=False, ondelete='cascade',
+        compute='_compute_user_id', precompute=True, store=True, readonly=False,
+        domain=lambda self: [('share', '=', False), ('role', '!=', 'light_user')],
+    )
+    role_id = fields.Many2one(
+        'res.role', 'Role',
+        index='btree_not_null', required=False, ondelete='set null',
+        compute='_compute_role_id', precompute=True, store=True, readonly=False)
     user_tz = fields.Selection(string='Timezone', related="user_id.tz", store=True)
     state = fields.Selection([
         ('overdue', 'Overdue'),
@@ -95,13 +135,7 @@ class MailActivity(models.Model):
         ('planned', 'Planned'),
         ('done', 'Done')], 'State',
         compute='_compute_state')
-    recommended_activity_type_id = fields.Many2one('mail.activity.type', string="Recommended Activity Type")
-    previous_activity_type_id = fields.Many2one('mail.activity.type', string='Previous Activity Type', readonly=True)
-    has_recommended_activities = fields.Boolean(
-        'Next activities available',
-        compute='_compute_has_recommended_activities') # technical field for UX purpose
     mail_template_ids = fields.Many2many(related='activity_type_id.mail_template_ids', readonly=True)
-    chaining_type = fields.Selection(related='activity_type_id.chaining_type', readonly=True)
     # access
     can_write = fields.Boolean(compute='_compute_can_write') # used to hide buttons if the current user has no access
     active = fields.Boolean(default=True)
@@ -114,7 +148,7 @@ class MailActivity(models.Model):
         )""",
         'Activities have to be linked to records with a not null res_id.',
     )
-    # if no model: user_id is required (no floating activities noone can see)
+    # if no model: user_id is required (no personal activities noone can see)
     _check_user_id_is_set_if_model = models.Constraint(
         """CHECK(
             (COALESCE(res_model, '') <> '' OR user_id IS NOT NULL)
@@ -122,16 +156,7 @@ class MailActivity(models.Model):
         'Activities must be assigned if not attached to a document.',
     )
 
-    @api.onchange('previous_activity_type_id')
-    def _compute_has_recommended_activities(self):
-        for record in self:
-            record.has_recommended_activities = bool(record.previous_activity_type_id.suggested_next_type_ids)
-
-    @api.onchange('previous_activity_type_id')
-    def _onchange_previous_activity_type_id(self):
-        for record in self:
-            if record.previous_activity_type_id.triggered_next_type_id:
-                record.activity_type_id = record.previous_activity_type_id.triggered_next_type_id
+    _unassigned_role_idx = models.Index("(role_id) WHERE user_id IS NULL")
 
     @api.depends('active')
     def _compute_date_done(self):
@@ -152,19 +177,59 @@ class MailActivity(models.Model):
     @api.depends('active', 'date_deadline')
     def _compute_state(self):
         for record in self.filtered(lambda activity: activity.date_deadline):
-            tz = record.user_id.sudo().tz
+            tz = record.user_tz
             date_deadline = record.date_deadline
             record.state = 'done' if not record.active else self._compute_state_from_date(date_deadline, tz)
 
+    @api.depends('res_model', 'res_id', 'activity_type_id')
+    def _compute_phone(self):
+        call_activities = self.filtered(
+            lambda activity: activity.id
+            and activity.res_model
+            and activity.res_id
+            and activity.activity_category == 'phonecall',
+        )
+        (self - call_activities).phone = False
+        phone_numbers_by_activity = call_activities._get_phone_numbers_by_activity()
+        for activity in call_activities:
+            activity.phone = phone_numbers_by_activity.get(activity, False)
+
+    def _get_phone_numbers_by_activity(self):
+        """Batch compute the phone numbers associated with the activities.
+
+        :return: phone number for each activity (obtained from the related
+            record itself or from its related partner)
+        """
+        phone_numbers_by_activity = {}
+        data_by_model = self.filtered("res_model")._classify_by_model()
+        for model, data in data_by_model.items():
+            records = self.env[model].browse(data["record_ids"])
+            for record, activity in zip(records, data["activities"]):
+                try:
+                    phone = self._get_phone_number_from_record(record)
+                    if not phone:
+                        recipient = next(
+                            iter(record._mail_get_partners(introspect_fields=True)[record.id]),
+                            self.env["res.partner"],
+                        )
+                        phone = self._get_phone_number_from_record(recipient) if recipient else False
+                # cascade-deleted records might make this crash, be defensive
+                except MissingError:
+                    phone = False
+                phone_numbers_by_activity[activity] = phone
+        return phone_numbers_by_activity
+
+    def _get_phone_number_from_record(self, record):
+        """Hook for phone modules to find the phone number of ``record``."""
+        return record.phone if "phone" in record else False
+
     @api.model
     def _compute_state_from_date(self, date_deadline, tz=False):
-        date_deadline = fields.Date.from_string(date_deadline)
-        today_default = date.today()
-        today = today_default
+        date_deadline = fields.Date.to_date(date_deadline)
         if tz:
-            today_utc = pytz.utc.localize(datetime.utcnow())
-            today_tz = today_utc.astimezone(pytz.timezone(tz))
-            today = date(year=today_tz.year, month=today_tz.month, day=today_tz.day)
+            today = fields.Date.context_today(self.with_context(tz=tz))
+        else:
+            today = fields.Date.context_today(self)
         diff = (date_deadline - today)
         if diff.days == 0:
             return 'today'
@@ -179,92 +244,79 @@ class MailActivity(models.Model):
         for record in self:
             record.can_write = record in valid_records
 
-    @api.onchange('activity_type_id')
-    def _onchange_activity_type_id(self):
-        if self.activity_type_id:
-            if self.activity_type_id.summary:
-                self.summary = self.activity_type_id.summary
-            self.date_deadline = self.activity_type_id._get_date_deadline()
-            self.user_id = self.activity_type_id.default_user_id or self.env.user
-            if self.activity_type_id.default_note:
-                self.note = self.activity_type_id.default_note
+    @api.depends('activity_type_id')
+    def _compute_date_deadline(self):
+        for activity in self:
+            if activity.activity_type_id.delay_count:
+                activity.date_deadline = activity.activity_type_id._get_date_deadline()
+            elif not activity.date_deadline:
+                activity.date_deadline = fields.Date.context_today(activity)
 
-    @api.onchange('recommended_activity_type_id')
-    def _onchange_recommended_activity_type_id(self):
-        if self.recommended_activity_type_id:
-            self.activity_type_id = self.recommended_activity_type_id
+    @api.depends('activity_type_id')
+    def _compute_note(self):
+        for activity in self.filtered(lambda a: a.activity_type_id.default_note):
+            activity.note = activity.activity_type_id.default_note
 
-    def _check_access(self, operation: str) -> tuple | None:
+    @api.depends('activity_type_id')
+    def _compute_summary(self):
+        for activity in self:
+            if activity.activity_type_id.summary:
+                activity.summary = activity.activity_type_id.summary
+            elif not activity.summary:
+                activity.summary = activity.activity_type_id.name
+
+    @api.depends('activity_type_id')
+    def _compute_user_id(self):
+        for activity in self:
+            if activity.activity_type_id.default_user_id or activity.activity_type_id.default_role_id:
+                activity.user_id = activity.activity_type_id.default_user_id
+            elif not activity.user_id and not activity.role_id:
+                activity.user_id = self.env.user
+
+    @api.depends('activity_type_id')
+    def _compute_role_id(self):
+        for activity in self:
+            if activity.activity_type_id.default_user_id or activity.activity_type_id.default_role_id:
+                activity.role_id = activity.activity_type_id.default_role_id
+
+    def _compute_res_access(self, operation: str):
         """ Determine the subset of ``self`` for which ``operation`` is allowed.
         A custom implementation is done on activities as this document has some
         access rules and is based on related document for activities that are
         not covered by those rules.
-
-        Access on activities are the following :
-
-          * read: access rule AND (assigned to user OR read rights on related documents);
-          * write: access rule OR (``mail_post_access`` or write) rights on related documents);
-          * create: access rule AND (``mail_post_access`` or write) right on related documents;
-          * unlink: access rule OR (``mail_post_access`` or write) rights on related documents);
         """
-        result = super()._check_access(operation)
-        if not self:
-            return result
+        assert self.env.su
+        field_name = f'res_access_{operation}'
 
-        # determine activities on which to check the related document
-        if operation == 'read':
-            # check activities allowed by access rules
-            activities = self - result[0] if result else self
-            activities -= activities.sudo().filtered_domain([('user_id', '=', self.env.uid)])
-        elif operation == 'create':
-            # check activities allowed by access rules
-            activities = self - result[0] if result else self
-        else:
-            assert operation in ('write', 'unlink'), f"Unexpected operation {operation!r}"
-            # check access to the model, and check the forbidden records only
-            if self.browse()._check_access(operation):
-                return result
-            activities = result[0] if result else self.browse()
-            result = None
-
-        if not activities:
-            return result
+        if not self or not self.browse().sudo(False).has_access(operation):
+            self[field_name] = False
+            return
 
         # now check access on related document of 'activities', and collect the
-        # ids of forbidden activities; free activities are checked against user_id
+        # ids of forbidden activities
         model_docid_actids = defaultdict(lambda: defaultdict(list))
-        forbidden_ids = []
-        for activity in activities.sudo():
-            if activity.res_model:
+        for activity in self:
+            if activity.res_model and activity.res_id:
                 model_docid_actids[activity.res_model][activity.res_id].append(activity.id)
-            elif activity.user_id.id != self.env.uid:
-                forbidden_ids.append(activity.id)
 
-        for doc_model, docid_actids in model_docid_actids.items():
-            allowed = self.env['mail.message']._filter_records_for_message_operation(doc_model, docid_actids, operation)
-            for document_id in [doc_id for doc_id in docid_actids if doc_id not in allowed.ids]:
-                forbidden_ids.extend(docid_actids[document_id])
+        allowed = _find_allowed_doc_ids(self.env(su=False), model_docid_actids, operation)
+        for activity in self:
+            activity[field_name] = activity.id in allowed
 
-        if forbidden_ids:
-            forbidden = self.browse(forbidden_ids)
-            if result:
-                result = (result[0] + forbidden, result[1])
-            else:
-                result = (forbidden, lambda: forbidden._make_access_error(operation))
-
-        return result
-
-    def _make_access_error(self, operation: str) -> AccessError:
-        return AccessError(_(
-            "The requested operation cannot be completed due to security restrictions. "
-            "Please contact your system administrator.\n\n"
-            "(Document type: %(type)s, Operation: %(operation)s)\n\n"
-            "Records: %(records)s, User: %(user)s",
-            type=self._description,
-            operation=operation,
-            records=self.ids[:6],
-            user=self.env.uid,
-        ))
+    def _make_access_error_message(self, operation, domain):
+        self.invalidate_recordset()  # avoid cache pollution
+        if not domain.is_false():
+            return AccessError(self.env._(
+                "The requested operation cannot be completed due to security restrictions. "
+                "Please contact your system administrator.\n\n"
+                "(Document type: %(type)s, Operation: %(operation)s)\n\n"
+                "Records: %(records)s, User: %(user)s",
+                type=self._description,
+                operation=operation,
+                records=self.ids[:6],
+                user=self.env.uid,
+            ))
+        return super()._make_access_error_message(operation, domain)
 
     # ------------------------------------------------------
     # ORM overrides
@@ -302,14 +354,15 @@ class MailActivity(models.Model):
                 self.env[model].browse(res_ids).message_subscribe(partner_ids=pids)
 
         # send notifications about activity creation
-        todo_activities = activities.filtered(lambda act: act.active and act.date_deadline <= fields.Date.today() and act.user_id)
+        today = fields.Date.context_today(activities)
+        todo_activities = activities.filtered(lambda act: act.active and act.date_deadline <= today and act.user_id)
         if todo_activities:
             for user, user_activities in todo_activities.grouped('user_id').items():
                 user._bus_send("mail.activity/updated", {"activity_created": True, "count_diff": len(user_activities)})
         return activities
 
     def write(self, vals):
-        today = fields.Date.today()
+        today = fields.Date.context_today(self)
 
         def get_user_todo_activity_count(activities):
             return {
@@ -337,13 +390,15 @@ class MailActivity(models.Model):
             for res_model, model_activities in new_user_activities.filtered(
                 lambda activity: activity.res_model and activity.res_id
             ).grouped('res_model').items():
-                res_ids = list(set(model_activities.mapped('res_id')))
+                res_ids = OrderedSet(id_ for id_ in model_activities.mapped('res_id') if id_)
                 self.env[res_model].browse(res_ids).message_subscribe(partner_ids=new_user.partner_id.ids)
 
         # update activity counter
         if original_user_todo_activity_count is not None:
             new_user_todo_activity_count = get_user_todo_activity_count(self)
-            for user in new_user_todo_activity_count.keys() | original_user_todo_activity_count.keys():
+            users = new_user_todo_activity_count.keys() | original_user_todo_activity_count.keys()
+            # sorting users by id to ensure deterministic order because keys views are set-like
+            for user in sorted(users, key=lambda user: user.id):
                 count_diff = new_user_todo_activity_count.get(user, 0) - original_user_todo_activity_count.get(user, 0)
                 if count_diff > 0:
                     user._bus_send("mail.activity/updated", {"activity_created": True, "count_diff": count_diff})
@@ -361,44 +416,143 @@ class MailActivity(models.Model):
 
     @api.model
     def _search(self, domain, offset=0, limit=None, order=None, *, bypass_access=False, **kwargs):
-        """ Override that adds specific access rights of mail.activity, to remove
-        ids uid could not see according to our custom rules. Please refer to
-        :meth:`_check_access` for more details about those rules.
+        """Implement custom access rules and `active_test` behavior.
 
-        The method is inspired by what has been done on mail.message. """
+        This method enhances the standard search in two ways:
 
-        # Rules do not apply to administrator
-        if self.env.is_superuser() or bypass_access:
-            return super()._search(domain, offset, limit, order, bypass_access=True, **kwargs)
+        1.  **Archived Records Search**: If the search domain includes a filter on
+            the 'Done Date' (`date_done`) field, the search automatically includes
+            archived records (`active_test=False`). This allows users to find
+            past activities that have been completed and subsequently archived.
 
-        # retrieve activities and their corresponding res_model, res_id
-        # Don't use the ORM to avoid cache pollution
-        query = super()._search(domain, offset, limit, order, **kwargs)
-        fnames_to_read = ['id', 'res_model', 'res_id', 'user_id']
-        rows = self.env.execute_query(query.select(
-            *[self._field_to_sql(self._table, fname) for fname in fnames_to_read],
-        ))
+        2.  **Custom Access Rights**: It filters search results to only include
+            activities the current user is allowed to see. An activity is
+            accessible if the user is the assignee (`user_id`), or if they have
+            read access to the related document (`res_model`, `res_id`). This
+            logic is detailed in res_access* fields.
+            Superusers bypass this and perform a standard search.
+        """
+        domain = Domain(domain).optimize(self)
 
-        # group res_ids by model, and determine accessible records
-        # Note: the user can read all activities assigned to him (see at the end of the method)
-        model_ids = defaultdict(set)
-        for __, res_model, res_id, user_id in rows:
-            if user_id != self.env.uid and res_model:
-                model_ids[res_model].add(res_id)
+        if any(
+            condition.field_expr == 'date_done' and condition.value
+            for condition in domain.iter_conditions()
+        ):
+            kwargs['active_test'] = False
 
-        allowed_ids = defaultdict(set)
-        for res_model, res_ids in model_ids.items():
-            allowed = self.env['mail.message']._filter_records_for_message_operation(
-                res_model, res_ids, 'read',
-            )
-            allowed_ids[res_model] = set(allowed._ids)
+        # Rules do not apply to administrator or when we search only activities assigned to the current user
+        domain = Domain(domain).optimize(self)
+        if self.env.su or bypass_access or domain.is_false() or tuple(condition_values(self, 'user_id', domain) or ()) == (self.env.uid,):
+            return super()._search(domain, offset, limit, order, bypass_access=bypass_access, **kwargs)
+        if self.env.context.get('_generating_sql_for_fields'):
+            raise ValueError("Cannot generate SQL for whole mail.activity")
 
-        activities = self.browse(
-            id_
-            for id_, res_model, res_id, user_id in rows
-            if user_id == self.env.uid or res_id in allowed_ids[res_model]
-        )
-        return activities._as_query(order)
+        # search by ids
+        if (ids := condition_values(self, 'id', domain)) is not None:
+            if (not order or order[:2] == 'id') and domain.map_conditions(lambda d: Domain.TRUE if d.field_expr == 'id' and d.operator == 'in' else d).is_true():
+                # trivial domain, can skip search, in most cases check access removes inexisting records
+                records = exists_in_cache(self.browse(ids), hint_field='res_model')
+                records = records._filtered_access('read')
+                if order:
+                    records = records.sorted(order)
+            else:
+                records = self.browse(super()._search(domain, order=order, **kwargs))
+                records = records._filtered_access('read')
+            if offset > 0:
+                records = records[offset:]
+            if limit is not None:
+                records = records[:limit]
+            return records._as_query(ordered=bool(order))
+
+        # searching for a subset of models
+        res_model_names = condition_values(self, 'res_model', domain) or ()
+        if 0 < len(res_model_names) <= MAX_COMODELS_FOR_DOMAIN:
+            return super()._search(domain, offset, limit, order, bypass_access=bypass_access, **kwargs)
+
+        self_sudo = self.sudo()
+        if self._active_name and not kwargs.get('active_test', True):  # user set active_test=False
+            domain &= Domain(self._active_name, 'in', [True, False])
+        ordered = bool(order)
+        if limit is None:
+            records = self_sudo.search_fetch(domain, SECURITY_FIELDS, order=order).sudo(False)
+            return records._filtered_access('read')[offset:]._as_query(ordered)
+        # Fetch by small batches
+        looping_offset = 0
+        limit += offset
+        result = []
+        if not ordered:
+            # By default, order by model to batch access checks.
+            order = 'res_model nulls first, id'
+        while len(result) < limit:
+            records = self_sudo.search_fetch(
+                domain,
+                SECURITY_FIELDS,
+                offset=looping_offset,
+                limit=IN_MAX,
+                order=order,
+            ).sudo(False)
+            result.extend(records._filtered_access('read')._ids)
+            if len(records) < IN_MAX:
+                # There are no more records
+                break
+            looping_offset += IN_MAX
+        return self.browse(result[offset:limit])._as_query(ordered)
+
+    def _search_res_access(self, operation, domain_operator):
+        assert self.env.su
+        if domain_operator != 'in':
+            return NotImplemented
+        domain = self.env.context.get('search_domain')
+        if not isinstance(domain, Domain):
+            domain = Domain.TRUE
+        self = self.sudo(False)  # noqa: PLW0642
+
+        res_model_names = condition_values(self, 'res_model', domain)
+        if operation != 'read' or res_model_names is None:
+            records = self.sudo().with_context(active_test=False).search_fetch(
+                domain, SECURITY_FIELDS, order='id', limit=MAX_SEARCH_LIMIT)
+            if len(records) == MAX_SEARCH_LIMIT:  # avoid out of memory
+                raise UserError(self.env._("Cannot search, too many activities"))
+            records = records.sudo(False)._filtered_access(operation)
+            # [('id', 'any!', query_with_ids)] is optimized in sec_domain
+            return Domain('id', 'any!', records._as_query(ordered=False))
+
+        # search by model and res_id
+        sec_domain = Domain.FALSE
+        env = self.with_context(active_test=False).env
+        for res_model_name in res_model_names:
+            if res_model_name not in env:
+                continue
+            comodel = env[res_model_name]
+            codomain = Domain('res_model', '=', comodel._name)
+            comodel_res_ids = condition_values(self, 'res_id', domain.map_conditions(
+                lambda cond: codomain & cond if cond.field_expr == 'res_model' else cond
+            ))
+            # similar implementation to what is in mail.message._search
+            comodel_domain = Domain.FALSE
+            comodel_domain_remaining = Domain.TRUE
+            for domain_operation, doc_operation in comodel._mail_get_operation_for_mail_message_operation('read'):
+                domain_operation, comodel_domain_remaining = (
+                    comodel_domain_remaining & domain_operation,
+                    comodel_domain_remaining & ~domain_operation,
+                )
+                comodel_rule = comodel._access_domain(doc_operation)
+                if comodel_rule.is_false():
+                    continue
+                if doc_operation == 'read':
+                    comodel_rule = Domain.TRUE  # covered by the search below
+                comodel_domain |= (domain_operation & comodel_rule)
+            if comodel_res_ids is not None:
+                comodel_domain &= Domain('id', 'in', comodel_res_ids)
+            comodel_domain = comodel_domain.optimize_full(comodel.sudo())
+            query = comodel._search(comodel_domain)
+            if query.is_empty():
+                continue
+            if query.where_clause:
+                codomain &= Domain('res_id', 'any!', query)
+            sec_domain |= codomain
+
+        return sec_domain
 
     @api.depends('summary', 'activity_type_id')
     def _compute_display_name(self):
@@ -414,39 +568,60 @@ class MailActivity(models.Model):
         classified = self._classify_by_model()
         for model, activity_data in classified.items():
             records_sudo = self.env[model].sudo().browse(activity_data['record_ids'])
-            activity_data['record_ids'] = records_sudo.exists().ids  # in case record was cascade-deleted in DB, skipping unlink override
+            activity_data['record_ids'] = set(records_sudo.exists().ids)  # in case record was cascade-deleted in DB, skipping unlink override
 
-        for activity in self.filtered('res_model'):
-            if activity.res_id not in classified[activity.res_model]['record_ids']:
-                continue
-
-            if activity.user_id.lang:
+        to_notify = self.filtered(
+            lambda act: act.res_model and act.user_id and act.res_id in classified[act.res_model]['record_ids'])
+        prefetch_per_model = {res_model: activities.mapped('res_id')
+                              for res_model, activities in to_notify.grouped('res_model').items()}
+        act_per_notif = to_notify.grouped(lambda act: (act.user_id, act.res_model, act.res_id, act.create_uid))
+        for (user, res_model, res_id, user_author_id), activities in act_per_notif.items():
+            if user.lang:
                 # Send the notification in the assigned user's language
-                activity = activity.with_context(lang=activity.user_id.lang)
+                activities = activities.with_context(lang=user.lang)
 
-            model_description = activity.env['ir.model']._get(activity.res_model).display_name
-            body = activity.env['ir.qweb']._render(
+            model_description = activities.env['ir.model']._get(res_model).display_name
+            tpl_base_values = {'model_description': model_description, 'is_html_empty': is_html_empty,
+                               'author': user_author_id.partner_id}
+            subtitles = []
+            if len(activities) == 1:
+                subject = activities.env._('"%(activity_name)s: %(summary)s" assigned to you',
+                                           activity_name=activities.res_name,
+                                           summary=activities.summary or activities.activity_type_id.name or '')
+                if activities.activity_type_id.name:
+                    subtitles.append(activities.env._('Activity: %s', activities.activity_type_id.name))
+                else:
+                    subtitles.append(activities.env._('Activity: Todo'))
+            else:
+                activities = activities.sorted('date_deadline')
+                first_activity = activities[0]
+                subject = activities.env._(
+                    '%(count)s activities on "%(res_name)s" (%(model_description)s) assigned to you',
+                    count=len(activities), res_name=first_activity.res_name, model_description=model_description)
+                if first_activity.activity_type_id.name:
+                    subtitles.append(activities.env._('First Activity: %s', first_activity.activity_type_id.name))
+                else:
+                    subtitles.append(activities.env._('Activity: Todo'))
+            subtitles.append(
+                activities.env._('Deadline: %s', format_date(activities.env, activities[0].date_deadline)))
+            body = activities.env['ir.qweb']._render(
                 'mail.message_activity_assigned',
-                {
-                    'activity': activity,
-                    'model_description': model_description,
-                    'is_html_empty': is_html_empty,
-                },
-                minimal_qcontext=True
+                {'activities': activities, **tpl_base_values},
+                minimal_qcontext=True,
             )
-            record = activity.env[activity.res_model].browse(activity.res_id)
-            if activity.user_id:
-                record.message_notify(
-                    partner_ids=activity.user_id.partner_id.ids,
-                    body=body,
-                    model_description=model_description,
-                    email_layout_xmlid='mail.mail_notification_layout',
-                    subject=_('"%(activity_name)s: %(summary)s" assigned to you',
-                              activity_name=activity.res_name,
-                              summary=activity.summary or activity.activity_type_id.name or ''),
-                    subtitles=[_('Activity: %s', activity.activity_type_id.name or _('Todo')),
-                               _('Deadline: %s', activity.date_deadline.strftime(get_lang(activity.env).date_format))],
-                )
+            record = self.env[res_model].browse(res_id).with_prefetch(prefetch_per_model[res_model])
+            record.with_context(
+                email_notification_force_header=True,
+                email_notification_force_footer=True,
+            ).message_notify(
+                # author_id not passed to let _message_compute_author resolve it
+                partner_ids=user.partner_id.ids,
+                body=body,
+                model_description=model_description,
+                email_layout_xmlid='mail.mail_notification_layout',
+                subject=subject,
+                subtitles=subtitles,
+            )
 
     def action_done(self):
         """ Wrapper without feedback because web button add context as
@@ -480,7 +655,7 @@ class MailActivity(models.Model):
         return action
 
     def action_feedback(self, feedback=False, attachment_ids=None):
-        messages, _next_activities = self.with_context(
+        messages = self.with_context(
             clean_context(self.env.context)
         )._action_done(feedback=feedback, attachment_ids=attachment_ids)
         return messages[0].id if messages else False
@@ -493,36 +668,34 @@ class MailActivity(models.Model):
     def action_feedback_schedule_next(self, feedback=False, attachment_ids=None):
         ctx = dict(
             clean_context(self.env.context),
-            default_previous_activity_type_id=self.activity_type_id.id,
             activity_previous_deadline=self.date_deadline,
-            default_res_id=self.res_id,
-            default_res_model=self.res_model,
+            active_id=self.res_id,
+            active_model=self.res_model,
         )
-        _messages, next_activities = self._action_done(feedback=feedback, attachment_ids=attachment_ids)  # will unlink activity, dont access self after that
-        if next_activities:
-            return False
+        # Only set if suggested; sending False disables compute fallback
+        if self.activity_type_id.suggested_next_type_id:
+            ctx['default_activity_type_id'] = self.activity_type_id.suggested_next_type_id.id
+        self._action_done(feedback=feedback, attachment_ids=attachment_ids)  # will unlink activity, dont access self after that
         return {
-            'name': _('Schedule an Activity'),
+            'name': _('Schedule Activity'),
             'context': ctx,
             'view_mode': 'form',
-            'res_model': 'mail.activity',
+            'res_model': 'mail.activity.schedule',
             'views': [(False, 'form')],
             'type': 'ir.actions.act_window',
             'target': 'new',
         }
 
     def _action_done(self, feedback=False, attachment_ids=None):
-        """ Private implementation of marking activity as done: posting a message, archiving activity
-            (since done), and eventually create the automatical next activity (depending on config).
+        """ Private implementation of marking activity as done: posting a message and
+            archiving activity (since done).
             :param feedback: optional feedback from user when marking activity as done
             :param attachment_ids: list of ir.attachment ids to attach to the posted mail.message
-            :returns (messages, activities) where
-                - messages is a recordset of posted mail.message
-                - activities is a recordset of mail.activity of forced automically created activities
+            :returns: recordset of posted mail.message
         """
         # marking as 'done'
         messages = self.env['mail.message']
-        next_activities_values = []
+        ongoing_activities = self.filtered(lambda a: not a.date_done)
 
         # Search for all attachments linked to the activities we are about to archive. This way, we
         # can link them to the message posted and prevent their disparition. The move is done in
@@ -534,19 +707,14 @@ class MailActivity(models.Model):
         attachments_to_remove = self.env['ir.attachment']
         activities_to_remove = self.browse()
 
-        for model, activity_data in self.filtered('res_model')._classify_by_model().items():
+        for model, activity_data in ongoing_activities.filtered('res_model')._classify_by_model().items():
             # Allow user without access to the record to "mark as done" activities assigned to them. At the end of the
             # method, the activity is archived which ensure the user has enough right on the activities.
             records_sudo = self.env[model].sudo().browse(activity_data['record_ids'])
             existing = records_sudo.exists()  # in case record was cascade-deleted in DB, skipping unlink override
             for record_sudo, activity in zip(records_sudo, activity_data['activities']):
-                # extract value to generate next activities
-                if activity.chaining_type == 'trigger':
-                    vals = activity.with_context(activity_previous_deadline=activity.date_deadline)._prepare_next_activity_values()
-                    next_activities_values.append(vals)
 
                 # post message on activity, before deleting it
-
                 if record_sudo in existing:
                     activity_message = record_sudo.message_post_with_source(
                         'mail.message_activity_done',
@@ -555,7 +723,8 @@ class MailActivity(models.Model):
                         render_values={
                             'activity': activity,
                             'feedback': feedback,
-                            'display_assignee': activity.user_id != self.env.user
+                            'display_assignee': activity.user_id != self.env.user,
+                            **self._get_activity_done_message_extra_values(activity),
                         },
                         mail_activity_type_id=activity.activity_type_id.id,
                         subtype_xmlid='mail.mt_activities',
@@ -563,8 +732,11 @@ class MailActivity(models.Model):
                 else:
                     activity_message = self.env['mail.message']
                     activities_to_remove += activity
-                if attachment_ids:
-                    activity.attachment_ids = attachment_ids
+
+                message_attachments = activity_attachments.get(activity.id) or self.env['ir.attachment']
+                activity_attachment_ids = (attachment_ids or []) + message_attachments.ids
+                if activity_attachment_ids:
+                    activity.attachment_ids = activity_attachment_ids
 
                 # Moving the attachments in the message
                 # TODO: Fix void res_id on attachment when you create an activity with an image
@@ -575,15 +747,11 @@ class MailActivity(models.Model):
                         'res_id': activity_message.id,
                         'res_model': activity_message._name,
                     })
-                    activity_message.attachment_ids = message_attachments
+                    activity_message.attachment_ids = message_attachments.ids
                 # removing attachments linked to activity if record is missing
                 elif message_attachments:
                     attachments_to_remove += message_attachments
                 messages += activity_message
-
-        next_activities = self.env['mail.activity']
-        if next_activities_values:
-            next_activities = self.env['mail.activity'].create(next_activities_values)
 
         # remove lost activities and attachments, not actionnable anyway anymore
         if attachments_to_remove:
@@ -595,7 +763,7 @@ class MailActivity(models.Model):
         (self - activities_to_remove).action_archive()
         if feedback:
             (self - activities_to_remove).feedback = feedback
-        return messages, next_activities
+        return messages
 
     @api.readonly
     def action_close_dialog(self):
@@ -636,79 +804,81 @@ class MailActivity(models.Model):
         }
 
     def action_reschedule_today(self):
-        self.filtered('active').date_deadline = date.today()
+        self.filtered('active').date_deadline = fields.Date.context_today(self)
 
     def action_reschedule_tomorrow(self):
-        self.filtered('active').date_deadline = date.today() + timedelta(days=1)
+        self.filtered('active').date_deadline = fields.Date.context_today(self) + timedelta(days=1)
 
     def action_reschedule_nextweek(self):
-        self.filtered('active').date_deadline = date.today() + relativedelta(weeks=1, weekday=MO(-1))
+        self.filtered('active').date_deadline = fields.Date.context_today(self) + relativedelta(weeks=1, weekday=MO(-1))
 
-    def action_cancel(self):
-        for activity in self:
-            if activity.active:
-                activity.unlink()
+    def action_reschedule_customdate(self, date_deadline):
+        date_deadline = fields.Date.to_date(date_deadline)
+        self.filtered('active').date_deadline = date_deadline
 
-    @api.readonly
-    def activity_format(self):
-        return Store().add(self).get_result()
-
-    def _to_store_defaults(self, target):
-        return [
-            "activity_category",
-            Store.One("activity_type_id", "name"),
-            "can_write",
-            "chaining_type",
-            "create_date",
-            Store.One("create_uid", Store.One("partner_id", "name")),
-            "date_deadline",
-            "date_done",
-            "display_name",
-            "icon",
-            "note",
-            "res_id",
-            "res_model",
-            "state",
-            "summary",
-            Store.One("user_id", Store.One("partner_id")),
-            Store.Many("attachment_ids", ["name"]),
-            Store.Many("mail_template_ids", ["name"]),
-        ]
+    def _store_activity_fields(self, res: Store.FieldList):
+        res.attr("activity_category")
+        res.one("activity_type_id", ["name"])
+        res.extend(["can_write", "create_date"])
+        res.one("create_uid", lambda res: res.one("partner_id", ["name"]))
+        res.extend(["date_deadline", "date_done", "display_name", "icon", "note"])
+        res.extend(["phone", "res_id", "res_model", "state", "summary"])
+        res.one("role_id", ["name"])
+        res.one("user_id", lambda res: res.one("partner_id", "_store_partner_fields"))
+        res.many("attachment_ids", ["name"])
+        res.many("mail_template_ids", ["name"])
 
     @api.readonly
     @api.model
     def get_activity_data(self, res_model, domain, limit=None, offset=0, fetch_done=False):
-        """ Get aggregate data about records and their activities.
+        """Get aggregate data about records and their activities.
 
-        The goal is to fetch and compute aggregated data about records and their
-        activities to display them in the activity views and the chatter. For example,
-        the activity view displays it as a table with columns and rows being respectively
-        the activity_types and the activity_res_ids, and the grouped_activities being the
-        table entries with the aggregated data.
+        The goal is to fetch and compute aggregated data about records and
+        their activities to display them in the activity views and the
+        chatter. For example, the activity view displays it as a table with
+        columns and rows being respectively the activity types and the
+        activity ``res_ids``, and the grouped activities being the table
+        entries with the aggregated data.
 
-        :param str res_model: model of the records to fetch
-        :param list domain: record search domain
-        :param int limit: maximum number of records to fetch
-        :param int offset: offset of the first record to fetch
-        :param bool fetch_done: determines if "done" activities are integrated in the
-            aggregated data or not.
-        :returns: {'activity_types': dict of activity type info
-                            {id: int, name: str, mail_template: list of {id:int, name:str}}
-                       'activity_res_ids': list<int> of record id ordered by closest date
-                            (deadline for ongoing activities, and done date for done activities)
-                       'grouped_activities': dict<dict>
-                            res_id -> activity_type_id -> aggregated info as:
-                                count_by_state dict: mapping state to count (ex.: 'planned': 2)
-                                ids list: activity ids for the res_id and activity_type_id
-                                reporting_date str: aggregated date of the related activities as
-                                    oldest deadline of ongoing activities if there are any
-                                    or most recent date done of completed activities
-                                state dict: aggregated state of the related activities
-                                user_assigned_ids list: activity responsible id ordered
-                                    by closest deadline of the related activities
-                                attachments_info: dict with information about the attachments
-                                    {'count': int, 'most_recent_id': int, 'most_recent_name': str}
-                       }
+        :param str res_model: model of the records to fetch.
+        :param list domain: record search domain.
+        :param int limit: maximum number of records to fetch.
+        :param int offset: offset of the first record to fetch.
+        :param bool fetch_done: determines whether "done" activities are
+            integrated in the aggregated data or not.
+
+        :returns: a dict with the following keys:
+
+            * ``activity_types`` -- dict of activity type info::
+
+                {id: int, name: str, mail_template: list of {id: int, name: str}}
+
+            * ``activity_res_ids`` -- ``list[int]`` of record IDs ordered
+              by closest date (deadline for ongoing activities, and done
+              date for done activities).
+            * ``grouped_activities`` -- ``dict[dict]`` mapping
+              ``res_id -> activity_type_id -> aggregated info``, where the
+              aggregated info contains:
+
+              * ``count_by_state`` (dict) -- mapping state to count
+                (e.g. ``'planned': 2``);
+              * ``ids`` (list) -- activity IDs for the ``res_id`` and
+                ``activity_type_id``;
+              * ``reporting_date`` (str) -- aggregated date of the related
+                activities, as the oldest deadline of ongoing activities
+                if there are any, or the most recent done date of
+                completed activities;
+              * ``state`` (dict) -- aggregated state of the related
+                activities;
+              * ``user_assigned_ids`` (list) -- activity responsible IDs
+                ordered by closest deadline of the related activities;
+              * ``role_to_assign_ids`` (list) -- role IDs for activities
+                without user_id assigned to them.
+                ordered by closest deadline of the related activities;
+              * ``attachments_info`` (dict) -- information about the
+                attachments, ``{'count': int, 'most_recent_id': int,
+                'most_recent_name': str}``.
+
         :rtype: dict
         """
         user_tz = self.user_id.sudo().tz
@@ -768,6 +938,7 @@ class MailActivity(models.Model):
                 res_id_to_date_done[res_id] = date_done
             # As ongoing is sorted on date_deadline, we get assignees on activity with oldest deadline first
             user_assigned_ids = ongoing.user_id.ids
+            role_to_assign_ids = ongoing.filtered(lambda a: not a.user_id).role_id.ids
             attachments = [attachments_by_id[attach.id] for attach in completed.attachment_ids]
 
             grouped_activities[res_id][activity_type_id.id] = {
@@ -778,6 +949,7 @@ class MailActivity(models.Model):
                 'reporting_date': ongoing and date_deadline or date_done or None,
                 'state': self._compute_state_from_date(date_deadline, user_tz) if ongoing else 'done',
                 'user_assigned_ids': user_assigned_ids,
+                'role_to_assign_ids': role_to_assign_ids,
                 'summaries': [act.summary if act.summary else '' for act in activities],
             }
             if attachments:
@@ -823,6 +995,7 @@ class MailActivity(models.Model):
 
         :returns: for each model having at least one activity in self, have
           a sub-dict containing
+
             * activities: activities related to that model;
             * record IDs: record linked to the activities of that model, in same
               order;
@@ -839,24 +1012,6 @@ class MailActivity(models.Model):
             data_by_model[activity.res_model]['record_ids'].append(activity.res_id)
         return data_by_model
 
-    def _prepare_next_activity_values(self):
-        """ Prepare the next activity values based on the current activity record and applies _onchange methods
-        :returns a dict of values for the new activity
-        """
-        self.ensure_one()
-        vals = self.default_get(self.fields_get())
-
-        vals.update({
-            'previous_activity_type_id': self.activity_type_id.id,
-            'res_id': self.res_id,
-            'res_model': self.res_model,
-            'res_model_id': self.env['ir.model']._get(self.res_model).id if self.res_model else False,
-        })
-        virtual_activity = self.new(vals)
-        virtual_activity._onchange_previous_activity_type_id()
-        virtual_activity._onchange_activity_type_id()
-        return virtual_activity._convert_to_write(virtual_activity._cache)
-
     @api.autovacuum
     def _gc_delete_old_overdue_activities(self):
         """
@@ -865,7 +1020,7 @@ class MailActivity(models.Model):
         - If the config_parameter is set to a negative number, it's an invalid value, we skip the gc routine
         - If the config_parameter is set to a positive number, we delete only overdue activities which deadline is older than X years
         """
-        year_threshold = int(self.env['ir.config_parameter'].sudo().get_param('mail.activity.gc.delete_overdue_years', 0))
+        year_threshold = self.env['ir.config_parameter'].sudo().get_int('mail.activity.gc.delete_overdue_years')
         if year_threshold == 0:
             _logger.warning("The ir.config_parameter 'mail.activity.gc.delete_overdue_years' is missing or set to 0. Skipping gc routine.")
             return
@@ -876,3 +1031,7 @@ class MailActivity(models.Model):
         deadline_threshold_dt = datetime.now() - relativedelta(years=year_threshold)
         old_overdue_activities = self.env['mail.activity'].search([('date_deadline', '<', deadline_threshold_dt)], limit=10_000)
         old_overdue_activities.unlink()
+
+    def _get_activity_done_message_extra_values(self, activity):
+        """To ease passing new values to the mail.message_activity_done chatter template."""
+        return {}

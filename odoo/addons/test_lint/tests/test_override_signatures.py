@@ -1,9 +1,7 @@
 import collections
 import inspect
 
-from odoo.modules.registry import Registry
-from odoo.tests.common import get_db_name, tagged
-from .lint_case import LintCase
+from .common import RegistryLintCase
 
 POSITIONAL_ONLY = inspect.Parameter.POSITIONAL_ONLY
 POSITIONAL_OR_KEYWORD = inspect.Parameter.POSITIONAL_OR_KEYWORD
@@ -23,9 +21,6 @@ Incompatible override definition in {child_module}:{override_decorators}
     def {method}{override_signature}"""
 
 
-MODULES_TO_IGNORE = {
-    'pos_blackbox_be',  # TODO cannot update to sanitize without certification
-}
 METHODS_TO_IGNORE = {
     # base
     'action_timer_stop',
@@ -48,7 +43,6 @@ MODEL_METHODS_TO_IGNORE = {
     ('propose.change', '_do_update_step'),
     ('report.pos_hr.single_employee_sales_report', '_get_domain'),
     ('report.pos_hr.single_employee_sales_report', 'get_sale_details'),
-    ('sign.request', '_generate_completed_document'),
 }
 
 
@@ -60,6 +54,7 @@ class HitMiss:
     @property
     def ratio(self):
         return self.hit / (self.hit + self.miss)
+
 
 counter = collections.defaultdict(HitMiss)
 
@@ -160,15 +155,11 @@ def get_decorators(method):
     return ""
 
 
-@tagged('-at_install', 'post_install')
-class TestLintOverrideSignatures(LintCase):
+class TestLintOverrideSignatures(RegistryLintCase):
     def test_lint_override_signature(self):
         self.failureException = TypeError
-        registry = Registry(get_db_name())
 
-        for model_name, model_cls in registry.items():
-            if model_cls._module in MODULES_TO_IGNORE:
-                continue
+        for model_name, model_cls in self.registry.items():
             for method_name, _ in inspect.getmembers(model_cls, inspect.isroutine):
                 if (
                     method_name.startswith('__')
@@ -183,11 +174,19 @@ class TestLintOverrideSignatures(LintCase):
                     method = getattr(parent_class, method_name, None)
                     if callable(method):
                         break
+                else:
+                    raise LookupError(f"Unable to find callable {method_name!r} in mro of {model_name!r}")
 
                 parent_module = get_odoo_module_name(parent_class.__module__)
                 original_signature = inspect.signature(method)
                 original_decorators = get_decorators(method)
                 is_private = method_name.startswith('_')
+
+                # https://docs.python.org/3/library/typing.html#typing.override
+                with self.subTest(module=parent_module, model=model_name, method=method_name):
+                    if getattr(method, '__override__', 'super' in method.__code__.co_names):
+                        msg = f"override with no parent method in {model_name} for {method_name}"
+                        raise TypeError(msg)
 
                 # Assert that all child classes correctly override the method
                 for child_class in reverse_mro:

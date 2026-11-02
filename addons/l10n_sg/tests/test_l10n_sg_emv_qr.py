@@ -9,6 +9,7 @@ from odoo.tests import tagged
 @tagged('post_install_l10n', 'post_install', '-at_install')
 class TestL10nSGEmvQrCode(AccountTestInvoicingCommon):
     """ Test the generation of the EMV QR Code on invoices """
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     @AccountTestInvoicingCommon.setup_country('sg')
@@ -21,7 +22,7 @@ class TestL10nSGEmvQrCode(AccountTestInvoicingCommon):
         })
 
         cls.acc_emv_sg = cls.env['res.partner.bank'].create({
-            'acc_number': '123456789012345678',
+            'account_number': '123456789012345678',
             'partner_id': cls.company_data['company'].partner_id.id,
             'proxy_type': 'uen',
             'proxy_value': '200002150HWCF',
@@ -29,7 +30,7 @@ class TestL10nSGEmvQrCode(AccountTestInvoicingCommon):
         })
 
         cls.acc_emv_sg_without_paynow_info = cls.env['res.partner.bank'].create({
-            'acc_number': '1234567890',
+            'account_number': '1234567890',
             'partner_id': cls.company_data['company'].partner_id.id,
         })
 

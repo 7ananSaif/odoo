@@ -22,7 +22,6 @@ function assertGtagConsent(expectedState) {
 }
 
 registry.category("web_tour.tours").add("cookie_bar_updates_gtag_consent", {
-    url: "/",
     steps: () => [
         {
             content: "Accept all cookies",
@@ -38,13 +37,13 @@ registry.category("web_tour.tours").add("cookie_bar_updates_gtag_consent", {
         },
         {
             content: "Go to Cookie Policy page",
-            trigger: "footer a[href='/cookie-policy']",
+            trigger: "footer a[href='/website/cookie-policy']",
             run: "click",
             expectUnloadPage: true,
         },
         {
             content: "Toggle the cookie bar",
-            trigger: "button.o_cookies_bar_toggle",
+            trigger: ".o_cookies_bar_toggle",
             run: "click",
         },
         {

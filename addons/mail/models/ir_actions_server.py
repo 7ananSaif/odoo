@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-
 from dateutil.relativedelta import relativedelta
 
 from odoo import _, api, fields, models
@@ -25,12 +24,14 @@ class IrActionsServer(models.Model):
         tracking=True,
         selection_add=[
             ('next_activity', 'Create Activity'),
-            ('mail_post', 'Send Email'),
+            ('mail_post', 'Send Message'),
+            ('log_note', 'Log Note'),
             ('followers', 'Add Followers'),
             ('remove_followers', 'Remove Followers'),
             ('code',),
         ],
         ondelete={'mail_post': 'cascade',
+                  'log_note': 'cascade',
                   'followers': 'cascade',
                   'remove_followers': 'cascade',
                   'next_activity': 'cascade',
@@ -56,60 +57,75 @@ class IrActionsServer(models.Model):
         readonly=False, store=True
     )
     partner_ids = fields.Many2many('res.partner', compute='_compute_followers_info', readonly=False, store=True)
+    subtype_ids = fields.Many2many(
+        'mail.message.subtype',
+        string="Subscriptions",
+        default=lambda self: self.env.ref('mail.mt_comment').ids,
+        readonly=False, store=True)
 
-    # Message Post / Email
+    # Message Post
     template_id = fields.Many2one(
-        'mail.template', 'Email Template',
+        'mail.template', 'Mail Template',
         domain="[('model_id', '=', model_id)]",
         compute='_compute_template_id',
         ondelete='set null', readonly=False, store=True,
     )
-    # Message post
+
     mail_post_autofollow = fields.Boolean(
         'Subscribe Recipients', compute='_compute_mail_post_autofollow',
         readonly=False, store=True)
-    mail_post_method = fields.Selection(
-        selection=[('email', 'Email'), ('comment', 'Message'), ('note', 'Note')],
-        string='Send Email As',
-        compute='_compute_mail_post_method',
-        readonly=False, store=True)
 
-    # Next Activity
+    # Log note
+    log_note_note = fields.Html(
+        'Internal Note',
+        translate=True,
+        compute='_compute_log_note_note', readonly=False, store=True)
+
+    # Next Activity: plan-based
+    has_activity_plans = fields.Boolean(compute='_compute_has_activity_plans')
+    activity_plan_id = fields.Many2one(
+        'mail.activity.plan', string='Activity Plan',
+        domain="['|', ('res_model', '=', False), ('res_model', '=', model_name)]",
+        compute='_compute_activity_plan_id', readonly=False, store=True)
+    activity_plan_has_user_on_demand = fields.Boolean(related="activity_plan_id.has_user_on_demand")
+    # Next Activity: activity-based
     activity_type_id = fields.Many2one(
         'mail.activity.type', string='Activity Type',
         domain="['|', ('res_model', '=', False), ('res_model', '=', model_name)]",
-        compute='_compute_activity_info', readonly=False, store=True,
+        related=False, compute='_compute_activity_type_id', search=False,
+        readonly=False, store=True,
         ondelete='restrict')
-    activity_summary = fields.Char(
-        'Title',
-        compute='_compute_activity_info', readonly=False, store=True)
-    activity_note = fields.Html(
-        'Note',
-        compute='_compute_activity_info', readonly=False, store=True)
+    activity_summary = fields.Char('Summary', readonly=False, store=True)
+    activity_note = fields.Html('Note', readonly=False, store=True)
+    # Next Activity: common
     activity_date_deadline_range = fields.Integer(
-        string='Due Date In',
-        compute='_compute_activity_info', readonly=False, store=True)
+        string='Due In',
+        compute='_compute_activity_date_deadline_range', readonly=False, store=True)
     activity_date_deadline_range_type = fields.Selection(
         [('days', 'Days'),
          ('weeks', 'Weeks'),
          ('months', 'Months')],
         string='Due type',
-        compute='_compute_activity_info', readonly=False, store=True)
+        compute='_compute_activity_date_deadline_range_type', readonly=False, store=True)
     activity_user_type = fields.Selection(
         [('specific', 'Specific User'),
-         ('generic', 'Dynamic User (based on record)')],
+         ('role', 'Specific Role'),
+         ('generic', 'Dynamic User')],
          string='User Type',
-        compute='_compute_activity_info', readonly=False, store=True,
+        compute='_compute_activity_user_type', readonly=False, store=True,
         help="Use 'Specific User' to always assign the same user on the next activity. Use 'Dynamic User' to specify the field name of the user to choose on the record.")
     activity_user_id = fields.Many2one(
         'res.users', string='Responsible',
-        compute='_compute_activity_user_info', readonly=False, store=True)
+        compute='_compute_activity_user_id', readonly=False, store=True)
     activity_user_field_name = fields.Char(
         'User Field',
-        compute='_compute_activity_user_info', readonly=False, store=True)
+        compute='_compute_activity_user_field_name', readonly=False, store=True)
+    activity_role_id = fields.Many2one(
+        'res.role', string='Responsible Role', ondelete='restrict',
+        compute='_compute_activity_role_id', readonly=False, store=True)
 
     def _name_depends(self):
-        return [*super()._name_depends(), "template_id", "activity_type_id"]
+        return [*super()._name_depends(), "template_id", "activity_type_id", "activity_plan_id"]
 
     def _generate_action_name(self):
         self.ensure_one()
@@ -117,18 +133,40 @@ class IrActionsServer(models.Model):
             return _('Send %(template_name)s', template_name=self.template_id.name)
         if self.state == 'next_activity' and self.activity_type_id:
             return _('Create %(activity_name)s', activity_name=self.activity_type_id.name)
+        if self.state == 'next_activity' and self.activity_plan_id:
+            return _('Plan activities: %(activity_plan_name)s', activity_plan_name=self.activity_plan_id.name)
         return super()._generate_action_name()
+
+    @api.constrains('activity_plan_id', 'activity_type_id')
+    def _check_activity_plan_and_type(self):
+        for action in self.filtered(lambda act: act.state == 'next_activity'):
+            if action.activity_plan_id and action.activity_type_id:
+                raise models.ValidationError(_("You cannot set both an activity type and an activity plan on a server action."))
 
     @api.depends('state')
     def _compute_available_model_ids(self):
         mail_thread_based = self.filtered(
-            lambda action: action.state in {'mail_post', 'followers', 'remove_followers', 'next_activity'}
+            lambda action: action.state in {'log_note', 'followers', 'remove_followers', 'next_activity'}
         )
+        to_super = self
+        # logging a note needs a mail.thread (its method _message_log)
+        # while sending an email with a template only needs a non-abstract model
+        # Do that sorting here
         if mail_thread_based:
             mail_models = self.env['ir.model'].search([('is_mail_thread', '=', True), ('transient', '=', False)])
             for action in mail_thread_based:
                 action.available_model_ids = mail_models.ids
-        super(IrActionsServer, self - mail_thread_based)._compute_available_model_ids()
+            to_super = to_super - mail_thread_based
+
+        need_non_abstract_model = self.filtered(lambda a: a.state == 'mail_post')
+        # Early mirror for mail_template._get_non_abstract_models_domain
+        if need_non_abstract_model:
+            models = self.env['ir.model'].search([('abstract', '=', False)])
+            for action in need_non_abstract_model:
+                action.available_model_ids = models.ids
+            to_super = to_super - need_non_abstract_model
+
+        super(IrActionsServer, to_super)._compute_available_model_ids()
 
     @api.depends('model_id', 'state')
     def _compute_template_id(self):
@@ -139,23 +177,15 @@ class IrActionsServer(models.Model):
         if to_reset:
             to_reset.template_id = False
 
-    @api.depends('state', 'mail_post_method')
+    @api.depends('state')
     def _compute_mail_post_autofollow(self):
-        to_reset = self.filtered(lambda act: act.state != 'mail_post' or act.mail_post_method == 'email')
-        if to_reset:
-            to_reset.mail_post_autofollow = False
-        other = self - to_reset
-        if other:
-            other.mail_post_autofollow = True
+        to_reset = self.filtered(lambda act: act.state != 'mail_post')
+        to_reset.mail_post_autofollow = False
 
     @api.depends('state')
-    def _compute_mail_post_method(self):
-        to_reset = self.filtered(lambda act: act.state != 'mail_post')
-        if to_reset:
-            to_reset.mail_post_method = False
-        other = self - to_reset
-        if other:
-            other.mail_post_method = 'comment'
+    def _compute_log_note_note(self):
+        to_reset = self.filtered(lambda act: act.state != 'log_note')
+        to_reset.log_note_note = False
 
     @api.depends('model_id', 'state')
     def _compute_followers_type(self):
@@ -181,46 +211,86 @@ class IrActionsServer(models.Model):
                 action.partner_ids = False
                 action.followers_partner_field_name = False
 
+    @api.depends('model_id')
+    def _compute_has_activity_plans(self):
+        self.has_activity_plans = False
+        for action in self:
+            action.has_activity_plans = self.env['mail.activity.plan'].search_count([
+                '|', ('res_model', '=', False), ('res_model', '=', action.model_id.model)
+            ], limit=1) > 0
+
     @api.depends('model_id', 'state')
-    def _compute_activity_info(self):
-        to_reset = self.filtered(lambda act: not act.model_id or act.state != 'next_activity')
-        if to_reset:
-            to_reset.activity_type_id = False
-            to_reset.activity_summary = False
-            to_reset.activity_note = False
-            to_reset.activity_date_deadline_range = False
-            to_reset.activity_date_deadline_range_type = False
-            to_reset.activity_user_type = False
+    def _compute_activity_plan_id(self):
+        to_reset = self.filtered(lambda act: act.state != 'next_activity' or (act.activity_plan_id.res_model and act.model_id.model != act.activity_plan_id.res_model))
+        to_reset.activity_plan_id = False
+
+    @api.onchange('activity_plan_id')
+    def _onchange_activity_plan_id(self):
+        if self.activity_plan_id:
+            self.activity_type_id = False
+
+    @api.depends('model_id', 'state')
+    def _compute_activity_type_id(self):
+        to_reset = self.filtered(lambda act: act.state != 'next_activity' or act.activity_plan_id)
+        to_reset.activity_type_id = False
         for action in (self - to_reset):
-            if action.activity_type_id.res_model and action.model_id.model != action.activity_type_id.res_model:
-                action.activity_type_id = False
-            if not action.activity_summary:
-                action.activity_summary = action.activity_type_id.summary
-            if not action.activity_date_deadline_range_type:
-                action.activity_date_deadline_range_type = 'days'
-            if not action.activity_user_type:
-                action.activity_user_type = 'specific'
+            if not action.activity_type_id or action.model_id.model != action.activity_type_id.res_model:
+                action.activity_type_id = action.env['mail.activity']._default_activity_type_for_model(action.model_id.model)
+
+    @api.onchange('activity_type_id')
+    def _onchange_activity_type_id(self):
+        if self.activity_type_id:
+            self.activity_plan_id = False
+        self.activity_summary = self.activity_type_id.name
+        self.activity_note = self.activity_type_id.default_note
+
+    @api.depends('state')
+    def _compute_activity_date_deadline_range(self):
+        to_reset = self.filtered(lambda act: act.state != 'next_activity')
+        to_reset.activity_date_deadline_range = False
+        to_default = (self - to_reset).filtered(lambda act: not act.activity_date_deadline_range)
+        to_default.activity_date_deadline_range = 1
+
+    @api.depends('state')
+    def _compute_activity_date_deadline_range_type(self):
+        to_reset = self.filtered(lambda act: act.state != 'next_activity')
+        to_reset.activity_date_deadline_range_type = False
+        to_default = (self - to_reset).filtered(lambda act: not act.activity_date_deadline_range_type)
+        to_default.activity_date_deadline_range_type = 'days'
+
+    @api.depends('activity_plan_id')
+    def _compute_activity_user_type(self):
+        to_reset = self.filtered(lambda act: act.activity_plan_id and not act.activity_plan_id.has_user_on_demand)
+        to_reset.activity_user_type = False
+        to_default = (self - to_reset).filtered(lambda act: not act.activity_user_type)
+        to_default.activity_user_type = 'specific'
+
+    @api.depends('activity_user_type')
+    def _compute_activity_user_id(self):
+        to_reset = self.filtered(lambda act: act.activity_user_type != 'specific')
+        to_reset.activity_user_id = False
+
+    @api.depends('activity_user_type')
+    def _compute_activity_role_id(self):
+        to_reset = self.filtered(lambda act: act.activity_user_type != 'role')
+        to_reset.activity_role_id = False
 
     @api.depends('model_id', 'activity_user_type')
-    def _compute_activity_user_info(self):
-        to_compute = self.filtered("activity_user_type")
-        (self - to_compute).activity_user_id = False
+    def _compute_activity_user_field_name(self):
+        to_compute = self.filtered(lambda act: act.activity_user_type == 'generic')
         (self - to_compute).activity_user_field_name = False
         for action in to_compute:
-            if action.activity_user_type == 'specific':
-                action.activity_user_field_name = False
-            else:
-                action.activity_user_id = False
-                IrModelFields = self.env['ir.model.fields']
-                domain = [('model', '=', action.model_id.model), ("relation", "=", "res.users")]
-                action.activity_user_field_name = (
-                    IrModelFields.search([*domain, ("name", "=", "user_id")], limit=1)
-                    or IrModelFields.search(domain, limit=1)
-                ).name
+            IrModelFields = self.env['ir.model.fields']
+            domain = [('model', '=', action.model_id.model), ("relation", "=", "res.users")]
+            action.activity_user_field_name = (
+                IrModelFields.search([*domain, ("name", "=", "user_id")], limit=1)
+                or IrModelFields.search(domain, limit=1)
+            ).name
 
     @api.model
     def _warning_depends(self):
-        return super()._warning_depends() + [
+        return [
+            *super()._warning_depends(),
             'activity_date_deadline_range',
             'model_id',
             'template_id',
@@ -235,17 +305,16 @@ class IrActionsServer(models.Model):
         warnings = super()._get_warning_messages()
 
         if self.activity_date_deadline_range < 0:
-            warnings.append(_("The 'Due Date In' value can't be negative."))
+            warnings.append(_("The 'Due In' value can't be negative."))
 
         if self.state == 'mail_post' and self.template_id and self.template_id.model_id != self.model_id:
             warnings.append(_("Mail template model of $(action_name)s does not match action model.", action_name=self.name))
 
-        if self.state in {'mail_post', 'followers', 'remove_followers', 'next_activity'} and self.model_id.transient:
-            warnings.append(_("This action cannot be done on transient models."))
+        if self.state in {'mail_post', 'log_note', 'followers', 'remove_followers', 'next_activity'} and (self.model_id.transient or self.model_id.abstract):
+            warnings.append(_("This action cannot be done on transient or abstract models."))
 
         if (
-            (self.state in {"followers", "remove_followers"}
-            or (self.state == "mail_post" and self.mail_post_method != "email"))
+            self.state in {"followers", "remove_followers", "log_note"}
             and not self.model_id.is_mail_thread
         ):
             warnings.append(_("This action can only be done on a mail thread models"))
@@ -254,16 +323,16 @@ class IrActionsServer(models.Model):
             warnings.append(_("A next activity can only be planned on models that use activities."))
 
         if self.state in ('followers', 'remove_followers') and self.followers_type == 'generic' and self.followers_partner_field_name:
-            fields, field_chain_str = self._get_relation_chain("followers_partner_field_name")
-            if fields and fields[-1].comodel_name != "res.partner":
+            fields, field_chain_str, _property = self._get_relation_chain("followers_partner_field_name")
+            if fields and (not fields[-1].relational or fields[-1].comodel_name != "res.partner"):
                 warnings.append(_(
                     "The field '%(field_chain_str)s' is not a partner field.",
                     field_chain_str=field_chain_str,
                 ))
 
         if self.state == 'next_activity' and self.activity_user_type == 'generic' and self.activity_user_field_name:
-            fields, field_chain_str = self._get_relation_chain("activity_user_field_name")
-            if fields and fields[-1].comodel_name != "res.users":
+            fields, field_chain_str, _property = self._get_relation_chain("activity_user_field_name")
+            if fields and (not fields[-1].relational or fields[-1].comodel_name != "res.users"):
                 warnings.append(_(
                     "The field '%(field_chain_str)s' is not a user field.",
                     field_chain_str=field_chain_str,
@@ -280,7 +349,10 @@ class IrActionsServer(models.Model):
             else:
                 followers_field = self.followers_partner_field_name
                 partner_ids = records.mapped(followers_field)
-            records.message_subscribe(partner_ids=partner_ids.ids)
+            kwargs_message_subscribe = {"partner_ids": partner_ids.ids}
+            if self.subtype_ids:
+                kwargs_message_subscribe["subtype_ids"] = self.subtype_ids.ids
+            records.message_subscribe(**kwargs_message_subscribe)
         return False
 
     def _run_action_remove_followers_multi(self, eval_context=None):
@@ -321,9 +393,8 @@ class IrActionsServer(models.Model):
                     return True
         return False
 
-    def _run_action_mail_post_multi(self, eval_context=None):
-        # TDE CLEANME: when going to new api with server action, remove action
-        if not self.template_id or (not self.env.context.get('active_ids') and not self.env.context.get('active_id')) or self._is_recompute():
+    def _run_action_log_note_multi(self, eval_context=None):
+        if (not self.env.context.get('active_ids') and not self.env.context.get('active_id')) or self._is_recompute():
             return False
         res_ids = self.env.context.get('active_ids', [self.env.context.get('active_id')])
 
@@ -332,56 +403,61 @@ class IrActionsServer(models.Model):
         cleaned_ctx = dict(self.env.context)
         cleaned_ctx.pop('default_type', None)
         cleaned_ctx.pop('default_parent_id', None)
+
+        records = self.env[self.model_name].with_context(cleaned_ctx).browse(res_ids)
+        bodies = {rec.id: self.log_note_note for rec in records}
+        records._message_log_batch(bodies, message_type="notification")
+        return False
+
+    def _run_action_mail_post_multi(self, eval_context=None):
+        if not self.template_id or (not self.env.context.get('active_ids') and not self.env.context.get('active_id')) or self._is_recompute():
+            return False
+        res_ids = self.env.context.get('active_ids', [self.env.context.get('active_id')])
+        if res_ids and self.model_id != self.template_id.model_id:
+            raise ValueError(self.env._("The model of the mail template is different from the one on the action server"))
+
+        # Clean context from default_type to avoid making attachment
+        # with wrong values in subsequent operations
+        cleaned_ctx = dict(self.env.context)
+        cleaned_ctx.pop('default_type', None)
+        cleaned_ctx.pop('default_parent_id', None)
         cleaned_ctx['mail_post_autofollow_author_skip'] = True  # do not subscribe random people to records
         cleaned_ctx['mail_post_autofollow'] = self.mail_post_autofollow
-
-        if self.mail_post_method in ('comment', 'note'):
+        if isinstance(self.env[self.model_name], self.env.registry.get("mail.thread")):
             records = self.env[self.model_name].with_context(cleaned_ctx).browse(res_ids)
-            message_type = 'auto_comment' if self.state == 'mail_post' else 'notification'
-            if self.mail_post_method == 'comment':
-                subtype_id = self.env['ir.model.data']._xmlid_to_res_id('mail.mt_comment')
-            else:
-                subtype_id = self.env['ir.model.data']._xmlid_to_res_id('mail.mt_note')
+            subtype_id = self.env['ir.model.data']._xmlid_to_res_id('mail.mt_comment')
             records.message_post_with_source(
                 self.template_id,
-                message_type=message_type,
+                message_type='auto_comment',
                 subtype_id=subtype_id,
             )
         else:
             template = self.template_id.with_context(cleaned_ctx)
-            for res_id in res_ids:
-                template.send_mail(
-                    res_id,
-                    force_send=False,
-                    raise_exception=False
-                )
+            template.send_mail_batch(res_ids, force_send=False, raise_exception=False)
         return False
 
-    def _run_action_next_activity(self, eval_context=None):
-        if not self.activity_type_id or not self.env.context.get('active_id') or self._is_recompute():
-            return False
-
-        records = self.env[self.model_name].browse(self.env.context.get('active_ids', self.env.context.get('active_id')))
-
-        vals = {
-            'summary': self.activity_summary or '',
-            'note': self.activity_note or '',
-            'activity_type_id': self.activity_type_id.id,
-        }
-        if self.activity_date_deadline_range > 0:
-            vals['date_deadline'] = fields.Date.context_today(self) + relativedelta(**{
+    def _run_action_next_activity_multi(self, eval_context=None):
+        base_date = fields.Date.context_today(self) + relativedelta(**{
                 self.activity_date_deadline_range_type or 'days': self.activity_date_deadline_range})
-        for record in records:
-            user = False
-            if self.activity_user_type == 'specific':
-                user = self.activity_user_id
-            elif self.activity_user_type == 'generic' and self.activity_user_field_name:
-                user = record.mapped(self.activity_user_field_name)
-            if user:
-                # if x2m field, assign to the first user found
-                # (same behavior as Field.traverse_related)
-                vals['user_id'] = user.ids[0]
-            record.activity_schedule(**vals)
+
+        if self.activity_plan_id:
+            self.env['mail.activity.schedule'].create({
+                "plan_date": base_date,
+                "plan_id": self.activity_plan_id.id,
+                "plan_on_demand_user_id": self.activity_user_id.id,
+                "plan_on_demand_role_id": self.activity_role_id.id,
+                "activity_user_id_fname": self.activity_user_field_name,
+            }).action_schedule_plan()
+        elif self.activity_type_id:
+            self.env['mail.activity.schedule'].create({
+                "activity_type_id": self.activity_type_id.id,
+                "activity_user_id": self.activity_user_id.id,
+                "activity_role_id": self.activity_role_id.id,
+                "date_deadline": base_date,
+                "note": self.activity_note,
+                "summary": self.activity_summary,
+                "activity_user_id_fname": self.activity_user_field_name,
+            }).action_schedule_activities()
         return False
 
     @api.model

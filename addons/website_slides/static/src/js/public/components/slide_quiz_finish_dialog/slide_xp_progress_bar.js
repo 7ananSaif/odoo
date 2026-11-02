@@ -1,17 +1,17 @@
 import { browser } from "@web/core/browser/browser";
-import { Component, onMounted, useState } from "@odoo/owl";
+import { Component, onMounted, proxy, t, useProps } from "@odoo/owl";
 
 export class SlideXPProgressBar extends Component {
-    static props = {
-        previousRank: Object,
-        newRank: Object,
-        levelUp: Boolean,
-    };
+    props = useProps({
+        previousRank: t.object(),
+        newRank: t.object(),
+        levelUp: t.boolean(),
+    });
     static template = "website_slides.SlideXPProgressBar";
 
     setup() {
         super.setup();
-        this.state = useState({
+        this.state = proxy({
             hideRankBounds: true,
             rankLowerBound: this.props.previousRank.lower_bound,
             rankProgressPercentage: this.props.previousRank.progress,

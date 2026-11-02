@@ -95,8 +95,8 @@ export const catalogSuggestion = {
         const steps = [];
         if (monthly) {
             steps.push({
-                content: `Check catalog record monthly demand for product ${productName}`,
-                trigger: `.o_kanban_record:contains('${productName}') span[name='kanban_monthly_demand_qty']:visible:contains('${monthly}')`,
+                content: "Check catalog record monthly demand for product ${productName}",
+                trigger: `.o_kanban_record:contains('${productName}') div[name='monthly_demand'] span:visible:contains('${monthly}')`,
             });
         }
         if (suggest) {

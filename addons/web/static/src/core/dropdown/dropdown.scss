@@ -9,9 +9,10 @@
 
         &.show {
             $-value: map-get($o-btns-bs-outline-override, 'secondary');
+            --#{$prefix}btn-active-border-color: #{map-get($-value, 'active-border')};
+
             color: map-get($-value, 'active-color');
             background-color: map-get($-value, 'active-background');
-            border-color: map-get($-value, 'active-border');
         }
     }
 
@@ -30,6 +31,10 @@
     /*!rtl:end:ignore*/
 }
 
+.dropdown-item.btn:focus-visible {
+    --btn-focus-box-shadow: none;
+}
+
 .o-dropdown,
 .o-dropdopwn-item,
 .o_menu_item {
@@ -40,28 +45,29 @@
         gap: 5px;
 
         &:after {
-            content: "\f0d7";
-            font-family: FontAwesome;
+            content: "arrow_drop_down";
+            font-family: 'Material Symbols Outlined';
             display: inline-block;
             margin-left: auto;
+            font-size: 1em;
 
-            transform: rotate(0deg);
+            transform: scale(1.4) rotate(0deg);
             transition: .25s ease-in-out;
         }
 
         &.show:after {
-            transform: rotate(180deg);
+            transform: scale(1.4) rotate(180deg);
         }
 
         &.o-dropdown--has-parent {
             padding-right: 8px;
 
             &:after {
-                transform: rotate(-90deg);
+                transform: scale(1.4) rotate(-90deg);
             }
 
             &.o-dropdown--open:after {
-                transform: rotate(90deg);
+                transform: scale(1.4) rotate(90deg);
             }
         }
     }
@@ -72,13 +78,13 @@
     margin-top: var(--Dropdown_menu-margin-y, #{map-get($spacers, 1)});
     margin-bottom: var(--Dropdown_menu-margin-y, #{map-get($spacers, 1)});
 
-    .dropdown-toggle:focus,
+    // Scoped to '.dropdown-item', not '.dropdown-toggle': a real submenu item
+    // always has both classes, an unrelated embedded dropdown only the latter.
     .dropdown-item:focus {
         background-color: transparent;
         outline: none;
     }
 
-    .dropdown-toggle,
     .dropdown-item {
         // Remove default active/hover effects so it's only controlled via the .focus class
         &:not(.focus) {
@@ -126,4 +132,8 @@
 
     position: static;
     max-height: calc(var(--sheet-max-height) - #{$spacer} / 4);
+
+    .container {
+        max-width: inherit;
+    }
 }

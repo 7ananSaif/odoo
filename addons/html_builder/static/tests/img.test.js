@@ -1,35 +1,33 @@
-import { Img } from "@html_builder/core/img";
+import { Image } from "@html_builder/core/img";
 import { ImgGroup } from "@html_builder/core/img_group";
-import { defineMailModels } from "@mail/../tests/mail_test_helpers";
 import { expect, test, describe } from "@odoo/hoot";
-import { animationFrame, Deferred } from "@odoo/hoot-dom";
-import { Component, xml } from "@odoo/owl";
+import { animationFrame } from "@odoo/hoot-dom";
+import { Component, xml, useProps } from "@odoo/owl";
 import { mountWithCleanup, patchWithCleanup } from "@web/../tests/web_test_helpers";
 
 describe.current.tags("desktop");
 
-defineMailModels(); // meh
-test("ImgGroup's inner Img components should not be blocked before src load", async () => {
+test("ImgGroup's inner Image components should not be blocked before src load", async () => {
     const defs = {
-        img1: new Deferred(),
-        img2: new Deferred(),
-        img3: new Deferred(),
+        img1: Promise.withResolvers(),
+        img2: Promise.withResolvers(),
+        img3: Promise.withResolvers(),
     };
-    patchWithCleanup(Img.prototype, {
+    patchWithCleanup(Image.prototype, {
         loadImage() {
-            const def = defs[this.props.class];
+            const { promise: def } = defs[this.props.class];
             return Promise.all([super.loadImage(), def]);
         },
     });
     class Container extends Component {
-        static components = { ImgGroup, Img };
+        static components = { ImgGroup, Image };
         static template = xml`
             <ImgGroup>
-                <t t-foreach="Object.keys(defs)" t-as="key" t-key="key">
-                    <Img src="''" class="key"/>
+                <t t-foreach="Object.keys(this.defs)" t-as="key" t-key="key">
+                    <Image src="''" class="key"/>
                 </t>
             </ImgGroup>`;
-        static props = {};
+        props = useProps({});
 
         setup() {
             this.defs = defs;

@@ -3,7 +3,7 @@ import io
 from markupsafe import Markup
 from unittest.mock import patch
 
-from odoo import Command
+from odoo import Command, fields
 from odoo.exceptions import RedirectWarning
 from odoo.tests import tagged
 from odoo.addons.account.models.chart_template import code_translations, AccountChartTemplate, TEMPLATE_MODELS
@@ -19,13 +19,38 @@ def _get_chart_template_mapping(self, get_all=False):
         'parent': None,
     }}
 
-def test_get_data(self, template_code):
+
+def test_get_data(self, template_code, demo=False):
+    if demo:
+        return {
+            'res.company': {},
+            'account.move': self._get_demo_data_move(template_code),
+            'account.bank.statement': self._get_demo_data_statement(template_code),
+            'ir.attachment': self._get_demo_data_attachment(template_code),
+            'res.users': {
+                'base.' + 'user_demo': {'name': 'Marc Demo', 'login': 'demo'},  # bypass CI check
+            },
+            'res.partner': {
+                'base.res_partner_2': {'name': 'Demo Partner 2'},
+                'base.res_partner_3': {'name': 'Demo Partner 3'},
+                'base.res_partner_4': {'name': 'Demo Partner 4'},
+                'base.res_partner_5': {'name': 'Demo Partner 5'},
+                'base.res_partner_6': {'name': 'Demo Partner 6'},
+                'base.res_partner_12': {'name': 'Demo Partner 12'},
+                'base.partner_demo': {'name': 'Marc Demo'},
+            },
+            'product.product': {
+                'product.product_delivery_01': {'name': 'product_delivery_01', 'type': 'consu'},
+                'product.product_delivery_02': {'name': 'product_delivery_02', 'type': 'consu'},
+                'product.consu_delivery_01': {'name': 'consu_delivery_01', 'type': 'consu'},
+                'product.consu_delivery_02': {'name': 'consu_delivery_02', 'type': 'consu'},
+                'product.consu_delivery_03': {'name': 'consu_delivery_03', 'type': 'consu'},
+                'product.product_order_01': {'name': 'product_order_01', 'type': 'consu'},
+            },
+        }
     return {
         'template_data': {
             'code_digits': 6,
-            'currency_id': self.env.ref('base.EUR').id,
-            'property_account_receivable_id': 'test_account_receivable_template',
-            'property_account_payable_id': 'test_account_payable_template',
         },
         'account.tax.group': {
             'tax_group_taxes': {
@@ -41,6 +66,8 @@ def test_get_data(self, template_code):
                 'transfer_account_code_prefix': '3000',
                 'income_account_id': 'test_account_income_template',
                 'expense_account_id': 'test_account_expense_template',
+                'receivable_account_id': 'test_account_receivable_template',
+                'payable_account_id': 'test_account_payable_template',
                 'account_sale_tax_id': 'test_tax_1_template',
             },
         },
@@ -58,13 +85,6 @@ def test_get_data(self, template_code):
                 ('Tax 2', 'test_tax_2_template', 0, 'test_fiscal_position_template', 'test_tax_1_template'),
             ]
         },
-        'account.group': {
-            'test_account_group_1': {
-                'name': 'test_account_group_name_1',
-                'code_prefix_start': 222220,
-                'code_prefix_end': 222229,
-            }
-        },
         'account.account': {
             'test_account_receivable_template': {
                 'name': 'property_receivable_account',
@@ -80,7 +100,6 @@ def test_get_data(self, template_code):
                 'name': 'property_income_account',
                 'code': '222221',
                 'account_type': 'income',
-                'group_id': 'test_account_group_1',
             },
             'test_account_expense_template': {
                 'name': 'property_expense_account',
@@ -160,6 +179,8 @@ CSV_DATA = {
 @tagged('post_install', '-at_install')
 @patch.object(AccountChartTemplate, '_get_chart_template_mapping', _get_chart_template_mapping)
 class TestChartTemplate(AccountTestInvoicingCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def _use_chart_template(cls, company, chart_template_ref=None):
@@ -278,7 +299,7 @@ class TestChartTemplate(AccountTestInvoicingCommon):
 
     def test_update_taxes_creation(self):
         """ Tests that adding a new tax and a fiscal position tax creates new records when updating. """
-        def local_get_data(self, template_code):
+        def local_get_data(self, template_code, demo=False):
             data = test_get_data(self, template_code)
             data['account.tax'].update({
                 xmlid: _tax_vals(name, amount, fiscal_pos=position, alt_taxes=alt)
@@ -317,7 +338,7 @@ class TestChartTemplate(AccountTestInvoicingCommon):
 
     def test_update_accounts_creation(self):
         """ Tests that adding a new accounts and a fiscal position tax creates new records when updating. """
-        def local_get_data(self, template_code):
+        def local_get_data(self, template_code, demo=False):
             data = test_get_data(self, template_code)
             data['account.account'].update({
                 xmlid: _account_vals(name, code, account_type)
@@ -349,6 +370,55 @@ class TestChartTemplate(AccountTestInvoicingCommon):
             fiscal_position.map_account(self.env['account.chart.template'].ref('test_account_3_template')),
             self.env['account.chart.template'].ref('test_account_4_template'),
         )
+
+    def test_reload_journals_create_new_without_updating_existing(self):
+        """Reloading a chart should not overwrite existing journal customizations."""
+        purchase_journal = self.env['account.chart.template'].ref('purchase')
+        manual_default_account = self.env['account.chart.template'].ref('test_account_income_template')
+
+        # Simulate manual user input
+        purchase_journal.write({
+            'color': 7,
+            'default_account_id': manual_default_account.id,
+            'non_deductible_account_id': False,
+        })
+        self.env.invalidate_all()
+        self.env.cr._now = fields.Datetime.now()
+        self.env.cr.execute("UPDATE account_journal SET write_date = %s WHERE id = %s", [self.env.cr.now(), purchase_journal.id])
+
+        def local_get_data(self, template_code, demo=False):
+            data = test_get_data(self, template_code)
+            data['account.journal']['purchase']['color'] = 3
+            data['account.journal']['purchase']['default_account_id'] = 'test_account_expense_template'
+            data['account.journal']['purchase']['non_deductible_account_id'] = 'test_account_expense_template'
+            data['account.journal']['new_general'] = {
+                'name': 'New General Journal',
+                'type': 'general',
+                'code': 'NEW',
+                'color': 5,
+            }
+            return data
+
+        with patch.object(AccountChartTemplate, '_get_chart_template_data', side_effect=local_get_data, autospec=True):
+            self.env['account.chart.template'].try_loading('test', company=self.company, install_demo=False)
+
+        self.assertRecordValues(purchase_journal, [{
+            'color': 7,
+            'default_account_id': manual_default_account.id,
+            'non_deductible_account_id': False,
+        }])
+        self.assertRecordValues(self.env['account.chart.template'].ref('new_general'), [{
+            'name': 'New General Journal',
+            'type': 'general',
+            'code': 'NEW',
+            'color': 5,
+        }])
+
+        purchase_journal.default_account_id = False
+        with patch.object(AccountChartTemplate, '_get_chart_template_data', side_effect=local_get_data, autospec=True):
+            self.env['account.chart.template'].try_loading('test', company=self.company, install_demo=False)
+
+        self.assertFalse(purchase_journal.default_account_id)
 
     def test_remove_fiscal_position_try_loading_force_create_false(self):
         """Test that removing a fiscal position and calling try_loading with force_create=False does not recreate it."""
@@ -413,7 +483,7 @@ class TestChartTemplate(AccountTestInvoicingCommon):
           - accounts
           - reconcile models
         """
-        def local_get_data(self, template_code):
+        def local_get_data(self, template_code, demo=False):
             # Delete the existing tax and create a new one with a different rate
             data = test_get_data(self, template_code)
             del data['account.tax']['test_tax_1_template']
@@ -460,7 +530,7 @@ class TestChartTemplate(AccountTestInvoicingCommon):
 
     def test_update_taxes_update(self):
         """ When a tax is close enough from an existing tax we want to update that tax with the new values. """
-        def local_get_data(self, template_code):
+        def local_get_data(self, template_code, demo=False):
             data = test_get_data(self, template_code)
             data['account.account.tag']['account.account_tax_tag_1']['name'] += ' [DUP]'
             return data
@@ -479,7 +549,7 @@ class TestChartTemplate(AccountTestInvoicingCommon):
         When a tax is close enough to an existing tax but has a minor rounding error,
         we still want to update that tax with the new values.
         """
-        def local_get_data(self, template_code):
+        def local_get_data(self, template_code, demo=False):
             data = test_get_data(self, template_code)
             data['account.account.tag']['account.account_tax_tag_1']['name'] += ' [DUP]'
             # We compare up to the precision of the field, which is 4 decimals
@@ -497,7 +567,7 @@ class TestChartTemplate(AccountTestInvoicingCommon):
 
     def test_update_taxes_recreation(self):
         """ When a tax is too different from an existing tax we want to recreate a new tax with new values. """
-        def local_get_data(self, template_code):
+        def local_get_data(self, template_code, demo=False):
             # We increment the amount so the template gets slightly different from the
             # corresponding tax and triggers recreation
             data = test_get_data(self, template_code)
@@ -539,12 +609,12 @@ class TestChartTemplate(AccountTestInvoicingCommon):
         self.assertEqual(len(fiscal_position.tax_ids.original_tax_ids), 0)
 
     def test_update_taxes_conflict_name(self):
-        def local_get_data(self, template_code):
+        def local_get_data(self, template_code, demo=False):
             data = test_get_data(self, template_code)
             data['account.tax']['test_tax_1_template']['amount'] = 40
             return data
 
-        def local_get_data2(self, template_code):
+        def local_get_data2(self, template_code, demo=False):
             data = test_get_data(self, template_code)
             data['account.tax']['test_tax_1_template']['amount'] = 15
             return data
@@ -569,7 +639,7 @@ class TestChartTemplate(AccountTestInvoicingCommon):
 
     def test_update_taxes_multi_company(self):
         """ In a multi-company environment all companies should be correctly updated."""
-        def local_get_data(self, template_code):
+        def local_get_data(self, template_code, demo=False):
             # triggers recreation of tax 1
             data = test_get_data(self, template_code)
             data['account.tax']['test_tax_1_template']['amount'] += 1
@@ -622,7 +692,7 @@ class TestChartTemplate(AccountTestInvoicingCommon):
         """ Ensures children_tax_ids are correctly generated when updating taxes with
         amount_type='group'.
         """
-        def local_get_data(self, template_code):
+        def local_get_data(self, template_code, demo=False):
             data = test_get_data(self, template_code)
             normal_tax_xmlids = ['test_tax_3_template', 'test_tax_4_template']
             data['account.tax'].update({
@@ -660,7 +730,7 @@ class TestChartTemplate(AccountTestInvoicingCommon):
         """ Ensure tax templates are correctly generated when updating taxes with children taxes,
         even if templates are inactive.
         """
-        def local_get_data(self, template_code):
+        def local_get_data(self, template_code, demo=False):
             data = test_get_data(self, template_code)
             normal_tax_xmlids = ['test_tax_3_template', 'test_tax_4_template']
             data['account.tax'].update({
@@ -691,7 +761,7 @@ class TestChartTemplate(AccountTestInvoicingCommon):
 
     def test_update_reload_no_new_data(self):
         """ Tests that the reload does nothing when data are left unchanged.
-        Tested models: account.group, account.account, account.tax.group, account.tax, account.journal,
+        Tested models: account.account, account.tax.group, account.tax, account.journal,
         account.reconcile.model, account.fiscal.position, account.tax.repartition.line,
         account.account.tag.
         """
@@ -721,7 +791,7 @@ class TestChartTemplate(AccountTestInvoicingCommon):
         key is not known in the company template data but the context value is not
         set, that key is skipped and no error is raised."""
 
-        def local_get_data(self, template_code):
+        def local_get_data(self, template_code, demo=False):
             data = test_get_data(self, template_code)
             data['res.company'][company.id]['unknown_company_key'] = 'unknown_company_value'
             return data
@@ -736,6 +806,25 @@ class TestChartTemplate(AccountTestInvoicingCommon):
                 self.env['account.chart.template'].with_context(l10n_check_fields_complete=True).try_loading('test', company=company, install_demo=False)
 
             # silently ignore if the field doesn't exist (yet)
+            self.env['account.chart.template'].try_loading('test', company=company, install_demo=False)
+
+    def test_unknown_template_data_keys(self):
+        """ Tests that if a key is not in TEMPLATE_DATA_KEYS when the context value
+        'l10n_check_fields_complete' is set, an error is raised. Without the context,
+        the key is silently removed."""
+
+        def local_get_data(self, template_code, demo=False):
+            data = test_get_data(self, template_code)
+            data['template_data']['unknown_template_data_key'] = 'some_value'
+            return data
+
+        company = self.company
+        company.chart_template = False
+
+        with patch.object(AccountChartTemplate, '_get_chart_template_data', side_effect=local_get_data, autospec=True):
+            with self.assertRaisesRegex(ValueError, 'unknown_template_data_key'):
+                self.env['account.chart.template'].with_context(l10n_check_fields_complete=True).try_loading('test', company=company, install_demo=False)
+
             self.env['account.chart.template'].try_loading('test', company=company, install_demo=False)
 
     def test_branch(self):
@@ -793,6 +882,7 @@ class TestChartTemplate(AccountTestInvoicingCommon):
         shared_account = self.env['account.account'].create([{
             'name': 'Shared Account',
             'company_ids': [Command.set((self.company | branch | other_company).ids)],
+            'account_type': 'asset_current',  # avoid asset_cash because they can't be shared
             'code_mapping_ids': [
                 Command.create({'company_id': self.company.id, 'code': '180001'}),
                 Command.create({'company_id': branch.id, 'code': '180001'}),
@@ -842,7 +932,7 @@ class TestChartTemplate(AccountTestInvoicingCommon):
                 'name': 'translation',
                 'country_id': None,
                 'country_code': None,
-                'modules': ['account'],
+                'module': 'account',
                 'parent': None,
             }}
 
@@ -853,15 +943,6 @@ class TestChartTemplate(AccountTestInvoicingCommon):
         # The module used to source the translation is the module from the xml_id or 'account' (as fallback)
 
         non_chart_data = {
-            'account.group': {
-                # try module 'no_translation'; fallback to 'account'
-                'no_translation.test_chart_template_company_test_free_account_group': {
-                    'name': 'Free Account Group',
-                    'code_prefix_start': 333330,
-                    'code_prefix_end': 333339,
-                    'company_id': company.id,
-                },
-            },
             'account.account': {
                 # translate via 'translation' module
                 'translation.test_chart_template_company_test_free_account': {
@@ -929,7 +1010,7 @@ class TestChartTemplate(AccountTestInvoicingCommon):
             },
         }
 
-        def local_get_data(self, template_code):
+        def local_get_data(self, template_code, demo=False):
             data = test_get_data(self, template_code)
             for model, record_info in translation_update_for_test_get_data.items():
                 for xmlid, data_update in record_info.items():
@@ -956,7 +1037,6 @@ class TestChartTemplate(AccountTestInvoicingCommon):
             ('translation', 'fr', "Free Tax", "Free Tax FR"),
             ('translation', 'fr', "Free Tax Description", "Free Tax Description FR"),
             ('translation2', 'fr', "Tax 1 Description", "Tax 1 Description translation2/FR"),
-            ('account', 'fr', "Free Account Group", "Free Account Group account/FR"),
         ]:
             mock_python_translations.setdefault((module, lang), {})[value] = translation
 
@@ -986,8 +1066,6 @@ class TestChartTemplate(AccountTestInvoicingCommon):
             'bank.code@fr_BE': 'B FR',
             'bank.name@en_US': 'Bank',
             'bank.name@fr_BE': 'Bank FR',
-            'no_translation.test_chart_template_company_test_free_account_group.name@en_US': 'Free Account Group',
-            'no_translation.test_chart_template_company_test_free_account_group.name@fr_BE': 'Free Account Group account/FR',  # fallback to account
             'tax_group_taxes.name@en_US': 'Taxes',
             'tax_group_taxes.name@fr_BE': 'Taxes FR',
             'test_tax_1_template.description@en_US': Markup('<div>Tax 1 Description</div>'),
@@ -1021,7 +1099,7 @@ class TestChartTemplate(AccountTestInvoicingCommon):
         ], tax_rep_lines.mapped(get_rep_line_data))
 
     def test_parsed_csv_submodel_being_updated(self):
-        def local_get_data(self, template_code):
+        def local_get_data(self, template_code, demo=False):
             return {
                 **test_get_data(self, template_code),
                 'account.tax': {
@@ -1046,7 +1124,7 @@ class TestChartTemplate(AccountTestInvoicingCommon):
 
     def test_command_int_values(self):
         """ Command int values should just work in place of their Enum alternatives. """
-        def local_get_data(self, template_code):
+        def local_get_data(self, template_code, demo=False):
             data = test_get_data(self, template_code)
             data['account.account'].update({
                 "test_account": {
@@ -1103,3 +1181,33 @@ class TestChartTemplate(AccountTestInvoicingCommon):
         with patch.object(AccountChartTemplate, '_get_chart_template_data', side_effect=local_get_data, autospec=True):
             self.env['account.chart.template'].try_loading('test', company=company, install_demo=False)
         self.assertEqual(company.chart_template, 'test')
+
+    def test_reload_template_with_account_missing_code(self):
+        """
+        Test that chart template loading works correctly when an account without a code exists.
+        """
+        account = self.env['account.account'].search([('code', '=', '411111')])
+        self.assertTrue(account)
+
+        account.code = False
+        # Reload the chart template.
+        self._use_chart_template(self.company)
+
+        self.assertFalse(account.code)
+
+    def test_install_module_partial_data(self):
+        company = self.env['res.company'].create({'name': 'Test Company'})
+        with patch.object(AccountChartTemplate, '_get_chart_template_data', side_effect=test_get_data, autospec=True):
+            self.env['account.chart.template'].try_loading('test', company=company, install_demo=False)
+
+        def new_module_data(self, template_code):
+            return {
+                'template_data': {},
+                'account.tax': {'deleted_xmlid': {'amount': 5}},  # if the xmlid didn't exist, assume it was deleted and don't block
+            }
+        with (
+            patch.object(AccountChartTemplate, '_get_chart_template_data', side_effect=new_module_data, autospec=True),
+            self.assertLogs('odoo.addons.account.models.chart_template', level='WARN') as log_cm,
+        ):
+            self.env['account.chart.template'].try_loading('test', company=company, install_demo=False)
+        self.assertIn("reloading the CoA for 'deleted_xmlid'", log_cm.output[0])

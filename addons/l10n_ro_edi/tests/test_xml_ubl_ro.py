@@ -16,10 +16,11 @@ from odoo.addons.l10n_ro_edi.models.account_move import HOLDING_DAYS
 
 
 def _patch_request_ciusro_download_answer(company, key_download, session):
+    # raw data is plain bytes for both the signature and the invoice
     answer_data = {
         '3029027561': {
             'signature': {
-                'attachment_raw': b'Y291Y291',
+                'attachment_raw': b'coucou',
                 'key_signature': 'KEY_SIG_1',
                 'key_certificate': 'KEY_CERT_1',
             },
@@ -29,7 +30,7 @@ def _patch_request_ciusro_download_answer(company, key_download, session):
         },
         '3029027562': {
             'signature': {
-                'attachment_raw': b'Y291Y291',
+                'attachment_raw': b'coucou',
                 'key_signature': 'KEY_SIG_2',
                 'key_certificate': 'KEY_CERT_2',
             },
@@ -39,7 +40,7 @@ def _patch_request_ciusro_download_answer(company, key_download, session):
         },
         '3030159318': {
             'signature': {
-                'attachment_raw': b'Y291Y291',
+                'attachment_raw': b'coucou',
                 'key_signature': 'KEY_SIG_3',
                 'key_certificate': 'KEY_CERT_3',
             },
@@ -49,7 +50,7 @@ def _patch_request_ciusro_download_answer(company, key_download, session):
         },
         '3030439533': {
             'signature': {
-                'attachment_raw': b'Y291Y291',
+                'attachment_raw': b'coucou',
                 'key_signature': 'KEY_SIG_4',
                 'key_certificate': 'KEY_CERT_4',
             },
@@ -58,7 +59,7 @@ def _patch_request_ciusro_download_answer(company, key_download, session):
                 'amount_total': '1785.0',
                 'seller_vat': '8001011234567',
                 'date': datetime.date(2017, 1, 1),
-                'attachment_raw': file_open("l10n_ro_edi/tests/test_files/from_odoo/ciusro_in_invoice.xml").read(),
+                'attachment_raw': file_open("l10n_ro_edi/tests/test_files/from_odoo/ciusro_in_invoice.xml").read().encode(),
             },
         },
         '3029027563': {
@@ -143,13 +144,15 @@ def _patch_request_ciusro_xml_to_pdf(company, xml_data):
 
 class TestUBLROCommon(TestUBLCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     @TestUBLCommon.setup_country('ro')
     def setUpClass(cls):
         super().setUpClass()
         cls.other_currency = cls.setup_other_currency('EUR')
         cls.company_data['company'].write({
-            'country_id': cls.env.ref('base.ro').id,  # needed to compute peppol_endpoint based on VAT
+            'country_id': cls.env.ref('base.ro').id,  # needed to compute routing_endpoint based on VAT
             'state_id': cls.env.ref('base.RO_B').id,
             'name': 'Hudson Construction',
             'city': 'SECTOR1',
@@ -159,20 +162,15 @@ class TestUBLROCommon(TestUBLCommon):
             'street': "Strada Kunst, 3",
         })
 
-        cls.bank = cls.env['res.bank'].create({
-            'name': 'Banca Trimitere EDI Global',
-            'country': cls.env.ref('base.ro').id,
-            'state': cls.env.ref('base.RO_CJ').id,
+        cls.env['res.partner.bank'].create({
+            'partner_id': cls.company_data['company'].partner_id.id,
+            'account_number': 'RO98RNCB1234567890123456',
+            'bank_name': 'Banca Trimitere EDI Global',
+            'country_id': cls.env.ref('base.ro').id,
+            'state_id': cls.env.ref('base.RO_CJ').id,
             'city': 'Cluj-Napoca',
             'zip': '400000',
             'street': 'Strada Global EDI Test',
-        })
-
-        cls.env['res.partner.bank'].create({
-            'acc_type': 'iban',
-            'partner_id': cls.company_data['company'].partner_id.id,
-            'acc_number': 'RO98RNCB1234567890123456',
-            'bank_id': cls.bank.id,
             'allow_out_payment': True,
         })
 
@@ -185,7 +183,7 @@ class TestUBLROCommon(TestUBLCommon):
             'vat': 'RO1234567897',
             'phone': '+40 123 456 780',
             'street': "Rolling Roast, 88",
-            'bank_ids': [(0, 0, {'acc_number': 'RO98RNCB1234567890123456', 'allow_out_payment': True})],
+            'bank_ids': [(0, 0, {'account_number': 'RO98RNCB1234567890123456', 'allow_out_payment': True})],
             'ref': 'ref_partner_a',
             'invoice_edi_format': 'ciusro',
         })
@@ -238,6 +236,8 @@ class TestUBLRO(TestUBLROCommon):
     # Testing of the XML generation
     ####################################################
 
+    _test_user_groups = None  # FIXME list needed groups
+
     def test_export_invoice(self):
         invoice = self.create_move("out_invoice", currency_id=self.company.currency_id.id)
         attachment = self.get_attachment(invoice)
@@ -255,50 +255,56 @@ class TestUBLRO(TestUBLROCommon):
 
     def test_export_invoice_without_country_code_prefix_in_vat(self):
         self.company_data['company'].write({'vat': '1234567897'})
-        self.partner_a.write({'vat': False, 'peppol_eas': False, 'peppol_endpoint': False})
+        self.partner_a.write({'vat': False, 'routing_identifier': False})
         invoice = self.create_move("out_invoice", currency_id=self.company.currency_id.id)
         attachment = self.get_attachment(invoice)
         self._assert_invoice_attachment(attachment, xpaths=None, expected_file_path='from_odoo/ciusro_out_invoice_no_prefix_vat.xml')
 
-    def test_export_no_vat_but_have_company_registry(self):
-        self.company_data['company'].write({'vat': False, 'company_registry': 'RO1234567897'})
-        invoice = self.create_move("out_invoice", currency_id=self.company.currency_id.id)
-        attachment = self.get_attachment(invoice)
-        self._assert_invoice_attachment(attachment, xpaths=None, expected_file_path='from_odoo/ciusro_out_invoice.xml')
-
     def test_export_no_vat_but_have_company_registry_without_prefix(self):
-        self.company_data['company'].write({'vat': False, 'company_registry': '1234567897'})
-        self.partner_a.write({'vat': False, 'peppol_eas': False, 'peppol_endpoint': False})
+        self.company_data['company'].partner_id.write({
+            'vat': False,
+            'additional_identifiers': {'RO_EN': '1234567897'},
+        })
+        self.partner_a.write({'vat': False, 'routing_identifier': False})
         invoice = self.create_move("out_invoice", currency_id=self.company.currency_id.id)
         attachment = self.get_attachment(invoice)
         self._assert_invoice_attachment(attachment, xpaths=None, expected_file_path='from_odoo/ciusro_out_invoice_no_prefix_company_registry.xml')
 
     def test_export_invoice_no_vat_prefix(self):
+        self.company_data['company'].partner_id.routing_identifier = False
         self.company_data['company'].vat = self.company_data['company'].vat[2:]
         no_vat_partner = self.partner_a.copy({'name': 'Roasted Romanian Roller', 'vat': False, 'invoice_edi_format': 'ciusro'})
         invoice = self.create_move("out_invoice", partner_id=no_vat_partner.id, currency_id=self.company.currency_id.id)
         attachment = self.get_attachment(invoice)
         self._assert_invoice_attachment(attachment, xpaths=None, expected_file_path='from_odoo/ciusro_out_invoice_defaults.xml')
 
-    def test_export_invoice_defaults_new(self):
-        self.env['ir.config_parameter'].set_param('account_edi_ubl_cii.use_new_dict_to_xml_helpers', 'True')
-        self.test_export_invoice_no_vat_prefix()
-
     def test_export_no_vat_and_no_company_registry_raises_error(self):
-        self.company_data['company'].write({'vat': False, 'company_registry': False})
+        self.company_data['company'].partner_id.write({
+            'vat': False,
+            'additional_identifiers': False,
+            'routing_identifier': False,
+        })
         invoice = self.create_move("out_invoice", send=False)
-        with self.assertRaisesRegex(UserError, "doesn't have a VAT nor Company ID"):
+        with self.assertRaisesRegex(UserError, "doesn't have a VAT nor any other Peppol-routable identifier"):
             invoice._generate_and_send(allow_fallback_pdf=False, template_id=self.move_template.id)
 
+    def test_export_invoice_cpv_code(self):
+        self.product_a.cpv_code_id = self.env.ref('l10n_ro_edi.030000001')
+        self.product_b.cpv_code_id = self.env.ref('l10n_ro_edi.031000002')
+        invoice = self.create_move("out_invoice", currency_id=self.company.currency_id.id)
+        attachment = self.get_attachment(invoice)
+        self._assert_invoice_attachment(attachment, xpaths=None, expected_file_path='from_odoo/ciusro_out_invoice_cpv_code.xml')
+
     def test_export_constraints(self):
+        self.company_data['company'].partner_id.write({
+            'additional_identifiers': False,
+            'routing_identifier': False,
+        })
         for required_field in ('city', 'street', 'state_id', 'vat'):
-            prev_val = self.company_data["company"][required_field]
-            self.company_data["company"][required_field] = False
-            invoice = self.create_move("out_invoice", send=False)
             with self.assertRaisesRegex(UserError, "required"):
-                self.company_data['company'].company_registry = False
+                self.company_data["company"][required_field] = False
+                invoice = self.create_move("out_invoice", send=False)
                 invoice._generate_and_send(allow_fallback_pdf=False, template_id=self.move_template.id)
-            self.company_data["company"][required_field] = prev_val
 
         self.company_data["company"].city = "Bucharest"
         invoice = self.create_move("out_invoice", send=False)
@@ -311,7 +317,6 @@ class TestUBLRO(TestUBLROCommon):
             - Item description: 200 characters limit
             - Note: 300 characters limit
         """
-        self.env['ir.config_parameter'].set_param('account_edi_ubl_cii.use_new_dict_to_xml_helpers', 'True')
         product = self._create_product(
             name='A product name that is longer than 100 characters in order to trigger a rejection of the invoice by the SPV.'
         )

@@ -1,17 +1,25 @@
-import { isBinarySize } from "@web/core/utils/binary";
 import { registry } from "@web/core/registry";
+import { useService } from "@web/core/utils/hooks";
 import { imageUrl } from "@web/core/utils/urls";
-import { ImageField, imageField } from "@web/views/fields/image/image_field";
+import { fileTypeMagicWordMap, ImageField, imageField } from "@web/views/fields/image/image_field";
 
 export class ContactImageField extends ImageField {
     static template = "web.ContactImageField";
 
+    setup() {
+        super.setup();
+        this.uiService = useService("ui");
+    }
+
     getUrl(imageFieldName) {
+        const data = this.props.record.data[imageFieldName];
         if (
             this.props.previewImage &&
-            (!this.props.record.data[this.props.name] || !this.state.isValid)
+            (!this.props.record.data[this.props.name] || !this.state.isValid) &&
+            data
         ) {
-            if (isBinarySize(this.props.record.data[imageFieldName])) {
+            const content = data.content;
+            if (!content) {
                 this.lastURL = imageUrl(
                     this.props.record.resModel,
                     this.props.record.resId,
@@ -19,11 +27,20 @@ export class ContactImageField extends ImageField {
                     { unique: this.rawCacheKey }
                 );
             } else {
-                this.lastURL = `data:image/png;base64,${this.props.record.data[imageFieldName]}`;
+                const magic = fileTypeMagicWordMap[content[0]] || "png";
+                this.lastURL = `data:image/${magic};base64,${content}`;
             }
             return this.lastURL;
         }
         return super.getUrl(imageFieldName);
+    }
+
+    get containerClass() {
+        const classes = super.containerClass;
+        if (!this.containsValidImage) {
+            return ["top-0", "start-0", "h-100", "z-1"].concat(classes.split(" ")).join(" ");
+        }
+        return classes;
     }
 
     get imgClass() {

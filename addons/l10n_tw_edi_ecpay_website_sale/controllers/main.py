@@ -14,22 +14,6 @@ from odoo.addons.website_sale.controllers.main import WebsiteSale
 
 
 class WebsiteSaleL10nTW(WebsiteSale):
-    def _l10n_tw_is_extra_info_needed(self):
-        order_sudo = request.cart
-        invoicing_step = request.website._get_checkout_step(
-            '/shop/l10n_tw_invoicing_info'
-        )
-        invoicing_info_needed = invoicing_step.sudo().is_published = (
-            order_sudo.company_id._is_ecpay_enabled() and not order_sudo.partner_id.l10n_tw_edi_require_paper_format
-        )
-        return invoicing_info_needed
-
-    @route()
-    def shop_checkout(self, try_skip_step=False, **query_params):
-        if self._l10n_tw_is_extra_info_needed() and try_skip_step:
-            try_skip_step = False
-        return super().shop_checkout(try_skip_step=try_skip_step, query_params=query_params)
-
     def _is_valid_mobile_barcode(self, carrier_number, order):
         json_data = {
             "MerchantID": order.company_id.l10n_tw_edi_ecpay_merchant_id,
@@ -59,7 +43,7 @@ class WebsiteSaleL10nTW(WebsiteSale):
 
     def _get_render_context(self, order_sudo, default_vals, errors=None):
         carrier_field = request.env['sale.order']._fields['l10n_tw_edi_carrier_type']
-        carrier_choices = [('0', '')] + carrier_field.selection
+        carrier_choices = [('0', '')] + list(carrier_field.selection)
         return {
             'website_sale_order': order_sudo,
             'l10n_tw_show_extra_info': True,
@@ -72,6 +56,11 @@ class WebsiteSaleL10nTW(WebsiteSale):
     @route('/shop/l10n_tw_invoicing_info', type='http', auth='public', methods=['GET'], website=True, sitemap=False)
     def l10n_tw_invoicing_info_get(self, **kw):
         order_sudo = request.cart
+        if redirect := self.env['website.checkout.step'].validate_checkout_progress(
+            '/shop/l10n_tw_invoicing_info', order_sudo
+        ):
+            return request.redirect(redirect)
+
         default_vals = {
             'is_donate': "on" if order_sudo.l10n_tw_edi_love_code else False,
             'love_code': order_sudo.l10n_tw_edi_love_code,
@@ -80,7 +69,9 @@ class WebsiteSaleL10nTW(WebsiteSale):
             'carrier_number_2': order_sudo.l10n_tw_edi_carrier_number_2,
         }
         values = self._get_render_context(order_sudo, default_vals)
-        values.update(request.website._get_checkout_step_values())
+        values.update(
+            self.env.website._get_checkout_step_values('/shop/l10n_tw_invoicing_info', order_sudo)
+        )
         return request.render('l10n_tw_edi_ecpay_website_sale.l10n_tw_edi_invoicing_info', values)
 
     @route('/shop/l10n_tw_invoicing_info/submit', type='http', auth='public', methods=['POST'], website=True, sitemap=False)
@@ -133,13 +124,16 @@ class WebsiteSaleL10nTW(WebsiteSale):
         order_sudo.write(vals_to_write)
 
         if not errors:
-            request.httprequest.path = '/shop/l10n_tw_invoicing_info'
             return request.redirect(
-                request.website._get_checkout_step_values()['next_website_checkout_step_href']
+                self.env.website._get_next_breadcrumb_step_href(
+                    '/shop/l10n_tw_invoicing_info', order_sudo
+                )
             )
 
         values = self._get_render_context(order_sudo, default_vals, errors)
-        values.update(request.website._get_checkout_step_values())
+        values.update(
+            self.env.website._get_checkout_step_values('/shop/l10n_tw_invoicing_info', order_sudo)
+        )
         return request.render('l10n_tw_edi_ecpay_website_sale.l10n_tw_edi_invoicing_info', values)
 
     @http.route("/payment/ecpay/check_mobile_barcode/<int:sale_order_id>", type="jsonrpc", auth="public")
@@ -168,7 +162,7 @@ class WebsiteSaleL10nTW(WebsiteSale):
     ):
         rendering_values = super()._prepare_address_form_values(*args, callback=callback, order_sudo=order_sudo, **kwargs)
         partner_sudo = kwargs.get('partner_sudo') or (args[0] if args else None)
-        if partner_sudo and request.website.sudo().company_id.account_fiscal_country_id.code == 'TW' and request.website.sudo().company_id._is_ecpay_enabled():
+        if partner_sudo and self.env.website.sudo().company_id.account_fiscal_country_id.code == 'TW' and self.env.website.sudo().company_id._is_ecpay_enabled():
             rendering_values["l10n_tw_edi_require_paper_format"] = partner_sudo.l10n_tw_edi_require_paper_format
         return rendering_values
 
@@ -177,14 +171,14 @@ class WebsiteSaleL10nTW(WebsiteSale):
             address_values, partner_sudo, address_type, *args, **kwargs
         )
 
-        if address_type == 'billing' and request.website.sudo().company_id.account_fiscal_country_id.code == 'TW' and request.website.sudo().company_id._is_ecpay_enabled():
+        if address_type == 'billing' and self.env.website.sudo().company_id.account_fiscal_country_id.code == 'TW' and self.env.website.sudo().company_id._is_ecpay_enabled():
             phone = address_values.get('phone')
             if phone:
                 formatted_phone = request.env['account.move']._reformat_phone_number(phone)
                 if not re.fullmatch(r'[\d]+', formatted_phone):
                     invalid_fields.add('phone')
                     error_messages.append(request.env._("Phone number contains invalid characters! It should be in the format: '+886 0997624293'."))
-            if address_values.get('company_name'):  # B2B customer
+            if address_values.get('parent_name'):  # B2B customer
                 if not address_values.get('vat'):
                     missing_fields.add('vat')
                 if not self._is_valid_tax_id(address_values.get('vat'), request.cart):
@@ -215,25 +209,24 @@ class WebsiteSaleL10nTW(WebsiteSale):
 
         address_values, extra_form_data = self._parse_form_data(form_data)
 
-        if request.website.sudo().company_id.account_fiscal_country_id.code == 'TW' and request.website.sudo().company_id._is_ecpay_enabled():
+        if self.env.website.sudo().company_id.account_fiscal_country_id.code == 'TW' and self.env.website.sudo().company_id._is_ecpay_enabled():
             order_sudo = request.cart
-            if address_values.get('company_name'):
+            if address_values.get('parent_name'):
                 l10n_tw_edi_is_print = True
             else:
                 l10n_tw_edi_is_print = extra_form_data.get('l10n_tw_edi_require_paper_format') == "1"
-            if address_values.get('company_name'):  # B2B customer
+            if address_values.get('parent_name'):  # B2B customer
                 # Create company contact if it does not exist
                 if not partner_sudo.parent_id:
                     company_contact = request.env['res.partner'].sudo().create({
-                        'name': address_values.get('company_name'),
+                        'name': address_values.get('parent_name'),
                         'vat': address_values.get('vat'),
-                        'company_type': 'company',
                         'l10n_tw_edi_require_paper_format': l10n_tw_edi_is_print,
                     })
                     partner_sudo.parent_id = company_contact
                 else:
                     partner_sudo.parent_id.write({
-                        'name': address_values.get('company_name'),
+                        'name': address_values.get('parent_name'),
                         'vat': address_values.get('vat'),
                         'l10n_tw_edi_require_paper_format': l10n_tw_edi_is_print,
                     })

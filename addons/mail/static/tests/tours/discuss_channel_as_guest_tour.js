@@ -1,16 +1,20 @@
 import { registry } from "@web/core/registry";
-import { contains } from "@web/../tests/utils";
 
 registry.category("web_tour.tours").add("discuss_channel_as_guest_tour.js", {
     steps: () => [
         {
-            content: "Channel secret token has been hidden on welcome page",
+            content: "Shareable invitation link is shown on welcome page",
             trigger: ".o-mail-WelcomePage",
             run() {
-                if (!window.location.pathname.startsWith("/discuss/channel")) {
-                    console.error("Channel secret token is still present in URL.");
+                if (!/^\/chat\/\d+\/[^/]+$/.test(window.location.pathname)) {
+                    console.error("Invitation link is not present in URL on welcome page.");
                 }
             },
+        },
+        {
+            content: "Fill in guest name",
+            trigger: "input[name='guest_name']",
+            run: "edit Guest",
         },
         {
             content: "Click join",
@@ -31,13 +35,7 @@ registry.category("web_tour.tours").add("discuss_channel_as_guest_tour.js", {
             run: "fill @",
         },
         {
-            trigger: ".o-mail-DiscussCommand",
-            async run() {
-                await contains(".fa-hashtag", {
-                    parent: [".o-mail-DiscussCommand", { text: "Test channel" }],
-                });
-                await contains(".fa-user", { count: 0 });
-            },
+            trigger: ".o-mail-DiscussCommand:text(Test channel)",
         },
     ],
 });

@@ -5,7 +5,9 @@ from . import mailing_contact
 from . import mailing_list
 from . import mailing_mailing
 from . import mailing_trace
+from . import res_partner
 from . import res_users
 from . import sms_sms
 from . import sms_tracker
-from . import utm
+from . import utm_campaign
+from . import utm_mixin

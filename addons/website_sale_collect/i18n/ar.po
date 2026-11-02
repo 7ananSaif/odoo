@@ -3,15 +3,16 @@
 # * website_sale_collect
 #
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
-# "Malaz Siddig Elsayed Abuidris (msea)" <msea@odoo.com>, 2025.
+# "Malaz Siddig Elsayed Abuidris (msea)" <msea@odoo.com>, 2025, 2026.
+# Weblate <noreply-mt-weblate@weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-11-05 17:59+0000\n"
+"POT-Creation-Date: 2026-09-11 17:44+0000\n"
+"PO-Revision-Date: 2026-10-16 13:47+0000\n"
 "Last-Translator: \"Malaz Siddig Elsayed Abuidris (msea)\" <msea@odoo.com>\n"
-"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-20/"
 "website_sale_collect/ar/>\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
@@ -19,44 +20,50 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: website_sale_collect
+#: model:ir.module.module,description:base.module_website_sale_collect
+msgid ""
+"\n"
+"Allows customers to check in-store stock, pay on site, and pick up their "
+"orders at the shop.\n"
+msgstr ""
 
 #. module: website_sale_collect
 #. odoo-python
-#: code:addons/website_sale_collect/models/sale_order.py:0
-msgid "%(available_qty)s/%(line_qty)s available at this location"
-msgstr "%(available_qty)s/%(line_qty)s متوفرة في هذا الموقع"
+#: code:addons/website_sale_collect/models/sale_order_line.py:0
+msgid "%(available_quantity)g/%(desired_quantity)g available at this location."
+msgstr ""
 
 #. module: website_sale_collect
-#: model_terms:payment.provider,pending_msg:website_sale_collect.payment_provider_on_site
+#: model_terms:ir.ui.view,arch_db:website_sale_collect.unavailable_products_warning
+msgid "<i class=\"oi oi-fw oi-filled\" data-icon=\"favorite\"/> In wishlist"
+msgstr ""
+
+#. module: website_sale_collect
+#: model_terms:ir.ui.view,arch_db:website_sale_collect.unavailable_products_warning
 msgid ""
-"<i>Your order has been confirmed.</i><br>Please come to the store to pay for "
-"your products."
-msgstr "<i>لقد تم تأكيد طلبك.</i><br>يرجى الذهاب إلى المتجر لدفع قيمة منتجاتك"
+"<i class=\"oi oi-fw\" data-icon=\"favorite\" role=\"presentation\" aria-"
+"label=\"Add to wishlist\"/>\n"
+"                                    Wishlist"
+msgstr ""
 
 #. module: website_sale_collect
-#: model_terms:ir.ui.view,arch_db:website_sale_collect.payment_confirmation_status
-msgid "<span class=\"text-muted\"> (In-store pickup)</span>"
-msgstr "<span class=\"text-muted\"> (الاستلام من المتجر)</span>"
+#: model_terms:ir.ui.view,arch_db:website_sale_collect.unavailable_products_warning
+msgid "<span class=\"small\">|</span>"
+msgstr ""
 
 #. module: website_sale_collect
 #. odoo-javascript
-#: code:addons/website_sale_collect/static/src/js/click_and_collect_availability/click_and_collect_availability.xml:0
 #: code:addons/website_sale_collect/static/src/js/location_selector/location/location.xml:0
 msgid "Available"
 msgstr "متاح"
 
 #. module: website_sale_collect
-#. odoo-javascript
-#: code:addons/website_sale_collect/static/src/js/click_and_collect_availability/click_and_collect_availability.xml:0
-msgid "Change store"
-msgstr "تغيير المتجر"
-
-#. module: website_sale_collect
-#. odoo-javascript
-#: code:addons/website_sale_collect/static/src/js/click_and_collect_availability/click_and_collect_availability.xml:0
-msgid "Click and Collect"
-msgstr "Click and Collect"
+#: model:ir.module.module,shortdesc:base.module_website_sale_collect
+msgid "Click & Collect"
+msgstr ""
 
 #. module: website_sale_collect
 #: model:ir.model,name:website_sale_collect.model_res_config_settings
@@ -72,7 +79,7 @@ msgstr "قم بتهيئة مواقع الاستلام"
 #. odoo-javascript
 #: code:addons/website_sale_collect/static/src/interactions/checkout.js:0
 msgid "Contact Details"
-msgstr ""
+msgstr "تفاصيل جهة الاتصال"
 
 #. module: website_sale_collect
 #: model:ir.model.fields,field_description:website_sale_collect.field_payment_provider__custom_mode
@@ -86,35 +93,62 @@ msgid "Delivery"
 msgstr "التوصيل"
 
 #. module: website_sale_collect
+#: model:ir.model,name:website_sale_collect.model_delivery_carrier
+msgid "Delivery Method"
+msgstr "طريقة التوصيل"
+
+#. module: website_sale_collect
 #. odoo-python
 #: code:addons/website_sale_collect/models/res_config_settings.py:0
 msgid "Delivery Methods"
 msgstr "طرق التوصيل"
 
 #. module: website_sale_collect
-#: model_terms:ir.ui.view,arch_db:website_sale_collect.in_store_delivery_method
-msgid "Delivery method"
+#. odoo-javascript
+#: code:addons/website_sale_collect/static/src/js/click_and_collect_availability/click_and_collect_availability.xml:0
+msgid "Delivery available"
 msgstr ""
 
 #. module: website_sale_collect
+#: model_terms:ir.ui.view,arch_db:website_sale_collect.in_store_delivery_method
+msgid "Delivery method"
+msgstr "طريقة التوصيل"
+
+#. module: website_sale_collect
 #: model:ir.model.fields,field_description:website_sale_collect.field_delivery_carrier__display_name
+#: model:ir.model.fields,field_description:website_sale_collect.field_payment_method__display_name
 #: model:ir.model.fields,field_description:website_sale_collect.field_payment_provider__display_name
 #: model:ir.model.fields,field_description:website_sale_collect.field_payment_transaction__display_name
 #: model:ir.model.fields,field_description:website_sale_collect.field_product_template__display_name
 #: model:ir.model.fields,field_description:website_sale_collect.field_res_config_settings__display_name
 #: model:ir.model.fields,field_description:website_sale_collect.field_sale_order__display_name
+#: model:ir.model.fields,field_description:website_sale_collect.field_sale_order_line__display_name
 #: model:ir.model.fields,field_description:website_sale_collect.field_stock_warehouse__display_name
 #: model:ir.model.fields,field_description:website_sale_collect.field_website__display_name
 msgid "Display Name"
 msgstr "اسم العرض"
 
 #. module: website_sale_collect
+#. odoo-javascript
+#: code:addons/website_sale_collect/static/src/js/location_selector/map_container/map_container.xml:0
+msgid "Exceptional closing from"
+msgstr ""
+
+#. module: website_sale_collect
+#. odoo-javascript
+#: code:addons/website_sale_collect/static/src/js/location_selector/map_container/map_container.xml:0
+msgid "Exceptional closing on"
+msgstr ""
+
+#. module: website_sale_collect
 #: model:ir.model.fields,field_description:website_sale_collect.field_delivery_carrier__id
+#: model:ir.model.fields,field_description:website_sale_collect.field_payment_method__id
 #: model:ir.model.fields,field_description:website_sale_collect.field_payment_provider__id
 #: model:ir.model.fields,field_description:website_sale_collect.field_payment_transaction__id
 #: model:ir.model.fields,field_description:website_sale_collect.field_product_template__id
 #: model:ir.model.fields,field_description:website_sale_collect.field_res_config_settings__id
 #: model:ir.model.fields,field_description:website_sale_collect.field_sale_order__id
+#: model:ir.model.fields,field_description:website_sale_collect.field_sale_order_line__id
 #: model:ir.model.fields,field_description:website_sale_collect.field_stock_warehouse__id
 #: model:ir.model.fields,field_description:website_sale_collect.field_website__id
 msgid "ID"
@@ -126,17 +160,29 @@ msgid "In-store Delivery Method"
 msgstr "طريقة التوصيل في المحل"
 
 #. module: website_sale_collect
-#. odoo-javascript
-#: code:addons/website_sale_collect/static/src/js/click_and_collect_availability/click_and_collect_availability.xml:0
-msgid "Not available"
-msgstr "غير متاح"
+#. odoo-python
+#: code:addons/website_sale_collect/models/payment_provider.py:0
+msgid "In-store is only allowed if a sales order exists"
+msgstr ""
+
+#. module: website_sale_collect
+#. odoo-python
+#: code:addons/website_sale_collect/models/payment_provider.py:0
+msgid "In-store not allowed to pay less than the order remaining balance"
+msgstr ""
+
+#. module: website_sale_collect
+#. odoo-python
+#: code:addons/website_sale_collect/models/payment_provider.py:0
+msgid "No in-store delivery methods available"
+msgstr ""
 
 #. module: website_sale_collect
 #. odoo-javascript
 #: code:addons/website_sale_collect/static/src/js/click_and_collect_availability/click_and_collect_availability.xml:0
-#: code:addons/website_sale_collect/static/src/js/location_selector/location/location.xml:0
-msgid "Only"
-msgstr "فقط"
+#: model_terms:ir.ui.view,arch_db:website_sale_collect.in_store_delivery_method
+msgid "Not available"
+msgstr "غير متاح"
 
 #. module: website_sale_collect
 #: model:ir.model.fields,field_description:website_sale_collect.field_stock_warehouse__opening_hours
@@ -161,6 +207,11 @@ msgid "Pay on site"
 msgstr "الدفع في الموقع"
 
 #. module: website_sale_collect
+#: model:ir.model,name:website_sale_collect.model_payment_method
+msgid "Payment Method"
+msgstr ""
+
+#. module: website_sale_collect
 #: model:ir.model,name:website_sale_collect.model_payment_provider
 msgid "Payment Provider"
 msgstr "مزود الدفع"
@@ -178,8 +229,20 @@ msgid "Pick up in store"
 msgstr "الاستلام من المتجر"
 
 #. module: website_sale_collect
+#. odoo-javascript
+#: code:addons/website_sale_collect/static/src/js/click_and_collect_availability/click_and_collect_availability.xml:0
+msgid "Pickup"
+msgstr ""
+
+#. module: website_sale_collect
+#. odoo-javascript
+#: code:addons/website_sale_collect/static/src/js/click_and_collect_availability/click_and_collect_availability.xml:0
+msgid "Pickup available"
+msgstr ""
+
+#. module: website_sale_collect
 #. odoo-python
-#: code:addons/website_sale_collect/controllers/main.py:0
+#: code:addons/website_sale_collect/models/sale_order.py:0
 msgid "Please choose a store to collect your order."
 msgstr "يُرجى اختيار متجر لاستلام طلبك منه."
 
@@ -190,6 +253,7 @@ msgstr "المنتج"
 
 #. module: website_sale_collect
 #: model:ir.model.fields,field_description:website_sale_collect.field_delivery_carrier__delivery_type
+#: model:ir.model.fields,field_description:website_sale_collect.field_sale_order__delivery_type
 msgid "Provider"
 msgstr "المزود"
 
@@ -210,21 +274,39 @@ msgid "Sales Order"
 msgstr "أمر البيع"
 
 #. module: website_sale_collect
+#: model:ir.model,name:website_sale_collect.model_sale_order_line
+msgid "Sales Order Line"
+msgstr ""
+
+#. module: website_sale_collect
 #. odoo-javascript
 #: code:addons/website_sale_collect/static/src/interactions/checkout.js:0
 msgid "Same as contact details"
+msgstr "مثل تفاصيل جهات الاتصال"
+
+#. module: website_sale_collect
+#. odoo-javascript
+#: code:addons/website_sale_collect/static/src/js/click_and_collect_availability/click_and_collect_availability.xml:0
+msgid "Select a Store"
+msgstr ""
+
+#. module: website_sale_collect
+#. odoo-javascript
+#: code:addons/website_sale_collect/static/src/js/location_selector/location_selector_dialog/location_selector_dialog.xml:0
+msgid "Selected country:"
 msgstr ""
 
 #. module: website_sale_collect
 #. odoo-javascript
 #: code:addons/website_sale_collect/static/src/js/click_and_collect_availability/click_and_collect_availability.xml:0
-msgid "Select store"
-msgstr "قم بتحديد المتجر"
+msgid "Shipping"
+msgstr ""
 
 #. module: website_sale_collect
-#: model:ir.model,name:website_sale_collect.model_delivery_carrier
-msgid "Shipping Methods"
-msgstr "طُرُق الشَّحن"
+#. odoo-javascript
+#: code:addons/website_sale_collect/static/src/js/click_and_collect_availability/click_and_collect_availability.xml:0
+msgid "Shipping method"
+msgstr ""
 
 #. module: website_sale_collect
 #: model_terms:ir.ui.view,arch_db:website_sale_collect.unavailable_products_warning
@@ -233,16 +315,9 @@ msgstr "بعض المنتجات غير متوفرة في"
 
 #. module: website_sale_collect
 #. odoo-python
-#: code:addons/website_sale_collect/controllers/main.py:0
 #: code:addons/website_sale_collect/models/sale_order.py:0
 msgid "Some products are not available in the selected store."
 msgstr "بعض المنتجات غير متوفرة في المتجر المحدد."
-
-#. module: website_sale_collect
-#. odoo-python
-#: code:addons/website_sale_collect/controllers/main.py:0
-msgid "Sorry, we are unable to ship your order."
-msgstr "عذراً، لم نتمكن من شحن طلبك."
 
 #. module: website_sale_collect
 #: model:ir.model.fields,field_description:website_sale_collect.field_delivery_carrier__warehouse_ids
@@ -263,14 +338,28 @@ msgid "The delivery method must have at least one warehouse to be published."
 msgstr "يجب أن تحتوي طريقة التسليم على مستودع واحد على الأقل ليتم نشرها."
 
 #. module: website_sale_collect
-#: model_terms:ir.ui.view,arch_db:website_sale_collect.unavailable_products_warning
-msgid "Update cart quantities"
+#. odoo-javascript
+#: code:addons/website_sale_collect/static/src/js/location_selector/location_selector_dialog/location_selector_dialog.js:0
+msgid "This address may require to recompute taxes."
+msgstr ""
+
+#. module: website_sale_collect
+#. odoo-python
+#: code:addons/website_sale_collect/models/sale_order.py:0
+msgid ""
+"Unfortunately, we can not deliver this order with the selected delivery "
+"method. Please update your choice and try again."
 msgstr ""
 
 #. module: website_sale_collect
 #: model_terms:ir.ui.view,arch_db:website_sale_collect.unavailable_products_warning
+msgid "Update cart quantities"
+msgstr "تحديث كميات عربة التسوق"
+
+#. module: website_sale_collect
+#: model_terms:ir.ui.view,arch_db:website_sale_collect.unavailable_products_warning
 msgid "Update cart with available stock"
-msgstr ""
+msgstr "تحديث سلة التسوق بالمخزون المتوفر"
 
 #. module: website_sale_collect
 #: model:ir.model,name:website_sale_collect.model_stock_warehouse
@@ -290,6 +379,17 @@ msgid ""
 msgstr "لا يمكنك الدفع في الموقع إلا عند اختيار طريقة الاستلام من المتجر."
 
 #. module: website_sale_collect
+#. odoo-python
+#: code:addons/website_sale_collect/models/payment_transaction.py:0
+msgid "Your order will be ready on %s."
+msgstr ""
+
+#. module: website_sale_collect
+#: model_terms:payment.provider,pending_msg:website_sale_collect.payment_provider_on_site
+msgid "Your order will be ready soon."
+msgstr ""
+
+#. module: website_sale_collect
 #: model_terms:payment.provider,auth_msg:website_sale_collect.payment_provider_on_site
 msgid "Your payment has been authorized."
 msgstr "تم التصريح بالدفع."
@@ -306,13 +406,38 @@ msgstr "لقد تمت معالجة الدفع."
 
 #. module: website_sale_collect
 #. odoo-javascript
-#: code:addons/website_sale_collect/static/src/js/click_and_collect_availability/click_and_collect_availability.xml:0
-#: code:addons/website_sale_collect/static/src/js/location_selector/location/location.xml:0
-msgid "available"
-msgstr "متاح"
+#: code:addons/website_sale_collect/static/src/js/click_and_collect_availability/click_and_collect_availability.js:0
+msgid "from %(date)s"
+msgstr ""
 
 #. module: website_sale_collect
-#. odoo-python
-#: code:addons/website_sale_collect/models/payment_provider.py:0
-msgid "no in-store delivery methods available"
-msgstr "لا توجد طريقة توصيل متاحة في المتجر."
+#. odoo-javascript
+#: code:addons/website_sale_collect/static/src/js/click_and_collect_availability/click_and_collect_availability.xml:0
+#: code:addons/website_sale_collect/static/src/js/location_selector/location/location.xml:0
+msgid "in stock"
+msgstr ""
+
+#. module: website_sale_collect
+#. odoo-javascript
+#: code:addons/website_sale_collect/static/src/js/location_selector/map_container/map_container.xml:0
+msgid "to"
+msgstr ""
+
+#~ msgid "Change store"
+#~ msgstr "تغيير المتجر"
+
+#~ msgid "Select store"
+#~ msgstr "قم بتحديد المتجر"
+
+#, fuzzy
+#~ msgid "Your payment has been processed but is waiting for approval."
+#~ msgstr "لقد تمت معالجة مدفوعاتك بنجاح ولكنها بانتظار الموافقة."
+
+#~ msgid "%(available_qty)s/%(line_qty)s available at this location"
+#~ msgstr "%(available_qty)s/%(line_qty)s متوفرة في هذا الموقع"
+
+#~ msgid "Sorry, we are unable to ship your order."
+#~ msgstr "عذراً، لم نتمكن من شحن طلبك."
+
+#~ msgid "no in-store delivery methods available"
+#~ msgstr "لا توجد طريقة توصيل متاحة في المتجر."

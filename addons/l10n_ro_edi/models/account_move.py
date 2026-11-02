@@ -1,11 +1,10 @@
-import base64
-
 import requests
 from markupsafe import Markup
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Domain
+from odoo.tools import BinaryBytes
 
 from .utils import (
     _request_ciusro_download_answer,
@@ -52,7 +51,7 @@ class AccountMove(models.Model):
         self.l10n_ro_edi_state = False
         for move in self:
             # set the state of the move depending on the last document created
-            move.l10n_ro_edi_state = move.l10n_ro_edi_document_ids and move.l10n_ro_edi_document_ids.sorted()[0].state
+            move.l10n_ro_edi_state = move.l10n_ro_edi_document_ids.sorted()[:1].state
 
     @api.depends('l10n_ro_edi_state')
     def _compute_show_reset_to_draft_button(self):
@@ -115,7 +114,7 @@ class AccountMove(models.Model):
             - if success -> delete any existing sent document, create a new sent document
 
         :param xml_data: string of the xml data to be sent
-        :return: the `list` of errors that occured during the sending and processing of data, if any
+        :return: the `list` of errors that occurred during the sending and processing of data, if any
         """
         self.ensure_one()
         if errors := self._l10n_ro_edi_get_pre_send_errors(xml_data):
@@ -140,7 +139,7 @@ class AccountMove(models.Model):
         self.env['l10n_ro_edi.document'].sudo().create({
             'invoice_id': self.id,
             'state': 'invoice_sent',
-            'attachment': base64.b64encode(xml_data),
+            'attachment': BinaryBytes(xml_data),
         })
         if result['key_loading']:
             self.l10n_ro_edi_index = result['key_loading']
@@ -212,7 +211,7 @@ class AccountMove(models.Model):
                 'key_download': result['key_download'],
                 'key_signature': download_data['signature']['key_signature'],
                 'key_certificate': download_data['signature']['key_certificate'],
-                'attachment': base64.b64encode(download_data['signature']['attachment_raw']),
+                'attachment': BinaryBytes(download_data['signature']['attachment_raw']),
             }
             if result['state_status'] == 'nok':  # Invoice refused
                 error_message = download_data['invoice']['error'].replace('\t', '')
@@ -242,11 +241,12 @@ class AccountMove(models.Model):
             self.env.cr.commit()
 
     @api.model
-    def _l10n_ro_edi_fetch_invoices(self):
+    def _l10n_ro_edi_fetch_invoices(self, nb_days=1):
         """ Synchronize bills/invoices from SPV """
         result = _request_ciusro_synchronize_invoices(
             company=self.env.company,
             session=requests.Session(),
+            nb_days=nb_days,
         )
         if 'error' in result:
             raise UserError(result['error'])
@@ -370,7 +370,7 @@ class AccountMove(models.Model):
                 'key_download': message['id'],
                 'key_signature': message['answer']['signature']['key_signature'],
                 'key_certificate': message['answer']['signature']['key_certificate'],
-                'attachment': message['answer']['signature']['attachment_raw'],
+                'attachment': BinaryBytes(message['answer']['signature']['attachment_raw']),
             })
 
         self.env['l10n_ro_edi.document'].sudo().browse(document_ids_to_delete).unlink()
@@ -424,7 +424,7 @@ class AccountMove(models.Model):
                 'key_download': message['id'],
                 'key_signature': message['answer']['signature']['key_signature'],
                 'key_certificate': message['answer']['signature']['key_certificate'],
-                'attachment': message['answer']['signature']['attachment_raw'],
+                'attachment': BinaryBytes(message['answer']['signature']['attachment_raw']),
             })
 
         self.env['l10n_ro_edi.document'].sudo().browse(document_ids_to_delete).unlink()
@@ -497,7 +497,7 @@ class AccountMove(models.Model):
                 'key_download': message['id'],
                 'key_signature': message['answer']['signature']['key_signature'],
                 'key_certificate': message['answer']['signature']['key_certificate'],
-                'attachment': base64.b64encode(message['answer']['signature']['attachment_raw']),
+                'attachment': BinaryBytes(message['answer']['signature']['attachment_raw']),
             })
             xml_attachment_raw = message['answer']['invoice']['attachment_raw']
             xml_attachment_id = self.env['ir.attachment'].sudo().create({
@@ -528,8 +528,10 @@ class AccountMove(models.Model):
             bill.message_post(body=chatter_message)
 
     def action_l10n_ro_edi_fetch_invoices(self):
-        self._l10n_ro_edi_fetch_invoices()
         return {
-            'type': 'ir.actions.client',
-            'tag': 'reload',
+            'name': _("Period selection"),
+            'type': 'ir.actions.act_window',
+            'view_mode': 'form',
+            'res_model': 'l10n_ro_edi.account_move_fetch_invoices.wizard',
+            'target': 'new',
         }

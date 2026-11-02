@@ -11,8 +11,8 @@ patch(TicketScreen.prototype, {
         const destinationOrder = this.pos.getOrder();
 
         if (discountLines?.length && destinationOrder) {
-            const percentage = order.globalDiscountPc;
-            this.pos.applyDiscount(percentage, destinationOrder);
+            const { value, type } = order.globalDiscountPc;
+            this.pos.applyDiscount(value, type, destinationOrder);
         }
     },
 
@@ -23,10 +23,26 @@ patch(TicketScreen.prototype, {
         );
         if (orderline && orderline.product_id.id === this.pos.config.discount_product_id?.id) {
             return this.dialog.add(AlertDialog, {
-                title: _t("Error"),
+                title: _t("Oh snap !"),
                 body: _t("You cannot edit a discount line."),
             });
         }
         return super._onUpdateSelectedOrderline(...arguments);
+    },
+
+    onClickOrderline(orderline) {
+        if (
+            this.getSelectedOrder()?.finalized &&
+            this.getSelectedOrderlineId() == orderline.id &&
+            orderline.product_id.id === this.pos.config.discount_product_id?.id
+        ) {
+            {
+                return this.dialog.add(AlertDialog, {
+                    title: _t("Oh snap !"),
+                    body: _t("You cannot edit a discount line."),
+                });
+            }
+        }
+        return super.onClickOrderline(...arguments);
     },
 });

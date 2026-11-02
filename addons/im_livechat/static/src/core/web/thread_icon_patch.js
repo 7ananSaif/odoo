@@ -5,8 +5,8 @@ import { patch } from "@web/core/utils/patch";
 
 patch(ThreadIcon.prototype, {
     get defaultChatIcon() {
-        if (this.props.thread.channel_type === "livechat") {
-            return { class: "fa fa-comments opacity-75", title: _t("Livechat") };
+        if (this.channel?.channel_type === "livechat") {
+            return { icon: "forum", class: "opacity-75", title: _t("Live Chat") };
         }
         return super.defaultChatIcon;
     },

@@ -1,8 +1,9 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 import time
 import logging
-from odoo import api, models, Command
+from odoo import models, Command
 from odoo.exceptions import UserError, ValidationError
+from odoo.addons.account.models.chart_template import template
 
 _logger = logging.getLogger(__name__)
 
@@ -10,20 +11,10 @@ _logger = logging.getLogger(__name__)
 class AccountChartTemplate(models.AbstractModel):
     _inherit = "account.chart.template"
 
-    @api.model
-    def _get_demo_data(self, company=False):
-        if company.account_fiscal_country_id.code == "UY":
-            return {
-                'res.partner': self._l10n_uy_get_demo_data_res_partner(company),
-                'account.move': self._l10n_uy_get_demo_data_move(company),
-                'account.move.reversal': self._l10n_uy_get_demo_data_move_reversal(company),
-            }
-        else:
-            return super()._get_demo_data(company)
-
-    def _post_load_demo_data(self, company=False):
-        if company.account_fiscal_country_id.code != "UY":
-            return super()._post_load_demo_data(company)
+    def _post_load_demo_data(self, chart_template):
+        if chart_template != "uy":
+            super()._post_load_demo_data(chart_template)
+            return
         invoices = (
             self.ref('demo_invoice_1')
             + self.ref('demo_invoice_2')
@@ -49,43 +40,16 @@ class AccountChartTemplate(models.AbstractModel):
             except (UserError, ValidationError):
                 _logger.exception('Error while posting invoices')
 
-        # Post the reversal moves
-        invoices_to_revert = (
-            self.ref('demo_refund_invoice_1')
-            + self.ref('demo_refund_invoice_2')
-            + self.ref('demo_refund_invoice_3')
-            + self.ref('demo_refund_invoice_4')
-            + self.ref('demo_sup_refund_invoice_3')
-            + self.ref('demo_sup_refund_invoice_2')
-        )
-        for move in invoices_to_revert:
-            try:
-                self.env['account.move'].browse(move.refund_moves().get('res_id')).action_post()
-            except (UserError, ValidationError):
-                _logger.exception('Error while posting reversal moves')
-
-    @api.model
-    def _l10n_uy_get_demo_data_move(self, company=False):
-        cid = company.id or self.env.company.id
-        sale_journal = self.env['account.journal'].search(
-            domain=[
-                *self.env['account.journal']._check_company_domain(cid),
-                ('type', '=', 'sale')
-            ], limit=1,
-        )
-        purchase_journal = self.env['account.journal'].search(
-            domain=[
-                *self.env['account.journal']._check_company_domain(cid),
-                ('type', '=', 'purchase')
-            ], limit=1,
-        )
+    @template(model='account.move', demo=True)
+    def _get_demo_data_move(self, template_code):
+        if template_code != 'uy':
+            return super()._get_demo_data_move(template_code)
         return {
             # Customer invoice demo
             self.company_xmlid('demo_invoice_1'): {
-                'company_id': company.id,
                 'move_type': 'out_invoice',
                 'partner_id': 'base.res_partner_4',
-                'journal_id': sale_journal.id,
+                'journal_id': 'sale',
                 'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
                 'invoice_date': time.strftime('%Y-%m-01'),
                 'invoice_line_ids': [
@@ -96,11 +60,10 @@ class AccountChartTemplate(models.AbstractModel):
                 ],
             },
             self.company_xmlid('demo_invoice_2'): {
-                'company_id': company.id,
                 'move_type': 'out_invoice',
                 'partner_id': 'base.res_partner_4',
                 'invoice_user_id': 'base.user_demo',
-                'journal_id': sale_journal.id,
+                'journal_id': 'sale',
                 'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
                 'invoice_date': time.strftime('%Y-%m-05'),
                 'l10n_latam_document_type_id': 'l10n_uy.dc_e_inv',
@@ -111,11 +74,10 @@ class AccountChartTemplate(models.AbstractModel):
                 ],
             },
             self.company_xmlid('demo_invoice_3'): {
-                'company_id': company.id,
                 'move_type': 'out_invoice',
                 'partner_id': 'l10n_uy.partner_cfu',
                 'invoice_user_id': 'base.user_demo',
-                'journal_id': sale_journal.id,
+                'journal_id': 'sale',
                 'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
                 'invoice_date': time.strftime('%Y-%m-10'),
                 'l10n_latam_document_type_id': 'l10n_uy.dc_e_ticket',
@@ -128,11 +90,10 @@ class AccountChartTemplate(models.AbstractModel):
                 ],
             },
             self.company_xmlid('demo_invoice_4'): {
-                'company_id': company.id,
                 'move_type': 'out_invoice',
-                'partner_id': 'demo_partner_4',
+                'partner_id': 'l10n_uy.demo_partner_4',
                 'invoice_user_id': 'base.user_demo',
-                'journal_id': sale_journal.id,
+                'journal_id': 'sale',
                 'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
                 'invoice_date': time.strftime('%Y-%m-13'),
                 'l10n_latam_document_type_id': 'l10n_uy.dc_e_inv',
@@ -145,11 +106,10 @@ class AccountChartTemplate(models.AbstractModel):
                 'currency_id': 'base.USD',
             },
             self.company_xmlid('demo_invoice_5'): {
-                'company_id': company.id,
                 'move_type': 'out_invoice',
-                'partner_id': 'res_partner_foreign',
+                'partner_id': 'l10n_uy.res_partner_foreign',
                 'invoice_user_id': 'base.user_demo',
-                'journal_id': sale_journal.id,
+                'journal_id': 'sale',
                 'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
                 'invoice_date': time.strftime('%Y-%m-11'),
                 'l10n_latam_document_type_id': 'l10n_uy.dc_e_inv_exp',
@@ -164,11 +124,10 @@ class AccountChartTemplate(models.AbstractModel):
                 'currency_id': 'base.USD',
             },
             self.company_xmlid('demo_invoice_6'): {
-                'company_id': company.id,
                 'move_type': 'out_invoice',
                 'partner_id': 'l10n_uy.partner_cfu',
                 'invoice_user_id': 'base.user_demo',
-                'journal_id': sale_journal.id,
+                'journal_id': 'sale',
                 'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
                 'invoice_date': time.strftime('%Y-%m-14'),
                 'l10n_latam_document_type_id': 'l10n_uy.dc_e_ticket',
@@ -186,7 +145,6 @@ class AccountChartTemplate(models.AbstractModel):
                 ],
             },
             self.company_xmlid('demo_invoice_7'): {
-                'company_id': company.id,
                 'move_type': 'out_invoice',
                 'partner_id': 'l10n_uy.partner_cfu',
                 'invoice_user_id': 'base.user_demo',
@@ -204,9 +162,8 @@ class AccountChartTemplate(models.AbstractModel):
                 ],
             },
             self.company_xmlid('demo_invoice_8'): {
-                'company_id': company.id,
                 'move_type': 'out_invoice',
-                'partner_id': 'demo_partner_5',
+                'partner_id': 'l10n_uy.demo_partner_5',
                 'invoice_user_id': 'base.user_demo',
                 'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
                 'invoice_date': time.strftime('%Y-%m-01'),
@@ -219,9 +176,8 @@ class AccountChartTemplate(models.AbstractModel):
                 ],
             },
             self.company_xmlid('demo_invoice_9'): {
-                'company_id': company.id,
                 'move_type': 'out_invoice',
-                'partner_id': 'demo_partner_4',
+                'partner_id': 'l10n_uy.demo_partner_4',
                 'invoice_user_id': 'base.user_demo',
                 'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
                 'invoice_date': time.strftime('%Y-%m-05'),
@@ -236,11 +192,10 @@ class AccountChartTemplate(models.AbstractModel):
 
             # Supplier invoice demo
             self.company_xmlid('demo_sup_invoice_1'): {
-                'company_id': company.id,
                 'move_type': 'in_invoice',
-                'partner_id': 'demo_partner_5',
+                'partner_id': 'l10n_uy.demo_partner_5',
                 'invoice_user_id': 'base.user_demo',
-                'journal_id': purchase_journal.id,
+                'journal_id': 'purchase',
                 'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
                 'invoice_date': time.strftime('%Y-%m') + '-01',
                 'l10n_latam_document_type_id': 'l10n_uy.dc_e_inv',
@@ -251,11 +206,10 @@ class AccountChartTemplate(models.AbstractModel):
                 ],
             },
             self.company_xmlid('demo_sup_invoice_2'): {
-                'company_id': company.id,
                 'move_type': 'in_invoice',
-                'partner_id': 'res_partner_foreign',
+                'partner_id': 'l10n_uy.res_partner_foreign',
                 'invoice_user_id': 'base.user_demo',
-                'journal_id': purchase_journal.id,
+                'journal_id': 'purchase',
                 'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
                 'invoice_date': time.strftime('%Y-%m') + '-01',
                 'l10n_latam_document_type_id': 'l10n_uy.dc_e_inv_exp',
@@ -267,9 +221,8 @@ class AccountChartTemplate(models.AbstractModel):
                 ],
             },
             self.company_xmlid('demo_sup_invoice_3'): {
-                'company_id': company.id,
                 'move_type': 'in_invoice',
-                'partner_id': 'demo_partner_4',
+                'partner_id': 'l10n_uy.demo_partner_4',
                 'invoice_user_id': 'base.user_demo',
                 'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
                 'invoice_date': time.strftime('%Y-%m') + '-26',
@@ -280,7 +233,6 @@ class AccountChartTemplate(models.AbstractModel):
                 ],
             },
             self.company_xmlid('demo_sup_invoice_4'): {
-                'company_id': company.id,
                 'move_type': 'in_invoice',
                 'partner_id': 'l10n_uy.partner_cfu',
                 'invoice_user_id': 'base.user_demo',
@@ -293,9 +245,8 @@ class AccountChartTemplate(models.AbstractModel):
                 ],
             },
             self.company_xmlid('demo_sup_invoice_5'): {
-                'company_id': company.id,
                 'move_type': 'in_invoice',
-                'partner_id': 'res_partner_foreign',
+                'partner_id': 'l10n_uy.res_partner_foreign',
                 'invoice_user_id': 'base.user_demo',
                 'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
                 'invoice_date': time.strftime('%Y-%m') + '-01',
@@ -308,9 +259,8 @@ class AccountChartTemplate(models.AbstractModel):
                 ],
             },
             self.company_xmlid('demo_sup_invoice_6'): {
-                'company_id': company.id,
                 'move_type': 'in_invoice',
-                'partner_id': 'res_partner_foreign',
+                'partner_id': 'l10n_uy.res_partner_foreign',
                 'invoice_user_id': 'base.user_demo',
                 'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
                 'invoice_date': time.strftime('%Y-%m') + '-01',
@@ -323,11 +273,10 @@ class AccountChartTemplate(models.AbstractModel):
                 ],
             },
             self.company_xmlid('demo_sup_invoice_7'): {
-                'company_id': company.id,
                 'move_type': 'in_invoice',
-                'partner_id': 'demo_partner_5',
+                'partner_id': 'l10n_uy.demo_partner_5',
                 'invoice_user_id': 'base.user_demo',
-                'journal_id': purchase_journal.id,
+                'journal_id': 'purchase',
                 'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
                 'invoice_date': time.strftime('%Y-%m') + '-01',
                 'l10n_latam_document_type_id': 'l10n_uy.dc_e_ticket',
@@ -340,7 +289,6 @@ class AccountChartTemplate(models.AbstractModel):
                 ],
             },
             self.company_xmlid('demo_sup_invoice_8'): {
-                'company_id': company.id,
                 'move_type': 'in_invoice',
                 'partner_id': 'l10n_uy.partner_cfu',
                 'invoice_user_id': 'base.user_demo',
@@ -357,9 +305,8 @@ class AccountChartTemplate(models.AbstractModel):
                 ],
             },
             self.company_xmlid('demo_sup_invoice_9'): {
-                'company_id': company.id,
                 'move_type': 'in_invoice',
-                'partner_id': 'demo_partner_4',
+                'partner_id': 'l10n_uy.demo_partner_4',
                 'invoice_user_id': 'base.user_demo',
                 'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
                 'invoice_date': time.strftime('%Y-%m') + '-01',
@@ -373,9 +320,8 @@ class AccountChartTemplate(models.AbstractModel):
                 ],
             },
             self.company_xmlid('demo_sup_invoice_10'): {
-                'company_id': company.id,
                 'move_type': 'in_invoice',
-                'partner_id': 'demo_partner_5',
+                'partner_id': 'l10n_uy.demo_partner_5',
                 'invoice_user_id': 'base.user_demo',
                 'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
                 'invoice_date': time.strftime('%Y-%m') + '-01',
@@ -389,87 +335,31 @@ class AccountChartTemplate(models.AbstractModel):
             },
         }
 
-    @api.model
-    def _l10n_uy_get_demo_data_move_reversal(self, company=False):
-        cid = company.id or self.env.company.id
-        sale_journal = self.env['account.journal'].search(
-            domain=[
-                *self.env['account.journal']._check_company_domain(cid),
-                ('type', '=', 'sale')
-            ], limit=1,
-        )
-        purchase_journal = self.env['account.journal'].search(
-            domain=[
-                *self.env['account.journal']._check_company_domain(cid),
-                ('type', '=', 'purchase')
-            ], limit=1,
-        )
-        return {
-            # Account Customer Refund
+    @template(model='account.bank.statement', demo=True)
+    def _get_demo_data_statement(self, template_code):
+        return {} if template_code == 'uy' else super()._get_demo_data_statement(template_code)
 
-            # Create draft refund for invoice 3
-            self.company_xmlid('demo_refund_invoice_1'): {
-                'reason': 'Venta Cancelada',
-                'move_ids': 'demo_invoice_1',
-                'journal_id': sale_journal.id,
-                'date': time.strftime('%Y-%m') + '-01'
-            },
-            # Create draft refund for invoice 4
-            self.company_xmlid('demo_refund_invoice_2'): {
-                'reason': 'Venta Cancelada',
-                'move_ids': 'demo_invoice_4',
-                'l10n_latam_document_type_id': 'l10n_uy.dc_cn_e_ticket',
-                'journal_id': sale_journal.id,
-                'date': time.strftime('%Y-%m') + '-01'
-            },
-            self.company_xmlid('demo_refund_invoice_3'): {
-                'reason': 'Venta Cancelada',
-                'move_ids': 'demo_invoice_5',
-                'l10n_latam_document_type_id': 'l10n_uy.dc_cn_e_inv_exp',
-                'journal_id': sale_journal.id,
-                'date': time.strftime('%Y-%m') + '-01'
-            },
-            self.company_xmlid('demo_refund_invoice_4'): {
-                'reason': 'Venta Cancelada',
-                'move_ids': 'demo_invoice_6',
-                'l10n_latam_document_type_id': 'l10n_uy.dc_cn_e_ticket',
-                'journal_id': sale_journal.id,
-                'date': time.strftime('%Y-%m') + '-01'
-            },
+    @template(model='account.bank.statement.line', demo=True)
+    def _get_demo_data_transactions(self, template_code):
+        return {} if template_code == 'uy' else super()._get_demo_data_transactions(template_code)
 
-            # Account supplier refund
-            self.company_xmlid('demo_sup_refund_invoice_3'): {
-                'reason': 'Mercadería defectuosa',
-                'l10n_latam_document_number': 'BB0123456',
-                'move_ids': 'demo_sup_invoice_1',
-                'l10n_latam_document_type_id': 'l10n_uy.dc_cn_e_inv',
-                'journal_id': purchase_journal.id,
-                'date': time.strftime('%Y-%m') + '-01'
-            },
-            self.company_xmlid('demo_sup_refund_invoice_2'): {
-                'reason': 'Venta cancelada',
-                'l10n_latam_document_number': 'BB0123457',
-                'move_ids': 'demo_sup_invoice_2',
-                'l10n_latam_document_type_id': 'l10n_uy.dc_cn_e_inv_exp',
-                'journal_id': purchase_journal.id,
-                'date': time.strftime('%Y-%m') + '-01'
-            },
-            self.company_xmlid('demo_sup_refund_invoice_1'): {
-                'reason': 'Venta cancelada',
-                'l10n_latam_document_number': 'BB0123458',
-                'move_ids': 'demo_sup_invoice_7',
-                'l10n_latam_document_type_id': 'l10n_uy.dc_cn_e_ticket',
-                'journal_id': purchase_journal.id,
-                'date': time.strftime('%Y-%m') + '-01'
-            },
-        }
+    @template(model='ir.attachment', demo=True)
+    def _get_demo_data_attachment(self, template_code):
+        return {} if template_code == 'uy' else super()._get_demo_data_attachment(template_code)
 
-    @api.model
+    @template(model='mail.message', demo=True)
+    def _get_demo_data_mail_message(self, template_code):
+        return {} if template_code == 'uy' else super()._get_demo_data_mail_message(template_code)
+
+    @template(model='mail.activity', demo=True)
+    def _get_demo_data_mail_activity(self, template_code):
+        return {} if template_code == 'uy' else super()._get_demo_data_mail_activity(template_code)
+
+    @template(template='uy', model='res.partner', demo=True)
     def _l10n_uy_get_demo_data_res_partner(self, company=False):
         return {
-            self.company_xmlid('demo_partner_4'): {
+            'l10n_uy.demo_partner_4': {
                 'name': 'Global Solutions Corp',
-                'l10n_latam_identification_type_id': 'l10n_uy.it_rut',
                 'vat': '218435730016',
                 'street': 'Avenida Central 5678',
                 'city': 'Punta del Este',
@@ -477,9 +367,8 @@ class AccountChartTemplate(models.AbstractModel):
                 'country_id': 'base.uy',
                 'email': 'info@globalsolutions.com',
             },
-            self.company_xmlid('demo_partner_5'): {
+            'l10n_uy.demo_partner_5': {
                 'name': 'Tech Innovations S.A.',
-                'l10n_latam_identification_type_id': 'l10n_uy.it_rut',
                 'vat': '219999830019',
                 'street': 'Avenida de la Libertad 1234',
                 'city': 'Montevideo',
@@ -487,9 +376,8 @@ class AccountChartTemplate(models.AbstractModel):
                 'country_id': 'base.uy',
                 'email': 'contact@techinnovations.com',
             },
-            self.company_xmlid('demo_partner_6'): {
+            'l10n_uy.demo_partner_6': {
                 'name': 'CORREO URUGUAYO',
-                'l10n_latam_identification_type_id': 'l10n_uy.it_rut',
                 'vat': '214130990011',
                 'street': 'Buenos Aires 451',
                 'city': 'Montevideo',
@@ -498,10 +386,8 @@ class AccountChartTemplate(models.AbstractModel):
                 'email': 'correo@example.com',
             },
             # Foreign Company
-            'res_partner_foreign': {
+            'l10n_uy.res_partner_foreign': {
                 'name': 'Foreign Inc',
-                'l10n_latam_identification_type_id': 'l10n_latam_base.it_vat',
-                'is_company': True,
                 'vat': '17-2038053',
                 'zip': '95380',
                 'street': '7841 Red Road',
@@ -513,10 +399,9 @@ class AccountChartTemplate(models.AbstractModel):
                 'website': 'http://www.foreign-inc.com',
             },
             # Resident Alien (Foreign living at Uruguay)
-            'res_partner_resident_alien': {
+            'l10n_uy.res_partner_resident_alien': {
                 'name': 'Resident Alien',
-                'l10n_latam_identification_type_id': 'l10n_uy.it_nie',
-                'vat': '93:402.010-1',
+                'additional_identifiers': {'UY_NIE': '93:402.010-1'},
                 'zip': '2343',
                 'street': 'Calle False 1234',
                 'city': 'Montevideo',

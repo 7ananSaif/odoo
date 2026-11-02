@@ -1,9 +1,11 @@
+import { t, useProps } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
-import { QuestionPageListRenderer } from "./question_page_list_renderer";
 import { registry } from "@web/core/registry";
+import { useService } from "@web/core/utils/hooks";
+import { useSubEnv } from "@web/owl2/utils";
 import { useOpenX2ManyRecord, useX2ManyCrud } from "@web/views/fields/relational_utils";
-import { X2ManyField, x2ManyField } from "@web/views/fields/x2many/x2many_field";
-import { useSubEnv } from "@odoo/owl";
+import { X2ManyField, x2ManyField, x2ManyFieldProps } from "@web/views/fields/x2many/x2many_field";
+import { QuestionPageListRenderer } from "./question_page_list_renderer";
 
 /**
  * For convenience, we'll prevent closing the question form dialog and
@@ -14,8 +16,9 @@ import { useSubEnv } from "@odoo/owl";
 
 class SurveySaveError extends Error {}
 function SurveySaveErrorHandler(env, error, originalError) {
+    const notification = useService("notification");
     if (originalError instanceof SurveySaveError) {
-        env.services.notification.add(originalError.message, {
+        notification.add(originalError.message, {
             title: _t("Validation Error"),
             type: "danger",
         });
@@ -31,10 +34,12 @@ class QuestionPageOneToManyField extends X2ManyField {
         ...X2ManyField.components,
         ListRenderer: QuestionPageListRenderer,
     };
-    static defaultProps = {
-        ...X2ManyField.defaultProps,
-        editable: "bottom",
-    };
+
+    props = useProps({
+        ...x2ManyFieldProps,
+        editable: t.string().optional("bottom"),
+    });
+
     setup() {
         super.setup();
         useSubEnv({
@@ -82,12 +87,14 @@ class QuestionPageOneToManyField extends X2ManyField {
         });
         this._openRecord = async (params) => {
             const { record, name } = this.props;
-            if (!await record.save()) {
+            if (!(await record.save())) {
                 // do not open question form as it won't be savable either.
                 return;
             }
             if (params.record) {
-                params.record = record.data[name].records.find(r => r.resId === params.record.resId);
+                params.record = record.data[name].records.find(
+                    (r) => r.resId === params.record.resId
+                );
             }
             await openRecord(params);
         };
@@ -98,8 +105,7 @@ class QuestionPageOneToManyField extends X2ManyField {
 export const questionPageOneToManyField = {
     ...x2ManyField,
     component: QuestionPageOneToManyField,
-    additionalClasses: [...x2ManyField.additionalClasses || [], "o_field_one2many"],
-    
+    additionalClasses: [...(x2ManyField.additionalClasses || []), "o_field_one2many"],
 };
 
 registry.category("fields").add("question_page_one2many", questionPageOneToManyField);

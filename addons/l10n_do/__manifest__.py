@@ -72,18 +72,24 @@ en Odoo):
 110101- Caja
 11010101 Caja General
     """,
-    'author': 'Gustavo Valverde - iterativo | Consultores de Odoo (http://iterativo.do)',
+    'author': 'Gustavo Valverde - INDEXA | Desarrollo de Productos (https://indexa.do)',
     'website': 'https://www.odoo.com/documentation/latest/applications/finance/fiscal_localizations.html',
     'depends': [
         'account',
-        'base_iban',
+        'l10n_latam_invoice_document',
     ],
     'auto_install': ['account'],
     'data': [
+        'data/account_account_tag_data.xml',
         'data/account_tax_report_data.xml',
+        'data/l10n_latam_document_type_data.xml',
+        'views/account_move_views.xml',
+        'views/account_tax_views.xml',
     ],
     'demo': [
         'demo/demo_company.xml',
+        'demo/demo_res_partner.xml',
+        'demo/demo_account_journal.xml',
     ],
     'license': 'LGPL-3',
 }

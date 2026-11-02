@@ -7,10 +7,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~18.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-15 17:35+0000\n"
-"PO-Revision-Date: 2025-11-13 13:19+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Romanian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-08-31 17:52+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Romanian <https://translate.odoo.com/projects/odoo-s19-4/"
 "pos_stripe/ro/>\n"
 "Language: ro\n"
 "MIME-Version: 1.0\n"
@@ -18,7 +18,13 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
 "20)) ? 1 : 2;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: pos_stripe
+#. odoo-javascript
+#: code:addons/pos_stripe/static/src/app/payment_stripe.js:0
+msgid "Capture Payment"
+msgstr ""
 
 #. module: pos_stripe
 #: model:ir.model.fields,field_description:pos_stripe.field_pos_payment_method__display_name
@@ -30,12 +36,6 @@ msgstr "Nume afișat"
 #: code:addons/pos_stripe/models/pos_payment_method.py:0
 msgid "Do not have access to fetch token from Stripe"
 msgstr "Nu aveți acces pentru a prelua tokenul de la Stripe"
-
-#. module: pos_stripe
-#. odoo-python
-#: code:addons/pos_stripe/models/pos_payment_method.py:0
-msgid "Do not have access to refund Stripe payment"
-msgstr ""
 
 #. module: pos_stripe
 #: model_terms:ir.ui.view,arch_db:pos_stripe.pos_payment_method_view_form_inherit_pos_stripe
@@ -58,15 +58,37 @@ msgid "Failed to load resource: net::ERR_INTERNET_DISCONNECTED."
 msgstr "A eșuat încărcarea sursei: net::ERR_INTERNET_DISCONNECTED."
 
 #. module: pos_stripe
+#. odoo-javascript
+#: code:addons/pos_stripe/static/src/app/payment_stripe.js:0
+msgid "Fetch Secret"
+msgstr ""
+
+#. module: pos_stripe
+#. odoo-javascript
+#: code:addons/pos_stripe/static/src/app/payment_stripe.js:0
+msgid "Fetch Token"
+msgstr ""
+
+#. module: pos_stripe
 #: model:ir.model.fields,field_description:pos_stripe.field_pos_payment_method__id
 msgid "ID"
 msgstr "ID"
+
+#. module: pos_stripe
+#: model:ir.module.module,summary:base.module_pos_stripe
+msgid "Integrate your POS with a Stripe payment terminal"
+msgstr ""
 
 #. module: pos_stripe
 #. odoo-javascript
 #: code:addons/pos_stripe/static/src/app/payment_stripe.js:0
 msgid "No available Stripe readers."
 msgstr "Nu există cititoare Stripe disponibile."
+
+#. module: pos_stripe
+#: model:ir.module.module,shortdesc:base.module_pos_stripe
+msgid "POS Stripe"
+msgstr ""
 
 #. module: pos_stripe
 #. odoo-javascript
@@ -76,8 +98,8 @@ msgstr "Plata a fost anulată deoarece nu este conectat niciun cititor"
 
 #. module: pos_stripe
 #: model:ir.model,name:pos_stripe.model_pos_payment_method
-msgid "Point of Sale Payment Methods"
-msgstr "Metode plată Punct de Vânzare"
+msgid "Point of Sale Payment Method"
+msgstr ""
 
 #. module: pos_stripe
 #. odoo-javascript
@@ -88,6 +110,7 @@ msgstr "Cititor deconectat"
 #. module: pos_stripe
 #. odoo-python
 #: code:addons/pos_stripe/models/pos_payment_method.py:0
+#: model_terms:ir.ui.view,arch_db:pos_stripe.pos_payment_method_view_form_inherit_pos_stripe
 msgid "Stripe"
 msgstr "Stripe"
 

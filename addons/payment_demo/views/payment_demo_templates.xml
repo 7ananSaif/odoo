@@ -56,9 +56,7 @@
                             <h5 class="modal-title" id="o_payment_demo_modal_label">
                                 Demo Express Checkout
                             </h5>
-                            <span t-if="provider_sudo.state == 'test'"
-                                  class="badge rounded-pill text-bg-warning ms-1"
-                            >
+                            <span class="badge rounded-pill text-bg-warning ms-1">
                                 Test Mode
                             </span>
                             <button type="button"
@@ -68,13 +66,9 @@
                             />
                         </div>
                         <div class="modal-body">
-                            <t t-call="payment_demo.express_inline_form">
-                                <t t-set="provider_id" t-value="provider_sudo.id"/>
-                            </t>
+                            <t t-call="payment_demo.express_inline_form" provider_id="provider_sudo.id"/>
                             <div class="float-end mt-2" t-att-data-provider-id="provider_sudo.id">
-                                <t t-call="payment.submit_button">
-                                    <t t-set="submit_button_label">Pay</t>
-                                </t>
+                                <t t-call="payment.submit_button" submit_button_label.translate="Pay"/>
                             </div>
                         </div>
                     </div>
@@ -89,7 +83,7 @@
             <div t-if="shipping_info_required"
                  t-attf-id="o_payment_demo_shipping_info_{{provider_id}}"
             >
-                <t t-set="customer" t-value="request.env.user.partner_id"/>
+                <t t-set="customer" t-value="env.user.partner_id"/>
                 <div class="row mt-0">
                     <div class="col mb-0">
                         <label for="o_payment_demo_shipping_name" class=" mt-0">

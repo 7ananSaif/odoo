@@ -14,19 +14,25 @@ declare module "models" {
     import { MailActivityType as MailActivityTypeClass } from "@mail/core/common/mail_activity_type_model";
     import { MailGuest as MailGuestClass } from "@mail/core/common/mail_guest_model";
     import { MailMessageSubtype as MailMessageSubtypeClass } from "@mail/core/common/mail_message_subtype_model";
+    import { MailPollModel as MailPollModelClass } from "@mail/core/common/mail_poll_model";
+    import { MailPollOptionModel as MailPollOptionModelClass } from "@mail/core/common/mail_poll_option_model";
+    import { MailPollVote as MailPollVoteClass } from "@mail/core/common/mail_poll_vote_model";
     import { MailTemplate as MailTemplateClass } from "@mail/core/common/mail_template_model";
     import { Message as MessageClass } from "@mail/core/common/message_model";
     import { MessageLinkPreview as MessageLinkPreviewClass } from "@mail/core/common/message_link_preview_model";
     import { MessageReactions as MessageReactionsClass } from "@mail/core/common/message_reactions_model";
     import { Notification as NotificationClass } from "@mail/core/common/notification_model";
     import { ResCompany as ResCompanyClass } from "@mail/core/common/res_company_model";
+    import { ResCurrency as ResCurrencyClass } from "@mail/core/common/res_currency_model";
     import { ResGroups as ResGroupsClass } from "@mail/core/common/res_groups_model";
     import { ResGroupsPrivilege as ResGroupsPrivilegeClass } from "@mail/core/common/res_groups_privilege_model";
     import { ResLang as ResLangClass } from "@mail/core/common/res_lang_model";
     import { ResPartner as ResPartnerClass } from "@mail/core/common/res_partner_model";
     import { ResRole as ResRoleClass } from "@mail/core/common/res_role_model";
     import { ResUsers as ResUsersClass } from "@mail/core/common/res_users_model";
+    import { ResUsersSettings as ResUsersSettingsClass } from "@mail/core/common/res_users_settings_model";
     import { Settings as SettingsClass } from "@mail/core/common/settings_model";
+    import { Store as StoreClass } from "@mail/core/common/store_service";
     import { Thread as ThreadClass } from "@mail/core/common/thread_model";
     import { Volume as VolumeClass } from "@mail/core/common/volume_model";
 
@@ -45,21 +51,34 @@ declare module "models" {
     export interface MailActivityType extends MailActivityTypeClass {}
     export interface MailGuest extends MailGuestClass {}
     export interface MailMessageSubtype extends MailMessageSubtypeClass {}
+    export interface MailPollModel extends MailPollModelClass {}
+    export interface MailPollOptionModel extends MailPollOptionModelClass {}
+    export interface MailPollVote extends MailPollVoteClass {}
     export interface MailTemplate extends MailTemplateClass {}
     export interface Message extends MessageClass {}
     export interface MessageLinkPreview extends MessageLinkPreviewClass {}
     export interface MessageReactions extends MessageReactionsClass {}
     export interface Notification extends NotificationClass {}
     export interface ResCompany extends ResCompanyClass {}
+    export interface ResCurrency extends ResCurrencyClass {}
     export interface ResGroups extends ResGroupsClass {}
     export interface ResGroupsPrivilege extends ResGroupsPrivilegeClass {}
     export interface ResLang extends ResLangClass {}
     export interface ResPartner extends ResPartnerClass {}
     export interface ResRole extends ResRoleClass {}
-    export interface ResUsers extends ResUsersClass {}
+    export interface ResUsers extends ResUsersClass, ResPartner {}
+    export interface ResUsersSettings extends ResUsersSettingsClass {}
     export interface Settings extends SettingsClass {}
+    export interface Store extends StoreClass {}
     export interface Thread extends ThreadClass {}
     export interface Volume extends VolumeClass {}
+
+    type StaticMailRecord<ClassInterface, JSClassType> = Omit<JSClassType, "get" | "insert" | "records"> & {
+        new (...args: any[]): ClassInterface;
+        get: (data: any) => ClassInterface;
+        insert: <D extends object | object[]>(data: D, options?: object) => D extends object[] ? ClassInterface[] : ClassInterface;
+        records: { [localId: string]: ClassInterface };
+    };
 
     export interface Store {
         ChatHub: StaticMailRecord<ChatHub, typeof ChatHubClass>;
@@ -79,19 +98,25 @@ declare module "models" {
         "mail.message.link.preview": StaticMailRecord<MessageLinkPreview, typeof MessageLinkPreviewClass>;
         "mail.message.subtype": StaticMailRecord<MailMessageSubtype, typeof MailMessageSubtypeClass>;
         "mail.notification": StaticMailRecord<Notification, typeof NotificationClass>;
+        "mail.poll": StaticMailRecord<MailPollModel, typeof MailPollModelClass>;
+        "mail.poll.option": StaticMailRecord<MailPollOptionModel, typeof MailPollOptionModelClass>;
+        "mail.poll.vote": StaticMailRecord<MailPollVote, typeof MailPollVoteClass>;
         "mail.template": StaticMailRecord<MailTemplate, typeof MailTemplateClass>;
+        "mail.thread": StaticMailRecord<Thread, typeof ThreadClass>;
         MessageReactions: StaticMailRecord<MessageReactions, typeof MessageReactionsClass>;
         "res.company": StaticMailRecord<ResCompany, typeof ResCompanyClass>;
         "res.country": StaticMailRecord<Country, typeof CountryClass>;
+        "res.currency": StaticMailRecord<ResCurrency, typeof ResCurrencyClass>;
         "res.groups": StaticMailRecord<ResGroups, typeof ResGroupsClass>;
         "res.groups.privilege": StaticMailRecord<ResGroupsPrivilege, typeof ResGroupsPrivilegeClass>;
         "res.lang": StaticMailRecord<ResLang, typeof ResLangClass>;
         "res.partner": StaticMailRecord<ResPartner, typeof ResPartnerClass>;
         "res.role": StaticMailRecord<ResRole, typeof ResRoleClass>;
         "res.users": StaticMailRecord<ResUsers, typeof ResUsersClass>;
+        "res.users.settings": StaticMailRecord<ResUsersSettings, typeof ResUsersSettingsClass>;
+        "res.users.settings.volumes": StaticMailRecord<Volume, typeof VolumeClass>;
         Settings: StaticMailRecord<Settings, typeof SettingsClass>;
-        Thread: StaticMailRecord<Thread, typeof ThreadClass>;
-        Volume: StaticMailRecord<Volume, typeof VolumeClass>;
+        Store: StaticMailRecord<Store, typeof StoreClass>;
     }
 
     export interface Models {
@@ -112,18 +137,24 @@ declare module "models" {
         "mail.message.link.preview": MessageLinkPreview;
         "mail.message.subtype": MailMessageSubtype;
         "mail.notification": Notification;
+        "mail.poll": MailPollModel;
+        "mail.poll.option": MailPollOptionModel;
+        "mail.poll.vote": MailPollVote;
         "mail.template": MailTemplate;
+        "mail.thread": Thread;
         MessageReactions: MessageReactions;
         "res.company": ResCompany;
         "res.country": Country;
+        "res.currency": ResCurrency;
         "res.groups": ResGroups;
         "res.groups.privilege": ResGroupsPrivilege;
         "res.lang": ResLang;
         "res.partner": ResPartner;
         "res.role": ResRole;
         "res.users": ResUsers;
+        "res.users.settings": ResUsersSettings;
+        "res.users.settings.volumes": Volume;
         Settings: Settings;
-        Thread: Thread;
-        Volume: Volume;
+        Store: Store;
     }
 }

@@ -20,7 +20,8 @@ import { standardViewProps } from "@web/views/standard_view_props";
 import { MultiSelectionButtons } from "@web/views/view_components/multi_selection_buttons";
 import { getLocalYearAndWeek } from "@web/core/l10n/dates";
 
-import { Component, reactive, useState } from "@odoo/owl";
+import { Component, proxy, t, useProps } from "@odoo/owl";
+import { hasTouch, isMobileOS } from "@web/core/browser/feature_detection";
 
 const { DateTime } = luxon;
 
@@ -55,35 +56,37 @@ export class CalendarController extends Component {
         MultiSelectionButtons,
     };
     static template = "web.CalendarController";
-    static props = {
+    props = useProps({
         ...standardViewProps,
-        Model: Function,
-        Renderer: Function,
-        archInfo: Object,
-        buttonTemplate: String,
-        itemCalendarProps: { type: Object, optional: true },
-    };
+        Model: t.function(),
+        Renderer: t.function(),
+        archInfo: t.object(),
+        buttonTemplate: t.string(),
+        itemCalendarProps: t.object().optional(),
+    });
 
     setup() {
         this.action = useService("action");
         this.orm = useService("orm");
         this.displayDialog = useUniqueDialog();
+        this.uiService = useService("ui");
 
         this.model = useModelWithSampleData(this.props.Model, this.modelParams);
 
         useSetupAction({
             getLocalState: () => this.model.exportedState,
         });
-
-        const sessionShowSidebar = browser.sessionStorage.getItem("calendar.showSideBar");
-        this.state = useState({
+        this.keyExpandSidebar = `calendar_sidepanel_expanded,${this.env.config.viewId},${this.env.config.actionId}`;
+        const localSidePanelExpanded = browser.localStorage.getItem(this.keyExpandSidebar);
+        this.state = proxy({
             isWeekendVisible:
                 browser.localStorage.getItem("calendar.isWeekendVisible") != null
                     ? JSON.parse(browser.localStorage.getItem("calendar.isWeekendVisible"))
                     : true,
-            showSideBar:
-                !this.env.isSmall &&
-                Boolean(sessionShowSidebar != null ? JSON.parse(sessionShowSidebar) : true),
+            sidePanelExpanded: Boolean(
+                localSidePanelExpanded != null ? JSON.parse(localSidePanelExpanded) : true
+            ),
+            mobilePanelOpen: false,
         });
 
         this.searchBarToggler = useSearchBarToggler();
@@ -101,17 +104,27 @@ export class CalendarController extends Component {
     get modelParams() {
         return {
             ...this.props.archInfo,
+            canScheduleEvents: this.canScheduleEvents,
             resModel: this.props.resModel,
             domain: this.props.domain,
             fields: this.props.fields,
             date: this.props.state?.date,
+            loadSurroundings: hasTouch(),
         };
+    }
+
+    get canScheduleEvents() {
+        return (
+            !this.uiService.isSmall &&
+            this.props.archInfo.canSchedule &&
+            this.props.archInfo.canEdit
+        );
     }
 
     get currentDate() {
         const meta = this.model.meta;
         const scale = meta.scale;
-        if (this.env.isSmall && ["week", "month"].includes(scale)) {
+        if (this.uiService.isSmall && ["week", "month"].includes(scale)) {
             const date = meta.date || DateTime.now();
             let text = "";
             if (scale === "week") {
@@ -148,17 +161,14 @@ export class CalendarController extends Component {
     }
 
     get weekHeader() {
-        const { rangeStart, rangeEnd } = this.model;
-        if (rangeStart.year != rangeEnd.year) {
-            return `${rangeStart.toFormat("MMMM")} ${rangeStart.year} - ${rangeEnd.toFormat(
-                "MMMM"
-            )} ${rangeEnd.year}`;
-        } else if (rangeStart.month != rangeEnd.month) {
-            return `${rangeStart.toFormat("MMMM")} - ${rangeEnd.toFormat("MMMM")} ${
-                rangeStart.year
-            }`;
+        const { start, end } = this.model.visibleRange;
+        if (start.year != end.year) {
+            return `${start.toFormat(isMobileOS() ? "MMM" : "MMMM")} ${start.year} - ${end.toFormat(isMobileOS() ? "MMM" : "MMMM")} ${end.year}`;
+        } else if (start.month != end.month) {
+            return isMobileOS() ? `${start.toFormat("MMM")}-${end.toFormat("MMM")} ${start.year}` :
+                `${start.toFormat("MMMM")} - ${end.toFormat("MMMM")} ${start.year}`;
         }
-        return `${rangeStart.toFormat("MMMM")} ${rangeStart.year}`;
+        return `${start.toFormat("MMMM")} ${start.year}`;
     }
 
     get currentMonth() {
@@ -166,7 +176,7 @@ export class CalendarController extends Component {
     }
 
     get currentWeek() {
-        return getLocalYearAndWeek(this.model.rangeStart).week;
+        return getLocalYearAndWeek(this.model.visibleRange.start).week;
     }
 
     get rendererProps() {
@@ -180,32 +190,57 @@ export class CalendarController extends Component {
     get mobileFilterPanelProps() {
         return {
             model: this.model,
-            sideBarShown: this.state.showSideBar,
-            toggleSideBar: () => {
-                this.state.showSideBar = !this.state.showSideBar;
+            sidePanelShown: this.state.mobilePanelOpen,
+            toggleSidePanel: () => {
+                this.state.mobilePanelOpen = !this.state.mobilePanelOpen;
             },
         };
     }
 
     get sidePanelProps() {
-        return { model: this.model };
+        return {
+            model: this.model,
+            editRecord: this.editRecord.bind(this),
+            sidePanelExpanded: this.sidePanelExpanded,
+            toggleSidePanel: this.toggleSidePanel.bind(this),
+        };
     }
 
-    toggleSideBar() {
-        this.state.showSideBar = !this.state.showSideBar;
-        browser.sessionStorage.setItem("calendar.showSideBar", this.state.showSideBar);
+    toggleSidePanel() {
+        this.state.sidePanelExpanded = !this.state.sidePanelExpanded;
+        browser.localStorage.setItem(this.keyExpandSidebar, this.state.sidePanelExpanded);
     }
 
     get showCalendar() {
-        return !this.env.isSmall || !this.state.showSideBar;
+        return !this.uiService.isSmall || !this.sidePanelExpanded;
     }
 
-    get hasSideBar() {
+    get hasSidePanel() {
         return this.model.showDatePicker || this.model.filterSections.length > 0;
     }
 
-    get showSideBar() {
-        return this.state.showSideBar;
+    get sidePanelExpanded() {
+        return this.uiService.isSmall ? this.state.mobilePanelOpen : this.state.sidePanelExpanded;
+    }
+
+    get filters() {
+        const res = [];
+        for (const f of this.model.filterSections) {
+            const filter = { label: f.label, active: false };
+            if (f.filters.some((f) => f.active)) {
+                filter.active = true;
+            }
+            res.push(filter);
+        }
+        return res;
+    }
+
+    get toScheduleString() {
+        const { eventsToSchedule } = this.model.data;
+        if (eventsToSchedule.length) {
+            return _t("%s to schedule", eventsToSchedule.length);
+        }
+        return _t("Nothing to schedule");
     }
 
     get className() {
@@ -217,7 +252,7 @@ export class CalendarController extends Component {
     }
 
     prepareMultiSelectionButtonsReactive() {
-        return reactive({
+        return proxy({
             onCancel: this.cleanSquareSelection.bind(this),
             onAdd: (multiCreateData) => {
                 this.onMultiCreate(multiCreateData, this.selectedCells);
@@ -249,17 +284,11 @@ export class CalendarController extends Component {
     }
 
     updateMultiSelection(selectedCells) {
-        if (selectedCells.length) {
-            this.selectedCells = selectedCells;
-            this.multiSelectionButtonsReactive.visible = true;
-            this.multiSelectionButtonsReactive.nbSelected = this.getSelectedRecordIds(
-                this.selectedCells
-            ).length;
-        } else {
-            this.selectedCells = null;
-            this.multiSelectionButtonsReactive.visible = false;
-            this.multiSelectionButtonsReactive.nbSelected = 0;
-        }
+        this.selectedCells = selectedCells;
+        this.multiSelectionButtonsReactive.visible = true;
+        this.multiSelectionButtonsReactive.nbSelected = this.getSelectedRecordIds(
+            this.selectedCells
+        ).length;
     }
 
     cleanSquareSelection() {
@@ -280,6 +309,7 @@ export class CalendarController extends Component {
     getQuickCreateFormViewProps(record) {
         const rawRecord = this.model.buildRawRecord(record);
         const context = this.model.makeContextDefaults(rawRecord);
+        context.is_quick_create_form = true;
         return {
             resModel: this.model.resModel,
             viewId: this.model.quickCreateFormViewId,
@@ -364,6 +394,7 @@ export class CalendarController extends Component {
                 this.model.unlinkRecord(record.id);
             },
             confirmLabel: _t("Delete"),
+            confirmClass: "btn-danger",
             cancel: () => {
                 // `ConfirmationDialog` needs this prop to display the cancel
                 // button but we do nothing on cancel.
@@ -407,7 +438,7 @@ export class CalendarController extends Component {
         return this.model.unlinkRecords(ids);
     }
 
-    async setDate(move) {
+    setDate(move) {
         let date = null;
         switch (move) {
             case "next":
@@ -423,7 +454,7 @@ export class CalendarController extends Component {
                 }
                 break;
         }
-        await this.model.load({ date });
+        this.model.load({ date });
     }
 
     get scales() {

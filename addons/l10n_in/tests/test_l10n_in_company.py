@@ -1,10 +1,45 @@
-from odoo.tests.common import tagged
-from odoo.exceptions import ValidationError
+from odoo import Command
 from odoo.addons.l10n_in.tests.common import L10nInTestInvoicingCommon
+from odoo.exceptions import ValidationError
+from odoo.tests import tagged
 
 
-@tagged('post_install_l10n', 'post_install', '-at_install')
+@tagged('post_install', '-at_install', 'post_install_l10n')
 class TestL10nInCompany(L10nInTestInvoicingCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
+
+    def test_l10n_in_journal_priority(self):
+        """
+        Ensure that when a branch company has its own journals,
+        it is selected instead of falling back to the parent company's journal.
+        """
+        # Create a branch company under the default company
+        self.company_data['company'].write({
+            'child_ids': [Command.create({
+                'name': 'IN Branch',
+                'country_id': self.country_in.id,
+                'vat': '24FANCY1234AAZA',
+            })],
+        })
+        self.in_branch = self.company_data['company'].child_ids
+
+        # Check: branch has no journal initially
+        branch_sale_journal = self.env['account.journal'].search([
+            ('company_id', '=', self.in_branch.id),
+            ('type', '=', 'sale'),
+        ], limit=1)
+        self.assertFalse(branch_sale_journal)
+
+        # Load the chart template for the branch (creates branch journals)
+        self._use_chart_template(self.in_branch)
+
+        # After branch journal, Ensure branch and parent
+        # companies select their respective journals.
+        branch_invoice = self._create_invoice(company_id=self.in_branch.id)
+        parent_company_invoice = self._create_invoice(company_id=self.default_company.id)
+        self.assertEqual(self.in_branch.id, branch_invoice.journal_id.company_id.id)
+        self.assertEqual(self.default_company.id, parent_company_invoice.journal_id.company_id.id)
 
     def test_l10n_in_audit_trail(self):
         """Audit trail behavior for Indian companies:
@@ -38,3 +73,43 @@ class TestL10nInCompany(L10nInTestInvoicingCommon):
 
         # Audit Trail should remain True
         self.assertTrue(in_company.restrictive_audit_trail)
+
+    def test_l10n_in_cash_rounding_created_per_company(self):
+        """
+        Each IN company must have its own `Half Up` cash rounding record
+        Creating a new IN company must not reassign the existing record
+        """
+        in_company = self._create_company(country_code='IN')
+        self.assertTrue(self.env['account.chart.template'].with_company(in_company).ref('cash_rounding_in_half_up', raise_if_not_found=False))
+
+    def test_l10n_in_registration_type_activates_expected_taxes(self):
+        company = self.default_company
+
+        with self.subTest(registration_type='regular'):
+            # Regular: standard GST and 0% on, No ITC off
+            self.assertTrue(self.sgst_sale_5.active)
+            self.assertTrue(self.sgst_purchase_5.active)
+            self.assertTrue(self.exempt.active)
+            self.assertTrue(self.exempt_purchase.active)
+            self.assertFalse(self.sgst_purchase_5_no_itc.active)
+
+        with self.subTest(registration_type='composition'):
+            # Composition: No ITC + reverse-charge purchase + 0% on, standard GST off
+            company.l10n_in_gst_registration_type = 'composition'
+            company.l10n_in_composition_tax_rate = '1'
+            self.assertTrue(self.sgst_purchase_5_no_itc.active)
+            self.assertTrue(self.sgst_purchase_5_rc.active)
+            self.assertTrue(self.exempt_purchase.active)
+            self.assertTrue(self.exempt.active)
+            self.assertFalse(self.sgst_sale_5.active)
+            self.assertFalse(self.sgst_purchase_5.active)
+
+        with self.subTest(registration_type='unregistered'):
+            # Unregistered: No ITC taxes and 0% purchase on, standard GST and sale 0% percent off
+            company.vat = False
+            company.l10n_in_gst_registration_type = False
+            self.assertTrue(self.sgst_purchase_5_no_itc.active)
+            self.assertTrue(self.exempt_purchase.active)
+            self.assertFalse(self.exempt.active)
+            self.assertFalse(self.sgst_sale_5.active)
+            self.assertFalse(self.sgst_purchase_5.active)

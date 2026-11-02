@@ -4,6 +4,8 @@ from odoo import _, api, fields, models
 class ResConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
 
+    routing_scheme = fields.Selection(string="Routing Scheme", related='company_id.partner_id.routing_scheme', readonly=False)
+    routing_endpoint = fields.Char(string="Routing Endpoint", related='company_id.partner_id.routing_endpoint', readonly=False)
     account_peppol_edi_user = fields.Many2one(related='company_id.account_peppol_edi_user')
     account_peppol_edi_mode = fields.Selection(related='account_peppol_edi_user.edi_mode')
     account_peppol_contact_email = fields.Char(
@@ -11,14 +13,13 @@ class ResConfigSettings(models.TransientModel):
         inverse='_inverse_account_peppol_contact_email',
     )
 
-    account_peppol_eas = fields.Selection(related='company_id.peppol_eas', readonly=False)
     account_peppol_edi_identification = fields.Char(related='account_peppol_edi_user.edi_identification')
-    account_peppol_endpoint = fields.Char(related='company_id.peppol_endpoint', readonly=False)
     account_peppol_migration_key = fields.Char(related='company_id.account_peppol_migration_key', readonly=False)
     account_peppol_phone_number = fields.Char(related='company_id.account_peppol_phone_number', readonly=False)
     account_peppol_proxy_state = fields.Selection(related='company_id.account_peppol_proxy_state', readonly=False)
     account_peppol_purchase_journal_id = fields.Many2one(related='company_id.peppol_purchase_journal_id', readonly=False)
     peppol_external_provider = fields.Char(related='company_id.peppol_external_provider', readonly=False)
+    peppol_purchase_journal_required = fields.Boolean(compute='_compute_peppol_purchase_journal_required')
     peppol_use_parent_company = fields.Boolean(compute='_compute_peppol_use_parent_company')
     peppol_parent_company_name = fields.Char(compute='_compute_peppol_use_parent_company')
     account_is_token_out_of_sync = fields.Boolean(related='account_peppol_edi_user.is_token_out_of_sync', readonly=False)
@@ -31,9 +32,9 @@ class ResConfigSettings(models.TransientModel):
         inverse='_inverse_peppol_participation_role',
     )
 
-    def _get_peppol_proxy_type(self):
+    def _peppol_allows_document_reception(self):
         self.ensure_one()
-        return self.account_peppol_edi_user.proxy_type
+        return self.company_id._peppol_allows_document_reception()
 
     # -------------------------------------------------------------------------
     # COMPUTE METHODS
@@ -103,28 +104,17 @@ class ResConfigSettings(models.TransientModel):
                 params=params,
             )
 
+    @api.depends('account_peppol_proxy_state')
+    def _compute_peppol_purchase_journal_required(self):
+        for config in self:
+            config.peppol_purchase_journal_required = config.account_peppol_proxy_state in ('smp_registration', 'receiver')
+
     # -------------------------------------------------------------------------
     # BUSINESS ACTIONS
     # -------------------------------------------------------------------------
 
     def action_open_peppol_form(self):
-        registration_wizard = self.env['peppol.registration'].create({'company_id': self.company_id.id})
-        registration_action = registration_wizard._action_open_peppol_form(reopen=False)
-        return registration_action
-
-    # Deprecated
-    def button_open_peppol_config_wizard(self):
-        view = self.env.ref('account_peppol.peppol_config_wizard_form').sudo()
-        # TODO remove in master this hack to have the possibility of being only a sender
-        if 'button_peppol_reset_to_sender' not in view.arch_db:
-            view.reset_arch(mode="hard")
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Advanced Peppol Configuration',
-            'res_model': 'peppol.config.wizard',
-            'view_mode': 'form',
-            'target': 'new',
-        }
+        return self.company_id._action_open_peppol_form()
 
     def button_peppol_disconnect_branch_from_parent(self):
         self.ensure_one()
@@ -134,18 +124,12 @@ class ResConfigSettings(models.TransientModel):
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
-                'title': None,
+                'title': _('Peppol Disconnected'),
                 'type': 'success',
                 'message': _("Disconnected this branch company peppol configuration from %s.", previous_parent_company_name),
                 'next': {'type': 'ir.actions.act_window_close'},
             }
         }
-
-    # Dreprecated
-    def button_peppol_register_sender_as_receiver(self):
-        """Register the existing user as a receiver."""
-        self.ensure_one()
-        return self.env['peppol.config.wizard'].new().button_peppol_register_sender_as_receiver()
 
     def button_reconnect_this_database(self):
         """Re-establish an out-of-sync connection"""
@@ -175,3 +159,25 @@ class ResConfigSettings(models.TransientModel):
         else:
             self.company_id._reset_peppol_configuration()
         return self.action_open_peppol_form()
+
+    @api.model
+    def _get_pdp_module_info(self):
+        pdp_module = self.env['ir.module.module'].sudo()._get('l10n_fr_pdp')  # avoid returning it since it is sudoed
+        module_name = self.env._("France - E-Invoicing (Approved Platform)")
+        if pdp_module:
+            action = pdp_module._get_records_action()
+            action_name = self.env._("Go to module")
+            warning = self.env._("To use the Approved Platform for French E-Invoicing install the module '%s'.", module_name)
+        else:
+            action = self.env.ref('base.action_view_base_module_update').id
+            action_name = self.env._("Update App List")
+            warning = self.env._("To use the Approved Platform for French E-Invoicing install the module '%s'.\n"
+                                 "The module was not found. Please update the app list first.",
+                                 module_name)
+        return {
+            'is_installed': pdp_module and pdp_module.state == 'installed',
+            'module_name': module_name,
+            'action': action,
+            'action_name': action_name,
+            'warning_message': warning,
+        }

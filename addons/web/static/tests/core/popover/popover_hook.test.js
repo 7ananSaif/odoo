@@ -1,44 +1,68 @@
-import { test, expect, getFixture, destroy } from "@odoo/hoot";
-import { animationFrame } from "@odoo/hoot-mock";
-import { Component, xml } from "@odoo/owl";
-import { usePopover } from "@web/core/popover/popover_hook";
+import { animationFrame, expect, getFixture, queryOne, test } from "@odoo/hoot";
+import {
+    Component,
+    onMounted,
+    Plugin,
+    providePlugins,
+    signal,
+    types as t,
+    useConfig,
+    usePlugin,
+    useProps,
+    xml,
+} from "@odoo/owl";
 import { contains, mountWithCleanup } from "@web/../tests/web_test_helpers";
+import { usePopover } from "@web/core/popover/popover_hook";
 
 test("close popover when component is unmounted", async () => {
-    const target = getFixture();
     class Comp extends Component {
-        static template = xml`<div t-att-id="props.id">in popover</div>`;
-        static props = ["*"];
+        static template = xml`<div t-att-id="this.id">in popover</div>`;
+        id = useProps.static("id", t.string());
     }
 
     class CompWithPopover extends Component {
         static template = xml`<div />`;
-        static props = ["*"];
+
+        props = useProps({ id: t.string() });
+
         setup() {
-            this.popover = usePopover(Comp);
+            const popover = usePopover(Comp);
+            onMounted(() => {
+                popover.open(getFixture(), { id: this.props.id });
+            });
         }
     }
 
-    const comp1 = await mountWithCleanup(CompWithPopover);
-    comp1.popover.open(target, { id: "comp1" });
-    await animationFrame();
+    class Parent extends Component {
+        static components = { CompWithPopover };
+        static template = xml`
+            <CompWithPopover id="'comp1'" t-if="this.showFirst()" />
+            <CompWithPopover id="'comp2'" t-if="this.showSecond()" />
+        `;
 
-    const comp2 = await mountWithCleanup(CompWithPopover, { noMainContainer: true });
-    comp2.popover.open(target, { id: "comp2" });
-    await animationFrame();
+        showFirst = showFirst;
+        showSecond = showSecond;
+    }
+
+    const showFirst = signal(true);
+    const showSecond = signal(true);
+
+    await mountWithCleanup(Parent);
 
     expect(".o_popover").toHaveCount(2);
     expect(".o_popover #comp1").toHaveCount(1);
     expect(".o_popover #comp2").toHaveCount(1);
 
-    destroy(comp1);
+    showFirst.set(false);
+    await animationFrame();
     await animationFrame();
 
     expect(".o_popover").toHaveCount(1);
     expect(".o_popover #comp1").toHaveCount(0);
     expect(".o_popover #comp2").toHaveCount(1);
 
-    destroy(comp2);
+    showSecond.set(false);
+    await animationFrame();
     await animationFrame();
 
     expect(".o_popover").toHaveCount(0);
@@ -54,7 +78,6 @@ test("popover opened from another", async () => {
                 <button class="pop-open" t-on-click="(ev) => this.popover.open(ev.target, {})">open popover</button>
             </div>
         `;
-        static props = ["*"];
         setup() {
             this.popover = usePopover(Comp, {
                 popoverClass: `popover-${++Comp.id}`,
@@ -90,5 +113,66 @@ test("popover opened from another", async () => {
     expect(".popover-2").toHaveCount(1);
 
     await contains(document.body).click();
+    expect(".o_popover").toHaveCount(0);
+});
+
+test("propagate scope to popover", async () => {
+    class MyPlugin extends Plugin {
+        text = useConfig("text");
+    }
+
+    class Popover extends Component {
+        static template = xml`<t t-out="this.p.text"/>`;
+        setup() {
+            this.p = usePlugin(MyPlugin);
+        }
+    }
+
+    class Parent extends Component {
+        static template = xml`<div t-ref="this.ref"/>`;
+
+        ref = signal.ref();
+
+        setup() {
+            providePlugins([MyPlugin], { text: "abc" });
+            const popover = usePopover(Popover, { withScope: true });
+            onMounted(() => {
+                popover.open(this.ref(), {});
+            });
+        }
+    }
+
+    await mountWithCleanup(Parent);
+    await animationFrame();
+    expect(".o_popover").toHaveText("abc");
+});
+
+test("popover reopened while the previous one closes itself", async () => {
+    class Comp extends Component {
+        static template = xml`<div t-out="this.text"/>`;
+        text = useProps.static("text", t.string());
+    }
+
+    class Parent extends Component {
+        static template = xml`<div><span class="first"/><span class="second"/></div>`;
+
+        setup() {
+            this.popover = usePopover(Comp);
+        }
+    }
+
+    const parent = await mountWithCleanup(Parent);
+    parent.popover.open(queryOne(".first"), { text: "first" });
+    await animationFrame();
+    expect(".o_popover").toHaveText("first");
+
+    queryOne(".first").remove();
+    parent.popover.open(queryOne(".second"), { text: "second" });
+    await animationFrame();
+    expect(".o_popover").toHaveText("second");
+    expect(parent.popover.isOpen).toBe(true);
+
+    parent.popover.close();
+    await animationFrame();
     expect(".o_popover").toHaveCount(0);
 });

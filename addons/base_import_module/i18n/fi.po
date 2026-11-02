@@ -12,23 +12,35 @@
 # Jarmo Kortetjärvi <jarmo.kortetjarvi@gmail.com>, 2022
 # Ossi Mantylahti <ossi.mantylahti@obs-solutions.fi>, 2023
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
-# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025, 2026.
 # Saara Hakanen <sahak@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~12.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-02-25 16:52+0000\n"
+"POT-Creation-Date: 2026-09-11 17:42+0000\n"
+"PO-Revision-Date: 2026-09-09 14:05+0000\n"
 "Last-Translator: Saara Hakanen <sahak@odoo.com>\n"
-"Language-Team: Finnish <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Finnish <https://translate.odoo.com/projects/odoo-master/"
 "base_import_module/fi/>\n"
 "Language: fi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: base_import_module
+#: model:ir.module.module,description:base.module_base_import_module
+msgid ""
+"\n"
+"Import a custom data module\n"
+"===========================\n"
+"\n"
+"This module allows authorized users to import a custom data module (.xml "
+"files and static assests)\n"
+"for customization purpose.\n"
+msgstr ""
 
 #. module: base_import_module
 #. odoo-python
@@ -60,9 +72,9 @@ msgid "Apps"
 msgstr "Sovelluskauppa"
 
 #. module: base_import_module
-#: model_terms:ir.ui.view,arch_db:base_import_module.view_base_module_import
-msgid "Cancel"
-msgstr "Peruuta"
+#: model:ir.module.module,shortdesc:base.module_base_import_module
+msgid "Base import module"
+msgstr ""
 
 #. module: base_import_module
 #: model_terms:ir.ui.view,arch_db:base_import_module.view_base_module_import
@@ -100,7 +112,6 @@ msgstr "Luotu"
 
 #. module: base_import_module
 #: model:ir.model.fields,field_description:base_import_module.field_base_import_module__display_name
-#: model:ir.model.fields,field_description:base_import_module.field_base_module_uninstall__display_name
 #: model:ir.model.fields,field_description:base_import_module.field_ir_http__display_name
 #: model:ir.model.fields,field_description:base_import_module.field_ir_module_module__display_name
 #: model:ir.model.fields,field_description:base_import_module.field_ir_ui_view__display_name
@@ -120,6 +131,11 @@ msgstr ""
 "\n"
 " %(error_message)s \n"
 "\n"
+
+#. module: base_import_module
+#: model:ir.model.fields,field_description:base_import_module.field_ir_module_module__total_lines_of_code
+msgid "Extra lines of Code"
+msgstr "Ylimääräiset koodirivit"
 
 #. module: base_import_module
 #. odoo-python
@@ -146,7 +162,6 @@ msgstr "HTTP-reititys"
 
 #. module: base_import_module
 #: model:ir.model.fields,field_description:base_import_module.field_base_import_module__id
-#: model:ir.model.fields,field_description:base_import_module.field_base_module_uninstall__id
 #: model:ir.model.fields,field_description:base_import_module.field_ir_http__id
 #: model:ir.model.fields,field_description:base_import_module.field_ir_module_module__id
 #: model:ir.model.fields,field_description:base_import_module.field_ir_ui_view__id
@@ -237,11 +252,6 @@ msgid "Module Type"
 msgstr "Moduulin tyyppi"
 
 #. module: base_import_module
-#: model:ir.model,name:base_import_module.model_base_module_uninstall
-msgid "Module Uninstall"
-msgstr "Moduulin poisto"
-
-#. module: base_import_module
 #: model_terms:ir.ui.view,arch_db:base_import_module.view_base_module_import
 msgid "Module file (.zip)"
 msgstr "Moduulitiedosto (.zip)"
@@ -262,7 +272,7 @@ msgstr "Tiedostoa ei lähetetty."
 #: code:addons/base_import_module/models/ir_module.py:0
 msgid "No manifest found in '%(modules)s'. Can't import the zip file."
 msgstr ""
-"Kohteesta '%(modules)s' ei löytynyt manifestia: ZIP-tiedoston tuonti "
+"Kohteesta '%(modules)s'  ei löytynyt kokoonpanotietoja: ZIP-tiedoston tuonti "
 "epäonnistui."
 
 #. module: base_import_module
@@ -275,6 +285,17 @@ msgstr ""
 "staattisia resursseja)"
 
 #. module: base_import_module
+#: model:ir.model.fields,help:base_import_module.field_ir_module_module__total_lines_of_code
+msgid ""
+"Number of lines of code that may be billed under an Enterprise subscription. "
+"For exact pricing details, please contact your account manager or visit "
+"odoo.com/pricing."
+msgstr ""
+"Yritys-tilauksen puitteissa laskutettavien koodirivien määrä. Tarkat "
+"hinnoittelutiedot saat ottamalla yhteyttä asiakkuuspäällikköösi tai "
+"osoitteessa odoo.com/pricing."
+
+#. module: base_import_module
 #: model:ir.model.fields.selection,name:base_import_module.selection__ir_module_module__module_type__official
 msgid "Official Apps"
 msgstr "Viralliset sovellukset"
@@ -283,7 +304,7 @@ msgstr "Viralliset sovellukset"
 #. odoo-python
 #: code:addons/base_import_module/models/ir_module.py:0
 msgid "Only administrators can install data modules."
-msgstr "Vain ylläpitäjät voivat asentaa datamoduuleja."
+msgstr "Vain järjestelmänvalvojat voivat asentaa datamoduuleja."
 
 #. module: base_import_module
 #. odoo-python
@@ -315,8 +336,8 @@ msgid ""
 "The assets path in the manifest of imported module '%(module_name)s' cannot "
 "contain glob wildcards (e.g., *, **)."
 msgstr ""
-"Tuodun moduulin '%(module_name)s' manifestissa oleva resurssipolku ei saa "
-"sisältää jokerimerkkejä (esim. *, **)."
+"Tuodun moduulin '%(module_name)s' manifestin resurssipolku ei saa sisältää "
+"jokerimerkkejä (esim. *, **)."
 
 #. module: base_import_module
 #. odoo-python
@@ -369,35 +390,5 @@ msgstr "valmis"
 msgid "init"
 msgstr "alustus"
 
-#~ msgid "Import App"
-#~ msgstr "Tuo App"
-
-#~ msgid "Import module"
-#~ msgstr "Tuo moduuli"
-
-#~ msgid "Last Modified on"
-#~ msgstr "Viimeksi muokattu"
-
-#~ msgid ""
-#~ "Note: you can only import data modules (.xml files and static assets)"
-#~ msgstr ""
-#~ "Huomaa: voit ladata vain datamoduuleita (.xml-tiedostoja ja staattisia "
-#~ "resursseja)"
-
-#~ msgid "Open Modules"
-#~ msgstr "Avaa moduuleja"
-
-#~ msgid "Select module package to import (.zip file):"
-#~ msgstr "Valitse tuotaa moduulipaketti (.zip tiedosto):"
-
-#~ msgid "Studio customizations require Studio"
-#~ msgstr "Studio-mukautukset edellyttävät Studiota"
-
-#~ msgid ""
-#~ "Unmet module dependencies: \n"
-#~ "\n"
-#~ " - %s"
-#~ msgstr ""
-#~ "Moduulien riippuvuuksissa ei ole täytetty: \n"
-#~ "\n"
-#~ " - %s"
+#~ msgid "Module Uninstall"
+#~ msgstr "Moduulin poisto"

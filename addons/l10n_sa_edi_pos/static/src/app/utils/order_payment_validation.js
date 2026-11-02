@@ -15,17 +15,17 @@ patch(OrderPaymentValidation.prototype, {
         return super.shouldDownloadInvoice();
     },
     async finalizeValidation() {
-        const potentialValidationError = await super.finalizeValidation(...arguments);
+        await super.finalizeValidation(...arguments);
 
         // note: isSACompany guarantees order.is_to_invoice()
         // expect for cases like deposit and settlement
         // Skip if invoice is not mandatory(Ex: settlement)
         // Skips entirely if journal is not onboarded or electronic invoicing is not selected
-        if (
-            this.order.isInvoiceMandatoryForSA() &&
-            this.order.finalized &&
-            this.order.l10n_sa_invoice_edi_state === "error"
-        ) {
+        if (!(this.order.isInvoiceMandatoryForSA() && this.order.finalized)) {
+            return;
+        }
+
+        if (["rejected", "error", "unknown"].includes(this.order.l10n_sa_invoice_edi_state)) {
             const orderError = _t(
                 "%s by going to Backend > Orders > Invoice",
                 this.order.pos_reference
@@ -47,7 +47,13 @@ patch(OrderPaymentValidation.prototype, {
                 body: message,
             });
         }
-        return potentialValidationError;
+        const alerts = this.order.l10n_sa_alerts;
+        if (alerts.length) {
+            this.pos.dialog.add(ConfirmationDialog, {
+                title: _t("ZATCA Validation Error"),
+                body: alerts.map((a) => "- " + a.message).join("\n"),
+            });
+        }
     },
 
     async validateOrder(isForceValidate) {

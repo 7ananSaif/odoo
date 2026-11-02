@@ -8,9 +8,12 @@ from odoo import Command
 from odoo.addons.mail.tests.common import MailCase
 from odoo.addons.microsoft_calendar.utils.microsoft_calendar import MicrosoftCalendarService
 from odoo.addons.microsoft_calendar.models.res_users import ResUsers
+from odoo.tests import tagged
+
 from odoo.addons.microsoft_calendar.tests.common import TestCommon
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestSyncOdoo2MicrosoftMail(TestCommon, MailCase):
     @classmethod
     def setUpClass(cls):
@@ -55,7 +58,7 @@ class TestSyncOdoo2MicrosoftMail(TestCommon, MailCase):
         for create_user, organizer, mail_notified_partners, attendee in [
             (user_root, self.users[0], partner + self.users[0].partner_id, partner),  # emulates online appointment with user 0
             (user_root, None, partner, partner),  # emulates online resource appointment
-            (self.users[0], None, False, partner),
+            (self.users[0], None, partner, partner),
             (self.users[0], self.users[0], False, partner),
             (self.users[0], self.users[1], False, partner),
             # create user has paused sync and organizer can sync -> will not sync because of bug
@@ -74,6 +77,8 @@ class TestSyncOdoo2MicrosoftMail(TestCommon, MailCase):
                 if not mail_notified_partners:
                     self.assertNotSentEmail()
                     mock_insert.assert_called_once()
+                    self.assertTrue(mock_insert.call_args[0][0]['isReminderOn'])
+                    self.assertEqual(mock_insert.call_args[0][0]['reminderMinutesBeforeStart'], 15)
                     self.assert_dict_equal(mock_insert.call_args[0][0]['organizer'], {
                         'emailAddress': {'address': organizer.email if organizer else '', 'name': organizer.name if organizer else ''}
                     })

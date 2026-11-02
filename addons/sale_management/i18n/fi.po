@@ -21,27 +21,88 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0beta\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:35+0000\n"
-"PO-Revision-Date: 2026-04-16 13:25+0000\n"
+"POT-Creation-Date: 2026-09-25 17:37+0000\n"
+"PO-Revision-Date: 2026-10-01 09:33+0000\n"
 "Last-Translator: Saara Hakanen <sahak@odoo.com>\n"
-"Language-Team: Finnish <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Finnish <https://translate.odoo.com/projects/odoo-20/"
 "sale_management/fi/>\n"
 "Language: fi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.16.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: sale_management
-#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_form
-msgid "<span invisible=\"not require_payment\">of</span>"
-msgstr "<span invisible=\"not require_payment\">määrästä</span>"
+#: model:ir.module.module,description:base.module_sale_management
+msgid ""
+"\n"
+"Manage sales quotations and orders\n"
+"==================================\n"
+"\n"
+"This application allows you to manage your sales goals in an effective and "
+"efficient manner by\n"
+"keeping track of all sales orders and history.\n"
+"\n"
+"It handles the full sales workflow:\n"
+"\n"
+"* **Quotation** -> **Sales order** -> **Invoice**\n"
+"\n"
+"Preferences (only with Warehouse Management installed)\n"
+"------------------------------------------------------\n"
+"\n"
+"If you also installed the Warehouse Management, you can deal with the "
+"following preferences:\n"
+"\n"
+"* Shipping: Choice of delivery at once or partial delivery\n"
+"* Invoicing: choose how invoices will be paid\n"
+"* Incoterms: International Commercial terms\n"
+"\n"
+"\n"
+"With this module you can personnalize the sales order and invoice report "
+"with\n"
+"categories, subtotals or page-breaks.\n"
+"\n"
+"The Dashboard for the Sales Manager will include\n"
+"------------------------------------------------\n"
+"* My Quotations\n"
+"* Monthly Turnover (Graph)\n"
+msgstr ""
+
+#. module: sale_management
+#. odoo-python
+#: code:addons/sale_management/models/sale_order_template_line.py:0
+msgid "%(attribute)s: %(values)s"
+msgstr ""
+
+#. module: sale_management
+#. odoo-python
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid "Acoustic ceiling"
+msgstr ""
+
+#. module: sale_management
+#. odoo-python
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid "Acoustic underlay"
+msgstr ""
+
+#. module: sale_management
+#. odoo-python
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid "Acoustic wall insulation"
+msgstr ""
 
 #. module: sale_management
 #: model:ir.model.fields,field_description:sale_management.field_sale_order_template__active
 msgid "Active"
 msgstr "Aktiivinen"
+
+#. module: sale_management
+#. odoo-javascript
+#: code:addons/sale_management/static/src/fields/sale_order_line_field/sale_order_line_field.xml:0
+msgid "Add Section"
+msgstr ""
 
 #. module: sale_management
 #: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_form
@@ -71,7 +132,7 @@ msgstr "Kaikki myynnit"
 #. module: sale_management
 #: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__allowed_uom_ids
 msgid "Allowed Uom"
-msgstr "Sallitut mittayksiköt"
+msgstr "Sallittu mittayksikkö"
 
 #. module: sale_management
 #: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_form
@@ -80,9 +141,49 @@ msgid "Archived"
 msgstr "Arkistoitu"
 
 #. module: sale_management
-#: model:ir.model,name:sale_management.model_res_company
-msgid "Companies"
-msgstr "Yritykset"
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__product_template_attribute_value_ids
+msgid "Attribute Values"
+msgstr ""
+
+#. module: sale_management
+#. odoo-javascript
+#: code:addons/sale_management/static/src/components/product_catalog/kanban_controller.js:0
+msgid "Back to Template"
+msgstr ""
+
+#. module: sale_management
+#. odoo-python
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid "Brainstorm Whiteboard"
+msgstr ""
+
+#. module: sale_management
+#. odoo-python
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid ""
+"Camera\n"
+"PTZ conference camera, auto-framing"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template__user_has_access
+msgid "Can User access"
+msgstr ""
+
+#. module: sale_management
+#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_form
+msgid "Catalog"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__collapse_composition
+msgid "Collapse Composition"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__collapse_prices
+msgid "Collapse Prices"
+msgstr ""
 
 #. module: sale_management
 #: model:ir.model.fields,field_description:sale_management.field_sale_order_template__company_id
@@ -92,9 +193,20 @@ msgid "Company"
 msgstr "Yritys"
 
 #. module: sale_management
+#. odoo-python
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid "Conference Room"
+msgstr ""
+
+#. module: sale_management
 #: model:ir.model,name:sale_management.model_res_config_settings
 msgid "Config Settings"
 msgstr "Asetukset"
+
+#. module: sale_management
+#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_form
+msgid "Confirmation"
+msgstr ""
 
 #. module: sale_management
 #: model:ir.model.fields,field_description:sale_management.field_sale_order_template__mail_template_id
@@ -102,9 +214,10 @@ msgid "Confirmation Mail"
 msgstr "Vahvistussähköposti"
 
 #. module: sale_management
-#: model_terms:ir.ui.view,arch_db:sale_management.res_config_settings_view_form
-msgid "Create standardized offers with default products"
-msgstr "Luo standardoituja tarjouksia, jotka sisältävät oletustuotteita"
+#. odoo-python
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid "Connectivity"
+msgstr ""
 
 #. module: sale_management
 #: model_terms:ir.actions.act_window,help:sale_management.sale_order_template_action
@@ -124,14 +237,20 @@ msgid "Created on"
 msgstr "Luotu"
 
 #. module: sale_management
-#: model:ir.model.fields,field_description:sale_management.field_res_company__sale_order_template_id
-msgid "Default Sale Template"
-msgstr "Oletusmyyntimalli"
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template__currency_id
+msgid "Currency"
+msgstr ""
 
 #. module: sale_management
-#: model:ir.model.fields,field_description:sale_management.field_res_config_settings__company_so_template_id
-msgid "Default Template"
-msgstr "Oletusmallipohja"
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__product_custom_attribute_value_ids
+msgid "Custom Values"
+msgstr ""
+
+#. module: sale_management
+#. odoo-javascript
+#: code:addons/sale_management/static/src/fields/sale_order_line_field/sale_order_line_field.xml:0
+msgid "Delete"
+msgstr ""
 
 #. module: sale_management
 #: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__name
@@ -145,8 +264,26 @@ msgid "Digest"
 msgstr "Kooste"
 
 #. module: sale_management
+#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_form
+msgid "Disc %"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__discount
+msgid "Discount (%)"
+msgstr ""
+
+#. module: sale_management
+#. odoo-python
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid ""
+"Display / TV\n"
+"65\" 4K screen + wall mount + HDMI/USB-C inputs"
+msgstr ""
+
+#. module: sale_management
 #: model:ir.model.fields,field_description:sale_management.field_digest_digest__display_name
-#: model:ir.model.fields,field_description:sale_management.field_res_company__display_name
+#: model:ir.model.fields,field_description:sale_management.field_product_attribute_custom_value__display_name
 #: model:ir.model.fields,field_description:sale_management.field_res_config_settings__display_name
 #: model:ir.model.fields,field_description:sale_management.field_sale_order__display_name
 #: model:ir.model.fields,field_description:sale_management.field_sale_order_line__display_name
@@ -161,11 +298,20 @@ msgid "Display Type"
 msgstr "Näyttötyyppi"
 
 #. module: sale_management
-#. odoo-python
-#: code:addons/sale_management/models/digest.py:0
-msgid "Do not have access, skip this data for user's digest email"
+#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_form
+msgid "Enter a Description"
 msgstr ""
-"Ei pääsyoikeutta, jätä nämä tiedot pois käyttäjän yhteenvetosähköpostista"
+
+#. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__product_no_variant_attribute_value_ids
+msgid "Extra Values"
+msgstr ""
+
+#. module: sale_management
+#. odoo-python
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid "Flooring parquet"
+msgstr ""
 
 #. module: sale_management
 #: model:ir.model.constraint,message:sale_management.constraint_sale_order_template_line_non_accountable_fields_null
@@ -175,13 +321,29 @@ msgstr ""
 "myyntitarjousrivissä"
 
 #. module: sale_management
+#: model:ir.model.constraint,message:sale_management.constraint_sale_order_template_line_section_fields_null
+msgid ""
+"Forbidden section quantity or section UoM on non section sale quote line"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.module.module,summary:base.module_sale_management
+msgid "From quotations to invoices"
+msgstr ""
+
+#. module: sale_management
 #: model:ir.model.fields,help:sale_management.field_sale_order_template_line__sequence
 msgid "Gives the sequence order when displaying a list of sale quote lines."
 msgstr "Antaa sekvenssijärjestyksen, kun myyntitarjousrivien lista näytetään."
 
 #. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template__has_productless_lines
+msgid "Has Productless Lines"
+msgstr ""
+
+#. module: sale_management
 #: model:ir.model.fields,field_description:sale_management.field_digest_digest__id
-#: model:ir.model.fields,field_description:sale_management.field_res_company__id
+#: model:ir.model.fields,field_description:sale_management.field_product_attribute_custom_value__id
 #: model:ir.model.fields,field_description:sale_management.field_res_config_settings__id
 #: model:ir.model.fields,field_description:sale_management.field_sale_order__id
 #: model:ir.model.fields,field_description:sale_management.field_sale_order_line__id
@@ -203,19 +365,45 @@ msgstr ""
 #. module: sale_management
 #: model:ir.model.fields,help:sale_management.field_sale_order_template__active
 msgid ""
-"If unchecked, it will allow you to hide the quotation template without "
-"removing it."
-msgstr "Jos ei valittu, voit piilottaa tarjousmallin poistamatta sitä."
+"If unchecked, it will allow you to hide the Order template without removing "
+"it."
+msgstr ""
+
+#. module: sale_management
+#. odoo-python
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid "Individual Work Station"
+msgstr ""
+
+#. module: sale_management
+#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_form
+msgid "Invoicing"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__mandatory_product
+msgid "Is Product Mandatory"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__is_configurable_product
+msgid "Is the product configurable?"
+msgstr ""
 
 #. module: sale_management
 #: model:ir.model.fields,field_description:sale_management.field_sale_order_template__journal_id
-msgid "Invoicing Journal"
-msgstr "Laskutuspäiväkirja"
+msgid "Journal"
+msgstr ""
 
 #. module: sale_management
 #: model:ir.model.fields,field_description:sale_management.field_digest_digest__kpi_all_sale_total_value
 msgid "Kpi All Sale Total Value"
 msgstr "KPI Myyntien kokonaismäärä"
+
+#. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__label
+msgid "Label"
+msgstr ""
 
 #. module: sale_management
 #: model:ir.model.fields,field_description:sale_management.field_sale_order_template__write_uid
@@ -236,10 +424,35 @@ msgid "Lines"
 msgstr "Rivit"
 
 #. module: sale_management
-#: model:ir.model.constraint,message:sale_management.constraint_sale_order_template_line_accountable_product_id_required
-msgid "Missing required product and UoM on accountable sale quote line."
+#. odoo-python
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid ""
+"Microphone system\n"
+"Ceiling/table array mic with echo cancellation"
 msgstr ""
-"Puuttuva vaadittu tuote ja mittayksikkö kyseisellä myyntitilauksen rivillä."
+
+#. module: sale_management
+#: model:ir.model.constraint,message:sale_management.constraint_sale_order_template_line_accountable_product_id_required
+msgid "Missing required UoM on accountable sale quote line."
+msgstr ""
+
+#. module: sale_management
+#. odoo-javascript
+#: code:addons/sale_management/static/src/views/components/template_dropdown.xml:0
+msgid "New"
+msgstr ""
+
+#. module: sale_management
+#. odoo-javascript
+#: code:addons/sale_management/static/src/views/components/template_dropdown.xml:0
+msgid "New Quotation"
+msgstr ""
+
+#. module: sale_management
+#. odoo-javascript
+#: code:addons/sale_management/static/src/fields/sale_order_line_field/sale_order_line_field.xml:0
+msgid "New Section"
+msgstr ""
 
 #. module: sale_management
 #: model:ir.model.fields.selection,name:sale_management.selection__sale_order_template_line__display_type__line_note
@@ -253,14 +466,32 @@ msgid "Number of days for the validity date computation of the quotation"
 msgstr "Päivien lukumäärä tarjouksen voimassaolopäivämäärän laskennassa"
 
 #. module: sale_management
-#: model:ir.model.fields,field_description:sale_management.field_sale_order_template__require_payment
-msgid "Online Payment"
-msgstr "Verkkomaksu"
+#: model:sale.order.template,name:sale_management.sale_order_template_1
+msgid "Office Furniture"
+msgstr ""
 
 #. module: sale_management
 #: model:ir.model.fields,field_description:sale_management.field_sale_order_template__require_signature
 msgid "Online Signature"
 msgstr "Allekirjoitus verkossa"
+
+#. module: sale_management
+#: model:ir.model.constraint,message:sale_management.constraint_product_attribute_custom_value_sotl_custom_value_unique
+msgid ""
+"Only one Custom Value is allowed per Attribute Value per Quotation Template "
+"Line."
+msgstr ""
+
+#. module: sale_management
+#. odoo-python
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid "Open Space Renovation"
+msgstr ""
+
+#. module: sale_management
+#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_form_quote
+msgid "Optional"
+msgstr ""
 
 #. module: sale_management
 #: model:ir.model.fields,field_description:sale_management.field_sale_order_line__is_optional
@@ -271,8 +502,13 @@ msgstr "Valinnainen rivi"
 #. module: sale_management
 #. odoo-python
 #: code:addons/sale_management/models/sale_order_template.py:0
-msgid "Optional Products Section"
-msgstr "Valinnaisten tuotteiden osio"
+msgid "Options"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.model,name:sale_management.model_sale_order_template
+msgid "Order Templates"
+msgstr ""
 
 #. module: sale_management
 #: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__parent_id
@@ -280,9 +516,15 @@ msgid "Parent Section Line"
 msgstr "Pääosion rivi"
 
 #. module: sale_management
+#. odoo-python
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid "Parquet installation"
+msgstr ""
+
+#. module: sale_management
 #: model:ir.model.fields,field_description:sale_management.field_sale_order_template__prepayment_percent
-msgid "Prepayment percentage"
-msgstr "Ennakkomaksuprosentti"
+msgid "Prepayment"
+msgstr "Ennakkomaksu"
 
 #. module: sale_management
 #. odoo-python
@@ -292,8 +534,24 @@ msgstr "Ennakkomaksuprosentin on oltava kelvollinen prosenttiosuus."
 
 #. module: sale_management
 #: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__product_id
+#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_form
 msgid "Product"
 msgstr "Tuote"
+
+#. module: sale_management
+#: model:ir.model,name:sale_management.model_product_attribute_custom_value
+msgid "Product Attribute Custom Value"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__product_template_id
+msgid "Product Template"
+msgstr ""
+
+#. module: sale_management
+#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_form
+msgid "Product Variant"
+msgstr ""
 
 #. module: sale_management
 #: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__product_uom_qty
@@ -301,21 +559,23 @@ msgid "Quantity"
 msgstr "Määrä"
 
 #. module: sale_management
+#: model:ir.model.fields.selection,name:sale_management.selection__sale_order_template__template_type__quotation
+msgid "Quotation"
+msgstr ""
+
+#. module: sale_management
 #: model:ir.model.fields,field_description:sale_management.field_sale_order_template__number_of_days
 msgid "Quotation Duration"
 msgstr "Tarjouksen kesto"
 
 #. module: sale_management
-#: model:ir.model,name:sale_management.model_sale_order_template
-#: model:ir.model.fields,field_description:sale_management.field_sale_order__sale_order_template_id
-#: model:ir.model.fields,field_description:sale_management.field_sale_order_template__name
-#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_form
 #: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_tree
 msgid "Quotation Template"
 msgstr "Tarjouspohja"
 
 #. module: sale_management
 #: model:ir.model,name:sale_management.model_sale_order_template_line
+#: model:ir.model.fields,field_description:sale_management.field_product_attribute_custom_value__sale_order_template_line_id
 msgid "Quotation Template Line"
 msgstr "Tarjouspohjarivi"
 
@@ -330,11 +590,7 @@ msgid "Quotation Template Reference"
 msgstr "Tarjouspohjan viite"
 
 #. module: sale_management
-#: model:ir.actions.act_window,name:sale_management.sale_order_template_action
-#: model:ir.model.fields,field_description:sale_management.field_res_config_settings__group_sale_order_template
-#: model:ir.ui.menu,name:sale_management.sale_order_template_menu
-#: model:res.groups,name:sale_management.group_sale_order_template
-#: model_terms:ir.ui.view,arch_db:sale_management.res_config_settings_view_form
+#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_search
 msgid "Quotation Templates"
 msgstr "Tarjouspohjat"
 
@@ -358,15 +614,7 @@ msgstr ""
 "vahvistaa automaattisesti."
 
 #. module: sale_management
-#: model:ir.model.fields,help:sale_management.field_sale_order_template__require_payment
-msgid ""
-"Request an online payment to the customer in order to confirm orders "
-"automatically."
-msgstr ""
-"Pyydä maksua verkossa asiakkaalta, jotta tilaukset voidaan vahvistaa "
-"automaattisesti."
-
-#. module: sale_management
+#: model:ir.module.module,shortdesc:base.module_sale_management
 #: model_terms:ir.ui.view,arch_db:sale_management.digest_digest_view_form
 msgid "Sales"
 msgstr "Myynti"
@@ -382,15 +630,59 @@ msgid "Sales Order Line"
 msgstr "Myyntitilausrivi"
 
 #. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template__team_ids
+msgid "Sales Team"
+msgstr ""
+
+#. module: sale_management
+#. odoo-javascript
+#: code:addons/sale_management/static/src/fields/sale_order_line_field/sale_order_line_field.xml:0
+msgid "Save as Template"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.actions.server,name:sale_management.model_sale_order_action_create_quotation_template
+msgid "Save as template"
+msgstr ""
+
+#. module: sale_management
 #: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_search
 msgid "Search Quotation Template"
 msgstr "Etsi tarjouspohjaa"
 
 #. module: sale_management
+#: model:ir.model.fields.selection,name:sale_management.selection__sale_order_template__template_type__section
 #: model:ir.model.fields.selection,name:sale_management.selection__sale_order_template_line__display_type__line_section
 #: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_form
 msgid "Section"
 msgstr "Osio"
+
+#. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__section_qty
+msgid "Section Quantity"
+msgstr ""
+
+#. module: sale_management
+#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_search
+msgid "Section Templates"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__section_uom_id
+msgid "Section Unit of Measure"
+msgstr ""
+
+#. module: sale_management
+#. odoo-javascript
+#: code:addons/sale_management/static/src/fields/sale_order_line_field/sale_order_line_field.js:0
+msgid "Section template %s created successfully"
+msgstr ""
+
+#. module: sale_management
+#. odoo-javascript
+#: code:addons/sale_management/static/src/fields/sale_order_line_field/sale_order_line_field.js:0
+msgid "Section template %s updated successfully"
+msgstr ""
 
 #. module: sale_management
 #: model_terms:digest.tip,tip_description:sale_management.digest_tip_sale_management_1
@@ -407,7 +699,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sale_management.field_sale_order_template__sequence
 #: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__sequence
 msgid "Sequence"
-msgstr "Järjestys"
+msgstr "Sekvenssi"
 
 #. module: sale_management
 #. odoo-javascript
@@ -417,21 +709,61 @@ msgid "Set Optional"
 msgstr "Aseta valinnaiseksi"
 
 #. module: sale_management
+#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_form
+msgid "Settings"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template__share_template
+msgid "Share"
+msgstr ""
+
+#. module: sale_management
 #: model_terms:digest.tip,tip_description:sale_management.digest_tip_sale1_management_0
 msgid ""
 "Struggling with a complex product catalog? Try out the Product Configurator "
 "to help sales configure a product with different options: colors, size, "
 "capacity, etc. Make sale orders encoding easier and error-proof."
 msgstr ""
-"Aiheuttaako monimutkainen tuotekuvasto ongelmia? Kokeile "
-"Tuotekonfiguraattoria helpottaaksesi tuottevaihtoehtojen määrittämistä: "
-"väri, koko, kapasiteetti, jne. Tee myyntitilausten koodaamisesta helppoa ja "
+"Ongelmia monimutkaisen tuoteluettelon kanssa? Kokeile Tuotekonfiguraattoria, "
+"joka auttaa myyntitiimiä tuotteen eri vaihtoehtojen määrittämisessä: väri, "
+"koko, kapasiteetti jne. Tee myyntitilausten koodauksesta helppoa ja "
 "virheetöntä."
+
+#. module: sale_management
+#. odoo-python
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid "Subfloor preparation"
+msgstr ""
 
 #. module: sale_management
 #: model:ir.model.fields.selection,name:sale_management.selection__sale_order_template_line__display_type__line_subsection
 msgid "Subsection"
 msgstr "Alakohta"
+
+#. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__tax_ids
+msgid "Taxes"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order__sale_order_template_id
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template__name
+msgid "Template"
+msgstr "Mallipohja"
+
+#. module: sale_management
+#. odoo-python
+#: code:addons/sale_management/models/sale_order.py:0
+msgid "Template from %s"
+msgstr ""
+
+#. module: sale_management
+#: model:ir.actions.act_window,name:sale_management.sale_order_template_action
+#: model:ir.ui.menu,name:sale_management.sale_order_template_menu
+#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_form
+msgid "Templates"
+msgstr "Mallipohjat"
 
 #. module: sale_management
 #: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_form
@@ -441,7 +773,7 @@ msgstr "Ehdot & edellytykset"
 #. module: sale_management
 #: model:ir.model.fields,field_description:sale_management.field_sale_order_template__note
 msgid "Terms and conditions"
-msgstr "Käyttöehdot"
+msgstr "Ehdot ja edellytykset"
 
 #. module: sale_management
 #: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_form
@@ -480,9 +812,25 @@ msgid "Tip: Sell or buy products in bulk with matrixes"
 msgstr "Vinkki: Myy tai osta suuria määriä tuotteita matriisien avulla"
 
 #. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template__template_type
+#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_search
+msgid "Type"
+msgstr ""
+
+#. module: sale_management
+#: model_terms:ir.ui.view,arch_db:sale_management.sale_order_template_view_form
+msgid "Type to find a product..."
+msgstr ""
+
+#. module: sale_management
 #: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__product_uom_id
 msgid "Unit"
 msgstr "Yksikkö"
+
+#. module: sale_management
+#: model:ir.model.fields,field_description:sale_management.field_sale_order_template_line__price_unit
+msgid "Unit Price"
+msgstr ""
 
 #. module: sale_management
 #. odoo-javascript
@@ -513,6 +861,18 @@ msgstr "Kaikkien nähtävissä"
 
 #. module: sale_management
 #. odoo-python
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid "Whiteboard"
+msgstr ""
+
+#. module: sale_management
+#. odoo-python
+#: code:addons/sale_management/models/sale_order_template.py:0
+msgid "Whiteboard Pen"
+msgstr ""
+
+#. module: sale_management
+#. odoo-python
 #: code:addons/sale_management/models/sale_order_template_line.py:0
 msgid ""
 "You cannot change the type of a sale quote line. Instead you should delete "
@@ -520,6 +880,12 @@ msgid ""
 msgstr ""
 "Et voi muuttaa myyntitarjouksen rivin tyyppiä. Sinun tulisi poistaa nykyinen "
 "rivi ja luoda uusi oikean tyyppinen rivi."
+
+#. module: sale_management
+#. odoo-javascript
+#: code:addons/sale_management/static/src/fields/sale_order_line_field/sale_order_line_field.js:0
+msgid "You cannot save a section with combo lines as a template"
+msgstr ""
 
 #. module: sale_management
 #. odoo-python
@@ -573,133 +939,13 @@ msgstr "päivää"
 msgid "e.g. Standard Consultancy Package"
 msgstr "esim. vakiokonsultointipaketti"
 
-#~ msgid "Your template cannot contain products from multiple companies."
-#~ msgstr "Malli ei voi sisältää useiden yritysten tuotteita."
+#~ msgid "Create standardized offers with default products"
+#~ msgstr "Luo standardoituja tarjouksia, jotka sisältävät oletustuotteita"
 
-#~ msgid ""
-#~ "Your template contains products from company %(product_company)s whereas "
-#~ "your template belongs to company %(template_company)s. \n"
-#~ " Please change the company of your template or remove the products from "
-#~ "other companies."
+#~ msgid "Missing required product and UoM on accountable sale quote line."
 #~ msgstr ""
-#~ "Mallipohjasi sisältää yrityksen %(product_company)s tuotteita, vaikka se "
-#~ "kuuluu yritykselle %(template_company)s.\n"
-#~ " Vaihda mallipohjasi yritys tai poista muiden yritysten tuotteet."
+#~ "Puuttuva vaadittu tuote ja mittayksikkö kyseisellä myyntitilauksen "
+#~ "rivillä."
 
-#~ msgid "4 Person Desk"
-#~ msgstr "4 Hengen pöytä"
-
-#~ msgid "<span>Options</span>"
-#~ msgstr "<span>Vaihtoehdot</span>"
-
-#~ msgid "<span>Payment</span>"
-#~ msgstr "<span>Maksu</span>"
-
-#~ msgid "<span>Signature</span>"
-#~ msgstr "<span>Allekirjoitus</span>"
-
-#~ msgid "Add to cart"
-#~ msgstr "Lisää ostoskoriin"
-
-#~ msgid "Add to order lines"
-#~ msgstr "Lisää tilauslinjoihin"
-
-#~ msgid "Category"
-#~ msgstr "Kategoria"
-
-#~ msgid ""
-#~ "Conversion between Units of Measure can only occur if they belong to the "
-#~ "same category. The conversion will be made based on the ratios."
-#~ msgstr ""
-#~ "Yksiköiden välinen muunnos onnistuu vain saman ryhmän (kategorian) "
-#~ "sisällä. Konversio tehdään käyttäen kertoimena suhdetta."
-
-#~ msgid "Disc.%"
-#~ msgstr "Ale%"
-
-#~ msgid "Discount (%)"
-#~ msgstr "Alennus (%)"
-
-#~ msgid ""
-#~ "Gives the sequence order when displaying a list of optional products."
-#~ msgstr ""
-#~ "Antaa sekvenssijärjestyksen, kun näyttöön tulee valinnaisia tuotteita."
-
-#~ msgid "Group By"
-#~ msgstr "Ryhmittely"
-
-#~ msgid "Line"
-#~ msgstr "Rivi"
-
-#~ msgid "Office Chair"
-#~ msgstr "Toimistotuoli"
-
-#~ msgid "Online confirmation"
-#~ msgstr "Online-vahvistus"
-
-#~ msgid "Optional Products"
-#~ msgstr "Lisätuotteet"
-
-#~ msgid "Optional Products Lines"
-#~ msgstr "Lisätuotelinjat"
-
-#~ msgid "Options"
-#~ msgstr "Vaihtoehdot"
-
-#~ msgid "Present on Quotation"
-#~ msgstr "Esitä tarjouksessa"
-
-#~ msgid "Quantity:"
-#~ msgstr "Määrä:"
-
-#~ msgid "Quotation Builder"
-#~ msgstr "Tarjousrakentaja"
-
-#~ msgid "Quotation Template Option"
-#~ msgstr "Tarjouspohja vaihtoehto"
-
-#~ msgid "Quotation expires after"
-#~ msgstr "Tarjouksen vanhenemisaika"
-
-#~ msgid "Remove"
-#~ msgstr "Poista"
-
-#~ msgid "Sale Options"
-#~ msgstr "Myynnin vaihtoehdot"
-
-#~ msgid "Sales Order Reference"
-#~ msgstr "Myyntitilausviite"
-
-#~ msgid "Sales Quotation Template Lines"
-#~ msgstr "Myyntitarjouspohjan rivit"
-
-#~ msgid ""
-#~ "This field will be checked if the option line's product is already "
-#~ "present in the quotation."
-#~ msgstr "Tämä kenttä tarkistetaan, jos optiorivin tuote on jo tarjouksessa."
-
-#~ msgid "Unit Price"
-#~ msgstr "Yksikköhinta"
-
-#~ msgid "Unit Price:"
-#~ msgstr "Yksikköhinta:"
-
-#~ msgid "Unit of Measure"
-#~ msgstr "Mittayksikkö"
-
-#~ msgid "UoM"
-#~ msgstr "Yksikkö"
-
-#~ msgid "You cannot add options to a confirmed order."
-#~ msgstr "Et voi lisätä vaihtoehtoja vahvistettuun tilaukseen."
-
-#~ msgid ""
-#~ "Your quotation contains products from company %(product_company)s whereas "
-#~ "your quotation belongs to company %(quote_company)s. \n"
-#~ " Please change the company of your quotation or remove the products from "
-#~ "other companies (%(bad_products)s)."
-#~ msgstr ""
-#~ "Tarjous sisältää tuotteita yrityksestä %(product_company)s, kun taas "
-#~ "tarjouksesi kuuluu yritykselle %(quote_company)s. \n"
-#~ "Vaihda tarjouksesi yritystä tai poista tuotteet muilta yrityksiltä (%"
-#~ "(bad_products)s)."
+#~ msgid "Invoicing Journal"
+#~ msgstr "Laskutuspäiväkirja"

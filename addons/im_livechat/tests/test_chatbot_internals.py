@@ -3,14 +3,16 @@
 from freezegun import freeze_time
 
 from odoo import Command, fields
+from odoo.exceptions import ValidationError
+
 from odoo.addons.im_livechat.tests import chatbot_common
-from odoo.tests.common import JsonRpcException, new_test_user, tagged
+from odoo.addons.bus.tests.common import BusResult
+from odoo.tests.common import JsonRpcException, new_test_user
 from odoo.tools.misc import mute_logger
-from odoo.addons.mail.tests.common import freeze_all_time, MailCommon
+from odoo.addons.mail.tests.common import MailCommon
 from odoo.addons.mail.tools.discuss import Store
 
 
-@tagged("post_install", "-at_install")
 class ChatbotCase(MailCommon, chatbot_common.ChatbotCase):
 
     def test_chatbot_duplicate(self):
@@ -38,7 +40,7 @@ class ChatbotCase(MailCommon, chatbot_common.ChatbotCase):
 
     def test_chatbot_is_forward_operator_child(self):
         self.assertEqual([step.is_forward_operator_child for step in self.chatbot_script.script_step_ids],
-                         [False, False, False, False, False, False, False, True, True, False, True, False, False, False, False],
+                         [False, False, False, False, False, False, False, False, False, True, True, False, True, False, False, False, False],
                          "Steps 'step_no_one_available', 'step_no_operator_dispatch', 'step_just_leaving'"
                          "should be flagged as forward operator child.")
 
@@ -46,7 +48,7 @@ class ChatbotCase(MailCommon, chatbot_common.ChatbotCase):
         self.chatbot_script.script_step_ids.invalidate_recordset(['is_forward_operator_child'])
 
         self.assertEqual([step.is_forward_operator_child for step in self.chatbot_script.script_step_ids],
-                         [False, False, False, False, False, False, False, True, False, False, False, False, False, False, False],
+                         [False, False, False, False, False, False, False, False, False, True, False, False, False, False, False, False, False],
                          "Only step 'step_no_one_available' should be flagged as forward operator child.")
 
     def test_chatbot_steps(self):
@@ -68,6 +70,13 @@ class ChatbotCase(MailCommon, chatbot_common.ChatbotCase):
 
         self._post_answer_and_trigger_next_step(discuss_channel, email="test@example.com")
         self.assertEqual(discuss_channel.chatbot_current_step_id, self.step_email_validated)
+
+        self.make_jsonrpc_request("/chatbot/step/trigger", {"channel_id": discuss_channel.id})
+        self.assertEqual(discuss_channel.chatbot_current_step_id, self.step_phone)
+        with self.assertRaises(JsonRpcException, msg="odoo.exceptions.ValidationError"), mute_logger("odoo.http"):
+            self._post_answer_and_trigger_next_step(discuss_channel, phone="123")
+        self._post_answer_and_trigger_next_step(discuss_channel, phone="+919876543210")
+        self.assertEqual(discuss_channel.chatbot_current_step_id, self.step_phone_validated)
 
     def test_chatbot_steps_sequence(self):
         """ Ensure sequence is correct when creating chatbots and adding steps to an existing one.
@@ -113,7 +122,7 @@ class ChatbotCase(MailCommon, chatbot_common.ChatbotCase):
         self.assertEqual(welcome_steps, self.chatbot_script.script_step_ids[0])
 
     def test_chatbot_not_invited_to_rtc_calls(self):
-        with freeze_all_time():
+        with self.mock_datetime_and_now(self.env.cr.now()):
             data = self.make_jsonrpc_request(
                 "/im_livechat/get_session",
                 {
@@ -124,15 +133,19 @@ class ChatbotCase(MailCommon, chatbot_common.ChatbotCase):
             discuss_channel = (
                 self.env["discuss.channel"].sudo().browse(data["channel_id"])
             )
-            self.assertEqual(discuss_channel.livechat_operator_id, self.chatbot_script.operator_partner_id)
+            self.assertEqual(
+                discuss_channel.channel_member_ids.filtered(
+                    lambda m: m.livechat_member_type == "bot"
+                ).partner_id,
+                self.chatbot_script.operator_partner_id,
+            )
             discuss_channel._add_members(users=self.env.user)
-            self_member = discuss_channel.channel_member_ids.filtered(lambda m: m.is_self)
             bot_member = discuss_channel.channel_member_ids.filtered(
                 lambda m: m.partner_id == self.chatbot_script.operator_partner_id
             )
             guest_member = discuss_channel.channel_member_ids.filtered(lambda m: bool(m.guest_id))
             self.env["mail.presence"]._update_presence(guest_member.guest_id)
-            self_member._rtc_join_call()
+            discuss_channel.self_member_id._rtc_join_call()
             self.assertTrue(guest_member.rtc_inviting_session_id)
             self.assertFalse(bot_member.rtc_inviting_session_id)
 
@@ -151,39 +164,29 @@ class ChatbotCase(MailCommon, chatbot_common.ChatbotCase):
         )
         discuss_channel._forward_human_operator(self.step_forward_operator)
         self.assertEqual(
-            discuss_channel.livechat_operator_id, self.chatbot_script.operator_partner_id
+            discuss_channel.channel_member_ids.filtered(
+                lambda m: m.livechat_member_type == "bot"
+            ).partner_id,
+            self.chatbot_script.operator_partner_id,
         )
         self.assertEqual(discuss_channel.name, "Testing Bot")
-
         member_bot = discuss_channel.channel_member_ids.filtered(
             lambda m: m.partner_id == self.chatbot_script.operator_partner_id
         )
-        member_bot_data = {
-            "create_date": fields.Datetime.to_string(member_bot.create_date),
-            "fetched_message_id": False,
-            "id": member_bot.id,
-            "livechat_member_type": "bot",
-            "last_seen_dt": False,
-            "partner_id": member_bot.partner_id.id,
-            "seen_message_id": False,
-            "channel_id": {"id": discuss_channel.id, "model": "discuss.channel"},
-        }
 
-        def get_forward_op_bus_params():
+        def notifications():
             messages = self.env["mail.message"].search([], order="id desc", limit=3)
             # only data relevant to the test are asserted for simplicity
-            transfer_message_data = Store(bus_channel=discuss_channel).add(messages[1]).get_result()
+            store = Store(bus_channel=discuss_channel).add(messages[1], "_store_message_fields")
+            transfer_message_data = store._build_result()
             transfer_message_data["mail.message"][0].update(
                 {
                     "author_id": self.chatbot_script.operator_partner_id.id,
                     "body": ["markup", "<p>I will transfer you to a human.</p>"],
-                    # thread not renamed yet at this step
-                    "default_subject": "Testing Bot",
-                    "record_name": "Testing Bot",
                 }
             )
-            transfer_message_data["mail.thread"][0]["display_name"] = "Testing Bot"
-            joined_message_data = Store(bus_channel=discuss_channel).add(messages[0]).get_result()
+            store = Store(bus_channel=discuss_channel).add(messages[0], "_store_message_fields")
+            joined_message_data = store._build_result()
             joined_message_data["mail.message"][0].update(
                 {
                     "author_id": self.chatbot_script.operator_partner_id.id,
@@ -191,187 +194,189 @@ class ChatbotCase(MailCommon, chatbot_common.ChatbotCase):
                         "markup",
                         (
                             '<div class="o_mail_notification" data-oe-type="channel-joined">invited <a href="#" data-oe-model="res.partner" data-oe-id="'
-                            f'{self.partner_employee.id}">@Ernest Employee</a> to the channel</div>'
+                            f'{self.partner_employee.id}" class="o_mail_redirect">@Ernest Employee</a> to the conversation</div>'
                         ),
                     ],
-                    # thread not renamed yet at this step
-                    "default_subject": "Testing Bot",
-                    "record_name": "Testing Bot",
                 }
             )
-            joined_message_data["mail.thread"][0]["display_name"] = "Testing Bot"
             member_emp = discuss_channel.channel_member_ids.filtered(
                 lambda m: m.partner_id == self.partner_employee
             )
-            # data in-between join and leave
-            channel_data_join = (
-                Store(bus_channel=member_emp._bus_channel()).add(discuss_channel).get_result()
-            )
-            channel_data_join["discuss.channel"][0]["invited_member_ids"] = [["ADD", []]]
-            channel_data_join["discuss.channel"][0]["rtc_session_ids"] = [["ADD", []]]
-            channel_data_join["discuss.channel"][0]["livechat_outcome"] = "no_agent"
+            store = Store(bus_channel=member_emp)
+            store.add(discuss_channel, "_store_channel_fields")
+            channel_data_join = store._build_result()
+            channel_data_join["discuss.channel"][0]["livechat_outcome"] = "no_answer"
             channel_data_join["discuss.channel"][0]["chatbot"]["currentStep"]["message"] = messages[1].id
             channel_data_join["discuss.channel"][0]["chatbot"]["steps"][0]["message"] = messages[1].id
-            channel_data_join["discuss.channel"][0]["livechat_operator_id"] = self.chatbot_script.operator_partner_id.id
-            channel_data_join["discuss.channel"][0]["member_count"] = 3
-            channel_data_join["discuss.channel"][0]["name"] = "Testing Bot"
-            channel_data_join["discuss.channel.member"].insert(0, member_bot_data)
-            channel_data_join["discuss.channel.member"][2]["fetched_message_id"] = False
-            channel_data_join["discuss.channel.member"][2]["last_seen_dt"] = False
-            channel_data_join["discuss.channel.member"][2]["seen_message_id"] = False
-            channel_data_join["discuss.channel.member"][2]["unpin_dt"] = False
-            del channel_data_join["res.partner"][1]
-            channel_data_join["res.partner"].insert(
-                0,
-                {
-                    "active": False,
-                    "avatar_128_access_token": self.chatbot_script.operator_partner_id._get_avatar_128_access_token(),
-                    "country_id": False,
-                    "id": self.chatbot_script.operator_partner_id.id,
-                    "im_status": "im_partner",
-                    "im_status_access_token": self.chatbot_script.operator_partner_id._get_im_status_access_token(),
-                    "is_public": False,
-                    "mention_token": self.chatbot_script.operator_partner_id._get_mention_token(),
-                    "name": "Testing Bot",
-                    "user_livechat_username": False,
-                    "write_date": fields.Datetime.to_string(
-                        self.chatbot_script.operator_partner_id.write_date
-                    ),
-                },
-            )
-            channel_data = Store().add(discuss_channel).get_result()
+            channel_data_join["discuss.channel"][0]["member_count"] = 2
+            channel_data_join["discuss.channel.member"][1]["unpin_dt"] = False
+            store_1 = Store().add(discuss_channel, "_store_channel_fields")
+            channel_data = store_1._build_result()
             channel_data["discuss.channel"][0]["message_needaction_counter_bus_id"] = 0
-            channel_data_emp = Store().add(discuss_channel.with_user(self.user_employee)).get_result()
+            channel_w_employee = discuss_channel.with_user(self.user_employee)
+            store_2 = Store().add(channel_w_employee, "_store_channel_fields")
+            channel_data_emp = store_2._build_result()
             channel_data_emp["discuss.channel"][0]["message_needaction_counter_bus_id"] = 0
             channel_data_emp["discuss.channel.member"][1]["message_unread_counter_bus_id"] = 0
-            channel_data = Store().add(discuss_channel).get_result()
-            channel_data["discuss.channel"][0]["message_needaction_counter_bus_id"] = 0
-            channels, message_items = (
-                [
-                    (self.cr.dbname, "discuss.channel", discuss_channel.id),
-                    (self.cr.dbname, "res.partner", self.partner_employee.id),
-                    (self.cr.dbname, "discuss.channel", discuss_channel.id),
-                    (self.cr.dbname, "discuss.channel", discuss_channel.id),
-                    (self.cr.dbname, "discuss.channel", discuss_channel.id),
-                    (self.cr.dbname, "discuss.channel", discuss_channel.id),
-                    (self.cr.dbname, "discuss.channel", discuss_channel.id),
-                    (self.cr.dbname, "res.partner", self.partner_employee.id),
-                    (self.cr.dbname, "res.partner", self.env.user.partner_id.id),
-                ],
-                [
+            agent_history_id = discuss_channel.livechat_channel_member_history_ids.filtered(
+                lambda h: h.livechat_member_type == "agent"
+            ).id
+            return [
+                BusResult(
+                    discuss_channel,
+                    "discuss.channel/new_message",
+                    {"store_data": transfer_message_data, "id": discuss_channel.id},
+                ),
+                BusResult(
+                    discuss_channel,
+                    "mail.record/insert",
                     {
-                        "type": "discuss.channel/new_message",
-                        "payload": {
-                            "data": transfer_message_data,
-                            "id": discuss_channel.id,
-                        },
+                        "discuss.channel": [
+                            {
+                                "id": discuss_channel.id,
+                                "livechat_channel_member_history_ids": [
+                                    ["ADD", [agent_history_id]]
+                                ],
+                            },
+                        ],
+                        "im_livechat.channel.member.history": [
+                            {
+                                "channel_id": discuss_channel.id,
+                                "id": agent_history_id,
+                                "livechat_member_type": "agent",
+                                "partner_id": self.partner_employee.id,
+                                "member_id": member_emp.id,
+                            }
+                        ],
+                        "res.partner": [
+                            {
+                                "avatar_128_access_token": self.partner_employee._get_avatar_128_access_token(),
+                                "id": self.partner_employee.id,
+                                "name": "Ernest Employee",
+                                "user_livechat_username": False,
+                                "write_date": fields.Datetime.to_string(
+                                    self.partner_employee.write_date
+                                ),
+                            }
+                        ],
                     },
+                ),
+                BusResult(
+                    self.user_employee,
+                    "discuss.channel/joined",
                     {
-                        "type": "discuss.channel/joined",
-                        "payload": {
-                            "channel_id": discuss_channel.id,
-                            "invite_to_rtc_call": False,
-                            "data": channel_data_join,
-                            "invited_by_user_id": self.env.user.id,
-                        },
+                        "channel_id": discuss_channel.id,
+                        "invite_to_rtc_call": False,
+                        "store_data": channel_data_join,
+                        "invited_by_user_id": self.env.user.id,
                     },
+                ),
+                BusResult(
+                    discuss_channel,
+                    "discuss.channel/new_message",
+                    {"store_data": joined_message_data, "id": discuss_channel.id},
+                ),
+                BusResult(
+                    discuss_channel,
+                    "mail.record/insert",
                     {
-                        "type": "discuss.channel/new_message",
-                        "payload": {
-                            "data": joined_message_data,
-                            "id": discuss_channel.id,
-                        },
+                        "discuss.channel": [{"id": discuss_channel.id, "member_count": 2}],
+                        "discuss.channel.member": [
+                            {
+                                "channel_role": False,
+                                "create_date": fields.Datetime.to_string(member_emp.create_date),
+                                "id": member_emp.id,
+                                "invitation_sent_dt": False,
+                                "livechat_member_type": "agent",
+                                "last_seen_dt": fields.Datetime.to_string(member_emp.last_seen_dt),
+                                "partner_id": self.partner_employee.id,
+                                "seen_message_id": False,
+                                "channel_id": discuss_channel.id,
+                            }
+                        ],
+                        "res.country": [
+                            {"code": "BE", "id": self.env.ref("base.be").id, "name": "Belgium"}
+                        ],
+                        "res.partner": self._filter_partners_fields(
+                            {
+                                "active": True,
+                                "avatar_128_access_token": self.partner_employee._get_avatar_128_access_token(),
+                                "country_id": self.env.ref("base.be").id,
+                                "id": self.partner_employee.id,
+                                "is_public": False,
+                                "mention_token": self.partner_employee._get_mention_token(),
+                                "name": "Ernest Employee",
+                                "user_livechat_username": False,
+                                "write_date": fields.Datetime.to_string(
+                                    self.partner_employee.write_date
+                                ),
+                            }
+                        ),
                     },
+                ),
+                BusResult(
+                    (discuss_channel, "internal_users"),
+                    "mail.record/insert",
                     {
-                        "type": "mail.record/insert",
-                        "payload": {
-                            "discuss.channel": [{"id": discuss_channel.id, "member_count": 3}],
-                            "discuss.channel.member": [
-                                {
-                                    "create_date": fields.Datetime.to_string(
-                                        member_emp.create_date
-                                    ),
-                                    "fetched_message_id": False,
-                                    "id": member_emp.id,
-                                    "livechat_member_type": "agent",
-                                    "last_seen_dt": fields.Datetime.to_string(
-                                        member_emp.last_seen_dt
-                                    ),
-                                    "partner_id": self.partner_employee.id,
-                                    "seen_message_id": False,
-                                    "channel_id": {
-                                        "id": discuss_channel.id,
-                                        "model": "discuss.channel",
-                                    },
-                                }
-                            ],
-                            "res.country": [
-                                {"code": "BE", "id": self.env.ref("base.be").id, "name": "Belgium"}
-                            ],
-                            "res.partner": self._filter_partners_fields(
-                                {
-                                    "active": True,
-                                    "avatar_128_access_token": self.partner_employee._get_avatar_128_access_token(),
-                                    "country_id": self.env.ref("base.be").id,
-                                    "id": self.partner_employee.id,
-                                    "im_status": "offline",
-                                    "im_status_access_token": self.partner_employee._get_im_status_access_token(),
-                                    "is_public": False,
-                                    "mention_token": self.partner_employee._get_mention_token(),
-                                    "name": "Ernest Employee",
-                                    "user_livechat_username": False,
-                                    "write_date": fields.Datetime.to_string(
-                                        self.partner_employee.write_date
-                                    ),
-                                }
-                            ),
-                        },
+                        "res.partner": self._filter_partners_fields(
+                            {
+                                "agent_ids": [],
+                                "email": "e.e@example.com",
+                                "id": self.partner_employee.id,
+                                "tz": False,
+                                "user_ids": self.user_employee.ids,
+                            },
+                        ),
+                        "res.users": self._filter_users_fields({
+                            "all_employee_ids": [],
+                            "should_display_in_call_im_status": False,
+                            "id": self.user_employee.id,
+                            "im_status": "offline",
+                            "im_status_access_token": self.user_employee._get_im_status_access_token(),
+                            "partner_id": self.partner_employee.id,
+                        }),
                     },
+                ),
+                BusResult(
+                    discuss_channel,
+                    "mail.record/insert",
                     {
-                        "type": "mail.record/insert",
-                        "payload": {
-                            "discuss.channel": [
-                                {
-                                    "channel_member_ids": [["DELETE", [member_bot.id]]],
-                                    "id": discuss_channel.id,
-                                    "member_count": 2,
-                                }
-                            ]
-                        },
+                        "discuss.channel": [{"id": discuss_channel.id, "member_count": 2}],
+                        "discuss.channel.member": [{"_DELETE": True, "id": member_bot.id}],
                     },
+                ),
+                BusResult(
+                    discuss_channel,
+                    "mail.record/insert",
                     {
-                        "type": "mail.record/insert",
-                        "payload": {
-                            "discuss.channel": [
-                                {
-                                    "id": discuss_channel.id,
-                                    "livechat_operator_id": self.partner_employee.id,
-                                    "name": "OdooBot Ernest Employee",
-                                },
-                            ],
-                            "res.partner": self._filter_partners_fields(
-                                {
-                                    "avatar_128_access_token": self.partner_employee._get_avatar_128_access_token(),
-                                    "id": self.partner_employee.id,
-                                    "name": "Ernest Employee",
-                                    "user_livechat_username": False,
-                                    "write_date": fields.Datetime.to_string(
-                                        self.partner_employee.write_date
-                                    ),
-                                }
-                            ),
-                        },
+                        "discuss.channel": [
+                            {
+                                "id": discuss_channel.id,
+                                "name": "OdooBot Ernest Employee",
+                            },
+                        ],
                     },
-                    {"type": "mail.record/insert", "payload": channel_data_emp},
-                    {"type": "mail.record/insert", "payload": channel_data},
-                ],
-            )
-
-            return (channels, message_items)
-        with self.assertBus(get_params=get_forward_op_bus_params):
+                ),
+                BusResult(
+                    discuss_channel,
+                    "mail.record/insert",
+                    {
+                        "ChatbotStep": [
+                            {
+                                "id": [self.step_forward_operator.id, False],
+                                "message": False,
+                                "operatorFound": True,
+                                "scriptStep": self.step_forward_operator.id,
+                            }
+                        ]
+                    },
+                ),
+                BusResult(self.user_employee, "mail.record/insert", channel_data_emp),
+            ]
+        with self.assertBus(notifications):
             discuss_channel._forward_human_operator(self.step_forward_operator, users=self.user_employee)
         self.assertEqual(discuss_channel.name, "OdooBot Ernest Employee")
-        self.assertEqual(discuss_channel.livechat_operator_id, self.partner_employee)
+        self.assertEqual(discuss_channel.livechat_agent_partner_ids, self.partner_employee)
         self.assertEqual(discuss_channel.livechat_outcome, "no_answer")
         self.assertTrue(
             discuss_channel.channel_member_ids.filtered(
@@ -536,3 +541,117 @@ class ChatbotCase(MailCommon, chatbot_common.ChatbotCase):
         self.assertFalse(step.answer_ids, "Answers were not cleared after step_type was changed.")
         self.assertFalse(step_2.triggering_answer_ids, "Step 2 still has stale triggering answers.")
         self.assertFalse(step_3.triggering_answer_ids, "Step 3 still has stale triggering answers.")
+
+    def test_store_chatbot_answers_batched(self):
+        channels = self.env["discuss.channel"].create([
+            {"name": f"Livechat {i}", "channel_type": "livechat"}
+            for i in range(4)
+        ])
+        selection_answer, raw_answer, *_ = self.env["chatbot.message"].create([
+            {
+                "discuss_channel_id": channels[0].id,
+                "script_step_id": self.step_dispatch.id,
+                "user_script_answer_id": self.step_dispatch_buy_software.id,
+            },
+            {
+                "discuss_channel_id": channels[1].id,
+                "script_step_id": self.step_email.id,
+                "user_raw_answer": "<p>test@example.com</p>",
+            },
+            {
+                "discuss_channel_id": channels[2].id,
+                "script_step_id": self.step_email.id,
+            },
+            {
+                "discuss_channel_id": channels[3].id,
+                "script_step_id": self.step_email.id,
+                "user_raw_answer": "<p>unrelated@example.com</p>",
+            },
+        ])
+        # Warm related fields to isolate the answer lookup.
+        Store().add(channels[:3], "_store_livechat_extra_fields")._build_result()
+        with self.assertQueryCount(1):
+            data = Store().add(channels[:3], "_store_livechat_extra_fields")._build_result()
+        self.assertEqual(
+            {channel["id"]: channel["chatbot_message_ids"] for channel in data["discuss.channel"]},
+            {
+                channels[0].id: [selection_answer.id],
+                channels[1].id: [raw_answer.id],
+                channels[2].id: [],
+            },
+        )
+        self.assertEqual(
+            {message["id"] for message in data["chatbot.message"]},
+            {selection_answer.id, raw_answer.id},
+        )
+
+    def test_chatbot_answers_shown_in_info_panel_even_when_messages_not_loaded(self):
+        operator = new_test_user(
+            self.env,
+            login="operator_chatbot_test",
+            groups="base.group_user,im_livechat.im_livechat_group_manager",
+        )
+        data = self.make_jsonrpc_request(
+            "/im_livechat/get_session",
+            {
+                "chatbot_script_id": self.chatbot_script.id,
+                "channel_id": self.livechat_channel.id,
+            },
+        )
+        discuss_channel = self.env["discuss.channel"].browse(data["channel_id"])
+        self._post_answer_and_trigger_next_step(
+            discuss_channel, chatbot_script_answer=self.step_dispatch_buy_software
+        )
+        self._post_answer_and_trigger_next_step(discuss_channel, email="test@example.com")
+        # Fill the channel so the chatbot answer messages are not part of the initially
+        # loaded messages.
+        for i in range(100):
+            discuss_channel.sudo().message_post(body=f"filler {i}", message_type="comment")
+        self.start_tour(
+            f"/odoo/discuss?active_id={discuss_channel.id}",
+            "im_livechat_info_panel_tour",
+            login=operator.login,
+        )
+
+    def test_chatbot_without_operator(self):
+        chatbot_script = self.env["chatbot.script"].create({"title": "Question bot"})
+        self.env["chatbot.script.step"].create([
+            {
+                "chatbot_script_id": chatbot_script.id,
+                "message": "What is your question?",
+                "step_type": "free_input_single",
+            },
+            {
+                "chatbot_script_id": chatbot_script.id,
+                "message": "Forwarding to operator",
+                "step_type": "forward_operator",
+            },
+        ])
+        self.livechat_channel.user_ids = False  # no operator
+        self.livechat_channel.rule_ids = self.env["im_livechat.channel.rule"].create({
+            "channel_id": self.livechat_channel.id,
+            "chatbot_script_id": chatbot_script.id,
+            "regex_url": "/",
+        })
+        data = self.make_jsonrpc_request("/im_livechat/get_session", {
+            "anonymous_name": "Test Visitor",
+            "channel_id": self.livechat_channel.id,
+            "chatbot_script_id": chatbot_script.id,
+        })
+        discuss_channel = self.env["discuss.channel"].browse(data["channel_id"])
+        self._post_answer_and_trigger_next_step(
+            discuss_channel,
+            "Connect to Operator",
+        )
+        self.make_jsonrpc_request("/chatbot/step/trigger", {
+            "channel_id": discuss_channel.id,
+            "chatbot_script_id": chatbot_script.id,
+        })
+        self.assertTrue(discuss_channel.livechat_end_dt, "The livechat session must be inactive since there is no operator available.")
+
+    def test_invalid_regex_url_raises_validation_error(self):
+        with self.assertRaisesRegex(ValidationError, "The URL Regex '\\[' is not valid."):
+            self.env["im_livechat.channel.rule"].create({
+                "channel_id": self.livechat_channel.id,
+                "regex_url": "[",
+            })

@@ -1,10 +1,9 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 import html
-from http import HTTPStatus
 from base64 import b64encode
-from urllib.parse import parse_qs, urlsplit
-
 from datetime import date
+from http import HTTPStatus
+from urllib.parse import parse_qs, urlsplit
 
 from odoo.api import Environment
 from odoo.fields import Command
@@ -41,8 +40,8 @@ class TestHttpWebJson_1(TestHttpBase):
     def setUpClass(cls):
         super().setUpClass()
 
-        # enable explicitely and make sure demo has permissions
-        cls.env['ir.config_parameter'].set_param('web.json.enabled', True)
+        # enable explicitly and make sure demo has permissions
+        cls.env['ir.config_parameter'].set_bool('web.json.enabled', True)
         cls.user_demo.write({
             'group_ids': [Command.link(cls.env.ref('base.group_allow_export').id)],
         })
@@ -88,9 +87,8 @@ class TestHttpWebJson_1(TestHttpBase):
         self.user_demo.group_ids += self.env.ref('sales_team.group_sale_salesman')
         self.url_open_json('/crm')
 
-        self.env['ir.model.access'].search([
-            ('model_id', '=', action_crm.model_id.id)
-        ]).perm_read = False
+        accesses = self.env['ir.access'].search([('model_id', '=', action_crm.model_id.id)])
+        accesses.for_read = False
 
         with self.assertLogs('odoo.http', 'WARNING') as capture:
             res = self.url_open_json('/crm', expected_code=403)
@@ -143,14 +141,18 @@ class TestHttpWebJson_1(TestHttpBase):
     def test_webjson_form(self):
         self.authenticate_demo()
         res = self.url_open_json(f'/test_http.stargate/{self.earth.id}')
+        gizeh = {'size': len(self.gizeh_data), 'checksum': '0126381835cceaf2d113bdbbcb4d7851dcc1c721'}
+        # because definitions of BinaryValue.checksum differ between implementations,
+        # a different checksum can be returned for the same data
+        gizeh_inline = {**gizeh, 'checksum': '2fbf1497a555e7cf1084f5232d612ddeff93677f66e97d27397cbfe1da2d627e'}
         self.assertEqual(res.json(), {
             'id': self.earth.id,
             'name': self.earth.name,
             'sgc_designation': self.earth.sgc_designation,
             'galaxy_id': {'id': self.earth.galaxy_id.id,
                           'display_name': self.earth.galaxy_id.name},
-            'glyph_attach': self.gizeh_b64,
-            'glyph_inline': self.gizeh_b64,
+            'glyph_attach': gizeh,
+            'glyph_inline': gizeh_inline,
         })
 
     def test_webjson_form_subtree(self):

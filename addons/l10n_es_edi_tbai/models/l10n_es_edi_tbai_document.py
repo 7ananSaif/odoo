@@ -1,16 +1,21 @@
+import base64
 import gzip
 import json
 import re
-import base64
-from datetime import datetime
-from uuid import uuid4
-
 import requests
+from datetime import datetime
 from lxml import etree
-from pytz import timezone
 from requests.exceptions import RequestException
+from uuid import uuid4
+from zoneinfo import ZoneInfo
 
 from odoo import _, api, fields, models, release
+from odoo.exceptions import UserError
+from odoo.tools import get_lang
+from odoo.tools.business_data import split_vat
+from odoo.tools.float_utils import float_repr, float_round
+from odoo.tools.xml_utils import cleanup_xml_node
+
 from odoo.addons.certificate.tools import CertificateAdapter
 from odoo.addons.l10n_es_edi_tbai.models.l10n_es_edi_tbai_agencies import get_key
 from odoo.addons.l10n_es_edi_tbai.models.xml_utils import (
@@ -19,10 +24,6 @@ from odoo.addons.l10n_es_edi_tbai.models.xml_utils import (
     canonicalize_node,
     cleanup_xml_signature,
 )
-from odoo.exceptions import UserError
-from odoo.tools import get_lang
-from odoo.tools.float_utils import float_repr, float_round
-from odoo.tools.xml_utils import cleanup_xml_node
 
 CRC8_TABLE = [
     0x00, 0x07, 0x0E, 0x09, 0x1C, 0x1B, 0x12, 0x15, 0x38, 0x3F, 0x36, 0x31, 0x24, 0x23, 0x2A, 0x2D,
@@ -109,10 +110,10 @@ class L10n_Es_Edi_TbaiDocument(models.Model):
             return _("Please specify a tax agency on your company for TicketBAI.")
 
         # Ensure a vat is available.
-        if not self.company_id.vat:
+        if not self.company_id.has_vat:
             return _("Please configure the Tax ID on your company for TicketBAI.")
 
-        if self.company_id.l10n_es_tbai_tax_agency == 'bizkaia' and self.company_id._l10n_es_freelancer() and not self.env['ir.config_parameter'].sudo().get_param('l10n_es_edi_tbai.epigrafe', False):
+        if self.company_id.l10n_es_tbai_tax_agency == 'bizkaia' and self.company_id._l10n_es_freelancer() and not self.env['ir.config_parameter'].sudo().get_str('l10n_es_edi_tbai.epigrafe'):
             return _("In order to use Ticketbai Batuz for freelancers, you will need to configure the "
                         "Epigrafe or Main Activity.  In this version, you need to go in debug mode to "
                         "Settings > Technical > System Parameters and set the parameter 'l10n_es_edi_tbai.epigrafe'"
@@ -128,33 +129,32 @@ class L10n_Es_Edi_TbaiDocument(models.Model):
             if chain_head_doc and chain_head_doc != self and chain_head_doc.state != 'accepted':
                 return _("TicketBAI: Cannot post invoice while chain head (%s) has not been posted", chain_head_doc.name)
 
-            # Tax configuration check: In case of foreign customer we need the tax scope to be set
-            if values['partner'] and values['partner']._l10n_es_is_foreign() and values['taxes'].filtered(lambda t: not t.tax_scope):
+            if values['partner'] and not values["is_simplified"] and not self._l10n_es_tbai_partner_has_nif(values['partner']) \
+                    and values['taxes'].filtered(lambda t: not t.tax_scope):
                 return _(
                     "In case of a foreign customer, you need to configure the tax scope on taxes:\n%s",
                     "\n".join(values['taxes'].mapped('name'))
                 )
             if values['is_refund']:
                 refunded_doc = values['refunded_doc']
-                refund_reason = values['refund_reason']
                 refunded_doc_invoice_date = values['refunded_doc_invoice_date']
-                is_simplified = values['is_simplified']
+                refunded_name = values['refunded_name']
 
-                if not refunded_doc or refunded_doc.state == 'to_send':
+                if refunded_doc and refunded_doc.state == 'to_send':
+                    return _("TicketBAI: Cannot post a reversal document while the source document has not been posted")
+
+                if not refunded_doc:
+                    if not refunded_name or not refunded_doc_invoice_date:
+                        return _("TicketBAI: For reversal documents without a source invoice in Odoo, you must provide the original invoice number and date")
                     invoice_sent_before_original = True
-                    if not refunded_doc and refunded_doc_invoice_date:
-                        domain = [('date', '<', refunded_doc_invoice_date),
-                                  ('company_id', '=', self.company_id.id),
-                                  ('chain_index', '!=', 0)]
-                        invoice_sent_before_original = self.search(domain, order="date", limit=1)
+                    domain = [
+                        ('date', '<', refunded_doc_invoice_date),
+                        ('company_id', '=', self.company_id.id),
+                        ('chain_index', '!=', 0),
+                    ]
+                    invoice_sent_before_original = self.search(domain, order="date", limit=1)
                     if invoice_sent_before_original:  # No error if the original invoice was imported from a previous system
                         return _("TicketBAI: Cannot post a reversal document while the source document has not been posted")
-                if not refund_reason:
-                    return _('Refund reason must be specified (TicketBAI)')
-                if is_simplified and refund_reason != 'R5':
-                    return _('Refund reason must be R5 for simplified invoices (TicketBAI)')
-                if not is_simplified and refund_reason == 'R5':
-                    return _('Refund reason cannot be R5 for non-simplified invoices (TicketBAI)')
 
     # -------------------------------------------------------------------------
     # WEB SERVICE CALLS
@@ -237,7 +237,7 @@ class L10n_Es_Edi_TbaiDocument(models.Model):
             'url': get_key(self.company_id.l10n_es_tbai_tax_agency, 'cancel_url_' if self.is_cancel else 'post_url_', company.l10n_es_tbai_test_env),
             'headers': {"Content-Type": "application/xml; charset=utf-8"},
             'pkcs12_data': company.l10n_es_tbai_certificate_id,
-            'data': self.xml_attachment_id.raw,
+            'data': self.xml_attachment_id.raw.content,
         }
 
     @api.model
@@ -265,7 +265,7 @@ class L10n_Es_Edi_TbaiDocument(models.Model):
             xml_to_send = self._generate_final_xml_bi(freelancer=freelancer)
             lroe_str = etree.tostring(xml_to_send)
         else:
-            lroe_str = self.xml_attachment_id.raw
+            lroe_str = self.xml_attachment_id.raw.content
 
         lroe_bytes = gzip.compress(lroe_str)
 
@@ -283,7 +283,7 @@ class L10n_Es_Edi_TbaiDocument(models.Model):
                     'con': 'LROE',
                     'apa': '2.1' if freelancer and not is_sale else '1.1' if is_sale else '2',
                     'inte': {
-                        'nif': company.vat[2:] if company.vat.startswith('ES') else company.vat,
+                        'nif': split_vat(company.vat, default_country_code='ES')[1],
                         'nrs': company.name,
                     },
                     'drs': {
@@ -301,12 +301,12 @@ class L10n_Es_Edi_TbaiDocument(models.Model):
         lroe_values = {
             'is_emission': not self.is_cancel,
             'sender': sender,
-            'sender_vat': sender.vat[2:] if sender.vat.startswith('ES') else sender.vat,
+            'sender_vat': split_vat(sender.vat, default_country_code='ES')[1],
             'fiscal_year': str(self.date.year),
             'freelancer': freelancer,
-            'epigrafe': self.env['ir.config_parameter'].sudo().get_param('l10n_es_edi_tbai.epigrafe', '')
+            'epigrafe': self.env['ir.config_parameter'].sudo().get_str('l10n_es_edi_tbai.epigrafe')
         }
-        lroe_values.update({'tbai_b64_list': [base64.b64encode(self.xml_attachment_id.raw).decode()]})
+        lroe_values.update({'tbai_b64_list': [base64.b64encode(self.xml_attachment_id.raw.content).decode()]})
         lroe_str = self.env['ir.qweb']._render('l10n_es_edi_tbai.template_LROE_240_main', lroe_values)
         lroe_xml = cleanup_xml_node(lroe_str)
 
@@ -349,7 +349,7 @@ class L10n_Es_Edi_TbaiDocument(models.Model):
             **self._get_header_values(),
             **self._get_sender_values(),
             **(self._get_recipient_values(values['partner'], values["is_simplified"]) if values['partner'] and not self.is_cancel or not values['is_sale'] else {}),
-            'datetime_now': datetime.now(tz=timezone('Europe/Madrid')),
+            'datetime_now': datetime.now(tz=ZoneInfo('Europe/Madrid')),
             'format_date': lambda d: datetime.strftime(d, '%d-%m-%Y'),
             'format_time': lambda d: datetime.strftime(d, '%H:%M:%S'),
             'format_float': format_float,
@@ -391,9 +391,20 @@ class L10n_Es_Edi_TbaiDocument(models.Model):
     def _get_sender_values(self):
         sender = self.company_id
         return {
-            'sender_vat': sender.vat[2:] if sender.vat.startswith('ES') else sender.vat,
+            'sender_vat': split_vat(sender.vat, default_country_code='ES')[1],
             'sender': sender,
         }
+
+    @api.model
+    def _l10n_es_tbai_partner_has_nif(self, partner):
+        """ Whether `partner` is a domestic Spanish recipient identified by a real NIF (the
+        <NIF> block, no IDOtro). Any other case -- an intra-EU partner with a NIF-IVA (IDType 02),
+        a foreign partner without one (IDOtro 03-06), or a *Spanish-resident* partner without a
+        NIF (also IDOtro 03-06, e.g. identified by passport) -- must use DesgloseTipoOperacion
+        rather than DesgloseFactura. Shared by `_get_recipient_values` (NIF vs IDOtro/IDType02
+        block) and `_get_sale_values` (DesgloseFactura vs DesgloseTipoOperacion), which must stay
+        in sync. """
+        return not partner._l10n_es_is_foreign() and bool(partner.vat)
 
     def _get_recipient_values(self, partner, is_simplified=False):
         # TicketBAI accept recipient data for simplified invoices,
@@ -405,16 +416,19 @@ class L10n_Es_Edi_TbaiDocument(models.Model):
             'partner_address': ', '.join(filter(None, [partner.street, partner.street2, partner.city])),
             'alt_id_number': partner.vat or 'NO_DISPONIBLE',
         }
-
-        if not partner._l10n_es_is_foreign() and partner.vat:
+        if self._l10n_es_tbai_partner_has_nif(partner):
+            # Spanish with NIF → block <NIF> (without IDOtro)
             recipient_values['nif'] = partner.vat[2:] if partner.vat.startswith('ES') else partner.vat
 
-        elif partner.country_id and 'EU' in partner.country_id.country_group_codes:
+        elif partner.vat and partner.country_id and 'EU' in partner.country_id.country_group_codes:
+            # Intra-communitary with NIF-IVA → IDType 02 (no CodigoPais)
             recipient_values['alt_id_type'] = '02'
+            recipient_values['alt_id_number'] = partner.vat
 
         else:
-            recipient_values['alt_id_type'] = '04' if partner.vat else '06'
+            # No NIF (national or intra-EU): IDOtro document required. CodigoPais mandatory.
             recipient_values['alt_id_country'] = partner.country_id.code if partner.country_id else None
+            recipient_values['alt_id_type'], recipient_values['alt_id_number'] = partner._l10n_es_get_additional_identifier_type()
 
         return {'recipient': recipient_values}
 
@@ -436,7 +450,7 @@ class L10n_Es_Edi_TbaiDocument(models.Model):
     def _get_sale_values(self, values):
         sale_values = {
             'chain_prev_document': self.company_id._get_l10n_es_tbai_last_chained_document(),
-            **self._get_regime_code_value(values['taxes'], values['is_simplified']),
+            **self._get_regime_code_value(values['regime_code']),
             **self._get_refunded_values(values),
         }
         # Regime key override for Canarias/Ceuta/Melilla and no_sujeto_loc
@@ -444,15 +458,15 @@ class L10n_Es_Edi_TbaiDocument(models.Model):
             if any(t.l10n_es_type == 'no_sujeto_loc' for t in values['taxes']):
                 sale_values.update({'regime_key': ['08']})
 
-        if not values['partner'] or not values['partner']._l10n_es_is_foreign() or values["is_simplified"]:
+        if not values['partner'] or values["is_simplified"] or self._l10n_es_tbai_partner_has_nif(values['partner']):
             sale_values.update(**self._get_importe_desglose_es_partner(values['base_lines'], values['is_refund']))
         else:
             sale_values.update(**self._get_importe_desglose_foreign_partner(values['base_lines'], values['is_refund']))
 
         return sale_values
 
-    def _get_regime_code_value(self, taxes, is_simplified):
-        return {'regime_key': [taxes._l10n_es_get_regime_code()]}
+    def _get_regime_code_value(self, regime_code):
+        return {'regime_key': [regime_code]}
 
     @api.model
     def _add_base_lines_tax_amounts(self, base_lines, company, tax_lines=None):
@@ -529,7 +543,7 @@ class L10n_Es_Edi_TbaiDocument(models.Model):
                     .get('DetalleIVA')
                 if detalle_iva:
                     detalle_iva[-1]['CuotaRecargoEquivalencia'] = sign * float_round(values['tax_amount'], 2)
-                    detalle_iva[-1]['TipoRecargoEquivalencia'] = sign * grouping_key['applied_tax_amount']
+                    detalle_iva[-1]['TipoRecargoEquivalencia'] = grouping_key['applied_tax_amount']
             elif l10n_es_type == 'no_sujeto':
                 no_sujeta = sujeta_no_sujeta.setdefault('NoSujeta', {})
                 no_sujeta.setdefault('ImportePorArticulos7_14_Otros', 0.0)
@@ -723,7 +737,7 @@ class L10n_Es_Edi_TbaiDocument(models.Model):
                 'sigcertif_digest': certificate_sudo._get_fingerprint_bytes(formatting='base64').decode(),
                 'x509_issuer_description': issuer,
                 'x509_serial_number': int(certificate_sudo.serial_number),
-            }
+            },
         }
         xml_sig_str = self.env['ir.qweb']._render('l10n_es_edi_tbai.template_digital_signature', values)
         xml_sig = cleanup_xml_signature(xml_sig_str)
@@ -745,9 +759,9 @@ class L10n_Es_Edi_TbaiDocument(models.Model):
         lroe_values = {
             'is_emission': not self.is_cancel,
             'sender': sender,
-            'sender_vat': sender.vat[2:] if sender.vat.startswith('ES') else sender.vat,
+            'sender_vat': split_vat(sender.vat, default_country_code='ES')[1],
             'fiscal_year': str(self.date.year),
-            'epigrafe': self.env['ir.config_parameter'].sudo().get_param('l10n_es_edi_tbai.epigrafe', ''),
+            'epigrafe': self.env['ir.config_parameter'].sudo().get_str('l10n_es_edi_tbai.epigrafe'),
             'batuz_correction': self.env.context.get('batuz_correction'),
         }
         lroe_values.update(values)
@@ -826,7 +840,7 @@ class L10n_Es_Edi_TbaiDocument(models.Model):
         company = self.company_id
         tbai_id_no_crc = '-'.join([
             'TBAI',
-            str(company.vat[2:] if company.vat.startswith('ES') else company.vat),
+            str(split_vat(company.vat, default_country_code='ES')[1]),
             datetime.strftime(registration_date, '%d%m%y'),
             signature[:13],
             ''  # CRC
@@ -872,4 +886,4 @@ class L10n_Es_Edi_TbaiDocument(models.Model):
         doc = self.xml_attachment_id
         if not doc:
             return None
-        return etree.fromstring(doc.raw.decode('utf-8'))
+        return etree.fromstring(doc.raw.content.decode('utf-8'))

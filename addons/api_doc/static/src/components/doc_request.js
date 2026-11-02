@@ -1,4 +1,4 @@
-import { Component, useState } from "@odoo/owl";
+import { Component, useProps, proxy, signal, t } from "@odoo/owl";
 import { LANGUAGES, createRequestCode } from "@api_doc/utils/doc_code_gen";
 import { CodeEditor } from "@web/core/code_editor/code_editor";
 import { browser } from "@web/core/browser/browser";
@@ -6,11 +6,13 @@ import { browser } from "@web/core/browser/browser";
 class CopyableCodeEditor extends CodeEditor {
     static template = "web.DocRequest.CodeEditor";
 
+    copied = signal(false);
+
     copyToClipboard() {
         navigator?.clipboard?.writeText(this.aceEditor.getValue());
-        this.state.copied = true;
+        this.copied.set(true);
         setTimeout(() => {
-            this.state.copied = false;
+            this.copied.set(false);
         }, 1000);
     }
 }
@@ -21,19 +23,16 @@ export class DocRequest extends Component {
     static components = {
         CodeEditor: CopyableCodeEditor,
     };
-    static props = {
-        url: String,
-        request: { optional: true },
-        method: { type: String, optional: true },
-    };
-    static defaultProps = {
-        httpMethod: "POST",
-    };
+    props = useProps({
+        url: t.string(),
+        request: t.any().optional(),
+        httpMethod: t.string().optional("POST"),
+    });
 
     setup() {
         this.maxLines = Infinity;
         this.LANGUAGES = LANGUAGES;
-        this.state = useState({
+        this.state = proxy({
             exampleLanguage: LANGUAGES.json,
             exampleCode: "",
             requestCode: this.createRequestCode(LANGUAGES.json),

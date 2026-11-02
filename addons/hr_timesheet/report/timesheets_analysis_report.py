@@ -28,21 +28,21 @@ class TimesheetsAnalysisReport(models.Model):
     message_partner_ids = fields.Many2many('res.partner', compute='_compute_message_partner_ids',
                                            search='_search_message_partner_ids', readonly=True)
 
-    @api.depends('project_id.message_partner_ids', 'task_id.message_partner_ids')
+    @api.depends('task_id.message_partner_ids')
     def _compute_message_partner_ids(self):
         for line in self:
-            line.message_partner_ids = line.task_id.message_partner_ids | line.project_id.message_partner_ids
+            line.message_partner_ids = line.task_id.message_partner_ids
 
     def _search_message_partner_ids(self, operator, value):
         return self.env['account.analytic.line']._search_message_partner_ids(operator, value)
 
     @property
-    def _table_query(self):
-        return "%s %s %s" % (self._select(), self._from(), self._where())
+    def _table_sql(self):
+        return SQL("(%s %s %s)", self._select(), self._from(), self._where())
 
     @api.model
     def _select(self):
-        return """
+        return SQL("""
             SELECT
                 A.id AS id,
                 A.name AS name,
@@ -59,16 +59,16 @@ class TimesheetsAnalysisReport(models.Model):
                 A.amount AS amount,
                 A.unit_amount AS unit_amount,
                 A.partner_id AS partner_id
-        """
+        """)
 
     @api.model
     def _from(self):
-        return "FROM account_analytic_line A"
+        return SQL("FROM account_analytic_line A")
 
     @api.model
     def _where(self):
-        return "WHERE A.project_id IS NOT NULL"
+        return SQL("WHERE A.project_id IS NOT NULL")
 
     def init(self):
         drop_view_if_exists(self.env.cr, self._table)
-        self.env.cr.execute(SQL("""CREATE or REPLACE VIEW %s as (%s)""", SQL.identifier(self._table), SQL(self._table_query)))
+        self.env.cr.execute(SQL("""CREATE or REPLACE VIEW %s as (%s)""", SQL.identifier(self._table), self._table_sql))

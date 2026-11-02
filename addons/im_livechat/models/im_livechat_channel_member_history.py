@@ -1,11 +1,13 @@
 from odoo import api, models, fields
 from odoo.exceptions import ValidationError
+from odoo.addons.mail.tools.discuss import Store
+from odoo.tools.sql import SQL
 
 
 class ImLivechatChannelMemberHistory(models.Model):
     _name = "im_livechat.channel.member.history"
     _description = "Keep the channel member history"
-    _rec_names_search = ["partner_id", "guest_id"]
+    _rec_names_search = ("partner_id", "guest_id")
 
     member_id = fields.Many2one("discuss.channel.member", index="btree_not_null")
     livechat_member_type = fields.Selection(
@@ -32,11 +34,6 @@ class ImLivechatChannelMemberHistory(models.Model):
     agent_expertise_ids = fields.Many2many(
         "im_livechat.expertise", compute="_compute_member_fields", store=True
     )
-    conversation_tag_ids = fields.Many2many(
-        "im_livechat.conversation.tag",
-        "im_livechat_channel_member_history_conversation_tag_rel",
-        related="channel_id.livechat_conversation_tag_ids",
-    )
     avatar_128 = fields.Binary(compute="_compute_avatar_128")
 
     # REPORTING FIELDS
@@ -55,9 +52,23 @@ class ImLivechatChannelMemberHistory(models.Model):
         aggregator="avg",
         store=True,
     )
-    rating_id = fields.Many2one("rating.rating", compute="_compute_rating_id", store=True)
-    rating = fields.Float(related="rating_id.rating")
-    rating_text = fields.Selection(string="Rating text", related="rating_id.rating_text")
+    rating = fields.Selection(
+        [
+            ("1", "Unhappy"),
+            ("3", "Neutral"),
+            ("5", "Happy"),
+        ],
+        compute="_compute_rating",
+        store=True,
+        falsy_value_label="Not Rated Yet",
+    )
+    rating_percentage = fields.Float(
+        string="Rating (%)",
+        aggregator="avg",
+        compute="_compute_rating_percentage",
+        compute_sql="_compute_sql_rating_percentage",
+        compute_sudo=True,
+    )
     call_history_ids = fields.Many2many("discuss.call.history")
     has_call = fields.Float(compute="_compute_has_call", store=True)
     call_count = fields.Float("# of Sessions with Calls", related="has_call", aggregator="sum")
@@ -128,6 +139,32 @@ class ImLivechatChannelMemberHistory(models.Model):
                 name = history.partner_id.display_name
             history.display_name = name or self.env._("Unknown")
 
+    @api.depends("channel_id.livechat_rating", "channel_id.livechat_agent_partner_ids")
+    def _compute_rating(self):
+        agent_histories = self.filtered(
+            lambda h: (
+                h.id in h.channel_id.livechat_agent_history_ids.ids
+                and h.livechat_member_type == "agent"
+            )
+            or (not h.channel_id.livechat_agent_partner_ids and h.livechat_member_type == "bot")
+        )
+        (self - agent_histories).rating = None
+        for history in agent_histories:
+            history.rating = history.channel_id.livechat_rating
+
+    @api.depends("rating")
+    def _compute_rating_percentage(self):
+        for member_history in self:
+            member_history.rating_percentage = (
+                self.env["discuss.channel"]._rating_selection_to_percentage(member_history.rating)
+            )
+
+    def _compute_sql_rating_percentage(self, table):
+        # This method allows to filter out non-rated sessions of the aggregation
+        return self.env["discuss.channel"]._rating_selection_to_percentage_sql(
+            SQL.identifier(table._alias, "rating")
+        )
+
     @api.depends("partner_id.avatar_128", "guest_id.avatar_128")
     def _compute_avatar_128(self):
         for history in self:
@@ -160,15 +197,6 @@ class ImLivechatChannelMemberHistory(models.Model):
             elif history.channel_id.livechat_agent_providing_help_history == history:
                 history.help_status = "provided"
 
-    @api.depends("channel_id.rating_ids")
-    def _compute_rating_id(self):
-        agent_histories = self.filtered(lambda h: h.livechat_member_type in ("agent", "bot"))
-        (self - agent_histories).rating_id = None
-        for history in agent_histories:
-            history.rating_id = history.channel_id.rating_ids.filtered(
-                lambda r: r.rated_partner_id == history.partner_id
-            )[:1]  # Live chats only allow one rating.
-
     @api.depends("create_date", "channel_id.livechat_end_dt", "channel_id.message_ids")
     def _compute_session_duration_hour(self):
         ongoing_chats = self.channel_id.filtered(lambda c: not c.livechat_end_dt)
@@ -179,7 +207,7 @@ class ImLivechatChannelMemberHistory(models.Model):
             end = history.channel_id.livechat_end_dt or last_msg_dt_by_channel_id.get(
                 history.channel_id.id, fields.Datetime.now()
             )
-            history.session_duration_hour = (end - history.create_date).total_seconds() / 3600
+            history.session_duration_hour = max((end - history.create_date).total_seconds() / 3600, 0)
 
     @api.model
     def action_open_discuss_channel_view(self, domain=()):
@@ -196,3 +224,16 @@ class ImLivechatChannelMemberHistory(models.Model):
         action["view_mode"] = "list"
         action["views"] = [view for view in action["views"] if view[1] in ("list", "form")]
         return action
+
+    def _store_member_history_fields(self, res: Store.FieldList):
+        res.attr("channel_id")
+        res.one("guest_id", ["name"], predicate=lambda r: not r.partner_id)
+        res.attr("livechat_member_type")
+        res.attr("member_id")
+        # sudo: res.partner - reading partner related to an accessible channel member history is considered acceptable
+        res.one(
+            "partner_id",
+            "_store_livechat_member_fields",
+            predicate=lambda r: not r.guest_id,
+            sudo=True,
+        )

@@ -1,106 +1,64 @@
 import { hasHardwareAcceleration } from "@mail/utils/common/misc";
 import { _t } from "@web/core/l10n/translation";
-import { browser } from "@web/core/browser/browser";
-import { fields, Record } from "./record";
-import { debounce } from "@web/core/utils/timing";
+import { Record } from "@mail/model/export";
 import { rpc } from "@web/core/network/rpc";
 
-export const MESSAGE_SOUND = "mail.user_setting.message_sound";
-export const USE_BLUR_LS = "mail_user_setting_use_blur";
-
 export class Settings extends Record {
-    id;
-
-    static new() {
-        const record = super.new(...arguments);
-        record.onStorage = record.onStorage.bind(record);
-        browser.addEventListener("storage", record.onStorage);
-        return record;
-    }
+    static singleton = true;
 
     setup() {
         super.setup();
-        this.saveVoiceThresholdDebounce = debounce(() => {
-            browser.localStorage.setItem(
-                "mail_user_setting_voice_threshold",
-                this.voiceActivationThreshold.toString()
-            );
-        }, 2000);
+        this.onChange(
+            () => [this.cameraInputDeviceId],
+            function onChangeCameraInputDeviceId() {
+                this.cameraFacingMode = undefined;
+            },
+            { immediate: true }
+        );
         this.hasCanvasFilterSupport =
             typeof document.createElement("canvas").getContext("2d").filter !== "undefined";
-        this._loadLocalSettings();
     }
 
-    delete() {
-        browser.removeEventListener("storage", this.onStorage);
-        super.delete(...arguments);
-    }
-
-    // Notification settings
-    /**
-     * @type {"mentions"|"all"|"no_notif"}
-     */
-    channel_notifications = fields.Attr("mentions", {
-        compute() {
-            return this.channel_notifications === false ? "mentions" : this.channel_notifications;
-        },
-    });
-    _recomputeMessageSound = 0;
-    messageSound = fields.Attr(true, {
-        compute() {
-            void this._recomputeMessageSound;
-            return browser.localStorage.getItem(MESSAGE_SOUND) !== "false";
-        },
-    });
-    useCallAutoFocus = fields.Attr(true, {
-        /** @this {import("models").Settings} */
-        compute() {
-            return !browser.localStorage.getItem("mail_user_setting_disable_call_auto_focus");
-        },
-        /** @this {import("models").Settings} */
-        onUpdate() {
-            if (this.useCallAutoFocus) {
-                browser.localStorage.removeItem("mail_user_setting_disable_call_auto_focus");
-                return;
-            }
-            browser.localStorage.setItem("mail_user_setting_disable_call_auto_focus", "true");
-        },
-    });
+    messageSound = this.localStorage(true);
+    useCallAutoFocus = this.localStorage(true);
 
     // Voice settings
     // DeviceId of the audio input selected by the user
-    audioInputDeviceId = "";
-    audioOutputDeviceId = "";
-    cameraInputDeviceId = "";
-    use_push_to_talk = false;
-    voice_active_duration = 200;
-    volumes = fields.Many("Volume");
-    volumeSettingsTimeouts = new Map();
+    audioInputDeviceId = this.localStorage("");
+    audioOutputDeviceId = this.localStorage("");
+    cameraInputDeviceId = this.localStorage("");
+    usePushToTalk = this.localStorage(false);
+    voiceActiveDuration = this.localStorage(200);
     // Normalized [0, 1] volume at which the voice activation system must consider the user as "talking".
-    voiceActivationThreshold = 0.05;
+    voiceActivationThreshold = this.localStorage(0.05);
     // true if listening to keyboard input to register the push to talk key.
     isRegisteringKey = false;
-    push_to_talk_key;
+    pushToTalkKey = this.localStorage("");
 
     // Video settings
-    backgroundBlurAmount = 10;
-    edgeBlurAmount = 10;
-    showOnlyVideo = false;
-    _recomputeUseBlur = 0;
-    useBlur = fields.Attr(false, {
-        compute() {
-            void this._recomputeUseBlur;
-            return browser.localStorage.getItem(USE_BLUR_LS) === "true";
-        },
-    });
-    blurPerformanceWarning = fields.Attr(false, {
-        compute() {
-            const rtc = this.store.rtc;
-            if (!rtc || !this.useBlur) {
-                return false;
-            }
-            return this.useBlur && rtc.state?.cameraTrack && !hasHardwareAcceleration();
-        },
+    backgroundBlurAmount = this.localStorage(10);
+    /**
+     * Chosen meeting grid layout, persisted across meetings. Holds every
+     * {@link import("@mail/discuss/call/common/call_layout").CallLayout} except "discuss" (which
+     * exits fullscreen instead of being persisted).
+     *
+     * @type {import("@mail/discuss/call/common/call_layout").CallLayout}
+     */
+    callLayout = this.localStorage("auto");
+    edgeBlurAmount = this.localStorage(10);
+    showOnlyVideo = this.localStorage(false);
+    useBlur = this.localStorage(false);
+    /**
+     * Manual dismissal of the blur performance warning, until the page
+     * reloads. Seeing the warning once is enough.
+     */
+    blurPerformanceWarningDismissed = false;
+    blurPerformanceWarning = this.computed(() => {
+        const rtc = this.store.rtc;
+        if (!rtc || !this.useBlur || this.blurPerformanceWarningDismissed) {
+            return false;
+        }
+        return Boolean(rtc.cameraTrack && !hasHardwareAcceleration());
     });
     cameraFacingMode = undefined;
 
@@ -114,7 +72,9 @@ export class Settings extends Record {
             noiseSuppression: true,
         };
         if (this.audioInputDeviceId) {
-            constraints.deviceId = this.audioInputDeviceId;
+            // The use of `exact` is at least required to make switching device
+            // work while in a VoIP call.
+            constraints.deviceId = { exact: this.audioInputDeviceId };
         }
         return constraints;
     }
@@ -129,6 +89,18 @@ export class Settings extends Record {
             constraints.deviceId = this.cameraInputDeviceId;
         }
         return constraints;
+    }
+
+    get pushToTalkKeyText() {
+        if (!this.pushToTalkKey) {
+            return "";
+        }
+        const [shiftKey, ctrlKey, altKey, key] = this.pushToTalkKey.split(".");
+        const f = (k, name) => (k ? name : "");
+        const keys = [f(ctrlKey, "Ctrl"), f(altKey, "Alt"), f(shiftKey, "Shift"), key].filter(
+            Boolean
+        );
+        return keys.join(" + ");
     }
 
     get NOTIFICATIONS() {
@@ -183,16 +155,6 @@ export class Settings extends Record {
         ];
     }
 
-    /** @param {boolean} newValue */
-    setUseBlur(newValue) {
-        if (newValue) {
-            browser.localStorage.setItem(USE_BLUR_LS, true);
-        } else {
-            browser.localStorage.removeItem(USE_BLUR_LS);
-        }
-        this._recomputeUseBlur++;
-    }
-
     getMuteUntilText(dt) {
         if (dt) {
             return dt.year <= luxon.DateTime.now().year + 2
@@ -226,44 +188,15 @@ export class Settings extends Record {
     }
 
     /**
-     * @param {String} audioInputDeviceId
-     */
-    async setAudioInputDevice(audioInputDeviceId) {
-        this.audioInputDeviceId = audioInputDeviceId;
-        browser.localStorage.setItem("mail_user_setting_audio_input_device_id", audioInputDeviceId);
-    }
-    /**
-     * @param {String} audioOutputDeviceId
-     */
-    async setAudioOutputDevice(audioOutputDeviceId) {
-        this.audioOutputDeviceId = audioOutputDeviceId;
-        browser.localStorage.setItem(
-            "mail_user_setting_audio_output_device_id",
-            audioOutputDeviceId
-        );
-    }
-    /**
-     * @param {String} cameraInputDeviceId
-     */
-    async setCameraInputDevice(cameraInputDeviceId) {
-        this.cameraFacingMode = undefined;
-        this.cameraInputDeviceId = cameraInputDeviceId;
-        browser.localStorage.setItem(
-            "mail_user_setting_camera_input_device_id",
-            cameraInputDeviceId
-        );
-    }
-    /**
      * @param {string} value
      */
     setDelayValue(value) {
-        this.voice_active_duration = parseInt(value, 10);
-        this._saveSettings();
+        this.voiceActiveDuration = parseInt(value, 10);
     }
     /**
      * @param {event} ev
      */
-    async setPushToTalkKey(ev) {
+    setPushToTalkKey(ev) {
         const nonElligibleKeys = new Set(["Shift", "Control", "Alt", "Meta"]);
         let pushToTalkKey = `${ev.shiftKey || ""}.${ev.ctrlKey || ev.metaKey || ""}.${
             ev.altKey || ""
@@ -271,37 +204,7 @@ export class Settings extends Record {
         if (!nonElligibleKeys.has(ev.key)) {
             pushToTalkKey += `.${ev.key === " " ? "Space" : ev.key}`;
         }
-        this.push_to_talk_key = pushToTalkKey;
-        this._saveSettings();
-    }
-    /**
-     * @param {Object} param0
-     * @param {number} [param0.partnerId]
-     * @param {number} [param0.guestId]
-     * @param {number} param0.volume
-     */
-    async saveVolumeSetting({ partnerId, guestId, volume }) {
-        if (!this.store.self_partner) {
-            return;
-        }
-        const key = `${partnerId}_${guestId}`;
-        if (this.volumeSettingsTimeouts.get(key)) {
-            browser.clearTimeout(this.volumeSettingsTimeouts.get(key));
-        }
-        this.volumeSettingsTimeouts.set(
-            key,
-            browser.setTimeout(
-                this._onSaveVolumeSettingTimeout.bind(this, { key, partnerId, guestId, volume }),
-                5000
-            )
-        );
-    }
-    /**
-     * @param {float} voiceActivationThreshold
-     */
-    setThresholdValue(voiceActivationThreshold) {
-        this.voiceActivationThreshold = voiceActivationThreshold;
-        this.saveVoiceThresholdDebounce();
+        this.pushToTalkKey = pushToTalkKey;
     }
 
     // methods
@@ -328,10 +231,10 @@ export class Settings extends Record {
      * @param {Object} param1
      */
     isPushToTalkKey(ev) {
-        if (!this.use_push_to_talk || !this.push_to_talk_key) {
+        if (!this.usePushToTalk || !this.pushToTalkKey) {
             return false;
         }
-        const [shiftKey, ctrlKey, altKey, key] = this.push_to_talk_key.split(".");
+        const [shiftKey, ctrlKey, altKey, key] = this.pushToTalkKey.split(".");
         const settingsKeySet = this.buildKeySet({ shiftKey, ctrlKey, altKey, key });
         const eventKeySet = this.buildKeySet({
             shiftKey: ev.shiftKey,
@@ -343,107 +246,6 @@ export class Settings extends Record {
             return [...settingsKeySet].every((key) => eventKeySet.has(key));
         }
         return settingsKeySet.has(ev.key === "Meta" ? "Alt" : ev.key);
-    }
-    pushToTalkKeyFormat() {
-        if (!this.push_to_talk_key) {
-            return;
-        }
-        const [shiftKey, ctrlKey, altKey, key] = this.push_to_talk_key.split(".");
-        return {
-            shiftKey: !!shiftKey,
-            ctrlKey: !!ctrlKey,
-            altKey: !!altKey,
-            key: key || false,
-        };
-    }
-    setPushToTalk(value) {
-        this.use_push_to_talk = value;
-        this._saveSettings();
-    }
-    /**
-     * @private
-     */
-    _loadLocalSettings() {
-        const voiceActivationThresholdString = browser.localStorage.getItem(
-            "mail_user_setting_voice_threshold"
-        );
-        this.voiceActivationThreshold = voiceActivationThresholdString
-            ? parseFloat(voiceActivationThresholdString)
-            : this.voiceActivationThreshold;
-        this.audioInputDeviceId = browser.localStorage.getItem(
-            "mail_user_setting_audio_input_device_id"
-        );
-        this.audioOutputDeviceId = browser.localStorage.getItem(
-            "mail_user_setting_audio_output_device_id"
-        );
-        this.cameraInputDeviceId = browser.localStorage.getItem(
-            "mail_user_setting_camera_input_device_id"
-        );
-        this.showOnlyVideo =
-            browser.localStorage.getItem("mail_user_setting_show_only_video") === "true";
-        const backgroundBlurAmount = browser.localStorage.getItem(
-            "mail_user_setting_background_blur_amount"
-        );
-        this.backgroundBlurAmount = backgroundBlurAmount ? parseInt(backgroundBlurAmount) : 10;
-        const edgeBlurAmount = browser.localStorage.getItem("mail_user_setting_edge_blur_amount");
-        this.edgeBlurAmount = edgeBlurAmount ? parseInt(edgeBlurAmount) : 10;
-        this.useCallAutoFocus = !browser.localStorage.getItem(
-            "mail_user_setting_disable_call_auto_focus"
-        );
-    }
-    /**
-     * @private
-     */
-    async _onSaveGlobalSettingsTimeout() {
-        this.globalSettingsTimeout = undefined;
-        await this.store.env.services.orm.call(
-            "res.users.settings",
-            "set_res_users_settings",
-            [[this.id]],
-            {
-                new_settings: {
-                    push_to_talk_key: this.push_to_talk_key,
-                    use_push_to_talk: this.use_push_to_talk,
-                    voice_active_duration: this.voice_active_duration,
-                },
-            }
-        );
-    }
-    /**
-     * @param {Object} param0
-     * @param {String} param0.key
-     * @param {number} [param0.partnerId]
-     * @param {number} param0.volume
-     */
-    async _onSaveVolumeSettingTimeout({ key, partnerId, guestId, volume }) {
-        this.volumeSettingsTimeouts.delete(key);
-        await this.store.env.services.orm.call(
-            "res.users.settings",
-            "set_volume_setting",
-            [[this.id], partnerId, volume],
-            { guest_id: guestId }
-        );
-    }
-    onStorage(ev) {
-        if (ev.key === MESSAGE_SOUND) {
-            this._recomputeMessageSound++;
-        }
-        if (ev.key === USE_BLUR_LS) {
-            this._recomputeUseBlur++;
-        }
-    }
-    /**
-     * @private
-     */
-    async _saveSettings() {
-        if (!this.store.self_partner) {
-            return;
-        }
-        browser.clearTimeout(this.globalSettingsTimeout);
-        this.globalSettingsTimeout = browser.setTimeout(
-            () => this._onSaveGlobalSettingsTimeout(),
-            2000
-        );
     }
 }
 

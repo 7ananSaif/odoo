@@ -58,7 +58,7 @@ class WebsiteEventBoothController(WebsiteEventController):
                 'phone': request.env.user.partner_id.phone,
             }
         else:
-            visitor = request.env['website.visitor']._get_visitor_from_request()
+            visitor = request.env['ir.http']._get_visitor_from_request()
             if visitor.email:
                 default_contact = {
                     'name': visitor.name,
@@ -146,6 +146,7 @@ class WebsiteEventBoothController(WebsiteEventController):
                     additional_values={contact_email_normalized: {
                         'phone': kwargs.get('contact_phone'),
                         'name': kwargs.get('contact_name'),
+                        'lang': request.env.lang,
                     }},
                 )
             else:

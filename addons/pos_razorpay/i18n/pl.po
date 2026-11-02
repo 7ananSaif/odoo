@@ -8,10 +8,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~18.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-04-08 14:24+0000\n"
-"Last-Translator: \"Marta (wacm)\" <wacm@odoo.com>\n"
-"Language-Team: Polish <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-08-31 17:21+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Polish <https://translate.odoo.com/projects/odoo-s19-4/"
 "pos_razorpay/pl/>\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
@@ -19,7 +19,24 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 5.16.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: pos_razorpay
+#: model:ir.module.module,description:base.module_pos_razorpay
+msgid ""
+"\n"
+"Allow Razorpay POS payments\n"
+"==============================\n"
+"\n"
+"This module allows customers to pay for their orders with debit/credit\n"
+"cards and UPI. The transactions are processed by Razorpay POS. A Razorpay "
+"merchant account is necessary. It allows the\n"
+"following:\n"
+"\n"
+"* Fast payment by just swiping/scanning a credit/debit card or a QR code "
+"while on the payment screen\n"
+"* Supported cards: Visa, MasterCard, Rupay, UPI\n"
+msgstr ""
 
 #. module: pos_razorpay
 #. odoo-javascript
@@ -38,7 +55,7 @@ msgid ""
 "Adding a new Razorpay payment line is not allowed under the current "
 "conditions."
 msgstr ""
-"Dodanie nowej pozycji płatności Razorpay nie jest dozwolone w obecnych "
+"Dodanie nowej linii płatności Razorpay nie jest dozwolone w obecnych "
 "warunkach."
 
 #. module: pos_razorpay
@@ -109,6 +126,16 @@ msgid "ID"
 msgstr "ID"
 
 #. module: pos_razorpay
+#: model:ir.module.module,summary:base.module_pos_razorpay
+msgid "Integrate your POS with a Razorpay payment terminal"
+msgstr ""
+
+#. module: pos_razorpay
+#: model:ir.module.module,shortdesc:base.module_pos_razorpay
+msgid "POS Razorpay"
+msgstr ""
+
+#. module: pos_razorpay
 #. odoo-javascript
 #: code:addons/pos_razorpay/static/src/app/utls/payment/payment_razorpay.js:0
 msgid ""
@@ -119,14 +146,19 @@ msgstr ""
 "lub anulować tę transakcję."
 
 #. module: pos_razorpay
-#: model:ir.model,name:pos_razorpay.model_pos_payment_method
-msgid "Point of Sale Payment Methods"
-msgstr "Metody płatności Punktu Sprzedaży"
+#: model:ir.model,name:pos_razorpay.model_pos_payment
+msgid "Point of Sale Payment"
+msgstr "Płatność w Punkcie Sprzedaży"
 
 #. module: pos_razorpay
-#: model:ir.model,name:pos_razorpay.model_pos_payment
-msgid "Point of Sale Payments"
-msgstr "Płatności Punktu Sprzedaży"
+#: model:ir.model,name:pos_razorpay.model_pos_payment_method
+msgid "Point of Sale Payment Method"
+msgstr "Metoda płatności w Punkcie Sprzedaży"
+
+#. module: pos_razorpay
+#: model_terms:ir.ui.view,arch_db:pos_razorpay.pos_payment_method_view_form_inherit_pos_razorpay
+msgid "Razorpay"
+msgstr ""
 
 #. module: pos_razorpay
 #: model:ir.model.fields,field_description:pos_razorpay.field_pos_payment_method__razorpay_api_key
@@ -214,7 +246,7 @@ msgstr "Razorpay p2pRequestId"
 #. odoo-javascript
 #: code:addons/pos_razorpay/static/src/app/utls/payment/payment_razorpay.js:0
 msgid "Reference number mismatched"
-msgstr "Numer referencyjny się nie zgadza"
+msgstr "Numer referencyjny nie zgadza się"
 
 #. module: pos_razorpay
 #. odoo-javascript
@@ -223,8 +255,8 @@ msgid ""
 "Related transaction has already been Refunded. Please try using another "
 "payment method."
 msgstr ""
-"Powiązana transakcja została już zwrócona. Proszę spróbować użyć innej "
-"metody płatności."
+"Transakcja została już zwrócona. Proszę spróbować użyć innej metody "
+"płatności."
 
 #. module: pos_razorpay
 #. odoo-javascript
@@ -233,8 +265,7 @@ msgid ""
 "Related transaction has already been voided. Please try using another "
 "payment method."
 msgstr ""
-"Powiązana transakcja została już unieważniona. Spróbuj użyć innej metody "
-"płatności."
+"Transakcja została już unieważniona. Spróbuj użyć innej metody płatności."
 
 #. module: pos_razorpay
 #: model:ir.model.fields,help:pos_razorpay.field_pos_payment__razorpay_p2p_request_id

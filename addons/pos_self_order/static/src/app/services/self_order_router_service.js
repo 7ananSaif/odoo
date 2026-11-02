@@ -1,6 +1,6 @@
 import { registry } from "@web/core/registry";
 import { Reactive } from "@web/core/utils/reactive";
-import { browser } from "@web/core/browser/browser";
+import { location } from "@web/core/browser/browser";
 
 export class SelfOrderRouter extends Reactive {
     static serviceDependencies = [];
@@ -21,14 +21,19 @@ export class SelfOrderRouter extends Reactive {
     }
 
     addTableIdentifier(table) {
-        const url = new URL(browser.location.href);
+        const url = new URL(location.href);
         url.searchParams.set("table_identifier", table.identifier);
         history.replaceState({}, "", url);
     }
 
     getTableIdentifier() {
-        const url = new URL(browser.location.href);
+        const url = new URL(location.href);
         return url.searchParams.get("table_identifier");
+    }
+
+    getOrderIdentifier() {
+        const url = new URL(location.href);
+        return url.searchParams.get("order_identifier");
     }
 
     back() {
@@ -48,18 +53,20 @@ export class SelfOrderRouter extends Reactive {
      * Navigate to the given relative route.
      * We use the history API to navigate to it.
      * (this means that we don't make additional requests to the server)
-     * @param {string} route
+     * @param {string} routeName
+     * @param {Object} routeParams used to replace placeholders in the route path.
+     * @param {Object} historyState optional state associated with the navigation.
      */
-    navigate(routeName, routeParams = {}) {
+    navigate(routeName, routeParams = {}, historyState = {}) {
         const { route } = this.registeredRoutes[routeName];
-        const url = new URL(browser.location.href);
+        const url = new URL(location.href);
 
         url.pathname = route.replace(
             /\{\w+:(\w+)\}/g,
             (match, paramName) => routeParams[paramName]
         );
 
-        history.pushState({}, "", url);
+        history.pushState(historyState, "", url);
         this.path = window.location.pathname;
         this.historyPage = this.path;
     }
@@ -76,7 +83,7 @@ export class SelfOrderRouter extends Reactive {
             url = new URL(link.url);
             window.open(url);
         } catch {
-            url = new URL(browser.location.href);
+            url = new URL(location.href);
             url.pathname = link.url;
 
             history.pushState({}, "", url);

@@ -1,19 +1,13 @@
 import { CalendarCommonRenderer } from "@web/views/calendar/calendar_common/calendar_common_renderer";
-import { CalendarWithRecurrenceCommonPopover } from "./calendar_with_recurrence_common_popover";
 
 export class CalendarWithRecurrenceCommonRenderer extends CalendarCommonRenderer {
-    static components = {
-        ...CalendarCommonRenderer.components,
-        Popover: CalendarWithRecurrenceCommonPopover,
-    };
-
     onDblClick(info) {
         const record = this.props.model.records[info.event.id];
         this.props.editRecord({ ...record, id: record.rawRecord.id });
     }
 
-    fcEventToRecord(event) {
-        const record = super.fcEventToRecord(event);
+    fcEventToRecord() {
+        const record = super.fcEventToRecord(...arguments);
         if (record.id) {
             record.id = this.props.model.records[record.id].rawRecord.id;
         }

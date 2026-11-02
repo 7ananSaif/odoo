@@ -6,21 +6,37 @@
 # Martin Trigaux, 2022
 #
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+# "Chloe Wang (chwa)" <chwa@odoo.com>, 2026.
+# 张飞虎 <feihu.zhang@live.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0beta\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-09-16 15:26+0000\n"
-"Last-Translator: \"Tiffany Chang (tic)\" <tic@odoo.com>\n"
+"POT-Creation-Date: 2026-09-11 17:43+0000\n"
+"PO-Revision-Date: 2026-10-11 13:33+0000\n"
+"Last-Translator: 张飞虎 <feihu.zhang@live.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://translate.odoo.com/"
-"projects/odoo-19/partner_autocomplete/zh_Hans/>\n"
+"projects/odoo-20/partner_autocomplete/zh_Hans/>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: partner_autocomplete
+#: model:ir.module.module,description:base.module_partner_autocomplete
+msgid ""
+"\n"
+"Auto-complete partner companies' data\n"
+msgstr ""
+"\n"
+"自动补全合作伙伴公司的数据\n"
+
+#. module: partner_autocomplete
+#: model:ir.module.module,summary:base.module_partner_autocomplete
+msgid "Auto-complete partner companies' data"
+msgstr "自动补全合作伙伴公司的数据"
 
 #. module: partner_autocomplete
 #: model:iap.service,description:partner_autocomplete.iap_service_partner_autocomplete
@@ -30,12 +46,12 @@ msgstr "利用企业数据自动充实联系人库。"
 #. module: partner_autocomplete
 #. odoo-javascript
 #: code:addons/partner_autocomplete/static/src/xml/partner_autocomplete.xml:0
-msgid "Buy more credits"
-msgstr "购买更多信用"
+msgid "Buy"
+msgstr "购买"
 
 #. module: partner_autocomplete
 #: model:ir.model,name:partner_autocomplete.model_res_company
-msgid "Companies"
+msgid "Company"
 msgstr "公司"
 
 #. module: partner_autocomplete
@@ -63,9 +79,20 @@ msgid "Display Name"
 msgstr "显示名称"
 
 #. module: partner_autocomplete
+#: model:ir.actions.server,name:partner_autocomplete.model_res_partner_enrich
+msgid "Enrich"
+msgstr "丰富"
+
+#. module: partner_autocomplete
 #: model:ir.model.fields,field_description:partner_autocomplete.field_res_company__iap_enrich_auto_done
 msgid "Enrich Done"
 msgstr "丰富完成"
+
+#. module: partner_autocomplete
+#. odoo-python
+#: code:addons/partner_autocomplete/models/res_partner.py:0
+msgid "Enrich notification"
+msgstr "丰富通知"
 
 #. module: partner_autocomplete
 #: model:iap.service,unit_name:partner_autocomplete.iap_service_partner_autocomplete
@@ -104,6 +131,13 @@ msgstr "信用不足"
 
 #. module: partner_autocomplete
 #. odoo-python
+#: code:addons/partner_autocomplete/models/res_partner.py:0
+msgid ""
+"It seems that we didn't found some information for the following partners: %s"
+msgstr "以下合作伙伴似乎缺少部分信息：%s"
+
+#. module: partner_autocomplete
+#. odoo-python
 #: code:addons/partner_autocomplete/models/iap_autocomplete_api.py:0
 msgid "No account token"
 msgstr "没有账户令牌"
@@ -115,6 +149,12 @@ msgid "Not enough credits for Partner Autocomplete"
 msgstr "合作伙伴自动完成点数不足"
 
 #. module: partner_autocomplete
+#: model:iap.service,name:partner_autocomplete.iap_service_partner_autocomplete
+#: model:ir.module.module,shortdesc:base.module_partner_autocomplete
+msgid "Partner Autocomplete"
+msgstr "合作伙伴自动完成"
+
+#. module: partner_autocomplete
 #. odoo-javascript
 #: code:addons/partner_autocomplete/static/src/xml/partner_autocomplete.xml:0
 msgid "Search Worldwide 🌎"
@@ -122,6 +162,7 @@ msgstr "全球搜索🌎"
 
 #. module: partner_autocomplete
 #. odoo-javascript
+#: code:addons/partner_autocomplete/static/src/js/partner_autocomplete_additional_identifiers_list.js:0
 #: code:addons/partner_autocomplete/static/src/js/partner_autocomplete_fieldchar.js:0
 #: code:addons/partner_autocomplete/static/src/js/partner_autocomplete_many2one.js:0
 msgid "Searching Autocomplete..."
@@ -131,7 +172,13 @@ msgstr "正在搜索自动填充..."
 #. odoo-javascript
 #: code:addons/partner_autocomplete/static/src/xml/partner_autocomplete.xml:0
 msgid "Set Your Account Token"
-msgstr "设置您的帐户令牌"
+msgstr "设置您的账户令牌"
+
+#. module: partner_autocomplete
+#. odoo-python
+#: code:addons/partner_autocomplete/models/res_partner.py:0
+msgid "Some errors occurred during the enrich: %s"
+msgstr "丰富过程中发生了一些错误：%s"
 
 #. module: partner_autocomplete
 #. odoo-python
@@ -144,39 +191,3 @@ msgstr "测试模式"
 #: code:addons/partner_autocomplete/models/res_partner.py:0
 msgid "Unable to enrich company (no credit was consumed)."
 msgstr "无法丰富公司信息（未消耗任何信用点）。"
-
-#~ msgid "Additional info"
-#~ msgstr "附加信息"
-
-#~ msgid "Company auto-completed by Odoo Partner Autocomplete Service"
-#~ msgstr "公司由Odoo合作伙伴自动完成的服务"
-
-#~ msgid "Company database ID"
-#~ msgstr "公司数据库ID"
-
-#~ msgid "Created by"
-#~ msgstr "创建人"
-
-#~ msgid "Created on"
-#~ msgstr "创建时间"
-
-#~ msgid "Is synched"
-#~ msgstr "是同步的"
-
-#~ msgid "Last Updated by"
-#~ msgstr "最后更新人"
-
-#~ msgid "Last Updated on"
-#~ msgstr "最后更新时间"
-
-#~ msgid "Partner"
-#~ msgstr "业务伙伴"
-
-#~ msgid "Partner Autocomplete Sync"
-#~ msgstr "合作伙伴自动完成同步"
-
-#~ msgid "Partner created by Odoo Partner Autocomplete Service"
-#~ msgstr "Odoo合作伙伴自动完成服务并创建伙伴"
-
-#~ msgid "Placeholder"
-#~ msgstr "占位符"

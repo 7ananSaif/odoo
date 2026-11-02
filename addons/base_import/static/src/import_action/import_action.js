@@ -1,13 +1,14 @@
-import { Component, onWillStart, useRef, useState } from "@odoo/owl";
+import { Component, onWillStart, proxy, signal, useProps } from "@odoo/owl";
 import { useDropzone } from "@web/core/dropzone/dropzone_hook";
 import { FileInput } from "@web/core/file_input/file_input";
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
 import { useFileUploader } from "@web/core/utils/files";
 import { useService } from "@web/core/utils/hooks";
+import { localization } from "@web/core/l10n/localization";
 import { Layout } from "@web/search/layout";
 import { DocumentationLink } from "@web/views/widgets/documentation_link/documentation_link";
-import { standardActionServiceProps } from "@web/webclient/actions/action_service";
+import { standardActionServiceProps } from "@web/webclient/actions/action_plugin";
 import { ImportDataContent } from "../import_data_content/import_data_content";
 import { ImportDataProgress } from "../import_data_progress/import_data_progress";
 import { ImportDataSidepanel } from "../import_data_sidepanel/import_data_sidepanel";
@@ -23,20 +24,22 @@ export class ImportAction extends Component {
         Layout,
         DocumentationLink,
     };
-    static props = { ...standardActionServiceProps };
+    props = useProps(standardActionServiceProps);
     static path = "import";
-    static displayName = _t("Import a File");
+    static displayName = _t("Import");
+
+    rootRef = signal.ref();
 
     setup() {
         this.actionService = useService("action");
         this.notification = useService("notification");
-        this.env.config.setDisplayName(this.props.action.name || _t("Import a File"));
+        this.env.config.setDisplayName(this.props.action.name || _t("Import"));
         this.model = useImportModel({
             env: this.env,
             context: this.props.action.params?.context || {},
         });
 
-        this.state = useState({
+        this.state = proxy({
             filename: undefined,
             numRows: 0,
             importMessages: [],
@@ -50,7 +53,7 @@ export class ImportAction extends Component {
         });
 
         this.uploadFiles = useFileUploader();
-        useDropzone(useRef("root"), async (event) => {
+        useDropzone(this.rootRef, async (event) => {
             const { files } = event.dataTransfer;
             if (files.length === 0) {
                 this.notification.add(
@@ -197,12 +200,6 @@ export class ImportAction extends Component {
         this.model.unblock();
     }
 
-    async reload() {
-        this.model.block();
-        await this.model.updateData();
-        this.model.unblock();
-    }
-
     //--------------------------------------------------------------------------
     // File
     //--------------------------------------------------------------------------
@@ -213,8 +210,14 @@ export class ImportAction extends Component {
         }
 
         this.state.filename = files[0].name;
+        this.env.config.setDisplayName(_t("Import") + ` ${this.state.filename}`);
         this.state.importMessages = [];
 
+        const extension = this.state.filename.split(".").pop();
+        this.model.formattingOptionsValues.float_thousand_separator.value =
+            extension === "csv" ? localization.thousandsSep : ",";
+        this.model.formattingOptionsValues.float_decimal_separator.value =
+            extension === "csv" ? localization.decimalPoint : ".";
         this.model.block(_t("Loading file..."));
         const { res, error } = await this.model.updateData(true);
 
@@ -288,6 +291,10 @@ export class ImportAction extends Component {
 
     onFieldChanged(column, fieldInfo) {
         this.model.setColumnField(column, fieldInfo);
+    }
+
+    onFieldLanguageChanged(column, language) {
+        this.model.setColumnLanguage(column, language);
     }
 
     isFieldSet(column) {

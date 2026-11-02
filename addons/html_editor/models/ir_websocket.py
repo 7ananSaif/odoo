@@ -2,7 +2,7 @@
 
 import re
 from odoo import models
-from odoo.exceptions import AccessDenied, AccessError
+from odoo.exceptions import AccessError
 
 
 class IrWebsocket(models.AbstractModel):
@@ -14,15 +14,16 @@ class IrWebsocket(models.AbstractModel):
             channels = list(channels)
             for channel in channels:
                 if isinstance(channel, str):
-                    match = re.match(r'editor_collaboration:(\w+(?:\.\w+)*):(\w+):(\d+)', channel)
+                    match = re.match(r'editor_collaboration:(\w+(?:\.\w+)*):(\w+):(\d+)(?::(\w+))?$', channel)
                     if match:
                         model_name = match[1]
                         field_name = match[2]
                         res_id = int(match[3])
+                        peer_id = match[4]
 
                         # Verify access to the edition channel.
                         if self.env.user._is_public():
-                            raise AccessDenied()
+                            continue
 
                         document = self.env[model_name].browse([res_id])
                         if not document.exists():
@@ -32,10 +33,13 @@ class IrWebsocket(models.AbstractModel):
                             document.check_access('read')
                             document.check_access('write')
                             if field := document._fields.get(field_name):
-                                document._check_field_access(field, 'read')
-                                document._check_field_access(field, 'write')
+                                document.check_field_access(field, 'read')
+                                document.check_field_access(field, 'write')
                         except AccessError:
                             continue
 
-                        channels.append((self.env.registry.db_name, 'editor_collaboration', model_name, field_name, res_id))
+                        if peer_id:
+                            channels.append((self.env.registry.db_name, 'editor_collaboration', model_name, field_name, res_id, peer_id))
+                        else:
+                            channels.append((self.env.registry.db_name, 'editor_collaboration', model_name, field_name, res_id))
         return super()._build_bus_channel_list(channels)

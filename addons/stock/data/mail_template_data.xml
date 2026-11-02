@@ -7,11 +7,17 @@
         <field name="partner_to">{{ object.partner_id.email and object.partner_id.id or object.partner_id.parent_id.id }}</field>
         <field name="use_default_to" eval="False"/>
         <field name="description">Sent to the customers when orders are delivered, if the setting is enabled</field>
+        <field name="email_layout_xmlid">mail.mail_notification_light</field>
         <field name="body_html" type="html">
 <div style="margin: 0px; padding: 0px;">
     <p style="margin: 0px; padding: 0px; font-size: 13px;">
         Hello <t t-out="object.partner_id.name or ''">Brandon Freeman</t>,<br/><br/>
-        We are glad to inform you that your order has been shipped.
+        <t t-if="hasattr(object, 'delivery_type') and object.delivery_type == 'in_store'">
+            Your order has been collected.
+        </t>
+        <t t-else="">
+            We are glad to inform you that your order has been shipped.
+        </t>
         <t t-if="hasattr(object, 'carrier_tracking_ref') and object.carrier_tracking_ref">
             Your tracking reference is
             <strong>
@@ -44,5 +50,34 @@
         <field name="report_template_ids" eval="[(4, ref('stock.action_report_delivery'))]"/>
         <field name="auto_delete" eval="True"/>
     </record>
+
+    <record id="mail_template_data_stock_picking_recall" model="mail.template">
+        <field name="name">Transfer: Product Recall</field>
+        <field name="model_id" ref="stock.model_stock_picking"/>
+        <field name="subject">Product recall for Delivery {{ object.name }}</field>
+        <field name="partner_to">{{ object.partner_id.id if object.partner_id else '' }}</field>
+        <field name="reply_to">{{ object.company_id.email_formatted or user.email_formatted or '' }}</field>
+        <field name="use_default_to" eval="False"/>
+        <field name="description">Product recall from lot/serial number</field>
+        <field name="body_html" type="html">
+            <div style="margin: 0px; padding: 0px;">
+                <p style="margin: 0px; padding: 0px; font-size: 13px;">
+                    Dear <t t-out="object.partner_id.display_name or ''">Marc Demo</t><br/><br/>
+                    We would like to issue a product recall regarding the following items from your delivery
+                    <strong><t t-out="object.name">WH/OUT/EXAMPLE</t></strong>:<br/><br/>
+
+                    <strong>Product(s):</strong><br/>
+                    <t t-out="ctx.get('recalled_products_dict', {}).get(str(object.id))">[EXAMPLE] Drawer</t><br/><br/>
+                    <strong>Lot / Serial Number(s):</strong><br/>
+                    <t t-out="ctx.get('recalled_lots_dict', {}).get(str(object.id))">0000000000029</t><br/><br/>
+
+                    We apologize for the inconvenience caused.<br/><br/>
+                    Best wishes,
+                </p>
+            </div>
+        </field>
+        <field name="auto_delete" eval="False"/>
+    </record>
+
 </data>
 </odoo>

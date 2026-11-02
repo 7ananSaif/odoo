@@ -6,6 +6,8 @@ from odoo.tests import tagged
 @tagged('post_install_l10n', 'post_install', '-at_install')
 class TestUBLAU(TestUBLCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     @TestUBLCommon.setup_country('au')
     def setUpClass(cls):
@@ -20,7 +22,7 @@ class TestUBLAU(TestUBLCommon):
             'phone': '+31 180 6 225789',
             'email': 'info@outlook.au',
             'country_id': cls.env.ref('base.au').id,
-            'bank_ids': [(0, 0, {'acc_number': '000099998B57', 'allow_out_payment': True})],
+            'bank_ids': [(0, 0, {'account_number': '000099998B57', 'allow_out_payment': True})],
             'ref': 'ref_partner_1',
             'invoice_edi_format': 'ubl_a_nz',
         })
@@ -32,7 +34,7 @@ class TestUBLAU(TestUBLCommon):
             'city': "Canberra",
             'vat': '53 930 548 027',
             'country_id': cls.env.ref('base.au').id,
-            'bank_ids': [(0, 0, {'acc_number': '93999574162167', 'allow_out_payment': True})],
+            'bank_ids': [(0, 0, {'account_number': '93999574162167', 'allow_out_payment': True})],
             'ref': 'ref_partner_2',
             'invoice_edi_format': 'ubl_a_nz',
         })
@@ -45,6 +47,12 @@ class TestUBLAU(TestUBLCommon):
             'country_id': cls.env.ref('base.au').id,
         })
 
+        # The stemmer for the prediction in english transforms `product_a` to `product a`
+        # then removes the letter `a` as it is just an article useless for full text search.
+        # Since the taxes are the same on all the lines, we need to help the prediction by
+        # making it see the difference between `product_a` and `product_b`.
+        cls.product_a.name = 'producta'
+        cls.product_b.name = 'productb'
     ####################################################
     # Test export - import
     ####################################################

@@ -4,16 +4,36 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0+e\n"
+"Project-Id-Version: Odoo Server 19.5a1+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-08 18:05+0000\n"
-"PO-Revision-Date: 2026-05-08 18:05+0000\n"
+"POT-Creation-Date: 2026-09-11 18:11+0000\n"
+"PO-Revision-Date: 2026-09-11 18:11+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
+
+#. module: l10n_cz
+#: model:ir.module.module,description:base.module_l10n_cz
+msgid ""
+"\n"
+"Czech accounting chart and localization.  With Chart of Accounts with taxes and basic fiscal positions.\n"
+"\n"
+"Tento modul definuje:\n"
+"\n"
+"- Českou účetní osnovu za rok 2020\n"
+"\n"
+"- Základní sazby pro DPH z prodeje a nákupu\n"
+"\n"
+"- Základní fiskální pozice pro českou legislativu\n"
+msgstr ""
+
+#. module: l10n_cz
+#: model_terms:ir.ui.view,arch_db:l10n_cz.cz_partner_address_form
+msgid "<span> - </span>"
+msgstr ""
 
 #. module: l10n_cz
 #: model_terms:ir.ui.view,arch_db:l10n_cz.report_invoice_document
@@ -26,8 +46,40 @@ msgid "Account Chart Template"
 msgstr ""
 
 #. module: l10n_cz
+#. odoo-python
+#: code:addons/l10n_cz/models/res_bank.py:0
+msgid "An IBAN account number is required to generate the QR code."
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__14000
+msgid "Animal production"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__32000
+msgid "Aquaculture"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields,field_description:l10n_cz.field_res_company__l10n_cz_person_authorized
+msgid "Authorized Person"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model,name:l10n_cz.model_res_partner_bank
+msgid "Bank Account"
+msgstr ""
+
+#. module: l10n_cz
 #: model_terms:ir.ui.view,arch_db:l10n_cz.view_l10n_cz_tax_office_search
 msgid "By region"
+msgstr ""
+
+#. module: l10n_cz
+#. odoo-python
+#: code:addons/l10n_cz/models/res_bank.py:0
+msgid "CZK QR"
 msgstr ""
 
 #. module: l10n_cz
@@ -62,13 +114,24 @@ msgid "Central Bohemian"
 msgstr ""
 
 #. module: l10n_cz
+#: model_terms:ir.ui.view,arch_db:l10n_cz.cz_partner_address_form
+msgid "City"
+msgstr ""
+
+#. module: l10n_cz
 #: model:ir.model.fields,field_description:l10n_cz.field_l10n_cz_tax_office__code
 msgid "Code"
 msgstr ""
 
 #. module: l10n_cz
+#: model:ir.model.fields,help:l10n_cz.field_res_company__l10n_cz_economic_activity_code
+msgid ""
+"Code of the main economic activity, according to the official classification"
+msgstr ""
+
+#. module: l10n_cz
 #: model:ir.model,name:l10n_cz.model_res_company
-msgid "Companies"
+msgid "Company"
 msgstr ""
 
 #. module: l10n_cz
@@ -77,15 +140,20 @@ msgid "Company Document Layout"
 msgstr ""
 
 #. module: l10n_cz
-#: model:ir.model.fields,field_description:l10n_cz.field_base_document_layout__company_registry
-msgid "Company ID"
-msgstr ""
-
-#. module: l10n_cz
 #: model_terms:ir.ui.view,arch_db:l10n_cz.l10n_cz_external_layout_folder
 #: model_terms:ir.ui.view,arch_db:l10n_cz.registry_vat_external_layout
 #: model_terms:ir.ui.view,arch_db:l10n_cz.report_invoice_document
 msgid "Company ID:"
+msgstr ""
+
+#. module: l10n_cz
+#: model_terms:ir.ui.view,arch_db:l10n_cz.cz_partner_address_form
+msgid "Complement"
+msgstr ""
+
+#. module: l10n_cz
+#: model_terms:ir.ui.view,arch_db:l10n_cz.cz_partner_address_form
+msgid "Country"
 msgstr ""
 
 #. module: l10n_cz
@@ -99,12 +167,113 @@ msgid "Created on"
 msgstr ""
 
 #. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__12700
+msgid "Cultivation of beverage crops"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__11100
+msgid "Cultivation of cereals (except rice), legumes and oil seeds"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__12300
+msgid "Cultivation of citrus fruit"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__11600
+msgid "Cultivation of fibre crops"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__11000
+msgid "Cultivation of non-permanent crops"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__12600
+msgid "Cultivation of oil fruits"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__11900
+msgid "Cultivation of other non-permanent crops"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__12900
+msgid "Cultivation of other permanent crops"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__12500
+msgid "Cultivation of other tree and bush fruit and nuts"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__12000
+msgid "Cultivation of permanent crops"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__12400
+msgid "Cultivation of pome and stone fruit"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__11200
+msgid "Cultivation of rice"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__12800
+msgid "Cultivation of spices, aromatic, medicinal and pharmaceutical plants"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__11400
+msgid "Cultivation of sugar cane"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__11500
+msgid "Cultivation of tobacco"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__12200
+msgid "Cultivation of tropical and subtropical fruit"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__11300
+msgid "Cultivation of vegetables and melons, roots and tubers"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__12100
+msgid "Cultivation of wine grapes"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.module.module,shortdesc:base.module_l10n_cz
+msgid "Czech - Accounting"
+msgstr ""
+
+#. module: l10n_cz
 #: model:ir.model.fields,field_description:l10n_cz.field_account_chart_template__display_name
 #: model:ir.model.fields,field_description:l10n_cz.field_account_move__display_name
 #: model:ir.model.fields,field_description:l10n_cz.field_base_document_layout__display_name
 #: model:ir.model.fields,field_description:l10n_cz.field_l10n_cz_tax_office__display_name
 #: model:ir.model.fields,field_description:l10n_cz.field_res_company__display_name
+#: model:ir.model.fields,field_description:l10n_cz.field_res_partner_bank__display_name
 msgid "Display Name"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields,field_description:l10n_cz.field_res_company__l10n_cz_economic_activity_code
+msgid "Economic Activity code"
 msgstr ""
 
 #. module: l10n_cz
@@ -133,6 +302,36 @@ msgid "Fiscal Country"
 msgstr ""
 
 #. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__31000
+msgid "Fishing"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__30000
+msgid "Fishing and aquaculture"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__21000
+msgid "Forest management and other forestry activities"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__20000
+msgid "Forestry and logging"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__31200
+msgid "Freshwater fishing"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__23000
+msgid "Gathering of wild-growing non-wood products and materials"
+msgstr ""
+
+#. module: l10n_cz
 #: model:l10n_cz.tax_office,region:l10n_cz.tax_office_109
 #: model:l10n_cz.tax_office,region:l10n_cz.tax_office_110
 #: model:l10n_cz.tax_office,region:l10n_cz.tax_office_111
@@ -152,11 +351,17 @@ msgid "Hradec Králové"
 msgstr ""
 
 #. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__17000
+msgid "Hunting and trapping of wild animals and related activities"
+msgstr ""
+
+#. module: l10n_cz
 #: model:ir.model.fields,field_description:l10n_cz.field_account_chart_template__id
 #: model:ir.model.fields,field_description:l10n_cz.field_account_move__id
 #: model:ir.model.fields,field_description:l10n_cz.field_base_document_layout__id
 #: model:ir.model.fields,field_description:l10n_cz.field_l10n_cz_tax_office__id
 #: model:ir.model.fields,field_description:l10n_cz.field_res_company__id
+#: model:ir.model.fields,field_description:l10n_cz.field_res_partner_bank__id
 msgid "ID"
 msgstr ""
 
@@ -203,6 +408,21 @@ msgid "Liberec"
 msgstr ""
 
 #. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__22000
+msgid "Logging"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__31100
+msgid "Marine fishing"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__15000
+msgid "Mixed farming"
+msgstr ""
+
+#. module: l10n_cz
 #: model:l10n_cz.tax_office,region:l10n_cz.tax_office_183
 #: model:l10n_cz.tax_office,region:l10n_cz.tax_office_184
 #: model:l10n_cz.tax_office,region:l10n_cz.tax_office_185
@@ -228,6 +448,13 @@ msgstr ""
 #. module: l10n_cz
 #: model:ir.model.fields,field_description:l10n_cz.field_l10n_cz_tax_office__name
 msgid "Name"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields,help:l10n_cz.field_res_company__l10n_cz_person_authorized
+msgid ""
+"Natural person authorized to sign the VAT Declaration, VIES Summary report "
+"and VAT Control Statement to the legal entity"
 msgstr ""
 
 #. module: l10n_cz
@@ -262,6 +489,16 @@ msgid "Pardubice"
 msgstr ""
 
 #. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__10000
+msgid "Plant and animal production, game management and related activities"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__13000
+msgid "Plant propagation"
+msgstr ""
+
+#. module: l10n_cz
 #: model:l10n_cz.tax_office,region:l10n_cz.tax_office_58
 #: model:l10n_cz.tax_office,region:l10n_cz.tax_office_59
 #: model:l10n_cz.tax_office,region:l10n_cz.tax_office_60
@@ -282,6 +519,11 @@ msgid "Plzeň"
 msgstr ""
 
 #. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__16300
+msgid "Post-harvest activities"
+msgstr ""
+
+#. module: l10n_cz
 #: model:l10n_cz.tax_office,region:l10n_cz.tax_office_1
 #: model:l10n_cz.tax_office,region:l10n_cz.tax_office_10
 #: model:l10n_cz.tax_office,region:l10n_cz.tax_office_11
@@ -295,6 +537,66 @@ msgstr ""
 #: model:l10n_cz.tax_office,region:l10n_cz.tax_office_8
 #: model:l10n_cz.tax_office,region:l10n_cz.tax_office_9
 msgid "Prague"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__14400
+msgid "Raising of camels and camelids"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__14100
+msgid "Raising of dairy cattle"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__14920
+msgid "Raising of fur animals"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__14300
+msgid "Raising of horses and other equines"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__14900
+msgid "Raising of other animals"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__14990
+msgid "Raising of other animals, n.e.c."
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__14200
+msgid "Raising of other cattle"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__14930
+msgid "Raising of pet animals"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__14600
+msgid "Raising of pigs"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__14700
+msgid "Raising of poultry"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__14500
+msgid "Raising of sheep and goats"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__14910
+msgid "Raising of small farm animals"
 msgstr ""
 
 #. module: l10n_cz
@@ -1304,6 +1606,21 @@ msgid "Regional office of the Town"
 msgstr ""
 
 #. module: l10n_cz
+#: model:ir.model.fields,field_description:l10n_cz.field_res_company__l10n_cz_relationship_person_authorized
+msgid "Relationship of Authorized Person"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields,help:l10n_cz.field_res_company__l10n_cz_relationship_person_authorized
+msgid "Relationship of the person authorized to sign to the legal entity"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__16400
+msgid "Seed processing for propagation"
+msgstr ""
+
+#. module: l10n_cz
 #: model:l10n_cz.tax_office,region:l10n_cz.tax_office_40
 #: model:l10n_cz.tax_office,region:l10n_cz.tax_office_41
 #: model:l10n_cz.tax_office,region:l10n_cz.tax_office_42
@@ -1348,6 +1665,46 @@ msgstr ""
 #: model:l10n_cz.tax_office,region:l10n_cz.tax_office_170
 #: model:l10n_cz.tax_office,region:l10n_cz.tax_office_171
 msgid "South Moravian"
+msgstr ""
+
+#. module: l10n_cz
+#: model_terms:ir.ui.view,arch_db:l10n_cz.cz_partner_address_form
+msgid "Street"
+msgstr ""
+
+#. module: l10n_cz
+#: model_terms:ir.ui.view,arch_db:l10n_cz.cz_partner_address_form
+msgid "Street #"
+msgstr ""
+
+#. module: l10n_cz
+#: model_terms:ir.ui.view,arch_db:l10n_cz.cz_partner_address_form
+msgid "Street 2..."
+msgstr ""
+
+#. module: l10n_cz
+#: model_terms:ir.ui.view,arch_db:l10n_cz.cz_partner_address_form
+msgid "Street..."
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__16000
+msgid "Support activities for agriculture and post-harvest activities"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__16200
+msgid "Support activities for animal production"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__16100
+msgid "Support activities for crop production"
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields.selection,name:l10n_cz.selection__res_company__l10n_cz_economic_activity_code__24000
+msgid "Support activities for forestry"
 msgstr ""
 
 #. module: l10n_cz
@@ -1424,15 +1781,20 @@ msgid "Territorial Office"
 msgstr ""
 
 #. module: l10n_cz
-#: model:ir.model.fields,help:l10n_cz.field_base_document_layout__account_fiscal_country_id
-msgid "The country to use the tax reports from for this company"
+#. odoo-python
+#: code:addons/l10n_cz/models/res_bank.py:0
+msgid "The bank account currency must be CZK to generate the QR code."
 msgstr ""
 
 #. module: l10n_cz
-#: model:ir.model.fields,help:l10n_cz.field_base_document_layout__company_registry
-msgid ""
-"The registry number of the company. Use it if it is different from the Tax "
-"ID. It must be unique across all partners of a same country"
+#. odoo-python
+#: code:addons/l10n_cz/models/res_bank.py:0
+msgid "The bank account type must be IBAN to generate the QR code."
+msgstr ""
+
+#. module: l10n_cz
+#: model:ir.model.fields,help:l10n_cz.field_base_document_layout__account_fiscal_country_id
+msgid "The country to use the tax reports from for this company"
 msgstr ""
 
 #. module: l10n_cz
@@ -1462,6 +1824,11 @@ msgstr ""
 #: model:l10n_cz.tax_office,region:l10n_cz.tax_office_149
 #: model:l10n_cz.tax_office,region:l10n_cz.tax_office_150
 msgid "Vysočina"
+msgstr ""
+
+#. module: l10n_cz
+#: model_terms:ir.ui.view,arch_db:l10n_cz.cz_partner_address_form
+msgid "ZIP"
 msgstr ""
 
 #. module: l10n_cz

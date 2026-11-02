@@ -1,7 +1,8 @@
+import { usePlugin } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
-import { useService, useOwnedDialogs } from "@web/core/utils/hooks";
+import { useOwnedDialogs, useService } from "@web/core/utils/hooks";
+import { TimeOffPlugin } from "./time_off_plugin";
 import { AllocationFormViewDialog } from "./view_dialog/allocation_form_view_dialog";
-import { useComponent } from "@odoo/owl";
 
 export function formatNumber(lang, number, maxDecimals = 2) {
     const numberFormat = new Intl.NumberFormat(lang, { maximumFractionDigits: maxDecimals });
@@ -44,30 +45,30 @@ export function useLeaveCancelWizard() {
 
 export function useNewAllocationRequest() {
     const addDialog = useOwnedDialogs();
-    const component = useComponent();
-    return async (employeeId, holidayStatusId) => {
+    const timeOffPlugin = usePlugin(TimeOffPlugin);
+    return async ({ employeeId, holidayStatusId, forceLargeDialog }) => {
         let size = "md";
         const context = {
             form_view_ref: "hr_holidays.hr_leave_allocation_view_form_dashboard",
             is_employee_allocation: true,
         };
-        if (employeeId) {
+        if (employeeId || forceLargeDialog) {
             size = "lg";
-            context["default_employee_id"] = employeeId;
             context["form_view_ref"] =
                 "hr_holidays.hr_leave_allocation_view_form_manager_dashboard";
         }
+        if (employeeId) {
+            context["default_employee_id"] = employeeId;
+        }
         if (holidayStatusId) {
-            context["default_holiday_status_id"] = holidayStatusId;
+            context["default_work_entry_type_id"] = holidayStatusId;
         }
         addDialog(AllocationFormViewDialog, {
             resModel: "hr.leave.allocation",
             title: _t("New Allocation"),
             context: context,
             size: size,
-            onRecordSaved: () => {
-                component.env.timeOffBus.trigger("update_dashboard");
-            },
+            onRecordSaved: () => timeOffPlugin.updateDashboard(),
         });
     };
 }

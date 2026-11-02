@@ -1,21 +1,24 @@
-import { Component, onMounted, useRef, useSubEnv, xml } from "@odoo/owl";
-import { _t } from "@web/core/l10n/translation";
+import { Component, onMounted, signal, t, useProps, xml } from "@odoo/owl";
 import { Dropdown } from "@web/core/dropdown/dropdown";
+import { useDropdownState } from "@web/core/dropdown/dropdown_hooks";
+import { _t } from "@web/core/l10n/translation";
+import { setElementContent } from "@web/core/utils/html";
+import { useSubEnv } from "@web/owl2/utils";
 import {
     basicContainerBuilderComponentProps,
-    useVisibilityObserver,
     useApplyVisibility,
     useSelectableComponent,
+    useVisibilityObserver,
 } from "../utils";
 import { BuilderComponent } from "./builder_component";
-import { useDropdownState } from "@web/core/dropdown/dropdown_hooks";
-import { setElementContent } from "@web/core/utils/html";
 
 export class WithIgnoreItem extends Component {
-    static template = xml`<t t-slot="default"/>`;
-    static props = {
-        slots: { type: Object },
-    };
+    static template = xml`<t t-call-slot="default"/>`;
+
+    props = useProps({
+        slots: t.object(),
+    });
+
     setup() {
         useSubEnv({
             ignoreBuilderItem: true,
@@ -24,44 +27,44 @@ export class WithIgnoreItem extends Component {
 }
 
 export class BuilderSelect extends Component {
-    static template = "html_builder.BuilderSelect";
-    static props = {
-        ...basicContainerBuilderComponentProps,
-        className: { type: String, optional: true },
-        dropdownContainerClass: { type: String, optional: true },
-        disabled: { type: Boolean, optional: true },
-        slots: {
-            type: Object,
-            shape: {
-                default: Object, // Content is not optional
-                fixedButton: { type: Object, optional: true },
-            },
-        },
-        dropdownClass: { type: String, optional: true },
-    };
-    static defaultProps = { dropdownClass: "o-hb-select-dropdown" };
     static components = {
         Dropdown,
         BuilderComponent,
         WithIgnoreItem,
     };
+    static template = "html_builder.BuilderSelect";
+
+    props = useProps({
+        ...basicContainerBuilderComponentProps,
+        className: t.string().optional(),
+        dropdownContainerClass: t.string().optional(),
+        disabled: t.boolean().optional(),
+        slots: t.object({
+            default: t.object(), // Content is not optional
+            fixedButton: t.object().optional(),
+        }),
+        dropdownClass: t.string().optional("o-hb-select-dropdown"),
+    });
+    buttonRef = signal.ref();
+    rootRef = signal.ref();
+    contentRef = signal.ref();
 
     setup() {
-        useVisibilityObserver("content", useApplyVisibility("root"));
+        useVisibilityObserver(this.contentRef, useApplyVisibility(this.rootRef));
 
         this.dropdown = useDropdownState();
 
-        const buttonRef = useRef("button");
         let currentLabel;
         const updateCurrentLabel = () => {
             if (!this.props.slots.fixedButton) {
                 const newHtml = currentLabel || _t("None");
-                if (buttonRef.el && buttonRef.el.innerHTML !== newHtml) {
-                    setElementContent(buttonRef.el, newHtml);
+                const buttonEl = this.buttonRef();
+                if (buttonEl && buttonEl.innerHTML !== newHtml) {
+                    setElementContent(buttonEl, newHtml);
                 }
             }
         };
-        useSelectableComponent(this.props.id, {
+        useSelectableComponent(this.props, {
             onItemChange(item) {
                 currentLabel = item.getLabel();
                 updateCurrentLabel();

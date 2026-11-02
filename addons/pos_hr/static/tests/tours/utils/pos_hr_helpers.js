@@ -1,4 +1,5 @@
-import * as SelectionPopup from "@point_of_sale/../tests/generic_helpers/selection_popup_util";
+import * as CashierSelectionPopup from "@pos_hr/../tests/tours/utils/cashier_selection_popup_util";
+
 import * as Dialog from "@point_of_sale/../tests/generic_helpers/dialog_util";
 import * as NumberPopup from "@point_of_sale/../tests/generic_helpers/number_popup_util";
 import { negate } from "@point_of_sale/../tests/generic_helpers/utils";
@@ -37,34 +38,24 @@ export function loginScreenIsNotShown() {
         },
     ];
 }
-export function cashierNameIs(name) {
-    return [
-        {
-            isActive: ["desktop"],
-            content: `logged cashier is '${name}'`,
-            trigger: `.pos .oe_status .username:contains("${name}")`,
-        },
-        {
-            isActive: ["mobile"],
-            content: `logged cashier is '${name}'`,
-            trigger: `.pos .oe_status img[alt="${name}"]`,
-        },
-    ];
-}
 export function login(name, pin) {
-    const res = [...clickLoginButton(), ...SelectionPopup.has(name, { run: "click" })];
+    const res = [...clickLoginButton(), ...CashierSelectionPopup.has(name, { run: "click" })];
     if (!pin) {
         return res;
     }
     return res.concat(enterPin(pin));
 }
 export function enterPin(pin) {
-    return [...NumberPopup.enterValue(pin), ...NumberPopup.isShown("••••"), Dialog.confirm()];
+    return [
+        ...NumberPopup.enterValue(pin, false),
+        ...NumberPopup.isShown("••••"),
+        Dialog.confirm(),
+    ];
 }
 export function clickLockButton() {
     return {
         content: "Click on the menu button",
-        trigger: ".pos-rightheader i.fa-unlock",
+        trigger: ".pos-rightheader i[data-icon='lock_open']",
         run: "click",
     };
 }

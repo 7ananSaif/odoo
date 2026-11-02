@@ -1,13 +1,13 @@
-# -*- coding: utf-8 -*-
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 from odoo.tests import tagged
 from odoo.exceptions import ValidationError, UserError
 from odoo import fields, Command
 
-import base64
 
 @tagged('post_install', '-at_install')
 class TestAccountBankStatementLine(AccountTestInvoicingCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):
@@ -16,8 +16,8 @@ class TestAccountBankStatementLine(AccountTestInvoicingCommon):
         cls.currency_1 = cls.company_data['currency']
         # We need a third currency as you could have a company's currency != journal's currency !=
         cls.currency_2 = cls.setup_other_currency('EUR')
-        cls.currency_3 = cls.setup_other_currency('CAD', rates=[('2016-01-01', 6.0), ('2017-01-01', 4.0)])
-        cls.currency_4 = cls.setup_other_currency('GBP', rates=[('2016-01-01', 12.0), ('2017-01-01', 8.0)])
+        cls.currency_3 = cls.setup_other_currency('CAD', rates=[('2015-12-31', 6.0), ('2016-12-31', 4.0)])
+        cls.currency_4 = cls.setup_other_currency('GBP', rates=[('2015-12-31', 12.0), ('2016-12-31', 8.0)])
 
         cls.company_data_2 = cls.setup_other_company()
 
@@ -529,8 +529,6 @@ class TestAccountBankStatementLine(AccountTestInvoicingCommon):
 
     def test_zero_amount_statement_line(self):
         ''' Ensure the statement line is directly marked as reconciled when having an amount of zero. '''
-        self.company_data['company'].account_journal_suspense_account_id.reconcile = False
-
         statement = self.env['account.bank.statement'].with_context(skip_check_amounts_currencies=True).create({
             'name': 'test_statement',
             'line_ids': [
@@ -685,11 +683,21 @@ class TestAccountBankStatementLine(AccountTestInvoicingCommon):
             {'date': fields.Date.from_string('2020-01-13'), 'statement_id': statement3.id},
         ])
         self.assertRecordValues(statement1 + statement2 + statement3, [
-            {'is_valid': True, 'balance_start': 10, 'balance_end_real': -5,
-             'date': fields.Date.from_string('2020-01-11')},
-            {'is_valid': True, 'balance_start': False, 'balance_end_real': 100, 'date': False},
-            {'is_valid': True, 'balance_start': -5, 'balance_end_real': -15,
-             'date': fields.Date.from_string('2020-01-13')},
+            {'is_valid': True, 'balance_start': 10, 'balance_end_real': -5, 'date': fields.Date.from_string('2020-01-11')},
+            {'is_valid': True, 'balance_start': 0, 'balance_end_real': 100, 'date': fields.Date.from_string('2020-01-10')},
+            {'is_valid': True, 'balance_start': -5, 'balance_end_real': -15, 'date': fields.Date.from_string('2020-01-13')},
+        ])
+
+        # computing validity of non-consecutive statement shouldn't affect validity
+        line5 = self.create_bank_transaction(-10, '2020-01-13')
+        statement4 = self.env['account.bank.statement'].create({
+            'line_ids': [Command.set(line5.ids)],
+            'balance_start': -15,
+        })
+        (statement1 + statement4).invalidate_recordset(['is_valid'])
+        self.assertRecordValues(statement1 + statement4, [
+            {'is_valid': True},
+            {'is_valid': True},
         ])
 
         # computing validity of non-consecutive statement shouldn't affect validity
@@ -1233,15 +1241,15 @@ class TestAccountBankStatementLine(AccountTestInvoicingCommon):
         line4.move_id.button_draft()
         statement1.line_ids |= line4
         self.assertRecordValues(statement1, [{
-            'is_complete': True,
-            'balance_end': 3,
+            'is_complete': False,
+            'balance_end': 7,
             'date': fields.Date.from_string(line3.date),
         }])
         # test split with canceled/draft lines
         statement2 = self.env['account.bank.statement'].with_context({'split_line_id': line2.id}).create({})
         self.assertRecordValues(statement1 + statement2, [{
             'is_complete': False,
-            'balance_end': 2,
+            'balance_end': 6,
             'balance_start': 0,
             'line_ids': [line4.id, line3.id],
         }, {
@@ -1257,7 +1265,7 @@ class TestAccountBankStatementLine(AccountTestInvoicingCommon):
         self.assertRecordValues(statement1, [{
             'is_complete': False,
             'balance_start': 0,
-            'balance_end': 0,
+            'balance_end': 4,
         }])
 
         # create a statement line with already canceled lines
@@ -1265,13 +1273,13 @@ class TestAccountBankStatementLine(AccountTestInvoicingCommon):
             'line_ids': [Command.set((line3 + line4).ids)],
         })
         self.assertRecordValues(statement1 + statement3, [{
-            'is_complete': False,
+            'is_complete': True,  # Since no line the statement is complete
             'balance_start': 0,
             'balance_end': 0,
         }, {
-            'is_complete': False, # no posted transactions
+            'is_complete': True,
             'balance_start': 1,  # from statement2's balance_end_real
-            'balance_end': 1, # no posted transactions
+            'balance_end': 5,
         }])
 
     def test_create_statement_line_with_inconsistent_currencies(self):
@@ -1420,7 +1428,7 @@ class TestAccountBankStatementLine(AccountTestInvoicingCommon):
         ''' Ensure that attachments are properly linked to bank statements '''
 
         attachment_vals = {
-            'datas': base64.b64encode(b'My attachment'),
+            'raw': b'My attachment',
             'name': 'doc.txt',
         }
 

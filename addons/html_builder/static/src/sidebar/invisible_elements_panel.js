@@ -1,25 +1,26 @@
-import { Component, onWillStart, onWillUpdateProps, useState } from "@odoo/owl";
+import { Component, proxy, useProps, t, useEffect } from "@odoo/owl";
 import { getSnippetName, isElementInViewport } from "@html_builder/utils/utils";
+import { scrollTo } from "@html_builder/utils/scrolling";
 
 /**
- * @typedef {((snippetEl: HTMLElement) => void)[]} on_reveal_target_handlers
+ * @typedef {((snippetEl: HTMLElement) => void)[]} on_target_revealed_handlers
  */
 
 export class InvisibleElementsPanel extends Component {
     static template = "html_builder.InvisibleElementsPanel";
-    static props = {
-        invisibleEls: { type: Array },
-        invisibleSelector: { type: String },
-    };
+    props = useProps({
+        invisibleEls: t.array(),
+        invisibleSelector: t.string(),
+    });
 
     setup() {
-        this.state = useState({ invisibleEntries: null });
+        this.state = proxy({ invisibleEntries: null });
 
-        onWillStart(() => this.updateInvisibleElementsPanel(this.props.invisibleEls));
-
-        onWillUpdateProps((nextProps) => {
-            const { invisibleEls, invisibleSelector } = nextProps;
-            this.updateInvisibleElementsPanel(invisibleEls, invisibleSelector);
+        useEffect(() => {
+            this.updateInvisibleElementsPanel(
+                this.props.invisibleEls,
+                this.props.invisibleSelector
+            );
         });
     }
 
@@ -83,8 +84,23 @@ export class InvisibleElementsPanel extends Component {
         this.state.invisibleEntries = createInvisibleEntries(rootInvisibleSnippetEls);
     }
 
+    findEntry(el, entries = this.state.invisibleEntries) {
+        for (const entry of entries) {
+            if (entry.snippetEl === el) {
+                return entry;
+            }
+            const entryInDescendant = this.findEntry(el, entry.children);
+            if (entryInDescendant) {
+                return entryInDescendant;
+            }
+        }
+    }
+
     toggleElementVisibility(invisibleEntry) {
         const snippetEl = invisibleEntry.snippetEl;
+        // The entry object referenced from the rendered template may be
+        // outdated (not in this.state.invisibleEntries anymore)
+        invisibleEntry = this.findEntry(snippetEl);
         if (invisibleEntry.isVisible) {
             // Toggle the entry visibility to "Hide".
             invisibleEntry.isVisible = false;
@@ -94,12 +110,11 @@ export class InvisibleElementsPanel extends Component {
             // Toggle the entry visibility to "Show".
             invisibleEntry.isVisible = true;
             this.shared.visibility.toggleTargetVisibility(snippetEl, true);
-            this.env.editor.dispatchTo("on_reveal_target_handlers", snippetEl);
+            this.env.editor.trigger("on_target_revealed_handlers", snippetEl);
             this.shared.builderOptions.updateContainers(snippetEl);
             // Scroll to the target if not visible.
             if (!isElementInViewport(snippetEl) && !snippetEl.matches(".s_popup")) {
-                // Firefox mis-scrolls with block "center" on tall snippets; keep "start".
-                snippetEl.scrollIntoView({ behavior: "smooth", block: "start" });
+                scrollTo(snippetEl);
             }
         }
         this.shared.disableSnippets.disableUndroppableSnippets();

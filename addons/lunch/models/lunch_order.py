@@ -16,7 +16,7 @@ class LunchOrder(models.Model):
     topping_ids_1 = fields.Many2many('lunch.topping', 'lunch_order_topping', 'order_id', 'topping_id', string='Extras 1', domain=[('topping_category', '=', 1)])
     topping_ids_2 = fields.Many2many('lunch.topping', 'lunch_order_topping', 'order_id', 'topping_id', string='Extras 2', domain=[('topping_category', '=', 2)])
     topping_ids_3 = fields.Many2many('lunch.topping', 'lunch_order_topping', 'order_id', 'topping_id', string='Extras 3', domain=[('topping_category', '=', 3)])
-    product_id = fields.Many2one('lunch.product', string="Product", required=True)
+    product_id = fields.Many2one('lunch.product', string="Product", required=True, index=True)
     category_id = fields.Many2one(
         string='Product Category', related='product_id.category_id', store=True)
     date = fields.Date('Order Date', required=True, readonly=False,
@@ -39,7 +39,7 @@ class LunchOrder(models.Model):
                               ('cancelled', 'Cancelled')],
                              'Status', readonly=True, index=True, default='new')
     notified = fields.Boolean(default=False)
-    company_id = fields.Many2one('res.company', default=lambda self: self.env.company.id)
+    company_id = fields.Many2one('res.company', default=lambda self: self.env.company.id, index=True)
     currency_id = fields.Many2one(related='company_id.currency_id', store=True)
     quantity = fields.Float('Quantity', required=True, default=1)
 
@@ -116,12 +116,14 @@ class LunchOrder(models.Model):
                 order.order_deadline_passed = False
 
     def _get_topping_ids(self, field, values):
+        assert len(self) <= 1
         return list(self._fields[field].convert_to_cache(values, self))
 
     def _extract_toppings(self, values):
         """
             If called in api.multi then it will pop topping_ids_1,2,3 from values
         """
+        assert len(self) <= 1
         topping_ids = []
 
         for i in range(1, 4):
@@ -158,6 +160,7 @@ class LunchOrder(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        self = self.browse()  # noqa: PLW0642
         orders = self.env['lunch.order']
         for vals in vals_list:
             lines = self._find_matching_lines({
@@ -182,13 +185,13 @@ class LunchOrder(models.Model):
 
         if merge_needed:
             lines_to_deactivate = self.env['lunch.order']
-            for line in self:
+            for line in self.filtered(lambda line: line.state not in ['sent', 'confirmed']):
                 # Only write on topping_ids_1 because they all share the same table
                 # and we don't want to remove all the records
                 # _extract_toppings will pop topping_ids_1, topping_ids_2 and topping_ids_3 from values
                 # This also forces us to invalidate the cache for topping_ids_2 and topping_ids_3 that
                 # could have changed through topping_ids_1 without the cache knowing about it
-                toppings = self._extract_toppings(values)
+                toppings = line._extract_toppings(values)
                 if change_topping:
                     self.invalidate_model(['topping_ids_2', 'topping_ids_3'])
                     values['topping_ids_1'] = [(6, 0, toppings)]
@@ -199,7 +202,7 @@ class LunchOrder(models.Model):
                     'toppings': toppings,
                     'lunch_location_id': values.get('lunch_location_id', default_location_id),
                     'state': values.get('state'),
-                })
+                }) - line
                 if matching_lines:
                     lines_to_deactivate |= line
                     matching_lines.update_quantity(line.quantity)
@@ -213,7 +216,7 @@ class LunchOrder(models.Model):
         domain = [
             ('user_id', '=', values.get('user_id', self.default_get(['user_id'])['user_id'])),
             ('product_id', '=', values.get('product_id', False)),
-            ('date', '=', values.get('date', fields.Date.today())),
+            ('date', '=', values.get('date', 'today')),
             ('note', '=', values.get('note', False)),
             ('lunch_location_id', '=', values.get('lunch_location_id', default_location_id)),
         ]

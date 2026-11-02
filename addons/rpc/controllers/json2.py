@@ -12,8 +12,7 @@ from werkzeug.exceptions import (
 
 from odoo import http
 from odoo.http import request
-from odoo.models import BaseModel
-from odoo.service.model import get_public_method
+from odoo.models import BaseModel, get_public_method
 from odoo.tools import frozendict
 
 _logger = logging.getLogger(__name__)
@@ -50,6 +49,7 @@ class WebJson2Controller(http.Controller):
         '/json/2/<__model__>/<__method__>',
         methods=['POST'],
         auth='bearer',
+        bearer_scope='rpc',
         type='json2',
         readonly=_web_json_2_rpc_readonly,
         save_session=False,

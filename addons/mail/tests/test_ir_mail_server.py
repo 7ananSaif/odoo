@@ -14,6 +14,7 @@ from odoo.tools import config, mute_logger, split_every
 
 
 @tagged('mail_server')
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestIrMailServer(MailCommon):
 
     @classmethod
@@ -195,7 +196,7 @@ class TestIrMailServer(MailCommon):
                     )
 
         # for from_filter in ICP, overwrite the one from odoo-bin
-        self.env['ir.config_parameter'].sudo().set_param('mail.default.from_filter', 'icp.example.com')
+        self.env['ir.config_parameter'].sudo().set_str('mail.default.from_filter', 'icp.example.com')
 
         # Use an email in the domain of the config parameter "mail.default.from_filter"
         with self.mock_smtplib_connection():
@@ -252,7 +253,9 @@ class TestIrMailServer(MailCommon):
     @mute_logger('odoo.models.unlink')
     def test_mail_server_priorities(self):
         """ Test if we choose the right mail server to send an email.
-        Priorities are
+
+        Priorities are:
+
         1. Forced mail server (e.g.: in mass mailing)
             - If the "from_filter" of the mail server match the notification email
               use the notifications email in the "From header"
@@ -395,6 +398,7 @@ class TestIrMailServer(MailCommon):
 
 
 @tagged('mail_server')
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestPersonalServer(MailCommon):
 
     @classmethod
@@ -492,7 +496,7 @@ class TestPersonalServer(MailCommon):
     def test_personal_mail_server_limit(self):
         # Test the limit per personal mail servers
         TEST_LIMIT = 5
-        self.env['ir.config_parameter'].set_param('mail.server.personal.limit.minutes', str(TEST_LIMIT))
+        self.env['ir.config_parameter'].set_int('mail.server.personal.limit.minutes', TEST_LIMIT)
         user_1, user_2 = self.user_1, self.user_2
         mail_server_1, mail_server_2 = self.mail_server_1, self.mail_server_2
 
@@ -626,7 +630,7 @@ class TestPersonalServer(MailCommon):
     def test_personal_mail_server_limit_many_recipient(self):
         # Test with many recipients (should split the mail)
         TEST_LIMIT = 5
-        self.env['ir.config_parameter'].set_param('mail.server.personal.limit.minutes', str(TEST_LIMIT))
+        self.env['ir.config_parameter'].set_int('mail.server.personal.limit.minutes', TEST_LIMIT)
 
         partners = self.env['res.partner'].create([
             {'name': f'Partner {i}', 'email': f'partner_{i}@test.com'}
@@ -639,7 +643,8 @@ class TestPersonalServer(MailCommon):
                 'email_cc': '"Named Cc1" <cc.1@test.com>, "Named Cc2" <cc.2@test.com>',
                 'email_to': email_to,
                 'headers': '{"test": "test header"}',
-                'recipient_ids': partners.ids,
+                'recipient_ids': partners[:8].ids,
+                'recipient_cc_ids': partners[8:].ids,
                 'state': 'outgoing',
             })
 
@@ -666,7 +671,8 @@ class TestPersonalServer(MailCommon):
         self.assertFalse(outgoing.email_to)
         self.assertEqual(outgoing.state, 'outgoing')
         self.assertEqual(outgoing.create_uid, self.user_employee)
-        self.assertEqual(len(outgoing.recipient_ids), 16 - TEST_LIMIT)
+        self.assertEqual(len(outgoing.recipient_ids) + len(outgoing.recipient_cc_ids), 16 - TEST_LIMIT)
+        self.assertEqual(len(outgoing.recipient_cc_ids), 8)
 
         # Re-send the same minute, nothing change
         with self.mock_smtplib_connection(), self.mock_datetime_and_now("2025-01-01 20:31:33"):
@@ -676,7 +682,8 @@ class TestPersonalServer(MailCommon):
         self.assertEqual(len(mails), 2)
         self.assertEqual(outgoing.state, 'outgoing')
         self.assertEqual(outgoing.create_uid, self.user_employee)
-        self.assertEqual(len(outgoing.recipient_ids), 16 - TEST_LIMIT)
+        self.assertEqual(len(outgoing.recipient_ids) + len(outgoing.recipient_cc_ids), 16 - TEST_LIMIT)
+        self.assertEqual(len(outgoing.recipient_cc_ids), 8)
 
         # Re-send one minute later
         with self.mock_smtplib_connection(), self.mock_datetime_and_now("2025-01-01 20:32:27"):
@@ -689,7 +696,8 @@ class TestPersonalServer(MailCommon):
         self.assertFalse(outgoing.email_to)
         self.assertEqual(outgoing.state, 'outgoing')
         self.assertEqual(outgoing.create_uid, self.user_employee)
-        self.assertEqual(len(outgoing.recipient_ids), 16 - 2 * TEST_LIMIT)
+        self.assertEqual(len(outgoing.recipient_ids) + len(outgoing.recipient_cc_ids), 16 - 2 * TEST_LIMIT)
+        self.assertEqual(len(outgoing.recipient_ids), 0)
 
         # The user re-send emails, while some emails are still in the queue
         # We have now 2 mails with many recipients to process in the queue
@@ -715,12 +723,14 @@ class TestPersonalServer(MailCommon):
         self.assertFalse(outgoing_1.email_to)
         self.assertEqual(outgoing_1.state, 'outgoing')
         self.assertEqual(outgoing_1.create_uid, self.user_employee)
-        self.assertEqual(len(outgoing_1.recipient_ids), 16 - 3 * TEST_LIMIT)  # 1 recipient left
+        self.assertEqual(len(outgoing_1.recipient_ids) + len(outgoing_1.recipient_cc_ids), 16 - 3 * TEST_LIMIT)  # 1 recipient left
+        self.assertEqual(len(outgoing_1.recipient_cc_ids), 1)
 
         outgoing_2 = mails[1]
         self.assertEqual(outgoing_2.email_to, 'target@test.com')
         self.assertEqual(outgoing_2.state, 'outgoing')
         self.assertEqual(outgoing_2.create_uid, self.user_employee)
+        self.assertEqual(len(outgoing_2.recipient_ids) + len(outgoing_2.recipient_cc_ids), 7)
         self.assertEqual(len(outgoing_2.recipient_ids), 7)
 
         # The next CRON will send all remaining emails of the first mail (1), and 4 mails for the second one
@@ -739,7 +749,9 @@ class TestPersonalServer(MailCommon):
         self.assertFalse(outgoing.email_to)
         self.assertEqual(outgoing.state, 'outgoing')
         self.assertEqual(outgoing.create_uid, self.user_employee)
+        self.assertEqual(len(outgoing.recipient_ids) + len(outgoing.recipient_cc_ids), 3)
         self.assertEqual(len(outgoing.recipient_ids), 3)
+        self.assertEqual(len(outgoing.recipient_cc_ids), 0)
 
         # Send the last email
         with self.mock_smtplib_connection(), self.mock_datetime_and_now("2025-01-01 20:42:29"):

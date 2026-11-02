@@ -3,6 +3,7 @@
 from urllib.parse import urlencode
 
 from odoo import tests
+from odoo.addons.mail.tests.common import mail_new_test_user
 from odoo.addons.test_mail_full.tests.test_portal import TestPortal
 
 
@@ -21,10 +22,10 @@ class TestUIPortal(TestPortal):
             }
         )
 
-    def test_star_message(self):
+    def test_bookmark_message(self):
         self.start_tour(
             f"/my/test_portal_records/{self.record_portal.id}",
-            "star_message_tour",
+            "bookmark_message_tour",
             login=self.user_employee.login,
         )
 
@@ -69,6 +70,17 @@ class TestUIPortal(TestPortal):
             "message_actions_tour",
         )
 
+    def test_message_actions_portal_when_follower(self):
+        portal_user = self._create_portal_user()
+        self.record_portal.message_subscribe(partner_ids=[portal_user.partner_id.id])
+        self.assertTrue(self.record_portal.with_user(portal_user).has_access('read'))
+        self.assertFalse(self.record_portal.partner_id.with_user(portal_user).has_access('read'))
+        self.start_tour(
+            f"/my/test_portal_records/{self.record_portal.id}?token={self.record_portal._portal_ensure_token()}",
+            "message_actions_tour",
+            login=portal_user.login,
+        )
+
     def test_rating_record_portal(self):
         record_rating = self.env["mail.test.rating"].create({"name": "Test rating record"})
         # To check if there is no message with rating, there is no rating cards feature.
@@ -80,6 +92,25 @@ class TestUIPortal(TestPortal):
         self.start_tour(
             f"/my/test_portal_rating_records/{record_rating.id}?display_rating=True&token={record_rating._portal_ensure_token()}",
             "portal_rating_tour"
+        )
+
+    def test_rating_pagination_portal(self):
+        record_rating = self.env["mail.test.rating"].create({"name": "Test rating record"})
+        for body, rating_value in [
+            ("Five star review", "5"),
+            ("Second review", "4"),
+            ("Third review", "3"),
+            ("Fourth review", "2"),
+        ]:
+            record_rating.message_post(
+                body=body,
+                message_type="comment",
+                rating_value=rating_value,
+                subtype_xmlid="mail.mt_comment",
+            )
+        self.start_tour(
+            f"/my/test_portal_rating_records/{record_rating.id}?display_rating=True&token={record_rating._portal_ensure_token()}",
+            "portal_rating_pagination_tour",
         )
 
     def test_display_rating_portal(self):
@@ -108,4 +139,29 @@ class TestUIPortal(TestPortal):
         self.start_tour(
             f"/my/test_portal_records/{self.record_portal.id}?token={self.record_portal._portal_ensure_token()}",
             "portal_composer_actions_tour_portal_user",
+        )
+
+    def test_message_highlight(self):
+        self.record_portal_no_partner = self.env["mail.test.portal.no.partner"].create({
+            "name": "Test Portal Record",
+        })
+        self.record_portal_message = self.env["mail.message"].create(
+            {
+                "author_id": self.user_employee.partner_id.id,
+                "body": "Test Message",
+                "model": self.record_portal_no_partner._name,
+                "res_id": self.record_portal_no_partner.id,
+                "subtype_id": self.ref("mail.mt_comment"),
+            }
+        )
+        self.user_portal = mail_new_test_user(
+            self.env,
+            groups="base.group_portal",
+            login="user_portal",
+        )
+        self.record_portal_no_partner.message_subscribe(partner_ids=[self.user_portal.partner_id.id])
+        self.start_tour(
+            f"/mail/message/{self.record_portal_message.id}",
+            "portal_message_highlight_tour",
+            login=self.user_portal.login,
         )

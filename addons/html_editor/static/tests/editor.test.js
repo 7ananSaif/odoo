@@ -9,6 +9,30 @@ import { insertText } from "./_helpers/user_actions";
 import { getContent } from "./_helpers/selection";
 import { unformat } from "./_helpers/format";
 
+test("should detect circular dependencies", async () => {
+    class PluginA extends Plugin {
+        static id = "a";
+        static dependencies = ["b"];
+    }
+    class PluginB extends Plugin {
+        static id = "b";
+        static dependencies = ["c"];
+    }
+    class PluginC extends Plugin {
+        static id = "c";
+        static dependencies = ["a"];
+    }
+    let errorMessage;
+    try {
+        await setupEditor("<p><br></p>", {
+            config: { includePlugins: [PluginA, PluginB, PluginC] },
+        });
+    } catch (error) {
+        errorMessage = error.message;
+    }
+    expect(errorMessage).toBe("Circular dependencies: a -> b -> c -> a");
+});
+
 beforeEach(() => {
     patchWithCleanup(Editor.prototype, {
         preparePlugins() {
@@ -32,6 +56,25 @@ test("can get content of an empty paragraph", async () => {
         `<p o-we-hint-text="Type &quot;/&quot; for commands" class="o-we-hint"></p>`
     );
     expect(editor.getContent()).toBe(`<p></p>`);
+});
+
+test("processThrough forwards explicitly returned falsy values", async () => {
+    class TestPlugin extends Plugin {
+        static id = "test";
+        resources = {
+            test_processors: [
+                (item) => null,
+                (item) => {
+                    expect(item).toBe(null);
+                    return undefined;
+                },
+            ],
+        };
+    }
+    const { editor } = await setupEditor("<p>[]</p>", {
+        config: { includePlugins: [TestPlugin] },
+    });
+    expect(editor.processThrough("test_processors", "initial")).toBe(undefined);
 });
 
 test("is notified when content is changed", async () => {
@@ -60,8 +103,9 @@ test("plugin destruction is reverse of instantiation order", async () => {
             }
         };
     }
-    const Plugins = [...MAIN_PLUGINS, makeTestPlugin("first"), makeTestPlugin("second", ["first"])];
-    const { editor } = await setupEditor(`<p>[]</p>`, { config: { Plugins } });
+    const { editor } = await setupEditor(`<p>[]</p>`, {
+        config: { includePlugins: [makeTestPlugin("first"), makeTestPlugin("second", ["first"])] },
+    });
     expect.verifySteps(["setup: first", "setup: second"]);
     editor.destroy();
     expect.verifySteps(["destroy: second", "destroy: first"]);
@@ -77,8 +121,9 @@ test("Remove odoo-editor-editable class after every plugin is destroyed", async 
             }
         }
     }
-    const Plugins = [...MAIN_PLUGINS, TestPlugin];
-    const { editor } = await setupEditor(`<div><p>a</p></div>`, { config: { Plugins } });
+    const { editor } = await setupEditor(`<div><p>a</p></div>`, {
+        config: { includePlugins: [TestPlugin] },
+    });
     editor.destroy();
     expect.verifySteps(["operation"]);
 });
@@ -94,11 +139,10 @@ test("Element is not editable if any plugin marks it non-editable", async () => 
             },
         };
     }
-    const Plugins = [...MAIN_PLUGINS, TestPlugin];
     const { el, plugins } = await setupEditor(
         `<div>[<img class="o-editable-media o-will-break-if-edited">]</div>`,
         {
-            config: { Plugins },
+            config: { includePlugins: [TestPlugin] },
         }
     );
     const img = el.querySelector(".o-editable-media");
@@ -106,17 +150,18 @@ test("Element is not editable if any plugin marks it non-editable", async () => 
     await expect(selectionPlugin.isNodeEditable(img)).toBe(false);
 });
 
-test("clean_for_save_listeners is done last", async () => {
+test("clean_for_save_processors is done last", async () => {
     // This test uses custom elements tag `c-div` to make sure they won't fall into
     // a case where they won't be merged anyway.
     // Without the proper fix, this test fails with sibling elements `c-div` merged together
     class TestPlugin extends Plugin {
         static id = "test";
         resources = {
-            clean_for_save_handlers: ({ root }) => {
+            clean_for_save_processors: (root) => {
                 for (const el of root.querySelectorAll("c-div")) {
                     el.removeAttribute("class");
                 }
+                return root;
             },
         };
         setup() {
@@ -125,9 +170,8 @@ test("clean_for_save_listeners is done last", async () => {
             }
         }
     }
-    const Plugins = [...MAIN_PLUGINS, TestPlugin];
     const { editor } = await setupEditor(`<div><c-div>a</c-div><c-div>b</c-div></div>`, {
-        config: { Plugins },
+        config: { includePlugins: [TestPlugin] },
     });
 
     const el = editor.getElContent();

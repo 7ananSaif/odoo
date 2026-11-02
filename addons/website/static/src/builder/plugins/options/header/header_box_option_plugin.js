@@ -1,28 +1,26 @@
+import { BuilderAction } from "@html_builder/core/builder_action";
 import {
     getCurrentShadow,
     getDefaultShadow,
-    SetShadowAction,
     SetShadowModeAction,
+    SetShadowStyleAction,
     shadowToString,
 } from "@html_builder/plugins/shadow_option_plugin";
 import { StyleAction } from "@html_builder/core/core_builder_action_plugin";
 import { registry } from "@web/core/registry";
 import { Plugin } from "@html_editor/plugin";
-import { withSequence } from "@html_editor/utils/resource";
-import { HeaderBoxOption } from "./header_box_option";
-import { HEADER_BOX } from "./header_option_plugin";
 
-class HeaderBoxOptionPlugin extends Plugin {
+export class HeaderBoxOptionPlugin extends Plugin {
     static id = "HeaderBoxOptionPlugin";
     static dependencies = ["customizeWebsite"];
 
     /** @type {import("plugins").WebsiteResources} */
     resources = {
-        builder_options: [withSequence(HEADER_BOX, HeaderBoxOption)],
         builder_actions: {
             StyleActionHeaderAction,
+            SetShadowClassHeaderAction,
             SetShadowModeHeaderAction,
-            SetShadowHeaderAction,
+            SetShadowStyleHeaderAction,
         },
     };
 }
@@ -64,15 +62,15 @@ export class SetShadowModeHeaderAction extends SetShadowModeAction {
         this.dependencies.customizeWebsite.withCustomHistory(this);
     }
     async apply({ value: shadowMode }) {
-        const defaultShadow = shadowMode === "none" ? "none" : getDefaultShadow(shadowMode);
+        const defaultShadow = getDefaultShadow(shadowMode);
         return this.dependencies.customizeWebsite.customizeWebsiteVariables({
-            "menu-box-shadow": defaultShadow,
+            "menu-box-shadow-style": defaultShadow,
         });
     }
 }
 
-export class SetShadowHeaderAction extends SetShadowAction {
-    static id = "setShadowHeader";
+export class SetShadowStyleHeaderAction extends SetShadowStyleAction {
+    static id = "setShadowStyleHeader";
     static dependencies = ["customizeWebsite"];
     setup() {
         this.preview = false;
@@ -83,8 +81,47 @@ export class SetShadowHeaderAction extends SetShadowAction {
         shadow[attributeName] = value;
 
         return this.dependencies.customizeWebsite.customizeWebsiteVariables({
-            "menu-box-shadow": shadowToString(shadow),
+            "menu-box-shadow-style": shadowToString(shadow),
         });
+    }
+}
+
+export class SetShadowClassHeaderAction extends BuilderAction {
+    static id = "setShadowClassHeader";
+    static dependencies = ["customizeWebsite"];
+    setup() {
+        this.preview = false;
+        this.dependencies.customizeWebsite.withCustomHistory(this);
+    }
+    isApplied({ params: { mainParam: shadowClass } }) {
+        const currentShadowClass =
+            this.dependencies.customizeWebsite.getWebsiteVariableValue("menu-shadow-class");
+        return currentShadowClass === shadowClass;
+    }
+    async apply({ params: { mainParam: shadowClass } }) {
+        await this.dependencies.customizeWebsite.customizeWebsiteVariables(
+            {
+                "menu-shadow-class": shadowClass,
+            },
+            "''"
+        );
+        const currentShadowClass =
+            this.dependencies.customizeWebsite.getWebsiteVariableValue("menu-shadow-class");
+        if (currentShadowClass === "o-shadow-custom") {
+            const defaultShadow = getDefaultShadow();
+            await this.dependencies.customizeWebsite.customizeWebsiteVariables({
+                "menu-box-shadow-style": defaultShadow,
+            });
+        }
+    }
+    async clean() {
+        const currentShadowClass =
+            this.dependencies.customizeWebsite.getWebsiteVariableValue("menu-shadow-class");
+        if (currentShadowClass === "o-shadow-custom") {
+            await this.dependencies.customizeWebsite.customizeWebsiteVariables({
+                "menu-box-shadow-style": null,
+            });
+        }
     }
 }
 

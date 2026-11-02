@@ -1,7 +1,6 @@
+import { onMounted, onPatched, onWillUnmount } from "@odoo/owl";
 import { localization } from "@web/core/l10n/localization";
 import { isIOS } from "@web/core/browser/feature_detection";
-
-import { useRef, useEffect } from "@odoo/owl";
 
 function onKeydown(ev) {
     const decimalPoint = localization.decimalPoint;
@@ -35,12 +34,13 @@ function onFocus(ev) {
  * entering a negative number (the minus sign is not on the virtual keyboard),
  * so we need to remove it.
  */
-export function useNumpadDecimal() {
-    const ref = useRef("numpadDecimal");
+export function useNumpadDecimal(ref) {
     const isIOSDevice = isIOS();
-    useEffect(() => {
+    let unbindInputs;
+    const bindInputs = () => {
+        unbindInputs?.();
         let inputs = [];
-        const el = ref.el;
+        const el = ref();
         if (el) {
             inputs = el.nodeName === "INPUT" ? [el] : el.querySelectorAll("input");
             inputs.forEach((input) => input.addEventListener("keydown", onKeydown));
@@ -49,9 +49,12 @@ export function useNumpadDecimal() {
                 inputs.forEach((input) => input.removeAttribute("inputmode"));
             }
         }
-        return () => {
+        unbindInputs = () => {
             inputs.forEach((input) => input.removeEventListener("keydown", onKeydown));
             inputs.forEach((input) => input.removeEventListener("focus", onFocus));
         };
-    });
+    };
+    onMounted(bindInputs);
+    onPatched(bindInputs);
+    onWillUnmount(() => unbindInputs?.());
 }

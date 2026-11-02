@@ -4,7 +4,6 @@ from unittest.mock import patch
 from datetime import date
 from dateutil.relativedelta import relativedelta
 import odoo.tests
-
 from odoo.addons.gamification.tests.common import HttpCaseGamification
 from odoo.addons.http_routing.tests.common import MockRequest
 from odoo.addons.website_profile.controllers.main import WebsiteProfile
@@ -45,7 +44,40 @@ class TestWebsiteProfile(HttpCaseGamification):
         self.env.ref('base.user_admin').write({
             'email': 'mitchell.admin@example.com',
         })
-        self.start_tour("/", 'website_profile_description', login="admin")
+        self.start_tour("/profile/users", 'website_profile_description', login="admin")
+
+    def test_portal_access(self):
+        # Delete demo data, to have a known set of given karma and badges
+        self.env["gamification.karma.tracking"].search([]).unlink()
+        self.env["gamification.badge.user"].search([]).unlink()
+
+        bob = odoo.tests.new_test_user(self.env, 'Bob', karma=100, website_published=True)
+        alice = odoo.tests.new_test_user(self.env, 'Alice', karma=100, website_published=True)
+        john = odoo.tests.new_test_user(self.env, 'John', karma=100)
+        odoo.tests.new_test_user(self.env, 'test_portal', groups='base.group_portal', karma=1000)
+
+        badge_good_job = self.env.ref("gamification.badge_good_job")
+        badge_problem_solver = self.env.ref("gamification.badge_problem_solver")
+        # Publish the badges otherwise they do not appear on the user profile page
+        # https://github.com/odoo/odoo/blob/a5f053932a73932866e04b05ecbd2c82b84c2c62/addons/website_profile/views/website_profile.xml#L170
+        (badge_good_job + badge_problem_solver).website_published = True
+
+        for wizard in self.env["gamification.badge.user.wizard"].create([{
+            "badge_id": badge_good_job.id,
+            "user_id": bob.id,
+        }, {
+            "badge_id": badge_problem_solver.id,
+            "user_id": bob.id,
+        }, {
+            "badge_id": badge_good_job.id,
+            "user_id": alice.id,
+        }, {
+            "badge_id": badge_good_job.id,
+            "user_id": john.id,
+        }]):
+            wizard.action_grant_badge()
+
+        self.start_tour("/profile/users", 'website_profile_portal_access', login="test_portal")
 
     @patch('odoo.addons.website_profile.controllers.main.WebsiteProfile._users_per_page', 2)
     def test_leaderboard_pagination_by_period(self):

@@ -3,11 +3,18 @@
 
 from odoo import Command
 from odoo.addons.stock.tests.common import TestStockCommon
-from odoo.tests import Form
+from odoo.tests import tagged, Form
 from odoo.exceptions import ValidationError
 
 
 class TestLotSerial(TestStockCommon):
+    _test_user_groups = (
+        'product.group_product_manager',  # FIXME: use base.group_user
+        'stock.group_stock_manager',
+    )
+
+    _test_user_name = 'Test Product Manager'
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -165,7 +172,7 @@ class TestLotSerial(TestStockCommon):
         """
         Check that the reservation of is bypassed when a stock move is added after the picking is done
         """
-        customer = self.PartnerObj.create({'name': 'bob'})
+        customer = self.PartnerObj.sudo().create({'name': 'bob'})
         delivery_picking = self.env['stock.picking'].create({
             'partner_id': customer.id,
             'picking_type_id': self.picking_type_out.id,
@@ -186,7 +193,7 @@ class TestLotSerial(TestStockCommon):
         delivery_picking.is_locked = False
         self.env['stock.move.line'].create({
             'product_id': additional_product.id,
-            'product_uom_id': additional_product.uom_id.id,
+            'uom_id': additional_product.uom_id.id,
             'picking_id': delivery_picking.id,
             'quantity': 3,
             'lot_id': lot.id,
@@ -194,6 +201,32 @@ class TestLotSerial(TestStockCommon):
         })
         self.assertRecordValues(delivery_picking.move_ids, [{'state': 'done', 'quantity': 5.0, 'picked': True}, {'state': 'done', 'quantity': 3.0, 'picked': True}])
         self.assertRecordValues(quant, [{'quantity': 7.0, 'reserved_quantity': 0.0}])
+
+    def test_scrap_lot_without_quantity_on_hand(self):
+        """Check that a lot without any quantity on hand can be scrapped from its form view."""
+        lot = self.LotObj.create({
+            'name': 'lot_product_a_no_qty',
+            'product_id': self.productA.id,
+        })
+        self.assertFalse(lot.location_id)
+        scrap_move = Form.from_action(self.env, lot.action_scrap()).save()
+        self.assertRecordValues(scrap_move, [{
+            'product_id': self.productA.id,
+            'lot_ids': lot.ids,
+            'quantity': 1.0,
+            'location_id': self.env.company.default_stock_location_id.id,
+            'location_dest_id': self.env.company.scrap_location_id.id,
+            'is_scrap': True,
+            'state': 'assigned',
+        }])
+        # nothing on hand to scrap, the user has to confirm through the insufficient quantity warning
+        Form.from_action(self.env, scrap_move.action_scrap()).save().action_done()
+        self.assertRecordValues(scrap_move, [{'state': 'done', 'quantity': 1.0, 'picked': True}])
+        self.assertRecordValues(lot.quant_ids, [
+            {'location_id': self.env.company.default_stock_location_id.id, 'quantity': -1.0},
+            {'location_id': self.env.company.scrap_location_id.id, 'quantity': 1.0},
+        ])
+        self.assertTrue(lot.is_scrap)
 
     def test_location_lot_id_update_quant_qty(self):
         """
@@ -238,11 +271,13 @@ class TestLotSerial(TestStockCommon):
     def test_lot_id_with_branch_company(self):
         """Test that a lot can be created in branch company when
         the product is limited to the parent company"""
-        branch_a = self.env['res.company'].create({
+        branch_a = self.env['res.company'].sudo().create({
             'name': 'Branch X',
             'country_id': self.env.company.country_id.id,
             'parent_id': self.env.company.id,
         })
+        self.env.user.sudo().company_ids += branch_a
+        self.env = self.env(context=dict(self.env.context, allowed_company_ids=[self.env.company.id, branch_a.id]))
         self.assertEqual(self.productB.tracking, 'serial')
         self.productB.company_id = self.env.company
         branch_a_warehouse = self.env['stock.warehouse'].search([('company_id', '=', branch_a.id)])
@@ -267,7 +302,7 @@ class TestLotSerial(TestStockCommon):
         picking1.with_company(branch_a)._action_done()
         self.assertTrue(move.move_line_ids.lot_id)
         self.assertEqual(move.state, 'done')
-        sn_form = Form(self.env['stock.lot'].with_company(branch_a))
+        sn_form = Form(self.env['stock.lot'].with_context(allowed_company_ids=branch_a.ids))
         sn_form.name = 'sn_test_2'
         sn_form.product_id = self.productB
         sn = sn_form.save()
@@ -301,7 +336,7 @@ class TestLotSerial(TestStockCommon):
             lot_id=lot_b,
         )
 
-        customer = self.PartnerObj.create({'name': 'bob uniquename person to avoid conflicts with demo data'})
+        customer = self.PartnerObj.sudo().create({'name': 'bob uniquename person to avoid conflicts with demo data'})
         picking1 = self.env['stock.picking'].create({
             'name': 'Picking 1',
             'partner_id': customer.id,

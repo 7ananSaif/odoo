@@ -1,14 +1,18 @@
 from odoo.addons.stock.tests.common import TestStockCommon
+from odoo.tests import tagged
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestSupplier(TestStockCommon):
+    _test_user_groups = None  # FIXME list needed groups
+
     def test_display_name(self):
         supplier = self.env['product.supplierinfo'].create({
             'partner_id': self.partner_1.id,  # Julia Agrolait
             'price': 123.0,
             'min_qty': 345,
             'delay': 1,
-            'product_uom_id': self.uom_dozen.id,
+            'uom_id': self.uom_dozen.id,
             'product_id': self.product_1.id,
         })
 
@@ -103,5 +107,5 @@ class TestSupplier(TestStockCommon):
             'product_id': product.id,
             'product_qty': 0.2,
             'price_unit': 0.0,
-            'product_uom_id': product.uom_id.id,
+            'uom_id': product.uom_id.id,
         }])

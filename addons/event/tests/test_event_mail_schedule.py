@@ -22,7 +22,7 @@ class EventMailCommon(EventCase, MailCase, CronMixinCase):
         super().setUpClass()
 
         # don't be annoyed by enrich cron for query counters (unmodular but hey)
-        cls.env['ir.config_parameter'].sudo().set_param('crm.iap.lead.enrich.setting', 'no')
+        cls.env['ir.config_parameter'].sudo().set_str('crm.iap.lead.enrich.setting', 'no')
 
         # give default values for all email aliases and domain
         cls._init_mail_gateway()
@@ -37,7 +37,7 @@ class EventMailCommon(EventCase, MailCase, CronMixinCase):
         # deactivate other schedulers to avoid messing with crons
         cls.env['event.mail'].search([]).unlink()
         # consider asynchronous sending as default sending
-        cls.env["ir.config_parameter"].set_param("event.event_mail_async", False)
+        cls.env["ir.config_parameter"].set_bool("event.event_mail_async", False)
 
         # freeze some datetimes, and ensure more than 1D+1H before event starts
         # to ease time-based scheduler check
@@ -49,7 +49,7 @@ class EventMailCommon(EventCase, MailCase, CronMixinCase):
         cls.event_date_end = datetime(2021, 3, 24, 18, 0, 0)
 
         cls._setup_test_reports()
-        with cls.mock_datetime_and_now(cls, cls.reference_now):
+        with cls.mock_datetime_and_now(cls.reference_now):
             # create with admin to force create_date
             cls.test_event = cls.env['event.event'].with_user(cls.user_eventmanager).create({
                 'name': 'TestEventMail',
@@ -148,7 +148,7 @@ class TestMailSchedule(EventMailCommon):
         self.assertEqual(event_next_scheduler.mail_state, 'scheduled')
         self.assertEqual(event_next_scheduler.mail_count_done, 0)
 
-    @mute_logger('odoo.addons.base.models.ir_model', 'odoo.models')
+    @mute_logger('odoo.addons.base.models.ir_access', 'odoo.models')
     @users('user_eventmanager')
     def test_event_mail_schedule(self):
         """ Test mail scheduling for events """
@@ -162,8 +162,8 @@ class TestMailSchedule(EventMailCommon):
 
         # check iterative work, update params to check call count
         batch_size, render_limit = 2, 10
-        self.env['ir.config_parameter'].sudo().set_param('mail.batch_size', batch_size)
-        self.env['ir.config_parameter'].sudo().set_param('mail.render.cron.limit', render_limit)
+        self.env['ir.config_parameter'].sudo().set_int('mail.batch_size', batch_size)
+        self.env['ir.config_parameter'].sudo().set_int('mail.render.cron.limit', render_limit)
 
         # create some registrations
         EventMailRegistration = type(self.env['event.mail.registration'])
@@ -282,8 +282,8 @@ class TestMailSchedule(EventMailCommon):
         # --------------------------------------------------
 
         # check default behavior, batch of 50 to run up to 1000 attendees
-        self.env['ir.config_parameter'].sudo().set_param('mail.batch_size', False)
-        self.env['ir.config_parameter'].sudo().set_param('mail.render.cron.limit', False)
+        self.env['ir.config_parameter'].sudo().set_int('mail.batch_size', 0)
+        self.env['ir.config_parameter'].sudo().set_int('mail.render.cron.limit', False)
 
         # execute event reminder scheduler explicitly, before scheduled date -> should not do anything
         with self.mock_datetime_and_now(now), self.mock_mail_gateway():
@@ -626,8 +626,8 @@ class TestMailSchedule(EventMailCommon):
 
         # check iterative work, update params to check call count
         batch_size, render_limit = 2, 4
-        self.env['ir.config_parameter'].sudo().set_param('mail.batch_size', batch_size)
-        self.env['ir.config_parameter'].sudo().set_param('mail.render.cron.limit', render_limit)
+        self.env['ir.config_parameter'].sudo().set_int('mail.batch_size', batch_size)
+        self.env['ir.config_parameter'].sudo().set_int('mail.render.cron.limit', render_limit)
 
         # find slot-based schedulers, remove other to avoid noise
         event_prev_scheduler = self.env['event.mail'].search([('event_id', '=', test_event.id), ('interval_type', '=', 'before_event')])
@@ -721,6 +721,28 @@ class TestMailSchedule(EventMailCommon):
         self.assertFalse(event_prev_scheduler.mail_done)
         self.assertSchedulerCronTriggers(capture, [slot1_before_oneday])
 
+    @mute_logger('odoo.addons.base.models.ir_access', 'odoo.models')
+    @users('user_eventmanager')
+    def test_event_mail_schedule_many_registrations(self):
+        """ Creates 4 registrations and ensures only one mail is generated per registration. """
+        self.env['ir.config_parameter'].sudo().set_int('mail.batch_size', 3)
+
+        test_event = self.test_event.with_env(self.env)
+        scheduler = self.env['event.mail'].search([
+            ('event_id', '=', test_event.id),
+            ('interval_type', '=', 'after_sub'),
+            ('interval_unit', '=', 'now'),
+        ])
+        self.assertEqual(len(scheduler), 1)
+
+        with self.mock_datetime_and_now(self.reference_now), self.mock_mail_gateway():
+            # Creates 4 registrations, right above the batch size of 3
+            registrations = self._create_registrations(test_event, 4)
+
+        self.assertEqual(len(registrations), 4)
+        self.assertEqual(self.env["event.mail.registration"].search_count([("scheduler_id", "=", scheduler.id)]), 4)
+        self.assertEqual(len(self._new_mails), 4)
+
     @mute_logger('odoo.addons.base.models.ir_model', 'odoo.models')
     @users('user_eventmanager')
     @warmup
@@ -764,8 +786,8 @@ class TestMailSchedule(EventMailCommon):
         self.env.invalidate_all()
         # event 49 - runbot 52, +3 with nightly demo (still to check)
         # - event_crm: +2 (no demo)
-        # nightly: 64 :shrugs
-        with self.assertQueryCount(64), \
+        # nightly: 65 :shrugs
+        with self.assertQueryCount(65), \
              self.mock_datetime_and_now(reference_now + relativedelta(minutes=10)), \
              self.mock_mail_gateway():
             _new = self.env['event.registration'].create([
@@ -780,7 +802,7 @@ class TestMailSchedule(EventMailCommon):
         self.assertEqual(self.mail_mail_create_mocked.call_count, 1,
                          'EventMail: should create mails in batch for new registrations')
 
-    @mute_logger('odoo.addons.base.models.ir_model', 'odoo.models')
+    @mute_logger('odoo.addons.base.models.ir_access', 'odoo.models')
     @users('user_eventmanager')
     def test_event_mail_schedule_on_subscription_async(self):
         """ Async mode for schedulers activated, should not send communication
@@ -790,7 +812,7 @@ class TestMailSchedule(EventMailCommon):
         cron_mail = self.env.ref('mail.ir_cron_mail_scheduler_action')
         reference_now = self.reference_now
 
-        self.env['ir.config_parameter'].sudo().set_param('event.event_mail_async', True)
+        self.env['ir.config_parameter'].sudo().set_bool('event.event_mail_async', True)
         with self.capture_triggers(cron_event.id) as capt_event, \
              self.capture_triggers(cron_mail.id) as capt_mail, \
              self.mock_datetime_and_now(reference_now + relativedelta(minutes=10)), \
@@ -920,8 +942,7 @@ class TestMailScheduleInternals(EventMailCommon):
                     event.event_mail_ids.execute()
                 self.assertEqual(mock_exec.called, should_call)
 
-
-    @mute_logger('odoo.addons.base.models.ir_model', 'odoo.models')
+    @mute_logger('odoo.addons.base.models.ir_access', 'odoo.models')
     def test_unique_event_mail_ids(self):
         # create event with default event_mail_ids lines
         test_event = self.env['event.event'].with_user(self.user_eventmanager).create({
@@ -1019,9 +1040,10 @@ class TestMailScheduleInternals(EventMailCommon):
             },
         )
 
-    @mute_logger('odoo.addons.base.models.ir_model', 'odoo.models')
+    @mute_logger('odoo.addons.base.models.ir_access', 'odoo.models')
     def test_scheduler_on_archived_cancelled_event(self):
         """ Test mail scheduling for archived or cancelled events """
+
         # deactivate other schedulers to avoid messing with crons
         self.env['event.mail'].search([]).unlink()
 

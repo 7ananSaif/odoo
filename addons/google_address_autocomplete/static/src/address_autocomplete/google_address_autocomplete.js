@@ -1,9 +1,9 @@
+import { useProps, signal, t } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { _t } from "@web/core/l10n/translation";
-import { CharField, charField } from "@web/views/fields/char/char_field";
+import { CharField, charField, charFieldProps } from "@web/views/fields/char/char_field";
 import { AutoComplete } from "@web/core/autocomplete/autocomplete";
 import { googlePlacesSession } from "../google_places_session";
-import { useChildRef } from "@web/core/utils/hooks";
 import { useInputField } from "@web/views/fields/input_field_hook";
 
 const standardAddressFields = {
@@ -41,21 +41,14 @@ export class AddressAutoComplete extends CharField {
     static template = "google_address_autocomplete.AddressAutoCompleteTemplate";
     static components = { AutoComplete, ...CharField.components };
 
-    static props = {...CharField.props,
-        addressFieldMap: {
-            type: Object,
-            optional: true,
-        }
-    }
-
-    static defaultProps = {
-        ...CharField.defaultProps,
-        addressFieldMap: {},
-    }
+    props = useProps({
+        ...charFieldProps,
+        addressFieldMap: t.object().optional({}),
+    });
 
     setup() {
         super.setup();
-        this.input = useChildRef();
+        this.input = signal.ref();
         useInputField({
             ref: this.input,
             getValue: () => this.props.record.data[this.props.name] || "",

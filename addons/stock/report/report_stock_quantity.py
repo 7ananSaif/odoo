@@ -1,7 +1,7 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import fields, models, tools
+from odoo.tools import SQL
 
 
 class ReportStockQuantity(models.Model):
@@ -13,7 +13,7 @@ class ReportStockQuantity(models.Model):
         'product.product': ['product_tmpl_id'],
         'product.template': ['type'],
         'stock.location': ['parent_path'],
-        'stock.move': ['company_id', 'date', 'location_dest_id', 'location_final_id', 'location_id', 'product_id', 'product_qty', 'state'],
+        'stock.move': ['company_id', 'date', 'location_dest_id', 'forecasted_location_id', 'location_id', 'product_id', 'product_qty', 'state'],
         'stock.quant': ['company_id', 'location_id', 'product_id', 'quantity'],
         'stock.warehouse': ['view_location_id'],
     }
@@ -31,7 +31,7 @@ class ReportStockQuantity(models.Model):
     warehouse_id = fields.Many2one('stock.warehouse', readonly=True)
 
     def _get_product_qty_col(self):
-        return "q.quantity"
+        return SQL("q.quantity")
 
     def init(self):
         """
@@ -46,8 +46,9 @@ class ReportStockQuantity(models.Model):
             - the dest warehouse is kept if the SM is not the duplicated one and is not an interwarehouse
                 OR the SM is the duplicated one and is an interwarehouse
         """
+        report_period = self.env['ir.config_parameter'].sudo().get_int('stock.report_stock_quantity_period') or 3
         tools.drop_view_if_exists(self.env.cr, 'report_stock_quantity')
-        query = f"""
+        query = SQL("""
 CREATE or REPLACE VIEW report_stock_quantity AS (
 WITH
     warehouse_cte AS(
@@ -57,27 +58,27 @@ WITH
             ON sl.parent_path LIKE concat('%%/', w.view_location_id, '/%%')
             OR sl.parent_path LIKE concat(w.view_location_id, '/%%')
     ),
-    existing_sm (id, product_id, tmpl_id, product_qty, quantity, date, state, company_id, whs_id, whd_id) AS (
-        SELECT m.id, m.product_id, pt.id, m.product_qty,
-            m.quantity * move_uom.factor / pt_uom.factor AS quantity,
-            m.date, m.state, m.company_id, source.w_id, dest.w_id
+    existing_sm (id, product_id, tmpl_id, product_qty, quantity, qty_done_product_uom, date, state, company_id, whs_id, whd_id) AS (
+        SELECT m.id, m.product_id, pt.id, m.product_qty, m.quantity,
+               m.quantity * uom_move.factor / uom_product.factor,
+               m.date, m.state, m.company_id, source.w_id, dest.w_id
         FROM stock_move m
         LEFT JOIN warehouse_cte source ON source.sl_id = m.location_id
         LEFT JOIN warehouse_cte dest ON dest.sl_id = CASE
-            WHEN m.state != 'done' THEN COALESCE(m.location_final_id, m.location_dest_id)
+            WHEN m.state != 'done' THEN COALESCE(m.forecasted_location_id, m.location_dest_id)
             ELSE m.location_dest_id
         END
         LEFT JOIN product_product pp on pp.id=m.product_id
         LEFT JOIN product_template pt on pt.id=pp.product_tmpl_id
-        LEFT JOIN uom_uom pt_uom ON pt_uom.id = pt.uom_id
-        LEFT JOIN uom_uom move_uom ON move_uom.id = m.product_uom
+        LEFT JOIN uom_uom uom_move ON uom_move.id = m.uom_id
+        LEFT JOIN uom_uom uom_product ON uom_product.id = pt.uom_id
         WHERE pt.is_storable = true AND
             source.w_id IS DISTINCT FROM dest.w_id AND
-            m.product_qty != 0 AND
+            (m.product_qty != 0 OR m.quantity != 0) AND
             m.state NOT IN ('draft', 'cancel') AND
             (m.state != 'done' or m.date >= ((now() at time zone 'utc')::date - interval '%(report_period)s month'))
     ),
-    all_sm (id, product_id, tmpl_id, product_qty, quantity, date, state, company_id, whs_id, whd_id) AS (
+    all_sm (id, product_id, tmpl_id, product_qty, quantity, qty_done_product_uom, date, state, company_id, whs_id, whd_id) AS NOT MATERIALIZED (
         SELECT sm.id, sm.product_id, sm.tmpl_id,
             CASE
                 WHEN is_duplicated = 0 OR sm.whs_id != sm.whd_id THEN sm.product_qty
@@ -86,6 +87,11 @@ WITH
             CASE
                 WHEN is_duplicated = 0 THEN sm.quantity
                 WHEN sm.whs_id IS NOT NULL AND sm.whd_id IS NOT NULL AND sm.whs_id != sm.whd_id THEN sm.quantity
+                ELSE 0
+            END,
+            CASE
+                WHEN is_duplicated = 0 THEN sm.qty_done_product_uom
+                WHEN sm.whs_id IS NOT NULL AND sm.whd_id IS NOT NULL AND sm.whs_id != sm.whd_id THEN sm.qty_done_product_uom
                 ELSE 0
             END,
             sm.date, sm.state, sm.company_id,
@@ -137,7 +143,7 @@ FROM (SELECT
         pp.product_tmpl_id,
         'forecast' as state,
         date.*::date,
-        {self._get_product_qty_col()} as product_qty,
+        %(product_qty_col)s as product_qty,
         q.company_id,
         wh.id as warehouse_id
     FROM
@@ -168,8 +174,8 @@ FROM (SELECT
             ELSE m.date::date - interval '1 day'
         END, '1 day'::interval)::date date,
         CASE
-            WHEN m.whs_id IS NOT NULL AND m.whd_id IS NULL AND m.state = 'done' THEN m.quantity
-            WHEN m.whd_id IS NOT NULL AND m.whs_id IS NULL AND m.state = 'done' THEN -m.quantity
+            WHEN m.whs_id IS NOT NULL AND m.whd_id IS NULL AND m.state = 'done' THEN m.qty_done_product_uom
+            WHEN m.whd_id IS NOT NULL AND m.whs_id IS NULL AND m.state = 'done' THEN -m.qty_done_product_uom
             WHEN m.whs_id IS NOT NULL AND m.whd_id IS NULL THEN -m.product_qty
             WHEN m.whd_id IS NOT NULL AND m.whs_id IS NULL THEN m.product_qty
         END AS product_qty,
@@ -181,9 +187,8 @@ FROM (SELECT
     FROM
         all_sm m
     WHERE
-        m.product_qty != 0) AS forecast_qty
+        m.product_qty != 0 OR (m.state = 'done' AND m.quantity != 0)) AS forecast_qty
 GROUP BY product_id, product_tmpl_id, state, date, company_id, warehouse_id
 );
-"""
-        report_period = self.env['ir.config_parameter'].sudo().get_param('stock.report_stock_quantity_period', default='3')
-        self.env.cr.execute(query, {'report_period': int(report_period)})
+""", product_qty_col=self._get_product_qty_col(), report_period=report_period)
+        self.env.cr.execute(query)

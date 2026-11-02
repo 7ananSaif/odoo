@@ -1,9 +1,7 @@
 import { Plugin } from "@html_editor/plugin";
 import { throttleForAnimation } from "@web/core/utils/timing";
 import { getScrollingElement, getScrollingTarget } from "@web/core/utils/scrolling";
-import { checkElement } from "../builder_options_plugin";
 import { BuilderOverlay, sizingY, sizingX, sizingGrid } from "./builder_overlay";
-import { withSequence } from "@html_editor/utils/resource";
 
 function isResizable(el) {
     const isResizableY = el.matches(sizingY.selector) && !el.matches(sizingY.exclude);
@@ -21,17 +19,21 @@ function isResizable(el) {
 
 export class BuilderOverlayPlugin extends Plugin {
     static id = "builderOverlay";
-    static dependencies = ["localOverlay", "history", "operation"];
+    static dependencies = ["builderOptions", "localOverlay", "history", "operation"];
     static shared = ["showOverlayPreview", "hideOverlayPreview", "refreshOverlays"];
     /** @type {import("plugins").BuilderResources} */
     resources = {
-        step_added_handlers: this.refreshOverlays.bind(this),
-        change_current_options_containers_listeners: this.openBuilderOverlays.bind(this),
-        on_mobile_preview_clicked: withSequence(20, this.refreshOverlays.bind(this)),
+        on_committed_to_history_handlers: this.refreshOverlays.bind(this),
+        on_current_options_containers_changed_handlers: this.openBuilderOverlays.bind(this),
         has_overlay_options: { hasOption: (el) => isResizable(el) },
+        on_prepare_drag_handlers: () => {
+            this.toggleOverlaysVisibility(false);
+            return () => {}; // it will be refreshed by the call to `updateContainers` after drop (or cancel)
+        },
     };
 
     setup() {
+        this.hoverOverlay = null;
         // TODO find how to not overflow the mobile preview.
         this.iframe = this.editable.ownerDocument.defaultView.frameElement;
         this.overlayContainer = this.dependencies.localOverlay.makeLocalOverlay(
@@ -53,6 +55,8 @@ export class BuilderOverlayPlugin extends Plugin {
 
         // Recompute the overlay when the window is resized.
         this.addDomListener(window, "resize", this._refreshOverlays);
+        this.documentResizeObserver = new ResizeObserver(() => this._refreshOverlays());
+        this.documentResizeObserver.observe(this.document.documentElement);
 
         // On keydown, hide the overlay and then show it again when the mouse
         // moves.
@@ -86,9 +90,18 @@ export class BuilderOverlayPlugin extends Plugin {
             { capture: true }
         );
 
+        this.addDomListener(this.editable, "mouseleave", () => {
+            this.removeHoverOverlay();
+        });
+        this.addDomListener(this.editable, "mousemove", (ev) => {
+            const el = this.dependencies.builderOptions.closestWithOption(ev.target);
+            el ? this.showHoverOverlay(el) : this.removeHoverOverlay();
+        });
+
         this._cleanups.push(() => {
             this.removeBuilderOverlays();
             this.resizeObserver.disconnect();
+            this.documentResizeObserver.disconnect();
         });
     }
 
@@ -100,11 +113,14 @@ export class BuilderOverlayPlugin extends Plugin {
 
         // Create the overlays.
         optionsContainer.forEach((option) => {
+            if (option.hideOverlay) {
+                return;
+            }
             const overlay = new BuilderOverlay(option.element, {
                 iframe: this.iframe,
                 overlayContainer: this.overlayContainer,
                 history: this.dependencies.history,
-                hasOverlayOptions: checkElement(option.element, {}) && option.hasOverlayOptions,
+                hasOverlayOptions: option.hasOverlayOptions,
                 next: this.dependencies.operation.next,
                 isMobileView: this.config.isMobileView,
                 mobileBreakpoint: this.config.mobileBreakpoint,
@@ -114,6 +130,10 @@ export class BuilderOverlayPlugin extends Plugin {
             this.overlayContainer.append(overlay.overlayElement);
             this.resizeObserver.observe(overlay.overlayTarget, { box: "border-box" });
         });
+
+        if (!this.overlays.length) {
+            return;
+        }
 
         // Activate the last overlay.
         const innermostOverlay = this.overlays.at(-1);
@@ -131,7 +151,19 @@ export class BuilderOverlayPlugin extends Plugin {
         }
     }
 
+    removeHoverOverlay() {
+        if (this.hoverOverlay) {
+            if (!this.overlays.find((o) => o.overlayTarget === this.hoverOverlay.overlayTarget)) {
+                this.resizeObserver.unobserve(this.hoverOverlay.overlayTarget);
+            }
+            this.hoverOverlay.destroy();
+            this.hoverOverlay.overlayElement.remove();
+            this.hoverOverlay = null;
+        }
+    }
+
     removeBuilderOverlays() {
+        this.removeHoverOverlay();
         this.overlays.forEach((overlay) => {
             overlay.destroy();
             overlay.overlayElement.remove();
@@ -141,6 +173,7 @@ export class BuilderOverlayPlugin extends Plugin {
     }
 
     refreshOverlays() {
+        this.hoverOverlay?.refreshPosition();
         this.overlays.forEach((overlay) => {
             overlay.refreshPosition();
             overlay.refreshHandles();
@@ -148,15 +181,45 @@ export class BuilderOverlayPlugin extends Plugin {
     }
 
     refreshPositions() {
+        this.hoverOverlay?.refreshPosition();
         this.overlays.forEach((overlay) => {
             overlay.refreshPosition();
         });
     }
 
     toggleOverlaysVisibility(show) {
+        if (!show) {
+            this.removeHoverOverlay();
+        }
         this.overlays.forEach((overlay) => {
             overlay.toggleOverlayVisibility(show);
         });
+    }
+
+    showHoverOverlay(el) {
+        if (this.hoverOverlay && this.hoverOverlay?.overlayTarget === el) {
+            return;
+        }
+        this.removeHoverOverlay();
+        if (this.overlays.find((overlay) => overlay.overlayTarget === el && overlay.isActive())) {
+            return;
+        }
+        const overlay = new BuilderOverlay(el, {
+            iframe: this.iframe,
+            overlayContainer: this.overlayContainer,
+            history: this.dependencies.history,
+            hasOverlayOptions: false,
+            next: this.dependencies.operation.next,
+            isMobileView: this.config.isMobileView,
+            mobileBreakpoint: this.config.mobileBreakpoint,
+            isRtl: this.config.isEditableRTL,
+            isHoverOverlay: true,
+        });
+        this.hoverOverlay = overlay;
+        this.overlayContainer.append(overlay.overlayElement);
+        this.resizeObserver.observe(overlay.overlayTarget, { box: "border-box" });
+        // `refreshPosition` won't be called by the resize observer if the element was already observed
+        this.hoverOverlay.refreshPosition();
     }
 
     showOverlayPreview(el) {

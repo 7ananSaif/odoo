@@ -1,14 +1,18 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import logging
+from hashlib import sha256
 
 import odoo.tools
-from odoo import http
-from odoo.modules import Manifest
+from odoo import http, release
 from odoo.http import request
+from odoo.http.stream import STATIC_CACHE_LONG
+from odoo.modules import Manifest
+from odoo.tools import translate
 from odoo.tools.misc import file_path
-from .utils import _local_web_translations
 
+
+from .utils import _local_web_translations
 
 _logger = logging.getLogger(__name__)
 
@@ -56,10 +60,9 @@ class WebClient(http.Controller):
         if mods:
             mods = mods.split(',')
         else:
-            mods = request.env.registry._init_modules.union(odoo.tools.config['server_wide_modules'])
+            mods = request.env['ir.http']._get_web_translations_modules()
 
-        if lang and lang not in {code for code, _ in request.env['res.lang'].sudo().get_installed()}:
-            lang = None
+        lang = request.env['ir.http']._get_web_translations_lang(lang)
 
         current_hash = request.env["ir.http"].with_context(cache_translation_data=True)._get_web_translations_hash(mods, lang)
 
@@ -82,20 +85,26 @@ class WebClient(http.Controller):
 
         # The type of the route is set to HTTP, but the rpc is made with a get and expects JSON
         return request.make_json_response(body, [
-            ('Cache-Control', f'public, max-age={http.STATIC_CACHE_LONG}'),
+            ('Cache-Control', f'public, max-age={STATIC_CACHE_LONG}'),
         ])
 
     @http.route('/web/webclient/version_info', type='jsonrpc', auth="none")
     def version_info(self):
-        return odoo.service.common.exp_version()
+        return {
+            'server_version': release.version,
+            'server_version_info': release.version_info,
+            'server_serie': release.serie,
+        }
 
     @http.route('/web/tests', type='http', auth='user', readonly=True)
     def unit_tests_suite(self, mod=None, **kwargs):
-        return request.render('web.unit_tests_suite', {'session_info': {'view_info': request.env['ir.ui.view'].get_view_info()}})
-
-    @http.route('/web/tests/legacy', type='http', auth='user', readonly=True)
-    def test_suite(self, mod=None, **kwargs):
-        return request.render('web.qunit_suite', {'session_info': {'view_info': request.env['ir.ui.view'].get_view_info()}})
+        return request.render('web.unit_tests_suite', {
+            'session_info': {
+                "server_version": release.version,
+                "server_version_info": release.version_info,
+                'view_info': request.env['ir.ui.view'].get_view_info()
+            },
+        })
 
     @http.route('/web/bundle/<string:bundle_name>', auth='public', methods=['GET'], readonly=True)
     def bundle(self, bundle_name, **bundle_params):
@@ -113,3 +122,94 @@ class WebClient(http.Controller):
         } for tag, attrs in files]
 
         return request.make_json_response(data)
+
+
+def digest_term(term):
+    return sha256(term.encode()).hexdigest()
+
+
+class ModelTranslations(http.Controller):
+
+    def _get_translation_mode(self, res_model, field_name):
+        field = self.env[res_model]._fields[field_name]
+        assert field.translate
+        match (field.type, field.translate):
+            case ("html", True):
+                return "html"
+            case (_, translate.html_translate):
+                return "structured_html"
+            case (_, translate.xml_translate):
+                return "xml"
+            case _:
+                return "text"
+
+    @http.route("/web/translations/get_translation_for_field", type="jsonrpc", methods=["POST"], auth="user", readonly=True)
+    def get_translation_for_field(self, res_model: str, field_name: str, res_id: int, target_lang: str | None = None, context: dict | None = None) -> dict:
+        """
+        For a record (res_model, res_id), retrieves the translation terms for the field "field_name",
+        along with the languages active in database and the translation mode.
+
+        The translation mode will tell the client how to display the terms.
+
+        :param res_model:
+        :param field_name:
+        :param res_id:
+        :param target_lang: The language asked for as a priority by the caller.
+            It may not be active, in which case the first language which is not a base
+            (not en_US) is chosen instead
+
+        :return: A dictionary with the following structure:
+          ::
+
+            {
+                'languages': {
+                    [code]: dict
+                },
+                'translation_mode': str,
+                'target_lang': str,
+                'xml_values': dict[str, str],
+                'terms': list[dict],
+            }
+        """
+        if context:
+            request.update_context(**context)
+        translation_mode = self._get_translation_mode(res_model, field_name)
+        record = self.env[res_model].browse(res_id)
+        record_base_lang = record._get_base_lang()
+        langs = self.env["res.lang"].sudo()._get_active_langs().sorted('name')
+        lang_codes = langs.mapped("code")
+
+        if target_lang is None or target_lang not in lang_codes:
+            target_lang = next(iter(code for code in lang_codes if code != record_base_lang), None)
+
+        result = {
+            "target_lang": target_lang,
+            "translation_mode": translation_mode,
+            "languages": {l.code: {"name": l.name, "direction": l.direction, "code": l.code, "is_base": record_base_lang == l.code} for l in langs}
+        }
+
+        match translation_mode:
+            case "xml" | "structured_html":
+                rec_context = record.with_context(lang=target_lang, edit_translations=True)
+                rec_context.fetch([field_name])
+                result["xml_values"] = {
+                    target_lang: rec_context[field_name]
+                }
+            case "html" | "text":
+                result["terms"] = record.get_field_translations(field_name, (lang.code for lang in langs))[0]
+        return result
+
+    @http.route("/web/translations/save_translation_for_field", type="jsonrpc", methods=["POST"], auth="user")
+    def save_translation_for_field(self, res_model, field_name, res_id, target_lang=None, changes=None, context=None):
+        if context:
+            request.update_context(**context)
+        translation_mode = self._get_translation_mode(res_model, field_name)
+        record = self.env[res_model].browse(res_id)
+        langs = self.env["res.lang"].sudo()._get_active_langs().mapped('code')
+        match translation_mode:
+            case "xml" | "structured_html":
+                record._update_field_translations(field_name, changes, digest=digest_term)
+            case "text" | "html":
+                if ("en_US" in changes and changes["en_US"] is None) or "en_US" not in langs:
+                    changes["en_US"] = next(v for v in changes.values() if v is not None)
+                record._update_field_translations(field_name, changes)

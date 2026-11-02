@@ -2,6 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from . import calendar
+from . import discuss_channel
 from . import crm_lead
 from . import crm_lost_reason
 from . import crm_stage
@@ -16,3 +17,5 @@ from . import utm
 from . import crm_recurring_plan
 from . import mail_activity
 from . import res_users
+
+from . import res_groups

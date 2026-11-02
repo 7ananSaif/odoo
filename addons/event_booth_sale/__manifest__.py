@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
@@ -11,7 +10,6 @@ Sell your event booths and track payments on sale orders.
     """,
     'depends': ['event_booth', 'event_sale'],
     'data': [
-        'security/ir.model.access.csv',
         'data/product_data.xml',
         'data/event_booth_category_data.xml',
         'views/sale_order_views.xml',
@@ -20,6 +18,7 @@ Sell your event booths and track payments on sale orders.
         'views/event_booth_registration_views.xml',
         'views/event_booth_views.xml',
         'wizard/event_booth_configurator_views.xml',
+        'security/ir.access.csv',
     ],
     'auto_install': True,
     'assets': {

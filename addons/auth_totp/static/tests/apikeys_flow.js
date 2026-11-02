@@ -3,7 +3,7 @@ import { registry } from "@web/core/registry";
 
 const openUserPreferenceSecurity = () => [{
     content: 'Open user account menu',
-    trigger: '.o_user_menu .dropdown-toggle',
+    trigger: '.o_user_menu',
     run: 'click',
 }, {
     content: "Open preferences / profile screen",
@@ -11,20 +11,19 @@ const openUserPreferenceSecurity = () => [{
     run: 'click',
 }, {
     content: "Switch to security tab",
-    trigger: 'a[role=tab]:contains("Security")',
+    trigger: 'button[role=tab]:contains("Security")',
     run: 'click',
 }]
 
 registry.category("web_tour.tours").add('apikeys_tour_setup', {
-    url: '/odoo?debug=1', // Needed as API key part is now only displayed in debug mode
     steps: () => [
     ...openUserPreferenceSecurity(), {
     content: "Open API keys wizard",
-    trigger: 'button:contains("Add API Key")',
+    trigger: 'button:contains("Create API Key")',
     run: "click",
 }, {
     content: "Check that we have to enter enhanced security mode",
-    trigger: ".modal div:contains(Enter your current password)",
+    trigger: ".modal div:contains(Enter your own password)",
 }, {
     content: "Input password",
     trigger: '.modal [name=password] input',
@@ -35,18 +34,18 @@ registry.category("web_tour.tours").add('apikeys_tour_setup', {
     run: "click",
 }, {
     content: "Check that we're now on the key description dialog",
-    trigger: '.modal p:contains("Enter a description of and purpose for the key.")',
+    trigger: '.modal label:contains("Key Name — your only way to identify that key")',
 }, {
     content: "Enter description",
     trigger: '.modal [name=name] input',
     run: "edit my key",
 }, {
     content: "Confirm key creation",
-    trigger: '.modal button:contains("Generate key")',
+    trigger: '.modal button:contains("Create key")',
     run: "click",
 }, {
     content: "Check that we're on the last step & grab key",
-    trigger: '.modal p:contains("Here is your new API key")',
+    trigger: '.modal p:contains("This key won\'t be shown again")',
     run: async () => {
         const key = document.querySelector("code [name=key] span").textContent;
         await rpc('/web/dataset/call_kw', {
@@ -68,17 +67,16 @@ registry.category("web_tour.tours").add('apikeys_tour_setup', {
 
 // deletes the previously created key
 registry.category("web_tour.tours").add('apikeys_tour_teardown', {
-    url: '/odoo?debug=1', // Needed as API key part is now only displayed in debug mode
     steps: () => [{
     content: 'Open preferences',
-    trigger: '.o_user_menu .dropdown-toggle',
+    trigger: '.o_user_menu',
     run: "click",
 }, {
     trigger: '[data-menu=preferences]',
     run: "click",
 }, {
     content: "Switch to security tab",
-    trigger: 'a[role=tab]:contains("Security")',
+    trigger: 'button[role=tab]:contains("Security")',
     run: 'click',
 }, {
     content: "Open kanban dropdown menu of the key",
@@ -98,14 +96,14 @@ registry.category("web_tour.tours").add('apikeys_tour_teardown', {
 },
 {
     content: 'Re-open preferences again',
-    trigger: '.o_user_menu .dropdown-toggle',
+    trigger: '.o_user_menu',
     run: "click",
 }, {
     trigger: '[data-menu=preferences]',
     run: "click",
 }, {
     content: "Switch to security tab",
-    trigger: 'a[role=tab]:contains("Security")',
+    trigger: 'button[role=tab]:contains("Security")',
     run: 'click',
 }, {
     content: "Check that there's no more keys",

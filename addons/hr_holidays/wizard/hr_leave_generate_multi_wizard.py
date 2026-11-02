@@ -1,11 +1,10 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from datetime import datetime, timedelta
-
-from pytz import UTC, timezone
+from datetime import datetime, timedelta, UTC
+from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
-from odoo.exceptions import AccessError, UserError
+from odoo.exceptions import UserError
 from odoo.fields import Domain
 
 
@@ -15,68 +14,81 @@ class HrLeaveGenerateMultiWizard(models.TransientModel):
     _description = 'Generate time off for multiple employees'
 
     def _get_employee_domain(self):
-        domain = Domain([('company_id', 'in', self.env.companies.ids)])
+        domain = (
+            Domain([("company_id", "=", self.company_id.id)])
+            if self.company_id
+            else Domain([("company_id", "in", self.env.companies.ids)])
+        )
         if not self.env.user.has_group('hr_holidays.group_hr_holidays_user'):
             domain &= Domain(['|', ('leave_manager_id', '=', self.env.user.id), ('user_id', '=', self.env.user.id)])
         return domain
 
     name = fields.Char("Description")
-    holiday_status_id = fields.Many2one(
-        "hr.leave.type", string="Time Off Type", required=True,
-        domain="[('company_id', 'in', [company_id, False])]")
-    allocation_mode = fields.Selection([
-        ('employee', 'By Employee'),
-        ('company', 'By Company'),
-        ('department', 'By Department'),
-        ('category', 'By Employee Tag')],
-        string='Allocation Mode', readonly=False, required=True, default='employee',
-        help="Allow to create requests in batchs:\n- By Employee: for a specific employee"
-             "\n- By Company: all employees of the specified company"
-             "\n- By Department: all employees of the specified department"
-             "\n- By Employee Tag: all employees of the specific employee group category")
+    work_entry_type_id = fields.Many2one(
+        "hr.work.entry.type", string="Time Type", required=True, domain="[('id', 'in', valid_work_entry_type_ids)]")
+    allowed_work_entry_type_ids = fields.Many2many(
+        'hr.work.entry.type', compute='_compute_allowed_work_entry_type_ids')
     employee_ids = fields.Many2many('hr.employee', string='Employees', domain=lambda self: self._get_employee_domain())
     company_id = fields.Many2one('res.company', default=lambda self: self.env.company, required=True)
-    department_id = fields.Many2one('hr.department')
-    category_id = fields.Many2one('hr.employee.category', string='Employee Tag')
-    date_from = fields.Date('Start Date', required=True)
-    date_to = fields.Date('End Date', required=True)
+    date_from = fields.Date('Start Date', required=True, default=fields.Date.context_today)
+    date_to = fields.Date('End Date', required=True, default=fields.Date.context_today)
+    hour_from = fields.Float(string='Hour from')
+    hour_to = fields.Float(string='Hour to')
+    work_entry_type_request_unit = fields.Selection(related='work_entry_type_id.request_unit')
+    date_from_period = fields.Selection([
+        ('am', 'Morning'), ('pm', 'Afternoon')],
+        string="Date Period Start", default='am')
+    date_to_period = fields.Selection([
+        ('am', 'Morning'), ('pm', 'Afternoon')],
+        string="Date Period End", default='pm')
+    valid_work_entry_type_ids = fields.Many2many("hr.work.entry.type", compute="_compute_valid_work_entry_type_ids")
 
-    def _get_employees_from_allocation_mode(self):
-        self.ensure_one()
-        if self.allocation_mode == 'employee':
-            employees = self.employee_ids or self.env['hr.employee'].search(self._get_employee_domain())
-        elif self.allocation_mode == 'category':
-            employees = self.category_id.employee_ids.filtered(lambda e: e.company_id in self.env.companies)
-        elif self.allocation_mode == 'company':
-            employees = self.env['hr.employee'].search([('company_id', '=', self.company_id.id)])
-        else:
-            employees = self.department_id.member_ids
-        return employees
+    @api.depends('company_id')
+    def _compute_allowed_work_entry_type_ids(self):
+        for wizard in self:
+            country = wizard.company_id.country_id or self.env.company.country_id
+            if not country or not self.env['hr.work.entry.type'].search_count([('country_id', '=', country.id)], limit=1):
+                domain = [('country_id', '=', False)]
+            else:
+                domain = [('country_id', '=', country.id)]
+            wizard.allowed_work_entry_type_ids = self.env['hr.work.entry.type'].search(domain)
 
     def _prepare_employees_holiday_values(self, employees, date_from_tz, date_to_tz):
         self.ensure_one()
         work_days_data = employees.sudo()._get_work_days_data_batch(date_from_tz, date_to_tz)
-        validated = self.env.user.has_group('hr_holidays.group_hr_holidays_user') or self.holiday_status_id.leave_validation_type == 'no_validation'
-        return [{
-            'name': self.name,
-            'holiday_status_id': self.holiday_status_id.id,
-            'date_from': date_from_tz,
-            'date_to': date_to_tz,
-            'request_date_from': self.date_from,
-            'request_date_to': self.date_to,
-            'number_of_days': work_days_data[employee.id]['days'],
-            'employee_id': employee.id,
-            'state': 'validate' if validated else 'confirm',
-        } for employee in employees if work_days_data[employee.id]['days']]
+        validated = self.env.user.has_group('hr_holidays.group_hr_holidays_user') or self.work_entry_type_id.leave_validation_type == 'no_validation'
+        values = []
+        for employee in employees:
+            if work_days_data[employee.id]['days'] > 0:
+                employee_values = {
+                    'name': self.name,
+                    'work_entry_type_id': self.work_entry_type_id.id,
+                    'request_date_from': self.date_from,
+                    'request_date_to': self.date_to,
+                    'employee_id': employee.id,
+                    'state': 'validate' if validated else 'confirm',
+                }
+                if self.work_entry_type_request_unit == 'hour':
+                    employee_values['request_hour_from'] = self.hour_from
+                    employee_values['request_hour_to'] = self.hour_to
+                if self.work_entry_type_request_unit == 'half_day':
+                    employee_values['request_date_from_period'] = self.date_from_period
+                    employee_values['request_date_to_period'] = self.date_to_period
+                values.append(employee_values)
+        return values
 
     def action_generate_time_off(self):
         self.ensure_one()
-        employees = self._get_employees_from_allocation_mode()
+        employees = self.employee_ids or self.env['hr.employee'].search(self._get_employee_domain())
 
-        tz = timezone(self.company_id.resource_calendar_id.tz or self.env.user.tz or 'UTC')
-        date_from_tz = tz.localize(datetime.combine(self.date_from, datetime.min.time())).astimezone(UTC).replace(tzinfo=None)
-        date_to_tz = tz.localize(datetime.combine(self.date_to, datetime.max.time())).astimezone(UTC).replace(tzinfo=None)
-
+        tz = ZoneInfo(self.company_id.tz or self.env.user.tz or 'UTC')
+        if self.work_entry_type_request_unit == 'hour':
+            date_from_tz = (datetime.combine(self.date_from, datetime.min.time(), tzinfo=tz) + timedelta(hours=self.hour_from)).astimezone(UTC).replace(tzinfo=None)
+            date_to_tz = (datetime.combine(self.date_to, datetime.min.time(), tzinfo=tz) + timedelta(hours=self.hour_to)).astimezone(UTC).replace(tzinfo=None)
+        else:
+            date_from_tz = datetime.combine(self.date_from, datetime.min.time(), tzinfo=tz).astimezone(UTC).replace(tzinfo=None)
+            date_to_tz = datetime.combine(self.date_to, datetime.max.time(), tzinfo=tz).astimezone(UTC).replace(tzinfo=None)
+        # seems 'tracking_disable' is wanted to speedup batch creation
         conflicting_leaves = self.env['hr.leave'].with_context(
             tracking_disable=True,
             mail_activity_automation_skip=True,
@@ -89,7 +101,7 @@ class HrLeaveGenerateMultiWizard(models.TransientModel):
 
         if conflicting_leaves:
             # YTI: More complex use cases could be managed later
-            invalid_time_off = conflicting_leaves.filtered(lambda leave: leave.leave_type_request_unit == 'hour')
+            invalid_time_off = conflicting_leaves.filtered(lambda leave: leave.work_entry_type_request_unit == 'hour')
             if invalid_time_off:
                 raise UserError(self.env._('Some employees already have time off requests in hours that overlap with the selected period, Odoo cannot automatically adjust or split hourly leaves during batch generation. Conflicting time off:\n%s', '\n'.join(f"- {l.display_name}" for l in invalid_time_off)))
             one_day_leaves = conflicting_leaves.filtered(lambda leave: leave.request_date_from == leave.request_date_to)
@@ -107,6 +119,7 @@ class HrLeaveGenerateMultiWizard(models.TransientModel):
             # If _compute_date_from_to is used instead, it will trigger _compute_number_of_days
             # and create a conflict on the number of days calculation between the different leaves
             leave_compute_date_from_to=True,
+            multi_leave_request=True,
         ).create(vals_list)
         leaves._validate_leave_request()
 
@@ -122,9 +135,28 @@ class HrLeaveGenerateMultiWizard(models.TransientModel):
             },
         }
 
-    @api.constrains('allocation_mode')
-    def _check_allocation_mode(self):
-        is_manager = self.env.user.has_group('hr_holidays.group_hr_holidays_user')
-        for record in self:
-            if record.allocation_mode != 'employee' and not is_manager:
-                raise AccessError(self.env._("As Time Off Responsible, you can only use the allocation mode 'By Employee'."))
+    @api.depends("employee_ids", "date_from")
+    def _compute_valid_work_entry_type_ids(self):
+        res = self.env["hr.work.entry.type"]
+        work_entry_types = (
+            self.env["hr.work.entry.type"].search([('time_off_selectable', '=', True)]).grouped("requires_allocation")
+        )
+        work_entry_types_alloc = work_entry_types.get(True, res)
+        work_entry_types_no_alloc = work_entry_types.get(False, res)
+        res |= work_entry_types_no_alloc
+        allocations = self.env['hr.leave.allocation'].search([
+            ('work_entry_type_id', 'in', work_entry_types_alloc.ids),
+            ('employee_id', 'in', self.employee_ids.ids),
+            ('date_from', '<=', self.date_from),
+            '|',
+            ('date_to', '=', False),
+            ('date_to', '>=', self.date_to),
+        ])
+        valid_allocations = allocations.filtered(
+            lambda a: a.work_entry_type_id.allows_negative or a.virtual_remaining_leaves > 0,
+        )
+        allocation_data = valid_allocations.grouped('work_entry_type_id')
+        for entry_type, entry_allocations in allocation_data.items():
+            if entry_allocations.employee_id == self.employee_ids._origin:
+                res |= entry_type
+        self.valid_work_entry_type_ids = res

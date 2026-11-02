@@ -11,7 +11,6 @@ test("accordion can be rendered", async () => {
     class Parent extends Component {
         static template = xml`<AccordionItem description="'Test'" class="'text-primary'" selected="false"><h5>In accordion</h5></AccordionItem>`;
         static components = { AccordionItem };
-        static props = ["*"];
     }
 
     await mountWithCleanup(Parent);
@@ -41,7 +40,6 @@ test("dropdown with accordion keyboard navigation", async () => {
             </Dropdown>
         `;
         static components = { Dropdown, DropdownItem, AccordionItem };
-        static props = ["*"];
     }
 
     await mountWithCleanup(Parent);

@@ -18,9 +18,9 @@ class ProductTemplate(models.Model):
         ('timesheet', 'Timesheets on project (one fare per SO/Project)'),
     ], ondelete={'timesheet': 'set manual'})
     # override domain
-    project_id = fields.Many2one(domain="['|', ('company_id', '=', False), '&', ('company_id', '=?', company_id), ('company_id', '=', current_company_id), ('allow_billable', '=', True), ('pricing_type', '=', 'task_rate'), ('allow_timesheets', 'in', [service_policy == 'delivered_timesheet', True]), ('is_template', '=', False)]")
+    project_id = fields.Many2one(domain="['|', ('company_id', '=', False), '&', ('company_id', '=?', company_id), ('company_id', '=', current_company_id), ('allow_billable', '=', True), ('allow_timesheets', 'in', [service_policy == 'delivered_timesheet', True]), ('is_template', '=', False)]")
     project_template_id = fields.Many2one(domain="['|', ('company_id', '=', False), '&', ('company_id', '=?', company_id), ('company_id', '=', current_company_id), ('allow_billable', '=', True), ('allow_timesheets', 'in', [service_policy == 'delivered_timesheet', True]), ('is_template', '=', True)]")
-    service_upsell_threshold = fields.Float('Threshold', default=1, help="Percentage of time delivered compared to the prepaid amount that must be reached for the upselling opportunity activity to be triggered.")
+    service_upsell_threshold = fields.Float('Threshold', default=0.9, help="Percentage of time delivered compared to the prepaid amount that must be reached for the upselling opportunity activity to be triggered.")
     service_upsell_threshold_ratio = fields.Char(compute='_compute_service_upsell_threshold_ratio', export_string_translation=False)
 
     @api.depends('uom_id', 'company_id')
@@ -37,12 +37,12 @@ class ProductTemplate(models.Model):
                 timesheet_encode_uom = record.company_id.timesheet_encode_uom_id or company_uom
                 record.service_upsell_threshold_ratio = f'(1 {record.uom_id.name} = {timesheet_encode_uom.factor / product_uom_hour.factor:.2f} {timesheet_encode_uom.name})'
 
-    def _compute_visible_expense_policy(self):
+    def _compute_visible_reinvoice_policy(self):
         visibility = self.env.user.has_group('project.group_project_user')
         for product_template in self:
-            if not product_template.visible_expense_policy:
-                product_template.visible_expense_policy = visibility
-        return super()._compute_visible_expense_policy()
+            if not product_template.visible_reinvoice_policy:
+                product_template.visible_reinvoice_policy = visibility
+        return super()._compute_visible_reinvoice_policy()
 
     def _prepare_invoicing_tooltip(self):
         if self.service_policy == 'delivered_timesheet':

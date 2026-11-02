@@ -8,7 +8,15 @@ from odoo.tools import mute_logger, float_round
 from odoo import Command, fields
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install Fails in post install
 class TestStockFlow(TestStockCommon):
+    _test_user_groups = (
+        'product.group_product_manager',  # FIXME: use base.group_user
+        'stock.group_stock_user',
+    )
+
+    _test_user_name = 'Test Stock User & Product Manager'
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -22,7 +30,7 @@ class TestStockFlow(TestStockCommon):
             'email': 'chicago@yourcompany.com',
             'company_id': False,
         })
-        cls.company = cls.env['res.company'].create({
+        cls.company_2 = cls.env['res.company'].create({
             'currency_id': cls.env.ref('base.USD').id,
             'partner_id': cls.partner_company2.id,
             'name': 'My Company (Chicago)-demo',
@@ -38,7 +46,7 @@ class TestStockFlow(TestStockCommon):
         cls.SDozA = cls.ProductObj.create({'name': 'SuperDozon-A', 'is_storable': True, 'uom_id': cls.uom_sdozen.id})
         cls.UnitA = cls.ProductObj.create({'name': 'Unit-A', 'is_storable': True})
 
-    @mute_logger('odoo.addons.base.models.ir_model', 'odoo.models')
+    @mute_logger('odoo.addons.base.models.ir_access', 'odoo.models')
     def test_00_picking_create_and_transfer_quantity(self):
         """ Basic stock operation on incoming and outgoing shipment. """
         LotObj = self.env['stock.lot']
@@ -59,7 +67,7 @@ class TestStockFlow(TestStockCommon):
         move_a = self.MoveObj.create({
             'product_id': self.productA.id,
             'product_uom_qty': 1,
-            'product_uom': self.productA.uom_id.id,
+            'uom_id': self.productA.uom_id.id,
             'picking_id': picking_in.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
@@ -67,7 +75,7 @@ class TestStockFlow(TestStockCommon):
         move_b = self.MoveObj.create({
             'product_id': self.productB.id,
             'product_uom_qty': 1,
-            'product_uom': self.productB.uom_id.id,
+            'uom_id': self.productB.uom_id.id,
             'picking_id': picking_in.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
@@ -75,7 +83,7 @@ class TestStockFlow(TestStockCommon):
         move_c = self.MoveObj.create({
             'product_id': self.productC.id,
             'product_uom_qty': 10,
-            'product_uom': self.productC.uom_id.id,
+            'uom_id': self.productC.uom_id.id,
             'picking_id': picking_in.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
@@ -83,7 +91,7 @@ class TestStockFlow(TestStockCommon):
         move_d = self.MoveObj.create({
             'product_id': self.productD.id,
             'product_uom_qty': 10,
-            'product_uom': self.productD.uom_id.id,
+            'uom_id': self.productD.uom_id.id,
             'picking_id': picking_in.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
@@ -91,7 +99,7 @@ class TestStockFlow(TestStockCommon):
         self.MoveObj.create({
             'product_id': self.productD.id,
             'product_uom_qty': 5,
-            'product_uom': self.productD.uom_id.id,
+            'uom_id': self.productD.uom_id.id,
             'picking_id': picking_in.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
@@ -119,7 +127,7 @@ class TestStockFlow(TestStockCommon):
         self.StockPackObj.create({
             'product_id': self.productC.id,
             'quantity': 2,
-            'product_uom_id': self.productC.uom_id.id,
+            'uom_id': self.productC.uom_id.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
             'move_id': move_c.id,
@@ -128,7 +136,7 @@ class TestStockFlow(TestStockCommon):
         self.StockPackObj.create({
             'product_id': self.productD.id,
             'quantity': 2,
-            'product_uom_id': self.productD.uom_id.id,
+            'uom_id': self.productD.uom_id.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
             'move_id': move_d.id
@@ -198,7 +206,7 @@ class TestStockFlow(TestStockCommon):
         move_cust_a = self.MoveObj.create({
             'product_id': self.productA.id,
             'product_uom_qty': 10,
-            'product_uom': self.productA.uom_id.id,
+            'uom_id': self.productA.uom_id.id,
             'picking_id': picking_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
@@ -206,7 +214,7 @@ class TestStockFlow(TestStockCommon):
         move_cust_b = self.MoveObj.create({
             'product_id': self.productB.id,
             'product_uom_qty': 5,
-            'product_uom': self.productB.uom_id.id,
+            'uom_id': self.productB.uom_id.id,
             'picking_id': picking_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
@@ -214,7 +222,7 @@ class TestStockFlow(TestStockCommon):
         move_cust_c = self.MoveObj.create({
             'product_id': self.productC.id,
             'product_uom_qty': 3,
-            'product_uom': self.productC.uom_id.id,
+            'uom_id': self.productC.uom_id.id,
             'picking_id': picking_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
@@ -222,7 +230,7 @@ class TestStockFlow(TestStockCommon):
         move_cust_d = self.MoveObj.create({
             'product_id': self.productD.id,
             'product_uom_qty': 10,
-            'product_uom': self.productD.uom_id.id,
+            'uom_id': self.productD.uom_id.id,
             'picking_id': picking_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
@@ -259,7 +267,7 @@ class TestStockFlow(TestStockCommon):
         self.StockPackObj.create({
             'product_id': self.productB.id,
             'quantity': 2,
-            'product_uom_id': self.productB.uom_id.id,
+            'uom_id': self.productB.uom_id.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
             'move_id': move_cust_b.id})
@@ -371,7 +379,7 @@ class TestStockFlow(TestStockCommon):
         self.StockPackObj.create({
             'product_id': self.productC.id,
             'quantity': 1,
-            'product_uom_id': self.productC.uom_id.id,
+            'uom_id': self.productC.uom_id.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
             'picking_id': back_order_in.id,
@@ -380,7 +388,7 @@ class TestStockFlow(TestStockCommon):
         self.StockPackObj.create({
             'product_id': self.productC.id,
             'quantity': 2,
-            'product_uom_id': self.productC.uom_id.id,
+            'uom_id': self.productC.uom_id.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
             'picking_id': back_order_in.id,
@@ -389,7 +397,7 @@ class TestStockFlow(TestStockCommon):
         self.StockPackObj.create({
             'product_id': self.productC.id,
             'quantity': 2,
-            'product_uom_id': self.productC.uom_id.id,
+            'uom_id': self.productC.uom_id.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
             'picking_id': back_order_in.id,
@@ -398,7 +406,7 @@ class TestStockFlow(TestStockCommon):
         self.StockPackObj.create({
             'product_id': self.productA.id,
             'quantity': 10,
-            'product_uom_id': self.productA.uom_id.id,
+            'uom_id': self.productA.uom_id.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
             'picking_id': back_order_in.id
@@ -495,7 +503,7 @@ class TestStockFlow(TestStockCommon):
         self.MoveObj.create({
             'product_id': self.DozA.id,
             'product_uom_qty': 10,
-            'product_uom': self.DozA.uom_id.id,
+            'uom_id': self.DozA.uom_id.id,
             'picking_id': picking_in_A.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
@@ -503,7 +511,7 @@ class TestStockFlow(TestStockCommon):
         self.MoveObj.create({
             'product_id': self.SDozA.id,
             'product_uom_qty': 10.5,
-            'product_uom': self.SDozA.uom_id.id,
+            'uom_id': self.SDozA.uom_id.id,
             'picking_id': picking_in_A.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
@@ -511,7 +519,7 @@ class TestStockFlow(TestStockCommon):
         self.MoveObj.create({
             'product_id': self.kgB.id,
             'product_uom_qty': 0.020,
-            'product_uom': self.kgB.uom_id.id,
+            'uom_id': self.kgB.uom_id.id,
             'picking_id': picking_in_A.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
@@ -519,7 +527,7 @@ class TestStockFlow(TestStockCommon):
         self.MoveObj.create({
             'product_id': self.gB.id,
             'product_uom_qty': 525.3,
-            'product_uom': self.gB.uom_id.id,
+            'uom_id': self.gB.uom_id.id,
             'picking_id': picking_in_A.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
@@ -581,7 +589,7 @@ class TestStockFlow(TestStockCommon):
         move_in_a = self.MoveObj.create({
             'product_id': self.DozA.id,
             'product_uom_qty': 120,
-            'product_uom': self.uom_unit.id,
+            'uom_id': self.uom_unit.id,
             'picking_id': picking_in_B.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
@@ -589,7 +597,7 @@ class TestStockFlow(TestStockCommon):
         self.MoveObj.create({
             'product_id': self.SDozA.id,
             'product_uom_qty': 1512,
-            'product_uom': self.uom_unit.id,
+            'uom_id': self.uom_unit.id,
             'picking_id': picking_in_B.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
@@ -597,7 +605,7 @@ class TestStockFlow(TestStockCommon):
         self.MoveObj.create({
             'product_id': self.kgB.id,
             'product_uom_qty': 20.0,
-            'product_uom': self.uom_gm.id,
+            'uom_id': self.uom_gm.id,
             'picking_id': picking_in_B.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
@@ -605,7 +613,7 @@ class TestStockFlow(TestStockCommon):
         self.MoveObj.create({
             'product_id': self.gB.id,
             'product_uom_qty': 0.525,
-            'product_uom': self.uom_kg.id,
+            'uom_id': self.uom_kg.id,
             'picking_id': picking_in_B.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
@@ -628,35 +636,35 @@ class TestStockFlow(TestStockCommon):
         PackdozA = self.StockPackObj.search([('product_id', '=', self.DozA.id), ('picking_id', '=', picking_in_B.id)], limit=1)
         self.assertEqual(PackdozA.quantity, 120, 'Wrong quantity in pack operation (%s found instead of 120)' % (PackdozA.quantity))
         self.assertEqual(PackdozA.quantity_product_uom, 10, 'Wrong real quantity in pack operation (%s found instead of 10)' % (PackdozA.quantity_product_uom))
-        self.assertEqual(PackdozA.product_uom_id.id, self.uom_unit.id, 'Wrong uom in pack operation for product DozA.')
+        self.assertEqual(PackdozA.uom_id.id, self.uom_unit.id, 'Wrong uom in pack operation for product DozA.')
         # Check pack operation quantity and unit of measure for product SDozA.
         PackSdozA = self.StockPackObj.search([('product_id', '=', self.SDozA.id), ('picking_id', '=', picking_in_B.id)], limit=1)
         self.assertEqual(PackSdozA.quantity, 1512, 'Wrong quantity in pack operation (%s found instead of 1512)' % (PackSdozA.quantity))
-        self.assertEqual(PackSdozA.product_uom_id.id, self.uom_unit.id, 'Wrong uom in pack operation for product SDozA.')
+        self.assertEqual(PackSdozA.uom_id.id, self.uom_unit.id, 'Wrong uom in pack operation for product SDozA.')
         # Check pack operation quantity and unit of measure for product gB.
         packgB = self.StockPackObj.search([('product_id', '=', self.gB.id), ('picking_id', '=', picking_in_B.id)], limit=1)
         self.assertEqual(packgB.quantity, 0.525, 'Wrong quantity in pack operation (%s found instead of 0.525)' % (packgB.quantity))
         self.assertEqual(packgB.quantity_product_uom, 525, 'Wrong real quantity in pack operation (%s found instead of 525)' % (packgB.quantity_product_uom))
-        self.assertEqual(packgB.product_uom_id.id, packgB.move_id.product_uom.id, 'Wrong uom in pack operation for product kgB.')
+        self.assertEqual(packgB.uom_id.id, packgB.move_id.uom_id.id, 'Wrong uom in pack operation for product kgB.')
         # Check pack operation quantity and unit of measure for product kgB.
         packkgB = self.StockPackObj.search([('product_id', '=', self.kgB.id), ('picking_id', '=', picking_in_B.id)], limit=1)
         self.assertEqual(packkgB.quantity, 20.0, 'Wrong quantity in pack operation (%s found instead of 20)' % (packkgB.quantity))
-        self.assertEqual(packkgB.product_uom_id.id, self.uom_gm.id, 'Wrong uom in pack operation for product kgB')
+        self.assertEqual(packkgB.uom_id.id, self.uom_gm.id, 'Wrong uom in pack operation for product kgB')
 
         # ----------------------------------------------------------------------
         # Replace pack operation of incoming shipment.
         # ----------------------------------------------------------------------
 
         self.StockPackObj.search([('product_id', '=', self.kgB.id), ('picking_id', '=', picking_in_B.id)]).write({
-            'quantity': 0.020, 'product_uom_id': self.uom_kg.id})
+            'quantity': 0.020, 'uom_id': self.uom_kg.id})
         self.StockPackObj.search([('product_id', '=', self.gB.id), ('picking_id', '=', picking_in_B.id)]).write({
-            'quantity': 526, 'product_uom_id': self.uom_gm.id})
+            'quantity': 526, 'uom_id': self.uom_gm.id})
         self.StockPackObj.search([('product_id', '=', self.DozA.id), ('picking_id', '=', picking_in_B.id)]).write({
-            'quantity': 4, 'product_uom_id': self.uom_dozen.id})
+            'quantity': 4, 'uom_id': self.uom_dozen.id})
         self.StockPackObj.create({
             'product_id': self.DozA.id,
             'quantity': 48,
-            'product_uom_id': self.uom_unit.id,
+            'uom_id': self.uom_unit.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
             'move_id': move_in_a.id
@@ -683,19 +691,19 @@ class TestStockFlow(TestStockCommon):
         # Check product DozA done quantity.
         moves_DozA = self.MoveObj.search([('product_id', '=', self.DozA.id), ('picking_id', '=', picking_in_B.id)], limit=1)
         self.assertEqual(moves_DozA.quantity, 96, 'Wrong move quantity (%s found instead of 96)' % (moves_DozA.product_uom_qty))
-        self.assertEqual(moves_DozA.product_uom.id, self.uom_unit.id, 'Wrong uom in move for product DozA.')
+        self.assertEqual(moves_DozA.uom_id.id, self.uom_unit.id, 'Wrong uom in move for product DozA.')
         # Check product SDozA done quantity.
         moves_SDozA = self.MoveObj.search([('product_id', '=', self.SDozA.id), ('picking_id', '=', picking_in_B.id)], limit=1)
         self.assertEqual(moves_SDozA.quantity, 1512, 'Wrong move quantity (%s found instead of 1512)' % (moves_SDozA.product_uom_qty))
-        self.assertEqual(moves_SDozA.product_uom.id, self.uom_unit.id, 'Wrong uom in move for product SDozA.')
+        self.assertEqual(moves_SDozA.uom_id.id, self.uom_unit.id, 'Wrong uom in move for product SDozA.')
         # Check product kgB done quantity.
         moves_kgB = self.MoveObj.search([('product_id', '=', self.kgB.id), ('picking_id', '=', picking_in_B.id)], limit=1)
         self.assertEqual(moves_kgB.quantity, 20, 'Wrong quantity in move (%s found instead of 20)' % (moves_kgB.product_uom_qty))
-        self.assertEqual(moves_kgB.product_uom.id, self.uom_gm.id, 'Wrong uom in move for product kgB.')
+        self.assertEqual(moves_kgB.uom_id.id, self.uom_gm.id, 'Wrong uom in move for product kgB.')
         # Check two moves created for product gB with quantity (0.525 kg and 0.3 g)
-        moves_gB_kg = self.MoveObj.search([('product_id', '=', self.gB.id), ('picking_id', '=', picking_in_B.id), ('product_uom', '=', self.uom_kg.id)], limit=1)
+        moves_gB_kg = self.MoveObj.search([('product_id', '=', self.gB.id), ('picking_id', '=', picking_in_B.id), ('uom_id', '=', self.uom_kg.id)], limit=1)
         self.assertEqual(moves_gB_kg.quantity, 0.526, 'Wrong move quantity (%s found instead of 0.526)' % (moves_gB_kg.product_uom_qty))
-        self.assertEqual(moves_gB_kg.product_uom.id, self.uom_kg.id, 'Wrong uom in move for product gB.')
+        self.assertEqual(moves_gB_kg.uom_id.id, self.uom_kg.id, 'Wrong uom in move for product gB.')
 
         # TODO Test extra move once the uom is editable in the move_lines
 
@@ -716,7 +724,7 @@ class TestStockFlow(TestStockCommon):
         # Check back order created with correct quantity and uom or not.
         moves_DozA = self.MoveObj.search([('product_id', '=', self.DozA.id), ('picking_id', '=', bo_in_B.id)], limit=1)
         self.assertEqual(moves_DozA.product_uom_qty, 24.0, 'Wrong move quantity (%s found instead of 0.525)' % (moves_DozA.product_uom_qty))
-        self.assertEqual(moves_DozA.product_uom.id, self.uom_unit.id, 'Wrong uom in move for product DozA.')
+        self.assertEqual(moves_DozA.uom_id.id, self.uom_unit.id, 'Wrong uom in move for product DozA.')
 
         # ----------------------------------------------------------------------
         # Check product stock location quantity and quantity available.
@@ -765,7 +773,7 @@ class TestStockFlow(TestStockCommon):
         self.MoveObj.create({
             'product_id': self.kgB.id,
             'product_uom_qty': 0.966,
-            'product_uom': self.uom_gm.id,
+            'uom_id': self.uom_gm.id,
             'picking_id': picking_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
@@ -773,7 +781,7 @@ class TestStockFlow(TestStockCommon):
         self.MoveObj.create({
             'product_id': self.kgB.id,
             'product_uom_qty': 0.034,
-            'product_uom': self.uom_gm.id,
+            'uom_id': self.uom_gm.id,
             'picking_id': picking_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
@@ -805,7 +813,7 @@ class TestStockFlow(TestStockCommon):
         self.MoveObj.create({
             'product_id': self.DozA.id,
             'product_uom_qty': 54,
-            'product_uom': self.uom_unit.id,
+            'uom_id': self.uom_unit.id,
             'picking_id': picking_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
@@ -813,7 +821,7 @@ class TestStockFlow(TestStockCommon):
         self.MoveObj.create({
             'product_id': self.SDozA.id,
             'product_uom_qty': 288,
-            'product_uom': self.uom_unit.id,
+            'uom_id': self.uom_unit.id,
             'picking_id': picking_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
@@ -821,7 +829,7 @@ class TestStockFlow(TestStockCommon):
         self.MoveObj.create({
             'product_id': self.gB.id,
             'product_uom_qty': 0.503,
-            'product_uom': self.uom_kg.id,
+            'uom_id': self.uom_kg.id,
             'picking_id': picking_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
@@ -829,7 +837,7 @@ class TestStockFlow(TestStockCommon):
         self.MoveObj.create({
             'product_id': self.kgB.id,
             'product_uom_qty': 20,
-            'product_uom': self.uom_gm.id,
+            'uom_id': self.uom_gm.id,
             'picking_id': picking_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
@@ -916,7 +924,7 @@ class TestStockFlow(TestStockCommon):
         self.MoveObj.create({
             'product_id': productKG.id,
             'product_uom_qty': 1.0,
-            'product_uom': self.uom_ton.id,
+            'uom_id': self.uom_ton.id,
             'picking_id': picking_in.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
@@ -935,7 +943,7 @@ class TestStockFlow(TestStockCommon):
         packKG = self.StockPackObj.search([('product_id', '=', productKG.id), ('picking_id', '=', picking_in.id)], limit=1)
         self.assertEqual(packKG.quantity_product_uom, 1000, 'Wrong product real quantity in pack operation (%s found instead of 1000)' % (packKG.quantity_product_uom))
         self.assertEqual(packKG.quantity, 1, 'Wrong product quantity in pack operation (%s found instead of 1)' % (packKG.quantity))
-        self.assertEqual(packKG.product_uom_id.id, self.uom_ton.id, 'Wrong product uom in pack operation.')
+        self.assertEqual(packKG.uom_id.id, self.uom_ton.id, 'Wrong product uom in pack operation.')
         # Transfer Incoming shipment.
         picking_in.button_validate()
 
@@ -953,7 +961,7 @@ class TestStockFlow(TestStockCommon):
         # Check product DozA done quantity.
         move = self.MoveObj.search([('product_id', '=', productKG.id), ('picking_id', '=', picking_in.id)], limit=1)
         self.assertEqual(move.product_uom_qty, 1, 'Wrong product quantity in done move.')
-        self.assertEqual(move.product_uom.id, self.uom_ton.id, 'Wrong unit of measure in done move.')
+        self.assertEqual(move.uom_id.id, self.uom_ton.id, 'Wrong unit of measure in done move.')
         self.assertEqual(productKG.qty_available, 1000, 'Wrong quantity available of product (%s found instead of 1000)' % (productKG.qty_available))
         picking_out = self.PickingObj.create({
             'picking_type_id': self.picking_type_out.id,
@@ -964,7 +972,7 @@ class TestStockFlow(TestStockCommon):
         self.MoveObj.create({
             'product_id': productKG.id,
             'product_uom_qty': 25,
-            'product_uom': self.uom_gm.id,
+            'uom_id': self.uom_gm.id,
             'picking_id': picking_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
@@ -993,7 +1001,7 @@ class TestStockFlow(TestStockCommon):
         moves_KG = self.MoveObj.search([('product_id', '=', productKG.id), ('picking_id', '=', bo_out_1.id)], limit=1)
         # Check back order created with correct quantity and uom or not.
         self.assertEqual(moves_KG.product_uom_qty, 20, 'Wrong move quantity (%s found instead of 20)' % (moves_KG.product_uom_qty))
-        self.assertEqual(moves_KG.product_uom.id, self.uom_gm.id, 'Wrong uom in move for product KG.')
+        self.assertEqual(moves_KG.uom_id.id, self.uom_gm.id, 'Wrong uom in move for product KG.')
         bo_out_1.action_assign()
         pack_opt = self.StockPackObj.search([('product_id', '=', productKG.id), ('picking_id', '=', bo_out_1.id)], limit=1)
         pack_opt.write({'quantity': 5})
@@ -1017,7 +1025,7 @@ class TestStockFlow(TestStockCommon):
         # Check back order created with correct move quantity and uom or not.
         moves_KG = self.MoveObj.search([('product_id', '=', productKG.id), ('picking_id', '=', bo_out_2.id)], limit=1)
         self.assertEqual(moves_KG.product_uom_qty, 15, 'Wrong move quantity (%s found instead of 15)' % (moves_KG.product_uom_qty))
-        self.assertEqual(moves_KG.product_uom.id, self.uom_gm.id, 'Wrong uom in move for product KG.')
+        self.assertEqual(moves_KG.uom_id.id, self.uom_gm.id, 'Wrong uom in move for product KG.')
         bo_out_2.action_assign()
         pack_opt = self.StockPackObj.search([('product_id', '=', productKG.id), ('picking_id', '=', bo_out_2.id)], limit=1)
         pack_opt.write({'quantity': 5})
@@ -1040,7 +1048,7 @@ class TestStockFlow(TestStockCommon):
         # Check back order created with correct quantity and uom or not.
         moves_KG = self.MoveObj.search([('product_id', '=', productKG.id), ('picking_id', '=', bo_out_3.id)], limit=1)
         self.assertEqual(moves_KG.product_uom_qty, 10, 'Wrong move quantity (%s found instead of 10)' % (moves_KG.product_uom_qty))
-        self.assertEqual(moves_KG.product_uom.id, self.uom_gm.id, 'Wrong uom in move for product KG.')
+        self.assertEqual(moves_KG.uom_id.id, self.uom_gm.id, 'Wrong uom in move for product KG.')
         bo_out_3.action_assign()
         pack_opt = self.StockPackObj.search([('product_id', '=', productKG.id), ('picking_id', '=', bo_out_3.id)], limit=1)
         pack_opt.write({'quantity': 5})
@@ -1063,7 +1071,7 @@ class TestStockFlow(TestStockCommon):
         # Check back order created with correct quantity and uom or not.
         moves_KG = self.MoveObj.search([('product_id', '=', productKG.id), ('picking_id', '=', bo_out_4.id)], limit=1)
         self.assertEqual(moves_KG.product_uom_qty, 5, 'Wrong move quantity (%s found instead of 5)' % (moves_KG.product_uom_qty))
-        self.assertEqual(moves_KG.product_uom.id, self.uom_gm.id, 'Wrong uom in move for product KG.')
+        self.assertEqual(moves_KG.uom_id.id, self.uom_gm.id, 'Wrong uom in move for product KG.')
         bo_out_4.action_assign()
         pack_opt = self.StockPackObj.search([('product_id', '=', productKG.id), ('picking_id', '=', bo_out_4.id)], limit=1)
         pack_opt.write({'quantity': 5})
@@ -1145,7 +1153,7 @@ class TestStockFlow(TestStockCommon):
         """ Picking in without lots and picking out with"""
         # Change basic operation type not to get lots
         # Create product with lot tracking
-        self.picking_type_in.use_create_lots = False
+        self.picking_type_in.sudo().use_create_lots = False
         self.productA.tracking = 'lot'
         picking_in = self.PickingObj.create({
             'picking_type_id': self.picking_type_in.id,
@@ -1156,7 +1164,7 @@ class TestStockFlow(TestStockCommon):
         self.MoveObj.create({
             'product_id': self.productA.id,
             'product_uom_qty': 4,
-            'product_uom': self.productA.uom_id.id,
+            'uom_id': self.productA.uom_id.id,
             'picking_id': picking_in.id,
             'picking_type_id': self.picking_type_in.id,
             'location_id': self.supplier_location.id,
@@ -1183,7 +1191,7 @@ class TestStockFlow(TestStockCommon):
         move_out = self.MoveObj.create({
             'product_id': self.productA.id,
             'product_uom_qty': 3,
-            'product_uom': self.productA.uom_id.id,
+            'uom_id': self.productA.uom_id.id,
             'picking_id': picking_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
@@ -1199,7 +1207,7 @@ class TestStockFlow(TestStockCommon):
         self.StockPackObj.create({
             'product_id': self.productA.id,
             'move_id': move_out.id,
-            'product_uom_id': move_out.product_uom.id,
+            'uom_id': move_out.uom_id.id,
             'lot_id': lot2.id,
             'quantity': 1.0,
             'location_id': self.stock_location.id,
@@ -1208,7 +1216,7 @@ class TestStockFlow(TestStockCommon):
         self.StockPackObj.create({
             'product_id': self.productA.id,
             'move_id': move_out.id,
-            'product_uom_id': move_out.product_uom.id,
+            'uom_id': move_out.uom_id.id,
             'lot_id': lot3.id,
             'quantity': 2.0,
             'location_id': self.stock_location.id,
@@ -1230,7 +1238,7 @@ class TestStockFlow(TestStockCommon):
         move_out = self.MoveObj.create({
             'product_id': self.productA.id,
             'product_uom_qty': 3,
-            'product_uom': self.productA.uom_id.id,
+            'uom_id': self.productA.uom_id.id,
             'picking_id': picking_out.id,
             'location_id': self.pack_location.id,
             'location_dest_id': self.customer_location.id,
@@ -1244,7 +1252,7 @@ class TestStockFlow(TestStockCommon):
         move_pack = self.MoveObj.create({
             'product_id': self.productA.id,
             'product_uom_qty': 3,
-            'product_uom': self.productA.uom_id.id,
+            'uom_id': self.productA.uom_id.id,
             'picking_id': picking_pack.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.pack_location.id,
@@ -1259,7 +1267,7 @@ class TestStockFlow(TestStockCommon):
         move_in = self.MoveObj.create({
             'product_id': self.productA.id,
             'product_uom_qty': 3,
-            'product_uom': self.productA.uom_id.id,
+            'uom_id': self.productA.uom_id.id,
             'picking_id': picking_in.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
@@ -1359,7 +1367,7 @@ class TestStockFlow(TestStockCommon):
         self.MoveObj.create({
             'product_id': self.productE.id,
             'product_uom_qty': 10,
-            'product_uom': self.productE.uom_id.id,
+            'uom_id': self.productE.uom_id.id,
             'picking_id': picking_in.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
@@ -1389,7 +1397,7 @@ class TestStockFlow(TestStockCommon):
         self.MoveObj.create({
             'product_id': self.productE.id,
             'product_uom_qty': 3,
-            'product_uom': self.productE.uom_id.id,
+            'uom_id': self.productE.uom_id.id,
             'picking_id': picking_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
@@ -1422,7 +1430,7 @@ class TestStockFlow(TestStockCommon):
         self.MoveObj.create({
             'product_id': self.productE.id,
             'product_uom_qty': 200,
-            'product_uom': self.productE.uom_id.id,
+            'uom_id': self.productE.uom_id.id,
             'picking_id': picking_in.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
@@ -1453,7 +1461,7 @@ class TestStockFlow(TestStockCommon):
         self.MoveObj.create({
             'product_id': self.productE.id,
             'product_uom_qty': 200,
-            'product_uom': self.productE.uom_id.id,
+            'uom_id': self.productE.uom_id.id,
             'picking_id': picking_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
@@ -1467,13 +1475,13 @@ class TestStockFlow(TestStockCommon):
             'package_id': pack1.id,
             'product_id': self.productE.id,
             'quantity': 120.0,
-            'product_uom_id': self.productE.uom_id.id,
+            'uom_id': self.productE.uom_id.id,
         })
         packout1.write({
             'package_id': pack2.id,
             'product_id': self.productE.id,
             'quantity': 80.0,
-            'product_uom_id': self.productE.uom_id.id,
+            'uom_id': self.productE.uom_id.id,
         })
         picking_out.move_ids.picked = True
         picking_out._action_done()
@@ -1515,7 +1523,7 @@ class TestStockFlow(TestStockCommon):
         self.MoveObj.create({
             'product_id': self.productA.id,
             'product_uom_qty': 2,
-            'product_uom': self.productA.uom_id.id,
+            'uom_id': self.productA.uom_id.id,
             'picking_id': picking_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
@@ -1527,7 +1535,7 @@ class TestStockFlow(TestStockCommon):
         # receive one product in stock
         inventory_quant.inventory_quantity = 2
         inventory_quant.action_apply_inventory()
-        # recheck availability of the delivery order, it should be assigned
+        # re-reserve the delivery order, it should be assigned
         picking_out.action_assign()
         self.assertEqual(len(picking_out.move_ids), 1.0)
         self.assertEqual(picking_out.move_ids.product_qty, 2.0)
@@ -1555,7 +1563,7 @@ class TestStockFlow(TestStockCommon):
         self.MoveObj.create({
             'product_id': self.productA.id,
             'product_uom_qty': 2,
-            'product_uom': self.productA.uom_id.id,
+            'uom_id': self.productA.uom_id.id,
             'picking_id': picking_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
@@ -1595,7 +1603,7 @@ class TestStockFlow(TestStockCommon):
         self.MoveObj.create({
             'product_id': self.productA.id,
             'product_uom_qty': 2,
-            'product_uom': self.productA.uom_id.id,
+            'uom_id': self.productA.uom_id.id,
             'picking_id': picking_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
@@ -1609,7 +1617,7 @@ class TestStockFlow(TestStockCommon):
         inventory_quant.inventory_quantity = 2
         inventory_quant.action_apply_inventory()
 
-        # recheck availability of the delivery order, it should be assigned
+        # re-reserve the delivery order, it should be assigned
         picking_out.action_assign()
         self.assertEqual(picking_out.state, "assigned")
 
@@ -1634,7 +1642,7 @@ class TestStockFlow(TestStockCommon):
         self.MoveObj.create({
             'product_id': self.productA.id,
             'product_uom_qty': 2,
-            'product_uom': self.productA.uom_id.id,
+            'uom_id': self.productA.uom_id.id,
             'picking_id': picking_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
@@ -1658,7 +1666,7 @@ class TestStockFlow(TestStockCommon):
         move_mto_alone = self.MoveObj.create({
             'product_id': self.productA.id,
             'product_uom_qty': 2,
-            'product_uom': self.productA.uom_id.id,
+            'uom_id': self.productA.uom_id.id,
             'picking_id': picking_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
@@ -1667,7 +1675,7 @@ class TestStockFlow(TestStockCommon):
         move_with_ancestors = self.MoveObj.create({
             'product_id': self.productB.id,
             'product_uom_qty': 2,
-            'product_uom': self.productB.uom_id.id,
+            'uom_id': self.productB.uom_id.id,
             'picking_id': picking_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
@@ -1675,7 +1683,7 @@ class TestStockFlow(TestStockCommon):
         self.MoveObj.create({
             'product_id': self.productB.id,
             'product_uom_qty': 2,
-            'product_uom': self.productB.uom_id.id,
+            'uom_id': self.productB.uom_id.id,
             'picking_id': picking_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
@@ -1684,7 +1692,7 @@ class TestStockFlow(TestStockCommon):
         other_move = self.MoveObj.create({
             'product_id': self.productC.id,
             'product_uom_qty': 2,
-            'product_uom': self.productC.uom_id.id,
+            'uom_id': self.productC.uom_id.id,
             'picking_id': picking_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
@@ -1718,7 +1726,7 @@ class TestStockFlow(TestStockCommon):
         move_a = self.MoveObj.create({
             'product_id': self.productA.id,
             'product_uom_qty': 10,
-            'product_uom': self.productA.uom_id.id,
+            'uom_id': self.productA.uom_id.id,
             'picking_id': picking.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
@@ -1750,12 +1758,12 @@ class TestStockFlow(TestStockCommon):
         """Create 3 pickings with each has different backorder settings on its
         picking type. Check the backorder behavior for each picking.
         """
-        self.picking_type_in.create_backorder = 'ask'
-        picking_type_always = self.picking_type_in.copy({
+        self.picking_type_in.sudo().create_backorder = 'ask'
+        picking_type_always = self.picking_type_in.sudo().copy({
             'sequence_code': 'always',
             'create_backorder': 'always',
         })
-        picking_type_never = self.picking_type_in.copy({
+        picking_type_never = self.picking_type_in.sudo().copy({
             'sequence_code': 'never',
             'create_backorder': 'never',
         })
@@ -1769,7 +1777,7 @@ class TestStockFlow(TestStockCommon):
         self.MoveObj.create({
             'product_id': self.productA.id,
             'product_uom_qty': 10,
-            'product_uom': self.productA.uom_id.id,
+            'uom_id': self.productA.uom_id.id,
             'picking_id': picking_ask.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
@@ -1783,7 +1791,7 @@ class TestStockFlow(TestStockCommon):
         self.MoveObj.create({
             'product_id': self.productA.id,
             'product_uom_qty': 10,
-            'product_uom': self.productA.uom_id.id,
+            'uom_id': self.productA.uom_id.id,
             'picking_id': picking_always.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
@@ -1797,7 +1805,7 @@ class TestStockFlow(TestStockCommon):
         self.MoveObj.create({
             'product_id': self.productA.id,
             'product_uom_qty': 10,
-            'product_uom': self.productA.uom_id.id,
+            'uom_id': self.productA.uom_id.id,
             'picking_id': picking_never.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
@@ -1830,13 +1838,13 @@ class TestStockFlow(TestStockCommon):
         self.env.user.write({'group_ids': [Command.link(grp_multi_routes.id)]})
         self.env.user.write({'group_ids': [Command.link(grp_multi_companies.id)]})
 
-        company_2 = self.company
         # Need to add a new company on user.
-        self.env.user.write({'company_ids': [Command.link(company_2.id)]})
+        self.env.user.write({'company_ids': [Command.link(self.company_2.id)]})
+        self.env = self.env(context=dict(self.env.context, allowed_company_ids=[self.env.company.id, self.company_2.id]))
 
         warehouse_company_1 = self.env['stock.warehouse'].search([('company_id', '=', self.env.company.id)], limit=1)
 
-        f = Form(self.env['stock.route'])
+        f = Form(self.env['stock.route'].sudo())
         f.name = 'From Company 1 to InterCompany'
         f.company_id = self.env.company
         with f.rule_ids.new() as rule:
@@ -1846,10 +1854,10 @@ class TestStockFlow(TestStockCommon):
             rule.location_src_id = self.inter_company_location
             rule.procure_method = 'make_to_order'
         route_a = f.save()
-        warehouse_company_2 = self.env['stock.warehouse'].search([('company_id', '=', company_2.id)], limit=1)
-        f = Form(self.env['stock.route'])
+        warehouse_company_2 = self.env['stock.warehouse'].search([('company_id', '=', self.company_2.id)], limit=1)
+        f = Form(self.env['stock.route'].sudo())
         f.name = 'From InterCompany to Company 2'
-        f.company_id = company_2
+        f.company_id = self.company_2
         with f.rule_ids.new() as rule:
             rule.name = 'From InterCompany to Company 2'
             rule.action = 'pull'
@@ -1867,7 +1875,7 @@ class TestStockFlow(TestStockCommon):
         replenish_wizard = self.env['product.replenish'].with_context(default_product_tmpl_id=product.product_tmpl_id.id).create({
             'product_id': product.id,
             'product_tmpl_id': product.product_tmpl_id.id,
-            'product_uom_id': self.uom_unit.id,
+            'uom_id': self.uom_unit.id,
             'quantity': '5',
             'warehouse_id': warehouse_company_1.id,
         })
@@ -1877,8 +1885,8 @@ class TestStockFlow(TestStockCommon):
 
         self.assertEqual(incoming_picking.company_id, self.env.company)
         self.assertEqual(incoming_picking.move_ids.company_id, self.env.company)
-        self.assertEqual(outgoing_picking.company_id, company_2)
-        self.assertEqual(outgoing_picking.move_ids.company_id, company_2)
+        self.assertEqual(outgoing_picking.company_id, self.company_2)
+        self.assertEqual(outgoing_picking.move_ids.company_id, self.company_2)
 
     def test_transit_multi_companies_ultimate(self):
         """ Ensure that inter company rules set the correct company on picking
@@ -1894,13 +1902,13 @@ class TestStockFlow(TestStockCommon):
         self.env.user.write({'group_ids': [Command.link(grp_multi_routes.id)]})
         self.env.user.write({'group_ids': [Command.link(grp_multi_companies.id)]})
 
-        company_2 = self.company
         # Need to add a new company on user.
-        self.env.user.write({'company_ids': [Command.link(company_2.id)]})
+        self.env.user.write({'company_ids': [Command.link(self.company_2.id)]})
+        self.env = self.env(context=dict(self.env.context, allowed_company_ids=[self.env.company.id, self.company_2.id]))
 
         warehouse_company_1 = self.env['stock.warehouse'].search([('company_id', '=', self.env.company.id)], limit=1)
 
-        f = Form(self.env['stock.route'])
+        f = Form(self.env['stock.route'].sudo())
         f.name = 'From Company 1 to InterCompany'
         f.company_id = self.env.company
         with f.rule_ids.new() as rule:
@@ -1911,10 +1919,10 @@ class TestStockFlow(TestStockCommon):
             rule.procure_method = 'make_to_order'
         route_a = f.save()
 
-        warehouse_company_2 = self.env['stock.warehouse'].search([('company_id', '=', company_2.id)], limit=1)
-        f = Form(self.env['stock.route'])
+        warehouse_company_2 = self.env['stock.warehouse'].search([('company_id', '=', self.company_2.id)], limit=1)
+        f = Form(self.env['stock.route'].sudo())
         f.name = 'From InterCompany to Company 2'
-        f.company_id = company_2
+        f.company_id = self.company_2
         with f.rule_ids.new() as rule:
             rule.name = 'From InterCompany to Company 2'
             rule.action = 'pull'
@@ -1923,12 +1931,14 @@ class TestStockFlow(TestStockCommon):
             rule.procure_method = 'make_to_stock'
         route_b = f.save()
 
-        company_3 = self.env['res.company'].create({
+        company_3 = self.env['res.company'].sudo().create({
             'name': 'Alaska Company'
         })
+        self.env.user.sudo().company_ids += company_3
+        self.env = self.env(context=dict(self.env.context, allowed_company_ids=[self.env.company.id, self.company_2.id, company_3.id]))
 
         warehouse_company_3 = self.env['stock.warehouse'].search([('company_id', '=', company_3.id)], limit=1)
-        f = Form(self.env['stock.route'])
+        f = Form(self.env['stock.route'].sudo())
         f.name = 'From InterCompany to Company 3'
         f.company_id = company_3
         with f.rule_ids.new() as rule:
@@ -1969,8 +1979,8 @@ class TestStockFlow(TestStockCommon):
 
         self.assertEqual(incoming_picking.company_id, self.env.company)
         self.assertEqual(incoming_picking.move_ids.mapped('company_id'), self.env.company)
-        self.assertEqual(outgoing_picking.company_id, company_2)
-        self.assertEqual(outgoing_picking.move_ids.company_id, company_2)
+        self.assertEqual(outgoing_picking.company_id, self.company_2)
+        self.assertEqual(outgoing_picking.move_ids.company_id, self.company_2)
 
         incoming_picking = self.env['stock.picking'].search([('product_id', '=', product_from_company_3.id), ('picking_type_id', '=', warehouse_company_1.in_type_id.id)])
         outgoing_picking = self.env['stock.picking'].search([('product_id', '=', product_from_company_3.id), ('picking_type_id', '=', warehouse_company_3.out_type_id.id)])
@@ -1984,7 +1994,7 @@ class TestStockFlow(TestStockCommon):
         """ As it seems we keep breaking this thing over and over this small
         test ensure the scheduled_date is writable on a picking in state 'draft' or 'confirmed'
         """
-        partner = self.env['res.partner'].create({'name': 'Hubert Bonisseur de la Bath'})
+        partner = self.env['res.partner'].sudo().create({'name': 'Hubert Bonisseur de la Bath'})
         product = self.env['product.product'].create({'name': 'Un petit coup de polish', 'is_storable': True})
         wh = self.env['stock.warehouse'].search([('company_id', '=', self.env.company.id)], limit=1)
 
@@ -2026,24 +2036,22 @@ class TestStockFlow(TestStockCommon):
 
         self.env['stock.quant']._update_available_quantity(product, wh.wh_qc_stock_loc_id, 10)
 
-        f = Form(self.env['stock.scrap'], view='stock.stock_scrap_form_view')
+        f = Form(self.env['stock.move'].with_context(default_is_scrap=True, default_company_id=self.env.company.id), view='stock.view_scrap_move_form')
         f.product_id = product
-        scrap = f.save()
-
-        f = Form(scrap, view='stock.stock_scrap_form_view')
+        f.quantity = 1
         f.location_id = wh.wh_qc_stock_loc_id
-        f.scrap_location_id = wh.wh_pack_stock_loc_id
+        f.location_dest_id = wh.wh_pack_stock_loc_id
         scrap = f.save()
 
-        self.assertEqual(scrap.state, 'draft')
-        scrap.action_validate()
+        self.assertEqual(scrap.state, 'assigned')
+        scrap.action_scrap()
 
-        f = Form(scrap, view='stock.stock_scrap_form_view')
-        self.assertEqual(f.state, 'done')
+        self.assertEqual(scrap.state, 'done')
+        f = Form(scrap, view='stock.view_scrap_move_form')
         with self.assertRaises(AssertionError, msg="can't write on readonly field location_id"):
             f.location_id = wh.lot_stock_id
-        with self.assertRaises(AssertionError, msg="can't write on readonly field scrap_location_id"):
-            f.scrap_location_id = wh.wh_input_stock_loc_id
+        with self.assertRaises(AssertionError, msg="can't write on readonly field location_dest_id"):
+            f.location_dest_id = wh.wh_input_stock_loc_id
 
     def test_validate_multiple_pickings_with_same_lot_names(self):
         """ Checks only one lot is created when the same lot name is used in
@@ -2185,7 +2193,7 @@ class TestStockFlow(TestStockCommon):
                 'reservation_date': fields.Date.today(),
                 'product_id': self.productA.id,
                 'product_uom_qty': 1,
-                'product_uom': self.productA.uom_id.id,
+                'uom_id': self.productA.uom_id.id,
                 'picking_id': picking.id,
                 'location_id': from_loc,
                 'location_dest_id': to_loc,
@@ -2193,7 +2201,7 @@ class TestStockFlow(TestStockCommon):
             picking.action_confirm()
             return picking
 
-        self.picking_type_out.reservation_method = 'at_confirm'
+        self.picking_type_out.sudo().reservation_method = 'at_confirm'
         out01 = create_picking(self.picking_type_out.id, self.stock_location.id, self.customer_location.id)
         out02 = create_picking(self.picking_type_out.id, self.stock_location.id, self.customer_location.id, sequence=2, delay=1)
         in01 = create_picking(self.picking_type_in.id, self.supplier_location.id, self.stock_location.id, delay=2)
@@ -2217,7 +2225,7 @@ class TestStockFlow(TestStockCommon):
          is set on 'At Confirmation' """
 
         self.env['stock.quant']._update_available_quantity(self.productA, self.stock_location, 10)
-        self.picking_type_out.reservation_method = 'at_confirm'
+        self.picking_type_out.sudo().reservation_method = 'at_confirm'
 
         picking_out = self.PickingObj.create({
             'picking_type_id': self.picking_type_out.id,
@@ -2228,7 +2236,7 @@ class TestStockFlow(TestStockCommon):
         move_out = self.MoveObj.create({
             'product_id': self.productA.id,
             'product_uom_qty': 10,
-            'product_uom': self.productA.uom_id.id,
+            'uom_id': self.productA.uom_id.id,
             'picking_id': picking_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
@@ -2250,7 +2258,7 @@ class TestStockFlow(TestStockCommon):
         move_a = self.MoveObj.create({
             'product_id': self.productA.id,
             'product_uom_qty': 10,
-            'product_uom': self.productA.uom_id.id,
+            'uom_id': self.productA.uom_id.id,
             'picking_id': picking_in.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
@@ -2258,7 +2266,7 @@ class TestStockFlow(TestStockCommon):
         move_b = self.MoveObj.create({
             'product_id': self.productB.id,
             'product_uom_qty': 10,
-            'product_uom': self.productB.uom_id.id,
+            'uom_id': self.productB.uom_id.id,
             'picking_id': picking_in.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
@@ -2285,8 +2293,8 @@ class TestStockFlow(TestStockCommon):
         """ Ensure that the partner_id of the picking entry is
         transmitted to the SM upon object creation.
         """
-        partner_1 = self.env['res.partner'].create({'name': 'Hubert Bonisseur de la Bath'})
-        partner_2 = self.env['res.partner'].create({'name': 'Donald Clairvoyant du Bled'})
+        partner_1 = self.env['res.partner'].sudo().create({'name': 'Hubert Bonisseur de la Bath'})
+        partner_2 = self.env['res.partner'].sudo().create({'name': 'Donald Clairvoyant du Bled'})
         product = self.env['product.product'].create({'name': 'Un petit coup de polish', 'is_storable': True})
         wh = self.env['stock.warehouse'].search([('company_id', '=', self.env.company.id)], limit=1)
 
@@ -2314,15 +2322,16 @@ class TestStockFlow(TestStockCommon):
         })
         self.env['stock.quant']._update_available_quantity(tracked_product, self.stock_location, 1.0)
 
-        scrap = self.env['stock.scrap'].create({
+        scrap = self.env['stock.move'].create({
+            'is_scrap': True,
             'product_id': tracked_product.id,
-            'product_uom_id': tracked_product.uom_id.id,
             'location_id': self.stock_location.id,
-            'scrap_qty': 1.0,
+            'location_dest_id': self.scrap_location.id,
+            'quantity': 1.0,
         })
-        scrap.do_scrap()
+        scrap._action_scrap()
 
-        self.assertEqual(scrap.move_ids.state, 'done')
+        self.assertEqual(scrap.state, 'done')
 
     def test_cancel_picking_with_scrapped_products(self):
         """
@@ -2339,7 +2348,7 @@ class TestStockFlow(TestStockCommon):
         move = self.env['stock.move'].create({
             'product_id': self.productA.id,
             'product_uom_qty': 1,
-            'product_uom': self.productA.uom_id.id,
+            'uom_id': self.productA.uom_id.id,
             'picking_id': picking.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
@@ -2348,19 +2357,21 @@ class TestStockFlow(TestStockCommon):
         picking.action_confirm()
         picking.action_assign()
 
-        scrap = self.env['stock.scrap'].create({
+        scrap = self.env['stock.move'].create({
+            'is_scrap': True,
             'picking_id': picking.id,
             'product_id': self.productA.id,
-            'product_uom_id': self.productA.uom_id.id,
-            'scrap_qty': 1.0,
+            'location_id': self.stock_location.id,
+            'location_dest_id': self.scrap_location.id,
+            'quantity': 1.0,
         })
-        scrap.do_scrap()
+        scrap._action_scrap()
 
         picking.action_cancel()
 
         self.assertEqual(picking.state, 'cancel')
         self.assertEqual(move.state, 'cancel')
-        self.assertEqual(scrap.move_ids[0].state, 'done')
+        self.assertEqual(scrap.state, 'done')
 
     def test_receive_tracked_product(self):
         self.productA.tracking = 'serial'
@@ -2392,15 +2403,15 @@ class TestStockFlow(TestStockCommon):
         We trigger an orderpoint for each product
         There should be two pickings (out from WH01 + in to WH02)
         """
-        wh01_address, wh02_address = self.env['res.partner'].create([{
+        wh01_address, wh02_address = self.env['res.partner'].sudo().create([{
             'name': 'Address %s' % i,
-            'parent_id': self.env.company.id,
+            'parent_id': self.partner_1.id,
             'type': 'delivery',
         } for i in [1, 2]])
 
         warehouse01 = self.env['stock.warehouse'].search([('company_id', '=', self.env.company.id)], limit=1)
-        warehouse01.partner_id = wh01_address
-        warehouse02 = self.env['stock.warehouse'].create({
+        warehouse01.sudo().partner_id = wh01_address
+        warehouse02 = self.env['stock.warehouse'].sudo().create({
             'name': 'Second Warehouse',
             'code': 'WH02',
             'partner_id': wh02_address.id,
@@ -2414,7 +2425,7 @@ class TestStockFlow(TestStockCommon):
         for product in products:
             product.route_ids = [(6, 0, warehouse02.resupply_route_ids.ids)]
             self.env['stock.quant']._update_available_quantity(product, wh01_stock_location, 10)
-            self.env['stock.warehouse.orderpoint'].create({
+            self.env['stock.warehouse.orderpoint'].sudo().create({
                 'name': 'RR for %s' % product.name,
                 'warehouse_id': warehouse02.id,
                 'location_id': wh02_stock_location.id,
@@ -2448,15 +2459,15 @@ class TestStockFlow(TestStockCommon):
         is waiting for one available P in stock. When receiving some P (in 2
         steps), the out-move should be automatically assigned.
         """
-        self.env['ir.config_parameter'].sudo().set_param('stock.picking_no_auto_reserve', False)
-        self.warehouse_1.out_type_id.reservation_method = 'by_date'
-        self.warehouse_1.reception_steps = 'two_steps'
+        self.env['ir.config_parameter'].sudo().set_bool('stock.picking_no_auto_reserve', False)
+        self.warehouse_1.out_type_id.sudo().reservation_method = 'by_date'
+        self.warehouse_1.sudo().reception_steps = 'two_steps'
 
         out_move = self.env['stock.move'].create({
             'product_id': self.productA.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
-            'product_uom': self.productA.uom_id.id,
+            'uom_id': self.productA.uom_id.id,
             'product_uom_qty': 1,
             'picking_type_id': self.picking_type_out.id,
             'reservation_date': fields.Date.today(),
@@ -2467,7 +2478,7 @@ class TestStockFlow(TestStockCommon):
             'product_id': self.productA.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.warehouse_1.wh_input_stock_loc_id.id,
-            'product_uom': self.productA.uom_id.id,
+            'uom_id': self.productA.uom_id.id,
             'product_uom_qty': 1,
             'picking_type_id': self.picking_type_in.id,
         })
@@ -2526,7 +2537,6 @@ class TestStockFlow(TestStockCommon):
     def test_multi_picking_validation(self):
         """ This test ensures that the validation of 2 pickings is successfull even if they have different operation types """
 
-        self.env.user.write({'group_ids': [Command.link(self.env.ref('stock.group_reception_report').id)]})
         picking_A, picking_B = self.PickingObj.create([{
             'picking_type_id': self.picking_type_in.id,
             'location_id': self.supplier_location.id,
@@ -2539,7 +2549,7 @@ class TestStockFlow(TestStockCommon):
         self.MoveObj.create([{
             'product_id': self.DozA.id,
             'product_uom_qty': 10,
-            'product_uom': self.DozA.uom_id.id,
+            'uom_id': self.DozA.uom_id.id,
             'quantity': 10,
             'picking_id': picking_A.id,
             'location_id': self.supplier_location.id,
@@ -2547,7 +2557,7 @@ class TestStockFlow(TestStockCommon):
         }, {
             'product_id': self.DozA.id,
             'product_uom_qty': 10,
-            'product_uom': self.DozA.uom_id.id,
+            'uom_id': self.DozA.uom_id.id,
             'quantity': 10,
             'picking_id': picking_B.id,
             'location_id': self.stock_location.id,
@@ -2584,7 +2594,7 @@ class TestStockFlow(TestStockCommon):
         move1 = self.env['stock.move'].create({
             'product_id': self.productA.id,
             'product_uom_qty': 10,
-            'product_uom': self.productA.uom_id.id,
+            'uom_id': self.productA.uom_id.id,
             'picking_id': picking.id,
             'location_id': self.customer_location.id,
             'location_dest_id': self.stock_location.id,
@@ -2592,7 +2602,7 @@ class TestStockFlow(TestStockCommon):
         move2 = self.env['stock.move'].create({
             'product_id': self.productB.id,
             'product_uom_qty': 10,
-            'product_uom': self.productB.uom_id.id,
+            'uom_id': self.productB.uom_id.id,
             'picking_id': picking.id,
             'location_id': self.customer_location.id,
             'location_dest_id': self.stock_location.id,
@@ -2621,7 +2631,7 @@ class TestStockFlow(TestStockCommon):
         no_tracking_move = self.env['stock.move'].create({
             'product_id': self.productA.id,
             'product_uom_qty': 1,
-            'product_uom': self.productA.uom_id.id,
+            'uom_id': self.productA.uom_id.id,
             'picking_id': picking.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
@@ -2629,7 +2639,7 @@ class TestStockFlow(TestStockCommon):
         self.env['stock.move'].create({
             'product_id': self.productB.id,
             'product_uom_qty': 1,
-            'product_uom': self.productB.uom_id.id,
+            'uom_id': self.productB.uom_id.id,
             'picking_id': picking.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
@@ -2643,12 +2653,42 @@ class TestStockFlow(TestStockCommon):
         bo = self.env['stock.picking'].search([('backorder_id', '=', picking.id)])
         self.assertEqual(bo.state, 'assigned')
 
+    def test_two_steps_delivery_partner_customer_location(self):
+        """
+        Check that manual multi-step deliveries use the partner's customer
+        location rather than the generic one.
+        """
+        self.warehouse_1.sudo().delivery_steps = 'pick_ship'
+        partner_location = self.env['stock.location'].sudo().create({
+            'name': 'Acme Customer Location',
+            'usage': 'customer',
+            'location_id': self.customer_location.id,
+        })
+        self.partner.with_company(self.env.company).sudo().property_stock_customer = partner_location
+        pick = self.env['stock.picking'].create({
+            'partner_id': self.partner.id,
+            'picking_type_id': self.warehouse_1.pick_type_id.id,
+            'location_id': self.warehouse_1.lot_stock_id.id,
+            'location_dest_id': self.warehouse_1.wh_output_stock_loc_id.id,
+            'move_ids': [Command.create({
+                'product_id': self.product.id,
+                'product_uom_qty': 1,
+                'location_id': self.warehouse_1.lot_stock_id.id,
+                'location_dest_id': self.warehouse_1.wh_output_stock_loc_id.id,
+            })],
+        })
+        pick.action_confirm()
+        pick.button_validate()
+        ship = pick.move_ids.move_dest_ids
+        self.assertEqual(ship.picking_id.picking_type_id, self.warehouse_1.out_type_id)
+        self.assertEqual(ship.location_dest_id, partner_location)
+
     def test_multiple_moves_with_different_destinations_putaway_strategy(self):
         '''
         Ensure that, when assigning a batch of moves with different destinations,
         putaway strategy correctly defaults to child locations.
         '''
-        view_a, view_b = self.env['stock.location'].create([{
+        view_a, view_b = self.env['stock.location'].sudo().create([{
             'name': 'View A',
             'usage': 'view',
             'location_id': self.stock_location.id,
@@ -2657,7 +2697,7 @@ class TestStockFlow(TestStockCommon):
             'usage': 'view',
             'location_id': self.stock_location.id,
         }])
-        child_a, child_b = self.env['stock.location'].create([{
+        child_a, child_b = self.env['stock.location'].sudo().create([{
             'name': 'Child A',
             'usage': 'internal',
             'location_id': view_a.id,
@@ -2693,8 +2733,13 @@ class TestStockFlow(TestStockCommon):
         self.assertEqual(picking_2.move_ids.move_line_ids.location_dest_id, child_b)
 
 
-@tagged('-at_install', 'post_install')
 class TestStockFlowTourPostInstall(TestStockCommon, HttpCase):
+
+    _test_user_groups = (
+        'product.group_product_manager',  # FIXME: use base.group_user
+    )
+
+    _test_user_name = 'Test Product Manager'
 
     @users('pauline')  # pauline is the login of the basic stock_user
     def test_basic_stock_flow_with_minimal_access_rights(self):
@@ -2709,7 +2754,7 @@ class TestStockFlowTourPostInstall(TestStockCommon, HttpCase):
                 'location_dest_id': self.stock_location.id,
                 'move_ids': [Command.create({
                     'product_id': self.product.id,
-                    'product_uom': self.product.uom_id.id,
+                    'uom_id': self.product.uom_id.id,
                     'product_uom_qty': 1.0,
                     'location_id': self.supplier_location.id,
                     'location_dest_id': self.stock_location.id,
@@ -2722,7 +2767,7 @@ class TestStockFlowTourPostInstall(TestStockCommon, HttpCase):
                 'location_dest_id': self.customer_location.id,
                 'move_ids': [Command.create({
                     'product_id': self.product.id,
-                    'product_uom': self.product.uom_id.id,
+                    'uom_id': self.product.uom_id.id,
                     'product_uom_qty': 1.0,
                     'location_id': self.stock_location.id,
                     'location_dest_id': self.customer_location.id,
@@ -2736,8 +2781,15 @@ class TestStockFlowTourPostInstall(TestStockCommon, HttpCase):
 @tagged('-at_install', 'post_install')
 class TestStockFlowPostInstall(TestStockCommon):
 
+    _test_user_groups = (
+        'product.group_product_manager',  # FIXME: use base.group_user
+        'stock.group_stock_manager',
+    )
+
+    _test_user_name = 'Test Product Manager'
+
     def test_last_delivery_partner_field_on_lot(self):
-        partner = self.env['res.partner'].create({'name': 'Super Partner'})
+        partner = self.env['res.partner'].sudo().create({'name': 'Super Partner'})
 
         product = self.env['product.product'].create({
             'name': 'Super Product',
@@ -2757,7 +2809,7 @@ class TestStockFlowPostInstall(TestStockCommon):
             'location_dest_id': self.customer_location.id,
             'move_ids': [Command.create({
                 'product_id': product.id,
-                'product_uom': product.uom_id.id,
+                'uom_id': product.uom_id.id,
                 'product_uom_qty': 1.0,
                 'location_id': self.stock_location.id,
                 'location_dest_id': self.customer_location.id,
@@ -2781,7 +2833,7 @@ class TestStockFlowPostInstall(TestStockCommon):
         move01, move02 = self.env['stock.move'].create([{
             'product_id': self.productA.id,
             'product_uom_qty': 10,
-            'product_uom': self.productA.uom_id.id,
+            'uom_id': self.productA.uom_id.id,
             'description_picking': desc,
             'picking_id': picking.id,
             'location_id': self.supplier_location.id,
@@ -2809,14 +2861,14 @@ class TestStockFlowPostInstall(TestStockCommon):
         """
         stock_location_1 = self.stock_location
         stock_location_2 = stock_location_1.copy()
-        picking_type_1 = self.env['stock.picking.type'].create({
+        picking_type_1 = self.env['stock.picking.type'].sudo().create({
             'name': 'new_picking_type_1',
             'code': 'internal',
             'sequence_code': 'PT1/',
             'default_location_src_id': stock_location_1.id,
             'default_location_dest_id': self.customer_location.id,
         })
-        picking_type_2 = self.env['stock.picking.type'].create({
+        picking_type_2 = self.env['stock.picking.type'].sudo().create({
             'name': 'new_picking_type_2',
             'code': 'internal',
             'sequence_code': 'PT2/',

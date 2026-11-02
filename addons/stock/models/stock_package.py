@@ -51,7 +51,7 @@ class StockPackage(models.Model):
     picking_ids = fields.Many2many('stock.picking', string='Transfers', compute='_compute_picking_ids', search="_search_picking_ids", help="Transfers in which the Package is set as Destination Package")
     shipping_weight = fields.Float(string='Shipping Weight', help="Total weight of the package.")
     valid_sscc = fields.Boolean('Package name is valid SSCC', compute='_compute_valid_sscc')
-    pack_date = fields.Date('Pack Date', default=fields.Date.today)
+    pack_date = fields.Date('Pack Date', default=fields.Date.context_today)
     parent_path = fields.Char(index=True)
     json_popover = fields.Char('JSON data for popover widget', compute='_compute_json_popover')
 
@@ -117,7 +117,7 @@ class StockPackage(models.Model):
 
         display_uom = self.env.user.has_group('uom.group_uom')
         for package in self:
-            package_content = package.contained_quant_ids.grouped(lambda q: (q.product_uom_id, q.product_id))
+            package_content = package.contained_quant_ids.grouped(lambda q: (q.uom_id, q.product_id))
             package_content = [(uom.name, product.display_name, sum(quants.mapped('quantity'))) for ((uom, product), quants) in package_content.items()]
             package.content_description = format_list(self.env, [format_content(qty, uom_name, product_name, display_uom) for (uom_name, product_name, qty) in package_content])
 
@@ -131,7 +131,7 @@ class StockPackage(models.Model):
                 'title': self.env._("Multiple destinations"),
                 'msg': self.env._("This package is currently set to be sent in %(location_names_list)s.", location_names_list=location_names),
                 'color': 'text-warning',
-                'icon': 'fa-exclamation-triangle',
+                'icon': 'warning',
             })
 
     @api.depends('move_line_ids')
@@ -158,7 +158,7 @@ class StockPackage(models.Model):
         for package in self:
             package.location_id = False
             package.company_id = False
-            quants = package.quant_ids.filtered(lambda q: q.product_uom_id.compare(q.quantity, 0) > 0)
+            quants = package.quant_ids.filtered(lambda q: q.uom_id.compare(q.quantity, 0) > 0)
             if quants:
                 package.location_id = quants[0].location_id
                 if all(q.company_id == quants[0].company_id for q in package.quant_ids):
@@ -172,7 +172,7 @@ class StockPackage(models.Model):
     def _compute_picking_ids(self):
         children_by_dest_pack, all_pack_ids = self._get_all_children_package_dest_ids()
         groups = self.env['stock.move.line']._read_group(
-            domain=[('state', 'not in', ['done', 'cancel']), ('result_package_id', 'in', all_pack_ids)],
+            domain=[('state', 'not in', ['done', 'cancel']), ('result_package_id', 'in', all_pack_ids), ('picking_id', '!=', False)],
             groupby=['result_package_id'], aggregates=['picking_id:array_agg'])
         pickings_by_package = {package.id: picking_ids for package, picking_ids in groups}
 
@@ -413,7 +413,7 @@ class StockPackage(models.Model):
 
     def _check_move_lines_map_quant(self, move_lines):
         """ This method checks that all product (quants) of self (package) are well present in the `move_line_ids`. """
-        precision_digits = self.env['decimal.precision'].precision_get('Product Unit of Measure')
+        precision_digits = self.env['decimal.precision'].precision_get('Product Unit')
 
         def _keys_groupby(record):
             return record.product_id, record.lot_id
@@ -423,18 +423,18 @@ class StockPackage(models.Model):
 
         grouped_quants = {}
         for k, g in groupby(self.contained_quant_ids, key=_keys_groupby):
-            grouped_quants[k] = sum(self.env['stock.quant'].concat(*g).mapped('quantity'))
+            grouped_quants[k] = sum(self.env['stock.quant'].concat(g).mapped('quantity'))
 
         grouped_ops = {}
         for k, g in groupby(move_lines, key=_keys_groupby):
-            grouped_ops[k] = sum(self.env['stock.move.line'].concat(*g).mapped('quantity_product_uom'))
+            grouped_ops[k] = sum(self.env['stock.move.line'].concat(g).mapped('quantity_product_uom'))
 
         return all(float_is_zero(grouped_quants.get(key, 0) - grouped_ops.get(key, 0), precision_digits=precision_digits) for key in grouped_quants) \
            and all(float_is_zero(grouped_ops.get(key, 0) - grouped_quants.get(key, 0), precision_digits=precision_digits) for key in grouped_ops)
 
-    def _get_weight(self, picking_id=False):
+    def _get_weight(self, picking_ids=False):
         res = {}
-        if picking_id:
+        if picking_ids:
             package_weights = defaultdict(float)
             # If we check the weight of an ongoing package, we may need to check its current child dest as well to known their own weight.
             children_by_dest_pack, all_pack_ids = self._get_all_children_package_dest_ids()
@@ -445,19 +445,19 @@ class StockPackage(models.Model):
             base_weight_per_package = {pack.id: weight for pack, weight in base_weight_per_package_group}
 
             res_groups = self.env['stock.move.line']._read_group(
-                [('result_package_id', 'in', all_pack_ids), ('product_id', '!=', False), ('picking_id', '=', picking_id)],
-                ['result_package_id', 'product_id', 'product_uom_id', 'quantity'],
+                [('result_package_id', 'in', all_pack_ids), ('product_id', '!=', False), ('picking_id', 'in', picking_ids)],
+                ['result_package_id', 'product_id', 'uom_id', 'quantity'],
                 ['__count'],
             )
-            for result_package, product, product_uom, quantity, count in res_groups:
+            for result_package, product, uom_id, quantity, count in res_groups:
                 package_weights[result_package.id] += (
                     count
-                    * product_uom._compute_quantity(quantity, product.uom_id)
+                    * uom_id._compute_quantity(quantity, product.uom_id)
                     * product.weight
                 )
         for package in self:
             weight = package.package_type_id.base_weight or 0.0
-            if picking_id:
+            if picking_ids:
                 res[package] = weight + package_weights[package.id]
                 for child_id in children_by_dest_pack.get(package, []):
                     res[package] += base_weight_per_package.get(child_id, 0) + package_weights.get(child_id, 0)
@@ -494,7 +494,7 @@ class StockPackage(models.Model):
             if len(new_location) > 1:
                 raise UserError(self.env._("Packages %(duplicate_names)s are moved to different locations while being in the same container %(container_name)s.",
                                             duplicate_names=packages.mapped('name'), container_name=container_package.name))
-            contained_quants = container_package.contained_quant_ids.filtered(lambda q: not float_is_zero(q.quantity, precision_rounding=q.product_uom_id.rounding))
+            contained_quants = container_package.contained_quant_ids.filtered(lambda q: not q.uom_id.is_zero(q.quantity))
             if contained_quants and contained_quants.location_id != new_location:
                 old_location = contained_quants.location_id - new_location
                 raise UserError(self.env._("Can't move a container having packages in another location (%(old_location)s) to a different location (%(new_location)s).",
@@ -556,3 +556,19 @@ class StockPackage(models.Model):
         if self.package_dest_id:
             # If one level was added, need to check if the upper container is fully contained as well.
             self.package_dest_id._apply_package_dest_for_entire_packs(allowed_package_ids)
+
+    def _get_package_vals(self):
+        self.ensure_one()
+        return {
+                'location_id': self.location_id.id,
+                'location_dest_id': self.location_dest_id.id,
+                'move_line_ids': [Command.set(self.move_line_ids.filtered(lambda ml: ml.result_package_id == self).ids)],
+                'picking_ids': [Command.set(self.picking_ids.ids)],
+                'package_id': self.id,
+                'package_name': self.complete_name,
+                'parent_orig_id': self.parent_package_id.id,
+                'parent_orig_name': self.parent_package_id.complete_name,
+                'parent_dest_id': self.package_dest_id.id,
+                'parent_dest_name': self.package_dest_id.dest_complete_name,
+                'outermost_dest_id': self.outermost_package_id.id,
+            }

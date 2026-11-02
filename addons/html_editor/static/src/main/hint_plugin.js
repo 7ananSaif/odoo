@@ -1,7 +1,12 @@
 import { Plugin } from "@html_editor/plugin";
 import { isEditorTab, isEmptyBlock, isProtected } from "@html_editor/utils/dom_info";
 import { removeClass } from "@html_editor/utils/dom";
-import { descendants, selectElements } from "@html_editor/utils/dom_traversal";
+import {
+    closestElement,
+    descendants,
+    firstLeaf,
+    selectElements,
+} from "@html_editor/utils/dom_traversal";
 import { closestBlock } from "../utils/blocks";
 import { debounce } from "@web/core/utils/timing";
 
@@ -9,7 +14,7 @@ import { debounce } from "@web/core/utils/timing";
  * @typedef {import("@html_editor/editor").EditorContext} EditorContext
  * @typedef {import("@html_editor/core/selection_plugin").SelectionData} SelectionData
  * @typedef {import("plugins").CSSSelector} CSSSelector
- * @typedef {import("plugins").TranslatedString} TranslatedString
+ * @typedef {import("plugins").LazyTranslatedString} LazyTranslatedString
  */
 
 /**
@@ -17,7 +22,7 @@ import { debounce } from "@web/core/utils/timing";
  *   selectionData: SelectionData,
  *   editable: EditorContext["editable"]
  * ) => HTMLElement[] | NodeList)[]} hint_targets_providers
- * @typedef {{ selector: CSSSelector; text: TranslatedString; }[]} hints
+ * @typedef {{ selector: CSSSelector; text: LazyTranslatedString; }[]} hints
  */
 
 export class HintPlugin extends Plugin {
@@ -26,17 +31,34 @@ export class HintPlugin extends Plugin {
     /** @type {import("plugins").EditorResources} */
     resources = {
         /** Handlers */
-        selectionchange_handlers: this.triggerDebouncedUpdateHints.bind(this),
-        external_history_step_handlers: () => {
+        on_selectionchange_handlers: this.triggerDebouncedUpdateHints.bind(this),
+        on_remote_history_commits_applied_handlers: () => {
             this.clearHints();
             this.updateHints();
         },
-        normalize_handlers: this.normalize.bind(this),
-        clean_for_save_handlers: ({ root }) => this.clearHints(root),
-        content_updated_handlers: this.updateHints.bind(this),
+        on_pending_mutations_staged_handlers: this.updateHints.bind(this),
+        on_content_updated_handlers: this.updateHints.bind(this),
 
+        /** Predicates */
+        should_show_power_buttons_predicates: ({ anchorNode }) => {
+            if (!closestElement(anchorNode, ".o-we-hint")) {
+                return false;
+            }
+        },
+
+        /** Processors */
+        clean_for_save_processors: (root) => this.clearHints(root),
+        normalize_processors: this.normalize.bind(this),
+
+        /** Providers */
         hint_targets_providers: (selectionData, editable) => {
-            if (!selectionData.currentSelectionIsInEditable || !selectionData.documentSelection) {
+            if (
+                !(
+                    selectionData.documentSelectionIsInEditable &&
+                    this.dependencies.selection.editableDocumentHasFocus()
+                ) ||
+                !selectionData.documentSelection
+            ) {
                 return [];
             }
             const blockEl = closestBlock(selectionData.documentSelection.anchorNode);
@@ -46,6 +68,7 @@ export class HintPlugin extends Plugin {
                 return [];
             }
         },
+
         system_classes: ["o-we-hint"],
         system_attributes: ["o-we-hint-text"],
     };
@@ -65,9 +88,10 @@ export class HintPlugin extends Plugin {
         this.clearHints();
     }
 
-    normalize() {
+    normalize(root = this.editable) {
         this.clearHints();
         this.updateHints();
+        return root;
     }
 
     triggerDebouncedUpdateHints(selectionData = this.dependencies.selection.getSelectionData()) {
@@ -89,13 +113,7 @@ export class HintPlugin extends Plugin {
             for (const provideTargets of this.getResource("hint_targets_providers")) {
                 for (const target of provideTargets(selectionData, this.editable)) {
                     const nodeHint = hints.find((h) => target.matches(h.selector))?.text;
-                    if (
-                        target &&
-                        nodeHint &&
-                        isEmptyBlock(target) &&
-                        !isProtected(target) &&
-                        !descendants(target).some(isEditorTab)
-                    ) {
+                    if (target && nodeHint && this.shouldDisplayHint(target)) {
                         this.makeHint(target, nodeHint);
                     }
                 }
@@ -103,8 +121,24 @@ export class HintPlugin extends Plugin {
         }
     }
 
+    shouldDisplayHint(el) {
+        let shouldDisplay =
+            isEmptyBlock(el) &&
+            !isProtected(el) &&
+            !descendants(el).some(isEditorTab) &&
+            (this.checkPredicates("should_show_hint_predicates", el) ?? true);
+        if (shouldDisplay && el.childNodes.length) {
+            // Do not display hints if font sizes have been adjusted
+            const elStyle = getComputedStyle(el);
+            const hintFontSize = parseInt(elStyle.fontSize);
+            const childStyle = getComputedStyle(firstLeaf(el).parentElement);
+            const childFontSize = parseInt(childStyle.fontSize);
+            shouldDisplay = childFontSize === hintFontSize;
+        }
+        return shouldDisplay;
+    }
+
     makeHint(el, text) {
-        this.dispatchTo("make_hint_handlers", el);
         el.setAttribute("o-we-hint-text", text);
         el.classList.add("o-we-hint");
     }
@@ -119,5 +153,6 @@ export class HintPlugin extends Plugin {
         for (const elem of selectElements(root, ".o-we-hint")) {
             this.removeHint(elem);
         }
+        return root;
     }
 }

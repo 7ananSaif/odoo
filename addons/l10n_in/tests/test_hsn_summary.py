@@ -6,14 +6,14 @@ from odoo.tests import tagged
 @tagged('post_install', '-at_install', 'post_install_l10n')
 class TestL10nInHSNSummary(TestTaxCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     @TestTaxCommon.setup_country('in')
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.company_data['company'].write({
-            'l10n_in_is_gst_registered': True,
-        })
+        cls.company_data['company'].l10n_in_gst_registration_type = 'regular'
 
         cls.test_hsn_code_1 = '1234'
         cls.test_hsn_code_2 = '4321'

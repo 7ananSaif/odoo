@@ -1,13 +1,15 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import json
-import requests
 from http import HTTPStatus
 from unittest.mock import patch
 
-from odoo.addons.base.tests.common import HttpCaseWithUserDemo
-from odoo.tests.common import JsonRpcException, new_test_user, tagged
+import requests
+
+from odoo.tests.common import HttpCase, JsonRpcException, new_test_user, tagged
 from odoo.tools import mute_logger
+
+from odoo.addons.mail.tests.common import mail_new_test_user
 
 SAMPLE = {
     "text": "<p>Al mal tiempo, buena cara.</p>",
@@ -37,8 +39,8 @@ def mock_response(fun):
 
 
 # Google Cloud Translation Documentation: https://cloud.google.com/translate/docs/reference/api-overview?hl=en
-@tagged("post_install", "-at_install", "mail_message")
-class TestTranslationController(HttpCaseWithUserDemo):
+@tagged("mail_message")
+class TestTranslationController(HttpCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -46,7 +48,8 @@ class TestTranslationController(HttpCaseWithUserDemo):
         cls.env["res.lang"]._activate_lang("en_US")
         cls.env.ref("base.user_admin").write({"lang": "fr_FR"})
         cls.api_key = "VALIDKEY"
-        cls.env["ir.config_parameter"].set_param("mail.google_translate_api_key", cls.api_key)
+        cls.env["ir.config_parameter"].set_bool("mail.use_google_translate_api", True)
+        cls.env["ir.config_parameter"].set_str("mail.google_translate_api_key", cls.api_key)
         cls.message = cls.env["mail.message"].create(
             {
                 "body": SAMPLE["text"],
@@ -70,9 +73,12 @@ class TestTranslationController(HttpCaseWithUserDemo):
         if f"/v2/?key={self.api_key}" in url:
             return {"translations": [{"translatedText": SAMPLE[data.get("target")]}]}
 
-    def _mock_translation_request(self, data):
+    def _mock_translation_request(self, data, user=None):
         with patch.object(requests, "post", self._patched_post):
-            return self.make_jsonrpc_request("/mail/message/translate", data)
+            user = user or self.env.user
+            return self.make_jsonrpc_request(
+                "/mail/message/translate", data, cookies={"frontend_lang": user.lang}
+            )
 
     def test_update_message(self):
         self.authenticate("admin", "admin")
@@ -95,11 +101,16 @@ class TestTranslationController(HttpCaseWithUserDemo):
         self.assertFalse(self.env["mail.message.translation"].search_count([]))
 
     def test_translation_multi_users(self):
-        new_test_user(self.env, "user_test_fr", groups="base.group_user", lang="fr_FR")
-        new_test_user(self.env, "user_test_en", groups="base.group_user", lang="en_US")
-        for login, target_lang in [("user_test_fr", "fr"), ("user_test_en", "en"), ("admin", "fr")]:
+        user_fr = new_test_user(self.env, "user_test_fr", groups="base.group_user", lang="fr_FR")
+        user_en = new_test_user(self.env, "user_test_en", groups="base.group_user", lang="en_US")
+        user_admin = self.env.ref("base.user_admin")
+        for login, target_lang, user in [
+            ("user_test_fr", "fr", user_fr),
+            ("user_test_en", "en", user_en),
+            ("admin", "fr", user_admin),
+        ]:
             self.authenticate(login, login)
-            result = self._mock_translation_request({"message_id": self.message.id})
+            result = self._mock_translation_request({"message_id": self.message.id}, user=user)
             self.assertFalse(result.get("error"))
             self.assertEqual(result["body"], SAMPLE[target_lang])
             self.assertEqual(result["lang_name"], SAMPLE["lang"][target_lang])
@@ -108,9 +119,26 @@ class TestTranslationController(HttpCaseWithUserDemo):
         # No API request should be sent if a translation value or source already exists.
         self.assertEqual(self.request_count, 3)
 
+    def test_translation_regional_lang(self):
+        self.env["res.lang"]._activate_lang("zh_CN")
+        self.env["res.lang"]._activate_lang("zh_TW")
+        alice_user = mail_new_test_user(self.env, "alice_user", lang="zh_CN")
+        user_employee = mail_new_test_user(self.env, "user_employee", lang="zh_TW")
+        simplified, traditional = "<p>天气不好，笑脸相迎。</p>", "<p>天氣不好，笑臉相迎。</p>"
+        with patch.dict(SAMPLE, {"zh": simplified, "zh-CN": simplified, "zh-TW": traditional}):
+            for user, body in [(alice_user, simplified), (user_employee, traditional)]:
+                self.authenticate(user.login, user.login)
+                result = self._mock_translation_request({"message_id": self.message.id}, user=user)
+                self.assertEqual(result["body"], body)
+        self.assertEqual(
+            self.env["mail.message.translation"].search([]).mapped("target_lang"),
+            ["zh-CN", "zh-TW"],
+        )
+
     def test_invalid_api_key(self):
-        self.env["ir.config_parameter"].set_param("mail.google_translate_api_key", "INVALIDKEY")
-        self.authenticate("demo", "demo")
+        self.env["ir.config_parameter"].set_str("mail.google_translate_api_key", "INVALIDKEY")
+        test_user = new_test_user(self.env, login="test_user", password="test_user")
+        self.authenticate(test_user.login, test_user.password)
         result = self._mock_translation_request({"message_id": self.message.id})
         self.assertNotIn("body", result)
         self.assertNotIn("lang_name", result)
@@ -118,9 +146,9 @@ class TestTranslationController(HttpCaseWithUserDemo):
 
     def test_html_sanitization(self):
         self.env["res.lang"]._activate_lang("nl_NL")
-        new_test_user(self.env, "user_test_nl", groups="base.group_user", lang="nl_NL")
+        user_nl = new_test_user(self.env, "user_test_nl", groups="base.group_user", lang="nl_NL")
         self.authenticate("user_test_nl", "user_test_nl")
-        result = self._mock_translation_request({"message_id": self.message.id})
+        result = self._mock_translation_request({"message_id": self.message.id}, user=user_nl)
         self.assertFalse(result.get("error"))
         self.assertHTMLEqual(result["body"], "<p>Bij slecht weer, goed gezicht.</p>")
         translation = self.env["mail.message.translation"].search([])
@@ -128,7 +156,7 @@ class TestTranslationController(HttpCaseWithUserDemo):
         self.assertHTMLEqual(translation.body, "<p>Bij slecht weer, goed gezicht.</p>")
 
     def test_access_right(self):
-        with self.assertRaises(JsonRpcException, msg="odoo.http.SessionExpiredException"):
+        with self.assertRaises(JsonRpcException, msg="odoo.http.session.SessionExpiredException"):
             self._mock_translation_request({"message_id": self.message.id})
         new_test_user(self.env, "user_test_portal", groups="base.group_portal", lang="fr_FR")
         self.authenticate("user_test_portal", "user_test_portal")
@@ -138,5 +166,7 @@ class TestTranslationController(HttpCaseWithUserDemo):
     def test_unknown_language(self):
         self.authenticate("admin", "admin")
         with patch.dict(SAMPLE, {"src": "unknown_by_babel_but_known_by_google_api"}):
-            result = self._mock_translation_request({"message_id": self.message.id})
+            result = self._mock_translation_request(
+                {"message_id": self.message.id}, user=self.env.ref("base.user_admin")
+            )
         self.assertEqual(result["body"], "<p>Au mauvais temps, bonne tête.</p>")

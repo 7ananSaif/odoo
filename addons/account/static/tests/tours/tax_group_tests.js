@@ -3,7 +3,6 @@ import { registry } from "@web/core/registry";
 import { stepUtils } from "@web_tour/tour_utils";
 
 registry.category("web_tour.tours").add('account_tax_group', {
-    url: "/odoo",
     steps: () => [
     ...accountTourSteps.goToAccountMenu("Go to Invoicing"),
     {
@@ -54,12 +53,12 @@ registry.category("web_tour.tours").add('account_tax_group', {
     // Add First product
     {
         content: "Add items",
-        trigger: 'div[name="invoice_line_ids"] .o_field_x2many_list_row_add a:contains("Add a line")',
+        trigger: 'div[name="invoice_line_ids"] .o_field_x2many_list_row_add button:contains("Add a line")',
         run: "click",
     },
     {
         content: "Select input",
-        trigger: 'div[name="invoice_line_ids"] .o_selected_row .o_list_many2one[name="product_id"] input',
+        trigger: 'div[name="invoice_line_ids"] .o_selected_row div[name="product_id"] input',
         run: "edit Account Tax Group Product",
     },
     {

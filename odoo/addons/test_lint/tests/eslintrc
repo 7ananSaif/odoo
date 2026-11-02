@@ -23,10 +23,6 @@
             "error",
             "PrivateIdentifier",
             {
-                "selector": "ClassDeclaration[superClass.name='Component']:not(:has(ClassBody.body > PropertyDefinition[key.name='props'][static='true']))",
-                "message": "Component should declare static props"
-            },
-            {
                 "selector": "ClassDeclaration[superClass.name='Component']:not(:has(ClassBody.body > PropertyDefinition[key.name='template'][static='true']))",
                 "message": "Component should declare static template"
             },
@@ -38,6 +34,14 @@
                 "selector": "CallExpression[callee.object.name='notificationService'][callee.property.name='add'] > Literal:first-child",
                 "message": "String passed to 'notificationService.add()' should be translated."
             },
+            {
+                "selector": "CallExpression[callee.name='useEffect'][arguments.length>1]",
+                "message": "Owl 3 useEffect takes a single callback: the dependency argument is silently ignored. Read the signals inside the callback, or use useOnChange/useLayoutEffect."
+            },
+            {
+                "selector": "CallExpression[callee.name='useEffect'] > :function:first-child[params.length>0]",
+                "message": "Owl 3 calls the useEffect callback without arguments: declared parameters are always undefined."
+            },
         ],
         "no-unused-vars": ["error", { "vars": "all", "args": "none", "ignoreRestSiblings": false, "caughtErrors": "all" }]
     },
@@ -48,7 +52,6 @@
         "Chart": "readonly",
         "fuzzy": "readonly",
         "StackTrace": "readonly",
-        "QUnit": "readonly",
         "luxon": "readonly",
         "py": "readonly",
         "FullCalendar": "readonly",
@@ -60,6 +63,7 @@
         "it": "readonly",
         "mocha": "readonly",
         "DOMPurify": "readonly",
+        "SIP": "readonly",
 
         "Alert": "readonly",
         "Collapse": "readonly",

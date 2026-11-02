@@ -14,13 +14,14 @@ import {
     setInputRange,
 } from "@odoo/hoot-dom";
 import { contains, onRpc } from "@web/../tests/web_test_helpers";
+import { IMAGE_MIMETYPES } from "@html_editor/main/media/media_dialog/file_selector";
 import {
     defineWebsiteModels,
     setupWebsiteBuilder,
     setupWebsiteBuilderOeId,
 } from "./website_helpers";
 import { dummyBase64Img } from "@html_builder/../tests/helpers";
-import { onRpcImg, testGifImg, testImg, testSvgImg } from "./image_test_helpers";
+import { testGifImg, testImg, testSvgImg } from "./image_test_helpers";
 import { expectElementCount } from "@html_editor/../tests/_helpers/ui_expectations";
 
 defineWebsiteModels();
@@ -66,12 +67,46 @@ test("Double click on image and replace it", async () => {
     expect(".options-container[data-container-title='Image']").toHaveCount(1);
 });
 
+test("media dialog requests website logo attachments", async () => {
+    onRpc("ir.attachment", "search_read", ({ kwargs = {} }) => {
+        expect(kwargs.domain.slice(0, 8)).toEqual([
+            "|",
+            "&",
+            ["res_model", "=", "website"],
+            "&",
+            ["res_id", "=", 1],
+            "&",
+            ["res_field", "=", false],
+            ["mimetype", "in", IMAGE_MIMETYPES],
+        ]);
+        return [
+            {
+                id: 1,
+                name: "logo",
+                mimetype: "image/png",
+                image_src: "/web/image/website/1/logo",
+                access_token: false,
+                public: true,
+            },
+        ];
+    });
+
+    await setupWebsiteBuilder(`<div><img class=a_nice_img src='${dummyBase64Img}'></div>`);
+    await dblclick(":iframe img.a_nice_img");
+    await waitFor(".o_select_media_dialog");
+
+    expect(".o_select_media_dialog .o_existing_attachment_cell img").toHaveAttribute(
+        "data-src",
+        "/web/image/website/1/logo?height=256"
+    );
+});
+
 test("simple click on Image", async () => {
     await setupWebsiteBuilder(`<div><img class=a_nice_img src='${dummyBase64Img}'></div>`);
     await click(":iframe img.a_nice_img");
     await waitFor("div.o-tooltip");
     expect("div.o-tooltip").toHaveCount(1);
-    await advanceTime(1600);
+    await advanceTime(3100);
     expect("div.o-tooltip").toHaveCount(0);
 });
 
@@ -125,7 +160,7 @@ test("pasted/dropped images are converted to attachments on save in website edit
         expect(params.res_model).toBe("ir.ui.view");
         expect.step("add_data");
         return {
-            image_src: "/test_image_url.png",
+            image_src: "/web/static/img/logo.png",
             access_token: "1234",
             public: false,
         };
@@ -133,7 +168,7 @@ test("pasted/dropped images are converted to attachments on save in website edit
 
     onRpc("ir.ui.view", "save", ({ args }) => {
         expect.step("save");
-        expect(args[1]).toInclude('src="/test_image_url.png?access_token=1234"');
+        expect(args[1]).toInclude('src.translate="/web/static/img/logo.png?access_token=1234"');
         return true;
     });
 
@@ -171,12 +206,16 @@ test("pasted/dropped images are converted to attachments on save in website edit
 test("pasted/dropped images are converted to attachments on snippet save", async () => {
     const imageData =
         "iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII";
+    const imageSrcs = {
+        "image-1.png": "/web/static/img/logo.png",
+        "image-2.png": "/web/static/img/logo2.png",
+    };
     onRpc("/html_editor/attachment/add_data", async (request) => {
         const { params } = await request.json();
         expect(params.data).toBe(imageData + "=");
         expect.step(`add_data ${params.name}`);
         return {
-            image_src: `/url_${params.name}`,
+            image_src: imageSrcs[params.name],
             access_token: "1234",
             public: false,
         };
@@ -184,14 +223,14 @@ test("pasted/dropped images are converted to attachments on snippet save", async
 
     onRpc("ir.ui.view", "save_snippet", ({ kwargs }) => {
         expect.step("save snippet");
-        expect(kwargs.arch).toInclude('src="/url_image-1.png?access_token=1234"');
+        expect(kwargs.arch).toInclude('src="/web/static/img/logo.png?access_token=1234"');
         return "Custom Cover";
     });
 
     onRpc("ir.ui.view", "save", ({ args }) => {
         expect.step("save");
-        expect(args[1]).toInclude('src="/url_image-1.png?access_token=1234"');
-        expect(args[1]).toInclude('src="/url_image-2.png?access_token=1234"');
+        expect(args[1]).toInclude('src.translate="/web/static/img/logo.png?access_token=1234"');
+        expect(args[1]).toInclude('src.translate="/web/static/img/logo2.png?access_token=1234"');
         return true;
     });
 
@@ -234,7 +273,6 @@ test("pasted/dropped images are converted to attachments on snippet save", async
     // Save snippet of section 1 and check if its image has been saved as attachment
     await contains(":iframe [test-id='1']").click();
     await contains("button.oe_snippet_save").click();
-    await contains(".modal button:contains(Save)").click();
     await expect.waitForSteps(["add_data image-1.png", "save snippet"]);
 
     // Save and check if image of section 2 has been saved as attachment
@@ -286,7 +324,6 @@ describe("Image format/optimize", () => {
         expect(img.dataset.quality).toBe("50");
     });
     test("Quality option does not disappear when a shape is applied on the image", async () => {
-        onRpcImg("/html_builder/static/image_shapes/devices/iphone_front_portrait.svg");
         onRpc("/html_editor/get_image_info", () => ({
             attachment: { id: 1 },
             original: {
@@ -352,10 +389,9 @@ test("Save image with correct parameter", async () => {
         expect(params.res_id).toBe(setupWebsiteBuilderOeId);
         expect(params.res_model).toBe("ir.ui.view");
         expect.step("modify_image");
+        // The controller returns image URLs keyed by size.
         return {
-            image_src: "/test_image_url.png",
-            access_token: "1234",
-            public: false,
+            original: "/web/static/img/logo.png?access_token=1234",
         };
     });
     onRpc("ir.ui.view", "save", ({ args }) => true);

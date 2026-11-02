@@ -80,19 +80,19 @@ class CloudStorageMigrationReport(models.Model):
                 f for f in model_cls._fields.values() if f.relational and f.comodel_name == 'ir.attachment')
 
     def _compute_all_to_migrate(self):
-        model_names = self.env['ir.config_parameter'].sudo().get_param('cloud_storage_migration_all_models', '').split(',')
+        model_names = self.env['ir.config_parameter'].sudo().get_str('cloud_storage_migration_all_models').split(',')
         model_names = {m_ for m in model_names if (m_ := m.strip()) and m_ in self.env}
         for record in self:
             record.all_to_migrate = record.res_model in model_names
 
     def _compute_message_to_migrate(self):
-        model_names = self.env['ir.config_parameter'].sudo().get_param('cloud_storage_migration_message_models', '').split(',')
+        model_names = self.env['ir.config_parameter'].sudo().get_str('cloud_storage_migration_message_models').split(',')
         model_names = {m_ for m in model_names if (m_ := m.strip()) and m_ in self.env}
         for record in self:
             record.message_to_migrate = record.res_model in model_names
 
     def get_progress(self):
-        max_attachment_id = int(self.env['ir.config_parameter'].get_param('cloud_storage_migration_max_attachment_id', 0)) or 1
+        max_attachment_id = self.env['ir.config_parameter'].get_int('cloud_storage_migration_max_attachment_id') or 1
         self.env.cr.execute("SELECT value FROM ir_config_parameter WHERE key = 'cloud_storage_migration_min_attachment_id'")
-        min_attachment_id = int(self.env.cr.fetchone()[0]) if self.env.cr.rowcount else 0
+        min_attachment_id = int(self.env.cr.fetchone()[0] or 0) if self.env.cr.rowcount else 0
         return min_attachment_id * 100 // max(max_attachment_id, min_attachment_id)

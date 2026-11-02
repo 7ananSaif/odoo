@@ -1,34 +1,46 @@
-import { Component, useExternalListener, useState } from "@odoo/owl";
+import { MessageSearchState } from "@mail/core/common/message_search_hook";
+import { Component, t, useListener, useProps } from "@odoo/owl";
 import { browser } from "@web/core/browser/browser";
-import { useAutofocus } from "@web/core/utils/hooks";
+import { SearchInput } from "@mail/core/common/search_input";
 import { Dropdown } from "@web/core/dropdown/dropdown";
 import { DropdownItem } from "@web/core/dropdown/dropdown_item";
 import { _t } from "@web/core/l10n/translation";
+import { useService } from "@web/core/utils/hooks";
 
 /**
  * @typedef {Object} SearchFilter
- * @property {string} label
- * @property {string} name
- * @property {true|false|undefined} [is_notification]
+ * @property {string|undefined} id value sent as `search_filter` to `_message_fetch` (`undefined` = All)
+ * @property {TranslatedString} name
  */
 
 /**
- * @typedef {Object} Props
- * @property {ReturnType<typeof import("@mail/core/common/message_search_hook").useMessageSearch>} messageSearch
- * @property {import("@mail/core/common/thread_model").Thread} thread
- * @property {function} [closeSearch]
- * @extends {Component<Props, Env>}
+ * Supported message search filters for `_message_fetch`.
+ * Keep in sync with `MESSAGE_SEARCH_FILTERS` in `mail/models/mail_message.py`.
+ *
+ * @type {SearchFilter[]}
  */
+export const MESSAGE_SEARCH_FILTERS = [
+    { id: undefined, name: _t("All") },
+    { id: "messages", name: _t("Messages") },
+    { id: "notes", name: _t("Notes") },
+    { id: "activities", name: _t("Activities") },
+    { id: "changes", name: _t("Changes") },
+];
+
 export class SearchMessageInput extends Component {
     static template = "mail.SearchMessageInput";
-    static props = ["closeSearch?", "messageSearch", "thread"];
-    static components = { Dropdown, DropdownItem };
+    static components = { Dropdown, DropdownItem, SearchInput };
 
     setup() {
         super.setup();
-        this.state = useState({ searchTerm: "", searchedTerm: "" });
-        useAutofocus();
-        useExternalListener(
+        this.store = useService("mail.store");
+        this.MESSAGE_SEARCH_FILTERS = MESSAGE_SEARCH_FILTERS;
+        this.props = useProps({
+            closeSearch: t.function([]).optional(),
+            messageSearch: t.instanceOf(MessageSearchState),
+            thread: t.instanceOf(this.store["mail.thread"]),
+        });
+        useListener(
             browser,
             "keydown",
             (ev) => {
@@ -40,56 +52,15 @@ export class SearchMessageInput extends Component {
         );
     }
 
-    search() {
-        this.props.messageSearch.searchTerm = this.state.searchTerm;
-        this.props.messageSearch.search();
-        this.state.searchedTerm = this.state.searchTerm;
-    }
-
-    clear() {
-        this.state.searchTerm = "";
-        this.state.searchedTerm = this.state.searchTerm;
-        this.props.messageSearch.clear();
-        this.props.closeSearch?.();
-    }
-
-    onKeydownSearch(ev) {
-        if (ev.key !== "Enter") {
-            return;
-        }
-        if (!this.state.searchTerm) {
-            this.clear();
-        } else {
-            this.search();
-        }
-    }
-
     /** @param {SearchFilter} searchFilter */
     onChangeSearchFilter(searchFilter) {
-        if (searchFilter.is_notification !== this.props.messageSearch.is_notification) {
-            this.props.messageSearch.is_notification = searchFilter.is_notification;
-            this.search();
+        if (searchFilter.id !== this.props.messageSearch.search_filter) {
+            this.props.messageSearch.lastEmptyTerm = undefined;
+            this.props.messageSearch.search_filter = searchFilter.id;
         }
     }
 
-    /** @returns {SearchFilter[]} */
-    get searchFilters() {
-        return [
-            {
-                label: "all",
-                name: _t("All"),
-                is_notification: undefined,
-            },
-            {
-                label: "conversations",
-                name: _t("Conversations"),
-                is_notification: false,
-            },
-            {
-                label: "tracked_changes",
-                name: _t("Tracked Changes"),
-                is_notification: true,
-            },
-        ];
+    get inputPlaceholder() {
+        return _t("Search %(threadName)s", { threadName: this.props.thread.displayName });
     }
 }

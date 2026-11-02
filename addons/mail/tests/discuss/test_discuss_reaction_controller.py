@@ -2,7 +2,7 @@ from odoo.addons.mail.tests.common_controllers import MailControllerReactionComm
 from odoo.tests import tagged
 
 
-@tagged("-at_install", "post_install", "mail_controller")
+@tagged("mail_controller")
 class TestMessageReactionController(MailControllerReactionCommon):
 
     def test_message_reaction_public_channel(self):
@@ -25,7 +25,7 @@ class TestMessageReactionController(MailControllerReactionCommon):
     def test_message_reaction_channel_as_member(self):
         """Test access of message reaction for a channel as member."""
         channel = self.env["discuss.channel"]._create_group(
-            partners_to=(self.user_portal + self.user_employee).partner_id.ids
+            users_to=self.user_portal + self.user_employee
         )
         channel._add_members(guests=self.guest)
         message = channel.message_post(body="invite message")
@@ -42,7 +42,7 @@ class TestMessageReactionController(MailControllerReactionCommon):
 
     def test_message_reaction_channel_as_non_member(self):
         """Test access of message reaction for a channel as non-member."""
-        channel = self.env["discuss.channel"]._create_group(partners_to=[])
+        channel = self.env["discuss.channel"]._create_group(users_to=self.env["res.users"])
         message = channel.message_post(body="private message")
         self._execute_subtests(
             message,

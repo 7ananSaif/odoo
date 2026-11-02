@@ -1,18 +1,18 @@
 import { expect, test } from "@odoo/hoot";
 import { queryRect, queryOne } from "@odoo/hoot-dom";
 import { animationFrame } from "@odoo/hoot-mock";
-import { Component, useRef, xml } from "@odoo/owl";
+import { Component, signal, xml } from "@odoo/owl";
 import { contains, mountWithCleanup } from "@web/../tests/web_test_helpers";
 
 import { useAutoresize } from "@web/core/utils/autoresize";
 
 test(`resizable input`, async () => {
     class ResizableInput extends Component {
-        static template = xml`<input class="resizable-input" t-ref="input"/>`;
-        static props = ["*"];
+        static template = xml`<input class="resizable-input" t-ref="this.inputRef"/>`;
+        inputRef = signal.ref();
 
         setup() {
-            useAutoresize(useRef("input"));
+            useAutoresize(this.inputRef);
         }
     }
     await mountWithCleanup(ResizableInput);
@@ -22,13 +22,31 @@ test(`resizable input`, async () => {
     expect(`.resizable-input`).not.toHaveRect({ width: initialWidth });
 });
 
-test(`resizable textarea`, async () => {
-    class ResizableTextArea extends Component {
-        static template = xml`<textarea class="resizable-textarea" t-ref="textarea"/>`;
-        static props = ["*"];
+test(`resizable input sizes to its placeholder when empty`, async () => {
+    class ResizableInput extends Component {
+        static template = xml`<input class="resizable-input" placeholder="Hi" t-ref="this.inputRef"/>`;
+        inputRef = signal.ref();
 
         setup() {
-            useAutoresize(useRef("textarea"));
+            useAutoresize(this.inputRef);
+        }
+    }
+    await mountWithCleanup(ResizableInput);
+    const placeholderWidth = queryRect(`.resizable-input`).width;
+
+    await contains(`.resizable-input`).edit("Hi");
+    const typedWidth = queryRect(`.resizable-input`).width;
+    // "Hi" placeholder vs "Hi" text should size about the same.
+    expect(placeholderWidth).toBeWithin(typedWidth - 5, typedWidth + 5);
+});
+
+test(`resizable textarea`, async () => {
+    class ResizableTextArea extends Component {
+        static template = xml`<textarea class="resizable-textarea" t-ref="this.textareaRef"/>`;
+        textareaRef = signal.ref();
+
+        setup() {
+            useAutoresize(this.textareaRef);
         }
     }
     await mountWithCleanup(ResizableTextArea);
@@ -40,11 +58,11 @@ test(`resizable textarea`, async () => {
 
 test(`resizable textarea with minimum height`, async () => {
     class ResizableTextArea extends Component {
-        static template = xml`<textarea class="resizable-textarea" t-ref="textarea"/>`;
-        static props = ["*"];
+        static template = xml`<textarea class="resizable-textarea" t-ref="this.textareaRef"/>`;
+        textareaRef = signal.ref();
 
         setup() {
-            useAutoresize(useRef("textarea"), { minimumHeight: 100 });
+            useAutoresize(this.textareaRef, { minimumHeight: 100 });
         }
     }
     await mountWithCleanup(ResizableTextArea);
@@ -57,16 +75,15 @@ test(`resizable textarea with minimum height`, async () => {
 
 test(`call onResize callback`, async () => {
     class ResizableInput extends Component {
-        static template = xml`<input class="resizable-input" t-ref="input"/>`;
-        static props = ["*"];
+        static template = xml`<input class="resizable-input" t-ref="this.inputRef"/>`;
+        inputRef = signal.ref();
 
         setup() {
-            const inputRef = useRef("input");
-            useAutoresize(inputRef, {
+            useAutoresize(this.inputRef, {
                 randomParam: true,
-                onResize(el, options) {
+                onResize: (el, options) => {
                     expect.step("onResize");
-                    expect(el).toBe(inputRef.el);
+                    expect(el).toBe(this.inputRef());
                     expect(options).toInclude("randomParam");
                 },
             });
@@ -81,12 +98,11 @@ test(`call onResize callback`, async () => {
 
 test(`call onResize callback after resizing text area`, async () => {
     class ResizableTextArea extends Component {
-        static template = xml`<textarea class="resizable-textarea" t-ref="textarea"/>`;
-        static props = ["*"];
+        static template = xml`<textarea class="resizable-textarea" t-ref="this.textareaRef"/>`;
+        textareaRef = signal.ref();
 
         setup() {
-            const textareaRef = useRef("textarea");
-            useAutoresize(textareaRef, {
+            useAutoresize(this.textareaRef, {
                 onResize(el, options) {
                     expect.step("onResizeTextArea");
                 },

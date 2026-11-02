@@ -1,19 +1,18 @@
-import { browser } from "@web/core/browser/browser";
+import { location } from "@web/core/browser/browser";
 import { useBus, useService } from "@web/core/utils/hooks";
 import { MainComponentsContainer } from "@web/core/main_components_container";
 import { useOwnDebugContext } from "@web/core/debug/debug_context";
 import { ActionContainer } from "@web/webclient/actions/action_container";
-import { Component, onMounted, useExternalListener, useState } from "@odoo/owl";
+import { Component, onMounted, proxy, useListener } from "@odoo/owl";
 
 export class ProjectSharingWebClient extends Component {
-    static props = {};
     static components = { ActionContainer, MainComponentsContainer };
     static template = "project.ProjectSharingWebClient";
 
     setup() {
         this.actionService = useService("action");
         useOwnDebugContext({ categories: ["default"] });
-        this.state = useState({
+        this.state = proxy({
             fullscreen: false,
         });
         useBus(this.env.bus, "ACTION_MANAGER:UI-UPDATED", (mode) => {
@@ -21,13 +20,15 @@ export class ProjectSharingWebClient extends Component {
                 this.state.fullscreen = mode === "fullscreen";
             }
         });
+        this.isMounted = false;
         onMounted(() => {
             this.loadRouterState();
             // the chat window and dialog services listen to 'web_client_ready' event in
             // order to initialize themselves:
             this.env.bus.trigger("WEB_CLIENT_READY");
+            this.isMounted = true;
         });
-        useExternalListener(window, "click", this.onGlobalClick, { capture: true });
+        useListener(window, "click", this.onGlobalClick.bind(this), { capture: true });
     }
 
     async loadRouterState() {
@@ -36,9 +37,9 @@ export class ProjectSharingWebClient extends Component {
 
         // Scroll to anchor after the state is loaded
         if (stateLoaded) {
-            if (browser.location.hash !== "") {
+            if (location.hash !== "") {
                 try {
-                    const el = document.querySelector(browser.location.hash);
+                    const el = document.querySelector(location.hash);
                     if (el !== null) {
                         el.scrollIntoView(true);
                     }
@@ -57,6 +58,7 @@ export class ProjectSharingWebClient extends Component {
         // we let the browser do the default behavior and
         // we do not want any other listener to execute.
         if (
+            this.isMounted &&
             (ev.ctrlKey || ev.metaKey) &&
             !ev.target.isContentEditable &&
             ((ev.target instanceof HTMLAnchorElement && ev.target.href) ||

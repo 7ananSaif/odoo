@@ -3,30 +3,34 @@ import { _t } from "@web/core/l10n/translation";
 import { unique } from "@web/core/utils/arrays";
 import { useService } from "@web/core/utils/hooks";
 
-import { Component, useState, onWillStart } from "@odoo/owl";
+import { Component, onWillStart, proxy, useProps } from "@odoo/owl";
 import { standardWidgetProps } from "@web/views/widgets/standard_widget_props";
+import { rpc } from "@web/core/network/rpc";
 
 class ResConfigInviteUsers extends Component {
     static template = "res_config_invite_users";
-    static props = {
+    props = useProps({
         ...standardWidgetProps,
-    };
+    });
 
     setup() {
         this.orm = useService("orm");
-        this.invite = useService("user_invite");
         this.action = useService("action");
         this.notification = useService("notification");
 
-        this.state = useState({
+        this.state = proxy({
             status: "idle", // idle, inviting
             emails: "",
             invite: null,
         });
 
         onWillStart(async () => {
-            this.state.invite = await this.invite.fetchData();
+            this.state.invite = await this.fetchInvite();
         });
+    }
+
+    async fetchInvite(cache = true) {
+        return rpc("/base_setup/data", {}, { cache });
     }
 
     /**
@@ -131,7 +135,7 @@ class ResConfigInviteUsers extends Component {
         try {
             if (emailsLeftToProcess) {
                 await this.orm.call("res.users", "web_create_users", [emailsLeftToProcess]);
-                this.state.invite = await this.invite.fetchData(true);
+                this.state.invite = await this.fetchInvite(false);
             }
         } finally {
             this.state.emails = "";

@@ -18,29 +18,38 @@ class MailMessage(models.Model):
             else:
                 message.channel_id = False
 
-    def _to_store_defaults(self, target):
-        return super()._to_store_defaults(target) + [
-            Store.Many(
-                "call_history_ids",
-                ["duration_hour", "end_dt"],
-                predicate=lambda m: m.body and 'data-oe-type="call"' in m.body,
-            ),
-        ]
+    def _get_with_access(self, mode="read", **kwargs):
+        """Override to allow users/guests to edit their own messages in channels."""
+        res = super()._get_with_access(mode=mode, **kwargs)
+        if not res and mode == "write" and self.channel_id and self.is_current_user_or_guest_author:
+            return self
+        return res
 
-    def _extras_to_store(self, store: Store, format_reply):
-        super()._extras_to_store(store, format_reply=format_reply)
+    def _store_message_fields(self, res: Store.FieldList, **kwargs):
+        super()._store_message_fields(res, **kwargs)
+        res.many(
+            "call_history_ids",
+            ["duration_hour", "end_dt", "has_recording"],
+            predicate=lambda m: m.body and 'data-oe-type="call"' in m.body,
+        )
+
+    def _store_extra_fields(self, res: Store.FieldList, *, format_reply):
+        super()._store_extra_fields(res, format_reply=format_reply)
         if format_reply:
             # sudo: mail.message: access to parent is allowed
-            store.add(
-                self.sudo().filtered(lambda message: message.channel_id),
-                Store.One("parent_id", format_reply=False),
+            res.one(
+                "parent_id",
+                "_store_message_fields",
+                fields_params={"format_reply": False},
+                predicate=lambda m: m.channel_id,
+                sudo=True,
             )
 
-    def _bus_channel(self):
+    def _bus_channels(self):
         self.ensure_one()
         if self.channel_id:
-            return self.channel_id
+            return self.channel_id._bus_channels()
         guest = self.env["mail.guest"]._get_guest_from_context()
         if self.env.user._is_public() and guest:
-            return guest
-        return super()._bus_channel()
+            return guest._bus_channels()
+        return super()._bus_channels()

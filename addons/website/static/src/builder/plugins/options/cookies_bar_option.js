@@ -1,28 +1,21 @@
 import { BuilderAction } from "@html_builder/core/builder_action";
-import { BaseOptionComponent } from "@html_builder/core/utils";
 import { Plugin } from "@html_editor/plugin";
 import { registry } from "@web/core/registry";
-import { renderToElement } from "@web/core/utils/render";
 
 /**
  * @typedef { Object } CookiesBarOptionShared
  * @property { CookiesBarOptionPlugin['getSavedSelectors'] } getSavedSelectors
  */
 
-export class CookiesBarOption extends BaseOptionComponent {
-    static template = "website.CookiesBarOption";
-    static selector = "#website_cookies_bar";
-    static applyTo = ".modal";
-}
-class CookiesBarOptionPlugin extends Plugin {
+export class CookiesBarOptionPlugin extends Plugin {
     static id = "CookiesBarOptionPlugin";
     static shared = ["getSavedSelectors"];
     /** @type {import("plugins").WebsiteResources} */
     resources = {
-        builder_options: [CookiesBarOption],
         builder_actions: {
             SelectLayoutAction,
         },
+        immutable_link_selectors: [".o_cookies_bar_text_policy", ".o_cookies_bar_toggle"],
     };
 
     setup() {
@@ -36,12 +29,13 @@ class CookiesBarOptionPlugin extends Plugin {
 
 export class SelectLayoutAction extends BuilderAction {
     static id = "selectLayout";
-    static dependencies = ["CookiesBarOptionPlugin"];
+    static dependencies = ["CookiesBarOptionPlugin", "websiteBridge"];
     apply({ editingElement, value: layout }) {
         const savedSelectors = this.dependencies.CookiesBarOptionPlugin.getSavedSelectors();
-        const templateEl = renderToElement(`website.cookies_bar.${layout}`, {
-            websiteId: this.services.website.currentWebsite.id,
-        });
+        const templateEl = this.dependencies.websiteBridge.renderToElement(
+            `website.cookies_bar.${layout}`,
+            { websiteId: this.services.website.currentWebsite.id }
+        );
         const contentEl = editingElement.querySelector(".modal-content");
 
         // The selectors' order is significant since some selectors

@@ -8,7 +8,9 @@ from odoo import Command, fields
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests import Form, tagged
 
+from odoo.addons.base.tests.files import GIF_RAW
 from odoo.addons.hr_expense.tests.common import TestExpenseCommon
+from odoo.addons.mail.tests.common import mail_new_test_user
 
 
 @tagged('-at_install', 'post_install')
@@ -16,6 +18,8 @@ class TestExpenses(TestExpenseCommon):
     #############################################
     #  Test Expense flows
     #############################################
+    _test_user_groups = None  # FIXME list needed groups
+
     def test_expense_main_flow(self):
         """
         Test the main flows of expense
@@ -90,30 +94,25 @@ class TestExpenses(TestExpenseCommon):
         ])
 
         # Approving properly change states & create moves & payments
-        all_expenses.action_approve()
-        self.assertRecordValues(all_expenses, [
-            {'state': 'approved', 'account_move_id': False},
-            {'state': 'approved', 'account_move_id': False},
-            {'state': 'approved', 'account_move_id': False},
-            {'state': 'approved', 'account_move_id': False},
-        ])
-        # Post a payment for 'company_account' (and its move(s)) and a receipt  for 'own_account'
-        expenses_by_company.action_post()
-        self.post_expenses_with_wizard(expenses_by_employee[0], date=date(2021, 10, 10))
-        self.post_expenses_with_wizard(expenses_by_employee[1], date=date(2021, 10, 31))
+        expenses_by_company.action_approve()
+        # Approve separately expenses by employee to have a dedicated move for each expense
+        expenses_by_employee[0].action_approve()
+        expenses_by_employee[1].action_approve()
         self.assertRecordValues(all_expenses, [
             # As the payment is not done yet those are still in "posted"
-            {'payment_mode': 'own_account',     'state': 'posted'},
-            {'payment_mode': 'own_account',     'state': 'posted'},
-            # Expenses paid by company don't use accounting date since they are already paid and posted directly
+            {'payment_mode': 'own_account',     'state': 'approved'},
+            {'payment_mode': 'own_account',     'state': 'approved'},
             {'payment_mode': 'company_account', 'state': 'paid'},
             {'payment_mode': 'company_account', 'state': 'paid'},
         ])
+        self.assertRecordValues(all_expenses.account_move_id, [{'state': 'draft'}] * 4)
 
+        self.post_expenses(all_expenses)
         employee_partner_id = self.expense_user_employee.partner_id.id
+        today = date.today()
         self.assertRecordValues(expenses_by_employee.account_move_id, [
-            {'amount_total': 1600.00, 'ref': 'Employee PA 2*800 + 15%', 'state': 'posted', 'date': date(2021, 10, 31), 'invoice_date': date(2021, 10, 10), 'partner_id': employee_partner_id},
-            {'amount_total':  160.00, 'ref': 'Employee PB 160 + 2*15%', 'state': 'posted', 'date': date(2021, 10, 31), 'invoice_date': date(2021, 10, 31), 'partner_id': employee_partner_id},
+            {'amount_total': 1600.00, 'ref': 'Employee PA 2*800 + 15%', 'state': 'posted', 'date': today, 'invoice_date': today, 'partner_id': employee_partner_id},
+            {'amount_total':  160.00, 'ref': 'Employee PB 160 + 2*15%', 'state': 'posted', 'date': today, 'invoice_date': today, 'partner_id': employee_partner_id},
         ])
 
         self.assertRecordValues(expenses_by_company.account_move_id, [
@@ -129,15 +128,15 @@ class TestExpenses(TestExpenseCommon):
         # One payment per expense
         self.assertRecordValues(all_expenses.account_move_id.line_ids.sorted(lambda line: (line.move_id, line)), [
             # own_account expense 1 move
-            {'balance':  1391.30, 'account_id': self.expense_account.id,    'name': 'expense_employee: Employee PA 2*800 + 15%', 'date': date(2021, 10, 31), 'invoice_date': date(2021, 10, 10)},
-            {'balance':   208.70, 'account_id': tax_account_id,             'name': '15%',                                       'date': date(2021, 10, 31), 'invoice_date': date(2021, 10, 10)},
-            {'balance': -1600.00, 'account_id': default_account_payable_id, 'name': False,                                       'date': date(2021, 10, 31), 'invoice_date': date(2021, 10, 10)},
+            {'balance':  1391.30, 'account_id': self.expense_account.id,    'name': 'expense_employee: Employee PA 2*800 + 15%', 'date': today, 'invoice_date': today},
+            {'balance':   208.70, 'account_id': tax_account_id,             'name': '15%',                                       'date': today, 'invoice_date': today},
+            {'balance': -1600.00, 'account_id': default_account_payable_id, 'name': False,                                       'date': today, 'invoice_date': today},
 
             # own_account expense 2 move
-            {'balance':   123.08, 'account_id': product_b_account_id,       'name': 'expense_employee: Employee PB 160 + 2*15%', 'date': date(2021, 10, 31), 'invoice_date': date(2021, 10, 31)},
-            {'balance':    18.46, 'account_id': tax_account_id,             'name': '15%',                                       'date': date(2021, 10, 31), 'invoice_date': date(2021, 10, 31)},
-            {'balance':    18.46, 'account_id': tax_account_id,             'name': '15% (copy)',                                'date': date(2021, 10, 31), 'invoice_date': date(2021, 10, 31)},
-            {'balance':  -160.00, 'account_id': default_account_payable_id, 'name': False,                                       'date': date(2021, 10, 31), 'invoice_date': date(2021, 10, 31)},
+            {'balance':   123.08, 'account_id': product_b_account_id,       'name': 'expense_employee: Employee PB 160 + 2*15%', 'date': today, 'invoice_date': today},
+            {'balance':    18.46, 'account_id': tax_account_id,             'name': '15%',                                       'date': today, 'invoice_date': today},
+            {'balance':    18.46, 'account_id': tax_account_id,             'name': '15% (copy)',                                'date': today, 'invoice_date': today},
+            {'balance':  -160.00, 'account_id': default_account_payable_id, 'name': False,                                       'date': today, 'invoice_date': today},
 
             # company_account expense 1 move
             {'balance':   869.57, 'account_id': product_c_account_id,       'name': 'expense_employee: Company PC 1000 + 15%',   'date': date(2021, 10, 12), 'invoice_date': False},
@@ -208,8 +207,8 @@ class TestExpenses(TestExpenseCommon):
         self.assertFalse(first_expense_by_company.account_move_id)
 
         self.assertRecordValues(first_expense_by_employee | first_expense_by_company, [
-            {'payment_mode': 'own_account',     'state': 'approved'},
-            {'payment_mode': 'company_account', 'state': 'approved'},
+            {'payment_mode': 'own_account',     'state': 'submitted'},
+            {'payment_mode': 'company_account', 'state': 'submitted'},
         ])
 
         first_expense_by_employee.action_reset()
@@ -328,7 +327,7 @@ class TestExpenses(TestExpenseCommon):
         Checks that the currency rate is recomputed properly when the total in company currency is set to a new value
         """
         foreign_currency_1 = self.other_currency
-        foreign_currency_2 = self.setup_other_currency('GBP', rounding=0.01, rates=([('2016-01-01', 1 / 1.52)]))
+        foreign_currency_2 = self.setup_other_currency('GBP', rounding=0.01, rates=([('2015-12-31', 1 / 1.52)]))
         foreign_sale_journal = self.company_data['default_journal_sale'].copy()
         foreign_sale_journal.currency_id = foreign_currency_2.id
 
@@ -391,7 +390,6 @@ class TestExpenses(TestExpenseCommon):
         # Move creation should not touch the rates anymore
         all_expenses.action_submit()
         all_expenses._do_approve()  # Skip duplicate wizard
-        self.post_expenses_with_wizard(all_expenses, journal=foreign_sale_journal)
         self.assertRecordValues(all_expenses.account_move_id.sorted('id'), [
             {'amount_total_in_currency_signed': 1000.00, 'amount_total_signed': 1000.00, 'currency_id': foreign_currency_1.id},
             {'amount_total_in_currency_signed': 1000.00, 'amount_total_signed': 2000.00, 'currency_id': foreign_currency_2.id},
@@ -429,7 +427,6 @@ class TestExpenses(TestExpenseCommon):
 
         expenses.action_submit()
         expenses.action_approve()
-        expenses.action_post()
 
         move_twelve_january, move_first_january = expenses.account_move_id.sorted() # By date desc
 
@@ -478,13 +475,13 @@ class TestExpenses(TestExpenseCommon):
         expense = self.create_expenses({'name': 'Employee expense'})
         expense_2 = self.create_expenses({'name': 'Employee expense 2'})
         attachment = self.env['ir.attachment'].create({
-            'raw': b"R0lGODdhAQABAIAAAP///////ywAAAAAAQABAAACAkQBADs=",
+            'raw': GIF_RAW,
             'name': 'file1.png',
             'res_model': 'hr.expense',
             'res_id': expense.id,
         })
         attachment_2 = self.env['ir.attachment'].create({
-            'raw': b"R0lGODdhAQABAIAAAP///////ywAAAAAAQABAAACAkQBADs=",
+            'raw': GIF_RAW,
             'name': 'file2.png',
             'res_model': 'hr.expense',
             'res_id': expense_2.id,
@@ -496,17 +493,16 @@ class TestExpenses(TestExpenseCommon):
 
         expenses.action_submit()
         expenses._do_approve()  # Skip duplicate wizard
-        self.post_expenses_with_wizard(expenses)
 
         self.assertRecordValues(expenses.account_move_id.attachment_ids.sorted('name'), [
             {
-                'raw': b"R0lGODdhAQABAIAAAP///////ywAAAAAAQABAAACAkQBADs=",
+                'raw': GIF_RAW,
                 'name': 'file1.png',
                 'res_model': 'account.move',
                 'res_id': expense.account_move_id.id,
             },
             {
-                'raw': b"R0lGODdhAQABAIAAAP///////ywAAAAAAQABAAACAkQBADs=",
+                'raw': GIF_RAW,
                 'name': 'file2.png',
                 'res_model': 'account.move',
                 'res_id': expense_2.account_move_id.id,
@@ -524,13 +520,13 @@ class TestExpenses(TestExpenseCommon):
             'payment_mode': 'company_account',
         })
         attachment = self.env['ir.attachment'].create({
-            'raw': b"R0lGODdhAQABAIAAAP///////ywAAAAAAQABAAACAkQBADs=",
+            'raw': GIF_RAW,
             'name': 'file1.png',
             'res_model': 'hr.expense',
             'res_id': expense.id,
         })
         attachment_2 = self.env['ir.attachment'].create({
-            'raw': b"R0lGODdhAQABAIAAAP///////ywAAAAAAQABAAACAkQBADs=",
+            'raw': GIF_RAW,
             'name': 'file2.png',
             'res_model': 'hr.expense',
             'res_id': expense_2.id,
@@ -542,19 +538,18 @@ class TestExpenses(TestExpenseCommon):
 
         expenses.action_submit()
         expenses._do_approve()  # Skip duplicate wizard
-        expenses.action_post()
 
         expense_move = expense.account_move_id
         expense_2_move = expense_2.account_move_id
         self.assertRecordValues(expense_move.attachment_ids, [{
-            'raw': b"R0lGODdhAQABAIAAAP///////ywAAAAAAQABAAACAkQBADs=",
+            'raw': GIF_RAW,
             'name': 'file1.png',
             'res_model': 'account.move',
             'res_id': expense_move.id
         }])
 
         self.assertRecordValues(expense_2_move.attachment_ids, [{
-            'raw': b"R0lGODdhAQABAIAAAP///////ywAAAAAAQABAAACAkQBADs=",
+            'raw': GIF_RAW,
             'name': 'file2.png',
             'res_model': 'account.move',
             'res_id': expense_2_move.id
@@ -575,7 +570,6 @@ class TestExpenses(TestExpenseCommon):
 
         expense.action_submit()
         expense._do_approve()  # Skip duplicate wizard
-        expense.action_post()
 
         self.assertEqual(len(expense.account_move_id.attachment_ids), 2)
 
@@ -603,7 +597,6 @@ class TestExpenses(TestExpenseCommon):
 
         expense.action_submit()
         expense.action_approve()
-        expense.action_post()
         self.assertRecordValues(expense.account_move_id.origin_payment_id, [{'payment_method_line_id': new_payment_method_line.id}])
 
     @freeze_time('2024-01-01')
@@ -616,7 +609,6 @@ class TestExpenses(TestExpenseCommon):
         })
         expense.action_submit()
         expense.action_approve()
-        expense.action_post()
 
         self.assertEqual(vendor_a.id, expense.account_move_id.line_ids.partner_id.id)
 
@@ -628,7 +620,6 @@ class TestExpenses(TestExpenseCommon):
         })
         expense.action_submit()
         expense.action_approve()
-        expense.action_post()
         payment = expense.account_move_id.origin_payment_id
 
         with self.assertRaises(UserError, msg="Cannot edit payment amount after linking to an expense"):
@@ -663,7 +654,7 @@ class TestExpenses(TestExpenseCommon):
             expense.total_amount = 0.0
 
         # CASE 4: FORBIDS Trying to change the total_amount(_currency) to 0.0 when the expense is posted and the account move created
-        self.post_expenses_with_wizard(expense)
+        self.post_expenses(expense)
         with self.assertRaises(UserError):
             expense.total_amount_currency = 0.0
         with self.assertRaises(UserError):
@@ -705,10 +696,34 @@ class TestExpenses(TestExpenseCommon):
         expense_data = self.env['hr.expense'].with_user(self.expense_user_employee).get_expense_dashboard()
         self.assertEqual(expense_data['draft']['amount'], 3000.00)
 
+    def test_dashboard_waiting_reimbursement_posted_expense(self):
+        """ Check that an employee-paid expense stays in the "Waiting Reimbursement"
+            total once its move is posted, until the payment is actually made.
+        """
+        expense = self.create_expenses({
+            'name': 'Employee expense',
+            'payment_mode': 'own_account',
+            'total_amount_currency': 1000.00,
+            'employee_id': self.expense_employee.id,
+        })
+        expense.action_submit()
+        expense.action_approve()
+        self.post_expenses(expense)
+
+        self.assertEqual(expense.state, 'posted')
+        expense_data = self.env['hr.expense'].with_user(self.expense_user_employee).get_expense_dashboard()
+        self.assertEqual(expense_data['approved']['amount'], 1000.00)
+
+        self.get_new_payment(expense, 1000.00)
+
+        self.assertIn(expense.state, ('in_payment', 'paid'))
+        expense_data = self.env['hr.expense'].with_user(self.expense_user_employee).get_expense_dashboard()
+        self.assertEqual(expense_data['approved']['amount'], 0.00)
+
     def test_update_expense_price_on_product_standard_price(self):
         """
         Tests that updating the standard price of a product will update all the un-submitted
-        expenses using that product as a category.
+        expenses using that product.
         """
         product = self.env['product.product'].create({
             'name': 'Product',
@@ -749,79 +764,6 @@ class TestExpenses(TestExpenseCommon):
             {'name': 'test no update', 'price_unit':  100.0, 'quantity': 1, 'total_amount':  100.0},
             {'name':    'test update', 'price_unit': 1000.0, 'quantity': 1, 'total_amount': 1000.0},  # no update
         ])
-
-    def test_expense_standard_price_update_warning(self):
-        expense_cat_A = self.env['product.product'].create({
-            'name': 'Category A',
-            'default_code': 'CA',
-            'standard_price': 0.0,
-        })
-        expense_cat_B = self.env['product.product'].create({
-            'name': 'Category B',
-            'default_code': 'CB',
-            'standard_price': 0.0,
-        })
-        expense_cat_C = self.env['product.product'].create({
-            'name': 'Category C',
-            'default_code': 'CC',
-            'standard_price': 0.0,
-        })
-        self.create_expenses([
-            {
-                'name': 'Expense 1',
-                'product_id': expense_cat_A.id,
-                'total_amount': 1,
-            },
-            {
-                'name': 'Expense 2',
-                'product_id': expense_cat_B.id,
-                'total_amount': 5,
-            },
-        ])
-
-        # At first, there is no warning message on the categories because their prices are 0
-        self.assertFalse(expense_cat_A.standard_price_update_warning)
-        self.assertFalse(expense_cat_B.standard_price_update_warning)
-        self.assertFalse(expense_cat_C.standard_price_update_warning)
-
-        # When modifying the price of the first category, a message should appear as a an expense will be modified.
-        with Form(expense_cat_A, view="hr_expense.product_product_expense_form_view") as form:
-            form.standard_price = 5
-            self.assertTrue(form.standard_price_update_warning)
-
-        # When modifying the price of the second category, no message should appear as the price of the linked
-        # expense is the price of the category that is going to be saved.
-        with Form(expense_cat_B, view="hr_expense.product_product_expense_form_view") as form:
-            form.standard_price = 5
-            self.assertFalse(form.standard_price_update_warning)
-
-        # When modifying the price of the their category, no message should appear as no expense is linked to it.
-        with Form(expense_cat_C, view="hr_expense.product_product_expense_form_view") as form:
-            form.standard_price = 5
-            self.assertFalse(form.standard_price_update_warning)
-
-    def test_compute_standard_price_update_warning_product_with_and_without_expense(self):
-        """
-        Test that the compute doesn't raise an error with mixed recordsets (products used in expenses and not used in expenses)
-        """
-        product_expensed = self.env['product.product'].create({
-            'name': 'Category A',
-            'default_code': 'CA',
-            'standard_price': 0.0,
-        })
-        product_not_expensed = self.env['product.product'].create({
-            'name': 'Category B',
-            'default_code': 'CB',
-            'standard_price': 0.0,
-        })
-        self.env['hr.expense'].create({
-            'employee_id': self.expense_employee.id,
-            'name': 'Expense 1',
-            'product_id': product_expensed.id,
-            'total_amount': 1,
-        })
-
-        (product_expensed | product_not_expensed)._compute_standard_price_update_warning()
 
     def test_expense_multi_company(self):
         main_company = self.company_data['company']
@@ -882,11 +824,11 @@ class TestExpenses(TestExpenseCommon):
         # An expense manager having accounting access rights is not able to post the journal entry without access
         # to company_2.
         with self.assertRaises(UserError):
-            self.post_expenses_with_wizard(expense_approve.with_user(self.env.user).with_context(allowed_company_ids=main_company.ids))
+            self.post_expenses(expense_approve.with_user(self.env.user).with_context(allowed_company_ids=main_company.ids))
 
         # An expense manager having accounting access rights is able to post the journal entry with access to
         # company_2.
-        self.post_expenses_with_wizard(expense_approve.with_user(self.env.user).with_context(allowed_company_ids=other_company.ids))
+        self.post_expenses(expense_approve.with_user(self.env.user).with_context(allowed_company_ids=other_company.ids))
 
     def test_tax_is_used_when_in_transactions(self):
         """ Ensures that a tax is set to used when it is part of some transactions """
@@ -898,7 +840,6 @@ class TestExpenses(TestExpenseCommon):
         })
 
         self.create_expenses({'tax_ids': [Command.set(tax_expense.ids)]})
-        tax_expense.invalidate_model(fnames=['is_used'])
         self.assertTrue(tax_expense.is_used)
 
     def test_expense_by_company_with_caba_tax(self):
@@ -912,7 +853,6 @@ class TestExpenses(TestExpenseCommon):
             'name': 'Cash Basis Tax Transition Account',
             'account_type': 'asset_current',
             'code': '131001',
-            'reconcile': True,
         })
         caba_tax = self.env['account.tax'].create({
             'name': 'Cash Basis Tax',
@@ -938,7 +878,6 @@ class TestExpenses(TestExpenseCommon):
         })
         expense.action_submit()
         expense.action_approve()
-        expense.action_post()
         moves = expense.account_move_id
         tax_lines = moves.line_ids.filtered(lambda line: line.tax_line_id == caba_tax)
         self.assertNotEqual(tax_lines.account_id, caba_transition_account, "The tax should not be on the transition account")
@@ -964,9 +903,9 @@ class TestExpenses(TestExpenseCommon):
 
         expense.action_submit()
         with self.assertRaises(ValidationError, msg="One or more lines require a 100% analytic distribution."):
-            expense.with_context(validate_analytic=True).action_approve()
+            expense.action_approve()
         expense.analytic_distribution = {self.analytic_account_1.id: 100.00}
-        expense.with_context(validate_analytic=True).action_approve()
+        expense.action_approve()
 
     def test_expense_no_stealing_from_employees(self):
         """
@@ -979,7 +918,6 @@ class TestExpenses(TestExpenseCommon):
         expense = self.create_expenses({'employee_id': self.expense_employee.id})
         expense.action_submit()
         expense.action_approve()
-        self.post_expenses_with_wizard(expense)
         move = expense.account_move_id
 
         self.assertNotEqual(move.commercial_partner_id, self.env.company.partner_id)
@@ -1014,7 +952,6 @@ class TestExpenses(TestExpenseCommon):
         })
         expense.action_submit()
         expense.action_approve()
-        expense._post_without_wizard()
         self.assertRecordValues(
             expense.account_move_id,
             [{'amount_total': 500.0, 'currency_id': expense.account_move_id.company_currency_id.id}],
@@ -1027,13 +964,10 @@ class TestExpenses(TestExpenseCommon):
         """
         self.env.ref('base.EUR').active = True
         bank_journal = self.company_data['default_journal_bank']
-        bank = self.env['res.bank'].create({
-            'name': 'BNP Paribas',
-            'bic': 'GEBABEBB',
-        })
         bank_journal.write({
-            'bank_id': bank.id,
-            'bank_acc_number': 'BE48363523682327',
+            'bank_name': 'BNP Paribas',
+            'bank_bic': 'GEBABEBB',
+            'bank_account_number': 'BE48363523682327',
             'currency_id': self.env.ref('base.EUR').id,
         })
 
@@ -1051,9 +985,8 @@ class TestExpenses(TestExpenseCommon):
         })
 
         expense.action_submit()
-        expense.action_approve()
         # Should not raise trust validation error despite missing recipient partner bank
-        expense.action_post()
+        expense.action_approve()
 
     def test_expense_analytic_vendor_bill_count(self):
         """
@@ -1067,7 +1000,6 @@ class TestExpenses(TestExpenseCommon):
             }])
         expense.action_submit()
         expense.action_approve()
-        self.post_expenses_with_wizard(expense)
 
         self.assertEqual('in_receipt', expense.account_move_id.move_type)
 
@@ -1090,9 +1022,8 @@ class TestExpenses(TestExpenseCommon):
             })
 
         expense.action_submit()
-        expense.action_approve()
         expense.analytic_distribution = {self.analytic_account_1.id: 100.00}
-        expense.action_post()
+        expense.action_approve()
 
         # Check that there is no fourth autobalancing line on the account move
         self.assertEqual(expense.account_move_id.line_ids.mapped('balance'), [86.96, 13.04, -100.0])
@@ -1138,7 +1069,6 @@ class TestExpenses(TestExpenseCommon):
         })
         expense_paid_by_company.action_submit()
         expense_paid_by_company.action_approve()
-        expense_paid_by_company.action_post()
 
         payment_move_company = expense_paid_by_company.account_move_id
         self.assertEqual(payment_move_company.company_id, branch_company)
@@ -1157,7 +1087,6 @@ class TestExpenses(TestExpenseCommon):
         })
         expense_paid_by_employee.action_submit()
         expense_paid_by_employee.action_approve()
-        self.post_expenses_with_wizard(expense_paid_by_employee)
         self.assertEqual(expense_paid_by_employee.account_move_id.company_id, branch_company)
 
     def test_attachments_on_multiple_posting_from_own_expense(self):
@@ -1181,7 +1110,6 @@ class TestExpenses(TestExpenseCommon):
 
         expenses.action_submit()
         expenses.action_approve()
-        self.post_expenses_with_wizard(expenses)
 
         self.assertRecordValues(
             expense_1.account_move_id.attachment_ids.sorted('name'),
@@ -1198,3 +1126,221 @@ class TestExpenses(TestExpenseCommon):
                 {'name': 'file_4.png', 'res_model': 'account.move', 'res_id': expense_2.account_move_id.id},
             ]
         )
+
+    def test_expense_paid_by_company_with_linked_bill(self):
+        """ Test that linking a bill uses the payable account and reconciles automatically """
+        other_payable_account = self.company_data['default_account_payable'].copy()
+        partner = self.env['res.partner'].create({
+            'name': 'test partner',
+            'property_account_payable_id': other_payable_account.id,
+        })
+        bill = self.env['account.move'].create({
+            'move_type': 'in_invoice',
+            'partner_id': partner.id,
+            'invoice_date': '2026-01-01',
+            'invoice_line_ids': [
+                Command.create({
+                    'name': 'test bill line',
+                    'price_unit': 100.0,
+                })
+            ]
+        })
+        bill.action_post()
+
+        # 2. Create Expense with existing bill flag but let existing_bill_id empty
+        expense = self.create_expenses({
+            'name': 'Expense matched to bill',
+            'payment_mode': 'company_account',
+            'total_amount_currency': 100.0,
+            'has_existing_bill': True,
+        })
+        expense.action_submit()
+        # shouldn't be able to approve without existing_bill_id
+        with self.assertRaisesRegex(UserError, "The existing bill must be set."):
+            expense.action_approve()
+        self.assertEqual(expense.state, 'submitted')
+
+        # 3. Link bill to the expense
+        expense.action_reset()
+        expense.existing_bill_id = bill.id
+        self.assertEqual(expense.account_id, other_payable_account, "The expense account should be the bill's payable account")
+
+        expense.action_approve()
+
+        payment_entry = expense.account_move_id
+        outstanding_payment_account = self.env['account.account'].with_company(self.env.company).search([('name', '=', 'Outstanding Payments')], limit=1)
+        self.assertEqual(
+            set(payment_entry.line_ids.account_id.ids),
+            {other_payable_account.id, outstanding_payment_account.id},
+            "The accounts on the payment entry should be the bill's payable account and the outstanding payment account"
+        )
+
+        payable_move_line = payment_entry.line_ids.filtered(lambda l: l.account_id == other_payable_account)
+        self.assertTrue(bill.payment_state in ('in_payment', 'paid'), "The bill should be marked as paid/in_payment")
+        self.assertTrue(payable_move_line.reconciled, "The payment entry should be reconciled with the bill")
+
+    def test_delete_expense_with_attachment(self):
+        """ Deleting an expense should also delete its attachments """
+        expense = self.create_expenses()
+        attachment = self.env['ir.attachment'].create({
+            'raw': b"R0lGODdhAQABAIAAAP///////ywAAAAAAQABAAACAkQBADs=",
+            'name': 'file.png',
+            'res_model': 'hr.expense',
+            'res_id': expense.id,
+        })
+
+        expense.unlink()
+        self.assertFalse(expense.exists())
+        self.assertFalse(attachment.exists())
+
+    def test_expense_paid_by_employee_with_linked_bill(self):
+        """
+        Test the flow of an expense paid by the employee with an existing bill
+
+        existing bill (BILL), already created:
+        account | debit | credit | partner
+        ----------------------------------
+        product | 75    | 0      |
+        tax     | 25    | 0      |
+        payable | 0     | 100    | vendor <- RECONCILED (02)
+
+        debt transfer entry (MISC):
+        account | debit | credit | partner
+        ----------------------------------
+        payable | 0     | 100    | employee <- RECONCILED (01)
+        payable | 100   | 0      | vendor <- RECONCILED (02)
+
+        payment move (PNBK):
+        account     | debit | credit | partner
+        --------------------------------------
+        payable     | 100   | 0      | employee <- RECONCILED (01)
+        outstanding | 0     | 100    | employee <- RECONCILED (03)
+
+        Finally, when the user will confirm the payment, create the bank statement line and reconcile it:
+        Bank statement line (BNK):
+        account     | debit | credit | partner
+        --------------------------------------
+        outstanding | 100   | 0      | employee <- RECONCILED (03)
+        bank        | 0     | 100    |
+
+        RECONCILED (02):
+        Reconciliation between the existing bill and the debt transfer entry. Mark the bill as paid
+        and transfer the debt from the vendor to the employee
+
+        RECONCILED (01):
+        Reconciliation between the payment move and the debt transfer entry. Transfer the debt to the employee
+
+        RECONCILED (03):
+        Done afterward by the user, mark the expense as paid
+        """
+        # Create data
+        other_payable_account = self.company_data['default_account_payable'].copy()
+        partner = self.env['res.partner'].create({
+            'name': 'test partner',
+            'property_account_payable_id': other_payable_account.id,
+        })
+        bill = self.env['account.move'].create({
+            'move_type': 'in_invoice',
+            'partner_id': partner.id,
+            'invoice_date': '2026-01-01',
+            'invoice_line_ids': [
+                Command.create({
+                    'name': 'test bill line',
+                    'price_unit': 100.0,
+                })
+            ]
+        })
+        bill.action_post()
+
+        expense = self.create_expenses({
+            'name': 'Expense matched to bill',
+            'payment_mode': 'own_account',
+            'total_amount_currency': 100.0,
+            'has_existing_bill': True,
+            'existing_bill_id': bill.id,
+            'vendor_id': bill.partner_id.id,
+        })
+
+        # post expense
+        expense.action_submit()
+        expense.action_approve()
+        self.post_expenses(expense)
+
+        # check accounts on payment entry
+        payment_entry = expense.account_move_id
+        outstanding_payment_account = self.env['account.account'].with_company(self.env.company).search([('name', '=', 'Outstanding Payments')], limit=1)
+        self.assertSetEqual(
+            set(payment_entry.line_ids.account_id.ids),
+            {other_payable_account.id, outstanding_payment_account.id},
+        )
+        self.assertEqual(expense.state, self.env['account.move']._get_invoice_in_payment_state())
+
+        # check the bill is paid and reconciled with the payment move
+        payable_move_line = payment_entry.line_ids.filtered(lambda l: l.account_id == other_payable_account)
+        self.assertEqual(bill.payment_state, 'paid', "The bill should be marked as paid")
+        self.assertTrue(payable_move_line.reconciled, "The payment entry should be reconciled with the bill")
+
+        # check amounts and partners on debt transfer move
+        debt_transfer_move = payable_move_line.reconciled_lines_excluding_exchange_diff_ids.move_id
+        employee_partner = self.expense_employee.user_id.partner_id
+        self.assertRecordValues(debt_transfer_move.line_ids, [
+            {'debit': 100.0, 'credit': 0.0, 'partner_id': partner.id, 'account_id': other_payable_account.id},
+            {'debit': 0.0, 'credit': 100.0, 'partner_id': employee_partner.id, 'account_id': other_payable_account.id},
+        ])
+
+        # create a bank statement line and reconcile it with the payment move -> expense should be marked as paid
+        payment_entry.origin_payment_id.action_post()
+        bank_line = self.env['account.bank.statement.line'].create({
+            'date': fields.Date.today(),
+            'journal_id': self.company_data['default_journal_bank'].id,
+            'payment_ref': 'test bank line',
+            'partner_id': employee_partner.id,
+            'amount': -100.0,
+        })
+
+        # Reconcile lines to check expense is marked as 'paid'
+        bank_line_to_reconcile = bank_line.move_id.line_ids.filtered(lambda l: l.account_id.account_type == 'asset_current')
+        payment_line_to_reconcile = payment_entry.line_ids.filtered(lambda l: l.account_id.account_type == 'asset_current')
+        bank_line_to_reconcile.account_id = payment_line_to_reconcile.account_id
+        (bank_line_to_reconcile + payment_line_to_reconcile).reconcile()
+        self.assertEqual(expense.state, 'paid')
+
+    def test_expense_team_approver_refuse_mixed_selection(self):
+        """
+        - Set up a team approver and a subordinate, creating one submitted expense for each.
+        - Verify the approver cannot approve their own expense, but can approve the subordinate's.
+        - Refuse both expenses together to ensure a `UserError` is raised with a reason only for the invalid expense
+        (own expense), then verify the subordinate's expense opens the refusal wizard successfully.
+        """
+        team_approver = mail_new_test_user(
+            self.env,
+            login='expense_team_approver',
+            groups='base.group_user,hr_expense.group_hr_expense_team_approver',
+        )
+        approver_employee = self.env['hr.employee'].sudo().create({
+            'name': 'approver_employee',
+            'user_id': team_approver.id,
+            'expense_manager_id': self.expense_user_manager.id,
+        })
+        subordinate_employee = self.env['hr.employee'].sudo().create({
+            'name': 'subordinate_employee',
+            'parent_id': approver_employee.id,
+        })
+        own_expense = self.create_expenses({'name': 'Own expense', 'employee_id': approver_employee.id})
+        subordinate_expense = self.create_expenses({'name': 'Subordinate expense', 'employee_id': subordinate_employee.id})
+        expenses = own_expense + subordinate_expense
+        expenses.action_submit()
+        self.assertRecordValues(expenses, [{'state': 'submitted'}, {'state': 'submitted'}])
+
+        own_expense_as_approver = own_expense.with_user(team_approver)
+        subordinate_expense_as_approver = subordinate_expense.with_user(team_approver)
+        self.assertFalse(own_expense_as_approver.can_approve)
+        self.assertTrue(subordinate_expense_as_approver.can_approve)
+
+        with self.assertRaises(UserError) as error:
+            (own_expense_as_approver + subordinate_expense_as_approver).action_refuse()
+        self.assertIn("Own expense: It is your own expense", error.exception.args[0])
+        self.assertNotIn("Subordinate expense", error.exception.args[0])
+
+        action = subordinate_expense_as_approver.action_refuse()
+        self.assertEqual(action['res_model'], 'hr.expense.refuse.wizard')

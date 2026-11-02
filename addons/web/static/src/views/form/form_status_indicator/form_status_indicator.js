@@ -1,44 +1,42 @@
-import { Component, useEffect, useRef, useState } from "@odoo/owl";
+import { Component, proxy, t, useProps } from "@odoo/owl";
 import { useBus } from "@web/core/utils/hooks";
+
+export function useStatusIndicator(model, actions = {}) {
+    const _fieldIsDirty = proxy({ value: false });
+    useBus(model.bus, "FIELD_IS_DIRTY", (ev) => {
+        _fieldIsDirty.value = ev.detail;
+    });
+
+    return {
+        props() {
+            const { root } = model;
+            return {
+                isDirty: root.dirty || _fieldIsDirty.value,
+                isValid: root.isValid,
+                isNew: root.isNew && !root.offlineId,
+                save: actions.save,
+                discard: actions.discard,
+            };
+        },
+    };
+}
 
 export class FormStatusIndicator extends Component {
     static template = "web.FormStatusIndicator";
-    static props = {
-        model: Object,
-        save: Function,
-        discard: Function,
-    };
-
-    setup() {
-        this.state = useState({
-            fieldIsDirty: false,
-        });
-        useBus(
-            this.props.model.bus,
-            "FIELD_IS_DIRTY",
-            (ev) => (this.state.fieldIsDirty = ev.detail)
-        );
-        useEffect(
-            () => {
-                if (!this.props.model.root.isNew && this.indicatorMode === "invalid") {
-                    this.saveButton.el.setAttribute("disabled", "1");
-                } else {
-                    this.saveButton.el.removeAttribute("disabled");
-                }
-            },
-            () => [this.props.model.root.isValid, this.state.fieldIsDirty]
-        );
-
-        this.saveButton = useRef("save");
-    }
+    props = useProps({
+        isDirty: t.boolean(),
+        isValid: t.boolean().optional(true),
+        isNew: t.boolean().optional(false),
+        save: t.function(),
+        discard: t.function(),
+    });
 
     get displayButtons() {
         return this.indicatorMode !== "saved";
     }
 
     get indicatorMode() {
-        const { isNew, isValid } = this.props.model.root;
-        const isDirty = this.props.model.root.dirty || this.state.fieldIsDirty;
+        const { isValid, isNew, isDirty } = this.props;
         if (isNew || isDirty) {
             return isValid ? "dirty" : "invalid";
         }

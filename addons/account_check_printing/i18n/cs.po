@@ -10,16 +10,15 @@
 # Rastislav Brencic <rastislav.brencic@azet.sk>, 2022
 # Jiří Podhorecký, 2022
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
-# Weblate <noreply-mt-weblate@weblate.org>, 2025, 2026.
-# "Marta (wacm)" <wacm@odoo.com>, 2026.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-06-12 03:40+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Czech <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-08-31 19:34+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Czech <https://translate.odoo.com/projects/odoo-s19-4/"
 "account_check_printing/cs/>\n"
 "Language: cs\n"
 "MIME-Version: 1.0\n"
@@ -27,7 +26,19 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n "
 "<= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: account_check_printing
+#: model:ir.module.module,description:base.module_account_check_printing
+msgid ""
+"\n"
+"This module offers the basic functionalities to make payments by printing "
+"checks.\n"
+"It must be used as a dependency for modules that provide country-specific "
+"check templates.\n"
+"The check settings are located in the accounting journals configuration "
+"page.\n"
+msgstr ""
 
 #. module: account_check_printing
 #. odoo-python
@@ -71,11 +82,6 @@ msgid "Bills"
 msgstr "Přijaté faktury"
 
 #. module: account_check_printing
-#: model_terms:ir.ui.view,arch_db:account_check_printing.print_pre_numbered_checks_view
-msgid "Cancel"
-msgstr "Zrušit"
-
-#. module: account_check_printing
 #: model:ir.model.fields,field_description:account_check_printing.field_account_journal__bank_check_printing_layout
 #: model:ir.model.fields,field_description:account_check_printing.field_res_company__account_check_printing_layout
 #: model:ir.model.fields,field_description:account_check_printing.field_res_config_settings__account_check_printing_layout
@@ -99,6 +105,11 @@ msgid "Check Printing"
 msgstr "Tisk šeků"
 
 #. module: account_check_printing
+#: model:ir.module.module,shortdesc:base.module_account_check_printing
+msgid "Check Printing Base"
+msgstr ""
+
+#. module: account_check_printing
 #: model:ir.model.fields,field_description:account_check_printing.field_res_config_settings__account_check_printing_margin_right
 msgid "Check Right Margin"
 msgstr "Pravý okraj šeku"
@@ -119,6 +130,11 @@ msgstr "Horní okraj šeku"
 #: code:addons/account_check_printing/models/account_payment.py:0
 msgid "Check numbers can only consist of digits"
 msgstr "Šeková čísla se mohou skládat pouze z číslic"
+
+#. module: account_check_printing
+#: model:ir.module.module,summary:base.module_account_check_printing
+msgid "Check printing basic features"
+msgstr ""
 
 #. module: account_check_printing
 #: model:ir.model.fields,help:account_check_printing.field_account_journal__check_manual_sequencing
@@ -157,8 +173,8 @@ msgstr "Šeky k tisku"
 
 #. module: account_check_printing
 #: model:ir.model,name:account_check_printing.model_res_company
-msgid "Companies"
-msgstr "Společnosti"
+msgid "Company"
+msgstr ""
 
 #. module: account_check_printing
 #: model:ir.model,name:account_check_printing.model_res_config_settings
@@ -188,7 +204,7 @@ msgstr "Výchozí"
 #: model:ir.model.fields,field_description:account_check_printing.field_res_company__display_name
 #: model:ir.model.fields,field_description:account_check_printing.field_res_config_settings__display_name
 msgid "Display Name"
-msgstr "Zobrazovaný název"
+msgstr "Zobrazovací název"
 
 #. module: account_check_printing
 #. odoo-python
@@ -244,7 +260,6 @@ msgstr "Manuální číslování"
 
 #. module: account_check_printing
 #: model:ir.model.fields,help:account_check_printing.field_account_payment__payment_method_line_id
-#, fuzzy
 msgid ""
 "Manual: Pay or Get paid by any method outside of Odoo.\n"
 "Payment Providers: Each payment provider has its own Payment Method. Request "
@@ -261,20 +276,6 @@ msgid ""
 "U.S. ISO20022: Pay in the US by submitting an ISO20022 file to your bank. "
 "Module account_iso20022 is necessary.\n"
 msgstr ""
-"Manuální: Platit nebo přijímat platby jakýmkoli způsobem mimo Odoo.\n"
-"Poskytovatelé plateb: Každý poskytovatel plateb má svou vlastní platební "
-"metodu. Požádejte o transakci na/z karty díky platebnímu tokenu uloženému "
-"partnerem při online nákupu nebo předplatném.\n"
-"Šek: Plaťte účty šekem a vytiskněte jej z Odoo.\n"
-"Hromadný vklad: Shromážděte několik šeků od zákazníků najednou a vygenerujte "
-"a odešlete hromadný vklad do své banky. Je nutný modul "
-"account_batch_payment.\n"
-"SEPA Credit Transfer: Plaťte v zóně SEPA odesláním souboru SEPA Credit "
-"Transfer do své banky. Je nutný modul account_iso20022.\n"
-"Inkaso SEPA: Přijímejte platby v zóně SEPA díky mandátu, který vám udělil "
-"váš partner. Je nutný modul account_iso20022.\n"
-"ISO20022 v USA: Plaťte v USA odesláním souboru ISO20022 do vaší banky. Je "
-"nutný modul account_iso20022.\n"
 
 #. module: account_check_printing
 #: model:ir.model.fields,field_description:account_check_printing.field_res_company__account_check_printing_multi_stub
@@ -301,19 +302,15 @@ msgid "None"
 msgstr "Žádné"
 
 #. module: account_check_printing
-#: model:ir.model.fields,field_description:account_check_printing.field_account_payment__payment_method_line_id
-msgid "Payment Method"
-msgstr "Platební metoda"
+#: model:ir.model,name:account_check_printing.model_account_payment
+msgid "Payment"
+msgstr ""
 
 #. module: account_check_printing
 #: model:ir.model,name:account_check_printing.model_account_payment_method
-msgid "Payment Methods"
-msgstr "Platební metody"
-
-#. module: account_check_printing
-#: model:ir.model,name:account_check_printing.model_account_payment
-msgid "Payments"
-msgstr "Platby"
+#: model:ir.model.fields,field_description:account_check_printing.field_account_payment__payment_method_line_id
+msgid "Payment Method"
+msgstr "Platební metoda"
 
 #. module: account_check_printing
 #. odoo-python
@@ -383,11 +380,6 @@ msgid ""
 msgstr ""
 "Vyberte formát odpovídající šekovému papíru, na který budete šeky tisknout.\n"
 "Chcete-li deaktivovat funkci tisku, vyberte možnost 'Žádný'."
-
-#. module: account_check_printing
-#: model_terms:ir.ui.view,arch_db:account_check_printing.view_account_payment_form_inherited
-msgid "Sent"
-msgstr "Odesláno"
 
 #. module: account_check_printing
 #: model:ir.model.fields,help:account_check_printing.field_account_journal__check_next_number
@@ -512,24 +504,5 @@ msgstr ""
 msgid "sep"
 msgstr ""
 
-#~ msgid "Contact"
-#~ msgstr "Kontakt"
-
-#~ msgid "Journal Entry"
-#~ msgstr "Položka deníku"
-
-#~ msgid "Preferred Payment Method"
-#~ msgstr "Preferovaný způsob platby"
-
-#~ msgid ""
-#~ "Preferred payment method when paying this vendor. This is used to filter "
-#~ "vendor bills by preferred payment method to register payments in mass. "
-#~ "Use cases: create bank files for batch wires, check runs."
-#~ msgstr ""
-#~ "Preferovaná platební metoda při platbě tomuto prodejci. Slouží k "
-#~ "filtrování faktur dodavatele podle preferovaného způsobu platby k "
-#~ "hromadné registraci plateb. Případy použití: vytvořte bankovní soubory "
-#~ "pro dávkové kabely, zkontrolujte běhy."
-
-#~ msgid "Register Payment"
-#~ msgstr "Zaznamenat platbu"
+#~ msgid "Sent"
+#~ msgstr "Odesláno"

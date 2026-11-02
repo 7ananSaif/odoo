@@ -1,70 +1,56 @@
 import { usePos } from "@point_of_sale/app/hooks/pos_hook";
 import { useService } from "@web/core/utils/hooks";
-import { isDisplayStandalone } from "@web/core/browser/feature_detection";
 
+import { OrderTrackerDropdown } from "@point_of_sale/app/components/order_tracker_dropdown/order_tracker_dropdown";
 import { CashierName } from "@point_of_sale/app/components/navbar/cashier_name/cashier_name";
-import { ProxyStatus } from "@point_of_sale/app/components/navbar/proxy_status/proxy_status";
-import { SyncPopup } from "@point_of_sale/app/components/popups/sync_popup/sync_popup";
-import {
-    SaleDetailsButton,
-    handleSaleDetails,
-} from "@point_of_sale/app/components/navbar/sale_details_button/sale_details_button";
-import { Component, onMounted, useState, useExternalListener } from "@odoo/owl";
+import { SaleDetailsButton } from "@point_of_sale/app/components/navbar/sale_details_button/sale_details_button";
+import { BurgerMenuDialog } from "@point_of_sale/app/components/navbar/burger_menu/burger_menu_dialog";
+import { Component, proxy, signal, useListener } from "@odoo/owl";
 import { Input } from "@point_of_sale/app/components/inputs/input/input";
 import { isBarcodeScannerSupported } from "@web/core/barcode/barcode_video_scanner";
-import { barcodeService } from "@barcodes/barcode_service";
-import { Dropdown } from "@web/core/dropdown/dropdown";
-import { DropdownItem } from "@web/core/dropdown/dropdown_item";
+import { BarcodePlugin } from "@barcodes/barcode_plugin";
 import { OrderTabs } from "@point_of_sale/app/components/order_tabs/order_tabs";
 import { _t } from "@web/core/l10n/translation";
-import { isPrivateIp, uuidv4 } from "@point_of_sale/utils";
+import { isPrivateIp } from "@point_of_sale/app/utils/init_lna";
 import { QrCodeCustomerDisplay } from "@point_of_sale/app/customer_display/customer_display_qr_code_popup";
 import { useAsyncLockedMethod } from "@point_of_sale/app/hooks/hooks";
 import { AlertDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
+export { BurgerMenuDialog };
 
 export class Navbar extends Component {
     static template = "point_of_sale.Navbar";
     static components = {
         // FIXME POSREF remove some of these components
         CashierName,
-        ProxyStatus,
         SaleDetailsButton,
         Input,
-        Dropdown,
-        DropdownItem,
-        SyncPopup,
         OrderTabs,
+        OrderTrackerDropdown,
     };
-    static props = {};
+    inputRef = signal.ref();
     setup() {
         this.pos = usePos();
         this.ui = useService("ui");
-        this.state = useState({ searchBarOpen: false });
+        this.state = proxy({ searchBarOpen: false });
         this.dialog = useService("dialog");
         this.notification = useService("notification");
-        this.hardwareProxy = useService("hardware_proxy");
         this.dialog = useService("dialog");
-        this.isDisplayStandalone = isDisplayStandalone();
         this.isBarcodeScannerSupported = isBarcodeScannerSupported;
         this.timeout = null;
         this.bufferedInput = "";
-        onMounted(async () => {
-            this.hasProductCreationAccess = await this.pos.allowProductCreation();
-        });
-        useExternalListener(document, "keydown", this.handleKeydown.bind(this));
-        this.openPresetTiming = useAsyncLockedMethod(this.openPresetTiming);
+        useListener(document, "keydown", this.handleKeydown.bind(this));
+        this.openPresetTiming = useAsyncLockedMethod(this.openPresetTiming.bind(this));
     }
 
     async openLnaPopup() {
         let localPrinterIp;
-        if (isPrivateIp(this.pos.config.epson_printer_ip)) {
-            localPrinterIp = this.pos.config.epson_printer_ip;
-        }
-        if (!localPrinterIp) {
-            for (const printer of this.pos.config.printer_ids) {
-                if (isPrivateIp(printer.epson_printer_ip)) {
-                    localPrinterIp = printer.epson_printer_ip;
-                }
+        for (const printer of [
+            ...this.pos.config.receipt_printer_ids,
+            ...this.pos.config.preparation_printer_ids,
+        ]) {
+            if (isPrivateIp(printer.printer_ip)) {
+                localPrinterIp = printer.printer_ip;
+                break;
             }
         }
         if (localPrinterIp) {
@@ -95,27 +81,40 @@ export class Navbar extends Component {
         this.dialog.add(AlertDialog, {
             title: _t("LNA Permission status"),
             body: this.pos.lnaState.message,
+            size: "sm",
+            backdrop: true,
+        });
+    }
+
+    openBurgerMenu() {
+        this.dialog.add(BurgerMenuDialog, {
+            openCustomerDisplay: this.openCustomerDisplay.bind(this),
+            openLnaPopup: this.openLnaPopup.bind(this),
         });
     }
 
     handleKeydown(event) {
-        const isEndCharacter = event.key?.match(/(Enter|Tab)/);
         const isSpecialKey =
             !["Control", "Alt"].includes(event.key) && (event.key?.length > 1 || event.metaKey);
 
         clearTimeout(this.timeout);
-        if (isEndCharacter) {
+        if (event.key === "Tab") {
             this.checkInput(event);
+        } else if (event.key === "Enter") {
+            this.checkInput(event);
+            if (event.target === this.inputRef()) {
+                this.pos.searchProductsFromDB();
+            }
         } else {
             if (!isSpecialKey) {
                 this.bufferedInput += event.key;
             }
-            if (document.activeElement == this.inputRef?.el) {
+            if (document.activeElement == this.inputRef()) {
                 this.checkInput(event);
             } else {
                 this.timeout = setTimeout(() => {
                     this.checkInput(event);
-                }, barcodeService.maxTimeBetweenKeysInMs);
+                }, BarcodePlugin.maxTimeBetweenKeysInMs);
             }
         }
     }
@@ -123,15 +122,15 @@ export class Navbar extends Component {
     checkInput(event) {
         if (
             !this.ui.isSmall &&
-            this.inputRef?.el &&
-            document.activeElement !== this.inputRef.el &&
+            this.inputRef() &&
+            document.activeElement !== this.inputRef() &&
             !this.pos.getOrder()?.getSelectedOrderline() &&
             this.noOpenDialogs() &&
             event.key?.length == 1 &&
             this.bufferedInput.length < 3
         ) {
-            this.inputRef.el.focus();
-            this.inputRef.el.value = this.bufferedInput;
+            this.inputRef().focus();
+            this.inputRef().value = this.bufferedInput;
             event.preventDefault();
         }
         this.bufferedInput = "";
@@ -147,21 +146,18 @@ export class Navbar extends Component {
         this.pos.navigateToOrderScreen(order);
     }
 
+    onTicketButtonClick() {
+        // select default selected order and apply paid filter while editing paid order payments
+        if (this.pos.router.currentScreen() == "PaymentScreen" && this.pos.getOrder()?.finalized) {
+            return this.pos.openFinalizedOrders();
+        }
+        return this.pos.navigate("TicketScreen");
+    }
     noOpenDialogs() {
         return document.querySelectorAll(".modal-dialog, .debug-widget").length === 0;
     }
     onClickScan() {
-        if (!this.pos.scanning) {
-            const screenName = this.pos.router.state.current;
-            if (["ProductScreen", "TicketScreen"].includes(screenName)) {
-                const params =
-                    screenName === "ProductScreen" ? { orderUuid: this.pos.getOrder().uuid } : {};
-                this.pos.navigate(screenName, params);
-            }
-        }
-        this.pos.ticket_screen_mobile_pane = this.pos.scanning ? "left" : "right";
-        this.pos.mobile_pane = "right";
-        this.pos.scanning = !this.pos.scanning;
+        this.pos.toggleScanning();
     }
     get showCashMoveButton() {
         return this.pos.showCashMoveButton;
@@ -170,47 +166,14 @@ export class Navbar extends Component {
         return this.pos.getOpenOrders().filter((order) => !order.table_id);
     }
 
-    get appUrl() {
-        return `/scoped_app?app_id=point_of_sale&app_name=${encodeURIComponent(
-            this.pos.config.display_name
-        )}&path=${encodeURIComponent(`pos/ui/${this.pos.config.id}`)}`;
-    }
-
-    async reloadProducts() {
-        this.dialog.add(SyncPopup, {
-            title: _t("Reload Data"),
-            confirm: (fullReload) => this.pos.reloadData(fullReload),
-        });
-    }
-
-    get customerDisplayURL() {
-        const getDeviceUuid = () => {
-            if (!localStorage.getItem("device_uuid")) {
-                localStorage.setItem("device_uuid", uuidv4());
-            }
-            return localStorage.getItem("device_uuid");
-        };
-        return `${this.pos.config._base_url}/pos_customer_display/${
-            this.pos.config.id
-        }/${getDeviceUuid()}?access_token=${this.pos.config.access_token}`;
-    }
-
     openCustomerDisplay() {
         this.dialog.add(QrCodeCustomerDisplay, {
-            customerDisplayURL: this.customerDisplayURL,
+            customerDisplayURL: this.pos.customerDisplayUrl,
         });
-    }
-
-    get showCreateProductButton() {
-        return this.hasProductCreationAccess;
     }
 
     get shouldDisplayPresetTime() {
         return this.pos.getOrder()?.preset_id?.use_timing;
-    }
-
-    async showSaleDetails() {
-        await handleSaleDetails(this.pos, this.hardwareProxy, this.dialog);
     }
 
     async openPresetTiming() {
@@ -218,7 +181,10 @@ export class Navbar extends Component {
     }
 
     get mainButton() {
-        const screens = ["ProductScreen", "PaymentScreen", "ReceiptScreen", "TipScreen"];
-        return screens.includes(this.pos.router.state.current) ? "register" : "order";
+        const screens = ["ProductScreen", "PaymentScreen", "TipScreen"];
+        return screens.includes(this.pos.router.currentScreen()) ? "register" : "order";
+    }
+    get showOderTrackerDropdown() {
+        return false;
     }
 }

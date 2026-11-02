@@ -4,16 +4,49 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0+e\n"
+"Project-Id-Version: Odoo Server 20.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-03 19:12+0000\n"
-"PO-Revision-Date: 2026-04-03 19:12+0000\n"
+"POT-Creation-Date: 2026-09-18 18:18+0000\n"
+"PO-Revision-Date: 2026-09-18 18:18+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
+
+#. module: l10n_be
+#: model:ir.module.module,description:base.module_l10n_be
+msgid ""
+"\n"
+"This is the base module to manage the accounting chart for Belgium in Odoo.\n"
+"==============================================================================\n"
+"\n"
+"After installing this module, the Configuration wizard for accounting is launched.\n"
+"    * We have the account templates which can be helpful to generate Charts of Accounts.\n"
+"    * On that particular wizard, you will be asked to pass the name of the company,\n"
+"      the chart template to follow, the no. of digits to generate, the code for your\n"
+"      account and bank account, currency to create journals.\n"
+"\n"
+"Thus, the pure copy of Chart Template is generated.\n"
+"\n"
+"Wizards provided by this module:\n"
+"--------------------------------\n"
+"    * Partner VAT Intra: Enlist the partners with their related VAT and invoiced\n"
+"      amounts. Prepares an XML file format.\n"
+"\n"
+"        **Path to access:** Invoicing/Reporting/Legal Reports/Belgium Statements/Partner VAT Intra\n"
+"    * Periodical VAT Declaration: Prepares an XML file for Vat Declaration of\n"
+"      the Main company of the User currently Logged in.\n"
+"\n"
+"        **Path to access:** Invoicing/Reporting/Legal Reports/Belgium Statements/Periodical VAT Declaration\n"
+"    * Annual Listing Of VAT-Subjected Customers: Prepares an XML file for Vat\n"
+"      Declaration of the Main company of the User currently Logged in Based on\n"
+"      Fiscal year.\n"
+"\n"
+"        **Path to access:** Invoicing/Reporting/Legal Reports/Belgium Statements/Annual Listing Of VAT-Subjected Customers\n"
+"\n"
+msgstr ""
 
 #. module: l10n_be
 #: model:ir.model,name:l10n_be.model_account_chart_template
@@ -43,6 +76,11 @@ msgid "Belgium (+++000/2024/00182+++)"
 msgstr ""
 
 #. module: l10n_be
+#: model:ir.module.module,shortdesc:base.module_l10n_be
+msgid "Belgium - Accounting"
+msgstr ""
+
+#. module: l10n_be
 #: model:ir.model.fields,field_description:l10n_be.field_account_journal__invoice_reference_model
 msgid "Communication Standard"
 msgstr ""
@@ -54,13 +92,8 @@ msgid "Companies"
 msgstr ""
 
 #. module: l10n_be
-#: model:ir.model,name:l10n_be.model_res_partner
-msgid "Contact"
-msgstr ""
-
-#. module: l10n_be
-#: model:ir.model,website_form_label:l10n_be.model_res_partner
-msgid "Create a Customer"
+#: model:ir.model,name:l10n_be.model_res_company
+msgid "Company"
 msgstr ""
 
 #. module: l10n_be
@@ -68,7 +101,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_be.field_account_journal__display_name
 #: model:ir.model.fields,field_description:l10n_be.field_account_move__display_name
 #: model:ir.model.fields,field_description:l10n_be.field_account_tax__display_name
-#: model:ir.model.fields,field_description:l10n_be.field_res_partner__display_name
+#: model:ir.model.fields,field_description:l10n_be.field_res_company__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -82,7 +115,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_be.field_account_journal__id
 #: model:ir.model.fields,field_description:l10n_be.field_account_move__id
 #: model:ir.model.fields,field_description:l10n_be.field_account_tax__id
-#: model:ir.model.fields,field_description:l10n_be.field_res_partner__id
+#: model:ir.model.fields,field_description:l10n_be.field_res_company__id
 msgid "ID"
 msgstr ""
 

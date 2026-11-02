@@ -1,24 +1,23 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-import unittest
+import logging
 
-from odoo.tests import TransactionCase, can_import, loaded_demo_data, tagged
+from odoo.tests import TransactionCase, loaded_demo_data, tagged
 from odoo.tools import mute_logger
-from odoo.tools.misc import file_open
+
+_logger = logging.getLogger(__name__)
 
 
-@tagged("post_install", "-at_install")
+@tagged("post_install", "-at_install", "xlrd")
 class TestImportFiles(TransactionCase):
 
     def import_product_xls(self, model, filepath=None):
         if filepath is None:
-            model_str = model.replace(".", "_")
-            filepath = f"product/static/xls/{model_str}.xls"
-        file_content = file_open(filepath, "rb").read()
-        import_wizard = self.env["base_import.import"].create(  # noqa: OLS03001
+            filepath = f"product/static/xls/{model.replace(".", "_")}.xls"
+        import_wizard = self.env["base_import.import"].create(
             {
                 "res_model": model,
-                "file": file_content,
+                "file": self.file_read(filepath),
                 "file_type": "application/vnd.ms-excel",
             }
         )
@@ -55,14 +54,12 @@ class TestImportFiles(TransactionCase):
         )
         return results
 
-    @unittest.skipUnless(
-        can_import("xlrd.xlsx") or can_import("openpyxl"), "XLRD/XLSX not available"
-    )
     def test_import_create_product_demo_xls(self):
-        if not loaded_demo_data(self.env):
-            self.skipTest('Needs demo data to be able to import those files')
-
-        for model in ("product.pricelist", "product.supplierinfo", "product.template"):
+        has_demo_data = loaded_demo_data(self.env)
+        for model in ("product.pricelist", "product.supplierinfo", "product.template", "product.category"):
+            if not has_demo_data and model in ("product.supplierinfo", "product.pricelist"):
+                _logger.info("Needs demo data to be able to import the file of %s, skipping sub test ...", model)
+                continue
             with self.subTest(model):
                 results = self.import_product_xls(model)
                 self.assertFalse(
@@ -77,7 +74,7 @@ class TestImportFiles(TransactionCase):
                 "results should be empty on successful import of ",
             )
 
-            template = self.env.ref('__import__.product_template_BB')  # noqa: OLS05003
+            template = self.env.ref('__import__.product_template_BB')
             self.assertEqual(self.env.ref('__import__.product_product_1').list_price, 110)
             self.assertEqual(len(template.product_variant_ids), 8)
             self.assertEqual([
@@ -96,7 +93,7 @@ class TestImportFiles(TransactionCase):
 
     def test_import_write_product_demo_xls(self):
         self.import_product_xls("product.product")  # create products
-        template = self.env.ref('__import__.product_template_BB')  # noqa: OLS05003
+        template = self.env.ref('__import__.product_template_BB')
         self.assertEqual(len(template.product_variant_ids), 8)
         self.assertEqual(self.env.ref('__import__.product_product_1').standard_price, 40)
         self.assertEqual(self.env.ref('__import__.product_tshirt_SW_red_m').standard_price, 45)
@@ -172,6 +169,12 @@ class TestImportFiles(TransactionCase):
             self.assertEqual(self.env.ref('__import__.product_template_1').qty_available, 3.0)
             self.assertEqual(self.env.ref('__import__.product_product_1').qty_available, 100.0)
 
+            results = self.import_product_xls("product.product", filepath=test_file)
+            self.assertFalse(results["messages"])
+            self.env.invalidate_all()
+            self.assertEqual(self.env.ref('__import__.product_template_1').qty_available, 3.0)
+            self.assertEqual(self.env.ref('__import__.product_product_1').qty_available, 100.0)
+
     def test_import_create_product_template_xls(self):
         results = self.import_product_xls("product.template", filepath="product/static/xls/test_import_template.xls")
 
@@ -180,3 +183,19 @@ class TestImportFiles(TransactionCase):
         product = self.env['product.product'].search([('default_code', '=', 'CERT20')])
         self.assertEqual(product.list_price, 200)
         self.assertEqual(product.standard_price, 5)
+
+    def test_import_product_reuses_existing_attribute(self):
+        """Importing a product referencing an existing attribute with no values
+        should reuse it, not crash or duplicate."""
+        attr_name = 'TestImportFabric'
+        attribute = self.env['product.attribute'].create({'name': attr_name})
+        self.assertFalse(attribute.value_ids)
+
+        self.env['product.product']._load_records_create([{
+            'name': 'Test Product',
+            'import_attribute_values': f'{attr_name}:Cotton',
+        }])
+
+        found = self.env['product.attribute'].search([('name', '=', attr_name)])
+        self.assertEqual(found, attribute)
+        self.assertIn('Cotton', found.value_ids.mapped('name'))

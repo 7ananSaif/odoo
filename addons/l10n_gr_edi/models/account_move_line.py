@@ -8,7 +8,6 @@ from odoo.addons.l10n_gr_edi.models.preferred_classification import (
     TAX_EXEMPTION_CATEGORY_SELECTION,
     TYPES_WITH_SEND_EXPENSE,
 )
-from odoo.tools.sql import column_exists, create_column
 
 
 class AccountMoveLine(models.Model):
@@ -25,6 +24,7 @@ class AccountMoveLine(models.Model):
         compute='_compute_l10n_gr_edi_detail_type',
         store=True,
         readonly=False,
+        init_storage=lambda model: None,
     )
     l10n_gr_edi_cls_category = fields.Selection(
         selection=CLASSIFICATION_CATEGORY_SELECTION,
@@ -32,6 +32,7 @@ class AccountMoveLine(models.Model):
         compute='_compute_l10n_gr_edi_cls_category',
         store=True,
         readonly=False,
+        init_storage=lambda model: None,
     )
     l10n_gr_edi_cls_type = fields.Selection(
         selection=CLASSIFICATION_TYPE_SELECTION,
@@ -39,6 +40,7 @@ class AccountMoveLine(models.Model):
         compute='_compute_l10n_gr_edi_cls_type',
         store=True,
         readonly=False,
+        init_storage=lambda model: None,
     )
     l10n_gr_edi_cls_vat = fields.Selection(
         selection=CLASSIFICATION_VAT_SELECTION,
@@ -46,6 +48,7 @@ class AccountMoveLine(models.Model):
         compute='_compute_l10n_gr_edi_cls_vat',
         store=True,
         readonly=False,
+        init_storage=lambda model: None,
     )
     l10n_gr_edi_tax_exemption_category = fields.Selection(
         selection=TAX_EXEMPTION_CATEGORY_SELECTION,
@@ -53,23 +56,24 @@ class AccountMoveLine(models.Model):
         compute='_compute_l10n_gr_edi_tax_exemption_category',
         store=True,
         readonly=False,
+        init_storage=lambda model: None,
+    )
+    l10n_gr_edi_cpv_code = fields.Char(
+        string='Item CPV Code',
+        help='Common Procurement Vocabulary (CPV) code for public sector procurement in Greece.',
+        store=True,
+        compute='_compute_l10n_gr_edi_cpv_code',
+        readonly=False,
+        init_storage=lambda model: None,
     )
 
-    def _auto_init(self):
-        """
-        Create all compute-stored fields here to avoid MemoryError when initializing on large databases.
-        """
-        for column_name, column_type in (
-            ('l10n_gr_edi_detail_type', 'varchar'),
-            ('l10n_gr_edi_cls_category', 'varchar'),
-            ('l10n_gr_edi_cls_type', 'varchar'),
-            ('l10n_gr_edi_cls_vat', 'varchar'),
-            ('l10n_gr_edi_tax_exemption_category', 'varchar'),
-        ):
-            if not column_exists(self.env.cr, 'account_move_line', column_name):
-                create_column(self.env.cr, 'account_move_line', column_name, column_type)
-
-        return super()._auto_init()
+    @api.depends('product_id.l10n_gr_edi_cpv_code')
+    def _compute_l10n_gr_edi_cpv_code(self):
+        for line in self:
+            if line.product_id:
+                line.l10n_gr_edi_cpv_code = line.product_id.l10n_gr_edi_cpv_code
+            else:
+                line.l10n_gr_edi_cpv_code = False
 
     @api.depends('move_id.l10n_gr_edi_inv_type')
     def _compute_l10n_gr_edi_detail_type(self):
@@ -161,7 +165,7 @@ class AccountMoveLine(models.Model):
                 'noupdate': True,
             }])
 
-        return preferred_id
+        return preferred_id.filtered_domain(domain)
 
     @api.depends(
         'move_id.l10n_gr_edi_inv_type',

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import typing
+import weakref
 
 from collections import defaultdict
 from types import MappingProxyType
@@ -15,10 +16,10 @@ from odoo.exceptions import ValidationError
 from odoo.tools import (
     OrderedSet,
     LastOrderedSet,
-    discardattr,
     frozendict,
     sql,
 )
+from odoo.tools.safe_eval import safe_checker
 from odoo.tools.translate import FIELD_TRANSLATE
 
 if typing.TYPE_CHECKING:
@@ -28,6 +29,10 @@ if typing.TYPE_CHECKING:
     from odoo.modules.registry import Registry
 
 _logger = logging.getLogger('odoo.registry')
+
+
+SHARED_FIELD_CACHE: weakref.WeakValueDictionary[tuple[str, tuple[Field, ...]], Field] = weakref.WeakValueDictionary()
+"""Cache of shared registry field instances keyed by (model_name, definition_fields_tuple)."""
 
 # THE MODEL DEFINITIONS, MODEL CLASSES, AND MODEL INSTANCES
 #
@@ -139,6 +144,14 @@ _logger = logging.getLogger('odoo.registry')
 # This increases the number of fields that are shared across registries.
 
 
+def discardattr(obj: object, key: str) -> None:
+    """ Perform a ``delattr(obj, key)`` but without crashing if ``key`` is not present. """
+    try:  # noqa: SIM105
+        delattr(obj, key)
+    except AttributeError:
+        pass
+
+
 def is_model_definition(cls: type) -> bool:
     """ Return whether ``cls`` is a model definition class. """
     return isinstance(cls, models.MetaModel) and getattr(cls, 'pool', None) is None
@@ -185,6 +198,7 @@ def add_to_registry(registry: Registry, model_def: type[BaseModel]) -> type[Base
             '_inherit_children': OrderedSet(),      # names of children models
             '_inherits_children': set(),            # names of children models
             '_fields__': {},                        # populated in _setup()
+            '_fields_update_order__': {},           # populated in _post_model_setup__()
             '_table_objects': frozendict(),         # populated in _setup()
         })
         model_cls._fields = MappingProxyType(model_cls._fields__)
@@ -227,11 +241,17 @@ def add_to_registry(registry: Registry, model_def: type[BaseModel]) -> type[Base
     for model_name in registry.descendants([name], '_inherit', '_inherits'):
         registry[model_name]._setup_done__ = False
 
+    safe_checker.add_hook(model_cls, None)  # Optimization to serialize recordset(s) faster
     return model_cls
 
 
 def _check_model_extension(model_cls: type[BaseModel], model_def: type[BaseModel]):
     """ Check whether ``model_cls`` can be extended with ``model_def``. """
+    if model_def._table:
+        raise TypeError(
+            f"{model_def} cannot redefine _table while extending model {model_cls._name!r}. "
+            "That class should either remove '_table', or set a different '_name'."
+        )
     if model_cls._abstract and not model_def._abstract:
         raise TypeError(
             f"{model_def} transforms the abstract model {model_cls._name!r} into a non-abstract model. "
@@ -323,6 +343,10 @@ def setup_model_classes(env: Environment):
         _setup_fields(model_cls, env)
 
     for model_cls in models_classes:
+        model_cls._fields_update_order__ = {
+            field: (field.write_sequence, i)
+            for i, field in enumerate(model_cls._fields.values())
+        }
         model_cls(env, (), ())._post_model_setup__()
 
 
@@ -408,8 +432,16 @@ def _setup(model_cls: type[BaseModel], env: Environment):
                     # patch the field definition by adding an override
                     _logger.debug("Patching %s.%s with company_dependent=True", model_cls._name, name)
                     fields_.append(type(fields_[0])(company_dependent=True))
-        if len(fields_) == 1 and fields_[0]._direct and fields_[0].model_name == model_cls._name:
-            model_cls._fields__[name] = fields_[0]
+        if all(field._shareable for field in fields_):
+            if len(fields_) == 1 and fields_[0].model_name == model_cls._name:
+                model_cls._fields__[name] = fields_[0]
+            else:
+                cache_key = (model_cls._name, tuple(fields_))
+                if (field_ := SHARED_FIELD_CACHE.get(cache_key)) is None:
+                    Field = type(fields_[-1])
+                    field_ = Field(_base_fields__=tuple(fields_))
+                    SHARED_FIELD_CACHE[cache_key] = field_
+                add_field(model_cls, name, field_, shareable=True)
         else:
             Field = type(fields_[-1])
             add_field(model_cls, name, Field(_base_fields__=tuple(fields_)))
@@ -593,8 +625,8 @@ def _add_manual_fields(model_cls: type[BaseModel], env: Environment):
                 _logger.exception("Failed to load field %s.%s: skipped", model_cls._name, field_data['name'])
 
 
-def add_field(model_cls: type[BaseModel], name: str, field: Field):
-    """ Add the given ``field`` under the given ``name`` on the model class of the given ``model``. """
+def add_field(model_cls: type[BaseModel], name: str, field: Field, shareable: bool = False):
+    """Add ``field`` to ``model_cls`` under ``name`` and set its _shareable flag."""
     # Assert the name is an existing field in the model, or any model in the _inherits
     # or a custom field (starting by `x_`)
     is_class_field = any(
@@ -613,7 +645,8 @@ def add_field(model_cls: type[BaseModel], name: str, field: Field):
     if not isinstance(getattr(model_cls, name, field), fields.Field):
         _logger.warning("In model %r, field %r overriding existing value", model_cls._name, name)
     setattr(model_cls, name, field)
-    field._toplevel = True
+    if field._shareable != shareable:
+        field._shareable = shareable
     field.__set_name__(model_cls, name)
     # add field as an attribute and in model_cls._fields__ (for reflection)
     model_cls._fields__[name] = field

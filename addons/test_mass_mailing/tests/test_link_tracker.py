@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo.tests.common import users
+from odoo.tests.common import tagged, users
 from odoo.addons.test_mass_mailing.tests import common
 
 
@@ -28,7 +28,7 @@ class TestLinkTracker(common.TestMassMailCommon):
         click = self.env['link.tracker.click'].sudo().add_click(
             code,
             ip='100.00.00.01',
-            country_code='BEL'
+            country_code='BE',
         )
         self.assertEqual(click.ip, '100.00.00.01')
         self.assertEqual(click.country_id, self.env.ref('base.be'))

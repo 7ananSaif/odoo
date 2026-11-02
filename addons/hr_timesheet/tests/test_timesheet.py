@@ -1,12 +1,12 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from lxml import etree
+from freezegun import freeze_time
 from unittest.mock import patch
+from datetime import timedelta
 
 from odoo import fields
 from odoo.fields import Command
-from odoo.tests import Form, TransactionCase, new_test_user
+from odoo.tests import tagged, Form, TransactionCase, new_test_user
 from odoo.exceptions import AccessError, RedirectWarning, UserError, ValidationError
 
 
@@ -15,6 +15,20 @@ class TestCommonTimesheet(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super(TestCommonTimesheet, cls).setUpClass()
+
+        cls.env.company.resource_calendar_id = cls.env['resource.calendar'].create({
+            'attendance_ids': [
+                (0, 0,
+                    {
+                        'dayofweek': weekday,
+                        'hour_from': hour,
+                        'hour_to': hour + 4,
+                    })
+                for weekday in ['0', '1', '2', '3', '4']
+                for hour in [8, 13]
+            ],
+            'name': 'Standard 40h/week',
+        })
 
         # Crappy hack to disable the rule from timesheet grid, if it exists
         # The registry doesn't contain the field timesheet_manager_id.
@@ -73,6 +87,12 @@ class TestCommonTimesheet(TransactionCase):
             'email': 'useremployee2@test.com',
             'group_ids': [(6, 0, [cls.env.ref('hr_timesheet.group_hr_timesheet_user').id])],
         })
+        cls.user_approver = cls.env['res.users'].create({
+            'name': 'User Approver',
+            'login': 'user_timesheet_approver',
+            'email': 'userapprover@test.com',
+            'group_ids': [(6, 0, [cls.env.ref('hr_timesheet.group_hr_timesheet_approver').id])],
+        })
         cls.user_manager = cls.env['res.users'].create({
             'name': 'User Officer',
             'login': 'user_manager',
@@ -83,17 +103,14 @@ class TestCommonTimesheet(TransactionCase):
         cls.empl_employee = cls.env['hr.employee'].create({
             'name': 'User Empl Employee',
             'user_id': cls.user_employee.id,
-            'employee_type': 'freelance',  # Avoid searching the contract if hr_contract module is installed before this module.
         })
         cls.empl_employee2 = cls.env['hr.employee'].create({
             'name': 'User Empl Employee 2',
             'user_id': cls.user_employee2.id,
-            'employee_type': 'freelance',
         })
         cls.empl_manager = cls.env['hr.employee'].create({
             'name': 'User Empl Officer',
             'user_id': cls.user_manager.id,
-            'employee_type': 'freelance',
         })
         cls.project = cls.env['project.project'].create({
             'name': 'Test Project',
@@ -120,14 +137,7 @@ class TestTimesheet(TestCommonTimesheet):
     def setUp(self):
         super().setUp()
         # Make sure to clean the plan fields
-        self.env.registry._setup_models__(self.env.cr)
-
-        # Crappy hack to disable the rule from timesheet grid, if it exists
-        # The registry doesn't contain the field timesheet_manager_id.
-        # but there is an ir.rule about it, crashing during its evaluation
-        rule = self.env.ref('timesheet_grid.timesheet_line_rule_user_update-unlink', raise_if_not_found=False)
-        if rule:
-            rule.active = False
+        self.env.transaction.will_change_registry()
 
     def test_log_timesheet(self):
         """ Test when log timesheet: check analytic account, user and employee are correctly set. """
@@ -196,6 +206,10 @@ class TestTimesheet(TestCommonTimesheet):
             'employee_id': self.empl_employee2.id,
         })
         self.assertEqual(timesheet1.user_id, self.user_employee2, 'Changing timesheet employee should change the related user')
+
+    def test_timesheet_search_rights_on_version_fields(self):
+        """ Check that a user with no rights on Employee can still search on hr.version fields. """
+        self.env['account.analytic.line'].with_user(self.user_approver).search([('employee_id.department_id', '!=', False)])
 
     def test_create_unlink_project(self):
         """ Check project creation, and if necessary the analytic account generated when project should track time. """
@@ -666,8 +680,6 @@ class TestTimesheet(TestCommonTimesheet):
         self.env.company.timesheet_encode_uom_id = self.env.ref('uom.product_uom_day')
         self.assertEqual(project.total_timesheet_time, 1, "Total timesheet time should be 1 day")
         project.allocated_hours = 0.0
-        panel_data = project.get_panel_data()
-        self.assertEqual(panel_data['buttons'][1]['number'], "1 Days", "Should display '1 Days'")
         self.assertEqual(project.timesheet_encode_uom_id, self.env.company.timesheet_encode_uom_id, "Timesheet encode uom should be the one from the company of the env, since the project has no company.")
         project_update_days = self.env['project.update'].create({
             'name': 'Project update 2',
@@ -883,11 +895,20 @@ class TestTimesheet(TestCommonTimesheet):
         timesheet.invalidate_recordset(['calendar_display_name'])
         self.assertEqual(timesheet.calendar_display_name, f"{self.project_customer.name} (1.5d)")
 
+    @freeze_time("2025-10-31 08:00:00")
     def test_multi_create_timesheets_from_calendar(self):
         """
         Simulate creating timesheets using the multi-create feature in the calendar view
         """
         HrTimesheet = self.env['account.analytic.line'].with_context(timesheet_calendar=True)
+
+        timesheet = HrTimesheet.with_user(self.user_manager).create({
+            'name': 'Timesheet',
+            'task_id': self.task1.id,
+            'unit_amount': 1,
+        })
+        self.assertEqual(timesheet.employee_id, self.user_manager.employee_id)
+        self.assertTrue(timesheet, "Timesheet should be created even without an employee")
 
         timesheet = HrTimesheet.create({
             'project_id': self.project_customer.id,
@@ -911,15 +932,12 @@ class TestTimesheet(TestCommonTimesheet):
             'name': "part time",
             'hours_per_day': 8.0,
             'attendance_ids': [
-                (0, 0, {'name': "Monday Morning", 'dayofweek': '0', 'hour_from': 8, 'hour_to': 12, 'day_period': 'morning'}),
-                (0, 0, {'name': "Monday Lunch", 'dayofweek': '0', 'hour_from': 12, 'hour_to': 13, 'day_period': 'lunch'}),
-                (0, 0, {'name': "Monday Evening", 'dayofweek': '0', 'hour_from': 13, 'hour_to': 17, 'day_period': 'afternoon'}),
-                (0, 0, {'name': "Thursday Morning", 'dayofweek': '3', 'hour_from': 8, 'hour_to': 12, 'day_period': 'morning'}),
-                (0, 0, {'name': "Thursday Lunch", 'dayofweek': '3', 'hour_from': 12, 'hour_to': 13, 'day_period': 'lunch'}),
-                (0, 0, {'name': "Thursday Evening", 'dayofweek': '3', 'hour_from': 13, 'hour_to': 17, 'day_period': 'afternoon'}),
-                (0, 0, {'name': "Friday Morning", 'dayofweek': '4', 'hour_from': 8, 'hour_to': 12, 'day_period': 'morning'}),
-                (0, 0, {'name': "Friday Lunch", 'dayofweek': '4', 'hour_from': 12, 'hour_to': 13, 'day_period': 'lunch'}),
-                (0, 0, {'name': "Friday Evening", 'dayofweek': '4', 'hour_from': 13, 'hour_to': 17, 'day_period': 'afternoon'}),
+                (0, 0, {'dayofweek': '0', 'hour_from': 8, 'hour_to': 12}),
+                (0, 0, {'dayofweek': '0', 'hour_from': 13, 'hour_to': 17}),
+                (0, 0, {'dayofweek': '3', 'hour_from': 8, 'hour_to': 12}),
+                (0, 0, {'dayofweek': '3', 'hour_from': 13, 'hour_to': 17}),
+                (0, 0, {'dayofweek': '4', 'hour_from': 8, 'hour_to': 12}),
+                (0, 0, {'dayofweek': '4', 'hour_from': 13, 'hour_to': 17}),
             ],
         })
 
@@ -935,7 +953,7 @@ class TestTimesheet(TestCommonTimesheet):
                 } for day in days for employee in (self.empl_employee, self.empl_employee2)])
 
             def assert_notification(mock_send, notification_type, message):
-                mock_send.assert_called_with(self.env.user.partner_id, 'simple_notification', {
+                mock_send.assert_called_with(self.env.user, 'simple_notification', {
                     'type': notification_type,
                     'message': message,
                 })
@@ -1047,3 +1065,226 @@ class TestTimesheet(TestCommonTimesheet):
             'user_id': self.user_manager.id,
         })
         self.assertEqual(timesheet.company_id, self.env.company)
+
+    def test_sub_task_remaining_hours(self):
+        parent_task = self.env['project.task'].create({
+            'name': 'Parent Task',
+            'project_id':  self.project_customer.id,
+            'child_ids': [Command.create({'name': 'subtask'})],
+        })
+        sub_task = parent_task.child_ids[0]
+
+        # Case 1: project = 50h, task = 0h → task negative
+        self.project_customer.allocated_hours = 50
+        parent_task.allocated_hours = 0
+
+        self.env['account.analytic.line'].create({
+            'name': 'TS',
+            'task_id': parent_task.id,
+            'unit_amount': 5,
+            'employee_id': self.empl_employee.id,
+        })
+
+        self.assertEqual(
+            parent_task.remaining_hours, -5,
+            "Task remaining hours should be negative when project has allocated hours but task has none.",
+        )
+
+        # Case 2: project = 50h, task = 20h → no change
+        self.project_customer.allocated_hours = 50
+        parent_task.allocated_hours = 20
+
+        self.assertEqual(
+            parent_task.remaining_hours, 15,
+            "Task remaining hours should be unchanged when project and task both has allocated hours.",
+        )
+
+        # Case 3: project = 50h, parent = 20h, sub = 0h
+        # → parent unchanged, sub negative
+        self.project_customer.allocated_hours = 50
+        parent_task.allocated_hours = 20
+        sub_task.allocated_hours = 0
+
+        self.env['account.analytic.line'].create({
+            'name': 'TS',
+            'task_id': sub_task.id,
+            'unit_amount': 5,
+            'employee_id': self.empl_employee.id,
+        })
+
+        self.assertEqual(
+            parent_task.remaining_hours, 10,
+            "Task remaining hours should be unchanged when project and task both has allocated hours.",
+        )
+
+        self.assertEqual(
+            sub_task.remaining_hours, -5,
+            "Subtask remaining hours should be negative when parent task has allocated hours but subtask has none.",
+        )
+
+        # At this point:
+        # - 5h logged on parent (case 1)
+        # - 5h logged on subtask (case 3)
+        # => total effective on parent = 10h
+
+        # Case 4: project = 50h, parent = 0h, sub = 0h
+        # → parent negative, sub unchanged
+        self.project_customer.allocated_hours = 50
+        parent_task.allocated_hours = 0
+        sub_task.allocated_hours = 0
+
+        self.assertEqual(
+            parent_task.remaining_hours, -10,
+            "Task remaining hours should be negative when project has allocated hours but task has none.",
+        )
+
+        self.assertEqual(
+            sub_task.remaining_hours, 0,
+            "Subtask remaining hours should be 0 when parent task has no allocated hours.",
+        )
+
+        # Case 5: project = 0h, parent = 0h, sub = 0h → no changes
+        self.project_customer.allocated_hours = 0
+        parent_task.allocated_hours = 0
+        sub_task.allocated_hours = 0
+
+        self.assertEqual(
+            parent_task.remaining_hours, 0,
+            "Task remaining hours should be 0 when project and task both have no allocated hours",
+        )
+
+        self.assertEqual(
+            sub_task.remaining_hours, 0,
+            "Subtask remaining hours should be 0 when parent task has no allocated hours.",
+        )
+
+        # Case 6: project = 0h, parent = 20h, sub = 0h
+        # → parent unchanged, sub negative
+        self.project_customer.allocated_hours = 0
+        parent_task.allocated_hours = 20
+        sub_task.allocated_hours = 0
+
+        self.assertEqual(
+            parent_task.remaining_hours, 10,
+            "Task remaining hours should be unchanged when the task itself has allocated hours.",
+        )
+
+        self.assertEqual(
+            sub_task.remaining_hours, -5,
+            "Subtask remaining hours should be negative when parent task has allocated hours.",
+        )
+
+    def test_is_project_overtime_filter(self):
+        self.project.allocated_hours = 3.0
+        self.assertEqual(self.project.remaining_hours, 3.0)
+        task_1, task_2 = self.env['project.task'].create([
+            {
+                'name': 'Task 1',
+                'project_id': self.project.id,
+            },
+            {
+                'name': 'Task 2 (done)',
+                'project_id': self.project.id,
+                'state': '1_done',
+            }
+        ])
+        self.env['account.analytic.line'].create([
+            {
+                'name': 'Timesheet Task 1',
+                'unit_amount': 2.0,
+                'project_id': self.project.id,
+                'employee_id': self.empl_employee.id,
+                'task_id': task_1.id,
+            },
+            {
+                'name': 'Timesheet Task 2 (done)',
+                'unit_amount': 2.0,
+                'project_id': self.project.id,
+                'employee_id': self.empl_employee.id,
+                'task_id': task_2.id,
+            },
+        ])
+        self.assertRecordValues(self.project, [{
+            'is_project_overtime': True,
+            'remaining_hours': -1.0
+        }])
+        self.project.flush_model()  # Ensures the `project.allocated_hours` is saved in the database
+        self.assertIn(
+            self.project,
+            self.env['project.project'].search([('is_project_overtime', '=', True)])
+        )
+
+    def test_task_reset_on_project_change(self):
+        """ Changing the project_id of a timesheet should reset its task_id
+            if the task doesn't belong to the new project"""
+
+        self.assertTrue(self.timesheet.task_id)
+        self.timesheet.write({'project_id': self.project_customer.id})
+        self.assertFalse(self.timesheet.task_id)
+        self.assertEqual(self.timesheet.project_id, self.project_customer)
+
+    def test_archive_employee_timesheet_handling(self):
+        """ Test how registering departure via wizard affects employee timesheets based on departure date. """
+        Timesheet = self.env['account.analytic.line']
+        today = fields.Date.context_today(self.env.user)
+        yesterday = today - timedelta(days=1)
+        two_days_ago = today - timedelta(days=2)
+        tomorrow = today + timedelta(days=1)
+        self.empl_employee.version_ids.sudo().write({
+                    'date_version': today - timedelta(days=10),
+                    'contract_date_start': today - timedelta(days=10),
+                })
+        employee_no_wizard = self.env['hr.employee'].create({'name': 'Test Employee No Wizard'})
+
+        timesheets = Timesheet.create([{
+            'project_id': self.project_customer.id,
+            'task_id': self.task1.id,
+            'name': 'Past Timesheet (Before Departure)',
+            'unit_amount': 2,
+            'employee_id': self.empl_employee.id,
+            'date': two_days_ago,
+        }, {
+            'project_id': self.project_customer.id,
+            'task_id': self.task1.id,
+            'name': 'Departure Day Timesheet',
+            'unit_amount': 2,
+            'employee_id': self.empl_employee.id,
+            'date': yesterday,
+        }, {
+            'project_id': self.project_customer.id,
+            'task_id': self.task1.id,
+            'name': 'Today Timesheet (After Departure)',
+            'unit_amount': 2,
+            'employee_id': self.empl_employee.id,
+            'date': today,
+        }, {
+            'project_id': self.project_customer.id,
+            'task_id': self.task1.id,
+            'name': 'Future Timesheet',
+            'unit_amount': 2,
+            'employee_id': self.empl_employee.id,
+            'date': tomorrow,
+        }, {
+            'project_id': self.project_customer.id,
+            'task_id': self.task1.id,
+            'name': 'Future Timesheet (Archived Manually)',
+            'unit_amount': 2,
+            'employee_id': employee_no_wizard.id,
+            'date': tomorrow,
+        }])
+
+        past_timesheet, departure_day_timesheet, today_timesheet, future_timesheet, future_timesheet_no_wizard = timesheets
+        self.env['hr.employee.departure'].with_context(employee_termination=True).create({
+            'employee_id': self.empl_employee.id,
+            'departure_date': yesterday,
+            'dismissal_date': yesterday,
+        }).action_register()
+        employee_no_wizard.action_archive()
+
+        self.assertFalse(self.empl_employee.active, "The first employee should be archived.")
+        self.assertTrue(past_timesheet.exists(), "Timesheets before departure should not be deleted.")
+        self.assertTrue(departure_day_timesheet.exists(), "Timesheets on the day of departure should not be deleted.")
+        self.assertFalse(today_timesheet.exists(), "Timesheets strictly after the departure date must be deleted.")
+        self.assertFalse(future_timesheet.exists(), "Future timesheets must be deleted when an employee with a departure date is archived.")
+        self.assertFalse(employee_no_wizard.active, "The second employee should be archived.")
+        self.assertTrue(future_timesheet_no_wizard.exists(), "Future timesheets must NOT be deleted when an employee is archived without the departure wizard.")

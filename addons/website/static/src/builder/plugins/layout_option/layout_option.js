@@ -1,9 +1,10 @@
 import { SelectNumberColumn } from "@html_builder/core/select_number_column";
-import { BaseOptionComponent } from "@html_builder/core/utils";
-import { AddElementOption } from "./add_element_option";
+import { BaseOptionComponent } from "@html_builder/core/base_option_component";
+import { registry } from "@web/core/registry";
 import { SpacingOption } from "./spacing_option";
 
 export class LayoutOption extends BaseOptionComponent {
+    static id = "layout_option";
     static template = "website.LayoutOption";
     static selector = "section, section.s_carousel_wrapper .carousel-item, .s_carousel_intro_item";
     static exclude =
@@ -12,17 +13,19 @@ export class LayoutOption extends BaseOptionComponent {
     static components = {
         SelectNumberColumn,
         SpacingOption,
-        AddElementOption,
     };
 }
 
 export class LayoutGridOption extends BaseOptionComponent {
+    static id = "layout_grid_option";
     static template = "website.LayoutGridOption";
     static selector =
         "section.s_masonry_block, section.s_quadrant, section.s_image_frame, section.s_card_offset, section.s_contact_info, section.s_framed_intro, section.s_banner_categories";
     static applyTo = ":scope > *:has(> .row)";
     static components = {
         SpacingOption,
-        AddElementOption,
     };
 }
+
+registry.category("website-options").add(LayoutOption.id, LayoutOption);
+registry.category("website-options").add(LayoutGridOption.id, LayoutGridOption);

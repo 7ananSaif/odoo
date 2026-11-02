@@ -1,11 +1,12 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo.addons.mail.tests.common import MailCommon
-from odoo.exceptions import AccessError, UserError, ValidationError
-from odoo.tests.common import new_test_user, tagged
+from odoo.exceptions import AccessError, ValidationError
+from odoo.tests.common import new_test_user
+from odoo.tools import file_open, mute_logger
+from odoo.tools.convert import convert_xml_import
 
 
-@tagged("post_install", "-at_install")
 class TestDiscussChannelMember(MailCommon):
     @classmethod
     def setUpClass(cls):
@@ -29,197 +30,46 @@ class TestDiscussChannelMember(MailCommon):
         cls.user_3 = new_test_user(
             cls.env, login="user_3", name="User 3", groups="base.group_user,mail.secret_group"
         )
-        cls.user_portal = new_test_user(
-            cls.env, login="user_portal", name="User Portal", groups="base.group_portal"
-        )
-        cls.user_public = new_test_user(
-            cls.env, login="user_public", name="User Public", groups="base.group_public"
-        )
+        cls.group = cls.env["discuss.channel"].create({"name": "Group", "channel_type": "group"})
+        cls.group.channel_member_ids.unlink()
 
+    def test_cannot_change_member_immutable_fields(self):
+        channel = self.env["discuss.channel"]._create_channel(group_id=None, name="General")
+        bob = new_test_user(self.env, "bob", groups="base.group_user")
+        another_channel = self.env["discuss.channel"]._create_channel(group_id=None, name="Another channel")
+        another_partner = self.env["res.partner"].create({"name": "John"})
+        guest = self.env["mail.guest"].create({"name": "Jane"})
+        member = channel._add_members(users=bob)
+        with self.assertRaises(AccessError):
+            member.channel_id = another_channel
+        with self.assertRaises(AccessError):
+            member.partner_id = another_partner
+        with self.assertRaises(AccessError):
+            member.guest_id = guest
 
-        cls.group = cls.env['discuss.channel'].create({
-            'name': 'Group',
-            'channel_type': 'group',
-        })
-        cls.group_restricted_channel = cls.env['discuss.channel'].create({
-            'name': 'Group restricted channel',
-            'channel_type': 'channel',
-            'group_public_id': cls.secret_group.id,
-        })
-        cls.public_channel = cls.env['discuss.channel']._create_channel(group_id=None, name='Public channel of user 1')
-        (cls.group | cls.group_restricted_channel | cls.public_channel).channel_member_ids.unlink()
+    def test_user_public_cannot_join_channel(self):
+        channel = self.env["discuss.channel"]._create_channel(group_id=None, name="Public")
+        public = new_test_user(self.env, "public_user", groups="base.group_public")
+        with self.assertRaises(ValidationError):
+            channel._add_members(users=public)
 
     # ------------------------------------------------------------
     # GROUP
     # ------------------------------------------------------------
 
-    def test_group_01(self):
-        """Test access on group."""
-        res = self.env['discuss.channel.member'].search([('channel_id', '=', self.group.id)])
-        self.assertFalse(res)
-
-        # User 1 can join group with SUDO
-        self.group.with_user(self.user_1).sudo()._add_members(users=self.user_1)
-        res = self.env['discuss.channel.member'].search([('channel_id', '=', self.group.id)])
-        self.assertEqual(res.partner_id, self.user_1.partner_id)
-
-        # User 2 can not join group
-        with self.assertRaises(AccessError):
-            self.group.with_user(self.user_2)._add_members(users=self.user_2)
-
-        # User 2 can not create a `discuss.channel.member` to join the group
-        with self.assertRaises(AccessError):
-            self.env['discuss.channel.member'].with_user(self.user_2).create({
-                'partner_id': self.user_2.partner_id.id,
-                'channel_id': self.group.id,
-            })
-
-        # User 2 can not write on `discuss.channel.member` to join the group
-        channel_member = self.env['discuss.channel.member'].with_user(self.user_2).search([('is_self', '=', True)])[0]
-        with self.assertRaises(AccessError):
-            channel_member.channel_id = self.group.id
-        with self.assertRaises(AccessError):
-            channel_member.write({'channel_id': self.group.id})
-
-        # Even with SUDO, channel_id of channel.member should not be changed.
-        with self.assertRaises(AccessError):
-            channel_member.sudo().channel_id = self.group.id
-
-        # User 2 can not write on the `partner_id` of `discuss.channel.member`
-        # of an other partner to join a group
-        channel_member_1 = self.env['discuss.channel.member'].search([('channel_id', '=', self.group.id), ('partner_id', '=', self.user_1.partner_id.id)])
-        with self.assertRaises(AccessError):
-            channel_member_1.with_user(self.user_2).partner_id = self.user_2.partner_id
-        self.assertEqual(channel_member_1.partner_id, self.user_1.partner_id)
-
-        # Even with SUDO, partner_id of channel.member should not be changed.
-        with self.assertRaises(AccessError):
-            channel_member_1.with_user(self.user_2).sudo().partner_id = self.user_2.partner_id
-
-    def test_group_members(self):
-        """Test invitation in group part 1 (invite using crud methods)."""
-        self.group.with_user(self.user_1).sudo()._add_members(users=self.user_1)
-        channel_members = self.env['discuss.channel.member'].search([('channel_id', '=', self.group.id)])
-        self.assertEqual(len(channel_members), 1)
-
-        # User 2 is not in the group, they can not invite user 3
-        with self.assertRaises(AccessError):
-            self.env['discuss.channel.member'].with_user(self.user_2).create({
-                'partner_id': self.user_portal.partner_id.id,
-                'channel_id': self.group.id,
-            })
-
-        # User 1 is in the group, they can invite other users
-        self.env['discuss.channel.member'].with_user(self.user_1).create({
-            'partner_id': self.user_portal.partner_id.id,
-            'channel_id': self.group.id,
-        })
-        channel_members = self.env['discuss.channel.member'].search([('channel_id', '=', self.group.id)])
-        self.assertEqual(channel_members.mapped('partner_id'), self.user_1.partner_id | self.user_portal.partner_id)
-
-        # But User 3 can not write on the `discuss.channel.member` of other user
-        channel_member_1 = self.env['discuss.channel.member'].search([('channel_id', '=', self.group.id), ('partner_id', '=', self.user_1.partner_id.id)])
-        channel_member_3 = self.env['discuss.channel.member'].search([('channel_id', '=', self.group.id), ('partner_id', '=', self.user_portal.partner_id.id)])
-        channel_member_3.with_user(self.user_portal).custom_channel_name = 'Test'
-        with self.assertRaises(AccessError):
-            channel_member_1.with_user(self.user_2).custom_channel_name = 'Blabla'
-        self.assertNotEqual(channel_member_1.custom_channel_name, 'Blabla')
-
-    def test_group_invite(self):
-        """Test invitation in group part 2 (use `invite` action)."""
-        self.group.with_user(self.user_1).sudo()._add_members(users=self.user_1)
-        channel_members = self.env['discuss.channel.member'].search([('channel_id', '=', self.group.id)])
-        self.assertEqual(channel_members.mapped('partner_id'), self.user_1.partner_id)
-
-        # User 2 is not in the group, they can not invite user_portal
-        with self.assertRaises(AccessError):
-            self.group.with_user(self.user_2)._add_members(users=self.user_portal)
-        channel_members = self.env['discuss.channel.member'].search([('channel_id', '=', self.group.id)])
-        self.assertEqual(channel_members.mapped('partner_id'), self.user_1.partner_id)
-
-        # User 1 is in the group, they can invite user_portal
-        self.group.with_user(self.user_1)._add_members(users=self.user_portal)
-        channel_members = self.env['discuss.channel.member'].search([('channel_id', '=', self.group.id)])
-        self.assertEqual(channel_members.mapped('partner_id'), self.user_1.partner_id | self.user_portal.partner_id)
-
-    def test_group_leave(self):
-        """Test kick/leave channel."""
-        self.group.with_user(self.user_1).sudo()._add_members(users=self.user_1)
-        self.group.with_user(self.user_portal).sudo()._add_members(users=self.user_portal)
-        channel_members = self.env['discuss.channel.member'].search([('channel_id', '=', self.group.id)])
-        self.assertEqual(len(channel_members), 2)
-
-        # User 2 is not in the group, they can not kick user 1
-        with self.assertRaises(AccessError):
-            channel_members.with_user(self.user_2).unlink()
-
-        # User 3 is in the group, but not admin/owner, they can not kick user 1
-        with self.assertRaises(AccessError):
-            channel_members.with_user(self.user_portal).unlink()
-
     def test_group_subchannel_join(self):
         """Test join subchannel."""
-        self.group.add_members((self.user_1 | self.user_2).partner_id.ids)
+        self.group._add_members(users=self.user_1 | self.user_2)
         group_subchannel = self.group.with_user(self.user_1)._create_sub_channel()
-        group_subchannel.with_user(self.user_2).add_members(self.user_2.partner_id.id)
+        group_subchannel.with_user(self.user_2)._add_members(users=self.user_2)
         self.assertEqual(group_subchannel.channel_member_ids.partner_id, (self.user_1 | self.user_2).partner_id)
-
-    # ------------------------------------------------------------
-    # GROUP BASED CHANNELS
-    # ------------------------------------------------------------
-
-    def test_group_restricted_channel(self):
-        """Test basics on group channel."""
-        channel_members = self.env['discuss.channel.member'].search([('channel_id', '=', self.group_restricted_channel.id)])
-        self.assertFalse(channel_members)
-
-        # user 1 is in the channel, they can join the channel
-        self.group_restricted_channel.with_user(self.user_1)._add_members(users=self.user_1)
-        channel_members = self.env['discuss.channel.member'].search([('channel_id', '=', self.group_restricted_channel.id)])
-        self.assertEqual(channel_members.mapped('partner_id'), self.user_1.partner_id)
-
-        # user 3 is not in the channel, they can not join
-        with self.assertRaises(AccessError):
-            self.group_restricted_channel.with_user(self.user_portal)._add_members(users=self.user_portal)
-
-        channel_members = self.env['discuss.channel.member'].search([('channel_id', '=', self.group_restricted_channel.id)])
-        with self.assertRaises(AccessError):
-            channel_members.with_user(self.user_portal).partner_id = self.user_portal.partner_id
-
-        channel_members = self.env['discuss.channel.member'].search([('channel_id', '=', self.group_restricted_channel.id)])
-        self.assertEqual(channel_members.mapped('partner_id'), self.user_1.partner_id)
-
-        self.group_restricted_channel.with_user(self.user_1)._add_members(users=self.user_portal)
-        channel_members = self.env['discuss.channel.member'].search([('channel_id', '=', self.group_restricted_channel.id)])
-        self.assertEqual(channel_members.mapped('partner_id'), self.user_1.partner_id | self.user_portal.partner_id)
-
-        # but user 2 is in the channel and can be invited by user 1
-        self.group_restricted_channel.with_user(self.user_1)._add_members(users=self.user_2)
-        channel_members = self.env['discuss.channel.member'].search([('channel_id', '=', self.group_restricted_channel.id)])
-        self.assertEqual(channel_members.mapped('partner_id'), self.user_1.partner_id | self.user_2.partner_id | self.user_portal.partner_id)
 
     # ------------------------------------------------------------
     # PUBLIC CHANNELS
     # ------------------------------------------------------------
 
-    def test_public_channel(self):
-        """ Test access on public channels """
-        channel_members = self.env['discuss.channel.member'].search([('channel_id', '=', self.public_channel.id)])
-        self.assertFalse(channel_members)
-
-        self.public_channel.with_user(self.user_1)._add_members(users=self.user_1)
-        channel_members = self.env['discuss.channel.member'].search([('channel_id', '=', self.public_channel.id)])
-        self.assertEqual(channel_members.mapped('partner_id'), self.user_1.partner_id)
-
-        self.public_channel.with_user(self.user_2)._add_members(users=self.user_2)
-        channel_members = self.env['discuss.channel.member'].search([('channel_id', '=', self.public_channel.id)])
-        self.assertEqual(channel_members.mapped('partner_id'), self.user_1.partner_id | self.user_2.partner_id)
-
-        self.public_channel.with_user(self.user_portal)._add_members(users=self.user_portal)
-        with self.assertRaises(ValidationError):  # public cannot join without having a guest
-            self.public_channel.with_user(self.user_public)._add_members(users=self.user_public)
-
     def test_channel_member_invite_with_guest(self):
+        public_channel = self.env["discuss.channel"]._create_channel(group_id=None, name="Public")
         guest = self.env['mail.guest'].create({'name': 'Guest'})
         partner = self.env['res.partner'].create({
             'name': 'ToInvite',
@@ -227,10 +77,11 @@ class TestDiscussChannelMember(MailCommon):
             'type': 'contact',
             'user_ids': self.user_1,
         })
-        self.public_channel._add_members(guests=guest)
+        public_channel._add_members(guests=guest)
         data = self.env["res.partner"].search_for_channel_invite(
-            partner.name, channel_id=self.public_channel.id
-        )["store_data"]
+            partner.name,
+            channel_id=public_channel.id,
+        )["store_data"]._build_result()
         self.assertEqual(len(data["res.partner"]), 1)
         self.assertEqual(data["res.partner"][0]["id"], partner.id)
 
@@ -255,6 +106,14 @@ class TestDiscussChannelMember(MailCommon):
         ])
         self.assertEqual(channel_1_rel_user_2.message_unread_counter, 1, "should have 1 unread message after someone else posted a message")
 
+    def test_unread_counter_with_outdated_mark_as_read(self):
+        channel = self.env["discuss.channel"].create({"name": "Channel"})
+        member = channel.self_member_id
+        message = channel.message_post(body="Test", message_type="comment")
+        channel.message_post(body="Test 2", message_type="comment")
+        member._mark_as_read(message.id)
+        self.assertEqual(member.message_unread_counter, 0)
+
     def test_unread_counter_with_message_post_multi_channel(self):
         channel_1_as_user_1 = self.env['discuss.channel'].with_user(self.user_1)._create_channel(group_id=None, name='wololo channel')
         channel_2_as_user_2 = self.env['discuss.channel'].with_user(self.user_2)._create_channel(group_id=None, name='walala channel')
@@ -272,3 +131,60 @@ class TestDiscussChannelMember(MailCommon):
             1,  # channel 2 user 1: received 1 message (from message post)
             1,  # channel 2 user 3: received 1 message (from message post)
         ])
+
+    def test_new_member_lands_at_latest_message(self):
+        channel = self.env['discuss.channel'].with_user(self.user_1)._create_channel(group_id=None, name='wololo channel')
+        last_message_id = channel.message_ids[0].id
+        new_members = channel.with_user(self.user_1)._add_members(users=self.user_2)
+        self.assertEqual(new_members.new_message_separator, last_message_id + 1)
+
+    def _update_discuss_channel_data(self):
+        with file_open("mail/data/discuss_channel_data.xml", "rb") as xml_file:
+            convert_xml_import(self.env, "mail", xml_file, {}, mode="update", noupdate=True)
+
+    def test_data_update_after_admin_left_and_rejoined_channels(self):
+        """Leaving a channel deletes the member record created by the data file
+        (and its xmlid); joining again creates a new one. Updating the module
+        must reuse it instead of creating the data member again (unique
+        partner/channel)."""
+        admin = self.env.ref("base.user_admin")
+        for xmlid in ("mail.channel_all_employees", "mail.channel_admin"):
+            channel = self.env.ref(xmlid)
+            channel.with_user(admin).action_unfollow()
+            channel._add_members(users=admin)
+        self._update_discuss_channel_data()
+        for channel_xmlid, member_xmlid in (
+            ("mail.channel_all_employees", "mail.channel_member_general_channel_for_admin"),
+            ("mail.channel_admin", "mail.channel_member_channel_admin_partner_admin"),
+        ):
+            members = self.env.ref(channel_xmlid).channel_member_ids.filtered(lambda m: m.partner_id == admin.partner_id)
+            self.assertEqual(len(members), 1)
+            self.assertEqual(self.env.ref(member_xmlid), members)
+
+    @mute_logger("odoo.sql_db")
+    def test_import_duplicate_member_still_fails(self):
+        """Reusing members is only for module data: importing a member that
+        already exists keeps failing instead of silently dropping values."""
+        admin = self.env.ref("base.user_admin")
+        channel = self.env.ref("mail.channel_all_employees")
+        member = channel.channel_member_ids.filtered(lambda m: m.partner_id == admin.partner_id)
+        self.assertEqual(len(member), 1)
+        notifications = member.custom_notifications
+        result = self.env["discuss.channel.member"].load(
+            ["channel_id/.id", "partner_id/.id", "custom_notifications"],
+            [[str(channel.id), str(admin.partner_id.id), "no_notif"]],
+        )
+        self.assertFalse(result["ids"])
+        self.assertTrue(result["messages"])
+        self.assertEqual(member.custom_notifications, notifications)
+
+    def test_data_update_recreates_deleted_admin_member(self):
+        """A data member deleted without joining again is still recreated, with
+        its xmlid, when updating the module."""
+        admin = self.env.ref("base.user_admin")
+        channel = self.env.ref("mail.channel_all_employees")
+        self.env.ref("mail.channel_member_general_channel_for_admin").unlink()
+        self._update_discuss_channel_data()
+        members = channel.channel_member_ids.filtered(lambda m: m.partner_id == admin.partner_id)
+        self.assertEqual(len(members), 1)
+        self.assertEqual(self.env.ref("mail.channel_member_general_channel_for_admin"), members)

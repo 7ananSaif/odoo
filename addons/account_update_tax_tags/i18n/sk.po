@@ -4,22 +4,43 @@
 #
 # Odoo Translation Bot <c3p@odoo.com>, 2025.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
-# Tomáš Píšek <Tomas.Pisek@seznam.cz>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-01-23 18:27+0000\n"
-"Last-Translator: Tomáš Píšek <Tomas.Pisek@seznam.cz>\n"
-"Language-Team: Slovak <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-08-31 16:08+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Slovak <https://translate.odoo.com/projects/odoo-s19-4/"
 "account_update_tax_tags/sk/>\n"
 "Language: sk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: account_update_tax_tags
+#: model:ir.module.module,description:base.module_account_update_tax_tags
+msgid ""
+"\n"
+"This module allows updating tax grids on existing accounting entries.\n"
+"In debug mode a button to update your entries' tax grids will be available\n"
+"in Accounting settings.\n"
+"This is typically useful after some legal changes were done on the tax "
+"report,\n"
+"requiring a new tax configuration.\n"
+msgstr ""
+
+#. module: account_update_tax_tags
+#: model:ir.module.module,shortdesc:base.module_account_update_tax_tags
+msgid "Account - Allow updating tax grids"
+msgstr ""
+
+#. module: account_update_tax_tags
+#: model:ir.module.module,summary:base.module_account_update_tax_tags
+msgid "Allow updating tax grids on existing entries"
+msgstr ""
 
 #. module: account_update_tax_tags
 #: model:ir.model.fields,field_description:account_update_tax_tags.field_account_update_tax_tags_wizard__company_id
@@ -39,17 +60,12 @@ msgstr "Vytvorené"
 #. module: account_update_tax_tags
 #: model:ir.model.fields,help:account_update_tax_tags.field_account_update_tax_tags_wizard__date_from
 msgid "Date from which journal items will be updated."
-msgstr "Dátum, od ktorého budú položky denníka aktualizované."
-
-#. module: account_update_tax_tags
-#: model_terms:ir.ui.view,arch_db:account_update_tax_tags.view_account_update_tax_tags_wizard_form
-msgid "Discard"
-msgstr "Zrušiť"
+msgstr ""
 
 #. module: account_update_tax_tags
 #: model:ir.model.fields,field_description:account_update_tax_tags.field_account_update_tax_tags_wizard__display_lock_date_warning
 msgid "Display Lock Date Warning"
-msgstr "Zobraziť varovanie Dátumu uzamknutia"
+msgstr ""
 
 #. module: account_update_tax_tags
 #: model:ir.model.fields,field_description:account_update_tax_tags.field_account_update_tax_tags_wizard__display_name
@@ -74,15 +90,13 @@ msgstr "Naposledy upravované"
 #. module: account_update_tax_tags
 #: model:ir.model.fields,field_description:account_update_tax_tags.field_account_update_tax_tags_wizard__date_from
 msgid "Starting from"
-msgstr "Začínajúc od"
+msgstr ""
 
 #. module: account_update_tax_tags
 #: model_terms:ir.ui.view,arch_db:account_update_tax_tags.view_account_update_tax_tags_wizard_form
 msgid ""
 "The date you chose is violating the tax lock date, do this at your own risk."
 msgstr ""
-"Dátum, ktorý ste zvolili, porušuje dátum daňovej uzávierky, konáte na "
-"vlastné riziko."
 
 #. module: account_update_tax_tags
 #: model_terms:ir.ui.view,arch_db:account_update_tax_tags.view_account_update_tax_tags_wizard_form
@@ -92,13 +106,13 @@ msgstr "Aktualizácia"
 #. module: account_update_tax_tags
 #: model:ir.model,name:account_update_tax_tags.model_account_update_tax_tags_wizard
 msgid "Update Tax Tags Wizard"
-msgstr "Sprievodca aktualizáciou daňových tagov"
+msgstr ""
 
 #. module: account_update_tax_tags
 #: model:ir.actions.act_window,name:account_update_tax_tags.action_open_wizard
 #: model_terms:ir.ui.view,arch_db:account_update_tax_tags.res_config_settings_view_form
 msgid "Update tax tags on existing Journal Entries"
-msgstr "Aktualizácia daňových tagov v existujúcich účtovných záznamoch"
+msgstr ""
 
 #. module: account_update_tax_tags
 #. odoo-python
@@ -107,8 +121,6 @@ msgid ""
 "Update with children taxes that are child of multiple parents is not "
 "supported."
 msgstr ""
-"Aktualizácia s vnorenými daňami, ktoré majú viacerých nadriadených daní, nie "
-"je podporovaná."
 
 #. module: account_update_tax_tags
 #: model_terms:ir.ui.view,arch_db:account_update_tax_tags.view_account_update_tax_tags_wizard_form
@@ -123,11 +135,3 @@ msgid ""
 "                    so that it matches with the current configuration of "
 "your taxes.<br/>"
 msgstr ""
-"Aktualizácia daňových tagov v existujúcich účtovných záznamoch je "
-"<b>nevratná</b> akcia, ktorá ovplyvní\n"
-"                    vaše výkazy.<br/>\n"
-"                    Dôrazne odporúčame vopred zálohovať vašu databázu.<br/>\n"
-"                    Aktualizácia zmení daňové tagy vo vašej účtovnej "
-"histórii, počnúc vybraným dátumom vrátane,\n"
-"                    tak aby zodpovedali aktuálnej konfigurácii vašich daní."
-"<br/>"

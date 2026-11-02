@@ -5,25 +5,34 @@
 # Bone NI <bounkirdni@gmail.com>, 2026.
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0\n"
+"Project-Id-Version: Odoo Server 19.4a1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:38+0000\n"
-"PO-Revision-Date: 2026-06-06 12:25+0000\n"
+"POT-Creation-Date: 2026-09-04 17:44+0000\n"
+"PO-Revision-Date: 2026-10-21 12:33+0000\n"
 "Last-Translator: Bone NI <bounkirdni@gmail.com>\n"
-"Language-Team: Lao <https://translate.odoo.com/projects/odoo-19/hr_skills/"
+"Language-Team: Lao <https://translate.odoo.com/projects/odoo-20/hr_skills/"
 "lo/>\n"
 "Language: lo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: hr_skills
-#. odoo-python
-#: code:addons/hr_skills/models/hr_skill_type.py:0
-msgid "%(skill_type_name)s (copy)"
-msgstr "%(skill_type_name)s (ສຳເນົາ)"
+#: model:ir.module.module,description:base.module_hr_skills
+msgid ""
+"\n"
+"Skills and Resume for HR\n"
+"========================\n"
+"\n"
+"This module introduces skills and resume management for employees.\n"
+msgstr ""
+"\n"
+"ທັກສະ ແລະ ປະຫວັດຫຍໍ້ສຳລັບ HR\n"
+"========================\n"
+"\n"
+"ໂມດູນນີ້ແນະນຳລະບົບການຄຸ້ມຄອງທັກສະ ແລະ ປະຫວັດຫຍໍ້ສຳລັບພະນັກງານ.\n"
 
 #. module: hr_skills
 #: model:ir.actions.report,print_report_name:hr_skills.action_report_employee_cv
@@ -33,16 +42,42 @@ msgstr "'ຊີວະປະຫວັດ - %s' % (object.name)"
 #. module: hr_skills
 #: model_terms:ir.ui.view,arch_db:hr_skills.resume_line_view_form
 msgid ""
-"<i class=\"fa fa-long-arrow-right mx-2\" aria-label=\"Arrow icon\" "
+"<i class=\"oi mx-2\" data-icon=\"east\" aria-label=\"Arrow icon\" "
 "title=\"Arrow\"/>"
 msgstr ""
-"<i class=\"fa fa-long-arrow-right mx-2\" aria-label=\"Arrow icon\" "
-"title=\"Arrow\"/>"
+"<i class=\"oi mx-2\" data-icon=\"east\" aria-label=\"Arrow icon\" title=\"ລູກສ"
+"ອນ\"/>"
+
+#. module: hr_skills
+#. odoo-python
+#: code:addons/hr_skills/models/hr_employee_skill.py:0
+msgid ""
+"<p class=\"o_view_nocontent_smiling_face\">No Certifications available!</p>"
+msgstr ""
+"<p class=\"o_view_nocontent_smiling_face\">ບໍ່ມີໃບຢັ້ງຢືນທີ່ມີໃຫ້ໃຊ້ງານ!</p>"
+
+#. module: hr_skills
+#. odoo-python
+#: code:addons/hr_skills/models/hr_employee_skill.py:0
+msgid ""
+"<p class=\"o_view_nocontent_smiling_face\">No Certifications available. "
+"Navigate to Skill types!</p>\n"
+"                <a type=\"action\" name=\"hr_skills.hr_skill_type_action\" "
+"class=\"btn btn-primary\">\n"
+"                Show Skill Types\n"
+"                </a>"
+msgstr ""
+"<p class=\"o_view_nocontent_smiling_face\">ບໍ່ມີໃບຢັ້ງຢືນທີ່ມີໃຫ້ໃຊ້ງານ. ກະລຸນາໄປທີ່ ປະເພດທັ"
+"ກສະ!</p>\n"
+"                <a type=\"action\" name=\"hr_skills.hr_skill_type_action\" "
+"class=\"btn btn-primary\">\n"
+"                ສະແດງປະເພດທັກສະ\n"
+"                </a>"
 
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_line_admin_7
 msgid "A 2D/3D map generator for incremental games."
-msgstr "ເຄື່ອງມືສ້າງແຜນທີ່ 2D/3D ສຳລັບເກມແບບ Incremental."
+msgstr "ເຄື່ອງມືສ້າງແຜນທີ່ 2D/3D ສຳລັບເກມແນວສະສົມຄະແນນ."
 
 #. module: hr_skills
 #. odoo-javascript
@@ -51,7 +86,6 @@ msgid "ADD"
 msgstr "ເພີ່ມ"
 
 #. module: hr_skills
-#: model:ir.model.fields,field_description:hr_skills.field_hr_employee_certification_report__active
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_skill_report__active
 #: model:ir.model.fields,field_description:hr_skills.field_hr_skill_type__active
 msgid "Active"
@@ -78,7 +112,7 @@ msgid ""
 "Allows to encrypt/decrypt plain text or files. Available as a web app or as "
 "an API."
 msgstr ""
-"ອະນຸຍາດໃຫ້ເຂົ້າລະຫັດ/ຖອດລະຫັດ ຂໍ້ຄວາມ ຫຼື ໄຟລ໌. ສາມາດໃຊ້ງານໄດ້ໃນຮູບແບບເວັບແອັບ ຫຼື API."
+"ອະນຸຍາດໃຫ້ເຂົ້າລະຫັດ/ຖອດລະຫັດຂໍ້ຄວາມທຳມະດາ ຫຼື ໄຟລ໌ໄດ້. ສາມາດໃຊ້ງານຜ່ານເວັບແອັບ ຫຼື API."
 
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_jth_goodman_inc
@@ -89,7 +123,7 @@ msgstr "ນັກເຄມີວິເຄາະ"
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_analytics
 msgid "Analytics"
-msgstr "ການວິເຄາະ"
+msgstr "ການວິເຄາະຂໍ້ມູນ"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_android
@@ -109,19 +143,19 @@ msgstr "ນັກຊ່ຽວຊານດ້ານການປູກຕົ້ນ
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_jth_wilkinson_plc
 msgid "Architectural technologist"
-msgstr "ນັກເຕັກໂນໂລຊີສະຖາປັດຕະຍະກຳ"
+msgstr "ນັກເທັກໂນໂລຢີສະຖາປັດຕະຍະກຳ"
 
 #. module: hr_skills
 #: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_skill_report_view_search
 #: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_skill_type_view_form
 #: model_terms:ir.ui.view,arch_db:hr_skills.hr_skill_type_view_search
 msgid "Archived"
-msgstr "ເກັບມ້ຽນແລ້ວ"
+msgstr "ເກັບໄວ້ໃນສາງເອກະສານ"
 
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_ngh_armidale_city_public_school
 msgid "Armidale City Public School"
-msgstr "ໂຮງຮຽນລັດ Armidale City"
+msgstr "ໂຮງຮຽນລັດຖະບານ Armidale City"
 
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_jve_arnoldcohen
@@ -146,7 +180,7 @@ msgstr "ໂຮງຮຽນປະຖົມ Avoca"
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_al_bathurst_west_public_school
 msgid "Bathurst West Public School"
-msgstr "ໂຮງຮຽນລັດ Bathurst West"
+msgstr "ໂຮງຮຽນລັດຖະບານ Bathurst West"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_bengali
@@ -156,12 +190,12 @@ msgstr "ພາສາເບັງກາລີ"
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_big_data_technologies
 msgid "Big data technologies (Hadoop,Spark)"
-msgstr "ເຕັກໂນໂລຊີຂໍ້ມູນຂະໜາດໃຫຍ່ (Hadoop, Spark)"
+msgstr "ເທັກໂນໂລຢີ Big data (Hadoop, Spark)"
 
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_fme_russellwebster
 msgid "Biochemist, clinical"
-msgstr "ນັກຊີວະເຄມີ ຄລີນິກ"
+msgstr "ນັກຊີວະເຄມີທາງຄລີນິກ"
 
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_admin_blue_mountains_grammar_school
@@ -206,17 +240,17 @@ msgstr "CSS"
 #. module: hr_skills
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_cv_wizard__can_show_others
 msgid "Can Show Others"
-msgstr "ສາມາດສະແດງລາຍການອື່ນ"
+msgstr "ສາມາດສະແດງໃຫ້ຄົນອື່ນເຫັນໄດ້"
 
 #. module: hr_skills
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_cv_wizard__can_show_skills
 msgid "Can Show Skills"
-msgstr "ສາມາດສະແດງທັກສະ"
+msgstr "ສາມາດສະແດງທັກສະໄດ້"
 
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_jep_garcia_and_sons
 msgid "Careers information officer"
-msgstr "ເຈົ້າໜ້າທີ່ໃຫ້ຂໍ້ມູນດ້ານອາຊີບ"
+msgstr "ພະນັກງານຂໍ້ມູນຂ່າວສານດ້ານອາຊີບ"
 
 #. module: hr_skills
 #: model_terms:ir.ui.view,arch_db:hr_skills.employee_skill_view_form
@@ -225,46 +259,30 @@ msgid "Category"
 msgstr "ໝວດໝູ່"
 
 #. module: hr_skills
+#: model:ir.model.fields,field_description:hr_skills.field_hr_employee_skill__certificate_file
+#: model:ir.model.fields,field_description:hr_skills.field_hr_individual_skill_mixin__certificate_file
+#: model:ir.model.fields,field_description:hr_skills.field_hr_job_skill__certificate_file
 #: model:ir.model.fields,field_description:hr_skills.field_hr_resume_line__certificate_file
+#: model_terms:ir.ui.view,arch_db:hr_skills.employee_skill_view_form
 msgid "Certificate"
 msgstr "ໃບຢັ້ງຢືນ"
 
 #. module: hr_skills
-#: model:ir.model.fields,field_description:hr_skills.field_hr_resume_line__certificate_filename
-msgid "Certificate Filename"
-msgstr "ຊື່ໄຟລ໌ໃບຢັ້ງຢືນ"
-
-#. module: hr_skills
-#: model:ir.actions.act_window,name:hr_skills.hr_employee_certification_report_action
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee__certification_ids
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_public__certification_ids
 #: model:ir.model.fields,field_description:hr_skills.field_hr_skill_type__is_certification
-#: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_certification_report_view_list
-#: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_certification_report_view_search
 #: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_public_view_form_inherit
 #: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_skill_view_list
 #: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_skill_view_search
 #: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_view_form
 msgid "Certification"
-msgstr "ໃບຢັ້ງຢືນ"
-
-#. module: hr_skills
-#: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_certification_report_view_list
-msgid "Certification Level"
-msgstr "ລະດັບໃບຢັ້ງຢືນ"
-
-#. module: hr_skills
-#: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_certification_report_view_list
-#: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_certification_report_view_search
-msgid "Certification Type"
-msgstr "ປະເພດໃບຢັ້ງຢືນ"
+msgstr "ການຢັ້ງຢືນ"
 
 #. module: hr_skills
 #: model:hr.skill.type,name:hr_skills.hr_skill_type_certifications
 #: model:ir.actions.act_window,name:hr_skills.action_hr_employee_skill_certification
+#: model:ir.actions.server,name:hr_skills.action_server_hr_employee_skill_certification
 #: model:ir.ui.menu,name:hr_skills.hr_certification_menu
-#: model:ir.ui.menu,name:hr_skills.hr_employee_certification_report_menu
-#: model:mail.activity.type,name:hr_skills.mail_activity_data_upload_certification
 #: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_public_view_form_inherit
 #: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_view_form
 msgid "Certifications"
@@ -278,22 +296,22 @@ msgstr "Chavez Group"
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_vad_christian_outreach_college
 msgid "Christian Outreach College"
-msgstr "Christian Outreach College"
+msgstr "ວິທະຍາໄລ Christian Outreach"
 
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_admin_lewisbailey
 msgid "Civil Service fast streamer"
-msgstr "ພະນັກງານລັດຖະກອນດີເດັ່ນ (Fast streamer)"
+msgstr "ພະນັກງານລັດຖະກອນສາຍເລັ່ງລັດ"
 
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_jog_claremont_college
 msgid "Claremont College"
-msgstr "Claremont College"
+msgstr "ວິທະຍາໄລ Claremont"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_cloud_computing
 msgid "Cloud computing"
-msgstr "ລະບົບຄລາວ"
+msgstr "ລະບົບຄລາວຄອມພິວຕິ້ງ"
 
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_jep_cole_ltd
@@ -324,7 +342,7 @@ msgid "Communication"
 msgstr "ການສື່ສານ"
 
 #. module: hr_skills
-#: model:ir.model.fields,field_description:hr_skills.field_hr_employee_certification_report__company_id
+#: model:ir.model.fields,field_description:hr_skills.field_hr_employee_skill__company_id
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_skill_report__company_id
 #: model:ir.model.fields,field_description:hr_skills.field_hr_resume_line__company_id
 msgid "Company"
@@ -333,12 +351,12 @@ msgstr "ບໍລິສັດ"
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_fpi_hubbarddean
 msgid "Conference centre manager"
-msgstr "ຜູ້ຈັດການສູນປະຊຸມ"
+msgstr "ຜູ້ຈັດການສູນກອງປະຊຸມ"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_conflict_management
 msgid "Conflict Management"
-msgstr "ການຈັດການຄວາມຂັດແຍ້ງ"
+msgstr "ການຈັດການຄວາມຂັດແຍ່ງ"
 
 #. module: hr_skills
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_cv_wizard__show_contact
@@ -364,7 +382,7 @@ msgstr "ປະເພດຫຼັກສູດ"
 #. module: hr_skills
 #: model_terms:ir.ui.view,arch_db:hr_skills.hr_resume_line_type_tree_view
 msgid "Course?"
-msgstr "ແມ່ນຫຼັກສູດ?"
+msgstr "ຫຼັກສູດແມ່ນບໍ່?"
 
 #. module: hr_skills
 #: model:ir.ui.menu,name:hr_skills.menu_learnings_training_attendances_courses
@@ -374,13 +392,13 @@ msgstr "ຫຼັກສູດຕ່າງໆ"
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_ngh_craigmore_south_junior_primary_school
 msgid "Craigmore South Junior Primary School"
-msgstr "ໂຮງຮຽນປະຖົມ Craigmore South Junior"
+msgstr "ໂຮງຮຽນປະຖົມຕອນຕົ້ນ Craigmore South"
 
 #. module: hr_skills
 #. odoo-javascript
 #: code:addons/hr_skills/static/src/fields/resume_one2many/resume_one2many.xml:0
 msgid "Create Resume Lines"
-msgstr "ສ້າງລາຍການຊີວະປະຫວັດ"
+msgstr "ສ້າງແຖວປະຫວັດຫຍໍ້"
 
 #. module: hr_skills
 #. odoo-javascript
@@ -410,7 +428,7 @@ msgstr "ສ້າງໂດຍ"
 #: model:ir.model.fields,field_description:hr_skills.field_hr_skill_level__create_date
 #: model:ir.model.fields,field_description:hr_skills.field_hr_skill_type__create_date
 msgid "Created on"
-msgstr "ສ້າງເມື່ອ"
+msgstr "ສ້າງຂຶ້ນເມື່ອ"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_creativity
@@ -420,33 +438,31 @@ msgstr "ຄວາມຄິດສ້າງສັນ"
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_critical_thinking
 msgid "Critical Thinking"
-msgstr "ການຄິດແບບວິເຄາະ"
+msgstr "ການຄິດແບບວິພາກວິຈານ"
 
 #. module: hr_skills
 #. odoo-javascript
 #: code:addons/hr_skills/static/src/components/internal_resume_lines/internal_resume_one2many.xml:0
 #: code:addons/hr_skills/static/src/fields/resume_one2many/resume_one2many.xml:0
 msgid "Current"
-msgstr "ປັດຈຸບັນ"
+msgstr "ປະຈຸບັນ"
 
 #. module: hr_skills
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee__current_employee_skill_ids
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_public__current_employee_skill_ids
 msgid "Current Employee Skill"
-msgstr "ທັກສະພະນັກງານປັດຈຸບັນ"
+msgstr "ທັກສະພະນັກງານປະຈຸບັນ"
 
 #. module: hr_skills
 #: model:ir.model.fields,field_description:hr_skills.field_hr_job__current_job_skill_ids
 msgid "Current Job Skill"
-msgstr "ທັກສະງານປັດຈຸບັນ"
+msgstr "ທັກສະວຽກງານປະຈຸບັນ"
 
 #. module: hr_skills
-#: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_certification_report_view_list
-#: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_certification_report_view_pivot
 #: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_skill_report_view_graph
 #: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_skill_report_view_pivot
 msgid "Current Level"
-msgstr "ລະດັບປັດຈຸບັນ"
+msgstr "ລະດັບປະຈຸບັນ"
 
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_jep_davis_sanchez_and_miller
@@ -471,7 +487,7 @@ msgstr "ໂຮງຮຽນປະຖົມ Darlington"
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_data_analysis
 msgid "Data analysis/visualization"
-msgstr "ການວິເຄາະ ແລະ ສະແດງຂໍ້ມູນ"
+msgstr "ການວິເຄາະ ແລະ ສະແດງຜົນຂໍ້ມູນ"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_database_management
@@ -516,7 +532,7 @@ msgstr "Davis, Sanchez and Miller"
 #. odoo-javascript
 #: code:addons/hr_skills/static/src/fields/formatted_date/formatted_date.js:0
 msgid "Day Format"
-msgstr "ຮູບແບບວັນ"
+msgstr "ຮູບແບບມື້"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_decision_making
@@ -526,7 +542,7 @@ msgstr "ການຕັດສິນໃຈ"
 #. module: hr_skills
 #: model:ir.model.fields,field_description:hr_skills.field_hr_skill_level__default_level
 msgid "Default Level"
-msgstr "ລະດັບມາດຕະຖານ"
+msgstr "ລະດັບເລີ່ມຕົ້ນ"
 
 #. module: hr_skills
 #: model_terms:ir.ui.view,arch_db:hr_skills.report_employee_cv_company
@@ -539,10 +555,8 @@ msgid "Demo Company Name"
 msgstr "ຊື່ບໍລິສັດຕົວຢ່າງ"
 
 #. module: hr_skills
-#: model:ir.model.fields,field_description:hr_skills.field_hr_employee_certification_report__department_id
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_skill_report__department_id
 #: model:ir.model.fields,field_description:hr_skills.field_hr_resume_line__department_id
-#: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_certification_report_view_search
 #: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_skill_report_view_search
 msgid "Department"
 msgstr "ພະແນກ"
@@ -556,7 +570,7 @@ msgstr "ຄຳອະທິບາຍ"
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_admin_white_inc
 msgid "Designer, television/film set"
-msgstr "ນັກອອກແບບສາກ ໂທລະພາບ/ຮູບເງົາ"
+msgstr "ນັກອອກແບບສາກໂທລະພາບ/ຮູບເງົາ"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_devops
@@ -566,12 +580,7 @@ msgstr "DevOps"
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_digital_ad
 msgid "Digital advertising"
-msgstr "ການໂຄສະນາແບບດິຈິຕອນ"
-
-#. module: hr_skills
-#: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_cv_wizard_view_form
-msgid "Discard"
-msgstr "ຍົກເລີກ"
+msgstr "ການໂຄສະນາດິຈິຕອນ"
 
 #. module: hr_skills
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee__display_certification_page
@@ -581,7 +590,6 @@ msgstr "ສະແດງໜ້າໃບຢັ້ງຢືນ"
 
 #. module: hr_skills
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee__display_name
-#: model:ir.model.fields,field_description:hr_skills.field_hr_employee_certification_report__display_name
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_cv_wizard__display_name
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_public__display_name
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_skill__display_name
@@ -641,17 +649,15 @@ msgstr "ໂຮງຮຽນປະຖົມ Elphinstone"
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_email
 msgid "Email Marketing"
-msgstr "ການຕະຫຼາດຜ່ານອີເມລ"
+msgstr "ການຕະຫຼາດຜ່ານອີເມວ"
 
 #. module: hr_skills
 #: model:ir.model,name:hr_skills.model_hr_employee
-#: model:ir.model.fields,field_description:hr_skills.field_hr_employee_certification_report__employee_id
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_cv_wizard__employee_ids
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_skill__employee_id
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_skill_history_report__employee_id
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_skill_report__employee_id
 #: model:ir.model.fields,field_description:hr_skills.field_hr_resume_line__employee_id
-#: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_certification_report_view_search
 #: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_skill_report_view_search
 #: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_skill_view_search
 #: model_terms:ir.ui.view,arch_db:hr_skills.resume_line_view_form_inherit
@@ -659,15 +665,10 @@ msgid "Employee"
 msgstr "ພະນັກງານ"
 
 #. module: hr_skills
-#: model:ir.model,name:hr_skills.model_hr_employee_certification_report
-msgid "Employee Certification Report"
-msgstr "ລາຍງານໃບຢັ້ງຢືນພະນັກງານ"
-
-#. module: hr_skills
 #: model:ir.actions.report,name:hr_skills.action_report_employee_cv
 #: model:ir.model,name:hr_skills.model_report_hr_skills_report_employee_cv
 msgid "Employee Resume"
-msgstr "ຊີວະປະຫວັດພະນັກງານ"
+msgstr "ປະຫວັດຫຍໍ້ພະນັກງານ"
 
 #. module: hr_skills
 #: model:ir.model,name:hr_skills.model_hr_employee_skill_history_report
@@ -698,7 +699,7 @@ msgstr "ວິສະວະກອນໄຟຟ້າ"
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_fme_johnson_shaw_and_carroll
 msgid "Engineer, mining"
-msgstr "ວິສະວະກອນເໝືອງແຮ່"
+msgstr "ວິສະວະກອນບໍ່ແຮ່"
 
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_han_davis_plc
@@ -718,8 +719,8 @@ msgid ""
 "future incomes/expenses. The application uses machine learning to train "
 "itself."
 msgstr ""
-"ປ້ອນຂໍ້ມູນການເງິນຂອງເຈົ້າ ແລະ ແອັບຈະພະຍາຍາມຄາດຄະເນລາຍຮັບ/ລາຍຈ່າຍໃນອະນາຄົດ. ແອັບພລິເຄຊັນນີ້ໃຊ້ລ"
-"ະບົບການຮຽນຮູ້ຂອງເຄື່ອງ (machine learning) ເພື່ອພັດທະນາຕົນເອງ."
+"ປ້ອນຂໍ້ມູນການເງິນຂອງທ່ານ ແລ້ວແອັບຈະພະຍາກອນລາຍຮັບ/ລາຍຈ່າຍໃນອະນາຄົດຂອງທ່ານ. ແອັບພລິເຄຊັນນີ້ໃຊ້ລະບົ"
+"ບ Machine Learning ເພື່ອຮຽນຮູ້ດ້ວຍຕົນເອງ."
 
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_qdp_evans_cooper_and_white
@@ -743,11 +744,6 @@ msgid "Experience -"
 msgstr "ປະສົບການ -"
 
 #. module: hr_skills
-#: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_certification_report_view_search
-msgid "Expired Certification"
-msgstr "ໃບຢັ້ງຢືນໝົດອາຍຸ"
-
-#. module: hr_skills
 #: model:ir.model.fields.selection,name:hr_skills.selection__hr_resume_line__course_type__external
 msgid "External"
 msgstr "ພາຍນອກ"
@@ -760,7 +756,7 @@ msgstr "URL ພາຍນອກ"
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_jep_cole_ltd
 msgid "Fast food restaurant manager"
-msgstr "ຜູ້ຈັດການຮ້ານອາຫານຟາດຟູດ"
+msgstr "ຜູ້ຈັດການຮ້ານອາຫານດ່ວນ"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_filipino
@@ -812,7 +808,7 @@ msgstr "ຈາກ"
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_jgo_galilee_catholic_school
 msgid "Galilee Catholic School"
-msgstr "ໂຮງຮຽນຄາທໍລິກ Galilee"
+msgstr "ໂຮງຮຽນກາໂຕລິກ Galilee"
 
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_vad_gallegos_little_and_walters
@@ -832,12 +828,12 @@ msgstr "Garcia, Smith and King"
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_chs_hanson_roach_and_jordan
 msgid "Geographical information systems officer"
-msgstr "ເຈົ້າໜ້າທີ່ລະບົບຂໍ້ມູນຂ່າວສານທາງພູມສາດ (GIS)"
+msgstr "ພະນັກງານລະບົບຂໍ້ມູນຂ່າວສານພູມສາດ (GIS)"
 
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_han_perezmorgan
 msgid "Geoscientist"
-msgstr "ນັກທໍລະນີສາດ"
+msgstr "ນັກທໍລະນີວິທະຍາສາດ"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_german
@@ -849,7 +845,7 @@ msgstr "ພາສາເຢຍລະມັນ"
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_mit_hill_group
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_ngh_stanleymendez
 msgid "Glass blower/designer"
-msgstr "ນັກອອກແບບ/ເປົ່າແກ້ວ"
+msgstr "ຊ່າງເປົ່າແກ້ວ/ນັກອອກແບບແກ້ວ"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_go
@@ -889,18 +885,17 @@ msgstr "Hanson, Roach and Jordan"
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_admin_harrington_park_public_school
 msgid "Harrington Park Public School"
-msgstr "ໂຮງຮຽນລັດ Harrington Park"
+msgstr "ໂຮງຮຽນລັດຖະບານ Harrington Park"
 
 #. module: hr_skills
-#: model:ir.model.fields,field_description:hr_skills.field_hr_employee_certification_report__has_department_manager_access
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_skill_report__has_department_manager_access
 msgid "Has Department Manager Access"
-msgstr "ມີສິດເຂົ້າເຖິງໃນຖານະຜູ້ຈັດການພະແນກ"
+msgstr "ມີສິດເຂົ້າເຖິງໃນຖານະຫົວໜ້າພະແນກ"
 
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_jve_davis_and_sons
 msgid "Health physicist"
-msgstr "ນັກຟີຊິກສຸຂະພາບ"
+msgstr "ນັກຟີຊິກການແພດ"
 
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_mit_hill_group
@@ -920,7 +915,7 @@ msgstr "ໂຮງຮຽນປະຖົມ Holy Family"
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_hne_nortonsilva
 msgid "Horticulturist, commercial"
-msgstr "ນັກວິຊາການປູກພືດສວນ (ການຄ້າ)"
+msgstr "ນັກປູກພືດສວນທາງການຄ້າ"
 
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_fpi_hubbarddean
@@ -935,11 +930,10 @@ msgstr "Hughes, Parker and Barber"
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_chs_freeman_williams_and_berger
 msgid "Human resources officer"
-msgstr "ເຈົ້າໜ້າທີ່ຊັບພະຍາກອນມະນຸດ"
+msgstr "ພະນັກງານບຸກຄະລາກອນ (HR)"
 
 #. module: hr_skills
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee__id
-#: model:ir.model.fields,field_description:hr_skills.field_hr_employee_certification_report__id
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_cv_wizard__id
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_public__id
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_skill__id
@@ -986,25 +980,26 @@ msgstr "ການຈັດການບໍລິການ IT (ITSM)"
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_it_support
 msgid "IT support"
-msgstr "ຝ່າຍສະໜັບສະໜູນ IT"
+msgstr "ຊ່ວຍເຫຼືອດ້ານ IT"
 
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_jgo_martin_stanley_and_duncan
 msgid "IT technical support officer"
-msgstr "ເຈົ້າໜ້າທີ່ສະໜັບສະໜູນເຕັກນິກ IT"
+msgstr "ພະນັກງານຊ່ວຍເຫຼືອດ້ານເຕັກນິກ IT"
 
 #. module: hr_skills
 #: model:ir.model.fields,help:hr_skills.field_hr_skill_level__default_level
 msgid ""
 "If checked, this level will be the default one selected when choosing this "
 "skill."
-msgstr "ຖ້າເລືອກ, ລະດັບນີ້ຈະຖືກເລືອກເປັນຄ່າເລີ່ມຕົ້ນເມື່ອເລືອກທັກສະນີ້."
+msgstr ""
+"ຖ້າໝາຍຕິກເລືອກ, ລະດັບນີ້ຈະເປັນຄ່າເລີ່ມຕົ້ນທີ່ຖືກເລືອກເມື່ອມີການເລືອກທັກສະນີ້."
 
 #. module: hr_skills
 #. odoo-javascript
 #: code:addons/hr_skills/static/src/fields/skills_one2many/skills_one2many.xml:0
 msgid "If skills are missing, they can be created by an HR officer."
-msgstr "ຖ້າຫາກບໍ່ມີທັກສະ, ເຈົ້າໜ້າທີ່ HR ສາມາດສ້າງໃໝ່ໄດ້."
+msgstr "ຖ້າບໍ່ມີທັກສະໃດໜຶ່ງ, ພະນັກງານ HR ສາມາດສ້າງຂຶ້ນໃໝ່ໄດ້."
 
 #. module: hr_skills
 #: model:ir.model.fields,help:hr_skills.field_hr_employee_skill_report__active
@@ -1012,7 +1007,7 @@ msgid ""
 "If the active field is set to False, it will allow you to hide the resource "
 "record without removing it."
 msgstr ""
-"ຖ້າປິດການໃຊ້ງານ, ມັນຈະຊ່ວຍໃຫ້ເຈົ້າເຊື່ອງຂໍ້ມູນຊັບພະຍາກອນໄດ້ໂດຍບໍ່ຕ້ອງລຶບມັນອອກ."
+"ຖ້າຊ່ອງເປີດໃຊ້ງານຖືກຕັ້ງເປັນ False, ມັນຈະຊ່ວຍໃຫ້ທ່ານເຊື່ອງບັນທຶກຂໍ້ມູນນີ້ໄດ້ໂດຍບໍ່ຕ້ອງລຶບອອກ."
 
 #. module: hr_skills
 #. odoo-javascript
@@ -1028,12 +1023,12 @@ msgstr "ພາສາອິນໂດເນເຊຍ"
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_niv_arroyo_ltd
 msgid "Insurance risk surveyor"
-msgstr "ນັກສຳຫຼວດຄວາມສ່ຽງດ້ານການປະກັນໄພ"
+msgstr "ຜູ້ສຳຫຼວດຄວາມສ່ຽງດ້ານການປະກັນໄພ"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_iot_embedded_systems
 msgid "IoT and embedded systems"
-msgstr "IoT ແລະ ລະບົບຝັງຕົວ"
+msgstr "IoT ແລະ ລະບົບຝັງຕົວ (Embedded systems)"
 
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_ngh_jackson_schwartz_and_aguirre
@@ -1069,48 +1064,53 @@ msgstr "ນັກອອກແບບເຄື່ອງປະດັບ"
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_skill_report__job_id
 #: model:ir.model.fields,field_description:hr_skills.field_hr_job_skill__job_id
 msgid "Job"
-msgstr "ງານ"
+msgstr "ຕຳແໜ່ງວຽກ"
 
 #. module: hr_skills
 #: model:ir.model,name:hr_skills.model_hr_job
 msgid "Job Position"
-msgstr "ຕຳແໜ່ງງານ"
+msgstr "ຕຳແໜ່ງວຽກ"
 
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_line_admin_4
 msgid ""
 "Job position: Development team leader\n"
-"- Supported technical operations with investigating and correcting varied production support issues (Java, Perl, Shell scripts, SQL).\n"
-"- Led quality assurance planning for multiple concurrent projects relative to overall system architecture or trading system changes/new developments.\n"
-"- Configured and released business critical alpha and risk models using MATLAB and SQL with inputs from Portfolio Managers."
+"- Supported technical operations with investigating and correcting varied "
+"production support issues (Java, Perl, Shell scripts, SQL).\n"
+"- Led quality assurance planning for multiple concurrent projects relative "
+"to overall system architecture or trading system changes/new developments.\n"
+"- Configured and released business critical alpha and risk models using "
+"MATLAB and SQL with inputs from Portfolio Managers."
 msgstr ""
-"ຕຳແໜ່ງງານ: ຫົວໜ້າທີມພັດທະນາ\n"
-"- ສະໜັບສະໜູນການດຳເນີນງານທາງເຕັກນິກໃນການກວດສອບ ແລະ ແກ້ໄຂບັນຫາການຜະລິດ (Java, Perl, "
+"ຕຳແໜ່ງວຽກ: ຫົວໜ້າທີມພັດທະນາ\n"
+"- ຊ່ວຍເຫຼືອການດຳເນີນງານດ້ານເຕັກນິກໃນການກວດສອບ ແລະ ແກ້ໄຂບັນຫາການຜະລິດ (Java, Perl, "
 "Shell scripts, SQL).\n"
-"- ນຳພາການວາງແຜນການປະກັນຄຸນະພາບສຳລັບຫຼາຍໂຄງການທີ່ກ່ຽວຂ້ອງກັບສະຖາປັດຕະຍະກຳລະບົບໂດຍລວມ ຫຼື ກາ"
-"ນປ່ຽນແປງ/ການພັດທະນາລະບົບການຄ້າໃໝ່.\n"
-"- ກຳນົດຄ່າ ແລະ ເປີດໃຊ້ຕົວແບບ alpha ແລະ ຄວາມສ່ຽງທີ່ສຳຄັນທາງທຸລະກິດ ໂດຍໃຊ້ MATLAB ແລະ SQL ດ້"
-"ວຍຂໍ້ມູນຈາກຜູ້ຈັດການກອງທຶນ."
+"- ນຳພາການວາງແຜນການຮັບປະກັນຄຸນນະພາບສຳລັບຫຼາຍໂຄງການພ້ອມກັນ ທີ່ກ່ຽວຂ້ອງກັບສະຖາປັດຕະຍະກຳລະບົບໂດ"
+"ຍລວມ ຫຼື ການປ່ຽນແປງ/ພັດທະນາລະບົບການຊື້ຂາຍໃໝ່.\n"
+"- ຕິດຕັ້ງ ແລະ ເຜີຍແຜ່ຕົວແບບຄວາມສ່ຽງ ແລະ ຕົວແບບທົດລອງສຳຄັນທາງທຸລະກິດ ໂດຍໃຊ້ MATLAB ແລະ SQL "
+"ຕາມຂໍ້ມູນຈາກຜູ້ຈັດການພອດການລົງທຶນ."
 
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_line_admin_3
 msgid ""
 "Job position: Product manager\n"
-"- Coordinated and managed software deployment across five system environments from development to production.\n"
+"- Coordinated and managed software deployment across five system "
+"environments from development to production.\n"
 "- Developed stored procedures to assist Java level programming efforts.\n"
-"- Developed multiple renewable energy plant architectures, both commercial installations and defense-related."
+"- Developed multiple renewable energy plant architectures, both commercial "
+"installations and defense-related."
 msgstr ""
-"ຕຳແໜ່ງງານ: ຜູ້ຈັດການຜະລິດຕະພັນ\n"
-"- ປະສານງານ ແລະ ຈັດການການຕິດຕັ້ງຊອບແວໃນ 5 ສະພາບແວດລ້ອມລະບົບ ຕັ້ງແຕ່ການພັດທະນາຈົນເຖິງການໃຊ້ງ"
-"ານຈິງ.\n"
-"- ພັດທະນາ stored procedures ເພື່ອຊ່ວຍໃນການຂຽນໂປຣແກຣມລະດັບ Java.\n"
-"- ພັດທະນາສະຖາປັດຕະຍະກຳໂຮງງານພະລັງງານທົດແທນຫຼາຍແຫ່ງ ທັງສຳລັບການຄ້າ ແລະ ທີ່ກ່ຽວຂ້ອງກັບການປ້ອງກັ"
-"ນຊາດ."
+"ຕຳແໜ່ງວຽກ: ຜູ້ຈັດການຜະລິດຕະພັນ\n"
+"- ປະສານງານ ແລະ ຈັດການການຕິດຕັ້ງຊອບແວໃນທົ່ວ 5 ສະພາບແວດລ້ອມລະບົບ ຕັ້ງແຕ່ຂັ້ນຕອນພັດທະນາຈົນຮອດກາ"
+"ນໃຊ້ງານຈິງ.\n"
+"- ພັດທະນາ stored procedures ເພື່ອຊ່ວຍສະໜັບສະໜູນການຂຽນໂປຣແກຣມລະດັບ Java.\n"
+"- ພັດທະນາສະຖາປັດຕະຍະກຳໂຮງງານໄຟຟ້າພະລັງງານທົດແທນຫຼາຍແຫ່ງ ທັງການຕິດຕັ້ງທາງການຄ້າ ແລະ ວຽກງານ"
+"ປ້ອງກັນປະເທດ."
 
 #. module: hr_skills
 #: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_skill_report_view_search
 msgid "Jobs"
-msgstr "ງານຕ່າງໆ"
+msgstr "ຕຳແໜ່ງວຽກຕ່າງໆ"
 
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_fme_johnson_shaw_and_carroll
@@ -1130,7 +1130,7 @@ msgstr "ໂຮງຮຽນປະຖົມ Kialla West"
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_han_king_island_district_high_school
 msgid "King Island District High School"
-msgstr "ໂຮງຮຽນມັດທະຍົມເຂດ King Island"
+msgstr "ໂຮງຮຽນມັດທະຍົມເມືອງ King Island"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_korean
@@ -1145,7 +1145,7 @@ msgstr "Kotlin"
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_qdp_rivera_shaw_and_hughes
 msgid "Landscape architect"
-msgstr "ສະຖາປະນິກພູມສັນຖານ"
+msgstr "ສະຖາປະນິກພູມິທັດ"
 
 #. module: hr_skills
 #: model:hr.skill.type,name:hr_skills.hr_skill_type_lang
@@ -1163,7 +1163,7 @@ msgstr "ພາສາຕ່າງໆ"
 #: model:ir.model.fields,field_description:hr_skills.field_hr_skill_level__write_uid
 #: model:ir.model.fields,field_description:hr_skills.field_hr_skill_type__write_uid
 msgid "Last Updated by"
-msgstr "ອັບເດດຫຼ້າສຸດໂດຍ"
+msgstr "ອັບເດດລ່າສຸດໂດຍ"
 
 #. module: hr_skills
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_cv_wizard__write_date
@@ -1175,17 +1175,17 @@ msgstr "ອັບເດດຫຼ້າສຸດໂດຍ"
 #: model:ir.model.fields,field_description:hr_skills.field_hr_skill_level__write_date
 #: model:ir.model.fields,field_description:hr_skills.field_hr_skill_type__write_date
 msgid "Last Updated on"
-msgstr "ອັບເດດຫຼ້າສຸດເມື່ອ"
+msgstr "ອັບເດດລ່າສຸດເມື່ອ"
 
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_jep_lawson_public_school
 msgid "Lawson Public School"
-msgstr "ໂຮງຮຽນລັດ Lawson"
+msgstr "ໂຮງຮຽນລັດຖະບານ Lawson"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_leadership
 msgid "Leadership"
-msgstr "ພາວະຜູ້ນຳ"
+msgstr "ຄວາມເປັນຜູ້ນຳ"
 
 #. module: hr_skills
 #: model:ir.ui.menu,name:hr_skills.hr_skill_learning_menu
@@ -1203,7 +1203,6 @@ msgid "Leinster School"
 msgstr "ໂຮງຮຽນ Leinster"
 
 #. module: hr_skills
-#: model:ir.model.fields,field_description:hr_skills.field_hr_employee_certification_report__level_progress
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_skill_history_report__level_progress
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_skill_report__level_progress
 msgid "Level Progress"
@@ -1236,7 +1235,7 @@ msgstr "Lewis-Bailey"
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_jog_allenkeller
 msgid "Lexicographer"
-msgstr "ນັກຮຽບຮຽງວັດຈະນານຸກົມ"
+msgstr "ນັກຂຽນວັດຈະນານຸກົມ"
 
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_lur_lindenow_primary_school
@@ -1261,12 +1260,17 @@ msgstr "Lynch-Hodges"
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_machine_learning
 msgid "Machine Learning (AI)"
-msgstr "ການຮຽນຮູ້ຂອງເຄື່ອງ (AI)"
+msgstr "Machine Learning (AI)"
 
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_admin_greeneorr
 msgid "Magazine journalist"
-msgstr "ນັກຂ່າວວາລະສານ"
+msgstr "ນັກຂ່າວນິຕິຍະສານ"
+
+#. module: hr_skills
+#: model:ir.module.module,summary:base.module_hr_skills
+msgid "Manage skills, knowledge and resume of your employees"
+msgstr "ຄຸ້ມຄອງທັກສະ, ຄວາມຮູ້ ແລະ ປະຫວັດຫຍໍ້ຂອງພະນັກງານຂອງທ່ານ"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_mandarin_chinese
@@ -1276,12 +1280,12 @@ msgstr "ພາສາຈີນກາງ"
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_jog_mandurah_catholic_college
 msgid "Mandurah Catholic College"
-msgstr "Mandurah Catholic College"
+msgstr "ວິທະຍາໄລກາໂຕລິກ Mandurah"
 
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_line_admin_7
 msgid "Map Generator"
-msgstr "ລະບົບສ້າງແຜນທີ່"
+msgstr "ເຄື່ອງມືສ້າງແຜນທີ່"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_marathi
@@ -1307,11 +1311,12 @@ msgstr "Martin, Stanley and Duncan"
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_line_admin_1
 msgid ""
 "Master in Electrical engineering\n"
-"            Master thesis: Better grid management and control through machine learning"
+"            Master thesis: Better grid management and control through "
+"machine learning"
 msgstr ""
-"ປະລິນຍາໂທ ວິສະວະກຳໄຟຟ້າ\n"
-"            ບົດວິທະຍານິພົນ: ການຈັດການ ແລະ ຄວບຄຸມໂຄງຂ່າຍໄຟຟ້າທີ່ດີຂຶ້ນຜ່ານການຮຽນຮູ້ຂອງເຄື່ອງ "
-"(machine learning)"
+"ປະລິນຍາໂທ ສາຂາວິສະວະກຳໄຟຟ້າ\n"
+"            ບົດວິທະຍານິພົນ: ການຄຸ້ມຄອງ ແລະ ຄວບຄຸມລະບົບຕາຂ່າຍໄຟຟ້າທີ່ດີຂຶ້ນດ້ວຍ machine "
+"learning"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_matlab
@@ -1326,12 +1331,12 @@ msgstr "Mcneil, Rodriguez and Warren"
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_al_garcia_smith_and_king
 msgid "Medical illustrator"
-msgstr "ນັກແຕ້ມພາບປະກອບທາງການແພດ"
+msgstr "ນັກແຕ້ມຮູບປະກອບທາງການແພດ"
 
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_chs_boyd_wilson_and_moore
 msgid "Medical physicist"
-msgstr "ນັກຟີຊິກທາງການແພດ"
+msgstr "ນັກຟີຊິກການແພດ"
 
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_fpi_chavez_group
@@ -1341,7 +1346,7 @@ msgstr "ພະຍາບານສຸຂະພາບຈິດ"
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_jgo_fox_and_sons
 msgid "Merchant navy officer"
-msgstr "ເຈົ້າໜ້າທີ່ກອງເຮືອພານິດ"
+msgstr "ນາຍທະຫານເຮືອສິນຄ້າ"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_mobile_app_development
@@ -1357,7 +1362,7 @@ msgstr "ຮູບແບບເດືອນ"
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_jog_douglas_thompson_and_conner
 msgid "Music therapist"
-msgstr "ນັກດົນຕີບຳບັດ"
+msgstr "ນັກບຳບັດດ້ວຍດົນຕີ"
 
 #. module: hr_skills
 #: model:ir.model.fields,field_description:hr_skills.field_hr_resume_line__name
@@ -1371,7 +1376,7 @@ msgstr "ຊື່"
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_jth_narellan_public_school
 msgid "Narellan Public School"
-msgstr "ໂຮງຮຽນລັດ Narellan"
+msgstr "ໂຮງຮຽນລັດຖະບານ Narellan"
 
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_lur_narrogin_primary_school
@@ -1392,7 +1397,12 @@ msgstr "ໃໝ່"
 #. odoo-javascript
 #: code:addons/hr_skills/static/src/fields/resume_one2many/resume_one2many.js:0
 msgid "New Resume Line"
-msgstr "ລາຍການຊີວະປະຫວັດໃໝ່"
+msgstr "ແຖວປະຫວັດຫຍໍ້ໃໝ່"
+
+#. module: hr_skills
+#: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_public_view_form_inherit
+msgid "No certifications found."
+msgstr "ບໍ່ພົບໃບຢັ້ງຢືນ."
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_nosql
@@ -1402,7 +1412,7 @@ msgstr "NoSQL"
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_stw_northern_bay_p12_college
 msgid "Northern Bay P-12 College"
-msgstr "Northern Bay P-12 College"
+msgstr "ວິທະຍາໄລ Northern Bay P-12"
 
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_hne_nortonsilva
@@ -1435,7 +1445,7 @@ msgstr "Odoo SA"
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_openness_to_criticism
 msgid "Openness to criticism"
-msgstr "ການເປີດຮັບຄຳວິພາກວິຈານ"
+msgstr "ການພ້ອມຮັບຟັງຄຳຕິຊົມ"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_organizational
@@ -1463,7 +1473,7 @@ msgstr "ອື່ນໆ"
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_fpi_our_lady_star_of_the_sea_school
 msgid "Our Lady Star of the Sea School"
-msgstr "Our Lady Star of the Sea School"
+msgstr "ໂຮງຮຽນ Our Lady Star of the Sea"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_php
@@ -1473,12 +1483,12 @@ msgstr "PHP"
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_admin_park_lake_state_school
 msgid "Park Lake State School"
-msgstr "ໂຮງຮຽນລັດ Park Lake"
+msgstr "ໂຮງຮຽນລັດຖະບານ Park Lake"
 
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_qdp_parke_state_school
 msgid "Parke State School"
-msgstr "ໂຮງຮຽນລັດ Parke"
+msgstr "ໂຮງຮຽນລັດຖະບານ Parke"
 
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_mit_parker_roberson_and_acosta
@@ -1498,17 +1508,17 @@ msgstr "Perl"
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_jve_arnoldcohen
 msgid "Personnel officer"
-msgstr "ເຈົ້າໜ້າທີ່ຝ່າຍບຸກຄົນ"
+msgstr "ພະນັກງານຝ່າຍບຸກຄະລາກອນ"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_persuasion
 msgid "Persuasion"
-msgstr "ການໂນ້ມນ້າວ"
+msgstr "ການໂນ້ມນ້າວໃຈ"
 
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_vad_loganmartin
 msgid "Petroleum engineer"
-msgstr "ວິສະວະກອນປິໂຕເຄມີ"
+msgstr "ວິສະວະກອນປິໂຕລຽມ"
 
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_qdp_phillips_jones_and_brown
@@ -1529,7 +1539,7 @@ msgstr "ເຈົ້າໜ້າທີ່ຕຳຫຼວດ"
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_jog_port_curtis_road_state_school
 msgid "Port Curtis Road State School"
-msgstr "ໂຮງຮຽນລັດ Port Curtis Road"
+msgstr "ໂຮງຮຽນລັດຖະບານ Port Curtis Road"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_portuguese
@@ -1539,7 +1549,7 @@ msgstr "ພາສາປອກຕຸຍການ"
 #. module: hr_skills
 #: model_terms:ir.ui.view,arch_db:hr_skills.report_employee_cv_main_panel
 msgid "Present"
-msgstr "ປັດຈຸບັນ"
+msgstr "ປະຈຸບັນ"
 
 #. module: hr_skills
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_cv_wizard__color_primary
@@ -1559,7 +1569,7 @@ msgstr "ພິມ"
 #: model:ir.model,name:hr_skills.model_hr_employee_cv_wizard
 #: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_cv_wizard_view_form
 msgid "Print Resume"
-msgstr "ພິມຊີວະປະຫວັດ"
+msgstr "ພິມປະຫວັດຫຍໍ້"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_problem_solving
@@ -1587,7 +1597,7 @@ msgstr "ຄວາມຄືບໜ້າ (%)"
 #. module: hr_skills
 #: model_terms:ir.ui.view,arch_db:hr_skills.report_employee_cv_main_panel
 msgid "Progress bar"
-msgstr "ແຖບສະແດງຄວາມຄືບໜ້າ"
+msgstr "ແຖບຄວາມຄືບໜ້າ"
 
 #. module: hr_skills
 #: model:ir.model.fields,help:hr_skills.field_hr_employee_skill__level_progress
@@ -1595,12 +1605,13 @@ msgstr "ແຖບສະແດງຄວາມຄືບໜ້າ"
 #: model:ir.model.fields,help:hr_skills.field_hr_job_skill__level_progress
 #: model:ir.model.fields,help:hr_skills.field_hr_skill_level__level_progress
 msgid "Progress from zero knowledge (0%) to fully mastered (100%)."
-msgstr "ຄວາມຄືບໜ້າຈາກບໍ່ມີຄວາມຮູ້ເລີຍ (0%) ຈົນເຖິງລະດັບຊ່ຽວຊານ (100%)."
+msgstr ""
+"ຄວາມຄືບໜ້າຕັ້ງແຕ່ບໍ່ມີຄວາມຮູ້ເລີຍ (0%) ຈົນຮອດຊ່ຽວຊານຢ່າງເຕັມຮູບແບບ (100%)."
 
 #. module: hr_skills
 #: model:ir.model.constraint,message:hr_skills.constraint_hr_skill_level_check_level_progress
 msgid "Progress should be a number between 0 and 100."
-msgstr "ຄວາມຄືບໜ້າຄວນເປັນຕົວເລກລະຫວ່າງ 0 ຫາ 100."
+msgstr "ຄວາມຄືບໜ້າຕ້ອງເປັນຕົວເລກລະຫວ່າງ 0 ຫາ 100."
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_project_management
@@ -1615,12 +1626,12 @@ msgstr "ຄຸນສົມບັດ"
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_mit_robinson_crawford_and_norman
 msgid "Psychiatric nurse"
-msgstr "ພະຍາບານຈິດເວດ"
+msgstr "ພະຍາບານຈິດຕະເວດ"
 
 #. module: hr_skills
 #: model:ir.model,name:hr_skills.model_hr_employee_public
 msgid "Public Employee"
-msgstr "ພະນັກງານສາທາລະນະ"
+msgstr "ພະນັກງານລັດ"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_public
@@ -1630,7 +1641,7 @@ msgstr "ການເວົ້າໃນທີ່ສາທາລະນະ"
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_stw_lynchhodges
 msgid "Publishing rights manager"
-msgstr "ຜູ້ຈັດການລິຂະສິດການພິມ"
+msgstr "ຜູ້ຈັດການສິດທິການພິມເຜີຍແຜ່"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_punjabi
@@ -1664,62 +1675,60 @@ msgid "React"
 msgstr "React"
 
 #. module: hr_skills
-#: model:hr.skill,name:hr_skills.hr_skill_resourcefulness
-msgid "Resourcefulness"
-msgstr "ຄວາມສະຫຼາດແກມໂກງ/ການແກ້ໄຂບັນຫາສະເພາະໜ້າ"
+#: model:ir.model,name:hr_skills.model_resource_resource
+msgid "Resource"
+msgstr "ຊັບພະຍາກອນ"
 
 #. module: hr_skills
-#: model:ir.model,name:hr_skills.model_resource_resource
-msgid "Resources"
-msgstr "ຊັບພະຍາກອນ"
+#: model:hr.skill,name:hr_skills.hr_skill_resourcefulness
+msgid "Resourcefulness"
+msgstr "ຄວາມມີໄຫວພິບໃນການແກ້ໄຂບັນຫາ"
 
 #. module: hr_skills
 #: model:ir.ui.menu,name:hr_skills.menu_human_resources_configuration_resume
 #: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_public_view_form_inherit
-#: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_public_view_search
 #: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_view_form
-#: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_view_search
 #: model_terms:ir.ui.view,arch_db:hr_skills.resume_line_view_form
 msgid "Resume"
-msgstr "ຊີວະປະຫວັດ"
+msgstr "ປະຫວັດຫຍໍ້"
 
 #. module: hr_skills
 #. odoo-python
 #: code:addons/hr_skills/controllers/main.py:0
 msgid "Resume %s"
-msgstr "ຊີວະປະຫວັດ %s"
+msgstr "ປະຫວັດຫຍໍ້ %s"
 
 #. module: hr_skills
 #: model_terms:ir.ui.view,arch_db:hr_skills.view_resume_lines_filter
 msgid "Resume Lines"
-msgstr "ລາຍການຊີວະປະຫວັດ"
+msgstr "ແຖວປະຫວັດຫຍໍ້"
 
 #. module: hr_skills
 #: model_terms:ir.ui.view,arch_db:hr_skills.hr_resume_line_list_view
 msgid "Resume Section"
-msgstr "ສ່ວນຂອງຊີວະປະຫວັດ"
+msgstr "ພາກສ່ວນປະຫວັດຫຍໍ້"
 
 #. module: hr_skills
 #: model:ir.actions.act_window,name:hr_skills.hr_resume_type_action
 msgid "Resume Sections"
-msgstr "ສ່ວນຕ່າງໆຂອງຊີວະປະຫວັດ"
+msgstr "ພາກສ່ວນປະຫວັດຫຍໍ້ຕ່າງໆ"
 
 #. module: hr_skills
 #: model:ir.model,name:hr_skills.model_hr_resume_line
 msgid "Resume line of an employee"
-msgstr "ລາຍການຊີວະປະຫວັດຂອງພະນັກງານ"
+msgstr "ແຖວປະຫວັດຫຍໍ້ຂອງພະນັກງານ"
 
 #. module: hr_skills
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee__resume_line_ids
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_public__resume_line_ids
 msgid "Resume lines"
-msgstr "ລາຍການຊີວະປະຫວັດ"
+msgstr "ແຖວປະຫວັດຫຍໍ້ຕ່າງໆ"
 
 #. module: hr_skills
 #. odoo-python
 #: code:addons/hr_skills/controllers/main.py:0
 msgid "Resumes"
-msgstr "ຊີວະປະຫວັດຕ່າງໆ"
+msgstr "ປະຫວັດຫຍໍ້ຕ່າງໆ"
 
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_qdp_rivera_shaw_and_hughes
@@ -1774,7 +1783,7 @@ msgstr "Schultz Inc"
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_line_admin_2
 msgid "Science &amp; math"
-msgstr "ວິທະຍາສາດ ແລະ ຄະນິດສາດ"
+msgstr "ວິທະຍາສາດ &amp; ຄະນິດສາດ"
 
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_mit_parker_roberson_and_acosta
@@ -1799,7 +1808,7 @@ msgstr "ຄົ້ນຫາປະເພດທັກສະ"
 #. module: hr_skills
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_cv_wizard__color_secondary
 msgid "Secondary Color"
-msgstr "ສີຮອງ"
+msgstr "ສີສຳຮອງ"
 
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_chs_davis_plc
@@ -1820,13 +1829,13 @@ msgstr "ຄຸນສົມບັດຂອງພາກສ່ວນ"
 #. odoo-javascript
 #: code:addons/hr_skills/static/src/fields/form_view_one2many/form_view_one2many.xml:0
 msgid "Select & Close"
-msgstr "ເລືອກ ແລະ ປິດ"
+msgstr "ເລືອກ & ປິດ"
 
 #. module: hr_skills
 #. odoo-javascript
 #: code:addons/hr_skills/static/src/fields/form_view_one2many/form_view_one2many.xml:0
 msgid "Select & New"
-msgstr "ເລືອກ ແລະ ສ້າງໃໝ່"
+msgstr "ເລືອກ & ສ້າງໃໝ່"
 
 #. module: hr_skills
 #. odoo-javascript
@@ -1844,7 +1853,7 @@ msgstr "ລຳດັບ"
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_mit_seymour_p12_college
 msgid "Seymour P-12 College"
-msgstr "Seymour P-12 College"
+msgstr "ວິທະຍາໄລ Seymour P-12"
 
 #. module: hr_skills
 #: model:hr.resume.line.type,name:hr_skills.resume_type_side_projects
@@ -1859,7 +1868,6 @@ msgstr "Simmons-Wilcox"
 #. module: hr_skills
 #: model:ir.model,name:hr_skills.model_hr_skill
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee__skill_ids
-#: model:ir.model.fields,field_description:hr_skills.field_hr_employee_certification_report__skill_id
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_skill__skill_id
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_skill_history_report__skill_id
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_skill_report__skill_id
@@ -1880,7 +1888,6 @@ msgstr "ລາຍງານປະຫວັດທັກສະ"
 
 #. module: hr_skills
 #: model:ir.model,name:hr_skills.model_hr_skill_level
-#: model:ir.model.fields,field_description:hr_skills.field_hr_employee_certification_report__skill_level
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_skill__skill_level_id
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_skill_report__skill_level
 #: model:ir.model.fields,field_description:hr_skills.field_hr_individual_skill_mixin__skill_level_id
@@ -1897,7 +1904,6 @@ msgstr "ລະດັບທັກສະຕ່າງໆ"
 
 #. module: hr_skills
 #: model:ir.model,name:hr_skills.model_hr_skill_type
-#: model:ir.model.fields,field_description:hr_skills.field_hr_employee_certification_report__skill_type_id
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_skill__skill_type_id
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_skill_history_report__skill_type_id
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_skill_report__skill_type_id
@@ -1921,6 +1927,11 @@ msgid "Skill Types"
 msgstr "ປະເພດທັກສະຕ່າງໆ"
 
 #. module: hr_skills
+#: model:ir.model,name:hr_skills.model_hr_job_skill
+msgid "Skill for job position"
+msgstr "ທັກສະສຳລັບຕຳແໜ່ງວຽກ"
+
+#. module: hr_skills
 #: model:ir.model,name:hr_skills.model_hr_individual_skill_mixin
 msgid "Skill level"
 msgstr "ລະດັບທັກສະ"
@@ -1932,27 +1943,26 @@ msgstr "ລະດັບທັກສະສຳລັບພະນັກງານ"
 
 #. module: hr_skills
 #. odoo-javascript
-#: code:addons/hr_skills/static/src/components/avatar_card_resource/avatar_card_resource_popover.xml:0
+#: code:addons/hr_skills/static/src/core/web/avatar_card/avatar_card_patch.xml:0
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee__employee_skill_ids
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_cv_wizard__show_skills
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_public__employee_skill_ids
 #: model:ir.model.fields,field_description:hr_skills.field_hr_job__job_skill_ids
 #: model:ir.model.fields,field_description:hr_skills.field_hr_skill_type__skill_ids
 #: model:ir.model.fields,field_description:hr_skills.field_resource_resource__employee_skill_ids
-#: model:ir.ui.menu,name:hr_skills.hr_employee_skill_report_menu
 #: model_terms:ir.ui.view,arch_db:hr_skills.employee_skill_view_form
 #: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_skill_type_view_form
 #: model_terms:ir.ui.view,arch_db:hr_skills.hr_job_skill_view_form
 #: model_terms:ir.ui.view,arch_db:hr_skills.hr_skill_view_form
 #: model_terms:ir.ui.view,arch_db:hr_skills.report_employee_cv_main_panel
 msgid "Skills"
-msgstr "ທັກສະຕ່າງໆ"
+msgstr "ທັກສະ"
 
 #. module: hr_skills
 #. odoo-javascript
 #: code:addons/hr_skills/static/src/fields/skills_one2many/skills_one2many.xml:0
 msgid "Skills & Certifications"
-msgstr "ທັກສະ ແລະ ໃບຢັ້ງຢືນ"
+msgstr "ທັກສະ & ໃບຢັ້ງຢືນ"
 
 #. module: hr_skills
 #: model_terms:ir.ui.view,arch_db:hr_skills.hr_department_view_kanban
@@ -1963,7 +1973,12 @@ msgstr "ປະຫວັດທັກສະ"
 #: model:ir.actions.act_window,name:hr_skills.hr_employee_skill_report_action
 #: model:ir.ui.menu,name:hr_skills.hr_employee_skill_inventory_report_menu
 msgid "Skills Inventory"
-msgstr "ຄັງຂໍ້ມູນທັກສະ"
+msgstr "ຄັງທັກສະ"
+
+#. module: hr_skills
+#: model:ir.module.module,shortdesc:base.module_hr_skills
+msgid "Skills Management"
+msgstr "ການຈັດການທັກສະ"
 
 #. module: hr_skills
 #. odoo-javascript
@@ -1972,20 +1987,16 @@ msgid "Skills Report"
 msgstr "ລາຍງານທັກສະ"
 
 #. module: hr_skills
-#: model:ir.model,name:hr_skills.model_hr_job_skill
-msgid "Skills for job positions"
-msgstr "ທັກສະສຳລັບຕຳແໜ່ງງານ"
-
-#. module: hr_skills
 #: model:ir.actions.server,name:hr_skills.hr_job_skills_cron_add_certification_activity_to_employees_ir_actions_server
 msgid ""
 "Skills: Add an activity to employees with missing or expiring certifications"
-msgstr "ທັກສະ: ເພີ່ມກິດຈະກຳໃຫ້ພະນັກງານທີ່ຂາດ ຫຼື ໃບຢັ້ງຢືນກຳລັງຈະໝົດອາຍຸ"
+msgstr ""
+"ທັກສະ: ເພີ່ມກິດຈະກຳໃຫ້ກັບພະນັກງານທີ່ຍັງຂາດໃບຢັ້ງຢືນ ຫຼື ໃບຢັ້ງຢືນໃກ້ຈະໝົດອາຍຸ"
 
 #. module: hr_skills
 #: model:hr.skill.type,name:hr_skills.hr_skill_type_softskill
 msgid "Soft Skills"
-msgstr "ທັກສະດ້ານສັງຄົມ (Soft Skills)"
+msgstr "ທັກສະທາງອາລົມ ແລະ ສັງຄົມ (Soft Skills)"
 
 #. module: hr_skills
 #: model_terms:ir.ui.view,arch_db:hr_skills.report_employee_cv_main_panel
@@ -1996,7 +2007,7 @@ msgstr "ນັກພັດທະນາຊອບແວ"
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_spanish
 msgid "Spanish"
-msgstr "ພາສາສະເປນ"
+msgstr "ພາສາແອັດສະປາຍ"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_spark
@@ -2006,12 +2017,12 @@ msgstr "Spark"
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_lur_whitebell
 msgid "Sports coach"
-msgstr "ຄູເຝິກກິລາ"
+msgstr "ຄູຝຶກກິລາ"
 
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_fme_lewis_group
 msgid "Sports development officer"
-msgstr "ເຈົ້າໜ້າທີ່ພັດທະນາກິລາ"
+msgstr "ພະນັກງານພັດທະນາກິລາ"
 
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_fme_st_michaels_primary_school
@@ -2041,7 +2052,7 @@ msgstr "ການຈັດການຄວາມຄຽດ"
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_jep_mcneil_rodriguez_and_warren
 msgid "Sub"
-msgstr "ຕົວສຳຮອງ"
+msgstr "ຍ່ອຍ"
 
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_mit_sutherland_dianella_primary_school
@@ -2066,7 +2077,7 @@ msgstr "ໂຮງຮຽນປະຖົມ Talbot"
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_qdp_phillips_jones_and_brown
 msgid "Teacher, special educational needs"
-msgstr "ຄູສອນເດັກພິເສດ"
+msgstr "ຄູສອນການສຶກສາພິເສດ"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_teamwork
@@ -2076,7 +2087,7 @@ msgstr "ການເຮັດວຽກເປັນທີມ"
 #. module: hr_skills
 #: model:ir.model.fields,field_description:hr_skills.field_hr_skill_level__technical_is_new_default
 msgid "Technical Is New Default"
-msgstr "Technical ເປັນຄ່າເລີ່ມຕົ້ນໃໝ່"
+msgstr "ດ້ານເຕັກນິກເປັນຄ່າເລີ່ມຕົ້ນໃໝ່"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_telugu
@@ -2092,10 +2103,11 @@ msgstr "ວັນທີສິ້ນສຸດຕ້ອງຢູ່ຫຼັງວ
 #. odoo-python
 #: code:addons/hr_skills/models/hr_individual_skill_mixin.py:0
 msgid ""
-"The following skills can't be created as they overlap or exactly match existing skills:\n"
+"The following skills can't be created as they overlap or exactly match "
+"existing skills:\n"
 "%(collisions)s"
 msgstr ""
-"ບໍ່ສາມາດສ້າງທັກສະຕໍ່ໄປນີ້ໄດ້ ເນື່ອງຈາກມີຄວາມຊ້ຳຊ້ອນ ຫຼື ກົງກັບທັກສະທີ່ມີຢູ່ແລ້ວ:\n"
+"ບໍ່ສາມາດສ້າງທັກສະຕໍ່ໄປນີ້ໄດ້ ເນື່ອງຈາກຊ້ອນທັບ ຫຼື ກົງກັບທັກສະທີ່ມີຢູ່ແລ້ວ:\n"
 "%(collisions)s"
 
 #. module: hr_skills
@@ -2104,14 +2116,14 @@ msgstr ""
 msgid ""
 "The following skills have their valid stop date prior to their valid start "
 "date:\n"
-msgstr "ທັກສະຕໍ່ໄປນີ້ມີວັນທີສິ້ນສຸດກ່ອນວັນທີເລີ່ມຕົ້ນ:\n"
+msgstr "ທັກສະຕໍ່ໄປນີ້ມີວັນທີໝົດອາຍຸການນຳໃຊ້ ກ່ອນວັນທີເລີ່ມນຳໃຊ້:\n"
 
 #. module: hr_skills
 #. odoo-python
 #: code:addons/hr_skills/models/hr_skill_type.py:0
 msgid ""
 "The following skills type must contain at least one skill and one level: %s"
-msgstr "ປະເພດທັກສະຕໍ່ໄປນີ້ຕ້ອງປະກອບມີຢ່າງໜ້ອຍໜຶ່ງທັກສະ ແລະ ໜຶ່ງລະດັບ: %s"
+msgstr "ປະເພດທັກສະຕໍ່ໄປນີ້ຕ້ອງມີຢ່າງໜ້ອຍໜຶ່ງທັກສະ ແລະ ໜຶ່ງລະດັບ: %s"
 
 #. module: hr_skills
 #. odoo-python
@@ -2139,22 +2151,13 @@ msgstr "ນັກບຳບັດການເວົ້າ ແລະ ພາສາ"
 #. odoo-javascript
 #: code:addons/hr_skills/static/src/components/internal_resume_lines/internal_resume_one2many.xml:0
 msgid "There are no resume lines on this employee."
-msgstr "ບໍ່ມີຂໍ້ມູນລາຍການຊີວະປະຫວັດສຳລັບພະນັກງານຜູ້ນີ້."
+msgstr "ບໍ່ມີແຖວປະຫວັດຫຍໍ້ສຳລັບພະນັກງານຜູ້ນີ້."
 
 #. module: hr_skills
 #. odoo-javascript
 #: code:addons/hr_skills/static/src/fields/skills_one2many/skills_one2many.xml:0
 msgid "There are no skills defined in the library."
-msgstr "ບໍ່ມີທັກສະທີ່ຖືກກຳນົດໄວ້ໃນຄັງຂໍ້ມູນ."
-
-#. module: hr_skills
-#: model_terms:ir.actions.act_window,help:hr_skills.hr_employee_certification_report_action
-msgid ""
-"This report will give you an overview of the certification per Employee.\n"
-"                Create them in configuration and add them on the Employee."
-msgstr ""
-"ລາຍງານນີ້ຈະໃຫ້ພາບລວມຂອງໃບຢັ້ງຢືນຕໍ່ພະນັກງານແຕ່ລະຄົນ.\n"
-"                ສ້າງພວກມັນໃນການຕັ້ງຄ່າ ແລະ ເພີ່ມໃສ່ຂໍ້ມູນພະນັກງານ."
+msgstr "ບໍ່ມີການກຳນົດທັກສະໄວ້ໃນຄັງຂໍ້ມູນ."
 
 #. module: hr_skills
 #: model_terms:ir.actions.act_window,help:hr_skills.hr_employee_skill_report_action
@@ -2162,8 +2165,8 @@ msgid ""
 "This report will give you an overview of the skills per Employee.\n"
 "                Create them in configuration and add them on the Employee."
 msgstr ""
-"ລາຍງານນີ້ຈະໃຫ້ພາບລວມຂອງທັກສະຕໍ່ພະນັກງານແຕ່ລະຄົນ.\n"
-"                ສ້າງພວກມັນໃນການຕັ້ງຄ່າ ແລະ ເພີ່ມໃສ່ຂໍ້ມູນພະນັກງານ."
+"ລາຍງານນີ້ຈະສະແດງພາບລວມຂອງທັກສະຕາມພະນັກງານແຕ່ລະຄົນ.\n"
+"                ສ້າງພວກມັນໃນການກຳນົດຄ່າ ແລ້ວເພີ່ມໃສ່ໃນໂປຣໄຟລ໌ຂອງພະນັກງານ."
 
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_vad_thomas_chirnside_primary_school
@@ -2179,7 +2182,7 @@ msgstr "ການຈັດການເວລາ"
 #. odoo-javascript
 #: code:addons/hr_skills/static/src/fields/skills_one2many/skills_one2many.xml:0
 msgid "Timeline"
-msgstr "ທາມໄລນ໌"
+msgstr "ເສັ້ນເວລາ"
 
 #. module: hr_skills
 #: model_terms:ir.ui.view,arch_db:hr_skills.resume_line_view_form
@@ -2192,48 +2195,48 @@ msgstr "ຫົວຂໍ້"
 #: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_skill_view_list
 #: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_view_form
 msgid "To"
-msgstr "ເຖິງ"
+msgstr "ຫາ"
 
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_jgo_tottenham_central_school
 msgid "Tottenham Central School"
-msgstr "ໂຮງຮຽນ Tottenham Central"
+msgstr "ໂຮງຮຽນສູນກາງ Tottenham"
 
 #. module: hr_skills
 #: model_terms:hr.resume.line,description:hr_skills.employee_resume_jod_wilson_ltd
 msgid "Trade union research officer"
-msgstr "ເຈົ້າໜ້າທີ່ວິໄຈສະຫະພັນກຳມະບານ"
+msgstr "ພະນັກງານຄົ້ນຄວ້າສະຫະພັນກຳມະບານ"
 
 #. module: hr_skills
 #: model:hr.resume.line.type,name:hr_skills.resume_type_training
 msgid "Training"
-msgstr "ການເຝິກອົບຮົມ"
+msgstr "ການຝຶກອົບຮົມ"
 
 #. module: hr_skills
 #: model:ir.actions.act_window,name:hr_skills.hr_resume_lines_training_action
 #: model:ir.ui.menu,name:hr_skills.menu_learnings_training_attendances
 msgid "Training Attendances"
-msgstr "ການເຂົ້າຮ່ວມການເຝິກອົບຮົມ"
+msgstr "ການເຂົ້າຮ່ວມການຝຶກອົບຮົມ"
 
 #. module: hr_skills
 #: model_terms:ir.ui.view,arch_db:hr_skills.hr_resume_line_list_view
 msgid "Training Title"
-msgstr "ຫົວຂໍ້ການເຝິກອົບຮົມ"
+msgstr "ຫົວຂໍ້ການຝຶກອົບຮົມ"
 
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_jep_trinity_college
 msgid "Trinity College"
-msgstr "Trinity College"
+msgstr "ວິທະຍາໄລ Trinity"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_turkish
 msgid "Turkish"
-msgstr "ພາສາຕຸລະກີ"
+msgstr "ພາສາຕວັກກີ"
 
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_stw_tyndale_christian_school
 msgid "Tyndale Christian School"
-msgstr "Tyndale Christian School"
+msgstr "ໂຮງຮຽນຄຣິດສະຕຽນ Tyndale"
 
 #. module: hr_skills
 #: model:ir.model.fields,field_description:hr_skills.field_hr_resume_line__line_type_id
@@ -2245,7 +2248,7 @@ msgstr "ປະເພດ"
 #. module: hr_skills
 #: model:ir.model,name:hr_skills.model_hr_resume_line_type
 msgid "Type of a resume line"
-msgstr "ປະເພດຂອງລາຍການຊີວະປະຫວັດ"
+msgstr "ປະເພດຂອງແຖວປະຫວັດຫຍໍ້"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_typescript
@@ -2269,38 +2272,39 @@ msgid "Update Skills"
 msgstr "ອັບເດດທັກສະ"
 
 #. module: hr_skills
-#: model:mail.activity.type,summary:hr_skills.mail_activity_data_upload_certification
-msgid "Upload a certification"
-msgstr "ອັບໂຫຼດໃບຢັ້ງຢືນ"
+#. odoo-python
+#: code:addons/hr_skills/models/hr_employee.py:0
+msgid "Upload a document for a missing certification"
+msgstr "ອັບໂຫຼດເອກະສານສຳລັບໃບຢັ້ງຢືນທີ່ຍັງຂາດ"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_urdu
 msgid "Urdu"
-msgstr "ພາສາອູດູ"
+msgstr "ພາສາອູຣະດູ"
 
 #. module: hr_skills
 #: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_skill_view_search
 msgid "Valid certification"
-msgstr "ໃບຢັ້ງຢືນທີ່ຍັງມີຜົນ"
+msgstr "ໃບຢັ້ງຢືນທີ່ຍັງມີຜົນບັງຄັບໃຊ້"
 
 #. module: hr_skills
 #: model_terms:ir.ui.view,arch_db:hr_skills.employee_skill_view_form
 msgid "Validity"
-msgstr "ໄລຍະເວລາທີ່ມີຜົນ"
+msgstr "ອາຍຸການໃຊ້ງານ"
 
 #. module: hr_skills
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_skill__valid_from
 #: model:ir.model.fields,field_description:hr_skills.field_hr_individual_skill_mixin__valid_from
 #: model:ir.model.fields,field_description:hr_skills.field_hr_job_skill__valid_from
 msgid "Validity Start"
-msgstr "ເລີ່ມຕົ້ນມີຜົນ"
+msgstr "ວັນທີເລີ່ມມີຜົນ"
 
 #. module: hr_skills
 #: model:ir.model.fields,field_description:hr_skills.field_hr_employee_skill__valid_to
 #: model:ir.model.fields,field_description:hr_skills.field_hr_individual_skill_mixin__valid_to
 #: model:ir.model.fields,field_description:hr_skills.field_hr_job_skill__valid_to
 msgid "Validity Stop"
-msgstr "ສິ້ນສຸດການມີຜົນ"
+msgstr "ວັນທີໝົດອາຍຸ"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_virtualization_containerization
@@ -2310,7 +2314,7 @@ msgstr "Virtualization ແລະ Containerization"
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_web_development
 msgid "Web Development"
-msgstr "ການພັດທະນາເວັບ"
+msgstr "ການພັດທະນາເວັບໄຊ"
 
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_admin_white_inc
@@ -2325,7 +2329,7 @@ msgstr "White-Bell"
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_stw_whitsunday_anglican_school
 msgid "Whitsunday Anglican School"
-msgstr "Whitsunday Anglican School"
+msgstr "ໂຮງຮຽນແອງກລິກັນ Whitsunday"
 
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_jth_wilkinson_plc
@@ -2335,7 +2339,7 @@ msgstr "Wilkinson PLC"
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_han_william_light_r12_school
 msgid "William Light R-12 School"
-msgstr "William Light R-12 School"
+msgstr "ໂຮງຮຽນ William Light R-12"
 
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_jod_wilson_ltd
@@ -2355,17 +2359,17 @@ msgstr "ໂຮງຮຽນປະຖົມ Woodend"
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_fpi_woodridge_state_school
 msgid "Woodridge State School"
-msgstr "ໂຮງຮຽນລັດ Woodridge"
+msgstr "ໂຮງຮຽນລັດຖະບານ Woodridge"
 
 #. module: hr_skills
 #: model:hr.skill,name:hr_skills.hr_skill_wu_chinese
 msgid "Wu Chinese"
-msgstr "ພາສາຈີນວູ"
+msgstr "ພາສາຈີນອ๋ູ"
 
 #. module: hr_skills
 #: model:hr.resume.line,name:hr_skills.employee_resume_vad_wycheproof_p12_college
 msgid "Wycheproof P-12 College"
-msgstr "Wycheproof P-12 College"
+msgstr "ວິທະຍາໄລ Wycheproof P-12"
 
 #. module: hr_skills
 #. odoo-javascript
@@ -2377,13 +2381,13 @@ msgstr "ຮູບແບບປີ"
 #. odoo-javascript
 #: code:addons/hr_skills/static/src/fields/skills_one2many/skills_one2many.xml:0
 msgid "You can add skills from our library to the employee profile."
-msgstr "ເຈົ້າສາມາດເພີ່ມທັກສະຈາກຄັງຂໍ້ມູນຂອງພວກເຮົາໃສ່ໂປຣໄຟລ໌ພະນັກງານໄດ້."
+msgstr "ທ່ານສາມາດເພີ່ມທັກສະຈາກຄັງຂໍ້ມູນຂອງພວກເຮົາ ໃສ່ໃນໂປຣໄຟລ໌ຂອງພະນັກງານໄດ້."
 
 #. module: hr_skills
 #. odoo-python
 #: code:addons/hr_skills/models/hr_employee.py:0
 msgid "You cannot access the resume of this employee."
-msgstr "ເຈົ້າບໍ່ສາມາດເຂົ້າເຖິງຊີວະປະຫວັດຂອງພະນັກງານຜູ້ນີ້ໄດ້."
+msgstr "ທ່ານບໍ່ສາມາດເຂົ້າເຖິງປະຫວັດຫຍໍ້ຂອງພະນັກງານຜູ້ນີ້ໄດ້."
 
 #. module: hr_skills
 #: model_terms:ir.ui.view,arch_db:hr_skills.report_employee_cv_sidepanel
@@ -2393,7 +2397,7 @@ msgstr "demo@email.com"
 #. module: hr_skills
 #: model_terms:ir.ui.view,arch_db:hr_skills.hr_employee_skill_type_view_form
 msgid "e.g. Languages"
-msgstr "ຕົວຢ່າງ: ພາສາ"
+msgstr "ຕົວຢ່າງ: ພາສາຕ່າງໆ"
 
 #. module: hr_skills
 #: model_terms:ir.ui.view,arch_db:hr_skills.resume_line_view_form
@@ -2422,7 +2426,7 @@ msgstr "ຊົ່ວໂມງ)"
 #: model:ir.model.fields,help:hr_skills.field_hr_job_skill__is_certification
 #: model:ir.model.fields,help:hr_skills.field_hr_skill_type__is_certification
 msgid "if checked the skill type become a certification type"
-msgstr "ຖ້າເລືອກ, ປະເພດທັກສະຈະກາຍເປັນປະເພດໃບຢັ້ງຢືນ"
+msgstr "ຖ້າໝາຍຕິກເລືອກ ປະເພດທັກສະຈະປ່ຽນເປັນປະເພດໃບຢັ້ງຢືນ"
 
 #. module: hr_skills
 #: model_terms:ir.ui.view,arch_db:hr_skills.employee_skill_view_form
@@ -2438,4 +2442,4 @@ msgstr "www.demo.com"
 #. odoo-python
 #: code:addons/hr_skills/models/hr_individual_skill_mixin.py:0
 msgid "• %(skill_name)s from %(valid_from)s to %(valid_to)s"
-msgstr "• %(skill_name)s ຈາກ %(valid_from)s ຫາ %(valid_to)s"
+msgstr "• %(skill_name)s ຕັ້ງແຕ່ %(valid_from)s ຫາ %(valid_to)s"

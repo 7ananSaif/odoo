@@ -6,7 +6,7 @@ import { isVisible } from "@web/core/utils/ui";
 
 import { FullscreenIndication } from "../components/fullscreen_indication/fullscreen_indication";
 import { WebsiteLoader } from "../components/website_loader/website_loader";
-import { reactive, EventBus } from "@odoo/owl";
+import { EventBus, proxy } from "@odoo/owl";
 
 const websiteSystrayRegistry = registry.category("website_systray");
 
@@ -45,8 +45,9 @@ export const websiteService = {
         const modelNames = {};
         let invalidateSnippetCache = false;
         let lastWebsiteId = null;
+        let isNavigatingToAnotherPage = null;
 
-        const context = reactive({
+        const context = proxy({
             showResourceEditor: false,
             edition: false,
             isPublicRootReady: false,
@@ -158,6 +159,7 @@ export const websiteService = {
                         mainObject,
                         seoObject,
                         isPublished,
+                        publishOn,
                         canOptimizeSeo,
                         canPublish,
                         editableInBackend,
@@ -185,6 +187,7 @@ export const websiteService = {
                         mainObject: unslugHtmlDataObject(mainObject),
                         seoObject: unslugHtmlDataObject(seoObject),
                         isPublished: isPublished === "True",
+                        publishOn: publishOn || false,
                         canOptimizeSeo: canOptimizeSeo === "True",
                         canPublish: canPublish === "True",
                         editableInBackend: editableInBackend === "True",
@@ -261,8 +264,14 @@ export const websiteService = {
             set invalidateSnippetCache(value) {
                 invalidateSnippetCache = value;
             },
+            set isNavigatingToAnotherPage(promise) {
+                isNavigatingToAnotherPage = promise;
+            },
+            get isNavigatingToAnotherPage() {
+                return isNavigatingToAnotherPage;
+            },
 
-            goToWebsite({ websiteId, path, edition, translation, lang } = {}) {
+            async goToWebsite({ websiteId, path, edition, translation, lang } = {}) {
                 this.websiteRootInstance = undefined;
                 if (lang) {
                     invalidateSnippetCache = true;
@@ -270,7 +279,7 @@ export const websiteService = {
                         path
                     )}`;
                 }
-                action.doAction("website.website_preview", {
+                await action.doAction("website.website_preview", {
                     clearBreadcrumbs: true,
                     props: {
                         websiteId: websiteId || currentWebsiteId || false,
@@ -298,6 +307,7 @@ export const websiteService = {
                             language_ids: {},
                             default_lang_id: { fields: { code: {} } },
                             cookies_bar: {},
+                            company_id: {},
                         },
                     })
                 ).records;
@@ -317,14 +327,56 @@ export const websiteService = {
                     }
                 }
             },
+            /**
+             * @param {Object} [props]
+             * @param {string} [props.title]
+             * @param {"colors"|"generic"|"images"|"text"} [props.flag]
+             * @param {boolean} [props.showCloseButton=false]
+             * @param {string} [props.bottomMessageTemplate]
+             * @param {boolean} [props.showProgressBar=true]
+             * @param {() => number} [props.getProgress]
+             * @param {Array<Object>} [props.loadingSteps]
+             * @param {string} [props.loadingSteps[].title]
+             * @param {"colors"|"generic"|"images"|"text"} [props.loadingSteps[].flag]
+             * @param {string} [props.loadingSteps[].description]
+             * @param {boolean} [props.loadingSteps[].completed]
+             */
             showLoader(props) {
                 bus.trigger("SHOW-WEBSITE-LOADER", props);
             },
-            hideLoader() {
-                bus.trigger("HIDE-WEBSITE-LOADER");
+            /**
+             * @param {Object} [props]
+             * @param {boolean} [props.completeRemainingProgress=true]
+             */
+            hideLoader(props) {
+                bus.trigger("HIDE-WEBSITE-LOADER", props);
             },
-            prepareOutLoader() {
-                bus.trigger("PREPARE-OUT-WEBSITE-LOADER");
+            /**
+             * @param {Object} [props]
+             * @param {boolean} [props.completeRemainingProgress=true]
+             * @param {Function} [props.redirectAction]
+             */
+            redirectOutFromLoader(props) {
+                bus.trigger("REDIRECT-OUT-FROM-WEBSITE-LOADER", props);
+            },
+            get hasEditableRecordInBackend() {
+                return (
+                    this.currentWebsite &&
+                    this.currentWebsite.metadata.editableInBackend &&
+                    // TODO the functional desire is to have read access on all
+                    // "website" models for all internal users, but there are many
+                    // fields preventing that... to review in master (should views just
+                    // be smarter? should they be more basic in the website app?). This
+                    // disables the form view access feature for some models that are
+                    // known to lead to access rights lock. At least, list views are
+                    // accessible at the moment.
+                    // See WEBSITE_RECORDS_VIEWS_ACCESS_RIGHTS.
+                    (!this.currentWebsite.metadata.mainObject ||
+                        !["event.event", "hr.job"].includes(
+                            this.currentWebsite.metadata.mainObject.model
+                        ) ||
+                        this.currentWebsite.metadata.canPublish)
+                );
             },
             /**
              * Returns the (translated) "functional" name of a model

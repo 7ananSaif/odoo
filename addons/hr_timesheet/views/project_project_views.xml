@@ -1,25 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <record id="project_project_view_form_simplified_inherit_timesheet" model="ir.ui.view">
-            <field name="name">project.project.view.form.simplified.inherit.timesheet</field>
-            <field name="model">project.project</field>
-            <field name="inherit_id" ref="project.project_project_view_form_simplified"/>
-            <field name="priority">24</field>
-            <field name="arch" type="xml">
-                <xpath expr="//div[hasclass('o_settings_container')]" position="inside">
-                    <setting string="Timesheets" help="Log time on tasks">
-                        <field name="allow_timesheets"/>
-                    </setting>
-                </xpath>
-            </field>
-        </record>
-
         <record id="project_invoice_form" model="ir.ui.view">
             <field name="name">Inherit project form : Invoicing Data</field>
             <field name="model">project.project</field>
             <field name="inherit_id" ref="project.edit_project"/>
-            <field name="priority">24</field>
             <field name="arch" type="xml">
                 <xpath expr="//header" position="after">
                     <field name="analytic_account_active" invisible="1"/>
@@ -30,7 +15,7 @@
                         </div>
                     </t>
                 </xpath>
-                <xpath expr="//field[@name='date']" position="after">
+                <xpath expr="//group[@name='other_section']" position="inside">
                     <field name="allocated_hours" widget="timesheet_uom_no_toggle" invisible="not allow_timesheets" groups="hr_timesheet.group_hr_timesheet_user"/>
                 </xpath>
                 <xpath expr="//group[@name='group_time_managment']" position="attributes">
@@ -40,6 +25,24 @@
                     <setting class="col-lg-12" id="timesheet_settings" string="Timesheets" help="Log time on tasks">
                         <field name="allow_timesheets"/>
                     </setting>
+                </xpath>
+                <xpath expr="//button[@name='project_update_all_action']" position="after">
+                    <t groups="hr_timesheet.group_hr_timesheet_user">
+                        <button name="action_project_timesheets" type="object" class="oe_stat_button" icon="" invisible="not allow_timesheets">
+                            <i class="oi oi-fw o_button_icon" data-icon="schedule" title="Timesheets" invisible="stat_success_rate"/>
+                            <i class="oi oi-fw o_button_icon text-success" data-icon="schedule" title="On Due" invisible="not stat_success_rate or stat_success_rate &gt;= 80"/>
+                            <i class="oi oi-fw o_button_icon text-warning" data-icon="schedule" title="Warning" invisible="not stat_success_rate or stat_success_rate &gt; 100 or stat_success_rate &lt; 80"/>
+                            <i class="oi oi-fw o_button_icon text-danger" data-icon="schedule" title="Over Due" invisible="not stat_success_rate or stat_success_rate &lt;= 100"/>
+                            <div class="o_stat_info flex-column">
+                                <span class="o_stat_text">Timesheets</span>
+                                <field class="o_stat_value" name="stat_timesheet_value"/>
+                            </div>
+                        </button>
+                    </t>
+                    <button class="oe_stat_button" type="object" name="action_project_timesheets" icon="warning" icon_class="text-danger"
+                        groups="hr_timesheet.group_hr_timesheet_user" invisible="not allow_timesheets or stat_success_rate &lt;= 100">
+                        <field string="Extra Time" name="stat_extra_time_value" widget="statinfo"/>
+                    </button>
                 </xpath>
             </field>
         </record>
@@ -64,10 +67,10 @@
             </field>
         </record>
 
-        <record id="view_project_kanban_inherited" model="ir.ui.view">
-            <field name="name">project.project.timesheet.kanban.inherited</field>
+        <record id="view_project_card_inherited" model="ir.ui.view">
+            <field name="name">project.project.timesheet.card.inherited</field>
             <field name="model">project.project</field>
-            <field name="inherit_id" ref="project.view_project_kanban"/>
+            <field name="inherit_id" ref="project.view_project_card"/>
             <field name="priority">24</field>
             <field name="arch" type="xml">
                 <xpath expr="//templates" position="before">
@@ -81,14 +84,15 @@
                         <a name="action_project_timesheets" type="object">Timesheets</a>
                     </div>
                 </xpath>
-                <xpath expr="//div[hasclass('o_project_kanban_boxes')]" position="after">
-                    <t t-set="badgeColor" t-value="'border-success'"/>
-                    <t t-set="badgeColor" t-value="'border-danger'" t-if="record.remaining_hours.raw_value &lt; 0"/>
+                <xpath expr="//field[@name='tag_ids']" position="before">
+                    <t t-set="badgeColor" t-value="'text-success'"/>
+                    <t t-set="badgeColor" t-value="'text-danger'" t-if="record.remaining_hours.raw_value &lt; 0"/>
                     <t t-set="title" t-if="record.encode_uom_in_days.raw_value">Days Remaining</t>
                     <t t-set="title" t-else="">Time Remaining</t>
-                    <div t-if="!record.is_template.raw_value and record.allow_timesheets.raw_value and record.allocated_hours.raw_value &gt; 0"
-                        t-attf-class="me-1 ms-1 bg-transparent badge border {{ badgeColor }}" t-att-title="title" groups="hr_timesheet.group_hr_timesheet_user">
-                        <field name="remaining_hours" widget="timesheet_uom" class="p-0"/>
+                    <div class="d-inline-flex align-items-baseline" t-if="!record.is_template.raw_value and record.allow_timesheets.raw_value and record.allocated_hours.raw_value &gt; 0"
+                        t-attf-class="{{ badgeColor }}" t-att-title="title" groups="hr_timesheet.group_hr_timesheet_user">
+                        <i class="oi me-2" data-icon="timer"/>
+                        <field name="remaining_hours" widget="timesheet_uom"/>
                     </div>
                 </xpath>
             </field>

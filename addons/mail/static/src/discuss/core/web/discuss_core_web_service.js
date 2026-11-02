@@ -1,4 +1,4 @@
-import { reactive } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
@@ -18,6 +18,11 @@ export class DiscussCoreWeb {
     }
 
     setup() {
+        this.env.bus.addEventListener("discuss.channel/delete", ({ detail: { channel } }) => {
+            for (const tab of this.store.messagingMenu?.visibleTabs ?? []) {
+                tab.init_counter_ids = tab.init_counter_ids.filter((id) => id !== channel.id);
+            }
+        });
         this.busService.subscribe("res.users/connection", async ({ partnerId, username }) => {
             // If the current user invited a new user, and the new user is
             // connecting for the first time while the current user is present
@@ -34,12 +39,6 @@ export class DiscussCoreWeb {
                 chat.openChatWindow({ focus: false });
             }
         });
-        this.env.bus.addEventListener("mail.message/delete", ({ detail: { message } }) => {
-            if (message.thread?.model === "discuss.channel") {
-                // initChannelsUnreadCounter becomes unreliable
-                this.store.channels.fetch();
-            }
-        });
     }
 }
 
@@ -50,7 +49,7 @@ export const discussCoreWeb = {
      * @param {import("services").ServiceFactories} services
      */
     start(env, services) {
-        const discussCoreWeb = reactive(new DiscussCoreWeb(env, services));
+        const discussCoreWeb = proxy(new DiscussCoreWeb(env, services));
         discussCoreWeb.setup();
         return discussCoreWeb;
     },

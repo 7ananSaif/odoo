@@ -1,20 +1,24 @@
-import { SelectCreateDialog } from "@web/views/view_dialogs/select_create_dialog";
-import { registry } from "@web/core/registry";
+import {
+    SelectCreateDialog,
+    selectCreateDialogProps,
+} from "@web/views/view_dialogs/select_create_dialog";
+import { useProps, t } from "@odoo/owl";
 
 export class CustomSelectCreateDialog extends SelectCreateDialog {
-    static props = {
-        ...SelectCreateDialog.props,
-        listViewId: { type: [Number, { value: false }], optional: true },
-    };
+    props = useProps({
+        ...selectCreateDialogProps,
+        listViewId: t.or([t.number(), t.literal(false)]).optional(),
+    });
 
     get viewProps() {
-        const props = super.viewProps;
+        const viewProps = super.viewProps;
         if (this.props.listViewId) {
-            props.viewId = this.props.listViewId;
-            props.type = "list";
+            viewProps.viewId = this.props.listViewId;
+            viewProps.type = "list";
         }
-        return props;
+        return viewProps;
     }
 }
 
+import { registry } from "@web/core/registry";
 registry.category("dialogs").add("custom_select_create", CustomSelectCreateDialog);

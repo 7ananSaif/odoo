@@ -8,6 +8,8 @@ from .common import TestPosQrCommon
 @tagged('post_install_l10n', 'post_install', '-at_install')
 class TestUiSEPA(TestPosQrCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     @TestPosQrCommon.setup_country('be')
     def setUpClass(cls):
@@ -15,7 +17,7 @@ class TestUiSEPA(TestPosQrCommon):
 
         # Set Bank Account on journal
         cls.bank_account = cls.env['res.partner.bank'].create({
-            'acc_number': 'BE15001559627230',
+            'account_number': 'BE15001559627230',
             'partner_id': cls.company_data['company'].partner_id.id,
         })
         cls.company_data['default_journal_bank'].write({'bank_account_id': cls.bank_account.id})
@@ -24,8 +26,9 @@ class TestUiSEPA(TestPosQrCommon):
         qr_payment = cls.env['pos.payment.method'].sudo().create({
             'name': 'QR Code',
             'journal_id': cls.company_data['default_journal_bank'].id,
-            'payment_method_type': "qr_code",
-            'qr_code_method': "sct_qr"
+            'payment_method_type': "bank_qr_code",
+            'qr_code_method': "sct_qr",
+            'type': 'bank',
         })
         cls.main_pos_config.write({
             'payment_method_ids': [(4, qr_payment.id)]
@@ -40,7 +43,7 @@ class TestUiSEPA(TestPosQrCommon):
         # Set non sepa bank account to make the test failed
         self.bank_account.allow_out_payment = False
         self.bank_account.write({
-            'acc_number': 'SA4420000001234567891234',
+            'account_number': 'SA4420000001234567891234',
             'allow_out_payment': True,
         })
         self.main_pos_config.with_user(self.pos_user).open_ui()
@@ -53,7 +56,7 @@ class TestUiSEPA(TestPosQrCommon):
 
         # Set info that were wrong in test_01
         self.bank_account.write({
-            'acc_number': 'BE15001559627230',
+            'account_number': 'BE15001559627230',
         })
         self.main_pos_config.with_user(self.pos_user).open_ui()
 
@@ -62,6 +65,8 @@ class TestUiSEPA(TestPosQrCommon):
 
 @tagged('post_install_l10n', 'post_install', '-at_install')
 class TestUiCH(TestPosQrCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     @TestPosQrCommon.setup_country('ch')
@@ -77,7 +82,7 @@ class TestUiCH(TestPosQrCommon):
 
         # Set Bank Account on journal
         cls.bank_account = cls.env['res.partner.bank'].create({
-            'acc_number': 'CH15 3881 5158 3845 3843 7',
+            'account_number': 'CH15 3881 5158 3845 3843 7',
             'partner_id': cls.company_data['company'].partner_id.id,
         })
         cls.company_data['default_journal_bank'].write({'bank_account_id': cls.bank_account.id})
@@ -86,8 +91,9 @@ class TestUiCH(TestPosQrCommon):
         qr_payment = cls.env['pos.payment.method'].sudo().create({
             'name': 'QR Code',
             'journal_id': cls.company_data['default_journal_bank'].id,
-            'payment_method_type': "qr_code",
-            'qr_code_method': "ch_qr"
+            'payment_method_type': "bank_qr_code",
+            'qr_code_method': "ch_qr",
+            'type': 'bank',
         })
         cls.main_pos_config.write({
             'payment_method_ids': [(4, qr_payment.id)]
@@ -122,6 +128,8 @@ class TestUiCH(TestPosQrCommon):
 @tagged('post_install_l10n', 'post_install', '-at_install')
 class TestUiHK(TestPosQrCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setup_armageddon_tax(cls, tax_name, company_data):
         # Hong Kong doesn't have any tax, so this methods will throw errors if we don't return None
@@ -137,7 +145,7 @@ class TestUiHK(TestPosQrCommon):
 
         # Set Bank Account on journal
         cls.bank_account = cls.env['res.partner.bank'].create({
-            'acc_number': '123-123456-123',
+            'account_number': '123-123456-123',
             'partner_id': cls.company_data['company'].partner_id.id,
         })
         cls.company_data['default_journal_bank'].write({'bank_account_id': cls.bank_account.id})
@@ -146,8 +154,9 @@ class TestUiHK(TestPosQrCommon):
         qr_payment = cls.env['pos.payment.method'].sudo().create({
             'name': 'QR Code',
             'journal_id': cls.company_data['default_journal_bank'].id,
-            'payment_method_type': "qr_code",
-            'qr_code_method': "emv_qr"
+            'payment_method_type': "bank_qr_code",
+            'qr_code_method': "emv_qr",
+            'type': 'bank',
         })
         cls.main_pos_config.write({
             'payment_method_ids': [(4, qr_payment.id)]
@@ -177,9 +186,28 @@ class TestUiHK(TestPosQrCommon):
 
         self.start_tour("/pos/ui/%d" % self.main_pos_config.id, 'PaymentScreenWithQRPayment', login="pos_user")
 
+    def test_03_pos_emv_qr_payment_value(self):
+        """ The QR-code image is drawn by the POS client, so the server has to
+        return the raw EMV payload the bank application expects, and not the URL
+        of the report rendering that payload.
+        """
+        self.bank_account.write({
+            'proxy_type': 'mobile',
+            'proxy_value': '+852-67891234',
+            'include_reference': True,
+        })
+        qr_payment = self.main_pos_config.payment_method_ids.filtered(lambda pm: pm.payment_method_type == 'bank_qr_code')
+
+        self.assertEqual(
+            qr_payment.get_qr_code_value(4.8, 'Order 00042', '', self.company.currency_id.id, False),
+            '00020101021226330012hk.com.hkicl0313+852-6789123452040000530334454034.85802HK5914company_1_data6002HK62150511Order 000426304EBF2',
+        )
+
 
 @tagged('post_install_l10n', 'post_install', '-at_install')
 class TestUIBR(TestPosQrCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     @TestPosQrCommon.setup_country('br')
@@ -192,7 +220,7 @@ class TestUIBR(TestPosQrCommon):
 
         # Set Bank Account on journal
         cls.bank_account = cls.env["res.partner.bank"].create({
-            "acc_number": "123456789012345678",
+            "account_number": "123456789012345678",
             "partner_id": cls.company_data["company"].partner_id.id,
         })
         cls.company_data['default_journal_bank'].write({'bank_account_id': cls.bank_account.id})
@@ -201,8 +229,9 @@ class TestUIBR(TestPosQrCommon):
         qr_payment = cls.env['pos.payment.method'].sudo().create({
             'name': 'QR Code',
             'journal_id': cls.company_data['default_journal_bank'].id,
-            'payment_method_type': "qr_code",
-            'qr_code_method': "emv_qr"
+            'payment_method_type': "bank_qr_code",
+            'qr_code_method': "emv_qr",
+            'type': 'bank',
         })
         cls.main_pos_config.write({
             'payment_method_ids': [(4, qr_payment.id)]

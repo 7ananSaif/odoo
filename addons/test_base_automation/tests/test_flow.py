@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 from odoo import Command
 from odoo.addons.base.tests.common import TransactionCaseWithUserDemo
-from odoo.exceptions import AccessError, ValidationError
+from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests import Form, common, tagged, WhitespaceInsensitive
 from odoo.tools import mute_logger
 
@@ -302,7 +302,7 @@ if env.context.get('old_values', None): # on write only
                 'code': """
 if env.context.get('old_values', None):  # on write
     if 'user_id' in env.context['old_values'][record.id]:
-        record.write({'is_assigned_to_admin': (record.user_id.id == 1)})""",
+        record.write({'is_assigned_to_admin': (record.user_id == record.env.ref('base.user_root'))})""",
                 },
             )
 
@@ -376,33 +376,49 @@ else:
             filter_domain="[('deadline', '!=', False)]",
             _actions={
                 'state': 'mail_post',
-                'mail_post_method': 'email',
                 'template_id': self.test_mail_template_automation.id,
             },
         )
 
-        send_mail_count = 0
-
-        def _patched_send_mail(*args, **kwargs):
-            nonlocal send_mail_count
-            send_mail_count += 1
-
-        patcher = patch('odoo.addons.mail.models.mail_template.MailTemplate.send_mail', _patched_send_mail)
-        self.startPatcher(patcher)
-
         lead = self.env['base.automation.lead.thread.test'].create({
             'name': "Lead Test",
-            'user_id': self.user_root.id,
+            'user_id': self.user_admin.id,
         })
+
         self.addCleanup(lead.unlink)
         self.assertEqual(lead.priority, False)
         self.assertEqual(lead.deadline, False)
-        self.assertEqual(send_mail_count, 0)
+        self.assertEqual(len(lead.message_ids.mail_ids), 0)
 
         lead.write({'priority': True})
         self.assertEqual(lead.priority, True)
         self.assertNotEqual(lead.deadline, False)
-        self.assertEqual(send_mail_count, 1)
+        self.assertEqual(len(lead.message_ids.mail_ids), 1)
+
+    def test_014_recompute_on_create(self):
+        """An automation runs once when its trigger field is computed during create."""
+        stage_field = self.env.ref("test_base_automation.field_base_automation_lead_test__stage_id")
+        create_automation(
+            self,
+            model_id=self.env['ir.model']._get_id('base.automation.lead.thread.test'),
+            trigger='on_create_or_write',
+            trigger_field_ids=[Command.link(stage_field.id)],
+            filter_domain="[('stage_id', '!=', False)]",
+            _actions={
+                'state': 'mail_post',
+                'template_id': self.test_mail_template_automation.id,
+            },
+        )
+
+        lead = self.env['base.automation.lead.thread.test'].with_context(
+            test_base_automation_read_stage_on_create=True,
+        ).create({
+            'name': "Lead Test",
+            'user_id': self.user_admin.id,
+        })
+        self.addCleanup(lead.unlink)
+        self.assertTrue(lead.stage_id)
+        self.assertEqual(len(lead.message_ids.mail_ids), 1)
 
     def test_020_recursive(self):
         """ Check that a rule is executed recursively by a secondary change. """
@@ -989,19 +1005,20 @@ action = {
             patch.object(automation.__class__, '_process', side_effect=automation._process) as mock,
             self.enter_registry_test_mode(),
         ):
-            with patch.object(self.env.cr, '_now', now := datetime.datetime.now()):
+            now = datetime.datetime.now()
+            with self.mock_datetime_and_now(now):
                 past_date = now - datetime.timedelta(1)
                 self.env["base.automation.lead.test"].create([{
                     'name': f'lead {i}',
                     # 2 without a date, 8 set in past, 5 set in future (10, 11, ... minutes after now)
                     'date_automation_last': False if i < 2 else past_date if i < 10 else now + datetime.timedelta(minutes=i),
                 } for i in range(15)])
-            with common.freeze_time('2020-01-01 03:02:01'), patch.object(self.env.cr, '_now', datetime.datetime.now()):
+            with self.mock_datetime_and_now('2020-01-01 03:02:01'):
                 # process records
                 self.automation_cron.method_direct_trigger()
                 self.assertEqual(mock.call_count, 10)
                 self.assertEqual(automation.last_run, self.env.cr.now())
-            with common.freeze_time('2020-01-01 03:13:59'), patch.object(self.env.cr, '_now', datetime.datetime.now()):
+            with self.mock_datetime_and_now('2020-01-01 03:13:59'):
                 # 2 in the future (because of timing)
                 # 10 previously done records because we use the date_automation_last as trigger without delay
                 self.automation_cron.method_direct_trigger()
@@ -1011,9 +1028,42 @@ action = {
                 automation.trg_date_calendar_id = self.env["resource.calendar"].search([], limit=1).ensure_one()
                 automation.trg_date_range_type = 'day'
                 self.env["base.automation.lead.test"].create({'name': 'calendar'})  # for the run
-            with common.freeze_time('2020-02-02 03:11:00'), patch.object(self.env.cr, '_now', datetime.datetime.now()):
+            with self.mock_datetime_and_now('2020-02-02 03:11:00'):
                 self.automation_cron.method_direct_trigger()
                 self.assertEqual(mock.call_count, 38)
+
+    def test_004_check_method_process_failing_record(self):
+        """ The record failing a time-based automation must be logged: the whole
+        run is rolled back and fails again until that record is fixed. """
+        model = self.env["ir.model"]._get("base.automation.lead.test")
+        self.env["base.automation"].search([('trigger', 'in', ['on_time', 'on_time_created', 'on_time_updated'])]).active = False
+        automation = create_automation(
+            self,
+            model_id=model.id,
+            trigger='on_time',
+            trg_date_id=model.field_id.filtered(lambda f: f.name == 'date_automation_last').id,
+            trg_date_range=2,
+            trg_date_range_type='minutes',
+            trg_date_range_mode='after',
+            _actions={
+                'state': 'code',
+                'code': "if record.name == 'bad':\n    raise UserError('boom')",
+            },
+        )
+        past_date = self.env.cr.now() - datetime.timedelta(days=1)
+        _good_1, bad, _good_2 = self.env["base.automation.lead.test"].create([
+            {'name': name, 'date_automation_last': past_date} for name in ('good 1', 'bad', 'good 2')
+        ])
+
+        with (
+            self.enter_registry_test_mode(),
+            mute_logger('odoo.addons.base.models.ir_cron'),
+            self.assertLogs('odoo.addons.base_automation', 'ERROR') as capture,
+        ):
+            self.automation_cron.method_direct_trigger()
+
+        self.assertIn(f"`{automation.name}` on record base.automation.lead.test({bad.id},)", "\n".join(capture.output))
+        self.assertFalse(automation.last_run)
 
     def test_005_check_model_with_different_rec_name_char(self):
         model = self.env["ir.model"]._get("base.automation.model.with.recname.char")
@@ -1114,6 +1164,30 @@ action = {
                 },
             )
         self.assertEqual(e.exception.args[0], "Following child actions have warnings: Send Webhook Notification")
+
+    def test_150_on_write_recompute_without_write_access(self):
+        """ A user may trigger an automation on records they can only read,
+        through the recomputation of a stored field without compute_sudo. """
+        tag = self.env['test_base_automation.tag'].create({'name': 'Tag'})
+        record = self.env['test_base_automation.readonly.test'].create({'tag_id': tag.id})
+        create_automation(
+            self,
+            model_id=self.env['ir.model']._get_id('test_base_automation.readonly.test'),
+            trigger='on_create_or_write',
+            _actions={'state': 'code', 'code': "records.write({'name': 'Processed'})"},
+        )
+        self.assertFalse(record.date_automation_last)
+
+        # sanity check: user demo can read the record, but not write on it
+        self.assertTrue(record.with_user(self.user_demo).has_access('read'))
+        self.assertFalse(record.with_user(self.user_demo).has_access('write'))
+
+        tag.with_user(self.user_demo).name = 'New Tag'
+        # recompute 'tag_name' as user demo, like when flushing their request
+        record.with_user(self.user_demo).flush_model()
+        self.assertEqual(record.tag_name, 'New Tag')
+        self.assertEqual(record.name, 'Processed')
+        self.assertTrue(record.date_automation_last)
 
 
 @common.tagged('post_install', '-at_install')
@@ -1253,10 +1327,7 @@ class TestCompute(common.TransactionCase):
         automation = automation_form.save()
         self.assertEqual(automation.filter_pre_domain, False)
         self.assertEqual(automation.filter_domain, repr([('priority', '=', True), ('employee', '=', False)]))
-        self.assertSetEqual(set(automation.trigger_field_ids.ids), {
-            self.env.ref('test_base_automation.field_base_automation_lead_test__priority').id,
-            self.env.ref('test_base_automation.field_base_automation_lead_test__employee').id,
-        })
+        self.assertEqual(automation.trigger_field_ids.ids, [])
         self.assertEqual(automation.on_change_field_ids.ids, [])
 
         # Change the trigger fields will not change the domain
@@ -1267,8 +1338,6 @@ class TestCompute(common.TransactionCase):
         self.assertEqual(automation.filter_pre_domain, False)
         self.assertEqual(automation.filter_domain, repr([('priority', '=', True), ('employee', '=', False)]))
         self.assertItemsEqual(automation.trigger_field_ids.ids, [
-            self.env.ref('test_base_automation.field_base_automation_lead_test__priority').id,
-            self.env.ref('test_base_automation.field_base_automation_lead_test__employee').id,
             self.env.ref('test_base_automation.field_base_automation_lead_test__tag_ids').id
         ])
         self.assertEqual(automation.on_change_field_ids.ids, [])
@@ -1278,9 +1347,14 @@ class TestCompute(common.TransactionCase):
         automation = automation_form.save()
         self.assertEqual(automation.filter_pre_domain, False)
         self.assertEqual(automation.filter_domain, False)
-        self.assertEqual(automation.trigger_field_ids.ids, [
-            self.env.ref('test_base_automation.field_base_automation_lead_test__tag_ids').id
-        ])
+        self.assertEqual(automation.trigger_field_ids.ids, [self.env.ref('test_base_automation.field_base_automation_lead_test__tag_ids').id])
+        self.assertEqual(automation.on_change_field_ids.ids, [])
+
+        automation.trigger = "on_stage_set"
+        automation = automation_form.save()
+        self.assertEqual(automation.filter_pre_domain, False)
+        self.assertEqual(automation.filter_domain, False)
+        self.assertEqual(automation.trigger_field_ids.ids, [self.env.ref('test_base_automation.field_base_automation_lead_test__stage_id').id])
         self.assertEqual(automation.on_change_field_ids.ids, [])
 
     def test_automation_form_view_time_triggers(self):
@@ -1347,11 +1421,11 @@ class TestCompute(common.TransactionCase):
         self.assertEqual(automation_form.name, context.get('default_name'))
         self.assertEqual(automation_form.model_id.id, context.get('default_model_id'))
         self.assertEqual(automation_form.trigger, context.get('default_trigger'))
-        self.assertEqual(automation_form.trigger_field_ids.ids, default_trigger_field_ids,
-            'trigger_field_ids should match the fields in the default filter domain.')
+        self.assertEqual(automation_form.trigger_field_ids.ids, [],
+            'trigger_field_ids should staty empty by default')
 
-        automation_form.trigger = 'on_stage_set'
-        self.assertNotEqual(automation_form.trigger_field_ids.ids, default_trigger_field_ids,
+        automation_form.trigger = 'on_state_set'
+        self.assertEqual(automation_form.trigger_field_ids.ids, default_trigger_field_ids,
             'When user changes trigger, the trigger_field_ids field should be updated')
 
     def test_inversion(self):
@@ -1367,15 +1441,12 @@ class TestCompute(common.TransactionCase):
         """
         company1 = self.env['res.partner'].create({
             'name': "Gorofy",
-            'is_company': True,
         })
         company2 = self.env['res.partner'].create({
             'name': "Awiclo",
-            'is_company': True
         })
         r = self.env['res.partner'].create({
             'name': 'Bob',
-            'is_company': False,
             'parent_id': company1.id
         })
         self.assertEqual(r.display_name, 'Gorofy, Bob')
@@ -1425,6 +1496,27 @@ class TestCompute(common.TransactionCase):
         self.assertRecordValues(task, [{
             'effective_hours': 5,
             'remaining_hours': 95,
+        }])
+
+    def test_computation_inside_computation(self):
+        """ An automation processed from a nested computation keeps the fields depending on the outer one to compute """
+        project = self.env['test_base_automation.project'].create({})
+        parent = self.env['test_base_automation.task'].create({'project_id': project.id})
+        task = self.env['test_base_automation.task'].create({'allocated_hours': 40})
+
+        # the post-filter computes 'effective_hours', which computes 'project_id' in turn
+        create_automation(
+            self,
+            model_id=self.env.ref('test_base_automation.model_test_base_automation_task').id,
+            trigger='on_create_or_write',
+            filter_domain="[('effective_hours', '>=', 0)]",
+            _actions={'state': 'code', 'code': 'record.remaining_hours'},
+        )
+
+        task.write({'parent_id': parent.id, 'trigger_hours': 8})
+        self.assertRecordValues(task, [{
+            'effective_hours': 8,
+            'remaining_hours': 32,
         }])
 
     def test_recursion(self):
@@ -1495,7 +1587,7 @@ class TestCompute(common.TransactionCase):
         })
 
         ext_partner = self.env["res.partner"].create({"name": "ext", "email": "email@server.com"})
-        internal_partner = self.env["res.users"].browse(2).partner_id
+        internal_partner = self.env.ref('base.user_admin').partner_id
 
         obj = self.env["base.automation.lead.thread.test"].create({"name": "test"})
         obj.message_subscribe([ext_partner.id, internal_partner.id])
@@ -1558,7 +1650,7 @@ class TestCompute(common.TransactionCase):
         })
 
         ext_partner = self.env["res.partner"].create({"name": "ext", "email": "email@server.com"})
-        internal_partner = self.env["res.users"].browse(2).partner_id
+        internal_partner = self.env.ref('base.user_admin').partner_id
 
         obj = self.env["base.automation.lead.thread.test"].create({"name": "test"})
         obj.message_subscribe([ext_partner.id, internal_partner.id])
@@ -1622,7 +1714,7 @@ class TestCompute(common.TransactionCase):
         f.evaluation_type = "value"
         f.update_path = "child_ids"
         self.assertEqual(f.update_m2m_operation, "add")
-        self.assertEqual(f.value_field_to_show, "resource_ref")
+        self.assertEqual(f.value_field_to_show, "x2many")
         f.resource_ref = f"res.partner,{bs_partner.id}"
         action = f.save()
 
@@ -1738,63 +1830,6 @@ class TestCompute(common.TransactionCase):
         })
         assert_history(action, expected)
 
-    def test_server_action_code_history_wizard_with_no_timezone(self):
-        self.env.user.tz = False
-
-        def get_history(action):
-            return self.env["ir.actions.server.history"].search([("action_id", "=", action.id)])
-
-        def assert_history(action, expected):
-            history = get_history(action)
-            self.assertRecordValues(history, expected)
-
-        expected = []
-
-        with freeze_time("2025-05-01 10:00:00"):
-            self.env.cr._now = datetime.datetime.now()  # reset transaction's NOW
-            action = self.env["ir.actions.server"].create({
-                "name": "Test Action",
-                "model_id": self.env["ir.model"]._get("res.partner").id,
-                "state": "code",
-                "code": "pass",
-            })
-        expected.insert(0, {
-            "code": "pass",
-            "display_name": WhitespaceInsensitive(f"May 1, 2025, 10:00:00 AM - {self.env.ref('base.user_root').name}"),
-        })
-        assert_history(action, expected)
-
-        with freeze_time("2025-05-01 10:00:00"):
-            self.env.cr._now = datetime.datetime.now()  # reset transaction's NOW
-            action.with_user(self.env.ref('base.user_admin')).write({"code": "hello"})
-        expected.insert(0, {
-            "code": "hello",
-            "display_name": WhitespaceInsensitive(f"May 1, 2025, 10:00:00 AM - {self.env.ref('base.user_admin').name}"),
-        })
-        assert_history(action, expected)
-
-        with freeze_time("2025-05-12 10:00:00"):
-            self.env.cr._now = datetime.datetime.now()  # reset transaction's NOW
-            with Form(self.env['server.action.history.wizard'].with_context(default_action_id=action.id)) as wizard_form:
-                self.assertRecordValues(wizard_form.revision, [
-                    {
-                        "code": "pass",
-                        "display_name": WhitespaceInsensitive(f"May 1, 2025, 10:00:00 AM - {self.env.ref('base.user_root').name}"),
-                    }
-                ])
-                first_diff = str(wizard_form.code_diff)
-                wizard_form.revision = get_history(action)[-1]
-                second_diff = str(wizard_form.code_diff)
-                self.assertNotEqual(first_diff, second_diff)
-            wizard_form.record.restore_revision()
-
-        self.assertEqual(action.code, "pass")
-        expected.insert(0, {
-            "code": "pass",
-            "display_name": WhitespaceInsensitive(f"May 12, 2025, 10:00:00 AM - {self.env.ref('base.user_root').name}"),
-        })
-        assert_history(action, expected)
-
 
 @common.tagged("post_install", "-at_install")
 class TestHttp(common.HttpCase):
@@ -1823,6 +1858,22 @@ class TestHttp(common.HttpCase):
         response = self.url_open("/web/hook/0123456789", data=json.dumps({"name": "some name"}))
         self.assertEqual(response.json(), {"status": "error"})
         self.assertEqual(response.status_code, 404)
+
+    def test_webhook_trigger_failing_record(self):
+        """ The record on which a webhook fails must be logged, as the payload is
+        only logged at debug level. """
+        model = self.env["ir.model"]._get("base.automation.linked.test")
+        record_getter = "model.search([('name', '=', payload['name'])])"
+        automation = create_automation(self, trigger="on_webhook", model_id=model.id, record_getter=record_getter, _actions={
+            "state": "code",
+            "code": "raise UserError('boom')",
+        })
+        obj = self.env[model.model].create({"name": "some name"})
+
+        with self.assertLogs("odoo.addons.base_automation", "WARNING") as capture, self.assertRaises(UserError):
+            automation._execute_webhook({"name": "some name"})
+
+        self.assertIn(f"Webhook #{automation.id} failed on record base.automation.linked.test({obj.id},)", "\n".join(capture.output))
 
     def test_payload_in_action_server(self):
         model = self.env["ir.model"]._get("base.automation.linked.test")
@@ -1866,7 +1917,7 @@ class TestHttp(common.HttpCase):
         self.cr.flush()
         with self.allow_requests(all_requests=True):
             self.cr.postcommit.run()  # webhooks run in postcommit
-        self.cr.clear()
+        self.cr.transaction.clear()
         self._wait_remaining_requests()  # just in case the request timeouts
         self.assertEqual(json.loads(obj.another_field), {
             '_action': f'Send Webhook Notification(#{automation_sender.action_server_ids[0].id})',

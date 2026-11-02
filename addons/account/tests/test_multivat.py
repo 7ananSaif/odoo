@@ -14,7 +14,7 @@ def _get_chart_template_mapping(self, get_all=False):
             'name': 'local',
             'country_id': self.env.ref("base.be").id,
             'country_code': 'be',
-            'modules': ['account'],
+            'module': 'account',
             'parent': None,
             'installed': True,
         },
@@ -22,7 +22,7 @@ def _get_chart_template_mapping(self, get_all=False):
             'name': 'foreign',
             'country_id': self.env.ref("base.fr").id,
             'country_code': 'fr',
-            'modules': ['account'],
+            'module': 'account',
             'parent': None,
             'installed': True,
         },
@@ -34,7 +34,7 @@ def data_method_provider(chart_template_name, country_code):
     # this is used to simulated differences between xml_ids
     external_id_prefix = '' if chart_template_name == 'local' else f"{chart_template_name}_"
 
-    def test_data_getter(self, template_code):
+    def test_data_getter(self, template_code, demo=False):
         return {
             'template_data': {
                 'code_digits': 6,
@@ -54,26 +54,18 @@ def data_method_provider(chart_template_name, country_code):
                     'name': f'{external_id_prefix}tax recoverable',
                     'code': '411000',
                     'account_type': 'asset_receivable',
-                    'reconcile': True,
                     'non_trade': True,
                 },
                 f'{external_id_prefix}test_account_tax_receivable_template': {
                     'name': f'{external_id_prefix}tax receivable',
                     'code': '411200',
                     'account_type': 'asset_receivable',
-                    'reconcile': True,
                     'non_trade': True,
-                },
-                f'{external_id_prefix}test_account_advance_payment_tax_template': {
-                    'name': f'{external_id_prefix}advance tax payment',
-                    'code': '411900',
-                    'account_type': 'asset_current',
                 },
                 f'{external_id_prefix}test_account_tax_payable_template': {
                     'name': f'{external_id_prefix}tax payable',
                     'code': '451200',
                     'account_type': 'liability_payable',
-                    'reconcile': True,
                     'non_trade': True,
                 },
                 f'{external_id_prefix}test_account_cash_basis_transition_account_id': {
@@ -98,9 +90,6 @@ def data_method_provider(chart_template_name, country_code):
                     'name': f"{external_id_prefix}Taxes",
                     'sequence': 0,
                     'country_id': country,
-                    'tax_payable_account_id': f'{external_id_prefix}test_account_tax_payable_template',
-                    'tax_receivable_account_id': f'{external_id_prefix}test_account_tax_receivable_template',
-                    'advance_tax_payment_account_id': f'{external_id_prefix}test_account_advance_payment_tax_template',
                 },
             },
             'account.tax': {
@@ -145,6 +134,8 @@ def _tax_vals(name, amount, external_id_prefix, cash_basis=False, account_on_rep
 @tagged('post_install', '-at_install')
 @patch.object(AccountChartTemplate, '_get_chart_template_mapping', _get_chart_template_mapping)
 class TestMultiVAT(AccountTestInvoicingCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def _use_chart_template(cls, company, chart_template_ref=None):
@@ -201,14 +192,6 @@ class TestMultiVAT(AccountTestInvoicingCommon):
             with self.subTest(xml_id=xml_id, country_code=country_code):
                 self.assertEqual(tax_group.country_id.code, country_code)
 
-        local_tax_group = self.env["account.chart.template"].ref('tax_group_taxes')
-        foreign_tax_group = self.env["account.chart.template"].ref('foreign_tax_group_taxes')
-        for field in ('tax_payable_account_id', 'tax_receivable_account_id', 'advance_tax_payment_account_id'):
-            with self.subTest(field=field):
-                self.assertTrue(foreign_tax_group[field], "This account should have been set")
-                self.assertNotEqual(foreign_tax_group[field], local_tax_group[field],
-                                    "A copy of the local tax group account should have been created and set")
-
     def test_tax_data_should_be_consistent(self):
         # Ensure the correct country is set
         for xml_id, country_code in (
@@ -250,8 +233,8 @@ class TestMultiVAT(AccountTestInvoicingCommon):
 
     def test_multivat_cash_basis(self):
         def wrap_data_getter_for_caba(data_getter):
-            def caba_data_getter(self, template_code):
-                rslt = data_getter(self, template_code)
+            def caba_data_getter(self, template_code, demo=False):
+                rslt = data_getter(self, template_code, demo)
 
                 rslt['account.tax']['es.caba_0_tax'] = _tax_vals("Dudu 0", 0, 'es', cash_basis=True, account_on_repartition=False)
                 rslt['account.tax']['es.caba_42_tax'] = _tax_vals("Dudu 42", 42, 'es', cash_basis=True)

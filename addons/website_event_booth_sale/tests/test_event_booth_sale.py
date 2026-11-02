@@ -13,6 +13,14 @@ from odoo.tests.common import tagged
 @tagged('post_install', '-at_install')
 class TestWebsiteEventBoothSale(HttpCaseWithUserPortal, TestWebsiteEventSaleCommon):
 
+    _test_user_groups = (
+        'base.group_user',
+        'product.group_product_manager',
+        'sales_team.group_sale_manager',  # FIXME: use sales_team.group_sale_salesman
+    )
+
+    _test_user_name = 'Test Sales & Product Manager'
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -75,7 +83,7 @@ class TestWebsiteEventBoothSale(HttpCaseWithUserPortal, TestWebsiteEventSaleComm
         self.start_tour('/event', 'website_event_booth_tour', login='portal')
 
     def test_booth_pricelists_different_currencies(self):
-        self.env.ref('base.user_admin').partner_id.write({
+        self.env.ref('base.user_admin').sudo().partner_id.write({
             'email': 'mitchell.stephen@example.com',
             'name': 'Mitchell Admin',
             'street': '215 Vine St',
@@ -85,4 +93,4 @@ class TestWebsiteEventBoothSale(HttpCaseWithUserPortal, TestWebsiteEventSaleComm
             'state_id': self.env.ref('base.state_us_39').id,
             'phone': '+1 555-555-5555',
         })
-        self.start_tour("/odoo", 'event_booth_sale_pricelists_different_currencies', login='admin')
+        self.start_tour("/event", 'event_booth_sale_pricelists_different_currencies', login='admin')

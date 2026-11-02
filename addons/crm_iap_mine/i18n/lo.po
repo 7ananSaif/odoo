@@ -5,19 +5,19 @@
 # Bone NI <bounkirdni@gmail.com>, 2026.
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0\n"
+"Project-Id-Version: Odoo Server 19.4a1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-06-06 15:38+0000\n"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-10-20 22:33+0000\n"
 "Last-Translator: Bone NI <bounkirdni@gmail.com>\n"
-"Language-Team: Lao <https://translate.odoo.com/projects/odoo-19/crm_iap_mine/"
+"Language-Team: Lao <https://translate.odoo.com/projects/odoo-20/crm_iap_mine/"
 "lo/>\n"
 "Language: lo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: crm_iap_mine
 #. odoo-python
@@ -25,12 +25,13 @@ msgstr ""
 msgid ""
 "%(credit_count)d credits will be consumed to find %(company_count)d "
 "companies."
-msgstr "%(credit_count)d ເຄຣດິດຈະຖືກນຳໃຊ້ເພື່ອຄົ້ນຫາ %(company_count)d ບໍລິສັດ."
+msgstr "ຈະໃຊ້ %(credit_count)d ເຄຣດິດ ເພື່ອຄົ້ນຫາ %(company_count)d ບໍລິສັດ."
 
 #. module: crm_iap_mine
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.enrich_company
-msgid "<b>Contacts</b>"
-msgstr "<b>ຜູ້ຕິດຕໍ່</b>"
+#. odoo-python
+#: code:addons/crm_iap_mine/models/crm_iap_lead_helpers.py:0
+msgid "%s's opportunity"
+msgstr "ໂອກາດຂອງ %s"
 
 #. module: crm_iap_mine
 #: model:mail.template,body_html:crm_iap_mine.lead_generation_no_credits
@@ -38,15 +39,17 @@ msgid ""
 "<div style=\"margin: 0px; padding: 0px;\">\n"
 "    <p>Dear,</p>\n"
 "    <p>There are no more credits on your IAP Lead Generation account.<br/>\n"
-"    You can charge your IAP Lead Generation account in the settings of the CRM app.<br/></p>\n"
+"    You can charge your IAP Lead Generation account in the settings of the "
+"CRM app.<br/></p>\n"
 "    <p>Best regards,</p>\n"
 "    <p>Odoo S.A.</p>\n"
 "</div>"
 msgstr ""
 "<div style=\"margin: 0px; padding: 0px;\">\n"
-"    <p>ຮຽນ,</p>\n"
+"    <p>ຮຽນທ່ານ,</p>\n"
 "    <p>ເຄຣດິດໃນບັນຊີ IAP Lead Generation ຂອງທ່ານໝົດແລ້ວ.<br/>\n"
-"    ທ່ານສາມາດຕື່ມເຄຣດິດໃນບັນຊີ IAP Lead Generation ໄດ້ທີ່ການຕັ້ງຄ່າຂອງແອັບ CRM.<br/></p>\n"
+"    ທ່ານສາມາດຕື່ມເຄຣດິດໃສ່ບັນຊີ IAP Lead Generation ໄດ້ໃນການຕັ້ງຄ່າຂອງແອັບ CRM.<br/></p>"
+"\n"
 "    <p>ດ້ວຍຄວາມນັບຖື,</p>\n"
 "    <p>Odoo S.A.</p>\n"
 "</div>"
@@ -54,43 +57,51 @@ msgstr ""
 #. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.enrich_company
 msgid ""
-"<i class=\"fa fa-fw me-2 fa-address-book text-primary\"/>\n"
-"                    <b>Address</b>"
-msgstr ""
-"<i class=\"fa fa-fw me-2 fa-address-book text-primary\"/>\n"
-"                    <b>ທີ່ຢູ່</b>"
-
-#. module: crm_iap_mine
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.enrich_company
-msgid ""
-"<i class=\"fa fa-fw me-2 fa-cube text-primary\"/>\n"
+"<i class=\"oi oi-fw me-2 text-primary\" data-icon=\"deployed_code\"/>\n"
 "                    <b>Industries</b>"
 msgstr ""
-"<i class=\"fa fa-fw me-2 fa-cube text-primary\"/>\n"
+"<i class=\"oi oi-fw me-2 text-primary\" data-icon=\"deployed_code\"/>\n"
 "                    <b>ອຸດສາຫະກຳ</b>"
 
 #. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.enrich_company
 msgid ""
-"<i class=\"fa fa-fw me-2 fa-globe text-primary\"/>\n"
+"<i class=\"oi oi-fw me-2 text-primary\" data-icon=\"public\"/>\n"
 "                    <b>Website</b>"
 msgstr ""
-"<i class=\"fa fa-fw me-2 fa-globe text-primary\"/>\n"
-"                    <b>ເວັບໄຊທ໌</b>"
+"<i class=\"oi oi-fw me-2 text-primary\" data-icon=\"public\"/>\n"
+"                    <b>ເວັບໄຊຕ໌</b>"
 
 #. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.enrich_company
 msgid ""
-"<i class=\"fa fa-fw me-2 fa-solid fa-id-card text-primary\"/>\n"
+"<i class=\"oi oi-fw oi-filled me-2 text-primary\" data-icon=\"badge\"/>\n"
 "                    <b>Tax ID</b>"
 msgstr ""
-"<i class=\"fa fa-fw me-2 fa-solid fa-id-card text-primary\"/>\n"
-"                    <b>ເລກປະຈຳຕົວຜູ້ເສຍພາສີ</b>"
+"<i class=\"oi oi-fw oi-filled me-2 text-primary\" data-icon=\"badge\"/>\n"
+"                    <b>ເລກປະຈຳຕົວຜູ້ເສຍອາກອນ</b>"
+
+#. module: crm_iap_mine
+#: model_terms:ir.ui.view,arch_db:crm_iap_mine.enrich_company
+msgid ""
+"<i class=\"oi oi-fw oi-filled me-2 text-primary\" data-icon=\"contact_page\"/"
+">\n"
+"                    <b>Address</b>"
+msgstr ""
+"<i class=\"oi oi-fw oi-filled me-2 text-primary\" data-"
+"icon=\"contact_page\"/>\n"
+"                    <b>ທີ່ຢູ່</b>"
 
 #. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
-msgid "<span class=\"col-md-6\">Extra contacts per Company</span>"
-msgstr "<span class=\"col-md-6\">ຜູ້ຕິດຕໍ່ເພີ່ມເຕີມຕໍ່ບໍລິສັດ</span>"
+msgid "<span class=\"fw-normal o_stat_text o_translate_inline\">Leads</span>"
+msgstr ""
+"<span class=\"fw-normal o_stat_text o_translate_inline\">ລູກຄ້າເປົ້າໝາຍ</span>"
+
+#. module: crm_iap_mine
+#: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
+msgid "<span class=\"o_form_label fw-normal\">employees</span>"
+msgstr "<span class=\"o_form_label fw-normal\">ພະນັກງານ</span>"
 
 #. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
@@ -100,7 +111,7 @@ msgstr "<span class=\"o_stat_text\">ລູກຄ້າເປົ້າໝາຍ</
 #. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
 msgid "<span class=\"o_stat_text\">Opportunities</span>"
-msgstr "<span class=\"o_stat_text\">ໂອກາດການຂາຍ</span>"
+msgstr "<span class=\"o_stat_text\">ໂອກາດ</span>"
 
 #. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
@@ -108,23 +119,68 @@ msgid ""
 "<span invisible=\"error_type != 'no_result'\">Your request did not return "
 "any result (no credits were used). Try removing some filters.</span>"
 msgstr ""
-"<span invisible=\"error_type != 'no_result'\">ຄຳຮ້ອງຂໍຂອງທ່ານບໍ່ມີຜົນການຄົ້ນຫາ (ບໍ່ມີການໃ"
-"ຊ້ເຄຣດິດ). ລອງລຶບຕົວກອງບາງອັນອອກ.</span>"
+"<span invisible=\"error_type != 'no_result'\">ຄຳຂໍຂອງທ່ານບໍ່ພົບຜົນໃດໆ (ບໍ່ມີການຕັດເຄຣດິ"
+"ດ). ລອງປົດບາງຕົວກັ່ນຕອງອອກ.</span>"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_238
-msgid "Automobiles & Components"
-msgstr "ລົດຍົນ ແລະ ສ່ວນປະກອບ"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_96
+msgid "Administration Of Economic Programs"
+msgstr "ການຄຸ້ມຄອງໂຄງການເສດຖະກິດ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_07
+msgid "Agricultural Services"
+msgstr "ການບໍລິການດ້ານກະສິກຳ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry.division,name:crm_iap_mine.crm_iap_mine_division_a
+msgid "Agriculture, Forestry & Fishing"
+msgstr "ກະສິກຳ, ປ່າໄມ້ ແລະ ການປະມົງ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_45
+msgid "Air Transportation"
+msgstr "ການຂົນສົ່ງທາງອາກາດ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_56
+msgid "Apparel and Accessory Stores"
+msgstr "ຮ້ານຂາຍເຄື່ອງນຸ່ງຫົ່ມ ແລະ ເຄື່ອງປະດັບ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_23
+msgid "Apparel and Similar Products"
+msgstr "ເຄື່ອງນຸ່ງຫົ່ມ ແລະ ຜະລິດຕະພັນທີ່ຄ້າຍຄືກັນ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_55
+msgid "Auto Dealers and Gas Stations"
+msgstr "ຕົວແທນຈຳໜ່າຍລົດ ແລະ ປ້ຳນ້ຳມັນ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_75
+msgid "Automotive Repair and Parking"
+msgstr "ການສ້ອມແປງລົດ ແລະ ບ່ອນຈອດລົດ"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__available_state_ids
 msgid "Available State"
-msgstr "ລັດ/ແຂວງ ທີ່ມີຢູ່"
+msgstr "ລັດ/ແຂວງ ທີ່ມີໃຫ້ເລືອກ"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_69_157
-msgid "Banks & Insurance"
-msgstr "ທະນາຄານ ແລະ ການປະກັນໄພ"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_15
+msgid "Building Construction"
+msgstr "ການກໍ່ສ້າງອາຄານ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_52
+msgid "Building Materials and Garden Retail"
+msgstr "ວັດສະດຸກໍ່ສ້າງ ແລະ ຮ້ານຂາຍເຄື່ອງສວນ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_73
+msgid "Business Services"
+msgstr "ການບໍລິການທຸລະກິດ"
 
 #. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
@@ -134,27 +190,38 @@ msgstr "ຊື້ເຄຣດິດ."
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_1
 msgid "CEO"
-msgstr "ປະທານບໍລິຫານ (CEO)"
+msgstr "ຊີອີໂອ (CEO)"
 
 #. module: crm_iap_mine
 #: model:ir.model,name:crm_iap_mine.model_crm_iap_lead_industry
 msgid "CRM IAP Lead Industry"
-msgstr "CRM IAP ອຸດສາຫະກຳລູກຄ້າເປົ້າໝາຍ"
+msgstr "ອຸດສາຫະກຳລູກຄ້າເປົ້າໝາຍ CRM IAP"
+
+#. module: crm_iap_mine
+#: model:ir.model,name:crm_iap_mine.model_crm_iap_lead_industry_division
+msgid "CRM IAP Lead Industry Division"
+msgstr "ໝວດອຸດສາຫະກຳລູກຄ້າເປົ້າໝາຍ CRM IAP"
 
 #. module: crm_iap_mine
 #: model:ir.model,name:crm_iap_mine.model_crm_iap_lead_mining_request
 msgid "CRM Lead Mining Request"
-msgstr "CRM ຄຳຮ້ອງຂໍຂຸດຄົ້ນລູກຄ້າເປົ້າໝາຍ"
+msgstr "ຄຳຂໍຄົ້ນຫາລູກຄ້າເປົ້າໝາຍ CRM"
 
 #. module: crm_iap_mine
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
-msgid "Cancel"
-msgstr "ຍົກເລີກ"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_28
+msgid "Chemicals"
+msgstr "ສານເຄມີ"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_162
-msgid "Capital Goods"
-msgstr "ສິນຄ້າທຶນ"
+#. odoo-javascript
+#: code:addons/crm_iap_mine/static/src/js/tours/crm_iap_lead.js:0
+msgid "Click here to generate some leads."
+msgstr "ກົດບ່ອນນີ້ເພື່ອສ້າງລູກຄ້າເປົ້າໝາຍ."
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_12
+msgid "Coal Mining"
+msgstr "ບໍ່ຖ່ານຫີນ"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__color
@@ -163,24 +230,10 @@ msgid "Color Index"
 msgstr "ດັດຊະນີສີ"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_163
-msgid "Commercial & Professional Services"
-msgstr "ການບໍລິການທາງດ້ານການຄ້າ ແລະ ວິຊາຊີບ"
-
-#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_48
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_2
 msgid "Communications"
 msgstr "ການສື່ສານ"
-
-#. module: crm_iap_mine
-#: model:ir.model.fields.selection,name:crm_iap_mine.selection__crm_iap_lead_mining_request__search_type__companies
-msgid "Companies"
-msgstr "ບໍລິສັດ"
-
-#. module: crm_iap_mine
-#: model:ir.model.fields.selection,name:crm_iap_mine.selection__crm_iap_lead_mining_request__search_type__people
-msgid "Companies and their Contacts"
-msgstr "ບໍລິສັດ ແລະ ຜູ້ຕິດຕໍ່ຂອງພວກເຂົາ"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__company_size_max
@@ -188,34 +241,14 @@ msgid "Company Size Max"
 msgstr "ຂະໜາດບໍລິສັດສູງສຸດ"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_167
-msgid "Construction Materials"
-msgstr "ວັດສະດຸກໍ່ສ້າງ"
+#: model:crm.iap.lead.industry.division,name:crm_iap_mine.crm_iap_mine_division_c
+msgid "Construction"
+msgstr "ການກໍ່ສ້າງ"
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_3
 msgid "Consulting"
 msgstr "ການໃຫ້ຄຳປຶກສາ"
-
-#. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_30_155
-msgid "Consumer Discretionary"
-msgstr "ສິນຄ້າບໍລິໂພກຟຸ່ມເຟືອຍ"
-
-#. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_239
-msgid "Consumer Durables & Apparel"
-msgstr "ສິນຄ້າຄົງທົນ ແລະ ເຄື່ອງນຸ່ງຫົ່ມ"
-
-#. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_150_151
-msgid "Consumer Services"
-msgstr "ການບໍລິການຜູ້ບໍລິໂພກ"
-
-#. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_33
-msgid "Consumer Staples"
-msgstr "ສິນຄ້າບໍລິໂພກທີ່ຈຳເປັນ"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__country_ids
@@ -226,16 +259,17 @@ msgstr "ປະເທດ"
 #. odoo-python
 #: code:addons/crm_iap_mine/models/crm_iap_lead_mining_request.py:0
 msgid "Create a Lead Mining Request"
-msgstr "ສ້າງຄຳຮ້ອງຂໍຂຸດຄົ້ນລູກຄ້າເປົ້າໝາຍ"
+msgstr "ສ້າງຄຳຂໍຄົ້ນຫາລູກຄ້າເປົ້າໝາຍ"
 
 #. module: crm_iap_mine
 #: model:ir.model,website_form_label:crm_iap_mine.model_crm_lead
 msgid "Create an Opportunity"
-msgstr "ສ້າງໂອກາດການຂາຍ"
+msgstr "ສ້າງໂອກາດ"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_helpers__create_uid
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__create_uid
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry_division__create_uid
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__create_uid
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_role__create_uid
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_seniority__create_uid
@@ -245,11 +279,17 @@ msgstr "ສ້າງໂດຍ"
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_helpers__create_date
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__create_date
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry_division__create_date
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__create_date
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_role__create_date
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_seniority__create_date
 msgid "Created on"
 msgstr "ສ້າງເມື່ອ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_01
+msgid "Crop Farming"
+msgstr "ການປູກພືດ"
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_4
@@ -262,19 +302,36 @@ msgid "Default Tags"
 msgstr "ແທັກເລີ່ມຕົ້ນ"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_60
+msgid "Depository Institutions"
+msgstr "ສະຖາບັນຮັບຝາກເງິນ"
+
+#. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_helpers__display_name
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__display_name
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry_division__display_name
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__display_name
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_role__display_name
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_seniority__display_name
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_lead__display_name
 msgid "Display Name"
-msgstr "ຊື່ທີ່ສະແດງ"
+msgstr "ຊື່ສະແດງ"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_158_159
-msgid "Diversified Financials & Financial Services"
-msgstr "ການເງິນ ແລະ ການບໍລິການທາງດ້ານການເງິນແບບຫຼາກຫຼາຍ"
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry_division__code
+msgid "Division Code"
+msgstr "ລະຫັດໝວດ"
+
+#. module: crm_iap_mine
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry_division__name
+msgid "Division Name"
+msgstr "ຊື່ໝວດ"
+
+#. module: crm_iap_mine
+#: model:ir.model.fields,help:crm_iap_mine.field_crm_iap_lead_industry_division__code
+msgid ""
+"Division code as per SIC indicating the higher-level industry classification."
+msgstr "ລະຫັດໝວດຕາມມາດຕະຖານ SIC ທີ່ລະບຸການຈັດປະເພດອຸດສາຫະກຳຂັ້ນສູງ."
 
 #. module: crm_iap_mine
 #: model:ir.model.fields.selection,name:crm_iap_mine.selection__crm_iap_lead_mining_request__state__done
@@ -289,24 +346,34 @@ msgid "Draft"
 msgstr "ຮ່າງ"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_50
+msgid "Durable Goods Wholesale"
+msgstr "ການຄ້າຂາຍຍົກສິນຄ້າຄົງທົນ"
+
+#. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_5
 msgid "Education"
 msgstr "ການສຶກສາ"
 
 #. module: crm_iap_mine
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.enrich_company
-msgid "Email"
-msgstr "ອີເມລ"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_82
+msgid "Educational Services"
+msgstr "ການບໍລິການດ້ານການສຶກສາ"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_138_156
-msgid "Energy & Utilities "
-msgstr "ພະລັງງານ ແລະ ສາທາລະນູປະໂພກ"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_36
+msgid "Electronic and Electrical Equipment"
+msgstr "ອຸປະກອນເອເລັກໂຕຣນິກ ແລະ ໄຟຟ້າ"
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_6
 msgid "Engineering"
 msgstr "ວິສະວະກຳ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_95
+msgid "Environmental and Housing Administration"
+msgstr "ການຄຸ້ມຄອງສິ່ງແວດລ້ອມ ແລະ ທີ່ຢູ່ອາໄສ"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields.selection,name:crm_iap_mine.selection__crm_iap_lead_mining_request__state__error
@@ -320,14 +387,14 @@ msgid "Error Type"
 msgstr "ປະເພດຂໍ້ຜິດພາດ"
 
 #. module: crm_iap_mine
-#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__contact_filter_type
-msgid "Filter on"
-msgstr "ກອງໂດຍ"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_34
+msgid "Fabricated Metal Products"
+msgstr "ຜະລິດຕະພັນໂລຫະປະກອບ"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__filter_on_size
 msgid "Filter on Size"
-msgstr "ກອງໂດຍຂະໜາດ"
+msgstr "ກັ່ນຕອງຕາມຂະໜາດ"
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_7
@@ -335,9 +402,29 @@ msgid "Finance"
 msgstr "ການເງິນ"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_153_154
-msgid "Food, Beverage & Tobacco"
-msgstr "ອາຫານ, ເຄື່ອງດື່ມ ແລະ ຢາສູບ"
+#: model:crm.iap.lead.industry.division,name:crm_iap_mine.crm_iap_mine_division_h
+msgid "Finance, Insurance & Real Estate"
+msgstr "ການເງິນ, ການປະກັນໄພ ແລະ ອະສັງຫາລິມະຊັບ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_09
+msgid "Fishing and Hunting"
+msgstr "ການຫາປາ ແລະ ການລ່າສັດ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_20
+msgid "Food Products"
+msgstr "ຜະລິດຕະພັນອາຫານ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_54
+msgid "Food Stores"
+msgstr "ຮ້ານຂາຍອາຫານ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_08
+msgid "Forestry"
+msgstr "ປ່າໄມ້"
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_8
@@ -345,36 +432,52 @@ msgid "Founder"
 msgstr "ຜູ້ກໍ່ຕັ້ງ"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_42
+msgid "Freight and Warehousing"
+msgstr "ການຂົນສົ່ງສິນຄ້າ ແລະ ສາງສິນຄ້າ"
+
+#. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
 msgid "From"
 msgstr "ຈາກ"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_25
+msgid "Furniture and Fixtures"
+msgstr "ເຄື່ອງເຮືອນ ແລະ ເຄື່ອງຕິດຕັ້ງ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_91
+msgid "General Government"
+msgstr "ການປົກຄອງທົ່ວໄປ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_53
+msgid "General Merchandise Stores"
+msgstr "ຮ້ານຂາຍສິນຄ້າທົ່ວໄປ"
+
+#. module: crm_iap_mine
 #. odoo-python
 #: code:addons/crm_iap_mine/models/crm_iap_lead_mining_request.py:0
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_case_kanban_view_leads
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_lead_view_tree_lead
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_lead_view_tree_opportunity
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.view_crm_lead_kanban
 msgid "Generate Leads"
 msgstr "ສ້າງລູກຄ້າເປົ້າໝາຍ"
+
+#. module: crm_iap_mine
+#: model:ir.module.module,summary:base.module_crm_iap_mine
+msgid "Generate Leads/Opportunities based on country, industries, size, etc."
+msgstr "ສ້າງລູກຄ້າເປົ້າໝາຍ/ໂອກາດ ຕາມປະເທດ, ອຸດສາຫະກຳ, ຂະໜາດ, ອື່ນໆ."
 
 #. module: crm_iap_mine
 #. odoo-python
 #: code:addons/crm_iap_mine/models/crm_iap_lead_mining_request.py:0
 msgid "Generate new leads based on their country, industry, size, etc."
-msgstr "ສ້າງລູກຄ້າເປົ້າໝາຍໃໝ່ໂດຍອີງຕາມປະເທດ, ອຸດສາຫະກຳ, ຂະໜາດ ແລະ ອື່ນໆ."
+msgstr "ສ້າງລູກຄ້າເປົ້າໝາຍໃໝ່ຕາມປະເທດ, ອຸດສາຫະກຳ, ຂະໜາດ, ອື່ນໆ."
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__lead_ids
 msgid "Generated Lead / Opportunity"
-msgstr "ລູກຄ້າເປົ້າໝາຍ / ໂອກາດການຂາຍ ທີ່ຖືກສ້າງຂຶ້ນ"
-
-#. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_160
-msgid "Health Care Equipment & Services"
-msgstr "ອຸປະກອນ ແລະ ການບໍລິການຮັກສາສຸຂະພາບ"
+msgstr "ລູກຄ້າເປົ້າໝາຍ / ໂອກາດ ທີ່ສ້າງຂຶ້ນ"
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_9
@@ -382,14 +485,39 @@ msgid "Health Professional"
 msgstr "ຜູ້ຊ່ຽວຊານດ້ານສຸຂະພາບ"
 
 #. module: crm_iap_mine
-#: model:ir.model,name:crm_iap_mine.model_crm_iap_lead_helpers
-msgid "Helper methods for crm_iap_mine modules"
-msgstr "ວິທີການຊ່ວຍເຫຼືອສຳລັບໂມດູນ crm_iap_mine"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_80
+msgid "Health Services"
+msgstr "ການບໍລິການດ້ານສຸຂະພາບ"
 
 #. module: crm_iap_mine
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
-msgid "How many leads would you like?"
-msgstr "ທ່ານຕ້ອງການລູກຄ້າເປົ້າໝາຍຈຳນວນເທົ່າໃດ?"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_16
+msgid "Heavy Construction"
+msgstr "ການກໍ່ສ້າງໜັກ"
+
+#. module: crm_iap_mine
+#: model:ir.model,name:crm_iap_mine.model_crm_iap_lead_helpers
+msgid "Helper methods for crm_iap_mine modules"
+msgstr "ວິທີຊ່ວຍເຫຼືອສຳລັບໂມດູນ crm_iap_mine"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_67
+msgid "Holding and Investment Offices"
+msgstr "ສຳນັກງານໂຮລດິ້ງ ແລະ ການລົງທຶນ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_57
+msgid "Home Furnishings Stores"
+msgstr "ຮ້ານຂາຍເຄື່ອງຕົກແຕ່ງເຮືອນ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_70
+msgid "Hotels and Lodging"
+msgstr "ໂຮງແຮມ ແລະ ບ່ອນພັກເຊົາ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_94
+msgid "Human Resource Administration"
+msgstr "ການຄຸ້ມຄອງຊັບພະຍາກອນມະນຸດ"
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_10
@@ -397,25 +525,26 @@ msgid "Human Resources"
 msgstr "ຊັບພະຍາກອນມະນຸດ"
 
 #. module: crm_iap_mine
+#: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
+msgid "I want to order"
+msgstr "ຂ້ອຍຕ້ອງການສັ່ງຊື້"
+
+#. module: crm_iap_mine
 #: model:mail.template,name:crm_iap_mine.lead_generation_no_credits
 #: model:mail.template,subject:crm_iap_mine.lead_generation_no_credits
 msgid "IAP Lead Generation Notification"
-msgstr "ແຈ້ງເຕືອນການສ້າງລູກຄ້າເປົ້າໝາຍ IAP"
+msgstr "ການແຈ້ງເຕືອນ IAP Lead Generation"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_helpers__id
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__id
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry_division__id
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__id
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_role__id
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_seniority__id
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_lead__id
 msgid "ID"
-msgstr "ລະຫັດ"
-
-#. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_168
-msgid "Independent Power and Renewable Electricity Producers"
-msgstr "ຜູ້ຜະລິດໄຟຟ້າເອກະລາດ ແລະ ໄຟຟ້າໝູນວຽນ"
+msgstr "ລະຫັດ (ID)"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__industry_ids
@@ -428,9 +557,19 @@ msgid "Industry"
 msgstr "ອຸດສາຫະກຳ"
 
 #. module: crm_iap_mine
+#: model:ir.model.constraint,message:crm_iap_mine.constraint_crm_iap_lead_industry_division_name_uniq
+msgid "Industry Division already exists!"
+msgstr "ໝວດອຸດສາຫະກຳນີ້ມີຢູ່ແລ້ວ!"
+
+#. module: crm_iap_mine
 #: model:ir.model.constraint,message:crm_iap_mine.constraint_crm_iap_lead_industry_name_uniq
 msgid "Industry name already exists!"
 msgstr "ຊື່ອຸດສາຫະກຳນີ້ມີຢູ່ແລ້ວ!"
+
+#. module: crm_iap_mine
+#: model:ir.model.fields,help:crm_iap_mine.field_crm_iap_lead_industry__sic_group
+msgid "Industry's Major Group Code as per SIC"
+msgstr "ລະຫັດກຸ່ມຫຼັກຂອງອຸດສາຫະກຳຕາມມາດຕະຖານ SIC"
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_11
@@ -438,13 +577,34 @@ msgid "Information Technology"
 msgstr "ເຕັກໂນໂລຊີຂໍ້ມູນຂ່າວສານ"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_38
+msgid "Instruments and Optical Goods"
+msgstr "ເຄື່ອງມື ແລະ ອຸປະກອນແສງ"
+
+#. module: crm_iap_mine
 #: model:ir.model.fields.selection,name:crm_iap_mine.selection__crm_iap_lead_mining_request__error_type__credits
 msgid "Insufficient Credits"
 msgstr "ເຄຣດິດບໍ່ພຽງພໍ"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_64
+msgid "Insurance Agents and Brokers"
+msgstr "ຕົວແທນ ແລະ ນາຍໜ້າປະກັນໄພ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_63
+msgid "Insurance Carriers"
+msgstr "ບໍລິສັດຮັບປະກັນໄພ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_92
+msgid "Justice and Public Safety"
+msgstr "ຍຸຕິທຳ ແລະ ຄວາມປອດໄພສາທາລະນະ"
+
+#. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_helpers__write_uid
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__write_uid
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry_division__write_uid
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__write_uid
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_role__write_uid
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_seniority__write_uid
@@ -454,6 +614,7 @@ msgstr "ອັບເດດຫຼ້າສຸດໂດຍ"
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_helpers__write_date
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__write_date
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry_division__write_date
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__write_date
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_role__write_date
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_seniority__write_date
@@ -466,16 +627,12 @@ msgid "Lead"
 msgstr "ລູກຄ້າເປົ້າໝາຍ"
 
 #. module: crm_iap_mine
-#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__lead_contacts_credits
-msgid "Lead Contacts Credits"
-msgstr "ເຄຣດິດຜູ້ຕິດຕໍ່ລູກຄ້າເປົ້າໝາຍ"
-
-#. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__lead_credits
 msgid "Lead Credits"
 msgstr "ເຄຣດິດລູກຄ້າເປົ້າໝາຍ"
 
 #. module: crm_iap_mine
+#: model:ir.module.module,shortdesc:base.module_crm_iap_mine
 #: model:ir.ui.menu,name:crm_iap_mine.crm_menu_lead_generation
 msgid "Lead Generation"
 msgstr "ການສ້າງລູກຄ້າເປົ້າໝາຍ"
@@ -484,18 +641,13 @@ msgstr "ການສ້າງລູກຄ້າເປົ້າໝາຍ"
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_lead__lead_mining_request_id
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_search
 msgid "Lead Mining Request"
-msgstr "ຄຳຮ້ອງຂໍຂຸດຄົ້ນລູກຄ້າເປົ້າໝາຍ"
+msgstr "ຄຳຂໍຄົ້ນຫາລູກຄ້າເປົ້າໝາຍ"
 
 #. module: crm_iap_mine
 #: model:ir.actions.act_window,name:crm_iap_mine.crm_iap_lead_mining_request_action
 #: model:ir.ui.menu,name:crm_iap_mine.crm_iap_lead_mining_request_menu_action
 msgid "Lead Mining Requests"
-msgstr "ຄຳຮ້ອງຂໍຂຸດຄົ້ນລູກຄ້າເປົ້າໝາຍທັງໝົດ"
-
-#. module: crm_iap_mine
-#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__lead_total_credits
-msgid "Lead Total Credits"
-msgstr "ເຄຣດິດລູກຄ້າເປົ້າໝາຍທັງໝົດ"
+msgstr "ຄຳຂໍຄົ້ນຫາລູກຄ້າເປົ້າໝາຍ"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields.selection,name:crm_iap_mine.selection__crm_iap_lead_mining_request__lead_type__lead
@@ -504,17 +656,41 @@ msgid "Leads"
 msgstr "ລູກຄ້າເປົ້າໝາຍ"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_31
+msgid "Leather"
+msgstr "ໜັງສັດ"
+
+#. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_12
 msgid "Legal"
 msgstr "ກົດໝາຍ"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_81
+msgid "Legal Services"
+msgstr "ການບໍລິການດ້ານກົດໝາຍ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_02
+msgid "Livestock and Animal Production"
+msgstr "ການລ້ຽງສັດ ແລະ ການຜະລິດສັດ"
+
+#. module: crm_iap_mine
 #. odoo-javascript
 #: code:addons/crm_iap_mine/static/src/js/tours/crm_iap_lead.js:0
-msgid ""
-"Looking for more opportunities?<br>Try the <b>Lead Generation</b> tool."
+msgid "Looking for more opportunities?<br>Try the <b>Lead Generation</b> tool."
 msgstr ""
 "ກຳລັງຊອກຫາໂອກາດເພີ່ມເຕີມບໍ?<br>ລອງໃຊ້ເຄື່ອງມື <b>ການສ້າງລູກຄ້າເປົ້າໝາຍ</b>."
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_35
+msgid "Machinery and Computer Equipment"
+msgstr "ເຄື່ອງຈັກ ແລະ ອຸປະກອນຄອມພິວເຕີ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry.division,name:crm_iap_mine.crm_iap_mine_division_d
+msgid "Manufacturing"
+msgstr "ການຜະລິດ"
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_13
@@ -522,18 +698,52 @@ msgid "Marketing"
 msgstr "ການຕະຫຼາດ"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_148
-msgid "Materials"
-msgstr "ວັດສະດຸ"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_86
+msgid "Membership Organizations"
+msgstr "ອົງການສະມາຊິກ"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_86
-msgid "Media"
-msgstr "ສື່"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_10
+msgid "Metal Mining"
+msgstr "ບໍ່ແຮ່ໂລຫະ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry.division,name:crm_iap_mine.crm_iap_mine_division_b
+msgid "Mining"
+msgstr "ບໍ່ແຮ່"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_39
+msgid "Miscellaneous Manufacturing Industries"
+msgstr "ອຸດສາຫະກຳການຜະລິດອື່ນໆ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_76
+msgid "Miscellaneous Repair Services"
+msgstr "ການບໍລິການສ້ອມແປງອື່ນໆ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_59
+msgid "Miscellaneous Retail"
+msgstr "ການຄ້າຂາຍຍ່ອຍອື່ນໆ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_89
+msgid "Miscellaneous Services"
+msgstr "ການບໍລິການອື່ນໆ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_78
+msgid "Motion Pictures"
+msgstr "ຮູບເງົາ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_84
+msgid "Museums and Botanical Gardens"
+msgstr "ຫໍພິພິທະພັນ ແລະ ສວນພຶກສາສາດ"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_seniority__name
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.enrich_company
 msgid "Name"
 msgstr "ຊື່"
 
@@ -543,10 +753,15 @@ msgid "Name already exists!"
 msgstr "ຊື່ນີ້ມີຢູ່ແລ້ວ!"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_97
+msgid "National Security"
+msgstr "ຄວາມໝັ້ນຄົງແຫ່ງຊາດ"
+
+#. module: crm_iap_mine
 #. odoo-python
 #: code:addons/crm_iap_mine/models/crm_lead.py:0
 msgid "Need help reaching your target?"
-msgstr "ຕ້ອງການຄວາມຊ່ວຍເຫຼືອເພື່ອໃຫ້ບັນລຸເປົ້າໝາຍຂອງທ່ານບໍ?"
+msgstr "ຕ້ອງການຄວາມຊ່ວຍເຫຼືອໃນການເຂົ້າເຖິງເປົ້າໝາຍຂອງທ່ານບໍ?"
 
 #. module: crm_iap_mine
 #. odoo-python
@@ -557,29 +772,49 @@ msgstr "ໃໝ່"
 #. module: crm_iap_mine
 #: model:ir.model.fields.selection,name:crm_iap_mine.selection__crm_iap_lead_mining_request__error_type__no_result
 msgid "No Result"
-msgstr "ບໍ່ມີຜົນການຄົ້ນຫາ"
+msgstr "ບໍ່ພົບຜົນ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_61
+msgid "Non-Depository Credit"
+msgstr "ສິນເຊື່ອທີ່ບໍ່ແມ່ນສະຖາບັນຮັບຝາກເງິນ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_51
+msgid "Non-Durable Goods Wholesale"
+msgstr "ການຄ້າຂາຍຍົກສິນຄ້າບໍ່ຄົງທົນ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_99
+msgid "Nonclassifiable Establishments"
+msgstr "ສະຖານປະກອບການທີ່ບໍ່ສາມາດຈັດປະເພດໄດ້"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_14
+msgid "Nonmetallic Mineral Mining"
+msgstr "ບໍ່ແຮ່ທີ່ບໍ່ແມ່ນໂລຫະ"
 
 #. module: crm_iap_mine
 #. odoo-javascript
 #: code:addons/crm_iap_mine/static/src/js/tours/crm_iap_lead.js:0
 msgid "Now, just let the magic happen!"
-msgstr "ຕອນນີ້, ປ່ອຍໃຫ້ລະບົບຈັດການໃຫ້ທ່ານເລີຍ!"
-
-#. module: crm_iap_mine
-#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__contact_number
-msgid "Number of Contacts"
-msgstr "ຈຳນວນຜູ້ຕິດຕໍ່"
+msgstr "ບາດນີ້, ປ່ອຍໃຫ້ລະບົບຈັດການໃຫ້ເລີຍ!"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__lead_count
 msgid "Number of Generated Leads"
-msgstr "ຈຳນວນລູກຄ້າເປົ້າໝາຍທີ່ຖືກສ້າງຂຶ້ນ"
+msgstr "ຈຳນວນລູກຄ້າເປົ້າໝາຍທີ່ສ້າງ"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__lead_number
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_tree
 msgid "Number of Leads"
 msgstr "ຈຳນວນລູກຄ້າເປົ້າໝາຍ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_13
+msgid "Oil and Gas Extraction"
+msgstr "ການຂຸດເຈາະນ້ຳມັນ ແລະ ອາຍແກັສ"
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_14
@@ -590,18 +825,13 @@ msgstr "ການດຳເນີນງານ"
 #: model:ir.model.fields.selection,name:crm_iap_mine.selection__crm_iap_lead_mining_request__lead_type__opportunity
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_search
 msgid "Opportunities"
-msgstr "ໂອກາດການຂາຍ"
+msgstr "ໂອກາດ"
 
 #. module: crm_iap_mine
 #. odoo-python
 #: code:addons/crm_iap_mine/models/crm_iap_lead_mining_request.py:0
 msgid "Opportunity created by Odoo Lead Generation"
-msgstr "ໂອກາດການຂາຍຖືກສ້າງໂດຍ Odoo Lead Generation"
-
-#. module: crm_iap_mine
-#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__role_ids
-msgid "Other Roles"
-msgstr "ບົດບາດອື່ນໆ"
+msgstr "ໂອກາດທີ່ຖືກສ້າງຂຶ້ນໂດຍ Odoo Lead Generation"
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_15
@@ -609,24 +839,29 @@ msgid "Owner"
 msgstr "ເຈົ້າຂອງ"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_26
+msgid "Paper Products"
+msgstr "ຜະລິດຕະພັນເຈ້ຍ"
+
+#. module: crm_iap_mine
 #: model:ir.model,name:crm_iap_mine.model_crm_iap_lead_role
 msgid "People Role"
-msgstr "ບົດບາດຂອງບຸກຄົນ"
+msgstr "ບົດບາດບຸກຄະລາກອນ"
 
 #. module: crm_iap_mine
 #: model:ir.model,name:crm_iap_mine.model_crm_iap_lead_seniority
 msgid "People Seniority"
-msgstr "ຄວາມອາວຸໂສ/ລະດັບຕຳແໜ່ງ ຂອງບຸກຄົນ"
+msgstr "ລະດັບຕຳແໜ່ງບຸກຄະລາກອນ"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_161
-msgid "Pharmaceuticals, Biotechnology & Life Sciences"
-msgstr "ການຜະລິດຢາ, ເຕັກໂນໂລຊີຊີວະພາບ ແລະ ວິທະຍາສາດຊີວິດ"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_72
+msgid "Personal Services"
+msgstr "ການບໍລິການສ່ວນບຸກຄົນ"
 
 #. module: crm_iap_mine
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.enrich_company
-msgid "Phone"
-msgstr "ເບີໂທລະສັບ"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_29
+msgid "Petroleum Refining"
+msgstr "ການກັ່ນນ້ຳມັນປິໂຕຣລຽມ"
 
 #. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
@@ -634,9 +869,9 @@ msgid "Pick States..."
 msgstr "ເລືອກລັດ/ແຂວງ..."
 
 #. module: crm_iap_mine
-#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__preferred_role_id
-msgid "Preferred Role"
-msgstr "ບົດບາດທີ່ຕ້ອງການ"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_46
+msgid "Pipelines, Except Natural Gas"
+msgstr "ທໍ່ສົ່ງ, ຍົກເວັ້ນອາຍແກັສທຳມະຊາດ"
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_16
@@ -644,9 +879,39 @@ msgid "President"
 msgstr "ປະທານ"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_33
+msgid "Primary Metal Industries"
+msgstr "ອຸດສາຫະກຳໂລຫະຂັ້ນຕົ້ນ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_27
+msgid "Printing and Publishing"
+msgstr "ການພິມ ແລະ ການພິມຈຳໜ່າຍ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_88
+msgid "Private Households"
+msgstr "ຄົວເຮືອນສ່ວນບຸກຄົນ"
+
+#. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_17
 msgid "Product"
-msgstr "ຜະລິດຕະພັນ"
+msgstr "ສິນຄ້າ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_87
+msgid "Professional Services"
+msgstr "ການບໍລິການວິຊາຊີບ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry.division,name:crm_iap_mine.crm_iap_mine_division_j
+msgid "Public Administration"
+msgstr "ການບໍລິຫານລັດ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_93
+msgid "Public Finance and Taxation"
+msgstr "ການເງິນສາທາລະນະ ແລະ ສ່ວຍສາອາກອນ"
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_18
@@ -654,10 +919,20 @@ msgid "Public Relations"
 msgstr "ການພົວພັນສາທາລະນະ"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_114
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_40
+msgid "Railroad Transportation"
+msgstr "ການຂົນສົ່ງທາງລົດໄຟ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_65
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_19
 msgid "Real Estate"
 msgstr "ອະສັງຫາລິມະຊັບ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_79
+msgid "Recreation Services"
+msgstr "ການບໍລິການພັກຜ່ອນຢ່ອນອາລົມ"
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_20
@@ -667,17 +942,22 @@ msgstr "ການສັນຫາບຸກຄະລາກອນ"
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__name
 msgid "Request Number"
-msgstr "ເລກທີຄຳຮ້ອງຂໍ"
+msgstr "ເລກທີຄຳຂໍ"
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_21
 msgid "Research"
-msgstr "ການວິໄຈ"
+msgstr "ການຄົ້ນຄວ້າ"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_152
-msgid "Retailing"
-msgstr "ການຂາຍຍ່ອຍ"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_58
+msgid "Restaurants and Bars"
+msgstr "ຮ້ານອາຫານ ແລະ ບາຣ໌"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry.division,name:crm_iap_mine.crm_iap_mine_division_g
+msgid "Retail Trade"
+msgstr "ການຄ້າຂາຍຍ່ອຍ"
 
 #. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
@@ -685,16 +965,10 @@ msgid "Retry"
 msgstr "ລອງໃໝ່"
 
 #. module: crm_iap_mine
-#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__reveal_ids
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_role__reveal_id
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_seniority__reveal_id
 msgid "Reveal"
 msgstr "ເປີດເຜີຍ"
-
-#. module: crm_iap_mine
-#: model:ir.model.fields.selection,name:crm_iap_mine.selection__crm_iap_lead_mining_request__contact_filter_type__role
-msgid "Role"
-msgstr "ບົດບາດ"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_role__name
@@ -705,6 +979,21 @@ msgstr "ຊື່ບົດບາດ"
 #: model:ir.model.constraint,message:crm_iap_mine.constraint_crm_iap_lead_role_name_uniq
 msgid "Role name already exists!"
 msgstr "ຊື່ບົດບາດນີ້ມີຢູ່ແລ້ວ!"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_30
+msgid "Rubber and Plastics"
+msgstr "ຢາງພາລາ ແລະ ປລາສະຕິກ"
+
+#. module: crm_iap_mine
+#: model:ir.model.fields,help:crm_iap_mine.field_crm_iap_lead_industry__division_id
+msgid "SIC Division code to which Major Group belongs."
+msgstr "ລະຫັດໝວດ SIC ທີ່ກຸ່ມຫຼັກສັງກັດຢູ່."
+
+#. module: crm_iap_mine
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__sic_group
+msgid "SIC Group"
+msgstr "ກຸ່ມ SIC"
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.role,name:crm_iap_mine.crm_iap_mine_role_22
@@ -724,15 +1013,26 @@ msgid "Salesperson"
 msgstr "ພະນັກງານຂາຍ"
 
 #. module: crm_iap_mine
-#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__seniority_id
-#: model:ir.model.fields.selection,name:crm_iap_mine.selection__crm_iap_lead_mining_request__contact_filter_type__seniority
-msgid "Seniority"
-msgstr "ຄວາມອາວຸໂສ/ລະດັບຕຳແໜ່ງ"
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__division_id
+#: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_industry_view_search
+msgid "Sector"
+msgstr "ຂະແໜງການ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_62
+msgid "Securities and Commodity Services"
+msgstr "ການບໍລິການຫຼັກຊັບ ແລະ ສິນຄ້າໂພກຄະພັນ"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry__sequence
+#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_industry_division__sequence
 msgid "Sequence"
 msgstr "ລຳດັບ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry.division,name:crm_iap_mine.crm_iap_mine_division_i
+msgid "Services"
+msgstr "ການບໍລິການ"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__company_size_min
@@ -740,9 +1040,14 @@ msgid "Size"
 msgstr "ຂະໜາດ"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_165
-msgid "Software & Services"
-msgstr "ຊອບແວ ແລະ ການບໍລິການ"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_83
+msgid "Social Services"
+msgstr "ການບໍລິການສັງຄົມ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_17
+msgid "Specialty Contractors"
+msgstr "ຜູ້ຮັບເໝົາສະເພາະດ້ານ"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__state_ids
@@ -755,6 +1060,11 @@ msgid "Status"
 msgstr "ສະຖານະ"
 
 #. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_32
+msgid "Stone, Clay, Glass and Concrete"
+msgstr "ຫີນ, ດິນໜຽວ, ແກ້ວ ແລະ ເບຕົງ"
+
+#. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
 msgid "Submit"
 msgstr "ສົ່ງ"
@@ -765,30 +1075,34 @@ msgid "Tags"
 msgstr "ແທັກ"
 
 #. module: crm_iap_mine
-#: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__search_type
-msgid "Target"
-msgstr "ເປົ້າໝາຍ"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_22
+msgid "Textile Mill Products"
+msgstr "ຜະລິດຕະພັນໂຮງງານຕ່ຳແຜ່ນ"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_166
-msgid "Technology Hardware & Equipment"
-msgstr "ຮາດແວ ແລະ ອຸປະກອນເຕັກໂນໂລຊີ"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_21
+msgid "Tobacco Products"
+msgstr "ຜະລິດຕະພັນຢາສູບ"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_149
-msgid "Telecommunication Services"
-msgstr "ການບໍລິການໂທລະຄົມມະນາຄົມ"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_41
+msgid "Transit and Passenger Transport"
+msgstr "ການຂົນສົ່ງສາທາລະນະ ແລະ ຜູ້ໂດຍສານ"
 
 #. module: crm_iap_mine
-#. odoo-python
-#: code:addons/crm_iap_mine/models/crm_iap_lead_mining_request.py:0
-msgid "This makes a total of %d credits for this request."
-msgstr "ຄຳຮ້ອງຂໍນີ້ຈະໃຊ້ເຄຣດິດທັງໝົດ %d ເຄຣດິດ."
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_37
+msgid "Transportation Equipment"
+msgstr "ອຸປະກອນການຂົນສົ່ງ"
 
 #. module: crm_iap_mine
-#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_136
-msgid "Transportation"
-msgstr "ການຂົນສົ່ງ"
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_47
+msgid "Transportation Services"
+msgstr "ການບໍລິການຂົນສົ່ງ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry.division,name:crm_iap_mine.crm_iap_mine_division_e
+msgid "Transportation, Communication, Energy & Sanitation"
+msgstr "ການຂົນສົ່ງ, ການສື່ສານ, ພະລັງງານ ແລະ ສຸຂາພິບານ"
 
 #. module: crm_iap_mine
 #: model:ir.model.fields,field_description:crm_iap_mine.field_crm_iap_lead_mining_request__lead_type
@@ -797,40 +1111,51 @@ msgid "Type"
 msgstr "ປະເພດ"
 
 #. module: crm_iap_mine
-#. odoo-python
-#: code:addons/crm_iap_mine/models/crm_iap_lead_mining_request.py:0
-msgid ""
-"Up to %(credit_count)d additional credits will be consumed to identify "
-"%(contact_count)d contacts per company."
-msgstr ""
-"ຈະມີການໃຊ້ເຄຣດິດເພີ່ມເຕີມສູງສຸດ %(credit_count)d ເພື່ອລະບຸ %(contact_count)d ຜູ້ຕິດຕໍ່ຕໍ່ບໍລິສັດ."
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_43
+msgid "United States Postal Service"
+msgstr "ການໄປສະນີສະຫະລັດ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_49
+msgid "Utilities and Sanitary Services"
+msgstr "ສາທາລະນູປະໂພກ ແລະ ການບໍລິການສຸຂາພິບານ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_44
+msgid "Water Transportation"
+msgstr "ການຂົນສົ່ງທາງນ້ຳ"
 
 #. module: crm_iap_mine
 #. odoo-javascript
 #: code:addons/crm_iap_mine/static/src/js/tours/crm_iap_lead.js:0
 msgid "Which Industry do you want to target?"
-msgstr "ອຸດສາຫະກຳໃດທີ່ທ່ານຕ້ອງການຕັ້ງເປົ້າໝາຍ?"
+msgstr "ທ່ານຕ້ອງການກຳນົດເປົ້າໝາຍອຸດສາຫະກຳໃດ?"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry.division,name:crm_iap_mine.crm_iap_mine_division_f
+msgid "Wholesale Trade"
+msgstr "ການຄ້າຂາຍຍົກ"
+
+#. module: crm_iap_mine
+#: model:crm.iap.lead.industry,name:crm_iap_mine.crm_iap_mine_industry_24
+msgid "Wood Products"
+msgstr "ຜະລິດຕະພັນໄມ້"
 
 #. module: crm_iap_mine
 #: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
 msgid "You do not have enough credits to submit this request."
-msgstr "ທ່ານມີເຄຣດິດບໍ່ພຽງພໍທີ່ຈະສົ່ງຄຳຮ້ອງຂໍນີ້."
+msgstr "ທ່ານມີເຄຣດິດບໍ່ພຽງພໍທີ່ຈະສົ່ງຄຳຂໍນີ້."
 
 #. module: crm_iap_mine
 #. odoo-python
 #: code:addons/crm_iap_mine/models/crm_iap_lead_mining_request.py:0
 msgid "Your request could not be executed: %s"
-msgstr "ບໍ່ສາມາດດຳເນີນການຄຳຮ້ອງຂໍຂອງທ່ານໄດ້: %s"
+msgstr "ບໍ່ສາມາດດຳເນີນຕາມຄຳຂໍຂອງທ່ານໄດ້: %s"
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.seniority,name:crm_iap_mine.crm_iap_mine_seniority_1
 msgid "director"
 msgstr "ຜູ້ອຳນວຍການ"
-
-#. module: crm_iap_mine
-#: model_terms:ir.ui.view,arch_db:crm_iap_mine.crm_iap_lead_mining_request_view_form
-msgid "employees"
-msgstr "ພະນັກງານ"
 
 #. module: crm_iap_mine
 #: model:crm.iap.lead.seniority,name:crm_iap_mine.crm_iap_mine_seniority_2

@@ -17,13 +17,6 @@
             <field name="vat" position="attributes">
                 <attribute name="options">{'placeholder_field': 'company_vat_placeholder'}</attribute>
             </field>
-
-            <field name="company_registry" position="before">
-                <field name="company_registry_placeholder" invisible="1"/> <!-- Needed for the placeholder widget -->
-            </field>
-            <field name="company_registry" position="attributes">
-                <attribute name="options">{'placeholder_field': 'company_registry_placeholder'}</attribute>
-            </field>
         </field>
     </record>
 
@@ -36,7 +29,7 @@
                 <field name="invoice_terms_html" class="oe_account_terms" nolabel="1"/>
                 <footer>
                     <button string="Save" special="save" class="btn-primary"/>
-                    <button string="Discard" class="btn-secondary" special="cancel"/>
+                    <button class="btn-secondary" special="cancel"/>
                 </footer>
             </form>
         </field>
@@ -69,7 +62,6 @@
                                 <field name="zip" placeholder="ZIP" class="o_address_zip"/>
                                 <field name="country_id" placeholder="Country" class="o_address_country" options='{"no_open": True, "no_create": True}'/>
                             </div>
-                            <field name="company_registry"/>
                             <field name="currency_id" options="{'no_create': True, 'no_open': True}" id="company_currency" context="{'active_test': False}"/>
                         </group>
                         <group>
@@ -82,7 +74,7 @@
                 <footer>
                     <button name="action_save_onboarding_company_data" string="Save"
                             class="oe_highlight" type="object" data-hotkey="S" />
-                    <button special="cancel" data-hotkey="J" string="Discard" />
+                    <button special="cancel" data-hotkey="J"/>
                 </footer>
             </form>
         </field>
@@ -99,7 +91,7 @@
                 <field name="account_sale_tax_id" />
                 <footer>
                     <button string="Apply" class="btn btn-primary" type="object" name="action_save_onboarding_sale_tax" data-hotkey="q" />
-                    <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="x" />
+                    <button class="btn-secondary" special="cancel" data-hotkey="x"/>
                 </footer>
             </form>
         </field>

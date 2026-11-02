@@ -1,7 +1,7 @@
 /* global ChartDataLabels */
 
 import { loadJS } from "@web/core/assets";
-import SESSION_CHART_COLORS from "@survey/interactions/survey_session_colors";
+import { D3_COLORS } from "@survey/interactions/utils";
 import { registry } from "@web/core/registry";
 import { Interaction } from "@web/public/interaction";
 
@@ -88,7 +88,7 @@ export class SurveySessionChart extends Interaction {
      * Custom bar chart configuration for our survey session use case.
      *
      * Quick summary of enabled features:
-     * - background_color is one of the 10 custom colors from SESSION_CHART_COLORS
+     * - background_color is one of the 10 colors from D3_COLORS
      *   (see getBackgroundColor for details)
      * - The ticks are bigger and bolded to be able to see them better on a big screen (projector)
      * - We don't use tooltips to keep it as simple as possible
@@ -118,8 +118,7 @@ export class SurveySessionChart extends Interaction {
                     datalabels: {
                         color: this.getLabelColor.bind(this),
                         font: {
-                            size: "50",
-                            weight: "bold",
+                            size: "30",
                         },
                         anchor: "end",
                         align: "top",
@@ -145,15 +144,15 @@ export class SurveySessionChart extends Interaction {
                             minRotation: 20,
                             maxRotation: 90,
                             font: {
-                                size: "35",
+                                size: "20",
                                 weight: "bold",
                             },
-                            color: "#212529",
+                            color: "#ffffff",
                             autoSkip: false,
                         },
                         grid: {
                             drawOnChartArea: false,
-                            color: "rgba(0, 0, 0, 0.2)",
+                            color: "rgba(255, 255, 255, 0.2)",
                         },
                     },
                 },
@@ -291,11 +290,11 @@ export class SurveySessionChart extends Interaction {
     }
 
     /**
-     * Custom method that returns a color from SESSION_CHART_COLORS.
+     * Custom method that returns a color from D3_COLORS.
      * It loops through the ten values and assign them sequentially.
      *
      * We have a special mechanic when the host shows the answers of a question.
-     * Wrong answers are "faded out" using a 0.3 opacity.
+     * Wrong answers are "faded out" using a 0.2 opacity.
      *
      * @param {Object} metaData
      * @param {Integer} metaData.dataIndex the index of the label, matching the index of the answer
@@ -304,11 +303,11 @@ export class SurveySessionChart extends Interaction {
     getBackgroundColor(metaData) {
         const opacity =
             this.showAnswers && this.hasCorrectAnswers && !this.isValidAnswer(metaData.dataIndex)
-                ? "0.2"
-                : "0.8";
-        // If metaData.dataIndex is greater than SESSION_CHART_COLORS.length, it should start from the beginning
-        const rgb = SESSION_CHART_COLORS[metaData.dataIndex % SESSION_CHART_COLORS.length];
-        return `rgba(${rgb},${opacity})`;
+                ? "33" // 20% of 255 in HEX
+                : "cc"; // 80%
+        // If metaData.dataIndex is greater than D3_COLORS.length, it should start from the beginning
+        const rgb = D3_COLORS[metaData.dataIndex % D3_COLORS.length];
+        return `${rgb}${opacity}`;
     }
 
     /**
@@ -324,7 +323,7 @@ export class SurveySessionChart extends Interaction {
      *   in 'this.answersValidity'
      */
     getLabelColor(metaData) {
-        let color = "#212529";
+        let color = "#ffffff";
         if (this.showAnswers && this.hasCorrectAnswers) {
             color = this.isValidAnswer(metaData.dataIndex) ? "#2CBB70" : "#D9534F";
         }

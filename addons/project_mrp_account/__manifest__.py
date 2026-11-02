@@ -2,10 +2,13 @@
 
 {
     'name': "MRP Account Project",
-    'version': '1.0',
     'summary': "Monitor MRP account using project",
     'category': 'Services/Project',
-    'depends': ['mrp_account', 'project_mrp'],
+    'depends': ['mrp_account', 'project_mrp', 'project_stock_account'],
+    'data': [
+        'data/project_mrp_account_data.xml',
+        'views/stock_picking_type_views.xml',
+    ],
     'demo': [
         'data/project_mrp_account_demo.xml',
     ],

@@ -2,9 +2,9 @@ import { Interaction } from '@web/public/interaction';
 import { registry } from '@web/core/registry';
 import { _t } from '@web/core/l10n/translation';
 import { rpc } from '@web/core/network/rpc';
-import {
-    LocationSelectorDialog
-} from '@delivery/js/location_selector/location_selector_dialog/location_selector_dialog';
+import { setElementContent } from '@web/core/utils/html';
+import { markup } from '@odoo/owl';
+import wSaleUtils from '@website_sale/js/website_sale_utils';
 
 export class Checkout extends Interaction {
     static selector = '#shop_checkout';
@@ -16,7 +16,6 @@ export class Checkout extends Interaction {
         '#use_delivery_as_billing': { 't-on-change': this.toggleBillingAddressRow },
         // Delivery methods
         '[name="o_delivery_radio"]': { 't-on-click': this.selectDeliveryMethod },
-        '[name="o_pickup_location_selector"]': { 't-on-click': this.selectPickupLocation },
     };
 
     setup() {
@@ -26,6 +25,7 @@ export class Checkout extends Interaction {
             .find(button => button.offsetParent !== null);
         this.useDeliveryAsBillingToggle = document.querySelector('#use_delivery_as_billing');
         this.billingContainer = this.el.querySelector('#billing_container');
+        this.vatDiv = this.el.querySelector(".o_address_card_vat");
         this.addBillingAddressBtn = this.el.querySelector('.o_add_billing_address_btn');
     }
 
@@ -74,14 +74,9 @@ export class Checkout extends Interaction {
         const selectedPartnerId = newAddress.dataset.partnerId;
         await this.waitFor(this.updateAddress(addressType, selectedPartnerId));
         // A delivery address is changed.
-        if (addressType === 'delivery' || this.billingContainer.dataset.deliveryAddressDisabled) {
-            if (this.billingContainer.dataset.deliveryAddressDisabled) {
-                // If a delivery address is disabled in the settings, use a billing address as
-                // a delivery one.
-                await this.waitFor(this.updateAddress('delivery', selectedPartnerId));
-            }
+        if (addressType === 'delivery') {
             if (this.useDeliveryAsBillingToggle?.checked) {
-                await this.waitFor(this._selectMatchingBillingAddress(selectedPartnerId));
+                this._selectMatchingBillingAddressCard(selectedPartnerId);
             }
             const deliveryFormHtml = await this.waitFor(rpc('/shop/delivery_methods'));
             // The delivery methods are regenerated below, so we need to stop and start interactions
@@ -109,7 +104,7 @@ export class Checkout extends Interaction {
         const addDeliveryAddressButton = this.el.querySelector(
             '.o_address_card_add_new[data-address-type="delivery"]'
         );
-        if (addDeliveryAddressButton) {  // If `Add address` button for delivery.
+        if (addDeliveryAddressButton) {  // If `Add` button for delivery.
             // Update the `use_delivery_as_billing` query param for a new delivery address URL.
             const addDeliveryUrl = new URL(addDeliveryAddressButton.href);
             addDeliveryUrl.searchParams.set(
@@ -121,13 +116,17 @@ export class Checkout extends Interaction {
         // Toggle the billing address row.
         if (useDeliveryAsBilling) {
             this.billingContainer.classList.add('d-none');  // Hide the billing address row.
+            this.vatDiv?.classList.remove("d-none");  // Show the VAT field in address cards.
             const selectedDeliveryAddress = this._getSelectedAddress('delivery');
+            this._selectMatchingBillingAddressCard(selectedDeliveryAddress.dataset.partnerId)
             await this.waitFor(
-                this._selectMatchingBillingAddress(selectedDeliveryAddress.dataset.partnerId)
+                this.updateAddress('billing', selectedDeliveryAddress.dataset.partnerId)
             );
         } else {
             this._disableMainButton();
             this.billingContainer.classList.remove('d-none'); // Show the billing address row.
+            this.vatDiv?.classList.add("d-none");  // Hide the VAT field in address cards.
+
         }
         this.addBillingAddressBtn.classList.toggle('d-none', useDeliveryAsBilling);
 
@@ -149,75 +148,14 @@ export class Checkout extends Interaction {
         // Disable the main button while fetching delivery rates.
         this._disableMainButton();
 
-        // Hide and reset the order location name and address if defined.
-        this._hidePickupLocation();
-
         // Fetch delivery rates and update the cart summary and the price badge accordingly.
         await this.waitFor(this._updateDeliveryMethod(checkedRadio));
 
         // Re-enable the main button after delivery rates have been fetched.
         this._enableMainButton();
-
-        // Show a button to open the location selector if required for the selected delivery method.
-        await this._showPickupLocation(checkedRadio);
-    }
-
-    /**
-     * Fetch and display the closest pickup locations based on the zip code.
-     *
-     * @param {Event} ev
-     * @return {void}
-     */
-    async selectPickupLocation(ev) {
-        const { zipCode, locationId } = ev.currentTarget.dataset;
-        const deliveryMethodContainer = this._getDeliveryMethodContainer(ev.currentTarget);
-        this.services.dialog.add(LocationSelectorDialog, {
-            zipCode: zipCode,
-            selectedLocationId: locationId,
-            isFrontend: true,
-            save: async location => {
-                const jsonLocation = JSON.stringify(location);
-                // Assign the selected pickup location to the order.
-                await this.waitFor(this._setPickupLocation(jsonLocation));
-
-                //  Show and set the order location details.
-                this._updatePickupLocation(deliveryMethodContainer, location, jsonLocation);
-
-                this._enableMainButton();
-            },
-        });
     }
 
     // #=== DOM MANIPULATION ===#
-
-    /**
-     * Update the pickup location address elements and the 'edit' button's values.
-     *
-     * @private
-     * @param deliveryMethodContainer - The container element of the delivery method.
-     * @param location - The selected location as an object.
-     * @param jsonLocation - The selected location as an JSON string.
-     * @return {void}
-     */
-    _updatePickupLocation(deliveryMethodContainer, location, jsonLocation) {
-        const pickupLocation = deliveryMethodContainer.querySelector('[name="o_pickup_location"]');
-        pickupLocation.querySelector('[name="o_pickup_location_name"]').innerText = location.name;
-        pickupLocation.querySelector(
-            '[name="o_pickup_location_address"]'
-        ).innerText = `${location.street} ${location.zip_code} ${location.city}`;
-        const editPickupLocationButton = pickupLocation.querySelector(
-            'span[name="o_pickup_location_selector"]'
-        );
-        editPickupLocationButton.dataset.locationId = location.id;
-        editPickupLocationButton.dataset.zipCode = location.zip_code;
-        editPickupLocationButton.dataset.pickupLocationData = jsonLocation;
-        pickupLocation.querySelector(
-            '[name="o_pickup_location_details"]'
-        ).classList.remove('d-none');
-
-        // Remove the button.
-        pickupLocation.querySelector('button[name="o_pickup_location_selector"]')?.remove();
-    }
 
     /**
      * Remove the highlighting from the address card.
@@ -276,21 +214,6 @@ export class Checkout extends Interaction {
     }
 
     /**
-     * Hide the pickup location.
-     *
-     * @private
-     * @return {void}
-     */
-    _hidePickupLocation() {
-        const pickupLocations = document.querySelectorAll(
-            '[name="o_pickup_location"]:not(.d-none)'
-        );
-        pickupLocations.forEach(pickupLocation =>
-            pickupLocation.classList.add('d-none') // Hide the whole div.
-        );
-    }
-
-    /**
      * Set the delivery method on the order and update the price badge and cart summary.
      *
      * @private
@@ -302,6 +225,11 @@ export class Checkout extends Interaction {
         const result = await this.waitFor(this._setDeliveryMethod(radio.dataset.dmId));
         this._updateAmountBadge(radio, result);
         this._updateCartSummaries(result);
+        if (result.shipping_tracking_info) {
+            wSaleUtils.dispatchTrackingEvent(
+                "add_shipping_info_event", result.shipping_tracking_info,
+            );
+        }
     }
 
     /**
@@ -361,7 +289,7 @@ export class Checkout extends Interaction {
         const amountUntaxed = targetEl.querySelector(
             'tr[name="o_order_total_untaxed"] .monetary_field'
         );
-        const amountTax = targetEl.querySelector('tr[name="o_order_total_taxes"] .monetary_field');
+        const amountTax = targetEl.querySelector('#order_tax_lines_container');
         const amountTotal = targetEl.parentElement.querySelectorAll(
             'tr[name="o_order_total"] .monetary_field, #amount_total_summary.monetary_field'
         );
@@ -371,10 +299,11 @@ export class Checkout extends Interaction {
             amountDelivery.querySelector('span[name="o_message_no_dm_set"]')?.classList.add('d-none');
             amountDelivery.classList.remove('d-none');
         }
-
         amountDelivery.innerHTML = result.amount_delivery;
-        amountUntaxed.innerHTML = result.amount_untaxed;
-        amountTax.innerHTML = result.amount_tax;
+        if (amountUntaxed) {
+            setElementContent(amountUntaxed, markup(result.amount_untaxed));
+        }
+        amountTax.outerHTML = result.amount_tax_lines;
         amountTotal.forEach(total => total.innerHTML = result.amount_total);
     }
 
@@ -432,10 +361,9 @@ export class Checkout extends Interaction {
      * @param selectedPartnerId - The partner id of the selected delivery address.
      * @return {void}
      */
-    async _selectMatchingBillingAddress(selectedPartnerId) {
+    _selectMatchingBillingAddressCard(selectedPartnerId) {
         const previousAddress = this._getSelectedAddress('billing');
         this._tuneDownAddressCard(previousAddress);
-        await this.waitFor(this.updateAddress('billing', selectedPartnerId));
         const billingAddress = this.el.querySelector(
             `.card[data-partner-id="${selectedPartnerId}"][data-address-type="billing"]`
         );
@@ -450,7 +378,11 @@ export class Checkout extends Interaction {
      * @return {void}
      */
     async updateAddress(addressType, partnerId) {
-        await rpc('/shop/update_address', {address_type: addressType, partner_id: partnerId});
+        await rpc('/shop/update_address', {
+            address_type: addressType,
+            partner_id: partnerId,
+            use_delivery_as_billing: this.useDeliveryAsBillingToggle?.checked
+        });
     }
 
     // #=== DELIVERY FLOW ===#
@@ -465,7 +397,7 @@ export class Checkout extends Interaction {
         // Load the radios from the DOM here to update them if the template is re-rendered.
         this.dmRadios = Array.from(document.querySelectorAll('input[name="o_delivery_radio"]'));
         if (this.dmRadios.length > 0) {
-            const checkedRadio = document.querySelector('input[name="o_delivery_radio"]:checked');
+            const checkedRadio = this._getSelectedDeliveryRadio();
             this._disableMainButton();
             if (checkedRadio) {
                 await this.waitFor(this._updateDeliveryMethod(checkedRadio));
@@ -482,7 +414,7 @@ export class Checkout extends Interaction {
     }
 
     /**
-     * Check if the delivery method is selected and if the pickup point is selected if needed.
+     * Check if the delivery method is selected and available.
      *
      * @private
      * @return {boolean} Whether the delivery method is ready.
@@ -491,10 +423,8 @@ export class Checkout extends Interaction {
         if (this.dmRadios.length === 0) { // No delivery method is available.
             return true; // Ignore the check.
         }
-        const checkedRadio = document.querySelector('input[name="o_delivery_radio"]:checked');
-        return checkedRadio
-            && !checkedRadio.disabled
-            && !this._isPickupLocationMissing(checkedRadio);
+        const checkedRadio = this._getSelectedDeliveryRadio();
+        return checkedRadio && !checkedRadio.disabled;
     }
 
     /**
@@ -517,43 +447,6 @@ export class Checkout extends Interaction {
      */
     async _setDeliveryMethod(dmId) {
         return await rpc('/shop/set_delivery_method', {'dm_id': dmId});
-    }
-
-    /**
-     * Show the pickup location information or the button to open the location selector.
-     *
-     * @private
-     * @param {HTMLInputElement} radio - The radio button linked to the delivery method.
-     * @return {void}
-     */
-    async _showPickupLocation(radio) {
-        if (!radio.dataset.isPickupLocationRequired || radio.disabled) {
-            return;  // Fetching the delivery rate failed.
-        }
-        const deliveryMethodContainer = this._getDeliveryMethodContainer(radio);
-        const pickupLocation = deliveryMethodContainer.querySelector('[name="o_pickup_location"]');
-
-        const editPickupLocationButton = pickupLocation.querySelector(
-            'span[name="o_pickup_location_selector"]'
-        );
-        if (editPickupLocationButton.dataset.pickupLocationData) {
-            await this.waitFor(
-                this._setPickupLocation(editPickupLocationButton.dataset.pickupLocationData)
-            );
-        }
-
-        pickupLocation.classList.remove('d-none'); // Show the whole div.
-    }
-
-    /**
-     * Set the pickup location on the order.
-     *
-     * @private
-     * @param {String} pickupLocationData - The pickup location's data to set.
-     * @return {void}
-     */
-    async _setPickupLocation(pickupLocationData) {
-        await rpc('/website_sale/set_pickup_location', {pickup_location_data: pickupLocationData});
     }
 
     // #=== GETTERS & SETTERS ===#
@@ -590,7 +483,8 @@ export class Checkout extends Interaction {
      */
     _createLoadingElement() {
         const loadingElement = document.createElement('i');
-        loadingElement.classList.add('fa', 'fa-circle-o-notch', 'fa-spin', 'center');
+        loadingElement.classList.add('oi', 'oi-spin', 'center');
+        loadingElement.dataset.icon = "autorenew";
         return loadingElement;
     }
 
@@ -618,30 +512,14 @@ export class Checkout extends Interaction {
     }
 
     /**
-     * Return whether a pickup location is required but not selected.
+     * Returns the selected delivery method radio element.
      *
-     * @private
-     * @param {HTMLInputElement} radio - The radio button linked to the delivery method.
-     * @return {boolean} Whether a required pickup location is missing.
+     * @returns {Element} The selected radio button element.
      */
-    _isPickupLocationMissing(radio) {
-        const deliveryMethodContainer = this._getDeliveryMethodContainer(radio);
-        if (!this._isPickupLocationRequired(radio)) return false;
-        return !deliveryMethodContainer.querySelector(
-            'span[name="o_pickup_location_selector"]'
-        ).dataset.locationId;
+    _getSelectedDeliveryRadio(){
+        return this.el.querySelector('input[name="o_delivery_radio"]:checked');
     }
 
-    /**
-     * Return whether a pickup is required for the delivery method linked to the provided radio.
-     *
-     * @private
-     * @param {HTMLInputElement} radio - The radio button linked to the delivery method.
-     * @return {bool} Whether a pickup is needed.
-     */
-    _isPickupLocationRequired(radio) {
-        return Boolean(radio.dataset.isPickupLocationRequired);
-    }
 }
 
 registry

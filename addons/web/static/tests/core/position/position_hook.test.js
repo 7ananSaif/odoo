@@ -1,14 +1,22 @@
-import { before, destroy, expect, getFixture, test } from "@odoo/hoot";
 import {
+    animationFrame,
+    before,
+    expect,
+    getFixture,
     manuallyDispatchProgrammaticEvent,
     queryOne,
     queryRect,
     resize,
     scroll,
-} from "@odoo/hoot-dom";
-import { Deferred, animationFrame } from "@odoo/hoot-mock";
-import { Component, onMounted, useRef, xml } from "@odoo/owl";
-import { defineParams, defineStyle, mountWithCleanup } from "@web/../tests/web_test_helpers";
+    test,
+} from "@odoo/hoot";
+import { Component, onMounted, signal, xml } from "@odoo/owl";
+import {
+    defineParams,
+    defineStyle,
+    destroyApp,
+    mountWithCleanup,
+} from "@web/../tests/web_test_helpers";
 
 import { usePosition } from "@web/core/position/position_hook";
 
@@ -22,30 +30,33 @@ function getTestComponent(popperOptions, styles = {}, target = false) {
     class TestComp extends Component {
         static template = xml`
             <div id="scroll-container" style="overflow: auto; height: 450px">
-                <div id="container" t-ref="container" style="background-color: salmon; display: flex; align-items: center; justify-content: center; width: 450px; height: 450px; margin: 25px">
-                    <div id="target" t-ref="target" style="background-color: royalblue; width: 50px; height: 50px"/>
-                    <div id="popper" t-ref="popper" style="background-color: maroon; height: 100px; width: 100px">
-                        <div id="popper-content" t-ref="content" style="background-color: seagreen; height: 50px; width: 50px"/>
+                <div id="container" t-ref="this.containerRef" style="background-color: salmon; display: flex; align-items: center; justify-content: center; width: 450px; height: 450px; margin: 25px">
+                    <div id="target" t-ref="this.targetRef" style="background-color: royalblue; width: 50px; height: 50px"/>
+                    <div id="popper" t-ref="this.popperRef" style="background-color: maroon; height: 100px; width: 100px">
+                        <div id="popper-content" t-ref="this.contentRef" style="background-color: seagreen; height: 50px; width: 50px"/>
                     </div>
                 </div>
             </div>
         `;
-        static props = ["*"];
+        containerRef = signal.ref();
+        targetRef = signal.ref();
+        popperRef = signal.ref();
+        contentRef = signal.ref();
         setup() {
             if (!target) {
-                target = useRef("target");
+                target = this.targetRef;
             }
-            const container = useRef("container");
-            const popper = useRef("popper");
-            const content = useRef("content");
+            const container = this.containerRef;
+            const popper = this.popperRef;
+            const content = this.contentRef;
             onMounted(() => {
-                Object.assign(container.el.style, styles.container);
-                Object.assign(popper.el.style, styles.popper);
-                Object.assign(content.el.style, styles.content);
+                Object.assign(container().style, styles.container);
+                Object.assign(popper().style, styles.popper);
+                Object.assign(content().style, styles.content);
             });
-            usePosition("popper", () => target?.el || target, {
+            usePosition(this.popperRef, () => target(), {
                 ...popperOptions,
-                container: () => popperOptions?.container || container.el,
+                container: () => popperOptions?.container || container(),
             });
         }
     }
@@ -82,10 +93,10 @@ test("can add margin", async () => {
                 marginLeft: `${SHEET_MARGINS.left}px`,
             },
         });
-        const comp = await mountWithCleanup(TestComp);
+        await mountWithCleanup(TestComp);
         const popBox = queryOne("#popper").getBoundingClientRect();
         const targetBox = queryOne("#target").getBoundingClientRect();
-        destroy(comp);
+        destroyApp();
         return [popBox, targetBox];
     }
 
@@ -186,12 +197,12 @@ test("popper is an inner element", async () => {
     class TestComp extends Component {
         static template = xml`
             <div id="not-popper">
-                <div id="popper" t-ref="popper"/>
+                <div id="popper" t-ref="this.popperRef"/>
             </div>
         `;
-        static props = ["*"];
+        popperRef = signal.ref();
         setup() {
-            usePosition("popper", () => getFixture(), {
+            usePosition(this.popperRef, () => getFixture(), {
                 onPositioned: (el) => {
                     expect(queryOne("#not-popper")).not.toBe(el);
                     expect(queryOne("#popper")).toBe(el);
@@ -210,7 +221,7 @@ test("has no effect when component is destroyed", async () => {
         },
     });
 
-    const comp = await mountWithCleanup(TestComp);
+    await mountWithCleanup(TestComp);
     // onPositioned called when component mounted
     expect.verifySteps(["onPositioned called"]);
 
@@ -220,7 +231,7 @@ test("has no effect when component is destroyed", async () => {
     expect.verifySteps(["onPositioned called"]);
 
     await scroll(queryOne("#scroll-container"), { y: 100 });
-    destroy(comp);
+    destroyApp();
     await animationFrame();
     // onPositioned not called even if scroll happened right before the component destroys
     expect.verifySteps([]);
@@ -270,6 +281,44 @@ test("reposition popper when a scroll event occurs", async () => {
     expect.verifySteps(["onPositioned called"]);
 });
 
+test("does not reposition when scroll is in an unrelated container", async () => {
+    class TestComp extends Component {
+        static template = xml`
+            <div style="display: flex">
+                <div id="target-scroll-container" style="overflow: auto; height: 200px; width: 200px">
+                    <div id="target" t-ref="this.targetRef" style="width: 50px; height: 50px; margin-top: 500px"/>
+                </div>
+                <div id="unrelated-scroll-container" style="overflow: auto; height: 200px; width: 200px">
+                    <div style="height: 1000px"/>
+                </div>
+                <div id="popper" t-ref="this.popperRef" style="width: 100px; height: 100px"/>
+            </div>
+        `;
+        targetRef = signal.ref();
+        popperRef = signal.ref();
+        setup() {
+            usePosition(this.popperRef, () => this.targetRef(), {
+                onPositioned: () => {
+                    expect.step("onPositioned called");
+                },
+            });
+        }
+    }
+
+    await mountWithCleanup(TestComp);
+    expect.verifySteps(["onPositioned called"]);
+
+    await scroll(queryOne("#unrelated-scroll-container"), { y: 10 });
+    await animationFrame();
+    // target is not inside the unrelated container, no reposition needed
+    expect.verifySteps([]);
+
+    await scroll(queryOne("#target-scroll-container"), { y: 10 });
+    await animationFrame();
+    // target is inside this container, reposition is needed
+    expect.verifySteps(["onPositioned called"]);
+});
+
 test("is positioned relative to its containing block", async () => {
     const fixtureBox = getFixture().getBoundingClientRect();
     // offset the container
@@ -288,10 +337,10 @@ test("is positioned relative to its containing block", async () => {
         }
     );
 
-    let popper = await mountWithCleanup(TestComp);
+    await mountWithCleanup(TestComp);
 
-    const popBox1 = queryOne("#popper").getBoundingClientRect();
-    destroy(popper);
+    const popBox1 = queryRect("#popper");
+    destroyApp();
 
     TestComp = getTestComponent(
         {
@@ -307,9 +356,9 @@ test("is positioned relative to its containing block", async () => {
         }
     );
 
-    popper = await mountWithCleanup(TestComp);
-    const popBox2 = queryOne("#popper").getBoundingClientRect();
-    destroy(popper);
+    await mountWithCleanup(TestComp);
+    const popBox2 = queryRect("#popper");
+    destroyApp();
 
     // best positions are not the same relative to their containing block
     expect(pos1.top).toBe(pos2.top + margin + fixtureBox.top);
@@ -322,13 +371,13 @@ test("is positioned relative to its containing block", async () => {
 function getPopperComponent(popperOptions, target) {
     class PopperComp extends Component {
         static template = xml`
-            <div id="popper" t-ref="popper" style="background-color: plum; height: 100px; width: 100px">
+            <div id="popper" t-ref="this.popperRef" style="background-color: plum; height: 100px; width: 100px">
                 <div id="popper-content" style="background-color: coral; height: 50px; width: 50px"/>
             </div>
         `;
-        static props = ["*"];
+        popperRef = signal.ref();
         setup() {
-            usePosition("popper", () => target?.el || target, {
+            usePosition(this.popperRef, () => target, {
                 ...popperOptions,
                 container: () => popperOptions?.container,
             });
@@ -349,11 +398,11 @@ test("iframe: popper is outside, target inside", async () => {
         margin: "25px",
     });
     iframe.srcdoc = `<div id="target" style="background-color: tomato; width: 50px; height: 50px"/>`;
-    const def = new Deferred();
+    const def = Promise.withResolvers();
     iframe.onload = () => def.resolve();
     const container = queryOne("#container");
     container.appendChild(iframe);
-    await def;
+    await def.promise;
 
     const iframeBody = iframe.contentDocument.body;
     Object.assign(iframeBody.style, {
@@ -437,11 +486,11 @@ test("iframe: popper is outside, target and container inside", async () => {
         margin: "100px",
     });
     iframe.srcdoc = `<div id="inner-container"><div id="target" style="background-color: green; width: 50px; height: 500px; top: 50px"/></div>`;
-    const def = new Deferred();
+    const def = Promise.withResolvers();
     iframe.onload = () => def.resolve();
     const container = queryOne("#container");
     container.appendChild(iframe);
-    await def;
+    await def.promise;
 
     const innerContainer = queryOne(":iframe #inner-container");
     Object.assign(innerContainer.style, {
@@ -476,11 +525,11 @@ test("iframe: popper is outside, target and container inside", async () => {
     const { top: iframeTop, left: iframeLeft } = iframe.getBoundingClientRect();
     const targetBox = popperTarget.getBoundingClientRect();
     const popperBox = onPositionedArgs.el.getBoundingClientRect();
-    const expectedTop = iframeTop + targetBox.top;
+    const expectedTop = iframeTop + targetBox.top - popperBox.height;
     const expectedLeft =
         iframeLeft + targetBox.left + popperTarget.offsetWidth / 2 - popperBox.width / 2;
 
-    expect(popperBox.bottom).toBe(expectedTop);
+    expect(popperBox.top).toBe(expectedTop);
     expect(popperBox.top).toBe(onPositionedArgs.solution.top);
 
     expect(popperBox.left).toBe(expectedLeft);
@@ -497,10 +546,10 @@ test("iframe: both popper and target inside", async () => {
         margin: "25px",
     });
     iframe.srcdoc = `<div id="inner-container" />`;
-    const def = new Deferred();
+    const def = Promise.withResolvers();
     iframe.onload = () => def.resolve();
     queryOne("#container").appendChild(iframe);
-    await def;
+    await def.promise;
 
     const iframeBody = iframe.contentDocument.body;
     Object.assign(iframeBody.style, {
@@ -577,13 +626,13 @@ test("iframe: both popper and target inside", async () => {
 test("iframe: default container is the popper owner's document", async () => {
     expect.assertions(1);
     // Prepare an outer iframe, that will hold the popper element
-    let def = new Deferred();
+    let def = Promise.withResolvers();
     const outerIframe = document.createElement("iframe");
     Object.assign(outerIframe.style, { height: "450px", width: "450px" });
     outerIframe.onload = () => def.resolve();
     getFixture().prepend(outerIframe);
     // registerCleanup(() => outerIframe.remove());
-    await def;
+    await def.promise;
     Object.assign(outerIframe.contentDocument.body.style, {
         display: "flex",
         alignItems: "center",
@@ -594,7 +643,7 @@ test("iframe: default container is the popper owner's document", async () => {
         margin: "0",
     });
 
-    def = new Deferred();
+    def = Promise.withResolvers();
     const iframeSheet = outerIframe.contentDocument.createElement("style");
     iframeSheet.onload = () => def.resolve();
     iframeSheet.textContent = `
@@ -605,10 +654,10 @@ test("iframe: default container is the popper owner's document", async () => {
             }
         `;
     outerIframe.contentDocument.head.appendChild(iframeSheet);
-    await def; // wait for the iframe's stylesheet to be loaded
+    await def.promise; // wait for the iframe's stylesheet to be loaded
 
     // Prepare the inner iframe, that will hold the target element
-    def = new Deferred();
+    def = Promise.withResolvers();
     const innerIframe = document.createElement("iframe");
     innerIframe.srcdoc = `<div id="target" />`;
     Object.assign(innerIframe.style, {
@@ -618,7 +667,7 @@ test("iframe: default container is the popper owner's document", async () => {
     });
     innerIframe.onload = () => def.resolve();
     outerIframe.contentDocument.body.appendChild(innerIframe);
-    await def;
+    await def.promise;
     Object.assign(innerIframe.contentDocument.body.style, {
         display: "flex",
         alignItems: "center",
@@ -638,10 +687,10 @@ test("iframe: default container is the popper owner's document", async () => {
 
     // Mount the popper component and check its position
     class Popper extends Component {
-        static props = ["*"];
-        static template = xml`<div id="popper" t-ref="popper" />`;
+        static template = xml`<div id="popper" t-ref="this.popperRef" />`;
+        popperRef = signal.ref();
         setup() {
-            usePosition("popper", () => target, {
+            usePosition(this.popperRef, () => target, {
                 position: "top-start",
                 onPositioned: (_, { direction, variant }) => {
                     expect(`${direction}-${variant}`).toBe("top-start");
@@ -661,28 +710,29 @@ test("popper as child of another", async () => {
     class Child extends Component {
         static template = /* xml */ xml`
             <div id="child">
-                <div class="target" t-ref="ref" style="background-color: peachpuff; height: 100px; width: 10px"/>
-                <div class="popper" t-ref="popper" style="background-color: olive; height: 100px; width: 10px"/>
+                <div class="target" t-ref="this.childTargetRef" style="background-color: peachpuff; height: 100px; width: 10px"/>
+                <div class="popper" t-ref="this.popperRef" style="background-color: olive; height: 100px; width: 10px"/>
             </div>
         `;
-        static props = ["*"];
+        childTargetRef = signal.ref();
+        popperRef = signal.ref();
         setup() {
-            const ref = useRef("ref");
-            usePosition("popper", () => ref.el, { position: "left" });
+            usePosition(this.popperRef, () => this.childTargetRef(), { position: "left" });
         }
     }
     class Parent extends Component {
         static components = { Child };
         static template = /* xml */ xml`
-            <div id="container" t-ref="container" style="background-color: salmon; display: flex; align-items: center; justify-content: center; width: 450px; height: 450px; margin: 25px; overflow: auto">
-                <div id="target" t-ref="target" style="background-color: tomato; width: 200px; height: 600px"/>
-                <div id="popper" t-ref="popper"><Child/></div>
+            <div id="container" t-ref="this.containerRef" style="background-color: salmon; display: flex; align-items: center; justify-content: center; width: 450px; height: 450px; margin: 25px; overflow: auto">
+                <div id="target" t-ref="this.targetRef" style="background-color: tomato; width: 200px; height: 600px"/>
+                <div id="popper" t-ref="this.popperRef"><Child/></div>
             </div>
         `;
-        static props = ["*"];
+        containerRef = signal.ref();
+        targetRef = signal.ref();
+        popperRef = signal.ref();
         setup() {
-            const target = useRef("target");
-            usePosition("popper", () => target.el);
+            usePosition(this.popperRef, () => this.targetRef());
         }
     }
 
@@ -713,15 +763,16 @@ test("batch update call", async () => {
     let position = null;
     class TestComponent extends Component {
         static template = xml`
-            <div id="container" t-ref="container" style="background-color: salmon; display: flex; align-items: center; justify-content: center; width: 450px; height: 450px; margin: 25px; overflow: auto">
-                <div id="target" t-ref="target" style="background-color: tomato; width: 200px; height: 600px"/>
-                <div id="popper" t-ref="popper" style="background-color: olive; height: 50px; width: 50px"/>
+            <div id="container" t-ref="this.containerRef" style="background-color: salmon; display: flex; align-items: center; justify-content: center; width: 450px; height: 450px; margin: 25px; overflow: auto">
+                <div id="target" t-ref="this.targetRef" style="background-color: tomato; width: 200px; height: 600px"/>
+                <div id="popper" t-ref="this.popperRef" style="background-color: olive; height: 50px; width: 50px"/>
             </div>
         `;
-        static props = ["*"];
+        containerRef = signal.ref();
+        targetRef = signal.ref();
+        popperRef = signal.ref();
         setup() {
-            const target = useRef("target");
-            position = usePosition("popper", () => target.el, {
+            position = usePosition(this.popperRef, () => this.targetRef(), {
                 onPositioned: () => {
                     expect.step("positioned");
                 },
@@ -743,12 +794,12 @@ test("not positioned if target not connected", async () => {
     const target = document.createElement("div");
     class TestComponent extends Component {
         static template = xml`
-            <div t-ref="container"><div t-ref="popper"/></div>
+            <div t-ref="this.container"><div t-ref="this.popperRef"/></div>
         `;
-        static props = ["*"];
+        container = signal.ref();
+        popperRef = signal.ref();
         setup() {
-            this.container = useRef("container");
-            this.position = usePosition("popper", () => target, {
+            this.position = usePosition(this.popperRef, () => target, {
                 onPositioned: () => {
                     expect.step("positioned");
                 },
@@ -759,12 +810,12 @@ test("not positioned if target not connected", async () => {
     const comp = await mountWithCleanup(TestComponent);
     expect.verifySteps([]);
 
-    comp.container.el.appendChild(target);
+    comp.container().appendChild(target);
     comp.position.unlock();
     await animationFrame();
     expect.verifySteps(["positioned"]);
 
-    comp.container.el.removeChild(target);
+    comp.container().removeChild(target);
     comp.position.unlock();
     await animationFrame();
     expect.verifySteps([]);
@@ -774,26 +825,28 @@ function shrinkPopperTest(position, offset, onPositioned, popperStyle = {}) {
     return async () => {
         class TestComp extends Component {
             static template = xml`
-                <div id="container" t-ref="container" style="background-color: salmon; display: flex; align-items: center; justify-content: center; width: 450px; height: 450px; margin: 25px;">
-                    <div id="target" t-ref="target" style="background-color: royalblue; width: 50px; height: 50px; margin-top: ${offset}px;"/>
-                    <div id="popper" t-ref="popper" t-att-style="popperStyle">
+                <div id="container" t-ref="this.containerRef" style="background-color: salmon; display: flex; align-items: center; justify-content: center; width: 450px; height: 450px; margin: 25px;">
+                    <div id="target" t-ref="this.targetRef" style="background-color: royalblue; width: 50px; height: 50px; margin-top: ${offset}px;"/>
+                    <div id="popper" t-ref="this.popperRef" t-att-style="this.popperStyle">
                         <div id="popper-content" style="background-color: seagreen; height: 500px; width: 50px;"/>
                     </div>
                 </div>
             `;
-            static props = ["*"];
+            containerRef = signal.ref();
+            targetRef = signal.ref();
+            popperRef = signal.ref();
             setup() {
-                const target = useRef("target");
-                const container = useRef("container");
-                usePosition("popper", () => target.el, {
+                const target = this.targetRef;
+                const container = this.containerRef;
+                usePosition(this.popperRef, () => target(), {
                     position,
-                    container: () => container.el,
+                    container: () => container(),
                     onPositioned(el) {
                         expect.step("onPositioned");
                         onPositioned({
-                            c: container.el.getBoundingClientRect(),
+                            c: container().getBoundingClientRect(),
                             p: el.getBoundingClientRect(),
-                            t: target.el.getBoundingClientRect(),
+                            t: target().getBoundingClientRect(),
                         });
                     },
                     shrink: true,
@@ -832,7 +885,7 @@ test(
 test(
     "max height to prevent container overflow - right-start",
     shrinkPopperTest("right-start", 0, ({ c, p, t }) => {
-        expect(p.top).toBe(t.top);
+        expect(p.top).toBe(c.top);
         expect(p.bottom).toBe(c.bottom);
     })
 );
@@ -846,8 +899,8 @@ test(
 test(
     "max height to prevent container overflow - right-end",
     shrinkPopperTest("right-end", 0, ({ c, p, t }) => {
-        expect(p.bottom).toBe(t.bottom);
         expect(p.top).toBe(c.top);
+        expect(p.bottom).toBe(c.bottom);
     })
 );
 test(
@@ -949,10 +1002,9 @@ const CONTAINER_STYLE_MAP = {
     w125: { width: "125px" }, // width of popper + 1/2 target
 };
 
-function getRepositionTest(from, to, containerStyleChanges, extendedFlipping = false) {
+function getRepositionTest(from, to, containerStyleChanges) {
     return async () => {
         const TestComp = getTestComponent({
-            extendedFlipping,
             position: from,
             onPositioned: (el, { direction, variant }) => {
                 expect.step(`${direction}-${variant}`);
@@ -975,45 +1027,44 @@ function getRepositionTest(from, to, containerStyleChanges, extendedFlipping = f
     };
 }
 
-// -----------------------------------------------------------------------------
 test("reposition from top-start to top", getRepositionTest("top-start", "bottom-start", "top"));
 test(
     "reposition from top-start to top right",
-    getRepositionTest("top-start", "bottom-end", "top right")
+    getRepositionTest("top-start", "bottom-start", "top right")
 );
 test(
     "reposition from top-start to slimfit bottom",
-    getRepositionTest("top-start", "top-start", "slimfit bottom")
+    getRepositionTest("top-start", "center-middle", "slimfit bottom")
 );
-test("reposition from top-start to right", getRepositionTest("top-start", "top-end", "right"));
+test("reposition from top-start to right", getRepositionTest("top-start", "top-start", "right"));
 // -----------------------------------------------------------------------------
 test("reposition from top-middle to top", getRepositionTest("top-middle", "bottom-middle", "top"));
 test(
     "reposition from top-middle to slimfit bottom",
-    getRepositionTest("top-middle", "top-middle", "slimfit bottom")
+    getRepositionTest("top-middle", "center-middle", "slimfit bottom")
 );
 // -----------------------------------------------------------------------------
-test(
-    "reposition from top-end to top left",
-    getRepositionTest("top-end", "bottom-start", "top left")
-);
+test("reposition from top-end to top left", getRepositionTest("top-end", "bottom-end", "top left"));
 test("reposition from top-end to top", getRepositionTest("top-end", "bottom-end", "top"));
-test("reposition from top-end to left", getRepositionTest("top-end", "top-start", "left"));
+test("reposition from top-end to left", getRepositionTest("top-end", "top-end", "left"));
 test(
     "reposition from top-end to slimfit bottom",
-    getRepositionTest("top-end", "top-end", "slimfit bottom")
+    getRepositionTest("top-end", "center-middle", "slimfit bottom")
 );
 // -----------------------------------------------------------------------------
 test("reposition from left-start to left", getRepositionTest("left-start", "right-start", "left"));
 test(
     "reposition from left-start to left bottom",
-    getRepositionTest("left-start", "right-end", "left bottom")
+    getRepositionTest("left-start", "right-start", "left bottom")
 );
 test(
     "reposition from left-start to slimfit top",
-    getRepositionTest("left-start", "left-start", "slimfit top")
+    getRepositionTest("left-start", "center-middle", "slimfit top")
 );
-test("reposition from left-start to bottom", getRepositionTest("left-start", "left-end", "bottom"));
+test(
+    "reposition from left-start to bottom",
+    getRepositionTest("left-start", "left-start", "bottom")
+);
 // -----------------------------------------------------------------------------
 test(
     "reposition from left-middle to left",
@@ -1021,27 +1072,27 @@ test(
 );
 test(
     "reposition from left-middle to slimfit bottom",
-    getRepositionTest("left-middle", "left-middle", "slimfit bottom")
+    getRepositionTest("left-middle", "center-middle", "slimfit bottom")
 );
 // -----------------------------------------------------------------------------
 test(
     "reposition from left-end to left top",
-    getRepositionTest("left-end", "right-start", "left top")
+    getRepositionTest("left-end", "right-end", "left top")
 );
 test("reposition from left-end to left", getRepositionTest("left-end", "right-end", "left"));
-test("reposition from left-end to top", getRepositionTest("left-end", "left-start", "top"));
+test("reposition from left-end to top", getRepositionTest("left-end", "left-end", "top"));
 test(
     "reposition from left-end to slimfit bottom",
-    getRepositionTest("left-end", "left-end", "slimfit bottom")
+    getRepositionTest("left-end", "center-middle", "slimfit bottom")
 );
 // -----------------------------------------------------------------------------
 test(
     "reposition from bottom-start to slimfit top",
-    getRepositionTest("bottom-start", "bottom-start", "slimfit top")
+    getRepositionTest("bottom-start", "center-middle", "slimfit top")
 );
 test(
     "reposition from bottom-start to right",
-    getRepositionTest("bottom-start", "bottom-end", "right")
+    getRepositionTest("bottom-start", "bottom-start", "right")
 );
 test(
     "reposition from bottom-start to bottom",
@@ -1049,36 +1100,36 @@ test(
 );
 test(
     "reposition from bottom-start to bottom right",
-    getRepositionTest("bottom-start", "top-end", "bottom right")
+    getRepositionTest("bottom-start", "top-start", "bottom right")
 );
 // -----------------------------------------------------------------------------
 test(
     "reposition from bottom-middle to slimfit top",
-    getRepositionTest("bottom-middle", "bottom-middle", "slimfit top")
+    getRepositionTest("bottom-middle", "center-middle", "slimfit top")
 );
 test(
     "reposition from bottom-middle to bottom",
     getRepositionTest("bottom-middle", "top-middle", "bottom")
 );
 // -----------------------------------------------------------------------------
-test("reposition from bottom-end to left", getRepositionTest("bottom-end", "bottom-start", "left"));
+test("reposition from bottom-end to left", getRepositionTest("bottom-end", "bottom-end", "left"));
 test(
     "reposition from bottom-end to slimfit top",
-    getRepositionTest("bottom-end", "bottom-end", "slimfit top")
+    getRepositionTest("bottom-end", "center-middle", "slimfit top")
 );
 test(
     "reposition from bottom-end to bottom left",
-    getRepositionTest("bottom-end", "top-start", "bottom left")
+    getRepositionTest("bottom-end", "top-end", "bottom left")
 );
 test("reposition from bottom-end to bottom", getRepositionTest("bottom-end", "top-end", "bottom"));
 // -----------------------------------------------------------------------------
 test(
     "reposition from right-start to slimfit top",
-    getRepositionTest("right-start", "right-start", "slimfit top")
+    getRepositionTest("right-start", "center-middle", "slimfit top")
 );
 test(
     "reposition from right-start to bottom",
-    getRepositionTest("right-start", "right-end", "bottom")
+    getRepositionTest("right-start", "right-start", "bottom")
 );
 test(
     "reposition from right-start to right",
@@ -1086,109 +1137,28 @@ test(
 );
 test(
     "reposition from right-start to right bottom",
-    getRepositionTest("right-start", "left-end", "right bottom")
+    getRepositionTest("right-start", "left-start", "right bottom")
 );
 // -----------------------------------------------------------------------------
 test(
     "reposition from right-middle to slimfit bottom",
-    getRepositionTest("right-middle", "right-middle", "slimfit bottom")
+    getRepositionTest("right-middle", "center-middle", "slimfit bottom")
 );
 test(
     "reposition from right-middle to right",
     getRepositionTest("right-middle", "left-middle", "right")
 );
 // -----------------------------------------------------------------------------
-test("reposition from right-end to top", getRepositionTest("right-end", "right-start", "top"));
+test("reposition from right-end to top", getRepositionTest("right-end", "right-end", "top"));
 test(
     "reposition from right-end to slimfit bottom",
-    getRepositionTest("right-end", "right-end", "slimfit bottom")
+    getRepositionTest("right-end", "center-middle", "slimfit bottom")
 );
 test(
     "reposition from right-end to right top",
-    getRepositionTest("right-end", "left-start", "right top")
+    getRepositionTest("right-end", "left-end", "right top")
 );
 test("reposition from right-end to right", getRepositionTest("right-end", "left-end", "right"));
-// Reposition with all flipping directions allowed
-test(
-    "extended reposition from top-start to slimfit bottom",
-    getRepositionTest("top-start", "center-start", "slimfit bottom", true)
-);
-test(
-    "extended reposition from top-start to right",
-    getRepositionTest("top-start", "top-end", "right", true)
-);
-test(
-    "extended reposition from top-middle to slimfit bottom",
-    getRepositionTest("top-middle", "center-middle", "slimfit bottom", true)
-);
-test(
-    "extended reposition from top-end to left",
-    getRepositionTest("top-end", "top-start", "left", true)
-);
-test(
-    "extended reposition from top-end to slimfit bottom",
-    getRepositionTest("top-end", "center-end", "slimfit bottom", true)
-);
-test(
-    "extended reposition from left-start to slimfit top",
-    getRepositionTest("left-start", "center-start", "slimfit top", true)
-);
-test(
-    "extended reposition from left-start to bottom",
-    getRepositionTest("left-start", "left-end", "bottom", true)
-);
-test(
-    "extended reposition from left-middle to slimfit bottom",
-    getRepositionTest("left-middle", "center-middle", "slimfit bottom", true)
-);
-test(
-    "extended reposition from left-end to top",
-    getRepositionTest("left-end", "left-start", "top", true)
-);
-test(
-    "extended reposition from left-end to slimfit bottom",
-    getRepositionTest("left-end", "center-end", "slimfit bottom", true)
-);
-test(
-    "extended reposition from bottom-start to slimfit top",
-    getRepositionTest("bottom-start", "center-start", "slimfit top", true)
-);
-test(
-    "extended reposition from bottom-start to right",
-    getRepositionTest("bottom-start", "bottom-end", "right", true)
-);
-test(
-    "extended reposition from bottom-middle to slimfit top",
-    getRepositionTest("bottom-middle", "center-middle", "slimfit top", true)
-);
-test(
-    "extended reposition from bottom-end to left",
-    getRepositionTest("bottom-end", "bottom-start", "left", true)
-);
-test(
-    "extended reposition from bottom-end to slimfit top",
-    getRepositionTest("bottom-end", "center-end", "slimfit top", true)
-);
-test(
-    "extended reposition from right-start to slimfit top",
-    getRepositionTest("right-start", "center-start", "slimfit top", true)
-);
-test(
-    "extended reposition from right-start to bottom",
-    getRepositionTest("right-start", "right-end", "bottom", true)
-);
-test(
-    "extended reposition from right-middle to slimfit bottom",
-    getRepositionTest("right-middle", "center-middle", "slimfit bottom", true)
-);
-test(
-    "extended reposition from right-end to top",
-    getRepositionTest("right-end", "right-start", "top", true)
-);
-test(
-    "extended reposition from right-end to slimfit bottom",
-    getRepositionTest("right-end", "center-end", "slimfit bottom", true)
-);
 
 function getFittingTest(position, styleAttribute) {
     return async () => {

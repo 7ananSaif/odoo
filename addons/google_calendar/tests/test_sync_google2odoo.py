@@ -1,19 +1,21 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-import pytz
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, UTC
+from unittest.mock import patch
+from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
-from odoo.tests.common import new_test_user
+
+from odoo.tests.common import tagged, new_test_user, users
 from odoo.exceptions import ValidationError
 from odoo.addons.google_calendar.models.res_users import ResUsers
 from odoo.addons.google_calendar.tests.test_sync_common import TestSyncGoogle, patch_api
-from odoo.addons.google_calendar.utils.google_calendar import GoogleEvent, GoogleCalendarService
+from odoo.addons.google_calendar.utils.google_calendar_service import GoogleEvent, GoogleCalendarService
 from odoo import Command, tools
-from unittest.mock import patch
 
 
 @patch.object(ResUsers, '_get_google_calendar_token', lambda user: 'dummy-token')
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestSyncGoogle2Odoo(TestSyncGoogle):
     @classmethod
     def setUpClass(cls):
@@ -28,10 +30,17 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             'name': 'Mitchell Admin',
             'email': 'admin@yourcompany.example.com',
         })
+        cls.cal = cls.env.user.primary_calendar_id
         cls.private_partner = cls.env['res.partner'].create({
             'name': 'Private Contact',
             'email': 'private_email@example.com',
             'company_id': cls.other_company.id,
+        })
+        cls.notification_alarm = cls.env['calendar.alarm'].create({
+            'name': 'Alarm',
+            'alarm_type': 'notification',
+            'interval': 'minutes',
+            'duration': 20,
         })
 
     def generate_recurring_event(self, mock_dt, **values):
@@ -111,13 +120,14 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
 
     @property
     def now(self):
-        return pytz.utc.localize(datetime.now()).isoformat()
+        return datetime.now().replace(tzinfo=UTC).isoformat()
 
-    def sync(self, events):
+    def sync(self, events, user=None):
+        calendar = user.primary_calendar_id if user else self.env.user.primary_calendar_id
         events.clear_type_ambiguity(self.env)
         google_recurrence = events.filter(GoogleEvent.is_recurrence)
-        self.env['calendar.recurrence']._sync_google2odoo(google_recurrence)
-        self.env['calendar.event']._sync_google2odoo(events - google_recurrence)
+        self.env['calendar.recurrence']._sync_google2odoo(google_recurrence, calendar)
+        self.env['calendar.event']._sync_google2odoo(events - google_recurrence, calendar)
 
     @patch_api
     def test_new_google_event(self):
@@ -148,7 +158,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
                 'timeZone': 'Europe/Brussels'
             },
         }
-        self.env['calendar.event']._sync_google2odoo(GoogleEvent([values]))
+        self.env['calendar.event']._sync_google2odoo(GoogleEvent([values]), self.env.user.primary_calendar_id)
         event = self.env['calendar.event'].search([('google_id', '=', values.get('id'))])
         self.assertTrue(event, "It should have created an event")
         self.assertEqual(event.name, values.get('summary'))
@@ -168,21 +178,22 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
         values = {
             'id': 'oj44nep1ldf8a3ll02uip0c9aa',
             'organizer': {'email': 'odoocalendarref@gmail.com', 'self': True},
+            'creator': {'email': 'odoocalendarref@gmail.com', 'self': True},
             'summary': 'All day event',
             'attendees': [],
             'reminders': {'useDefault': True},
             'start': {'date': '2020-01-13'},
             'end': {'date': '2020-01-14'},
         }
-        self.env['calendar.event']._sync_google2odoo(GoogleEvent([values]))
+        self.env['calendar.event']._sync_google2odoo(GoogleEvent([values]), self.env.user.primary_calendar_id)
         event = self.env['calendar.event'].search([('google_id', '=', values.get('id'))])
         self.assertTrue(event)
         self.assertTrue(event.allday)
         self.assertEqual(event.start_date, date(2020, 1, 13))
         self.assertEqual(event.stop_date, date(2020, 1, 13))
-        winnipeg = pytz.timezone('America/Winnipeg')
-        self.assertEqual(pytz.utc.localize(event.start).astimezone(winnipeg).date(), date(2020, 1, 13))
-        self.assertEqual(pytz.utc.localize(event.stop).astimezone(winnipeg).date(), date(2020, 1, 13))
+        winnipeg = ZoneInfo('America/Winnipeg')
+        self.assertEqual(event.start.replace(tzinfo=UTC).astimezone(winnipeg).date(), date(2020, 1, 13))
+        self.assertEqual(event.stop.replace(tzinfo=UTC).astimezone(winnipeg).date(), date(2020, 1, 13))
         self.assertGoogleAPINotCalled()
 
     @patch_api
@@ -191,6 +202,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             'id': 'oj44nep1ldf8a3ll02uip0c9aa',
             'description': 'Small mini desc',
             'organizer': {'email': 'odoocalendarref@gmail.com', 'self': True},
+            'creator': {'email': 'odoocalendarref@gmail.com', 'self': True},
             'summary': 'Pricing new update',
             'visibility': 'public',
             'attendees': [],
@@ -207,7 +219,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
                 'timeZone': 'Europe/Brussels'
             },
         }
-        self.env['calendar.event']._sync_google2odoo(GoogleEvent([values]))
+        self.env['calendar.event']._sync_google2odoo(GoogleEvent([values]), self.env.user.primary_calendar_id)
         event = self.env['calendar.event'].search([('google_id', '=', values.get('id'))])
         self.assertEqual(event.user_id, self.env.user)
         self.assertGoogleAPINotCalled()
@@ -235,7 +247,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
                 'timeZone': 'Europe/Brussels'
             },
         }
-        self.env['calendar.event']._sync_google2odoo(GoogleEvent([values]))
+        self.env['calendar.event']._sync_google2odoo(GoogleEvent([values]), self.env.user.primary_calendar_id)
         event = self.env['calendar.event'].search([('google_id', '=', values.get('id'))])
         self.assertEqual(event.user_id, user)
         self.assertGoogleAPINotCalled()
@@ -284,7 +296,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
         self.assertEqual(user_attendee.state, 'needsAction')
         # We have to call sync with the attendee user
         gevent.clear_type_ambiguity(self.env)
-        self.env['calendar.event'].with_user(user)._sync_google2odoo(gevent)
+        self.env['calendar.event'].with_user(user)._sync_google2odoo(gevent, user.primary_calendar_id)
         self.assertTrue(event.active)
         user_attendee = event.attendee_ids
         self.assertTrue(user_attendee)
@@ -331,6 +343,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
         google_id = 'oj44nep1ldf8a3ll02uip0c9aa'
         event = self.env['calendar.event'].create({
             'name': 'coucou',
+            'alarm_ids': [(4, self.notification_alarm.id)],  # no alarm by default for allday events, adding one
             'start': date(2020, 1, 6),
             'stop': date(2020, 1, 6),
             'allday': True,
@@ -352,7 +365,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             'end': {'date': str(event.stop_date + relativedelta(days=1)), 'dateTime': None},
             'attendees': [{'email': 'odoobot@example.com', 'responseStatus': 'declined'}],
             'extendedProperties': {'private': {'%s_odoo_id' % self.env.cr.dbname: event.id}},
-            'reminders': {'overrides': [], 'useDefault': False},
+            'reminders': {'overrides': [{'method': 'popup', 'minutes': 20}], 'useDefault': False},
         })
 
     @patch_api
@@ -500,7 +513,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             'end': {'date': '2020-01-07'},
             'transparency': 'opaque',
         }
-        self.env['calendar.recurrence']._sync_google2odoo(GoogleEvent([values]))
+        self.env['calendar.recurrence']._sync_google2odoo(GoogleEvent([values]), self.env.user.primary_calendar_id)
         recurrence = self.env['calendar.recurrence'].search([('google_id', '=', values.get('id'))])
         self.assertTrue(recurrence, "it should have created a recurrence")
         events = recurrence.calendar_event_ids.sorted('start')
@@ -531,7 +544,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             'start': {'dateTime': '2020-01-06T18:00:00+01:00', 'date': None},
             'end': {'dateTime': '2020-01-06T19:00:00+01:00', 'date': None},
         }
-        self.env['calendar.recurrence']._sync_google2odoo(GoogleEvent([values]))
+        self.env['calendar.recurrence']._sync_google2odoo(GoogleEvent([values]), self.env.user.primary_calendar_id)
         recurrence = self.env['calendar.recurrence'].search([('google_id', '=', values.get('id'))])
         self.assertTrue(recurrence, "it should have created a recurrence")
         events = recurrence.calendar_event_ids.sorted('start')
@@ -552,6 +565,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             'id': recurrence_id,
             'summary': 'Pricing new update',
             'organizer': {'email': self.env.user.email, 'self': True},
+            'creator': {'email': self.env.user.email, 'self': True},
             'recurrence': ['RRULE:FREQ=WEEKLY;WKST=SU;COUNT=3;BYDAY=MO'],
             'reminders': {'useDefault': True},
             'start': {'date': '2020-01-06'},
@@ -581,6 +595,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             "summary": "r rul",
             "start": {"date": "2020-01-06"},
             'organizer': {'email': self.env.user.email, 'self': True},
+            'creator': {'email': self.env.user.email, 'self': True},
             "end": {"date": "2020-01-07"},
             'reminders': {'useDefault': True},
             "recurrence": ["RRULE:FREQ=WEEKLY;WKST=SU;COUNT=3;BYDAY=MO"],
@@ -661,7 +676,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             'reminders': {'useDefault': True},
             'updated': self.now,
         }]
-        self.env['calendar.event']._sync_google2odoo(GoogleEvent(values))
+        self.env['calendar.event']._sync_google2odoo(GoogleEvent(values), self.env.user.primary_calendar_id)
         recurrence = self.env['calendar.recurrence'].search([('google_id', '=', recurrence_id)])
         events = recurrence.calendar_event_ids.sorted('start')
         self.assertEqual(len(events), 3, "it should have created a recurrence with 3 events")
@@ -736,7 +751,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             'updated': self.now,
             'guestsCanModify': True,
         }
-        self.env['calendar.recurrence']._sync_google2odoo(GoogleEvent([values]))
+        self.env['calendar.recurrence']._sync_google2odoo(GoogleEvent([values]), self.env.user.primary_calendar_id)
         events = recurrence.calendar_event_ids.sorted('start')
         self.assertEqual(len(events), 2)
         self.assertEqual(recurrence.rrule, 'RRULE:FREQ=WEEKLY;COUNT=2;BYDAY=WE')
@@ -779,7 +794,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             ],
             'updated': self.now,
         }
-        self.env['calendar.recurrence']._sync_google2odoo(GoogleEvent([values]))
+        self.env['calendar.recurrence']._sync_google2odoo(GoogleEvent([values]), self.env.user.primary_calendar_id)
         events = recurrence.calendar_event_ids.sorted('start')
         self.assertEqual(len(events), 2)
         self.assertEqual(recurrence.rrule, 'RRULE:FREQ=WEEKLY;COUNT=2;BYDAY=MO')
@@ -832,7 +847,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             ],
             'updated': self.now,
         }
-        self.env['calendar.recurrence']._sync_google2odoo(GoogleEvent([values]))
+        self.env['calendar.recurrence']._sync_google2odoo(GoogleEvent([values]), self.env.user.primary_calendar_id)
         events = recurrence.calendar_event_ids.sorted('start')
         self.assertEqual(len(events), 3)
         self.assertEqual(recurrence.rrule, 'RRULE:FREQ=WEEKLY;COUNT=3;BYDAY=MO')
@@ -884,7 +899,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             'guestsCanModify': True,
         }
 
-        self.env['calendar.recurrence']._sync_google2odoo(GoogleEvent([values]))
+        self.env['calendar.recurrence']._sync_google2odoo(GoogleEvent([values]), self.env.user.primary_calendar_id)
         events = recurrence.calendar_event_ids.sorted('start')
         self.assertEqual(events[0].start, datetime(2021, 2, 15, 11, 0, 0))
         self.assertEqual(events[1].start, datetime(2021, 2, 22, 11, 0, 0))
@@ -937,7 +952,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             'start': {'dateTime': '2020-01-06T18:00:00+01:00', 'timeZone': 'Pacific/Auckland', 'date': None},
             'end': {'dateTime': '2020-01-06T19:00:00+01:00', 'timeZone': 'Pacific/Auckland', 'date': None},
         }
-        self.env['calendar.recurrence']._sync_google2odoo(GoogleEvent([values]))
+        self.env['calendar.recurrence']._sync_google2odoo(GoogleEvent([values]), self.env.user.primary_calendar_id)
         recurrence = self.env['calendar.recurrence'].search([('google_id', '=', values.get('id'))])
         self.assertEqual(recurrence.event_tz, 'Pacific/Auckland', "The Google event Timezone should be saved on the recurrency")
         self.assertGoogleAPINotCalled()
@@ -1011,10 +1026,10 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             },
         ]
         google_events = GoogleEvent(values)
-        self.env['calendar.recurrence']._sync_google2odoo(google_events)
+        self.env['calendar.recurrence']._sync_google2odoo(google_events, self.env.user.primary_calendar_id)
         no_duplicate_gevent = google_events.filter(lambda e: e.id == "9lxiofipomymx2yr1yt0hpep99")
-        dt_start = datetime.fromisoformat(no_duplicate_gevent.start["dateTime"]).astimezone(pytz.utc).replace(tzinfo=None).replace(hour=0)
-        dt_end = datetime.fromisoformat(no_duplicate_gevent.end["dateTime"]).astimezone(pytz.utc).replace(tzinfo=None).replace(hour=23)
+        dt_start = datetime.fromisoformat(no_duplicate_gevent.start["dateTime"]).astimezone(UTC).replace(tzinfo=None).replace(hour=0)
+        dt_end = datetime.fromisoformat(no_duplicate_gevent.end["dateTime"]).astimezone(UTC).replace(tzinfo=None).replace(hour=23)
         no_duplicate_event = self.env["calendar.event"].search(
             [
                 ("name", "=", no_duplicate_gevent.summary),
@@ -1039,7 +1054,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             'start': {'date': '2020-01-06'},
             'end': {'date': '2020-01-07'},
         }
-        self.env['calendar.recurrence']._sync_google2odoo(GoogleEvent([values]))
+        self.env['calendar.recurrence']._sync_google2odoo(GoogleEvent([values]), self.env.user.primary_calendar_id)
         recurrence = self.env['calendar.recurrence'].search([('google_id', '=', values.get('id'))])
         self.assertTrue(recurrence, "it should have created a recurrence")
         events = recurrence.calendar_event_ids.sorted('start')
@@ -1083,7 +1098,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
                 'date': None,
             },
         }
-        self.env['calendar.event']._sync_google2odoo(GoogleEvent([values]))
+        self.env['calendar.event']._sync_google2odoo(GoogleEvent([values]), self.env.user.primary_calendar_id)
         # The event is transformed into a recurrency on google
         values = {
             'id': google_id,
@@ -1096,19 +1111,20 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             'start': {'dateTime': '2020-01-06T18:00:00+01:00', 'timeZone': 'Europe/Brussels', 'date': None},
             'end': {'dateTime': '2020-01-06T19:00:00+01:00', 'timeZone': 'Europe/Brussels', 'date': None},
         }
-        recurrence = self.env['calendar.recurrence']._sync_google2odoo(GoogleEvent([values]))
+        recurrence = self.env['calendar.recurrence']._sync_google2odoo(GoogleEvent([values]), self.env.user.primary_calendar_id)
         events = recurrence.calendar_event_ids.sorted('start')
         self.assertEqual(len(events), 3, "it should have created a recurrence with 3 events")
         event = self.env['calendar.event'].search([('google_id', '=', values.get('id'))])
         self.assertFalse(event.exists(), "The old event should not exits anymore")
         self.assertGoogleAPINotCalled()
 
+    @users('attendee_user')
     @patch_api
     def test_recurrence_reduced(self):
         # This test is a bit special because it's testing 2 sync processes. The
         # bug it's protecting against is cross-contamination when event dicts
         # are mutated in different ways during the call to
-        # `_sync_google_calendar()`. If you want to do a new test, this one is
+        # `_sync_google_events()`. If you want to do a new test, this one is
         # probably not the best example.
         google_id = "oj44nep1ldf8a3ll02uip0c9aa"
         with self.mock_datetime_and_now("2024-06-07"):
@@ -1186,7 +1202,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
                     [{"method": "popup", "minutes": 30}],
                 ),
             ):
-                self.attendee_user.sudo()._sync_google_calendar(self.google_service)
+                self.env.user._sync_google_events(self.google_service)
             events = self.env["calendar.event"].search(
                 [("google_id", "like", google_id)]
             )
@@ -1291,7 +1307,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
                     [{"method": "popup", "minutes": 30}],
                 ),
             ):
-                self.attendee_user.sudo()._sync_google_calendar(self.google_service)
+                self.env.user._sync_google_events(self.google_service)
             events = self.env["calendar.event"].search(
                 [("google_id", "like", google_id)]
             )
@@ -1318,7 +1334,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
         with patch.object(GoogleCalendarService, 'get_events', return_value=(
             GoogleEvent(values), None, [{'method': 'popup', 'minutes': 30}],
         )):
-            self.organizer_user.sudo()._sync_google_calendar(self.google_service)
+            self.organizer_user.sudo()._sync_google_events(self.google_service)
         recurrences = self.env["calendar.recurrence"].search([('google_id', '=', birthday_google_id)])
         events = self.env["calendar.recurrence"].search([('google_id', '=', birthday_google_id)])
         self.assertFalse(recurrences, 'Birthday recurrent events should be ignored when syncing from google, as not supported.')
@@ -1346,17 +1362,18 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             }, ],
             'reminders': {'overrides': [{"method": "email", "minutes": 10}], 'useDefault': False},
             'start': {
-                'dateTime': pytz.utc.localize(start).isoformat(),
+                'dateTime': start.replace(tzinfo=UTC).isoformat(),
                 'timeZone': 'Europe/Brussels',
                 'date': None
             },
             'end': {
-                'dateTime': pytz.utc.localize(end).isoformat(),
+                'dateTime': end.replace(tzinfo=UTC).isoformat(),
                 'timeZone': 'Europe/Brussels',
                 'date': None
             },
         }
-        self.env['calendar.event']._sync_google2odoo(GoogleEvent([values]))
+        self.env['calendar.event']._sync_google2odoo(GoogleEvent([values]), self.env.user.primary_calendar_id)
+        self.env.cr.flush()
         triggers_after = self.env['ir.cron.trigger'].search([('cron_id', '=', cron_id)])
         new_triggers = triggers_after - triggers_before
         self.assertFalse(new_triggers, "The event should not be created with triggers.")
@@ -1365,7 +1382,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
         # No further notifications should be created.
         values = {
             'id': google_id,
-            'updated': pytz.utc.localize(updated).isoformat(),
+            'updated': updated.replace(tzinfo=UTC).isoformat(),
             'description': 'New Super description',
             'organizer': {'email': 'odoocalendarref@gmail.com', 'self': True},
             'summary': 'Pricing was not good, now it is correct',
@@ -1377,17 +1394,18 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             }, ],
             'reminders': {'overrides': [{"method": "email", "minutes": 10}], 'useDefault': False},
             'start': {
-                'dateTime': pytz.utc.localize(start).isoformat(),
+                'dateTime': start.replace(tzinfo=UTC).isoformat(),
                 'timeZone': 'Europe/Brussels',
                 'date': None,
             },
             'end': {
-                'dateTime': pytz.utc.localize(end).isoformat(),
+                'dateTime': end.replace(tzinfo=UTC).isoformat(),
                 'timeZone': 'Europe/Brussels',
                 'date': None,
             },
         }
-        self.env['calendar.event']._sync_google2odoo(GoogleEvent([values]))
+        self.env['calendar.event']._sync_google2odoo(GoogleEvent([values]), self.env.user.primary_calendar_id)
+        self.env.cr.flush()
         triggers_after = self.env['ir.cron.trigger'].search([('cron_id', '=', cron_id)])
         new_triggers = triggers_after - triggers_before
         self.assertFalse(new_triggers, "The event should not be created with triggers.")
@@ -1423,16 +1441,16 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
                 'responseStatus': 'needsAction'
             }],
             'start': {
-                'dateTime': pytz.utc.localize(start).isoformat(),
+                'dateTime': start.replace(tzinfo=UTC).isoformat(),
                 'timeZone': 'Europe/Brussels'
             },
             'reminders': {'overrides': [{"method": "email", "minutes": 30}], 'useDefault': False},
             'end': {
-                'dateTime': pytz.utc.localize(end).isoformat(),
+                'dateTime': end.replace(tzinfo=UTC).isoformat(),
                 'timeZone': 'Europe/Brussels'
             },
         }
-        self.env['calendar.event']._sync_google2odoo(GoogleEvent([values]))
+        self.env['calendar.event']._sync_google2odoo(GoogleEvent([values]), self.env.user.primary_calendar_id)
         events_by_alarm = self.env['calendar.alarm_manager']._get_events_by_alarm_to_notify('email')
         self.assertFalse(events_by_alarm, "Events with google_id should not trigger reminders")
 
@@ -1475,7 +1493,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             },
             'transparency': 'opaque',
         }
-        self.env['calendar.event']._sync_google2odoo(GoogleEvent([values]))
+        self.env['calendar.event']._sync_google2odoo(GoogleEvent([values]), user.primary_calendar_id)
         self.assertEqual(event.attendee_ids.state, 'declined')
         self.assertGoogleAPINotCalled()
 
@@ -1483,17 +1501,19 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
     def test_attendees_same_event_both_share(self):
         google_id = 'oj44nep1ldf8a3ll02uip0c9aa'
         other_user = new_test_user(self.env, login='calendar-user')
+        other_user.primary_calendar_id.google_id = 'calendar-google-id'
         event = self.env['calendar.event'].create({
             'name': 'coucou',
+            'alarm_ids': [(4, self.notification_alarm.id)],  # no alarm by default for allday events, adding one
             'start': date(2020, 1, 6),
             'stop': date(2020, 1, 6),
             'allday': True,
             'google_id': google_id,
             'need_sync': False,
             'user_id': other_user.id,  # Not the current user
-            'partner_ids': [(6, 0, [self.env.user.partner_id.id, other_user.partner_id.id], )]  # current user is attendee
+            'partner_ids': [(6, 0, [self.organizer_user.partner_id.id, other_user.partner_id.id])]  # current user is attendee
         })
-        event.write({'start': date(2020, 1, 7), 'stop': date(2020, 1, 8)})
+        event.with_user(self.organizer_user).write({'start': date(2020, 1, 7), 'stop': date(2020, 1, 8)})
         # To avoid 403 errors, we send a limited dictionnary when we don't have write access.
         # guestsCanModify property is not properly handled yet
         self.assertGoogleEventPatched(event.google_id, {
@@ -1506,10 +1526,10 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             'guestsCanModify': True,
             'organizer': {'email': 'c.c@example.com', 'self': False},
             'attendees': [{'email': 'c.c@example.com', 'responseStatus': 'needsAction'},
-                          {'email': 'odoobot@example.com', 'responseStatus': 'accepted'},],
+                          {'email': 'o.o@example.com', 'responseStatus': 'needsAction'}],
             'extendedProperties': {'shared': {'%s_odoo_id' % self.env.cr.dbname: event.id,
                                               '%s_owner_id' % self.env.cr.dbname: other_user.id}},
-            'reminders': {'overrides': [], 'useDefault': False},
+            'reminders': {'overrides': [{'method': 'popup', 'minutes': 20}], 'useDefault': False},
             'transparency': 'opaque',
         }, timeout=3)
 
@@ -1544,7 +1564,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             'start': {'dateTime': '2020-01-13T16:00:00+01:00', 'timeZone': 'Europe/Brussels', 'date': None},
             'end': {'dateTime': '2020-01-13T17:00:00+01:00', 'timeZone': 'Europe/Brussels', 'date': None},
             'visibility': 'public',
-        }]))
+        }]), self.env.user.primary_calendar_id)
         self.assertEqual(len(synced.partner_ids), 2, "The alias-matched attendee must not be added as a partner")
         self.assertIn(partner_a, synced.partner_ids, "partner_a must not be dropped when another attendee email matches an alias")
         self.assertIn(partner_b, synced.partner_ids, "partner_b must not be dropped when another attendee email matches an alias")
@@ -1583,10 +1603,34 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             'start': {'dateTime': '2021-02-15T8:00:00+01:00', 'timeZone': 'Europe/Brussels', 'date': None},
             'end': {'dateTime': '2021-02-15T10:00:00+01:00', 'timeZone': 'Europe/Brussels', 'date': None},
         }
-        self.env['calendar.recurrence']._sync_google2odoo(GoogleEvent([values]))
+        self.env['calendar.recurrence']._sync_google2odoo(GoogleEvent([values]), self.env.user.primary_calendar_id)
         attendee = recurrence.calendar_event_ids.attendee_ids.mapped('state')
         self.assertEqual(attendee, ['declined', 'declined', 'declined'], "All events should be declined")
         self.assertGoogleAPINotCalled()
+
+    @patch_api
+    def test_recurrence_without_rrule(self):
+        """ A 'recurrence' list containing only a stale EXDATE and no RRULE does not define an
+        actual recurring series (EXDATE only has meaning together with a RRULE, per RFC5545).
+        It must be synced as a single, non-recurring event instead of a broken recurrence. """
+        google_id = 'gcalendarid123'
+        values = {
+            'id': google_id,
+            'organizer': {'email': 'odoocalendarref@gmail.com', 'self': True},
+            'summary': 'Pricing new update',
+            'recurrence': ['EXDATE;TZID=Europe/Luxembourg:20260527T113000'],
+            'reminders': {'useDefault': True},
+            'start': {'dateTime': '2026-07-01T12:00:00+02:00', 'timeZone': 'Europe/Luxembourg'},
+            'end': {'dateTime': '2026-07-01T13:00:00+02:00', 'timeZone': 'Europe/Luxembourg'},
+        }
+        google_event = GoogleEvent([values])
+        self.assertFalse(google_event.is_recurrence(), "an EXDATE without a RRULE should not be treated as a recurrence")
+        self.env['calendar.event']._sync_google2odoo(google_event, self.env.user.primary_calendar_id)
+        event = self.env['calendar.event'].search([('google_id', '=', google_id)])
+        self.assertTrue(event, "it should have created a single event")
+        self.assertFalse(event.recurrency)
+        self.assertFalse(self.env['calendar.recurrence'].search([('google_id', '=', google_id)]),
+                          "no recurrence should have been created")
 
     @patch_api
     def test_recurrence_creation_with_attendee_answer(self):
@@ -1605,7 +1649,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             'end': {'dateTime': '2021-02-15T10:00:00+01:00', 'timeZone': 'Europe/Brussels', 'date': None},
             'guestsCanModify': True,
         }
-        self.env['calendar.recurrence']._sync_google2odoo(GoogleEvent([values]))
+        self.env['calendar.recurrence']._sync_google2odoo(GoogleEvent([values]), self.env.user.primary_calendar_id)
         recurrence = self.env['calendar.recurrence'].search([('google_id', '=', google_id)])
         attendee = recurrence.calendar_event_ids.attendee_ids.mapped('state')
         self.assertEqual(attendee, ['declined', 'declined', 'declined'], "All events should be declined")
@@ -1641,8 +1685,8 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             'allday': False,
             'google_id': google_id,
             'need_sync': False,
-            'user_id': self.env.user.partner_id.id,
-            'partner_ids': [(6, 0, [self.env.user.partner_id.id, partner1.id, partner2.id, partner3.id, partner4.id],)]
+            'user_id': self.env.user.id,
+            'partner_ids': [(6, 0, [self.env.user.partner_id.id, partner1.id, partner2.id, partner3.id, partner4.id])]
             # current user is attendee
         })
         recurrence = self.env['calendar.recurrence'].create({
@@ -1681,7 +1725,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
         self.sync(gevent)
         # User attendee removed but gevent owner might be added after synch.
         mails = event.attendee_ids.mapped('email')
-        self.assertFalse(mails)
+        self.assertEqual(mails, ['odoobot@example.com'])
 
         self.assertGoogleAPINotCalled()
 
@@ -1712,7 +1756,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
                 'date': None,
             },
         }
-        event = self.env['calendar.event']._sync_google2odoo(GoogleEvent([values]))
+        event = self.env['calendar.event']._sync_google2odoo(GoogleEvent([values]), self.env.user.primary_calendar_id)
         new_partner = self.env['res.partner'].search([('email', '=', 'test2@example.com')])
         self.assertEqual(event.partner_ids.ids, [user2.partner_id.id, new_partner.id], "The internal user should be chosen")
 
@@ -1752,7 +1796,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
                 }]
             }
         }
-        self.env['calendar.event']._sync_google2odoo(GoogleEvent([values]))
+        self.env['calendar.event']._sync_google2odoo(GoogleEvent([values]), self.env.user.primary_calendar_id)
         event = self.env['calendar.event'].search([('google_id', '=', values.get('id'))])
         self.assertTrue(event, "It should have created an event")
         self.assertEqual(event.videocall_location, 'https://meet.google.com/odoo-random-test')
@@ -1804,13 +1848,13 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
         }
         # make sure local video call is not discarded
         gevent = GoogleEvent([values])
-        self.env['calendar.event']._sync_google2odoo(gevent)
+        self.env['calendar.event']._sync_google2odoo(gevent, self.env.user.primary_calendar_id)
         self.assertEqual(event.videocall_location, 'https://meet.google.com/odoo_local_videocall')
 
         # now google has meet URL and make sure local video call is updated accordingly
         values['conferenceData']['entryPoints'][0]['uri'] = 'https://meet.google.com/odoo-random-test'
         gevent = GoogleEvent([values])
-        self.env['calendar.event']._sync_google2odoo(gevent)
+        self.env['calendar.event']._sync_google2odoo(gevent, self.env.user.primary_calendar_id)
         self.assertEqual(event.videocall_location, 'https://meet.google.com/odoo-random-test')
         self.assertGoogleAPINotCalled()
 
@@ -1840,7 +1884,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             },
             'transparency': 'transparent'
         }
-        self.env['calendar.event']._sync_google2odoo(GoogleEvent([values]))
+        self.env['calendar.event']._sync_google2odoo(GoogleEvent([values]), self.env.user.primary_calendar_id)
         event = self.env['calendar.event'].search([('google_id', '=', values.get('id'))])
         self.assertTrue(event, "It should have created an event")
         self.assertEqual(event.show_as, 'free')
@@ -1876,7 +1920,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             },
         }
 
-        self.env['calendar.event']._sync_google2odoo(GoogleEvent([values]))
+        self.env['calendar.event']._sync_google2odoo(GoogleEvent([values]), self.env.user.primary_calendar_id)
         event = self.env['calendar.event'].search([('google_id', '=', values.get('id'))])
         private_attendee = event.attendee_ids.filtered(lambda e: e.email == self.private_partner.email)
         self.assertEqual(self.private_partner.id, private_attendee.partner_id.id)
@@ -1901,7 +1945,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             'start': {'date': '2020-01-06'},
             'end': {'date': '2020-01-07'},
         }
-        self.env['calendar.recurrence']._sync_google2odoo(GoogleEvent([values]))
+        self.env['calendar.recurrence']._sync_google2odoo(GoogleEvent([values]), self.env.user.primary_calendar_id)
         recurrence = self.env['calendar.recurrence'].search([('google_id', '=', values.get('id'))])
         events = recurrence.calendar_event_ids
         private_attendees = events.mapped('attendee_ids').filtered(lambda e: e.email == self.private_partner.email)
@@ -1946,7 +1990,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             ],
             'updated': self.now,
         }
-        self.env['calendar.recurrence']._sync_google2odoo(GoogleEvent([values]))
+        self.env['calendar.recurrence']._sync_google2odoo(GoogleEvent([values]), self.env.user.primary_calendar_id)
         events = recurrence.calendar_event_ids.sorted('start')
         self.assertEqual(len(events), 2)
         # Only the event organizer must remain as attendee.
@@ -1975,11 +2019,9 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
                 'date': None,
             },
         }
-        self.env['calendar.event']._sync_google2odoo(GoogleEvent([values]))
+        self.env['calendar.event']._sync_google2odoo(GoogleEvent([values]), self.env.user.primary_calendar_id)
         event = self.env['calendar.event'].search([('google_id', '=', values.get('id'))])
-        self.assertEqual(1, len(event.attendee_ids))
-        self.assertEqual(event.partner_ids[0], event.attendee_ids[0].partner_id)
-        self.assertEqual('accepted', event.attendee_ids[0].state)
+        self.assertEqual(0, len(event.attendee_ids))
         self.assertGoogleAPINotCalled()
 
     @patch_api
@@ -2021,7 +2063,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             },
         }
 
-        self.env['calendar.event'].with_user(user)._sync_google2odoo(GoogleEvent([values]))
+        self.env['calendar.event'].with_user(user)._sync_google2odoo(GoogleEvent([values]), user.primary_calendar_id)
         event = self.env['calendar.event'].search([('google_id', '=', values.get('id'))])
         self.assertEqual(2, len(event.partner_ids), "Two attendees and two partners should be associated to the event")
         self.assertGoogleAPINotCalled()
@@ -2051,10 +2093,10 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
                 'guestsCanModify': True,
             }]
         google_event = GoogleEvent(google_value)
-        self.env['calendar.recurrence']._sync_google2odoo(google_event)
+        self.env['calendar.recurrence']._sync_google2odoo(google_event, self.env.user.primary_calendar_id)
         # Get the time slot of the day
-        day_start = datetime.fromisoformat(google_event.start["dateTime"]).astimezone(pytz.utc).replace(tzinfo=None).replace(hour=0)
-        day_end = datetime.fromisoformat(google_event.end["dateTime"]).astimezone(pytz.utc).replace(tzinfo=None).replace(hour=23)
+        day_start = datetime.fromisoformat(google_event.start["dateTime"]).astimezone(UTC).replace(tzinfo=None).replace(hour=0)
+        day_end = datetime.fromisoformat(google_event.end["dateTime"]).astimezone(UTC).replace(tzinfo=None).replace(hour=23)
         # Get created events
         day_events = self.env["calendar.event"].search(
             [
@@ -2127,11 +2169,11 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
         # specific_event: 59orfkiunbn2vlp6c2tndq6ui0_20230526T070000Z
 
         # Range to check
-        day_start = datetime.fromisoformat(specific_event.start["dateTime"]).astimezone(pytz.utc).replace(tzinfo=None).replace(hour=0)
-        day_end = datetime.fromisoformat(specific_event.end["dateTime"]).astimezone(pytz.utc).replace(tzinfo=None).replace(hour=23)
+        day_start = datetime.fromisoformat(specific_event.start["dateTime"]).astimezone(UTC).replace(tzinfo=None).replace(hour=0)
+        day_end = datetime.fromisoformat(specific_event.end["dateTime"]).astimezone(UTC).replace(tzinfo=None).replace(hour=23)
 
         # Synchronize recurrent events
-        self.env['calendar.recurrence']._sync_google2odoo(recurrent_events)
+        self.env['calendar.recurrence']._sync_google2odoo(recurrent_events, self.env.user.primary_calendar_id)
         events = self.env["calendar.event"].search(
             [
                 ("name", "=", specific_event.summary),
@@ -2152,7 +2194,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
         # To match the google ids, we create a new event and delete the old one to avoid duplication
 
         # Synchronize specific event
-        self.env['calendar.event']._sync_google2odoo(specific_event)
+        self.env['calendar.event']._sync_google2odoo(specific_event, self.env.user.primary_calendar_id)
         events = self.env["calendar.event"].search(
             [
                 ("name", "=", specific_event.summary),
@@ -2232,11 +2274,11 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
         recurrent_events = google_events.filter(lambda e: e.is_recurrence())
         specific_event = google_events - recurrent_events
         # Range to check
-        day_start = datetime.fromisoformat(specific_event.start["dateTime"]).astimezone(pytz.utc).replace(tzinfo=None).replace(hour=0)
-        day_end = datetime.fromisoformat(specific_event.end["dateTime"]).astimezone(pytz.utc).replace(tzinfo=None).replace(hour=23)
+        day_start = datetime.fromisoformat(specific_event.start["dateTime"]).astimezone(UTC).replace(tzinfo=None).replace(hour=0)
+        day_end = datetime.fromisoformat(specific_event.end["dateTime"]).astimezone(UTC).replace(tzinfo=None).replace(hour=23)
 
         # Synchronize recurrent events
-        self.env['calendar.recurrence']._sync_google2odoo(recurrent_events)
+        self.env['calendar.recurrence']._sync_google2odoo(recurrent_events, self.env.user.primary_calendar_id)
         events = self.env["calendar.event"].search(
             [
                 ("name", "=", specific_event.summary),
@@ -2247,7 +2289,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
         self.assertEqual(len(events), 1)
 
         # Synchronize specific event
-        self.env['calendar.event']._sync_google2odoo(specific_event)
+        self.env['calendar.event']._sync_google2odoo(specific_event, self.env.user.primary_calendar_id)
         events = self.env["calendar.event"].search(
             [
                 ("name", "=", specific_event.summary),
@@ -2278,6 +2320,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             'guestsCanModify': False,
             'description': 'Editable only by organizer',
             'organizer': {'email': self.env.user.email, 'self': True},
+            'creator': {'email': self.env.user.email, 'self': True},
             'summary': 'Editable only by organizer',
             'visibility': 'public',
             'attendees': [{
@@ -2323,7 +2366,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             },
         }
         # Sync events from Google to Odoo and get them after sync.
-        self.env['calendar.event']._sync_google2odoo(GoogleEvent([not_editable_event_values, editable_event_values]))
+        self.env['calendar.event']._sync_google2odoo(GoogleEvent([not_editable_event_values, editable_event_values]), self.env.user.primary_calendar_id)
         not_editable_event = self.env['calendar.event'].search([('google_id', '=', not_editable_event_values.get('id'))])
         editable_event = self.env['calendar.event'].search([('google_id', '=', editable_event_values.get('id'))])
 
@@ -2345,9 +2388,9 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
                         "Attendee should be able to modify event with 'guests_readonly' variable as 'False'.")
 
         # Assert that guest user can restart the synchronization of its calendar (containing non-editable events).
-        guest_user.sudo().stop_google_synchronization()
+        guest_user.with_user(guest_user).stop_google_synchronization()
         self.assertTrue(guest_user.google_synchronization_stopped)
-        guest_user.sudo().restart_google_synchronization()
+        guest_user.with_user(guest_user).restart_google_synchronization()
         self.assertFalse(guest_user.google_synchronization_stopped)
 
     @patch_api
@@ -2384,7 +2427,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             'attendees': [{'email': organizer.partner_id.email, 'responseStatus': 'accepted'}, {'email': other_user.partner_id.email, 'responseStatus': 'accepted'}],
             'updated': self.now,
         }]
-        self.env['calendar.recurrence'].with_user(other_user)._sync_google2odoo(GoogleEvent(values))
+        self.env['calendar.recurrence'].with_user(other_user)._sync_google2odoo(GoogleEvent(values), organizer.primary_calendar_id)
         events = recurrence.calendar_event_ids.sorted('start')
         self.assertEqual(len(events), 3, "it should have created a recurrence with 3 events")
         self.assertEqual(events[0].attendee_ids[0].state, 'accepted', 'after google sync, organizer should have accepted status still')
@@ -2405,7 +2448,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
         }
         undefined_privacy_event = {'id': 100, **sample_event_values}
         default_privacy_event = {'id': 200, 'privacy': 'default', **sample_event_values}
-        self.env['calendar.event']._sync_google2odoo(GoogleEvent([undefined_privacy_event, default_privacy_event]))
+        self.env['calendar.event']._sync_google2odoo(GoogleEvent([undefined_privacy_event, default_privacy_event]), self.env.user.primary_calendar_id)
 
         # Ensure that synced events have the correct privacy field in Odoo.
         undefined_privacy_odoo_event = self.env['calendar.event'].search([('google_id', '=', 1)])
@@ -2413,6 +2456,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
         self.assertFalse(undefined_privacy_odoo_event.privacy, "Event with undefined privacy must have False value in privacy field.")
         self.assertFalse(default_privacy_odoo_event.privacy, "Event with default privacy must have False value in privacy field.")
 
+    @users('attendee_user')
     @patch.object(GoogleCalendarService, 'get_events')
     def test_accepting_recurrent_event_with_this_event_option_synced_by_attendee(self, mock_get_events):
         """
@@ -2434,13 +2478,14 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
         )
         expected_states = ["needsAction", "needsAction", "accepted", "needsAction"]
         with self.mock_datetime_and_now("2024-04-22"):
-            self.attendee_user.sudo()._sync_google_calendar(self.google_service)
+            self.env.user._sync_google_events(self.google_service)
             attendees = self.env['calendar.attendee'].search([
                 ('partner_id', '=', self.attendee_user.partner_id.id)
             ]).sorted(key=lambda r: r.event_id.start)
             for i, expected_state in enumerate(expected_states):
                 self.assertEqual(attendees[i].state, expected_state)
 
+    @users('organizer_user')
     @patch.object(GoogleCalendarService, 'get_events')
     def test_accepting_recurrent_event_with_this_event_option_synced_by_organizer(self, mock_get_events):
         """
@@ -2462,13 +2507,14 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
         )
         expected_states = ["needsAction", "needsAction", "accepted", "needsAction"]
         with self.mock_datetime_and_now("2024-04-22"):
-            self.organizer_user.sudo()._sync_google_calendar(self.google_service)
+            self.env.user._sync_google_events(self.google_service)
             attendees = self.env['calendar.attendee'].search([
                 ('partner_id', '=', self.attendee_user.partner_id.id)
             ]).sorted(key=lambda r: r.event_id.start)
             for i, expected_state in enumerate(expected_states):
                 self.assertEqual(attendees[i].state, expected_state)
 
+    @users('attendee_user')
     @patch.object(GoogleCalendarService, 'get_events')
     def test_accepting_recurrent_event_with_all_events_option_synced_by_attendee(self, mock_get_events):
         """
@@ -2490,13 +2536,14 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
         )
         expected_states = ["accepted", "accepted", "accepted", "accepted"]
         with self.mock_datetime_and_now("2024-04-22"):
-            self.attendee_user.sudo()._sync_google_calendar(self.google_service)
+            self.env.user._sync_google_events(self.google_service)
             attendees = self.env['calendar.attendee'].search([
                 ('partner_id', '=', self.attendee_user.partner_id.id)
             ]).sorted(key=lambda r: r.event_id.start)
             for i, expected_state in enumerate(expected_states):
                 self.assertEqual(attendees[i].state, expected_state)
 
+    @users('organizer_user')
     @patch.object(GoogleCalendarService, 'get_events')
     def test_accepting_recurrent_event_with_all_events_option_synced_by_organizer(self, mock_get_events):
         """
@@ -2518,13 +2565,14 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
         )
         expected_states = ["accepted", "accepted", "accepted", "accepted"]
         with self.mock_datetime_and_now("2024-04-22"):
-            self.organizer_user.sudo()._sync_google_calendar(self.google_service)
+            self.env.user._sync_google_events(self.google_service)
             attendees = self.env['calendar.attendee'].search([
                 ('partner_id', '=', self.attendee_user.partner_id.id)
             ]).sorted(key=lambda r: r.event_id.start)
             for i, expected_state in enumerate(expected_states):
                 self.assertEqual(attendees[i].state, expected_state)
 
+    @users('attendee_user')
     @patch.object(GoogleCalendarService, 'get_events')
     def test_accepting_recurrent_event_with_following_events_option_synced_by_attendee(self, mock_get_events):
         """
@@ -2552,13 +2600,14 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
         )
         expected_states = ["needsAction", "needsAction", "accepted", "accepted"]
         with self.mock_datetime_and_now("2024-04-22"):
-            self.attendee_user.sudo()._sync_google_calendar(self.google_service)
+            self.env.user._sync_google_events(self.google_service)
             attendees = self.env['calendar.attendee'].search([
                 ('partner_id', '=', self.attendee_user.partner_id.id)
             ]).sorted(key=lambda r: r.event_id.start)
             for i, expected_state in enumerate(expected_states):
                 self.assertEqual(attendees[i].state, expected_state)
 
+    @users('organizer_user')
     @patch.object(GoogleCalendarService, 'get_events')
     def test_accepting_recurrent_event_with_all_following_option_synced_by_organizer(self, mock_get_events):
         """
@@ -2586,7 +2635,7 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
         )
         expected_states = ["needsAction", "needsAction", "accepted", "accepted"]
         with self.mock_datetime_and_now("2024-04-22"):
-            self.organizer_user.sudo()._sync_google_calendar(self.google_service)
+            self.env.user._sync_google_events(self.google_service)
             attendees = self.env['calendar.attendee'].search([
                 ('partner_id', '=', self.attendee_user.partner_id.id)
             ]).sorted(key=lambda r: r.event_id.start)
@@ -2631,8 +2680,37 @@ class TestSyncGoogle2Odoo(TestSyncGoogle):
             'attendees': [],
             'updated': self.now,
         }]
-        self.env['calendar.recurrence'].with_user(self.organizer_user)._sync_google2odoo(GoogleEvent(values))
+        self.env['calendar.recurrence'].with_user(self.organizer_user)._sync_google2odoo(GoogleEvent(values), self.organizer_user.primary_calendar_id)
         events = recurrence.calendar_event_ids.sorted('start')
         self.assertEqual(len(events), 3, "The new recurrence must have three events.")
         check_organizer_as_single_attendee(self, recurrence, self.organizer_user)
         self.assertGoogleAPINotCalled()
+
+    @patch_api
+    def test_recurrence_until_utc_boundary_negative_timezone(self):
+        """
+        When Google sends UNTIL=...Z, the UTC datetime must be converted to the
+        recurrence's local timezone before extracting the cutoff date.
+
+        UNTIL=20231026T025959Z = 2023-10-25T23:59:59-03:00 in America/Argentina/Buenos_Aires.
+        Local cutoff date: Oct 25. Last valid Thursday: Oct 19.
+        """
+        google_id = 'recurrence_until_tz_test'
+        values = [{
+            'id': google_id,
+            'summary': 'Weekly Thursday',
+            'recurrence': ['RRULE:FREQ=WEEKLY;BYDAY=TH;UNTIL=20231026T025959Z'],
+            'start': {'dateTime': '2023-10-05T12:00:00-03:00', 'timeZone': 'America/Argentina/Buenos_Aires', 'date': None},
+            'end': {'dateTime': '2023-10-05T13:00:00-03:00', 'timeZone': 'America/Argentina/Buenos_Aires', 'date': None},
+            'reminders': {'useDefault': True},
+            'updated': self.now,
+        }]
+        recurrence = self.env['calendar.recurrence']._sync_google2odoo(GoogleEvent(values), self.env.user.primary_calendar_id)
+        self.assertEqual(recurrence.event_tz, 'America/Argentina/Buenos_Aires')
+        # Local cutoff is Oct 25 -> last valid Thursday is Oct 19
+        self.assertEqual(recurrence.until, date(2023, 10, 25), "until must be the local date, not the UTC date")
+        event_starts = recurrence.calendar_event_ids.mapped('start')
+        self.assertFalse(
+            any(e.date() == date(2023, 10, 26) for e in event_starts),
+            "No event should be created on Oct 26 (the UTC boundary date)",
+        )

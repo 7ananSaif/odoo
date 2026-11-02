@@ -1,6 +1,6 @@
 import { describe, expect, test } from "@odoo/hoot";
 import { press, queryAllTexts, queryFirst } from "@odoo/hoot-dom";
-import { Deferred, animationFrame, runAllTimers } from "@odoo/hoot-mock";
+import { animationFrame, runAllTimers } from "@odoo/hoot-mock";
 
 import {
     Command,
@@ -25,8 +25,9 @@ import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_d
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { X2ManyField, x2ManyField } from "@web/views/fields/x2many/x2many_field";
-import { Many2XAutocomplete } from "@web/views/fields/relational_utils";
+import { Many2XAutocomplete, many2XAutocompleteProps } from "@web/views/fields/relational_utils";
 import { cookie } from "@web/core/browser/cookie";
+import { t } from "@odoo/owl";
 import { ListRenderer } from "@web/views/list/list_renderer";
 
 describe.current.tags("desktop");
@@ -254,7 +255,8 @@ test("many2many kanban: edition", async () => {
                                 <div>
                                     <a
                                         type="delete"
-                                        class="fa fa-times float-end delete_icon"
+                                        class="oi float-end delete_icon"
+                                        data-icon="close"
                                     />
                                     <field name="name"/>
                                 </div>
@@ -391,14 +393,14 @@ test("field string is used in the SelectCreateDialog", async () => {
             </form>`,
     });
 
-    await contains(".o_field_x2many_list_row_add a:eq(0)").click();
+    await contains(".o_field_x2many_list_row_add button:eq(0)").click();
     expect(".modal").toHaveCount(1);
     expect(".modal .modal-title").toHaveText("Add: pokemon");
 
     await contains(".modal .o_form_button_cancel").click();
     expect(".modal").toHaveCount(0);
 
-    await contains(".o_field_x2many_list_row_add a:eq(1)").click();
+    await contains(".o_field_x2many_list_row_add button:eq(1)").click();
     expect(".modal").toHaveCount(1);
     expect(".modal .modal-title").toHaveText("Add: Abcde");
 });
@@ -420,7 +422,7 @@ test("many2many kanban: create action disabled", async () => {
                         <templates>
                             <t t-name="card">
                                 <div>
-                                    <a type="delete" class="fa fa-times float-end delete_icon"/>
+                                    <a type="delete" class="oi float-end delete_icon" data-icon="close"/>
                                     <field name="name"/>
                                 </div>
                             </t>
@@ -438,7 +440,7 @@ test("many2many kanban: create action disabled", async () => {
     expect(".modal .modal-footer .btn-primary").toHaveCount(1);
 });
 
-test("many2many kanban: conditional create/delete actions", async () => {
+test("many2many kanban: conditional create/delete attrs", async () => {
     PartnerType._views = {
         form: '<form><field name="name"/></form>',
         list: '<list><field name="name"/></list>',
@@ -451,7 +453,7 @@ test("many2many kanban: conditional create/delete actions", async () => {
         arch: `
             <form>
                 <field name="color"/>
-                <field name="timmy" options="{'create': [('color', '=', 'red')], 'delete': [('color', '=', 'red')]}">
+                <field name="timmy" create="color == 'red'" delete="color == 'red'">
                     <kanban>
                         <templates>
                             <t t-name="card">
@@ -527,7 +529,7 @@ test("many2many list (non editable): create a new record and click on action but
             </form>`,
         resId: 1,
     });
-    await contains(".o_field_x2many_list_row_add a").click();
+    await contains(".o_field_x2many_list_row_add button").click();
 
     await contains(".modal .o_create_button").click();
     expect.verifySteps([
@@ -580,7 +582,7 @@ test("many2many list (non editable): create a new record and click on action but
             </form>`,
         resId: 1,
     });
-    await contains(".o_field_x2many_list_row_add a").click();
+    await contains(".o_field_x2many_list_row_add button").click();
 
     await contains(".modal .o_create_button").click();
     expect.verifySteps([
@@ -637,7 +639,7 @@ test("add a new record in a many2many non editable list", async () => {
             </form>`,
     });
 
-    await contains(".o_field_x2many_list_row_add a").click();
+    await contains(".o_field_x2many_list_row_add button").click();
     await contains(".o_dialog .o_create_button").click();
     await contains(".o_dialog .o_field_widget[name=name] input").edit("a name");
     await contains(".o_dialog .o_form_button_save").click();
@@ -668,7 +670,6 @@ test("add record in a many2many non editable list with context", async () => {
         expect(args.kwargs.context).toEqual({
             abc: 2,
             allowed_company_ids: [1],
-            bin_size: true,
             lang: "en",
             tz: "taht",
             uid: 7,
@@ -689,7 +690,7 @@ test("add record in a many2many non editable list with context", async () => {
     });
 
     await contains(".o_field_widget[name=int_field] input").edit("2");
-    await contains(".o_field_x2many_list_row_add a").click();
+    await contains(".o_field_x2many_list_row_add button").click();
 });
 
 test("many2many list (editable): edition", async () => {
@@ -726,31 +727,31 @@ test("many2many list (editable): edition", async () => {
     });
 
     expect(".o_list_renderer td.o_list_number").toHaveCount(2);
-    expect(".o_list_renderer tbody td:eq(0)").toHaveText("gold", {
+    expect(".o_list_renderer tbody td:eq(1)").toHaveText("gold", {
         message: "name of first subrecord should be the one in DB",
     });
     expect(".o_list_record_remove").toHaveCount(2);
-    expect("td.o_list_record_remove button").toHaveClass("fa fa-times");
+    expect("td.o_list_record_remove button").toHaveAttribute("data-icon", "close");
     expect(".o_field_x2many_list_row_add").toHaveCount(1);
 
     // edit existing subrecord
-    await contains(".o_list_renderer tbody td:eq(0)").click();
+    await contains(".o_list_renderer tbody td:eq(1)").click();
     expect(".modal").toHaveCount(0);
-    expect(".o_list_renderer tbody tr:eq(0)").toHaveClass("o_selected_row");
+    expect(".o_list_renderer tbody tr:eq(1)").toHaveClass("o_selected_row");
     await contains(".o_selected_row div[name=name] input").edit("new name", { confirm: false });
     expect(".o_list_renderer .o_data_row:eq(0)").toHaveClass("o_selected_row");
     expect(".o_list_renderer div[name=name] input").toBeFocused({
         message: "edited field should still have the focus",
     });
     await contains(".o_form_view").click();
-    expect(".o_list_renderer tbody tr:eq(0)").not.toHaveClass("o_selected_row");
-    expect(".o_list_renderer tbody td:eq(0)").toHaveText("new name", {
+    expect(".o_list_renderer tbody tr:eq(1)").not.toHaveClass("o_selected_row");
+    expect(".o_list_renderer tbody td:eq(1)").toHaveText("new name", {
         message: "value of subrecord should have been updated",
     });
     expect.verifySteps(["get_views", "web_read"]);
 
     // add new subrecords
-    await contains(".o_field_x2many_list_row_add a").click();
+    await contains(".o_field_x2many_list_row_add button").click();
     expect(".modal").toHaveCount(1);
     expect(".modal .o_list_view .o_data_row").toHaveCount(1);
     await contains(".modal .o_list_view .o_data_row .o_data_cell").click();
@@ -873,7 +874,7 @@ test("fieldmany2many list comodel not writable", async () => {
     });
 
     expect(".o_field_many2many .o_field_x2many_list_row_add").toHaveCount(1);
-    await contains(".o_field_many2many .o_field_x2many_list_row_add a").click();
+    await contains(".o_field_many2many .o_field_x2many_list_row_add button").click();
     expect(".modal").toHaveCount(1);
 
     expect(".modal-footer button").toHaveCount(2);
@@ -894,7 +895,7 @@ test("fieldmany2many list comodel not writable", async () => {
     await clickSave();
 });
 
-test("many2many list: conditional create/delete actions", async () => {
+test("many2many list: conditional create/delete attrs", async () => {
     Partner._records[0].timmy = [1, 2];
 
     PartnerType._views = {
@@ -907,7 +908,7 @@ test("many2many list: conditional create/delete actions", async () => {
         arch: `
             <form>
                 <field name="color"/>
-                <field name="timmy" options="{'create': [('color', '=', 'red')], 'delete': [('color', '=', 'red')]}">
+                <field name="timmy" create="color == 'red'" delete="color == 'red'">
                     <list>
                         <field name="name"/>
                     </list>
@@ -922,7 +923,7 @@ test("many2many list: conditional create/delete actions", async () => {
     });
     expect(".o_list_record_remove").toHaveCount(2);
 
-    await contains(".o_field_x2many_list_row_add a:eq(0)").click();
+    await contains(".o_field_x2many_list_row_add button:eq(0)").click();
 
     expect(".modal .modal-footer button").toHaveCount(3);
 
@@ -936,11 +937,11 @@ test("many2many list: conditional create/delete actions", async () => {
     expect(".o_field_x2many_list_row_add").toHaveCount(1);
     expect(".o_list_record_remove").toHaveCount(2);
 
-    await contains(".o_field_x2many_list_row_add a:eq(0)").click();
+    await contains(".o_field_x2many_list_row_add button:eq(0)").click();
     expect(".modal .modal-footer button").toHaveCount(2);
 });
 
-test("many2many field with link/unlink options (list)", async () => {
+test("many2many field with link/unlink attrs (list)", async () => {
     Partner._records[0].timmy = [1, 2];
     PartnerType._views = {
         list: '<list><field name="name"/></list>',
@@ -952,7 +953,7 @@ test("many2many field with link/unlink options (list)", async () => {
         arch: `
             <form>
                 <field name="color"/>
-                <field name="timmy" options="{'link': [('color', '=', 'red')], 'unlink': [('color', '=', 'red')]}">
+                <field name="timmy" link="color =='red'" unlink="color == 'red'">
                     <list>
                         <field name="name"/>
                     </list>
@@ -965,7 +966,7 @@ test("many2many field with link/unlink options (list)", async () => {
     expect(".o_field_x2many_list_row_add").toHaveCount(1);
     expect(".o_list_record_remove").toHaveCount(2);
 
-    await contains(".o_field_x2many_list_row_add a:eq(0)").click();
+    await contains(".o_field_x2many_list_row_add button:eq(0)").click();
 
     expect(".modal .modal-footer button").toHaveCount(3);
 
@@ -978,7 +979,7 @@ test("many2many field with link/unlink options (list)", async () => {
     expect(".o_list_record_remove").toHaveCount(0);
 });
 
-test('many2many field with link/unlink options (list, create="0")', async () => {
+test('many2many field with link/unlink attrs (list, create="0")', async () => {
     Partner._records[0].timmy = [1, 2];
     PartnerType._views = {
         list: '<list><field name="name"/></list>',
@@ -990,7 +991,7 @@ test('many2many field with link/unlink options (list, create="0")', async () => 
         arch: `
             <form>
                 <field name="color"/>
-                <field name="timmy" options="{'link': [('color', '=', 'red')], 'unlink': [('color', '=', 'red')]}">
+                <field name="timmy" link="color == 'red'" unlink="color == 'red'">
                     <list create="0">
                         <field name="name"/>
                     </list>
@@ -1003,7 +1004,7 @@ test('many2many field with link/unlink options (list, create="0")', async () => 
     expect(".o_field_x2many_list_row_add").toHaveCount(1);
     expect(".o_list_record_remove").toHaveCount(2);
 
-    await contains(".o_field_x2many_list_row_add a:eq(0)").click();
+    await contains(".o_field_x2many_list_row_add button:eq(0)").click();
 
     expect(".modal .modal-footer button").toHaveCount(2);
 
@@ -1016,7 +1017,7 @@ test('many2many field with link/unlink options (list, create="0")', async () => 
     expect(".o_list_record_remove").toHaveCount(0);
 });
 
-test("many2many field with link option (kanban)", async () => {
+test("many2many field with link attr (kanban)", async () => {
     Partner._records[0].timmy = [1, 2];
 
     PartnerType._views = {
@@ -1029,7 +1030,7 @@ test("many2many field with link option (kanban)", async () => {
         arch: `
             <form>
                 <field name="color"/>
-                <field name="timmy" options="{'link': [('color', '=', 'red')]}">
+                <field name="timmy" link="color == 'red'">
                     <kanban>
                         <templates>
                             <t t-name="card">
@@ -1057,7 +1058,7 @@ test("many2many field with link option (kanban)", async () => {
     expect(".o-kanban-button-new").toHaveCount(0);
 });
 
-test('many2many field with link option (kanban, create="0")', async () => {
+test('many2many field with link attr (kanban, create="0")', async () => {
     Partner._records[0].timmy = [1, 2];
     PartnerType._views = {
         list: '<list><field name="name"/></list>',
@@ -1069,7 +1070,7 @@ test('many2many field with link option (kanban, create="0")', async () => {
         arch: `
             <form>
                 <field name="color"/>
-                <field name="timmy" options="{'link': [('color', '=', 'red')]}">
+                <field name="timmy" link="color == 'red'">
                     <kanban create="0">
                         <templates>
                             <t t-name="card">
@@ -1194,7 +1195,7 @@ test("context and domain dependent on an x2m must contain the list of current id
             </field>
         </form>`,
     });
-    await contains(".o_field_x2many_list_row_add a").click();
+    await contains(".o_field_x2many_list_row_add button").click();
 });
 
 test("many2many list with x2many: add a record", async () => {
@@ -1226,13 +1227,13 @@ test("many2many list with x2many: add a record", async () => {
         resId: 1,
     });
 
-    await contains(".o_field_x2many_list_row_add a").click();
+    await contains(".o_field_x2many_list_row_add button").click();
     await contains(".modal .o_data_row:first .o_data_cell:eq(0)").click();
 
     expect(".o_data_row").toHaveCount(1);
     expect(queryAllTexts(".o_data_row:first .o_tag_badge_text")).toEqual(["leonardo", "donatello"]);
 
-    await contains(".o_field_x2many_list_row_add a").click();
+    await contains(".o_field_x2many_list_row_add button").click();
     await contains(".modal .o_data_row .o_data_cell:eq(1)").click();
 
     expect(".o_data_row").toHaveCount(2);
@@ -1266,7 +1267,7 @@ test("many2many with a domain", async () => {
         resId: 1,
     });
 
-    await contains(".o_field_x2many_list_row_add a").click();
+    await contains(".o_field_x2many_list_row_add button").click();
     expect(".modal .o_data_row").toHaveCount(1);
     await contains(`.modal .o_searchview input`).edit("s");
     await press("enter");
@@ -1434,12 +1435,12 @@ test("many2many concurrency edition", async () => {
         search: '<search><field name="name" string="Name"/></search>',
     };
 
-    const def = new Deferred();
+    const def = Promise.withResolvers();
     let firstOnChange = false;
     onRpc("onchange", async () => {
         if (!firstOnChange) {
             firstOnChange = true;
-            await def;
+            await def.promise;
         }
     });
 
@@ -1459,7 +1460,7 @@ test("many2many concurrency edition", async () => {
     expect(".o_data_row").toHaveCount(4);
     await contains(".o_data_row .o_list_record_remove").click();
     await contains(".o_data_row .o_list_record_remove").click();
-    await contains(".o_field_x2many_list_row_add a").click();
+    await contains(".o_field_x2many_list_row_add button").click();
     await contains(".modal .o_data_row td.o_data_cell:eq(0)").click();
     def.resolve();
     await animationFrame();
@@ -1507,7 +1508,7 @@ test("many2many widget: creates a new record with a context containing the paren
     });
     expect.verifySteps(["get_views", "web_read"]);
 
-    await contains(".o_field_x2many_list_row_add a").click();
+    await contains(".o_field_x2many_list_row_add button").click();
     expect.verifySteps(["get_views", "web_search_read", "has_group"]);
 
     await contains(".o_create_button").click();
@@ -1715,7 +1716,7 @@ test("many2many list add *many* records, remove, re-add", async () => {
     });
 
     // First round: add 51 records in batch
-    await contains(".o_field_x2many_list_row_add a").click();
+    await contains(".o_field_x2many_list_row_add button").click();
 
     expect(".modal-lg").toHaveCount(1);
 
@@ -1749,7 +1750,7 @@ test("many2many list add *many* records, remove, re-add", async () => {
     ).toHaveText("50");
 
     // Third round: re-add 1 records
-    await contains(".o_field_x2many_list_row_add a:eq(0)").click();
+    await contains(".o_field_x2many_list_row_add button:eq(0)").click();
 
     expect(".modal-lg").toHaveCount(1);
 
@@ -1792,8 +1793,8 @@ test("select create with _view_ref as text", async () => {
     PartnerType._views = {
         [["list", "my.little.string"]]: `<list><field name="name"/></list>`,
     };
-    patchWithCleanup(Many2XAutocomplete.defaultProps, {
-        searchLimit: 1,
+    patchWithCleanup(many2XAutocompleteProps, {
+        searchLimit: t.number().optional(1),
     });
     let checkGetViews = false;
     onRpc("get_views", (args) => {
@@ -1992,7 +1993,7 @@ test("`this` inside rendererProps should reference the component", async () => {
                 </form>`,
         resId: 1,
     });
-    await contains(".o_field_x2many_list_row_add a").click();
+    await contains(".o_field_x2many_list_row_add button").click();
     expect.verifySteps(["onAdd", "selectCreate"]);
 });
 
@@ -2097,7 +2098,7 @@ test("test view button warning on opening unsaved record", async () => {
         `,
     });
 
-    await contains(".o_field_x2many_list_row_add a").click();
+    await contains(".o_field_x2many_list_row_add button").click();
     await contains(".o_list_record_open_form_view button").click();
 
     expect.verifySteps(["notification"]);

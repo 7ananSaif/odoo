@@ -1,10 +1,11 @@
-# -*- coding: utf-8 -*-
 from datetime import date
 
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
+from odoo.models import Query
 from odoo.tools.misc import format_date
-from odoo.tools import frozendict, date_utils, index_exists, SQL
+from odoo.tools import frozendict, date_utils, SQL
+from odoo.tools.sql import index_exists
 
 import logging
 import re
@@ -157,10 +158,9 @@ class SequenceMixin(models.AbstractModel):
     def _constrains_date_sequence(self):
         # Make it possible to bypass the constraint to allow edition of already messed up documents.
         # /!\ Do not use this to completely disable the constraint as it will make this mixin unreliable.
-        constraint_date = fields.Date.to_date(self.env['ir.config_parameter'].sudo().get_param(
-            'sequence.mixin.constraint_start_date',
-            '1970-01-01'
-        ))
+        constraint_date = fields.Date.to_date(self.env['ir.config_parameter'].sudo().get_str(
+            'sequence.mixin.constraint_start_date') or '1970-01-01'
+        )
         for record in self:
             if not record._must_check_constrains_date_sequence():
                 continue
@@ -212,10 +212,10 @@ class SequenceMixin(models.AbstractModel):
                     groupdict.get('year_end') and groupdict.get('year')
                     and (
                         len(groupdict['year']) < len(groupdict['year_end'])
-                        or self._truncate_year_to_length((int(groupdict['year']) + 1), len(groupdict['year_end'])) != int(groupdict['year_end'])
+                        or not self._validate_fiscalyear_difference(groupdict['year'], groupdict['year_end'])
                     )
                 ):
-                    # year and year_end are not compatible for range (the difference is not 1)
+                    # year and year_end are not compatible for range (the difference does not correspond to the fiscal year)
                     continue
                 if all(groupdict.get(req) is not None for req in requirements):
                     return ret_val
@@ -223,6 +223,9 @@ class SequenceMixin(models.AbstractModel):
             'The sequence regex should at least contain the seq grouping keys. For instance:\n'
             r'^(?P<prefix1>.*?)(?P<seq>\d*)(?P<suffix>\D*?)$'
         ))
+
+    def _validate_fiscalyear_difference(self, start_year, end_year):
+        return self._truncate_year_to_length(int(start_year) + 1, len(start_year)) == int(end_year)
 
     def _make_regex_non_capturing(self, regex):
         r""" Replace the "named capturing group" found in the regex by
@@ -253,7 +256,7 @@ class SequenceMixin(models.AbstractModel):
                 at the execution of the query.
         """
         self.ensure_one()
-        return "", {}
+        return SQL("TRUE")
 
     def _get_starting_sequence(self):
         """Get a default sequence number.
@@ -289,25 +292,24 @@ class SequenceMixin(models.AbstractModel):
         self.ensure_one()
         if self._sequence_field not in self._fields or not self._fields[self._sequence_field].store:
             raise ValidationError(_('%s is not a stored field', self._sequence_field))
-        where_string, param = self._get_last_sequence_domain(relaxed)
+        query = Query(self.sudo())
+        if condition := self._get_last_sequence_domain(relaxed):
+            query.add_where(condition)
         if self._origin.id:
-            where_string += " AND id != %(id)s "
-            param['id'] = self._origin.id
+            query.add_where(SQL("id != %s", self._origin.id))
+
+        # add prefix restriction with the same query
         if with_prefix is not None:
-            where_string += " AND sequence_prefix = %(with_prefix)s "
-            param['with_prefix'] = with_prefix
+            query.add_where(SQL("%s = %s", query.table.sequence_prefix, with_prefix))
+        else:
+            query.order = SQL("id DESC")
+            query.limit = 1
+            query.add_where(SQL("%s = %s", query.table.sequence_prefix, query.subselect(query.table.sequence_prefix)))
+        query.order = SQL("%s DESC", query.table.sequence_number)
+        query.limit = 1
 
-        query = f"""
-                SELECT {self._sequence_field} FROM {self._table}
-                {where_string}
-                AND sequence_prefix = (SELECT sequence_prefix FROM {self._table} {where_string} ORDER BY id DESC LIMIT 1)
-                ORDER BY sequence_number DESC
-                LIMIT 1
-        """
-
-        self.flush_model([self._sequence_field, 'sequence_number', 'sequence_prefix'])
-        self.env.cr.execute(query, param)
-        return (self.env.cr.fetchone() or [None])[0]
+        result = self.env.execute_query(query.select(query.table[self._sequence_field]))
+        return result[0][0] if result else None
 
     def _get_sequence_format_param(self, previous):
         """Get the python format and format values for the sequence.

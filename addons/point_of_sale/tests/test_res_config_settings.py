@@ -14,15 +14,7 @@ class TestConfigureShops(TestPoSCommon):
         should reflect to the pos.config record pointed by the
         pos_config_id field.
     """
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        # If not enabled (like in demo data), landing on res.config will try
-        # to disable module_sale_quotation_builder and raise an issue
-        group_order_template = cls.env.ref('sale_management.group_sale_order_template', raise_if_not_found=False)
-        if group_order_template:
-            cls.env.ref('base.group_user').write({"implied_ids": [(4, group_order_template.id)]})
+    _test_user_groups = None  # FIXME list needed groups
 
     def _remove_on_payment_taxes(self):
         """ Call this when testing the res.config.settings with Form.
@@ -43,21 +35,19 @@ class TestConfigureShops(TestPoSCommon):
                 Command.create({
                     'name': 'Bank 1',
                     'receivable_account_id': self.env.company.account_default_pos_receivable_account_id.id,
-                    'is_cash_count': False,
-                    'split_transactions': False,
+                    'type': 'bank',
                     'company_id': self.env.company.id,
                 }),
                 Command.create({
                     'name': 'Bank 2',
                     'receivable_account_id': self.env.company.account_default_pos_receivable_account_id.id,
-                    'is_cash_count': False,
-                    'split_transactions': False,
+                    'type': 'bank',
                     'company_id': self.env.company.id,
                 }),
                 Command.create({
                     'name': 'Cash',
                     'receivable_account_id': self.env.company.account_default_pos_receivable_account_id.id,
-                    'is_cash_count': True,
+                    'type': 'cash',
                     'company_id': self.env.company.id,
                 })
             ]

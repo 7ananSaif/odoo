@@ -1,5 +1,6 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
+from odoo.tools.mail import html_remove_xpath
 from odoo.tools.misc import get_lang
 from odoo.addons.mail.tools.parser import parse_res_ids
 from odoo.addons.mail.wizard.mail_compose_message import _reopen
@@ -9,7 +10,7 @@ class AccountMoveSendWizard(models.TransientModel):
     """Wizard that handles the sending a single invoice."""
     _name = 'account.move.send.wizard'
     _inherit = ['account.move.send', 'mail.composer.mixin']
-    _description = "Account Move Send Wizard"
+    _description = "Send Invoice Wizard"
 
     move_id = fields.Many2one(comodel_name='account.move', required=True)
     company_id = fields.Many2one(comodel_name='res.company', related='move_id.company_id')
@@ -150,12 +151,12 @@ class AccountMoveSendWizard(models.TransientModel):
                 if self._is_applicable_to_company(method_key, wizard.company_id)
             }
 
-    @api.depends('invoice_edi_format')
+    @api.depends('invoice_edi_format', 'extra_edis')
     def _compute_display_attachments_widget(self):
         for wizard in self:
             wizard.display_attachments_widget = wizard._display_attachments_widget(
                 edi_format=wizard.invoice_edi_format,
-                sending_methods=wizard.sending_methods or [],
+                sending_methods=(wizard.sending_methods or []) + (wizard.extra_edis or []),
             )
 
     @api.depends('extra_edi_checkboxes')
@@ -171,9 +172,10 @@ class AccountMoveSendWizard(models.TransientModel):
     def _compute_extra_edi_checkboxes(self):
         all_extra_edis = self._get_all_extra_edis()
         for wizard in self:
+            default_extra_edis = self._get_default_extra_edis(wizard.move_id)
             wizard.extra_edi_checkboxes = {
-                edi_key: {'checked': True, 'label': all_extra_edis[edi_key]['label'], 'help': all_extra_edis[edi_key].get('help')}
-                for edi_key in self._get_default_extra_edis(wizard.move_id)
+                edi_key: {'checked': edi_key in default_extra_edis, 'label': edi_vals['label'], 'help': edi_vals.get('help')}
+                for edi_key, edi_vals in all_extra_edis.items() if edi_vals['is_applicable'](wizard.move_id)
             }
 
     @api.depends('move_id', 'sending_methods')
@@ -239,7 +241,7 @@ class AccountMoveSendWizard(models.TransientModel):
         for wizard in self:
             manual_attachments_data = [x for x in wizard.mail_attachments_widget or [] if x.get('manual')]
             wizard.mail_attachments_widget = (
-                self._get_default_mail_attachments_widget(
+                wizard.with_context(sending_method=wizard.sending_methods or {})._get_default_mail_attachments_widget(
                     wizard.move_id,
                     wizard.template_id,
                     invoice_edi_format=wizard.invoice_edi_format,
@@ -298,18 +300,21 @@ class AccountMoveSendWizard(models.TransientModel):
         if not self.model or not self.model in self.env:
             raise UserError(_('Template creation from composer requires a valid model.'))
         model_id = self.env['ir.model']._get_id(self.model)
+        template_body = self.body
+        if template_body:
+            template_body = html_remove_xpath(template_body, "//*[hasclass('o_mail_reply_container')]")
         values = {
             'name': self.template_name or self.subject,
             'subject': self.subject,
-            'body_html': self.body,
+            'body_html': template_body,
             'model_id': model_id,
             'use_default_to': True,
             'user_id': self.env.uid,
         }
         template = self.env['mail.template'].create(values)
 
-        # generate the saved template
-        self.write({'template_id': template.id})
+        # save the new cleaned template, keep the original body
+        self.write({'template_id': template.id, 'body': self.body})
         return _reopen(self, self.id, self.model, context={**self.env.context, 'dialog_size': 'large'})
 
     # Similar of mail.compose.message

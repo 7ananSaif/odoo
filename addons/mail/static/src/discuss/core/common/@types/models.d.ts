@@ -1,84 +1,69 @@
 declare module "models" {
     import { ChannelMember as ChannelMemberClass } from "@mail/discuss/core/common/channel_member_model";
+    import { DiscussCategory as DiscussCategoryClass } from "@mail/discuss/core/common/discuss_category_model";
+    import { DiscussChannel as DiscussChannelClass } from "@mail/discuss/core/common/discuss_channel_model";
+    import { VoiceMetadata as VoiceMetadataClass } from "@mail/discuss/core/common/voice_metadata_model";
 
     export interface ChannelMember extends ChannelMemberClass {}
+    export interface DiscussCategory extends DiscussCategoryClass {}
+    export interface DiscussChannel extends DiscussChannelClass, Thread {}
+    export interface VoiceMetadata extends VoiceMetadataClass {}
 
+    export interface Attachment {
+        voice_ids: VoiceMetadata[];
+    }
     export interface MailGuest {
         channelMembers: ChannelMember[];
     }
     export interface Message {
+        channel_id: DiscussChannel;
         channelMemberHaveSeen: Readonly<ChannelMember[]>;
         hasEveryoneSeen: boolean|undefined;
         hasNewMessageSeparator: boolean;
-        hasSomeoneFetched: boolean|undefined;
         hasSomeoneSeen: boolean|undefined;
         isMessagePreviousToLastSelfMessageSeenByEveryone: boolean;
-        mentionedChannelPromises: Promise<Thread>[];
+        linkedSubChannel: DiscussChannel;
+        showSeenIndicator: (thread: Thread) => boolean;
         threadAsFirstUnread: Thread;
     }
     export interface ResPartner {
         channelMembers: ChannelMember[];
+        is_in_call: boolean|undefined;
     }
     export interface Store {
         channel_types_with_seen_infos: string[];
-        channelIdsFetchingDeferred: Map<number, Deferred>;
-        createGroupChat: (param0: { default_display_mode: string, partners_to: number[], name: string }) => Promise<Thread>;
+        companyName: string|undefined;
+        createGroupChat: (param0: { default_display_mode: string, users_to: number[], name: string }) => Promise<DiscussChannel>;
+        "discuss.category": StaticMailRecord<DiscussCategory, typeof DiscussCategoryClass>;
+        "discuss.channel": StaticMailRecord<DiscussChannel, typeof DiscussChannelClass>;
         "discuss.channel.member": StaticMailRecord<ChannelMember, typeof ChannelMemberClass>;
-        fetchChannel: (channelId: number) => Promise<void>;
+        "discuss.voice.metadata": StaticMailRecord<VoiceMetadata, typeof VoiceMetadataClass>;
+        favoriteChannels: DiscussChannel[];
+        fetchChannel: (channelId: number, param0: { with_last_message: boolean }) => Promise<void>;
+        fetchChannelPromiseByChannelId: Map<number, Promise<DiscussChannel|void>>;
         getRecentChatPartnerIds: () => number[];
-        onlineMemberStatuses: Readonly<string[]>;
+        has_hidden_channels: boolean|undefined;
+        is_welcome_page_displayed: boolean|undefined;
+        isChannelTokenSecret: boolean|undefined;
         sortMembers: (m1: ChannelMember, m2: ChannelMember) => number;
         startChat: (partnerIds: number[]) => Promise<void>;
         updateBusSubscription: (() => unknown) & { cancel: () => void };
     }
     export interface Thread {
-        _computeOfflineMembers: () => ChannelMember[];
-        allow_invite_by_email: Readonly<boolean>;
-        areAllMembersLoaded: Readonly<boolean>;
-        channel_member_ids: ChannelMember[];
-        channel_name_member_ids: ChannelMember[];
-        computeCorrespondent: () => ChannelMember;
-        correspondent: ChannelMember;
-        correspondentCountry: Country;
-        correspondents: Readonly<ChannelMember[]>;
-        default_display_mode: "video_full_screen"|undefined;
-        fetchChannelInfoDeferred: Deferred<Thread|undefined>;
-        fetchChannelInfoState: "not_fetched"|"fetching"|"fetched";
-        fetchChannelMembers: () => Promise<void>;
-        fetchMoreAttachments: (limit: number) => Promise<void>;
+        channel: DiscussChannel;
         firstUnreadMessage: Message;
-        group_ids: ResGroups[];
-        has_mail_thread: boolean | undefined;
-        hasMemberList: Readonly<boolean>;
-        hasOtherMembersTyping: boolean;
-        hasSeenFeature: boolean;
-        hasSelfAsMember: Readonly<boolean>;
-        invited_member_ids: ChannelMember[];
-        last_interest_dt: import("luxon").DateTime;
-        lastInterestDt: import("luxon").DateTime;
-        lastMessageSeenByAllId: undefined|number;
-        lastSelfMessageSeenByEveryone: Message;
-        markedAsUnread: boolean;
+        handleMarkAsRead: (newestPersistentMessage: Message) => Promise<undefined|unknown>;
+        isReadBySelf: (message: Message) => boolean;
+        markAsReadRpc: (newestPersistentMessage: Message) => unknown;
         markingAsRead: boolean;
         markReadSequential: () => Promise<any>;
-        member_count: number|undefined;
-        membersThatCanSeen: Readonly<ChannelMember[]>;
-        name: string;
-        offlineMembers: ChannelMember[];
-        onlineMembers: ChannelMember[];
-        openChannel: () => boolean;
-        otherTypingMembers: ChannelMember[];
         scrollUnread: boolean;
-        self_member_id: ChannelMember;
-        shouldSubscribeToBusChannel: Readonly<boolean>;
-        showCorrespondentCountry: Readonly<boolean>;
-        showUnreadBanner: Readonly<boolean>;
-        toggleBusSubscription: boolean;
-        typingMembers: ChannelMember[];
-        unknownMembersCount: Readonly<number>;
     }
 
     export interface Models {
+        "discuss.category": DiscussCategory;
+        "discuss.channel": DiscussChannel;
         "discuss.channel.member": ChannelMember;
+        "discuss.voice.metadata": VoiceMetadata;
     }
 }

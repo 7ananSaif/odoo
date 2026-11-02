@@ -3,12 +3,11 @@ import { getPriceListChecksSteps } from '@website_event_booth_sale/../tests/tour
 import * as wsTourUtils from '@website_sale/js/tours/tour_utils';
 
 registry.category("web_tour.tours").add('event_booth_sale_pricelists_different_currencies', {
-    url: '/event',
     steps: () => [
     // Init: registering the booth
     {
         content: 'Open "Test Event Booths" event',
-        trigger: 'h5.card-title span:contains("Test Event Booths")',
+        trigger: 'h2.card-title span:contains("Test Event Booths")',
         run: "click",
         expectUnloadPage: true,
     },
@@ -45,7 +44,7 @@ registry.category("web_tour.tours").add('event_booth_sale_pricelists_different_c
     },
     wsTourUtils.goToCheckout(),
     ...getPriceListChecksSteps({
-        pricelistName: "EUR Without Discount Included",
+        pricelistName: "EUR",
         eventName: "Test Event Booths",
         price: "99.00",
         priceSelected: "99",
@@ -53,7 +52,7 @@ registry.category("web_tour.tours").add('event_booth_sale_pricelists_different_c
         priceBeforeDiscount: "110.00",
     }),
     ...getPriceListChecksSteps({
-        pricelistName: "EX Without Discount Included",
+        pricelistName: "EX",
         eventName: "Test Event Booths",
         price: "990.00",
         priceSelected: "990",

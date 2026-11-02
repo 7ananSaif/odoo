@@ -3,7 +3,9 @@
 from freezegun import freeze_time
 import time
 
+from odoo.exceptions import ValidationError
 from odoo.tests.common import tagged, TransactionCase
+from odoo.tools import format_datetime
 
 
 @tagged('jesaispas')
@@ -14,7 +16,7 @@ class TestHrAttendance(TransactionCase):
     def setUpClass(cls):
         super(TestHrAttendance, cls).setUpClass()
         cls.attendance = cls.env['hr.attendance']
-        cls.test_employee = cls.env['hr.employee'].create({'name': "Jacky", 'ruleset_id': False})
+        cls.test_employee = cls.env['hr.employee'].create({'name': "Jacky"})
         # demo data contains set up for cls.test_employee
         cls.open_attendance = cls.attendance.create({
             'employee_id': cls.test_employee.id,
@@ -64,6 +66,21 @@ class TestHrAttendance(TransactionCase):
                 'check_out': time.strftime('%Y-%m-10 11:30'),
             })
 
+    def test_overlap_error_names_conflicting_check_in(self):
+        employee = self.env['hr.employee'].create({'name': "Overlap"})
+        existing = self.attendance.create({
+            'employee_id': employee.id,
+            'check_in': '2024-02-05 07:30:00',
+            'check_out': '2024-02-05 12:00:00',
+        })
+        with self.assertRaises(ValidationError) as error:
+            self.attendance.create({
+                'employee_id': employee.id,
+                'check_in': '2024-02-05 10:00:00',
+                'check_out': '2024-02-05 13:00:00',
+            })
+        self.assertIn(format_datetime(self.env, existing.check_in, dt_format=False), str(error.exception))
+
     @freeze_time("2024-02-05 11:00:00")
     def test_attendance_in_the_future(self):
         employee = self.env['hr.employee'].create({'name': "Test"})
@@ -86,16 +103,9 @@ class TestHrAttendance(TransactionCase):
         self.assertEqual(employee.attendance_state, 'checked_out')
 
     def test_time_format_attendance(self):
-        self.env.user.tz = 'UTC'
-        self.env['res.lang']._activate_lang('en_US')
-        lang = self.env['res.lang']._lang_get(self.env.user.lang)
-        lang.time_format = "%I:%M:%S %p"  # here "%I:%M:%S %p" represents AM:PM format
         attendance_id = self.attendance.create({
             'employee_id': self.test_employee.id,
             'check_in': time.strftime('%Y-%m-28 08:00'),
             'check_out': time.strftime('%Y-%m-28 09:00'),
         })
-        self.assertEqual(attendance_id.display_name, "01:00 (08:00:00 AM-09:00:00 AM)")
-        lang.time_format = "%H:%M:%S"
-        attendance_id._compute_display_name()
-        self.assertEqual(attendance_id.display_name, "01:00 (08:00:00-09:00:00)")
+        self.assertEqual(attendance_id.display_name, "A - 1h")

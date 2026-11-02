@@ -1,28 +1,29 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-import base64
-import requests
+from contextlib import contextmanager
+from datetime import date, datetime, UTC
+from unittest.mock import Mock, patch
 
-from pytz import timezone
-from datetime import date, datetime
-from unittest.mock import Mock
+import requests
 from dateutil.relativedelta import relativedelta
 
 from odoo import fields
 from odoo.tools import file_open
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 from odoo.addons.account.tests.test_account_move_send import TestAccountMoveSendCommon
+from odoo.addons.l10n_es_edi_tbai.models.l10n_es_edi_tbai_agencies import URLS_BIZKAIA, URLS_GIPUZKOA
 
 
 class TestEsEdiTbaiCommon(TestAccountMoveSendCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     @AccountTestInvoicingCommon.setup_country('es')
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.frozen_today = datetime(year=2025, month=1, day=1, hour=0, minute=0, second=0, tzinfo=timezone('utc'))
+        cls.frozen_today = datetime(year=2025, month=1, day=1, hour=0, minute=0, second=0, tzinfo=UTC)
 
         # Allow to see the full result of AssertionError.
         cls.maxDiff = None
@@ -68,8 +69,7 @@ class TestEsEdiTbaiCommon(TestAccountMoveSendCommon):
 
         cls.certificate = cls.env['certificate.certificate'].create({
             'name': 'Test ES TBAI certificate',
-            'content': base64.b64encode(
-                file_open("l10n_es_edi_tbai/demo/certificates/" + cert_name, 'rb').read()),
+            'content': cls.file_read("l10n_es_edi_tbai/demo/certificates/" + cert_name),
             'pkcs12_password': cert_password,
             'scope': 'tbai',
             'company_id': cls.company_data['company'].id,
@@ -92,7 +92,7 @@ class TestEsEdiTbaiCommon(TestAccountMoveSendCommon):
         return cls.env.ref(f'account.{cls.env.company.id}_account_tax_template_{trailing_xml_id}')
 
     @classmethod
-    def create_invoice(cls, **kwargs):
+    def _create_invoice_es(cls, **kwargs):
         return cls.env['account.move'].with_context(edi_test_mode=True).create({
             'move_type': 'out_invoice',
             'partner_id': cls.partner_a.id,
@@ -120,6 +120,8 @@ class TestEsEdiTbaiCommon(TestAccountMoveSendCommon):
                     'tax_ids': [(6, 0, cls._get_tax_by_xml_id('s_iva21b').ids)],
             })],
         })
+        if out_invoice.move_type in ('out_refund', 'in_refund'):
+            out_invoice.l10n_es_original_invoice_credited = "ORIGIN/INV/001"
         out_invoice.action_post()
         return out_invoice
 
@@ -161,6 +163,30 @@ class TestEsEdiTbaiCommon(TestAccountMoveSendCommon):
         return content
 
 
+@contextmanager
+def mock_tbai_agency_request(mock_response):
+    def side_effect(session_self, method, *args, **kwargs):
+        url = kwargs.get('url', '')
+
+        if url in {
+            URLS_BIZKAIA['post_url_test'],
+            URLS_BIZKAIA['cancel_url_test'],
+            URLS_GIPUZKOA['post_url_test'],
+            URLS_GIPUZKOA['cancel_url_test'],
+        }:
+            return mock_response
+
+        return original_request(session_self, method, *args, **kwargs)
+
+    original_request = requests.Session.request
+    with patch(
+        'odoo.addons.l10n_es_edi_tbai.models.l10n_es_edi_tbai_document.requests.Session.request',
+        autospec=True,
+        side_effect=side_effect
+    ):
+        yield
+
+
 def create_mock_response(content, headers=None):
     mock_response = Mock(spec=requests.Response)
     mock_response.content = content
@@ -169,6 +195,8 @@ def create_mock_response(content, headers=None):
 
 
 class TestEsEdiTbaiCommonGipuzkoa(TestEsEdiTbaiCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):
@@ -181,6 +209,8 @@ class TestEsEdiTbaiCommonGipuzkoa(TestEsEdiTbaiCommon):
 
 
 class TestEsEdiTbaiCommonBizkaia(TestEsEdiTbaiCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):

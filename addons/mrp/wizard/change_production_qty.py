@@ -52,7 +52,7 @@ class ChangeProductionQty(models.TransientModel):
 
     @api.model
     def _need_quantity_propagation(self, move, qty):
-        return move.move_dest_ids and not move.product_uom.is_zero(qty)
+        return move.move_dest_ids and not move.uom_id.is_zero(qty)
 
     def change_prod_qty(self):
         precision = self.env['decimal.precision'].precision_get('Product Unit')
@@ -76,33 +76,28 @@ class ChangeProductionQty(models.TransientModel):
             production._log_manufacture_exception(documents)
             self._update_finished_moves(production, new_production_qty, old_production_qty)
             production.write({'product_qty': new_production_qty})
-            if not production.product_uom_id.is_zero(production.qty_producing) and not production.workorder_ids:
+            if not production.uom_id.is_zero(production.qty_producing) and not production.workorder_ids:
                 production.qty_producing = new_production_qty
-                production._set_qty_producing()
+                production._set_qty_producing(False)
 
             for wo in production.workorder_ids:
-                operation = wo.operation_id
-                wo.duration_expected = wo._get_duration_expected(ratio=new_production_qty / old_production_qty)
                 quantity = wo.qty_production - wo.qty_produced
                 if production.product_id.tracking == 'serial':
                     quantity = 1.0 if not float_is_zero(quantity, precision_digits=precision) else 0.0
                 else:
                     quantity = quantity if (quantity > 0 and not float_is_zero(quantity, precision_digits=precision)) else 0
-                wo._update_qty_producing(quantity)
+                wo._update_qty_producing(quantity if wo.production_id.state != 'to_close' else wo.qty_production)
+                wo.duration_expected = wo._get_duration_expected(ratio=1 if wo.operation_id else new_production_qty / old_production_qty)
                 if wo.qty_produced < wo.qty_production and wo.state == 'done':
                     wo.state = 'progress'
                 if wo.qty_produced == wo.qty_production and wo.state == 'progress':
                     wo.state = 'done'
-                # assign moves; last operation receive all unassigned moves
-                # TODO: following could be put in a function as it is similar as code in _workorders_create
-                # TODO: only needed when creating new moves
-                moves_raw = production.move_raw_ids.filtered(lambda move: move.operation_id == operation and move.state not in ('done', 'cancel'))
-                if wo == production.workorder_ids[-1]:
-                    moves_raw |= production.move_raw_ids.filtered(lambda move: not move.operation_id)
-                moves_finished = production.move_finished_ids.filtered(lambda move: move.operation_id == operation) #TODO: code does nothing, unless maybe by_products?
-                moves_raw.mapped('move_line_ids').write({'workorder_id': wo.id})
-                (moves_finished + moves_raw).write({'workorder_id': wo.id})
 
+            # replan production based on new workorder durations
+            if factor != 1.0 and production.is_planned and (production.state == 'confirmed'
+                or (production.state == 'progress' and not any(wo.state in ['done', 'progress'] for wo in production.workorder_ids))):
+                production._unplan_workorders()
+                production._plan_workorders()
         # run scheduler for moves forecasted to not have enough in stock
         self.mo_id.filtered(lambda mo: mo.state in ['confirmed', 'progress']).move_raw_ids._trigger_scheduler()
 

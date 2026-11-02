@@ -1,42 +1,28 @@
-import { Component, useRef, useState, onWillUpdateProps, onMounted } from "@odoo/owl";
-
-import { useAutoresize } from "@web/core/utils/autoresize";
+import { Component, onMounted, signal, t, useEffect, useProps } from "@odoo/owl";
 
 export class AutoresizeInput extends Component {
     static template = "mail.AutoresizeInput";
-    static props = {
-        autofocus: { type: Boolean, optional: true },
-        className: { type: String, optional: true },
-        enabled: { optional: true },
-        onValidate: { type: Function, optional: true },
-        placeholder: { type: String, optional: true },
-        value: { type: String, optional: true },
-    };
-    static defaultProps = {
-        autofocus: false,
-        className: "",
-        enabled: true,
-        onValidate: () => {},
-        placeholder: "",
-    };
+    props = useProps({
+        autofocus: t.boolean().optional(false),
+        className: t.string().optional(""),
+        enabled: t.boolean().optional(true),
+        inputClassName: t.string().optional(""),
+        inputRef: t.signal(t.instanceOf(HTMLInputElement)).optional(() => signal.ref()),
+        onValidate: t.function([t.string()]).optional(() => () => {}),
+        placeholder: t.string().optional(""),
+        value: t.signal(t.string()),
+    });
 
     setup() {
         super.setup();
-        this.state = useState({
-            value: this.props.value,
-            isFocused: false,
-        });
-        this.inputRef = useRef("input");
-        onWillUpdateProps((nextProps) => {
-            if (this.props.value !== nextProps.value) {
-                this.state.value = nextProps.value;
-            }
-        });
-        useAutoresize(this.inputRef);
+        this.inputRef = this.props.inputRef;
+        this.value = signal("");
+        useEffect(() => this.value.set(this.props.value() || ""));
+        this.isFocused = signal(false);
         onMounted(() => {
             if (this.props.autofocus) {
-                this.inputRef.el.focus();
-                this.inputRef.el.setSelectionRange(-1, -1);
+                this.inputRef().focus();
+                this.inputRef().setSelectionRange(-1, -1);
             }
         });
     }
@@ -47,18 +33,26 @@ export class AutoresizeInput extends Component {
     onKeydownInput(ev) {
         switch (ev.key) {
             case "Enter":
-                this.inputRef.el.blur();
+                this.inputRef().blur();
                 break;
             case "Escape":
                 ev.stopPropagation();
-                this.state.value = this.props.value;
-                this.inputRef.el.blur();
+                this.value.set(this.props.value() || "");
+                this.inputRef().blur();
                 break;
         }
     }
 
     onBlurInput() {
-        this.state.isFocused = false;
-        this.props.onValidate(this.state.value);
+        this.isFocused.set(false);
+        this.props.onValidate(this.value());
+    }
+
+    /**
+     * What sizes the box. Never empty, so the box always keeps a line's height even
+     * without a value or placeholder.
+     */
+    get mirrorValue() {
+        return this.value() || this.props.placeholder || " ";
     }
 }

@@ -5,6 +5,8 @@ from stdnum.eu.vat import check_vies
 
 from odoo import api, models, _
 from odoo.fields import Domain
+from odoo.tools.mail import email_domain_extract, url_domain_extract
+from odoo.addons.iap.tools import iap_tools
 
 _logger = logging.getLogger(__name__)
 
@@ -83,6 +85,16 @@ class ResPartner(models.Model):
         return iap_data
 
     @api.model
+    def autocomplete_by_field(self, fieldName, query, query_country_id, timeout=15):
+        match fieldName:
+            case "name":
+                return self.autocomplete_by_name(query, query_country_id)
+            case "duns":
+                return self.autocomplete_by_duns(query, query_country_id)
+            case _:
+                return self.autocomplete_by_vat(query, query_country_id)
+
+    @api.model
     def autocomplete_by_name(self, query, query_country_id, timeout=15):
         if query_country_id is False:  # If it's 0, we purposely do not want to filter on the country
             query_country_id = self.env.company.country_id.id
@@ -138,6 +150,22 @@ class ResPartner(models.Model):
             return []
 
     @api.model
+    def autocomplete_by_duns(self, duns, query_country_id, timeout=15):
+        query_country_id = query_country_id or self.env.company.country_id.id
+        query_country_code = self.env['res.country'].browse(query_country_id).code
+        response, _ = self.env['iap.autocomplete.api']._request_partner_autocomplete('search_by_duns', {
+            'query': duns,
+            'query_country_code': query_country_code,
+        }, timeout=timeout)
+        if not response or response.get("error"):
+            return []
+
+        results = []
+        for suggestion in response.get("data"):
+            results.append(self._format_data_company(suggestion))
+        return results
+
+    @api.model
     def _process_enriched_response(self, response, error):
         if response and response.get('data'):
             result = self._format_data_company(response.get('data'))
@@ -164,8 +192,7 @@ class ResPartner(models.Model):
     @api.model
     def _validate_partner_autocomplete_response(self, autocomplete_response):
         if (
-            self.env['ir.module.module']._get('base_vat').state == 'installed'
-            and (vat_number := autocomplete_response.get('vat'))
+            (vat_number := autocomplete_response.get('vat'))
             and (enriched_company := self.env.context.get('enriched_company_data'))
             ):
             country = self.env['res.country'].browse(enriched_company['country_id']['id']).exists()
@@ -176,6 +203,13 @@ class ResPartner(models.Model):
     def enrich_by_duns(self, duns, timeout=15):
         response, error = self.env['iap.autocomplete.api']._request_partner_autocomplete('enrich_by_duns', {
             'duns': duns,
+        }, timeout=timeout)
+        return self._process_enriched_response(response, error)
+
+    @api.model
+    def enrich_by_vat(self, vat, timeout=15):
+        response, error = self.env['iap.autocomplete.api']._request_partner_autocomplete('enrich_by_vat', {
+            'vat': vat,
         }, timeout=timeout)
         return self._process_enriched_response(response, error)
 
@@ -192,27 +226,6 @@ class ResPartner(models.Model):
             'domain': domain,
         }, timeout=timeout)
         return self._process_enriched_response(response, error)
-
-    # TODO remove in master
-    def iap_partner_autocomplete_get_tag_ids(self, unspsc_codes):
-        """Called by JS to create the activity tags from the UNSPSC codes"""
-        # If the UNSPSC module is installed, we might have a translation, so let's use it
-        if self.env['ir.module.module']._get('product_unspsc').state == 'installed':
-            tag_names = self.env['product.unspsc.code']\
-                            .with_context(active_test=False)\
-                            .search([('code', 'in', [unspsc_code for unspsc_code, __ in unspsc_codes])])\
-                            .mapped('name')
-        # If it's not, then we use the default English name provided by DnB
-        else:
-            tag_names = [unspsc_name for __, unspsc_name in unspsc_codes]
-
-        tag_ids = self.env['res.partner.category']
-        for tag_name in tag_names:
-            if existing_tag := self.env['res.partner.category'].search([('name', '=', tag_name)]):
-                tag_ids |= existing_tag
-            else:
-                tag_ids |= self.env['res.partner.category'].create({'name': tag_name})
-        return tag_ids.ids
 
     @api.model
     def _get_view(self, view_id=None, view_type='form', **options):
@@ -236,7 +249,7 @@ class ResPartner(models.Model):
             'name': self.name,
             'email': self.email,
             'company_type': data.get('entity_type', ''),
-            'vat': self.vat or self.company_registry,
+            'vat': self.vat,
             'website': self.website,
             'logo': self.image_1920,
             'street': self.street,
@@ -252,3 +265,110 @@ class ResPartner(models.Model):
             render_values=company,
             subtype_xmlid='mail.mt_note',
         )
+
+    def action_enrich_partner(self):
+        empty_partner_data = []
+        errors = []
+        for partner in self:
+            partner = partner.with_prefetch()
+
+            field_to_check = partner._get_field_to_check()
+            if not field_to_check:
+                continue
+
+            partner_data = {}
+            field_type, value = field_to_check
+            # Allow commiting the partner datas even if the main transaction is rolled back since we don't want to
+            # use credit from the user.
+            with self.env.registry.cursor() as cr:
+                partner = partner.with_env(partner.env(cr=cr))
+
+                if field_type == 'duns':
+                    partner_data = partner.enrich_by_duns(duns=value)
+                elif field_type == 'identifier':
+                    partner_data = partner.enrich_by_vat(vat=value)
+                elif field_type == 'domain':
+                    partner_data = partner.enrich_by_domain(domain=value)
+
+                if partner_data.get("error"):
+                    errors.append(partner_data['error_message'])
+                    if partner_data['error_message'] == 'Insufficient Credit':
+                        # This would break the loop and display the notif of errors
+                        break
+
+                if not partner_data:
+                    empty_partner_data.append(partner.name)
+                    continue
+
+                partner_data = {
+                    field: value for field, value in partner_data.items()
+                    if field in partner._fields and value and (field == 'image_1920' or not partner[field])
+                }
+                partner.write(partner_data)
+
+        if errors:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': self.env._("Enrich notification"),
+                    'type': 'warning',
+                    'message': self.env._("Some errors occurred during the enrich: %s", ','. join(errors)),
+                    'next': {'type': 'ir.actions.act_window_close'},
+                }
+            }
+
+        if empty_partner_data:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': self.env._("Enrich notification"),
+                    'type': 'info',
+                    'message': self.env._("It seems that we didn't found some information for the following partners: %s", ','. join(empty_partner_data)),
+                    'next': {'type': 'ir.actions.act_window_close'},
+                }
+            }
+        return {'type': 'ir.actions.act_window_close'}
+
+    def _get_field_to_check(self):
+        self.ensure_one()
+
+        if duns := (self.additional_identifiers or {}).get('DUNS'):
+            return 'duns', duns
+
+        # So that we can put localization identifier here, on the iap side they are treated like vat
+        for field_name in self._get_identifier_fields():
+            if field_name == 'vat' and self.vat and self.vat != '/':
+                return 'identifier', self.vat
+
+            # additional identifiers are dealt like vat number on the iap side
+            if value := (self.additional_identifiers or {}).get(field_name):
+                return 'identifier', value
+
+        if partner_domain := self._get_partner_domain():
+            return 'domain', partner_domain
+
+        return None
+
+    def _get_partner_domain(self):
+        """ Extract the partner domain to be used by IAP services.
+
+        The domain is extracted from the website or the email information.
+
+        >>> partner.email, partner._get_partner_domain()
+        ("info@proximus.be", "proximus.be")
+        >>> partner.website, partner._get_partner_domain()
+        ("www.info.proximus.be", "proximus.be")
+        """
+        self.ensure_one()
+
+        partner_domain = email_domain_extract(self.email) if self.email else False
+        if partner_domain and partner_domain not in iap_tools._MAIL_PROVIDERS:
+            return partner_domain
+
+        partner_domain = url_domain_extract(self.website) if self.website else False
+        if not partner_domain or partner_domain in ['localhost', 'example.com']:
+            return False
+
+        return partner_domain

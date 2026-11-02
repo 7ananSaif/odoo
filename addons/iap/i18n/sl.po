@@ -17,32 +17,37 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~15.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-09-16 21:22+0000\n"
-"Last-Translator: \"Tiffany Chang (tic)\" <tic@odoo.com>\n"
-"Language-Team: Slovenian <https://translate.odoo.com/projects/odoo-19/iap/sl/"
-">\n"
+"POT-Creation-Date: 2026-09-25 17:38+0000\n"
+"PO-Revision-Date: 2026-08-31 16:52+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Slovenian <https://translate.odoo.com/projects/odoo-s19-4/iap/"
+"sl/>\n"
 "Language: sl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=4; plural=n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || "
 "n%100==4 ? 2 : 3;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: iap
-#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
+#: model:ir.module.module,description:base.module_iap
 msgid ""
-"<i class=\"oi oi-arrow-right\"/>\n"
-"                                    Buy Credit"
+"\n"
+"This module provides standard tools (account model, context manager and "
+"helpers)\n"
+"to support In-App Purchase inside Odoo. "
 msgstr ""
-"<i class=\"oi oi-arrow-right\"/>\n"
-"                                    Kupite kredit"
 
 #. module: iap
 #: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
 msgid "Account Information"
 msgstr "Podatki o računu"
+
+#. module: iap
+#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
+msgid "Account Name"
+msgstr ""
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__account_token
@@ -73,9 +78,25 @@ msgid "Balance"
 msgstr "Saldo"
 
 #. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_account__balance_amount
+msgid "Balance Amount"
+msgstr ""
+
+#. module: iap
 #: model:ir.model.fields.selection,name:iap.selection__iap_account__state__banned
 msgid "Banned"
 msgstr "Prepovedano"
+
+#. module: iap
+#: model:ir.module.module,summary:base.module_iap
+msgid "Basic models and helpers to support In-App Purchase."
+msgstr ""
+
+#. module: iap
+#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
+#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_tree
+msgid "Buy Credits"
+msgstr ""
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__company_ids
@@ -85,14 +106,21 @@ msgstr "Podjetje"
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__create_uid
 #: model:ir.model.fields,field_description:iap.field_iap_service__create_uid
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__create_uid
 msgid "Created by"
 msgstr "Ustvaril"
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__create_date
 #: model:ir.model.fields,field_description:iap.field_iap_service__create_date
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__create_date
 msgid "Created on"
 msgstr "Ustvarjeno"
+
+#. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__credit
+msgid "Credit"
+msgstr ""
 
 #. module: iap
 #: model:iap.service,unit_name:iap.iap_service_reveal
@@ -109,8 +137,14 @@ msgstr "Opis"
 #: model:ir.model.fields,field_description:iap.field_iap_account__display_name
 #: model:ir.model.fields,field_description:iap.field_iap_enrich_api__display_name
 #: model:ir.model.fields,field_description:iap.field_iap_service__display_name
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__display_name
 msgid "Display Name"
 msgstr "Prikazani naziv"
+
+#. module: iap
+#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
+msgid "Email Alert"
+msgstr ""
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__warning_user_ids
@@ -140,17 +174,9 @@ msgid "IAP"
 msgstr "Ponudnik dostopa do interneta IAP"
 
 #. module: iap
-#: model:ir.actions.act_window,name:iap.iap_account_action
 #: model:ir.model,name:iap.model_iap_account
-#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
 msgid "IAP Account"
 msgstr "IAP Račun"
-
-#. module: iap
-#: model:ir.ui.menu,name:iap.iap_account_menu
-#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_tree
-msgid "IAP Accounts"
-msgstr "IAP Računi"
 
 #. module: iap
 #: model:ir.model,name:iap.model_iap_enrich_api
@@ -163,11 +189,44 @@ msgid "IAP Service"
 msgstr "Storitev ponudnika dostopa do interneta IAP"
 
 #. module: iap
+#: model:ir.model,name:iap.model_iap_service_pack
+msgid "IAP Service Pack"
+msgstr ""
+
+#. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__id
 #: model:ir.model.fields,field_description:iap.field_iap_enrich_api__id
 #: model:ir.model.fields,field_description:iap.field_iap_service__id
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__id
 msgid "ID"
 msgstr "ID"
+
+#. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__iap_service_pack_identifier
+msgid "Iap Service Pack Identifier"
+msgstr ""
+
+#. module: iap
+#: model:ir.module.module,shortdesc:base.module_iap
+msgid "In-App Purchase"
+msgstr ""
+
+#. module: iap
+#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
+msgid "In-App Purchase Account"
+msgstr ""
+
+#. module: iap
+#: model:ir.actions.act_window,name:iap.iap_account_action
+#: model:ir.ui.menu,name:iap.iap_account_menu
+#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_tree
+msgid "In-App Purchase Accounts"
+msgstr ""
+
+#. module: iap
+#: model_terms:ir.ui.view,arch_db:iap.iap_service_pack_view_tree
+msgid "In-App Purchase Service Packs"
+msgstr ""
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_service__integer_balance
@@ -175,26 +234,39 @@ msgid "Integer Balance"
 msgstr "Celoštevilsko stanje"
 
 #. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_account__is_balance_below_warning_threshold
+msgid "Is Balance Below Warning Threshold"
+msgstr ""
+
+#. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__write_uid
 #: model:ir.model.fields,field_description:iap.field_iap_service__write_uid
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__write_uid
 msgid "Last Updated by"
 msgstr "Zadnji posodobil"
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__write_date
 #: model:ir.model.fields,field_description:iap.field_iap_service__write_date
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__write_date
 msgid "Last Updated on"
 msgstr "Zadnjič posodobljeno"
+
+#. module: iap
+#: model:iap.service,name:iap.iap_service_reveal
+msgid "Lead Generation"
+msgstr ""
 
 #. module: iap
 #. odoo-javascript
 #: code:addons/iap/static/src/action_buttons_widget/action_buttons_widget.xml:0
 msgid "Manage Service & Buy Credits"
-msgstr "Upravljanje storitev in nakup kreditov"
+msgstr ""
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__name
 #: model:ir.model.fields,field_description:iap.field_iap_service__name
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__name
 msgid "Name"
 msgstr "Naziv"
 
@@ -206,8 +278,15 @@ msgstr "Storitev z navedenim tehničnim imenom ne obstaja."
 
 #. module: iap
 #: model_terms:ir.ui.view,arch_db:iap.res_config_settings_view_form
-msgid "Odoo IAP"
-msgstr "Odoo IAP"
+msgid "Odoo In-App Purchase"
+msgstr ""
+
+#. module: iap
+#: model:ir.model.fields,help:iap.field_iap_account__warning_threshold
+msgid ""
+"Once you have this many credits or less, the system will automatically "
+"notify the following recipients by email. Set to 0 to disable email warnings."
+msgstr ""
 
 #. module: iap
 #. odoo-python
@@ -225,10 +304,22 @@ msgid "Only one service can exist with a specific technical_name"
 msgstr "Samo ena storitev lahko obstaja z določenim tehničnim imenom."
 
 #. module: iap
+#: model:ir.model.constraint,message:iap.constraint_iap_service_pack_unique_iap_service_pack_identifier
+msgid ""
+"Only one service pack can exist with a specific iap_service_pack_identifier"
+msgstr ""
+
+#. module: iap
 #. odoo-python
 #: code:addons/iap/models/iap_account.py:0
 msgid "Please set a positive email alert threshold."
 msgstr "Nastavite pozitiven prag za e-poštna opozorila."
+
+#. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_account__service_price_description
+#: model:ir.model.fields,field_description:iap.field_iap_service__price_description
+msgid "Price Description"
+msgstr ""
 
 #. module: iap
 #: model:ir.model.fields.selection,name:iap.selection__iap_account__state__registered
@@ -236,7 +327,13 @@ msgid "Registered"
 msgstr "Registrirano"
 
 #. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__price
+msgid "Sales Price (EUR)"
+msgstr ""
+
+#. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__service_id
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__service_id
 msgid "Service"
 msgstr "Storitev"
 
@@ -244,6 +341,11 @@ msgstr "Storitev"
 #: model:ir.model.fields,field_description:iap.field_iap_account__service_locked
 msgid "Service Locked"
 msgstr "Storitev zaklenjena"
+
+#. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_service__pack_ids
+msgid "Service Packs"
+msgstr ""
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__state
@@ -259,18 +361,16 @@ msgstr "Tehnični naziv"
 #. module: iap
 #. odoo-python
 #: code:addons/iap/models/iap_account.py:0
-msgid "The IAP token provided is invalid or empty."
+msgid ""
+"The IAP server is unreachable and the information may not be up to date. "
+"Please try again later."
 msgstr ""
 
 #. module: iap
 #. odoo-python
-#: code:addons/iap/tools/iap_tools.py:0
-msgid ""
-"The request to the service timed out. Please contact the author of the app. "
-"The URL it tried to contact was %s"
+#: code:addons/iap/models/iap_account.py:0
+msgid "The IAP token provided is invalid or empty."
 msgstr ""
-"Zahteva za storitev je potekla. Obrnite se na avtorja aplikacije. URL, s "
-"katerim se je poskušala povezati, je bil %s"
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_service__unit_name
@@ -281,6 +381,11 @@ msgstr "Ime enote"
 #: model:ir.model.fields.selection,name:iap.selection__iap_account__state__unregistered
 msgid "Unregistered"
 msgstr "Neregistriran"
+
+#. module: iap
+#: model_terms:ir.ui.view,arch_db:iap.view_iap_users_tree
+msgid "Users"
+msgstr ""
 
 #. module: iap
 #. odoo-javascript
@@ -294,14 +399,9 @@ msgstr "Ogled mojih storitev"
 msgid "View your IAP Services and recharge your credits"
 msgstr "Oglejte si svoje storitve IAP in napolnite svoje kredite"
 
-#~ msgid "Buy credits"
-#~ msgstr "Kupite kredite"
-
-#~ msgid "Cancel"
-#~ msgstr "Prekliči"
-
-#~ msgid "Config Settings"
-#~ msgstr "Uredi nastavitve"
-
-#~ msgid "Service Name"
-#~ msgstr "Ime storitve"
+#~ msgid ""
+#~ "The request to the service timed out. Please contact the author of the "
+#~ "app. The URL it tried to contact was %s"
+#~ msgstr ""
+#~ "Zahteva za storitev je potekla. Obrnite se na avtorja aplikacije. URL, s "
+#~ "katerim se je poskušala povezati, je bil %s"

@@ -1,19 +1,15 @@
-# -*- coding: utf-8 -*-
-# Part of Odoo. See LICENSE file for full copyright and licensing details.
-
-import base64
-import contextlib
 import email
 import email.policy
+from itertools import chain, repeat
 import json
 import re
 import logging
 import time
+import werkzeug
 
 from ast import literal_eval
 from contextlib import contextmanager
 from datetime import timedelta
-from freezegun import freeze_time
 from functools import partial
 from lxml import html
 from markupsafe import Markup
@@ -21,11 +17,12 @@ from random import randint
 from unittest.mock import patch
 from urllib.parse import urlparse, urlencode, parse_qsl
 
-from odoo import tools, fields
+from odoo import tools
 from odoo.addons.base.models.ir_mail_server import IrMail_Server
+from odoo.addons.base.models.ir_mail_server import MailDeliveryException
 from odoo.addons.base.tests.common import MockSmtplibCase
-from odoo.addons.bus.models.bus import BusBus, json_dump
-from odoo.addons.bus.tests.common import BusCase
+from odoo.addons.bus.models.bus import BusBus
+from odoo.addons.bus.tests.common import BusCase, BusResult
 from odoo.addons.mail.models import mail_thread
 from odoo.addons.mail.models.mail_mail import MailMail
 from odoo.addons.mail.models.mail_message import MailMessage
@@ -33,13 +30,13 @@ from odoo.addons.mail.models.mail_notification import MailNotification
 from odoo.addons.mail.models.res_users import ResUsers
 from odoo.addons.mail.tools.discuss import Store
 from odoo.tests import common, RecordCapturer, new_test_user
-from odoo.tools import mute_logger
-from odoo.tools.mail import (
-    email_normalize, email_normalize_all, email_split, email_split_and_format_normalize, formataddr
-)
+from odoo.tools import LazyTranslate, mute_logger, mail as mail_lib
+from odoo.tools.mail import email_normalize, email_split_and_format_normalize, formataddr
+from odoo.tools.misc import formatLang, format_amount
 from odoo.tools.translate import code_translations
 
 _logger = logging.getLogger(__name__)
+_test_lt = LazyTranslate(__name__)
 
 mail_new_test_user = partial(new_test_user, context={'mail_create_nolog': True,
                                                      'mail_create_nosubscribe': True,
@@ -61,18 +58,9 @@ class MockEmail(common.BaseCase, MockSmtplibCase):
         super(MockEmail, cls).setUpClass()
         cls._mc_enabled = False
 
-    # ------------------------------------------------------------
-    # UTILITY MOCKS
-    # ------------------------------------------------------------
-
-    @contextmanager
-    def mock_datetime_and_now(self, mock_dt):
-        """ Used when synchronization date (using env.cr.now()) is important
-        in addition to standard datetime mocks. Used mainly to detect sync
-        issues. """
-        with freeze_time(mock_dt), \
-             patch.object(self.env.cr, 'now', lambda: mock_dt):
-            yield
+    def setUp(self):
+        super().setUp()
+        self.is_mail_track_installed = 'mail_tracking' in self.env['ir.module.module']._installed()
 
     # ------------------------------------------------------------
     # GATEWAY MOCK
@@ -111,6 +99,8 @@ class MockEmail(common.BaseCase, MockSmtplibCase):
             }
             res = build_email_origin(model, email_from, email_to, subject, body, **kwargs)
             data['EmailMessage'] = res
+            if attachments := data.get('attachments'):
+                data['attachments'] = [(name, data.content, mime) for name, data, mime in attachments]
             self._mails.append(data)
             return res
 
@@ -138,6 +128,21 @@ class MockEmail(common.BaseCase, MockSmtplibCase):
             self.push_to_end_point_mocked = patched_push
             yield
 
+    @contextmanager
+    def mock_send_email_delivery_exception(self, fail_emails, error="OutboundSpamException"):
+        """ Small tooling to simulate a crash at sending (smtp management level)
+        for some specific emails. """
+        send_current = self.send_email_mocked.side_effect
+        self.addCleanup(setattr, self.send_email_mocked, 'side_effect', send_current)
+
+        def _send_email(model, message, **kwargs):
+            if message['To'] in fail_emails:
+                raise MailDeliveryException(error)
+            return send_current(model, message, **kwargs)
+
+        self.send_email_mocked.side_effect = _send_email
+        yield
+
     def _init_mail_mock(self):
         self._mails = []
         self._new_mails = self.env['mail.mail'].sudo()
@@ -151,7 +156,7 @@ class MockEmail(common.BaseCase, MockSmtplibCase):
         cls.alias_bounce = 'bounce.test'
         cls.default_from = 'notifications.test'
         cls.default_from_filter = False
-        cls.env['ir.config_parameter'].set_param('mail.default.from_filter', cls.default_from_filter)
+        cls.env['ir.config_parameter'].set_str('mail.default.from_filter', cls.default_from_filter)
 
         # ensure global alias domain for tests: to ease tests, search or create
         # the default test domains
@@ -238,8 +243,9 @@ class MockEmail(common.BaseCase, MockSmtplibCase):
                            return_path=return_path, extra=extra,
                            email_from=email_from, msg_id=msg_id,
                            **kwargs)
+        save_original = kwargs.pop('save_original', False)
         # In real use case, fetched mail processing is executed with administrative right.
-        self.env['mail.thread'].with_user(with_user or self.env.user).sudo().message_process(model, mail)
+        self.env['mail.thread'].with_user(with_user or self.env.user).sudo().message_process(model, mail, save_original=save_original)
         return self.env[target_model].search([(target_field, '=', subject)])
 
     def _gateway_mail_reply(self, template, mail=None, email=None,
@@ -311,9 +317,14 @@ class MockEmail(common.BaseCase, MockSmtplibCase):
         # compute reply "To": either "reply-to" of email, either all recipients + reply_to - replier itself
         if not reply_all:
             replying_to = email['reply_to']
+            replying_cc = []
         else:
             replying_to = ','.join([email['reply_to']] + [
                 email for email in email_split_and_format_normalize(smtp_email['msg_to'])
+                if email_normalize(email) not in source_smtp_to_list]
+            )
+            replying_cc = ','.join(([cc] if cc else []) + [
+                email for email in email_split_and_format_normalize(smtp_email['msg_cc'])
                 if email_normalize(email) not in source_smtp_to_list]
             )
         if add_to_lst:
@@ -323,7 +334,7 @@ class MockEmail(common.BaseCase, MockSmtplibCase):
             self._gateway_mail_reply(
                 template, email=email,
                 force_email_from=force_email_from, force_email_to=replying_to,
-                force_return_path=force_return_path, cc=cc,
+                force_return_path=force_return_path, cc=replying_cc,
                 extra=extra, use_references=use_references, extra_references=extra_references, use_in_reply_to=use_in_reply_to,
                 debug_log=debug_log,
                 target_model=target_model,
@@ -342,6 +353,16 @@ class MockEmail(common.BaseCase, MockSmtplibCase):
                 debug_log=debug_log,
             )
         return capture_messages
+
+    def gateway_mail_reply_wmail(self, template, record, mail_mail, debug_log=False):
+        """ Simulate a reply through the mail gateway. Usage: giving an existing
+        mail_mail sent to record, use its message-ID to simulate a reply. """
+        return self._gateway_mail_reply(
+            template, mail=mail_mail,
+            target_field=record._rec_name,
+            target_model=record._name,
+            debug_log=debug_log,
+        )
 
     def gateway_mail_reply_wrecord(self, template, record, use_in_reply_to=True, debug_log=False):
         """ Simulate a reply through the mail gateway. Usage: giving a record,
@@ -439,18 +460,37 @@ class MockEmail(common.BaseCase, MockSmtplibCase):
 
         return sent_email
 
-    def _find_sent_email_wemail(self, email_to):
+    def _find_linked_trace_id_in_email(self, email):
+        """Search for a link in the given email and identify the linked trace id from that link
+
+        :param email: the email in which to look for the link and the corresponding trace id
+
+        :return the trace id.
+        """
+        res = re.findall(mail_lib.HTML_TAG_URL_REGEX, email['body'])
+        if (res):
+            _, link_url, _, _ = res[0]
+            if '/r/' in link_url:  # shortened link, like 'http://localhost:8069/r/LBG/m/53'
+                parsed_url = werkzeug.urls.url_parse(link_url)
+                path_items = parsed_url.path.split('/')
+                _, trace_id = path_items[2], int(path_items[4])
+                return trace_id
+
+    def _find_sent_email_wemail(self, email_to, trace_id=None):
         """ Find a sent email with a given list of recipients. Email should match
         exactly the recipients.
 
         :param email-to: a list of emails that will be compared to email_to
           of sent emails (also a list of emails);
+        :param trace_id: (optional) filter emails in which the links are linked
+          to that trace;
 
         :return email: an email which is a dictionary mapping values given to
           ``build_email``;
         """
         for sent_email in self._mails:
-            if set(sent_email['email_to']) == set([email_to]):
+            if set(sent_email['email_to']) == {email_to} and \
+                 (trace_id is None or self._find_linked_trace_id_in_email(sent_email) == trace_id):
                 break
         else:
             debug_info = '\n'.join(
@@ -511,7 +551,7 @@ class MockEmail(common.BaseCase, MockSmtplibCase):
             )
         return mail
 
-    def _find_mail_mail_wpartners(self, recipients, status, mail_message=None, author=None, content=None, email_from=None):
+    def _find_mail_mail_wpartners(self, recipients, status, recipients_cc=None, mail_message=None, author=None, content=None, email_from=None):
         """ Find a mail.mail record based on various parameters, notably a list
         of recipients (partners).
 
@@ -523,7 +563,7 @@ class MockEmail(common.BaseCase, MockSmtplibCase):
         """
         filtered = self._filter_mail(status=status, mail_message=mail_message, author=author, content=content, email_from=email_from)
         for mail in filtered:
-            if all(p in mail.recipient_ids for p in recipients):
+            if all(p in mail.recipient_ids for p in recipients) and all(p in mail.recipient_cc_ids for p in recipients_cc or []):
                 break
         else:
             debug_info = '\n'.join(
@@ -587,7 +627,8 @@ class MockEmail(common.BaseCase, MockSmtplibCase):
     # ------------------------------------------------------------
 
     def _assertMailMail(self, mail, recipients_list, status,
-                        email_to_all=None, email_to_recipients=None,
+                        recipients_cc_list=None,
+                        email_to_all=None, email_to_recipients=None, email_cc_recipients=None,
                         author=None, content=None,
                         fields_values=None, email_values=None):
         """ Assert mail.mail record values and maybe related emails. Allow
@@ -596,18 +637,23 @@ class MockEmail(common.BaseCase, MockSmtplibCase):
 
         :param mail: a ``mail.mail`` record;
         :param recipients_list: an ``res.partner`` recordset or a list of
-          emails (both are supported, see ``_find_mail_mail_wpartners`` and
-          ``_find_mail_mail_wemail``);
+            emails (both are supported, see ``_find_mail_mail_wpartners`` and
+            ``_find_mail_mail_wemail``);
         :param status: mail.mail state used to filter mails. If ``sent`` this method
           also check that emails have been sent trough gateway;
+        :param recipients_cc_list: an ``res.partner`` recordset or a list of
+            emails;
+        :param email_to_all: list of email addresses used in email_to, checking
+          all of them are in the same email. This is in addition to checking recipients
+          individually.;
         :param email_to_recipients: used for assertSentEmail to find email based
           on 'email_to' when doing the match directly based on recipients_list
           being partners it nos easy (e.g. multi emails, ...);
+        :param email_cc_recipients: used for assertSentEmail to find email based
+          on 'email_to' when doing the match directly based on recipients_cc_list
+          being partners it nos easy (e.g. multi emails, ...);
         :param author: see ``_find_mail_mail_wpartners``;
         :param content: if given, check it is contained within mail html body;
-        :param email_to_all: list of email addresses used in email_to, checking
-        all of them are in the same email. This is in addition to checking recipients
-        individually.;
         :param fields_values: if given, should be a dictionary of field names /
           values allowing to check ``mail.mail`` additional values (subject,
           reply_to, ...);
@@ -656,7 +702,7 @@ class MockEmail(common.BaseCase, MockSmtplibCase):
                             f'Attachment {attachment_info["name"]} not found in attachments',
                         )
                         if attachment_info.get('raw'):
-                            self.assertEqual(attachment[1], attachment_info['raw'])
+                            self.assertEqual(attachment[1].raw.content, attachment_info['raw'])
                         if attachment_info.get('type'):
                             self.assertEqual(attachment[2], attachment_info['type'])
                     self.assertEqual(len(expected_fvalue), len(mail.attachment_ids))
@@ -670,11 +716,17 @@ class MockEmail(common.BaseCase, MockSmtplibCase):
                 recipients = email_to_recipients  # already formatted
             else:
                 recipients = [[r] for r in recipients_list]  # one partner -> list of a single email
-            for recipient in recipients:
+            if email_cc_recipients:
+                recipients_cc = email_cc_recipients
+            else:
+                recipients_cc = [[r] for r in recipients_cc_list or []]
+
+            for recipient, is_cc in chain(zip(recipients, repeat(False)), zip(recipients_cc, repeat(True))):
                 with self.subTest(recipient=recipient):
                     self.assertSentEmail(
                         email_values['email_from'] if email_values and email_values.get('email_from') else author,
-                        recipient,
+                        recipient if not is_cc else [],
+                        recipients_cc=recipient if is_cc else [],
                         **(email_values or {})
                     )
             if email_to_all:
@@ -684,7 +736,8 @@ class MockEmail(common.BaseCase, MockSmtplibCase):
                     **(email_values or {}))
 
     def assertMailMail(self, recipients, status,
-                       email_to_recipients=None, email_to_all=None,
+                       recipients_cc=None,
+                       email_to_recipients=None, email_cc_recipients=None, email_to_all=None,
                        mail_message=None, author=None,
                        content=None, fields_values=None, email_values=None):
         """ Assert mail.mail records are created and maybe sent as emails. This
@@ -699,8 +752,8 @@ class MockEmail(common.BaseCase, MockSmtplibCase):
         See '_assertMailMail' for more details about other parameters.
         """
         email_from = (fields_values or {}).get('email_from')
-        if recipients:
-            found_mail = self._find_mail_mail_wpartners(recipients, status, mail_message=mail_message, author=author, content=content, email_from=email_from)
+        if recipients or recipients_cc:
+            found_mail = self._find_mail_mail_wpartners(recipients, status, recipients_cc=recipients_cc, mail_message=mail_message, author=author, content=content, email_from=email_from)
         else:
             mail_email_to = ','.join(email_to_all)
             found_mail = self._find_mail_mail_wemail(mail_email_to, status, mail_message=mail_message, author=author, content=content, email_from=email_from)
@@ -708,7 +761,9 @@ class MockEmail(common.BaseCase, MockSmtplibCase):
         self.assertTrue(bool(found_mail))
         self._assertMailMail(
             found_mail, recipients, status,
+            recipients_cc_list=recipients_cc,
             email_to_recipients=email_to_recipients,
+            email_cc_recipients=email_cc_recipients,
             author=author, content=content,
             email_to_all=email_to_all, fields_values=fields_values, email_values=email_values,
         )
@@ -802,7 +857,7 @@ class MockEmail(common.BaseCase, MockSmtplibCase):
         a dict for fields. Allows to hide a lot of assertEqual under a simple
         call with a dictionary of expected values. """
         for fname, fvalue in fields_values.items():
-            with self.subTest(fname=fname, fvalue=fvalue):
+            with self.subTest(fname=fname, fvalue=str(fvalue)):
                 # email_{cc, to} are lists, hence order is not important
                 if fname in {'incoming_email_cc', 'incoming_email_to'}:
                     self.assertEqual(
@@ -810,16 +865,16 @@ class MockEmail(common.BaseCase, MockSmtplibCase):
                         sorted(tools.mail.email_split_and_format_normalize(fvalue)),
                         f'Message: expected {fvalue} for {fname}, got {message[fname]}',
                     )
-                # not really a field but hey, have to find shortcuts
-                elif fname == 'tracking_field_names':
-                    found = message.sudo().mapped('tracking_value_ids.field_id.name')
-                    self.assertEqual(
-                        sorted(found), sorted(fvalue),
-                        f'Message: expected {fvalue} for {fname}, got {found}',
-                    )
                 # tracking values themselves, a shortcut
                 elif fname == 'tracking_values':
                     self.assertTracking(message, fvalue, strict=True)
+                # beware when checking body + tracking -> body appended to posted body
+                elif fname == 'body' and 'tracking_values' in fields_values:
+                    # TDE check: probably try to concatenate both ?
+                    self.assertIn(fvalue, message.body)
+                # body content: not strict equal, just check given content is inside it
+                elif fname == 'body_content':
+                    self.assertIn(fvalue, message['body'])
                 else:
                     self.assertEqual(
                         message[fname], fvalue,
@@ -869,7 +924,7 @@ class MockEmail(common.BaseCase, MockSmtplibCase):
 
         self.assertEqual(len(mails), 0)
 
-    def assertSentEmail(self, author, recipients, **values):
+    def assertSentEmail(self, author, recipients, recipients_cc=None, **values):
         """ Tool method to ease the check of sent emails (going through the
         outgoing mail gateway, not actual <mail.mail> records).
 
@@ -912,6 +967,7 @@ class MockEmail(common.BaseCase, MockSmtplibCase):
         attachments = [attachment['name']
                        for attachment in values.get('attachments_info', [])
                        if 'name' in attachment]
+
         sent_mail = self._find_sent_email(
             expected['email_from'],
             expected['email_to'],
@@ -1037,11 +1093,127 @@ class MockEmail(common.BaseCase, MockSmtplibCase):
     # ------------------------------------------------------------
 
     def assertTracking(self, message, data, strict=False):
-        tracking_values = message.sudo().tracking_value_ids
-        if strict:
-            self.assertEqual(len(tracking_values), len(data),
-                             'Tracking: tracking does not match')
+        """ Check generated tracking linked to a given message.
 
+        :param data: list of tracking values, a tuple containing
+            field_name: technical name of field (str). If properties: tuple().
+            field_type: type of field (boolean, many2one, ...)
+            old_value: value before change
+            new_value: value after change. If monetary: tuple (new_value, currency);
+        """
+        # retrieve information from body, standard html-based tracking
+        body_html = message.sudo().body
+        tracking_values_html = []
+        # previous without div / beginning string
+        # track_re = re.compile(r'(?:^|<br>)(?P<pre>.*?)<b>(?P<post>.*?)</b><i>(?P<key>.*?)</i>')
+        track_re = re.compile(
+            r'(?:<em>(?P<company>[^>]+)</em>)?(?P<pre>[^<>]+?) → '
+            r'<b>(?P<post>.*?)</b> <i>\((?P<key>.*?)\)</i>'
+        )
+        for match in track_re.finditer(body_html):
+            _company, pre, post, key = match.group('company'), match.group('pre'), match.group('post'), match.group('key')
+            tracking_values_html.append((key, pre, post))
+        tracking_info_html = '\n'.join(
+            f'{t[0]}: {t[1]} -> {t[2]}'
+            for t in tracking_values_html
+        )
+        if strict:
+            self.assertEqual(len(tracking_values_html), len(data),
+                             f'Tracking: invalid number of tracking\n{tracking_info_html}')
+
+        # retrieve information from mail.tracking.value model, if module is installed
+        if self.is_mail_track_installed:
+            tracking_values_records = message.sudo().tracking_value_ids
+            tracking_info = '\n'.join(
+                f'{t.field_id.name} ({t.field_id.ttype}: char: {t.old_value_char} -> {t.new_value_char} / '
+                f'int: {t.old_value_integer}->{t.new_value_integer} '
+                f'dt: {t.old_value_datetime}->{t.new_value_datetime} '
+                f'fl: {t.old_value_float}->{t.new_value_float} '
+                f'({t.field_info})'
+                for t in tracking_values_records
+            )
+            if strict:
+                exp_fnames = sorted([i[0] or '' for i in data])
+                fnames = sorted([t.field_id.name or '' for t in tracking_values_records])
+                info = f'Field names: expected {exp_fnames}, received {fnames}'
+                self.assertEqual(len(tracking_values_records), len(data),
+                                 f'Tracking: invalid number of tracking: {info}\n{tracking_info}')
+        else:
+            tracking_values_records = []
+
+        for tracking_values_info in data:
+            if len(tracking_values_info) == 5:
+                field_name, value_type, old_value, new_value, additional_info = tracking_values_info
+            else:
+                field_name, value_type, old_value, new_value = tracking_values_info
+                additional_info = {}
+            # retrieve optional field info, used notably for dummy tracking or properties
+            field_info = additional_info.setdefault('field_info', {})
+            if additional_info.get('company') and not field_info.get('company_id'):
+                field_info['company_id'] = additional_info['company'].id
+            if additional_info.get('currency') and not field_info.get('currency_id'):
+                field_info['currency_id'] = additional_info['currency'].id
+            # for property fields, value_type is a tuple for the embed property value
+            field_string = additional_info.get('html_string')
+            if value_type == 'properties':
+                prop_field_string = additional_info['prop_field_string']
+                prop_type = additional_info['prop_type']
+                if field_string is None:
+                    field_string = prop_field_string
+            else:
+                prop_field_string, prop_type = False, False
+                if field_string is None:
+                    field_string = field_info['desc'] if 'desc' in field_info else self.env[message.model].fields_get([field_name], attributes={'string'})[field_name]['string']
+
+            tracking = next(
+                (t for t in tracking_values_html if t[0] == field_string),
+                [],
+            )
+            self.assertTrue(tracking, f'Tracking: not found for field {field_name} (string: {field_string})\n{tracking_info_html}')
+            self.assertTrackingValueInBody(
+                tracking, prop_type or value_type,
+                old_value, new_value,
+                additional_info=additional_info,
+                message_context=message.env.context,
+            )
+
+            if not self.is_mail_track_installed:
+                continue
+            # for property fields, value_type is a tuple for the embed property value
+            if value_type == 'properties':
+                tracking = tracking_values_records.filtered(lambda track: track.field_id.name == field_name and prop_field_string == (track.field_info or {}).get('desc'))
+                self.assertEqual(
+                    len(tracking), 1,
+                    f'Tracking: not found for {field_name}: sub-field {prop_field_string}\n{tracking_info}')
+            else:
+                if field_name:
+                    tracking = tracking_values_records.filtered(lambda track: track.field_id.name == field_name)
+                else:
+                    if field_info:
+                        tracking = tracking_values_records.filtered(lambda track: not track.field_id and track.field_info and track.field_info['name'] == field_info['name'])
+                    else:
+                        tracking = tracking_values_records.filtered(lambda track: not track.field_id and not track.field_info)
+                self.assertEqual(len(tracking), 1, f'Tracking: not found for {field_name}({field_info or {}})\n{tracking_info}')
+                if tracking.field_id and value_type != tracking.field_id.ttype:
+                    _logger.warning(
+                        'Invalid type given when checking on tracking for \'%s\', received %s, expected %s',
+                        tracking.field_id.name, value_type, tracking.field_id.ttype,
+                    )
+                if tracking.field_info:
+                    missing_keys = tracking.field_info.keys() - (field_info or {}).keys()
+                    if missing_keys:
+                        _logger.warning(
+                            'Missing "field_info" check on tracking for \'%s\', now mandatory: add %s',
+                            tracking.field_id.name or tracking.field_info.get('name', 'Unnamed'), missing_keys,
+                        )
+
+            self.assertTrackingValue(
+                tracking, prop_field_string or field_name, prop_type or value_type,
+                old_value, new_value,
+                additional_info=additional_info,
+            )
+
+    def assertTrackingValue(self, tracking, field_name, value_type, old_value, new_value, additional_info=None):
         suffix_mapping = {
             'boolean': 'integer',
             'char': 'char',
@@ -1052,43 +1224,102 @@ class MockEmail(common.BaseCase, MockSmtplibCase):
             'many2many': 'char',
             'one2many': 'char',
             'selection': 'char',
+            'tags': 'char',
             'text': 'text',
         }
-        for field_name, value_type, old_value, new_value in data:
-            tracking = tracking_values.filtered(lambda track: track.field_id.name == field_name)
-            self.assertEqual(len(tracking), 1, f'Tracking: not found for {field_name}')
-            msg_base = f'Tracking: {field_name} ({value_type}: '
-            if value_type in suffix_mapping:
-                old_value_fname = f'old_value_{suffix_mapping[value_type]}'
-                new_value_fname = f'new_value_{suffix_mapping[value_type]}'
-                self.assertEqual(tracking[old_value_fname], old_value,
-                                 msg_base + f'expected {old_value}, received {tracking[old_value_fname]})')
-                self.assertEqual(tracking[new_value_fname], new_value,
-                                 msg_base + f'expected {new_value}, received {tracking[new_value_fname]})')
-            if value_type == 'many2one':
-                self.assertEqual(tracking.old_value_integer, old_value and old_value.id or False)
-                self.assertEqual(tracking.new_value_integer, new_value and new_value.id or False)
-                self.assertEqual(tracking.old_value_char, old_value and old_value.display_name or '')
-                self.assertEqual(tracking.new_value_char, new_value and new_value.display_name or '')
-            elif value_type == 'monetary':
-                new_value, currency = new_value
-                self.assertEqual(tracking.currency_id, currency)
-                self.assertEqual(tracking.old_value_float, old_value)
-                self.assertEqual(tracking.new_value_float, new_value)
-            if value_type not in suffix_mapping and value_type not in {'many2one', 'monetary'}:
-                self.assertEqual(1, 0, f'Tracking: unsupported tracking test on {value_type}')
+        msg_base = f'Tracking: {field_name} ({(additional_info or {}).get('field_info', {})})({value_type}): '
+        if value_type in suffix_mapping:
+            old_value_fname = f'old_value_{suffix_mapping[value_type]}'
+            new_value_fname = f'new_value_{suffix_mapping[value_type]}'
+            self.assertEqual(tracking[old_value_fname], old_value,
+                             msg_base + f'expected `{old_value}`, received `{tracking[old_value_fname]}`)')
+            self.assertEqual(tracking[new_value_fname], new_value,
+                             msg_base + f'expected `{new_value}`, received `{tracking[new_value_fname]}`)')
+        elif value_type == 'many2one':
+            self.assertEqual(tracking.old_value_integer, (old_value and old_value.id) or False)
+            self.assertEqual(tracking.new_value_integer, (new_value and new_value.id) or False)
+            self.assertEqual(tracking.old_value_char, (old_value and old_value.display_name) or '')
+            self.assertEqual(tracking.new_value_char, (new_value and new_value.display_name) or '')
+        elif value_type == 'monetary':
+            currency = (additional_info or {}).get('currency')
+            self.assertEqual(tracking.field_info['currency_id'], currency.id if currency else False)
+            self.assertEqual(tracking.old_value_float, old_value)
+            self.assertEqual(tracking.new_value_float, new_value)
+        else:
+            self.assertEqual(1, 0, f'Tracking: unsupported tracking test on {value_type}')
+
+        if (additional_info or {}).get('field_info'):
+            tracking_field_info = tracking.field_info or {}
+            for key, val in additional_info['field_info'].items():
+                self.assertIn(key, tracking_field_info, f'Expected {key} not found in {tracking_field_info} of {tracking}')
+                self.assertEqual(tracking_field_info[key], val)
+
+    def assertTrackingValueInBody(self, tracking, value_type, old_value, new_value, additional_info=None, message_context=None):
+        self.assertIsNotNone(
+            self.env.lang,
+            "Can't check tracking value without a lang configured in the context"
+            "\n\nSeveral field types are localised for tracking, tracking"
+            " assertions need to know the original locale to format correctly"
+            " before checking",
+        )
+        input_old_value, input_new_value = tracking[1], tracking[2]
+        msg_base = f'Tracking: {tracking[0]} ({value_type})'
+        TrackingMixin = self.env['mail.track.mixin']
+        # useful when message is sent in a different language
+        if message_context:
+            TrackingMixin = TrackingMixin.with_context(message_context)
+        if value_type == 'many2one':
+            old_value = (old_value and old_value.display_name) or 'None'
+            new_value = (new_value and new_value.display_name) or 'None'
+        elif value_type == 'boolean':
+            old_value = 'Yes' if old_value else 'No'
+            new_value = 'Yes' if new_value else 'No'
+        elif value_type == 'char':  # hackish because stored value != html value, to fix if necessary
+            old_value = (old_value or 'None').replace("<", "&lt;").replace(">", "&gt;")
+            new_value = (new_value or 'None').replace("<", "&lt;").replace(">", "&gt;")
+        elif value_type in ('many2many', 'one2many', 'selection', 'tags', 'text'):  # tags is for properties
+            old_value = old_value or 'None'
+            new_value = new_value or 'None'
+        elif value_type == 'date':
+            old_value = TrackingMixin._format_tracking_date(old_value) if old_value else 'None'
+            new_value = TrackingMixin._format_tracking_date(new_value) if new_value is not False else 'None'
+        elif value_type == 'datetime':
+            old_value = TrackingMixin._format_tracking_datetime(old_value) if old_value else 'None'
+            new_value = TrackingMixin._format_tracking_datetime(new_value) if new_value is not False else 'None'
+        elif value_type == 'float':
+            old_value = formatLang(TrackingMixin.env, old_value or 0)
+            new_value = formatLang(TrackingMixin.env, new_value or 0)
+        elif value_type == 'integer':
+            old_value = formatLang(TrackingMixin.env, old_value, rounding_unit='units') if old_value is not False else '0'
+            new_value = formatLang(TrackingMixin.env, new_value, rounding_unit='units') if new_value is not False else '0'
+        elif value_type == 'monetary':
+            currency = (additional_info or {}).get('currency')
+            if not currency:
+                old_value = formatLang(TrackingMixin.env, old_value or 0)
+                new_value = formatLang(TrackingMixin.env, new_value or 0)
+            else:
+                old_value = format_amount(TrackingMixin.env, float(old_value or 0.0), currency, trailing_zeroes=True)
+                new_value = format_amount(TrackingMixin.env, float(new_value or 0.0), currency, trailing_zeroes=True)
+            # TDE to check: &nbsp; versus \xa0
+            old_value = old_value.replace('\xa0', ' ')
+            new_value = new_value.replace('\xa0', ' ')
+            input_old_value = input_old_value.replace('&nbsp;', ' ')
+            input_new_value = input_new_value.replace('&nbsp;', ' ')
+        self.assertEqual(input_old_value, old_value, f'{msg_base}: wrong old, expected {old_value}, received {tracking[1]}')
+        self.assertEqual(input_new_value, new_value, f'{msg_base}: wrong new, expected {new_value}, received {tracking[2]}')
 
 
 class MailCase(common.TransactionCase, MockEmail, BusCase):
-    """ Tools, helpers and asserts for mail-related tests, including mail
-    gateway mock and helpers (see ´´MockEmail´´).
+    """Tools, helpers and asserts for mail-related tests, including mail
+    gateway mock and helpers (see ``MockEmail``).
 
-    Useful reminders
-        Notif type:  ('inbox', 'Inbox'), ('email', 'Email')
-        Notif status: ('ready', 'Ready to Send'), ('sent', 'Sent'),
+    Useful reminders:
+
+        - Notif type:  ('inbox', 'Inbox'), ('email', 'Email')
+        - Notif status: ('ready', 'Ready to Send'), ('sent', 'Sent'),
                       ('bounce', 'Bounced'), ('exception', 'Exception'),
                       ('canceled', 'Canceled')
-        Notif failure type: ("SMTP", "Connection failed (outgoing mail server problem)"),
+        - Notif failure type: ("SMTP", "Connection failed (outgoing mail server problem)"),
                             ("RECIPIENT", "Invalid email address"),
                             ("BOUNCE", "Email address rejected by destination"),
                             ("UNKNOWN", "Unknown error")
@@ -1163,8 +1394,9 @@ class MailCase(common.TransactionCase, MockEmail, BusCase):
             self._new_notifs += res.sudo()
             return res
 
-        with patch.object(MailMessage, 'create', autospec=True, wraps=MailMessage, side_effect=_mail_message_create) as _mail_message_create_mock, \
+        with patch.object(MailMessage, 'create', autospec=True, wraps=MailMessage, side_effect=_mail_message_create) as mail_message_create_mock, \
                 patch.object(MailNotification, 'create', autospec=True, wraps=MailNotification, side_effect=_mail_notification_create) as _mail_notification_create_mock:
+            self._mock_mail_message_create = mail_message_create_mock
             yield
 
     def _init_mock_mail(self):
@@ -1254,7 +1486,7 @@ class MailCase(common.TransactionCase, MockEmail, BusCase):
         attach_values = attach_values or {}
         prefix = prefix or ''
         return [{
-            'datas': base64.b64encode(b'AttContent_%02d' % x),
+            'raw': b'AttContent_%02d' % x,
             'name': f'{prefix}AttFileName_{x:02d}.txt',
             'mimetype': 'text/plain',
             'res_model': res_model,
@@ -1274,6 +1506,7 @@ class MailCase(common.TransactionCase, MockEmail, BusCase):
             {'id': partner.id,
              'active': partner.active,
              'email_normalized': partner.email_normalized,
+             'is_cc': False,
              'is_follower': partner in record.message_partner_ids if record else False,
              'groups': partner.user_ids.group_ids.ids,
              'lang': partner.lang,
@@ -1378,37 +1611,6 @@ class MailCase(common.TransactionCase, MockEmail, BusCase):
             self.assertEqual(self._new_notifs, done_notifs, 'Mail: invalid notification creation (%s) / expected (%s)' % (len(self._new_notifs), len(done_notifs)))
 
     @contextmanager
-    def assertBus(self, channels=None, message_items=None, get_params=None):
-        """Check content of bus notifications.
-        Params might not be determined in advance (newly created id, create_date, ...), in this case
-        the `get_params` function can be given to return the expected values, called after the
-        execution of the tested code.
-        """
-        def format_notif(notif):
-            if not notif.message:
-                return ""
-            return f"{tuple(json.loads(notif.channel))},  # {json.loads(notif.message).get('type')}"
-
-        def notif_to_string(notif):
-            return f"{format_notif(notif)}\n{notif.message}"
-
-        self._reset_bus()
-        try:
-            with self.mock_bus():
-                yield
-        finally:
-            if get_params:
-                channels, message_items = get_params()
-            found_bus_notifs = self.assertBusNotifications(channels, message_items=message_items)
-            new_lines = "\n\n"
-            self.assertEqual(
-                self._new_bus_notifs,
-                found_bus_notifs,
-                f"\n\nExpected:\n{new_lines[0].join(found_bus_notifs.mapped(format_notif))}"
-                f"\n\nResult:\n{new_lines.join(self._new_bus_notifs.mapped(notif_to_string))}",
-            )
-
-    @contextmanager
     def assertMsgWithoutNotifications(self, mail_unlink_sent=False):
         try:
             with self.mock_mail_gateway(mail_unlink_sent=mail_unlink_sent), self.mock_bus(), self.mock_mail_app():
@@ -1433,50 +1635,51 @@ class MailCase(common.TransactionCase, MockEmail, BusCase):
     # ------------------------------------------------------------
 
     def assertMailNotifications(self, messages, recipients_info, bus_notif_count=1):
-        """ Check bus notifications content. Mandatory and basic check is about
-        channels being notified. Content check is optional.
+        """Check bus notifications content.
 
-        GENERATED INPUT
-        :param <mail.message> messages: generated messages to check, coming
-          notably from the 'self._new_msgs' filled during the mock;
+        Mandatory and basic check is about channels being notified. Content check is optional.
 
-        EXPECTED
-        :param list recipients_info: list of data dict: [
-          {
-            # message values
-            'content': message content that should be present in message 'body'
-              field;
-            'message_type': 'message_type' value (default: 'comment'),
-            'subtype': xml id of message subtype (default: 'mail.mt_comment'),
-            # notifications values
-            'email_values': values to check in outgoing emails, check 'assertMailMail'
-              and 'assertSentEmail';
-            'mail_mail_values': values to check in generated <mail.mail>, check
-              'assertMailMail';
-            'message_values': values to check in found <mail.message>, check
-              'assertMessageFields';
-            'notif': list of notified recipients: [
-              {
-                'check_send': whether outgoing stuff has to be checked;
-                'email_to': email if sent without partner,
-                'email_to_recipients': propagated to 'assertMailMail';
-                'failure_type': 'failure_type' on mail.notification;
-                'is_read': 'is_read' on mail.notification;
-                'partner': res.partner record (may be empty),
-                'status': 'notification_status' on mail.notification;
-                'type': 'notification_type' on mail.notification;
-              },
-              { ... }
-            ],
-          },
-          {...}
-        ]
+        **GENERATED INPUT**
 
-        PARAMETERS
-        :param mail_unlink_sent: mock parameter, tells if mails are unlinked
-          and therefore we are able to check outgoing emails;
+        :param <mail.message> messages: generated messages to check, coming notably from the
+            ``self._new_msgs`` filled during the mock.
+
+        **EXPECTED**
+
+        :param recipients_info: list of data dicts. Each dict describes a message and its expected
+            notifications, with the following keys:
+
+            Message values:
+
+            * ``content`` -- message content that should be present in the message's ``body`` field
+            * ``message_type`` -- ``message_type`` value (default: ``'comment'``)
+            * ``subtype`` -- XML id of the message subtype (default: ``'mail.mt_comment'``)
+
+            Notifications values:
+
+            * ``email_values`` -- values to check in outgoing emails, check ``assertMailMail`` and
+                ``assertSentEmail``
+            * ``mail_mail_values`` -- values to check in the generated ``mail.mail``, check
+                ``assertMailMail``
+            * ``message_values`` -- values to check in the found ``mail.message``, check
+                ``assertMessageFields``
+            * ``notif`` -- list of notified recipients. Each entry is a dict with:
+
+              * ``check_send`` -- whether outgoing stuff has to be checked
+              * ``email_to`` -- email if sent without partner
+              * ``email_to_recipients`` -- propagated to ``assertMailMail``
+              * ``failure_type`` -- ``failure_type`` on ``mail.notification``
+              * ``is_read`` -- ``is_read`` on ``mail.notification``
+              * ``partner`` -- ``res.partner`` record (may be empty)
+              * ``status`` -- ``notification_status`` on ``mail.notification``
+              * ``type`` -- ``notification_type`` on ``mail.notification``
+
+        **PARAMETERS**
+
+        :param mail_unlink_sent: mock parameter, tells if mails are unlinked and therefore whether
+            we are able to check outgoing emails.
         """
-        partners = self.env['res.partner'].sudo().concat(*list(p['partner'] for i in recipients_info for p in i['notif'] if p.get('partner')))
+        partners = self.env['res.partner'].sudo().concat(p['partner'] for i in recipients_info for p in i['notif'] if p.get('partner'))
         email_addrs = [email for i in recipients_info for p in i['notif'] for email in p.get('email_to', []) if not p.get('partner')]
         base_domain = ['|', ('res_partner_id', 'in', partners.ids), ('mail_email_address', 'in', email_addrs)]
         if messages is not None:
@@ -1579,7 +1782,7 @@ class MailCase(common.TransactionCase, MockEmail, BusCase):
                 # find notification
                 notif = notifications.filtered(
                     lambda n: n.mail_message_id == message
-                    and ((partner and n.res_partner_id == partner) or n.mail_email_address in email_to_lst)
+                    and ((partner and n.res_partner_id == partner) or (not n.res_partner_id and n.mail_email_address in email_to_lst))
                     and n.notification_type == ntype
                 )
                 self.assertEqual(len(notif), 1,
@@ -1623,7 +1826,14 @@ class MailCase(common.TransactionCase, MockEmail, BusCase):
             # check bus notifications that should be sent (hint: message author, multiple notifications)
             bus_notifications = message.notification_ids._filtered_for_web_client().filtered(lambda n: n.notification_status == 'exception')
             if bus_notifications:
-                self.assertMessageBusNotifications(message, bus_notif_count)
+                expected = [
+                    BusResult(
+                        message.author_id.user_ids,
+                        "mail.record/insert",
+                        Store().add(message, "_store_notification_fields"),
+                    ),
+                ] * bus_notif_count
+                self._assertBusNotifications(expected)
 
             # check emails that should be sent (hint: mail.mail per group, email par recipient)
             email_values = {
@@ -1650,8 +1860,11 @@ class MailCase(common.TransactionCase, MockEmail, BusCase):
                     mail_status = 'outgoing'
                 if not self.mail_unlink_sent and (partners or email_to_lst):
                     self.assertMailMail(
-                        partners,
+                        # We rely on message to determine whether recipients are in Cc or not
+                        # as notifications doesn't have that information.
+                        partners.filtered(lambda p: p not in message.partner_cc_ids),
                         mail_status,
+                        recipients_cc=partners.filtered(lambda p: p in message.partner_cc_ids),
                         author=message_info.get('mail_mail_values', {}).get('author_id', message.author_id),
                         content=mbody,
                         email_to_all=email_to_lst,
@@ -1679,97 +1892,18 @@ class MailCase(common.TransactionCase, MockEmail, BusCase):
 
         return done_msgs, done_notifs
 
-    def assertMessageBusNotifications(self, message, count=1):
-        """Asserts that the expected notification updates have been sent on the
-        bus for the given message."""
-        store = Store()
-        message._message_notifications_to_store(store)
-        self.assertBusNotifications([(self.cr.dbname, 'res.partner', message.author_id.id)] * count, [{
-            "type": "mail.record/insert",
-            "payload": store.get_result()
-        }], check_unique=False)
-
-    def assertBusNotifications(self, channels, message_items=None, check_unique=True):
-        """ Check bus notifications content. Mandatory and basic check is about
-        channels being notified. Content check is optional.
-
-        EXPECTED
-        :param channels: list of expected bus channels, like [
-          (self.cr.dbname, 'res.partner', self.partner_employee_2.id)
-        ]
-        :param message_items: if given, list of expected message making a valid
-          pair (channel, message) to be found in bus.bus, like [
-            {'type': 'mail.message/notification_update',
-             'elements': {self.msg.id: {
-                'message_id': self.msg.id,
-                'message_type': 'sms',
-                'notifications': {...},
-                ...
-              }}
-            }, {...}]
-        """
-        self.env.cr.precommit.run()  # trigger the creation of bus.bus records
-        bus_notifs = self.env['bus.bus'].sudo().search([('channel', 'in', [json_dump(channel) for channel in channels])])
-        new_lines = "\n\n"
-
-        def notif_to_string(notif):
-            return f"{notif.channel}\n{notif.message}"
-
-        self.assertEqual(
-            bus_notifs.mapped("channel"),
-            [json_dump(channel) for channel in channels],
-            f"\n\nExpected:\n{new_lines[0].join([json_dump(channel) for channel in channels])}"
-            f"\n\nReturned:\n{new_lines.join([notif_to_string(notif) for notif in bus_notifs])}",
-        )
-        for expected in message_items or []:
-            for notification in bus_notifs:
-                if json.loads(json_dump(expected)) == json.loads(notification.message):
-                    break
-            else:
-                matching_notifs = [n for n in bus_notifs if json.loads(n.message).get("type") == expected.get("type")]
-                if len(matching_notifs) == 1:
-                    self.assertEqual(expected, json.loads(matching_notifs[0].message))
-                if not matching_notifs:
-                    matching_notifs = bus_notifs
-                raise AssertionError(
-                    "No notification was found with the expected value.\n\n"
-                    f"Expected:\n{json_dump(expected)}\n\n"
-                    f"Returned:\n{new_lines.join([notif_to_string(notif) for notif in matching_notifs])}"
-                )
-        if check_unique:
-            self.assertEqual(len(bus_notifs), len(channels))
-        return bus_notifs
-
-    @contextmanager
-    def assertBusNotificationType(self, expected_pairs):
-        """Check bus notifications type.
-        :param expected_pairs: list of tuples containing the expected bus channel and bus
-        notification type"""
-        try:
-            with self.mock_bus():
-                yield
-        finally:
-            bus_notifs = (
-                self.env["bus.bus"]
-                .sudo()
-                .search([("channel", "in", [json_dump(channel) for channel, _ in expected_pairs])])
-            )
-            notif_types = [
-                (json.loads(notif.message).get("type"), notif.channel) for notif in bus_notifs
-            ]
-            expected_notif_types = [
-                (notif_type, json_dump(channel)) for channel, notif_type in expected_pairs
-            ]
-            self.assertEqual(notif_types, expected_notif_types)
-
     def assertNotified(self, message, recipients_info, is_complete=False):
-        """ Lightweight check for notifications (mail.notification).
+        """Lightweight check for notifications (``mail.notification``).
 
-        :param recipients_info: list notified recipients: [
-          {'partner': res.partner record (may be empty),
-           'type': notification_type to check,
-           'is_read': is_read to check,
-          }, {...}]
+        All recipient info should define either a partner or an email.
+
+        :param recipients_info: list of notified recipients. Each entry is a dict with the
+            following keys:
+
+            * ``partner`` -- ``res.partner`` record (may be empty or unset)
+            * ``email`` -- single normalized email address as a string (may be empty or unset)
+            * ``type`` -- ``notification_type`` to check
+            * ``is_read`` -- ``is_read`` to check
         """
         notifications = self._new_notifs.filtered(lambda notif: notif in message.notification_ids)
         if is_complete:
@@ -1778,9 +1912,15 @@ class MailCase(common.TransactionCase, MockEmail, BusCase):
             recipient_notif = next(
                 (notif
                  for notif in notifications
-                 if notif.res_partner_id == rinfo['partner']
-                ), False
+                 if (
+                     ('partner' not in rinfo or notif.res_partner_id == rinfo['partner'])
+                     and ('email' not in rinfo or notif.mail_email_address == rinfo['email'])
+                 )
+                ), self.env['mail.notification']
             )
+            # ensure we can only ever match a notification once
+            # in case multiple would match the same recipient
+            notifications -= recipient_notif
             self.assertTrue(recipient_notif)
             self.assertEqual(recipient_notif.is_read, rinfo['is_read'])
             self.assertEqual(recipient_notif.notification_type, rinfo['type'])
@@ -1824,7 +1964,7 @@ class MailCommon(MailCase):
         cls._init_mail_servers()
 
         # by default avoid rendering restriction complexity
-        cls.env['ir.config_parameter'].set_param('mail.restrict.template.rendering', False)
+        cls.env['ir.config_parameter'].set_bool('mail.restrict.template.rendering', False)
 
         # test standard employee
         cls.user_employee = mail_new_test_user(
@@ -1839,6 +1979,45 @@ class MailCommon(MailCase):
         )
         cls.partner_employee = cls.user_employee.partner_id
         cls.guest = cls.env['mail.guest'].create({'name': 'Guest Mario'})
+        cls.subtitles = []
+        cls.default_arch_db_layout = """
+<body>
+    <t t-set="show_header" t-value="email_notification_force_header or (
+        email_notification_allow_header and has_button_access)"/>
+    <t t-set="show_footer" t-value="email_notification_force_footer or (
+        email_notification_allow_footer and show_header and author_user and author_user._is_internal())"/>
+    <p>English Layout for <t t-out="model_description"/></p>
+    <img t-att-src="'/logo.png?company=%s' % (company.id or 0)" t-att-alt="'%s' % company.name"/>
+    <div t-if="show_header">HEADER
+        <a t-if="has_button_access" t-att-href="button_access['url']">
+            <t t-out="button_access['title']"/>
+        </a>
+        <t t-if="actions" t-foreach="actions" t-as="action">
+            <a t-att-href="action['url']">
+                <t t-out="action['title']"/>
+            </a>
+        </t>
+        <t t-if="subtitles">
+            <t t-foreach="subtitles" t-as="subtitle">
+                <b t-if="subtitles_highlight_index == subtitle_index" t-out="subtitle"/>
+                <span t-else="" t-out="subtitle"/>
+            </t>
+        </t>
+    </div>
+    <t t-out="message.body"/>
+    <ul t-if="tracking_values">
+        <li t-foreach="tracking_values" t-as="tracking">
+            <t t-out="tracking[0]"/>: <t t-out="tracking[1]"/> -&gt; <t t-out="tracking[2]"/>
+        </li>
+    </ul>
+    <div t-if="signature" t-out="signature"/>
+    <div t-if="show_footer">
+        <p>Sent by <t t-out="company.name"/></p>
+        <span t-if="show_unfollow" id="mail_unfollow">
+            | <a href="/mail/unfollow" style="text-decoration:none; color:#555555;">Unfollow</a>
+        </span>
+    </div>
+</body>"""
 
     @classmethod
     def _activate_multi_company(cls):
@@ -1905,20 +2084,36 @@ class MailCommon(MailCase):
 
     @classmethod
     def _activate_multi_lang(cls, lang_code='es_ES', layout_arch_db=None, test_record=False, test_template=False):
-        """ Summary of es_ES matching done here (a bit hardcoded to ease tests)
+        """Summary of ``es_ES`` matching done here (a bit hardcoded to ease tests).
 
-          * layout
-            * 'English Layout for' -> Spanish Layout para
-          * model
-            * description: English:    Lang Chatter Model (depends on test_record._name)
-                           translated: Spanish Model Description
-          * module
-            * _('View %s') -> SpanishView %s
-          * template
-            * body: English:    <p>EnglishBody for <t t-out="object.name"/></p> (depends on test_template.body)
-                    translated: <p>SpanishBody for <t t-out="object.name" /></p>
-            * subject: English:    EnglishSubject for {{ object.name }} (depends on test_template.subject)
-                       translated: SpanishSubject for {{ object.name }}
+        * layout
+
+          * ``'English Layout for'`` -> ``Spanish Layout para``
+
+        * model
+
+          * ``description``:
+
+            * English: ``Lang Chatter Model`` (depends on ``test_record._name``)
+            * translated: ``Spanish Model Description``
+
+        * module
+
+          * ``_('View %s')`` -> ``SpanishView %s``
+
+        * template
+
+          * ``body``:
+
+            * English: ``<p>EnglishBody for <t t-out="object.name"/></p>``
+              (depends on ``test_template.body``)
+            * translated: ``<p>SpanishBody for <t t-out="object.name" /></p>``
+
+          * ``subject``:
+
+            * English: ``EnglishSubject for {{ object.name }}``
+              (depends on ``test_template.subject``)
+            * translated: ``SpanishSubject for {{ object.name }}``
         """
         # activate translations
         cls.env['res.lang']._activate_lang(lang_code)
@@ -1936,8 +2131,13 @@ class MailCommon(MailCase):
         # Translate some code strings used in mailing
         code_translations.python_translations[('mail', 'es_ES')] = {
             **code_translations.python_translations[('mail', 'es_ES')],
-            'View %s': 'SpanishView %s'
+            'View %s': 'SpanishView %s',
+            'Subtitle %(model)s': 'Subtitular %(model)s',
+            'Subtitle2 %(model)s': 'Subtitular2 %(model)s',
         }
+        cls.subtitles = [
+            _test_lt("Subtitle %(model)s", model="test_model"),
+            _test_lt("Subtitle2 %(model)s", model="test_model2")]
         cls.addClassCleanup(code_translations.python_translations.clear)
 
         # Prepare some translated value for template if given
@@ -1947,38 +2147,7 @@ class MailCommon(MailCase):
 
         # create a custom layout for email notification
         if not layout_arch_db:
-            layout_arch_db = """
-<body>
-    <t t-set="show_header" t-value="email_notification_force_header or (
-        email_notification_allow_header and has_button_access)"/>
-    <t t-set="show_footer" t-value="email_notification_force_footer or (
-        email_notification_allow_footer and show_header and author_user and author_user._is_internal())"/>
-    <p>English Layout for <t t-esc="model_description"/></p>
-    <img t-att-src="'/logo.png?company=%s' % (company.id or 0)" t-att-alt="'%s' % company.name"/>
-    <div t-if="show_header">HEADER
-        <a t-if="has_button_access" t-att-href="button_access['url']">
-            <t t-esc="button_access['title']"/>
-        </a>
-        <t t-if="actions" t-foreach="actions" t-as="action">
-            <a t-att-href="action['url']">
-                <t t-esc="action['title']"/>
-            </a>
-        </t>
-    </div>
-    <t t-out="message.body"/>
-    <ul t-if="tracking_values">
-        <li t-foreach="tracking_values" t-as="tracking">
-            <t t-esc="tracking[0]"/>: <t t-esc="tracking[1]"/> -&gt; <t t-esc="tracking[2]"/>
-        </li>
-    </ul>
-    <div t-if="signature" t-out="signature"/>
-    <div t-if="show_footer">
-        <p>Sent by <t t-esc="company.name"/></p>
-        <span t-if="show_unfollow" id="mail_unfollow">
-            | <a href="/mail/unfollow" style="text-decoration:none; color:#555555;">Unfollow</a>
-        </span>
-    </div>
-</body>"""
+            layout_arch_db = cls.default_arch_db_layout
         view = cls.env['ir.ui.view'].create({
             'arch_db': layout_arch_db,
             'key': 'test_layout',
@@ -2005,6 +2174,8 @@ class MailCommon(MailCase):
         for data in channels_data:
             if "ai.agent" not in self.env or data.get("channel_type") == "livechat" and not ai_livechat_installed:
                 data.pop("ai_agent_id", None)
+                data.pop("ai_session_ids", None)
+                data.pop("livechat_channel_has_agents", None)
         return list(channels_data)
 
     def _filter_messages_fields(self, /, *messages_data):
@@ -2020,16 +2191,23 @@ class MailCommon(MailCase):
         """ Remove store partner data dependant on other modules if they are not not installed.
         Not written in a modular way to avoid complex override for a simple test tool.
         """
+        if "ai.agent" not in self.env:
+            for data in partners_data:
+                data.pop("agent_ids", None)
         return list(partners_data)
 
     def _filter_users_fields(self, /, *users_data):
         """ Remove store user data dependant on other modules if they are not not installed.
         Not written in a modular way to avoid complex override for a simple test tool.
         """
-        for data in users_data:
-            if "hr.leave" not in self.env:
-                data.pop("leave_date_to", None)
+        if "hr.employee" not in self.env:
+            for data in users_data:
+                data.pop("all_employee_ids", None)
                 data.pop("employee_ids", None)
+        if "has_active_call" not in self.env["res.users"]._fields:
+            for data in users_data:
+                data.pop("has_active_call", None)
+                data.pop("should_display_in_call_im_status", None)
         return list(users_data)
 
     def _filter_threads_fields(self, /, *threads_data):
@@ -2044,9 +2222,28 @@ class MailCommon(MailCase):
                     self.env.registry[data["model"]], self.env.registry["rating.mixin"]
                 )
             ):
+                data.pop("rating_id", None)
                 data.pop("rating_avg", None)
                 data.pop("rating_count", None)
         return list(threads_data)
+
+    def _filter_attachments_fields(self, /, *attachments_data):
+        """ Remove store attachment data dependant on other modules if they are not not installed.
+        Not written in a modular way to avoid complex override for a simple test tool.
+        """
+        for data in attachments_data:
+            if 'ai.agent' not in self.env:
+                data.pop("access_token", None)
+                data.pop("description", None)
+                data.pop("image_src", None)
+                data.pop("image_height", None)
+                data.pop("image_width", None)
+                data.pop("original_id", None)
+                data.pop("public", None)
+                data.pop("res_id", None)
+            if "documents.document" not in self.env:
+                data.pop("linked_document_ids", None)
+        return list(attachments_data)
 
     @classmethod
     def _setup_push_devices_for_partners(cls, partners, endpoint=None):
@@ -2064,18 +2261,3 @@ class MailCommon(MailCase):
                 'partner_id': partner.id,
             } for partner in partners
         ])
-
-
-@contextlib.contextmanager
-def freeze_all_time(dt=None):
-    """Freeze both `cr.now` and `Datetime.now`. ORM `create_date` and `write_date`
-    are based on `cursor.now()`. Domains often use `Datetime.now()` which can
-    lead to inconsistencies when using `freeze_time`.
-
-    :param dt: Datetime to freeze the time to. Defaults to `Datetime.now()`.
-    :type dt: datetime.datetime
-    """
-    if not dt:
-        dt = fields.Datetime.now()
-    with patch('odoo.sql_db.BaseCursor.now', return_value=dt), freeze_time(dt):
-        yield

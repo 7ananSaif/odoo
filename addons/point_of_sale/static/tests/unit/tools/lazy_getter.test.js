@@ -1,18 +1,21 @@
 import { afterEach, expect, test } from "@odoo/hoot";
 import { animationFrame } from "@odoo/hoot-dom";
-import { Component, onWillRender, reactive, useState, xml } from "@odoo/owl";
-import {
-    mountWithCleanup,
-    allowTranslations,
-    patchWithCleanup,
-} from "@web/../tests/web_test_helpers";
-
+import { Component, onMounted, onPatched, proxy, t, useProps, xml } from "@odoo/owl";
 import {
     WithLazyGetterTrap,
     clearGettersCache,
     createLazyGetter,
 } from "@point_of_sale/lazy_getter";
+import {
+    allowTranslations,
+    clearRegistry,
+    mountWithCleanup,
+    patchWithCleanup,
+} from "@web/../tests/web_test_helpers";
+import { registry } from "@web/core/registry";
 import { zip } from "@web/core/utils/arrays";
+import { PosDataPlugin } from "@point_of_sale/app/plugins/pos_data_plugin";
+import { PosTicketPrinterPlugin } from "@point_of_sale/app/plugins/pos_ticket_printer_plugin";
 
 /**
  * @param {string} value
@@ -80,21 +83,21 @@ class AppStore extends WithLazyGetterTrap {
 }
 
 class WithStore extends Component {
-    static props = {};
     static template = xml`
-        <span t-att-class="property">
-            <t t-esc="constructor.name" />: <t t-esc="this.store[property]" />
+        <span t-att-class="this.property">
+            <t t-out="this.constructor.name" />: <t t-out="this.store[this.property]" />
         </span>
     `;
 
     property = "";
+    store = useProps.static("store", t.object());
 
     setup() {
-        this.store = useState(this.env.store);
-        onWillRender(() => this.onWillRender());
+        onMounted(() => this.trackRender());
+        onPatched(() => this.trackRender());
     }
 
-    onWillRender() {}
+    trackRender() {}
 }
 
 class A extends WithStore {
@@ -131,15 +134,32 @@ class CD extends WithStore {
 
 class Root extends Component {
     static components = { A, B, C, D, AB, ABC, BC, CD };
-    static props = {};
     static template = xml`
-        <t t-foreach="constructor.components" t-as="key" t-key="key">
-            <t t-component="constructor.components[key]" />
+        <t t-foreach="this.constructor.components" t-as="key" t-key="key">
+            <t t-component="this.constructor.components[key]" store="this.store"/>
         </t>
     `;
+    store = useProps.static("store", t.object());
 }
 
 test("each getter should only be called once and only when needed", async () => {
+    clearRegistry(registry.category("services"));
+
+    patchWithCleanup(PosDataPlugin.prototype, {
+        _onWillStart() {
+            return false;
+        },
+    });
+
+    patchWithCleanup(PosTicketPrinterPlugin.prototype, {
+        initDefaultPrinter() {
+            return false;
+        },
+        initPrinters() {
+            return false;
+        },
+    });
+
     patchWithCleanup(AppStore.prototype, {
         get ab() {
             unorderedStep("ab");
@@ -159,10 +179,10 @@ test("each getter should only be called once and only when needed", async () => 
         },
     });
 
-    const store = reactive(new AppStore());
+    const store = proxy(new AppStore());
     await mountWithCleanup(Root, {
-        env: { store },
         noMainContainer: true,
+        props: { store },
     });
 
     verifyUnorderedSteps(["ab", "abc", "bc", "cd"]);
@@ -194,16 +214,33 @@ test("each getter should only be called once and only when needed", async () => 
 });
 
 test("only dependent components rerender", async () => {
+    clearRegistry(registry.category("services"));
+
+    patchWithCleanup(PosDataPlugin.prototype, {
+        _onWillStart() {
+            return false;
+        },
+    });
+
+    patchWithCleanup(PosTicketPrinterPlugin.prototype, {
+        initDefaultPrinter() {
+            return false;
+        },
+        initPrinters() {
+            return false;
+        },
+    });
+
     patchWithCleanup(WithStore.prototype, {
-        onWillRender() {
+        trackRender() {
             unorderedStep(this.property);
         },
     });
 
-    const store = reactive(new AppStore());
+    const store = proxy(new AppStore());
     await mountWithCleanup(Root, {
-        env: { store },
         noMainContainer: true,
+        props: { store },
     });
 
     verifyUnorderedSteps(["a", "b", "c", "d", "ab", "abc", "bc", "cd"]);
@@ -262,7 +299,7 @@ test("only dependent getters are called and in correct order", () => {
             return result;
         },
     });
-    const store = reactive(new AppStore());
+    const store = proxy(new AppStore());
 
     expect(store.y).toBe(0);
     verifyUnorderedSteps(["ab", "bc", "cd", "abc", "x", "y"], [["ab", "abc", "x", "y"]]);
@@ -308,7 +345,7 @@ test("dynamically creates a lazy getter", () => {
         }
     }
 
-    const reactiveObj = reactive(new DemoClass());
+    const reactiveObj = proxy(new DemoClass());
     reactiveObj.name = "demo";
 
     let computeCallCount = 0;

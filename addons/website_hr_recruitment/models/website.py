@@ -12,8 +12,14 @@ class Website(models.Model):
         suggested_controllers.append((_('Jobs'), self.env['ir.http']._url_for('/jobs'), 'website_hr_recruitment'))
         return suggested_controllers
 
+    def _get_search_scopes(self):
+        return {
+            **super()._get_search_scopes(),
+            'jobs': {'label': self.env._("Jobs"), 'url': '/jobs'},
+        }
+
     def _search_get_details(self, search_type, order, options):
         result = super()._search_get_details(search_type, order, options)
-        if search_type in ['jobs', 'all']:
+        if search_type in ['jobs', 'hr_job', 'all']:
             result.append(self.env['hr.job']._search_get_detail(self, order, options))
         return result

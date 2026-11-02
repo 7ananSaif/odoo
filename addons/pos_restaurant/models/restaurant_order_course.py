@@ -9,6 +9,8 @@ class RestaurantOrderCourse(models.Model):
     _description = 'POS Restaurant Order Course'
     _inherit = ['pos.load.mixin']
 
+    name = fields.Char(string="Course Name", readonly=True)
+    course_id = fields.Many2one('pos.course', string="Course", readonly=True)
     fired = fields.Boolean(string="Fired", default=False)
     fired_date = fields.Datetime(string="Fired Date")
     uuid = fields.Char(string='Uuid', readonly=True, default=lambda self: str(uuid4()), copy=False)
@@ -29,9 +31,13 @@ class RestaurantOrderCourse(models.Model):
         return super().write(vals)
 
     @api.model
-    def _load_pos_data_domain(self, data, config):
-        return [('order_id', 'in', [order['id'] for order in data['pos.order']])]
+    def _load_pos_data_domain(self, data):
+        return [('order_id', 'in', data['pos.order'].ids)]
+
+    @api.model
+    def _load_pos_data_dependencies(self):
+        return ['pos.order']
 
     @api.model
     def _load_pos_data_fields(self, config):
-        return ['uuid', 'fired', 'order_id', 'line_ids', 'index', 'write_date']
+        return ['name', 'course_id', 'uuid', 'fired', 'order_id', 'line_ids', 'index', 'write_date']

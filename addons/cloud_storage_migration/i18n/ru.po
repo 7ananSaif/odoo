@@ -5,12 +5,12 @@
 # "Anastasiia Koroleva (koan)" <koan@odoo.com>, 2026.
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0\n"
+"Project-Id-Version: Odoo Server 18.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-05-04 13:37+0000\n"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 16:29+0000\n"
 "Last-Translator: \"Anastasiia Koroleva (koan)\" <koan@odoo.com>\n"
-"Language-Team: Russian <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Russian <https://translate.odoo.com/projects/odoo-s19-4/"
 "cloud_storage_migration/ru/>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: cloud_storage_migration
 #: model:ir.model.fields,field_description:cloud_storage_migration.field_res_config_settings__cloud_storage_migration_all_model_ids
@@ -61,6 +61,7 @@ msgid "Attachments Report"
 msgstr "Отчет о вложениях"
 
 #. module: cloud_storage_migration
+#: model:ir.module.module,shortdesc:base.module_cloud_storage_migration
 #: model_terms:ir.ui.view,arch_db:cloud_storage_migration.cloud_storage_migration_config_settings_view_form
 msgid "Cloud Storage Migration"
 msgstr "Миграция в облачное хранилище"
@@ -149,8 +150,8 @@ msgstr ""
 #. module: cloud_storage_migration
 #: model:ir.model.fields,help:cloud_storage_migration.field_cloud_storage_migration_report__has_attachment_rel
 msgid ""
-"Indicates whether this model has a relational field linking to ir.attachment"
-" model"
+"Indicates whether this model has a relational field linking to ir.attachment "
+"model"
 msgstr ""
 "Указывает, есть ли в этой модели реляционное поле, связанное с моделью "
 "ir.attachment"
@@ -201,6 +202,7 @@ msgid "Migrate Models' Message Attachments"
 msgstr "Перенести вложения из сообщений моделей"
 
 #. module: cloud_storage_migration
+#: model:ir.module.module,summary:base.module_cloud_storage_migration
 #: model_terms:ir.ui.view,arch_db:cloud_storage_migration.cloud_storage_migration_config_settings_view_form
 msgid "Migrate local attachments to cloud storage"
 msgstr "Миграция локальных вложений в облачное хранилище"
@@ -253,8 +255,8 @@ msgstr ""
 #. module: cloud_storage_migration
 #: model:ir.model.fields,help:cloud_storage_migration.field_cloud_storage_migration_report__message_max_size
 msgid ""
-"Size in megabytes of the largest attachment linked to mail messages for this"
-" model"
+"Size in megabytes of the largest attachment linked to mail messages for this "
+"model"
 msgstr ""
 "Размер в мегабайтах самого большого вложения, прикрепленного к сообщениям "
 "этой модели"

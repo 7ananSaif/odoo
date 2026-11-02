@@ -1,15 +1,16 @@
 
-import { Component } from '@odoo/owl';
+import { render } from "@web/owl2/utils";
+import { Component, t, useProps } from '@odoo/owl';
 
 export class QuantityButtons extends Component {
     static template = 'sale.QuantityButtons';
-    static props = {
-        quantity: Number,
-        setQuantity: Function,
-        isMinusButtonDisabled: { type: Boolean, optional: true },
-        isPlusButtonDisabled: { type: Boolean, optional: true },
-        btnClasses: { type: String, optional: true },
-    };
+    props = useProps({
+        quantity: t.number(),
+        setQuantity: t.function(),
+        isMinusButtonDisabled: t.boolean().optional(),
+        isPlusButtonDisabled: t.boolean().optional(),
+        btnClasses: t.string().optional(),
+    });
 
     /**
      * Increase the quantity.
@@ -36,7 +37,7 @@ export class QuantityButtons extends Component {
         // If the quantity wasn't updated, the component won't rerender, and the input will display
         // a stale value. As a result, we need to manually rerender the input.
         if (!didUpdateQuantity) {
-            this.render();
+            render(this);
         }
     }
 }

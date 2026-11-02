@@ -1,6 +1,5 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-from odoo import api, models, _
-from odoo.exceptions import UserError
+from odoo import _, api, models
 
 
 class ProductProduct(models.Model):
@@ -8,8 +7,29 @@ class ProductProduct(models.Model):
     _inherit = ['product.product', 'pos.load.mixin']
 
     @api.model
-    def _load_pos_data_domain(self, data, config):
-        return [('product_tmpl_id', 'in', [p['id'] for p in data['product.template']])]
+    def create(self, vals_list):
+        new_product = super().create(vals_list)
+        pos_session_id = self.env.context.get('pos_session_id')
+        if pos_session_id and new_product.product_tmpl_id.pos_categ_ids:
+            session = self.env['pos.session'].browse(pos_session_id)
+            config = session.config_id
+
+            # Check if any of the categories is already in the pos
+            if config.iface_available_categ_ids and not set(config.iface_available_categ_ids).intersection(new_product.product_tmpl_id.pos_categ_ids):
+                # Add the first chosen category to the POS by default
+                category = new_product.product_tmpl_id.pos_categ_ids[0]
+                if category not in config.iface_available_categ_ids:
+                    config.link_category_form_pos(category)
+
+        return new_product
+
+    @api.model
+    def _load_pos_data_domain(self, data):
+        return [('product_tmpl_id', 'in', data['product.template'].ids)]
+
+    @api.model
+    def _load_pos_data_dependencies(self):
+        return ['product.template.attribute.value', 'product.template']
 
     @api.model
     def _load_pos_data_fields(self, config):
@@ -21,24 +41,18 @@ class ProductProduct(models.Model):
         }))
 
     @api.ondelete(at_uninstall=False)
-    def _unlink_except_active_pos_session(self):
-        product_ctx = dict(self.env.context or {}, active_test=False)
-        if self.env['pos.session'].sudo().search_count([('state', '!=', 'closed')]):
-            if self.with_context(product_ctx).search_count([('id', 'in', self.ids), ('product_tmpl_id.available_in_pos', '=', True)]):
-                raise UserError(_(
-                    "To delete a product, make sure all point of sale sessions are closed.\n\n"
-                    "Deleting a product available in a session would be like attempting to snatch a hamburger from a customer’s hand mid-bite; chaos will ensue as ketchup and mayo go flying everywhere!",
-                ))
-
-    @api.ondelete(at_uninstall=False)
-    def _unlink_except_special_product(self):
+    def _unlink_except_active_pos_session_or_special_product(self):
         self.product_tmpl_id._check_is_special_product()
+        self.product_tmpl_id._ensure_unused_in_pos()
 
     @api.model
     def _load_pos_data_read(self, records, config):
         read_records = super()._load_pos_data_read(records, config)
         self._convert_pos_data_currency(read_records, config, 'lst_price', 'currency_id')
         self._convert_pos_data_currency(read_records, config, 'standard_price', 'cost_currency_id')
+        special_product_ids = config._get_special_products().ids
+        for product in read_records:
+            product['_is_pos_special_product'] = product['id'] in special_product_ids
         return read_records
 
     def _can_return_content(self, field_name=None, access_token=None):
@@ -47,6 +61,21 @@ class ProductProduct(models.Model):
         return super()._can_return_content(field_name, access_token)
 
     def action_archive(self):
-        self.product_tmpl_id._ensure_unused_in_pos()
         self.product_tmpl_id._check_is_special_product()
+        self.product_tmpl_id._ensure_unused_in_pos()
         return super().action_archive()
+
+    def _build_duplicate_barcode_error_string(self, barcode, duplicate_products):
+        if not self.env.context.get("is_pos_product_action"):
+            return super()._build_duplicate_barcode_error_string(barcode, duplicate_products)
+
+        return _(
+            "Barcode \"%(barcode)s\" already assigned to \"%(product_list)s\"",
+            barcode=barcode,
+            product_list=(duplicate_products - self).mapped('display_name'),
+        )
+
+    def _build_duplicate_barcode_error_note(self):
+        if not self.env.context.get("is_pos_product_action"):
+            return super()._build_duplicate_barcode_error_note()
+        return ""

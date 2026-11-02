@@ -13,8 +13,8 @@ import {
     queryFirst,
     runAllTimers,
 } from "@odoo/hoot-dom";
-import { Deferred, animationFrame, mockTimeZone, mockTouch } from "@odoo/hoot-mock";
-import { Component, onWillUpdateProps, xml } from "@odoo/owl";
+import { animationFrame, mockDate, mockTimeZone, mockTouch } from "@odoo/hoot-mock";
+import { Component, useOnChange, useProps, xml } from "@odoo/owl";
 import {
     SELECTORS,
     addNewRule,
@@ -39,10 +39,12 @@ import {
     mountWithCleanup,
     mountWithSearch,
     onRpc,
+    patchWithCleanup,
     removeFacet,
     selectGroup,
     serverState,
     toggleMenuItem,
+    toggleMenuItemOption,
     toggleSearchBarMenu,
     validateSearch,
 } from "@web/../tests/web_test_helpers";
@@ -181,6 +183,29 @@ test("navigation with facets", async () => {
 });
 
 test.tags("desktop");
+test("Inner filter: facets are 'or' separated", async () => {
+    await mountWithSearch(SearchBar, {
+        resModel: "partner",
+        searchMenuTypes: ["filter"],
+        searchViewId: false,
+        searchViewArch: `
+            <search>
+                <filter string="Garf">
+                    <filter string="Meow" name="meow" domain="[('garf', '=', 'meow')]"/>
+                    <filter string="Woof" name="woof" domain="[('garf', '=', 'woof')]"/>
+                </filter>
+            </search>
+        `,
+    });
+
+    await toggleSearchBarMenu();
+    await toggleMenuItem("Garf");
+    await contains(`.o_item_option:eq(0)`).click();
+    await contains(`.o_item_option:eq(1)`).click();
+    expect(getFacetTexts().map((str) => str.replace(/\s+/g, " "))).toEqual(["Meow or Woof"]);
+});
+
+test.tags("desktop");
 test("navigation with facets (2)", async () => {
     await mountWithSearch(SearchBar, {
         resModel: "partner",
@@ -260,12 +285,11 @@ test("search input is focused when being toggled", async () => {
     class Parent extends Component {
         static template = xml`
             <div>
-                <t t-component="searchBarToggler.component" t-props="searchBarToggler.props"/>
-                <SearchBar toggler="searchBarToggler"/>
+                <t t-component="this.searchBarToggler.component" t-props="this.searchBarToggler.props"/>
+                <SearchBar toggler="this.searchBarToggler"/>
             </div>
         `;
         static components = { SearchBar };
-        static props = ["*"];
         setup() {
             this.searchBarToggler = useSearchBarToggler();
         }
@@ -276,7 +300,7 @@ test("search input is focused when being toggled", async () => {
         searchViewId: false,
     });
     expect(".o_searchview input").toHaveCount(0);
-    await contains(`button .fa-search`).click();
+    await contains(`button [data-icon="search"]`).click();
     expect(".o_searchview input").toHaveCount(1);
     expect(queryFirst`.o_searchview input`).toBeFocused();
 });
@@ -392,11 +416,13 @@ test("select an autocomplete field with `context` key", async () => {
     class TestComponent extends Component {
         static template = xml`<SearchBar/>`;
         static components = { SearchBar };
-        static props = ["*"];
+        props = useProps();
         setup() {
-            onWillUpdateProps(() => {
-                updateCount++;
-            });
+            useOnChange(
+                () => [this.props.domain],
+                () => updateCount++,
+                { initialRun: false }
+            );
         }
     }
 
@@ -449,11 +475,13 @@ test("no search text triggers a reload", async () => {
     class TestComponent extends Component {
         static template = xml`<SearchBar/>`;
         static components = { SearchBar };
-        static props = ["*"];
+        props = useProps();
         setup() {
-            onWillUpdateProps(() => {
-                updateCount++;
-            });
+            useOnChange(
+                () => [this.props.domain],
+                () => updateCount++,
+                { initialRun: false }
+            );
         }
     }
 
@@ -773,8 +801,8 @@ test("reference fields are supported in search view", async () => {
 });
 
 test("expand an asynchronous menu and change the selected item with the mouse during expansion", async () => {
-    const def = new Deferred();
-    onRpc("name_search", () => def);
+    const def = Promise.withResolvers();
+    onRpc("name_search", () => def.promise);
     await mountWithSearch(SearchBar, {
         resModel: "partner",
         searchMenuTypes: [],
@@ -796,8 +824,8 @@ test("expand an asynchronous menu and change the selected item with the mouse du
 });
 
 test("expand an asynchronous menu and change the selected item with the arrow during expansion", async () => {
-    const def = new Deferred();
-    onRpc("name_search", () => def);
+    const def = Promise.withResolvers();
+    onRpc("name_search", () => def.promise);
     await mountWithSearch(SearchBar, {
         resModel: "partner",
         searchMenuTypes: [],
@@ -860,9 +888,9 @@ test("checks that an arrowUp always selects an item", async () => {
 test("many2one_reference fields are supported in search view", async () => {
     Partner._fields.res_id = fields.Many2oneReference({
         string: "Resource ID",
-        model_field: "bar",
-        relation: "partner",
+        model_field: "res_model",
     });
+    Partner._fields.res_model = fields.Char();
 
     const searchBar = await mountWithSearch(SearchBar, {
         resModel: "partner",
@@ -892,14 +920,14 @@ test("many2one_reference fields are supported in search view", async () => {
     await removeFacet("Resource ID 12");
     expect(searchBar.env.searchModel.domain).toEqual([]);
 
-    await editSearch("1a");
+    await editSearch("abc");
     expect(queryAllTexts`.o_searchview_autocomplete .o-dropdown-item`).toEqual([
-        "Search Foo for: 1a",
+        "Search Foo for: abc",
         "Custom Filter...",
     ]);
 
     await validateSearch();
-    expect(searchBar.env.searchModel.domain).toEqual([["foo", "ilike", "1a"]]);
+    expect(searchBar.env.searchModel.domain).toEqual([["foo", "ilike", "abc"]]);
 });
 
 test("check kwargs of a rpc call with a domain", async () => {
@@ -944,8 +972,8 @@ test("check kwargs of a rpc call with a domain", async () => {
 });
 
 test("should wait label promises for many2one search defaults", async () => {
-    const def = new Deferred();
-    onRpc("read", () => def);
+    const def = Promise.withResolvers();
+    onRpc("read", () => def.promise);
 
     mountWithSearch(SearchBar, {
         resModel: "partner",
@@ -964,8 +992,8 @@ test("should wait label promises for many2one search defaults", async () => {
 
 test("should wait label promises for many2many search defaults", async () => {
     Partner._fields.m2m = fields.Many2many({ relation: "partner" });
-    const def = new Deferred();
-    onRpc("read", () => def);
+    const def = Promise.withResolvers();
+    onRpc("read", () => def.promise);
 
     mountWithSearch(SearchBar, {
         resModel: "partner",
@@ -1334,29 +1362,29 @@ test("search a property", async () => {
     await animationFrame();
     await runAllTimers();
     expect(`.o-dropdown-item.focus`).toHaveText("Search Properties");
-    expect(".o-dropdown-item.focus:only .fa-caret-down").toHaveCount(1);
+    expect(".o-dropdown-item.focus:only [data-icon='arrow_drop_down']").toHaveCount(1);
     // move on the many2one property
     await keyDown("ArrowRight", { repeat: false });
     await animationFrame();
     await runAllTimers();
     expect(`.o-dropdown-item.focus`).toHaveText("My Partner (Bar 1)");
-    expect(".o-dropdown-item.focus:only .fa-caret-right").toHaveCount(1);
+    expect(".o-dropdown-item.focus:only [data-icon='arrow_right']").toHaveCount(1);
     // move on the many2many property
     await keyDown("ArrowDown");
     await animationFrame();
     expect(`.o-dropdown-item.focus`).toHaveText("My Partners (Bar 1)");
-    expect(".o-dropdown-item.focus:only .fa-caret-right").toHaveCount(1);
+    expect(".o-dropdown-item.focus:only [data-icon='arrow_right']").toHaveCount(1);
     // move on the many2one property again
     await keyDown("ArrowUp");
     await animationFrame();
     expect(`.o-dropdown-item.focus`).toHaveText("My Partner (Bar 1)");
-    expect(".o-dropdown-item.focus:only .fa-caret-right").toHaveCount(1);
+    expect(".o-dropdown-item.focus:only [data-icon='arrow_right']").toHaveCount(1);
     // unfold the many2one
     await keyDown("ArrowRight");
     await animationFrame();
     await runAllTimers();
     expect(`.o-dropdown-item.focus`).toHaveText("My Partner (Bar 1)");
-    expect(".o-dropdown-item.focus:only .fa-caret-down").toHaveCount(1);
+    expect(".o-dropdown-item.focus:only [data-icon='arrow_drop_down']").toHaveCount(1);
     // select the first many2one
     await keyDown("ArrowRight", { repeat: false });
     await animationFrame();
@@ -1367,25 +1395,25 @@ test("search a property", async () => {
     await animationFrame();
     await runAllTimers();
     expect(`.o-dropdown-item.focus`).toHaveText("My Partner (Bar 1)");
-    expect(".o-dropdown-item.focus:only .fa-caret-down").toHaveCount(1);
+    expect(".o-dropdown-item.focus:only [data-icon='arrow_drop_down']").toHaveCount(1);
     // fold the parent
     await keyDown("ArrowLeft");
     await animationFrame();
     await runAllTimers();
     expect(`.o-dropdown-item.focus`).toHaveText("My Partner (Bar 1)");
-    expect(".o-dropdown-item.focus:only .fa-caret-right").toHaveCount(1);
+    expect(".o-dropdown-item.focus:only [data-icon='arrow_right']").toHaveCount(1);
     // go up on the properties field
     await keyDown("ArrowLeft");
     await animationFrame();
     await runAllTimers();
     expect(`.o-dropdown-item.focus`).toHaveText("Search Properties");
-    expect(".o-dropdown-item.focus:only .fa-caret-down").toHaveCount(1);
+    expect(".o-dropdown-item.focus:only [data-icon='arrow_drop_down']").toHaveCount(1);
     // fold the properties field
     await keyDown("ArrowLeft");
     await animationFrame();
     await runAllTimers();
     expect(`.o-dropdown-item.focus`).toHaveText("Search Properties");
-    expect(".o-dropdown-item.focus:only .fa-caret-right").toHaveCount(1);
+    expect(".o-dropdown-item.focus:only [data-icon='arrow_right']").toHaveCount(1);
 });
 
 test("search a property: definition record id in the context", async () => {
@@ -1500,6 +1528,97 @@ test("edit a filter with context: context is kept after edition", async () => {
     await contains(".modal footer button").click();
     expect(getFacetTexts()).toEqual([`Foo = abc`, `Foo = abc`]);
     expect(searchBar.env.searchModel.context.specialKey).toBe("abc");
+});
+
+test("navigation: shifting a relative filter into the past updates the domain and label", async () => {
+    mockDate("2017-03-22T01:00:00"); // Wednesday
+    const searchBar = await mountWithSearch(SearchBar, {
+        resModel: "partner",
+        searchViewId: false,
+        searchMenuTypes: ["filter"],
+        searchViewArch: `
+            <search>
+                <filter string="Birthday" name="date_filter" date="birthday"/>
+            </search>
+        `,
+    });
+
+    // Activate a relative date option to get a facet of type "relative"
+    await toggleSearchBarMenu();
+    await toggleMenuItem("Birthday");
+    await toggleMenuItemOption("Birthday", "This Month");
+    expect(getFacetTexts()).toEqual(["Birthday: March"]);
+    // offset 0 must use the same locale-aware boundaries as the shifted periods
+    expect(searchBar.env.searchModel.domain).toEqual([
+        "&",
+        ["birthday", ">=", "today =1d"],
+        ["birthday", "<", "today =1d +1m"],
+    ]);
+
+    // Relative facets render prev/next navigation buttons instead of an editable label
+    expect(`.o_searchview_facet .o_date_nav_btn`).toHaveCount(2);
+
+    // Shift one period into the past
+    await contains(`.o_searchview_facet [aria-label="Previous period"]`).click();
+    expect(getFacetTexts()).toEqual(["Birthday: February"]);
+    expect(searchBar.env.searchModel.domain).toEqual([
+        "&",
+        ["birthday", ">=", "today =1d -1m"],
+        ["birthday", "<", "today =1d"],
+    ]);
+    // Navigating the period must NOT open the editor dialog
+    expect(`.modal`).toHaveCount(0);
+
+    // Shift another period into the past
+    await contains(`.o_searchview_facet [aria-label="Previous period"]`).click();
+    expect(getFacetTexts()).toEqual(["Birthday: January"]);
+    expect(searchBar.env.searchModel.domain).toEqual([
+        "&",
+        ["birthday", ">=", "today =1d -2m"],
+        ["birthday", "<", "today =1d -1m"],
+    ]);
+    expect(`.modal`).toHaveCount(0);
+});
+
+test("navigation: shifting a relative filter into the future updates the domain and label", async () => {
+    mockDate("2017-03-22T01:00:00"); // Wednesday
+    const searchBar = await mountWithSearch(SearchBar, {
+        resModel: "partner",
+        searchViewId: false,
+        searchMenuTypes: ["filter"],
+        searchViewArch: `
+            <search>
+                <filter string="Birthday" name="date_filter" date="birthday"/>
+            </search>
+        `,
+    });
+
+    // Activate a relative date option to get a facet of type "relative"
+    await toggleSearchBarMenu();
+    await toggleMenuItem("Birthday");
+    await toggleMenuItemOption("Birthday", "This Month");
+    expect(getFacetTexts()).toEqual(["Birthday: March"]);
+
+    // Shift one period into the future
+    await contains(`.o_searchview_facet [aria-label="Next period"]`).click();
+    expect(getFacetTexts()).toEqual(["Birthday: April"]);
+    expect(searchBar.env.searchModel.domain).toEqual([
+        "&",
+        ["birthday", ">=", "today =1d +1m"],
+        ["birthday", "<", "today =1d +2m"],
+    ]);
+    // Navigating the period must NOT open the editor dialog
+    expect(`.modal`).toHaveCount(0);
+
+    // Shift another period into the future
+    await contains(`.o_searchview_facet [aria-label="Next period"]`).click();
+    expect(getFacetTexts()).toEqual(["Birthday: May"]);
+    expect(searchBar.env.searchModel.domain).toEqual([
+        "&",
+        ["birthday", ">=", "today =1d +2m"],
+        ["birthday", "<", "today =1d +3m"],
+    ]);
+    expect(`.modal`).toHaveCount(0);
 });
 
 test("edit a favorite", async () => {
@@ -1627,6 +1746,19 @@ test("clicking on search input trigger the search menu", async () => {
         resModel: "partner",
     });
     await contains(`.o_searchview_input`).click();
+    expect(`.o_search_bar_menu`).toHaveCount(1);
+});
+
+test.tags("desktop");
+test("pointerDown on the search input should not hide the search menu", async () => {
+    await mountWithSearch(SearchBar, {
+        resModel: "partner",
+    });
+    await contains(".o_searchview_input").click();
+    expect(`.o_search_bar_menu`).toHaveCount(1);
+
+    await pointerDown(".o_searchview_input");
+    await animationFrame();
     expect(`.o_search_bar_menu`).toHaveCount(1);
 });
 
@@ -1766,7 +1898,9 @@ test("facets display with any / not any operator (check brackets)", async functi
 
     await contains(".modal footer button").click();
     expect(getFacetTexts()).toEqual([
-        `Company : ( Bar : ( Bool ${label("not set")} and Bool ${label("not set")} ) and Bar : ( Bool ${label("set")} ) ) or Bar ${label("not set")}`,
+        `Company : ( Bar : ( Bool ${label("not set")} and Bool ${label(
+            "not set"
+        )} ) and Bar : ( Bool ${label("set")} ) ) or Bar ${label("not set")}`,
     ]);
     expect.verifySteps([`/web/domain/validate`]);
 });
@@ -1891,41 +2025,41 @@ test("order by count resets when there is no group left", async () => {
     await selectGroup("bool");
     await selectGroup("bar");
     await toggleMenuItem("Foo");
-    expect(".fa-sort").toHaveCount(1);
-    await contains(".fa-sort", { visible: false }).click();
-    expect(".fa-sort-numeric-desc").toHaveCount(1);
-    await contains(".fa-sort-numeric-desc").click();
-    expect(".fa-sort-numeric-asc").toHaveCount(1);
+    expect(".oi[data-icon='swap_vert']").toHaveCount(1);
+    await contains(".oi[data-icon='swap_vert']", { visible: false }).click();
+    expect(".o_searchview_facet_label .oi[data-icon='arrow_downward']").toHaveCount(1);
+    await contains(".o_searchview_facet_label .oi[data-icon='arrow_downward']").click();
+    expect(".o_searchview_facet_label .oi[data-icon='arrow_upward']").toHaveCount(1);
 
     await toggleSearchBarMenu();
     await toggleMenuItem("Foo");
-    expect(".fa-sort-numeric-asc").toHaveCount(1);
+    expect(".o_searchview_facet_label .oi[data-icon='arrow_upward']").toHaveCount(1);
 
     await toggleMenuItem("Foo");
     await toggleMenuItem("Bool");
-    expect(".fa-sort-numeric-asc").toHaveCount(1);
+    expect(".o_searchview_facet_label .oi[data-icon='arrow_upward']").toHaveCount(1);
     await toggleMenuItem("Bar");
-    expect(".fa-sort-numeric-asc").toHaveCount(0);
+    expect(".o_searchview_facet_label .oi[data-icon='arrow_upward']").toHaveCount(0);
 
     await toggleMenuItem("Bar");
-    expect(".fa-sort-numeric-asc").toHaveCount(0);
-    expect(".fa-sort").toHaveCount(1);
-    await contains(".fa-sort", { visible: false }).click();
-    await contains(".fa-sort-numeric-desc").click();
-    expect(".fa-sort-numeric-asc").toHaveCount(1);
+    expect(".o_searchview_facet_label .oi[data-icon='arrow_upward']").toHaveCount(0);
+    expect(".oi[data-icon='swap_vert']").toHaveCount(1);
+    await contains(".oi[data-icon='swap_vert']", { visible: false }).click();
+    await contains(".o_searchview_facet_label .oi[data-icon='arrow_downward']").click();
+    expect(".o_searchview_facet_label .oi[data-icon='arrow_upward']").toHaveCount(1);
     await toggleSearchBarMenu();
     await toggleMenuItem("Bool");
-    expect(".fa-sort-numeric-asc").toHaveCount(1);
+    expect(".o_searchview_facet_label .oi[data-icon='arrow_upward']").toHaveCount(1);
 
     await contains(".o_facet_remove").click();
-    expect(".fa-sort-numeric-asc").toHaveCount(1);
+    expect(".o_searchview_facet_label .oi[data-icon='arrow_upward']").toHaveCount(1);
     await contains(".o_facet_remove").click();
     expect(".o_searchview_facet").toHaveCount(0);
 
     await toggleSearchBarMenu();
     await toggleMenuItem("Bar");
-    expect(".fa-sort-numeric-asc").toHaveCount(0);
-    expect(".fa-sort").toHaveCount(1);
+    expect(".o_searchview_facet_label .oi[data-icon='arrow_upward']").toHaveCount(0);
+    expect(".oi[data-icon='swap_vert']").toHaveCount(1);
 });
 
 test("subitems have a load more item if there is more records available", async () => {
@@ -2005,8 +2139,8 @@ test("single name_search call and no flicker when holding ArrowRight", async fun
 
 test.tags("desktop");
 test("no crash when search component is destroyed with input", async () => {
-    const def = new Deferred();
-    onRpc("web_read", () => def);
+    const def = Promise.withResolvers();
+    onRpc("web_read", () => def.promise);
     defineWebModels();
     await mountWebClient();
     await getService("action").doAction(1);
@@ -2036,4 +2170,40 @@ test("search on full query without waiting for display synchronisation", async (
     expect(".o-dropdown-item:first").toHaveText("Search Foo for: 01234");
     await keyDown("Enter");
     expect(searchBar.env.searchModel.domain).toEqual([["foo", "ilike", "0123456"]]);
+});
+
+test("default non existent many2one", async () => {
+    patchWithCleanup(console, {
+        error: (msg) => {
+            expect.step(`console.error: "${msg}"`);
+        },
+    });
+    Partner._records = [];
+    onRpc("partner", "read", ({ args }) => {
+        expect.step(`partner read`);
+        expect(args).toEqual([45, ["display_name"]]);
+    });
+    onRpc("partner", "web_search_read", ({ kwargs }) => {
+        expect(kwargs.domain).toEqual([["bar", "!=", false]]);
+        expect.step(`web_search_read`);
+    });
+
+    const searchBar = await mountWithSearch(SearchBar, {
+        resModel: "partner",
+        searchViewId: false,
+        searchViewArch: `
+            <search>
+                <field name="bar"/>
+            </search>
+        `,
+        context: {
+            search_default_bar: [45],
+        },
+    });
+    expect.verifySteps([
+        "partner read",
+        `console.error: "The autocomplete value for bar has not been found: the record with id 45 doesn't seem to exist"`,
+    ]);
+    expect(searchBar.env.searchModel.domain).toEqual([]);
+    expect(".o_searchview_facet").toHaveCount(0);
 });

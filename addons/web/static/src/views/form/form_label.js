@@ -1,20 +1,25 @@
+import { Component, t, usePlugin, useProps } from "@odoo/owl";
+import { DebugModePlugin } from "@web/core/debug_mode_plugin";
+import { _t } from "@web/core/l10n/translation";
+import { user } from "@web/core/user";
 import { fieldVisualFeedback } from "@web/views/fields/field";
 import { getTooltipInfo } from "@web/views/fields/field_tooltip";
-import { _t } from "@web/core/l10n/translation";
-import { Component } from "@odoo/owl";
-import { user } from "@web/core/user";
+
+export const formLabelProps = {
+    fieldInfo: t.object(),
+    record: t.object(),
+    fieldName: t.string(),
+    className: t.string().optional(),
+    string: t.string(),
+    id: t.string(),
+    notMuttedLabel: t.boolean().optional(),
+};
 
 export class FormLabel extends Component {
     static template = "web.FormLabel";
-    static props = {
-        fieldInfo: { type: Object },
-        record: { type: Object },
-        fieldName: { type: String },
-        className: { type: String, optional: true },
-        string: { type: String },
-        id: { type: String },
-        notMuttedLabel: { type: Boolean, optional: true },
-    };
+    props = useProps(formLabelProps);
+
+    debugMode = usePlugin(DebugModePlugin);
 
     get className() {
         const { invalid, empty, readonly } = fieldVisualFeedback(
@@ -37,7 +42,7 @@ export class FormLabel extends Component {
     }
 
     get hasTooltip() {
-        return Boolean(odoo.debug) || this.tooltipHelp;
+        return this.debugMode.isActive() || this.tooltipHelp;
     }
 
     get tooltipHelp() {
@@ -49,7 +54,7 @@ export class FormLabel extends Component {
         return help;
     }
     get tooltipInfo() {
-        if (!odoo.debug) {
+        if (!this.debugMode.isActive()) {
             return JSON.stringify({
                 field: {
                     help: this.tooltipHelp,

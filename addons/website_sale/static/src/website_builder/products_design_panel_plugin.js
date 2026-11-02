@@ -17,16 +17,12 @@ export class ProductsDesignPanelPlugin extends Plugin {
         builder_components: {
             ProductsDesignPanel,
         },
-        handleNewRecords: this.handleMutations.bind(this),
-        save_handlers: this.onSave.bind(this),
-        change_current_options_containers_listeners: () => {
-            this.panels.forEach((panel) => {
-                if (panel.state.overlayVisible) {
-                    panel.closeDesignOverlay();
-                }
-            });
+        on_ready_to_save_document_handlers: this.onSave.bind(this),
+        dirty_trackers: {
+            selector: "#o_wsale_products_grid",
+            dirtyClass: "o_dirty_product_design_list",
+            match: "self",
         },
-
         product_design_list_to_save: {
             selector: "#o_wsale_products_grid",
             getData(el) {
@@ -49,7 +45,6 @@ export class ProductsDesignPanelPlugin extends Plugin {
     setup() {
         this.panels = new Set();
         this.productDesignListToSave = this.getResource("product_design_list_to_save");
-        this.savableSelector = this.productDesignListToSave.map((item) => item.selector).join(",");
     }
 
     registerPanel(panel) {
@@ -58,39 +53,6 @@ export class ProductsDesignPanelPlugin extends Plugin {
 
     unregisterPanel(panel) {
         this.panels.delete(panel);
-    }
-
-    /**
-     * Handles the flag of the closest product savable element
-     * @param {Object} records - The observed mutations
-     * @param {String} currentOperation - The name of the current operation
-     */
-    handleMutations(records, currentOperation) {
-        if (currentOperation === "undo" || currentOperation === "redo") {
-            // Do nothing as `o_dirty_product_design_list` has already been handled by the history
-            // plugin.
-            return;
-        }
-        for (const record of records) {
-            if (record.attributeName === "contenteditable") {
-                continue;
-            }
-            let targetEl = record.target;
-            if (!targetEl.isConnected) {
-                continue;
-            }
-            if (targetEl.nodeType !== Node.ELEMENT_NODE) {
-                targetEl = targetEl.parentElement;
-            }
-            if (!targetEl) {
-                continue;
-            }
-            const isSavable = targetEl.matches(this.savableSelector);
-            if (!isSavable || targetEl.classList.contains("o_dirty_product_design_list")) {
-                continue;
-            }
-            targetEl.classList.add("o_dirty_product_design_list");
-        }
     }
 
     async onSave() {
@@ -118,7 +80,7 @@ export class ProductsDesignPanelPlugin extends Plugin {
 /**
  * Handles suggestedClasses with clean slate approach and delegates to classAction/setClassRange
  */
-class ClassActionWithSuggestedAction extends BuilderAction {
+export class ClassActionWithSuggestedAction extends BuilderAction {
     static id = "classActionWithSave";
     static dependencies = ["builderActions"];
 
@@ -228,7 +190,7 @@ class ClassActionWithSuggestedAction extends BuilderAction {
     }
 }
 
-class SetGapAction extends BuilderAction {
+export class SetGapAction extends BuilderAction {
     static id = "setGap";
 
     isApplied() {
@@ -241,9 +203,6 @@ class SetGapAction extends BuilderAction {
 
     apply({ editingElement, value }) {
         editingElement.style.setProperty("--o-wsale-products-grid-gap", value);
-        if (this.panel?.needsDbPersistence) {
-            editingElement.dataset.gapToSave = value;
-        }
     }
 
     setPanel(panel) {

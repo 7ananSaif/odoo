@@ -7,15 +7,16 @@
 # Martin Trigaux, 2022
 # Jolien De Paepe, 2023
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
-# "Manon Rondou (ronm)" <ronm@odoo.com>, 2025.
+# "Manon Rondou (ronm)" <ronm@odoo.com>, 2025, 2026.
+# "Cécile Collart (cco)" <cco@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0beta\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-10-29 15:14+0000\n"
-"Last-Translator: \"Manon Rondou (ronm)\" <ronm@odoo.com>\n"
-"Language-Team: French <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-09-09 14:02+0000\n"
+"Last-Translator: \"Cécile Collart (cco)\" <cco@odoo.com>\n"
+"Language-Team: French <https://translate.odoo.com/projects/odoo-master/"
 "website_sale_slides/fr/>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -23,17 +24,17 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=(n == 0 || n == 1) ? 0 : ((n != 0 && n % "
 "1000000 == 0) ? 1 : 2);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: website_sale_slides
 #: model_terms:ir.ui.view,arch_db:website_sale_slides.course_option_buy_course_now
-msgid "<i class=\"fa fa-bolt\"/> Buy Now"
-msgstr "<i class=\"fa fa-bolt\"/> Acheter maintenant"
+msgid "<i class=\"oi\" data-icon=\"flash_on\"/> Buy Now"
+msgstr "<i class=\"oi\" data-icon=\"flash_on\"/> Acheter maintenant"
 
 #. module: website_sale_slides
 #: model_terms:ir.ui.view,arch_db:website_sale_slides.course_buy_course_button
-msgid "<i class=\"fa fa-shopping-cart\"/> Add to Cart"
-msgstr "<i class=\"fa fa-shopping-cart\"/> Ajouter au panier"
+msgid "<i class=\"oi\" data-icon=\"shopping_cart\"/> Add to Cart"
+msgstr "<i class=\"oi\" data-icon=\"shopping_cart\"/> Ajouter au panier"
 
 #. module: website_sale_slides
 #. odoo-python
@@ -84,7 +85,7 @@ msgstr "Accès au cours"
 
 #. module: website_sale_slides
 #. odoo-javascript
-#: code:addons/website_sale_slides/static/src/website_builder/course_page_option_plugin.js:0
+#: code:addons/website_sale_slides/static/src/website_builder/course_page_option.xml:0
 msgid "Course Page"
 msgstr "Page du cours"
 
@@ -237,6 +238,21 @@ msgid "Sales Order Line"
 msgstr "Ligne de commande"
 
 #. module: website_sale_slides
+#: model:ir.module.module,shortdesc:base.module_website_sale_slides
+msgid "Sell Courses"
+msgstr ""
+
+#. module: website_sale_slides
+#: model:ir.module.module,summary:base.module_website_sale_slides
+msgid "Sell your courses online"
+msgstr ""
+
+#. module: website_sale_slides
+#: model:ir.module.module,description:base.module_website_sale_slides
+msgid "Sell your courses using the e-commerce features of the website."
+msgstr ""
+
+#. module: website_sale_slides
 #. odoo-javascript
 #: code:addons/website_sale_slides/static/src/xml/slide_course_join.xml:0
 msgid "Sign in"
@@ -329,21 +345,3 @@ msgstr "étape(s)"
 #: model_terms:ir.ui.view,arch_db:website_sale_slides.course_buy_course_link
 msgid "to access resources"
 msgstr "pour accéder aux ressources"
-
-#~ msgid ""
-#~ "A storable product is a product for which you manage stock. The Inventory "
-#~ "app has to be installed.\n"
-#~ "A consumable product is a product for which stock is not managed.\n"
-#~ "A service is a non-material product you provide."
-#~ msgstr ""
-#~ "Un produit stockable est un produit pour lequel vous gérez un stock. "
-#~ "L'application \"Inventaire\" doit être installée. \n"
-#~ "Un produit consommable est un produit pour lequel vous ne gérez pas de "
-#~ "stock.\n"
-#~ "Un service est un produit immatériel que vous fournissez."
-
-#~ msgid "Product Type"
-#~ msgstr "Type de produit"
-
-#~ msgid "Website"
-#~ msgstr "Site web"

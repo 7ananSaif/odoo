@@ -2,9 +2,11 @@ import { closestBlock, isBlock } from "@html_editor/utils/blocks";
 import { findInSelection } from "@html_editor/utils/selection";
 import {
     animationFrame,
+    advanceTime,
     click,
     manuallyDispatchProgrammaticEvent,
     press,
+    queryOne,
     tick,
     waitFor,
 } from "@odoo/hoot-dom";
@@ -13,8 +15,17 @@ import { execCommand } from "./userCommands";
 import { isMobileOS } from "@web/core/browser/feature_detection";
 import { isTextNode } from "@html_editor/utils/dom_info";
 import { closestElement } from "@html_editor/utils/dom_traversal";
+import { COMMIT_DEBOUNCE_DELAY } from "@html_editor/core/history_plugin";
 
 /** @typedef {import("@html_editor/plugin").Editor} Editor */
+
+/**
+ * Makes enough time pass to ensure that undo/redo will not collapse commits
+ * before and after this call.
+ */
+export async function ensureDistinctHistoryCommit() {
+    await advanceTime(COMMIT_DEBOUNCE_DELAY + 1);
+}
 
 /**
  * Simulates text insertion in the editor by dispatching keyboard/input events
@@ -32,6 +43,9 @@ export async function insertText(editor, text) {
         // the editor to detect them since they would not trigger the default
         // browser behavior otherwise.
         const range = editor.document.getSelection().getRangeAt(0);
+        if (!range.collapsed) {
+            range.deleteContents();
+        }
         let offset = range.startOffset;
         let node = range.startContainer;
 
@@ -88,6 +102,9 @@ export async function insertText(editor, text) {
 }
 
 /**
+ * Inserts space in the editor by dispatching keyboard/input events
+ * for space character and inserting it into the current selection's position.
+ *
  * @param {Editor} editor
  */
 export async function insertSpace(editor) {
@@ -113,8 +130,10 @@ export async function insertSpace(editor) {
     if (!range.collapsed) {
         throw new Error("need to implement something... maybe");
     }
+
     // mimic the behavior of the browser when inserting a &nbsp
     document.execCommand("insertText", false, " ");
+
     const [inputEvent] = await manuallyDispatchProgrammaticEvent(editor.editable, "input", {
         inputType: "insertText",
         data: " ",
@@ -176,8 +195,8 @@ export function deleteBackward(editor, isMobileTest = false) {
 
 // history
 /** @param {Editor} editor */
-export function addStep(editor) {
-    editor.shared.history.addStep();
+export function commit(editor) {
+    editor.shared.history.commit();
 }
 /** @param {Editor} editor */
 export function undo(editor) {
@@ -244,11 +263,11 @@ export function setFontSize(size) {
     return (editor) => execCommand(editor, "formatFontSize", { size });
 }
 export function setFontSizeClassName(className) {
-    return (editor) => execCommand(editor, "formatFontSizeClassName", { className });
+    return (editor) => execCommand(editor, "formatFontSize", { className });
 }
 export function setFontFamily(fontFamily) {
     return (editor) => {
-        editor.shared.format.formatSelection("fontFamily", {
+        editor.shared.format.requestFormat("fontFamily", {
             applyStyle: fontFamily !== false,
             formatProps: {
                 name: fontFamily + "_name",
@@ -265,7 +284,7 @@ export function switchDirection(editor) {
 /** @param {Editor} editor */
 export function splitBlock(editor) {
     editor.shared.split.splitBlock();
-    editor.shared.history.addStep();
+    editor.shared.history.commit();
 }
 
 export async function simulateArrowKeyPress(editor, keys) {
@@ -320,19 +339,22 @@ export async function keydownShiftTab(editor) {
 /** @param {Editor} editor */
 export function resetSize(editor) {
     const selection = editor.shared.selection.getEditableSelection();
-    editor.shared.table.resetTableSize(findInSelection(selection, "table"));
+    editor.shared.resize.resetSize(findInSelection(selection, "table"), {
+        proxyElementSelector: "colgroup",
+        heightElementsSelector: "tr",
+    });
 }
 /** @param {Editor} editor */
-export function alignLeft(editor) {
-    execCommand(editor, "alignLeft");
+export function alignStart(editor) {
+    execCommand(editor, "alignStart");
 }
 /** @param {Editor} editor */
 export function alignCenter(editor) {
     execCommand(editor, "alignCenter");
 }
 /** @param {Editor} editor */
-export function alignRight(editor) {
-    execCommand(editor, "alignRight");
+export function alignEnd(editor) {
+    execCommand(editor, "alignEnd");
 }
 /** @param {Editor} editor */
 export function justify(editor) {
@@ -429,3 +451,14 @@ export async function tripleClick(node) {
     }
     await tick();
 }
+
+export function getElementTouchPosition(selector) {
+    const el = queryOne(selector);
+    const rect = el.getBoundingClientRect();
+    return new Touch({
+        identifier: Date.now(),
+        target: el,
+        clientX: rect.left + rect.width / 2,
+        clientY: rect.top + rect.height / 2,
+    });
+};

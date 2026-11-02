@@ -1,27 +1,35 @@
-import { Component, markup, useRef } from "@odoo/owl";
-import { getActiveHotkey } from "@web/core/hotkeys/hotkey_service";
+import { Component, markup, signal, useProps, t } from "@odoo/owl";
+import { useMatrixKeyNavigation } from "@html_builder/utils/keyboard_navigation";
+import { getActiveHotkey } from "@web/core/hotkeys/hotkey_utils";
 import { localization } from "@web/core/l10n/localization";
 import { _t } from "@web/core/l10n/translation";
 import { useService } from "@web/core/utils/hooks";
 import { InputConfirmationDialog } from "./input_confirmation_dialog";
-import { fuzzyLookup } from "@web/core/utils/search";
-import { Img } from "@html_builder/core/img";
+import { fuzzyLevenshteinLookup, fuzzyLookup } from "@web/core/utils/search";
+import { selectElements } from "@html_editor/utils/dom_traversal";
+import { Image } from "@html_builder/core/img";
 
 export class SnippetViewer extends Component {
     static template = "html_builder.SnippetViewer";
-    static props = {
-        state: { type: Object },
-        selectSnippet: { type: Function },
-        hasSearchResults: Function,
-        snippetModel: { type: Object },
-        installSnippetModule: { type: Function },
-        frontendDirection: { type: String },
-    };
+    props = useProps({
+        state: t.object(),
+        selectSnippet: t.function(),
+        hasSearchResults: t.function(),
+        snippetModel: t.object(),
+        installSnippetModule: t.function(),
+        frontendDirection: t.string(),
+    });
+
+    content = signal.ref();
 
     setup() {
         this.dialog = useService("dialog");
-        this.content = useRef("content");
         this.backendDirection = localization.direction;
+
+        this.handleMatrixKeyNavigation = useMatrixKeyNavigation(
+            () => [this.content()],
+            ".o_snippet_preview_wrap"
+        );
     }
 
     /**
@@ -48,7 +56,7 @@ export class SnippetViewer extends Component {
             icons.push({
                 keyClass: "o_prefix_desktop_invisible",
                 title: "Invisible on desktop",
-                Component: Img,
+                Component: Image,
                 props: {
                     src: "/html_builder/static/img/options/desktop_invisible.svg",
                     ...styleProps,
@@ -59,7 +67,7 @@ export class SnippetViewer extends Component {
             icons.push({
                 keyClass: "o_prefix_mobile_invisible",
                 title: "Invisible on mobile",
-                Component: Img,
+                Component: Image,
                 props: {
                     src: "/html_builder/static/img/options/mobile_invisible.svg",
                     ...styleProps,
@@ -70,7 +78,7 @@ export class SnippetViewer extends Component {
             icons.push({
                 keyClass: "o_prefix_conditional",
                 title: "Conditionally visible",
-                content: markup`<span class="fa fa-eye-slash"/>`,
+                content: markup`<span class="oi" data-icon="visibility_off"/>`,
             });
         }
         return icons;
@@ -92,7 +100,6 @@ export class SnippetViewer extends Component {
             confirm: (inputValue) => {
                 this.props.snippetModel.renameCustomSnippet(snippet, inputValue);
             },
-            cancelLabel: _t("Discard"),
             cancel: () => {},
         });
     }
@@ -103,20 +110,13 @@ export class SnippetViewer extends Component {
 
     getSnippetColumns() {
         const snippets = this.getSelectedSnippets();
+        const nbColumns = this.props.state.isMobilePreviewMode ? 3 : 2;
+        const columns = new Array(nbColumns).fill().map(() => []);
 
-        const columns = [[], []];
-        for (const index in snippets) {
-            if (index % 2 === 0) {
-                columns[0].push(snippets[index]);
-            } else {
-                columns[1].push(snippets[index]);
-            }
+        for (const [index, snippet] of snippets.entries()) {
+            columns[index % nbColumns].push(snippet);
         }
-        let numResults = 0;
-        for (const column of columns) {
-            numResults += column.length;
-        }
-        this.props.hasSearchResults(numResults > 0);
+        this.props.hasSearchResults(snippets.length > 0);
         return columns;
     }
 
@@ -133,6 +133,7 @@ export class SnippetViewer extends Component {
         if (hotkey === "enter" || hotkey === "space") {
             this.onClick(snippet);
         }
+        this.handleMatrixKeyNavigation(ev);
     }
 
     getContent(elem) {
@@ -143,35 +144,58 @@ export class SnippetViewer extends Component {
         return _t("Install %s", snippet.title);
     }
 
+    /**
+     * Returns the terms used by snippet search: complete labels/classes preserve
+     * the regular fuzzy ranking, while split words improve typo matching.
+     */
+    getSnippetSearchTerms(snippet) {
+        const terms = new Set(
+            [
+                snippet.title || "",
+                snippet.name || "",
+                snippet.label || "",
+                ...(snippet.keyWords?.split(",") || []),
+                ...selectElements(snippet.content, "*").flatMap((el) =>
+                    [...el.classList].filter((className) => className.startsWith("s_"))
+                ),
+            ]
+                .map((term) => term.trim().toLowerCase())
+                .filter((term) => term.length)
+        );
+        return Array.from(terms);
+    }
+
     getSelectedSnippets() {
         const snippetStructures = this.props.snippetModel.snippetStructures.filter(
             (snippet) => !snippet.isExcluded && !snippet.isDisabled
         );
         if (this.previousSearch !== this.props.state.search) {
             this.previousSearch = this.props.state.search;
-            if (this.content.el) {
-                this.content.el.ownerDocument.body.scrollTop = 0;
+            if (this.content()) {
+                this.content().ownerDocument.body.scrollTop = 0;
             }
         }
-        const getClasses = (snippet) => {
-            const classes = new Set();
-            const elements = [snippet.content, ...snippet.content.querySelectorAll("*")];
-            for (const el of elements) {
-                for (const className of el.classList) {
-                    if (className.startsWith("s_")) {
-                        classes.add(className);
-                    }
-                }
-            }
-            return Array.from(classes);
-        };
         if (this.props.state.search) {
-            return fuzzyLookup(this.props.state.search, snippetStructures, (snippet) => [
-                snippet.title || "",
-                snippet.name || "",
-                ...(snippet.keyWords?.split(",") || ""),
-                ...getClasses(snippet),
-            ]);
+            const snippetSearchTerms = new Map();
+            const getSearchTerms = (snippet) => {
+                if (!snippetSearchTerms.has(snippet)) {
+                    snippetSearchTerms.set(snippet, this.getSnippetSearchTerms(snippet));
+                }
+                return snippetSearchTerms.get(snippet);
+            };
+            const snippets = fuzzyLookup(
+                this.props.state.search,
+                snippetStructures,
+                getSearchTerms
+            );
+            if (snippets.length) {
+                return snippets;
+            }
+            return snippetStructures.filter(
+                (snippet) =>
+                    fuzzyLevenshteinLookup(this.props.state.search, getSearchTerms(snippet), 5)
+                        .length
+            );
         }
 
         return snippetStructures.filter(

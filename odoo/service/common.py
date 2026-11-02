@@ -1,14 +1,9 @@
-# -*- coding: utf-8 -*-
-
-import logging
+import threading
 
 import odoo.release
-import odoo.tools
 from odoo.exceptions import AccessDenied
 from odoo.modules.registry import Registry
-from odoo.tools.translate import _
 
-_logger = logging.getLogger(__name__)
 
 RPC_VERSION_1 = {
         'server_version': odoo.release.version,
@@ -23,8 +18,14 @@ def exp_login(db, login, password):
 def exp_authenticate(db, login, password, user_agent_env):
     if not user_agent_env:
         user_agent_env = {}
+    thread = threading.current_thread()
     with Registry(db).cursor() as cr:
         env = odoo.api.Environment(cr, None, {})
+        if hasattr(thread, 'url'):
+            domain = thread.url
+            host_id = env["ir.http"]._get_host_id_from_domain(domain)
+            env = odoo.api.Environment(cr, None, {'host_id': host_id})
+
         env.transaction.default_env = env  # force default_env
         try:
             credential = {'login': login, 'password': password, 'type': 'password'}
@@ -34,24 +35,6 @@ def exp_authenticate(db, login, password, user_agent_env):
 
 def exp_version():
     return RPC_VERSION_1
-
-def exp_about(extended=False):
-    """Return information about the OpenERP Server.
-
-    @param extended: if True then return version info
-    @return string if extended is False else tuple
-    """
-
-    info = _('See http://openerp.com')
-
-    if extended:
-        return info, odoo.release.version
-    return info
-
-def exp_set_loglevel(loglevel, logger=None):
-    # TODO Previously, the level was set on the now deprecated
-    # `odoo.netsvc.Logger` class.
-    return True
 
 def dispatch(method, params):
     g = globals()

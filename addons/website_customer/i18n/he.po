@@ -11,16 +11,16 @@
 # Martin Trigaux, 2022
 # Lilach Gilliam <lilach.gilliam@gmail.com>, 2022
 # Ha Ketem <haketem@gmail.com>, 2022
-# or balmas <or@laylinetech.com>, 2025, 2026.
+# or balmas <or@laylinetech.com>, 2025.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2026-05-16 09:34+0000\n"
-"Last-Translator: or balmas <or@laylinetech.com>\n"
-"Language-Team: Hebrew <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 20:21+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Hebrew <https://translate.odoo.com/projects/odoo-s19-4/"
 "website_customer/he/>\n"
 "Language: he\n"
 "MIME-Version: 1.0\n"
@@ -28,12 +28,25 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=4; plural=(n == 1) ? 0 : ((n == 2) ? 1 : ((n > 10 && "
 "n % 10 == 0) ? 2 : 3));\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: website_customer
+#: model:ir.module.module,description:base.module_website_customer
+msgid ""
+"\n"
+"Publish your customers as business references on your website to attract new "
+"potential prospects.\n"
+msgstr ""
+
+#. module: website_customer
+#: model_terms:ir.ui.view,arch_db:website_customer.details
+msgid "<i class=\"oi me-2\" data-icon=\"chevron_backward\"/>Back to references"
+msgstr ""
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.index
 msgid ""
-"<i class=\"fa fa-info-circle me-2\"/>\n"
+"<i class=\"oi me-2\" data-icon=\"info\"/>\n"
 "                        There are no matching customers found for the "
 "selected country. Displaying results across all countries instead."
 msgstr ""
@@ -41,22 +54,17 @@ msgstr ""
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.opt_country
 msgid ""
-"<i class=\"fa fa-map-marker\" role=\"img\" aria-label=\"Open map\" "
-"title=\"Open map\"/>"
+"<i class=\"oi\" data-icon=\"location_on\" role=\"img\" aria-label=\"Open "
+"map\" title=\"Open map\"/>"
 msgstr ""
-"<i class=\"fa fa-map-marker\" role=\"img\" aria-label=\"Open map\" "
-"title=\"Open map\"/>"
-
-#. module: website_customer
-#: model_terms:ir.ui.view,arch_db:website_customer.details
-msgid "<i class=\"oi oi-chevron-left me-2\"/>Back to references"
-msgstr ""
+"<i class=\"oi\" data-icon=\"location_on\" role=\"img\" aria-label=\"Open "
+"map\" title=\"Open map\"/>"
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.index
 #: model_terms:ir.ui.view,arch_db:website_customer.opt_tag_list
-msgid "<span class=\"fa fa-1x fa-tags\"/> All"
-msgstr "<span class=\"fa fa-1x fa-tags\"/> הכל"
+msgid "<span class=\"oi oi-1x\" data-icon=\"sell\"/> All"
+msgstr "<span class=\"oi oi-1x\" data-icon=\"sell\"/> הכל"
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.implemented_by_block
@@ -84,6 +92,16 @@ msgstr "כל התעשיות"
 #: model_terms:ir.ui.view,arch_db:website_customer.res_partner_tag_view_search
 msgid "Archived"
 msgstr "בארכיון"
+
+#. module: website_customer
+#: model:ir.model.fields,field_description:website_customer.field_res_partner_tag__publish_on
+msgid "Auto publish on"
+msgstr ""
+
+#. module: website_customer
+#: model:ir.model.fields,help:website_customer.field_res_partner_tag__publish_on
+msgid "Automatically publish the page on the chosen date and time."
+msgstr ""
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.details
@@ -148,6 +166,11 @@ msgid "Created on"
 msgstr "נוצר ב-"
 
 #. module: website_customer
+#: model:ir.module.module,shortdesc:base.module_website_customer
+msgid "Customer References"
+msgstr ""
+
+#. module: website_customer
 #. odoo-python
 #: code:addons/website_customer/controllers/main.py:0
 msgid "Customers"
@@ -155,13 +178,8 @@ msgstr "לקוחות"
 
 #. module: website_customer
 #. odoo-javascript
-#: code:addons/website_customer/static/src/website_builder/customer_filter_option.js:0
+#: code:addons/website_customer/static/src/website_builder/customer_filter_option.xml:0
 msgid "Customers Page"
-msgstr ""
-
-#. module: website_customer
-#: model_terms:ir.ui.view,arch_db:website_customer.details
-msgid "DROP BUILDING BLOCKS HERE TO MAKE THEM AVAILABLE ACROSS ALL CUSTOMERS"
 msgstr ""
 
 #. module: website_customer
@@ -170,6 +188,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:website_customer.field_website__display_name
 msgid "Display Name"
 msgstr "שם לתצוגה"
+
+#. module: website_customer
+#: model_terms:ir.ui.view,arch_db:website_customer.details
+msgid "Drag blocks here to add them on all customers"
+msgstr ""
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.index
@@ -281,6 +304,16 @@ msgid "Partners"
 msgstr "לקוחות"
 
 #. module: website_customer
+#: model:ir.module.module,summary:base.module_website_customer
+msgid "Publish your customer references"
+msgstr ""
+
+#. module: website_customer
+#: model:ir.model.fields,field_description:website_customer.field_res_partner_tag__published_date
+msgid "Published date"
+msgstr ""
+
+#. module: website_customer
 #. odoo-python
 #: code:addons/website_customer/models/website.py:0
 #: model_terms:ir.ui.view,arch_db:website_customer.references_block
@@ -372,40 +405,3 @@ msgstr "תגיות אתר אינטרנט"
 #: model_terms:ir.ui.view,arch_db:website_customer.opt_country
 msgid "World Map"
 msgstr "מפת העולם"
-
-#~ msgid ""
-#~ "<span class=\"fa fa-external-link\" role=\"img\" aria-label=\"External "
-#~ "link\" title=\"External link\"/>"
-#~ msgstr ""
-#~ "<span class=\"fa fa-external-link\" role=\"img\" aria-label=\"External "
-#~ "link\" title=\"External link\"/>"
-
-#~ msgid "Implemented By"
-#~ msgstr "הטמיע על ידי"
-
-#~ msgid "Last Modified on"
-#~ msgstr "שינוי אחרון ב"
-
-#~ msgid "No result found"
-#~ msgstr "לא נמצאו תוצאות"
-
-#~ msgid "Our References"
-#~ msgstr "ההפניות שלנו"
-
-#~ msgid "References by Country"
-#~ msgstr "הפניות לפי ארץ"
-
-#~ msgid "References by Industries"
-#~ msgstr "הפניות לפי תעשיות"
-
-#~ msgid "References by Tag"
-#~ msgstr "הפניות לפי תגית"
-
-#~ msgid "The full URL to access the document through the website."
-#~ msgstr "כתובת האתר המלאה לגישה למסמך דרך אתר האינטרנט."
-
-#~ msgid "Trusted by millions worldwide"
-#~ msgstr "בשימוש על ידי מיליונים ברחבי העולם"
-
-#~ msgid "reference(s))"
-#~ msgstr "הפניה(ות))"

@@ -2,13 +2,15 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from datetime import date, datetime, timedelta
+from urllib.parse import urlsplit
 from freezegun import freeze_time
+from lxml import html
 
 from odoo import Command
 from odoo.addons.event.tests.common import EventCase
 from odoo import exceptions
 from odoo.fields import Datetime as FieldsDatetime
-from odoo.tests import Form, users, tagged
+from odoo.tests import Form, HttpCase, users, tagged
 from odoo.tools import mute_logger
 
 
@@ -54,6 +56,7 @@ class TestEventInternalsCommon(EventCase):
 
 
 @tagged('event_event')
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestEventData(TestEventInternalsCommon):
 
     @users('user_eventmanager')
@@ -777,6 +780,7 @@ class TestEventData(TestEventInternalsCommon):
 
 
 @tagged('event_registration')
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestEventRegistrationData(TestEventInternalsCommon):
 
     @users('user_eventmanager')
@@ -882,7 +886,6 @@ class TestEventRegistrationData(TestEventInternalsCommon):
         # create company structure (using sudo as required partner manager group)
         company = self.env['res.partner'].sudo().create({
             'name': 'Customer Company',
-            'is_company': True,
             'type': 'other',
         })
         customer.sudo().write({'type': 'invoice', 'parent_id': company.id})
@@ -906,8 +909,51 @@ class TestEventRegistrationData(TestEventInternalsCommon):
         self.assertEqual(new_reg.email, contact.email)
         self.assertEqual(new_reg.phone, contact.phone)
 
+    @users('user_eventmanager')
+    def test_registration_remaining_entries(self):
+        """ Test initial remaining entries of a registration and the computation of that field based on attendances """
+        multi_entry_event = self.env['event.event'].create({
+            'name': 'Multi Entry Event Test',
+            'date_begin': FieldsDatetime.to_string(datetime.today() - timedelta(days=1)),
+            'date_end': FieldsDatetime.to_string(datetime.today() + timedelta(days=1)),
+        })
+        multi_entry_event_ticket = self.env['event.event.ticket'].create({
+            'name': 'Multi Entry Event Ticket Test',
+            'event_id': multi_entry_event.id,
+            'entry_limit': 3,
+        })
+        multi_entry_registration = self.env['event.registration'].create({
+            'name': 'Multi Entry Registration Test',
+            'event_id': multi_entry_event.id,
+            'event_ticket_id': multi_entry_event_ticket.id,
+        })
+        self.assertEqual(multi_entry_registration.remaining_entries, 3,
+            "Assigning a ticket to a registration should set this registration remaining entries to the same amount as the ticket entry limit")
+        multi_entry_registration.action_attend_event()
+        multi_entry_registration._invalidate_cache(['remaining_entries'])
+        self.assertEqual(multi_entry_registration.remaining_entries, 2,
+            "Validating once the registration should lower the remaining entries by 1")
+        self.assertEqual(multi_entry_registration.state, 'open',
+            "Validating once the registration should not change its state")
+        multi_entry_registration.action_attend_event()
+        multi_entry_registration.action_cancel_last_sub_registration()
+        multi_entry_registration._invalidate_cache(['remaining_entries'])
+        self.assertEqual(multi_entry_registration.remaining_entries, 2,
+            "Validating once the registration then canceling the last sub_registration should not change the remaining entries")
+        self.assertEqual(multi_entry_registration.state, 'open',
+            "Validating then canceling last sub registration should not change the registration's state")
+        multi_entry_registration.action_attend_event()
+        multi_entry_registration._invalidate_cache(['remaining_entries'])
+        multi_entry_registration.action_attend_event()
+        multi_entry_registration._invalidate_cache(['remaining_entries'])
+        self.assertEqual(multi_entry_registration.remaining_entries, 0,
+            "Validating enough times should set the registration remaining entries to 0")
+        self.assertEqual(multi_entry_registration.state, 'done',
+            "When there is no remaining entries, the state of the registration should be 'done'")
+
 
 @tagged('event_registration', 'phone_number')
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestEventRegistrationPhone(EventCase):
 
     @classmethod
@@ -1008,6 +1054,7 @@ class TestEventRegistrationPhone(EventCase):
 
 
 @tagged('event_ticket')
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestEventTicketData(TestEventInternalsCommon):
 
     @freeze_time('2020-01-31 10:00:00')
@@ -1155,8 +1202,34 @@ class TestEventTicketData(TestEventInternalsCommon):
         with self.assertRaises(exceptions.ValidationError):
             reg_draft.write({'state': 'open'})
 
+    @users('user_eventmanager')
+    def test_event_configuration_ticket_translations_from_type(self):
+        """ Ensure translations are copied from Event Type on Event creation """
+        self.env['res.lang'].sudo()._activate_lang('nl_NL')
+
+        event_type = self.env['event.type'].create({
+            'name': 'Event Type',
+            'event_type_ticket_ids': [Command.create({
+                'name': 'VIP Ticket',
+                'seats_max': 10,
+            })],
+        })
+        event_type.event_type_ticket_ids.with_context(lang='nl_NL').name = 'VIP Kaartje'
+
+        event = self.env['event.event'].with_context(lang='nl_NL').create({
+            'name': 'Event Update Type',
+            'event_type_id': event_type.id,
+            'date_begin': FieldsDatetime.to_string(datetime.today() + timedelta(days=1)),
+            'date_end': FieldsDatetime.to_string(datetime.today() + timedelta(days=15)),
+        })
+
+        event_ticket = event.event_ticket_ids[0]
+        self.assertEqual(event_ticket.with_context(lang='en_US').name, 'VIP Ticket')
+        self.assertEqual(event_ticket.with_context(lang='nl_NL').name, 'VIP Kaartje')
+
 
 @tagged('event_event')
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestEventTypeData(TestEventInternalsCommon):
 
     @users('user_eventmanager')
@@ -1175,3 +1248,39 @@ class TestEventTypeData(TestEventInternalsCommon):
         event_type.write({'has_seats_limitation': False})
         self.assertFalse(event_type.has_seats_limitation)
         self.assertEqual(event_type.seats_max, 0)
+
+
+@tagged('post_install', '-at_install')
+class TestEventIcs(HttpCase):
+
+    def test_ics_file_matches_the_mail_language(self):
+        """Check that the calendar file linked in the event subscription mail is written in the language of that mail."""
+        self.env['res.lang']._activate_lang('fr_FR')
+        self.env.ref('base.user_admin').lang = 'en_US'
+        english_attendee, french_attendee = self.env['res.partner'].create([
+            {'name': 'Kevin', 'lang': 'en_US'},
+            {'name': 'Claire', 'lang': 'fr_FR'},
+        ])
+        event = self.env['event.event'].create({
+            'name': 'Wood Workshop',
+            'date_begin': datetime.now() + timedelta(days=1),
+            'date_end': datetime.now() + timedelta(days=2),
+            'registration_ids': [
+                Command.create({'partner_id': english_attendee.id}),
+                Command.create({'partner_id': french_attendee.id}),
+            ],
+        })
+        event.with_context(lang='fr_FR').name = 'Atelier du bois'
+
+        bodies = self.env.ref('event.event_subscription')._render_field(
+            'body_html', event.registration_ids.ids, compute_lang=True)
+
+        self.authenticate('admin', 'admin')
+        summaries = {}
+        for registration in event.registration_ids:
+            href = html.fromstring(bodies[registration.id]).xpath("//a[contains(@href, '/ics')]/@href")[0]
+            ics_url = urlsplit(href)
+            summaries[registration.partner_id.lang] = self.url_open(f'{ics_url.path}?{ics_url.query}').text
+
+        self.assertIn('SUMMARY:Wood Workshop', summaries['en_US'])
+        self.assertIn('SUMMARY:Atelier du bois', summaries['fr_FR'])

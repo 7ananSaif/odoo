@@ -1,12 +1,9 @@
 import { after, expect, registerDebugInfo } from "@odoo/hoot";
-import { Deferred } from "@odoo/hoot-mock";
 import {
-    MockServer,
-    asyncStep,
     defineModels,
     getMockEnv,
     getService,
-    mockService,
+    MockServer,
     patchWithCleanup,
     webModels,
 } from "@web/../tests/web_test_helpers";
@@ -14,12 +11,13 @@ import { BusBus } from "./mock_server/mock_models/bus_bus";
 import { IrWebSocket } from "./mock_server/mock_models/ir_websocket";
 import { getWebSocketWorker, onWebsocketEvent } from "./mock_websocket";
 
-import { busService } from "@bus/services/bus_service";
+import { BusPlugin } from "@bus/services/bus_plugin";
 import { WEBSOCKET_CLOSE_CODES } from "@bus/workers/websocket_worker";
-import { on, runAllTimers, waitUntil } from "@odoo/hoot-dom";
+import { runAllTimers, waitUntil } from "@odoo/hoot-dom";
 import { registry } from "@web/core/registry";
 import { deepEqual } from "@web/core/utils/objects";
 import { patch } from "@web/core/utils/patch";
+import { useListener } from "@odoo/owl";
 
 /**
  * @typedef {[
@@ -43,21 +41,28 @@ import { patch } from "@web/core/utils/patch";
 // Setup
 //-----------------------------------------------------------------------------
 
-patch(busService, {
-    _onMessage(env, id, type, payload) {
-        // Generic handlers (namely: debug info)
-        if (type in busMessageHandlers) {
-            busMessageHandlers[type](env, id, payload);
-        } else {
-            registerDebugInfo("bus message", { id, type, payload });
+patch(BusPlugin.prototype, {
+    handleMessage(messageEv) {
+        super.handleMessage(messageEv);
+        const { type, data } = messageEv.data;
+        if (type !== "BUS:NOTIFICATION") {
+            return;
         }
-
-        // Notifications
-        if (!busNotifications.has(env)) {
-            busNotifications.set(env, []);
-            after(() => busNotifications.clear());
+        for (const { id, message } of data) {
+            const { type, payload } = message;
+            // Generic handlers (namely: debug info)
+            if (type in busMessageHandlers) {
+                busMessageHandlers[type](this.env, id, payload);
+            } else {
+                registerDebugInfo("bus message", { id, type, payload });
+            }
+            // Notifications
+            if (!busNotifications.has(this.env)) {
+                busNotifications.set(this.env, []);
+                after(() => busNotifications.clear());
+            }
+            busNotifications.get(this.env).push({ id, type, payload });
         }
-        busNotifications.get(env).push({ id, type, payload });
     },
 });
 
@@ -143,7 +148,7 @@ viewsRegistry.category("form").add(
 
 // should be enough to decide whether or not notifications/channel
 // subscriptions... are received.
-const TIMEOUT = 2000;
+const TIMEOUT = 10000;
 
 //-----------------------------------------------------------------------------
 // Exports
@@ -165,12 +170,18 @@ export function addBusMessageHandler(type, handler) {
  * @param  {...[string, (event: CustomEvent) => any]} listeners
  */
 export function addBusServiceListeners(...listeners) {
-    mockService("bus_service", (env, dependencies) => {
-        const busServiceInstance = busService.start(env, dependencies);
-        for (const [type, handler] of listeners) {
-            after(on(busServiceInstance, type, handler));
-        }
-        return busServiceInstance;
+    let bound = false;
+    patchWithCleanup(BusPlugin.prototype, {
+        setup() {
+            super.setup();
+
+            if (!bound) {
+                bound = true;
+                for (const [type, handler] of listeners) {
+                    useListener(this.bus, type, handler);
+                }
+            }
+        },
     });
 }
 
@@ -179,13 +190,16 @@ export function defineBusModels() {
 }
 
 /**
- * Returns a deferred that resolves when a websocket subscription is
- * done.
+ * Returns a promise that resolves when a websocket subscription is done.
  *
- * @returns {Deferred<void>}
+ * @returns {Promise<void>}
  */
 export function waitUntilSubscribe() {
-    const def = new Deferred();
+    const {
+        promise: subscriptionPromise,
+        reject: rejectSubscription,
+        resolve: resolveSubscription,
+    } = Promise.withResolvers();
     const timeout = setTimeout(() => handleResult(false), TIMEOUT);
 
     function handleResult(success) {
@@ -196,18 +210,18 @@ export function waitUntilSubscribe() {
             : "Websocket subscription not received.";
         expect(success).toBe(true, { message });
         if (success) {
-            def.resolve();
+            resolveSubscription();
         } else {
-            def.reject(new Error(message));
+            rejectSubscription(new Error(message));
         }
     }
     const offWebsocketEvent = onWebsocketEvent("subscribe", () => handleResult(true));
-    return def;
+    return subscriptionPromise;
 }
 
 /**
- * Returns a deferred that resolves when the given channel addition/deletion
- * occurs. Resolve immediately if the operation was already done.
+ * Returns a promise that resolves when the given channel addition/deletion
+ * occurs. Resolves immediately if the operation was already done.
  *
  * @param {string[]} channels
  * @param {object} [options={}]
@@ -216,7 +230,11 @@ export function waitUntilSubscribe() {
  */
 export async function waitForChannels(channels, { operation = "add" } = {}) {
     const { env } = MockServer;
-    const def = new Deferred();
+    const {
+        promise: channelUpdatePromise,
+        reject: rejectChannelUpdate,
+        resolve: resolveChannelUpdate,
+    } = Promise.withResolvers();
     let done = false;
     let failTimeout;
 
@@ -244,9 +262,9 @@ export async function waitForChannels(channels, { operation = "add" } = {}) {
                   }`;
         expect(success).toBe(true, { message });
         if (success) {
-            def.resolve();
+            resolveChannelUpdate();
         } else {
-            def.reject(new Error(message(false)));
+            rejectChannelUpdate(new Error(message(false)));
         }
         done = true;
     }
@@ -259,7 +277,7 @@ export async function waitForChannels(channels, { operation = "add" } = {}) {
     failTimeout = setTimeout(() => check(true), TIMEOUT);
     check(false);
 
-    return def;
+    return channelUpdatePromise;
 }
 
 /**
@@ -301,7 +319,7 @@ export function stepWorkerActions(targetActions) {
     patchWithCleanup(getWebSocketWorker(), {
         _onClientMessage(_, { action }) {
             if (targetActions.includes(action)) {
-                asyncStep(action);
+                expect.step(action);
             }
             return super._onClientMessage(...arguments);
         },
@@ -316,12 +334,8 @@ export function lockWebsocketConnect() {
     return patchWithCleanup(window, { WebSocket: LockedWebSocket });
 }
 
-/**
- * @param {OdooEnv} [env]
- */
-export async function startBusService(env) {
-    const busService = env ? env.services.bus_service : getService("bus_service");
-    busService.start();
+export async function startBusService() {
+    getService(BusPlugin).start();
     await runAllTimers();
 }
 

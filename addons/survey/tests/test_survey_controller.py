@@ -5,9 +5,11 @@ import datetime
 
 from odoo import Command
 from odoo.addons.survey.tests import common
-from odoo.tests.common import HttpCase
+from odoo.tests.common import tagged, HttpCase
+from odoo.tools import mute_logger
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestSurveyController(common.TestSurveyCommon, HttpCase):
 
     def test_submit_route_scoring_after_page(self):
@@ -110,7 +112,9 @@ class TestSurveyController(common.TestSurveyCommon, HttpCase):
                 # Submit answers and check the submit route is returning the accurate correct answers
                 response = self._access_submit(survey, answer_token, post_data)
                 self.assertResponse(response, 200)
-                self.assertEqual(response.json()['result'][0], expected_correct_answers)
+                result = response.json()['result']
+                self.assertFalse(result[1].get('error'))
+                self.assertEqual(result[0], expected_correct_answers)
 
                 user_input.invalidate_recordset() # TDE note: necessary as lots of sudo in controllers messing with cache
 
@@ -129,3 +133,133 @@ class TestSurveyController(common.TestSurveyCommon, HttpCase):
         session_manage_url = f'/survey/session/manage/{survey.access_token}'
         response = self.url_open(session_manage_url)
         self.assertEqual(response.status_code, 200, "Should be able to open live session manage page")
+
+    def test_live_session_answer_after_result(self):
+        """Verify that participants can no longer answer once the results have been shown."""
+        survey = self.env['survey.survey'].with_user(self.survey_manager).create({
+            'title': 'Live Session Survey',
+            'survey_type': 'live_session',
+            'question_and_page_ids': [
+                Command.create({
+                    'title': question, 'question_type': 'multiple_choice',
+                    'suggested_answer_ids': [
+                        Command.create({'value': '1pt', 'is_correct': True, 'answer_score': 1}),
+                        Command.create({'value': '0pt', 'is_correct': False, 'answer_score': 0}),
+                    ]
+                })
+                for question in ('Question1', 'Question2')
+            ],
+        })
+        questions = survey.question_ids
+
+        # Host: Start the live survey
+        self.authenticate('survey_manager', 'survey_manager')
+        survey.action_start_session()
+        self.assertEqual(self._session_next_question(survey).status_code, 200)
+        self.assertTrue(survey.session_question_can_answer)
+        self.assertEqual(self._session_disable_answers(survey).status_code, 200)
+        self.assertFalse(survey.session_question_can_answer)
+
+        # User not member of survey groups cannot go to the next question
+        self.authenticate('user_emp', 'user_emp')
+        self.assertEqual(survey.session_question_id, questions[0])
+        with mute_logger('odoo.http'):
+            self._session_next_question(survey)
+        self.assertEqual(survey.session_question_id, questions[0], "Only survey user go to the next question")
+
+        # Participant: Attempt to answer question 1 while it is already closed
+        self.authenticate(None, None)
+        res = self.url_open(survey.get_start_url())
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(res.history, "Survey start should redirect")
+        answer_token = res.history[0].cookies.get(f'survey_{survey.access_token}')
+        csrf_token = self._find_csrf_token(res.text)
+        self.assertIn('Question1', res.text)
+        post_data = self._format_submission_data(
+            survey.question_ids[0], [questions[0].suggested_answer_ids[0].id],
+            {'csrf_token': csrf_token, 'token': answer_token})
+        res = self._access_submit(survey, answer_token, post_data)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(
+            res.json()['result'][1],
+            {"error": "validation",
+             "fields": {str(survey.question_ids[0].id): "We do not accept submissions for this question anymore."}})
+
+        # Host: Go to Question 2
+        self.authenticate('survey_manager', 'survey_manager')
+        self.assertEqual(self._session_next_question(survey).status_code, 200)
+        self.assertTrue(survey.session_question_can_answer)
+
+        # User not member of survey groups cannot set the result state
+        self.authenticate('user_emp', 'user_emp')
+        with mute_logger('odoo.http'):
+            self._session_disable_answers(survey)
+        self.assertTrue(survey.session_question_can_answer, "Only survey user can change session_question_can_answer")
+
+        # Participant: Answer correctly question 2
+        self.authenticate(None, None)
+        res = self.url_open(survey.get_start_url())
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('Question2', res.text)
+        self.assertTrue(res.history, "Survey start should redirect")
+        answer_token = res.history[0].cookies.get(f'survey_{survey.access_token}')
+        csrf_token = self._find_csrf_token(res.text)
+        post_data = self._format_submission_data(
+            survey.question_ids[1], [questions[1].suggested_answer_ids[0].id],
+            {'csrf_token': csrf_token, 'token': answer_token})
+        res = self._access_submit(survey, answer_token, post_data)
+        self.assertEqual(res.status_code, 200)
+        self.assertFalse(res.json()['result'][1].get('error'))
+
+        # Host: Check answered questions and scores
+        self.authenticate('survey_manager', 'survey_manager')
+        self.assertEqual(self._session_next_question(survey).status_code, 200)
+        user_inputs = self.env['survey.user_input'].search([
+            ('survey_id', '=', survey.id),
+            ('create_date', '>=', survey.session_start_time)
+        ], order='id')
+        self.assertEqual(user_inputs.mapped('user_input_line_ids.question_id.title'), ['Question2'],
+                         "Only question 2 has been answered.")
+        self.assertEqual(user_inputs.mapped('scoring_total'), [0, 1])
+
+    def test_live_session_restart(self):
+        """Verify that a new run of a session does not resume the participation to the previous one."""
+        survey = self.env['survey.survey'].with_user(self.survey_manager).create({
+            'title': 'Live Session Survey',
+            'survey_type': 'live_session',
+            'question_and_page_ids': [
+                Command.create({
+                    'title': 'Question1',
+                    'question_type': 'multiple_choice',
+                    'suggested_answer_ids': [Command.create({'value': 'Answer1'})],
+                }),
+            ],
+        })
+        cookie_key = f'survey_{survey.access_token}'
+
+        survey.action_start_session()
+
+        res = self._access_start(survey)
+        self.assertTrue(res.history, "Survey start should redirect")
+        first_answer = survey.user_input_ids
+        self.assertEqual(len(first_answer), 1)
+        self.assertEqual(res.history[0].cookies.get(cookie_key), first_answer.access_token)
+
+        res = self._access_start(survey)
+        survey.invalidate_recordset(['user_input_ids'])
+        self.assertEqual(survey.user_input_ids, first_answer,
+            "Attendee should resume their participation to the current run",
+        )
+
+        survey.action_end_session()
+        self.assertEqual(first_answer.state, 'done')
+        survey.action_start_session()
+
+        res = self._access_start(survey)
+        survey.invalidate_recordset(['user_input_ids'])
+        self.assertEqual(len(survey.user_input_ids), 2,
+            "Attendee should not be stuck on their participation to the closed run",
+        )
+        second_answer = survey.user_input_ids - first_answer
+        self.assertEqual(res.history[0].cookies.get(cookie_key), second_answer.access_token)
+        self.assertEqual(second_answer.state, 'new', "Attendee should be able to take part in the new run")

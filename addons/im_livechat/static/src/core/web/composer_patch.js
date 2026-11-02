@@ -3,12 +3,13 @@ import { _t } from "@web/core/l10n/translation";
 
 import { patch } from "@web/core/utils/patch";
 
-patch(Composer.prototype, {
+/** @type {Composer} */
+const composerPatch = {
     onKeydown(ev) {
         super.onKeydown(ev);
         if (
             ev.key === "Tab" &&
-            this.thread?.channel_type === "livechat" &&
+            this.thread?.channel?.channel_type === "livechat" &&
             !this.props.composer.composerText
         ) {
             const threadChanged = this.store.goToOldestUnreadLivechatThread();
@@ -22,16 +23,17 @@ patch(Composer.prototype, {
     },
     get placeholder() {
         if (this.displayNextLivechatHint() && this.props.composer.isFocused) {
-            return _t("Tab to next livechat");
+            return _t("Tab to next live chat");
         }
         return super.placeholder;
     },
     displayNextLivechatHint() {
         return (
-            this.thread?.channel_type === "livechat" &&
+            this.thread?.channel?.channel_type === "livechat" &&
             this.store.discuss.livechats.some(
-                (thread) => thread.notEq(this.thread) && thread.isUnread
+                (channel) => channel.thread.notEq(this.thread) && channel.isUnread
             )
         );
     },
-});
+};
+patch(Composer.prototype, composerPatch);

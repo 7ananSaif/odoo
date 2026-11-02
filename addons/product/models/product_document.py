@@ -12,15 +12,30 @@ class ProductDocument(models.Model):
         'ir.attachment': 'ir_attachment_id',
     }
     _order = 'sequence, name'
+    _access_domain_heavy = True
 
     ir_attachment_id = fields.Many2one(
         'ir.attachment',
         string="Related attachment",
         required=True,
+        index=True,
         ondelete='cascade')
 
     active = fields.Boolean(default=True)
     sequence = fields.Integer(default=10)
+    variant_attribute_value_ids = fields.Many2many(
+        'product.template.attribute.value',
+        compute='_compute_variant_attribute_value_ids',
+    )
+
+    @api.depends('res_model', 'res_id')
+    def _compute_variant_attribute_value_ids(self):
+        Product = self.env['product.product']
+        self.variant_attribute_value_ids = False
+        for document in self:
+            if document.res_model == 'product.product' and document.res_id:
+                product = Product.browse(document.res_id)
+                document.variant_attribute_value_ids = product.product_template_attribute_value_ids
 
     @api.onchange('url')
     def _onchange_url(self):

@@ -1,6 +1,6 @@
+import { proxy } from "@odoo/owl";
 import { Plugin } from "@html_editor/plugin";
 import { isEmptyTextNode, isZWS } from "@html_editor/utils/dom_info";
-import { reactive } from "@odoo/owl";
 import { composeToolbarButton, Toolbar } from "./toolbar";
 import { hasTouch, isMacOS, isIOS } from "@web/core/browser/feature_detection";
 import { registry } from "@web/core/registry";
@@ -11,7 +11,8 @@ import { withSequence } from "@html_editor/utils/resource";
 import { _t } from "@web/core/l10n/translation";
 import { memoize } from "@web/core/utils/functions";
 import { closestElement } from "@html_editor/utils/dom_traversal";
-import { utils } from "@web/core/ui/ui_service";
+import { utils } from "@web/core/ui/ui_utils";
+import { removeStyle } from "@html_editor/utils/dom";
 
 /** @typedef { import("@html_editor/core/selection_plugin").EditorSelection } EditorSelection */
 /** @typedef {import("@html_editor/core/selection_plugin").SelectionData} SelectionData */
@@ -21,11 +22,6 @@ import { utils } from "@web/core/ui/ui_service";
 /** @typedef { (selection: EditorSelection, nodes: Node[]) => TranslatedString } TranslatedStringGetter */
 
 /**
- * @typedef {Object} ToolbarNamespace
- * @property {string} id
- * @property {(targetedNodes: Node[]) => boolean} isApplied
- *
- *
  * @typedef {Object} ToolbarGroup
  * @property {string} id
  * @property {string[]} [namespaces]
@@ -44,6 +40,7 @@ import { utils } from "@web/core/ui/ui_service";
  * @property {Object} [commandParams] Passed to the command's `run` function
  * @property {TranslatedString | TranslatedStringGetter} [description] * - becomes the button's title (and tooltip content)
  * @property {string} [icon] *
+ * @property {string} [iconClass] *
  * @property {string} [text] Can be used with (or instead of) `icon`
  * @property {(selection: EditorSelection) => boolean} [isAvailable] ? *
  * @property {(selection: EditorSelection, nodes: Node[]) => boolean} [isActive]
@@ -72,6 +69,7 @@ import { utils } from "@web/core/ui/ui_service";
  * @property {TranslatedStringGetter} description
  * @property {Function} run
  * @property {string} [icon]
+ * @property {string} [iconClass]
  * @property {string} [text]
  * @property {(selection: EditorSelection) => boolean} isAvailable
  * @property {(selection: EditorSelection, nodes: Node[]) => boolean} [isActive]
@@ -96,18 +94,21 @@ export const DELAY_TOOLBAR_OPEN = 300;
 const MIN_SIZE_FOR_COMPACT = 7;
 /** Special namespace that prevents the toolbar from opening */
 export const DISABLED_NAMESPACE = "disabled";
+/** Toolbar namespaces that allow expanding to the full toolbar */
 
 /**
  * @typedef { Object } ToolbarShared
  * @property { ToolbarPlugin['getToolbarInfo'] } getToolbarInfo
+ * @property { ToolbarPlugin['getIsToolbarOpen'] } getIsToolbarOpen
  */
 
 /**
- * @typedef {((namespace: string) => boolean)[]} can_display_toolbar
- * @typedef {((selectionData: SelectionData) => boolean)[]} collapsed_selection_toolbar_predicate
- *
  * @typedef {ToolbarGroup[]} toolbar_groups
- * @typedef {ToolbarNamespace[]} toolbar_namespaces
+ */
+
+/**
+ * @typedef {((targetedNodes: Node[], editableSelection: EditorSelection) => string | undefined)[]} toolbar_namespace_providers
+ * @typedef {string[]} expandable_toolbar_namespaces_providers
  */
 
 /**
@@ -127,7 +128,8 @@ export const DISABLED_NAMESPACE = "disabled";
  *                 id: myCommand,
  *                 run: myCommandFunction,
  *                 description: _t("My Command"),
- *                 icon: "fa-bug",
+ *                 icon: "bug_report",
+ *                 iconClass: "oi-filled",
  *             },
  *         ],
  *         // see ToolbarGroup
@@ -158,13 +160,15 @@ export const DISABLED_NAMESPACE = "disabled";
 export class ToolbarPlugin extends Plugin {
     static id = "toolbar";
     static dependencies = ["overlay", "selection", "userCommand"];
-    static shared = ["getToolbarInfo"];
+    static shared = ["getToolbarInfo", "getIsToolbarOpen"];
     /** @type {import("plugins").EditorResources} */
     resources = {
-        selectionchange_handlers: this.handleSelectionChange.bind(this),
-        selection_leave_handlers: () => this.closeToolbar(null, { force: true }),
-        selection_enter_handlers: () => this.updateToolbar(),
-        step_added_handlers: () => this.updateToolbar(),
+        on_selectionchange_handlers: this.handleSelectionChange.bind(this),
+        on_selection_leave_handlers: () => this.closeToolbar(null, { force: true }),
+        on_selection_enter_handlers: () => this.updateToolbar(),
+        on_committed_to_history_handlers: () => this.updateToolbar(),
+        on_format_requested_handlers: () => this.updateToolbar(),
+        on_collapsed_formats_removed_handlers: () => this.updateToolbar(),
         user_commands: {
             id: "expandToolbar",
             run: () => {
@@ -173,7 +177,7 @@ export class ToolbarPlugin extends Plugin {
             },
         },
         toolbar_groups: [
-            withSequence(100, { id: "expand_toolbar", namespaces: ["compact"] }),
+            withSequence(100, { id: "expand_toolbar" }),
             withSequence(30, { id: "layout" }),
         ],
         toolbar_items: {
@@ -181,13 +185,14 @@ export class ToolbarPlugin extends Plugin {
             groupId: "expand_toolbar",
             commandId: "expandToolbar",
             description: _t("Expand toolbar"),
-            icon: "oi-ellipsis-v",
+            icon: "more_vert",
         },
         toolbar_namespace_providers: [
             withSequence(100, (targetedNodes, editableSelection) =>
                 this.isToolbarVisible(targetedNodes, editableSelection) ? "compact" : undefined
             ),
         ],
+        expandable_toolbar_namespaces_providers: "compact",
     };
 
     setup() {
@@ -198,6 +203,7 @@ export class ToolbarPlugin extends Plugin {
             }
             groupIds.add(group.id);
         }
+        this.expandableNamespaces = this.getResource("expandable_toolbar_namespaces_providers");
         this.buttonGroups = this.getButtonGroups();
         this.buttonsByNamespace = { DISABLED_NAMESPACE: [] };
 
@@ -215,10 +221,15 @@ export class ToolbarPlugin extends Plugin {
                 closeOnPointerdown: false,
             });
         }
-        this.state = reactive({ buttonGroups: [], namespace: undefined });
+        this.state = proxy({ buttonGroups: [], namespace: undefined });
 
         this.onSelectionChangeActive = true;
-        this.debouncedUpdateToolbar = debounce(this._updateToolbar, DELAY_TOOLBAR_OPEN);
+        // Re-enable selection tracking only after the debounced update finishes,
+        // so async selectionchange events don't open the toolbar early.
+        this.debouncedUpdateToolbar = debounce(() => {
+            this._updateToolbar();
+            this.onSelectionChangeActive = true;
+        }, DELAY_TOOLBAR_OPEN);
 
         if (this.isMobileToolbar) {
             this.addDomListener(this.editable, "pointerup", () => {
@@ -236,8 +247,7 @@ export class ToolbarPlugin extends Plugin {
             this.addGlobalDomListener("mouseup", (ev) => {
                 if (ev.detail >= 2) {
                     // Delayed open, waiting for a possible triple click.
-                    this.onSelectionChangeActive = true;
-                    this.debouncedUpdateToolbar();
+                    this.triggerDebouncedUpdateToolbar();
                 } else {
                     // Fast open, just wait for a possible selection change due
                     // to mouseup.
@@ -269,16 +279,14 @@ export class ToolbarPlugin extends Plugin {
             this.addDomListener(this.editable, "keyup", (ev) => {
                 if (ev.key?.startsWith("Arrow")) {
                     this.pendingArrowKey = false;
-                    this.onSelectionChangeActive = true;
-                    this.debouncedUpdateToolbar();
+                    this.triggerDebouncedUpdateToolbar();
                 }
             });
             if (isMacOS()) {
                 this.addDomListener(this.document, "selectionchange", () => {
                     if (this.pendingArrowKey && !this.isMouseDown) {
                         this.pendingArrowKey = false;
-                        this.onSelectionChangeActive = true;
-                        this.debouncedUpdateToolbar();
+                        this.triggerDebouncedUpdateToolbar();
                     }
                 });
                 this.addDomListener(this.editable, "mousedown", () => (this.isMouseDown = true));
@@ -302,6 +310,13 @@ export class ToolbarPlugin extends Plugin {
     }
 
     /**
+     * Schedules a debounced toolbar update.
+     */
+    triggerDebouncedUpdateToolbar() {
+        this.debouncedUpdateToolbar();
+    }
+
+    /**
      * @returns {ToolbarButton[]}
      */
     getButtons() {
@@ -315,7 +330,12 @@ export class ToolbarPlugin extends Plugin {
         };
         /** @type {(item: ToolbarComponentItem) => ToolbarComponentButton} */
         const componentItemToButton = (item) => ({
-            isAvailable: () => true,
+            isAvailable: (selection) => {
+                const command = item.commandId
+                    ? this.dependencies.userCommand.getCommand(item.commandId)
+                    : null;
+                return command?.isAvailable ? command.isAvailable(selection) : true;
+            },
             ...item,
             description:
                 item.description instanceof Function ? item.description : () => item.description,
@@ -331,15 +351,19 @@ export class ToolbarPlugin extends Plugin {
         /** @type {ToolbarGroup[]} */
         const groups = this.getResource("toolbar_groups");
 
-        return groups.map((group) => ({
-            ...omit(group, "namespaces"),
-            buttons: buttons
-                .filter((button) => button.groupId === group.id)
-                .map((button) => ({
-                    ...button,
-                    namespaces: button.namespaces || group.namespaces || ["expanded"],
-                })),
-        }));
+        return groups.map((group) => {
+            const groupNamespaces =
+                group.id === "expand_toolbar" ? this.expandableNamespaces : group.namespaces;
+            return {
+                ...omit(group, "namespaces"),
+                buttons: buttons
+                    .filter((button) => button.groupId === group.id)
+                    .map((button) => ({
+                        ...button,
+                        namespaces: button.namespaces || groupNamespaces || ["expanded"],
+                    })),
+            };
+        });
     }
 
     /**
@@ -362,6 +386,10 @@ export class ToolbarPlugin extends Plugin {
         };
     }
 
+    getIsToolbarOpen() {
+        return this.overlay.isOpen;
+    }
+
     handleSelectionChange(selectionData) {
         if (this.onSelectionChangeActive) {
             this.updateToolbar(selectionData);
@@ -369,16 +397,27 @@ export class ToolbarPlugin extends Plugin {
     }
 
     /**
-     * Different handlers might call updateToolbar (e.g. step added and
+     * Different handlers might call updateToolbar (e.g. commit added and
      * selection change) in the same tick. To avoid unnecessary updates, we
      * batch the calls.
      */
     updateToolbar = debounce(this._updateToolbar, 0, { trailing: true });
     _updateToolbar(selectionData = this.dependencies.selection.getSelectionData()) {
+        // A debounced/deferred update can still fire after the plugin has been
+        // destroyed (e.g. the "mouseup" handler re-arms `updateToolbar` through a
+        // raw setTimeout that isn't cancelled by `destroy`). At that point the
+        // editable's document is detached and `defaultView` is null, which would
+        // crash in `getFilteredTargetedNodes`. Bail out early in that case.
+        if (this.isDestroyed || !this.document.isConnected) {
+            return;
+        }
         // Prevent toolbar to open if the selection is not in the editable area,
         // or if the selection is protected or protecting.
         if (
-            !selectionData.currentSelectionIsInEditable ||
+            !(
+                selectionData.documentSelectionIsInEditable &&
+                this.dependencies.selection.editableDocumentHasFocus()
+            ) ||
             selectionData.documentSelectionIsProtected ||
             selectionData.documentSelectionIsProtecting
         ) {
@@ -407,7 +446,7 @@ export class ToolbarPlugin extends Plugin {
             return;
         }
 
-        if (currentNamespace === "compact" && this.isToolbarExpanded) {
+        if (this.expandableNamespaces.includes(currentNamespace) && this.isToolbarExpanded) {
             currentNamespace = "expanded";
         }
 
@@ -447,7 +486,7 @@ export class ToolbarPlugin extends Plugin {
             return false;
         }
         // Only allow the toolbar to open if the selection contains visible selected characters.
-        const selectionText = editableSelection.textContent();
+        const selectionText = editableSelection.toString();
         const textCleaned = selectionText.replace(/(\r\n|\n|\r|\u200B|\uFEFF)/gm, "");
         if (textCleaned.length) {
             return true;
@@ -498,7 +537,7 @@ export class ToolbarPlugin extends Plugin {
                         ...(button.Component
                             ? pick(button, "Component", "props")
                             : {
-                                  ...pick(button, "run", "icon", "text"),
+                                  ...pick(button, "run", "icon", "iconClass", "text"),
                                   isActive: !!button.isActive?.(selection, targetedNodes),
                               }),
                     })),
@@ -573,7 +612,7 @@ class MobileToolbarOverlay {
     close() {
         const modal = this.editable.closest(".o_modal_full");
         if (modal) {
-            modal.style.paddingBottom = "";
+            removeStyle(modal, "padding-bottom");
         }
         registry.category("main_components").remove(this.overlayId, "MobileToolbar");
         this.isOpen = false;

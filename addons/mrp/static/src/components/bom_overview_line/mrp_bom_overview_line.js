@@ -1,29 +1,22 @@
 import { _t } from "@web/core/l10n/translation";
 import { useService } from "@web/core/utils/hooks";
 import { formatFloat, formatFloatTime, formatMonetary } from "@web/views/fields/formatters";
-import { Component } from "@odoo/owl";
+import { Component, useProps, t } from "@odoo/owl";
 
 export class BomOverviewLine extends Component {
     static template = "mrp.BomOverviewLine";
-    static props = {
-        isFolded: { type: Boolean, optional: true },
-        showOptions: {
-            type: Object,
-            shape: {
-                mode: String,
-                uom: Boolean,
-                attachments: Boolean,
-            },
-        },
-        currentWarehouseId: { type: Number, optional: true },
-        data: Object,
-        precision: Number,
-        toggleFolded: { type: Function, optional: true },
-    };
-    static defaultProps = {
-        isFolded: true,
-        toggleFolded: () => {},
-    };
+    props = useProps({
+        isFolded: t.boolean().optional(true),
+        showOptions: t.object({
+            mode: t.string(),
+            uom: t.boolean(),
+            attachments: t.boolean(),
+        }),
+        currentWarehouseId: t.number().optional(),
+        data: t.object(),
+        precision: t.number(),
+        toggleFolded: t.function().optional(() => () => {}),
+    });
 
     setup() {
         this.actionService = useService("action");
@@ -39,6 +32,7 @@ export class BomOverviewLine extends Component {
         if (routeType == "manufacture") {
             return this.goToAction(this.data.bom_id, "mrp.bom");
         }
+        return this.goToAction(this.data.link_id, this.data.link_model);
     }
 
     async goToAction(id, model) {
@@ -55,6 +49,9 @@ export class BomOverviewLine extends Component {
     }
 
     async goToForecast() {
+        if (this.data.type == "operation") {
+            return;
+        }
         const action = await this.ormService.call(
             this.data.link_model,
             this.forecastAction,
@@ -75,7 +72,7 @@ export class BomOverviewLine extends Component {
             name: _t("Attachments"),
             type: "ir.actions.act_window",
             res_model: "product.document",
-            domain: ['&', ["attached_on_mrp", "=", "bom"], '|',
+            domain: ['|',
                 '&',["res_model", "=", "product.product"],["res_id", "in", [this.data.product_id]],
                 '&',["res_model", "=", "product.template"],["res_id", "in", [this.data.product_template_id]]],
             views: [[false, "kanban"], [false, "list"], [false, "form"]],
@@ -112,7 +109,12 @@ export class BomOverviewLine extends Component {
     }
 
     get hasQuantity() {
-        return this.data.is_storable && this.data.hasOwnProperty('quantity_available') && this.data.quantity_available !== false;
+        const is_storable =
+            this.data.is_storable ||
+            (this.data.phantom_bom &&
+                this.data.components &&
+                this.data.components.some((comp) => comp.is_storable));
+        return is_storable && this.data?.quantity_available !== false;
     }
 
     get hasLeadTime() {
@@ -139,27 +141,6 @@ export class BomOverviewLine extends Component {
         return this.props.showOptions.attachments;
     }
 
-    get availabilityColorClass() {
-        // For first line, another rule applies : green if doable now, red otherwise.
-        if (this.data.hasOwnProperty('components_available')) {
-            if (this.data.components_available && this.data.availability_state != 'unavailable') {
-                return "text-success";
-            } else {
-                return "text-danger";
-            }
-        }
-        switch (this.data.availability_state) {
-            case "available":
-                return "text-success";
-            case "expected":
-                return "text-warning";
-            case "unavailable":
-                return "text-danger";
-            default:
-                return "";
-        }
-    }
-
     get forecastAction() {
         switch (this.data.link_model) {
             case "product.product":
@@ -170,8 +151,14 @@ export class BomOverviewLine extends Component {
     }
 
     get statusBackgroundClass() {
-        if(this.data.index == "0") {
-            return "text-bg-info";
+        if(this.data.availability_state == "available" || this.data.components_available && this.data.producible_qty){
+            return "text-bg-success";
+        }
+        if(this.data.availability_state == "estimated") {
+            return "text-bg-dark";
+        }
+        if(this.data.availability_state == "expected") {
+            return "text-bg-warning";
         }
         return "text-bg-danger";
     }

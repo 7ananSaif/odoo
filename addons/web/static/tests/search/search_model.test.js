@@ -7,7 +7,6 @@ describe.current.tags("headless");
 
 class TestComponent extends Component {
     static template = xml`<div class="o_test_component"/>`;
-    static props = ["*"];
 }
 
 async function createSearchModel(searchProps = {}, config = {}) {
@@ -32,6 +31,7 @@ function sanitizeSearchItems(model) {
         delete copy.groupId;
         delete copy.groupNumber;
         delete copy.id;
+        delete copy.relativeFilterId;
         return copy;
     });
 }
@@ -202,7 +202,7 @@ test("parsing one filter tag with default_period date attribute", async () => {
             </search>
         `,
     });
-    expect(sanitizeSearchItems(model)).toEqual([
+    expect(sanitizeSearchItems(model).filter((i) => i.type !== "relativeFilter")).toEqual([
         {
             defaultGeneratorIds: ["year", "year-1"],
             description: "Date",
@@ -213,34 +213,25 @@ test("parsing one filter tag with default_period date attribute", async () => {
             name: "date_filter",
             optionsParams: {
                 customOptions: [],
-                endMonth: 0,
-                endYear: 0,
-                startMonth: -2,
-                startYear: -2,
             },
         },
     ]);
 });
 
-test("parsing date filter with start_month, end_month, start_year, end_year attributes", async () => {
+test("parsing one filter tag with a relative option as default_period", async () => {
     const model = await createSearchModel({
         searchViewArch: `
             <search>
-                <filter
-                    name="date_filter"
-                    string="Date"
-                    date="date_field"
-                    start_month="-4"
-                    end_month="-1"
-                    start_year="-1"
-                    end_year="3"
-                />
+                <filter name="date_filter" string="Date" date="date_field" default_period="year-1,this_month"/>
             </search>
         `,
     });
-    expect(sanitizeSearchItems(model)).toEqual([
+    // The relative option is extracted from the declared periods: it is the
+    // companion relative filter that must be activated, not a period option.
+    expect(sanitizeSearchItems(model).filter((i) => i.type !== "relativeFilter")).toEqual([
         {
-            defaultGeneratorIds: ["month-1"],
+            defaultGeneratorIds: [],
+            defaultRelativeOptionId: "this_month",
             description: "Date",
             domain: "[]",
             fieldName: "date_field",
@@ -249,13 +240,12 @@ test("parsing date filter with start_month, end_month, start_year, end_year attr
             name: "date_filter",
             optionsParams: {
                 customOptions: [],
-                endMonth: -1,
-                endYear: 3,
-                startMonth: -4,
-                startYear: -1,
             },
         },
     ]);
+    expect(
+        sanitizeSearchItems(model).find((i) => i.type === "relativeFilter").defaultOptionId
+    ).toBe("this_month");
 });
 
 test("parsing date filter with custom options", async () => {
@@ -269,7 +259,7 @@ test("parsing date filter with custom options", async () => {
             </search>
         `,
     });
-    expect(sanitizeSearchItems(model)).toEqual([
+    expect(sanitizeSearchItems(model).filter((i) => i.type !== "relativeFilter")).toEqual([
         {
             defaultGeneratorIds: ["month"],
             description: "Date",
@@ -283,19 +273,15 @@ test("parsing date filter with custom options", async () => {
                         id: "custom_birthday_today",
                         description: "Today",
                         domain: "[('date_field', '=', context_today().strftime('%Y-%m-%d'))]",
-                        type: "dateOption",
+                        type: "innerFilter",
                     },
                     {
                         id: "custom_birthday_future",
                         description: "Future",
                         domain: "[('date_field', '>=', context_today().strftime('%Y-%m-%d'))]",
-                        type: "dateOption",
+                        type: "innerFilter",
                     },
                 ],
-                endMonth: 0,
-                endYear: 0,
-                startMonth: -2,
-                startYear: -2,
             },
             type: "dateFilter",
         },
@@ -310,7 +296,7 @@ test("parsing one filter tag with date attribute ", async () => {
             </search>
         `,
     });
-    expect(sanitizeSearchItems(model)).toEqual([
+    expect(sanitizeSearchItems(model).filter((i) => i.type !== "relativeFilter")).toEqual([
         {
             defaultGeneratorIds: ["month"],
             description: "Date",
@@ -320,10 +306,6 @@ test("parsing one filter tag with date attribute ", async () => {
             name: "date_filter",
             optionsParams: {
                 customOptions: [],
-                endMonth: 0,
-                endYear: 0,
-                startMonth: -2,
-                startYear: -2,
             },
             type: "dateFilter",
         },
@@ -494,7 +476,8 @@ test("parsing a searchpanel field select one", async () => {
             expand: false,
             fieldName: "company_id",
             hierarchize: true,
-            icon: "fa-folder",
+            icon: "folder",
+            iconClass: "oi-filled",
             id: 1,
             limit: 200,
             parentField: "parent_id",
@@ -564,7 +547,8 @@ test("parsing a searchpanel field select multi", async () => {
             expand: false,
             fieldName: "company_id",
             groupBy: null,
-            icon: "fa-filter",
+            icon: "filter_alt",
+            iconClass: "oi-filled",
             id: 1,
             limit: 200,
             type: "filter",
@@ -600,7 +584,7 @@ test("parsing a filter and a dateFilter", async () => {
         `,
     });
     const groupNumbers = model.getSearchItems(() => true).map((i) => i.groupNumber);
-    expect(groupNumbers).toEqual([1, 1]);
+    expect(groupNumbers).toEqual([1, 1, 1]);
 });
 
 test("parsing a groupBy and a dateGroupBy", async () => {
@@ -797,13 +781,13 @@ test("toggle a date filter", async () => {
         `,
     });
     const filterId = Object.keys(model.searchItems).map((key) => Number(key))[0];
-    model.toggleDateFilter(filterId);
+    model.toggleParentFilter(filterId);
     expect(model.domain).toEqual([
         "&",
         ["date_field", ">=", "2019-01-01"],
         ["date_field", "<=", "2019-01-31"],
     ]);
-    model.toggleDateFilter(filterId, "first_quarter");
+    model.toggleParentFilter(filterId, "first_quarter");
     expect(model.domain).toEqual([
         "|",
         "&",
@@ -813,7 +797,7 @@ test("toggle a date filter", async () => {
         ["date_field", ">=", "2019-01-01"],
         ["date_field", "<=", "2019-03-31"],
     ]);
-    model.toggleDateFilter(filterId, "year");
+    model.toggleParentFilter(filterId, "year");
     expect(model.domain).toEqual([]);
 });
 
@@ -829,13 +813,13 @@ test("toggle a custom option in a date filter", async () => {
         `,
     });
     const filterId = Object.keys(model.searchItems).map((key) => Number(key))[0];
-    model.toggleDateFilter(filterId);
+    model.toggleParentFilter(filterId);
     expect(model.domain).toEqual([
         "&",
         ["date_field", ">=", "2019-01-01"],
         ["date_field", "<=", "2019-01-31"],
     ]);
-    model.toggleDateFilter(filterId, "custom_today");
+    model.toggleParentFilter(filterId, "custom_today");
     expect(model.domain).toEqual([["date_field", "=", "2019-01-06"]]);
 });
 
@@ -850,7 +834,7 @@ test("toggle a date filter with a domain", async () => {
     });
     const filterId = Object.keys(model.searchItems).map((key) => Number(key))[0];
     expect(model.domain).toEqual([]);
-    model.toggleDateFilter(filterId);
+    model.toggleParentFilter(filterId);
     expect(model.domain).toEqual([
         "&",
         "&",
@@ -872,12 +856,25 @@ test("toggle a custom option in a date filter with a domain", async () => {
         `,
     });
     const filterId = Object.keys(model.searchItems).map((key) => Number(key))[0];
-    model.toggleDateFilter(filterId, "custom_today");
+    model.toggleParentFilter(filterId, "custom_today");
     expect(model.domain).toEqual([
         "&",
         ["date_field", "=", "2019-01-06"],
         ["float_field", ">=", "0"],
     ]);
+});
+
+test("reload with a different global groupBy", async () => {
+    const model = await createSearchModel({ groupBy: ["foo"] });
+    expect(model.groupBy).toEqual(["foo"]);
+
+    await model.reload({
+        context: {},
+        domain: [],
+        groupBy: ["bar"],
+        orderBy: [],
+    });
+    expect(model.groupBy).toEqual(["bar"]);
 });
 
 test("toggle a groupBy", async () => {
@@ -1098,4 +1095,70 @@ test("allow filtering based on extra keys in getSearchItems", async () => {
     const items = model.getSearchItems((i) => i.isActive);
     expect(items).toHaveLength(1);
     expect(items[0].name).toBe("filter_1");
+});
+
+test("Inner filter: are correctly parsed", async () => {
+    const model = await createSearchModel({
+        searchViewArch: `
+            <search>
+                <filter string="Foo">
+                    <filter string="Abcd" name="abcd" domain="[('foo', '=', 'abcd')]"/>
+                    <filter string="Qsdf" name="qsdf" domain="[('foo', '=', 'qsdf')]"/>
+                </filter>
+            </search>
+        `,
+    });
+    expect(sanitizeSearchItems(model)).toEqual([
+        {
+            description: "Foo",
+            domain: "[]",
+            optionsParams: {
+                customOptions: [
+                    {
+                        description: "Abcd",
+                        domain: "[('foo', '=', 'abcd')]",
+                        id: "custom_abcd",
+                        type: "innerFilter",
+                    },
+                    {
+                        description: "Qsdf",
+                        domain: "[('foo', '=', 'qsdf')]",
+                        id: "custom_qsdf",
+                        type: "innerFilter",
+                    },
+                ],
+            },
+            type: "parentFilter",
+        },
+    ]);
+});
+
+test("Inner filter: can be activated by a search default", async () => {
+    const model = await createSearchModel({
+        searchViewArch: `
+            <search>
+                <filter name="brol" string="Brol">
+                    <filter name="prout" string="Prout" domain="[('foo', '=', 'prout')]"/>
+                </filter>
+            </search>
+        `,
+        context: { search_default_prout: 1 },
+    });
+
+    expect(model.domain).toEqual([["foo", "=", "prout"]]);
+});
+
+test("Inner filter: parent search default does not do anything", async () => {
+    const model = await createSearchModel({
+        searchViewArch: `
+            <search>
+                <filter name="parent_filter" string="Parent Filter">
+                    <filter name="priority" string="Priority" domain="[('foo', '=', 'priority')]"/>
+                </filter>
+            </search>
+        `,
+        context: { search_default_parent_filter: 1 },
+    });
+
+    expect(model.domain).toEqual([]);
 });

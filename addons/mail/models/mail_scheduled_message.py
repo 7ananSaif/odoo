@@ -1,15 +1,19 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import json
+import logging
 from collections import defaultdict
+
 from markupsafe import Markup
 
 from odoo import _, api, fields, models, modules
-from odoo.addons.mail.tools.discuss import Store
 from odoo.exceptions import UserError, ValidationError
+from odoo.fields import Domain
+from odoo.tools.func import deprecated
 from odoo.tools.misc import clean_context
 
-import logging
+from .mail_message import MAX_SEARCH_LIMIT, _find_allowed_doc_ids
+from odoo.addons.mail.tools.discuss import Store
 
 _logger = logging.getLogger(__name__)
 
@@ -30,6 +34,7 @@ class MailScheduledMessage(models.Model):
     """
     _name = 'mail.scheduled.message'
     _description = 'Scheduled Message'
+    _access_domain_heavy = True
 
     # content
     subject = fields.Char('Subject')
@@ -48,13 +53,20 @@ class MailScheduledMessage(models.Model):
     # origin
     author_id = fields.Many2one('res.partner', 'Author', required=True)
     # recipients
-    partner_ids = fields.Many2many('res.partner', string='Recipients')
+    partner_ids = fields.Many2many('res.partner', string='Recipients (To)')
+    partner_cc_ids = fields.Many2many('res.partner', relation='mail_scheduled_message_res_partner_cc_rel',
+                                      string='Recipients (Cc)', context={'active_test': False})
     # characteristics
     is_note = fields.Boolean('Is a note', default=False, help="If the message will be posted as a Note.")
     # notify parameters (email_from, mail_server_id, force_email_lang,...)
     notification_parameters = fields.Text('Notification parameters')
     # context used when posting the message to trigger some actions (eg. change so state when sending quotation)
     send_context = fields.Json('Sending Context')
+    res_access = fields.Boolean(
+        groups=fields.NO_ACCESS,
+        compute='_compute_res_access',
+        search='_search_res_access',
+        compute_sudo=True, depends_context=('uid',))
 
     @api.constrains('model')
     def _check_model(self):
@@ -72,17 +84,13 @@ class MailScheduledMessage(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        # make sure user can post on the related records
-        for vals in vals_list:
-            self._check(vals)
-
         # clean context to prevent usage of default_model and default_res_id
         scheduled_messages = super(MailScheduledMessage, self.with_context(clean_context(self.env.context))).create(vals_list)
         # transfer attachments from composer to scheduled messages
         for scheduled_message in scheduled_messages:
             if attachments := scheduled_message.attachment_ids:
                 attachments.filtered(
-                    lambda a: a.res_model == 'mail.compose.message' and not a.res_id and a.create_uid.id == self.env.uid
+                    lambda a: a.res_model == 'mail.compose.message' and a.create_uid.id == self.env.uid
                 ).write({
                     'res_model': scheduled_message._name,
                     'res_id': scheduled_message.id,
@@ -94,51 +102,48 @@ class MailScheduledMessage(models.Model):
             )
         return scheduled_messages
 
-    @api.model
-    def _search(self, domain, offset=0, limit=None, order=None, *, bypass_access=False, **kwargs):
-        """ Override that add specific access rights to only get the ids of the messages
-        that are scheduled on the records on which the user has mail_post (or read) access
-        """
-        if self.env.is_superuser() or bypass_access:
-            return super()._search(domain, offset, limit, order, bypass_access=True, **kwargs)
+    def _compute_res_access(self):
+        assert self.env.su
+        if not self or not self.browse().sudo(False).has_access('read'):
+            self.res_access = False
+            return
 
-        # don't use the ORM to avoid cache pollution
-        query = super()._search(domain, offset, limit, order, **kwargs)
-        fnames_to_read = ['id', 'model', 'res_id']
-        rows = self.env.execute_query(query.select(
-            *[self._field_to_sql(self._table, fname) for fname in fnames_to_read],
-        ))
+        # now check access on related document of 'activities', and collect the
+        # ids of forbidden activities
+        model_docid_actids = defaultdict(lambda: defaultdict(list))
+        for mail in self:
+            if mail.model and mail.res_id:
+                model_docid_actids[mail.model][mail.res_id].append(mail.id)
 
-        # group res_ids by model and determine accessible records
-        model_ids = defaultdict(set)
-        for __, model, res_id in rows:
-            model_ids[model].add(res_id)
+        allowed = _find_allowed_doc_ids(self.env(su=False), model_docid_actids, 'write')
+        for activity in self:
+            activity.res_access = activity.id in allowed
 
-        allowed_ids = defaultdict(set)
-        for model, res_ids in model_ids.items():
-            records = self.env[model].browse(res_ids)
-            operation = getattr(records, '_mail_post_access', 'write')
-            if records.has_access(operation):
-                allowed_ids[model] = set(records._filtered_access(operation)._ids)
+    def _search_res_access(self, operator, value):
+        assert self.env.su
+        if operator != 'in':
+            return NotImplemented
+        domain = self.env.context.get('search_domain')
+        if not isinstance(domain, Domain):
+            domain = Domain.TRUE
 
-        scheduled_messages = self.browse(
-            msg_id
-            for msg_id, res_model, res_id in rows
-            if res_id in allowed_ids[res_model]
-        )
+        records = self.with_context(active_test=False).search_fetch(
+            domain, ['model', 'res_id'], order='id', limit=MAX_SEARCH_LIMIT)
+        if len(records) == MAX_SEARCH_LIMIT:  # avoid out of memory
+            raise UserError(self.env._("Cannot search, too many scheduled messages"))
+        records = records.sudo(False)._filtered_access('read')
+        # [('id', 'any!', query_with_ids)] is optimized in sec_domain
+        return Domain('id', 'any!', records._as_query(ordered=False))
 
-        return scheduled_messages._as_query(order)
-
-    def unlink(self):
-        self._check()
-        return super().unlink()
+    def _make_access_error_message(self, operation, domain):
+        self.invalidate_recordset()  # avoid cache pollution
+        return super()._make_access_error_message(operation, domain)
 
     def write(self, vals):
         # prevent changing the records on which the messages are scheduled
         if vals.get('model') or vals.get('res_id'):
             raise UserError(_('You are not allowed to change the target record of a scheduled message.'))
         # make sure user can write on the record the messages are scheduled on
-        self._check()
         res = super().write(vals)
         if new_scheduled_date := vals.get('scheduled_date'):
             self.env.ref('mail.ir_cron_post_scheduled_message')._trigger(fields.Datetime.to_datetime(new_scheduled_date))
@@ -158,6 +163,9 @@ class MailScheduledMessage(models.Model):
             'views': [[False, 'form']],
             'target': 'new',
             'res_id': self.id,
+            'context': {
+                'sync_attachments_to_thread_composer': True,
+            }
         }
 
     def post_message(self):
@@ -180,23 +188,13 @@ class MailScheduledMessage(models.Model):
             instead of raising an error, and send a notification to the author about the failure.
             This is useful when scheduled messages are sent from the _post_messages_cron.
         """
-        notification_parameters_whitelist = self._notification_parameters_whitelist()
         auto_commit = not modules.module.current_test
         for scheduled_message in self:
             message_creator = scheduled_message.create_uid
+            record = scheduled_message.env[scheduled_message.model].browse(scheduled_message.res_id).with_user(message_creator)
             try:
-                scheduled_message.with_user(message_creator)._check()
-                message = self.env[scheduled_message.model].browse(scheduled_message.res_id).with_context(
-                        clean_context(scheduled_message.send_context or {})
-                    ).with_user(message_creator).message_post(
-                    attachment_ids=list(scheduled_message.attachment_ids.ids),
-                    author_id=scheduled_message.author_id.id,
-                    subject=scheduled_message.subject,
-                    body=scheduled_message.body,
-                    partner_ids=list(scheduled_message.partner_ids.ids),
-                    subtype_xmlid='mail.mt_note' if scheduled_message.is_note else 'mail.mt_comment',
-                    **{k: v for k, v in json.loads(scheduled_message.notification_parameters or '{}').items() if k in notification_parameters_whitelist},
-                )
+                scheduled_message.with_user(message_creator).check_access('write')
+                message = scheduled_message._post_message_send(record)
                 scheduled_message._message_created_hook(message)
                 if auto_commit:
                     self.env.cr.commit()
@@ -227,30 +225,33 @@ class MailScheduledMessage(models.Model):
                         self.env.cr.rollback()
         self.unlink()
 
+    def _post_message_send(self, record):
+        self.ensure_one()
+        return record.with_context(
+            clean_context(self.send_context or {})
+        ).message_post(
+            attachment_ids=list(self.attachment_ids.ids),
+            author_id=self.author_id.id,
+            subject=self.subject,
+            body=self.body,
+            partner_ids=list(self.partner_ids.ids),
+            partner_cc_ids=list(self.partner_cc_ids.ids),
+            subtype_xmlid='mail.mt_note' if self.is_note else 'mail.mt_comment',
+            **{k: v for k, v in json.loads(self.notification_parameters or '{}').items() if k in self._notification_parameters_whitelist()},
+        )
+
     # ------------------------------------------------------
     # Business Methods
     # ------------------------------------------------------
 
     @api.model
+    @deprecated("Since 20.0, use check_access() directly")
     def _check(self, values=None):
         """ Restrict the access to a scheduled message.
             Access is based on the record on which the scheduled message will be posted to.
             :param values: dict with model and res_id on which to perform the check
         """
-        if self.env.is_superuser():
-            return True
-
-        model_ids = defaultdict(set)
-        # sudo as anyways we check access on the related records
-        for scheduled_message in self.sudo():
-            model_ids[scheduled_message.model].add(scheduled_message.res_id)
-        if values:
-            model_ids[values['model']].add(values['res_id'])
-
-        for model, res_ids in model_ids.items():
-            records = self.env[model].browse(res_ids)
-            operation = getattr(records, '_mail_post_access', 'write')
-            records.check_access(operation)
+        self.check_access('write')
 
     @api.model
     def _notification_parameters_whitelist(self):
@@ -284,12 +285,7 @@ class MailScheduledMessage(models.Model):
         if self.search_count(domain, limit=1):
             self.env.ref('mail.ir_cron_post_scheduled_message')._trigger()
 
-    def _to_store_defaults(self, target):
-        return [
-            Store.Many("attachment_ids"),
-            Store.One("author_id"),
-            "body",
-            "is_note",
-            "scheduled_date",
-            "subject",
-        ]
+    def _store_scheduled_message_fields(self, res: Store.FieldList):
+        res.many("attachment_ids", "_store_attachment_fields")
+        res.one("author_id", "_store_partner_fields")
+        res.extend(["body", "is_note", "scheduled_date", "subject"])

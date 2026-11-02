@@ -17,11 +17,10 @@ class PurchaseOrder(models.Model):
     def _default_picking_type(self):
         return self._get_picking_type(self.env.context.get('company_id') or self.env.company.id)
 
-    incoterm_location = fields.Char(string='Incoterm Location')
     incoming_picking_count = fields.Integer("Incoming Shipment count", compute='_compute_incoming_picking_count')
     picking_ids = fields.Many2many('stock.picking', compute='_compute_picking_ids', string='Receptions', copy=False, store=True)
     dest_address_id = fields.Many2one('res.partner', compute='_compute_dest_address_id', store=True, readonly=False)
-    picking_type_id = fields.Many2one('stock.picking.type', 'Deliver To', required=True, default=_default_picking_type, domain="['|', ('warehouse_id', '=', False), ('warehouse_id.company_id', '=', company_id)]",
+    picking_type_id = fields.Many2one('stock.picking.type', 'Deliver To', required=True, index=True, default=_default_picking_type, domain=lambda self: [('code', 'in', self._get_allowed_picking_code()), '|', ('warehouse_id.company_id', 'in', self.env.companies.ids), ('warehouse_id', '=', False)],
         help="This will determine operation type of incoming shipment")
     default_location_dest_id_usage = fields.Selection(related='picking_type_id.default_location_dest_id.usage', string='Destination Location Type',
         help="Technical field used to display the Drop Ship Address", readonly=True)
@@ -30,16 +29,10 @@ class PurchaseOrder(models.Model):
         'reference_id', string='References', copy=False)
     is_shipped = fields.Boolean(compute="_compute_is_shipped")
     effective_date = fields.Datetime("Arrival", compute='_compute_effective_date', store=True, copy=False,
-        help="Completion date of the first receipt order.")
+        help="Completion date of the last receipt order.")
     on_time_rate = fields.Float(related='partner_id.on_time_rate', compute_sudo=False)
-    receipt_status = fields.Selection([
-        ('pending', 'Not Received'),
-        ('partial', 'Partially Received'),
-        ('full', 'Fully Received'),
-    ], string='Receipt Status', compute='_compute_receipt_status', store=True,
-       help="Red: Late\n\
-            Orange: To process today\n\
-            Green: On time")
+    date_promised = fields.Datetime('Promised Date', index=True, copy=False, compute="_compute_date_promised", store=True, readonly=False,
+        help="Date promised by the vendor for at least 1 or more products to be delivered by.")
 
     @api.depends('order_line.move_ids.picking_id')
     def _compute_picking_ids(self):
@@ -55,7 +48,7 @@ class PurchaseOrder(models.Model):
     def _compute_effective_date(self):
         for order in self:
             pickings = order.picking_ids.filtered(lambda x: x.state == 'done' and x.location_dest_id.usage != 'supplier' and x.date_done)
-            order.effective_date = min(pickings.mapped('date_done'), default=False)
+            order.effective_date = max(pickings.mapped('date_done'), default=False)
 
     @api.depends('picking_ids', 'picking_ids.state')
     def _compute_is_shipped(self):
@@ -77,15 +70,44 @@ class PurchaseOrder(models.Model):
             else:
                 order.receipt_status = 'pending'
 
+    def _compute_show_receive_button(self):
+        self.show_receive_button = False  # Revert to the stock Delivery smart button logic
+
     @api.depends('picking_type_id')
     def _compute_dest_address_id(self):
         self.filtered(lambda po: po.picking_type_id.default_location_dest_id.usage != 'customer').dest_address_id = False
+
+    @api.depends('order_line.date_promised', 'state')
+    def _compute_date_promised(self):
+        for order in self:
+            if order.state not in ('purchase', 'cancel'):
+                order.date_promised = False
+                continue
+            dates_list = order.order_line.filtered(lambda line: not line.display_type and line.date_promised).mapped('date_promised')
+            order.date_promised = min(dates_list) if dates_list else False
+
+    @api.onchange('date_promised')
+    def _onchange_date_promised(self):
+        if self.date_promised:
+            self.order_line.filtered(lambda line: not line.display_type).date_promised = self.date_promised
 
     @api.onchange('company_id')
     def _onchange_company_id(self):
         p_type = self.picking_type_id
         if not(p_type and p_type.code == 'incoming' and (p_type.warehouse_id.company_id == self.company_id or not p_type.warehouse_id)):
             self.picking_type_id = self._get_picking_type(self.company_id.id)
+
+    def onchange(self, values, field_names, fields_spec):
+        """
+        Override onchange to NOT update all date_promised on PO lines when
+        date_promised on PO is updated by the change of date_promised on PO lines.
+        """
+        result = super().onchange(values, field_names, fields_spec)
+        if 'order_line' in field_names and 'value' in result:
+            for line in result['value'].get('order_line', []):
+                if line[0] == Command.UPDATE and 'date_promised' in line[2]:
+                    del line[2]['date_promised']
+        return result
 
     # --------------------------------------------------
     # CRUD
@@ -100,10 +122,12 @@ class PurchaseOrder(models.Model):
             for order in self:
                 to_log = {}
                 for order_line in order.order_line:
-                    if pre_order_line_qty.get(order_line) and order_line.product_uom_id.compare(pre_order_line_qty[order_line], order_line.product_qty) > 0:
+                    if pre_order_line_qty.get(order_line) and order_line.uom_id.compare(pre_order_line_qty[order_line], order_line.product_qty) > 0:
                         to_log[order_line] = (order_line.product_qty, pre_order_line_qty[order_line])
                 if to_log:
                     order._log_decrease_ordered_quantity(to_log)
+        if 'priority' in vals:
+            self.picking_ids.filtered(lambda p: p.state not in ('done', 'cancel')).priority = vals['priority']
         return res
 
     # --------------------------------------------------
@@ -126,6 +150,7 @@ class PurchaseOrder(models.Model):
             'vendor_suggest_based_on': self.partner_id.suggest_based_on,
             'vendor_suggest_percent': self.partner_id.suggest_percent,
             'product_catalog_order_state': self.state,
+            'display_stock': True,
         }
 
     def action_purchase_order_suggest(self):
@@ -146,21 +171,26 @@ class PurchaseOrder(models.Model):
         })
 
         po_lines_commands = []
+        subtotal_delta = 0.0
+        lines_by_product = self._get_product_catalog_record_lines(
+            products.ids, child_field='order_line', section_id=ctx.get('section_id')
+        )
         for product in products:
+            uom = product.seller_ids.filtered(lambda x: x.partner_id == self.partner_id)[:1].uom_id or product.uom_id
+            suggested_qty = product.uom_id._compute_quantity(product.suggested_qty, uom)
             suggest_line = self.env['purchase.order.line']._prepare_purchase_order_line(
                 product,
-                product.suggested_qty,
-                product.uom_id,
+                suggested_qty,
+                uom,
                 self.company_id,
                 self.partner_id,
                 self
             )
-            existing_lines = self.order_line.filtered(lambda pol: pol.product_id == product)
-            if section_id := ctx.get("section_id"):
-                existing_lines = existing_lines.filtered(lambda pol: pol.get_parent_section_line().id == section_id)
-                suggest_line["sequence"] = self._get_new_line_sequence("order_line", section_id)
-            else:
-                existing_lines = existing_lines.filtered(lambda pol: not pol.parent_id)  # lines with no sections
+            existing_lines = lines_by_product.get(product, self.env['purchase.order.line'])
+
+            old_subtotal = sum(existing_lines.mapped('price_subtotal'))
+            new_subtotal = suggest_line['price_unit'] * suggest_line['product_qty'] if product.suggested_qty > 0 else 0.0
+
             if existing_lines:
                 # Collapse into 1 or 0 po line, discarding previous data in favor of suggested qtys
                 to_unlink = existing_lines if product.suggested_qty == 0 else existing_lines[:-1]
@@ -168,13 +198,18 @@ class PurchaseOrder(models.Model):
                 if product.suggested_qty > 0:
                     po_lines_commands.append(Command.update(existing_lines[-1].id, suggest_line))
             elif product.suggested_qty > 0:
+                suggest_line['sequence'] = self._prepare_lines_insertion(
+                    'order_line', into_section_id=ctx.get('section_id')
+                )
                 po_lines_commands.append(Command.create(suggest_line))
 
+            subtotal_delta += new_subtotal - old_subtotal
+
         self.order_line = po_lines_commands
-        # Return the change in number of po_lines for the given section
-        return sum({"CREATE": 1, "UNLINK": -1}.get(line[0].name, 0) for line in po_lines_commands)
+        return subtotal_delta
 
     def button_approve(self, force=False):
+        self.order_line._set_date_promised()
         result = super(PurchaseOrder, self).button_approve(force=force)
         self._create_picking()
         return result
@@ -241,8 +276,8 @@ class PurchaseOrder(models.Model):
         three_months_ago = fields.Datetime.to_string(fields.Datetime.now() - relativedelta(months=3))
 
         purchases = self.env['purchase.order'].search_fetch(
-            [('state', '=', 'purchase'), ('date_planned', '>=', three_months_ago)],
-            ['date_planned', 'effective_date', 'user_id'])
+            [('state', '=', 'purchase'), ('date_promised', '>=', three_months_ago)],
+            ['date_promised', 'effective_date', 'user_id'])
 
         otd_purchase_count = 0
         my_purchase_count = 0
@@ -250,7 +285,7 @@ class PurchaseOrder(models.Model):
         for po in purchases:
             if po.user_id == self.env.user:
                 my_purchase_count += 1
-            if not po.effective_date or po.effective_date.date() > po.date_planned.date():
+            if not po.effective_date or po.effective_date.date() > po.date_promised.date():
                 continue
             otd_purchase_count += 1
             if po.user_id == self.env.user:
@@ -273,7 +308,7 @@ class PurchaseOrder(models.Model):
         self.ensure_one()
         result = self.env["ir.actions.actions"]._for_xml_id('stock.action_picking_tree_all')
         # override the context to get rid of the default filtering on operation type
-        result['context'] = {'default_partner_id': self.partner_id.id, 'default_origin': self.name, 'default_picking_type_id': self.picking_type_id.id}
+        result['context'] = {'default_partner_id': self.partner_id.id, 'default_picking_type_id': self.picking_type_id.id}
         # choose the view_mode accordingly
         if not pickings or len(pickings) > 1:
             result['domain'] = [('id', 'in', pickings.ids)]
@@ -283,11 +318,6 @@ class PurchaseOrder(models.Model):
             result['views'] = form_view + [(state, view) for state, view in result.get('views', []) if view != 'form']
             result['res_id'] = pickings.id
         return result
-
-    def _prepare_invoice(self):
-        invoice_vals = super()._prepare_invoice()
-        invoice_vals['invoice_incoterm_id'] = self.incoterm_id.id
-        return invoice_vals
 
     # --------------------------------------------------
     # Business methods
@@ -304,7 +334,7 @@ class PurchaseOrder(models.Model):
         def _render_note_exception_quantity_po(order_exceptions):
             order_line_ids = self.env['purchase.order.line'].browse([order_line.id for order in order_exceptions.values() for order_line in order[0]])
             purchase_order_ids = order_line_ids.mapped('order_id')
-            move_ids = self.env['stock.move'].concat(*rendering_context.keys())
+            move_ids = self.env['stock.move'].concat(rendering_context.keys())
             impacted_pickings = move_ids.mapped('picking_id')._get_impacted_pickings(move_ids) - move_ids.mapped('picking_id')
             values = {
                 'purchase_order_ids': purchase_order_ids,
@@ -341,6 +371,10 @@ class PurchaseOrder(models.Model):
         return wh_stock_loc
 
     @api.model
+    def _get_allowed_picking_code(self):
+        return ['incoming']
+
+    @api.model
     def _get_picking_type(self, company_id):
         picking_type = self.env['stock.picking.type'].search([('code', '=', 'incoming'), ('warehouse_id.company_id', '=', company_id)])
         if not picking_type:
@@ -355,48 +389,27 @@ class PurchaseOrder(models.Model):
             'name': self.name,
         }
 
-    def _prepare_picking(self):
-        if not self.reference_ids:
-            self.reference_ids = self.reference_ids.create(self._prepare_reference_vals())
-        if not self.partner_id.property_stock_supplier.id:
-            raise UserError(_("You must set a Vendor Location for this partner %s", self.partner_id.name))
-        return {
-            'picking_type_id': self.picking_type_id.id,
-            'partner_id': self.partner_id.id,
-            'user_id': False,
-            'origin': self.name,
-            'location_dest_id': self._get_destination_location(),
-            'location_id': self.partner_id.property_stock_supplier.id,
-            'company_id': self.company_id.id,
-            'state': 'draft',
-            'reference_ids': [Command.set(self.reference_ids.ids)],
-        }
-
     def _create_picking(self):
-        StockPicking = self.env['stock.picking']
         for order in self.filtered(lambda po: po.state == 'purchase'):
+            is_multi_company = order.company_id != order.sudo().picking_type_id.company_id
             if any(product.type == 'consu' for product in order.order_line.product_id):
                 order = order.with_company(order.company_id)
-                pickings = order.picking_ids.filtered(lambda x: x.state not in ('done', 'cancel'))
-                if not pickings:
-                    res = order._prepare_picking()
-                    picking = StockPicking.with_user(SUPERUSER_ID).create(res)
-                    pickings = picking
-                else:
-                    picking = pickings[0]
-                moves = order.order_line._create_stock_moves(picking)
-                moves = moves.filtered(lambda x: x.state not in ('done', 'cancel'))._action_confirm()
+                if is_multi_company:
+                    order = order.sudo()
+                moves = order.order_line._create_stock_moves()
+                moves = moves.filtered(lambda x: x.state not in ('done', 'cancel')).with_context(move_picking_partner_id=self.partner_id).sudo()._action_confirm()
                 seq = 0
                 for move in sorted(moves, key=lambda move: move.date):
                     seq += 5
                     move.sequence = seq
                 moves._action_assign()
+                pickings = moves.picking_id
                 # Get following pickings (created by push rules) to confirm them as well.
                 forward_pickings = self.env['stock.picking']._get_impacted_pickings(moves)
                 (pickings | forward_pickings).action_confirm()
-                picking.message_post_with_source(
+                pickings.message_post_with_source(
                     'mail.message_origin_link',
-                    render_values={'self': picking, 'origin': order},
+                    render_values={'self': pickings, 'origin': order},
                     subtype_xmlid='mail.mt_note',
                 )
         return True
@@ -432,36 +445,30 @@ class PurchaseOrder(models.Model):
         validated receipts."""
         return super()._get_orders_to_remind().filtered(lambda p: not p.effective_date)
 
-    def _is_display_stock_in_catalog(self):
-        return True
-
-    def _get_product_catalog_order_line_info(self, product_ids, child_field=False, **kwargs):
+    def _get_product_catalog_order_line_info(self, *args, **kwargs) -> dict:
         """ Add suggest_ctx to env in order to trigger product.product suggest compute fields"""
         if kwargs.get('suggest_based_on'):
             suggest_keys = ('suggest_days', 'suggest_based_on', 'suggest_percent', 'warehouse_id')
             suggest_ctx = {k: v for k, v in kwargs.items() if k in suggest_keys}
             return super(PurchaseOrder, self.with_context(suggest_ctx))._get_product_catalog_order_line_info(
-                product_ids, child_field=child_field, **kwargs
+                *args, **kwargs
             )
-        return super()._get_product_catalog_order_line_info(product_ids, child_field=child_field, **kwargs)
+        return super()._get_product_catalog_order_line_info(*args, **kwargs)
 
-    def _get_product_price_and_data(self, product):
-        """ Fetch the product's data used by the purchase's catalog."""
-        res = super()._get_product_price_and_data(product)
-        res["suggested_qty"] = product.suggested_qty
-        return res
+    def _get_product_catalog_product_data(self, product, **kwargs) -> dict:
+        product_data = super()._get_product_catalog_product_data(product, **kwargs)
+        product_data["suggested_qty"] = product.suggested_qty
+        return product_data
 
-    # TODO: rename the parameter from reference to references in master for improved readability
-    def _add_reference(self, reference):
+    def _add_reference(self, references):
         """ link the given references to the list of references. """
         self.ensure_one()
-        self.reference_ids = [Command.link(stock_reference.id) for stock_reference in reference]
+        self.reference_ids = [Command.link(reference.id) for reference in references]
 
-    # TODO: rename the parameter from reference to references in master for improved readability
-    def _remove_reference(self, reference):
+    def _remove_reference(self, references):
         """ remove the given references from the list of references. """
         self.ensure_one()
-        self.reference_ids = [Command.unlink(stock_reference.id) for stock_reference in reference]
+        self.reference_ids = [Command.unlink(reference.id) for reference in references]
 
     def _merge_po_post_process(self, rfqs):
         super()._merge_po_post_process(rfqs)

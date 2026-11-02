@@ -1,35 +1,44 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 from __future__ import annotations
 
-import binascii
-import contextlib
 import collections
+import contextlib
 import datetime
 import hmac
 import ipaddress
 import json
 import logging
-import os
+import secrets
 import time
 from functools import wraps
 from hashlib import sha256
 from itertools import chain
-from markupsafe import Markup
+from zoneinfo import ZoneInfo
 
-import pytz
-from lxml import etree
+from markupsafe import Markup
 from passlib.context import CryptContext as _CryptContext
 
-from odoo import api, fields, models, tools, _
+from odoo import _, api, fields, models, tools
 from odoo.api import SUPERUSER_ID
 from odoo.exceptions import AccessDenied, AccessError, UserError, ValidationError
 from odoo.fields import Command, Domain
-from odoo.http import request, DEFAULT_LANG
-from odoo.tools import saas_lock  # SAAS-PATCH
-from odoo.tools import email_domain_extract, is_html_empty, frozendict, reset_cached_properties, str2bool, SQL
-
+from odoo.http import request
+from odoo.http.session import DEFAULT_LANG
+from odoo.tools import (
+    SQL,
+    email_domain_extract,
+    frozendict,
+    is_html_empty,
+    reset_cached_properties,
+    str2bool,
+)
+from odoo.tools.date_utils import all_timezones
+from odoo.tools.sql import escape_like_value
 
 _logger = logging.getLogger(__name__)
+
+NO_GROUP_CHANGE_LOG = object()
+
 
 class CryptContext:
     def __init__(self, *args, **kwargs):
@@ -163,6 +172,7 @@ class ResUsers(models.Model):
     """
     _name = 'res.users'
     _description = 'User'
+    _explanation = "Represents a person who has access to the system. Users have login credentials, assigned groups for security permissions, and are linked to a partner record for contact information."
     _inherits = {'res.partner': 'partner_id'}
     _order = 'name, login'
     _allow_sudo_commands = False
@@ -173,33 +183,9 @@ class ResUsers(models.Model):
         company_ids = companies if isinstance(companies, str) else models.to_record_ids(companies)
         return Domain('company_ids', 'in', company_ids)
 
-    @property
-    def SELF_READABLE_FIELDS(self):
-        """ The list of fields a user can read on their own user record.
-        In order to add fields, please override this property on model extensions.
-        """
-        return [
-            'signature', 'company_id', 'login', 'email', 'name', 'image_1920',
-            'image_1024', 'image_512', 'image_256', 'image_128', 'lang', 'tz',
-            'tz_offset', 'group_ids', 'partner_id', 'write_date', 'action_id',
-            'avatar_1920', 'avatar_1024', 'avatar_512', 'avatar_256', 'avatar_128',
-            'share', 'device_ids', 'api_key_ids', 'phone', 'display_name',
-        ]
-
-    @property
-    def SELF_WRITEABLE_FIELDS(self):
-        """ The list of fields a user can write on their own user record.
-        In order to add fields, please override this property on model extensions.
-        """
-        return ['signature', 'action_id', 'company_id', 'email', 'name', 'image_1920', 'lang', 'tz', 'api_key_ids', 'phone']
-
-    @api.model
-    @tools.ormcache(cache='stable')
-    def _self_accessible_fields(self) -> tuple[frozenset[str], frozenset[str]]:
-        """Readable and writable fields by portal users."""
-        readable = frozenset(self.SELF_READABLE_FIELDS)
-        writeable = frozenset(self.SELF_WRITEABLE_FIELDS)
-        return readable, writeable
+    def _valid_field_parameter(self, field, name):
+        # see `_has_field_access``
+        return name == 'user_writeable' or super()._valid_field_parameter(field, name)
 
     def _default_groups(self):
         """Default groups for employees
@@ -223,14 +209,15 @@ class ResUsers(models.Model):
         help="Specify a value only when creating a user or if you're "\
              "changing the user's password, otherwise leave empty. After "\
              "a change of password, the user has to login again.")
-    api_key_ids = fields.One2many('res.users.apikeys', 'user_id', string="API Keys")
-    signature = fields.Html(string="Email Signature", compute='_compute_signature', readonly=False, store=True)
+    api_key_ids = fields.One2many('res.users.apikeys', 'user_id', string="API Keys", user_writeable=True)
+    signature = fields.Html(string="Email Signature", compute='_compute_signature', readonly=False, store=True, user_writeable=True)
     active = fields.Boolean(default=True)
     active_partner = fields.Boolean(related='partner_id.active', readonly=True, string="Partner is Active")
     action_id = fields.Many2one('ir.actions.actions', string='Home Action',
         help="If specified, this action will be opened at log on for this user, in addition to the standard menu.")
     log_ids = fields.One2many('res.users.log', 'create_uid', string='User log entries')
     device_ids = fields.One2many('res.device', 'user_id', string='User devices')
+    session_ids = fields.One2many('res.session', 'user_id', string='User sessions')
     login_date = fields.Datetime(related='log_ids.create_date', string='Latest Login', readonly=False)
     share = fields.Boolean(compute='_compute_share', compute_sudo=True, string='Share User', store=True,
          help="External user with limited access, created only for the purpose of sharing data.")
@@ -243,17 +230,22 @@ class ResUsers(models.Model):
     # Special behavior for this field: res.company.search() will only return the companies
     # available to the current user (should be the user's companies?), when the user_preference
     # context is set.
-    company_id = fields.Many2one('res.company', string='Company', required=True, default=lambda self: self.env.company.id,
+    company_id = fields.Many2one('res.company', string='Company', required=True,
+        user_writeable=True,
+        default=lambda self: self.env.company.id,
         help='The default company for this user.', context={'user_preference': True})
     company_ids = fields.Many2many('res.company', 'res_company_users_rel', 'user_id', 'cid',
         string='Companies', default=lambda self: self.env.company.ids)
 
     # overridden inherited fields to bypass access rights, in case you have
     # access to the user but not its corresponding partner
-    name = fields.Char(related='partner_id.name', inherited=True, readonly=False)
-    email = fields.Char(related='partner_id.email', inherited=True, readonly=False)
+    name = fields.Char(related='partner_id.name', inherited=True, readonly=False, copy=True, user_writeable=True)
+    email = fields.Char(related='partner_id.email', inherited=True, readonly=False, user_writeable=True)
     email_domain_placeholder = fields.Char(compute="_compute_email_domain_placeholder")
-    phone = fields.Char(related='partner_id.phone', inherited=True, readonly=False)
+    phone = fields.Char(related='partner_id.phone', inherited=True, readonly=False, user_writeable=True)
+    image_1920 = fields.Binary(related='partner_id.image_1920', inherited=True, readonly=False, user_writeable=True)
+    lang = fields.Selection(related='partner_id.lang', inherited=True, readonly=False, user_writeable=True)
+    tz = fields.Selection(related='partner_id.tz', inherited=True, readonly=False, user_writeable=True)
 
     group_ids = fields.Many2many('res.groups', 'res_groups_users_rel', 'uid', 'gid', string='Groups', default=lambda s: s._default_groups(), help="Groups explicitly assigned to the user")
     all_group_ids = fields.Many2many('res.groups', string="Groups and implied groups",
@@ -261,8 +253,6 @@ class ResUsers(models.Model):
 
     accesses_count = fields.Integer('# Access Rights', help='Number of access rights that apply to the current user',
                                     compute='_compute_accesses_count', compute_sudo=True)
-    rules_count = fields.Integer('# Record Rules', help='Number of record rules that apply to the current user',
-                                 compute='_compute_accesses_count', compute_sudo=True)
     groups_count = fields.Integer('# Groups', help='Number of groups that apply to the current user',
                                   compute='_compute_accesses_count', compute_sudo=True)
 
@@ -270,7 +260,8 @@ class ResUsers(models.Model):
         return self.env['res.groups']._get_view_group_hierarchy()
 
     view_group_hierarchy = fields.Json(string='Technical field for user group setting', store=False, copy=False, default=_default_view_group_hierarchy)
-    role = fields.Selection([('group_user', 'User'), ('group_system', 'Administrator')], compute='_compute_role', readonly=False, string="Role")
+    role = fields.Selection([('light_user', 'Light'), ('regular_user', 'User'), ('group_system', 'Administrator')],
+        compute='_compute_role', search='_search_role', readonly=False, string="Role")
 
     _login_key = models.Constraint("UNIQUE (login)",
         'You can not have two users with the same login!')
@@ -309,6 +300,15 @@ class ResUsers(models.Model):
     def _rpc_api_keys_only(self):
         """ To be overridden if RPC access needs to be restricted to API keys, e.g. for 2FA """
         return False
+
+    def _get_auth_methods(self):
+        """ Return a list of authentication methods available to the user. """
+        self.ensure_one()
+        auth_methods = []
+        if mfa_type := self._mfa_type():
+            auth_methods.append(mfa_type)
+        auth_methods.append('password')
+        return auth_methods
 
     def _check_credentials(self, credential, env):
         """ Validates the current user's password.
@@ -373,7 +373,7 @@ class ResUsers(models.Model):
                 self._set_encrypted_password(self.env.user.id, replacement)
                 if request and self == self.env.user:
                     self.env.flush_all()
-                    self.env.registry.clear_cache()
+                    self.env.transaction.invalidate_ormcache()
                     # update session token so the user does not get logged out
                     new_token = self.env.user._compute_session_token(request.session.sid)
                     request.session.session_token = new_token
@@ -426,23 +426,60 @@ class ResUsers(models.Model):
             else:
                 user.password = user.new_password
 
-    @api.depends('group_ids')
+    @api.depends('all_group_ids')
     def _compute_role(self):
+        group_system = self.env.ref('base.group_system', raise_if_not_found=False)
+        group_user = self.env.ref('base.group_user', raise_if_not_found=False)
+
         for user in self:
+            # A group is almost never held directly: ``base.group_user`` and the
+            # light/regular tier both come from the application groups the user
+            # is given, so the role is determined on the implied groups.
+            all_groups = user.group_ids._origin.all_implied_ids
             user.role = (
-                'group_system' if user.has_group('base.group_system') else
-                'group_user' if user.has_group('base.group_user') else
+                'group_system' if group_system and group_system in all_groups else
+                'light_user' if group_user and group_user in all_groups and all_groups._is_light_groups() else
+                'regular_user' if group_user and group_user in all_groups else
                 False
             )
 
     @api.onchange('role')
     def _onchange_role(self):
         group_admin = self.env['res.groups'].new(origin=self.env.ref('base.group_system'))
+        group_regular = self.env['res.groups'].new(origin=self.env.ref('base.group_user_regular'))
         group_user = self.env['res.groups'].new(origin=self.env.ref('base.group_user'))
-        for user in self:
-            if user.role and user.has_group('base.group_user'):
-                groups = user.group_ids - (group_admin + group_user)
-                user.group_ids = groups + (group_admin if user.role == 'group_system' else group_user)
+
+        if self.role == 'regular_user':
+            if group_regular not in self.all_group_ids:
+                self.group_ids += group_regular
+            self.group_ids -= group_admin
+        elif self.role == 'group_system':
+            self.group_ids += group_admin + group_user
+        elif self.role == 'light_user':
+            # If set to light user from portal or public user then add default groups
+            if group_user not in self.all_group_ids:
+                self.group_ids += self._default_groups()
+            # Reduce all access to light user.
+            self.group_ids = group_user + self.group_ids._origin._reduce_to_light_groups()
+
+    def _search_role(self, operator, value):
+        if operator != 'in':
+            return NotImplemented
+
+        group_definitions = self.env['res.groups']._get_group_definitions()
+        light_group_ids = {group_definitions.get_id(xid) for xid in self.env['res.groups']._get_light_group_xmlids()}
+        regular_group_ids = set(group_definitions.get_all_ids()) - light_group_ids
+
+        is_system = Domain('all_group_ids', 'in', [self.env.ref('base.group_system').id])
+        is_user_regular = Domain('all_group_ids', 'in', regular_group_ids)
+        is_user = Domain('all_group_ids', 'in', [self.env.ref('base.group_user').id])
+        domains_by_role = {
+            'light_user': is_user & ~is_user_regular,
+            'regular_user': is_user & is_user_regular & ~is_system,
+            'group_system': is_system,
+            False: ~is_user,
+        }
+        return Domain.OR([domains_by_role[v] for v in value if v in domains_by_role])
 
     @api.depends('group_ids.all_implied_ids')
     def _compute_all_group_ids(self):
@@ -450,19 +487,75 @@ class ResUsers(models.Model):
             user.all_group_ids = user.group_ids.all_implied_ids
 
     def _search_all_group_ids(self, operator, value):
-        return [('group_ids.all_implied_ids', operator, value)]
+        if operator in Domain.NEGATIVE_OPERATORS:
+            return NotImplemented
+        domain = Domain('group_ids.all_implied_ids', operator, value)
+        if operator == 'in' and False in value:  # relation may be falsy
+            domain |= Domain('group_ids', '=', False)
+        return domain
 
     @api.depends('name')
     def _compute_signature(self):
         for user in self.filtered(lambda user: user.name and is_html_empty(user.signature)):
             user.signature = Markup('<div>%s</div>') % user['name']
 
-    @api.depends('all_group_ids')
+    # To avoid a cache memory error, we do not use @api.depends('all_group_ids').
+    # This update is made manually during group implying updates.
+    @api.depends('group_ids')
     def _compute_share(self):
         user_group_id = self.env['ir.model.data']._xmlid_to_res_id('base.group_user')
         internal_users = self.filtered_domain([('all_group_ids', 'in', [user_group_id])])
         internal_users.share = False
         (self - internal_users).share = True
+
+    @api.model
+    def _recompute_user_share(self):
+        """ Recalculate ``res.users.share`` and ``res.partner.partner_share`` in bulk via SQL.
+
+        Changes in group relations or group hierarchy invalidate the share status of users
+        and their associated partners. Resolving this dependency through standard ORM
+        recordsets requires loading every user of every modified group, which causes
+        memory overhead and poor performance O(N).
+
+        This method executes a direct bulk SQL update in set-based queries, followed
+        by ORM cache invalidation to ensure consistency across the environment.
+        """
+        internal_group_ids = list(self.env['res.groups']._get_internal_group_ids())
+
+        # Invalidating the ORM cache to force reloading of SQL data
+        self.env['res.users'].invalidate_model(['share'])
+        self.env['res.partner'].invalidate_model(['partner_share'])
+
+        # Update res_users: share = False if the user belongs to at least one internal group
+        self.env.cr.execute("""
+            WITH _share AS (
+                SELECT u.id, any_value(r.gid) is null as share
+                FROM res_users u
+                LEFT JOIN res_groups_users_rel r
+                    ON r.uid = u.id AND r.gid = ANY(%s)
+                GROUP BY u.id
+            )
+            UPDATE res_users u
+            SET share = s.share
+            FROM _share s
+            WHERE s.id = u.id AND s.share IS DISTINCT FROM u.share
+        """, [internal_group_ids])
+
+        # Update res_partner: partner_share IS NOT TRUE if the partner is linked to at least one internal user.
+        self.env.cr.execute("""
+            WITH _share AS (
+                SELECT p.id, any_value(u.id) IS NULL as partner_share
+                    FROM res_partner p
+                LEFT JOIN res_users u
+                    ON u.partner_id = p.id
+                    AND u.share IS NOT TRUE
+                GROUP BY p.id
+            )
+            UPDATE res_partner p
+            SET partner_share = s.partner_share
+            FROM _share s
+            WHERE s.id = p.id AND s.partner_share IS DISTINCT FROM p.partner_share
+        """)
 
     @api.depends('company_id')
     def _compute_companies_count(self):
@@ -471,14 +564,13 @@ class ResUsers(models.Model):
     @api.depends('tz')
     def _compute_tz_offset(self):
         for user in self:
-            user.tz_offset = datetime.datetime.now(pytz.timezone(user.tz or 'GMT')).strftime('%z')
+            user.tz_offset = datetime.datetime.now(ZoneInfo(user.tz or 'UTC')).strftime('%z')
 
     @api.depends('all_group_ids')
     def _compute_accesses_count(self):
         for user in self:
             groups = user.all_group_ids
-            user.accesses_count = len(groups.model_access)
-            user.rules_count = len(groups.rule_groups)
+            user.accesses_count = len(groups.access_ids)
             user.groups_count = len(groups)
 
     @api.depends('res_users_settings_ids')
@@ -555,35 +647,24 @@ class ResUsers(models.Model):
         if not self.env.ref('base.group_system').user_ids:
             raise ValidationError(_("You must have at least an administrator user."))
 
-    def onchange(self, values, field_names, fields_spec):
-        # Hacky fix to access fields in `SELF_READABLE_FIELDS` in the onchange logic.
-        # Put field values in the cache.
-        if self == self.env.user:
-            [self.sudo()[field_name] for field_name in self._self_accessible_fields()[0]]
-        return super().onchange(values, field_names, fields_spec)
-
-    def read(self, fields=None, load='_classic_read'):
-        readable, _ = self._self_accessible_fields()
-        if fields and self == self.env.user and all(key in readable or key.startswith('context_') for key in fields):
-            # safe fields only, so we read as super-user to bypass access rights
-            self = self.sudo()
-        return super().read(fields=fields, load=load)
-
+    @api.model
     def _has_field_access(self, field, operation):
-        return super()._has_field_access(field, operation) or (
-            operation == 'read'
-            and self._origin == self.env.user
-            and field.name in self._self_accessible_fields()[0]
+        # For writing a field, the user has elevated privileges (sudo or manager
+        # group) or the field is marked as user_writeable. The records which the
+        # user can change are protected by record rules.
+        return super()._has_field_access(field, operation) and (
+            operation != 'write'
+            or getattr(field, 'user_writeable', False)
+            or self.env.su
+            or self.env.user.has_group('base.group_erp_manager')
         )
 
     @api.model_create_multi
     def create(self, vals_list):
-        # SAAS-PATCH: enforce the subscription plan's internal-user limit.
-        saas_lock.check_users_extra(self.env, vals_list)
         users = super().create(vals_list)
         setting_vals = []
         for user in users:
-            if not user.res_users_settings_ids and user._is_internal():
+            if not user.sudo().res_users_settings_ids and user._is_internal():
                 setting_vals.append({'user_id': user.id})
             # if partner is global we keep it that way
             if user.partner_id.company_id:
@@ -592,14 +673,12 @@ class ResUsers(models.Model):
             # Generate employee initals as avatar for internal users without image
             if not user.image_1920 and not user.share and user.name:
                 user.image_1920 = user.partner_id._avatar_generate_svg()
+
         if setting_vals:
             self.env['res.users.settings'].sudo().create(setting_vals)
         return users
 
     def write(self, vals):
-        # SAAS-PATCH: enforce the subscription plan's internal-user limit when
-        # a user is activated (or turned from portal into internal).
-        saas_lock.check_users_extra(self.env, vals, current_records=self)
         if vals.get('active') and SUPERUSER_ID in self._ids:
             raise UserError(_("You cannot activate the superuser."))
         if vals.get('active') == False and self.env.uid in self._ids:  # noqa: E712
@@ -608,19 +687,21 @@ class ResUsers(models.Model):
         if vals.get('active'):
             # unarchive partners before unarchiving the users
             self.partner_id.action_unarchive()
-        if self == self.env.user:
-            writeable = self._self_accessible_fields()[1]
-            for key in list(vals):
-                if key not in writeable:
-                    break
-            else:
-                if 'company_id' in vals:
-                    if vals['company_id'] not in self.env.user.company_ids.ids:
-                        del vals['company_id']
-                # safe fields only, so we write as super-user to bypass access rights
-                self = self.sudo()
+
+        if 'company_id' in vals or 'company_ids' in vals:
+            # Access cache depends on the company, clear it
+            self.env.transaction.invalidate_access_cache()
+            # reset before the call to super to ensure `_check_company` sees the right company
+            self._reset_cached_properties()
+
+        if 'group_ids' in vals:
+            old_group_ids = {user.id: user.group_ids.ids for user in self.sudo()}
 
         res = super().write(vals)
+
+        if 'group_ids' in vals and self.env.context.get('no_group_change_log') is not NO_GROUP_CHANGE_LOG:
+            # After write to make sure permission check passes
+            self._log_group_changes(vals, old_group_ids)
 
         if 'company_id' in vals:
             for user in self:
@@ -629,26 +710,35 @@ class ResUsers(models.Model):
                     user.partner_id.write({'company_id': user.company_id.id})
 
         if 'company_id' in vals or 'company_ids' in vals:
-            # Reset lazy properties `company` & `companies` on all envs,
-            # This is unlikely in a business code to change the company of a user and then do business stuff
-            # but in case it happens this is handled.
-            # e.g. `account_test_savepoint.py` `setup_company_data`, triggered by `test_account_invoice_report.py`
-            for env in list(self.env.transaction.envs):
-                if env.user in self:
-                    reset_cached_properties(env)
+            # reset after the call to super to ensure the wrong value wasn't cached because of automations or hooks
+            self.env.transaction.invalidate_access_cache()
+            self._reset_cached_properties()
+        elif 'tz' in vals:
+            # also reset for changes of the time zone
+            self._reset_cached_properties()
 
-        if 'group_ids' in vals and self.ids:
+        if 'group_ids' in vals and any(self._ids):
             # clear caches linked to the users
-            self.env['ir.model.access'].call_cache_clearing_methods()
+            self.env.invalidate_all()
+            self.env.transaction.invalidate_ormcache()
 
         # per-method / per-model caches have been removed so the various
         # clear_cache/clear_caches methods pretty much just end up calling
-        # Registry.clear_cache
+        # Transaction.invalidate_ormcache
         invalidation_fields = self._get_invalidation_fields()
-        if invalidation_fields & vals.keys():
-            self.env.registry.clear_cache()
+        if not invalidation_fields.isdisjoint(vals) and any(self._ids):
+            self.env.transaction.invalidate_ormcache()
 
         return res
+
+    def _reset_cached_properties(self):
+        # Reset lazy properties `company` & `companies` on all envs,
+        # This is unlikely in a business code to change the company of a user and then do business stuff
+        # but in case it happens this is handled.
+        # e.g. `account_test_savepoint.py` `setup_company_data`, triggered by `test_account_invoice_report.py`
+        for env in list(self.env.transaction.envs):
+            if env.user in self:
+                reset_cached_properties(env)
 
     @api.ondelete(at_uninstall=True)
     def _unlink_except_master_data(self):
@@ -659,7 +749,7 @@ class ResUsers(models.Model):
         user_admin = self.env.ref('base.user_admin', raise_if_not_found=False)
         if user_admin and user_admin in self:
             raise UserError(_('You cannot delete the admin user because it is utilized in various places (such as security configurations,...). Instead, archive it.'))
-        self.env.registry.clear_cache()
+        self.env.transaction.invalidate_ormcache()
         if portal_user_template and portal_user_template in self:
             raise UserError(_('Deleting the template users is not allowed. Deleting this profile will compromise critical functionalities.'))
         if public_user and public_user in self:
@@ -698,7 +788,7 @@ class ResUsers(models.Model):
         return vals_list
 
     @api.model
-    @tools.ormcache('self.env.uid')
+    @api.ormcache('self.env.uid')
     def context_get(self):
         # use read() to not read other fields: this must work while modifying
         # the schema of models res.users or res.partner
@@ -728,11 +818,11 @@ class ResUsers(models.Model):
 
         return frozendict(context)
 
-    @tools.ormcache('self.id')
+    @api.ormcache('self.id')
     def _get_company_ids(self):
         # use search() instead of `self.company_ids` to avoid extra query for `active_test`
         domain = [('active', '=', True), ('user_ids', 'in', self.id)]
-        return self.env['res.company'].search(domain)._ids
+        return (self.company_id | self.env['res.company'].search(domain))._ids
 
     @api.model
     def action_get(self):
@@ -757,7 +847,7 @@ class ResUsers(models.Model):
 
     @api.model
     def _get_email_domain(self, email):
-        return Domain('email', '=ilike', tools.escape_psql(email or ''))
+        return Domain('email', '=ilike', escape_like_value(email or ''))
 
     @api.model
     def _get_login_order(self):
@@ -774,8 +864,13 @@ class ResUsers(models.Model):
                     raise AccessDenied()
                 user = user.with_user(user).sudo()
                 auth_info = user._check_credentials(credential, user_agent_env)
-                tz = request.cookies.get('tz') if request else None
-                if tz in pytz.all_timezones and (not user.tz or not user.login_date):
+                tz = None
+                if request and (browser_tz := request.cookies.get('tz')):
+                    # browsers report the CLDR name, a deprecated alias for some
+                    # zones, which ZoneInfo resolves to the canonical one
+                    with contextlib.suppress(KeyError, ValueError):
+                        tz = ZoneInfo(browser_tz).key
+                if tz in all_timezones and (not user.tz or not user.login_date) and user.tz != tz:
                     # first login or missing tz -> set tz to browser tz
                     user.tz = tz
                 user._update_last_login()
@@ -786,6 +881,20 @@ class ResUsers(models.Model):
         _logger.info("Login successful for login:%s from %s", login, ip)
 
         return auth_info
+
+    def _log_group_changes(self, vals, old_group_ids, editing_groups=None):
+        ip_addr = request.httprequest.remote_addr if request else 'n/a'
+        for user in self:
+            if editing_groups:
+                _logger.info(
+                    "Group change: user %d with IP %s changed groups of user %d who belonged to %s by editing res.groups %s with %s",
+                    self.env.user.id, ip_addr, user.id, old_group_ids[user.id], editing_groups, vals['user_ids'],
+                )
+            else:
+                _logger.info(
+                    "Group change: user %d with IP %s changed groups of user %d who belonged to %s with changes %s",
+                    self.env.user.id, ip_addr, user.id, old_group_ids[user.id], vals['group_ids'],
+                )
 
     def authenticate(self, credential, user_agent_env):
         """Verifies and returns the user ID corresponding to the given
@@ -810,14 +919,18 @@ class ResUsers(models.Model):
                 try:
                     base = user_agent_env['base_location']
                     ICP = env['ir.config_parameter']
-                    if not ICP.get_param('web.base.url.freeze'):
-                        ICP.set_param('web.base.url', base)
+                    if not ICP.get_bool('web.base.url.freeze'):
+                        ICP.set_str('web.base.url', base)
+                        _logger.info("web.base.url set to %s", base)
                 except Exception:
                     _logger.exception("Failed to update web.base.url configuration parameter")
         return auth_info
 
+    def _after_session_login(self):
+        """Hook called after the user's HTTP session is fully authenticated."""
+
     @api.model
-    @tools.ormcache('uid', 'passwd')
+    @api.ormcache('uid', 'passwd')
     def _check_uid_passwd(self, uid, passwd):
         """Verifies that the given (uid, password) is authorized and
            raise an exception if it is not."""
@@ -854,7 +967,7 @@ class ResUsers(models.Model):
             "group_by": SQL("res_users.id"),
         }
 
-    @tools.ormcache('sid')
+    @api.ormcache('sid')
     def _compute_session_token(self, sid):
         """ Compute a session token given a session id and a user id """
         # retrieve the fields used to generate the session token
@@ -867,7 +980,7 @@ class ResUsers(models.Model):
             **self._get_session_token_query_params(),
         ))
         if self.env.cr.rowcount != 1:
-            self.env.registry.clear_cache()
+            self.env.transaction.invalidate_ormcache()
             return False
         data_fields = self.env.cr.fetchone()
         # create tuple with column name and value, allowing for overrides to manipulate the values
@@ -927,15 +1040,21 @@ class ResUsers(models.Model):
         if not new_passwd:
             raise UserError(_("Setting empty passwords is not allowed for security reasons!"))
 
-        ip = request.httprequest.environ['REMOTE_ADDR'] if request else 'n/a'
-        _logger.info(
-            "Password change for %r (#%d) by %r (#%d) from %s",
-             self.login, self.id,
-             self.env.user.login, self.env.user.id,
-             ip
-        )
+        self._log_change_password("Password")
 
         self.password = new_passwd
+
+    def _log_change_password(self, description):
+        ip = request.httprequest.environ['REMOTE_ADDR'] if request else 'n/a'
+        _logger.info(
+            "%s change for %r (#%d) by %r (#%d) from %s",
+            description,
+            self.login,
+            self.id,
+            self.env.user.login,
+            self.env.user.id,
+            ip,
+        )
 
     def _deactivate_portal_user(self, **post):
         """Try to remove the current portal user.
@@ -998,12 +1117,15 @@ class ResUsers(models.Model):
             'tag': 'reload_context',
         }
 
+    @check_identity
     def action_change_password_wizard(self):
         return {
             'type': 'ir.actions.act_window',
             'target': 'new',
             'res_model': 'change.password.wizard',
             'view_mode': 'form',
+            'name': 'Change Password',
+            'context': {'active_ids': self.ids, 'active_model': 'res.users'}
         }
 
     @check_identity
@@ -1020,7 +1142,7 @@ class ResUsers(models.Model):
         return {
             'type': 'ir.actions.act_window',
             'res_model': 'res.users.apikeys.description',
-            'name': 'New API Key',
+            'name': 'Create API Key',
             'target': 'new',
             'views': [(False, 'form')],
         }
@@ -1032,8 +1154,8 @@ class ResUsers(models.Model):
         return (self.env.user if self.id == self.env.uid else self)._action_revoke_all_devices()
 
     def _action_revoke_all_devices(self):
-        devices = self.env["res.device"].search([("user_id", "=", self.id)])
-        devices.filtered(lambda d: not d.is_current)._revoke()
+        sessions = self.env["res.session"].search([("user_id", "=", self.id)])
+        sessions.filtered(lambda d: not d.is_current)._revoke()
         return {'type': 'ir.actions.client', 'tag': 'reload'}
 
     @api.readonly
@@ -1101,7 +1223,7 @@ class ResUsers(models.Model):
         # for new record don't fill the ormcache
         return group_id in (self._get_group_ids() if self.id else self.all_group_ids._origin._ids)
 
-    @tools.ormcache('self.id')
+    @api.ormcache('self.id')
     def _get_group_ids(self):
         """ Return ``self``'s group ids (as a tuple)."""
         self.ensure_one()
@@ -1110,27 +1232,16 @@ class ResUsers(models.Model):
         return self.with_context({}).all_group_ids._ids
 
     def _action_show(self):
-        """If self is a singleton, directly access the form view. If it is a recordset, open a list view"""
-        view_id = self.env.ref('base.view_users_form').id
-        action = {
+        """Directly access the form view"""
+        return {
             'type': 'ir.actions.act_window',
             'res_model': 'res.users',
             'context': {'create': False},
+            'name': _('Users'),
+            'view_mode': 'form',
+            'views': [[self.env.ref('base.view_users_form').id, 'form']],
+            'domain': [('id', 'in', self.ids)],
         }
-        if len(self) > 1:
-            action.update({
-                'name': _('Users'),
-                'view_mode': 'list,form',
-                'views': [[None, 'list'], [view_id, 'form']],
-                'domain': [('id', 'in', self.ids)],
-            })
-        else:
-            action.update({
-                'view_mode': 'form',
-                'views': [[view_id, 'form']],
-                'res_id': self.id,
-            })
-        return action
 
     def action_show_groups(self):
         self.ensure_one()
@@ -1149,28 +1260,21 @@ class ResUsers(models.Model):
         return {
             'name': _('Access Rights'),
             'view_mode': 'list,form',
-            'res_model': 'ir.model.access',
+            'res_model': 'ir.access',
             'type': 'ir.actions.act_window',
             'context': {'create': False, 'delete': False},
-            'domain': [('id', 'in', self.all_group_ids.model_access.ids)],
-            'target': 'current',
-        }
-
-    def action_show_rules(self):
-        self.ensure_one()
-        return {
-            'name': _('Record Rules'),
-            'view_mode': 'list,form',
-            'res_model': 'ir.rule',
-            'type': 'ir.actions.act_window',
-            'context': {'create': False, 'delete': False},
-            'domain': [('id', 'in', self.all_group_ids.rule_groups.ids)],
+            'domain': [('group_id', 'in', self.all_group_ids.ids)],
             'target': 'current',
         }
 
     def _is_internal(self):
         self.ensure_one()
         return self.sudo().has_group('base.group_user')
+
+    def _is_regular(self):
+        """ An internal user that is not a light one. """
+        self.ensure_one()
+        return self.sudo().role in ('regular_user', 'group_system')
 
     def _is_portal(self):
         self.ensure_one()
@@ -1196,7 +1300,7 @@ class ResUsers(models.Model):
     def get_company_currency_id(self):
         return self.env.company.currency_id.id
 
-    @tools.ormcache(cache='stable')
+    @api.ormcache(cache='stable')
     def _crypt_context(self):
         """ Passlib CryptContext instance used to encrypt and verify
         passwords. Can be overridden if technical, legal or political matters
@@ -1214,7 +1318,7 @@ class ResUsers(models.Model):
             # ``needs_update`` will indicate that the stored hash should be
             # replaced by a more recent algorithm.
             deprecated=['auto'],
-            pbkdf2_sha512__rounds=max(MIN_ROUNDS, int(cfg.get_param('password.hashing.rounds', 0))),
+            pbkdf2_sha512__rounds=max(MIN_ROUNDS, cfg.get_int('password.hashing.rounds')),
         )
 
     @contextlib.contextmanager
@@ -1305,11 +1409,11 @@ class ResUsers(models.Model):
         :rtype: bool
         """
         cfg = self.env['ir.config_parameter'].sudo()
-        min_failures = int(cfg.get_param('base.login_cooldown_after', 5))
+        min_failures = cfg.get_int('base.login_cooldown_after', 5)
         if min_failures == 0:
             return False
 
-        delay = int(cfg.get_param('base.login_cooldown_duration', 60))
+        delay = cfg.get_int('base.login_cooldown_duration') or 60
         return failures >= min_failures and (datetime.datetime.now() - previous) < datetime.timedelta(seconds=delay)
 
     def _register_hook(self):
@@ -1323,33 +1427,6 @@ class ResUsers(models.Model):
     def _mfa_url(self):
         """ If an MFA method is enabled, returns the URL for its second step. """
         return
-
-    @api.model
-    def fields_get(self, allfields=None, attributes=None):
-        res = super().fields_get(allfields, attributes=attributes)
-
-        # add self readable/writable fields
-        readable_fields, writeable_fields = self._self_accessible_fields()
-        missing = (writeable_fields | readable_fields).difference(res.keys())
-        if allfields:
-            missing = missing.intersection(allfields)
-        if missing:
-            self = self.sudo()  # noqa: PLW0642
-            res.update({
-                key: dict(values, readonly=key not in writeable_fields, searchable=False)
-                for key, values in super().fields_get(sorted(missing), attributes).items()
-            })
-        return res
-
-    def _get_view_postprocessed(self, view, arch, **options):
-        arch, models = super()._get_view_postprocessed(view, arch, **options)
-        if view == self.env.ref('base.view_users_form_simple_modif'):
-            tree = etree.fromstring(arch)
-            for node_field in tree.xpath('//field[@__groups_key__]'):
-                if node_field.get('name') in self.SELF_READABLE_FIELDS:
-                    node_field.attrib.pop('__groups_key__')
-            arch = etree.tostring(tree)
-        return arch, models
 
 
 ResUsersPatchedInTest = ResUsers
@@ -1392,6 +1469,9 @@ class UsersMultiCompany(models.Model):
         if values is None:
             values = {}
         user = super().new(values=values, origin=origin, ref=ref)
+
+        if origin:
+            return user
         group_multi_company_id = self.env['ir.model.data']._xmlid_to_res_id(
             'base.group_multi_company', raise_if_not_found=False)
         if group_multi_company_id:
@@ -1466,10 +1546,7 @@ class ChangePasswordWizard(models.TransientModel):
 
     def change_password_button(self):
         self.ensure_one()
-        self.user_ids.change_password_button()
-        if self.env.user in self.user_ids.user_id:
-            return {'type': 'ir.actions.client', 'tag': 'reload'}
-        return {'type': 'ir.actions.act_window_close'}
+        return self.user_ids.change_password_button()
 
 
 class ChangePasswordUser(models.TransientModel):
@@ -1481,12 +1558,16 @@ class ChangePasswordUser(models.TransientModel):
     user_login = fields.Char(string='User Login', readonly=True)
     new_passwd = fields.Char(string='New Password', default='')
 
+    @check_identity
     def change_password_button(self):
         for line in self:
             if line.new_passwd:
                 line.user_id._change_password(line.new_passwd)
         # don't keep temporary passwords in the database longer than necessary
         self.write({'new_passwd': False})
+        if self.env.user in self.user_id:
+            return {'type': 'ir.actions.client', 'tag': 'reload'}
+        return {'type': 'ir.actions.act_window_close'}
 
 
 class ChangePasswordOwn(models.TransientModel):
@@ -1510,9 +1591,11 @@ class ChangePasswordOwn(models.TransientModel):
         # would be great to update the session id in-place, but it seems dicey
         return {'type': 'ir.actions.client', 'tag': 'reload'}
 
+
 # API keys support
-API_KEY_SIZE = 20 # in bytes
-INDEX_SIZE = 8 # in hex digits, so 4 bytes, or 20% of the key
+API_KEY_SIZE = 20  # in bytes
+API_KEY_SUFFIX = '_oak'
+INDEX_SIZE = 8  # in hex digits, so 4 bytes, or 20% of the key
 KEY_CRYPT_CONTEXT = CryptContext(
     # default is 29000 rounds which is 25~50ms, which is probably unnecessary
     # given in this case all the keys are completely random data: dictionary
@@ -1524,13 +1607,13 @@ DEFAULT_PROGRAMMATIC_API_KEYS_LIMIT = 10  # programmatic API key creation is ref
 
 class ResUsersApikeys(models.Model):
     _name = 'res.users.apikeys'
-    _description = 'Users API Keys'
+    _description = 'User API Key'
     _auto = False # so we can have a secret column
     _allow_sudo_commands = False
 
     name = fields.Char("Description", required=True, readonly=True)
     user_id = fields.Many2one('res.users', index=True, required=True, readonly=True, ondelete="cascade")
-    scope = fields.Char("Scope", readonly=True)
+    scope = fields.Char("Scope", required=True, readonly=True)
     create_date = fields.Datetime("Creation Date", readonly=True)
     expiration_date = fields.Datetime("Expiration Date", readonly=True)
 
@@ -1573,7 +1656,7 @@ class ResUsersApikeys(models.Model):
             _logger.info("API key(s) removed: scope: <%s> for '%s' (#%s) from %s",
                self.mapped('scope'), self.env.user.login, self.env.uid, ip)
             self.sudo().unlink()
-            self.env.registry.clear_cache()
+            self.env.transaction.invalidate_ormcache()
             return {'type': 'ir.actions.act_window_close'}
         raise AccessError(_("You can not remove API keys unless they're yours or you are a system user"))
 
@@ -1591,10 +1674,12 @@ class ResUsersApikeys(models.Model):
         max_duration = max(group.api_key_duration for group in self.env.user.all_group_ids) or 1.0
         if date > datetime.datetime.now() + datetime.timedelta(days=max_duration):
             raise ValidationError(_("You cannot exceed %(duration)s days.", duration=max_duration))
+        if date <= datetime.datetime.now():
+            raise ValidationError(_("You cannot set an expiration date in the past."))
 
     def _generate(self, scope, name, expiration_date):
         """Generates an api key.
-        :param str|None scope: the scope of the key. If None, the key will give access to any rpc.
+        :param str scope: the scope of the key.
         :param str name: the name of the key, mainly intended to be displayed in the UI.
         :param datetime.datetime expiration_date: the expiration date of the key.
         :returns: the key.
@@ -1607,13 +1692,15 @@ class ResUsersApikeys(models.Model):
         """
         self._check_expiration_date(expiration_date)
         # no need to clear the LRU when *adding* a key, only when removing
-        k = binascii.hexlify(os.urandom(API_KEY_SIZE)).decode()
-        self.env.cr.execute("""
-        INSERT INTO {table} (name, user_id, scope, expiration_date, key, index)
-        VALUES (%s, %s, %s, %s, %s, %s)
-        RETURNING id
-        """.format(table=self._table),
-        [name, self.env.user.id, scope, expiration_date or None, KEY_CRYPT_CONTEXT.hash(k), k[:INDEX_SIZE]])
+        k = secrets.token_hex(API_KEY_SIZE) + API_KEY_SUFFIX
+        self.env.cr.execute(SQL("""
+            INSERT INTO %s (name, user_id, scope, expiration_date, key, index)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            RETURNING id
+            """,
+            SQL.identifier(self._table),
+            name, self.env.user.id, scope, expiration_date or None, KEY_CRYPT_CONTEXT.hash(k), k[:INDEX_SIZE]
+        ))
 
         ip = request.httprequest.environ['REMOTE_ADDR'] if request else 'n/a'
         _logger.info("%s generated: scope: <%s> for '%s' (#%s) from %s",
@@ -1623,7 +1710,7 @@ class ResUsersApikeys(models.Model):
 
     def _ensure_can_manage_keys_programmatically(self):
         # Administrators would not be restricted by the ICP check alone,
-        # as they could temporarily enable the setting via set_param().
+        # as they could temporarily enable the setting via set_bool().
         # However, this is considered bad practice because it would create a time window
         # where anyone could manage API keys programmatically.
         # Additionally, the enable / call / restore process involves three distinct calls,
@@ -1633,7 +1720,7 @@ class ResUsersApikeys(models.Model):
         # However, if programmatic API key management were to be enabled by default,
         # this exception should be removed, as disabling the feature should be global.
         ICP = self.env['ir.config_parameter'].sudo()
-        programmatic_api_keys_enabled = str2bool(ICP.get_param('base.enable_programmatic_api_keys'), False)
+        programmatic_api_keys_enabled = str2bool(ICP.get_bool('base.enable_programmatic_api_keys'), False)
         if not (self.env.is_system() or programmatic_api_keys_enabled):
             raise UserError(_("Programmatic API keys are not enabled"))
 
@@ -1648,7 +1735,7 @@ class ResUsersApikeys(models.Model):
         To renew a key, generate the new one, store it, and then call `revoke` on the previous one.
 
         :param str key: an active API key belonging to the current user
-        :param str|None scope: the scope of the key. If None, the key will give access to any rpc.
+        :param str scope: the scope of the key.
         :param str name: the name of the key, mainly intended to be displayed in the UI.
         :param str|datetime.datetime expiration_date: the expiration date of the key. String values
             may be either ISO 8601 dates (``"2026-12-30"``) or space-separated datetimes
@@ -1666,21 +1753,19 @@ class ResUsersApikeys(models.Model):
                                          '|', ('expiration_date', '=', False), ('expiration_date', '>=', self.env.cr.now())])
             try:
                 ICP = self.env['ir.config_parameter'].sudo()
-                nb_keys_limit = int(ICP.get_param('base.programmatic_api_keys_limit', DEFAULT_PROGRAMMATIC_API_KEYS_LIMIT))
+                nb_keys_limit = int(ICP.get_int('base.programmatic_api_keys_limit', DEFAULT_PROGRAMMATIC_API_KEYS_LIMIT))
             except ValueError:
                 _logger.warning("Invalid value for 'base.programmatic_api_keys_limit', using default value.")
                 nb_keys_limit = DEFAULT_PROGRAMMATIC_API_KEYS_LIMIT
             if nb_keys >= nb_keys_limit:
                 raise UserError(_('Limit of %s API keys is reached for programmatic creation', nb_keys_limit))
 
-            # Scope compatibility rules:
-            # - A global key can generate credentials for any scope (including global).
-            # - A scoped key can only generate credentials for its own scope.
+            # A key can only generate credentials for its own scope.
             #
             # This is enforced in _check_credentials by validating scope usage,
             # and the validated scope is then reused when calling _generate.
 
-            uid = self.env['res.users.apikeys']._check_credentials(scope=scope or 'rpc', key=key)
+            uid = self.env['res.users.apikeys']._check_credentials(scope=scope, key=key)
             if not uid or uid != self.env.uid:
                 raise AccessDenied(_("The provided API key is invalid or does not belong to the current user."))
             new_key = self._generate(scope, name, expiration_date)
@@ -1744,7 +1829,7 @@ def _check_apikey_credentials(cr, *, scope, key, table='res_users_apikeys'):
         FROM %(table)s INNER JOIN res_users u ON (u.id = user_id)
         WHERE
             u.active and index = %(index)s
-            AND (scope IS NULL OR scope = %(scope)s)
+            AND scope = %(scope)s
             AND (
                 expiration_date IS NULL OR
                 expiration_date >= now() at time zone 'utc'
@@ -1764,25 +1849,38 @@ class ResUsersApikeysDescription(models.TransientModel):
         # duration value is a string representing the number of days.
         durations = [
             ('1', '1 Day'),
-            ('7', '1 Week'),
             ('30', '1 Month'),
-            ('90', '3 Months'),
-            ('180', '6 Months'),
             ('365', '1 Year'),
         ]
-        persistent_duration = ('0', 'Persistent Key')  # Magic value to detect an infinite duration
-        custom_duration = ('-1', 'Custom Date')  # Will force the user to enter a date manually
+        persistent_duration = ('0', 'Never')  # Magic value to detect an infinite duration
         if self.env.is_system():
-            return durations + [persistent_duration, custom_duration]
+            return durations + [persistent_duration]
         max_duration = max(group.api_key_duration for group in self.env.user.all_group_ids) or 1.0
         return list(filter(
             lambda duration: int(duration[0]) <= max_duration, durations
-        )) + [custom_duration]
+        ))
+
+    def _default_duration(self):
+        # Default to 1 month ('30') if that duration is available for the user's group,
+        # otherwise fall back to the shortest available duration (the first option).
+        selection = self._selection_duration()
+        return '30' if '30' in dict(selection) else selection[0][0]
 
     name = fields.Char("Description", required=True)
+    scope = fields.Selection(
+        [('rpc', 'RPC')],
+        help="""
+        A token with scope 'A' can only be used for endpoints requiring a bearer token of scope 'A' and
+        can't be used for endpoints requiring any other scope than 'A'.
+        """,
+        string='Scope',
+        required=True,
+        default='rpc',
+    )
+    available_scopes_count = fields.Integer(compute='_compute_available_scopes_count')
     duration = fields.Selection(
         selection='_selection_duration', string='Duration', required=True,
-        default=lambda self: self._selection_duration()[0][0]
+        default=_default_duration,
     )
     expiration_date = fields.Datetime('Expiration Date', compute='_compute_expiration_date', store=True, readonly=False)
 
@@ -1796,6 +1894,12 @@ class ResUsersApikeysDescription(models.TransientModel):
                     if int(record.duration)
                     else None
                 )
+
+    @api.depends('scope')
+    def _compute_available_scopes_count(self):
+        selection_values = self._fields['scope'].get_values(self.env)
+        for record in self:
+            record.available_scopes_count = len(selection_values)
 
     @api.onchange('expiration_date')
     def _onchange_expiration_date(self):
@@ -1821,18 +1925,22 @@ class ResUsersApikeysDescription(models.TransientModel):
         self.check_access_make_key()
 
         description = self.sudo()
-        k = self.env['res.users.apikeys']._generate(None, description.name, self.expiration_date)
+        k = self.env['res.users.apikeys']._generate(description.scope, description.name, self.expiration_date)
+        scope = description.scope
+        base_url = ((request and request.httprequest.url_root) or "<Your URL>").rstrip('/')
         description.unlink()
 
         return {
             'type': 'ir.actions.act_window',
             'res_model': 'res.users.apikeys.show',
-            'name': _('API Key Ready'),
+            'name': self.env._('Save your API Key'),
             'views': [(False, 'form')],
             'target': 'new',
             'context': {
                 'default_key': k,
-            }
+                'default_scope': scope,
+                'default_base_url': base_url,
+            },
         }
 
     def check_access_make_key(self):
@@ -1840,10 +1948,14 @@ class ResUsersApikeysDescription(models.TransientModel):
             raise AccessError(_("Only internal users can create API keys"))
 
 
-class ResUsersApikeysShow(models.AbstractModel):
+class ResUsersApikeysShow(models.Model):
     _name = 'res.users.apikeys.show'
     _description = 'Show API Key'
+    _auto = False  # no table
+    _table_sql = SQL('(0)')
 
     # the field 'id' is necessary for the onchange that returns the value of 'key'
     id = fields.Id()
     key = fields.Char(readonly=True)
+    scope = fields.Char(readonly=True)
+    base_url = fields.Char(readonly=True)

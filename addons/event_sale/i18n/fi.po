@@ -24,17 +24,40 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-03-14 09:32+0000\n"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-10-01 09:33+0000\n"
 "Last-Translator: Saara Hakanen <sahak@odoo.com>\n"
-"Language-Team: Finnish <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Finnish <https://translate.odoo.com/projects/odoo-20/"
 "event_sale/fi/>\n"
 "Language: fi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.16.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: event_sale
+#: model:ir.module.module,description:base.module_event_sale
+msgid ""
+"\n"
+"Creating registration with sales orders.\n"
+"========================================\n"
+"\n"
+"This module allows you to automate and connect your registration creation "
+"with\n"
+"your main sale flow and therefore, to enable the invoicing feature of "
+"registrations.\n"
+"\n"
+"It defines a new kind of service products that offers you the possibility "
+"to\n"
+"choose an event category associated with it. When you encode a sales order "
+"for\n"
+"that product, you will be able to choose an existing event of that category "
+"and\n"
+"when you confirm your sales order it will automatically create a "
+"registration for\n"
+"this event.\n"
+msgstr ""
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_registration_change_exception
@@ -47,8 +70,10 @@ msgstr ""
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_configurator_view_form
-msgid "<i class=\"fa fa-arrow-right\"/> Configure Events &amp; Tickets"
-msgstr "<i class=\"fa fa-arrow-right\"/> Määritä tapahtumat &amp; liput"
+msgid ""
+"<i class=\"oi\" data-icon=\"arrow_forward\"/> Configure Events &amp; Tickets"
+msgstr ""
+"<i class=\"oi\" data-icon=\"arrow_forward\"/> Määritä tapahtumat &amp; liput"
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_registration_ticket_view_form
@@ -69,6 +94,11 @@ msgstr "<span>Rekisteröinnin muutos osallistujalle:</span>"
 #: model_terms:ir.ui.view,arch_db:event_sale.event_configurator_view_form
 msgid "Add"
 msgstr "Lisää"
+
+#. module: event_sale
+#: model:ir.model.fields,field_description:event_sale.field_event_event_configurator__additional_product_ids
+msgid "Additional Products"
+msgstr "Lisätuotteet"
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_configurator_view_form
@@ -323,6 +353,11 @@ msgid "Event Type"
 msgstr "Tapahtumatyyppi"
 
 #. module: event_sale
+#: model:ir.module.module,shortdesc:base.module_event_sale
+msgid "Events Sales"
+msgstr ""
+
+#. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_sale_report_view_search
 msgid "Events that have ended"
 msgstr "Tapahtumat, joiden olisi pitänyt loppua"
@@ -431,7 +466,7 @@ msgstr "Ei myyty"
 #. module: event_sale
 #: model:ir.model.fields,field_description:event_sale.field_event_sale_report__sale_order_date
 msgid "Order Date"
-msgstr "Tilauksen pvm"
+msgstr "Tilauspäivä"
 
 #. module: event_sale
 #: model:ir.model.fields,field_description:event_sale.field_registration_editor_line__registration_id
@@ -588,6 +623,15 @@ msgid "Select an Event"
 msgstr "Valitse tapahtuma"
 
 #. module: event_sale
+#: model:ir.model.fields,help:event_sale.field_event_event_configurator__additional_product_ids
+msgid ""
+"Select products to include with each registration. They will also show up "
+"separately on Sale Orders."
+msgstr ""
+"Valitse tuotteet, jotka sisällytetään kuhunkin rekisteröintiin. Ne näkyvät "
+"myös erikseen Myyntitilauksissa."
+
+#. module: event_sale
 #. odoo-python
 #: code:addons/event_sale/models/event_registration.py:0
 #: model:ir.model.fields,field_description:event_sale.field_event_event_configurator__event_slot_id
@@ -619,7 +663,7 @@ msgid ""
 "The sale order line with the product %(product_name)s needs an event, a "
 "ticket and a slot in case the event has multiple time slots."
 msgstr ""
-"Myyntitilausrivi tuotteella %(product_name)s tarvitsee tapahtuman, "
+"Myyntitilauksen rivi tuotteella %(product_name)s vaatii tapahtuman, "
 "tukipyynnön sekä aikaikkunan siinä tapauksessa, jos tapahtumalla on useita "
 "aikoja."
 
@@ -701,122 +745,3 @@ msgstr "ilmoita osallistujan tiedot."
 #: model_terms:ir.ui.view,arch_db:event_sale.event_registration_change_exception
 msgid "to"
 msgstr "->"
-
-#~ msgid ""
-#~ "<span>Not enough seats available. All registrations were created as "
-#~ "\"Unconfirmed\" and can be updated later on.</span>"
-#~ msgstr ""
-#~ "<span>Ei tarpeeksi paikkoja vapaana. Kaikki ilmoittautumiset luotiin "
-#~ "\"Vahvistamattomiksi\". Ne voidaan päivittää myöhemmin.</span>"
-
-#~ msgid ""
-#~ "A description of the ticket that you want to communicate to your "
-#~ "customers."
-#~ msgstr "Pääsylipun kuvaus, jonka haluat kommunikoida asiakkaillesi."
-
-#~ msgid ""
-#~ "A storable product is a product for which you manage stock. The Inventory "
-#~ "app has to be installed.\n"
-#~ "A consumable product is a product for which stock is not managed.\n"
-#~ "A service is a non-material product you provide."
-#~ msgstr ""
-#~ "Varastoitava tuote on tuote, jonka varastosaldoja hallitset. Tätä varten "
-#~ "on asennettava Varasto-sovellus.\n"
-#~ "Kulutustuote on fyysinen tuote, jonka varastoa ei hallita.\n"
-#~ "Palvelu on tarjonnassa oleva aineeton tuote."
-
-#~ msgid "Cancel"
-#~ msgstr "Peruuta"
-
-#~ msgid "Configure an event"
-#~ msgstr "Konfiguroi tapahtuma"
-
-#~ msgid "Currency"
-#~ msgstr "Valuutta"
-
-#~ msgid "Description"
-#~ msgstr "Kuvaus"
-
-#~ msgid "Event Registration - Standard"
-#~ msgstr "Tapahtuman ilmoittautuminen - Tavallinen"
-
-#~ msgid "Event Registration - VIP"
-#~ msgstr "Tapahtuman ilmoittautuminen - VIP"
-
-#~ msgid "Event Template Ticket"
-#~ msgstr "Tapahtuman pääsylipun mallipohja"
-
-#~ msgid "Event Tickets"
-#~ msgstr "Tapahtuman liput"
-
-#~ msgid "Group By"
-#~ msgstr "Ryhmittely"
-
-#~ msgid "Is Paid"
-#~ msgstr "On maksettu"
-
-#~ msgid "Journal Entry"
-#~ msgstr "Päiväkirjan kirjaus"
-
-#~ msgid "Locked"
-#~ msgstr "Lukittu"
-
-#~ msgid "Mobile"
-#~ msgstr "Matkapuhelin"
-
-#~ msgid "Not Paid"
-#~ msgstr "Maksamaton"
-
-#~ msgid "Not enough seats for all registrations"
-#~ msgstr "Ei tarpeeksi paikkoja kaikille ilmoittautuneille"
-
-#~ msgid "Ok"
-#~ msgstr "OK"
-
-#~ msgid "Order Ref"
-#~ msgstr "Tilauksen viite"
-
-#~ msgid "Paid"
-#~ msgstr "Maksettu"
-
-#~ msgid "Price"
-#~ msgstr "Hinta"
-
-#~ msgid "Price Reduce"
-#~ msgstr "Hinnan alennus"
-
-#~ msgid "Price Reduce Tax inc"
-#~ msgstr "Hinnan alennus verot sis."
-
-#~ msgid "Product Type"
-#~ msgstr "Tuotteen tyyppi"
-
-#~ msgid "Product Variant"
-#~ msgstr "Tuotevariaatio"
-
-#~ msgid "Quotation Template Line"
-#~ msgstr "Tarjouspohjarivi"
-
-#~ msgid "Quotation Template Option"
-#~ msgstr "Tarjouspohja vaihtoehto"
-
-#~ msgid "Sales (Tax Excluded)"
-#~ msgstr "Myynti (Veroton)"
-
-#~ msgid "Sales End"
-#~ msgstr "Myynti päättyy"
-
-#~ msgid "Sales Start"
-#~ msgstr "Myynti alkaa"
-
-#~ msgid "Skip"
-#~ msgstr "Ohita"
-
-#~ msgid "Ticket changed from"
-#~ msgstr "Lippu vaihdettu"
-
-#~ msgid "Transaction"
-#~ msgstr "Tapahtuma"
-
-#~ msgid "please give attendee details."
-#~ msgstr "ole hyvä ja anna osallistujan tiedot."

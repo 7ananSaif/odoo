@@ -3,10 +3,12 @@ import { DropdownItem } from "@web/core/dropdown/dropdown_item";
 import { BuilderButtonGroup } from "./building_blocks/builder_button_group";
 import { Dropdown } from "@web/core/dropdown/dropdown";
 import { BuilderDateTimePicker } from "./building_blocks/builder_datetimepicker";
+import { BuilderSlidingPanel } from "./building_blocks/builder_sliding_panel";
 import { BuilderRow } from "./building_blocks/builder_row";
 import { BuilderButton } from "./building_blocks/builder_button";
 import { BuilderNumberInput } from "./building_blocks/builder_number_input";
 import { BuilderSelect } from "./building_blocks/builder_select";
+import { BuilderSearchSelect } from "./building_blocks/builder_search_select";
 import { BuilderSelectItem } from "./building_blocks/builder_select_item";
 import { BuilderColorPicker } from "./building_blocks/builder_colorpicker";
 import { BuilderTextInput } from "./building_blocks/builder_text_input";
@@ -15,20 +17,21 @@ import { BuilderRange } from "./building_blocks/builder_range";
 import { BuilderContext } from "./building_blocks/builder_context";
 import { BasicMany2Many } from "./building_blocks/basic_many2many";
 import { BuilderMany2Many } from "./building_blocks/builder_many2many";
+import { BuilderOptionsSection } from "./building_blocks/builder_options_section";
 import { BuilderMany2One } from "./building_blocks/builder_many2one";
 import { ModelMany2Many } from "./building_blocks/model_many2many";
 import { Plugin } from "@html_editor/plugin";
-import { Img } from "./img";
+import { Image } from "./img";
 import { BuilderUrlPicker } from "./building_blocks/builder_urlpicker";
 import { BuilderFontFamilyPicker } from "./building_blocks/builder_fontfamilypicker";
 
-/** @typedef {import("@odoo/owl").Component} Component */
+/** @typedef {import("@odoo/owl").ComponentConstructor} ComponentConstructor */
 /**
  * @typedef { Object } BuilderComponentShared
  * @property { BuilderComponentPlugin['getComponents'] } getComponents
  */
 
-/** @typedef {Component[]} builder_components */
+/** @typedef {ComponentConstructor[]} builder_components */
 
 export class BuilderComponentPlugin extends Plugin {
     static id = "builderComponents";
@@ -40,6 +43,8 @@ export class BuilderComponentPlugin extends Plugin {
             BuilderContext,
             BuilderFontFamilyPicker,
             BuilderRow,
+            BuilderSlidingPanel,
+            BuilderOptionsSection,
             BuilderUrlPicker,
             Dropdown,
             DropdownItem,
@@ -51,6 +56,7 @@ export class BuilderComponentPlugin extends Plugin {
             BuilderColorPicker,
             BuilderSelect,
             BuilderSelectItem,
+            BuilderSearchSelect,
             BuilderCheckbox,
             BasicMany2Many,
             BuilderMany2Many,
@@ -58,7 +64,7 @@ export class BuilderComponentPlugin extends Plugin {
             ModelMany2Many,
             BuilderDateTimePicker,
             BuilderList,
-            Img,
+            Image,
         },
     };
 

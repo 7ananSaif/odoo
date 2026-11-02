@@ -1,37 +1,37 @@
-import { Component } from "@odoo/owl";
+import { Component, proxy, t, useProps } from "@odoo/owl";
+import { BadgeTag } from "@web/core/tags_list/badge_tag";
 
 export class TagsList extends Component {
     static template = "web.TagsList";
-    static defaultProps = {
-        displayText: true,
-    };
-    static props = {
-        displayText: { type: Boolean, optional: true },
-        visibleItemsLimit: { type: Number, optional: true },
-        tags: { type: Array, element: Object },
-    };
+    static components = { BadgeTag };
+    props = useProps({
+        slots: t.object(),
+        tags: t.array(t.object()),
+        tagLimit: t.number(),
+    });
 
-    get visibleTagsCount() {
-        return this.props.visibleItemsLimit - 1;
+    setup() {
+        this.state = proxy({ expanded: false });
     }
+
+    get invisibleTags() {
+        return this.props.tags.slice(this.visibleTagCount);
+    }
+
+    showAllTags() {
+        this.state.expanded = true;
+    }
+
+    get visibleTagCount() {
+        if (this.state.expanded) {
+            return this.props.tags.length;
+        }
+        // remove an item to display the counter instead
+        const counter = this.props.tags.length > this.props.tagLimit ? 1 : 0;
+        return this.props.tagLimit - counter;
+    }
+
     get visibleTags() {
-        if (this.props.visibleItemsLimit && this.props.tags.length > this.props.visibleItemsLimit) {
-            return this.props.tags.slice(0, this.visibleTagsCount);
-        }
-        return this.props.tags;
-    }
-    get otherTags() {
-        if (this.props.visibleItemsLimit && this.props.tags.length > this.props.visibleItemsLimit) {
-            return this.props.tags.slice(this.visibleTagsCount);
-        }
-        return [];
-    }
-    get tooltipInfo() {
-        return JSON.stringify({
-            tags: this.otherTags.map((tag) => ({
-                text: tag.text,
-                id: tag.id,
-            })),
-        });
+        return this.props.tags.slice(0, this.visibleTagCount);
     }
 }

@@ -1,47 +1,37 @@
-import { Component, onWillStart, useExternalListener, useState, xml } from "@odoo/owl";
+import { Component, onWillStart, t, useListener, usePlugin, useProps, xml } from "@odoo/owl";
 
 import { _t } from "@web/core/l10n/translation";
 import { browser } from "@web/core/browser/browser";
-import { debounce } from "@web/core/utils/timing";
 import { isMobileOS } from "@web/core/browser/feature_detection";
 import { useService } from "@web/core/utils/hooks";
+import { Tabs, Tab } from "@mail/core/common/tabs";
 import { useMicrophoneVolume } from "@mail/utils/common/hooks";
 import { ActionPanel } from "@mail/discuss/core/common/action_panel";
 import { DeviceSelect } from "@mail/discuss/call/common/device_select";
 import { Dialog } from "@web/core/dialog/dialog";
+import { DebugModePlugin } from "@web/core/debug_mode_plugin";
 
 export class CallSettings extends Component {
     static template = "discuss.CallSettings";
-    static props = ["withActionPanel?", "*"];
-    static defaultProps = {
-        withActionPanel: true,
-    };
-    static components = { ActionPanel, DeviceSelect };
+    static components = { ActionPanel, DeviceSelect, Tabs, Tab };
+
+    debugMode = usePlugin(DebugModePlugin);
 
     setup() {
         super.setup();
+        this.props = useProps({
+            close: t.function([t.instanceOf(MouseEvent)]).optional(),
+            initialTab: t.string().optional(),
+            isCompact: t.boolean().optional(),
+            withActionPanel: t.boolean().optional(true),
+        });
         this.notification = useService("notification");
         this.store = useService("mail.store");
         this.rtc = useService("discuss.rtc");
         this.microphoneVolume = useMicrophoneVolume();
-        this.state = useState({
-            userDevices: [],
-        });
         this.pttExtService = useService("discuss.ptt_extension");
-        this.saveBackgroundBlurAmount = debounce(() => {
-            browser.localStorage.setItem(
-                "mail_user_setting_background_blur_amount",
-                this.store.settings.backgroundBlurAmount.toString()
-            );
-        }, 2000);
-        this.saveEdgeBlurAmount = debounce(() => {
-            browser.localStorage.setItem(
-                "mail_user_setting_edge_blur_amount",
-                this.store.settings.edgeBlurAmount.toString()
-            );
-        }, 2000);
-        useExternalListener(browser, "keydown", this._onKeyDown, { capture: true });
-        useExternalListener(browser, "keyup", this._onKeyUp, { capture: true });
+        useListener(browser, "keydown", (ev) => this._onKeyDown(ev), { capture: true });
+        useListener(browser, "keyup", (ev) => this._onKeyUp(ev), { capture: true });
         onWillStart(async () => {
             if (!browser.navigator.mediaDevices) {
                 // zxing-js: isMediaDevicesSuported or canEnumerateDevices is false.
@@ -52,8 +42,8 @@ export class CallSettings extends Component {
                 console.warn("Media devices unobtainable. SSL might not be set up properly.");
                 return;
             }
-            this.state.userDevices = await browser.navigator.mediaDevices.enumerateDevices();
         });
+        this.isMobileOS = isMobileOS;
     }
 
     get stopText() {
@@ -62,19 +52,6 @@ export class CallSettings extends Component {
 
     get testText() {
         return _t("Test");
-    }
-
-    get pushToTalkKeyText() {
-        const { shiftKey, ctrlKey, altKey, key } = this.store.settings.pushToTalkKeyFormat();
-        const f = (k, name) => (k ? name : "");
-        const keys = [f(ctrlKey, "Ctrl"), f(altKey, "Alt"), f(shiftKey, "Shift"), key].filter(
-            Boolean
-        );
-        return keys.join(" + ");
-    }
-
-    get isMobileOS() {
-        return isMobileOS();
     }
 
     _onKeyDown(ev) {
@@ -99,10 +76,6 @@ export class CallSettings extends Component {
         this.store.settings.logRtc = ev.target.checked;
     }
 
-    onChangeSelectAudioInput(ev) {
-        this.store.settings.setAudioInputDevice(ev.target.value);
-    }
-
     onClickDownloadLogs() {
         this.rtc.dumpLogs({ download: true });
     }
@@ -116,43 +89,32 @@ export class CallSettings extends Component {
     }
 
     onChangeBlur(ev) {
-        this.store.settings.setUseBlur(ev.target.checked);
+        this.store.settings.useBlur = ev.target.checked;
     }
 
-    onChangeShowOnlyVideo(ev) {
-        const showOnlyVideo = ev.target.checked;
-        this.store.settings.showOnlyVideo = showOnlyVideo;
-        browser.localStorage.setItem(
-            "mail_user_setting_show_only_video",
-            this.store.settings.showOnlyVideo
-        );
-        const activeRtcSessions = this.store.allActiveRtcSessions;
-        if (showOnlyVideo && activeRtcSessions) {
-            activeRtcSessions
-                .filter((rtcSession) => !rtcSession.videoStream)
-                .forEach((rtcSession) => {
-                    rtcSession.channel.activeRtcSession = undefined;
-                });
-        }
+    onChangeCallAutoFocus() {
+        this.store.settings.useCallAutoFocus = !this.store.settings.useCallAutoFocus;
     }
 
-    onChangeBackgroundBlurAmount(ev) {
+    onChangePushToTalk(ev) {
+        this.store.settings.usePushToTalk = ev.target.checked;
+    }
+
+    onInputBackgroundBlurAmount(ev) {
         this.store.settings.backgroundBlurAmount = Number(ev.target.value);
-        this.saveBackgroundBlurAmount();
     }
 
-    onChangeEdgeBlurAmount(ev) {
+    onInputEdgeBlurAmount(ev) {
         this.store.settings.edgeBlurAmount = Number(ev.target.value);
-        this.saveEdgeBlurAmount();
     }
 }
 
 export class CallSettingsDialog extends Component {
     static template = xml`
-        <Dialog size="medium" footer="false" title.translate="Voice &amp; Video Settings">
-            <CallSettings withActionPanel="false"/>
+        <Dialog size="'md'" footer="false" title.translate="Voice &amp; Video Settings">
+            <CallSettings initialTab="this.props.initialTab" withActionPanel="false"/>
         </Dialog>
     `;
-    static props = ["*"];
+    props = useProps({ initialTab: t.string().optional() });
     static components = { CallSettings, Dialog };
 }

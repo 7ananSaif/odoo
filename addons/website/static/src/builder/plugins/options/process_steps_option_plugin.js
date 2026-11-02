@@ -1,45 +1,28 @@
 import { BuilderAction } from "@html_builder/core/builder_action";
 import { ClassAction } from "@html_builder/core/core_builder_action_plugin";
 import { applyFunDependOnSelectorAndExclude } from "@html_builder/plugins/utils";
-import { after } from "@html_builder/utils/option_sequence";
 import { Plugin } from "@html_editor/plugin";
-import { withSequence } from "@html_editor/utils/resource";
 import { registry } from "@web/core/registry";
-import { CONTAINER_WIDTH } from "@website/builder/option_sequence";
-import { connectorOptionParams, ProcessStepsOption } from "./process_steps_option";
-import { BaseWebsiteBackgroundOption } from "./background_option";
+import { connectorOptionParams } from "./process_steps_option";
 
-export class WebsiteBackgroundProcessStepOption extends BaseWebsiteBackgroundOption {
-    static selector = ".s_process_step .s_process_step_number";
-    static defaultProps = {
-        withColors: true,
-        withImages: false,
-        withColorCombinations: false,
-    };
-}
-
-class ProcessStepsOptionPlugin extends Plugin {
+export class ProcessStepsOptionPlugin extends Plugin {
     static id = "processStepsOption";
     /** @type {import("plugins").WebsiteResources} */
     resources = {
-        builder_options: [
-            withSequence(after(CONTAINER_WIDTH), ProcessStepsOption),
-            WebsiteBackgroundProcessStepOption,
-        ],
         builder_actions: {
             ChangeConnectorAction,
             ChangeArrowColorAction,
         },
         // The reload of the connectors is done at the
-        // 'content_updated_handlers' (each time there is a DOM mutation) and
+        // 'on_content_updated_handlers' (each time there is a DOM mutation) and
         // not at the normalize as there are cases where we want to reload the
         // connectors even if there were no step added (e.g: a column of the
         // snippet is being resized).
-        content_updated_handlers: (rootEl) =>
+        on_content_updated_handlers: (rootEl) =>
             applyFunDependOnSelectorAndExclude(reloadConnectors, rootEl, {
-                selector: ProcessStepsOption.selector,
+                selector: ".s_process_steps",
             }),
-        dropzone_selector: {
+        dropzone_selectors: {
             selector: ".s_process_step",
             dropLockWithin: ".s_process_steps",
         },

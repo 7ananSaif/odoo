@@ -7,20 +7,20 @@ import { DIRECTIONS, nodeSize } from "@html_editor/utils/position";
 import { withSequence } from "@html_editor/utils/resource";
 import { DISABLED_NAMESPACE } from "./toolbar/toolbar_plugin";
 
-/** @typedef {((codeElement: HTMLElement) => void)[]} to_inline_code_processors */
+/** @typedef {((codeElement: HTMLElement) => HTMLElement)[]} to_inline_code_processors */
 
 export class InlineCodePlugin extends Plugin {
     static id = "inlineCode";
-    static dependencies = ["clipboard", "feff", "history", "input", "selection", "split"];
+    static dependencies = ["feff", "history", "input", "selection", "split"];
     /** @type {import("plugins").EditorResources} */
     resources = {
-        input_handlers: this.onInput.bind(this),
-        selectionchange_handlers: this.handleSelectionChange.bind(this),
-        normalize_handlers: this.normalize.bind(this),
+        on_input_handlers: this.onInput.bind(this),
+        on_selectionchange_handlers: this.handleSelectionChange.bind(this),
+        normalize_processors: this.normalize.bind(this),
 
         /** Providers */
         feff_providers: (root, cursors) =>
-            [...selectElements(root, ".o_inline_code")].flatMap((code) =>
+            selectElements(root, ".o_inline_code").flatMap((code) =>
                 this.dependencies.feff.surroundWithFeffs(code, cursors)
             ),
         toolbar_namespace_providers: withSequence(70, (targetedNodes) => {
@@ -39,13 +39,19 @@ export class InlineCodePlugin extends Plugin {
         }),
 
         /** Overrides */
-        paste_overrides: (selection, clipboardData) => {
+        are_similar_elements_overrides: ({ node, node2 }) => {
+            if (node.matches("code.o_inline_code") && node2.matches("code.o_inline_code")) {
+                return true;
+            }
+        },
+
+        /** Predicates */
+        should_paste_as_text_predicates: (selection) => {
             const caretNode =
                 selection.direction === DIRECTIONS.RIGHT
                     ? selection.anchorNode
                     : selection.focusNode;
             if (closestElement(caretNode, "code.o_inline_code")) {
-                this.dependencies.clipboard.pasteText(clipboardData.getData("text/plain"));
                 return true;
             }
         },
@@ -61,7 +67,7 @@ export class InlineCodePlugin extends Plugin {
                 return false;
             }
         },
-        link_compatible_selection_predicates: () => {
+        is_link_allowed_on_selection_predicates: () => {
             const targetedNodes = this.dependencies.selection.getTargetedNodes();
             if (
                 targetedNodes.length &&
@@ -154,12 +160,12 @@ export class InlineCodePlugin extends Plugin {
                 }
                 start = next;
             }
-            this.dispatchTo("to_inline_code_processors", codeElement);
+            codeElement = this.processThrough("to_inline_code_processors", codeElement);
             this.dependencies.selection.setSelection({
                 anchorNode: codeElement,
                 anchorOffset: nodeSize(codeElement),
             });
-            this.dependencies.history.addStep();
+            this.dependencies.history.commit();
             delete this.historySavePointRestore;
             return;
         }
@@ -168,7 +174,7 @@ export class InlineCodePlugin extends Plugin {
         // one in the text.
         let textNode = selection.startContainer;
         const wholeText = textNode.wholeText;
-        const textHasTwoTicks = /`[^`]+`/.test(wholeText);
+        const textHasTwoTicks = /`[^ `][^`]*`/.test(wholeText);
         // We don't apply the code tag if there is no content between the two `
         if (textHasTwoTicks && wholeText.replace(/`/g, "").length) {
             let offset = selection.startOffset;
@@ -194,7 +200,7 @@ export class InlineCodePlugin extends Plugin {
                 anchorNode: textNode,
                 anchorOffset: offset,
             });
-            this.dependencies.history.addStep();
+            this.dependencies.history.commit();
             const insertedBacktickIndex = offset - 1;
             const textBeforeInsertedBacktick = textNode.textContent.substring(
                 0,
@@ -232,20 +238,20 @@ export class InlineCodePlugin extends Plugin {
             );
             splitNode.replaceWith(codeElement);
             if (!codeElement.textContent.length) {
-                this.dependencies.history.addStep();
+                this.dependencies.history.commit();
                 this.dependencies.selection.setSelection({
                     anchorNode: codeElement.firstChild,
                     anchorOffset: 1,
                 });
             } else if (isClosingForward) {
                 // Move selection out of code element.
-                this.dependencies.history.addStep();
+                this.dependencies.history.commit();
                 this.dependencies.selection.setSelection({
                     anchorNode: codeElement.nextSibling,
                     anchorOffset: 1,
                 });
             } else {
-                this.dependencies.history.addStep();
+                this.dependencies.history.commit();
                 this.dependencies.selection.setSelection({
                     anchorNode: codeElement.firstChild,
                     anchorOffset: 0,
@@ -264,5 +270,6 @@ export class InlineCodePlugin extends Plugin {
                 el.remove();
             }
         }
+        return rootEl;
     }
 }

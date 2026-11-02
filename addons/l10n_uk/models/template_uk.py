@@ -9,9 +9,8 @@ class AccountChartTemplate(models.AbstractModel):
     @template('uk')
     def _get_uk_template_data(self):
         return {
-            'property_account_receivable_id': '110000',
-            'property_account_payable_id': '210000',
             'code_digits': '6',
+            'country': 'gb',
         }
 
     @template('uk', 'res.company')
@@ -30,9 +29,10 @@ class AccountChartTemplate(models.AbstractModel):
                 'account_purchase_tax_id': 'PT_20_G',
                 'expense_account_id': '500000',
                 'income_account_id': '400000',
+                'receivable_account_id': '110000',
+                'payable_account_id': '210000',
                 'deferred_expense_account_id': '110300',
                 'deferred_revenue_account_id': '210900',
-                'account_stock_journal_id': 'inventory_valuation',
                 'account_stock_valuation_id': '100100',
             },
         }
@@ -60,4 +60,13 @@ class AccountChartTemplate(models.AbstractModel):
             '100100': {
                 'account_stock_variation_id': '630000',
             },
+            '001000': {'asset_depreciation_account_id': '001100', 'asset_expense_account_id': '751000'},
+            '002000': {'asset_depreciation_account_id': '002100', 'asset_expense_account_id': '800000'},
+            '003000': {'asset_depreciation_account_id': '003100', 'asset_expense_account_id': '800100'},
+            '004001': {'asset_depreciation_account_id': '004101', 'asset_expense_account_id': '800100'},
+            '005000': {'asset_depreciation_account_id': '005100', 'asset_expense_account_id': '800100'},
+            '006000': {'asset_depreciation_account_id': '006100', 'asset_expense_account_id': '750600'},
+            '007000': {'asset_depreciation_account_id': '007100', 'asset_expense_account_id': '800100'},
+            '008000': {'asset_depreciation_account_id': '008100', 'asset_expense_account_id': '800100'},
+            '009000': {'asset_depreciation_account_id': '009100', 'asset_expense_account_id': '800100'},
         }

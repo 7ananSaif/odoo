@@ -1,46 +1,51 @@
-import { fields, Record } from "@mail/core/common/record";
+import { fields, Record } from "@mail/model/export";
 import { markRaw } from "@odoo/owl";
 
 import { _t } from "@web/core/l10n/translation";
 
 export class Failure extends Record {
     static nextId = markRaw({ value: 1 });
-    static id = "id";
 
-    notifications = fields.Many("mail.notification", {
-        /** @this {import("models").Failure} */
-        onUpdate() {
-            if (this.notifications.length === 0) {
-                this.delete();
-            } else {
-                this.store.failures.add(this);
-            }
-        },
-    });
+    setup() {
+        super.setup(...arguments);
+        this.onChange(
+            () => [this.notifications.length > 0],
+            function onChangeNotifications(hasNotifications) {
+                if (hasNotifications) {
+                    this.store.failures.add(this);
+                } else {
+                    this.delete();
+                }
+            },
+            { immediate: true }
+        );
+    }
+
+    /** @type {number} */
+    id;
+    notifications = fields.Many("mail.notification");
     get modelName() {
         return this.notifications?.[0]?.mail_message_id?.thread?.modelName;
     }
     get resModel() {
         return this.notifications?.[0]?.mail_message_id?.thread?.model;
     }
-    get resIds() {
-        return new Set([
-            ...this.notifications
-                .map((notif) => notif.mail_message_id?.thread?.id)
-                .filter((id) => !!id),
-        ]);
-    }
-    lastMessage = fields.One("mail.message", {
-        /** @this {import("models").Failure} */
-        compute() {
-            let lastMsg = this.notifications[0]?.mail_message_id;
-            for (const notification of this.notifications) {
-                if (lastMsg?.id < notification.mail_message_id?.id) {
-                    lastMsg = notification.mail_message_id;
-                }
+    resIds = this.computed(
+        () =>
+            new Set([
+                ...this.notifications
+                    .map((notif) => notif.mail_message_id?.thread?.id)
+                    .filter((id) => !!id),
+            ])
+    );
+    lastMessage = this.computed(() => {
+        let lastMsg = this.notifications[0]?.mail_message_id;
+        for (const notification of this.notifications) {
+            if (lastMsg?.id < notification.mail_message_id?.id) {
+                lastMsg = notification.mail_message_id;
             }
-            return lastMsg;
-        },
+        }
+        return lastMsg;
     });
     /** @type {'sms' | 'email'} */
     get type() {
@@ -48,10 +53,6 @@ export class Failure extends Record {
     }
     get status() {
         return this.notifications?.[0]?.notification_status;
-    }
-
-    get iconSrc() {
-        return "/mail/static/src/img/smiley/mailfailure.svg";
     }
 
     get body() {

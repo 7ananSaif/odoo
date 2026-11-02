@@ -1,28 +1,21 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import base64
-import functools
-import io
 import json
 import logging
 import os
 import unicodedata
-
 from contextlib import nullcontext
-try:
-    from werkzeug.utils import send_file
-except ImportError:
-    from odoo.tools._vendor.send_file import send_file
 
 import odoo
-import odoo.modules.registry
-from odoo import SUPERUSER_ID, _, http, api
-from odoo.addons.base.models.assetsbundle import ANY_UNIQUE
+from odoo import _, api
 from odoo.exceptions import AccessError, UserError
-from odoo.http import request, Response
-from odoo.tools import file_open, file_path, replace_exceptions, str2bool
+from odoo.http import Controller, request, route
+from odoo.http.stream import STATIC_CACHE_LONG, Stream
+from odoo.tools import SQL, file_open, file_path, replace_exceptions, str2bool
 from odoo.tools.image import image_guess_size_from_field_name
-from odoo.tools.mimetypes import guess_mimetype
+
+from odoo.addons.base.models.assetsbundle import ANY_UNIQUE
 
 _logger = logging.getLogger(__name__)
 
@@ -48,18 +41,18 @@ def clean(name):
     return name.replace('\x3c', '')
 
 
-class Binary(http.Controller):
+class Binary(Controller):
 
-    @http.route('/web/filestore/<path:_path>', type='http', auth='none')
+    @route('/web/filestore/<path:_path>', type='http', auth='none')
     def content_filestore(self, _path):
         if odoo.tools.config['x_sendfile']:
             # pylint: disable=logging-format-interpolation
             _logger.error(BAD_X_SENDFILE_ERROR.format(
-                data_dir=odoo.tools.config['data_dir']
+                data_dir=odoo.tools.config['data_dir'],
             ))
-        raise http.request.not_found()
+        raise request.not_found()
 
-    @http.route([
+    @route([
         '/web/content',
         '/web/content/<string:xmlid>',
         '/web/content/<string:xmlid>/<string:filename>',
@@ -72,22 +65,23 @@ class Binary(http.Controller):
     def content_common(self, xmlid=None, model='ir.attachment', id=None, field='raw',
                        filename=None, filename_field='name', mimetype=None, unique=False,
                        download=False, access_token=None, nocache=False):
+        download = str2bool(download)
         with replace_exceptions(UserError, by=request.not_found()):
             record = request.env['ir.binary']._find_record(xmlid, model, id and int(id), access_token, field=field)
-            stream = request.env['ir.binary']._get_stream_from(record, field, filename, filename_field, mimetype)
+            stream = request.env['ir.binary']._get_stream_from(record.with_context(download_attachments=download), field, filename, filename_field, mimetype)
             if request.httprequest.args.get('access_token'):
                 stream.public = True
 
-        send_file_kwargs = {'as_attachment': str2bool(download)}
+        send_file_kwargs = {'as_attachment': download}
         if unique:
             send_file_kwargs['immutable'] = True
-            send_file_kwargs['max_age'] = http.STATIC_CACHE_LONG
+            send_file_kwargs['max_age'] = STATIC_CACHE_LONG
         if nocache:
             send_file_kwargs['max_age'] = None
 
         return stream.get_response(**send_file_kwargs)
 
-    @http.route([
+    @route([
         '/web/assets/<string:unique>/<string:filename>'], type='http', auth="public", readonly=True)
     def content_assets(self, filename=None, unique=ANY_UNIQUE, nocache=False, assets_params=None):
         env = request.env  # readonly
@@ -95,6 +89,7 @@ class Binary(http.Controller):
         assert isinstance(assets_params, dict)
         debug_assets = unique == 'debug'
         stream = None
+
         if unique in ('any', '%'):
             unique = ANY_UNIQUE
         if unique != 'debug':
@@ -106,7 +101,7 @@ class Binary(http.Controller):
                 ('url', '=like', url),
                 ('res_model', '=', 'ir.ui.view'),
                 ('res_id', '=', 0),
-                ('create_uid', '=', SUPERUSER_ID),
+                ('create_uid', '=', api.SUPERUSER_ID),
             ]
             attachment = env['ir.attachment'].sudo().search(domain, limit=1)
             if attachment:
@@ -120,18 +115,23 @@ class Binary(http.Controller):
                 # if we don't have a replica, the cursor is not readonly, use the same one to avoid a rollback
                 cursor_manager = nullcontext(env.cr)
             with cursor_manager as rw_cr:
-                rw_env = api.Environment(rw_cr, env.user.id, {})
+                rw_env = api.Environment(rw_cr, env.user.id, request.env.context)
                 try:
                     if filename.endswith('.map'):
-                        _logger.error(".map should have been generated through debug assets, (version %s most likely outdated)", unique)
+                        _logger.warning(".map should have been generated through debug assets, (version %s most likely outdated)", unique)
                         raise request.not_found()
                     bundle_name, rtl, asset_type, autoprefix = rw_env['ir.asset']._parse_bundle_name(filename, debug_assets)
                     css = asset_type == 'css'
                     js = asset_type == 'js'
+                    binary = asset_type == 'binary'
+                    extension = '' if '.' not in filename else filename.split('.')[-1]
+                    if binary:
+                        asset_type = extension
                     bundle = rw_env['ir.qweb']._get_asset_bundle(
                         bundle_name,
                         css=css,
                         js=js,
+                        binary=binary,
                         debug_assets=debug_assets,
                         rtl=rtl,
                         autoprefix=autoprefix,
@@ -145,6 +145,8 @@ class Binary(http.Controller):
                         attachment = bundle.css()
                     elif js and bundle.javascripts:
                         attachment = bundle.js()
+                    elif binary and bundle.binaries:
+                        attachment = bundle.bin(extension)
                     if attachment:
                         stream = rw_env['ir.binary']._get_stream_from(attachment, 'raw', filename)
                 except ValueError as e:
@@ -155,13 +157,13 @@ class Binary(http.Controller):
         send_file_kwargs = {'as_attachment': False, 'content_security_policy': None}
         if unique and unique != 'debug':
             send_file_kwargs['immutable'] = True
-            send_file_kwargs['max_age'] = http.STATIC_CACHE_LONG
+            send_file_kwargs['max_age'] = STATIC_CACHE_LONG
         if nocache:
             send_file_kwargs['max_age'] = None
 
         return stream.get_response(**send_file_kwargs)
 
-    @http.route([
+    @route([
         '/web/image',
         '/web/image/<string:xmlid>',
         '/web/image/<string:xmlid>/<string:filename>',
@@ -185,10 +187,11 @@ class Binary(http.Controller):
                       filename_field='name', filename=None, mimetype=None, unique=False,
                       download=False, width=0, height=0, crop=False, access_token=None,
                       nocache=False):
+        download = str2bool(download)
         try:
             record = request.env['ir.binary']._find_record(xmlid, model, id and int(id), access_token, field=field)
             stream = request.env['ir.binary']._get_image_stream_from(
-                record, field, filename=filename, filename_field=filename_field,
+                record.with_context(download_attachments=download), field, filename=filename, filename_field=filename_field,
                 mimetype=mimetype, width=int(width), height=int(height), crop=crop,
             )
             if request.httprequest.args.get('access_token'):
@@ -201,27 +204,23 @@ class Binary(http.Controller):
                 width, height = image_guess_size_from_field_name(field)
             record = request.env.ref('web.image_placeholder').sudo()
             stream = request.env['ir.binary']._get_image_stream_from(
-                record, 'raw', width=int(width), height=int(height), crop=crop,
+                record.with_context(download_attachments=download), 'raw', width=int(width), height=int(height), crop=crop,
             )
             stream.public = False
 
-        send_file_kwargs = {'as_attachment': str2bool(download)}
+        send_file_kwargs = {'as_attachment': download}
         if unique:
             send_file_kwargs['immutable'] = True
-            send_file_kwargs['max_age'] = http.STATIC_CACHE_LONG
+            send_file_kwargs['max_age'] = STATIC_CACHE_LONG
         if nocache:
             send_file_kwargs['max_age'] = None
 
         return stream.get_response(**send_file_kwargs)
 
-    @http.route('/web/binary/upload_attachment', type='http', auth="user")
-    def upload_attachment(self, model, id, ufile, callback=None):
+    @route('/web/binary/upload_attachment', type='http', auth="user")
+    def upload_attachment(self, model, id, ufile):
         files = request.httprequest.files.getlist('ufile')
         Model = request.env['ir.attachment']
-        out = """<script language="javascript" type="text/javascript">
-                    var win = window.top.window;
-                    win.jQuery(win).trigger(%s, %s);
-                </script>"""
         args = []
         for ufile in files:
 
@@ -232,11 +231,11 @@ class Binary(http.Controller):
                 filename = unicodedata.normalize('NFD', ufile.filename)
 
             try:
-                attachment = Model.create({
+                attachment = Model._upload_file(ufile, {
                     'name': filename,
-                    'raw': ufile.read(),
+                    'mimetype': ufile.content_type,
                     'res_model': model,
-                    'res_id': int(id)
+                    'res_id': int(id),
                 })
                 attachment._post_add_create()
             except AccessError:
@@ -249,11 +248,11 @@ class Binary(http.Controller):
                     'filename': clean(filename),
                     'mimetype': attachment.mimetype,
                     'id': attachment.id,
-                    'size': attachment.file_size
+                    'size': attachment.file_size,
                 })
-        return out % (json.dumps(clean(callback)), json.dumps(args)) if callback else json.dumps(args)
+        return json.dumps(args)
 
-    @http.route([
+    @route([
         '/web/binary/company_logo',
         '/logo',
         '/logo.png',
@@ -262,52 +261,37 @@ class Binary(http.Controller):
         imgname = 'logo'
         imgext = '.png'
         dbname = request.db
-        uid = (request.session.uid if dbname else None) or odoo.SUPERUSER_ID
 
         if not dbname:
-            response = http.Stream.from_path(file_path('web/static/img/logo.png')).get_response()
+            response = Stream.from_path('web/static/img/logo.png').get_response()
         else:
             try:
-                company = int(kw['company']) if kw and kw.get('company') else False
-                if company:
-                    request.env.cr.execute("""
-                        SELECT logo_web, write_date
-                          FROM res_company
-                         WHERE id = %s
-                    """, (company,))
+                attachment = request.env(user=request.session.uid or api.SUPERUSER_ID, su=True)['ir.attachment']
+                if company_id := (kw or {}).get('company'):
+                    company_ids = [int(company_id)]
                 else:
-                    request.env.cr.execute("""
-                        SELECT c.logo_web, c.write_date
-                          FROM res_users u
-                     LEFT JOIN res_company c
-                            ON c.id = u.company_id
-                         WHERE u.id = %s
-                    """, (uid,))
-                row = request.env.cr.fetchone()
-                if row and row[0]:
-                    image_base64 = base64.b64decode(row[0])
-                    image_data = io.BytesIO(image_base64)
-                    mimetype = guess_mimetype(image_base64, default='image/png')
-                    imgext = '.' + mimetype.split('/')[1]
-                    if imgext == '.svg+xml':
-                        imgext = '.svg'
-                    response = send_file(
-                        image_data,
-                        request.httprequest.environ,
-                        download_name=imgname + imgext,
-                        mimetype=mimetype,
-                        last_modified=row[1],
-                        response_class=Response,
-                    )
+                    # keeping a single query
+                    company_ids = attachment.env.user._as_query(ordered=False).subselect(SQL('company_id'))
+                attachment = attachment.search_fetch([
+                    ('res_model', '=', 'res.company'),
+                    ('res_field', '=', 'logo_web'),
+                    ('res_id', 'in', company_ids),
+                ], limit=1)
+                if attachment:
+                    stream = attachment._to_http_stream()
+                    download_ext = '.svg' if '/svg' in attachment.mimetype else imgext
+                    stream.download_name = f'{imgname}{download_ext}'
+                    stream.public = True
+                    response = stream.get_response()
                 else:
-                    response = http.Stream.from_path(file_path('web/static/img/nologo.png')).get_response()
-            except Exception:
+                    response = Stream.from_path('web/static/img/nologo.png').get_response()
+            except Exception:  # noqa: BLE001
                 _logger.warning("While retrieving the company logo, using the Odoo logo instead", exc_info=True)
-                response = http.Stream.from_path(file_path(f'web/static/img/{imgname}{imgext}')).get_response()
+                response = Stream.from_path(f'web/static/img/{imgname}{imgext}').get_response()
 
         return response
 
-    @http.route([
+    @route([
         '/web/sign/get_fonts',
         '/web/sign/get_fonts/<string:fontname>',
     ], type='jsonrpc', auth='none')

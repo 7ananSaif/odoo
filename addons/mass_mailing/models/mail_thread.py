@@ -32,7 +32,7 @@ class MailThread(models.AbstractModel):
         # avoid having message send through `message_post*` methods being implicitly considered as
         # mass-mailing
         return super(MailThread, self.with_context(
-            default_mass_mailing_name=False,
+            default_mass_mailing_create=False,
             default_mass_mailing_id=False,
         )).message_mail_with_source(source_ref, **kwargs)
 
@@ -40,7 +40,7 @@ class MailThread(models.AbstractModel):
         # avoid having message send through `message_post*` methods being implicitly considered as
         # mass-mailing
         return super(MailThread, self.with_context(
-            default_mass_mailing_name=False,
+            default_mass_mailing_create=False,
             default_mass_mailing_id=False,
         )).message_post_with_source(source_ref, **kwargs)
 
@@ -61,9 +61,17 @@ class MailThread(models.AbstractModel):
         bounced_partner = message_dict['bounced_partner']
 
         if bounced_msg_ids:
-            self.env['mailing.trace'].set_bounced(
+            bounced_traces = self.env['mailing.trace'].set_bounced(
                 domain=[('message_id', 'in', bounced_msg_ids)],
-                bounce_message=tools.html2plaintext(message_dict.get('body') or ''))
+                failure_reason=tools.html2plaintext(message_dict.get('body') or ''),
+                failure_type='mail_bounce',
+            )
+            # some bounce traces may have been unhandled due to being sent from an email not matching the destination email
+            for model, traces in bounced_traces.grouped('model').items():
+                if missed_bounce_traces := traces.filtered(lambda trace: trace.email != bounced_email):
+                    self.env[model].browse(
+                        missed_bounce_traces.mapped('res_id'),
+                    ).exists()._message_receive_bounce(bounced_email, bounced_partner)
         if bounced_email:
             three_months_ago = fields.Datetime.to_string(datetime.datetime.now() - datetime.timedelta(weeks=13))
             stats = self.env['mailing.trace'].search(['&', '&', ('trace_status', '=', 'bounce'), ('write_date', '>', three_months_ago), ('email', '=ilike', bounced_email)]).mapped('write_date')
@@ -84,9 +92,11 @@ class MailThread(models.AbstractModel):
             if msg_references:
                 traces = self.env['mailing.trace'].search([('message_id', 'in', msg_references)], limit=1)
                 if traces:
+                    mailing = traces.mass_mailing_id
                     defaults['campaign_id'] = traces.campaign_id.id
-                    defaults['source_id'] = traces.mass_mailing_id.source_id.id
-                    defaults['medium_id'] = traces.mass_mailing_id.medium_id.id
+                    defaults['medium_id'] = mailing.medium_id.id
+                    defaults['source_id'] = mailing.source_id.id
+                    defaults['utm_reference'] = f'{mailing._name},{mailing.id}'
 
         if custom_values:
             defaults.update(custom_values)

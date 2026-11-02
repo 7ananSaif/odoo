@@ -1,4 +1,4 @@
-import { Component, useState, onWillStart } from "@odoo/owl";
+import { Component, onWillStart, proxy, t, useProps } from "@odoo/owl";
 
 import { Domain } from "@web/core/domain";
 import { Dropdown } from "@web/core/dropdown/dropdown";
@@ -6,7 +6,7 @@ import { DropdownItem } from "@web/core/dropdown/dropdown_item";
 import { _t } from "@web/core/l10n/translation";
 import { rpc } from "@web/core/network/rpc";
 import { Pager } from "@web/core/pager/pager";
-import { MEDIAS_BREAKPOINTS, SIZES } from "@web/core/ui/ui_service";
+import { MEDIAS_BREAKPOINTS, SIZES } from "@web/core/ui/ui_utils";
 import { useService } from "@web/core/utils/hooks";
 
 export class KioskManualSelection extends Component {
@@ -16,18 +16,19 @@ export class KioskManualSelection extends Component {
         DropdownItem,
         Pager,
     };
-    static props = {
-        displayBackButton: { type: Boolean },
-        token: { type: String },
-        departments: { type: Array },
-        onSelectEmployee: { type: Function },
-        onClickBack: { type: Function },
-    };
+    props = useProps({
+        displayBackButton: t.boolean(),
+        token: t.string(),
+        departments: t.array(),
+        onSelectEmployee: t.function(),
+        onClickBack: t.function(),
+    });
 
     setup() {
         this.orm = useService("orm");
-        let limit = this.calculateLimit();
-        this.state = useState({
+        this.uiService = useService("ui");
+        const limit = this.calculateLimit();
+        this.state = proxy({
             employeesData: {
                 count: 0,
                 records: [],
@@ -41,7 +42,7 @@ export class KioskManualSelection extends Component {
         this.departmentName = _t("All departments");
         onWillStart(async () => {
             await this._fetchEmployeeData();
-        })
+        });
     }
 
     calculateLimit() {
@@ -51,16 +52,17 @@ export class KioskManualSelection extends Component {
         let fontSizeMultiplication = 1;
         let searchBarHeight = 0;
         // for small screen the searchbar is higher
-        if (screen.width <= MEDIAS_BREAKPOINTS[SIZES.SM].maxWidth){
+        if (screen.width <= MEDIAS_BREAKPOINTS[SIZES.SM].maxWidth) {
             searchBarHeight += 38;
-        } else if(screen.width <= MEDIAS_BREAKPOINTS[SIZES.MD].maxWidth){
+        } else if (screen.width <= MEDIAS_BREAKPOINTS[SIZES.MD].maxWidth) {
             employeeCardPerLine = 2;
-        } else if(screen.width <= MEDIAS_BREAKPOINTS[SIZES.LG].maxWidth){
+        } else if (screen.width <= MEDIAS_BREAKPOINTS[SIZES.LG].maxWidth) {
             fontSizeMultiplication *= 1.25;
             employeeCardPerLine = 2;
-        } else if (screen.width <= MEDIAS_BREAKPOINTS[SIZES.XL].maxWidth){
+        } else if (screen.width <= MEDIAS_BREAKPOINTS[SIZES.XL].maxWidth) {
             fontSizeMultiplication *= 1.25;
-            if (screen.width < 1400){ //grid breakpoint xxl
+            // grid breakpoint xxl
+            if (screen.width < 1400) {
                 employeeCardPerLine = 3;
             } else {
                 employeeCardPerLine = 4;
@@ -73,9 +75,9 @@ export class KioskManualSelection extends Component {
                 fontSizeMultiplication *= 2;
             }
         }
-        let employeeCardHeight = 150 * fontSizeMultiplication;
+        const employeeCardHeight = 150 * fontSizeMultiplication;
         searchBarHeight += 62 * fontSizeMultiplication;
-        let availableScreen = screen.height - searchBarHeight;
+        const availableScreen = screen.height - searchBarHeight;
         return Math.trunc(availableScreen / employeeCardHeight) * employeeCardPerLine;
     }
 
@@ -97,17 +99,19 @@ export class KioskManualSelection extends Component {
         this.state.employeesData.count = results.length;
     }
 
-    async onDepartmentClick(departmentId = false){
-        if (this.env.isSmall) {
-            if (departmentId){
-                const selectedDepartment = this.props.departments.find((department) => department.id === departmentId);
+    async onDepartmentClick(departmentId = false) {
+        if (this.uiService.isSmall) {
+            if (departmentId) {
+                const selectedDepartment = this.props.departments.find(
+                    (department) => department.id === departmentId
+                );
                 this.departmentName = selectedDepartment.name;
             } else {
                 this.departmentName = _t("All departments");
             }
         }
-        if (departmentId){
-            this.state.departmentDomain = [['department_id', '=', departmentId]];
+        if (departmentId) {
+            this.state.departmentDomain = [["department_id", "=", departmentId]];
         } else {
             this.state.departmentDomain = [];
         }
@@ -117,9 +121,9 @@ export class KioskManualSelection extends Component {
 
     async onSearchInput(ev) {
         const searchInput = ev.target.value;
-        if (searchInput.length){
-            this.state.searchDomain = [['name', 'ilike', searchInput]];
-        }else{
+        if (searchInput.length) {
+            this.state.searchDomain = [["name", "ilike", searchInput]];
+        } else {
             this.state.searchDomain = [];
         }
         this.state.offset = 0;

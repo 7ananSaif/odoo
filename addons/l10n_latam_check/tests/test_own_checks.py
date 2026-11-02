@@ -3,10 +3,13 @@
 from odoo.addons.l10n_latam_check.tests.common import L10nLatamCheckTest
 from odoo.tests import Form, tagged
 from odoo import Command, fields
+from odoo.exceptions import UserError
 
 
 @tagged('post_install_l10n', 'post_install', '-at_install')
 class TestOwnChecks(L10nLatamCheckTest):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     def test_01_pay_with_own_checks(self):
         """ Create and post a manual checks with deferred date """
@@ -92,16 +95,39 @@ class TestOwnChecks(L10nLatamCheckTest):
         })
         payment.action_post()
         self.assertEqual(payment.amount, 120)
+        # There should be 4 lines: 3 liquidity lines (one per check) + 1 counterpart line
+        self.assertEqual(len(payment.move_id.line_ids), 4)
+
+    def test_own_checks_relinked_after_reset_to_draft(self):
+        """ Resetting a payment with own checks to draft and posting it again must link each check
+        to its liquidity line again, so the checks stay 'handed' and visible in the own checks menu. """
+        payment_method_line = self.bank_journal._get_available_payment_method_lines('outbound').filtered_domain([('code', '=', 'own_checks')])[:1]
+        payment = self.env['account.payment'].create({
+            'payment_type': 'outbound',
+            'partner_id': self.partner_a.id,
+            'journal_id': self.bank_journal.id,
+            'payment_method_line_id': payment_method_line.id,
+            'l10n_latam_new_check_ids': [
+                Command.create({'name': '00000020', 'payment_date': fields.Date.today(), 'amount': 100.0}),
+                Command.create({'name': '00000021', 'payment_date': fields.Date.today(), 'amount': 15.0}),
+            ],
+        })
+        payment.action_post()
+        payment.action_draft()
+        self.assertFalse(payment.l10n_latam_new_check_ids.outstanding_line_id)
+
+        payment.action_post()
+        checks = payment.l10n_latam_new_check_ids
+        self.assertEqual(len(checks.outstanding_line_id), 2, "Each check must be linked to its liquidity line again.")
+        self.assertEqual(checks.outstanding_line_id.move_id, payment.move_id)
+        self.assertEqual(checks.mapped('issue_state'), ['handed', 'handed'])
+        self.assertEqual(len(payment.move_id.line_ids), 3, "2 liquidity lines + 1 counterpart line")
 
     def test_invoice_status_after_voided_check(self):
-        self.ensure_installed('l10n_ar')
         invoice = self._create_invoice(
-            company_id=self.company_data_3['company'].id,
             partner_id=self.partner_a.id,
             invoice_line_ids=[self._prepare_invoice_line(price_unit=100, product_id=self.product_a)],
             move_type='in_invoice',
-            l10n_latam_document_type_id=self.env.ref('l10n_ar.dc_liq_uci_a'),
-            l10n_latam_document_number="001-00001",
             post=True
         )
 
@@ -134,3 +160,20 @@ class TestOwnChecks(L10nLatamCheckTest):
             lambda l: l.account_id.account_type in ('asset_receivable', 'liability_payable')
         )
         self.assertTrue(payment_line.reconciled, "Original payment line should be reconciled with the void move")
+
+    def test_create_payment_without_checks_raises(self):
+        invoice = self._create_invoice(
+            partner_id=self.partner_a.id,
+            invoice_line_ids=[self._prepare_invoice_line(price_unit=100, product_id=self.product_a)],
+            move_type='in_invoice',
+            post=True
+        )
+        own_check_line = self.bank_journal._get_available_payment_method_lines('outbound').filtered(
+            lambda line: line.code == 'own_checks'
+        )[0]
+        wizard = self.env['account.payment.register'].with_context(active_model='account.move', active_ids=invoice.ids).create({
+            'journal_id': self.bank_journal.id,
+            'payment_method_line_id': own_check_line.id,
+        })
+        with self.assertRaisesRegex(UserError, "Please add at least one check to create a payment with a check payment method."):
+            wizard.action_create_payments()

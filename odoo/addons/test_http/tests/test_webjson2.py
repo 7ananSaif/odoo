@@ -36,7 +36,7 @@ class TestHttpWebJson_2(TestHttpBase):
             exc.add_note(response.text)
             raise
         self.assertIsInstance(body, dict, body)
-        self.assertEqual(list(body), ['name', 'message', 'arguments', 'context', 'debug'])
+        self.assertEqual(list(body), ['name', 'message', 'arguments', 'timestamp', 'context', 'debug'])
         self.assertEqual(submap(body, expected_error), expected_error)
 
     def test_webjson2_multi_db_no_header(self):
@@ -46,7 +46,7 @@ class TestHttpWebJson_2(TestHttpBase):
             headers=CT_JSON | self.bearer_header,
             dblist=(get_db_name(), 'another-database'),
         )
-        self.assertIn("URL was not found in the server-wide controllers.</p>", res.text)
+        self.assertIn("the requested URL is not server-wide", res.text)
         self.assertEqual(res.status_code, HTTPStatus.NOT_FOUND)
         self.assertEqual(res.headers.get('Content-Type'), 'text/html; charset=utf-8')
 
@@ -59,7 +59,7 @@ class TestHttpWebJson_2(TestHttpBase):
             },
             dblist=(get_db_name(), 'another-database'),
         )
-        self.assertIn("URL was not found in the server-wide controllers.</p>", res.text)
+        self.assertIn("the requested URL is not server-wide", res.text)
         self.assertEqual(res.status_code, HTTPStatus.NOT_FOUND)
         self.assertEqual(res.headers.get('Content-Type'), 'text/html; charset=utf-8')
 
@@ -177,7 +177,7 @@ class TestHttpWebJson_2(TestHttpBase):
                 headers=CT_JSON | self.bearer_header,
             )
         m = dedent("""\
-            You are not allowed to access 'Scheduled Actions' (ir.cron) records.
+            You are not allowed to access 'Scheduled Action' (ir.cron) records.
 
             This operation is allowed for the following groups:
             \t- Role / Administrator
@@ -196,9 +196,24 @@ class TestHttpWebJson_2(TestHttpBase):
             '/json/2/res.users/search',
             data=r'{"domain": [["id","=",%d]]}' % self.jackoneill.id,
             headers=CT_JSON | self.bearer_header,
-        )
+        ).raise_for_status()
         self.assertEqual(res.text, f"[{self.jackoneill.id}]")
-        self.assertEqual(res.status_code, HTTPStatus.OK)
+        self.assertEqual(res.headers.get('Content-Type'), 'application/json; charset=utf-8')
+
+        res = self.db_url_open(
+            '/json/2/res.users/read',
+            data=r'{"ids": [%d], "fields": ["display_name"]}' % self.jackoneill.id,
+            headers=CT_JSON | self.bearer_header,
+        ).raise_for_status()
+        self.assertEqual(res.text, f'[{{"id": {self.jackoneill.id}, "display_name": "jackoneill (base.group_user)"}}]')
+        self.assertEqual(res.headers.get('Content-Type'), 'application/json; charset=utf-8')
+
+        res = self.db_url_open(
+            '/json/2/res.users/read',
+            data=r'{"ids": %d, "fields": ["display_name"]}' % self.jackoneill.id,
+            headers=CT_JSON | self.bearer_header,
+        ).raise_for_status()
+        self.assertEqual(res.text, f'[{{"id": {self.jackoneill.id}, "display_name": "jackoneill (base.group_user)"}}]')
         self.assertEqual(res.headers.get('Content-Type'), 'application/json; charset=utf-8')
 
     def test_webjson2_api_model(self):
@@ -216,6 +231,41 @@ class TestHttpWebJson_2(TestHttpBase):
         self.assertEqual(res.status_code, HTTPStatus.UNPROCESSABLE_ENTITY)
         self.assertEqual(res.headers.get('Content-Type'), 'application/json; charset=utf-8')
 
+    def test_webjson2_binary_fields(self):
+        # reading an image on the user
+        res = self.db_url_open(
+            '/json/2/res.users/read',
+            data=r'{"ids": [%d], "fields": ["image_128"]}' % self.jackoneill.id,
+            headers=CT_JSON | self.bearer_header,
+        ).raise_for_status()
+        self.assertIn('"image_128": {"', res.text, "Image missing")
+        self.assertIn('"PD94bWw', res.text, "Base64 encoded SVG missing")  # starts with b'<?xml version...'
+        self.assertEqual(res.headers.get('Content-Type'), 'application/json; charset=utf-8')
+
+        attachment = self.env['ir.attachment'].with_user(self.jackoneill).create({
+            'name': 'test',
+            'raw': b'x  \x01-',
+        })
+        expected_datas = 'eCAgAS0='  # base64-encoded raw value
+        res = self.db_url_open(
+            '/json/2/ir.attachment/search_read',
+            data=r'{"domain": [["id", "=", %d]], "fields": ["raw"], "limit": 1}' % attachment.id,
+            headers=CT_JSON | self.bearer_header,
+        ).raise_for_status()
+        self.assertEqual(res.text, '[{"id": %d, "raw": {"filename": "test", "content": "%s", "size": %s}}]' % (
+            attachment.id, expected_datas, attachment.raw.size))
+        self.assertEqual(res.headers.get('Content-Type'), 'application/json; charset=utf-8')
+
+        # writing
+        data = b'X \x01!'
+        data_b64 = 'WCABIQ=='
+        res = self.db_url_open(
+            '/json/2/ir.attachment/write',
+            data=r'{"ids": [%s], "vals": {"raw": "%s"}}' % (attachment.id, data_b64),
+            headers=CT_JSON | self.bearer_header,
+        ).raise_for_status()
+        self.assertEqual(attachment.raw.content, data)
+
     def test_webjson2_missing_method(self):
         res = self.db_url_open(
             '/json/2/res.users',
@@ -232,8 +282,8 @@ class TestHttpWebJson_2(TestHttpBase):
         self.assertEqual(res.headers.get('Content-Type'), 'application/json; charset=utf-8')
 
     def test_webjson2_url_params_vs_body_params(self):
-        url_model = 'res.users'
-        body_model = 'res.partner'
+        url_model = 'test_http.stargate'
+        body_model = 'test_http.galaxy'
         method = 'search'
 
         with (
@@ -254,7 +304,7 @@ class TestHttpWebJson_2(TestHttpBase):
             body_search.assert_not_called()
 
     def test_renew_apikey(self):
-        self.env['ir.config_parameter'].set_param('base.enable_programmatic_api_keys', 1)
+        self.env['ir.config_parameter'].set_bool('base.enable_programmatic_api_keys', True)
         key = self.bearer_header['Authorization'].removeprefix('Bearer ')
         apikey = self.env['res.users.apikeys'].search([('user_id', '=', self.jackoneill.id)])
 
@@ -267,7 +317,7 @@ class TestHttpWebJson_2(TestHttpBase):
             headers=self.bearer_header,
             json={
                 'key': key,
-                'scope': None,
+                'scope': 'rpc',
                 'name': 'Second key',
                 'expiration_date': in_ten_minutes.isoformat(sep=' '),
             },
@@ -278,7 +328,7 @@ class TestHttpWebJson_2(TestHttpBase):
         apikeys = self.env['res.users.apikeys'].search([('user_id', '=', self.jackoneill.id)])
         self.assertIn(apikey, apikeys)
         self.assertRecordValues(apikeys - apikey, [
-            {'name': 'Second key', 'scope': False, 'expiration_date': in_ten_minutes},
+            {'name': 'Second key', 'scope': 'rpc', 'expiration_date': in_ten_minutes},
         ])
 
         # the new key can be used to create a new one
@@ -287,7 +337,7 @@ class TestHttpWebJson_2(TestHttpBase):
             headers={'Authorization': f'Bearer {key2}'},
             json={
                 'key': key2,
-                'scope': 'api',
+                'scope': 'rpc',
                 'name': 'Third key',
                 'expiration_date': in_twenty_minutes.isoformat(sep=' '),
             },
@@ -319,5 +369,5 @@ class TestHttpWebJson_2(TestHttpBase):
         apikeys = self.env['res.users.apikeys'].search([('user_id', '=', self.jackoneill.id)])
         self.assertIn(apikey, apikeys)
         self.assertRecordValues(apikeys - apikey, [
-            {'name': 'Third key', 'scope': 'api', 'expiration_date': in_twenty_minutes},
+            {'name': 'Third key', 'scope': 'rpc', 'expiration_date': in_twenty_minutes},
         ])

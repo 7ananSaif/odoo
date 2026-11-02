@@ -1,17 +1,13 @@
 import { Plugin } from "@html_editor/plugin";
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { ScrollButtonOption } from "./scroll_button_option";
 import { BuilderAction } from "@html_builder/core/builder_action";
 import { ClassAction } from "@html_builder/core/core_builder_action_plugin";
-import { withSequence } from "@html_editor/utils/resource";
-import { SCROLL_BUTTON } from "@website/builder/option_sequence";
 
-class ScrollButtonOptionPlugin extends Plugin {
+export class ScrollButtonOptionPlugin extends Plugin {
     static id = "scrollButtonOption";
     /** @type {import("plugins").WebsiteResources} */
     resources = {
-        builder_options: [withSequence(SCROLL_BUTTON, ScrollButtonOption)],
         builder_actions: {
             AddScrollButtonAction,
             ScrollButtonSectionHeightClassAction,
@@ -32,16 +28,19 @@ class ScrollButtonManager {
             "rounded-circle",
             "align-items-center",
             "justify-content-center",
+            "o_cc",
+            "o_cc4",
             "mx-auto",
-            "bg-primary",
-            "o_not_editable"
+            "o_not_editable",
+            "anim-heartbeat"
         );
         anchor.href = "#";
         anchor.contentEditable = "false";
         anchor.title = _t("Scroll down to next section");
 
         const arrow = document.createElement("i");
-        arrow.classList.add("fa", "fa-angle-down", "fa-3x");
+        arrow.classList.add("oi", "oi-3x");
+        arrow.dataset.icon = "keyboard_arrow_down";
         anchor.appendChild(arrow);
 
         return anchor;

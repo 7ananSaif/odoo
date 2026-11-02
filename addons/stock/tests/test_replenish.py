@@ -4,12 +4,18 @@
 from freezegun import freeze_time
 
 from odoo.addons.stock.tests.common import TestStockCommon
-from odoo.tests import Form
+from odoo.tests import tagged, Form
 from odoo import Command, fields
 
 
-
 class TestStockReplenish(TestStockCommon):
+
+    _test_user_groups = (
+        'product.group_product_manager',  # FIXME: use base.group_user
+        'stock.group_stock_manager',
+    )
+
+    _test_user_name = 'Test Product Manager'
 
     def test_base_delay(self):
         """Open the replenish view and check if delay is taken into account
@@ -75,7 +81,10 @@ class TestStockReplenish(TestStockCommon):
         self.assertEqual(wizard._values['quantity'], 1)
 
     def test_replenish_route_from_another_company(self):
-        company = self.env['res.company'].create({'name': 'Company 2'})
+        company = self.env['res.company'].sudo().create({'name': 'Company 2'})
+        self.env.user.sudo().company_ids += company
+        self.env = self.env(context=dict(self.env.context, allowed_company_ids=[self.env.company.id, company.id]))
+        self.productA = self.productA.with_env(self.env)
         route = self.env['stock.route'].create({
             'name': 'Test Route',
             'company_id': company.id,
@@ -83,3 +92,18 @@ class TestStockReplenish(TestStockCommon):
         self.productA.write({'route_ids': [Command.link(route.id)]})
         wizard = Form(self.env['product.replenish'].with_context(default_product_tmpl_id=self.productA.product_tmpl_id.id))
         self.assertFalse(wizard._values['route_id'])
+
+    def test_replenish_route_from_product_category(self):
+        """ Open the replenish view and verify that the routes from the product
+        category are available.
+        """
+        route = self.env['stock.route'].create({
+            'name': 'Product category route',
+            'product_categ_selectable': True
+        })
+        product_categoryA = self.env["product.category"].create({
+            "name": "TestA",
+            "route_ids": [Command.link(route.id)]})
+        self.productA.write({"categ_id": product_categoryA.id, 'is_storable': True})
+        wizard = Form(self.env['product.replenish'].with_context(default_product_tmpl_id=self.productA.product_tmpl_id.id))
+        self.assertIn(route.id, wizard._values['allowed_route_ids'])

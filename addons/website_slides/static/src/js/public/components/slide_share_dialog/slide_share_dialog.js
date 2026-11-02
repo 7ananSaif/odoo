@@ -4,26 +4,28 @@ import { CopyButton } from "@web/core/copy_button/copy_button";
 import { Dialog } from "@web/core/dialog/dialog";
 import { EmailSharingInput } from "./email_sharing_input";
 
-import { Component, useRef } from "@odoo/owl";
+import { Component, signal, t, useProps } from "@odoo/owl";
 
 export class SlideShareDialog extends Component {
     static template = "website_slides.SlideShareDialog";
     static components = { Dialog, CopyButton, EmailSharingInput };
-    static props = {
-        category: { type: String, optional: true },
-        close: { type: Function },
-        documentMaxPage: { type: Number, optional: true },
-        emailSharing: { type: Boolean, optional: true },
-        embedCode: { type: String, optional: true },
-        id: { type: Number },
-        isChannel: { type: Boolean, optional: true },
-        isFullscreen: { type: Boolean, optional: true },
-        name: { type: String },
-        url: { type: String },
-    };
+
+    props = useProps({
+        category: t.string().optional(),
+        close: t.function(),
+        documentMaxPage: t.number().optional(),
+        emailSharing: t.boolean().optional(),
+        embedCode: t.string().optional(),
+        id: t.number(),
+        isChannel: t.boolean().optional(),
+        isFullscreen: t.boolean().optional(),
+        name: t.string(),
+        url: t.string(),
+    });
+
+    codeInputRef = signal.ref();
 
     setup() {
-        this.codeInput = useRef("codeInput");
         this.copyUrlText = _t("Copy Link");
         this.copyEmbedCodeText = _t("Copy Embed Code");
         this.successText = _t("Copied");
@@ -35,7 +37,11 @@ export class SlideShareDialog extends Component {
 
     onPageChange(event) {
         const page = event.currentTarget.value;
-        const newEmbedCodeValue = this.codeInput.el.value.replace(/(page=).*?([^\d]+)/, "$1" + page + "$2");
-        this.codeInput.el.value = newEmbedCodeValue;
+        const el = this.codeInputRef();
+        if (!el) {
+            return;
+        }
+        const newEmbedCodeValue = el.value.replace(/(page=).*?([^\d]+)/, "$1" + page + "$2");
+        el.value = newEmbedCodeValue;
     }
 }

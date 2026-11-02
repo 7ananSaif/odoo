@@ -7,6 +7,8 @@ import {
 } from "@website/../tests/builder/website_helpers";
 import { contains } from "@web/../tests/web_test_helpers";
 import { animationFrame, click, press, queryOne, setInputRange, waitFor } from "@odoo/hoot-dom";
+import { patchDragImage } from "@website/../tests/builder/image_test_helpers";
+import { dummyBase64Img } from "@html_builder/../tests/helpers";
 import { getContent } from "@html_editor/../tests/_helpers/selection";
 import {
     insertText,
@@ -20,7 +22,7 @@ test("set card width", async () => {
     await setupWebsiteBuilderWithSnippet("s_card");
     await contains(":iframe .s_card").click();
     await waitFor("[data-action-id='setCardWidth']");
-    expect("[data-action-id='setCardWidth']").toHaveCount(1);
+    expect("[data-action-id='setCardWidth']").toHaveCount(2);
     expect(queryOne(":iframe .s_card").style.maxWidth).toBeEmpty();
     // Default value for range input is 100%
     expect("[data-action-id='setCardWidth'] input").toHaveValue(100);
@@ -62,7 +64,7 @@ test("set card alignment", async () => {
 });
 
 test("remove/add cover image", async () => {
-    await setupWebsiteBuilderWithSnippet("s_card");
+    await setupWebsiteBuilderWithSnippet("s_card", { loadIframeBuilderTemplates: true });
     await contains(":iframe .s_card").click();
     await waitFor("[data-action-id='removeCoverImage']");
     // Button to remove cover image is available
@@ -97,13 +99,14 @@ const nestedCardsWithOneCover = `
 `;
 
 test("cover image options only appear on the right card when two of them are nested", async () => {
-    await setupWebsiteBuilder(nestedCardsWithOneCover);
+    await setupWebsiteBuilder(nestedCardsWithOneCover, { loadIframeBuilderTemplates: true });
     await contains(":iframe .outer_card").click();
     // No cover image options are displayed for the outer card
     expect("[data-action-id='setCoverImagePosition']").toHaveCount(0);
     expect("[data-action-id='removeCoverImage']").toHaveCount(0);
 
     await contains(":iframe .inner_card").click();
+    await waitFor("[data-action-id='removeCoverImage']");
     // Cover image options are displayed for the inner card
     expect("[data-action-id='setCoverImagePosition']").toHaveCount(4);
     expect("[data-action-id='removeCoverImage']").toHaveCount(1);
@@ -259,14 +262,56 @@ test("set cover image width", async () => {
 });
 
 test("cover image set to wide aspect ratio can be vertically aligned", async () => {
-    await setupWebsiteBuilderWithSnippet("s_card");
+    const { waitSidebarUpdated } = await setupWebsiteBuilderWithSnippet("s_card", {
+        loadIframeBundles: true,
+    });
+    queryOne(":iframe .s_card figure img").src = dummyBase64Img;
     await contains(":iframe .s_card").click();
-    await waitFor("[data-action-id='alignCoverImage']");
-    expect("[data-label='Alignment'] [data-action-id='alignCoverImage'").toHaveCount(1);
-    await setInputRange("[data-action-id='alignCoverImage'] input", 50);
+    await waitSidebarUpdated();
+    await contains("[data-label='Position'] [data-action-id='coverImagePositionOverlay']").click();
+    await waitFor(".o-overlay-container .o_we_overlay_dragger", { timeout: 2000 });
+
+    const movement = 200;
+    const positionStartDrag = { x: 100, y: 100 };
+    const { startDrag, endDrag } = patchDragImage(
+        ".o-overlay-container .o_we_overlay_dragger",
+        positionStartDrag,
+        { x: positionStartDrag.x + movement, y: positionStartDrag.y + movement }
+    );
+
+    await endDrag(await startDrag());
+
     await animationFrame();
-    expect(":iframe .s_card .o_card_img_wrapper").toHaveClass("o_card_img_adjust_v");
-    expect(":iframe .s_card").toHaveStyle({ "--card-img-ratio-align": "50%" });
+    const cardImage = queryOne(":iframe .s_card .o_card_img");
+    // Delta Y obtained by applying the formula in getDelta of CardImageOptionPlugin
+    const deltaY = cardImage.clientHeight - cardImage.clientWidth;
+    expect(parseInt(cardImage.style.objectPosition.split(" ")[1])).toBeCloseTo(
+        // Formula derived from the one in onDragMove of ImagePositionOverlay
+        // 50% being the starting position
+        50 + (movement / deltaY) * 100,
+        {
+            message: "Image should only be dragged vertically and the right amount",
+        }
+    );
+});
+
+test("cover image position overlay blocks the builder sidebar", async () => {
+    const { waitSidebarUpdated } = await setupWebsiteBuilderWithSnippet("s_card", {
+        loadIframeBundles: true,
+    });
+    queryOne(":iframe .s_card figure img").src = dummyBase64Img;
+    await contains(":iframe .s_card").click();
+    await waitSidebarUpdated();
+    await contains("[data-label='Position'] [data-action-id='coverImagePositionOverlay']").click();
+    await waitFor(".o-overlay-container .o_we_image_position_overlay");
+
+    const overlayRect = queryOne(
+        ".o-overlay-container .o_we_image_position_overlay"
+    ).getBoundingClientRect();
+    expect(overlayRect.left).toBe(0);
+    expect(overlayRect.top).toBe(0);
+    expect(overlayRect.width).toBe(window.innerWidth);
+    expect(overlayRect.height).toBe(window.innerHeight);
 });
 
 const nestedCardsWithTwoCovers = `

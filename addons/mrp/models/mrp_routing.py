@@ -14,7 +14,7 @@ class MrpRoutingWorkcenter(models.Model):
     _order = 'bom_id, sequence, id'
     _check_company_auto = True
 
-    name = fields.Char('Operation', required=True)
+    name = fields.Char('Operation', required=True, copy=True)
     active = fields.Boolean(default=True)
     workcenter_id = fields.Many2one('mrp.workcenter', 'Work Center', required=True, check_company=True, tracking=True, index=True)
     sequence = fields.Integer(
@@ -32,9 +32,8 @@ class MrpRoutingWorkcenter(models.Model):
     time_computed_on = fields.Char('Computed on last', compute='_compute_time_computed_on')
     time_cycle_manual = fields.Float(
         'Manual Duration', default=60, tracking=True,
-        help="Time in minutes:"
-        "- In fixed mode, time used"
-        "- In computed mode, supposed first time when there aren't any work orders yet")
+        help="Default operation time. Base unit in minutes.\n"
+             "If you are in the computed duration mode, enter an estimate since there aren't any work orders yet.")
     time_cycle = fields.Float('Cycles', compute="_compute_time_cycle")
     workorder_count = fields.Integer("# Work Orders", compute="_compute_workorder_count")
     workorder_ids = fields.One2many('mrp.workorder', 'operation_id', string="Work Orders")
@@ -57,11 +56,11 @@ class MrpRoutingWorkcenter(models.Model):
     cycle_number = fields.Integer("Repetitions", compute="_compute_time_cycle")
     time_total = fields.Float('Total Duration', compute="_compute_time_cycle")
     show_time_total = fields.Boolean('Show Total Duration?', compute="_compute_time_cycle")
-    cost_mode = fields.Selection([('actual', 'Actual time'), ('estimated', 'Theorical time')],
+    cost_mode = fields.Selection([('actual', 'Actual time'), ('estimated', 'Theoretical time')],
                                  string='Cost based on', default='actual', tracking=True,
                                  help="Determines the way Odoo calculates the cost of the operation:\n"
                                  "- Based on Actual time: the cost will be calculated based on tracked time and real employee costs.\n"
-                                 "- Based on Estimated time: the cost will be calculated based on estimated time and costs.")
+                                 "- Based on Theoretical time: the cost will be calculated based on estimated time and costs.")
     cost = fields.Float('Cost', compute="_compute_cost")
 
     @api.depends('time_mode', 'time_mode_batch')
@@ -94,7 +93,7 @@ class MrpRoutingWorkcenter(models.Model):
             cycle_number = 0  # Never 0 unless infinite item['workcenter_id'].capacity
             for item in data:
                 total_duration += item['duration']
-                (capacity, _setup, _cleanup) = item['workcenter_id']._get_capacity(item.product_id, item.product_uom_id, operation.bom_id.product_qty or 1)
+                (capacity, _setup, _cleanup) = item['workcenter_id']._get_capacity(item.product_id, item.uom_id, operation.bom_id.product_qty or 1)
                 cycle_number += float_round((item['qty_produced'] / capacity), precision_digits=0, rounding_method='UP')
             if cycle_number:
                 operation.time_cycle = total_duration / cycle_number
@@ -115,7 +114,7 @@ class MrpRoutingWorkcenter(models.Model):
             if len(product) > 1:
                 product = product[0]
             quantity = self.env.context.get('quantity', operation.bom_id.product_qty or 1)
-            unit = self.env.context.get('unit', operation.bom_id.product_uom_id)
+            unit = self.env.context.get('unit', operation.bom_id.uom_id)
             (capacity, setup, cleanup) = workcenter._get_capacity(product, unit, operation.bom_id.product_qty or 1)
             operation.cycle_number = float_round(quantity / capacity, precision_digits=0, rounding_method="UP")
             operation.time_total = setup + cleanup + operation.cycle_number * operation.time_cycle * 100.0 / (workcenter.time_efficiency or 100.0)
@@ -143,11 +142,11 @@ class MrpRoutingWorkcenter(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         res = super().create(vals_list)
-        res.bom_id.with_context(skip_bom_outdated_unmark=True)._set_outdated_bom_in_productions()
+        res.bom_id._set_outdated_bom_in_productions(skip_bom_outdated_unmark=True)
         return res
 
     def write(self, vals):
-        self.bom_id.with_context(skip_bom_outdated_unmark=True)._set_outdated_bom_in_productions()
+        self.bom_id._set_outdated_bom_in_productions(skip_bom_outdated_unmark=True)
         if 'bom_id' in vals:
             for op in self:
                 op.bom_id.bom_line_ids.filtered(lambda line: line.operation_id == op).operation_id = False
@@ -161,19 +160,19 @@ class MrpRoutingWorkcenter(models.Model):
         bom_lines.write({'operation_id': False})
         byproduct_lines = self.env['mrp.bom.byproduct'].search([('operation_id', 'in', self.ids)])
         byproduct_lines.write({'operation_id': False})
-        self.bom_id.with_context(skip_bom_outdated_unmark=True)._set_outdated_bom_in_productions()
+        self.bom_id._set_outdated_bom_in_productions(skip_bom_outdated_unmark=True)
         return res
 
     def action_unarchive(self):
         res = super().action_unarchive()
-        self.bom_id.with_context(skip_bom_outdated_unmark=True)._set_outdated_bom_in_productions()
+        self.bom_id._set_outdated_bom_in_productions(skip_bom_outdated_unmark=True)
         return res
 
     def copy_to_bom(self):
         if 'bom_id' in self.env.context:
             bom_id = self.env.context.get('bom_id')
             for operation in self:
-                operation.copy({'bom_id': bom_id})
+                operation.copy({'bom_id': bom_id, 'bom_product_template_attribute_value_ids': False})
             return {
                 'view_mode': 'form',
                 'res_model': 'mrp.bom',

@@ -1,8 +1,9 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo.tests import common
+from odoo.tests import tagged, common
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestInheritDepends(common.TransactionCase):
     def test_inherited_field_external_id(self):
         # Module A defines model M, module B defines a mixin (abstract model) X,
@@ -22,7 +23,7 @@ class TestInheritDepends(common.TransactionCase):
 
         # the extra values are added, both in the field and the column
         self.assertEqual(mother._fields['state'].selection,
-                         [('a', 'A'), ('d', 'D'), ('b', 'B'), ('c', 'C'), ('e', 'E'), ('g', 'G')])
+                         (('a', 'A'), ('d', 'D'), ('b', 'B'), ('c', 'C'), ('e', 'E'), ('g', 'G')))
 
     def test_60_inherit_with_python(self):
         self.assertEqual(self.env['test.inherit.mother'].foo(), 42 * 2)

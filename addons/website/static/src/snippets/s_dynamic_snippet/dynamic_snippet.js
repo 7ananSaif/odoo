@@ -2,30 +2,23 @@ import { Interaction } from "@web/public/interaction";
 import { registry } from "@web/core/registry";
 
 import { rpc } from "@web/core/network/rpc";
-import { listenSizeChange, utils as uiUtils } from "@web/core/ui/ui_service";
+import { utils as uiUtils } from "@web/core/ui/ui_utils";
 import { uniqueId } from "@web/core/utils/functions";
 import { renderToFragment } from "@web/core/utils/render";
-import { verifyHttpsUrl } from "@website/utils/misc";
 
-import { markup } from "@odoo/owl";
-
-const DEFAULT_NUMBER_OF_ELEMENTS = 4;
-const DEFAULT_NUMBER_OF_ELEMENTS_SM = 1;
+import { markup, usePlugin } from "@odoo/owl";
+import {
+    DYNAMIC_SNIPPET_DEFAULT_ITEMS_PER_ROW,
+    DYNAMIC_SNIPPET_DEFAULT_ITEMS_PER_ROW_SM,
+} from "@website/utils/dynamic_snippets";
+import { UIPlugin } from "@web/core/ui/ui_plugin";
 
 export class DynamicSnippet extends Interaction {
     static selector = ".s_dynamic_snippet";
     dynamicContent = {
-        "[data-url]": {
-            "t-on-click": this.callToAction,
-        },
         _root: {
             "t-att-class": () => ({
-                // Compatibility code: A dynamic snippet may end up with one,
-                // several, or all of these classes as a default visibility one.
-                o_dynamic_empty: !this.isVisible,
-                s_dynamic_empty: !this.isVisible,
-                o_dynamic_snippet_empty: !this.isVisible,
-                o_dynamic_snippet_loading: !this.data.length,
+                o_dynamic_snippet_loading: this.loadingData,
             }),
         },
         ".missing_option_warning": {
@@ -34,6 +27,7 @@ export class DynamicSnippet extends Interaction {
             }),
         },
     };
+    uiPlugin = usePlugin(UIPlugin);
 
     setup() {
         /**
@@ -41,7 +35,7 @@ export class DynamicSnippet extends Interaction {
          * Can be accessed when overriding the _render_content() function in order to generate
          * a new renderedContent from the original data.
          *
-         * @type {*|jQuery.fn.init|jQuery|HTMLElement}
+         * @type {*|HTMLElement}
          */
         this.data = [];
         this.renderedContentNode = document.createDocumentFragment();
@@ -59,7 +53,9 @@ export class DynamicSnippet extends Interaction {
 
     start() {
         // Re-render on media breakpoint change
-        this.registerCleanup(listenSizeChange(this.protectSyncAfterAsync(this.render.bind(this))));
+        const cb = this.protectSyncAfterAsync(this.render.bind(this));
+        this.uiPlugin.bus.addEventListener("resize", cb);
+        this.registerCleanup(() => this.uiPlugin.bus.removeEventListener("resize", cb));
         this.render();
     }
 
@@ -147,9 +143,11 @@ export class DynamicSnippet extends Interaction {
         let numberOfElements;
         if (uiUtils.isSmall()) {
             numberOfElements =
-                parseInt(dataset.numberOfElementsSmallDevices) || DEFAULT_NUMBER_OF_ELEMENTS_SM;
+                parseInt(dataset.numberOfElementsSmallDevices) ||
+                DYNAMIC_SNIPPET_DEFAULT_ITEMS_PER_ROW_SM;
         } else {
-            numberOfElements = parseInt(dataset.numberOfElements) || DEFAULT_NUMBER_OF_ELEMENTS;
+            numberOfElements =
+                parseInt(dataset.numberOfElements) || DYNAMIC_SNIPPET_DEFAULT_ITEMS_PER_ROW;
         }
         const chunkSize = numberOfRecords < numberOfElements ? numberOfRecords : numberOfElements;
         return {
@@ -163,14 +161,13 @@ export class DynamicSnippet extends Interaction {
     }
 
     render() {
+        this.loadingData = false;
         if (this.el.querySelector(".s_dialog_preview")) {
             return;
         }
         if (this.data.length > 0 || this.withSample) {
-            this.toggleVisibility(true);
             this.prepareContent();
         } else {
-            this.toggleVisibility(false);
             this.renderedContentNode = document.createDocumentFragment();
         }
         this.renderContent();
@@ -202,22 +199,6 @@ export class DynamicSnippet extends Interaction {
                 }
             });
         }, 0);
-    }
-
-    /**
-     * @param {Boolean} visible
-     */
-    toggleVisibility(visible) {
-        this.isVisible = visible;
-    }
-
-    /**
-     * Navigates to the call to action url.
-     *
-     * @param {Event} ev
-     */
-    callToAction(ev) {
-        window.location = verifyHttpsUrl(ev.currentTarget.dataset.url);
     }
 }
 

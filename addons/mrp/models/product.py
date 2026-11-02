@@ -52,7 +52,7 @@ class ProductTemplate(models.Model):
         bom_tmpl_query = self.env['mrp.bom'].sudo()._search(
             [('company_id', 'in', [False] + self.env.companies.ids),
              ('type', '=', 'phantom'), ('active', '=', True)])
-        return [('id', 'in', bom_tmpl_query.subselect('product_tmpl_id'))]
+        return [('id', 'in', bom_tmpl_query.subselect(bom_tmpl_query.table.product_tmpl_id))]
 
     def _compute_show_qty_status_button(self):
         super()._compute_show_qty_status_button()
@@ -78,8 +78,9 @@ class ProductTemplate(models.Model):
 
     def action_used_in_bom(self):
         self.ensure_one()
-        action = self.env["ir.actions.actions"]._for_xml_id("mrp.mrp_bom_form_action")
-        action['domain'] = [('bom_line_ids.product_tmpl_id', '=', self.id)]
+        action = self.env["ir.actions.actions"]._for_xml_id("mrp.mrp_bom_line_action_used_in_boms")
+        action['domain'] = [('product_tmpl_id', '=', self.id)]
+        action['context'] = {'search_default_bom_active': True}
         return action
 
     def _compute_mrp_product_qty(self):
@@ -130,17 +131,6 @@ class ProductProduct(models.Model):
         compute='_compute_mrp_product_qty', compute_sudo=False)
     is_kits = fields.Boolean(compute="_compute_is_kits", search='_search_is_kits')
 
-    # Catalog related fields
-    product_catalog_product_is_in_bom = fields.Boolean(
-        compute='_compute_product_is_in_bom_and_mo',
-        search='_search_product_is_in_bom',
-    )
-
-    product_catalog_product_is_in_mo = fields.Boolean(
-        compute='_compute_product_is_in_bom_and_mo',
-        search='_search_product_is_in_mo',
-    )
-
     def _compute_bom_count(self):
         for product in self:
             product.bom_count = self.env['mrp.bom'].search_count([
@@ -178,8 +168,8 @@ class ProductProduct(models.Model):
             [('company_id', 'in', [False] + self.env.companies.ids),
              ('type', '=', 'phantom'), ('product_id', '!=', False)])
         return [
-            '|', ('product_tmpl_id', 'in', bom_tmpl_query.subselect('product_tmpl_id')),
-            ('id', 'in', bom_product_query.subselect('product_id'))
+            '|', ('product_tmpl_id', 'in', bom_tmpl_query.subselect(bom_tmpl_query.table.product_tmpl_id)),
+            ('id', 'in', bom_product_query.subselect(bom_tmpl_query.table.product_id)),
         ]
 
     def _compute_show_qty_status_button(self):
@@ -194,28 +184,6 @@ class ProductProduct(models.Model):
             product.used_in_bom_count = self.env['mrp.bom'].search_count(
                 [('bom_line_ids.product_id', 'in', product.ids)])
 
-    @api.depends_context('order_id')
-    def _compute_product_is_in_bom_and_mo(self):
-        # Just to enable the _search method
-        self.product_catalog_product_is_in_bom = False
-        self.product_catalog_product_is_in_mo = False
-
-    def _search_product_is_in_bom(self, operator, value):
-        if operator != 'in':
-            return NotImplemented
-        product_ids = self.env['mrp.bom.line'].search([
-            ('bom_id', '=', self.env.context.get('order_id', '')),
-        ]).product_id.ids
-        return [('id', operator, product_ids)]
-
-    def _search_product_is_in_mo(self, operator, value):
-        if operator != 'in':
-            return NotImplemented
-        product_ids = self.env['mrp.production'].search([
-            ('id', 'in', [self.env.context.get('order_id', '')]),
-        ]).move_raw_ids.product_id.ids
-        return [('id', operator, product_ids)]
-
     def write(self, vals):
         if 'active' in vals:
             self.filtered(lambda p: p.active != vals['active']).with_context(active_test=False).variant_bom_ids.write({
@@ -223,12 +191,11 @@ class ProductProduct(models.Model):
             })
         return super().write(vals)
 
-    def get_total_routes(self):
-        routes = super().get_total_routes()
+    def get_routes_actions(self):
+        actions = super().get_routes_actions()
         if self.bom_ids:
-            manufacture_routes = self.env['stock.rule'].search([('action', '=', 'manufacture')]).route_id
-            routes |= manufacture_routes
-        return routes
+            actions += ['manufacture']
+        return actions
 
     def get_components(self):
         """ Return the components list ids in case of kit product.
@@ -243,8 +210,9 @@ class ProductProduct(models.Model):
 
     def action_used_in_bom(self):
         self.ensure_one()
-        action = self.env["ir.actions.actions"]._for_xml_id("mrp.mrp_bom_form_action")
-        action['domain'] = [('bom_line_ids.product_id', '=', self.id)]
+        action = self.env["ir.actions.actions"]._for_xml_id("mrp.mrp_bom_line_action_used_in_boms")
+        action['domain'] = [('product_id', '=', self.id)]
+        action['context'] = {'search_default_bom_active': True}
         return action
 
     def _compute_mrp_product_qty(self):
@@ -256,7 +224,7 @@ class ProductProduct(models.Model):
             ('state', '!=', 'cancel'),
             ('picked', '=', True),
         ]
-        read_group_res = self.env['stock.move']._read_group(domain, ['product_id', 'product_uom'], ['quantity:sum'])
+        read_group_res = self.env['stock.move']._read_group(domain, ['product_id', 'uom_id'], ['quantity:sum'])
         mapped_data = collections.defaultdict(float)
         for product, uom, qty in read_group_res:
             if uom != product.uom_id:
@@ -279,7 +247,7 @@ class ProductProduct(models.Model):
         This override is used to get the correct quantities of products
         with 'phantom' as BoM type.
         """
-        bom_kits = self.env['mrp.bom']._bom_find(self, bom_type='phantom')
+        bom_kits = self.env['mrp.bom'].sudo()._bom_find(self, bom_type='phantom', company_id=self.env.company.id)
         kits = self.filtered(lambda p: bom_kits.get(p))
         regular_products = self - kits
         res = (
@@ -315,13 +283,13 @@ class ProductProduct(models.Model):
                 component = component.with_context(mrp_compute_quantities=qties).with_prefetch(prefetch_component_ids)
                 qty_per_kit = 0
                 for bom_line, bom_line_data in bom_sub_lines:
-                    if not component.is_storable or bom_line.product_uom_id.is_zero(bom_line_data['qty']):
+                    if not component.is_storable or bom_line.uom_id.is_zero(bom_line_data['qty']):
                         # As BoMs allow components with 0 qty, a.k.a. optionnal components, we simply skip those
                         # to avoid a division by zero. The same logic is applied to non-storable products as those
                         # products have 0 qty available.
                         continue
                     uom_qty_per_kit = bom_line_data['qty'] / bom_line_data['original_qty']
-                    qty_per_kit += bom_line.product_uom_id._compute_quantity(uom_qty_per_kit, bom_line.product_id.uom_id, round=False, raise_if_failure=False)
+                    qty_per_kit += bom_line.uom_id._compute_quantity(uom_qty_per_kit, bom_line.product_id.uom_id, round=False, raise_if_failure=False)
                 if not qty_per_kit:
                     continue
                 component_res = (
@@ -379,10 +347,10 @@ class ProductProduct(models.Model):
 
     def action_open_quants(self):
         bom_kits = self.env['mrp.bom']._bom_find(self, bom_type='phantom')
-        components = self - self.env['product.product'].concat(*list(bom_kits.keys()))
+        components = self - self.env['product.product'].concat(bom_kits)
         for product in bom_kits:
-            boms, bom_sub_lines = bom_kits[product].explode(product, 1)
-            components |= self.env['product.product'].concat(*[l[0].product_id for l in bom_sub_lines])
+            _boms, bom_sub_lines = bom_kits[product].explode(product, 1)
+            components |= self.env['product.product'].concat(l[0].product_id for l in bom_sub_lines)
         res = super(ProductProduct, components).action_open_quants()
         if bom_kits:
             res['context'].pop('default_product_tmpl_id', None)
@@ -416,19 +384,18 @@ class ProductProduct(models.Model):
         if not op:
             return NotImplemented
         product_ids = super(ProductProduct, self)._search_qty_available_new(operator, value, lot_id, owner_id, package_id)
+        # Callers that never value kits (e.g. stock valuation) can skip the kit BoM expansion.
+        if self.env.context.get('skip_kit_qty_available'):
+            return product_ids
         kit_boms = self.env['mrp.bom'].search([('type', "=", 'phantom')])
-        kit_products = self.env['product.product']
-        for kit in kit_boms:
-            if kit.product_id:
-                kit_products |= kit.product_id
-            else:
-                kit_products |= kit.product_tmpl_id.product_variant_ids
+        kit_products = kit_boms.mapped(lambda kit: kit.product_id or kit.product_tmpl_id.product_variant_ids)
+        product_ids = set(product_ids)
         for product in kit_products:
             if op(product.qty_available, value):
-                product_ids.append(product.id)
-            elif product.id in product_ids:
-                product_ids.pop(product_ids.index(product.id))
-        return list(set(product_ids))
+                product_ids.add(product.id)
+            else:
+                product_ids.discard(product.id)
+        return list(product_ids)
 
     def action_archive(self):
         filtered_products = self.env['mrp.bom.line'].search([('product_id', 'in', self.ids), ('bom_id.active', '=', True)]).product_id.mapped('display_name')
@@ -453,7 +420,7 @@ class ProductProduct(models.Model):
     def _update_uom(self, to_uom_id):
         for uom, product_template, boms in self.env['mrp.bom']._read_group(
             [('product_tmpl_id', 'in', self.product_tmpl_id.ids)],
-            ['product_uom_id', 'product_tmpl_id'],
+            ['uom_id', 'product_tmpl_id'],
             ['id:recordset'],
         ):
             if product_template.uom_id != uom:
@@ -461,11 +428,11 @@ class ProductProduct(models.Model):
                 'than %(uom)s have already been used for this product, the change of unit of measure can not be done.'
                 'If you want to change it, please archive the product and create a new one.',
                 problem_uom=uom.name, uom=product_template.uom_id.name))
-            boms.product_uom_id = to_uom_id
+            boms.uom_id = to_uom_id
 
         for uom, product, bom_lines in self.env['mrp.bom.line']._read_group(
             [('product_id', 'in', self.ids)],
-            ['product_uom_id', 'product_id'],
+            ['uom_id', 'product_id'],
             ['id:recordset'],
         ):
             if product.product_tmpl_id.uom_id != uom:
@@ -473,11 +440,11 @@ class ProductProduct(models.Model):
                 'than %(uom)s have already been used for this product, the change of unit of measure can not be done.'
                 'If you want to change it, please archive the product and create a new one.',
                 problem_uom=uom.name, uom=product.product_tmpl_id.uom_id.name))
-            bom_lines.product_uom_id = to_uom_id
+            bom_lines.uom_id = to_uom_id
 
         for uom, product, productions in self.env['mrp.production']._read_group(
             [('product_id', 'in', self.ids)],
-            ['product_uom_id', 'product_id'],
+            ['uom_id', 'product_id'],
             ['id:recordset'],
         ):
             if product.product_tmpl_id.uom_id != uom:
@@ -485,6 +452,6 @@ class ProductProduct(models.Model):
                 'than %(uom)s have already been used for this product, the change of unit of measure can not be done.'
                 'If you want to change it, please archive the product and create a new one.',
                 problem_uom=uom.name, uom=product.product_tmpl_id.uom_id.name))
-            productions.product_uom_id = to_uom_id
+            productions.uom_id = to_uom_id
 
         return super()._update_uom(to_uom_id)

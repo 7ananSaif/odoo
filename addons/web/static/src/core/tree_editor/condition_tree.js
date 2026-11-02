@@ -1,3 +1,4 @@
+import { deepEqual } from "@web/core/utils/objects";
 import { Domain } from "@web/core/domain";
 import { formatAST, parseExpr } from "@web/core/py_js/py";
 import { toPyValue } from "@web/core/py_js/py_utils";
@@ -100,6 +101,16 @@ export function complexCondition(value) {
  */
 export function condition(path, operator, value, negate = false, isProperty = false) {
     return { type: "condition", path, operator, value, negate, isProperty };
+}
+
+/**
+ * Clones a condition and applies updates, preserving all other metadata.
+ * @param {Condition} c
+ * @param {Object} updates
+ * @returns {Condition}
+ */
+export function updateCondition(c, updates) {
+    return { ...c, ...updates, type: "condition" };
 }
 
 export const TRUE_TREE = condition(1, "=", 1);
@@ -261,11 +272,7 @@ function normalizeConnector(connector) {
     if (newTree.children.length === 1) {
         const child = newTree.children[0];
         if (newTree.negate) {
-            const newChild = { ...child, negate: !child.negate };
-            if (newChild.type === "condition") {
-                return newChild;
-            }
-            return newChild;
+            return { ...child, negate: !child.negate };
         }
         return child;
     }
@@ -345,4 +352,54 @@ export function rewriteNConsecutiveChildren(transformation, N = 2) {
         }
         return { ...c, children };
     };
+}
+
+export class expressionContainsString {
+    static isPathSupported(path, getFieldDef) {
+        return !path.includes(".") && ["char", "html", "text"].includes(getFieldDef?.(path)?.type);
+    }
+
+    static toString(path, value, operator) {
+        if (!["ilike", "not ilike"].includes(operator)) {
+            throw new Error("Operator not supported");
+        }
+        const comparator = operator === "ilike" ? "in" : "not in";
+        value = `${formatAST({ type: 1, value })}.lower()`;
+        // Assume value of path cannot be True because path refers
+        // to a field of type char, could be false or String
+        const exprForField = `(${path} or "").lower()`;
+        return `${value} ${comparator} ${exprForField}`;
+    }
+
+    static unpackAst(ast) {
+        // Must be an ASTBinaryOperator
+        if (!(ast.type === 7 && ["in", "not in"].includes(ast.op))) {
+            return null;
+        }
+        // Necessarily like:
+        // `'somestring'.lower() in (var or '').lower()`
+        const leftString = ast.left.fn?.obj;
+        if (leftString?.type !== 1) {
+            return null;
+        }
+        const rightExpr = ast.right.fn?.obj?.left;
+        if (rightExpr?.type !== 5) {
+            return null;
+        }
+
+        const path = rightExpr.value;
+        const operator = ast.op === "not in" ? "not ilike" : "ilike";
+        const dummy = parseExpr(
+            expressionContainsString.toString(path, leftString.value, operator)
+        );
+        const areEqual = deepEqual(ast, dummy);
+        if (areEqual) {
+            return {
+                path,
+                operator,
+                negate: false,
+                value: leftString.value,
+            };
+        }
+    }
 }

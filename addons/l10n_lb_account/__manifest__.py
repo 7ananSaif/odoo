@@ -1,7 +1,6 @@
 {
     "name": "Lebanon - Accounting",
     "countries": ["lb"],
-    "version": "1.0",
     "description": """
 This is the base module to manage the accounting chart for Lebanon in Odoo.
 ==============================================================================
@@ -14,9 +13,6 @@ Activates:
     "category": "Accounting/Localizations/Account Charts",
     "depends": ["account"],
     'auto_install': ['account'],
-    "data": [
-        "data/res.country.state.csv",
-    ],
     "demo": [
         "demo/demo_company.xml",
     ],

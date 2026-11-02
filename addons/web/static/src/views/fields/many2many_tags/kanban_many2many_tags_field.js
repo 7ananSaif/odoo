@@ -5,13 +5,7 @@ export class KanbanMany2ManyTagsField extends Many2ManyTagsField {
     static template = "web.KanbanMany2ManyTagsField";
 
     get tags() {
-        return super.tags.reduce((kanbanTags, tag) => {
-            if (tag.colorIndex !== 0) {
-                delete tag.onClick;
-                kanbanTags.push(tag);
-            }
-            return kanbanTags;
-        }, []);
+        return super.tags.filter((tag) => tag.props.color !== 0);
     }
 }
 
@@ -20,4 +14,4 @@ export const kanbanMany2ManyTagsField = {
     component: KanbanMany2ManyTagsField,
 };
 
-registry.category("fields").add("kanban.many2many_tags", kanbanMany2ManyTagsField);
+registry.category("fields").add("card.many2many_tags", kanbanMany2ManyTagsField);

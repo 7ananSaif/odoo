@@ -9,24 +9,25 @@ import time
 import werkzeug
 
 from odoo import http
+from odoo.addons.iot_drivers.iot_handlers.interfaces.display_interface_L import DisplayInterface
 from odoo.addons.iot_drivers.browser import Browser, BrowserState
 from odoo.addons.iot_drivers.driver import Driver
 from odoo.addons.iot_drivers.main import iot_devices
-from odoo.addons.iot_drivers.tools import helpers, route
+from odoo.addons.iot_drivers.tools import helpers, route, system
 from odoo.addons.iot_drivers.tools.helpers import Orientation
+from odoo.addons.iot_drivers.tools.system import IOT_IDENTIFIER
 
 _logger = logging.getLogger(__name__)
 
 
 class DisplayDriver(Driver):
-    connection_type = 'display'
+    interface = DisplayInterface
 
     def __init__(self, identifier, device):
         super().__init__(identifier, device)
         self.device_type = 'display'
         self.device_connection = 'hdmi'
         self.device_name = device['name']
-        self.owner = False
         self.customer_display_data = {}
 
         saved_url, self.orientation = helpers.load_browser_state()
@@ -42,7 +43,7 @@ class DisplayDriver(Driver):
             'rotate_screen': self._action_rotate_screen,
             'open': self._action_open_customer_display,
             'close': self._action_close_customer_display,
-            'set': self._action_set_customer_display,
+            'set': self._action_set_customer_display,  # TODO: Remove customer display actions when v19 is deprecated
         })
 
     @classmethod
@@ -79,7 +80,7 @@ class DisplayDriver(Driver):
         :return: URL to display or None.
         """
         try:
-            response = requests.get(f"{server_url}/iot/box/{helpers.get_identifier()}/display_url", timeout=5)
+            response = requests.get(f"{server_url}/iot/box/{IOT_IDENTIFIER}/display_url", timeout=5)
             response.raise_for_status()
             data = json.loads(response.content.decode())
             return data.get(self.device_identifier)
@@ -112,7 +113,7 @@ class DisplayDriver(Driver):
         self.update_url(f"{origin}/pos_customer_display/{data['pos_id']}/{data['access_token']}?access_token={data['access_token']}")
 
     def _action_close_customer_display(self, data):
-        helpers.update_conf({"browser_url": "", "screen_orientation": ""})
+        system.update_conf({"browser_url": "", "screen_orientation": ""})
         self.browser.disable_kiosk_mode()
         self.update_url()
 
@@ -120,7 +121,7 @@ class DisplayDriver(Driver):
         if not data.get('data'):
             return
 
-        self.data['customer_display_data'] = data['data']
+        self.customer_display_data = data['data']
 
     def set_orientation(self, orientation=Orientation.NORMAL):
         if type(orientation) is not Orientation:
@@ -137,11 +138,16 @@ class DisplayDriver(Driver):
         helpers.save_browser_state(orientation=orientation)
 
 
+# TODO: Remove when v19 is deprecated
 class DisplayController(http.Controller):
     @route.iot_route('/hw_proxy/customer_facing_display', type='jsonrpc', cors='*')
-    def customer_facing_display(self):
+    def customer_facing_display(self, action, pos_id=None, access_token=None, data=None):
         display = self.ensure_display()
-        return display.data.get('customer_display_data', {})
+        if action == 'get':
+            return {'data': display.customer_display_data}
+
+        display.action({'action': action, 'pos_id': pos_id, 'access_token': access_token, 'data': data})
+        return {'status': 'success'}
 
     def ensure_display(self):
         display: DisplayDriver = DisplayDriver.get_default_display()

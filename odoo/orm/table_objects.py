@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import typing
+import warnings
 
 from odoo.tools import sql
 
@@ -53,7 +54,7 @@ class TableObject:
         raise NotImplementedError
 
     def full_name(self, model: BaseModel) -> str:
-        assert self.name, f"The table object is not named ({self.definition})"
+        assert self.name, f"The table object is not named ({self.get_definition(model.env.registry)})"
         name = f"{model._table}_{self.name}"
         return sql.make_identifier(name)
 
@@ -72,8 +73,16 @@ class TableObject:
     def apply_to_database(self, model: BaseModel):
         raise NotImplementedError
 
+    def matches_database(self, model: BaseModel) -> bool:
+        raise NotImplementedError
+
     def __str__(self) -> str:
-        return f"({self.name!r}={self.definition!r}, {self.message!r})"
+        try:
+            definition = self.get_definition(None)
+        except Exception:  # noqa: BLE001
+            # cannot resolve without a registry
+            definition = '...'
+        return f"({self.name!r}={definition!r}, {self.message!r})"
 
 
 class Constraint(TableObject):
@@ -106,6 +115,16 @@ class Constraint(TableObject):
     def get_definition(self, registry: Registry):
         return self._definition
 
+    def __set_name__(self, owner, name):
+        if name.endswith('_not_null'):
+            warnings.warn(
+                f'The Constraint "{name}" ends with _not_null. In PostgreSQL 18, '
+                'this suffix is used automatically for NOT NULL column (required).'
+                'To avoid any name clashing, please change the Constraint name.',
+                stacklevel=1,
+            )
+        return super().__set_name__(owner, name)
+
     def apply_to_database(self, model: BaseModel):
         cr = model.env.cr
         conname = self.full_name(model)
@@ -120,6 +139,12 @@ class Constraint(TableObject):
 
         model.pool.post_constraint(
             cr, lambda cr: sql.add_constraint(cr, model._table, conname, definition), conname)
+
+    def matches_database(self, model: BaseModel) -> bool:
+        cr = model.env.cr
+        conname = self.full_name(model)
+        definition = self.get_definition(model.pool)
+        return sql.constraint_definition(cr, model._table, conname) == definition
 
 
 class Index(TableObject):
@@ -180,6 +205,17 @@ class Index(TableObject):
             definition=definition_clause,
             unique=self.unique,
         ), conname)
+
+    def matches_database(self, model: BaseModel) -> bool:
+        definition = self.get_definition(model.pool)
+        if not definition:
+            # nothing is declared (e.g. a conditional index disabled for this
+            # registry), so there is nothing to enforce
+            return True
+        db_definition, db_comment = sql.index_definition(model.env.cr, self.full_name(model))
+        # same "up to date" condition as apply_to_database: the comment matches
+        # the declaration, or an uncommented index exists (tweaked by support)
+        return db_comment == definition or (not db_comment and bool(db_definition))
 
 
 class UniqueIndex(Index):

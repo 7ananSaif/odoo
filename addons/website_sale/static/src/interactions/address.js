@@ -1,5 +1,6 @@
 import { CustomerAddress } from '@portal/interactions/address';
 import { patch } from '@web/core/utils/patch';
+import { AlertBanner } from '@website_sale/js/components/alert_banner/alert_banner';
 
 patch(CustomerAddress.prototype, {
     // /shop/address
@@ -8,21 +9,30 @@ patch(CustomerAddress.prototype, {
         super.setup();
         // There is two main buttons in the DOM for mobile or desktop. User can switch from one mode
         // to the other by rotating their tablet.
-        this.submitButtons = document.getElementsByName("website_sale_main_button");
-        if (this.submitButtons) {
-            this._boundSaveAddress = this.saveAddress.bind(this);
-            this.submitButtons.forEach(
-                submitButton => submitButton.addEventListener('click', this._boundSaveAddress)
-            );
-        }
+        const submitButtons = document.getElementsByName('website_sale_main_button');
+        const boundSaveAddress = this.saveAddress.bind(this);
+        submitButtons.forEach(submitButton => {
+            submitButton.addEventListener('click', boundSaveAddress);
+            this.registerCleanup(() => submitButton.removeEventListener('click', boundSaveAddress));
+        });
+        // Display errors as nice alerts at the top of the checkout page.
+        this.errorsDiv = document.getElementById('checkout_alerts') ?? this.errorsDiv;
+        this.errorCleanups = [];
     },
 
-    destroy() {
-        if (this.submitButtons) {
-            this.submitButtons.forEach(
-                submitButton => submitButton.removeEventListener('click', this._boundSaveAddress)
-            );
-        }
-        super.destroy();
+    _replaceErrorMessages(messages) {
+        this._cleanupErrorComponents();
+        super._replaceErrorMessages(messages);
     },
+
+    _renderErrorMessage(message) {
+        this.errorCleanups.push(
+            this.mountComponent(this.errorsDiv, AlertBanner, {level: 'danger', message})
+        );
+    },
+
+    _cleanupErrorComponents() {
+        this.errorCleanups.forEach(cleanup => cleanup());
+        this.errorCleanups = [];
+    }
 });

@@ -85,11 +85,11 @@ class SurveyQuestion(models.Model):
     # question specific
     page_id = fields.Many2one('survey.question', string='Page', compute="_compute_page_id", store=True)
     question_type = fields.Selection([
-        ('simple_choice', 'Multiple choice: only one answer'),
-        ('multiple_choice', 'Multiple choice: multiple answers allowed'),
-        ('text_box', 'Multiple Lines Text Box'),
-        ('char_box', 'Single Line Text Box'),
-        ('numerical_box', 'Numerical Value'),
+        ('simple_choice', 'Single-Select'),
+        ('multiple_choice', 'Multi-Select'),
+        ('text_box', 'Long Text'),
+        ('char_box', 'Short Text'),
+        ('numerical_box', 'Number'),
         ('scale', 'Scale'),
         ('date', 'Date'),
         ('datetime', 'Datetime'),
@@ -99,8 +99,6 @@ class SurveyQuestion(models.Model):
         'Scored', compute='_compute_is_scored_question',
         readonly=False, store=True, copy=True,
         help="Include this question as part of quiz scoring. Requires an answer and answer score to be taken into account.")
-    has_image_only_suggested_answer = fields.Boolean(
-        "Has image only suggested answer", compute='_compute_has_image_only_suggested_answer')
     # -- scoreable/answerable simple answer_types: numerical_box / date / datetime
     answer_numerical_box = fields.Float('Correct numerical answer', help="Correct number answer for this question.")
     answer_date = fields.Date('Correct date answer', help="Correct date answer for this question.")
@@ -111,7 +109,7 @@ class SurveyQuestion(models.Model):
         "Save as user email", compute='_compute_save_as_email', readonly=False, store=True, copy=True,
         help="If checked, this option will save the user's answer as its email address.")
     save_as_nickname = fields.Boolean(
-        "Save as user nickname", compute='_compute_save_as_nickname', readonly=False, store=True, copy=True,
+        "Save as nickname", compute='_compute_save_as_nickname', readonly=False, store=True, copy=True,
         help="If checked, this option will save the user's answer as its nickname.")
     # -- simple choice / multiple choice / matrix
     suggested_answer_ids = fields.One2many(
@@ -128,8 +126,13 @@ class SurveyQuestion(models.Model):
     scale_min = fields.Integer("Scale Minimum Value", default=0)
     scale_max = fields.Integer("Scale Maximum Value", default=10)
     scale_min_label = fields.Char("Scale Minimum Label", translate=True)
-    scale_mid_label = fields.Char("Scale Middle Label", translate=True)
     scale_max_label = fields.Char("Scale Maximum Label", translate=True)
+    scale_min_label_placeholder = fields.Char(
+        compute='_compute_scale_min_label_placeholder',
+        string="Min Label Placeholder")
+    scale_max_label_placeholder = fields.Char(
+        compute='_compute_scale_max_label_placeholder',
+        string="Max Label Placeholder")
     # -- display & timing options
     is_time_limited = fields.Boolean("The question is limited in time",
         help="Currently only supported for live sessions.")
@@ -240,19 +243,22 @@ class SurveyQuestion(models.Model):
     # COMPUTE METHODS
     # -------------------------------------------------------------------------
 
-    @api.depends('suggested_answer_ids', 'suggested_answer_ids.value')
-    def _compute_has_image_only_suggested_answer(self):
-        questions_with_image_only_answer = self.env['survey.question'].search(
-            [('id', 'in', self.ids), ('suggested_answer_ids.value', 'in', [False, ''])])
-        questions_with_image_only_answer.has_image_only_suggested_answer = True
-        (self - questions_with_image_only_answer).has_image_only_suggested_answer = False
-
     @api.depends('question_type')
     def _compute_question_placeholder(self):
         for question in self:
             if question.question_type in ('simple_choice', 'multiple_choice', 'matrix') \
                     or not question.question_placeholder:  # avoid CacheMiss errors
                 question.question_placeholder = False
+
+    @api.depends('scale_min')
+    def _compute_scale_min_label_placeholder(self):
+        for question in self:
+            question.scale_min_label_placeholder = _("Label for %s", question.scale_min)
+
+    @api.depends('scale_max')
+    def _compute_scale_max_label_placeholder(self):
+        for question in self:
+            question.scale_max_label_placeholder = _("Label for %s", question.scale_max)
 
     @api.depends('is_page')
     def _compute_background_image(self):
@@ -765,7 +771,7 @@ class SurveyQuestion(models.Model):
         right_answers = self.suggested_answer_ids.filtered(lambda label: label.is_correct)
         if self.question_type == 'multiple_choice':
             for user_input, lines in tools.groupby(user_input_lines, operator.itemgetter('user_input_id')):
-                user_input_answers = self.env['survey.user_input.line'].concat(*lines).filtered(lambda l: l.answer_is_correct).mapped('suggested_answer_id')
+                user_input_answers = self.env['survey.user_input.line'].concat(lines).filtered(lambda l: l.answer_is_correct).mapped('suggested_answer_id')
                 if user_input_answers and user_input_answers < right_answers:
                     partial_inputs += user_input
                 elif user_input_answers:
@@ -843,7 +849,7 @@ class SurveyQuestionAnswer(models.Model):
     """
     _name = 'survey.question.answer'
     _rec_name = 'value'
-    _rec_names_search = ['question_id.title', 'value']
+    _rec_names_search = ('question_id.title', 'value')
     _order = 'question_id, sequence, id'
     _description = 'Survey Label'
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
@@ -7,11 +6,20 @@
     'category': 'Sales/Point of Sale',
     'sequence': 40,
     'summary': 'Handle checkouts and payments for shops and restaurants.',
-    'depends': ['resource', 'stock_account', 'barcodes', 'html_editor', 'digest', 'phone_validation', 'partner_autocomplete', 'iot_base', 'google_address_autocomplete'],
-    'uninstall_hook': 'uninstall_hook',
+    'depends': [
+        'resource',
+        'product',
+        'account',
+        'barcodes_gs1_nomenclature',
+        'html_editor',
+        'digest',
+        'phone_validation',
+        'google_address_autocomplete',
+        'base_report_wkhtmltox',
+        'iot_webserial',
+    ],
     'data': [
         'security/point_of_sale_security.xml',
-        'security/ir.model.access.csv',
         'data/default_barcode_patterns.xml',
         'data/digest_data.xml',
         'data/pos_note_data.xml',
@@ -20,10 +28,10 @@
         'data/ir_config_parameter_data.xml',
         'wizard/pos_details.xml',
         'wizard/pos_payment.xml',
-        'wizard/pos_close_session_wizard.xml',
         'wizard/pos_daily_sales_reports.xml',
         'wizard/pos_confirmation_wizard.xml',
         'wizard/pos_make_invoice.xml',
+        'wizard/pos_price_inclusion_wizard.xml',
         'views/pos_assets_index.xml',
         'views/point_of_sale_report.xml',
         'views/point_of_sale_view.xml',
@@ -31,6 +39,7 @@
         'views/pos_order_view.xml',
         'views/pos_category_view.xml',
         'views/product_combo_views.xml',
+        'views/product_pricelist_view.xml',
         'views/product_view.xml',
         'views/account_journal_view.xml',
         'views/pos_payment_method_views.xml',
@@ -55,12 +64,28 @@
         'views/account_move_views.xml',
         'views/pos_session_sales_details.xml',
         'views/product_tag_views.xml',
-        'views/stock_reference_views.xml',
+        'receipt/pos_receipt_common.xml',  # needed in the backend and frontend
+        'receipt/pos_order_receipt.xml',  # needed in the backend and frontend
+        'receipt/pos_order_change_receipt.xml',  # needed in the backend and frontend
+        'receipt/pos_order_change_receipt_zpl.xml',  # needed in the backend and frontend
+        'receipt/pos_tip_receipt.xml',  # needed in the backend and frontend
+        'receipt/pos_cash_move_receipt.xml',  # needed in the backend and frontend
+        'receipt/pos_sale_details_receipt.xml',  # needed in the backend and frontend
+        'data/ir_cron_data.xml',
+        'security/ir.access.csv',
     ],
     'demo': [
         'data/demo_data.xml',
     ],
-    'installable': True,
+    'other_files': [
+        'data/orders_demo.xml',
+        'data/scenarios/bakery_category_data.xml',
+        'data/scenarios/bakery_data.xml',
+        'data/scenarios/clothes_category_data.xml',
+        'data/scenarios/clothes_data.xml',
+        'data/scenarios/furniture_category_data.xml',
+        'data/scenarios/furniture_data.xml',
+    ],
     'application': True,
     'website': 'https://www.odoo.com/app/point-of-sale-shop',
     'assets': {
@@ -84,17 +109,24 @@
             'point_of_sale/static/src/backend/pos_payment_provider_cards/*',
             'point_of_sale/static/src/app/hooks/hooks.js',
             'point_of_sale/static/src/backend/many2many_placeholder_list_view/*',
+            'point_of_sale/static/src/backend/views/**/*',
+            ('remove', 'point_of_sale/static/src/backend/views/pivot/*'),
+            ('remove', 'point_of_sale/static/src/backend/views/graph/*'),
             'point_of_sale/static/src/backend/test_epos/*',
             'point_of_sale/static/src/app/utils/init_lna.js',
+            'point_of_sale/static/src/backend/pos_open_ui_button/*',
+        ],
+        'web.assets_backend_lazy': [
+            'point_of_sale/static/src/backend/views/pivot/*',
+            'point_of_sale/static/src/backend/views/graph/*',
         ],
         "web.assets_web_dark": [
             'point_of_sale/static/src/scss/pos_dashboard.dark.scss',
+            'point_of_sale/static/src/backend/pos_kanban_view/pos_kanban_view.dark.scss',
         ],
         'web.assets_tests': [
-            'barcodes/static/tests/legacy/helpers.js',
             'point_of_sale/static/tests/pos/tours/**/*',
             'point_of_sale/static/tests/generic_helpers/**/*',
-            'point_of_sale/static/tests/customer_display/**/*',
             'point_of_sale/static/src/utils.js',
         ],
         'web.assets_unit_tests_setup': [
@@ -108,6 +140,11 @@
             # Adding error handler back since they are removed in the prod bundle
             'web/static/src/core/errors/error_handlers.js',
             'web/static/src/core/dialog/dialog.scss',
+            'point_of_sale/static/src/backend/views/**/*',
+
+            'point_of_sale/static/src/customer_display/**/*',
+            ('remove', 'point_of_sale/static/src/customer_display/root.js'),
+            ('remove', 'point_of_sale/static/src/customer_display/styles.scss'),
         ],
         'web.assets_unit_tests': [
             'point_of_sale/static/tests/unit/**/*',
@@ -123,22 +160,23 @@
             'web/static/lib/bootstrap/scss/_maps.scss',
             ("include", "web._assets_bootstrap_backend"),
             ('include', 'web._assets_core'),
-            ("remove", "web/static/src/core/browser/router.js"),
+            "point_of_sale/static/src/app/plugins/offline_plugin.js",
             ("remove", "web/static/src/core/debug/**/*"),
-            "web/static/src/libs/fontawesome/css/font-awesome.css",
+            ('include', 'web.icons_fonts'),
             "web/static/src/views/fields/formatters.js",
-            "web/static/lib/odoo_ui_icons/*",
             "point_of_sale/static/src/utils.js",
-            'bus/static/src/services/bus_service.js',
-            'bus/static/src/services/worker_service.js',
-            'bus/static/src/bus_parameters_service.js',
-            'bus/static/src/legacy_multi_tab_service.js',
-            'bus/static/src/multi_tab_service.js',
-            'bus/static/src/multi_tab_shared_worker_service.js',
-            'bus/static/src/multi_tab_fallback_service.js',
+            'bus/static/src/services/bus_plugin.js',
+            'bus/static/src/services/worker_plugin.js',
+            'bus/static/src/bus_parameters_plugin.js',
+            'bus/static/src/multi_tab_plugin.js',
+            'bus/static/src/multi_tab_shared_worker_plugin.js',
+            'bus/static/src/multi_tab_fallback_plugin.js',
             'bus/static/src/workers/*',
-            'iot_base/static/src/network_utils/*',
-            'iot_base/static/src/device_controller.js',
+        ],
+
+        # Payment terminal assets, also loaded by pos_self_order
+        'point_of_sale.payment_terminals': [
+            'point_of_sale/static/src/app/utils/payment/payment_interface.js',
         ],
 
         # Main PoS assets, they are loaded in the PoS UI
@@ -150,7 +188,10 @@
             # libs (should be loaded before framework)
             'point_of_sale/static/lib/**/*',
             'web/static/lib/luxon/luxon.js',
+            'web/static/src/libs/luxon.js',
             'web/static/lib/owl/owl.js',
+            'web/static/src/owl2/owl3_compatibility_layer.js',
+            'web/static/src/owl2/utils.js',
             'web/static/lib/owl/odoo_module.js',
             'web/static/lib/zxing-library/zxing-library.js',
 
@@ -165,25 +206,26 @@
             # scss variables and utilities
             'point_of_sale/static/src/scss/pos_variables_extra.scss',
             'web/static/src/scss/bootstrap_overridden.scss',
-            'web/static/src/scss/fontawesome_overridden.scss',
             'web/static/fonts/fonts.scss',
             "web/static/src/scss/ui.scss",
 
-            ('remove', 'web/static/src/core/errors/error_handlers.js'), # error handling in PoS is different from the webclient
+            ('remove', 'web/static/src/core/errors/error_handlers.js'),  # error handling in PoS is different from the webclient
             ('remove', '/web/static/src/core/dialog/dialog.scss'),
             'web/static/src/core/currency.js',
             # barcode scanner
-            'barcodes/static/src/barcode_service.js',
+            'barcodes/static/src/barcode_plugin.js',
             'barcodes/static/src/js/barcode_parser.js',
             'barcodes_gs1_nomenclature/static/src/js/barcode_parser.js',
-            'barcodes_gs1_nomenclature/static/src/js/barcode_service.js',
+            'barcodes_gs1_nomenclature/static/src/js/barcode_plugin.js',
+            'barcodes_gs1_nomenclature/static/src/js/epc_model.js',
+            'barcodes_gs1_nomenclature/static/src/js/epc_utils.js',
             # report download utils
             'web/static/src/webclient/actions/reports/utils.js',
             # PoS files
             'point_of_sale/static/src/**/*',
             ('remove', 'point_of_sale/static/src/backend/**/*'),
             ('remove', 'point_of_sale/static/src/customer_display/**/*'),
-            'point_of_sale/static/src/customer_display/utils.js',
+            ('include', 'point_of_sale.payment_terminals'),
             # main.js boots the pos app, it is only included in the prod bundle as tests mount the app themselves
             ('remove', 'point_of_sale/static/src/app/main.js'),
             ("include", "point_of_sale.base_tests"),
@@ -191,27 +233,21 @@
             'account/static/src/helpers/*.js',
             'account/static/src/services/account_move_service.js',
 
-            'mail/static/src/core/common/sound_effects_service.js',
+            'mail/static/src/core/common/sound_effects_plugin.js',
             "web/static/src/core/browser/router.js",
             "web/static/src/core/debug/**/*",
             'web/static/src/model/**/*',
             'web/static/src/views/**/*',
             'web/static/src/search/**/*',
             'web/static/src/webclient/actions/**/*',
-            ('remove', 'web/static/src/webclient/actions/reports/layout_assets/**/*'),
+            ('remove', 'web/static/src/webclient/actions/reports/report_layouts.scss'),
             ('remove', 'web/static/src/webclient/actions/**/*css'),
-            'partner_autocomplete/static/src/**/*',
             'google_address_autocomplete/static/src/**/*',
+            'point_of_sale/static/src/backend/pos_res_partner_view/*',
+            'iot_webserial/static/src/web_serial_*.js',
         ],
         'point_of_sale.base_tests': [
-            "web/static/lib/hoot-dom/**/*",
-            "web_tour/static/src/js/**/*",
-            'web_tour/static/src/tour_utils.js',
-            "barcodes/static/tests/legacy/helpers.js",
-            "web/static/tests/legacy/helpers/utils.js",
-            "web/static/tests/legacy/helpers/cleanup.js",
-            'iot_base/static/src/network_utils/*',
-            'iot_base/static/src/device_controller.js',
+            ('include', 'web_tour.assets'),
         ],
         # Bundle that starts the pos, loaded on /pos/ui
         'point_of_sale.assets_prod': [
@@ -224,23 +260,28 @@
         'point_of_sale.customer_display_assets': [
             ('include', 'point_of_sale.base_app'),
             "point_of_sale/static/src/app/components/odoo_logo/*",
-            "point_of_sale/static/src/app/components/orderline/*",
-            "point_of_sale/static/src/app/components/centered_icon/*",
             "point_of_sale/static/src/app/utils/use_timed_press.js",
             "point_of_sale/static/src/utils.js",
+            "point_of_sale/static/src/scss/pos_variables_extra.scss",
             "point_of_sale/static/src/customer_display/**/*",
+            "point_of_sale/static/src/app/hooks/time_hook.js",
+            "point_of_sale/static/src/app/pos_app.scss",
+            "point_of_sale/static/src/app/screens/login_screen/login_screen.scss",
+            "point_of_sale/static/src/app/components/price_formatter/**/*",
+            "point_of_sale/static/src/app/components/validation_animation/**/*",
+            "point_of_sale/static/src/app/components/feedback_payment_summary/**/*",
+            "point_of_sale/static/src/app/utils/pretty_console_log.js",
+        ],
+        'point_of_sale.customer_display_assets_dark': [
+            ('include', 'point_of_sale.customer_display_assets'),
         ],
         'point_of_sale.customer_display_assets_test': [
             ('include', 'point_of_sale.base_tests'),
             "point_of_sale/static/tests/pos/tours/utils/common.js",
-            "point_of_sale/static/tests/generic_helpers/order_widget_util.js",
             "point_of_sale/static/tests/generic_helpers/utils.js",
-            "point_of_sale/static/tests/customer_display/customer_display_utils.js",
-            "point_of_sale/static/tests/customer_display/customer_display_tour.js",
         ],
         'point_of_sale.assets_debug': [
             ('include', 'point_of_sale.base_tests'),
-            'barcodes/static/tests/legacy/helpers.js',
             'point_of_sale/static/tests/generic_helpers/**/*',
             'point_of_sale/static/tests/pos/tours/**/*',
         ],

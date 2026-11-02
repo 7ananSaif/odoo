@@ -1,9 +1,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-import base64
-
 from odoo import api, fields, models
-from odoo.tools import format_date, str2bool
+from odoo.tools import format_date
 from odoo.tools.translate import _
 
 from odoo.addons.payment import utils as payment_utils
@@ -58,10 +56,8 @@ class AccountMove(models.Model):
         pending_transactions = transactions.filtered(
             lambda tx: tx.state in {'pending', 'authorized'}
                        and tx.provider_code not in {'none', 'custom'})
-        enabled_feature = str2bool(
-            self.env['ir.config_parameter'].sudo().get_param(
-                'account_payment.enable_portal_payment'
-            )
+        enabled_feature = self.env['ir.config_parameter'].sudo().get_bool(
+            'account_payment.enable_portal_payment'
         )
         return enabled_feature and bool(
             (self.amount_residual or not transactions)
@@ -82,10 +78,8 @@ class AccountMove(models.Model):
         pending_transactions = transactions.filtered(
             lambda tx: tx.state in {'pending', 'authorized'}
                        and tx.provider_code not in {'none', 'custom'})
-        enabled_feature = str2bool(
-            self.env['ir.config_parameter'].sudo().get_param(
-                'account_payment.enable_portal_payment'
-            )
+        enabled_feature = self.env['ir.config_parameter'].sudo().get_bool(
+            'account_payment.enable_portal_payment'
         )
         errors = []
         if not enabled_feature:
@@ -136,7 +130,7 @@ class AccountMove(models.Model):
 
     def _get_default_payment_link_values(self):
         next_payment_values = self._get_invoice_next_payment_values()
-        amount_max = next_payment_values.get('amount_due')
+        amount_due = next_payment_values.get('amount_due')
         additional_info = {}
         open_installments = []
         installment_state = next_payment_values.get('installment_state')
@@ -153,7 +147,7 @@ class AccountMove(models.Model):
                 open_installments.append(data)
 
         elif installment_state == 'epd':
-            amount_max = next_amount_to_pay  # with epd, next_amount_to_pay is the invoice amount residual
+            amount_due = next_amount_to_pay  # with epd, next_amount_to_pay is the invoice amount residual
             additional_info.update({
                 'has_eligible_epd': True,
                 'discount_date': next_payment_values.get('discount_date')
@@ -164,7 +158,7 @@ class AccountMove(models.Model):
             'partner_id': self.partner_id.id,
             'open_installments': open_installments,
             'amount': next_amount_to_pay,
-            'amount_max': amount_max,
+            'invoice_amount_due': amount_due,
             **additional_info
         }
 
@@ -172,7 +166,7 @@ class AccountMove(models.Model):
         self.ensure_one()
         portal_url = self._get_portal_payment_link()
         barcode = self.env['ir.actions.report'].barcode(barcode_type="QR", value=portal_url, width=128, height=128, quiet=False)
-        return image_data_uri(base64.b64encode(barcode))
+        return image_data_uri(barcode)
 
     def _get_portal_payment_link(self):
         self.ensure_one()

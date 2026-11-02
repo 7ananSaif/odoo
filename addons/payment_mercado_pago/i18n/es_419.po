@@ -9,17 +9,22 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-20 18:37+0000\n"
-"PO-Revision-Date: 2026-05-16 09:40+0000\n"
+"POT-Creation-Date: 2026-08-28 17:44+0000\n"
+"PO-Revision-Date: 2026-08-31 13:40+0000\n"
 "Last-Translator: \"Fernanda Alvarez (mfar)\" <mfar@odoo.com>\n"
 "Language-Team: Spanish (Latin America) <https://translate.odoo.com/projects/"
-"odoo-19/payment_mercado_pago/es_419/>\n"
+"odoo-s19-4/payment_mercado_pago/es_419/>\n"
 "Language: es_419\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: payment_mercado_pago
+#: model:ir.module.module,summary:base.module_payment_mercado_pago
+msgid "A payment provider covering several countries in Latin America."
+msgstr ""
 
 #. module: payment_mercado_pago
 #: model_terms:ir.ui.view,arch_db:payment_mercado_pago.payment_provider_form
@@ -30,6 +35,11 @@ msgstr "Token de acceso"
 #: model_terms:ir.ui.view,arch_db:payment_mercado_pago.payment_provider_form
 msgid "Account Country"
 msgstr "País de la cuenta"
+
+#. module: payment_mercado_pago
+#: model:payment.method,name:payment_mercado_pago.payment_method_amex
+msgid "American Express"
+msgstr "American Express"
 
 #. module: payment_mercado_pago
 #: model_terms:ir.ui.view,arch_db:payment_mercado_pago.authorization_error
@@ -47,9 +57,29 @@ msgid "Are you sure you want to disconnect?"
 msgstr "¿De verdad quieres desconectarte?"
 
 #. module: payment_mercado_pago
+#: model:payment.method,name:payment_mercado_pago.payment_method_argencard
+msgid "Argencard"
+msgstr "Argencard"
+
+#. module: payment_mercado_pago
 #: model_terms:ir.ui.view,arch_db:payment_mercado_pago.authorization_error
 msgid "Back to the Mercado Pago provider"
 msgstr "Regresar al proveedor Mercado Pago"
+
+#. module: payment_mercado_pago
+#: model:payment.method,name:payment_mercado_pago.payment_method_bank_transfer
+msgid "Bank Transfer"
+msgstr "Transferencia bancaria"
+
+#. module: payment_mercado_pago
+#: model:payment.method,name:payment_mercado_pago.payment_method_cabal
+msgid "Cabal"
+msgstr "Cabal"
+
+#. module: payment_mercado_pago
+#: model:payment.method,name:payment_mercado_pago.payment_method_caixa
+msgid "Caixa"
+msgstr "Caixa"
 
 #. module: payment_mercado_pago
 #. odoo-python
@@ -60,6 +90,16 @@ msgid ""
 msgstr ""
 "Llame al emisor de su tarjeta para activarla o use otro método de pago. El "
 "número de teléfono está en la parte posterior de su tarjeta."
+
+#. module: payment_mercado_pago
+#: model:payment.method,name:payment_mercado_pago.payment_method_card
+msgid "Card"
+msgstr "Tarjeta"
+
+#. module: payment_mercado_pago
+#: model:payment.method,name:payment_mercado_pago.payment_method_cencosud
+msgid "Cencosud"
+msgstr "Cencosud"
 
 #. module: payment_mercado_pago
 #. odoo-python
@@ -91,6 +131,11 @@ msgid "Code"
 msgstr "Código"
 
 #. module: payment_mercado_pago
+#: model:payment.method,name:payment_mercado_pago.payment_method_codensa
+msgid "Codensa"
+msgstr "Codensa"
+
+#. module: payment_mercado_pago
 #: model_terms:ir.ui.view,arch_db:payment_mercado_pago.payment_provider_form
 msgid "Connect"
 msgstr "Conectar"
@@ -102,6 +147,16 @@ msgid "Connect your account before enabling tokenization."
 msgstr "Conecta tu cuenta antes de permitir la tokenización."
 
 #. module: payment_mercado_pago
+#: model:payment.method,name:payment_mercado_pago.payment_method_cordial
+msgid "Cordial"
+msgstr "Cordial"
+
+#. module: payment_mercado_pago
+#: model:payment.method,name:payment_mercado_pago.payment_method_cordobesa
+msgid "Cordobesa"
+msgstr "Cordobesa"
+
+#. module: payment_mercado_pago
 #. odoo-python
 #: code:addons/payment_mercado_pago/controllers/onboarding.py:0
 msgid "Could not find Mercado Pago provider %s"
@@ -109,8 +164,8 @@ msgstr "No se encontró al proveedor de Mercado Pago %s"
 
 #. module: payment_mercado_pago
 #: model_terms:ir.ui.view,arch_db:payment_mercado_pago.payment_provider_form
-msgid "Disconnect Your Mercado Pago Account"
-msgstr "Desconectar tu cuenta de Mercado Pago"
+msgid "Disconnect"
+msgstr "Desconectar"
 
 #. module: payment_mercado_pago
 #: model:ir.model.fields,field_description:payment_mercado_pago.field_payment_provider__display_name
@@ -118,6 +173,16 @@ msgstr "Desconectar tu cuenta de Mercado Pago"
 #: model:ir.model.fields,field_description:payment_mercado_pago.field_payment_transaction__display_name
 msgid "Display Name"
 msgstr "Mostrar nombre"
+
+#. module: payment_mercado_pago
+#: model:payment.method,name:payment_mercado_pago.payment_method_elo
+msgid "Elo"
+msgstr "Elo"
+
+#. module: payment_mercado_pago
+#: model:payment.method,name:payment_mercado_pago.payment_method_hipercard
+msgid "Hipercard"
+msgstr "Hipercard"
 
 #. module: payment_mercado_pago
 #: model:ir.model.fields,field_description:payment_mercado_pago.field_payment_provider__id
@@ -133,6 +198,26 @@ msgid "Incorrect payment details"
 msgstr "Detalles de pago incorrectos"
 
 #. module: payment_mercado_pago
+#: model:payment.method,name:payment_mercado_pago.payment_method_lider
+msgid "Lider"
+msgstr "Lider"
+
+#. module: payment_mercado_pago
+#: model:payment.method,name:payment_mercado_pago.payment_method_magna
+msgid "Magna"
+msgstr "Magna"
+
+#. module: payment_mercado_pago
+#: model:payment.method,name:payment_mercado_pago.payment_method_mastercard
+msgid "MasterCard"
+msgstr "Mastercard"
+
+#. module: payment_mercado_pago
+#: model:payment.method,name:payment_mercado_pago.payment_method_mercado_livre
+msgid "Mercado Livre"
+msgstr "Mercado Libre"
+
+#. module: payment_mercado_pago
 #: model:ir.model.fields.selection,name:payment_mercado_pago.selection__payment_provider__code__mercado_pago
 msgid "Mercado Pago"
 msgstr "Mercado Pago"
@@ -140,7 +225,7 @@ msgstr "Mercado Pago"
 #. module: payment_mercado_pago
 #: model:ir.model.fields,field_description:payment_mercado_pago.field_payment_provider__mercado_pago_access_token
 msgid "Mercado Pago Access Token"
-msgstr "Token de acceso de Mercado Pago"
+msgstr "Token de acceso a Marcado Pago"
 
 #. module: payment_mercado_pago
 #: model:ir.model.fields,field_description:payment_mercado_pago.field_payment_provider__mercado_pago_access_token_expiry
@@ -158,19 +243,19 @@ msgid "Mercado Pago Customer"
 msgstr "Cliente de Mercado Pago"
 
 #. module: payment_mercado_pago
-#: model:ir.model.fields,field_description:payment_mercado_pago.field_payment_provider__mercado_pago_is_oauth_supported
-msgid "Mercado Pago Is Oauth Supported"
-msgstr "Mercado Pago es compatible con Oauth"
-
-#. module: payment_mercado_pago
 #: model:ir.model.fields,field_description:payment_mercado_pago.field_payment_provider__mercado_pago_public_key
 msgid "Mercado Pago Public Key"
-msgstr "Clave pública de Mercado Pago"
+msgstr "Clave pública de mercado pago"
 
 #. module: payment_mercado_pago
 #: model:ir.model.fields,field_description:payment_mercado_pago.field_payment_provider__mercado_pago_refresh_token
 msgid "Mercado Pago Refresh Token"
 msgstr "Volver a cargar token de Mercado Pago"
+
+#. module: payment_mercado_pago
+#: model:payment.method,name:payment_mercado_pago.payment_method_mercado_pago_wallet
+msgid "Mercado Pago Wallet"
+msgstr "Mercado Pago Wallet"
 
 #. module: payment_mercado_pago
 #. odoo-python
@@ -192,6 +277,21 @@ msgstr ""
 "Mercado Pago no está disponible en tu país, utiliza otro proveedor de pagos."
 
 #. module: payment_mercado_pago
+#: model:payment.method,name:payment_mercado_pago.payment_method_naranja
+msgid "Naranja"
+msgstr "Naranja"
+
+#. module: payment_mercado_pago
+#: model:payment.method,name:payment_mercado_pago.payment_method_nativa
+msgid "Nativa"
+msgstr "Nativa"
+
+#. module: payment_mercado_pago
+#: model:payment.method,name:payment_mercado_pago.payment_method_oca
+msgid "OCA"
+msgstr "OCA"
+
+#. module: payment_mercado_pago
 #. odoo-python
 #: code:addons/payment_mercado_pago/models/payment_provider.py:0
 msgid "Only the currency %s is available for this account."
@@ -207,6 +307,11 @@ msgstr "Otros proveedores de pago"
 #: model:ir.model,name:payment_mercado_pago.model_payment_provider
 msgid "Payment Provider"
 msgstr "Proveedor de pago"
+
+#. module: payment_mercado_pago
+#: model:ir.module.module,shortdesc:base.module_payment_mercado_pago
+msgid "Payment Provider: Mercado Pago"
+msgstr ""
 
 #. module: payment_mercado_pago
 #: model:ir.model,name:payment_mercado_pago.model_payment_token
@@ -230,6 +335,11 @@ msgstr "Error al procesar el pago"
 msgid "Payment was not processed, use another card or contact issuer."
 msgstr ""
 "No se procesó el pago, use otra tarjeta o póngase en contacto con el emisor."
+
+#. module: payment_mercado_pago
+#: model:payment.method,name:payment_mercado_pago.payment_method_presto
+msgid "Presto"
+msgstr "Presto"
 
 #. module: payment_mercado_pago
 #. odoo-python
@@ -256,6 +366,16 @@ msgid "Set the account country before connecting the account."
 msgstr "Establece el país de la cuenta antes de conectar la cuenta."
 
 #. module: payment_mercado_pago
+#: model:payment.method,name:payment_mercado_pago.payment_method_shopping
+msgid "Shopping"
+msgstr "Shopping"
+
+#. module: payment_mercado_pago
+#: model:payment.method,name:payment_mercado_pago.payment_method_tarjeta_mercadopago
+msgid "Tarjeta MercadoPago"
+msgstr "Tarjeta MercadoPago"
+
+#. module: payment_mercado_pago
 #: model:ir.model.fields,help:payment_mercado_pago.field_payment_provider__mercado_pago_account_country_id
 msgid ""
 "The country of the Mercado Pago account. The currency will be updated to "
@@ -274,6 +394,11 @@ msgstr "El código técnico de este proveedor de pagos."
 #: code:addons/payment_mercado_pago/const.py:0
 msgid "This payment method does not process payments in installments."
 msgstr "No puede pagar a plazos con este método de pago."
+
+#. module: payment_mercado_pago
+#: model:payment.method,name:payment_mercado_pago.payment_method_visa
+msgid "VISA"
+msgstr "VISA"
 
 #. module: payment_mercado_pago
 #. odoo-python
@@ -363,30 +488,3 @@ msgid ""
 msgstr ""
 "Se realizó el cargo a su tarjeta. En su resumen verá el cargo como una "
 "descripción."
-
-#~ msgid "Could not establish the connection to the API."
-#~ msgstr "No se pudo establecer la conexión con la API."
-
-#~ msgid "No transaction found matching reference %s."
-#~ msgstr ""
-#~ "No se encontró ninguna transacción que coincida con la referencia %s."
-
-#~ msgid "Received data with invalid status: %s"
-#~ msgstr "Se recibió la información con un estado que no es válido: %s"
-
-#~ msgid "Received data with missing reference."
-#~ msgstr "Datos recibidos sin referencia."
-
-#~ msgid ""
-#~ "The communication with the API failed. Mercado Pago gave us the following "
-#~ "information: '%(error_message)s' (code %(error_code)s)"
-#~ msgstr ""
-#~ "Falló la comunicación con la API. Mercado pago envió esta información: '%"
-#~ "(error_message)s' (código %(error_code)s)"
-
-#~ msgid ""
-#~ "The communication with the API failed. The response is empty. Please "
-#~ "verify your access token."
-#~ msgstr ""
-#~ "Ocurrió un error al comunicarse con la API, la respuesta está vacía. "
-#~ "Verifique su token de acceso."

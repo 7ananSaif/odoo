@@ -14,10 +14,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2026-05-05 12:52+0000\n"
+"POT-Creation-Date: 2026-10-09 17:40+0000\n"
+"PO-Revision-Date: 2026-10-22 07:33+0000\n"
 "Last-Translator: \"Malaz Siddig Elsayed Abuidris (msea)\" <msea@odoo.com>\n"
-"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-20/"
 "sale_timesheet/ar/>\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
@@ -25,7 +25,7 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: sale_timesheet
 #. odoo-python
@@ -78,8 +78,20 @@ msgstr ""
 "            "
 
 #. module: sale_timesheet
+#: model:ir.module.module,description:base.module_sale_timesheet
+msgid ""
+"\n"
+"Allows to sell timesheets in your sales order\n"
+"=============================================\n"
+"\n"
+"This module set the right product on all timesheet lines\n"
+"according to the order/contract you work on. This allows to\n"
+"have real delivered quantities in sales orders.\n"
+msgstr ""
+
+#. module: sale_timesheet
 #. odoo-python
-#: code:addons/sale_timesheet/models/hr_timesheet.py:0
+#: code:addons/sale_timesheet/models/account_analytic_line.py:0
 msgid ""
 "'%(missing_plan_names)s' analytic plan(s) required on the analytic "
 "distribution of the sale order item '%(so_line_name)s' linked to the "
@@ -89,9 +101,9 @@ msgstr ""
 "لبند أمر البيع '%(so_line_name)s' المرتبط بالجدول الزمني."
 
 #. module: sale_timesheet
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_sale_page
-msgid "- Timesheet product"
-msgstr "- منتج الجداول الزمنية"
+#: model:ir.actions.report,print_report_name:sale_timesheet.timesheet_report_account_move
+msgid "('%s Timesheets' % (object.name))"
+msgstr "('%s الجداول الزمنية' % (object.name))"
 
 #. module: sale_timesheet
 #: model_terms:hr.job,job_details:sale_timesheet.job_engineer
@@ -152,7 +164,7 @@ msgstr "<b>سعر الوحدة: </b>"
 #. module: sale_timesheet
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.project_project_view_form
 msgid ""
-"<i class=\"fa fa-lightbulb-o\"/>\n"
+"<i class=\"oi\" data-icon=\"lightbulb\"/>\n"
 "                        <span>\n"
 "                            Define the rate at which an employee's time is "
 "billed based on their expertise, skills, or experience.\n"
@@ -160,24 +172,13 @@ msgid ""
 "create separate sales order items.\n"
 "                        </span>"
 msgstr ""
-"<i class=\"fa fa-lightbulb-o\"/>\n"
+"<i class=\"oi\" data-icon=\"lightbulb\"/>\n"
 "                        <span>\n"
 "                            حدد المعدل الذي تتم به فاتورة وقت الموظف بناءً "
 "على خبرته أو مهاراته أو تجربته.\n"
 "                            لفوترة نفس الخدمة بسعر مختلف، قم بإنشاء عناصر "
 "أمر مبيعات منفصلة.\n"
 "                        </span>"
-
-#. module: sale_timesheet
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.hr_timesheet_line_form_inherit
-msgid ""
-"<span class=\"fa fa-exclamation-triangle text-warning\" title=\"The sales "
-"order associated with this timesheet entry has been cancelled.\" "
-"invisible=\"sale_order_state != 'cancel'\"/>"
-msgstr ""
-"<span class=\"fa fa-exclamation-triangle text-warning\" title=\"لقد تم إلغاء "
-"أمر البيع المرتبط بقيد الجداول الزمنية. \" invisible=\"sale_order_state != "
-"'cancel'\"/>"
 
 #. module: sale_timesheet
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.hr_timesheet_line_form_inherit
@@ -194,6 +195,17 @@ msgstr "<span class=\"o_stat_text\">مسجل</span>"
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.hr_timesheet_line_form_inherit
 msgid "<span class=\"o_stat_text\">Sales Order</span>"
 msgstr "<span class=\"o_stat_text\">أمر البيع</span>"
+
+#. module: sale_timesheet
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.hr_timesheet_line_form_inherit
+msgid ""
+"<span class=\"oi text-warning\" data-icon=\"warning\" title=\"The sales "
+"order associated with this timesheet entry has been cancelled.\" "
+"invisible=\"sale_order_state != 'cancel'\"/>"
+msgstr ""
+"<span class=\"oi text-warning\" data-icon=\"warning\" title=\"لقد تم إلغاء "
+"أمر البيع المرتبط بقيد الجداول الزمنية. \" invisible=\"sale_order_state != "
+"'cancel'\"/>"
 
 #. module: sale_timesheet
 #: model_terms:hr.job,job_details:sale_timesheet.job_engineer
@@ -217,37 +229,49 @@ msgid "<span class=\"text-muted small\">Time to Answer</span>"
 msgstr "<span class=\"text-muted small\">الوقت المحدد للإجابة</span>"
 
 #. module: sale_timesheet
-#: model_terms:hr.job,website_description:sale_timesheet.job_engineer
-#: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
-#: model_terms:hr.job,website_description:sale_timesheet.job_labour
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.project_project_view_form
+msgid ""
+"<span class=\"text-muted\">Timesheets without a sales order item are "
+"reported as </span>"
+msgstr ""
+
+#. module: sale_timesheet
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.report_timesheet_sale_timesheet
+msgid "<span>Sales Order Item: </span>"
+msgstr ""
+
+#. module: sale_timesheet
+#: model_terms:hr.job,website_rating:sale_timesheet.job_engineer
+#: model_terms:hr.job,website_rating:sale_timesheet.job_interior_designer
+#: model_terms:hr.job,website_rating:sale_timesheet.job_labour
 msgid "<strong class=\"s_rating_title\">Administrative Work</strong>"
 msgstr "<strong class=\"s_rating_title\">الأعمال الإدارية</strong>"
 
 #. module: sale_timesheet
-#: model_terms:hr.job,website_description:sale_timesheet.job_engineer
-#: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
-#: model_terms:hr.job,website_description:sale_timesheet.job_labour
+#: model_terms:hr.job,website_rating:sale_timesheet.job_engineer
+#: model_terms:hr.job,website_rating:sale_timesheet.job_interior_designer
+#: model_terms:hr.job,website_rating:sale_timesheet.job_labour
 msgid "<strong class=\"s_rating_title\">Autonomy</strong>"
 msgstr "<strong class=\"s_rating_title\">الاستقلالية</strong>"
 
 #. module: sale_timesheet
-#: model_terms:hr.job,website_description:sale_timesheet.job_engineer
-#: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
-#: model_terms:hr.job,website_description:sale_timesheet.job_labour
+#: model_terms:hr.job,website_rating:sale_timesheet.job_engineer
+#: model_terms:hr.job,website_rating:sale_timesheet.job_interior_designer
+#: model_terms:hr.job,website_rating:sale_timesheet.job_labour
 msgid "<strong class=\"s_rating_title\">Customer Relationship</strong>"
 msgstr "<strong class=\"s_rating_title\">علاقات العملاء</strong>"
 
 #. module: sale_timesheet
-#: model_terms:hr.job,website_description:sale_timesheet.job_engineer
-#: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
-#: model_terms:hr.job,website_description:sale_timesheet.job_labour
+#: model_terms:hr.job,website_rating:sale_timesheet.job_engineer
+#: model_terms:hr.job,website_rating:sale_timesheet.job_interior_designer
+#: model_terms:hr.job,website_rating:sale_timesheet.job_labour
 msgid "<strong class=\"s_rating_title\">Personal Evolution</strong>"
 msgstr "<strong class=\"s_rating_title\">التطور الشخصي</strong>"
 
 #. module: sale_timesheet
-#: model_terms:hr.job,website_description:sale_timesheet.job_engineer
-#: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
-#: model_terms:hr.job,website_description:sale_timesheet.job_labour
+#: model_terms:hr.job,website_rating:sale_timesheet.job_engineer
+#: model_terms:hr.job,website_rating:sale_timesheet.job_interior_designer
+#: model_terms:hr.job,website_rating:sale_timesheet.job_labour
 msgid "<strong class=\"s_rating_title\">Technical Expertise</strong>"
 msgstr "<strong class=\"s_rating_title\">الخبرة التقنية</strong>"
 
@@ -272,7 +296,7 @@ msgid "<strong>Sales Order:</strong>"
 msgstr "<strong>أمر المبيعات:</strong>"
 
 #. module: sale_timesheet
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.portal_timesheet_table_inherit
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.portal_timesheet_table_with_total_inherit
 msgid "<strong>Time Remaining on SO: </strong>"
 msgstr "<strong>الوقت المتبقي في أمر البيع: </strong>"
 
@@ -292,20 +316,8 @@ msgid ""
 "  - Analytic From expenses: the quantity is the quantity sum from posted "
 "expenses\n"
 "  - Timesheet: the quantity is the sum of hours recorded on tasks linked to "
-"this sale line\n"
+"this line\n"
 "  - Stock Moves: the quantity comes from confirmed pickings\n"
-msgstr ""
-"حسب تهيئة المنتج، يمكن حساب الكمية التي تم توصيلها تلقائياً بإحدى الطرق "
-"التالية:\n"
-"  - يدوياً: تُحسب الكمية يدوياً في البند\n"
-"  - تحليلياً من النفقات: تكون الكمية هي مجموع الكمية من النفقات المُرحلة\n"
-"  - الجداول الزمنية: تكون الكمية هي مجموع الساعات المستغرقة لإجراء المهام "
-"المرتبطة ببند المبيعات\n"
-"  - حركات المخزون: تأتي الكمية من عمليات الانتقاء المؤكدة\n"
-
-#. module: sale_timesheet
-#: model:ir.model,name:sale_timesheet.model_account_move_reversal
-msgid "Account Move Reversal"
 msgstr ""
 
 #. module: sale_timesheet
@@ -353,40 +365,35 @@ msgid "Analytic lines"
 msgstr "البنود التحليلية"
 
 #. module: sale_timesheet
-#: model_terms:hr.job,website_description:sale_timesheet.job_engineer
-#: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
-#: model_terms:hr.job,website_description:sale_timesheet.job_labour
+#: model_terms:hr.job,description:sale_timesheet.job_engineer
+#: model_terms:hr.job,description:sale_timesheet.job_interior_designer
+#: model_terms:hr.job,description:sale_timesheet.job_labour
 msgid ""
 "As an employee of our company, you will <b>collaborate with each department\n"
-"                        to create and deploy disruptive products.</b> Come "
-"work at a growing company\n"
-"                        that offers great benefits with opportunities to "
-"moving forward and learn\n"
-"                        alongside accomplished leaders. We're seeking an "
-"experienced and outstanding\n"
-"                        member of staff.\n"
-"                        <br><br>\n"
-"                        This position is both <b>creative and rigorous</b> "
-"by nature you need to think\n"
-"                        outside the box. We expect the candidate to be "
-"proactive and have a \"get it done\"\n"
-"                        spirit. To be successful, you will have solid "
-"solving problem skills."
+"to create and deploy disruptive products.</b> Come work at a growing "
+"company\n"
+"that offers great benefits with opportunities to moving forward and learn\n"
+"alongside accomplished leaders. We're seeking an experienced and "
+"outstanding\n"
+"member of staff.\n"
+"<br><br>\n"
+"This position is both <b>creative and rigorous</b> by nature you need to "
+"think\n"
+"outside the box. We expect the candidate to be proactive and have a \"get it "
+"done\"\n"
+"spirit. To be successful, you will have solid solving problem skills."
 msgstr ""
 "كموظف في شركتنا، سوف <b>تتعاون مع كل من الأقسام\n"
-"                        لإنشاء المنتجات الثورية وجعلها متاحة للاستخدام.</b> "
-"انضم إلينا للعمل في شركة في نمو مستمر\n"
-"                        والتي تمنحك الكثير من الفوائد والفرص للمضي قدماً "
-"والتعلم \n"
-"                        بجانب القادة المتميزين. نحن نبحث عن موظف ذو خبرة\n"
-"                        ومميز في عمله.\n"
-"                        <br><br>\n"
-"                        هذا المنصب <b>مبدع وحازم</b> في آن واحد. عليك "
-"التفكير خارج\n"
-"                        الصندوق بطبيعتك. نتوقع من المُرشح أن يكون سبّاقاً وأن "
-"تكون لديه روح مفعمة بالعزم والحيوية\n"
-"                        حتى يكون ناجحاً، من المهم أن يكون لديه مهارة حل "
-"المشاكل."
+"لإنشاء المنتجات الثورية وجعلها متاحة للاستخدام.</b> انضم إلينا للعمل في شركة "
+"في نمو مستمر\n"
+"والتي تمنحك الكثير من الفوائد والفرص للمضي قدماً والتعلم \n"
+"بجانب القادة المتميزين. نحن نبحث عن موظف ذو خبرة\n"
+"ومميز في عمله.\n"
+"<br/><br/>\n"
+"هذا المنصب <b>مبدع وحازم</b> في آن واحد. عليك التفكير خارج\n"
+"الصندوق بطبيعتك. نتوقع من المُرشح أن يكون سبّاقاً وأن تكون لديه روح مفعمة "
+"بالعزم والحيوية\n"
+"حتى يكون ناجحاً، من المهم أن يكون لديه مهارة حل المشاكل."
 
 #. module: sale_timesheet
 #: model_terms:hr.job,website_description:sale_timesheet.job_engineer
@@ -403,6 +410,7 @@ msgstr "بناءً على الجداول الزمنية"
 
 #. module: sale_timesheet
 #: model:ir.model.fields,field_description:sale_timesheet.field_account_analytic_line__allow_billable
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_view_search
 msgid "Billable"
 msgstr "قابل للفوترة"
 
@@ -412,42 +420,9 @@ msgid "Billable Time"
 msgstr "الوقت القابل للفوترة"
 
 #. module: sale_timesheet
-#: model:ir.model.fields,field_description:sale_timesheet.field_account_analytic_line__timesheet_invoice_type
-#: model:ir.model.fields,field_description:sale_timesheet.field_timesheets_analysis_report__timesheet_invoice_type
+#: model:ir.model.fields,field_description:sale_timesheet.field_timesheets_analysis_report__billable_type
 msgid "Billable Type"
 msgstr "النوع القابل للفوترة"
-
-#. module: sale_timesheet
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__account_analytic_line__timesheet_invoice_type__billable_manual
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__timesheets_analysis_report__timesheet_invoice_type__billable_manual
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_view_search
-msgid "Billed Manually"
-msgstr "تتم الفوترة يدوياً"
-
-#. module: sale_timesheet
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_view_search
-msgid "Billed at a Fixed Price"
-msgstr "مفوترة بسعر ثابت"
-
-#. module: sale_timesheet
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__account_analytic_line__timesheet_invoice_type__billable_fixed
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__timesheets_analysis_report__timesheet_invoice_type__billable_fixed
-msgid "Billed at a Fixed price"
-msgstr "مفوترة بسعر ثابت"
-
-#. module: sale_timesheet
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__account_analytic_line__timesheet_invoice_type__billable_milestones
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__timesheets_analysis_report__timesheet_invoice_type__billable_milestones
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_view_search
-msgid "Billed on Milestones"
-msgstr "الفوترة حسب مؤشرات التقدم"
-
-#. module: sale_timesheet
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__account_analytic_line__timesheet_invoice_type__billable_time
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__timesheets_analysis_report__timesheet_invoice_type__billable_time
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_view_search
-msgid "Billed on Timesheets"
-msgstr "مفوتر في الجداول الزمنية"
 
 #. module: sale_timesheet
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.res_config_settings_view_form
@@ -523,11 +498,6 @@ msgid "Customer Care (Prepaid Hours)"
 msgstr "خدمة العملاء (الساعات المدفوعة مسبقاً)"
 
 #. module: sale_timesheet
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.project_project_view_kanban_inherit_sale_timesheet
-msgid "Customer Ratings"
-msgstr "تقييمات العميل"
-
-#. module: sale_timesheet
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.portal_my_timesheets_inherit
 msgid "Days Ordered,"
 msgstr "الأيام المطلوبة،"
@@ -549,7 +519,9 @@ msgstr "استكشف منتجاتنا."
 #: model:ir.model.fields,field_description:sale_timesheet.field_account_move__display_name
 #: model:ir.model.fields,field_description:sale_timesheet.field_account_move_line__display_name
 #: model:ir.model.fields,field_description:sale_timesheet.field_account_move_reversal__display_name
+#: model:ir.model.fields,field_description:sale_timesheet.field_account_move_send__display_name
 #: model:ir.model.fields,field_description:sale_timesheet.field_hr_employee__display_name
+#: model:ir.model.fields,field_description:sale_timesheet.field_hr_employee_departure__display_name
 #: model:ir.model.fields,field_description:sale_timesheet.field_product_product__display_name
 #: model:ir.model.fields,field_description:sale_timesheet.field_product_template__display_name
 #: model:ir.model.fields,field_description:sale_timesheet.field_project_project__display_name
@@ -612,6 +584,11 @@ msgstr "تركيب المصاعد"
 #: model:ir.model.fields,field_description:sale_timesheet.field_project_sale_line_employee_map__employee_id
 msgid "Employee"
 msgstr "الموظف"
+
+#. module: sale_timesheet
+#: model:ir.model,name:sale_timesheet.model_hr_employee_departure
+msgid "Employee Departure"
+msgstr ""
 
 #. module: sale_timesheet
 #: model:ir.model.fields.selection,name:sale_timesheet.selection__project_project__pricing_type__employee_rate
@@ -705,7 +682,9 @@ msgstr "ساعات متبقية)"
 #: model:ir.model.fields,field_description:sale_timesheet.field_account_move__id
 #: model:ir.model.fields,field_description:sale_timesheet.field_account_move_line__id
 #: model:ir.model.fields,field_description:sale_timesheet.field_account_move_reversal__id
+#: model:ir.model.fields,field_description:sale_timesheet.field_account_move_send__id
 #: model:ir.model.fields,field_description:sale_timesheet.field_hr_employee__id
+#: model:ir.model.fields,field_description:sale_timesheet.field_hr_employee_departure__id
 #: model:ir.model.fields,field_description:sale_timesheet.field_product_product__id
 #: model:ir.model.fields,field_description:sale_timesheet.field_product_template__id
 #: model:ir.model.fields,field_description:sale_timesheet.field_project_project__id
@@ -733,12 +712,11 @@ msgstr "التصميم الداخلي"
 #. module: sale_timesheet
 #. odoo-python
 #: code:addons/sale_timesheet/controllers/portal.py:0
-#: code:addons/sale_timesheet/models/hr_timesheet.py:0
-#: model:ir.model.fields,field_description:sale_timesheet.field_account_analytic_line__timesheet_invoice_id
-#: model:ir.model.fields,field_description:sale_timesheet.field_timesheets_analysis_report__timesheet_invoice_id
+#: code:addons/sale_timesheet/models/account_analytic_line.py:0
+#: model:ir.model.fields,field_description:sale_timesheet.field_timesheets_analysis_report__reinvoice_move_id
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.portal_my_timesheets_inherit
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.report_timesheet_account_move
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_view_search
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_sale_page
 msgid "Invoice"
 msgstr "الفاتورة"
 
@@ -754,8 +732,7 @@ msgid "Invoice based on timesheets (delivered quantity)."
 msgstr "قم بالفوترة بناءً على الجداول الزمنية (الكميات التي قد تم توصيلها)."
 
 #. module: sale_timesheet
-#: model:ir.model.fields,help:sale_timesheet.field_account_analytic_line__timesheet_invoice_id
-#: model:ir.model.fields,help:sale_timesheet.field_timesheets_analysis_report__timesheet_invoice_id
+#: model:ir.model.fields,help:sale_timesheet.field_timesheets_analysis_report__reinvoice_move_id
 msgid "Invoice created from the timesheet"
 msgstr "الفاتورة المنشأة من الجداول الزمنية"
 
@@ -786,6 +763,11 @@ msgid "Journal Entry"
 msgstr "قيد اليومية"
 
 #. module: sale_timesheet
+#: model:ir.model,name:sale_timesheet.model_account_move_reversal
+msgid "Journal Entry Reversal"
+msgstr ""
+
+#. module: sale_timesheet
 #: model:ir.model,name:sale_timesheet.model_account_move_line
 msgid "Journal Item"
 msgstr "عنصر اليومية"
@@ -803,7 +785,7 @@ msgstr "تركيب المطبخ (مؤشرات التقدم)"
 #. module: sale_timesheet
 #: model:ir.model.fields,field_description:sale_timesheet.field_project_task__last_sol_of_customer
 msgid "Last Sol Of Customer"
-msgstr ""
+msgstr "آخر بند أمر مبيعات للعميل"
 
 #. module: sale_timesheet
 #: model:ir.model.fields,field_description:sale_timesheet.field_project_sale_line_employee_map__write_uid
@@ -852,12 +834,6 @@ msgid "Master demos of our software"
 msgstr "النسخ التجريبية الرئيسية لبرنامجنا"
 
 #. module: sale_timesheet
-#. odoo-python
-#: code:addons/sale_timesheet/models/project_project.py:0
-msgid "Materials"
-msgstr "المواد"
-
-#. module: sale_timesheet
 #: model:ir.model.fields,field_description:sale_timesheet.field_sale_order_line__qty_delivered_method
 msgid "Method to update delivered qty"
 msgstr "طريقة تحديث الكمية التي قد تم توصيلها"
@@ -866,6 +842,11 @@ msgstr "طريقة تحديث الكمية التي قد تم توصيلها"
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.product_template_view_search_sale_timesheet
 msgid "Milestone services"
 msgstr "خدمات مؤشرات الأداء"
+
+#. module: sale_timesheet
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.hr_timesheet_line_search
+msgid "Mine"
+msgstr ""
 
 #. module: sale_timesheet
 #: model_terms:hr.job,website_description:sale_timesheet.job_engineer
@@ -926,8 +907,6 @@ msgstr ""
 "والاستقلالية"
 
 #. module: sale_timesheet
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__account_analytic_line__timesheet_invoice_type__non_billable
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__timesheets_analysis_report__timesheet_invoice_type__non_billable
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_view_search
 msgid "Non-Billable"
 msgstr "غير قابلة للفوترة"
@@ -953,6 +932,13 @@ msgstr "الوقت غير القابل للفوترة"
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.portal_my_timesheets_inherit
 msgid "Not Billed"
 msgstr "غير مفوتر"
+
+#. module: sale_timesheet
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.view_product_timesheet_form
+msgid ""
+"Notify the salesperson about an upsell opportunity when completed work "
+"exceeds"
+msgstr ""
 
 #. module: sale_timesheet
 #: model:ir.model.fields,help:sale_timesheet.field_timesheets_analysis_report__timesheet_revenues
@@ -985,21 +971,9 @@ msgstr ""
 "تمييز."
 
 #. module: sale_timesheet
-#: model:ir.model.fields,field_description:sale_timesheet.field_account_analytic_line__order_id
-msgid "Order Reference"
-msgstr "مرجع الطلب"
-
-#. module: sale_timesheet
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__account_analytic_line__timesheet_invoice_type__other_costs
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__timesheets_analysis_report__timesheet_invoice_type__other_costs
-msgid "Other costs"
-msgstr "التكاليف الأخرى"
-
-#. module: sale_timesheet
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__account_analytic_line__timesheet_invoice_type__other_revenues
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__timesheets_analysis_report__timesheet_invoice_type__other_revenues
-msgid "Other revenues"
-msgstr "الإيرادات الأخرى"
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_sale_page
+msgid "Order"
+msgstr ""
 
 #. module: sale_timesheet
 #: model_terms:hr.job,website_description:sale_timesheet.job_engineer
@@ -1054,6 +1028,7 @@ msgstr "الأسعار"
 
 #. module: sale_timesheet
 #: model:ir.model,name:sale_timesheet.model_product_template
+#: model:ir.model.fields,field_description:sale_timesheet.field_account_analytic_line__product_id
 msgid "Product"
 msgstr "المنتج"
 
@@ -1132,11 +1107,6 @@ msgid "Roofing"
 msgstr "تركيب الأسقف"
 
 #. module: sale_timesheet
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_sale_page
-msgid "S0001"
-msgstr "S0001"
-
-#. module: sale_timesheet
 #: model:ir.model,name:sale_timesheet.model_sale_advance_payment_inv
 msgid "Sales Advance Payment Invoice"
 msgstr "فاتورة الدفعة المقدمة للمبيعات"
@@ -1144,7 +1114,7 @@ msgstr "فاتورة الدفعة المقدمة للمبيعات"
 #. module: sale_timesheet
 #. odoo-python
 #: code:addons/sale_timesheet/controllers/portal.py:0
-#: code:addons/sale_timesheet/models/hr_timesheet.py:0
+#: code:addons/sale_timesheet/models/account_analytic_line.py:0
 #: model:ir.model,name:sale_timesheet.model_sale_order
 #: model:ir.model.fields,field_description:sale_timesheet.field_project_task__sale_order_id
 #: model:ir.model.fields,field_description:sale_timesheet.field_timesheets_analysis_report__order_id
@@ -1162,6 +1132,7 @@ msgstr "أمر البيع"
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.portal_my_timesheets_inherit
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.portal_timesheet_table_inherit
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.report_timesheet_sale_order
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.report_timesheet_sale_timesheet
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_view_search
 msgid "Sales Order Item"
 msgstr "عنصر أمر المبيعات"
@@ -1172,9 +1143,14 @@ msgid "Sales Order Line"
 msgstr "بند أمر المبيعات"
 
 #. module: sale_timesheet
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.project_project_view_kanban_inherit_sale_timesheet_so_button
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.project_project_view_card_inherit_sale_timesheet_so_button
 msgid "Sales Orders"
 msgstr "أوامر البيع"
+
+#. module: sale_timesheet
+#: model:ir.module.module,shortdesc:base.module_sale_timesheet
+msgid "Sales Timesheet"
+msgstr ""
 
 #. module: sale_timesheet
 #: model:ir.model.fields,help:sale_timesheet.field_project_project__sale_line_employee_ids
@@ -1229,6 +1205,11 @@ msgid "Search in Sales Order Item"
 msgstr "البحث في عنصر أمر البيع"
 
 #. module: sale_timesheet
+#: model:ir.module.module,summary:base.module_sale_timesheet
+msgid "Sell based on timesheets"
+msgstr ""
+
+#. module: sale_timesheet
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.res_config_settings_view_form
 msgid "Sell services and invoice time spent"
 msgstr "قم ببيع الخدمات وفوترة الوقت المقضي"
@@ -1237,12 +1218,6 @@ msgstr "قم ببيع الخدمات وفوترة الوقت المقضي"
 #: model:product.template,name:sale_timesheet.product_service_deliver_timesheet_1_product_template
 msgid "Senior Architect (Invoice on Timesheets)"
 msgstr "مهندس معماري كبير (الفوترة على الجداول الزمنية)"
-
-#. module: sale_timesheet
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__account_analytic_line__timesheet_invoice_type__service_revenues
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__timesheets_analysis_report__timesheet_invoice_type__service_revenues
-msgid "Service Revenues"
-msgstr "إيرادات الخدمة"
 
 #. module: sale_timesheet
 #: model:product.template,name:sale_timesheet.time_product_product_template
@@ -1265,6 +1240,11 @@ msgstr ""
 #: model:project.project,label_tasks:sale_timesheet.project_support
 msgid "Services"
 msgstr "الخدمات"
+
+#. module: sale_timesheet
+#: model:ir.model,name:sale_timesheet.model_account_move_send
+msgid "Shared Send Invoice Wizard Functions"
+msgstr ""
 
 #. module: sale_timesheet
 #: model:hr.job,name:sale_timesheet.job_engineer
@@ -1361,18 +1341,13 @@ msgstr ""
 "البشرية للموظف"
 
 #. module: sale_timesheet
-#. odoo-python
-#: code:addons/sale_timesheet/models/project_project.py:0
-msgid "This project is current linked to timesheet."
-msgstr ""
-
-#. module: sale_timesheet
 #: model:ir.model.fields,field_description:sale_timesheet.field_product_product__service_upsell_threshold
 #: model:ir.model.fields,field_description:sale_timesheet.field_product_template__service_upsell_threshold
 msgid "Threshold"
 msgstr "الحد الأدنى"
 
 #. module: sale_timesheet
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.project_project_view_form
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.res_config_settings_view_form
 msgid "Time Billing"
 msgstr "فوترة الوقت"
@@ -1428,8 +1403,6 @@ msgstr "تقرير الجداول الزمنية"
 
 #. module: sale_timesheet
 #: model:ir.model.fields,field_description:sale_timesheet.field_timesheets_analysis_report__timesheet_revenues
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__account_analytic_line__timesheet_invoice_type__timesheet_revenues
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__timesheets_analysis_report__timesheet_invoice_type__timesheet_revenues
 msgid "Timesheet Revenues"
 msgstr "إيرادات الجداول الزمنية"
 
@@ -1448,6 +1421,7 @@ msgstr "إجمالي مدة الجداول الزمنية"
 #: model:ir.actions.report,name:sale_timesheet.timesheet_report_account_move
 #: model:ir.actions.report,name:sale_timesheet.timesheet_report_sale_order
 #: model:ir.model.fields.selection,name:sale_timesheet.selection__sale_order_line__qty_delivered_method__timesheet
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_sale_page
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheets_analysis_report_graph_invoice_type
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.view_hr_timesheet_line_pivot_billing_rate
 msgid "Timesheets"
@@ -1455,33 +1429,33 @@ msgstr "الجداول الزمنية"
 
 #. module: sale_timesheet
 #. odoo-python
-#: code:addons/sale_timesheet/models/project_project.py:0
-msgid "Timesheets (Billed Manually)"
-msgstr "الجداول الزمنية (تتم فوترتها يدوياً)"
-
-#. module: sale_timesheet
-#. odoo-python
-#: code:addons/sale_timesheet/models/project_project.py:0
-msgid "Timesheets (Billed on Milestones)"
-msgstr "الجداول الزمنية (تتم فوترتها حسب مؤشرات التقدم)"
-
-#. module: sale_timesheet
-#. odoo-python
-#: code:addons/sale_timesheet/models/project_project.py:0
-msgid "Timesheets (Billed on Timesheets)"
-msgstr "الجداول الزمنية (تتم فوترتها حسب الجداول الزمنية)"
-
-#. module: sale_timesheet
-#. odoo-python
-#: code:addons/sale_timesheet/models/project_project.py:0
+#: code:addons/sale_timesheet/models/account_analytic_line.py:0
 msgid "Timesheets (Fixed Price)"
 msgstr "الجداول الزمنية (سعر ثابت)"
 
 #. module: sale_timesheet
 #. odoo-python
-#: code:addons/sale_timesheet/models/project_project.py:0
+#: code:addons/sale_timesheet/models/account_analytic_line.py:0
+msgid "Timesheets (Manual)"
+msgstr ""
+
+#. module: sale_timesheet
+#. odoo-python
+#: code:addons/sale_timesheet/models/account_analytic_line.py:0
+msgid "Timesheets (Milestones)"
+msgstr ""
+
+#. module: sale_timesheet
+#. odoo-python
+#: code:addons/sale_timesheet/models/account_analytic_line.py:0
 msgid "Timesheets (Non-Billable)"
 msgstr "الجداول الزمنية (غير قابلة للفوترة)"
+
+#. module: sale_timesheet
+#. odoo-python
+#: code:addons/sale_timesheet/models/account_analytic_line.py:0
+msgid "Timesheets (Time & Materials)"
+msgstr ""
 
 #. module: sale_timesheet
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheets_analysis_report_pivot_invoice_type
@@ -1504,11 +1478,6 @@ msgid "Timesheets by Billing Type"
 msgstr "الجداول الزمنية حسب نوع الفوترة"
 
 #. module: sale_timesheet
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_sale_page
-msgid "Timesheets for the"
-msgstr "الجداول الزمنية لـ"
-
-#. module: sale_timesheet
 #. odoo-python
 #: code:addons/sale_timesheet/models/project_project.py:0
 msgid "Timesheets of %s"
@@ -1518,12 +1487,6 @@ msgstr "الجداول الزمنية لـ %s"
 #: model:ir.model.fields.selection,name:sale_timesheet.selection__product_template__service_type__timesheet
 msgid "Timesheets on project (one fare per SO/Project)"
 msgstr "الجداول الزمنية للمشروع (أجرة واحدة لكل أمر بيع/مشروع)"
-
-#. module: sale_timesheet
-#. odoo-python
-#: code:addons/sale_timesheet/models/project_project.py:0
-msgid "Timesheets revenues"
-msgstr "إيرادات الجداول الزمنية"
 
 #. module: sale_timesheet
 #: model:ir.model.fields,help:sale_timesheet.field_timesheets_analysis_report__margin
@@ -1539,12 +1502,6 @@ msgstr "الجداول الزمنية التي يتم اعتبارها عند ف
 #: model:ir.model.fields,help:sale_timesheet.field_res_config_settings__invoice_policy
 msgid "Timesheets taken when invoicing time spent"
 msgstr "الجداول الزمنية التي يتم اعتبارها عند فوترة الوقت المقضي"
-
-#. module: sale_timesheet
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.project_project_view_form
-msgid "Timesheets without a sales order item are reported as"
-msgstr ""
-"يتم الإبلاغ عن الجداول الزمنية التي لا تحتوي على عنصر أمر مبيعات على أنها"
 
 #. module: sale_timesheet
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheets_analysis_report_list_inherited
@@ -1632,11 +1589,6 @@ msgid "View Timesheets"
 msgstr "عرض الجداول الزمنية"
 
 #. module: sale_timesheet
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.view_product_timesheet_form
-msgid "Warn the salesperson for an upsell when work done exceeds"
-msgstr "قم بتحذير مندوب المبيعات للارتقاء بالصفقة عندما يتخطى العمل المنجز"
-
-#. module: sale_timesheet
 #: model_terms:hr.job,website_description:sale_timesheet.job_engineer
 #: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
 #: model_terms:hr.job,website_description:sale_timesheet.job_labour
@@ -1669,15 +1621,15 @@ msgstr "لا يمكنك ربط مشروع قابل للفوترة بعنصر أ�
 
 #. module: sale_timesheet
 #. odoo-python
-#: code:addons/sale_timesheet/models/hr_timesheet.py:0
-msgid "You cannot modify timesheets that are already invoiced."
-msgstr "لا يمكنك تعديل جداول زمنية قد تمت فوترتها بالفعل."
+#: code:addons/sale_timesheet/models/account_analytic_line.py:0
+msgid "You cannot modify timsheets that are already invoiced."
+msgstr ""
 
 #. module: sale_timesheet
 #. odoo-python
-#: code:addons/sale_timesheet/models/hr_timesheet.py:0
-msgid "You cannot remove a timesheet that has already been invoiced."
-msgstr "لا يمكنك إزالة جداول زمنية قد تمت فوترتها بالفعل."
+#: code:addons/sale_timesheet/models/account_analytic_line.py:0
+msgid "You cannot remove timsheets that are already invoiced."
+msgstr ""
 
 #. module: sale_timesheet
 #: model:ir.model.fields.selection,name:sale_timesheet.selection__project_project__billing_type__manually
@@ -1697,8 +1649,8 @@ msgstr "غير قابل للفوترة"
 
 #. module: sale_timesheet
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.view_product_timesheet_form
-msgid "of hours sold."
-msgstr "من الساعات المباعة."
+msgid "of the hours sold."
+msgstr ""
 
 #. module: sale_timesheet
 #. odoo-python
@@ -1706,408 +1658,5 @@ msgstr "من الساعات المباعة."
 msgid "project_id"
 msgstr "project_id"
 
-#. module: sale_timesheet
-#. odoo-python
-#: code:addons/sale_timesheet/models/sale_order_line.py:0
-msgid "remaining"
-msgstr "متبقي"
-
-#~ msgid " Candidate Orders"
-#~ msgstr "طلبات المرشح "
-
-#~ msgid ""
-#~ "% of timesheets that are billable compared to the total number of "
-#~ "timesheets linked to the AA of the project, rounded to the unit."
-#~ msgstr ""
-#~ "نسبة الجداول الزمنية القابلة للفوترة مقارنة بإجمالي عدد الجداول الزمنية "
-#~ "المرتبطة بـ AA المشروع، مقربة إلى الوحدة. "
-
-#~ msgid "%(amount)s %(label)s will be added to the new Sales Order."
-#~ msgstr "سةف تتم إضافة %(amount)s %(label)s إلى أمر البيع الجديد. "
-
-#~ msgid ", for a revenue of"
-#~ msgstr "، لإيرادات تصل إلى "
-
-#~ msgid ", leading to a"
-#~ msgstr "، مما يؤدي إلى "
-
-#~ msgid "<strong>To invoice:</strong>"
-#~ msgstr "<strong>بانتظار الفوترة:</strong> "
-
-#~ msgid "<u>Profitability</u>"
-#~ msgstr "<u>الربحية</u> "
-
-#~ msgid "About us"
-#~ msgstr "من نحن"
-
-#~ msgid "Allocated Hours"
-#~ msgstr "الساعات المخصصة "
-
-#~ msgid "Amount to invoice"
-#~ msgstr "المبلغ بانتظار الفوترة "
-
-#~ msgid ""
-#~ "As a leading professional services firm,\n"
-#~ "                                we know that success is all about the\n"
-#~ "                                commitment we put on strong services."
-#~ msgstr ""
-#~ "كمؤسسة محترفة ورائدة في تقديم الخدمات،\n"
-#~ "                                ندرك أن مفتاح النجاح هو الالتزام الذي\n"
-#~ "                                نحذو حذوه عند تقديمنا لخدماتنا القوية. "
-
-#~ msgid "At least one line should be filled."
-#~ msgstr "يجب ملء بند واحد على الأقل."
-
-#~ msgid "Billable Hours"
-#~ msgstr "ساعات للفوترة"
-
-#~ msgid "Billable Percentage"
-#~ msgstr "النسبة القابلة للفوترة "
-
-#~ msgid "Choose the Sales Order to invoice"
-#~ msgstr "اختر أمر المبيعات الذي ترغب في فوترته "
-
-#~ msgid "Commercial Entity"
-#~ msgstr "الكيان التجاري"
-
-#~ msgid "Company"
-#~ msgstr "الشركة "
-
-#~ msgid "Cost Currency"
-#~ msgstr "عملة التكلفة "
-
-#~ msgid "Create Invoice"
-#~ msgstr "إنشاء فاتورة"
-
-#~ msgid "Create Invoice from project"
-#~ msgstr "إنشاء فاتورة من المشروع"
-
-#~ msgid "Create SO Line from project"
-#~ msgstr "إنشاء بند أمر بيع من المشروع"
-
-#~ msgid "Create SO from project"
-#~ msgstr "إنشاء أمر بيع من المشروع"
-
-#~ msgid "Create Sales Order"
-#~ msgstr "إنشاء أمر مبيعات"
-
-#~ msgid "Create Sales Order from Project"
-#~ msgstr "إنشاء أمر مبيعات من المشروع"
-
-#~ msgid "Create a Sales Order"
-#~ msgstr "إنشاء أمر مبيعات"
-
-#~ msgid "Customer of the sales order"
-#~ msgstr "عميل أمر المبيعات"
-
-#~ msgid "Display Create Order"
-#~ msgstr "عرض إنشاء الطلب "
-
-#~ msgid "Employee that has timesheets on the project."
-#~ msgstr "الموظف الذي له جداول زمنية في المشروع. "
-
-#~ msgid ""
-#~ "Great quotation templates will significantly\n"
-#~ "                                <strong>boost your success rate</strong>. "
-#~ "The\n"
-#~ "                                first section is usually about your "
-#~ "company,\n"
-#~ "                                your references, your methodology or\n"
-#~ "                                guarantees, your team, SLA, terms and "
-#~ "conditions, etc."
-#~ msgstr ""
-#~ "سوف يعينك استخدام قوالب مميزة لعروض الأسعار على\n"
-#~ "                                <strong>تعزيز معدل نجاحك</strong>.\n"
-#~ "                                عادةً ما يحتوي القسم الأول على تعريف "
-#~ "بشركتك،\n"
-#~ "                                ومراجعك، ومنهجية عملك وضماناتك، وفريقك،\n"
-#~ "                                واتفاقية مستوى الخدمة والشروط والأحكام "
-#~ "التي تعمل بناءً عليها، إلخ. "
-
-#~ msgid "Has Displayed Warning Upsell"
-#~ msgstr "يحتوي على عرض تحذير الارتقاء بالصفقة "
-
-#~ msgid ""
-#~ "If you edit a quotation from the 'Preview' of a quotation, you will\n"
-#~ "                        update that quotation only. If you edit the "
-#~ "quotation\n"
-#~ "                        template (from the Configuration menu), all "
-#~ "future quotations will\n"
-#~ "                        use this modified template."
-#~ msgstr ""
-#~ "إذا قمت بتحرير عرض سعر من شاشة المعاينة، ستُطبق تحديثاتك\n"
-#~ "                        على عرض السعر هذا فقط. أما إذا حررت قالب عرض "
-#~ "السعر\n"
-#~ "                        (من قائمة الإعدادات)، سيتم استخدام القالب المُعدل "
-#~ "في كافة\n"
-#~ "                        عروض الأسعار المستقبلية."
-
-#~ msgid "Info Invoice"
-#~ msgstr "فاتورة العلومات "
-
-#~ msgid ""
-#~ "Invoice based on timesheets (delivered quantity) on projects or tasks "
-#~ "you'll create later on."
-#~ msgstr ""
-#~ "قم بالفوترة بناءً على الجداول الزمنية (الكميات التي قد تم توصيلها) في "
-#~ "المشاريع أو المهام التي ستقوم بإنشائها لاحقاً. "
-
-#~ msgid ""
-#~ "Invoice based on timesheets (delivered quantity), and create a project "
-#~ "for the order with a task for each sales order line to track the time "
-#~ "spent."
-#~ msgstr ""
-#~ "قم بالفوترة بناءً على الجداول الزمنية (الكمية التي قد تم إيصالها)، ثم أنشئ "
-#~ "مشروعاً للأمر مع مهمة لكل بند أمر بيع لتتبع الوقت المقضي. "
-
-#~ msgid ""
-#~ "Invoice based on timesheets (delivered quantity), and create a task in an "
-#~ "existing project to track the time spent."
-#~ msgstr ""
-#~ "قم بالفوترة بناءً على الجداول الزمنية (الكمية التي قد تم إيصالها)، ثم أنشئ "
-#~ "مهمة في مشروع موجود بالفعل لتتبع الوقت المقضي. "
-
-#~ msgid ""
-#~ "Invoice based on timesheets (delivered quantity), and create an empty "
-#~ "project for the order to track the time spent."
-#~ msgstr ""
-#~ "قم بالفوترة بناءً على الجداول الزمنية (الكمية التي قد تم إيصالها)، ثم أنشئ "
-#~ "مشروعاً فارغاً للأمر لتتبع الوقت المقضي. "
-
-#~ msgid "Invoice your time and material to customers"
-#~ msgstr "قم بفوترة وقتك وموادك إلى عملائك "
-
-#~ msgid "Invoiced"
-#~ msgstr "مفوتر"
-
-#~ msgid "Invoicing Timesheet Enabled"
-#~ msgstr "تم تمكين فوترة الجداول الزمنية "
-
-#~ msgid "Is Cost Manually Changed"
-#~ msgstr "تم تغيير التكلفة يدوياً "
-
-#~ msgid "Lines"
-#~ msgstr "البنود"
-
-#~ msgid "No Sales Order"
-#~ msgstr "لا يوجد أمر مبيعات"
-
-#~ msgid "No Sales Order Item"
-#~ msgstr "لا يوجد عنصر لأمر البيع "
-
-#~ msgid "Non Billable Tasks"
-#~ msgstr "المهام غير القابلة للفوترة "
-
-#~ msgid "Non-billable Hours"
-#~ msgstr "ساعات غير قابلة للفوترة"
-
-#~ msgid "Number of timesheets"
-#~ msgstr "عدد الجداول الزمنية "
-
-#~ msgid "Operation not supported"
-#~ msgstr "هذه العملية غير مدعومة "
-
-#~ msgid "Ordered,"
-#~ msgstr "تم طلبه "
-
-#~ msgid "Our Offer"
-#~ msgstr "عرضنا"
-
-#~ msgid "Our Quality"
-#~ msgstr "جودتنا"
-
-#~ msgid "Our Service"
-#~ msgstr "خدمتنا"
-
-#~ msgid "Price"
-#~ msgstr "السعر"
-
-#~ msgid ""
-#~ "Product of the sales order item. Must be a service invoiced based on "
-#~ "timesheets on tasks."
-#~ msgstr ""
-#~ "منتج عنصر أمر المبيعات. يجب أن يكون خدمة مفوترة حسب الجداول الزمنية "
-#~ "المسجلة في المهام. "
-
-#~ msgid ""
-#~ "Product quality is the foundation we\n"
-#~ "                                stand on; we build it with a relentless\n"
-#~ "                                focus on fabric, performance and "
-#~ "craftsmanship."
-#~ msgstr ""
-#~ "جودة المنتج هي الأساس الذي نستند عليه؛\n"
-#~ "                                نحن نبني منتجاتنا بتركيز شديد\n"
-#~ "                                على بنيته، وأداءه، وإتقان صنعته."
-
-#~ msgid "Project Update"
-#~ msgstr "تحديث المشروع "
-
-#~ msgid "Project for which we are creating a sales order"
-#~ msgstr "المشروع الذي ننشئ له أمر مبيعات"
-
-#~ msgid "Project to make billable"
-#~ msgstr "المشروع لجعله قابلاً للفوترة "
-
-#~ msgid "Remaining"
-#~ msgstr "المتبقي"
-
-#~ msgid "Remaining Days on SO"
-#~ msgstr "الأيام المتبقية في أمر البيع  "
-
-#~ msgid "Remaining Hours on SO"
-#~ msgstr "الساعات المتبقية في أمر البيع "
-
-#~ msgid "Remaining)"
-#~ msgstr "متبقية) "
-
-#~ msgid "Sale Order"
-#~ msgstr "أمر البيع"
-
-#~ msgid "Sale Order Analytic Account"
-#~ msgstr "الحساب التحليلي لأمر البيع "
-
-#~ msgid "Sale line/Employee map"
-#~ msgstr "بند البيع/خريطة الموظف"
-
-#~ msgid "Search in Sales Order"
-#~ msgstr "البحث في أمر البيع "
-
-#~ msgid "Select a non billable project on which tasks can be created."
-#~ msgstr "قم بتحديد مشروع غير قابل للفوترة يمكن إنشاء المهام عليه. "
-
-#~ msgid "Service"
-#~ msgstr "الخدمة"
-
-#~ msgid "Service Upsell Threshold Ratio"
-#~ msgstr "نسبة الحد الأدنى للارتقاء بالصفقة للخدمة "
-
-#~ msgid "Sold"
-#~ msgstr "المبيعات "
-
-#~ msgid "Task Recurrence"
-#~ msgstr "تكرار المهمة "
-
-#~ msgid "Tasks"
-#~ msgstr "المهام"
-
-#~ msgid ""
-#~ "The %s product is required by the Timesheets app and cannot be archived "
-#~ "nor deleted."
-#~ msgstr ""
-#~ "يتطلب تطبيق الجداول الزمنية وجود المنتج %s ولا يمكن فوترته أو حذفه. "
-
-#~ msgid ""
-#~ "The Sales Order cannot be created because you did not enter some "
-#~ "employees that entered timesheets on this project. Please list all the "
-#~ "relevant employees before creating the Sales Order.\n"
-#~ "Missing employee(s): %s"
-#~ msgstr ""
-#~ "تعذّر إنشاء أمر المبيعات لأنك لم تُدرج بعض الموظفين الذين شاركوا بالجداول "
-#~ "الزمنية في هذا المشروع. يرجى إدراج كافة الموظفين المرتبطين قبل إنشاء أمر "
-#~ "المبيعات.\n"
-#~ "الموظف(ين) المفقودين: %s "
-
-#~ msgid "The cost of the project is now at"
-#~ msgstr "تكلفة المشروع الآن "
-
-#~ msgid "The project has already a sale order."
-#~ msgstr "لدى المشروع أمر بيع بالفعل "
-
-#~ msgid "The project is already linked to a sales order item."
-#~ msgstr "المشروع مرتبط بالفعل بعنصر أمر مبيعات."
-
-#~ msgid ""
-#~ "The sales order cannot be created because some timesheets of this project "
-#~ "are already linked to another sales order."
-#~ msgstr ""
-#~ "لا يمكن إنشاء أمر المبيعات لأن بعض الجداول الزمنية لهذا المشروع مرتبطة "
-#~ "بالفعل بأمر مبيعات آخر. "
-
-#~ msgid "The selected Sales Order should contain something to invoice."
-#~ msgstr "ينبغي أن يحتوي أمر المبيعات المحدد على بنود لفوترتها."
-
-#~ msgid ""
-#~ "This is a <strong>sample quotation template</strong>. You should\n"
-#~ "                                customize it to fit your own needs from "
-#~ "the <i>Sales</i>\n"
-#~ "                                application, using the menu: "
-#~ "Configuration /\n"
-#~ "                                Quotation Templates."
-#~ msgstr ""
-#~ "هذا <strong>نموذج قالب عرض سعر</strong>. عليك تخصيصه\n"
-#~ "                                من تطبيق <i>المبيعات</i> ليناسب "
-#~ "احتياجاتك، \n"
-#~ "                                باستخدام القائمة: تهيئة /\n"
-#~ "                                قوالب عروض الأسعار. "
-
-#~ msgid "Timesheet Encoding Unit"
-#~ msgstr "وحدة ترميز الجداول الزمنية "
-
-#~ msgid "Timesheet activities"
-#~ msgstr "أنشطة الجداول الزمنية "
-
-#~ msgid "Timesheets (Non Billable)"
-#~ msgstr "الجداول الزمنية (غير قابلة للفوترة) "
-
-#~ msgid ""
-#~ "Total amount to invoice on the sales order, including all items "
-#~ "(services, storables, expenses, ...)"
-#~ msgstr ""
-#~ "إجمالي المبلغ المراد فوترته في أمر المبيعات، شامل كافة العناصر (الخدمات، "
-#~ "والمنتجات المخزنة، والنفقات،...) "
-
-#~ msgid "Total:"
-#~ msgstr "الإجمالي:"
-
-#~ msgid "Unit price of the sales order item."
-#~ msgstr "سعر وحدة عنصر أمر المبيعات."
-
-#~ msgid "Value does not exist in the pricing type"
-#~ msgstr "القيمة غير موجودة في نوع التسعير "
-
-#~ msgid "Warning Employee Rate"
-#~ msgstr "تحذير سعر الموظف "
-
-#~ msgid ""
-#~ "We always ensure that our products are\n"
-#~ "                                set at a fair price so that you will be\n"
-#~ "                                happy to buy them."
-#~ msgstr ""
-#~ "نحرص دائمًا على عرض منتجاتنا\n"
-#~ "                                بأسعار معقولة\n"
-#~ "                                حتى تسعد بشرائها. "
-
-#~ msgid "Wizard"
-#~ msgstr "المعالج"
-
-#~ msgid ""
-#~ "You can <strong>set a description per product</strong>. Odoo will\n"
-#~ "                        automatically create a quotation using the "
-#~ "descriptions\n"
-#~ "                        of all products in the proposal. The table of "
-#~ "content\n"
-#~ "                        on the left is generated automatically using the "
-#~ "styles you\n"
-#~ "                        used in your description (heading 1, heading "
-#~ "2, ...)"
-#~ msgstr ""
-#~ "يمكنك تعيين <strong>وصف لكل منتج</strong>. سوف يقوم أودو\n"
-#~ "                        تلقائيًا بإنشاء عرض أسعار باستخدام الأوصاف "
-#~ "المتوفرة\n"
-#~ "                        للمنتجات في العرض المقدّم. يتم إنشاء جدول "
-#~ "المحتويات\n"
-#~ "                        الموجود على اليسار تلقائيًا باستخدام الأنماط التي "
-#~ "استخدمتها\n"
-#~ "                        في وصفك (العنوان 1، العنوان 2، ...)"
-
-#~ msgid "You can only apply this action from a project."
-#~ msgstr "لا يمكن تطبيق هذا الإجراء إلا من مشروع."
-
-#~ msgid "days"
-#~ msgstr "يوم"
-
-#~ msgid "hours"
-#~ msgstr "ساعات"
-
-#~ msgid "margin ("
-#~ msgstr "هامش ("
+#~ msgid "Service Revenues"
+#~ msgstr "إيرادات الخدمة"

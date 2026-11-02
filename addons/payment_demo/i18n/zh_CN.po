@@ -3,55 +3,23 @@
 # * payment_demo
 #
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+# "Chloe Wang (chwa)" <chwa@odoo.com>, 2026.
+# 张飞虎 <feihu.zhang@live.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-03 18:39+0000\n"
-"PO-Revision-Date: 2025-09-16 15:34+0000\n"
-"Last-Translator: \"Tiffany Chang (tic)\" <tic@odoo.com>\n"
+"POT-Creation-Date: 2026-08-28 17:44+0000\n"
+"PO-Revision-Date: 2026-10-11 13:33+0000\n"
+"Last-Translator: 张飞虎 <feihu.zhang@live.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://translate.odoo.com/"
-"projects/odoo-19/payment_demo/zh_Hans/>\n"
+"projects/odoo-20/payment_demo/zh_Hans/>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
-
-#. module: payment_demo
-#: model_terms:ir.ui.view,arch_db:payment_demo.payment_details
-msgid ""
-"<select id=\"simulated_payment_state\" class=\"form-select\">\n"
-"                    <option value=\"done\" title=\"Successful payment\">\n"
-"                        Successful\n"
-"                    </option>\n"
-"                    <option value=\"pending\" title=\"Payment processing\">\n"
-"                        Pending\n"
-"                    </option>\n"
-"                    <option value=\"cancel\" title=\"Payment cancelled by "
-"customer\">\n"
-"                        Cancelled\n"
-"                    </option>\n"
-"                    <option value=\"error\" title=\"Processing error\">\n"
-"                        Error\n"
-"                    </option>\n"
-"                </select>"
-msgstr ""
-"<select id=\"simulated_payment_state\" class=\"form-select\">\n"
-"                    <option value=\"完成\" title=\"成功支付\">\n"
-"                        成功\n"
-"                    </option>\n"
-"                    <option value=\"进行中\" title=\"正在支付\">\n"
-"                        处理中\n"
-"                    </option>\n"
-"                    <option value=\"取消\" title=\"客户已取消支付\">\n"
-"                        已取消\n"
-"                    </option>\n"
-"                    <option value=\"错误\" title=\"处理错误\">\n"
-"                        错误\n"
-"                    </option>\n"
-"                </select>"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: payment_demo
 #: model_terms:ir.ui.view,arch_db:payment_demo.express_inline_form
@@ -99,6 +67,22 @@ msgid "<small>Street 2</small>"
 msgstr "<small>街道 2</small>"
 
 #. module: payment_demo
+#: model_terms:ir.ui.view,arch_db:payment_demo.express_checkout_form
+msgid ""
+"<span class=\"badge rounded-pill text-bg-warning ms-1\">\n"
+"                                Test Mode\n"
+"                            </span>"
+msgstr ""
+"<span class=\"badge rounded-pill text-bg-warning ms-1\">\n"
+"                                测试模式\n"
+"                            </span>"
+
+#. module: payment_demo
+#: model:ir.module.module,summary:base.module_payment_demo
+msgid "A payment provider for running fake payment flows for demo purposes."
+msgstr "用于演示目的的模拟支付流程的支付提供商。"
+
+#. module: payment_demo
 #: model_terms:ir.ui.view,arch_db:payment_demo.payment_transaction_form
 msgid "Authorize"
 msgstr "授权"
@@ -106,7 +90,7 @@ msgstr "授权"
 #. module: payment_demo
 #: model_terms:ir.ui.view,arch_db:payment_demo.express_inline_form
 msgid "Belgium"
-msgstr ""
+msgstr "比利时"
 
 #. module: payment_demo
 #: model_terms:ir.ui.view,arch_db:payment_demo.payment_transaction_form
@@ -119,20 +103,9 @@ msgid "Canceled"
 msgstr "已取消"
 
 #. module: payment_demo
-#: model:ir.model.fields,field_description:payment_demo.field_payment_transaction__capture_manually
-msgid "Capture Amount Manually"
-msgstr "手动获取金额"
-
-#. module: payment_demo
-#: model:ir.model.fields,help:payment_demo.field_payment_transaction__capture_manually
-msgid ""
-"Capture the amount from Odoo, when the delivery is completed.\n"
-"Use this if you want to charge your customers cards only when\n"
-"you are sure you can ship the goods to them."
-msgstr ""
-"当交货完成时，从Odoo获取金额。\n"
-"如果您想在确定您可以向客户发货时才从客户的卡上扣款，就可以使用这个方法。\n"
-"您确定您能把货物运给他们时才使用。"
+#: model_terms:ir.ui.view,arch_db:payment_demo.payment_details
+msgid "Cancelled"
+msgstr "已取消"
 
 #. module: payment_demo
 #: model_terms:ir.ui.view,arch_db:payment_demo.express_checkout_form
@@ -168,8 +141,8 @@ msgstr "演示快速结账"
 #. module: payment_demo
 #. odoo-python
 #: code:addons/payment_demo/models/payment_provider.py:0
-msgid "Demo providers should never be enabled."
-msgstr "应永久禁用演示提供商。"
+msgid "Demo providers must never be set in live mode."
+msgstr "演示提供商绝不能设置为实时模式。"
 
 #. module: payment_demo
 #: model:ir.model.fields,field_description:payment_demo.field_payment_provider__display_name
@@ -180,8 +153,14 @@ msgstr ""
 
 #. module: payment_demo
 #: model:ir.model.fields.selection,name:payment_demo.selection__payment_token__demo_simulated_state__error
+#: model_terms:ir.ui.view,arch_db:payment_demo.payment_details
 msgid "Error"
 msgstr "错误"
+
+#. module: payment_demo
+#: model:payment.method,name:payment_demo.payment_method_unknown
+msgid "Express Checkout"
+msgstr "快速结账"
 
 #. module: payment_demo
 #: model:ir.model.fields,field_description:payment_demo.field_payment_provider__id
@@ -212,6 +191,11 @@ msgid "Payment Provider"
 msgstr "支付提供商"
 
 #. module: payment_demo
+#: model:ir.module.module,shortdesc:base.module_payment_demo
+msgid "Payment Provider: Demo"
+msgstr "支付提供商：演示"
+
+#. module: payment_demo
 #: model:ir.model,name:payment_demo.model_payment_token
 msgid "Payment Token"
 msgstr "支付令牌"
@@ -220,6 +204,16 @@ msgstr "支付令牌"
 #: model:ir.model,name:payment_demo.model_payment_transaction
 msgid "Payment Transaction"
 msgstr "付款交易"
+
+#. module: payment_demo
+#: model_terms:ir.ui.view,arch_db:payment_demo.payment_details
+msgid "Payment cancelled by customer"
+msgstr "客户取消付款"
+
+#. module: payment_demo
+#: model_terms:ir.ui.view,arch_db:payment_demo.payment_details
+msgid "Payment processing"
+msgstr "支付处理"
 
 #. module: payment_demo
 #. odoo-javascript
@@ -253,14 +247,20 @@ msgstr "使用此付款方式的付款将模拟处理<b>错误</b>。"
 
 #. module: payment_demo
 #: model:ir.model.fields.selection,name:payment_demo.selection__payment_token__demo_simulated_state__pending
+#: model_terms:ir.ui.view,arch_db:payment_demo.payment_details
 msgid "Pending"
 msgstr "待定"
+
+#. module: payment_demo
+#: model_terms:ir.ui.view,arch_db:payment_demo.payment_details
+msgid "Processing error"
+msgstr "处理错误"
 
 #. module: payment_demo
 #. odoo-python
 #: code:addons/payment_demo/controllers/portal.py:0
 msgid "Provider %s is not properly configured."
-msgstr ""
+msgstr "提供商 %s 未正确配置。"
 
 #. module: payment_demo
 #: model_terms:ir.ui.view,arch_db:payment_demo.payment_transaction_form
@@ -273,9 +273,14 @@ msgid "Simulated State"
 msgstr "模拟状态"
 
 #. module: payment_demo
-#: model_terms:ir.ui.view,arch_db:payment_demo.express_checkout_form
-msgid "Test Mode"
-msgstr "测试模式"
+#: model_terms:ir.ui.view,arch_db:payment_demo.payment_details
+msgid "Successful"
+msgstr "成功"
+
+#. module: payment_demo
+#: model_terms:ir.ui.view,arch_db:payment_demo.payment_details
+msgid "Successful payment"
+msgstr "付款成功"
 
 #. module: payment_demo
 #: model:ir.model.fields,help:payment_demo.field_payment_token__demo_simulated_state
@@ -309,8 +314,8 @@ msgstr "XXXX XXXX XXXX XXXX"
 msgid "You selected the following demo payment status: %s"
 msgstr "您选择了以下演示付款状态： %s"
 
-#~ msgid "No transaction found matching reference %s."
-#~ msgstr "没有发现与参考文献%s相匹配的交易。"
+msgid "Demo providers should never be enabled."
+msgstr "应永久禁用演示提供商。"
 
-#~ msgid "The transaction is not linked to a token."
-#~ msgstr "该交易没有与令牌挂钩。"
+msgid "Test Mode"
+msgstr "测试模式"

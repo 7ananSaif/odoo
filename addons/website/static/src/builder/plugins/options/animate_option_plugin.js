@@ -2,12 +2,13 @@ import { Plugin } from "@html_editor/plugin";
 import { withSequence } from "@html_editor/utils/resource";
 import { registry } from "@web/core/registry";
 import { getScrollingElement } from "@web/core/utils/scrolling";
-import { AnimateOption } from "./animate_option";
 import { _t } from "@web/core/l10n/translation";
 import { AnimateText } from "./animate_text";
 import { isHtmlContentSupported } from "@html_editor/core/selection_plugin";
+import { unwrapContents } from "@html_editor/utils/dom";
 import { ancestors, closestElement, findFurthest } from "@html_editor/utils/dom_traversal";
-import { ANIMATE } from "@html_builder/utils/option_sequence";
+import { closestBlock } from "@html_editor/utils/blocks";
+import { containsAnyNonPhrasingContent, isVisibleTextNode } from "@html_editor/utils/dom_info";
 import { childNodeIndex, DIRECTIONS, nodeSize } from "@html_editor/utils/position";
 import { BuilderAction } from "@html_builder/core/builder_action";
 import { EmphasizeAnimatedText } from "./emphasize_animated_text";
@@ -22,11 +23,13 @@ import { applyFunDependOnSelectorAndExclude } from "@html_builder/plugins/utils"
  */
 
 /**
- * @typedef {((editingElement: HTMLElement) => Promise<void>)[]} remove_hover_effect_handlers
- * @typedef {((editingElement: HTMLElement) => Promise<void>)[]} set_hover_effect_handlers
+ * @typedef {((editingElement: HTMLElement) => Promise<void>)[]} on_hover_animation_mode_cleaned_handlers
+ * @typedef {((editingElement: HTMLElement) => Promise<void>)[]} on_hover_animation_mode_applied_handlers
  */
 
 /**
+ * @typedef {((el: HTMLElement) => boolean | undefined)[]} can_have_hover_effect_predicates
+ * @typedef {((el: HTMLElement) => boolean | undefined)[]} can_have_scroll_effect_predicates
  * @typedef {((el: HTMLElement) => Promise<boolean>)[]} hover_effect_allowed_predicates
  */
 
@@ -39,10 +42,10 @@ export class AnimateOptionPlugin extends Plugin {
         "getEffectsItems",
         "hasAnimationEffect",
         "canHaveHoverEffect",
+        "canHaveScrollEffect",
     ];
     /** @type {import("plugins").WebsiteResources} */
     resources = {
-        builder_options: [withSequence(ANIMATE, AnimateOption)],
         toolbar_items: [
             {
                 id: "animateText",
@@ -53,10 +56,10 @@ export class AnimateOptionPlugin extends Plugin {
                     config: this.config.getAnimateTextConfig(),
                     getAnimatedTextOrCreateDefault: this.getAnimatedTextOrCreateDefault.bind(this),
                     isActive: this.isAnimatedTextActive.bind(this),
-                    isDisabled: this.isAnimatedTextDisabled.bind(this),
                     animateOptionProps: { ...this.animateOptionProps, requireAnimation: true },
                 },
                 isAvailable: isHtmlContentSupported,
+                isDisabled: this.isAnimatedTextDisabled.bind(this),
             },
         ],
         toolbar_namespace_providers: [
@@ -73,12 +76,16 @@ export class AnimateOptionPlugin extends Plugin {
             ForceAnimationAction,
             SetAnimationEffectAction,
         },
-        normalize_handlers: this.normalize.bind(this),
-        clean_for_save_handlers: this.cleanForSave.bind(this),
-        unsplittable_node_predicates: (node) => node.classList?.contains("o_animated_text"),
+        normalize_processors: this.normalize.bind(this),
+        clean_for_save_processors: this.cleanForSave.bind(this),
+        is_node_splittable_predicates: (node) => {
+            if (node.classList?.contains("o_animated_text")) {
+                return false;
+            }
+        },
         lower_panel_entries: withSequence(10, { Component: EmphasizeAnimatedText }),
-        on_media_dialog_saved_handlers: withSequence(5, this.onMediaDialogSavedHandlers.bind(this)),
-        before_save_handlers: () =>
+        // This is done to clean the dataset of the images saved in the db.
+        on_will_save_handlers: () =>
             applyFunDependOnSelectorAndExclude(
                 this.cleanImageHoverDataset.bind(this),
                 this.editable,
@@ -87,19 +94,28 @@ export class AnimateOptionPlugin extends Plugin {
                     exclude: "[data-oe-type='image'] > img",
                 }
             ),
+        on_will_save_media_dialog_handlers: withSequence(
+            5,
+            this.onWillSaveMediaDialogHandlers.bind(this)
+        ),
     };
 
     setup() {
         this.scrollingElement = getScrollingElement(this.document);
     }
 
-    async canHaveHoverEffect(el) {
-        const proms = this.getResource("hover_effect_allowed_predicates").map((p) => p(el));
-        const settledProms = await Promise.all(proms);
-        return settledProms.length && settledProms.every(Boolean);
+    canHaveScrollEffect(el) {
+        return this.checkPredicates("can_have_scroll_effect_predicates", el) ?? true;
     }
 
-    async onMediaDialogSavedHandlers(elements, { node }) {
+    async canHaveHoverEffect(el) {
+        const proms = this.getResource("hover_effect_image_dataset_providers").map((p) => p(el));
+        const datasets = await Promise.all(proms);
+        const dataset = Object.assign({}, ...datasets);
+        return this.checkPredicates("can_have_hover_effect_predicates", el, dataset) ?? false;
+    }
+
+    async onWillSaveMediaDialogHandlers(elements, { node }) {
         const callback = async (toProcessEl, nodeEl) => {
             const canImgHaveHoverEffect = await this.canHaveHoverEffect(toProcessEl);
             if (!canImgHaveHoverEffect) {
@@ -197,26 +213,28 @@ export class AnimateOptionPlugin extends Plugin {
 
     /**
      *
-     * @returns {{element: HTMLElement, onReset: Function}|{}}
+     * @returns {{elements: HTMLElement[], onReset: Function}|{}}
      */
     getAnimatedTextOrCreateDefault() {
-        const resetAnimatedText = (el) => {
+        const resetAnimatedText = (elements) => {
             const cursors = this.dependencies.selection.preserveSelection();
-            el.replaceWith(...el.childNodes);
+            for (const element of elements) {
+                unwrapContents(element);
+            }
             cursors.restore();
-            this.dependencies.history.addStep();
+            this.dependencies.history.commit();
         };
 
-        const existingAnimatedTextEl = this.getAnimatedText();
-        if (existingAnimatedTextEl) {
-            return { element: existingAnimatedTextEl, onReset: resetAnimatedText };
+        const existingAnimatedTextEls = this.getAnimatedTexts();
+        if (existingAnimatedTextEls.length) {
+            return { elements: existingAnimatedTextEls, onReset: resetAnimatedText };
         }
         const savePoint = this.dependencies.history.makeSavePoint();
-        const { element: createdAnimatedTextEl, didRemoveOtherTextAnimation } =
+        const { elements: createdAnimatedTextEls, didRemoveOtherTextAnimation } =
             this.createDefaultTextAnimation();
-        if (createdAnimatedTextEl) {
+        if (createdAnimatedTextEls?.length) {
             return {
-                element: createdAnimatedTextEl,
+                elements: createdAnimatedTextEls,
                 onReset: didRemoveOtherTextAnimation ? resetAnimatedText : savePoint,
             };
         }
@@ -241,7 +259,9 @@ export class AnimateOptionPlugin extends Plugin {
         ]) {
             let needToMeetCommonAncestor =
                 node !== commonAncestor && node.parentNode !== commonAncestor;
-            let needToMeetAnimatedTextAncestor = !!closestElement(node, ".o_animated_text");
+            const animatedTextAncestor = closestElement(node, ".o_animated_text");
+            let needToMeetAnimatedTextAncestor =
+                !!animatedTextAncestor && commonAncestor.contains(animatedTextAncestor);
             let updatedCommonAncestor = needToMeetCommonAncestor ? undefined : commonAncestor;
 
             // Go up to the common ancestor of the selection, or to the
@@ -282,94 +302,136 @@ export class AnimateOptionPlugin extends Plugin {
         return commonAncestor;
     }
     /**
-     * Create a span with the default animation, on the selection
+     * Create spans with the default animation on the selected text.
      *
-     * @returns {{element: HTMLElement, didRemoveOtherTextAnimation: boolean}|{}}
+     * A span is created for each selected line within a block so it never
+     * contains block elements. Inline ancestors at the selection
+     * boundaries are split to keep each span limited to the selected content.
+     *
+     * @returns {{elements: HTMLElement[], didRemoveOtherTextAnimation: boolean}|{}}
      */
     createDefaultTextAnimation() {
-        /*
-        We need to create 1 element with the content of the selection to set the
-        text animation. This element must be the only animated text element for
-        the selected text
-
-        To be able to create 1 new element containing the selection, we need to
-        split the elements that are descendants of the common ancestor and that
-        contains one end of the selection.
-
-        To remove any other overlapping animation on text, we need to:
-        - remove the animation on the part of a splitted element that falls
-          inside the selection
-        - split ancestor animated text that fully contains the selection, to
-          remove the animation on the part containing the selection
-        - remove text animation inside of the created element
-
-        If these splits would split an unsplittable node, we abort
-        */
         const selection = this.dependencies.split.splitSelection();
-        const commonAncestor = this.splitForAnimatedText(selection);
-        if (!commonAncestor) {
+        const selectedTextNodes = this.dependencies.selection
+            .getTargetedNodes()
+            .filter((node) => node.nodeType === Node.TEXT_NODE && isVisibleTextNode(node));
+        const textNodeGroups = [];
+        for (const textNode of selectedTextNodes) {
+            const block = closestBlock(textNode);
+            if (!block) {
+                continue;
+            }
+            const lastTextNodeGroup = textNodeGroups.at(-1);
+            const startsNewGroup = !lastTextNodeGroup || lastTextNodeGroup.block !== block;
+            if (!startsNewGroup) {
+                const range = new Range();
+                range.setStartAfter(lastTextNodeGroup.textNodes.at(-1));
+                range.setEndBefore(textNode);
+            }
+            if (startsNewGroup) {
+                textNodeGroups.push({ block, textNodes: [textNode] });
+            } else {
+                lastTextNodeGroup.textNodes.push(textNode);
+            }
+        }
+        if (!textNodeGroups.length) {
             return {};
         }
-        const { startContainer, endContainer, direction } = selection;
 
-        const range = new Range();
-        range.setStartBefore(
-            findFurthest(startContainer, commonAncestor, () => true) || startContainer
-        );
-        range.setEndAfter(findFurthest(endContainer, commonAncestor, () => true) || endContainer);
-        const span = this.document.createElement("span");
-        range.surroundContents(span);
-        // Remove animated text inside the span and containing the span (the ancestors have been split so it only contains the span)
+        const animatedTextEls = [];
         let didRemoveOtherTextAnimation = false;
-        for (const node of [
-            ...span.querySelectorAll(".o_animated_text"),
-            ...ancestors(span, this.editable).filter((n) =>
-                n.classList.contains("o_animated_text")
-            ),
-        ]) {
-            node.replaceWith(...node.childNodes);
-            didRemoveOtherTextAnimation = true;
+        for (const { block, textNodes } of textNodeGroups) {
+            const startContainer = textNodes[0];
+            const endContainer = textNodes.at(-1);
+            const commonAncestor = this.splitForAnimatedText({
+                anchorNode: startContainer,
+                focusNode: endContainer,
+                commonAncestorContainer: block,
+            });
+            if (!commonAncestor) {
+                return {};
+            }
+
+            const range = new Range();
+            range.setStartBefore(
+                findFurthest(startContainer, commonAncestor, () => true) || startContainer
+            );
+            range.setEndAfter(
+                findFurthest(endContainer, commonAncestor, () => true) || endContainer
+            );
+            if (containsAnyNonPhrasingContent(range.cloneContents())) {
+                return {};
+            }
+
+            const span = this.document.createElement("span");
+            range.surroundContents(span);
+            // Remove animated text inside the span and containing the span.
+            for (const node of [
+                ...span.querySelectorAll(".o_animated_text"),
+                ...ancestors(span, this.editable).filter((n) =>
+                    n.classList.contains("o_animated_text")
+                ),
+            ]) {
+                unwrapContents(node);
+                didRemoveOtherTextAnimation = true;
+            }
+            span.classList.add("o_animated_text", "o_animate_preview");
+            span.classList.add("o_animate", "o_anim_fade_in"); // default animation
+            animatedTextEls.push(span);
         }
-        span.classList.add("o_animated_text", "o_animate_preview");
-        span.classList.add("o_animate", "o_anim_fade_in"); // default animation
+
+        const firstAnimatedTextEl = animatedTextEls[0];
+        const lastAnimatedTextEl = animatedTextEls.at(-1);
         this.dependencies.selection.setSelection(
-            direction === DIRECTIONS.RIGHT
+            selection.direction === DIRECTIONS.RIGHT
                 ? {
-                      anchorNode: span,
+                      anchorNode: firstAnimatedTextEl,
                       anchorOffset: 0,
-                      focusNode: span,
-                      focusOffset: nodeSize(span),
+                      focusNode: lastAnimatedTextEl,
+                      focusOffset: nodeSize(lastAnimatedTextEl),
                   }
                 : {
-                      anchorNode: span,
-                      anchorOffset: nodeSize(span),
-                      focusNode: span,
+                      anchorNode: lastAnimatedTextEl,
+                      anchorOffset: nodeSize(lastAnimatedTextEl),
+                      focusNode: firstAnimatedTextEl,
                       focusOffset: 0,
                   }
         );
-        this.dependencies.history.addStep();
+        this.dependencies.history.commit();
 
-        return { element: span, didRemoveOtherTextAnimation };
+        return { elements: animatedTextEls, didRemoveOtherTextAnimation };
     }
     /**
-     * Returns the element that is an animated text that corresponds to the
-     * current selection (if there is any)
+     * Returns the animated text elements that correspond to the current
+     * selection.
      *
-     * @returns {HTMLElement?}
+     * @returns {HTMLElement[]}
      */
-    getAnimatedText() {
+    getAnimatedTexts() {
         const selection = this.dependencies.selection.getSelectionData().editableSelection;
+        const normalizeText = (text) => text.replace(/\s+/g, " ").trim();
+        const selectionText = normalizeText(selection.toString());
         const ancestor = closestElement(selection.commonAncestorContainer, ".o_animated_text");
         if (ancestor) {
-            const selectionText = selection.textContent().replace(/\s+/g, " ").trim();
-            const ancestorText = ancestor.innerText.replace(/\s+/g, " ").trim();
+            const ancestorText = normalizeText(ancestor.innerText);
             if (selection.isCollapsed || selectionText === ancestorText) {
-                return ancestor;
+                return [ancestor];
             }
         }
+        if (selection.isCollapsed) {
+            return [];
+        }
+
+        const animatedTextEls = [...this.editable.querySelectorAll(".o_animated_text")].filter(
+            (element) => selection.intersectsNode(element)
+        );
+        const animatedText = normalizeText(
+            animatedTextEls.map((element) => element.innerText).join(" ")
+        );
+        return animatedTextEls.length && selectionText === animatedText ? animatedTextEls : [];
     }
     isAnimatedTextActive() {
-        return !!this.getAnimatedText();
+        return !!this.getAnimatedTexts().length;
     }
     isAnimatedTextDisabled() {
         return 2 <= this.dependencies.selection.getTargetedNodes().size;
@@ -402,11 +464,13 @@ export class AnimateOptionPlugin extends Plugin {
         for (const img of animateImg) {
             img.loading = "eager";
         }
+        return root;
     }
-    cleanForSave({ root }) {
+    cleanForSave(root) {
         for (const el of root.querySelectorAll(".o_animate_preview")) {
             el.classList.remove("o_animate_preview");
         }
+        return root;
     }
     async cleanImageHoverDataset(imgEl) {
         if (!imgEl.dataset.hoverEffect) {
@@ -422,6 +486,9 @@ export class AnimateOptionPlugin extends Plugin {
         }
     }
 }
+
+registry.category("website-plugins").add(AnimateOptionPlugin.id, AnimateOptionPlugin);
+registry.category("translation-plugins").add(AnimateOptionPlugin.id, AnimateOptionPlugin);
 
 export class SetAnimationModeAction extends BuilderAction {
     static id = "setAnimationMode";
@@ -456,11 +523,12 @@ export class SetAnimationModeAction extends BuilderAction {
             // Use getResource instead of this.dependencies as imageHover is not
             // included in translation. This implementation is a hack and could
             // be improved.
-            await this.getResource("remove_hover_effect_handlers")[0](editingElement);
+            await this.triggerAsync("on_hover_animation_mode_cleaned_handlers", editingElement);
         }
 
         const isNextAnimationFadein = this.animationWithFadein.includes(nextAction.value);
         if (!isNextAnimationFadein) {
+            editingElement.classList.remove("o_animate", "o_animate_on_scroll");
             this._removeEffectAndDirectionClasses(editingElement.classList);
             editingElement.style.setProperty("--wanim-intensity", "");
             editingElement.style.animationDuration = "";
@@ -469,20 +537,26 @@ export class SetAnimationModeAction extends BuilderAction {
     }
 
     async apply({ editingElement, value: effectName, params: { forceAnimation } }) {
-        const { hasAnimationEffect } = this.dependencies.animateOption;
+        const { hasAnimationEffect, getEffectsItems } = this.dependencies.animateOption;
+        // Remove appearance-only effects when switching to "On Scroll" so the
+        // default "Fade" effect can be applied.
+        if (effectName === "onScroll") {
+            const invalidEffect = getEffectsItems().find(
+                (effect) => effect.check && editingElement.classList.contains(effect.className)
+            );
+            invalidEffect && editingElement.classList.remove(invalidEffect.className);
+            editingElement.dataset.scrollZoneStart = 0;
+            editingElement.dataset.scrollZoneEnd = 100;
+        }
         // Prevent adding fade-in when another animation class is already present.
         if (this.animationWithFadein.includes(effectName) && !hasAnimationEffect(editingElement)) {
             editingElement.classList.add("o_anim_fade_in");
-        }
-        if (effectName === "onScroll") {
-            editingElement.dataset.scrollZoneStart = 0;
-            editingElement.dataset.scrollZoneEnd = 100;
         }
         if (effectName === "onHover") {
             // Use getResource instead of this.dependencies as imageHover is not
             // included in translation. This implementation is a hack and could
             // be improved.
-            await this.getResource("set_hover_effect_handlers")[0](editingElement);
+            await this.triggerAsync("on_hover_animation_mode_applied_handlers", editingElement);
         }
         if (forceAnimation) {
             this.dependencies.animateOption.forceAnimation(editingElement);
@@ -576,8 +650,6 @@ export class SetAnimationEffectAction extends BuilderAction {
         this.dependencies.animateOption.forceAnimation(editingElement);
     }
 }
-
-registry.category("website-plugins").add(AnimateOptionPlugin.id, AnimateOptionPlugin);
 
 function intersect(a, b) {
     return a.filter((value) => b.includes(value));

@@ -3,22 +3,29 @@
 # * uom
 #
 # Odoo Translation Bot <c3p@odoo.com>, 2025.
-# Weblate <noreply-mt-weblate@weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:40+0000\n"
-"PO-Revision-Date: 2026-06-12 03:32+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Kabyle <https://translate.odoo.com/projects/odoo-19/uom/kab/>"
-"\n"
+"POT-Creation-Date: 2026-09-11 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 20:45+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Kabyle <https://translate.odoo.com/projects/odoo-s19-4/uom/"
+"kab/>\n"
 "Language: kab\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: uom
+#: model:ir.module.module,description:base.module_uom
+msgid ""
+"\n"
+"This is the base module for managing Units of measure.\n"
+"========================================================================\n"
+msgstr ""
 
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_uom__factor
@@ -26,51 +33,50 @@ msgid "Absolute Quantity"
 msgstr ""
 
 #. module: uom
-#: model:ir.model.fields,field_description:uom.field_uom_uom__active
-#, fuzzy
-msgid "Active"
-msgstr "Urmid"
+#: model:ir.model,name:uom.model_res_groups
+msgid "Access Groups"
+msgstr ""
 
 #. module: uom
-#: model_terms:ir.actions.act_window,help:uom.product_uom_form_action
+#: model:ir.model.fields,field_description:uom.field_uom_uom__active
+msgid "Active"
+msgstr ""
+
+#. module: uom
+#: model_terms:ir.actions.act_window,help:uom.uom_uom_action_list
 msgid "Add a new unit of measure"
 msgstr ""
 
 #. module: uom
 #: model_terms:ir.ui.view,arch_db:uom.uom_uom_view_search
-#, fuzzy
 msgid "Archived"
-msgstr "Yettwaɣbeṛ"
+msgstr ""
 
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_uom__relative_factor
-#, fuzzy
 msgid "Contains"
-msgstr "Igber"
+msgstr ""
 
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_uom__create_uid
-#, fuzzy
 msgid "Created by"
-msgstr "Yerna-t"
+msgstr ""
 
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_uom__create_date
-#, fuzzy
 msgid "Created on"
-msgstr "Yerna di"
+msgstr ""
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_day
-#, fuzzy
 msgid "Days"
-msgstr "Ussan"
+msgstr ""
 
 #. module: uom
+#: model:ir.model.fields,field_description:uom.field_res_groups__display_name
 #: model:ir.model.fields,field_description:uom.field_uom_uom__display_name
-#, fuzzy
 msgid "Display Name"
-msgstr "Isem n Ubeqqeḍ"
+msgstr ""
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_dozen
@@ -79,9 +85,8 @@ msgstr ""
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_hour
-#, fuzzy
 msgid "Hours"
-msgstr "Asragen"
+msgstr ""
 
 #. module: uom
 #: model:ir.model.fields,help:uom.field_uom_uom__relative_factor
@@ -91,10 +96,10 @@ msgid ""
 msgstr ""
 
 #. module: uom
+#: model:ir.model.fields,field_description:uom.field_res_groups__id
 #: model:ir.model.fields,field_description:uom.field_uom_uom__id
-#, fuzzy
 msgid "ID"
-msgstr "Asulay"
+msgstr ""
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_kwh
@@ -108,15 +113,13 @@ msgstr ""
 
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_uom__write_uid
-#, fuzzy
 msgid "Last Updated by"
-msgstr "Aleqqem aneggaru sɣuṛ"
+msgstr ""
 
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_uom__write_date
-#, fuzzy
 msgid "Last Updated on"
-msgstr "Aleqqem aneggaru di"
+msgstr ""
 
 #. module: uom
 #: model:res.groups,name:uom.group_uom
@@ -147,15 +150,13 @@ msgstr ""
 
 #. module: uom
 #: model:ir.model,name:uom.model_uom_uom
-#, fuzzy
 msgid "Product Unit of Measure"
-msgstr "Aferdis n usɣel n ufaris"
+msgstr ""
 
 #. module: uom
-#: model_terms:ir.ui.view,arch_db:uom.product_uom_form_view
-#, fuzzy
+#: model_terms:ir.ui.view,arch_db:uom.uom_uom_view_form
 msgid "Quantity"
-msgstr "Tanecta"
+msgstr ""
 
 #. module: uom
 #. odoo-javascript
@@ -166,7 +167,7 @@ msgstr ""
 
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_uom__relative_uom_id
-#: model_terms:ir.ui.view,arch_db:uom.product_uom_form_view
+#: model_terms:ir.ui.view,arch_db:uom.uom_uom_view_form
 msgid "Reference Unit"
 msgstr ""
 
@@ -182,20 +183,14 @@ msgid "Related UoMs"
 msgstr ""
 
 #. module: uom
-#: model:ir.model.fields,field_description:uom.field_uom_uom__rounding
-msgid "Rounding Precision"
-msgstr ""
-
-#. module: uom
 #: model_terms:ir.ui.view,arch_db:uom.uom_uom_view_search
 msgid "Search UOM"
 msgstr ""
 
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_uom__sequence
-#, fuzzy
 msgid "Sequence"
-msgstr "Agzum"
+msgstr ""
 
 #. module: uom
 #. odoo-python
@@ -225,11 +220,6 @@ msgid ""
 msgstr ""
 
 #. module: uom
-#: model:uom.uom,name:uom.product_uom_ton
-msgid "Ton"
-msgstr ""
-
-#. module: uom
 #: model:ir.model.fields,help:uom.field_uom_uom__active
 msgid ""
 "Uncheck the active field to disable a unit of measure without deleting it."
@@ -246,16 +236,20 @@ msgid "Units"
 msgstr ""
 
 #. module: uom
-#: model:ir.actions.act_window,name:uom.product_uom_form_action
-#: model_terms:ir.ui.view,arch_db:uom.product_uom_tree_view
+#: model:ir.actions.act_window,name:uom.uom_uom_action_list
+#: model_terms:ir.ui.view,arch_db:uom.uom_uom_view_list
 msgid "Units & Packagings"
 msgstr ""
 
 #. module: uom
-#: model_terms:ir.ui.view,arch_db:uom.product_uom_form_view
-#, fuzzy
+#: model_terms:ir.ui.view,arch_db:uom.uom_uom_view_form
 msgid "Units of Measure"
-msgstr "Iferdisen n usɣel"
+msgstr ""
+
+#. module: uom
+#: model:ir.module.module,shortdesc:base.module_uom
+msgid "Units of measure"
+msgstr ""
 
 #. module: uom
 #. odoo-javascript
@@ -367,6 +361,11 @@ msgstr ""
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_qt
 msgid "qt (US)"
+msgstr ""
+
+#. module: uom
+#: model:uom.uom,name:uom.product_uom_ton
+msgid "t"
 msgstr ""
 
 #. module: uom

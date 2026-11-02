@@ -11,9 +11,6 @@ class PosOrder(models.Model):
     def get_order_to_print(self):
         self.ensure_one()
 
-        # Lock the line
-        self.env.cr.execute("SELECT id FROM pos_order WHERE id = %s FOR UPDATE NOWAIT", (self.id,))
-
         if self.nb_print > 0:
             raise ValueError("This order has already been printed automatically.")
 
@@ -78,12 +75,12 @@ class PosOrder(models.Model):
         return res
 
     def _send_notification_online_payment_status(self, status):
+        if status == 'success':
+            self._send_order()
+
         self.config_id._notify("ONLINE_PAYMENT_STATUS", {
             'status': status,  # progress, success, fail
-            'data': {
-                'pos.order': self.read(self._load_pos_self_data_fields(self.config_id), load=False),
-                'pos.payment': self.payment_ids.read(self.payment_ids._load_pos_self_data_fields(self.config_id), load=False),
-            }
+            'order_id': self.id,
         })
 
     def _load_pos_self_data_fields(self, config):

@@ -3,8 +3,8 @@
     opacity: 70%;
     position: relative;
 
-    &.d-lg-flex, &.d-md-flex, &.o_half_screen_height, &.o_full_screen_height {
-        // e.g. Useful if "Height" option (50% or 100%) is enabled.
+    &.d-lg-flex, &.d-md-flex, &.o_half_screen_height, &.o_three_quarter_height, &.o_full_screen_height {
+        // e.g. Useful if "Height" option is enabled.
         display: flex !important;
     }
 
@@ -15,20 +15,21 @@
         width: -moz-available;
         right: 20px;
         z-index: 100;
-        background-color: $o-we-color-accent;
-        font-size: 0px;
+        font-family: "Material Symbols Outlined";
+        text-align: right;
+        color: $o-we-color-accent;
         pointer-events: none;
         content: "."; // Content is mandatory.
     }
 
     &.d-md-none::before, &.d-lg-none::before {
-        height: 50px;
-        -webkit-mask: url("/html_builder/static/img/options/desktop_invisible.svg") no-repeat 100% 100%;
+        font-size: 50px;
+        content: "desktop_access_disabled";
     }
 
     &:not(.d-md-none):not(.d-lg-none)::before {
-        height: 30px;
-        -webkit-mask: url("/html_builder/static/img/options/mobile_invisible.svg") no-repeat 100% 100%;
+        font-size: 30px;
+        content: "mobile_off";
     }
 }
 

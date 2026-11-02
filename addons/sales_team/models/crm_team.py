@@ -2,6 +2,7 @@ import random
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
+from odoo.fields import Domain
 
 
 class CrmTeam(models.Model):
@@ -10,6 +11,7 @@ class CrmTeam(models.Model):
     _description = "Sales Team"
     _order = "sequence ASC, create_date DESC, id DESC"
     _check_company_auto = True
+    _mail_post_access = 'read'
 
     def _get_default_color(self):
         return random.randint(1, 11)
@@ -46,6 +48,7 @@ class CrmTeam(models.Model):
         # for team belonging to a user in C1/C2 -> only results for C1 will be returned
         team = self.env['crm.team']
         teams = self.env['crm.team'].search([
+            ('active', '=', True),
             ('company_id', 'in', valid_cids),
              '|', ('user_id', '=', user.id), ('member_ids', 'in', [user.id])
         ])
@@ -68,7 +71,7 @@ class CrmTeam(models.Model):
             team = default_team
 
         if not team:
-            teams = self.env['crm.team'].search([('company_id', 'in', valid_cids)])
+            teams = self.env['crm.team'].search([('active', '=', True), ('company_id', 'in', valid_cids)])
             # 4- default: based on company rule, first one matching domain
             if teams and domain:
                 team = teams.filtered_domain(domain)[:1]
@@ -136,7 +139,7 @@ class CrmTeam(models.Model):
 
     @api.depends('sequence')  # TDE FIXME: force compute in new mode
     def _compute_is_membership_multi(self):
-        multi_enabled = self.env['ir.config_parameter'].sudo().get_param('sales_team.membership_multi', False)
+        multi_enabled = self.env['ir.config_parameter'].sudo().get_bool('sales_team.membership_multi')
         self.is_membership_multi = multi_enabled
 
     @api.depends('crm_team_member_ids.active')
@@ -181,7 +184,12 @@ class CrmTeam(models.Model):
                                   )
 
     def _search_member_ids(self, operator, value):
-        return [('crm_team_member_ids.user_id', operator, value)]
+        if operator in Domain.NEGATIVE_OPERATORS:
+            return NotImplemented
+        domain = Domain('crm_team_member_ids.user_id', operator, value)
+        if operator == 'in' and False in value:  # relation may be falsy
+            domain |= Domain('crm_team_member_ids', '=', False)
+        return domain
 
     # 'name' should not be in the trigger, but as 'company_id' is possibly not present in the view
     # because it depends on the multi-company group, we use it as fake trigger to force computation

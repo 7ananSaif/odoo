@@ -1,20 +1,24 @@
 import { _t } from "@web/core/l10n/translation";
 import { Plugin } from "../plugin";
 import { closestBlock } from "../utils/blocks";
-import { closestElement, firstLeaf, selectElements } from "../utils/dom_traversal";
-import {
-    isEmptyBlock,
-    isListItemElement,
-    paragraphRelatedElementsSelector,
-} from "../utils/dom_info";
+import { closestElement, firstLeaf, lastLeaf, selectElements } from "../utils/dom_traversal";
+import { isEmptyBlock, paragraphRelatedElementsSelector } from "../utils/dom_info";
 import { isHtmlContentSupported } from "@html_editor/core/selection_plugin";
-import { removeClass } from "@html_editor/utils/dom";
+import { removeClass, splitTextNode } from "@html_editor/utils/dom";
+import { DIRECTIONS, nodeSize, rightPos } from "@html_editor/utils/position";
 import { withSequence } from "@html_editor/utils/resource";
-import { fillEmpty } from "../utils/dom";
 
 export class SeparatorPlugin extends Plugin {
     static id = "separator";
-    static dependencies = ["selection", "history", "split", "delete", "lineBreak", "baseContainer"];
+    static dependencies = [
+        "baseContainer",
+        "delete",
+        "dom",
+        "history",
+        "lineBreak",
+        "selection",
+        "split",
+    ];
     /** @type {import("plugins").EditorResources} */
     resources = {
         user_commands: [
@@ -22,7 +26,7 @@ export class SeparatorPlugin extends Plugin {
                 id: "insertSeparator",
                 title: _t("Separator"),
                 description: _t("Insert a horizontal rule separator"),
-                icon: "fa-minus",
+                icon: "remove",
                 run: this.insertSeparator.bind(this),
                 isAvailable: isHtmlContentSupported,
             },
@@ -32,33 +36,39 @@ export class SeparatorPlugin extends Plugin {
             commandId: "insertSeparator",
             keywords: [_t("divider"), _t("line")],
         }),
-        content_not_editable_providers: (rootEl) => [...selectElements(rootEl, "hr")],
+        content_not_editable_providers: (rootEl) => selectElements(rootEl, "hr"),
         contenteditable_to_remove_selector: "hr[contenteditable]",
         shorthands: [
             {
-                pattern: /^---$/,
+                literals: ["---"],
                 commandId: "insertSeparator",
             },
         ],
 
         /** Handlers */
-        selectionchange_handlers: this.handleSelectionInHr.bind(this),
-        deselect_custom_selected_nodes_handlers: this.deselectHR.bind(this),
-        clean_for_save_handlers: ({ root }) => {
+        on_selectionchange_handlers: this.handleSelectionInHr.bind(this),
+
+        /** Processors */
+        clean_for_save_processors: (root) => {
             this.deselectHR(root);
+            return root;
         },
+        deselect_custom_selected_nodes_processors: this.deselectHR.bind(this),
     };
 
     insertSeparator() {
-        const selection = this.dependencies.selection.getSelectionData().deepEditableSelection;
+        let selection = this.dependencies.selection.getSelectionData().deepEditableSelection;
         const block = closestBlock(selection.startContainer);
-        const element =
-            closestElement(selection.startContainer, paragraphRelatedElementsSelector) ||
-            (block && !isListItemElement(block) ? block : null);
+        this.trigger("on_will_insert_separator_handlers", block);
+        selection = this.dependencies.selection.getSelectionData().deepEditableSelection;
+        const element = closestElement(selection.startContainer, paragraphRelatedElementsSelector);
 
         if (element && element !== this.editable) {
             const sep = this.document.createElement("hr");
             const firstLeafNode = firstLeaf(block);
+            const isSelectionAtEnd =
+                lastLeaf(block) === selection.focusNode &&
+                selection.focusOffset === nodeSize(selection.focusNode);
             /**
              * Insert the separator before the element when it’s empty
              * or when the caret is at the very start of the block.
@@ -68,21 +78,36 @@ export class SeparatorPlugin extends Plugin {
                 (selection.anchorNode === firstLeafNode && selection.anchorOffset === 0)
             ) {
                 element.before(sep);
-            } else {
+            } else if (isSelectionAtEnd) {
                 element.after(sep);
                 const baseContainer = this.dependencies.baseContainer.createBaseContainer();
-                fillEmpty(baseContainer);
                 sep.after(baseContainer);
                 this.dependencies.selection.setCursorStart(baseContainer);
+            } else {
+                const anchorNode = selection.anchorNode;
+                const isTextNode = anchorNode.nodeType === Node.TEXT_NODE;
+                const newAnchorNode = isTextNode
+                    ? splitTextNode(anchorNode, selection.anchorOffset, DIRECTIONS.LEFT) + 1 &&
+                      anchorNode
+                    : this.dependencies.split
+                          .splitElement(anchorNode, selection.anchorOffset)
+                          .shift();
+                const [newAnchor, newOffset] = rightPos(newAnchorNode);
+                this.dependencies.selection.setSelection(
+                    { anchorNode: newAnchor, anchorOffset: newOffset },
+                    { normalize: false }
+                );
+                this.dependencies.dom.insert(sep);
             }
         }
-        this.dependencies.history.addStep();
+        this.dependencies.history.commit();
     }
 
     deselectHR(root = this.editable) {
         for (const hr of root.querySelectorAll(".o_selected_hr")) {
             removeClass(hr, "o_selected_hr");
         }
+        return root;
     }
 
     handleSelectionInHr(selectionData) {

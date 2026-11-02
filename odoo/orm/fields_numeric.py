@@ -32,7 +32,7 @@ class Integer(Field[int]):
     def convert_to_column(self, value, record, values=None, validate=True):
         return int(value or 0)
 
-    def convert_to_cache(self, value, record, validate=True):
+    def convert_to_cache(self, value, records, validate=True):
         if isinstance(value, dict):
             # special case, when an integer field is used as inverse for a one2many
             return value.get('id', None)
@@ -85,17 +85,20 @@ class Float(Field[float]):
 
     .. admonition:: Example
 
-        To round a quantity with the precision of the unit of measure::
+        To round a quantity with the precision of the Product Unit decimal precision::
 
-            fields.Float.round(self.product_uom_qty, precision_rounding=self.product_uom_id.rounding)
+            digits = self.env['decimal.precision'].precision_get('Product Unit')
+            fields.Float.round(self.product_uom_qty, precision_digits=digits)
 
-        To check if the quantity is zero with the precision of the unit of measure::
+        To check if the quantity is zero with the precision of the Product Unit::
 
-            fields.Float.is_zero(self.product_uom_qty, precision_rounding=self.product_uom_id.rounding)
+            digits = self.env['decimal.precision'].precision_get('Product Unit')
+            fields.Float.is_zero(self.product_uom_qty, precision_digits=digits)
 
         To compare two quantities::
 
-            field.Float.compare(self.product_uom_qty, self.qty_done, precision_rounding=self.product_uom_id.rounding)
+            digits = self.env['decimal.precision'].precision_get('Product Unit')
+            fields.Float.compare(self.product_uom_qty, self.qty_done, precision_digits=digits)
 
         The compare helper uses the __cmp__ semantics for historic purposes, therefore
         the proper, idiomatic way to use this helper is like so:
@@ -145,6 +148,7 @@ class Float(Field[float]):
         return self._min_display_digits
 
     _related__digits = property(attrgetter('_digits'))
+    _related__min_display_digits = property(attrgetter('_min_display_digits'))
 
     def _description_digits(self, env: Environment) -> tuple[int, int] | None:
         return self.get_digits(env)
@@ -162,10 +166,10 @@ class Float(Field[float]):
             return value_float
         return value
 
-    def convert_to_cache(self, value, record, validate=True):
+    def convert_to_cache(self, value, records, validate=True):
         # apply rounding here, otherwise value in cache may be wrong!
         value = float(value or 0.0)
-        digits = self.get_digits(record.env)
+        digits = self.get_digits(records.env)
         return float_round(value, precision_digits=digits[1]) if digits else value
 
     def convert_to_record(self, value, record):
@@ -192,6 +196,7 @@ class Monetary(Field[float]):
         this monetary field is expressed in (default: `\'currency_id\'`)
     """
     type = 'monetary'
+    # Monetary fields need their corresponding currency field in cache for rounding values.
     write_sequence = 10
     _column_type = ('numeric', 'numeric')
     falsy_value = 0.0
@@ -213,7 +218,7 @@ class Monetary(Field[float]):
         # The currency field needs to be aggregable too
         if not currency_field.column_type or not currency_field.store:
             try:
-                model._read_group_select(f"{currency_field_name}:array_agg_distinct", query)
+                model._read_group_select(query.table, f"{currency_field_name}:array_agg_distinct")
             except (ValueError, AccessError):
                 return None
 
@@ -252,9 +257,9 @@ class Monetary(Field[float]):
             currency = dummy[currency_field_name]
         else:
             # Note: this is wrong if 'record' is several records with different
-            # currencies, which is functional nonsense and should not happen
-            # BEWARE: do not prefetch other fields, because 'value' may be in
-            # cache, and would be overridden by the value read from database!
+            # currencies, which is functional nonsense and should not happen.
+            # sudo and only fetch the currency record in case the user doesn't
+            # have the read permission of the currency field.
             currency = record[:1].sudo().with_context(prefetch_fields=False)[currency_field_name]
             currency = currency.with_env(record.env)
 
@@ -263,20 +268,25 @@ class Monetary(Field[float]):
             return float_repr(currency.round(value), currency.decimal_places)
         return value
 
-    def convert_to_cache(self, value, record, validate=True):
+    def convert_to_cache(self, value, records, validate=True):
         # cache format: float
         value = float(value or 0.0)
         if value and validate:
             # FIXME @rco-odoo: currency may not be already initialized if it is
             # a function or related field!
-            # BEWARE: do not prefetch other fields, because 'value' may be in
-            # cache, and would be overridden by the value read from database!
-            currency_field = self.get_currency_field(record)
-            currency = record.sudo().with_context(prefetch_fields=False)[currency_field]
+            currency_field = self.get_currency_field(records)
+            # sudo and only fetch the currency record in case the user doesn't
+            # have the read permission of the currency field.
+            currency = records.sudo().with_context(prefetch_fields=False)[currency_field]
+            currency = currency.with_env(records.env)
             if len(currency) > 1:
                 raise ValueError("Got multiple currencies while assigning values of monetary field %s" % str(self))
             elif currency:
-                value = currency.with_env(record.env).round(value)
+                value = currency.round(value)
+                # convert the rounded value to ``str`` and then to ``float`` to mimic the data flow of flushing and
+                # fetching, which promises ``value_written_to_cache == value_fetched_from_database`` even if the
+                # ``round`` method is not perfect.
+                value = float(float_repr(value, currency.decimal_places))
         return value
 
     def convert_to_record(self, value, record):
@@ -292,24 +302,3 @@ class Monetary(Field[float]):
         if value or value == 0.0:
             return value
         return ''
-
-    def _filter_not_equal(self, records: BaseModel, cache_value: typing.Any) -> BaseModel:
-        records = super()._filter_not_equal(records, cache_value)
-        if not records:
-            return records
-        # check that the values were rounded properly when put in cache
-        # see fix odoo/odoo#177200 (commit 7164d5295904b08ec3a0dc1fb54b217671ff531c)
-        env = records.env
-        field_cache = self._get_cache(env)
-        currency_field = records._fields[self.get_currency_field(records)]
-        return records.browse(
-            record_id
-            for record_id, record_sudo in zip(
-                records._ids, records.sudo().with_context(prefetch_fields=False)
-            )
-            if not (
-                (value := field_cache.get(record_id))
-                and (currency := currency_field.__get__(record_sudo))
-                and currency.with_env(env).round(value) == cache_value
-            )
-        )

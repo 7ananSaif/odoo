@@ -9,27 +9,20 @@ from odoo.tests import tagged
 
 @tagged("post_install_l10n", "post_install", "-at_install")
 class TestVNEDIPOSTour(TestVNEDI, TestPointOfSaleHttpCommon):
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.template = cls.env["l10n_vn_edi_viettel.sinvoice.template"].create({
-            "name": "2/0024",
-            "template_invoice_type": "2",
-        })
-        cls.symbol = cls.env["l10n_vn_edi_viettel.sinvoice.symbol"].create({
-            "name": "C25MNK",
-            "invoice_template_id": cls.template.id,
+        cls.template = "2/0024"
+        cls.symbol = cls.env['l10n_vn_edi_viettel.sinvoice.symbol'].create({
+            'name': 'C25MNK',
+            'invoice_template_code': cls.template,
         })
 
     @staticmethod
-    def _mock_sinvoice_send_request(method, url, json_data=None, params=None, headers=None, cookies=None):
-        if url.endswith("/auth/login"):
-            return {
-                "access_token": "test_access_token",
-                "expires_in": "3600",
-            }, None
-
-        if "InvoiceAPI/InvoiceWS/createInvoice" in url:
+    def _mock_sinvoice_send_request(method, endpoint, json_data=None, params=None, headers=None):
+        if "InvoiceAPI/InvoiceWS/createInvoice" in endpoint:
             return {
                 "result": {
                     "reservationCode": "123456",
@@ -37,10 +30,10 @@ class TestVNEDIPOSTour(TestVNEDI, TestPointOfSaleHttpCommon):
                 },
             }, None
 
-        if "InvoiceAPI/InvoiceWS/searchInvoiceByTransactionUuid" in url:
+        if "InvoiceAPI/InvoiceWS/searchInvoiceByTransactionUuid" in endpoint:
             return {"result": []}, None
 
-        if "InvoiceAPI/InvoiceUtilsWS/getInvoiceRepresentationFile" in url:
+        if "InvoiceAPI/InvoiceUtilsWS/getInvoiceRepresentationFile" in endpoint:
             return {
                 "fileToBytes": "",
                 "fileName": "sinvoice.pdf",
@@ -56,7 +49,7 @@ class TestVNEDIPOSTour(TestVNEDI, TestPointOfSaleHttpCommon):
         self.company.l10n_vn_pos_default_symbol = False
 
         with patch(
-            "odoo.addons.l10n_vn_edi_viettel.models.account_move._l10n_vn_edi_send_request",
+            "odoo.addons.l10n_vn_edi_viettel.models.sinvoice_service.SInvoiceService._send_request",
             side_effect=self._mock_sinvoice_send_request,
         ):
             self.start_pos_tour("L10nVnEdiPosConfigErrorTour", login="pos_admin")
@@ -66,10 +59,9 @@ class TestVNEDIPOSTour(TestVNEDI, TestPointOfSaleHttpCommon):
         self.main_pos_config.write({
             "l10n_vn_auto_send_to_sinvoice": True,
             "l10n_vn_pos_symbol": self.symbol.id,
+            "use_download_invoice": True,
         })
 
-        with patch(
-            "odoo.addons.l10n_vn_edi_viettel.models.account_move._l10n_vn_edi_send_request",
-            side_effect=self._mock_sinvoice_send_request,
-        ):
+        with patch("odoo.addons.l10n_vn_edi_viettel.models.sinvoice_service.SInvoiceService._send_request", side_effect=self._mock_sinvoice_send_request), \
+             patch("odoo.addons.l10n_vn_edi_viettel.models.sinvoice_service.SInvoiceService.get_access_token", return_value=({"access_token": "test_access_token", "expires_in": "3600"}, None)):
             self.start_pos_tour("L10nVnEdiPosRefundReasonTour", login="pos_admin")

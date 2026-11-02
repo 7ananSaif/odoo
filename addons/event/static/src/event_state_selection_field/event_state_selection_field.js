@@ -15,15 +15,21 @@ export class EventStateSelection extends StateSelectionField {
     setup() {
         this.dialog = useService("dialog");
         this.icons = {
+            normal: "",
+            done: "",
+            blocked: "priority_high",
+            cancel: "cancel",
+        };
+        this.classIcons = {
             normal: "o_status",
             done: "o_status o_status_green",
-            blocked: "fa fa-lg fa-exclamation-circle",
-            cancel: "fa fa-lg fa-times-circle",
+            blocked: "o_status oi-filled",
+            cancel: "oi-filled",
         };
         this.colorIcons = {
             normal: "",
             done: "text-success",
-            blocked: "o_status_blocked",
+            blocked: "o_status_changes_requested",
             cancel: "text-danger",
         };
     }
@@ -38,6 +44,10 @@ export class EventStateSelection extends StateSelectionField {
 
     stateIcon(value) {
         return this.icons[value] || "";
+    }
+
+    stateIconClass(value) {
+        return this.classIcons[value] || "";
     }
 
     /**

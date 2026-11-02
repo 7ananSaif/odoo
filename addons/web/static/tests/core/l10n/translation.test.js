@@ -1,9 +1,10 @@
 /* eslint no-restricted-syntax: 0 */
 import { after, describe, expect, test } from "@odoo/hoot";
-import { animationFrame, Deferred } from "@odoo/hoot-mock";
+import { animationFrame } from "@odoo/hoot-mock";
+import { Component, markup, xml } from "@odoo/owl";
 import {
     defineParams,
-    makeMockEnv,
+    makeTestApp,
     mountWithCleanup,
     onRpc,
     patchTranslations,
@@ -12,9 +13,9 @@ import {
 } from "@web/../tests/web_test_helpers";
 import { _t as basic_t, translatedTerms, translationLoaded } from "@web/core/l10n/translation";
 import { IndexedDB } from "@web/core/utils/indexed_db";
+import { render } from "@web/owl2/utils";
 import { session } from "@web/session";
 
-import { Component, markup, xml } from "@odoo/owl";
 const { DateTime } = luxon;
 
 function _t() {
@@ -36,8 +37,8 @@ class TestComponent extends Component {
     static get template() {
         return xml`${this._template}<div id="${id++}"/>`;
     }
+
     static _template = "";
-    static props = ["*"];
 }
 
 /**
@@ -48,7 +49,7 @@ class TestComponent extends Component {
  */
 async function mockLang(lang) {
     serverState.lang = lang;
-    await makeMockEnv();
+    await makeTestApp();
 }
 
 test.tags("headless");
@@ -72,7 +73,7 @@ test("lang is given by an attribute on the DOM root node", async () => {
     after(() => {
         document.documentElement.removeAttribute("lang");
     });
-    await makeMockEnv();
+    await makeTestApp();
     expect.verifySteps(["fr_FR"]);
 });
 
@@ -85,7 +86,7 @@ test("url is given by the session", async () => {
         expect.step("/get_translations");
         return this.loadTranslations(request);
     });
-    await makeMockEnv();
+    await makeTestApp();
     expect.verifySteps(["/get_translations"]);
 });
 
@@ -99,12 +100,8 @@ test("can translate a text node", async () => {
 });
 
 test("[cache] write into the cache", async () => {
-    patchWithCleanup(IndexedDB.prototype, {
-        write(table, key, value) {
-            expect.step(`table: ${table}`);
-            expect.step(`key: ${key}`);
-            expect.step(`value: ${JSON.stringify(value)}`);
-        },
+    patchWithCleanup(session, {
+        translation_hash: "ab5379cf", // hash of the translations served by the server
     });
     onRpc("/web/webclient/translations", (request) => {
         expect.step(`hash: ${new URL(request.url).searchParams.get("hash")}`);
@@ -130,37 +127,37 @@ test("[cache] write into the cache", async () => {
         multi_lang: false,
         hash: "ab5379cf",
     };
-    expect.verifySteps([
-        "hash: ",
-        "table: /web/webclient/translations",
-        'key: {"lang":"en"}',
-        `value: ${JSON.stringify(expectedValue)}`,
-    ]);
+    const translationDB = new IndexedDB("localization");
+
+    expect(translationDB.mockIndexedDB["/web/webclient/translations"]['{"lang":"en"}']).toEqual(
+        expectedValue
+    );
+    expect.verifySteps(["hash: "]);
 });
 
 test("[cache] read from cache, and don't wait to render", async () => {
-    patchWithCleanup(IndexedDB.prototype, {
-        read() {
-            return {
-                lang: "en",
-                lang_parameters: {
-                    date_format: "%m/%d/%Y",
-                    decimal_point: ".",
-                    direction: "ltr",
-                    grouping: "[3,0]",
-                    time_format: "%H:%M:%S",
-                    thousands_sep: ",",
-                    week_start: 7,
-                },
-                modules: { web: { messages: [{ id: "Hello", string: "Bonjour" }] } },
-                multi_lang: false,
-                hash: "30b70a0e",
-            };
-        },
+    patchWithCleanup(session, {
+        translation_hash: "ab5379cf", // hash of the translations served by the server
     });
-    const def = new Deferred();
+    const translationDB = new IndexedDB("localization");
+    translationDB.write("/web/webclient/translations", '{"lang":"en"}', {
+        lang: "en",
+        lang_parameters: {
+            date_format: "%m/%d/%Y",
+            decimal_point: ".",
+            direction: "ltr",
+            grouping: "[3,0]",
+            time_format: "%H:%M:%S",
+            thousands_sep: ",",
+            week_start: 7,
+        },
+        modules: { web: { messages: [{ id: "Hello", string: "Bonjour" }] } },
+        multi_lang: false,
+        hash: "30b70a0e",
+    });
+    const def = Promise.withResolvers();
     onRpc("/web/webclient/translations", async (request) => {
-        await def;
+        await def.promise;
         expect.step(`hash: ${new URL(request.url).searchParams.get("hash")}`);
     });
     TestComponent._template = `<div id="main" t-translation-context="web">Hello</div>`;
@@ -174,34 +171,59 @@ test("[cache] read from cache, and don't wait to render", async () => {
     expect.verifySteps(["hash: 30b70a0e"]); //Fetch with the hash of the translation in cache
 });
 
-test("[cache] update the cache if hash are different - template", async () => {
-    patchWithCleanup(IndexedDB.prototype, {
-        read() {
-            return {
-                lang: "en",
-                lang_parameters: {
-                    date_format: "%m/%d/%Y",
-                    decimal_point: ".",
-                    direction: "ltr",
-                    grouping: "[3,0]",
-                    time_format: "%H:%M:%S",
-                    thousands_sep: ",",
-                    week_start: 7,
-                },
-                modules: { web: { messages: [{ id: "Hello", string: "Different Bonjour" }] } },
-                multi_lang: false,
-                hash: "30b",
-            };
-        },
-        write(table, key, value) {
-            expect.step(`table: ${table}`);
-            expect.step(`key: ${key}`);
-            expect.step(`value: ${JSON.stringify(value)}`);
-        },
+test("[cache] don't fetch if the cache is up to date with the session hash", async () => {
+    patchWithCleanup(session, {
+        translation_hash: "30b70a0e",
     });
-    const def = new Deferred();
+    const translationDB = new IndexedDB("localization");
+    translationDB.write("/web/webclient/translations", '{"lang":"en"}', {
+        lang: "en",
+        lang_parameters: {
+            date_format: "%m/%d/%Y",
+            decimal_point: ".",
+            direction: "ltr",
+            grouping: "[3,0]",
+            time_format: "%H:%M:%S",
+            thousands_sep: ",",
+            week_start: 7,
+        },
+        modules: { web: { messages: [{ id: "Hello", string: "Bonjour" }] } },
+        multi_lang: false,
+        hash: "30b70a0e",
+    });
+    onRpc("/web/webclient/translations", () => {
+        expect.step("fetch translations");
+    });
+    TestComponent._template = `<div id="main" t-translation-context="web">Hello</div>`;
+    await mountWithCleanup(TestComponent);
+    expect("#main").toHaveText("Bonjour");
+    await animationFrame();
+    expect.verifySteps([]);
+});
+
+test("[cache] update the cache if hash are different - template", async () => {
+    patchWithCleanup(session, {
+        translation_hash: "ab5379cf", // hash of the translations served by the server
+    });
+    const translationDB = new IndexedDB("localization");
+    translationDB.write("/web/webclient/translations", '{"lang":"en"}', {
+        lang: "en",
+        lang_parameters: {
+            date_format: "%m/%d/%Y",
+            decimal_point: ".",
+            direction: "ltr",
+            grouping: "[3,0]",
+            time_format: "%H:%M:%S",
+            thousands_sep: ",",
+            week_start: 7,
+        },
+        modules: { web: { messages: [{ id: "Hello", string: "Different Bonjour" }] } },
+        multi_lang: false,
+        hash: "30b",
+    });
+    const def = Promise.withResolvers();
     onRpc("/web/webclient/translations", async (request) => {
-        await def;
+        await def.promise;
         expect.step(`hash: ${new URL(request.url).searchParams.get("hash")}`);
     });
     TestComponent._template = `<div id="main" t-translation-context="web">Hello</div>`;
@@ -227,14 +249,14 @@ test("[cache] update the cache if hash are different - template", async () => {
         multi_lang: false,
         hash: "ab5379cf", // hash was updated in the cache
     };
+    expect(translationDB.mockIndexedDB["/web/webclient/translations"]['{"lang":"en"}']).toEqual(
+        expectedValue
+    );
     expect.verifySteps([
         "hash: 30b", //Fetch with the hash of the translation in cache
-        "table: /web/webclient/translations",
-        'key: {"lang":"en"}',
-        `value: ${JSON.stringify(expectedValue)}`,
     ]);
 
-    component.render();
+    render(component);
     await animationFrame();
     // The value hasn't been updated with the new translation, this is because owl caches the translated templates for performance reasons.
     // This is a known limitation.
@@ -242,42 +264,36 @@ test("[cache] update the cache if hash are different - template", async () => {
 });
 
 test("[cache] update the cache if hash are different - js", async () => {
-    patchWithCleanup(IndexedDB.prototype, {
-        read() {
-            return {
-                lang: "en",
-                lang_parameters: {
-                    date_format: "%m/%d/%Y",
-                    decimal_point: ".",
-                    direction: "ltr",
-                    grouping: "[3,0]",
-                    time_format: "%H:%M:%S",
-                    thousands_sep: ",",
-                    week_start: 7,
-                },
-                modules: {
-                    web: {
-                        messages: [{ id: "Hi", string: "Different Salut" }],
-                    },
-                },
-                multi_lang: false,
-                hash: "30b",
-            };
-        },
-        write(table, key, value) {
-            expect.step(`table: ${table}`);
-            expect.step(`key: ${key}`);
-            expect.step(`value: ${JSON.stringify(value)}`);
-        },
+    patchWithCleanup(session, {
+        translation_hash: "5a528fc2", // hash of the translations served by the server
     });
-    const def = new Deferred();
+    const translationDB = new IndexedDB("localization");
+    translationDB.write("/web/webclient/translations", '{"lang":"en"}', {
+        lang: "en",
+        lang_parameters: {
+            date_format: "%m/%d/%Y",
+            decimal_point: ".",
+            direction: "ltr",
+            grouping: "[3,0]",
+            time_format: "%H:%M:%S",
+            thousands_sep: ",",
+            week_start: 7,
+        },
+        modules: {
+            web: {
+                messages: [{ id: "Hi", string: "Different Salut" }],
+            },
+        },
+        multi_lang: false,
+        hash: "30b",
+    });
+    const def = Promise.withResolvers();
     onRpc("/web/webclient/translations", async (request) => {
-        await def;
+        await def.promise;
         expect.step(`hash: ${new URL(request.url).searchParams.get("hash")}`);
     });
     class MyTestComponent extends Component {
-        static template = xml`<div id="main" t-translation-context="web"><t t-esc="otherText"/></div>`;
-        static props = ["*"];
+        static template = xml`<div id="main" t-translation-context="web"><t t-out="this.otherText"/></div>`;
 
         get otherText() {
             return _t("Hi");
@@ -312,14 +328,14 @@ test("[cache] update the cache if hash are different - js", async () => {
         multi_lang: false,
         hash: "5a528fc2", // hash was updated in the cache
     };
+    expect(translationDB.mockIndexedDB["/web/webclient/translations"]['{"lang":"en"}']).toEqual(
+        expectedValue
+    );
     expect.verifySteps([
         "hash: 30b", //Fetch with the hash of the translation in cache
-        "table: /web/webclient/translations",
-        'key: {"lang":"en"}',
-        `value: ${JSON.stringify(expectedValue)}`,
     ]);
 
-    component.render();
+    render(component);
     await animationFrame();
     // Using the updated translated terms
     expect("#main").toHaveText("Salut");
@@ -328,7 +344,7 @@ test("[cache] update the cache if hash are different - js", async () => {
 test("can lazy translate", async () => {
     // Can't use patchWithCleanup cause it doesn't support Symbol
     translatedTerms[translationLoaded] = false;
-    TestComponent._template = `<div id="main" t-translation-context="web"><t t-esc="constructor.someLazyText" /></div>`;
+    TestComponent._template = `<div id="main" t-translation-context="web"><t t-out="this.constructor.someLazyText" /></div>`;
     TestComponent.someLazyText = _t("Hello");
     expect(() => TestComponent.someLazyText.toString()).toThrow();
     expect(() => TestComponent.someLazyText.valueOf()).toThrow();
@@ -471,5 +487,16 @@ describe("_t with markups", () => {
         expect(translatedStr.valueOf()).toBe(
             "&lt;script&gt;document.write(&#x27;pizza hawai&#x27;)&lt;/script&gt; <blink>Mario Kart</blink>"
         );
+    });
+    test("a lazy term with a markup value converts to a string", () => {
+        translatedTerms[translationLoaded] = false;
+        const translatedStr = _t("I love %s", markup`<blink>Mario Kart</blink>`);
+        patchTranslations({
+            web: {
+                "I love %s": "Vive %s",
+            },
+        });
+        expect(String(translatedStr)).toBe("Vive <blink>Mario Kart</blink>");
+        expect(`${translatedStr}`).toBe("Vive <blink>Mario Kart</blink>");
     });
 });

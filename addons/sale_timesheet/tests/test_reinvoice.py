@@ -11,6 +11,8 @@ from odoo.tests import Form, tagged
 @tagged('-at_install', 'post_install')
 class TestReInvoice(TestCommonSaleTimesheet):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -22,10 +24,10 @@ class TestReInvoice(TestCommonSaleTimesheet):
             'service_tracking': 'task_in_project'
         }
         cls.company_data['product_order_no'].write(service_values)
-        service_values['expense_policy'] = 'cost'
+        service_values['reinvoice_policy'] = 'cost'
         cls.company_data['product_order_cost'].write(service_values)
         cls.company_data['product_delivery_cost'].write(service_values)
-        service_values['expense_policy'] = 'sales_price'
+        service_values['reinvoice_policy'] = 'sales_price'
         cls.company_data['product_order_sales_price'].write(service_values)
         cls.company_data['product_delivery_sales_price'].write(service_values)
 
@@ -382,7 +384,7 @@ class TestReInvoice(TestCommonSaleTimesheet):
             'service_tracking': 'task_in_project',
         }, {
             'name': 'Expense Product',
-            'expense_policy': 'sales_price',
+            'reinvoice_policy': 'sales_price',
             'list_price': 20,
         }])
         sale_order = self.env['sale.order'].create({'partner_id': self.partner_a.id})
@@ -411,10 +413,3 @@ class TestReInvoice(TestCommonSaleTimesheet):
         self.assertEqual(project.account_id.vendor_bill_count, 1, 'Vendor bill should be linked to project account')
         self.assertTrue(vendor_bill.line_ids.analytic_line_ids, 'Analytic line should be created for the account move line')
         self.assertTrue(sale_order.order_line.analytic_line_ids, 'Analytic line should be linked to the sale order line created by the re-invoiced expense product')
-
-        # Only the original vendor bill amount should appear on the project update, to stay consistent with the corresponding hr_expense behavior
-        updates = project._get_profitability_items()
-        data_line = updates['costs']['data'][0]
-        self.assertEqual(data_line['id'], 'other_purchase_costs')
-        self.assertEqual(data_line['billed'], -20)
-        self.assertEqual(updates['costs']['total']['billed'], -20, 'Only the vendor bill should be deducted')

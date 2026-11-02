@@ -1,6 +1,5 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-import base64
 import datetime
 import io
 import logging
@@ -14,9 +13,10 @@ from werkzeug import urls
 from odoo import api, fields, models, _
 from odoo.exceptions import RedirectWarning, UserError, AccessError
 from odoo.http import request
-from odoo.tools import html2plaintext, sql
+from odoo.addons.website.tools import text_from_html
+from odoo.tools import BinaryBytes, html2plaintext, sql
 from odoo.tools.pdf import PdfFileReader
-from odoo.addons.portal.controllers.portal_thread import PortalChatter
+from odoo.addons.portal.controllers.thread import PortalWebClientController
 
 _logger = logging.getLogger(__name__)
 
@@ -29,14 +29,15 @@ class SlideSlide(models.Model):
         'website.seo.metadata',
         'website.published.mixin',
         'website.searchable.mixin',
+        'website.structured_data.mixin',
     ]
-    _description = 'Slides'
+    _description = 'Slide'
     _mail_post_access = 'read'
     _order_by_strategy = {
         'sequence': 'sequence asc, id asc',
         'most_viewed': 'total_views desc',
         'most_voted': 'likes desc',
-        'latest': 'date_published desc',
+        'latest': 'published_date desc',
     }
     _order = 'sequence asc, is_category asc, id asc'
     _partner_unfollow_enabled = True
@@ -114,7 +115,7 @@ class SlideSlide(models.Model):
     image_google_url = fields.Char('Image Link', related='url', readonly=False,
         help="Link of the image (we currently only support Google Drive as source)")
     # content - documents
-    slide_icon_class = fields.Char('Slide Icon fa-class', compute='_compute_slide_icon_class')
+    slide_icon_class = fields.Char('Slide Icon oi-class', compute='_compute_slide_icon_class')
     slide_type = fields.Selection([
         ('image', 'Image'),
         ('article', 'Article'),
@@ -143,7 +144,6 @@ class SlideSlide(models.Model):
     vimeo_id = fields.Char('Video Vimeo ID', compute='_compute_vimeo_id')
     # website
     website_id = fields.Many2one(related='channel_id.website_id', readonly=True)
-    date_published = fields.Datetime('Publish Date', readonly=True, tracking=False, copy=False)
     likes = fields.Integer('Likes', compute='_compute_like_info', store=True, compute_sudo=False)
     dislikes = fields.Integer('Dislikes', compute='_compute_like_info', store=True, compute_sudo=False)
     embed_code = fields.Html('Embed Code', readonly=True, compute='_compute_embed_code', sanitize=False)
@@ -184,10 +184,10 @@ class SlideSlide(models.Model):
             elif not slide.image_1920:
                 slide.image_1920 = False
 
-    @api.depends('date_published', 'is_published')
+    @api.depends('published_date', 'is_published')
     def _compute_is_new_slide(self):
         for slide in self:
-            slide.is_new_slide = slide.date_published > fields.Datetime.now() - relativedelta(days=7) if slide.is_published else False
+            slide.is_new_slide = slide.published_date > fields.Datetime.now() - relativedelta(days=7) if slide.is_published else False
 
     def _get_placeholder_filename(self, field):
         return self.channel_id._get_placeholder_filename(field)
@@ -240,11 +240,11 @@ class SlideSlide(models.Model):
         for slide in self:
             slide.questions_count = len(slide.question_ids)
 
-    @api.depends("website_message_ids")
+    @api.depends("message_ids")
     def _compute_comments_count(self):
         count_by_slide = dict(
             self.env["mail.message"]._read_group(
-                PortalChatter._get_portal_message_fetch_domain(self),
+                PortalWebClientController._get_portal_message_fetch_domain(self),
                 groupby=["res_id"],
                 aggregates=["__count"],
             )
@@ -337,19 +337,19 @@ class SlideSlide(models.Model):
     @api.depends('slide_type')
     def _compute_slide_icon_class(self):
         icon_per_slide_type = {
-            'image': 'fa-file-picture-o',
-            'article': 'fa-file-text-o',
-            'quiz': 'fa-question-circle-o',
-            'pdf': 'fa-file-pdf-o',
-            'sheet': 'fa-file-excel-o',
-            'doc': 'fa-file-word-o',
-            'slides': 'fa-file-powerpoint-o',
-            'youtube_video': 'fa-youtube-play',
-            'google_drive_video': 'fa-play-circle-o',
-            'vimeo_video': 'fa-vimeo',
+            'image': 'image',
+            'article': 'article',
+            'quiz': 'help_outline',
+            'pdf': 'picture_as_pdf',
+            'sheet': 'table_chart',
+            'doc': 'description',
+            'slides': 'slideshow',
+            'youtube_video': 'oi_youtube-play',
+            'google_drive_video': 'play_circle',
+            'vimeo_video': 'oi_vimeo',
         }
         for slide in self:
-            slide.slide_icon_class = icon_per_slide_type.get(slide.slide_type, 'fa-file-o')
+            slide.slide_icon_class = icon_per_slide_type.get(slide.slide_type, 'description')
 
     @api.depends('slide_category', 'source_type', 'video_source_type')
     def _compute_slide_type(self):
@@ -381,7 +381,7 @@ class SlideSlide(models.Model):
                 slide.slide_type = False
 
     @api.depends('slide_partner_ids.partner_id', 'slide_partner_ids.vote', 'slide_partner_ids.completed')
-    @api.depends('uid')
+    @api.depends_context('uid')
     def _compute_user_membership_id(self):
         slide_partners = self.env['slide.slide.partner'].sudo().search([
             ('slide_id', 'in', self.ids),
@@ -431,7 +431,7 @@ class SlideSlide(models.Model):
             elif slide.slide_category == 'document' and slide.source_type == 'local_file':
                 slide_url = base_url + self.env['ir.http']._url_for('/slides/embed/%s?page=1' % slide.id)
                 slide_url_external = base_url + self.env['ir.http']._url_for('/slides/embed_external/%s?page=1' % slide.id)
-                base_embed_code = Markup('<iframe src="%s" class="o_wslides_iframe_viewer" allowFullScreen="true" height="%s" width="%s" frameborder="0" aria-label="%s"></iframe>')
+                base_embed_code = Markup('<iframe src="%s" class="o_wslides_iframe_viewer" allowFullScreen="true" allow="clipboard-write" height="%s" width="%s" frameborder="0" aria-label="%s"></iframe>')
                 iframe_aria_label = _('Embed code')
                 embed_code = base_embed_code % (slide_url, 315, 420, iframe_aria_label)
                 embed_code_external = base_embed_code % (slide_url_external, 315, 420, iframe_aria_label)
@@ -517,7 +517,7 @@ class SlideSlide(models.Model):
     @api.onchange('document_binary_content')
     def _on_change_document_binary_content(self):
         if self.slide_category == 'document' and self.source_type == 'local_file' and self.document_binary_content:
-            completion_time = self._get_completion_time_pdf(base64.b64decode(self.document_binary_content))
+            completion_time = self._get_completion_time_pdf(self.document_binary_content.content)
             if completion_time:
                 self.completion_time = completion_time
 
@@ -539,6 +539,46 @@ class SlideSlide(models.Model):
     @api.depends('channel_id.website_id.domain')
     def _compute_website_absolute_url(self):
         super()._compute_website_absolute_url()
+
+    def _prepare_jsonld_vals(self):
+        self.ensure_one()
+        website = self.env.website or self.env['website'].browse(self.env.context.get('host_id'))
+        base_url = website.get_base_url()
+        slide_url = self.website_absolute_url
+        vals = {
+            '@type': 'LearningResource',
+            '@id': f'{slide_url}/#learningresource',
+            'name': self.name,
+            'url': slide_url,
+            'isPartOf': {'@id': f'{self.channel_id.website_absolute_url}/#course'},
+        }
+        if learning_type := {
+            'infographic': 'Image',
+            'article': 'Article',
+            'document': 'Document',
+            'video': 'Video',
+            'quiz': 'Quiz',
+        }.get(self.slide_category):
+            vals['learningResourceType'] = learning_type
+        if self.description and (description := text_from_html(self.description, True)):
+            vals['description'] = description
+        if date_published := self._to_iso_datetime(self.published_date):
+            vals['datePublished'] = date_published
+        if self.image_1024:
+            vals['image'] = f'{base_url}{website.image_url(self, "image_1024")}'
+        return vals
+
+    def _get_breadcrumb_items(self, is_detail_page=False):
+        items = self.channel_id._get_breadcrumb_items(is_detail_page)
+        if is_detail_page:
+            items.append((self.name, self.website_url))
+        return items
+
+    def _get_jsonld_dict(self, is_detail_page=False):
+        schemas = super()._get_jsonld_dict(is_detail_page)
+        if is_detail_page:
+            schemas.append(self._prepare_jsonld_vals())
+        return schemas
 
     @api.depends('is_published')
     def _compute_website_share_url(self):
@@ -569,13 +609,13 @@ class SlideSlide(models.Model):
             # Do not publish slide if user has not publisher rights
             if vals['channel_id'] not in can_publish_channel_ids:
                 # 'website_published' is handled by mixin
-                vals['date_published'] = False
+                vals['published_date'] = False
 
             if vals.get('is_category'):
                 vals['is_preview'] = True
                 vals['is_published'] = True
-            if vals.get('is_published') and not vals.get('date_published'):
-                vals['date_published'] = datetime.datetime.now()
+            if vals.get('is_published') and not vals.get('published_date'):
+                vals['published_date'] = datetime.datetime.now()
 
         slides = super().create(vals_list)
 
@@ -616,7 +656,7 @@ class SlideSlide(models.Model):
         res = super().write(values)
 
         if values.get('is_published'):
-            self.date_published = datetime.datetime.now()
+            self.published_date = datetime.datetime.now()
             self._post_publication()
 
         # avoid fetching external metadata when installing the module (i.e. for demo data)
@@ -689,10 +729,8 @@ class SlideSlide(models.Model):
             }
         return super()._get_access_action(access_uid=access_uid, force_website=force_website)
 
-    def _notify_get_recipients_groups(self, message, model_description, msg_vals=False):
-        groups = super()._notify_get_recipients_groups(
-            message, model_description, msg_vals=msg_vals
-        )
+    def _notify_get_recipients_groups(self, message, model_description):
+        groups = super()._notify_get_recipients_groups(message, model_description)
         if not self:
             return groups
 
@@ -987,7 +1025,7 @@ class SlideSlide(models.Model):
           (e.g: 'Video could not be found') """
 
         self.ensure_one()
-        google_app_key = self.env['website'].get_current_website().sudo().website_slide_google_app_key
+        google_app_key = self.env.website.website_slide_google_app_key
         error_message = False
         try:
             response = requests.get(
@@ -1043,7 +1081,7 @@ class SlideSlide(models.Model):
             if image_url_only:
                 slide_metadata['image_url'] = thumbnail_url
             else:
-                slide_metadata['image_1920'] = base64.b64encode(
+                slide_metadata['image_1920'] = BinaryBytes(
                     requests.get(thumbnail_url, timeout=3).content
                 )
 
@@ -1079,7 +1117,7 @@ class SlideSlide(models.Model):
                 params['access_token'] = access_token
 
         if not params.get('access_token'):
-            params['key'] = self.env['website'].get_current_website().sudo().website_slide_google_app_key
+            params['key'] = self.env.website.website_slide_google_app_key
 
         error_message = False
         try:
@@ -1119,7 +1157,7 @@ class SlideSlide(models.Model):
             if image_url_only:
                 slide_metadata['image_url'] = thumbnail_url
             else:
-                slide_metadata['image_1920'] = base64.b64encode(
+                slide_metadata['image_1920'] = BinaryBytes(
                     requests.get(thumbnail_url, timeout=3).content
                 )
 
@@ -1240,7 +1278,7 @@ class SlideSlide(models.Model):
             if image_url_only:
                 slide_metadata['image_url'] = thumbnail_url
             else:
-                slide_metadata['image_1920'] = base64.b64encode(
+                slide_metadata['image_1920'] = BinaryBytes(
                     requests.get(thumbnail_url, timeout=3).content
                 )
 
@@ -1248,9 +1286,9 @@ class SlideSlide(models.Model):
 
     def _default_website_meta(self):
         res = super()._default_website_meta()
-        res['default_opengraph']['og:title'] = res['default_twitter']['twitter:title'] = self.name
-        res['default_opengraph']['og:description'] = res['default_twitter']['twitter:description'] = html2plaintext(self.description)
-        res['default_opengraph']['og:image'] = res['default_twitter']['twitter:image'] = self.env['website'].image_url(self, 'image_1024')
+        res['default_opengraph']['og:title'] = self.name
+        res['default_opengraph']['og:description'] = html2plaintext(self.description)
+        res['default_opengraph']['og:image'] = self.env['website'].image_url(self, 'image_1024')
         res['default_meta_description'] = html2plaintext(self.description)
         return res
 
@@ -1290,50 +1328,51 @@ class SlideSlide(models.Model):
 
     @api.model
     def _search_get_detail(self, website, order, options):
-        with_description = options['displayDescription']
-        search_fields = ['name']
-        fetch_fields = ['id', 'name']
+        search_fields = ['name', 'tag_ids.name', 'description']
+        fetch_fields = ['id', 'name', 'description']
         mapping = {
             'name': {'name': 'name', 'type': 'text', 'match': True},
             'website_url': {'name': 'url', 'type': 'text', 'truncate': False},
-            'extra_link': {'name': 'course', 'type': 'text'},
-            'extra_link_url': {'name': 'course_url', 'type': 'text', 'truncate': False},
+            'tags': {'name': 'tag_ids', 'type': 'tags', 'match': True},
+            'description': {'name': 'description', 'type': 'text', 'html': True, 'match': True},
         }
-        if with_description:
-            search_fields.append('description')
-            fetch_fields.append('description')
-            mapping['description'] = {'name': 'description', 'type': 'text', 'html': True, 'match': True}
         return {
             'model': 'slide.slide',
             'base_domain': [website.website_domain()],
             'search_fields': search_fields,
             'fetch_fields': fetch_fields,
             'mapping': mapping,
-            'icon': 'fa-shopping-cart',
+            'icon': 'shopping_cart',
             'order': 'name desc, id desc' if 'name desc' in order else 'name asc, id desc',
+            'group_name': self.env._("Course Slides"),
+            'sequence': 70,
         }
 
     def _search_render_results(self, fetch_fields, mapping, icon, limit):
         icon_per_category = {
-            'infographic': 'fa-file-picture-o',
-            'article': 'fa-file-text',
-            'presentation': 'fa-file-pdf-o',
-            'document': 'fa-file-pdf-o',
-            'video': 'fa-play-circle',
-            'quiz': 'fa-question-circle',
-            'link': 'fa-file-code-o', # appears in template "slide_icon"
+            'infographic': 'image',
+            'article': 'article',
+            'presentation': 'picture_as_pdf',
+            'document': 'picture_as_pdf',
+            'video': 'play_circle',
+            'quiz': 'help',
+            'link': 'code',  # appears in template "slide_icon"
         }
         results_data = super()._search_render_results(fetch_fields, mapping, icon, limit)
         for slide, data in zip(self, results_data):
-            data['_fa'] = icon_per_category.get(slide.slide_category, 'fa-file-pdf-o')
+            data['_icon'] = icon_per_category.get(slide.slide_category, 'description')
             data['url'] = slide.website_absolute_url
             data['course'] = _('Course: %s', slide.channel_id.name)
             data['course_url'] = slide.channel_id.website_absolute_url
+            data['tag_ids'] = slide.tag_ids.read(['name'])
         return results_data
 
     def get_base_url(self):
         """As website_id is not defined on this record, we rely on channel website_id for base URL."""
         return self.channel_id.get_base_url()
+
+    def _get_customer_portal_message_types(self):
+        return ["comment", "email"]
 
     def _mail_get_partner_fields(self, introspect_fields=False):
         return []

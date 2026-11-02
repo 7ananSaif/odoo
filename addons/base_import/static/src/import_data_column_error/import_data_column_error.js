@@ -1,18 +1,19 @@
-import { Component, useState } from "@odoo/owl";
+import { Component, proxy, t, useProps } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 
 export class ImportDataColumnError extends Component {
     static template = "ImportDataColumnError";
-    static props = {
-        errors: { type: Array },
-        fieldInfo: { type: Object },
-        resultNames: { type: Array },
-    };
+
+    props = useProps({
+        errors: t.array(),
+        fieldInfo: t.object(),
+        resultNames: t.array(),
+    });
 
     setup() {
         this.action = useService("action");
         this.orm = useService("orm");
-        this.state = useState({
+        this.state = proxy({
             isExpanded: false,
             moreInfoContent: undefined,
         });

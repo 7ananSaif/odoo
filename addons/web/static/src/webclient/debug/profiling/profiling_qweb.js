@@ -5,13 +5,22 @@ import { renderToString } from "@web/core/utils/render";
 import { useDebounced } from "@web/core/utils/timing";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
 
-import { Component, useState, useRef, onWillStart, onMounted, onWillUnmount } from "@odoo/owl";
+import {
+    Component,
+    onMounted,
+    onWillStart,
+    onWillUnmount,
+    proxy,
+    signal,
+    t,
+    useProps,
+} from "@odoo/owl";
 
 class MenuItem extends Component {
     static template = "web.ProfilingQwebView.menuitem";
-    static props = {
-        view: Object,
-    };
+    props = useProps({
+        view: t.object(),
+    });
 }
 
 function processValue(value) {
@@ -29,22 +38,24 @@ function processValue(value) {
 export class ProfilingQwebView extends Component {
     static template = "web.ProfilingQwebView";
     static components = { MenuItem };
-    static props = { ...standardFieldProps };
+    props = useProps({
+        ...standardFieldProps,
+    });
+
+    ace = signal.ref();
 
     setup() {
         super.setup();
 
         this.orm = useService("orm");
-        this.ace = useRef("ace");
-        this.selector = useRef("selector");
 
         this.value = processValue(this.props.record.data[this.props.name]);
-        this.state = useState({
+        this.state = proxy({
             viewID: this.profile.data.length ? this.profile.data[0].view_id : 0,
             view: null,
         });
 
-        this.renderProfilingInformation = useDebounced(this.renderProfilingInformation, 100);
+        this.renderProfilingInformation = useDebounced(this.renderProfilingInformation.bind(this), 100);
 
         onWillStart(async () => {
             await loadBundle("web.ace_lib");
@@ -52,7 +63,7 @@ export class ProfilingQwebView extends Component {
             this.state.view = this.viewObjects.find((view) => view.id === this.state.viewID);
         });
         onMounted(() => {
-            this._startAce(this.ace.el);
+            this._startAce(this.ace());
             this._renderView();
         });
         onWillUnmount(() => {
@@ -156,8 +167,8 @@ export class ProfilingQwebView extends Component {
 
         const flat = {};
         const arch = [{ xpath: "", children: [] }];
-        const rows = this.ace.el.querySelectorAll(".ace_gutter .ace_gutter-cell");
-        const elems = this.ace.el.querySelectorAll(
+        const rows = this.ace().querySelectorAll(".ace_gutter .ace_gutter-cell");
+        const elems = this.ace().querySelectorAll(
             ".ace_tag-open, .ace_end-tag-close, .ace_end-tag-open, .ace_qweb"
         );
         elems.forEach((node) => {
@@ -286,13 +297,13 @@ export class ProfilingQwebView extends Component {
     }
     _unmoutInfo() {
         if (this.hover) {
-            if (this.ace.el.querySelector(".o_ace_hover")) {
-                this.ace.el.querySelector(".o_ace_hover").remove();
+            if (this.ace().querySelector(".o_ace_hover")) {
+                this.ace().querySelector(".o_ace_hover").remove();
             }
         }
         if (this.info) {
-            if (this.ace.el.querySelector(".o_ace_info")) {
-                this.ace.el.querySelector(".o_ace_info").remove();
+            if (this.ace().querySelector(".o_ace_info")) {
+                this.ace().querySelector(".o_ace_info").remove();
             }
         }
     }

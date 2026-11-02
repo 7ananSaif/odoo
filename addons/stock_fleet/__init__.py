@@ -1,4 +1,5 @@
 from . import models
+from . import report
 
 
 def _enable_dispatch_management(env):
@@ -10,3 +11,5 @@ def _enable_dispatch_management(env):
 
         warehouses.out_type_id.dispatch_management = True
         warehouses.in_type_id.dispatch_management = True
+
+    env['res.config.settings'].create([{'group_stock_picking_batch': True}]).execute()

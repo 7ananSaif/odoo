@@ -9,17 +9,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2026-01-07 13:27+0000\n"
-"Last-Translator: Bren Driesen <brdri@odoo.com>\n"
-"Language-Team: Dutch <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-04 17:46+0000\n"
+"PO-Revision-Date: 2026-08-31 16:50+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Dutch <https://translate.odoo.com/projects/odoo-s19-4/"
 "hr_recruitment_skills/nl/>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: hr_recruitment_skills
 #: model:ir.model,name:hr_recruitment_skills.model_hr_applicant
@@ -36,6 +36,11 @@ msgstr "Solliciteren voor een functie"
 #: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_applicant_skill_view_form
 msgid "Category"
 msgstr "Categorie"
+
+#. module: hr_recruitment_skills
+#: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant_skill__certificate_file
+msgid "Certificate"
+msgstr "Certificaat"
 
 #. module: hr_recruitment_skills
 #: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant_skill__color
@@ -58,6 +63,16 @@ msgid "Current Applicant Skill"
 msgstr "Huidige vaardigheid sollicitant"
 
 #. module: hr_recruitment_skills
+#: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__degree_score
+msgid "Degree Score"
+msgstr ""
+
+#. module: hr_recruitment_skills
+#: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__is_degree_score_matching
+msgid "Degree Score Matching"
+msgstr ""
+
+#. module: hr_recruitment_skills
 #: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__display_name
 #: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant_skill__display_name
 #: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_job__display_name
@@ -77,13 +92,19 @@ msgid "ID"
 msgstr "ID"
 
 #. module: hr_recruitment_skills
+#: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__job_expected_degree
+msgid "Job Degree"
+msgstr ""
+
+#. module: hr_recruitment_skills
 #: model:ir.model,name:hr_recruitment_skills.model_hr_job
 msgid "Job Position"
 msgstr "Functie"
 
 #. module: hr_recruitment_skills
 #. odoo-javascript
-#: code:addons/hr_recruitment_skills/static/src/fields/skill_match_gauge_field/skill_match_gauge_field.xml:0
+#: code:addons/hr_recruitment_skills/static/src/components/match_scores_gauge/match_scores_gauge.js:0
+#: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_applicant_view_form
 msgid "Job Position Matching"
 msgstr "Match met de functie"
 
@@ -103,7 +124,12 @@ msgid "Levels Count"
 msgstr "Niveaus Tellen"
 
 #. module: hr_recruitment_skills
-#: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.crm_case_tree_view_job
+#: model:ir.module.module,summary:base.module_hr_recruitment_skills
+msgid "Manage skills of your employees"
+msgstr ""
+
+#. module: hr_recruitment_skills
+#: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_job_list_inherit_hr_recruitment_skills
 msgid "Matching"
 msgstr "Aflettercode"
 
@@ -114,12 +140,14 @@ msgid "Matching Applicants"
 msgstr "Sollicitanten die matchen"
 
 #. module: hr_recruitment_skills
-#: model:ir.actions.act_window,name:hr_recruitment_skills.action_find_matching_job
-msgid "Matching Positions"
-msgstr "Matchende functies"
+#: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__matching_skill_ids
+msgid "Matching Factors"
+msgstr ""
 
 #. module: hr_recruitment_skills
 #: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__matching_score
+#: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.crm_case_tree_view_job
+#: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_applicant_view_search_bis
 msgid "Matching Score"
 msgstr "Matchpercentage"
 
@@ -129,12 +157,37 @@ msgid "Matching Score(%)"
 msgstr "Matchpercentage (%)"
 
 #. module: hr_recruitment_skills
-#: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__matching_skill_ids
+#: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_job__matching_applicant_skill_ids
 msgid "Matching Skills"
 msgstr "Matchende vaardigheden"
 
 #. module: hr_recruitment_skills
+#. odoo-javascript
+#: code:addons/hr_recruitment_skills/static/src/components/search_job_applicant_menu/search_job_applicant_menu.xml:0
+#: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.view_hr_job_form
+#: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.view_hr_job_kanban
+msgid "Matching Talents"
+msgstr "Geschikte talenten"
+
+#. module: hr_recruitment_skills
+#. odoo-javascript
+#: code:addons/hr_recruitment_skills/static/src/components/match_scores_gauge/match_scores_gauge.js:0
+msgid "Max Value"
+msgstr ""
+
+#. module: hr_recruitment_skills
+#. odoo-javascript
+#: code:addons/hr_recruitment_skills/static/src/components/match_scores_gauge/match_scores_gauge.js:0
+msgid "Max Value Field"
+msgstr ""
+
+#. module: hr_recruitment_skills
 #: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__missing_skill_ids
+msgid "Missing Factors"
+msgstr ""
+
+#. module: hr_recruitment_skills
+#: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_job__missing_applicant_skill_ids
 msgid "Missing Skills"
 msgstr "Ontbrekende vaardigheden"
 
@@ -146,8 +199,8 @@ msgstr "Ga naar deze vacature"
 #. module: hr_recruitment_skills
 #. odoo-python
 #: code:addons/hr_recruitment_skills/models/hr_job.py:0
-msgid "No Matching Applicants"
-msgstr "Geen matchende sollicitanten"
+msgid "No Matching Talents"
+msgstr "Geen geschikte talenten"
 
 #. module: hr_recruitment_skills
 #: model:ir.model.fields,help:hr_recruitment_skills.field_hr_applicant_skill__levels_count
@@ -165,11 +218,21 @@ msgid "Progress from zero knowledge (0%) to fully mastered (100%)."
 msgstr "Voortgang van nul kennis (0%) tot volledige beheersing (100%)."
 
 #. module: hr_recruitment_skills
+#: model:ir.module.module,shortdesc:base.module_hr_recruitment_skills
+msgid "Recruitment - Skills Management"
+msgstr ""
+
+#. module: hr_recruitment_skills
 #. odoo-javascript
-#: code:addons/hr_recruitment_skills/static/src/components/search_job_applicant_menu/search_job_applicant_menu.xml:0
-#: model:ir.actions.server,name:hr_recruitment_skills.action_applicant_search_applicant
-msgid "Search Matching Applicants"
-msgstr "Zoek geschikte sollicitanten"
+#: code:addons/hr_recruitment_skills/static/src/components/match_scores_gauge/match_scores_gauge.js:0
+msgid "Remaining"
+msgstr ""
+
+#. module: hr_recruitment_skills
+#. odoo-javascript
+#: code:addons/hr_recruitment_skills/static/src/components/match_scores_gauge/match_scores_gauge.js:0
+msgid "Score Fields"
+msgstr ""
 
 #. module: hr_recruitment_skills
 #: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__skill_ids
@@ -185,12 +248,12 @@ msgstr "Vaardigheidsniveau"
 #. module: hr_recruitment_skills
 #: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant_skill__skill_type_id
 msgid "Skill Type"
-msgstr "Soort vaardigheid"
+msgstr "Vaardigheidstype"
 
 #. module: hr_recruitment_skills
 #: model:ir.ui.menu,name:hr_recruitment_skills.hr_recruitment_skill_type_menu
 msgid "Skill Types"
-msgstr "Vaardigheidssoorten"
+msgstr "Vaardigheidstypes"
 
 #. module: hr_recruitment_skills
 #: model:ir.model,name:hr_recruitment_skills.model_hr_applicant_skill
@@ -199,11 +262,18 @@ msgstr "Vaardigheidsniveau voor een sollicitant"
 
 #. module: hr_recruitment_skills
 #: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__applicant_skill_ids
+#: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.crm_case_tree_view_job
 #: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_applicant_skill_view_form
 #: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_applicant_view_form
 #: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_applicant_view_search
+#: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_applicant_view_search_bis
 msgid "Skills"
 msgstr "Vaardigheden"
+
+#. module: hr_recruitment_skills
+#: model:ir.model.fields,field_description:hr_recruitment_skills.field_hr_applicant__skills_score
+msgid "Skills Score"
+msgstr ""
 
 #. module: hr_recruitment_skills
 #: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_applicant_skill_view_form
@@ -212,9 +282,9 @@ msgstr "De einddatum moet na de startdatum liggen."
 
 #. module: hr_recruitment_skills
 #. odoo-javascript
-#: code:addons/hr_recruitment_skills/static/src/fields/skill_match_gauge_field/skill_match_gauge_field.js:0
-msgid "This score reflects skills and degree match"
-msgstr "Deze score weerspiegelt de match op vlak van vaardigheden en diploma's"
+#: code:addons/hr_recruitment_skills/static/src/components/match_scores_gauge/match_scores_gauge.js:0
+msgid "Title"
+msgstr ""
 
 #. module: hr_recruitment_skills
 #: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_applicant_skill_view_form
@@ -240,10 +310,10 @@ msgstr "Geldigheid stop"
 #. odoo-python
 #: code:addons/hr_recruitment_skills/models/hr_job.py:0
 msgid ""
-"We do not have any applicants who meet the skill requirements for this job "
+"We do not have any talents who meet the skill requirements for this job "
 "position in the database at the moment."
 msgstr ""
-"We hebben op dit moment geen sollicitanten in de database die voldoen aan de "
+"We hebben momenteel geen talenten in de database die voldoen aan de "
 "vaardigheidseisen voor deze functie."
 
 #. module: hr_recruitment_skills
@@ -255,19 +325,3 @@ msgstr "indien aangevinkt wordt het vaardigheidstype een certificeringstype"
 #: model_terms:ir.ui.view,arch_db:hr_recruitment_skills.hr_applicant_skill_view_form
 msgid "indefinite"
 msgstr "onbepaald"
-
-#~ msgid "Expected Skills"
-#~ msgstr "Verwachte vaardigheden"
-
-#~ msgid "The skill %(name)s and skill type %(type)s doesn't match"
-#~ msgstr ""
-#~ "De vaardigheid %(name)s en het soort vaardigheid %(type)s komen niet "
-#~ "overeen"
-
-#~ msgid "The skill level %(level)s is not valid for skill type: %(type)s"
-#~ msgstr ""
-#~ "Het vaardigheidsniveau %(level)s is niet geldig voor het soort "
-#~ "vaardigheid: %(type)s"
-
-#~ msgid "Two levels for the same skill is not allowed"
-#~ msgstr "Twee niveaus voor dezelfde vaardigheid is niet toegestaan"

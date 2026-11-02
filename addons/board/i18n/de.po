@@ -7,22 +7,38 @@
 # Larissa Manderfeld, 2023
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
-# "Larissa Manderfeld (lman)" <lman@odoo.com>, 2025.
+# "Larissa Manderfeld (lman)" <lman@odoo.com>, 2025, 2026.
+# Odoo Translation Bot <c3p@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-10-31 12:43+0000\n"
-"Last-Translator: \"Larissa Manderfeld (lman)\" <lman@odoo.com>\n"
-"Language-Team: German <https://translate.odoo.com/projects/odoo-19/board/de/"
+"POT-Creation-Date: 2026-10-16 17:43+0000\n"
+"PO-Revision-Date: 2026-10-08 08:42+0000\n"
+"Last-Translator: Odoo Translation Bot <c3p@odoo.com>\n"
+"Language-Team: German <https://translate.odoo.com/projects/odoo-20/board/de/"
 ">\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: board
+#: model:ir.module.module,description:base.module_board
+msgid ""
+"\n"
+"Lets the user create a custom dashboard.\n"
+"========================================\n"
+"\n"
+"Allows users to create custom dashboard.\n"
+msgstr ""
+"\n"
+"Ermöglicht es dem Benutzer, ein benutzerdefiniertes Dashboard zu erstellen\n"
+"==========================================================\n"
+"\n"
+"Ermöglicht Benutzern die Erstellung benutzerdefinierter Dashboards.\n"
 
 #. module: board
 #. odoo-javascript
@@ -58,6 +74,11 @@ msgid "Board"
 msgstr "Dashboard"
 
 #. module: board
+#: model:ir.module.module,summary:base.module_board
+msgid "Build your own dashboards"
+msgstr "Ihre eigenen Dashboards erstellen"
+
+#. module: board
 #. odoo-javascript
 #: code:addons/board/static/src/board_controller.xml:0
 msgid "Change Layout"
@@ -74,6 +95,11 @@ msgstr "Es konnte kein Filter zum Dashboard hinzugefügt werden"
 #: code:addons/board/static/src/add_to_board/add_to_board.xml:0
 msgid "Dashboard"
 msgstr "Dashboard"
+
+#. module: board
+#: model:ir.module.module,shortdesc:base.module_board
+msgid "Dashboards"
+msgstr "Dashboards "
 
 #. module: board
 #: model:ir.model.fields,field_description:board.field_board_board__display_name
@@ -103,13 +129,6 @@ msgstr "Layout"
 #: model_terms:ir.ui.view,arch_db:board.board_my_dash_view
 msgid "My Dashboard"
 msgstr "Mein Dashboard"
-
-#. module: board
-#. odoo-javascript
-#: code:addons/board/static/src/add_to_board/add_to_board.js:0
-msgid "Please refresh your browser for the changes to take effect."
-msgstr ""
-"Bitte aktualisieren Sie Ihren Browser, damit die Änderungen wirksam werden."
 
 #. module: board
 #. odoo-javascript
@@ -149,3 +168,8 @@ msgstr "in den erweiterten Suchoptionen."
 #: code:addons/board/static/src/add_to_board/add_to_board.js:0
 msgid "“%s” added to dashboard"
 msgstr "„%s“ zum Dashboard hinzugefügt"
+
+#~ msgid "Please refresh your browser for the changes to take effect."
+#~ msgstr ""
+#~ "Bitte aktualisieren Sie Ihren Browser, damit die Änderungen wirksam "
+#~ "werden."

@@ -1,11 +1,15 @@
-import { Component, useState } from "@odoo/owl";
+import { Component, proxy, t, useProps } from "@odoo/owl";
 
 export class QWebPicker extends Component {
     static template = "html_editor.QWebPicker";
-    static props = ["groups", "select"];
+    props = useProps({
+        groups: t.any(),
+        select: t.any(),
+        expression: t.any().optional(),
+    });
 
     setup() {
-        this.state = useState({ groups: this.props.groups });
+        this.state = proxy({ groups: this.props.groups });
     }
 
     onChange(ev) {

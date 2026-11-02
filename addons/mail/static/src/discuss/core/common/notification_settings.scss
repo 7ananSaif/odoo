@@ -7,9 +7,14 @@
         min-width: 20px;
     }
 
-    button {
+    .btn {
+        --#{$prefix}btn-hover-bg: #{$dropdown-link-hover-bg};
+        --#{$prefix}btn-active-bg: #{$dropdown-link-hover-bg};
+
         &:hover, &.show {
-            background-color: var(--mail-NotificationSettings-btnHoverBg, $gray-200);
+            .o-simulateDarkTheme & {
+                background-color: mix($gray-700, $gray-800);
+            }
         }
     }
 }

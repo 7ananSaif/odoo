@@ -1,7 +1,8 @@
+import { proxy } from "@odoo/owl";
 import { Plugin } from "@html_editor/plugin";
 import { closestElement } from "@html_editor/utils/dom_traversal";
+import { withSequence } from "@html_editor/utils/resource";
 import { _t } from "@web/core/l10n/translation";
-import { reactive } from "@odoo/owl";
 import { TableAlignSelector } from "./table_align_selector";
 
 const verticalAlignmentItems = [
@@ -39,10 +40,14 @@ export class TableAlignPlugin extends Plugin {
                 run: () => this.setVerticalAlignment("bottom"),
             },
         ],
+        toolbar_groups: withSequence(30, {
+            id: "table_alignment",
+            namespaces: ["expanded", "table"],
+        }),
         toolbar_items: [
-            {
+            withSequence(20, {
                 id: "table_alignment",
-                groupId: "layout",
+                groupId: "table_alignment",
                 description: _t("Vertical align table cells content"),
                 isAvailable: () =>
                     this.dependencies.selection
@@ -52,25 +57,34 @@ export class TableAlignPlugin extends Plugin {
                 props: {
                     getItems: () => verticalAlignmentItems,
                     getDisplay: () => this.verticalAlignMode,
+                    focusEditable: () => this.dependencies.selection.focusEditable(),
                     onSelected: (item) => {
                         this.setVerticalAlignment(item.mode);
                     },
                 },
-            },
+            }),
         ],
 
         /** Handlers */
-        selectionchange_handlers: this.updateVerticalAlignParams.bind(this),
-        post_undo_handlers: this.updateVerticalAlignParams.bind(this),
-        post_redo_handlers: this.updateVerticalAlignParams.bind(this),
-        remove_all_formats_handlers: this.setVerticalAlignment.bind(this),
+        on_selectionchange_handlers: this.updateVerticalAlignParams.bind(this),
+        on_history_commit_undone_handlers: this.updateVerticalAlignParams.bind(this),
+        on_history_commit_redone_handlers: this.updateVerticalAlignParams.bind(this),
+        on_all_formats_removed_handlers: this.setVerticalAlignment.bind(this),
 
         /** Predicates */
-        has_format_predicates: (node) => closestElement(node, "td, th")?.style.verticalAlign,
+        can_remove_format_predicates: (editableTargetedNodes) => {
+            if (
+                editableTargetedNodes.some(
+                    (node) => closestElement(node, "td, th")?.style.verticalAlign
+                )
+            ) {
+                return true;
+            }
+        },
     };
 
     setup() {
-        this.verticalAlignMode = reactive({ displayName: "" });
+        this.verticalAlignMode = proxy({ displayName: "" });
     }
 
     get currentVerticalAlign() {
@@ -107,7 +121,7 @@ export class TableAlignPlugin extends Plugin {
         }
 
         if (isAlignmentUpdated) {
-            this.dependencies.history.addStep();
+            this.dependencies.history.commit();
         }
         this.updateVerticalAlignParams();
     }

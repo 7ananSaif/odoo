@@ -2,7 +2,6 @@
 
 import logging
 import requests
-import uuid
 from datetime import timedelta
 from markupsafe import Markup
 
@@ -17,37 +16,53 @@ from ...tools import jwt, discuss
 
 _logger = logging.getLogger(__name__)
 SFU_MODE_THRESHOLD = 3
+POST_LEAVE_MESSAGE = object()
 
 
 class DiscussChannelMember(models.Model):
     _name = 'discuss.channel.member'
-    _inherit = ["bus.listener.mixin"]
+    _inherit = ["bus.listener.mixin", "bus.sync.mixin"]
     _description = "Channel Member"
-    _rec_names_search = ["channel_id", "partner_id", "guest_id"]
+    _rec_names_search = ("channel_id", "partner_id", "guest_id")
     _bypass_create_check = {}
 
     # identity
     partner_id = fields.Many2one("res.partner", "Partner", ondelete="cascade", index=True)
     guest_id = fields.Many2one("mail.guest", "Guest", ondelete="cascade", index=True)
     is_self = fields.Boolean(compute="_compute_is_self", search="_search_is_self")
+    can_unlink = fields.Boolean(compute="_compute_can_unlink")
     # channel
     channel_id = fields.Many2one("discuss.channel", "Channel", ondelete="cascade", required=True, bypass_search_access=True)
+    channel_role = fields.Selection(
+        [("owner", "Owner"), ("admin", "Admin")],
+        default=None,
+        string="Channel Role",
+        help="The role of the member in the channel. The owner can add and remove admins. The owner and admins can edit the channel and its members.",
+        groups="base.group_system",
+    )
     # state
-    custom_channel_name = fields.Char('Custom channel name')
-    fetched_message_id = fields.Many2one('mail.message', string='Last Fetched', index="btree_not_null")
+    is_favorite = fields.Boolean("Favorite")
     seen_message_id = fields.Many2one('mail.message', string='Last Seen', index="btree_not_null")
     new_message_separator = fields.Integer(help="Message id before which the separator should be displayed", default=0, required=True)
     message_unread_counter = fields.Integer('Unread Messages Counter', compute='_compute_message_unread', compute_sudo=True)
+    is_unread = fields.Boolean(
+        "Has unread messages",
+        compute="_compute_is_unread", compute_sql="_compute_sql_is_unread", compute_sudo=True,
+    )
     custom_notifications = fields.Selection(
         [("all", "All Messages"), ("mentions", "Mentions Only"), ("no_notif", "Nothing")],
         "Customized Notifications",
         help="Use default from user settings if not specified. This setting will only be applied to channels.",
     )
+    invitation_sent_dt = fields.Datetime(
+        "Invitation Sent On",
+        help="Date and time at which the invitation was last sent to this member. Cleared when the member joins, so a value means the invitation is still pending.",
+    )
     mute_until_dt = fields.Datetime("Mute notifications until", help="If set, the member will not receive notifications from the channel until this date.")
     is_pinned = fields.Boolean("Is pinned on the interface", compute="_compute_is_pinned", search="_search_is_pinned")
     unpin_dt = fields.Datetime("Unpin date", index=True, help="Contains the date and time when the channel was unpinned by the user.")
     last_interest_dt = fields.Datetime(
-        "Last Interest",
+        "Last Activity",
         default=lambda self: fields.Datetime.now() - timedelta(seconds=1),
         index=True,
         help="Contains the date and time of the last interesting event that happened in this channel for this user. This includes: creating, joining, pinning",
@@ -57,6 +72,7 @@ class DiscussChannelMember(models.Model):
     rtc_session_ids = fields.One2many(string="RTC Sessions", comodel_name='discuss.channel.rtc.session', inverse_name='channel_member_id')
     rtc_inviting_session_id = fields.Many2one('discuss.channel.rtc.session', string='Ringing session')
 
+    _channel_id_id_idx = models.Index("(channel_id, id)")
     _seen_message_id_idx = models.Index("(channel_id, partner_id, seen_message_id)")
 
     @api.autovacuum
@@ -94,10 +110,8 @@ class DiscussChannelMember(models.Model):
             [("id", "in", [row[0] for row in self.env.cr.fetchall()])],
         )
         members.unpin_dt = fields.Datetime.now()
-        for member in members:
-            Store(bus_channel=member._bus_channel()).add(
-                member.channel_id, {"close_chat_window": True}
-            ).bus_send()
+        for member, store in members._get_member_store_list():
+            store.add(member.channel_id, {"close_chat_window": True})
 
     @api.constrains('partner_id')
     def _contrains_no_public_member(self):
@@ -105,46 +119,55 @@ class DiscussChannelMember(models.Model):
             if any(user._is_public() for user in member.partner_id.user_ids):
                 raise ValidationError(_("Channel members cannot include public users."))
 
+    @api.constrains("channel_role", "channel_id")
+    def _check_channel_role_supported(self):
+        for member in self:
+            if member.channel_role and member.channel_id.channel_type not in ["group", "channel"]:
+                raise ValidationError(
+                    _(
+                        "The role '%(role_name)s' is not supported for the channel type '%(channel_type)s'.",
+                        role_name=member.channel_role,
+                        channel_type=member.channel_id.channel_type,
+                    )
+                )
+
+    def _compute_can_unlink(self):
+        for member in self:
+            member.can_unlink = member.has_access("unlink")
+
     @api.depends_context("uid", "guest")
     def _compute_is_self(self):
         if not self:
             return
-        current_partner, current_guest = self.env["res.partner"]._get_current_persona()
+        user, guest = self.env["res.users"]._get_current_persona()
         self.is_self = False
         for member in self:
-            if current_partner and member.partner_id == current_partner:
+            if user and member.partner_id == user.partner_id:
                 member.is_self = True
-            if current_guest and member.guest_id == current_guest:
+            if guest and member.guest_id == guest:
                 member.is_self = True
 
     def _search_is_self(self, operator, operand):
         if operator != 'in':
             return NotImplemented
-        current_partner, current_guest = self.env["res.partner"]._get_current_persona()
-        domain_partner = Domain("partner_id", "=", current_partner.id) if current_partner else Domain.FALSE
-        domain_guest = Domain("guest_id", "=", current_guest.id) if current_guest else Domain.FALSE
+        user, guest = self.env["res.users"]._get_current_persona()
+        domain_partner = Domain("partner_id", "=", user.partner_id.id) if user else Domain.FALSE
+        domain_guest = Domain("guest_id", "=", guest.id) if guest else Domain.FALSE
         return domain_partner | domain_guest
 
     def _search_is_pinned(self, operator, operand):
         if operator != 'in':
             return NotImplemented
 
-        def custom_pinned(model: models.BaseModel, alias, query):
-            channel_model = model.browse().channel_id
-            channel_alias = query.make_alias(alias, 'channel_id')
-            query.add_join("LEFT JOIN", channel_alias, channel_model._table, SQL(
-                "%s = %s",
-                model._field_to_sql(alias, 'channel_id'),
-                channel_model._field_to_sql(channel_alias, 'id'),
-            ))
+        def custom_pinned(table):
             return SQL(
                 """(%(unpin)s IS NULL
                     OR %(last_interest)s >= %(unpin)s
                     OR %(channel_last_interest)s >= %(unpin)s
                 )""",
-                unpin=model._field_to_sql(alias, "unpin_dt", query),
-                last_interest=model._field_to_sql(alias, "last_interest_dt", query),
-                channel_last_interest=channel_model._field_to_sql(channel_alias, "last_interest_dt", query),
+                unpin=table.unpin_dt,
+                last_interest=table.last_interest_dt,
+                channel_last_interest=table.channel_id.last_interest_dt,
             )
 
         return Domain.custom(to_sql=custom_pinned)
@@ -161,16 +184,45 @@ class DiscussChannelMember(models.Model):
                  INNER JOIN discuss_channel_member
                          ON discuss_channel_member.channel_id = mail_message.res_id
                       WHERE mail_message.model = 'discuss.channel'
-                        AND mail_message.message_type NOT IN ('notification', 'user_notification')
+                        AND mail_message.message_type != 'user_notification'
+                        AND (
+                            mail_message.message_type != 'notification'
+                            OR mail_message.subtype_id = %(subtype_id)s
+                        )
                         AND mail_message.id >= discuss_channel_member.new_message_separator
                         AND discuss_channel_member.id IN %(ids)s
                    GROUP BY discuss_channel_member.id
-            """, {'ids': tuple(self.ids)})
+            """, {"ids": tuple(self.ids), "subtype_id": self.env["ir.model.data"]._xmlid_to_res_id("mail.mt_important_notification")})
             unread_counter_by_member = {res['id']: res['count'] for res in self.env.cr.dictfetchall()}
             for member in self:
                 member.message_unread_counter = unread_counter_by_member.get(member.id)
         else:
             self.message_unread_counter = 0
+
+    @api.depends("message_unread_counter")
+    def _compute_is_unread(self):
+        for member in self:
+            member.is_unread = member.message_unread_counter > 0
+
+    def _compute_sql_is_unread(self, table):
+        return SQL("""
+            EXISTS (
+                SELECT 1
+                  FROM mail_message
+                 WHERE mail_message.model = 'discuss.channel'
+                   AND mail_message.res_id = %(channel_id)s
+                    AND mail_message.message_type != 'user_notification'
+                    AND (
+                        mail_message.message_type != 'notification'
+                        OR mail_message.subtype_id = %(subtype_id)s
+                    )
+                   AND mail_message.id >= %(separator)s
+            )
+            """,
+            channel_id=table.channel_id,
+            separator=table.new_message_separator,
+            subtype_id=self.env["ir.model.data"]._xmlid_to_res_id("mail.mt_important_notification"),
+        )
 
     @api.depends("partner_id.name", "guest_id.name", "channel_id.display_name")
     def _compute_display_name(self):
@@ -203,6 +255,29 @@ class DiscussChannelMember(models.Model):
         'A channel member must be a partner or a guest.',
     )
 
+    @api.model
+    def _load_records_create(self, vals_list):
+        # A data member loses its xmlid when its partner leaves the channel: reuse the member
+        # created by joining again (module data only, imports must still report duplicates).
+        if not self.env.context.get("install_mode"):
+            return super()._load_records_create(vals_list)
+        existing = {}
+        for index, vals in enumerate(vals_list):
+            if vals.get("channel_id") and vals.get("partner_id"):
+                member = self.search([
+                    ("channel_id", "=", vals["channel_id"]),
+                    ("partner_id", "=", vals["partner_id"]),
+                ], limit=1)
+                if member:
+                    existing[index] = member
+        new_members = iter(super()._load_records_create(
+            [vals for index, vals in enumerate(vals_list) if index not in existing]
+        ))
+        return self.browse([
+            existing[index].id if index in existing else next(new_members).id
+            for index in range(len(vals_list))
+        ])
+
     @api.model_create_multi
     def create(self, vals_list):
         if self.env.context.get("mail_create_bypass_create_check") is self._bypass_create_check:
@@ -216,7 +291,12 @@ class DiscussChannelMember(models.Model):
                     )
                 )
             channel = self.env["discuss.channel"].browse(vals["channel_id"])
-            if channel.channel_type == "chat" and len(channel.channel_member_ids) > 0:
+            partner = self.env["res.partner"].browse(vals.get("partner_id"))
+            guest = self.env["mail.guest"].browse(vals.get("guest_id"))
+            if (
+                channel.channel_type == "chat"
+                and channel._member_indices(partner, guest) not in channel.member_indices.split(",")
+            ):
                 raise UserError(
                     _("Adding more members to this chat isn't possible; it's designed for just two people.")
                 )
@@ -236,11 +316,12 @@ class DiscussChannelMember(models.Model):
             if parent := member.channel_id.parent_channel_id:
                 parent._add_members(partners=member.partner_id, guests=member.guest_id)
         for channel, members in name_members_by_channel.items():
-            if channel.channel_name_member_ids != members:
-                Store(bus_channel=channel).add(
-                    channel,
-                    Store.Many("channel_name_member_ids", sort="id"),
-                ).bus_send()
+            if channel.channel_name_member_ids == members:
+                continue
+            Store(bus_channel=channel).add(
+                channel,
+                lambda res: res.many("channel_name_member_ids", "_store_member_fields", sort="id"),
+            )
         return res
 
     def write(self, vals):
@@ -248,95 +329,98 @@ class DiscussChannelMember(models.Model):
             for field_name in ['channel_id', 'partner_id', 'guest_id']:
                 if field_name in vals and vals[field_name] != channel_member[field_name].id:
                     raise AccessError(_('You can not write on %(field_name)s.', field_name=field_name))
+        res = super().write(vals)
+        self._write_after_hook(vals)
+        return res
 
-        def get_field_name(field_description):
-            if isinstance(field_description, Store.Attr):
-                return field_description.field_name
-            return field_description
+    def _write_after_hook(self, vals):
+        """Hook called after a write operation, including parent and children calls."""
 
-        def get_vals(member):
-            return {
-                get_field_name(field_description): (
-                    member[get_field_name(field_description)],
-                    field_description,
-                )
-                for field_description in self._sync_field_names()
-            }
+    def _sync_field_names(self, res):
+        super()._sync_field_names(res)
+        # sudo: discuss.channel.member - reading channel ownership related to a member is considered acceptable
+        res["channel_id", None].attr("channel_role", sudo=True)
+        res["channel_id", None].attr("invitation_sent_dt")
+        res[None].extend(["custom_notifications", "is_favorite"])
+        res[None].extend(["is_pinned", "last_interest_dt", "message_unread_counter"])
+        res[None].extend(["mute_until_dt", "new_message_separator"])
+        # sudo: discuss.channel.rtc.session - each member can see who is inviting them
+        res[None].one("rtc_inviting_session_id", "_store_extra_fields", sudo=True)
+        res[None].attr("unpin_dt")
 
-        old_vals_by_member = {member: get_vals(member) for member in self}
-        result = super().write(vals)
+    def _store_sync_extra_fields(self, res: Store.FieldList):
+        super()._store_sync_extra_fields(res)
+        self._store_identifying_fields(res)
+        if "message_unread_counter" in res:
+            res.attr("message_unread_counter_bus_id", self.env["bus.bus"].sudo()._bus_last_id())
+        if "is_pinned" in res:
+            res.remove("is_pinned")
+            res.one("channel_id", "_store_channel_fields", predicate=lambda m: m.is_pinned)
+
+    @api.ondelete(at_uninstall=False)
+    def _unlink_notify_channel_left(self):
+        close_chat_window = self.env.context.get("close_chat_window", True)
+        post_leave_message = self.env.context.get("post_leave_message") is POST_LEAVE_MESSAGE
         for member in self:
-            new_values = get_vals(member)
-            diff = []
-            for field_name, (new_value, field_description) in new_values.items():
-                old_value = old_vals_by_member[member][field_name][0]
-                if new_value != old_value:
-                    diff.append(field_description)
-            if diff:
-                diff.extend(
-                    [
-                        Store.One("channel_id", [], as_thread=True),
-                        *self.env["discuss.channel.member"]._to_store_persona([]),
-                    ]
+            channel = member.channel_id
+            channel.message_unsubscribe(member.partner_id.ids)
+            if close_chat_window:
+                for bus_channel in member._bus_channels():
+                    custom_store = Store(bus_channel=bus_channel)
+                    custom_store.add(channel, {"close_chat_window": True, "isLocallyPinned": False})
+            if channel.channel_type != "channel" and post_leave_message:
+                notification = Markup(
+                    '<div class="o_mail_notification" data-oe-type="channel-left">%s</div>',
+                ) % self.env._("left the channel")
+                # sudo: mail.message - post as sudo since the user just unsubscribed from the channel
+                channel.sudo().message_post(
+                    body=notification,
+                    message_type='notification',
+                    subtype_xmlid="mail.mt_comment",
+                    author_id=member.partner_id.id,
                 )
-                if "message_unread_counter" in diff:
-                    # sudo: bus.bus: reading non-sensitive last id
-                    bus_last_id = self.env["bus.bus"].sudo()._bus_last_id()
-                    diff.append({"message_unread_counter_bus_id": bus_last_id})
-                Store(bus_channel=member._bus_channel()).add(member, diff).bus_send()
-        return result
-
-    @api.model
-    def _sync_field_names(self):
-        return [
-            "custom_channel_name",
-            "custom_notifications",
-            "last_interest_dt",
-            "message_unread_counter",
-            "mute_until_dt",
-            "new_message_separator",
-            # sudo: discuss.channel.rtc.session - each member can see who is inviting them
-            Store.One(
-                "rtc_inviting_session_id",
-                extra_fields=self.rtc_inviting_session_id._get_store_extra_fields(),
-                sudo=True,
-            ),
-            "unpin_dt",
-        ]
 
     def unlink(self):
         # sudo: discuss.channel.rtc.session - cascade unlink of sessions for self member
         self.sudo().rtc_session_ids.unlink()  # ensure unlink overrides are applied
         # always unlink members of sub-channels as well
-        domains = [
-            [
-                ("id", "not in", self.ids),
-                ("partner_id", "=", member.partner_id.id),
-                ("guest_id", "=", member.guest_id.id),
-                ("channel_id", "in", member.channel_id.sub_channel_ids.ids),
+        if self:
+            domains = [
+                [
+                    ("partner_id", "=", member.partner_id.id),
+                    ("guest_id", "=", member.guest_id.id),
+                    ("channel_id", "in", member.channel_id.sub_channel_ids.ids),
+                ]
+                for member in self
             ]
-            for member in self
-        ]
-        for member in self.env["discuss.channel.member"].search(Domain.OR(domains)):
-            member.channel_id._action_unfollow(partner=member.partner_id, guest=member.guest_id)
+            self.env["discuss.channel.member"].search_fetch(
+                Domain("id", "not in", self.ids) & Domain.OR(domains),
+            ).unlink()
         # sudo - discuss.channel: allowed to access channels to update member-based naming
         name_members_by_channel = {
             channel: channel.channel_name_member_ids for channel in self.channel_id
         }
+        members_by_channel = {
+            channel: self.filtered(lambda m: m.channel_id == channel) for channel in self.channel_id
+        }
         res = super().unlink()
+        stores = Store.Stores()
         for channel, members in name_members_by_channel.items():
             # sudo - discuss.channel: updating channel names according to members is allowed,
             # even after the member left the channel.
             channel_sudo = channel.sudo()
-            if channel_sudo.channel_name_member_ids != members:
-                Store(bus_channel=channel).add(
-                    channel_sudo,
-                    Store.Many("channel_name_member_ids", sort="id"),
-                ).bus_send()
+            if channel_sudo.channel_name_member_ids == members:
+                continue
+            stores[channel].add(
+                channel_sudo,
+                lambda res: res.many("channel_name_member_ids", "_store_member_fields", sort="id"),
+            )
+        for channel, members in members_by_channel.items():
+            stores[channel].delete(members).add(channel, ["member_count"])
         return res
 
-    def _bus_channel(self):
-        return self.partner_id.main_user_id or self.guest_id
+    def _bus_channels(self):
+        return self.partner_id._bus_channels() or self.guest_id._bus_channels()
 
     def _notify_typing(self, is_typing):
         """ Broadcast the typing notification to channel members
@@ -345,10 +429,14 @@ class DiscussChannelMember(models.Model):
         for member in self:
             Store(bus_channel=member.channel_id).add(
                 member,
-                extra_fields={"isTyping": is_typing, "is_typing_dt": fields.Datetime.now()},
-            ).bus_send()
+                lambda res: (
+                    res.from_method("_store_member_fields"),
+                    res.attr("isTyping", is_typing),
+                    res.attr("is_typing_dt", fields.Datetime.now()),
+                ),
+            )
 
-    def _notify_mute(self):
+    def _set_cron_for_unmute(self):
         for member in self:
             if member.mute_until_dt and member.mute_until_dt != -1:
                 self.env.ref("mail.ir_cron_discuss_channel_member_unmute")._trigger(member.mute_until_dt)
@@ -356,53 +444,89 @@ class DiscussChannelMember(models.Model):
     @api.model
     def _cleanup_expired_mutes(self):
         """
-        Cron job for cleanup expired unmute by resetting mute_until_dt and sending bus notifications.
+        Cron job for cleanup expired unmute by resetting mute_until_dt
         """
         members = self.search([("mute_until_dt", "<=", fields.Datetime.now())])
         members.write({"mute_until_dt": False})
-        members._notify_mute()
 
-    def _to_store_persona(self, fields=None):
-        if fields == "avatar_card":
-            fields = ["avatar_128", "im_status", "name"]
+    def _get_member_store_list(self):
+        """Returns the list of (member, store) combinations.
+        This is necessary because members are currently linked to partners,
+        which can have multiple users."""
+        stores = Store.Stores()
         return [
-            # sudo: res.partner - reading partner related to a member is considered acceptable
-            Store.Attr(
-                "partner_id",
-                lambda m: Store.One(
-                    m.partner_id.sudo(),
-                    (p_fields := m._get_store_partner_fields(fields)),
-                    extra_fields=self.env["res.partner"]._get_store_mention_fields()
-                    if p_fields or p_fields is None
-                    else None,
-                ),
-                predicate=lambda m: m.partner_id,
-            ),
-            # sudo: mail.guest - reading guest related to a member is considered acceptable
-            Store.Attr(
-                "guest_id",
-                lambda m: Store.One(m.guest_id.sudo(), m._get_store_guest_fields(fields)),
-                predicate=lambda m: m.guest_id,
-            ),
+            (member, stores[bus_channel])
+            for member in self
+            for bus_channel in member._bus_channels()
         ]
 
-    def _to_store_defaults(self, target):
-        return [
-            Store.One("channel_id", [], as_thread=True),
-            "create_date",
-            "fetched_message_id",
-            "last_seen_dt",
-            "seen_message_id",
-            *self.env["discuss.channel.member"]._to_store_persona(),
-        ]
+    def _store_avatar_card_fields(self, res: Store.FieldList):
+        res.attr("channel_id")
+        self._store_persona(
+            res,
+            partner_fields=lambda res: (
+                res.attr("name"),
+                res.from_method("_store_avatar_fields"),
+                res.from_method("_store_im_status_fields", internal=True),
+                res.from_method("_store_mention_fields"),
+            ),
+            guest_fields=lambda res: (
+                res.from_method("_store_avatar_fields"),
+                res.from_method("_store_im_status_fields", internal=True),
+            ),
+        )
 
-    def _get_store_partner_fields(self, fields):
-        self.ensure_one()
-        return fields
+    def _store_guest_dynamic_fields(self, res: Store.FieldList):
+        pass
 
-    def _get_store_guest_fields(self, fields):
-        self.ensure_one()
-        return fields
+    def _store_partner_dynamic_fields(self, res: Store.FieldList):
+        pass
+
+    def _store_persona_default_fields(self, res: Store.FieldList):
+        res.attr("channel_id")
+        self._store_persona(
+            res,
+            partner_fields=lambda res: (
+                res.from_method("_store_partner_fields"),
+                res.from_method("_store_mention_fields"),
+            ),
+            guest_fields=lambda res: (
+                res.from_method("_store_avatar_fields"),
+                res.from_method("_store_im_status_fields", internal=True),
+            ),
+        )
+
+    def _store_identifying_fields(self, res: Store.FieldList):
+        res.attr("channel_id")
+        self._store_persona(res, partner_fields=[], guest_fields=[])
+
+    def _store_persona(self, res: Store.FieldList, *, partner_fields, guest_fields):
+        # sudo: res.partner - reading partner related to a member is considered acceptable
+        res.one(
+            "partner_id",
+            partner_fields,
+            dynamic_fields="_store_partner_dynamic_fields",
+            predicate=lambda m: m.partner_id,
+            sudo=True,
+        )
+        # sudo: mail.guest - reading guest related to a member is considered acceptable
+        res.one(
+            "guest_id",
+            guest_fields,
+            dynamic_fields="_store_guest_dynamic_fields",
+            predicate=lambda m: m.guest_id,
+            sudo=True,
+        )
+
+    def _store_seen_fields(self, res: Store.FieldList):
+        res.attr("seen_message_id")
+        self._store_avatar_card_fields(res)
+
+    def _store_member_fields(self, res: Store.FieldList):
+        # sudo: discuss.channel.member - reading channel ownership related to a member is considered acceptable
+        res.attr("channel_role", sudo=True)
+        res.extend(["create_date", "invitation_sent_dt", "last_seen_dt", "seen_message_id"])
+        self._store_persona_default_fields(res)
 
     # --------------------------------------------------------------------------
     # RTC (voice/video)
@@ -420,45 +544,60 @@ class DiscussChannelMember(models.Model):
         self.channel_id._rtc_cancel_invitations(member_ids=self.ids)
         user_sessions.unlink()
         rtc_session = self.env['discuss.channel.rtc.session'].create({'channel_member_id': self.id, 'is_camera_on': camera})
-        current_rtc_sessions, outdated_rtc_sessions = self._rtc_sync_sessions(check_rtc_session_ids=check_rtc_session_ids)
+        rtc_updates = self._rtc_sync_sessions(check_rtc_session_ids=check_rtc_session_ids)
         ice_servers = self.env["mail.ice.server"]._get_ice_servers()
         self._join_sfu(ice_servers)
         if store:
             store.add(
-                self.channel_id, {"rtc_session_ids": Store.Many(current_rtc_sessions, mode="ADD")}
-            )
-            store.add(
                 self.channel_id,
-                {"rtc_session_ids": Store.Many(outdated_rtc_sessions, [], mode="DELETE")},
+                "_store_rtc_update_fields",
+                fields_params={"added": rtc_updates[0], "removed": rtc_updates[1]},
             )
-            store.add_singleton_values(
+            sfu_url = discuss.get_sfu_url(self.env)
+            user = (
+                rtc_session.create_uid
+                if rtc_session.partner_id
+                else self.env["res.users"]
+            )
+            permissions = self._get_recording_permissions(user, sfu_url)
+            store.add_model_values(
                 "Rtc",
-                {
-                    "iceServers": ice_servers or False,
-                    "localSession": Store.One(rtc_session),
-                    "serverInfo": self._get_rtc_server_info(rtc_session, ice_servers),
-                },
+                lambda res: (
+                    res.attr("can_record_audio", permissions["audioRecording"]),
+                    res.attr("can_record_transcription", permissions["transcription"]),
+                    res.attr("can_record_video", permissions["videoRecording"]),
+                    res.attr("iceServers", ice_servers or False),
+                    res.one(
+                        "localSession",
+                        "_store_rtc_session_fields",
+                        value=rtc_session,
+                    ),
+                    res.attr(
+                        "serverInfo",
+                        self._get_rtc_server_info(rtc_session, ice_servers),
+                    ),
+                ),
             )
         if self.channel_id._should_invite_members_to_join_call():
             self._rtc_invite_members()
 
     def _join_sfu(self, ice_servers=None, force=False):
-        if len(self.channel_id.rtc_session_ids) < SFU_MODE_THRESHOLD and not force:
+        session_count = len(self.channel_id.rtc_session_ids)
+        if not session_count or (session_count < 2 and not force):
+            return
+        if session_count < SFU_MODE_THRESHOLD and not force:
             if self.channel_id.sfu_channel_uuid:
                 self.channel_id.sfu_channel_uuid = None
                 self.channel_id.sfu_server_url = None
             return
-        elif self.channel_id.sfu_channel_uuid and self.channel_id.sfu_server_url:
+        if self.channel_id.sfu_channel_uuid and self.channel_id.sfu_server_url:
             return
         sfu_server_url = discuss.get_sfu_url(self.env)
         if not sfu_server_url:
             return
-        sfu_local_key = self.env["ir.config_parameter"].sudo().get_param("mail.sfu_local_key")
-        if not sfu_local_key:
-            sfu_local_key = str(uuid.uuid4())
-            self.env["ir.config_parameter"].sudo().set_param("mail.sfu_local_key", sfu_local_key)
+        channel_key = discuss.get_derived_sfu_key(self.env, self.channel_id.id)
         json_web_token = jwt.sign(
-            {"iss": f"{self.get_base_url()}:channel:{self.channel_id.id}", "key": sfu_local_key},
+            {"iss": f"{self.get_base_url()}:channel:{self.channel_id.id}", "key": channel_key},
             key=discuss.get_sfu_key(self.env),
             ttl=30,
             algorithm=jwt.Algorithm.HS256,
@@ -466,7 +605,8 @@ class DiscussChannelMember(models.Model):
         try:
             response = requests.get(
                 sfu_server_url + "/v1/channel",
-                headers={"Authorization": "jwt " + json_web_token},
+                headers={"Authorization": "Bearer " + json_web_token},
+                params={"recordingAddress": self.channel_id._get_recording_address()},
                 timeout=3,
             )
             response.raise_for_status()
@@ -479,21 +619,47 @@ class DiscussChannelMember(models.Model):
         for session in self.channel_id.rtc_session_ids:
             session._bus_send(
                 "discuss.channel.rtc.session/sfu_hot_swap",
-                {"serverInfo": self._get_rtc_server_info(session, ice_servers, key=sfu_local_key)},
+                {"serverInfo": self._get_rtc_server_info(session, ice_servers, key=channel_key)},
             )
 
+    def _get_recording_permissions(self, user, sfu_url=True):
+        can_record = bool(user and user._is_internal() and sfu_url)
+        return {
+            "audioRecording": can_record,
+            "transcription": False,
+            "videoRecording": can_record,
+        }
+
     def _get_rtc_server_info(self, rtc_session, ice_servers=None, key=None):
+        """Return SFU credentials for the session's joining user or guest.
+
+        The session creator identifies its user even when another participant
+        promotes the call to the SFU. Guest sessions omit the user identity.
+        """
         sfu_channel_uuid = self.channel_id.sfu_channel_uuid
         sfu_server_url = self.channel_id.sfu_server_url
         if not sfu_channel_uuid or not sfu_server_url:
             return None
         if not key:
-            key = self.env["ir.config_parameter"].sudo().get_param("mail.sfu_local_key")
+            key = discuss.get_derived_sfu_key(self.env, self.channel_id.id)
+        user = (
+            rtc_session.create_uid if rtc_session.partner_id else self.env["res.users"]
+        )
         claims = {
+            "sfu_channel_uuid": sfu_channel_uuid,
             "session_id": rtc_session.id,
+            "label": rtc_session.channel_member_id._get_html_link_title(),
             "ice_servers": ice_servers,
+            "permissions": self._get_recording_permissions(user),
         }
-        json_web_token = jwt.sign(claims, key=key, ttl=60 * 60 * 8, algorithm=jwt.Algorithm.HS256)  # 8 hours
+        if user:
+            claims["user_id"] = user.id
+        json_web_token = jwt.sign(
+            claims,
+            key=key,
+            ttl=60 * 60 * 8,
+            algorithm=jwt.Algorithm.HS256,
+        )  # 8 hours
         return {"url": sfu_server_url, "channelUUID": sfu_channel_uuid, "jsonWebToken": json_web_token}
 
     def _rtc_leave_call(self, session_id=None):
@@ -508,6 +674,7 @@ class DiscussChannelMember(models.Model):
 
     def _rtc_sync_sessions(self, check_rtc_session_ids=None):
         """Synchronize the RTC sessions for self channel member.
+
             - Inactive sessions of the channel are deleted.
             - Current sessions are returned.
             - Sessions given in check_rtc_session_ids that no longer exists
@@ -557,17 +724,13 @@ class DiscussChannelMember(models.Model):
             members.rtc_inviting_session_id = self.rtc_session_ids.id
             Store(bus_channel=self.channel_id).add(
                 self.channel_id,
-                {
-                    "invited_member_ids": Store.Many(
-                        members,
-                        [
-                            Store.One("channel_id", [], as_thread=True),
-                            *self.env["discuss.channel.member"]._to_store_persona("avatar_card"),
-                        ],
-                        mode="ADD",
-                    ),
-                },
-            ).bus_send()
+                lambda res: res.many(
+                    "invited_member_ids",
+                    "_store_avatar_card_fields",
+                    value=members,
+                    mode="ADD",
+                ),
+            )
             devices, private_key, public_key = self.channel_id._web_push_get_partners_parameters(members.partner_id.ids)
             if devices:
                 if self.channel_id.channel_type != 'chat':
@@ -619,6 +782,9 @@ class DiscussChannelMember(models.Model):
         :param last_message_id: the id of the message to be marked as read.
         """
         self.ensure_one()
+        if self.invitation_sent_dt:
+            # Reading the channel is showing up: the invitation is no longer pending.
+            self.invitation_sent_dt = False
         domain = [
             ("model", "=", "discuss.channel"),
             ("res_id", "=", self.channel_id.id),
@@ -628,7 +794,8 @@ class DiscussChannelMember(models.Model):
         if not last_message:
             return
         self._set_last_seen_message(last_message)
-        self._set_new_message_separator(last_message.id + 1)
+        # Mark as read only moves forward.
+        self._set_new_message_separator(max(self.new_message_separator, last_message.id + 1))
 
     def _set_last_seen_message(self, message, notify=True):
         """
@@ -639,25 +806,18 @@ class DiscussChannelMember(models.Model):
             last seen message.
         """
         self.ensure_one()
-        bus_channel = self._bus_channel()
+        bus_channels = self._bus_channels()
         if self.seen_message_id.id < message.id:
             self.write({
-                "fetched_message_id": max(self.fetched_message_id.id, message.id),
                 "seen_message_id": message.id,
                 "last_seen_dt": fields.Datetime.now(),
             })
             if self.channel_id.channel_type in self.channel_id._types_allowing_seen_infos():
-                bus_channel = self.channel_id
+                bus_channels = self.channel_id
         if not notify:
             return
-        Store(bus_channel=bus_channel).add(
-            self,
-            [
-                Store.One("channel_id", [], as_thread=True),
-                *self.env["discuss.channel.member"]._to_store_persona("avatar_card"),
-                "seen_message_id",
-            ],
-        ).bus_send()
+        for bus_channel in bus_channels:
+            Store(bus_channel=bus_channel).add(self, "_store_seen_fields")
 
     def _set_new_message_separator(self, message_id):
         """
@@ -667,25 +827,25 @@ class DiscussChannelMember(models.Model):
         self.ensure_one()
         if message_id == self.new_message_separator:
             bus_last_id = self.env["bus.bus"].sudo()._bus_last_id()
-            Store(bus_channel=self._bus_channel()).add(
-                self,
-                [
-                    Store.One("channel_id", [], as_thread=True),
-                    "message_unread_counter",
-                    {"message_unread_counter_bus_id": bus_last_id},
-                    "new_message_separator",
-                    *self.env["discuss.channel.member"]._to_store_persona([]),
-                ],
-            ).bus_send()
+            for bus_channel in self._bus_channels():
+                Store(bus_channel=bus_channel).add(
+                    self,
+                    lambda res: (
+                        res.attr("message_unread_counter"),
+                        res.attr("message_unread_counter_bus_id", bus_last_id),
+                        res.attr("new_message_separator"),
+                        res.from_method("_store_identifying_fields"),
+                    ),
+                )
             return
         self.new_message_separator = message_id
 
     def _get_html_link_title(self):
         return self.partner_id.name if self.partner_id else self.guest_id.name
 
-    def _get_html_link(self, *args, for_persona=False, **kwargs):
-        if not for_persona:
-            return self._get_html_link(*args, **kwargs)
+    def _get_member_html_link(self, *args, **kwargs):
         if self.partner_id:
-            return self.partner_id._get_html_link(title=f"@{self._get_html_link_title()}")
+            return self.partner_id._get_html_link(
+                title=f"@{self._get_html_link_title()}", extra_classes="o_mail_redirect"
+            )
         return Markup("<strong>%s</strong>") % self.guest_id.name

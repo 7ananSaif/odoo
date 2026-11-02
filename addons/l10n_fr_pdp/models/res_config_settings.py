@@ -4,6 +4,7 @@ from odoo import api, fields, models
 class ResConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
 
+    # DEPRECATED - was for the pre-prod phase
     l10n_fr_pdp_pilot_phase = fields.Boolean(
         compute='_compute_l10n_fr_pdp_pilot_phase',
         inverse='_inverse_l10n_fr_pdp_pilot_phase',
@@ -36,26 +37,11 @@ class ResConfigSettings(models.TransientModel):
         """,
     )
 
-    def action_open_pdp_form(self):
-        registration_wizard = self.env['pdp.registration'].create({'company_id': self.company_id.id})
-        return registration_wizard._action_open_pdp_form(reopen=False)
-
     def action_open_peppol_form(self):
         self.ensure_one()
-        if self.country_code != 'FR' and self.account_peppol_eas != '0225':
+        if self.country_code != 'FR' and self.routing_scheme != '0225':
             return super().action_open_peppol_form()
-        return self.action_open_pdp_form()
-
-    def button_open_pdp_config_wizard(self):
-        self.ensure_one()
-        config_wizard = self.env['pdp.config.wizard'].create({'company_id': self.company_id.id})
-        return config_wizard._action_open()
-
-    def button_open_peppol_config_wizard(self):
-        self.ensure_one()
-        if self.company_id._get_peppol_proxy_type() == 'pdp':
-            return self.button_open_pdp_config_wizard()
-        return super().button_open_peppol_config_wizard()
+        return self.company_id._action_open_pdp_form()
 
     @api.depends('company_id.l10n_fr_pdp_pilot_phase')
     def _compute_l10n_fr_pdp_pilot_phase(self):
@@ -63,5 +49,14 @@ class ResConfigSettings(models.TransientModel):
             record.l10n_fr_pdp_pilot_phase = record.company_id.l10n_fr_pdp_pilot_phase
 
     def _inverse_l10n_fr_pdp_pilot_phase(self):
-        for record in self:
-            record.company_id._l10n_fr_pdp_update_pilot_phase(record.l10n_fr_pdp_pilot_phase)
+        pass
+
+    # TODO: remove in master
+    @api.model
+    def _pdp_ensure_selection_value(self, model_name, field_name, new_value):
+        # hack to load new selection values in stable
+        field = self.env[model_name]._fields[field_name]
+        if new_value not in {value for value, name in field.get_description(self.env)['selection']}:
+            self.env['ir.model.fields'].invalidate_model(['selection_ids'])
+            self.env['ir.model.fields.selection'].sudo()._update_selection(model_name, field_name, field.selection)
+            self.env.transaction.invalidate_ormcache()

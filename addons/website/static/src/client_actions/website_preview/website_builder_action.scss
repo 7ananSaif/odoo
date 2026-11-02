@@ -1,4 +1,5 @@
 .o-website-builder_sidebar {
+    z-index: 0;
     width: 0px;
     background-color: $o-we-sidebar-bg;
     transition: width ease 400ms, border 400ms;
@@ -40,6 +41,18 @@
     &:not(.o_builder_sidebar_open) {
         // Keep it in CSS for better transition.
         border: none !important;
+    }
+
+    .o-website-discard-save-buttons {
+        max-width: $o-we-sidebar-width / 2;
+
+        button {
+            min-width: 40%;
+        }
+    }
+
+    .btn {
+        --gradient: none;
     }
 }
 
@@ -102,19 +115,6 @@
     pointer-events: none;
 }
 
-body.o_builder_open {
-    .o_notification_manager {
-        @include o-position-absolute($top: map-get($spacers, 2), $right: calc(#{$o-we-sidebar-width} + 0.5rem));
-    }
-
-    .o-mail-ChatHub-bubbles {
-        transform: translateX(-$o-we-sidebar-width);
-        transition-delay: 200ms;
-    }
-}
-
-body.o_website_o_website_preview {
-    .o-mail-ChatHub-bubbles {
-        transition: transform 400ms ease 0s;
-    }
+body.o_builder_open .o_notification_manager {
+    @include o-position-absolute($top: map-get($spacers, 2), $right: calc(#{$o-we-sidebar-width} + 0.5rem));
 }

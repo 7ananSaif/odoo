@@ -1,38 +1,39 @@
 import { expect, test } from "@odoo/hoot";
-import { animationFrame, Deferred } from "@odoo/hoot-dom";
+import { animationFrame } from "@odoo/hoot-dom";
 import { xml } from "@odoo/owl";
+import { addBuilderOption } from "@html_builder/../tests/helpers";
 import {
     contains,
     onRpc,
     models,
     defineModels,
     patchWithCleanup,
+    registerTemplate,
 } from "@web/../tests/web_test_helpers";
 import {
-    addOption,
     defineWebsiteModels,
     setupWebsiteBuilder,
 } from "@website/../tests/builder/website_helpers";
 import { redo, undo } from "@html_editor/../tests/_helpers/user_actions";
-import { CustomizeBodyBgTypeAction } from "@website/builder/plugins/customize_website_plugin";
-import { renderToString } from "@web/core/utils/render";
+import { ToggleBodyBgImageAction } from "@website/builder/plugins/customize_website_plugin";
 
 defineWebsiteModels();
 
 test("BuilderButton with action “websiteConfig” are correctly displayed", async () => {
-    const def = new Deferred();
+    const def = Promise.withResolvers();
     onRpc("/website/theme_customize_data_get", async (request) => {
         const { params } = await request.json();
         expect.step("theme_customize_data_get");
         expect(params.keys).toEqual(["test_template_1", "test_template_2"]);
-        await def;
+        await def.promise;
         return ["test_template_2"];
     });
-    addOption({
+    addBuilderOption({
         selector: ".test-options-target",
         template: xml`
             <BuilderButton action="'websiteConfig'" actionParam="{views: ['test_template_1']}">1</BuilderButton>
-            <BuilderButton action="'websiteConfig'" actionParam="{views: ['test_template_2']}">2</BuilderButton>`,
+            <BuilderButton action="'websiteConfig'" actionParam="{views: ['test_template_2']}">2</BuilderButton>
+        `,
     });
     await setupWebsiteBuilder(`<div class="test-options-target">b</div>`);
     await contains(":iframe .test-options-target").click();
@@ -64,12 +65,13 @@ test("click on BuilderButton with action “websiteConfig”", async () => {
         return true;
     });
 
-    addOption({
+    addBuilderOption({
         selector: ".test-options-target",
         template: xml`
             <BuilderButton action="'websiteConfig'" actionParam="{views: ['test_template_1']}">1</BuilderButton>
             <BuilderButton action="'websiteConfig'" actionParam="{views: ['test_template_2']}">2</BuilderButton>
-            <BuilderButton classAction="'a'">a</BuilderButton>`,
+            <BuilderButton classAction="'a'">a</BuilderButton>
+        `,
     });
     await setupWebsiteBuilder(`<div class="test-options-target">b</div>`);
     await contains(":iframe .test-options-target").click();
@@ -98,13 +100,14 @@ test("click on BuilderSelectItem with action “websiteConfig”", async () => {
         return true;
     });
 
-    addOption({
+    addBuilderOption({
         selector: ".test-options-target",
         template: xml`
             <BuilderSelect action="'websiteConfig'">
                 <BuilderSelectItem actionParam="{views: ['test_template_1']}">1</BuilderSelectItem>
                 <BuilderSelectItem actionParam="{views: ['test_template_2']}">2</BuilderSelectItem>
-            </BuilderSelect>`,
+            </BuilderSelect>
+        `,
     });
     await setupWebsiteBuilder(`<div class="test-options-target">b</div>`);
     await contains(":iframe .test-options-target").click();
@@ -116,19 +119,20 @@ test("click on BuilderSelectItem with action “websiteConfig”", async () => {
 });
 
 test("use isActiveItem base on BuilderButton with 'websiteConfig'", async () => {
-    const def = new Deferred();
+    const def = Promise.withResolvers();
     onRpc("/website/theme_customize_data_get", async (request) => {
         const { params } = await request.json();
         expect.step("theme_customize_data_get");
         expect(params.keys).toEqual(["test_template_1"]);
-        await def;
+        await def.promise;
         return ["test_template_1"];
     });
-    addOption({
+    addBuilderOption({
         selector: ".test-options-target",
         template: xml`
             <BuilderButton id="'a'" action="'websiteConfig'" actionParam="{views: ['test_template_1']}">1</BuilderButton>
-            <div t-if="isActiveItem('a')" class="test">a</div>`,
+            <div t-if="this.isActiveItem('a')" class="test">a</div>
+        `,
     });
     await setupWebsiteBuilder(`<div class="test-options-target">b</div>`);
     await contains(":iframe .test-options-target").click();
@@ -143,19 +147,20 @@ test("use isActiveItem base on BuilderButton with 'websiteConfig'", async () => 
 });
 
 test("use isActiveItem base on BuilderCheckbox with 'websiteConfig'", async () => {
-    const def = new Deferred();
+    const def = Promise.withResolvers();
     onRpc("/website/theme_customize_data_get", async (request) => {
         const { params } = await request.json();
         expect.step("theme_customize_data_get");
         expect(params.keys).toEqual(["test_template_1"]);
-        await def;
+        await def.promise;
         return ["test_template_1"];
     });
-    addOption({
+    addBuilderOption({
         selector: ".test-options-target",
         template: xml`
             <BuilderCheckbox id="'a'" action="'websiteConfig'" actionParam="{views: ['test_template_1']}"/>
-            <div t-if="isActiveItem('a')" class="test">a</div>`,
+            <div t-if="this.isActiveItem('a')" class="test">a</div>
+        `,
     });
     await setupWebsiteBuilder(`<div class="test-options-target">b</div>`);
     await contains(":iframe .test-options-target").click();
@@ -183,7 +188,7 @@ test("click on BuilderCheckbox with action “websiteConfig”", async () => {
         expect(params.disable).toEqual(["test_template_2"]);
     });
 
-    addOption({
+    addBuilderOption({
         selector: ".test-options-target",
         template: xml`
             <BuilderCheckbox action="'websiteConfig'" actionParam="{views: ['!test_template_1', 'test_template_2']}"/>
@@ -212,7 +217,7 @@ test("use isActiveItem base on BuilderSelectItem with websiteConfig", async () =
         expect(params.disable).toEqual([]);
     });
 
-    addOption({
+    addBuilderOption({
         selector: ".test-options-target",
         template: xml`
             <BuilderRow label.translate="Test">
@@ -221,7 +226,8 @@ test("use isActiveItem base on BuilderSelectItem with websiteConfig", async () =
                     <BuilderSelectItem id="'test'" actionParam="{views: []}">b</BuilderSelectItem>
                 </BuilderSelect>
                 <div class="my-test" t-if="this.isActiveItem('test')">test</div>
-            </BuilderRow>`,
+            </BuilderRow>
+        `,
     });
 
     await setupWebsiteBuilder(`<div class="test-options-target">b</div>`);
@@ -251,7 +257,7 @@ test("isApplied with action “websiteConfig” depends on views, assets and var
         }
         return params.is_view_data ? ["test_template_1"] : ["test_asset_1"];
     });
-    addOption({
+    addBuilderOption({
         selector: ".test-options-target",
         template: xml`
             <BuilderCheckbox action="'websiteConfig'"
@@ -299,14 +305,15 @@ test("BuilderButton with action “previewableWebsiteConfig”", async () => {
         expect.step("websiteSave");
         return true;
     });
-    addOption({
+    addBuilderOption({
         selector: ".test-options-target",
         template: xml`
             <BuilderButtonGroup action="'previewableWebsiteConfig'">
                 <BuilderButton actionParam="{views: ['test_template_1'], previewClass: 'test_class_1'}">1</BuilderButton>
                 <BuilderButton actionParam="{views: ['test_template_2', '!test_template_negation'], previewClass: 'test_class_2'}">2</BuilderButton>
                 <BuilderButton actionParam="{views: [], previewClass: ''}">3</BuilderButton>
-            </BuilderButtonGroup>`,
+            </BuilderButtonGroup>
+        `,
     });
 
     await setupWebsiteBuilder(`<div class="test-options-target test_class_1">b</div>`);
@@ -355,14 +362,15 @@ test("Undo and redo “previewableWebsiteConfig” action", async () => {
         expect.step("websiteSave");
         return true;
     });
-    addOption({
+    addBuilderOption({
         selector: ".test-options-target",
         template: xml`
             <BuilderButtonGroup action="'previewableWebsiteConfig'">
                 <BuilderButton actionParam="{views: ['test_template_1'], previewClass: 'test_class_1'}">1</BuilderButton>
                 <BuilderButton actionParam="{views: ['test_template_2'], previewClass: 'test_class_2'}">2</BuilderButton>
                 <BuilderButton actionParam="{views: [], previewClass: ''}">3</BuilderButton>
-            </BuilderButtonGroup>`,
+            </BuilderButtonGroup>
+        `,
     });
     const { getEditor } = await setupWebsiteBuilder(`<div class="test-options-target">b</div>`);
     const editor = getEditor();
@@ -408,13 +416,14 @@ test("No rpc call if “previewableWebsiteConfig” action is undone", async () 
         expect.step("websiteSave");
         return true;
     });
-    addOption({
+    addBuilderOption({
         selector: ".test-options-target",
         template: xml`
             <BuilderButtonGroup action="'previewableWebsiteConfig'">
                 <BuilderButton actionParam="{views: [], previewClass: ''}">1</BuilderButton>
                 <BuilderButton actionParam="{views: ['test_template'], previewClass: 'test_class'}">2</BuilderButton>
-            </BuilderButtonGroup>`,
+            </BuilderButtonGroup>
+        `,
     });
     const { getEditor } = await setupWebsiteBuilder(`<div class="test-options-target">b</div>`);
     const editor = getEditor();
@@ -431,19 +440,12 @@ test("theme background image is properly set", async () => {
         "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYIIA" +
         "A".repeat(1000);
 
-    // Using historyImageSrc to avoid mocking the gallery dialog
-    patchWithCleanup(CustomizeBodyBgTypeAction.prototype, {
-        async load(editingElement) {
-            editingElement.historyImageSrc = { src: base64Image };
-            super.load(editingElement);
-        },
-        apply(params) {
-            params.loadResult = {
-                imageSrc: base64Image,
-                oldImageSrc: "",
-                oldValue: "'image'",
-            };
-            super.apply(params);
+    patchWithCleanup(ToggleBodyBgImageAction.prototype, {
+        async apply(params) {
+            const { type: currentType, image: currentImage } = this.getCurrentConfig();
+            const oldConfig = { type: currentType, image: currentImage };
+            const newConfig = { type: "image", image: base64Image };
+            await this.applyConfig(oldConfig, newConfig);
         },
     });
 
@@ -470,20 +472,16 @@ test("theme background image is properly set", async () => {
 
     await contains("[data-name='theme']").click();
     await animationFrame();
-    expect(
-        ".o_theme_tab button[data-action-id='customizeBodyBgType'][data-action-value='image']"
-    ).toHaveCount(1);
-    await contains(
-        ".o_theme_tab button[data-action-id='customizeBodyBgType'][data-action-value='image']"
-    ).click();
+    expect(".o_theme_tab button[data-action-id='toggleBodyBgImage']").toHaveCount(1);
+    await contains(".o_theme_tab button[data-action-id='toggleBodyBgImage']").click();
     await animationFrame();
     await expect.verifySteps(["scss_customization", "bundle_reload"]);
 });
 
 test("BuilderButton with action “templatePreviewableWebsiteConfig”", async () => {
-    renderToString.app.addTemplate("test.template.1", `<div class="template1"></div>`);
-    renderToString.app.addTemplate("test.template.2", `<div class="template2"></div>`);
-    renderToString.app.addTemplate("test.template.3", `<div class="template3"></div>`);
+    registerTemplate("test.template.1", `<div class="template1"></div>`);
+    registerTemplate("test.template.2", `<div class="template2"></div>`);
+    registerTemplate("test.template.3", `<div class="template3"></div>`);
     onRpc("/website/theme_customize_data", async (request) => {
         const { params } = await request.json();
         expect.step("theme_customize_data");
@@ -494,45 +492,45 @@ test("BuilderButton with action “templatePreviewableWebsiteConfig”", async (
         expect.step("websiteSave");
         return true;
     });
-    addOption({
+    addBuilderOption({
         selector: ".test-options-target",
         template: xml`
-        <BuilderButtonGroup>
-            <BuilderButton
-                    action="'websiteConfig'"
-                    actionParam="{views: []}"
-            >Item1</BuilderButton>
-            <BuilderButton
-                    action="'templatePreviewableWebsiteConfig'"
-                    actionParam="{
-                        views: ['test_template_1'],
-                        previewClass: 'preview_class_1',
-                        templateId: 'test.template.1',
-                        placeBefore: '.target1',
-                    }"
-            >Item2</BuilderButton>
-            <BuilderButton
-                    action="'templatePreviewableWebsiteConfig'"
-                    actionParam="{
-                        views: ['test_template_2'],
-                        previewClass: 'preview_class_2',
-                        templateId: 'test.template.2',
-                        placeAfter: '.target1',
-                        placeExcludeRootClosest: '#o_wsale_container.o_wsale_has_sidebar',
-                    }"
-            >Item3</BuilderButton>
-            <BuilderButton
-                    action="'templatePreviewableWebsiteConfig'"
-                    actionParam="{
-                        views: ['test_template_3'],
-                        previewClass: 'preview_class_3',
-                        templateId: 'test.template.3',
-                        placeAfter: '.target2',
-                        placeExcludeRootClosest: '.excluded-class',
-                    }"
-            >Item4</BuilderButton>
-        </BuilderButtonGroup>
-            `,
+            <BuilderButtonGroup>
+                <BuilderButton
+                        action="'websiteConfig'"
+                        actionParam="{views: []}"
+                >Item1</BuilderButton>
+                <BuilderButton
+                        action="'templatePreviewableWebsiteConfig'"
+                        actionParam="{
+                            views: ['test_template_1'],
+                            previewClass: 'preview_class_1',
+                            templateId: 'test.template.1',
+                            placeBefore: '.target1',
+                        }"
+                >Item2</BuilderButton>
+                <BuilderButton
+                        action="'templatePreviewableWebsiteConfig'"
+                        actionParam="{
+                            views: ['test_template_2'],
+                            previewClass: 'preview_class_2',
+                            templateId: 'test.template.2',
+                            placeAfter: '.target1',
+                            placeExcludeRootClosest: '#o_wsale_container.o_wsale_has_sidebar',
+                        }"
+                >Item3</BuilderButton>
+                <BuilderButton
+                        action="'templatePreviewableWebsiteConfig'"
+                        actionParam="{
+                            views: ['test_template_3'],
+                            previewClass: 'preview_class_3',
+                            templateId: 'test.template.3',
+                            placeAfter: '.target2',
+                            placeExcludeRootClosest: '.excluded-class',
+                        }"
+                >Item4</BuilderButton>
+            </BuilderButtonGroup>
+        `,
     });
 
     await setupWebsiteBuilder(

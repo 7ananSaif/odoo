@@ -45,10 +45,10 @@ class TestMailAlias(TestMailAliasCommon):
         """ Check the validation of `mail.catchall.domain.allowed` system parameter"""
         for value in [',', ',,', ', ,']:
             with self.assertRaises(exceptions.ValidationError):
-                self.env['ir.config_parameter'].set_param('mail.catchall.domain.allowed', value)
+                self.env['ir.config_parameter'].set_str('mail.catchall.domain.allowed', value)
 
         test_cases = [
-            ('', False),
+            ('', ''),
             ('hello.com', 'hello.com'),
             ('hello.com,,', 'hello.com'),
             ('hello.com,bonjour.com', 'hello.com,bonjour.com'),
@@ -56,8 +56,8 @@ class TestMailAlias(TestMailAliasCommon):
         ]
         for value, expected in test_cases:
             with self.subTest(value=value):
-                self.env['ir.config_parameter'].set_param('mail.catchall.domain.allowed', value)
-                self.assertEqual(self.env['ir.config_parameter'].get_param('mail.catchall.domain.allowed'), expected)
+                self.env['ir.config_parameter'].set_str('mail.catchall.domain.allowed', value)
+                self.assertEqual(self.env['ir.config_parameter'].get_str('mail.catchall.domain.allowed'), expected)
 
         # test create and write sanitization
         for value, expected in test_cases:
@@ -71,7 +71,7 @@ class TestMailAlias(TestMailAliasCommon):
                 })
                 # check after create
                 self.assertEqual(
-                    self.env["ir.config_parameter"].get_param(
+                    self.env["ir.config_parameter"].get_str(
                         "mail.catchall.domain.allowed"
                     ),
                     expected,
@@ -90,7 +90,7 @@ class TestMailAlias(TestMailAliasCommon):
                     })
                 # check after write
                 self.assertEqual(
-                    self.env["ir.config_parameter"].get_param(
+                    self.env["ir.config_parameter"].get_str(
                         "mail.catchall.domain.allowed"
                     ),
                     expected,
@@ -834,7 +834,7 @@ class TestMailAliasMixin(TestMailAliasCommon):
     based on owner records. """
 
     @users('employee')
-    @mute_logger('odoo.addons.base.models.ir_model')
+    @mute_logger('odoo.addons.base.models.ir_access')
     def test_alias_mixin(self):
         """ Various base checks on alias mixin behavior """
         self.assertEqual(self.env.company.alias_domain_id, self.mail_alias_domain)
@@ -908,7 +908,7 @@ class TestMailAliasMixin(TestMailAliasCommon):
             'Search: both part search: search on name + domain')
 
     @users('employee')
-    @mute_logger('odoo.addons.base.models.ir_model')
+    @mute_logger('odoo.addons.base.models.ir_access')
     def test_alias_mixin_alias_id_management(self):
         """ Test alias_id being not mandatory """
         record_wo_alias, record_w_alias = self.env['mail.test.alias.optional'].create([

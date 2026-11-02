@@ -5,11 +5,12 @@ from freezegun import freeze_time
 from unittest.mock import patch
 
 from odoo import Command
+from odoo import fields
 from odoo.addons.im_livechat.tests.common import TestImLivechatCommon
-from odoo.tests.common import new_test_user, tagged
+from odoo.addons.mail.tests.common import mail_new_test_user
+from odoo.tests.common import new_test_user
 
 
-@tagged("post_install", "-at_install")
 class TestImLivechatReport(TestImLivechatCommon):
     def setUp(self):
         super().setUp()
@@ -32,7 +33,10 @@ class TestImLivechatReport(TestImLivechatCommon):
             )["channel_id"]
 
         channel = self.env['discuss.channel'].browse(channel_id)
-        self.operator = channel.livechat_operator_id
+        self.operator = self.env["im_livechat.channel.member.history"].search([
+            ("channel_id", "=", channel.id),
+            ("livechat_member_type", "=", "agent"),
+        ]).partner_id
 
         self._create_message(channel, self.visitor_user.partner_id, '2023-03-17 06:06:59')
         self._create_message(channel, self.operator, '2023-03-17 08:15:54')
@@ -67,19 +71,36 @@ class TestImLivechatReport(TestImLivechatCommon):
         self.assertEqual(int(report.duration), 195)
 
     def test_im_livechat_report_operator(self):
-        result = self.env["im_livechat.report.channel"].formatted_read_group([], aggregates=["time_to_answer:avg", "duration:avg"])
+        result = self.env["im_livechat.report.channel"].formatted_read_group(
+            [], aggregates=["time_to_answer:avg", "duration:avg"]
+        )
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]["time_to_answer:avg"], 7800 / 3600)
         self.assertEqual(int(result[0]['duration:avg']), 195)
-        channel = self.env["discuss.channel"].search([("livechat_channel_id", "=", self.livechat_channel.id)])
-        rated_channel = channel.copy({"rating_last_value": 5})
-        self._create_message(rated_channel, self.operator, "2023-03-18 11:00:00")
-        result = self.env["im_livechat.report.channel"].formatted_read_group([], aggregates=["rating:avg"])
-        self.assertEqual(result[0]["rating:avg"], 5, "Rating average should be 5, excluding unrated sessions")
+        rated_channel_id = self.make_jsonrpc_request(
+            "/im_livechat/get_session", {"channel_id": self.livechat_channel.id}
+        )["channel_id"]
+        self.make_jsonrpc_request(
+            "/im_livechat/feedback", {"channel_id": rated_channel_id, "rate": 5},
+        )
+        self._create_message(
+            self.env["discuss.channel"].browse(rated_channel_id),
+            self.operator,
+            "2023-03-18 11:00:00",
+        )
+        result = self.env["im_livechat.report.channel"].formatted_read_group(
+            [], aggregates=["rating_percentage:avg"]
+        )
+        self.assertEqual(
+            result[0]["rating_percentage:avg"],
+            100.0,
+            "Rating percentage should be 100%, excluding unrated sessions",
+        )
 
     @classmethod
     def _create_message(cls, channel, author, date):
-        with patch.object(cls.env.cr, 'now', lambda: date):
+        with cls.mock_datetime_and_now(date):
+            date = fields.Datetime.now()
             return channel.message_post(author_id=author.id, body=f'Message {date}')
 
     def test_redirect_to_form_from_pivot(self):
@@ -90,27 +111,35 @@ class TestImLivechatReport(TestImLivechatCommon):
         )
         [partner_1, partner_2] = self.env["res.partner"].create([{"name": "test 1"}, {"name": "test 2"}])
         [channel_1, channel_2, channel_3] = self.env["discuss.channel"].create(
-            [{
-                "name": "test 1",
-                "channel_type": "livechat",
-                "livechat_channel_id": livechat_channel.id,
-                "livechat_operator_id": operator_1.partner_id.id,
-                "channel_member_ids": [Command.create({"partner_id": partner_1.id})],
-            },
-            {
-                "name": "test 2",
-                "channel_type": "livechat",
-                "livechat_channel_id": livechat_channel.id,
-                "livechat_operator_id": operator_2.partner_id.id,
-                "channel_member_ids": [Command.create({"partner_id": partner_2.id})],
-            },
-            {
-                "name": "test 3",
-                "channel_type": "livechat",
-                "livechat_channel_id": livechat_channel.id,
-                "livechat_operator_id": operator_2.partner_id.id,
-                "channel_member_ids": [Command.create({"partner_id": partner_2.id})],
-            }]
+            [
+                {
+                    "name": "test 1",
+                    "channel_type": "livechat",
+                    "livechat_channel_id": livechat_channel.id,
+                    "channel_member_ids": [
+                        Command.create({"partner_id": operator_1.partner_id.id}),
+                        Command.create({"partner_id": partner_1.id}),
+                    ],
+                },
+                {
+                    "name": "test 2",
+                    "channel_type": "livechat",
+                    "livechat_channel_id": livechat_channel.id,
+                    "channel_member_ids": [
+                        Command.create({"partner_id": operator_2.partner_id.id}),
+                        Command.create({"partner_id": partner_2.id}),
+                    ],
+                },
+                {
+                    "name": "test 3",
+                    "channel_type": "livechat",
+                    "livechat_channel_id": livechat_channel.id,
+                    "channel_member_ids": [
+                        Command.create({"partner_id": operator_2.partner_id.id}),
+                        Command.create({"partner_id": partner_2.id}),
+                    ],
+                },
+            ]
         )
         self._create_message(channel_1, operator_1.partner_id, "2025-06-26 10:05:00")
         self._create_message(channel_2, operator_2.partner_id, "2025-06-26 10:15:00")
@@ -128,6 +157,26 @@ class TestImLivechatReport(TestImLivechatCommon):
             login="operator_1",
         )
 
+    def test_time_to_answer_does_not_count_messages_after_close(self):
+        with freeze_time("2025-05-20 06:00:00") as frozen_time:
+            data = self.make_jsonrpc_request(
+                    "/im_livechat/get_session",
+                    {"channel_id": self.livechat_channel.id},
+                )
+            chat = self.env["discuss.channel"].browse(data["channel_id"])
+            frozen_time.tick(delta=timedelta(minutes=1))
+            chat.message_post(body="Question", message_type="comment")
+            self._create_message(chat, self.env.user.partner_id, datetime.now())
+            frozen_time.tick(delta=timedelta(minutes=5))
+            self.make_jsonrpc_request("/im_livechat/visitor_leave_session", {"channel_id": chat.id})
+            frozen_time.tick(delta=timedelta(minutes=5))
+            agent = chat.channel_member_ids.filtered(
+                lambda m: m.livechat_member_type == "agent"
+            ).partner_id
+            self._create_message(chat, agent, datetime.now())
+            report = self.env["im_livechat.report.channel"].search([("channel_id", "=", chat.id)])
+            self.assertEqual(report.time_to_answer, 0.0)
+
     def test_day_of_week_ordered_by_lang_week_start(self):
         agent = new_test_user(self.env, login="test_agent", groups="im_livechat.im_livechat_group_manager")
         livechat_channel = self.env["im_livechat.channel"].create(
@@ -142,7 +191,10 @@ class TestImLivechatReport(TestImLivechatCommon):
                     {"anonymous_name": f"Visitor_{i}", "channel_id": livechat_channel.id},
                 )["channel_id"]
                 channel = self.env["discuss.channel"].browse(channel_id)
-                self._create_message(channel, channel.livechat_operator_id, date)
+                channel_agent = channel.channel_member_ids.filtered(
+                    lambda m: m.livechat_member_type == "agent"
+                ).partner_id
+                self._create_message(channel, channel_agent, date)
         en_lang = self.env["res.lang"]._activate_lang("en_US")
         report_model = self.env["im_livechat.report.channel"].with_user(agent)
         result = report_model.formatted_read_group(domain=[], groupby=["day_number"])
@@ -159,19 +211,26 @@ class TestImLivechatReport(TestImLivechatCommon):
             f"Days should be ordered starting from Saturday. Got {actual_order}, expected {expected_order}"
         )
 
-    def test_time_to_answer_does_not_count_messages_after_close(self):
-        with freeze_time("2025-05-20 06:00:00") as frozen_time:
-            data = self.make_jsonrpc_request(
+    def test_hour_and_day_of_week_in_user_timezone(self):
+        alice_user = mail_new_test_user(
+            self.env,
+            login="alice",
+            groups="im_livechat.im_livechat_group_manager",
+            tz="Europe/Brussels",
+        )
+        livechat_channel = self.env["im_livechat.channel"].create(
+            {"name": "Test Support", "user_ids": [alice_user.id]},
+        )
+        # Simulate Friday 23:30 UTC: Saturday 00:30 (winter) and 01:30 (summer) in Brussels.
+        for date in ("2023-03-17 23:30:00", "2023-06-16 23:30:00"):
+            with freeze_time(date):
+                self.make_jsonrpc_request(
                     "/im_livechat/get_session",
-                    {"channel_id": self.livechat_channel.id},
+                    {"channel_id": livechat_channel.id},
                 )
-            chat = self.env["discuss.channel"].browse(data["channel_id"])
-            frozen_time.tick(delta=timedelta(minutes=1))
-            chat.message_post(body="Question", message_type="comment")
-            self._create_message(chat, self.env.user.partner_id, datetime.now())
-            frozen_time.tick(delta=timedelta(minutes=5))
-            self.make_jsonrpc_request("/im_livechat/visitor_leave_session", {"channel_id": chat.id})
-            frozen_time.tick(delta=timedelta(minutes=5))
-            self._create_message(chat, chat.livechat_operator_id, datetime.now())
-            report = self.env["im_livechat.report.channel"].search([("channel_id", "=", chat.id)])
-            self.assertEqual(report.time_to_answer, 0.0)
+        report_model = self.env["im_livechat.report.channel"].with_user(alice_user)
+        domain = [("livechat_channel_id", "=", livechat_channel.id)]
+        result = report_model.formatted_read_group(domain, groupby=["start_hour"])
+        self.assertEqual([group["start_hour"] for group in result], ["00", "01"])
+        result = report_model.formatted_read_group(domain, groupby=["day_number"])
+        self.assertEqual([group["day_number"] for group in result], ["6"])

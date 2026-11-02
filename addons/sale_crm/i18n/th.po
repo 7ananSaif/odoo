@@ -8,21 +8,39 @@
 # Martin Trigaux, 2022
 # Wichanon Jamwutthipreecha, 2022
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+# Nusara Boonma <nuboo@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-09-16 21:19+0000\n"
-"Last-Translator: \"Tiffany Chang (tic)\" <tic@odoo.com>\n"
-"Language-Team: Thai <https://translate.odoo.com/projects/odoo-19/sale_crm/th/"
-">\n"
+"POT-Creation-Date: 2026-09-04 17:46+0000\n"
+"PO-Revision-Date: 2026-08-31 15:31+0000\n"
+"Last-Translator: Nusara Boonma <nuboo@odoo.com>\n"
+"Language-Team: Thai <https://translate.odoo.com/projects/odoo-s19-4/sale_crm/"
+"th/>\n"
 "Language: th\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: sale_crm
+#: model:ir.module.module,description:base.module_sale_crm
+msgid ""
+"\n"
+"This module adds a shortcut on one or several opportunity cases in the CRM.\n"
+"===========================================================================\n"
+"\n"
+"This shortcut allows you to generate a sales order based on the selected "
+"case.\n"
+"If different cases are open (a list), it generates one sales order by case.\n"
+"The case is then closed and linked to the generated sales order.\n"
+"\n"
+"We suggest you to install this module, if you installed both the sale and "
+"the crm\n"
+"modules.\n"
+msgstr ""
 
 #. module: sale_crm
 #: model_terms:ir.ui.view,arch_db:sale_crm.crm_case_form_view_oppor
@@ -33,16 +51,6 @@ msgstr "<span class=\"o_stat_text\">คำสั่งซื้อ</span>"
 #: model:ir.model.fields,field_description:sale_crm.field_crm_quotation_partner__lead_id
 msgid "Associated Lead"
 msgstr "ลูกค้าเป้าหมายที่เกี่ยวข้อง"
-
-#. module: sale_crm
-#: model_terms:ir.ui.view,arch_db:sale_crm.crm_quotation_partner_view_form
-msgid "Cancel"
-msgstr "ยกเลิก"
-
-#. module: sale_crm
-#: model_terms:ir.ui.view,arch_db:sale_crm.crm_quotation_partner_view_form
-msgid "Confirm"
-msgstr "ยืนยัน"
 
 #. module: sale_crm
 #: model:ir.model.fields.selection,name:sale_crm.selection__crm_quotation_partner__action__create
@@ -58,11 +66,6 @@ msgstr "สร้างโอกาส"
 #: model:ir.model,name:sale_crm.model_crm_quotation_partner
 msgid "Create new or use existing Customer on new Quotation"
 msgstr "สร้างใหม่หรือใช้ลูกค้าที่มีอยู่ในใบเสนอราคาใหม่"
-
-#. module: sale_crm
-#: model_terms:ir.ui.view,arch_db:sale_crm.crm_case_form_view_oppor
-msgid "Create new quotation"
-msgstr "สร้างใบสั่งขายใหม่"
 
 #. module: sale_crm
 #: model:ir.model.fields,field_description:sale_crm.field_crm_quotation_partner__create_uid
@@ -99,6 +102,11 @@ msgid "Expected revenue has been updated based on the linked Sales Orders."
 msgstr "รายได้ที่คาดหวังได้รับการอัปเดตตามคำสั่งซื้อที่เชื่อมโยง"
 
 #. module: sale_crm
+#: model_terms:ir.ui.view,arch_db:sale_crm.crm_quotation_partner_view_form
+msgid "Go to Quotation"
+msgstr "ไปยังใบเสนอราคาใหม่"
+
+#. module: sale_crm
 #: model:ir.model.fields,field_description:sale_crm.field_crm_lead__id
 #: model:ir.model.fields,field_description:sale_crm.field_crm_quotation_partner__id
 #: model:ir.model.fields,field_description:sale_crm.field_crm_team__id
@@ -132,9 +140,7 @@ msgid "My Quotations"
 msgstr "ใบเสนอราคาของฉัน"
 
 #. module: sale_crm
-#: model:ir.actions.act_window,name:sale_crm.crm_quotation_partner_action
 #: model_terms:ir.ui.view,arch_db:sale_crm.crm_case_form_view_oppor
-#: model_terms:ir.ui.view,arch_db:sale_crm.crm_quotation_partner_view_form
 msgid "New Quotation"
 msgstr "ใบเสนอราคาใหม่"
 
@@ -152,6 +158,11 @@ msgstr "จำนวนคำสั่งขาย"
 #: model:ir.model.fields,field_description:sale_crm.field_sale_order__opportunity_id
 msgid "Opportunity"
 msgstr "โอกาสการขาย"
+
+#. module: sale_crm
+#: model:ir.module.module,shortdesc:base.module_sale_crm
+msgid "Opportunity to Quotation"
+msgstr ""
 
 #. module: sale_crm
 #: model:ir.model.fields,field_description:sale_crm.field_crm_lead__order_ids
@@ -195,35 +206,28 @@ msgid "Sales Team"
 msgstr "ทีมขาย"
 
 #. module: sale_crm
+#: model_terms:ir.ui.view,arch_db:sale_crm.crm_quotation_partner_view_form
+msgid "Select a Customer"
+msgstr ""
+
+#. module: sale_crm
 #: model:ir.model.fields,field_description:sale_crm.field_crm_lead__sale_amount_total
 msgid "Sum of Orders"
 msgstr "จำนวนคำสั่งรวม"
 
 #. module: sale_crm
 #: model:ir.model.fields,help:sale_crm.field_crm_lead__sale_amount_total
-msgid "Untaxed Total of Confirmed Orders"
-msgstr "ยอดรวมของคำสั่งที่ยืนยันแล้วและยังไม่รวมภาษี"
+msgid "Total of Confirmed Orders"
+msgstr ""
+
+#. module: sale_crm
+#: model:ir.actions.act_window,name:sale_crm.crm_quotation_partner_action
+#: model_terms:ir.ui.view,arch_db:sale_crm.crm_quotation_partner_view_form
+msgid "Who should be linked to this new Quotation?"
+msgstr ""
 
 #. module: sale_crm
 #. odoo-python
 #: code:addons/sale_crm/wizard/crm_opportunity_to_quotation.py:0
 msgid "You can only apply this action from a lead."
 msgstr "คุณสามารถใช้การดำเนินการนี้ได้เฉพาะจากลูกค้าเป้าหมายเท่านั้น"
-
-#~ msgid "Invoiced in Sales Orders Target"
-#~ msgstr "ออกใบแจ้งหนี้ในเป้าหมายคำสั่งขาย"
-
-#~ msgid "Last Modified on"
-#~ msgstr "แก้ไขครั้งล่าสุดเมื่อ"
-
-#~ msgid "Lead/Opportunity"
-#~ msgstr "ลูกค้าเป้าหมาย / โอกาส"
-
-#~ msgid "Log in the chatter from which opportunity the order originates"
-#~ msgstr "เข้าสู่ระบบการสนทนาจากโอกาสที่คำสั่งเริ่มต้น"
-
-#~ msgid "Sales: Untaxed Total"
-#~ msgstr "การขาย: ยอดทั้งหมดไม่รวมภาษี"
-
-#~ msgid "User"
-#~ msgstr "ผู้ใช้"

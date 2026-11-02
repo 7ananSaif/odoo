@@ -113,8 +113,8 @@ export const geoJsonService = {
 
         const stateNameRegex = /(.*?)(\(.*\))?$/;
 
-        return {
-            getAvailableRegions: () => [
+        function getAvailableRegions() {
+            return [
                 { id: "world", label: _t("World"), defaultProjection: "mercator" },
                 { id: "africa", label: _t("Africa"), defaultProjection: "mercator" },
                 { id: "asia", label: _t("Asia"), defaultProjection: "mercator" },
@@ -127,7 +127,20 @@ export const geoJsonService = {
                 { id: "usa", label: _t("United States"), defaultProjection: "albersUsa" },
                 { id: "south_america", label: _t("South America"), defaultProjection: "mercator" },
                 { id: "oceania", label: _t("Oceania"), defaultProjection: "mercator" },
-            ],
+            ];
+        }
+
+        return {
+            getAvailableRegions,
+            getAlternativeRegions: (initialRegion) => {
+                switch (initialRegion) {
+                    case "world":
+                    case undefined:
+                        return getAvailableRegions().filter(({ id }) => id !== "usa");
+                    default:
+                        return [];
+                }
+            },
             getTopoJson: async function (region) {
                 const [topoJson] = await getRegionAndFetchMapping(region);
                 return topoJson;
@@ -143,6 +156,10 @@ export const geoJsonService = {
                 name = normalizeFeatureName(name);
                 const mapping = region === "usa" ? usaStatesMapping : countriesMapping;
                 return mapping?.[name];
+            },
+            isRegionAvailable(region) {
+                const mapping = region === "usa" ? usaStatesMapping : countriesMapping;
+                return mapping ? Object.keys(mapping).length > 0 : true;
             },
         };
     },

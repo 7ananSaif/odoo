@@ -3,12 +3,15 @@
 from datetime import date, datetime, timedelta
 
 from odoo import Command
-from odoo.tests import Form
+from odoo.tests import tagged, Form
 from odoo.addons.mail.tests.common import mail_new_test_user
 from odoo.addons.product.tests.common import ProductVariantsCommon
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestCreatePicking(ProductVariantsCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):
@@ -33,7 +36,7 @@ class TestCreatePicking(ProductVariantsCommon):
                     'name': cls.product_id_1.name,
                     'product_id': cls.product_id_1.id,
                     'product_qty': 5.0,
-                    'product_uom_id': cls.product_id_1.uom_id.id,
+                    'uom_id': cls.product_id_1.uom_id.id,
                     'price_unit': 500.0,
                 })],
         }
@@ -44,6 +47,7 @@ class TestCreatePicking(ProductVariantsCommon):
         """
 
         # Draft purchase order created
+        self.po_vals['priority'] = '1'
         self.po = self.env['purchase.order'].create(self.po_vals)
         self.assertTrue(self.po, 'Purchase: no purchase order created')
 
@@ -52,6 +56,7 @@ class TestCreatePicking(ProductVariantsCommon):
         self.assertEqual(self.po.state, 'purchase', 'Purchase: PO state should be "Purchase')
         self.assertEqual(self.po.incoming_picking_count, 1, 'Purchase: one picking should be created')
         self.assertEqual(len(self.po.order_line.move_ids), 1, 'One move should be created')
+        self.assertEqual(self.po.picking_ids.priority, '1', 'The po priority should be propagated to the picking')
         # Change purchase order line product quantity
         self.po.order_line.write({'product_qty': 7.0})
         self.assertEqual(len(self.po.order_line.move_ids), 1, 'The two moves should be merged in one')
@@ -68,7 +73,7 @@ class TestCreatePicking(ProductVariantsCommon):
                 'name': self.product_id_2.name,
                 'product_id': self.product_id_2.id,
                 'product_qty': 5.0,
-                'product_uom_id': self.product_id_2.uom_id.id,
+                'uom_id': self.product_id_2.uom_id.id,
                 'price_unit': 250.0,
                 })]})
         self.assertEqual(self.po.incoming_picking_count, 2, 'New picking should be created')
@@ -92,6 +97,17 @@ class TestCreatePicking(ProductVariantsCommon):
             {'product_id': self.product_sofa_blue.id, 'quantity': 1, 'picking_type_id': receipt_type_id}])
         self.assertRecordValues(backorder.move_line_ids, [
             {'product_id': self.product_id_2.id, 'quantity': 4, 'picking_type_id': receipt_type_id}])
+
+        backorder.button_validate()
+
+        # Ensure that, after all those operations, it is still possible to create a PO
+        # Need use of `Form` to ensure that all compute/onchange are working (cf commit)
+        po_form = Form(self.env['purchase.order'])
+        po_form.partner_id = self.po.partner_id
+        with po_form.order_line.new() as po_line:
+            po_line.product_id = self.product_id_2
+        po = po_form.save()
+        self.assertTrue(po)
 
     def test_01_check_double_validation(self):
 
@@ -133,7 +149,6 @@ class TestCreatePicking(ProductVariantsCommon):
         product = self.env['product.product'].create({
             'name': 'product',
             'is_storable': True,
-            'route_ids': [(4, self.ref('stock.route_warehouse0_mto')), (4, self.ref('purchase_stock.route_warehouse0_buy'))],
             'supplier_taxes_id': [(6, 0, [])],
         })
 
@@ -147,7 +162,7 @@ class TestCreatePicking(ProductVariantsCommon):
             'location_id': stock_location.id,
             'location_dest_id': customer_location.id,
             'product_id': product.id,
-            'product_uom': product.uom_id.id,
+            'uom_id': product.uom_id.id,
             'product_uom_qty': 100.0,
             'procure_method': 'make_to_order',
             'picking_type_id': picking_type_out.id,
@@ -176,7 +191,7 @@ class TestCreatePicking(ProductVariantsCommon):
                     'name': product.name,
                     'product_id': product.id,
                     'product_qty': 100.0,
-                    'product_uom_id': product.uom_id.id,
+                    'uom_id': product.uom_id.id,
                     'price_unit': 11.0,
                 })],
         })
@@ -216,33 +231,33 @@ class TestCreatePicking(ProductVariantsCommon):
         with po_form.order_line.new() as po_line:
             po_line.product_id = self.product_id_1
             po_line.product_qty = 1
-            po_line.product_uom_id = uom_dozen
+            po_line.uom_id = uom_dozen
         po = po_form.save()
         po.button_confirm()
 
         # the move should be 12 units
         # note: move.product_qty = computed field, always in the uom of the quant
-        #       move.product_uom_qty = stored field representing the initial demand in move.product_uom
+        #       move.product_uom_qty = stored field representing the initial demand in move.uom_id
         move1 = po.picking_ids.move_ids.sorted()[0]
         self.assertEqual(move1.product_uom_qty, 12)
-        self.assertEqual(move1.product_uom.id, uom_unit.id)
+        self.assertEqual(move1.uom_id.id, uom_unit.id)
         self.assertEqual(move1.product_qty, 12)
 
         # edit the po line, buy 2 dozen, the move should now be 24 units
         po.order_line.product_qty = 2
         move1 = po.picking_ids.move_ids.sorted()[0]
         self.assertEqual(move1.product_uom_qty, 24)
-        self.assertEqual(move1.product_uom.id, uom_unit.id)
+        self.assertEqual(move1.uom_id.id, uom_unit.id)
         self.assertEqual(move1.product_qty, 24)
 
         # force the propagation of the uom, sell 3 dozen
-        self.env['ir.config_parameter'].sudo().set_param('stock.propagate_uom', '1')
+        self.env['ir.config_parameter'].sudo().set_bool('stock.propagate_uom', True)
         with po_form.order_line.edit(0) as po_line:
             po_line.product_qty = 3
         po_form.save()
-        move2 = po.picking_ids.move_ids.filtered(lambda m: m.product_uom.id == uom_dozen.id)
+        move2 = po.picking_ids.move_ids.filtered(lambda m: m.uom_id.id == uom_dozen.id)
         self.assertEqual(move2.product_uom_qty, 1)
-        self.assertEqual(move2.product_uom.id, uom_dozen.id)
+        self.assertEqual(move2.uom_id.id, uom_dozen.id)
         self.assertEqual(move2.product_qty, 12)
 
         # deliver everything
@@ -263,13 +278,13 @@ class TestCreatePicking(ProductVariantsCommon):
         partner_demo_customer = self.partner_id
         final_location = partner_demo_customer.property_stock_customer
         warehouse = self.env['stock.warehouse'].search([('company_id', '=', self.env.company.id)], limit=1)
-        mto_route = self.env.ref('stock.route_warehouse0_mto')
+        mto_route = warehouse.mto_pull_id.route_id
         mto_route.active = True
         mto_route.rule_ids.procure_method = 'mts_else_mto'
         self.product_id_1 = self.env['product.product'].create({
             'name': 'ProductA',
             'is_storable': True,
-            'route_ids': [(4, self.ref('stock.route_warehouse0_mto')), (4, self.ref('purchase_stock.route_warehouse0_buy'))],
+            'route_ids': [Command.set([mto_route.id])],
             'seller_ids': [Command.create({
                 'partner_id': self.partner_id.id,
                 'min_qty': 5,
@@ -346,7 +361,6 @@ class TestCreatePicking(ProductVariantsCommon):
         product = self.env['product.product'].create({
             'name': 'product',
             'is_storable': True,
-            'route_ids': [(4, self.ref('stock.route_warehouse0_mto')), (4, self.ref('purchase_stock.route_warehouse0_buy'))],
         })
 
         seller = self.env['product.supplierinfo'].create({
@@ -367,7 +381,7 @@ class TestCreatePicking(ProductVariantsCommon):
             'location_id': stock_location.id,
             'location_dest_id': customer_location.id,
             'product_id': product.id,
-            'product_uom': product.uom_id.id,
+            'uom_id': product.uom_id.id,
             'product_uom_qty': 80.0,
             'procure_method': 'make_to_order',
             'picking_id': customer_picking.id,
@@ -389,7 +403,7 @@ class TestCreatePicking(ProductVariantsCommon):
             'location_id': stock_location.id,
             'location_dest_id': customer_location.id,
             'product_id': product.id,
-            'product_uom': product.uom_id.id,
+            'uom_id': product.uom_id.id,
             'product_uom_qty': 20.0,
             'procure_method': 'make_to_order',
             'picking_id': customer_picking.id,
@@ -432,13 +446,13 @@ class TestCreatePicking(ProductVariantsCommon):
         # the move should be 1.0 units
         move1 = po.picking_ids.move_ids[0]
         self.assertEqual(move1.product_uom_qty, 1.0)
-        self.assertEqual(move1.product_uom.id, uom_unit.id)
+        self.assertEqual(move1.uom_id.id, uom_unit.id)
         self.assertEqual(move1.product_qty, 1.0)
 
         # edit the po line, buy 2.4 units, the move should now be 2.0 units
         po.order_line.product_qty = 2.4
         self.assertEqual(move1.product_uom_qty, 2.0)
-        self.assertEqual(move1.product_uom.id, uom_unit.id)
+        self.assertEqual(move1.uom_id.id, uom_unit.id)
         self.assertEqual(move1.product_qty, 2.0)
 
         # deliver everything
@@ -462,22 +476,22 @@ class TestCreatePicking(ProductVariantsCommon):
         # buy 1.3 dozen
         po = self.env['purchase.order'].create(self.po_vals)
 
-        po.order_line.product_uom_id = uom_dozen.id
+        po.order_line.uom_id = uom_dozen.id
         po.order_line.product_qty = 1.3
         po.button_confirm()
 
         # the move should be 12.0 units
         move1 = po.picking_ids.move_ids[0]
         self.assertEqual(move1.product_uom_qty, 12.0)
-        self.assertEqual(move1.product_uom.id, uom_unit.id)
+        self.assertEqual(move1.uom_id.id, uom_unit.id)
         self.assertEqual(move1.product_qty, 12.0)
 
         # force the propagation of the uom, buy 2.6 dozen, the move 2 should have 2 dozen
-        self.env['ir.config_parameter'].sudo().set_param('stock.propagate_uom', '1')
+        self.env['ir.config_parameter'].sudo().set_bool('stock.propagate_uom', True)
         po.order_line.product_qty = 2.6
-        move2 = po.picking_ids.move_ids.filtered(lambda m: m.product_uom.id == uom_dozen.id)
+        move2 = po.picking_ids.move_ids.filtered(lambda m: m.uom_id.id == uom_dozen.id)
         self.assertEqual(move2.product_uom_qty, 2)
-        self.assertEqual(move2.product_uom.id, uom_dozen.id)
+        self.assertEqual(move2.uom_id.id, uom_dozen.id)
         self.assertEqual(move2.product_qty, 24)
 
     def create_delivery_order(self):
@@ -487,15 +501,10 @@ class TestCreatePicking(ProductVariantsCommon):
         picking_type_out = self.env.ref('stock.picking_type_out')
         partner = self.env['res.partner'].create({'name': 'AAA', 'email': 'from.test@example.com'})
 
-        warehouse1 = self.env.ref('stock.warehouse0')
-        route_buy = warehouse1.buy_pull_id.route_id
-        route_mto = warehouse1.mto_pull_id.route_id
-
         product = self.env['product.product'].create({
             'name': 'Usb Keyboard',
             'is_storable': True,
             'uom_id': unit,
-            'route_ids': [(6, 0, [route_buy.id, route_mto.id])]
         })
         self.env['product.supplierinfo'].create({
             'product_id': product.id,
@@ -514,7 +523,7 @@ class TestCreatePicking(ProductVariantsCommon):
             'location_id': stock_location.id,
             'location_dest_id': customer_location.id,
             'product_id': product.id,
-            'product_uom': product.uom_id.id,
+            'uom_id': product.uom_id.id,
             'product_uom_qty': 10.0,
             'procure_method': 'make_to_order',
             'picking_id': delivery_order.id,
@@ -594,21 +603,10 @@ class TestCreatePicking(ProductVariantsCommon):
         self.assertEqual(len(po.picking_ids), 2)
 
         # Create a partial return
-        stock_return_picking_form = Form(
-            self.env['stock.return.picking'].with_context(
-                active_ids=first_picking.ids,
-                active_id=first_picking.ids[0],
-                active_model='stock.picking'
-            )
-        )
-        stock_return_picking = stock_return_picking_form.save()
-        stock_return_picking.product_return_moves.quantity = 2.0
-        stock_return_picking_action = stock_return_picking.action_create_returns()
-        return_pick = self.env['stock.picking'].browse(stock_return_picking_action['res_id'])
+        return_pick = first_picking._create_return()
+        return_pick.move_ids.product_uom_qty = 2.0
         return_pick.action_assign()
-        return_pick.move_ids.quantity = 2
-        return_pick.move_ids.picked = True
-        return_pick._action_done()
+        return_pick.button_validate()
 
         self.assertEqual(po.order_line.qty_received, 3)
 
@@ -641,13 +639,12 @@ class TestCreatePicking(ProductVariantsCommon):
         vendor = self.env['res.partner'].create({
             'name': 'Roger'
         })
-        # This needs to be tried with MTO route activated
-        self.env['stock.route'].browse(self.ref('stock.route_warehouse0_mto')).action_unarchive()
-        self.env['stock.route'].browse(self.ref('stock.route_warehouse0_mto')).rule_ids.procure_method = "make_to_order"
+        route_mto = picking_type_out.warehouse_id.mto_pull_id.route_id
+        route_mto.active = True
         product = self.env['product.product'].create({
             'name': 'product',
             'is_storable': True,
-            'route_ids': [(4, self.ref('stock.route_warehouse0_mto')), (4, self.ref('purchase_stock.route_warehouse0_buy'))],
+            'route_ids': [Command.set([route_mto.id])],
             'supplier_taxes_id': [(6, 0, [])],
         })
         self.env['product.supplierinfo'].create({
@@ -780,27 +777,14 @@ class TestCreatePicking(ProductVariantsCommon):
 
         self.assertEqual(po.order_line.qty_received, 10)
 
-        stock_return_picking_form = Form(
-            self.env['stock.return.picking'].with_context(
-                active_ids=second_picking.ids,
-                active_id=second_picking.ids[0],
-                active_model='stock.picking'
-            )
-        )
-        stock_return_picking_form.product_return_moves._records[0]['quantity'] = 2
-        stock_return_picking = stock_return_picking_form.save()
-        stock_return_picking_action = stock_return_picking.action_create_returns()
-        return_pick = self.env['stock.picking'].browse(stock_return_picking_action['res_id'])
+        return_pick = second_picking._create_return()
+        return_pick.move_ids.product_uom_qty = 2
         return_pick.action_assign()
         return_pick.location_dest_id = vendor_returns_loc
-        return_pick.move_ids.quantity = 2
-        return_pick.move_ids.picked = True
-        return_pick._action_done()
+        return_pick.button_validate()
         push_pick = return_pick.move_ids.move_dest_ids.picking_id
         push_pick.action_assign()
-        push_pick.move_ids.quantity = 2
-        push_pick.move_ids.picked = True
-        push_pick._action_done()
+        push_pick.button_validate()
 
         self.assertEqual(po.order_line.qty_received, 8)
         self.assertEqual(push_pick.partner_id, po.partner_id)
@@ -819,22 +803,21 @@ class TestCreatePicking(ProductVariantsCommon):
             'move_ids': [(0, 0, {
                 'product_id': self.product_id_2.id,
                 'product_uom_qty': 10,
-                'product_uom': self.product_id_2.uom_id.id,
+                'uom_id': self.product_id_2.uom_id.id,
                 'location_id': self.env.ref('stock.stock_location_suppliers').id,
                 'location_dest_id': self.env.ref('stock.stock_location_stock').id,
             })]
         })
         stock_picking.button_validate()
 
-        stock_return_picking = self.env['stock.return.picking'].with_context(
-            active_ids=stock_picking.ids, active_id=stock_picking.ids[0], active_model='stock.picking').create({})
-
-        stock_return_picking.product_return_moves.quantity = 1.0
-        res = stock_return_picking.action_create_exchanges()
-        exchange_return_picking = self.env['stock.picking'].browse(res['res_id'])
+        return_picking = stock_picking._create_return()
+        return_picking.move_ids.product_uom_qty = 1.0
+        return_picking.action_assign()
+        return_picking.action_exchange()
+        exchange_return_picking = return_picking.return_ids
 
         self.assertTrue(exchange_return_picking)
-        self.assertEqual(exchange_return_picking.origin, 'Return of ' + stock_picking.name)
+        self.assertEqual(exchange_return_picking.origin, 'Return of ' + return_picking.name)
 
     def test_po_with_return_for_exchange_shows_3_transfers(self):
         po = self.env['purchase.order'].create(self.po_vals)
@@ -843,12 +826,10 @@ class TestCreatePicking(ProductVariantsCommon):
         stock_picking = po.picking_ids
         stock_picking.button_validate()
 
-        return_picking_wizard = self.env['stock.return.picking'].with_context(
-            active_ids=stock_picking.ids, active_id=stock_picking.id, active_model='stock.picking'
-        ).create({})
-
-        return_picking_wizard.product_return_moves.quantity = 1.0
-        return_picking_wizard.action_create_exchanges()
+        return_picking = stock_picking._create_return()
+        return_picking.move_ids.product_uom_qty = 1.0
+        return_picking.action_assign()
+        return_picking.action_exchange()
 
         self.assertEqual(
             po.incoming_picking_count, 3,
@@ -907,7 +888,7 @@ class TestCreatePicking(ProductVariantsCommon):
                 }),
             ]
         })
-        self.assertEqual(po.order_line.name, '[123] ABC (red)\nPurchase description' + ('\nNo variant: extra' if product_matrix_installed else ''))
+        self.assertEqual(po.order_line.name, 'Purchase description' + ('\nNo variant: extra' if product_matrix_installed else ''))
         po.order_line.name += '\nRandom purchase notes'
         po.button_confirm()
         self.assertEqual(po.picking_ids.move_ids.description_picking, ('No variant: extra\n' if product_matrix_installed else '') + '[123] ABC\nReceive with care')
@@ -926,7 +907,7 @@ class TestCreatePicking(ProductVariantsCommon):
             'order_line': [Command.create({
                 'product_id': self.product_id_1.id,
                 'product_qty': 1.0,
-                'product_uom_id': self.product_id_1.uom_id.id,
+                'uom_id': self.product_id_1.uom_id.id,
                 'price_unit': 100.0,
             })],
         })
@@ -936,14 +917,7 @@ class TestCreatePicking(ProductVariantsCommon):
         receipt.button_validate()
         self.assertEqual(po.order_line.qty_received, 1.0)
 
-        return_wizard = self.env['stock.return.picking'].with_context(
-            active_ids=receipt.ids,
-            active_id=receipt.id,
-            active_model='stock.picking',
-        ).create({})
-        return_wizard.product_return_moves.quantity = 1.0
-        res = return_wizard.action_create_returns()
-        return_pick = self.env['stock.picking'].browse(res['res_id'])
+        return_pick = receipt._create_return()
         return_pick.picking_type_id = warehouse.out_type_id
         return_pick.move_ids.quantity = 1.0
         return_pick.button_validate()
@@ -1000,3 +974,15 @@ class TestCreatePicking(ProductVariantsCommon):
         move = po.picking_ids.move_ids
 
         self.assertEqual(move.description_picking, "[P01] Product 1", f'The vendor reference "{move.description_picking}" is not the expected one.')
+
+    def test_vendor_reference_in_receipt_origin(self):
+        """Ensure the vendor reference is propagated to the receipt source document.
+        """
+        po = self.env['purchase.order'].create(self.po_vals)
+        po.partner_ref = "VEN1-REF"
+        po.button_confirm()
+        self.assertEqual(
+            po.picking_ids.origin,
+            f"{po.name} - VEN1-REF",
+            "The vendor reference should be propagated to the receipt source document.",
+        )

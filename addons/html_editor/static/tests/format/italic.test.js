@@ -12,6 +12,7 @@ import {
 } from "../_helpers/user_actions";
 import { unformat } from "../_helpers/format";
 import { tick } from "@odoo/hoot-mock";
+import { QWebPlugin } from "@html_editor/others/qweb_plugin";
 
 test("should make a few characters italic", async () => {
     await testEditor({
@@ -47,9 +48,10 @@ test("should make two paragraphs not italic", async () => {
 
 test("should make qweb tag italic", async () => {
     await testEditor({
-        contentBefore: `<div><p t-esc="'Test'" contenteditable="false">[Test]</p></div>`,
+        contentBefore: `<div><p t-out="'Test'" contenteditable="false">[Test]</p></div>`,
         stepFunction: italic,
-        contentAfter: `<div>[<p t-esc="'Test'" contenteditable="false" style="font-style: italic;">Test</p>]</div>`,
+        contentAfter: `<div>[<p t-out="'Test'" style="font-style: italic;">Test</p>]</div>`,
+        config: { includePlugins: [QWebPlugin] },
     });
 });
 
@@ -135,9 +137,9 @@ test("should make two paragraphs (separated with whitespace) italic, then not it
             <p>[abc</p>
             <p>def]</p>
         `,
-        stepFunction: async (editor) => {
+        stepFunction: async (editor, { assertContentEquals }) => {
             italic(editor);
-            expect(getContent(editor.editable)).toBe(`
+            assertContentEquals(`
             <p><em>[abc</em></p>
             <p><em>def]</em></p>
         `);
@@ -150,24 +152,6 @@ test("should make two paragraphs (separated with whitespace) italic, then not it
     });
 });
 
-test("should get ready to type in italic", async () => {
-    await testEditor({
-        contentBefore: `<p>ab[]cd</p>`,
-        stepFunction: italic,
-        contentAfterEdit: `<p>ab<em data-oe-zws-empty-inline="">\u200B[]</em>cd</p>`,
-        contentAfter: `<p>ab[]cd</p>`,
-    });
-});
-
-test("should get ready to type in not italic", async () => {
-    await testEditor({
-        contentBefore: `<p><em>ab[]cd</em></p>`,
-        stepFunction: italic,
-        contentAfterEdit: `<p><em>ab</em><span data-oe-zws-empty-inline="">\u200B[]</span><em>cd</em></p>`,
-        contentAfter: `<p><em>ab[]cd</em></p>`,
-    });
-});
-
 test("should not format non-editable text (italic)", async () => {
     await testEditor({
         contentBefore: '<p>[a</p><p contenteditable="false">b</p><p>c]</p>',
@@ -176,16 +160,18 @@ test("should not format non-editable text (italic)", async () => {
     });
 });
 
-test("should remove empty italic tag when changing selection", async () => {
+test("should change italic active state when changing selection", async () => {
     const { editor, el } = await setupEditor("<p>ab[]cd</p>");
 
     italic(editor);
     await tick();
-    expect(getContent(el)).toBe(`<p>ab<em data-oe-zws-empty-inline="">\u200B[]</em>cd</p>`);
+    expect(getContent(el)).toBe(`<p>ab[]cd</p>`);
 
     await simulateArrowKeyPress(editor, "ArrowLeft");
     await tick(); // await selectionchange
     expect(getContent(el)).toBe(`<p>a[]bcd</p>`);
+    await insertText(editor, "x");
+    expect(getContent(el)).toBe(`<p>ax[]bcd</p>`);
 });
 
 test("should make a few characters italic inside table (italic)", async () => {
@@ -213,7 +199,7 @@ test("should make a few characters italic inside table (italic)", async () => {
         stepFunction: italic,
         contentAfterEdit: unformat(`
             <p data-selection-placeholder=""><br></p>
-            <table class="table table-bordered o_table o_selected_table">
+            <div class="o_table_wrapper"><table class="table table-bordered o_table o_selected_table">
                 <tbody>
                     <tr>
                         <td class="o_selected_td"><p><em>[abc</em></p></td>
@@ -231,25 +217,43 @@ test("should make a few characters italic inside table (italic)", async () => {
                         <td><p><br></p></td>
                     </tr>
                 </tbody>
-            </table>
+            </table></div>
             <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`),
     });
 });
 
-test("should not add history step for italic on collapsed selection", async () => {
+test("should not add history commit for italic on collapsed selection", async () => {
     const { editor, el } = await setupEditor("<p>abcd[]</p>");
 
     patchWithCleanup(console, { warn: () => {} });
 
     // Collapsed formatting shortcuts (e.g. Ctrl+I) shouldn’t create a history
-    // step. The empty inline tag is temporary: auto-cleaned if unused. We want
-    // to avoid having a phantom step in the history.
+    // commit. The empty inline tag is temporary: auto-cleaned if unused. We want
+    // to avoid having a phantom commit in the history.
     await press(["ctrl", "i"]);
-    expect(getContent(el)).toBe(`<p>abcd<em data-oe-zws-empty-inline="">\u200B[]</em></p>`);
+    expect(getContent(el)).toBe(`<p>abcd[]</p>`);
 
     await insertText(editor, "A");
     expect(getContent(el)).toBe(`<p>abcd<em>A[]</em></p>`);
 
     undo(editor);
     expect(getContent(el)).toBe(`<p>abcd[]</p>`);
+});
+
+test("italic on list item should not make its nested list items italic", async () => {
+    await testEditor({
+        contentBefore: "<ul><li><p>[A]</p><ul><li>B</li></ul></li></ul>",
+        stepFunction: italic,
+        contentAfter:
+            '<ul><li style="font-style: italic;"><p>[A]</p><ul style="font-style: normal;"><li>B</li></ul></li></ul>',
+    });
+});
+
+test("removing italic on list item should remove neutral style from its nested list", async () => {
+    await testEditor({
+        contentBefore:
+            '<ul><li style="font-style: italic;"><p>[A]</p><ul style="font-style: normal;"><li>B</li></ul></li></ul>',
+        stepFunction: italic,
+        contentAfter: "<ul><li><p>[A]</p><ul><li>B</li></ul></li></ul>",
+    });
 });

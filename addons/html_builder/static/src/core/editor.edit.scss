@@ -1,38 +1,10 @@
-$-editor-messages-margin-x: 2%;
-
 .editor_enable .btn:hover {
     cursor: text;
 }
 
-%o-editor-messages {
-    background: $o-we-dropzone-bg-color;
-    text-align: center;
-    color: #fff;
-    outline: $o-we-dropzone-border-width dashed $o-we-dropzone-accent-color;
-    outline-offset: -$o-we-dropzone-border-width;
-
-    &:before {
-        content: attr(data-editor-message);
-        display: block;
-        font-size: 20px;
-    }
-
-    // Show the default editor message only for "empty" elements
-    &:not(:empty) {
-        &[data-editor-message-default]:before {
-            content: none;
-        }
-    }
-
-    &:after {
-        content: attr(data-editor-sub-message);
-        display: block;
-    }
-}
-
 // This style block is about the "editor message" which highlights the areas
 // where the user can drag & drop snippets.
-.o_editable {
+.o_savable {
     // Summernote did not Support for placeholder text, guess who else does not...
     &[placeholder]:not(:focus) {
         &:empty:before,
@@ -44,11 +16,11 @@ $-editor-messages-margin-x: 2%;
         }
     }
 
-    &.oe_structure.oe_empty, &[data-oe-type=html], .oe_structure.oe_empty {
+    &.oe_structure.oe_empty, &[data-oe-type=html], .oe_structure.oe_empty, &.o_drop_inner_empty {
 
         // Base case (website.page (#wrap), t-field (product description), ...)
         > .oe_drop_zone.oe_insert:not(.oe_vertical):not(.oe_sanitized_drop_zone) {
-            @extend %o-editor-messages;
+            @include o-editor-messages;
             height: auto;
 
             // Empty editable element during drag & drop
@@ -59,10 +31,6 @@ $-editor-messages-margin-x: 2%;
             }
 
             &:not(:only-child) {
-                &::before {
-                    font-size: 16px;
-                }
-
                 &[data-editor-message-default]::before {
                     content: none;
                 }
@@ -70,26 +38,24 @@ $-editor-messages-margin-x: 2%;
         }
 
         // Exception 1: empty wrap NOT during drag & drop
-        &#wrap:empty {
-            @extend %o-editor-messages;
+        &#wrap:empty, .oe_wrap:empty {
+            @include o-editor-messages;
             padding: 112px 0px;
             margin: 20px $-editor-messages-margin-x;
-            border-radius: $border-radius-lg;
         }
 
         // Exception 2: empty wrap during drag & drop (override of base case)
-        &#wrap > .oe_drop_zone.oe_insert:not(.oe_vertical):not(.oe_sanitized_drop_zone):only-child {
+        &#wrap > .oe_drop_zone.oe_insert:not(.oe_vertical):not(.oe_sanitized_drop_zone):only-child,
+        &.oe_wrap > .oe_drop_zone.oe_insert:not(.oe_vertical):not(.oe_sanitized_drop_zone):only-child
+        {
             padding: 112px 0px;
-            text-shadow: none;
-        }
-
-        > p:empty:only-child {
-            color: #aaa;
         }
     }
 
     &[data-oe-type=html].oe_empty:empty {
-        @extend %o-editor-messages;
+        @include o-editor-messages;
+        padding: 12px 0;
+        margin: 20px $-editor-messages-margin-x;
     }
 }
 
@@ -119,6 +85,43 @@ $-editor-messages-margin-x: 2%;
 }
 
 .css_non_editable_mode_hidden,
-.o_editable .media_iframe_video .css_editable_mode_display {
+.o_savable .media_iframe_video .css_editable_mode_display {
     display: block !important;
+}
+
+[data-snippet].o_snippet_previewing_on_drag > *:not(.o_snippet_drag_preview) {
+    display: none !important;
+}
+
+.o_we_force_no_transition {
+    // Note: this is forced through a CSS class instead of inline style to avoid
+    // overridding existing inline styles or forgetting to restore them as the
+    // code evolves. We may need to increase the CSS priority of this. It will
+    // also not work to override important inline style... this is a limitation.
+    transition: none !important;
+}
+
+.oe_structure_empty_message {
+    // Empty structure NOT during drag & drop
+    &:not(:has(> .oe_drop_zone)) {
+        &:after {
+            @include o-editor-messages;
+            content: attr(data-editor-message);
+            color: $o-we-dropzone-text-color;
+            font-size: $o-we-dropzone-font-size;
+            padding: 112px 0px;
+            margin: 20px $-editor-messages-margin-x;
+            font-family: $o-we-font-family;
+            text-shadow: 0 0 5px $o-we-dropzone-sanitized-color
+        }
+    }
+
+    // Empty structure during drag & drop
+    > .oe_drop_zone.oe_insert:not(.oe_vertical):not(.oe_sanitized_drop_zone) {
+        @include o-editor-messages;
+        height: auto;
+        width: 100% - 2 * $-editor-messages-margin-x;
+        padding: 112px 0;
+        margin: 20px $-editor-messages-margin-x;
+    }
 }

@@ -1,3 +1,4 @@
+import { useSubEnv } from "@web/owl2/utils";
 import { Action, ACTION_TAGS } from "@mail/core/common/action";
 import { ActionList } from "@mail/core/common/action_list";
 import {
@@ -8,22 +9,26 @@ import {
 } from "@mail/discuss/call/common/call_actions";
 import { CallPreview } from "@mail/discuss/call/common/call_preview";
 
-import { Component, useState, useSubEnv } from "@odoo/owl";
+import { Component, computed, proxy, signal, types, useProps } from "@odoo/owl";
 
 import { _t } from "@web/core/l10n/translation";
 import { useService } from "@web/core/utils/hooks";
 
 export class CallInvitation extends Component {
-    static props = ["thread"];
     static template = "discuss.CallInvitation";
     static components = { ActionList, CallPreview };
+
+    root = signal.ref();
 
     setup() {
         super.setup();
         this.rtc = useService("discuss.rtc");
         this.store = useService("mail.store");
+        this.props = useProps({
+            channel: types.instanceOf(this.store["discuss.channel"]),
+        });
         this.ui = useService("ui");
-        this.state = useState({
+        this.state = proxy({
             activateCamera: 0,
             activateMicrophone: 0,
             showCameraPreview: false,
@@ -33,15 +38,21 @@ export class CallInvitation extends Component {
         useSubEnv({ inCallInvitation: true });
     }
 
-    joinCall() {
-        this.props.thread.open({ focus: true });
-        this.rtc.toggleCall(this.props.thread, {
+    async joinCall() {
+        const hasJoinedCall = await this.rtc.requestToggleCall(this.props.channel, {
             audio: this.state.hasMicrophone,
             camera: this.state.hasCamera,
         });
+        if (!hasJoinedCall) {
+            return;
+        }
+        this.props.channel.open({ focus: true });
+        if (this.props.channel.default_display_mode === "video_full_screen") {
+            await this.rtc.enterFullscreen();
+        }
     }
 
-    get acceptOrRejectActions() {
+    acceptOrRejectActions = computed(() => {
         const joinUpdated = {
             ...joinAction,
             btnClass: joinAction.btnClass + " o-me-0_5",
@@ -62,69 +73,64 @@ export class CallInvitation extends Component {
                 definition: acceptWithCameraUpdated,
                 owner: this,
                 store: this.store,
-                thread: this.props.thread,
+                channel: this.props.channel,
             }),
             new CallAction({
                 id: "join",
                 definition: joinUpdated,
                 owner: this,
                 store: this.store,
-                thread: this.props.thread,
+                channel: this.props.channel,
             }),
             new CallAction({
                 id: "reject",
                 definition: rejectAction,
                 owner: this,
                 store: this.store,
-                thread: this.props.thread,
+                channel: this.props.channel,
             }),
         ];
-    }
+    });
 
-    get otherActions() {
-        return [
-            new Action({
-                id: "toggle-camera-preview",
-                definition: {
-                    name: () =>
-                        this.state.showCameraPreview
-                            ? _t("Hide camera preview")
-                            : _t("Show camera preview"),
-                    icon: () =>
-                        this.state.showCameraPreview ? "fa fa-chevron-up" : "fa fa-chevron-down",
-                    onSelected: () => {
-                        this.state.showCameraPreview = !this.state.showCameraPreview;
+    otherActions = computed(() => [
+        new Action({
+            id: "toggle-camera-preview",
+            definition: {
+                name: () =>
+                    this.state.showCameraPreview
+                        ? _t("Hide camera preview")
+                        : _t("Show camera preview"),
+                icon: () => (this.state.showCameraPreview ? "expand_less" : "expand_more"),
+                onSelected: () => {
+                    this.state.showCameraPreview = !this.state.showCameraPreview;
+                    if (this.state.showCameraPreview) {
                         if (this.rtc.cameraPermission !== "denied") {
                             this.state.activateCamera++;
                         }
                         if (this.state.hasMicrophone) {
                             this.state.activateMicrophone++;
                         }
-                    },
-                    tags: () => [ACTION_TAGS.CALL_LAYOUT],
+                        this.props.channel.self_member_id?.cancelInvitationTimeout();
+                    } else {
+                        this.props.channel.self_member_id?.startInvitationTimeout();
+                    }
                 },
-                store: this.store,
-            }),
-        ];
-    }
+                tags: () => [ACTION_TAGS.CALL_LAYOUT],
+            },
+            store: this.store,
+        }),
+    ]);
 
     get avatarTitle() {
-        const channelName = this.props.thread.displayName;
-        if (this.props.thread.channel_type === "chat") {
+        const channelName = this.props.channel.displayName;
+        if (this.props.channel.channel_type === "chat") {
             return _t("View chat with %(channel_name)s", { channel_name: channelName });
         }
         return _t("View the %(channel_name)s channel", { channel_name: channelName });
     }
 
     get inviter() {
-        return this.props.thread.self_member_id?.rtc_inviting_session_id?.channel_member_id;
-    }
-
-    get incomingCallText() {
-        if (this.props.thread.channel_type === "chat" || !this.inviter) {
-            return _t("Incoming call");
-        }
-        return _t("Incoming call from %(inviter)s", { inviter: this.inviter.name });
+        return this.props.channel.self_member_id?.rtc_inviting_session_id?.channel_member_id;
     }
 
     /** @param {{ microphone?: boolean, camera?: boolean }} settings */

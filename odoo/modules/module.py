@@ -13,14 +13,19 @@ import re
 import sys
 import traceback
 import typing
-import warnings
+from collections import defaultdict
 from collections.abc import Collection, Iterable, Mapping
 from os.path import join as opj
 
-import odoo.addons
 import odoo.release as release
 import odoo.tools as tools
 import odoo.upgrade
+from odoo.tools.translate import get_po_paths, get_translations_for_references
+
+import odoo.addons
+
+if typing.TYPE_CHECKING:
+    from unittest import TestCase
 
 try:
     from packaging.requirements import InvalidRequirement, Requirement
@@ -43,7 +48,6 @@ __all__ = [
     "get_manifest",
     "get_module_path",
     "get_modules",
-    "get_modules_with_version",
     "get_resource_from_path",
     "initialize_sys_path",
     "load_openerp_module",
@@ -70,17 +74,16 @@ _DEFAULT_MANIFEST = {
     'countries': [],
     'data': [],
     'demo': [],
-    'demo_xml': [],
     'depends': [],
     'description': '',  # defaults to README file
     'external_dependencies': {},
-    'init_xml': [],
+    'iap_paid_service': False,
     'installable': True,
     'images': [],  # website
-    'images_preview_theme': {},  # website themes
     'kpi_providers': [],
     'live_test_url': '',  # website themes
     'new_page_templates': {},  # website themes
+    'other_files': [],
     'post_init_hook': '',
     'post_load': '',
     'pre_init_hook': '',
@@ -88,7 +91,6 @@ _DEFAULT_MANIFEST = {
     'summary': '',
     'test': [],
     'theme_customizations': {},  # themes
-    'update_xml': [],
     'uninstall_hook': '',
     'version': '1.0',
     'web': False,
@@ -108,8 +110,8 @@ TYPED_FIELD_DEFINITION_RE = re.compile(r'''
 
 _logger = logging.getLogger(__name__)
 
-current_test: bool = False
-"""Indicates whteher we are in a test mode"""
+current_test: TestCase | None = None
+"""The current test being run, if any"""
 
 
 class UpgradeHook:
@@ -184,6 +186,9 @@ class Manifest(Mapping[str, typing.Any]):
         if not MODULE_NAME_RE.match(self.name):
             raise FileNotFoundError(f"Invalid module name: {self.name}")
         self.__manifest_content = manifest_content
+        # Maps PO file paths to a dict of field names to translated strings.
+        # e.g. {'/path/to/fr.po': {'description': 'Description en français', 'summary': 'Résumé en français'}}
+        self.__manifest_translations: dict[str, dict[str, str]] = {}
 
     @property
     def addons_path(self) -> str:
@@ -227,6 +232,52 @@ class Manifest(Mapping[str, typing.Any]):
         if (manifest['installable'] or manifest['assets']) and os.path.isdir(static_path):
             return static_path
         return None
+
+    def get_translations(self, langs: Iterable[str]) -> dict[str, dict[str, str]]:
+        """Get manifest translations for multiple languages.
+
+        Parsing is cached per PO path to reuse work across related locales,
+        e.g. ``fr_BE`` and ``fr_FR`` can share ``fr.po``.
+
+        Returns a dictionary mapping field names to dictionaries of language codes to translated strings.
+        For example:
+        ```
+        {
+            'description': {
+                'fr_FR': 'Description en français',
+                'es_ES': 'Descripción en español',
+            },
+            'summary': {
+                'fr_FR': 'Résumé en français',
+                'es_ES': 'Resumen en español',
+            },
+        }
+        ```
+        """
+        reference_to_field = {
+            f'model:ir.module.module,description:base.module_{self.name}': 'description',
+            f'model:ir.module.module,shortdesc:base.module_{self.name}': 'shortdesc',
+            f'model:ir.module.module,summary:base.module_{self.name}': 'summary',
+        }
+        translations_by_field: dict[str, dict[str, str]] = defaultdict(dict)
+
+        for lang in dict.fromkeys(langs):
+            # fields_for_lang: dict[str, str] = {}
+            for po_path in get_po_paths(self.name, lang):
+                po_translations = self.__manifest_translations.get(po_path)
+                if po_translations is None:
+                    refs = get_translations_for_references(po_path, reference_to_field)
+                    po_translations = {}
+                    for ref, ref_translations in refs.items():
+                        field_name = reference_to_field[ref]
+                        po_translations[field_name] = list(ref_translations.values())[-1]
+                    self.__manifest_translations[po_path] = po_translations
+                if not po_translations:
+                    continue
+                for field_name, msgstr in po_translations.items():
+                    translations_by_field[field_name][lang] = msgstr
+
+        return dict(translations_by_field)
 
     def __getitem__(self, key: str):
         if key in ('description', 'icon', 'addons_path', 'version', 'static_path'):
@@ -396,22 +447,6 @@ def get_module_icon(module: str) -> str:
         return "/base/static/description/icon.png"
 
 
-def load_manifest(module: str, mod_path: str | None = None) -> dict:
-    """ Load the module manifest from the file system. """
-    warnings.warn("Since 19.0, use Manifest", DeprecationWarning)
-
-    if mod_path:
-        mod = Manifest._from_path(mod_path)
-        assert mod.path == mod_path
-    else:
-        mod = Manifest.for_addon(module)
-    if not mod:
-        _logger.debug('module %s: no manifest file found %s', module, MANIFEST_NAMES)
-        return {}
-
-    return dict(mod)
-
-
 def _load_manifest(module: str, manifest_content: dict) -> dict:
     """ Load and validate the module manifest.
 
@@ -541,12 +576,6 @@ def get_modules() -> list[str]:
     return [m.name for m in Manifest.all_addon_manifests()]
 
 
-def get_modules_with_version() -> dict[str, str]:
-    """Get the module list with the linked version."""
-    warnings.warn("Since 19.0, use Manifest.all_addon_manifests", DeprecationWarning)
-    return {m.name: m.version for m in Manifest.all_addon_manifests()}
-
-
 def adapt_version(version: str) -> str:
     """Reformat the version of the module into a canonical format."""
     version_str_parts = version.split('.')
@@ -603,7 +632,7 @@ def check_python_external_dependency(pydep: str) -> None:
         try:
             # keep compatibility with module name but log a warning instead of info
             importlib.import_module(pydep)
-            _logger.warning("python external dependency on '%s' does not appear o be a valid PyPI package. Using a PyPI package name is recommended.", pydep)
+            _logger.warning("python external dependency on '%s' does not appear to be a valid PyPI package. Using a PyPI package name is recommended.", pydep)
             return
         except ImportError:
             pass

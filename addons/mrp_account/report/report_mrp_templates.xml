@@ -10,7 +10,7 @@
                         <div class="col-lg-12">
                             <h2>
                                 <span>WIP Report for
-                                    <t t-out="', '.join(docs.account_id.mapped('name'))" data-oe-demo="Acme Corp."/>
+                                    <span t-out="', '.join(docs.account_id.mapped('name'))" data-oe-demo="Acme Corp."/>
                                 </span>
                             </h2>
                         </div>
@@ -73,7 +73,6 @@
         <field name="model">account.analytic.line</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">mrp_account.report_wip</field>
-        <field name="report_file">report_wip</field>
         <field name="binding_model_id" ref="model_account_analytic_line"/>
         <field name="binding_type">report</field>
     </record>

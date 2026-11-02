@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
@@ -20,10 +19,11 @@ blacklisted phone numbers.
 It adds mail.thread.phone mixin that handles sanitation and blacklist of
 records numbers. """,
     'data': [
-        'security/ir.model.access.csv',
         'views/phone_blacklist_views.xml',
         'views/res_partner_views.xml',
+        'wizard/mail_activity_schedule_views.xml',
         'wizard/phone_blacklist_remove_view.xml',
+        'security/ir.access.csv',
     ],
     'depends': [
         'base',

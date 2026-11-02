@@ -11,13 +11,18 @@ from odoo.addons.mail.tools.discuss import Store
 class IrAttachment(models.Model):
     _inherit = 'ir.attachment'
 
+    _mail_call_artifact_uniq = models.UniqueIndex(
+        "(res_id) WHERE res_model = 'mail.call.artifact'",
+        message="Only one attachment per call artifact is allowed.",
+    )
+
     thumbnail = fields.Image()
     has_thumbnail = fields.Boolean(compute="_compute_has_thumbnail")
 
     @api.depends("thumbnail")
     def _compute_has_thumbnail(self):
-        for attachment in self.with_context(bin_size=True):
-            attachment.has_thumbnail = bool(attachment.thumbnail)
+        for attachment in self:
+            attachment.has_thumbnail = bool(attachment.thumbnail.size)
 
     def _has_attachments_ownership(self, attachment_tokens):
         """ Checks if the current user has ownership of all attachments in the recordset.
@@ -86,25 +91,30 @@ class IrAttachment(models.Model):
             )
         self.unlink()
 
-    def _get_store_ownership_fields(self):
-        return [Store.Attr("ownership_token", lambda a: a._get_ownership_token())]
+    def _unlink_from_thread_and_notify(self, message):
+        """ Attach the given attachments to the message they are posted on, so
+            that they leave the attachment list of their thread while staying on
+            that message: removing a file from that list is not meant to edit
+            the messages using it. They are then deleted along with the message.
 
-    def _to_store_defaults(self, target):
-        return [
-            "checksum",
-            "create_date",
-            "file_size",
-            "has_thumbnail",
-            "mimetype",
-            "name",
-            Store.Attr("raw_access_token", lambda a: a._get_raw_access_token()),
-            "res_name",
-            "res_model",
-            Store.One("thread", [], as_thread=True),
-            Store.Attr("thumbnail_access_token", lambda a: a._get_thumbnail_token()),
-            "type",
-            "url",
-        ]
+            :param message: the message the attachments are posted on
+        """
+        self.write({"res_model": message._name, "res_id": message.id})
+        for attachment in self:
+            Store(bus_channel=attachment).add(attachment, {"res_model": message._name, "thread": False})
+
+    def _store_ownership_fields(self, res: Store.FieldList):
+        res.attr("ownership_token", lambda a: a._get_ownership_token())
+
+    def _store_attachment_fields(self, res: Store.FieldList, **kwargs):
+        res.extend(["checksum", "create_date", "file_size", "has_thumbnail", "mimetype", "name"])
+        res.attr("raw_access_token", lambda a: a._get_raw_access_token())
+        res.attr("res_name")
+        res.attr("res_model")
+        # an attachment kept on its message alone has no thread to belong to
+        res.one("thread", [], as_thread=True, predicate=lambda a: a.res_model != "mail.message")
+        res.attr("thumbnail_access_token", lambda a: a._get_thumbnail_token())
+        res.extend(["type", "url"])
 
     def _get_ownership_token(self):
         """ Returns a scoped limited access token that indicates ownership of the attachment when

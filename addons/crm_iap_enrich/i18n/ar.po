@@ -10,10 +10,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~15.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-09-16 13:38+0000\n"
-"Last-Translator: \"Tiffany Chang (tic)\" <tic@odoo.com>\n"
-"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 16:34+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-s19-4/"
 "crm_iap_enrich/ar/>\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
@@ -21,7 +21,7 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: crm_iap_enrich
 #: model_terms:ir.ui.view,arch_db:crm_iap_enrich.mail_message_lead_enrich_notfound
@@ -82,6 +82,11 @@ msgid "Enrich"
 msgstr "إثراء"
 
 #. module: crm_iap_enrich
+#: model:ir.module.module,summary:base.module_crm_iap_enrich
+msgid "Enrich Leads/Opportunities using email address domain"
+msgstr ""
+
+#. module: crm_iap_enrich
 #: model_terms:ir.ui.view,arch_db:crm_iap_enrich.crm_lead_view_form
 msgid "Enrich lead with company data"
 msgstr "إثراء العملاء المهتمين باستخدام بيانات الشركة"
@@ -106,6 +111,11 @@ msgstr "المُعرف"
 #: model:ir.model,name:crm_iap_enrich.model_crm_lead
 msgid "Lead"
 msgstr "عميل مهتم"
+
+#. module: crm_iap_enrich
+#: model:ir.module.module,shortdesc:base.module_crm_iap_enrich
+msgid "Lead Enrichment"
+msgstr ""
 
 #. module: crm_iap_enrich
 #: model_terms:ir.ui.view,arch_db:crm_iap_enrich.mail_message_lead_enrich_no_email
@@ -139,9 +149,3 @@ msgid ""
 msgstr ""
 "إذا ما كانت خدمة الوكيل المدرك للهوية (IAP) لإثراء العميل المهتم بناءً على "
 "عنوان البريد الإلكتروني قد تم تنفيذها لهذا العميل المهتم أم لا."
-
-#~ msgid "Lead/Opportunity"
-#~ msgstr "عميل مهتم/فرصة "
-
-#~ msgid "Sent batch %s enrich requests: failed with exception %s"
-#~ msgstr "طلبات إثراء الدفعة المرسلة %s: فشلت باستثناء %s "

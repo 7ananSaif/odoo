@@ -1,11 +1,11 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-
+import datetime
 import logging
 from contextlib import contextmanager
 from functools import wraps
-import pytz
-from dateutil.parser import parse
 from datetime import timedelta
+
+from dateutil.parser import parse
 
 from odoo import api, fields, models
 from odoo.fields import Domain
@@ -79,11 +79,21 @@ class MicrosoftCalendarSync(models.AbstractModel):
                     if not vals.get('active', True):
                         # We need to delete the event. Cancel is not sufficient. Errors may occur.
                         record._microsoft_delete(record._get_organizer(), record.microsoft_id, timeout=timeout)
+                    # We currently only support syncing events from primary calendars.
+                    elif 'calendar_id' in vals and vals.get('calendar_id') != record._get_event_user_m().primary_calendar_id.id:
+                        record._microsoft_delete(record._get_organizer(), record.microsoft_id, timeout=timeout)
+                        record.write({
+                            'microsoft_id': False,
+                            'ms_universal_event_id': False,
+                            'need_sync_m': False,
+                        })
                     elif fields_to_sync:
                         values = record._microsoft_values(fields_to_sync)
                         if not values:
                             continue
                         record._microsoft_patch(record._get_organizer(), record.microsoft_id, values, timeout=timeout)
+                elif vals.get('is_draft') is False:
+                    record._microsoft_insert(record._microsoft_values(self._get_microsoft_synced_fields()), timeout=timeout)
 
         return result
 
@@ -98,7 +108,9 @@ class MicrosoftCalendarSync(models.AbstractModel):
             timeout = self._get_microsoft_graph_timeout()
 
             for record in records:
-                if record.need_sync_m and record.active:
+                # We currently only support syncing events from primary calendars.
+                if (record.need_sync_m and record.active and record.calendar_id and not record._is_draft()
+                        and record.calendar_id == record._get_event_user_m().primary_calendar_id):
                     record._microsoft_insert(record._microsoft_values(self._get_microsoft_synced_fields()), timeout=timeout)
         return records
 
@@ -124,7 +136,7 @@ class MicrosoftCalendarSync(models.AbstractModel):
 
     @api.model
     def _create_from_microsoft(self, microsoft_event, vals_list):
-        return self.with_context(dont_notify=True, skip_contact_description=True).create(vals_list)
+        return self.with_context(dont_notify=True, skip_contact_description=True, microsoft_calendar_from_sync=True).create(vals_list)
 
     def _sync_odoo2microsoft(self):
         if not self:
@@ -144,7 +156,7 @@ class MicrosoftCalendarSync(models.AbstractModel):
         for record in new_records:
             values = record._microsoft_values(self._get_microsoft_synced_fields())
             sender_user = record._get_event_user_m()
-            if record._is_microsoft_insertion_blocked(sender_user):
+            if record._is_microsoft_insertion_blocked(sender_user) or record._is_draft():
                 continue
             if isinstance(values, dict):
                 record._microsoft_insert(values)
@@ -160,7 +172,10 @@ class MicrosoftCalendarSync(models.AbstractModel):
     def _cancel_microsoft(self):
         self.microsoft_id = False
         self.ms_universal_event_id = False
-        self.unlink()
+        # When we move an event to a secondary calendar, we remove it from outlook. This returns a canceled event record
+        # on the next sync. In this case, we still keep the event in odoo. Only delete it if it's still in a synced
+        # primary calendar.
+        self.filtered(lambda e: e.calendar_id.calendar_user_ids.filtered(lambda cu: cu.is_primary)).unlink()
 
     def _sync_recurrence_microsoft2odoo(self, microsoft_events, new_events=None):
         recurrent_masters = new_events.filter(lambda e: e.is_recurrence()) if new_events else []
@@ -181,7 +196,7 @@ class MicrosoftCalendarSync(models.AbstractModel):
             )
             recurrents -= to_create
             base_values = dict(
-                self.env['calendar.event']._microsoft_to_odoo_values(recurrent_master, default_values, with_ids=True),
+                self.env['calendar.event']._microsoft_to_odoo_values(recurrent_master, default_values, with_ids=True, create=True),
                 need_sync_m=False
             )
             to_create_values = []
@@ -191,7 +206,7 @@ class MicrosoftCalendarSync(models.AbstractModel):
                 if recurrent_event.type == 'occurrence':
                     value = self.env['calendar.event']._microsoft_to_odoo_recurrence_values(recurrent_event, base_values)
                 else:
-                    value = self.env['calendar.event']._microsoft_to_odoo_values(recurrent_event, default_values)
+                    value = self.env['calendar.event']._microsoft_to_odoo_values(recurrent_event, default_values, create=True)
 
                 to_create_values += [dict(value, need_sync_m=False)]
 
@@ -199,6 +214,19 @@ class MicrosoftCalendarSync(models.AbstractModel):
             new_recurrence_odoo = self.env['calendar.recurrence'].with_context(dont_notify=True).create(new_calendar_recurrence)
             new_recurrence_odoo.base_event_id = new_recurrence_odoo.calendar_event_ids[0] if new_recurrence_odoo.calendar_event_ids else False
             new_recurrence |= new_recurrence_odoo
+
+        # Outlook can turn an existing single event into a recurring one in place:
+        # the seriesMaster then keeps the iCalUId of the former single event. Those
+        # single events are now represented by the recurrences, so remove them to
+        # avoid leaving duplicates next to the recurrences' first occurrences.
+        if new_recurrence:
+            duplicate_singles = self.env['calendar.event'].search([
+                ('ms_universal_event_id', 'in', new_recurrence.mapped('ms_universal_event_id')),
+                ('recurrence_id', '=', False),
+            ])
+            duplicate_singles.microsoft_id = False
+            duplicate_singles.ms_universal_event_id = False
+            duplicate_singles.with_context(dont_notify=True).unlink()
 
         # --- update events in existing recurrences ---
         # Important note:
@@ -279,13 +307,13 @@ class MicrosoftCalendarSync(models.AbstractModel):
         :return: synchronized odoo
         """
         existing = microsoft_events.match_with_odoo_events(self.env)
-        cancelled = microsoft_events.cancelled()
-        new = microsoft_events - existing - cancelled
+        cancelled = existing.cancelled()
+        new = microsoft_events - existing - microsoft_events.cancelled()
         new_recurrence = new.filter(lambda e: e.is_recurrent())
 
         # create new events and reccurrences
         odoo_values = [
-            dict(self._microsoft_to_odoo_values(e, with_ids=True), need_sync_m=False)
+            dict(self._microsoft_to_odoo_values(e, with_ids=True, create=True), need_sync_m=False)
             for e in (new - new_recurrence)
         ]
         synced_events = self.with_context(dont_notify=True, skip_contact_description=True)._create_from_microsoft(new, odoo_values)
@@ -312,7 +340,7 @@ class MicrosoftCalendarSync(models.AbstractModel):
 
         # Get sync lower bound days range for checking if old events must be updated in Odoo.
         ICP = self.env['ir.config_parameter'].sudo()
-        lower_bound_day_range = ICP.get_param('microsoft_calendar.sync.lower_bound_range')
+        lower_bound_day_range = ICP.get_int('microsoft_calendar.sync.lower_bound_range')
 
         # update other events
         for mevent in (existing - cancelled).filter(lambda e: e.lastModifiedDateTime):
@@ -324,14 +352,14 @@ class MicrosoftCalendarSync(models.AbstractModel):
                 odoo_event = self.browse(mevent.odoo_id(self.env)).exists()
 
             if odoo_event:
-                odoo_event_updated_time = pytz.utc.localize(odoo_event.write_date)
+                odoo_event_updated_time = odoo_event.write_date.replace(tzinfo=datetime.UTC)
                 ms_event_updated_time = parse(mevent.lastModifiedDateTime)
 
                 # If the update comes from an old event/recurrence, check if time diff between updates is reasonable.
                 old_event_update_condition = True
                 if lower_bound_day_range:
                     update_time_diff = ms_event_updated_time - odoo_event_updated_time
-                    old_event_update_condition = odoo_event._check_old_event_update_required(int(lower_bound_day_range), update_time_diff)
+                    old_event_update_condition = odoo_event._check_old_event_update_required(lower_bound_day_range, update_time_diff)
 
                 if ms_event_updated_time >= odoo_event_updated_time and old_event_update_condition:
                     vals = dict(odoo_event._microsoft_to_odoo_values(mevent), need_sync_m=False)
@@ -448,7 +476,7 @@ class MicrosoftCalendarSync(models.AbstractModel):
 
     @api.model
     def _microsoft_to_odoo_values(
-        self, microsoft_event: MicrosoftEvent, default_reminders=(), default_values=None, with_ids=False
+        self, microsoft_event: MicrosoftEvent, default_reminders=(), default_values=None, with_ids=False, create=False
     ):
         """
         Implements this method to return a dict of Odoo values corresponding
@@ -464,8 +492,8 @@ class MicrosoftCalendarSync(models.AbstractModel):
         Keep current behavior by default (5s), but allow admins to increase it
         through a system parameter.
         """
-        timeout = self.env['ir.config_parameter'].sudo().get_param('microsoft_calendar.graph_timeout')
-        if not timeout or not timeout.isdigit():
+        timeout = self.env['ir.config_parameter'].sudo().get_int('microsoft_calendar.graph_timeout')
+        if not timeout:
             return 5
         return max(1, int(timeout))
 
@@ -541,3 +569,7 @@ class MicrosoftCalendarSync(models.AbstractModel):
         future record synchronization for the original owner.
         """
         raise NotImplementedError()
+
+    def _is_draft(self):
+        """Required to block the insertion to Microsoft of the record if it is a draft event."""
+        return False

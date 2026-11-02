@@ -3,8 +3,7 @@
 import ast
 from collections import defaultdict
 
-from dateutil.relativedelta import relativedelta
-from odoo import api, fields, models, SUPERUSER_ID, _
+from odoo import SUPERUSER_ID, Command, _, api, fields, models
 from odoo.tools import SQL
 from odoo.tools.convert import convert_file
 
@@ -24,17 +23,28 @@ class HrJob(models.Model):
 
     def _address_id_domain(self):
         return ['|', '&', '&', ('type', '!=', 'contact'), ('type', '!=', 'private'),
-                ('id', 'in', self.sudo().env.companies.partner_id.child_ids.ids),
+                ('parent_id', 'in', self.sudo().env.companies.partner_id.ids),
                 ('id', 'in', self.sudo().env.companies.partner_id.ids)]
 
-    def _get_default_favorite_user_ids(self):
-        return [(6, 0, [self.env.uid])]
+    def _get_default_favorite_recruiter_ids(self):
+        employee = self.env.user.employee_id
+        return [(6, 0, [employee.id])] if employee else [(6, 0, [])]
+
+    def _recruiter_domain(self):
+        recruiter_groups = [
+            self.env.ref("hr_recruitment.group_hr_recruitment_manager").id,
+            self.env.ref("hr_recruitment.group_hr_recruitment_user").id,
+        ]
+        return [
+            ("user_id", "!=", False),
+            ("user_id.share", "=", False),
+            ("user_id.group_ids", "in", recruiter_groups)
+        ]
 
     expected_employees = fields.Integer(groups="hr_recruitment.group_hr_recruitment_interviewer,hr.group_hr_user")
     no_of_employee = fields.Integer(groups="hr_recruitment.group_hr_recruitment_interviewer,hr.group_hr_user")
     requirements = fields.Text(groups="hr_recruitment.group_hr_recruitment_interviewer,hr.group_hr_user")
-    user_id = fields.Many2one(groups="hr_recruitment.group_hr_recruitment_interviewer,hr.group_hr_user")
-
+    recruiter_id = fields.Many2one(domain=_recruiter_domain, check_company=True, groups="hr_recruitment.group_hr_recruitment_interviewer,hr.group_hr_user")
     address_id = fields.Many2one(
         'res.partner', "Job Location", default=_default_address_id,
         domain=lambda self: self._address_id_domain(), tracking=True,
@@ -53,14 +63,14 @@ class HrJob(models.Model):
     applicant_hired = fields.Integer(compute='_compute_applicant_hired', string="Applicants Hired", groups="hr_recruitment.group_hr_recruitment_interviewer")
     manager_id = fields.Many2one(
         'hr.employee', related='department_id.manager_id', string="Department Manager",
-        readonly=True, store=True, groups="hr_recruitment.group_hr_recruitment_interviewer,hr.group_hr_user")
+        readonly=True, store=True)
     document_ids = fields.One2many('ir.attachment', compute='_compute_document_ids', string="Documents", readonly=True, groups="hr_recruitment.group_hr_recruitment_interviewer")
     documents_count = fields.Integer(compute='_compute_document_ids', string="Document Count", groups="hr_recruitment.group_hr_recruitment_interviewer")
     employee_count = fields.Integer(compute='_compute_employee_count')
     alias_id = fields.Many2one(help="Email alias for this job position. New emails will automatically create new applicants for this job position.", groups="hr_recruitment.group_hr_recruitment_interviewer")
     color = fields.Integer("Color Index")
-    is_favorite = fields.Boolean(compute='_compute_is_favorite', inverse='_inverse_is_favorite')
-    favorite_user_ids = fields.Many2many('res.users', 'job_favorite_user_rel', 'job_id', 'user_id', default=_get_default_favorite_user_ids)
+    is_favorite = fields.Boolean(compute='_compute_is_favorite', inverse='_inverse_is_favorite', compute_sql="_compute_sql_is_favorite", compute_sudo=True)
+    favorite_recruiter_ids = fields.Many2many('hr.employee', 'job_favorite_recruiter_rel', 'job_id', 'recruiter_id', default=_get_default_favorite_recruiter_ids)
     interviewer_ids = fields.Many2many(
         "res.users",
         domain="[('share', '=', False), ('company_ids', '=?', company_id)]",
@@ -69,14 +79,13 @@ class HrJob(models.Model):
         help="The Interviewers set on the job position can see all Applicants in it. They have access to the information, the attachments, the meeting management and they can refuse him. You don't need to have Recruitment rights to be set as an interviewer.",
     )
     extended_interviewer_ids = fields.Many2many('res.users', 'hr_job_extended_interviewer_res_users', compute='_compute_extended_interviewer_ids', store=True, groups="hr_recruitment.group_hr_recruitment_interviewer")
-    industry_id = fields.Many2one('res.partner.industry', 'Industry', tracking=True, groups="hr_recruitment.group_hr_recruitment_interviewer")
+    industry_id = fields.Many2one('res.partner.industry', 'Industry', tracking=True)
     expected_degree = fields.Many2one("hr.recruitment.degree", groups="hr_recruitment.group_hr_recruitment_interviewer")
 
     activity_count = fields.Integer(compute='_compute_activities', groups="hr_recruitment.group_hr_recruitment_interviewer")
 
     job_properties = fields.Properties('Properties', definition='company_id.job_properties_definition', groups="hr_recruitment.group_hr_recruitment_interviewer")
 
-    applicant_properties_definition = fields.PropertiesDefinition('Applicant Properties', groups="hr_recruitment.group_hr_recruitment_interviewer")
     no_of_hired_employee = fields.Integer(
         compute='_compute_no_of_hired_employee',
         string='Hired', copy=False, groups="hr_recruitment.group_hr_recruitment_interviewer",
@@ -84,6 +93,20 @@ class HrJob(models.Model):
         store=True)
 
     job_source_ids = fields.One2many('hr.recruitment.source', 'job_id', groups="hr_recruitment.group_hr_recruitment_interviewer")
+    tag_ids = fields.Many2many('hr.job.tag', string='Tags')
+    currency_id = fields.Many2one(
+        'res.currency', related='company_id.currency_id', readonly=True, groups="hr.group_hr_user,hr_recruitment.group_hr_recruitment_user")
+    salary_min = fields.Monetary('Minimum Salary', currency_field='currency_id', groups="hr.group_hr_user,hr_recruitment.group_hr_recruitment_user")
+    salary_max = fields.Monetary('Maximum Salary', currency_field='currency_id', groups="hr.group_hr_user,hr_recruitment.group_hr_recruitment_user")
+    payment_interval = fields.Selection([
+        ('hourly', 'Hour'),
+        ('daily', 'Day'),
+        ('weekly', 'Week'),
+        ('biweekly', 'Bi-Week'),
+        ('monthly', 'Month'),
+        ('yearly', 'Year'),
+    ], string='Scheduled Pay', default='monthly', required=True, groups="hr.group_hr_user,hr_recruitment.group_hr_recruitment_user")
+    company_partner_id = fields.Many2one('res.partner', compute='_compute_company_partner_id')
 
     @api.depends('application_ids.date_closed')
     def _compute_no_of_hired_employee(self):
@@ -142,17 +165,30 @@ class HrJob(models.Model):
 
     def _compute_is_favorite(self):
         for job in self:
-            job.is_favorite = self.env.user in job.favorite_user_ids
+            job.is_favorite = self.env.user.employee_id in job.favorite_recruiter_ids
 
     def _inverse_is_favorite(self):
+        employee = self.env.user.employee_id
+        if not employee:
+            return
+
         unfavorited_jobs = favorited_jobs = self.env['hr.job']
         for job in self:
-            if self.env.user in job.favorite_user_ids:
+            if employee in job.favorite_recruiter_ids:
                 unfavorited_jobs |= job
             else:
                 favorited_jobs |= job
-        favorited_jobs.write({'favorite_user_ids': [(4, self.env.uid)]})
-        unfavorited_jobs.write({'favorite_user_ids': [(3, self.env.uid)]})
+        favorited_jobs.write({'favorite_recruiter_ids': [Command.link(employee.id)]})
+        unfavorited_jobs.write({'favorite_recruiter_ids': [Command.unlink(employee.id)]})
+
+    def _compute_sql_is_favorite(self, table):
+        employee = self.env.user.employee_id
+        if not employee:
+            return SQL("FALSE")
+        return SQL(
+            "%s IN (SELECT job_id FROM job_favorite_recruiter_rel WHERE recruiter_id = %s)",
+            table.id, employee.id,
+        )
 
     def _compute_document_ids(self):
         applicants = self.mapped('application_ids').filtered(lambda self: not self.employee_id)
@@ -280,14 +316,22 @@ class HrJob(models.Model):
                 'job_id': self.id,
                 'department_id': self.department_id.id,
                 'company_id': self.department_id.company_id.id or self.company_id.id,
-                'user_id': self.user_id.id,
+                'recruiter_id': self.recruiter_id.id,
             })
         return values
 
+    @api.onchange('salary_min', 'salary_max')
+    def _onchange_salary(self):
+        if self.salary_min > self.salary_max:
+            self.salary_min, self.salary_max = self.salary_max, self.salary_min
+
+    @api.depends('company_id')
+    def _compute_company_partner_id(self):
+        for job in self:
+            job.company_partner_id = job.company_id.partner_id or self.env.company.partner_id
+
     @api.model_create_multi
     def create(self, vals_list):
-        for vals in vals_list:
-            vals["favorite_user_ids"] = vals.get("favorite_user_ids", [])
         jobs = super().create(vals_list)
         jobs.sudo().interviewer_ids._create_recruitment_interviewers()
         return jobs
@@ -298,7 +342,7 @@ class HrJob(models.Model):
         old_recruiters = {}
         for job in self:
             old_managers[job] = job.manager_id
-            old_recruiters[job] = job.user_id
+            old_recruiters[job] = job.recruiter_id
         if 'active' in vals and not vals['active']:
             self.application_ids.active = False
         res = super().write(vals)
@@ -308,45 +352,38 @@ class HrJob(models.Model):
             self.sudo().interviewer_ids._create_recruitment_interviewers()
 
         # Subscribe the recruiter if it has changed.
-        if "user_id" in vals:
+        if "recruiter_id" in vals:
             for job in self:
                 to_unsubscribe = [
                     partner
-                    for partner in old_recruiters[job].partner_id.ids
+                    for partner in old_recruiters[job].user_partner_id.ids
                     if partner not in job.manager_id._get_related_partners().ids
                 ]
                 job.message_unsubscribe(to_unsubscribe)
                 application_ids = job.application_ids.filtered(
                     lambda x:
-                        x.user_id == old_recruiters[job] and
+                        x.recruiter_id == old_recruiters[job] and
                         x.application_status == 'ongoing'
                 )
                 if application_ids:
                     application_ids.message_unsubscribe(to_unsubscribe)
-                    application_ids.with_context(mail_auto_subscribe_no_notify=True).user_id = job.user_id
+                    application_ids.with_context(mail_auto_subscribe_no_notify=True).recruiter_id = job.recruiter_id
 
         # Since the alias is created upon record creation, the default values do not reflect the current values unless
         # specifically rewritten
         # List of fields to keep synched with the alias
-        alias_fields = {'department_id', 'user_id'}
+        alias_fields = {'department_id', 'recruiter_id'}
         if any(field for field in alias_fields if field in vals):
             for job in self:
                 alias_default_vals = job._alias_get_creation_values().get('alias_defaults', '{}')
                 job.alias_defaults = alias_default_vals
         return res
 
-    def _order_field_to_sql(self, alias, field_name, direction, nulls, query):
-        if field_name == 'is_favorite':
-            sql_field = SQL(
-                "%s IN (SELECT job_id FROM job_favorite_user_rel WHERE user_id = %s)",
-                SQL.identifier(alias, 'id'), self.env.uid,
-            )
-            return SQL("%s %s %s", sql_field, direction, nulls)
-
-        return super()._order_field_to_sql(alias, field_name, direction, nulls, query)
-
     def _creation_subtype(self):
         return self.env.ref('hr_recruitment.mt_job_new')
+
+    def _get_accessible_applicants(self):
+        return self.application_ids
 
     def action_open_attachments(self):
         return {
@@ -365,7 +402,7 @@ class HrJob(models.Model):
             'search_view_id': self.env.ref('hr_recruitment.ir_attachment_view_search_inherit_hr_recruitment').ids,
             'domain': ['|',
                 '&', ('res_model', '=', 'hr.job'), ('res_id', 'in', self.ids),
-                '&', ('res_model', '=', 'hr.applicant'), ('res_id', 'in', self.application_ids.ids),
+                '&', ('res_model', '=', 'hr.applicant'), ('res_id', 'in', self._get_accessible_applicants().ids),
             ],
         }
 
@@ -383,6 +420,17 @@ class HrJob(models.Model):
 
     @api.model
     def _action_load_recruitment_scenario(self):
+
+        admin_user = self.env.ref('base.user_admin')
+        employee_admin = self.env['hr.employee'].search([('user_id', '=', admin_user.id)], limit=1)
+
+        if not employee_admin:
+            self.env['hr.employee'].create({
+                'name': admin_user.name,
+                'user_id': admin_user.id,
+                'image_1920': admin_user.image_1920,
+                'structure_type_id': self.env.ref('hr.structure_type_employee').id,
+            })
 
         convert_file(
             self.sudo().env,
@@ -416,5 +464,19 @@ class HrJob(models.Model):
                 'search_default_group_job': 1,
                 'search_default_job_id': self.id,
                 'expand': 1
+            },
+        }
+
+    def action_job_add_applicants(self):
+        return {
+            "name": self.env._("Matching Talents"),
+            "type": "ir.actions.act_window",
+            "res_model": "job.add.applicants",
+            "target": "new",
+            "views": [[self.env.ref('hr_recruitment.job_add_applicants_from_job_view_form').id, "form"]],
+            "context": {
+                "is_modal": True,
+                "default_job_ids": self.ids
+                or self.env.context.get("default_job_ids"),
             },
         }

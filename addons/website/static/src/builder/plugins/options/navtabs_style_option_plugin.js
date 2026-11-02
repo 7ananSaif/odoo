@@ -1,11 +1,13 @@
 import { BuilderAction } from "@html_builder/core/builder_action";
-import { SNIPPET_SPECIFIC_END } from "@html_builder/utils/option_sequence";
+import { getContrastingColor } from "@html_builder/utils/utils_css";
+import { COLOR_COMBINATION_CLASSES } from "@html_editor/main/font/color_plugin";
 import { Plugin } from "@html_editor/plugin";
+import { getHtmlStyle } from "@html_editor/utils/formatting";
 import { withSequence } from "@html_editor/utils/resource";
 import { registry } from "@web/core/registry";
 import { _t } from "@web/core/l10n/translation";
 import { localization } from "@web/core/l10n/localization";
-import { BaseOptionComponent } from "@html_builder/core/utils";
+import { convertCSSColorToRgba } from "@web/core/utils/colors";
 
 /**
  * @typedef { Object } NavTabsStyleOptionShared
@@ -14,27 +16,12 @@ import { BaseOptionComponent } from "@html_builder/core/utils";
  * @property { NavTabsStyleOptionPlugin['moveNavItem'] } moveNavItem
  */
 
-export class NavTabsStyleOption extends BaseOptionComponent {
-    static template = "website.NavTabsStyleOption";
-    static selector = ".s_tabs";
-    static applyTo = ".s_tabs_main";
-}
-
-export class NavTabsImagesStyleOption extends BaseOptionComponent {
-    static template = "website.NavTabsImagesStyleOption";
-    static selector = ".s_tabs_images";
-    static applyTo = ".s_tabs_main";
-}
-
-class NavTabsStyleOptionPlugin extends Plugin {
+export class NavTabsStyleOptionPlugin extends Plugin {
     static id = "navTabsOptionStyle";
+    static dependencies = ["color"];
     static shared = ["isNavItem", "getActiveOverlayButtons", "moveNavItem"];
     /** @type {import("plugins").WebsiteResources} */
     resources = {
-        builder_options: [
-            withSequence(SNIPPET_SPECIFIC_END, NavTabsStyleOption),
-            withSequence(SNIPPET_SPECIFIC_END, NavTabsImagesStyleOption),
-        ],
         builder_actions: {
             SetStyleAction,
             SetDirectionAction,
@@ -43,12 +30,17 @@ class NavTabsStyleOptionPlugin extends Plugin {
         get_overlay_buttons: withSequence(0, {
             getButtons: this.getActiveOverlayButtons.bind(this),
         }),
-        is_unremovable_selector: ".nav-item",
-        unsplittable_node_predicates: this.isUnsplittable,
-        dropzone_selector: {
+        is_unremovable_selectors: ".nav-item",
+        is_node_splittable_predicates: (node) => {
+            if (this.isUnsplittable(node)) {
+                return false;
+            }
+        },
+        dropzone_selectors: {
             selector: ".s_tabs, .s_tabs_images",
             excludeAncestor: ".s_table_of_content, .s_tabs, .s_tabs_images",
         },
+        apply_custom_css_style_overrides: this.applyColorStyle.bind(this),
     };
 
     setup() {
@@ -77,7 +69,8 @@ class NavTabsStyleOptionPlugin extends Plugin {
         if (previousNavItemEl) {
             const direction = isVertical ? "up" : reverseButtons ? "right" : "left";
             buttons.push({
-                class: `fa fa-fw fa-angle-${direction}`,
+                class: "oi oi-fw",
+                icon: `keyboard_arrow_${direction}`,
                 title: isVertical
                     ? _t("Move up")
                     : this.isEditableRTL
@@ -90,7 +83,8 @@ class NavTabsStyleOptionPlugin extends Plugin {
         if (nextNavItemEl) {
             const direction = isVertical ? "down" : reverseButtons ? "left" : "right";
             buttons.push({
-                class: `fa fa-fw fa-angle-${direction}`,
+                class: "oi oi-fw",
+                icon: `keyboard_arrow_${direction}`,
                 title: isVertical
                     ? _t("Move down")
                     : this.isEditableRTL
@@ -131,6 +125,62 @@ class NavTabsStyleOptionPlugin extends Plugin {
             node.closest(".s_tabs, .s_tabs_images") &&
             node.closest("li")?.classList.contains("nav-item")
         );
+    }
+
+    /**
+     * Adapts the active tab background color to contrast with the link color on
+     * "buttons" and "tabs" tabs, when the background is not an o_cc.
+     *
+     * @param {HTMLElement} editingElement
+     * @param {string} linksColor
+     */
+    setActiveNavBtnBackground(editingElement, linksColor) {
+        if (!linksColor) {
+            linksColor = this.window
+                .getComputedStyle(editingElement.closest(".s_tabs_common"))
+                .getPropertyValue("--tabs-link-color");
+        }
+        const contrastColor = convertCSSColorToRgba(
+            getContrastingColor(linksColor, getHtmlStyle(this.document))
+        );
+        editingElement.style.setProperty(
+            "--tabs-active-bg-color",
+            `rgba(${contrastColor.red}, ${contrastColor.green}, ${contrastColor.blue}, 0.5)`
+        );
+    }
+
+    applyColorStyle({ editingElement, styleName, value }) {
+        if (styleName === "--tabs-bg-color") {
+            editingElement.style.removeProperty(styleName);
+            this.dependencies.color.colorElement(editingElement, value, "backgroundColor");
+            // In case of a theme, keep only the background-color in the CSS
+            // custom property so the color picker state is synced.
+            const bgColor =
+                this.dependencies.color.getElementColors(editingElement)["backgroundColor"];
+            editingElement.style.setProperty(styleName, bgColor);
+            if (!value.startsWith("o_cc")) {
+                // Defaults on a link color that contrasts with the background.
+                const contrastColor = convertCSSColorToRgba(
+                    getContrastingColor(bgColor, getHtmlStyle(this.document))
+                );
+                const linksColor = `rgba(${contrastColor.red}, ${contrastColor.green}, ${contrastColor.blue})`;
+                for (const tabLinkEl of editingElement.querySelectorAll(".s_tabs_nav .nav-link")) {
+                    tabLinkEl.style.setProperty("--tabs-link-color", linksColor);
+                }
+                this.setActiveNavBtnBackground(editingElement, linksColor);
+            } else {
+                editingElement.style.removeProperty("--tabs-active-bg-color");
+            }
+            return true;
+        } else if (styleName === "--tabs-link-color") {
+            const tabsNavEl = editingElement.closest(".s_tabs_nav");
+            if (!tabsNavEl.style.getPropertyValue("--tabs-bg-color")) {
+                tabsNavEl.style.removeProperty("--tabs-active-bg-color");
+            } else {
+                this.setActiveNavBtnBackground(tabsNavEl, value);
+            }
+        }
+        return false;
     }
 }
 
@@ -231,6 +281,18 @@ class SetStyleAction extends BaseNavtabsStyleOption {
 
         if (isTabs || isBtns) {
             this.applyDirection(editingElement, "horizontal");
+        } else {
+            const tabsNavEl = editingElement.querySelector(".s_tabs_nav");
+            tabsNavEl.classList.remove("o_cc", ...COLOR_COMBINATION_CLASSES);
+            for (const cssProp of [
+                "background-color",
+                "background-image",
+                "--tabs-bg-color",
+                "--tabs-link-color",
+                "--tabs-active-bg-color",
+            ]) {
+                tabsNavEl.style.removeProperty(cssProp);
+            }
         }
 
         if (isTabs) {
@@ -278,3 +340,4 @@ class SetDirectionAction extends BaseNavtabsStyleOption {
 }
 
 registry.category("website-plugins").add(NavTabsStyleOptionPlugin.id, NavTabsStyleOptionPlugin);
+registry.category("translation-plugins").add(NavTabsTranslationPlugin.id, NavTabsTranslationPlugin);

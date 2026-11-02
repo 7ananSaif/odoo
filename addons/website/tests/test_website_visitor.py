@@ -1,14 +1,17 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+import json
 import random
-
+import re
 from contextlib import contextmanager
 from datetime import datetime, timedelta
+from lxml import html
 from unittest.mock import patch
 
+from odoo.tests import HttpCase, common, tagged
+
 from odoo.addons.base.tests.common import HttpCaseWithUserDemo
-from odoo.addons.website.models.website_visitor import WebsiteVisitor
-from odoo.tests import common, tagged, HttpCase
+from odoo.addons.website.models.ir_http import IrHttp
 
 
 class MockVisitor(common.BaseCase):
@@ -19,8 +22,8 @@ class MockVisitor(common.BaseCase):
         def _get_visitor_from_request(model, *args, **kwargs):
             return force_visitor
 
-        with patch.object(WebsiteVisitor, '_get_visitor_from_request',
-                          autospec=True, wraps=WebsiteVisitor,
+        with patch.object(IrHttp, '_get_visitor_from_request',
+                          autospec=True, wraps=IrHttp,
                           side_effect=_get_visitor_from_request) as _get_visitor_from_request_mock:
             yield
 
@@ -41,6 +44,7 @@ class WebsiteVisitorTestsCommon(MockVisitor, HttpCaseWithUserDemo):
             'arch': '''<t name="Homepage" t-name="test.untracked_page">
                         <t t-call="website.layout">
                             I am a generic page²
+                            <a id="tracked_link" href="/tracked_view">Link to tracked page</a>
                         </t>
                     </t>''',
             'key': 'test.untracked_page',
@@ -89,7 +93,7 @@ class WebsiteVisitorTestsCommon(MockVisitor, HttpCaseWithUserDemo):
         self.user_portal = self.env['res.users'].search([('login', '=', 'portal')])
         self.partner_portal = self.user_portal.partner_id
         if not self.user_portal:
-            self.env['ir.config_parameter'].sudo().set_param('auth_password_policy.minlength', 4)
+            self.env['ir.config_parameter'].sudo().set_int('auth_password_policy.minlength', 4)
             self.partner_portal = self.env['res.partner'].create({
                 'name': 'Joel Willis',
                 'email': 'joel.willis63@example.com',
@@ -140,7 +144,7 @@ class WebsiteVisitorTestsCommon(MockVisitor, HttpCaseWithUserDemo):
 
         WebsiteVisitor = self.env['website.visitor']
 
-        self.env['ir.config_parameter'].sudo().set_param('website.visitor.live.days', 7)
+        self.env['ir.config_parameter'].sudo().set_int('website.visitor.live.days', 7)
 
         # ensure we keep a single query by correct usage of "not in"
         # (+1 query to fetch the 'ir.config_parameter')
@@ -162,7 +166,7 @@ class WebsiteVisitorTestsCommon(MockVisitor, HttpCaseWithUserDemo):
         return {
             'lang_id': self.env.ref('base.lang_en').id,
             'country_id': self.env.ref('base.be').id,
-            'website_id': 1,
+            'website_id': self.ref('base.default_website'),
             'access_token': self.partner_admin.id,
             'website_track_ids': [(0, 0, {
                 'page_id': self.tracked_page.id,
@@ -174,7 +178,7 @@ class WebsiteVisitorTestsCommon(MockVisitor, HttpCaseWithUserDemo):
         return {
             'lang_id': self.env.ref('base.lang_en').id,
             'country_id': self.env.ref('base.be').id,
-            'website_id': 1,
+            'website_id': self.ref('base.default_website'),
             'access_token': '%032x' % random.randrange(16**32),
             'website_track_ids': [(0, 0, {
                 'page_id': self.tracked_page_2.id,
@@ -191,11 +195,12 @@ class WebsiteVisitorTestsCommon(MockVisitor, HttpCaseWithUserDemo):
         # require the session id.
         res = self.url_open('/web/login')
         csrf_anchor = '<input type="hidden" name="csrf_token" value="'
-        self.url_open('/web/login', timeout=200, data={
+        res = self.url_open('/web/login', timeout=200, data={
             'login': login,
             'password': pwd,
             'csrf_token': res.text.partition(csrf_anchor)[2].partition('"')[0],
         })
+        self.session = res.session
 
 
 class WebsiteVisitorTests(WebsiteVisitorTestsCommon):
@@ -205,14 +210,83 @@ class WebsiteVisitorTests(WebsiteVisitorTestsCommon):
         super().setUpClass()
         cls.set_registry_readonly_mode(False)
 
+    def _url_open_with_tracking(self, url):
+        """ Simulate the js tracking request"""
+        res = self.url_open(url)
+        self.assertEqual(res.status_code, 200)
+        tree = html.fromstring(res.content)
+        html_content = tree.xpath("//html")[0]
+        main_object_attr = html_content.attrib.get('data-main-object')
+        tracking_enabled_attr = html_content.attrib.get('data-tracking-enabled')
+
+        match = re.search(r'^([^(]+)\((\d+)', main_object_attr)
+        res_model = match.group(1)
+        res_id = match.group(2)
+
+        if tracking_enabled_attr:
+            tracking_url = "/website/odoo_track"
+            payload = {
+                "params": {
+                    "res_model": res_model,
+                    "res_id": int(res_id),
+                }
+            }
+            track_res = self.url_open(
+                tracking_url,
+                data=json.dumps(payload),
+                headers={'Content-Type': 'application/json', 'referer': url},
+            )
+            self.assertEqual(track_res.status_code, 200)
+        return res
+
+    def test_visitor_statistics(self):
+        visitors = self.env['website.visitor'].create([
+            {'access_token': 'a' * 32},
+            {'access_token': 'b' * 32},
+        ])
+        self.env['website.track'].create([
+            {'visitor_id': visitors[0].id, 'page_id': self.tracked_page.id, 'url': self.tracked_page.url},
+            {'visitor_id': visitors[0].id, 'page_id': self.tracked_page.id, 'url': self.tracked_page.url},
+            {'visitor_id': visitors[0].id, 'page_id': self.tracked_page_2.id, 'url': self.tracked_page_2.url},
+            {'visitor_id': visitors[1].id, 'url': '/untracked-url'},
+        ])
+
+        statistics = visitors._get_visitor_statistics('page_id')
+        self.assertEqual(
+            sorted(statistics[visitors[0].id]['ids']),
+            sorted((self.tracked_page + self.tracked_page_2).ids),
+            "Each visited page is listed once",
+        )
+        self.assertEqual(statistics[visitors[0].id]['count'], 3, "Every visit is counted")
+        self.assertEqual(
+            statistics[visitors[1].id], {'ids': [], 'count': 0},
+            "A visitor without page view has no statistics",
+        )
+
+        statistics = visitors._get_visitor_statistics(
+            'page_id', record_domain=[('id', '=', self.tracked_page_2.id)],
+        )
+        self.assertEqual(
+            statistics[visitors[0].id]['ids'], self.tracked_page_2.ids,
+            "`record_domain` restricts the visited records",
+        )
+
+    def test_tracking_interaction(self):
+        existing_visitors = self.env['website.visitor'].search([])
+        existing_tracks = self.env['website.track'].search([])
+        self.start_tour(self.untracked_page.url, "visitor_tracking")
+        self.assertEqual(self.env['website.visitor'].search_count([]), len(existing_visitors) + 1)
+        new_tracks = self.env['website.track'].search([('id', 'not in', existing_tracks.ids)])
+        self.assertIn(self.tracked_page.url, new_tracks.url, "1 tracked page expected")
+
     def test_visitor_creation_on_tracked_page(self):
         """ Test various flows involving visitor creation and update. """
 
         existing_visitors = self.env['website.visitor'].search([])
         existing_tracks = self.env['website.track'].search([])
-        self.url_open(self.untracked_page.url)
-        self.url_open(self.tracked_page.url)
-        self.url_open(self.tracked_page.url)
+        self._url_open_with_tracking(self.untracked_page.url)
+        self._url_open_with_tracking(self.tracked_page.url)
+        self._url_open_with_tracking(self.tracked_page.url)
 
         new_visitor = self.env['website.visitor'].search([('id', 'not in', existing_visitors.ids)])
         new_track = self.env['website.track'].search([('id', 'not in', existing_tracks.ids)])
@@ -230,7 +304,7 @@ class WebsiteVisitorTests(WebsiteVisitorTestsCommon):
 
         visitor_admin = new_visitor
         # visit a page
-        self.url_open(self.tracked_page_2.url)
+        self._url_open_with_tracking(self.tracked_page_2.url)
 
         # check tracking and visitor / user sync
         new_visitors = self.env['website.visitor'].search([('id', 'not in', existing_visitors.ids)])
@@ -243,7 +317,13 @@ class WebsiteVisitorTests(WebsiteVisitorTestsCommon):
         # Portal connects
         # ------------------------------------------------------------
 
-        self.url_open('/web/session/logout')
+        self.url_open(
+            '/web/session/logout',
+            method='POST',
+            data={
+                "csrf_token": self.csrf_token(),
+            },
+        )
         self._authenticate_via_web(self.user_portal.login, 'portal')
 
         self.assertFalse(
@@ -251,9 +331,9 @@ class WebsiteVisitorTests(WebsiteVisitorTestsCommon):
             "No extra visitor should be created")
 
         # visit a page
-        self.url_open(self.tracked_page.url)
-        self.url_open(self.untracked_page.url)
-        self.url_open(self.tracked_page_2.url)
+        self._url_open_with_tracking(self.tracked_page.url)
+        self._url_open_with_tracking(self.untracked_page.url)
+        self._url_open_with_tracking(self.tracked_page_2.url)
 
         # new visitor is created
         new_visitors = self.env['website.visitor'].search([('id', 'not in', existing_visitors.ids)])
@@ -268,12 +348,18 @@ class WebsiteVisitorTests(WebsiteVisitorTestsCommon):
         # ------------------------------------------------------------
 
         # portal user disconnects
-        self.url_open('/web/session/logout')
+        self.url_open(
+            '/web/session/logout',
+            method='POST',
+            data={
+                "csrf_token": self.csrf_token(),
+            },
+        )
 
         # visit some pages
-        self.url_open(self.tracked_page.url)
-        self.url_open(self.untracked_page.url)
-        self.url_open(self.tracked_page_2.url)
+        self._url_open_with_tracking(self.tracked_page.url)
+        self._url_open_with_tracking(self.untracked_page.url)
+        self._url_open_with_tracking(self.tracked_page_2.url)
 
         # new visitor is created
         new_visitors = self.env['website.visitor'].search([('id', 'not in', existing_visitors.ids)])
@@ -302,12 +388,18 @@ class WebsiteVisitorTests(WebsiteVisitorTestsCommon):
         # ------------------------------------------------------------
 
         # admin disconnects
-        self.url_open('/web/session/logout')
+        self.url_open(
+            '/web/session/logout',
+            method='POST',
+            data={
+                "csrf_token": self.csrf_token(),
+            },
+        )
 
         # visit some pages
-        self.url_open(self.tracked_page.url)
-        self.url_open(self.untracked_page.url)
-        self.url_open(self.tracked_page_2.url)
+        self._url_open_with_tracking(self.tracked_page.url)
+        self._url_open_with_tracking(self.untracked_page.url)
+        self._url_open_with_tracking(self.tracked_page_2.url)
 
         # new visitor created
         new_visitors = self.env['website.visitor'].search([('id', 'not in', existing_visitors.ids)])
@@ -335,14 +427,14 @@ class WebsiteVisitorTests(WebsiteVisitorTestsCommon):
             track.write({'visit_datetime': track.visit_datetime - timedelta(minutes=30)})
 
         # visit a page
-        self.url_open(self.tracked_page.url)
+        self._url_open_with_tracking(self.tracked_page.url)
         visitor_portal.invalidate_model(['website_track_ids'])
         # tracks are created
         self.assertEqual(len(visitor_portal.website_track_ids), 5, "There should be 5 tracked page for the portal user")
 
         # simulate the portal user comes back 8hours later
         visitor_portal.write({'last_connection_datetime': visitor_portal.last_connection_datetime - timedelta(hours=9)})
-        self.url_open(self.tracked_page.url)
+        self._url_open_with_tracking(self.tracked_page.url)
         visitor_portal.invalidate_model(['visit_count'])
         # check number of visits
         self.assertEqual(visitor_portal.visit_count, 2, "There should be 2 visits for the portal user")
@@ -351,13 +443,13 @@ class WebsiteVisitorTests(WebsiteVisitorTestsCommon):
         inactive_visitors = self.env['website.visitor'].create([{
             'lang_id': self.env.ref('base.lang_en').id,
             'country_id': self.env.ref('base.be').id,
-            'website_id': 1,
+            'website_id': self.ref('base.default_website'),
             'last_connection_datetime': datetime.now() - timedelta(days=8),
             'access_token': 'f9d2b14b21be669518b14a9590cb62ed',
         }, {
             'lang_id': self.env.ref('base.lang_en').id,
             'country_id': self.env.ref('base.be').id,
-            'website_id': 1,
+            'website_id': self.ref('base.default_website'),
             'last_connection_datetime': datetime.now() - timedelta(days=15),
             'access_token': 'f9d2d261a725da7f596574ca84e52f47',
         }])
@@ -365,13 +457,13 @@ class WebsiteVisitorTests(WebsiteVisitorTestsCommon):
         active_visitors = self.env['website.visitor'].create([{
             'lang_id': self.env.ref('base.lang_en').id,
             'country_id': self.env.ref('base.be').id,
-            'website_id': 1,
+            'website_id': self.ref('base.default_website'),
             'last_connection_datetime': datetime.now() - timedelta(days=1),
             'access_token': 'f9d2526d9c15658bdc91d2119e54b554',
         }, {
             'lang_id': self.env.ref('base.lang_en').id,
             'country_id': self.env.ref('base.be').id,
-            'website_id': 1,
+            'website_id': self.ref('base.default_website'),
             'partner_id': self.partner_demo.id,
             'last_connection_datetime': datetime.now() - timedelta(days=15),
             'access_token': self.partner_demo.id,
@@ -620,7 +712,7 @@ class TestPortalWizardMultiWebsites(HttpCase):
         partner_specific_current_website = self.env['res.partner'].create({
             'name': 'partner_specific_current_website',
             'email': self.email_address,
-            'website_id': self.env['website'].get_current_website().id,
+            'website_id': self.env.ref('base.default_website').id,
         })
         portal_user_specific_current_website = self._create_portal_user(partner_specific_current_website)
         portal_user_specific_current_website.action_grant_access()
@@ -633,5 +725,6 @@ class TestPortalWizardMultiWebsites(HttpCase):
         created
         """
         portal_wizard = self.env['portal.wizard'].with_context(
+            website_id=self.env.ref('base.default_website').id,
             active_ids=[partner.id]).create({})
         return portal_wizard.user_ids

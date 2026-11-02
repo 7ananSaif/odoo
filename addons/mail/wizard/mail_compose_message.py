@@ -1,16 +1,18 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import ast
-import base64
 import datetime
 import json
+
+from markupsafe import Markup
 
 from odoo import _, api, fields, models, Command, tools
 from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Domain
-from odoo.tools.mail import is_html_empty, email_normalize, email_split_and_format
+from odoo.tools import human_size
+from odoo.tools.mail import is_html_empty, email_normalize, email_split_and_format, html_remove_xpath
 from odoo.tools.misc import clean_context
+from odoo.addons.mail.tools.attachment import extract_attachment_ids_from_html
 from odoo.addons.mail.tools.parser import parse_res_ids
 
 
@@ -33,6 +35,7 @@ class MailComposeMessage(models.TransientModel):
         at model and view levels to provide specific features.
 
         The behavior of the wizard depends on the composition_mode field:
+
         - 'comment': post on a record.
         - 'mass_mail': wizard in mass mailing mode where the mail details can
             contain template placeholders that will be merged with actual data
@@ -89,6 +92,7 @@ class MailComposeMessage(models.TransientModel):
     subject = fields.Char(
         'Subject',
         compute='_compute_subject', readonly=False, store=True)
+    subject_placeholder = fields.Char('Subject Placeholder', compute='_compute_subject_placeholder')
     body = fields.Html(
         'Contents',
         render_engine='qweb', render_options={'post_process': True},
@@ -104,10 +108,13 @@ class MailComposeMessage(models.TransientModel):
         'ir.attachment', 'mail_compose_message_ir_attachments_rel',
         'wizard_id', 'attachment_id', string='Attachments',
         compute='_compute_attachment_ids', readonly=False, store=True, bypass_search_access=True)
+    attachment_links = fields.Html("Attachment links", compute="_compute_attachment_links")
+    attachment_links_info = fields.Char(compute="_compute_attachment_links")
     email_layout_xmlid = fields.Char(
         'Email Notification Layout',
         compute='_compute_email_layout_xmlid', readonly=False, store=True,
         copy=False, compute_sudo=False)
+    email_notification_allow_header = fields.Boolean(default=True)
     email_add_signature = fields.Boolean(
         'Add signature',
         compute='_compute_email_add_signature', readonly=False, store=True)
@@ -169,10 +176,16 @@ class MailComposeMessage(models.TransientModel):
         string='Replies', compute='_compute_reply_to_mode', inverse='_inverse_reply_to_mode',
         help="Original Discussion: Answers go in the original document discussion thread. \n Another Email Address: Answers go to the email address mentioned in the tracking message-id instead of original document discussion thread. \n This has an impact on the generated message-id.")
     # recipients
+    partner_cc_allowed = fields.Boolean('Cc Usage Allowed', compute='_compute_partner_cc_allowed',
+                                        store=True, readonly=False)
     partner_ids = fields.Many2many(
         'res.partner', 'mail_compose_message_res_partner_rel',
         'wizard_id', 'partner_id', 'Additional Contacts',
-        compute='_compute_partner_ids', readonly=False, store=True)
+        compute='_compute_recipient_partners', readonly=False, store=True)
+    partner_cc_ids = fields.Many2many(
+        'res.partner', 'mail_compose_message_res_partner_cc_rel',
+        'wizard_id', 'partner_id', 'Additional Cc contacts',
+        compute='_compute_recipient_partners', readonly=False, store=True)
     partner_ids_all_have_email = fields.Boolean(compute="_compute_partner_ids_all_have_email")
     notified_bcc_contains_share = fields.Boolean(
         'Is an external partner follower of the document?',
@@ -239,11 +252,29 @@ class MailComposeMessage(models.TransientModel):
                     composer.composition_mode == 'comment' and
                     not composer.composition_batch):
                     res_ids = composer._evaluate_res_ids()
-                    if composer.model_is_thread:
-                        subject = self.env[composer.model].browse(res_ids)._message_compute_subject()
+                    if record := res_ids and self.env[composer.model].browse(res_ids[0]):
+                        if isinstance(record, self.env.registry['mail.thread.subject.suggested']):
+                            subject = record._message_get_suggested_subject()
+                        elif composer.model_is_thread:
+                            subject = record._message_compute_subject()
+                        else:
+                            subject = record.display_name
                     else:
-                        subject = self.env[composer.model].browse(res_ids).display_name
+                        subject = ''
                 composer.subject = subject
+
+    @api.depends('composition_mode', 'model', 'res_domain', 'res_ids')
+    def _compute_subject_placeholder(self):
+        """Show what the subject will fallback to in single-recipient mode."""
+        for composer in self:
+            subject = None
+            if composer.composition_mode == 'comment' and not composer.composition_batch:
+                res_ids = composer._evaluate_res_ids()
+                if record := res_ids and self.env[composer.model].browse(res_ids[0]):
+                    subject = record._message_compute_subject() or record.display_name
+            if not subject:
+                subject = _('e.g. Welcome to MyCompany!')
+            composer.subject_placeholder = subject
 
     @api.depends('composition_mode', 'model', 'res_domain', 'res_ids',
                  'template_id')
@@ -288,16 +319,40 @@ class MailComposeMessage(models.TransientModel):
                 if rendered_values.get('attachments'):
                     attachment_ids += self.env['ir.attachment'].create([
                         {'name': attach_fname,
-                         'datas': attach_datas,
+                         'raw': attach_raw,
                          'res_model': 'mail.compose.message',
                          'res_id': 0,
                          'type': 'binary',    # override default_type from context, possibly meant for another model!
-                        } for attach_fname, attach_datas in rendered_values.pop('attachments')
+                        } for attach_fname, attach_raw in rendered_values.pop('attachments')
                     ]).ids
                 if attachment_ids:
                     composer.attachment_ids = attachment_ids
             elif not composer.template_id:
                 composer.attachment_ids = False
+
+    @api.depends('attachment_ids', 'body')
+    def _compute_attachment_links(self):
+        if len(self) != 1:
+            self.attachment_links_info = False
+            self.attachment_links = False
+            return
+        # Headers are not yet defined at this stage, so we add a default size for them for the email size estimation.
+        default_estimated_header_size = 5000
+        max_email_size_bytes = self.env['ir.mail_server']._get_max_email_size() * 1024 * 1024
+        # We consider only attachments not already in the body (added through the html editor)
+        attachments = self.env['ir.attachment'].browse(
+            list(set(self.attachment_ids.ids) - extract_attachment_ids_from_html(self.body or '')))
+        estimate_size = self.env['mail.mail']._estimate_email_size(
+            {}, self.body, attachments.mapped('file_size')) + default_estimated_header_size
+        if not attachments or estimate_size <= max_email_size_bytes:
+            self.attachment_links_info = False
+            self.attachment_links = False
+            return
+        self.attachment_links = self.env['ir.qweb']._render(
+            'mail.mail_attachment_links', {'attachments': attachments, 'is_preview': True})
+        self.attachment_links_info = _(
+            "Your attachments exceed %(max_email_size)s and will be sent as secure links to ensure they reach your recipients",
+            max_email_size=human_size(max_email_size_bytes))
 
     @api.depends('template_id')
     def _compute_email_add_signature(self):
@@ -507,13 +562,20 @@ class MailComposeMessage(models.TransientModel):
             if composer.reply_to_mode != 'new':
                 composer.reply_to = False
 
+    @api.depends('partner_cc_ids')
+    def _compute_partner_cc_allowed(self):
+        """ Display the cc field when a cc partner is modified and not empty (ex: when using a template). """
+        for composer in self:
+            if composer.partner_cc_ids:
+                composer.partner_cc_allowed = True
+
     @api.depends('composition_mode', 'model', 'parent_id', 'res_domain',
                  'res_ids', 'subtype_id', 'template_id')
-    def _compute_partner_ids(self):
+    def _compute_recipient_partners(self):
         """ Computation is coming either from template, either from context.
-        When having a template it uses its 3 fields 'email_cc', 'email_to' and
-        'partner_to', in monorecord comment mode. Emails are converted into
-        partners, creating new ones when the email does not match any existing
+        When having a template it uses its 4 fields 'email_cc', 'email_to',
+        'partner_to' and 'partner_cc', in monorecord comment mode. Emails are converted
+        into partners, creating new ones when the email does not match any existing
         partner. Composer does not deal with emails but only with partners.
         When having a template in other modes, no recipients are computed
         as it is done at sending time. When removing the template, reset it.
@@ -531,21 +593,25 @@ class MailComposeMessage(models.TransientModel):
                 res_ids = composer._evaluate_res_ids() or [0]
                 rendered_values = composer._generate_template_for_composer(
                     res_ids,
-                    {'email_cc', 'email_to', 'partner_ids'},
+                    {'email_cc', 'email_to', 'partner_ids', 'partner_cc_ids'},
                     allow_suggested=composer.message_type == 'comment' and not composer.subtype_is_log,
                     find_or_create_partners=True,
                 )[res_ids[0]]
                 if rendered_values.get('partner_ids'):
                     composer.partner_ids = rendered_values['partner_ids']
+                if rendered_values.get('partner_cc_ids'):
+                    composer.partner_cc_ids = rendered_values['partner_cc_ids']
             elif composer.parent_id and composer.composition_mode == 'comment':
                 composer.partner_ids = composer.parent_id.partner_ids
+                composer.partner_cc_ids = composer.parent_id.partner_cc_ids
             elif not composer.template_id:
                 composer.partner_ids = False
+                composer.partner_cc_ids = False
 
-    @api.depends('partner_ids')
+    @api.depends('partner_ids', 'partner_cc_ids')
     def _compute_partner_ids_all_have_email(self):
         for record in self:
-            record.partner_ids_all_have_email = all(record.partner_ids.mapped('email'))
+            record.partner_ids_all_have_email = all((record.partner_ids + record.partner_cc_ids).mapped('email'))
 
     @api.depends('composition_batch', 'composition_mode', 'message_type',
                  'model', 'res_ids', 'subtype_id')
@@ -613,7 +679,7 @@ class MailComposeMessage(models.TransientModel):
             elif composer.composition_mode == 'comment' or composer.res_domain:
                 composer.force_send = False
             else:
-                force_send_limit = int(self.env['ir.config_parameter'].sudo().get_param('mail.mail.force.send.limit', 100))
+                force_send_limit = self.env['ir.config_parameter'].sudo().get_int('mail.mail.force.send.limit', 100)
                 res_ids = composer._evaluate_res_ids()
                 composer.force_send = len(res_ids) <= force_send_limit
 
@@ -698,7 +764,10 @@ class MailComposeMessage(models.TransientModel):
 
     @api.autovacuum
     def _gc_lost_attachments(self):
-        """ Garbage collect lost mail attachments. Those are attachments
+        """Garbage collect lost mail attachments.
+
+        Those are attachments:
+
             - linked to res_model 'mail.compose.message', the composer wizard
             - with res_id 0, because they were created outside of an existing
                 wizard (typically user input through Chatter or reports
@@ -736,6 +805,7 @@ class MailComposeMessage(models.TransientModel):
             'composition_comment_option': self.composition_comment_option,
             'is_note': self.subtype_is_log,
             'model': self.model,
+            'partner_cc_ids': post_values.pop('partner_cc_ids'),
             'partner_ids': post_values.pop('partner_ids'),
             'res_id': self._evaluate_res_ids()[0],
             'scheduled_date': post_values.pop('scheduled_date'),
@@ -762,6 +832,18 @@ class MailComposeMessage(models.TransientModel):
             create_values.append(wizard._prepare_schedule_message_post_values(post_values))
         return self.env['mail.scheduled.message'].create(create_values)
 
+    def action_update_message(self):
+        self.ensure_one()
+        message = self.env['mail.message'].browse(self.env.context['default_message_id'])
+        record = self.env[message.model].browse(message.res_id)
+        record._message_update_content(
+            message,
+            body=self._get_body_with_full_composer_marker() or None,
+            attachment_ids=self.attachment_ids.ids,
+            partner_ids=self.partner_ids.ids,
+        )
+        return {'type': 'ir.actions.act_window_close'}
+
     def action_send_mail(self):
         """ Used for action button that do not accept arguments. """
         self._action_send_mail(auto_commit=False)
@@ -781,10 +863,12 @@ class MailComposeMessage(models.TransientModel):
         """ Process the wizard content and proceed with sending the related
             email(s), rendering any template patterns on the fly if needed.
 
-        :return: (
-            result_mails_su: in mass mode, sent emails (as sudo),
-            result_messages: in comment mode, posted messages
-        )
+        :return: a tuple ``(result_mails_su, result_messages)`` where:
+
+            * ``result_mails_su`` -- in mass mode, sent emails (as sudo)
+            * ``result_messages`` -- in comment mode, posted messages
+
+        :rtype: tuple
         """
         result_mails_su, result_messages = self.env['mail.mail'].sudo(), self.env['mail.message']
 
@@ -808,12 +892,20 @@ class MailComposeMessage(models.TransientModel):
 
         return result_mails_su, result_messages
 
+    def _get_body_with_full_composer_marker(self):
+        self.ensure_one()
+        if is_html_empty(self.body) or 'data-o-mail-full-composer' in self.body:
+            return self.body
+        return Markup('<span data-o-mail-full-composer="1"></span>') + self.body
+
     def _action_send_mail_comment(self, res_ids):
         """ Send in comment mode. It calls message_post on model, or the generic
         implementation of it if not available (as message_notify). """
         self.ensure_one()
+        if self.env.context.get('is_full_composer'):
+            self.body = self._get_body_with_full_composer_marker()
         post_values_all = self._manage_mail_values(self._prepare_mail_values(res_ids))
-        ActiveModel = self.env[self.model] if self.model and hasattr(self.env[self.model], 'message_post') else self.env['mail.thread']
+        ActiveModel = (self.env[self.model] if self.model and hasattr(self.env[self.model], 'message_post') else self.env['mail.thread']).with_context(email_notification_allow_header=self.email_notification_allow_header)
         if self.composition_batch:
             # add context key to avoid subscribing the author
             ActiveModel = ActiveModel.with_context(
@@ -844,9 +936,7 @@ class MailComposeMessage(models.TransientModel):
         sudo as it is considered as a technical model. """
         mails_sudo = self.env['mail.mail'].sudo()
 
-        batch_size = int(
-            self.env['ir.config_parameter'].sudo().get_param('mail.batch_size')
-        ) or self._batch_size or 50  # be sure to not have 0, as otherwise no iteration is done
+        batch_size = self.env['ir.config_parameter'].sudo().get_int('mail.batch_size') or self._batch_size or 50  # be sure to not have 0, as otherwise no iteration is done
         counter_mails_done = 0
         for res_ids_iter in tools.split_every(batch_size, res_ids):
             prepared_mail_values_filtered = self._manage_mail_values(self._prepare_mail_values(res_ids_iter))
@@ -875,9 +965,8 @@ class MailComposeMessage(models.TransientModel):
             # running several times on same records in case of issue
             if auto_commit is True:
                 counter_mails_done += len(prepared_mail_values_filtered)
-                self.env['ir.cron']._notify_progress(done=counter_mails_done,
+                self.env['ir.cron']._commit_progress(processed=counter_mails_done,
                                                       remaining=len(res_ids) - counter_mails_done)
-                self.env.cr.commit()
             self.env.invalidate_all()
 
         return mails_sudo
@@ -892,10 +981,13 @@ class MailComposeMessage(models.TransientModel):
             emails = emails or ([mail.email_to] if mail.email_to else "")
 
             # if no recipient, the email will have mail_email_missing failure_type
-            if not mail.recipient_ids and not emails:
+            all_recipients = mail.recipient_ids | mail.recipient_cc_ids
+            if not all_recipients and not emails:
                 create_vals_all.append(notif_base_values)
             else:
-                create_vals_all.extend(notif_base_values | {'res_partner_id': partner.id} for partner in mail.recipient_ids)
+                create_vals_all.extend(notif_base_values
+                    | {'res_partner_id': partner.id, 'mail_email_address': partner.email}
+                    for partner in all_recipients)
                 create_vals_all.extend(notif_base_values | {'mail_email_address': email} for email in emails)
         return create_vals_all
 
@@ -921,9 +1013,12 @@ class MailComposeMessage(models.TransientModel):
         if not self.model or not self.model in self.env:
             raise UserError(_('Template creation from composer requires a valid model.'))
         model_id = self.env['ir.model']._get_id(self.model)
+        template_body = self.body
+        if template_body:
+            template_body = html_remove_xpath(template_body, "//*[hasclass('o_mail_reply_container')]")
         values = {
             'name': self.template_name,
-            'body_html': self.body,
+            'body_html': template_body,
             'model_id': model_id,
             'use_default_to': True,
             'user_id': self.env.uid,
@@ -937,8 +1032,8 @@ class MailComposeMessage(models.TransientModel):
                 attachments.write({'res_model': template._name, 'res_id': template.id})
                 template.attachment_ids = self.attachment_ids
 
-        # generate the saved template
-        self.write({'template_id': template.id})
+        # save the new cleaned template, keep the original body
+        self.write({'template_id': template.id, 'body': self.body})
         return _reopen(self, self.id, self.model, context={**self.env.context, 'dialog_size': 'large'})
 
     def cancel_save_template(self):
@@ -963,29 +1058,46 @@ class MailComposeMessage(models.TransientModel):
         """Generate the values that will be used by send_mail to create either
          mail_messages or mail_mails depending on composition mode.
 
-        Some summarized information on generation: mail versus message fields
-        (or both), and static (never rendered) versus dynamic (raw or rendered).
+        Summarized information on generation: mail versus message fields
+        (or both), and static (never rendered) versus dynamic (raw or rendered)
+        versus post processed values (once other values are computed).
 
         MAIL
             STA - 'auto_delete',
             DYN - 'body_html',
-            STA - 'force_send',  (notify parameter)
-            STA - 'model',
-            DYN - 'recipient_ids',  (from partner_ids)
-            DYN - 'res_id',
+            DYN - 'email_cc',                # from template
+            DYN - 'email_to',                # from template
+            POST- 'failure_type',            # error detection
+            STA - 'force_send',              # notify parameter (msg) / wizard parameter (mail)
+            DYN - 'headers',                 # record-based (for msg: see notification process)
             STA - 'is_notification',
+            POST- 'mailing_id',              # - mass_mailing
+            POST- 'mailing_trace_ids',       # - mass_mailing
+            STA - 'model',
+            DYN - 'recipient_ids',           # (from partner_ids)
+            DYN - 'recipient_cc_ids',        # (from partner_cc_ids)
+            DYN - 'res_id',
+            POST- 'state',                   # error detection
 
         MESSAGE
+            DYN - 'attachments',              # from 'report_template_ids', propagated for message_post processing
             DYN - 'body',
             STA - 'email_add_signature',
             STA - 'email_layout_xmlid',
-            DYN - 'force_email_lang',  # notify parameter
-            STA - 'record_alias_domain_id',  # monorecord only
-            STA - 'record_company_id',  # monorecord only
+            DYN - 'force_email_lang',        # notify parameter
+            STA - 'force_footer',            # notify parameter
+            STA - 'force_header',            # notify parameter
+            STA - 'mail_auto_delete',        # notify parameter
+            STA - 'model_description',       # notify parameter
+            STA - 'notify_author',           # notify parameter
+            STA - 'notify_author_mention',   # notify parameter
+            STA - 'notify_skip_followers',   # notify parameter
+            DYN - 'record_alias_domain_id',
+            DYN - 'record_company_id',
 
         BOTH
-            DYN - 'attachment_ids',
-            STA - 'author_id',  (to improve with template)
+            DYN - 'attachment_ids',          # also check 'attachments' for message
+            STA - 'author_id',
             DYN - 'email_from',
             STA - 'mail_activity_type_id',
             STA - 'mail_server_id',
@@ -997,6 +1109,9 @@ class MailComposeMessage(models.TransientModel):
             DYN - 'scheduled_date',
             DYN - 'subject',
             STA - 'subtype_id',
+            STA - 'source_mailing_id',       # - mail_tracking_mass_mailing
+            STA - 'source_template_id',      # - mail_tracking
+            STA - 'source_view_id',          # - mail_tracking
 
         :param list res_ids: list of record IDs on which composer runs;
 
@@ -1097,6 +1212,8 @@ class MailComposeMessage(models.TransientModel):
             values.update(
                 email_add_signature=self.email_add_signature,
                 email_layout_xmlid=self.email_layout_xmlid,
+                force_footer=self.template_id.email_layout_force_footer,
+                force_header=self.template_id.email_layout_force_header,
                 force_send=self.force_send,
                 mail_auto_delete=self.auto_delete,
                 model_description=model_description,
@@ -1179,7 +1296,8 @@ class MailComposeMessage(models.TransientModel):
                  'email_to',
                  'email_cc',
                  'partner_ids',
-                 'report_template_ids',
+                 'partner_cc_ids',
+                 'report_template_ids',  # returned as 'attachments'
                  'scheduled_date',
                 ],
                 allow_suggested=(
@@ -1223,10 +1341,7 @@ class MailComposeMessage(models.TransientModel):
             # attachments as required by _process_attachments_for_post
             attachment_ids = self.attachment_ids.copy({'res_model': self._name, 'res_id': self.id}).ids
             attachment_ids.reverse()
-            decoded_attachments = [
-                (name, base64.b64decode(enc_cont))
-                for name, enc_cont in mail_values.pop('attachments', [])
-            ]
+            decoded_attachments = mail_values.pop('attachments', [])
             # email_mode: prepare processed attachments as commands for mail.mail
             if email_mode:
                 process_record = record if hasattr(record, "_process_attachments_for_post") else record.env["mail.thread"]
@@ -1247,11 +1362,13 @@ class MailComposeMessage(models.TransientModel):
             if email_mode:
                 mail_values['headers'] = repr(record._notify_by_email_get_headers())
 
-            # recipients: transform partner_ids (field used in mail_message) into
-            # recipient_ids, used by mail_mail
+            # recipients: transform partner_ids and partner_cc_ids (fields used in mail_message)
+            # into recipient_ids and recipient_cc_ids used by mail_mail
             if email_mode:
-                recipient_ids_all = set(mail_values.pop('partner_ids', [])) | set(self.partner_ids.ids)
-                mail_values['recipient_ids'] = [(4, pid) for pid in recipient_ids_all]
+                partner_ids = set(mail_values.pop('partner_ids', [])) | set(self.partner_ids.ids)
+                partner_cc_ids = set(mail_values.pop('partner_cc_ids', [])) | set(self.partner_cc_ids.ids)
+                mail_values['recipient_ids'] = [(4, pid) for pid in partner_ids]
+                mail_values['recipient_cc_ids'] = [(4, pid) for pid in partner_cc_ids]
 
             # when having no specific reply_to -> fetch rendered email_from in mailing mode
             # and don't add anything in comment mode
@@ -1263,19 +1380,23 @@ class MailComposeMessage(models.TransientModel):
 
             # body: render layout in email mode (comment mode is managed by the
             # notification process, see @_notify_thread_by_email)
-            if email_mode and self.email_layout_xmlid and mail_values['recipient_ids']:
+            if email_mode and self.email_layout_xmlid and (
+                    mail_values['recipient_ids'] or mail_values.get('recipient_cc_ids')):
                 lang = langs[res_id]
-                recipient_ids = [command[1] for command in mail_values['recipient_ids']]
-                msg_vals = {
+                all_recipient_ids = [
+                    command[1]
+                    for command in mail_values['recipient_ids'] + (mail_values.get('recipient_cc_ids') or [])]
+                new_mail_message_values = {
+                    'body': mail_values['body'],
                     'email_layout_xmlid': self.email_layout_xmlid,
                     'model': self.model,
                     'res_id': res_id,
                 }
-                new_mail_message_values = {'body': mail_values['body']}
                 if self.template_id:
                     new_mail_message_values['email_add_signature'] = False
                 message_inmem = self.env['mail.message'].new(new_mail_message_values)
-                for _lang, render_values, recipients_group_data in record._notify_get_classified_recipients_iterator(
+                layout_record = record if isinstance(record, self.pool['mail.thread']) else self.env['mail.thread']
+                for _lang, render_values, recipients_group_data in layout_record._notify_get_classified_recipients_iterator(
                     message_inmem,
                     [{
                         'active': True,
@@ -1290,16 +1411,14 @@ class MailComposeMessage(models.TransientModel):
                         'type': 'customer',
                         'uid': False,
                         'ushare': False,
-                    } for pid in recipient_ids],
-                    msg_vals=msg_vals,
+                    } for pid in all_recipient_ids],
                     model_description=False,  # force dynamic computation
                     force_email_lang=lang,
                 ):
-                    mail_body = record._notify_by_email_render_layout(
+                    mail_body = layout_record._notify_by_email_render_layout(
                         message_inmem,
                         recipients_group_data,
-                        msg_vals=msg_vals,
-                        render_values=render_values,
+                        render_values={**render_values, 'email_notification_allow_header': self.email_notification_allow_header},
                     )
                     mail_values['body_html'] = mail_body
 
@@ -1342,6 +1461,7 @@ class MailComposeMessage(models.TransientModel):
                 'body': self.body or '',
                 'email_from': self.email_from,
                 'partner_ids': self.partner_ids.ids,
+                'partner_cc_ids': self.partner_cc_ids.ids,
                 'scheduled_date': self.scheduled_date,
                 'subject': self.subject or '',
                 **(
@@ -1438,7 +1558,7 @@ class MailComposeMessage(models.TransientModel):
           * 'body' comes from template 'body_html' generation;
           * 'attachments' is an additional key coming with 'attachment_ids' due
             to report generation (in the format [(report_name, data)] where data
-            is base64 encoded);
+            is a binary value);
           * 'partner_ids' is returned due to recipients generation that gives
             partner ids coming from default computation as well as from email
             to partner convert (see ``find_or_create_partners``);
@@ -1450,6 +1570,7 @@ class MailComposeMessage(models.TransientModel):
             'attachments': 'report_template_ids',
             'body': 'body_html',
             'partner_ids': 'partner_to',
+            'partner_cc_ids': 'partner_cc',
         }
         template_fields = {mapping.get(fname, fname) for fname in render_fields}
         template_values = self.template_id._generate_template(

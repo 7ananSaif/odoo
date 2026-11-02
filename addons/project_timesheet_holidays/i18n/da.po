@@ -6,21 +6,33 @@
 # Martin Trigaux, 2022
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Kira Petersen François (peti)" <peti@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-05 19:29+0000\n"
-"PO-Revision-Date: 2025-09-14 21:10+0000\n"
-"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
-"Language-Team: Danish <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-10-09 17:40+0000\n"
+"PO-Revision-Date: 2026-09-09 13:52+0000\n"
+"Last-Translator: \"Kira Petersen François (peti)\" <peti@odoo.com>\n"
+"Language-Team: Danish <https://translate.odoo.com/projects/odoo-master/"
 "project_timesheet_holidays/da/>\n"
 "Language: da\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: project_timesheet_holidays
+#: model:ir.module.module,description:base.module_project_timesheet_holidays
+msgid ""
+"\n"
+"Bridge module to integrate leaves in timesheet\n"
+"================================================\n"
+"\n"
+"This module allows to automatically log timesheets when employees are\n"
+"on leaves. Project and task can be configured company-wide.\n"
+msgstr ""
 
 #. module: project_timesheet_holidays
 #: model:ir.model,name:project_timesheet_holidays.model_account_analytic_line
@@ -34,8 +46,8 @@ msgstr "Analyselinjer"
 
 #. module: project_timesheet_holidays
 #: model:ir.model,name:project_timesheet_holidays.model_res_company
-msgid "Companies"
-msgstr "Virksomheder"
+msgid "Company"
+msgstr ""
 
 #. module: project_timesheet_holidays
 #: model:ir.model,name:project_timesheet_holidays.model_res_config_settings
@@ -50,13 +62,14 @@ msgstr "Opret en opgave"
 #. module: project_timesheet_holidays
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_account_analytic_line__display_name
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_hr_employee__display_name
+#: model:ir.model.fields,field_description:project_timesheet_holidays.field_hr_employee_departure__display_name
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_hr_leave__display_name
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_project_task__display_name
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_res_company__display_name
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_res_config_settings__display_name
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_resource_calendar_leaves__display_name
 msgid "Display Name"
-msgstr "Vis navn"
+msgstr "Visningsnavn"
 
 #. module: project_timesheet_holidays
 #: model:ir.model,name:project_timesheet_holidays.model_hr_employee
@@ -64,8 +77,14 @@ msgid "Employee"
 msgstr "Medarbejder"
 
 #. module: project_timesheet_holidays
+#: model:ir.model,name:project_timesheet_holidays.model_hr_employee_departure
+msgid "Employee Departure"
+msgstr ""
+
+#. module: project_timesheet_holidays
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_account_analytic_line__id
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_hr_employee__id
+#: model:ir.model.fields,field_description:project_timesheet_holidays.field_hr_employee_departure__id
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_hr_leave__id
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_project_task__id
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_res_company__id
@@ -96,6 +115,11 @@ msgid "Resource Time Off Detail"
 msgstr "Resource fritid detaljer"
 
 #. module: project_timesheet_holidays
+#: model:ir.module.module,summary:base.module_project_timesheet_holidays
+msgid "Schedule timesheet when on time off"
+msgstr ""
+
+#. module: project_timesheet_holidays
 #: model:ir.model,name:project_timesheet_holidays.model_project_task
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_account_analytic_line__task_id
 #: model_terms:ir.ui.view,arch_db:project_timesheet_holidays.res_config_settings_view_form
@@ -106,20 +130,15 @@ msgstr "Opgave"
 #: model:ir.model.fields,help:project_timesheet_holidays.field_res_config_settings__internal_project_id
 msgid ""
 "The default project used when automatically generating timesheets via time "
-"off requests. You can specify another project on each time off type "
-"individually."
+"off requests. You can specify another project on each time type individually."
 msgstr ""
-"Standardprojektet som anvendes ved automatisk generering af timesedler via "
-"frianmodninger. Du kan angive et andet projekt på hver fritype."
 
 #. module: project_timesheet_holidays
 #: model:ir.model.fields,help:project_timesheet_holidays.field_res_config_settings__leave_timesheet_task_id
 msgid ""
 "The default task used when automatically generating timesheets via time off "
-"requests. You can specify another task on each time off type individually."
+"requests. You can specify another task on each time type individually."
 msgstr ""
-"Standardopgaven som anvendes ved automatisk generering af timesedler via "
-"frianmodninger. Du kan angive en anden opgave på hver fritype."
 
 #. module: project_timesheet_holidays
 #. odoo-python
@@ -145,13 +164,32 @@ msgstr "Fri opgave"
 
 #. module: project_timesheet_holidays
 #: model:ir.model.fields,field_description:project_timesheet_holidays.field_project_task__leave_types_count
-msgid "Time Off Types Count"
+msgid "Time Types Count"
+msgstr ""
+
+#. module: project_timesheet_holidays
+#: model:ir.module.module,shortdesc:base.module_project_timesheet_holidays
+msgid "Timesheet when on Time Off"
+msgstr ""
+
+#. module: project_timesheet_holidays
+#. odoo-python
+#: code:addons/project_timesheet_holidays/models/account_analytic.py:0
+msgid "Timesheets linked to public holidays cannot be deleted."
 msgstr ""
 
 #. module: project_timesheet_holidays
 #. odoo-python
 #: code:addons/project_timesheet_holidays/models/account_analytic.py:0
 msgid "Timesheets linked to public holidays cannot be modified."
+msgstr ""
+
+#. module: project_timesheet_holidays
+#. odoo-python
+#: code:addons/project_timesheet_holidays/models/account_analytic.py:0
+msgid ""
+"Timesheets related to time off cannot be created or modified. Please manage "
+"your requests in the Time Off app instead."
 msgstr ""
 
 #. module: project_timesheet_holidays
@@ -180,22 +218,6 @@ msgstr ""
 #. odoo-python
 #: code:addons/project_timesheet_holidays/models/account_analytic.py:0
 msgid ""
-"You cannot create timesheets for a task that is linked to a time off type. "
-"Please use the Time Off application to request new time off instead."
-msgstr ""
-"Du kan ikke oprette timesedler på en opgave, der er forbundet til en "
-"fritype. Venligst anvend Fri app'en til at anmode om nye fridage i stedet."
-
-#. module: project_timesheet_holidays
-#. odoo-python
-#: code:addons/project_timesheet_holidays/models/account_analytic.py:0
-msgid "You cannot delete timesheets that are linked to global time off."
-msgstr ""
-
-#. module: project_timesheet_holidays
-#. odoo-python
-#: code:addons/project_timesheet_holidays/models/account_analytic.py:0
-msgid ""
 "You cannot delete timesheets that are linked to time off requests. Please "
 "cancel your time off request from the Time Off application instead."
 msgstr ""
@@ -204,44 +226,6 @@ msgstr ""
 
 #. module: project_timesheet_holidays
 #. odoo-python
-#: code:addons/project_timesheet_holidays/models/account_analytic.py:0
-msgid ""
-"You cannot modify timesheets that are linked to time off requests. Please "
-"use the Time Off application to modify your time off requests instead."
-msgstr ""
-"Du kan ikke ændre timesedler, der er forbundet til anmodninger om fri. "
-"Venligst anvend Fri app'en til at ændre dine frianmodninger i stedet."
-
-#. module: project_timesheet_holidays
-#. odoo-python
 #: code:addons/project_timesheet_holidays/__init__.py:0
 msgid "allow_timesheets"
 msgstr ""
-
-#~ msgid ""
-#~ "Both the internal project and task are required to generate a timesheet "
-#~ "for the time off %s. If you don't want a timesheet, you should leave the "
-#~ "internal project and task empty."
-#~ msgstr ""
-#~ "Både det interne projekt samt opgave er nødvendig, for at generere en "
-#~ "timeseddel for fri tid %s. Hvis du ikke ønsker en timeseddel, bør du lade "
-#~ "det interne projekt samt opgave stå tomme."
-
-#~ msgid "Generate Timesheet"
-#~ msgstr "Generér timeseddel"
-
-#~ msgid "Global Time Off"
-#~ msgstr "Global fri tid"
-
-#~ msgid ""
-#~ "If checked, when validating a time off, timesheet will be generated in "
-#~ "the Vacation Project of the company."
-#~ msgstr ""
-#~ "Hvis markeret, ved godkendelse af fri tid, vil timesedlen blive genereret "
-#~ "i Ferie Projektet for virksomheden."
-
-#~ msgid "Operation not supported"
-#~ msgstr "Operation ikke understøttet"
-
-#~ msgid "Time Off Type"
-#~ msgstr "Fri type"

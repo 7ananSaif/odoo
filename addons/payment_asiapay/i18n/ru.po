@@ -9,10 +9,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2026-04-24 18:41+0000\n"
+"POT-Creation-Date: 2026-08-28 17:44+0000\n"
+"PO-Revision-Date: 2026-08-31 17:28+0000\n"
 "Last-Translator: \"Anastasiia Koroleva (koan)\" <koan@odoo.com>\n"
-"Language-Team: Russian <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Russian <https://translate.odoo.com/projects/odoo-s19-4/"
 "payment_asiapay/ru/>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
@@ -21,17 +21,27 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
 "(n%100>=11 && n%100<=14)? 2 : 3);\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: payment_asiapay
-#. odoo-python
-#: code:addons/payment_asiapay/models/payment_transaction.py:0
-msgid ""
-"An error occurred during the processing of your payment (success code %"
-"(success_code)s; primary response code %(response_code)s). Please try again."
+#: model:payment.method,name:payment_asiapay.payment_method_alipay
+msgid "Alipay"
 msgstr ""
-"При обработке вашего платежа произошла ошибка (код успеха %(success_code)s; "
-"код первичного ответа %(response_code)s). Пожалуйста, попробуйте еще раз."
+
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_alipay_hk
+msgid "AlipayHK"
+msgstr ""
+
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_amex
+msgid "American Express"
+msgstr ""
+
+#. module: payment_asiapay
+#: model:ir.module.module,summary:base.module_payment_asiapay
+msgid "An payment provider based in Hong Kong covering most Asian countries."
+msgstr ""
 
 #. module: payment_asiapay
 #: model:ir.model.fields.selection,name:payment_asiapay.selection__payment_provider__code__asiapay
@@ -57,12 +67,27 @@ msgstr "AsiaPay Secure Hash Secret"
 #. odoo-python
 #: code:addons/payment_asiapay/models/payment_provider.py:0
 msgid "AsiaPay does not support the following currencies: %(currencies)s."
-msgstr ""
+msgstr "AsiaPay does not support the following currencies: %(currencies)s."
 
 #. module: payment_asiapay
 #: model:ir.model.fields,field_description:payment_asiapay.field_payment_provider__asiapay_brand
 msgid "Asiapay Brand"
 msgstr "Бренд Asiapay"
+
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_atome
+msgid "Atome"
+msgstr ""
+
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_bangkok_bank
+msgid "Bangkok Bank CWF"
+msgstr ""
+
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_bank_of_ayudhya
+msgid "Bank of Ayudhya"
+msgstr ""
 
 #. module: payment_asiapay
 #: model:ir.model.fields.selection,name:payment_asiapay.selection__payment_provider__asiapay_brand__bimopay
@@ -75,9 +100,19 @@ msgid "Brand"
 msgstr "Бренд"
 
 #. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_card
+msgid "Card"
+msgstr ""
+
+#. module: payment_asiapay
 #: model:ir.model.fields,field_description:payment_asiapay.field_payment_provider__code
 msgid "Code"
 msgstr "Код"
+
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_diners
+msgid "Diners Club International"
+msgstr ""
 
 #. module: payment_asiapay
 #: model:ir.model.fields,field_description:payment_asiapay.field_payment_provider__display_name
@@ -86,15 +121,85 @@ msgid "Display Name"
 msgstr "Отображаемое название"
 
 #. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_duitnow
+msgid "DuitNow"
+msgstr ""
+
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_fps
+msgid "FPS"
+msgstr ""
+
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_gcash
+msgid "GCash"
+msgstr ""
+
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_hoolah
+msgid "Hoolah"
+msgstr ""
+
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_humm
+msgid "Humm"
+msgstr ""
+
+#. module: payment_asiapay
 #: model:ir.model.fields,field_description:payment_asiapay.field_payment_provider__id
 #: model:ir.model.fields,field_description:payment_asiapay.field_payment_transaction__id
 msgid "ID"
 msgstr "ID"
 
 #. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_jcb
+msgid "JCB"
+msgstr ""
+
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_jkopay
+msgid "JKO Pay"
+msgstr ""
+
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_krungthai_bank
+msgid "Krung Thai Bank CWF"
+msgstr ""
+
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_linepay
+msgid "LINE Pay"
+msgstr ""
+
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_mastercard
+msgid "MasterCard"
+msgstr ""
+
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_maya
+msgid "Maya"
+msgstr ""
+
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_maybank
+msgid "Maybank2u"
+msgstr ""
+
+#. module: payment_asiapay
 #: model_terms:ir.ui.view,arch_db:payment_asiapay.payment_provider_form
 msgid "Merchant ID"
 msgstr "ID продавца"
+
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_momo
+msgid "MoMo"
+msgstr ""
+
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_octopus
+msgid "Octopus"
+msgstr ""
 
 #. module: payment_asiapay
 #. odoo-python
@@ -103,14 +208,44 @@ msgid "Only one currency can be selected by AsiaPay account."
 msgstr "На счете AsiaPay может быть выбрана только одна валюта."
 
 #. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_poli
+msgid "POLi"
+msgstr ""
+
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_pace
+msgid "Pace"
+msgstr ""
+
+#. module: payment_asiapay
 #: model:ir.model.fields.selection,name:payment_asiapay.selection__payment_provider__asiapay_brand__paydollar
 msgid "PayDollar"
 msgstr "PayDollar"
 
 #. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_pay_id
+msgid "PayID"
+msgstr ""
+
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_payme
+msgid "PayMe"
+msgstr ""
+
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_paypal
+msgid "PayPal"
+msgstr ""
+
+#. module: payment_asiapay
 #: model:ir.model,name:payment_asiapay.model_payment_provider
 msgid "Payment Provider"
 msgstr "Поставщик платежей"
+
+#. module: payment_asiapay
+#: model:ir.module.module,shortdesc:base.module_payment_asiapay
+msgid "Payment Provider: AsiaPay"
+msgstr ""
 
 #. module: payment_asiapay
 #: model:ir.model,name:payment_asiapay.model_payment_transaction
@@ -129,6 +264,11 @@ msgid "Received data with missing success code."
 msgstr "Получены данные с отсутствующим кодом успеха."
 
 #. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_scb
+msgid "SCB Easy"
+msgstr ""
+
+#. module: payment_asiapay
 #: model:ir.model.fields.selection,name:payment_asiapay.selection__payment_provider__asiapay_secure_hash_function__sha1
 msgid "SHA1"
 msgstr "SHA1"
@@ -144,6 +284,11 @@ msgid "SHA512"
 msgstr "SHA512"
 
 #. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_samsung_pay
+msgid "Samsung Pay"
+msgstr ""
+
+#. module: payment_asiapay
 #: model_terms:ir.ui.view,arch_db:payment_asiapay.payment_provider_form
 msgid "Secure Hash Function"
 msgstr "Безопасная хэш-функция"
@@ -157,6 +302,33 @@ msgstr "Секрет безопасного хэша"
 #: model:ir.model.fields.selection,name:payment_asiapay.selection__payment_provider__asiapay_brand__siampay
 msgid "SiamPay"
 msgstr "SiamPay"
+
+#. module: payment_asiapay
+#. odoo-python
+#: code:addons/payment_asiapay/models/payment_transaction.py:0
+msgid ""
+"Success code: %(success_code)s. Primary response code: %(response_code)s."
+msgstr ""
+
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_tmb
+msgid "TMB Bank"
+msgstr ""
+
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_ttb
+msgid "TTB - TMBThanachart Bank"
+msgstr ""
+
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_tendopay
+msgid "TendoPay"
+msgstr ""
+
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_tenpay
+msgid "Tenpay"
+msgstr ""
 
 #. module: payment_asiapay
 #: model:ir.model.fields,help:payment_asiapay.field_payment_provider__asiapay_merchant_id
@@ -181,20 +353,47 @@ msgid "The technical code of this payment provider."
 msgstr "Технический код данного провайдера платежей."
 
 #. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_touch_n_go
+msgid "Touch'n Go"
+msgstr ""
+
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_truemoney
+msgid "TrueMoney"
+msgstr ""
+
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_unionpay
+msgid "UnionPay"
+msgstr ""
+
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_uob
+msgid "United Overseas Bank"
+msgstr ""
+
+#. module: payment_asiapay
 #. odoo-python
 #: code:addons/payment_asiapay/models/payment_transaction.py:0
 msgid "Unknown success code: %s"
 msgstr "Неизвестный код успеха: %s"
 
-#~ msgid ""
-#~ "An error occurred during the processing of your payment (success code %s; "
-#~ "primary response code %s). Please try again."
-#~ msgstr ""
-#~ "При обработке вашего платежа произошла ошибка (код успеха %s; код "
-#~ "первичного ответа %s). Пожалуйста, попробуйте еще раз."
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_visa
+msgid "VISA"
+msgstr ""
 
-#~ msgid "No transaction found matching reference %s."
-#~ msgstr "Не найдено ни одной транзакции, соответствующей ссылке %s."
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_wechat_pay
+msgid "WeChat Pay"
+msgstr ""
 
-#~ msgid "Received data with missing reference %(ref)s."
-#~ msgstr "Получены данные с отсутствующей ссылкой %(ref)s."
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_zip
+msgid "Zip"
+msgstr ""
+
+#. module: payment_asiapay
+#: model:payment.method,name:payment_asiapay.payment_method_enets
+msgid "eNETS"
+msgstr ""

@@ -15,7 +15,7 @@ patch(ProductScreen.prototype, {
         this.state.isValidBuffer = true;
         this.doSubmitOrder = useTrackedAsync(() => this.pos.submitOrder());
         this.doReprintOrder = useTrackedAsync(() => this.pos.reprintOrder());
-        useBus(this.numberBuffer, "buffer-update", ({ detail: value }) => {
+        useBus(this.numberBuffer.bus, "buffer-update", ({ detail: value }) => {
             this.checkIsValid(value);
         });
 
@@ -24,13 +24,13 @@ patch(ProductScreen.prototype, {
         });
     },
     get nbrOfChanges() {
-        return this.pos.getOrderChanges().nbrOfChanges;
+        return this.pos.getOrder().preparationChanges.quantity;
     },
     get swapButton() {
         return this.pos.config.module_pos_restaurant && this.pos.config.preparationCategories.size;
     },
     get displayCategoryCount() {
-        return this.pos.categoryCount.slice(0, 3);
+        return this.pos.getOrder().preparationChanges.categoryCount.slice(0, 3);
     },
     get primaryReviewButton() {
         return (
@@ -40,9 +40,7 @@ patch(ProductScreen.prototype, {
         );
     },
     get primaryOrderButton() {
-        return (
-            this.pos.getOrderChanges().nbrOfChanges !== 0 && this.pos.config.module_pos_restaurant
-        );
+        return this.nbrOfChanges !== 0 && this.pos.config.module_pos_restaurant;
     },
     getNumpadButtons() {
         let buttons = super.getNumpadButtons();
@@ -66,8 +64,10 @@ patch(ProductScreen.prototype, {
         this.numberBuffer.reset();
     },
     assignOrder() {
-        if (this.state.isValidBuffer) {
-            this.pos.searchOrder(this.state.tableBuffer);
+        const buffer = this.numberBuffer.get() || this.state.tableBuffer;
+        this.checkIsValid(buffer);
+        if (buffer && this.state.isValidBuffer) {
+            this.pos.searchOrder(buffer);
             this.numberBuffer.reset();
             this.pos.numpadMode = "quantity";
         }
@@ -76,6 +76,12 @@ patch(ProductScreen.prototype, {
         this.state.tableBuffer = buffer;
         const res = this.pos.findTable(buffer);
         this.state.isValidBuffer = Boolean(res);
+    },
+    async addProductToOrder(product) {
+        const allocation = this.pos.autoCourseAllocation(product);
+        const result = await super.addProductToOrder(product);
+        this.pos.cleanAutoCourseAllocation(result, allocation);
+        return result;
     },
     async clickNew() {
         await this.pos.syncAllOrders({ orders: [this.pos.getOrder()] });

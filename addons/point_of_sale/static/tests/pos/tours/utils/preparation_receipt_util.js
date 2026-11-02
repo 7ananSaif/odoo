@@ -1,47 +1,45 @@
 /* global posmodel */
 
 import { _t } from "@web/core/l10n/translation";
-import { renderToElement } from "@web/core/utils/render";
 
-export async function generateReceiptsToPrint(order, orderChange) {
-    const { orderData, changes } = posmodel.generateOrderChange(
-        order,
-        orderChange,
-        Array.from(posmodel.config.printerCategories),
-        false
-    );
-    const receiptsData = await posmodel.generateReceiptsDataToPrint(
-        orderData,
-        changes,
-        orderChange
-    );
-    const groupedReceiptsData = await posmodel.prepareReceiptGroupedData(receiptsData);
-    return groupedReceiptsData.map((data) =>
-        renderToElement("point_of_sale.OrderChangeReceipt", {
-            data: data,
-        })
-    );
-}
+async function generateReceiptsToPrint(order, opts = {}) {
+    const models = posmodel.models;
+    const generator = posmodel.ticketPrinter.getGenerator({ models, order });
+    const categories = posmodel.config.printerCategories;
+    const changes = generator.generatePreparationData(new Set(categories), opts);
+    const template = "point_of_sale.pos_order_change_receipt";
+    const tickets = [];
 
-// Return rendered order change receipts that will be printed when clicking "Order" button
-export async function generatePreparationReceipts() {
-    const order = posmodel.getOrder();
-    const orderChange = posmodel.changesToOrder(order, posmodel.config.printerCategories, false);
-    return await generateReceiptsToPrint(order, orderChange);
+    for (const change of changes) {
+        const iframe = await posmodel.ticketPrinter.generateIframe(template, change);
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        tickets.push(doc.getElementById("pos-receipt"));
+    }
+
+    return tickets;
 }
 
 // Return rendered fire course receipts that will be printed when clicking "Fire course" button
-export async function generateFireCourseReceipts() {
+async function generateFireCourseReceipts() {
     const order = posmodel.getOrder();
     const course = order.getSelectedCourse();
     const orderChange = {
-        new: [],
-        cancelled: [],
-        noteUpdate: course.lines.map((line) => ({ product_id: line.getProduct().id })),
-        noteUpdateTitle: _t("Course %s fired", "" + course.index),
+        quantity: 0,
+        categoryCount: [],
+        addedQuantity: [],
+        removedQuantity: [],
+        noteUpdate: course.line_ids.map((line) => ({
+            product_id: line.getProduct().id,
+        })),
+        noteUpdateTitle: `${course.name} ${_t("fired")}`,
         printNoteUpdateData: false,
     };
-    return await generateReceiptsToPrint(order, orderChange);
+    return await generateReceiptsToPrint(order, { orderChange });
+}
+
+// Return rendered order change receipts that will be printed when clicking "Order" button
+export async function generatePreparationReceipts(opts = {}) {
+    return await generateReceiptsToPrint(posmodel.getOrder(), opts);
 }
 
 export function checkPreparationTicketData(
@@ -51,6 +49,7 @@ export function checkPreparationTicketData(
         invisibleInDom: [],
         lineOrder: [],
         fireCourse: false,
+        cancelled: false,
     }
 ) {
     const check = async () => {
@@ -59,11 +58,11 @@ export function checkPreparationTicketData(
         if (opts.fireCourse) {
             tickets = await generateFireCourseReceipts();
         } else {
-            tickets = await generatePreparationReceipts();
+            tickets = await generatePreparationReceipts({ cancelled: opts.cancelled });
         }
 
         if (
-            !tickets[0] &&
+            !tickets.length &&
             !data.length &&
             !opts.invisibleInDom?.length &&
             !opts.visibleInDom?.length &&
@@ -78,11 +77,16 @@ export function checkPreparationTicketData(
 
         let idx = 0;
         for (const line of lines) {
+            const values = data[idx];
+            if (!values) {
+                idx++;
+                continue;
+            }
+
             const name = line.firstChild.children[1].innerHTML;
             const qty = line.firstChild.children[0].innerHTML;
             const domAttrs = Object.values(line.children[1]?.children || []);
             const attrs = domAttrs.map((c) => c.innerHTML).filter(Boolean);
-            const values = data[idx];
 
             if (values.qty != qty) {
                 throw new Error(

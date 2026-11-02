@@ -1,21 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
 
-    <t t-name="survey.DescriptionPageField" t-inherit="web.CharField">
-        <xpath expr="//t[@t-else='']" position="replace">
-            <t t-else="">
-                <div class="input-group">
-                    <t t-call="web.CharField"/>
-                    <button type="button" title="Open section" class="btn oe_edit_only o_icon_button" t-on-click.stop="onExternalBtnClick">
-                        <i class="fa fa-fw o_button_icon fa-external-link"/>
-                    </button>
-                </div>
-            </t>
+    <t t-name="survey.CharField" t-inherit="web.CharField">
+        <xpath expr="//div[@class='o_field_input_buttons']" position="inside">
+            <button type="button" title="Open section" class="btn btn-sm btn-link p-0" t-on-click.stop="this.onExternalBtnClick">
+                <i class="oi" data-icon="open_in_new"/>
+            </button>
         </xpath>
-        <xpath expr="//span[@t-esc='formattedValue']" position="after">
-            <t t-if="props.record.data.is_page">
-                <i class="fa fa-fw o_button_icon fa-pencil"/>
-            </t>
+        <xpath expr="//span[@t-out='this.formattedValue']" position="after">
+            <button class="btn btn-sm btn-link p-0" t-if="this.props.record.data.is_page">
+                <i class="oi oi-filled" data-icon="edit"/>
+            </button>
+        </xpath>
+    </t>
+
+    <t t-name="survey.DescriptionPageField" t-inherit="survey.CharField">
+        <xpath expr="//t[@t-else='']" position="replace">
+            <div t-else="" class="input-group">
+                <t t-call="survey.CharField"/>
+            </div>
         </xpath>
     </t>
 

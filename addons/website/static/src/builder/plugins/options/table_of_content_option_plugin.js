@@ -2,7 +2,6 @@ import { applyFunDependOnSelectorAndExclude } from "@html_builder/plugins/utils"
 import { Plugin } from "@html_editor/plugin";
 import { registry } from "@web/core/registry";
 import { BuilderAction } from "@html_builder/core/builder_action";
-import { BaseOptionComponent } from "@html_builder/core/utils";
 
 /**
  * Returns the TOC id and the heading id from a header element.
@@ -20,33 +19,22 @@ function getTocAndHeadingId(headingEl) {
     return { tocId: 0, headingId: 0 };
 }
 
-export class TableOfContentOption extends BaseOptionComponent {
-    static template = "website.TableOfContentOption";
-    static selector = ".s_table_of_content";
-}
-
-export class TableOfContentNavbarOption extends BaseOptionComponent {
-    static template = "website.TableOfContentNavbarOption";
-    static selector = ".s_table_of_content_navbar_wrap";
-}
-
-class TableOfContentOptionPlugin extends Plugin {
+export class TableOfContentOptionPlugin extends Plugin {
     static id = "tableOfContentOption";
     static dependencies = ["remove"];
     /** @type {import("plugins").WebsiteResources} */
     resources = {
-        builder_options: [TableOfContentOption, TableOfContentNavbarOption],
         builder_actions: {
             NavbarPositionAction,
         },
-        normalize_handlers: this.normalize.bind(this),
+        normalize_processors: this.normalize.bind(this),
         // Prevent dropping a table of content inside another table of content.
-        dropzone_selector: {
+        dropzone_selectors: {
             selector: ".s_table_of_content",
             excludeAncestor: ".s_table_of_content, .s_tabs, .s_tabs_images",
         },
         // Only allow moving main parts of the table of content by using arrows.
-        is_draggable_handlers: (el) => {
+        is_draggable_predicates: (el) => {
             if (
                 el.matches(
                     ".s_table_of_content .s_table_of_content_navbar_wrap, .s_table_of_content .s_table_of_content_main"
@@ -54,43 +42,67 @@ class TableOfContentOptionPlugin extends Plugin {
             ) {
                 return false;
             }
-            return true;
         },
-        is_unremovable_selector: ".s_table_of_content_navbar_wrap, .s_table_of_content_main",
+        is_unremovable_selectors: ".s_table_of_content_navbar_wrap, .s_table_of_content_main",
         content_not_editable_selectors: ".s_table_of_content_navbar",
+        anchor_allowed_selectors: ".s_table_of_content_main > *",
+        anchor_excluded_selectors:
+            ".s_table_of_content, .s_table_of_content_navbar_wrap, .s_table_of_content_main",
     };
 
     normalize(root) {
         applyFunDependOnSelectorAndExclude(this.updateTableOfContentNavbar.bind(this), root, {
             selector: ".s_table_of_content_main",
         });
+        return root;
+    }
+
+    getNavbarContainer(tableOfContentEl) {
+        return tableOfContentEl.querySelector(".s_table_of_content_navbar");
     }
 
     updateTableOfContentNavbar(tableOfContentMain) {
         const tableOfContent = tableOfContentMain.closest(".s_table_of_content");
-        const tableOfContentNavbar = tableOfContent.querySelector(".s_table_of_content_navbar");
+        const tableOfContentNavbar = this.getNavbarContainer(tableOfContent);
         const currentNavbarItems = [...tableOfContentNavbar.children].map((el) => ({
             title: el.textContent,
             href: el.getAttribute("href"),
+            depthClass: [...el.classList].find((className) =>
+                className.startsWith("table_of_content_link_depth_")
+            ),
         }));
-
         if (tableOfContentMain.children.length === 0) {
             // Remove the table of content if empty content.
             this.dependencies.remove.removeElement(tableOfContent);
             return;
         }
-
-        const targetedElements = "h1, h2";
+        const targetedElements = "h1, h2, h3, h4, h5, h6";
+        // Depth for each heading based on hierarchy
+        const depthStack = [];
         const currentHeadingItems = [...tableOfContentMain.querySelectorAll(targetedElements)]
             .filter((el) => !el.closest(".o_snippet_desktop_invisible"))
-            .map((el) => ({ title: el.textContent, id: `#${el.id}`, el }));
+            .map((el) => {
+                const currentHeadingLevel = parseFloat(el.tagName[1]);
+                while (depthStack.length && depthStack.at(-1) >= currentHeadingLevel) {
+                    depthStack.pop();
+                }
+                depthStack.push(currentHeadingLevel);
+                return {
+                    title: el.textContent,
+                    id: `#${el.id}`,
+                    depthLevel: depthStack.length - 1,
+                    el,
+                };
+            });
 
         const headingHasChanged =
             currentNavbarItems.length !== currentHeadingItems.length ||
             currentNavbarItems.some(
                 (item, i) =>
                     item.title !== currentHeadingItems[i].title ||
-                    item.href !== currentHeadingItems[i].id
+                    item.href !== currentHeadingItems[i].id ||
+                    parseInt(item.depthClass.replace("table_of_content_link_depth_", "")) !==
+                        currentHeadingItems[i].depthLevel
             );
 
         const areVisibilityIdsEqual = currentHeadingItems.every(({ el }) => {
@@ -125,12 +137,21 @@ class TableOfContentOptionPlugin extends Plugin {
             return;
         }
 
+        // Remove stale TOC ids from non-heading elements (e.g. a heading
+        // converted back to a paragraph)
+        for (const el of tableOfContentMain.querySelectorAll("[id^='table_of_content_heading_']")) {
+            if (!el.matches(targetedElements)) {
+                el.removeAttribute("id");
+            }
+        }
+
         const headingIds = currentHeadingItems.map(({ el }) => getTocAndHeadingId(el).headingId);
         let maxHeadingIds = Math.max(0, ...headingIds);
 
         tableOfContentNavbar.textContent = "";
         const uniqueHeadingIds = new Set();
-        for (const { title, el } of currentHeadingItems) {
+
+        for (const { title, el, depthLevel } of currentHeadingItems) {
             let { headingId } = getTocAndHeadingId(el);
             if (headingId) {
                 // Reset headingId on duplicate.
@@ -149,10 +170,9 @@ class TableOfContentOptionPlugin extends Plugin {
             const itemEl = this.document.createElement("a");
             itemEl.textContent = title;
             itemEl.setAttribute("href", `#${tocHeadingId}`);
-            itemEl.className =
-                "table_of_content_link list-group-item list-group-item-action py-2 border-0 rounded-0";
-            tableOfContentNavbar.appendChild(itemEl);
 
+            itemEl.className = `o_translate_inline table_of_content_link list-group-item list-group-item-action py-2 border-0 rounded-0 table_of_content_link_depth_${depthLevel}`;
+            tableOfContentNavbar.appendChild(itemEl);
             el.setAttribute("id", tocHeadingId);
         }
     }

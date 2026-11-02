@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, test } from "@odoo/hoot";
 import { click, edit, keyDown, keyUp, press, queryOne } from "@odoo/hoot-dom";
 import { animationFrame, runAllTimers } from "@odoo/hoot-mock";
+import { Component, signal, xml } from "@odoo/owl";
 import {
     contains,
     defineWebModels,
@@ -11,14 +12,13 @@ import {
 } from "@web/../tests/web_test_helpers";
 import { AutoComplete } from "@web/core/autocomplete/autocomplete";
 import { browser } from "@web/core/browser/browser";
-import { TourRecorder } from "@web_tour/js/tour_recorder/tour_recorder";
+import { useAutofocus } from "@web/core/utils/hooks";
+import { WebClient } from "@web/webclient/webclient";
+import { TourRecorder } from "@web_tour/tour_recorder/tour_recorder";
 import {
     TOUR_RECORDER_ACTIVE_LOCAL_STORAGE_KEY,
     tourRecorderState,
-} from "@web_tour/js/tour_recorder/tour_recorder_state";
-import { Component, xml } from "@odoo/owl";
-import { useAutofocus } from "@web/core/utils/hooks";
-import { WebClient } from "@web/webclient/webclient";
+} from "@web_tour/tour_recorder/tour_recorder_state";
 
 describe.current.tags("desktop");
 
@@ -249,7 +249,7 @@ test("Remove step during recording", async () => {
     checkTourSteps([".o_child"]);
     await click(".o_button_steps");
     await animationFrame();
-    contains(".o_button_delete_step").click();
+    await contains(".o_button_delete_step").click();
     await click(".o_button_steps");
     await animationFrame();
     checkTourSteps([]);
@@ -305,7 +305,7 @@ test("Save custom tour", async () => {
 
     await click(".o_button_save");
     await animationFrame();
-    await contains("input[name='name']").click();
+    await contains("#tour_name").click();
     await edit("tour_name");
     await animationFrame();
     await click(".o_button_save_confirm");
@@ -366,8 +366,7 @@ test("Edit contenteditable", async () => {
 test("Selecting item in autocomplete field through Enter", async () => {
     class Dummy extends Component {
         static components = { AutoComplete };
-        static template = xml`<AutoComplete id="'autocomplete'" value="'World'" sources="sources"/>`;
-        static props = ["*"];
+        static template = xml`<AutoComplete id="'autocomplete'" value="'World'" sources="this.sources"/>`;
 
         sources = [
             {
@@ -389,7 +388,7 @@ test("Selecting item in autocomplete field through Enter", async () => {
     await press("Enter");
     checkTourSteps([
         ".o-autocomplete--input",
-        ".o-autocomplete--dropdown-item > a:contains('World'), .fa-circle-o-notch",
+        ".o-autocomplete--dropdown-item > a:contains('World'), [data-icon='autorenew']",
     ]);
     expect(tourRecorder.state.steps.map((s) => s.run)).toEqual(["click", "click"]);
 });
@@ -400,14 +399,15 @@ test("Edit input after autofocus", async () => {
         static template = xml/*html*/ `
             <t>
                 <div class="container">
-                    <input type="text" class="o_input" t-ref="input"/>
+                    <input type="text" class="o_input" t-ref="this.inputRef"/>
                 </div>
             </t>
         `;
-        static props = ["*"];
+
+        inputRef = signal.ref();
 
         setup() {
-            useAutofocus({ refName: "input" });
+            useAutofocus({ ref: this.inputRef });
         }
     }
 
@@ -459,6 +459,8 @@ test("Check Tour Recorder State", async () => {
     await click(".o_button_record");
     await animationFrame();
     await click(".o_tour_recorder_close_button");
+    await animationFrame();
+    await click(".modal-footer .btn-primary");
     await animationFrame();
     expect(tourRecorderState.getCurrentTourRecorder()).toEqual([]);
     expect(tourRecorderState.isRecording()).toBe("0");

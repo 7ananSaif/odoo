@@ -12,6 +12,7 @@ import {
     defineModels,
     fields,
     getService,
+    installLanguages,
     models,
     mountView,
     mountWithCleanup,
@@ -23,9 +24,10 @@ import {
 import { selectDateRange } from "./calendar_test_helpers";
 
 import { Domain } from "@web/core/domain";
-import { notificationService } from "@web/core/notifications/notification_service";
+import { range } from "@web/core/utils/numbers";
 import { CalendarModel } from "@web/views/calendar/calendar_model";
 import { WebClient } from "@web/webclient/webclient";
+import { NotificationPlugin } from "@web/core/notifications/notification_plugin";
 
 class Event extends models.Model {
     name = fields.Char();
@@ -33,11 +35,9 @@ class Event extends models.Model {
     datetime_start = fields.Datetime();
     datetime_end = fields.Datetime();
     type = fields.Many2one({ relation: "event.type" });
-    user_id = fields.Many2one({ relation: "calendar.user" });
-    user_ids = fields.Many2many({ relation: "calendar.user" });
-
-    // FIXME: needed for the filter to work
-    filter_user_id = fields.Many2one({ relation: "calendar.user" });
+    allowed_type_ids = fields.Many2many({ relation: "event.type" });
+    user_id = fields.Many2one({ relation: "event.user" });
+    user_ids = fields.Many2many({ relation: "event.user" });
 
     _records = [
         {
@@ -135,7 +135,6 @@ class Event extends models.Model {
             
                 <!-- For filter to work -->
                 <field name="date_start" invisible="1"/>
-                <field name="filter_user_id" invisible="1"/>
             </calendar>
         `,
         "calendar,calendar_state": `
@@ -161,6 +160,16 @@ class Event extends models.Model {
                 </group>
             </form>
         `,
+        // "allowed_type_ids" is only there to restrict "type": it has no display
+        // field, so the model only loads the first record of the relation.
+        "form,multi_create_form_allowed_types": `
+            <form>
+                <group>
+                    <field name="allowed_type_ids" invisible="1"/>
+                    <field name="type" domain="[('id', 'in', allowed_type_ids)]"/>
+                </group>
+            </form>
+        `,
     };
 }
 
@@ -174,7 +183,7 @@ class EventType extends models.Model {
     ];
 }
 
-class CalendarUser extends models.Model {
+class EventUser extends models.Model {
     name = fields.Char();
 
     _records = [
@@ -186,8 +195,8 @@ class CalendarUser extends models.Model {
 }
 
 class FilterUser extends models.Model {
-    filter_user_id = fields.Many2one({ relation: "calendar.user" });
-    user_id = fields.Many2one({ relation: "calendar.user" });
+    filter_user_id = fields.Many2one({ relation: "event.user" });
+    user_id = fields.Many2one({ relation: "event.user" });
     is_checked = fields.Boolean();
 
     _records = [
@@ -196,7 +205,7 @@ class FilterUser extends models.Model {
     ];
 }
 
-defineModels([Event, EventType, CalendarUser, FilterUser]);
+defineModels([Event, EventType, EventUser, FilterUser]);
 
 preloadBundle("web.fullcalendar_lib");
 
@@ -448,9 +457,9 @@ test("multi_create: basic creation (datetime field)", async () => {
     await runAllTimers();
     await animationFrame();
     await expect(".o_popover").toHaveCount(1);
-    await expect(".o_popover .fa-clock-o").toHaveCount(1);
-    await expect(".o_popover .list-group-item:has(.fa-clock-o)").toHaveText(
-        "08:00 - 11:30 (3 hours, 30 minutes)"
+    await expect(".o_popover .o_popover_body div:eq(1) [data-icon='schedule']").toHaveCount(1);
+    await expect(".o_popover .o_popover_body div:eq(1)").toHaveText(
+        "08:00 - 11:30\n(3 hours, 30 minutes)"
     );
     await expect(".o_popover .o_field_widget[name='name']").toHaveText("Time off");
     await expect(".o_popover .o_field_widget[name='type']").toHaveText("Event Type 3");
@@ -460,9 +469,9 @@ test("multi_create: basic creation (datetime field)", async () => {
     await runAllTimers();
     await animationFrame();
     await expect(".o_popover").toHaveCount(1);
-    await expect(".o_popover .fa-clock-o").toHaveCount(1);
-    await expect(".o_popover .list-group-item:has(.fa-clock-o)").toHaveText(
-        "08:00 - 11:30 (3 hours, 30 minutes)"
+    await expect(".o_popover .o_popover_body div:eq(1) [data-icon='schedule']").toHaveCount(1);
+    await expect(".o_popover .o_popover_body div:eq(1)").toHaveText(
+        "08:00 - 11:30\n(3 hours, 30 minutes)"
     );
     await expect(".o_popover .o_field_widget[name='user_id']").toHaveText("user 3");
 
@@ -474,12 +483,10 @@ test("multi_create: basic creation (datetime field)", async () => {
 
 test.tags("desktop");
 test("multi_create: input validation (datetime field)", async () => {
-    patchWithCleanup(notificationService, {
-        start: () => ({
-            add: (message) => {
-                expect.step(message);
-            },
-        }),
+    patchWithCleanup(NotificationPlugin.prototype, {
+        add(message) {
+            expect.step(message);
+        },
     });
 
     onRpc("event", "create", ({ args: [records] }) => {
@@ -551,7 +558,7 @@ test("multi_create: input validation (datetime field)", async () => {
 
 test.tags("desktop");
 test("multi_create: use state to keep values of inputs", async () => {
-    onRpc("event.type", "get_formview_action", ({ args, model }) => ({
+    onRpc("event.type", "get_record_default_action", ({ args, model }) => ({
         type: "ir.actions.act_window",
         res_model: model,
         target: "current",
@@ -620,8 +627,60 @@ test("multi_create: use state to keep values of inputs", async () => {
 });
 
 test.tags("desktop");
+test("multi_create: state keeps the whole x2many restricting another field", async () => {
+    onRpc("event", "create", ({ args: [records] }) => {
+        for (const record of records) {
+            expect.step(`${record.date_start}_${record.type}`);
+        }
+    });
+
+    await mountView({
+        resModel: "event",
+        type: "calendar",
+        context: { default_allowed_type_ids: [1, 2, 3] },
+        arch: `
+            <calendar date_start="date_start" scales="month" multi_create_view="multi_create_form_allowed_types">
+                <field name="name"/>
+                <field name="date_start" invisible="1"/>
+            </calendar>
+        `,
+    });
+
+    await selectDateRange("2019-03-04", "2019-03-05");
+    await multiCreateClickAddButton();
+
+    await contains(".o_multi_create_popover .o_form_view [name='type'] input").click();
+    expect(queryAllTexts(".o-autocomplete--dropdown-item:not(.o_m2o_dropdown_option)")).toEqual([
+        "Event Type 1",
+        "Event Type 2",
+        "Event Type 3",
+    ]);
+    await contains(".o-autocomplete--dropdown-item:contains('Event Type 2')").click();
+    await multiCreatePopoverClickAddButton();
+
+    expect.verifySteps(["2019-03-04_2", "2019-03-05_2"]);
+
+    // Delete the entry created on the first day of the selection.
+    await contains(".fc-day[data-date='2019-03-04']").click();
+    await contains(".o_multi_selection_buttons .btn [data-icon='delete'].oi-filled").click();
+    await contains(".o_dialog footer button:contains(Ok)").click();
+
+    // Reopening the popover reuses the values kept from the previous creation:
+    // they must still contain every allowed type.
+    await contains(".fc-day[data-date='2019-03-04']").click();
+    await multiCreateClickAddButton();
+
+    await contains(".o_multi_create_popover .o_form_view [name='type'] input").click();
+    expect(queryAllTexts(".o-autocomplete--dropdown-item:not(.o_m2o_dropdown_option)")).toEqual([
+        "Event Type 1",
+        "Event Type 2",
+        "Event Type 3",
+    ]);
+});
+
+test.tags("desktop");
 test("multi_create: delete", async () => {
-    onRpc("event", "unlink", ({ args: [ids] }) => {
+    onRpc("event", "web_unlink", ({ args: [ids] }) => {
         expect.step(ids);
     });
 
@@ -643,7 +702,7 @@ test("multi_create: delete", async () => {
     await drop(".fc-day[data-date='2019-04-03']");
     await animationFrame();
 
-    await contains(".o_multi_selection_buttons .btn .fa-trash").click();
+    await contains(".o_multi_selection_buttons .btn [data-icon='delete'].oi-filled").click();
     await animationFrame();
     expect(".o_dialog .modal-body").toHaveText(
         "Are you sure you want to delete the 3 selected records?"
@@ -687,12 +746,10 @@ test("multi_create: test onChange on form with no blur (input text)", async () =
 
 test.tags("desktop");
 test("multi_create: test onChange on TimePicker with no blur (input text)", async () => {
-    patchWithCleanup(notificationService, {
-        start: () => ({
-            add: (message) => {
-                expect.step(message);
-            },
-        }),
+    patchWithCleanup(NotificationPlugin.prototype, {
+        add(message) {
+            expect.step(message);
+        },
     });
 
     onRpc("event", "create", ({ args: [records] }) => {
@@ -764,7 +821,7 @@ test("multi_create: test popover", async () => {
 test.tags("desktop");
 test("multi_create: avoid trigger add/del event on specific element", async () => {
     function makeEvents(numberOfEvent) {
-        return [...Array(numberOfEvent).keys()].map((i) => ({
+        return range(numberOfEvent).map((i) => ({
             id: i,
             name: `event ${i}`,
             date_start: "2019-03-13",
@@ -807,13 +864,12 @@ test("multi_create: avoid trigger add/del event on specific element", async () =
 
 test.tags("desktop");
 test("multi_create: test required attribute in form", async () => {
-    patchWithCleanup(notificationService, {
-        start: () => ({
-            add: (message) => {
-                expect.step(message);
-            },
-        }),
-    });
+    patchWithCleanup(NotificationPlugin.prototype, {
+          add(message) {
+              expect.step(message);
+          },
+      });
+
 
     onRpc("event", "create", ({ args: [records] }) => {
         for (const record of records) {
@@ -857,7 +913,7 @@ test(`multi_create: no button "Delete" if no record selected`, async () => {
 
     await contains(".fc-day[data-date='2019-03-04']").click();
     expect(".o_multi_selection_buttons").toHaveCount(1);
-    expect(".o_multi_selection_buttons .btn .fa-trash").toHaveCount(0);
+    expect(".o_multi_selection_buttons .btn [data-icon='delete'].oi-filled").toHaveCount(0);
 });
 
 test.tags("desktop");
@@ -1041,4 +1097,23 @@ test("multi_create: selection with shift", async () => {
 
     expect(".o_selection_box").toHaveText("1\nselected");
     expect(queryAll(".fc-day.o-highlight").map((el) => el.dataset.date)).toEqual(["2019-03-13"]);
+});
+
+test.tags("desktop");
+test("multi_create: translatable field in the popover", async () => {
+    installLanguages({ en_US: "English", fr_BE: "Français" });
+    Event._fields.name.translate = true;
+
+    await mountView({
+        type: "calendar",
+        resModel: "event",
+        arch: `<calendar date_start="date_start" scales="month" multi_create_view="multi_create_form"/>`,
+    });
+
+    await selectDateRange("2019-03-04", "2019-03-05");
+    await multiCreateClickAddButton();
+
+    // the records aren't created from the popover record, so it can't be translated
+    expect(".o_multi_create_popover .o_form_view [name='name'] input").toHaveCount(1);
+    expect(".o_multi_create_popover .o_form_view [name='name'] .o-translate-button").toHaveCount(0);
 });

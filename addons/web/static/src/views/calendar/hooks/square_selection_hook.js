@@ -1,17 +1,17 @@
-import { useComponent, useEffect, useExternalListener, useRef } from "@odoo/owl";
+import { useListener, useProps } from "@odoo/owl";
 import { makeDraggableHook } from "@web/core/utils/draggable_hook_builder_owl";
 import { shallowEqual } from "@web/core/utils/objects";
 import { closest } from "@web/core/utils/ui";
 import { useCallbackRecorder } from "@web/search/action_hook";
 
-const CELL_SELECTOR = `.fc-day:not(.fc-col-header-cell)`;
+const CELL_SELECTOR = `.fc-day:not(.fc-col-header-cell, .fc-timegrid-col)`;
 const ROW_SELECTOR = `tr[role="row"]`;
 const EVENT_CONTAINER_SELECTOR = ".fc-daygrid-event-harness";
 const IGNORE_SELECTOR = [".fc-event", ".fc-more-cell", ".fc-more-popover"].join(",");
 
 function getClosestCell(ctx) {
     const { pointer, ref } = ctx;
-    return closest(ref.el.querySelectorAll(CELL_SELECTOR), pointer);
+    return closest(ref().querySelectorAll(CELL_SELECTOR), pointer);
 }
 
 function getElementIndex(element) {
@@ -31,17 +31,16 @@ function getBlockBounds({ initCoord, coord }) {
 }
 
 function getSelectedCellsInBlock(ctx) {
-    const { cellIsSelectable, current, ref } = ctx;
+    const { current, ref } = ctx;
     const { startColIndex, endColIndex, startRowIndex, endRowIndex } = getBlockBounds(current);
     const selectedCells = [];
-    for (const cell of ref.el.querySelectorAll(`tbody tr[role="row"] .fc-day`)) {
+    for (const cell of ref().querySelectorAll(`tbody ${ROW_SELECTOR} ${CELL_SELECTOR}`)) {
         const { colIndex, rowIndex } = getCoordinates(cell);
         if (
             startColIndex <= colIndex &&
             colIndex <= endColIndex &&
             startRowIndex <= rowIndex &&
-            rowIndex <= endRowIndex &&
-            cellIsSelectable(cell)
+            rowIndex <= endRowIndex
         ) {
             selectedCells.push(cell);
         }
@@ -50,30 +49,27 @@ function getSelectedCellsInBlock(ctx) {
 }
 
 function getSelectedCellsBetween2Cells(ctx, prevCell, cellClicked) {
-    const { cellIsSelectable, ref } = ctx;
-    const cells = [...ref.el.querySelectorAll(`tbody tr[role="row"] .fc-day`)];
+    const { ref } = ctx;
+    const cells = [...ref().querySelectorAll(`tbody ${ROW_SELECTOR} ${CELL_SELECTOR}`)];
     const index1 = cells.indexOf(prevCell);
     if (index1 === -1) {
         return new Set([cellClicked]);
     }
     const index2 = cells.indexOf(cellClicked);
     const [startIndex, endIndex] = [index1, index2].sort((a, b) => a - b);
-    return new Set(cells.slice(startIndex, endIndex + 1).filter((cell) => cellIsSelectable(cell)));
+    return new Set(cells.slice(startIndex, endIndex + 1));
 }
 
 // @ts-ignore
 const useBlockSelection = makeDraggableHook({
     name: "useBlockSelection",
-    acceptedParams: {
-        cellIsSelectable: [Function],
-    },
-    onComputeParams({ ctx, params }) {
+    acceptedParams: {},
+    onComputeParams({ ctx }) {
         ctx.followCursor = false;
-        ctx.cellIsSelectable = params.cellIsSelectable;
     },
     onWillStartDrag({ addClass, ctx }) {
         const { current, ref } = ctx;
-        addClass(ref.el, "pe-auto");
+        addClass(ref(), "pe-auto");
         const cell = getClosestCell(ctx);
         addClass(cell, "pe-auto");
         const coord = getCoordinates(cell);
@@ -97,18 +93,19 @@ const useBlockSelection = makeDraggableHook({
     onDrop({ ctx }) {
         return getSelectedCellsInBlock(ctx);
     },
+    onDragEnd() {
+        return {};
+    },
 });
 
-export function useSquareSelection(params = {}) {
-    const cellIsSelectable = params.cellIsSelectable || (() => true);
-    const component = useComponent();
-    const ref = useRef("fullCalendar");
+export function useSquareSelection(fullCalendarRef) {
+    const props = useProps();
     const highlightClass = "o-highlight";
 
     const removeHighlight = () => {
-        ref.el.querySelectorAll(`.${highlightClass}`).forEach((node) => {
+        for (const node of fullCalendarRef().querySelectorAll(`.${highlightClass}`)) {
             node.classList.remove(highlightClass);
-        });
+        }
     };
 
     let allSelectedCells = new Set();
@@ -131,7 +128,7 @@ export function useSquareSelection(params = {}) {
         });
     };
 
-    useCallbackRecorder(component.props.callbackRecorder, () => {
+    useCallbackRecorder(props.callbackRecorder, () => {
         allSelectedCells = new Set();
         prevSelectedCell = null;
         removeHighlight();
@@ -145,23 +142,26 @@ export function useSquareSelection(params = {}) {
     };
 
     const selectState = useBlockSelection({
-        enable: () => component.props.model.hasMultiCreate,
-        ignore: EVENT_CONTAINER_SELECTOR,
+        enable: () => props.model.hasMultiCreate,
+        ignore: IGNORE_SELECTOR,
         elements: CELL_SELECTOR,
-        ref,
+        ref: fullCalendarRef,
         edgeScrolling: { speed: 40, threshold: 150 },
-        cellIsSelectable,
         onDragStart: ({ selectedCells }) => {
             prevSelectedCell = null;
             action = ctrlPressed ? "add" : "replace";
             update({ selectedCells });
+            fullCalendarRef().classList.add("o_interacting", "o_selecting");
         },
         onDrag: update,
         onDrop: ({ selectedCells }) => {
             allSelectedCells = getAllCells(selectedCells, action);
             action = null;
             highlight({ selectedCells: allSelectedCells });
-            component.props.onSquareSelection([...allSelectedCells]);
+            props.onSquareSelection([...allSelectedCells]);
+        },
+        onDragEnd() {
+            fullCalendarRef().classList.remove("o_interacting", "o_selecting");
         },
     });
 
@@ -183,7 +183,7 @@ export function useSquareSelection(params = {}) {
         }
         const coord = getCoordinates(cell);
         const current = { initCoord: coord, coord };
-        const pseudoCtx = { current, ref, cellIsSelectable };
+        const pseudoCtx = { current, ref: fullCalendarRef };
         const { selectedCells } = getSelectedCellsInBlock(pseudoCtx);
         const selectedCell = selectedCells[0];
         if (prevSelectedCell && shiftPressed) {
@@ -200,21 +200,10 @@ export function useSquareSelection(params = {}) {
             prevSelectedCell = selectedCell;
         }
         highlight({ selectedCells: allSelectedCells });
-        component.props.onSquareSelection([...allSelectedCells]);
+        props.onSquareSelection([...allSelectedCells]);
     };
 
-    useEffect(
-        (el, hasMultiCreate) => {
-            if (!hasMultiCreate) {
-                return;
-            }
-            el && el.addEventListener("click", onClick);
-            return () => {
-                el && el.removeEventListener("click", onClick);
-            };
-        },
-        () => [ref.el, component.props.model.hasMultiCreate]
-    );
+    useListener(() => (props.model.hasMultiCreate ? fullCalendarRef() : null), "click", onClick);
 
     let ctrlPressed = false;
     let shiftPressed = false;
@@ -234,6 +223,6 @@ export function useSquareSelection(params = {}) {
         }
     }
 
-    useExternalListener(window, "keydown", onWindowKeyDown);
-    useExternalListener(window, "keyup", onWindowKeyUp);
+    useListener(window, "keydown", onWindowKeyDown);
+    useListener(window, "keyup", onWindowKeyUp);
 }

@@ -1,31 +1,33 @@
+import { cookie } from "@web/core/browser/cookie";
 import { usePopover } from "@web/core/popover/popover_hook";
 import { user } from "@web/core/user";
-import { formatNumber, useNewAllocationRequest } from "@hr_holidays/views/hooks";
+import { formatNumber } from "@hr_holidays/views/hooks";
+import { formatDuration } from "@web/views/fields/formatters";
 import { useService } from "@web/core/utils/hooks";
-import { Component, onWillRender } from "@odoo/owl";
-
+import { Component, computed, t, useProps } from "@odoo/owl";
 export class TimeOffCardPopover extends Component {
     static template = "hr_holidays.TimeOffCardPopover";
-    static props = [
-        "allocated",
-        "accrual_bonus",
-        "approved",
-        "planned",
-        "left",
-        "warning",
-        "closest",
-        "request_unit",
-        "exceeding_duration",
-        "close?",
-        "allows_negative",
-        "max_allowed_negative",
-        "onClickNewAllocationRequest?",
-        "errorLeaves",
-        "accrualExcess",
-        "timeOffType",
-        "employeeId",
-        "employeeCompany",
-    ];
+
+    props = useProps({
+        allocated: t.any(),
+        accrual_bonus: t.any(),
+        approved: t.any(),
+        planned: t.any(),
+        left: t.any(),
+        warning: t.any(),
+        closest: t.any(),
+        unit_of_measure: t.any(),
+        exceeding_duration: t.any(),
+        close: t.any().optional(),
+        allows_negative: t.any(),
+        max_allowed_negative: t.any(),
+        errorLeaves: t.any(),
+        accrualExcess: t.any(),
+        timeOffType: t.any(),
+        employeeId: t.any(),
+        employeeCompany: t.any(),
+        employeeCountry: t.any(),
+    });
 
     setup() {
         this.actionService = useService("action");
@@ -45,40 +47,53 @@ export class TimeOffCardPopover extends Component {
 
     async allocatedLeaves() {
         const { employeeId, timeOffType, employeeCompany } = this.props;
-        const today = new Date().toISOString().split('T')[0];
+        const today = new Date().toISOString().split("T")[0];
         const isInHolidaysUserGroup = await user.hasGroup("hr_holidays.group_hr_holidays_user");
 
-        const resModel = "hr.leave.allocation"
-        const name = "My Allocations"
-        const context = isInHolidaysUserGroup ? {} : {
-            list_view_ref: "hr_holidays.hr_leave_allocation_view_tree_my",
-            form_view_ref: "hr_holidays.hr_leave_allocation_view_form",
-        }
-        const domain = [["holiday_status_id", "=", timeOffType], ['employee_company_id','=', employeeCompany],
-                '|', ["date_to", "=", false], ["date_to", ">=", today],
-                employeeId ? ['employee_id', '=', employeeId] : ['employee_id.user_id', '=', user.userId]]
+        const resModel = "hr.leave.allocation";
+        const name = "My Allocations";
+        const context = isInHolidaysUserGroup
+            ? {}
+            : {
+                  list_view_ref: "hr_holidays.hr_leave_allocation_view_tree_my",
+                  form_view_ref: "hr_holidays.hr_leave_allocation_view_form",
+              };
+        const domain = [
+            ["work_entry_type_id", "=", timeOffType],
+            ["employee_company_id", "=", employeeCompany],
+            "|",
+            ["date_to", "=", false],
+            ["date_to", ">=", today],
+            employeeId
+                ? ["employee_id", "=", employeeId]
+                : ["employee_id.user_id", "=", user.userId],
+        ];
 
         openLeaveWindow(this.actionService, resModel, name, domain, context);
     }
 
     async navigateInfo(stateList) {
-        const { employeeId, timeOffType, employeeCompany } = this.props;
+        const { employeeId, timeOffType } = this.props;
         const isInHolidaysUserGroup = await user.hasGroup("hr_holidays.group_hr_holidays_user");
 
-        const resModel = "hr.leave"
-        const name = "My Time Off"
+        const resModel = "hr.leave";
+        const name = "My Time Off";
         const domain = [
-            ['state', 'in', stateList],
-            ['holiday_status_id', '=', timeOffType], ['company_id','=', employeeCompany],
-            employeeId ? ['employee_id', '=', employeeId] : ['user_id', '=', user.userId]
+            ["state", "in", stateList],
+            ["work_entry_type_id", "=", timeOffType],
+            employeeId ? ["employee_id", "=", employeeId] : ["user_id", "=", user.userId],
         ];
-        const context = isInHolidaysUserGroup ? {
-            search_default_group_date_from: true
-        } : {
-            search_default_group_date_from: true,
-            list_view_ref: "hr_holidays.hr_leave_view_tree_my",
-            form_view_ref: "hr_holidays.hr_leave_view_form",
-        }
+        const context = isInHolidaysUserGroup
+            ? {
+                  search_default_group_date_from: true,
+                  expand_leave_list: true,
+              }
+            : {
+                  search_default_group_date_from: true,
+                  expand_leave_list: true,
+                  list_view_ref: "hr_holidays.hr_leave_view_tree_my",
+                  form_view_ref: "hr_holidays.hr_leave_view_form",
+              };
 
         openLeaveWindow(this.actionService, resModel, name, domain, context);
     }
@@ -86,16 +101,23 @@ export class TimeOffCardPopover extends Component {
 
 export class TimeOffCard extends Component {
     static template = "hr_holidays.TimeOffCard";
-    static props = ["name", "data", "requires_allocation", "employeeId", "holidayStatusId"];
+
+    props = useProps({
+        name: t.any(),
+        data: t.any(),
+        requires_allocation: t.any(),
+        employeeId: t.any(),
+        holidayStatusId: t.any(),
+    });
 
     setup() {
         this.popover = usePopover(TimeOffCardPopover, {
             position: "bottom",
             popoverClass: "bg-view",
         });
-        this.newAllocationRequest = useNewAllocationRequest();
         this.actionService = useService("action");
         this.lang = user.lang;
+        this.isDarkTheme = cookie.get("color_scheme") === "dark";
         this.formatNumber = formatNumber;
         const { data } = this.props;
         this.errorLeaves = Object.values(data.virtual_excess_data).map((data) => data.leave_id);
@@ -103,9 +125,15 @@ export class TimeOffCard extends Component {
             (acc, data) => acc + data.amount,
             0
         );
-        this.updateWarning();
+    }
 
-        onWillRender(this.updateWarning);
+    warning = computed(() => this.updateWarning());
+
+    formatDuration(duration) {
+        if (this.props.data.unit_of_measure === "hour") {
+            return formatDuration({ hours: duration });
+        }
+        return formatNumber(this.lang, duration);
     }
 
     updateWarning() {
@@ -116,31 +144,35 @@ export class TimeOffCard extends Component {
         const accrualExcess = this.getAccrualExcess(data);
         const closeExpire =
             data.closest_allocation_duration &&
-            data.closest_allocation_duration < data.virtual_remaining_leaves;
-        this.warning = errorLeavesSignificant || accrualExcess || closeExpire;
+            data.closest_allocation_duration < data.closest_allocation_remaining;
+        return errorLeavesSignificant || accrualExcess || closeExpire;
     }
 
     onClickInfo(ev) {
+        this.popover.open(ev.target, this.getPopoverProps());
+    }
+
+    getPopoverProps() {
         const { data, holidayStatusId, employeeId } = this.props;
-        this.popover.open(ev.target, {
+        return {
             allocated: formatNumber(this.lang, data.max_leaves),
             accrual_bonus: formatNumber(this.lang, data.accrual_bonus),
             approved: formatNumber(this.lang, data.leaves_approved),
             planned: formatNumber(this.lang, data.leaves_requested),
             left: formatNumber(this.lang, data.virtual_remaining_leaves),
-            warning: this.warning,
+            warning: this.warning(),
             closest: data.closest_allocation_duration,
-            request_unit: data.request_unit,
+            unit_of_measure: data.unit_of_measure,
             exceeding_duration: data.exceeding_duration,
             allows_negative: data.allows_negative,
             max_allowed_negative: data.max_allowed_negative,
-            onClickNewAllocationRequest: this.newAllocationRequestFrom.bind(this),
             errorLeaves: this.errorLeaves,
             accrualExcess: this.getAccrualExcess(data),
             timeOffType: holidayStatusId,
             employeeId: employeeId,
-            employeeCompany: data.employee_company
-        });
+            employeeCompany: data.employee_company,
+            employeeCountry: data.employee_country,
+        };
     }
 
     getAccrualExcess(data) {
@@ -149,30 +181,46 @@ export class TimeOffCard extends Component {
             : -data.exceeding_duration > 0;
     }
 
-    async newAllocationRequestFrom() {
-        this.popover.close();
-        await this.newAllocationRequest(this.props.employeeId, this.props.holidayStatusId);
-    }
-
     async navigateTimeOffType() {
         const { employeeId, holidayStatusId, data } = this.props;
         const isInHolidaysUserGroup = await user.hasGroup("hr_holidays.group_hr_holidays_user");
 
-        const resModel = "hr.leave"
-        const name = "My Time Off"
+        const resModel = "hr.leave";
+        const name = "My Time Off";
         const domain = [
-            ['holiday_status_id', '=', holidayStatusId], ['company_id','=', data.employee_company],
-            employeeId ? ['employee_id', '=', employeeId] : ['user_id', '=', user.userId]
+            ["work_entry_type_id", "=", holidayStatusId],
+            ["company_id", "=", data.employee_company],
+            employeeId ? ["employee_id", "=", employeeId] : ["user_id", "=", user.userId],
         ];
-        const context = isInHolidaysUserGroup ? {
-            search_default_group_date_from: true
-        } : {
-            list_view_ref: "hr_holidays.hr_leave_view_tree_my",
-            form_view_ref: "hr_holidays.hr_leave_view_form",
-            search_default_group_date_from: true
-        };
+        const context = isInHolidaysUserGroup
+            ? {
+                  search_default_group_date_from: true,
+                  expand_leave_list: true,
+              }
+            : {
+                  list_view_ref: "hr_holidays.hr_leave_view_tree_my",
+                  form_view_ref: "hr_holidays.hr_leave_view_form",
+                  search_default_group_date_from: true,
+                  expand_leave_list: true,
+              };
 
         openLeaveWindow(this.actionService, resModel, name, domain, context);
+    }
+
+    /**
+     * Background utility matching the color configured on the time off type
+     * The color picker is 0-indexed over `$o-colors`
+     * while the `bg-color-x` classes are 1-indexed, hence the shift.
+     */
+    getColor() {
+        const { color } = this.props.data;
+        if (!Number.isInteger(color)) {
+            return "bg-color-4-light";
+        }
+        if (color === 0) {
+            return "no-bg-color";
+        }
+        return `bg-color-${color + 1}-light`;
     }
 }
 
@@ -183,10 +231,10 @@ function openLeaveWindow(actionService, resModel, name, domain, context) {
         res_model: resModel,
         views: [
             [false, "list"],
-            [false, "form"]
+            [false, "form"],
         ],
         domain: domain,
-        context: context
+        context: context,
     });
 }
 

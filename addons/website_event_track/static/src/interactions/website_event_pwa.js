@@ -1,6 +1,6 @@
 import { Interaction } from "@web/public/interaction";
 import { registry } from "@web/core/registry";
-import { utils as uiUtils } from "@web/core/ui/ui_service";
+import { utils as uiUtils } from "@web/core/ui/ui_utils";
 
 export class WebsiteEventPWA extends Interaction {
     static selector = "#wrapwrap.event";
@@ -92,7 +92,7 @@ export class WebsiteEventPWA extends Interaction {
         }
         this.beforeInstallEvent = ev;
         this.installBanner = this.renderAt("website_event_track.pwa_install_banner");
-        
+
         // If Livechat available, It should be placed above the PWA banner.
         const height = document.querySelector(".o_pwa_install_banner").offsetHeight;
         const shadowHostEl = document.querySelector(".o-livechat-root");

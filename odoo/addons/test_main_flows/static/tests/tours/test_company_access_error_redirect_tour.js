@@ -17,17 +17,15 @@ registry.category("web_tour.tours").add("test_company_access_error_redirect", {
             trigger: ".o_form_view .o_last_breadcrumb_item:contains(p2)",
         },
         {
-            trigger: ".o_switch_company_menu button",
+            trigger: ".o_switch_company_menu",
             run: "click",
         },
         {
             trigger: ".o-dropdown--menu",
+        },
+        {
+            trigger: ".o_switch_company_item input[type='checkbox']:checked:count(2)",
             run() {
-                assertEqual(
-                    document.querySelectorAll(".o_switch_company_item [role=menuitemcheckbox][aria-checked=true]")
-                        .length,
-                    2
-                );
                 assertEqual(
                     cookie.get("cids"),
                     [...document.querySelectorAll(".o_switch_company_item[data-company-id]")]

@@ -3,10 +3,12 @@
 
 from odoo.addons.mass_mailing_sms.tests.common import MassSMSCommon
 from odoo.addons.base.tests.test_ir_cron import CronMixinCase
-from odoo.tests.common import users
+from odoo.tests.common import tagged, users
 
 from unittest.mock import patch
 
+
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestMailingRetrySMS(MassSMSCommon, CronMixinCase):
 
     @classmethod
@@ -17,7 +19,6 @@ class TestMailingRetrySMS(MassSMSCommon, CronMixinCase):
     @users('user_marketing')
     def test_sms_retry_immediate_trigger(self):
         mailing = self.env['mailing.mailing'].create({
-            'name': 'TestMailing',
             'subject': 'Test',
             'mailing_type': 'sms',
             'body_plaintext': 'Coucou hibou',
@@ -27,7 +28,7 @@ class TestMailingRetrySMS(MassSMSCommon, CronMixinCase):
         mailing.action_send_sms()
 
         # force the SMS sending to fail to test our retry mechanism
-        def patched_sms_sms_send(sms_records, unlink_failed=False, unlink_sent=True, raise_exception=False):
+        def patched_sms_sms_send(sms_records, unlink_sent=True, raise_exception=False):
             sms_records.write({'state': 'error', 'failure_type':'sms_credit'})
 
         with patch('odoo.addons.sms.models.sms_sms.SmsSms._send', patched_sms_sms_send):

@@ -66,11 +66,6 @@ test("Popovers scroll with iframe", async () => {
 
     await contains(".o-we-toolbar button[title='Animate Text']").click();
     await expectScroll(".o_popover:has(> .o_animate_text_popover)");
-
-    await contains(".o-we-toolbar button[name=link]").click();
-    await contains(".o-we-linkpopover select[name=link_type]").select("custom");
-    await contains(".o-we-linkpopover button.custom-text-picker").click();
-    await expectScroll(".o_popover:has(> .o_font_color_selector)");
 });
 
 test("Floating toolbar visual consistency and usability", async () => {

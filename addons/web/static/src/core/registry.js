@@ -1,4 +1,4 @@
-import { EventBus, validate } from "@odoo/owl";
+import { assertType, EventBus } from "@odoo/owl";
 
 // -----------------------------------------------------------------------------
 // Errors
@@ -15,11 +15,7 @@ const validateSchema = (name, key, value, schema) => {
     if (!odoo.debug) {
         return;
     }
-    try {
-        validate(value, schema);
-    } catch (error) {
-        throw new Error(`Validation error for key "${key}" in registry "${name}": ${error}`);
-    }
+    assertType(value, schema, `Validation error for key "${key}" in registry "${name}"`);
 };
 
 // -----------------------------------------------------------------------------

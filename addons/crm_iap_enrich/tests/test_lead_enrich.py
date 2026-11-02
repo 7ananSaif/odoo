@@ -3,15 +3,16 @@
 
 from odoo.addons.crm.tests.common import TestCrmCommon
 from odoo.addons.iap.tests.common import MockIAPEnrich
-from odoo.tests.common import users
+from odoo.tests.common import tagged, users
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestLeadEnrich(TestCrmCommon, MockIAPEnrich):
 
     @classmethod
     def setUpClass(cls):
         super(TestLeadEnrich, cls).setUpClass()
-        cls.registry_enter_test_mode_cls()
+        cls.enterClassContext(cls.registry_test_mode())
 
         cls.leads = cls.env['crm.lead']
         for x in range(0, 4):

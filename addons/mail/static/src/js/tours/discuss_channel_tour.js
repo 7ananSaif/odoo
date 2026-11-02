@@ -2,10 +2,8 @@ import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
 
 import { markup } from "@odoo/owl";
-import { delay } from "@web/core/utils/concurrency";
 
 registry.category("web_tour.tours").add("discuss_channel_tour", {
-    url: "/odoo",
     steps: () => [
         {
             isActive: ["enterprise"],
@@ -15,56 +13,60 @@ registry.category("web_tour.tours").add("discuss_channel_tour", {
             run: "click",
         },
         {
-            trigger: ".o-mail-DiscussSearch-inputContainer",
+            trigger: ".o-mail-MessagingMenu-tab:has(:text('Channels'))",
             content: markup(
                 _t(
-                    "<p>Channels make it easy to organize information across different topics and groups.</p> <p>Try to <b>create your first channel</b> (e.g. sales, marketing, product XYZ, after work party, etc).</p>"
+                    "<p>Channels make it easy to organize information across different topics and groups.</p>"
                 )
             ),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_command_palette_search input",
-            content: markup(_t("<p>Create a channel here.</p>")),
+            trigger:
+                ".o-mail-Discuss:has(.o-mail-MessagingMenu-tab:has(:text('Channels')).active) .o-mail-NotificationItem:eq(0)",
+            content: markup(_t("<p>Click a channel to open the discussion.</p>")),
             tooltipPosition: "bottom",
-            run: `edit SomeChannel_${new Date().getTime()}`,
-        },
-        {
-            trigger: ".o-mail-DiscussCommand-createChannel",
-            content: markup(_t("<p>Create a public or private channel.</p>")),
             run: "click",
-            tooltipPosition: "right",
         },
         {
             trigger: ".o-mail-Composer-input",
             content: markup(
                 _t(
-                    "<p><b>Write a message</b> to the members of the channel here.</p> <p>You can notify someone with <i>'@'</i> or link another channel with <i>'#'</i>. Start your message with <i>'/'</i> to get the list of possible commands.</p>"
+                    "<p><b>Write a message</b> to the members of the channel here.</p> <p>You can notify someone with <i>'@'</i>. Start your message with <i>'/'</i> to get the list of possible commands.</p>"
                 )
             ),
             tooltipPosition: "top",
             run: `edit SomeText_${new Date().getTime()}`,
         },
         {
-            trigger: ".o-mail-Composer-input",
+            trigger: ".o-sendMessageActive",
             content: _t("Post your message on the thread"),
             tooltipPosition: "top",
-            run: "press Enter",
+            run: "click",
         },
         {
-            trigger: ".o-mail-Message[data-persistent] [title='Add Star']:not(:visible)",
-            content: _t("Hover on your message and add a star"),
+            trigger: ".o-mail-Message[data-persistent]",
+            content: _t("Hover over your message to reveal its actions"),
             tooltipPosition: "top",
-            async run(helpers) {
-                await delay(1000);
-                await helpers.click();
-            },
+            run: "hover",
         },
         {
-            trigger: "button[data-mailbox-id='starred']",
+            trigger: ".o-mail-Message[data-persistent] [name='more-action:undefined']",
+            content: _t("Click to view more actions on the message"),
+            tooltipPosition: "top",
+            run: "click",
+        },
+        {
+            trigger: ".o-dropdown-item[name='add-bookmark']",
+            content: _t("click to bookmark your message"),
+            tooltipPosition: "right",
+            run: "click",
+        },
+        {
+            trigger: ".o-mail-MessagingMenu-tab:has(:text('Bookmarks))",
             content: _t(
-                "Once a message has been starred, you can come back and review it at any time here."
+                "Once a message has been bookmarked, you can come back and review it at any time here."
             ),
             tooltipPosition: "bottom",
             run: "click",

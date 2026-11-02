@@ -6,6 +6,8 @@ from odoo.tests.common import tagged
 
 @tagged('-at_install', 'post_install')
 class TestUnlinkReward(CommonPosLoyaltyTest):
+    _test_user_groups = None  # FIXME list needed groups
+
     def test_pos_unlink_reward(self):
         self.create_backend_pos_order({
             'order_data': {
@@ -18,7 +20,8 @@ class TestUnlinkReward(CommonPosLoyaltyTest):
                 'reward_id': self.twenty_dollars_reward.id,
             }],
         })
-        # Ensure the reward is archived and not deleted
+        # A reward used by a saved order cannot be deleted (the UI offers no archive
+        # action), so unlink archives it instead of removing it.
         self.twenty_dollars_reward.unlink()
         self.assertTrue(self.twenty_dollars_reward.exists())
         self.assertFalse(self.twenty_dollars_reward.active)

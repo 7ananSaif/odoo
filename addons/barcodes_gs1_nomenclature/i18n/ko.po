@@ -9,17 +9,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~18.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-12-03 03:39+0000\n"
-"Last-Translator: \"Kwanghee Park (kwpa)\" <kwpa@odoo.com>\n"
-"Language-Team: Korean <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-08-31 16:08+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Korean <https://translate.odoo.com/projects/odoo-s19-4/"
 "barcodes_gs1_nomenclature/ko/>\n"
 "Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: barcodes_gs1_nomenclature
 #. odoo-python
@@ -49,6 +49,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:barcodes_gs1_nomenclature.field_barcode_rule__associated_uom_id
 msgid "Associated Uom"
 msgstr "관련된 측정 단위 (UOM)"
+
+#. module: barcodes_gs1_nomenclature
+#: model:ir.module.module,shortdesc:base.module_barcodes_gs1_nomenclature
+msgid "Barcode - GS1 Nomenclature"
+msgstr ""
 
 #. module: barcodes_gs1_nomenclature
 #: model:ir.model,name:barcodes_gs1_nomenclature.model_barcode_nomenclature
@@ -185,6 +190,11 @@ msgid "Package Type"
 msgstr "패키지 유형"
 
 #. module: barcodes_gs1_nomenclature
+#: model:ir.module.module,summary:base.module_barcodes_gs1_nomenclature
+msgid "Parse barcodes according to the GS1-128 specifications"
+msgstr ""
+
+#. module: barcodes_gs1_nomenclature
 #: model:ir.model.fields.selection,name:barcodes_gs1_nomenclature.selection__barcode_rule__type__quantity
 msgid "Quantity"
 msgstr "수량"
@@ -276,10 +286,3 @@ msgstr "이 규칙은 바코드가 지정된 인코딩으로 인코딩된 경우
 #: model:ir.model.fields,field_description:barcodes_gs1_nomenclature.field_barcode_rule__type
 msgid "Type"
 msgstr "유형"
-
-#~ msgid ""
-#~ "A GS1 barcode nomenclature pattern was matched. However, the barcode "
-#~ "failed to be converted to a valid date: '%(error_message)'"
-#~ msgstr ""
-#~ "GS1 바코드 생성법 패턴이 일치합니다. 다만 바코드를 유효한 날짜로 변환하는"
-#~ "데 실패했습니다: '%(error_message)'"

@@ -9,30 +9,34 @@ export const GUEST_TOKEN_STORAGE_KEY = "im_livechat_guest_token";
 const StorePatch = {
     setup() {
         super.setup(...arguments);
-        this.activeLivechats = fields.Many("Thread", { inverse: "storeAsActiveLivechats" });
-        this.activeVisitorLivechats = fields.Many("Thread", {
+        this.activeVisitorLivechats = fields.Many("discuss.channel", {
             inverse: "storeAsActiveVisitorLivechats",
         });
         expirableStorage.onChange(GUEST_TOKEN_STORAGE_KEY, (value) => (this.guest_token = value));
-        this.guest_token = fields.Attr(null, {
-            compute() {
-                return expirableStorage.getItem(GUEST_TOKEN_STORAGE_KEY);
-            },
-            onUpdate() {
-                if (this.guest_token) {
-                    expirableStorage.setItem(GUEST_TOKEN_STORAGE_KEY, this.guest_token);
-                    this.store.env.services.bus_service.addChannel(
-                        `mail.guest_${this.guest_token}`
-                    );
+        this.guest_token = expirableStorage.getItem(GUEST_TOKEN_STORAGE_KEY);
+        this.onChange(
+            () => [this.guest_token],
+            function onChangeGuestToken(guestToken) {
+                if (!guestToken) {
+                    expirableStorage.removeItem(GUEST_TOKEN_STORAGE_KEY);
                     return;
                 }
-                expirableStorage.removeItem(GUEST_TOKEN_STORAGE_KEY);
-                this.store.env.services.bus_service.deleteChannel(`mail.guest_${this.guest_token}`);
+                expirableStorage.setItem(GUEST_TOKEN_STORAGE_KEY, guestToken);
+                const busService = this.store.env.services.bus_service;
+                const channel = `mail.guest_${guestToken}`;
+                busService.addChannel(channel);
+                return () => busService.deleteChannel(channel);
             },
-            eager: true,
-        });
+            { immediate: true }
+        );
         this.livechat_rule = fields.One("im_livechat.channel.rule");
         this.livechat_available = false;
+    },
+    onStarted() {
+        super.onStarted(...arguments);
+        if (this.guest_token) {
+            this.ensureInitialized();
+        }
     },
 };
 patch(Store.prototype, StorePatch);

@@ -47,17 +47,17 @@ describe("onClickSaleOrder", () => {
         const currentOrder = store.getOrder();
 
         expect(currentOrder.id).toBe(order.id);
-        expect(currentOrder.lines.length).toBe(4);
+        expect(currentOrder.lines.length).toBe(5);
 
         expect(currentOrder.lines[0].product_id.id).toBe(5);
         expect(currentOrder.lines[0].qty).toBe(3);
-        expect(currentOrder.lines[0].price_unit).toBe(3);
-        expect(currentOrder.lines[0].prices.total_excluded).toBe(9);
+        expect(currentOrder.lines[0].price_unit).toBe(100);
+        expect(currentOrder.lines[0].prices.total_excluded).toBe(300);
 
         expect(currentOrder.lines[1].product_id.id).toBe(6);
         expect(currentOrder.lines[1].qty).toBe(2);
-        expect(currentOrder.lines[1].price_unit).toBe(3);
-        expect(currentOrder.lines[1].prices.total_excluded).toBe(6);
+        expect(currentOrder.lines[1].price_unit).toBe(100);
+        expect(currentOrder.lines[1].prices.total_excluded).toBe(200);
 
         expect(currentOrder.lines[2].product_id.id).toBe(5);
         expect(currentOrder.lines[2].qty).toBe(5);
@@ -68,6 +68,12 @@ describe("onClickSaleOrder", () => {
         expect(currentOrder.lines[3].qty).toBe(3);
         expect(currentOrder.lines[3].price_unit).toBe(50);
         expect(currentOrder.lines[3].prices.total_excluded).toBe(150);
+
+        // adding a productless SOL takes the default product from config in POS order
+        expect(currentOrder.lines[4].product_id.id).toBe(store.config.default_product_id.id);
+        expect(currentOrder.lines[4].qty).toBe(2);
+        expect(currentOrder.lines[4].price_unit).toBe(55);
+        expect(currentOrder.lines[4].prices.total_excluded).toBe(110);
     });
 
     test("dpPercentage → calls downPaymentSO", async () => {
@@ -92,18 +98,18 @@ describe("onClickSaleOrder", () => {
 
         expect(currentOrder.lines[0].product_id.id).toBe(5);
         expect(currentOrder.lines[0].qty).toBe(3);
-        expect(currentOrder.lines[0].price_unit).toBe(3);
-        expect(currentOrder.lines[0].prices.total_excluded).toBe(9);
+        expect(currentOrder.lines[0].price_unit).toBe(100);
+        expect(currentOrder.lines[0].prices.total_excluded).toBe(300);
 
         expect(currentOrder.lines[1].product_id.id).toBe(6);
         expect(currentOrder.lines[1].qty).toBe(2);
-        expect(currentOrder.lines[1].price_unit).toBe(3);
-        expect(currentOrder.lines[1].prices.total_excluded).toBe(6);
+        expect(currentOrder.lines[1].price_unit).toBe(100);
+        expect(currentOrder.lines[1].prices.total_excluded).toBe(200);
 
         expect(currentOrder.lines[2].product_id.id).toBe(105);
         expect(currentOrder.lines[2].qty).toBe(1);
-        expect(currentOrder.lines[2].price_unit).toBe(325);
-        expect(currentOrder.lines[2].prices.total_excluded).toBe(325);
+        expect(currentOrder.lines[2].price_unit).toBe(407.5);
+        expect(currentOrder.lines[2].prices.total_excluded).toBe(407.5);
 
         const comp = await mountWithCleanup(Orderline, {
             props: { line: currentOrder.lines[2] },
@@ -146,13 +152,13 @@ describe("onClickSaleOrder", () => {
 
         expect(currentOrder.lines[0].product_id.id).toBe(5);
         expect(currentOrder.lines[0].qty).toBe(3);
-        expect(currentOrder.lines[0].price_unit).toBe(3);
-        expect(currentOrder.lines[0].prices.total_excluded).toBe(9);
+        expect(currentOrder.lines[0].price_unit).toBe(100);
+        expect(currentOrder.lines[0].prices.total_excluded).toBe(300);
 
         expect(currentOrder.lines[1].product_id.id).toBe(6);
         expect(currentOrder.lines[1].qty).toBe(2);
-        expect(currentOrder.lines[1].price_unit).toBe(3);
-        expect(currentOrder.lines[1].prices.total_excluded).toBe(6);
+        expect(currentOrder.lines[1].price_unit).toBe(100);
+        expect(currentOrder.lines[1].prices.total_excluded).toBe(200);
 
         expect(currentOrder.lines[2].product_id.id).toBe(105);
         expect(currentOrder.lines[2].qty).toBe(1);
@@ -178,6 +184,24 @@ describe("onClickSaleOrder", () => {
         expect(cell(2, 4)).toHaveText(`$ 150.00 (tax incl.)`);
     });
 
+    test("sale order: ignore lines with zero quantity", async () => {
+        const store = await setupPosEnv();
+        const order = await getFilledOrder(store);
+        await mountWithCleanup(ProductScreen, { props: { orderUuid: order.uuid } });
+
+        const promiseResult = store.onClickSaleOrder(2);
+        const button = ".modal-body button:contains('Settle the order')";
+        await waitFor(button);
+        await click(button);
+        await promiseResult;
+
+        expect(order.lines.length).toBe(3);
+        expect(order.lines[2].product_id.id).toBe(5);
+        expect(order.lines[2].qty).toBe(5);
+        expect(order.lines[2].price_unit).toBe(100);
+        expect(order.lines[2].prices.total_excluded).toBe(500);
+    });
+
     test("import sale downpayment with percentage", async () => {
         const store = await setupPosEnv();
         const order = await getFilledOrder(store);
@@ -185,7 +209,7 @@ describe("onClickSaleOrder", () => {
         order.setOrderPrices();
         const original_price = order.amount_total;
 
-        const promiseResult = store.onClickSaleOrder(3);
+        const promiseResult = store.onClickSaleOrder(4);
         const buttonDownPaymentPercentage =
             ".modal-body button:contains('Apply a down payment (percentage)')";
         await waitFor(buttonDownPaymentPercentage);
@@ -201,7 +225,52 @@ describe("onClickSaleOrder", () => {
         const currentOrder = store.getOrder();
         currentOrder.setOrderPrices();
         expect(currentOrder.amount_total).toBe(
-            650 - store.models["sale.order.line"].get(4).price_unit + original_price
+            650 - store.models["sale.order.line"].get(6).price_unit + original_price
         );
+    });
+
+    test("down payment line count on sale order with down payment", async () => {
+        const store = await setupPosEnv();
+        const currentOrder = store.getEmptyOrder();
+        const saleOrder = await store._getSaleOrder(4);
+        await store.addDownPaymentProductOrderlineToOrder(saleOrder, 20, "percentage");
+        // This is required because we cannot await the for the order lines to be added in the pos order
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        expect(currentOrder.lines.length).toBe(1);
+        expect(currentOrder.lines[0].price_unit).toBe(110);
+    });
+});
+
+describe("getConvertedQuantityFromSaleOrderline", () => {
+    test("service product, state != sent/draft → qty_to_invoice", async () => {
+        const store = await setupPosEnv();
+        const product = store.models["product.product"].getFirst();
+        product.type = "service";
+
+        const saleOrderLine = {
+            qty_to_invoice: 2,
+            product_id: product,
+            order_id: { state: "sale" },
+        };
+        const qty = await store.getConvertedQuantityFromSaleOrderline(saleOrderLine, saleOrderLine);
+        expect(qty).toBe(2);
+    });
+
+    test("non-service product → qty = uom_qty - max(delivered, invoiced)", async () => {
+        const store = await setupPosEnv();
+        const product = store.models["product.product"].getFirst();
+        product.type = "consu";
+
+        const saleOrderLine = {
+            product_uom_qty: 8,
+            qty_delivered: 1,
+            qty_invoiced: 2,
+            qty_to_invoice: 6,
+            product_id: product,
+            order_id: { state: "sale" },
+        };
+
+        const qty = await store.getConvertedQuantityFromSaleOrderline(saleOrderLine, saleOrderLine);
+        expect(qty).toBe(6);
     });
 });

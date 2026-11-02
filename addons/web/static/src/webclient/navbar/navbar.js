@@ -1,21 +1,27 @@
-import { Dropdown } from "@web/core/dropdown/dropdown";
-import { DropdownItem } from "@web/core/dropdown/dropdown_item";
-import { DropdownGroup } from "@web/core/dropdown/dropdown_group";
-import { Transition } from "@web/core/transition";
-import { useService } from "@web/core/utils/hooks";
-import { registry } from "@web/core/registry";
-import { debounce } from "@web/core/utils/timing";
-import { ErrorHandler } from "@web/core/utils/components";
-
 import {
     Component,
+    onMounted,
+    onPatched,
     onWillDestroy,
-    useExternalListener,
+    proxy,
+    signal,
     useEffect,
-    useRef,
-    useState,
-    onWillUnmount,
+    useListener,
+    usePlugin,
+    useScope,
 } from "@odoo/owl";
+import { DebugModePlugin } from "@web/core/debug_mode_plugin";
+import { Dropdown } from "@web/core/dropdown/dropdown";
+import { DropdownGroup } from "@web/core/dropdown/dropdown_group";
+import { DropdownItem } from "@web/core/dropdown/dropdown_item";
+import { OfflinePlugin } from "@web/core/offline/offline_plugin";
+import { registry } from "@web/core/registry";
+import { Transition } from "@web/core/transition";
+import { ErrorHandler } from "@web/core/utils/components";
+import { useService } from "@web/core/utils/hooks";
+import { debounce } from "@web/core/utils/timing";
+import { render } from "@web/owl2/utils";
+
 const systrayRegistry = registry.category("systray");
 
 const getBoundingClientRect = Element.prototype.getBoundingClientRect;
@@ -34,47 +40,70 @@ export class NavBar extends Component {
         ErrorHandler,
         Transition,
     };
-    static props = {};
+    root = signal.ref();
+    appSubMenus = signal.ref();
+    menuApps = signal.ref();
+
+    debugMode = usePlugin(DebugModePlugin);
+
+    scope = useScope();
 
     setup() {
         this.currentAppSectionsExtra = [];
         this.actionService = useService("action");
         this.menuService = useService("menu");
+        this.offlinePlugin = usePlugin(OfflinePlugin);
         this.pwa = useService("pwa");
-        this.root = useRef("root");
-        this.appSubMenus = useRef("appSubMenus");
         const debouncedAdapt = debounce(this.adapt.bind(this), 250);
         onWillDestroy(() => debouncedAdapt.cancel());
-        useExternalListener(window, "resize", debouncedAdapt);
+        useListener(window, "resize", debouncedAdapt);
 
-        let adaptCounter = 0;
-        const renderAndAdapt = () => {
-            adaptCounter++;
-            this.render();
-        };
-
-        systrayRegistry.addEventListener("UPDATE", renderAndAdapt);
-        this.env.bus.addEventListener("MENUS:APP-CHANGED", renderAndAdapt);
-
-        onWillUnmount(() => {
-            systrayRegistry.removeEventListener("UPDATE", renderAndAdapt);
-            this.env.bus.removeEventListener("MENUS:APP-CHANGED", renderAndAdapt);
+        // The sections menu's width shrinks/grows when the breadcrumbs get longer or when
+        // a systray item changes size (e.g. the offline item displaying "Working offline").
+        let sectionsWidth = null;
+        const sectionsObserver = new ResizeObserver(([entry]) => {
+            const { inlineSize } = entry.borderBoxSize[0];
+            if (inlineSize !== sectionsWidth) {
+                sectionsWidth = inlineSize;
+                debouncedAdapt();
+            }
+        });
+        useEffect(() => {
+            const sectionsMenu = this.appSubMenus();
+            if (!sectionsMenu) {
+                return;
+            }
+            // the initial observation notifies the current size: ignore it
+            sectionsWidth = getBoundingClientRect.call(sectionsMenu).width;
+            sectionsObserver.observe(sectionsMenu);
+            return () => sectionsObserver.disconnect();
         });
 
-        // We don't want to adapt every time we are patched
-        // rather, we adapt only when menus or systrays have changed.
-        useEffect(
-            () => {
-                this.adapt();
-            },
-            () => [adaptCounter]
-        );
+        let adaptOnNextPatch = false;
+        const renderAndAdapt = () => {
+            adaptOnNextPatch = true;
+            render(this);
+        };
 
-        this.state = useState({
+        useListener(systrayRegistry, "UPDATE", renderAndAdapt);
+        useListener(this.env.bus, "MENUS:APP-CHANGED", renderAndAdapt);
+
+        onMounted(() => {
+            adaptOnNextPatch = false;
+            this.adapt();
+        });
+        onPatched(() => {
+            if (adaptOnNextPatch) {
+                adaptOnNextPatch = false;
+                this.adapt();
+            }
+        });
+
+        this.state = proxy({
             isAllAppsMenuOpened: false,
             isAppMenuSidebarOpened: false,
         });
-        this.ui = useState(useService("ui"));
+        this.ui = proxy(useService("ui"));
     }
 
     handleItemError(error, item) {
@@ -86,7 +115,17 @@ export class NavBar extends Component {
     }
 
     get currentApp() {
-        return this.menuService.getCurrentApp();
+        const app = this.menuService.getCurrentApp();
+        if (app?.webIcon) {
+            const [webIconClass, webIconColor, webIconBg] = app.webIcon.split(",");
+            return {
+                ...app,
+                webIconClass,
+                webIconColor,
+                webIconBg,
+            };
+        }
+        return app;
     }
 
     get currentAppSections() {
@@ -108,7 +147,9 @@ export class NavBar extends Component {
         return systrayRegistry
             .getEntries()
             .map(([key, value]) => ({ key, ...value }))
-            .filter((item) => ("isDisplayed" in item ? item.isDisplayed(this.env) : true))
+            .filter((item) =>
+                "isDisplayed" in item ? this.scope.run(() => item.isDisplayed(this.env)) : true
+            )
             .reverse();
     }
 
@@ -125,7 +166,7 @@ export class NavBar extends Component {
      *     By the end of this method another render may occur depending on the adaptation result.
      */
     async adapt() {
-        if (!this.root.el) {
+        if (!this.root()) {
             /** @todo do we still need this check? */
             // currently, the promise returned by 'render' is resolved at the end of
             // the rendering even if the component has been destroyed meanwhile, so we
@@ -135,7 +176,7 @@ export class NavBar extends Component {
 
         // ------- Initialize -------
         // Get the sectionsMenu
-        const sectionsMenu = this.appSubMenus.el;
+        const sectionsMenu = this.appSubMenus();
         if (!sectionsMenu) {
             // No need to continue adaptations if there is no sections menu.
             return;
@@ -199,7 +240,11 @@ export class NavBar extends Component {
             // Do not render if more menu items stayed the same.
             return;
         }
-        return this.render();
+        this.render();
+    }
+
+    render() {
+        render(this);
     }
 
     onNavBarDropdownItemSelection(menu) {
@@ -209,7 +254,12 @@ export class NavBar extends Component {
     }
 
     getMenuItemHref(payload) {
-        return `/odoo/${payload.actionPath || "action-" + payload.actionID}`;
+        const url = `/odoo/${payload.actionPath || "action-" + payload.actionID}`;
+        const mode = this.debugMode.toString();
+        if (mode) {
+            return `${url}?debug=${mode}`;
+        }
+        return url;
     }
 
     _closeAppMenuSidebar() {
@@ -219,6 +269,15 @@ export class NavBar extends Component {
     _openAppMenuSidebar() {
         this.state.isAppMenuSidebarOpened = !this.state.isAppMenuSidebarOpened;
     }
+
+    _isAvailable(menu) {
+        return (
+            !this.offlinePlugin.isOffline() ||
+            !menu.actionID ||
+            this.offlinePlugin.isAvailableOffline(menu.actionID)
+        );
+    }
+
     onAllAppsBtnClick() {
         this.state.isAllAppsMenuOpened = !this.state.isAllAppsMenuOpened;
     }

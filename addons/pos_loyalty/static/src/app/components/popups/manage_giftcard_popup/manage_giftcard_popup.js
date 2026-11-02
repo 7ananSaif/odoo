@@ -1,4 +1,4 @@
-import { Component, onMounted, useRef, useState } from "@odoo/owl";
+import { Component, onMounted, useProps, proxy, signal, t } from "@odoo/owl";
 import { Dialog } from "@web/core/dialog/dialog";
 import { useService } from "@web/core/utils/hooks";
 import { DateTimeInput } from "@web/core/datetime/datetime_input";
@@ -9,29 +9,29 @@ import { AlertDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { debounce } from "@bus/workers/bus_worker_utils";
 import { logPosMessage } from "@point_of_sale/app/utils/pretty_console_log";
 import { roundCurrency } from "@point_of_sale/app/models/utils/currency";
+import { PosOrderline } from "@point_of_sale/app/models/pos_order_line";
 
 export class ManageGiftCardPopup extends Component {
     static template = "pos_loyalty.ManageGiftCardPopup";
     static components = { Dialog, DateTimeInput };
-    static props = {
-        title: String,
-        placeholder: { type: String, optional: true },
-        rows: { type: Number, optional: true },
-        line: Object,
-        getPayload: Function,
-        close: Function,
-    };
-    static defaultProps = {
-        startingValue: "",
-        placeholder: "",
-        rows: 1,
-    };
+    props = useProps({
+        title: t.string(),
+        placeholder: t.string().optional(""),
+        rows: t.number().optional(1),
+        startingValue: t.string().optional(""),
+        line: t.instanceOf(PosOrderline),
+        getPayload: t.function(),
+        close: t.function(),
+    });
+
+    inputRef = signal.ref();
+    amountInputRef = signal.ref();
 
     setup() {
         this.ui = useService("ui");
         this.dialog = useService("dialog");
         this.pos = usePos();
-        this.state = useState({
+        this.state = proxy({
             lockGiftCardFields: false,
             loading: false,
             inputValue: this.props.startingValue,
@@ -40,8 +40,6 @@ export class ManageGiftCardPopup extends Component {
             amountError: false,
             expirationDate: luxon.DateTime.now().plus({ year: 1 }),
         });
-        this.inputRef = useRef("input");
-        this.amountInputRef = useRef("amountInput");
         this.batchedGiftcardCodeKeydown = debounce(this.checkGiftCard.bind(this), 500);
         onMounted(this.onMounted);
     }
@@ -52,7 +50,7 @@ export class ManageGiftCardPopup extends Component {
         const expirationDateInput = document.querySelector(".o_exp_date_container").children[1];
         expirationDateInput.classList.remove("o_input");
         expirationDateInput.classList.add("form-control", "form-control-lg");
-        this.inputRef.el.focus();
+        this.inputRef()?.focus();
     }
 
     onKeydownGiftCardCode() {
@@ -61,9 +59,14 @@ export class ManageGiftCardPopup extends Component {
     }
 
     async checkGiftCard() {
+        if (this.pos.data.network.offline) {
+            this.state.lockGiftCardFields = false;
+            this.state.loading = false;
+            return true;
+        }
         try {
             const code = this.state.inputValue.trim();
-            const result = await this.pos.data.call("loyalty.card", "get_gift_card_status", [
+            const result = await this.pos.data.call("loyalty.card", "get_card_status", [
                 code,
                 this.pos.config.id,
             ]);
@@ -72,17 +75,16 @@ export class ManageGiftCardPopup extends Component {
                 this.dialog.add(AlertDialog, {
                     title: _t("Invalid Gift Card Code"),
                     body: _t(
-                        "This code seems to be invalid, please check the Gift Card code and try again."
+                        "The code is invalid. Ensure that the spelling is right or if the gift card exists."
                     ),
                 });
                 this.state.error = true;
-                this.state.lastCheck = false;
                 this.state.inputValue = "";
                 return false;
             }
 
-            if (result.data["loyalty.card"].length > 0) {
-                const giftCard = result.data["loyalty.card"][0];
+            if (result["loyalty.card"].length > 0) {
+                const giftCard = result["loyalty.card"][0];
                 this.state.amountValue = roundCurrency(
                     giftCard.points?.toString() || "0",
                     this.pos.currency
@@ -103,9 +105,8 @@ export class ManageGiftCardPopup extends Component {
                 false,
                 [error]
             );
-            this.pos.notification.add({
+            this.pos.notification.add(_t("An error occurred while checking the gift card."), {
                 type: "danger",
-                body: _t("An error occurred while checking the gift card."),
             });
         } finally {
             this.state.error = false;

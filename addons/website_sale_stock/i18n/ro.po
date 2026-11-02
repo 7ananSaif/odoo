@@ -8,14 +8,15 @@
 # Cozmin Candea <office@terrabit.ro>, 2023
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
 # Alin Ilie <alin.ilie@logit-solutions.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-12-02 14:54+0000\n"
-"Last-Translator: Alin Ilie <alin.ilie@logit-solutions.com>\n"
-"Language-Team: Romanian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-11 17:44+0000\n"
+"PO-Revision-Date: 2026-08-31 19:17+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Romanian <https://translate.odoo.com/projects/odoo-s19-4/"
 "website_sale_stock/ro/>\n"
 "Language: ro\n"
 "MIME-Version: 1.0\n"
@@ -23,20 +24,18 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
 "20)) ? 1 : 2;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: website_sale_stock
-#. odoo-python
-#: code:addons/website_sale_stock/models/sale_order.py:0
+#: model:ir.module.module,description:base.module_website_sale_stock
 msgid ""
-"%(product_name)s has not been added to your cart since it is not available."
-msgstr ""
-"%(product_name)s nu a fost adăugat în coșul dvs., deoarece nu este "
-"disponibil."
-
-#. module: website_sale_stock
-#: model_terms:ir.ui.view,arch_db:website_sale_stock.res_config_settings_view_form
-msgid "<span invisible=\"not default_show_availability\">units</span>"
+"\n"
+"Manage the inventory of your products and display their availability status "
+"in your eCommerce store.\n"
+"In case of stockout, you can decide to block further sales or to keep "
+"selling.\n"
+"A default behavior can be selected in the Website settings.\n"
+"Then it can be made specific at the product level.\n"
 msgstr ""
 
 #. module: website_sale_stock
@@ -51,19 +50,48 @@ msgid "All warehouses"
 msgstr "Toate depozitele"
 
 #. module: website_sale_stock
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_ribbon__assign
-msgid "Assign"
-msgstr "Atribuie"
+#: model:ir.model.fields,field_description:website_sale_stock.field_delivery_carrier__publish_on
+msgid "Auto publish on"
+msgstr ""
 
 #. module: website_sale_stock
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_product__stock_notification_partner_ids
-msgid "Back in stock Notifications"
-msgstr "Notificări de refacere stoc"
+#: model:ir.model.fields,help:website_sale_stock.field_delivery_carrier__publish_on
+msgid "Automatically publish the page on the chosen date and time."
+msgstr ""
 
 #. module: website_sale_stock
-#: model_terms:ir.ui.view,arch_db:website_sale_stock.product_template_form_view_inherit_website_sale_stock
-msgid "Below"
-msgstr "Mai jos"
+#: model:ir.model.fields,field_description:website_sale_stock.field_delivery_carrier__can_publish
+#, fuzzy
+msgid "Can Publish"
+msgstr "Poate publica"
+
+#. module: website_sale_stock
+#: model_terms:ir.ui.view,arch_db:website_sale_stock.pickup_delivery_method
+#, fuzzy
+msgid "Change location"
+msgstr "Schimbă locația"
+
+#. module: website_sale_stock
+#. odoo-javascript
+#: code:addons/website_sale_stock/static/src/js/location_selector/location_selector_dialog/location_selector_dialog.js:0
+#, fuzzy
+msgid "Choose a pick-up point"
+msgstr "Alegeți un punct de ridicare"
+
+#. module: website_sale_stock
+#. odoo-javascript
+#: code:addons/website_sale_stock/static/src/js/location_selector/location_selector_dialog/location_selector_dialog.xml:0
+#: code:addons/website_sale_stock/static/src/js/location_selector/map_container/map_container.js:0
+#, fuzzy
+msgid "Choose this location"
+msgstr "Alegeți această locație"
+
+#. module: website_sale_stock
+#. odoo-javascript
+#: code:addons/website_sale_stock/static/src/js/location_selector/location_schedule/location_schedule.js:0
+#, fuzzy
+msgid "Closed"
+msgstr "Închis"
 
 #. module: website_sale_stock
 #: model:ir.model,name:website_sale_stock.model_res_config_settings
@@ -71,155 +99,173 @@ msgid "Config Settings"
 msgstr "Setări de configurare"
 
 #. module: website_sale_stock
-#: model_terms:ir.ui.view,arch_db:website_sale_stock.res_config_settings_view_form
-msgid "Continue Selling"
-msgstr "Continuați vânzarea"
+#: model:ir.model,name:website_sale_stock.model_res_partner
+#, fuzzy
+msgid "Contact"
+msgstr "Contactați"
 
 #. module: website_sale_stock
-#: model:ir.model.fields,field_description:website_sale_stock.field_res_config_settings__default_allow_out_of_stock_order
-msgid "Continue selling when out-of-stock"
-msgstr "Continuați să vindeți când nu mai este stoc"
+#: model:ir.model,website_form_label:website_sale_stock.model_res_partner
+#, fuzzy
+msgid "Create a Customer"
+msgstr "Creează un client"
 
 #. module: website_sale_stock
-#: model_terms:ir.ui.view,arch_db:website_sale_stock.availability_email_body
-msgid "Dear Customer,"
-msgstr "Stimate client,"
+#: model:ir.model,name:website_sale_stock.model_delivery_carrier
+#, fuzzy
+msgid "Delivery Method"
+msgstr "Metodă de livrare"
 
 #. module: website_sale_stock
-#: model_terms:ir.ui.view,arch_db:website_sale_stock.res_config_settings_view_form
-msgid ""
-"Default availability mode set on newly created storable products. This can "
-"be changed at the product level."
-msgstr ""
-"Modul implicit de disponibilitate este setat pentru produsele stocate nou "
-"create. Acest lucru poate fi modificat la nivelul produsului."
-
-#. module: website_sale_stock
-#: model:ir.model.fields,help:website_sale_stock.field_product_ribbon__assign
-msgid ""
-"Defines how this ribbon is assigned to products:\n"
-"- Manually: You assign the ribbon manually to products.\n"
-"- Sale: Applied when the product is visibly on sale.\n"
-"- New: Applied based on the New period you will define.\n"
-"- Out Of Stock: Applied when the product is out of stock."
+#: model:ir.model,name:website_sale_stock.model_choose_delivery_carrier
+msgid "Delivery Method Selection Wizard"
 msgstr ""
 
 #. module: website_sale_stock
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_combo__display_name
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_feed__display_name
+#: model:ir.model.fields,field_description:website_sale_stock.field_choose_delivery_carrier__display_name
+#: model:ir.model.fields,field_description:website_sale_stock.field_delivery_carrier__display_name
 #: model:ir.model.fields,field_description:website_sale_stock.field_product_product__display_name
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_ribbon__display_name
 #: model:ir.model.fields,field_description:website_sale_stock.field_product_template__display_name
 #: model:ir.model.fields,field_description:website_sale_stock.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:website_sale_stock.field_res_partner__display_name
 #: model:ir.model.fields,field_description:website_sale_stock.field_sale_order__display_name
-#: model:ir.model.fields,field_description:website_sale_stock.field_sale_order_line__display_name
 #: model:ir.model.fields,field_description:website_sale_stock.field_stock_picking__display_name
 #: model:ir.model.fields,field_description:website_sale_stock.field_website__display_name
 msgid "Display Name"
 msgstr "Afișează numele"
 
 #. module: website_sale_stock
-#. odoo-javascript
-#: code:addons/website_sale_stock/static/src/xml/website_sale_stock_product_availability.xml:0
-msgid "Get notified when back in stock"
-msgstr "Fiți notificat când revine în stoc"
-
-#. module: website_sale_stock
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_combo__id
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_feed__id
+#: model:ir.model.fields,field_description:website_sale_stock.field_choose_delivery_carrier__id
+#: model:ir.model.fields,field_description:website_sale_stock.field_delivery_carrier__id
 #: model:ir.model.fields,field_description:website_sale_stock.field_product_product__id
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_ribbon__id
 #: model:ir.model.fields,field_description:website_sale_stock.field_product_template__id
 #: model:ir.model.fields,field_description:website_sale_stock.field_res_config_settings__id
+#: model:ir.model.fields,field_description:website_sale_stock.field_res_partner__id
 #: model:ir.model.fields,field_description:website_sale_stock.field_sale_order__id
-#: model:ir.model.fields,field_description:website_sale_stock.field_sale_order_line__id
 #: model:ir.model.fields,field_description:website_sale_stock.field_stock_picking__id
 #: model:ir.model.fields,field_description:website_sale_stock.field_website__id
 msgid "ID"
 msgstr "ID"
 
 #. module: website_sale_stock
-#. odoo-python
-#: code:addons/website_sale_stock/controllers/main.py:0
-msgid "Invalid Email"
-msgstr "Email invalid"
+#: model:ir.model.fields,field_description:website_sale_stock.field_delivery_carrier__is_published
+#, fuzzy
+msgid "Is Published"
+msgstr "Este publicat"
 
 #. module: website_sale_stock
 #. odoo-javascript
-#: code:addons/website_sale_stock/static/src/xml/website_sale_stock_product_availability.xml:0
-msgid "Invalid email"
-msgstr "Email invalid"
+#: code:addons/website_sale_stock/static/src/js/location_selector/location_selector_dialog/location_selector_dialog.xml:0
+#, fuzzy
+msgid "List view"
+msgstr "Vizualizare Listă"
 
 #. module: website_sale_stock
-#: model_terms:ir.ui.view,arch_db:website_sale_stock.res_config_settings_view_form
-msgid "Inventory Defaults"
-msgstr "Valori implicite inventar"
+#. odoo-javascript
+#: code:addons/website_sale_stock/static/src/js/location_selector/location_selector_dialog/location_selector_dialog.xml:0
+#, fuzzy
+msgid "Loading..."
+msgstr "Se încarcă..."
 
 #. module: website_sale_stock
-#: model_terms:ir.ui.view,arch_db:website_sale_stock.availability_email_body
-msgid "Order Now"
-msgstr "Comandă acum"
+#: model:ir.module.module,summary:base.module_website_sale_stock
+msgid "Manage product inventory & availability"
+msgstr ""
+
+#. module: website_sale_stock
+#. odoo-javascript
+#: code:addons/website_sale_stock/static/src/js/location_selector/location_selector_dialog/location_selector_dialog.xml:0
+#, fuzzy
+msgid "Map view"
+msgstr "Vizualizare hartă"
+
+#. module: website_sale_stock
+#. odoo-python
+#: code:addons/website_sale_stock/models/delivery_carrier.py:0
+#, fuzzy
+msgid "No pick-up points are available for this delivery address."
+msgstr ""
+"Nu există puncte de ridicare disponibile pentru această adresă de livrare."
+
+#. module: website_sale_stock
+#. odoo-javascript
+#: code:addons/website_sale_stock/static/src/js/location_selector/location_selector_dialog/location_selector_dialog.xml:0
+#, fuzzy
+msgid "No result"
+msgstr "Fără rezultate"
+
+#. module: website_sale_stock
+#. odoo-javascript
+#: code:addons/website_sale_stock/static/src/js/location_selector/location/location.js:0
+#: code:addons/website_sale_stock/static/src/js/location_selector/map_container/map_container.js:0
+#, fuzzy
+msgid "Opening hours"
+msgstr "Program"
 
 #. module: website_sale_stock
 #. odoo-javascript
 #: code:addons/website_sale_stock/static/src/js/product_card/product_card.xml:0
-#: code:addons/website_sale_stock/static/src/xml/website_sale_stock_product_availability.xml:0
 msgid "Out of Stock"
 msgstr "Stoc epuizat"
 
 #. module: website_sale_stock
+#: model:ir.model.fields,field_description:website_sale_stock.field_res_partner__pickup_delivery_method_id
+#: model:ir.model.fields,field_description:website_sale_stock.field_res_users__pickup_delivery_method_id
+msgid "Pickup Delivery Method"
+msgstr ""
+
+#. module: website_sale_stock
 #. odoo-javascript
-#: code:addons/website_sale_stock/static/src/js/product/product.xml:0
-msgid "Out of stock"
-msgstr "Stoc epuizat"
+#: code:addons/website_sale_stock/static/src/js/location_selector/location_selector_dialog/location_selector_dialog.js:0
+#, fuzzy
+msgid "Pickup Location"
+msgstr "Locație de ridicare"
 
 #. module: website_sale_stock
-#: model_terms:ir.ui.view,arch_db:website_sale_stock.res_config_settings_view_form
-msgid "Out-of-Stock"
-msgstr "Stoc epuizat"
+#: model:ir.model.fields,field_description:website_sale_stock.field_choose_delivery_carrier__partner_shipping_id
+#: model_terms:ir.ui.view,arch_db:website_sale_stock.choose_delivery_carrier_view_form_inherit_website_sale
+#: model_terms:ir.ui.view,arch_db:website_sale_stock.sale_order_view_form
+#: model_terms:ir.ui.view,arch_db:website_sale_stock.view_picking_form_inherit_website_sale
+msgid "Pickup Point"
+msgstr ""
 
 #. module: website_sale_stock
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_product__out_of_stock_message
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_template__out_of_stock_message
-msgid "Out-of-Stock Message"
-msgstr "Mesaj stoc epuizat"
+#: model_terms:ir.ui.view,arch_db:website_sale_stock.pickup_address_on_checkout
+msgid "Pickup point"
+msgstr ""
 
 #. module: website_sale_stock
 #. odoo-python
-#: code:addons/website_sale_stock/models/product_product.py:0
+#: code:addons/website_sale_stock/wizard/choose_delivery_carrier.py:0
+msgid "Please select a pickup point before adding a delivery method"
+msgstr ""
+
+#. module: website_sale_stock
 #: model:ir.model,name:website_sale_stock.model_product_template
 msgid "Product"
-msgstr "Produs"
+msgstr ""
 
 #. module: website_sale_stock
-#: model:ir.model,name:website_sale_stock.model_product_combo
-msgid "Product Combo"
-msgstr "Combinație de produse"
-
-#. module: website_sale_stock
-#: model:ir.model,name:website_sale_stock.model_product_feed
-msgid "Product Feed"
-msgstr "Feed de produse"
+#: model:ir.module.module,shortdesc:base.module_website_sale_stock
+msgid "Product Availability"
+msgstr ""
 
 #. module: website_sale_stock
 #: model:ir.model,name:website_sale_stock.model_product_product
 msgid "Product Variant"
-msgstr "Variantă produs"
+msgstr ""
 
 #. module: website_sale_stock
-#: model:ir.model,name:website_sale_stock.model_product_ribbon
-msgid "Product ribbon"
-msgstr "Panglică de produse"
+#: model:ir.model.fields,field_description:website_sale_stock.field_delivery_carrier__published_date
+#, fuzzy
+msgid "Published date"
+msgstr "Dată pubicare"
 
 #. module: website_sale_stock
-#: model:ir.actions.server,name:website_sale_stock.ir_cron_send_availability_email_ir_actions_server
-msgid "Product: send email regarding products availability"
-msgstr "Produs: trimite email cu privire la disponibilitatea produselor"
-
-#. module: website_sale_stock
-#: model_terms:ir.ui.view,arch_db:website_sale_stock.availability_email_body
-msgid "Regards,"
-msgstr "Toate cele bune,"
+#: model:ir.model.fields,help:website_sale_stock.field_delivery_carrier__website_id
+#, fuzzy
+msgid "Restrict to a specific website."
+msgstr "Restricționează la un anumit website."
 
 #. module: website_sale_stock
 #: model:ir.model,name:website_sale_stock.model_sale_order
@@ -227,65 +273,65 @@ msgid "Sales Order"
 msgstr "Comandă de vânzare"
 
 #. module: website_sale_stock
-#: model:ir.model,name:website_sale_stock.model_sale_order_line
-msgid "Sales Order Line"
-msgstr "Linie comandă vânzare"
+#. odoo-javascript
+#: code:addons/website_sale_stock/static/src/js/location_selector/location_selector_dialog/location_selector_dialog.xml:0
+#, fuzzy
+msgid "Search"
+msgstr "Căutare"
 
 #. module: website_sale_stock
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_product__allow_out_of_stock_order
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_template__allow_out_of_stock_order
-msgid "Sell when Out-of-Stock"
-msgstr "Vindeți când stocul este epuizat"
+#: model_terms:ir.ui.view,arch_db:website_sale_stock.pickup_delivery_method
+#, fuzzy
+msgid "Select a location"
+msgstr "Selectează o locație"
 
 #. module: website_sale_stock
-#: model_terms:ir.ui.view,arch_db:website_sale_stock.product_template_form_view_inherit_website_sale_stock
-msgid "Show Available Qty"
-msgstr "Afișează disponibil"
-
-#. module: website_sale_stock
-#: model_terms:ir.ui.view,arch_db:website_sale_stock.res_config_settings_view_form
-msgid "Show Available Quantity"
-msgstr "Afișează cantitatea disponibilă"
-
-#. module: website_sale_stock
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_product__available_threshold
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_template__available_threshold
-#: model:ir.model.fields,field_description:website_sale_stock.field_res_config_settings__default_available_threshold
-msgid "Show Threshold"
-msgstr "Afișează prag"
-
-#. module: website_sale_stock
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_product__show_availability
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_template__show_availability
-#: model:ir.model.fields,field_description:website_sale_stock.field_res_config_settings__default_show_availability
-msgid "Show availability Qty"
-msgstr "Afișează cantitate disponibilă"
-
-#. module: website_sale_stock
-#. odoo-python
-#: code:addons/website_sale_stock/models/sale_order.py:0
-msgid ""
-"Some products became unavailable and your cart has been updated. We're sorry "
-"for the inconvenience."
+#: model:ir.model.fields,field_description:website_sale_stock.field_choose_delivery_carrier__is_pickup_required
+#: model:ir.model.fields,field_description:website_sale_stock.field_delivery_carrier__support_pickup_locations
+#: model:ir.model.fields,field_description:website_sale_stock.field_sale_order__is_pickup_required
+#: model:ir.model.fields,field_description:website_sale_stock.field_stock_picking__is_pickup_required
+msgid "Support Pickup Locations"
 msgstr ""
-"Unele produse au devenit indisponibile și coșul dvs. a fost actualizat. Ne "
-"cerem scuze pentru neplăcerile create."
 
 #. module: website_sale_stock
-#: model_terms:ir.ui.view,arch_db:website_sale_stock.availability_email_body
-msgid "The following product is now available."
-msgstr "Următorul produs este acum disponibil."
+#: model:ir.model.fields,help:website_sale_stock.field_res_partner__pickup_delivery_method_id
+#: model:ir.model.fields,help:website_sale_stock.field_res_users__pickup_delivery_method_id
+msgid "The delivery method that generated this pickup point."
+msgstr ""
 
 #. module: website_sale_stock
-#. odoo-python
-#: code:addons/website_sale_stock/models/product_product.py:0
-msgid "The product '%(product_name)s' is now available"
-msgstr "Produsul '%(product_name)s' este acum disponibil"
+#: model:ir.model.fields,help:website_sale_stock.field_delivery_carrier__website_absolute_url
+#, fuzzy
+msgid "The full absolute URL to access the document through the website."
+msgstr ""
+"Calea URL absolută completă pentru a accesa documentul prin intermediul site-"
+"ului web."
+
+#. module: website_sale_stock
+#: model:ir.model.fields,help:website_sale_stock.field_delivery_carrier__website_url
+#, fuzzy
+msgid "The full relative URL to access the document through the website."
+msgstr ""
+"Calea URL relativă completă pentru a accesa documentul prin intermediul site-"
+"ului web."
+
+#. module: website_sale_stock
+#. odoo-javascript
+#: code:addons/website_sale_stock/static/src/js/location_selector/map_container/map_container.js:0
+#, fuzzy
+msgid "There was an error loading the map"
+msgstr "A apărut o eroare la încărcarea hărții"
 
 #. module: website_sale_stock
 #: model:ir.model,name:website_sale_stock.model_stock_picking
 msgid "Transfer"
 msgstr "Transfer"
+
+#. module: website_sale_stock
+#: model:ir.model.fields,field_description:website_sale_stock.field_delivery_carrier__website_published
+#, fuzzy
+msgid "Visible on current website"
+msgstr "Vizibil pe site-ul curent"
 
 #. module: website_sale_stock
 #: model:ir.model.fields,field_description:website_sale_stock.field_res_config_settings__website_warehouse_id
@@ -295,16 +341,23 @@ msgid "Warehouse"
 msgstr "Depozit"
 
 #. module: website_sale_stock
-#. odoo-javascript
-#: code:addons/website_sale_stock/static/src/xml/website_sale_stock_product_availability.xml:0
-msgid "We'll notify you once the product is back in stock"
-msgstr "Vă vom anunța când produsul va fi din nou în stoc"
-
-#. module: website_sale_stock
 #: model:ir.model,name:website_sale_stock.model_website
+#: model:ir.model.fields,field_description:website_sale_stock.field_delivery_carrier__website_id
 #: model:ir.model.fields,field_description:website_sale_stock.field_stock_picking__website_id
 msgid "Website"
 msgstr "Pagină web"
+
+#. module: website_sale_stock
+#: model:ir.model.fields,field_description:website_sale_stock.field_delivery_carrier__website_absolute_url
+#, fuzzy
+msgid "Website Absolute URL"
+msgstr "URL absolut al site-ului web"
+
+#. module: website_sale_stock
+#: model:ir.model.fields,field_description:website_sale_stock.field_delivery_carrier__website_url
+#, fuzzy
+msgid "Website URL"
+msgstr "URL website"
 
 #. module: website_sale_stock
 #: model:ir.model.fields,help:website_sale_stock.field_stock_picking__website_id
@@ -313,101 +366,17 @@ msgstr ""
 "Pagină web unde a fost plasată această comandă, pentru comenzile eCommerce."
 
 #. module: website_sale_stock
-#. odoo-javascript
-#: code:addons/website_sale_stock/static/src/xml/website_sale_stock_product_availability.xml:0
-msgid "You already added all the available product in your cart"
-msgstr "Ați adăugat deja toate produsele disponibile în coșul de cumpărături"
-
-#. module: website_sale_stock
 #. odoo-python
-#: code:addons/website_sale_stock/models/sale_order_line.py:0
-msgid ""
-"You ask for %(desired_qty)s %(product_name)s but only %(new_qty)s is "
-"available"
+#: code:addons/website_sale_stock/models/stock_picking.py:0
+msgid "You must select a pickup address with this delivery method."
 msgstr ""
-"Ați solicitat %(desired_qty)s %(product_name)s, dar sunt disponibile doar %"
-"(new_qty)s"
 
 #. module: website_sale_stock
-#. odoo-python
-#: code:addons/website_sale_stock/models/sale_order.py:0
-msgid ""
-"You ask for %(desired_qty)s products but only %(available_qty)s is available."
+#. odoo-javascript
+#: code:addons/website_sale_stock/static/src/js/location_selector/location_selector_dialog/location_selector_dialog.xml:0
+msgid "Zip or City"
 msgstr ""
-"Ați solicitat %(desired_qty)s produse, dar sunt disponibile doar %"
-"(available_qty)s."
 
-#. module: website_sale_stock
-#: model_terms:ir.ui.view,arch_db:website_sale_stock.product_template_form_view_inherit_website_sale_stock
-msgid "e.g. 'Will be back soon'"
-msgstr "de exemplu, „Revenim în curând”"
-
-#. module: website_sale_stock
-#. odoo-javascript
-#: code:addons/website_sale_stock/static/src/xml/website_sale_stock_product_availability.xml:0
-msgid "in stock"
-msgstr "în stoc"
-
-#. module: website_sale_stock
-#. odoo-javascript
-#: code:addons/website_sale_stock/static/src/xml/website_sale_stock_product_availability.xml:0
-msgid "in your cart)"
-msgstr "în coșul dvs.)"
-
-#. module: website_sale_stock
-#: model_terms:ir.ui.view,arch_db:website_sale_stock.res_config_settings_view_form
-msgid "only if below"
-msgstr "dacă sunt sub"
-
-#. module: website_sale_stock
-#: model:ir.model.fields.selection,name:website_sale_stock.selection__product_ribbon__assign__out_of_stock
-msgid "when out of stock"
-msgstr "când nu este în stoc"
-
-#. module: website_sale_stock
-#. odoo-javascript
-#: code:addons/website_sale_stock/static/src/xml/website_sale_stock_product_availability.xml:0
-msgid "youremail@gmail.com"
-msgstr "youremail@gmail.com"
-
-#~ msgid "Default visibility for custom messages."
-#~ msgstr "Vizibilitate implicită pentru mesaje personalizate."
-
-#~ msgid "How to display products having low quantities (on hand - reserved)"
-#~ msgstr ""
-#~ "Cum să afișați produsele cu cantități mici (disponibile - rezervate)"
-
-#~ msgid "Only"
-#~ msgstr "Doar"
-
-#~ msgid "This product is out of stock."
-#~ msgstr "Acest produs este indisponibil."
-
-#~ msgid "Units"
-#~ msgstr "buc"
-
-#~ msgid "We'll notify you once the product is back in stock."
-#~ msgstr "Vă vom anunța imediat ce produsul va fi din nou disponibil."
-
-#~ msgid "You already added"
-#~ msgstr "Ai adăugat deja"
-
-#~ msgid "You already added all the available product in your cart."
-#~ msgstr "Ai adăugat deja toate produsele disponibile în coșul tău."
-
-#~ msgid "You already have %s Units in your cart."
-#~ msgstr "Ai deja %s buc în coș."
-
-#~ msgid ""
-#~ "You ask for %(desired_qty)s products but only %(new_qty)s is available"
-#~ msgstr ""
-#~ "Doriți %(desired_qty)s produse dar sunt disponibile doar %(new_qty)s"
-
-#~ msgid "You ask for %s Units but only %s are available."
-#~ msgstr "Doriți %s buc dar sunt disponibile doar %s."
-
-#~ msgid "in your cart."
-#~ msgstr "în coșul tau."
-
-#~ msgid "left in stock."
-#~ msgstr "rămase în stoc."
+#, fuzzy
+#~ msgid "Out of stock"
+#~ msgstr "Stoc epuizat"

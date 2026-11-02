@@ -20,8 +20,6 @@ After installing this module, you'll have access to:
 Set the payment reference type from the Sales Journal.
     """,
     'depends': [
-        'base_iban',
-        'base_vat',
         'account',
         'account_edi_ubl_cii',
     ],
@@ -35,6 +33,5 @@ Set the payment reference type from the Sales Journal.
     'demo': [
         'demo/demo_company.xml',
     ],
-    'installable': True,
     'license': 'LGPL-3',
 }

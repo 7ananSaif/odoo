@@ -8,19 +8,11 @@
             <field name="priority">36</field>
             <field name="arch" type="xml">
                 <group name="purchase" position="inside">
-                    <div name="receipt_reminder" colspan="2" class="o_checkbox_optional_field" groups='purchase.group_send_reminder'>
-                        <div class="o_cell o_wrap_label text-break text-900">
-                            <label for="receipt_reminder_email"/>
-                        </div>
-                        <div class="o_cell o_wrap_input text-break d-flex gap-2">
-                            <field name="receipt_reminder_email"/>
-                            <div invisible="not receipt_reminder_email">
-                                <field name="reminder_date_before_receipt" class="oe_inline"/>
-                                <span> day(s) before</span>
-                            </div>
-                        </div>
-                    </div>
+                    <field name="receipt_reminder_email" widget="boolean_toggle" groups='purchase.group_send_reminder'/>
+                    <field name="reminder_date_before_receipt" invisible="not receipt_reminder_email" groups='purchase.group_send_reminder'/>
                     <field name="property_purchase_currency_id" options="{'no_create': True, 'no_open': True}" groups='base.group_multi_currency'/>
+                    <field name="purchase_incoterm_id" string="Incoterm"/>
+                    <field name="purchase_incoterm_location" string="Incoterm Location"/>
                 </group>
                 <field name="property_supplier_payment_term_id" position="before">
                     <field name="buyer_id" domain="[('share', '=', False)]" widget="many2one_avatar_user"/>
@@ -76,7 +68,7 @@
                 <div name="button_box" position="inside">
                     <button class="oe_stat_button" name="%(purchase.act_res_partner_2_purchase_order)d" type="action"
                         groups="purchase.group_purchase_user"
-                        icon="fa-credit-card">
+                        icon="credit_card">
                         <field string="Purchases" name="purchase_order_count" widget="statinfo"/>
                     </button>
                 </div>

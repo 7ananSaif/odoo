@@ -84,7 +84,7 @@ class PosEdiXmlUBL21Jo(models.AbstractModel):
                     if base_line['product_id'] == refund_base_line['product_id']
                     and float_compare(base_line['price_unit'], refund_base_line['price_unit'], precision_digits=DecimalPrecision.precision_get('Product Price')) == 0
                     and float_compare(base_line['discount'], refund_base_line['discount'], precision_digits=DecimalPrecision.precision_get('Discount')) == 0
-                    and float_compare(base_line['quantity'], abs(refund_base_line['quantity']), precision_digits=DecimalPrecision.precision_get('Product Unit of Measure')) >= 0
+                    and float_compare(base_line['quantity'], abs(refund_base_line['quantity']), precision_digits=DecimalPrecision.precision_get('Product Unit')) >= 0
                 ]
 
                 if matching_edi_ids:
@@ -102,7 +102,7 @@ class PosEdiXmlUBL21Jo(models.AbstractModel):
 
         # Compute values for order lines. In Jordan, because the web-service has absolutely no tolerance,
         # what we do is: use round per line with 9 decimals (yes!)
-        base_lines = pos_order._prepare_tax_base_line_values()
+        base_lines = pos_order.lines._prepare_base_lines_for_taxes_computation()
 
         AccountTax = self.env['account.tax']
         for base_line in base_lines:
@@ -337,16 +337,16 @@ class PosEdiXmlUBL21Jo(models.AbstractModel):
         )
 
     def _get_tax_total_node(self, vals):
+        currency_suffix = vals['currency_suffix']
         aggregated_tax_details = vals['aggregated_tax_details']
         total_tax_amount = self._sum_tax_details(vals, 'raw_tax_amount')
-        rounding_amount = self._sum_tax_details(vals, 'raw_total_excluded') + self._sum_tax_details(vals, 'raw_tax_amount', True)
         return {
             'cbc:TaxAmount': {
                 '_text': self.format_float(total_tax_amount, vals['currency_dp']),
                 'currencyID': vals['currency_name']
             },
             'cbc:RoundingAmount': {
-                '_text': self.format_float(rounding_amount, vals['currency_dp']),
+                '_text': self.format_float(vals['base_line']['tax_details'][f'raw_total_included{currency_suffix}'], vals['currency_dp']),
                 'currencyID': vals['currency_name'],
             } if vals['role'] == 'line' else None,
             'cac:TaxSubtotal': [
@@ -363,9 +363,13 @@ class PosEdiXmlUBL21Jo(models.AbstractModel):
     def _get_tax_subtotal_node(self, vals):
         tax_details = vals['tax_details']
         currency_suffix = vals['currency_suffix']
+        if vals['role'] == 'line':
+            taxable_amount = vals['base_line']['tax_details'][f'raw_total_excluded{currency_suffix}']
+        else:
+            taxable_amount = tax_details[f'raw_total_excluded{currency_suffix}']
         return {
             'cbc:TaxableAmount': {
-                '_text': self.format_float(tax_details[f'raw_total_excluded{currency_suffix}'], vals['currency_dp']),
+                '_text': self.format_float(taxable_amount, vals['currency_dp']),
                 'currencyID': vals['currency_name']
             },
             'cbc:TaxAmount': {

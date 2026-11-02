@@ -1,26 +1,30 @@
-import { Component, useExternalListener, useEffect, useRef } from "@odoo/owl";
+import { render, useLayoutEffect } from "@web/owl2/utils";
+import { Component, signal, useListener, useProps } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
 import { useThrottleForAnimation } from "@web/core/utils/timing";
 
 class ActionsOne2ManyField extends Component {
-    static props = ["*"];
     static template = "base_automation.ActionsOne2ManyField";
-    setup() {
-        this.root = useRef("root");
 
+    props = useProps();
+    root = signal.ref();
+    setup() {
         let adaptCounter = 0;
-        useEffect(
+        useLayoutEffect(
             () => {
                 this.adapt();
             },
             () => [adaptCounter]
         );
         const throttledRenderAndAdapt = useThrottleForAnimation(() => {
+            if (!this.root()) {
+                return;
+            }
             adaptCounter++;
-            this.render();
+            render(this);
         });
-        useExternalListener(window, "resize", throttledRenderAndAdapt);
+        useListener(window, "resize", throttledRenderAndAdapt);
         this.currentActions = this.props.record.data[this.props.name].records;
         this.hiddenActionsCount = 0;
     }
@@ -28,10 +32,10 @@ class ActionsOne2ManyField extends Component {
         // --- Initialize ---
         // use getBoundingClientRect to get unrounded width
         // of the elements in order to avoid rounding issues
-        const rootWidth = this.root.el.getBoundingClientRect().width;
+        const rootWidth = this.root().getBoundingClientRect().width;
 
         // remove all d-none classes (needed to get the real width of the elements)
-        const actionsEls = Array.from(this.root.el.children).filter((el) => el.dataset.actionId);
+        const actionsEls = Array.from(this.root().children).filter((el) => el.dataset.actionId);
         actionsEls.forEach((el) => el.classList.remove("d-none"));
         const actionsTotalWidth = actionsEls.reduce(
             (sum, el) => sum + el.getBoundingClientRect().width,
@@ -68,7 +72,7 @@ class ActionsOne2ManyField extends Component {
             : 0;
         if (initialHiddenActionsCount !== this.hiddenActionsCount) {
             // Render only if hidden actions count has changed.
-            return this.render();
+            return render(this);
         }
     }
     get moreText() {

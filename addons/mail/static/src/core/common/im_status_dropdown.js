@@ -9,11 +9,11 @@ import { rpc } from "@web/core/network/rpc";
 
 export class ImStatusDropdown extends Component {
     static components = { Dropdown, DropdownItem, ImStatus };
-    static props = [];
     static template = "mail.ImStatusDropdown";
 
     setup() {
         this.store = useService("mail.store");
+        this.uiService = useService("ui");
         this.readableImStatusByCode = {
             online: _t("Online"),
             away: _t("Away"),
@@ -23,17 +23,13 @@ export class ImStatusDropdown extends Component {
     }
 
     setManualImStatus(status) {
+        this.store.self_user.forceImStatus(status);
         rpc("/mail/set_manual_im_status", { status });
     }
 
     get readableImStatus() {
-        const imStatus = this.store.self.im_status || "offline";
-        for (const status in this.readableImStatusByCode) {
-            if (imStatus.includes(status)) {
-                return this.readableImStatusByCode[status];
-            }
-        }
-        return _t("Unknown Status");
+        const imStatus = this.store.self_user.imStatusUI || "offline";
+        return this.readableImStatusByCode[imStatus];
     }
 }
 

@@ -47,7 +47,7 @@ function isIndentationTab(tab) {
 
 export class TabulationPlugin extends Plugin {
     static id = "tabulation";
-    static dependencies = ["dom", "selection", "history", "delete"];
+    static dependencies = ["dom", "selection", "history", "delete", "split"];
     static shared = ["indentBlocks", "outdentBlocks"];
     /** @type {import("plugins").EditorResources} */
     resources = {
@@ -67,16 +67,21 @@ export class TabulationPlugin extends Plugin {
             { hotkey: "tab", commandId: "tab" },
             { hotkey: "shift+tab", commandId: "shiftTab" },
         ],
-        content_not_editable_providers: (rootEl) => [...selectElements(rootEl, ".oe-tabs")],
+        content_not_editable_providers: (rootEl) => selectElements(rootEl, ".oe-tabs"),
         contenteditable_to_remove_selector: "span.oe-tabs",
 
-        /** Handlers */
-        normalize_handlers: this.normalize.bind(this),
+        /** Processors */
+        normalize_processors: this.normalize.bind(this),
 
         /** Overrides */
         delete_forward_overrides: this.handleDeleteForward.bind(this),
 
-        unsplittable_node_predicates: isEditorTab, // avoid merge
+        is_node_splittable_predicates: (node) => {
+            // avoid merge
+            if (isEditorTab(node)) {
+                return false;
+            }
+        },
     };
 
     handleTab() {
@@ -88,10 +93,11 @@ export class TabulationPlugin extends Plugin {
         if (selection.isCollapsed) {
             this.insertTab();
         } else {
+            this.dependencies.split.splitBlockSegments();
             const targetedBlocks = this.dependencies.selection.getTargetedBlocks();
             this.indentBlocks(targetedBlocks);
         }
-        this.dependencies.history.addStep();
+        this.dependencies.history.commit();
     }
 
     handleShiftTab() {
@@ -100,7 +106,7 @@ export class TabulationPlugin extends Plugin {
         }
         const targetedBlocks = this.dependencies.selection.getTargetedBlocks();
         this.outdentBlocks(targetedBlocks);
-        this.dependencies.history.addStep();
+        this.dependencies.history.commit();
     }
 
     insertTab() {
@@ -174,6 +180,7 @@ export class TabulationPlugin extends Plugin {
 
     /**
      * @param {HTMLSpanElement} tabSpan - span.oe-tabs element
+     * @returns {boolean} true if width was adjusted
      */
     adjustTabWidth(tabSpan) {
         let tabPreviousSibling = tabSpan.previousSibling;
@@ -193,11 +200,19 @@ export class TabulationPlugin extends Plugin {
         if (!referenceRect?.width || !spanRect.width) {
             return;
         }
-        const relativePosition = spanRect.left - referenceRect.left;
+        const side = getComputedStyle(tabSpan).direction === "rtl" ? "right" : "left";
+        const oppositeSide = side === "right" ? "left" : "right";
+        const relativePosition = Math.abs(spanRect[side] - referenceRect[side]);
         const distToNextGridLine = GRID_COLUMN_WIDTH - (relativePosition % GRID_COLUMN_WIDTH);
+        // Do not span beyond line width
+        const remainingDist = Math.abs(spanRect[side] - referenceRect[oppositeSide]);
         // Round to the first decimal point.
-        const width = distToNextGridLine.toFixed(1);
+        const width = Math.min(distToNextGridLine, remainingDist).toFixed(1);
+        if (parseFloat(tabSpan.style.width) === parseFloat(width)) {
+            return false;
+        }
         tabSpan.style.width = `${width}px`;
+        return true;
     }
 
     /**
@@ -210,8 +225,37 @@ export class TabulationPlugin extends Plugin {
         if (!block) {
             return;
         }
-        for (const tab of block.querySelectorAll("span.oe-tabs")) {
-            this.adjustTabWidth(tab);
+        const isRtl = getComputedStyle(block).direction === "rtl";
+        const tabs = [...block.querySelectorAll("span.oe-tabs")];
+        for (const tab of tabs) {
+            tab.style.setProperty("width", "1px");
+        }
+        let hadChange = true;
+        let maxCount = tabs.length;
+        while (hadChange && maxCount > 0) {
+            // Loop needed because of possible relayout across lines.
+            maxCount--;
+            hadChange = false;
+            tabs.sort(
+                isRtl
+                    ? (a, b) => {
+                          const ra = a.getBoundingClientRect();
+                          const rb = b.getBoundingClientRect();
+                          return ra.bottom === rb.bottom
+                              ? rb.right - ra.right
+                              : ra.bottom - rb.bottom;
+                      }
+                    : (a, b) => {
+                          const ra = a.getBoundingClientRect();
+                          const rb = b.getBoundingClientRect();
+                          return ra.bottom === rb.bottom
+                              ? ra.left - rb.left
+                              : ra.bottom - rb.bottom;
+                      }
+            );
+            for (const tab of tabs) {
+                hadChange |= this.adjustTabWidth(tab);
+            }
         }
     }
 
@@ -253,5 +297,6 @@ export class TabulationPlugin extends Plugin {
     }
     normalize(el) {
         this.alignTabs(el);
+        return el;
     }
 }

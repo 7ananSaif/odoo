@@ -13,7 +13,7 @@ export function useDraggableScroll(scrollContainerRef, options = {}) {
     let scrollLeft;
     let shouldSuppressClick = false;
     const onMouseDown = (e) => {
-        const scrollEl = scrollContainerRef.el;
+        const scrollEl = scrollContainerRef();
         if (!scrollEl) {
             return;
         }
@@ -24,7 +24,7 @@ export function useDraggableScroll(scrollContainerRef, options = {}) {
     };
 
     const onMouseMove = (e) => {
-        const scrollEl = scrollContainerRef.el;
+        const scrollEl = scrollContainerRef();
 
         if (!isDragging || !scrollEl) {
             return;
@@ -60,16 +60,18 @@ export function useDraggableScroll(scrollContainerRef, options = {}) {
     };
 
     onMounted(() => {
-        scrollContainerRef.el?.addEventListener("mousedown", onMouseDown);
-        scrollContainerRef.el?.addEventListener("click", onClick, true);
+        const scrollEl = scrollContainerRef();
+        scrollEl?.addEventListener("mousedown", onMouseDown);
+        scrollEl?.addEventListener("click", onClick, true);
         window.addEventListener("mousemove", onMouseMove);
         window.addEventListener("mouseup", onMouseUp);
     });
 
     onWillUnmount(() => {
+        const scrollEl = scrollContainerRef();
         window.removeEventListener("mousemove", onMouseMove);
         window.removeEventListener("mouseup", onMouseUp);
-        scrollContainerRef.el?.removeEventListener("mousedown", onMouseDown);
-        scrollContainerRef.el?.removeEventListener("click", onClick, true);
+        scrollEl?.removeEventListener("mousedown", onMouseDown);
+        scrollEl?.removeEventListener("click", onClick, true);
     });
 }

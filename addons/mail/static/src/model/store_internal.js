@@ -1,35 +1,71 @@
 /** @typedef {import("./record").Record} Record */
 /** @typedef {import("./record_list").RecordList} RecordList */
 
-import { htmlEscape, markup, toRaw } from "@odoo/owl";
-import { RecordInternal } from "./record_internal";
+import { ManyFieldVersion, SingleFieldVersion, SKIP_REVISION } from "@mail/model/field_version";
+import { isCommandList, isMany, normalizeManyCommands, untrackFunctions } from "@mail/model/misc";
+import { RecordInternal } from "@mail/model/record_internal";
+import { incrementFn } from "@mail/utils/common/signal";
+
+import { computed, htmlEscape, markup, signal } from "@odoo/owl";
+
 import { deserializeDate, deserializeDateTime } from "@web/core/l10n/dates";
-import { IS_DELETED_SYM, IS_DELETING_SYM, isCommand, isMany } from "./misc";
 
 const Markup = markup().constructor;
+
+/** @typedef {string} FieldName */
 
 export class StoreInternal extends RecordInternal {
     /** @type {Map<import("./record").Record, Map<string, true>>} */
     FC_QUEUE = new Map(); // field-computes
-    /** @type {Map<import("./record").Record, Map<string, true>>} */
-    FS_QUEUE = new Map(); // field-sorts
     /** @type {Map<import("./record").Record, Map<string, Map<import("./record").Record, true>>>} */
     FA_QUEUE = new Map(); // field-onadds
     /** @type {Map<import("./record").Record, Map<string, Map<import("./record").Record, true>>>} */
     FD_QUEUE = new Map(); // field-ondeletes
-    /** @type {Map<import("./record").Record, Map<string, true>>} */
-    FU_QUEUE = new Map(); // field-onupdates
-    /** @type {Map<Function, true>} */
-    RO_QUEUE = new Map(); // record-onchanges
     /** @type {Map<Record, true>} */
     RD_QUEUE = new Map(); // record-deletes
-    /** @type {Map<Record, true>} */
-    RHD_QUEUE = new Map(); // record-hard-deletes
     ERRORS = [];
     UPDATE = 0;
+    /**
+     * The owl app this store belongs to, needed by the scope of each of its
+     * records.
+     *
+     * @type {import("@odoo/owl").App}
+     */
+    app;
+    /**
+     * Number of update functions currently running, nested included. An owl
+     * computed() field holds its last value while one runs, as the relations
+     * it reads are written one by one. onAdd and onDelete run outside of
+     * them, at depth 0, so they read fresh values.
+     */
+    updateDepth = signal(0);
+    raiseUpdateDepth = incrementFn(this.updateDepth);
+    lowerUpdateDepth = incrementFn(this.updateDepth, -1);
+    /**
+     * Whether an update function is being run. A computed of the depth, so a
+     * held field only recomputes when this flips, not on every nested raise.
+     */
+    isUpdateInProgress = computed(() => this.updateDepth() > 0);
+    /**
+     * Current version context used in the current store insert operation.
+     *
+     * The version data is provided by the server. If no version is provided,
+     * each field falls back to its last known version.
+     *
+     * @type {{
+     *    written_fields_by_record: import("@mail/model/field_version").WrittenFieldsByRecord,
+     *    snapshot: import("@mail/model/field_version").PgSnapshot
+     * }}
+     */
+    currentInsertVersion = null;
+
+    constructor() {
+        super(...arguments);
+        untrackFunctions(this, ["lowerUpdateDepth", "raiseUpdateDepth"]);
+    }
 
     /**
-     * @param {"compute"|"sort"|"onAdd"|"onDelete"|"onUpdate"|"hard_delete"} type
+     * @param {"compute"|"onAdd"|"onDelete"} type
      * @param {...any} params
      */
     ADD_QUEUE(type, ...params) {
@@ -53,24 +89,10 @@ export class StoreInternal extends RecordInternal {
                 recMap.set(fieldName, true);
                 break;
             }
-            case "sort": {
-                /** @type {[import("./record").Record, string]} */
-                const [record, fieldName] = params;
-                let recMap = this.FS_QUEUE.get(record);
-                if (!recMap) {
-                    recMap = new Map();
-                    this.FS_QUEUE.set(record, recMap);
-                }
-                recMap.set(fieldName, true);
-                break;
-            }
             case "onAdd": {
                 /** @type {[import("./record").Record, string, import("./record").Record]} */
                 const [record, fieldName, addedRec] = params;
                 const Model = record.Model;
-                if (Model._.fieldsSort.get(fieldName)) {
-                    this.ADD_QUEUE("sort", record, fieldName);
-                }
                 if (!Model._.fieldsOnAdd.get(fieldName)) {
                     return;
                 }
@@ -107,42 +129,16 @@ export class StoreInternal extends RecordInternal {
                 fieldMap.set(removedRec, true);
                 break;
             }
-            case "onUpdate": {
-                /** @type {[import("./record").Record, string]} */
-                const [record, fieldName] = params;
-                let recMap = this.FU_QUEUE.get(record);
-                if (!recMap) {
-                    recMap = new Map();
-                    this.FU_QUEUE.set(record, recMap);
-                }
-                recMap.set(fieldName, true);
-                break;
-            }
-            case "hard_delete": {
-                /** @type {import("./record").Record} */
-                const [record] = params;
-                record._[IS_DELETING_SYM] = true;
-                record._proxy[IS_DELETED_SYM] = true;
-                delete record.Model.records[record.localId];
-                if (!this.RHD_QUEUE.has(record)) {
-                    this.RHD_QUEUE.set(record, true);
-                }
-                break;
-            }
         }
     }
-    /** @param {RecordList<Record>} recordListFullProxy */
-    sortRecordList(recordListFullProxy, func) {
-        const recordList = toRaw(recordListFullProxy)._raw;
-        // sort on copy of list so that reactive observers not triggered while sorting
-        const recordsFullProxy = recordListFullProxy.data.map((localId) =>
-            recordListFullProxy._store.recordByLocalId.get(localId)
-        );
-        recordsFullProxy.sort(func);
-        const data = recordsFullProxy.map((recordFullProxy) => toRaw(recordFullProxy)._raw.localId);
-        const hasChanged = recordList.data.some((localId, i) => localId !== data[i]);
+    /** @param {RecordList<Record>} recordList */
+    sortRecordList(recordList, func) {
+        const recordProxies = recordList._.data().map((record) => record._proxy);
+        recordProxies.sort(func);
+        const records = recordProxies.map((recordProxy) => recordProxy._raw);
+        const hasChanged = recordList._.data().some((record, i) => record !== records[i]);
         if (hasChanged) {
-            recordListFullProxy.data = data;
+            recordList._.data.set(records);
         }
     }
     /**
@@ -152,22 +148,32 @@ export class StoreInternal extends RecordInternal {
      */
     updateAttr(record, fieldName, value) {
         const Model = record.Model;
+        const parentFieldName = Model._.parentFields.get(fieldName);
+        if (parentFieldName) {
+            // Route the write to the parent record, which stores an _inherits field.
+            Reflect.set(record._proxy[parentFieldName], fieldName, value);
+            return;
+        }
+        if (Model._.fieldsComputable.has(fieldName)) {
+            console.warn(`${Model.getName()}.${fieldName} is computed: dropping the write.`);
+            return;
+        }
         const fieldType = Model._.fieldsType.get(fieldName);
         const fieldHtml = Model._.fieldsHtml.get(fieldName);
-        // ensure each field write goes through the proxy exactly once to trigger reactives
-        const targetRecord = record._.proxyUsed.has(fieldName) ? record : record._proxy;
-        let shouldChange = record[fieldName] !== value;
+        const sig = record._.ensureFieldSignal(fieldName);
+        const current = sig();
+        let shouldChange = current !== value;
         if (fieldType === "datetime" && value) {
             if (!(value instanceof luxon.DateTime)) {
                 value = deserializeDateTime(value);
             }
-            shouldChange = !record[fieldName] || !value.equals(record[fieldName]);
+            shouldChange = !current || !value.equals(current);
         }
         if (fieldType === "date" && value) {
             if (!(value instanceof luxon.DateTime)) {
                 value = deserializeDate(value);
             }
-            shouldChange = !record[fieldName] || !value.equals(record[fieldName]);
+            shouldChange = !current || !value.equals(current);
         }
         let newValue = value;
         if (fieldHtml) {
@@ -180,28 +186,62 @@ export class StoreInternal extends RecordInternal {
                     ? htmlEscape(value)
                     : "";
             shouldChange =
-                record[fieldName]?.toString() !== newValue?.toString() ||
-                record[fieldName] instanceof Markup != newValue instanceof Markup;
+                current?.toString() !== newValue?.toString() ||
+                current instanceof Markup != newValue instanceof Markup;
         }
         if (shouldChange) {
-            record._.updatingAttrs.set(fieldName, true);
-            targetRecord[fieldName] = newValue;
-            record._.updatingAttrs.delete(fieldName);
+            sig.set(newValue);
         }
     }
     /**
      * @param {Record} record
      * @param {Object} vals
+     * @param {Object} [options={}]
+     * @param {boolean} [options.forceApply=true] Apply the values even when the
+     * current insert version is out of order. Only versioned server data turns
+     * it off.
      */
-    updateFields(record, vals) {
+    updateFields(record, vals, { forceApply = true } = {}) {
         const fieldEntries = Object.entries(vals).concat(
             Object.getOwnPropertySymbols(vals).map((sym) => [sym, vals[sym]])
         );
         for (const [fieldName, value] of fieldEntries) {
+            let version = record._.fieldsVersion.get(fieldName);
+            if (!version) {
+                version = isMany(record.Model, fieldName)
+                    ? new ManyFieldVersion(record.Model)
+                    : new SingleFieldVersion();
+                record._.fieldsVersion.set(fieldName, version);
+            }
+            // Always use the server version if provided, the last known version for the
+            // field otherwise.
+            const revision = this.currentInsertVersion
+                ? {
+                      snapshot: this.currentInsertVersion.snapshot,
+                      isWrite:
+                          this.currentInsertVersion.written_fields_by_record?.[
+                              record.Model.getName()
+                          ]?.[record.id]?.includes(fieldName),
+                  }
+                : version.lastRevision;
+            const normalized = isMany(record.Model, fieldName)
+                ? normalizeManyCommands(value)
+                : value;
+            // ".noinv" commands only come from inverse echoes: they are
+            // client-generated even when found inside server data to insert.
+            const toApply = version.resolveApply(normalized, revision, {
+                forceApply:
+                    forceApply ||
+                    (isCommandList(normalized) &&
+                        normalized.every(([mode]) => mode.endsWith(".noinv"))),
+            });
+            if (toApply === SKIP_REVISION) {
+                continue;
+            }
             if (!record.Model._.fields.get(fieldName) || record.Model._.fieldsAttr.get(fieldName)) {
-                this.updateAttr(record, fieldName, value);
+                this.updateAttr(record, fieldName, toApply);
             } else {
-                this.updateRelation(record, fieldName, value);
+                this.updateRelation(record, fieldName, toApply);
             }
         }
     }
@@ -224,38 +264,27 @@ export class StoreInternal extends RecordInternal {
      * @param {any} value
      */
     updateRelationMany(recordList, value) {
-        if (isCommand(value)) {
-            for (const [cmd, cmdData] of value) {
-                if (Array.isArray(cmdData)) {
-                    for (const item of cmdData) {
-                        if (cmd === "ADD") {
-                            recordList.add(item);
-                        } else if (cmd === "ADD.noinv") {
-                            recordList._.addNoinv(recordList, item);
-                        } else if (cmd === "DELETE.noinv") {
-                            recordList._.deleteNoinv(recordList, item);
-                        } else {
-                            recordList.delete(item);
-                        }
-                    }
-                } else {
-                    if (cmd === "ADD") {
-                        recordList.add(cmdData);
-                    } else if (cmd === "ADD.noinv") {
-                        recordList._.addNoinv(recordList, cmdData);
-                    } else if (cmd === "DELETE.noinv") {
-                        recordList._.deleteNoinv(recordList, cmdData);
-                    } else {
-                        recordList.delete(cmdData);
-                    }
+        for (const [cmd, cmdData] of value) {
+            if (cmd === "REPLACE") {
+                recordList._.assign(cmdData);
+                continue;
+            }
+            for (const item of cmdData) {
+                switch (cmd) {
+                    case "ADD":
+                        recordList.add(item);
+                        break;
+                    case "ADD.noinv":
+                        recordList._.addNoinv(item);
+                        break;
+                    case "DELETE":
+                        recordList.delete(item);
+                        break;
+                    case "DELETE.noinv":
+                        recordList._.deleteNoinv(item);
+                        break;
                 }
             }
-        } else if ([null, false, undefined].includes(value)) {
-            recordList.clear();
-        } else if (!Array.isArray(value)) {
-            recordList._.assign(recordList, [value]);
-        } else {
-            recordList._.assign(recordList, value);
         }
     }
     /**
@@ -264,14 +293,14 @@ export class StoreInternal extends RecordInternal {
      * @returns {boolean} whether the value has changed
      */
     updateRelationOne(recordList, value) {
-        if (isCommand(value)) {
+        if (isCommandList(value)) {
             const [cmd, cmdData] = value.at(-1);
-            if (cmd === "ADD") {
+            if (["ADD", "REPLACE"].includes(cmd)) {
                 recordList.add(cmdData);
             } else if (cmd === "ADD.noinv") {
-                recordList._.addNoinv(recordList, cmdData);
+                recordList._.addNoinv(cmdData);
             } else if (cmd === "DELETE.noinv") {
-                recordList._.deleteNoinv(recordList, cmdData);
+                recordList._.deleteNoinv(cmdData);
             } else {
                 recordList.delete(cmdData);
             }
@@ -282,3 +311,11 @@ export class StoreInternal extends RecordInternal {
         }
     }
 }
+
+untrackFunctions(StoreInternal.prototype, [
+    "updateAttr",
+    "updateFields",
+    "updateRelation",
+    "updateRelationMany",
+    "updateRelationOne",
+]);

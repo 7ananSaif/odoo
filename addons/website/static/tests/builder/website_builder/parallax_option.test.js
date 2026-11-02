@@ -15,6 +15,23 @@ test("test parallax zoom", async () => {
     expect(":iframe section").not.toHaveStyle("background-image", { inline: true });
     expect("[data-label='Intensity'] input").toBeVisible();
 });
+
+test("add parallax keeps repeat pattern on background", async () => {
+    await setupWebsiteAndOpenParallaxOptions({}, { loadIframeBundles: true });
+    await contains("[data-label='Position'] .dropdown-toggle").click();
+    await contains("[data-action-value='repeat-pattern']").click();
+    expect(":iframe section").toHaveClass("o_bg_img_opt_repeat");
+    await contains("[data-label='Scroll Effect'] .dropdown-toggle").click();
+    await contains("[data-action-value='fixed']").click();
+    // Verify that the repeat pattern is still applied
+    expect(":iframe section").not.toHaveClass("o_bg_img_opt_repeat");
+    expect(":iframe section .s_parallax_bg").toHaveClass("o_bg_img_opt_repeat");
+    expect(":iframe section .s_parallax_bg").toHaveStyle("background-repeat: repeat");
+    // Check that the option is still selected in the dropdown
+    await contains("[data-label='Position'] .dropdown-toggle").click();
+    expect("[data-action-value='repeat-pattern']").toHaveClass("active");
+});
+
 test("add parallax changes editing element", async () => {
     await setupWebsiteAndOpenParallaxOptions({}, { loadIframeBundles: true });
     await contains("[data-action-value='fixed']").click();
@@ -34,7 +51,9 @@ test("remove parallax changes editing element", async () => {
     const backgroundImageUrl = "url('/web/image/123/transparent.png')";
     await setupWebsiteBuilder(`
         <section>
-            <span class='s_parallax_bg oe_img_bg o_bg_img_center' style="background-image: ${backgroundImageUrl} !important;">aaa</span>
+            <span class="s_parallax_bg_wrap">
+                <span class="s_parallax_bg oe_img_bg o_bg_img_center" style="background-image: ${backgroundImageUrl} !important;">aaa</span>
+            </span>
         </section>`);
     await contains(":iframe section").click();
     await contains("[data-label='Scroll Effect'] button.o-dropdown").click();
@@ -49,18 +68,20 @@ test("remove parallax from block containing an inner block with parallax", async
     await setupWebsiteBuilder(`
         <section id="section_a" style="background-image: ${backgroundImageUrl} !important;">
             <section id="section_b">
-                <span class='s_parallax_bg oe_img_bg o_bg_img_center' style="background-image: ${backgroundImageUrl} !important;">aaa</span>
+                <span class="s_parallax_bg_wrap">
+                    <span class="s_parallax_bg oe_img_bg o_bg_img_center" style="background-image: ${backgroundImageUrl} !important;">aaa</span>
+                </span>
             </section>
         </section>`);
     await contains(":iframe section#section_a").click();
     await contains("[data-label='Scroll Effect'] button.o-dropdown").click();
     await contains("[data-action-value='top']").click();
     expect(":iframe section#section_a").toHaveClass("parallax");
-    expect(":iframe section#section_a > .s_parallax_bg").toHaveCount();
+    expect(":iframe section#section_a > .s_parallax_bg_wrap > .s_parallax_bg").toHaveCount();
     await contains("[data-label='Scroll Effect'] button.o-dropdown").click();
     await contains("[data-action-value='none']").click();
-    expect(":iframe section#section_a > .s_parallax_bg").not.toHaveCount();
-    expect(":iframe section#section_b > .s_parallax_bg").toHaveCount();
+    expect(":iframe section#section_a > .s_parallax_bg_wrap > .s_parallax_bg").not.toHaveCount();
+    expect(":iframe section#section_b > .s_parallax_bg_wrap > .s_parallax_bg").toHaveCount();
 });
 
 test("remove parallax from inner block", async () => {
@@ -81,13 +102,13 @@ test("remove parallax from inner block", async () => {
     ).click();
     await contains("[data-action-value='top']").click();
     expect(":iframe section#section_b").toHaveClass("parallax");
-    expect(":iframe section#section_b > .s_parallax_bg").toHaveCount();
+    expect(":iframe section#section_b > .s_parallax_bg_wrap > .s_parallax_bg").toHaveCount();
 
     await contains(
         "[data-container-title='SectionB'] [data-label='Scroll Effect'] button.o-dropdown"
     ).click();
     await contains("[data-action-value='none']").click();
-    expect(":iframe section#section_b > .s_parallax_bg").not.toHaveCount();
+    expect(":iframe section#section_b > .s_parallax_bg_wrap > .s_parallax_bg").not.toHaveCount();
 });
 
 test("parallax scroll effect 'none' doesn't remove the color filter", async () => {

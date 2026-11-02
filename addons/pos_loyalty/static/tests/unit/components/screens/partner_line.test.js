@@ -6,21 +6,14 @@ import { definePosModels } from "@point_of_sale/../tests/unit/data/generate_mode
 
 definePosModels();
 
-test("_getLoyaltyPointsRepr", async () => {
+test("getLoyaltyPoints lists loyalty balances for the partner", async () => {
     const store = await setupPosEnv();
     const models = store.models;
+    // Fresh order with no partner: getLoyaltyPoints reads each program's card balance.
+    store.addNewOrder();
 
+    // Partner 1 holds card 1 (program 1, 10 pts) and card 4 (program 7, 3 pts).
     const partner = models["res.partner"].get(1);
-    // Get first 3 loyalty cards and map them with program
-    const loyaltyCards = models["loyalty.card"]
-        .getAll()
-        .slice(0, 3)
-        .map((element) => ({
-            id: element.id,
-            points: element.points,
-            partner_id: partner.id,
-            program_id: models["loyalty.program"].get(element.id),
-        }));
 
     const component = await mountWithCleanup(PartnerLine, {
         props: {
@@ -33,17 +26,15 @@ test("_getLoyaltyPointsRepr", async () => {
             onClickPartner: () => {},
             onClickOrders: () => {},
         },
-        env: {
-            ...store.env,
-            utils: {
-                formatCurrency: (val) => `$${val.toFixed(2)}`,
-            },
-        },
     });
 
-    const results = loyaltyCards.map((card) => component._getLoyaltyPointsRepr(card));
+    const entries = component.getLoyaltyPoints();
+    const byProgram = Object.fromEntries(entries.map((e) => [e.id, e.repr]));
 
-    expect(results[0]).toBe("10.00 Points");
-    expect(results[1]).toBe("E-Wallet Program: $25.00");
-    expect(results[2]).toMatch("15.00 Gift Card Points");
+    expect(byProgram[1]).toBe("10.00 Points");
+    expect(byProgram[7]).toBe("3.00 Points");
+    // eWallet balances are listed as currency; gift_card programs are not listed.
+    expect(byProgram[2]).toMatch(/E-Wallet Program: .*25\.00/);
+    const ids = entries.map((e) => e.id);
+    expect(ids).not.toInclude(3);
 });

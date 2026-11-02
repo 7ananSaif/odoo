@@ -18,7 +18,7 @@ export function showTemplateUndoNotification(
         buttons: [
             {
                 name: _t("Undo"),
-                icon: "fa-undo",
+                icon: "undo",
                 onClick: async () => {
                     const res = await env.services.orm.call(model, undoMethod, [recordId]);
                     if (undoCallback) {
@@ -68,23 +68,45 @@ export function showTemplateUndoConfirmationDialog(
                 );
             }
         },
-        cancelLabel: _t("Discard"),
         cancel: () => {},
     });
 }
 
-export async function showTemplateFormView(
-    env,
-    { model, recordId, method = "action_create_template_from_project" }
-) {
-    const action = await env.services.orm.call(model, method, [recordId]);
-    await env.services.action.doAction({
-        type: "ir.actions.act_window",
-        res_model: model,
-        views: [[false, "form"]],
-        res_id: action.params.project_id,
-    });
+export async function showTemplateView(env, { recordId }) {
+    const action = await env.services.orm.call(
+        "project.project",
+        "action_create_template_from_project",
+        [recordId]
+    );
+    const templateId = action.params.project_id;
+    const currentView = env.services.action.currentController.view.type;
+    if (currentView === "form") {
+        await env.services.action.doAction({
+            type: "ir.actions.act_window",
+            res_model: "project.project",
+            views: [[false, "form"]],
+            res_id: templateId,
+        });
+    } else {
+        await env.services.action.doAction("project.act_project_project_2_project_task_all", {
+            viewType: currentView,
+            stackPosition: "replaceCurrentAction",
+            additionalContext: { active_id: templateId },
+        });
+    }
     await env.services.action.doAction(action);
+}
+export async function showProjectForm(env, { model, recordId, context }, options) {
+    await env.services.action.doAction(
+        {
+            type: "ir.actions.act_window",
+            res_model: model,
+            views: [[false, "form"]],
+            res_id: recordId,
+            context,
+        },
+        options
+    );
 }
 
 // Task → Template Notification
@@ -117,10 +139,7 @@ registry
 // Project → Template Create Redirection
 registry.category("actions").add("project_to_template_redirection_action", (env, action) => {
     const params = action.params || {};
-    return showTemplateFormView(env, {
-        model: "project.project",
-        recordId: params.project_id,
-    });
+    return showTemplateView(env, { recordId: params.project_id });
 });
 
 // Project → Template Notification
@@ -150,3 +169,18 @@ registry
         });
         return params.next;
     });
+
+// Top Menu → Project Form  Make Breadcrumbs
+registry.category("actions").add("project_top_menu_overview", (env, action, options) => {
+    const params = action || {};
+    showProjectForm(
+        env,
+        {
+            model: "project.project",
+            recordId: action.res_id,
+            context: action.context,
+        },
+        options
+    );
+    return params.next;
+});

@@ -1,12 +1,12 @@
-import { Component, onWillUpdateProps, onWillStart, useState, status } from "@odoo/owl";
+import { Component, signal, status, proxy, t, useProps } from "@odoo/owl";
 import { DashboardFacet } from "../dashboard_facet/dashboard_facet";
-import { useService, useChildRef, useAutofocus } from "@web/core/utils/hooks";
-import { useDropdownState } from "@web/core/dropdown/dropdown_hooks";
 import { DashboardDateFilter } from "../dashboard_date_filter/dashboard_date_filter";
-import { FilterValuesList } from "@spreadsheet/global_filters/components/filter_values_list/filter_values_list";
-import { getFacetInfo } from "@spreadsheet/global_filters/helpers";
+import { DashboardSearchBarMenu } from "../dashboard_search_bar_menu/dashboard_search_bar_menu";
+import { useService, useAutofocus } from "@web/core/utils/hooks";
+import { useDropdownState } from "@web/core/dropdown/dropdown_hooks";
 import { _t } from "@web/core/l10n/translation";
 import { fuzzyTest, fuzzyLookup } from "@web/core/utils/search";
+import { SearchBarDropdown } from "@web/search/search_bar_dropdown";
 import { Dropdown } from "@web/core/dropdown/dropdown";
 import { DropdownItem } from "@web/core/dropdown/dropdown_item";
 import { KeepLast } from "@web/core/utils/concurrency";
@@ -19,82 +19,90 @@ export class DashboardSearchBar extends Component {
     static components = {
         DashboardFacet,
         DashboardDateFilter,
-        FilterValuesList,
+        DashboardSearchBarMenu,
+        SearchBarDropdown,
         Dropdown,
         DropdownItem,
     };
-    static props = { model: Object, toggler: Object };
+    props = useProps({
+        model: t.object(),
+        toggler: t.object(),
+    });
+
+    inputRef = signal.ref();
 
     setup() {
-        this.facets = [];
-        this.firstDateFilter = undefined;
         this.nameService = useService("name");
+        this.uiService = useService("ui");
         this.orm = useService("orm");
         this.keepLast = new KeepLast();
         this.fields = useService("field");
+        this.loader = useService("spreadsheet_dashboard_loader");
+        this.searchModel = this.loader.getDashboard(this.loader.activeDashboardId).searchModel;
 
-        this.inputRef = useAutofocus("autofocus");
+        useAutofocus({ ref: this.inputRef });
 
-        this.state = useState({
+        this.popoverWillCloseOnClickAway = (target) => {
+            const inputEl = this.inputRef();
+            return !(inputEl && (inputEl === target || inputEl.contains(target)));
+        };
+
+        this.state = proxy({
             showDropdown: false,
             expanded: [],
             query: "",
             subItemsLimits: {},
         });
-        this.visibilityState = useState(this.props.toggler.state);
+        this.visibilityState = proxy(this.props.toggler.state);
 
-        this.items = useState([]);
+        this.items = proxy([]);
         this.subItems = {};
 
-        this.filtersValuesDropdown = useDropdownState();
+        this.searchBarDropdownMenu = useDropdownState();
         this.inputDropdownState = useDropdownState();
         this.inputDropdownNavOptions = this.getDropdownNavigation();
-        this.menuRef = useChildRef();
-        onWillStart(this.computeState.bind(this));
-        onWillUpdateProps(this.computeState.bind(this));
-    }
-
-    openFilterValueDropdown() {
-        this.filtersValuesDropdown.open();
+        this.menuRef = signal.ref();
     }
 
     closeFilterValueDropdown() {
-        this.filtersValuesDropdown.close();
+        this.searchBarDropdownMenu.close();
     }
 
     toggleFilterValueDropdown() {
-        this.filtersValuesDropdown.isOpen
-            ? this.filtersValuesDropdown.close()
-            : this.filtersValuesDropdown.open();
-    }
-
-    clearFilter(id) {
-        this.props.model.dispatch("SET_GLOBAL_FILTER_VALUE", { id });
+        this.searchBarDropdownMenu.isOpen
+            ? this.searchBarDropdownMenu.close()
+            : this.searchBarDropdownMenu.open();
     }
 
     updateFirstDateFilter(value) {
         this.props.model.dispatch("SET_GLOBAL_FILTER_VALUE", {
-            id: this.firstDateFilter.id,
+            id: this.searchModel.firstDateFilter.id,
             value,
         });
     }
 
     get firstDateFilterValue() {
-        if (!this.firstDateFilter) {
+        if (!this.searchModel.firstDateFilter) {
             return undefined;
         }
-        return this.props.model.getters.getGlobalFilterValue(this.firstDateFilter.id);
+        return this.props.model.getters.getGlobalFilterValue(this.searchModel.firstDateFilter.id);
+    }
+
+    onInputContainerClick(ev) {
+        if (ev.target === ev.currentTarget) {
+            this.onSearchClick();
+        }
     }
 
     onSearchClick() {
-        const query = this.inputRef?.el.value;
+        const query = this.inputRef()?.value;
         if (query.trim()) {
             this.inputDropdownState.open();
             this.computeState({ query, expanded: [], subItems: [] });
         } else {
             this.inputDropdownState.close();
             this.resetState();
-            this.filtersValuesDropdown.open();
+            this.searchBarDropdownMenu.open();
         }
     }
 
@@ -111,15 +119,16 @@ export class DashboardSearchBar extends Component {
 
     onSearchInputKeydown(ev) {
         if (ev.key === "Backspace" || ev.key === "Delete") {
-            const lastFacet = this.facets[this.facets.length - 1];
+            const allFacets = this.searchModel.state.facets;
+            const lastFacet = allFacets[allFacets.length - 1];
             if (ev.target.selectionStart === 0 && ev.target.selectionEnd === 0 && lastFacet) {
-                this.clearFilter(lastFacet.id);
+                this.searchModel.clearFilter(lastFacet.id);
             }
         }
     }
 
     onSearchInputPointerDown(ev) {
-        if (this.env.isSmall) {
+        if (this.uiService.isSmall) {
             // Prevent the input from being focused on mobile, as it opens the keyboard
             ev.preventDefault();
         }
@@ -160,20 +169,9 @@ export class DashboardSearchBar extends Component {
         this.state.query = query;
         this.subItems = subItems;
 
-        if (this.inputRef.el) {
-            this.inputRef.el.value = query;
+        if (this.inputRef()) {
+            this.inputRef().value = query;
         }
-
-        const filters = this.props.model.getters.getGlobalFilters();
-        const firstDateFilterIndex = filters.findIndex((filter) => filter.type === "date");
-        if (firstDateFilterIndex !== -1) {
-            this.firstDateFilter = filters.splice(firstDateFilterIndex, 1)[0];
-        }
-        this.facets = await Promise.all(
-            filters
-                .filter((filter) => this.props.model.getters.isGlobalFilterActive(filter.id))
-                .map((filter) => this.getFacetFor(filter))
-        );
 
         this.items.length = 0;
 
@@ -183,11 +181,6 @@ export class DashboardSearchBar extends Component {
                 this.items.push(...this.getItems(globalFilter, trimmedQuery));
             }
         }
-    }
-
-    async getFacetFor(filter) {
-        const filterValue = this.props.model.getters.getGlobalFilterValue(filter.id);
-        return getFacetInfo(this.env, filter, filterValue);
     }
 
     getItems(globalFilter, trimmedQuery) {
@@ -344,8 +337,8 @@ export class DashboardSearchBar extends Component {
     resetState(options = { focus: true }) {
         this.state.subItemsLimits = {};
         this.computeState({ expanded: [], query: "", subItems: [] });
-        if (options.focus && !this.env.isSmall) {
-            this.inputRef.el.focus();
+        if (options.focus && !this.uiService.isSmall) {
+            this.inputRef().focus();
         }
     }
 
@@ -365,7 +358,7 @@ export class DashboardSearchBar extends Component {
 
         return {
             virtualFocus: true,
-            getItems: () => this.menuRef.el?.querySelectorAll(":scope .o-dropdown-item") ?? [],
+            getItems: () => this.menuRef()?.querySelectorAll(":scope .o-dropdown-item") ?? [],
             isNavigationAvailable: ({ navigator, target }) => this.inputDropdownState.isOpen,
             onUpdated: (navigator) => (this.navigator = navigator),
             hotkeys: {

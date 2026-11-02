@@ -54,12 +54,13 @@
         }
 
         &.o_grid_item_image img {
-            // See BORDER_VARIABLES_RULES_EXTENSION
-            border-radius:
-                calc(var(--box-border-top-left-radius, 0px) - max(var(--box-border-top-width, 0px), var(--box-border-left-width, 0px)))
-                calc(var(--box-border-top-right-radius, 0px) - max(var(--box-border-top-width, 0px), var(--box-border-right-width, 0px)))
-                calc(var(--box-border-bottom-right-radius, 0px) - max(var(--box-border-bottom-width, 0px), var(--box-border-right-width, 0px)))
-                calc(var(--box-border-bottom-left-radius, 0px) - max(var(--box-border-bottom-width, 0px), var(--box-border-left-width, 0px)));
+            @extend %o-we-inner-border-radius;
+        }
+
+        // Override the grid item z-index if it has an open dropdown, so
+        // its content is always visible.
+        &.o_grid_item:has(.dropdown-menu.show, .o_dropdown_menu.show) {
+            z-index: $zindex-dropdown !important;
         }
 
         // Override the grid item z-index if it has an open dropdown, so
@@ -224,4 +225,31 @@ body.editor_enable:not(.o_basic_theme) .odoo-editor-editable {
     .rounded#{$class-suffix} {
         @extend %box-border-radius-rules;
     }
+}
+
+// For border with all 4 edges of equal value the max function is useless,
+// but in case the border is uneven it approximates the correct roundness
+// See BORDER_VARIABLES_RULES_EXTENSION
+//
+// --box-border-XXX-(radius|width) : editor Round Corners user input
+// --box-border-(radius|width) : rounded-XXX classes
+// --border-(radius|width) : theme (+ default bootstrap)
+//
+// Generic rule for inner elements to inherit a parent's border-radius
+// without requiring overflow: hidden on the parent.
+%o-we-inner-border-radius {
+    border-radius:
+        calc(var(--box-border-top-left-radius, 0px) - max(var(--box-border-top-width, 0px), var(--box-border-left-width, 0px)))
+        calc(var(--box-border-top-right-radius, 0px) - max(var(--box-border-top-width, 0px), var(--box-border-right-width, 0px)))
+        calc(var(--box-border-bottom-right-radius, 0px) - max(var(--box-border-bottom-width, 0px), var(--box-border-right-width, 0px)))
+        calc(var(--box-border-bottom-left-radius, 0px) - max(var(--box-border-bottom-width, 0px), var(--box-border-left-width, 0px)));
+}
+
+// Needed to prevent the emoji picker from inheriting theme colors
+.o-EmojiPicker {
+    --EmojiPicker-background-color: white;
+    --EmojiPicker-font-size: 1rem;
+    --EmojiPicker-emoji-font-size: 1.5rem;
+    --EmojiPicker-text-color: #{rgba(black, $o-opacity-muted)};
+    --EmojiPicker-input-color: black;
 }

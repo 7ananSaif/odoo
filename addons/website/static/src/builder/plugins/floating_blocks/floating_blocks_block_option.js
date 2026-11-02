@@ -1,12 +1,8 @@
-import { BaseOptionComponent } from "@html_builder/core/utils";
-import { BorderConfigurator } from "@html_builder/plugins/border_configurator_option";
-import { AddElementOption } from "@website/builder/plugins/layout_option/add_element_option";
-
+import { BaseOptionComponent } from "@html_builder/core/base_option_component";
+import { registry } from "@web/core/registry";
 export class FloatingBlocksBlockOption extends BaseOptionComponent {
+    static id = "floating_blocks_block_option";
     static template = "website.FloatingBlocksBlockOption";
-    static components = {
-        BorderConfigurator,
-        AddElementOption,
-    };
-    static selector = ".s_floating_blocks .s_floating_blocks_block";
 }
+
+registry.category("website-options").add(FloatingBlocksBlockOption.id, FloatingBlocksBlockOption);

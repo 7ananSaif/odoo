@@ -1,9 +1,10 @@
 import {
     confirmAddSnippet,
     dummyBase64Img,
+    unfoldAllOptionsGroups,
     waitForEndOfOperation,
 } from "@html_builder/../tests/helpers";
-import { expect, test } from "@odoo/hoot";
+import { beforeEach, describe, expect, test } from "@odoo/hoot";
 import { animationFrame, click, queryAll, queryOne, waitFor } from "@odoo/hoot-dom";
 import { contains, dataURItoBlob, onRpc, patchWithCleanup } from "@web/../tests/web_test_helpers";
 import { uniqueId } from "@web/core/utils/functions";
@@ -18,67 +19,108 @@ defineWebsiteModels();
 async function setupWbsiteBuilderWithImageWall() {
     const builder = await setupWebsiteBuilderWithSnippet("s_images_wall");
     queryAll(":iframe img").forEach((imgEl) => (imgEl.src = dummyBase64Img));
-    builder.getEditor().shared.history.addStep();
+    builder.getEditor().shared.history.commit();
     return builder;
 }
 
-test("Add image in gallery", async () => {
-    onRpc("ir.attachment", "search_read", () => [
-        {
-            id: 1,
-            name: "logo",
-            mimetype: "image/png",
-            image_src: "/web/image/hoot.png",
-            access_token: false,
-            public: true,
-        },
-    ]);
-
-    onRpc("/web/image/hoot.png", () => {
-        const base64Image =
-            "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII=";
-        return dataURItoBlob(base64Image);
-    });
-
-    await setupWbsiteBuilderWithImageWall();
-    onRpc("/html_editor/get_image_info", () => {
-        expect.step("get_image_info");
-        return {
-            attachment: {
-                id: 1,
-            },
-            original: {
-                id: 1,
-                image_src: "/web/image/hoot.png",
-                mimetype: "image/png",
-            },
-        };
-    });
-    await contains(":iframe .o_masonry_col img[data-index='1']").click();
-    await waitFor("[data-action-id='addImage']");
-    expect("[data-action-id='addImage']").toHaveCount(1);
+async function addImage() {
     await contains("[data-action-id='addImage']").click();
-    // We use "click" instead of contains.click because contains wait for the image to be visible.
-    // In this test we don't want to wait ~800ms for the image to be visible but we can still click on it
+    // We use "click" instead of contains.click because contains wait for
+    // the image to be visible. In this test we don't want to wait ~800ms
+    // for the image to be visible but we can still click on it
     await click(".o_existing_attachment_cell .o_button_area");
     await contains(".modal-footer button:not([disabled]):contains(Add)").click();
-    await waitFor(":iframe .o_masonry_col img[data-index='6']");
+}
 
-    const columns = queryAll(":iframe .o_masonry_col");
-    const columnImgs = columns.map((column) =>
-        [...column.children].map((img) => img.dataset.index)
-    );
+describe("Add image", () => {
+    beforeEach(() => {
+        onRpc("ir.attachment", "search_read", () => [
+            {
+                id: 1,
+                name: "logo",
+                mimetype: "image/png",
+                image_src: "/web/image/hoot.png",
+                access_token: false,
+                public: true,
+            },
+        ]);
+        onRpc("/web/image/hoot.png", () => {
+            const base64Image =
+                "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII=";
+            return dataURItoBlob(base64Image);
+        });
+    });
 
-    expect(columnImgs).toEqual([["0", "3", "4", "5", "6"], ["1"], ["2"]]);
-    expect.verifySteps(["get_image_info", "get_image_info"]);
-    expect(":iframe .o_masonry_col img[data-index='6']").toHaveAttribute(
-        "data-mimetype",
-        "image/webp"
-    );
-    expect(":iframe .o_masonry_col img[data-index='6']").toHaveAttribute(
-        "data-mimetype-before-conversion",
-        "image/png"
-    );
+    test("Add image in gallery", async () => {
+        const { waitSidebarUpdated } = await setupWbsiteBuilderWithImageWall();
+        onRpc("/html_editor/get_image_info", () => {
+            expect.step("get_image_info");
+            return {
+                attachment: {
+                    id: 1,
+                },
+                original: {
+                    id: 1,
+                    image_src: "/web/image/hoot.png",
+                    mimetype: "image/png",
+                },
+            };
+        });
+        await contains(":iframe .o_masonry_col img[data-index='1']").click();
+        await waitSidebarUpdated();
+        await unfoldAllOptionsGroups();
+        expect("[data-action-id='addImage']").toHaveCount(1);
+        await addImage();
+        await waitFor(":iframe .o_masonry_col img[data-index='6']");
+
+        const columns = queryAll(":iframe .o_masonry_col");
+        const columnImgs = columns.map((column) =>
+            [...column.children].map((img) => img.dataset.index)
+        );
+
+        expect(columnImgs).toEqual([["0", "3", "4", "5", "6"], ["1"], ["2"]]);
+        expect.verifySteps(["get_image_info", "get_image_info"]);
+        expect(":iframe .o_masonry_col img[data-index='6']").toHaveAttribute(
+            "data-mimetype",
+            "image/webp"
+        );
+        expect(":iframe .o_masonry_col img[data-index='6']").toHaveAttribute(
+            "data-mimetype-before-conversion",
+            "image/png"
+        );
+    });
+
+    test("Adding an image in gallery doesn't show a hidden pause button", async () => {
+        const { waitSidebarUpdated } = await setupWebsiteBuilderWithSnippet("s_image_gallery", {
+            loadIframeBundles: true,
+            loadIframeBuilderTemplates: true,
+        });
+        await contains(":iframe .s_image_gallery").click();
+        await waitSidebarUpdated();
+        await unfoldAllOptionsGroups();
+        expect(":iframe .o_carousel_pause").not.toBeVisible();
+        await addImage();
+        await waitFor(":iframe .carousel-item img[src^='data:image/webp;base64']");
+        expect(":iframe .carousel-inner > .carousel-item").toHaveCount(4);
+        expect(":iframe .o_carousel_pause").not.toBeVisible();
+    });
+
+    test("Adding an image in gallery doesn't hide a visible pause button", async () => {
+        const { waitSidebarUpdated } = await setupWebsiteBuilderWithSnippet("s_image_gallery", {
+            loadIframeBundles: true,
+            loadIframeBuilderTemplates: true,
+        });
+        await contains(":iframe .s_image_gallery").click();
+        await waitSidebarUpdated();
+        await unfoldAllOptionsGroups();
+        expect(":iframe .o_carousel_pause").not.toBeVisible();
+        await contains("[data-class-action='o_carousel_pause_btn_hidden'] input").click();
+        expect(":iframe .o_carousel_pause").toBeVisible();
+        await addImage();
+        await waitFor(":iframe .carousel-item img[src^='data:image/webp;base64']");
+        expect(":iframe .carousel-inner > .carousel-item").toHaveCount(4);
+        expect(":iframe .o_carousel_pause").toBeVisible();
+    });
 });
 
 // TODO Re-enable once interactions run within iframe in hoot tests.
@@ -107,6 +149,22 @@ test.skip("Remove all images in gallery", async () => {
     expect(".o_select_media_dialog").toHaveCount(1);
 });
 
+test("Empty image gallery is removed on save", async () => {
+    const resultSave = [];
+    onRpc("ir.ui.view", "save", ({ args }) => {
+        resultSave.push(args[1]);
+        return true;
+    });
+    await setupWebsiteBuilderWithSnippet("s_image_gallery", { loadIframeBuilderTemplates: true });
+    await contains(":iframe .s_image_gallery").click();
+    await unfoldAllOptionsGroups();
+    await contains("[data-action-id='removeAllImages']").click();
+    expect(":iframe .s_image_gallery img:not(.o_carousel_controllers img)").toHaveCount(0);
+    await contains(".o-snippets-top-actions button:contains(Save)").click();
+    expect(resultSave.length).toBe(1);
+    expect(resultSave[0]).not.toInclude("s_image_gallery");
+});
+
 test("Rapidly remove an image from the gallery", async () => {
     await setupWbsiteBuilderWithImageWall();
     const initialCount = queryAll(":iframe .o_masonry_col img").length;
@@ -124,6 +182,7 @@ test("Change gallery layout", async () => {
 
     await contains(":iframe img").click();
     await waitSidebarUpdated();
+    await unfoldAllOptionsGroups();
     expect("[data-label='Mode']").toHaveCount(1);
     expect(queryOne("[data-label='Mode'] .dropdown-toggle").textContent).toBe("Masonry");
     await contains("[data-label='Mode'] .dropdown-toggle").click();
@@ -147,6 +206,8 @@ test("Change gallery restore the container to the cloned equivalent image", asyn
     };
 
     await contains(":iframe img[data-index='1']").click();
+    await builder.waitSidebarUpdated();
+    await unfoldAllOptionsGroups();
     await contains("[data-label='Mode'] button").click();
 
     await contains("[data-action-param='grid']").click();
@@ -155,16 +216,18 @@ test("Change gallery restore the container to the cloned equivalent image", asyn
     // The container include the new image equivalent to the old selected image
     expectOptionContainerToInclude(queryOne(":iframe img[data-index='1']"));
 
-    await contains(".o-snippets-top-actions .fa-undo").click();
+    await contains(".o-snippets-top-actions [data-icon='undo']").click();
     expectOptionContainerToInclude(queryOne(":iframe img[data-index='1']"));
-    await contains(".o-snippets-top-actions .fa-repeat").click();
+    await contains(".o-snippets-top-actions [data-icon='redo']").click();
     expectOptionContainerToInclude(queryOne(":iframe img[data-index='1']"));
 });
 
 test("Change gallery layout when images have a link", async () => {
-    await setupWbsiteBuilderWithImageWall();
+    const { waitSidebarUpdated } = await setupWbsiteBuilderWithImageWall();
 
     await contains(":iframe img[data-index='1']").click();
+    await waitSidebarUpdated();
+    await unfoldAllOptionsGroups();
     await waitFor("[data-label='Mode']");
     await contains("[data-label='Media'] button[data-action-id='setLink']").click();
 
@@ -217,6 +280,57 @@ test("Cloning an image gallery should produce a unique ID", async () => {
     expect(imageCarousels[0].id).not.toEqual(imageCarousels[1].id);
 });
 
+test("Changing layout of an image gallery to grid should remove size option on images", async () => {
+    const { waitSidebarUpdated } = await setupWebsiteBuilder(
+        `
+        <section class="s_image_gallery o_masonry" data-columns="2" data-snippet="s_images_wall">
+            <div class="container">
+                <div class="o_masonry_col col-lg-6">
+                    <img class="first_img img img-fluid d-block rounded" data-index="1" src='${dummyBase64Img}'>
+                </div>
+                <div class="o_masonry_col col-lg-6">
+                    <img class="second_img img img-fluid d-block rounded" data-index="5"  src='${dummyBase64Img}'>
+                </div>
+            </div>
+        </section>
+        `
+    );
+    await contains(":iframe .first_img").click();
+    await waitSidebarUpdated();
+    await unfoldAllOptionsGroups();
+    expect("[data-label='Mode']").toHaveCount(1);
+    expect(queryOne("[data-label='Mode'] .dropdown-toggle").textContent).toBe("Masonry");
+    expect("[data-label='Size']").toHaveCount(1);
+    await contains("[data-label='Mode'] .dropdown-toggle").click();
+
+    await contains("[data-action-param='grid']").click();
+    await waitFor(":iframe .o_grid");
+    expect(":iframe .o_grid").toHaveCount(1);
+    expect(":iframe .o_masonry_col").toHaveCount(0);
+    expect(queryOne("[data-label='Mode'] .dropdown-toggle").textContent).toBe("Grid");
+
+    await contains(":iframe .first_img").click();
+    await waitSidebarUpdated();
+    expect("[data-label='Size']").toHaveCount(0);
+});
+
+test("Click the outline option for the image gallery thumbnails", async () => {
+    await setupWebsiteBuilderWithSnippet("s_image_gallery");
+    await contains(":iframe .s_image_gallery").click();
+    await contains(".options-container [data-label='Indicators'] .dropdown-toggle").click();
+    await contains(
+        ".o-dropdown--menu [data-action-param='s_image_gallery_indicators_squared']"
+    ).click();
+    expect(":iframe section.o_slideshow").not.toHaveClass("s_image_gallery_indicators_outline");
+    await contains("[data-class-action='s_image_gallery_indicators_outline'] .o-checkbox").click();
+    expect(":iframe section.o_slideshow").toHaveClass("s_image_gallery_indicators_outline");
+    await contains(".options-container [data-label='Indicators'] .dropdown-toggle").click();
+    await contains(
+        ".o-dropdown--menu [data-action-param='s_image_gallery_indicators_dots']"
+    ).click();
+    expect(":iframe section.o_slideshow").not.toHaveClass("s_image_gallery_indicators_outline");
+});
+
 test("Change gallery layout still works when img.decode() fails", async () => {
     // to handle the Chrome bug where img.decode() can fail with "EncodingError:
     // The source image cannot be decoded" when decoding many images simultaneously.
@@ -230,6 +344,7 @@ test("Change gallery layout still works when img.decode() fails", async () => {
     });
     await images.at(0).click();
     await builder.waitSidebarUpdated();
+    await unfoldAllOptionsGroups();
     await contains("[data-label='Mode'] .dropdown-toggle").click();
 
     // This should NOT throw an error even img.decode() call will fail
@@ -239,5 +354,17 @@ test("Change gallery layout still works when img.decode() fails", async () => {
     // Verify the layout change worked despite decode failures
     expect(":iframe .o_grid").toHaveCount(1);
     expect(":iframe .o_masonry_col").toHaveCount(0);
+    await unfoldAllOptionsGroups();
     expect("[data-label='Mode'] .dropdown-toggle").toHaveText("Grid");
+});
+
+test("Cannot edit s_image_gallery pause button", async () => {
+    await setupWebsiteBuilderWithSnippet("s_image_gallery", { loadIframeBundles: true });
+    await contains(":iframe .s_image_gallery").click();
+    await contains(
+        "[data-label='Pause Button'] [data-class-action='o_carousel_pause_btn_hidden'] input"
+    ).click();
+    await contains(":iframe .s_image_gallery .o_carousel_pause_icon").dblclick();
+    // The media dialog doesn't open.
+    expect("modal").not.toHaveCount();
 });

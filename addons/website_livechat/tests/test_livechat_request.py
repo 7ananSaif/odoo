@@ -1,26 +1,23 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import tests
-from odoo.addons.base.tests.common import HttpCaseWithUserDemo
 from odoo.addons.website_livechat.tests.common import TestLivechatCommon
+from odoo.tests import HttpCase, new_test_user
 
 
-@tests.tagged('post_install', '-at_install')
-class TestLivechatRequestHttpCase(HttpCaseWithUserDemo, TestLivechatCommon):
+class TestLivechatRequestHttpCase(HttpCase, TestLivechatCommon):
     def test_livechat_request_complete_flow(self):
         self._clean_livechat_sessions()
 
         # Send first chat request - Open chat from operator side
         channel_1 = self._common_chat_request_flow()
-        guest = channel_1.channel_member_ids.filtered(lambda member: member.guest_id).guest_id
+        guest = channel_1.channel_member_ids.guest_id
         self.opener.cookies[guest._cookie_name] = guest._format_auth_cookie()
         # Visitor Rates the conversation (Good)
         self._send_rating(channel_1, self.visitor, 5)
 
         # Operator Re-Send a chat request
         channel_2 = self._common_chat_request_flow()
-        guest = channel_2.channel_member_ids.filtered(lambda member: member.guest_id).guest_id
+        guest = channel_2.channel_member_ids.guest_id
         self.opener.cookies[guest._cookie_name] = guest._format_auth_cookie()
         # Visitor Rates the conversation (Bad)
         self._send_rating(channel_2, self.visitor, 1, "Stop bothering me! I hate you </3 !")
@@ -41,7 +38,11 @@ class TestLivechatRequestHttpCase(HttpCaseWithUserDemo, TestLivechatCommon):
         chat_request = self.env["discuss.channel"].search(
             [("livechat_visitor_id", "=", self.visitor.id), ("livechat_end_dt", "=", False)]
         )
-        self.assertEqual(chat_request.livechat_operator_id, self.operator_b.partner_id, "Operator for active livechat session must be Operator Marc")
+        self.assertEqual(
+            self.operator_b.partner_id,
+            chat_request.livechat_agent_partner_ids,
+        )
+        self._send_message(chat_request, self.operator_b.email, "Hello !", author_id=self.operator_b.partner_id.id)
 
         # Click on livechatbutton at client side
         res = self.url_open(url=self.open_chat_url, json=self.open_chat_params)
@@ -52,8 +53,25 @@ class TestLivechatRequestHttpCase(HttpCaseWithUserDemo, TestLivechatCommon):
 
         # Check that the chat request has been canceled.
         self.assertTrue(chat_request.livechat_end_dt, "The livechat request must be inactive as the visitor started himself a livechat session.")
+        self.assertIn(
+            "Live chat conversation closed automatically: the visitor started a new conversation with another agent.",
+            chat_request.message_ids[0].body,
+        )
         self.assertEqual(len(channel), 1)
-        self.assertEqual(channel.livechat_operator_id, self.operator.partner_id, "Operator for active livechat session must be Michel Operator")
+        self.assertEqual(
+            self.operator.partner_id,
+            channel.livechat_agent_partner_ids,
+            "Operator for active livechat session must be Michel Operator"
+        )
+
+        self._clean_livechat_sessions()
+        self.visitor.with_user(self.operator_b).sudo().action_send_chat_request()
+        chat_request = self.env["discuss.channel"].search(
+            [("livechat_visitor_id", "=", self.visitor.id), ("livechat_end_dt", "=", False)]
+        )
+        chat_request.is_pending_chat_request = False  # Customer already accessed the chat.
+        self.url_open(url=self.open_chat_url, json=self.open_chat_params)
+        self.assertFalse(chat_request.livechat_end_dt)
 
         self._clean_livechat_sessions()
         self.visitor.with_user(self.operator_b).sudo().action_send_chat_request()
@@ -70,7 +88,7 @@ class TestLivechatRequestHttpCase(HttpCaseWithUserDemo, TestLivechatCommon):
             [("livechat_visitor_id", "=", self.visitor.id), ("livechat_end_dt", "=", False)]
         )
         self.assertEqual(len(channel), 1)
-        self.assertEqual(channel.livechat_operator_id, self.operator.partner_id, "Michel Operator should be the operator of this channel.")
+        self.assertEqual(channel.livechat_agent_partner_ids, self.operator.partner_id, "Michel Operator should be the operator of this channel.")
         self.assertEqual(len(channel.message_ids), 0)
         self.assertEqual(channel.name, f"Visitor #{self.visitor.id} ({self.visitor.country_id.name}), {self.operator.livechat_username}")
 
@@ -83,7 +101,7 @@ class TestLivechatRequestHttpCase(HttpCaseWithUserDemo, TestLivechatCommon):
         self.assertEqual(len(channel.message_ids), 2)
 
         # Visitor Leave the conversation
-        channel._close_livechat_session()
+        channel._close_livechat_session(message=channel._get_visitor_leave_message())
         self.assertEqual(len(channel.message_ids), 3)
         self.assertEqual(channel.message_ids[0].author_id, self.env.ref('base.partner_root'), "Odoobot must be the sender of the 'left the conversation' message.")
         self.assertIn(f"Visitor #{channel.livechat_visitor_id.id}", channel.message_ids[0].body)
@@ -97,7 +115,7 @@ class TestLivechatRequestHttpCase(HttpCaseWithUserDemo, TestLivechatCommon):
             [("livechat_visitor_id", "=", self.visitor.id), ("livechat_end_dt", "=", False)]
         )
         for active_channel in active_channels:
-            active_channel._close_livechat_session()
+            active_channel._close_livechat_session(message=active_channel._get_visitor_leave_message())
 
     def test_update_guest_of_chat_request_if_outdated(self):
         self.visitor.with_user(self.operator).sudo().action_send_chat_request()
@@ -108,8 +126,16 @@ class TestLivechatRequestHttpCase(HttpCaseWithUserDemo, TestLivechatCommon):
         guest = self.env["mail.guest"].create({"name": "Guest"})
         self.assertNotEqual(chat_request.channel_member_ids.guest_id, guest)
         self.make_jsonrpc_request(
-            "/mail/action",
+            "/mail/store",
             {"fetch_params": [["init_livechat", self.livechat_channel.id]]},
             cookies={guest._cookie_name: guest._format_auth_cookie()},
         )
         self.assertEqual(chat_request.channel_member_ids.guest_id, guest)
+
+    def test_send_chat_request_does_not_join_channel(self):
+        agent = new_test_user(self.env, login="outside_agent", groups="im_livechat.im_livechat_group_user")
+        self.assertNotIn(agent, self.livechat_channel.user_ids)
+        self.visitor.with_user(agent).action_send_chat_request()
+        chat_request = self.env["discuss.channel"].search([("livechat_visitor_id", "=", self.visitor.id)])
+        self.assertEqual(chat_request.livechat_agent_partner_ids, agent.partner_id)
+        self.assertNotIn(agent, self.livechat_channel.user_ids)

@@ -1,9 +1,8 @@
 import { makeContext } from "@web/core/context";
 import { _t } from "@web/core/l10n/translation";
 import { evaluateBooleanExpr, evaluateExpr } from "@web/core/py_js/py";
-import { clamp } from "@web/core/utils/numbers";
 import { visitXML } from "@web/core/utils/xml";
-import { DEFAULT_INTERVAL, toGeneratorId } from "@web/search/utils/dates";
+import { DEFAULT_INTERVAL, RELATIVE_FILTER_OPTIONS } from "@web/search/utils/dates";
 
 const ALL = _t("All");
 const DEFAULT_LIMIT = 200;
@@ -25,7 +24,7 @@ function getContextGroupBy(context) {
 }
 
 function reduceType(type) {
-    if (type === "dateFilter") {
+    if (type === "dateFilter" || type === "parentFilter") {
         return "filter";
     }
     if (type === "dateGroupBy") {
@@ -76,11 +75,15 @@ export class SearchArchParser {
                     this.visitSeparator();
                     break;
                 case "field":
-                    this.visitField(node);
+                    if (this.optionsParams) {
+                        this.visitInnerField(node);
+                    } else {
+                        this.visitField(node);
+                    }
                     break;
                 case "filter":
                     if (this.optionsParams) {
-                        this.visitDateOption(node);
+                        this.visitInnerFilter(node);
                     } else {
                         this.visitFilter(node, visitChildren);
                     }
@@ -167,6 +170,16 @@ export class SearchArchParser {
                         orm
                             .call(relation, "read", [value, ["display_name"]], { context })
                             .then((results) => {
+                                if (!results.length) {
+                                    console.error(
+                                        _t(
+                                            "The autocomplete value for %(field)s has not been found: the record with id %(id)s doesn't seem to exist",
+                                            { field: preField.fieldName, id: value }
+                                        )
+                                    );
+                                    preField.isDefault = false;
+                                    return;
+                                }
                                 preField.defaultAutocompleteValue.label =
                                     results[0]["display_name"];
                             })
@@ -224,30 +237,44 @@ export class SearchArchParser {
             this.pushGroup(reduceType(preSearchItem.type));
         }
         if (preSearchItem.type === "filter") {
+            let optionsParams;
             if (node.hasAttribute("date")) {
                 const fieldName = node.getAttribute("date");
                 preSearchItem.type = "dateFilter";
                 preSearchItem.fieldName = fieldName;
                 preSearchItem.fieldType = this.fields[fieldName].type;
-                const optionsParams = {
-                    startYear: Number(node.getAttribute("start_year") || -2),
-                    endYear: Number(node.getAttribute("end_year") || 0),
-                    startMonth: Number(node.getAttribute("start_month") || -2),
-                    endMonth: Number(node.getAttribute("end_month") || 0),
+                if (node.hasAttribute("end_date")) {
+                    // The filter spans two fields: it matches the records whose
+                    // [fieldName, endFieldName] range overlaps the searched period.
+                    preSearchItem.endFieldName = node.getAttribute("end_date");
+                    preSearchItem.endFieldType = this.fields[preSearchItem.endFieldName].type;
+                }
+                optionsParams = {
                     customOptions: [],
                 };
-                const defaultOffset = clamp(optionsParams.startMonth, optionsParams.endMonth, 0);
-                preSearchItem.defaultGeneratorIds = [toGeneratorId("month", defaultOffset)];
+                preSearchItem.defaultGeneratorIds = ["month"];
                 if (node.hasAttribute("default_period")) {
                     preSearchItem.defaultGeneratorIds = node
                         .getAttribute("default_period")
                         .split(",");
                 }
+            } else if (node.childElementCount) {
+                preSearchItem.type = "parentFilter";
+                optionsParams = { customOptions: [] };
+            }
+            if (optionsParams) {
                 this.optionsParams = optionsParams;
                 visitChildren();
+                if (optionsParams.defaultGeneratorIds) {
+                    preSearchItem.defaultGeneratorIds = optionsParams.defaultGeneratorIds;
+                    preSearchItem.isDefault = true;
+                    preSearchItem.defaultRank = -5;
+                    delete optionsParams.defaultGeneratorIds;
+                }
                 preSearchItem.optionsParams = optionsParams;
                 this.optionsParams = null;
             }
+
             preSearchItem.domain = node.getAttribute("domain") || "[]";
         }
         if (node.hasAttribute("invisible")) {
@@ -281,6 +308,15 @@ export class SearchArchParser {
                 }
             }
         }
+        if (preSearchItem.type === "dateFilter") {
+            const relativeOptionId = preSearchItem.defaultGeneratorIds.find((id) =>
+                Object.hasOwn(RELATIVE_FILTER_OPTIONS, id)
+            );
+            if (relativeOptionId) {
+                preSearchItem.defaultRelativeOptionId = relativeOptionId;
+                preSearchItem.defaultGeneratorIds = [];
+            }
+        }
         if (node.hasAttribute("string")) {
             preSearchItem.description = node.getAttribute("string");
         } else if (preSearchItem.fieldName) {
@@ -295,17 +331,37 @@ export class SearchArchParser {
         this.currentGroup.push(preSearchItem);
     }
 
-    visitDateOption(node) {
-        const preDateOption = { type: "dateOption" };
+    visitInnerFilter(node) {
+        const preInnerFilterOption = { type: "innerFilter" };
         for (const attribute of ["name", "string", "domain"]) {
             if (!node.getAttribute(attribute)) {
                 throw new Error(`Attribute "${attribute}" is missing.`);
             }
         }
-        preDateOption.id = `custom_${node.getAttribute("name")}`;
-        preDateOption.description = node.getAttribute("string");
-        preDateOption.domain = node.getAttribute("domain");
-        this.optionsParams.customOptions.push(preDateOption);
+        preInnerFilterOption.id = `custom_${node.getAttribute("name")}`;
+        preInnerFilterOption.description = node.getAttribute("string");
+        preInnerFilterOption.domain = node.getAttribute("domain");
+        this.optionsParams.customOptions.push(preInnerFilterOption);
+        if (node.getAttribute("name") in this.searchDefaults) {
+            this.optionsParams.defaultGeneratorIds ||= [];
+            this.optionsParams.defaultGeneratorIds.push(preInnerFilterOption.id);
+        }
+    }
+
+    visitInnerField(node) {
+        this.optionsParams.toBeLoaded = true;
+        this.optionsParams.fieldName = node.getAttribute("name");
+        this.optionsParams.domain = node.getAttribute("domain") || [];
+        this.optionsParams.fieldType = this.fields[this.optionsParams.fieldName]?.type;
+        this.optionsParams.customOptions = [];
+        if (
+            !this.optionsParams.fieldType ||
+            !["many2many", "many2one", "selection"].includes(this.optionsParams.fieldType)
+        ) {
+            throw new Error(
+                `Inner field should only consist in a many2one, many2many or selection field`
+            );
+        }
     }
 
     visitGroup(node, visitChildren) {
@@ -357,6 +413,7 @@ export class SearchArchParser {
                 expand: evaluateBooleanExpr(attrs.expand),
                 fieldName: attrs.name,
                 icon: attrs.icon || null,
+                iconClass: attrs.icon_class || null,
                 id: nextSectionId++,
                 limit: evaluateExpr(attrs.limit || String(DEFAULT_LIMIT)),
                 type,
@@ -364,7 +421,8 @@ export class SearchArchParser {
             };
             if (type === "category") {
                 section.activeValueId = this.searchPanelDefaults[attrs.name];
-                section.icon = section.icon || "fa-folder";
+                section.icon = section.icon || "folder";
+                section.iconClass = section.iconClass || "oi-filled";
                 section.hierarchize = evaluateBooleanExpr(attrs.hierarchize || "1");
                 section.depth = attrs.depth ? parseInt(attrs.depth) : 0;
                 section.values.set(false, {
@@ -378,7 +436,8 @@ export class SearchArchParser {
             } else {
                 section.domain = attrs.domain || "[]";
                 section.groupBy = attrs.groupby || null;
-                section.icon = section.icon || "fa-filter";
+                section.icon = section.icon || "filter_alt";
+                section.iconClass = section.iconClass || "oi-filled";
                 hasFilterWithDomain = hasFilterWithDomain || section.domain !== "[]";
             }
             this.sections.push([section.id, section]);

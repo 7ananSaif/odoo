@@ -1,21 +1,23 @@
-import { Component } from "@odoo/owl";
+import { Component, t, usePlugin, useProps } from "@odoo/owl";
+import { DebugModePlugin } from "@web/core/debug_mode_plugin";
 import { _t } from "@web/core/l10n/translation";
 import { ModelFieldSelector } from "@web/core/model_field_selector/model_field_selector";
 import { registry } from "@web/core/registry";
-import { exprToBoolean } from "@web/core/utils/strings";
-import { standardFieldProps } from "../standard_field_props";
 import { formatChar } from "../formatters";
+import { standardFieldProps } from "../standard_field_props";
 
 export class FieldSelectorField extends Component {
     static template = "web.FieldSelectorField";
     static components = { ModelFieldSelector };
-    static props = {
+    props = useProps({
         ...standardFieldProps,
-        resModel: { type: String, optional: true },
-        onlySearchable: { type: Boolean, optional: true },
-        allowProperties: { type: Boolean, optional: true },
-        followRelations: { type: Boolean, optional: true },
-    };
+        model: t.string(),
+        allowProperties: t.boolean().optional(),
+        followRelation: t.or([t.boolean(), t.function()]).optional(),
+        required: t.boolean().optional(),
+    });
+
+    debugMode = usePlugin(DebugModePlugin);
 
     filter(fieldDef) {
         if (fieldDef.type === "separator") {
@@ -25,7 +27,7 @@ export class FieldSelectorField extends Component {
         if (!this.props.allowProperties && fieldDef.type === "properties") {
             return false;
         }
-        return !this.props.onlySearchable || fieldDef.searchable;
+        return true;
     }
 
     async update(value) {
@@ -38,7 +40,10 @@ export class FieldSelectorField extends Component {
     }
 
     get resModel() {
-        return this.props.record.data[this.props.resModel] || this.props.record.resModel;
+        if (this.props.record.fieldNames.includes(this.props.model)) {
+            return this.props.record.data[this.props.model];
+        }
+        return this.props.model;
     }
 
     get selectorProps() {
@@ -48,9 +53,9 @@ export class FieldSelectorField extends Component {
             resModel: this.resModel,
             readonly: this.props.readonly,
             update: this.update.bind(this),
-            isDebugMode: !!this.env.debug,
+            isDebugMode: this.debugMode.isActive(),
             filter: this.filter.bind(this),
-            followRelations: this.props.followRelations,
+            followRelation: this.props.followRelation,
         };
     }
 }
@@ -71,18 +76,13 @@ export const fieldSelectorField = {
             name: "model",
             type: "string",
         },
-        {
-            label: _t("Only searchable"),
-            name: "only_searchable",
-            type: "string",
-        },
     ],
     extractProps({ options }, dynamicInfo) {
         return {
             allowProperties: options.allow_properties ?? true,
-            followRelations: options.follow_relations ?? true,
-            onlySearchable: exprToBoolean(options.only_searchable),
-            resModel: options.model,
+            followRelation: options.follow_relations ?? true,
+            model: options.model,
+            required: dynamicInfo.required,
         };
     },
 };

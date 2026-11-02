@@ -2,19 +2,21 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo.addons.sms.tests.common import SMSCommon
+from odoo.tests import tagged
+
 from odoo.addons.test_mail_sms.tests.common import TestSMSRecipients
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestSmsTemplate(SMSCommon, TestSMSRecipients):
 
     @classmethod
     def setUpClass(cls):
         super(TestSmsTemplate, cls).setUpClass()
-        cls.test_record = cls.env['mail.test.sms'].with_context(**cls._test_context).create({
+        cls.test_record = cls.env['mail.test.sms'].create({
             'name': 'Test',
             'customer_id': cls.partner_1.id,
         })
-        cls.test_record = cls._reset_mail_context(cls.test_record)
 
         cls.body_en = 'Dear {{ object.display_name }} this is an SMS.'
         cls.body_fr = u"Hello {{ object.display_name }} ceci est en français."

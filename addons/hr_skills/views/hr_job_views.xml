@@ -5,22 +5,19 @@
         <field name="model">hr.job</field>
         <field name="inherit_id" ref="hr.view_hr_job_form"/>
         <field name="arch" type="xml">
-            <page name="recruitment_page" position="attributes">
-                <attribute name="invisible">0</attribute>
-            </page>
             <div class="oe_title" position="after">
                 <group id="job_skills">
                     <field
                         name="current_job_skill_ids"
                         widget="many2many_tags"
-                        options="{'color_field': 'color'}"
+                        options="{'color_field': 'color', 'on_tag_click': 'edit_color'}"
                         readonly="True"
                         string="Expected Skills"
                         groups="!hr.group_hr_user"
                     />
                 </group>
             </div>
-            <div name="recruitment_target" position="after">
+            <group name="job" position="inside">
                 <field
                     name="current_job_skill_ids"
                     mode="list"
@@ -35,7 +32,7 @@
                         <field name="color"/>
                     </list>
                 </field>
-            </div>
+            </group>
         </field>
     </record>
 </odoo>

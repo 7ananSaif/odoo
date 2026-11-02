@@ -5,7 +5,7 @@ import { CORE_PLUGINS } from "@html_editor/plugin_sets";
 import { getContent, setSelection } from "../_helpers/selection";
 
 async function testCoreEditor(testConfig) {
-    return testEditor({ ...testConfig, config: { Plugins: CORE_PLUGINS } });
+    return testEditor({ ...testConfig, config: { basePlugins: CORE_PLUGINS } });
 }
 
 // Tests the deleteRange shared method.
@@ -249,11 +249,11 @@ describe("deleteRange method", () => {
             */
             deleteRange(editor);
             const contentAfter = unformat(
-                `[<table><tbody>
+                `[<div class="o_table_wrapper"><table><tbody>
                     <tr><td><br></td><td><br></td></tr>
                     <tr><td>]<br></td><td><br></td></tr>
-                </tbody></table>
-                <p data-selection-placeholder=""><br></p>`
+                </tbody></table></div>
+                <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`
             );
             expect(getContent(el)).toBe(contentAfter);
         });

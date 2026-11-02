@@ -5,31 +5,70 @@
 # Bone NI <bounkirdni@gmail.com>, 2026.
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0\n"
+"Project-Id-Version: Odoo Server 19.4a1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-22 17:40+0000\n"
-"PO-Revision-Date: 2026-06-06 20:26+0000\n"
+"POT-Creation-Date: 2026-10-09 17:38+0000\n"
+"PO-Revision-Date: 2026-10-19 05:33+0000\n"
 "Last-Translator: Bone NI <bounkirdni@gmail.com>\n"
-"Language-Team: Lao <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Lao <https://translate.odoo.com/projects/odoo-20/"
 "pos_restaurant/lo/>\n"
 "Language: lo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: pos_restaurant
+#: model:ir.module.module,description:base.module_pos_restaurant
+msgid ""
+"\n"
+"\n"
+"This module adds several features to the Point of Sale that are specific to "
+"restaurant management:\n"
+"- Bill Printing: Allows you to print a receipt before the order is paid\n"
+"- Bill Splitting: Allows you to split an order into different orders\n"
+"- Kitchen Order Printing: allows you to print orders updates to kitchen or "
+"bar printers\n"
+"\n"
+msgstr ""
+"\n"
+"\n"
+"ໂມດູນນີ້ເພີ່ມຄຸນສົມບັດຫຼາຍຢ່າງໃຫ້ກັບຈຸດຂາຍ (POS) ທີ່ສະເພາະເຈາະຈົງສຳລັບການຈັດການຮ້ານອາຫານ:\n"
+"- ການພິມບິນ: ອະນຸຍາດໃຫ້ທ່ານພິມໃບຮັບເງິນກ່ອນທີ່ຈະຈ່າຍເງິນ\n"
+"- ການແຍກບິນ: ອະນຸຍາດໃຫ້ທ່ານແຍກລາຍການສັ່ງອອກເປັນຫຼາຍລາຍການ\n"
+"- ການພິມລາຍການສັ່ງໄປຍັງເຮືອນຄົວ: ອະນຸຍາດໃຫ້ທ່ານພິມລາຍການສັ່ງອັບເດດໄປຍັງເຄື່ອງພິມໃນເຮືອນຄົວ ຫຼື ບາ"
+"ຣ໌\n"
+"\n"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/split_bill_screen/split_bill_screen.xml:0
-msgid "% discount"
-msgstr "% ສ່ວນຫຼຸດ"
+#: code:addons/pos_restaurant/static/src/app/models/restaurant_table.js:0
+msgid "%s'"
+msgstr "%s'"
 
 #. module: pos_restaurant
 #. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/services/pos_store.js:0
 msgid "%s, sent to the kitchen"
-msgstr "%s, ສົ່ງເຂົ້າຄົວແລ້ວ"
+msgstr "%s, ສົ່ງໄປເຮືອນຄົວແລ້ວ"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/models/restaurant_table.js:0
+msgid "%sh"
+msgstr "%s ຊມ."
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/models/restaurant_table.js:0
+msgid "%sh%s'"
+msgstr "%sh%s'"
+
+#. module: pos_restaurant
+#: model_terms:ir.ui.view,arch_db:pos_restaurant.pos_order_receipt_header
+msgid ", Guest"
+msgstr ", ແຂກ"
 
 #. module: pos_restaurant
 #. odoo-javascript
@@ -43,8 +82,8 @@ msgid ""
 "200G Irish Black Angus beef, 9-month matured cheddar cheese, shredded "
 "iceberg lettuce, caramelised onions, crushed tomatoes and Chef’s sauce."
 msgstr ""
-"ຊີ້ນງົວ Irish Black Angus 200 ກຣາມ, ເນີຍແຂງເຊດດ້າບົ່ມ 9 ເດືອນ, ຜັກສະລັດ iceberg ຊອຍ, ຫົວ"
-"ບົວຜັດຄາຣາເມລ, ໝາກເລັ່ນບົດ ແລະ ຊອດສູດພິເສດຈາກເຊຟ."
+"ຊີ້ນງົວ Irish Black Angus 200 ກຣາມ, ເນີຍແຂງ Cheddar ໝັກ 9 ເດືອນ, ຜັກສະລັດໄອສເບີກຊອຍ, ຫົ"
+"ວຜັກບົ່ວຜັດຄາຣາເມວ, ໝາກເລັ່ນບົດ ແລະ ຊອດສູດພິເສດຂອງພໍ່ຄົວ."
 
 #. module: pos_restaurant
 #: model:product.template,description_sale:pos_restaurant.pos_food_bacon_product_template
@@ -53,8 +92,18 @@ msgid ""
 "iceberg salad, red onions, grilled bacon, tomato sauce, pickles, barbecue "
 "sauce"
 msgstr ""
-"ຊີ້ນງົວ Irish Black Angus 200 ກຣາມ, ຫົວບົວຜັດຄາຣາເມລໃສ່ປາປຣິກາ, ຜັກສະລັດ iceberg ຊອຍ, ຫົ"
-"ວບົວແດງ, ເບຄອນປີ້ງ, ຊອດໝາກເລັ່ນ, ໝາກແຕງດອງ, ຊອດບາບີຄິວ"
+"ຊີ້ນງົວ Irish Black Angus 200 ກຣາມ, ຫົວຜັກບົ່ວຜັດຄາຣາເມວກັບໝາກເຜັດປາປຣິກາ, ສະລັດໄອສເບີກຊອ"
+"ຍ, ຫົວຜັກບົ່ວແດງ, ເບຄອນປີ້ງ, ຊອດໝາກເລັ່ນ, ໝາກແຕງດອງ, ຊອດບາບີຄິວ"
+
+#. module: pos_restaurant
+#: model_terms:ir.ui.view,arch_db:pos_restaurant.pos_order_change_receipt
+msgid "<span class=\"text-bold\">T </span>"
+msgstr "<span class=\"text-bold\">T </span>"
+
+#. module: pos_restaurant
+#: model_terms:ir.ui.view,arch_db:pos_restaurant.pos_restaurant_pos_category_kanban_view
+msgid "<span>Course:</span>"
+msgstr "<span>ລຳດັບອາຫານ:</span>"
 
 #. module: pos_restaurant
 #: model_terms:ir.ui.view,arch_db:pos_restaurant.view_restaurant_floor_kanban
@@ -64,7 +113,12 @@ msgstr "<strong>ຊື່ຊັ້ນ: </strong>"
 #. module: pos_restaurant
 #: model_terms:ir.ui.view,arch_db:pos_restaurant.view_restaurant_floor_kanban
 msgid "<strong>Point of Sales:</strong>"
-msgstr "<strong>ຈຸດຂາຍ (PoS):</strong>"
+msgstr "<strong>ຈຸດຂາຍ (POS):</strong>"
+
+#. module: pos_restaurant
+#: model:ir.model.constraint,message:pos_restaurant.constraint_pos_course_name_unique
+msgid "A course with this name already exists"
+msgstr "ມີຊື່ລຳດັບອາຫານນີ້ແລ້ວ"
 
 #. module: pos_restaurant
 #: model_terms:ir.actions.act_window,help:pos_restaurant.action_restaurant_floor_form
@@ -73,8 +127,8 @@ msgid ""
 "where you can\n"
 "                define and position the tables."
 msgstr ""
-"ຊັ້ນຮ້ານອາຫານແມ່ນສະຖານທີ່ບ່ອນທີ່ໃຫ້ບໍລິການລູກຄ້າ, ນີ້ແມ່ນບ່ອນທີ່ທ່ານສາມາດ\n"
-"                ກຳນົດ ແລະ ຈັດວາງຕຳແໜ່ງໂຕະ."
+"ຊັ້ນຂອງຮ້ານອາຫານສະແດງເຖິງບ່ອນທີ່ໃຫ້ບໍລິການລູກຄ້າ, ນີ້ແມ່ນບ່ອນທີ່ທ່ານສາມາດ\n"
+"                ກຳນົດ ແລະ ຈັດວາງຕຳແໜ່ງໂຕະໄດ້."
 
 #. module: pos_restaurant
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_floor__active
@@ -84,21 +138,21 @@ msgstr "ເປີດໃຊ້ງານ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/toolbar/toolbar.xml:0
+msgid "Add Decor"
+msgstr "ເພີ່ມເຄື່ອງຕົກແຕ່ງ"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/toolbar/toolbar.xml:0
 msgid "Add Floor"
 msgstr "ເພີ່ມຊັ້ນ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/toolbar/toolbar.xml:0
 msgid "Add Table"
 msgstr "ເພີ່ມໂຕະ"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
-msgid "Add a new floor to get started."
-msgstr "ເພີ່ມຊັ້ນໃໝ່ເພື່ອເລີ່ມຕົ້ນ."
 
 #. module: pos_restaurant
 #: model_terms:ir.actions.act_window,help:pos_restaurant.action_restaurant_floor_form
@@ -106,65 +160,43 @@ msgid "Add a new restaurant floor"
 msgstr "ເພີ່ມຊັ້ນຮ້ານອາຫານໃໝ່"
 
 #. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
-msgid "Add a new table to get started."
-msgstr "ເພີ່ມໂຕະໃໝ່ເພື່ອເລີ່ມຕົ້ນ."
+#: model_terms:ir.actions.act_window,help:pos_restaurant.action_pos_course
+msgid "Add courses"
+msgstr "ເພີ່ມລຳດັບອາຫານ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/tip_screen/tip_screen.xml:0
-msgid "Add a tip"
-msgstr "ເພີ່ມທິບ"
-
-#. module: pos_restaurant
-#: model_terms:ir.ui.view,arch_db:pos_restaurant.res_config_settings_view_form
-msgid "Add tip after payment"
-msgstr "ເພີ່ມທິບຫຼັງການຊຳລະເງິນ"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/toolbar/toolbar.xml:0
+msgid "Add decor"
+msgstr "ເພີ່ມເຄື່ອງຕົກແຕ່ງ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/payment_screen/payment_screen_payment_lines/payment_screen_payment_lines.xml:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/add_decor_popup/add_decor_popup.xml:0
+msgid "Add image"
+msgstr "ເພີ່ມຮູບພາບ"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/payment_screen/payment_screen_payment_lines/payment_screen_payment_lines.js:0
 msgid "Adjust Amount"
-msgstr "ປັບປຸງມູນຄ່າ"
+msgstr "ປັບຈຳນວນເງິນ"
 
 #. module: pos_restaurant
-#: model:ir.model.fields,help:pos_restaurant.field_pos_config__set_tip_after_payment
-msgid ""
-"Adjust the amount authorized by payment terminals to add a tip after the "
-"customers left or at the end of the day."
-msgstr ""
-"ປັບມູນຄ່າທີ່ໄດ້ຮັບອະນຸຍາດຈາກເຄື່ອງຮູດບັດເພື່ອເພີ່ມທິບ ຫຼັງຈາກລູກຄ້າອອກໄປ ຫຼື ເມື່ອຈົບມື້."
-
-#. module: pos_restaurant
-#: model_terms:ir.ui.view,arch_db:pos_restaurant.res_config_settings_view_form
-msgid "Allow Bill Splitting"
-msgstr "ອະນຸຍາດໃຫ້ແຍກບິນ"
-
-#. module: pos_restaurant
-#: model_terms:ir.ui.view,arch_db:pos_restaurant.res_config_settings_view_form
-msgid "Allow to print receipt before payment"
-msgstr "ອະນຸຍາດໃຫ້ພິມໃບບິນກ່ອນການຊຳລະ"
-
-#. module: pos_restaurant
-#: model:ir.model.fields,help:pos_restaurant.field_pos_config__iface_printbill
-msgid "Allows to print the Bill before payment."
-msgstr "ອະນຸຍາດໃຫ້ພິມໃບບິນກ່ອນການຊຳລະເງິນ."
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Alignment"
+msgstr "ການຈັດວາງຕຳແໜ່ງ"
 
 #. module: pos_restaurant
 #: model:product.attribute.value,name:pos_restaurant.pav_extras_pizza_anchovy
 msgid "Anchovy"
-msgstr "ປາແອງໂຊວີ"
+msgstr "ປາແອນໂຊວີ"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.product_aperol_spritz_product_template
 msgid "Aperol Spritz"
-msgstr "ອາເພີໂຣ ສະປຣິດຊ໌"
-
-#. module: pos_restaurant
-#: model_terms:ir.ui.view,arch_db:pos_restaurant.view_restaurant_table_form
-msgid "Appearance"
-msgstr "ຮູບລັກສະນະ"
+msgstr "ອາເປຣອນ ສະປຣິດ"
 
 #. module: pos_restaurant
 #: model_terms:ir.ui.view,arch_db:pos_restaurant.view_restaurant_floor_form
@@ -174,32 +206,47 @@ msgstr "ຈັດເກັບແລ້ວ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
-msgid "Are you sure?"
-msgstr "ທ່ານແນ່ໃຈບໍ່?"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_floor/edit_floor.js:0
+msgid "Are you sure you want to delete this floor?"
+msgstr "ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບຊັ້ນນີ້?"
 
 #. module: pos_restaurant
 #. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/screens/product_screen/actionpad_widget/actionpad_widget.xml:0
 msgid "Assign"
-msgstr "ມອບໝາຍ"
+msgstr "ກຳນົດ"
+
+#. module: pos_restaurant
+#: model_terms:ir.ui.view,arch_db:pos_restaurant.res_config_settings_view_form
+msgid "Assign categories to default course"
+msgstr "ກຳນົດໝວດໝູ່ໃຫ້ກັບລຳດັບອາຫານເລີ່ມຕົ້ນ"
+
+#. module: pos_restaurant
+#: model_terms:ir.actions.act_window,help:pos_restaurant.action_pos_course
+msgid ""
+"Assign products to courses like starter, main or dessert to ensure dishes "
+"are prepared and served in the correct order."
+msgstr ""
+"ກຳນົດສິນຄ້າໃຫ້ກັບລຳດັບອາຫານ ເຊັ່ນ: ອາຫານຮອງທ້ອງ, ອາຫານຈານຫຼັກ ຫຼື ຂອງຫວານ ເພື່ອຮັບປະກັນວ່າອາຫານ"
+"ຈະຖືກປຸງແຕ່ງ ແລະ ເສີບຕາມລຳດັບທີ່ຖືກຕ້ອງ."
+
+#. module: pos_restaurant
+#: model_terms:ir.ui.view,arch_db:pos_restaurant.res_config_settings_view_form
+msgid "Automatic course allocation"
+msgstr "ການຈັດສັນລຳດັບອາຫານອັດຕະໂນມັດ"
 
 #. module: pos_restaurant
 #. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
-#: code:addons/pos_restaurant/static/src/app/screens/tip_screen/tip_screen.xml:0
 msgid "Back"
 msgstr "ກັບຄືນ"
 
 #. module: pos_restaurant
-#: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_floor__background_color
-msgid "Background Color"
-msgstr "ສີພື້ນຫຼັງ"
-
-#. module: pos_restaurant
-#: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_floor__background_image
-msgid "Background Image"
-msgstr "ຮູບພື້ນຫຼັງ"
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_floor/edit_floor.xml:0
+msgid "Background"
+msgstr "ພື້ນຫຼັງ"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.pos_food_bacon_product_template
@@ -207,27 +254,20 @@ msgid "Bacon Burger"
 msgstr "ເບຄອນເບີເກີ"
 
 #. module: pos_restaurant
+#: model:pos.config,name:pos_restaurant.pos_config_main_bar
+msgid "Bar"
+msgstr "ບາຣ໌"
+
+#. module: pos_restaurant
 #: model:product.attribute.value,name:pos_restaurant.pav_sides_fries
 msgid "Belgian fresh homemade fries"
-msgstr "ມັນຝຣັ່ງຈືນສົດສູດແບລຢ້ຽມ"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/product_screen/control_buttons/control_buttons.xml:0
-msgid "Bill"
-msgstr "ໃບບິນ"
-
-#. module: pos_restaurant
-#: model:ir.model.fields,field_description:pos_restaurant.field_pos_config__iface_printbill
-msgid "Bill Printing"
-msgstr "ການພິມໃບບິນ"
+msgstr "ມັນຝຣັ່ງທອດສົດແບບໂຮມເມດສູດແບນຊິກ"
 
 #. module: pos_restaurant
 #. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/screens/split_bill_screen/split_bill_screen.xml:0
-#: model:ir.model.fields,field_description:pos_restaurant.field_pos_config__iface_splitbill
 msgid "Bill Splitting"
-msgstr "ການແຍກໃບບິນ"
+msgstr "ການແຍກບິນ"
 
 #. module: pos_restaurant
 #: model:product.attribute.value,name:pos_restaurant.pav_extras_pizza_black_olives
@@ -236,19 +276,47 @@ msgstr "ໝາກກອກດຳ"
 
 #. module: pos_restaurant
 #. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Bold"
+msgstr "ໂຕເຂັ້ມ"
+
+#. module: pos_restaurant
+#. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/screens/product_screen/order_summary/order_summary.xml:0
 msgid "Book table"
 msgstr "ຈອງໂຕະ"
 
 #. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Border"
+msgstr "ເສັ້ນຂອບ"
+
+#. module: pos_restaurant
+#: model:ir.model.fields.selection,name:pos_restaurant.selection__restaurant_table__parent_side__bottom
+msgid "Bottom"
+msgstr "ດ້ານລຸ່ມ"
+
+#. module: pos_restaurant
 #: model:product.template,description_sale:pos_restaurant.product_old_fashioned_product_template
 msgid "Bourbon, bitters, sugar, and a twist of citrus zest."
-msgstr "ເບີບອນ, ບິດເຕີ, ນ້ຳຕານ, ແລະ ເປືອກໝາກກ້ຽງ."
+msgstr "ເບີບອນ, ບິດເຕີ, ນ້ຳຕານ, ແລະ ຜິວໝາກນາວ."
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Bring forward"
+msgstr "ຍ້າຍຂຶ້ນມາໜ້າ"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.burger_drink_combo_product_template
 msgid "Burger Menu Combo"
-msgstr "ຊຸດເບີເກີຄອມໂບ"
+msgstr "ຊຸດເມນູເບີເກີ"
+
+#. module: pos_restaurant
+#: model:product.combo,name:pos_restaurant.burger_combo
+msgid "Burgers"
+msgstr "ເບີເກີ"
 
 #. module: pos_restaurant
 #: model:pos.payment.method,name:pos_restaurant.payment_method
@@ -265,19 +333,7 @@ msgstr "ກະຕ່າ"
 #. odoo-python
 #: code:addons/pos_restaurant/models/pos_config.py:0
 msgid "Cash Restaurant"
-msgstr "ເງິນສົດຮ້ານອາຫານ"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
-msgid "Change Floor Background"
-msgstr "ປ່ຽນພື້ນຫຼັງຊັ້ນ"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
-msgid "Change table number?"
-msgstr "ປ່ຽນເບີໂຕະບໍ່?"
+msgstr "ຮ້ານອາຫານເງິນສົດ"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.pos_food_cheeseburger_product_template
@@ -287,19 +343,15 @@ msgstr "ຊີສເບີເກີ"
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.pos_food_chicken_product_template
 msgid "Chicken Curry Sandwich"
-msgstr "ແຊນວິດແກງໄກ່"
+msgstr "ແຊນວິດແກງກະລີ່ໄກ່"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
-msgid "Clone"
-msgstr "ໂຄລນ"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/payment_screen/payment_screen.xml:0
-msgid "Close Tab"
-msgstr "ປິດແທັບ"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/add_decor_popup/add_decor_popup.xml:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/add_table_popup/add_table_popup.xml:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/floor_plan_editor.xml:0
+msgid "Close"
+msgstr "ປິດ"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.pos_food_club_product_template
@@ -309,7 +361,7 @@ msgstr "ຄລັບແຊນວິດ"
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.coke_product_template
 msgid "Coca-Cola"
-msgstr "ໂຄຄາ-ໂຄລາ"
+msgstr "ໂຄຄາ-ໂຄລ່າ"
 
 #. module: pos_restaurant
 #: model:pos.category,name:pos_restaurant.pos_category_cocktails
@@ -317,7 +369,9 @@ msgid "Cocktails"
 msgstr "ຄັອກເທວ"
 
 #. module: pos_restaurant
-#: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__color
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_table/edit_table.xml:0
 msgid "Color"
 msgstr "ສີ"
 
@@ -328,50 +382,64 @@ msgstr "ການຕັ້ງຄ່າລະບົບ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/receipt_screen/receipt_screen.xml:0
-msgid "Continue"
-msgstr "ສືບຕໍ່"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_table/edit_table.xml:0
+msgid "Corner rounding"
+msgstr "ຄວາມມົນຂອງມຸມ"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.product_cosmopolitan_product_template
 msgid "Cosmopolitan"
-msgstr "ຄອສໂມໂພລິແຕນ"
+msgstr "ຄອສໂມໂພລິຕັນ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/models/restaurant_order_course.js:0
 #: code:addons/pos_restaurant/static/src/app/screens/product_screen/actionpad_widget/actionpad_widget.xml:0
 #: code:addons/pos_restaurant/static/src/app/screens/product_screen/control_buttons/control_buttons.xml:0
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_category__course_id
+#: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_order_course__course_id
 msgid "Course"
 msgstr "ລຳດັບອາຫານ"
 
 #. module: pos_restaurant
 #. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/models/pos_order.js:0
+#: code:addons/pos_restaurant/static/src/app/screens/split_bill_screen/split_bill_screen.js:0
 #: code:addons/pos_restaurant/static/src/app/services/pos_store.js:0
-msgid "Course %s fired"
-msgstr "ລຳດັບອາຫານ %s ສົ່ງປຸງແຕ່ງແລ້ວ"
+msgid "Course "
+msgstr "ລຳດັບອາຫານ "
+
+#. module: pos_restaurant
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_course__name
+#: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_order_course__name
+msgid "Course Name"
+msgstr "ຊື່ລຳດັບອາຫານ"
 
 #. module: pos_restaurant
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_order_line__course_id
 msgid "Course Ref"
-msgstr "ອ້າງອີງລຳດັບ"
+msgstr "ລະຫັດອ້າງອີງລຳດັບອາຫານ"
 
 #. module: pos_restaurant
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_order_course__index
 msgid "Course index"
-msgstr "ດັດຊະນີລຳດັບ"
+msgstr "ດັດຊະນີລຳດັບອາຫານ"
 
 #. module: pos_restaurant
+#: model:ir.actions.act_window,name:pos_restaurant.action_pos_course
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_order__course_ids
+#: model:ir.ui.menu,name:pos_restaurant.menu_pos_course
+#: model_terms:ir.ui.view,arch_db:pos_restaurant.view_pos_course_list
 msgid "Courses"
 msgstr "ລຳດັບອາຫານ"
 
 #. module: pos_restaurant
 #: model:product.template,description_sale:pos_restaurant.product_cosmopolitan_product_template
 msgid "Cranberry Jus, lime jus, vodka and Cointreau"
-msgstr "ນ້ຳແຄຣນເບີຣີ, ນ້ຳໝາກນາວ, ວັອດກ້າ ແລະ ກວາງໂຕຣ"
+msgstr "ນ້ຳແຄຣນເບີຣີ, ນ້ຳໝາກນາວ, ວອດກ້າ ແລະ Cointreau"
 
 #. module: pos_restaurant
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_course__create_uid
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_floor__create_uid
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_order_course__create_uid
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__create_uid
@@ -379,11 +447,18 @@ msgid "Created by"
 msgstr "ສ້າງໂດຍ"
 
 #. module: pos_restaurant
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_course__create_date
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_floor__create_date
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_order_course__create_date
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__create_date
 msgid "Created on"
 msgstr "ສ້າງເມື່ອ"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Dashed"
+msgstr "ເສັ້ນຂີດຂາດ"
 
 #. module: pos_restaurant
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_config__default_screen
@@ -393,25 +468,26 @@ msgstr "ໜ້າຈໍເລີ່ມຕົ້ນ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_floor/edit_floor.js:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/floor_plan_editor.xml:0
 msgid "Delete"
 msgstr "ລຶບ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
-msgid "Delete Error"
-msgstr "ຂໍ້ຜິດພາດໃນການລຶບ"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_floor/edit_floor.xml:0
+msgid "Delete Floor"
+msgstr "ລຶບຊັ້ນ"
 
 #. module: pos_restaurant
 #: model:pos.preset,name:pos_restaurant.pos_delivery_preset
 msgid "Delivery"
-msgstr "ສົ່ງເຖິງທີ່"
+msgstr "ຈັດສົ່ງ"
 
 #. module: pos_restaurant
 #: model_terms:ir.ui.view,arch_db:pos_restaurant.res_config_settings_view_form
 msgid "Design floors and assign orders to tables"
-msgstr "ອອກແບບຊັ້ນ ແລະ ມອບໝາຍອໍເດີໃຫ້ໂຕະ"
+msgstr "ອອກແບບຊັ້ນ ແລະ ກຳນົດລາຍການສັ່ງໃຫ້ກັບໂຕະ"
 
 #. module: pos_restaurant
 #: model:pos.preset,name:pos_restaurant.pos_takein_preset
@@ -422,74 +498,109 @@ msgstr "ກິນຢູ່ຮ້ານ"
 #. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/models/pos_order.js:0
 msgid "Direct Sale"
-msgstr "ຂາຍໂດຍກົງ"
+msgstr "ຂາຍກົງ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/services/pos_store.js:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/navbar/navbar.xml:0
 msgid "Discard"
 msgstr "ຍົກເລີກ"
 
 #. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/navbar/navbar.xml:0
+msgid "Discard all changes"
+msgstr "ຍົກເລີກການປ່ຽນແປງທັງໝົດ"
+
+#. module: pos_restaurant
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_category__display_name
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_config__display_name
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_course__display_name
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_order__display_name
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_order_line__display_name
-#: model:ir.model.fields,field_description:pos_restaurant.field_pos_payment__display_name
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_order_receipt__display_name
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_preset__display_name
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_session__display_name
+#: model:ir.model.fields,field_description:pos_restaurant.field_product_template__display_name
 #: model:ir.model.fields,field_description:pos_restaurant.field_res_config_settings__display_name
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_floor__display_name
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_order_course__display_name
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__display_name
 msgid "Display Name"
-msgstr "ຊື່ທີ່ສະແດງ"
+msgstr "ຊື່ສະແດງ"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Dotted"
+msgstr "ເສັ້ນຈ້ຳ"
 
 #. module: pos_restaurant
 #: model:pos.category,name:pos_restaurant.drinks
+#: model:product.category,name:pos_restaurant.product_category_drinks
+#: model:product.combo,name:pos_restaurant.drink_combo
 msgid "Drinks"
 msgstr "ເຄື່ອງດື່ມ"
 
 #. module: pos_restaurant
-#: model_terms:ir.ui.view,arch_db:pos_restaurant.res_config_settings_view_form
-msgid "Early Receipt Printing"
-msgstr "ພິມໃບບິນກ່ອນກຳນົດ"
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/floor_plan_editor.xml:0
+msgid "Duplicate"
+msgstr "ສຳເນົາ"
+
+#. module: pos_restaurant
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_order__duration
+msgid "Duration"
+msgstr "ໄລຍະເວລາ"
 
 #. module: pos_restaurant
 #: model:ir.model,name:pos_restaurant.model_pos_preset
 msgid "Easily load a set of configuration options"
-msgstr "ໂຫຼດຊຸດຕົວເລືອກການຕັ້ງຄ່າໄດ້ງ່າຍ"
+msgstr "ໂຫຼດຊຸດຕົວເລືອກການຕັ້ງຄ່າໄດ້ຢ່າງງ່າຍດາຍ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/product_screen/control_buttons/control_buttons.xml:0
-#: code:addons/pos_restaurant/static/src/app/services/pos_store.js:0
-msgid "Edit Order Name"
-msgstr "ແກ້ໄຂຊື່ອໍເດີ"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/toolbar/toolbar.xml:0
+msgid "Edit Floor"
+msgstr "ແກ້ໄຂຊັ້ນ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/components/navbar/navbar.xml:0
-msgid "Edit Plan"
-msgstr "ແກ້ໄຂແຜນຜັງ"
-
-#. module: pos_restaurant
-#: model:ir.model.fields,help:pos_restaurant.field_pos_config__iface_splitbill
-msgid "Enables Bill Splitting in the Point of Sale."
-msgstr "ເປີດໃຊ້ການແຍກບິນໃນຈຸດຂາຍ (PoS)."
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
+msgid "Edit Floor Plan"
+msgstr "ແກ້ໄຂແຜນຜັງຊັ້ນ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
-msgid "Encountered error when loading image. Please try again."
-msgstr "ພົບຂໍ້ຜິດພາດໃນຂະນະໂຫຼດຮູບພາບ. ກະລຸນາລອງໃໝ່ອີກຄັ້ງ."
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Edit text"
+msgstr "ແກ້ໄຂຂໍ້ຄວາມ"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan/floor_plan.xml:0
+msgid "Edit your floor plan"
+msgstr "ແກ້ໄຂແຜນຜັງຊັ້ນຂອງທ່ານ"
+
+#. module: pos_restaurant
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_config__use_course_allocation
+#: model:ir.model.fields,field_description:pos_restaurant.field_res_config_settings__pos_use_course_allocation
+msgid "Enable Course Allocation"
+msgstr "ເປີດໃຊ້ງານການຈັດສັນລຳດັບອາຫານ"
 
 #. module: pos_restaurant
 #. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/components/numpad_dropdown/numpad_dropdown.xml:0
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
 #: code:addons/pos_restaurant/static/src/app/screens/product_screen/product_screen.xml:0
 msgid "Enter a table number"
 msgstr "ປ້ອນເບີໂຕະ"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/add_decor_popup/add_decor_popup.js:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.js:0
+msgid "Enter your text"
+msgstr "ປ້ອນຂໍ້ຄວາມຂອງທ່ານ"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.espresso_product_template
@@ -499,7 +610,7 @@ msgstr "ເອສເປຣສໂຊ"
 #. module: pos_restaurant
 #: model:product.attribute.value,name:pos_restaurant.pav_extras_pizza_extra_cheese
 msgid "Extra cheese"
-msgstr "ເພີ່ມຊີສ"
+msgstr "ເພີ່ມເນີຍແຂງ"
 
 #. module: pos_restaurant
 #: model:product.attribute,name:pos_restaurant.pa_extras_pizza
@@ -513,37 +624,26 @@ msgstr "ແຟນຕ້າ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
-msgid "File"
-msgstr "ໄຟລ໌"
-
-#. module: pos_restaurant
-#. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/screens/product_screen/actionpad_widget/actionpad_widget.js:0
 msgid "Fire %s"
-msgstr "ສົ່ງ %s ປຸງແຕ່ງ"
+msgstr "ສັ່ງປຸງແຕ່ງ %s"
 
 #. module: pos_restaurant
 #. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/components/order_course/order_course.xml:0
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_order_course__fired
 msgid "Fired"
-msgstr "ສົ່ງປຸງແຕ່ງແລ້ວ"
+msgstr "ແຈ້ງປຸງແຕ່ງແລ້ວ"
 
 #. module: pos_restaurant
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_order_course__fired_date
 msgid "Fired Date"
-msgstr "ວັນທີສົ່ງປຸງແຕ່ງ"
+msgstr "ວັນທີແຈ້ງປຸງແຕ່ງ"
 
 #. module: pos_restaurant
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__floor_id
 msgid "Floor"
 msgstr "ຊັ້ນ"
-
-#. module: pos_restaurant
-#: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_floor__floor_background_image
-msgid "Floor Background Image"
-msgstr "ຮູບພື້ນຫຼັງຊັ້ນ"
 
 #. module: pos_restaurant
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_floor__name
@@ -552,27 +652,39 @@ msgstr "ຊື່ຊັ້ນ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
-msgid "Floor Name ?"
-msgstr "ຊື່ຊັ້ນແມ່ນຫຍັງ?"
-
-#. module: pos_restaurant
-#. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/components/navbar/navbar.xml:0
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_config__floor_plan
 msgid "Floor Plan"
 msgstr "ແຜນຜັງຊັ້ນ"
+
+#. module: pos_restaurant
+#: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_floor__floor_plan_layout
+#: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__floor_plan_layout
+msgid "Floor Plan Layout"
+msgstr "ໂຄງຮ່າງແຜນຜັງຊັ້ນ"
+
+#. module: pos_restaurant
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_config__floor_plan_settings
+msgid "Floor Plan Settings"
+msgstr "ການຕັ້ງຄ່າແຜນຜັງຊັ້ນ"
 
 #. module: pos_restaurant
 #: model:ir.actions.act_window,name:pos_restaurant.action_restaurant_floor_form
 #: model:ir.ui.menu,name:pos_restaurant.menu_restaurant_floor_all
 msgid "Floor Plans"
-msgstr "ແຜນຜັງຊັ້ນຕ່າງໆ"
+msgstr "ແຜນຜັງຊັ້ນ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/floor_plan_editor.js:0
 msgid "Floor name"
 msgstr "ຊື່ຊັ້ນ"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/navbar/navbar.xml:0
+msgid "Floor plan editor"
+msgstr "ຕົວແກ້ໄຂແຜນຜັງຊັ້ນ"
 
 #. module: pos_restaurant
 #. odoo-python
@@ -597,24 +709,24 @@ msgstr "ອາຫານ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/receipt_screen/order_receipt/order_receipt.xml:0
-msgid "For convenience, we are providing the following gratuity calculations:"
-msgstr "ເພື່ອຄວາມສະດວກ, ພວກເຮົາໄດ້ສະໜອງການຄິດໄລ່ເງິນສົດນ້ຳໃຈ (ທິບ) ດັ່ງນີ້:"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_floor/edit_floor.js:0
+msgid "For the current display, an image a resolution of %s is recommended."
+msgstr "ສຳລັບການສະແດງຜົນປັດຈຸບັນ, ແນະນຳໃຫ້ໃຊ້ຮູບພາບທີ່ມີຄວາມລະອຽດ %s."
 
 #. module: pos_restaurant
 #: model:ir.model.fields,help:pos_restaurant.field_pos_preset__use_guest
 msgid "Force guest selection when clicking on order button in PoS restaurant"
-msgstr "ບັງຄັບໃຫ້ເລືອກແຂກ ເມື່ອຄລິກທີ່ປຸ່ມອໍເດີໃນ PoS ຮ້ານອາຫານ"
+msgstr "ບັງຄັບໃຫ້ເລືອກແຂກເມື່ອກົດປຸ່ມສັ່ງຊື້ໃນ PoS ຮ້ານອາຫານ"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.pos_food_funghi_product_template
 msgid "Funghi"
-msgstr "ຟັງຈີ (ເຫັດ)"
+msgstr "ເຫັດ (Funghi)"
 
 #. module: pos_restaurant
 #: model:product.template,description_sale:pos_restaurant.product_negroni_product_template
 msgid "Gin, vermouth rosso, Campari, and an orange peel."
-msgstr "ຢິນ, ເວີມຸດ ແດງ, ຄັມປາຣີ, ແລະ ເປືອກໝາກກ້ຽງ."
+msgstr "ຈິນ, ແວມຸດ ຣອດໂຊ, ແຄມປາຣີ, ແລະ ຜິວໝາກກ້ຽງ."
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.green_tea_product_template
@@ -627,40 +739,37 @@ msgid "Grilled vegetables"
 msgstr "ຜັກປີ້ງ"
 
 #. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/product_screen/control_buttons/control_buttons.xml:0
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_preset__use_guest
+#: model_terms:ir.ui.view,arch_db:pos_restaurant.pos_order_change_receipt
 msgid "Guest"
 msgstr "ແຂກ"
 
 #. module: pos_restaurant
 #. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/screens/product_screen/control_buttons/control_buttons.xml:0
+#: code:addons/pos_restaurant/static/src/app/screens/ticket_screen/order_details_dialog/order_details_dialog.js:0
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_order__customer_count
 msgid "Guests"
 msgstr "ແຂກ"
 
 #. module: pos_restaurant
-#: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__height
-msgid "Height"
-msgstr "ຄວາມສູງ"
-
-#. module: pos_restaurant
-#: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__position_h
-msgid "Horizontal Position"
-msgstr "ຕຳແໜ່ງແນວນອນ"
-
-#. module: pos_restaurant
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_category__id
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_config__id
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_course__id
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_order__id
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_order_line__id
-#: model:ir.model.fields,field_description:pos_restaurant.field_pos_payment__id
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_order_receipt__id
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_preset__id
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_session__id
+#: model:ir.model.fields,field_description:pos_restaurant.field_product_template__id
 #: model:ir.model.fields,field_description:pos_restaurant.field_res_config_settings__id
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_floor__id
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_order_course__id
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__id
 msgid "ID"
-msgstr "ໄອດີ"
+msgstr "ລະຫັດ"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.ice_tea_product_template
@@ -672,16 +781,30 @@ msgstr "ຊາເຢັນ"
 msgid ""
 "If false, the table is deactivated and will not be available in the point of "
 "sale"
-msgstr "ຖ້າປິດ, ໂຕະຈະຖືກຍົກເລີກການໃຊ້ງານ ແລະ ຈະບໍ່ສະແດງໃນຈຸດຂາຍ"
+msgstr "ຖ້າບໍ່ເລືອກ, ໂຕະນີ້ຈະຖືກປິດໃຊ້ງານ ແລະ ຈະບໍ່ມີໃຫ້ໃຊ້ໃນຈຸດຂາຍ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/services/pos_store.js:0
-msgid ""
-"It seems that the order has not been sent. Would you like to send it to "
-"preparation?"
-msgstr ""
-"ເບິ່ງຄືວ່າອໍເດີຍັງບໍ່ໄດ້ຖືກສົ່ງ. ທ່ານຕ້ອງການສົ່ງມັນໄປຂັ້ນຕອນການກຽມອາຫານບໍ່?"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/floor_plan_editor.js:0
+msgid "If you proceed, your changes will be lost"
+msgstr "ຖ້າທ່ານສືບຕໍ່, ການປ່ຽນແປງຂອງທ່ານຈະສູນຫາຍ"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/add_decor_popup/add_decor_popup.xml:0
+msgid "Images"
+msgstr "ຮູບພາບ"
+
+#. module: pos_restaurant
+#: model_terms:ir.ui.view,arch_db:pos_restaurant.res_config_settings_view_form
+msgid "Include the products when printing a fired course ticket"
+msgstr "ລວມສິນຄ້າເມື່ອພິມໃບບິນລຳດັບອາຫານທີ່ແຈ້ງປຸງແຕ່ງ"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Italic"
+msgstr "ໂຕອຽງ"
 
 #. module: pos_restaurant
 #. odoo-javascript
@@ -690,109 +813,104 @@ msgid "Jump"
 msgstr "ຂ້າມໄປ"
 
 #. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/payment_screen/payment_screen.xml:0
-msgid "Keep Open"
-msgstr "ເປີດໄວ້"
-
-#. module: pos_restaurant
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_course__write_uid
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_floor__write_uid
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_order_course__write_uid
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__write_uid
 msgid "Last Updated by"
-msgstr "ແກ້ໄຂຫຼ້າສຸດໂດຍ"
+msgstr "ອັບເດດລ່າສຸດໂດຍ"
 
 #. module: pos_restaurant
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_course__write_date
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_floor__write_date
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_order_course__write_date
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__write_date
 msgid "Last Updated on"
-msgstr "ແກ້ໄຂຫຼ້າສຸດເມື່ອ"
+msgstr "ອັບເດດລ່າສຸດເມື່ອ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
-msgid "Loading"
-msgstr "ກຳລັງໂຫລດ"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Layers"
+msgstr "ຊັ້ນເລເຢີ"
 
 #. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
-msgid "Loading Image Error"
-msgstr "ຂໍ້ຜິດພາດໃນການໂຫຼດຮູບພາບ"
+#: model:ir.model.fields.selection,name:pos_restaurant.selection__restaurant_table__parent_side__left
+msgid "Left"
+msgstr "ຊ້າຍ"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.pos_food_maki_product_template
 msgid "Lunch Maki 18pc"
-msgstr "ອາຫານທ່ຽງ ມາກິ 18 ຊິ້ນ"
+msgstr "ມາກິ ອາຫານທ່ຽງ 18 ຊິ້ນ"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.pos_food_salmon_product_template
 msgid "Lunch Salmon 20pc"
-msgstr "ອາຫານທ່ຽງ ຊັລມອນ 20 ຊິ້ນ"
+msgstr "ແຊວມອນ ອາຫານທ່ຽງ 20 ຊິ້ນ"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.pos_food_temaki_product_template
 msgid "Lunch Temaki mix 3pc"
-msgstr "ອາຫານທ່ຽງ ເທມາກິ ປະສົມ 3 ຊິ້ນ"
+msgstr "ເຕມາກິລວມ ອາຫານທ່ຽງ 3 ຊິ້ນ"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.product_mai_tai_product_template
 msgid "Mai Tai"
-msgstr "ໄມໄທ"
+msgstr "ໄໝໄທ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
-msgid "Make Round"
-msgstr "ເຮັດໃຫ້ມົນ"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
-msgid "Make Square"
-msgstr "ເຮັດໃຫ້ເປັນສີ່ລ່ຽມ"
+#: code:addons/pos_restaurant/static/src/app/services/floor_plan/floor_plan_service.js:0
+msgid "Main Floor"
+msgstr "ຊັ້ນຫຼັກ"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.product_margarita_product_template
 msgid "Margarita"
-msgstr "ມາການິຕ້າ"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/services/pos_store.js:0
-msgid "Message"
-msgstr "ຂໍ້ຄວາມ"
+msgstr "ມາກາຣິຕ້າ"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.milkshake_banana_product_template
 msgid "Milkshake Banana"
-msgstr "ມິວເຊັກກ້ວຍ"
+msgstr "ມິວເຊກກ້ວຍ"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.minute_maid_product_template
 msgid "Minute Maid"
-msgstr "ມິນິດ ເມດ"
+msgstr "ມິນິດເມດ"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.product_mojito_product_template
 msgid "Mojito"
-msgstr "ໂມຮິໂຕ້"
+msgstr "ໂມຮິໂຕ"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/toolbar/toolbar.xml:0
+msgid "More"
+msgstr "ເພີ່ມເຕີມ"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.product_moscow_mule_product_template
 msgid "Moscow Mule"
-msgstr "ມອສໂກ ມິວ"
+msgstr "ມອດໂກມິວ"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.pos_food_mozza_product_template
 msgid "Mozzarella Sandwich"
-msgstr "ແຊນວິດມອສຊາເຣວລ່າ"
+msgstr "ແຊນວິດມອດຊາເຣວລ່າ"
 
 #. module: pos_restaurant
 #: model:product.attribute.value,name:pos_restaurant.pav_extras_pizza_mushroom
 msgid "Mushroom"
 msgstr "ເຫັດ"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_floor/edit_floor.xml:0
+msgid "Name"
+msgstr "ຊື່"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.product_negroni_product_template
@@ -808,7 +926,7 @@ msgstr "ໃໝ່"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/floor_plan_editor.js:0
 msgid "New Floor"
 msgstr "ຊັ້ນໃໝ່"
 
@@ -816,80 +934,66 @@ msgstr "ຊັ້ນໃໝ່"
 #. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
 msgid "New Order"
-msgstr "ອໍເດີໃໝ່"
+msgstr "ລາຍການສັ່ງໃໝ່"
+
+#. module: pos_restaurant
+#: model_terms:ir.ui.view,arch_db:pos_restaurant.view_pos_category_form_inherit_course
+msgid "No default"
+msgstr "ບໍ່ມີຄ່າເລີ່ມຕົ້ນ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/tip_screen/tip_screen.xml:0
-msgid "No Tip"
-msgstr "ບໍ່ມີທິບ"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan/floor_plan.xml:0
+msgid "No tables are available yet."
+msgstr "ຍັງບໍ່ມີໂຕະທີ່ພ້ອມໃຊ້ງານ."
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/services/pos_store.js:0
-msgid "Note"
+#: code:addons/pos_restaurant/static/src/app/screens/product_screen/actionpad_widget/actionpad_widget.js:0
+msgid "Notes"
 msgstr "ໝາຍເຫດ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
-msgid "Number of Seats?"
-msgstr "ຈຳນວນບ່ອນນັ່ງ?"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_table/edit_table.xml:0
+msgid "Number of Seats"
+msgstr "ຈຳນວນບ່ອນນັ່ງ"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.product_old_fashioned_product_template
 msgid "Old Fashioned"
-msgstr "ໂອລ ແຟຊັນ"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
-msgid "Only web-compatible Image formats such as .png or .jpeg are supported."
-msgstr "ຮອງຮັບສະເພາະຮູບພາບທີ່ເຂົ້າກັບເວັບໄດ້ ເຊັ່ນ .png ຫຼື .jpeg."
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
-msgid "Oops! No floors available."
-msgstr "ອຸ້ຍ! ບໍ່ມີຊັ້ນໃຫ້ບໍລິການ."
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
-msgid "Oops! No tables available."
-msgstr "ອຸ້ຍ! ບໍ່ມີໂຕະໃຫ້ບໍລິການ."
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/ticket_screen/ticket_screen.js:0
-msgid "Open"
-msgstr "ເປີດ"
-
-#. module: pos_restaurant
-#: model_terms:ir.ui.view,arch_db:pos_restaurant.view_pos_preset_form_inherit_pos_restaurant
-msgid "Options"
-msgstr "ຕົວເລືອກ"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/services/pos_store.js:0
-msgid "Order"
-msgstr "ອໍເດີ"
+msgstr "ໂອລແຟຊັນ"
 
 #. module: pos_restaurant
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_order_course__line_ids
 msgid "Order Lines"
-msgstr "ລາຍການອໍເດີ"
+msgstr "ແຖວລາຍການສັ່ງ"
 
 #. module: pos_restaurant
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_order_course__order_id
 msgid "Order Ref"
-msgstr "ອ້າງອີງອໍເດີ"
+msgstr "ລະຫັດອ້າງອີງການສັ່ງ"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/add_table_popup/add_table_popup.xml:0
+msgid "Oval"
+msgstr "ຮູບໄຂ່"
+
+#. module: pos_restaurant
+#: model:ir.model,name:pos_restaurant.model_pos_course
+msgid "POS Course"
+msgstr "ລຳດັບອາຫານ POS"
 
 #. module: pos_restaurant
 #: model:ir.model,name:pos_restaurant.model_restaurant_order_course
 msgid "POS Restaurant Order Course"
-msgstr "ລຳດັບອາຫານໃນຮ້ານອາຫານ PoS"
+msgstr "ລຳດັບອາຫານຂອງລາຍການສັ່ງຮ້ານອາຫານ POS"
+
+#. module: pos_restaurant
+#: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__parent_side
+msgid "Parent Side"
+msgstr "ດ້ານຫຼັກ"
 
 #. module: pos_restaurant
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__parent_id
@@ -899,31 +1003,30 @@ msgstr "ໂຕະຫຼັກ"
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.pos_food_4formaggi_product_template
 msgid "Pasta 4 Formaggi"
-msgstr "ປາສຕ້າ ຊີສ 4 ຢ່າງ"
+msgstr "ພາດສະຕ້າ ເນີຍ 4 ຊະນິດ"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.pos_food_bolo_product_template
 msgid "Pasta Bolognese"
-msgstr "ປາສຕ້າ ໂບໂລເນສ"
+msgstr "ພາດສະຕ້າ ໂບໂລເນສ"
 
 #. module: pos_restaurant
 #. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/screens/product_screen/product_screen.xml:0
-#: code:addons/pos_restaurant/static/src/app/screens/receipt_screen/receipt_screen.xml:0
 msgid "Pay"
-msgstr "ຊຳລະເງິນ"
+msgstr "ຊຳລະ"
 
 #. module: pos_restaurant
 #. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/screens/product_screen/actionpad_widget/actionpad_widget.xml:0
 #: code:addons/pos_restaurant/static/src/app/screens/split_bill_screen/split_bill_screen.xml:0
 msgid "Payment"
-msgstr "ການຊຳລະ"
+msgstr "ການຊຳລະເງິນ"
 
 #. module: pos_restaurant
 #: model:product.template,description_sale:pos_restaurant.pos_food_4formaggi_product_template
 msgid "Pepe, latte, gorgonzola dolce, taleggio, parmigiano reggiano"
-msgstr "Pepe, latte, gorgonzola dolce, taleggio, parmigiano reggiano"
+msgstr "ພິກໄທ, ນົມ, ກອກກອນໂຊລາ ໂດລເຊ, ທາເລຈິໂອ, ປາມິກິຢາໂນ ເຣຈິຢາໂນ"
 
 #. module: pos_restaurant
 #: model:product.attribute.value,name:pos_restaurant.pav_extras_pizza_pepperoni
@@ -931,26 +1034,20 @@ msgid "Pepperoni"
 msgstr "ເປບເປີໂຣນີ"
 
 #. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
-msgid "Picture"
-msgstr "ຮູບພາບ"
-
-#. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.product_pina_colada_product_template
 msgid "Pina colada"
-msgstr "ພີນ້າ ໂຄລາດ້າ"
+msgstr "ພີນາ ໂຄລາດາ"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.pos_food_margherita_product_template
 msgid "Pizza Margherita"
-msgstr "ປິຊ່າ ມາການິຕ້າ"
+msgstr "ພິຊຊ່າ ມາເກຣິຕາ"
 
 #. module: pos_restaurant
 #: model:product.template,description_sale:pos_restaurant.pos_food_vege_product_template
 #: model:product.template,name:pos_restaurant.pos_food_vege_product_template
 msgid "Pizza Vegetarian"
-msgstr "ປິຊ່າ ມັງສະວິລັດ"
+msgstr "ພິຊຊ່າ ມັງສະວິຣັດ"
 
 #. module: pos_restaurant
 #. odoo-javascript
@@ -966,8 +1063,19 @@ msgid ""
 "this floor.\n"
 "Open session: %(session_names)s"
 msgstr ""
-"ກະລຸນາປິດ ແລະ ກວດສອບຮອບການຂາຍ PoS ທີ່ຍັງເປີດຢູ່ ດັ່ງຕໍ່ໄປນີ້ ກ່ອນທີ່ຈະແກ້ໄຂຊັ້ນນີ້.\n"
+"ກະລຸນາປິດ ແລະ ກວດສອບຮອບການຂາຍ PoS ທີ່ກຳລັງເປີດຢູ່ນີ້ກ່ອນແກ້ໄຂຊັ້ນດັ່ງກ່າວ.\n"
 "ຮອບການຂາຍທີ່ເປີດຢູ່: %(session_names)s"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/ticket_screen/order_details_dialog/order_details_dialog.js:0
+msgid "Point of Sale"
+msgstr "ຈຸດຂາຍ (Point of Sale)"
+
+#. module: pos_restaurant
+#: model:ir.model,name:pos_restaurant.model_pos_category
+msgid "Point of Sale Category"
+msgstr "ໝວດໝູ່ຈຸດຂາຍ"
 
 #. module: pos_restaurant
 #: model:ir.model,name:pos_restaurant.model_pos_config
@@ -975,19 +1083,19 @@ msgid "Point of Sale Configuration"
 msgstr "ການຕັ້ງຄ່າຈຸດຂາຍ"
 
 #. module: pos_restaurant
-#: model:ir.model,name:pos_restaurant.model_pos_order_line
-msgid "Point of Sale Order Lines"
-msgstr "ລາຍການອໍເດີຈຸດຂາຍ"
-
-#. module: pos_restaurant
 #: model:ir.model,name:pos_restaurant.model_pos_order
-msgid "Point of Sale Orders"
-msgstr "ອໍເດີຈຸດຂາຍ"
+msgid "Point of Sale Order"
+msgstr "ລາຍການສັ່ງຂອງຈຸດຂາຍ"
 
 #. module: pos_restaurant
-#: model:ir.model,name:pos_restaurant.model_pos_payment
-msgid "Point of Sale Payments"
-msgstr "ການຊຳລະເງິນຈຸດຂາຍ"
+#: model:ir.model,name:pos_restaurant.model_pos_order_line
+msgid "Point of Sale Order Line"
+msgstr "ແຖວລາຍການສັ່ງຂອງຈຸດຂາຍ"
+
+#. module: pos_restaurant
+#: model:ir.model,name:pos_restaurant.model_pos_order_receipt
+msgid "Point of Sale Order Receipt Generator"
+msgstr "ຕົວສ້າງໃບຮັບເງິນລາຍການສັ່ງຈຸດຂາຍ"
 
 #. module: pos_restaurant
 #: model:ir.model,name:pos_restaurant.model_pos_session
@@ -1000,35 +1108,36 @@ msgid "Point of Sales"
 msgstr "ຈຸດຂາຍ"
 
 #. module: pos_restaurant
-#: model:ir.model.fields,field_description:pos_restaurant.field_res_config_settings__pos_iface_printbill
-msgid "Pos Iface Printbill"
-msgstr "PoS ອິນເຕີເຟດ ພິມບິນ"
-
-#. module: pos_restaurant
-#: model:ir.model.fields,field_description:pos_restaurant.field_res_config_settings__pos_iface_splitbill
-msgid "Pos Iface Splitbill"
-msgstr "PoS ອິນເຕີເຟດ ແຍກບິນ"
-
-#. module: pos_restaurant
-#: model:ir.model.fields,field_description:pos_restaurant.field_res_config_settings__pos_set_tip_after_payment
-msgid "Pos Set Tip After Payment"
-msgstr "PoS ຕັ້ງທິບຫຼັງການຊຳລະ"
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_course__category_ids
+msgid "Pos Category"
+msgstr "ໝວດໝູ່ POS"
 
 #. module: pos_restaurant
 #: model:product.attribute.value,name:pos_restaurant.pav_sides_potato_thyme
 msgid "Potatoes with thyme"
-msgstr "ມັນຝຣັ່ງກັບທາມ"
+msgstr "ມັນຝຣັ່ງອົບໃບໄທມ໌"
+
+#. module: pos_restaurant
+#: model:ir.model,name:pos_restaurant.model_product_template
+msgid "Product"
+msgstr "ສິນຄ້າ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/receipt_screen/order_receipt/order_receipt.xml:0
-msgid "Pro forma receipt"
-msgstr "ໃບແຈ້ງໜີ້ຊົ່ວຄາວ (Pro forma)"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/floor_plan_editor.xml:0
+msgid "Properties"
+msgstr "ຄຸນສົມບັດ"
 
 #. module: pos_restaurant
 #: model:product.template,description_sale:pos_restaurant.product_aperol_spritz_product_template
 msgid "Prosecco, aperol, soda"
-msgstr "ໂປຣເຊັກໂກ, ອາເພີໂຣ, ໂຊດາ"
+msgstr "ໂປຣເຊກໂກ, ອາເປຣອນ, ໂຊດາ"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/add_table_popup/add_table_popup.xml:0
+msgid "Rectangular"
+msgstr "ຮູບສີ່ແຈສາກ"
 
 #. module: pos_restaurant
 #: model:ir.model.fields.selection,name:pos_restaurant.selection__pos_config__default_screen__register
@@ -1039,7 +1148,7 @@ msgstr "ລົງທະບຽນ"
 #. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/screens/product_screen/order_summary/order_summary.xml:0
 msgid "Release Order"
-msgstr "ປ່ອຍອໍເດີ"
+msgstr "ປ່ອຍລາຍການສັ່ງ"
 
 #. module: pos_restaurant
 #. odoo-javascript
@@ -1049,31 +1158,21 @@ msgstr "ປ່ອຍໂຕະ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
-msgid "Removing a floor cannot be undone. Do you still want to remove %s?"
-msgstr "ການລຶບຊັ້ນບໍ່ສາມາດກັບຄືນໄດ້. ທ່ານຍັງຕ້ອງການລຶບ %s ບໍ່?"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_floor/edit_floor.xml:0
+msgid "Remove Background Image"
+msgstr "ລຶບຮູບພື້ນຫຼັງ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
-msgid "Removing a table cannot be undone"
-msgstr "ການລຶບໂຕະບໍ່ສາມາດກັບຄືນໄດ້"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
-msgid "Rename"
-msgstr "ປ່ຽນຊື່"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/tip_screen/tip_screen.xml:0
-msgid "Reprint receipts"
-msgstr "ພິມໃບບິນຄືນໃໝ່"
+#: code:addons/pos_restaurant/static/src/app/screens/product_screen/actionpad_widget/actionpad_widget.xml:0
+msgid "Reprint"
+msgstr "ພິມຄືນ"
 
 #. module: pos_restaurant
 #. odoo-python
 #: code:addons/pos_restaurant/models/pos_config.py:0
+#: model:ir.module.module,shortdesc:base.module_pos_restaurant
+#: model:pos.config,name:pos_restaurant.pos_config_main_restaurant
 #: model_terms:ir.ui.view,arch_db:pos_restaurant.view_pos_preset_form_inherit_pos_restaurant
 msgid "Restaurant"
 msgstr "ຮ້ານອາຫານ"
@@ -1089,7 +1188,7 @@ msgstr "ຊັ້ນຮ້ານອາຫານ"
 #: model:ir.model.fields,field_description:pos_restaurant.field_res_config_settings__pos_floor_ids
 #: model_terms:ir.ui.view,arch_db:pos_restaurant.view_restaurant_floor_tree
 msgid "Restaurant Floors"
-msgstr "ຊັ້ນຮ້ານອາຫານຕ່າງໆ"
+msgstr "ຊັ້ນຮ້ານອາຫານ"
 
 #. module: pos_restaurant
 #: model:ir.model,name:pos_restaurant.model_restaurant_table
@@ -1098,66 +1197,90 @@ msgid "Restaurant Table"
 msgstr "ໂຕະຮ້ານອາຫານ"
 
 #. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/payment_screen/payment_screen_payment_lines/payment_screen_payment_lines.xml:0
-msgid "Reverse"
-msgstr "ຍ້ອນກັບ"
+#: model:ir.module.module,summary:base.module_pos_restaurant
+msgid "Restaurant extensions for the Point of Sale "
+msgstr "ສ່ວນຂະຫຍາຍຮ້ານອາຫານສຳລັບຈຸດຂາຍ "
+
+#. module: pos_restaurant
+#: model:ir.model.fields.selection,name:pos_restaurant.selection__restaurant_table__parent_side__right
+msgid "Right"
+msgstr "ຂວາ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/payment_screen/payment_screen_payment_lines/payment_screen_payment_lines.xml:0
-msgid "Reverse Payment"
-msgstr "ຍົກເລີກການຊຳລະເງິນ"
-
-#. module: pos_restaurant
-#: model:ir.model.fields.selection,name:pos_restaurant.selection__restaurant_table__shape__round
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/add_table_popup/add_table_popup.xml:0
 msgid "Round"
 msgstr "ມົນ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
-msgid "Round Shape"
-msgstr "ຮູບຊົງມົນ"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Rounded"
+msgstr "ມຸມມົນ"
 
 #. module: pos_restaurant
 #: model:product.template,description_sale:pos_restaurant.product_mai_tai_product_template
 msgid "Rum, lime juice, orgeat syrup, and orange liqueur."
-msgstr "ເຫຼົ້າຣັມ, ນ້ຳໝາກນາວ, ນ້ຳເຊື່ອມອໍຈີດ, ແລະ ເຫຼົ້າກິ່ນໝາກກ້ຽງ."
+msgstr "ຣຳ, ນ້ຳໝາກນາວ, ໄຊຣັບອໍຈີດ, ແລະ ເຫຼົ້າໝາກກ້ຽງ."
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.pos_food_chirashi_product_template
 msgid "Salmon and Avocado"
-msgstr "ຊັລມອນ ແລະ ອະໂວກາໂດ"
+msgstr "ແຊວມອນ ແລະ ອາໂວກາໂດ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/navbar/navbar.xml:0
 msgid "Save"
 msgstr "ບັນທຶກ"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.schweppes_product_template
 msgid "Schweppes"
-msgstr "ສະເວັບ"
+msgstr "ສະເວັບສ໌"
 
 #. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__seats
 msgid "Seats"
 msgstr "ບ່ອນນັ່ງ"
 
 #. module: pos_restaurant
 #. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/add_table_popup/add_table_popup.xml:0
+msgid "Select Table Shape"
+msgstr "ເລືອກຮູບຮ່າງໂຕະ"
+
+#. module: pos_restaurant
+#. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/components/navbar/navbar.xml:0
 msgid "Select table to transfer order"
-msgstr "ເລືອກໂຕະເພື່ອຍ້າຍອໍເດີ"
+msgstr "ເລືອກໂຕະເພື່ອຍ້າຍລາຍການສັ່ງ"
 
 #. module: pos_restaurant
 #: model_terms:ir.ui.view,arch_db:pos_restaurant.res_config_settings_view_form
 msgid "Select the table first or after registering the order"
-msgstr "ເລືອກໂຕະກ່ອນ ຫຼື ຫຼັງຈາກລົງທະບຽນອໍເດີ"
+msgstr "ເລືອກໂຕະກ່ອນ ຫຼື ຫຼັງຈາກລົງທະບຽນລາຍການສັ່ງ"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/ticket_screen/order_details_dialog/order_details_dialog.js:0
+msgid "Self-Order Kiosk"
+msgstr "ຕູ້ສັ່ງອາຫານດ້ວຍຕົນເອງ (Kiosk)"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/ticket_screen/order_details_dialog/order_details_dialog.js:0
+msgid "Self-Order Mobile"
+msgstr "ສັ່ງອາຫານດ້ວຍຕົນເອງຜ່ານມືຖື"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan/floor_plan.js:0
+msgid ""
+"Self-orders cannot be transferred or merged, whether they are the order "
+"being moved or the one receiving it."
+msgstr ""
+"ລາຍການສັ່ງດ້ວຍຕົນເອງບໍ່ສາມາດຍ້າຍ ຫຼື ຮວມກັນໄດ້, ບໍ່ວ່າຈະເປັນລາຍການທີ່ຖືກຍ້າຍ ຫຼື ລາຍການທີ່ຮັບການຍ້າຍ."
 
 #. module: pos_restaurant
 #. odoo-javascript
@@ -1167,9 +1290,34 @@ msgid "Send"
 msgstr "ສົ່ງ"
 
 #. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Send backward"
+msgstr "ຍ້າຍໄປທາງຫຼັງ"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Send to back"
+msgstr "ຍ້າຍໄປຫຼັງສຸດ"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Send to front"
+msgstr "ຍ້າຍມາໜ້າສຸດ"
+
+#. module: pos_restaurant
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_course__sequence
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_floor__sequence
 msgid "Sequence"
 msgstr "ລຳດັບ"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/services/pos_store.js:0
+msgid "Set Order Name"
+msgstr "ຕັ້ງຊື່ລາຍການສັ່ງ"
 
 #. module: pos_restaurant
 #. odoo-javascript
@@ -1184,32 +1332,50 @@ msgid "Set Table"
 msgstr "ຕັ້ງໂຕະ"
 
 #. module: pos_restaurant
-#: model:ir.model.fields,field_description:pos_restaurant.field_pos_config__set_tip_after_payment
-msgid "Set Tip After Payment"
-msgstr "ຕັ້ງທິບຫຼັງການຊຳລະ"
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_floor/edit_floor.xml:0
+msgid "Set a Background Image"
+msgstr "ຕັ້ງຮູບພື້ນຫຼັງ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/ticket_screen/ticket_screen.xml:0
-#: code:addons/pos_restaurant/static/src/app/screens/tip_screen/tip_screen.xml:0
-msgid "Settle"
-msgstr "ສະສາງ"
-
-#. module: pos_restaurant
-#: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__shape
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_table/edit_table.xml:0
 msgid "Shape"
-msgstr "ຮູບຊົງ"
-
-#. module: pos_restaurant
-#: model:product.attribute,name:pos_restaurant.pa_sides
-msgid "Sides"
-msgstr "ເຄື່ອງຄຽງ"
+msgstr "ຮູບຮ່າງ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/components/tip_receipt/tip_receipt.xml:0
-msgid "Signature"
-msgstr "ລາຍເຊັນ"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/add_decor_popup/add_decor_popup.xml:0
+msgid "Shapes"
+msgstr "ຮູບຮ່າງຕ່າງໆ"
+
+#. module: pos_restaurant
+#: model:ir.model.fields,field_description:pos_restaurant.field_pos_config__use_show_items_on_course_ticket
+#: model:ir.model.fields,field_description:pos_restaurant.field_res_config_settings__pos_use_show_items_on_course_ticket
+msgid "Show Items on Fired Course Ticket"
+msgstr "ສະແດງລາຍການໃນບັດລຳດັບອາຫານທີ່ແຈ້ງປຸງແຕ່ງ"
+
+#. module: pos_restaurant
+#: model:ir.model.fields,help:pos_restaurant.field_pos_config__use_show_items_on_course_ticket
+#: model:ir.model.fields,help:pos_restaurant.field_res_config_settings__pos_use_show_items_on_course_ticket
+msgid "Show items again on the fired course ticket in preparation printer"
+msgstr "ສະແດງລາຍການອີກຄັ້ງໃນບັດລຳດັບອາຫານທີ່ແຈ້ງປຸງແຕ່ງຢູ່ເຄື່ອງພິມກະກຽມ"
+
+#. module: pos_restaurant
+#: model_terms:ir.ui.view,arch_db:pos_restaurant.res_config_settings_view_form
+msgid "Show items on fired course ticket"
+msgstr "ສະແດງລາຍການໃນບັດລຳດັບອາຫານທີ່ແຈ້ງປຸງແຕ່ງ"
+
+#. module: pos_restaurant
+#: model:ir.model.fields,help:pos_restaurant.field_pos_order__duration
+msgid "Shows how long the table has been occupied."
+msgstr "ສະແດງໄລຍະເວລາທີ່ໂຕະຖືກນຳໃຊ້."
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Size"
+msgstr "ຂະໜາດ"
 
 #. module: pos_restaurant
 #: model:product.attribute.value,name:pos_restaurant.pav_sides_smashed_sweet_potato
@@ -1219,46 +1385,41 @@ msgstr "ມັນດ້າງບົດ"
 #. module: pos_restaurant
 #: model:pos.category,name:pos_restaurant.pos_category_soft_drinks
 msgid "Soft drinks"
-msgstr "ນ້ຳອັດລົມ"
+msgstr "ເຄື່ອງດື່ມນ້ຳອັດລົມ"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Solid"
+msgstr "ເສັ້ນຕຶບ"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.pos_food_tuna_product_template
 msgid "Spicy Tuna Sandwich"
-msgstr "ແຊນວິດທູນ້າລົດເຜັດ"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/product_screen/control_buttons/control_buttons.xml:0
-msgid "Split"
-msgstr "ແຍກ"
+msgstr "ແຊນວິດທູນ່າເຜັດ"
 
 #. module: pos_restaurant
 #. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/screens/split_bill_screen/split_bill_screen.xml:0
 msgid "Split Order"
-msgstr "ແຍກອໍເດີ"
+msgstr "ແຍກລາຍການສັ່ງ"
 
 #. module: pos_restaurant
-#: model_terms:ir.ui.view,arch_db:pos_restaurant.res_config_settings_view_form
-msgid "Split total or order lines"
-msgstr "ແຍກຍອດລວມ ຫຼື ລາຍການອໍເດີ"
-
-#. module: pos_restaurant
-#: model:ir.model.fields.selection,name:pos_restaurant.selection__restaurant_table__shape__square
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/add_table_popup/add_table_popup.xml:0
 msgid "Square"
-msgstr "ສີ່ລ່ຽມ"
+msgstr "ສີ່ແຈຈັດຕຸລັດ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
-msgid "Square Shape"
-msgstr "ຮູບຊົງສີ່ລ່ຽມ"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Style"
+msgstr "ຮູບແບບ"
 
 #. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/components/tip_receipt/tip_receipt.xml:0
-msgid "Subtotal"
-msgstr "ຍອດລວມຍ່ອຍ"
+#: model:product.combo,name:pos_restaurant.sushi_choice
+msgid "Sushi"
+msgstr "ຊູຊິ"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.sushi_drink_combo_product_template
@@ -1268,35 +1429,21 @@ msgstr "ຊຸດຊູຊິອາຫານທ່ຽງ"
 #. module: pos_restaurant
 #: model:product.attribute.value,name:pos_restaurant.pav_sides_sweet_potato
 msgid "Sweet potato fries"
-msgstr "ມັນດ້າງຈືນ"
+msgstr "ມັນດ້າງທອດ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/components/navbar/navbar.xml:0
-msgid "Switch Floor View"
-msgstr "ປ່ຽນມຸມມອງຊັ້ນ"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.xml:0
+#: code:addons/pos_restaurant/static/src/app/screens/ticket_screen/order_details_dialog/order_details_dialog.js:0
 #: code:addons/pos_restaurant/static/src/app/screens/ticket_screen/ticket_screen.xml:0
 #: model:ir.model.fields,field_description:pos_restaurant.field_pos_order__table_id
+#: model_terms:ir.ui.view,arch_db:pos_restaurant.pos_order_change_receipt
+#: model_terms:ir.ui.view,arch_db:pos_restaurant.pos_order_receipt_header
 msgid "Table"
 msgstr "ໂຕະ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/receipt_header_patch.js:0
-msgid "Table %(number)s"
-msgstr "ໂຕະ %(number)s"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/receipt_header_patch.js:0
-msgid "Table %(number)s, Guests: %(count)s"
-msgstr "ໂຕະ %(number)s, ແຂກ: %(count)s"
-
-#. module: pos_restaurant
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_table/edit_table.xml:0
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__table_number
 msgid "Table Number"
 msgstr "ເບີໂຕະ"
@@ -1308,42 +1455,49 @@ msgstr "ເບີໂຕະ"
 #: model:ir.model.fields.selection,name:pos_restaurant.selection__pos_config__default_screen__tables
 #: model_terms:ir.ui.view,arch_db:pos_restaurant.view_restaurant_floor_form
 msgid "Tables"
-msgstr "ໂຕະຕ່າງໆ"
+msgstr "ໂຕະ"
 
 #. module: pos_restaurant
 #: model:pos.preset,name:pos_restaurant.pos_takeout_preset
 msgid "Takeout"
-msgstr "ຫໍ່ເມື່ອ"
+msgstr "ສັ່ງກັບບ້ານ"
 
 #. module: pos_restaurant
 #: model:product.template,description_sale:pos_restaurant.product_margarita_product_template
 msgid "Tequila Jose Cuervo, lime jus, sugar cane Cointreau"
-msgstr "ເຕກີລ້າ ໂຮເຊ ກູເອໂວ, ນ້ຳໝາກນາວ, ນ້ຳຕານຊາຍ ກວາງໂຕຣ"
+msgstr "ເຕກີລ້າ Jose Cuervo, ນ້ຳໝາກນາວ, ນ້ຳອ້ອຍ, Cointreau"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/add_decor_popup/add_decor_popup.xml:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Text"
+msgstr "ຂໍ້ຄວາມ"
 
 #. module: pos_restaurant
 #: model:ir.model.fields,help:pos_restaurant.field_pos_order__customer_count
 msgid "The amount of customers that have been served by this order."
-msgstr "ຈຳນວນລູກຄ້າທີ່ໄດ້ຮັບບໍລິການໂດຍອໍເດີນີ້."
-
-#. module: pos_restaurant
-#: model:ir.model.fields,help:pos_restaurant.field_restaurant_floor__background_color
-msgid "The background color of the floor in a html-compatible format"
-msgstr "ສີພື້ນຫຼັງຂອງຊັ້ນໃນຮູບແບບທີ່ເຂົ້າກັບ html"
+msgstr "ຈຳນວນລູກຄ້າທີ່ໄດ້ຮັບບໍລິການໂດຍລາຍການສັ່ງນີ້."
 
 #. module: pos_restaurant
 #: model:ir.model.fields,help:pos_restaurant.field_restaurant_table__seats
 msgid "The default number of customer served at this table."
-msgstr "ຈຳນວນລູກຄ້າເລີ່ມຕົ້ນທີ່ບໍລິການຢູ່ໂຕະນີ້."
+msgstr "ຈຳນວນລູກຄ້າເລີ່ມຕົ້ນທີ່ໃຫ້ບໍລິການຢູ່ໂຕະນີ້."
 
 #. module: pos_restaurant
 #: model:ir.model.fields,help:pos_restaurant.field_restaurant_table__table_number
 msgid "The number of the table as displayed on the floor plan"
-msgstr "ເບີໂຕະທີ່ສະແດງຢູ່ໃນແຜນຜັງຊັ້ນ"
+msgstr "ເບີໂຕະຕາມທີ່ສະແດງໃນແຜນຜັງຊັ້ນ"
 
 #. module: pos_restaurant
 #: model:ir.model.fields,help:pos_restaurant.field_restaurant_table__parent_id
 msgid "The parent table if this table is part of a group of tables"
 msgstr "ໂຕະຫຼັກ ຖ້າໂຕະນີ້ເປັນສ່ວນໜຶ່ງຂອງກຸ່ມໂຕະ"
+
+#. module: pos_restaurant
+#: model:ir.model.fields,help:pos_restaurant.field_restaurant_table__parent_side
+msgid "The parent table side where this table will be displayed"
+msgstr "ດ້ານຂອງໂຕະຫຼັກທີ່ຈະສະແດງໂຕະນີ້"
 
 #. module: pos_restaurant
 #: model:ir.model.fields,help:pos_restaurant.field_pos_config__floor_ids
@@ -1354,79 +1508,24 @@ msgstr "ຊັ້ນຮ້ານອາຫານທີ່ໃຫ້ບໍລິກ
 #. module: pos_restaurant
 #: model:ir.model.fields,help:pos_restaurant.field_pos_order__table_id
 msgid "The table where this order was served"
-msgstr "ໂຕະທີ່ອໍເດີນີ້ໄດ້ຮັບບໍລິການ"
-
-#. module: pos_restaurant
-#: model:ir.model.fields,help:pos_restaurant.field_restaurant_table__color
-msgid "The table's color, expressed as a valid 'background' CSS property value"
-msgstr "ສີຂອງໂຕະ, ກວດສອບຈາກຄ່າ CSS 'background' ທີ່ຖືກຕ້ອງ"
-
-#. module: pos_restaurant
-#: model:ir.model.fields,help:pos_restaurant.field_restaurant_table__height
-msgid "The table's height in pixels"
-msgstr "ຄວາມສູງຂອງໂຕະເປັນພິກເຊວ"
-
-#. module: pos_restaurant
-#: model:ir.model.fields,help:pos_restaurant.field_restaurant_table__position_h
-msgid ""
-"The table's horizontal position from the left side to the table's center, in "
-"pixels"
-msgstr "ຕຳແໜ່ງແນວນອນຂອງໂຕະຈາກເບື້ອງຊ້າຍຫາໃຈກາງໂຕະ, ເປັນພິກເຊວ"
-
-#. module: pos_restaurant
-#: model:ir.model.fields,help:pos_restaurant.field_restaurant_table__position_v
-msgid ""
-"The table's vertical position from the top to the table's center, in pixels"
-msgstr "ຕຳແໜ່ງແນວຕັ້ງຂອງໂຕະຈາກທາງເທິງຫາໃຈກາງໂຕະ, ເປັນພິກເຊວ"
-
-#. module: pos_restaurant
-#: model:ir.model.fields,help:pos_restaurant.field_restaurant_table__width
-msgid "The table's width in pixels"
-msgstr "ຄວາມກວ້າງຂອງໂຕະເປັນພິກເຊວ"
+msgstr "ໂຕະທີ່ລາຍການສັ່ງນີ້ໄດ້ຮັບບໍລິການ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/tip_screen/tip_screen.js:0
-msgid ""
-"This order is not yet synced to server. Make sure it is synced then try "
-"again."
-msgstr ""
-"ອໍເດີນີ້ຍັງບໍ່ໄດ້ເຊື່ອມຕໍ່ກັບເຊີບເວີ. ກະລຸນາກວດສອບການເຊື່ອມຕໍ່ແລ້ວລອງໃໝ່."
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/ticket_screen/ticket_screen.xml:0
-msgid "Tip"
-msgstr "ທິບ"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/tip_screen/tip_screen.xml:0
-msgid "Tip Amount"
-msgstr "ມູນຄ່າທິບ"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/components/tip_receipt/tip_receipt.xml:0
-msgid "Tip:"
-msgstr "ທິບ:"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/ticket_screen/ticket_screen.js:0
-msgid "Tipping"
-msgstr "ການໃຫ້ທິບ"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Thickness"
+msgstr "ຄວາມໜາ"
 
 #. module: pos_restaurant
 #: model:product.template,description_sale:pos_restaurant.pos_food_margherita_product_template
 msgid "Tomato sauce, Agerola mozzarella \"fior di latte\", fresh basil"
-msgstr "ຊອດໝາກເລັ່ນ, ມອສຊາເຣວລ່າ Agerola, ໃບໂຫລະພາສົດ"
+msgstr ""
+"ຊອດໝາກເລັ່ນ, ເນີຍແຂງ ອາເຈໂຣລາ ມອດຊາເຣວລ່າ \"fior di latte\", ໃບໂຫລະພາສົດ"
 
 #. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/components/tip_receipt/tip_receipt.xml:0
-msgid "Total:"
-msgstr "ລວມທັງໝົດ:"
+#: model:ir.model.fields.selection,name:pos_restaurant.selection__restaurant_table__parent_side__top
+msgid "Top"
+msgstr "ດ້ານເທິງ"
 
 #. module: pos_restaurant
 #. odoo-javascript
@@ -1438,43 +1537,44 @@ msgstr "ຍ້າຍ"
 #. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/services/pos_store.js:0
 msgid "Transfer \"%s\" to:"
-msgstr "ຍ້າຍ \"%s\" ໄປທີ່:"
+msgstr "ຍ້າຍ \"%s\" ໄປຍັງ:"
 
 #. module: pos_restaurant
 #. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/screens/product_screen/control_buttons/control_buttons.xml:0
 msgid "Transfer / Merge"
-msgstr "ຍ້າຍ / ຮ່ວມ"
+msgstr "ຍ້າຍ / ຮວມ"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/product_screen/control_buttons/control_buttons.xml:0
+msgid "Transfer Course"
+msgstr "ຍ້າຍລຳດັບອາຫານ"
 
 #. module: pos_restaurant
 #. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/services/pos_store.js:0
 msgid "Transfer all products of \"%s\" into:"
-msgstr "ຍ້າຍສິນຄ້າທັງໝົດຂອງ \"%s\" ໄປທີ່:"
+msgstr "ຍ້າຍສິນຄ້າທັງໝົດຂອງ \"%s\" ໄປຍັງ:"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/product_screen/control_buttons/control_buttons.xml:0
-msgid "Transfer course"
-msgstr "ຍ້າຍລຳດັບອາຫານ"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_floor/edit_floor.xml:0
+msgid "Transparency"
+msgstr "ຄວາມໂປ່ງໃສ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
-msgid "Unsupported File Format"
-msgstr "ຮູບແບບໄຟລ໌ບໍ່ຮອງຮັບ"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/edit_decor/edit_decor.xml:0
+msgid "Underline"
+msgstr "ຂີດກ້ອງ"
 
 #. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/tip_screen/tip_screen.js:0
-msgid "Unsynced order"
-msgstr "ອໍເດີທີ່ຍັງບໍ່ໄດ້ເຊື່ອມຕໍ່"
-
-#. module: pos_restaurant
-#. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/tip_screen/tip_screen.xml:0
-msgid "Username"
-msgstr "ຊື່ຜູ້ໃຊ້"
+#. odoo-python
+#: code:addons/pos_restaurant/models/pos_restaurant.py:0
+msgid "Uploaded image's format is not supported. Try with: %s"
+msgstr "ຮູບແບບໄຟລ໌ຮູບພາບທີ່ອັບໂຫຼດບໍ່ຮອງຮັບ. ກະລຸນາລອງໃໝ່ດ້ວຍ: %s"
 
 #. module: pos_restaurant
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_order_course__uuid
@@ -1482,30 +1582,31 @@ msgid "Uuid"
 msgstr "Uuid"
 
 #. module: pos_restaurant
-#: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__position_v
-msgid "Vertical Position"
-msgstr "ຕຳແໜ່ງແນວຕັ້ງ"
-
-#. module: pos_restaurant
 #: model:product.template,description_sale:pos_restaurant.product_moscow_mule_product_template
 msgid "Vodka 42 Below, lime, sugar, ginger beer"
-msgstr "ວັອດກ້າ 42 Below, ໝາກນາວ, ນ້ຳຕານ, ເບຍຂີງ"
+msgstr "ວອດກ້າ 42 Below, ໝາກນາວ, ນ້ຳຕານ, ເບຍຂີງ"
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/services/pos_store.js:0
-msgid "Warning !"
-msgstr "ຄຳເຕືອນ !"
+#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_plan_editor/add_decor_popup/add_decor_popup.xml:0
+msgid "Walls"
+msgstr "ຝາ"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/services/floor_plan/floor_plan_service.js:0
+msgid "Warning"
+msgstr "ແຈ້ງເຕືອນ"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.water_product_template
 msgid "Water"
-msgstr "ນ້ຳ"
+msgstr "ນ້ຳດື່ມ"
 
 #. module: pos_restaurant
 #: model:product.template,name:pos_restaurant.product_whiskey_sour_product_template
 msgid "Whiskey Sour"
-msgstr "ວິດສະກີ້ ຊາວເອີ"
+msgstr "ວິດສະກີ້ ຊາວເວີ"
 
 #. module: pos_restaurant
 #: model:product.template,description_sale:pos_restaurant.product_whiskey_sour_product_template
@@ -1515,61 +1616,56 @@ msgstr "ວິດສະກີ້, ນ້ຳໝາກນາວ, ນ້ຳຕາ�
 #. module: pos_restaurant
 #: model:product.template,description_sale:pos_restaurant.product_pina_colada_product_template
 msgid "White rhum, Malibu, Batida de coco, coconut liqueur, pineapple juice"
-msgstr "ຣັມຂາວ, ມາລິບູ, ບາຕິດ້າ ເດ ໂຄໂຄ້, ເຫຼົ້າກິ່ນໝາກພ້າວ, ນ້ຳໝາກນັດ"
+msgstr "ຣຳຂາວ, Malibu, Batida de coco, ເຫຼົ້າມະພ້າວ, ນ້ຳໝາກນັດ"
 
 #. module: pos_restaurant
 #: model:product.template,description_sale:pos_restaurant.product_mojito_product_template
 msgid "White rum, sugar, lime juice, soda water, and mint."
-msgstr "ຣັມຂາວ, ນ້ຳຕານ, ນ້ຳໝາກນາວ, ໂຊດາ, ແລະ ສະລະແໜ່."
-
-#. module: pos_restaurant
-#: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_table__width
-msgid "Width"
-msgstr "ຄວາມກວ້າງ"
+msgstr "ຣຳຂາວ, ນ້ຳຕານ, ນ້ຳໝາກນາວ, ນ້ຳໂຊດາ, ແລະ ໃບສະລະແໜ່."
 
 #. module: pos_restaurant
 #. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/screens/split_bill_screen/split_bill_screen.xml:0
 msgid "With"
-msgstr "ກັບ"
+msgstr "ພ້ອມກັບ"
 
 #. module: pos_restaurant
 #. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/services/pos_store.js:0
 msgid "You are currently transferring the order %s"
-msgstr "ທ່ານກຳລັງຍ້າຍອໍເດີ %s"
+msgstr "ທ່ານກຳລັງຍ້າຍລາຍການສັ່ງ %s"
 
 #. module: pos_restaurant
 #. odoo-python
 #: code:addons/pos_restaurant/models/pos_restaurant.py:0
 msgid ""
 "You cannot delete a floor when orders are still in draft for this floor."
-msgstr "ທ່ານບໍ່ສາມາດລຶບຊັ້ນໄດ້ ເມື່ອຍັງມີອໍເດີທີ່ເປັນຮ່າງຢູ່ໃນຊັ້ນນີ້."
+msgstr "ທ່ານບໍ່ສາມາດລຶບຊັ້ນໄດ້ ເມື່ອຍັງມີລາຍການສັ່ງສະບັບຮ່າງສຳລັບຊັ້ນນີ້."
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
+#: code:addons/pos_restaurant/static/src/app/services/floor_plan/floor_plan_service.js:0
 msgid "You cannot delete a floor with orders still in draft for this floor."
-msgstr "ທ່ານບໍ່ສາມາດລຶບຊັ້ນໄດ້ ຖ້າຍັງມີອໍເດີທີ່ເປັນຮ່າງຢູ່ໃນຊັ້ນນີ້."
+msgstr "ທ່ານບໍ່ສາມາດລຶບຊັ້ນທີ່ມີລາຍການສັ່ງສະບັບຮ່າງສຳລັບຊັ້ນນີ້."
 
 #. module: pos_restaurant
 #. odoo-python
 #: code:addons/pos_restaurant/models/pos_restaurant.py:0
 msgid ""
 "You cannot delete a table when orders are still in draft for this table."
-msgstr "ທ່ານບໍ່ສາມາດລຶບໂຕະໄດ້ ເມື່ອຍັງມີອໍເດີທີ່ເປັນຮ່າງຢູ່ໃນໂຕະນີ້."
+msgstr "ທ່ານບໍ່ສາມາດລຶບໂຕະໄດ້ ເມື່ອຍັງມີລາຍການສັ່ງສະບັບຮ່າງສຳລັບໂຕະນີ້."
 
 #. module: pos_restaurant
 #. odoo-javascript
-#: code:addons/pos_restaurant/static/src/app/screens/floor_screen/floor_screen.js:0
+#: code:addons/pos_restaurant/static/src/app/services/floor_plan/floor_plan_service.js:0
 msgid "You cannot delete a table with orders still in draft for this table."
-msgstr "ທ່ານບໍ່ສາມາດລຶບໂຕະໄດ້ ຖ້າຍັງມີອໍເດີທີ່ເປັນຮ່າງຢູ່ໃນໂຕະນີ້."
+msgstr "ທ່ານບໍ່ສາມາດລຶບໂຕະທີ່ມີລາຍການສັ່ງສະບັບຮ່າງສຳລັບໂຕະນີ້."
 
 #. module: pos_restaurant
 #. odoo-python
 #: code:addons/pos_restaurant/models/pos_preset.py:0
 msgid "You cannot delete the master preset(s)."
-msgstr "ທ່ານບໍ່ສາມາດລຶບການຕັ້ງຄ່າຫຼັກ (Master Presets) ໄດ້."
+msgstr "ທ່ານບໍ່ສາມາດລຶບຄ່າຕັ້ງຕົ້ນຫຼັກໄດ້."
 
 #. module: pos_restaurant
 #. odoo-python
@@ -1578,7 +1674,7 @@ msgid ""
 "You cannot remove a floor that is used in a PoS session, close the "
 "session(s) first: \n"
 msgstr ""
-"ທ່ານບໍ່ສາມາດລຶບຊັ້ນທີ່ກຳລັງຖືກໃຊ້ໃນຮອບການຂາຍ PoS, ກະລຸນາປິດຮອບການຂາຍກ່ອນ: \n"
+"ທ່ານບໍ່ສາມາດລຶບຊັ້ນທີ່ກຳລັງຖືກໃຊ້ງານໃນຮອບການຂາຍ PoS ໄດ້, ກະລຸນາປິດຮອບການຂາຍກ່ອນ: \n"
 
 #. module: pos_restaurant
 #. odoo-python
@@ -1587,19 +1683,31 @@ msgid ""
 "You cannot remove a table that is used in a PoS session, close the "
 "session(s) first."
 msgstr ""
-"ທ່ານບໍ່ສາມາດລຶບໂຕະທີ່ກຳລັງຖືກໃຊ້ໃນຮອບການຂາຍ PoS, ກະລຸນາປິດຮອບການຂາຍກ່ອນ."
+"ທ່ານບໍ່ສາມາດລຶບໂຕະທີ່ກຳລັງຖືກໃຊ້ງານໃນຮອບການຂາຍ PoS ໄດ້, ກະລຸນາປິດຮອບການຂາຍກ່ອນ."
 
 #. module: pos_restaurant
 #. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/services/pos_store.js:0
 msgid "You cannot transfer an order to itself"
-msgstr "ທ່ານບໍ່ສາມາດຍ້າຍອໍເດີໄປຫາຕົວມັນເອງໄດ້"
+msgstr "ທ່ານບໍ່ສາມາດຍ້າຍລາຍການສັ່ງໄປຫາໂຕມັນເອງໄດ້"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/screens/split_bill_screen/split_bill_screen.xml:0
+msgid "discount"
+msgstr "ສ່ວນຫຼຸດ"
 
 #. module: pos_restaurant
 #. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/services/pos_store.js:0
 msgid "e.g. John"
-msgstr "ຕົວຢ່າງ: ຈອນ"
+msgstr "ຕົວຢ່າງ: John"
+
+#. module: pos_restaurant
+#. odoo-javascript
+#: code:addons/pos_restaurant/static/src/app/services/pos_store.js:0
+msgid "fired"
+msgstr "ແຈ້ງປຸງແຕ່ງແລ້ວ"
 
 #. module: pos_restaurant
 #. odoo-javascript
@@ -1611,4 +1719,4 @@ msgstr "ລາຍການ"
 #. odoo-javascript
 #: code:addons/pos_restaurant/static/src/app/screens/split_bill_screen/split_bill_screen.xml:0
 msgid "product(s) selected"
-msgstr "ສິນຄ້າທີ່ເລືອກ"
+msgstr "ສິນຄ້າທີ່ຖືກເລືອກ"

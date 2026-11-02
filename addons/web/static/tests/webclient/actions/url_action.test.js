@@ -1,14 +1,14 @@
 import { expect, test } from "@odoo/hoot";
-import { getService, makeMockEnv, patchWithCleanup } from "@web/../tests/web_test_helpers";
-import { browser } from "@web/core/browser/browser";
+import { getService, makeTestApp, patchWithCleanup } from "@web/../tests/web_test_helpers";
+import { location, browser } from "@web/core/browser/browser";
 
 test("execute an 'ir.actions.act_url' action with target 'self'", async () => {
-    patchWithCleanup(browser.location, {
+    patchWithCleanup(location, {
         assign: (url) => {
             expect.step(url);
         },
     });
-    await makeMockEnv();
+    await makeTestApp();
     await getService("action").doAction({
         type: "ir.actions.act_url",
         target: "self",
@@ -21,7 +21,7 @@ test("execute an 'ir.actions.act_url' action with onClose option", async () => {
     patchWithCleanup(browser, {
         open: () => expect.step("browser open"),
     });
-    await makeMockEnv();
+    await makeTestApp();
     const options = {
         onClose: () => expect.step("onClose"),
     };
@@ -30,12 +30,12 @@ test("execute an 'ir.actions.act_url' action with onClose option", async () => {
 });
 
 test("execute an 'ir.actions.act_url' action with url javascript:", async () => {
-    patchWithCleanup(browser.location, {
+    patchWithCleanup(location, {
         assign: (url) => {
             expect.step(url);
         },
     });
-    await makeMockEnv();
+    await makeTestApp();
     await getService("action").doAction({
         type: "ir.actions.act_url",
         target: "self",
@@ -50,7 +50,7 @@ test("execute an 'ir.actions.act_url' action with target 'download'", async () =
             expect.step(url);
         },
     });
-    await makeMockEnv();
+    await makeTestApp();
     await getService("action").doAction({
         type: "ir.actions.act_url",
         target: "download",

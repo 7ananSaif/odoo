@@ -11,20 +11,22 @@
 # Martin Trigaux, 2022
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# Odoo Translation Bot <c3p@odoo.com>, 2026.
+# Nusara Boonma <nuboo@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0beta\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-20 18:35+0000\n"
-"PO-Revision-Date: 2025-11-16 15:10+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Thai <https://translate.odoo.com/projects/odoo-19/crm/th/>\n"
+"POT-Creation-Date: 2026-09-18 17:38+0000\n"
+"PO-Revision-Date: 2026-10-21 06:33+0000\n"
+"Last-Translator: Nusara Boonma <nuboo@odoo.com>\n"
+"Language-Team: Thai <https://translate.odoo.com/projects/odoo-20/crm/th/>\n"
 "Language: th\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_team__lead_all_assigned_month_count
@@ -61,6 +63,12 @@ msgstr "%(attach_name)s (จาก %(lead_name)s)"
 
 #. module: crm
 #. odoo-python
+#: code:addons/crm/wizard/crm_lead_to_opportunity_mass.py:0
+msgid "%(converted_count)s leads have been converted"
+msgstr "%(converted_count)s แปลงข้อมูลผู้สนใจเรียบร้อยแล้ว"
+
+#. module: crm
+#. odoo-python
 #: code:addons/crm/models/crm_team.py:0
 msgid "%(duplicates)s duplicates leads have been merged."
 msgstr "%(duplicates)s รวมลูกค้าเป้าหมายที่ซ้ำกันแล้ว"
@@ -83,13 +91,19 @@ msgstr "โอกาสของ%s"
 #. odoo-python
 #: code:addons/crm/models/res_users.py:0
 msgid "(Team Leader)"
-msgstr ""
+msgstr "(หัวหน้าทีม)"
 
 #. module: crm
 #. odoo-javascript
 #: code:addons/crm/static/src/views/crm_form/crm_pls_tooltip_button.xml:0
 msgid "(sample data)"
-msgstr ""
+msgstr "(ข้อมูลตัวอย่าง)"
+
+#. module: crm
+#. odoo-python
+#: code:addons/crm/wizard/crm_lead_to_opportunity_mass.py:0
+msgid "1 lead has been converted"
+msgstr "มีผู้สนใจ 1 รายที่ได้รับการแปลงเป็นลูกค้า"
 
 #. module: crm
 #. odoo-javascript
@@ -113,84 +127,60 @@ msgstr "<b>เขียนไม่กี่ตัวอักษร</b> เพ�
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.quick_create_opportunity_form
-msgid "<i class=\"fa fa-briefcase\" title=\"Opportunity Name\"/>"
+msgid "<i class=\"oi oi-filled\" data-icon=\"mail\" title=\"Contact Email\"/>"
 msgstr ""
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.quick_create_opportunity_form
-msgid "<i class=\"fa fa-building\" title=\"Company\"/>"
+msgid "<i class=\"oi oi-filled\" data-icon=\"person\" title=\"Contact\"/>"
 msgstr ""
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.quick_create_opportunity_form
-msgid "<i class=\"fa fa-envelope\" title=\"Contact Email\"/>"
+msgid ""
+"<i class=\"oi oi-lg\" data-icon=\"smartphone\" title=\"Contact Phone\"/>"
+msgstr ""
+
+#. module: crm
+#: model_terms:ir.ui.view,arch_db:crm.quick_create_opportunity_form
+msgid "<i class=\"oi\" data-icon=\"payments\" title=\"Expected Revenue\"/>"
+msgstr ""
+
+#. module: crm
+#: model_terms:ir.ui.view,arch_db:crm.quick_create_opportunity_form
+msgid "<i class=\"oi\" data-icon=\"refresh\" title=\"Recurring Revenue\"/>"
 msgstr ""
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.sales_team_form_view_in_crm
-msgid "<i class=\"fa fa-info-circle me-2\" title=\"Assigned Lead Count\"/>"
-msgstr ""
-"<i class=\"fa fa-info-circle me-2\" title=\"จำนวนลูกค้าเป้าหมายที่ได้รับมอบหมาย\"/>"
-
-#. module: crm
-#: model_terms:ir.ui.view,arch_db:crm.quick_create_opportunity_form
-msgid "<i class=\"fa fa-mobile fa-lg\" title=\"Contact Phone\"/>"
+msgid ""
+"<i class=\"oi\" data-icon=\"warning\" title=\"Exceeded\" invisible=\"not "
+"lead_all_assigned_month_exceeded\"/>"
 msgstr ""
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.quick_create_opportunity_form
-msgid "<i class=\"fa fa-money\" title=\"Expected Revenue\"/>"
-msgstr ""
-
-#. module: crm
-#: model_terms:ir.ui.view,arch_db:crm.quick_create_opportunity_form
-msgid "<i class=\"fa fa-refresh\" title=\"Recurring Revenue\"/>"
-msgstr ""
-
-#. module: crm
-#: model_terms:ir.ui.view,arch_db:crm.quick_create_opportunity_form
-msgid "<i class=\"fa fa-user\" title=\"Contact\"/>"
+msgid "<i class=\"oi\" data-icon=\"work\" title=\"Opportunity Name\"/>"
 msgstr ""
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.res_config_settings_view_form
 msgid ""
-"<i class=\"oi oi-arrow-right\"/>\n"
-"                                Install Extension"
+"<i title=\"Update now\" role=\"img\" aria-label=\"Update now\" class=\"oi oi-"
+"fw\" data-icon=\"refresh\"/>"
 msgstr ""
-"<i class=\"oi oi-arrow-right\"/>\n"
-"                                ติดตั้งส่วนขยาย"
+"<i title=\"อัปเดตตอนนี้\" role=\"img\" aria-label=\"Update now\" class=\"oi oi-"
+"fw\" data-icon=\"refresh\"/>"
 
 #. module: crm
-#: model_terms:ir.ui.view,arch_db:crm.res_config_settings_view_form
-msgid ""
-"<i title=\"Update now\" role=\"img\" aria-label=\"Update now\" class=\"fa fa-"
-"fw fa-refresh\"/>"
-msgstr ""
-"<i title=\"อัปเดตตอนนี้\" role=\"img\" aria-label=\"Update now\" class=\"fa fa-"
-"fw fa-refresh\"/>"
+#: model_terms:ir.ui.view,arch_db:crm.crm_team_member_view_form
+msgid "<span class=\"me-1\"> of </span>"
+msgstr "<span class=\"me-1\"> ของ </span>"
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_form
-msgid ""
-"<span class=\"fa fa-exclamation-triangle text-warning oe_edit_only\" "
-"title=\"By saving this change, the customer email will also be updated.\" "
-"invisible=\"not partner_email_update\"/>"
+msgid "<span class=\"mx-3 mb-1\" invisible=\"type == 'lead'\"> at</span>"
 msgstr ""
-"<span class=\"fa fa-exclamation-triangle text-warning oe_edit_only\" "
-"title=\"เมื่อบันทึกการเปลี่ยนแปลงนี้ อีเมลของลูกค้าก็จะได้รับการอัปเดตด้วย\" invisible=\"not "
-"partner_email_update\"/>"
-
-#. module: crm
-#: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_form
-msgid ""
-"<span class=\"fa fa-exclamation-triangle text-warning oe_edit_only\" "
-"title=\"By saving this change, the customer phone number will also be "
-"updated.\" invisible=\"not partner_phone_update\"/>"
-msgstr ""
-"<span class=\"fa fa-exclamation-triangle text-warning oe_edit_only\" "
-"title=\"เมื่อบันทึกการเปลี่ยนแปลงนี้ หมายเลขโทรศัพท์ของลูกค้าก็จะได้รับการอัปเดตด้วย\" "
-"invisible=\"not partner_phone_update\"/>"
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_form
@@ -222,29 +212,72 @@ msgid "<span class=\"o_stat_text\"> Leads</span>"
 msgstr "<span class=\"o_stat_text\"> ลูกค้าเป้าหมาย</span>"
 
 #. module: crm
-#: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_form
-msgid ""
-"<span class=\"opacity-50 p-2 text-nowrap d-none d-sm-block\"> at </span>"
-msgstr ""
+#: model_terms:ir.ui.view,arch_db:crm.sales_team_form_view_in_crm
+msgid "<span class=\"o_stat_text\">Opportunities</span>"
+msgstr "<span class=\"o_stat_text\">โอกาส</span>"
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_form
-msgid "<span class=\"opacity-50 p-2\"> %</span>"
+msgid ""
+"<span class=\"oi text-warning oe_edit_only\" data-icon=\"warning\" "
+"title=\"By saving this change, the customer email will also be updated.\" "
+"invisible=\"not partner_email_update\"/>"
 msgstr ""
+"<span class=\"oi text-warning oe_edit_only\" data-icon=\"warning\" "
+"title=\"เมื่อบันทึกการเปลี่ยนแปลงนี้ อีเมลของลูกค้าก็จะได้รับการอัปเดตด้วย\" invisible=\"not "
+"partner_email_update\"/>"
+
+#. module: crm
+#: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_form
+msgid ""
+"<span class=\"oi text-warning oe_edit_only\" data-icon=\"warning\" "
+"title=\"By saving this change, the customer phone number will also be "
+"updated.\" invisible=\"not partner_phone_update\"/>"
+msgstr ""
+"<span class=\"oi text-warning oe_edit_only\" data-icon=\"warning\" "
+"title=\"เมื่อบันทึกการเปลี่ยนแปลงนี้ หมายเลขโทรศัพท์ของลูกค้าก็จะได้รับการอัปเดตด้วย\" "
+"invisible=\"not partner_phone_update\"/>"
+
+#. module: crm
+#: model_terms:ir.ui.view,arch_db:crm.view_crm_lead2opportunity_partner_mass
+msgid ""
+"<span invisible=\"name != 'convert'\">\n"
+"                        Potential duplicates found. Use \"Convert &amp; "
+"Merge with duplicates\" to clean your data before converting.\n"
+"                    </span>\n"
+"                    <span invisible=\"name != 'convert_and_merge'\">\n"
+"                        Convert the selected Leads to Opportunities and "
+"merge all duplicates listed below.\n"
+"                    </span>"
+msgstr ""
+"<span invisible=\"name != 'convert'\">\n"
+"                        พบข้อมูลที่อาจซ้ำกัน โปรดใช้\"แปลงและรวมข้อมูลที่ซ้ำกัน\" "
+"เพื่อทำความสะอาดข้อมูลก่อนการแปลง\n"
+"                   </span>\n"
+"                    <span invisible=\"name != 'convert_and_merge'\"> \n"
+"                        แปลงลูกค้าเป้าหมายที่เลือกเป็นโอกาสการขาย "
+"และรวมข้อมูลที่ซ้ำกันทั้งหมดที่แสดงด้านล่าง\n"
+"                   </span>"
+
+#. module: crm
+#: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_form
+msgid "<span> %</span>"
+msgstr "<span> %</span>"
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.crm_team_member_view_form
-msgid "<span> leads assigned the last 30 days out of a maximum of </span>"
-msgstr ""
+msgid "<span> leads per 30 days </span>"
+msgstr "<span> จำนวนผู้สนใจต่อ 30 วัน</span>"
+
+#. module: crm
+#: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_form
+msgid "<span>%</span>"
+msgstr "<span>%</span>"
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.sales_team_form_view_in_crm
-msgid ""
-"<span> leads assigned this month\n"
-"                            on a maximum of </span>"
-msgstr ""
-"<span> ลูกค้าเป้าหมายที่ได้รับมอบหมาย\n"
-"                            ในเดือนนี้สูงสุดที่ </span>"
+msgid "<span>@</span>"
+msgstr "<span>@</span>"
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.crm_lead_merge_summary
@@ -264,16 +297,19 @@ msgid ""
 "                                <span invisible=\"not "
 "crm_use_auto_assignment\">\n"
 "                                    All sales teams will use this setting by "
-"default unless\n"
-"                                    specified otherwise.\n"
+"default.\n"
 "                                </span>"
 msgstr ""
-"<span>กำหนดกลุ่มเป้าหมายเป็นระยะตามลำดับความสำคัญและตัวกรอง</span><br/>\n"
+"<span>จัดสรรผู้สนใจอัตโนมัติเป็นรอบๆ ตามลำดับความสำคัญและเงื่อนไขตัวกรอง</span><br/>\n"
 "                                <span invisible=\"not "
 "crm_use_auto_assignment\">\n"
-"                                    ทีมขายทั้งหมดจะใช้การตั้งค่านี้ตามค่าเริ่มต้น \n"
-"                                    เว้นแต่จะระบุไว้เป็นอย่างอื่น\n"
+"                                    โดยทุกทีมขายจะใช้การตั้งค่านี้เป็นค่าเริ่มต้น\n"
 "                                </span>"
+
+#. module: crm
+#: model_terms:ir.ui.view,arch_db:crm.crm_stage_form
+msgid "<span>days</span>"
+msgstr "<span>วัน</span>"
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.crm_lead_merge_summary
@@ -281,115 +317,59 @@ msgid "<span>into this one.</span>"
 msgstr "<span>ลงในอันนี้</span>"
 
 #. module: crm
+#: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_form
+msgid "<span>~ </span>"
+msgstr "<span>~ </span>"
+
+#. module: crm
 #: model:mail.template,body_html:crm.mail_template_demo_crm_lead
 msgid ""
-"<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"padding-top: "
-"16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-serif; "
-"color: #454748; width: 100%; border-collapse:separate;\"><tr><td "
-"align=\"center\">\n"
-"<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" "
-"style=\"padding: 24px; background-color: white; color: #454748; border-"
-"collapse:separate;\">\n"
-"<tbody>\n"
-"    <!-- HEADER -->\n"
-"    <tr>\n"
-"        <td align=\"center\" style=\"min-width: 590px;\">\n"
-"            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" "
-"width=\"100%\" style=\"background-color: white; padding: 0; border-"
-"collapse:separate;\">\n"
-"                <tr><td valign=\"middle\">\n"
-"                    <span style=\"font-size: 10px;\">Your Lead/Opportunity</"
-"span><br/>\n"
-"                    <span style=\"font-size: 20px; font-weight: bold;\" t-"
-"out=\"object.name or ''\">Interest in your products</span>\n"
-"                </td><td valign=\"middle\" align=\"right\">\n"
-"                    <img t-attf-src=\"/logo.png?"
-"company={{ object.company_id.id }}\" style=\"padding: 0px; margin: 0px; "
-"height: 48px;\" t-att-alt=\"object.company_id.name\"/>\n"
-"                </td></tr>\n"
-"                <tr><td colspan=\"2\" style=\"text-align:center;\">\n"
-"                    <hr width=\"100%\" style=\"background-"
-"color:rgb(204,204,204);border:medium none;clear:both;display:block;font-"
-"size:0px;min-height:1px;line-height:0; margin:4px 0px 32px 0px;\"/>\n"
-"                </td></tr>\n"
-"            </table>\n"
-"        </td>\n"
-"    </tr>\n"
-"    <!-- CONTENT -->\n"
-"    <tr>\n"
-"        <td style=\"min-width: 590px;\">\n"
-"            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" "
-"width=\"590\" style=\"min-width: 590px; background-color: white; padding: "
-"0px 8px 0px 8px; border-collapse:separate;\">\n"
-"                <tr>\n"
-"                    <td valign=\"top\" style=\"font-size: 13px;\">\n"
-"                        <div>\n"
-"                            Hi <t t-out=\"object.partner_id and "
-"object.partner_id.name or ''\">Acme Corporation</t>,<br/><br/>\n"
-"                            Welcome to <t t-out=\"object.company_id.name or "
-"''\">My Company (San Francisco)</t>.\n"
-"                            It's great to meet you! Now that you're on "
-"board, you'll discover what <t t-out=\"object.company_id.name or ''\">My "
-"Company (San Francisco)</t> has to offer. My name is <t t-"
-"out=\"object.user_id.name or ''\">Marc Demo</t> and I'll help you get the "
-"most out of Odoo. Could we plan a quick demo soon?<br/>\n"
-"                            Feel free to reach out at any time!<br/><br/>\n"
-"                            Best,<br/>\n"
-"                            <t t-if=\"object.user_id\">\n"
-"                                <b><t t-out=\"object.user_id.name or "
-"''\">Marc Demo</t></b>\n"
-"                                <br/>Email: <t t-out=\"object.user_id.email "
-"or ''\">mark.brown23@example.com</t>\n"
-"                                <br/>Phone: <t t-out=\"object.user_id.phone "
-"or ''\">+1 650-123-4567</t>\n"
-"                            </t>\n"
-"                            <t t-else=\"\">\n"
-"                                <t t-out=\"object.company_id.name or ''\">My "
-"Company (San Francisco)</t>\n"
-"                            </t>\n"
-"                        </div>\n"
-"                    </td>\n"
-"                </tr>\n"
-"            </table>\n"
-"        </td>\n"
-"    </tr>\n"
-"    <!-- FOOTER -->\n"
-"    <tr>\n"
-"        <td align=\"center\" style=\"min-width: 590px; padding: 0 8px 0 8px; "
-"font-size:11px;\">\n"
-"            <hr width=\"100%\" style=\"background-"
-"color:rgb(204,204,204);border:medium none;clear:both;display:block;font-"
-"size:0px;min-height:1px;line-height:0; margin: 16px 0px 4px 0px;\"/>\n"
-"            <b t-out=\"object.company_id.name or ''\">My Company (San "
-"Francisco)</b><br/>\n"
-"            <div style=\"color: #999999;\">\n"
-"                <t t-out=\"object.company_id.phone or ''\">+1 650-123-4567</"
+"<t>\n"
+"Hi <t t-out=\"object.partner_id and object.partner_id.name or ''\">Acme "
+"Corporation</t>,<br/><br/>\n"
+"Welcome to <t t-out=\"object.company_id.name or ''\">My Company (San "
+"Francisco)</t>.\n"
+"It's great to meet you! Now that you're on board, you'll discover what <t t-"
+"out=\"object.company_id.name or ''\">My Company (San Francisco)</t> has to "
+"offer. My name is <t t-out=\"object.user_id.name or ''\">Marc Demo</t> and "
+"I'll help you get the most out of Odoo. Could we plan a quick demo soon?<br/"
+">\n"
+"Feel free to reach out at any time!<br/><br/>\n"
+"Best,<br/>\n"
+"<t t-if=\"object.user_id\">\n"
+"    <b><t t-out=\"object.user_id.name or ''\">Marc Demo</t></b>\n"
+"    <br/>Email: <t t-out=\"object.user_id.email or "
+"''\">mark.brown23@example.com</t>\n"
+"    <br/>Phone: <t t-out=\"object.user_id.phone or ''\">+1 650-123-4567</t>\n"
+"</t>\n"
+"<t t-else=\"\">\n"
+"    <t t-out=\"object.company_id.name or ''\">My Company (San Francisco)</"
 "t>\n"
-"                <t t-if=\"object.company_id.email\">\n"
-"                    | <a t-attf-href=\"'mailto:%s' % "
-"{{ object.company_id.email }}\" style=\"text-decoration:none; color: "
-"#999999;\" t-out=\"object.company_id.email or ''\">info@yourcompany.com</a>\n"
-"                </t>\n"
-"                <t t-if=\"object.company_id.website\">\n"
-"                    | <a t-attf-href=\"'%s' % {{ object.company_id.website }}"
-"\" style=\"text-decoration:none; color: #999999;\" t-"
-"out=\"object.company_id.website or ''\">http://www.example.com</a>\n"
-"                </t>\n"
-"            </div>\n"
-"        </td>\n"
-"    </tr>\n"
-"</tbody>\n"
-"</table>\n"
-"</td></tr>\n"
-"<!-- POWERED BY -->\n"
-"<tr><td align=\"center\" style=\"min-width: 590px;\">\n"
-"    Powered by <a target=\"_blank\" href=\"https://www.odoo.com?"
-"utm_source=db&amp;utm_medium=email\" t-attf-style=\"color: "
-"{{object.company_id.email_secondary_color or '#875A7B'}};;\">Odoo</a>\n"
-"</td></tr>\n"
-"</table>\n"
-"        "
+"</t>\n"
+"        </t>"
 msgstr ""
+"<t>\n"
+"สวัสดีค่ะ/ครับ<t t-out=\"object.partner_id and object.partner_id.name or "
+"''\">Acme Corporation</t>,<br/><br/>\n"
+"ยินดีต้อนรับสู่<t t-out=\"object.company_id.name or ''\">บริษัทของฉัน (ซานฟรานซิสโก)</"
+"t>.\n"
+"ยินดีที่ได้รู้จักคุณค่ะ! ตอนนี้ที่คุณได้เข้าร่วมกับเราแล้ว คุณจะค้นพบสิ่งที่<t t-"
+"out=\"object.company_id.name or ''\">บริษัทของฉัน (ซานฟรานซิสโก)</t> มีให้คุณค่ะ "
+"ชื่อของฉันคือ<t t-out=\"object.user_id.name or ''\">Marc Demo</t> "
+"และฉันจะช่วยคุณให้ได้ประโยชน์สูงสุดจาก Odoo เราสามารถนัดหมายการสาธิตอย่างรวดเร็วได้ในเร็วๆ "
+"นี้ได้หรือไม่?<br/>\n"
+"คุณสามารถติดต่อฉันได้ตลอดเวลา!<br/><br/>\n"
+"ขอแสดงความนับถือ<br/>\n"
+"<t t-if=\"object.user_id\">\n"
+"   <b><t t-out=\"object.user_id.name or ''\"> Marc Demo</t></b>\n"
+"   <br/> อีเมล:<t t-out=\"object.user_id.email or "
+"''\">mark.brown23@example.com</t>\n"
+"    <br/>โทร:<t t-out=\"object.user_id.phone or ''\">+1 650-123-4567</t>\n"
+"</t>\n"
+"<t t-else=\"\">\n"
+"    <t t-out=\"object.company_id.name or ''\">บริษัทของฉัน (ซานฟรานซิสโก)</t>\n"
+"</t>\n"
+"       </t>"
 
 #. module: crm
 #: model:ir.model.fields,help:crm.field_crm_team__alias_defaults
@@ -418,18 +398,8 @@ msgstr ""
 #: code:addons/crm/models/crm_lead.py:0
 msgid "A lead in a Won stage cannot be lost. Move it to another stage first."
 msgstr ""
-
-#. module: crm
-#. odoo-python
-#: code:addons/crm/models/crm_lead.py:0
-msgid "A new lead has been created and is not assigned to any team."
-msgstr "มีการสร้างลูกค้าเป้าหมายใหม่และไม่ได้มอบหมายให้กับทีมใดๆ"
-
-#. module: crm
-#. odoo-python
-#: code:addons/crm/models/crm_lead.py:0
-msgid "A new lead has been created for the team \"%(team_name)s\"."
-msgstr "สร้างโอกาสในการขายใหม่สำหรับทีม \"%(team_name)s\" แล้ว"
+"ลูกค้าเป้าหมายในการปิดการขายได้สำเร็จแล้ว ไม่สามารถตั้งค่าเป็นเสียโอกาสได้ "
+"กรุณาย้ายไปสถานะอื่นก่อน"
 
 #. module: crm
 #. odoo-javascript
@@ -442,18 +412,29 @@ msgstr "AI"
 #. odoo-javascript
 #: code:addons/crm/static/src/views/crm_form/crm_pls_tooltip_button.xml:0
 msgid "AI-computed chances of winning"
-msgstr ""
+msgstr "โอกาสในการชนะที่คำนวณโดย AI"
 
 #. module: crm
 #. odoo-javascript
 #: code:addons/crm/static/src/views/crm_form/crm_pls_tooltip_button.xml:0
 msgid "AI-computed chances of winning for"
-msgstr ""
+msgstr "โอกาสในการชนะที่คำนวณโดย AI สำหรับ"
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.sales_team_form_view_in_crm
 msgid "Accept Emails From"
 msgstr "ยอมรับฟอร์มอีเมล"
+
+#. module: crm
+#: model:ir.model,name:crm.model_res_groups
+msgid "Access Groups"
+msgstr ""
+
+#. module: crm
+#. odoo-javascript
+#: code:addons/crm/static/src/components/lead_generation_dropdown/lead_generation_dropdown.js:0
+msgid "Access request for \"%s\""
+msgstr "คำขอเข้าถึงข้อมูลสำหรับ\"%s\""
 
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_lead__message_needaction
@@ -502,11 +483,6 @@ msgstr ""
 "โดยให้ภาพรวมของการโต้ตอบของลูกค้าเป้าหมาย"
 
 #. module: crm
-#: model_terms:ir.ui.view,arch_db:crm.view_crm_case_leads_filter
-msgid "Activities of"
-msgstr ""
-
-#. module: crm
 #: model:ir.model,name:crm.model_mail_activity
 #: model_terms:ir.ui.view,arch_db:crm.crm_activity_report_view_search
 msgid "Activity"
@@ -523,6 +499,7 @@ msgid "Activity Exception Decoration"
 msgstr "การตกแต่งข้อยกเว้นกิจกรรม"
 
 #. module: crm
+#: model:ir.model.fields,field_description:crm.field_crm_lead__activity_plans_ids
 #: model:ir.ui.menu,name:crm.mail_activity_plan_menu_config_lead
 msgid "Activity Plans"
 msgstr "แผนกิจกรรม"
@@ -564,11 +541,6 @@ msgstr ""
 "                    (เช่น \"ขั้นตอนการเตรียมการสาธิต\", \"คุณสมบัติ\" ...)"
 
 #. module: crm
-#: model_terms:ir.ui.view,arch_db:crm.view_crm_case_leads_filter
-msgid "Activity type"
-msgstr "ประเภทกิจกรรม"
-
-#. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_form
 msgid "Add a description..."
 msgstr "เพิ่มคำอธิบาย..."
@@ -581,7 +553,7 @@ msgstr "เพิ่มขั้นตอนคุณสมบัติก่อ
 #. module: crm
 #: model:ir.actions.act_window,name:crm.mail_followers_edit_action_from_lead
 msgid "Add/Remove Followers"
-msgstr ""
+msgstr "เพิ่ม/ลบผู้ติดตาม"
 
 #. module: crm
 #: model:ir.model.fields,help:crm.field_crm_team__assignment_domain
@@ -648,19 +620,20 @@ msgstr "โมเดลนามแฝง"
 
 #. module: crm
 #. odoo-javascript
+#: code:addons/crm/static/src/components/team_switcher/team_switcher.js:0
+msgid "All Teams"
+msgstr ""
+
+#. module: crm
+#. odoo-javascript
 #: code:addons/crm/static/src/js/tours/crm.js:0
 msgid "All set. Let’s <b>Schedule</b> it."
 msgstr "ตั้งค่าทั้งหมดแล้ว มาตั้ง<b>กำหนดการ</b> กัน"
 
 #. module: crm
-#: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_form
-msgid "Analysis"
-msgstr "การวิเคราะห์"
-
-#. module: crm
-#: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner_mass__deduplicate
-msgid "Apply deduplication"
-msgstr "ใช้การกำจัดข้อมูลซ้ำซ้อน"
+#: model:ir.model.fields.selection,name:crm.selection__crm_team_member__assignment_rules__unlimited
+msgid "Always in rotation"
+msgstr "หมุนเวียนเสมอ"
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.crm_activity_report_view_search
@@ -670,45 +643,27 @@ msgstr "ใช้การกำจัดข้อมูลซ้ำซ้อน
 #: model_terms:ir.ui.view,arch_db:crm.crm_lost_reason_view_search
 #: model_terms:ir.ui.view,arch_db:crm.crm_opportunity_report_view_search
 #: model_terms:ir.ui.view,arch_db:crm.crm_recurring_plan_view_search
-#: model_terms:ir.ui.view,arch_db:crm.view_crm_case_leads_filter
 msgid "Archived"
 msgstr "เก็บถาวรแล้ว"
 
 #. module: crm
 #. odoo-python
-#: code:addons/crm/models/crm_team.py:0
+#: code:addons/crm/models/crm_lead.py:0
 msgid ""
-"As you are a member of no Sales Team, you are showed the Pipeline of the "
-"<b>first team by default.</b>\n"
-"                                        To work with the CRM, you should <a "
-"name=\"%d\" type=\"action\" tabindex=\"-1\">join a team.</a>"
+"As you are a member of no Sales Team, you are showed the entire Pipeline.<br/"
+">"
 msgstr ""
-"เนื่องจากคุณไม่ใช่สมาชิกของทีมขาย ระบบจะแสดงไปป์ไลน์ของ <b>ทีมแรกตามค่าเริ่มต้น</b>\n"
-"                                        หากต้องการทำงานร่วมกับ CRM คุณควร<a "
-"name=\"%d\" type=\"action\" tabindex=\"-1\">เข้าร่วมทีม</a>ก่อน"
 
 #. module: crm
-#. odoo-python
-#: code:addons/crm/models/crm_team.py:0
-msgid ""
-"As you are a member of no Sales Team, you are showed the Pipeline of the "
-"<b>first team by default.</b>\n"
-"                                        To work with the CRM, you should "
-"join a team."
-msgstr ""
-"เนื่องจากคุณไม่ใช่สมาชิกของทีมขาย ระบบจะแสดงไปป์ไลน์ของ <b>ทีมแรกตามค่าเริ่มต้น</b>\n"
-"                                        หากต้องการทำงานร่วมกับ CRM "
-"คุณควรเข้าร่วมทีมก่อน"
+#. odoo-javascript
+#: code:addons/crm/static/src/components/lead_generation_dropdown/lead_generation_dropdown.xml:0
+msgid "Ask your Team Leader to get access"
+msgstr "โปรดขอสิทธิ์การเข้าถึงจากหัวหน้าทีมของคุณ"
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.sales_team_form_view_in_crm
 msgid "Assign Leads"
 msgstr "มอบหมายลูกค้าเป้าหมาย"
-
-#. module: crm
-#: model_terms:ir.ui.view,arch_db:crm.merge_opportunity_form
-msgid "Assign opportunities to"
-msgstr "มอบหมายโอกาสให้"
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.res_config_settings_view_form
@@ -719,11 +674,6 @@ msgstr "มอบหมายพนักงานขายให้อยู่
 #: model_terms:ir.ui.view,arch_db:crm.view_crm_lead2opportunity_partner_mass
 msgid "Assign these opportunities to"
 msgstr "มอบหมายโอกาสเหล่านี้ให้กับ"
-
-#. module: crm
-#: model_terms:ir.ui.view,arch_db:crm.view_crm_lead2opportunity_partner
-msgid "Assign this opportunity to"
-msgstr "มอบหมายโอกาสนี้ให้กับ"
 
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_activity_report__author_id
@@ -754,12 +704,6 @@ msgid "Assignment domain for team %(team)s is incorrectly formatted"
 msgstr "โดเมนที่มอบหมายสำหรับทีม %(team)s อยู่ในรูปแบบที่ไม่ถูกต้อง"
 
 #. module: crm
-#: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner__lead_id
-#: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner_mass__lead_id
-msgid "Associated Lead"
-msgstr "ลูกค้าเป้าหมายที่เกี่ยวข้อง"
-
-#. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_lead__message_attachment_count
 msgid "Attachment Count"
 msgstr "จำนวนสิ่งที่แนบมา"
@@ -783,6 +727,11 @@ msgstr "หน่วยช่วงเวลาการมอบหมายอ
 #: model:ir.model.fields,field_description:crm.field_res_config_settings__crm_auto_assignment_run_datetime
 msgid "Auto Assignment Next Execution Date"
 msgstr "การมอบหมายอัตโนมัติสำหรับวันที่ดำเนินการถัดไป"
+
+#. module: crm
+#: model:ir.model.fields,field_description:crm.field_crm_team_member__assignment_rules
+msgid "Auto-Assignment Rules"
+msgstr "กฎการกำหนดอัตโนมัติ"
 
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_lead__automated_probability
@@ -822,6 +771,13 @@ msgid "Bounce"
 msgstr "การตีกลับ"
 
 #. module: crm
+#. odoo-javascript
+#: code:addons/crm/static/src/components/promote_mail_plugins_dialog/promote_mail_plugins_dialog.xml:0
+msgid "Bring Odoo into your inbox:"
+msgstr ""
+
+#. module: crm
+#: model:ir.module.module,shortdesc:base.module_crm
 #: model:ir.ui.menu,name:crm.crm_menu_root
 #: model_terms:ir.ui.view,arch_db:crm.digest_digest_view_form
 #: model_terms:ir.ui.view,arch_db:crm.res_config_settings_view_form
@@ -835,13 +791,13 @@ msgstr "การวิเคราะห์กิจกรรม CRM"
 
 #. module: crm
 #: model:ir.model,name:crm.model_crm_recurring_plan
-msgid "CRM Recurring revenue plans"
+msgid "CRM Recurring Revenue Plan"
 msgstr "แผนรายได้ประจำของ CRM"
 
 #. module: crm
 #: model:ir.model,name:crm.model_crm_stage
-msgid "CRM Stages"
-msgstr "CRM ขั้นตอน"
+msgid "CRM Stage"
+msgstr "ขั้นตอน CRM"
 
 #. module: crm
 #: model:ir.actions.server,name:crm.ir_cron_crm_lead_assign_ir_actions_server
@@ -865,18 +821,6 @@ msgstr "แคมเปญ"
 #: model_terms:ir.ui.view,arch_db:crm.crm_lead_merge_summary
 msgid "Campaign:"
 msgstr "แคมเปญ:"
-
-#. module: crm
-#: model_terms:ir.ui.view,arch_db:crm.merge_opportunity_form
-#: model_terms:ir.ui.view,arch_db:crm.view_crm_lead2opportunity_partner
-#: model_terms:ir.ui.view,arch_db:crm.view_crm_lead2opportunity_partner_mass
-msgid "Cancel"
-msgstr "ยกเลิก"
-
-#. module: crm
-#: model_terms:ir.ui.view,arch_db:crm.crm_team_member_view_form
-msgid "Capacity"
-msgstr "ความจุ"
 
 #. module: crm
 #. odoo-python
@@ -933,16 +877,17 @@ msgstr "จำแนกและวิเคราะห์ประเภทล
 #. odoo-javascript
 #: code:addons/crm/static/src/js/tours/crm.js:0
 msgid ""
-"Click on the breadcrumb to go back to your Pipeline. Odoo will save all "
-"modifications as you navigate."
+"Click on the breadcrumbs to go back to your Pipeline. Odoo will save all "
+"your changes as you navigate."
 msgstr ""
-"คลิกที่ breadcrumb เพื่อกลับไปที่ไปป์ไลน์ของคุณ Odoo จะบันทึกการแก้ไขทั้งหมดในขณะที่คุณนำทาง"
+"คลิกที่เส้นทางนำทางเพื่อกลับไปยัง Pipeline ของคุณ Odoo "
+"จะบันทึกการเปลี่ยนแปลงทั้งหมดของคุณขณะที่คุณนำทาง"
 
 #. module: crm
 #. odoo-javascript
 #: code:addons/crm/static/src/views/crm_form/crm_pls_tooltip_button.xml:0
 msgid "Close opportunities to get insights."
-msgstr ""
+msgstr "ปิดโอกาสเพื่อรับข้อมูลเชิงลึก"
 
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_activity_report__date_closed
@@ -953,12 +898,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:crm.view_crm_case_opportunities_filter
 msgid "Closed Date"
 msgstr "วันที่ปิด"
-
-#. module: crm
-#. odoo-python
-#: code:addons/crm/wizard/crm_lead_to_opportunity.py:0
-msgid "Closed/Dead leads cannot be converted into opportunities."
-msgstr "โอกาสในการขายที่ปิด/ตาย ไม่สามารถแปลงเป็นโอกาสทางการขายได้"
 
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_lead_lost__lost_feedback
@@ -978,26 +917,20 @@ msgstr "ดัชนีสี"
 
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_activity_report__company_id
-#: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner__commercial_partner_id
-#: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner_mass__commercial_partner_id
 #: model:ir.model.fields,field_description:crm.field_crm_lead__company_id
 #: model_terms:ir.ui.view,arch_db:crm.crm_activity_report_view_search
 #: model_terms:ir.ui.view,arch_db:crm.crm_opportunity_report_view_search
-#: model_terms:ir.ui.view,arch_db:crm.quick_create_opportunity_form
 #: model_terms:ir.ui.view,arch_db:crm.view_crm_case_leads_filter
 #: model_terms:ir.ui.view,arch_db:crm.view_crm_case_opportunities_filter
-#: model_terms:ir.ui.view,arch_db:crm.view_crm_lead2opportunity_partner
 msgid "Company"
 msgstr "บริษัท"
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_form
 msgid "Company Information"
-msgstr ""
+msgstr "ข้อมูลบริษัท"
 
 #. module: crm
-#: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner__lead_partner_name
-#: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner_mass__lead_partner_name
 #: model:ir.model.fields,field_description:crm.field_crm_lead__partner_name
 msgid "Company Name"
 msgstr "ชื่อบริษัท"
@@ -1022,7 +955,7 @@ msgstr "วันที่เสร็จ"
 #. odoo-javascript
 #: code:addons/crm/static/src/views/crm_form/crm_pls_tooltip_button.xml:0
 msgid "Computed by Odoo AI using your data."
-msgstr ""
+msgstr "คำนวณโดย Odoo AI โดยใช้ข้อมูลของคุณ"
 
 #. module: crm
 #: model:ir.model,name:crm.model_res_config_settings
@@ -1038,6 +971,12 @@ msgstr "การกำหนดค่า"
 #: model_terms:web_tour.tour,rainbow_man_message:crm.crm_tour
 msgid "Congrats, best of luck catching such big fish! :)"
 msgstr "ยินดีด้วย ขอให้โชคดีในการจับปลาตัวใหญ่นะ! :)"
+
+#. module: crm
+#. odoo-javascript
+#: code:addons/crm/static/src/components/promote_mail_plugins_dialog/promote_mail_plugins_dialog.xml:0
+msgid "Connect to Gmail or Outlook accounts."
+msgstr ""
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.crm_lead_pls_update_view_form
@@ -1073,8 +1012,6 @@ msgid "Contact Information"
 msgstr "ข้อมูลการติดต่อ"
 
 #. module: crm
-#: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner__lead_contact_name
-#: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner_mass__lead_contact_name
 #: model:ir.model.fields,field_description:crm.field_crm_lead__contact_name
 msgid "Contact Name"
 msgstr "ชื่อผู้ติดต่อ"
@@ -1090,12 +1027,6 @@ msgid "Contact:"
 msgstr "ติดต่อ:"
 
 #. module: crm
-#: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_form
-msgid "Contacts"
-msgstr "การติดต่อ"
-
-#. module: crm
-#: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner__name
 #: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner_mass__name
 msgid "Conversion Action"
 msgstr "การดำเนินการการแปลง"
@@ -1115,8 +1046,13 @@ msgstr "วันที่แปลงจากลูกค้าเป้าห
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.view_crm_lead2opportunity_partner_mass
-msgid "Conversion Options"
-msgstr "ตัวเลือกการแปลง"
+msgid "Convert"
+msgstr "แปลง"
+
+#. module: crm
+#: model:ir.model.fields.selection,name:crm.selection__crm_lead2opportunity_partner_mass__name__convert_and_merge
+msgid "Convert & Merge with Opportunities"
+msgstr "แปลงและผสานรวมกับโอกาส"
 
 #. module: crm
 #: model:ir.model,name:crm.model_crm_lead2opportunity_partner_mass
@@ -1124,32 +1060,21 @@ msgid "Convert Lead to Opportunity (in mass)"
 msgstr "แปลงลูกค้าเป้าหมายเป็นโอกาส (จำนวนมาก)"
 
 #. module: crm
-#: model:ir.model,name:crm.model_crm_lead2opportunity_partner
-msgid "Convert Lead to Opportunity (not in mass)"
-msgstr "แปลงลูกค้าเป้าหมายเป็นโอกาส ( เดี่ยว )"
+#: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_form
+msgid "Convert into an Opportunity to see it in your Pipeline"
+msgstr "แปลงเป็นโอกาสเพื่อดูใน Pipeline โอกาสของคุณ"
 
 #. module: crm
+#: model:ir.actions.act_window,name:crm.action_crm_send_mass_convert
+#: model:ir.model.fields.selection,name:crm.selection__crm_lead2opportunity_partner_mass__name__convert
+#: model_terms:ir.ui.view,arch_db:crm.crm_case_tree_view_leads
 #: model_terms:ir.ui.view,arch_db:crm.view_crm_lead2opportunity_partner_mass
 msgid "Convert to Opportunities"
 msgstr "แปลงเป็นโอกาส"
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_form
-#: model_terms:ir.ui.view,arch_db:crm.view_crm_lead2opportunity_partner
-#: model_terms:ir.ui.view,arch_db:crm.view_crm_lead2opportunity_partner_mass
 msgid "Convert to Opportunity"
-msgstr "แปลงเป็นโอกาส"
-
-#. module: crm
-#: model:ir.actions.act_window,name:crm.action_crm_send_mass_convert
-msgid "Convert to opportunities"
-msgstr "แปลงเป็นโอกาส"
-
-#. module: crm
-#: model:ir.actions.act_window,name:crm.action_crm_lead2opportunity_partner
-#: model:ir.model.fields.selection,name:crm.selection__crm_lead2opportunity_partner__name__convert
-#: model:ir.model.fields.selection,name:crm.selection__crm_lead2opportunity_partner_mass__name__convert
-msgid "Convert to opportunity"
 msgstr "แปลงเป็นโอกาส"
 
 #. module: crm
@@ -1182,14 +1107,15 @@ msgid "Country"
 msgstr "ประเทศ"
 
 #. module: crm
+#. odoo-javascript
+#: code:addons/crm/static/src/components/promote_mail_plugins_dialog/promote_mail_plugins_dialog.xml:0
+msgid "Create Contacts, Leads, Tickets, Projects and Tasks."
+msgstr ""
+
+#. module: crm
 #: model:ir.model.fields,field_description:crm.field_res_config_settings__module_website_crm_iap_reveal
 msgid "Create Leads/Opportunities from your website's traffic"
 msgstr "สร้างลูกค้าเป้าหมาย / โอกาสจากการเข้าชมเว็บไซต์ของคุณ"
-
-#. module: crm
-#: model_terms:ir.ui.view,arch_db:crm.view_crm_lead2opportunity_partner
-msgid "Create Opportunity"
-msgstr "สร้างโอกาส"
 
 #. module: crm
 #: model:ir.model,website_form_label:crm.model_res_partner
@@ -1222,12 +1148,6 @@ msgid "Create a lead mining request directly from the opportunity pipeline."
 msgstr "สร้างคำขอการขุดลูกค้าเป้าหมายโดยตรงจากไปป์ไลน์โอกาสทางการขาย"
 
 #. module: crm
-#: model:ir.model.fields.selection,name:crm.selection__crm_lead2opportunity_partner__action__create
-#: model:ir.model.fields.selection,name:crm.selection__crm_lead2opportunity_partner_mass__action__create
-msgid "Create a new customer"
-msgstr "สร้างลูกค้าใหม่"
-
-#. module: crm
 #. odoo-python
 #: code:addons/crm/models/crm_lead.py:0
 #: model_terms:ir.actions.act_window,help:crm.crm_case_form_view_salesteams_lead
@@ -1236,8 +1156,6 @@ msgid "Create a new lead"
 msgstr "สร้างลูกค้าเป้าหมายใหม่"
 
 #. module: crm
-#. odoo-python
-#: code:addons/crm/models/crm_team.py:0
 #: model:ir.model,website_form_label:crm.model_crm_lead
 msgid "Create an Opportunity"
 msgstr "สร้างโอกาส"
@@ -1250,7 +1168,12 @@ msgid "Create an opportunity to start playing with your pipeline."
 msgstr "สร้างโอกาสในการเริ่มเล่นกับไปป์ไลน์ของคุณ"
 
 #. module: crm
-#: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner__create_uid
+#. odoo-javascript
+#: code:addons/crm/static/src/js/tours/crm.js:0
+msgid "Create your new contact."
+msgstr ""
+
+#. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner_mass__create_uid
 #: model:ir.model.fields,field_description:crm.field_crm_lead__create_uid
 #: model:ir.model.fields,field_description:crm.field_crm_lead_lost__create_uid
@@ -1265,7 +1188,6 @@ msgid "Created by"
 msgstr "สร้างโดย"
 
 #. module: crm
-#: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner__create_date
 #: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner_mass__create_date
 #: model:ir.model.fields,field_description:crm.field_crm_lead__create_date
 #: model:ir.model.fields,field_description:crm.field_crm_lead_lost__create_date
@@ -1294,16 +1216,6 @@ msgid "Creation Date"
 msgstr "วันที่สร้าง"
 
 #. module: crm
-#: model:ir.actions.server,name:crm.action_opportunity_forecast
-msgid "Crm: Forecast"
-msgstr "Crm: พยากรณ์"
-
-#. module: crm
-#: model:ir.actions.server,name:crm.action_your_pipeline
-msgid "Crm: My Pipeline"
-msgstr "Crm: ไปป์ไลน์ของฉัน"
-
-#. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_lead__company_currency
 msgid "Currency"
 msgstr "สกุลเงิน"
@@ -1315,16 +1227,9 @@ msgstr "ข้อความตีกลับที่กำหนดเอง
 
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_activity_report__partner_id
-#: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner__partner_id
-#: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner_mass__partner_id
 #: model_terms:ir.ui.view,arch_db:crm.view_crm_case_opportunities_filter
 msgid "Customer"
 msgstr "ลูกค้า"
-
-#. module: crm
-#: model:ir.model.fields,field_description:crm.field_crm_lead__commercial_partner_id
-msgid "Customer Company"
-msgstr "ลูกค้าบริษัท"
 
 #. module: crm
 #: model:ir.ui.menu,name:crm.res_partner_menu_customer
@@ -1340,7 +1245,7 @@ msgstr "วันที่ปิด"
 #. module: crm
 #: model:ir.model.fields,help:crm.field_crm_lead__rotting_days
 msgid "Day count since this resource was last updated"
-msgstr ""
+msgstr "จำนวนวันที่ผ่านมาตั้งแต่ทรัพยากรนี้ได้รับการอัปเดตครั้งสุดท้าย"
 
 #. module: crm
 #: model:ir.model.fields.selection,name:crm.selection__res_config_settings__crm_auto_assignment_interval_type__days
@@ -1350,7 +1255,7 @@ msgstr "วัน"
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_lead__rotting_days
 msgid "Days Rotting"
-msgstr ""
+msgstr "จำนวนวันที่ไม่มีความเคลื่อนไหว"
 
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_lead__day_open
@@ -1365,7 +1270,7 @@ msgstr "วันที่ปิด"
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_stage__rotting_threshold_days
 msgid "Days to rot"
-msgstr ""
+msgstr "เกณฑ์จำนวนวันก่อนที่จะไม่มีความเคลื่อนไหว"
 
 #. module: crm
 #. odoo-python
@@ -1433,15 +1338,13 @@ msgid "Digest"
 msgstr "ไดเจส"
 
 #. module: crm
-#: model_terms:ir.ui.view,arch_db:crm.crm_lead_lost_view_form
-#: model_terms:ir.ui.view,arch_db:crm.crm_lead_pls_update_view_form
-msgid "Discard"
-msgstr "ละทิ้ง"
+#: model:ir.model,name:crm.model_discuss_channel
+msgid "Discussion Channel"
+msgstr ""
 
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_calendar_event__display_name
 #: model:ir.model.fields,field_description:crm.field_crm_activity_report__display_name
-#: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner__display_name
 #: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner_mass__display_name
 #: model:ir.model.fields,field_description:crm.field_crm_lead__display_name
 #: model:ir.model.fields,field_description:crm.field_crm_lead_lost__display_name
@@ -1455,9 +1358,11 @@ msgstr "ละทิ้ง"
 #: model:ir.model.fields,field_description:crm.field_crm_team__display_name
 #: model:ir.model.fields,field_description:crm.field_crm_team_member__display_name
 #: model:ir.model.fields,field_description:crm.field_digest_digest__display_name
+#: model:ir.model.fields,field_description:crm.field_discuss_channel__display_name
 #: model:ir.model.fields,field_description:crm.field_ir_config_parameter__display_name
 #: model:ir.model.fields,field_description:crm.field_mail_activity__display_name
 #: model:ir.model.fields,field_description:crm.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:crm.field_res_groups__display_name
 #: model:ir.model.fields,field_description:crm.field_res_partner__display_name
 #: model:ir.model.fields,field_description:crm.field_res_users__display_name
 #: model:ir.model.fields,field_description:crm.field_utm_campaign__display_name
@@ -1465,28 +1370,33 @@ msgid "Display Name"
 msgstr "แสดงชื่อ"
 
 #. module: crm
-#. odoo-python
-#: code:addons/crm/models/digest.py:0
-msgid "Do not have access, skip this data for user's digest email"
-msgstr "ไม่มีสิทธิ์เข้าถึง ข้ามข้อมูลนี้สำหรับอีเมลไดเจสของผู้ใช้"
+#: model_terms:ir.ui.view,arch_db:crm.res_config_settings_view_form
+msgid "Display your partners on a dedicated website page."
+msgstr "แสดงข้อมูลพันธมิตรของคุณบนหน้าเว็บที่จัดไว้โดยเฉพาะ"
 
 #. module: crm
 #. odoo-python
 #: code:addons/crm/models/crm_stage.py:0
 msgid "Do you really want to update this stage?"
-msgstr ""
+msgstr "คุณแน่ใจหรือไม่ว่าต้องการอัปเดตสถานะนี้?"
+
+#. module: crm
+#. odoo-javascript
+#: code:addons/crm/static/src/components/lead_generation_dropdown/lead_generation_dropdown.js:0
+msgid "Do you want to install the \"%(module_name)s\" App?"
+msgstr "คุณต้องการติดตั้งแอป \"%(module_name)s\" หรือไม่?"
 
 #. module: crm
 #. odoo-javascript
 #: code:addons/crm/static/src/views/crm_form/crm_pls_tooltip_button.xml:0
 msgid "Does not have a"
-msgstr ""
+msgstr "ไม่มี"
 
 #. module: crm
 #. odoo-javascript
 #: code:addons/crm/static/src/views/crm_form/crm_pls_tooltip_button.xml:0
 msgid "Does not have an"
-msgstr ""
+msgstr "ไม่มี"
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.sales_team_form_view_in_crm
@@ -1494,15 +1404,20 @@ msgid "Domain"
 msgstr "โดเมน"
 
 #. module: crm
-#: model_terms:ir.ui.view,arch_db:crm.view_crm_lead2opportunity_partner
-msgid "Don't link to a company"
-msgstr ""
-
-#. module: crm
 #. odoo-javascript
 #: code:addons/crm/static/src/js/tours/crm.js:0
 msgid "Drag your opportunity to <b>Won</b> when you get the deal. Congrats!"
 msgstr "ลากโอกาสไปที่ <b>สำเร็จ</b> เมื่อคุณได้รับข้อตกลง ขอแสดงความยินดีด้วย!"
+
+#. module: crm
+#: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner_mass__duplicated_lead_ids
+msgid "Duplicated Lead"
+msgstr "ลูกค้าเป้าหมายซ้ำซ้อน"
+
+#. module: crm
+#: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner_mass__duplicated_lead_ids_domain
+msgid "Duplicated Lead Ids Domain"
+msgstr "ID ลูกค้าเป้าหมายซ้ำกันในโดเมน"
 
 #. module: crm
 #. odoo-python
@@ -1539,19 +1454,15 @@ msgid "Email Domain Criterion"
 msgstr "เกณฑ์โดเมนอีเมล"
 
 #. module: crm
+#. odoo-javascript
+#: code:addons/crm/static/src/components/lead_generation_dropdown/lead_generation_dropdown.js:0
+msgid "Email Marketing"
+msgstr "อีเมลมาร์เก็ตติ้ง"
+
+#. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_lead__email_state
 msgid "Email Quality"
 msgstr "คุณภาพของอีเมล"
-
-#. module: crm
-#: model:ir.model.fields,field_description:crm.field_crm_lead__email_cc
-msgid "Email cc"
-msgstr "cc อีเมล"
-
-#. module: crm
-#: model_terms:ir.ui.view,arch_db:crm.crm_lead_merge_summary
-msgid "Email cc:"
-msgstr "cc อีเมล:"
 
 #. module: crm
 #: model:ir.model.fields,help:crm.field_crm_team__alias_domain
@@ -1605,9 +1516,14 @@ msgid "Estimate of the date on which the opportunity will be won."
 msgstr "ประมาณการของวันที่ที่โอกาสจะสำเร็จ"
 
 #. module: crm
-#: model:ir.model.fields,field_description:crm.field_crm_team__lead_all_assigned_month_exceeded
-msgid "Exceed monthly lead assignement"
-msgstr "การมอบหมายของลูกค้าเป้าหมายรายเดือนนั้นเกินกำหนด"
+#: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner_mass__force_assignment
+msgid "Even if assigned"
+msgstr "แม้จะได้รับการกำหนด"
+
+#. module: crm
+#: model_terms:ir.ui.view,arch_db:crm.res_config_settings_view_form
+msgid "Every"
+msgstr "ทุก"
 
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_activity_report__date_deadline
@@ -1645,7 +1561,7 @@ msgstr "เป้าหมายรายได้"
 #. odoo-python
 #: code:addons/crm/models/crm_lead.py:0
 msgid "Exploration"
-msgstr ""
+msgstr "การสำรวจ"
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_form
@@ -1656,6 +1572,12 @@ msgstr "ข้อมูลเพิ่มเติม"
 #: model_terms:ir.ui.view,arch_db:crm.crm_lead_pls_update_view_form
 msgid "Extra fields..."
 msgstr "ฟิลด์เพิ่มเติม..."
+
+#. module: crm
+#. odoo-javascript
+#: code:addons/crm/static/src/components/lead_generation_dropdown/lead_generation_dropdown.js:0
+msgid "Failed to install \"%(module_name)s\""
+msgstr "ไม่สามารถติดตั้ง \"%(module_name)s\" ได้"
 
 #. module: crm
 #. odoo-javascript
@@ -1682,6 +1604,17 @@ msgid "Fields that can be used for predictive lead scoring computation"
 msgstr "ฟิลด์ที่สามารถใช้สำหรับคำนวณการให้คะแนนลูกค้าเป้าหมายที่คาดการณ์ได้"
 
 #. module: crm
+#. odoo-javascript
+#: code:addons/crm/static/src/components/promote_mail_plugins_dialog/promote_mail_plugins_dialog.xml:0
+msgid "Find any Odoo record without leaving your inbox."
+msgstr ""
+
+#. module: crm
+#: model_terms:ir.ui.view,arch_db:crm.crm_stage_form
+msgid "Fold by Default"
+msgstr "พับเป็นค่าเริ่มต้น"
+
+#. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_stage__fold
 msgid "Folded in Pipeline"
 msgstr "พับในไปป์ไลน์"
@@ -1697,11 +1630,6 @@ msgid "Followers (Partners)"
 msgstr "ผู้ติดตาม (พาร์ทเนอร์)"
 
 #. module: crm
-#: model:ir.model.fields,help:crm.field_crm_lead__activity_type_icon
-msgid "Font awesome icon e.g. fa-tasks"
-msgstr "ไอคอนแบบฟอนต์ที่ยอดเยี่ยมเช่น fa-tasks"
-
-#. module: crm
 #: model_terms:digest.tip,tip_description:crm.digest_tip_crm_1
 msgid ""
 "For a sales team, there is nothing worse than being dry on leads. "
@@ -1709,12 +1637,10 @@ msgid ""
 "targeted to your needs: company size, industry, etc. To help you test the "
 "feature, we offer you 20 credits for free."
 msgstr ""
-
-#. module: crm
-#: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner__force_assignment
-#: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner_mass__force_assignment
-msgid "Force assignment"
-msgstr "บังคับมอบหมาย"
+"สำหรับทีมขาย คงไม่มีอะไรแย่ไปกว่าการขาดแคลนรายชื่อลูกค้าเป้าหมาย (Lead) "
+"แต่โชคดีที่เพียงไม่กี่คลิก คุณก็สามารถค้นหาและสร้างรายชื่อลูกค้าที่ตรงกลุ่มเป้าหมายได้ทันที "
+"ไม่ว่าจะเป็นขนาดบริษัท อุตสาหกรรม หรือเงื่อนไขอื่นๆ และเพื่อช่วยให้คุณได้ทดลองใช้งานฟีเจอร์นี้ "
+"เราขอมอบ 20 เครดิตให้คุณไปใช้ฟรี! ได้เลยทันที"
 
 #. module: crm
 #: model:ir.actions.act_window,name:crm.crm_lead_action_forecast
@@ -1741,10 +1667,21 @@ msgstr "จาก %(source_name)s: %(source_subject)s"
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.view_crm_case_leads_filter
-#: model_terms:ir.ui.view,arch_db:crm.view_crm_case_my_activities_filter
 #: model_terms:ir.ui.view,arch_db:crm.view_crm_case_opportunities_filter
 msgid "Future Activities"
 msgstr "กิจกรรมในอนาคต"
+
+#. module: crm
+#. odoo-javascript
+#: code:addons/crm/static/src/components/lead_generation_dropdown/lead_generation_dropdown.xml:0
+msgid "Generate"
+msgstr "สร้าง"
+
+#. module: crm
+#. odoo-javascript
+#: code:addons/crm/static/src/components/lead_generation_dropdown/lead_generation_dropdown.js:0
+msgid "Generate leads from Outlook & Gmail"
+msgstr "สร้างลูกค้าเป้าหมายจาก Outlook และ Gmail"
 
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_res_config_settings__module_crm_iap_mine
@@ -1762,9 +1699,33 @@ msgid "Get Lost Reason"
 msgstr "รับเหตุผลที่ไม่สำเร็จ"
 
 #. module: crm
-#: model_terms:ir.ui.view,arch_db:crm.crm_stage_form
-msgid "Give your team the requirements to move an opportunity to this stage."
-msgstr "ให้ข้อกำหนดแก่ทีมของคุณเพื่อย้ายโอกาสไปยังสถานะนี้"
+#. odoo-javascript
+#: code:addons/crm/static/src/components/promote_mail_plugins_dialog/promote_mail_plugins_dialog.xml:0
+msgid "Get it for Gmail"
+msgstr ""
+
+#. module: crm
+#. odoo-javascript
+#: code:addons/crm/static/src/components/promote_mail_plugins_dialog/promote_mail_plugins_dialog.xml:0
+msgid "Get it for Outlook"
+msgstr ""
+
+#. module: crm
+#. odoo-javascript
+#: code:addons/crm/static/src/components/lead_generation_dropdown/lead_generation_dropdown.js:0
+msgid "Get our Mail Plugins!"
+msgstr ""
+
+#. module: crm
+#: model_terms:ir.ui.view,arch_db:crm.crm_team_member_view_form
+msgid "Give priority if"
+msgstr "ให้ลำดับความสำคัญหาก"
+
+#. module: crm
+#. odoo-javascript
+#: code:addons/crm/static/src/components/promote_mail_plugins_dialog/promote_mail_plugins_dialog.xml:0
+msgid "Gmail"
+msgstr ""
 
 #. module: crm
 #. odoo-python
@@ -1781,7 +1742,7 @@ msgstr "มีข้อความ"
 #. odoo-javascript
 #: code:addons/crm/static/src/views/crm_form/crm_pls_tooltip_button.xml:0
 msgid "Has a"
-msgstr ""
+msgstr "มี"
 
 #. module: crm
 #: model:ir.model.fields.selection,name:crm.selection__crm_lead__priority__2
@@ -1795,12 +1756,14 @@ msgid ""
 "days.         Set to 0 to disable. Changing this parameter will not affect "
 "the rotting status/date of resources last updated before this change."
 msgstr ""
+"เน้นโอกาสที่ยังไม่ได้รับการอัปเดตมาหลายวัน         ตั้งค่าเป็น 0 เพื่อปิดการใช้งาน "
+"การเปลี่ยนแปลงพารามิเตอร์นี้จะไม่ส่งผลต่อสถานะการไม่มีความเคลื่อนไหวหรือวันที่ของทรัพยากรที่ได้รับการอัปเดตครั้งสุดท้ายก่อนการเปลี่ยนแปลงนี้"
 
 #. module: crm
 #. odoo-javascript
 #: code:addons/crm/static/src/views/crm_form/crm_pls_tooltip_button.xml:0
 msgid "Historic win rate"
-msgstr ""
+msgstr "อัตราการชนะในอดีต"
 
 #. module: crm
 #: model:ir.model.fields.selection,name:crm.selection__res_config_settings__crm_auto_assignment_interval_type__hours
@@ -1810,7 +1773,6 @@ msgstr "ชั่วโมง"
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_calendar_event__id
 #: model:ir.model.fields,field_description:crm.field_crm_activity_report__id
-#: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner__id
 #: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner_mass__id
 #: model:ir.model.fields,field_description:crm.field_crm_lead__id
 #: model:ir.model.fields,field_description:crm.field_crm_lead_lost__id
@@ -1824,9 +1786,11 @@ msgstr "ชั่วโมง"
 #: model:ir.model.fields,field_description:crm.field_crm_team__id
 #: model:ir.model.fields,field_description:crm.field_crm_team_member__id
 #: model:ir.model.fields,field_description:crm.field_digest_digest__id
+#: model:ir.model.fields,field_description:crm.field_discuss_channel__id
 #: model:ir.model.fields,field_description:crm.field_ir_config_parameter__id
 #: model:ir.model.fields,field_description:crm.field_mail_activity__id
 #: model:ir.model.fields,field_description:crm.field_res_config_settings__id
+#: model:ir.model.fields,field_description:crm.field_res_groups__id
 #: model:ir.model.fields,field_description:crm.field_res_partner__id
 #: model:ir.model.fields,field_description:crm.field_res_users__id
 #: model:ir.model.fields,field_description:crm.field_utm_campaign__id
@@ -1849,14 +1813,6 @@ msgstr "ไอคอน"
 #: model:ir.model.fields,help:crm.field_crm_lead__activity_exception_icon
 msgid "Icon to indicate an exception activity."
 msgstr "ไอคอนเพื่อระบุการยกเว้นกิจกรรม"
-
-#. module: crm
-#: model:ir.model.fields,help:crm.field_crm_lead2opportunity_partner__force_assignment
-#: model:ir.model.fields,help:crm.field_crm_lead2opportunity_partner_mass__force_assignment
-msgid ""
-"If checked, forces salesman to be updated on updated opportunities even if "
-"already set."
-msgstr "หากเลือก จะบังคับให้พนักงานขายอัปเดตโอกาสทางการขายที่อัปเดต แม้ว่าจะตั้งค่าไว้แล้วก็ตาม"
 
 #. module: crm
 #: model:ir.model.fields,help:crm.field_crm_lead__message_needaction
@@ -1899,10 +1855,27 @@ msgid "Import & Synchronize"
 msgstr "การนำเข้าและการซิงโครไนซ์"
 
 #. module: crm
-#. odoo-python
-#: code:addons/crm/models/crm_lead.py:0
-msgid "Import Template for Leads & Opportunities"
-msgstr "นำเข้าเทมเพลตสำหรับลูกค้าเป้าหมายและโอกาส"
+#. odoo-javascript
+#: code:addons/crm/static/src/components/lead_generation_dropdown/lead_generation_dropdown.js:0
+msgid "Import leads from CSV"
+msgstr "นำเข้าข้อมูลลูกค้าจากไฟล์ CSV"
+
+#. module: crm
+#. odoo-javascript
+#: code:addons/crm/static/src/components/lead_generation_dropdown/lead_generation_dropdown.js:0
+msgid "Import leads from a CSV or Excel file"
+msgstr "นำเข้าข้อมูลลูกค้าจากไฟล์ CSV หรือ Excel"
+
+#. module: crm
+#: model:ir.model.fields.selection,name:crm.selection__crm_team_member__assignment_rules__limited
+msgid "In rotation, with a limit"
+msgstr "หมุนเวียนแบบจำกัดจำนวน"
+
+#. module: crm
+#. odoo-javascript
+#: code:addons/crm/static/src/webclient/share_target/crm_share_target_item.xml:0
+msgid "In sales team"
+msgstr "ในทีมขาย"
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.crm_opportunity_report_view_search
@@ -1926,6 +1899,18 @@ msgstr ""
 "ช่วยแยกแยะว่าหมายเลขที่ถูกขึ้นบัญชีดำเมื่อมีฟิลด์มือถือและโทรศัพท์ในโมเดล"
 
 #. module: crm
+#. odoo-javascript
+#: code:addons/crm/static/src/components/lead_generation_dropdown/lead_generation_dropdown.js:0
+msgid "Install request for \"%s\""
+msgstr "คำขอติดตั้งสำหรับ \"%s\""
+
+#. module: crm
+#. odoo-javascript
+#: code:addons/crm/static/src/components/lead_generation_dropdown/lead_generation_dropdown.js:0
+msgid "Installing \"%(module_name)s\""
+msgstr "การติดตั้ง \"%(module_name)s\""
+
+#. module: crm
 #: model:ir.model.fields,help:crm.field_res_config_settings__crm_auto_assignment_interval_type
 msgid "Interval type between each cron run (e.g. each 2 days or each 2 hours)"
 msgstr ""
@@ -1943,11 +1928,6 @@ msgstr "ความถี่การทำซ้ำไม่ถูกต้อ
 #: model:ir.model.fields,field_description:crm.field_crm_lead__message_is_follower
 msgid "Is Follower"
 msgstr "เป็นผู้ติดตาม"
-
-#. module: crm
-#: model:ir.model.fields,field_description:crm.field_crm_lead__is_partner_visible
-msgid "Is Partner Visible"
-msgstr "มองเห็นพาร์ทเนอร์ได้"
 
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_activity_report__won_status
@@ -1980,6 +1960,26 @@ msgid "Job Position:"
 msgstr "ตำแหน่งงาน:"
 
 #. module: crm
+#: model_terms:ir.ui.view,arch_db:crm.merge_opportunity_form
+msgid "Keep current team"
+msgstr "เก็บทีมปัจจุบัน"
+
+#. module: crm
+#: model_terms:ir.ui.view,arch_db:crm.view_crm_lead2opportunity_partner_mass
+msgid "Keep current teams"
+msgstr "เก็บทีมปัจจุบัน"
+
+#. module: crm
+#: model_terms:ir.ui.view,arch_db:crm.merge_opportunity_form
+msgid "Keep current user"
+msgstr "เก็บผู้ใช้ปัจจุบัน"
+
+#. module: crm
+#: model_terms:ir.ui.view,arch_db:crm.view_crm_lead2opportunity_partner_mass
+msgid "Keep current users"
+msgstr "เก็บผู้ใช้ปัจจุบัน"
+
+#. module: crm
 #: model:ir.model.fields,field_description:crm.field_digest_digest__kpi_crm_lead_created_value
 msgid "Kpi Crm Lead Created Value"
 msgstr "ค่า Kpi Crm ลูกค้าเป้าหมายที่ถูกสร้าง"
@@ -2003,7 +2003,7 @@ msgstr "ภาษา"
 #. odoo-javascript
 #: code:addons/crm/static/src/views/crm_form/crm_pls_tooltip_button.xml:0
 msgid "Language is"
-msgstr ""
+msgstr "ภาษาคือ"
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.crm_lead_merge_summary
@@ -2032,7 +2032,6 @@ msgid "Last Stage Update"
 msgstr "อัปเดตขั้นตอนสุดท้าย"
 
 #. module: crm
-#: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner__write_uid
 #: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner_mass__write_uid
 #: model:ir.model.fields,field_description:crm.field_crm_lead__write_uid
 #: model:ir.model.fields,field_description:crm.field_crm_lead_lost__write_uid
@@ -2047,7 +2046,6 @@ msgid "Last Updated by"
 msgstr "อัปเดตครั้งล่าสุดโดย"
 
 #. module: crm
-#: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner__write_date
 #: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner_mass__write_date
 #: model:ir.model.fields,field_description:crm.field_crm_lead__write_date
 #: model:ir.model.fields,field_description:crm.field_crm_lead_lost__write_date
@@ -2063,12 +2061,13 @@ msgstr "อัปเดตครั้งล่าสุดเมื่อ"
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.view_crm_case_leads_filter
-#: model_terms:ir.ui.view,arch_db:crm.view_crm_case_my_activities_filter
 #: model_terms:ir.ui.view,arch_db:crm.view_crm_case_opportunities_filter
 msgid "Late Activities"
 msgstr "กิจกรรมล่าสุด"
 
 #. module: crm
+#. odoo-javascript
+#: code:addons/crm/static/src/webclient/share_target/crm_share_target_item.js:0
 #: model:ir.model,name:crm.model_crm_lead
 #: model:ir.model.fields.selection,name:crm.selection__crm_activity_report__lead_type__lead
 #: model:ir.model.fields.selection,name:crm.selection__crm_lead__type__lead
@@ -2080,7 +2079,7 @@ msgstr "ลูกค้าเป้าหมาย"
 #. module: crm
 #: model:ir.actions.act_window,name:crm.mail_activity_plan_action_lead
 msgid "Lead Activity Plans"
-msgstr ""
+msgstr "แผนกิจกรรมสำหรับลูกค้าเป้าหมาย"
 
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_team__assignment_enabled
@@ -2091,12 +2090,7 @@ msgstr "การมอบหมายลูกค้าเป้าหมาย
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.crm_team_member_view_form
 msgid "Lead Assignment"
-msgstr ""
-
-#. module: crm
-#: model_terms:ir.ui.view,arch_db:crm.crm_team_member_view_form
-msgid "Lead Assignment Filter"
-msgstr ""
+msgstr "งานสำหรับลูกค้าเป้าหมาย"
 
 #. module: crm
 #. odoo-python
@@ -2123,11 +2117,6 @@ msgstr "การสร้างลูกค้าเป้าหมาย"
 #: model_terms:ir.ui.view,arch_db:crm.res_config_settings_view_form
 msgid "Lead Mining"
 msgstr "การขุดลูกค้าเป้าหมาย"
-
-#. module: crm
-#: model_terms:ir.ui.view,arch_db:crm.crm_team_member_view_form
-msgid "Lead Priority Filter"
-msgstr ""
 
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_team__lead_properties_definition
@@ -2160,6 +2149,12 @@ msgid "Lead Scoring Starting Date in String"
 msgstr "วันที่เริ่มต้นการให้คะแนนลูกค้าเป้าหมายในสตริง"
 
 #. module: crm
+#. odoo-javascript
+#: code:addons/crm/static/src/components/lead_generation_dropdown/lead_generation_dropdown.js:0
+msgid "Lead Sourcing"
+msgstr "รวบรวมรายชื่อลูกค้าเป้าหมาย"
+
+#. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.crm_activity_report_view_search
 #: model_terms:ir.ui.view,arch_db:crm.crm_activity_report_view_tree
 msgid "Lead Tags"
@@ -2183,6 +2178,11 @@ msgstr "การมอบหมายลูกค้าเป้าหมาย
 #: model:mail.message.subtype,description:crm.mt_lead_create
 msgid "Lead/Opportunity created"
 msgstr "ลูกค้าเป้าหมาย / โอกาสที่สร้างขึ้น"
+
+#. module: crm
+#: model_terms:ir.ui.view,arch_db:crm.crm_lead_creation_message
+msgid "Lead/Opportunity created<br/>"
+msgstr "ลูกค้าเป้าหมาย/โอกาสที่สร้างขึ้น<br/>"
 
 #. module: crm
 #. odoo-python
@@ -2254,6 +2254,12 @@ msgid "Leads are the qualification step before the creation of an opportunity."
 msgstr "ลูกค้าเป้าหมายคือขั้นตอนคุณสมบัติก่อนการสร้างโอกาสทางการขาย"
 
 #. module: crm
+#. odoo-python
+#: code:addons/crm/wizard/crm_merge_opportunities.py:0
+msgid "Leads merged"
+msgstr "รวมข้อมูลลูกค้าเป้าหมายแล้ว"
+
+#. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_activity
 msgid "Leads or Opportunities"
 msgstr "ลูกค้าเป้าหมายหรือโอกาส"
@@ -2269,18 +2275,6 @@ msgid "Leads that are not assigned"
 msgstr "ลูกค้าเป้าหมายที่ไม่ได้รับมอบหมาย"
 
 #. module: crm
-#: model_terms:ir.ui.view,arch_db:crm.view_crm_lead2opportunity_partner_mass
-msgid ""
-"Leads that you selected that have duplicates. If the list is empty, it means "
-"that no duplicates were found"
-msgstr "ลูกค้าเป้าหมายที่คุณเลือกซึ่งมีรายการที่ซ้ำกัน หากรายการว่างเปล่าแสดงว่าไม่พบรายการซ้ำ"
-
-#. module: crm
-#: model_terms:ir.ui.view,arch_db:crm.view_crm_lead2opportunity_partner_mass
-msgid "Leads with existing duplicates (for information)"
-msgstr "ลูกค้าเป้าหมายที่ซ้ำกันที่มีอยู่ (สำหรับข้อมูล)"
-
-#. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_merge_opportunity__opportunity_ids
 msgid "Leads/Opportunities"
 msgstr "ลูกค้าเป้าหมาย / โอกาส"
@@ -2291,7 +2285,13 @@ msgid "Leads/Opportunities count"
 msgstr "จำนวนลูกค้าเป้าหมาย/โอกาส"
 
 #. module: crm
+#: model_terms:ir.ui.view,arch_db:crm.view_crm_lead2opportunity_partner_mass
+msgid "Leads/Opportunities to merge"
+msgstr "รวมข้อมูลลูกค้าเป้าหมาย/โอกาสการขายแล้ว"
+
+#. module: crm
 #. odoo-javascript
+#: code:addons/crm/static/src/components/promote_mail_plugins_dialog/promote_mail_plugins_dialog.xml:0
 #: code:addons/crm/static/src/views/crm_form/crm_pls_tooltip_button.xml:0
 msgid "Learn More"
 msgstr "เรียนรู้เพิ่มเติม"
@@ -2315,10 +2315,16 @@ msgid "Let’s have a look at an Opportunity."
 msgstr "มาดูโอกาสกันดีกว่า"
 
 #. module: crm
-#: model:ir.model.fields.selection,name:crm.selection__crm_lead2opportunity_partner__action__exist
-#: model:ir.model.fields.selection,name:crm.selection__crm_lead2opportunity_partner_mass__action__exist
-msgid "Link to an existing customer"
-msgstr "เชื่อมโยงกับลูกค้าที่มีอยู่"
+#: model:ir.model.fields,help:crm.field_crm_lead2opportunity_partner_mass__link_to_matching_customer
+msgid ""
+"Link these opportunities to customers by either finding a match or creating "
+"a new one."
+msgstr "เชื่อมโยงโอกาสเหล่านี้กับลูกค้าโดยการค้นหาคู่ที่ตรงกันหรือสร้างคู่ใหม่"
+
+#. module: crm
+#: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner_mass__link_to_matching_customer
+msgid "Link to matching customers"
+msgstr "ลิงก์ไปยังลูกค้าที่ตรงกัน"
 
 #. module: crm
 #: model:ir.model.fields,help:crm.field_crm_lead__partner_id
@@ -2343,7 +2349,7 @@ msgstr "รหัสประเทศ"
 #. odoo-javascript
 #: code:addons/crm/static/src/views/crm_form/crm_pls_tooltip_button.xml:0
 msgid "Located in"
-msgstr ""
+msgstr "ตั้งอยู่ที่"
 
 #. module: crm
 #: model_terms:ir.actions.act_window,help:crm.crm_lead_action_my_activities
@@ -2420,13 +2426,10 @@ msgid "MRR"
 msgstr "MRR"
 
 #. module: crm
-#: model_terms:ir.ui.view,arch_db:crm.res_config_settings_view_form
-msgid ""
-"Make and receive calls from Odoo with Ringover's dialer. Track calls, SMS "
-"messages, and get AI-powered transcripts of your conversations."
-msgstr ""
-"โทรออกและรับสายจาก Odoo ด้วยโปรแกรมโทรออกของ Ringover ติดตามการโทร ข้อความ SMS "
-"และรับบทสนทนาที่ขับเคลื่อนด้วย AI"
+#. odoo-javascript
+#: code:addons/crm/static/src/components/lead_generation_dropdown/lead_generation_dropdown.js:0
+msgid "Mail plugins"
+msgstr "ปลั๊กอินอีเมล"
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.res_config_settings_view_form
@@ -2434,11 +2437,19 @@ msgid "Manage Recurring Plans"
 msgstr "จัดการแผนการที่เกิดซ้ำ"
 
 #. module: crm
+#. odoo-javascript
+#: code:addons/crm/static/src/components/team_switcher/team_switcher.xml:0
+msgid "Manage Teams"
+msgstr ""
+
+#. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.res_config_settings_view_form
 msgid ""
-"Manage members or partners. Members get grades and pricelists, partners "
+"Manage members or partners. Members get levels and pricelists, partners "
 "allow lead assignment and commission plans."
 msgstr ""
+"จัดการสมาชิกหรือพาร์ทเนอร์ โดยสมาชิกจะได้รับสิทธิ์ตามระดับและรายการราคาเฉพาะ "
+"ส่วนพาร์ทเนอร์จะรองรับการจัดสรรลูกค้าเป้าหมายและสิทธิ์ในแผนค่าคอมมิชชัน"
 
 #. module: crm
 #: model:ir.model.fields,help:crm.field_res_config_settings__crm_auto_assignment_action
@@ -2469,16 +2480,6 @@ msgstr "ทำเครื่องหมายว่าไม่สำเร็
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_form
-msgid "Mark as lost"
-msgstr "ทำเครื่องหมายว่าไม่สำเร็จ"
-
-#. module: crm
-#: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_form
-msgid "Mark as won"
-msgstr "ทำเครื่องหมายว่าสำเร็จ"
-
-#. module: crm
-#: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_form
 msgid "Marketing"
 msgstr "การตลาด"
 
@@ -2486,6 +2487,16 @@ msgstr "การตลาด"
 #: model_terms:ir.ui.view,arch_db:crm.crm_lead_merge_summary
 msgid "Marketing:"
 msgstr "การตลาด:"
+
+#. module: crm
+#: model:ir.model.fields,help:crm.field_crm_lead__activity_type_icon
+msgid "Material Symbols icon e.g. checklist"
+msgstr ""
+
+#. module: crm
+#: model:ir.model.fields,field_description:crm.field_crm_team__lead_all_assigned_month_exceeded
+msgid "Maximum Leads To Assign"
+msgstr "จำนวนลูกค้าเป้าหมายสูงสุดที่จะจัดสรร"
 
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_lead__medium_id
@@ -2538,19 +2549,20 @@ msgid ""
 "Member preferred assignment domain for user %(user)s and team %(team)s is "
 "incorrectly formatted"
 msgstr ""
+"โดเมนการจัดงานที่สมาชิกกำหนดไว้สำหรับผู้ใช้ %(user)s และทีม %(team)s มีรูปแบบที่ไม่ถูกต้อง"
 
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_res_config_settings__module_partnership
 msgid "Membership / Partnership"
-msgstr ""
+msgstr "สมาชิก / พาร์ทเนอร์"
 
 #. module: crm
-#: model:ir.actions.act_window,name:crm.action_merge_opportunities
 #: model_terms:ir.ui.view,arch_db:crm.merge_opportunity_form
 msgid "Merge"
 msgstr "ผสาน"
 
 #. module: crm
+#: model:ir.actions.act_window,name:crm.action_merge_opportunities
 #: model_terms:ir.ui.view,arch_db:crm.merge_opportunity_form
 msgid "Merge Leads/Opportunities"
 msgstr "ผสานลูกค้าเป้าหมาย/โอกาส"
@@ -2559,17 +2571,6 @@ msgstr "ผสานลูกค้าเป้าหมาย/โอกาส"
 #: model:ir.model,name:crm.model_crm_merge_opportunity
 msgid "Merge Opportunities"
 msgstr "ผสานโอกาส"
-
-#. module: crm
-#: model:ir.model.fields,help:crm.field_crm_lead2opportunity_partner_mass__deduplicate
-msgid "Merge with existing leads/opportunities of each partner"
-msgstr "ผสานกับลูกค้าเป้าหมาย/โอกาสที่มีอยู่ของพาร์ทเนอร์แต่ละราย"
-
-#. module: crm
-#: model:ir.model.fields.selection,name:crm.selection__crm_lead2opportunity_partner__name__merge
-#: model:ir.model.fields.selection,name:crm.selection__crm_lead2opportunity_partner_mass__name__merge
-msgid "Merge with existing opportunities"
-msgstr "ผสานกับโอกาสที่มีอยู่"
 
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_lead__message_has_error
@@ -2625,9 +2626,13 @@ msgid "My Leads"
 msgstr "ลูกค้าเป้าหมายของฉัน"
 
 #. module: crm
+#: model_terms:ir.ui.view,arch_db:crm.view_crm_case_opportunities_filter
+msgid "My Opportunities"
+msgstr ""
+
+#. module: crm
 #: model:ir.ui.menu,name:crm.menu_crm_opportunities
 #: model_terms:ir.ui.view,arch_db:crm.crm_opportunity_report_view_search
-#: model_terms:ir.ui.view,arch_db:crm.view_crm_case_opportunities_filter
 msgid "My Pipeline"
 msgstr "ไปป์ไลน์ของฉัน"
 
@@ -2734,7 +2739,7 @@ msgstr ""
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_form
 msgid "No closing estimate"
-msgstr ""
+msgstr "ไม่มีกำหนดวันปิดดีล"
 
 #. module: crm
 #: model_terms:ir.actions.act_window,help:crm.crm_opportunity_report_action
@@ -2746,7 +2751,7 @@ msgstr "ไม่พบข้อมูล!"
 #. odoo-python
 #: code:addons/crm/models/crm_lead.py:0
 msgid "No detours, no delays - from %(stage_name)s straight to the win! 🚀"
-msgstr ""
+msgstr "ไม่มีการเสียเวลา ไม่มีความล่าช้า - จาก %(stage_name)s ไปสู่ชัยชนะทันที! 🚀"
 
 #. module: crm
 #. odoo-python
@@ -2795,7 +2800,7 @@ msgstr "สต็อกไม่เพียงพอ"
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_form
 msgid "Not specified"
-msgstr ""
+msgstr "ไม่ระบุ"
 
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_lead__description
@@ -2818,6 +2823,11 @@ msgstr "ตอนนี้  <b>เพิ่มโอกาสของคุณ<
 #: model:ir.model.fields,field_description:crm.field_crm_lead__message_needaction_counter
 msgid "Number of Actions"
 msgstr "จํานวนการดําเนินการ"
+
+#. module: crm
+#: model:ir.model.fields,field_description:crm.field_crm_team__opportunity_count
+msgid "Number of assigned opportunities"
+msgstr "จำนวนโอกาสที่ได้รับมอบหมาย"
 
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_lead__message_has_error_counter
@@ -2843,11 +2853,13 @@ msgid ""
 "Number of leads assigned to this member in the last 24 hours (lost leads "
 "excluded)"
 msgstr ""
+"จำนวนลูกค้าเป้าหมายที่ได้รับมอบหมายให้กับสมาชิกเหล่านี้ใน 24 ชั่วโมงที่ผ่านมา "
+"(ไม่รวมลูกค้าเป้าหมายที่สูญเสียไป)"
 
 #. module: crm
 #: model:ir.model.fields,help:crm.field_crm_team_member__lead_month_count
 msgid "Number of leads assigned to this member in the last 30 days"
-msgstr ""
+msgstr "จำนวนลูกค้าเป้าหมายที่มอบหมายให้กับสมาชิกเหล่านี้ใน 30 วันที่ผ่านมา"
 
 #. module: crm
 #: model:ir.model.fields,help:crm.field_crm_lead__message_needaction_counter
@@ -2858,6 +2870,209 @@ msgstr "จำนวนข้อความที่ต้องดำเนิ
 #: model:ir.model.fields,help:crm.field_crm_lead__message_has_error_counter
 msgid "Number of messages with delivery error"
 msgstr "จํานวนข้อความที่มีข้อผิดพลาดในการส่ง"
+
+#. module: crm
+#: model:ir.module.module,description:base.module_crm
+msgid ""
+"Odoo CRM\n"
+"--------\n"
+"\n"
+"Boost sales productivity, improve win rates, grow revenue with the Odoo\n"
+"<a href=\"https://www.odoo.com/app/crm\">Open Source CRM</a>.\n"
+"\n"
+"Manage your sales funnel with no effort. Attract leads, follow-up on phone\n"
+"calls and meetings. Analyse the quality of your leads to make informed\n"
+"decisions and save time by integrating emails directly into the "
+"application.\n"
+"\n"
+"Your Sales Funnel, The Way You Like It\n"
+"--------------------------------------\n"
+"\n"
+"Track your opportunities pipeline with the revolutionary kanban view. Work\n"
+"inside your sales funnel and get instant visual information about next "
+"actions,\n"
+"new messages, top opportunities and expected revenues.\n"
+"\n"
+"Lead Management Made Easy\n"
+"-------------------------\n"
+"\n"
+"Create leads automatically from incoming emails. Analyse leads efficiency "
+"and\n"
+"compare performance by campaigns, channels or Sales Team.\n"
+"\n"
+"Find duplicates, merge leads and assign them to the right salesperson in "
+"one\n"
+"operation. Spend less time on administration and more time on qualifying "
+"leads.\n"
+"\n"
+"Organize Your Opportunities\n"
+"---------------------------\n"
+"\n"
+"Get your opportunities organized to stay focused on the best deals. Manage "
+"all\n"
+"your customer interactions from the opportunity like emails, phone calls,\n"
+"internal notes, meetings and quotations.\n"
+"\n"
+"Follow opportunities that interest you to get notified upon specific "
+"events:\n"
+"deal won or lost, stage changed, new customer demand, etc.\n"
+"\n"
+"Email Integration and Automation\n"
+"--------------------------------\n"
+"\n"
+"Work with the email applications you already use every day. Whether your\n"
+"company uses Microsoft Outlook or Gmail, no one needs to change the way "
+"they\n"
+"work, so everyone stays productive.\n"
+"\n"
+"Route, sort and filter incoming emails automatically. Odoo CRM handles "
+"incoming\n"
+"emails and route them to the right opportunities or Sales Team. New leads "
+"are\n"
+"created on the fly and interested salespersons are notified automatically.\n"
+"\n"
+"Collaborative Agenda\n"
+"--------------------\n"
+"\n"
+"Schedule your meetings and phone calls using the integrated calendar. You "
+"can\n"
+"see your agenda and your colleagues' in one view. As a manager, it's easy "
+"to\n"
+"see what your team is busy with.\n"
+"\n"
+"Lead Automation and Marketing Campaigns\n"
+"---------------------------------------\n"
+"\n"
+"Drive performance by automating tasks with Odoo <a href=\"https://"
+"www.odoo.com/app/crm\">CRM</a>.\n"
+"\n"
+"Use our marketing campaigns to automate lead acquisition, follow ups and\n"
+"promotions. Define automation rules (e.g. ask a salesperson to call, send "
+"an\n"
+"email, ...) based on triggers (no activity since 20 days, answered a\n"
+"promotional email, etc.)\n"
+"\n"
+"Optimize campaigns from lead to close, on every channel. Make smarter "
+"decisions\n"
+"about where to invest and show the impact of your marketing activities on "
+"your\n"
+"company's bottom line.\n"
+"\n"
+"Customize Your Sales Cycle\n"
+"--------------------------\n"
+"\n"
+"Customize your sales cycle by configuring sales stages that perfectly fit "
+"your\n"
+"sales approach. Control statistics to get accurate forecasts to improve "
+"your\n"
+"sales performance at every stage of your customer relationship.\n"
+"\n"
+"Drive Engagement with Gamification\n"
+"----------------------------------\n"
+"\n"
+"### Leverage your team's natural desire for competition\n"
+"\n"
+"Reinforce good habits and improve win rates with real-time recognition and\n"
+"rewards inspired by [game mechanics](http://en.wikipedia.org/wiki/"
+"Gamification).\n"
+"Align Sales Teams around clear business objectives with challenges, "
+"personal\n"
+"objectives and team leader boards.\n"
+"\n"
+"### Leaderboards\n"
+"\n"
+"Promote leaders and competition amongst Sales Team with performance ratios.\n"
+"\n"
+"### Personal Objectives\n"
+"\n"
+"Assign clear goals to users to align them with the company objectives.\n"
+"\n"
+"### Team Targets\n"
+"\n"
+"Compare revenues with forecasts and budgets in real time.\n"
+"\n"
+msgstr ""
+"Odoo CRM\n"
+"-------- \n"
+"\n"
+"เพิ่มประสิทธิภาพการขายปรับปรุงอัตราการชนะเพิ่มรายได้ด้วย Odoo <a href=\"https://"
+"www.odoo.com/app/crm\">Open Source CRM</a> \n"
+"\n"
+"จัดการช่องทางการขายของคุณโดยไม่ต้องใช้ความพยายาม ดึงดูดลูกค้าเป้าหมายติดตามผลทางโทรศัพท์และ"
+"การประชุม วิเคราะห์คุณภาพของลูกค้าเป้าหมายของคุณเพื่อทำการตัดสินใจอย่างชาญฉลาดและประหยัดเวล"
+"าด้วยการรวมอีเมลไว้ในแอปพลิเคชันโดยตรง \n"
+"\n"
+"ช่องทางการขายของคุณในแบบที่คุณชอบ \n"
+"-------------------------------------- \n"
+"\n"
+"ติดตามโอกาสของคุณ ไปป์ไลน์พร้อมมุมมองคัมบังที่ปฏิวัติวงการ ทำงานในช่องทางการขายของคุณและรับข้อ"
+"มูลภาพทันทีเกี่ยวกับการดำเนินการถัดไปข้อความใหม่โอกาสสูงสุดและรายได้ที่คาดหวัง \n"
+"\n"
+"การจัดการลูกค้าเป้าหมายทำได้ง่าย \n"
+"------------------------- \n"
+"\n"
+"สร้างลูกค้าเป้าหมายโดยอัตโนมัติจากอีเมลขาเข้า วิเคราะห์ประสิทธิภาพของลูกค้าเป้าหมายและเปรียบเที"
+"ยบประสิทธิภาพตามแคมเปญช่องทางหรือทีมขาย ค้นหารายการที่ซ้ำรวมลูกค้าเป้าหมายและกำหนดให้กับพนัก"
+"งานขายที่เหมาะสมในการดำเนินการเดียว ใช้เวลาในการบริหารน้อยลงและมีเวลามากขึ้นกับโอกาสในกา"
+"รขายที่มีคุณสมบัติเหมาะสม \n"
+"\n"
+"จัดระเบียบโอกาสของคุณ \n"
+"--------------------------- \n"
+"\n"
+"จัดการโอกาสของคุณเพื่อมุ่งเน้นไปที่ข้อเสนอที่ดีที่สุด จัดการการโต้ตอบกับลูกค้าของคุณจากโอกาสต่างๆเช่น"
+"อีเมลโทรศัพท์บันทึกภายในการประชุมและใบเสนอราคา ติดตามโอกาสที่คุณสนใจเพื่อรับการแจ้งเตือนเกี่ยว"
+"กับเหตุการณ์เฉพาะ: ดีลชนะหรือแพ้ขั้นตอนที่เปลี่ยนแปลงความต้องการของลูกค้าใหม่ ฯลฯ \n"
+"\n"
+"การผสานรวมอีเมลและระบบอัตโนมัติ \n"
+"-------------------------------- \n"
+"\n"
+"ทำงานกับแอปพลิเคชันอีเมลที่คุณใช้อยู่แล้วทุกวัน ไม่ว่า บริษัท ของคุณจะใช้ Microsoft Outlook หรือ "
+"Gmail ก็ไม่มีใครต้องเปลี่ยนวิธีการทำงานเพื่อให้ทุกคนทำงานได้อย่างมีประสิทธิผล กำหนดเส้นทางจัดเรีย"
+"งและกรองอีเมลขาเข้าโดยอัตโนมัติ Odoo CRM จัดการอีเมลที่เข้ามาและกำหนดเส้นทางไปยังโอกาสที่เห"
+"มาะสมหรือทีมขาย โอกาสในการขายใหม่จะถูกสร้างขึ้นทันทีและพนักงานขายที่สนใจจะได้รับแจ้งโดยอัตโนมั"
+"ติ \n"
+"\n"
+"กำหนดการทำงานร่วมกัน \n"
+"-------------------- \n"
+"กำหนดการประชุมและโทรศัพท์ของคุณโดยใช้ปฏิทินในตัว คุณสามารถดูวาระการประชุมและเพื่อนร่วมงานขอ"
+"งคุณได้ในมุมมองเดียว ในฐานะผู้จัดการคุณสามารถดูได้ง่ายๆว่าทีมของคุณกำลังยุ่งอยู่กับอะไร \n"
+"\n"
+"นำไปสู่การทำงานอัตโนมัติและแคมเปญการตลาด \n"
+"--------------------------------------- \n"
+"\n"
+"ขับเคลื่อนประสิทธิภาพด้วยการทำงานอัตโนมัติด้วย Odoo <a href=\"https://www.odoo.com/app/"
+"crm\">CRM</a> \n"
+"\n"
+"ใช้แคมเปญการตลาดของเราเพื่อสร้างโอกาสในการขายติดตามผลและโปรโมชันโดยอัตโนมัติ กำหนดการด"
+"ำเนินการอัตโนมัติ (เช่นขอให้พนักงานขายโทร, ส่งอีเมล, ... ) ตามทริกเกอร์ (ไม่มีกิจกรรมตั้งแต่ "
+"20 วันตอบอีเมลส่งเสริมการขายเป็นต้น) เพิ่มประสิทธิภาพแคมเปญจากโอกาสในการขายไปสู่การปิดในทุก"
+"ช่องทาง ตัดสินใจอย่างชาญฉลาดว่าจะลงทุนที่ไหนและแสดงผลกระทบของกิจกรรมทางการตลาดที่มีต่อผลกำ"
+"ไรของบริษัท \n"
+"\n"
+"กำหนดวงจรการขายของคุณเอง \n"
+"-------------------------- \n"
+"\n"
+"ปรับแต่งวงจรการขายของคุณโดยกำหนดค่าขั้นตอนการขายที่เหมาะสมกับแนวทางการขาย ควบคุมสถิติเพื่อรั"
+"บการคาดการณ์ที่แม่นยำเพื่อปรับปรุงประสิทธิภาพการขายของคุณในทุกขั้นตอนของความสัมพันธ์กับลูกค้าของคุ"
+"ณ \n"
+"\n"
+"กระตุ้นการมีส่วนร่วมด้วย Gamification\n"
+" ---------------------------------- \n"
+"\n"
+"### ใช้ประโยชน์จากความปรารถนาตามธรรมชาติของทีมในการแข่งขันที่เสริมสร้างประสิทธิภาพการทำงา"
+"นที่เหนือกว่า \n"
+"\n"
+"และปรับปรุงอัตราการชนะด้วยการจดจำแบบเรียลไทม์และรางวัลที่ได้รับแรงบันดาลใจจาก [กลไกของเก"
+"ม] (http://en.wikipedia.org/wiki/Gamification) จัดทีมขายให้สอดคล้องกับวัตถุประสงค์ทาง"
+"ธุรกิจที่ชัดเจนพร้อมกับความท้าทายวัตถุประสงค์ส่วนตัวและกระดานผู้นำทีม \n"
+"\n"
+"### กระดานผู้นำเพื่อส่งเสริมผู้นำและการแข่งขันระหว่างทีมขายด้วยอัตราส่วนประสิทธิภาพ \n"
+"\n"
+"### วัตถุประสงค์ส่วนบุคคลกำหนดเป้าหมายที่ชัดเจนให้กับผู้ใช้เพื่อให้สอดคล้องกับวัตถุประสงค์ของบริษัท "
+"\n"
+"\n"
+"### เป้าหมายของทีม เปรียบเทียบรายได้กับการคาดการณ์และงบประมาณแบบเรียลไทม์\n"
+"\n"
 
 #. module: crm
 #: model_terms:ir.actions.act_window,help:crm.crm_case_form_view_salesteams_opportunity
@@ -2888,6 +3103,11 @@ msgid "Ongoing"
 msgstr "กำลังดำเนินการ"
 
 #. module: crm
+#: model_terms:ir.ui.view,arch_db:crm.crm_team_member_view_form
+msgid "Only assign if"
+msgstr "กำหนดให้ใช้หาก"
+
+#. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.view_crm_case_opportunities_filter
 msgid "Open Opportunities"
 msgstr "เปิดโอกาส"
@@ -2902,8 +3122,6 @@ msgstr "ตรงข้าม เหตุผลที่สูญเสีย"
 #: code:addons/crm/models/res_partner.py:0
 #: model:ir.actions.act_window,name:crm.crm_case_form_view_salesteams_opportunity
 #: model:ir.actions.act_window,name:crm.crm_lead_opportunities
-#: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner__duplicated_lead_ids
-#: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner_mass__duplicated_lead_ids
 #: model:ir.model.fields,field_description:crm.field_res_partner__opportunity_ids
 #: model:ir.model.fields,field_description:crm.field_res_users__opportunity_ids
 #: model:ir.ui.menu,name:crm.menu_crm_config_opportunity
@@ -2913,7 +3131,6 @@ msgstr "ตรงข้าม เหตุผลที่สูญเสีย"
 #: model_terms:ir.ui.view,arch_db:crm.crm_opportunity_report_view_search
 #: model_terms:ir.ui.view,arch_db:crm.crm_team_view_kanban_dashboard
 #: model_terms:ir.ui.view,arch_db:crm.utm_campaign_view_kanban
-#: model_terms:ir.ui.view,arch_db:crm.view_crm_lead2opportunity_partner
 #: model_terms:ir.ui.view,arch_db:crm.view_partners_form_crm1
 msgid "Opportunities"
 msgstr "โอกาสในการขาย"
@@ -2961,6 +3178,7 @@ msgstr "โอกาสที่ฉันได้รับมอบหมาย
 #: model:ir.model.fields.selection,name:crm.selection__crm_lead__type__opportunity
 #: model_terms:ir.ui.view,arch_db:crm.crm_activity_report_view_search
 #: model_terms:ir.ui.view,arch_db:crm.crm_case_tree_view_oppor
+#: model_terms:ir.ui.view,arch_db:crm.crm_opportunity_report_view_search
 #: model_terms:ir.ui.view,arch_db:crm.crm_team_view_kanban_dashboard
 #: model_terms:ir.ui.view,arch_db:crm.view_crm_case_opportunities_filter
 msgid "Opportunity"
@@ -3019,7 +3237,7 @@ msgstr "โอกาสสำเร็จแล้ว"
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.quick_create_opportunity_form
 msgid "Opportunity's Name"
-msgstr ""
+msgstr "ชื่อของโอกาสการขายนี้"
 
 #. module: crm
 #: model:ir.model.fields,help:crm.field_crm_team__alias_force_thread_id
@@ -3030,6 +3248,17 @@ msgid ""
 msgstr ""
 "ไอดีทางเลือกของเธรด (บันทึก) ที่จะแนบข้อความขาเข้าทั้งหมด แม้ว่าพวกเขาจะไม่ตอบกลับก็ตาม "
 "หากตั้งค่าไว้ การดำเนินการนี้จะปิดใช้งานการสร้างการบันทึกใหม่ทั้งหมด"
+
+#. module: crm
+#: model:ir.model.fields.selection,name:crm.selection__crm_team_member__assignment_rules__opt-out
+msgid "Out of rotation"
+msgstr "ไม่อยู่ในรอบหมุนเวียน"
+
+#. module: crm
+#. odoo-javascript
+#: code:addons/crm/static/src/components/promote_mail_plugins_dialog/promote_mail_plugins_dialog.xml:0
+msgid "Outlook"
+msgstr ""
 
 #. module: crm
 #: model:crm.recurring.plan,name:crm.crm_recurring_plan_over_3_years
@@ -3088,9 +3317,14 @@ msgid "Partner is blacklisted"
 msgstr "พาร์ทเนอร์ถูกขึ้นแบล็กลิสต์"
 
 #. module: crm
-#: model:ir.model.fields,field_description:crm.field_crm_team_member__assignment_optout
-msgid "Pause assignment"
-msgstr ""
+#: model:ir.model.fields,field_description:crm.field_res_config_settings__module_website_partnership
+msgid "Partners Website Page"
+msgstr "หน้าเว็บไซต์ของพาร์ทเนอร์"
+
+#. module: crm
+#: model:ir.model.fields,field_description:crm.field_crm_team__assignment_optout
+msgid "Pause auto assignment"
+msgstr "หยุดการกำหนดอัตโนมัติ"
 
 #. module: crm
 #: model:ir.model.fields.selection,name:crm.selection__crm_activity_report__won_status__pending
@@ -3102,7 +3336,7 @@ msgstr "รอดำเนินการ"
 #. odoo-python
 #: code:addons/crm/models/crm_lead.py:0
 msgid "Phew, that took some effort — but you nailed it. Good job!"
-msgstr ""
+msgstr "โอ้โห ต้องใช้ความพยายามมากเลย แต่คุณทำได้เยี่ยมไปเลย! เก่งมาก!"
 
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_lead__phone
@@ -3210,6 +3444,12 @@ msgstr "การให้คะแนนลูกค้าเป้าหมา
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_team_member__assignment_domain_preferred
 msgid "Preference assignment Domain"
+msgstr "โดเมนการกำหนดกิจกรรมที่ต้องการ"
+
+#. module: crm
+#. odoo-javascript
+#: code:addons/crm/static/src/components/promote_mail_plugins_dialog/promote_mail_plugins_dialog.xml:0
+msgid "Preview records and open their forms in one click."
 msgstr ""
 
 #. module: crm
@@ -3277,6 +3517,12 @@ msgid "Qualified"
 msgstr "ผ่านประเมิน"
 
 #. module: crm
+#. odoo-javascript
+#: code:addons/crm/static/src/components/lead_generation_dropdown/lead_generation_dropdown.js:0
+msgid "Qualify leads with a Survey"
+msgstr "คัดกรองลูกค้าเป้าหมายด้วยแบบสำรวจ"
+
+#. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_lead__rating_ids
 msgid "Ratings"
 msgstr "การให้คะแนน"
@@ -3286,6 +3532,11 @@ msgstr "การให้คะแนน"
 #: code:addons/crm/static/src/js/tours/crm.js:0
 msgid "Ready to boost your sales? Let's have a look at your <b>Pipeline</b>."
 msgstr "พร้อมที่จะเพิ่มยอดขายของคุณหรือยัง มาดู <b>ไปป์ไลน์</b>"
+
+#. module: crm
+#: model_terms:ir.ui.view,arch_db:crm.merge_opportunity_form
+msgid "Reassign To"
+msgstr "โอนงานให้"
 
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_team__alias_force_thread_id
@@ -3315,6 +3566,11 @@ msgid "Recurring Revenues"
 msgstr "รายได้ประจำ"
 
 #. module: crm
+#: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_form
+msgid "Reference"
+msgstr "การอ้างอิง"
+
+#. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_lead__referred
 msgid "Referred By"
 msgstr "แนะนำโดย"
@@ -3325,14 +3581,7 @@ msgid "Referred By:"
 msgstr "อ้างอิงจาก:"
 
 #. module: crm
-#: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner__action
-#: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner_mass__action
-msgid "Related Customer"
-msgstr "ลูกค้าที่เกี่ยวข้อง"
-
-#. module: crm
 #: model:ir.model.fields,field_description:crm.field_res_config_settings__crm_auto_assignment_interval_number
-#: model_terms:ir.ui.view,arch_db:crm.res_config_settings_view_form
 msgid "Repeat every"
 msgstr "ทำซ้ำทุกๆ"
 
@@ -3369,15 +3618,15 @@ msgid "Restore"
 msgstr "คืนค่า"
 
 #. module: crm
-#: model_terms:ir.ui.view,arch_db:crm.res_config_settings_view_form
-msgid "Ringover VOIP Phone"
-msgstr "โทรศัพท์ VoIP แบบ Ringover"
-
-#. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_lead__is_rotting
 #: model_terms:ir.ui.view,arch_db:crm.view_crm_case_opportunities_filter
 msgid "Rotting"
-msgstr ""
+msgstr "ไม่มีความเคลื่อนไหว"
+
+#. module: crm
+#: model_terms:ir.ui.view,arch_db:crm.crm_stage_form
+msgid "Rotting in"
+msgstr "ไม่มีความเคลื่อนไหวใน"
 
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_res_config_settings__crm_use_auto_assignment
@@ -3402,7 +3651,6 @@ msgstr "การขาย"
 #. module: crm
 #: model:ir.model,name:crm.model_crm_team
 #: model:ir.model.fields,field_description:crm.field_crm_activity_report__team_id
-#: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner__team_id
 #: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner_mass__team_id
 #: model:ir.model.fields,field_description:crm.field_crm_lead__team_id
 #: model:ir.model.fields,field_description:crm.field_crm_lead_scoring_frequency__team_id
@@ -3432,8 +3680,6 @@ msgstr "ทีมขาย"
 
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_activity_report__user_id
-#: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner__user_id
-#: model:ir.model.fields,field_description:crm.field_crm_lead2opportunity_partner_mass__user_id
 #: model:ir.model.fields,field_description:crm.field_crm_lead__user_id
 #: model:ir.model.fields,field_description:crm.field_crm_merge_opportunity__user_id
 #: model_terms:ir.ui.view,arch_db:crm.crm_activity_report_view_search
@@ -3459,6 +3705,12 @@ msgid "Sanitized Number"
 msgstr "เบอร์ถูกต้อง"
 
 #. module: crm
+#. odoo-javascript
+#: code:addons/crm/static/src/components/promote_mail_plugins_dialog/promote_mail_plugins_dialog.xml:0
+msgid "Save emails and attachments directly to Odoo."
+msgstr ""
+
+#. module: crm
 #: model_terms:ir.actions.act_window,help:crm.crm_lead_action_my_activities
 msgid "Schedule activities to keep track of everything you have to do."
 msgstr "กำหนดเวลากิจกรรมเพื่อติดตามทุกสิ่งที่คุณต้องทำ"
@@ -3476,20 +3728,37 @@ msgstr "ค้นหาโอกาส"
 
 #. module: crm
 #. odoo-javascript
+#: code:addons/crm/static/src/components/lead_generation_dropdown/lead_generation_dropdown.js:0
+msgid "Search in our directory of 580M+ entities"
+msgstr "ค้นหาจากรายชื่อบริษัทมากกว่า 580 ล้านแห่งทั่วโลก"
+
+#. module: crm
+#. odoo-javascript
 #: code:addons/crm/static/src/views/crm_form/crm_pls_tooltip_button.xml:0
 msgid "See AI-computed chances details"
-msgstr ""
+msgstr "ดูรายละเอียดโอกาสที่คำนวณโดย AI"
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.crm_lead_lost_view_form
 msgid "Select a Lost Reason..."
-msgstr ""
+msgstr "เลือกเหตุผลที่ปิดการขายไม่สำเร็จ..."
 
 #. module: crm
 #. odoo-python
 #: code:addons/crm/models/crm_lead.py:0
 msgid "Select at least two Leads/Opportunities from the list to merge them."
 msgstr "เลือกลูกค้าเป้าหมาย/ผู้มีโอกาสจะซื้ออย่างน้อยสองรายการจากรายการเพื่อรวมเข้าด้วยกัน"
+
+#. module: crm
+#: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_form
+msgid "Select or create a contact..."
+msgstr "เลือกหรือสร้างผู้ติดต่อ..."
+
+#. module: crm
+#. odoo-javascript
+#: code:addons/crm/static/src/components/lead_generation_dropdown/lead_generation_dropdown.js:0
+msgid "Send an email and get leads from replies"
+msgstr "ส่งอีเมลและรับข้อมูลลูกค้าเป้าหมายจากการตอบกลับ"
 
 #. module: crm
 #: model:ir.actions.act_window,name:crm.action_lead_mail_compose
@@ -3523,9 +3792,9 @@ msgid "Settings"
 msgstr "การตั้งค่า"
 
 #. module: crm
-#: model_terms:ir.ui.view,arch_db:crm.crm_stage_form
-msgid "Shared with all teams"
-msgstr ""
+#: model:ir.model.fields,field_description:crm.field_crm_team__show_assignment_max
+msgid "Show Assignment Max"
+msgstr "แสดงงานที่ได้รับมอบหมายสูงสุด"
 
 #. module: crm
 #: model:res.groups,name:crm.group_use_lead
@@ -3539,7 +3808,6 @@ msgstr "แสดงเมนูรายได้ประจำ"
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.view_crm_case_leads_filter
-#: model_terms:ir.ui.view,arch_db:crm.view_crm_case_my_activities_filter
 #: model_terms:ir.ui.view,arch_db:crm.view_crm_case_opportunities_filter
 msgid "Show all opportunities for which the next action date is before today"
 msgstr "แสดงโอกาสทั้งหมดที่วันที่ดำเนินการถัดไปคือก่อนวันนี้"
@@ -3565,9 +3833,15 @@ msgid "Show only opportunity"
 msgstr "แสดงเฉพาะโอกาส"
 
 #. module: crm
-#: model:ir.model.fields,field_description:crm.field_crm_team__assignment_optout
-msgid "Skip auto assignment"
-msgstr "ข้ามการมอบหมายอัตโนมัติ"
+#: model_terms:ir.ui.view,arch_db:crm.crm_stage_form
+msgid "Show to all teams"
+msgstr "แสดงให้ทุกทีมเห็น"
+
+#. module: crm
+#. odoo-python
+#: code:addons/crm/wizard/crm_merge_opportunities.py:0
+msgid "Something went wrong, please try again later"
+msgstr "เกิดข้อผิดพลาด โปรดลองอีกครั้งในภายหลัง"
 
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_lead__source_id
@@ -3581,7 +3855,7 @@ msgstr "แหล่งที่มา"
 #. odoo-javascript
 #: code:addons/crm/static/src/views/crm_form/crm_pls_tooltip_button.xml:0
 msgid "Source is"
-msgstr ""
+msgstr "แหล่งที่มาคือ"
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.crm_lead_merge_summary
@@ -3697,9 +3971,15 @@ msgid "Subtype"
 msgstr "ประเภทย่อย"
 
 #. module: crm
+#. odoo-javascript
+#: code:addons/crm/static/src/components/lead_generation_dropdown/lead_generation_dropdown.js:0
+msgid "Survey"
+msgstr "แบบสำรวจ"
+
+#. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_form
 msgid "Switch to AI-computed probabilities"
-msgstr ""
+msgstr "เปลี่ยนไปใช้ความน่าจะเป็นที่คำนวณโดย AI"
 
 #. module: crm
 #: model:ir.model,name:crm.model_ir_config_parameter
@@ -3716,7 +3996,7 @@ msgstr "แท็ก"
 #. odoo-javascript
 #: code:addons/crm/static/src/views/crm_form/crm_pls_tooltip_button.xml:0
 msgid "Tagged as"
-msgstr ""
+msgstr "ถูกติดแท็กเป็น"
 
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_activity_report__tag_ids
@@ -3731,6 +4011,12 @@ msgid "Tags:"
 msgstr "แท็ก:"
 
 #. module: crm
+#. odoo-javascript
+#: code:addons/crm/static/src/views/crm_search_model.js:0
+msgid "Team"
+msgstr ""
+
+#. module: crm
 #: model:ir.ui.menu,name:crm.sales_team_menu_team_pipeline
 msgid "Teams"
 msgstr "ทีม"
@@ -3739,6 +4025,12 @@ msgstr "ทีม"
 #: model:ir.ui.menu,name:crm.crm_team_member_config
 msgid "Teams Members"
 msgstr "สมาชิกทีม"
+
+#. module: crm
+#. odoo-python
+#: code:addons/crm/models/crm_lead.py:0
+msgid "Template for Leads & Opportunities"
+msgstr "เทมเพลตสำหรับลูกค้าเป้าหมายและโอกาสทางธุรกิจ"
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.crm_lead_merge_summary
@@ -3763,7 +4055,7 @@ msgstr ""
 #. odoo-python
 #: code:addons/crm/models/crm_lead.py:0
 msgid "The lead %s cannot be won and lost at the same time."
-msgstr ""
+msgstr "%s ที่นำอยู่ไม่สามารถชนะและแพ้ได้พร้อมกัน"
 
 #. module: crm
 #: model:ir.model.fields,help:crm.field_crm_team__alias_model_id
@@ -3880,6 +4172,8 @@ msgid ""
 "This new lead created by %(creation_source)s was automatically assigned to "
 "team leader %(user_name)s"
 msgstr ""
+"ลูกค้าเป้าหมายที่สร้างโดย%(creation_source)s ได้ถูกจัดสรรให้หัวหน้าทีมโดยอัตโนมัติ%"
+"(user_name)s"
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_form
@@ -3948,6 +4242,19 @@ msgid "Tip: Turn a selection of opportunities into a map"
 msgstr "เคล็ดลับ: เปลี่ยนการเลือกโอกาสให้เป็นแผนที่"
 
 #. module: crm
+#. odoo-javascript
+#: code:addons/crm/static/src/components/promote_mail_plugins_dialog/promote_mail_plugins_dialog.xml:0
+msgid "Tired of copy-pasting emails?"
+msgstr ""
+
+#. module: crm
+#: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_list_simplified
+#: model_terms:ir.ui.view,arch_db:crm.merge_opportunity_form
+#: model_terms:ir.ui.view,arch_db:crm.view_crm_lead2opportunity_partner_mass
+msgid "Title"
+msgstr "คำนำหน้าชื่อ"
+
+#. module: crm
 #. odoo-python
 #: code:addons/crm/models/crm_lead.py:0
 msgid ""
@@ -3958,8 +4265,21 @@ msgstr ""
 "(max_length)s"
 
 #. module: crm
+#. odoo-python
+#: code:addons/crm/models/crm_lead.py:0
+msgid ""
+"To work with the CRM, you should <a name=\"%d\" type=\"action\" "
+"tabindex=\"-1\">join a Team.</a>"
+msgstr ""
+
+#. module: crm
+#. odoo-python
+#: code:addons/crm/models/crm_lead.py:0
+msgid "To work with the CRM, you should be added to a Team."
+msgstr ""
+
+#. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.view_crm_case_leads_filter
-#: model_terms:ir.ui.view,arch_db:crm.view_crm_case_my_activities_filter
 #: model_terms:ir.ui.view,arch_db:crm.view_crm_case_opportunities_filter
 msgid "Today Activities"
 msgstr "กิจกรรมวันนี้"
@@ -3973,12 +4293,17 @@ msgstr "แพงเกินไป"
 #. odoo-javascript
 #: code:addons/crm/static/src/views/crm_form/crm_pls_tooltip_button.xml:0
 msgid "Top Negatives"
-msgstr ""
+msgstr "ข้อควรหลีกเลี่ยงหลัก"
 
 #. module: crm
 #. odoo-javascript
 #: code:addons/crm/static/src/views/crm_form/crm_pls_tooltip_button.xml:0
 msgid "Top Positives"
+msgstr "จุดเด่นหลัก"
+
+#. module: crm
+#: model:ir.module.module,summary:base.module_crm
+msgid "Track leads and close opportunities"
 msgstr ""
 
 #. module: crm
@@ -3999,6 +4324,12 @@ msgstr ""
 #: model_terms:digest.tip,tip_description:crm.digest_tip_crm_0
 msgid "Try sending an email"
 msgstr "ลองส่งอีเมล"
+
+#. module: crm
+#. odoo-javascript
+#: code:addons/crm/static/src/components/lead_generation_dropdown/lead_generation_dropdown.js:0
+msgid "Turn visitors into leads via a form"
+msgstr "เปลี่ยนผู้เยี่ยมชมให้เป็นลูกค้าเป้าหมายผ่านแบบฟอร์ม"
 
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_activity_report__lead_type
@@ -4026,6 +4357,11 @@ msgstr "ประเภท:"
 #: model:ir.model,name:crm.model_utm_campaign
 msgid "UTM Campaign"
 msgstr "แคมเปญ UTM"
+
+#. module: crm
+#: model:ir.model.fields,field_description:crm.field_crm_lead__utm_reference
+msgid "UTM Reference"
+msgstr "อ้างอิง UTM"
 
 #. module: crm
 #: model:ir.model.fields,help:crm.field_crm_lead__user_company_ids
@@ -4080,11 +4416,6 @@ msgid ""
 "Use Lost Reasons to report on why opportunities are lost (e.g.\"Undercut by "
 "competitors\")."
 msgstr "ใช้เหตุผลที่ไม่สำเร็จเพื่อรายงานสาเหตุที่ทำให้เสียโอกาส (เช่น \"การตัดราคาโดยคู่แข่ง\")"
-
-#. module: crm
-#: model:ir.model.fields.selection,name:crm.selection__crm_lead2opportunity_partner_mass__action__each_exist_or_create
-msgid "Use existing partner or create"
-msgstr "ใช้พาร์ทเนอร์ที่มีอยู่หรือสร้าง"
 
 #. module: crm
 #: model_terms:ir.actions.act_window,help:crm.crm_case_form_view_salesteams_lead
@@ -4192,19 +4523,11 @@ msgid "We don't have people/skills"
 msgstr "เราไม่มีคน/ทักษะ"
 
 #. module: crm
+#. odoo-javascript
+#: code:addons/crm/static/src/components/lead_generation_dropdown/lead_generation_dropdown.js:0
 #: model:ir.model.fields,field_description:crm.field_crm_lead__website
 msgid "Website"
 msgstr "เว็บไซต์"
-
-#. module: crm
-#: model:ir.model.fields,field_description:crm.field_crm_lead__website_message_ids
-msgid "Website Messages"
-msgstr "ข้อความเว็บไซต์"
-
-#. module: crm
-#: model:ir.model.fields,help:crm.field_crm_lead__website_message_ids
-msgid "Website communication history"
-msgstr "ประวัติการสื่อสารของเว็บไซต์"
 
 #. module: crm
 #: model:ir.model.fields,help:crm.field_crm_lead__website
@@ -4227,9 +4550,20 @@ msgid "Welcome Demo"
 msgstr "ยินดีต้อนรับ Demo"
 
 #. module: crm
+#: model_terms:ir.ui.view,arch_db:crm.crm_stage_form
+msgid "What are the requirements to move an opportunity to this stage?"
+msgstr "อะไรคือเงื่อนไขในการย้ายโอกาสไปยังขั้นตอนนี้?"
+
+#. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.crm_lead_lost_view_form
 msgid "What went wrong?"
 msgstr "เกิดอะไรขึ้น?"
+
+#. module: crm
+#. odoo-javascript
+#: code:addons/crm/static/src/views/crm_kanban/crm_column_progress.js:0
+msgid "Without activities scheduled"
+msgstr "ที่ไม่มีกิจกรรมที่กำหนด"
 
 #. module: crm
 #: model:crm.stage,name:crm.stage_lead4
@@ -4251,25 +4585,25 @@ msgstr "จำนวนความสำเร็จ"
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_lead__won_status
 msgid "Won/Lost"
-msgstr ""
+msgstr "ชนะ/เสียโอกาส"
 
 #. module: crm
 #. odoo-python
 #: code:addons/crm/models/crm_lead.py:0
 msgid "Wow, that was fast. That deal didn’t stand a chance!"
-msgstr ""
+msgstr "โอ้โห เร็วมาก! ดีลนี้ไม่รอดมือคุณเลยจริงๆ"
 
 #. module: crm
 #. odoo-python
 #: code:addons/crm/models/crm_lead.py:0
 msgid "Yay, your first win from %(utm_source_name)s!"
-msgstr ""
+msgstr "เย้! ชัยชนะครั้งแรกของคุณจาก%(utm_source_name)s!"
 
 #. module: crm
 #. odoo-python
 #: code:addons/crm/models/crm_lead.py:0
 msgid "Yeah! Best deal out of the last 7 days for the team."
-msgstr ""
+msgstr "เย้! ข้อเสนอที่ดีที่สุดใน 7 วันที่ผ่านมาสำหรับทีม"
 
 #. module: crm
 #: model:crm.recurring.plan,name:crm.crm_recurring_plan_yearly
@@ -4285,8 +4619,12 @@ msgstr "ใช่"
 #. module: crm
 #. odoo-javascript
 #: code:addons/crm/static/src/js/tours/crm.js:0
-msgid "You can make your opportunity advance through your pipeline from here."
-msgstr "คุณสามารถทำให้โอกาสในการขายคืบหน้าได้ด้วยไปป์ไลน์ของคุณที่นี่"
+msgid ""
+"You can make your opportunity advance through your pipeline by clicking on "
+"stages here. Try sending it to the next stage!"
+msgstr ""
+"คุณสามารถเลื่อนโอกาสทางการขายให้คืบหน้าไปตามไปป์ไลน์ได้ง่ายๆ เพียงคลิกเลือกขั้นตอนตรงนี้ "
+"ลองกดส่งไปยังขั้นตอนถัดไปดูเลย"
 
 #. module: crm
 #. odoo-python
@@ -4310,7 +4648,7 @@ msgstr "คุณเพิ่งทำลายสถิติส่วนตั
 #. odoo-python
 #: code:addons/crm/models/crm_lead.py:0
 msgid "You just expanded the map! First win in %(country)s."
-msgstr ""
+msgstr "คุณเพิ่งขยายแผนที่แล้ว! ชัยชนะครั้งแรกใน%(country)s"
 
 #. module: crm
 #: model_terms:ir.actions.act_window,help:crm.crm_case_form_view_salesteams_opportunity
@@ -4328,13 +4666,13 @@ msgstr ""
 #. odoo-python
 #: code:addons/crm/models/crm_lead.py:0
 msgid "You're on a winning streak. 3 deals in 3 days, congrats!"
-msgstr ""
+msgstr "คุณกำลังอยู่ในช่วงชนะติดต่อกัน 3 ดีลใน 3 วัน ยินดีด้วย!"
 
 #. module: crm
 #. odoo-python
 #: code:addons/crm/models/crm_lead.py:0
 msgid "You're on fire! Fifth deal won today 🔥"
-msgstr ""
+msgstr "คุณทำได้ดีมาก! วันนี้ชนะดีลที่ 5 แล้ว 🔥"
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_form
@@ -4352,6 +4690,11 @@ msgid "alias"
 msgstr "นามแฝง"
 
 #. module: crm
+#: model_terms:ir.ui.view,arch_db:crm.crm_team_member_view_form
+msgid "assigned)"
+msgstr "มอบหมายแล้ว)"
+
+#. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_form
 msgid "at"
 msgstr ""
@@ -4363,14 +4706,19 @@ msgid "e.g. \"Monthly\""
 msgstr "เช่น \"รายเดือน\""
 
 #. module: crm
-#: model_terms:ir.ui.view,arch_db:crm.crm_stage_form
-msgid "e.g. Negotiation"
-msgstr "เช่น การต่อรอง"
+#: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_form
+msgid "e.g. (555) 555-0199"
+msgstr "ตัวอย่าง: (555) 555-0199"
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_form
 msgid "e.g. Product Pricing"
 msgstr "เช่น ราคาสินค้า"
+
+#. module: crm
+#: model_terms:ir.ui.view,arch_db:crm.crm_stage_form
+msgid "e.g. Qualification"
+msgstr "ตัวอย่าง: คุณสมบัติ"
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.crm_lost_reason_view_form
@@ -4383,6 +4731,11 @@ msgid "e.g. https://www.odoo.com"
 msgstr "เช่น https://www.odoo.com"
 
 #. module: crm
+#: model_terms:ir.ui.view,arch_db:crm.crm_lead_view_form
+msgid "e.g. john.doe@email.com"
+msgstr "ตัวอย่าง: john.doe@email.com"
+
+#. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.sales_team_form_view_in_crm
 msgid "e.g. mycompany.com"
 msgstr "เช่น mycompany.com"
@@ -4391,7 +4744,7 @@ msgstr "เช่น mycompany.com"
 #. odoo-javascript
 #: code:addons/crm/static/src/views/crm_form/crm_pls_tooltip_button.xml:0
 msgid "email address"
-msgstr ""
+msgstr "ที่อยู่อีเมล"
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.res_config_settings_view_form
@@ -4407,37 +4760,37 @@ msgstr "สร้างโอกาสในการขายบนไปป์
 #. odoo-javascript
 #: code:addons/crm/static/src/views/crm_form/crm_pls_tooltip_button.xml:0
 msgid "has value"
-msgstr ""
+msgstr "มีค่า"
 
 #. module: crm
 #. odoo-python
 #: code:addons/crm/models/crm_lead.py:0
 msgid "incoming email"
-msgstr ""
+msgstr "อีเมลที่เข้ามา"
 
 #. module: crm
 #. odoo-python
 #: code:addons/crm/models/crm_lost_reason.py:0
 msgid "lost_reason_id"
-msgstr ""
+msgstr "lost_reason_id"
 
 #. module: crm
 #. odoo-javascript
 #: code:addons/crm/static/src/views/forecast_kanban/forecast_kanban_column_quick_create.js:0
 msgid "next %s"
-msgstr ""
+msgstr "ต่อไป %s"
 
 #. module: crm
 #. odoo-javascript
 #: code:addons/crm/static/src/views/crm_form/crm_pls_tooltip_button.xml:0
 msgid "phone number"
-msgstr ""
+msgstr "เบอร์โทรศัพท์"
 
 #. module: crm
 #. odoo-javascript
 #: code:addons/crm/static/src/views/crm_form/crm_pls_tooltip_button.xml:0
 msgid "sample data"
-msgstr ""
+msgstr "(ข้อมูลตัวอย่าง)"
 
 #. module: crm
 #. odoo-javascript
@@ -4449,7 +4802,7 @@ msgstr "เวที"
 #. odoo-javascript
 #: code:addons/crm/static/src/views/crm_form/crm_pls_tooltip_button.xml:0
 msgid "team"
-msgstr ""
+msgstr "ทีม"
 
 #. module: crm
 #: model:ir.model.fields,field_description:crm.field_crm_stage__team_count
@@ -4460,7 +4813,7 @@ msgstr "team_count"
 #. odoo-javascript
 #: code:addons/crm/static/src/views/crm_form/crm_pls_tooltip_button.xml:0
 msgid "this lead"
-msgstr ""
+msgstr "ลูกค้าเป้าหมายนี้"
 
 #. module: crm
 #: model_terms:ir.ui.view,arch_db:crm.crm_action_helper
@@ -4476,7 +4829,7 @@ msgstr "ให้กับ CRM ของคุณ ที่อยู่อีเ
 #. odoo-python
 #: code:addons/crm/models/crm_lead.py:0
 msgid "type"
-msgstr ""
+msgstr "ประเภท"
 
 #. module: crm
 #. odoo-python
@@ -4488,521 +4841,17 @@ msgstr "ไม่ทราบ"
 #. odoo-javascript
 #: code:addons/crm/static/src/views/crm_form/crm_pls_tooltip_button.xml:0
 msgid "valid email address"
-msgstr ""
+msgstr "ที่อยู่อีเมลที่ถูกต้อง"
 
 #. module: crm
 #. odoo-javascript
 #: code:addons/crm/static/src/views/crm_form/crm_pls_tooltip_button.xml:0
 msgid "valid phone number"
-msgstr ""
+msgstr "หมายเลขโทรศัพท์ที่ถูกต้อง"
 
 #~ msgid ""
-#~ "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"padding-"
-#~ "top: 16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-"
-#~ "serif; color: #454748; width: 100%; border-collapse:separate;\"><tr><td "
-#~ "align=\"center\">\n"
-#~ "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" "
-#~ "style=\"padding: 24px; background-color: white; color: #454748; border-"
-#~ "collapse:separate;\">\n"
-#~ "<tbody>\n"
-#~ "    <!-- HEADER -->\n"
-#~ "    <tr>\n"
-#~ "        <td align=\"center\" style=\"min-width: 590px;\">\n"
-#~ "            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" "
-#~ "width=\"100%\" style=\"background-color: white; padding: 0; border-"
-#~ "collapse:separate;\">\n"
-#~ "                <tr><td valign=\"middle\">\n"
-#~ "                    <span style=\"font-size: 10px;\">Your Lead/"
-#~ "Opportunity</span><br/>\n"
-#~ "                    <span style=\"font-size: 20px; font-weight: bold;\" t-"
-#~ "out=\"object.name or ''\">Interest in your products</span>\n"
-#~ "                </td><td valign=\"middle\" align=\"right\">\n"
-#~ "                    <img t-attf-src=\"/logo.png?"
-#~ "company={{ object.company_id.id }}\" style=\"padding: 0px; margin: 0px; "
-#~ "height: 48px;\" t-att-alt=\"object.company_id.name\"/>\n"
-#~ "                </td></tr>\n"
-#~ "                <tr><td colspan=\"2\" style=\"text-align:center;\">\n"
-#~ "                    <hr width=\"100%\" style=\"background-"
-#~ "color:rgb(204,204,204);border:medium none;clear:both;display:block;font-"
-#~ "size:0px;min-height:1px;line-height:0; margin:4px 0px 32px 0px;\"/>\n"
-#~ "                </td></tr>\n"
-#~ "            </table>\n"
-#~ "        </td>\n"
-#~ "    </tr>\n"
-#~ "    <!-- CONTENT -->\n"
-#~ "    <tr>\n"
-#~ "        <td style=\"min-width: 590px;\">\n"
-#~ "            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" "
-#~ "width=\"590\" style=\"min-width: 590px; background-color: white; padding: "
-#~ "0px 8px 0px 8px; border-collapse:separate;\">\n"
-#~ "                <tr>\n"
-#~ "                    <td valign=\"top\" style=\"font-size: 13px;\">\n"
-#~ "                        <div>\n"
-#~ "                            Hi <t t-out=\"object.partner_id and "
-#~ "object.partner_id.name or ''\">Deco Addict</t>,<br/><br/>\n"
-#~ "                            Welcome to <t t-out=\"object.company_id.name "
-#~ "or ''\">My Company (San Francisco)</t>.\n"
-#~ "                            It's great to meet you! Now that you're on "
-#~ "board, you'll discover what <t t-out=\"object.company_id.name or ''\">My "
-#~ "Company (San Francisco)</t> has to offer. My name is <t t-"
-#~ "out=\"object.user_id.name or ''\">Marc Demo</t> and I'll help you get the "
-#~ "most out of Odoo. Could we plan a quick demo soon?<br/>\n"
-#~ "                            Feel free to reach out at any time!<br/><br/"
-#~ ">\n"
-#~ "                            Best,<br/>\n"
-#~ "                            <t t-if=\"object.user_id\">\n"
-#~ "                                <b><t t-out=\"object.user_id.name or "
-#~ "''\">Marc Demo</t></b>\n"
-#~ "                                <br/>Email: <t t-"
-#~ "out=\"object.user_id.email or ''\">mark.brown23@example.com</t>\n"
-#~ "                                <br/>Phone: <t t-"
-#~ "out=\"object.user_id.phone or ''\">+1 650-123-4567</t>\n"
-#~ "                            </t>\n"
-#~ "                            <t t-else=\"\">\n"
-#~ "                                <t t-out=\"object.company_id.name or "
-#~ "''\">My Company (San Francisco)</t>\n"
-#~ "                            </t>\n"
-#~ "                        </div>\n"
-#~ "                    </td>\n"
-#~ "                </tr>\n"
-#~ "            </table>\n"
-#~ "        </td>\n"
-#~ "    </tr>\n"
-#~ "    <!-- FOOTER -->\n"
-#~ "    <tr>\n"
-#~ "        <td align=\"center\" style=\"min-width: 590px; padding: 0 8px 0 "
-#~ "8px; font-size:11px;\">\n"
-#~ "            <hr width=\"100%\" style=\"background-"
-#~ "color:rgb(204,204,204);border:medium none;clear:both;display:block;font-"
-#~ "size:0px;min-height:1px;line-height:0; margin: 16px 0px 4px 0px;\"/>\n"
-#~ "            <b t-out=\"object.company_id.name or ''\">My Company (San "
-#~ "Francisco)</b><br/>\n"
-#~ "            <div style=\"color: #999999;\">\n"
-#~ "                <t t-out=\"object.company_id.phone or ''\">+1 "
-#~ "650-123-4567</t>\n"
-#~ "                <t t-if=\"object.company_id.email\">\n"
-#~ "                    | <a t-attf-href=\"'mailto:%s' % "
-#~ "{{ object.company_id.email }}\" style=\"text-decoration:none; color: "
-#~ "#999999;\" t-out=\"object.company_id.email or ''\">info@yourcompany.com</"
-#~ "a>\n"
-#~ "                </t>\n"
-#~ "                <t t-if=\"object.company_id.website\">\n"
-#~ "                    | <a t-attf-href=\"'%s' % "
-#~ "{{ object.company_id.website }}\" style=\"text-decoration:none; color: "
-#~ "#999999;\" t-out=\"object.company_id.website or ''\">http://"
-#~ "www.example.com</a>\n"
-#~ "                </t>\n"
-#~ "            </div>\n"
-#~ "        </td>\n"
-#~ "    </tr>\n"
-#~ "</tbody>\n"
-#~ "</table>\n"
-#~ "</td></tr>\n"
-#~ "<!-- POWERED BY -->\n"
-#~ "<tr><td align=\"center\" style=\"min-width: 590px;\">\n"
-#~ "    Powered by <a target=\"_blank\" href=\"https://www.odoo.com?"
-#~ "utm_source=db&amp;utm_medium=email\" t-attf-style=\"color: "
-#~ "{{object.company_id.email_secondary_color or '#875A7B'}};;\">Odoo</a>\n"
-#~ "</td></tr>\n"
-#~ "</table>\n"
-#~ "        "
+#~ "<i class=\"oi\" data-icon=\"east\"/>\n"
+#~ "                                Install Extension"
 #~ msgstr ""
-#~ "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"padding-"
-#~ "top: 16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-"
-#~ "serif; color: #454748; width: 100%; border-collapse:separate;\"><tr><td "
-#~ "align=\"center\">\n"
-#~ "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" "
-#~ "style=\"padding: 24px; background-color: white; color: #454748; border-"
-#~ "collapse:separate;\">\n"
-#~ "<tbody>\n"
-#~ "    <!-- ส่วนหัว -->\n"
-#~ "    <tr>\n"
-#~ "        <td align=\"center\" style=\"min-width: 590px;\">\n"
-#~ "            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" "
-#~ "width=\"100%\" style=\"background-color: white; padding: 0; border-"
-#~ "collapse:separate;\">\n"
-#~ "                <tr><td valign=\"middle\">\n"
-#~ "                    <span style=\"font-size: 10px;\">ลูกค้าเป้าหมายของคุณ</"
-#~ "span><br/>\n"
-#~ "                    <span style=\"font-size: 20px; font-weight: bold;\" t-"
-#~ "out=\"object.name or ''\">สนใจในผลิตภัณฑ์ของคุณ</span>\n"
-#~ "                </td><td valign=\"middle\" align=\"right\">\n"
-#~ "                    <img t-attf-src=\"/logo.png?"
-#~ "company={{ object.company_id.id }}\" style=\"padding: 0px; margin: 0px; "
-#~ "height: 48px;\" t-att-alt=\"object.company_id.name\"/>\n"
-#~ "                </td></tr>\n"
-#~ "                <tr><td colspan=\"2\" style=\"text-align:center;\">\n"
-#~ "                    <hr width=\"100%\" style=\"background-"
-#~ "color:rgb(204,204,204);border:medium none;clear:both;display:block;font-"
-#~ "size:0px;min-height:1px;line-height:0; margin:4px 0px 32px 0px;\"/>\n"
-#~ "                </td></tr>\n"
-#~ "            </table>\n"
-#~ "        </td>\n"
-#~ "    </tr>\n"
-#~ "    <!-- เนื้อหา -->\n"
-#~ "    <tr>\n"
-#~ "        <td style=\"min-width: 590px;\">\n"
-#~ "            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" "
-#~ "width=\"590\" style=\"min-width: 590px; background-color: white; padding: "
-#~ "0px 8px 0px 8px; border-collapse:separate;\">\n"
-#~ "                <tr>\n"
-#~ "                    <td valign=\"top\" style=\"font-size: 13px;\">\n"
-#~ "                        <div>\n"
-#~ "                            สวัสดีค่ะ <t t-out=\"object.partner_id and "
-#~ "object.partner_id.name or ''\">Deco Addict</t>,<br/><br/>\n"
-#~ "                            ยินดีต้อนรับสู่ <t t-out=\"object.company_id.name "
-#~ "or ''\">My Company (San Francisco)</t>\n"
-#~ "                           ตอนนี้คุณพร้อมแล้ว คุณจะได้ค้นพบสิ่งที่ <t t-"
-#~ "out=\"object.company_id.name or ''\">My Company (San Francisco)</t>นำเสนอ "
-#~ "ผมชื่อ <t t-out=\"object.user_id.name or ''\">Marc Demo</t> "
-#~ "และผมจะช่วยให้คุณได้รับประโยชน์สูงสุดจาก Odoo ครับ เรามาวางแผนการสาธิตการใช้งานเร็วๆ "
-#~ "นี้ได้ไหมครับ รบกวนบอกวันและเวลาที่สะดวกหากคุณสนใจครับ<br/>\n"
-#~ "                            คุณสามารถติดต่อเราได้ตลอดเวลาหากมีคำถามใดๆ<br/><br/"
-#~ ">\n"
-#~ "                            ขอแสดงความนับถือ<br/>\n"
-#~ "                            <t t-if=\"object.user_id\">\n"
-#~ "                                <b><t t-out=\"object.user_id.name or "
-#~ "''\">Marc Demo</t></b>\n"
-#~ "                                <br/>อีเมล: <t t-"
-#~ "out=\"object.user_id.email or ''\">mark.brown23@example.com</t>\n"
-#~ "                                <br/>เบอร์โทร: <t t-"
-#~ "out=\"object.user_id.phone or ''\">+1 650-123-4567</t>\n"
-#~ "                            </t>\n"
-#~ "                            <t t-else=\"\">\n"
-#~ "                                <t t-out=\"object.company_id.name or "
-#~ "''\">My Company (San Francisco)</t>\n"
-#~ "                            </t>\n"
-#~ "                        </div>\n"
-#~ "                    </td>\n"
-#~ "                </tr>\n"
-#~ "            </table>\n"
-#~ "        </td>\n"
-#~ "    </tr>\n"
-#~ "    <!-- ส่วนท้าย -->\n"
-#~ "    <tr>\n"
-#~ "        <td align=\"center\" style=\"min-width: 590px; padding: 0 8px 0 "
-#~ "8px; font-size:11px;\">\n"
-#~ "            <hr width=\"100%\" style=\"background-"
-#~ "color:rgb(204,204,204);border:medium none;clear:both;display:block;font-"
-#~ "size:0px;min-height:1px;line-height:0; margin: 16px 0px 4px 0px;\"/>\n"
-#~ "            <b t-out=\"object.company_id.name or ''\">My Company (San "
-#~ "Francisco)</b><br/>\n"
-#~ "            <div style=\"color: #999999;\">\n"
-#~ "                <t t-out=\"object.company_id.phone or ''\">+1 "
-#~ "650-123-4567</t>\n"
-#~ "                <t t-if=\"object.company_id.email\">\n"
-#~ "                    | <a t-attf-href=\"'mailto:%s' % "
-#~ "{{ object.company_id.email }}\" style=\"text-decoration:none; color: "
-#~ "#999999;\" t-out=\"object.company_id.email or ''\">info@yourcompany.com</"
-#~ "a>\n"
-#~ "                </t>\n"
-#~ "                <t t-if=\"object.company_id.website\">\n"
-#~ "                    | <a t-attf-href=\"'%s' % "
-#~ "{{ object.company_id.website }}\" style=\"text-decoration:none; color: "
-#~ "#999999;\" t-out=\"object.company_id.website or ''\">http://"
-#~ "www.example.com</a>\n"
-#~ "                </t>\n"
-#~ "            </div>\n"
-#~ "        </td>\n"
-#~ "    </tr>\n"
-#~ "</tbody>\n"
-#~ "</table>\n"
-#~ "</td></tr>\n"
-#~ "<!-- สนับสนุนโดย -->\n"
-#~ "<tr><td align=\"center\" style=\"min-width: 590px;\">\n"
-#~ "    สนับสนุนโดย <a target=\"_blank\" href=\"https://www.odoo.com?"
-#~ "utm_source=db&amp;utm_medium=email\" t-attf-style=\"color: "
-#~ "{{object.company_id.email_secondary_color or '#875A7B'}};;\">Odoo</a>\n"
-#~ "</td></tr>\n"
-#~ "</table>\n"
-#~ "        "
-
-#~ msgid ""
-#~ "For a sales team, there is nothing worse than being dry on leads. "
-#~ "Fortunately, in just a few clicks, you can generate leads specifically "
-#~ "targeted to your needs: company size, industry, etc. To help you test the "
-#~ "feature, we offer you 200 credits for free."
-#~ msgstr ""
-#~ "สำหรับทีมขาย ไม่มีอะไรเลวร้ายไปกว่าการไม่มีลูกค้าเป้าหมาย โชคดีที่เพียงไม่กี่คลิก "
-#~ "คุณสามารถสร้างลูกค้าเป้าหมายที่ตรงตามความต้องการของคุณ เช่น ขนาดบริษัท อุตสาหกรรมและอื่น "
-#~ "ๆ  เพื่อช่วยคุณทดลองฟีเจอร์นี้ เราขอเสนอ 200 เครดิตให้คุณฟรี"
-
-#~ msgid "# Meetings"
-#~ msgstr "# การประชุม"
-
-#~ msgid "# Opportunities"
-#~ msgstr "# โอกาสในการขาย"
-
-#~ msgid "# Overdue Opportunities"
-#~ msgstr "# โอกาสที่เกินกำหนด"
-
-#~ msgid "%s and %s"
-#~ msgstr "%s และ %s"
-
-#~ msgid ""
-#~ "<i class=\"fa fa-fw fa-star\" aria-label=\"Opportunities\" role=\"img\" "
-#~ "title=\"Opportunities\"/>"
-#~ msgstr ""
-#~ "<i class=\"fa fa-fw fa-star\" aria-label=\"โอกาส\" role=\"img\" "
-#~ "title=\"โอกาส\"/>"
-
-#~ msgid ""
-#~ "<i class=\"fa fa-gear\" role=\"img\" title=\"Switch to automatic "
-#~ "probability\" aria-label=\"Switch to automatic probability\"/>"
-#~ msgstr ""
-#~ "<i class=\"fa fa-gear\" role=\"img\" title=\"เปลี่ยนไปใช้ความน่าจะเป็นอัตโนมัติ\" "
-#~ "aria-label=\"Switch to automatic probability\"/>"
-
-#~ msgid ""
-#~ "<span class=\"fa fa-exclamation-triangle text-warning oe_edit_only\" "
-#~ "title=\"By saving this change, the customer email will also be updated.\" "
-#~ "attrs=\"{'invisible': [('partner_email_update', '=', False)]}\"/>"
-#~ msgstr ""
-#~ "<span class=\"fa fa-exclamation-triangle text-warning oe_edit_only\" "
-#~ "title=\"เมื่อบันทึกการเปลี่ยนแปลงนี้ อีเมลลูกค้าจะได้รับการอัปเดตด้วย\" "
-#~ "attrs=\"{'invisible': [('partner_email_update', '=', False)]}\"/>"
-
-#~ msgid ""
-#~ "<span class=\"fa fa-exclamation-triangle text-warning oe_edit_only\" "
-#~ "title=\"By saving this change, the customer phone number will also be "
-#~ "updated.\" attrs=\"{'invisible': [('partner_phone_update', '=', False)]}"
-#~ "\"/>"
-#~ msgstr ""
-#~ "<span class=\"fa fa-exclamation-triangle text-warning oe_edit_only\" "
-#~ "title=\"เมื่อบันทึกการเปลี่ยนแปลงนี้ หมายเลขโทรศัพท์ของลูกค้าจะได้รับการอัปเดตด้วย\" "
-#~ "attrs=\"{'invisible': [('partner_phone_update', '=', False)]}\"/>"
-
-#~ msgid ""
-#~ "<span class=\"o_stat_text\" attrs=\"{'invisible': "
-#~ "[('calendar_event_count', '&lt;', 2)]}\"> Meetings</span>\n"
-#~ "                                    <span class=\"o_stat_text\" "
-#~ "attrs=\"{'invisible': [('calendar_event_count', '&gt;', 1)]}\"> Meeting</"
-#~ "span>"
-#~ msgstr ""
-#~ "<span class=\"o_stat_text\" attrs=\"{'invisible': "
-#~ "[('calendar_event_count', '&lt;', 2)]}\"> การประชุม</span>\n"
-#~ "                                    <span class=\"o_stat_text\" "
-#~ "attrs=\"{'invisible': [('calendar_event_count', '&gt;', 1)]}\"> การประชุม</"
-#~ "span>"
-
-#~ msgid ""
-#~ "<span class=\"o_stat_text\" attrs=\"{'invisible': "
-#~ "[('duplicate_lead_count', '&lt;', 2)]}\">Similar Leads</span>\n"
-#~ "                                    <span class=\"o_stat_text\" "
-#~ "attrs=\"{'invisible': [('duplicate_lead_count', '&gt;', 1)]}\">Similar "
-#~ "Lead</span>"
-#~ msgstr ""
-#~ "<span class=\"o_stat_text\" attrs=\"{'invisible': "
-#~ "[('duplicate_lead_count', '&lt;', 2)]}\">ลูกค้าเป้าหมายที่เหมือนกัน</span>\n"
-#~ "                                    <span class=\"o_stat_text\" "
-#~ "attrs=\"{'invisible': [('duplicate_lead_count', '&gt;', 1)]}"
-#~ "\">ลูกค้าเป้าหมายที่เหมือนกัน</span>"
-
-#~ msgid ""
-#~ "<span class=\"o_stat_text\" attrs=\"{'invisible': [('use_leads', '=', "
-#~ "False)]}\">Leads</span>\n"
-#~ "                        <span class=\"o_stat_text\" attrs=\"{'invisible': "
-#~ "[('use_leads', '=', True)]}\">Opportunities</span>"
-#~ msgstr ""
-#~ "<span class=\"o_stat_text\" attrs=\"{'invisible': [('use_leads', '=', "
-#~ "False)]}\">ลูกค้าเป้าหมาย</span>\n"
-#~ "                        <span class=\"o_stat_text\" attrs=\"{'invisible': "
-#~ "[('use_leads', '=', True)]}\">โอกาส</span>"
-
-#~ msgid ""
-#~ "<span class=\"oe_grey p-2\" groups=\"crm.group_use_recurring_revenues\"> "
-#~ "+ </span>\n"
-#~ "                                        <span class=\"oe_grey p-2\" "
-#~ "groups=\"!crm.group_use_recurring_revenues\"> at </span>"
-#~ msgstr ""
-#~ "<span class=\"oe_grey p-2\" groups=\"crm.group_use_recurring_revenues\"> "
-#~ "+ </span>\n"
-#~ "                                        <span class=\"oe_grey p-2\" "
-#~ "groups=\"!crm.group_use_recurring_revenues\"> ที่ </span>"
-
-#~ msgid "<span class=\"oe_inline\"> (max) </span>"
-#~ msgstr "<span class=\"oe_inline\"> (สูงสุด) </span>"
-
-#~ msgid "<span class=\"oe_inline\"> / </span>"
-#~ msgstr "<span class=\"oe_inline\"> / </span>"
-
-#~ msgid "Activities Done Target"
-#~ msgstr " เป้าหมายกิจกรรมที่ทำเสร็จ"
-
-#~ msgid "Add next %s"
-#~ msgstr "เพิ่มต่อไป%s"
-
-#~ msgid "Alias domain"
-#~ msgstr "นามแฝงโดเมน"
-
-#~ msgid "Blacklisted Phone Is Mobile"
-#~ msgstr "โทรศัพท์ที่ถูกขึ้นบัญชีดำคือมือถือ"
-
-#~ msgid "Call for Demo"
-#~ msgstr "ร้องขอการสาธิต"
-
-#~ msgid "Configure a custom domain"
-#~ msgstr "กำหนดค่าโดเมนที่กำหนดเอง"
-
-#~ msgid "Customer Email"
-#~ msgstr "อีเมลลูกค้า"
-
-#~ msgid "Do not link to a customer"
-#~ msgstr "ห้ามเชื่อมโยงไปยังลูกค้า"
-
-#~ msgid "Email: Welcome Demo"
-#~ msgstr "อีเมล: ยินดีต้อนรับการสาธิต"
-
-#~ msgid "Extended Filters"
-#~ msgstr "ตัวกรองเพิ่มเติม"
-
-#~ msgid "Extra Information"
-#~ msgstr "ข้อมูลเพิ่มเติม"
-
-#~ msgid "Follow-up Quote"
-#~ msgstr "ติดตามใบเสนอราคา"
-
-#~ msgid "Group By"
-#~ msgstr "กลุ่มโดย"
-
-#~ msgid ""
-#~ "If set, this Sales Team will be used for sales and assignments related to "
-#~ "this partner"
-#~ msgstr "หากตั้งค่าไว้ ทีมขายนี้จะใช้สำหรับการขายและการมอบหมายที่เกี่ยวข้องกับพาร์ทเนอร์รายนี้"
-
-#~ msgid "Include archived"
-#~ msgstr "รวมที่เก็บถาวร"
-
-#~ msgid ""
-#~ "Indicates if a blacklisted sanitized phone number is a mobile number. "
-#~ "Helps distinguish which number is blacklisted             when there is "
-#~ "both a mobile and phone field in a model."
-#~ msgstr ""
-#~ "ระบุว่าหมายเลขโทรศัพท์ที่ถูกต้องในบัญชีดำเป็นหมายเลขโทรศัพท์มือถือหรือไม่ "
-#~ "ช่วยแยกแยะว่าหมายเลขใดถูกขึ้นบัญชีดำเมื่อมีทั้งฟิลด์มือถือและโทรศัพท์ในโมเดล"
-
-#~ msgid "Internal Notes"
-#~ msgstr "บันทึกย่อภายใน"
-
-#~ msgid "Kanban State"
-#~ msgstr "สถานะคัมบัง"
-
-#~ msgid "Lead assigned to this member those last 30 days"
-#~ msgstr "ลูกค้าเป้าหมายที่่ถูกรับมอบหมายโดยสมาชิกรายนี้ในช่วง 30 วันที่ผ่านมา"
-
-#~ msgid "Lead/Opportunity"
-#~ msgstr "ลูกค้าเป้าหมาย / โอกาส"
-
-#~ msgid ""
-#~ "Leads team allocation should be done for at least 0.2 or maximum 30 work "
-#~ "days, not %.2f."
-#~ msgstr ""
-#~ "การจัดสรรทีมลูกค้าเป้าหมายควรทำภายในอย่างน้อย 0.2 หรือสูงสุด 30 วันทำงาน ไม่ใช่ %.2f"
-
-#~ msgid "Make Quote"
-#~ msgstr "ทำใบเสนอราคา"
-
-#~ msgid "Mark Won"
-#~ msgstr "เราทำได้สำเร็จ"
-
-#~ msgid "Mobile"
-#~ msgstr "มือถือ"
-
-#~ msgid "Mobile:"
-#~ msgstr "มือถือ:"
-
-#~ msgid "New Opportunities"
-#~ msgstr "โอกาสใหม่"
-
-#~ msgid "Next activity is planned"
-#~ msgstr "มีการวางแผนกิจกรรมถัดไป"
-
-#~ msgid "Next activity late"
-#~ msgstr "กิจกรรมต่อไปล่าช้า"
-
-#~ msgid "No data yet!"
-#~ msgstr "ยังไม่มีข้อมูล!"
-
-#~ msgid "No next activity planned"
-#~ msgstr "ไม่มีการวางแผนกิจกรรมต่อไป"
-
-#~ msgid "Number of messages which requires an action"
-#~ msgstr "จํานวนข้อความที่ต้องดําเนินการ"
-
-#~ msgid "Open Opportunity"
-#~ msgstr "เปิดโอกาส"
-
-#~ msgid "Opportunities Revenues"
-#~ msgstr "รายได้โอกาส"
-
-#~ msgid "Organization / Contact"
-#~ msgstr "องค์กร / ติดต่อ"
-
-#~ msgid "Overdue Opportunities Revenues"
-#~ msgstr "รายได้โอกาสที่เกินกำหนด"
-
-#~ msgid "Overdue Opportunity"
-#~ msgstr "โอกาสที่เกินกำหนด"
-
-#~ msgid "Owner"
-#~ msgstr "เจ้าของ"
-
-#~ msgid "Phone/Mobile"
-#~ msgstr "โทรศัพท์/มือถือ"
-
-#~ msgid ""
-#~ "Please select more than one element (lead or opportunity) from the list "
-#~ "view."
-#~ msgstr ""
-#~ "โปรดเลือกองค์ประกอบมากกว่าหนึ่งรายการ (ลูกค้าเป้าหมายหรือโอกาสทางการขาย) "
-#~ "จากมุมมองรายการ"
-
-#~ msgid "Reschedule"
-#~ msgstr "กำหนดการใหม่"
-
-#~ msgid "Select Leads/Opportunities"
-#~ msgstr "เลือกลูกค้าเป้าหมาย / โอกาส"
-
-#~ msgid "Snooze 7d"
-#~ msgstr "เลื่อนการเตือน 7 วัน"
-
-#~ msgid ""
-#~ "Specific team that uses this stage. Other teams will not be able to see "
-#~ "or use this stage."
-#~ msgstr "เฉพาะทีมที่ใช้ขั้นตอนนี้ ทีมอื่นจะไม่สามารถเห็นหรือใช้ขั้นตอนนี้ได้"
-
-#~ msgid "Start scheduling activities on your opportunities"
-#~ msgstr "เริ่มจัดกำหนดการกิจกรรมเกี่ยวกับโอกาสของคุณ"
-
-#~ msgid ""
-#~ "The owner of records created upon receiving emails on this alias. If this "
-#~ "field is not set the system will attempt to find the right owner based on "
-#~ "the sender (From) address, or will use the Administrator account if no "
-#~ "system user is found for that address."
-#~ msgstr ""
-#~ "เจ้าของบันทึกที่สร้างขึ้นเมื่อได้รับอีเมลในนามแฝงนี้ หากไม่ได้ตั้งค่าฟิลด์นี้ "
-#~ "ระบบจะพยายามค้นหาเจ้าของที่ถูกต้องตามที่อยู่ผู้ส่ง (จาก) "
-#~ "หรือจะใช้บัญชีผู้ดูแลระบบหากไม่พบผู้ใช้ระบบสำหรับที่อยู่นั้น"
-
-#~ msgid "Title"
-#~ msgstr "ชื่อเรื่อง"
-
-#~ msgid "Tracking"
-#~ msgstr "การติดตาม"
-
-#~ msgid "Unassigned Lead"
-#~ msgstr "ลูกค้าเป้าหมายที่ไม่ได้มอบหมาย"
-
-#~ msgid "Use the top left <i>Create</i> button, or send an email to"
-#~ msgstr "ใช้ปุ่ม <i>สร้าง</i> ด้านบนซ้ายหรือส่งอีเมล"
-
-#~ msgid ""
-#~ "Use the top left Create button, or configure an email alias to test the "
-#~ "email gateway."
-#~ msgstr "ใช้ปุ่มสร้างด้านซ้ายบน หรือกำหนดค่านามแฝงอีเมลเพื่อทดสอบเกตเวย์อีเมล"
-
-#~ msgid "Won in Opportunities Target"
-#~ msgstr "สำเร็จในโอกาสเป้าหมาย"
-
-#~ msgid "Yeah! Deal of the last 7 days for the team."
-#~ msgstr "ใช่! ดีล 7 วันสุดท้ายสำหรับทีม"
+#~ "<i class=\"oi\" data-icon=\"east\"/>\n"
+#~ "                                ติดตั้งส่วนขยาย"

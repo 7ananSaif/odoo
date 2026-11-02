@@ -1,8 +1,21 @@
 import { ActionSwiper } from "@web/core/action_swiper/action_swiper";
+import { TOUCH_SELECTION_THRESHOLD } from "@web/views/utils";
 import { CalendarCommonRenderer } from "./calendar_common/calendar_common_renderer";
 import { CalendarYearRenderer } from "./calendar_year/calendar_year_renderer";
 
-import { Component } from "@odoo/owl";
+import { Component, t, useProps } from "@odoo/owl";
+
+export const calendarRendererProps = {
+    model: t.object(),
+    isWeekendVisible: t.boolean(),
+    createRecord: t.function(),
+    editRecord: t.function(),
+    deleteRecord: t.function(),
+    setDate: t.function(),
+    callbackRecorder: t.object(),
+    onSquareSelection: t.function(),
+    cleanSquareSelection: t.function(),
+};
 
 export class CalendarRenderer extends Component {
     static template = "web.CalendarRenderer";
@@ -13,17 +26,7 @@ export class CalendarRenderer extends Component {
         year: CalendarYearRenderer,
         ActionSwiper,
     };
-    static props = {
-        model: Object,
-        isWeekendVisible: Boolean,
-        createRecord: Function,
-        editRecord: Function,
-        deleteRecord: Function,
-        setDate: Function,
-        callbackRecorder: Object,
-        onSquareSelection: Function,
-        cleanSquareSelection: Function,
-    };
+    props = useProps(calendarRendererProps);
     get concreteRenderer() {
         return this.constructor.components[this.props.model.scale];
     }
@@ -31,29 +34,42 @@ export class CalendarRenderer extends Component {
         if (this.props.model.scale === "year") {
             return {
                 model: this.props.model,
+                initialDate: this.props.model.date,
                 isWeekendVisible: this.props.isWeekendVisible,
                 createRecord: this.props.createRecord,
                 editRecord: this.props.editRecord,
                 deleteRecord: this.props.deleteRecord,
             };
         }
-        return this.props;
+        return {
+            ...this.props,
+            initialDate: this.props.model.date,
+        };
     }
     get calendarKey() {
         return `${this.props.model.scale}_${this.props.model.date.valueOf()}`;
     }
     get actionSwiperProps() {
         return {
-            onLeftSwipe: this.env.isSmall
-                ? { action: () => this.props.setDate("next") }
-                : undefined,
-            onRightSwipe: this.env.isSmall
-                ? { action: () => this.props.setDate("previous") }
-                : undefined,
-            animationOnMove: false,
+            onLeftSwipe: this.getSwiperProps("next"),
+            onRightSwipe: this.getSwiperProps("previous"),
             animationType: "forwards",
-            swipeDistanceRatio: 6,
-            swipeInvalid: () => Boolean(document.querySelector(".o_event.fc-mirror")),
+            enabledDuration: TOUCH_SELECTION_THRESHOLD,
+        };
+    }
+    getSwiperProps(direction) {
+        return {
+            action: () => this.props.setDate(direction),
+            slot: {
+                component: this.concreteRenderer,
+                props: {
+                    ...this.concreteRendererProps,
+                    initialDate: this.props.model.date[direction === "next" ? "plus" : "minus"]({
+                        [`${this.props.model.scale}s`]: 1,
+                    }),
+                    isDisabled: true,
+                },
+            },
         };
     }
 }

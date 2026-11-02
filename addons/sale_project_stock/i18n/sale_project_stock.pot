@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0\n"
+"Project-Id-Version: Odoo Server 20.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2026-01-25 18:37+0000\n"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-09-18 17:39+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,24 +16,44 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: sale_project_stock
+#: model:ir.module.module,description:base.module_sale_project_stock
+#: model:ir.module.module,summary:base.module_sale_project_stock
+msgid ""
+"Adds a full traceability of inventory operations on the profitability "
+"report."
+msgstr ""
+
+#. module: sale_project_stock
+#: model:ir.model,name:sale_project_stock.model_account_analytic_line
+msgid "Analytic Line"
+msgstr ""
+
+#. module: sale_project_stock
+#: model:ir.model.fields,field_description:sale_project_stock.field_account_analytic_line__display_name
 #: model:ir.model.fields,field_description:sale_project_stock.field_project_project__display_name
-#: model:ir.model.fields,field_description:sale_project_stock.field_sale_order_line__display_name
 #: model:ir.model.fields,field_description:sale_project_stock.field_stock_move__display_name
 #: model:ir.model.fields,field_description:sale_project_stock.field_stock_picking__display_name
 msgid "Display Name"
 msgstr ""
 
 #. module: sale_project_stock
+#: model:ir.model.fields,field_description:sale_project_stock.field_account_analytic_line__id
 #: model:ir.model.fields,field_description:sale_project_stock.field_project_project__id
-#: model:ir.model.fields,field_description:sale_project_stock.field_sale_order_line__id
 #: model:ir.model.fields,field_description:sale_project_stock.field_stock_move__id
 #: model:ir.model.fields,field_description:sale_project_stock.field_stock_picking__id
 msgid "ID"
 msgstr ""
 
 #. module: sale_project_stock
-#: model_terms:ir.actions.act_window,help:sale_project_stock.stock_move_per_sale_order_line_action
-msgid "No stock move found"
+#. odoo-python
+#: code:addons/sale_project_stock/models/account_analytic_line.py:0
+msgid "Inventory Transfers (Costs)"
+msgstr ""
+
+#. module: sale_project_stock
+#. odoo-python
+#: code:addons/sale_project_stock/models/account_analytic_line.py:0
+msgid "Inventory Transfers (Revenue)"
 msgstr ""
 
 #. module: sale_project_stock
@@ -42,8 +62,8 @@ msgid "Project"
 msgstr ""
 
 #. module: sale_project_stock
-#: model:ir.model,name:sale_project_stock.model_sale_order_line
-msgid "Sales Order Line"
+#: model:ir.module.module,shortdesc:base.module_sale_project_stock
+msgid "Sale Project - Sale Stock"
 msgstr ""
 
 #. module: sale_project_stock
@@ -77,19 +97,6 @@ msgid ""
 msgstr ""
 
 #. module: sale_project_stock
-#: model_terms:ir.actions.act_window,help:sale_project_stock.stock_move_per_sale_order_line_action
-msgid ""
-"This menu gives you the full traceability of inventory\n"
-"                operations on a specific product. You can filter on the product\n"
-"                to see all the past or future movements for the product."
-msgstr ""
-
-#. module: sale_project_stock
 #: model:ir.model,name:sale_project_stock.model_stock_picking
 msgid "Transfer"
-msgstr ""
-
-#. module: sale_project_stock
-#: model:ir.actions.act_window,name:sale_project_stock.stock_move_per_sale_order_line_action
-msgid "Transfers"
 msgstr ""

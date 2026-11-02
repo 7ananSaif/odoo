@@ -1,18 +1,27 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo.http import root, SESSION_ROTATION_INTERVAL
-from odoo.tests import JsonRpcException
-from odoo.addons.base.tests.common import HttpCaseWithUserDemo
+from freezegun import freeze_time
+
+from odoo.http.session import SESSION_ROTATION_INTERVAL
+from odoo.tests import HttpCase, JsonRpcException, new_test_user, tagged
+
+from .common import BusCase
 
 
-class TestWebsocketController(HttpCaseWithUserDemo):
+@tagged('at_install', '-post_install')  # LEGACY at_install
+class TestWebsocketController(HttpCase, BusCase):
     def test_websocket_peek(self):
+        self._reset_bus()
+        self.env["bus.bus"]._sendone("dummy", "dummy_notification", None)  # Subscribing with 0 would fallback to last id.
+        self.env.cr.precommit.run()  # Trigger bus record creation.
+        initial_last_id = self.env["bus.bus"]._bus_last_id()
+        self.env['bus.bus']._sendone('channel_A', 'channel_a_notification', None)
+        self.env.cr.precommit.run()  # Trigger bus record creation.
         result = self.make_jsonrpc_request('/websocket/peek_notifications', {
-            'channels': [],
-            'last': 0,
+            'channels': ['channel_A'],
+            'last': initial_last_id,
             'is_first_poll': True,
         })
-
         # Response containing channels/notifications is retrieved and is
         # conform to excpectations.
         self.assertIsNotNone(result)
@@ -20,12 +29,10 @@ class TestWebsocketController(HttpCaseWithUserDemo):
         self.assertIsNotNone(channels)
         self.assertIsInstance(channels, list)
         notifications = result.get('notifications')
-        self.assertIsNotNone(notifications)
-        self.assertIsInstance(notifications, list)
-
+        self.assertEqual(notifications[0]['message']['type'], 'channel_a_notification')
         result = self.make_jsonrpc_request('/websocket/peek_notifications', {
             'channels': [],
-            'last': 0,
+            'last': initial_last_id,
             'is_first_poll': False,
         })
 
@@ -42,7 +49,7 @@ class TestWebsocketController(HttpCaseWithUserDemo):
 
         self.authenticate('admin', 'admin')
         # rpc with outdated session should lead to error.
-        with self.assertRaises(JsonRpcException, msg='odoo.http.SessionExpiredException'):
+        with self.assertRaises(JsonRpcException, msg='odoo.http.session.SessionExpiredException'):
             self.make_jsonrpc_request('/websocket/peek_notifications', {
                 'channels': [],
                 'last': 0,
@@ -50,40 +57,43 @@ class TestWebsocketController(HttpCaseWithUserDemo):
             })
 
     def test_websocket_peek_session_expired_logout(self):
-        self.authenticate('demo', 'demo')
+        test_user = new_test_user(self.env, login="test_user", password="test_user")
+        self.authenticate(test_user.login, test_user.password)
         # first rpc should be fine
         self.make_jsonrpc_request('/websocket/peek_notifications', {
             'channels': [],
             'last': 0,
             'is_first_poll': True,
         })
-        self.url_open('/web/session/logout')
+        self.url_open('/web/session/logout',
+            method='POST',
+            data={
+                "csrf_token": self.csrf_token(),
+            },
+        )
         # rpc with outdated session should lead to error.
-        with self.assertRaises(JsonRpcException, msg='odoo.http.SessionExpiredException'):
+        with self.assertRaises(JsonRpcException, msg='odoo.http.session.SessionExpiredException'):
             self.make_jsonrpc_request('/websocket/peek_notifications', {
                 'channels': [],
                 'last': 0,
                 'is_first_poll': False,
             })
 
-    def test_do_not_rotate_session(self):
+    @freeze_time("2026-03-03", as_kwarg='clock')
+    def test_do_not_rotate_session(self, clock):
         self.authenticate('admin', 'admin')
-        self.url_open('/odoo')
+        self.url_open('/odoo').raise_for_status()
         original_session = self.opener.cookies['session_id']
-        original_session_obj = root.session_store.get(original_session)
-        original_session_obj['create_time'] -= SESSION_ROTATION_INTERVAL
-        root.session_store.save(original_session_obj)
+        clock.tick(SESSION_ROTATION_INTERVAL + 1)
         self.make_jsonrpc_request('/websocket/peek_notifications', {
             'channels': [],
             'last': 0,
             'is_first_poll': True,
         })
-        self.assertEqual(self.opener.cookies['session_id'], original_session)
-        self.url_open("/odoo")
-        self.assertNotEqual(self.opener.cookies['session_id'], original_session)
-        original_session = self.opener.cookies['session_id']
-        original_session_obj = root.session_store.get(original_session)
-        original_session_obj['create_time'] -= SESSION_ROTATION_INTERVAL
-        root.session_store.save(original_session_obj)
         self.make_jsonrpc_request('/websocket/on_closed')
-        self.assertEqual(self.opener.cookies['session_id'], original_session)
+        self.assertEqual(self.opener.cookies['session_id'], original_session,
+            "Session rotation must not occur at the websocket routes "
+            "that are re-exposed on HTTP for convenience.")
+        self.url_open('/odoo').raise_for_status()
+        self.assertNotEqual(self.opener.cookies['session_id'], original_session,
+            "Session rotation should occur with other URLs.")

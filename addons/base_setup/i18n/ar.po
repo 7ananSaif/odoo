@@ -7,14 +7,15 @@
 # Malaz Abuidris <msea@odoo.com>, 2023
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# "Malaz Siddig Elsayed Abuidris (msea)" <msea@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-11-15 11:28+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-10-12 10:35+0000\n"
+"Last-Translator: \"Malaz Siddig Elsayed Abuidris (msea)\" <msea@odoo.com>\n"
+"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-20/"
 "base_setup/ar/>\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
@@ -22,14 +23,19 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+#: model:ir.module.module,description:base.module_base_setup
 msgid ""
-"<span class=\"fa fa-lg fa-users\" aria-label=\"Number of active users\"/>"
+"\n"
+"This module helps to configure the system at the installation of a new "
+"database.\n"
+"================================================================================\n"
+"\n"
+"Shows you a list of applications features to install from.\n"
+"\n"
 msgstr ""
-"<span class=\"fa fa-lg fa-users\" aria-label=\"Number of active users\"/>"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -162,11 +168,6 @@ msgid "Add fun feedback and motivate your employees"
 msgstr "أضف ملاحظات لطيفة لتحفيز موظفيك"
 
 #. module: base_setup
-#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_mail_plugin
-msgid "Allow integration with the mail plugins"
-msgstr "السماح بالتكامل مع المكونات الإضافية للبريد الإلكتروني"
-
-#. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_google_calendar
 msgid "Allow the users to synchronize their calendar  with Google Calendar"
 msgstr "السماح للمستخدمين بمزامنة التقويم مع تقويم Google"
@@ -251,15 +252,6 @@ msgstr "تهيئة الإعدادات"
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
 msgid "Configure Document Layout"
 msgstr "تهيئة تخطيط المستند"
-
-#. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid ""
-"Configure company rules to automatically create SO/PO when one of your "
-"company sells/buys to another of your company."
-msgstr ""
-"قم بضبط قواعد شركتك لإنشاء أوامر بيع أو شراء تلقائياً عندما يقوم أحد موظفي "
-"شركتك بعملية بيع أو شراء لشخص آخر في شركتك."
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -354,13 +346,13 @@ msgstr "الأقلمة الجغرافية"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Geolocate your partners"
-msgstr "قم بتحديد الموقع الجغرافي لشركائك"
+msgid "Geolocation"
+msgstr "التموضع الجغرافي"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Geolocation"
-msgstr "التموضع الجغرافي"
+msgid "Get the latitude and the longitude of your partners"
+msgstr ""
 
 #. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_google_address_autocomplete
@@ -386,9 +378,9 @@ msgid "Import & Export"
 msgstr "استيراد وتصدير"
 
 #. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Integrate with mail client plugins"
-msgstr "التكامل مع المكونات الإضافية للبريد الإلكتروني"
+#: model:ir.module.module,shortdesc:base.module_base_setup
+msgid "Initial Setup Tools"
+msgstr ""
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -425,11 +417,6 @@ msgstr "اللغات"
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
 msgid "Layout"
 msgstr "مخطط"
-
-#. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Mail Plugin"
-msgstr "المكون الإضافي للبريد الإلكتروني"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -475,6 +462,11 @@ msgstr "عدد المؤسسات"
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__language_count
 msgid "Number of Languages"
 msgstr "عدد اللغات"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Number of active users"
+msgstr ""
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -535,7 +527,7 @@ msgstr "احمِ استماراتك باستخدام CF Turnstile."
 #. odoo-javascript
 #: code:addons/base_setup/static/src/views/module_views.xml:0
 msgid "Reset Updating States"
-msgstr ""
+msgstr "إعادة تعيين خاصية تحديث الحالات "
 
 #. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_sms
@@ -645,49 +637,9 @@ msgstr "عليك تثبيت تطبيق المناقشة حتى تتمكن من �
 msgid "reCAPTCHA"
 msgstr "reCAPTCHA"
 
-#~ msgid "Asterisk (VoIP)"
-#~ msgstr "علامة النجمة (VoIP)"
-
 #~ msgid ""
-#~ "Automatically generate counterpart documents for orders/invoices between "
-#~ "companies"
-#~ msgstr "إنشاء مستندات مقابلة تلقائياً للطلبات/الفواتير بين الشركات "
-
-#~ msgid ""
-#~ "By default, new users get highest access rights for all installed apps."
+#~ "<span class=\"oi oi-lg oi-filled\" data-icon=\"group\" aria-"
+#~ "label=\"Number of active users\"/>"
 #~ msgstr ""
-#~ "يحصل المستخدمون الجدد على أعلى صلاحيات للوصول لكافة التطبيقات المثبتة "
-#~ "بشكل افتراضي. "
-
-#~ msgid "Default User Template not found."
-#~ msgstr "لم يتم العثور على قالب المستخدِم الافتراضي. "
-
-#~ msgid "Documentation"
-#~ msgstr "التوثيق"
-
-#~ msgid "Geo Localization"
-#~ msgstr "الأقلمة الجغرافية "
-
-#~ msgid "GeoLocalize your partners"
-#~ msgstr "قم بأقلمة شركائك جغرافياً "
-
-#~ msgid "Get product pictures using barcode"
-#~ msgstr "احصل على صور للمنتج باستخدام الباركود "
-
-#~ msgid "Google Calendar"
-#~ msgstr "تقويم Google "
-
-#~ msgid "On Apple Store"
-#~ msgstr "في متجر Apple "
-
-#~ msgid "On Google Play"
-#~ msgstr "في متجر Google Play "
-
-#~ msgid "Outlook Calendar"
-#~ msgstr "تقويم Outlook "
-
-#~ msgid "Synchronize your calendar with Google Calendar"
-#~ msgstr "مزامنة تقويمك مع تقويم Google "
-
-#~ msgid "Synchronize your calendar with Outlook"
-#~ msgstr "مزامنة تقويمك مع Outlook "
+#~ "<span class=\"oi oi-lg oi-filled\" data-icon=\"group\" aria-"
+#~ "label=\"Number of active users\"/>"

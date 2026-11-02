@@ -1,55 +1,63 @@
-import { addBusMessageHandler, busModels } from "@bus/../tests/bus_test_helpers";
+import {
+    addBusMessageHandler,
+    busModels,
+    waitUntilSubscribe,
+} from "@bus/../tests/bus_test_helpers";
 import {
     after,
     before,
     expect,
     getFixture,
+    hover as hootHover,
     mockPermission,
+    queryFirst,
     registerDebugInfo,
+    resize,
     test,
 } from "@odoo/hoot";
-import { hover as hootHover, queryFirst, resize } from "@odoo/hoot-dom";
-import { Deferred, microTick } from "@odoo/hoot-mock";
 import {
-    MockServer,
-    asyncStep,
+    assignTestEnv,
     authenticate,
     defineModels,
     defineParams,
     getMockEnv,
     getService,
-    makeMockEnv,
     makeMockServer,
+    makeTestApp,
+    MockServer,
     mountWithCleanup,
     onRpc,
     parseViewProps,
-    patchWithCleanup,
-    restoreRegistry,
     serverState,
-    waitForSteps,
     webModels,
 } from "@web/../tests/web_test_helpers";
 
 import { CHAT_HUB_KEY } from "@mail/core/common/chat_hub_model";
-import { click, contains } from "./mail_test_helpers_contains";
+import { MENU_TABS } from "@mail/core/public_web/messaging_menu/messaging_menu_model";
+import { click, contains, TIMEOUT } from "./mail_test_helpers_contains";
 
 import { closeStream, mailGlobal } from "@mail/utils/common/misc";
-import { Component, onMounted, onPatched, onWillDestroy, status } from "@odoo/owl";
+import { Component, onMounted, onPatched } from "@odoo/owl";
 import { browser } from "@web/core/browser/browser";
-import { loadEmoji } from "@web/core/emoji_picker/emoji_picker";
+import { emojiLoader } from "@web/core/emoji_picker/emoji_loader";
 import { registry } from "@web/core/registry";
-import { MEDIAS_BREAKPOINTS, utils as uiUtils } from "@web/core/ui/ui_service";
-import { useServiceProtectMethodHandling } from "@web/core/utils/hooks";
+import { MEDIAS_BREAKPOINTS, utils as uiUtils } from "@web/core/ui/ui_utils";
+import { useService } from "@web/core/utils/hooks";
+import { IndexedDB } from "@web/core/utils/indexed_db";
+import { pick } from "@web/core/utils/objects";
+import { patch } from "@web/core/utils/patch";
 import { session } from "@web/session";
 import { WebClient } from "@web/webclient/webclient";
-export { SIZES } from "@web/core/ui/ui_service";
+export { SIZES } from "@web/core/ui/ui_utils";
 
-import {
-    DISCUSS_ACTION_ID,
-    authenticateGuest,
-    mailDataHelpers,
-} from "./mock_server/mail_mock_server";
+import { SoundEffectsPlugin } from "@mail/core/common/sound_effects_plugin";
+import { Store as StoreService } from "@mail/core/common/store_service";
+import { UPDATE_EVENT } from "@mail/discuss/call/common/peer_to_peer";
+import { Network, Rtc } from "@mail/discuss/call/common/rtc_service";
+import { authenticateGuest, DISCUSS_ACTION_ID } from "./mock_server/mail_mock_server";
 import { Base } from "./mock_server/mock_models/base";
+import { DiscussCallHistory } from "./mock_server/mock_models/discuss_call_history";
+import { DiscussCategory } from "./mock_server/mock_models/discuss_category";
 import { DiscussChannel } from "./mock_server/mock_models/discuss_channel";
 import { DiscussChannelMember } from "./mock_server/mock_models/discuss_channel_member";
 import { DiscussChannelRtcSession } from "./mock_server/mock_models/discuss_channel_rtc_session";
@@ -61,6 +69,9 @@ import { M2xAvatarUser } from "./mock_server/mock_models/m2x_avatar_user";
 import { MailActivity } from "./mock_server/mock_models/mail_activity";
 import { MailActivitySchedule } from "./mock_server/mock_models/mail_activity_schedule";
 import { MailActivityType } from "./mock_server/mock_models/mail_activity_type";
+import { MailAlias } from "./mock_server/mock_models/mail_alias";
+import { MailAliasDomain } from "./mock_server/mock_models/mail_alias_domain";
+import { MailCallArtifact } from "./mock_server/mock_models/mail_call_artifact";
 import { MailCannedResponse } from "./mock_server/mock_models/mail_canned_response";
 import { MailComposeMessage } from "./mock_server/mock_models/mail_composer_message";
 import { MailFollowers } from "./mock_server/mock_models/mail_followers";
@@ -75,7 +86,6 @@ import { MailPushDevice } from "./mock_server/mock_models/mail_push_device";
 import { MailScheduledMessage } from "./mock_server/mock_models/mail_scheduled_message";
 import { MailTemplate } from "./mock_server/mock_models/mail_template";
 import { MailThread } from "./mock_server/mock_models/mail_thread";
-import { MailTrackingValue } from "./mock_server/mock_models/mail_tracking_value";
 import { ResCountry } from "./mock_server/mock_models/res_country";
 import { ResFake } from "./mock_server/mock_models/res_fake";
 import { ResLang } from "./mock_server/mock_models/res_lang";
@@ -84,17 +94,32 @@ import { ResRole } from "./mock_server/mock_models/res_role";
 import { ResUsers } from "./mock_server/mock_models/res_users";
 import { ResUsersSettings } from "./mock_server/mock_models/res_users_settings";
 import { ResUsersSettingsVolumes } from "./mock_server/mock_models/res_users_settings_volumes";
-import { Network, Rtc } from "@mail/discuss/call/common/rtc_service";
-import { UPDATE_EVENT } from "@mail/discuss/call/common/peer_to_peer";
+import { Store } from "./mock_server/store";
 
 export * from "./mail_test_helpers_contains";
+
+const { AudioContext } = window;
+
+/**
+ * Audio context that processes audio without rendering it to any output device.
+ */
+class SilentAudioContext extends AudioContext {
+    constructor(options) {
+        super({ ...options, sinkId: { type: "none" } });
+    }
+}
 
 before(prepareRegistriesWithCleanup);
 export const registryNamesToCloneWithCleanup = [];
 registryNamesToCloneWithCleanup.push("mock_server_callbacks", "discuss.model");
 
 mailGlobal.isInTest = true;
-useServiceProtectMethodHandling.fn = useServiceProtectMethodHandling.mocked; // so that RPCs after tests do not throw error
+patch(useService, {
+    handleCallWhenDestroyed() {
+        // so that RPCs after tests do not throw error
+        return new Promise(() => {});
+    },
+});
 
 addBusMessageHandler("mail.record/insert", (_env, _id, payload) => {
     const recordsByModelName = Object.entries(payload);
@@ -117,15 +142,17 @@ export function defineMailModels() {
 export function getChannelCommandsForThread(threadId) {
     const store = getService("mail.store");
     const suggestionService = getService("mail.suggestion");
-    const thread = store.Thread.get({ model: "discuss.channel", id: threadId });
-    return suggestionService.getChannelCommands(thread);
+    const thread = store["mail.thread"].get({ model: "discuss.channel", id: threadId });
+    return suggestionService.getChannelCommands(thread.channel);
 }
 
 export const mailModels = {
     ...webModels,
     ...busModels,
     Base,
+    DiscussCallHistory,
     DiscussChannel,
+    DiscussCategory,
     DiscussChannelMember,
     DiscussChannelRtcSession,
     DiscussGifFavorite,
@@ -133,9 +160,12 @@ export const mailModels = {
     IrAttachment,
     IrWebSocket,
     M2xAvatarUser,
+    MailCallArtifact,
     MailActivity,
     MailActivitySchedule,
     MailActivityType,
+    MailAlias,
+    MailAliasDomain,
     MailComposeMessage,
     MailCannedResponse,
     MailFollowers,
@@ -150,7 +180,6 @@ export const mailModels = {
     MailScheduledMessage,
     MailTemplate,
     MailThread,
-    MailTrackingValue,
     ResCountry,
     ResFake,
     ResLang,
@@ -173,10 +202,10 @@ export const mailModels = {
 export function onRpcBefore(route, callback) {
     if (typeof route === "string") {
         const handler = registry.category("mail.mock_rpc").get(route);
-        patchWithCleanup(handler, { before: callback });
+        patch(handler, { before: callback });
     } else {
         const onRpcBeforeGlobal = registry.category("mail.on_rpc_before_global").get(true);
-        patchWithCleanup(onRpcBeforeGlobal, { cb: route });
+        patch(onRpcBeforeGlobal, { cb: route });
     }
 }
 
@@ -189,7 +218,7 @@ export function onRpcBefore(route, callback) {
  */
 export function onRpcAfter(route, callback) {
     const handler = registry.category("mail.mock_rpc").get(route);
-    patchWithCleanup(handler, { after: callback });
+    patch(handler, { after: callback });
 }
 /** @type {Map<string, string>} */
 const globalArchs = new Map();
@@ -215,14 +244,31 @@ export function onlineTest(...args) {
     }
 }
 
-export async function openDiscuss(activeId, { target } = {}) {
+/** @typedef {`discuss.tab_${import("menu_tabs").MenuTabs[keyof import("menu_tabs").MenuTabs]}`} MenuTabId */
+
+/** @type {{ [K in keyof import("menu_tabs").MenuTabs]: `discuss.tab_${import("menu_tabs").MenuTabs[K]}` }} */
+export const MENU_ACTIVE_IDS = Object.fromEntries(
+    Object.entries(MENU_TABS).map(([key, value]) => [key, `discuss.tab_${value}`])
+);
+
+/** @param {number|MenuTabId} [activeIdOrTabId] */
+export async function openDiscuss(activeIdOrTabId, { target } = {}) {
+    let tabId;
+    if (typeof activeIdOrTabId === "string" && activeIdOrTabId?.startsWith("discuss.tab_")) {
+        tabId = activeIdOrTabId.slice("discuss.tab_".length);
+        activeIdOrTabId = undefined;
+    }
     const actionService = target?.services.action ?? getService("action");
     await actionService.doAction({
-        context: { active_id: activeId },
+        context: { active_id: activeIdOrTabId },
         id: DISCUSS_ACTION_ID,
         tag: "mail.action_discuss",
         type: "ir.actions.client",
     });
+    if (tabId) {
+        await click(`.o-mail-Discuss .o-mail-MessagingMenu-tab[data-id=${tabId}]`);
+        await contains(`.o-mail-Discuss .o-mail-MessagingMenu-tab[data-id=${tabId}].active`);
+    }
 }
 
 export async function openFormView(resModel, resId, params) {
@@ -334,15 +380,18 @@ let discussAsTabId = 0;
  *  asTab?: boolean;
  *  authenticateAs?: any | { login: string; password: string; };
  *  env?: Partial<OdooEnv>;
+ *  waitUntilSubscribe?: boolean;
  * }} [options]
  */
 export async function start(options) {
-    patchWithCleanup(Rtc.prototype, {
+    patch(Rtc.prototype, {
         start() {
             super.start();
             after(() => this.clear());
         },
     });
+    serverState.serverVersion = options?.serverVersion ?? [99, 9]; // so local storage entries upgrade to latest version. HOOT sets 1.0 otherwise, ignoring all upgrades...
+    preventActualMediaUsage();
     if (!MockServer.current) {
         await startServer();
     }
@@ -369,17 +418,15 @@ export async function start(options) {
     if ("res.users" in pyEnv) {
         /** @type {import("mock_models").ResUsers} */
         const ResUsers = pyEnv["res.users"];
-        const store = new mailDataHelpers.Store();
+        const store = new Store();
         ResUsers._init_store_data(store);
-        patchWithCleanup(session, {
-            storeData: store.get_result(),
+        patch(session, {
+            storeData: store.as_dict(),
         });
         registerDebugInfo("session.storeData", session.storeData);
     }
-    let env;
     if (options?.asTab) {
         discussAsTabId++;
-        restoreRegistry(registry);
         const rootTarget = target;
         target = document.createElement("div");
         target.classList.add("o-mail-Discuss-asTabContainer");
@@ -387,14 +434,24 @@ export async function start(options) {
         rootTarget.appendChild(target);
         addSwitchTabDropdownItem(rootTarget, target);
         const selector = `.o-mail-Discuss-asTabContainer[data-as-tab-id="${target.dataset.asTabId}"]`;
-        env = await makeMockEnv({ discussAsTabId, selector }, { makeNew: true });
-    } else {
-        env = getMockEnv() || (await makeMockEnv({}));
+        assignTestEnv({ discussAsTabId, selector });
+        await makeTestApp({ forceNew: true });
     }
-    env.testEnv = true;
-    await mountWithCleanup(WebClient, { env, target });
-    await loadEmoji();
-    return Object.assign(env, { ...options?.env, target });
+    patch(SoundEffectsPlugin.prototype, {
+        _setAudioSrc(audio, srcPath) {
+            audio["data-src"] = srcPath;
+        },
+    });
+    await Promise.all([
+        options?.waitUntilSubscribe === false ? Promise.resolve() : waitUntilSubscribe(),
+        mountWithCleanup(WebClient, { target }),
+    ]);
+    // Note that loading the emojis cannot be called before setting up the env because
+    // it depends on translations being loaded.
+    await emojiLoader.load();
+    const popoutService = getService("mail.popout");
+    after(() => popoutService.resetAll());
+    return Object.assign(Object.create(getMockEnv()), { target });
 }
 
 export async function startServer() {
@@ -442,7 +499,7 @@ function getSizeFromWidth(width) {
 /**
  * Adjust ui size either from given size (mapped to window breakpoints) or
  * width. This will impact uiService.{isSmall/size}, (wowl/legacy)
- * browser.innerWidth, (wowl) env.isSmall and. When a size is given, the browser
+ * window.innerWidth, (wowl) uiService.isSmall and. When a size is given, the browser
  * width is set according to the breakpoints that are used by the webClient.
  *
  * @param {Object} params parameters to configure the ui size.
@@ -457,7 +514,7 @@ export async function patchUiSize({ height, size, width }) {
     size = size === undefined ? getSizeFromWidth(width) : size;
     width = width || getWidthFromSize(size);
 
-    patchWithCleanup(uiUtils, {
+    patch(uiUtils, {
         getSize() {
             return size;
         },
@@ -467,7 +524,7 @@ export async function patchUiSize({ height, size, width }) {
 }
 
 function createAudioStream() {
-    const ctx = new window.AudioContext();
+    const ctx = new SilentAudioContext();
     const dest = ctx.createMediaStreamDestination();
     after(() => {
         closeStream(dest.stream);
@@ -492,7 +549,7 @@ export function createVideoStream() {
 export function mockGetMedia() {
     const streams = [];
     // Mock permissions API to return "granted" by default.
-    patchWithCleanup(browser.navigator.permissions, {
+    patch(navigator.permissions, {
         async query() {
             return {
                 state: "granted",
@@ -502,7 +559,7 @@ export function mockGetMedia() {
             };
         },
     });
-    patchWithCleanup(browser.navigator.mediaDevices, {
+    patch(navigator.mediaDevices, {
         getUserMedia(constraints) {
             if (constraints.audio) {
                 const audioStream = createAudioStream();
@@ -521,6 +578,122 @@ export function mockGetMedia() {
         },
     });
     return streams;
+}
+
+/**
+ * Intercept the browser's native fullscreen API so tests can drive it without a real user
+ * gesture. `document.fullscreenElement` and the `fullscreenchange` event are simulated, letting
+ * the `mail.fullscreen` service derive its `isBrowserFullscreen` state from a controllable source.
+ *
+ * @param {Object} [param0]
+ * @param {boolean} [param0.grant=true] Whether fullscreen requests are granted. When `false`,
+ *  `requestFullscreen` resolves without entering fullscreen (as a browser does without a user
+ *  gesture), so callers fall back to the windowed overlay.
+ * @returns {{ isBrowserFullscreen: () => boolean, leaveBrowserFullscreen: () => void }}
+ *  `isBrowserFullscreen` reads the simulated state; `leaveBrowserFullscreen` simulates the user
+ *  leaving fullscreen externally (e.g. with the Escape key).
+ */
+export function mockBrowserFullscreen({ grant = true } = {}) {
+    let fullscreenElement = null;
+    function setFullscreenElement(element) {
+        if (fullscreenElement === element) {
+            return;
+        }
+        fullscreenElement = element;
+        window.dispatchEvent(new Event("fullscreenchange"));
+    }
+    Object.defineProperty(document, "fullscreenElement", {
+        configurable: true,
+        get: () => fullscreenElement,
+    });
+    after(() => delete document.fullscreenElement);
+    patch(document.body, {
+        async requestFullscreen() {
+            if (grant) {
+                setFullscreenElement(document.body);
+            }
+        },
+    });
+    patch(document, {
+        async exitFullscreen() {
+            setFullscreenElement(null);
+        },
+    });
+    return {
+        isBrowserFullscreen: () => Boolean(fullscreenElement),
+        leaveBrowserFullscreen: () => setFullscreenElement(null),
+    };
+}
+
+/**
+ * Simulate the popout window used for picture-in-picture by backing it with an in-DOM iframe.
+ * Forces the non-native popout path (`documentPictureInPicture` disabled) and makes `browser.open`
+ * return a fake window whose document is the iframe's, so the PiP content can be queried in tests
+ * through the returned `popoutIframe.contentDocument`.
+ *
+ * @returns {{ popoutWindow: Object, popoutIframe: HTMLIFrameElement }}
+ */
+export function mockPipWindow() {
+    const popoutIframe = document.createElement("iframe");
+    const outsideArea = document.createElement("div");
+    getFixture().appendChild(outsideArea);
+    const popoutWindow = {
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        closed: false,
+        get document() {
+            const doc = popoutIframe.contentDocument;
+            if (!doc) {
+                return undefined;
+            }
+            const originalWrite = doc.write;
+            doc.write = (content) => {
+                // This avoids duplicating the test script in the popoutWindow.
+                const sanitizedContent = content.replace(
+                    /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+                    ""
+                );
+                originalWrite.call(doc, sanitizedContent);
+            };
+            return doc;
+        },
+        close() {
+            popoutWindow.closed = true;
+            popoutIframe.remove();
+        },
+    };
+    patch(window, { documentPictureInPicture: false });
+    patch(browser, {
+        open: () => {
+            popoutWindow.closed = false;
+            outsideArea.append(popoutIframe);
+            return popoutWindow;
+        },
+    });
+    return { popoutWindow, popoutIframe };
+}
+
+/**
+ * Prevents tests from using the actual microphone, camera, screen and speakers:
+ * media requests that are not mocked by the test get synthetic streams, and
+ * audio is processed without being rendered to an output device.
+ *
+ * The prototype is patched so that the test's own mocks on `navigator.mediaDevices`
+ * (e.g. `mockGetMedia`, denied permissions) take precedence regardless of order.
+ */
+function preventActualMediaUsage() {
+    patch(MediaDevices.prototype, {
+        async getUserMedia(constraints) {
+            return constraints?.audio ? createAudioStream() : createVideoStream();
+        },
+        async getDisplayMedia() {
+            return createVideoStream();
+        },
+    });
+    if (window.AudioContext === AudioContext) {
+        // not already mocked by the test, e.g. with `patchVoiceMessageAudio`
+        patch(window, { AudioContext: SilentAudioContext });
+    }
 }
 
 /**
@@ -555,11 +728,12 @@ export async function makeMockRtcNetwork({ env, channelId }) {
     const dispatchUpdate = (payload) => {
         mockNetwork.dispatchEvent(new CustomEvent("update", { detail: payload }));
     };
-    const rtcServiceIsListening = new Deferred();
-    patchWithCleanup(Network.prototype, {
+    const { promise: rtcServiceIsListening, resolve: resolveRtcServiceIsListening } =
+        Promise.withResolvers();
+    patch(Network.prototype, {
         addEventListener(name, f) {
             if (name === "update") {
-                rtcServiceIsListening.resolve();
+                resolveRtcServiceIsListening();
                 // disabling the p2p network so that it does not try to send webRTC events like candidates and offers.
                 rtc.network.p2p.disconnect();
             }
@@ -588,6 +762,20 @@ export async function makeMockRtcNetwork({ env, channelId }) {
                 },
                 async updateInfo(info) {
                     await rtcServiceIsListening;
+                    // This helper calls the remote update functions directly, so it bypasses
+                    // the updateAndBroadcastDebounce() that a real participant goes through.
+                    // Write the values it would have stored, otherwise a store fetch brings the
+                    // outdated ones back and reverts them.
+                    const serverInfo = pick(
+                        info,
+                        "is_camera_on",
+                        "is_deaf",
+                        "is_muted",
+                        "is_screen_sharing_on"
+                    );
+                    if (Object.keys(serverInfo).length > 0) {
+                        pyEnv["discuss.channel.rtc.session"].write([sessionId], serverInfo);
+                    }
                     dispatchUpdate({
                         name: UPDATE_EVENT.INFO_CHANGE,
                         payload: { [sessionId]: info },
@@ -620,7 +808,7 @@ export async function makeMockRtcNetwork({ env, channelId }) {
 export function patchBrowserNotification(requestPermissionResult) {
     mockPermission("notifications", "prompt");
 
-    patchWithCleanup(Notification, {
+    patch(Notification, {
         requestPermission() {
             mockPermission("notifications", requestPermissionResult);
             return super.requestPermission();
@@ -635,7 +823,7 @@ function cloneRegistryWithCleanup(registry) {
 function prepareRegistry(registry, { keepContent = false } = {}) {
     const _addEventListener = registry.addEventListener.bind(registry);
     const _removeEventListener = registry.removeEventListener.bind(registry);
-    const patch = {
+    patch(registry, {
         content: keepContent ? { ...registry.content } : {},
         elements: null,
         entries: null,
@@ -646,8 +834,7 @@ function prepareRegistry(registry, { keepContent = false } = {}) {
                 _removeEventListener(type, callback);
             });
         },
-    };
-    patchWithCleanup(registry, patch);
+    });
 }
 
 export function prepareRegistriesWithCleanup() {
@@ -660,17 +847,17 @@ export function prepareRegistriesWithCleanup() {
 const observeRenderResults = new Map();
 let nextObserveRenderResults = 0;
 /**
- * Patch component `onWillRender` to track amount of renders.
+ * Patch component `onMounted`/`onPatched` to track amount of renders.
  * This only prepares with the patching. To effectively observe the amount of renders,
  * should call @see observeRenders
- * Having both function allow to track renders as side-effect on specific actions, rather
+ * Having both functions allow to track renders as side-effect on specific actions, rather
  * than aggregate all renders including setup: as this value requires some thinking on
  * which render comes from what, usually the less with brief explanations the better.
  */
 export function prepareObserveRenders() {
-    patchWithCleanup(Component.prototype, {
+    patch(Component.prototype, {
         setup(...args) {
-            const cb = () => {
+            const countRender = () => {
                 for (const result of observeRenderResults.values()) {
                     if (!result.has(this.constructor)) {
                         result.set(this.constructor, 0);
@@ -678,16 +865,8 @@ export function prepareObserveRenders() {
                     result.set(this.constructor, result.get(this.constructor) + 1);
                 }
             };
-            onMounted(cb);
-            onPatched(cb);
-            onWillDestroy(() => {
-                for (const result of observeRenderResults.values()) {
-                    // owl could invoke onrendered and cancel immediately to re-render, so should compensate
-                    if (result.has(this.constructor) && status(this) === "cancelled") {
-                        result.set(this.constructor, result.get(this.constructor) - 1);
-                    }
-                }
-            });
+            onMounted(countRender);
+            onPatched(countRender);
             return super.setup(...args);
         },
     });
@@ -721,8 +900,12 @@ export function observeRenders() {
 export async function isInViewportOf(childSelector, parentSelector) {
     await contains(parentSelector);
     await contains(childSelector);
-    const inViewportDeferred = new Deferred();
-    const failTimeout = setTimeout(() => check({ crashOnFail: true }), 3000);
+    const {
+        promise: inViewportPromise,
+        reject: rejectInViewport,
+        resolve: resolveInViewport,
+    } = Promise.withResolvers();
+    const failTimeout = setTimeout(() => check({ crashOnFail: true }), TIMEOUT);
     const check = ({ crashOnFail = false } = {}) => {
         const parent = queryFirst(parentSelector);
         const child = queryFirst(childSelector);
@@ -740,17 +923,31 @@ export async function isInViewportOf(childSelector, parentSelector) {
             expect(true).toBe(true, {
                 message: `Element ${childSelector} found in viewport of ${parentSelector}`,
             });
-            inViewportDeferred.resolve();
+            resolveInViewport();
         } else if (crashOnFail) {
             const failMsg = `Element ${childSelector} not found in viewport of ${parentSelector}`;
             expect(false).toBe(true, { message: failMsg });
-            inViewportDeferred.reject(new Error(failMsg));
+            rejectInViewport(new Error(failMsg));
         } else {
             parent.addEventListener("scrollend", check, { once: true });
         }
     };
     check();
-    return inViewportDeferred;
+    return inViewportPromise;
+}
+
+/** @param {MenuTabId} [tabId] */
+export async function openMessagingMenu(tabId) {
+    if (!queryFirst(".o-mail-MessagingMenuInDropdown")) {
+        await click(".o_menu_systray i[aria-label='Messages']");
+    }
+    if (tabId) {
+        const id = tabId.slice("discuss.tab_".length);
+        await click(`.o-mail-MessagingMenuInDropdown .o-mail-MessagingMenu-tab[data-id='${id}']`);
+        await click(
+            `.o-mail-MessagingMenuInDropdown .o-mail-MessagingMenu-tab[data-id='${id}'].active`
+        );
+    }
 }
 
 export async function hover(selector) {
@@ -766,18 +963,18 @@ function toChatHubData(opened, folded) {
 }
 
 function convertChatHubParam(param) {
-    return typeof param === "number" ? { id: param, model: "discuss.channel" } : param;
+    return typeof param === "number" ? { id: param } : param;
 }
 
 export function setupChatHub({ opened = [], folded = [] } = {}) {
-    browser.localStorage.setItem(CHAT_HUB_KEY, toChatHubData(opened, folded));
+    localStorage.setItem(CHAT_HUB_KEY, toChatHubData(opened, folded));
 }
 
 export function assertChatHub({ opened = [], folded = [] }) {
-    expect(browser.localStorage.getItem(CHAT_HUB_KEY)).toEqual(toChatHubData(opened, folded));
+    expect(localStorage.getItem(CHAT_HUB_KEY)).toEqual(toChatHubData(opened, folded));
 }
 
-export const STORE_FETCH_ROUTES = ["/mail/action", "/mail/data"];
+export const STORE_FETCH_ROUTES = ["/mail/store"];
 
 /**
  * Prepares listeners for the various ways a store fetch could be triggered. It is important to call
@@ -785,56 +982,54 @@ export const STORE_FETCH_ROUTES = ["/mail/action", "/mail/data"];
  * them. Each intercepted fetch should have a corresponding waitStoreFetch in the test.
  *
  * @param {string|string[]} [nameOrNames=[]] name or names of the store fetch params to intercept
- * (such as init_messaging or channels_as_member). If empty all params are intercepted.
+ * (such as init_messaging). If empty all params are intercepted.
  * @param {Object} [options={}]
  * @param {function} [options.onRpc] entry point to override the onRpc of the intercepted calls.
  * @param {string[]} [options.logParams=[]] names of the store fetch params for which both the name
- *  and the specific params should be logged in asyncStep. By default only the name is logged.
+ *  and the specific params should be logged in expect.step. By default only the name is logged.
  */
 export function listenStoreFetch(nameOrNames = [], { logParams = [], onRpc: onRpcOverride } = {}) {
-    async function registerStep(request, name, params) {
-        const res = await onRpcOverride?.(request);
-        if (logParams.includes(name)) {
-            asyncStep(`store fetch: ${name} - ${JSON.stringify(params)}`);
-        } else {
-            asyncStep(`store fetch: ${name}`);
-        }
-        return res;
+    const namesToRegister = typeof nameOrNames === "string" ? [nameOrNames] : nameOrNames;
+    function isRegistered(name) {
+        return namesToRegister.length === 0 || namesToRegister.includes(name);
     }
-    async function registerSteps(request, fetchParams) {
-        const namesToRegister = typeof nameOrNames === "string" ? [nameOrNames] : nameOrNames;
+    patch(StoreService.prototype, {
+        async fetchStoreData(name, params) {
+            const res = await super.fetchStoreData(...arguments);
+            if (isRegistered(name)) {
+                if (logParams.includes(name)) {
+                    expect.step(`store fetch: ${name} - ${JSON.stringify(params)}`);
+                } else {
+                    expect.step(`store fetch: ${name}`);
+                }
+            }
+            return res;
+        },
+    });
+    if (!onRpcOverride) {
+        return;
+    }
+    async function callOverride(request, fetchParams) {
         let res;
         for (const fetchParam of fetchParams) {
             const name = typeof fetchParam === "string" ? fetchParam : fetchParam[0];
-            const params = typeof fetchParam === "string" ? undefined : fetchParam[1];
-            if (namesToRegister.length > 0) {
-                if (namesToRegister.some((namesToRegister) => namesToRegister === name)) {
-                    res = await registerStep(request, name, params);
-                }
-            } else {
-                res = await registerStep(request, name, params);
+            if (isRegistered(name)) {
+                res = await onRpcOverride(request);
             }
         }
         return res;
     }
-    /**
-     * The fetch could happen through any of those routes depending on various conditions.
-     * Most tests don't care about which route is used, so we just listen to all of them.
-     */
-    onRpc("/mail/action", async (request) => {
+    onRpc("/mail/store", async (request) => {
         const { params } = await request.json();
-        return registerSteps(request, params.fetch_params);
-    });
-    onRpc("/mail/data", async (request) => {
-        const { params } = await request.json();
-        return registerSteps(request, params.fetch_params);
+        return callOverride(request, params.fetch_params);
     });
 }
 
 /**
- * Waits for the given name or names of store fetch parameters to have been fetched from the server,
- * in the given order. Expected names have to be registered with listenStoreFetch beforehand.
- * If other asyncStep are resolving in the same flow, they must be provided to stepsAfter (if they
+ * Waits for the given name(s) of store fetch parameters to have been fetched
+ * and applied to the store, in the given order. Expected names have to be registered with
+ * listenStoreFetch beforehand.
+ * If other expect.step are resolving in the same flow, they must be provided to stepsAfter (if they
  * are resolved after the fetch) or stepsBefore (if they are resolved before the fetch). The order
  * can be ignored with ignoreOrder option.
  *
@@ -843,12 +1038,13 @@ export function listenStoreFetch(nameOrNames = [], { logParams = [], onRpc: onRp
  * @param {boolean} [options.ignoreOrder=false]
  * @param {string[]} [options.stepsAfter=[]]
  * @param {string[]} [options.stepsBefore=[]]
+ * @param {number} [options.timeout=5000]
  */
 export async function waitStoreFetch(
     nameOrNames = [],
-    { ignoreOrder = false, stepsAfter = [], stepsBefore = [] } = {}
+    { ignoreOrder = false, stepsAfter = [], stepsBefore = [], timeout = 5000 } = {}
 ) {
-    await waitForSteps(
+    await expect.waitForSteps(
         [
             ...stepsBefore,
             ...(typeof nameOrNames === "string" ? [nameOrNames] : nameOrNames).map(
@@ -863,129 +1059,104 @@ export async function waitStoreFetch(
             ),
             ...stepsAfter,
         ],
-        { ignoreOrder }
+        { ignoreOrder, timeout }
     );
-    /**
-     * Extra tick necessary to ensure the RPC is fully processed before resolving.
-     * This is necessary because the asyncStep in onRpc is not synchronous with the moment
-     * the RPC result is resolved and processed in the business code. Removing this tick
-     * won't make everything fail, but it might create subtle race conditions.
-     */
-    await microTick();
 }
 
 export function userContext() {
     return { lang: "en", tz: "taht", uid: serverState.userId, allowed_company_ids: [1] };
 }
-
-/**
- * @typedef VoiceMessagePatchResources
- * @property {AudioProcessor}
- */
-
-/** @returns {VoiceMessagePatchResources} */
-export function patchVoiceMessageAudio() {
-    const res = { audioProcessor: undefined };
-    const {
-        AnalyserNode,
-        AudioBufferSourceNode,
-        AudioContext,
-        AudioWorkletNode,
-        GainNode,
-        MediaStreamAudioSourceNode,
-    } = browser;
-    Object.assign(browser, {
-        AnalyserNode: class {
-            connect() {}
-            disconnect() {}
+class MockAnalyserNode {
+    connect() {}
+    disconnect() {}
+}
+class MockAudioBufferSourceNode {
+    buffer;
+    connect() {}
+    disconnect() {}
+    start() {}
+    stop() {}
+}
+class MockAudioContext {
+    audioWorklet = {
+        addModule(url) {},
+    };
+    currentTime;
+    destination;
+    sampleRate;
+    state;
+    async close() {}
+    createAnalyser() {
+        return new MockAnalyserNode();
+    }
+    createBufferSource() {
+        return new MockAudioBufferSourceNode();
+    }
+    createGain() {
+        return new MockGainNode();
+    }
+    createMediaStreamSource(microphone) {
+        return new MockMediaStreamAudioSourceNode();
+    }
+    decodeAudioData(...args) {
+        return new SilentAudioContext().decodeAudioData(...args);
+    }
+    async resume() {}
+}
+class MockAudioWorkletNode {
+    port = {
+        onmessage(e) {},
+        postMessage(data) {
+            this.onmessage({ data, timeStamp: new Date().getTime() });
         },
-        AudioBufferSourceNode: class {
-            buffer;
-            constructor() {}
-            connect() {}
-            disconnect() {}
-            start() {}
-            stop() {}
-        },
-        AudioContext: class {
-            audioWorklet;
-            currentTime;
-            destination;
-            sampleRate;
-            state;
-            constructor() {
-                this.audioWorklet = {
-                    addModule(url) {},
-                };
-            }
-            async close() {}
-            /** @returns {AnalyserNode} */
-            createAnalyser() {
-                return new browser.AnalyserNode();
-            }
-            /** @returns {AudioBufferSourceNode} */
-            createBufferSource() {
-                return new browser.AudioBufferSourceNode();
-            }
-            /** @returns {GainNode} */
-            createGain() {
-                return new browser.GainNode();
-            }
-            /** @returns {MediaStreamAudioSourceNode} */
-            createMediaStreamSource(microphone) {
-                return new browser.MediaStreamAudioSourceNode();
-            }
-            /** @returns {AudioBuffer} */
-            decodeAudioData(...args) {
-                return new AudioContext().decodeAudioData(...args);
-            }
-        },
-        AudioWorkletNode: class {
-            port;
-            constructor(audioContext, processorName) {
-                this.port = {
-                    onmessage(e) {},
-                    postMessage(data) {
-                        this.onmessage({ data, timeStamp: new Date().getTime() });
-                    },
-                };
-                res.audioProcessor = this;
-            }
-            connect() {
-                this.port.postMessage();
-            }
-            disconnect() {}
-            process(allInputs) {
-                const inputs = allInputs[0][0];
-                this.port.postMessage(inputs);
-                return true;
-            }
-        },
-        GainNode: class {
-            connect() {}
-            close() {}
-            disconnect() {}
-        },
-        MediaStreamAudioSourceNode: class {
-            connect(processor) {}
-            disconnect() {}
-        },
-    });
-    after(() => {
-        Object.assign(browser, {
-            AnalyserNode,
-            AudioBufferSourceNode,
-            AudioContext,
-            AudioWorkletNode,
-            GainNode,
-            MediaStreamAudioSourceNode,
+    };
+    constructor(audioContext, processorName) {
+        currentAudioProcessor = this;
+        after(() => {
+            currentAudioProcessor = null;
         });
+    }
+    connect() {
+        this.port.postMessage();
+    }
+    disconnect() {}
+    process(allInputs) {
+        const inputs = allInputs[0][0];
+        this.port.postMessage(inputs);
+        return true;
+    }
+}
+class MockGainNode {
+    connect() {}
+    close() {}
+    disconnect() {}
+}
+class MockMediaStreamAudioSourceNode {
+    connect(processor) {}
+    disconnect() {}
+}
+
+/** @type {MockAudioWorkletNode | null} */
+let currentAudioProcessor = null;
+
+export function patchVoiceMessageAudio() {
+    patch(browser, {
+        AnalyserNode: MockAnalyserNode,
+        AudioBufferSourceNode: MockAudioBufferSourceNode,
+        AudioContext: MockAudioContext,
+        AudioWorkletNode: MockAudioWorkletNode,
+        GainNode: MockGainNode,
+        MediaStreamAudioSourceNode: MockMediaStreamAudioSourceNode,
     });
-    return res;
+    return {
+        get audioProcessor() {
+            return currentAudioProcessor;
+        },
+    };
 }
 
 export function mockPermissionsPrompt() {
-    patchWithCleanup(browser.navigator.permissions, {
+    patch(navigator.permissions, {
         async query() {
             return {
                 state: "prompt",
@@ -1017,4 +1188,25 @@ export async function assertChatBubbleAndWindowImStatus(conversationName, count)
         `.o-mail-ChatWindow-header:has(:text(${conversationName})) .o-mail-ImStatus`
     ).toHaveCount(count);
     await click(`.o-mail-ChatWindow-header:has(:text(${conversationName}))`);
+}
+
+/** Sends an update presence for the given record through the bus. */
+export function sendPresenceUpdate(modelName, id, newPresence) {
+    const env = MockServer.env;
+    env[modelName].write(id, { im_status: newPresence });
+    const store = new Store().add(env[modelName].browse(id), {
+        presence_status: newPresence,
+        im_status: newPresence,
+    });
+    env["bus.bus"]._sendone(serverState.userId, "mail.record/insert", store.as_dict());
+}
+
+export async function setIndexedDB(table, key, value) {
+    const db = new IndexedDB("mail");
+    await db.write(table, key, value);
+}
+
+export async function getIndexedDB(table, key) {
+    const db = new IndexedDB("mail");
+    return await db.read(table, key);
 }

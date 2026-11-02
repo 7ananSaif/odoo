@@ -1,3 +1,4 @@
+import { onMounted, onPatched } from "@odoo/owl";
 import {
     click,
     contains,
@@ -12,8 +13,7 @@ import {
 } from "@mail/../tests/mail_test_helpers";
 import { Composer } from "@mail/core/common/composer";
 import { Message } from "@mail/core/common/message";
-import { describe, expect, test } from "@odoo/hoot";
-import { onMounted, onPatched } from "@odoo/owl";
+import { describe, expect, rightClick, test } from "@odoo/hoot";
 import { patchWithCleanup } from "@web/../tests/web_test_helpers";
 import { range } from "@web/core/utils/numbers";
 
@@ -75,8 +75,8 @@ test("replying to message should only render relevant part", async () => {
     // For example, it should not render all messages when selecting message to reply
     const pyEnv = await startServer();
     const channelId = pyEnv["discuss.channel"].create({ name: "general" });
-    const messageIds = range(0, 10).map((i) =>
-        pyEnv["mail.message"].create({ body: `${i}`, model: "discuss.channel", res_id: channelId })
+    const messageIds = pyEnv["mail.message"].create(
+        range(10).map((i) => ({ body: `${i}`, model: "discuss.channel", res_id: channelId }))
     );
     messageIds.pop(); // remove last as this is the one to be replied to
     let replying = false;
@@ -102,10 +102,50 @@ test("replying to message should only render relevant part", async () => {
     await contains(".o-mail-Message", { count: 10 });
     const stopObserve = observeRenders();
     replying = true;
-    await click(".o-mail-Message:last [title='Reply']");
+    await click(".o-mail-Message:last [title='Expand']");
+    await click(".o-dropdown-item:contains('Reply')");
     await contains(".o-mail-Composer:has(:text('Replying to Mitchell Admin'))");
     replying = false;
     const result = stopObserve();
     expect(result.get(Composer)).toBeLessThan(2);
-    expect(result.get(Message)).toBeLessThan(2);
+    expect(result.get(Message)).toBeLessThan(3);
+});
+
+test("right-click message selection should only render relevant part", async () => {
+    // For example, it should not render all messages when right-click selecting message from opening dropdown with actions
+    const pyEnv = await startServer();
+    const channelId = pyEnv["discuss.channel"].create({ name: "general" });
+    const messageIds = pyEnv["mail.message"].create(
+        range(10).map((i) => ({ body: `${i}`, model: "discuss.channel", res_id: channelId }))
+    );
+    messageIds.pop(); // remove last as this is the one to be right-clicking
+    let rightClicking = false;
+    prepareObserveRenders();
+    patchWithCleanup(Message.prototype, {
+        setup() {
+            const cb = () => {
+                if (rightClicking) {
+                    if (messageIds.includes(this.message.id)) {
+                        throw new Error(
+                            "Should not re-render other messages on right-clicking on a message"
+                        );
+                    }
+                }
+            };
+            onMounted(cb);
+            onPatched(cb);
+            return super.setup();
+        },
+    });
+    await start();
+    await openDiscuss(channelId);
+    await contains(".o-mail-Message", { count: 10 });
+    const stopObserve = observeRenders();
+    rightClicking = true;
+
+    await rightClick(".o-mail-Message:last");
+    await contains(".dropdown-menu .o-mail-ActionList");
+    rightClicking = false;
+    const result = stopObserve();
+    expect(result.get(Message)).toBe(1);
 });

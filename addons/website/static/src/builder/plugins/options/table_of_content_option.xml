@@ -16,14 +16,21 @@
 <t t-name="website.TableOfContentNavbarOption">
     <BuilderRow label.translate="Position" action="'navbarPosition'">
         <BuilderButtonGroup>
-            <BuilderButton icon="'fa-long-arrow-left'" title.translate="Left" actionParam="'left'"/>
-            <BuilderButton icon="'fa-long-arrow-up'" title.translate="Top" actionParam="'top'"/>
-            <BuilderButton icon="'fa-long-arrow-right'" title.translate="Right" actionParam="'right'"/>
+            <BuilderButton ltrRtlMapping="'left-right'" icon="'west'" title.translate="Left" actionParam="'left'"/>
+            <BuilderButton icon="'north'" title.translate="Top" actionParam="'top'"/>
+            <BuilderButton ltrRtlMapping="'left-right'" icon="'east'" title.translate="Right" actionParam="'right'"/>
         </BuilderButtonGroup>
     </BuilderRow>
-    <BuilderRow label.translate="Sticky">
+    <BuilderRow label.translate="Sticky" tooltip.translate="Keep this element fixed while scrolling">
         <BuilderCheckbox classAction="'s_table_of_content_navbar_sticky'" preview="false"/>
     </BuilderRow>
+</t>
+
+<t t-inherit="website.BuilderOptions" t-inherit-mode="extension">
+    <xpath expr="//t[@id='snippet_specific_options']" position="after">
+        <table_of_content_option template="website.TableOfContentOption" selector=".s_table_of_content"/>
+        <table_of_content_navbar_option template="website.TableOfContentNavbarOption" selector=".s_table_of_content_navbar_wrap"/>
+    </xpath>
 </t>
 
 </templates>

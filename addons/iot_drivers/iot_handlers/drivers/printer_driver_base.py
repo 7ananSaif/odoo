@@ -7,15 +7,13 @@ import re
 import time
 
 from odoo.addons.iot_drivers.driver import Driver
-from odoo.addons.iot_drivers.main import iot_devices
 from odoo.addons.iot_drivers.event_manager import event_manager
 
 _logger = logging.getLogger(__name__)
 
 
 class PrinterDriverBase(Driver, ABC):
-    connection_type = 'printer'
-    job_timeout_seconds = 30
+    job_timeout_seconds = 90
 
     RECEIPT_PRINTER_COMMANDS = {
         'star': {
@@ -36,37 +34,32 @@ class PrinterDriverBase(Driver, ABC):
         super().__init__(identifier, device)
 
         self.device_type = 'printer'
-        self.job_ids = []
+        self.job_ids = set()
         self.job_action_ids = {}
+        self.job_session_ids = {}
 
         self._actions.update({
             'cashbox': self.open_cashbox,
             'print_receipt': self.print_receipt,
-            'status': self.print_status,
             '': self._action_default,
         })
 
-    @classmethod
-    def get_status(cls):
-        status = 'connected' if any(
-            iot_devices[d].device_type == "printer"
-            and iot_devices[d].device_connection == 'direct'
-            for d in iot_devices
-        ) else 'disconnected'
-        return {'status': status, 'messages': ''}
-
-    def send_status(self, status, message=None, action_unique_id=None):
-        """Sends a status update event for the printer.
+    def send_status(self, status, message=None, job_id=None):
+        """Sends a status update event for the printer. The session ID
+        associated with the print job will be used if the job
+        ID is provided.
 
         :param str status: The value of the status
         :param str message: A comprehensive message describing the status
-        :param str action_unique_id: The unique identifier of the action
+        :param str job_id: The print job ID
         """
-        if status == "error":
+        action_unique_id = self.job_action_ids.pop(job_id, None)
+        session_id = self.job_session_ids.pop(job_id, None)
+        if status == "error" and action_unique_id:
             self._recent_action_ids.pop(action_unique_id, None)  # avoid filtering duplicates on errors
         self.data['status'] = status
         self.data['message'] = message
-        event_manager.device_changed(self, {'session_id': self.data.get('owner')})
+        event_manager.device_changed(self, {"owner": session_id or self.data.get("session_id")})
 
     def print_receipt(self, data):
         _logger.debug("print_receipt called for printer %s", self.device_name)
@@ -80,7 +73,11 @@ class PrinterDriverBase(Driver, ABC):
         im = im.convert("1")
 
         print_command = getattr(self, 'format_%s' % self.receipt_protocol)(im)
-        self.print_raw(print_command, action_unique_id=data.get("action_unique_id"))
+        self.print_raw(
+            print_command,
+            action_unique_id=data.get("action_unique_id", ""),
+            session_id=data.get("session_id", ""),
+        )
 
     @classmethod
     def format_escpos_bit_image_raster(cls, im):
@@ -208,22 +205,19 @@ class PrinterDriverBase(Driver, ABC):
             # We monitor ongoing jobs by polling them every second.
             # Ideally we would receive events instead of polling, but unfortunately CUPS
             # events do not trigger with all printers, and win32print has no event mechanism.
-            for job_id in self.job_ids:
+            for job_id in self.job_ids.copy():
                 self._check_job_status(job_id)
             time.sleep(1)
 
     @abstractmethod
-    def print_raw(self, data, action_unique_id=None):
+    def print_raw(self, data: dict, action_unique_id: str = "", session_id: str = ""):
         """Sends the raw data to the printer.
 
         :param data: The data to send to the printer
-        :param str action_unique_id: The unique identifier of the action
+        :param action_unique_id: The unique identifier of the action
+        :param session_id: Identifier of the session, used to match
+            callbacks front-end side
         """
-        pass
-
-    @abstractmethod
-    def print_status(self, data):
-        """Method called to test a printer, printing a status page."""
         pass
 
     @abstractmethod

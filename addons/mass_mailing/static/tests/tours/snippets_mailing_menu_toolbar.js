@@ -2,7 +2,6 @@ import { registry } from "@web/core/registry";
 import { stepUtils } from "@web_tour/tour_utils";
 
 registry.category("web_tour.tours").add('snippets_mailing_menu_toolbar', {
-    url: '/odoo',
     steps: () => [
     stepUtils.showAppsMenuItem(), {
         content: "Select the 'Email Marketing' app.",
@@ -16,7 +15,7 @@ registry.category("web_tour.tours").add('snippets_mailing_menu_toolbar', {
     },
     {
         content: "Wait for the theme selector to load.",
-        trigger: '.o_mailing_template_preview_wrapper',
+        trigger: ':iframe .o_mailing_template_preview_wrapper',
         run: "click",
     },
     {
@@ -31,17 +30,17 @@ registry.category("web_tour.tours").add('snippets_mailing_menu_toolbar', {
     },
     {
         content: "Make sure the empty template is an option on non-mobile devices.",
-        trigger: '.o_mailing_template_preview_wrapper [data-name="empty"]',
+        trigger: ':iframe .o_mailing_template_preview_wrapper [data-name="empty"]',
     },
     {
         content: "Click on the default 'welcome' template.",
-        trigger: '.o_mailing_template_preview_wrapper [data-name="default"]',
+        trigger: ':iframe .o_mailing_template_preview_wrapper [data-name="default"]',
         run: "click",
     },
     { // necessary to wait for the cursor to be placed in the first p
       // and to avoid leaving the page before the selection is added
         content: "Wait for template selection event to be over.",
-        trigger: ":iframe .odoo-editor-editable .o_editable",
+        trigger: ":iframe .odoo-editor-editable .o_savable",
         run: "click",
     },
     {

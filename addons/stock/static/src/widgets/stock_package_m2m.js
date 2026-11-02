@@ -8,6 +8,7 @@ import { _t } from "@web/core/l10n/translation";
 
 export class Many2ManyPackageTagsField extends Many2ManyTagsField {
     setup() {
+        super.setup();
         this.hasNoneTag = this.props.record.data?.has_lines_without_result_package || false;
     }
 
@@ -15,9 +16,11 @@ export class Many2ManyPackageTagsField extends Many2ManyTagsField {
         const tags = super.tags;
         if (this.hasNoneTag) {
             tags.push({
-                ...this.getTagProps(this.props.record.data[this.props.name].records.at(-1)),
                 id: "datapoint_None",
-                text: _t("No Package"),
+                props: {
+                    ...this.getTagProps(this.props.record.data[this.props.name].records.at(-1)),
+                    text: _t("No Package"),
+                },
             });
         }
         return tags;

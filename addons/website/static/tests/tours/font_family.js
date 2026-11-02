@@ -4,7 +4,6 @@ import { patch } from "@web/core/utils/patch";
 registerWebsitePreviewTour(
     "website_font_family",
     {
-        url: "/",
         edition: true,
     },
     () => [
@@ -19,6 +18,10 @@ registerWebsitePreviewTour(
             content: "Click on the 'Arvo' font we-button from the font selection list.",
             trigger: `.o_popover [data-action-value="'Arvo'"]`,
             run: "click",
+        },
+        {
+            content: "Check the Arvo font link is added to the page head",
+            trigger: ":iframe head link[rel='stylesheet'][href*='family=Arvo']:not(:visible)",
         },
         {
             content: "Verify that the 'Arvo' font family is correctly applied to the heading.",
@@ -59,6 +62,29 @@ registerWebsitePreviewTour(
         {
             content: "Check that 'Arvo' font family is still applied and not reverted",
             trigger: "button:has(span[style*='font-family: Arvo;'])",
+        },
+        {
+            content: "Click on the 'Add a custom font' button",
+            trigger: ".o_popover .o_we_add_font_btn",
+            run: "click",
+        },
+        {
+            content: "Fetch Google fonts",
+            trigger: ".modal #google_font",
+            run: "click",
+        },
+        {
+            content: "Select a Google font in the list",
+            trigger: ".modal .dropdown-item:contains('Second test font')",
+            run: "click",
+        },
+        {
+            content: "Check that the preview of the selected font is displayed in the modal",
+            trigger: ".modal:contains('Preview of Second test font')",
+        },
+        {
+            content: "Check that the 3 previews are correctly set in the modal",
+            trigger: `.modal div[style='font-family: "Second test font";']:count(3)`,
         },
     ]
 );

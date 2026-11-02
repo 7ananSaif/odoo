@@ -1,38 +1,70 @@
-# Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
-from odoo import api, fields, models, Command
+from odoo import Command, fields, models
+
+from odoo.addons.account.models.chart_template import template
 
 
 class AccountChartTemplate(models.AbstractModel):
     _inherit = "account.chart.template"
 
-    @api.model
-    def _get_demo_data_move(self, company=False):
-        moves = super()._get_demo_data_move(company)
-        if company.account_fiscal_country_id.code == "PK":
-            sale_journal = self.env['account.journal'].search(
-                domain=[
-                    *self.env['account.journal']._check_company_domain((company or self.env.company).id),
-                    ('type', '=', 'sale'),
-                ], limit=1)
-            moves.update({
+    def _withholding_tax_account_tax_group_demo(self, template_code):
+        # The generic "WTH" demo group is redundant for Pakistan: the demo
+        # withholding tax below is reassigned to the local Income Tax Withholding
+        # group, so drop the generic one to avoid an unused demo tax group.
+        res = super()._withholding_tax_account_tax_group_demo(template_code)
+        if template_code == 'pk':
+            res.pop('withholding_demo_tax_group', None)
+        return res
+
+    @template(template='pk', model='account.tax', demo=True)
+    def _l10n_pk_withholding_tax_account_tax_demo(self):
+        return {
+            'withholding_demo_tax': {
+                'name': 'ITWHT 5%',
+                'amount': -5,
+                'tax_group_id': 'tax_group_pk_income_wh',
+                'description': '153(1)(a) Supplies',
+                'invoice_label': 'Income Tax Withheld 5%',
+                'invoice_repartition_line_ids': [
+                    Command.create({
+                        'repartition_type': 'base',
+                    }),
+                    Command.create({
+                        'repartition_type': 'tax',
+                        'account_id': 'l10n_pk_2110900',
+                    }),
+                ],
+                'refund_repartition_line_ids': [
+                    Command.create({
+                        'repartition_type': 'base',
+                    }),
+                    Command.create({
+                        'repartition_type': 'tax',
+                        'account_id': 'l10n_pk_2110900',
+                    }),
+                ],
+            },
+        }
+
+    @template(template='pk', model='account.move', demo=True)
+    def _l10n_pk_account_move_demo(self):
+        return {
                 self.company_xmlid('l10n_pk_demo_invoice_1'): {
                     'move_type': 'out_invoice',
                     'partner_id': 'l10n_pk.res_partner_punjab',
                     'invoice_user_id': 'base.user_demo',
                     'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
                     'invoice_date': fields.Datetime.today() - relativedelta(days=1),
-                    'journal_id': sale_journal.id,
+                    'journal_id': 'sale',
                     'invoice_line_ids': [
                         Command.create({
                             'product_id': 'product.product_product_8',
                             'quantity': 2,
                             'price_unit': 40000.0,
                             'tax_ids': [Command.set([
-                                'pk_sales_tax_services_10'
+                                'pk_sales_tax_gst_18'
                             ])],
                         }),
                         Command.create({
@@ -40,8 +72,8 @@ class AccountChartTemplate(models.AbstractModel):
                             'quantity': 3,
                             'price_unit': 400.0,
                             'tax_ids': [Command.set([
-                                'pk_sales_tax_services_17',
-                                'pk_tax_wh_S_1'
+                                'pk_sales_tax_gst_25',
+                                'pk_sales_tax_swht_1_10th',
                             ])],
                         }),
                         Command.create({
@@ -49,7 +81,7 @@ class AccountChartTemplate(models.AbstractModel):
                             'quantity': 4,
                             'price_unit': 300.0,
                             'tax_ids': [Command.set([
-                                'pk_sales_tax_services_5'
+                                'pk_sales_tax_gst_5_rr',
                             ])],
                         }),
                     ],
@@ -60,14 +92,14 @@ class AccountChartTemplate(models.AbstractModel):
                     'invoice_user_id': 'base.user_demo',
                     'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
                     'invoice_date': fields.Datetime.today() - relativedelta(days=2),
-                    'journal_id': sale_journal.id,
+                    'journal_id': 'sale',
                     'invoice_line_ids': [
                         Command.create({
                             'product_id': 'product.product_product_9',
                             'quantity': 2,
                             'price_unit': 4000.0,
                             'tax_ids': [Command.set([
-                                'pk_sales_tax_services_10'
+                                'pk_sales_tax_gst_18',
                             ])],
                         }),
                         Command.create({
@@ -75,7 +107,7 @@ class AccountChartTemplate(models.AbstractModel):
                             'quantity': 3,
                             'price_unit': 300.0,
                             'tax_ids': [Command.set([
-                                'pk_sales_tax_services_5'
+                                'pk_sales_tax_gst_5_rr',
                             ])],
                         }),
                     ],
@@ -86,7 +118,7 @@ class AccountChartTemplate(models.AbstractModel):
                     'invoice_user_id': 'base.user_demo',
                     'invoice_payment_term_id': 'account.account_payment_term_end_following_month',
                     'invoice_date': fields.Datetime.today() - relativedelta(days=3),
-                    'journal_id': sale_journal.id,
+                    'journal_id': 'sale',
                     'invoice_line_ids': [
                         Command.create({
                             'product_id': 'product.product_product_4',
@@ -107,7 +139,7 @@ class AccountChartTemplate(models.AbstractModel):
                             'quantity': 2,
                             'price_unit': 40000.0,
                             'tax_ids': [Command.set([
-                                'pk_sales_tax_services_10'
+                                'pk_sales_tax_gst_18'
                             ])],
                         }),
                         Command.create({
@@ -115,8 +147,8 @@ class AccountChartTemplate(models.AbstractModel):
                             'quantity': 3,
                             'price_unit': 400.0,
                             'tax_ids': [Command.set([
-                                'pk_sales_tax_services_10',
-                                'pk_tax_wh_S_5'
+                                'pk_sales_tax_gst_18',
+                                'pk_sales_tax_itwht_5'
                             ])],
                         }),
                         Command.create({
@@ -124,7 +156,7 @@ class AccountChartTemplate(models.AbstractModel):
                             'quantity': 4,
                             'price_unit': 300.0,
                             'tax_ids': [Command.set([
-                                'pk_sales_tax_services_5'
+                                'pk_sales_tax_gst_5_rr'
                             ])],
                         }),
                     ],
@@ -156,7 +188,7 @@ class AccountChartTemplate(models.AbstractModel):
                             'quantity': 1,
                             'price_unit': 1000.0,
                             'tax_ids': [Command.set([
-                                'pk_sales_tax_services_15'
+                                'pk_sales_tax_gst_18',
                             ])],
                         }),
                         Command.create({
@@ -164,8 +196,8 @@ class AccountChartTemplate(models.AbstractModel):
                             'quantity': 1,
                             'price_unit': 2000.0,
                             'tax_ids': [Command.set([
-                                'pk_sales_tax_services_10',
-                                'pk_tax_wh_S_1'
+                                'pk_sales_tax_gst_18',
+                                'pk_sales_tax_swht_1_10th',
                             ])],
                         }),
                     ]
@@ -183,7 +215,7 @@ class AccountChartTemplate(models.AbstractModel):
                             'quantity': 4,
                             'price_unit': 1000.0,
                             'tax_ids': [Command.set([
-                                'pk_sales_tax_17'
+                                'pk_sales_tax_gst_25',
                             ])],
                         }),
                         Command.create({
@@ -191,7 +223,7 @@ class AccountChartTemplate(models.AbstractModel):
                             'quantity': 3,
                             'price_unit': 2000.0,
                             'tax_ids': [Command.set([
-                                'pk_sales_tax_services_10'
+                                'pk_sales_tax_gst_18',
                             ])],
                         }),
                     ]
@@ -209,7 +241,7 @@ class AccountChartTemplate(models.AbstractModel):
                             'quantity': 1,
                             'price_unit': 1000.0,
                             'tax_ids': [Command.set([
-                                'pk_sales_tax_services_17'
+                                'pk_sales_tax_gst_25',
                             ])],
                         }),
                         Command.create({
@@ -217,18 +249,16 @@ class AccountChartTemplate(models.AbstractModel):
                             'quantity': 1,
                             'price_unit': 2000.0,
                             'tax_ids': [Command.set([
-                                'pk_sales_tax_services_10',
-                                'pk_tax_wh_S_5'
+                                'pk_sales_tax_gst_18',
+                                'pk_sales_tax_itwht_5',
                             ])],
                         }),
                     ]
                 },
-            })
-        return moves
+            }
 
-    def _post_load_demo_data(self, company=False):
-        company = company or self.env.company
-        if company.account_fiscal_country_id.code == "PK":
+    def _post_load_demo_data(self, template_code):
+        if template_code == "pk":
             invoices = (
                 self.ref('l10n_pk_demo_invoice_1')
                 + self.ref('l10n_pk_demo_invoice_2')
@@ -241,4 +271,4 @@ class AccountChartTemplate(models.AbstractModel):
             )
             for move in invoices:
                 move.action_post()
-        return super()._post_load_demo_data(company)
+        super()._post_load_demo_data(template_code)

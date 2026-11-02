@@ -12,23 +12,24 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 from odoo.exceptions import UserError
+from odoo.tools import BinaryBytes
 
 from odoo.addons.l10n_pl_edi.exceptions import KSeFRateLimitError
 
 
 _logger = logging.getLogger(__name__)
-TIMEOUT = 10
+TIMEOUT = 30
 
 
 class KsefApiService:
     def __init__(self, company):
         self.company = company
         self.env = company.env
-        self.mode = self.env['ir.config_parameter'].sudo().get_param('l10n_pl_edi_ksef.mode') or 'prod'
+        self.mode = self.env['ir.config_parameter'].sudo().get_str('l10n_pl_edi_ksef.mode') or 'prod'
         self.api_url = self._get_api_url()
         company_sudo = company.sudo()
-        self.raw_symmetric_key = base64.b64decode(company_sudo.l10n_pl_edi_session_key) if company_sudo.l10n_pl_edi_session_key else None
-        self.raw_iv = base64.b64decode(company_sudo.l10n_pl_edi_session_iv) if company_sudo.l10n_pl_edi_session_iv else None
+        self.raw_symmetric_key = bytes(company_sudo.l10n_pl_edi_session_key) or None
+        self.raw_iv = bytes(company_sudo.l10n_pl_edi_session_iv) or None
 
     def _get_api_url(self):
         """Gets the correct KSeF API URL from the company's settings."""
@@ -150,8 +151,8 @@ class KsefApiService:
                 return response
             self.company.sudo().write({
                 'l10n_pl_edi_session_id': response.json().get('referenceNumber'),
-                'l10n_pl_edi_session_key': base64.b64encode(self.raw_symmetric_key),
-                'l10n_pl_edi_session_iv': base64.b64encode(self.raw_iv),
+                'l10n_pl_edi_session_key': BinaryBytes(self.raw_symmetric_key),
+                'l10n_pl_edi_session_iv': BinaryBytes(self.raw_iv),
             })
         except UserError as e:
             raise UserError(self.env._("Failed to open KSeF session: %s", e))

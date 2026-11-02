@@ -1,5 +1,6 @@
 from freezegun import freeze_time
 
+from odoo import fields
 from odoo.tests.common import TransactionCase
 
 CURRENT_USD = 1.5
@@ -26,23 +27,26 @@ class TestCurrencyRates(TransactionCase):
         cls.env.user.company_ids |= new_company
         cls.env.user.company_id = new_company
 
+        eff_date = fields.Date.subtract(fields.Date.context_today(cls), days=1)
         cls.env["res.currency.rate"].create(
             [
                 {
+                    "name": eff_date,
                     "currency_id": usd.id,
                     "rate": CURRENT_USD,
                 },
                 {
+                    "name": eff_date,
                     "currency_id": cad.id,
                     "rate": CURRENT_CAD,
                 },
                 {
-                    "name": "2021-11-11",
+                    "name": "2021-11-10",
                     "currency_id": usd.id,
                     "rate": USD_11,
                 },
                 {
-                    "name": "2021-11-11",
+                    "name": "2021-11-10",
                     "currency_id": cad.id,
                     "rate": CAD_11,
                 },
@@ -113,18 +117,20 @@ class TestCurrencyRates(TransactionCase):
         cad = self.env.ref("base.CAD")
         self.env.user.tz = "UTC"
         self.env.flush_all()
-        self.env.transaction.reset()
+        self.env.transaction.clear()
         self.env["res.currency.rate"].create(
             {
+                "name": fields.Date.subtract(fields.Date.context_today(self), days=1),
                 "currency_id": cad.id,
                 "rate": CAD_UTC,
             }
         )
         self.env.user.tz = "Australia/Sydney"
         self.env.flush_all()
-        self.env.transaction.reset()
+        self.env.transaction.clear()
         self.env["res.currency.rate"].create(
             {
+                "name": fields.Date.subtract(fields.Date.context_today(self), days=1),
                 "currency_id": cad.id,
                 "rate": CAD_AUS,
             }
@@ -148,11 +154,13 @@ class TestCurrencyRates(TransactionCase):
         self.env["res.currency.rate"].create(
             [
                 {
+                    "name": fields.Date.subtract(fields.Date.context_today(self), days=1),
                     "currency_id": usd.id,
                     "rate": 0.5,
                     "company_id": company_eur.id,
                 },
                 {
+                    "name": fields.Date.subtract(fields.Date.context_today(self), days=1),
                     "currency_id": usd.id,
                     "rate": 0.8,
                     "company_id": company_cad.id,

@@ -1,10 +1,9 @@
 declare module "registries" {
     import { Component } from "@odoo/owl";
     import { OdooEnv } from "@web/env";
-    import { NotificationOptions } from "@web/core/notifications/notification_service";
     import { Interaction } from "@web/public/interaction";
     import { Compiler } from "@web/views/view_compiler";
-    import { ActionDescription } from "@web/webclient/actions/action_service";
+    import { ActionDescription } from "@web/webclient/actions/action_plugin";
 
     interface ActionHandlerParams {
         action: object;
@@ -33,7 +32,6 @@ declare module "registries" {
 
     export type ErrorHandlersRegistryItemShape = (env: OdooEnv, error: Error, originalError: Error) => boolean;
 
-    export type ErrorNotificationsRegistryItemShape = NotificationOptions & { message?: string };
 
     export interface FavoriteMenuRegistryItemShape {
         Component: typeof Component;
@@ -54,7 +52,7 @@ declare module "registries" {
         props: object;
     }
     export interface GroupConfigItemsRegistryItemShape {
-        label: String;
+        label: TranslatedString;
         method: string | (() => {});
         isVisible: boolean | ((params: KanbanHeaderConfigItemsFnParams) => boolean);
         class: string | ((params: KanbanHeaderConfigItemsFnParams) => (string | string[] | { [key: string]: boolean }));
@@ -90,7 +88,6 @@ declare module "registries" {
         effetcs: EffectsRegistryItemShape;
         error_dialogs: ErrorDialogsRegistryItemShape;
         error_handlers: ErrorHandlersRegistryItemShape;
-        error_notifications: ErrorNotificationsRegistryItemShape;
         favoriteMenu: FavoriteMenuRegistryItemShape;
         formatters: FormattersRegistryItemShape;
         form_compilers: FormCompilersRegistryItemShape;

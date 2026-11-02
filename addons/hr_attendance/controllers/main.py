@@ -1,40 +1,92 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo.service.common import exp_version
-from odoo import http, _
-from odoo.http import request
-from odoo.exceptions import UserError
-from odoo.fields import Domain
-from odoo.tools import float_round, py_to_js_locale, SQL
-from odoo.tools.image import image_data_uri
-
+import base64
+import binascii
+import re
 import datetime
 from requests.exceptions import RequestException
+
+import odoo.release
+from odoo import _, fields, http
+from odoo.exceptions import UserError
+from odoo.fields import Domain
+from odoo.http import request
+from odoo.http.session import logout, touch
+from odoo.http.stream import content_disposition
+from odoo.tools import SQL, float_round, py_to_js_locale
+from odoo.tools.image import image_data_uri
+
+IMAGE_HEADER_PATTERN = re.compile(r"^data:(image/(?:jpeg|webp));base64$")
+
 
 class HrAttendance(http.Controller):
     @staticmethod
     def _get_company(token):
+        """Return the company (as superuser) whose ``attendance_kiosk_key`` is ``token``.
+
+        :rtype: res.company
+        """
         company = request.env['res.company'].sudo().search([('attendance_kiosk_key', '=', token)])
         return company
 
     @staticmethod
-    def _get_user_attendance_data(employee):
+    def _get_user_attendance_data(
+        employee, include_attendance_details=False, include_attendance_settings=True,
+    ):
+        """Return the attendance state of the employee for the systray and the kiosk.
+
+        :param employee: ``hr.employee``, may be empty
+        :param bool include_attendance_details: also read ``break_duration``, ``can_edit``,
+            ``in_location`` and ``out_location`` of today's attendances
+        :param bool include_attendance_settings: add the company settings
+            (``display_systray``, ``device_tracking_enabled``, ``capture_check_in_image``,
+            ``has_attendance_check_in_ability``)
+        :return: ``{}`` without employee, else ``id``, ``name``, ``hours_today``,
+            ``hours_previously_today``, ``today_attendance_ids`` (list of dicts),
+            ``last_attendance_worked_hours``, ``last_check_in``, ``attendance_state`` and the
+            settings
+        :rtype: dict
+        """
         response = {}
         if employee:
+            attendance_fields = ['check_in', 'check_out', 'worked_hours', 'work_entry_type_id', 'wet_color', 'wet_display_code']
+            if include_attendance_details:
+                attendance_fields += [
+                    'break_duration',
+                    'can_edit',
+                    'in_location',
+                    'out_location',
+                ]
             response = {
                 'id': employee.id,
-                'hours_today': float_round(employee.hours_today, precision_digits=2),
+                'name': employee.name,
+                'hours_today': float_round(employee.hours_today, precision_digits=3),
                 'hours_previously_today': float_round(employee.hours_previously_today, precision_digits=2),
+                'today_attendance_ids': employee.today_attendance_ids.read(attendance_fields),
                 'last_attendance_worked_hours': float_round(employee.last_attendance_worked_hours, precision_digits=2),
                 'last_check_in': employee.last_check_in,
                 'attendance_state': employee.attendance_state,
-                'display_systray': employee.company_id.attendance_from_systray,
-                'device_tracking_enabled': employee.company_id.attendance_device_tracking,
             }
+            if include_attendance_settings:
+                response.update({
+                    'display_systray': employee.company_id.attendance_from_systray,
+                    'device_tracking_enabled': employee.company_id.attendance_device_tracking,
+                    'capture_check_in_image': employee.company_id.attendance_capture_check_in,
+                    'has_attendance_check_in_ability': employee._has_attendance_check_in_ability(),
+                })
         return response
 
     @staticmethod
     def _get_employee_info_response(employee):
+        """Return the data displayed by the kiosk for the employee.
+
+        Adds to :meth:`_get_user_attendance_data` the avatar, ``total_overtime``,
+        ``kiosk_delay`` (ms), the last ``attendance`` (``id``, ``check_in``, ``check_out``),
+        ``overtime_today``, ``use_pin``, ``is_employee_single_checkin``,
+        ``break_management_enabled``, etc.
+
+        :rtype: dict
+        """
         response = {}
         if employee:
             response = {
@@ -43,18 +95,49 @@ class HrAttendance(http.Controller):
                 'employee_avatar': employee.image_256 and image_data_uri(employee.image_256),
                 'total_overtime': float_round(employee.total_overtime, precision_digits=2),
                 'kiosk_delay': employee.company_id.attendance_kiosk_delay * 1000,
-                'attendance': {'check_in': employee.last_attendance_id.check_in,
-                               'check_out': employee.last_attendance_id.check_out},
-                'overtime_today': sum(request.env['hr.attendance.overtime.line'].sudo().search([
-                    ('employee_id', '=', employee.id), ('date', '=', datetime.date.today())]).mapped('duration')) or 0,
+                'attendance': {
+                    'id': employee.last_attendance_id.id,
+                    'check_in': employee.last_attendance_id.check_in,
+                    'check_out': employee.last_attendance_id.check_out,
+                },
+                'overtime_today': sum(request.env['hr.attendance'].sudo().search([
+                    ('employee_id', '=', employee.id),
+                    ('time_rule_id', '!=', False),
+                    ('source_attendance_id', '!=', False),
+                    ('check_in', '<', datetime.datetime.combine(fields.Date.context_today(request.env.user), datetime.time.max)),
+                    ('check_out', '>', datetime.datetime.combine(fields.Date.context_today(request.env.user), datetime.time.min)),
+                ]).mapped('worked_hours')) or 0,
                 'use_pin': employee.company_id.attendance_kiosk_use_pin,
-                'display_overtime': employee.company_id.hr_attendance_display_overtime,
+                'display_overtime': True,
                 'device_tracking_enabled': employee.company_id.attendance_device_tracking,
+                'is_employee_single_checkin': not employee.version_id._is_flexible() and employee.company_id.single_check_in,
+                'break_management_enabled': employee.company_id.attendance_break_management,
             }
+        return response
+
+    @classmethod
+    def _get_attendance_action_response(cls, employee, notification=False):
+        """Return :meth:`_get_employee_info_response` with the ``notification`` of the check in
+        or out, if any.
+
+        :rtype: dict
+        """
+        response = cls._get_employee_info_response(employee)
+        if notification:
+            response['notification'] = notification
         return response
 
     @staticmethod
     def _get_geoip_response(mode, latitude=False, longitude=False, device_tracking_enabled=True):
+        """Return the ``geo_information`` passed to ``hr.employee._attendance_action_change``.
+
+        :param str mode: ``in_mode``/``out_mode`` value (``'kiosk'``, ``'systray'``)
+        :param latitude: GPS latitude sent by the browser, else the GeoIP one
+        :param longitude: GPS longitude sent by the browser, else the GeoIP one
+        :param bool device_tracking_enabled: when ``False``, only the mode is returned
+        :return: ``{'mode', 'location', 'latitude', 'longitude', 'ip_address', 'browser'}``
+        :rtype: dict
+        """
         response = {'mode': mode}
 
         if not device_tracking_enabled:
@@ -74,14 +157,60 @@ class HrAttendance(http.Controller):
 
         return response
 
+    @staticmethod
+    def _get_validated_check_in_image_and_type(check_in_image, capture_check_in_image):
+        """Decode and validate a check-in picture sent as a data URI.
+
+        :param str check_in_image: ``data:image/jpeg;base64,...`` or ``image/webp``, at most
+            30 KB encoded and 20 KB decoded
+        :param bool capture_check_in_image: company setting; ``None`` is returned when unset
+        :return: ``{'image': bytes, 'type': mimetype}``, or ``None`` if invalid
+        :rtype: dict | None
+        """
+        if (
+            not capture_check_in_image
+            or not check_in_image
+            or not isinstance(check_in_image, str)
+            or len(check_in_image) > 30720  # Max size: 30 KB
+        ):
+            return None
+
+        try:
+            header, encoded_image = check_in_image.split(",", 1)
+            if not (re_match := IMAGE_HEADER_PATTERN.match(header)):
+                return None
+            mimetype = re_match.group(1)
+            decoded_image = base64.b64decode(encoded_image, validate=True)
+            if len(decoded_image) > 20480:  # Max size: 20 KB
+                return None
+        except (ValueError, binascii.Error):
+            return None
+
+        return {
+            'image': decoded_image,
+            'type': mimetype,
+        }
+
+    @staticmethod
+    def _get_active_company(request):
+        """Return the first company of the ``cids`` cookie (an id), else ``request.env.company``
+        (a record)."""
+        cids = request.httprequest.cookies.get('cids')
+        if cids:
+            return int(cids.split("-")[0])
+
+        return request.env.company
+
     @http.route('/hr_attendance/kiosk_mode_menu/<int:company_id>', auth='user', type='http')
     def kiosk_menu_item_action(self, company_id):
+        """Open the kiosk of the company from the backend menu, logging out users with a
+        password so that the kiosk does not run in their session."""
         if request.env.user.has_group("hr_attendance.group_hr_attendance_user"):
             # Auto log out will prevent users from forgetting to log out of their session
             # before leaving the kiosk mode open to the public. This is a prevention security
             # measure.
             if self.has_password():
-                request.session.logout(keep_db=True)
+                logout(request.session, keep_db=True)
             return request.redirect(request.env['res.company'].browse(company_id).attendance_kiosk_url)
         else:
             return request.not_found()
@@ -112,24 +241,67 @@ class HrAttendance(http.Controller):
                 return {'status': 'success'}
         return {}
 
+    @http.route('/hr_attendance/print_badge', type='http', auth='user')
+    def print_badge(self, employee_id, token, **kwargs):
+        company = self._get_company(token)
+
+        if not company:
+            return request.not_found()
+
+        employee = request.env['hr.employee'].browse(int(employee_id))
+
+        if not employee or not employee.barcode:
+            return request.not_found()
+
+        pdf_content, _ = request.env['ir.actions.report']._render_qweb_pdf(
+            report_ref='hr.hr_employee_print_badge',
+            res_ids=[employee.id],
+        )
+
+        pdfhttpheaders = [
+            ('Content-Type', 'application/pdf'),
+            ('Content-Length', len(pdf_content)),
+            (
+                'Content-Disposition',
+                content_disposition(f"Badge - {employee.name.replace('/', '')}.pdf"),
+            ),
+        ]
+
+        return request.make_response(pdf_content, headers=pdfhttpheaders)
+
     @http.route('/hr_attendance/create_employee', type='jsonrpc', auth='public')
     def create_employee(self, name, token):
         company = self._get_company(token)
         if company:
-            request.env["hr.employee"].create({
+            new_emp = request.env["hr.employee"].create({
                 "name": name,
                 "company_id": company.id,
             })
-            return True
-        return False
+            return {
+                "status": True,
+                "employee": {
+                    "id": new_emp.id,
+                    "name": new_emp.name,
+                },
+            }
+
+        return {
+            "status": False,
+            "employee": None,
+        }
 
     @http.route('/hr_attendance/kiosk_keepalive', auth='user', type='jsonrpc')
     def kiosk_keepalive(self):
-        request.session.touch()
+        touch(request.session)
         return {}
 
     @http.route(["/hr_attendance/<token>"], type='http', auth='public', website=True, sitemap=True)
     def open_kiosk_mode(self, token, from_trial_mode=False):
+        """Render the public kiosk of the company with the kiosk key ``token``.
+
+        Logs out the current user unless in trial mode; a user without password (trial
+        database) gets the ``settings`` kiosk mode.
+        """
         company = self._get_company(token)
         if not company:
             return request.not_found()
@@ -146,12 +318,11 @@ class HrAttendance(http.Controller):
             ]
             has_password = self.has_password()
             if not from_trial_mode and has_password:
-                request.session.logout(keep_db=True)
+                logout(request.session, keep_db=True)
             if (from_trial_mode or (not has_password and not request.env.user.is_public)):
                 kiosk_mode = "settings"
             else:
                 kiosk_mode = company.attendance_kiosk_mode
-            version_info = exp_version()
             return request.render(
                 'hr_attendance.public_kiosk_mode',
                 {
@@ -164,14 +335,16 @@ class HrAttendance(http.Controller):
                         'from_trial_mode': from_trial_mode,
                         'barcode_source': company.attendance_barcode_source,
                         'device_tracking_enabled': company.attendance_device_tracking,
+                        'capture_check_in_image': company.attendance_capture_check_in,
                         'lang': py_to_js_locale(company.partner_id.lang or company.env.lang),
-                        'server_version_info': version_info.get('server_version_info'),
+                        'server_version_info': odoo.release.version_info,
                     },
                 }
             )
 
     @http.route('/hr_attendance/attendance_employee_data', type="jsonrpc", auth="public")
     def employee_attendance_data(self, token, employee_id):
+        """Kiosk: return :meth:`_get_employee_info_response` of an employee of the company."""
         company = self._get_company(token)
         if company:
             employee = request.env['hr.employee'].sudo().browse(employee_id)
@@ -180,27 +353,98 @@ class HrAttendance(http.Controller):
         return {}
 
     @http.route('/hr_attendance/attendance_barcode_scanned', type="jsonrpc", auth="public")
-    def scan_barcode(self, token, barcode):
+    def scan_barcode(self, token, barcode, latitude=False, longitude=False, check_in_image=None):
+        """Kiosk: check in or out the employee of the company with this badge ``barcode``.
+
+        :return: :meth:`_get_attendance_action_response`, or ``{}`` if no employee matches
+        """
         company = self._get_company(token)
         if company:
             employee = request.env['hr.employee'].sudo().search([('barcode', '=', barcode), ('company_id', '=', company.id)], limit=1)
             if employee:
-                employee._attendance_action_change(self._get_geoip_response('kiosk', device_tracking_enabled=company.attendance_device_tracking))
-                return self._get_employee_info_response(employee)
+                notification = employee._attendance_action_change(
+                    self._get_geoip_response('kiosk', latitude=latitude, longitude=longitude, device_tracking_enabled=company.attendance_device_tracking),
+                    self._get_validated_check_in_image_and_type(check_in_image, company.attendance_capture_check_in),
+                )
+                return self._get_attendance_action_response(employee, notification)
         return {}
 
     @http.route('/hr_attendance/manual_selection', type="jsonrpc", auth="public")
-    def manual_selection(self, token, employee_id, pin_code, latitude=False, longitude=False):
+    def manual_selection(self, token, employee_id, pin_code, latitude=False, longitude=False, check_in_image=None):
+        """Kiosk: check in or out an employee selected in the list, checking the PIN code when
+        the company uses ``attendance_kiosk_use_pin``.
+
+        :return: :meth:`_get_attendance_action_response`, or ``{}`` if refused
+        """
         company = self._get_company(token)
         if company:
             employee = request.env['hr.employee'].sudo().browse(employee_id)
             if employee.company_id == company and ((not company.attendance_kiosk_use_pin) or (employee.pin == pin_code)):
-                employee.sudo()._attendance_action_change(self._get_geoip_response('kiosk', latitude=latitude, longitude=longitude, device_tracking_enabled=company.attendance_device_tracking))
-                return self._get_employee_info_response(employee)
+                notification = employee.sudo()._attendance_action_change(
+                    self._get_geoip_response(
+                        mode='kiosk',
+                        latitude=latitude,
+                        longitude=longitude,
+                        device_tracking_enabled=company.attendance_device_tracking,
+                    ),
+                    self._get_validated_check_in_image_and_type(check_in_image, company.attendance_capture_check_in),
+                )
+                return self._get_attendance_action_response(employee, notification)
         return {}
+
+    @http.route('/hr_attendance/update_break_duration', type="jsonrpc", auth="public")
+    def update_break_duration(
+        self, token, attendance_id=False, break_duration=False,
+        employee_id=False, pin_code=False, barcode=False,
+    ):
+        """Kiosk: set the break duration of the employee's last attendance, after check-out.
+
+        The employee is identified by badge or by id (and PIN). Only for companies with
+        ``attendance_break_management``, on a closed, non validated last attendance.
+
+        :return: :meth:`_get_attendance_action_response`, or ``{}`` if refused
+        """
+        company = self._get_company(token)
+        if not company or not company.attendance_break_management:
+            return {}
+        employee = request.env['hr.employee'].sudo()
+        if barcode:
+            employee = employee.search([
+                ('barcode', '=', barcode),
+                ('company_id', '=', company.id),
+            ], limit=1)
+        elif employee_id:
+            employee = employee.browse(employee_id)
+            if employee.company_id != company or (
+                company.attendance_kiosk_use_pin and employee.pin != pin_code
+            ):
+                employee = request.env['hr.employee'].sudo()
+        if not employee:
+            return {}
+        if isinstance(attendance_id, bool) or not isinstance(attendance_id, int):
+            return {}
+        attendance = request.env['hr.attendance'].sudo().browse(attendance_id).exists()
+        if (
+            not attendance
+            or attendance.employee_id != employee
+            or attendance != employee.last_attendance_id
+            or not attendance.check_out
+            or attendance.state == 'validated'
+        ):
+            return {}
+        attendance.write({'break_duration': break_duration})
+        return self._get_attendance_action_response(employee)
 
     @http.route('/hr_attendance/employees_infos', type="jsonrpc", auth="public")
     def employees_infos(self, token, limit, offset, domain):
+        """Kiosk: search the employees of the company for the manual selection.
+
+        :param list domain: conditions on ``name`` and ``department_id`` only, with ``=`` or
+            ``ilike``
+        :return: ``{'records': [{'id', 'display_name', 'job_id', 'avatar', 'status', 'mode'}],
+            'length': int}``
+        :raise UserError: if the domain uses other fields or operators
+        """
         for condition in domain:
             if not isinstance(condition, (list, tuple)) or len(condition) != 3:
                 continue
@@ -228,21 +472,37 @@ class HrAttendance(http.Controller):
         return []
 
     @http.route('/hr_attendance/systray_check_in_out', type="jsonrpc", auth="user")
-    def systray_attendance(self, latitude=False, longitude=False):
-        employee = request.env.user.employee_id
+    def systray_attendance(self, latitude=False, longitude=False, check_in_image=None):
+        """Check the current user's employee in or out from the systray (``systray`` mode).
+
+        :return: :meth:`_get_attendance_action_response` updated with
+            :meth:`_get_user_attendance_data` (with details)
+        """
+        employee = request.env.user.with_company(self._get_active_company(request)).employee_id
+        if not employee:
+            return self._get_employee_info_response(employee)
         geo_ip_response = self._get_geoip_response(mode='systray',
                                                   latitude=latitude,
                                                   longitude=longitude,
                                                   device_tracking_enabled=employee.company_id.attendance_device_tracking)
-        employee._attendance_action_change(geo_ip_response)
-        return self._get_employee_info_response(employee)
+        check_in_image_data = self._get_validated_check_in_image_and_type(check_in_image, employee.company_id.attendance_capture_check_in)
+        notification = employee.with_context({'is_from_systray_check_in_out': True})._attendance_action_change(geo_ip_response, check_in_image_data)
+        response = self._get_attendance_action_response(employee, notification)
+        response.update(self._get_user_attendance_data(employee, include_attendance_details=True))
+        return response
 
     @http.route('/hr_attendance/attendance_user_data', type="jsonrpc", auth="user", readonly=True)
     def user_attendance_data(self):
-        employee = request.env.user.employee_id
-        return self._get_user_attendance_data(employee)
+        employee = request.env.user.with_company(self._get_active_company(request)).employee_id
+        return self._get_user_attendance_data(
+            employee, include_attendance_details=True, include_attendance_settings=False,
+        )
 
     def has_password(self):
+        """Return whether the current user has a password (``False`` in trial databases).
+
+        :rtype: bool
+        """
         # With this method we try to know whether it's the user is on trial mode or not.
         # We assume that in trial, people have not configured their password yet and their password should be empty.
         request.env.cr.execute(
@@ -259,4 +519,4 @@ class HrAttendance(http.Controller):
     def set_attendance_settings(self, token, mode):
         company = self._get_company(token)
         if company:
-            request.env.user.company_id.attendance_kiosk_mode = mode
+            company.sudo(False).attendance_kiosk_mode = mode

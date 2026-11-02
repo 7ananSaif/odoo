@@ -1,6 +1,7 @@
 from contextlib import contextmanager
 from unittest.mock import patch
 
+from odoo import Command
 from odoo.addons.mail.models.mail_activity import MailActivity
 from odoo.addons.mail.tests.common import MailCommon
 from odoo.tests import Form
@@ -22,6 +23,17 @@ class ActivityScheduleCase(MailCommon):
         cls.activity_type_call.delay_count = 1
         cls.activity_type_call.sequence = 2
         cls.activity_type_call.summary = "TodoSumCallSummary"
+        cls.test_role_1, cls.test_role_2 = cls.env['res.role'].create([
+            {'name': 'Role 1', 'user_ids': [Command.link(cls.user_employee.id)]},
+            {'name': 'Role 2', 'user_ids': [Command.link(cls.user_admin.id)]},
+        ])
+        cls.activity_type_no_default, cls.activity_type_default_user, cls.activity_type_default_role = \
+            cls.env['mail.activity.type'].create([
+                {'name': 'No Default'},
+                {'name': 'Default User', 'default_user_id': cls.user_employee.id},
+                {'name': 'Default Role', 'default_role_id': cls.test_role_1.id},
+            ])
+        cls.test_partner = cls.env['res.partner'].create({'name': 'Isolated Target'})
 
     def reverse_record_set(self, records):
         """ Get an equivalent recordset but with elements in reversed order. """
@@ -31,6 +43,25 @@ class ActivityScheduleCase(MailCommon):
         """ Get the last activities on the record in id asc order. """
         return self.reverse_record_set(self.env['mail.activity'].search(
             [('res_model', '=', on_record._name), ('res_id', '=', on_record.id)], order='id desc', limit=limit))
+
+    def _get_assignation_compute_cases(self):
+        """ Returns a list of truth table cases for activity user/role computations."""
+        no_user, no_role = self.env['res.users'], self.env['res.role']
+        init_states = [
+            (self.user_admin, no_role),
+            (no_user, self.test_role_2),
+            (self.user_admin, self.test_role_2),
+        ]
+        cases = []
+        for init_user, init_role in init_states:
+            cases.extend([
+                (init_user, init_role, self.activity_type_no_default, init_user, init_role),
+                (init_user, init_role, self.activity_type_default_user, self.user_employee, no_role),
+                (init_user, init_role, self.activity_type_default_role, no_user, self.test_role_1),
+            ])
+        # Add the fallback edge case
+        cases.append((no_user, no_role, self.activity_type_no_default, self.env.user, no_role))
+        return cases
 
     # ------------------------------------------------------------
     # ACTIVITIES MOCK
@@ -70,7 +101,6 @@ class ActivityScheduleCase(MailCommon):
         last_message = record.message_ids[0]
         self.assertEqual(last_message.mail_activity_type_id, activity_type)
         self.assertIn(activity_type.name, last_message.body)
-        self.assertIn('done', last_message.body)
 
     def assertActivitiesFromPlan(self, plan, record, expected_deadlines, expected_responsible=None):
         """ Check that the last activities on the record correspond to the one
@@ -93,6 +123,7 @@ class ActivityScheduleCase(MailCommon):
         self.assertEqual(len(activities), expected_number_of_activity)
 
         for activity, template, expected_deadline in zip(activities, plan.template_ids, expected_deadlines):
+            self.assertEqual(activity.activity_plan_id, template.plan_id)
             self.assertEqual(activity.activity_type_id, template.activity_type_id)
             self.assertEqual(activity.date_deadline, expected_deadline)
             self.assertEqual(activity.note, template.note)

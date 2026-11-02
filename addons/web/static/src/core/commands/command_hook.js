@@ -1,6 +1,5 @@
 import { useService } from "@web/core/utils/hooks";
-
-import { useEffect } from "@odoo/owl";
+import { onMounted, onWillUnmount } from "@odoo/owl";
 
 /**
  * @typedef {import("./command_service").CommandOptions} CommandOptions
@@ -10,14 +9,15 @@ import { useEffect } from "@odoo/owl";
  * This hook will subscribe/unsubscribe the given subscription
  * when the caller component will mount/unmount.
  *
- * @param {string} name
+ * @param {TranslatedString} name
  * @param {()=>(void | import("@web/core/commands/command_palette").CommandPaletteConfig)} action
  * @param {CommandOptions} [options]
  */
 export function useCommand(name, action, options = {}) {
     const commandService = useService("command");
-    useEffect(
-        () => commandService.add(name, action, options),
-        () => []
-    );
+    let remove;
+    onMounted(() => {
+        remove = commandService.add(name, action, options);
+    });
+    onWillUnmount(() => remove?.());
 }

@@ -136,7 +136,6 @@ LangString DESC_Odoo_IoT ${LANG_ENGLISH} "Install the Odoo Server with IoT modul
 LangString DESC_FinishPage_Link ${LANG_ENGLISH} "Contact Odoo for Partnership and/or Support"
 LangString TITLE_Odoo_IoT ${LANG_ENGLISH} "Odoo IoT"
 LangString TITLE_Nginx ${LANG_ENGLISH} "Nginx WebServer"
-LangString TITLE_Ghostscript ${LANG_ENGLISH} "Ghostscript interpreter"
 LangString TITLE_SumatraPDF ${LANG_ENGLISH} "PDF interpreter"
 LangString DESC_FinishPageText ${LANG_ENGLISH} "Start Odoo"
 LangString UnsafeDirText ${LANG_ENGLISH} "Installing outside of $PROGRAMFILES64 is not recommended.$\nDo you want to continue ?"
@@ -146,7 +145,6 @@ LangString DESC_Odoo_IoT ${LANG_FRENCH} "Installation du Serveur Odoo avec les m
 LangString DESC_FinishPage_Link ${LANG_FRENCH} "Contactez Odoo pour un Partenariat et/ou du Support"
 LangString TITLE_Odoo_IoT ${LANG_FRENCH} "Odoo IoT"
 LangString TITLE_Nginx ${LANG_FRENCH} "Installation du serveur web Nginx"
-LangString TITLE_Ghostscript ${LANG_FRENCH} "Installation de l'interpréteur Ghostscript"
 LangString TITLE_SumatraPDF ${LANG_FRENCH} "Installation de l'interpréteur PDF"
 LangString DESC_FinishPageText ${LANG_FRENCH} "Démarrer Odoo"
 LangString UnsafeDirText ${LANG_FRENCH} "Installer en dehors de $PROGRAMFILES64 n'est pas recommandé.$\nVoulez-vous continuer ?"
@@ -175,11 +173,11 @@ Section $(TITLE_Odoo_IoT) SectionOdoo_IoT
 
     # Cloning odoo
     DetailPrint "Cloning Odoo"
-    nsExec::Exec '"$INSTDIR\git\cmd\git.exe" clone --filter=tree:0 -b 19.0 --single-branch --no-checkout https://github.com/odoo/odoo.git "$INSTDIR\odoo"'
+    nsExec::Exec '"$INSTDIR\git\cmd\git.exe" clone --filter=tree:0 -b saas-19.4 --single-branch --no-checkout https://github.com/odoo/odoo.git "$INSTDIR\odoo"'
 
     DetailPrint "Configuring Sparse Checkout for IoT modules"
     nsExec::Exec '"$INSTDIR\git\cmd\git.exe" -C "$INSTDIR\odoo" sparse-checkout init --no-cone'
-    nsExec::Exec '"$INSTDIR\git\cmd\git.exe" -C "$INSTDIR\odoo" sparse-checkout set addons/web addons/hw_* addons/iot_drivers addons/iot_base addons/iot_box_image/configuration addons/point_of_sale/tools/posbox/configuration/requirements.txt odoo odoo-bin'
+    nsExec::Exec '"$INSTDIR\git\cmd\git.exe" -C "$INSTDIR\odoo" sparse-checkout set addons/web addons/hw_* addons/iot_drivers addons/iot_base setup/iot_box_builder/configuration addons/point_of_sale/tools/posbox/configuration/requirements.txt odoo odoo-bin'
 
     DetailPrint "Checking out the repository"
     nsExec::Exec '"$INSTDIR\git\cmd\git.exe" -C "$INSTDIR\odoo" checkout'
@@ -198,9 +196,8 @@ Section $(TITLE_Odoo_IoT) SectionOdoo_IoT
     # set modules to load
     WriteIniStr "$INSTDIR\odoo.conf" "options" "server_wide_modules" "iot_drivers,web"
     # Configure logging
-    WriteIniStr "$INSTDIR\odoo.conf" "options" "logfile" "$INSTDIR\odoo.log"
-    WriteIniStr "$INSTDIR\odoo.conf" "options" "log_handler" ":WARNING"
-    WriteIniStr "$INSTDIR\odoo.conf" "options" "log_level" "warn"
+    WriteIniStr "$INSTDIR\odoo.conf" "options" "log_handler" ":INFO,werkzeug:WARNING"
+    WriteIniStr "$INSTDIR\odoo.conf" "options" "log_level" "info"
     # Other configuration
     WriteIniStr "$INSTDIR\odoo.conf" "options" "list_db" "False"
     WriteIniStr "$INSTDIR\odoo.conf" "options" "max_cron_threads" "0"
@@ -212,10 +209,21 @@ Section $(TITLE_Odoo_IoT) SectionOdoo_IoT
 
     DetailPrint "Installing Windows service"
     nsExec::ExecToLog '"$INSTDIR\nssm\win64\nssm.exe" install ${SERVICENAME} "$INSTDIR\python\python.exe"'
+
+    nsExec::ExecToLog '"$INSTDIR\nssm\win64\nssm.exe" set ${SERVICENAME} AppStdout "$INSTDIR\odoo.log"'
+    nsExec::ExecToLog '"$INSTDIR\nssm\win64\nssm.exe" set ${SERVICENAME} AppStderr "$INSTDIR\odoo.log"'
+
+    nsExec::ExecToLog '"$INSTDIR\nssm\win64\nssm.exe" set ${SERVICENAME} AppRotateFiles 1'
+    nsExec::ExecToLog '"$INSTDIR\nssm\win64\nssm.exe" set ${SERVICENAME} AppRotateOnline 1'
+    nsExec::ExecToLog '"$INSTDIR\nssm\win64\nssm.exe" set ${SERVICENAME} AppRotateBytes 1073741824'
+    nsExec::ExecToLog '"$INSTDIR\nssm\win64\nssm.exe" set ${SERVICENAME} AppRotateSeconds 86400'
+
     nsExec::ExecToLog '"$INSTDIR\nssm\win64\nssm.exe" set ${SERVICENAME} AppDirectory "$\"$INSTDIR\python$\""'
-    nsExec::ExecToLog '"$INSTDIR\nssm\win64\nssm.exe" set ${SERVICENAME} AppParameters "\"$INSTDIR\odoo\odoo-bin\" -c "\"$INSTDIR\odoo.conf\"'
+    nsExec::ExecToLog '"$INSTDIR\nssm\win64\nssm.exe" set ${SERVICENAME} AppParameters "\"$INSTDIR\odoo\odoo-bin\" -c \"$INSTDIR\odoo.conf\""'
     nsExec::ExecToLog '"$INSTDIR\nssm\win64\nssm.exe" set ${SERVICENAME} ObjectName "LOCALSERVICE"'
-    AccessControl::GrantOnFile  "$INSTDIR" "LOCALSERVICE" "FullAccess"
+    AccessControl::GrantOnFile "$INSTDIR" "LOCALSERVICE" "FullAccess"
+
+    nsExec::ExecToLog 'netsh advfirewall firewall add rule name="Odoo IoT Box ${VERSION}" dir=in action=allow protocol=TCP localport=80,443,8069,9000,9050,7784,33334 enable=yes profile=public,private'
 
     nsExec::ExecToStack '"$INSTDIR\python\python.exe" "$INSTDIR\odoo\odoo-bin" genproxytoken'
     pop $0
@@ -254,27 +262,8 @@ Section -$(TITLE_Nginx) Nginx
     CreateDirectory $INSTDIR\nginx\logs
     File "conf\nginx\nginx.conf"
     # Temporary certs for the first start
-    File "..\..\odoo\addons\iot_box_image\overwrite_after_init\etc\ssl\certs\nginx-cert.crt"
-    File "..\..\odoo\addons\iot_box_image\overwrite_after_init\etc\ssl\private\nginx-cert.key"
-SectionEnd
-
-Section -$(TITLE_Ghostscript) SectionGhostscript
-    SetOutPath '$TEMP'
-    VAR /GLOBAL ghostscript_exe_filename
-    VAR /GLOBAL ghostscript_url
-
-    StrCpy $ghostscript_exe_filename "gs10012w64.exe"
-    StrCpy $ghostscript_url "https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs10012/$ghostscript_exe_filename"
-
-    DetailPrint "Downloading Ghostscript"
-    NScurl::http get "$ghostscript_url" "$TEMP\$ghostscript_exe_filename" /PAGE /END
-    DetailPrint "Temp dir: $TEMP\$ghostscript_exe_filename"
-
-    Rmdir /r "INSTDIR\Ghostscript"
-    DetailPrint "Installing Ghostscript"
-    ExecWait '"$TEMP\$ghostscript_exe_filename" \
-        /S \
-        /D=$INSTDIR\Ghostscript'
+    File "..\iot_box_builder\overwrite_before_init\etc\ssl\certs\nginx-cert.crt"
+    File "..\iot_box_builder\overwrite_before_init\etc\ssl\private\nginx-cert.key"
 SectionEnd
 
 Section -$(TITLE_SumatraPDF) SectionSumatraPDF
@@ -324,7 +313,6 @@ Section "Uninstall"
     Pop $R0
     ReadRegStr $0 HKLM "${UNINSTALL_REGISTRY_KEY_SERVER}" "UninstallString"
     ExecWait '"$0" /S'
-    ExecWait '"$INSTDIR\Ghostscript\uninstgs.exe" /S'
     ExecWait '"$INSTDIR\SumatraPDF\SumatraPDF.exe" -uninstall -silent'
 
     nsExec::Exec "net stop ${SERVICENAME}"
@@ -343,6 +331,7 @@ Section "Uninstall"
     nginx_dir_not_found:
     FindClose $0
     DeleteRegKey HKLM "${UNINSTALL_REGISTRY_KEY}"
+    nsExec::ExecToLog 'netsh advfirewall firewall delete rule name="Odoo IoT Box ${VERSION}"'
 SectionEnd
 
 Function .onInit
@@ -370,8 +359,8 @@ FunctionEnd
 
 Function RestartOdooService
     DetailPrint "Restarting Odoo Service"
-    ExecWait "net stop ${SERVICENAME}"
-    ExecWait "net start ${SERVICENAME}"
+    nsExec::Exec "net stop ${SERVICENAME}"
+    nsExec::Exec "net start ${SERVICENAME}"
 FunctionEnd
 
 Function dir_leave

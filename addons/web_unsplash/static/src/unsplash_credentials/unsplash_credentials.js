@@ -1,13 +1,13 @@
-import { Component, useState } from "@odoo/owl";
+import { Component, proxy, t, useProps } from "@odoo/owl";
 
 export class UnsplashCredentials extends Component {
     static template = "web_unsplash.UnsplashCredentials";
-    static props = {
-        submitCredentials: Function,
-        hasCredentialsError: Boolean,
-    };
+    props = useProps({
+        submitCredentials: t.function(),
+        hasCredentialsError: t.boolean(),
+    });
     setup() {
-        this.state = useState({
+        this.state = proxy({
             key: "",
             appId: "",
             hasKeyError: this.props.hasCredentialsError,

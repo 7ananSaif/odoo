@@ -1,7 +1,5 @@
-from datetime import datetime
-
 from odoo.fields import Command
-from odoo.tests import tagged
+from odoo.tests import HttpCase, tagged
 
 from odoo.addons.l10n_ar.tests.common import TestArCommon
 from odoo.addons.website_sale.tests.common import MockRequest
@@ -9,6 +7,8 @@ from odoo.addons.website_sale.tests.common import MockRequest
 
 @tagged('post_install_l10n', 'post_install', '-at_install')
 class TestL10nArWebsiteSale(TestArCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):
@@ -34,16 +34,15 @@ class TestL10nArWebsiteSale(TestArCommon):
             'name': 'Color',
             'display_type': 'color',
         })
-        cls.color_white = cls.env['product.attribute.value'].create({
+        cls.color_white, cls.color_black = cls.env['product.attribute.value'].create([{
             'name': 'White',
             'html_color': '#FFFFFF',
             'attribute_id': cls.color_attribute.id,
-        })
-        cls.color_black = cls.env['product.attribute.value'].create({
+        }, {
             'name': 'Black',
             'html_color': '#000000',
             'attribute_id': cls.color_attribute.id,
-        })
+        }])
 
     def assertDictContains(self, actual_dict, expected_subset):
         """Assert that actual_dict contains all key-value pairs from expected_subset."""
@@ -52,13 +51,14 @@ class TestL10nArWebsiteSale(TestArCommon):
 
     def _get_combination_info(self, product_id=None, quantity=1):
         """Helper method to retrieve combination info for a product."""
-        with MockRequest(self.env, website=self.ar_website):
-            return self.product_1._get_additionnal_combination_info(
+        with MockRequest(self.env, website=self.ar_website) as request:
+            return self.product_1._get_additional_combination_info(
                 product_or_template=product_id or self.product_1,
                 quantity=quantity,
                 uom=self.uom_unit,
-                date=datetime(2025, 5, 21),
-                website=self.ar_website
+                website=self.ar_website,
+                pricelist=request.pricelist,
+                fiscal_position=request.fiscal_position,
             )
 
     def test_default_website_sale_legal_values(self):
@@ -76,14 +76,14 @@ class TestL10nArWebsiteSale(TestArCommon):
             })
 
         with self.subTest(scenario="Mixed taxes - 10.5% excluded + 27% included"):
-            template = self.env['account.chart.template']
-            tax_27_included = template.ref('ri_tax_vat_27_ventas')
-            tax_10_5_excluded = template.ref('ri_tax_vat_10_ventas')
+            AccountChartTemplate = self.env['account.chart.template']
+            tax_27_included = AccountChartTemplate.ref('ri_tax_vat_27_ventas')
+            tax_10_5_excluded = AccountChartTemplate.ref('ri_tax_vat_10_ventas')
 
             tax_27_included.price_include = True
             tax_10_5_excluded.price_include = False
 
-            self.product_1.taxes_id = (tax_27_included + tax_10_5_excluded).ids
+            self.product_1.taxes_id = tax_27_included + tax_10_5_excluded
             combo = self._get_combination_info()
             self.assertDictContains(combo, {
                 'list_price': 1082.68,                 # Computed price including all taxes
@@ -92,7 +92,7 @@ class TestL10nArWebsiteSale(TestArCommon):
 
     def test_price_calculation_with_pricelist_rules(self):
         """Check that pricelist rules are taken into account."""
-        self._enable_pricelists()
+        self.pricelist = self._enable_pricelists()
         self.pricelist.update({
             'website_id': self.ar_website.id,
             'item_ids': [
@@ -104,7 +104,7 @@ class TestL10nArWebsiteSale(TestArCommon):
                     'product_tmpl_id': self.product_1.id,
                 }),
                 Command.create({
-                    'compute_price': 'formula',
+                    'compute_price': 'discount',
                     'price_surcharge': 2.0,
                     'applied_on': '3_global',
                 }),
@@ -148,3 +148,46 @@ class TestL10nArWebsiteSale(TestArCommon):
                 'list_price': 1452.00,                # (1000+200) + 21%
                 'l10n_ar_price_tax_excluded': 1200.00,
             })
+
+
+@tagged('post_install_l10n', 'post_install', '-at_install')
+class TestL10nArWebsiteSaleCheckout(TestArCommon, HttpCase):
+
+    def test_arca_responsibility_shown_without_b2b_fields(self):
+        """The required ARCA Responsibility stays on the form when the b2b fields are disabled."""
+        website = self.env['website'].sudo().create({
+            'name': 'AR Website',
+            'company_id': self.company_data['company'].id,
+            'domain': self.base_url(),
+        })
+        self.env.ref('website_sale.address_b2b').sudo().active = False
+        product = self.env['product.product'].sudo().create({
+            'name': 'Product', 'list_price': 100, 'is_published': True,
+        })
+        user = self._create_new_portal_user()
+        cart = self.env['sale.order'].sudo().create({
+            'partner_id': user.partner_id.id,
+            'website_id': website.id,
+            'order_line': [Command.create({'product_id': product.id})],
+        })
+        self.authenticate(user.login, user.login, session_extra={'sale_order_id': cart.id})
+        page = self.url_open(f'/shop/address?partner_id={user.partner_id.id}&address_type=billing').text
+        self.assertIn('name="l10n_ar_afip_responsibility_type_id"', page)
+
+        cf = self.env.ref('l10n_ar.res_CF')
+        res = self.url_open('/shop/address/submit', data={
+            'csrf_token': self.csrf_token(),
+            'partner_id': user.partner_id.id,
+            'address_type': 'billing',
+            'name': "Juan Perez",
+            'email': 'juan@example.com',
+            'phone': '+541112345678',
+            'street': "Calle Falsa 123",
+            'city': "Rosario",
+            'zip': '2000',
+            'country_id': self.env.ref('base.ar').id,
+            'state_id': self.env.ref('base.state_ar_s').id,
+            'l10n_ar_afip_responsibility_type_id': cf.id,
+        }).json()
+        self.assertNotIn('invalid_fields', res)
+        self.assertEqual(user.partner_id.l10n_ar_afip_responsibility_type_id, cf)

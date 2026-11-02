@@ -1,5 +1,4 @@
 import {
-    addBuilderPlugin,
     addDropZoneSelector,
     createTestSnippets,
     getDragHelper,
@@ -9,11 +8,9 @@ import {
     waitForEndOfOperation,
     waitForSnippetDialog,
 } from "@html_builder/../tests/helpers";
-import { Builder } from "@html_builder/builder";
-import { Plugin } from "@html_editor/plugin";
 import { beforeEach, expect, test, describe } from "@odoo/hoot";
 import { animationFrame, click, queryAll, queryAllTexts, queryFirst } from "@odoo/hoot-dom";
-import { contains, onRpc, patchWithCleanup } from "@web/../tests/web_test_helpers";
+import { contains } from "@web/../tests/web_test_helpers";
 
 describe.current.tags("desktop");
 
@@ -21,9 +18,9 @@ let snippets;
 beforeEach(() => {
     snippets = {
         snippet_groups: [
-            '<div name="A" data-o-image-preview="" data-oe-thumbnail="a.svg" data-oe-snippet-id="123" data-oe-keywords="" data-o-snippet-group="a"><section class="s_snippet_group" data-snippet="s_snippet_group"></section></div>',
-            '<div name="B" data-o-image-preview="" data-oe-thumbnail="b.svg" data-oe-snippet-id="123" data-oe-keywords="" data-o-snippet-group="b"><section class="s_snippet_group" data-snippet="s_snippet_group"></section></div>',
-            '<div name="C" data-o-image-preview="" data-oe-thumbnail="c.svg" data-oe-snippet-id="123" data-oe-keywords="" data-o-snippet-group="c"><section class="s_snippet_group" data-snippet="s_snippet_group"></section></div>',
+            '<div name="A" data-o-image-preview="" data-oe-thumbnail="/web/static/img/logo.png" data-oe-snippet-id="123" data-oe-keywords="" data-o-snippet-group="a"><section class="s_snippet_group" data-snippet="s_snippet_group"></section></div>',
+            '<div name="B" data-o-image-preview="" data-oe-thumbnail="/web/static/img/logo2.png" data-oe-snippet-id="123" data-oe-keywords="" data-o-snippet-group="b"><section class="s_snippet_group" data-snippet="s_snippet_group"></section></div>',
+            '<div name="C" data-o-image-preview="" data-oe-thumbnail="/web/static/img/nologo.png" data-oe-snippet-id="123" data-oe-keywords="" data-o-snippet-group="c"><section class="s_snippet_group" data-snippet="s_snippet_group"></section></div>',
         ],
     };
     addDropZoneSelector({
@@ -42,24 +39,24 @@ test("display group snippet", async () => {
     const thumbnailImgUrls = queryAll(`${snippetGroupsSelector} .o_snippet_thumbnail_img`).map(
         (thumbnail) => thumbnail.style.backgroundImage
     );
-    expect(thumbnailImgUrls).toEqual(['url("a.svg")', 'url("b.svg")', 'url("c.svg")']);
+    expect(thumbnailImgUrls).toEqual([
+        'url("/web/static/img/logo.png")',
+        'url("/web/static/img/logo2.png")',
+        'url("/web/static/img/nologo.png")',
+    ]);
 });
 
 test("install an app from snippet group", async () => {
-    patchWithCleanup(Builder.prototype, {
-        setup() {
-            this.props.installSnippetModule = ({ moduleId }) => {
+    await setupHTMLBuilder("<div><p>Text</p></div>", {
+        builderProps: {
+            installSnippetModule: ({ moduleId }) => {
                 expect(moduleId).toEqual("111");
                 expect.step(`button_immediate_install`);
-            };
-            super.setup(...arguments);
+            },
         },
-    });
-
-    await setupHTMLBuilder("<div><p>Text</p></div>", {
         snippets: {
             snippet_groups: [
-                '<div name="A" data-module-id="111" data-module-display-name="module_A" data-oe-thumbnail="a.svg"><section class="s_snippet_group" data-snippet="s_snippet_group"></section></div>',
+                '<div name="A" data-module-id="111" data-module-display-name="module_A"><section class="s_snippet_group" data-snippet="s_snippet_group"></section></div>',
             ],
         },
     });
@@ -76,16 +73,6 @@ test("install an app from snippet group", async () => {
 });
 
 test("install an app from snippet structure", async () => {
-    patchWithCleanup(Builder.prototype, {
-        setup() {
-            this.props.installSnippetModule = ({ moduleId }) => {
-                expect(moduleId).toEqual("111");
-                expect.step(`button_immediate_install`);
-            };
-            super.setup(...arguments);
-        },
-    });
-
     const snippetsDescription = createTestSnippets({
         snippets: [
             {
@@ -105,9 +92,15 @@ test("install an app from snippet structure", async () => {
     });
 
     await setupHTMLBuilder("<div><p>Text</p></div>", {
+        builderProps: {
+            installSnippetModule: ({ moduleId }) => {
+                expect(moduleId).toEqual("111");
+                expect.step(`button_immediate_install`);
+            },
+        },
         snippets: {
             snippet_groups: [
-                '<div name="A" data-oe-thumbnail="a.svg" data-oe-snippet-id="123" data-o-snippet-group="a"><section data-snippet="s_snippet_group"></section></div>',
+                '<div name="A" data-oe-snippet-id="123" data-o-snippet-group="a"><section data-snippet="s_snippet_group"></section></div>',
             ],
             snippet_structure: snippetsDescription.map((snippetDesc) =>
                 getSnippetStructure(snippetDesc)
@@ -149,8 +142,8 @@ test("open add snippet dialog + switch snippet category", async () => {
     await setupHTMLBuilder("<div><p>Text</p></div>", {
         snippets: {
             snippet_groups: [
-                '<div name="A" data-oe-thumbnail="a.svg" data-oe-snippet-id="123" data-o-snippet-group="a"><section data-snippet="s_snippet_group"></section></div>',
-                '<div name="B" data-oe-thumbnail="b.svg" data-oe-snippet-id="123" data-o-snippet-group="b"><section data-snippet="s_snippet_group"></section></div>',
+                '<div name="A" data-oe-snippet-id="123" data-o-snippet-group="a"><section data-snippet="s_snippet_group"></section></div>',
+                '<div name="B" data-oe-snippet-id="123" data-o-snippet-group="b"><section data-snippet="s_snippet_group"></section></div>',
             ],
             snippet_structure: createTestSnippets({ snippets, withName: false }).map(
                 (snippetDesc) => getSnippetStructure(snippetDesc)
@@ -208,8 +201,8 @@ test("search snippet in add snippet dialog", async () => {
     await setupHTMLBuilder("<div><p>Text</p></div>", {
         snippets: {
             snippet_groups: [
-                '<div name="A" data-oe-thumbnail="a.svg" data-oe-snippet-id="123" data-o-snippet-group="a"><section data-snippet="s_snippet_group"></section></div>',
-                '<div name="B" data-oe-thumbnail="b.svg" data-oe-snippet-id="123" data-o-snippet-group="b"><section data-snippet="s_snippet_group"></section></div>',
+                '<div name="A" data-oe-snippet-id="123" data-o-snippet-group="a"><section data-snippet="s_snippet_group"></section></div>',
+                '<div name="B" data-oe-snippet-id="123" data-o-snippet-group="b"><section data-snippet="s_snippet_group"></section></div>',
             ],
             snippet_structure: createTestSnippets({ snippets, withName: false }).map(
                 (snippetDesc) => getSnippetStructure(snippetDesc)
@@ -296,7 +289,7 @@ test("search snippet by class", async () => {
     await setupHTMLBuilder("<div><p>Text</p></div>", {
         snippets: {
             snippet_groups: [
-                '<div name="A" data-oe-thumbnail="a.svg" data-oe-snippet-id="123" data-o-snippet-group="a"><section data-snippet="s_snippet_group"></section></div>',
+                '<div name="A" data-oe-snippet-id="123" data-o-snippet-group="a"><section data-snippet="s_snippet_group"></section></div>',
             ],
             snippet_structure: snippetsForSetup.map((snippetDesc) =>
                 getSnippetStructure(snippetDesc)
@@ -330,6 +323,72 @@ test("search snippet by class", async () => {
     ).toEqual(snippetsDescriptionProcessed[1].content);
 });
 
+test("search snippet by label", async () => {
+    const snippets = [
+        {
+            name: "foo_bar",
+            groupName: "a",
+            innerHTML: "content 1",
+            label: "",
+        },
+        {
+            name: "foo",
+            groupName: "a",
+            innerHTML: "content 2",
+            label: "Hello World",
+        },
+        {
+            name: "bar",
+            groupName: "a",
+            innerHTML: "content 3",
+            label: "Goodbye World",
+        },
+    ];
+
+    const snippetsForSetup = createTestSnippets({ snippets, withName: false });
+    const snippetsDescriptionProcessed = createTestSnippets({ snippets, withName: true });
+
+    await setupHTMLBuilder("<div><p>Text</p></div>", {
+        snippets: {
+            snippet_groups: [
+                '<div name="A" data-oe-snippet-id="123" data-o-snippet-group="a"><section data-snippet="s_snippet_group"></section></div>',
+            ],
+            snippet_structure: snippetsForSetup.map((snippetDesc) =>
+                getSnippetStructure(snippetDesc)
+            ),
+        },
+    });
+    await click(".o-snippets-menu #snippet_groups .o_snippet_thumbnail .o_snippet_thumbnail_area");
+    await waitForSnippetDialog();
+
+    // Search "hello" -> 1 result
+    await contains(".o_add_snippet_dialog aside input[type='search']").edit("hello");
+    expect(
+        ".o_add_snippet_dialog .o_add_snippet_iframe:iframe .o_snippet_preview_wrap > div"
+    ).toHaveCount(1);
+    expect(
+        queryFirst(
+            ".o_add_snippet_dialog .o_add_snippet_iframe:iframe .o_snippet_preview_wrap > div"
+        ).innerHTML
+    ).toEqual(snippetsDescriptionProcessed[1].content);
+
+    // Search "world" -> 2 results
+    await contains(".o_add_snippet_dialog aside input[type='search']").edit("world");
+    expect(
+        ".o_add_snippet_dialog .o_add_snippet_iframe:iframe .o_snippet_preview_wrap > div"
+    ).toHaveCount(2);
+    expect(
+        queryFirst(
+            ".o_add_snippet_dialog .o_add_snippet_iframe:iframe .o_snippet_preview_wrap:first > div"
+        ).innerHTML
+    ).toEqual(snippetsDescriptionProcessed[1].content);
+    expect(
+        queryFirst(
+            ".o_add_snippet_dialog .o_add_snippet_iframe:iframe .o_snippet_preview_wrap:last > div"
+        ).innerHTML
+    ).toEqual(snippetsDescriptionProcessed[2].content);
+});
+
 test("add snippet dialog with imagePreview", async () => {
     const snippets = [
         { name: "gravy", groupName: "a", innerHTML: "content 1" },
@@ -339,8 +398,8 @@ test("add snippet dialog with imagePreview", async () => {
     await setupHTMLBuilder("<div><p>Text</p></div>", {
         snippets: {
             snippet_groups: [
-                '<div name="A" data-oe-thumbnail="a.svg" data-oe-snippet-id="123" data-o-snippet-group="a"><section data-snippet="s_snippet_group"></section></div>',
-                '<div name="B" data-oe-thumbnail="b.svg" data-oe-snippet-id="123" data-o-snippet-group="b"><section data-snippet="s_snippet_group"></section></div>',
+                '<div name="A" data-oe-snippet-id="123" data-o-snippet-group="a"><section data-snippet="s_snippet_group"></section></div>',
+                '<div name="B" data-oe-snippet-id="123" data-o-snippet-group="b"><section data-snippet="s_snippet_group"></section></div>',
             ],
             snippet_structure: createTestSnippets({ snippets, withName: false }).map(
                 (snippetDesc) => getSnippetStructure(snippetDesc)
@@ -367,7 +426,7 @@ test("insert snippet structure", async () => {
     const { contentEl } = await setupHTMLBuilder("<section><p>Text</p></section>", {
         snippets: {
             snippet_groups: [
-                '<div name="A" data-oe-thumbnail="a.svg" data-oe-snippet-id="123" data-o-snippet-group="a"><section data-snippet="s_snippet_group"></section></div>',
+                '<div name="A" data-oe-snippet-id="123" data-o-snippet-group="a"><section data-snippet="s_snippet_group"></section></div>',
             ],
             snippet_structure: createTestSnippets({ snippets, withName: false }).map(
                 (snippetDesc) => getSnippetStructure(snippetDesc)
@@ -399,7 +458,7 @@ test("Drag & drop snippet structure", async () => {
     const { contentEl } = await setupHTMLBuilder("<section><p>Text</p></section>", {
         snippets: {
             snippet_groups: [
-                '<div name="A" data-oe-thumbnail="a.svg" data-oe-snippet-id="123" data-o-snippet-group="a"><section data-snippet="s_snippet_group"></section></div>',
+                '<div name="A" data-oe-snippet-id="123" data-o-snippet-group="a"><section data-snippet="s_snippet_group"></section></div>',
             ],
             snippet_structure: createTestSnippets({ snippets, withName: false }).map(
                 (snippetDesc) => getSnippetStructure(snippetDesc)
@@ -454,82 +513,6 @@ test("Cancel snippet drag & drop over sidebar", async () => {
     await waitForEndOfOperation();
 
     expect(contentEl).toHaveInnerHTML("");
-});
-
-test("Renaming custom snippets don't make an orm call", async () => {
-    class TestSetupEditorPlugin extends Plugin {
-        static id = "test.setup_editor_plugin";
-        resources = {
-            snippet_preview_dialog_bundles: ["web.assets_frontend"],
-        };
-    }
-    addBuilderPlugin(TestSetupEditorPlugin);
-
-    // Stub rename_snippet RPC to succeed if it is called
-    onRpc("ir.ui.view", "rename_snippet", ({ args }) => true);
-
-    const customSnippets = createTestSnippets({
-        snippets: [
-            {
-                name: "Dummy Section",
-                groupName: "custom",
-                keywords: ["dummy"],
-                content: `
-        <section data-snippet="s_dummy">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-7">
-                        <p>TEST</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-    `,
-            },
-        ],
-        withName: true,
-    });
-    const snippets = {
-        snippet_groups: [
-            '<div name="Custom" data-oe-snippet-id="123" data-o-snippet-group="custom"><section data-snippet="s_snippet_group"></section></div>',
-        ],
-        snippet_structure: customSnippets.map((snippetDesc) => getSnippetStructure(snippetDesc)),
-        snippet_custom: customSnippets.map((snippetDesc) => getSnippetStructure(snippetDesc)),
-    };
-
-    await setupHTMLBuilder(
-        `<section data-name="Dummy Section" data-snippet="s_dummy">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-7">
-                        <p>TEST</p>
-                        <p><a class="btn">BUTTON</a></p>
-                    </div>
-                </div>
-            </div>
-        </section>`,
-        { snippets }
-    );
-
-    await contains(
-        ".o-website-builder_sidebar .o_snippets_container .o_snippet[name='Custom'] button"
-    ).click();
-    await animationFrame();
-
-    // Throw if any render_public_asset RPC happens during rename
-    onRpc("ir.ui.view", "render_public_asset", () => {
-        throw new Error("shouldn't make an rpc call on snippet rename");
-    });
-
-    await contains(
-        ".o_add_snippet_dialog .o_add_snippet_iframe:iframe .o_custom_snippet_edit button > .fa-pencil"
-    ).click();
-    expect(".o-overlay-item .modal-dialog:contains('Rename the block')").toHaveCount(1);
-    await contains(".o-overlay-item .modal-dialog input#inputConfirmation").fill("new custom name");
-    await contains(".o-overlay-item .modal-dialog footer>button:contains('Save')").click();
-    expect(
-        ".o_add_snippet_dialog .o_add_snippet_iframe:iframe .o_custom_snippet_edit>span:contains('new custom name')"
-    ).toHaveCount(1);
 });
 
 test("data-name is injected when missing and preserved when already set on snippets at editor setup", async () => {

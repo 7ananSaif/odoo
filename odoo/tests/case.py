@@ -84,7 +84,7 @@ class _Outcome(object):
         # method since the error does not comme especially from the test method.
         while tb:
             code = tb.tb_frame.f_code
-            if PurePath(code.co_filename).name == 'case.py' and code.co_name in ('_callTestMethod', '_callSetUp', '_callTearDown', '_callCleanup'):
+            if code.co_name in ('_callTestMethod', '_callSetUp', '_callTearDown', '_callCleanup'):
                 return tb.tb_next
             tb = tb.tb_next
 
@@ -252,7 +252,7 @@ class TestCase(_TestCase):
     def canonical_tag(self):
         return self.get_canonical_tag()
 
-    def _make_canonical_tag(self=None, tag='', module=None, test_class=None, test_method=None, params=None):
+    def _make_canonical_tag(self, tag='', module=None, test_class=None, test_method=None, params=None):
         if module:
             tag = f'{tag}/{module}'
         if test_class:
@@ -283,10 +283,9 @@ class TestCase(_TestCase):
         return self._make_canonical_tag(**self._get_canonical_tags_params(log))
 
     def get_log_metadata(self, _log):
-        metadata = {
+        return {
             'canonical_tag': self.get_canonical_tag(_log),
         }
-        return metadata
 
 
 class _SubTest(TestCase):

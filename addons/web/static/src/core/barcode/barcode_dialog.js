@@ -1,7 +1,14 @@
 import { _t } from "@web/core/l10n/translation";
 import { Dialog } from "@web/core/dialog/dialog";
-import { Component, useState } from "@odoo/owl";
+import { Component, proxy, t, useProps } from "@odoo/owl";
 import { BarcodeVideoScanner, isBarcodeScannerSupported } from "./barcode_video_scanner";
+
+export const barcodeDialogProps = {
+    facingMode: t.any(),
+    close: t.any(),
+    onResult: t.any(),
+    onError: t.any(),
+};
 
 export class BarcodeDialog extends Component {
     static template = "web.BarcodeDialog";
@@ -9,10 +16,10 @@ export class BarcodeDialog extends Component {
         BarcodeVideoScanner,
         Dialog,
     };
-    static props = ["facingMode", "close", "onResult", "onError"];
+    props = useProps(barcodeDialogProps);
 
     setup() {
-        this.state = useState({
+        this.state = proxy({
             barcodeScannerSupported: isBarcodeScannerSupported(),
             errorMessage: _t("Check your browser permissions"),
         });

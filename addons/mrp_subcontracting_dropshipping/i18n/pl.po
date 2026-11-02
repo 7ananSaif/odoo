@@ -9,10 +9,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-01-15 10:17+0000\n"
-"Last-Translator: \"Marta (wacm)\" <wacm@odoo.com>\n"
-"Language-Team: Polish <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-11 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 17:27+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Polish <https://translate.odoo.com/projects/odoo-s19-4/"
 "mrp_subcontracting_dropshipping/pl/>\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
@@ -20,12 +20,20 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: mrp_subcontracting_dropshipping
+#: model:ir.module.module,description:base.module_mrp_subcontracting_dropshipping
+msgid ""
+"\n"
+"This bridge module allows to manage subcontracting with the dropshipping "
+"module.\n"
+msgstr ""
 
 #. module: mrp_subcontracting_dropshipping
 #: model:ir.model,name:mrp_subcontracting_dropshipping.model_res_company
-msgid "Companies"
-msgstr "Firmy"
+msgid "Company"
+msgstr "Firma"
 
 #. module: mrp_subcontracting_dropshipping
 #: model:ir.model.fields,field_description:mrp_subcontracting_dropshipping.field_purchase_order__default_location_dest_id_is_subcontracting_loc
@@ -39,6 +47,7 @@ msgstr "Domyślna lokalizacja docelowa to lokalizacja podwykonawcy"
 #: model:ir.model.fields,field_description:mrp_subcontracting_dropshipping.field_stock_picking__display_name
 #: model:ir.model.fields,field_description:mrp_subcontracting_dropshipping.field_stock_replenish_mixin__display_name
 #: model:ir.model.fields,field_description:mrp_subcontracting_dropshipping.field_stock_rule__display_name
+#: model:ir.model.fields,field_description:mrp_subcontracting_dropshipping.field_stock_traceability_report__display_name
 #: model:ir.model.fields,field_description:mrp_subcontracting_dropshipping.field_stock_warehouse__display_name
 #: model:ir.model.fields,field_description:mrp_subcontracting_dropshipping.field_stock_warehouse_orderpoint__display_name
 msgid "Display Name"
@@ -56,12 +65,18 @@ msgid "Dropship Subcontractor on Order"
 msgstr "Podwykonawca dropship na zamówienie"
 
 #. module: mrp_subcontracting_dropshipping
+#: model:ir.module.module,shortdesc:base.module_mrp_subcontracting_dropshipping
+msgid "Dropship and Subcontracting Management"
+msgstr ""
+
+#. module: mrp_subcontracting_dropshipping
 #: model:ir.model.fields,field_description:mrp_subcontracting_dropshipping.field_purchase_order__id
 #: model:ir.model.fields,field_description:mrp_subcontracting_dropshipping.field_res_company__id
 #: model:ir.model.fields,field_description:mrp_subcontracting_dropshipping.field_stock_move__id
 #: model:ir.model.fields,field_description:mrp_subcontracting_dropshipping.field_stock_picking__id
 #: model:ir.model.fields,field_description:mrp_subcontracting_dropshipping.field_stock_replenish_mixin__id
 #: model:ir.model.fields,field_description:mrp_subcontracting_dropshipping.field_stock_rule__id
+#: model:ir.model.fields,field_description:mrp_subcontracting_dropshipping.field_stock_traceability_report__id
 #: model:ir.model.fields,field_description:mrp_subcontracting_dropshipping.field_stock_warehouse__id
 #: model:ir.model.fields,field_description:mrp_subcontracting_dropshipping.field_stock_warehouse_orderpoint__id
 msgid "ID"
@@ -104,6 +119,11 @@ msgid "Subcontracting-Dropshipping MTS Rule"
 msgstr "Podwykonawstwo-Dropshipping Zasada MTS"
 
 #. module: mrp_subcontracting_dropshipping
+#: model:ir.model,name:mrp_subcontracting_dropshipping.model_stock_traceability_report
+msgid "Traceability Report"
+msgstr ""
+
+#. module: mrp_subcontracting_dropshipping
 #: model:ir.model,name:mrp_subcontracting_dropshipping.model_stock_picking
 msgid "Transfer"
 msgstr "Przekaz"
@@ -118,21 +138,3 @@ msgstr "Magazyn"
 #: code:addons/mrp_subcontracting_dropshipping/models/purchase.py:0
 msgid "Warning"
 msgstr "Ostrzeżenie"
-
-#~ msgid ""
-#~ "Check this box to create a new dedicated subcontracting location for this "
-#~ "company. Note that standard subcontracting routes will be adapted so as "
-#~ "to take these into account automatically."
-#~ msgstr ""
-#~ "Zaznacz to pole, aby utworzyć nową dedykowaną lokalizację podwykonawczą "
-#~ "dla tej firmy. Zauważ, że standardowe trasy podwykonawstwa zostaną "
-#~ "dostosowane tak, aby automatycznie je uwzględnić."
-
-#~ msgid "Dropship Subcontractors"
-#~ msgstr "Podwykonawcy Dropship"
-
-#~ msgid "Dropship subcontractors with components"
-#~ msgstr "Podwykonawcy z podzespołami"
-
-#~ msgid "Is a Subcontracting Location?"
-#~ msgstr "Czy jest to lokalizacja dla podwykonawców?"

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test } from "@odoo/hoot";
 import { click, queryAllAttributes, queryAllProperties, queryAllTexts } from "@odoo/hoot-dom";
-import { animationFrame } from "@odoo/hoot-mock";
+import { animationFrame, mockMatchMedia } from "@odoo/hoot-mock";
 import { Component, xml } from "@odoo/owl";
 import {
     clearRegistry,
@@ -10,16 +10,16 @@ import {
     onRpc,
     patchWithCleanup,
     serverState,
-    stepAllNetworkCalls,
 } from "@web/../tests/web_test_helpers";
 
 import { browser } from "@web/core/browser/browser";
 import { registry } from "@web/core/registry";
+import { startRouter } from "@web/core/browser/router";
 import { user } from "@web/core/user";
 import { getOrigin } from "@web/core/utils/urls";
 
 import { UserMenu } from "@web/webclient/user_menu/user_menu";
-import { odooAccountItem, preferencesItem } from "@web/webclient/user_menu/user_menu_items";
+import { preferencesItem, shareUrlMenuItem } from "@web/webclient/user_menu/user_menu_items";
 
 const userMenuRegistry = registry.category("user_menuitems");
 
@@ -150,25 +150,9 @@ test("can execute the callback of settings", async () => {
     expect.verifySteps(["7", "Change My Preferences"]);
 });
 
-test("click on odoo account item", async () => {
-    patchWithCleanup(browser, {
-        open: (url) => expect.step(`open ${url}`),
-    });
-    userMenuRegistry.add("odoo_account", odooAccountItem);
-    await mountWithCleanup(UserMenu);
-    onRpc("/web/session/account", () => "https://account-url.com");
-    stepAllNetworkCalls();
-    await contains("button.dropdown-toggle").click();
-    expect(".o-dropdown--menu .dropdown-item").toHaveCount(1);
-    expect(".o-dropdown--menu .dropdown-item").toHaveText("My Odoo.com Account");
-    await contains(".o-dropdown--menu .dropdown-item").click();
-    expect.verifySteps(["/web/session/account", "open https://account-url.com"]);
-});
-
 test("can use component as registry item", async () => {
     class ExampleComponent extends Component {
         static template = xml`<span class='component-class'>Example Component</span>`;
-        static props = ["*"];
     }
     userMenuRegistry.add("component-item", () => ({
         type: "component",
@@ -178,4 +162,30 @@ test("can use component as registry item", async () => {
     await mountWithCleanup(UserMenu);
     await contains("button.dropdown-toggle").click();
     expect(".o-dropdown--menu span.component-class").toHaveText("Example Component");
+});
+
+test("Share URL item is present in the user menu when running as PWA", async () => {
+    patchWithCleanup(browser.navigator, {
+        share: async () => {
+            expect.step("navigator.share");
+        },
+    });
+    startRouter(); // reload the router to make sure navigator.share is defined
+
+    mockMatchMedia({ ["display-mode"]: "standalone" });
+    userMenuRegistry.add("share_url", shareUrlMenuItem);
+    await mountWithCleanup(UserMenu);
+    await contains("button.dropdown-toggle").click();
+    expect(".o-dropdown--menu .dropdown-item").toHaveCount(1);
+    expect(".o-dropdown--menu .dropdown-item").toHaveText("Share");
+    await contains(".o-dropdown--menu .dropdown-item").click();
+    expect.verifySteps(["navigator.share"]);
+});
+
+test("Share URL item is not present in the user menu when not running as PWA", async () => {
+    mockMatchMedia({ ["display-mode"]: "browser" });
+    userMenuRegistry.add("share_url", shareUrlMenuItem);
+    await mountWithCleanup(UserMenu);
+    await contains(".o_user_menu").click();
+    expect(".o-dropdown--menu .dropdown-item").not.toHaveCount();
 });

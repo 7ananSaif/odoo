@@ -2,6 +2,7 @@ import { _t } from "@web/core/l10n/translation";
 import { browser } from "@web/core/browser/browser";
 import { ConnectionLostError, rpc } from "@web/core/network/rpc";
 import { registry } from "@web/core/registry";
+import { markup } from "@odoo/owl";
 
 export const calendarNotificationService = {
     dependencies: ["action", "bus_service", "notification"],
@@ -34,7 +35,7 @@ export const calendarNotificationService = {
                     return;
                 }
                 calendarNotifTimeouts[key] = browser.setTimeout(function () {
-                    const notificationRemove = notification.add(notif.message, {
+                    const notificationRemove = notification.add(markup(notif.message), {
                         title: notif.title,
                         type: "warning",
                         sticky: true,
@@ -44,7 +45,6 @@ export const calendarNotificationService = {
                         buttons: [
                             {
                                 name: _t("OK"),
-                                primary: true,
                                 onClick: async () => {
                                     await rpc("/calendar/notify_ack");
                                     notificationRemove();
@@ -62,13 +62,8 @@ export const calendarNotificationService = {
                                     notificationRemove();
                                 },
                             },
-                            {
-                                name: _t("Snooze"),
-                                onClick: () => {
-                                    notificationRemove();
-                                },
-                            },
                         ],
+                        className: env.isMobile ? "o_line_clamp_2" : "o_line_clamp_5",
                     });
                     displayedNotifications.add(key);
                 }, notif.timer * 1000);

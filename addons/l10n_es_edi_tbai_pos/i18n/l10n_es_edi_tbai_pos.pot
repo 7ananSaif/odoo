@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0+e\n"
+"Project-Id-Version: Odoo Server 19.5a1+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-08 18:06+0000\n"
-"PO-Revision-Date: 2026-05-08 18:06+0000\n"
+"POT-Creation-Date: 2026-09-11 18:11+0000\n"
+"PO-Revision-Date: 2026-09-11 18:11+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,26 +16,32 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: l10n_es_edi_tbai_pos
+#: model_terms:ir.ui.view,arch_db:l10n_es_edi_tbai_pos.pos_order_receipt
+msgid "<span>TicketBai QR Code</span><br/>"
+msgstr ""
+
+#. module: l10n_es_edi_tbai_pos
 #. odoo-javascript
 #: code:addons/l10n_es_edi_tbai_pos/static/src/app/components/popups/add_tbai_refund_reason_popup/add_tbai_refund_reason_popup.xml:0
 msgid "Additional Refund Information"
 msgstr ""
 
 #. module: l10n_es_edi_tbai_pos
-#: model:ir.model.fields,help:l10n_es_edi_tbai_pos.field_pos_order__l10n_es_tbai_refund_reason
+#: model:ir.model.fields,help:l10n_es_edi_tbai_pos.field_pos_order__l10n_es_invoice_type
 msgid ""
-"BOE-A-1992-28740. Ley 37/1992, de 28 de diciembre, del Impuesto sobre el "
-"Valor Añadido. Artículo 80. Modificación de la base imponible."
+"BOE-A-1992-28740. Law 37/1992, of 28 December, on Value Added Tax. Article "
+"80. Modification of the taxable base."
 msgstr ""
 
 #. module: l10n_es_edi_tbai_pos
 #: model:ir.model,name:l10n_es_edi_tbai_pos.model_res_company
-msgid "Companies"
+msgid "Company"
 msgstr ""
 
 #. module: l10n_es_edi_tbai_pos
 #: model:ir.model.fields,field_description:l10n_es_edi_tbai_pos.field_pos_config__display_name
 #: model:ir.model.fields,field_description:l10n_es_edi_tbai_pos.field_pos_order__display_name
+#: model:ir.model.fields,field_description:l10n_es_edi_tbai_pos.field_pos_order_receipt__display_name
 #: model:ir.model.fields,field_description:l10n_es_edi_tbai_pos.field_res_company__display_name
 msgid "Display Name"
 msgstr ""
@@ -43,13 +49,9 @@ msgstr ""
 #. module: l10n_es_edi_tbai_pos
 #: model:ir.model.fields,field_description:l10n_es_edi_tbai_pos.field_pos_config__id
 #: model:ir.model.fields,field_description:l10n_es_edi_tbai_pos.field_pos_order__id
+#: model:ir.model.fields,field_description:l10n_es_edi_tbai_pos.field_pos_order_receipt__id
 #: model:ir.model.fields,field_description:l10n_es_edi_tbai_pos.field_res_company__id
 msgid "ID"
-msgstr ""
-
-#. module: l10n_es_edi_tbai_pos
-#: model:ir.model.fields,field_description:l10n_es_edi_tbai_pos.field_pos_order__l10n_es_tbai_refund_reason
-msgid "Invoice Refund Reason Code (TicketBai)"
 msgstr ""
 
 #. module: l10n_es_edi_tbai_pos
@@ -89,32 +91,17 @@ msgstr ""
 
 #. module: l10n_es_edi_tbai_pos
 #: model:ir.model,name:l10n_es_edi_tbai_pos.model_pos_order
-msgid "Point of Sale Orders"
+msgid "Point of Sale Order"
 msgstr ""
 
 #. module: l10n_es_edi_tbai_pos
-#: model:ir.model.fields.selection,name:l10n_es_edi_tbai_pos.selection__pos_order__l10n_es_tbai_refund_reason__r1
-msgid "R1: Art. 80.1, 80.2, 80.6 and rights founded error"
+#: model:ir.model,name:l10n_es_edi_tbai_pos.model_pos_order_receipt
+msgid "Point of Sale Order Receipt Generator"
 msgstr ""
 
 #. module: l10n_es_edi_tbai_pos
-#: model:ir.model.fields.selection,name:l10n_es_edi_tbai_pos.selection__pos_order__l10n_es_tbai_refund_reason__r2
-msgid "R2: Art. 80.3"
-msgstr ""
-
-#. module: l10n_es_edi_tbai_pos
-#: model:ir.model.fields.selection,name:l10n_es_edi_tbai_pos.selection__pos_order__l10n_es_tbai_refund_reason__r3
-msgid "R3: Art. 80.4"
-msgstr ""
-
-#. module: l10n_es_edi_tbai_pos
-#: model:ir.model.fields.selection,name:l10n_es_edi_tbai_pos.selection__pos_order__l10n_es_tbai_refund_reason__r4
-msgid "R4: Art. 80 - other"
-msgstr ""
-
-#. module: l10n_es_edi_tbai_pos
-#: model:ir.model.fields.selection,name:l10n_es_edi_tbai_pos.selection__pos_order__l10n_es_tbai_refund_reason__r5
-msgid "R5: Factura rectificativa en facturas simplificadas"
+#: model_terms:ir.ui.view,arch_db:l10n_es_edi_tbai_pos.pos_order_receipt
+msgid "QR Code"
 msgstr ""
 
 #. module: l10n_es_edi_tbai_pos
@@ -125,6 +112,11 @@ msgstr ""
 #. module: l10n_es_edi_tbai_pos
 #: model:ir.model.fields.selection,name:l10n_es_edi_tbai_pos.selection__pos_order__l10n_es_tbai_state__sent
 msgid "Sent"
+msgstr ""
+
+#. module: l10n_es_edi_tbai_pos
+#: model:ir.module.module,shortdesc:base.module_l10n_es_edi_tbai_pos
+msgid "Spain - Point of Sale + TicketBAI"
 msgstr ""
 
 #. module: l10n_es_edi_tbai_pos
@@ -164,14 +156,13 @@ msgid "TicketBAI status"
 msgstr ""
 
 #. module: l10n_es_edi_tbai_pos
-#. odoo-javascript
-#: code:addons/l10n_es_edi_tbai_pos/static/src/app/screens/receipt_screen/order_receipt.xml:0
-msgid "TicketBai QR Code"
+#: model:ir.model.fields.selection,name:l10n_es_edi_tbai_pos.selection__pos_order__l10n_es_tbai_state__to_send
+msgid "To Send"
 msgstr ""
 
 #. module: l10n_es_edi_tbai_pos
-#: model:ir.model.fields.selection,name:l10n_es_edi_tbai_pos.selection__pos_order__l10n_es_tbai_state__to_send
-msgid "To Send"
+#: model:ir.model.fields,field_description:l10n_es_edi_tbai_pos.field_pos_order__l10n_es_invoice_type
+msgid "Veri*Factu Refund Reason"
 msgstr ""
 
 #. module: l10n_es_edi_tbai_pos

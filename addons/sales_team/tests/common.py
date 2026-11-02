@@ -7,6 +7,9 @@ from odoo.addons.mail.tests.common import mail_new_test_user
 
 
 class SalesTeamCommon(BaseCommon):
+    _test_user_groups = ('sales_team.group_sale_salesman',)
+
+    _test_user_name = 'Test Sales User'
 
     @classmethod
     def setUpClass(cls):
@@ -52,7 +55,7 @@ class TestSalesCommon(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super(TestSalesCommon, cls).setUpClass()
-        cls.env['ir.config_parameter'].set_param('sales_team.membership_multi', False)
+        cls.env['ir.config_parameter'].set_bool('sales_team.membership_multi', False)
 
         # Salesmen organization
         # ------------------------------------------------------------

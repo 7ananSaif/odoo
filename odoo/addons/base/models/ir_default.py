@@ -3,7 +3,7 @@
 import json
 from datetime import date
 
-from odoo import api, fields, models, tools
+from odoo import api, fields, models
 from odoo.api import SUPERUSER_ID
 from odoo.exceptions import ValidationError
 from odoo.fields import Domain
@@ -13,9 +13,10 @@ from odoo.tools import SQL
 class IrDefault(models.Model):
     """ User-defined default values for fields. """
     _name = 'ir.default'
-    _description = 'Default Values'
+    _description = 'Default Value'
     _rec_name = 'field_id'
     _allow_sudo_commands = False
+    _clear_cache_name = 'default'
 
     field_id = fields.Many2one('ir.model.fields', string="Field", required=True,
                                ondelete='cascade', index=True)
@@ -41,28 +42,40 @@ class IrDefault(models.Model):
                 raise ValidationError(self.env._("Invalid value in Default Value field. Expected type '%(field_type)s' for '%(model_name)s.%(field_name)s'.",
                                         field_type=record.field_id.ttype, model_name=model_name, field_name=record.field_id.name))
 
+    def _check_accessible_field_id(self):
+        # using current environment as function is called after checking
+        # permissions on the record
+        if self.env.su:
+            return
+        for record in self:
+            if field := record.field_id:
+                model = self.env[field.model]
+                model.check_access('create')
+                model.check_field_access(model._fields[field.name], 'write')
+
     @api.model_create_multi
     def create(self, vals_list):
         # invalidate all company dependent fields since their fallback value in cache may be changed
         self.env.invalidate_all()
-        self.env.registry.clear_cache()
-        return super(IrDefault, self).create(vals_list)
+        new_defaults = super().create(vals_list)
+        new_defaults._check_accessible_field_id()
+        return new_defaults
 
     def write(self, vals):
         if self:
             # invalidate all company dependent fields since their fallback value in cache may be changed
             self.env.invalidate_all()
-            self.env.registry.clear_cache()
         new_default = super().write(vals)
         self.check_access('write')
+        self._check_accessible_field_id()
         return new_default
 
     def unlink(self):
+        res = super().unlink()
         if self:
             # invalidate all company dependent fields since their fallback value in cache may be changed
             self.env.invalidate_all()
-            self.env.registry.clear_cache()
-        return super(IrDefault, self).unlink()
+        return res
 
     @api.model
     def set(self, model_name, field_name, value, user_id=False, company_id=False, condition=False):
@@ -155,7 +168,7 @@ class IrDefault(models.Model):
         return json.loads(default.json_value) if default else None
 
     @api.model
-    @tools.ormcache('self.env.uid', 'self.env.company.id', 'model_name', 'condition')
+    @api.ormcache('self.env.uid', 'self.env.company.id', 'model_name', 'condition')
     # Note about ormcache invalidation: it is not needed when deleting a field,
     # a user, or a company, as the corresponding defaults will no longer be
     # requested. It must only be done when a user's company is modified.
@@ -163,27 +176,25 @@ class IrDefault(models.Model):
         """ Return the available default values for the given model (for the
             current user), as a dict mapping field names to values.
         """
-        cr = self.env.cr
         self.flush_model()
-        query = """ SELECT f.name, d.json_value
+        query = SQL(""" SELECT f.name, d.json_value
                     FROM ir_default d
                     JOIN ir_model_fields f ON d.field_id=f.id
                     WHERE f.model=%s
                         AND (d.user_id IS NULL OR d.user_id=%s)
                         AND (d.company_id IS NULL OR d.company_id=%s)
-                        AND {}
+                        AND %s
                     ORDER BY d.user_id, d.company_id, d.id
-                """
-        # self.env.company is empty when there is no user (controllers with auth=None)
-        params = [model_name, self.env.uid, self.env.company.id or None]
-        if condition:
-            query = query.format("d.condition=%s")
-            params.append(condition)
-        else:
-            query = query.format("d.condition IS NULL")
-        cr.execute(query, params)
+                """,
+                model_name,
+                self.env.uid,
+                # self.env.company is empty when there is no user (controllers with auth=None)
+                self.env.company.id or None,
+                SQL("d.condition=%s", condition) if condition else SQL("d.condition IS NULL")
+        )
+        rows = self.env.execute_query(query)
         result = {}
-        for row in cr.fetchall():
+        for row in rows:
             # keep the highest priority default for each field
             if row[0] not in result:
                 result[row[0]] = json.loads(row[1])
@@ -208,7 +219,7 @@ class IrDefault(models.Model):
         domain = [('field_id', '=', field.id), ('json_value', 'in', json_vals)]
         return self.search(domain).unlink()
 
-    @tools.ormcache('model_name', 'field_name')
+    @api.ormcache('model_name', 'field_name')
     def _get_field_column_fallbacks(self, model_name, field_name):
         company_ids = self.env.execute_query(SQL('SELECT ARRAY_AGG(id) FROM res_company'))[0][0]
         field = self.env[model_name]._fields[field_name]

@@ -6,9 +6,12 @@ import re
 
 from odoo import tools
 from odoo.addons.base.tests.common import TransactionCaseWithUserDemo
+from odoo.tests import tagged
+
 from odoo.addons.http_routing.tests.common import MockRequest
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestQweb(TransactionCaseWithUserDemo):
     def _load(self, module, filepath):
         tools.convert_file(self.env, module, filepath, {}, 'init')
@@ -16,7 +19,7 @@ class TestQweb(TransactionCaseWithUserDemo):
     def test_qweb_cdn(self):
         self._load('test_website', 'tests/template_qweb_test.xml')
 
-        website = self.env.ref('website.default_website')
+        website = self.env.ref('base.default_website')
         website.write({
             "cdn_activated": True,
             "cdn_url": "http://test.cdn"
@@ -24,7 +27,7 @@ class TestQweb(TransactionCaseWithUserDemo):
 
         demo = self.env['res.users'].search([('login', '=', 'demo')])[0]
         demo.write({"signature": '''<span class="toto">
-                span<span class="fa"></span><img src="/web/image/1"/>
+                span<span class="oi"></span><img src="/web/image/1"/>
             </span>'''})
 
         demo_env = self.env(user=demo)
@@ -69,7 +72,7 @@ class TestQweb(TransactionCaseWithUserDemo):
         <a href="http://test.cdn/web/content/local_link">x</a>
         <span style="background-image: url(&#39;http://test.cdn/web/image/2&#39;)">xxx</span>
         <div widget="html"><span class="toto">
-                span<span class="fa"></span><img src="http://test.cdn/web/image/1" loading="lazy">
+                span<span class="oi"></span><img src="http://test.cdn/web/image/1" loading="lazy">
             </span></div>
         <div widget="image"><img src="http://test.cdn/web/image/res.users/%(user_id)s/avatar_1920/%(filename)s" class="img img-fluid" alt="%(alt)s" loading="lazy"/></div>
     </body>

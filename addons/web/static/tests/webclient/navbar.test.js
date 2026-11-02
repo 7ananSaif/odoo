@@ -1,18 +1,31 @@
-import { beforeEach, destroy, expect, test } from "@odoo/hoot";
-import { queryAll, queryAllAttributes, queryAllTexts, resize } from "@odoo/hoot-dom";
-import { advanceTime, animationFrame, runAllTimers } from "@odoo/hoot-mock";
+import {
+    advanceTime,
+    animationFrame,
+    beforeEach,
+    expect,
+    queryAll,
+    queryAllAttributes,
+    queryAllTexts,
+    resize,
+    runAllTimers,
+    test,
+} from "@odoo/hoot";
+import { Component, onWillStart, signal, xml } from "@odoo/owl";
 import {
     clearRegistry,
     contains,
     defineMenus,
+    destroyApp,
     getService,
-    makeMockEnv,
+    makeTestApp,
+    mockOffline,
     mockService,
     mountWithCleanup,
     patchWithCleanup,
+    serverState,
 } from "@web/../tests/web_test_helpers";
 
-import { Component, onRendered, xml } from "@odoo/owl";
+import { OfflinePlugin } from "@web/core/offline/offline_plugin";
 import { registry } from "@web/core/registry";
 import { NavBar } from "@web/webclient/navbar/navbar";
 
@@ -22,7 +35,6 @@ const systrayRegistry = registry.category("systray");
 const waitNavbarAdaptation = () => advanceTime(500);
 
 class MySystrayItem extends Component {
-    static props = ["*"];
     static template = xml`<li class="my-item">my item</li>`;
 }
 
@@ -68,6 +80,30 @@ test("href attribute with path on apps menu items", async () => {
 });
 
 test.tags("desktop");
+test("href attribute includes debug param when in debug mode", async () => {
+    serverState.debug = "assets";
+    defineMenus([{ id: 1, actionID: 339 }]);
+    await mountWithCleanup(NavBar);
+    await contains(".o_navbar_apps_menu button.dropdown-toggle").click();
+    expect(".o-dropdown--menu .dropdown-item").toHaveAttribute(
+        "href",
+        "/odoo/action-339?debug=assets"
+    );
+});
+
+test.tags("desktop");
+test("href attribute with path includes debug param when in debug mode", async () => {
+    serverState.debug = "assets";
+    defineMenus([{ id: 1, actionID: 339, actionPath: "my-path" }]);
+    await mountWithCleanup(NavBar);
+    await contains(".o_navbar_apps_menu button.dropdown-toggle").click();
+    expect(".o-dropdown--menu .dropdown-item").toHaveAttribute(
+        "href",
+        "/odoo/my-path?debug=assets"
+    );
+});
+
+test.tags("desktop");
 test("many sublevels in app menu items", async () => {
     defineMenus([
         { id: 1, children: [2], name: "My app" },
@@ -80,7 +116,7 @@ test("many sublevels in app menu items", async () => {
         { id: 8, children: [9], name: "My submenu 6" },
         { id: 9, name: "My submenu 7" },
     ]);
-    await makeMockEnv();
+    await makeTestApp();
     getService("menu").setCurrentMenu(1);
     await mountWithCleanup(NavBar);
     await contains(".o_menu_sections .o-dropdown").click();
@@ -150,6 +186,7 @@ test("navbar can display current active app", async () => {
     // Activate an app
     getService("menu").setCurrentMenu(1);
     await animationFrame();
+
     expect(".o-dropdown--menu .dropdown-item.focus").toHaveCount(1, {
         message: "should show the current active app",
     });
@@ -162,22 +199,18 @@ test("navbar can display systray items", async () => {
 
 test("navbar can display systray items ordered based on their sequence", async () => {
     class MyItem1 extends Component {
-        static props = ["*"];
         static template = xml`<li class="my-item-1">my item 1</li>`;
     }
 
     class MyItem2 extends Component {
-        static props = ["*"];
         static template = xml`<li class="my-item-2">my item 2</li>`;
     }
 
     class MyItem3 extends Component {
-        static props = ["*"];
         static template = xml`<li class="my-item-3">my item 3</li>`;
     }
 
     class MyItem4 extends Component {
-        static props = ["*"];
         static template = xml`<li class="my-item-4">my item 4</li>`;
     }
 
@@ -203,7 +236,6 @@ test("navbar can display systray items ordered based on their sequence", async (
 
 test("navbar updates after adding a systray item", async () => {
     class MyItem1 extends Component {
-        static props = ["*"];
         static template = xml`<li class="my-item-1">my item 1</li>`;
     }
 
@@ -214,16 +246,14 @@ test("navbar updates after adding a systray item", async () => {
 
     patchWithCleanup(NavBar.prototype, {
         setup() {
-            onRendered(() => {
-                if (!systrayRegistry.contains("addon.myitem2")) {
-                    class MyItem2 extends Component {
-                        static props = ["*"];
-                        static template = xml`<li class="my-item-2">my item 2</li>`;
-                    }
-                    systrayRegistry.add("addon.myitem2", { Component: MyItem2 });
-                }
-            });
             super.setup();
+
+            onWillStart(() => {
+                class MyItem2 extends Component {
+                    static template = xml`<li class="my-item-2">my item 2</li>`;
+                }
+                systrayRegistry.add("addon.myitem2", { Component: MyItem2 });
+            });
         },
     });
     await mountWithCleanup(NavBar);
@@ -265,7 +295,7 @@ test("can adapt with 'more' menu sections behavior", async () => {
         isSmall: false,
         getActiveElementOf: () => document.activeElement,
     }));
-    await makeMockEnv();
+    await makeTestApp();
 
     // Set menu and mount
     getService("menu").setCurrentMenu(1);
@@ -311,11 +341,11 @@ test("'more' menu sections adaptations do not trigger render in some cases", asy
             await super.adapt();
             adaptRunning = false;
         }
-        async render() {
+        render() {
             if (adaptRunning) {
                 adaptRenderCount++;
             }
-            await super.render(...arguments);
+            super.render();
         }
     }
 
@@ -339,7 +369,6 @@ test("'more' menu sections adaptations do not trigger render in some cases", asy
         isSmall: false,
         getActiveElementOf: () => document.activeElement,
     }));
-    await makeMockEnv();
 
     const navbar = await mountWithCleanup(MyNavbar);
 
@@ -447,7 +476,7 @@ test("'more' menu sections properly updated on app change", async () => {
         isSmall: false,
         getActiveElementOf: () => document.activeElement,
     }));
-    await makeMockEnv();
+    await makeTestApp();
 
     // Set menu and mount
     getService("menu").setCurrentMenu(1);
@@ -484,6 +513,42 @@ test("'more' menu sections properly updated on app change", async () => {
     );
 });
 
+test.tags("desktop");
+test("adapt when a systray item changes size", async () => {
+    // This test is to simulate for example changing label size (eg. `Working Offline`)
+    defineMenus([{ id: 1, children: [{ id: 10, name: "Section 10" }] }]);
+    const itemWidth = signal(20);
+    class ResizingSystrayItem extends Component {
+        static template = xml`<li class="my-resizing-item" t-att-style="'width: ' + this.itemWidth() + 'px'"/>`;
+        setup() {
+            this.itemWidth = itemWidth;
+        }
+    }
+    class MyNavbar extends NavBar {
+        async adapt() {
+            expect.step("adapt NavBar");
+            return super.adapt();
+        }
+    }
+    systrayRegistry.add("addon.myresizingitem", { Component: ResizingSystrayItem });
+
+    await makeTestApp();
+
+    // Set menu and mount
+    getService("menu").setCurrentMenu(1);
+    await mountWithCleanup(MyNavbar);
+    expect.verifySteps(["adapt NavBar"]);
+
+    // The systray item takes more space: less space is left for the app sections,
+    // so an adaptation is required.
+    itemWidth.set(300);
+    await animationFrame();
+    await waitNavbarAdaptation();
+
+    expect(".my-resizing-item").toHaveRect({ width: 300 });
+    expect.verifySteps(["adapt NavBar"]);
+});
+
 test("Do not execute adapt when navbar is destroyed", async () => {
     expect.assertions(3);
 
@@ -494,19 +559,71 @@ test("Do not execute adapt when navbar is destroyed", async () => {
         }
     }
 
-    await makeMockEnv();
+    await makeTestApp();
 
     // Set menu and mount
     getService("menu").setCurrentMenu(1);
-    const navbar = await mountWithCleanup(MyNavbar);
+    await mountWithCleanup(MyNavbar);
     expect.verifySteps(["adapt NavBar"]);
     await resize();
     await runAllTimers();
     expect.verifySteps(["adapt NavBar"]);
     await resize();
-    destroy(navbar);
+    destroyApp();
     await runAllTimers();
     expect.verifySteps([]);
+});
+
+test.tags("desktop");
+test("[Offline] unavailable menus are disabled", async () => {
+    const setOffline = mockOffline();
+    patchWithCleanup(OfflinePlugin.prototype, {
+        isAvailableOffline(actionId) {
+            return [2, 10, 121].includes(actionId);
+        },
+    });
+    defineMenus([
+        {
+            id: 1,
+            children: [
+                { id: 10, actionID: 10 },
+                { id: 11, actionID: 11 },
+                {
+                    id: 12,
+                    children: [
+                        { id: 120, actionID: 120 },
+                        { id: 121, actionID: 121 },
+                        { id: 122, actionID: 122 },
+                    ],
+                },
+            ],
+        },
+        { id: 2, actionID: 2 },
+        { id: 3, actionID: 3 },
+    ]);
+    await mountWithCleanup(NavBar);
+    getService("menu").setCurrentMenu(1);
+    await setOffline(true);
+
+    // check menus of current app
+    expect(".o_menu_sections .o_nav_entry").toHaveCount(2);
+    expect(".o_menu_sections .o_nav_entry.o_disabled_offline").toHaveCount(1);
+    expect(".o_menu_sections .o_nav_entry:eq(1)").toHaveClass("o_disabled_offline");
+    expect(".o_menu_sections .o-dropdown").toHaveCount(1);
+    expect(".o_menu_sections .o-dropdown[data-available-offline]").toHaveCount(1);
+    expect(".o_menu_sections .o-dropdown").not.toHaveClass(".o_disabled_offline");
+
+    // check sub-menus
+    await contains(".o_menu_sections .o-dropdown").click();
+    expect(".o-overlay-item .o-dropdown-item").toHaveCount(3);
+    expect(".o-overlay-item .o-dropdown-item.o_disabled_offline").toHaveCount(2);
+    expect(".o-overlay-item .o-dropdown-item:eq(1)").not.toHaveClass("o_disabled_offline");
+
+    // check apps
+    await contains(".o_navbar_apps_menu button").click();
+    expect(".o-overlay-item .o_app").toHaveCount(3);
+    expect(".o-overlay-item .o_app.o_disabled_offline").toHaveCount(1);
+    expect(".o-overlay-item .o_app:eq(2)").toHaveClass("o_disabled_offline");
 });
 
 test.tags("desktop");
@@ -525,7 +642,7 @@ test("navbar adapts app brand and menu sections on resize from mobile to desktop
     // Start with mobile width
     await resize({ width: 500 });
 
-    await makeMockEnv();
+    await makeTestApp();
     getService("menu").setCurrentMenu(1);
     await mountWithCleanup(NavBar);
 

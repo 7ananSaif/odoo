@@ -1,34 +1,39 @@
+import { usePlugin } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { Interaction } from "@web/public/interaction";
+import { BootstrapInstance } from "@web/core/utils/bootstrap_plugin";
 
 export class WebsiteEventTrack extends Interaction {
     static selector = ".o_wevent_event";
 
     dynamicContent = {
         _window: {
-            "t-on-scroll": () => this.updateAgendaScroll(),
-            "t-on-resize": () => this.updateAgendaScroll(),
+            "t-on-scroll": () => this.throttledUpdateAgendaScroll(),
+            "t-on-resize": () => this.throttledUpdateAgendaScroll(),
         },
-        "#event_track_search": { "t-on-input.prevent.withTarget": (ev, currentTargetEl) => {
-            this.searchText = currentTargetEl.value.toLowerCase();
+        "#event_track_search": { "t-on-input.prevent": (ev) => {
+            this.searchText = ev.currentTarget.value.toLowerCase();
         }},
-        ".o_we_online_agenda": { "t-on-scroll.withTarget": this.onAgendaScroll },
+        ".o_we_online_agenda": { "t-on-scroll": this.throttled(this.onAgendaScroll) },
         ".event_track": { "t-att-class": (el) => ({ "invisible": !el.textContent.toLowerCase().includes(this.searchText) }) },
         "#search_summary": { "t-att-class": () => ({ "invisible": !this.searchText }) },
         "#search_number": { "t-out": () => this.tracks.filter(element => !element.classList.contains('invisible')).length },
         ".o_we_agenda_horizontal_scroller_container": {
-            "t-on-scroll": this.alignAgendaScroll,
+            "t-on-scroll": () => this.throttledAlignScroll(this.visibleAgenda),
             "t-att-class": () => ({
                 "d-none": !(this.visibleAgenda && this.visibleAgenda.classList.contains("o_we_online_agenda_has_scroll")),
             }),
         },
         ".o_we_agenda_horizontal_scroller": { "t-att-style": () => ({ "width": this.computeScrollerWidth() }) },
+        ".o_we_agenda_card_filter_badges .o_badge_clickable": {
+            "t-on-click": this.onBadgeFilterClick,
+        },
     };
 
     setup() {
+        this.bootstrap = usePlugin(BootstrapInstance);
         this.el.querySelectorAll("[data-bs-toggle='popover']").forEach((el) => {
-            const bsPopover = window.Popover.getOrCreateInstance(el);
-            this.registerCleanup(() => bsPopover.dispose());
+            this.bootstrap.getOrCreateInstance(window.Popover, el);
         });
 
         this.searchText = "";
@@ -41,15 +46,20 @@ export class WebsiteEventTrack extends Interaction {
             this.checkAgendasOverflow(this.agendas);
         }
 
-        if (this.agendaScroller) {
-            this.updateAgendaScroll = this.debounced(this.updateAgendaScroll, 50);
-            this.updateAgendaScroll();
-        }
+        this.throttledAlignScroll = this.throttled(this.alignScroll);
+        this.throttledUpdateAgendaScroll = this.throttled(this.updateAgendaScroll);
+        this.throttledUpdateAgendaScroll();
     }
 
-    alignAgendaScroll() {
+    /**
+     * @param {HTMLElement} toAlignEl
+     */
+    alignScroll(toAlignEl) {
         if (this.visibleAgenda && this.agendaScroller) {
-            this.visibleAgenda.scrollLeft = this.agendaScroller.scrollLeft;
+            const alignedEl = toAlignEl === this.visibleAgenda
+                ? this.agendaScroller
+                : this.visibleAgenda;
+            toAlignEl.scrollLeft = alignedEl.scrollLeft;
         }
     }
 
@@ -83,11 +93,7 @@ export class WebsiteEventTrack extends Interaction {
             return (containerOffset.top < windowOffset.bottom) &&
                 !(containerOffset.bottom < windowOffset.bottom);
         });
-        if (this.visibleAgenda) {
-            requestAnimationFrame(() => {
-                this.agendaScroller.scrollLeft = this.visibleAgenda.scrollLeft;
-            });
-        }
+        this.throttledAlignScroll(this.agendaScroller);
     }
 
     /**
@@ -104,25 +110,21 @@ export class WebsiteEventTrack extends Interaction {
 
     /**
      * @param {Event} event
-     * @param {Object} currentTargetEl
      */
-    onAgendaScroll(event, currentTargetEl) {
-        const tableEl = currentTargetEl.querySelector("table");
+    onAgendaScroll(event) {
+        const currentTarget = event.currentTarget;
+        const tableEl = currentTarget.querySelector("table");
         const gutter = 4; // = map-get($spacers, 1)
-        const gap = tableEl.clientWidth - currentTargetEl.clientWidth - gutter;
+        const gap = tableEl.clientWidth - currentTarget.clientWidth - gutter;
 
-        currentTargetEl.classList.add("o_we_online_agenda_is_scrolling");
-        currentTargetEl.classList.toggle("o_we_online_agenda_has_content_hidden", gap > Math.ceil(currentTargetEl.scrollLeft));
+        currentTarget.classList.add("o_we_online_agenda_is_scrolling");
+        currentTarget.classList.toggle("o_we_online_agenda_has_content_hidden", gap > Math.ceil(currentTarget.scrollLeft));
+        this.throttledAlignScroll(this.agendaScroller);
 
-        requestAnimationFrame(() => {
-            setTimeout(() => {
-                currentTargetEl.classList.remove("o_we_online_agenda_is_scrolling");
-            }, 200);
-        });
-
-        if (this.agendaScroller && this.visibleAgenda) {
-            this.agendaScroller.scrollLeft = this.visibleAgenda.scrollLeft;
-        }
+        clearTimeout(this.removeScrollingClassTimeout);
+        this.removeScrollingClassTimeout = this.waitForTimeout(() => {
+            currentTarget.classList.remove("o_we_online_agenda_is_scrolling");
+        }, 200);
     }
 
     computeScrollerWidth() {
@@ -130,6 +132,16 @@ export class WebsiteEventTrack extends Interaction {
             // need to account for vertical scrollbar width
             const verticalScrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
             return (this.visibleAgenda.scrollWidth + verticalScrollbarWidth) + "px";
+        }
+    }
+
+    onBadgeFilterClick(ev) {
+        const target = document.getElementById("event_track_search");
+        if (target.value === ev.currentTarget.title) {
+            target.value = "";
+        } else {
+            target.value = ev.currentTarget.title;
+            target.dispatchEvent(new Event("input"));
         }
     }
 }

@@ -63,29 +63,25 @@
             <field name="priority">5</field>
             <field name="inherit_id" ref="product.product_template_form_view"/>
             <field name="arch" type="xml">
-                <div name="options" position='inside'>
-                    <span class="d-inline-flex" invisible="type == 'combo'">
-                        <field name="purchase_ok"/>
-                        <label for="purchase_ok"/>
-                    </span>
-                </div>
                 <xpath expr="//field[@name='company_id']" position="after">
                     <field name="fiscal_country_codes" invisible="1"/>
                 </xpath>
                 <page name="inventory" position="after">
                     <page string="Accounting" name="invoicing" groups="account.group_account_readonly">
-                        <group name="properties" groups="account.group_account_readonly">
-                            <group string="Cost and Revenue">
+                        <group name="accounting" groups="account.group_account_readonly,account.group_account_invoice">
+                            <group string="Cost and Revenue" groups="account.group_account_readonly">
                                 <field name="property_account_income_id" placeholder="From Category"
-                                    groups="account.group_account_readonly"/>
+                                    groups="account.group_account_readonly" decoration-muted="not property_account_income_active"/>
                                 <field name="property_account_expense_id" placeholder="From Category"
-                                    groups="account.group_account_readonly"/>
+                                    groups="account.group_account_readonly" decoration-muted="not property_account_expense_active"/>
+                            </group>
+                            <group string="Reporting" name="reporting" invisible="1">
+                                <field name="account_tag_ids" widget="many2many_tags" options="{'no_create': True}"/>
                             </group>
                         </group>
-                        <group name="accounting" groups="account.group_account_readonly,account.group_account_invoice"/>
                     </page>
                 </page>
-                <div name="list_price_uom" position="after">
+                <div name="list_price_per_uom_id" position="after">
                     <label for="taxes_id" invisible="type == 'combo'"/>
                     <div name="taxes_div" class="o_row" invisible="type == 'combo'">
                         <field
@@ -95,8 +91,6 @@
                             context="{
                                 'default_type_tax_use': 'sale',
                                 'search_default_sale': 1,
-                                'search_default_service': type == 'service',
-                                'search_default_goods': type == 'consu',
                                 'search_default_domestictax': 1,
                                 'append_fields': ['company_id'],
                             }"
@@ -111,8 +105,6 @@
                         context="{
                             'default_type_tax_use':'purchase',
                             'search_default_purchase': 1,
-                            'search_default_service': type == 'service',
-                            'search_default_goods': type == 'consu',
                             'search_default_domestictax': 1,
                             'append_fields': ['company_id'],
                         }"
@@ -126,14 +118,23 @@
             <field name="model">product.category</field>
             <field name="inherit_id" ref="product.product_category_form_view"/>
             <field name="arch" type="xml">
-                <group name="first" position="after">
-                    <group name="account_property" >
-                        <group string="Account Properties" groups="account.group_account_readonly">
-                            <field name="property_account_income_categ_id"/>
-                            <field name="property_account_expense_categ_id"/>
+                <notebook position="inside">
+                    <page name="accounting" string="Accounting" groups="account.group_account_readonly">
+                        <group>
+                            <group name="properties">
+                                <field name="property_account_income_categ_id"/>
+                                <field name="property_account_expense_categ_id"/>
+                            </group>
+                            <group name="stock_properties">
+                                <field name="property_valuation"/>
+                                <field name="property_cost_method" required="True"/>
+                                <field name="property_stock_valuation_account_id" string="Stock Account" options="{'no_create': True}" decoration-muted="not property_stock_valuation_account_active"/>
+                                <field name="account_stock_variation_id" string="Stock Variation" options="{'no_create': True}" decoration-muted="not account_stock_variation_active"/>
+                                <field name="property_price_difference_account_id" options="{'no_create': True}" invisible="not (property_cost_method == 'standard' and property_valuation == 'real_time')" decoration-muted="not property_price_difference_account_active"/>
+                            </group>
                         </group>
-                    </group>
-                </group>
+                    </page>
+                </notebook>
             </field>
         </record>
     </data>

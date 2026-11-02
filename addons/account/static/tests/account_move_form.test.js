@@ -4,10 +4,10 @@ import {
     openFormView,
     start,
     startServer,
-    triggerHotkey
+    triggerHotkey,
 } from "@mail/../tests/mail_test_helpers";
 import { expect, test } from "@odoo/hoot";
-import { asyncStep, contains, defineModels, fields, onRpc, models, waitForSteps} from "@web/../tests/web_test_helpers";
+import { contains, defineModels, fields, onRpc, models} from "@web/../tests/web_test_helpers";
 import { defineAccountModels } from "./account_test_helpers";
 
 defineAccountModels();
@@ -17,7 +17,7 @@ test("When I switch tabs, it saves", async () => {
     const accountMove = pyEnv["account.move"].create({ name: "move0" });
     await start();
     onRpc("account.move", "web_save", () => {
-        asyncStep("tab saved");
+        expect.step("tab saved");
     });
     await openFormView("account.move", accountMove, {
         arch: `<form js_class='account_move_form'>
@@ -33,17 +33,15 @@ test("When I switch tabs, it saves", async () => {
     });
     await insertText("[name='name'] input", "somebody save me!");
     triggerHotkey("Enter");
-    await click('a[name="aml_tab"]');
-    await waitForSteps(["tab saved"]);
+    await click('button[name="aml_tab"]');
+    await expect.waitForSteps(["tab saved"]);
 });
 
 test("Confirmation dialog on delete contains a warning", async () => {
     const pyEnv = await startServer();
     const accountMove = pyEnv["account.move"].create({ name: "move0" });
     await start();
-    onRpc("account.move", "check_move_sequence_chain", () => {
-        return false;
-    });
+    onRpc("account.move", "check_move_sequence_chain", () => false);
     await openFormView("account.move", accountMove, {
         arch: `<form js_class='account_move_form'>
             <sheet>
@@ -58,9 +56,10 @@ test("Confirmation dialog on delete contains a warning", async () => {
     });
     await contains(".o_cp_action_menus button").click();
     await contains(".o_menu_item:contains(Delete)").click();
-    expect(".o_dialog div.text-danger").toHaveText("This operation will create a gap in the sequence.", {
-        message: "warning message has been added in the dialog"
-    });
+    expect(".o_dialog div.alert.alert-warning").toHaveText(
+        "This operation will create a gap in the sequence.",
+        { message: "warning message has been added in the dialog" }
+    );
 });
 class AccountMove extends models.Model {
     line_ids = fields.One2many({
@@ -71,13 +70,13 @@ class AccountMove extends models.Model {
     _records = [{ id: 1, name: "account.move" }]
 }
 class AccountMoveLine extends models.Model {
-    name = fields.Char();
+    name = fields.Text();
     product_id = fields.Many2one({
         string:"Product",
         relation:"product",
     });
     move_id = fields.Many2one({
-        string: "Account Move",
+        string: "Journal Entry",
         relation: "account.move",
     })
 }
@@ -93,10 +92,10 @@ test("Update description on product line", async() => {
     const productId = pyEnv["product"].browse([1]);
     const accountMove = pyEnv["account.move"].browse([1]);
     pyEnv["account.move"].write([accountMove[0].id], {
-        invoice_line_ids: [[0, 0, { name: productId[0].name, product_id: productId[0].id }]],
+        invoice_line_ids: [[0, 0, { product_id: productId[0].id }]],
     });
     await start();
-    onRpc("account.move", "web_save", () => { asyncStep("save")});
+    onRpc("account.move", "web_save", () => { expect.step("save")});
     await openFormView("account.move", accountMove[0].id, {
         arch: `<form js_class="account_move_form">
             <sheet>
@@ -104,8 +103,10 @@ test("Update description on product line", async() => {
                     <page id="invoice_tab" name="invoice_tab" string="Invoice Lines">
                         <field name="invoice_line_ids" mode="list" widget="product_label_section_and_note_field_o2m">
                             <list name="journal_items" editable="bottom" string="Journal Items">
-                                <field name="product_id" widget="product_label_section_and_note_field" readonly="0"/>
-                                <field name="name" widget="section_and_note_text" optional="show"/>
+                                <column name="product_and_description">
+                                    <field name="product_id" widget="account_product_field" optional="show" readonly="0"/>
+                                    <field name="name" placeholder="Enter a description" optional="show"/>
+                                </column>
                             </list>
                         </field>
                     </page>
@@ -115,12 +116,10 @@ test("Update description on product line", async() => {
     });
 
     await click(".o_many2one");
-    await contains("#labelVisibilityButtonId").click()
     await insertText("textarea[placeholder='Enter a description']", "testDescription");
     await click(".o_form_button_save");
-    await waitForSteps(["save"]);
+    await expect.waitForSteps(["save"]);
 
     const line = pyEnv["account.move.line"].browse([1])[0];
-    expect(line.name).toBe("testProduct\ntestDescription");
-
+    expect(line.name).toBe("testDescription");
 });

@@ -2,7 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo.addons.website_slides.tests import common
-from odoo.tests import HttpCase
+from odoo.tests import tagged, HttpCase
 
 
 class TestEmbedDetection(HttpCase, common.SlidesCase):

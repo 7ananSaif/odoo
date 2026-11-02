@@ -1,14 +1,16 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from unittest.mock import patch
 from datetime import datetime, date
 from dateutil.relativedelta import relativedelta
 from freezegun import freeze_time
+from markupsafe import Markup
 
 from odoo import fields
+from odoo.tools import format_time
 from odoo.tests import Form, tagged
 from odoo.tests.common import new_test_user
 from odoo.addons.base.tests.test_ir_cron import CronMixinCase
+from odoo.addons.bus.tests.common import BusResult
 from odoo.addons.mail.tests.common import MailCase
 
 
@@ -104,16 +106,19 @@ class TestCalendarMail(CalendarMailCommon):
                 'email': self.customers[0].email_normalized,
                 'name': self.customers[0].name,
                 'partner_id': self.customers[0].id,
+                'recipient_type': 'to',
             }, {  # wrong email suggested, can be corrected ?
                 'create_values': {},
                 'email': self.customers[1].email_normalized,
                 'name': self.customers[1].name,
                 'partner_id': self.customers[1].id,
+                'recipient_type': 'to',
             }, {
                 'create_values': {},
                 'email': self.user_employee_2.partner_id.email_normalized,
                 'name': self.user_employee_2.partner_id.name,
                 'partner_id': self.user_employee_2.partner_id.id,
+                'recipient_type': 'to',
             },
         ], 'Correctly filters out robodoo and aliases')
 
@@ -143,7 +148,7 @@ class TestEventNotifications(CalendarMailCommon):
 
     @freeze_time('2018')  # class event has hardcoded dates
     def test_message_invite(self):
-        self.env['ir.config_parameter'].sudo().set_param('mail.mail_force_send_limit', None)
+        self.env['ir.config_parameter'].sudo().set_int('mail.mail_force_send_limit', 100)
         with self.assertSinglePostNotifications([{'partner': self.partner, 'type': 'inbox'}], {
             'message_type': 'user_notification',
             'subtype': 'mail.mt_note',
@@ -172,7 +177,7 @@ class TestEventNotifications(CalendarMailCommon):
     @freeze_time('2018')  # class event has hardcoded dates
     def test_message_invite_email_notif_mass_queued(self):
         """Check that more than 20 notified attendees means mails are queued."""
-        self.env['ir.config_parameter'].sudo().set_param('mail.mail_force_send_limit', None)
+        self.env['ir.config_parameter'].sudo().set_int('mail.mail_force_send_limit', 100)
         additional_attendees = self.env['res.partner'].create([{
             'name': f'test{n}',
             'email': f'test{n}@example.com'} for n in range(101)])
@@ -296,35 +301,88 @@ class TestEventNotifications(CalendarMailCommon):
             'interval': 'minutes',
             'duration': 30,
         })
-        now = fields.Datetime.now()
+        now = datetime(2019, 10, 25, 8, 0)
 
-        def get_bus_params():
-            return (
-                [(self.env.cr.dbname, "res.partner", self.partner.id)],
-                [
-                    {
-                        "type": "calendar.alarm",
-                        "payload": [
-                            {
-                                "alarm_id": alarm.id,
-                                "event_id": self.event.id,
-                                "title": "Doom's day",
-                                "message": self.event.display_time,
-                                "timer": 20 * 60,
-                                "notify_at": fields.Datetime.to_string(now + relativedelta(minutes=20)),
-                            },
-                        ],
-                    },
-                ],
-            )
+        def notifications():
+            return [
+                BusResult(
+                    self.user,
+                    "calendar.alarm",
+                    [
+                        {
+                            "alarm_id": alarm.id,
+                            "event_id": self.event.id,
+                            "title": "Doom's day",
+                            "message": Markup("<br/>%s - %s<br/>Online<br/>") % (
+                                format_time(self.env, self.event.start, time_format="short"),
+                                format_time(self.env, self.event.stop, time_format="short")
+                            ),
+                            "timer": 20 * 60,
+                            "notify_at": fields.Datetime.to_string(now + relativedelta(minutes=20)),
+                        },
+                    ],
+                ),
+            ]
 
-        with patch.object(fields.Datetime, 'now', lambda: now):
-            with self.assertBus(get_params=get_bus_params):
+        with self.mock_datetime_and_now(now):
+            with self.assertBus(notifications):
+                self.partner.write({
+                    'calendar_last_notif_ack': now
+                })
                 self.event.with_context(no_mail_to_attendees=True).write({
                     'start': now + relativedelta(minutes=50),
                     'stop': now + relativedelta(minutes=55),
                     'partner_ids': [(4, self.partner.id)],
-                    'alarm_ids': [(4, alarm.id)]
+                    'alarm_ids': [(6, 0, alarm.ids)]
+                })
+
+    def test_bus_notif_organizer(self):
+        """Test that Admin user receives bus alarm notifications."""
+        alarm = self.env['calendar.alarm'].create({
+            'name': "Alarm",
+            'alarm_type': "notification",
+            'interval': "minutes",
+            'duration': 30,
+        })
+        now = datetime(2019, 10, 25, 8, 0)
+        admin_partner = self.user_admin.partner_id
+        admin_partner.write({
+            'calendar_last_notif_ack': now
+        })
+        event = self.env['calendar.event'].with_user(self.user_admin).with_context(no_mail_to_attendees=True).create({
+            'name': "Admin Meeting",
+            'start': now + relativedelta(minutes=50),
+            'stop': now + relativedelta(minutes=55),
+            'user_id': self.user_admin.id,
+            'partner_ids': [fields.Command.set(admin_partner.ids)],
+            'alarm_ids': [fields.Command.set([alarm.id])],
+        })
+
+        def notifications():
+            return [
+                BusResult(
+                    self.user_admin,
+                    "calendar.alarm",
+                    [
+                        {
+                            "alarm_id": alarm.id,
+                            "event_id": event.id,
+                            "title": "Admin Meeting",
+                            "message": Markup("<br/>%s - %s<br/>Online<br/>") % (
+                                format_time(self.env, event.start, time_format="short"),
+                                format_time(self.env, event.stop, time_format="short")
+                            ),
+                            "timer": 20 * 60,
+                            "notify_at": fields.Datetime.to_string(now + relativedelta(minutes=20)),
+                        },
+                    ],
+                ),
+            ]
+
+        with self.mock_datetime_and_now(now):
+            with self.assertBus(notifications):
+                event.with_context(no_mail_to_attendees=True).write({
+                    'alarm_ids': [fields.Command.set([alarm.id])],
                 })
 
     def test_bus_notif_organizer(self):
@@ -389,11 +447,11 @@ class TestEventNotifications(CalendarMailCommon):
                 'partner_ids': [fields.Command.link(self.partner.id)],
                 'alarm_ids': [fields.Command.link(alarm.id)],
             })
-            self.env.flush_all()  # flush is required to make partner_ids be present in the event
+            self.env.cr.flush()  # flush is required to make partner_ids be present in the event and create the triggers
 
         self.assertEqual(len(capt.records), 1)
         self.assertLessEqual(capt.records.call_at, now)
-        with patch.object(fields.Datetime, 'now', lambda: now):
+        with self.mock_datetime_and_now(now):
             self.env['calendar.alarm_manager'].with_context(lastcall=now - relativedelta(minutes=25))._send_reminder()
             self.env.flush_all()
             new_messages = self.env['mail.message'].search([('model', '=', 'calendar.event'), ('res_id', '=', self.event.id), ('subject', '=', 'test event - Reminder')])
@@ -420,8 +478,8 @@ class TestEventNotifications(CalendarMailCommon):
                     'start': now + relativedelta(minutes=15),
                     'stop': now + relativedelta(minutes=20),
                     'alarm_ids': [fields.Command.link(alarm.id)],
-                }).with_context(mail_notrack=True)
-                self.env.flush_all()
+                })
+                self.env.cr.flush()
                 self.assertEqual(len(capt.records), 1)
         with self.capture_triggers('calendar.ir_cron_scheduler_alarm') as capt:
             with freeze_time('2022-04-13 10:00+0000'):
@@ -435,17 +493,19 @@ class TestEventNotifications(CalendarMailCommon):
                     'day': 13,
                     'count': 5,
                     'alarm_ids': [fields.Command.link(alarm.id)],
-                }).with_context(mail_notrack=True)
-                self.env.flush_all()
+                })
+                self.env.cr.flush()
                 self.assertEqual(len(capt.records), 1, "1 trigger should have been created for the whole recurrence")
                 self.assertEqual(capt.records.call_at, datetime(2022, 4, 13, 10, 14))
                 self.env['calendar.alarm_manager']._send_reminder()
+                self.env.cr.flush()
                 self.assertEqual(len(capt.records), 1)
 
             self.env['ir.cron.trigger'].search([('cron_id', '=', cron.id)]).unlink()
 
             with freeze_time('2022-05-16 10:00+0000'):
                 self.env['calendar.alarm_manager']._send_reminder()
+                self.env.cr.flush()
                 self.assertEqual(capt.records.mapped('call_at'), [datetime(2022, 6, 13, 10, 14)])
                 self.assertEqual(len(capt.records), 1, "1 more trigger should have been created")
 
@@ -458,8 +518,8 @@ class TestEventNotifications(CalendarMailCommon):
                     'stop_date': now.date() + relativedelta(days=1),
                     'allday': True,
                     'alarm_ids': [fields.Command.link(alarm.id)],
-                }).with_context(mail_notrack=True)
-                self.env.flush_all()
+                })
+                self.env.cr.flush()
                 self.assertEqual(len(capt.records), 1)
 
         with self.capture_triggers('calendar.ir_cron_scheduler_alarm') as capt:
@@ -476,8 +536,8 @@ class TestEventNotifications(CalendarMailCommon):
                     'day': 13,
                     'count': 5,
                     'alarm_ids': [fields.Command.link(alarm.id)],
-                }).with_context(mail_notrack=True)
-                self.env.flush_all()
+                })
+                self.env.cr.flush()
                 self.assertEqual(len(capt.records), 1)
 
         with self.capture_triggers('calendar.ir_cron_scheduler_alarm') as capt:
@@ -501,8 +561,8 @@ class TestEventNotifications(CalendarMailCommon):
                     'count': 2,
                     'day': 16,
                     'alarm_ids': [fields.Command.link(alarm_hour.id)],
-                }).with_context(mail_notrack=True)
-                self.env.flush_all()
+                })
+                self.env.cr.flush()
                 # Ensure that there is only one alarm set, exactly for one hour previous the event.
                 self.assertEqual(len(capt.records), 1, "Only one trigger must be created for the entire recurrence.")
                 self.assertEqual(capt.records.mapped('call_at'), [datetime(2024, 4, 16, 11, 0)], "Alarm must be one hour before the first event.")
@@ -513,6 +573,7 @@ class TestEventNotifications(CalendarMailCommon):
                 # The next alarm will be set through the next_date selection for the next event.
                 # Ensure that there is only one alarm set, exactly for one hour previous the event.
                 self.env['calendar.alarm_manager']._send_reminder()
+                self.env.cr.flush()
                 self.assertEqual(len(capt.records), 1, "Only one trigger must be created for the entire recurrence.")
                 self.assertEqual(capt.records.mapped('call_at'), [datetime(2024, 5, 16, 11, 0)], "Alarm must be one hour before the second event.")
 
@@ -537,21 +598,77 @@ class TestEventNotifications(CalendarMailCommon):
                     'rrule_type': 'daily',
                     'count': 3,
                     'alarm_ids': [fields.Command.link(alarm.id)],
-                }).with_context(mail_notrack=True)
-                self.env.flush_all()
+                })
+                self.env.cr.flush()
                 self.assertEqual(len(capt.records), 1, "1 trigger should have been created for the whole recurrence (1)")
                 self.assertEqual(capt.records.call_at, datetime(2022, 4, 13, 10, 10))
 
         with self.capture_triggers('calendar.ir_cron_scheduler_alarm') as capt:
             with freeze_time('2022-04-13 10:11+0000'):
                 self.env['calendar.alarm_manager']._send_reminder()
+                self.env.cr.flush()
                 self.assertEqual(len(capt.records), 1)
 
         with self.capture_triggers('calendar.ir_cron_scheduler_alarm') as capt:
             with freeze_time('2022-04-14 10:11+0000'):
-                self.env['calendar.alarm_manager']._send_reminder()
+                # as done by the cron, only process the alarms since the last call
+                self.env['calendar.alarm_manager'].with_context(lastcall=datetime(2022, 4, 13, 10, 11))._send_reminder()
+                self.env.cr.flush()
                 self.assertEqual(len(capt.records), 1, "1 trigger should have been created for the whole recurrence (2)")
                 self.assertEqual(capt.records.call_at, datetime(2022, 4, 15, 10, 10))
+
+    def test_email_alarm_recurrence_rescheduled_by_cron(self):
+        """The reminder cron re-arms the next occurrence without writing the recurrence:
+        the cron runner locks it while the job runs, writing it would deadlock the job."""
+        alarm, alarm_15 = self.env['calendar.alarm'].create([{
+            'name': 'Alarm',
+            'alarm_type': 'email',
+            'interval': 'minutes',
+            'duration': 5,
+        }, {
+            'name': 'Alarm 15',
+            'alarm_type': 'email',
+            'interval': 'minutes',
+            'duration': 15,
+        }])
+        cron = self.env.ref('calendar.ir_cron_scheduler_alarm')
+        cron.lastcall = False
+        with freeze_time('2022-04-13 10:00+0000'):
+            now = fields.Datetime.now()
+            event = self.env['calendar.event'].create({
+                'name': "Recurring Event",
+                'start': now + relativedelta(minutes=20),
+                'stop': now + relativedelta(minutes=25),
+                'partner_ids': [fields.Command.link(self.customers[0].id)],
+                'recurrency': True,
+                'rrule_type': 'daily',
+                'count': 3,
+                'alarm_ids': (alarm + alarm_15).ids,
+            })
+        self.assertFalse(event.recurrence_id.trigger_id)
+
+        with self.capture_triggers('calendar.ir_cron_scheduler_alarm') as capt, \
+                self.mock_mail_gateway(mail_unlink_sent=False), \
+                self.enter_registry_test_mode(), \
+                freeze_time('2022-04-13 10:06+0000'):
+            cron.method_direct_trigger()
+        self.assertMailMail(self.customers[0], 'sent', author=self.user_root.partner_id)
+        self.assertEqual(capt.records.mapped('call_at'), [datetime(2022, 4, 14, 10, 5), datetime(2022, 4, 14, 10, 15)],
+            "The alarms of the next occurrence should be scheduled")
+        self.assertFalse(event.recurrence_id.trigger_id)
+
+        # the runner sets lastcall with the real database time, set it back in the frozen timeline
+        cron.lastcall = datetime(2022, 4, 13, 10, 6)
+        with self.capture_triggers('calendar.ir_cron_scheduler_alarm') as capt, \
+                self.mock_mail_gateway(mail_unlink_sent=False), \
+                self.enter_registry_test_mode(), \
+                freeze_time('2022-04-13 10:16+0000'):
+            cron.method_direct_trigger()
+        self.assertEqual(len(self._new_mails), 1, "Only the 5 minutes alarm should be sent")
+        self.assertMailMail(self.customers[0], 'sent', author=self.user_root.partner_id)
+        # each alarm of an occurrence schedules the alarms of the next one again
+        # this is accepted as a limitation for now as it has no functional impact
+        self.assertEqual(capt.records.mapped('call_at'), [datetime(2022, 4, 14, 10, 5), datetime(2022, 4, 14, 10, 15)])
 
     def test_notification_event_timezone(self):
         """
@@ -571,7 +688,7 @@ class TestEventNotifications(CalendarMailCommon):
             'start': datetime(2023, 11, 15, 23, 0),  # 00:00 next day
             'stop': datetime(2023, 11, 16, 0, 0),  # 01:00 next day
         }
-        ]).with_context(mail_notrack=True)
+        ])
         with freeze_time('2023-11-15 17:30:00'):    # 18:30 before event
             self.assertEqual(search_event(), events[0])
         with freeze_time('2023-11-15 18:00:00'):    # 19:00 during event
@@ -589,7 +706,7 @@ class TestEventNotifications(CalendarMailCommon):
             'name': "Meeting",
             'start': datetime(2023, 11, 16, 0, 0), # 19:00 15th November
             'stop': datetime(2023, 11, 16, 1, 0),  # 20:00 15th November
-        }).with_context(mail_notrack=True)
+        })
         with freeze_time('2023-11-15 23:30:00'):    # 18:30 before event
             self.assertEqual(search_event(), event)
         with freeze_time('2023-11-16 00:00:00'):    # 19:00 during event
@@ -606,7 +723,7 @@ class TestEventNotifications(CalendarMailCommon):
             'name': "Meeting",
             'start': datetime(2023, 11, 16, 21, 0), # 16:00 16th November
             'stop': datetime(2023, 11, 16, 22, 0),  # 27:00 16th November
-        }).with_context(mail_notrack=True)
+        })
         with freeze_time('2023-11-15 19:00:00'):    # 14:00 the day before event
             self.assertEqual(len(search_event()), 0)
         event.unlink()
@@ -632,9 +749,10 @@ class TestEventNotifications(CalendarMailCommon):
             'allday': True,
             'start': "2023-11-15",
         }
-        ]).with_context(mail_notrack=True)
+        ])
         with freeze_time('2023-11-15 16:00:00'):
-            self.assertEqual(len(search_event()), 3)
+            # Not the all day event nor the event ended yesterday
+            self.assertEqual(len(search_event()), 2)
         events.unlink()
 
     def test_recurring_meeting_reminder_notification(self):
@@ -652,42 +770,45 @@ class TestEventNotifications(CalendarMailCommon):
             'count': 2,
         })
 
-        now = fields.Datetime.now()
+        now = datetime(2019, 10, 25, 8, 0)
 
-        def get_bus_params():
-            return (
-                [(self.env.cr.dbname, "res.partner", self.partner.id)],
-                [
-                    {
-                        "type": "calendar.alarm",
-                        "payload": [
-                            {
-                                "alarm_id": alarm.id,
-                                "event_id": self.event.id,
-                                "title": "Doom's day",
-                                "message": self.event.display_time,
-                                "timer": 20 * 60,
-                                "notify_at": fields.Datetime.to_string(now + relativedelta(minutes=20)),
-                            },
-                        ],
-                    },
-                ],
-            )
+        def notifications():
+            return [
+                BusResult(
+                    self.user,
+                    "calendar.alarm",
+                    [
+                        {
+                            "alarm_id": alarm.id,
+                            "event_id": self.event.id,
+                            "title": "Doom's day",
+                            "message": Markup("<br/>%s - %s<br/>Online<br/>") % (
+                                format_time(self.env, self.event.start, time_format="short"),
+                                format_time(self.env, self.event.stop, time_format="short")
+                            ),
+                            "timer": 20 * 60,
+                            "notify_at": fields.Datetime.to_string(now + relativedelta(minutes=20)),
+                        },
+                    ],
+                ),
+            ]
 
-        with patch.object(fields.Datetime, 'now', lambda: now):
-            with self.assertBus(get_params=get_bus_params):
+        with self.mock_datetime_and_now(now):
+            with self.assertBus(notifications):
+                self.partner.write({
+                    'calendar_last_notif_ack': now
+                })
                 self.event.with_context(no_mail_to_attendees=True).write({
                     'start': now + relativedelta(minutes=50),
                     'stop': now + relativedelta(minutes=55),
                     'partner_ids': [(4, self.partner.id)],
-                    'alarm_ids': [(4, alarm.id)]
+                    'alarm_ids': [(6, 0, alarm.ids)]
                 })
 
     def test_calendar_recurring_event_delete_notification(self):
         """ Ensure that we can delete a specific occurrence of a recurring event
             and notify the participants about the cancellation. """
         # Setup for creating a test event with recurring properties.
-        user_admin = self.env.ref('base.user_admin')
         start = datetime.combine(date.today(), datetime.min.time()).replace(hour=9)
         stop = datetime.combine(date.today(), datetime.min.time()).replace(hour=12)
         event = self.env['calendar.event'].create({
@@ -700,31 +821,29 @@ class TestEventNotifications(CalendarMailCommon):
             'rrule_type': 'daily',
             'count': 3,
             'location': 'Odoo S.A.',
+            'partner_ids': [(6, 0, self.user_employee_2.partner_id.ids)],
             'privacy': 'public',
             'show_as': 'busy',
         })
 
-        # Deleting the next occurrence of the event using the delete wizard.
-        wizard = self.env['calendar.popover.delete.wizard'].with_context(
-            form_view_ref='calendar.calendar_popover_delete_view').create({'calendar_event_id': event.id})
+        # Edit the default cancellation email template and select future_events to delete the next events of the recurrence.
+        wizard = self.env['calendar.event.archive.or.unlink.wizard'].create({'calendar_event_id': event.id})
         form = Form(wizard)
-        form.delete = 'next'
+        form.body = f'{form.body} (edited)'
+        form.recipient_ids.add(self.user_admin.partner_id)
+        form.recurrence_choice = 'future_events'
+        form.subject = f'{form.subject} (edited)'
         form.save()
-        wizard.close()
-
-        # Unlink the event and send a cancellation notification.
-        event.action_unlink_event()
-        wizard = self.env['calendar.popover.delete.wizard'].create({
-            'calendar_event_id': event.id,
-            'subject': 'Event Cancellation',
-            'body': 'The event has been cancelled.',
-            'recipient_ids': [(6, 0, [user_admin.partner_id.id])],
-        })
 
         # Simulate sending the email and ensure one email was sent.
         with self.mock_mail_gateway():
-            wizard.action_send_mail_and_delete()
+            wizard.action_send_mail_and_unlink()
         self.assertEqual(len(self._new_mails), 1)
+        # Check that the mail has been generated from the edition of the default cancellation email template.
+        self.assertIn('Event canceled', self._new_mails.body)
+        self.assertIn('(edited)', self._new_mails.body)
+        self.assertEqual(self._new_mails.subject, 'Canceled event: Test Event Delete Notification (edited)')
+        self.assertEqual(self._new_mails.partner_ids, self.user_admin.partner_id + self.user_employee_2.partner_id)
 
     def test_get_next_potential_limit_alarm(self):
         """

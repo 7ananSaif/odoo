@@ -15,12 +15,15 @@ def _post_init_hook(env):
 
 def _create_product_value(env):
     product_vals_list = []
-    products = env['product.product'].with_context(prefetch_fields=False).search([('type', '=', 'consu')])
+    products = env['product.product'].with_context(prefetch_fields=False).search([('type', '=', 'consu'), ('tracking', '!=', None)])
     for company in env['res.company'].search([]):
         products = products.with_company(company)
         product_vals_list += [
             {
                 'product_id': product.id,
+                'quantity': product.qty_available,
+                'new_cost': product.standard_price,
+                'new_value': product.standard_price * product.qty_available,
                 'value': product.standard_price,
                 'date': fields.Date.today(),
                 'company_id': company.id,
@@ -32,27 +35,7 @@ def _create_product_value(env):
 
 
 def _configure_journals(env):
-    # if we already have a coa installed, create journal and set property field
     for company in env['res.company'].search([('chart_template', '!=', False)], order="parent_path"):
-        ChartTemplate = env['account.chart.template'].with_company(company)
-        template_code = company.chart_template
-        full_data = ChartTemplate._get_chart_template_data(template_code)
-        data = {
-            'template_data': {
-                fname: value
-                for fname, value in full_data['template_data'].items()
-                if fname in [
-                    'stock_journal',
-                    'stock_valuation_account_id',
-                ]
-            }
-        }
-        data['res.company'] = {company.id: {
-            'account_stock_journal_id': full_data['res.company'][company.id].get('account_stock_journal_id'),
-            'account_stock_valuation_id': full_data['res.company'][company.id].get('account_stock_valuation_id'),
-        }}
-
-        template_data = data.pop('template_data')
         journal = env['account.journal'].search([
             ('code', '=', 'STJ'),
             ('company_id', '=', company.id),
@@ -63,24 +46,15 @@ def _configure_journals(env):
                 'record': journal,
                 'noupdate': True,
             }])
-        else:
-            data['account.journal'] = ChartTemplate._get_stock_account_journal(template_code)
-
-        ChartTemplate._load_data(data)
-        ChartTemplate._post_load_data(template_code, company, template_data)
 
 
 def _configure_stock_account_company_data(env):
-    for company in env['res.company'].search([('chart_template', '!=', False)], order="parent_path"):
-        ChartTemplate = env['account.chart.template'].with_company(company)
-        template_code = company.chart_template
-        res_company_data = ChartTemplate._get_stock_account_res_company(template_code)
-        account_account_data = ChartTemplate._get_stock_account_account(template_code)
-        account_templates = ChartTemplate._get_chart_template_model_data(template_code, 'account.account')
-        for xmlid, vals in account_account_data.items():
-            if not ChartTemplate.ref(xmlid, raise_if_not_found=False):
-                vals.update(account_templates.get(xmlid, {}))
-        ChartTemplate._load_data({
-            'res.company': res_company_data,
-            'account.account': account_account_data,
-        })
+    env['account.chart.template']._load_pre_defined_data({
+        'res.company': {
+            'account_production_wip_account_id',
+            'account_production_wip_overhead_account_id',
+        },
+        'stock.location': {
+            'valuation_account_id',
+        },
+    })

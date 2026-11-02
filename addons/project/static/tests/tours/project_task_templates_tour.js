@@ -2,7 +2,6 @@ import { registry } from "@web/core/registry";
 import { stepUtils } from "@web_tour/tour_utils";
 
 registry.category("web_tour.tours").add("project_task_templates_tour", {
-    url: "/odoo",
     steps: () => [
         stepUtils.showAppsMenuItem(),
         {
@@ -29,7 +28,10 @@ registry.category("web_tour.tours").add("project_task_templates_tour", {
         },
         {
             trigger: 'div[name="name"] .o_input',
-            run: "edit Task",
+            run: "edit Task && press Tab",
+        },
+        {
+            trigger: ".o_form_dirty",
         },
         {
             trigger: "button.o_form_button_save",

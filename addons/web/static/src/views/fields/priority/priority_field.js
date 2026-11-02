@@ -3,18 +3,17 @@ import { registry } from "@web/core/registry";
 import { _t } from "@web/core/l10n/translation";
 import { standardFieldProps } from "../standard_field_props";
 
-import { Component, useState } from "@odoo/owl";
+import { Component, proxy, t, useProps } from "@odoo/owl";
 
 export class PriorityField extends Component {
     static template = "web.PriorityField";
-    static props = {
+    props = useProps({
         ...standardFieldProps,
-        withCommand: { type: Boolean, optional: true },
-        autosave: { type: Boolean, optional: true },
-    };
+        withCommand: t.boolean().optional(),
+    });
 
     setup() {
-        this.state = useState({
+        this.state = proxy({
             index: -1,
         });
         if (this.props.withCommand) {
@@ -29,22 +28,20 @@ export class PriorityField extends Component {
         return [
             [
                 commandName,
-                () => {
-                    return {
-                        placeholder: commandName,
-                        providers: [
-                            {
-                                provide: () =>
-                                    this.options.map((value) => ({
-                                        name: value[1],
-                                        action: () => {
-                                            this.updateRecord(value[0]);
-                                        },
-                                    })),
-                            },
-                        ],
-                    };
-                },
+                () => ({
+                    placeholder: commandName,
+                    providers: [
+                        {
+                            provide: () =>
+                                this.options.map((value) => ({
+                                    name: value[1],
+                                    action: () => {
+                                        this.updateRecord(value[0]);
+                                    },
+                                })),
+                        },
+                    ],
+                }),
                 { category: "smart_action", hotkey: "alt+r" },
             ],
         ];
@@ -62,10 +59,19 @@ export class PriorityField extends Component {
             : this.options.findIndex((o) => o[0] === this.props.record.data[this.props.name]);
     }
 
-    getTooltip(value) {
-        return this.tooltipLabel && this.tooltipLabel !== value
-            ? `${this.tooltipLabel}: ${value}`
-            : value;
+    getTooltip(value, label) {
+        if (!this.tooltipLabel || this.tooltipLabel === label) {
+            return label;
+        }
+        const currentValue = this.props.record.data[this.props.name];
+        const currentOption = this.options.find(([optionValue]) => optionValue === currentValue);
+        if (this.props.readonly) {
+            return currentOption ? currentOption[1] : label;
+        }
+        return _t("Set %(tooltipLabel)s: %(label)s", {
+            tooltipLabel: this.tooltipLabel,
+            label: currentValue === value ? this.options[0][1] : label,
+        });
     }
     /**
      * @param {string} value
@@ -80,30 +86,18 @@ export class PriorityField extends Component {
     }
 
     async updateRecord(value) {
-        await this.props.record.update({ [this.props.name]: value }, { save: this.props.autosave });
+        await this.props.record.update({ [this.props.name]: value });
     }
 }
 
 export const priorityField = {
     component: PriorityField,
     displayName: _t("Priority"),
-    supportedOptions: [
-        {
-            label: _t("Autosave"),
-            name: "autosave",
-            type: "boolean",
-            default: true,
-            help: _t(
-                "If checked, the record will be saved immediately when the field is modified."
-            ),
-        },
-    ],
     supportedTypes: ["selection"],
-    extractProps({ options, viewType }, dynamicInfo) {
+    extractProps({ viewType }, dynamicInfo) {
         return {
             withCommand: viewType === "form",
             readonly: dynamicInfo.readonly,
-            autosave: "autosave" in options ? !!options.autosave : true,
         };
     },
 };

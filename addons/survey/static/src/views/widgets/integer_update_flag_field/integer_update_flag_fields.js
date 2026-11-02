@@ -1,8 +1,8 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { integerField, IntegerField } from "@web/views/fields/integer/integer_field";
+import { useProps, t, useListener } from "@odoo/owl";
+import { integerField, IntegerField, integerFieldProps } from "@web/views/fields/integer/integer_field";
 
-import { useEffect, useRef } from "@odoo/owl";
 
 
 /**
@@ -18,33 +18,22 @@ import { useEffect, useRef } from "@odoo/owl";
  * See also `BooleanUpdateFlagField`.
  */
 export class IntegerUpdateFlagField extends IntegerField {
-    static props= {
-        ...IntegerField.props,
-        flagFieldName: { type: String },
-        referenceValue: { type: Number },
-    }
+    props = useProps({
+        ...integerFieldProps,
+        flagFieldName: t.string(),
+        referenceValue: t.number(),
+    });
     /**
      * @override
      */
     setup() {
         super.setup(...arguments);
-        const inputRef = useRef("numpadDecimal");
         const onChange = async () => {
             await this.props.record._update({
                 [this.props.flagFieldName]: parseInt(this.formattedValue) !== this.props.referenceValue}
             );
         }
-        useEffect(
-            (inputEl) => {
-                if (inputEl) {
-                    inputEl.addEventListener("change", onChange);
-                    return () => {
-                        inputEl.removeEventListener("change", onChange);
-                    };
-                }
-            },
-            () => [inputRef.el]
-        );
+        useListener(this.numpadDecimalRef, "change", onChange);
     }
 }
 

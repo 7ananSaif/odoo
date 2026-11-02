@@ -1,22 +1,22 @@
-import { Component, onMounted, onWillUnmount, useState, useEffect } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount, proxy, t, useProps } from "@odoo/owl";
+import { PrintingFailurePopup } from "@pos_self_order/app/components/printing_failure_popup/printing_failure_popup";
 import { useSelfOrder } from "@pos_self_order/app/services/self_order_service";
 import { cookie } from "@web/core/browser/cookie";
-import { useService } from "@web/core/utils/hooks";
-import { OrderReceipt } from "@point_of_sale/app/screens/receipt_screen/receipt/order_receipt";
 import { rpc } from "@web/core/network/rpc";
-import { PrintingFailurePopup } from "@pos_self_order/app/components/printing_failure_popup/printing_failure_popup";
+import { useService } from "@web/core/utils/hooks";
+import { imageDataUri } from "@point_of_sale/utils";
 
 export class ConfirmationPage extends Component {
     static template = "pos_self_order.ConfirmationPage";
-    static props = ["orderAccessToken", "screenMode"];
+    props = useProps({ orderAccessToken: t.string(), screenMode: t.string() });
 
     setup() {
         this.selfOrder = useSelfOrder();
         this.router = useService("router");
-        this.printer = useService("printer");
         this.dialog = useService("dialog");
         this.changeToDisplay = [];
-        this.state = useState({
+        this.state = proxy({
+            continueDisabled: true,
             onReload: true,
             payment: this.props.screenMode === "pay",
         });
@@ -28,27 +28,32 @@ export class ConfirmationPage extends Component {
                 }, 30000);
             }
         });
-        useEffect(
-            () => {
-                if (!this.confirmedOrder) {
-                    return;
-                }
 
-                this.printOrder();
-            },
-            () => [this.confirmedOrder?.uiState?.receiptReady]
-        );
         onWillUnmount(() => {
             clearTimeout(this.defaultTimeout);
         });
 
         onMounted(async () => {
             await this.initOrder();
+            // Init the order before trying to print anything
+            try {
+                if (await this.beforePrintOrder()) {
+                    await this.printOrder();
+                    if (
+                        !this.selfOrder.hasPaymentMethod() ||
+                        this.confirmedOrder.state === "paid"
+                    ) {
+                        await this.printOrderChanges();
+                    }
+                }
+            } finally {
+                this.state.continueDisabled = false;
+            }
         });
     }
 
     get confirmedOrder() {
-        return this.selfOrder.currentOrder;
+        return this.selfOrder.models["pos.order"].getBy("uuid", this.selfOrder.selectedOrderUuid);
     }
 
     async initOrder(retry = true) {
@@ -75,21 +80,46 @@ export class ConfirmationPage extends Component {
         }
 
         this.selfOrder.selectedOrderUuid = order.uuid;
-        this.confirmedOrder.uiState.receiptReady = await this.beforePrintOrder();
         this.state.onReload = false;
     }
 
     canPrintReceipt() {
         return (
             !this.isPrinting &&
-            this.confirmedOrder.uiState.receiptReady &&
+            this.confirmedOrder &&
             (!this.confirmedOrder.nb_print || this.confirmedOrder.nb_print < 1)
         );
     }
 
+    /**
+     * Hook called once the order is loaded and before anything is printed.
+     * Overrides may prepare the order here (e.g. have it signed by a fiscal
+     * data module); returning a falsy value cancels the printing.
+     */
     async beforePrintOrder() {
         // meant to be overriden.
         return true;
+    }
+
+    /**
+     * Two call are performed to update-last-changes.
+     *
+     * The first one is to get the last changes from the server and to
+     * be sure that the customer doesn't already try to order something
+     * to the kitchen.
+     *
+     * The second one is to update the last changes with the current
+     * status of the order. Since this application is public, we cannot
+     * fully trust the client data, and we need the server to validate
+     * the changes before sending them to the printer.
+     */
+    async printOrderChanges() {
+        if (this.selfOrder.config.self_ordering_mode === "mobile") {
+            return;
+        }
+
+        const order = this.confirmedOrder;
+        await this.selfOrder.ticketPrinter.printOrderChanges({ order, webFallback: false });
     }
 
     async printOrder() {
@@ -97,23 +127,23 @@ export class ConfirmationPage extends Component {
             try {
                 this.isPrinting = true;
                 const order = this.confirmedOrder;
-                const result = await this.printer.print(
-                    OrderReceipt,
-                    {
-                        order: order,
-                    },
-                    this.printOptions
-                );
+                const result = await this.selfOrder.ticketPrinter.printOrderReceipt({
+                    order,
+                    webFallback: false,
+                });
+
                 if (!this.selfOrder.has_paper) {
                     this.updateHasPaper(true);
                 }
-                order.nb_print = 1;
-                if (order.isSynced && result) {
-                    await rpc("/pos_self_order/kiosk/increment_nb_print/", {
-                        access_token: this.selfOrder.access_token,
-                        order_id: order.id,
-                        order_access_token: order.access_token,
-                    });
+                if (order.state === "paid") {
+                    order.nb_print = 1;
+                    if (order.isSynced && result) {
+                        await rpc("/pos_self_order/kiosk/increment_nb_print/", {
+                            access_token: this.selfOrder.access_token,
+                            order_id: order.id,
+                            order_access_token: order.access_token,
+                        });
+                    }
                 }
             } catch (e) {
                 if (["EPTR_REC_EMPTY", "EPTR_COVER_OPEN"].includes(e.errorCode)) {
@@ -139,7 +169,7 @@ export class ConfirmationPage extends Component {
     }
 
     backToHome() {
-        if (this.confirmedOrder.uiState.receiptReady && !this.setDefautLanguage()) {
+        if (!this.setDefautLanguage()) {
             this.router.navigate("default");
         }
     }
@@ -168,5 +198,13 @@ export class ConfirmationPage extends Component {
         }
 
         return this.state.onReload;
+    }
+    get orderTimeStr() {
+        return this.confirmedOrder.preset_time.toFormat("h:mm a");
+    }
+    get logoUrl() {
+        return this.selfOrder.config.logo
+            ? imageDataUri(this.selfOrder.config.logo.content)
+            : false;
     }
 }

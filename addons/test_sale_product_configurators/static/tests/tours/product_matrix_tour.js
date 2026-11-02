@@ -1,9 +1,9 @@
 import { registry } from "@web/core/registry";
 import { stepUtils } from "@web_tour/tour_utils";
-import tourUtils from "@sale/js/tours/tour_utils";
+import * as tourUtils from "@sale/js/tours/tour_utils";
 
 let EXPECTED = [
-    "Matrix", "PAV11", "PAV12 + $ 50.00",
+    "", "PAV11", "PAV12 + $ 50.00",
 ];
 for (let no of ['PAV41', 'PAV42']) {
     for (let dyn of ['PAV31', 'PAV32']) {
@@ -18,7 +18,6 @@ for (let no of ['PAV41', 'PAV42']) {
 }
 
 registry.category("web_tour.tours").add('sale_matrix_tour', {
-    url: '/odoo',
     steps: () => [
         ...stepUtils.goToAppSteps("sale.sale_menu_root", "Go to the Sales App"),
         ...tourUtils.createNewSalesOrder(),
@@ -46,8 +45,7 @@ registry.category("web_tour.tours").add('sale_matrix_tour', {
         {
             trigger: ".o_form_editable",
         },
-        tourUtils.editLineMatching("Matrix (PAV11, PAV22, PAV31)", "PA4: PAV41"),
-        tourUtils.editConfiguration(),
+        tourUtils.editConfiguration("Matrix (PAV11, PAV22, PAV31)"),
         {
             trigger: ".modal .o_matrix_input_table",
             run: function () {
@@ -81,8 +79,7 @@ registry.category("web_tour.tours").add('sale_matrix_tour', {
         {
             trigger: ".o_form_editable",
         },
-        tourUtils.editLineMatching("Matrix (PAV11, PAV22, PAV31)", "PA4: PAV41"),
-        tourUtils.editConfiguration(),
+        tourUtils.editConfiguration("Matrix (PAV11, PAV22, PAV31)"),
         {
             trigger: ".modal .o_matrix_input_table",
             run: function () {
@@ -110,8 +107,7 @@ registry.category("web_tour.tours").add('sale_matrix_tour', {
         {
             trigger: ".o_form_status_indicator_buttons.invisible:not(:visible)", // wait for save to be finished
         },
-        tourUtils.editLineMatching("Matrix (PAV11, PAV22, PAV31)", "PA4: PAV41"),
-        tourUtils.editConfiguration(),
+        tourUtils.editConfiguration("Matrix (PAV11, PAV22, PAV31)"),
         {
             trigger: ".modal .o_matrix_input_table",
             run: function () {
@@ -126,7 +122,7 @@ registry.category("web_tour.tours").add('sale_matrix_tour', {
             run: "click",
         },
         {
-            trigger: '.o_field_cell.o_data_cell.o_list_number:contains("4.00")',
+            trigger: 'td[name=sol_qty]:contains("4.00")',
         },
         {
             trigger: '.o_form_button_save',
@@ -151,7 +147,7 @@ registry.category("web_tour.tours").add('sale_matrix_tour', {
             run: "click",
         },
         {
-            trigger: ".o_field_cell.o_data_cell.o_list_number:contains(8.20)",
+            trigger: "td[name=sol_qty]:contains(8.20)",
         },
         ...stepUtils.saveForm(),
     ],

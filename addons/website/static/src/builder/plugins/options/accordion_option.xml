@@ -35,13 +35,13 @@
             </BuilderSelect>
         </BuilderRow>
         <BuilderRow label.translate="Active" level="1" t-if="this.isActiveItem('accordion_icons_custom_opt')">
-            <BuilderButton action="'defineCustomIcon'" actionParam="{ isActiveIcon: true }" preview="false">
-                <i class="fa fa-fw fa-refresh me-1"/> Replace Icon
+            <BuilderButton action="'defineCustomIcon'" actionParam="{ isActiveIcon: true }" type="'success'" preview="false">
+                <i class="oi oi-fw me-1" data-icon="refresh"/> Replace Icon
             </BuilderButton>
         </BuilderRow>
         <BuilderRow label.translate="Inactive" level="1" t-if="this.isActiveItem('accordion_icons_custom_opt')">
-            <BuilderButton action="'defineCustomIcon'" actionParam="{ isActiveIcon: false }" preview="false">
-                <i class="fa fa-fw fa-refresh me-1"/> Replace Icon
+            <BuilderButton action="'defineCustomIcon'" actionParam="{ isActiveIcon: false }" type="'success'" preview="false">
+                <i class="oi oi-fw me-1" data-icon="refresh"/> Replace Icon
             </BuilderButton>
         </BuilderRow>
         <BuilderRow label.translate="Transition" level="1" t-if="this.isActiveItem('accordion_icons_custom_opt')">
@@ -54,8 +54,12 @@
         </BuilderRow>
         <BuilderRow label.translate="Position" level="1" applyTo="':scope > .accordion-item > .accordion-header'">
             <BuilderButtonGroup>
-                <BuilderButton title.translate="Left" classAction="'justify-content-end flex-row-reverse o_icons_position_reversed'" iconImg="'/website/static/src/img/snippets_options/pos_left.svg'"/>
-                <BuilderButton title.translate="Right" classAction="'justify-content-between'" iconImg="'/website/static/src/img/snippets_options/pos_right.svg'"/>
+                <BuilderButton ltrRtlMapping="'left-right'" title.translate="Left"
+                    classAction="'justify-content-end flex-row-reverse o_icons_position_reversed'"
+                    icon="'horizontal_align_left'"/>
+                <BuilderButton ltrRtlMapping="'left-right'" title.translate="Right"
+                    classAction="'justify-content-between'"
+                    icon="'horizontal_align_right'"/>
             </BuilderButtonGroup>
         </BuilderRow>
     </BuilderContext>
@@ -66,6 +70,13 @@
         <!-- TODO add data-select-color-combination="" data-with-combinations="selectColorCombination" data-prevent-important="true" ?-->
         <BuilderColorPicker styleAction="'background-color'" />
     </BuilderRow>
+</t>
+
+<t t-inherit="website.BuilderOptions" t-inherit-mode="extension">
+    <xpath expr="//t[@id='snippet_specific_options']" position="after">
+        <accordion_option template="website.AccordionOption" selector=".s_accordion"/>
+        <accordion_item_option template="website.AccordionItemOption" selector=".s_accordion .accordion-item"/>
+    </xpath>
 </t>
 
 </templates>

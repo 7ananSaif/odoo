@@ -1,4 +1,4 @@
-import { Component, onWillUnmount } from "@odoo/owl";
+import { Component, onWillUnmount, t, useProps } from "@odoo/owl";
 import { CheckBox } from "@web/core/checkbox/checkbox";
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
@@ -7,32 +7,51 @@ import { debounce } from "@web/core/utils/timing";
 import { getFieldDomain } from "@web/model/relational_model/utils";
 import { useSpecialData } from "@web/views/fields/relational_utils";
 import { standardFieldProps } from "../standard_field_props";
+import { ConnectionLostError } from "@web/core/network/rpc";
+import { x2ManyCommands } from "@web/core/orm_plugin";
 
 export class Many2ManyCheckboxesField extends Component {
     static template = "web.Many2ManyCheckboxesField";
     static components = { CheckBox };
-    static props = {
+    props = useProps({
         ...standardFieldProps,
-        domain: { type: [Array, Function], optional: true },
-        context: { type: Object, optional: true },
-    };
+        domain: t.or([t.array(), t.function()]).optional(),
+        context: t.object().optional(),
+    });
 
     setup() {
         this.specialData = useSpecialData((orm, props) => {
             const { relation } = props.record.fields[props.name];
             const domain = getFieldDomain(props.record, props.name, props.domain);
-            return orm.call(relation, "name_search", ["", domain], {
-                context: this.props.context || {},
-            });
+            return orm
+                .call(relation, "web_name_search", [], {
+                    name: "",
+                    domain,
+                    context: this.props.context || {},
+                    specification: this.webNameSearchSpecification,
+                })
+                .catch((error) => {
+                    if (error instanceof ConnectionLostError) {
+                        return (this.props.record.data[this.props.name].records || []).map((r) => ({
+                            id: r.resId,
+                            ...r.data,
+                        }));
+                    }
+                    throw error;
+                });
         });
         // these two sets track pending changes in the relation, and allow us to
         // batch consecutive changes into a single replaceWith, thus saving
         // unnecessary potential intermediate onchanges
-        this.idsToAdd = new Set();
-        this.idsToRemove = new Set();
+        this.idsToAdd = {};
+        this.idsToRemove = {};
         this.debouncedCommitChanges = debounce(this.commitChanges.bind(this), 500);
         useBus(this.props.record.model.bus, "NEED_LOCAL_CHANGES", this.commitChanges.bind(this));
         onWillUnmount(this.commitChanges.bind(this));
+    }
+
+    get webNameSearchSpecification() {
+        return { display_name: {} };
     }
 
     get items() {
@@ -40,34 +59,39 @@ export class Many2ManyCheckboxesField extends Component {
     }
 
     isSelected(item) {
-        return this.props.record.data[this.props.name].currentIds.includes(item[0]);
+        return this.props.record.data[this.props.name].currentIds.includes(item.id);
     }
 
     commitChanges() {
-        if (this.idsToAdd.size === 0 && this.idsToRemove.size === 0) {
+        if (Object.keys(this.idsToAdd).length === 0 && Object.keys(this.idsToRemove).length === 0) {
             return;
         }
-        const result = this.props.record.data[this.props.name].addAndRemove({
-            add: [...this.idsToAdd],
-            remove: [...this.idsToRemove],
-        });
-        this.idsToAdd.clear();
-        this.idsToRemove.clear();
-        return result;
+        const commands = [
+            ...Object.values(this.idsToAdd).map((add) => [
+                x2ManyCommands.LINK,
+                add.id,
+                { id: add.id, display_name: add.displayName },
+            ]),
+            ...Object.values(this.idsToRemove).map((rem) => [x2ManyCommands.UNLINK, rem.id]),
+        ];
+
+        this.idsToAdd = {};
+        this.idsToRemove = {};
+        return this.props.record.data[this.props.name].applyCommands(commands);
     }
 
-    onChange(resId, checked) {
+    onChange(resId, displayName, checked) {
         if (checked) {
-            if (this.idsToRemove.has(resId)) {
-                this.idsToRemove.delete(resId);
+            if (resId in this.idsToRemove) {
+                delete this.idsToRemove[resId];
             } else {
-                this.idsToAdd.add(resId);
+                this.idsToAdd[resId] = { id: resId, displayName };
             }
         } else {
-            if (this.idsToAdd.has(resId)) {
-                this.idsToAdd.delete(resId);
+            if (resId in this.idsToAdd) {
+                delete this.idsToAdd[resId];
             } else {
-                this.idsToRemove.add(resId);
+                this.idsToRemove[resId] = { id: resId, displayName };
             }
         }
         this.debouncedCommitChanges();
@@ -78,6 +102,7 @@ export const many2ManyCheckboxesField = {
     component: Many2ManyCheckboxesField,
     displayName: _t("Checkboxes"),
     supportedTypes: ["many2many"],
+    relatedFields: () => [{ name: "display_name", type: "char" }],
     isEmpty: () => false,
     extractProps(fieldInfo, dynamicInfo) {
         return {

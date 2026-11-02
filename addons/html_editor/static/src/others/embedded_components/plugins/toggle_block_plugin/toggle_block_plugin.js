@@ -64,7 +64,7 @@ export class ToggleBlockPlugin extends Plugin {
                 id: "insertToggleBlock",
                 title: _t("Toggle list"),
                 description: _t("Hide Text under foldable toggles"),
-                icon: "fa-caret-square-o-right",
+                icon: "chevron_forward",
                 isAvailable: (selection) =>
                     isHtmlContentSupported(selection) &&
                     !closestElement(selection.anchorNode, `${toggleSelector} ${titleSelector}`),
@@ -78,7 +78,7 @@ export class ToggleBlockPlugin extends Plugin {
             },
         ],
 
-        normalize_handlers: withSequence(Infinity, this.normalize.bind(this)),
+        normalize_processors: withSequence(Infinity, this.normalize.bind(this)),
 
         delete_backward_overrides: this.handleDeleteBackward.bind(this),
         delete_forward_overrides: this.handleDeleteForward.bind(this),
@@ -86,7 +86,7 @@ export class ToggleBlockPlugin extends Plugin {
         split_element_block_overrides: withSequence(1, this.handleSplitElementBlock.bind(this)),
         tab_overrides: this.handleTab.bind(this),
 
-        power_buttons_visibility_predicates: this.showPowerButtons.bind(this),
+        should_show_power_buttons_predicates: this.showPowerButtons.bind(this),
 
         before_insert_processors: this.handleInsert.bind(this),
     };
@@ -197,7 +197,8 @@ export class ToggleBlockPlugin extends Plugin {
             block.nextElementSibling ||
             leaf !== endContainer ||
             !isParagraphRelatedElement(block) ||
-            this.preventDeleteBackwardContentEnd
+            this.preventDeleteBackwardContentEnd ||
+            closestBlock(block.parentElement) !== content
         ) {
             return;
         }
@@ -434,7 +435,7 @@ export class ToggleBlockPlugin extends Plugin {
                 containerContent.append(...siblings);
                 closestToggleAncestor.after(toggle);
                 this.forceToggle(toggle, { showContent: true, restoreSelection: cursors.restore });
-                this.dependencies.history.addStep();
+                this.dependencies.history.commit();
             }
             return true;
         }
@@ -463,7 +464,6 @@ export class ToggleBlockPlugin extends Plugin {
                     toggle.after(...children(content));
                 }
                 const baseContainer = this.dependencies.baseContainer.createBaseContainer();
-                baseContainer.appendChild(this.document.createElement("br"));
                 toggle.replaceWith(baseContainer);
                 const dir = toggle.getAttribute("dir");
                 if (dir) {
@@ -536,18 +536,28 @@ export class ToggleBlockPlugin extends Plugin {
                     showContent: true,
                     restoreSelection: cursors.restore,
                 });
-                this.dependencies.history.addStep();
+                this.dependencies.history.commit();
             }
             return true;
         }
     }
 
     insertToggleBlock() {
+        let currentBlock;
+        const selection = this.dependencies.selection.getSelectionData().deepEditableSelection;
+        if (selection.isCollapsed) {
+            currentBlock = closestBlock(selection.startContainer);
+        }
+
         const block = this.renderToggleBlock();
-        const target = block.querySelector(`${titleSelector} > ${baseContainerGlobalSelector}`);
+        let target = block.querySelector(`${titleSelector} > ${baseContainerGlobalSelector}`);
+        if (currentBlock && isParagraphRelatedElement(currentBlock)) {
+            target.replaceWith(currentBlock);
+            target = currentBlock;
+        }
         this.dependencies.dom.insert(block);
         this.dependencies.selection.setCursorStart(target);
-        this.dependencies.history.addStep();
+        this.dependencies.history.commit();
     }
 
     manageToggleFromTitle() {
@@ -586,12 +596,12 @@ export class ToggleBlockPlugin extends Plugin {
             `${toggleSelector} [data-embedded-editable]:empty`
         )) {
             const baseContainer = this.dependencies.baseContainer.createBaseContainer();
-            baseContainer.appendChild(this.document.createElement("br"));
             emptyToggleNode.replaceChildren(baseContainer);
         }
+        return element;
     }
 
-    renderToggleBlock() {
+    renderToggleBlock(initialText) {
         const baseContainer = this.dependencies.baseContainer.createBaseContainer();
         return parseHTML(
             this.document,
@@ -601,14 +611,14 @@ export class ToggleBlockPlugin extends Plugin {
                     class: baseContainer.className,
                 },
                 embeddedProps: JSON.stringify({ toggleBlockId: this.getUniqueIdentifier() }),
+                initialText,
             })
         );
     }
 
     showPowerButtons(selection) {
-        return (
-            selection.isCollapsed &&
-            !closestElement(selection.anchorNode, `${toggleSelector} ${titleSelector}`)
-        );
+        if (selection.isCollapsed) {
+            return !closestElement(selection.anchorNode, `${toggleSelector} ${titleSelector}`);
+        }
     }
 }

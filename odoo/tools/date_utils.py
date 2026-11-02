@@ -4,20 +4,33 @@ import calendar
 import math
 import re
 import typing
-from datetime import date, datetime, time, timedelta, tzinfo
+import zoneinfo
+import contextlib
+import babel
+from datetime import date, datetime, time, timedelta, tzinfo, UTC
+from operator import methodcaller
 
-import pytz
 from dateutil.relativedelta import relativedelta, weekdays
 
+from .func import lazy
 from .float_utils import float_round
 
 if typing.TYPE_CHECKING:
-    import babel
     from collections.abc import Callable, Iterable, Iterator
     from odoo.orm.types import Environment
     D = typing.TypeVar('D', date, datetime)
 
-utc = pytz.utc
+
+# cache `available_timezones` as it's recomputed on every call
+@lazy
+def all_timezones():
+    tzs = []
+    for tz in zoneinfo.available_timezones():
+        with contextlib.suppress(LookupError):
+            babel.dates.get_timezone(tz)
+            tzs.append(tz)
+    return tzs
+
 
 TRUNCATE_TODAY = relativedelta(microsecond=0, second=0, minute=0, hour=0)
 TRUNCATE_UNIT = {
@@ -63,10 +76,18 @@ __all__ = [
 
 def float_to_time(hours: float) -> time:
     """ Convert a number of hours into a time object. """
-    if hours == 24.0:
-        return time.max
     fractional, integral = math.modf(hours)
-    return time(int(integral), int(float_round(60 * fractional, precision_digits=0)), 0)
+    hour = int(integral)
+    minute = int(float_round(60 * fractional, precision_digits=0))
+    # Rounding the minutes can carry over to a full hour, e.g. 16.9959 hours
+    # gives 59.75 -> 60 minutes. ``time(hour, 60)`` is invalid, so carry the
+    # extra minute into the hour.
+    if minute == 60:
+        hour += 1
+        minute = 0
+    if hour == 24 and minute == 0:  # edge case for 24h
+        return time.max
+    return time(hour, minute, 0)
 
 
 def time_to_float(duration: time | timedelta) -> float:
@@ -81,13 +102,13 @@ def time_to_float(duration: time | timedelta) -> float:
 
 def localized(dt: datetime) -> datetime:
     """ When missing, add tzinfo to a datetime. """
-    return dt if dt.tzinfo else dt.replace(tzinfo=utc)
+    return dt if dt.tzinfo else dt.replace(tzinfo=UTC)
 
 
 def to_timezone(tz: tzinfo | None) -> Callable[[datetime], datetime]:
     """ Get a function converting a datetime to another localized datetime. """
     if tz is None:
-        return lambda dt: dt.astimezone(utc).replace(tzinfo=None)
+        return lambda dt: dt.astimezone(UTC).replace(tzinfo=None)
     return lambda dt: dt.astimezone(tz)
 
 
@@ -196,7 +217,7 @@ def parse_date(value: str, env: Environment) -> date | datetime:
 
     # always return a naive date
     if isinstance(dt, datetime) and dt.tzinfo is not None:
-        dt = dt.astimezone(pytz.utc).replace(tzinfo=None)
+        dt = dt.astimezone(UTC).replace(tzinfo=None)
     return dt
 
 
@@ -384,24 +405,27 @@ def date_range(start: D, end: D, step: relativedelta = relativedelta(months=1)) 
     post_process = lambda dt: dt  # noqa: E731
     if isinstance(start, datetime) and isinstance(end, datetime):
         are_naive = start.tzinfo is None and end.tzinfo is None
-        are_utc = start.tzinfo == pytz.utc and end.tzinfo == pytz.utc
+        are_utc = start.tzinfo == UTC and end.tzinfo == UTC
 
         # Cases with miscellenous timezone are more complexe because of DST.
         are_others = start.tzinfo and end.tzinfo and not are_utc
 
-        if are_others and start.tzinfo.zone != end.tzinfo.zone:
+        if are_others and start.tzinfo != end.tzinfo:
             raise ValueError("Timezones of start argument and end argument seem inconsistent")
 
         if not are_naive and not are_utc and not are_others:
             raise ValueError("Timezones of start argument and end argument mismatch")
 
         if not are_naive:
-            post_process = start.tzinfo.localize
+            post_process = methodcaller('replace', tzinfo=start.tzinfo)
             start = start.replace(tzinfo=None)
             end = end.replace(tzinfo=None)
 
-    elif isinstance(start, date) and isinstance(end, date):
-        if not isinstance(start + step, date):
+    elif (
+        isinstance(start, date) and not isinstance(start, datetime)
+        and isinstance(end, date) and not isinstance(end, datetime)
+    ):
+        if isinstance(start + step, datetime):
             raise ValueError("the step interval must add only entire days")  # noqa: TRY004
     else:
         raise ValueError("start/end should be both date or both datetime type")  # noqa: TRY004
@@ -447,7 +471,7 @@ def weeknumber(locale: babel.Locale, date: date, first_week_day: int | None = No
     :param first_week_day: Optional override for the first day of the week
         (0 = Monday, ..., 6 = Sunday). If None, derived from the locale.
     """
-    if not first_week_day:
+    if first_week_day is None:
         first_week_day = locale.first_week_day
     if first_week_day == 0 and locale.min_week_days == 4:
         # woohoo nothing to do
@@ -495,3 +519,20 @@ def weekend(locale: babel.Locale, date: date):
         - weekend of Sat 30 Aug -> Sat 30 Aug
     """
     return weekstart(locale, date) + relativedelta(days=6)
+
+
+def convert_timezone(utc_naive_datetime: datetime, tz_from: tzinfo, tz_to: tzinfo):
+    """
+        Convert a naive date to another timezone that initial timezone
+        used to generate the date.
+        :param utc_naive_datetime: utc date without tzinfo
+        :type utc_naive_datetime: datetime
+        :param tz_from: timezone used to obtained `utc_naive_datetime`
+        :param tz_to: timezone in which we want the date
+        :return: datetime converted into tz_to without tzinfo
+        :rtype: datetime
+    """
+    naive_datetime_from = utc_naive_datetime.astimezone(tz_from).replace(tzinfo=None)
+    aware_datetime_to = naive_datetime_from.replace(tzinfo=tz_to)
+    utc_naive_datetime_to = aware_datetime_to.astimezone(UTC).replace(tzinfo=None)
+    return utc_naive_datetime_to

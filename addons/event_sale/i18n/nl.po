@@ -12,17 +12,57 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-06-06 14:19+0000\n"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-09-23 13:33+0000\n"
 "Last-Translator: Bren Driesen <brdri@odoo.com>\n"
-"Language-Team: Dutch <https://translate.odoo.com/projects/odoo-19/event_sale/"
+"Language-Team: Dutch <https://translate.odoo.com/projects/odoo-20/event_sale/"
 "nl/>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: event_sale
+#: model:ir.module.module,description:base.module_event_sale
+msgid ""
+"\n"
+"Creating registration with sales orders.\n"
+"========================================\n"
+"\n"
+"This module allows you to automate and connect your registration creation "
+"with\n"
+"your main sale flow and therefore, to enable the invoicing feature of "
+"registrations.\n"
+"\n"
+"It defines a new kind of service products that offers you the possibility "
+"to\n"
+"choose an event category associated with it. When you encode a sales order "
+"for\n"
+"that product, you will be able to choose an existing event of that category "
+"and\n"
+"when you confirm your sales order it will automatically create a "
+"registration for\n"
+"this event.\n"
+msgstr ""
+"\n"
+"Registraties aanmaken met verkooporders.\n"
+"=======================================\n"
+"\n"
+"Deze module stel je in staat om registratiecreatie te koppelen met je "
+"verkoopflow en dit te automatiseren,\n"
+"wat je in staat stelt om de facturatie functie in te schakelen.\n"
+"\n"
+"Het definieert een nieuwe soort van serviceproducten die je de mogelijkheid "
+"bieden om\n"
+"een evenement categorie te kiezen om dit mee te koppelen. Wanneer je een "
+"verkooporder codeert voor\n"
+"het product zal je de mogelijkheid hebben om een bestaande evenement te "
+"kiezen van de categorie en\n"
+"wanneer je deze verkooporder bevestigt zal er automatisch een registratie "
+"worden aangemaakt\n"
+"voor dit evenement.\n"
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_registration_change_exception
@@ -35,8 +75,10 @@ msgstr ""
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_configurator_view_form
-msgid "<i class=\"fa fa-arrow-right\"/> Configure Events &amp; Tickets"
-msgstr "<i class=\"fa fa-arrow-right\"/> Evenementen & tickets beheren"
+msgid ""
+"<i class=\"oi\" data-icon=\"arrow_forward\"/> Configure Events &amp; Tickets"
+msgstr ""
+"<i class=\"oi\" data-icon=\"arrow_forward\"/> Evenementen & tickets beheren"
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_registration_ticket_view_form
@@ -57,6 +99,11 @@ msgstr "<span>Registratiewijziging voor deelnemer:</span>"
 #: model_terms:ir.ui.view,arch_db:event_sale.event_configurator_view_form
 msgid "Add"
 msgstr "Toevoegen"
+
+#. module: event_sale
+#: model:ir.model.fields,field_description:event_sale.field_event_event_configurator__additional_product_ids
+msgid "Additional Products"
+msgstr "Aanvullende producten"
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_configurator_view_form
@@ -221,7 +268,7 @@ msgstr "Negeren"
 #: model:ir.model.fields,field_description:event_sale.field_sale_order__display_name
 #: model:ir.model.fields,field_description:event_sale.field_sale_order_line__display_name
 msgid "Display Name"
-msgstr "Schermnaam"
+msgstr "Weergavenaam"
 
 #. module: event_sale
 #: model:ir.model,name:event_sale.model_registration_editor
@@ -310,6 +357,11 @@ msgstr "Evenementticket"
 #: model_terms:ir.ui.view,arch_db:event_sale.event_sale_report_view_search
 msgid "Event Type"
 msgstr "Soort evenement"
+
+#. module: event_sale
+#: model:ir.module.module,shortdesc:base.module_event_sale
+msgid "Events Sales"
+msgstr ""
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_sale_report_view_search
@@ -575,6 +627,15 @@ msgid "Select an Event"
 msgstr "Selecteer een evenement"
 
 #. module: event_sale
+#: model:ir.model.fields,help:event_sale.field_event_event_configurator__additional_product_ids
+msgid ""
+"Select products to include with each registration. They will also show up "
+"separately on Sale Orders."
+msgstr ""
+"Selecteer producten die bij elke registratie moeten worden opgenomen. Ze "
+"worden ook apart weergegeven op verkooporders."
+
+#. module: event_sale
 #. odoo-python
 #: code:addons/event_sale/models/event_registration.py:0
 #: model:ir.model.fields,field_description:event_sale.field_event_event_configurator__event_slot_id
@@ -687,124 +748,3 @@ msgstr "graag de gegevens van de deelnemer te vermelden."
 #: model_terms:ir.ui.view,arch_db:event_sale.event_registration_change_exception
 msgid "to"
 msgstr "aan"
-
-#~ msgid ""
-#~ "<span>Not enough seats available. All registrations were created as "
-#~ "\"Unconfirmed\" and can be updated later on.</span>"
-#~ msgstr ""
-#~ "<span>Niet genoeg stoelen beschikbaar. Alle registraties zijn gemaakt als "
-#~ "\"Onbevestigd\" en kunnen later worden bijgewerkt.</span>"
-
-#~ msgid ""
-#~ "A description of the ticket that you want to communicate to your "
-#~ "customers."
-#~ msgstr ""
-#~ "Een beschrijving van het ticket dat je aan je klanten wilt communiceren."
-
-#~ msgid ""
-#~ "A storable product is a product for which you manage stock. The Inventory "
-#~ "app has to be installed.\n"
-#~ "A consumable product is a product for which stock is not managed.\n"
-#~ "A service is a non-material product you provide."
-#~ msgstr ""
-#~ "Een voorraadproduct is een product waarvan je voorraad beheerd. De "
-#~ "voorraad app moet geïnstalleerd worden.\n"
-#~ "Een verbruiksproduct, is een product waarvoor geen voorraad wordt "
-#~ "bijgehouden.\n"
-#~ "Een dienst is een immateriëel product dat je verkoopt."
-
-#~ msgid "Cancel"
-#~ msgstr "Annuleren"
-
-#~ msgid "Configure an event"
-#~ msgstr "Configureer een evenement"
-
-#~ msgid "Currency"
-#~ msgstr "Valuta"
-
-#~ msgid "Description"
-#~ msgstr "Omschrijving"
-
-#~ msgid "Event Registration - Standard"
-#~ msgstr "Evenementregistratie - Standaard"
-
-#~ msgid "Event Registration - VIP"
-#~ msgstr "Evenementregistratie - VIP"
-
-#~ msgid "Event Template Ticket"
-#~ msgstr "Evenement sjabloonticket"
-
-#~ msgid "Event Tickets"
-#~ msgstr "Evenementtickets"
-
-#~ msgid "Group By"
-#~ msgstr "Groepeer op"
-
-#~ msgid "Is Paid"
-#~ msgstr "Is betaald"
-
-#~ msgid "Journal Entry"
-#~ msgstr "Boeking"
-
-#~ msgid "Locked"
-#~ msgstr "Geblokkeerd"
-
-#~ msgid "Mobile"
-#~ msgstr "Mobiel"
-
-#~ msgid "Not Paid"
-#~ msgstr "Niet betaald"
-
-#~ msgid "Not enough seats for all registrations"
-#~ msgstr "Niet genoeg plaatsen voor alle inschrijvingen"
-
-#~ msgid "Ok"
-#~ msgstr "Ok"
-
-#~ msgid "Order Ref"
-#~ msgstr "Orderreferentie"
-
-#~ msgid "Paid"
-#~ msgstr "Betaald"
-
-#~ msgid "Price"
-#~ msgstr "Prijs"
-
-#~ msgid "Price Reduce"
-#~ msgstr "Gereduceerde prijs"
-
-#~ msgid "Price Reduce Tax inc"
-#~ msgstr "Gereduceerde prijs incl. BTW"
-
-#~ msgid "Product Type"
-#~ msgstr "Productsoort"
-
-#~ msgid "Product Variant"
-#~ msgstr "Productvariant"
-
-#~ msgid "Quotation Template Line"
-#~ msgstr "Offertesjabloonregel"
-
-#~ msgid "Quotation Template Option"
-#~ msgstr "Offerte sjabloon optie"
-
-#~ msgid "Sales (Tax Excluded)"
-#~ msgstr "Verkopen (exclusief BTW)"
-
-#~ msgid "Sales End"
-#~ msgstr "Einde verkoop"
-
-#~ msgid "Sales Start"
-#~ msgstr "Start verkoop"
-
-#~ msgid "Skip"
-#~ msgstr "Overslaan"
-
-#~ msgid "Ticket changed from"
-#~ msgstr "Ticket veranderd van"
-
-#~ msgid "Transaction"
-#~ msgstr "Transactie"
-
-#~ msgid "please give attendee details."
-#~ msgstr "geef de details van de deelnemer."

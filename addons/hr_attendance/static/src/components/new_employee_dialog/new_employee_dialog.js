@@ -1,4 +1,4 @@
-import { Component, useState } from "@odoo/owl";
+import { Component, useProps, proxy, t } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
 import { useService } from "@web/core/utils/hooks";
 import { rpc } from "@web/core/network/rpc";
@@ -8,33 +8,38 @@ import { Many2One } from "./many2one/many2one";
 export class NewEmployeeDialog extends Component {
     static components = { Dialog, Many2One };
     static template = "hr_attendance.NewEmployeeDialog";
-    static props = {
-        title: { type: String, optional: true },
-        footer: { type: Boolean, optional: true },
-        token: { type: String },
-    }
-    static defaultProps = {
-        title: _t("Set-up"),
-        footer: false,
-    };
+    props = useProps({
+        title: t.string().optional(_t("Badge Set-up")),
+        footer: t.boolean().optional(false),
+        token: t.string(),
+    });
     setup() {
         this.dialogService = useService("dialog");
         this.notification = useService("notification");
-        this.state = useState({
+        this.state = proxy({
             employeeName: "",
             badgeId: "",
             value: null,
             searchName: "",
+            employeeHasBadge: false,
         });
     }
 
     onSelectEmployee(emp) {
         this.state.searchName = emp?.name ?? "";
-        if( this.state.searchName == ""){
+        this.state.badgeId = "";
+        if(emp?.isNew){
+            this.state.searchName = emp.name;
+            this.state.employeeName = emp.name;
             this.state.value = null;
+            this.state.employeeHasBadge = false;
+            this.onCreate();
         }
-        else{
+        else if(this.state.searchName == ""){
+            this.state.value = null;
+        } else {
             this.state.value = emp;
+            this.state.employeeHasBadge = false;
         }
     }
 
@@ -47,13 +52,15 @@ export class NewEmployeeDialog extends Component {
             return;
         }
         try {
-            const is_created = await rpc('/hr_attendance/create_employee', {
+            const result = await rpc("/hr_attendance/create_employee", {
                 name: this.state.employeeName,
-                token: this.props.token
+                token: this.props.token,
             });
+            const is_created = result.status;
+            const created_emp = result.employee;
             if (is_created) {
-                this.notification.add(_t("Employee created successfully!"), { type: "success",});
-                this.props.close();
+                this.notification.add(_t("Employee created successfully!"), {type: "success"});
+                this.state.value = created_emp
             } else {
                 this.notification.add(_t("Failed to create employee."), {
                     type: "danger",
@@ -61,8 +68,8 @@ export class NewEmployeeDialog extends Component {
             }
         } catch (error) {
             this.notification.add(_t("Error creating employee: ") + error.message, {
-                    type: "danger",
-                });
+                type: "danger",
+            });
         }
     }
 
@@ -76,18 +83,18 @@ export class NewEmployeeDialog extends Component {
             return;
         }
         const employeeId = parseInt(this.state.value.id);
-        const data = await rpc('/hr_attendance/set_badge', {
+        const data = await rpc("/hr_attendance/set_badge", {
             employee_id: employeeId,
             badge: badge,
-            token: this.props.token
+            token: this.props.token,
         });
         if (data?.status === "success") {
             this.notification.add(_t("Badge assigned successfully!"), {
                 type: "success",
             });
-            this.props.close();
+            this.state.employeeHasBadge = true;
         } else {
-            this.notification.add( _t("Error: ") + _t(data?.message),{
+            this.notification.add(_t("Error: ") + _t(data?.message), {
                 type: "danger",
             });
         }

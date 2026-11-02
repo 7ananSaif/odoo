@@ -12,18 +12,18 @@ describe("PoS Discount", () => {
         const product = store.models["product.template"].get(5);
 
         await store.addLineToOrder({ product_tmpl_id: product, qty: 10 }, order);
-        expect(order.priceIncl).toBe(34.5);
-        expect(order.priceExcl).toBe(30);
-        expect(order.amountTaxes).toBe(4.5);
+        expect(order.priceIncl).toBe(1150);
+        expect(order.priceExcl).toBe(1000);
+        expect(order.amountTaxes).toBe(150);
 
         await store.applyDiscount(10);
-        expect(order.priceIncl).toBe(31.05);
-        expect(order.priceExcl).toBe(27);
-        expect(order.amountTaxes).toBe(4.05);
+        expect(order.priceIncl).toBe(1035);
+        expect(order.priceExcl).toBe(900);
+        expect(order.amountTaxes).toBe(135);
 
         let [productLine, discountLine] = order.lines;
-        expect(productLine.priceIncl).toBe(34.5);
-        expect(discountLine.priceIncl).toBe(-3.45);
+        expect(productLine.priceIncl).toBe(1150);
+        expect(discountLine.priceIncl).toBe(-115);
 
         let resolveReapplyDiscount = null;
         const reapplyDiscountPromise = new Promise((resolve) => {
@@ -41,12 +41,34 @@ describe("PoS Discount", () => {
         order.fiscal_position_id = nonTaxFP;
 
         await reapplyDiscountPromise;
-        expect(order.priceIncl).toBe(27);
-        expect(order.priceExcl).toBe(27);
+        expect(order.priceIncl).toBe(900);
+        expect(order.priceExcl).toBe(900);
         expect(order.amountTaxes).toBe(0);
 
         [productLine, discountLine] = order.lines;
-        expect(productLine.priceIncl).toBe(30);
-        expect(discountLine.priceIncl).toBe(-3);
+        expect(productLine.priceIncl).toBe(1000);
+        expect(discountLine.priceIncl).toBe(-100);
+    });
+
+    test("fixed global discount mirrors its sign when refunding", async () => {
+        const store = await setupPosEnv();
+        const product = store.models["product.template"].get(5);
+
+        // Sale of 10 x 3.00 with a fixed 5.00 global discount.
+        const sale = store.addNewOrder();
+        await store.addLineToOrder({ product_tmpl_id: product, qty: 10 }, sale);
+        await store.applyDiscount(5, "fixed", sale);
+        const saleTotal = sale.priceIncl;
+        expect(saleTotal).toBe(1145); // 1150 incl - 5.00 fixed discount
+
+        // Refund the same order: negated quantity + is_refund flag, same fixed discount.
+        // The refund total must be the exact mirror of the sale (the discount reduces what
+        // is given back). Before the fix the fixed discount kept the sale sign and inflated
+        // the refund to -39.50, making amount_paid != amount_total.
+        const refund = store.addNewOrder();
+        refund.is_refund = true;
+        await store.addLineToOrder({ product_tmpl_id: product, qty: -10 }, refund);
+        await store.applyDiscount(5, "fixed", refund);
+        expect(refund.priceIncl).toBe(-saleTotal); // -1145, not -1155
     });
 });

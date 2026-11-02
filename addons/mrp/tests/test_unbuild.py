@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import Command
@@ -8,6 +7,17 @@ from odoo.exceptions import UserError
 
 
 class TestUnbuild(TestMrpCommon):
+    _test_user_groups = (
+        'product.group_product_manager',  # FIXME: use base.group_user
+        'mrp.group_mrp_manager',
+        'mrp.group_mrp_routings',  # view visibility (duration/workorder fields) granted to cls.env.user in Common
+        'mrp.group_mrp_byproducts',  # view visibility (byproducts) granted to mrp users in Common
+        'stock.group_stock_manager',  # setup: warehouse/route/rule/orderpoint/location/picking_type config in test bodies
+        'uom.group_uom',  # view visibility (uom_id) granted to cls.env.user in Common
+    )
+
+    _test_user_name = 'Test Product Manager'
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -111,18 +121,18 @@ class TestUnbuild(TestMrpCommon):
         # ---------------------------------------------------
 
         # This should fail since we do not choose a lot to unbuild for final product.
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(UserError):
             x = Form(self.env['mrp.unbuild'])
             x.product_id = p_final
             x.bom_id = bom
             x.product_qty = 3
-            unbuild_order = x.save()
+            x.save().action_unbuild()
 
         x = Form(self.env['mrp.unbuild'])
         x.product_id = p_final
         x.bom_id = bom
         x.product_qty = 3
-        x.lot_id = lot
+        x.lot_ids = lot
         x.save().action_unbuild()
 
         self.assertEqual(self.env['stock.quant']._get_available_quantity(p_final, self.stock_location, lot_id=lot), 2, 'You should have consumed 3 final product in stock')
@@ -133,7 +143,7 @@ class TestUnbuild(TestMrpCommon):
         x.product_id = p_final
         x.bom_id = bom
         x.product_qty = 2
-        x.lot_id = lot
+        x.lot_ids = lot
         x.save().action_unbuild()
 
         self.assertEqual(self.env['stock.quant']._get_available_quantity(p_final, self.stock_location, lot_id=lot), 0, 'You should have 0 finalproduct in stock')
@@ -144,7 +154,7 @@ class TestUnbuild(TestMrpCommon):
         x.product_id = p_final
         x.bom_id = bom
         x.product_qty = 5
-        x.lot_id = lot
+        x.lot_ids = lot
         x.save().action_unbuild()
 
         self.assertEqual(self.env['stock.quant']._get_available_quantity(p_final, self.stock_location, lot_id=lot, allow_negative=True), -5, 'You should have negative quantity for final product in stock')
@@ -169,7 +179,7 @@ class TestUnbuild(TestMrpCommon):
         self.env['stock.quant']._update_available_quantity(p2, self.stock_location, 5)
         mo.action_assign()
         for ml in mo.move_raw_ids.mapped('move_line_ids'):
-            if ml.product_id.tracking != 'none':
+            if ml.product_id.tracking in ['lot', 'serial']:
                 self.assertEqual(ml.lot_id, lot, 'Wrong reserved lot.')
 
         # FIXME sle: behavior change
@@ -286,21 +296,12 @@ class TestUnbuild(TestMrpCommon):
         # ---------------------------------------------------
         #       unbuild
         # ---------------------------------------------------
-
-        x = Form(self.env['mrp.unbuild'])
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(UserError):
+            x = Form(self.env['mrp.unbuild'])
             x.product_id = p_final
             x.bom_id = bom
             x.product_qty = 3
-            x.save()
-
-        with self.assertRaises(AssertionError):
-            x.product_id = p_final
-            x.bom_id = bom
-            x.product_qty = 3
-            x.save()
-
-        self.assertEqual(self.env['stock.quant']._get_available_quantity(p_final, self.stock_location, lot_id=lot_final), 5, 'You should have consumed 3 final product in stock')
+            x.save().action_unbuild()
 
         self.assertEqual(self.env['stock.quant']._get_available_quantity(p_final, self.stock_location, lot_id=lot_final), 5, 'You should have consumed 3 final product in stock')
 
@@ -308,7 +309,7 @@ class TestUnbuild(TestMrpCommon):
         x.product_id = p_final
         x.bom_id = bom
         x.mo_id = mo
-        x.lot_id = lot_final
+        x.lot_ids = lot_final
         x.product_qty = 3
         x.save().action_unbuild()
 
@@ -320,7 +321,7 @@ class TestUnbuild(TestMrpCommon):
         x.product_id = p_final
         x.bom_id = bom
         x.mo_id = mo
-        x.lot_id = lot_final
+        x.lot_ids = lot_final
         x.product_qty = 2
         x.save().action_unbuild()
 
@@ -332,7 +333,7 @@ class TestUnbuild(TestMrpCommon):
         x.product_id = p_final
         x.bom_id = bom
         x.mo_id = mo
-        x.lot_id = lot_final
+        x.lot_ids = lot_final
         x.product_qty = 5
         x.save().action_unbuild()
 
@@ -344,7 +345,7 @@ class TestUnbuild(TestMrpCommon):
         """ This test creates a MO from 3 different lot on a consumed product (p2).
         The unbuild order should revert the correct quantity for each specific lot.
         """
-        mo, bom, p_final, p1, p2 = self.generate_mo(tracking_final='none', tracking_base_2='lot', tracking_base_1='none')
+        mo, bom, p_final, p1, p2 = self.generate_mo(tracking_final=False, tracking_base_2='lot', tracking_base_1=False)
         self.assertEqual(len(mo), 1, 'MO should have been created')
 
         lot_1 = self.env['stock.lot'].create({
@@ -395,7 +396,7 @@ class TestUnbuild(TestMrpCommon):
     def test_production_links_with_non_tracked_lots(self):
         """ This test produces an MO in two times and checks that the move lines are linked in a correct way
         """
-        mo, bom, p_final, p1, p2 = self.generate_mo(tracking_final='lot', tracking_base_1='none', tracking_base_2='lot')
+        mo, _, p_final, p1, p2 = self.generate_mo(tracking_final='lot', tracking_base_1=False, tracking_base_2='lot')
         # Young Tom
         #    \ Botox - 4 - p1
         #    \ Old Tom - 1 - p2
@@ -544,7 +545,7 @@ class TestUnbuild(TestMrpCommon):
         bom = self.env['mrp.bom'].create({
             'product_id': finshed_product.id,
             'product_tmpl_id': finshed_product.product_tmpl_id.id,
-            'product_uom_id': self.uom_unit.id,
+            'uom_id': self.uom_unit.id,
             'product_qty': 1.0,
             'type': 'normal',
             'bom_line_ids': [
@@ -560,7 +561,7 @@ class TestUnbuild(TestMrpCommon):
         mo_form = Form(self.env['mrp.production'])
         mo_form.product_id = finshed_product
         mo_form.bom_id = bom
-        mo_form.product_uom_id = finshed_product.uom_id
+        mo_form.uom_id = finshed_product.uom_id
         mo_form.product_qty = 1.0
         mo = mo_form.save()
         self.assertEqual(len(mo), 1, 'MO should have been created')
@@ -620,7 +621,7 @@ class TestUnbuild(TestMrpCommon):
         - decimal accuracy of Product UoM > decimal accuracy of Units
         - unbuild a product with a decimal quantity of component
         """
-        self.env['decimal.precision'].search([('name', '=', 'Product Unit')]).digits = 4
+        self.env['decimal.precision'].sudo().search([('name', '=', 'Product Unit')]).digits = 4
 
         self.bom_1.product_qty = 3
         self.bom_1.bom_line_ids.product_qty = 5
@@ -710,8 +711,7 @@ class TestUnbuild(TestMrpCommon):
         """
         grp_multi_loc = self.env.ref('stock.group_stock_multi_locations')
         self.env.user.write({'group_ids': [Command.link(grp_multi_loc.id)]})
-        warehouse = self.env['stock.warehouse'].search([('company_id', '=', self.env.user.id)], limit=1)
-        prod_location = self.env['stock.location'].search([('usage', '=', 'production'), ('company_id', '=', self.env.user.id)])
+        prod_location = self.warehouse_1._get_production_location()
         subloc01, subloc02, = self.stock_location.child_ids[:2]
 
         mo, _, p_final, p1, p2 = self.generate_mo(qty_final=1, qty_base_1=1, qty_base_2=1)
@@ -727,7 +727,7 @@ class TestUnbuild(TestMrpCommon):
 
         # Transfer the finished product from WH/Stock to `subloc01`
         internal_form = Form(self.env['stock.picking'])
-        internal_form.picking_type_id = warehouse.int_type_id
+        internal_form.picking_type_id = self.picking_type_int
         internal_form.location_id = self.stock_location
         internal_form.location_dest_id = subloc01
         with internal_form.move_ids.new() as move:
@@ -751,11 +751,11 @@ class TestUnbuild(TestMrpCommon):
             {'product_id': p1.id,       'location_id': prod_location.id,    'location_dest_id': subloc02.id},
         ])
 
-    def test_compute_product_uom_id(self):
+    def test_compute_uom_id(self):
         order = self.env['mrp.unbuild'].create({
             'product_id': self.product_4.id,
         })
-        self.assertEqual(order.product_uom_id, self.product_4.uom_id)
+        self.assertEqual(order.uom_id, self.product_4.uom_id)
 
     def test_compute_location_id(self):
         order = self.env['mrp.unbuild'].create({
@@ -785,7 +785,7 @@ class TestUnbuild(TestMrpCommon):
         bom_1 = self.env['mrp.bom'].create({
             'product_id': product_1.id,
             'product_tmpl_id': product_1.product_tmpl_id.id,
-            'product_uom_id': self.env.ref('uom.product_uom_unit').id,
+            'uom_id': self.env.ref('uom.product_uom_unit').id,
             'product_qty': 1.0,
             'type': 'normal',
             'bom_line_ids': [
@@ -799,7 +799,7 @@ class TestUnbuild(TestMrpCommon):
         self.env['mrp.bom'].create({
             'product_id': product_2.id,
             'product_tmpl_id': product_2.product_tmpl_id.id,
-            'product_uom_id': self.env.ref('uom.product_uom_unit').id,
+            'uom_id': self.env.ref('uom.product_uom_unit').id,
             'product_qty': 1.0,
             'type': 'normal',
             'bom_line_ids': [
@@ -823,7 +823,7 @@ class TestUnbuild(TestMrpCommon):
         #unbuild order
         unbuild_form = Form(self.env['mrp.unbuild'])
         unbuild_form.mo_id = mo
-        unbuild_form.lot_id = product_1_sn
+        unbuild_form.lot_ids = product_1_sn
         unbuild_form.save().action_unbuild()
 
         #mo2
@@ -864,7 +864,7 @@ class TestUnbuild(TestMrpCommon):
         bom_1 = self.env['mrp.bom'].create({
             'product_id': finished_product.id,
             'product_tmpl_id': finished_product.product_tmpl_id.id,
-            'product_uom_id': self.uom_unit.id,
+            'uom_id': self.uom_unit.id,
             'product_qty': 1.0,
             'type': 'normal',
             'bom_line_ids': [
@@ -925,7 +925,7 @@ class TestUnbuild(TestMrpCommon):
         - 2 x (storable)
         - 4 x (consumable)
         - Create a MO with 4 final products to produce.
-        - Confirm and validate, then unlock the mo and update the qty produced to 10
+        - Confirm and validate, then update the qty produced to 10 through the ORM
         - open the wizard to unbuild > the quantity proposed should be 10
         - unbuild 4 units
         - the move lines should be created with the correct quantity
@@ -941,10 +941,9 @@ class TestUnbuild(TestMrpCommon):
         mo = mo_form.save()
         mo.button_mark_done()
         self.assertEqual(mo.state, 'done', "Production order should be in done state.")
-        # unlock and update the qty produced
+        # Update through the ORM; completed MO quantities are readonly in the UI.
         mo.action_toggle_is_locked()
-        with Form(mo) as mo_form:
-            mo_form.qty_producing = 10
+        mo.qty_producing = 10
         self.assertEqual(mo.qty_producing, 10)
         #unbuild order
         unbuild_form = Form(self.env['mrp.unbuild'])
@@ -970,7 +969,6 @@ class TestUnbuild(TestMrpCommon):
         bom = self.env['mrp.bom'].create({
             'product_id': self.product_2.id,
             'product_tmpl_id': self.product_2.product_tmpl_id.id,
-            'consumption': 'flexible',
             'product_qty': 1.0,
             'type': 'normal',
             'bom_line_ids': [
@@ -987,7 +985,12 @@ class TestUnbuild(TestMrpCommon):
 
         mo.qty_producing = 1.0
         mo.move_raw_ids.write({'quantity': 15, 'picked': True})
-        mo.button_mark_done()
+
+        warning = Form.from_action(self.env, mo.button_mark_done()).save()
+        self.assertRecordValues(warning.mrp_consumption_warning_line_ids, [
+            {'product_consumed_qty_uom': 15, 'product_expected_qty_uom': 20},
+        ])
+        warning.action_confirm()
 
         Form.from_action(self.env, mo.button_unbuild()).save().action_validate()
         self.assertEqual(mo.unbuild_ids.produce_line_ids.filtered(lambda m: m.product_id == self.product_3).product_uom_qty, 15)
@@ -998,7 +1001,6 @@ class TestUnbuild(TestMrpCommon):
         bom = self.env['mrp.bom'].create({
             'product_id': self.product_2.id,
             'product_tmpl_id': self.product_2.product_tmpl_id.id,
-            'consumption': 'flexible',
             'product_qty': 1.0,
             'type': 'normal',
             'bom_line_ids': [Command.create({'product_id': self.product_3.id, 'product_qty': 1})]
@@ -1039,7 +1041,7 @@ class TestUnbuild(TestMrpCommon):
             'product_id': self.bom_4.product_id.id,
             'product_qty': 1.0,
             'bom_id': self.bom_4.id,
-            'product_uom_id': self.bom_4.product_uom_id.id,
+            'uom_id': self.bom_4.uom_id.id,
         })
         mo.action_confirm()
         mo.qty_producing = 1.0
@@ -1087,14 +1089,14 @@ class TestUnbuild(TestMrpCommon):
             'bom_id': self.bom_1.id,
             'product_id': self.product_3.id,
             'product_qty': 1,
-            'product_uom_id': self.product_3.uom_id.id
+            'uom_id': self.product_3.uom_id.id
         })
 
         # Create mo
         mo_form = Form(self.env['mrp.production'])
         mo_form.product_id = self.product_4
         mo_form.bom_id = self.bom_1
-        mo_form.product_uom_id = self.product_4.uom_id
+        mo_form.uom_id = self.product_4.uom_id
         mo_form.product_qty = 4.0
         mo = mo_form.save()
         mo.action_confirm()
@@ -1155,7 +1157,7 @@ class TestUnbuild(TestMrpCommon):
             'product_id': self.bom_4.product_id.id,
             'product_qty': 2.0,
             'bom_id': self.bom_4.id,
-            'product_uom_id': self.bom_4.product_uom_id.id,
+            'uom_id': self.bom_4.uom_id.id,
         })
         mo.action_confirm()
         mo.lot_producing_ids = fp_sn1 + fp_sn2
@@ -1167,7 +1169,7 @@ class TestUnbuild(TestMrpCommon):
         unbuild_1 = self.env['mrp.unbuild'].create({
             'mo_id': mo.id,
             'product_id': self.bom_4.product_id.id,
-            'lot_id': fp_sn1.id,
+            'lot_ids': [Command.link(fp_sn1.id)],
         })
         unbuild_1.action_unbuild()
         self.assertEqual(unbuild_1.state, 'done')
@@ -1178,7 +1180,7 @@ class TestUnbuild(TestMrpCommon):
         unbuild_2 = self.env['mrp.unbuild'].create({
             'mo_id': mo.id,
             'product_id': self.bom_4.product_id.id,
-            'lot_id': fp_sn2.id,
+            'lot_ids': [Command.link(fp_sn2.id)],
         })
         unbuild_2.action_unbuild()
         self.assertEqual(unbuild_2.state, 'done')
@@ -1228,3 +1230,101 @@ class TestUnbuild(TestMrpCommon):
             {'reference': unbuild.name, 'quantity': 28, 'product_id': p1.id, 'state': 'done'},
             {'reference': unbuild.name, 'quantity': 7, 'product_id': p2.id, 'state': 'done'},
         ])
+
+    def test_unbuild_multiple_serial_numbers_at_once(self):
+        """Unbuild multiple serial numbers produced by a manufacturing order in a single unbuild
+        order and verify the resulting unbuild move lines.
+        """
+        mo, _, p_final, p1, _ = self.generate_mo(tracking_final='serial', qty_final=2, qty_base_1=10, qty_base_2=0)
+        self.env['stock.quant']._update_available_quantity(p1, self.stock_location, 100)
+        mo.action_assign()
+        mo.button_mark_done()
+        lot1, lot2 = mo.lot_producing_ids
+
+        Form.from_action(self.env, mo.button_unbuild()).save().action_validate()
+        self.assertRecordValues(mo.unbuild_ids.produce_line_ids.move_line_ids, [
+            {'product_id': p_final.id, 'quantity': 1.0, 'lot_id': lot1.id},
+            {'product_id': p_final.id, 'quantity': 1.0, 'lot_id': lot2.id},
+            {'product_id': p1.id, 'quantity': 20.0, 'lot_id': False},
+        ])
+
+    def test_unbuild_specific_serial_number_ignores_fifo(self):
+        """
+        Test that unbuilding a specific serial number from an MO ignores
+        the default FIFO behavior and correctly unbuilds the selected lot.
+        """
+        stock_location = self.stock_location
+        product_final = self.env['product.product'].create({
+            'name': 'Final Product SN',
+            'type': 'consu',
+            'is_storable': True,
+            'tracking': 'serial',
+        })
+        component = self.env['product.product'].create({
+            'name': 'Component',
+            'type': 'consu',
+            'is_storable': True,
+        })
+
+        self.env['stock.quant']._update_available_quantity(
+            component,
+            stock_location,
+            5.0,
+        )
+
+        bom = self.env['mrp.bom'].create({
+            'product_tmpl_id': product_final.product_tmpl_id.id,
+            'product_qty': 1.0,
+            'bom_line_ids': [
+                Command.create({
+                    'product_id': component.id,
+                    'product_qty': 1.0,
+                })
+            ],
+        })
+
+        lot_1 = self.env['stock.lot'].create({'name': 'SN1', 'product_id': product_final.id})
+        lot_2 = self.env['stock.lot'].create({'name': 'SN2', 'product_id': product_final.id})
+        lot_3 = self.env['stock.lot'].create({'name': 'SN3', 'product_id': product_final.id})
+        lot_4 = self.env['stock.lot'].create({'name': 'SN4', 'product_id': product_final.id})
+        lot_5 = self.env['stock.lot'].create({'name': 'SN5', 'product_id': product_final.id})
+
+        fifo_lot = lot_1
+        target_lot = lot_4
+        mo = self.env['mrp.production'].create({
+            'product_id': product_final.id,
+            'bom_id': bom.id,
+            'product_qty': 5.0,
+        })
+        mo.action_confirm()
+
+        mo.lot_producing_ids = lot_1 + lot_2 + lot_3 + lot_4 + lot_5
+        mo._set_qty_producing()
+        mo.button_mark_done()
+
+        self.assertEqual(mo.state, 'done')
+
+        self.assertEqual(
+            self.env['stock.quant']._get_available_quantity(product_final, stock_location, lot_id=fifo_lot),
+            1.0,
+            "The FIFO lot should be in stock after production.",
+        )
+        self.assertEqual(
+            self.env['stock.quant']._get_available_quantity(product_final, stock_location, lot_id=target_lot),
+            1.0,
+            "The target lot should be in stock after production.",
+        )
+        unbuild = self.env['mrp.unbuild'].create({
+            'mo_id': mo.id,
+            'product_id': product_final.id,
+            'product_qty': 1.0,
+            'lot_ids': [Command.set(target_lot.ids)],
+        })
+        unbuild.action_unbuild()
+
+        self.assertEqual(unbuild.state, 'done', "Unbuild order should be completed.")
+        qty_target_lot = self.env['stock.quant']._get_available_quantity(product_final, stock_location, lot_id=target_lot)
+        qty_fifo_lot = self.env['stock.quant']._get_available_quantity(product_final, stock_location, lot_id=fifo_lot)
+
+        self.assertEqual(qty_target_lot, 0.0, "The selected serial number should be unbuilt.")
+        self.assertEqual(qty_fifo_lot, 1.0, "The FIFO serial number should not be unbuilt.")

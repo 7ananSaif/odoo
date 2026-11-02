@@ -1,11 +1,11 @@
-import { BaseOptionComponent } from "@html_builder/core/utils";
+import { BaseOptionComponent } from "@html_builder/core/base_option_component";
 import { getBgImageURLFromEl, normalizeColor } from "@html_builder/utils/utils_css";
 import { ImageSize } from "../image/image_size";
 import { getHtmlStyle } from "@html_editor/utils/formatting";
 
 export class BackgroundImageOption extends BaseOptionComponent {
     static template = "html_builder.BackgroundImageOption";
-    static dependencies = ["history", "backgroundImageOption"];
+    static dependencies = ["domObserver", "backgroundImageOption"];
     static components = { ImageSize };
     setup() {
         this.editingElement = this.env.getEditingElement();
@@ -15,9 +15,12 @@ export class BackgroundImageOption extends BaseOptionComponent {
         this.toggleBgImageClasses();
     }
     toggleBgImageClasses() {
-        this.dependencies.history.ignoreDOMMutations(() => {
+        this.dependencies.domObserver.ignore(() => {
             const backgroundURL = getBgImageURLFromEl(this.editingElement);
-            this.dependencies.backgroundImageOption.setImageBackground(this.editingElement, backgroundURL);
+            this.dependencies.backgroundImageOption.setImageBackground(
+                this.editingElement,
+                backgroundURL
+            );
         });
     }
     showMainColorPicker() {

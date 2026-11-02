@@ -8,17 +8,22 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2026-03-30 10:43+0000\n"
+"POT-Creation-Date: 2026-08-28 17:44+0000\n"
+"PO-Revision-Date: 2026-09-21 07:26+0000\n"
 "Last-Translator: \"Larissa Manderfeld (lman)\" <lman@odoo.com>\n"
-"Language-Team: German <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: German <https://translate.odoo.com/projects/odoo-20/"
 "payment_razorpay/de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.16.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: payment_razorpay
+#: model:ir.module.module,summary:base.module_payment_razorpay
+msgid "A payment provider covering India."
+msgstr "Ein Zahlungsanbieter, der Indien abdeckt."
 
 #. module: payment_razorpay
 #: model_terms:ir.ui.view,arch_db:payment_razorpay.payment_provider_form_razorpay
@@ -26,18 +31,14 @@ msgid "Account ID"
 msgstr "Konto-ID"
 
 #. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_amex
+msgid "American Express"
+msgstr "American Express"
+
+#. module: payment_razorpay
 #: model_terms:ir.ui.view,arch_db:payment_razorpay.authorization_error
 msgid "An error occurred"
 msgstr "Es ist ein Fehler aufgetreten"
-
-#. module: payment_razorpay
-#. odoo-python
-#: code:addons/payment_razorpay/models/payment_transaction.py:0
-msgid ""
-"An error occurred during the processing of your payment. Please try again."
-msgstr ""
-"Bei der Verarbeitung Ihrer Zahlung ist ein Fehler aufgetreten. Bitte "
-"versuchen Sie es erneut."
 
 #. module: payment_razorpay
 #: model_terms:ir.ui.view,arch_db:payment_razorpay.authorization_error
@@ -57,6 +58,11 @@ msgid "Back to the Razorpay provider"
 msgstr "Zurück zum Razorpay-Anbieter"
 
 #. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_card
+msgid "Card"
+msgstr "Karte"
+
+#. module: payment_razorpay
 #: model:ir.model.fields,field_description:payment_razorpay.field_payment_provider__code
 msgid "Code"
 msgstr "Code"
@@ -73,6 +79,21 @@ msgid "Could not find Razorpay provider with id %s"
 msgstr "Razorpay-Anbieter mit ID %s konnte nicht gefunden werden"
 
 #. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_diners
+msgid "Diners Club International"
+msgstr "Diners Club International"
+
+#. module: payment_razorpay
+#: model_terms:ir.ui.view,arch_db:payment_razorpay.payment_provider_form_razorpay
+msgid "Disconnect"
+msgstr "Trennen"
+
+#. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_discover
+msgid "Discover"
+msgstr "Entdecken"
+
+#. module: payment_razorpay
 #: model:ir.model.fields,field_description:payment_razorpay.field_payment_provider__display_name
 #: model:ir.model.fields,field_description:payment_razorpay.field_payment_token__display_name
 #: model:ir.model.fields,field_description:payment_razorpay.field_payment_transaction__display_name
@@ -80,9 +101,19 @@ msgid "Display Name"
 msgstr "Anzeigename"
 
 #. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_emi_india
+msgid "EMI"
+msgstr "EMI"
+
+#. module: payment_razorpay
 #: model_terms:ir.ui.view,arch_db:payment_razorpay.payment_provider_form_razorpay
 msgid "Enable recurring payments on Razorpay"
 msgstr "Wiederkehrende Zahlungen über Razorpay aktivieren"
+
+#. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_fpx
+msgid "FPX"
+msgstr "FPX"
 
 #. module: payment_razorpay
 #: model_terms:ir.ui.view,arch_db:payment_razorpay.payment_provider_form_razorpay
@@ -107,15 +138,45 @@ msgid "Key Secret"
 msgstr "Geheimer Schlüssel"
 
 #. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_maestro
+msgid "Maestro"
+msgstr "Maestro"
+
+#. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_mastercard
+msgid "MasterCard"
+msgstr "MasterCard"
+
+#. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_netbanking
+msgid "Netbanking"
+msgstr "Netbanking"
+
+#. module: payment_razorpay
 #. odoo-python
 #: code:addons/payment_razorpay/models/payment_provider.py:0
 msgid "Other Payment Providers"
 msgstr "Andere Zahlungsanbieter"
 
 #. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_paylater_india
+msgid "Pay Later"
+msgstr "Später bezahlen"
+
+#. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_paynow
+msgid "PayNow"
+msgstr "PayNow"
+
+#. module: payment_razorpay
 #: model:ir.model,name:payment_razorpay.model_payment_provider
 msgid "Payment Provider"
 msgstr "Zahlungsanbieter"
+
+#. module: payment_razorpay
+#: model:ir.module.module,shortdesc:base.module_payment_razorpay
+msgid "Payment Provider: Razorpay"
+msgstr "Zahlungsanbieter: Razorpay"
 
 #. module: payment_razorpay
 #: model:ir.model,name:payment_razorpay.model_payment_token
@@ -154,6 +215,11 @@ msgid "Razorpay Account ID"
 msgstr "ID des Razorpay-Kontos"
 
 #. module: payment_razorpay
+#: model:ir.model.fields,field_description:payment_razorpay.field_payment_provider__razorpay_is_oauth_supported
+msgid "Razorpay Is Oauth Supported"
+msgstr "Razorpay unterstützt Oauth"
+
+#. module: payment_razorpay
 #: model:ir.model.fields,field_description:payment_razorpay.field_payment_provider__razorpay_key_id
 msgid "Razorpay Key Id"
 msgstr "Schlüssel-ID von Razorpay"
@@ -182,11 +248,21 @@ msgstr "Webhook-Geheimnis von Razorpay"
 #. odoo-python
 #: code:addons/payment_razorpay/models/payment_provider.py:0
 msgid ""
-"Razorpay credentials are missing. Click the \"Connect\" button to set up "
-"your account."
+"Razorpay credentials are missing. Please fill them to set up your account."
 msgstr ""
-"Die Razorpay-Anmeldedaten fehlen. Klicken Sie auf die Schaltfläche "
-"„Verbinden“, um Ihr Konto einzurichten."
+"Die Razorpay-Anmeldedaten fehlen. Bitte geben Sie diese ein, um Ihr Konto "
+"einzurichten."
+
+#. module: payment_razorpay
+#. odoo-python
+#: code:addons/payment_razorpay/models/payment_provider.py:0
+msgid ""
+"Razorpay credentials are missing. Please set the state back to 'Disabled' "
+"and click the \"Connect\" button to set up your account."
+msgstr ""
+"Die Razorpay-Anmeldedaten fehlen. Bitte setzen Sie den Status wieder auf "
+"„Deaktiviert“ und klicken Sie auf die Schaltfläche „Verbinden“, um Ihr Konto "
+"einzurichten."
 
 #. module: payment_razorpay
 #. odoo-python
@@ -223,9 +299,9 @@ msgid "Received incomplete refund data."
 msgstr "Unvollständige Rückerstattungsdaten erhalten."
 
 #. module: payment_razorpay
-#: model_terms:ir.ui.view,arch_db:payment_razorpay.payment_provider_form_razorpay
-msgid "Reset Your Razorpay Account"
-msgstr "Razorpay-Konto zurücksetzen"
+#: model:payment.method,name:payment_razorpay.payment_method_rupay
+msgid "RuPay"
+msgstr "RuPay"
 
 #. module: payment_razorpay
 #: model:ir.model.fields,help:payment_razorpay.field_payment_provider__razorpay_key_id
@@ -265,6 +341,21 @@ msgstr ""
 "manuell storniert werden."
 
 #. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_upi
+msgid "UPI"
+msgstr "UPI"
+
+#. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_visa
+msgid "VISA"
+msgstr "VISA"
+
+#. module: payment_razorpay
+#: model:payment.method,name:payment_razorpay.payment_method_wallets_india
+msgid "Wallets India"
+msgstr "Wallets India"
+
+#. module: payment_razorpay
 #: model_terms:ir.ui.view,arch_db:payment_razorpay.payment_provider_form_razorpay
 msgid "Webhook Secret"
 msgstr "Webhook-Geheimnis"
@@ -274,13 +365,13 @@ msgstr "Webhook-Geheimnis"
 msgid ""
 "You are currently connected to Razorpay through the credentials method, "
 "which is\n"
-"                    deprecated. Click the \"Connect\" button below to use "
+"                    deprecated. Click the \"Connect\" button above to use "
 "the recommended OAuth\n"
 "                    method."
 msgstr ""
 "Sie verwenden derzeit Anmeldedaten, um sich mit Razorpay verbinden. Diese "
 "Methode\n"
-"                    ist veraltet. Klicken Sie unten auf die Schaltfläche "
+"                    ist veraltet. Klicken Sie oben auf die Schaltfläche "
 "„Verbinden“, um die empfohlene\n"
 "                    OAuth-Methode zu verwenden."
 
@@ -310,18 +401,3 @@ msgstr ""
 "Ihre letzte Zahlung %s wird in Kürze bearbeitet. Warten Sie bis zu 24 "
 "Stunden, bevor Sie es erneut versuchen, oder verwenden Sie eine andere "
 "Zahlungsmethode."
-
-#~ msgid "Could not establish the connection to the API."
-#~ msgstr "Verbindung mit API konnte nicht hergestellt werden."
-
-#~ msgid "No transaction found matching reference %s."
-#~ msgstr "Keine Transaktion gefunden, die der Referenz %s entspricht."
-
-#~ msgid "Razorpay gave us the following information: '%s'"
-#~ msgstr "Razorpay gab uns folgende Informationen: „%s“"
-
-#~ msgid "Received data with missing reference."
-#~ msgstr "Erhaltene Daten mit fehlender Referenz."
-
-#~ msgid "The transaction is not linked to a token."
-#~ msgstr "Die Transaktion ist nicht mit einem Token verknüpft."

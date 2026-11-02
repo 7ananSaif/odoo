@@ -2,17 +2,19 @@
 
 import json
 import logging
-import werkzeug
-
 from collections import defaultdict
 from datetime import datetime, timedelta
+
+import werkzeug
 from dateutil.relativedelta import relativedelta
 
-from odoo import fields, http, SUPERUSER_ID, _
+from odoo import _, fields, http
 from odoo.exceptions import UserError
 from odoo.fields import Domain
-from odoo.http import request, content_disposition
-from odoo.tools import format_datetime, format_date, is_html_empty
+from odoo.http import request
+from odoo.http.stream import content_disposition
+from odoo.tools import format_date, format_datetime, is_html_empty
+
 from odoo.addons.base.models.ir_qweb import keep_query
 
 _logger = logging.getLogger(__name__)
@@ -85,8 +87,10 @@ class Survey(http.Controller):
         if answer_sudo and answer_sudo.deadline and answer_sudo.deadline < datetime.now():
             return 'answer_deadline'
 
-        if answer_sudo and check_partner:
-            if request.env.user._is_public() and answer_sudo.partner_id and not answer_token:
+        # if there is an answer token (from the url or cookie), then we don't
+        # have to check whether the user doing the request is the correct one.
+        if answer_sudo and check_partner and not answer_token:
+            if request.env.user._is_public() and answer_sudo.partner_id:
                 # answers from public user should not have any partner_id; this indicates probably a cookie issue
                 return 'answer_wrong_user'
             if not request.env.user._is_public() and answer_sudo.partner_id != request.env.user.partner_id:
@@ -220,9 +224,16 @@ class Survey(http.Controller):
 
         access_data = self._get_access_data(survey_token, answer_token, ensure_token=False)
 
-        if answer_from_cookie and access_data['validity_code'] in ('answer_wrong_user', 'token_wrong'):
+        if answer_from_cookie and (
+            access_data['validity_code'] in ('answer_wrong_user', 'token_wrong')
+            or (access_data['survey_sudo'].session_state
+                and access_data['answer_sudo'].is_session_answer
+                and access_data['answer_sudo'].state == 'done')
+        ):
             # If the cookie had been generated for another user or does not correspond to any existing answer object
             # (probably because it has been deleted), ignore it and redo the check.
+            # Same if it is a leftover of a previous run of the session: a session answer is only marked
+            # done when the host ends its run, so it cannot belong to the run currently open.
             # The cookie will be replaced by a legit value when resolving the URL, so we don't clean it further here.
             access_data = self._get_access_data(survey_token, None, ensure_token=False)
 
@@ -255,12 +266,16 @@ class Survey(http.Controller):
             :param post:
                 - previous_page_id : come from the breadcrumb or the back button and force the next questions to load
                                      to be the previous ones.
-                - next_skipped_page : force the display of next skipped question or page if any."""
+                - next_post_submit_page : force the display of next post submit question or page if any."""
         data = {
             'is_html_empty': is_html_empty,
             'survey': survey_sudo,
             'answer': answer_sudo,
-            'skipped_questions': answer_sudo._get_skipped_questions(),
+            'extra_session_info': (
+                {'bus_info': request.env['ir.http']._get_bus_session_info()}
+                if answer_sudo.is_session_answer else {}
+            ),
+            'post_submit_questions': answer_sudo._get_post_submit_questions(),
             'breadcrumb_pages': [{
                 'id': page.id,
                 'title': page.title,
@@ -315,26 +330,26 @@ class Survey(http.Controller):
             if answer_sudo.is_session_answer:
                 next_page_or_question = survey_sudo.session_question_id
             else:
-                if 'next_skipped_page' in post:
-                    next_page_or_question = answer_sudo._get_next_skipped_page_or_question()
+                if 'next_post_submit_page' in post:
+                    next_page_or_question = answer_sudo._get_next_post_submit_page_or_question()
                 if not next_page_or_question:
                     next_page_or_question = survey_sudo._get_next_page_or_question(
                         answer_sudo,
                         answer_sudo.last_displayed_page_id.id if answer_sudo.last_displayed_page_id else 0)
-                    # fallback to skipped page so that there is a next_page_or_question otherwise this should be a submit
+                    # fallback to post submit page or question so that there is a next_page_or_question
+                    # otherwise this should be a submit
                     if not next_page_or_question:
-                        next_page_or_question = answer_sudo._get_next_skipped_page_or_question()
+                        next_page_or_question = answer_sudo._get_next_post_submit_page_or_question()
 
                 if next_page_or_question:
                     if answer_sudo.survey_first_submitted:
-                        survey_last = answer_sudo._is_last_skipped_page_or_question(next_page_or_question)
+                        survey_last = answer_sudo._is_last_post_submit_page_or_question(next_page_or_question)
                     else:
                         survey_last = survey_sudo._is_last_page_or_question(answer_sudo, next_page_or_question)
                     values = {'survey_last': survey_last}
                     # On the last survey page, get the suggested answers which are triggering questions on the following pages
                     # to dynamically update the survey button to "submit" or "continue" depending on the selected answers.
-                    # NB: Not in the skipped questions flow as conditionals aren't handled.
-                    if not answer_sudo.survey_first_submitted and survey_last and survey_sudo.questions_layout != 'one_page':
+                    if survey_last and survey_sudo.questions_layout != 'one_page':
                         pages_or_questions = survey_sudo._get_pages_or_questions(answer_sudo)
                         following_questions = pages_or_questions.filtered(lambda page_or_question: page_or_question.sequence > next_page_or_question.sequence)
                         next_page_questions_suggested_answers = next_page_or_question.suggested_answer_ids
@@ -409,7 +424,7 @@ class Survey(http.Controller):
             background_image_url = survey_data['page'].background_image_url
 
         return {
-            'has_skipped_questions': any(answer_sudo._get_skipped_questions()),
+            'has_post_submit_questions': bool(answer_sudo._get_post_submit_questions()),
             'survey_content': survey_content,
             'survey_progress': survey_progress,
             'survey_navigation': IrQweb._render('survey.survey_navigation', survey_data),
@@ -533,6 +548,8 @@ class Survey(http.Controller):
 
         if answer_sudo.state == 'done':
             return {}, {'error': 'unauthorized'}
+        if answer_sudo.is_session_answer and not answer_sudo.test_entry and not survey_sudo.session_question_can_answer:
+            return {}, {'error': 'validation', 'fields': {survey_sudo.session_question_id.id: _('We do not accept submissions for this question anymore.')}}
 
         questions, page_or_question_id = survey_sudo._get_survey_questions(answer=answer_sudo,
                                                                            page_id=post.get('page_id'),
@@ -585,28 +602,31 @@ class Survey(http.Controller):
             answer_sudo.last_displayed_page_id = post['previous_page_id']
             # Go back to specific page using the breadcrumb. Lines are saved and survey continues
             return correct_answers, self._prepare_question_html(survey_sudo, answer_sudo, **post)
-        elif 'next_skipped_page_or_question' in post:
+        elif 'next_post_submit_page_or_question' in post:
             answer_sudo.last_displayed_page_id = page_or_question_id
-            return correct_answers, self._prepare_question_html(survey_sudo, answer_sudo, next_skipped_page=True)
+            return correct_answers, self._prepare_question_html(survey_sudo, answer_sudo, next_post_submit_page=True)
         else:
             if not answer_sudo.is_session_answer:
                 page_or_question = request.env['survey.question'].sudo().browse(page_or_question_id)
-                if answer_sudo.survey_first_submitted and answer_sudo._is_last_skipped_page_or_question(page_or_question):
+                if answer_sudo.survey_first_submitted and answer_sudo._is_last_post_submit_page_or_question(page_or_question):
                     next_page = request.env['survey.question']
                 else:
                     next_page = survey_sudo._get_next_page_or_question(answer_sudo, page_or_question_id)
                 if not next_page:
-                    if survey_sudo.users_can_go_back and answer_sudo.user_input_line_ids.filtered(
-                            lambda a: a.skipped and a.question_id.constr_mandatory):
+                    if survey_sudo.users_can_go_back and answer_sudo._get_post_submit_questions():
                         answer_sudo.write({
                             'last_displayed_page_id': page_or_question_id,
                             'survey_first_submitted': True,
                         })
-                        return correct_answers, self._prepare_question_html(survey_sudo, answer_sudo, next_skipped_page=True)
+                        return correct_answers, self._prepare_question_html(survey_sudo, answer_sudo, next_post_submit_page=True)
                     else:
                         answer_sudo._mark_done()
 
             answer_sudo.last_displayed_page_id = page_or_question_id
+
+        # presence is used to check gamification challenges
+        if user := answer_sudo.partner_id.user_ids[:1]:
+            request.env['mail.presence']._update_presence(user, inactivity_period=0)
 
         return correct_answers, self._prepare_question_html(survey_sudo, answer_sudo)
 

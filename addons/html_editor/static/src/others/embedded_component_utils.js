@@ -1,14 +1,16 @@
 import {
+    effect,
     onMounted,
-    onRendered,
     onPatched,
     onWillDestroy,
-    reactive,
+    onWillPatch,
+    proxy,
+    signal,
+    t,
     toRaw,
-    useComponent,
-    useRef,
-    useState,
+    useProps,
 } from "@odoo/owl";
+import { useEnv } from "@web/owl2/utils";
 
 /**
  * @typedef {HTMLElement} HostElement host element for an embedded component
@@ -45,6 +47,46 @@ import {
  */
 
 /**
+ * Mount an Owl root component on a host element, patching the mount fiber to
+ * synchronously clear the host's children just before the component's rendered
+ * HTML is inserted (i.e., just before the original `fiber.complete` runs).
+ *
+ * @param {import("@odoo/owl").App} app
+ * @param {typeof import("@odoo/owl").Component} Component
+ * @param {HTMLElement} host
+ * @param {Object} props
+ * @param {Object} env
+ * @param {Object} [options]
+ * @param {function(): boolean|undefined} [options.onBeforeComplete] called
+ *   before clearing host children; return `false` to abort the complete call
+ *   entirely (skips both `replaceChildren` and the original `fiberComplete`).
+ *   Not called if the root was destroyed before it was prepared.
+ * @param {function()} [options.onAfterComplete] called after the original
+ *   `fiber.complete`.
+ * @returns {{ root: object, mountPromise: Promise }}
+ */
+export function mountComponent(
+    app,
+    Component,
+    host,
+    props,
+    env,
+    { onBeforeComplete, onAfterComplete } = {}
+) {
+    const root = app.createRoot(Component, { props, env });
+    const mountPromise = root.prepare().then(() => {
+        if (root.destroyed || onBeforeComplete?.() === false) {
+            return;
+        }
+        host.replaceChildren();
+        const promise = root.mount(host);
+        onAfterComplete?.();
+        return promise;
+    });
+    return { root, mountPromise };
+}
+
+/**
  * Get all element children with `data-embedded-editable` attribute which are
  * descendants of the host's own embedded component and not part of another
  * embedded component descendant (an embedded component can contain others).
@@ -71,56 +113,82 @@ export function getEditableDescendants(host) {
  * component. EditableDescendants are shared in collaboration and are saved
  * between edition sessions.
  *
- * Warning: there must be a ref in the template for every editableDescendants,
- * available at all times no matter the component state to guarantee that the
- * editor can save their values at any given time, synchronously.
+ * A signal ref is created for each editable descendant and made available from
+ * the returned {@link refs} dictionary. The template must bind each of them with
+ * `t-ref="this.<variable_containing_refs>.<name>"`, available at all times no matter
+ * the state of the component to guarantee that the editor can save their values
+ * at any given time (synchronously).
  *
- * @param {HostElement} host
- * @returns {EditableDescendants} (HTMLElement) by the value of their
- *          `data-embedded-editable` attribute.
+ * @returns
+ *  - a dictionary containing editable descentant elements: { [data-embedded-editable]: element }
+ *  - a (lazy) dictionary containing ref signals: { [ref name]: signal }
  */
-export function useEditableDescendants(host) {
-    const component = useComponent();
-    if (!component.env.getEditableDescendants) {
+export function useEditableDescendants() {
+    const env = useEnv();
+    if (typeof env.getEditableDescendants !== "function") {
         throw new Error(
             "Missing `getEditableDescendants` function in the `embedding` provided to the `EmbeddedComponentPlugin`."
         );
     }
-    const editableDescendants = Object.freeze(component.env.getEditableDescendants(host));
-    const refs = {};
-    const renders = {};
-    for (const name of Object.keys(editableDescendants)) {
-        refs[name] = useRef(name);
-        renders[name] = () => refs[name].el.replaceChildren(editableDescendants[name]);
-    }
-    let _restoreSelection;
-    const restoreSelection = () => {
-        if (_restoreSelection) {
-            _restoreSelection();
-            _restoreSelection = undefined;
-        }
-    };
-    if (component.env.editorShared?.selection) {
-        onRendered(() => {
-            _restoreSelection = component.env.editorShared.selection.preserveSelection().restore;
-        });
-    }
-    onMounted(() => {
-        for (const render of Object.values(renders)) {
-            render();
-        }
-        restoreSelection();
-    });
-    onPatched(() => {
-        for (const [name, render] of Object.entries(renders)) {
+    const selectionManager = env.selectionManager;
+
+    /**
+     * @param {boolean} checkHost
+     */
+    function applyRestoreSelection(checkHost) {
+        for (const name in refs) {
             // Handle partial patch
-            if (!host.contains(editableDescendants[name])) {
-                render();
+            if (!checkHost || !props.host.contains(editableDescendants[name])) {
+                refs[name]().replaceChildren(editableDescendants[name]);
             }
         }
-        restoreSelection();
+        if (selectionManager) {
+            selectionManager.restoreSelection?.();
+            selectionManager.restoreSelection = null;
+        }
+    }
+
+    function saveSelection() {
+        if (!selectionManager) {
+            return;
+        }
+        selectionManager.restoreSelection =
+            env.editorShared?.selection?.preserveSelection().restore || null;
+    }
+
+    const props = useProps({
+        // cannot use HTMLElement because of cross-realm compatibility
+        host: t.customValidator(t.object(), (value) => value.nodeType === Node.ELEMENT_NODE),
     });
-    return editableDescendants;
+    /** @type {EditableDescendants} */
+    const editableDescendants = Object.freeze(env.getEditableDescendants(props.host));
+    /**
+     * Map of signal refs, created on demand: reading `editableDescendantRefs[name]`
+     * (from the template through `t-ref="this.editableDescendantRefs.<name>"`, or
+     * from the loop below) creates the signal the first time that name is asked
+     * for, and returns the same one on every later read.
+     * @type {Record<string, import("@odoo/owl").Signal<HTMLElement>>}
+     */
+    const refs = new Proxy(
+        {},
+        {
+            get(target, name) {
+                if (typeof name === "string" && !(name in target)) {
+                    target[name] = signal.ref();
+                }
+                return target[name];
+            },
+        }
+    );
+
+    onWillPatch(saveSelection);
+    onMounted(() => applyRestoreSelection(false));
+    onPatched(() => applyRestoreSelection(true));
+
+    return {
+        descendants: editableDescendants,
+        refs,
+    };
 }
 
 /**
@@ -263,6 +331,7 @@ export class StateChangeManager {
      */
     constructor(config) {
         this.config = config;
+        this.effects = new WeakMap();
     }
     setup() {
         const defaultState = sortedCopy(this.getEmbeddedState());
@@ -290,6 +359,10 @@ export class StateChangeManager {
      * handled differently when unmounted.
      */
     setupUnmounted() {
+        if (this.embeddedState) {
+            this.effects.get(this.embeddedState)();
+            this.effects.delete(this.embeddedState);
+        }
         this.previousEmbeddedState = null;
         this.state = null;
         this.embeddedState = null;
@@ -308,16 +381,17 @@ export class StateChangeManager {
      */
     constructEmbeddedState(state) {
         this.state = state;
-        this.embeddedState = reactive(
-            this.assignDeepProxyCopy({}, state),
-            this.batchedChangeState()
-        );
+        this.embeddedState = proxy(this.assignDeepProxyCopy({}, state));
         this.embeddedStateProxy = new Proxy(
             this.embeddedState,
             embeddedStateProxyHandler(state, this)
         );
-        // First subscription to changes.
-        observeAllKeys(this.embeddedStateProxy);
+        const onStateChanged = this.batchedChangeState();
+        const disposeEffect = effect(() => {
+            observeAllKeys(this.embeddedStateProxy);
+            onStateChanged();
+        });
+        this.effects.set(this.embeddedState, disposeEffect);
         this.isLiveComponent = true;
         return this.embeddedStateProxy;
     }
@@ -343,15 +417,15 @@ export class StateChangeManager {
      * @param { Object } options
      * @param {boolean} options.reverse whether to read the stateChange from
      *        next to previous
-     * @param {boolean} options.forNewStep whether the attribute change is being
-     *        used to create a new step.
+     * @param {boolean} options.ensureNewMutations whether the attribute change is being
+     *        used to create a new commit.
      * @returns {string} new JSON representation of a stateChange, in case
      *          it needs to be represented under another form to be shared
      *          in collaboration (a local peer doing revertMutations implies
      *          that collaborators will do applyMutations, so the stateChange
      *          must be expressed with another form for them).
      */
-    onStateChanged(attrState, { reverse = false, forNewStep = false } = {}) {
+    onStateChanged(attrState, { reverse = false, ensureNewMutations = false } = {}) {
         const stateChange = attrState ? JSON.parse(attrState) : this.defaultStateChange;
         const state = this.getState();
         if (reverse) {
@@ -370,14 +444,14 @@ export class StateChangeManager {
                 // pending change is applied in `changeState`.
                 this.assignDeepProxyCopy(toRaw(this.embeddedState), sortedState);
             }
-            if (!forNewStep) {
+            if (!ensureNewMutations) {
                 this.previousStateChange = stateChange;
             } else {
-                // If mutations are being applied to create a new step, the
+                // If mutations are being applied to create a new commit, the
                 // state change must be expressed under another form for
                 // collaborators, since the collaborator will always
                 // "applyMutations" and never "revertMutations" when receiving
-                // external steps.
+                // remote commits.
                 const next = JSON.stringify(sortedState);
                 if (previous !== next) {
                     this.previousStateChange = {
@@ -573,7 +647,7 @@ export class StateChangeManager {
  * That state can be modified through 2 channels:
  * - By the component itself, as with any normal state.
  * - By the embedded_component_plugin, during history or collaborative
- *   operations (undo/redo/resetStepsUntil/addExternalStep). The attribute
+ *   operations (undo/redo/insertRemoteCommit). The attribute
  *   `data-embedded-state` will be used to contain a serialized representation
  *   of a state change.
  *
@@ -599,14 +673,14 @@ export class StateChangeManager {
  *                  JSON serializable values.
  */
 export function useEmbeddedState(host) {
-    const component = useComponent();
-    if (!component.env.getStateChangeManager) {
+    const env = useEnv();
+    if (!env.getStateChangeManager) {
         throw new Error(
             "Missing `getStateChangeManager` function in the `embedding` provided to the `EmbeddedComponentPlugin`."
         );
     }
-    const stateChangeManager = component.env.getStateChangeManager(host);
+    const stateChangeManager = env.getStateChangeManager(host);
     onWillDestroy(() => stateChangeManager.setupUnmounted());
-    const state = useState(stateChangeManager.getEmbeddedState());
+    const state = proxy(stateChangeManager.getEmbeddedState());
     return stateChangeManager.constructEmbeddedState(state);
 }

@@ -97,7 +97,7 @@
         </record>
         <record id="stock_inventory_11" model="stock.quant">
             <field name="product_id" ref="product.product_product_12"/>
-            <field name="inventory_quantity">10.0</field>
+            <field name="inventory_quantity">40.0</field>
             <field name="location_id" model="stock.location" eval="obj().env.ref('stock.warehouse0').lot_stock_id.id"/>
         </record>
         <record id="stock_inventory_12" model="stock.quant">
@@ -121,6 +121,22 @@
             <field name="inventory_quantity">16.0</field>
             <field name="location_id" model="stock.location" eval="obj().env.ref('stock.warehouse0').lot_stock_id.id"/>
         </record>
+        <!-- Used by batched pickings -->
+        <record id="stock_inventory_batch_1" model="stock.quant">
+            <field name="product_id" ref="product.consu_delivery_01"/>
+            <field name="inventory_quantity">10.0</field>
+            <field name="location_id" ref="stock.stock_location_stock"/>
+        </record>
+        <record id="stock_inventory_batch_2" model="stock.quant">
+            <field name="product_id" ref="product.consu_delivery_02"/>
+            <field name="inventory_quantity">18.0</field>
+            <field name="location_id" ref="stock.stock_location_stock"/>
+        </record>
+        <record id="stock_inventory_batch_3" model="stock.quant">
+            <field name="product_id" ref="product.consu_delivery_03"/>
+            <field name="inventory_quantity">20.0</field>
+            <field name="location_id" ref="stock.stock_location_stock"/>
+        </record>
 
         <function model="stock.quant" name="action_apply_inventory">
             <function eval="[[('id', 'in', (ref('stock_inventory_1'),
@@ -138,6 +154,9 @@
                                             ref('stock_inventory_13'),
                                             ref('stock_inventory_14'),
                                             ref('stock_inventory_15'),
+                                            ref('stock_inventory_batch_1'),
+                                            ref('stock_inventory_batch_2'),
+                                            ref('stock_inventory_batch_3'),
                                             ))]]" model="stock.quant" name="search"/>
         </function>
 
@@ -146,11 +165,10 @@
         <!--        Child Company 1-->
         <record id="res_partner_company_1" model="res.partner">
             <field name="name">My Company, Chicago</field>
-            <field name="is_company">1</field>
             <field eval="1" name="active"/>
             <field name="street">90 Streets Avenue</field>
-            <field model="res.country" name="country_id" search="[('code','ilike','us')]"/>
-            <field model="res.country.state" name="state_id" search="[('code','ilike','il')]"/>
+            <field name="country_id" ref="base.us"/>
+            <field name="state_id" ref="base.state_us_14"/>
             <field name="zip">60610</field>
             <field name="city">Chicago</field>
             <field name="email">chicago@yourcompany.com</field>
@@ -164,7 +182,7 @@
             <field name="parent_id" ref="res_partner_company_1"/>
             <field name="email">jeff.lawson52@example.com</field>
             <field name="phone">(461)-417-6587</field>
-            <field name="image_1920" type="base64" file="stock/static/img/res_partner_address_41.jpg"/>
+            <field name="image_1920" type="bytes" file="stock/static/img/res_partner_address_41.webp"/>
             <field name="company_id" eval="False"/>
         </record>
 

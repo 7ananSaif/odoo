@@ -3,6 +3,7 @@ from datetime import timedelta
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 from odoo.fields import Command, Domain
+from odoo.tools import SQL
 
 
 class AccountSecureEntriesWizard(models.TransientModel):
@@ -40,7 +41,7 @@ class AccountSecureEntriesWizard(models.TransientModel):
     unreconciled_bank_statement_line_ids = fields.Many2many(
         compute='_compute_data',
         comodel_name='account.bank.statement.line',
-        help="All unreconciled bank statement lines before the selected date.",
+        help="All unreconciled bank transactions before the selected date.",
     )
     not_hashable_unlocked_move_ids = fields.Many2many(
         compute='_compute_data',
@@ -68,14 +69,14 @@ class AccountSecureEntriesWizard(models.TransientModel):
         for wizard in self:
             chains_to_hash = wizard.with_context(chain_info_warnings=False)._get_chains_to_hash(wizard.company_id, today)
             moves = self.env['account.move'].concat(
-                *[chain['moves'] for chain in chains_to_hash],
-                *[chain['not_hashable_unlocked_moves'] for chain in chains_to_hash],
+                [chain['moves'] for chain in chains_to_hash]
+                + [chain['not_hashable_unlocked_moves'] for chain in chains_to_hash]
             )
             if moves:
                 min_date = self.env.execute_query(
                     self.env['account.move']
                     ._search([('id', 'in', moves.ids)])
-                    .select('MIN(date)')
+                    .select(SQL('MIN(date)'))
                 )[0][0]
                 wizard.max_hash_date = min_date - timedelta(days=1)
             else:
@@ -152,9 +153,11 @@ class AccountSecureEntriesWizard(models.TransientModel):
             if wizard.unreconciled_bank_statement_line_ids:
                 ignored_sequence_prefixes = list(set(wizard.unreconciled_bank_statement_line_ids.move_id.mapped('sequence_prefix')))
                 warnings['account_unreconciled_bank_statement_line_ids'] = {
-                    'message': _("There are still unreconciled bank statement lines before the selected date. "
-                                 "The entries from journal prefixes containing them will not be secured: %(prefix_info)s",
-                                 prefix_info=ignored_sequence_prefixes),
+                    'message': self.env._(
+                        "There are still unreconciled bank transactions before the selected date. "
+                        "The entries from journal prefixes containing them will not be secured: %(prefix_info)s",
+                        prefix_info=ignored_sequence_prefixes,
+                    ),
                     'level': 'danger',
                     'action_text': _("Review Statements"),
                     'action': wizard.company_id._get_unreconciled_statement_lines_redirect_action(wizard.unreconciled_bank_statement_line_ids),
@@ -248,7 +251,7 @@ class AccountSecureEntriesWizard(models.TransientModel):
     def action_show_draft_moves_in_hashed_period(self):
         self.ensure_one()
         return {
-            'view_mode': 'list',
+            'view_mode': 'list,form',
             'name': _('Draft Entries'),
             'res_model': 'account.move',
             'type': 'ir.actions.act_window',

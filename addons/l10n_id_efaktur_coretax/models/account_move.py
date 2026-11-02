@@ -52,62 +52,73 @@ class AccountMove(models.Model):
 
     # Extra selection after choosing l10n_id_kode_transaksi 07
     l10n_id_coretax_add_info_07 = fields.Selection([
-        ('TD.00501', '1 - Pajak Pertambahan Nilai Tidak Dipungut berdasarkan PP Nomor 10 Tahun 2012'),
-        ('TD.00502', '2 - Pajak Pertambahan Nilai atau Pajak Pertambahan Nilai dan Pajak Penjualan atas Barang Mewah tidak dipungut'),
-        ('TD.00503', '3 - Pajak Pertambahan Nilai dan Pajak Penjualan atas Barang Mewah Tidak Dipungut'),
-        ('TD.00504', '4 - Pajak Pertambahan Nilai Tidak Dipungut Sesuai PP Nomor 71 Tahun 2012'),
-        ('TD.00505', '5 - (Tidak ada Cap)'),
-        ('TD.00506', '6 - PPN dan/atau PPnBM tidak dipungut berdasarkan PMK No. 194/PMK.03/2012'),
-        ('TD.00507', '7 - PPN Tidak Dipungut Berdasarkan PP Nomor 15 Tahun 2015'),
-        ('TD.00508', '8 - PPN Tidak Dipungut Berdasarkan PP Nomor 69 Tahun 2015'),
-        ('TD.00509', '9 - PPN Tidak Dipungut Berdasarkan PP Nomor 96 Tahun 2015'),
-        ('TD.00510', '10 - PPN Tidak Dipungut Berdasarkan PP Nomor 106 Tahun 2015'),
-        ('TD.00511', '11 - PPN Tidak Dipungut Sesuai PP Nomor 50 Tahun 2019'),
-        ('TD.00512', '12 - PPN atau PPN dan PPnBM Tidak Dipungut Sesuai Dengan PP Nomor 27 Tahun 2017'),
-        ('TD.00513', '13 - PPN ditanggung PEMERINTAH EX PMK 21/PMK.010/21'),
-        ('TD.00514', '14 - PPN DITANGGUNG PEMERINTAH EKS PMK 102/PMK.010/2021'),
-        ('TD.00515', '15 - PPN DITANGGUNG PEMERINTAH EKS PMK 239/PMK.03/2020'),
-        ('TD.00516', '16 - Insentif PPN DITANGGUNG PEMERINTAH EKSEKUSI PMK NOMOR 103/PMK.010/2021'),
-        ('TD.00517', '17 - PAJAK PERTAMBAHAN NILAI TIDAK DIPUNGUT BERDASARKAN PP NOMOR 40 TAHUN 2021'),
-        ('TD.00518', '18 - PAJAK PERTAMBAHAN NILAI TIDAK DIPUNGUT BERDASARKAN PP NOMOR 41 TAHUN 2021'),
-        ('TD.00519', '19 - PPN DITANGGUNG PEMERINTAH EKS PMK 6/PMK.010/2022'),
-        ('TD.00520', '20 - PPN DITANGGUNG PEMERINTAH EKSEKUSI PMK NOMOR 226/PMK.03/2021'),
-        ('TD.00521', '21 - PPN ATAU PPN DAN PPnBM TIDAK DIPUNGUT SESUAI DENGAN PP NOMOR 53 TAHUN 2017'),
-        ('TD.00522', '22 - PPN tidak dipungut berdasarkan PP Nomor 70 Tahun 2021'),
-        ('TD.00523', '23 - PPN ditanggung Pemerintah Ex PMK-125/PMK.01/2020'),
-        ('TD.00524', '24 - (Tidak ada Cap)'),
-        ('TD.00525', '25 - PPN tidak dipungut berdasarkan PP Nomor 49 Tahun 2022'),
-        ('TD.00526', '26 - PPN tidak dipungut berdasarkan PP Nomor 12 Tahun 2023'),
-        ('TD.00527', '27 - PPN ditanggung Pemerintah berdasarkan PMK Nomor 38 Tahun 2023')],
+        ('TD.00501', '1 - untuk Kawasan Bebas'),
+        ('TD.00502', '2 - untuk Tempat Penimbunan Berikat'),
+        ('TD.00503', '3 - untuk Hibah dan Bantuan Luar Negeri'),
+        ('TD.00504', '4 - untuk Avtur'),
+        ('TD.00505', '5 - untuk Lainnya'),
+        ('TD.00506', '6 - untuk Kontraktor Perjanjian Karya Pengusahaan Pertambangan Batubara Generasi I'),
+        ('TD.00507', '7 - untuk Penyerahan bahan bakar minyak untuk Kapal Angkutan Laut Luar Negeri'),
+        ('TD.00508', '8 - untuk Penyerahan jasa kena pajak terkait alat angkutan tertentu'),
+        ('TD.00509', '9 - untuk Penyerahan BKP Tertentu di KEK'),
+        ('TD.00510', '10 - untuk BKP tertentu yang bersifat strategis berupa anode slime'),
+        ('TD.00511', '11 - untuk Penyerahan alat angkutan tertentu dan/atau Jasa Kena Pajak terkait alat angkutan tertentu'),
+        ('TD.00512', '12 - untuk Penyerahan kepada Kontraktor Kerja Sama Migas yang mengikuti ketentuan Peraturan Pemerintah Nomor 27 Tahun 2017'),
+        ('TD.00513', '13 - Penyerahan Rumah Tapak dan Satuan Rumah Susun Rumah Susun Ditanggung Pemerintah Tahun Anggaran 2025'),
+        ('TD.00514', '14 - Penyerahan Jasa Sewa Ruangan atau Bangunan Kepada Pedagang Eceran yang Ditanggung Pemerintah Tahun Anggaran 2021'),
+        ('TD.00515', '15 - Penyerahan Barang dan Jasa Dalam Rangka Penanganan Pandemi COVID-19 (PMK 239/PMK. 03/2020)'),
+        ('TD.00516', '16 - Insentif PMK-103/PMK.010/2021 berupa PPN atas Penyerahan Rumah Tapak dan Unit Hunian Rumah Susun yang Ditanggung Pemerintah Tahun Anggaran 2021'),
+        ('TD.00517', '17 - Kawasan Ekonomi Khusus PP nomor 40 Tahun 2021'),
+        ('TD.00518', '18 - Kawasan Bebas PP nomor 41 Tahun 2021'),
+        ('TD.00519', '19 - Penyerahan Rumah Tapak dan Unit Hunian Rumah Susun yang Ditanggung Pemerintah Tahun Anggaran 2022'),
+        ('TD.00520', '20 - PPN Ditanggung Pemerintah dalam rangka Penanganan Pandemi Corona Virus'),
+        ('TD.00521', '21 - Penyerahan kepada Kontraktor Kerja Sama Migas yang mengikuti ketentuan Peraturan Pemerintah Nomor 53 Tahun 2017'),
+        ('TD.00522', '22 - BKP strategis tertentu dalam bentuk anode slime dan emas butiran'),
+        ('TD.00523', '23 - untuk penyerahan kertas koran dan/atau majalah'),
+        ('TD.00524', '24 - PPN Ditanggung Pemerintah'),
+        ('TD.00525', '25 - BKP dan JKP tertentu'),
+        ('TD.00526', '26 - Penyerahan BKP dan JKP di Ibu Kota Negara baru'),
+        ('TD.00527', '27 - Penyerahan kendaraan listrik berbasis baterai'),
+        ('TD.00528', '28 - Insentif Tambahan Penyerahan Rumah Tapak dan Satuan Rumah Susun Rumah Susun Ditanggung Pemerintah Tahun Anggaran 2025'),
+        ('TD.00529', '29 - PPN atas Penyerahan Hewan Khusus Tertentu Berupa Kuda serta Perlengkapan Pendukungnya Pemerintah Tahun Anggaran 2025'),
+        ('TD.00530', '30 - PPN atas Penyerahan Bekal Khusus Operasi Tertentu Yang Ditanggung Pemerintah Tahun Anggaran 2025'),
+        ('TD.00531', '31 - Penyerahan Rumah Tapak dan Satuan Rumah Susun Rumah Susun Ditanggung Pemerintah Tahun Anggaran 2026')],
         compute="_compute_l10n_id_coretax_add_info",
         readonly=False,
         store=True
     )
     l10n_id_coretax_facility_info_07 = fields.Selection([
-        ('TD.01101', '1 - untuk Kawasan Bebas'),
-        ('TD.01102', '2 - untuk Tempat Penimbunan Berikat'),
-        ('TD.01103', '3 - untuk Hibah dan Bantuan Luar Negeri'),
-        ('TD.01104', '4 - untuk Avtur'),
-        ('TD.01105', '5 - untuk Lainnya'),
-        ('TD.01106', '6 - untuk Kontraktor Perjanjian Karya Pengusahaan Pertambangan Batubara Generasi I'),
-        ('TD.01107', '7 - untuk Penyerahan bahan bakar minyak untuk Kapal Angkutan Laut Luar Negeri'),
-        ('TD.01108', '8 - untuk Penyerahan jasa kena pajak terkait alat angkutan tertentu'), ('TD.01109', '9 - untuk Penyerahan BKP Tertentu di KEK'), ('TD.01110', '10 - untuk BKP tertentu yang bersifat strategis berupa anode slime'), ('TD.01111', '11 - untuk Penyerahan alat angkutan tertentu dan/atau Jasa Kena Pajak terkait alat angkutan tertentu'),
-        ('TD.01112', '12 - untuk Penyerahan kepada Kontraktor Kerja Sama Migas yang mengikuti ketentuan Peraturan Pemerintah Nomor 27 Tahun 2017'),
-        ('TD.01113', '13 - Penyerahan Rumah Tapak dan Satuan Rumah Susun Rumah Susun Ditanggung Pemerintah Tahun Anggaran 2021'),
-        ('TD.01114', '14 - Penyerahan Jasa Sewa Ruangan atau Bangunan Kepada Pedagang Eceran yang Ditanggung Pemerintah Tahun Anggaran 2021'),
-        ('TD.01115', '15 - Penyerahan Barang dan Jasa Dalam Rangka Penanganan Pandemi COVID-19 (PMK 239/PMK. 03/2020)'),
-        ('TD.01116', '16 - Insentif PMK-103/PMK.010/2021 berupa PPN atas Penyerahan Rumah Tapak dan Unit Hunian Rumah Susun yang Ditanggung Pemerintah Tahun Anggaran 2021'),
-        ('TD.01117', '17 - Kawasan Ekonomi Khusus PP nomor 40 Tahun 2021'),
-        ('TD.01118', '18 - Kawasan Bebas PP nomor 41 Tahun 2021'),
-        ('TD.01119', '19 - Penyerahan Rumah Tapak dan Unit Hunian Rumah Susun yang Ditanggung Pemerintah Tahun Anggaran 2022'),
-        ('TD.01120', '20 - PPN Ditanggung Pemerintah dalam rangka Penanganan Pandemi Corona Virus'),
-        ('TD.01121', '21 - Penyerahan kepada Kontraktor Kerja Sama Migas yang mengikuti ketentuan Peraturan Pemerintah Nomor 53 Tahun 2017'),
-        ('TD.01122', '22 - BKP strategis tertentu dalam bentuk anode slime dan emas butiran'),
-        ('TD.01123', '23 - untuk penyerahan kertas koran dan/atau majalah'),
-        ('TD.01124', '24 - PPN tidak dipungut oleh Pemerintah lainnya'),
-        ('TD.01125', '25 - BKP dan JKP tertentu'),
-        ('TD.01126', '26 - Penyerahan BKP dan JKP di Ibu Kota Negara baru'),
-        ('TD.01127', '27 - Penyerahan kendaraan listrik berbasis baterai')],
+        ('TD.01101', '1 - Pajak Pertambahan Nilai Tidak Dipungut berdasarkan PP Nomor 10 Tahun 2012'),
+        ('TD.01102', '2 - Pajak Pertambahan Nilai atau Pajak Pertambahan Nilai dan Pajak Penjualan atas Barang Mewah tidak dipungut'),
+        ('TD.01103', '3 - Pajak Pertambahan Nilai dan Pajak Penjualan atas Barang Mewah Tidak Dipungut'),
+        ('TD.01104', '4 - Pajak Pertambahan Nilai Tidak Dipungut Sesuai PP Nomor 71 Tahun 2012'),
+        ('TD.01105', '5 - (Tidak ada Cap)'),
+        ('TD.01106', '6 - PPN dan/atau PPnBM tidak dipungut berdasarkan PMK No. 194/PMK.03/2012'),
+        ('TD.01107', '7 - PPN Tidak Dipungut Berdasarkan PP Nomor 15 Tahun 2015'),
+        ('TD.01108', '8 - PPN Tidak Dipungut Berdasarkan PP Nomor 69 Tahun 2015'),
+        ('TD.01109', '9 - PPN Tidak Dipungut Berdasarkan PP Nomor 96 Tahun 2015'),
+        ('TD.01110', '10 - PPN Tidak Dipungut Berdasarkan PP Nomor 106 Tahun 2015'),
+        ('TD.01111', '11 - PPN Tidak Dipungut Sesuai PP Nomor 50 Tahun 2019'),
+        ('TD.01112', '12 - PPN atau PPN dan PPnBM Tidak Dipungut Sesuai Dengan PP Nomor 27 Tahun 2017'),
+        ('TD.01113', '13 - PPN DITANGGUNG PEMERINTAH EKSEKUSI PMK NOMOR 13 TAHUN 2025'),
+        ('TD.01114', '14 - PPN DITANGGUNG PEMERINTAH EKS PMK 102/PMK.010/2021'),
+        ('TD.01115', '15 - PPN DITANGGUNG PEMERINTAH EKS PMK 239/PMK.03/2020'),
+        ('TD.01116', '16 - Insentif PPN DITANGGUNG PEMERINTAH EKSEKUSI PMK NOMOR 103/PMK.010/2021'),
+        ('TD.01117', '17 - PAJAK PERTAMBAHAN NILAI TIDAK DIPUNGUT BERDASARKAN PP NOMOR 40 TAHUN 2021'),
+        ('TD.01118', '18 - PAJAK PERTAMBAHAN NILAI TIDAK DIPUNGUT BERDASARKAN PP NOMOR 41 TAHUN 2021'),
+        ('TD.01119', '19 - PPN DITANGGUNG PEMERINTAH EKS PMK 6/PMK.010/2022'),
+        ('TD.01120', '20 - PPN DITANGGUNG PEMERINTAH EKSEKUSI PMK NOMOR 226/PMK.03/2021'),
+        ('TD.01121', '21 - PPN ATAU PPN DAN PPnBM TIDAK DIPUNGUT SESUAI DENGAN PP NOMOR 53 TAHUN 2017'),
+        ('TD.01122', '22 - PPN tidak dipungut berdasarkan PP Nomor 70 Tahun 2021'),
+        ('TD.01123', '23 - PPN ditanggung Pemerintah Ex PMK-125/PMK.01/2020'),
+        ('TD.01124', '24 - (Tidak ada Cap)'),
+        ('TD.01125', '25 - PPN tidak dipungut berdasarkan PP Nomor 49 Tahun 2022'),
+        ('TD.01126', '26 - PPN tidak dipungut berdasarkan PP Nomor 12 Tahun 2023'),
+        ('TD.01127', '27 - PPN Ditanggung Pemerintah berdasarkan PMK Nomor 12 Tahun 2025'),
+        ('TD.01128', '28 - PPN DITANGGUNG PEMERINTAH EKSEKUSI PMK NOMOR 60 TAHUN 2025'),
+        ('TD.01129', '29 - PPN DITANGGUNG PEMERINTAH BERDASARKAN PMK NOMOR 61 TAHUN 2025'),
+        ('TD.01130', '30 - PPN DITANGGUNG PEMERINTAH BERDASARKAN PMK NOMOR 44 TAHUN 2025'),
+        ('TD.01131', '31 - PPN DITANGGUNG PEMERINTAH BERDASARKAN PMK NOMOR 90 TAHUN 2025')],
         compute="_compute_l10n_id_coretax_facility_info",
         readonly=False,
         store=True,
@@ -115,16 +126,16 @@ class AccountMove(models.Model):
 
     # Extra selection after choosing l10n_id_kode_transaksi 08
     l10n_id_coretax_add_info_08 = fields.Selection([
-        ('TD.00501', '1 - PPN Dibebaskan Sesuai PP Nomor 146 Tahun 2000 Sebagaimana Telah Diubah Dengan PP Nomor 38 Tahun 2003'),
-        ('TD.00502', '2 - PPN Dibebaskan Sesuai PP Nomor 12 Tahun 2001 Sebagaimana Telah Beberapa Kali Diubah Terakhir Dengan PP Nomor 31 Tahun 2007'),
-        ('TD.00503', '3 - PPN dibebaskan berdasarkan Peraturan Pemerintah Nomor 28 Tahun 2009'),
-        ('TD.00504', '4 - (Tidak ada cap)'),
-        ('TD.00505', '5 - PPN Dibebaskan Sesuai Dengan PP Nomor 81 Tahun 2015'),
-        ('TD.00506', '6 - PPN Dibebaskan Berdasarkan PP Nomor 74 Tahun 2015'),
-        ('TD.00507', '7 - (tanpa cap)'),
-        ('TD.00508', '8 - PPN DIBEBASKAN SESUAI PP NOMOR 81 TAHUN 2015 SEBAGAIMANA TELAH DIUBAH DENGAN PP 48 TAHUN 2020'),
-        ('TD.00509', '9 - PPN DIBEBASKAN BERDASARKAN PP NOMOR 47 TAHUN 2020'),
-        ('TD.00510', '10 - PPN Dibebaskan berdasarkan PP Nomor 49 Tahun 2022')],
+        ('TD.00501', '1 - untuk BKP dan JKP Tertentu'),
+        ('TD.00502', '2 - untuk BKP Tertentu yang Bersifat Strategis'),
+        ('TD.00503', '3 - untuk Jasa Kebandarudaraan'),
+        ('TD.00504', '4 - untuk Lainnya'),
+        ('TD.00505', '5 - untuk BKP Tertentu yang Bersifat Strategis sesuai PP Nomor 81 Tahun 2015'),
+        ('TD.00506', '6 - untuk Penyerahan Jasa Kepelabuhan Tertentu untuk kegiatan angkutan laut Luar Negeri'),
+        ('TD.00507', '7 - untuk Penyerahan Air Bersih'),
+        ('TD.00508', '8 - Penyerahan BKP tertentu yang bersifat strategis berdasarkan PP 48 Tahun 2020'),
+        ('TD.00509', '9 - Penyerahan kepada Perwakilan Negara Asing dan Badan Internasional serta Pejabatnya'),
+        ('TD.00510', '10 - BKP dan JKP tertentu')],
         compute="_compute_l10n_id_coretax_add_info",
         readonly=False,
         store=True,
@@ -146,7 +157,7 @@ class AccountMove(models.Model):
     )
 
     l10n_id_coretax_efaktur_available = fields.Boolean(compute="_compute_l10n_id_coretax_efaktur_available")
-    l10n_id_coretax_document = fields.Many2one('l10n_id_efaktur_coretax.document', readonly=True, copy=False, string="e-Faktur Document (Coretax)")
+    l10n_id_coretax_document = fields.Many2one('l10n_id_efaktur_coretax.document', readonly=True, copy=False, string="e-Faktur Document (Coretax)", index='btree_not_null')
     l10n_id_coretax_custom_doc = fields.Char(help="Additional documentation when choosing kode 07 or 08")
     l10n_id_coretax_custom_doc_month_year = fields.Date(string="Custom Document Month and Year")
     l10n_id_kode_transaksi = fields.Selection(
@@ -172,8 +183,7 @@ class AccountMove(models.Model):
         """
         for move in self:
             move.l10n_id_coretax_efaktur_available = (
-                move.partner_id.l10n_id_pkp
-                and move.country_code == 'ID'
+                move.country_code == 'ID'
                 and move.move_type == 'out_invoice'
                 and move.line_ids.tax_ids
             )
@@ -217,10 +227,11 @@ class AccountMove(models.Model):
             exempt_group = self.env['account.chart.template'].with_company(move.company_id.id).ref("l10n_id_tax_group_exempt", raise_if_not_found=False)
             stlg_group = self.env['account.chart.template'].with_company(move.company_id.id).ref("l10n_id_tax_group_stlg", raise_if_not_found=False)
             default_group = self.env['account.chart.template'].with_company(move.company_id.id).ref("default_tax_group", raise_if_not_found=False)
+            vat_collector_group = self.env['account.chart.template'].with_company(move.company_id.id).ref("l10n_id_tax_group_vat_collector", raise_if_not_found=False)
             product_lines = move.line_ids.filtered(lambda line: line.display_type == 'product')
             all_taxes = product_lines.mapped('tax_ids')
             tax_groups = set(all_taxes.mapped('tax_group_id'))
-            ppn_groups = {non_luxury_group, luxury_group, zero_group, exempt_group, default_group}
+            ppn_groups = {non_luxury_group, luxury_group, zero_group, exempt_group, default_group, vat_collector_group}
             ppn_groups.discard(False)
             ppn_tax_groups = [g for g in tax_groups if g in ppn_groups]
             stlg_tax_groups = [g for g in tax_groups if g == stlg_group]
@@ -292,8 +303,6 @@ class AccountMove(models.Model):
         # check for every customer
         for partner in self.partner_id:
             comm = partner.commercial_partner_id
-            if not comm.l10n_id_pkp:
-                err_messages.append(_("Customer %s is not taxable, tick ID PKP if necessary", comm.name))
             if comm.l10n_id_buyer_document_type != 'TIN' and not comm.l10n_id_buyer_document_number:
                 err_messages.append(_("Document number for customer %s hasn't been filled in", comm.name))
             if not comm.vat:
@@ -317,6 +326,17 @@ class AccountMove(models.Model):
             if record.l10n_id_kode_transaksi == "08":
                 if not (record.l10n_id_coretax_add_info_08 and record.l10n_id_coretax_facility_info_08):
                     err_messages.append(_("Invoice %s doesn't contain the Additional info and Facility Stamp yet (Kode 08)", record.name))
+            if record.invoice_line_ids._get_downpayment_lines():
+                err_messages.append(_("Coretax e-Faktur does not support XML uploads for transactions involving down payments. Please enter these transactions manually into the Coretax system"))
+            if record.invoice_line_ids.filtered(lambda line: line.tax_ids and line._l10n_id_coretax_is_negative_line()):
+                _base_lines, remaining_negative_base_lines = record._l10n_id_coretax_dispatch_negative_lines()
+                if remaining_negative_base_lines:
+                    err_messages.append(_(
+                        "Invoice %s contains a negative line that could not be distributed over the other lines, "
+                        "because no other line carries the same taxes or because it exceeds their total. Please "
+                        "align the taxes or enter this transaction manually into the Coretax system",
+                        record.name,
+                    ))
 
         # Check tax groups
         err_messages.extend(self._validate_tax_groups())
@@ -378,15 +398,15 @@ class AccountMove(models.Model):
             "CustomDocMonthYear": self.l10n_id_coretax_custom_doc_month_year and self.l10n_id_coretax_custom_doc_month_year.strftime("%m%Y") or "",
             "FacilityStamp": "",
             "RefDesc": self.name,
-            "SellerIDTKU": self.company_id.vat + (self.company_id.partner_id.l10n_id_tku or '000000'),
+            "SellerIDTKU": self.company_id.vat + self.company_id.partner_id._l10n_id_efaktur_tku_branch(),
             "BuyerDocument": l10n_id_buyer_document_type_mapping_to_xml.get(partner.l10n_id_buyer_document_type, partner.l10n_id_buyer_document_type),
             "BuyerTin": partner.vat if partner.l10n_id_buyer_document_type == "TIN" else "0000000000000000",
             "BuyerCountry": COUNTRY_CODE_MAP.get(partner.country_id.code),
-            "BuyerDocumentNumber": partner.l10n_id_buyer_document_number if partner.l10n_id_buyer_document_type != "TIN" else "",
+            "BuyerDocumentNumber": partner.l10n_id_buyer_document_number or "",
             "BuyerName": self.partner_id.name,
-            "BuyerAdress": self.partner_id.contact_address.replace('\n', ' ').strip(),
+            "BuyerAdress": self.partner_id._display_address(separator=' '),
             "BuyerEmail": partner.email or "",
-            "BuyerIDTKU": partner.vat + (partner.l10n_id_tku or '000000'),
+            "BuyerIDTKU": partner.vat + partner._l10n_id_efaktur_tku_branch(),
         })
 
         if trx_code == '07':
@@ -396,18 +416,44 @@ class AccountMove(models.Model):
             vals['AddInfo'] = self.l10n_id_coretax_add_info_08
             vals['FacilityStamp'] = self.l10n_id_coretax_facility_info_08
 
+    def _l10n_id_coretax_dispatch_negative_lines(self):
+        """ Distribute the invoice's negative lines into the positive ones sharing the same taxes."""
+        self.ensure_one()
+
+        base_lines, _tax_lines = self._get_rounded_base_and_tax_lines()
+        base_lines = [
+            base_line for base_line in base_lines
+            if base_line['tax_ids'] and base_line['record'].display_type == 'product'
+        ]
+        # Coretax rejects any negative amount, so every negative line is treated as a global
+        # discount, not only the ones coming from the Global Discount feature.
+        for base_line in base_lines:
+            if not base_line['special_type'] and base_line['record']._l10n_id_coretax_is_negative_line():
+                base_line['special_type'] = 'global_discount'
+
+        base_lines = self.env['account.tax']._dispatch_global_discount_lines(base_lines, self.company_id)
+        self.env['account.tax']._squash_global_discount_lines(base_lines, self.company_id)
+        self.env['account.tax']._add_and_round_raw_gross_total_excluded_and_discount(base_lines, self.company_id, in_foreign_currency=False, account_discount_base_lines=True)
+        self.env['account.tax']._round_raw_gross_total_excluded_and_discount(base_lines, self.company_id, in_foreign_currency=False)
+
+        remaining_negative_base_lines = [
+            base_line for base_line in base_lines
+            if self.company_currency_id.compare_amounts(base_line['tax_details']['total_excluded'], 0.0) < 0
+        ]
+        return base_lines, remaining_negative_base_lines
+
     def prepare_efaktur_vals(self):
         """ Get information required from invoice and lines to generate E-Faktur that will be used
         to load in the XML template later on"""
         invoice_vals = []
-        idr = self.env.ref('base.IDR')
 
         for move in self.filtered(lambda m: m.state == 'posted'):
             vals = {}
             move._l10n_id_coretax_build_invoice_vals(vals)
 
-            for line in move.invoice_line_ids.filtered(lambda ml: ml.tax_ids):
-                line._l10n_id_coretax_build_invoice_line_vals(vals)
+            base_lines, _remaining = move._l10n_id_coretax_dispatch_negative_lines()
+            for base_line in base_lines:
+                base_line['record']._l10n_id_coretax_build_invoice_line_vals(vals, base_line)
 
             invoice_vals.append(vals)
 

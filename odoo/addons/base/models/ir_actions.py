@@ -1,26 +1,25 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
+from datetime import UTC
+from zoneinfo import ZoneInfo
 
 import babel
 import base64
 import contextlib
 import json
 import logging
-import pytz
 import re
 from collections import defaultdict
 from functools import reduce
 from operator import getitem
 
-from pytz import timezone
-
 from odoo import api, fields, models, tools
 from odoo.exceptions import AccessError, MissingError, UserError, ValidationError
 from odoo.fields import Command, Domain
 from odoo.http import request
-from odoo.tools import _, frozendict, get_lang
+from odoo.tools import BinaryBytes, _, frozendict, get_lang
 from odoo.tools.float_utils import float_compare
 from odoo.tools.misc import get_diff, unquote
-from odoo.tools.safe_eval import safe_eval, test_python_expr
+from odoo.tools.safe_eval import expr_eval, safe_eval, test_python_expr
 from odoo.tools.json import stringify_keys
 
 _logger = logging.getLogger(__name__)
@@ -54,7 +53,8 @@ class LoggerProxy:
 
 class IrActionsActions(models.Model):
     _name = 'ir.actions.actions'
-    _description = 'Actions'
+    _description = 'Action'
+    _clear_cache_name = 'default'  # self.get_bindings() depends on action records
     _table = 'ir_actions'
     _order = 'name, id'
     _allow_sudo_commands = False
@@ -71,6 +71,7 @@ class IrActionsActions(models.Model):
     help = fields.Html(string='Action Description',
                        help='Optional help text for the users with a description of the target view, such as its usage and purpose.',
                        translate=True)
+    explanation = fields.Text(string='Explanation', help='Verbose description of what this action actually does')
     binding_model_id = fields.Many2one('ir.model', ondelete='cascade',
                                        help="Setting a value makes this action available in the sidebar for the given model.")
     binding_type = fields.Selection([('action', 'Action'),
@@ -107,19 +108,6 @@ class IrActionsActions(models.Model):
         for record in self:
             record.xml_id = res.get(record.id)
 
-    @api.model_create_multi
-    def create(self, vals_list):
-        res = super().create(vals_list)
-        # self.get_bindings() depends on action records
-        self.env.registry.clear_cache()
-        return res
-
-    def write(self, vals):
-        res = super().write(vals)
-        # self.get_bindings() depends on action records
-        self.env.registry.clear_cache()
-        return res
-
     def unlink(self):
         """unlink ir.action.todo/ir.filters which are related to actions which will be deleted.
            NOTE: ondelete cascade will not work on ir.actions.actions so we will need to do it manually."""
@@ -127,10 +115,7 @@ class IrActionsActions(models.Model):
         todos.unlink()
         filters = self.env['ir.filters'].with_context(active_test=False).search([('action_id', 'in', self.ids)])
         filters.unlink()
-        res = super().unlink()
-        # self.get_bindings() depends on action records
-        self.env.registry.clear_cache()
-        return res
+        return super().unlink()
 
     @api.ondelete(at_uninstall=True)
     def _unlink_check_home_action(self):
@@ -145,10 +130,11 @@ class IrActionsActions(models.Model):
             'time': tools.safe_eval.time,
             'datetime': tools.safe_eval.datetime,
             'dateutil': tools.safe_eval.dateutil,
-            'timezone': timezone,
+            'timezone': ZoneInfo,
             'float_compare': float_compare,
             'b64encode': base64.b64encode,
             'b64decode': base64.b64decode,
+            'BinaryBytes': BinaryBytes,
             'Command': Command,
         }
 
@@ -170,11 +156,7 @@ class IrActionsActions(models.Model):
                     # the user may not perform this action
                     continue
                 res_model = action.pop('res_model', None)
-                if res_model and not self.env['ir.model.access'].check(
-                    res_model,
-                    mode='read',
-                    raise_exception=False
-                ):
+                if res_model and not ((model := self.env.get(res_model)) is not None and model.has_access('read')):
                     # the user won't be able to read records
                     continue
                 actions.append(action)
@@ -182,7 +164,7 @@ class IrActionsActions(models.Model):
                 result[action_type] = actions
         return result
 
-    @tools.ormcache('model_name', 'self.env.lang')
+    @api.ormcache('model_name', 'self.env.lang')
     def _get_bindings(self, model_name):
         cr = self.env.cr
 
@@ -285,7 +267,7 @@ class IrActionsAct_Window(models.Model):
             can be set on the action.
         """
         for act in self:
-            act.views = [(view.view_id.id, view.view_mode) for view in act.view_ids]
+            views = [(view.view_id.id, view.view_mode) for view in act.view_ids]
             got_modes = [view.view_mode for view in act.view_ids]
             all_modes = act.view_mode.split(',')
             missing_modes = [mode for mode in all_modes if mode not in got_modes]
@@ -293,8 +275,9 @@ class IrActionsAct_Window(models.Model):
                 if act.view_id.type in missing_modes:
                     # reorder missing modes to put view_id first if present
                     missing_modes.remove(act.view_id.type)
-                    act.views.append((act.view_id.id, act.view_id.type))
-                act.views.extend([(False, mode) for mode in missing_modes])
+                    views.append((act.view_id.id, act.view_id.type))
+                views.extend([(False, mode) for mode in missing_modes])
+            act.views = views
 
     @api.constrains('view_mode')
     def _check_view_mode(self):
@@ -321,10 +304,11 @@ class IrActionsAct_Window(models.Model):
     usage = fields.Char(string='Action Usage',
                         help="Used to filter menu and home actions from the user form.")
     view_ids = fields.One2many('ir.actions.act_window.view', 'act_window_id', string='No of Views')
-    views = fields.Binary(compute='_compute_views',
-                          help="This function field computes the ordered list of views that should be enabled " \
-                               "when displaying the result of an action, federating view mode, views and " \
-                               "reference view. The result is returned as an ordered list of pairs (view_id,view_mode).")
+    views = fields.Json(compute='_compute_views',
+        help="This function field computes the ordered list of views that should be enabled "
+            "when displaying the result of an action, federating view mode, views and "
+            "reference view. The result is returned as an ordered list of pairs (view_id,view_mode)."
+    )
     limit = fields.Integer(default=80, help='Default limit for the list view')
     group_ids = fields.Many2many('res.groups', 'ir_act_window_group_rel',
                                  'act_id', 'gid', string='Groups')
@@ -349,22 +333,17 @@ class IrActionsAct_Window(models.Model):
                     eval_ctx = dict(self.env.context)
                     try:
                         ctx = safe_eval(values.get('context', '{}'), eval_ctx)
-                    except:
+                    except Exception:  # noqa: BLE001
                         ctx = {}
                     values['help'] = self.with_context(**ctx).env[model].get_empty_list_help(values.get('help', ''))
         return result
 
     @api.model_create_multi
     def create(self, vals_list):
-        self.env.registry.clear_cache()
         for vals in vals_list:
             if not vals.get('name') and vals.get('res_model'):
                 vals['name'] = self.env[vals['res_model']]._description
         return super().create(vals_list)
-
-    def unlink(self):
-        self.env.registry.clear_cache()
-        return super().unlink()
 
     def exists(self):
         ids = self._existing()
@@ -372,7 +351,7 @@ class IrActionsAct_Window(models.Model):
         return existing
 
     @api.model
-    @tools.ormcache()
+    @api.ormcache()
     def _existing(self):
         self.env.cr.execute("SELECT id FROM %s" % self._table)
         return {row[0] for row in self.env.cr.fetchall()}
@@ -515,7 +494,7 @@ class IrActionsServerHistory(models.Model):
             locale = get_lang(self.env).code
             tzinfo = self.env.tz
             datetime = history.create_date.replace(microsecond=0)
-            datetime = pytz.utc.localize(datetime, is_dst=False)
+            datetime = datetime.replace(tzinfo=UTC)
             datetime = datetime.astimezone(tzinfo) if tzinfo else datetime
             date_label = babel.dates.format_datetime(
                 datetime,
@@ -584,7 +563,7 @@ class IrActionsServer(models.Model):
       server actions
     """
     _name = 'ir.actions.server'
-    _description = 'Server Actions'
+    _description = 'Server Action'
     _table = 'ir_act_server'
     _inherit = ['ir.actions.actions']
     _order = 'sequence,name,id'
@@ -662,6 +641,8 @@ class IrActionsServer(models.Model):
                                  'act_id', 'gid', string='Allowed Groups', help='Groups that can execute the server action. Leave empty to allow everybody.')
 
     update_field_id = fields.Many2one('ir.model.fields', string='Field to Update', ondelete='cascade', compute='_compute_crud_relations', store=True, readonly=False)
+    update_field_name = fields.Char(related='update_field_id.name')
+    update_property = fields.Char(string='Property to Update', compute='_compute_crud_relations', store=True, readonly=False)
     update_path = fields.Char(string='Field to Update Path', help="Path to the field to update, e.g. 'partner_id.name'", default=_default_update_path)
     update_related_model_id = fields.Many2one('ir.model', compute='_compute_crud_relations', readonly=False, store=True)
     update_field_type = fields.Selection(related='update_field_id.ttype', readonly=True)
@@ -690,6 +671,7 @@ class IrActionsServer(models.Model):
         string='Record', selection='_selection_target_model', inverse='_set_resource_ref')
     selection_value = fields.Many2one('ir.model.fields.selection', string="Custom Value", ondelete='cascade',
                                       domain='[("field_id", "=", update_field_id)]', inverse='_set_selection_value')
+    property_selection = fields.Char()
 
     value_field_to_show = fields.Selection([
         ('value', 'value'),
@@ -698,6 +680,8 @@ class IrActionsServer(models.Model):
         ('resource_ref', 'reference'),
         ('update_boolean_value', 'update_boolean_value'),
         ('selection_value', 'selection_value'),
+        ('property_selection', 'property_selection'),
+        ('x2many', 'x2many'),
     ], compute='_compute_value_field_to_show')
     # Webhook
     webhook_url = fields.Char(string='Webhook URL', help="URL to send the POST request to.")
@@ -856,10 +840,9 @@ class IrActionsServer(models.Model):
 
     @api.depends('state')
     def _compute_available_model_ids(self):
-        allowed_models = self.env['ir.model'].search(
-            [('model', 'in', list(self.env['ir.model.access']._get_allowed_models()))]
-        )
-        self.available_model_ids = allowed_models.ids
+        model_names = [model._name for model in self.env.values() if model.has_access('read')]
+        models = self.env['ir.model'].sudo().search([('model', 'in', model_names)])
+        self.available_model_ids = models
 
     @api.depends('model_id', 'update_path', 'state')
     def _compute_crud_relations(self):
@@ -882,11 +865,13 @@ class IrActionsServer(models.Model):
                 elif action.state == 'object_write':
                     if action.update_path:
                         # we need to traverse relations to find the target model and field
-                        model, field = action._traverse_path()
+                        model, field, property = action._traverse_path()
                         action.crud_model_id = model
                         action.update_field_id = field
-                        need_update_model = action.evaluation_type == 'value' and action.update_field_id and action.update_field_id.relation
-                        action.update_related_model_id = action.env["ir.model"]._get_id(field.relation) if need_update_model else False
+                        action.update_property = property and property.get("name")
+                        comodel = property and property.get("comodel")
+                        need_update_model = action.evaluation_type == 'value' and action.update_field_id and (action.update_field_id.relation or comodel)
+                        action.update_related_model_id = action.env["ir.model"]._get_id(field.relation or comodel) if need_update_model else False
                     else:
                         action.crud_model_id = action.model_id
                         action.update_field_id = False
@@ -901,11 +886,11 @@ class IrActionsServer(models.Model):
         :return: a tuple (model, field) where model is the target model and field is the target field
         """
         self.ensure_one()
-        field_chain, _field_chain_str = self._get_relation_chain("update_path")
+        field_chain, _, property = self._get_relation_chain("update_path")
         last_field = field_chain[-1]
         model_id = self.env['ir.model']._get(last_field.model_name)
         field_id = self.env['ir.model.fields']._get(last_field.model_name, last_field.name)
-        return model_id, field_id
+        return model_id, field_id, property
 
     def _get_relation_chain(self, searched_field_name):
         self.ensure_one()
@@ -919,21 +904,38 @@ class IrActionsServer(models.Model):
         path = self[searched_field_name].split('.')
         if not path:
             return [], ""
+
+        def get_field_data(model, field_name, properties):
+            if properties:
+                virtual = model.new()
+                return model._fields[properties], virtual.get_property_definition(properties + "." + field_name)
+            else:
+                return model._fields[field_name], False
+
         model = self.env[self.model_id.model]
+        properties = False
         chain = []
+        strings = []
         for field_name in path:
             is_last_field = field_name == path[-1]
-            field = model._fields[field_name]
-            if not is_last_field:
-                if not field.relational:
-                    # sanity check: this should be the last field in the path
-                    current_field = field.get_description(self.env)["string"]
-                    searched_field = self._fields[searched_field_name].get_description(self.env)["string"]
-                    raise ValidationError(_("The path contained by the field '%(searched_field)s' contains a non-relational field (%(current_field)s) that is not the last field in the path. You can't traverse non-relational fields (even in the quantum realm). Make sure only the last field in the path is non-relational.", searched_field=searched_field, current_field=current_field))
-                model = self.env[field.comodel_name]
-            chain.append(field)
-        stringified_path = ' > '.join([field.get_description(self.env)["string"] for field in chain])
-        return chain, stringified_path
+            field, property_def = get_field_data(model, field_name, properties)
+            if not is_last_field and field.type != "properties" and not field.relational:
+                # sanity check: this should be the last field in the path
+                current_field = field.get_description(self.env)["string"]
+                searched_field = self._fields[searched_field_name].get_description(self.env)["string"]
+                raise ValidationError(_("The path contained by the field '%(searched_field)s' contains a non-relational field (%(current_field)s) that is not the last field in the path. You can't traverse non-relational fields (even in the quantum realm). Make sure only the last field in the path is non-relational.", searched_field=searched_field, current_field=current_field))
+
+            if property_def:
+                strings.append(property_def.get("string"))
+            else:
+                if field.relational:
+                    model = self.env[field.comodel_name]
+
+                properties = field_name if field.type == "properties" else False
+                strings.append(field.get_description(self.env)["string"])
+                chain.append(field)
+
+        return chain, ' > '.join(strings), property_def
 
     @api.depends('state', 'model_id', 'webhook_field_ids', 'name')
     def _compute_webhook_sample_payload(self):
@@ -1025,7 +1027,7 @@ class IrActionsServer(models.Model):
     def _run_action_object_write(self, eval_context=None):
         """Apply specified write changes to active_id."""
         vals = self._eval_value(eval_context=eval_context)
-        res = {action.update_field_id.name: vals[action.id] for action in self}
+        res = {self.update_field_id.name: vals[self.id]}
 
         if self.env.context.get('onchange_self'):
             record_cached = self.env.context['onchange_self']
@@ -1035,7 +1037,23 @@ class IrActionsServer(models.Model):
             starting_record = self.env[self.model_id.model].browse(self.env.context.get('active_id'))
             path = self.update_path.split('.')
             target_records = reduce(getitem, path[:-1], starting_record)
-            target_records.write(res)
+            if self.update_property and starting_record.get_property_definition(self.update_field_id.name + "." + self.update_property):
+                value = vals[self.id]
+                property_value = starting_record._fields[self.update_field_id.name].convert_to_export(target_records, starting_record) or {}
+                if self.value_field_to_show == 'x2many':
+                    value = property_value.get(self.update_property) or []
+                    command = vals[self.id][0]
+                    if command[0] == Command.LINK:
+                        value.append(command[1])
+                    elif command[0] == Command.UNLINK:
+                        value = list(filter(lambda e: e != command[1], value))
+                    elif command[0] == Command.SET:
+                        value = command[2]
+                    value = [] if command[0] == Command.CLEAR else value
+                res[self.update_field_id.name] = {**property_value, self.update_property: value}
+                starting_record.write(res)
+            else:
+                target_records.write(res)
 
     def _run_action_webhook(self, eval_context=None):
         """Send a post request with a read of the selected field on active_id."""
@@ -1122,7 +1140,7 @@ class IrActionsServer(models.Model):
                     VALUES (NOW() at time zone 'UTC', %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """, (self.env.uid, 'server', self.env.cr.dbname, __name__, level, message, "action", action.id, action.name))
 
-        eval_context = super(IrActionsServer, self)._get_eval_context(action=action)
+        eval_context = super()._get_eval_context(action=action)
         model_name = action.model_id.sudo().model
         model = self.env[model_name]
         record = None
@@ -1243,19 +1261,35 @@ class IrActionsServer(models.Model):
 
     @api.depends('evaluation_type', 'update_field_id')
     def _compute_value_field_to_show(self):  # check if value_field_to_show can be removed and use ttype in xml view instead
+        def _get_value_field_to_show(field_type):
+            if field_type in ('one2many', 'many2many'):
+                return 'x2many'
+            elif field_type == 'many2one':
+                return 'resource_ref'
+            elif field_type == 'selection':
+                return 'selection_value'
+            elif field_type == 'boolean':
+                return 'update_boolean_value'
+            elif field_type == 'html':
+                return 'html_value'
+            else:
+                return 'value'
+
         for action in self:
             if action.evaluation_type == 'sequence':
                 action.value_field_to_show = 'sequence_id'
-            elif action.update_field_id.ttype in ('one2many', 'many2one', 'many2many'):
-                action.value_field_to_show = 'resource_ref'
-            elif action.update_field_id.ttype == 'selection':
-                action.value_field_to_show = 'selection_value'
-            elif action.update_field_id.ttype == 'boolean':
-                action.value_field_to_show = 'update_boolean_value'
-            elif action.update_field_id.ttype == 'html':
-                action.value_field_to_show = 'html_value'
+            elif action.update_field_id.ttype == 'properties':
+                if not action.update_property:
+                    action.value_field_to_show = False
+                    return
+                virtual = self.env[action.crud_model_name].new()
+                property_def = virtual.get_property_definition(action.update_field_id.name + "." + action.update_property)
+                if property_def.get('type') == 'selection':
+                    action.value_field_to_show = 'property_selection'
+                else:
+                    action.value_field_to_show = _get_value_field_to_show(property_def.get('type'))
             else:
-                action.value_field_to_show = 'value'
+                action.value_field_to_show = _get_value_field_to_show(action.update_field_id.ttype)
 
     @api.model
     def _selection_target_model(self):
@@ -1272,7 +1306,7 @@ class IrActionsServer(models.Model):
 
     @api.onchange('resource_ref')
     def _set_resource_ref(self):
-        for action in self.filtered(lambda action: action.value_field_to_show == 'resource_ref'):
+        for action in self.filtered(lambda action: action.value_field_to_show in ['resource_ref', 'x2many']):
             if action.resource_ref:
                 action.value = str(action.resource_ref.id)
 
@@ -1282,15 +1316,26 @@ class IrActionsServer(models.Model):
             if action.selection_value:
                 action.value = action.selection_value.value
 
+    @api.onchange('property_selection')
+    def _set_property_selection(self):
+        for action in self.filtered(lambda action: action.value_field_to_show == 'property_selection'):
+            if action.property_selection:
+                action.value = action.property_selection
+
     def _eval_value(self, eval_context=None):
         result = {}
         for action in self:
             expr = action.value
+            field_type = action.update_field_id.ttype
+            if field_type == 'properties':
+                virtual = self.env[action.crud_model_name].new()
+                property_def = virtual.get_property_definition(action.update_field_id.name + "." + action.update_property)
+                field_type = property_def.get('type')
             if action.evaluation_type == 'equation':
                 expr = safe_eval(action.value, eval_context)
             elif action.evaluation_type == 'sequence':
                 expr = action.sequence_id.next_by_id()
-            elif action.update_field_id.ttype in ['one2many', 'many2many']:
+            elif field_type in ['one2many', 'many2many']:
                 operation = action.update_m2m_operation
                 if operation == 'add':
                     expr = [Command.link(int(action.value))]
@@ -1300,30 +1345,22 @@ class IrActionsServer(models.Model):
                     expr = [Command.set([int(action.value)])]
                 elif operation == 'clear':
                     expr = [Command.clear()]
-            elif action.update_field_id.ttype == 'boolean':
+            elif field_type == 'boolean':
                 expr = action.update_boolean_value == 'true'
-            elif action.update_field_id.ttype in ['many2one', 'integer']:
+            elif field_type in ['many2one', 'integer']:
                 try:
                     expr = int(action.value)
-                    if expr == 0 and action.update_field_id.ttype == 'many2one':
+                    if expr == 0 and field_type == 'many2one':
                         expr = False
                 except Exception:
                     pass
-            elif action.update_field_id.ttype == 'float':
+            elif field_type == 'float':
                 with contextlib.suppress(Exception):
                     expr = float(action.value)
-            elif action.update_field_id.ttype == 'html':
+            elif field_type == 'html':
                 expr = action.html_value
             result[action.id] = expr
         return result
-
-    def copy_data(self, default=None):
-        default = default or {}
-        vals_list = super().copy_data(default=default)
-        if not default.get('name'):
-            for vals in vals_list:
-                vals['name'] = _('%s (copy)', vals.get('name', ''))
-        return vals_list
 
     def action_open_parent_action(self):
         return {
@@ -1349,7 +1386,7 @@ class IrActionsTodo(models.Model):
     Configuration Wizards
     """
     _name = 'ir.actions.todo'
-    _description = "Configuration Wizards"
+    _description = "Configuration Wizard"
     _rec_name = 'action_id'
     _order = "sequence, id"
     _allow_sudo_commands = False
@@ -1361,14 +1398,14 @@ class IrActionsTodo(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        todos = super(IrActionsTodo, self).create(vals_list)
+        todos = super().create(vals_list)
         for todo in todos:
             if todo.state == "open":
                 self.ensure_one_open_todo()
         return todos
 
     def write(self, vals):
-        res = super(IrActionsTodo, self).write(vals)
+        res = super().write(vals)
         if vals.get('state', '') == 'open':
             self.ensure_one_open_todo()
         return res
@@ -1389,12 +1426,12 @@ class IrActionsTodo(models.Model):
                     self -= todo_open_menu
             except ValueError:
                 pass
-        return super(IrActionsTodo, self).unlink()
+        return super().unlink()
 
     def action_launch(self):
         """ Launch Action of Wizard"""
         self.ensure_one()
-
+        self.lock_for_update()
         self.write({'state': 'done'})
 
         # Load action
@@ -1440,22 +1477,20 @@ class IrActionsClient(models.Model):
     target = fields.Selection([('current', 'Current Window'), ('new', 'New Window'), ('fullscreen', 'Full Screen'), ('main', 'Main action of Current Window')], default="current", string='Target Window')
     res_model = fields.Char(string='Destination Model', help="Optional model, mostly used for needactions.")
     context = fields.Char(string='Context Value', default="{}", required=True, help="Context dictionary as Python expression, empty by default (Default: {})")
-    params = fields.Binary(compute='_compute_params', inverse='_inverse_params', string='Supplementary arguments',
-                           help="Arguments sent to the client along with "
-                                "the view tag")
-    params_store = fields.Binary(string='Params storage', readonly=True, attachment=False)
+    params = fields.Json(
+        compute='_compute_params', inverse='_inverse_params', string='Supplementary arguments',
+        help="Arguments sent to the client along with the view tag")
+    params_store = fields.Text(string='Params storage', readonly=True)
 
     @api.depends('params_store')
     def _compute_params(self):
-        self_bin = self.with_context(bin_size=False, bin_size_params_store=False)
-        for record, record_bin in zip(self, self_bin):
-            record.params = record_bin.params_store and safe_eval(record_bin.params_store, {'uid': self.env.uid})
+        for record in self:
+            record.params = record.params_store and expr_eval(record.params_store, {'uid': self.env.uid})
 
     def _inverse_params(self):
         for record in self:
             params = record.params
             record.params_store = repr(params) if isinstance(params, dict) else params
-
 
     def _get_readable_fields(self):
         return super()._get_readable_fields() | {

@@ -1,14 +1,15 @@
 /** @odoo-module **/
-import { Component } from "@odoo/owl";
+import { Component, useProps } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import {_t} from "@web/core/l10n/translation";
-import { standardActionServiceProps } from "@web/webclient/actions/action_service";
+import { standardActionServiceProps } from "@web/webclient/actions/action_plugin";
 
 
 export class WhatIsPeppol extends Component {
-    static props = { ...standardActionServiceProps };
     static template = "account_peppol.WhatIsPeppol";
+
+    props = useProps(standardActionServiceProps);
 
     setup() {
         super.setup();

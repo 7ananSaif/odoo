@@ -24,15 +24,19 @@ class AccountMove(models.Model):
         """
         self.ensure_one()
         landed_costs_lines = self.line_ids.filtered(lambda line: line.is_landed_costs_line)
+        landed_cost_picking_ids = self.invoice_line_ids.purchase_order_id.picking_ids.filtered(
+            lambda picking: any(move.is_valued for move in picking.move_ids)
+        )
 
         sign = -1 if self.move_type in ['in_refund'] else 1
         landed_costs = self.env['stock.landed.cost'].with_company(self.company_id).create({
             'vendor_bill_id': self.id,
+            'picking_ids': landed_cost_picking_ids.ids,
             'cost_lines': [(0, 0, {
                 'product_id': l.product_id.id,
                 'name': l.product_id.name,
                 'account_id': l.product_id.product_tmpl_id.get_product_accounts()['expense'].id,
-                'price_unit': sign * l.company_currency_id.round(l.price_subtotal / l.currency_rate),
+                'price_unit': sign * l.currency_id._convert(l.price_subtotal, l.company_currency_id, l.company_id, self.invoice_date or fields.Date.context_today(l)),
                 'split_method': l.product_id.split_method_landed_cost or 'equal',
             }) for l in landed_costs_lines],
         })
@@ -49,12 +53,11 @@ class AccountMove(models.Model):
             default_vendor_bill_id=self.id
         )._get_records_action(name=self.env._("Landed Costs"), views=views)
 
-    def _update_order_line_info(self, product_id, quantity, **kwargs):
-        price_unit = super()._update_order_line_info(product_id, quantity, **kwargs)
-        move_line = self.line_ids.filtered(lambda line: line.product_id.id == product_id)
-        if move_line:
-            move_line.is_landed_costs_line = move_line.product_id.landed_cost_ok
-        return price_unit
+    def _catalog_prepare_new_line_vals(self, child_field, product, *args, **kwargs) -> dict:
+        return {
+            **super()._catalog_prepare_new_line_vals(child_field, product, *args, **kwargs),
+            'is_landed_costs_line': product.landed_cost_ok,
+        }
 
 
 class AccountMoveLine(models.Model):

@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-import base64
 import datetime
 
 from freezegun import freeze_time
@@ -18,19 +16,19 @@ class TestMailTemplateCommon(MailCommon, TestRecipients):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.test_record = cls.env['mail.test.lang'].with_context(cls._test_context).create({
+        cls.test_record = cls.env['mail.test.lang'].create({
             'email_from': 'ignasse@example.com',
             'name': 'Test',
         })
 
         cls._attachments = [{
             'name': 'first.txt',
-            'datas': base64.b64encode(b'My first attachment'),
+            'raw': b'My first attachment',
             'res_model': 'res.partner',
             'res_id': cls.user_admin.partner_id.id
         }, {
             'name': 'second.txt',
-            'datas': base64.b64encode(b'My second attachment'),
+            'raw': b'My second attachment',
             'res_model': 'res.partner',
             'res_id': cls.user_admin.partner_id.id
         }]
@@ -53,7 +51,7 @@ class TestMailTemplateCommon(MailCommon, TestRecipients):
 
         # activate translations
         cls._activate_multi_lang(
-            layout_arch_db='<body><t t-out="message.body"/> English Layout for <t t-esc="model_description"/></body>',
+            layout_arch_db='<body><t t-out="message.body"/> English Layout for <t t-out="model_description"/></body>',
             test_record=cls.test_record, test_template=cls.test_template
         )
 
@@ -148,6 +146,17 @@ class TestMailTemplate(TestMailTemplateCommon):
         mail_id = self.test_template.send_mail(self.test_record.id)
         mail = self.env['mail.mail'].sudo().browse(mail_id)
         body_result = '<p>EnglishBody for %s</p>' % self.test_record.name
+
+        self.assertEqual(mail.body_html, body_result)
+        self.assertEqual(mail.body, body_result)
+
+    @mute_logger('odoo.addons.mail.models.mail_mail')
+    def test_template_send_mail_body_empty_record(self):
+        """ Test that the body and body_html is set correctly in 'mail.mail'
+        when sending an email from mail.template """
+        mail_id = self.test_template.send_mail(False)
+        mail = self.env['mail.mail'].sudo().browse(mail_id)
+        body_result = '<p>EnglishBody for </p>'
 
         self.assertEqual(mail.body_html, body_result)
         self.assertEqual(mail.body, body_result)
@@ -274,7 +283,7 @@ class TestMailTemplateLanguages(TestMailTemplateCommon):
         """ Test 'send_email' on template on a given record, used notably as
         contextual action, with dynamic reports involved """
         self.env.invalidate_all()
-        # tm: 22, nightly: +1
+        # tm: 20, nightly: +1
         with self.with_user(self.user_employee.login), self.assertQueryCount(21):
             mail_id = self.test_template_wreports.with_env(self.env).send_mail(self.test_record.id)
             mail = self.env['mail.mail'].sudo().browse(mail_id)
@@ -291,7 +300,7 @@ class TestMailTemplateLanguages(TestMailTemplateCommon):
     def test_template_send_email_wreport_batch(self):
         """ Test 'send_email' on template in batch with dynamic reports """
         self.env.invalidate_all()
-        # tm: 233, nightly: +1
+        # tm: 231, nightly: +1
         with self.with_user(self.user_employee.login), self.assertQueryCount(232):
             template = self.test_template_wreports.with_env(self.env)
             mails_sudo = template.send_mail_batch(self.test_records_batch.ids)
@@ -334,7 +343,7 @@ class TestMailTemplateLanguages(TestMailTemplateCommon):
             (30, 4),  # 100 / 30 -> 4 iterations
         ]:
             with self.subTest(batch_size=batch_size):
-                self.env['ir.config_parameter'].sudo().set_param(
+                self.env['ir.config_parameter'].sudo().set_int(
                     "mail.batch_size", batch_size
                 )
                 with self.with_user(self.user_employee.login), \
@@ -413,3 +422,51 @@ class TestMailTemplateLanguages(TestMailTemplateCommon):
         self.assertEqual(mails_sudo[1].body_html,
                          f'<body><p>EnglishBody for {test_records[1].name}</p> English Layout for Lang Chatter Model</body>')
         self.assertEqual(mails_sudo[1].subject, f'EnglishSubject for {test_records[1].name}')
+
+
+class TestMailRenderLayoutTemplateLang(MailCommon):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.test_records = cls.env['mail.test.lang'].create([{
+            'email_from': f'ignasse{idx}@example.com',
+            'name': f'Test{idx}',
+            'lang': '{{ object.customer_id.lang or object.lang }}',
+        } for idx in range(2)])
+        cls.test_template = cls._create_template('mail.test.lang', {
+            'body_html': '<p>EnglishBody for <t t-out="object.name"/></p>',
+            'lang': '{{ object.customer_id.lang or object.lang }}',
+            'subject': 'EnglishSubject for {{ object.name }}',
+            'use_default_to': False,
+        })
+        cls.partner_es, cls.partner_en = cls.env['res.partner'].create([
+            {'email': 'roberto.carlos@test.example.com', 'lang': 'es_ES', 'name': 'Roberto Carlos'},
+            {'email': 'rob.charly@test.example.com', 'lang': 'en_US', 'name': 'Rob Charly'}])
+        cls._activate_multi_lang()
+        cls.test_context_subtitles = {
+            'email_notification_force_header': True,
+            'email_notification_subtitles': cls.subtitles,
+            'email_notification_subtitles_highlight_index': 1,
+        }
+
+    @mute_logger('odoo.addons.mail.models.mail_mail')
+    def test_template_translation_partner_lang_subtitles(self):
+        """Test that subtitles are rendered in the correct language using template.send_mail_batch."""
+        test_records = self.test_records.with_env(self.env)
+        test_template = self.test_template.with_env(self.env)
+        test_records[0].customer_id = self.partner_en
+        test_records[1].customer_id = self.partner_es
+
+        mail_ids = test_template.with_context(self.test_context_subtitles).send_mail_batch(
+            test_records.ids, email_layout_xmlid='mail.test_layout')
+        body_en = mail_ids[0].body_html
+        self.assertIn('<span>Subtitle test_model</span>', body_en, 'Subtitles translation failed')
+        self.assertIn('<b>Subtitle2 test_model2</b>', body_en, 'Subtitles translation failed')
+        self.assertNotIn('<span>Subtitular test_model</span>', body_en, 'Subtitles translation failed')
+        self.assertNotIn('<b>Subtitular2 test_model2</b>', body_en, 'Subtitles translation failed')
+        body_es = mail_ids[1].body_html
+        self.assertIn('<span>Subtitular test_model</span>', body_es, 'Subtitles translation failed')
+        self.assertIn('<b>Subtitular2 test_model2</b>', body_es, 'Subtitles translation failed')
+        self.assertNotIn('<span>Subtitle test_model</span>', body_es, 'Subtitles translation failed')
+        self.assertNotIn('<b>Subtitle2 test_model2</b>', body_es, 'Subtitles translation failed')

@@ -47,11 +47,8 @@
     </template>
 
     <template id="loyalty_card_history_template" name="My Loyalty History">
-        <t t-call="portal.portal_layout">
-            <t t-set="breadcrumbs_searchbar" t-value="True"/>
-            <t t-call="portal.portal_searchbar">
-                <t t-set="title">Loyalty Transaction</t>
-            </t>
+        <t t-call="portal.portal_layout" breadcrumbs_searchbar="True">
+            <t t-call="portal.portal_searchbar" breadcrumbs_searchbar="True" title.translate="Loyalty Transaction"/>
             <t t-if="not history_lines">
                 <p class="alert alert-warning">
                     There are currently no transaction lines for this card.
@@ -63,6 +60,7 @@
                         <th>Description</th>
                         <th>Order</th>
                         <th>Date</th>
+                        <th t-if="card.program_type == 'loyalty'">Expiration</th>
                         <th>Issued</th>
                         <th>Used</th>
                     </tr>
@@ -81,7 +79,10 @@
                             </t>
                         </td>
                         <td t-else=""/>
-                        <td><t t-out="line.create_date" t-options='{"widget": "datetime", "format": "short"}'/></td>
+                        <td><t t-out="line.points_changed_date" t-options='{"widget": "datetime", "format": "short"}'/></td>
+                        <td t-if="card.program_type == 'loyalty'">
+                            <t t-out="line.expiration_date" t-options='{"widget": "date"}'/>
+                        </td>
                         <td><span t-out="line.card_id._format_points(line.issued)"/></td>
                         <td><span t-out="line.card_id._format_points(line.used)"/></td>
                     </tr>
@@ -96,7 +97,7 @@
         inherit_id="portal.portal_breadcrumbs"
     >
         <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
-            <li class="breadcrumb-item" t-if="page_name == 'loyalty_history'">
+            <li class="breadcrumb-item active" t-if="page_name == 'loyalty_history'">
                 <span>History</span>
             </li>
         </xpath>

@@ -1,5 +1,5 @@
 from odoo.addons.project.tests.test_project_base import TestProjectCommon
-from odoo.tests import Form, users
+from odoo.tests import tagged, Form, users
 
 
 class TestTodoQuickCreate(TestProjectCommon):

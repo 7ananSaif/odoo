@@ -2,10 +2,10 @@
 
 {
     'name': "Peppol",
-    'summary': "This module is used to send/receive documents with PEPPOL",
+    'summary': "This module is used to send/receive documents with Peppol",
     'description': """
-- Register as a PEPPOL participant
-- Send and receive documents via PEPPOL network in Peppol BIS Billing 3.0 format
+- Register as a Peppol participant
+- Send and receive documents via Peppol network in Peppol BIS Billing 3.0 format
     """,
     'category': 'Accounting/Accounting',
     'version': '1.2',
@@ -28,15 +28,17 @@
     'data': [
         'data/cron.xml',
         'data/mail_templates_email_layouts.xml',
+        'data/peppol_clarification_data.xml',
         'data/res_partner_data.xml',
-        'security/ir.model.access.csv',
         'views/account_move_views.xml',
+        'views/account_peppol_response_views.xml',
         'views/account_portal_templates.xml',
         'views/peppol_authentication_views.xml',
         'views/res_partner_views.xml',
         'views/res_config_settings_views.xml',
         'wizard/peppol_registration_views.xml',
-        'wizard/peppol_config_wizard.xml',
+        'wizard/peppol_rejection_wizard_views.xml',
+        'security/ir.access.csv',
     ],
     'demo': [
         'demo/account_peppol_demo.xml',

@@ -4,22 +4,39 @@
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
 # "Kwanghee Park (kwpa)" <kwpa@odoo.com>, 2025, 2026.
-# Weblate <noreply-mt-weblate@weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~18.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-06-11 17:56+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Korean <https://translate.odoo.com/projects/odoo-19/auth_totp/"
-"ko/>\n"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-08-31 13:59+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Korean <https://translate.odoo.com/projects/odoo-s19-4/"
+"auth_totp/ko/>\n"
 "Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: auth_totp
+#: model:ir.module.module,description:base.module_auth_totp
+msgid ""
+"\n"
+"Two-Factor Authentication (TOTP)\n"
+"================================\n"
+"Allows users to configure two-factor authentication on their user account\n"
+"for extra security, using time-based one-time passwords (TOTP).\n"
+"\n"
+"Once enabled, the user will need to enter a 6-digit code as provided\n"
+"by their authenticator app before being granted access to the system.\n"
+"All popular authenticator apps are supported.\n"
+"\n"
+"Note: logically, two-factor prevents password-based RPC access for users\n"
+"where it is enabled. In order to be able to execute RPC scripts, the user\n"
+"can setup API keys to replace their main password.\n"
+msgstr ""
 
 #. module: auth_totp
 #. odoo-python
@@ -39,40 +56,32 @@ msgid "2-Factor authentication is now enabled."
 msgstr "이제 2단계 인증을 사용할 수 있습니다."
 
 #. module: auth_totp
+#: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_form
+msgid ""
+"<i class=\"oi text-danger\" data-icon=\"close\"/>\n"
+"                        <span class=\"fw-bold ms-1\">\n"
+"                            Disabled\n"
+"                        </span>"
+msgstr ""
+
+#. module: auth_totp
 #: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_field
 #: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_form
 msgid ""
-"<i class=\"fa fa-check text-success\"/>\n"
+"<i class=\"oi text-success\" data-icon=\"check\"/>\n"
 "                        <span class=\"fw-bold ms-1 me-2\">\n"
 "                            Enabled\n"
 "                        </span>"
 msgstr ""
 
 #. module: auth_totp
-#: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_form
-msgid ""
-"<i class=\"fa fa-remove text-danger\"/>\n"
-"                        <span class=\"fw-bold ms-1\">\n"
-"                            Disabled\n"
-"                        </span>"
-msgstr ""
-"<i class=\"fa fa-remove text-danger\"/>\n"
-"                        <span class=\"fw-bold ms-1\">\n"
-"                            불가\n"
-"                        </span>"
-
-#. module: auth_totp
 #: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_field
 #: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_form
-#, fuzzy
 msgid ""
 "<span class=\"text-muted\">\n"
 "                            Recommended for extra security.\n"
 "                        </span>"
 msgstr ""
-"<span class=\"text-muted\">\n"
-"                            보안 강화를 위한 권장 사항입니다.\n"
-"                       </span>"
 
 #. module: auth_totp
 #: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_wizard
@@ -80,14 +89,15 @@ msgid "Add this key in your Authenticator app"
 msgstr ""
 
 #. module: auth_totp
-#: model_terms:ir.ui.view,arch_db:auth_totp.auth_totp_form
-msgid "Authentication Code"
-msgstr "인증 코드"
-
-#. module: auth_totp
 #: model:ir.model,name:auth_totp.model_auth_totp_device
 msgid "Authentication Device"
 msgstr "인증 장치"
+
+#. module: auth_totp
+#. odoo-javascript
+#: code:addons/auth_totp/static/src/services/check_identity/check_identity.xml:0
+msgid "Authentication code"
+msgstr ""
 
 #. module: auth_totp
 #: model_terms:ir.ui.view,arch_db:auth_totp.auth_totp_form
@@ -98,6 +108,13 @@ msgstr "취소"
 #: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_wizard
 msgid "Cannot scan it?"
 msgstr "스캔할 수 없습니까?"
+
+#. module: auth_totp
+#: model_terms:ir.ui.view,arch_db:auth_totp.auth_totp_form
+msgid ""
+"Check your Authenticator app for your code.\n"
+"                        <br/>"
+msgstr ""
 
 #. module: auth_totp
 #: model:ir.model.fields.selection,name:auth_totp.selection__auth_totp_rate_limit_log__limit_type__code_check
@@ -138,14 +155,10 @@ msgid "Disable two-factor authentication"
 msgstr "2단계 인증 비활성화"
 
 #. module: auth_totp
-#: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_wizard
-msgid "Discard"
-msgstr "작성 취소"
-
-#. module: auth_totp
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_device__display_name
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_rate_limit_log__display_name
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_wizard__display_name
+#: model:ir.model.fields,field_description:auth_totp.field_ir_http__display_name
 #: model:ir.model.fields,field_description:auth_totp.field_res_users__display_name
 msgid "Display Name"
 msgstr "표시명"
@@ -167,14 +180,30 @@ msgid "Enable Two-Factor Authentication"
 msgstr "2단계 인증 활성화"
 
 #. module: auth_totp
+#: model_terms:ir.ui.view,arch_db:auth_totp.auth_totp_form
+msgid "Enter code"
+msgstr ""
+
+#. module: auth_totp
+#: model_terms:ir.ui.view,arch_db:auth_totp.auth_totp_form
+msgid "Enter verification code"
+msgstr ""
+
+#. module: auth_totp
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_device__expiration_date
 msgid "Expiration Date"
 msgstr "만료일"
 
 #. module: auth_totp
+#: model:ir.model,name:auth_totp.model_ir_http
+msgid "HTTP Routing"
+msgstr ""
+
+#. module: auth_totp
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_device__id
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_rate_limit_log__id
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_wizard__id
+#: model:ir.model.fields,field_description:auth_totp.field_ir_http__id
 #: model:ir.model.fields,field_description:auth_totp.field_res_users__id
 msgid "ID"
 msgstr "ID"
@@ -203,11 +232,6 @@ msgid "Last Updated on"
 msgstr "최근 갱신 일자"
 
 #. module: auth_totp
-#: model_terms:ir.ui.view,arch_db:auth_totp.auth_totp_form
-msgid "Learn More"
-msgstr "추가 정보"
-
-#. module: auth_totp
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_rate_limit_log__limit_type
 msgid "Limit Type"
 msgstr "제한 유형"
@@ -216,6 +240,14 @@ msgstr "제한 유형"
 #: model_terms:ir.ui.view,arch_db:auth_totp.auth_totp_form
 msgid "Log in"
 msgstr "로그인"
+
+#. module: auth_totp
+#. odoo-javascript
+#: code:addons/auth_totp/static/src/services/check_identity/check_identity.xml:0
+msgid ""
+"Open your two-factor authenticator (TOTP) app or browser extension to view "
+"your authentication code."
+msgstr ""
 
 #. module: auth_totp
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_wizard__qrcode
@@ -254,16 +286,6 @@ msgid "The verification code should only contain numbers"
 msgstr "인증 코드는 숫자만 포함될 수 있습니다"
 
 #. module: auth_totp
-#: model_terms:ir.ui.view,arch_db:auth_totp.auth_totp_form
-msgid ""
-"To login, enter below the six-digit authentication code provided by your "
-"Authenticator app.\n"
-"                        <br/>"
-msgstr ""
-"로그인하려면 인증앱에서 전송한 6자리 인증 코드를 아래에 입력하십시오..\n"
-"                        <br/>"
-
-#. module: auth_totp
 #: model:ir.model.fields,field_description:auth_totp.field_res_users__totp_last_counter
 msgid "Totp Last Counter"
 msgstr "Totp 최종 카운터"
@@ -279,13 +301,17 @@ msgid "Trusted Devices"
 msgstr "신뢰할 수 있는 디바이스"
 
 #. module: auth_totp
+#: model:ir.module.module,shortdesc:base.module_auth_totp
+msgid "Two-Factor Authentication (TOTP)"
+msgstr ""
+
+#. module: auth_totp
 #. odoo-python
 #: code:addons/auth_totp/models/res_users.py:0
 msgid "Two-Factor Authentication Activation"
 msgstr "2단계 인증 활성화"
 
 #. module: auth_totp
-#: model_terms:ir.ui.view,arch_db:auth_totp.auth_totp_form
 #: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_field
 #: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_form
 msgid "Two-factor Authentication"
@@ -330,6 +356,12 @@ msgid "Url"
 msgstr "Url"
 
 #. module: auth_totp
+#. odoo-javascript
+#: code:addons/auth_totp/static/src/services/check_identity/check_identity.xml:0
+msgid "Use your authenticator app"
+msgstr ""
+
+#. module: auth_totp
 #: model:ir.model,name:auth_totp.model_res_users
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_device__user_id
 #: model:ir.model.fields,field_description:auth_totp.field_auth_totp_rate_limit_log__user_id
@@ -361,9 +393,21 @@ msgid "Verification failed, please use the latest 6-digit code"
 msgstr "인증에 실패했습니다. 가장 최근에 수신한 6자리 코드를 사용하세요."
 
 #. module: auth_totp
+#. odoo-javascript
+#: code:addons/auth_totp/static/src/services/check_identity/check_identity.xml:0
+msgid "Verify"
+msgstr "확인"
+
+#. module: auth_totp
 #: model_terms:ir.ui.view,arch_db:auth_totp.view_totp_wizard
 msgid "Write the code given by your app"
 msgstr ""
+
+#. module: auth_totp
+#. odoo-javascript
+#: code:addons/auth_totp/static/src/services/check_identity/check_identity.xml:0
+msgid "XXXXXX"
+msgstr "XXXXXX"
 
 #. module: auth_totp
 #. odoo-python
@@ -383,109 +427,19 @@ msgid ""
 msgstr ""
 "계정 인증용 코드 요청이 최대 요청 수를 초과했습니다. 나중에 다시 시도하세요."
 
-#. module: auth_totp
-#: model_terms:ir.ui.view,arch_db:auth_totp.auth_totp_form
-msgid "e.g. 123456"
-msgstr "예: 123456"
+#~ msgid "Authentication Code"
+#~ msgstr "인증 코드"
+
+#~ msgid "Learn More"
+#~ msgstr "추가 정보"
 
 #~ msgid ""
-#~ "<span class=\"d-md-none d-block\">Or install an authenticator app</span>\n"
-#~ "                                        <span class=\"d-none d-md-"
-#~ "block\">Install an authenticator app on your mobile device</span>"
+#~ "To login, enter below the six-digit authentication code provided by your "
+#~ "Authenticator app.\n"
+#~ "                        <br/>"
 #~ msgstr ""
-#~ "<span class=\"d-md-none d-block\">또는 인증 앱을 설치하십시오</span>\n"
-#~ "                                        <span class=\"d-none d-md-block\">"
-#~ "모바일 장치에 인증 앱을 설치하십시오</span>"
+#~ "로그인하려면 인증앱에서 전송한 6자리 인증 코드를 아래에 입력하십시오..\n"
+#~ "                        <br/>"
 
-#~ msgid ""
-#~ "<span class=\"d-none d-md-block\">When requested to do so, scan the "
-#~ "barcode below</span>\n"
-#~ "                                    <span class=\"d-block d-md-"
-#~ "none\">When requested to do so, copy the key below</span>"
-#~ msgstr ""
-#~ "<span class=\"d-none d-md-block\">요청 시 아래의 바코드 스캔</span>\n"
-#~ "                                    <span class=\"d-block d-md-none\">요"
-#~ "청 시 아래의 키 복사</span>"
-
-#~ msgid ""
-#~ "<span class=\"text-muted\">Popular ones include Authy, Google "
-#~ "Authenticator or the Microsoft Authenticator.</span>"
-#~ msgstr ""
-#~ "<span class=\"text-muted\">가장 많이 사용되는 방법으로는 Authy, Google 인"
-#~ "증 또는 Microsoft 인증이 있습니다.</span>"
-
-#~ msgid ""
-#~ "<span invisible=\"not totp_enabled\" class=\"text-muted\">This account is "
-#~ "protected!</span>"
-#~ msgstr ""
-#~ "<span invisible=\"not totp_enabled\" class=\"text-muted\">이 계정은 보호되"
-#~ "고 있습니다.</span>"
-
-#~ msgid ""
-#~ "<span invisible=\"not totp_enabled\" class=\"text-muted\">Your account is "
-#~ "protected!</span>"
-#~ msgstr ""
-#~ "<span invisible=\"not totp_enabled\" class=\"text-muted\">귀하의 계정은 보"
-#~ "호되고 있습니다.</span>"
-
-#~ msgid "Added On"
-#~ msgstr "추가되었습니다"
-
-#~ msgid ""
-#~ "Are you sure? The user may be asked to enter two-factor codes again on "
-#~ "those devices"
-#~ msgstr ""
-#~ "다시 확인하세요. 사용자에게 해당 장치에서 2단계 코드를 다시 입력하라는 메"
-#~ "시지가 전송될 수 있습니다."
-
-#~ msgid ""
-#~ "Are you sure? You may be asked to enter two-factor codes again on those "
-#~ "devices"
-#~ msgstr ""
-#~ "다시 확인하세요. 해당 기기에서 2단계 코드를 다시 입력하라는 메시지가 표시"
-#~ "될 수 있습니다."
-
-#~ msgid "Authenticator App Setup"
-#~ msgstr "인증 앱 설정"
-
-#~ msgid "Click on this link to open your authenticator app"
-#~ msgstr "인증 앱을 열려면 이 링크를 클릭하세요"
-
-#~ msgid "Device"
-#~ msgstr "장치"
-
-#~ msgid "Disable 2FA"
-#~ msgstr "2단계 인증 비활성화"
-
-#~ msgid "Enter your six-digit code below"
-#~ msgstr "아래에 6자리 코드를 입력하세요"
-
-#~ msgid "Look for an \"Add an account\" button"
-#~ msgstr "\"계정 추가\" 버튼을 찾습니다"
-
-#~ msgid "On Apple Store"
-#~ msgstr "애플 앱스토어"
-
-#~ msgid "On Google Play"
-#~ msgstr "구글 플레이"
-
-#~ msgid "Revoke"
-#~ msgstr "폐지"
-
-#~ msgid "Revoke All"
-#~ msgstr "전부 취소"
-
-#~ msgid ""
-#~ "Two-factor Authentication (\"2FA\") is a system of double "
-#~ "authentication.\n"
-#~ "                        The first one is done with your password and the "
-#~ "second one with a code you get from a dedicated mobile app.\n"
-#~ "                        Popular ones include Authy, Google Authenticator "
-#~ "or the Microsoft Authenticator."
-#~ msgstr ""
-#~ "2단계 인증 (Two-factor Authentication, \"2FA\")이란 로그인 시 추가로 인증 "
-#~ "절차를 진행하는 이중 보안 서비스입니다.\n"
-#~ "                        아이디와 비밀번호로 로그인한 후, 사전에 등록했던 "
-#~ "모바일 앱을 통해 받은 코드를 입력하면 추가 인증이 이루어집니다.\n"
-#~ "                       가장 많이 사용되는 인증 방법으로는 Authy, Google 인"
-#~ "증 또는 Microsoft 인증이 있습니다."
+#~ msgid "e.g. 123456"
+#~ msgstr "예: 123456"

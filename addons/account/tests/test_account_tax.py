@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
+import re
 
 from odoo import Command
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
+from odoo.addons.mail.tests.common import MailCase
 from odoo.tests import tagged
 from odoo.exceptions import UserError, ValidationError
 
 
-@tagged('post_install', '-at_install')
-class TestAccountTax(AccountTestInvoicingCommon):
+@tagged('post_install', '-at_install', 'mail_track')
+class TestAccountTax(AccountTestInvoicingCommon, MailCase):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):
@@ -76,131 +80,285 @@ class TestAccountTax(AccountTestInvoicingCommon):
 
     def test_logging_of_tax_update_when_tax_is_used(self):
         """ Modifications of a used tax should be logged. """
-
+        self.env = self.env(context={**self.env.context, 'lang': 'en_US'})
         self.set_up_and_use_tax()
-
-        self.company_data['default_tax_sale'].write({
-            'name': self.company_data['default_tax_sale'].name + ' MODIFIED',
-            'amount': 21,
-            'amount_type': 'fixed',
-            'type_tax_use': 'purchase',
-            'price_include_override': 'tax_included',
-            'include_base_amount': True,
-            'is_base_affected': False,
-        })
         self.flush_tracking()
-        self.assertEqual(len(self.company_data['default_tax_sale'].message_ids), 1,
+
+        old_amount = self.company_data['default_tax_sale'].amount
+        old_name = self.company_data['default_tax_sale'].name
+
+        with self.mock_mail_gateway(), self.mock_mail_app():
+            self.company_data['default_tax_sale'].write({
+                'name': self.company_data['default_tax_sale'].name + ' MODIFIED',
+                'amount': 21,
+                'amount_type': 'fixed',
+                'type_tax_use': 'purchase',
+                'price_include_override': 'tax_included',
+                'include_base_amount': True,
+                'is_base_affected': False,
+            })
+            self.flush_tracking()
+        track_msg = self._new_msgs
+        self.assertEqual(len(track_msg), 1,
                          "Only 1 message should have been created when updating all the values.")
         # There are 7 tracked values in account.tax and we update each of them, each on should be included in the message
-        self.assertEqual(len(self.company_data['default_tax_sale'].message_ids.tracking_value_ids), 7,
-                         "The number of updated value should be 7.")
+        self.assertMessageFields(
+            track_msg, {
+                'tracking_values': [
+                    ('amount', 'float', old_amount, 21.0),
+                    ('amount_type', 'selection', 'Percentage', 'Fixed'),
+                    ('include_base_amount', 'boolean', False, True),
+                    ('is_base_affected', 'boolean', True, False),
+                    ('name', 'char', old_name, old_name + ' MODIFIED'),
+                    ('price_include_override', 'selection', '', 'Tax Included'),
+                    ('type_tax_use', 'selection', 'Sales', 'Purchases'),
+                ],
+            }
+        )
 
     def test_logging_of_repartition_lines_addition_when_tax_is_used(self):
         """ Adding repartition lines in a used tax should be logged. """
-
+        self.env = self.env(context={**self.env.context, 'lang': 'en_US'})
         self.set_up_and_use_tax()
-
-        self.company_data['default_tax_sale'].write({
-            'invoice_repartition_line_ids': [
-                Command.create({'repartition_type': 'tax', 'factor_percent': -100.0}),
-            ],
-            'refund_repartition_line_ids': [
-                Command.create({'repartition_type': 'tax', 'factor_percent': -100.0}),
-            ],
-        })
         self.flush_tracking()
 
-        previews = self.company_data['default_tax_sale'].message_ids.mapped('preview')
-        self.assertIn(
-            "New Invoice repartition line 4: -100.0 (Factor Percent) None (Account) None (Tax Grids) False (Use in tax closing)",
-            previews
-        )
-        self.assertIn(
-            "New Refund repartition line 4: -100.0 (Factor Percent) None (Account) None (Tax Grids) False (Use in tax closing)",
-            previews
-        )
+        with self.mock_mail_gateway(), self.mock_mail_app():
+            self.company_data['default_tax_sale'].write({
+                'invoice_repartition_line_ids': [
+                    Command.create({'repartition_type': 'tax', 'factor_percent': -100.0}),
+                ],
+                'refund_repartition_line_ids': [
+                    Command.create({'repartition_type': 'tax', 'factor_percent': -100.0}),
+                ],
+            })
+            self.flush_tracking()
+
+        # tracking done using _track_add
+        self.assertEqual(len(self._new_msgs), 2)
+        for msg, exp_values in zip(self._new_msgs.sorted(lambda m: m.body), [
+            {
+                'body_content': '<b>New Invoice</b> repartition line 4',
+                'tracking_values': [
+                    (False, 'char', False, 'None', {'field_info': {'name': 'Account', 'desc': 'Account', 'type': 'char'}}),
+                    (False, 'char', False, '-100.0', {'field_info': {'name': 'Factor Percent', 'desc': 'Factor Percent', 'type': 'char'}}),
+                    (False, 'char', False, 'None', {'field_info': {'name': 'Tax Grids', 'desc': 'Tax Grids', 'type': 'char'}}),
+                    (False, 'char', False, 'False', {'field_info': {'name': 'Use in tax closing', 'desc': 'Use in tax closing', 'type': 'char'}}),
+                ],
+            }, {
+                'body_content': '<b>New Refund</b> repartition line 4',
+                'tracking_values': [
+                    (False, 'char', False, 'None', {'field_info': {'name': 'Account', 'desc': 'Account', 'type': 'char'}}),
+                    (False, 'char', False, '-100.0', {'field_info': {'name': 'Factor Percent', 'desc': 'Factor Percent', 'type': 'char'}}),
+                    (False, 'char', False, 'None', {'field_info': {'name': 'Tax Grids', 'desc': 'Tax Grids', 'type': 'char'}}),
+                    (False, 'char', False, 'False', {'field_info': {'name': 'Use in tax closing', 'desc': 'Use in tax closing', 'type': 'char'}}),
+                ],
+            },
+        ], strict=True):
+            self.assertMessageFields(msg, {
+                'body_content': '',
+                'model': 'account.tax',
+                'res_id': self.company_data['default_tax_sale'].id,
+                'tracking_values': [],
+                **exp_values,
+            })
 
     def test_logging_of_repartition_lines_update_when_tax_is_used(self):
         """ Updating repartition lines in a used tax should be logged. """
-
+        self.env = self.env(context={**self.env.context, 'lang': 'en_US'})
         self.set_up_and_use_tax()
+        self.flush_tracking()
 
         last_invoice_rep_line = self.company_data['default_tax_sale'].invoice_repartition_line_ids\
             .filtered(lambda tax_rep: not tax_rep.factor_percent)
         last_refund_rep_line = self.company_data['default_tax_sale'].refund_repartition_line_ids\
             .filtered(lambda tax_rep: not tax_rep.factor_percent)
 
-        self.company_data['default_tax_sale'].write({
-            "invoice_repartition_line_ids": [
-                Command.update(last_invoice_rep_line.id, {
-                    'factor_percent': -100,
-                    'tag_ids': [Command.create({'name': 'TaxTag12345'})]
-                }),
-            ],
-            "refund_repartition_line_ids": [
-                Command.update(last_refund_rep_line.id, {
-                    'factor_percent': -100,
-                    'account_id': self.company_data['default_account_tax_purchase'].id,
-                }),
-            ],
-        })
-        self.flush_tracking()
+        with self.mock_mail_gateway(), self.mock_mail_app():
+            self.company_data['default_tax_sale'].write({
+                "invoice_repartition_line_ids": [
+                    Command.update(last_invoice_rep_line.id, {
+                        'factor_percent': -100,
+                        'tag_ids': [Command.create({'name': 'TaxTag12345', 'applicability': 'taxes'})]
+                    }),
+                ],
+                "refund_repartition_line_ids": [
+                    Command.update(last_refund_rep_line.id, {
+                        'factor_percent': -100,
+                        'account_id': self.company_data['default_account_tax_purchase'].id,
+                    }),
+                ],
+            })
+            self.flush_tracking()
 
-        previews = self.company_data['default_tax_sale'].message_ids.mapped('preview')
-        self.assertIn("Invoice repartition line 3: 0.0 -100.0 (Factor Percent) None ['TaxTag12345'] (Tax Grids)", previews)
-        self.assertIn("Refund repartition line 3: 0.0 -100.0 (Factor Percent) None 131000 Tax Paid (Account) False True (Use in tax closing)", previews)
+        # tracking done using _track_add
+        self.assertEqual(len(self._new_msgs), 2)
+        for msg, exp_values in zip(self._new_msgs.sorted(lambda m: m.body), [
+            {
+                'body_content': '<b>Invoice</b> repartition line 3',
+                'tracking_values': [
+                    (False, 'char', '0.0', '-100.0', {'field_info': {'name': 'Factor Percent', 'desc': 'Factor Percent', 'type': 'char'}}),
+                    (False, 'char', 'None', "['TaxTag12345']", {'field_info': {'name': 'Tax Grids', 'desc': 'Tax Grids', 'type': 'char'}}),
+                ],
+            }, {
+                'body_content': '<b>Refund</b> repartition line 3',
+                'tracking_values': [
+                    (False, 'char', 'None', '131000 Tax Paid', {'field_info': {'name': 'Account', 'desc': 'Account', 'type': 'char'}}),
+                    (False, 'char', '0.0', '-100.0', {'field_info': {'name': 'Factor Percent', 'desc': 'Factor Percent', 'type': 'char'}}),
+                    (False, 'char', 'False', 'True', {'field_info': {'name': 'Use in tax closing', 'desc': 'Use in tax closing', 'type': 'char'}}),
+                ],
+            },
+        ], strict=True):
+            self.assertMessageFields(msg, {
+                'body_content': '',
+                'model': 'account.tax',
+                'res_id': self.company_data['default_tax_sale'].id,
+                'tracking_values': [],
+                **exp_values,
+            })
 
     def test_logging_of_repartition_lines_reordering_when_tax_is_used(self):
         """ Reordering repartition lines in a used tax should be logged. """
-
+        self.env = self.env(context={**self.env.context, 'lang': 'en_US'})
         self.set_up_and_use_tax()
+        self.flush_tracking()
 
         last_invoice_rep_line = self.company_data['default_tax_sale'].invoice_repartition_line_ids\
             .filtered(lambda tax_rep: not tax_rep.factor_percent)
         last_refund_rep_line = self.company_data['default_tax_sale'].refund_repartition_line_ids\
             .filtered(lambda tax_rep: not tax_rep.factor_percent)
 
-        self.company_data['default_tax_sale'].write({
-            "invoice_repartition_line_ids": [
-                Command.update(last_invoice_rep_line.id, {'sequence': 0}),
-            ],
-            "refund_repartition_line_ids": [
-                Command.update(last_refund_rep_line.id, {'sequence': 0}),
-            ],
-        })
-        self.flush_tracking()
+        with self.mock_mail_gateway(), self.mock_mail_app():
+            self.company_data['default_tax_sale'].write({
+                "invoice_repartition_line_ids": [
+                    Command.update(last_invoice_rep_line.id, {'sequence': 0}),
+                ],
+                "refund_repartition_line_ids": [
+                    Command.update(last_refund_rep_line.id, {'sequence': 0}),
+                ],
+            })
+            self.flush_tracking()
 
-        previews = self.company_data['default_tax_sale'].message_ids.mapped('preview')
-        self.assertIn("Invoice repartition line 1: 100.0 0.0 (Factor Percent)", previews)
-        self.assertIn("Invoice repartition line 3: 0.0 100.0 (Factor Percent) None 251000 Tax Received (Account) False True (Use in tax closing)", previews)
+        # tracking done using _track_add
+        self.assertEqual(len(self._new_msgs), 6)
+        messages = self._new_msgs.sorted(
+            key=lambda m: (
+                '<b>Invoice</b>' not in (m.body or ''),
+                int(re.search(r'line (\d+)', m.body or '').group(1)) if re.search(r'line (\d+)', m.body or '') else 0
+            )
+        )
+
+        for msg, exp_values in zip(messages, [
+            {
+                'body_content': '<b>Invoice</b> repartition line 1',
+                'tracking_values': [
+                    (False, 'char', '100.0', '0.0', {'field_info': {'name': 'Factor Percent', 'desc': 'Factor Percent', 'type': 'char'}}),
+                ],
+            }, {
+                'body_content': '<b>Invoice</b> repartition line 2',
+                'tracking_values': [
+                    (False, 'char', '251000 Tax Received', 'None', {'field_info': {'name': 'Account', 'desc': 'Account', 'type': 'char'}}),
+                    (False, 'char', 'True', 'False', {'field_info': {'name': 'Use in tax closing', 'desc': 'Use in tax closing', 'type': 'char'}}),
+                ],
+            }, {
+                'body_content': '<b>Invoice</b> repartition line 3',
+                'tracking_values': [
+                    (False, 'char', 'None', '251000 Tax Received', {'field_info': {'name': 'Account', 'desc': 'Account', 'type': 'char'}}),
+                    (False, 'char', '0.0', '100.0', {'field_info': {'name': 'Factor Percent', 'desc': 'Factor Percent', 'type': 'char'}}),
+                    (False, 'char', 'False', 'True', {'field_info': {'name': 'Use in tax closing', 'desc': 'Use in tax closing', 'type': 'char'}}),
+                ],
+            }, {
+                'body_content': '<b>Refund</b> repartition line 1',
+                'tracking_values': [
+                    (False, 'char', '100.0', '0.0', {'field_info': {'name': 'Factor Percent', 'desc': 'Factor Percent', 'type': 'char'}}),
+                ],
+            }, {
+                'body_content': '<b>Refund</b> repartition line 2',
+                'tracking_values': [
+                    (False, 'char', '251000 Tax Received', 'None', {'field_info': {'name': 'Account', 'desc': 'Account', 'type': 'char'}}),
+                    (False, 'char', 'True', 'False', {'field_info': {'name': 'Use in tax closing', 'desc': 'Use in tax closing', 'type': 'char'}}),
+                ],
+            }, {
+                'body_content': '<b>Refund</b> repartition line 3',
+                'tracking_values': [
+                    (False, 'char', 'None', '251000 Tax Received', {'field_info': {'name': 'Account', 'desc': 'Account', 'type': 'char'}}),
+                    (False, 'char', '0.0', '100.0', {'field_info': {'name': 'Factor Percent', 'desc': 'Factor Percent', 'type': 'char'}}),
+                    (False, 'char', 'False', 'True', {'field_info': {'name': 'Use in tax closing', 'desc': 'Use in tax closing', 'type': 'char'}}),
+                ],
+            },
+        ], strict=True):
+            self.assertMessageFields(msg, {
+                'body_content': '',
+                'model': 'account.tax',
+                'res_id': self.company_data['default_tax_sale'].id,
+                'tracking_values': [],
+                **exp_values,
+            })
 
     def test_logging_of_repartition_lines_removal_when_tax_is_used(self):
         """ Deleting repartition lines in a used tax should be logged. """
-
+        self.env = self.env(context={**self.env.context, 'lang': 'en_US'})
         self.set_up_and_use_tax()
+        self.flush_tracking()
 
         last_invoice_rep_line = self.company_data['default_tax_sale'].invoice_repartition_line_ids.sorted(key=lambda r: r.sequence)[-1]
         last_refund_rep_line = self.company_data['default_tax_sale'].refund_repartition_line_ids.sorted(key=lambda r: r.sequence)[-1]
 
-        self.company_data['default_tax_sale'].write({
-            "invoice_repartition_line_ids": [
-                Command.delete(last_invoice_rep_line.id),
-            ],
-            "refund_repartition_line_ids": [
-                Command.delete(last_refund_rep_line.id),
-            ],
+        with self.mock_mail_gateway(), self.mock_mail_app():
+            self.company_data['default_tax_sale'].write({
+                "invoice_repartition_line_ids": [
+                    Command.delete(last_invoice_rep_line.id),
+                ],
+                "refund_repartition_line_ids": [
+                    Command.delete(last_refund_rep_line.id),
+                ],
+            })
+            self.flush_tracking()
+
+        # manual log, no tracking
+        self.assertEqual(len(self._new_msgs), 2)
+        for msg, exp_values in zip(self._new_msgs.sorted(lambda m: m.body), [
+            {
+                'body_content': '<b>Removed Invoice</b> repartition line 3',
+                'tracking_values': [
+                    (False, 'char', False, 'None', {'field_info': {'name': 'Account', 'desc': 'Account', 'type': 'char'}}),
+                    (False, 'char', False, 'None', {'field_info': {'name': 'Tax Grids', 'desc': 'Tax Grids', 'type': 'char'}}),
+                    (False, 'char', False, 'False', {'field_info': {'name': 'Use in tax closing', 'desc': 'Use in tax closing', 'type': 'char'}}),
+                ],
+            }, {
+                'body_content': '<b>Removed Refund</b> repartition line 3',
+                'tracking_values': [
+                    (False, 'char', False, 'None', {'field_info': {'name': 'Account', 'desc': 'Account', 'type': 'char'}}),
+                    (False, 'char', False, 'None', {'field_info': {'name': 'Tax Grids', 'desc': 'Tax Grids', 'type': 'char'}}),
+                    (False, 'char', False, 'False', {'field_info': {'name': 'Use in tax closing', 'desc': 'Use in tax closing', 'type': 'char'}}),
+                ],
+            },
+        ], strict=True):
+            self.assertMessageFields(msg, {
+                'body_content': '',
+                'model': 'account.tax',
+                'res_id': self.company_data['default_tax_sale'].id,
+                'tracking_values': [],
+                **exp_values,
+            })
+
+    def test_message_log(self):
+        """ Somehow assert people did not break primitives of mail.thread """
+        self.env = self.env(context={**self.env.context, 'lang': 'en_US'})
+        new_tax = self.env['account.tax'].create({
+            'name': 'default_tax',
+            'amount_type': 'fixed',
+            'amount': 10.0,
         })
         self.flush_tracking()
+        self.assertFalse(new_tax.is_used)
+        message = new_tax._message_log(body='A note for future usage')
+        self.assertMessageFields(message, {'body': '<p>A note for future usage</p>'})
 
-        previews = self.company_data['default_tax_sale'].message_ids.mapped('preview')
-        self.assertIn(
-            "Removed Invoice repartition line 3: 0.0 (Factor Percent) None (Account) None (Tax Grids) False (Use in tax closing)",
-            previews
-        )
-        self.assertIn(
-            "Removed Refund repartition line 3: 0.0 (Factor Percent) None (Account) None (Tax Grids) False (Use in tax closing)",
-            previews
-        )
+        with self.mock_mail_gateway(), self.mock_mail_app():
+            new_tax.write({'name': 'New name, do not track'})
+            self.flush_tracking()
+        self.assertEqual(len(self._new_msgs), 1)
+        self.assertMessageFields(self._new_msgs, {'body': '', 'tracking_values': [('name', 'char', 'default_tax', 'New name, do not track')]})
 
     def test_tax_is_used_when_in_transactions(self):
         ''' Ensures that a tax is set to used when it is part of some transactions '''
@@ -223,7 +381,6 @@ class TestAccountTax(AccountTestInvoicingCommon):
                 }),
             ],
         })
-        tax_invoice.invalidate_model(fnames=['is_used'])
         self.assertTrue(tax_invoice.is_used)
 
         # Account.reconcile is another of transaction
@@ -238,7 +395,6 @@ class TestAccountTax(AccountTestInvoicingCommon):
                 'tax_ids': [Command.set(tax_reconciliation.ids)],
             })],
         })
-        tax_reconciliation.invalidate_model(fnames=['is_used'])
         self.assertTrue(tax_reconciliation.is_used)
 
     def test_tax_no_duplicate_in_repartition_line(self):
@@ -392,3 +548,93 @@ class TestAccountTax(AccountTestInvoicingCommon):
             hide_original_tax_ids=True,
         ).name_search(name='Name search tax')
         self.assertEqual(result, [(tax_1.id, tax_1.display_name)])
+
+    def test_is_domestic_with_duplicate_tax(self):
+        """ Test that the is_domestic field is well computed when duplicating a tax """
+        tax = self.tax_sale_a
+        self.assertTrue(tax.company_id.domestic_fiscal_position_id in tax.fiscal_position_ids)
+        self.assertEqual(tax.is_domestic, True)
+        tax_copy = tax.copy({'name': 'new tax'})
+        self.assertEqual(tax_copy.is_domestic, True)
+
+    def test_import_retrieve_tax_from_fixed_allowance_charge(self):
+        """ Test fuzzy matching of fixed taxes like Recupel and Bebat """
+        company = self.company_data['company']
+
+        tax_recupel = self.env['account.tax'].create({
+            'name': 'REC 0.12',
+            'amount_type': 'fixed',
+            'amount': 0.12,
+            'type_tax_use': 'purchase',
+            'company_id': company.id,
+        })
+        tax_bebat = self.env['account.tax'].create({
+            'name': 'Bebat 0.13',
+            'amount_type': 'fixed',
+            'amount': 0.13,
+            'type_tax_use': 'purchase',
+            'company_id': company.id,
+        })
+        random = self.env['account.tax'].create({
+            'name': 'random 0.50',
+            'amount_type': 'fixed',
+            'amount': 0.50,
+            'type_tax_use': 'purchase',
+            'company_id': company.id,
+        })
+
+        dummy_invoice = self.env['account.move'].create({
+            'move_type': 'in_invoice',
+            'company_id': company.id,
+        })
+
+        def get_search_method(amount, name, amount_type='fixed'):
+            tax_values = {
+                'amount_type': amount_type,
+                'type_tax_use': 'purchase',
+                'amount': amount,
+                'name': name,
+                'invoice_predictive': {'invoice': dummy_invoice},
+            }
+            plan = self.env['account.tax']._import_retrieve_tax_from_fixed_allowance_charge(tax_values)
+            return plan['criteria'][0]['search_method'] if plan else None
+
+        # multiple candidate taxes matching
+        search_method_recupel = get_search_method(0.125, 'REC 0.12 (Kopie)')
+        search_method_bebat = get_search_method(0.125, 'BEBAT')
+
+        self.assertEqual(search_method_recupel({}), tax_recupel)
+        self.assertEqual(search_method_bebat({}), tax_bebat)
+
+        # single candidate tax match, even if the name doesnt match
+        search_method_fallback = get_search_method(0.505, 'Unknown Eco Tax')
+        self.assertEqual(search_method_fallback({}), random)
+
+        # multiple candidate taxes matching, but name doesnt match
+        search_method_not_found = get_search_method(0.125, 'Unknown Eco Tax')
+        self.assertFalse(search_method_not_found({}))
+
+        # percentage tax, early exit
+        search_method_ignored = get_search_method(0.125, 'REC 0.12 (Kopie)', amount_type='percent')
+        self.assertIsNone(search_method_ignored)
+
+    def test_distribute_delta_amount_smoothly_empty_target_factors(self):
+        """ Empty 'target_factors' must not crash, e.g. a reverse-charge tax
+        with no positive-factor repartition line. """
+        result = self.env['account.tax']._distribute_delta_amount_smoothly(
+            precision_digits=2,
+            delta_amount=0.03,
+            target_factors=[],
+        )
+        self.assertEqual(result, [])
+
+    def test_quick_create_purchase_tax(self):
+        """ Test that quick-creating a tax preserves the default purchase type. """
+        tax_id, _ = self.env['account.tax'].with_context(
+            default_type_tax_use='purchase',
+        ).name_create('New Purchase Tax')
+        tax = self.env['account.tax'].browse(tax_id)
+
+        self.assertEqual(tax.type_tax_use, 'purchase')
+        self.product.supplier_taxes_id = tax
+        self.assertEqual(self.product.supplier_taxes_id, tax)

@@ -2,6 +2,15 @@
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
+from odoo.tools.translate import LazyTranslate
+
+from odoo.addons.payment import utils as payment_utils
+
+_lt = LazyTranslate(__name__, default_lang='en_US')
+
+REPORT_REASONS_MAPPING = {
+    'pricelist_not_allowed': _lt("pricelist not allowed"),
+}
 
 
 class PaymentProvider(models.Model):
@@ -16,6 +25,11 @@ class PaymentProvider(models.Model):
         check_company=True,
         domain='[("type", "=", "bank")]',
         copy=False,
+    )
+    available_pricelist_ids = fields.Many2many(
+        string="Pricelists",
+        help="Only allow this payment provider when the partner's pricelist matches one of these.",
+        comodel_name='product.pricelist',
     )
 
     #=== COMPUTE METHODS ===#
@@ -85,7 +99,7 @@ class PaymentProvider(models.Model):
         ).id
         return outstanding_account_id
 
-    @api.depends('code', 'state', 'company_id')
+    @api.depends('code', 'is_live', 'company_id')
     def _compute_journal_id(self):
         for provider in self:
             pay_method_line = self.env['account.payment.method.line'].search([
@@ -95,16 +109,14 @@ class PaymentProvider(models.Model):
 
             if pay_method_line:
                 provider.journal_id = pay_method_line.journal_id
-            elif provider.state in ('enabled', 'test'):
-                provider.journal_id = self.env['account.journal'].search(
-                    [
-                        ('company_id', '=', provider.company_id.id),
-                        ('type', '=', 'bank'),
-                    ],
-                    limit=1,
-                )
+            else:
+                domain = provider._get_journal_domain()
+                provider.journal_id = self.env["account.journal"].search(domain, limit=1)
                 if provider.id:
                     provider._ensure_payment_method_line()
+
+    def _get_journal_domain(self):
+        return [("company_id", "=", self.company_id.id), ("type", "=", "bank")]
 
     def _inverse_journal_id(self):
         for provider in self:
@@ -113,6 +125,34 @@ class PaymentProvider(models.Model):
     @api.model
     def _get_provider_payment_method(self, code):
         return self.env['account.payment.method'].search([('code', '=', code)], limit=1)
+
+    # === BUSINESS METHODS === #
+
+    @api.model
+    def _find_available_providers(self, company_id, partner_id, *args, report=None, **kwargs):
+        """Override of `payment` to exclude providers with unavailable pricelists.
+
+        :param int company_id: The company to which providers must belong, as a `res.company` id.
+        :param int partner_id: The partner making the payment, as a `res.partner` id.
+        :param dict report: The availability report.
+        :return: The available providers
+        :rtype: payment.provider
+        """
+        available_providers = super()._find_available_providers(
+            company_id, partner_id, *args, report=report, **kwargs
+        )
+        if pricelist := self.env['res.partner'].browse(partner_id).property_product_pricelist:
+            unfiltered_providers = available_providers
+            available_providers = available_providers.filtered(
+                lambda p: not p.available_pricelist_ids or pricelist in p.available_pricelist_ids
+            )
+            payment_utils.add_to_report(
+                report,
+                unfiltered_providers - available_providers,
+                available=False,
+                reason=REPORT_REASONS_MAPPING['pricelist_not_allowed'],
+            )
+        return available_providers
 
     #=== BUSINESS METHODS ===#
 

@@ -10,10 +10,6 @@ class AccountChartTemplate(models.AbstractModel):
     def _get_au_template_data(self):
         return {
             'code_digits': '5',
-            'property_account_receivable_id': 'au_11200',
-            'property_stock_account_production_cost_id': 'au_11350',
-            'property_account_payable_id': 'au_21200',
-            'property_stock_valuation_account_id': 'au_11330',
         }
 
     @template('au', 'res.company')
@@ -36,8 +32,10 @@ class AccountChartTemplate(models.AbstractModel):
                 'account_purchase_tax_id': 'au_tax_purchase_10_service',
                 'income_account_id': 'au_41110',
                 'expense_account_id': 'au_51110',
-                'account_stock_journal_id': 'inventory_valuation',
+                'receivable_account_id': 'au_11200',
+                'payable_account_id': 'au_21200',
                 'account_stock_valuation_id': 'au_11310',
+                'stock_account_production_cost_id': 'au_11350',
             },
         }
 
@@ -47,4 +45,13 @@ class AccountChartTemplate(models.AbstractModel):
             'au_11310': {
                 'account_stock_variation_id': 'au_51110',
             },
+            'au_13120': {'asset_depreciation_account_id': 'au_13130', 'asset_expense_account_id': 'au_61500'},
+            'au_13140': {'asset_depreciation_account_id': 'au_13150', 'asset_expense_account_id': 'au_61500'},
+            'au_13160': {'asset_depreciation_account_id': 'au_13170', 'asset_expense_account_id': 'au_61500'},
+            'au_13210': {'asset_depreciation_account_id': 'au_13220', 'asset_expense_account_id': 'au_61500'},
+            'au_13310': {'asset_depreciation_account_id': 'au_13320', 'asset_expense_account_id': 'au_61500'},
+            'au_13410': {'asset_depreciation_account_id': 'au_13420', 'asset_expense_account_id': 'au_61500'},
+            'au_13430': {'asset_depreciation_account_id': 'au_13440', 'asset_expense_account_id': 'au_61500'},
+            'au_13450': {'asset_depreciation_account_id': 'au_13460', 'asset_expense_account_id': 'au_61500'},
+            'au_13470': {'asset_depreciation_account_id': 'au_13480', 'asset_expense_account_id': 'au_61500'},
         }

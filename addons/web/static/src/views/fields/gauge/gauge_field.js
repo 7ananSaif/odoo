@@ -1,38 +1,22 @@
 import { _t } from "@web/core/l10n/translation";
-import { loadBundle } from "@web/core/assets";
 import { registry } from "@web/core/registry";
+import { useChart } from "@web/core/utils/chart_hook";
 import { formatFloat } from "@web/views/fields/formatters";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
 
-import { Component, onWillStart, useEffect, useRef } from "@odoo/owl";
+import { Component, t, useProps } from "@odoo/owl";
 
 export class GaugeField extends Component {
     static template = "web.GaugeField";
-    static props = {
+    props = useProps({
         ...standardFieldProps,
-        maxValueField: { type: String, optional: true },
-        maxValue: { type: Number, optional: true },
-        title: { type: String, optional: true },
-    };
-    static defaultProps = {
-        maxValue: 100,
-    };
+        maxValueField: t.string().optional(),
+        maxValue: t.number().optional(100),
+        maxTooltip: t.string().optional(),
+        title: t.string().optional(),
+    });
 
-    setup() {
-        this.chart = null;
-        this.canvasRef = useRef("canvas");
-
-        onWillStart(async () => await loadBundle("web.chartjs_lib"));
-
-        useEffect(() => {
-            this.renderChart();
-            return () => {
-                if (this.chart) {
-                    this.chart.destroy();
-                }
-            };
-        });
-    }
+    chart = useChart(() => this.getChartConfig());
 
     get title() {
         return this.props.title || this.props.record.fields[this.props.name].string || "";
@@ -45,16 +29,18 @@ export class GaugeField extends Component {
         });
     }
 
-    renderChart() {
+    getChartConfig() {
         const gaugeValue = this.props.record.data[this.props.name];
-        let maxValue = this.props.maxValueField ? this.props.record.data[this.props.maxValueField] : this.props.maxValue;
+        let maxValue = this.props.maxValueField
+            ? this.props.record.data[this.props.maxValueField]
+            : this.props.maxValue;
         maxValue = Math.max(gaugeValue, maxValue);
-        let maxLabel = maxValue;
+        let maxLabel = this.props.maxTooltip ?? maxValue;
         if (gaugeValue === 0 && maxValue === 0) {
             maxValue = 1;
             maxLabel = 0;
         }
-        const config = {
+        return {
             type: "doughnut",
             data: {
                 datasets: [
@@ -95,7 +81,6 @@ export class GaugeField extends Component {
                 aspectRatio: 2,
             },
         };
-        this.chart = new Chart(this.canvasRef.el, config);
     }
 }
 
@@ -118,8 +103,14 @@ export const gaugeField = {
             name: "max_value",
             type: "string",
         },
+        {
+            label: _t("Max tooltip"),
+            name: "max_tooltip",
+            type: "string",
+        },
     ],
     extractProps: ({ options }) => ({
+        maxTooltip: options.max_tooltip,
         maxValueField: options.max_field,
         maxValue: options.max_value,
         title: options.title,

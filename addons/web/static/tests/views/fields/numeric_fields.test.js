@@ -10,7 +10,7 @@ import {
     mountWithCleanup,
 } from "@web/../tests/web_test_helpers";
 
-import { Component, useState, xml } from "@odoo/owl";
+import { Component, proxy, signal, xml } from "@odoo/owl";
 import { useNumpadDecimal } from "@web/views/fields/numpad_decimal_hook";
 
 class Partner extends models.Model {
@@ -63,7 +63,7 @@ test("Numeric fields: fields with keydown on numpad decimal key", async () => {
                 <field name="monetary"/>
                 <field name="currency_id" invisible="1"/>
                 <field name="percentage" widget="percentage"/>
-                <field name="progressbar" widget="progressbar" options="{'editable': true, 'max_value': 'qux', 'edit_max_value': true}"/>
+                <field name="progressbar" widget="progressbar"/>
             </form>
         `,
         resId: 1,
@@ -113,7 +113,7 @@ test("Numeric fields: fields with keydown on numpad decimal key", async () => {
     await keyDown(".", { code: "NumpadDecimal" });
     await keyDown(",", { code: "NumpadDecimal" });
     await animationFrame();
-    expect(".o_field_progressbar input").toHaveValue("0🇧🇪44🇧🇪🇧🇪");
+    expect(".o_field_progressbar input").toHaveValue("69🇧🇪🇧🇪");
 });
 
 test("Numeric fields: NumpadDecimal key is different from the decimalPoint", async () => {
@@ -128,7 +128,7 @@ test("Numeric fields: NumpadDecimal key is different from the decimalPoint", asy
                 <field name="monetary"/>
                 <field name="currency_id" invisible="1"/>
                 <field name="percentage" widget="percentage"/>
-                <field name="progressbar" widget="progressbar" options="{'editable': true, 'max_value': 'qux', 'edit_max_value': true}"/>
+                <field name="progressbar" widget="progressbar"/>
             </form>
         `,
         resId: 1,
@@ -216,9 +216,9 @@ test("Numeric fields: NumpadDecimal key is different from the decimalPoint", asy
 
     await testInputElementOnNumpadDecimal({
         el: progressbarInput,
-        selectionRange: [1, 3],
-        expectedValue: "0,14",
-        msg: "Progressbar field 2 from 0,44 to 0,14",
+        selectionRange: [1, 2],
+        expectedValue: "6,1",
+        msg: "Progressbar field from 69 to 6,1",
     });
 });
 
@@ -250,15 +250,15 @@ test("useNumpadDecimal should synchronize handlers on input elements", async () 
 
     class MyComponent extends Component {
         static template = xml`
-            <main t-ref="numpadDecimal">
+            <main t-ref="this.numpadDecimalRef">
                 <input type="text" placeholder="input 1" />
-                <input t-if="state.showOtherInput" type="text" placeholder="input 2" />
+                <input t-if="this.state.showOtherInput" type="text" placeholder="input 2" />
             </main>
         `;
-        static props = ["*"];
+        numpadDecimalRef = signal.ref();
         setup() {
-            useNumpadDecimal();
-            this.state = useState({ showOtherInput: false });
+            useNumpadDecimal(this.numpadDecimalRef);
+            this.state = proxy({ showOtherInput: false });
         }
     }
 

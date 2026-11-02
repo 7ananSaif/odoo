@@ -21,7 +21,7 @@ export class ProductProduct extends Base {
     }
 
     getImageUrl() {
-        return `/web/image?model=product.product&field=image_128&id=${this.id}&unique=${this.write_date}`;
+        return `/web/image?model=product.product&field=image_256&id=${this.id}&unique=${this.write_date}`;
     }
 
     get searchString() {
@@ -29,8 +29,12 @@ export class ProductProduct extends Base {
             return this._searchString;
         }
         const fields = ["display_name", "barcode", "default_code"];
+        const attributeValues = (this.product_template_attribute_value_ids || []).map(
+            (v) => v.name
+        );
         const raw = fields
             .map((field) => this[field] || "")
+            .concat(attributeValues)
             .filter(Boolean)
             .join(" ");
         this._searchString = normalize(raw);

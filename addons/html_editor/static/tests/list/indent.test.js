@@ -279,7 +279,7 @@ describe("Regular list", () => {
             contentBefore: unformat(`
                     <ul>
                         <li>abc</li>
-                        <li>[]</li>
+                        <li>[]<br></li>
                     </ul>
                     <p>def</p>`),
             stepFunction: keydownTab,
@@ -287,7 +287,7 @@ describe("Regular list", () => {
                     <ul>
                         <li><p>abc</p>
                             <ul>
-                                <li>[]</li>
+                                <li>[]<br></li>
                             </ul>
                         </li>
                     </ul>
@@ -1378,7 +1378,7 @@ describe("Mixed: list + paragraph", () => {
         /* eslint-enable */
         expect(getContent(el)).toBe(expectedContent);
 
-        // Check that it was done as single history step.
+        // Check that it was done as single history commit.
         undo(editor);
         expect(getContent(el)).toBe(contentBefore);
     });

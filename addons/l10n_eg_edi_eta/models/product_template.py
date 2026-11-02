@@ -1,14 +1,11 @@
-# -*- coding: utf-8 -*-
-# Part of Odoo. See LICENSE file for full copyright and licensing details.
-
-
 from odoo import api, fields, models
+from odoo.addons.l10n_eg_edi_eta.lib.eta_client import ETAClient
 
 
 class ProductTemplate(models.Model):
     _inherit = "product.template"
 
-    l10n_eg_eta_code = fields.Char('ETA Item code', compute='_compute_l10n_eg_eta_code',
+    l10n_eg_eta_code = fields.Char('Item code', compute='_compute_l10n_eg_eta_code',
                                    inverse='_set_l10n_eg_eta_code',
                                    help="This can be an EGS or GS1 product code, which is needed for the e-invoice.  "
                                         "The best practice however is to use that code also as barcode and in that case, "
@@ -24,6 +21,16 @@ class ProductTemplate(models.Model):
     def _set_l10n_eg_eta_code(self):
         if len(self.product_variant_ids) == 1:
             self.product_variant_ids.l10n_eg_eta_code = self.l10n_eg_eta_code
+
+    def action_open_eta_codes_portal(self):
+        self.ensure_one()
+        is_production = self.env.company.l10n_eg_edi_api_mode == 'production'
+        client = ETAClient(is_production=is_production)
+        return {
+            "type": "ir.actions.act_url",
+            "url": client.get_product_eta_codes_url(),
+            "target": "new",
+        }
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -42,7 +49,17 @@ class ProductTemplate(models.Model):
 class ProductProduct(models.Model):
     _inherit = "product.product"
 
-    l10n_eg_eta_code = fields.Char('ETA Code', copy=False,
+    l10n_eg_eta_code = fields.Char('ETA Code', company_dependent=True, copy=False,
                                    help="This can be an EGS or GS1 product code, which is needed for the e-invoice.  "
                                         "The best practice however is to use that code also as barcode and in that case, "
                                         "you should put it in the Barcode field instead and leave this field empty. ")
+
+    def action_open_eta_codes_portal(self):
+        self.ensure_one()
+        is_production = self.env.company.l10n_eg_edi_api_mode == 'production'
+        client = ETAClient(is_production=is_production)
+        return {
+            "type": "ir.actions.act_url",
+            "url": client.get_product_eta_codes_url(),
+            "target": "new",
+        }

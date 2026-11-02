@@ -9,6 +9,7 @@ from odoo.addons.pos_online_payment.controllers.payment_portal import PaymentPor
 
 
 class OnlinePaymentCommon(PaymentHttpCommon):
+    _test_user_groups = None
 
     def _fake_http_get_request(self, route):
         url = self._build_url(route)
@@ -52,6 +53,6 @@ class OnlinePaymentCommon(PaymentHttpCommon):
         with mute_logger('odoo.addons.payment.models.payment_transaction'):
             processing_values = self._fake_request_pos_order_pay_transaction_page(pos_order_id, route_values)
         tx_sudo = self._get_tx(processing_values['reference'])
-        tx_sudo._set_done()
+        tx_sudo.action_confirm()
         if confirmation_page:
             self._fake_open_pos_order_pay_confirmation_page(pos_order_id, access_token, tx_sudo.id, exit_route=exit_route)

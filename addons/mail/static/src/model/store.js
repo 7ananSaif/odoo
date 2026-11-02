@@ -1,31 +1,17 @@
+import { PgSnapshot } from "@mail/model/field_version";
 import { Record } from "./record";
-import { STORE_SYM, modelRegistry } from "./misc";
-import { reactive, toRaw } from "@odoo/owl";
+import { STORE_SYM, modelRegistry, untrackFunctions } from "./misc";
 
 /** @typedef {import("./record_list").RecordList} RecordList */
 
-export const storeInsertFns = {
-    makeContext(store) {},
-    getActualModelName(store, ctx, pyOrJsModelName) {
-        return pyOrJsModelName;
-    },
-    getExtraFieldsFromModel(store) {},
-};
-
 export class Store extends Record {
+    static singleton = true;
     /** @type {import("./store_internal").StoreInternal} */
     _;
-    [STORE_SYM] = true;
-    /** @type {Map<string, Record>} */
-    recordByLocalId;
-    storeReady = false;
-    /**
-     * @param {string} localId
-     * @returns {Record}
-     */
-    get(localId) {
-        return this.recordByLocalId.get(localId);
+    get [STORE_SYM]() {
+        return true;
     }
+    storeReady = false;
 
     handleError(err) {
         this._.ERRORS.push(err);
@@ -35,6 +21,7 @@ export class Store extends Record {
 
     /** @param {() => any} fn */
     MAKE_UPDATE(fn) {
+        this._.raiseUpdateDepth();
         this._.UPDATE++;
         let res;
         try {
@@ -43,50 +30,30 @@ export class Store extends Record {
             this.handleError(err);
         }
         this._.UPDATE--;
-        const deletingRecordsByLocalId = new Map();
+        this._.lowerUpdateDepth();
         if (this._.UPDATE === 0) {
             // pretend an increased update cycle so that nothing in queue creates many small update cycles
             this._.UPDATE++;
             while (
                 this._.FC_QUEUE.size > 0 ||
-                this._.FS_QUEUE.size > 0 ||
                 this._.FA_QUEUE.size > 0 ||
                 this._.FD_QUEUE.size > 0 ||
-                this._.FU_QUEUE.size > 0 ||
-                this._.RO_QUEUE.size > 0 ||
-                this._.RD_QUEUE.size > 0 ||
-                this._.RHD_QUEUE.size > 0
+                this._.RD_QUEUE.size > 0
             ) {
                 const FC_QUEUE = new Map(this._.FC_QUEUE);
-                const FS_QUEUE = new Map(this._.FS_QUEUE);
                 const FA_QUEUE = new Map(this._.FA_QUEUE);
                 const FD_QUEUE = new Map(this._.FD_QUEUE);
-                const FU_QUEUE = new Map(this._.FU_QUEUE);
-                const RO_QUEUE = new Map(this._.RO_QUEUE);
                 const RD_QUEUE = new Map(this._.RD_QUEUE);
-                const RHD_QUEUE = new Map(this._.RHD_QUEUE);
                 this._.FC_QUEUE.clear();
-                this._.FS_QUEUE.clear();
                 this._.FA_QUEUE.clear();
                 this._.FD_QUEUE.clear();
-                this._.FU_QUEUE.clear();
-                this._.RO_QUEUE.clear();
                 this._.RD_QUEUE.clear();
-                this._.RHD_QUEUE.clear();
                 while (FC_QUEUE.size > 0) {
                     /** @type {[Record, Map<string, true>]} */
                     const [record, recMap] = FC_QUEUE.entries().next().value;
                     FC_QUEUE.delete(record);
                     for (const fieldName of recMap.keys()) {
-                        record._.requestCompute(record, fieldName, { force: true });
-                    }
-                }
-                while (FS_QUEUE.size > 0) {
-                    /** @type {[Record, Map<string, true>]} */
-                    const [record, recMap] = FS_QUEUE.entries().next().value;
-                    FS_QUEUE.delete(record);
-                    for (const fieldName of recMap.keys()) {
-                        record._.requestSort(record, fieldName, { force: true });
+                        record._.requestCompute(fieldName, { force: true });
                     }
                 }
                 while (FA_QUEUE.size > 0) {
@@ -118,64 +85,41 @@ export class Store extends Record {
                         const onDelete = record.Model._.fieldsOnDelete.get(fieldName);
                         for (const removedRec of fieldMap.keys()) {
                             try {
-                                onDelete?.call(record._proxy, removedRec._proxy);
+                                onDelete?.call(
+                                    record._proxy,
+                                    removedRec.exists() ? removedRec._proxy : undefined
+                                );
                             } catch (err) {
                                 this.handleError(err);
                             }
                         }
                     }
                 }
-                while (FU_QUEUE.size > 0) {
-                    /** @type {[Record, Map<string, true>]} */
-                    const [record, map] = FU_QUEUE.entries().next().value;
-                    FU_QUEUE.delete(record);
-                    for (const fieldName of map.keys()) {
-                        record._.onUpdate(record, fieldName);
-                    }
-                }
-                while (RO_QUEUE.size > 0) {
-                    /** @type {Map<Function, true>} */
-                    const cb = RO_QUEUE.keys().next().value;
-                    RO_QUEUE.delete(cb);
-                    try {
-                        cb();
-                    } catch (err) {
-                        this.handleError(err);
-                    }
-                }
                 while (RD_QUEUE.size > 0) {
                     /** @type {Record} */
                     const record = RD_QUEUE.keys().next().value;
                     RD_QUEUE.delete(record);
-                    for (const [localId, names] of record._.uses.data.entries()) {
+                    record._.isDeleted.set(true);
+                    record._runDisposeFns();
+                    record.Model.records.delete(record.localId);
+                    for (const [usingRecord, names] of record._.uses.data.entries()) {
                         for (const [name2, count] of names.entries()) {
-                            const existingRecordProxyInternal = toRaw(this.recordByLocalId).get(
-                                localId
-                            );
-                            const usingRecord =
-                                (existingRecordProxyInternal &&
-                                    toRaw(existingRecordProxyInternal)?._raw) ||
-                                deletingRecordsByLocalId.get(localId);
-                            if (!usingRecord) {
-                                // record already deleted, clean inverses
-                                record._.uses.data.delete(localId);
-                                continue;
-                            }
                             for (let c = 0; c < count; c++) {
                                 usingRecord[name2].delete(record);
                             }
                         }
                     }
-                    deletingRecordsByLocalId.set(record.localId, record);
-                    this.recordByLocalId.delete(record.localId);
-                    this._.ADD_QUEUE("hard_delete", toRaw(record));
-                }
-                while (RHD_QUEUE.size > 0) {
-                    // effectively delete the record
-                    /** @type {Record} */
-                    const record = RHD_QUEUE.keys().next().value;
-                    RHD_QUEUE.delete(record);
-                    deletingRecordsByLocalId.delete(record.localId);
+                    for (const name of [
+                        ...record.Model._.fieldsOne.keys(),
+                        ...record.Model._.fieldsMany.keys(),
+                    ]) {
+                        const recordList = record[name];
+                        for (const usedRecord of recordList._.data()) {
+                            usedRecord._.uses.delete(recordList);
+                        }
+                        recordList._.data.set([]);
+                        recordList._.syncLength();
+                    }
                 }
             }
             this._.UPDATE--;
@@ -195,108 +139,59 @@ export class Store extends Record {
     }
     /**
      * @template T
-     * @param {T} [dataByModelName={}]
+     * @param {T & {__store_version__?: import("@mail/model/field_version").StoreVersion}} [dataByModelName={}]
      * @param {Object} [options={}]
      * @returns {{ [K in keyof T]: import("models").Models[K][] }}
      */
     insert(dataByModelName = {}, options = {}) {
         const store = this;
-        const ctx = storeInsertFns.makeContext(store);
-        Record.MAKE_UPDATE(function storeInsert() {
-            const recordsDataToDelete = [];
-            for (const [pyOrJsModelName, data] of Object.entries(dataByModelName)) {
-                const modelName = storeInsertFns.getActualModelName(store, ctx, pyOrJsModelName);
-                if (!store[modelName]) {
-                    console.warn(`store.insert() received data for unknown model “${modelName}”.`);
-                    continue;
-                }
-                const insertData = [];
-                for (const vals of Array.isArray(data) ? data : [data]) {
-                    const extraFields = storeInsertFns.getExtraFieldsFromModel(
-                        store,
-                        pyOrJsModelName
-                    );
-                    if (extraFields) {
-                        Object.assign(vals, extraFields);
+        // Only cleanup if we initiated the insert.
+        const shouldCleanup = !this._.currentInsertVersion;
+        if ("__store_version__" in dataByModelName) {
+            const versionMeta = dataByModelName.__store_version__;
+            delete dataByModelName.__store_version__;
+            // Only consider the new "xip_list" format. Older payloads are applied
+            // unversioned.
+            this._.currentInsertVersion = versionMeta.snapshot.xip_list
+                ? { ...versionMeta, snapshot: new PgSnapshot(versionMeta.snapshot) }
+                : null;
+        }
+        try {
+            Record.MAKE_UPDATE(function storeInsert() {
+                const recordsDataToDelete = [];
+                for (const [modelName, data] of Object.entries(dataByModelName)) {
+                    if (!store[modelName]) {
+                        console.warn(
+                            `store.insert() received data for unknown model “${modelName}”.`
+                        );
+                        continue;
                     }
-                    if (vals._DELETE) {
-                        delete vals._DELETE;
-                        recordsDataToDelete.push([modelName, vals]);
-                    } else {
-                        insertData.push(vals);
+                    const insertData = [];
+                    for (const vals of Array.isArray(data) ? data : [data]) {
+                        if (vals._DELETE) {
+                            delete vals._DELETE;
+                            recordsDataToDelete.push([modelName, vals]);
+                        } else {
+                            insertData.push(vals);
+                        }
                     }
+                    store[modelName].insert(insertData, options);
                 }
-                store[modelName].insert(insertData, options);
-            }
-            // Delete after all inserts to make sure a relation potentially registered before the
-            // delete doesn't re-add the deleted record by mistake.
-            for (const [modelName, vals] of recordsDataToDelete) {
-                store[modelName].get(vals)?.delete();
-            }
-        });
-    }
-    onChange(record, name, cb) {
-        return this._onChange(record, name, (observe) => {
-            const fn = () => {
-                observe();
-                try {
-                    cb();
-                } catch (err) {
-                    this.handleError(err);
+                // Delete after all inserts to make sure a relation potentially registered before the
+                // delete doesn't re-add the deleted record by mistake.
+                for (const [modelName, vals] of recordsDataToDelete) {
+                    store[modelName].get(vals)?.delete();
                 }
-            };
-            if (this._.UPDATE !== 0) {
-                if (!this._.RO_QUEUE.has(fn)) {
-                    this._.RO_QUEUE.set(fn, true);
-                }
-            } else {
-                fn();
-            }
-        });
-    }
-    /**
-     * Version of onChange where the callback receives observe function as param.
-     * This is useful when there's desire to postpone calling the callback function,
-     * in which the observe is also intended to have its invocation postponed.
-     *
-     * @param {Record} record
-     * @param {string|string[]} key
-     * @param {(observe: Function) => any} callback
-     * @returns {function} function to call to stop observing changes
-     */
-    _onChange(record, key, callback) {
-        let proxy;
-        function _observe() {
-            // access proxy[key] only once to avoid triggering reactive get() many times
-            const val = proxy[key];
-            if (typeof val === "object" && val !== null) {
-                void Object.keys(val);
-            }
-            if (Array.isArray(val)) {
-                void val.length;
-                void toRaw(val).forEach.call(val, (i) => i);
+            });
+        } finally {
+            if (shouldCleanup) {
+                this._.currentInsertVersion = null;
             }
         }
-        if (Array.isArray(key)) {
-            for (const k of key) {
-                this._onChange(record, k, callback);
-            }
-            return;
-        }
-        let ready = true;
-        proxy = reactive(record, () => {
-            if (ready) {
-                callback(_observe);
-            }
-        });
-        _observe();
-        return () => {
-            ready = false;
-        };
     }
     _cleanupData(data) {
         super._cleanupData(data);
-        if (this._getActualModelName() === "Store") {
+        if (this.Model.getName() === "Store") {
             delete data.Models;
             for (const [name] of modelRegistry.getEntries()) {
                 delete data[name];
@@ -304,3 +199,5 @@ export class Store extends Record {
         }
     }
 }
+
+untrackFunctions(Store.prototype, ["handleError", "insert"]);

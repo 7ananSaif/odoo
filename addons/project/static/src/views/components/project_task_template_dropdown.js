@@ -1,10 +1,12 @@
-import { Component, onWillStart, useState } from "@odoo/owl";
-import { useService } from "@web/core/utils/hooks";
+import { Component, onWillStart, proxy, t, usePlugin, useProps } from "@odoo/owl";
 import { Dropdown } from "@web/core/dropdown/dropdown";
 import { DropdownItem } from "@web/core/dropdown/dropdown_item";
-
-import { ProjectTemplateButtons } from "./project_template_buttons";
+import { _t } from "@web/core/l10n/translation";
+import { OfflinePlugin } from "@web/core/offline/offline_plugin";
 import { user } from "@web/core/user";
+import { useOwnedDialogs, useService } from "@web/core/utils/hooks";
+import { SelectCreateDialog } from "@web/views/view_dialogs/select_create_dialog";
+import { ProjectTemplateButtons } from "./project_template_buttons";
 
 export class ProjectTaskTemplateDropdown extends Component {
     static template = "project.TemplateDropdown";
@@ -14,35 +16,34 @@ export class ProjectTaskTemplateDropdown extends Component {
         ProjectTemplateButtons,
     };
 
-    static props = {
-        hotkey: {
-            type: String,
-            optional: true,
-        },
-        newButtonClasses: String,
-        onCreate: Function,
+    props = useProps({
+        archInfo: t.object().optional(),
+        hotkey: t.string().optional("c"),
+        newButtonClasses: t.string(),
+        onCreate: t.function(),
         // Can be a number, false (in to-do) or undefined
-        projectId: {
-            type: [Number, Boolean],
-            optional: true,
-        },
-        context: Object,
-        getAdditionalContext: {
-            type: Function,
-            optional: true,
-        },
-    };
-    static defaultProps = {
-        hotkey: "c",
-        projectId: null,
-    };
+        projectId: t.or([t.number(), t.boolean()]).optional(false),
+        context: t.object(),
+        getAdditionalContext: t.function().optional(),
+    });
 
     setup() {
         this.action = useService("action");
         this.orm = useService("orm");
-        this.state = useState({ taskTemplates: [] });
+        this.offlinePlugin = usePlugin(OfflinePlugin);
+        this.addDialog = useOwnedDialogs();
+        this.displayTasksLimit = 10;
+        this.state = proxy({ taskTemplates: [] });
         this.isProjectManager = false;
         onWillStart(this.onWillStart);
+    }
+
+    get displayViewMoreButton() {
+        return this.state.taskTemplates.length > this.displayTasksLimit;
+    }
+
+    get displayedtaskTemplates() {
+        return this.state.taskTemplates.slice(0, this.displayTasksLimit);
     }
 
     get taskTemplateButtonClasses() {
@@ -56,10 +57,32 @@ export class ProjectTaskTemplateDropdown extends Component {
     async onWillStart() {
         if (this.props.projectId) {
             await Promise.all([
-                user.hasGroup("project.group_project_manager").then((res) => (this.isProjectManager = res)),
-                this._fetchTasktemplates(),
-            ]);
+                    user.hasGroup("project.group_project_manager").then((res) => (this.isProjectManager = res)),
+                    this._fetchTasktemplates(),
+                ]);
         }
+    }
+
+    get isNewButtonAvailableOffline() {
+        const { actionId, viewType } = this.env.config;
+        if (viewType === "list") {
+            return (
+                !this.props.archInfo.editable &&
+                this.offlinePlugin.isAvailableOffline(actionId, "form", false)
+            );
+        } else if (viewType === "kanban") {
+            if (this.props.archInfo.activeActions.quickCreate) {
+                return this.offlinePlugin.isAvailableOffline(
+                    actionId,
+                    "kanban_quick_create",
+                    false
+                );
+            }
+            return this.offlinePlugin.isAvailableOffline(actionId, "form", false);
+        } else if (viewType === "form") {
+            return this.offlinePlugin.isAvailableOffline(actionId, "form", false);
+        }
+        return false;
     }
 
     async _fetchTasktemplates() {
@@ -91,6 +114,25 @@ export class ProjectTaskTemplateDropdown extends Component {
                 }
             ),
             focusTitle: true,
+        });
+    }
+
+    onClickViewMore() {
+        this.addDialog(SelectCreateDialog, {
+            title: _t("Tasks Templates"),
+            noCreate: true,
+            multiSelect: false,
+            resModel: "project.task",
+            context: {
+                list_view_ref: "project.project_task_view_tree_base",
+            },
+            domain: [
+                ["project_id", "in", [this.props.projectId, false]],
+                ["is_template", "=", true],
+            ],
+            onSelected: ([taskTemplateId]) => {
+                this.createTaskFromTemplate(taskTemplateId);
+            },
         });
     }
 }

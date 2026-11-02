@@ -33,7 +33,7 @@ def _get_microsoft_client_secret(ICP_sudo, service):
     :return: The ICP value
     :rtype: str
     """
-    return ICP_sudo.get_param('microsoft_%s_client_secret' % service)
+    return ICP_sudo.get_str('microsoft_%s_client_secret' % service)
 
 
 class MicrosoftService(models.AbstractModel):
@@ -43,25 +43,25 @@ class MicrosoftService(models.AbstractModel):
     def _get_microsoft_client_id(self, service):
         # client id is not a secret, and can be leaked without risk. e.g. in clear in authorize uri.
         ICP = self.env['ir.config_parameter'].sudo()
-        return ICP.get_param('microsoft_%s_client_id' % service)
+        return ICP.get_str('microsoft_%s_client_id' % service)
 
     def _get_calendar_scope(self):
-        return 'offline_access openid Calendars.ReadWrite'
+        return 'offline_access openid profile email User.Read Calendars.ReadWrite'
 
     @api.model
     def _get_auth_endpoint(self):
-        return self.env["ir.config_parameter"].sudo().get_param('microsoft_account.auth_endpoint', DEFAULT_MICROSOFT_AUTH_ENDPOINT)
+        return self.env["ir.config_parameter"].sudo().get_str('microsoft_account.auth_endpoint') or DEFAULT_MICROSOFT_AUTH_ENDPOINT
 
     @api.model
     def _get_token_endpoint(self):
-        return self.env["ir.config_parameter"].sudo().get_param('microsoft_account.token_endpoint', DEFAULT_MICROSOFT_TOKEN_ENDPOINT)
+        return self.env["ir.config_parameter"].sudo().get_str('microsoft_account.token_endpoint') or DEFAULT_MICROSOFT_TOKEN_ENDPOINT
 
     @api.model
     def _refresh_microsoft_token(self, service, rtoken):
         """ Call Microsoft API to refresh the token, with the given authorization code
             :param service : the name of the microsoft service to actualize
             :param rtoken : the code to exchange against the new refresh token
-            :returns the new refresh token
+            :returns the new access token, its time to live and the new refresh token
         """
         ICP_sudo = self.env['ir.config_parameter'].sudo()
 
@@ -80,10 +80,10 @@ class MicrosoftService(models.AbstractModel):
             preuri=''
         )
         response = microsoft_data[1]
-        return response.get('access_token'), response.get('expires_in')
+        return response.get('access_token'), response.get('expires_in'), response.get('refresh_token')
 
     @api.model
-    def _get_authorize_uri(self, from_url, service, scope, redirect_uri):
+    def _get_authorize_uri(self, from_url, service, scope, redirect_uri, prompt):
         """ This method return the url needed to allow this instance of Odoo to access to the scope
             of gmail specified as parameters
         """
@@ -91,10 +91,8 @@ class MicrosoftService(models.AbstractModel):
             'd': self.env.cr.dbname,
             's': service,
             'f': from_url,
-            'u': self.env['ir.config_parameter'].sudo().get_param('database.uuid'),
+            'u': self.env['ir.config_parameter'].sudo().get_str('database.uuid'),
         }
-
-        get_param = self.env['ir.config_parameter'].sudo().get_param
 
         encoded_params = urls.url_encode({
             'response_type': 'code',
@@ -102,7 +100,8 @@ class MicrosoftService(models.AbstractModel):
             'state': json.dumps(state),
             'scope': scope,
             'redirect_uri': redirect_uri,
-            'access_type': 'offline'
+            'access_type': 'offline',
+            'prompt': prompt,
         })
         return "%s?%s" % (self._get_auth_endpoint(), encoded_params)
 

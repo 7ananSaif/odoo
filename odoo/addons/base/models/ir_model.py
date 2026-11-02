@@ -1,10 +1,12 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
+import copy
 import itertools
 import logging
 import random
 import re
 import psycopg2
 import typing
+from inspect import cleandoc
 from ast import literal_eval
 from collections import defaultdict
 from collections.abc import Mapping
@@ -15,9 +17,11 @@ from psycopg2.extras import Json
 from odoo import api, fields, models, tools
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.fields import Command, Domain
-from odoo.tools import frozendict, reset_cached_properties, split_every, sql, unique, OrderedSet, SQL
-from odoo.tools.safe_eval import safe_eval, datetime, dateutil, time
+from odoo.tools import BinaryBytes, frozendict, reset_cached_properties, split_every, sql, unique, OrderedSet, SQL
+from odoo.tools.constants import IN_MAX
+from odoo.tools.safe_eval import expr_eval, safe_eval, datetime, dateutil, time
 from odoo.tools.translate import FIELD_TRANSLATE, LazyTranslate, _
+
 
 _lt = LazyTranslate(__name__)
 _logger = logging.getLogger(__name__)
@@ -33,11 +37,14 @@ ACCESS_ERROR_GROUPS = _lt("This operation is allowed for the following groups:\n
 ACCESS_ERROR_NOGROUP = _lt("No group currently allows this operation.")
 ACCESS_ERROR_RESOLUTION = _lt("Contact your administrator to request access if necessary.")
 
-MODULE_UNINSTALL_FLAG = '_force_unlink'
+# constant MODULE_UNINSTALL_FLAG is kept for backward compatibility only;
+# use 'force_delete' explicitly in your code to add/detect it
+MODULE_UNINSTALL_FLAG = 'force_delete'
 RE_ORDER_FIELDS = re.compile(r'"?(\w+)"?\s*(?:asc|desc)?', flags=re.I)
 
 # base environment for doing a safe_eval
 SAFE_EVAL_BASE = {
+    'BinaryBytes': BinaryBytes,
     'datetime': datetime,
     'dateutil': dateutil,
     'time': time,
@@ -84,16 +91,20 @@ def query_insert(cr, table, rows):
     if isinstance(rows, Mapping):
         rows = [rows]
     cols = list(rows[0])
-    query = SQL(
-        "INSERT INTO %s (%s)",
-        SQL.identifier(table),
-        SQL(",").join(map(SQL.identifier, cols)),
-    )
-    assert not query.params
-    str_query = query.code + " VALUES %s RETURNING id"
-    params = [tuple(row[col] for col in cols) for row in rows]
-    cr.execute_values(str_query, params)
-    return [row[0] for row in cr.fetchall()]
+    ids = []
+    for srows in split_every(IN_MAX, rows, list):
+        query = SQL(
+            "INSERT INTO %s (%s) VALUES %s RETURNING id",
+            SQL.identifier(table),
+            SQL(",").join(map(SQL.identifier, cols)),
+            SQL(",").join(
+                tuple(row.get(col) for col in cols)
+                for row in srows
+            ),
+        )
+        cr.execute(query)
+        ids.extend(row[0] for row in cr.fetchall())
+    return ids
 
 
 def query_update(cr, table, values, selectors):
@@ -171,9 +182,17 @@ def upsert_en(model, fnames, rows, conflict):
         excluded=comma(
             (
                 SQL(
-                    "COALESCE(%s, '{}'::jsonb) || EXCLUDED.%s",
-                    SQL.identifier(model._table, fname),
-                    SQL.identifier(fname),
+                    """CASE
+                        WHEN %(old)s ->> 'en_US' IS DISTINCT FROM %(new)s ->> 'en_US'
+                            -- the source text changed: existing translations were
+                            -- made for a source that no longer exists, drop them so
+                            -- they get reloaded fresh instead of being kept as if
+                            -- they still applied to the current source
+                            THEN %(new)s
+                        ELSE COALESCE(%(old)s, '{}'::jsonb) || %(new)s
+                       END""",
+                    old=SQL.identifier(model._table, fname),
+                    new=SQL("EXCLUDED.%s", SQL.identifier(fname)),
                 )
                 if model._fields[fname].translate is True
                 else SQL("EXCLUDED.%s", SQL.identifier(fname))
@@ -206,9 +225,9 @@ class Unknown(models.AbstractModel):
 
 class IrModel(models.Model):
     _name = 'ir.model'
-    _description = "Models"
+    _description = "Model"
     _order = 'model'
-    _rec_names_search = ['name', 'model']
+    _rec_names_search = ('name', 'model')
     _allow_sudo_commands = False
 
     def _default_field_id(self):
@@ -221,13 +240,13 @@ class IrModel(models.Model):
     order = fields.Char(string='Order', default='id', required=True,
                         help='SQL expression for ordering records in the model; e.g. "x_sequence asc, id desc"')
     info = fields.Text(string='Information')
+    explanation = fields.Text(string='Explanation', help='Verbose description of what is this model for')
     field_id = fields.One2many('ir.model.fields', 'model_id', string='Fields', required=True, copy=True,
                                default=_default_field_id)
     inherited_model_ids = fields.Many2many('ir.model', compute='_inherited_models', string="Inherited models",
                                            help="The list of models that extends the current model.")
-    state = fields.Selection([('manual', 'Custom Object'), ('base', 'Base Object')], string='Type', default='manual', readonly=True)
-    access_ids = fields.One2many('ir.model.access', 'model_id', string='Access')
-    rule_ids = fields.One2many('ir.rule', 'model_id', string='Record Rules')
+    state = fields.Selection([('manual', 'Custom'), ('base', 'Base')], string='Type', default='manual', readonly=True)
+    access_ids = fields.One2many('ir.access', 'model_id', string='Access')
     abstract = fields.Boolean(string="Abstract Model")
     transient = fields.Boolean(string="Transient Model")
     modules = fields.Char(compute='_in_modules', string='In Apps', help='List of modules in which the object is defined or inherited')
@@ -316,7 +335,7 @@ class IrModel(models.Model):
         model_id = self._get_id(name) if name else False
         return self.sudo().browse(model_id)
 
-    @tools.ormcache('name', cache='stable')
+    @api.ormcache('name', cache='stable')
     def _get_id(self, name):
         self.env.cr.execute("SELECT id FROM ir_model WHERE model=%s", (name,))
         result = self.env.cr.fetchone()
@@ -346,10 +365,39 @@ class IrModel(models.Model):
 
     @api.ondelete(at_uninstall=False)
     def _unlink_if_manual(self):
+        if self.env.context.get('force_delete'):
+            return
         # Prevent manual deletion of module tables
         for model in self:
             if model.state != 'manual':
                 raise UserError(_("Model “%s” contains module data and cannot be removed.", model.name))
+
+    @api.ondelete(at_uninstall=False)
+    def _unlink_related_attachments(self):
+        """ Delete attachment associated with the models being deleted. """
+        models = tuple(self.mapped('model'))
+
+        # Get files attached solely to the models being deleted (and none other)
+        fname_rows = self.env.execute_query(SQL(
+            """
+            SELECT DISTINCT store_fname
+            FROM ir_attachment
+            WHERE res_model IN %s AND store_fname IS NOT NULL
+            EXCEPT
+            SELECT store_fname
+            FROM ir_attachment
+            WHERE res_model NOT IN %s
+            """,
+            models, models,
+        ))
+
+        self.env.execute_query(SQL(
+            "DELETE FROM ir_attachment WHERE res_model IN %s",
+            models,
+        ))
+
+        for (fname,) in fname_rows:
+            self.env['ir.attachment']._file_delete(fname)
 
     def unlink(self):
         # prevent screwing up fields that depend on these models' fields
@@ -375,8 +423,8 @@ class IrModel(models.Model):
 
         # Reload registry for normal unlink only. For module uninstall, the
         # reload is done independently in odoo.modules.loading.
-        if not self.env.context.get(MODULE_UNINSTALL_FLAG):
-            # setup models; this automatically removes model from registry
+        if not self.pool.uninstalling_modules:
+            # setup models; this automatically removes custom model from registry
             self.env.flush_all()
             self.pool._setup_models__(self.env.cr)
 
@@ -391,11 +439,16 @@ class IrModel(models.Model):
         if 'field_id' in vals:
             vals['field_id'] = [op for op in vals['field_id'] if op[0] != 4]
         res = super().write(vals)
+        if not any(self._ids):
+            return res
         # ordering has been changed, reload registry to reflect update + signaling
         if 'order' in vals or 'fold_name' in vals:
             self.env.flush_all()  # _setup_models__ need to fetch the updated values from the db
             # incremental setup will reload custom models
             self.pool._setup_models__(self.env.cr, [])
+        if 'rule_ids' in vals or 'access_ids' in vals:
+            # for env['ir.access']._get_all_access
+            self.env.transaction.invalidate_ormcache('stable')
         return res
 
     @api.model_create_multi
@@ -411,6 +464,9 @@ class IrModel(models.Model):
             self.pool._setup_models__(self.env.cr, [])
             # update database schema
             self.pool.init_models(self.env.cr, manual_models, dict(self.env.context, update_custom_fields=True))
+        if res:
+            # for env['ir.access']._get_all_access
+            self.env.transaction.invalidate_ormcache('stable')
         return res
 
     @api.model
@@ -424,9 +480,18 @@ class IrModel(models.Model):
 
     def _reflect_model_params(self, model):
         """ Return the values to write to the database for the given model. """
+        explanations = []
+        for cls in reversed(type(model).mro()):
+            # Use __dict__ to only capture explanations explicitly defined on this class.
+            explanation = cls.__dict__.get('_explanation')
+            # Only include if it matches the target model's name (ignores mixins).
+            if explanation and getattr(cls, '_name', None) == model._name:
+                explanations.append(cleandoc(explanation or ''))
+
         return {
             'model': model._name,
             'name': model._description,
+            'explanation': "\n\n".join(explanations) if explanations else False,
             'order': model._order,
             'info': next(cls.__doc__ for cls in self.env.registry[model._name].mro() if cls.__doc__),
             'state': 'manual' if model._custom else 'base',
@@ -504,10 +569,16 @@ class IrModel(models.Model):
 # retrieve field types defined by the framework only (not extensions)
 FIELD_TYPES = [(key, key) for key in sorted(fields.Field._by_type__)]
 
+FIELD_INDEX_TYPES = [
+    ('btree', 'B-tree'),
+    ('btree_not_null', 'B-tree, excluding nulls'),
+    ('trigram', 'Trigram'),
+]
+
 
 class IrModelFields(models.Model):
     _name = 'ir.model.fields'
-    _description = "Fields"
+    _description = "Field"
     _order = "name, id"
     _rec_name = 'field_description'
     _allow_sudo_commands = False
@@ -517,7 +588,9 @@ class IrModelFields(models.Model):
                         help="The technical name of the model this field belongs to")
     relation = fields.Char(string='Related Model',
                            help="For relationship fields, the technical name of the target model")
-    relation_field = fields.Char(help="For one2many fields, the field on the target model that implement the opposite many2one relationship")
+    relation_field = fields.Char(help="For one2many fields, the field on the target model that implements the opposite many2one relationship")
+    relation_model_field = fields.Char(
+        help="For many2one_reference fields, the field that stores the technical name of the target model")
     relation_field_id = fields.Many2one('ir.model.fields', compute='_compute_relation_field_id',
                                         store=True, ondelete='cascade', string='Relation field')
     model_id = fields.Many2one('ir.model', string='Model', required=True, index=True, ondelete='cascade',
@@ -537,7 +610,15 @@ class IrModelFields(models.Model):
                                        store=True, string="Related Field", ondelete='cascade')
     required = fields.Boolean()
     readonly = fields.Boolean()
-    index = fields.Boolean(string='Indexed')
+    index = fields.Selection(
+        FIELD_INDEX_TYPES,
+        string='Index',
+        help="The kind of database index requested for this field. "
+             "B-tree indexes support equality and range searches; excluding nulls makes the index smaller "
+             "when most values are empty; trigram indexes speed up text pattern searches. "
+             "Leaving this empty does not remove an index that already exists.",
+    )
+    allowed_index_types = fields.Json(compute='_compute_allowed_index_types')
     translate = fields.Selection([
         ('standard', 'Translate as a whole'),
         ('html_translate', 'Translate HTML terms'),
@@ -551,7 +632,7 @@ class IrModelFields(models.Model):
     domain = fields.Char(default="[]", help="The optional domain to restrict possible values for relationship fields, "
                                             "specified as a Python expression defining a list of triplets. "
                                             "For example: [('color','=','red')]")
-    groups = fields.Many2many('res.groups', 'ir_model_fields_group_rel', 'field_id', 'group_id') # CLEANME unimplemented field (empty table)
+    groups = fields.Many2many('res.groups', 'ir_model_fields_group_rel', 'field_id', 'group_id')
     group_expand = fields.Boolean(string="Expand Groups",
                                   help="If checked, all the records of the target model will be included\n"
                                         "in a grouped result (e.g. 'Group By' filters, Kanban columns, etc.).\n"
@@ -618,6 +699,46 @@ class IrModelFields(models.Model):
         for rec in self:
             rec.copied = (rec.ttype != 'one2many') and not (rec.related or rec.compute)
 
+    def _get_allowed_index_types(self):
+        self.ensure_one()
+        if not self.store or self.ttype in ('one2many', 'many2many'):
+            return []
+
+        allowed = [] if self.translate else ['btree', 'btree_not_null']
+        if (
+            self.ttype in ('char', 'text', 'html')
+            and not self.company_dependent
+            and self.env.registry.has_trigram
+        ):
+            allowed.append('trigram')
+        return allowed
+
+    @api.depends('state', 'ttype', 'store', 'translate', 'company_dependent')
+    def _compute_allowed_index_types(self):
+        for field in self:
+            field.allowed_index_types = field._get_allowed_index_types()
+
+    @api.onchange('store', 'ttype', 'translate', 'company_dependent')
+    def _onchange_index(self):
+        for field in self:
+            if field.index and field.index not in field._get_allowed_index_types():
+                field.index = False
+
+    @api.constrains('index', 'state', 'ttype', 'store', 'translate', 'company_dependent')
+    def _check_index(self):
+        for field in self:
+            if field.state != 'manual' or not field.index:
+                continue
+            if not field.store or field.ttype in ('one2many', 'many2many'):
+                raise ValidationError(_("Only stored fields with a database column can be indexed."))
+            if field.translate and field.index != 'trigram':
+                raise ValidationError(_("Translated fields only support trigram indexes."))
+            if field.index == 'trigram':
+                if field.ttype not in ('char', 'text', 'html') or field.company_dependent:
+                    raise ValidationError(_("Trigram indexes are only supported on stored Char, Text, and HTML fields."))
+                if not field.env.registry.has_trigram:
+                    raise ValidationError(_("Trigram indexes require the PostgreSQL pg_trgm extension."))
+
     @api.depends()
     def _in_modules(self):
         installed_modules = self.env['ir.module.module'].search([('state', '=', 'installed')])
@@ -631,8 +752,8 @@ class IrModelFields(models.Model):
     def _check_domain(self):
         for field in self:
             try:
-                safe_eval(field.domain or '[]')
-            except ValueError as e:
+                expr_eval(field.domain or '[]')
+            except Exception as e:  # noqa: BLE001
                 raise ValidationError(
                     _("An error occurred while evaluating the domain:\n%(error)s", error=e)
                 ) from e
@@ -771,6 +892,21 @@ class IrModelFields(models.Model):
             if rec.relation_table:
                 models.check_pg_name(rec.relation_table)
 
+    @api.constrains('relation', 'relation_field')
+    def _check_relation_field(self):
+        if any(
+            (rec := record).state == 'manual'
+            and rec.ttype == 'one2many'
+            and rec.relation_field
+            and not self._get(rec.relation, rec.relation_field)
+            for record in self
+        ):
+            raise ValidationError(_(
+                "Unknown field “%(field)s” on model “%(model)s” in Relation Field",
+                field=rec.relation_field,
+                model=rec.relation,
+            ))
+
     @api.constrains('currency_field')
     def _check_currency_field(self):
         for rec in self:
@@ -847,14 +983,14 @@ class IrModelFields(models.Model):
         field_id = model_name and name and self._get_ids(model_name).get(name)
         return self.sudo().browse(field_id)
 
-    @tools.ormcache('model_name', cache='stable')
+    @api.ormcache('model_name', cache='stable')
     def _get_ids(self, model_name):
         cr = self.env.cr
         cr.execute("SELECT name, id FROM ir_model_fields WHERE model=%s", [model_name])
         return dict(cr.fetchall())
 
     def _drop_column(self):
-        from odoo.orm.model_classes import pop_field
+        from odoo.orm.model_classes import pop_field  # noqa: PLC0415
 
         tables_to_drop = set()
 
@@ -893,10 +1029,10 @@ class IrModelFields(models.Model):
             This method prevents the modification/deletion of many2one fields
             that have an inverse one2many, for instance.
         """
-        from odoo.orm.model_classes import pop_field
+        from odoo.orm.model_classes import pop_field  # noqa: PLC0415
 
-        uninstalling = self.env.context.get(MODULE_UNINSTALL_FLAG)
-        if not uninstalling and any(record.state != 'manual' for record in self):
+        force_delete = self.env.context.get('force_delete')
+        if not force_delete and any(record.state != 'manual' for record in self):
             raise UserError(_("This column contains module data and cannot be removed!"))
 
         records = self              # all the records to delete
@@ -926,17 +1062,17 @@ class IrModelFields(models.Model):
         self = records
 
         if failed_dependencies:
-            if not uninstalling:
+            if not force_delete:
                 field, dep = failed_dependencies[0]
                 raise UserError(_(
                     "The field '%(field)s' cannot be removed because the field '%(other_field)s' depends on it.",
                     field=field, other_field=dep,
                 ))
             else:
-                self = self.union(*[
+                self |= self.browse().union(
                     self._get(dep.model_name, dep.name)
                     for field, dep in failed_dependencies
-                ])
+                )
 
         records = self.filtered(lambda record: record.state == 'manual')
         if not records:
@@ -958,7 +1094,7 @@ class IrModelFields(models.Model):
             for view in views:
                 view._check_xml()
         except Exception:
-            if not uninstalling:
+            if not force_delete:
                 raise UserError(_(
                     "Cannot rename/delete fields that are still present in views:\nFields: %(fields)s\nView: %(view)s",
                     fields=fields,
@@ -971,7 +1107,7 @@ class IrModelFields(models.Model):
                     ", ".join(str(f) for f in fields),
                     view.name)
         finally:
-            if not uninstalling:
+            if not self.pool.uninstalling_modules:
                 # the registry has been modified, restore it
                 self.pool._setup_models__(self.env.cr)
 
@@ -993,7 +1129,8 @@ class IrModelFields(models.Model):
                 pass
 
         # clean the registry from the fields to remove
-        self.pool.registry_invalidated = True
+        assert self.env.registry is self.pool
+        self.env.transaction.will_change_registry()
         self.pool._discard_fields(fields)
 
         # discard the removed fields from fields to compute
@@ -1002,11 +1139,17 @@ class IrModelFields(models.Model):
 
         model_names = self.mapped('model')
         self._drop_column()
-        res = super(IrModelFields, self).unlink()
+        res = super().unlink()
 
         # The field we just deleted might be inherited, and the registry is
         # inconsistent in this case; therefore we reload the registry.
-        if not self.env.context.get(MODULE_UNINSTALL_FLAG):
+        # Beware: when renaming a field, method write() calls unlink() on the
+        # corresponding inherited fields with 'force_delete' in context, and
+        # method write() itself is in charge of cleaning up the registry. If
+        # done here, the field to be renamed regenerates an inherited field
+        # below, and we end up with two records for the inherited field: one
+        # with the old name, and one with the new name.
+        if not (self.env.context.get('force_delete') or self.pool.uninstalling_modules):
             # setup models; this re-initializes models in registry
             self.env.flush_all()
             self.pool._setup_models__(self.env.cr, model_names)
@@ -1020,16 +1163,27 @@ class IrModelFields(models.Model):
     def create(self, vals_list):
         IrModel = self.env['ir.model']
         for vals in vals_list:
+            if 'index' in vals:
+                vals['index'] = 'btree' if vals['index'] is True else vals['index'] or None
             if vals.get('translate') and not isinstance(vals['translate'], str):
                 _logger.warning("Deprecated since Odoo 19, ir.model.fields.translate becomes Selection, the value should be a string")
                 vals['translate'] = 'html_translate' if vals.get('ttype') == 'html' else 'standard'
             if 'model_id' in vals:
-                vals['model'] = IrModel.browse(vals['model_id']).model
+                model_from_id = IrModel.browse(vals['model_id']).model
+                if vals.get('model', False):
+                    if vals['model'] != model_from_id:
+                        raise ValidationError(_(
+                            "Inconsistent values: model=%(model)s does not match model_id=%(model_id)s.",
+                            model=vals['model'], model_id=vals['model_id'],
+                        ))
+                else:
+                    vals['model'] = model_from_id
 
         # for self._get_ids() in _update_selection()
-        self.env.registry.clear_cache('stable')
-
+        # we need to invalidate the cache before and after creation of the field
+        self.env.transaction.invalidate_ormcache('stable')
         res = super().create(vals_list)
+        self.env.transaction.invalidate_ormcache('stable')
         models = OrderedSet(res.mapped('model'))
 
         for vals in vals_list:
@@ -1060,6 +1214,9 @@ class IrModelFields(models.Model):
 
         return res
 
+    def _get_writable_properties(self):
+        return [fname for fname in self._fields if self._fields[fname].translate]
+
     def write(self, vals):
         if not self:
             return True
@@ -1069,8 +1226,10 @@ class IrModelFields(models.Model):
 
         # names of the models to patch
         patched_models = set()
-        translate_only = all(self._fields[field_name].translate for field_name in vals)
-        if vals and self and not translate_only:
+
+        writable_properties = self._get_writable_properties()
+        writable_properties_only = all(field_name in writable_properties for field_name in vals)
+        if vals and self and not writable_properties_only:
             for item in self:
                 if item.state != 'manual':
                     raise UserError(_('Properties of base fields cannot be altered in this manner! '
@@ -1108,6 +1267,10 @@ class IrModelFields(models.Model):
             if column_name in vals:
                 del vals[column_name]
 
+        if 'index' in vals:
+            index = vals['index']
+            vals['index'] = 'btree' if index is True or index == 'True' else index or None
+
         if vals.get('translate') and not isinstance(vals['translate'], str):
             _logger.warning("Deprecated since Odoo 19, ir.model.fields.translate becomes Selection, the value should be a string")
             vals['translate'] = 'html_translate' if vals.get('ttype') == 'html' else 'standard'
@@ -1115,9 +1278,9 @@ class IrModelFields(models.Model):
         if column_rename and self.state == 'manual':
             # renaming a studio field, remove inherits fields
             # we need to set the uninstall flag to allow removing them
-            (self._prepare_update() - self).with_context(**{MODULE_UNINSTALL_FLAG: True}).unlink()
+            (self._prepare_update() - self).with_context(force_delete=True).unlink()
 
-        res = super(IrModelFields, self).write(vals)
+        res = super().write(vals)
 
         self.env.flush_all()
 
@@ -1138,7 +1301,7 @@ class IrModelFields(models.Model):
                         SQL.identifier(f'{table}_{newname}_index'),
                     ))
 
-        if column_rename or patched_models or translate_only:
+        if column_rename or patched_models or writable_properties_only:
             # setup models, this will reload all manual fields in registry
             self.env.flush_all()
             model_names = OrderedSet(self.mapped('model'))
@@ -1172,8 +1335,8 @@ class IrModelFields(models.Model):
             'help': field.help or None,
             'ttype': field.type,
             'state': 'manual' if field.manual else 'base',
-            'relation': field.comodel_name or None,
-            'index': bool(field.index),
+            'relation': field.comodel_name if field.relational else None,
+            'index': 'btree' if field.index is True else field.index or None,
             'store': bool(field.store),
             'copied': bool(field.copy),
             'on_delete': field.ondelete if field.type == 'many2one' else None,
@@ -1185,6 +1348,7 @@ class IrModelFields(models.Model):
             'translate': translate,
             'company_dependent': bool(field.company_dependent),
             'relation_field': field.inverse_name if field.type == 'one2many' else None,
+            'relation_model_field': field.model_field if field.type == "many2one_reference" else None,
             'relation_table': field.relation if field.type == 'many2many' else None,
             'column1': field.column1 if field.type == 'many2many' else None,
             'column2': field.column2 if field.type == 'many2many' else None,
@@ -1202,7 +1366,6 @@ class IrModelFields(models.Model):
 
     def _reflect_fields(self, model_names):
         """ Reflect the fields of the given models. """
-        cr = self.env.cr
 
         for model_name in model_names:
             model = self.env[model_name]
@@ -1247,24 +1410,87 @@ class IrModelFields(models.Model):
 
         data_list = []
         for (field_model, field_name), field_id in field_ids.items():
-            model = self.env[field_model]
-            field = model._fields.get(field_name)
-            if field and (
-                module == model._original_module
-                or module in field._modules
-                or any(
-                    # module introduced field on model by inheritance
-                    field_name in self.env[parent]._fields
-                    for parent, parent_module in model._inherit_module.items()
-                    if module == parent_module
-                )
-            ):
+            if self._is_field_defined_by_module(field_model, field_name, module):
                 xml_id = field_xmlid(module, field_model, field_name)
                 record = self.browse(field_id)
                 data_list.append({'xml_id': xml_id, 'record': record})
         self.env['ir.model.data']._update_xmlids(data_list)
 
-    @tools.ormcache(cache='stable')
+    @api.model
+    def _is_field_defined_by_module(self, model_name, field_name, module):
+        """ Return whether ``module`` defines the field ``field_name`` of the
+        model ``model_name`` in the registry, i.e. whether reflecting the field
+        for ``module`` gives it an XML id.
+        """
+        model = self.env.get(model_name)
+        field = model._fields.get(field_name) if model is not None else None
+        return bool(field) and (
+            module == model._original_module
+            or module in field._modules
+            or any(
+                # module introduced field on model by inheritance
+                field_name in self.env[parent]._fields
+                for parent, parent_module in model._inherit_module.items()
+                if module == parent_module
+            )
+        )
+
+    def _reflect_field_groups(self, model_names):
+        """ Synchronize the groups field based on the 'groups' attribute declared
+        in the model field's definitions.
+
+        This looks up the external IDs declared in Python (e.g.
+        `test_field = fields.Char(...,groups='base.group_user'))`, retrieves the
+        corresponding group records, and updates the 'ir_model_fields_group_rel'
+        relation.
+        """
+        if not model_names:
+            return
+
+        def lookup_group(field, xmlid):
+            try:
+                model, res_id = self.env['ir.model.data']._xmlid_lookup(xmlid)
+            except ValueError:
+                raise ValueError(f"{field} failed to lookup group xmlid {xmlid}")
+            assert model == 'res.groups' and res_id, "In"
+            return res_id
+
+        model_ids = [self.env['ir.model']._get_id(model_name) for model_name in model_names]
+        existing = {
+            (field.id, group.id)
+            for field in self.sudo().search([('model_id', 'in', model_ids)])
+            for group in field.groups
+        }
+
+        expected = set()
+        for model_name in model_names:
+            field_ids = self.env['ir.model.fields']._get_ids(model_name)
+            for field in self.env[model_name]._fields.values():
+                if not field.groups or field.groups == fields.NO_ACCESS:
+                    continue
+                field_id = field_ids[field.name]
+                expected.update(
+                    (field_id, lookup_group(field, xmlid))
+                    for xmlid in field.groups.split(',')
+                    if xmlid[0] != '!'  # ignore negative group specifications
+                )
+
+        self.invalidate_model(['groups'])
+        if to_add := sorted(expected - existing):
+            self.env.cr.execute("""
+                INSERT INTO ir_model_fields_group_rel(field_id, group_id)
+                SELECT * FROM UNNEST(%s, %s)
+            """, [list(array) for array in zip(*to_add)])
+        if to_remove := sorted(existing - expected):
+            self.env.cr.execute("""
+            DELETE FROM ir_model_fields_group_rel rel
+            WHERE EXISTS (
+                SELECT FROM UNNEST(%s, %s) AS rm(field_id, group_id)
+                WHERE rm.field_id = rel.field_id AND rm.group_id = rel.group_id
+            )
+            """, [list(array) for array in zip(*to_remove)])
+
+    @api.ormcache(cache='stable')
     def _all_manual_field_data(self):
         cr = self.env.cr
         # we cannot use self._fields to determine translated fields, as it has not been set up yet
@@ -1288,7 +1514,7 @@ class IrModelFields(models.Model):
             'manual': True,
             'string': field_data['field_description'],
             'help': field_data['help'],
-            'index': bool(field_data['index']),
+            'index': field_data['index'],
             'copy': bool(field_data['copied']),
             'related': field_data['related'],
             'required': bool(field_data['required']),
@@ -1303,6 +1529,8 @@ class IrModelFields(models.Model):
             )
             if field_data['ttype'] == 'char':
                 attrs['size'] = field_data['size'] or None
+                if attrs['copy']:
+                    attrs.pop('copy')  # use the default setting for "(copy)"
             elif field_data['ttype'] == 'html':
                 attrs['sanitize'] = field_data['sanitize']
                 attrs['sanitize_overridable'] = field_data['sanitize_overridable']
@@ -1313,7 +1541,8 @@ class IrModelFields(models.Model):
                 attrs['strip_style'] = field_data['strip_style']
                 attrs['strip_classes'] = field_data['strip_classes']
         elif field_data['ttype'] in ('selection', 'reference'):
-            attrs['selection'] = self.env['ir.model.fields.selection']._get_selection_data(field_data['id'])
+            if not attrs['related']:
+                attrs['selection'] = self.env['ir.model.fields.selection']._get_selection_data(field_data['id'])
             if field_data['ttype'] == 'selection':
                 attrs['group_expand'] = field_data['group_expand']
         elif field_data['ttype'] == 'many2one':
@@ -1321,7 +1550,7 @@ class IrModelFields(models.Model):
                 return
             attrs['comodel_name'] = field_data['relation']
             attrs['ondelete'] = field_data['on_delete']
-            attrs['domain'] = safe_eval(field_data['domain'] or '[]')
+            attrs['domain'] = expr_eval(field_data['domain'] or '[]')
             attrs['group_expand'] = '_read_group_expand_full' if field_data['group_expand'] else None
         elif field_data['ttype'] == 'one2many':
             if not self.pool.loaded and not (
@@ -1332,7 +1561,7 @@ class IrModelFields(models.Model):
                 return
             attrs['comodel_name'] = field_data['relation']
             attrs['inverse_name'] = field_data['relation_field']
-            attrs['domain'] = safe_eval(field_data['domain'] or '[]')
+            attrs['domain'] = expr_eval(field_data['domain'] or '[]')
         elif field_data['ttype'] == 'many2many':
             if not self.pool.loaded and field_data['relation'] not in self.env:
                 return
@@ -1341,7 +1570,7 @@ class IrModelFields(models.Model):
             attrs['relation'] = field_data['relation_table'] or rel
             attrs['column1'] = field_data['column1'] or col1
             attrs['column2'] = field_data['column2'] or col2
-            attrs['domain'] = safe_eval(field_data['domain'] or '[]')
+            attrs['domain'] = expr_eval(field_data['domain'] or '[]')
         elif field_data['ttype'] == 'monetary':
             # be sure that custom monetary field are always instanciated
             if not self.pool.loaded and \
@@ -1395,7 +1624,7 @@ class IrModelFields(models.Model):
         return self._get_fields_cached(model_name).get(field_name, {}).get('selection', [])
 
     @api.model
-    @tools.ormcache('model_name', 'self.env.lang', cache='stable')
+    @api.ormcache('model_name', 'self.env.lang', cache='stable')
     def _get_fields_cached(self, model_name):
         """ Return the translated information of all model field's in the context's language.
         Note that the result contains the available translations only.
@@ -1544,7 +1773,7 @@ class IrModelFieldsSelection(models.Model):
             for model_name in model_names
             for field_name, field in self.env[model_name]._fields.items()
             if field.type in ('selection', 'reference')
-            if isinstance(field.selection, list)
+            if isinstance(field.selection, tuple)
         ]
         if not fields:
             return
@@ -1709,8 +1938,14 @@ class IrModelFieldsSelection(models.Model):
                     fname = selection.field_id.name
                     model.invalidate_model([fname])
                     # replace the value by the new one in the field's corresponding column
-                    query = f'UPDATE "{model._table}" SET "{fname}"=%s WHERE "{fname}"=%s'
-                    self.env.cr.execute(query, [vals['value'], selection.value])
+                    self.env.cr.execute(SQL(
+                        "UPDATE %s SET %s=%s WHERE %s=%s",
+                        SQL.identifier(model._table),
+                        SQL.identifier(fname),
+                        vals['value'],
+                        SQL.identifier(fname),
+                        selection.value,
+                    ))
 
         result = super().write(vals)
 
@@ -1723,6 +1958,8 @@ class IrModelFieldsSelection(models.Model):
 
     @api.ondelete(at_uninstall=False)
     def _unlink_if_manual(self):
+        if self.env.context.get('force_delete'):
+            return
         # Prevent manual deletion of module columns
         if (
             self.pool.ready
@@ -1739,7 +1976,7 @@ class IrModelFieldsSelection(models.Model):
 
         # Reload registry for normal unlink only. For module uninstall, the
         # reload is done independently in odoo.modules.loading.
-        if not self.env.context.get(MODULE_UNINSTALL_FLAG):
+        if not self.pool.uninstalling_modules:
             # setup models; this re-initializes model in registry
             self.env.flush_all()
             self.pool._setup_models__(self.env.cr, model_names)
@@ -1858,6 +2095,7 @@ class IrModelConstraint(models.Model):
 
     name = fields.Char(
         string='Constraint', required=True, index=True, readonly=True,
+        copy=lambda c: f'{c.name}_name',
         help="PostgreSQL constraint or foreign key name.")
     definition = fields.Char(help="PostgreSQL constraint definition", readonly=True)
     message = fields.Char(help="Error message returned when the constraint is violated.", translate=True)
@@ -1923,13 +2161,8 @@ class IrModelConstraint(models.Model):
 
         return super().unlink()
 
-    def copy_data(self, default=None):
-        vals_list = super().copy_data(default=default)
-        return [dict(vals, name=constraint.name + '_copy') for constraint, vals in zip(self, vals_list)]
-
     def _reflect_constraint(self, model, conname, type, definition, module, message=None):
-        """ Reflect the given constraint, and return its corresponding record
-            if a record is created or modified; returns ``None`` otherwise.
+        """ Reflect the given constraint, and return its corresponding record.
             The reflection makes it possible to remove a constraint when its
             corresponding module is uninstalled. ``type`` is either 'f', 'i', or 'u'
             depending on the constraint being a foreign key or not.
@@ -1972,15 +2205,16 @@ class IrModelConstraint(models.Model):
                 WHERE id = %s""",
                 self.env.uid, type, definition, Json({'en_US': message}), cons_id
             ))
-            return self.browse(cons_id)
-        return None
+        return self.browse(cons_id)
 
     def _reflect_constraints(self, model_names):
         """ Reflect the table objects of the given models. """
+        data_list = []
         for model_name in model_names:
-            self._reflect_model(self.env[model_name])
+            data_list.extend(self._reflect_table_object(self.env[model_name]))
+        self.env['ir.model.data']._update_xmlids(data_list)
 
-    def _reflect_model(self, model):
+    def _reflect_table_object(self, model):
         """ Reflect the _table_objects of the given model. """
         data_list = []
         for conname, cons in model._table_objects.items():
@@ -1997,10 +2231,7 @@ class IrModelConstraint(models.Model):
             xml_id = '%s.constraint_%s' % (module, conname)
             if record:
                 data_list.append(dict(xml_id=xml_id, record=record))
-            else:
-                self.env['ir.model.data']._load_xmlid(xml_id)
-        if data_list:
-            self.env['ir.model.data']._update_xmlids(data_list)
+        return data_list
 
 
 class IrModelRelation(models.Model):
@@ -2069,152 +2300,6 @@ class IrModelRelation(models.Model):
             cr.execute(query, (table, self.env.uid, self.env.uid, module, model._name))
 
 
-class IrModelAccess(models.Model):
-    _name = 'ir.model.access'
-    _description = 'Model Access'
-    _order = 'model_id,group_id,name,id'
-    _allow_sudo_commands = False
-
-    name = fields.Char(required=True, index=True)
-    active = fields.Boolean(default=True, help='If you uncheck the active field, it will disable the ACL without deleting it (if you delete a native ACL, it will be re-created when you reload the module).')
-    model_id = fields.Many2one('ir.model', string='Model', required=True, index=True, ondelete='cascade')
-    group_id = fields.Many2one('res.groups', string='Group', ondelete='restrict', index=True)
-    perm_read = fields.Boolean(string='Read Access')
-    perm_write = fields.Boolean(string='Write Access')
-    perm_create = fields.Boolean(string='Create Access')
-    perm_unlink = fields.Boolean(string='Delete Access')
-
-    @api.model
-    def group_names_with_access(self, model_name, access_mode):
-        """ Return the names of visible groups which have been granted
-            ``access_mode`` on the model ``model_name``.
-
-           :rtype: list
-        """
-        assert access_mode in ('read', 'write', 'create', 'unlink'), 'Invalid access mode'
-        lang = self.env.lang or 'en_US'
-        self.env.cr.execute(f"""
-            SELECT COALESCE(c.name->>%s, c.name->>'en_US'), COALESCE(g.name->>%s, g.name->>'en_US')
-              FROM ir_model_access a
-              JOIN ir_model m ON (a.model_id = m.id)
-              JOIN res_groups g ON (a.group_id = g.id)
-         LEFT JOIN res_groups_privilege c ON (c.id = g.privilege_id)
-             WHERE m.model = %s
-               AND a.active = TRUE
-               AND a.perm_{access_mode} = TRUE
-          ORDER BY c.name, g.name NULLS LAST
-        """, [lang, lang, model_name])
-        return [('%s/%s' % x) if x[0] else x[1] for x in self.env.cr.fetchall()]
-
-    @api.model
-    @tools.ormcache('model_name', 'access_mode', cache='stable')
-    def _get_access_groups(self, model_name, access_mode='read'):
-        """ Return the group expression object that represents the users who
-        have ``access_mode`` to the model ``model_name``.
-        """
-        assert access_mode in ('read', 'write', 'create', 'unlink'), 'Invalid access mode'
-        model = self.env['ir.model']._get(model_name)
-        accesses = self.sudo().search([
-            (f'perm_{access_mode}', '=', True), ('model_id', '=', model.id),
-        ])
-
-        group_definitions = self.env['res.groups']._get_group_definitions()
-        if not accesses:
-            return group_definitions.empty
-        if not all(access.group_id for access in accesses):  # there is some global access
-            return group_definitions.universe
-        return group_definitions.from_ids(accesses.group_id.ids)
-
-    # The context parameter is useful when the method translates error messages.
-    # But as the method raises an exception in that case,  the key 'lang' might
-    # not be really necessary as a cache key, unless the `ormcache`
-    # decorator catches the exception (it does not at the moment.)
-
-    @tools.ormcache('self.env.uid', 'mode')
-    def _get_allowed_models(self, mode='read'):
-        assert mode in ('read', 'write', 'create', 'unlink'), 'Invalid access mode'
-
-        group_ids = self.env.user._get_group_ids()
-        self.flush_model()
-        rows = self.env.execute_query(SQL("""
-            SELECT m.model
-              FROM ir_model_access a
-              JOIN ir_model m ON (m.id = a.model_id)
-             WHERE a.perm_%s
-               AND a.active
-               AND (
-                    a.group_id IS NULL OR
-                    a.group_id IN %s
-                )
-            GROUP BY m.model
-        """, SQL(mode), tuple(group_ids) or (None,)))
-
-        return frozenset(v[0] for v in rows)
-
-    @api.model
-    def check(self, model, mode='read', raise_exception=True):
-        if self.env.su:
-            # User root have all accesses
-            return True
-
-        assert isinstance(model, str), 'Not a model name: %s' % (model,)
-
-        if model not in self.env:
-            _logger.error('Missing model %s', model)
-
-        has_access = model in self._get_allowed_models(mode)
-        if not has_access and raise_exception:
-            raise self._make_access_error(model, mode) from None
-        return has_access
-
-    def _make_access_error(self, model: str, mode: str):
-        """ Return the exception corresponding to an access error. """
-        _logger.info('Access Denied by ACLs for operation: %s, uid: %s, model: %s', mode, self.env.uid, model)
-
-        operation_error = str(ACCESS_ERROR_HEADER[mode]) % {
-            'document_kind': self.env['ir.model']._get(model).name or model,
-            'document_model': model,
-        }
-
-        groups = "\n".join(f"\t- {g}" for g in self.group_names_with_access(model, mode))
-        if groups:
-            group_info = str(ACCESS_ERROR_GROUPS) % {'groups_list': groups}
-        else:
-            group_info = str(ACCESS_ERROR_NOGROUP)
-
-        resolution_info = str(ACCESS_ERROR_RESOLUTION)
-
-        return AccessError(operation_error + "\n\n" + group_info + "\n\n" + resolution_info)
-
-    @api.model
-    def call_cache_clearing_methods(self):
-        self.env.invalidate_all()
-        self.env.registry.clear_cache('stable')  # mainly _get_allowed_models
-
-    #
-    # Check rights on actions
-    #
-    @api.model_create_multi
-    def create(self, vals_list):
-        self.call_cache_clearing_methods()
-        for ima in vals_list:
-            if "group_id" in ima and not ima["group_id"] and any([
-                    ima.get("perm_read"),
-                    ima.get("perm_write"),
-                    ima.get("perm_create"),
-                    ima.get("perm_unlink")]):
-                _logger.warning("Rule %s has no group, this is a deprecated feature. Every access-granting rule should specify a group.", ima['name'])
-        return super().create(vals_list)
-
-    def write(self, vals):
-        self.call_cache_clearing_methods()
-        return super().write(vals)
-
-    def unlink(self):
-        self.call_cache_clearing_methods()
-        return super().unlink()
-
-
 class IrModelData(models.Model):
     """Holds external identifier keys for records in the database.
        This has two main uses:
@@ -2270,7 +2355,7 @@ class IrModelData(models.Model):
 
     # NEW V8 API
     @api.model
-    @tools.ormcache('xmlid')
+    @api.ormcache('xmlid')
     def _xmlid_lookup(self, xmlid: str) -> tuple[str, int]:
         """Low level xmlid lookup
         Return (res_model, res_id) or raise ValueError if not found
@@ -2321,22 +2406,24 @@ class IrModelData(models.Model):
     def create(self, vals_list):
         res = super().create(vals_list)
         if any(vals.get('model') == 'res.groups' for vals in vals_list):
-            self.env.registry.clear_cache('groups')
+            self.env.transaction.invalidate_ormcache('groups')
         return res
 
     def write(self, vals):
-        self.env.registry.clear_cache()  # _xmlid_lookup
+        self.env.transaction.invalidate_ormcache()  # _xmlid_lookup
         res = super().write(vals)
-        if vals.get('model') == 'res.groups':
-            self.env.registry.clear_cache('groups')
+        if vals.get('model') == 'res.groups' and any(self._ids):
+            self.env.transaction.invalidate_ormcache('groups')
         return res
 
     def unlink(self):
         """ Regular unlink method, but make sure to clear the caches. """
-        self.env.registry.clear_cache()  # _xmlid_lookup
-        if self and any(data.model == 'res.groups' for data in self.exists()):
-            self.env.registry.clear_cache('groups')
-        return super().unlink()
+        clear_groups = self and any(data.model == 'res.groups' for data in self.exists())
+        res = super().unlink()
+        self.env.transaction.invalidate_ormcache()  # _xmlid_lookup
+        if clear_groups:
+            self.env.transaction.invalidate_ormcache('groups')
+        return res
 
     def _lookup_xmlids(self, xml_ids, model):
         """ Look up the given XML ids of the given model. """
@@ -2351,16 +2438,15 @@ class IrModelData(models.Model):
 
         # query xml_ids by prefix
         result = []
-        cr = self.env.cr
+        self.flush_model()
         for prefix, suffixes in bymodule.items():
-            query = """
+            query = SQL("""
                 SELECT d.id, d.module, d.name, d.model, d.res_id, d.noupdate, r.id
-                FROM ir_model_data d LEFT JOIN "{}" r on d.res_id=r.id
-                WHERE d.module=%s AND d.name IN %s
-            """.format(model._table)
-            for subsuffixes in split_every(cr.IN_MAX, suffixes):
-                cr.execute(query, (prefix, subsuffixes))
-                result.extend(cr.fetchall())
+                FROM ir_model_data d LEFT JOIN %s r on d.res_id=r.id
+                WHERE d.module=%s
+            """, SQL.identifier(model._table), prefix)
+            for subsuffixes in split_every(IN_MAX, suffixes):
+                result.extend(self.env.execute_query(SQL("%s AND d.name IN %s", query, subsuffixes)))
 
         return result
 
@@ -2374,6 +2460,7 @@ class IrModelData(models.Model):
         """
         if not data_list:
             return
+        self.flush_model()
 
         rows = tools.OrderedSet()
         for data in data_list:
@@ -2382,34 +2469,35 @@ class IrModelData(models.Model):
             noupdate = bool(data.get('noupdate'))
             rows.add((prefix, suffix, record._name, record.id, noupdate))
 
-        for sub_rows in split_every(self.env.cr.IN_MAX, rows):
+        for sub_rows in split_every(IN_MAX, rows):
             # insert rows or update them
             query = self._build_update_xmlids_query(sub_rows, update)
             try:
-                self.env.cr.execute(query, [arg for row in sub_rows for arg in row])
-                result = self.env.cr.fetchall()
-                if result:
-                    for module, name, model, res_id, create_date, write_date in result:
-                        # small optimisation: during install a lot of xmlid are created/updated.
-                        # Instead of clearing the cache, set the correct value in the cache to avoid a bunch of query
-                        self._xmlid_lookup.__cache__.add_value(self, f"{module}.{name}", cache_value=(model, res_id))
-                        if create_date != write_date:
-                            # something was updated, notify other workers
-                            # it is possible that create_date and write_date
-                            # have the same value after an update if it was
-                            # created in the same transaction, no need to invalidate other worker cache
-                            # cache in this case.
-                            self.env.registry.cache_invalidated.add('default')
+                result = self.env.execute_query_dict(query)
+                for row in result:
+                    # small optimisation: during install a lot of xmlid are created/updated.
+                    # Instead of clearing the cache, set the correct value in the cache to avoid a bunch of query
+                    self._xmlid_lookup.__cache__.add_value(self, f"{row['module']}.{row['name']}", cache_value=(row['model'], row['res_id']))
+                    if row['create_date'] != row['write_date']:
+                        # something was updated, notify other workers
+                        # it is possible that create_date and write_date
+                        # have the same value after an update if it was
+                        # created in the same transaction, no need to invalidate other worker cache
+                        # cache in this case.
+                        self.env.transaction.invalidate_ormcache()
+                    id_ = row.pop('id')
+                    self.browse(id_)._update_cache(row)
 
             except Exception:
                 _logger.error("Failed to insert ir_model_data\n%s", "\n".join(str(row) for row in sub_rows))
                 raise
 
         # update loaded_xmlids
-        self.pool.loaded_xmlids.update("%s.%s" % row[:2] for row in rows)
+        if not self.pool.ready:
+            self.pool.loaded_xmlids.update("%s.%s" % row[:2] for row in rows)
 
         if any(row[2] == 'res.groups' for row in rows):
-            self.env.registry.clear_cache('groups')
+            self.env.transaction.invalidate_ormcache('groups')
 
     # NOTE: this method is overriden in web_studio; if you need to make another
     #  override, make sure it is compatible with the one that is there.
@@ -2423,22 +2511,24 @@ class IrModelData(models.Model):
         }
 
     def _build_update_xmlids_query(self, sub_rows, update):
-        rows = self._build_insert_xmlids_values()
-        row_names = f"({','.join(rows.keys())})"
-        row_placeholders = f"({','.join(rows.values())})"
-        row_placeholders = ", ".join([row_placeholders] * len(sub_rows))
-        return """
-            INSERT INTO ir_model_data {row_names}
-            VALUES {row_placeholder}
+        cols = self._build_insert_xmlids_values()
+        row_names = SQL(',').join(map(SQL.identifier, cols.keys()))
+        row_values = SQL(',').join(
+            [r[i] for r in sub_rows] if placeholder == '%s' else [placeholder] * len(sub_rows)
+            for i, placeholder in enumerate(cols.values())
+        )
+        return SQL("""
+            INSERT INTO ir_model_data(%s)
+            SELECT * FROM UNNEST(%s)
             ON CONFLICT (module, name)
             DO UPDATE SET (model, res_id, write_date) =
                 (EXCLUDED.model, EXCLUDED.res_id, now() at time zone 'UTC')
-                WHERE (ir_model_data.res_id != EXCLUDED.res_id OR ir_model_data.model != EXCLUDED.model) {and_where}
-            RETURNING module, name, model, res_id, create_date, write_date
-        """.format(
-            row_names=row_names,
-            row_placeholder=row_placeholders,
-            and_where="AND NOT ir_model_data.noupdate" if update else "",
+                WHERE (ir_model_data.res_id != EXCLUDED.res_id OR ir_model_data.model != EXCLUDED.model) %s
+            RETURNING id, module, name, model, res_id, create_date, write_date
+            """,
+            row_names,
+            row_values,
+            SQL("AND NOT ir_model_data.noupdate") if update else SQL(),
         )
 
     @api.model
@@ -2447,7 +2537,7 @@ class IrModelData(models.Model):
             corresponding record.
         """
         record = self.env.ref(xml_id, raise_if_not_found=False)
-        if record:
+        if record and not self.pool.ready:
             self.pool.loaded_xmlids.add(xml_id)
         return record
 
@@ -2462,14 +2552,14 @@ class IrModelData(models.Model):
         the chance of gracefully deleting all records.
         This step is performed as part of the full uninstallation of a module.
         """
-        from odoo.orm.model_classes import add_field
+        from odoo.orm.model_classes import add_field  # noqa: PLC0415
 
         if not self.env.is_system():
             raise AccessError(_('Administrator access is required to uninstall a module'))
 
         # enable model/field deletion
         # we deactivate prefetching to not try to read a column that has been deleted
-        self = self.with_context(**{MODULE_UNINSTALL_FLAG: True, 'prefetch_fields': False})
+        self = self.with_context(force_delete=True, prefetch_fields=False)  # noqa: PLW0642
 
         # determine records to unlink
         records_items = []              # [(model, id)]
@@ -2478,7 +2568,7 @@ class IrModelData(models.Model):
         selection_ids = []
         constraint_ids = []
 
-        module_data = self.search([('module', 'in', modules_to_remove)], order='id DESC')
+        module_data = self.search([('module', 'in', modules_to_remove), ('res_id', '!=', False)], order='id DESC')
         for data in module_data:
             if data.model == 'ir.model':
                 model_ids.append(data.res_id)
@@ -2503,21 +2593,18 @@ class IrModelData(models.Model):
             if model is not None:
                 field = model._fields.get(ir_field.name)
                 if field is not None and field.prefetch:
-                    if field._toplevel:
+                    if not field._shareable:
                         # the field is specific to this registry
                         field.prefetch = False
                     else:
                         # the field is shared across registries; don't modify it
-                        Field = type(field)
-                        field_ = Field(_base_fields__=(field, Field(prefetch=False)))
-                        add_field(self.env.registry[ir_field.model], ir_field.name, field_)
-                        field_.setup(model)
+                        field_ = copy.copy(field)
+                        add_field(self.env.registry[ir_field.model], ir_field.name, field_, shareable=True)
+                        field_._shareable = False
+                        field_.prefetch = False
                         has_shared_field = True
         if has_shared_field:
-            registry = self.env.registry
-            reset_cached_properties(registry)
-            registry._field_trigger_trees.clear()
-            registry._is_modifying_relations.clear()
+            reset_cached_properties(self.env.registry)
 
         # to collect external ids of records that cannot be deleted
         undeletable_ids = []
@@ -2564,6 +2651,10 @@ class IrModelData(models.Model):
             except Exception:
                 if len(records) <= 1:
                     undeletable_ids.extend(ref_data._ids)
+                    if records._name in 'ir.model':
+                        _logger.warning("Could not delete model %s", records.model, exc_info=True)
+                    elif records._name == 'ir.model.fields':
+                        _logger.warning("Could not delete field %s.%s", records.model, records.name, exc_info=True)
                 else:
                     # divide the batch in two, and recursively delete them
                     half_size = len(records) // 2
@@ -2638,11 +2729,12 @@ class IrModelData(models.Model):
         and a module in ir_model_data and noupdate set to false, but not
         present in self.pool.loaded_xmlids.
         """
+        assert not self.env.registry.ready
         if not modules or tools.config.get('import_partial'):
             return True
 
         bad_imd_ids = []
-        self = self.with_context({MODULE_UNINSTALL_FLAG: True})
+        self = self.with_context(force_delete=True)  # noqa: PLW0642
         loaded_xmlids = self.pool.loaded_xmlids
 
         query = """ SELECT id, module || '.' || name, model, res_id FROM ir_model_data
@@ -2682,6 +2774,18 @@ class IrModelData(models.Model):
                     break
             if keep:
                 continue
+
+            # A field is reflected for a module only on the models that are in
+            # the registry when that module is loaded. A field the module adds
+            # through an inherited parent (e.g. a stored field on 'base') also
+            # exists on models of modules loaded after it, which a partial
+            # update does not reflect again for that module. Never drop a field
+            # that the module still defines: it would drop its column and data.
+            if model == 'ir.model.fields':
+                field = Model.browse(res_id)
+                module = xmlid.split('.', 1)[0]
+                if field.exists() and Model._is_field_defined_by_module(field.model, field.name, module):
+                    continue
 
             # if the record has other associated xids, only remove the xid
             if self.search_count([

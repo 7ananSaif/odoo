@@ -1,71 +1,58 @@
-import {
-    Component,
-    onMounted,
-    onWillUnmount,
-    onWillUpdateProps,
-    useComponent,
-    useEffect,
-    useRef,
-    useState,
-} from "@odoo/owl";
+import { propSignal } from "@mail/utils/common/hooks";
+
+import { Component, onMounted, onWillUnmount, signal, t, useOnChange } from "@odoo/owl";
 
 import { useService } from "@web/core/utils/hooks";
-import { deepEqual } from "@web/core/utils/objects";
 import { hidePDFJSButtons } from "@web/core/utils/pdfjs";
+import { isMobileOS } from "@web/core/browser/feature_detection";
+import { _t } from "@web/core/l10n/translation";
 
 class AbstractAttachmentView extends Component {
     static template = "mail.AttachmentView";
     static components = {};
-    static props = ["threadId", "threadModel"];
+
+    iframeViewerPdfRef = signal.ref();
 
     setup() {
         super.setup();
         this.store = useService("mail.store");
+        this.thread = propSignal("thread", t.instanceOf(this.store["mail.thread"]));
         this.uiService = useService("ui");
-        this.iframeViewerPdfRef = useRef("iframeViewerPdf");
-        this.state = useState({
-            /** @type {import("models").Thread|undefined} */
-            thread: undefined,
-        });
-        useEffect(
+        this.isMobileOS = isMobileOS();
+        useOnChange(
+            () => [this.iframeViewerPdfRef()],
             (el) => {
                 if (el) {
-                    hidePDFJSButtons(this.iframeViewerPdfRef.el);
+                    hidePDFJSButtons(el);
                 }
-            },
-            () => [this.iframeViewerPdfRef.el]
+            }
         );
-        this.updateFromProps(this.props);
-        onWillUpdateProps((props) => this.updateFromProps(props));
     }
 
     onClickNext() {
-        const index = this.state.thread.attachmentsInWebClientView.findIndex((attachment) =>
-            attachment.eq(this.state.thread.message_main_attachment_id)
+        const index = this.thread().attachmentsInWebClientView.findIndex((attachment) =>
+            attachment.eq(this.thread().message_main_attachment_id)
         );
-        this.state.thread.setMainAttachmentFromIndex(
-            index >= this.state.thread.attachmentsInWebClientView.length - 1 ? 0 : index + 1
+        this.thread().setMainAttachmentFromIndex(
+            index >= this.thread().attachmentsInWebClientView.length - 1 ? 0 : index + 1
         );
     }
 
     onClickPrevious() {
-        const index = this.state.thread.attachmentsInWebClientView.findIndex((attachment) =>
-            attachment.eq(this.state.thread.message_main_attachment_id)
+        const index = this.thread().attachmentsInWebClientView.findIndex((attachment) =>
+            attachment.eq(this.thread().message_main_attachment_id)
         );
-        this.state.thread.setMainAttachmentFromIndex(
-            index <= 0 ? this.state.thread.attachmentsInWebClientView.length - 1 : index - 1
+        this.thread().setMainAttachmentFromIndex(
+            index <= 0 ? this.thread().attachmentsInWebClientView.length - 1 : index - 1
         );
-    }
-
-    updateFromProps(props) {
-        this.state.thread = this.store.Thread.insert({
-            id: props.threadId,
-            model: props.threadModel,
-        });
     }
 
     get displayName() {
-        return this.state.thread.message_main_attachment_id.name;
+        return this.thread().message_main_attachment_id.name;
+    }
+
+    get showsPopoutControl() {
+        return !this.isMobileOS;
     }
 
     onClickPopout() {}
@@ -79,10 +66,17 @@ export class PopoutAttachmentView extends AbstractAttachmentView {
     static template = "mail.PopoutAttachmentView";
 }
 
-export function usePopoutAttachment() {
-    const component = useComponent();
+/**
+ * Signal for the popout's thread, passed straight to the popout component, which reads it
+ * and re-renders in place when the thread changes.
+ *
+ * @param {Object} signals
+ * @param {import("@odoo/owl").Signal<import("models").Thread>} signals.thread
+ */
+export function usePopoutAttachment({ thread }) {
     const uiService = useService("ui");
     const mailPopoutService = useService("mail.popout");
+    const notification = useService("notification");
 
     function attachmentViewParentElementClassList() {
         const attachmentViewEl = document.querySelector(".o-mail-Attachment");
@@ -109,14 +103,10 @@ export function usePopoutAttachment() {
         }
     }
 
-    function extractPopoutProps(props) {
-        return {
-            threadId: props.threadId,
-            threadModel: props.threadModel,
-        };
-    }
-
     function popout() {
+        if (isMobileOS()) {
+            return notification.add(_t("Pop out is not supported on mobile."), { type: "warning" });
+        }
         mailPopoutService.addHooks(
             () => {
                 hideAttachmentView();
@@ -127,13 +117,13 @@ export function usePopoutAttachment() {
                 uiService.bus.trigger("resize");
             }
         );
-        mailPopoutService.popout(PopoutAttachmentView, extractPopoutProps(component.props));
+        mailPopoutService.popout(PopoutAttachmentView, { thread });
     }
 
-    function updatePopout(newProps = component.props) {
+    function updatePopout() {
         if (mailPopoutService.externalWindow) {
             hideAttachmentView();
-            mailPopoutService.popout(PopoutAttachmentView, extractPopoutProps(newProps));
+            mailPopoutService.popout(PopoutAttachmentView, { thread });
         }
     }
 
@@ -141,32 +131,15 @@ export function usePopoutAttachment() {
         mailPopoutService.reset();
     }
 
-    onMounted(updatePopout);
-    onWillUpdateProps((props) => {
-        const oldProps = extractPopoutProps(component.props);
-        const newProps = extractPopoutProps(props);
-        if (!deepEqual(oldProps, newProps)) {
-            updatePopout(newProps);
-        }
-    });
+    onMounted(() => updatePopout());
     onWillUnmount(resetPopout);
-    return {
-        popout,
-        updatePopout,
-        resetPopout,
-    };
+    return { popout };
 }
 
-/**
- * @typedef {Object} Props
- * @property {number} threadId
- * @property {string} threadModel
- * @extends {Component<Props, Env>}
- */
 export class AttachmentView extends AbstractAttachmentView {
     setup() {
         super.setup();
-        this.attachmentPopout = usePopoutAttachment();
+        this.attachmentPopout = usePopoutAttachment({ thread: this.thread });
     }
 
     onClickPopout() {

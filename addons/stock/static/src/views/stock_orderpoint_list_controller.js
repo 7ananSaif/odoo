@@ -15,11 +15,10 @@ export class StockOrderpointListController extends ListController {
         return this.model.root.selection.length;
     }
 
-    async onClickOrder(force_to_max) {
+    async onClickOrder() {
         const resIds = await this.model.root.getResIds(true);
         const action = await this.model.orm.call(this.props.resModel, 'action_replenish', [resIds], {
             context: this.props.context,
-            force_to_max: force_to_max,
         });
         if (action) {
             await this.actionService.doAction(action);
@@ -31,7 +30,23 @@ export class StockOrderpointListController extends ListController {
         const resIds = await this.model.root.getResIds(true);
         return this.actionService.doAction('stock.action_orderpoint_snooze', {
             additionalContext: { default_orderpoint_ids: resIds },
-            onClose: () => { this.actionService.doAction({type: 'ir.actions.client', tag: 'reload'}); },
+            onClose: () => { this.actionService.doAction({type: 'ir.actions.client', tag: 'soft_reload'}); },
         });
+    }
+
+    async onClickSuggest() {
+        const resIds = await this.model.root.getResIds(true);
+        return this.actionService.doAction('stock.action_orderpoint_suggest', {
+            additionalContext: { default_orderpoint_ids: resIds },
+            onClose: () => { this.actionService.doAction({type: 'ir.actions.client', tag: 'soft_reload'}); },
+        });
+    }
+
+    async createRecord() {
+        const location_id = this.env.searchModel.categories.find((category) => category.fieldName === "location_id")?.activeValueId;
+        await super.createRecord(...arguments);
+        if (this.editedRecord && location_id) {
+            this.editedRecord.update({ location_id: { id: location_id } });
+        }
     }
 }

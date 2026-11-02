@@ -3,7 +3,7 @@ import { queryAllTexts, queryFirst } from "@odoo/hoot-dom";
 import { advanceFrame, animationFrame, disableAnimations } from "@odoo/hoot-mock";
 import { contains, mountWithCleanup } from "@web/../tests/web_test_helpers";
 
-import { Component, reactive, useRef, useState, xml } from "@odoo/owl";
+import { Component, proxy, signal, xml } from "@odoo/owl";
 import { useSortable } from "@web/core/utils/sortable_owl";
 
 beforeEach(disableAnimations);
@@ -11,15 +11,15 @@ beforeEach(disableAnimations);
 test("Parameters error handling", async () => {
     const mountListAndAssert = async (setupList) => {
         class List extends Component {
-            static props = ["*"];
             static template = xml`
-                    <div t-ref="root" class="root">
+                    <div t-ref="this.rootRef" class="root">
                         <ul class="list">
-                            <li t-foreach="[1, 2, 3]" t-as="i" t-key="i" t-esc="i" class="item" />
+                            <li t-foreach="[1, 2, 3]" t-as="i" t-key="i" t-out="i" class="item" />
                         </ul>
                     </div>`;
+            rootRef = signal.ref();
             setup() {
-                setupList();
+                setupList(this);
             }
         }
 
@@ -49,21 +49,21 @@ test("Parameters error handling", async () => {
     });
 
     // Correct params
-    await mountListAndAssert(() => {
+    await mountListAndAssert((comp) => {
         useSortable({
-            ref: useRef("root"),
+            ref: comp.rootRef,
         });
     });
     await mountListAndAssert(() => {
         useSortable({
-            ref: {},
+            ref: () => null,
             elements: ".item",
             enable: false,
         });
     });
-    await mountListAndAssert(() => {
+    await mountListAndAssert((comp) => {
         useSortable({
-            ref: useRef("root"),
+            ref: comp.rootRef,
             elements: ".item",
             connectGroups: () => true,
         });
@@ -74,16 +74,16 @@ test("Simple sorting in single group", async () => {
     expect.assertions(18);
 
     class List extends Component {
-        static props = ["*"];
         static template = xml`
-            <div t-ref="root" class="root">
+            <div t-ref="this.rootRef" class="root">
                 <ul class="list">
-                    <li t-foreach="[1, 2, 3]" t-as="i" t-key="i" t-esc="i" class="item" />
+                    <li t-foreach="[1, 2, 3]" t-as="i" t-key="i" t-out="i" class="item" />
                 </ul>
             </div>`;
+        rootRef = signal.ref();
         setup() {
             useSortable({
-                ref: useRef("root"),
+                ref: this.rootRef,
                 elements: ".item",
                 onDragStart({ element, group }) {
                     expect.step("start");
@@ -131,16 +131,16 @@ test("Simple sorting in multiple groups", async () => {
     expect.assertions(16);
 
     class List extends Component {
-        static props = ["*"];
         static template = xml`
-                <div t-ref="root" class="root">
+                <div t-ref="this.rootRef" class="root">
                     <ul t-foreach="[1, 2, 3]" t-as="l" t-key="l" t-attf-class="list p-3 list{{ l }}">
-                        <li t-foreach="[1, 2, 3]" t-as="i" t-key="i" t-esc="l + ' ' + i" class="item" />
+                        <li t-foreach="[1, 2, 3]" t-as="i" t-key="i" t-out="l + ' ' + i" class="item" />
                     </ul>
                 </div>`;
+        rootRef = signal.ref();
         setup() {
             useSortable({
-                ref: useRef("root"),
+                ref: this.rootRef,
                 elements: ".item",
                 groups: ".list",
                 connectGroups: true,
@@ -205,18 +205,17 @@ test("Sorting in groups with distinct per-axis scrolling", async () => {
     };
 
     class List extends Component {
-        static props = ["*"];
         static template = xml`
             <div style="left:0;top:0; position: fixed; width: 100%; height: 100%;">
                 <div class="scroll_parent_y" style="max-width: 150px; max-height: 200px; overflow-y: scroll; overflow-x: hidden;">
                     <div class="spacer_before" style="min-height: 50px;"></div>
                     <div class="spacer_horizontal" style="min-height: 50px;"></div>
-                    <div t-ref="root" class="root d-flex align-items-end" style="overflow-x: scroll;">
+                    <div t-ref="this.rootRef" class="root d-flex align-items-end" style="overflow-x: scroll;">
                         <div class="d-flex">
                             <div style="padding-left: 20px;"
                                 t-foreach="[1, 2, 3]" t-as="c" t-key="c" t-attf-class="list m-0 list{{ c }}">
                                 <div style="min-width: 50px; min-height: 50px; padding-top: 20px;"
-                                    t-foreach="[1, 2, 3]" t-as="l" t-key="l" t-esc="'item' + l + '' + c" t-attf-class="item item{{ l + '' + c }}"/>
+                                    t-foreach="[1, 2, 3]" t-as="l" t-key="l" t-out="'item' + l + '' + c" t-attf-class="item item{{ l + '' + c }}"/>
                             </div>
                         </div>
                     </div>
@@ -224,9 +223,10 @@ test("Sorting in groups with distinct per-axis scrolling", async () => {
                 </div>
             </div>
             `;
+        rootRef = signal.ref();
         setup() {
             useSortable({
-                ref: useRef("root"),
+                ref: this.rootRef,
                 elements: ".item",
                 groups: ".list",
                 connectGroups: true,
@@ -330,22 +330,22 @@ test("Sorting in groups with distinct per-axis scrolling", async () => {
 
 test("draggable area contains overflowing visible elements", async () => {
     class List extends Component {
-        static props = ["*"];
         static template = xml`
                 <div class="controller" style="max-width: 900px; min-width: 900px;">
                     <div class="content" style="max-width: 600px;">
-                        <div t-ref="renderer" class="renderer d-flex" style="overflow: visible;">
+                        <div t-ref="this.rendererRef" class="renderer d-flex" style="overflow: visible;">
                             <div t-foreach="[1, 2, 3]" t-as="c" t-key="c" t-attf-class="list m-0 list{{ c }}">
                                 <div style="min-width: 300px; min-height: 50px;"
-                                    t-foreach="[1, 2, 3]" t-as="l" t-key="l" t-esc="'item' + l + '' + c" t-attf-class="item item{{ l + '' + c }}"/>
+                                    t-foreach="[1, 2, 3]" t-as="l" t-key="l" t-out="'item' + l + '' + c" t-attf-class="item item{{ l + '' + c }}"/>
                             </div>
                         </div>
                     </div>
                 </div>
             `;
+        rendererRef = signal.ref();
         setup() {
             useSortable({
-                ref: useRef("renderer"),
+                ref: this.rendererRef,
                 elements: ".item",
                 groups: ".list",
                 connectGroups: true,
@@ -387,22 +387,83 @@ test("draggable area contains overflowing visible elements", async () => {
     expect(".item.o_dragged").toHaveCount(0);
 });
 
+test("draggable area contains overflowing visible elements (RTL)", async () => {
+    class List extends Component {
+        static template = xml`
+                <div class="controller" style="max-width: 900px; min-width: 900px; direction: rtl;">
+                    <div class="content" style="max-width: 600px;">
+                        <div t-ref="this.rootRef" class="renderer d-flex" style="overflow: visible;">
+                            <div t-foreach="[1, 2, 3]" t-as="c" t-key="c" t-attf-class="list m-0 list{{ c }}">
+                                <div style="min-width: 300px; min-height: 50px;"
+                                    t-foreach="[1, 2, 3]" t-as="l" t-key="l" t-out="'item' + l + '' + c" t-attf-class="item item{{ l + '' + c }}"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        rootRef = signal.ref();
+        setup() {
+            useSortable({
+                ref: this.rootRef,
+                elements: ".item",
+                groups: ".list",
+                connectGroups: true,
+                touchDelay: 0,
+            });
+        }
+    }
+
+    await mountWithCleanup(List);
+
+    const controller = queryFirst(".controller");
+    const content = queryFirst(".content");
+    const renderer = queryFirst(".renderer");
+
+    expect(content).toHaveProperty("scrollLeft", 0);
+    expect(controller).toHaveRect({ width: 900 });
+    expect(content).toHaveRect({ width: 600 });
+    expect(renderer).toHaveRect({ width: 600 });
+    expect(renderer).toHaveProperty("scrollWidth", 900);
+    expect(".item.o_dragged").toHaveCount(0);
+
+    const overflowLeft = renderer.getBoundingClientRect().right - renderer.scrollWidth;
+
+    const { cancel, moveTo } = await contains(".item11").drag();
+
+    // Drag first record of first group to the left
+    await moveTo(".list3 .item:first");
+
+    // Verify that there is no scrolling
+    expect(content).toHaveProperty("scrollLeft", 0);
+    expect(".item.o_dragged").toHaveCount(1);
+
+    // Verify that the dragged element is allowed to go inside the
+    // overflowing part of the draggable container.
+    expect(".item.o_dragged").toHaveRect({ left: overflowLeft });
+    expect(".list3 .item:first").toHaveRect({ left: overflowLeft });
+
+    // Cancel drag
+    await cancel();
+
+    expect(".item.o_dragged").toHaveCount(0);
+});
+
 test("Dynamically disable sortable feature", async () => {
     expect.assertions(3);
 
-    const state = reactive({ enableSortable: true });
+    const state = proxy({ enableSortable: true });
     class List extends Component {
-        static props = ["*"];
         static template = xml`
-                <div t-ref="root" class="root">
+                <div t-ref="this.rootRef" class="root">
                     <ul class="list">
-                        <li t-foreach="[1, 2, 3]" t-as="i" t-key="i" t-esc="i" class="item" />
+                        <li t-foreach="[1, 2, 3]" t-as="i" t-key="i" t-out="i" class="item" />
                     </ul>
                 </div>`;
+        rootRef = signal.ref();
         setup() {
-            this.state = useState(state);
+            this.state = proxy(state);
             useSortable({
-                ref: useRef("root"),
+                ref: this.rootRef,
                 elements: ".item",
                 enable: () => this.state.enableSortable,
                 onDragStart() {
@@ -436,17 +497,17 @@ test("Drag has a default tolerance of 10 pixels before initiating the dragging",
     expect.assertions(2);
 
     class List extends Component {
-        static props = ["*"];
         static template = xml`
-                <div t-ref="root" class="root">
+                <div t-ref="this.rootRef" class="root">
                     <ul class="list">
-                        <li t-foreach="[1, 2, 3]" t-as="i" t-key="i" t-esc="i" class="item" />
+                        <li t-foreach="[1, 2, 3]" t-as="i" t-key="i" t-out="i" class="item" />
                     </ul>
                 </div>`;
 
+        rootRef = signal.ref();
         setup() {
             useSortable({
-                ref: useRef("root"),
+                ref: this.rootRef,
                 elements: ".item",
                 onDragStart() {
                     expect.step("Initiation of the drag sequence");
@@ -484,19 +545,19 @@ test("Ignore specified elements", async () => {
     expect.assertions(4);
 
     class List extends Component {
-        static props = ["*"];
         static template = xml`
-                <div t-ref="root" class="root">
+                <div t-ref="this.rootRef" class="root">
                     <ul class="list">
                         <li t-foreach="[1, 2, 3]" t-as="i" t-key="i" class="item">
-                            <span class="ignored" t-esc="i" />
-                            <span class="not-ignored" t-esc="i" />
+                            <span class="ignored" t-out="i" />
+                            <span class="not-ignored" t-out="i" />
                         </li>
                     </ul>
                 </div>`;
+        rootRef = signal.ref();
         setup() {
             useSortable({
-                ref: useRef("root"),
+                ref: this.rootRef,
                 elements: ".item",
                 ignore: ".ignored",
                 onDragStart() {
@@ -532,16 +593,16 @@ test("the classes parameters (placeholderElement, helpElement)", async () => {
     let dragElement;
 
     class List extends Component {
-        static props = ["*"];
         static template = xml`
-                <div t-ref="root" class="root">
+                <div t-ref="this.rootRef" class="root">
                     <ul class="list">
-                        <li t-foreach="[1, 2, 3]" t-as="i" t-key="i" t-esc="i" class="item" />
+                        <li t-foreach="[1, 2, 3]" t-as="i" t-key="i" t-out="i" class="item" />
                     </ul>
                 </div>`;
+        rootRef = signal.ref();
         setup() {
             useSortable({
-                ref: useRef("root"),
+                ref: this.rootRef,
                 elements: ".item",
                 placeholderClasses: ["placeholder-t1", "placeholder-t2"],
                 followingElementClasses: ["add-1", "add-2"],
@@ -571,16 +632,16 @@ test("applyChangeOnDrop option", async () => {
     expect.assertions(2);
 
     class List extends Component {
-        static props = ["*"];
         static template = xml`
-                <div t-ref="root" class="root">
+                <div t-ref="this.rootRef" class="root">
                     <ul class="list">
-                        <li t-foreach="[1, 2, 3]" t-as="i" t-key="i" t-esc="i" class="item" />
+                        <li t-foreach="[1, 2, 3]" t-as="i" t-key="i" t-out="i" class="item" />
                     </ul>
                 </div>`;
+        rootRef = signal.ref();
         setup() {
             useSortable({
-                ref: useRef("root"),
+                ref: this.rootRef,
                 elements: ".item",
                 placeholderClasses: ["placeholder"],
                 applyChangeOnDrop: true,
@@ -603,16 +664,16 @@ test("clone option", async () => {
     expect.assertions(2);
 
     class List extends Component {
-        static props = ["*"];
         static template = xml`
-                <div t-ref="root" class="root">
+                <div t-ref="this.rootRef" class="root">
                     <ul class="list">
-                        <li t-foreach="[1, 2, 3]" t-as="i" t-key="i" t-esc="i" class="item" />
+                        <li t-foreach="[1, 2, 3]" t-as="i" t-key="i" t-out="i" class="item" />
                     </ul>
                 </div>`;
+        rootRef = signal.ref();
         setup() {
             useSortable({
-                ref: useRef("root"),
+                ref: this.rootRef,
                 elements: ".item",
                 placeholderClasses: ["placeholder"],
                 clone: false,
@@ -631,19 +692,19 @@ test("clone option", async () => {
 
 test("dragged element is removed from the DOM while being dragged", async () => {
     class List extends Component {
-        static props = ["*"];
         static template = xml`
-            <div t-ref="root" class="root">
+            <div t-ref="this.rootRef" class="root">
                 <ul class="list">
-                    <li t-foreach="state.items" t-as="i" t-key="i" t-esc="i" class="item" />
+                    <li t-foreach="this.state.items" t-as="i" t-key="i" t-out="i" class="item" />
                 </ul>
             </div>`;
+        rootRef = signal.ref();
         setup() {
-            this.state = useState({
+            this.state = proxy({
                 items: [1, 2, 3],
             });
             useSortable({
-                ref: useRef("root"),
+                ref: this.rootRef,
                 elements: ".item",
                 onDragStart() {
                     expect.step("start");

@@ -16,7 +16,11 @@ import { isObject } from "@web/core/utils/objects";
 import { hashCode } from "@web/core/utils/strings";
 import { serverState } from "../mock_server_state.hoot";
 import { fetchModelDefinitions, globalCachedFetch, registerModelToFetch } from "../module_set.hoot";
-import { DEFAULT_FIELD_PROPERTIES, getFieldDisplayName, S_SERVER_FIELD } from "./mock_fields";
+import {
+    DEFAULT_FIELD_PROPERTIES,
+    getFieldDisplayName,
+    validateAndCleanupField,
+} from "./mock_fields";
 import {
     getRecordQualifier,
     makeKwArgs,
@@ -24,6 +28,8 @@ import {
     MockServerError,
     safeSplit,
 } from "./mock_server_utils";
+
+import { loadLanguages } from "@web/core/l10n/translation";
 
 const { DateTime } = luxon;
 
@@ -561,6 +567,14 @@ export class MockServer {
         this._onRoute(["/web/image/<string:model>/<int:id>/<string:field>"], this.loadImage);
         this._onRoute(["/web/webclient/load_menus"], this.loadMenus);
         this._onRoute(["/web/webclient/translations"], this.loadTranslations);
+        this._onRoute(
+            ["/web/translations/get_translation_for_field"],
+            this.getTranslationsForField
+        );
+        this._onRoute(
+            ["/web/translations/save_translation_for_field"],
+            this.saveTranslationForField
+        );
 
         // Register ambiant parameters
         await this.configure(getCurrentParams());
@@ -862,8 +876,10 @@ export class MockServer {
      */
     async _loadModels() {
         const models = this._modelSpecs;
-        const serverModelInheritances = new Set();
         this._modelSpecs = [];
+
+        const allServerFields = new Set();
+        const serverModelInheritances = new Set();
 
         let serverModels = {};
         if (this._modelNamesToFetch.size) {
@@ -910,16 +926,21 @@ export class MockServer {
                 }
 
                 // Fields (lowest priority): server fields definitions
-                for (const [fieldName, serverField] of Object.entries(fields)) {
-                    model._fields[fieldName] = {
-                        ...DEFAULT_FIELD_PROPERTIES,
-                        ...serverField,
-                        ...model._fields[fieldName],
-                        [S_SERVER_FIELD]: true,
-                    };
+                for (const [fieldName, serverFieldDefinition] of Object.entries(fields)) {
+                    const serverField = validateAndCleanupField({
+                        ...DEFAULT_FIELD_PROPERTIES, // 1. common default field properties
+                        ...serverFieldDefinition, // 2. server field properties
+                        ...model._fields[fieldName], // 3. custom properties on local model
+                    });
+                    allServerFields.add(serverField);
+                    model._fields[fieldName] = serverField;
                 }
 
                 Object.assign(model, otherProperties);
+            } else {
+                for (const field of Object.values(model._fields)) {
+                    validateAndCleanupField(field);
+                }
             }
 
             // Validate _rec_name
@@ -980,7 +1001,8 @@ export class MockServer {
             for (const [fieldName, field] of Object.entries(model._fields)) {
                 // Check missing models
                 if (field.relation && !this._models[field.relation]) {
-                    if (field[S_SERVER_FIELD]) {
+                    if (allServerFields.has(field)) {
+                        // Delete server fields that are not loaded
                         delete model._fields[fieldName];
                         continue;
                     } else {
@@ -1045,6 +1067,7 @@ export class MockServer {
                 }
                 model.push(record);
             }
+            model._lastRecId = Math.max(model._lastRecId, ...seenIds, 0);
             model._records = [];
 
             // Records without ID are assigned later to avoid collisions
@@ -1220,6 +1243,141 @@ export class MockServer {
             }
         }
         return null;
+    }
+
+    _getEditTranslationXML(res_id, values, languages, translateFn) {
+        const langTerms = {};
+        const translated = {};
+
+        const getEditTranslationStr = (value, hash, translated) => {
+            translated = translated ? "translated" : "to_translate";
+            return (
+                `<span data-oe-id="${res_id}" data-oe-translation-source-sha="${hash}" data-oe-translation-state="${translated}">` +
+                `${value}` +
+                `</span>`
+            );
+        };
+
+        let currentLang;
+        const callback = (value) => {
+            const index = langTerms[currentLang].push(value) - 1;
+            const translated = currentLang !== "en_US" ? value !== langTerms["en_US"][index] : true;
+            return getEditTranslationStr(value, index, translated);
+        };
+
+        const orderedLangs = {
+            en_US: true,
+            ...Object.fromEntries(languages.map((l) => [l, true])),
+        };
+
+        for (const lang of Object.keys(orderedLangs)) {
+            langTerms[lang] = [];
+            currentLang = lang;
+            translated[lang] = translateFn(callback, values[lang] || values["en_US"]);
+        }
+        currentLang = null;
+
+        const terms = [];
+        for (const [lang, values] of Object.entries(langTerms)) {
+            for (let i = 0; i < values.length; i++) {
+                terms.push({
+                    lang,
+                    source: langTerms["en_US"][i],
+                    source_sha: i,
+                    value: values[i],
+                });
+            }
+        }
+        return { terms, translated };
+    }
+
+    async getTranslationsForField(request) {
+        const { params } = await request.json();
+        const { res_model, res_id, field_name, target_lang } = params;
+        const Model = this.env[res_model];
+        const field = Model._fields[field_name];
+        if (!field.translate) {
+            throw new MockServerError(`field "${field_name}" on "${res_model}" not translatable`);
+        }
+
+        const _terms = {
+            ...Model._translations?.[`${res_id},${field_name}`],
+            en_US: Model.browse(res_id)[0][field_name],
+        };
+
+        const languages = Object.fromEntries(
+            loadLanguages.installedLanguages
+                .sort((a, b) => a[1].localeCompare(b[1]))
+                .map(([code, name]) => [code, { name, is_base: code !== "en_US", code }])
+        );
+
+        let xml_values;
+        let terms;
+        let translation_mode;
+        if (typeof field.translate === "function") {
+            ({ terms, translated: xml_values } = this._getEditTranslationXML(
+                res_id,
+                _terms,
+                [target_lang],
+                field.translate
+            ));
+            translation_mode = "xml";
+        } else {
+            terms = Object.keys(languages).map((lang) => ({
+                lang,
+                source: _terms["en_US"],
+                value: _terms[lang] || _terms["en_US"],
+            }));
+        }
+
+        const fieldToMode = {
+            char: "text",
+        };
+        return {
+            xml_values,
+            terms, // API of py: model.get_field_translations
+            translation_mode: translation_mode ?? fieldToMode[field.type] ?? field.type,
+            languages,
+        };
+    }
+
+    async saveTranslationForField(request) {
+        const { params } = await request.json();
+        const { res_model, res_id, field_name, context } = params;
+        let changes = params.changes;
+        const Model = this.env[res_model];
+        Model._translations ??= {};
+        Model._translations[`${res_id},${field_name}`] ??= {};
+        const translations = Model._translations[`${res_id},${field_name}`];
+
+        const translateFn = Model._fields[field_name].translate;
+        if (typeof translateFn === "function") {
+            let index;
+            let currentLang;
+            const callback = (value) => changes[currentLang][`${index++}`];
+            const fullChanges = {};
+            for (const lang of Object.keys(changes)) {
+                currentLang = lang;
+                index = 0;
+                const value = translations[lang] || Model.browse(res_id)[0][field_name];
+                fullChanges[lang] = translateFn(callback, value);
+            }
+            Object.assign(translations, fullChanges);
+            changes = fullChanges;
+        } else {
+            for (const [lang, value] of Object.entries(changes)) {
+                if (value === null) {
+                    delete translations[lang];
+                } else {
+                    translations[lang] = value;
+                }
+            }
+        }
+
+        const baseLang = context?.lang ?? this.serverState.lang;
+        if (baseLang in changes) {
+            Model.browse(res_id)[0][field_name] = changes[baseLang];
+        }
     }
 
     /**

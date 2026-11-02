@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import re
@@ -6,11 +5,11 @@ from itertools import chain
 from stdnum.util import clean
 
 from odoo import api, fields, models, _
-from odoo.addons.base.models.res_bank import sanitize_account_number
-from odoo.addons.base_iban.models.res_partner_bank import normalize_iban, pretty_iban, validate_iban, get_iban_part
+from odoo.addons.base.models.res_partner_bank import sanitize_account_number
+from odoo.tools.bank_account_number import format_account_number, validate_iban, get_iban_part
 from odoo.exceptions import ValidationError
-from odoo.tools import LazyTranslate, street_split
-from odoo.tools.misc import mod10r
+from odoo.tools import LazyTranslate
+from odoo.tools.business_data import street_split, mod10r
 
 _lt = LazyTranslate(__name__)
 
@@ -18,9 +17,9 @@ _lt = LazyTranslate(__name__)
 UNICODE_ALLOWED = {chr(ucode) for ucode in
                    chain(range(0x20, 0x80), range(0xA0, 0x180), range(0x218, 0x21C), [0x20AC])}
 
-def validate_qr_iban(qr_iban):
+def validate_qr_iban(env, qr_iban):
     # Check first if it's a valid IBAN.
-    validate_iban(qr_iban)
+    validate_iban(env, qr_iban)
 
     # We sanitize first so that _check_qr_iban_range() can extract correct IID from IBAN to validate it.
     sanitized_qr_iban = sanitize_account_number(qr_iban)
@@ -65,16 +64,16 @@ class ResPartnerBank(models.Model):
             else:
                 bank.l10n_ch_display_qr_bank_options = self.env.company.account_fiscal_country_id.code in ('CH', 'LI')
 
-    @api.depends('acc_number')
+    @api.depends('account_number')
     def _compute_l10n_ch_qr_iban(self):
         for record in self:
             try:
-                validate_qr_iban(record.acc_number)
+                validate_qr_iban(self.env, record.account_number)
                 valid_qr_iban = True
             except ValidationError:
                 valid_qr_iban = False
             if valid_qr_iban:
-                record.l10n_ch_qr_iban = record.sanitized_acc_number
+                record.l10n_ch_qr_iban = record.sanitized_account_number
             else:
                 record.l10n_ch_qr_iban = None
 
@@ -82,14 +81,14 @@ class ResPartnerBank(models.Model):
     def create(self, vals_list):
         for vals in vals_list:
             if vals.get('l10n_ch_qr_iban'):
-                validate_qr_iban(vals['l10n_ch_qr_iban'])
-                vals['l10n_ch_qr_iban'] = pretty_iban(normalize_iban(vals['l10n_ch_qr_iban']))
+                validate_qr_iban(self.env, vals['l10n_ch_qr_iban'])
+                vals['l10n_ch_qr_iban'] = format_account_number(self.env, vals['l10n_ch_qr_iban'])
         return super().create(vals_list)
 
     def write(self, vals):
         if vals.get('l10n_ch_qr_iban'):
-            validate_qr_iban(vals['l10n_ch_qr_iban'])
-            vals['l10n_ch_qr_iban'] = pretty_iban(normalize_iban(vals['l10n_ch_qr_iban']))
+            validate_qr_iban(self.env, vals['l10n_ch_qr_iban'])
+            vals['l10n_ch_qr_iban'] = format_account_number(self.env, vals['l10n_ch_qr_iban'])
         return super().write(vals)
 
     def _l10n_ch_filter_text(self, value):
@@ -115,7 +114,7 @@ class ResPartnerBank(models.Model):
         # and must then be 27 characters-long, with mod10r check digit as the 27th one)
         reference_type = 'NON'
         reference = ''
-        acc_number = self.sanitized_acc_number
+        acc_number = self.sanitized_account_number
 
         if self.l10n_ch_qr_iban:
             # _check_for_qr_code_errors ensures we can't have a QR-IBAN without a QR-reference here
@@ -126,8 +125,8 @@ class ResPartnerBank(models.Model):
             reference_type = 'SCOR'
             reference = structured_communication.replace(' ', '')
 
-        currency = currency or self.currency_id or self.company_id.currency_id
-        cred_name = filter_text(self.acc_holder_name or self.partner_id.name)
+        currency = currency or self.company_id.currency_id
+        cred_name = filter_text(self.holder_name or self.partner_id.name)
         debt_name = filter_text(debtor_partner.commercial_partner_id.name)
 
         result = [
@@ -244,7 +243,7 @@ class ResPartnerBank(models.Model):
     def _get_error_messages_for_qr(self, qr_method, debtor_partner, currency):
         def _get_error_for_ch_qr():
             error_messages = [_("The Swiss QR code could not be generated for the following reason(s):")]
-            if self.acc_type != 'iban':
+            if self.account_type != 'iban':
                 error_messages.append(_("The account type isn't QR-IBAN or IBAN."))
             debtor_check = self._l10n_ch_qr_debtor_check(debtor_partner)
             if debtor_partner and debtor_check:
@@ -261,15 +260,22 @@ class ResPartnerBank(models.Model):
         def _partner_fields_set(partner):
             return partner.zip and \
                    partner.city and \
-                   partner.country_id.code and \
-                   (partner.street or partner.street2)
+                   partner.country_id.code
 
         if qr_method == 'ch_qr':
             if not _partner_fields_set(self.partner_id):
-                return _("The partner set on the bank account meant to receive the payment (%s) must have a complete postal address (street, zip, city and country).", self.acc_number)
+                return _(
+                    "The partner set on the bank account meant to receive "
+                    "the payment (%s) must have the necessary postal address "
+                    "information (zip, city and country).",
+                    self.account_number,
+                )
 
             if debtor_partner and not _partner_fields_set(debtor_partner):
-                return _("The partner must have a complete postal address (street, zip, city and country).")
+                return _(
+                    "The partner must have the necessary postal address "
+                    "information (zip, city and country).",
+                )
 
             if self.l10n_ch_qr_iban and not self._is_qr_reference(structured_communication):
                 return _("When using a QR-IBAN as the destination account of a QR-code, the payment reference must be a QR-reference.")

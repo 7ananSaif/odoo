@@ -1,35 +1,29 @@
-import { Component, onMounted, useRef, useState } from "@odoo/owl";
+import { Component, onMounted, useProps, proxy, signal, t } from "@odoo/owl";
 import { Dialog } from "@web/core/dialog/dialog";
 
 export class TextInputPopup extends Component {
     static template = "point_of_sale.TextInputPopup";
     static components = { Dialog };
-    static props = {
-        title: String,
-        size: { type: String, optional: true },
-        buttons: { type: Array, optional: true },
-        startingValue: { type: String, optional: true },
-        placeholder: { type: String, optional: true },
-        rows: { type: Number, optional: true },
-        getPayload: Function,
-        close: Function,
-    };
-    static defaultProps = {
-        startingValue: "",
-        placeholder: "",
-        size: "lg",
-        rows: 1,
-        buttons: [],
-    };
+    props = useProps({
+        title: t.string(),
+        size: t.string().optional("lg"),
+        buttons: t.array().optional([]),
+        startingValue: t.string().optional(""),
+        placeholder: t.string().optional(""),
+        rows: t.number().optional(1),
+        removeNewLines: t.boolean().optional(),
+        getPayload: t.function(),
+        close: t.function(),
+    });
 
+    inputRef = signal.ref();
     setup() {
-        this.state = useState({ inputValue: this.props.startingValue });
-        this.inputRef = useRef("input");
+        this.state = proxy({ inputValue: this.props.startingValue });
         onMounted(this.onMounted);
     }
     onMounted() {
-        this.inputRef.el.focus();
-        this.inputRef.el.select();
+        this.inputRef()?.focus();
+        this.inputRef()?.select();
     }
     confirm() {
         this.props.getPayload(this.state.inputValue);
@@ -55,10 +49,18 @@ export class TextInputPopup extends Component {
     onKeydown(ev) {
         if (this.props.rows === 1 && ev.key.toUpperCase() === "ENTER") {
             ev.preventDefault();
-            ev.stopPropagation();
             if (this.state.inputValue.trim()) {
                 this.confirm();
             }
+        }
+    }
+
+    onPaste(ev) {
+        if (this.props.removeNewLines) {
+            ev.preventDefault();
+            const pastedText = ev.clipboardData.getData("text");
+            const cleanedText = pastedText.replace(/\r?\n/g, "");
+            document.execCommand("insertText", false, cleanedText);
         }
     }
 }

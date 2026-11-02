@@ -6,6 +6,7 @@
     font: 13px / 19.5px SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
     pre, textarea.o_prism_source {
+        direction: ltr #{"/*rtl:ignore*/"};
         margin: 0;
         padding: 20px 16px 8px 16px;
     }
@@ -60,7 +61,7 @@
     .o_code_toolbar {
         position: absolute;
         top: 0;
-        right: 0;
+        right: 0 #{"/*rtl:ignore*/"};
         padding: 3px 4px;
         z-index: 1;
         align-items: center;
@@ -72,7 +73,7 @@
             align-items: center;
             height: 20px;
             padding: 0 3px 0 0;
-            font-size: 12px;
+            font-size: 12px !important;
             --btn-hover-bg: #{$o-gray-200};
         }
     }
@@ -82,6 +83,12 @@
     &:focus-within {
         .o_code_toolbar {
             display: flex;
+        }
+    }
+
+    &.o-code-wrap {
+        pre, textarea {
+            white-space: pre-wrap !important;
         }
     }
 }

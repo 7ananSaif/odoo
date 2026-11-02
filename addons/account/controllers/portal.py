@@ -16,28 +16,18 @@ from odoo.addons.portal.controllers.portal import pager as portal_pager
 
 class PortalAccount(CustomerPortal):
 
-    def _prepare_home_portal_values(self, counters):
-        values = super()._prepare_home_portal_values(counters)
-        if 'overdue_invoice_count' in counters:
-            values['overdue_invoice_count'] = self._get_overdue_invoice_count()
-        if 'invoice_count' in counters:
-            invoice_count = request.env['account.move'].search_count(self._get_invoices_domain('out'), limit=1) \
-                if request.env['account.move'].has_access('read') else 0
-            values['invoice_count'] = invoice_count
-        if 'bill_count' in counters:
-            bill_count = request.env['account.move'].search_count(self._get_invoices_domain('in'), limit=1) \
-                if request.env['account.move'].has_access('read') else 0
-            values['bill_count'] = bill_count
-        return values
+    def _prepare_portal_counter_values(self, counter):
+        if counter == 'overdue_invoice_count':
+            return 'account.move', self._get_overdue_invoices_domain(), 'read'
+        if counter == 'invoice_count':
+            return 'account.move', self._get_invoices_domain('out'), 'read'
+        if counter == 'bill_count':
+            return 'account.move', self._get_invoices_domain('in'), 'read'
+        return super()._prepare_portal_counter_values(counter)
 
     # ------------------------------------------------------------
     # My Invoices
     # ------------------------------------------------------------
-
-    def _get_overdue_invoice_count(self):
-        overdue_invoice_count = request.env['account.move'].search_count(self._get_overdue_invoices_domain()) \
-            if request.env['account.move'].has_access('read') else 0
-        return overdue_invoice_count
 
     def _invoice_get_page_view_values(self, invoice, access_token, **kwargs):
         custom_amount = None
@@ -61,7 +51,7 @@ class PortalAccount(CustomerPortal):
             ('state', 'not in', ('cancel', 'draft')),
             ('move_type', 'in', ('out_invoice', 'out_receipt')),
             ('payment_state', 'not in', ('in_payment', 'paid', 'reversed', 'blocked', 'invoicing_legacy')),
-            ('invoice_date_due', '<', fields.Date.today()),
+            ('invoice_date_due', '<', fields.Date.context_today(request.env.user)),
             ('partner_id', '=', partner_id or request.env.user.partner_id.id),
         ]
 
@@ -146,7 +136,8 @@ class PortalAccount(CustomerPortal):
             'sortby': sortby,
             'searchbar_filters': OrderedDict(sorted(searchbar_filters.items())),
             'filterby': filterby,
-            'overdue_invoice_count': self._get_overdue_invoice_count(),
+            'overdue_invoice_count': request.env['account.move'].search_count(self._get_overdue_invoices_domain())
+                if request.env['account.move'].has_access('read') else 0,
         })
         return values
 
@@ -161,8 +152,9 @@ class PortalAccount(CustomerPortal):
             # Download the official attachment(s) or a Pro Forma invoice
             docs_data = invoice_sudo._get_invoice_legal_documents_all(allow_fallback=True)
             if len(docs_data) == 1:
-                headers = self._get_http_headers(invoice_sudo, report_type, docs_data[0]['content'], download)
-                return request.make_response(docs_data[0]['content'], list(headers.items()))
+                raw = bytes(docs_data[0]['content'])
+                headers = self._get_http_headers(invoice_sudo, report_type, raw, download)
+                return request.make_response(raw, list(headers.items()))
             else:
                 filename = invoice_sudo._get_invoice_report_filename(extension='zip')
                 zip_content = _build_zip_from_data(docs_data)
@@ -236,6 +228,63 @@ class PortalAccount(CustomerPortal):
         rendering_values = super()._prepare_my_account_rendering_values(*args, **kwargs)
         rendering_values.update({
             'invoice_sending_methods': {'email': _("by Email")},
-            'invoice_edi_formats': dict(request.env['res.partner']._fields['invoice_edi_format'].selection),
+            'invoice_edi_formats': dict(request.env['res.partner']._fields['invoice_edi_format']._description_selection(request.env)),
         })
         return rendering_values
+
+    # ------------------------------------------------------------
+    # Address form - additional identifiers
+    # ------------------------------------------------------------
+
+    def _get_checkout_additional_identifiers_metadata(self, country):
+        """Return additional identifiers for a country."""
+        if not country:
+            return {}
+        ResPartner = request.env['res.partner']
+        partner = ResPartner.new({'country_id': country.id})
+        metadata = partner.available_additional_identifiers_metadata
+        whitelist = ResPartner._get_portal_additional_identifiers_whitelist(
+            company=request.env.company,
+            country=country,
+        )
+        return {
+            key: {
+                'label': entry.get('label') or key,
+                'placeholder': entry.get('placeholder') or '',
+                'help': entry.get('help') or '',
+            }
+            for key, entry in sorted(metadata.items(), key=lambda item: item[1].get('sequence', 100))
+            if key in whitelist
+        }
+
+    def _prepare_address_form_values(self, partner_sudo, *args, **kwargs):
+        rendering_values = super()._prepare_address_form_values(partner_sudo, *args, **kwargs)
+        if rendering_values['is_used_as_billing']:
+            metadata = self._get_checkout_additional_identifiers_metadata(rendering_values['country'])
+            current_partner = partner_sudo or rendering_values['current_partner']
+            rendering_values.update({
+                'additional_identifiers_metadata': metadata,
+                'partner_additional_identifiers': current_partner.additional_identifiers or {},
+            })
+        return rendering_values
+
+    @http.route()
+    def portal_address_country_info(self, country, address_type, **kw):
+        res = super().portal_address_country_info(country, address_type, **kw)
+        res['additional_identifiers_metadata'] = self._get_checkout_additional_identifiers_metadata(country)
+        return res
+
+    def _validate_address_values(self, address_values, *args, **kwargs):
+        invalid_fields, missing_fields, error_messages = super()._validate_address_values(
+            address_values, *args, **kwargs
+        )
+        additional_identifiers = address_values.get('additional_identifiers') or {}
+        ResPartner = request.env['res.partner']
+        if address_values.get('vat'):
+            individual_keys = [key for key in additional_identifiers if ResPartner._is_individual_identifier(key)]
+            if individual_keys:
+                invalid_fields.update(individual_keys)
+                error_messages.append(request.env._(
+                    "An individual identifier cannot be combined with a VAT number."
+                ))
+        return invalid_fields, missing_fields, error_messages

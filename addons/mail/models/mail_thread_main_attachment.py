@@ -14,15 +14,10 @@ class MailThreadMainAttachment(models.AbstractModel):
 
     message_main_attachment_id = fields.Many2one(string="Main Attachment", comodel_name='ir.attachment', copy=False, index='btree_not_null')
 
-    def _message_post_after_hook(self, message, msg_values):
+    def _message_post_after_hook(self, message):
         """ Set main attachment field if necessary """
-        super()._message_post_after_hook(message, msg_values)
-        self.sudo()._message_set_main_attachment_id(
-            self.env["ir.attachment"].browse([
-                attachment_command[1]
-                for attachment_command in (msg_values['attachment_ids'] or [])
-            ])
-        )
+        super()._message_post_after_hook(message)
+        self.sudo()._message_set_main_attachment_id(message.attachment_ids)
 
     def _message_set_main_attachment_id(self, attachments, force=False, filter_xml=True):
         """ Update 'main' attachment.
@@ -36,24 +31,22 @@ class MailThreadMainAttachment(models.AbstractModel):
           of records;
         """
         if attachments and (force or not self.message_main_attachment_id):
-            # we filter out attachment with 'xml' and 'octet' types
+            # We filter out attachment with 'xml', 'octet' and 'rfc822' (raw email) types
             if filter_xml:
                 attachments = attachments.filtered(
-                    lambda r: not r.mimetype.endswith('xml') and not r.mimetype.endswith('application/octet-stream')
+                    lambda r: not r.mimetype.endswith('xml')
+                    and not r.mimetype.endswith('application/octet-stream')
+                    and r.mimetype != 'message/rfc822'
                 )
 
             # Assign one of the attachments as the main according to the following priority: pdf, image, other types.
             if attachments:
-                self.with_context(tracking_disable=True).message_main_attachment_id = max(
+                self.message_main_attachment_id = max(
                     attachments,
                     key=lambda r: (r.mimetype.endswith('pdf'), r.mimetype.startswith('image'))
                 ).id
 
-    def _thread_to_store(self, store: Store, fields, *, request_list=None):
-        super()._thread_to_store(store, fields, request_list=request_list)
-        if request_list and "attachments" in request_list:
-            store.add(
-                self,
-                Store.One("message_main_attachment_id", []),
-                as_thread=True,
-            )
+    def _store_thread_fields(self, res: Store.FieldList, *, request_list, **kwargs):
+        super()._store_thread_fields(res, request_list=request_list, **kwargs)
+        if "attachments" in request_list:
+            res.attr("message_main_attachment_id")

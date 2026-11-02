@@ -30,7 +30,7 @@ def get_kpi_summary(cr, uid):
     """
     expected_columns = {
         'account_bank_statement_line.is_reconciled',
-        'account_move.checked',
+        'account_move.review_state',
         'account_move.journal_id',
         'account_move.state',
         'account_move.statement_line_id',
@@ -65,10 +65,11 @@ def get_kpi_summary(cr, uid):
      LEFT JOIN journal_type_selection ON journal_type_selection.value = journal.type
          WHERE (   move.state = 'draft'
                 OR (    move.state = 'posted'
-                    AND NOT move.checked)
+                    AND move.review_state IN ('todo', 'anomaly'))
                 OR (    move.state = 'posted'
                     AND journal.type = 'bank'
-                    AND (st_line.id IS NULL OR NOT st_line.is_reconciled)))
+                    AND st_line.id IS NOT NULL
+                    AND NOT st_line.is_reconciled))
       GROUP BY journal.type, journal_type_selection.name
     """, uid=uid))
 

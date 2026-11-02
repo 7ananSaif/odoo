@@ -26,6 +26,11 @@
     width: 100% !important;
 }
 
+.sale_tbody tr:has(+ .o_line_section),
+thead:has(+ .sale_tbody > .o_line_section:first-child) {
+    border-bottom: $border-width solid $gray-600;
+}
+
 .o_portal .sale_tbody .js_quantity_container {
 
     .js_quantity {
@@ -43,4 +48,13 @@
 
 .o_sale_payment_terms p{
     margin: 0;
+}
+
+.o_sale_portal_product_image {
+    width: 48px;
+    height: 48px;
+}
+
+.o_sale_portal_line_description {
+    white-space: pre-line;
 }

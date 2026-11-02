@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
     <t t-name="mail.ActivityMarkAsDone">
-        <div class="o-mail-ActivityMarkAsDone">
-            <h6 t-if="props.hasHeader" class="p-2 fw-bolder bg-200 border-bottom">Mark Done</h6>
-            <div class="py-2 px-3">
-                <textarea class="form-control" style="min-height: 70px" rows="3" placeholder="Write Feedback" t-model="props.activity.feedback" t-ref="textarea"/>
+        <div class="o-mail-ActivityMarkAsDone card o_popover_card">
+            <div t-if="this.hasHeader" class="card-header bg-inherit pb-0">
+                <h6 class="fw-bolder">Mark Done</h6>
+            </div>
+            <div class="card-body bg-inherit">
+                <textarea class="form-control" style="min-height: 70px" rows="3" placeholder="Write Feedback" t-model.proxy="this.activity().feedback" t-ref="this.textArea"/>
                 <div class="mt-2">
-                    <button type="button" class="btn btn-sm btn-primary" aria-label="Done and Schedule Next" t-on-click="onClickDoneAndScheduleNext">
+                    <button type="button" class="btn btn-sm btn-primary" aria-label="Done and Schedule Next" t-on-click="this.onClickDoneAndScheduleNext">
                         Done &amp; Schedule Next
                     </button>
-                    <button t-if="isSuggested" type="button" class="btn btn-sm btn-primary mx-2" aria-label="Done" t-on-click="onClickDone">
+                    <button type="button" class="btn btn-sm btn-primary mx-2" aria-label="Done" t-on-click="this.onClickDone" t-att-disabled="this.disableDoneButton()">
                         Done
                     </button>
-                    <button type="button" class="btn btn-sm btn-link" t-on-click="props.close">
+                    <button type="button" class="btn btn-sm btn-link" t-on-click="this.close">
                         Discard
                     </button>
                 </div>

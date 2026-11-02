@@ -109,8 +109,8 @@
             &:before {
                 z-index: 2;
                 display: inline-block;
-                font-family: Fontawesome;
-                content: '\f111'; // fa-circle
+                font-family: "Material Symbols Outlined";
+                content: 'circle_f';
             }
 
             &:hover {
@@ -120,7 +120,7 @@
             &.o_event_hatched:before {
                 --o-event-bg: var(--fc-event-text-color);
 
-                content: "\f1db"; // fa-circle-thin
+                content: "radio_button_unchecked";
             }
         }
     }
@@ -146,6 +146,7 @@
         // ========================================================
         --fc-page-bg-color: #{$o-view-background-color};
         --fc-border-color: var(--o-cw-border-color);
+        --fc-non-business-color: #{rgba($o-gray-300, .5)};
 
         .fc-body > tr > .fc-widget-content {
             border-top: 0;
@@ -163,6 +164,7 @@
 
         .fc-scrollgrid {
             border-top: 0;
+            border-left: 0;
         }
 
         .fc-scrollgrid-section-header {
@@ -185,14 +187,10 @@
                 max-height: 500px;
                 overflow: auto;
             }
-
-            &.o_calendar_disabled {
-                background-color: $gray-200;
-            }
         }
 
-        .o_calendar_disabled {
-            background-color: rgba($gray-200, .5);
+        .o_calendar_disabled:not(.fc-more-popover) {
+            background-color: var(--o-calendar-disabled-bg, rgba($gray-200, .5));
         }
 
         .fc-daygrid-day-bottom {
@@ -272,6 +270,11 @@
                     align-items: center;
                 }
 
+                .o_cw_day_number:hover {
+                    cursor: pointer;
+                    opacity: 50%;
+                }
+
                 &.fc-day-today .o_cw_day_number {
                     color: var(--o-cw-color);
                     background-color: var(--o-cw-bg);
@@ -288,6 +291,7 @@
             // Align labels and timelines
             .fc-timegrid-slot {
                 font-size: .6rem;
+                height: 2em;
 
                 @include media-breakpoint-up(md) {
                     font-size: .75rem;
@@ -317,8 +321,8 @@
 
                 @include media-only(screen) {
                     &:after {
-                        @include o-position-absolute($border-width, 0, -15px, 0);
-                        background: linear-gradient(0deg, rgba($o-shadow-color, 0), rgba($o-shadow-color, 0.16));
+                        @include o-position-absolute($border-width, 0, calc(-1 * var(--fc-timegrid-divider-size, 15px)), 0);
+                        background: var(--fc-timegrid-divider-background,linear-gradient(0deg, rgba($o-shadow-color, 0), rgba($o-shadow-color, 0.16)));
                         pointer-events: none;
                         content: "";
                     }
@@ -359,17 +363,6 @@
                         margin-top: 0;
                         margin-bottom: 0;
                     }
-                }
-            }
-
-            .fc-timegrid-event-harness-inset{
-                transition: right .3s, left .3s;
-
-                &:has(.fc-event.o_cw_custom_highlight:not(.fc-dragging)) {
-                    z-index: $zindex-modal !important;
-                    right: 0 !important;
-                    left: 0 !important;
-                    margin-right: 0 !important;
                 }
             }
 
@@ -518,7 +511,6 @@
                     display: flex;
                     justify-content: start;
                     flex-direction: row;
-                    max-height: 1.2em;
                     line-height: 100%;
                 }
             }
@@ -575,6 +567,12 @@
                 > .fc-month {
                     width: 21rem;
                     margin: auto;
+
+                    // On mobile year view, make months take the full screen width.
+                    // Using "vw" instead of "%" to keep each month weekday columns aligned.
+                    @include media-breakpoint-down(md) {
+                        width: calc(100vw - #{map-get($spacers, 5)});
+                    }
 
                     > .fc-toolbar.fc-header-toolbar {
                         margin-bottom: 4px;
@@ -730,10 +728,6 @@
                     color: var(--o-event-bg, #{$info});
                 }
             }
-        }
-
-        &:has(.fc-dayGridYear-view){
-            border-right: $border-width solid $border-color;
         }
     }
 

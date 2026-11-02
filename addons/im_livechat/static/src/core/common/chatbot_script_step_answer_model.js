@@ -1,13 +1,12 @@
-import { Record } from "@mail/core/common/record";
+import { Record } from "@mail/model/export";
 
 export class ChatbotScriptStepAnswer extends Record {
-    static id = "id";
     static _name = "chatbot.script.answer";
 
     /** @type {number} */
     id;
     /** @type {string} */
-    label;
+    name;
     /** @type {string|false} */
     redirect_link;
 }

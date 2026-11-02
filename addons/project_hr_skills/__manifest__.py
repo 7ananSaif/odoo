@@ -7,12 +7,12 @@
         Search project tasks according to the assignees' skills
     """,
     'category': 'Services/Project',
-    'version': '1.0',
     'depends': ['project', 'hr_skills'],
     'auto_install': True,
     'data': [
         'views/project_task_views.xml',
+        'report/project_report_views.xml',
     ],
     'author': 'Odoo S.A.',
-    'license': 'OEEL-1',
+    'license': 'LGPL-3',
 }

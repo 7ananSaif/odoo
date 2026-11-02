@@ -1,7 +1,9 @@
-import { BaseOptionComponent } from "@html_builder/core/utils";
-import { onWillStart, useState } from "@odoo/owl";
+import { BaseOptionComponent } from "@html_builder/core/base_option_component";
+import { onWillStart, proxy } from "@odoo/owl";
+import { registry } from "@web/core/registry";
 
 export class ProductsRibbonOption extends BaseOptionComponent {
+    static id = "products_ribbon_option";
     static template = 'website_sale.ProductsRibbonOptionPlugin';
     static dependencies = ['productsRibbonOptionPlugin'];
 
@@ -9,9 +11,9 @@ export class ProductsRibbonOption extends BaseOptionComponent {
         super.setup();
 
         const {loadInfo, getCount} = this.dependencies.productsRibbonOptionPlugin;
-        this.count = useState(getCount());
+        this.count = proxy(getCount());
 
-        this.state = useState({
+        this.state = proxy({
             ribbons: [],
             ribbonEditMode: false,
         });
@@ -21,3 +23,5 @@ export class ProductsRibbonOption extends BaseOptionComponent {
         });
     }
 }
+
+registry.category("website-options").add(ProductsRibbonOption.id, ProductsRibbonOption);

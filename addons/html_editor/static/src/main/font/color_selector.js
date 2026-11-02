@@ -1,43 +1,41 @@
-import { isColorGradient } from "@web/core/utils/colors";
-import { Component, useState } from "@odoo/owl";
 import {
-    useColorPicker,
     DEFAULT_COLORS,
     DEFAULT_THEME_COLOR_VARS,
-} from "@web/core/color_picker/color_picker";
-import { effect } from "@web/core/utils/reactive";
-import { toolbarButtonProps } from "../toolbar/toolbar";
+    useColorPicker,
+} from "@html_editor/components/color_picker/color_picker";
+import { useDropdownAutoVisibility } from "@html_editor/toolbar_dropdown_hook";
 import { getCSSVariableValue, getHtmlStyle } from "@html_editor/utils/formatting";
-import { useChildRef } from "@web/core/utils/hooks";
-import { useDropdownAutoVisibility } from "@html_editor/dropdown_autovisibility_hook";
+import { Component, useProps, proxy, signal, t, useEffect } from "@odoo/owl";
+import { isColorGradient } from "@web/core/utils/colors";
 
 export class ColorSelector extends Component {
     static template = "html_editor.ColorSelector";
-    static props = {
-        ...toolbarButtonProps,
-        mode: { type: String },
-        type: { type: String },
-        getSelectedColors: Function,
-        applyColor: Function,
-        applyColorPreview: Function,
-        applyColorResetPreview: Function,
-        getUsedCustomColors: Function,
-        getTargetedElements: Function,
-        colorPrefix: { type: String },
-        enabledTabs: { type: Array, optional: true },
-        cssVarColorPrefix: { type: String, optional: true },
-        onClose: Function,
-        useDefaultThemeColors: { type: Boolean, optional: true },
-    };
-    static defaultProps = {
-        cssVarColorPrefix: "",
-        enabledTabs: ["solid", "gradient", "custom"],
-        useDefaultThemeColors: true,
-    };
+    props = useProps({
+        // from toolbarButtonProps
+        title: t.or([t.string(), t.function()]),
+        getSelection: t.function(),
+        isDisabled: t.boolean(),
+        mode: t.string(),
+        type: t.string(),
+        customIcon: t.string().optional(),
+        getSelectedColors: t.function(),
+        applyColor: t.function(),
+        applyColorPreview: t.function(),
+        applyColorResetPreview: t.function(),
+        getUsedCustomColors: t.function(),
+        getTargetedElements: t.function(),
+        colorPrefix: t.string(),
+        enabledTabs: t.array().optional(["solid", "gradient", "custom"]),
+        cssVarColorPrefix: t.string().optional(""),
+        onClose: t.function(),
+        useDefaultThemeColors: t.boolean().optional(true),
+    });
+
+    colorSelectorBtn = signal.ref();
 
     setup() {
-        this.state = useState({});
-        this.colorSelectorState = useState({ isOpen: false });
+        this.state = proxy({});
+        this.colorSelectorState = proxy({ isOpen: false });
         const htmlStyle = getHtmlStyle(document);
         const defaultThemeColors = DEFAULT_THEME_COLOR_VARS.map((color) =>
             getCSSVariableValue(color, htmlStyle)
@@ -48,22 +46,17 @@ export class ColorSelector extends Component {
             getCSSVariableValue("body-color", htmlStyle), // Default applied color
             "#00000000", //Default Background color
         ];
-        effect(
-            (selectedColors) => {
-                this.state.selectedColor = selectedColors[this.props.mode];
-                this.state.defaultTab = "solid";
-                this.state.selectedTab = this.getCorrespondingColorTab(
-                    selectedColors[this.props.mode]
-                );
-                this.state.getTargetedElements = this.props.getTargetedElements;
-                this.state.mode = this.props.mode;
-            },
-            [this.props.getSelectedColors()]
-        );
+        useEffect(() => {
+            const selectedColors = this.props.getSelectedColors();
+            this.state.selectedColor = selectedColors[this.props.mode];
+            this.state.defaultTab = "solid";
+            this.state.selectedTab = this.getCorrespondingColorTab(selectedColors[this.props.mode]);
+            this.state.getTargetedElements = this.props.getTargetedElements;
+        });
 
-        const colorPickerRef = useChildRef();
+        const colorPickerRef = signal.ref();
         this.colorPicker = useColorPicker(
-            "root",
+            this.colorSelectorBtn,
             {
                 state: this.state,
                 applyColor: this.props.applyColor,
@@ -74,12 +67,12 @@ export class ColorSelector extends Component {
                 enabledTabs: this.props.enabledTabs,
                 cssVarColorPrefix: this.props.cssVarColorPrefix,
                 useDefaultThemeColors: this.props.useDefaultThemeColors,
+                onEscape: () => this.colorSelectorBtn()?.focus(),
             },
             {
-                env: this.__owl__.childEnv,
-                onClose: () => {
+                onClose: (...args) => {
                     this.props.applyColorResetPreview();
-                    this.props.onClose();
+                    this.props.onClose(...args);
                     this.colorSelectorState.isOpen = false;
                 },
                 onOpen: () => {
@@ -105,6 +98,8 @@ export class ColorSelector extends Component {
         if (isColorGradient(this.state.selectedColor)) {
             return `border-bottom: 2px solid transparent; border-image: ${this.state.selectedColor}; border-image-slice: 1`;
         }
-        return `border-bottom: 2px solid ${this.state.selectedColor}`;
+        return `border-bottom: 2px solid ${
+            this.state.selectedColor || this.props.getDefaultColor?.()
+        }`;
     }
 }

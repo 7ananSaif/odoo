@@ -24,8 +24,6 @@ Spanish charts of accounts (PGCE 2008).
 """,
     'depends': [
         'account',
-        'base_iban',
-        'base_vat',
         'account_edi_ubl_cii',
     ],
     'auto_install': ['account'],
@@ -35,8 +33,6 @@ Spanish charts of accounts (PGCE 2008).
         'data/res_country_group.xml',
         'views/account_move_views.xml',
         'views/account_tax_views.xml',
-        'data/product_data.xml',
-        'views/report_invoice.xml',
         'views/res_config_settings_views.xml',
         'data/mod111.xml',
         'data/mod115.xml',

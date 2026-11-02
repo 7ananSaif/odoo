@@ -2,14 +2,18 @@
 
 from odoo import _, models
 from odoo.exceptions import ValidationError
+from odoo.fields import Domain
 
 
 class StockMove(models.Model):
     _inherit = 'stock.move'
 
+    def _create_analytic_move(self):
+        moves = self.filtered(lambda move: move.picking_type_id.analytic_costs)
+        domain = Domain.OR([[('picking_id', '=', False)], self._get_valid_moves_domain()])
+        return super(StockMove, moves.filtered_domain(domain))._create_analytic_move()
+
     def _get_analytic_distribution(self):
-        if not self.picking_type_id.analytic_costs:
-            return super()._get_analytic_distribution()
         distribution = self.picking_id.project_id._get_analytic_distribution()
         return distribution or super()._get_analytic_distribution()
 
@@ -21,7 +25,7 @@ class StockMove(models.Model):
         return res
 
     def _get_valid_moves_domain(self):
-        return ['&', ('picking_id.project_id', '!=', False), ('picking_type_id.analytic_costs', '!=', False)]
+        return [('picking_id.project_id', '!=', False)]
 
     def _prepare_analytic_lines(self):
         res = super()._prepare_analytic_lines()

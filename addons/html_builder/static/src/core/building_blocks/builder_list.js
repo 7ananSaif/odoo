@@ -1,64 +1,105 @@
 import { BuilderComponent } from "@html_builder/core/building_blocks/builder_component";
-import {
-    basicContainerBuilderComponentProps,
-    useBuilderComponent,
-    useInputBuilderComponent,
-} from "@html_builder/core/utils";
+import { BuilderListDialog } from "@html_builder/core/building_blocks/builder_list_dialog";
+import { useBuilderComponent, useInputBuilderComponent } from "@html_builder/core/utils";
 import { isSmallInteger } from "@html_builder/utils/utils";
-import { Component, onWillUpdateProps, useRef } from "@odoo/owl";
-import { Dropdown } from "@web/core/dropdown/dropdown";
-import { useDropdownState } from "@web/core/dropdown/dropdown_hooks";
+import { Component, computed, onPatched, useProps, proxy, signal, t, xml } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
+import { SelectMenu } from "@web/core/select_menu/select_menu";
 import { useSortable } from "@web/core/utils/sortable_owl";
+import { useService } from "@web/core/utils/hooks";
+import { useThrottleForAnimation } from "@web/core/utils/timing";
+import { localeCompare } from "@web/core/l10n/utils";
+
+/**
+ * Focus the last added input item to a list container.
+ *
+ * @param {import("@odoo/owl").Signal<HTMLElement | null>} ref The list
+ *  container's ref signal.
+ */
+export function useAutoFocusNewItem(ref) {
+    let nbRow = 0;
+    function autofocus() {
+        const prevSize = nbRow;
+        const rowEls = ref()?.querySelectorAll(".o_row_draggable") || [];
+        nbRow = rowEls.length;
+        if (nbRow <= prevSize) {
+            return;
+        }
+        const newRowEl = rowEls[nbRow - 1];
+        const newInputEl = newRowEl.querySelector("input, textarea");
+        if (newInputEl) {
+            newInputEl.focus();
+            if (!["checkbox", "number"].includes(newInputEl.type)) {
+                newInputEl.selectionStart = newInputEl.selectionEnd = newInputEl.value.length;
+            }
+        }
+    }
+    onPatched(autofocus);
+}
+
+class SortableContainer extends Component {
+    static template = xml`<t t-call-slot="default"/>`;
+
+    props = useProps({
+        setupLayoutEffect: t.function(),
+    });
+
+    setup() {
+        this.props.setupLayoutEffect();
+    }
+}
 
 export class BuilderList extends Component {
     static template = "html_builder.BuilderList";
-    static props = {
-        ...basicContainerBuilderComponentProps,
-        id: { type: String, optional: true },
-        addItemTitle: { type: String, optional: true },
-        itemShape: {
-            type: Object,
-            values: [
-                { value: "number" },
-                { value: "text" },
-                { value: "boolean" },
-                { value: "exclusive_boolean" },
-            ],
-            validate: (value) =>
-                // is not empty object and doesn't include reserved fields
-                Object.keys(value).length > 0 && !Object.keys(value).includes("_id"),
-            optional: true,
-        },
-        default: { optional: true },
-        sortable: { optional: true },
-        hiddenProperties: { type: Array, optional: true },
-        records: { type: String, optional: true },
-        defaultNewValue: { type: Object, optional: true },
-        columnWidth: { optional: true },
-        forbidLastItemRemoval: { type: Boolean, optional: true },
-        isInputDisabled: { type: Boolean, optional: true },
-    };
-    static defaultProps = {
-        addItemTitle: _t("Add"),
-        itemShape: { value: "text" },
-        default: { value: _t("Item") },
-        sortable: true,
-        hiddenProperties: [],
-        mode: "button",
-        defaultNewValue: {},
-        columnWidth: {},
-        forbidLastItemRemoval: false,
-        isInputDisabled: false,
-    };
-    static components = { BuilderComponent, Dropdown };
+    static components = { BuilderComponent, SortableContainer, SelectMenu };
+
+    props = useProps({
+        applyTo: t.string().optional(),
+        preview: t.boolean().optional(),
+        inheritedActions: t.array(t.string()).optional(),
+
+        action: t.string().optional(),
+        actionParam: t.any().optional(),
+
+        // Shorthand actions.
+        classAction: t.any().optional(),
+        attributeAction: t.any().optional(),
+        dataAttributeAction: t.any().optional(),
+        styleAction: t.any().optional(),
+
+        id: t.string().optional(),
+        addItemTitle: t.string().optional(_t("Add")),
+        itemShape: t
+            .customValidator(
+                t.record(t.selection(["number", "text", "boolean", "exclusive_boolean"])),
+                (value) =>
+                    // is not empty object and doesn't include reserved fields
+                    Object.keys(value).length > 0 && !Object.keys(value).includes("_id")
+            )
+            .optional({ value: "text" }),
+        default: t.any().optional(),
+        sortable: t.any().optional(true),
+        hiddenProperties: t.array().optional([]),
+        records: t.string().optional(),
+        defaultNewValue: t.object().optional({}),
+        columnWidth: t.any().optional({}),
+        forbidLastItemRemoval: t.boolean().optional(false),
+        isEditable: t.boolean().optional(true),
+        limit: t.number().optional(50),
+        disableLastCheckedCheckbox: t.boolean().optional(false),
+        withScrollbar: t.boolean().optional(true),
+    });
+
+    tableRef = signal.ref();
 
     setup() {
-        this.validateProps();
-        this.dropdown = useDropdownState();
-        useBuilderComponent();
-        const { state, commit, preview } = useInputBuilderComponent({
-            id: this.props.id,
+        if (this.props.default) {
+            this.validateProps();
+        }
+        this.dialog = useService("dialog");
+        useBuilderComponent(this.props);
+        useAutoFocusNewItem(this.tableRef);
+        const { state, commit, preview } = useInputBuilderComponent(this.props, {
             defaultValue: this.parseDisplayValue([]),
             parseDisplayValue: this.parseDisplayValue,
             formatRawValue: this.formatRawValue.bind(this),
@@ -66,16 +107,25 @@ export class BuilderList extends Component {
         this.state = state;
         this.commit = commit;
         this.preview = preview;
-        this.allRecords = this.formatRawValue(this.props.records);
-
-        onWillUpdateProps((props) => {
-            this.allRecords = this.formatRawValue(props.records);
+        this.allRecords = computed(() => this.formatRawValue(this.props.records));
+        this.includedRecords = computed(() => this.formatRawValue(this.state.value));
+        this.visibilityState = proxy({
+            limit: this.props.limit,
         });
+        this.cappedItems = computed(() =>
+            this.includedRecords().slice(0, this.visibilityState.limit)
+        );
+        this.hasMoreItems = computed(
+            () => this.cappedItems().length < this.includedRecords().length
+        );
+        this.onTableScroll = useThrottleForAnimation(this._onTableScroll.bind(this));
+    }
 
+    setupSortable() {
         if (this.props.sortable) {
             useSortable({
                 enable: () => this.props.sortable,
-                ref: useRef("table"),
+                ref: this.tableRef,
                 elements: ".o_row_draggable",
                 handle: ".o_handle_cell",
                 cursor: "grabbing",
@@ -85,6 +135,25 @@ export class BuilderList extends Component {
                     this.reorderItem(element.dataset.id, previous?.dataset.id);
                 },
             });
+        }
+    }
+
+    loadMoreItems() {
+        if (!this.hasMoreItems()) {
+            return;
+        }
+        this.visibilityState.limit = Math.min(
+            this.visibilityState.limit + this.props.limit,
+            this.includedRecords().length
+        );
+    }
+
+    _onTableScroll(ev) {
+        const tableWrapperEl = ev.currentTarget;
+        const distanceToBottom =
+            tableWrapperEl.scrollHeight - (tableWrapperEl.scrollTop + tableWrapperEl.clientHeight);
+        if (distanceToBottom <= 100) {
+            this.loadMoreItems();
         }
     }
 
@@ -98,9 +167,17 @@ export class BuilderList extends Component {
         }
     }
 
-    getAvailableRecords() {
-        const itemIds = new Set(this.formatRawValue(this.state.value).map((i) => i.id));
-        return this.allRecords.filter((record) => !itemIds.has(record.id));
+    getExcludedRecords() {
+        const itemIds = new Set(this.includedRecords().map((r) => r.id));
+        return this.allRecords().filter((record) => record.id && !itemIds.has(record.id));
+    }
+
+    openRecordsDialog() {
+        this.dialog.add(BuilderListDialog, {
+            excludedRecords: this.getExcludedRecords(),
+            includedRecords: this.includedRecords(),
+            save: this.commit,
+        });
     }
 
     parseDisplayValue(displayValue) {
@@ -119,28 +196,33 @@ export class BuilderList extends Component {
         return items;
     }
 
-    addItem(ev) {
-        const items = this.formatRawValue(this.state.value);
-        if (!ev.currentTarget.dataset.id) {
-            items.push(this.makeDefaultItem());
-        } else {
-            const matchId = (el) => el.id.toString() === ev.currentTarget.dataset.id.toString();
-            const elementToAdd = this.allRecords.find(matchId);
-            if (!items.some(matchId)) {
-                items.push(elementToAdd);
-            }
-            this.dropdown.close();
-        }
-        this.commit(items);
+    addItem(record) {
+        this.commit([...this.includedRecords(), record ?? this.makeDefaultItem()]);
+    }
+
+    updateRecords() {
+        const selectedRecordsMap = new Map(
+            this.includedRecords()
+                .filter((r) => r.id)
+                .map((r) => [r.id, r])
+        );
+        const newRecords = this.allRecords()
+            .map((record) => selectedRecordsMap.get(record.id) || record)
+            .sort((a, b) => localeCompare(a.display_name, b.display_name));
+        this.commit(newRecords);
+    }
+
+    removeAllItems() {
+        this.commit([]);
     }
 
     deleteItem(itemId) {
-        const items = this.formatRawValue(this.state.value);
+        const items = this.includedRecords();
         this.commit(items.filter((item) => item._id !== itemId));
     }
 
     reorderItem(itemId, previousId) {
-        let items = this.formatRawValue(this.state.value);
+        let items = this.includedRecords();
         const itemToReorder = items.find((item) => item._id === itemId);
         items = items.filter((item) => item._id !== itemId);
 
@@ -182,9 +264,11 @@ export class BuilderList extends Component {
         const id = targetInputEl.dataset.id;
         const propertyName = targetInputEl.name;
         const isCheckbox = targetInputEl.type === "checkbox";
+        const isText = targetInputEl.type === "text";
         const value = isCheckbox ? targetInputEl.checked : targetInputEl.value;
 
-        const items = this.formatRawValue(this.state.value);
+        let items = this.formatRawValue(this.state.value);
+
         if (value === true && this.props.itemShape[propertyName] === "exclusive_boolean") {
             for (const item of items) {
                 item[propertyName] = false;
@@ -196,10 +280,44 @@ export class BuilderList extends Component {
             item.id = isSmallInteger(value) ? parseInt(value) : value;
         }
 
+        // Empty text inputs are not allowed, so we remove them, unless removing
+        // them would violate `props.forbidLastItemRemoval`.
+        const inputIsEmptyText = isText && value === "";
+        const canDeleteItem = items.length > 1 || !this.props.forbidLastItemRemoval;
+        if (inputIsEmptyText && canDeleteItem) {
+            items = items.filter((item) => item._id !== id);
+        }
+
         if (commitToHistory) {
             this.commit(items);
         } else {
             this.preview(items);
         }
+    }
+
+    /**
+     * Checks if the checkbox for the given item is the only one
+     * still checked for the given property, and should be disabled
+     * to prevent unchecking all options.
+     *
+     * @param {Array} items - List of all items
+     * @param {Object} currentItem - Item to check
+     * @param {string} propertyName - Property name to check against
+     * @returns {boolean} True if this is the last checked checkbox
+     */
+    isLastCheckboxChecked(items, currentItem, propertyName) {
+        if (!this.props.disableLastCheckedCheckbox || !currentItem[propertyName]) {
+            return false;
+        }
+        let activeCount = 0;
+        for (const item of items) {
+            if (item[propertyName]) {
+                activeCount++;
+            }
+            if (activeCount > 1) {
+                return false;
+            }
+        }
+        return true;
     }
 }

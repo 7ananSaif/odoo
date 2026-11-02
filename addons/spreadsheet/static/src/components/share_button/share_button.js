@@ -1,4 +1,4 @@
-import { Component, useState } from "@odoo/owl";
+import { Component, proxy, t, useProps } from "@odoo/owl";
 import { browser } from "@web/core/browser/browser";
 import { _t } from "@web/core/l10n/translation";
 
@@ -14,15 +14,15 @@ import { Model } from "@odoo/o-spreadsheet";
 export class SpreadsheetShareButton extends Component {
     static template = "spreadsheet.ShareButton";
     static components = { Dropdown, DropdownItem, CopyButton };
-    static props = {
-        model: { type: Model, optional: true },
-        onSpreadsheetShared: Function,
-        togglerClass: { type: String, optional: true },
-    };
+    props = useProps({
+        model: t.instanceOf(Model).optional(),
+        onSpreadsheetShared: t.function(),
+        togglerClass: t.string().optional(),
+    });
 
     setup() {
         this.copiedText = _t("Copied");
-        this.state = useState({ url: undefined });
+        this.state = proxy({ url: undefined });
     }
 
     get togglerClass() {
@@ -36,8 +36,9 @@ export class SpreadsheetShareButton extends Component {
         if (!this.isChanged(data)) {
             return;
         }
+        const excelExport = await model.exportXLSX();
+        const url = await this.props.onSpreadsheetShared(data, excelExport);
         model.dispatch("LOG_DATASOURCE_EXPORT", { action: "freeze" });
-        const url = await this.props.onSpreadsheetShared(data, model.exportXLSX());
         this.state.url = url;
         setTimeout(async () => {
             try {

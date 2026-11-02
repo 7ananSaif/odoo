@@ -9,10 +9,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-04-24 18:39+0000\n"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 16:34+0000\n"
 "Last-Translator: \"Anastasiia Koroleva (koan)\" <koan@odoo.com>\n"
-"Language-Team: Russian <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Russian <https://translate.odoo.com/projects/odoo-s19-4/"
 "hr_presence/ru/>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
@@ -21,13 +21,22 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
 "(n%100>=11 && n%100<=14)? 2 : 3);\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: hr_presence
-#. odoo-python
-#: code:addons/hr_presence/models/hr_employee.py:0
-msgid "%(name)s has been noted as %(state)s today"
-msgstr "Сегодня статус сотрудника %(name)s был отмечен как: %(state)s"
+#: model:ir.module.module,description:base.module_hr_presence
+msgid ""
+"\n"
+"Control Employees Presence\n"
+"==========================\n"
+"\n"
+"Based on:\n"
+"    * The IP Address\n"
+"    * The User's Session\n"
+"    * The Sent Emails\n"
+"\n"
+"Allows to contact directly the employee in case of unjustified absence.\n"
+msgstr ""
 
 #. module: hr_presence
 #: model:mail.template,body_html:hr_presence.mail_template_presence
@@ -63,21 +72,14 @@ msgstr ""
 "            "
 
 #. module: hr_presence
-#: model:ir.model.fields.selection,name:hr_presence.selection__hr_employee__hr_presence_state_display__absent
-#: model:ir.model.fields.selection,name:hr_presence.selection__hr_employee_public__hr_presence_state_display__absent
 #: model_terms:ir.ui.view,arch_db:hr_presence.hr_employee_view_search
 msgid "Absent"
 msgstr "Отсутствует"
 
 #. module: hr_presence
-#: model:ir.actions.server,name:hr_presence.action_hr_employee_presence_log
-msgid "Add a log note"
-msgstr "Добавьте примечание"
-
-#. module: hr_presence
 #: model:ir.model,name:hr_presence.model_res_company
-msgid "Companies"
-msgstr "Компании"
+msgid "Company"
+msgstr ""
 
 #. module: hr_presence
 #: model:ir.model,name:hr_presence.model_res_config_settings
@@ -108,6 +110,11 @@ msgstr "Письмо отправлено"
 #. module: hr_presence
 #: model:ir.model,name:hr_presence.model_hr_employee
 msgid "Employee"
+msgstr "Сотрудник"
+
+#. module: hr_presence
+#: model:ir.module.module,shortdesc:base.module_hr_presence
+msgid "Employee Presence Control"
 msgstr ""
 
 #. module: hr_presence
@@ -143,12 +150,6 @@ msgid "Hr Presence Last Compute Date"
 msgstr "Hr посещаемость дата последнего расчета"
 
 #. module: hr_presence
-#: model:ir.model.fields,field_description:hr_presence.field_hr_employee__hr_presence_state_display
-#: model:ir.model.fields,field_description:hr_presence.field_hr_employee_public__hr_presence_state_display
-msgid "Hr Presence State Display"
-msgstr "Hr посещаемость отображение статуса"
-
-#. module: hr_presence
 #: model:ir.model.fields,field_description:hr_presence.field_hr_employee__id
 #: model:ir.model.fields,field_description:hr_presence.field_hr_employee_public__id
 #: model:ir.model.fields,field_description:hr_presence.field_ir_websocket__id
@@ -182,43 +183,21 @@ msgid "Manually Set Present"
 msgstr "Вручную установить статус «На месте»"
 
 #. module: hr_presence
-#: model:ir.model.fields.selection,name:hr_presence.selection__hr_employee__hr_presence_state_display__out_of_working_hour
-#: model:ir.model.fields.selection,name:hr_presence.selection__hr_employee_public__hr_presence_state_display__out_of_working_hour
-#: model_terms:ir.ui.view,arch_db:hr_presence.hr_employee_view_search
-msgid "Off-Hours"
-msgstr ""
-
-#. module: hr_presence
 #. odoo-javascript
-#: code:addons/hr_presence/static/src/search/hr_presence_cog_menu/hr_presence_cog_menu.xml:0
+#: code:addons/hr_presence/static/src/presence_cog_menu/presence_cog_menu.xml:0
 msgid "Presence Control"
 msgstr "Контроль присутствия"
 
 #. module: hr_presence
-#: model_terms:ir.ui.view,arch_db:hr_presence.hr_employee_view_search
-msgid "Presence/Absence"
-msgstr "Присутствие/Отсутствие"
-
-#. module: hr_presence
-#: model:ir.model.fields.selection,name:hr_presence.selection__hr_employee__hr_presence_state_display__present
-#: model:ir.model.fields.selection,name:hr_presence.selection__hr_employee_public__hr_presence_state_display__present
-msgid "Present"
-msgstr "На месте"
-
-#. module: hr_presence
 #: model:ir.model,name:hr_presence.model_hr_employee_public
 msgid "Public Employee"
-msgstr ""
+msgstr "Публичный профиль сотрудника"
 
 #. module: hr_presence
 #. odoo-python
 #: code:addons/hr_presence/models/hr_employee.py:0
-msgid "Send SMS"
-msgstr "Отправить СМС"
-
-#. module: hr_presence
 #: model:ir.actions.server,name:hr_presence.action_hr_employee_presence_sms
-msgid "Send a SMS"
+msgid "Send SMS"
 msgstr "Отправить СМС"
 
 #. module: hr_presence
@@ -290,93 +269,3 @@ msgstr ""
 #: model:ir.model,name:hr_presence.model_ir_websocket
 msgid "websocket message handling"
 msgstr "обработка сообщений в веб-сокетах"
-
-#~ msgid ""
-#~ "<div>\n"
-#~ "                    Dear <t t-out=\"object.name or ''\">Abigail Peterson</"
-#~ "t>,<br><br>\n"
-#~ "                    Exception made if there was a mistake of ours, it "
-#~ "seems that you are not at your office and there is not request of time "
-#~ "off from you.<br>\n"
-#~ "                    Please, take appropriate measures in order to carry "
-#~ "out this work absence.<br>\n"
-#~ "                    Do not hesitate to contact your manager or the human "
-#~ "resource department.\n"
-#~ "                    <br>Best Regards,<br><br>\n"
-#~ "                </div>\n"
-#~ "            "
-#~ msgstr ""
-#~ "<div>\n"
-#~ "                    Дорогая <t t-out=\"object.name or ''\">Эбигейл "
-#~ "Петерсон</t>,<br><br>\n"
-#~ "                    Исключение сделано, если это была наша ошибка, "
-#~ "похоже, что вас нет в офисе, и от вас не поступало просьбы об отгуле."
-#~ "<br>\n"
-#~ "                    Пожалуйста, примите соответствующие меры, чтобы "
-#~ "оформить это отсутствие на работе.<br>\n"
-#~ "                    Не стесняйтесь обращаться к своему менеджеру или в "
-#~ "отдел кадров.\n"
-#~ "                   <br>С наилучшими пожеланиями,<br><br>\n"
-#~ "                </div>\n"
-#~ "            "
-
-#~ msgid "Absence/Presence"
-#~ msgstr "Отсутствие/присутствие"
-
-#~ msgid "Basic Employee"
-#~ msgstr "Основной сотрудник"
-
-#~ msgid "Compose Email"
-#~ msgstr "Написать письмо"
-
-#~ msgid "Compute presence and open presence view"
-#~ msgstr "Считать присутствие и открыть представление о присутствии"
-
-#~ msgid "Create Uid"
-#~ msgstr "Создать идентификатор"
-
-#~ msgid "Employee's Presence to Define"
-#~ msgstr "Присутствие сотрудника для определения"
-
-#~ msgid "Employees"
-#~ msgstr "Сотрудники"
-
-#~ msgid ""
-#~ "Exception made if there was a mistake of ours, it seems that you are not "
-#~ "at your office and there is not request of time off from you.\n"
-#~ "Please, take appropriate measures in order to carry out this work "
-#~ "absence.\n"
-#~ "Do not hesitate to contact your manager or the human resource department."
-#~ msgstr ""
-#~ "Исключение сделано, если произошла наша ошибка, кажется, что вас нет в "
-#~ "офисе и от вас не поступало просьбы об отгуле.\n"
-#~ "Пожалуйста, примите соответствующие меры, чтобы оформить это отсутствие "
-#~ "на работе.\n"
-#~ "Не стесняйтесь обращаться к своему менеджеру или в отдел кадров."
-
-#~ msgid "Log"
-#~ msgstr "Лог"
-
-#~ msgid "Presence"
-#~ msgstr "Присутствие"
-
-#~ msgid "SMS"
-#~ msgstr "СМС"
-
-#~ msgid "Set as absent"
-#~ msgstr "Установить как отсутствующий"
-
-#~ msgid "Set as present"
-#~ msgstr "Установлено в настоящий момент"
-
-#~ msgid "There is no professional email address for this employee."
-#~ msgstr "Рабочего адреса электронной почты для этого сотрудника нет."
-
-#~ msgid "There is no professional mobile for this employee."
-#~ msgstr "Для этого сотрудника нет рабочего мобильного телефона."
-
-#~ msgid "Time Off"
-#~ msgstr "Отпуск"
-
-#~ msgid "To Define"
-#~ msgstr "Определить"

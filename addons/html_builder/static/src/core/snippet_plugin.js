@@ -5,7 +5,7 @@ export class SnippetPlugin extends Plugin {
 
     /** @type {import("plugins").BuilderResources} */
     resources = {
-        before_setup_editor_handlers: this.injectMissingSnippetNames.bind(this),
+        on_will_setup_editor_handlers: this.injectMissingSnippetNames.bind(this),
     };
 
     /**

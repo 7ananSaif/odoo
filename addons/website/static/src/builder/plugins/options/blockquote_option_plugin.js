@@ -1,37 +1,23 @@
-import { after, ANIMATE, END } from "@html_builder/utils/option_sequence";
 import { Plugin } from "@html_editor/plugin";
 import { registry } from "@web/core/registry";
-import { withSequence } from "@html_editor/utils/resource";
-import { BaseWebsiteBackgroundOption } from "@website/builder/plugins/options/background_option";
-import { BaseOptionComponent } from "@html_builder/core/utils";
-import { BorderConfigurator } from "@html_builder/plugins/border_configurator_option";
-import { ShadowOption } from "@html_builder/plugins/shadow_option";
+import { BLOCKQUOTE_PARENT_HANDLERS } from "@html_builder/core/utils";
 
-export class BlockquoteOption extends BaseOptionComponent {
-    static template = "website.BlockquoteOption";
-    static selector = ".s_blockquote";
-    static components = { BorderConfigurator, ShadowOption };
-}
+export const SPECIAL_BLOCKQUOTE_SELECTOR = `${BLOCKQUOTE_PARENT_HANDLERS} > .s_blockquote`;
+export const BLOCKQUOTE_DISABLE_WIDTH_APPLY_TO = ":scope > .s_blockquote";
 
-export class WebsiteBackgroundBlockquoteOption extends BaseWebsiteBackgroundOption {
-    static selector = ".s_blockquote";
-    static defaultProps = {
-        withColors: true,
-        withImages: true,
-        withShapes: true,
-        withColorCombinations: true,
-    };
-}
-
-class BlockquoteOptionPlugin extends Plugin {
+export class BlockquoteOptionPlugin extends Plugin {
     static id = "blockquoteOption";
     /** @type {import("plugins").WebsiteResources} */
     resources = {
-        mark_color_level_selector_params: [{ selector: ".s_blockquote" }],
-        builder_options: [
-            withSequence(after(ANIMATE), WebsiteBackgroundBlockquoteOption),
-            withSequence(END, BlockquoteOption),
+        mark_color_level_selector_params: [
+            { selector: ".s_blockquote", exclude: SPECIAL_BLOCKQUOTE_SELECTOR },
+            { selector: BLOCKQUOTE_PARENT_HANDLERS, applyTo: BLOCKQUOTE_DISABLE_WIDTH_APPLY_TO },
         ],
+        builder_options_render_context: {
+            specialBlockquoteSelector: SPECIAL_BLOCKQUOTE_SELECTOR,
+            blockquoteDisableWidthApplyTo: BLOCKQUOTE_DISABLE_WIDTH_APPLY_TO,
+            blockquoteParentHandlers: BLOCKQUOTE_PARENT_HANDLERS,
+        },
     };
 }
 // TODO: as in master, the position of a background image does not work

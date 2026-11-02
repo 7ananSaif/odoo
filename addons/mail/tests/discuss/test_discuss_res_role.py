@@ -1,9 +1,9 @@
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
 from odoo.addons.mail.tests.common import mail_new_test_user
 from odoo.addons.mail.tests.test_res_role import TestResRole
-from odoo.tests.common import tagged
 
 
-@tagged("-at_install", "post_install")
 class TestDiscussResRole(TestResRole):
     def test_only_mention_by_role_when_channel_is_accessible(self):
         self.authenticate("admin", "admin")
@@ -36,7 +36,7 @@ class TestDiscussResRole(TestResRole):
                     self.env, login=f"user_{user_grp}_{idx}", role_ids=role.ids, groups=user_grp
                 )
                 if is_member:
-                    channel.add_members(partner_ids=user.partner_id.ids)
+                    channel._add_members(users=user)
                 data = self.make_jsonrpc_request(
                     "/mail/message/post",
                     {

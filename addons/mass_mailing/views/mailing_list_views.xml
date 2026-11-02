@@ -23,13 +23,16 @@
         <field name="priority">10</field>
         <field name="arch" type="xml">
             <list string="Mailing Lists" sample="1">
-                <field name="name"/>
-                <field name="is_public"/>
-                <field name="mailing_count" string="Mailings"/>
-                <field name="contact_pct_bounce" string="Bounce (%)"/>
-                <field name="contact_pct_opt_out" string="Opt-out (%)"/>
-                <field name="contact_pct_blacklisted" string="Blacklist (%s)"/>
-                <field name="contact_count" string="Recipients"/>
+                <header>
+                    <button name="mass_mailing.mailing_list_merge_action" type="action" string="Merge"/>
+                </header>
+                <field name="name" string="Name"/>
+                <field name="is_public" width="150"/>
+                <field name="contact_count" string="Recipients" sum="Total"/>
+                <field name="mailing_count" string="Mailings" sum="Total"/>
+                <field name="contact_pct_bounce" string="Bounce (%)" avg="Average"/>
+                <field name="contact_pct_opt_out" string="Opt-out (%)" avg="Average"/>
+                <field name="contact_pct_blacklisted" string="Blacklist (%s)" avg="Average"/>
             </list>
         </field>
     </record>
@@ -40,31 +43,29 @@
         <field name="arch" type="xml">
             <form string="Contact List">
                 <header>
-                    <button name="action_send_mailing" string="Send Mailing"
-                        type="object" class="btn btn-primary"/>
                     <button name="action_open_import" string="Import Contacts"
-                        type="object" class="btn btn-secondary"/>
+                        type="object" class="btn btn-primary"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                         <button name="action_view_contacts"
-                                type="object" icon="fa-user" class="oe_stat_button">
+                                type="object" icon="person" icon_class="oi-filled" class="oe_stat_button">
                             <field name="contact_count" string="Recipients" widget="statinfo"/>
                         </button>
                         <button name="action_view_mailings"
-                                type="object" icon="fa-envelope-o" class="oe_stat_button">
+                                type="object" icon="mail" class="oe_stat_button">
                             <field name="mailing_count" string="Mailings" widget="statinfo"/>
                         </button>
                         <button name="action_view_contacts_bouncing"
-                                type="object" icon="fa-exchange" class="oe_stat_button">
+                                type="object" icon="swap_horiz" class="oe_stat_button">
                                 <field name="contact_pct_bounce" widget="statinfo" string="% Bounce"/>
                         </button>
                         <button name="action_view_contacts_opt_out"
-                                type="object" icon="fa-bell-slash-o" class="oe_stat_button">
+                                type="object" icon="notifications_off" class="oe_stat_button">
                                 <field name="contact_pct_opt_out" widget="statinfo" string="% Opt-out"/>
                         </button>
                         <button name="action_view_contacts_blacklisted"
-                                type="object" icon="fa-ban" class="oe_stat_button">
+                                type="object" icon="block" class="oe_stat_button">
                                 <field name="contact_pct_blacklisted" widget="statinfo" string="% Blacklist"/>
                         </button>
                     </div>
@@ -77,7 +78,12 @@
                     </div>
                     <group>
                         <field name="active" invisible="1"/>
-                        <field name="is_public"/>
+                        <group>
+                            <field name="is_public" widget="boolean_toggle"/>
+                        </group>
+                        <group>
+                            <field name="color" widget="color_picker"/>
+                        </group>
                     </group>
                 </sheet>
             </form>
@@ -91,23 +97,43 @@
         <field name="arch" type="xml">
             <form string="Contact List">
                 <div class="oe_title">
-                    <label for="name"/>
+                    <label for="name" string="List Name"/>
                     <h1>
-                        <field name="name" placeholder="e.g. Consumer Newsletter"/>
+                        <field name="name" placeholder="e.g. Monthly Newsletter"/>
                     </h1>
                 </div>
                 <group>
-                    <field name="is_public"/>
+                    <group>
+                        <field name="is_public" widget="boolean_toggle"/>
+                    </group>
+                    <group>
+                        <field name="color" widget="color_picker"/>
+                    </group>
                 </group>
+                <footer>
+                    <button string="Create Mailing List" name="action_view_contacts" type="object" class="btn-primary" data-hotkey="q"/>
+                    <button string="Discard" class="btn-secondary" special="cancel" data-hotkey="x"/>
+                </footer>
             </form>
         </field>
+    </record>
+
+    <record id="action_mailing_list_quick_create" model="ir.actions.act_window">
+        <field name="name">Create a Mailing List</field>
+        <field name="res_model">mailing.list</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="mailing_list_view_form_simplified"/>
+        <field name="target">new</field>
+        <field name="context">{'dialog_size' : 'large'}</field>
     </record>
 
     <record id="mailing_list_view_kanban" model="ir.ui.view">
         <field name="name">mailing.list.view.kanban</field>
         <field name="model">mailing.list</field>
         <field name="arch" type="xml">
-            <kanban class="o_kanban_mobile o_kanban_mailing_list" sample="1">
+            <kanban class="o_kanban_mobile o_kanban_mailing_list o_kanban_list" sample="1"
+                    on_create="mass_mailing.action_mailing_list_quick_create" highlight_color="color"
+                    action="action_view_contacts" type="object">
                 <field name="active"/>
                 <templates>
                     <t t-name="card">
@@ -135,7 +161,7 @@
                                     <field name="contact_count_email" class="fw-normal"/>
                                     <br/>
                                     <span class="text-muted">
-                                        <i class="fa fa-envelope-o"/> Contacts
+                                        <i class="oi" data-icon="mail"/> Contacts
                                     </span>
                                 </a>
                                 <a class="me-sm-0 me-3 fs-4 fw-light lh-1 text-truncate" tabindex="-1"
@@ -170,15 +196,26 @@
                                     <span class="text-muted">Blacklist</span>
                                 </a>
                             </div>
-                            <div class="order-3 order-lg-4 col-5 col-lg-2 py-0 my-auto d-none d-md-flex flex-wrap justify-content-end gap-1">
+                            <div class="order-3 order-lg-4 col-5 col-lg-2 py-0 pe-3 my-auto d-none d-md-flex flex-wrap justify-content-end gap-1">
                                 <button name="action_open_import" string="Import Contacts"
-                                    type="object" class="btn btn-secondary text-nowrap">
+                                    type="object" class="btn btn-primary text-nowrap">
                                     Import Contacts
                                 </button>
-                                <button name="action_send_mailing" string="Send Mailing"
-                                    type="object" class="btn btn-secondary text-nowrap">
-                                    Send Mailing
-                                </button>
+                            </div>
+                        </div>
+                    </t>
+                    <t t-name="menu" t-if="!selection_mode">
+                        <div class="d-flex flex-column">
+                            <a role="menuitem" class="dropdown-item oe_kanban_action" type="open" href="#">Edit</a>
+                            <hr class="my-1"/>
+                            <a role="menuitem" class="dropdown-item oe_kanban_action" name="action_send_mailing" type="object">New Mailing</a>
+                            <hr class="my-1"/>
+                            <a role="menuitem" class="dropdown-item oe_kanban_action" name="action_archive" href="#" type="object" t-if="record.active.raw_value">Archive</a>
+                            <a role="menuitem" class="dropdown-item oe_kanban_action" name="action_unarchive" type="object" t-if="!record.active.raw_value">Unarchive</a>
+                            <a role="menuitem" class="dropdown-item oe_kanban_action" name="unlink" type="object" href="#">Delete</a>
+                            <hr class="my-1 mb-2"/>
+                            <div t-if="widget.editable" role="menuitem" aria-haspopup="true">
+                                <field name="color" widget="kanban_color_picker"/>
                             </div>
                         </div>
                     </t>

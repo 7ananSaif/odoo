@@ -7,6 +7,8 @@ from freezegun import freeze_time
 @tagged('post_install_l10n', 'post_install', '-at_install')
 class TestUblImportBis3InvoiceBERetrieveAccount(TestUblImportBis3InvoiceBE):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @freeze_time('2020-01-01')
     def test_partial_import_account_invoice_predictive(self):
         self.ensure_installed('account_accountant')
@@ -16,10 +18,9 @@ class TestUblImportBis3InvoiceBERetrieveAccount(TestUblImportBis3InvoiceBE):
 
         # Invoice to train the prediction.
         # We also make an exact match with the name to ensure the prediction will
-        # also retrieve the product. This is made that way to avoid the call to
-        # '_get_most_frequent_account_for_partner' in '_compute_account_id'.
+        # also retrieve the product.
         self._create_invoice_one_line(
-            name="turlututu",
+            name="turlutututu",
             product_id=product,
             account_id=account.id,
             partner_id=self.partner_be,

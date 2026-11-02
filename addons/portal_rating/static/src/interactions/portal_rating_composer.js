@@ -3,6 +3,7 @@ import { registry } from "@web/core/registry";
 import { PortalComposer } from "@portal/interactions/portal_composer";
 import { _t } from "@web/core/l10n/translation";
 import { user } from "@web/core/user";
+import { useListener } from "@odoo/owl";
 
 /**
  * RatingPopupComposer
@@ -28,7 +29,7 @@ export class RatingPopupComposer extends Interaction {
             "user_id": user.userId,
             "reloadRatingPopupComposer": this.onReloadRatingPopupComposer.bind(this),
         }, options, {});
-        this.env.bus.addEventListener("reload_rating_popup_composer", (ev) =>
+        useListener(this.env.bus, "reload_rating_popup_composer", (ev) =>
             this.onReloadRatingPopupComposer(ev.detail)
         );
     }
@@ -77,9 +78,15 @@ export class RatingPopupComposer extends Interaction {
         const locationEl = this.el.querySelector(".o_rating_popup_composer_modal .o_portal_chatter_composer");
         // TODO maybe always put in this.options - and prepare in setup ???
         if (!locationEl) {
+            delete this.env.portalComposerOptions;
             return;
         }
-        this.composerEl = this.renderAt("portal.Composer", { widget: {options: this.env.portalComposerOptions }}, locationEl, "afterend")[0];
+        this.composerEl = this.renderAt(
+            "portal.Composer",
+            { widget: { options } },
+            locationEl,
+            "afterend"
+        )[0];
         delete this.env.portalComposerOptions;
         locationEl.remove();
         // Change the text of the button

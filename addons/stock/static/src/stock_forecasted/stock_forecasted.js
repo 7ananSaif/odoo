@@ -8,8 +8,8 @@ import { ForecastedButtons } from "./forecasted_buttons";
 import { ForecastedDetails } from "./forecasted_details";
 import { ForecastedHeader } from "./forecasted_header";
 import { ForecastedWarehouseFilter } from "./forecasted_warehouse_filter";
-import { Component, onWillStart, useState } from "@odoo/owl";
-import { standardActionServiceProps } from "@web/webclient/actions/action_service";
+import { Component, onWillStart, proxy, useProps } from "@odoo/owl";
+import { standardActionServiceProps } from "@web/webclient/actions/action_plugin";
 
 export class StockForecasted extends Component {
     static template = "stock.Forecasted";
@@ -21,12 +21,12 @@ export class StockForecasted extends Component {
         View,
         ForecastedDetails,
     };
-    static props = { ...standardActionServiceProps };
+    props = useProps(standardActionServiceProps);
     setup() {
         this.orm = useService("orm");
         this.action = useService("action");
 
-        this.context = useState(this.props.action.context);
+        this.context = proxy(this.props.action.context);
         this.productId = this.context.active_id;
         this.resModel = this.context.active_model;
         this.title = this.props.action.name || _t("Forecasted Report");
@@ -34,7 +34,7 @@ export class StockForecasted extends Component {
             this.context.active_id = this.props.action.params.active_id;
             this.reloadReport();
         }
-        this.warehouses = useState([]);
+        this.warehouses = proxy([]);
 
         onWillStart(this._getReportValues);
     }
@@ -54,7 +54,7 @@ export class StockForecasted extends Component {
         });
         this.docs = {
             ...reportValues.docs,
-            ...reportValues.precision,
+            precision: reportValues.precision,
             lead_horizon_date: this.context.lead_horizon_date,
             qty_to_order: this.context.qty_to_order,
         };

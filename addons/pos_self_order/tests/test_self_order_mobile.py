@@ -3,11 +3,10 @@
 import odoo.tests
 from odoo import http
 
-from urllib.parse import urlparse
 from odoo.addons.pos_self_order.tests.self_order_common_test import SelfOrderCommonTest
 from odoo.addons.pos_self_order.controllers.orders import PosSelfOrderController
 from unittest.mock import patch
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 @odoo.tests.tagged("post_install", "-at_install")
@@ -21,7 +20,6 @@ class TestSelfOrderMobile(SelfOrderCommonTest):
 
         floor = self.env["restaurant.floor"].create({
             "name": 'Main Floor',
-            "background_color": 'rgb(249,250,251)',
             "table_ids": [(0, 0, {
                 "table_number": 1,
             })],
@@ -38,109 +36,42 @@ class TestSelfOrderMobile(SelfOrderCommonTest):
         self_route = self.pos_config._get_self_order_route(table_id=floor.table_ids[0].id)
 
         # Test selection of different presets
-        self.start_tour(self_route, "self_mobile_each_table_takeaway_in")
+        order = self.process_self_order(
+            [{'product': self.cola, 'qty': 1, 'price_unit': self.cola.lst_price}],
+            preset=self.in_preset,
+            table=floor.table_ids[0],
+        )
         self.start_tour(self_route, "self_mobile_each_table_takeaway_out")
         orders = self.env['pos.order'].search([], order="id desc", limit=2)
         self.assertEqual(orders[0].preset_id, self.out_preset)
         self.assertEqual(orders[1].preset_id, self.in_preset)
 
         self.pos_config.write({
-            'self_ordering_service_mode': 'counter',
-        })
-
-        # Mobile, each, counter
-        self.start_tour(self_route, "self_mobile_each_counter_takeaway_in")
-        self.start_tour(self_route, "self_mobile_each_counter_takeaway_out")
-
-        self.env['pos.order'].search([('state', '=', 'draft')]).write({'state': 'cancel'})
-        self.pos_config.write({
             'self_ordering_pay_after': 'meal',
             'self_ordering_service_mode': 'table',
         })
 
         # Mobile, meal, table
-        self.start_tour(self_route, "self_mobile_meal_table_takeaway_in")
-        self.start_tour(self_route, "self_mobile_meal_table_takeaway_out")
+        order = self.process_self_order(
+            [{'product': self.cola, 'qty': 1, 'price_unit': self.cola.lst_price}],
+            preset=self.in_preset,
+            table=floor.table_ids[0],
+        )
+        html = order.order_receipt_generate_html()
+        self.assertTrue("Service at Table" in html)
 
-        self.env['pos.order'].search([('state', '=', 'draft')]).write({'state': 'cancel'})
         self.pos_config.write({
+            'self_ordering_pay_after': 'each',
             'self_ordering_service_mode': 'counter',
         })
 
         # Mobile, meal, counter
-        self.start_tour(self_route, "self_mobile_meal_counter_takeaway_in")
-        self.start_tour(self_route, "self_mobile_meal_counter_takeaway_out")
-
-        # Cancel in meal
-        self.start_tour(self_route, "self_order_mobile_meal_cancel")
-
-        self.env['pos.order'].search([('state', '=', 'draft')]).write({'state': 'cancel'})
-        self.pos_config.write({
-            'self_ordering_pay_after': 'each',
-        })
-
-        # Cancel in each
-        self.start_tour(self_route, "self_order_mobile_each_cancel")
-
-        self.pos_config.write({
-            'self_ordering_service_mode': 'table',
-        })
-
-        self_route_table = self.pos_config._get_self_order_route(table_id=floor.table_ids[0].id)
-        self.start_tour(self_route_table, "self_mobile_auto_table_selection_takeaway_in")
-
-    def test_self_order_category_with_only_special_products(self):
-        # A category containing only special products must not be visible
-        self.pos_config.write({
-            'self_ordering_mode': 'mobile',
-            'self_ordering_pay_after': 'each',
-            'self_ordering_service_mode': 'table',
-        })
-
-        test_categ_misc = self.env['pos.category'].create({
-            'name': 'Specials',
-        })
-
-        prod1 = self.env['product.product'].create({
-            'name': 'Special 1',
-            'is_storable': True,
-            'list_price': 0,
-            'taxes_id': False,
-            'available_in_pos': True,
-            'pos_categ_ids': [(4, test_categ_misc.id)],
-            'default_code': '12345',
-        })
-
-        prod2 = self.env['product.product'].create({
-            'name': 'Special 2',
-            'is_storable': True,
-            'list_price': 0,
-            'taxes_id': False,
-            'available_in_pos': True,
-            'pos_categ_ids': [(4, test_categ_misc.id)],
-            'default_code': '12345',
-        })
-        self.pos_config.with_user(self.pos_user).open_ui()
-        self.pos_config.current_session_id.set_opening_control(0, "")
-        self_route = self.pos_config._get_self_order_route()
-
-        with patch("odoo.addons.point_of_sale.models.pos_config.PosConfig._get_special_products", return_value=prod1 + prod2):
-            self.start_tour(self_route, "self_order_mobile_special_products_category")
-
-    def test_self_order_mobile_no_access_token(self):
-        self.pos_config.write({
-            'self_ordering_mode': 'mobile',
-            'self_ordering_pay_after': 'each',
-            'self_ordering_service_mode': 'table',
-        })
-
-        self.pos_config.with_user(self.pos_user).open_ui()
-        self.pos_config.current_session_id.set_opening_control(0, "")
-        self_route = self.pos_config._get_self_order_route()
-
-        # removing access token to simulate a request without it
-        route = urlparse(self_route)
-        self.start_tour(route.path, "self_order_mobile_no_access_token")
+        order = self.process_self_order(
+            [{'product': self.cola, 'qty': 1, 'price_unit': self.cola.lst_price}],
+            preset=self.out_preset,
+        )
+        html = order.order_receipt_generate_html()
+        self.assertTrue("Pickup At Counter" in html)
 
     def test_self_order_mobile_0_price_order(self):
         self.pos_config.write({
@@ -151,7 +82,6 @@ class TestSelfOrderMobile(SelfOrderCommonTest):
 
         floor = self.env["restaurant.floor"].create({
             "name": 'Main Floor',
-            "background_color": 'rgb(249,250,251)',
             "table_ids": [(0, 0, {
                 "table_number": 1,
             }), (0, 0, {
@@ -169,13 +99,15 @@ class TestSelfOrderMobile(SelfOrderCommonTest):
 
         self.pos_config.with_user(self.pos_user).open_ui()
         self.pos_config.current_session_id.set_opening_control(0, "")
-        self_route = self.pos_config._get_self_order_route(floor.table_ids[0].id)
 
-        # Zero priced order
-        self.start_tour(self_route, "self_order_mobile_0_price_order")
+        # Zero priced order with a note
+        order = self.process_self_order(
+            [{'product': self.ketchup, 'qty': 1, 'price_unit': self.ketchup.lst_price}],
+            general_customer_note='test',
+            table=floor.table_ids[0],
+        )
 
-        order = self.env['pos.order'].search([], limit=1)
-        self.assertEqual(order.picking_count, 1)
+        self.assertEqual(order.general_customer_note, "test")
 
     def test_order_sequence_in_self(self):
         self.pos_config.write({
@@ -195,54 +127,6 @@ class TestSelfOrderMobile(SelfOrderCommonTest):
         self.assertEqual(references, [f"{current_year}0-{self.pos_config.id}-00000{4 - i}" for i in range(4)])
         self.assertEqual(self.pos_config.order_backend_seq_id.number_next, 5)
 
-    def test_sub_categories_products_displayed(self):
-        miscellaneous = self.env['pos.category'].search([('name', '=', 'Miscellaneous')], limit=1)
-        soda = self.env['pos.category'].create({
-            'name': 'Soda',
-            'parent_id': miscellaneous.id,
-            'sequence': 1,
-        })
-        empty_parent_category = self.env['pos.category'].create({'name': 'Parent'})
-        child_category = self.env['pos.category'].create({
-            'name': 'Child',
-            'parent_id': empty_parent_category.id,
-        })
-        grand_child_category = self.env['pos.category'].create({
-            'name': 'Grandchild',
-            'parent_id': child_category.id,
-        })
-
-        self.cola.write({'pos_categ_ids': [(6, 0, [soda.id])]})
-        self.fanta.write({'pos_categ_ids': [(6, 0, [grand_child_category.id])]})
-
-        # Mobile
-        self.pos_config.write({
-            'self_ordering_mode': 'mobile',
-            'self_ordering_pay_after': 'each',
-            'self_ordering_service_mode': 'table',
-            'use_presets': False,
-            'iface_available_categ_ids': [(6, 0, [miscellaneous.id, soda.id, empty_parent_category.id, child_category.id, grand_child_category.id])],
-        })
-
-        self.pos_config.with_user(self.pos_user).open_ui()
-        self.pos_config.current_session_id.set_opening_control(0, "")
-        self_route = self.pos_config._get_self_order_route()
-        self.start_tour(self_route, "test_sub_categories_products_displayed")
-
-        # Consultation
-        self.pos_config.current_session_id.action_pos_session_closing_control()
-        self.pos_config.write({'self_ordering_mode': 'consultation'})
-        self.pos_config.with_user(self.pos_user).open_ui()
-        self_route = self.pos_config._get_self_order_route()
-        self.start_tour(self_route, "test_sub_categories_products_displayed")
-
-        # Kiosk
-        self.pos_config.current_session_id.action_pos_session_closing_control()
-        self.pos_config.write({'self_ordering_mode': 'kiosk'})
-        self.pos_config.with_user(self.pos_user).open_ui()
-        self_route = self.pos_config._get_self_order_route()
-        self.start_tour(self_route, "test_sub_categories_products_displayed")
-
     def test_mobile_self_order_preparation_changes(self):
         self.pos_config.write({
             'self_ordering_mode': 'mobile',
@@ -254,16 +138,24 @@ class TestSelfOrderMobile(SelfOrderCommonTest):
         self.pos_config.with_user(self.pos_user).open_ui()
         self.pos_config.current_session_id.set_opening_control(0, "")
 
-        # create self-order from mobile
-        self.start_tour(self.pos_config._get_self_order_route(), 'test_mobile_self_order_preparation_changes')
-        order = self.pos_config.current_session_id.order_ids[0]
+        # Create self-order from mobile directly
+        table = self.pos_main_floor.table_ids[0]
+        order = self.process_self_order(
+            [
+                {'product': self.cola, 'qty': 1, 'price_unit': self.cola.lst_price},
+                {'product': self.fanta, 'qty': 1, 'price_unit': self.fanta.lst_price},
+            ],
+            table=table,
+        )
         self.assertEqual(order.state, 'draft')
         self.assertEqual(len(order.lines), 2)
 
         # Check self-order in pos-terminal are not prompted for Send-for-Preparation
+        expected_table = order.self_ordering_table_id
         self.start_tour('/pos/ui?config_id=%d' % self.pos_config.id, 'test_pos_self_order_preparation_changes', login='pos_user')
+        self.assertEqual(order.self_ordering_table_id, expected_table, "self_ordering_table_id should be equal to the original table")
 
-    def test_self_order_table_sharing(self):
+    def test_self_order_table_no_more_sharing(self):
         """
         - MEAL MODE: table is assigned to order via table_id field when scanning QR code
             all phones scanning the same table QR code share the same order
@@ -279,7 +171,6 @@ class TestSelfOrderMobile(SelfOrderCommonTest):
 
         floor = self.env["restaurant.floor"].create({
             "name": 'Main Floor',
-            "background_color": 'rgb(249,250,251)',
             "table_ids": [(0, 0, {
                 "table_number": 1,
             }), (0, 0, {
@@ -298,26 +189,20 @@ class TestSelfOrderMobile(SelfOrderCommonTest):
         table_identifier = table.identifier
         self_route = self.pos_config._get_self_order_route(table_id=table.id)
 
-        # Just needs to create an order, values do not matter
-        self.env['pos.order'].create({
-            'session_id': self.pos_config.current_session_id.id,
-            'table_id': table.id,
-            'amount_total': 10.0,
-            'amount_tax': 0.0,
-            'amount_return': 0.0,
-            'amount_paid': 0.0,
-            'floating_order_name': f'Self-Order {table_identifier}',
-            'lines': [(0, 0, {
-                'qty': 1,
-                'product_id': self.cola.id,
-                'price_unit': self.cola.lst_price,
-                'price_subtotal': self.cola.lst_price,
-                'price_subtotal_incl': self.cola.lst_price,
-            })],
-        })
+        # Just needs to create an order; values do not matter
+        self.process_self_order(
+            [{'product': self.cola, 'qty': 1, 'price_unit': self.cola.lst_price}],
+            floating_order_name=f'Self-Order {table_identifier}',
+            table=table,
+        )
 
-        self.start_tour(self_route, "test_self_order_table_sharing-each_mode")
-        last_order = self.pos_config.current_session_id.order_ids[0]
+        last_order = self.process_self_order(
+            [
+                {'product': self.cola, 'qty': 1, 'price_unit': self.cola.lst_price},
+                {'product': self.fanta, 'qty': 1, 'price_unit': self.fanta.lst_price},
+            ],
+            table=table,
+        )
         self.assertEqual(last_order.floating_order_name, f"Self-Order T {table.table_number}")
         self.assertFalse(last_order.table_id)
 
@@ -325,7 +210,7 @@ class TestSelfOrderMobile(SelfOrderCommonTest):
             'self_ordering_pay_after': 'meal',
         })
 
-        self.start_tour(self_route, "test_self_order_table_sharing-meal_mode")
+        self.start_tour(self_route, "test_self_order_table_no_more_sharing-meal_mode")
 
     def test_delete_mobile_order_from_backend(self):
         self.pos_config.write({
@@ -351,58 +236,86 @@ class TestSelfOrderMobile(SelfOrderCommonTest):
         ):
             self.start_tour(self_route, 'test_delete_mobile_order_from_backend')
 
-    def test_pos_self_order_table_transfer(self):
-        """
-        Verify that transferring a POS order to a new table clears
-        `self_ordering_table_id`, preventing the order from remaining linked
-        to the original self-order table.
-        """
-
-        self.browser_size = '1366x768'
+    def test_self_order_pay_warns_on_stale_cart(self):
         self.pos_config.write({
             'self_ordering_mode': 'mobile',
             'self_ordering_pay_after': 'meal',
-            'self_ordering_service_mode': 'table',
-            'floor_ids': [(6, 0, [self.pos_main_floor.id])],
+            'self_ordering_service_mode': 'dynamic_qr',
+            'use_presets': False,
         })
 
-        self.pos_main_floor.write({
-            'table_ids': [(0, 0, {
-                'table_number': '2',
-            })],
+        self.pos_config.with_user(self.pos_user).open_ui()
+        self.pos_config.current_session_id.set_opening_control(0, '')
+
+        order = self.env['pos.order'].create({
+            'session_id': self.pos_config.current_session_id.id,
+            'table_id': self.pos_table_1.id,
+            'amount_total': 0.0,
+            'amount_tax': 0.0,
+            'amount_return': 0.0,
+            'amount_paid': 0.0,
+        })
+        order._ensure_access_token()
+        self_route = self.pos_config._get_self_order_route(order=order)
+
+        @http.route('/pos-self-order/test-modify-line-qty-from-backend/', auth='public', type='jsonrpc', website=True)
+        def modify_line_qty_from_backend(self, line_id, qty):
+            self.env['pos.order.line'].sudo().browse(line_id).write({'qty': qty})
+
+        with patch.object(PosSelfOrderController, 'modify_line_qty_from_backend', modify_line_qty_from_backend, create=True):
+            self.start_tour(self_route, 'self_order_mobile_pay_warns_on_stale_cart')
+
+    def test_self_order_snooze_service(self):
+        """
+        Verify that snoozing the self-order service from the order tracker
+        dropdown creates a `pos.snooze` record for the requested duration.
+        """
+
+        self.pos_config.write({
+            'self_ordering_mode': 'mobile',
+            'self_ordering_pay_after': 'each',
+            'self_ordering_service_mode': 'counter',
+            'use_presets': False,
         })
 
         self.pos_config.with_user(self.pos_user).open_ui()
         self.pos_config.current_session_id.set_opening_control(0, "")
 
-        self.env['pos.order'].create({
-            'session_id': self.pos_config.current_session_id.id,
-            'self_ordering_table_id': self.pos_main_floor.table_ids[0].id,
-            'amount_total': 10.0,
-            'amount_tax': 0.0,
-            'amount_return': 0.0,
-            'amount_paid': 0.0,
-            'lines': [(0, 0, {
-                'qty': 1,
-                'product_id': self.cola.id,
-                'price_unit': self.cola.lst_price,
-                'price_subtotal': self.cola.lst_price,
-                'price_subtotal_incl': self.cola.lst_price,
-            })],
+        self.start_tour('/pos/ui?config_id=%d' % self.pos_config.id, 'test_self_order_snooze_service', login='pos_user')
+
+        snoozed_item = self.env['pos.snooze'].search([], limit=1)
+        self.assertEqual(snoozed_item.type, "self-ordering")
+        self.assertEqual(snoozed_item.end_time - snoozed_item.start_time, timedelta(hours=1))
+
+    def test_pos_self_order_dynamic_qr(self):
+        self.browser_size = '1366x768'
+        self.pos_config.write({
+            'self_ordering_mode': 'mobile',
+            'self_ordering_pay_after': 'meal',
+            'self_ordering_service_mode': 'dynamic_qr',
+            'floor_ids': [(6, 0, [self.pos_main_floor.id])],
         })
 
-        self.start_tour('/pos/ui?config_id=%d' % self.pos_config.id, 'test_pos_self_order_table_transfer', login='pos_user')
+        self.pos_config.with_user(self.pos_user).open_ui()
+        self.pos_config.current_session_id.set_opening_control(0, "")
 
-        orders = self.pos_config.current_session_id.order_ids
-        self.assertEqual(len(orders), 2, "Expected exactly 2 orders: the transferred self-order and an empty placeholder")
-        orders_with_lines = orders.filtered(lambda o: o.lines)
-        empty_orders = orders.filtered(lambda o: not o.lines)
-        self.assertEqual(len(orders_with_lines), 1, "Expected exactly one order with lines")
-        self.assertEqual(len(empty_orders), 1, "Expected exactly one empty order")
-        self_order = orders_with_lines[0]
-        self.assertEqual(self_order.self_ordering_table_id, self_order.table_id)
-        empty_order = empty_orders[0]
-        self.assertFalse(empty_order.lines, "Empty order should have no lines")
+        # Without a QR-joined order, self-ordering is blocked with a staff-only message.
+        self_route = self.pos_config._get_self_order_route()
+        self.start_tour(self_route, 'self_order_mobile_dynamic_qr_blocked')
+
+        self.start_tour('/pos/ui?config_id=%d' % self.pos_config.id, 'test_pos_self_order_dynamic_qr', login='pos_user')
+
+        order = self.pos_config.current_session_id.order_ids.filtered(lambda o: o.lines)
+        self.assertEqual(len(order), 1, "Expected exactly one order with lines")
+        self.assertTrue(order.access_token, "Clicking Dynamic QR should have generated an access_token for the order")
+
+        self_route_order = self.pos_config._get_self_order_route(order=order)
+        self.assertIn(f"order_identifier={order.access_token}", self_route_order)
+        self.start_tour(self_route_order, "self_order_mobile_join_via_qr")
+
+        order.invalidate_recordset()
+        self.assertEqual(len(order.lines), 1)
+        self.assertEqual(order.lines[0].qty, 2)
 
     def test_self_order_mobile_not_visible_in_other_config(self):
         """Self-orders from config A should not appear in config B's ticket screen."""
@@ -436,16 +349,18 @@ class TestSelfOrderMobile(SelfOrderCommonTest):
             'module_pos_restaurant': True,
             'cash_control': False,
         })
-        self.start_tour(f"/pos/ui/{other_pos.id}", 'test_no_orders_from_other_config', login="pos_admin")
+        self.start_tour(f"/pos/ui/{other_pos.id}", 'test_self_order_mobile_not_visible_in_other_config', login="pos_admin")
 
-    def test_self_order_meal_do_not_change_tracking_number_on_sync(self):
+    def test_self_order_availability_toggle(self):
+        """Verify that toggling self_order_available is correctly reflected in the data loaded for the self-order interface."""
         self.pos_config.write({
             'self_ordering_mode': 'mobile',
-            'self_ordering_pay_after': 'meal',
-            'self_ordering_service_mode': 'table',
-            'use_presets': False,
         })
+        desk_organizer = self.env['product.template'].search([('name', '=', 'Desk Organizer')], limit=1)
+        desk_organizer.write({'self_order_available': False})
 
         self.pos_config.with_user(self.pos_user).open_ui()
-        self.pos_config.current_session_id.set_opening_control(0, "")
-        self.start_tour(self.pos_config._get_self_order_route(), 'test_self_order_meal_do_not_change_tracking_number_on_sync')
+
+        result = self.env['product.template'].load_product_from_pos(self.pos_config.id, [('id', '=', desk_organizer.id)])
+        product_data = result['product.template'][0]
+        self.assertEqual(product_data['self_order_available'], desk_organizer.self_order_available)

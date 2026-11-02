@@ -1,44 +1,37 @@
+import { useSubEnv } from "@web/owl2/utils";
 import { Message } from "@mail/core/common/message";
+import { MessageSearchState } from "@mail/core/common/message_search_hook";
 import { useVisible } from "@mail/utils/common/hooks";
 
-import { Component, useSubEnv } from "@odoo/owl";
+import { Component, signal, t, useProps } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
 import { useService } from "@web/core/utils/hooks";
 
-/**
- * @typedef {Object} Props
- * @property {string} [emptyText]
- * @property {import("@mail/core/common/message_model").Message[]} messages
- * @property {ReturnType<import('@mail/core/common/message_search_hook').useMessageSearch>} [messageSearch]
- * @property {function} [loadMore]
- * @property {string} mode
- * @property {function} [onClickJump]
- * @property {function} [onLoadMoreVisible]
- * @property {boolean} [showEmpty]
- * @property {import("@mail/core/common/thread_model").Thread} thread
- * @extends {Component<Props, Env>}
- */
 export class MessageCardList extends Component {
     static components = { Message };
-    static props = [
-        "emptyText?",
-        "messages",
-        "messageSearch?",
-        "loadMore?",
-        "mode",
-        "onClickJump?",
-        "onLoadMoreVisible?",
-        "showEmpty?",
-        "thread",
-    ];
     static template = "mail.MessageCardList";
+
+    messageListRef = signal.ref();
+    loadMoreRef = signal.ref();
 
     setup() {
         super.setup();
+        this.store = useService("mail.store");
+        this.props = useProps({
+            emptyText: t.string().optional(),
+            loadMore: t.boolean().optional(),
+            messageSearch: t.instanceOf(MessageSearchState).optional(),
+            messages: t.array(t.instanceOf(this.store["mail.message"])),
+            mode: t.string(),
+            onClickJump: t.function([]).optional(),
+            onLoadMoreVisible: t.function([]).optional(),
+            showEmpty: t.boolean().optional(),
+            thread: t.instanceOf(this.store["mail.thread"]),
+        });
         this.ui = useService("ui");
         this.store = useService("mail.store");
         useSubEnv({ messageCard: true });
-        useVisible("load-more", (isVisible) => {
+        useVisible(this.loadMoreRef, (isVisible) => {
             if (isVisible) {
                 this.props.onLoadMoreVisible?.();
             }
@@ -60,7 +53,11 @@ export class MessageCardList extends Component {
         }
         // Give the time for menus to close before scrolling to the message.
         await new Promise((resolve) => setTimeout(() => requestAnimationFrame(resolve)));
-        await this.env.messageHighlight?.highlightMessage(message, this.props.thread);
+        await this.env.messageHighlight?.highlightMessage(message);
+    }
+
+    onClickUnpin(message) {
+        (message.channel_id || message.thread)?.messageUnpin(message);
     }
 
     get emptyText() {

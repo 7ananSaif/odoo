@@ -21,22 +21,20 @@
                         <notebook>
                             <page string="Details" name="recruitment_page" invisible="1" groups="hr.group_hr_user">
                                 <group>
-                                    <group name="hiring_process" string="Hiring Process">
-                                        <field name="user_id" widget="many2one_avatar_user"/>
-                                    </group>
-                                    <group name="job_posting" string="Job Posting">
+                                    <group name="hiring_process" string="Hiring Process" invisible="1">
+                                        <field name="recruiter_id" widget="many2one_avatar_employee"/>
                                         <label name="no_of_recruitment_label" for="no_of_recruitment"/>
                                         <div class="o_row" name="recruitment_target">
                                             <field name="no_of_recruitment" class="o_hr_narrow_field"/>
-                                            <span>new employees</span>
+                                            <span>employees</span>
                                         </div>
                                     </group>
                                     <group name="job" string="Job">
-                                        <field name="company_id" options="{'no_create': True}" groups="base.group_multi_company" placeholder="Visible to all"/>
+                                        <field name="company_id" options="{'no_create': True}" groups="base.group_multi_company"/>
                                         <field name="department_id"/>
                                     </group>
                                     <group name="contract" string="Contract">
-                                        <field name="contract_type_id"/>
+                                        <field name="employee_type_id"/>
                                     </group>
                                 </group>
                             </page>
@@ -53,7 +51,7 @@
             <field name="name">hr.job.list</field>
             <field name="model">hr.job</field>
             <field name="arch" type="xml">
-                <list string="Job" sample="1">
+                <list string="Job" sample="1" multi_edit="1">
                     <field name="sequence" widget="handle"/>
                     <field name="name"/>
                     <field name="no_of_employee" optional="hide" string="Number of Employees"/>
@@ -93,7 +91,7 @@
                     <group>
                         <filter string="Department" name="department" domain="[]" context="{'group_by': 'department_id'}"/>
                         <filter string="Company" name="company" domain="[]" context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
-                        <filter string="Employment Type" name="employment_type" domain="[]" context="{'group_by': 'contract_type_id'}"/>
+                        <filter string="Employee Type" name="contract_type" domain="[]" context="{'group_by': 'employee_type_id'}"/>
                     </group>
                 </search>
             </field>

@@ -16,11 +16,10 @@ class TestForumInternals(TestForumCommon):
 
     @users('admin')
     def test_assert_initial_values(self):
-        """ To ease test setup we support tests only with base data, to avoid
-        having to deal with custom / existing data in various asserts. """
-        forums = self.env['forum.forum'].search([])
-        self.assertEqual(forums, self.base_forum + self.forum)
-        self.assertFalse(forums.website_id)
+        """Check the initial state of the forums used by this test suite."""
+        test_forums = self.base_forum | self.forum
+        self.assertEqual(len(test_forums), 2)
+        self.assertFalse(test_forums.website_id)
 
     @users('admin')
     def test_website_forum_count(self):
@@ -28,10 +27,8 @@ class TestForumInternals(TestForumCommon):
         base_website = self.base_website.with_env(self.env)
         website_2 = self.website_2.with_env(self.env)
 
-        self.assertEqual(base_website.forum_count, 2,
-                         'Should count default global forums')
-        self.assertEqual(website_2.forum_count, 2,
-                         'Should count default global forums')
+        base_count = base_website.forum_count
+        website_2_count = website_2.forum_count
 
         new_forums = self.env['forum.forum'].create([
             {
@@ -48,15 +45,15 @@ class TestForumInternals(TestForumCommon):
                 'website_id': website_2.id,
             }
         ])
-        self.assertEqual(base_website.forum_count, 4,
+        self.assertEqual(base_website.forum_count, base_count + 2,
                          '3 globals, 1 specific')
-        self.assertEqual(website_2.forum_count, 5,
+        self.assertEqual(website_2.forum_count, website_2_count + 3,
                          '3 globals, 2 specific')
 
         new_forums.write({'website_id': False})
-        self.assertEqual(base_website.forum_count, 6,
+        self.assertEqual(base_website.forum_count, base_count + 4,
                          '6 global forums')
-        self.assertEqual(website_2.forum_count, 6,
+        self.assertEqual(website_2.forum_count, website_2_count + 4,
                          '6 global forums')
 
     def test_website_forum_last_post_id(self):
@@ -92,7 +89,6 @@ class TestPostInternals(TestForumCommon):
         questions_post = Post.create({
             'name': 'My First Post',
             'forum_id': forum_questions.id,
-            'parent_id': self.post.id,
         })
         _answer = Post.create({
             'name': 'This is an answer',
@@ -100,6 +96,11 @@ class TestPostInternals(TestForumCommon):
             'parent_id': questions_post.id,
         })
         self.assertTrue(questions_post.uid_has_answered)
+
+        # Can add in favorite even if not enough karma to edit
+        self.user_employee.karma = 1
+        questions_post.with_user(self.user_employee).user_favourite = True
+        self.assertEqual(self.user_employee.karma, 1)
 
 
 @tagged('forum_internals')

@@ -6,11 +6,7 @@
         <field name="inherit_id" ref="hr.view_employee_filter"/>
         <field name="arch" type="xml">
             <filter name="at_work" position="after">
-                <filter name="absent" string="Absent" domain="[('hr_presence_state_display', '=', 'absent')]"/>
-                <filter name="out_of_working_hours" string="Off-Hours" domain="[('hr_presence_state_display', '=', 'out_of_working_hour')]"/>
-            </filter>
-            <filter name="group_birthday" position="before">
-                <filter name="group_hr_presence_state" string="Presence/Absence" domain="[]" context="{'group_by':'hr_presence_state_display'}" groups="hr.group_hr_manager"/>
+                <filter name="absent" string="Absent" domain="[('is_absent', '=', True)]"/>
             </filter>
         </field>
     </record>
@@ -20,10 +16,13 @@
         <field name="value">presence_group_1</field>
         <field name="model_id" ref="hr.model_hr_employee"/>
         <field name="binding_model_id" ref="hr.model_hr_employee"/>
-        <field name="binding_view_types">form,list,kanban</field>
+        <field name="binding_view_types">list</field>
         <field name="state">code</field>
         <field name="code">
-            action = records.action_set_present()
+if not records:
+    active_ids = env.context.get('active_ids') or ([env.context.get('active_id')] if env.context.get('active_id') else [])
+    records = env['hr.employee'].browse(active_ids)
+action = records.action_set_present()
         </field>
     </record>
 
@@ -32,34 +31,27 @@
         <field name="value">presence_group_1</field>
         <field name="model_id" ref="hr.model_hr_employee"/>
         <field name="binding_model_id" ref="hr.model_hr_employee"/>
-        <field name="binding_view_types">form,list,kanban</field>
+        <field name="binding_view_types">list</field>
         <field name="state">code</field>
         <field name="code">
-            action = records.action_set_absent()
-        </field>
-    </record>
-
-    <record id="action_hr_employee_presence_log" model="ir.actions.server">
-        <field name="name">Add a log note</field>
-        <field name="model_id" ref="hr.model_hr_employee"/>
-        <field name="value">presence_group_2</field>
-        <field name="binding_model_id" ref="hr.model_hr_employee"/>
-        <field name="binding_view_types">form,list,kanban</field>
-        <field name="state">code</field>
-        <field name="code">
-            action = records.action_send_log()
+if not records:
+    active_ids = env.context.get('active_ids') or ([env.context.get('active_id')] if env.context.get('active_id') else [])
+    records = env['hr.employee'].browse(active_ids)
+action = records.action_set_absent()
         </field>
     </record>
 
     <record id="action_hr_employee_presence_sms" model="ir.actions.server">
-        <field name="name">Send a SMS</field>
+        <field name="name">Send SMS</field>
         <field name="model_id" ref="hr.model_hr_employee"/>
-        <field name="value">presence_group_2</field>
         <field name="binding_model_id" ref="hr.model_hr_employee"/>
-        <field name="binding_view_types">form,list,kanban</field>
+        <field name="binding_view_types">list</field>
         <field name="state">code</field>
         <field name="code">
-            action = records.action_send_sms()
+if not records:
+    active_ids = env.context.get('active_ids') or ([env.context.get('active_id')] if env.context.get('active_id') else [])
+    records = env['hr.employee'].browse(active_ids)
+action = records.action_send_sms()
         </field>
     </record>
 
@@ -68,10 +60,13 @@
         <field name="model_id" ref="hr.model_hr_employee"/>
         <field name="value">presence_group_2</field>
         <field name="binding_model_id" ref="hr.model_hr_employee"/>
-        <field name="binding_view_types">form,list,kanban</field>
+        <field name="binding_view_types">list</field>
         <field name="state">code</field>
         <field name="code">
-            action = records.action_open_leave_request()
+if not records:
+    active_ids = env.context.get('active_ids') or ([env.context.get('active_id')] if env.context.get('active_id') else [])
+    records = env['hr.employee'].browse(active_ids)
+action = records.action_open_leave_request()
         </field>
     </record>
 

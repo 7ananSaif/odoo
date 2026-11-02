@@ -1,8 +1,12 @@
+import { waitForChannels, waitUntilSubscribe } from "@bus/../tests/bus_test_helpers";
+
 import {
     defineLivechatModels,
     loadDefaultEmbedConfig,
+    postLivechatMessage,
 } from "@im_livechat/../tests/livechat_test_helpers";
 import { expirableStorage } from "@im_livechat/core/common/expirable_storage";
+import { GUEST_TOKEN_STORAGE_KEY } from "@im_livechat/embed/common/store_service_patch";
 import {
     click,
     contains,
@@ -18,14 +22,7 @@ import {
     waitStoreFetch,
 } from "@mail/../tests/mail_test_helpers";
 import { describe, expect, test } from "@odoo/hoot";
-import { Deferred } from "@odoo/hoot-dom";
-import {
-    asyncStep,
-    Command,
-    onRpc,
-    serverState,
-    waitForSteps,
-} from "@web/../tests/web_test_helpers";
+import { Command, destroyApp, onRpc, serverState } from "@web/../tests/web_test_helpers";
 
 describe.current.tags("desktop");
 defineLivechatModels();
@@ -41,7 +38,6 @@ test("persisted session history", async () => {
         ],
         channel_type: "livechat",
         livechat_channel_id: livechatChannelId,
-        livechat_operator_id: serverState.partnerId,
     });
     expirableStorage.setItem(
         "im_livechat.saved_state",
@@ -75,7 +71,7 @@ test("previous operator prioritized", async () => {
     });
     pyEnv["im_livechat.channel"].write([livechatChannelId], { user_ids: [Command.link(userId)] });
     expirableStorage.setItem("im_livechat_previous_operator", JSON.stringify(previousOperatorId));
-    await start({ authenticateAs: false });
+    await start({ authenticateAs: false, waitUntilSubscribe: false });
     await click(".o-livechat-LivechatButton");
     await contains(".o-mail-Message-author", { text: "John Doe" });
 });
@@ -86,21 +82,22 @@ test("Only necessary requests are made when creating a new chat", async () => {
     const operatorPartnerId = serverState.partnerId;
     onRpcBefore((route, args) => {
         if (!route.includes("assets") && !STORE_FETCH_ROUTES.includes(route)) {
-            asyncStep(`${route} - ${JSON.stringify(args)}`);
+            expect.step(`${route} - ${JSON.stringify(args)}`);
         }
     });
     listenStoreFetch(undefined, { logParams: ["init_livechat"] });
-    await start({ authenticateAs: false });
+    await start({ authenticateAs: false, waitUntilSubscribe: false });
     await contains(".o-livechat-LivechatButton");
     await waitStoreFetch([
-        "failures", // called because mail/core/web is loaded in test bundle
-        "systray_get_activities", // called because mail/core/web is loaded in test bundle
         "init_messaging",
+        // Called because mail/core/public_web is loaded in test bundle, and it cannot be
+        // restricted to logged in users.
+        "/mail/messaging_menu/initialize_counters",
         ["init_livechat", livechatChannelId],
     ]);
     await click(".o-livechat-LivechatButton");
     await contains(".o-mail-Message", { text: "Hello, how may I help you?" });
-    await waitForSteps([
+    await expect.waitForSteps([
         `/im_livechat/get_session - ${JSON.stringify({
             channel_id: livechatChannelId,
             previous_operator_id: null,
@@ -108,45 +105,38 @@ test("Only necessary requests are made when creating a new chat", async () => {
         })}`,
     ]);
     await insertText(".o-mail-Composer-input", "Hello!");
-    await waitForSteps([]);
+    await expect.waitForSteps([]);
+    const subscribed = waitUntilSubscribe();
     await triggerHotkey("Enter");
+    await subscribed;
     await contains(".o-mail-Message", { text: "Hello!" });
     const [threadId] = pyEnv["discuss.channel"].search([], { order: "id DESC" });
-    await waitStoreFetch(
-        [
-            "failures", // called because mail/core/web is loaded in test bundle
-            "systray_get_activities", // called because mail/core/web is loaded in test bundle
-            "init_messaging",
-        ],
-        {
-            stepsBefore: [
-                `/im_livechat/get_session - ${JSON.stringify({
-                    channel_id: livechatChannelId,
-                    previous_operator_id: operatorPartnerId,
-                    persisted: true,
-                })}`,
-                `/mail/message/post - ${JSON.stringify({
-                    post_data: {
-                        body: "Hello!",
-                        email_add_signature: true,
-                        message_type: "comment",
-                        subtype_xmlid: "mail.mt_comment",
-                    },
-                    thread_id: threadId,
-                    thread_model: "discuss.channel",
-                    context: { ...userContext(), temporary_id: 0.8200000000000001 },
-                })}`,
-            ],
-        }
-    );
+    await expect.waitForSteps([
+        `/im_livechat/get_session - ${JSON.stringify({
+            channel_id: livechatChannelId,
+            previous_operator_id: operatorPartnerId,
+            persisted: true,
+        })}`,
+        `/mail/message/post - ${JSON.stringify({
+            post_data: {
+                body: "Hello!",
+                email_add_signature: true,
+                message_type: "comment",
+                subtype_xmlid: "mail.mt_comment",
+            },
+            thread_id: threadId,
+            thread_model: "discuss.channel",
+            context: { ...userContext(), temporary_id: 0.8200000000000001 },
+        })}`,
+    ]);
 });
 
 test("do not create new thread when operator answers to visitor", async () => {
     const pyEnv = await startServer();
     const livechatChannelId = await loadDefaultEmbedConfig();
     const guestId = pyEnv["mail.guest"].create({ name: "Visitor 11" });
-    onRpc("/im_livechat/get_session", async () => asyncStep("/im_livechat/get_session"));
-    onRpc("/mail/message/post", async () => asyncStep("/mail/message/post"));
+    onRpc("/im_livechat/get_session", async () => expect.step("/im_livechat/get_session"));
+    onRpc("/mail/message/post", async () => expect.step("/mail/message/post"));
     const channelId = pyEnv["discuss.channel"].create({
         channel_member_ids: [
             Command.create({ partner_id: serverState.partnerId }),
@@ -154,26 +144,24 @@ test("do not create new thread when operator answers to visitor", async () => {
         ],
         channel_type: "livechat",
         livechat_channel_id: livechatChannelId,
-        livechat_operator_id: serverState.partnerId,
         create_uid: serverState.publicUserId,
     });
     setupChatHub({ opened: [channelId] });
     await start({
         authenticateAs: pyEnv["res.users"].search_read([["id", "=", serverState.userId]])[0],
     });
-    await insertText(".o-mail-Composer-input", "Hello!");
-    await triggerHotkey("Enter");
+    await postLivechatMessage("Hello!");
     await contains(".o-mail-Message", { text: "Hello!" });
-    await waitForSteps(["/mail/message/post"]);
+    await expect.waitForSteps(["/mail/message/post"]);
 });
 
 test("Only create one channel when posting multiple messages", async () => {
-    const getSessionDeferred = new Deferred();
+    const getSessionResolvers = Promise.withResolvers();
     await loadDefaultEmbedConfig();
     onRpc("/im_livechat/get_session", async (req) => {
         const { params } = await req.json();
         if (params.persisted) {
-            await getSessionDeferred;
+            await getSessionResolvers.promise;
         }
         expect.step("/im_livechat/get_session");
     });
@@ -181,7 +169,7 @@ test("Only create one channel when posting multiple messages", async () => {
         const { params } = await req.json();
         expect.step(`/mail/message/post - ${params.post_data.body}`);
     });
-    await start({ authenticateAs: false });
+    await start({ authenticateAs: false, waitUntilSubscribe: false });
     await click(".o-livechat-LivechatButton");
     await expect.waitForSteps(["/im_livechat/get_session"]);
     await insertText(".o-mail-Composer-input", "1");
@@ -194,11 +182,76 @@ test("Only create one channel when posting multiple messages", async () => {
     await click(".o-sendMessageActive");
     await contains(".o-mail-Composer-input", { value: "" });
     await expect.waitForSteps([]);
-    getSessionDeferred.resolve();
+    const subscribed = waitUntilSubscribe();
+    getSessionResolvers.resolve();
+    await subscribed;
     await expect.waitForSteps([
         "/im_livechat/get_session",
         "/mail/message/post - 1",
         "/mail/message/post - 2",
         "/mail/message/post - 3",
+    ]);
+});
+
+test("guest token channel is subscribed at start and unsubscribed at destroy", async () => {
+    await startServer();
+    await loadDefaultEmbedConfig();
+    expirableStorage.setItem(GUEST_TOKEN_STORAGE_KEY, "abc");
+    await start({ authenticateAs: false, waitUntilSubscribe: false });
+    await waitForChannels(["mail.guest_abc"]);
+    destroyApp();
+    await waitForChannels(["mail.guest_abc"], { operation: "delete" });
+});
+
+test("Only create one channel when posting multiple lines on chat bot multi-line step", async () => {
+    const pyEnv = await startServer();
+    const livechatChannelId = await loadDefaultEmbedConfig();
+    const scriptId = pyEnv["chatbot.script"].create({
+        operator_partner_id: serverState.odoobotId,
+        title: "Bot",
+    });
+    pyEnv["chatbot.script.step"].create([
+        {
+            chatbot_script_id: scriptId,
+            message: "Tell us what you need.",
+            sequence: 1,
+            step_type: "free_input_multi",
+        },
+        {
+            chatbot_script_id: scriptId,
+            message: "Thanks for the details!",
+            sequence: 2,
+            step_type: "text",
+        },
+    ]);
+    pyEnv["im_livechat.channel.rule"].create({
+        channel_id: livechatChannelId,
+        chatbot_script_id: scriptId,
+    });
+    onRpc("/im_livechat/get_session", async (req) => {
+        const { params } = await req.json();
+        if (params.persisted) {
+            expect.step("persist");
+        }
+    });
+    onRpc("/mail/message/post", async (req) => {
+        const { params } = await req.json();
+        expect.step(`/mail/message/post - ${params.post_data.body}`);
+    });
+    await start({ authenticateAs: false, waitUntilSubscribe: false });
+    await click(".o-livechat-LivechatButton");
+    await contains(".o-mail-Message", { text: "Tell us what you need." });
+    // Lines are posted before the multi-line step is completed.
+    for (const line of ["Line 1", "Line 2", "Line 3"]) {
+        await insertText(".o-mail-Composer-input", line);
+        await click(".o-sendMessageActive");
+        await contains(".o-mail-Message", { text: line });
+        await contains(".o-mail-Composer-input", { value: "" });
+    }
+    await expect.waitForSteps([
+        "persist",
+        "/mail/message/post - Line 1",
+        "/mail/message/post - Line 2",
+        "/mail/message/post - Line 3",
     ]);
 });

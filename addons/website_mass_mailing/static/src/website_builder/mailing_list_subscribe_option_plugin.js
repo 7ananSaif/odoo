@@ -3,27 +3,25 @@ import { Plugin } from "@html_editor/plugin";
 import { registry } from "@web/core/registry";
 import { user } from "@web/core/user";
 import { _t } from "@web/core/l10n/translation";
-import {  NewsletterSubscribeCommonOptionBase } from "./newsletter_subscribe_common_option";
+import { NewsletterSubscribeCommonOption } from "./newsletter_subscribe_common_option";
 import { getElementsWithOption, filterExtends } from "@html_builder/utils/utils";
 import { BuilderAction } from "@html_builder/core/builder_action";
 
-class MailingListSubscribeOptionPlugin extends Plugin {
+export class MailingListSubscribeOptionPlugin extends Plugin {
     static id = "mailingListSubscribeOption";
-    static dependencies = ["savePlugin"];
+    static dependencies = ["savePlugin", "builderOptions"];
     static shared = ["fetchMailingLists"];
     resources = {
         builder_actions: {
             ToggleThanksMessageAction,
         },
         on_snippet_dropped_handlers: this.onSnippetDropped.bind(this),
-        clean_for_save_handlers: this.cleanForSave.bind(this),
+        clean_for_save_processors: this.cleanForSave.bind(this),
     };
 
     setup() {
-        this.newsletterOptions = filterExtends(
-            this.getResource("builder_options"),
-            NewsletterSubscribeCommonOptionBase,
-        );
+        const builderOptions = this.dependencies.builderOptions.getBuilderOptions();
+        this.newsletterOptions = filterExtends(builderOptions, NewsletterSubscribeCommonOption);
     }
 
     async onSnippetDropped({ snippetEl }) {
@@ -73,7 +71,7 @@ class MailingListSubscribeOptionPlugin extends Plugin {
             const response = await this.services.orm.call(
                 "mailing.list",
                 "name_search",
-                ["", [["is_public", "=", true]]],
+                [],
                 { context }
             );
             this.mailingLists = [];
@@ -84,7 +82,7 @@ class MailingListSubscribeOptionPlugin extends Plugin {
         return this.mailingLists;
     }
 
-    cleanForSave({ root }) {
+    cleanForSave(root) {
         const newsLetterEls = [];
         for (const { selector, exclude, applyTo } of this.newsletterOptions) {
             newsLetterEls.push(...getElementsWithOption(root, selector, exclude, applyTo));
@@ -92,6 +90,7 @@ class MailingListSubscribeOptionPlugin extends Plugin {
         for (const newsLetterEl of newsLetterEls) {
             this.removePreview(newsLetterEl);
         }
+        return root;
     }
 
     removePreview(editingElement) {

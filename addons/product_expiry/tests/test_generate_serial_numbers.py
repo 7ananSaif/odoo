@@ -6,9 +6,12 @@ from freezegun import freeze_time
 from odoo import Command
 from odoo.addons.stock.tests.test_generate_serial_numbers import StockGenerateCommon
 from odoo.addons.stock.tests.test_picking_tours import TestStockPickingTour
+from odoo.tests import tagged
+
 from odoo.tools.misc import get_lang
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestStockLot(StockGenerateCommon):
     @classmethod
     def setUpClass(cls):
@@ -271,7 +274,7 @@ class TestProductExpiryTour(TestStockPickingTour):
         self.env['stock.move'].create({
             'product_id': product_exp.id,
             'product_uom_qty': 2,
-            'product_uom': product_exp.uom_id.id,
+            'uom_id': product_exp.uom_id.id,
             'picking_id': self.receipt.id,
         })
 

@@ -3,15 +3,14 @@
 # * auth_totp_mail
 #
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
-# Boris Peko <boris.peko@ecodica.eu>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~18.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-04-11 00:34+0000\n"
-"Last-Translator: Boris Peko <boris.peko@ecodica.eu>\n"
-"Language-Team: Croatian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-08-31 16:09+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Croatian <https://translate.odoo.com/projects/odoo-s19-4/"
 "auth_totp_mail/hr/>\n"
 "Language: hr\n"
 "MIME-Version: 1.0\n"
@@ -19,7 +18,19 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 5.16.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: auth_totp_mail
+#: model:ir.module.module,description:base.module_auth_totp_mail
+msgid ""
+"\n"
+"2FA Invite mail\n"
+"===============\n"
+"Allow the users to invite another user to use Two-Factor authentication\n"
+"by sending an email to the target user. This email redirects them to:\n"
+"- the users security settings if the user is internal.\n"
+"- the portal security settings page if the user is not internal.\n"
+msgstr ""
 
 #. module: auth_totp_mail
 #: model_terms:ir.ui.view,arch_db:auth_totp_mail.auth_totp_mail_form
@@ -27,8 +38,11 @@ msgid ""
 ".\n"
 "                <br/>"
 msgstr ""
-".\n"
-"                <br/>"
+
+#. module: auth_totp_mail
+#: model:ir.module.module,shortdesc:base.module_auth_totp_mail
+msgid "2FA Invite mail"
+msgstr ""
 
 #. module: auth_totp_mail
 #: model:mail.template,body_html:auth_totp_mail.mail_template_totp_invite
@@ -58,30 +72,6 @@ msgid ""
 "</div>\n"
 "        "
 msgstr ""
-"<div style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
-"    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
-"        Poštovani/a <t t-out=\"object.partner_id.name or ''\"/><br/><br/>\n"
-"        <t t-out=\"user.name  or ''\"/> je zatražio/la da aktivirate "
-"dvofaktorsku autentifikaciju kako biste zaštitili svoj račun.<br/><br/>\n"
-"        Dvofaktorska autentifikacija (\"2FA\") je sustav dvostruke "
-"autentifikacije.\n"
-"        Prva se obavlja pomoću vaše lozinke, a druga pomoću koda koji "
-"dobivate iz namjenske mobilne aplikacije.\n"
-"        Popularne uključuju Authy, Google Authenticator ili Microsoft "
-"Authenticator.\n"
-"\n"
-"        </p><p style=\"margin: 16px 0px 16px 0px; text-align: center;\">\n"
-"            <a t-att-href=\"object.get_totp_invite_url()\" t-attf-"
-"style=\"background-color:{{object.company_id.email_secondary_color or "
-"'#875A7B'}}; padding: 8px 16px 8px 16px; text-decoration: none; color: {"
-"{object.company_id.email_primary_color or '#FFFFFF'}}; border-radius: 5px;\">"
-"\n"
-"                Aktiviraj moju dvofaktorsku autentifikaciju\n"
-"            </a>\n"
-"        </p>\n"
-"    \n"
-"</div>\n"
-"        "
 
 #. module: auth_totp_mail
 #: model:mail.template,body_html:auth_totp_mail.mail_template_totp_mail_code
@@ -105,9 +95,8 @@ msgid ""
 "    <span t-out=\"code\" style=\"background-color:#faf9fa; border: 1px solid "
 "#dad8de; padding: 8px 16px 8px 16px; font-size: 24px; color: #875A7B; border-"
 "radius: 5px;\"/>\n"
+"    <p><small>Expires in <t t-out=\"expiration\"/>.</small></p>\n"
 "</div>\n"
-"<small>Please note that this code expires in <t t-out=\"expiration\"/>.</"
-"small>\n"
 "\n"
 "<p style=\"margin: 16px 0px 16px 0px;\">\n"
 "    If you did NOT initiate this log-in,\n"
@@ -129,59 +118,6 @@ msgid ""
 "</div>\n"
 "        "
 msgstr ""
-"<div style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
-"Poštovani/a <t t-out=\"object.partner_id.name or ''\"/><br/><br/>\n"
-"<p>Netko se pokušava prijaviti na vaš račun s novog uređaja.</p>\n"
-"<ul>\n"
-"    <t t-set=\"not_available\">N/A</t>\n"
-"    <li>Lokacija: <t t-out=\"ctx.get('location') or not_available\"/></li>\n"
-"    <li>Uređaj: <t t-out=\"ctx.get('device') or not_available\"/></li>\n"
-"    <li>Preglednik: <t t-out=\"ctx.get('browser') or not_available\"/></li>\n"
-"    <li>IP adresa: <t t-out=\"ctx.get('ip') or not_available\"/></li>\n"
-"</ul>\n"
-"<p>Ako ste to vi, unesite sljedeći kod za dovršetak prijave:</p>\n"
-"<t t-set=\"code_expiration\" t-value=\"object._get_totp_mail_code()\"/>\n"
-"<t t-set=\"code\" t-value=\"code_expiration[0]\"/>\n"
-"<t t-set=\"expiration\" t-value=\"code_expiration[1]\"/>\n"
-"<div style=\"margin: 16px 0px 16px 0px; text-align: center;\">\n"
-"    <span t-out=\"code\" style=\"background-color:#faf9fa; border: 1px solid "
-"#dad8de; padding: 8px 16px 8px 16px; font-size: 24px; color: #875A7B; border-"
-"radius: 5px;\"/>\n"
-"</div>\n"
-"<small>Napominjemo da ovaj kod istječe za <t t-out=\"expiration\"/>.</small>"
-"\n"
-"\n"
-"<p style=\"margin: 16px 0px 16px 0px;\">\n"
-"    Ako NISTE vi pokrenuli ovu prijavu,\n"
-"    odmah trebate promijeniti svoju lozinku radi osiguranja sigurnosti "
-"računa.\n"
-"</p>\n"
-"\n"
-"<p style=\"margin: 16px 0px 16px 0px;\">\n"
-"    Također snažno preporučujemo omogućavanje dvofaktorske autentifikacije "
-"pomoću aplikacije autentifikatora kako biste pomogli u zaštiti svog računa.\n"
-"</p>\n"
-"\n"
-"<p style=\"margin: 16px 0px 16px 0px; text-align: center;\">\n"
-"    <a t-att-href=\"object.get_totp_invite_url()\" style=\"background-"
-"color:#875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: "
-"#fff; border-radius: 5px;\">\n"
-"        Aktiviraj moju dvofaktorsku autentifikaciju\n"
-"    </a>\n"
-"</p>\n"
-"</div>\n"
-"        "
-
-#. module: auth_totp_mail
-#: model_terms:ir.ui.view,arch_db:auth_totp_mail.auth_totp_mail_form
-msgid ""
-"<i class=\"fa fa-envelope-o\"/>\n"
-"                To login, enter below the six-digit authentication code just "
-"sent via email to"
-msgstr ""
-"<i class=\"fa fa-envelope-o\"/>\n"
-"                Za prijavu unesite ispod šesteroznamenkasti kod za "
-"autentifikaciju koji je upravo poslan e-poštom na"
 
 #. module: auth_totp_mail
 #: model_terms:ir.ui.view,arch_db:auth_totp_mail.res_users_view_form
@@ -197,20 +133,20 @@ msgstr ""
 #. module: auth_totp_mail
 #: model_terms:ir.ui.view,arch_db:auth_totp_mail.account_security_alert
 msgid "<span>Consider also</span>"
-msgstr "<span>Razmotrite također</span>"
+msgstr ""
 
 #. module: auth_totp_mail
 #. odoo-python
 #: code:addons/auth_totp_mail/models/res_users.py:0
 msgid "A new device was used to sign in to your account."
-msgstr "Novi uređaj je korišten za prijavu na vaš račun."
+msgstr ""
 
 #. module: auth_totp_mail
 #. odoo-python
 #: code:addons/auth_totp_mail/models/auth_totp_device.py:0
 msgid ""
 "A trusted device has just been removed from your account: %(device_names)s"
-msgstr "Pouzdani uređaj je upravo uklonjen s vašeg računa: %(device_names)s"
+msgstr ""
 
 #. module: auth_totp_mail
 #: model:ir.model.fields.selection,name:auth_totp_mail.selection__res_config_settings__auth_totp_policy__all_required
@@ -220,7 +156,7 @@ msgstr "Svi korisnici"
 #. module: auth_totp_mail
 #: model:ir.model,name:auth_totp_mail.model_auth_totp_device
 msgid "Authentication Device"
-msgstr "Uređaj za autentifikaciju"
+msgstr ""
 
 #. module: auth_totp_mail
 #. odoo-python
@@ -229,31 +165,43 @@ msgid "Cannot send email: user %s has no email address."
 msgstr "E-mail se ne može poslati: korisnik %s nema e-mail adresu."
 
 #. module: auth_totp_mail
+#: model_terms:ir.ui.view,arch_db:auth_totp_mail.auth_totp_mail_form
+msgid "Check your inbox! We sent a code to"
+msgstr ""
+
+#. module: auth_totp_mail
+#. odoo-javascript
+#: code:addons/auth_totp_mail/static/src/services/check_identity/check_identity.xml:0
+msgid "Check your mailbox"
+msgstr ""
+
+#. module: auth_totp_mail
 #: model_terms:ir.ui.view,arch_db:auth_totp_mail.res_users_view_form
 msgid "Click to enable 2FA."
-msgstr "Kliknite za omogućavanje 2FA."
+msgstr ""
 
 #. module: auth_totp_mail
 #: model:ir.model,name:auth_totp_mail.model_res_config_settings
 msgid "Config Settings"
-msgstr "Konfiguracijske postavke"
+msgstr "Postavke"
 
 #. module: auth_totp_mail
 #: model:ir.model.fields,field_description:auth_totp_mail.field_auth_totp_device__display_name
+#: model:ir.model.fields,field_description:auth_totp_mail.field_ir_http__display_name
 #: model:ir.model.fields,field_description:auth_totp_mail.field_res_config_settings__display_name
 #: model:ir.model.fields,field_description:auth_totp_mail.field_res_users__display_name
 msgid "Display Name"
-msgstr "Naziv za prikaz"
+msgstr "Naziv"
 
 #. module: auth_totp_mail
 #: model:ir.model.fields.selection,name:auth_totp_mail.selection__res_config_settings__auth_totp_policy__employee_required
 msgid "Employees only"
-msgstr "Samo zaposlenici"
+msgstr ""
 
 #. module: auth_totp_mail
 #: model_terms:ir.ui.view,arch_db:auth_totp_mail.res_users_view_form
 msgid "Enable 2FA"
-msgstr "Omogući 2FA"
+msgstr ""
 
 #. module: auth_totp_mail
 #: model_terms:ir.ui.view,arch_db:auth_totp_mail.res_config_settings_view_form
@@ -262,17 +210,20 @@ msgid ""
 "users (including portal users) if they didn't enable any other two-factor "
 "authentication method."
 msgstr ""
-"Nametnite dvofaktorsku autentifikaciju e-poštom za zaposlenike ili za sve "
-"korisnike (uključujući portalne korisnike) ako nisu omogućili nijednu drugu "
-"metodu dvofaktorske autentifikacije."
 
 #. module: auth_totp_mail
 #: model:ir.model.fields,field_description:auth_totp_mail.field_res_config_settings__auth_totp_enforce
 msgid "Enforce two-factor authentication"
-msgstr "Nametni dvofaktorsku autentifikaciju"
+msgstr ""
+
+#. module: auth_totp_mail
+#: model:ir.model,name:auth_totp_mail.model_ir_http
+msgid "HTTP Routing"
+msgstr ""
 
 #. module: auth_totp_mail
 #: model:ir.model.fields,field_description:auth_totp_mail.field_auth_totp_device__id
+#: model:ir.model.fields,field_description:auth_totp_mail.field_ir_http__id
 #: model:ir.model.fields,field_description:auth_totp_mail.field_res_config_settings__id
 #: model:ir.model.fields,field_description:auth_totp_mail.field_res_users__id
 msgid "ID"
@@ -281,7 +232,7 @@ msgstr "ID"
 #. module: auth_totp_mail
 #: model:mail.template,subject:auth_totp_mail.mail_template_totp_invite
 msgid "Invitation to activate two-factor authentication on your Odoo account"
-msgstr "Poziv za aktivaciju dvofaktorske autentifikacije na vašem Odoo računu"
+msgstr ""
 
 #. module: auth_totp_mail
 #. odoo-python
@@ -290,39 +241,32 @@ msgid ""
 "Invitation to use two-factor authentication sent for the following user(s): "
 "%s"
 msgstr ""
-"Poziv za korištenje dvofaktorske autentifikacije poslan za sljedeće "
-"korisnike: %s"
 
 #. module: auth_totp_mail
 #: model_terms:ir.ui.view,arch_db:auth_totp_mail.view_users_form
 msgid "Invite to use 2FA"
-msgstr "Pozovi na korištenje 2FA"
+msgstr ""
 
 #. module: auth_totp_mail
 #: model:ir.actions.server,name:auth_totp_mail.action_invite_totp
 msgid "Invite to use two-factor authentication"
-msgstr "Pozovi na korištenje dvofaktorske autentifikacije"
-
-#. module: auth_totp_mail
-#: model_terms:ir.ui.view,arch_db:auth_totp_mail.auth_totp_mail_form
-msgid "Learn More"
-msgstr "Saznaj više"
+msgstr ""
 
 #. module: auth_totp_mail
 #. odoo-python
 #: code:addons/auth_totp_mail/models/res_users.py:0
 msgid "New Connection to your Account"
-msgstr "Nova veza s vašim računom"
+msgstr ""
 
 #. module: auth_totp_mail
 #: model:ir.actions.server,name:auth_totp_mail.action_activate_two_factor_authentication
 msgid "Open two-factor authentication configuration"
-msgstr "Otvori konfiguraciju dvofaktorske autentifikacije"
+msgstr ""
 
 #. module: auth_totp_mail
 #: model_terms:ir.ui.view,arch_db:auth_totp_mail.auth_totp_mail_form
 msgid "Re-send email"
-msgstr "Ponovno pošalji e-poštu"
+msgstr ""
 
 #. module: auth_totp_mail
 #. odoo-python
@@ -334,29 +278,35 @@ msgstr "Sigurnost"
 #. odoo-python
 #: code:addons/auth_totp_mail/models/res_users.py:0
 msgid "Security Update: 2FA Activated"
-msgstr "Sigurnosno ažuriranje: 2FA aktivirana"
+msgstr ""
 
 #. module: auth_totp_mail
 #. odoo-python
 #: code:addons/auth_totp_mail/models/res_users.py:0
 msgid "Security Update: 2FA Deactivated"
-msgstr "Sigurnosno ažuriranje: 2FA deaktivirana"
+msgstr ""
 
 #. module: auth_totp_mail
 #. odoo-python
 #: code:addons/auth_totp_mail/models/auth_totp_device.py:0
 msgid "Security Update: Device Removed"
-msgstr "Sigurnosno ažuriranje: uređaj uklonjen"
+msgstr ""
 
 #. module: auth_totp_mail
 #: model:mail.template,name:auth_totp_mail.mail_template_totp_invite
 msgid "Settings: 2Fa Invitation"
-msgstr "Postavke: poziv za 2FA"
+msgstr ""
 
 #. module: auth_totp_mail
 #: model:mail.template,name:auth_totp_mail.mail_template_totp_mail_code
 msgid "Settings: 2Fa New Login"
-msgstr "Postavke: nova prijava 2FA"
+msgstr ""
+
+#. module: auth_totp_mail
+#. odoo-javascript
+#: code:addons/auth_totp_mail/static/src/services/check_identity/check_identity.xml:0
+msgid "Six-digit authentication code"
+msgstr ""
 
 #. module: auth_totp_mail
 #: model_terms:ir.ui.view,arch_db:auth_totp_mail.res_users_view_form
@@ -366,19 +316,25 @@ msgstr "Dvofaktorska autentifikacija"
 #. module: auth_totp_mail
 #: model:ir.model.fields,field_description:auth_totp_mail.field_res_config_settings__auth_totp_policy
 msgid "Two-factor authentication enforcing policy"
-msgstr "Politika nametanja dvofaktorske autentifikacije"
+msgstr ""
 
 #. module: auth_totp_mail
 #. odoo-python
 #: code:addons/auth_totp_mail/models/res_users.py:0
 msgid "Two-factor authentication has been activated on your account"
-msgstr "Dvofaktorska autentifikacija je aktivirana na vašem računu"
+msgstr ""
 
 #. module: auth_totp_mail
 #. odoo-python
 #: code:addons/auth_totp_mail/models/res_users.py:0
 msgid "Two-factor authentication has been deactivated on your account"
-msgstr "Dvofaktorska autentifikacija je deaktivirana na vašem računu"
+msgstr ""
+
+#. module: auth_totp_mail
+#. odoo-javascript
+#: code:addons/auth_totp_mail/static/src/services/check_identity/check_identity.xml:0
+msgid "Use an authentication code sent by email"
+msgstr ""
 
 #. module: auth_totp_mail
 #: model:ir.model,name:auth_totp_mail.model_res_users
@@ -389,25 +345,29 @@ msgstr "Korisnik"
 #. odoo-python
 #: code:addons/auth_totp_mail/models/res_users.py:0
 msgid "Verification failed, please double-check the 6-digit code"
-msgstr "Provjera nije uspjela, još jednom provjerite šesteroznamenkasti kod"
+msgstr ""
 
 #. module: auth_totp_mail
-#: model_terms:ir.ui.view,arch_db:auth_totp_mail.auth_totp_mail_form
-msgid ""
-"We strongly recommend enabling the two-factor authentication using an "
-"authenticator app to help secure your account.\n"
-"                <br/>"
+#. odoo-javascript
+#: code:addons/auth_totp_mail/static/src/services/check_identity/check_identity.xml:0
+msgid "Verify"
 msgstr ""
-"Snažno preporučujemo omogućavanje dvofaktorske autentifikacije pomoću "
-"aplikacije autentifikatora kako biste pomogli u zaštiti svog računa.\n"
-"                <br/>"
+
+#. module: auth_totp_mail
+#. odoo-javascript
+#: code:addons/auth_totp_mail/static/src/services/check_identity/check_identity.xml:0
+msgid "We sent a 6-digit code to your email address."
+msgstr ""
 
 #. module: auth_totp_mail
 #: model:mail.template,subject:auth_totp_mail.mail_template_totp_mail_code
 msgid "Your two-factor authentication code"
-msgstr "Vaš kod za dvofaktorsku autentifikaciju"
+msgstr ""
 
 #. module: auth_totp_mail
 #: model_terms:ir.ui.view,arch_db:auth_totp_mail.account_security_alert
 msgid "activating Two-factor Authentication"
-msgstr "aktiviranje dvofaktorske autentifikacije"
+msgstr ""
+
+#~ msgid "Learn More"
+#~ msgstr "Saznaj više"

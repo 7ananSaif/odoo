@@ -2,15 +2,15 @@ import { expect, test } from "@odoo/hoot";
 import { xml } from "@odoo/owl";
 import { contains } from "@web/../tests/web_test_helpers";
 import {
-    addOption,
     defineWebsiteModels,
     setupWebsiteBuilder,
 } from "@website/../tests/builder/website_helpers";
+import { addBuilderOption } from "@html_builder/../tests/helpers";
 
 defineWebsiteModels();
 
 test("switch to custom tab and click on a main page option", async () => {
-    addOption({
+    addBuilderOption({
         selector: "main",
         template: xml`<BuilderButton classAction="'my-custom-class'"/>`,
     });

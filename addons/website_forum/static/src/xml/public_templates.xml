@@ -14,14 +14,14 @@
                         <div t-if="state != 'pending'" class="share-icons text-center text-primary">
                             <div class="s_share o_no_link_popover">
                                 <a href="https://www.facebook.com/sharer/sharer.php?u={url}" class="s_share_facebook" target="_blank" aria-label="Facebook">
-                                    <i class="fa fa-facebook rounded shadow-sm"/>
+                                    <i class="oi rounded shadow-sm" data-icon="oi_facebook"/>
                                 </a>
                                 <t t-set="_hashtags" t-value="target_type ? (' %23' + target_type) : ''"></t>
                                 <a t-attf-href="https://twitter.com/intent/tweet?text={title}#{_hashtags}&amp;url={url}" class="s_share_twitter" target="_blank" aria-label="Twitter">
-                                    <i class="fa fa-twitter rounded shadow-sm"/>
+                                    <i class="oi rounded shadow-sm" data-icon="oi_x"/>
                                 </a>
                                 <a href="https://www.linkedin.com/sharing/share-offsite/?url={url}" class="s_share_linkedin" target="_blank" aria-label="LinkedIn">
-                                    <i class="fa fa-linkedin rounded shadow-sm"/>
+                                    <i class="oi rounded shadow-sm" data-icon="oi_linkedin"/>
                                 </a>
                             </div>
                         </div>
@@ -49,7 +49,7 @@
         <p>On average, <b>45% of questions shared</b> on social networks get an answer within
         5 hours. Questions shared on two social networks have <b>65% more chance to get an
         answer</b>!</p>
-        <p t-if="state == 'pending'">You can share your question once it has been validated</p>
+        <p t-if="this.state == 'pending'">You can share your question once it has been validated</p>
     </t>
     <t t-name="website_forum.social_message_answer">
         <p>By sharing you answer, you will get additional <b>karma points</b> if your

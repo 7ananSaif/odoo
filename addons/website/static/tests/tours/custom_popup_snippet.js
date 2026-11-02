@@ -13,7 +13,6 @@ const snippets = [
 registerWebsitePreviewTour(
     "custom_popup_snippet",
     {
-        url: "/",
         edition: true,
     },
     () => [
@@ -22,11 +21,6 @@ registerWebsitePreviewTour(
         {
             content: "save this snippet to save later",
             trigger: ".options-container[data-container-title='Popup'] .oe_snippet_save",
-            run: "click",
-        },
-        {
-            content: "confirm and reload custom snippet",
-            trigger: ".modal-footer > .btn.btn-primary",
             run: "click",
         },
         {

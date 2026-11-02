@@ -13,7 +13,8 @@ import time
 from pathlib import Path
 from functools import cache
 
-from .helpers import get_ip, get_identifier, get_conf
+from . import system
+from .system import IOT_IDENTIFIER
 
 _logger = logging.getLogger(__name__)
 
@@ -122,7 +123,7 @@ def disconnect():
     _logger.info('Disconnecting from network %s', ssid)
     _nmcli(['con', 'down', ssid], sudo=True)
 
-    if not get_ip():
+    if not system.get_ip():
         toggle_access_point(START)
     return not is_current(ssid)
 
@@ -147,6 +148,7 @@ def _connect(ssid, password):
     return is_current(ssid)
 
 
+@system.rpi_only
 def reconnect(ssid=None, password=None, force_update=False):
     """Reconnect to the given network. If a connection to the network already exists,
     we can reconnect to it without providing the password (e.g. after a reboot).
@@ -160,7 +162,7 @@ def reconnect(ssid=None, password=None, force_update=False):
     if not force_update:
         timer = time.time() + 10  # Required on boot: wait 10 sec (see: https://github.com/odoo/odoo/pull/187862)
         while time.time() < timer:
-            if get_ip():
+            if system.get_ip():
                 if is_access_point():
                     toggle_access_point(STOP)
                 return True
@@ -169,7 +171,7 @@ def reconnect(ssid=None, password=None, force_update=False):
     if not ssid:
         return toggle_access_point(START)
 
-    should_start_access_point_on_failure = is_access_point() or not get_ip()
+    should_start_access_point_on_failure = is_access_point() or not system.get_ip()
 
     # Try to re-enable an existing connection, or set up a new persistent one
     if toggle_access_point(STOP) and not _nmcli(['con', 'up', ssid], sudo=True):
@@ -194,9 +196,7 @@ def _validate_configuration(ssid):
     :return: True if the configuration file is saved successfully
     :rtype: bool
     """
-    connection_path = Path(f'/etc/NetworkManager/system-connections/{ssid}.nmconnection')
-    netplan_path = Path('/etc/netplan/')
-    source_path = connection_path if connection_path.exists() else netplan_path
+    source_path = Path('/etc/netplan/')
     if not source_path.exists():
         return False
 
@@ -225,7 +225,7 @@ def get_access_point_ssid():
     :return: Generated SSID
     :rtype: str
     """
-    return "IoTBox-" + get_identifier() or secrets.token_hex(8)
+    return "IoTBox-" + IOT_IDENTIFIER or secrets.token_hex(8)
 
 
 def _configure_access_point(on=True):
@@ -241,7 +241,7 @@ def _configure_access_point(on=True):
     if on:
         _logger.info("Starting access point with SSID %s", ssid)
         with open('/etc/hostapd/hostapd.conf', 'w', encoding='utf-8') as f:
-            f.write(f"interface=wlan0\nssid={ssid}\nchannel=1\n")
+            f.write(f"interface=wlan0\nssid={ssid}\nchannel=36\nhw_mode=a\n")
     mode = 'add' if on else 'del'
     return (
         subprocess.run(
@@ -270,6 +270,7 @@ def toggle_access_point(state=START):
         return False
 
 
+@system.rpi_only
 def is_access_point():
     """Check if the device is currently in access point mode.
 
@@ -284,8 +285,8 @@ def is_access_point():
 def get_qr_data_for_wifi():
     if is_access_point():
         return f"WIFI:S:{get_access_point_ssid()};T:nopass;;;"
-    wifi_ssid = get_conf('wifi_ssid')
-    wifi_password = get_conf('wifi_password')
+    wifi_ssid = system.get_conf('wifi_ssid')
+    wifi_password = system.get_conf('wifi_password')
     if wifi_ssid and wifi_password:
         return f"WIFI:S:{wifi_ssid};T:WPA;P:{wifi_password};;;"
     return None
@@ -315,6 +316,7 @@ def generate_qr_code_image(qr_code_data):
     return f"data:image/png;base64,{img_base64}"
 
 
+@system.rpi_only
 def generate_network_qr_codes():
     """Generate a QR codes for the IoT Box network and its homepage
     and return them in base64 image format in a dictionary
@@ -325,5 +327,5 @@ def generate_network_qr_codes():
     wifi_network_qr_data = get_qr_data_for_wifi()
     return {
         'qr_wifi': generate_qr_code_image(wifi_network_qr_data) if wifi_network_qr_data else None,
-        'qr_url': generate_qr_code_image(f'http://{get_ip()}'),
+        'qr_url': generate_qr_code_image(f'http://{system.get_ip()}'),
     }

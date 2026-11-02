@@ -1,54 +1,54 @@
+import { Component, proxy, signal, t, useEffect, useProps } from "@odoo/owl";
 import { useDateTimePicker } from "@web/core/datetime/datetime_picker_hook";
-import { Component, useState } from "@odoo/owl";
-import { effect } from "@web/core/utils/reactive";
 import { ConversionError, formatDate, formatDateTime, parseDateTime } from "@web/core/l10n/dates";
-import { pick } from "@web/core/utils/objects";
+import { localization } from "@web/core/l10n/localization";
+import { _t } from "@web/core/l10n/translation";
 import {
     basicContainerBuilderComponentProps,
     useBuilderComponent,
     useInputBuilderComponent,
 } from "../utils";
 import { BuilderComponent } from "./builder_component";
-import { BuilderTextInputBase, textInputBasePassthroughProps } from "./builder_text_input_base";
+import { textInputBasePassthroughProps } from "./builder_input_base";
+import { BuilderTextInputBase } from "./builder_text_input_base";
 
 const { DateTime } = luxon;
 
 export class BuilderDateTimePicker extends Component {
-    static template = "html_builder.BuilderDateTimePicker";
-    static props = {
-        ...basicContainerBuilderComponentProps,
-        ...textInputBasePassthroughProps,
-        type: { type: [{ value: "date" }, { value: "datetime" }], optional: true },
-        format: { type: String, optional: true },
-        acceptEmptyDate: { type: Boolean, optional: true },
-    };
-    static defaultProps = {
-        type: "datetime",
-        acceptEmptyDate: true,
-    };
     static components = {
         BuilderComponent,
         BuilderTextInputBase,
     };
+    static template = "html_builder.BuilderDateTimePicker";
+
+    props = useProps({
+        ...basicContainerBuilderComponentProps,
+        type: t.selection(["date", "datetime"]).optional("datetime"),
+        format: t.string().optional(),
+        acceptEmptyDate: t.boolean().optional(true),
+        minDate: t.any().optional(() => DateTime.fromObject({ year: 1000 })),
+        maxDate: t.any().optional(() => DateTime.now().plus({ year: 200 })),
+        allowRelativeDate: t.boolean().optional(false),
+    });
+    textInputBaseProps = useProps(textInputBasePassthroughProps);
+
+    rootRef = signal.ref();
 
     setup() {
-        useBuilderComponent();
+        useBuilderComponent(this.props);
         this.defaultValue = DateTime.now().toUnixInteger().toString();
-        const { state, commit, preview } = useInputBuilderComponent({
-            id: this.props.id,
+        this.previousValue = undefined;
+        const { state, commit, preview } = useInputBuilderComponent(this.props, {
             defaultValue: this.props.acceptEmptyDate ? undefined : this.defaultValue,
             formatRawValue: this.formatRawValue.bind(this),
             parseDisplayValue: this.parseDisplayValue.bind(this),
         });
         this.domState = state;
-        this.state = useState({});
-        effect(
-            ({ value }) => {
-                // State to display in the input.
-                this.state.value = value;
-            },
-            [state]
-        );
+        this.state = proxy({});
+        useEffect(() => {
+            // State to display in the input.
+            this.state.value = state.value;
+        });
 
         this.commit = (userInputValue) => {
             this.isPreviewing = false;
@@ -61,20 +61,22 @@ export class BuilderDateTimePicker extends Component {
             preview(userInputValue);
         };
 
-        const minDate = DateTime.fromObject({ year: 1000 });
-        const maxDate = DateTime.now().plus({ year: 200 });
         const getPickerProps = () => ({
             type: this.props.type,
-            minDate,
-            maxDate,
+            minDate: this.props.minDate,
+            maxDate: this.props.maxDate,
             value: this.getCurrentValueDateTime(),
-            rounding: 0,
+            rounding: 1,
         });
 
-        this.formatDateTime = this.props.type === "date" ? formatDate : formatDateTime;
+        const isDateOnly = this.props.type === "date";
+        this.formatDateTime = isDateOnly ? formatDate : formatDateTime;
+        this.format = isDateOnly
+            ? localization.dateFormat
+            : localization.dateTimeFormat.replace(":ss", "").replace(".ss", "");
 
         this.dateTimePicker = useDateTimePicker({
-            target: "root",
+            target: this.rootRef,
             format: this.props.format,
             get pickerProps() {
                 return getPickerProps();
@@ -94,6 +96,9 @@ export class BuilderDateTimePicker extends Component {
      * @returns {DateTime} the current value of the datetime picker
      */
     getCurrentValueDateTime() {
+        if (this.isToday) {
+            return DateTime.now();
+        }
         return this.domState.value ? DateTime.fromSeconds(parseInt(this.domState.value)) : false;
     }
 
@@ -102,7 +107,9 @@ export class BuilderDateTimePicker extends Component {
      * @returns {String} a formatted date string
      */
     formatRawValue(rawValue) {
-        return rawValue ? this.formatDateTime(DateTime.fromSeconds(parseInt(rawValue))) : "";
+        return rawValue
+            ? this.formatDateTime(DateTime.fromSeconds(parseInt(rawValue)), { format: this.format })
+            : "";
     }
 
     /**
@@ -110,13 +117,16 @@ export class BuilderDateTimePicker extends Component {
      * @returns {String} number of seconds
      */
     parseDisplayValue(displayValue) {
+        if (displayValue === "today") {
+            return displayValue;
+        }
         if (displayValue === "" && this.props.acceptEmptyDate) {
             return undefined;
         }
         try {
             const parsedDateTime = parseDateTime(displayValue);
             if (parsedDateTime) {
-                return parsedDateTime.toUnixInteger().toString();
+                return parsedDateTime.set({ second: 0, millisecond: 0 }).toUnixInteger().toString();
             }
         } catch (e) {
             // A ConversionError means displayValue is an invalid date: fall
@@ -131,18 +141,32 @@ export class BuilderDateTimePicker extends Component {
         return this.defaultValue;
     }
 
+    get isToday() {
+        return this.state.value === "today";
+    }
+
     /**
      * @returns {String} a formatted date string
      */
     get displayValue() {
+        if (this.state.value === "today") {
+            return _t("Today");
+        }
         return this.state.value !== undefined ? this.formatRawValue(this.state.value) : undefined;
-    }
-
-    get textInputBaseProps() {
-        return pick(this.props, ...Object.keys(textInputBasePassthroughProps));
     }
 
     onFocus() {
         this.dateTimePicker.open();
+    }
+
+    toggleToday() {
+        if (this.textInputBaseProps.disabled) {
+            return;
+        }
+        if (!this.isToday) {
+            this.previousValue = this.domState.value;
+            this.dateTimePicker.close();
+        }
+        this.commit(this.isToday ? this.formatRawValue(this.previousValue) : "today");
     }
 }

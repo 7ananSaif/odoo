@@ -2,7 +2,6 @@ import { registry } from "@web/core/registry";
 import { stepUtils } from "@web_tour/tour_utils";
 
 registry.category('web_tour.tours').add('mailing_campaign', {
-    url: '/odoo',
     steps: () => [
         stepUtils.showAppsMenuItem(),
         {
@@ -22,12 +21,7 @@ registry.category('web_tour.tours').add('mailing_campaign', {
         },
         {
             content: 'Add a line (create new mailing)',
-            trigger: '.o_field_x2many_list_row_add a',
-            run: "click",
-        },
-        {
-            content: 'Pick the basic theme',
-            trigger: ".o_mailing_template_preview_wrapper [data-name='basic']",
+            trigger: '.o_field_x2many_list_row_add button',
             run: "click",
         },
         {
@@ -35,8 +29,22 @@ registry.category('web_tour.tours').add('mailing_campaign', {
         },
         {
             content: 'Fill in Subject',
-            trigger: '#subject_0',
+            trigger: 'div[name="mailing_mail_ids"] div[name="subject"] input',
             run: "edit TestFromTour",
+        },
+        ...stepUtils.saveForm(),
+        {
+            content: 'Open newly created mailing',
+            trigger: '.o_data_row:has(.o_data_cell[name="subject"]:contains("TestFromTour")) .o_list_record_open_form_view button',
+            run: "click",
+        },
+        {
+            content: 'Pick the basic theme',
+            trigger: ":iframe .o_mailing_template_preview_wrapper [data-name='basic']",
+            run: "click",
+        },
+        {
+            trigger: ":iframe .o_mass_mailing_value .o_layout",
         },
         {
             content: 'Fill in Mailing list',
@@ -48,18 +56,15 @@ registry.category('web_tour.tours').add('mailing_campaign', {
             trigger: '.o_input_dropdown a:contains(Newsletter)',
             run: "click",
         },
+        ...stepUtils.saveForm(),
         {
-            content: 'Save form',
-            trigger: ".modal .o_form_button_save:contains(Save & Close)",
+            content: "Go back to Campaign",
+            trigger: ".o_breadcrumb .o_back_button",
             run: "click",
-        },
-        {
-            trigger: "body:not(:has(.modal))",
         },
         {
             content: 'Check that newly created record is on the list',
             trigger: '[name="mailing_mail_ids"] td[name="subject"]:contains("TestFromTour")',
         },
-        ...stepUtils.saveForm(),
     ],
 });

@@ -41,11 +41,11 @@ export class HRTimesheet extends models.Model {
             </form>
         `,
         list: `
-            <tree editable="bottom">
+            <list editable="bottom">
                 <field name="project_id"/>
                 <field name="task_id"/>
                 <field name="unit_amount"/>
-            </tree>
+            </list>
         `,
         graph: `
             <graph js_class="hr_timesheet_graphview">
@@ -112,19 +112,16 @@ export function patchSession() {
             1: {
                 id: 1,
                 name: "hour",
-                rounding: 0.01,
                 timesheet_widget: "float_time",
             },
             2: {
                 id: 2,
                 name: "day",
-                rounding: 0.01,
                 timesheet_widget: "float_toggle",
             },
             3: {
                 id: 3,
                 name: "foo",
-                rounding: 0.01,
                 timesheet_widget: "float_factor",
             },
         },

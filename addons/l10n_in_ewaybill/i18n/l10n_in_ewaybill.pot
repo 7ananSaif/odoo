@@ -4,16 +4,31 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0+e\n"
+"Project-Id-Version: Odoo Server 19.5a1+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-30 19:08+0000\n"
-"PO-Revision-Date: 2026-01-30 19:08+0000\n"
+"POT-Creation-Date: 2026-08-28 18:20+0000\n"
+"PO-Revision-Date: 2026-08-28 18:20+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
+
+#. module: l10n_in_ewaybill
+#: model:ir.module.module,description:base.module_l10n_in_ewaybill
+msgid ""
+"\n"
+"Indian - E-waybill\n"
+"====================================\n"
+"To submit E-waybill through API to the government.\n"
+"We use \"Tera Software Limited\" as GSP\n"
+"\n"
+"Step 1: First you need to create an API username and password in the E-waybill portal.\n"
+"Step 2: Switch to company related to that GST number\n"
+"Step 3: Set that username and password in Odoo (Goto: Invoicing/Accounting -> Configration -> Settings -> Indian Electronic WayBill or find \"E-waybill\" in search bar)\n"
+"Step 4: Repeat steps 1,2,3 for all GSTIN you have in odoo. If you have a multi-company with the same GST number then perform step 1 for the first company only.\n"
+msgstr ""
 
 #. module: l10n_in_ewaybill
 #. odoo-python
@@ -155,6 +170,11 @@ msgstr ""
 #. module: l10n_in_ewaybill
 #: model:ir.model.fields,field_description:l10n_in_ewaybill.field_l10n_in_ewaybill__activity_exception_decoration
 msgid "Activity Exception Decoration"
+msgstr ""
+
+#. module: l10n_in_ewaybill
+#: model:ir.model.fields,field_description:l10n_in_ewaybill.field_l10n_in_ewaybill__activity_plans_ids
+msgid "Activity Plans"
 msgstr ""
 
 #. module: l10n_in_ewaybill
@@ -426,10 +446,6 @@ msgstr ""
 
 #. module: l10n_in_ewaybill
 #: model:ir.model,name:l10n_in_ewaybill.model_res_company
-msgid "Companies"
-msgstr ""
-
-#. module: l10n_in_ewaybill
 #: model:ir.model.fields,field_description:l10n_in_ewaybill.field_l10n_in_ewaybill__company_id
 msgid "Company"
 msgstr ""
@@ -636,11 +652,6 @@ msgstr ""
 #. odoo-python
 #: code:addons/l10n_in_ewaybill/models/error_codes.py:0
 msgid "Decryption of data failed"
-msgstr ""
-
-#. module: l10n_in_ewaybill
-#: model_terms:ir.ui.view,arch_db:l10n_in_ewaybill.view_ewaybill_cancel_form
-msgid "Discard"
 msgstr ""
 
 #. module: l10n_in_ewaybill
@@ -1075,11 +1086,6 @@ msgid "Followers (Partners)"
 msgstr ""
 
 #. module: l10n_in_ewaybill
-#: model:ir.model.fields,help:l10n_in_ewaybill.field_l10n_in_ewaybill__activity_type_icon
-msgid "Font awesome icon e.g. fa-tasks"
-msgstr ""
-
-#. module: l10n_in_ewaybill
 #. odoo-python
 #: code:addons/l10n_in_ewaybill/models/error_codes.py:0
 msgid "For Category EWB03 procdt is mandatory"
@@ -1318,6 +1324,11 @@ msgstr ""
 #: code:addons/l10n_in_ewaybill/models/res_config_settings.py:0
 msgid ""
 "Incorrect username or password, or the GST number on company does not match."
+msgstr ""
+
+#. module: l10n_in_ewaybill
+#: model:ir.module.module,shortdesc:base.module_l10n_in_ewaybill
+msgid "Indian - E-waybill"
 msgstr ""
 
 #. module: l10n_in_ewaybill
@@ -1919,6 +1930,11 @@ msgid "Last Updated on"
 msgstr ""
 
 #. module: l10n_in_ewaybill
+#: model:ir.model.fields,help:l10n_in_ewaybill.field_l10n_in_ewaybill__activity_type_icon
+msgid "Material Symbols icon e.g. checklist"
+msgstr ""
+
+#. module: l10n_in_ewaybill
 #: model:ir.model.fields,field_description:l10n_in_ewaybill.field_l10n_in_ewaybill__message_has_error
 msgid "Message Delivery error"
 msgstr ""
@@ -2306,6 +2322,13 @@ msgid "Set GST Treatment for in %s"
 msgstr ""
 
 #. module: l10n_in_ewaybill
+#. odoo-python
+#: code:addons/l10n_in_ewaybill/models/l10n_in_ewaybill.py:0
+msgid ""
+"Set a valid distance when the dispatch and delivery pincodes are the same."
+msgstr ""
+
+#. module: l10n_in_ewaybill
 #: model:ir.model.fields,field_description:l10n_in_ewaybill.field_l10n_in_ewaybill__partner_ship_to_id
 msgid "Ship To"
 msgstr ""
@@ -2564,6 +2587,14 @@ msgstr ""
 #. odoo-python
 #: code:addons/l10n_in_ewaybill/models/l10n_in_ewaybill.py:0
 msgid "This document is being sent by another process already."
+msgstr ""
+
+#. module: l10n_in_ewaybill
+#. odoo-python
+#: code:addons/l10n_in_ewaybill/models/account_move.py:0
+msgid ""
+"This documents (%s) cannot be deleted since it already has a generated "
+"E-waybill."
 msgstr ""
 
 #. module: l10n_in_ewaybill
@@ -3013,16 +3044,6 @@ msgid ""
 msgstr ""
 
 #. module: l10n_in_ewaybill
-#: model:ir.model.fields,field_description:l10n_in_ewaybill.field_l10n_in_ewaybill__website_message_ids
-msgid "Website Messages"
-msgstr ""
-
-#. module: l10n_in_ewaybill
-#: model:ir.model.fields,help:l10n_in_ewaybill.field_l10n_in_ewaybill__website_message_ids
-msgid "Website communication history"
-msgstr ""
-
-#. module: l10n_in_ewaybill
 #. odoo-python
 #: code:addons/l10n_in_ewaybill/models/error_codes.py:0
 msgid ""
@@ -3212,7 +3233,7 @@ msgstr ""
 
 #. module: l10n_in_ewaybill
 #: model_terms:ir.ui.view,arch_db:l10n_in_ewaybill.report_ewaybill
-msgid "eway Bill No:"
+msgid "eWay Bill No:"
 msgstr ""
 
 #. module: l10n_in_ewaybill

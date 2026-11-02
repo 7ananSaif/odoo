@@ -1,22 +1,33 @@
 import {
-    many2ManyTagsFieldColorEditable,
-    Many2ManyTagsFieldColorEditable,
+    many2ManyTagsField,
+    Many2ManyTagsField,
 } from "@web/views/fields/many2many_tags/many2many_tags_field";
 import { useService } from "@web/core/utils/hooks";
 import { registry } from "@web/core/registry";
-import { TagsList } from "@web/core/tags_list/tags_list";
+import { BadgeTag } from "@web/core/tags_list/badge_tag";
 import { _t } from "@web/core/l10n/translation";
-import { onMounted } from "@odoo/owl";
+import { Component, onMounted, t, useProps } from "@odoo/owl";
 
-export class FieldMany2ManyTagsBanksTagsList extends TagsList {
-    static template = "FieldMany2ManyTagsBanksTagsList";
+class BankTag extends Component {
+    static template = "account.BankTag";
+    static components = { BadgeTag };
+
+    props = useProps({
+        allowOutPayment: t.boolean().optional(),
+        color: t.number().optional(),
+        crossTooltip: t.string().optional(),
+        onClick: t.function(),
+        onDelete: t.function().optional(),
+        text: t.string().optional(),
+        tooltip: t.string().optional(),
+    });
 }
 
-export class FieldMany2ManyTagsBanks extends Many2ManyTagsFieldColorEditable {
+export class FieldMany2ManyTagsBanks extends Many2ManyTagsField {
     static template = "account.FieldMany2ManyTagsBanks";
     static components = {
-        ...FieldMany2ManyTagsBanks.components,
-        TagsList: FieldMany2ManyTagsBanksTagsList,
+        ...super.components,
+        Tag: BankTag,
     };
 
     setup() {
@@ -32,14 +43,23 @@ export class FieldMany2ManyTagsBanks extends Many2ManyTagsFieldColorEditable {
         });
     }
 
+    async archiveTag(id) {
+        const data = this.props.record.data[this.props.name];
+        const tagRecord = data.records.find((r) => r.id === id);
+        await tagRecord.update({ active: false });
+        data.records = data.records.filter((r) => r.id !== id);
+    }
+
     getTagProps(record) {
         return {
             ...super.getTagProps(record),
+            onDelete: !this.props.readonly ? () => this.archiveTag(record.id) : undefined,
+            crossTooltip: _t("Archive"),
             allowOutPayment: record.data?.allow_out_payment,
         };
     }
 
-    openBanksListView() {
+    openBanksListView(newWindow) {
         this.actionService.doAction({
             type: "ir.actions.act_window",
             name: _t("Banks"),
@@ -50,15 +70,15 @@ export class FieldMany2ManyTagsBanks extends Many2ManyTagsFieldColorEditable {
             ],
             domain: this.getDomain(),
             target: "current",
-        });
+        }, { newWindow });
     }
 }
 
 export const fieldMany2ManyTagsBanks = {
-    ...many2ManyTagsFieldColorEditable,
+    ...many2ManyTagsField,
     component: FieldMany2ManyTagsBanks,
     supportedOptions: [
-        ...(many2ManyTagsFieldColorEditable.supportedOptions || []),
+        ...many2ManyTagsField.supportedOptions.filter((option) => option.name !== "color_field"),
         {
             label: _t("Allows out payments"),
             name: "allow_out_payment_field",
@@ -66,13 +86,15 @@ export const fieldMany2ManyTagsBanks = {
         },
     ],
     additionalClasses: [
-        ...(many2ManyTagsFieldColorEditable.additionalClasses || []),
+        ...(many2ManyTagsField.additionalClasses || []),
         "o_field_many2many_tags",
+        "o_text_input"
     ],
     relatedFields: ({ options }) => {
         return [
-            ...many2ManyTagsFieldColorEditable.relatedFields({ options }),
+            ...many2ManyTagsField.relatedFields({ options }),
             { name: options.allow_out_payment_field, type: "boolean", readonly: false },
+            { name: "active", type: "boolean", readonly: false },
         ];
     },
 };

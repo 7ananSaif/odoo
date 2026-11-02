@@ -6,6 +6,8 @@ from odoo import Command
 
 class TestCommonSalePurchaseNoChart(TestSaleCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -25,7 +27,7 @@ class TestCommonSalePurchaseNoChart(TestSaleCommon):
         })
 
         # Create product
-        # When service_to_purchase is True add the supplier i.e 'seller_ids' on the product to void the Validation error at product creation time
+        # When service_tracking is set to subcontract add the supplier i.e 'seller_ids' on the product to void the Validation error at product creation time
         cls.service_purchase_1 = cls.env['product.product'].create({
             'name': "Out-sourced Service 1",
             'standard_price': 200.0,
@@ -33,14 +35,13 @@ class TestCommonSalePurchaseNoChart(TestSaleCommon):
             'type': 'service',
             'uom_id': uom_unit.id,
             'invoice_policy': 'delivery',
-            'expense_policy': 'no',
             'default_code': 'SERV_DEL',
             'service_type': 'manual',
             'taxes_id': False,
             'categ_id': cls.product_category_purchase.id,
-            'service_to_purchase': True,
+            'service_tracking': 'subcontract',
             'seller_ids': [Command.create({
-                'product_uom_id': uom_unit.id,
+                'uom_id': uom_unit.id,
                 'partner_id': cls.partner_vendor_service.id,
                 'price': 100,
                 'delay': 1,
@@ -54,14 +55,13 @@ class TestCommonSalePurchaseNoChart(TestSaleCommon):
             'type': 'service',
             'uom_id': uom_dozen.id,  # different UoM
             'invoice_policy': 'order',
-            'expense_policy': 'no',
             'default_code': 'SERV_ORD',
             'service_type': 'manual',
             'taxes_id': False,
             'categ_id': cls.product_category_purchase.id,
-            'service_to_purchase': True,
+            'service_tracking': 'subcontract',
             'seller_ids': [Command.create({
-                'product_uom_id': uom_dozen.id,
+                'uom_id': uom_dozen.id,
                 'partner_id': cls.partner_vendor_service.id,
                 'price': 10,
                 'delay': 5,

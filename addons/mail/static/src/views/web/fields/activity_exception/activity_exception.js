@@ -1,30 +1,31 @@
-import { Component } from "@odoo/owl";
+import { Component, types, useProps } from "@odoo/owl";
 
 import { registry } from "@web/core/registry";
-import { standardFieldProps } from "@web/views/fields/standard_field_props";
+import { Record } from "@web/model/relational_model/record";
 
 class ActivityException extends Component {
-    static props = standardFieldProps;
     static template = "mail.ActivityException";
     static fieldDependencies = [{ name: "activity_exception_icon", type: "char" }];
 
+    setup() {
+        super.setup(...arguments);
+        this.props = useProps({ name: types.string(), record: types.instanceOf(Record) });
+    }
+
     get textClass() {
         if (this.props.record.data[this.props.name]) {
-            return (
-                "text-" +
-                this.props.record.data[this.props.name] +
-                " fa " +
-                this.props.record.data.activity_exception_icon
-            );
+            return "oi text-" + this.props.record.data[this.props.name];
+        }
+        return undefined;
+    }
+
+    get icon() {
+        if (this.props.record.data[this.props.name]) {
+            return this.props.record.data.activity_exception_icon;
         }
         return undefined;
     }
 }
-
-Object.assign(ActivityException, {
-    props: standardFieldProps,
-    template: "mail.ActivityException",
-});
 
 registry.category("fields").add("activity_exception", {
     component: ActivityException,

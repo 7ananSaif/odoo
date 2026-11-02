@@ -1,53 +1,45 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import http
+from odoo.fields import Command
 from odoo.http import request
+
+from odoo.addons.mail.controllers.webclient import WebclientController
 from odoo.addons.mail.tools.discuss import Store
+from odoo.addons.mail.tools.store_handler import store_handler
 
 
-class MailboxController(http.Controller):
-    @http.route("/mail/inbox/messages", methods=["POST"], type="jsonrpc", auth="user", readonly=True)
-    def discuss_inbox_messages(self, fetch_params=None):
-        domain = [("needaction", "=", True)]
-        res = request.env["mail.message"]._message_fetch(domain, **(fetch_params or {}))
-        messages = res.pop("messages")
-        # sudo: bus.bus: reading non-sensitive last id
-        bus_last_id = request.env["bus.bus"].sudo()._bus_last_id()
-        store = Store().add(
-            messages,
-            extra_fields=[
-                Store.One("thread", [
-                    # sudo: mail.thread: users can read their own message_needaction_counter on the thread
-                    Store.Attr("message_needaction_counter", sudo=True),
-                    Store.Attr("message_needaction_counter_bus_id", bus_last_id)
-                ], as_thread=True)
-            ],
-            add_followers=True
+class MailboxController(WebclientController):
+    @classmethod
+    def _update_bookmark(cls, store, message_id, bookmarked):
+        bookmark_messages = request.env["mail.message"]
+        if message := cls._get_message_with_access(message_id, mode="read"):
+            command = Command.link if bookmarked else Command.unlink
+            # sudo: mail.message - users can bookmark messages they can read
+            message.sudo().bookmarked_partner_ids = [command(request.env.user.partner_id.id)]
+            bookmark_messages |= message
+        cls._send_bookmark_update(store, bookmark_messages)
+
+    @classmethod
+    def _send_bookmark_update(cls, store, messages):
+        if not messages:
+            return
+        bus_store = Store(bus_channel=request.env.user)
+        for cur_store in [store, bus_store]:
+            cur_store.add(messages, ["is_bookmarked"])
+
+    @store_handler("add_bookmark", readonly=False)
+    def store_add_bookmark(self, store: Store, message_id):
+        self._update_bookmark(store, message_id, bookmarked=True)
+
+    @store_handler("remove_bookmark", readonly=False)
+    def store_remove_bookmark(self, store: Store, message_id):
+        self._update_bookmark(store, message_id, bookmarked=False)
+
+    @store_handler("remove_all_bookmarks", readonly=False)
+    def store_remove_all_bookmarks(self, store: Store):
+        # sudo: mail.message - users can remove their bookmarks
+        messages_su = (
+            request.env["mail.message"].sudo().search_fetch([("is_bookmarked", "=", True)])
         )
-        return {
-            **res,
-            "data": store.get_result(),
-            "messages": messages.ids,
-        }
-
-    @http.route("/mail/history/messages", methods=["POST"], type="jsonrpc", auth="user", readonly=True)
-    def discuss_history_messages(self, fetch_params=None):
-        domain = [("needaction", "=", False)]
-        res = request.env["mail.message"]._message_fetch(domain, **(fetch_params or {}))
-        messages = res.pop("messages")
-        return {
-            **res,
-            "data": Store().add(messages).get_result(),
-            "messages": messages.ids,
-        }
-
-    @http.route("/mail/starred/messages", methods=["POST"], type="jsonrpc", auth="user", readonly=True)
-    def discuss_starred_messages(self, fetch_params=None):
-        domain = [("starred_partner_ids", "in", [request.env.user.partner_id.id])]
-        res = request.env["mail.message"]._message_fetch(domain, **(fetch_params or {}))
-        messages = res.pop("messages")
-        return {
-            **res,
-            "data": Store().add(messages).get_result(),
-            "messages": messages.ids,
-        }
+        messages_su.bookmarked_partner_ids = [Command.unlink(request.env.user.partner_id.id)]
+        self._send_bookmark_update(store, messages_su)

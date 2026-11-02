@@ -1,29 +1,39 @@
+import { proxy } from "@odoo/owl";
 import { Plugin } from "@html_editor/plugin";
 import { getCSSVariableValue, getHtmlStyle } from "@html_editor/utils/formatting";
 import { withSequence } from "@html_editor/utils/resource";
 import { ThemeAdvancedOption } from "./theme_advanced_option";
+import { ThemeShadowOption } from "./theme_shadow_option";
 import { ThemeButtonOption } from "./theme_button_option";
 import { ThemeColorsOption } from "./theme_colors_option";
 import { ThemeHeadingsOption } from "./theme_headings_option";
+import { CustomizeWebsiteFontFamilyAction } from "./theme_fontfamily_option";
+import {
+    CustomizeWebsiteFontWeightAction,
+    getParsedWeight,
+    ThemeFontWeightOption,
+} from "./theme_font_weight_option";
 import { setBuilderCSSVariables } from "@html_builder/utils/utils_css";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
+import { Cache } from "@web/core/utils/cache";
 import {
     convertCSSColorToRgba,
     convertRgbaToCSSColor,
     convertHslToRgb,
     convertRgbToHsl,
 } from "@web/core/utils/colors";
-import { reactive } from "@odoo/owl";
 import { BuilderAction } from "@html_builder/core/builder_action";
 import { CustomizeWebsiteVariableAction } from "../customize_website_plugin";
 import { EditHeadBodyDialog } from "@website/components/edit_head_body_dialog/edit_head_body_dialog";
-import { BaseOptionComponent } from "@html_builder/core/utils";
+import { BaseOptionComponent } from "@html_builder/core/base_option_component";
+import { ImageSize } from "@html_builder/plugins/image/image_size";
 
 /**
  * @typedef { Object } ThemeTabShared
  * @property { ThemeTabPlugin['buildGray'] } buildGray
+ * @property { ThemeTabPlugin['getFontWeights'] } getFontWeights
  * @property { ThemeTabPlugin['getGrays'] } getGrays
  * @property { ThemeTabPlugin['getGrayParams'] } getGrayParams
  * @property { ThemeTabPlugin['setGrays'] } setGrays
@@ -42,42 +52,90 @@ export const GRAY_PARAMS = {
 export const OPTION_POSITIONS = {
     COLORS: 10,
     SETTINGS: 20,
-    PARAGRAPH: 30,
-    HEADINGS: 40,
+    HEADINGS: 30,
+    PARAGRAPH: 40,
     BUTTON: 50,
     LINK: 60,
     INPUT: 70,
-    ADVANCED: 80,
+    SHADOW: 80,
+    ADVANCED: 90,
 };
+
+const FONT_WEIGHT_OPTIONS = [
+    { label: _t("Thin"), value: 100 },
+    { label: _t("Extra Light"), value: 200 },
+    { label: _t("Light"), value: 300 },
+    { label: _t("Regular"), value: 400 },
+    { label: _t("Medium"), value: 500 },
+    { label: _t("Semi Bold"), value: 600 },
+    { label: _t("Bold"), value: 700 },
+    { label: _t("Extra Bold"), value: 800 },
+    { label: _t("Black"), value: 900 },
+];
+
+function unquote(value) {
+    if (value.startsWith("'")) {
+        return value.substring(1, value.length - 1);
+    }
+    return value;
+}
+
+function parseFontFaceWeight(weightDescriptor) {
+    const tokens = `${weightDescriptor || ""}`.trim().split(/\s+/).filter(Boolean);
+    if (!tokens.length) {
+        return [];
+    }
+    if (tokens.length === 2) {
+        const min = getParsedWeight(tokens[0]);
+        const max = getParsedWeight(tokens[1]);
+        if (min !== null && max !== null) {
+            return FONT_WEIGHT_OPTIONS.filter(
+                ({ value }) => value >= Math.min(min, max) && value <= Math.max(min, max)
+            ).map(({ value }) => value);
+        }
+    }
+    const weight = getParsedWeight(tokens[0]);
+    return weight === null ? [] : [weight];
+}
 
 export class ThemeTabPlugin extends Plugin {
     static id = "themeTab";
-    static shared = ["getGrayParams", "getGrays", "setGrays", "setGrayParams", "buildGray"];
+    static shared = [
+        "getGrayParams",
+        "getGrays",
+        "setGrays",
+        "setGrayParams",
+        "buildGray",
+        "getFontWeights",
+    ];
     grayParams = {};
-    grays = reactive({});
+    grays = proxy({});
 
     /** @type {import("plugins").WebsiteResources} */
     resources = {
         builder_actions: {
             CustomizeGrayAction,
             ChangeColorPaletteAction,
+            CustomizeWebsiteFontFamilyAction,
+            CustomizeWebsiteFontWeightAction,
             EditCustomCodeAction,
             ConfigureApiKeyAction,
-            CustomizePageLayout,
         },
         theme_options: [
-            withSequence(
-                OPTION_POSITIONS.COLORS,
-                this.getThemeOptionBlock("theme-colors", _t("Colors"), ThemeColorsOption)
-            ),
             withSequence(
                 OPTION_POSITIONS.SETTINGS,
                 this.getThemeOptionBlock(
                     "website-settings",
-                    _t("Website"),
-                    class ThemeWebsiteSettingsOption extends BaseOptionComponent {
-                        static template = "website.ThemeWebsiteSettingsOption";
-                    }
+                    "",
+                    [
+                        ThemeColorsOption,
+                        class ThemeWebsiteSettingsOption extends BaseOptionComponent {
+                            static template = "website.ThemeWebsiteSettingsOption";
+                            static components = { ImageSize };
+                        },
+                    ],
+                    this.document.querySelector("#wrapwrap"),
+                    true
                 )
             ),
             withSequence(
@@ -87,6 +145,7 @@ export class ThemeTabPlugin extends Plugin {
                     _t("Paragraph"),
                     class ThemeParagraphOption extends BaseOptionComponent {
                         static template = "website.ThemeParagraphOption";
+                        static components = { ThemeFontWeightOption };
                     }
                 )
             ),
@@ -119,6 +178,10 @@ export class ThemeTabPlugin extends Plugin {
                 )
             ),
             withSequence(
+                OPTION_POSITIONS.SHADOW,
+                this.getThemeOptionBlock("theme-shadow", _t("Shadow"), ThemeShadowOption)
+            ),
+            withSequence(
                 OPTION_POSITIONS.ADVANCED,
                 this.getThemeOptionBlock("theme-advanced", _t("Advanced"), ThemeAdvancedOption)
             ),
@@ -126,6 +189,8 @@ export class ThemeTabPlugin extends Plugin {
     };
 
     setup() {
+        this.fontWeightsCache = new Cache(this.fetchFontWeights.bind(this));
+
         // If the gray palette has been generated by Odoo standard option,
         // the hue of all gray is the same and the saturation has been
         // increased/decreased by the same amount for all grays in
@@ -198,6 +263,9 @@ export class ThemeTabPlugin extends Plugin {
     getGrayParams() {
         return this.grayParams;
     }
+    getFontWeights(fontName) {
+        return this.fontWeightsCache.read(unquote(fontName));
+    }
     getGrays() {
         return this.grays;
     }
@@ -226,25 +294,47 @@ export class ThemeTabPlugin extends Plugin {
             adjustedGrayRGB.blue
         );
     }
+    async fetchFontWeights(fontName) {
+        const availableWeightValues = new Set();
+        if (fontName && this.document.fonts) {
+            await this.document.fonts.ready;
+            for (const fontFace of this.document.fonts) {
+                if (unquote(fontFace.family) !== fontName) {
+                    continue;
+                }
+                for (const weight of parseFontFaceWeight(fontFace.weight)) {
+                    availableWeightValues.add(weight);
+                }
+            }
+        }
+        return FONT_WEIGHT_OPTIONS.filter(({ value }) => availableWeightValues.has(value));
+    }
 
-    getThemeOptionBlock(id, name, options) {
-        // TODO Have a specific kind of options container that takes the specific parameters like name, no element, no selector...
-        const el = this.document.createElement("div");
-        el.dataset.name = name;
-        this.document.body.appendChild(el); // Currently editingElement needs to be isConnected
+    getThemeOptionBlock(id, name, options, el = null, hasOverlayOptions = false) {
+        let divEl = null;
+        // TODO Have a specific kind of options container that takes the
+        // specific parameters like name, no element, no selector...
+        if (!el) {
+            divEl = this.document.createElement("div");
+            divEl.dataset.name = name;
+            this.document.body.appendChild(divEl); // Currently editingElement needs to be isConnected
+            el = divEl;
+        }
 
-        options.selector = "*";
+        const optionsArray = Array.isArray(options) ? options : [options];
+        optionsArray.forEach((option) => {
+            option.selector = "*";
+        });
 
         return {
             id: id,
             element: el,
-            hasOverlayOptions: false,
+            hasOverlayOptions,
             headerMiddleButton: false,
             isClonable: false,
             isRemovable: false,
-            options: [options],
+            options: optionsArray,
             optionsContainerTopButtons: [],
-            snippetModel: {},
         };
     }
 }
@@ -300,6 +390,7 @@ export class ChangeColorPaletteAction extends CustomizeWebsiteVariableAction {
                     body: _t(
                         "Changing the color palette will reset all your color customizations, are you sure you want to proceed?"
                     ),
+                    confirmLabel: _t("Apply New Palette"),
                     confirm: () => resolve(true),
                     cancel: () => resolve(false),
                 });
@@ -313,6 +404,11 @@ export class ChangeColorPaletteAction extends CustomizeWebsiteVariableAction {
         }
         await super.apply(context);
         setBuilderCSSVariables(getHtmlStyle(this.document));
+        await Promise.allSettled(
+            this.getResource("on_website_color_updated_handlers").map((handler) =>
+                handler(["o-color-1", "o-color-2", "o-color-3", "o-color-4", "o-color-5"])
+            )
+        );
     }
 }
 
@@ -332,19 +428,9 @@ export class ConfigureApiKeyAction extends BuilderAction {
     setup() {
         this.canTimeout = false;
     }
-    apply() {
-        this.dependencies.googleMapsOption.configureGMapsAPI("", true);
-    }
-}
-
-export class CustomizePageLayout extends CustomizeWebsiteVariableAction {
-    static id = "customizePageLayout";
-
-    async apply(...args) {
-        await super.apply(...args);
-        // since we do not reload on website variables customization we need to
-        // trigger resize to have navbar layout recomputed when we modify page layout
-        this.window.dispatchEvent(new Event("resize"));
+    async apply() {
+        const apiKey = await this.services.google_maps.getGMapsAPIKey(false);
+        this.dependencies.googleMapsOption.configureGMapsAPI(apiKey);
     }
 }
 

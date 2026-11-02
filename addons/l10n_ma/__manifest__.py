@@ -4,7 +4,7 @@
     'name': 'Morocco - Accounting',
     'icon': '/account/static/description/l10n.png',
     'countries': ['ma'],
-    'author': 'Odoo SA',
+    'author': 'Odoo S.A.',
     'category': 'Accounting/Localizations/Account Charts',
     'description': """
 This is the base module to manage the accounting chart for Morocco.
@@ -18,8 +18,7 @@ This module has been built with the help of Caudigef.
     'auto_install': ['account'],
     'data': [
         'data/account_tax_report_data.xml',
-        'views/res_partner_views.xml',
-        'views/res_company_views.xml',
+        'views/portal_address_templates.xml',
     ],
     'demo': [
         'demo/demo_company.xml',

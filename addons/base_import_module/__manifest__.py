@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 {
     'name': 'Base import module',
@@ -11,17 +10,19 @@ for customization purpose.
 """,
     'category': 'Hidden/Tools',
     'depends': ['web'],
-    'installable': True,
     'auto_install': True,
     'data': [
-        'security/ir.model.access.csv',
         'views/base_import_module_view.xml',
         'views/ir_module_views.xml',
+        'security/ir.access.csv',
     ],
     'assets': {
         'web.assets_backend': [
             'base_import_module/static/src/**/*',
-        ]
+        ],
+        'web.assets_unit_tests': [
+            'base_import_module/static/tests/**/*.test.js',
+        ],
     },
     'author': 'Odoo S.A.',
     'license': 'LGPL-3',

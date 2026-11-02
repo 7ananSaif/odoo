@@ -1,6 +1,6 @@
 import { expect, test } from "@odoo/hoot";
 import { queryAll, queryAllTexts, queryFirst } from "@odoo/hoot-dom";
-import { Deferred, animationFrame } from "@odoo/hoot-mock";
+import { animationFrame } from "@odoo/hoot-mock";
 
 import {
     clickSave,
@@ -408,6 +408,33 @@ test("basic flow in editable list view - monetary field", async () => {
 });
 
 test.tags("desktop");
+test("Monetary field should update the o_monetary_ghost_value when its value is edit.", async () => {
+    Partner._records = [
+        {
+            id: 1,
+            float_field: 4.2,
+            monetary_field: 4.2,
+            currency_id: 2,
+        },
+    ];
+
+    await mountView({
+        type: "form",
+        resModel: "partner",
+        resId: 1,
+        arch: `
+            <form>
+                <field name="float_field" widget="monetary"/>
+                <field name="currency_id" invisible="1"/>
+            </form>`,
+    });
+
+    await contains(".o_field_widget[name=float_field] input").edit("22", { confirm: "blur" });
+    await animationFrame();
+    expect(".o_monetary_ghost_value").toHaveText("22.00");
+});
+
+test.tags("desktop");
 test("changing currency updates the field - float field", async () => {
     Partner._records = [
         {
@@ -531,7 +558,7 @@ test("should keep the focus when being edited in x2many lists", async () => {
     });
 
     // test the monetary field inside the one2many
-    await contains(".o_field_x2many_list_row_add a").click();
+    await contains(".o_field_x2many_list_row_add button").click();
     await contains(".o_field_widget[name=float_field] input").edit("22", { confirm: "blur" });
 
     expect(".o_field_widget[name=p] .o_field_widget[name=float_field] span").toHaveInnerHTML(
@@ -554,7 +581,7 @@ test("MonetaryField with currency set by an onchange", async () => {
     // onchange)
     Partner._onChanges = {
         int_field: function (obj) {
-            obj.currency_id = obj.int_field ? 2 : null;
+            obj.currency_id = obj.int_field ? 2 : false;
         },
     };
 
@@ -754,14 +781,14 @@ test("automatically uses currency_field if defined", async () => {
 });
 
 test("monetary field with pending onchange", async () => {
-    const def = new Deferred();
+    const def = Promise.withResolvers();
     Partner._onChanges = {
         async name(record) {
             record.float_field = 132;
         },
     };
     onRpc("onchange", async () => {
-        await def;
+        await def.promise;
     });
     await mountView({
         type: "form",

@@ -5,52 +5,151 @@
 # Bone NI <bounkirdni@gmail.com>, 2026.
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0\n"
+"Project-Id-Version: Odoo Server 19.1a1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:40+0000\n"
-"PO-Revision-Date: 2026-06-08 10:52+0000\n"
+"POT-Creation-Date: 2026-10-09 17:40+0000\n"
+"PO-Revision-Date: 2026-10-22 02:33+0000\n"
 "Last-Translator: Bone NI <bounkirdni@gmail.com>\n"
-"Language-Team: Lao <https://translate.odoo.com/projects/odoo-19/web_tour/lo/>"
+"Language-Team: Lao <https://translate.odoo.com/projects/odoo-20/web_tour/lo/>"
 "\n"
 "Language: lo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: web_tour
+#: model:ir.module.module,description:base.module_web_tour
+msgid ""
+"\n"
+"Odoo Web tours.\n"
+"========================\n"
+"\n"
+msgstr ""
+"\n"
+"ການແນະນຳເວັບ Odoo.\n"
+"========================\n"
+"\n"
 
 #. module: web_tour
 #. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_recorder/tour_recorder.xml:0
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.js:0
+msgid "'%s' created"
+msgstr "ສ້າງ '%s' ສຳເລັດແລ້ວ"
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.xml:0
 msgid "(recording keyboard)"
 msgstr "(ກຳລັງບັນທຶກແປ້ນພິມ)"
 
 #. module: web_tour
 #. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_recorder/tour_recorder.xml:0
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.xml:0
 msgid "(run:"
-msgstr "(ແລ່ນ:"
+msgstr "(ດຳເນີນການ:"
 
 #. module: web_tour
 #: model:ir.model.constraint,message:web_tour.constraint_web_tour_tour_uniq_name
 msgid "A tour already exists with this name . Tour's name must be unique!"
-msgstr "ມີທົວທີ່ມີຊື່ນີ້ແລ້ວ. ຊື່ຂອງທົວຕ້ອງບໍ່ຊໍ້າກັນ!"
+msgstr "ມີການແນະນຳທີ່ໃຊ້ຊື່ນີ້ແລ້ວ. ຊື່ການແນະນຳຕ້ອງບໍ່ຊ້ຳກັນ!"
+
+#. module: web_tour
+#: model:ir.model.fields,field_description:web_tour.field_web_tour_tour__active
+msgid "Active"
+msgstr "ເປີດນຳໃຊ້"
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.js:0
+msgid ""
+"Are you sure you want to clear all steps?\n"
+"All steps will be lost."
+msgstr ""
+"ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບລ້າງຂັ້ນຕອນທັງໝົດ?\n"
+"ຂັ້ນຕອນທັງໝົດຈະສູນຫາຍ."
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.js:0
+msgid ""
+"Are you sure you want to close the tour recorder?\n"
+"All changes will be lost."
+msgstr ""
+"ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການປິດເຄື່ອງບັນທຶກການແນະນຳ?\n"
+"ການປ່ຽນແປງທັງໝົດຈະສູນຫາຍ."
 
 #. module: web_tour
 #: model:ir.model.fields.selection,name:web_tour.selection__web_tour_tour_step__tooltip_position__bottom
 msgid "Bottom"
-msgstr "ລຸ່ມ"
+msgstr "ດ້ານລຸ່ມ"
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.js:0
+msgid "Cancel"
+msgstr "ຍົກເລີກ"
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.js:0
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.xml:0
+msgid "Clear"
+msgstr "ລຶບລ້າງ"
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.js:0
+msgid "Clear all steps?"
+msgstr "ລຶບລ້າງຂັ້ນຕອນທັງໝົດບໍ່?"
 
 #. module: web_tour
 #. odoo-javascript
 #: code:addons/web_tour/static/src/tour_utils.js:0
 msgid "Click the top left corner to navigate across apps."
-msgstr "ຄລິກທີ່ມຸມຊ້າຍເທິງເພື່ອໄປຫາແອັບຕ່າງໆ."
+msgstr "ກົດມຸມເທິງເບື້ອງຊ້າຍ ເພື່ອນຳທາງໄປຫາແອັບອື່ນໆ."
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.xml:0
+msgid "Close"
+msgstr "ປິດ"
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.js:0
+msgid "Close recorder"
+msgstr "ປິດເຄື່ອງບັນທຶກ"
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.js:0
+msgid "Close tour recorder?"
+msgstr "ປິດເຄື່ອງບັນທຶກການແນະນຳບໍ່?"
 
 #. module: web_tour
 #: model:ir.model.fields,field_description:web_tour.field_web_tour_tour_step__content
 msgid "Content"
 msgstr "ເນື້ອໃນ"
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_scenarios.js:0
+msgid "Create a new %s."
+msgstr "ສ້າງ %s ໃໝ່."
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_scenarios.js:0
+msgid "Create and edit the %s."
+msgstr "ສ້າງ ແລະ ແກ້ໄຂ %s."
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_scenarios.js:0
+msgid "Create the %s."
+msgstr "ສ້າງ %s."
 
 #. module: web_tour
 #: model:ir.model.fields,field_description:web_tour.field_web_tour_tour__create_uid
@@ -71,15 +170,9 @@ msgstr "ກຳນົດເອງ"
 
 #. module: web_tour
 #. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_recorder/tour_recorder.js:0
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.js:0
 msgid "Custom tour '%s' couldn't be saved!"
-msgstr "ບໍ່ສາມາດບັນທຶກທົວທີ່ກຳນົດເອງ '%s' ໄດ້!"
-
-#. module: web_tour
-#. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_recorder/tour_recorder.js:0
-msgid "Custom tour '%s' has been added."
-msgstr "ເພີ່ມທົວທີ່ກຳນົດເອງ '%s' ແລ້ວ."
+msgstr "ບໍ່ສາມາດບັນທຶກການແນະນຳກຳນົດເອງ '%s' ໄດ້!"
 
 #. module: web_tour
 #: model:ir.model.fields,field_description:web_tour.field_ir_http__display_name
@@ -87,7 +180,19 @@ msgstr "ເພີ່ມທົວທີ່ກຳນົດເອງ '%s' ແລ້
 #: model:ir.model.fields,field_description:web_tour.field_web_tour_tour__display_name
 #: model:ir.model.fields,field_description:web_tour.field_web_tour_tour_step__display_name
 msgid "Display Name"
-msgstr "ຊື່ທີ່ສະແດງ"
+msgstr "ຊື່ສະແດງ"
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder_command_provider.js:0
+msgid "Enable the tour recorder"
+msgstr "ເປີດນຳໃຊ້ເຄື່ອງບັນທຶກການແນະນຳ"
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_scenarios.js:0
+msgid "Enter the %s."
+msgstr "ປ້ອນ %s."
 
 #. module: web_tour
 #: model:ir.actions.server,name:web_tour.tour_export_js_action
@@ -105,19 +210,19 @@ msgstr "ການກຳນົດເສັ້ນທາງ HTTP"
 #: model:ir.model.fields,field_description:web_tour.field_web_tour_tour__id
 #: model:ir.model.fields,field_description:web_tour.field_web_tour_tour_step__id
 msgid "ID"
-msgstr "ໄອດີ"
+msgstr "ID"
 
 #. module: web_tour
 #: model:ir.model.fields,field_description:web_tour.field_web_tour_tour__write_uid
 #: model:ir.model.fields,field_description:web_tour.field_web_tour_tour_step__write_uid
 msgid "Last Updated by"
-msgstr "ອັບເດດລ້າສຸດໂດຍ"
+msgstr "ອັບເດດລ່າສຸດໂດຍ"
 
 #. module: web_tour
 #: model:ir.model.fields,field_description:web_tour.field_web_tour_tour__write_date
 #: model:ir.model.fields,field_description:web_tour.field_web_tour_tour_step__write_date
 msgid "Last Updated on"
-msgstr "ອັບເດດລ້າສຸດເມື່ອ"
+msgstr "ອັບເດດລ່າສຸດເມື່ອ"
 
 #. module: web_tour
 #: model_terms:ir.ui.view,arch_db:web_tour.tour_list
@@ -125,37 +230,33 @@ msgid "Menu"
 msgstr "ເມນູ"
 
 #. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.xml:0
 #: model:ir.model.fields,field_description:web_tour.field_web_tour_tour__name
 msgid "Name"
 msgstr "ຊື່"
 
 #. module: web_tour
 #. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_recorder/tour_recorder.xml:0
-msgid "Name:"
-msgstr "ຊື່:"
-
-#. module: web_tour
-#. odoo-javascript
-#: code:addons/web_tour/static/src/js/onboarding_item.xml:0
+#: code:addons/web_tour/static/src/widgets/onboarding_item.xml:0
 #: code:addons/web_tour/static/src/widgets/tour_start.xml:0
 #: model:ir.model.fields,field_description:web_tour.field_res_users__tour_enabled
 msgid "Onboarding"
-msgstr "ການແນະນຳເລີ່ມຕົ້ນ"
+msgstr "ການເລີ່ມຕົ້ນໃຊ້ງານ"
 
 #. module: web_tour
 #: model:ir.model.fields,field_description:web_tour.field_web_tour_tour__rainbow_man_message
 msgid "Rainbow Man Message"
-msgstr "ຂໍ້ຄວາມສະແດງຄວາມຍິນດີ"
+msgstr "ຂໍ້ຄວາມ Rainbow Man"
 
 #. module: web_tour
 #: model_terms:ir.ui.view,arch_db:web_tour.tour_form
 msgid "Rainbow Man Message..."
-msgstr "ຂໍ້ຄວາມສະແດງຄວາມຍິນດີ..."
+msgstr "ຂໍ້ຄວາມ Rainbow Man..."
 
 #. module: web_tour
 #. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_recorder/tour_recorder.xml:0
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.xml:0
 #: code:addons/web_tour/static/src/views/tour_controller.xml:0
 msgid "Record"
 msgstr "ບັນທຶກ"
@@ -164,53 +265,71 @@ msgstr "ບັນທຶກ"
 #. odoo-javascript
 #: code:addons/web_tour/static/src/views/tour_controller.xml:0
 msgid "Record Tour"
-msgstr "ບັນທຶກທົວ"
+msgstr "ບັນທຶກການແນະນຳ"
 
 #. module: web_tour
 #: model:ir.model.fields.selection,name:web_tour.selection__web_tour_tour_step__tooltip_position__right
 msgid "Right"
-msgstr "ຂວາ"
+msgstr "ດ້ານຂວາ"
 
 #. module: web_tour
 #: model:ir.model.fields,field_description:web_tour.field_web_tour_tour_step__run
 msgid "Run"
-msgstr "ແລ່ນ"
+msgstr "ດຳເນີນການ"
 
 #. module: web_tour
 #. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_recorder/tour_recorder.xml:0
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.xml:0
 msgid "Save"
 msgstr "ບັນທຶກ"
 
 #. module: web_tour
 #. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_pointer/tour_pointer_state.js:0
-msgid "Scroll down to reach the next step."
-msgstr "ເລື່ອນລົງເພື່ອໄປຫາຂັ້ນຕອນຕໍ່ໄປ."
+#: code:addons/web_tour/static/src/tour_scenarios.js:0
+msgid "Save the %s."
+msgstr "ບັນທຶກ %s."
 
 #. module: web_tour
 #. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_pointer/tour_pointer_state.js:0
+#: code:addons/web_tour/static/src/tour_pointer/tour_pointer.js:0
+msgid "Scroll down to reach the next step."
+msgstr "ເລື່ອນລົງລຸ່ມເພື່ອໄປຫາຂັ້ນຕອນຕໍ່ໄປ."
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_pointer/tour_pointer.js:0
 msgid "Scroll left to reach the next step."
 msgstr "ເລື່ອນໄປທາງຊ້າຍເພື່ອໄປຫາຂັ້ນຕອນຕໍ່ໄປ."
 
 #. module: web_tour
 #. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_pointer/tour_pointer_state.js:0
+#: code:addons/web_tour/static/src/tour_pointer/tour_pointer.js:0
 msgid "Scroll right to reach the next step."
 msgstr "ເລື່ອນໄປທາງຂວາເພື່ອໄປຫາຂັ້ນຕອນຕໍ່ໄປ."
 
 #. module: web_tour
 #. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_pointer/tour_pointer_state.js:0
+#: code:addons/web_tour/static/src/tour_pointer/tour_pointer.js:0
 msgid "Scroll up to reach the next step."
-msgstr "ເລື່ອນຂຶ້ນເພື່ອໄປຫາຂັ້ນຕອນຕໍ່ໄປ."
+msgstr "ເລື່ອນຂຶ້ນເທິງເພື່ອໄປຫາຂັ້ນຕອນຕໍ່ໄປ."
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_scenarios.js:0
+msgid "Search or create %s."
+msgstr "ຄົ້ນຫາ ຫຼື ສ້າງ %s."
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_scenarios.js:0
+msgid "Select this %s."
+msgstr "ເລືອກ %s ນີ້."
 
 #. module: web_tour
 #: model:ir.model.fields,field_description:web_tour.field_web_tour_tour__sequence
 #: model:ir.model.fields,field_description:web_tour.field_web_tour_tour_step__sequence
 msgid "Sequence"
-msgstr "ລຳດັບ"
+msgstr "ລໍາດັບ"
 
 #. module: web_tour
 #: model:ir.model.fields,field_description:web_tour.field_web_tour_tour__sharing_url
@@ -221,9 +340,11 @@ msgstr "URL ສຳລັບແບ່ງປັນ"
 #. odoo-javascript
 #: code:addons/web_tour/static/src/widgets/tour_start.xml:0
 msgid "Start Tour"
-msgstr "ເລີ່ມທົວ"
+msgstr "ເລີ່ມຕົ້ນການແນະນຳ"
 
 #. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.xml:0
 #: model:ir.model.fields,field_description:web_tour.field_web_tour_tour__url
 msgid "Starting URL"
 msgstr "URL ເລີ່ມຕົ້ນ"
@@ -235,28 +356,22 @@ msgstr "ຂັ້ນຕອນ"
 
 #. module: web_tour
 #. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_recorder/tour_recorder.xml:0
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.xml:0
 #: model_terms:ir.ui.view,arch_db:web_tour.tour_form
 msgid "Steps"
 msgstr "ຂັ້ນຕອນ"
 
 #. module: web_tour
 #. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_recorder/tour_recorder.xml:0
-msgid "Steps:"
-msgstr "ຂັ້ນຕອນ:"
-
-#. module: web_tour
-#. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_pointer/tour_pointer.xml:0
+#: code:addons/web_tour/static/src/tour_pointer/tour_pointer.xml:0
 msgid "Stop Tour"
-msgstr "ຢຸດທົວ"
+msgstr "ຢຸດການແນະນຳ"
 
 #. module: web_tour
 #. odoo-javascript
 #: code:addons/web_tour/static/src/widgets/tour_start.xml:0
 msgid "Test Tour"
-msgstr "ທົດສອບທົວ"
+msgstr "ທົດສອບການແນະນຳ"
 
 #. module: web_tour
 #. odoo-javascript
@@ -272,75 +387,60 @@ msgstr "ຄຳແນະນຳ"
 #. module: web_tour
 #: model:ir.model.fields,field_description:web_tour.field_web_tour_tour_step__tooltip_position
 msgid "Tooltip Position"
-msgstr "ຕຳແໜ່ງຄຳອະທິບາຍ"
+msgstr "ຕຳແໜ່ງຄຳແນະນຳ"
 
 #. module: web_tour
 #: model:ir.model.fields.selection,name:web_tour.selection__web_tour_tour_step__tooltip_position__top
 msgid "Top"
-msgstr "ເທິງ"
+msgstr "ດ້ານເທິງ"
 
 #. module: web_tour
+#: model:ir.model,name:web_tour.model_web_tour_tour
 #: model:ir.model.fields,field_description:web_tour.field_web_tour_tour_step__tour_id
 msgid "Tour"
-msgstr "ທົວ"
+msgstr "ການແນະນຳ"
 
 #. module: web_tour
 #: model:ir.model,name:web_tour.model_web_tour_tour_step
 msgid "Tour's step"
-msgstr "ຂັ້ນຕອນຂອງທົວ"
+msgstr "ຂັ້ນຕອນການແນະນຳ"
 
 #. module: web_tour
 #: model:ir.actions.act_window,name:web_tour.tour_action
-#: model:ir.model,name:web_tour.model_web_tour_tour
+#: model:ir.module.module,shortdesc:base.module_web_tour
 #: model:ir.ui.menu,name:web_tour.menu_tour_action
 msgid "Tours"
-msgstr "ທົວ"
-
-#. module: web_tour
-#: model:ir.model.fields,field_description:web_tour.field_web_tour_tour_step__trigger
-msgid "Trigger"
-msgstr "ຕົວທິກເກີ"
+msgstr "ການແນະນຳ"
 
 #. module: web_tour
 #. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_recorder/tour_recorder.xml:0
-msgid "Url:"
-msgstr "Url:"
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.xml:0
+#: model:ir.model.fields,field_description:web_tour.field_web_tour_tour_step__trigger
+msgid "Trigger"
+msgstr "ຕົວກະຕຸ້ນ"
 
 #. module: web_tour
 #: model:ir.model,name:web_tour.model_res_users
 msgid "User"
-msgstr "ຜູ້ໃຊ້"
+msgstr "ຜູ້ໃຊ້ງານ"
 
 #. module: web_tour
 #: model:ir.model.fields,field_description:web_tour.field_web_tour_tour__user_consumed_ids
 msgid "User Consumed"
-msgstr "ຜູ້ໃຊ້ທີ່ສຳເລັດແລ້ວ"
+msgstr "ຜູ້ໃຊ້ທີ່ຜ່ານການແນະນຳ"
+
+#. module: web_tour
+#. odoo-javascript
+#: code:addons/web_tour/static/src/tour_recorder/tour_recorder.js:0
+msgid "View tour"
+msgstr "ເບິ່ງການແນະນຳ"
 
 #. module: web_tour
 #: model_terms:ir.ui.view,arch_db:web_tour.tour_form
 msgid "e.g. My_Tour"
-msgstr "ຕົວຢ່າງ: My_Tour"
+msgstr "ຕ.ຢ. My_Tour"
 
 #. module: web_tour
 #: model:ir.model.fields.selection,name:web_tour.selection__web_tour_tour_step__tooltip_position__left
 msgid "left"
-msgstr "ຊ້າຍ"
-
-#. module: web_tour
-#. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_recorder/tour_recorder.xml:0
-msgid "name_of_the_tour"
-msgstr "ຊື່_ຂອງ_ທົວ"
-
-#. module: web_tour
-#. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_recorder/tour_recorder.xml:0
-msgid "n°"
-msgstr "ລຳດັບທີ"
-
-#. module: web_tour
-#. odoo-javascript
-#: code:addons/web_tour/static/src/js/tour_recorder/tour_recorder.xml:0
-msgid "trigger"
-msgstr "ຕົວທິກເກີ"
+msgstr "ດ້ານຊ້າຍ"

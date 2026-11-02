@@ -48,7 +48,7 @@ export class OdooChartFeaturePlugin extends OdooUIPlugin {
         const currentFilterValue = filterId
             ? this.getters.getGlobalFilterValue(filterId)
             : undefined;
-        const allowed = getValidGranularities(currentFilterValue);
+        const allowed = getValidGranularities(currentFilterValue, this.getters);
         const available = allGranularities.filter(({ value }) => allowed.includes(value));
 
         this.granularityOptionsCache[chartId] = available;
@@ -65,8 +65,8 @@ export class OdooChartFeaturePlugin extends OdooUIPlugin {
             const { fieldName, granularity: currentGranularity } =
                 this.getters.getChartGranularity(chartId);
             const fieldMatching = this.getters.getChartFieldMatch(chartId)[filterId];
-            const bestGranularity = getBestGranularity(cmd.value, fieldMatching);
-            const validGranularities = getValidGranularities(cmd.value);
+            const bestGranularity = getBestGranularity(cmd.value, fieldMatching, this.getters);
+            const validGranularities = getValidGranularities(cmd.value, this.getters);
             const shouldAutoUpdate =
                 bestGranularity &&
                 fieldMatching?.chain === fieldName &&
@@ -91,21 +91,24 @@ export class OdooChartFeaturePlugin extends OdooUIPlugin {
         const { fieldName } = this.getters.getChartGranularity(chartId);
         const newGroupBy = [
             `${fieldName}:${granularity}`,
-            ...definition.searchParams.groupBy.slice(1),
+            ...definition.dataSource.searchParams.groupBy.slice(1),
         ];
         this.dispatch("UPDATE_CHART", {
             chartId,
             figureId: this.getters.getFigureIdFromChartId(chartId),
             definition: {
                 ...definition,
-                // I don't know why it's in both searchParams and metaData.
-                searchParams: {
-                    ...definition.searchParams,
-                    groupBy: newGroupBy,
-                },
-                metaData: {
-                    ...definition.metaData,
-                    groupBy: newGroupBy,
+                dataSource: {
+                    ...definition.dataSource,
+                    // I don't know why it's in both searchParams and metaData.
+                    searchParams: {
+                        ...definition.dataSource.searchParams,
+                        groupBy: newGroupBy,
+                    },
+                    metaData: {
+                        ...definition.dataSource.metaData,
+                        groupBy: newGroupBy,
+                    },
                 },
             },
         });

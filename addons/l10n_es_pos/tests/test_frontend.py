@@ -8,18 +8,23 @@ from odoo import Command
 
 @odoo.tests.tagged('post_install_l10n', 'post_install', '-at_install')
 class TestUi(TestPointOfSaleHttpCommon):
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def _get_main_company(cls):
         cls.company_data["company"].country_id = cls.env.ref("base.es").id
         cls.company_data["company"].currency_id = cls.env.ref("base.EUR").id
         cls.company_data["company"].vat = "ESA12345674"
+        cls.company_data["company"].street = "Fake Street 123"
+        cls.company_data["company"].city = "Barcelona"
         cls.company_data["company"].state_id = cls.env.ref("base.state_es_ba").id
+        cls.company_data["company"].zip = "08001"
         return cls.company_data["company"]
 
     def test_spanish_pos(self):
         split_payment_method = self.env['pos.payment.method'].create({
             'name': 'Customer Account',
-            'split_transactions': True,
+            'type': 'pay_later',
         })
         self.main_pos_config.payment_method_ids = [(4, split_payment_method.id)]
 
@@ -30,14 +35,14 @@ class TestUi(TestPointOfSaleHttpCommon):
             'code': 'SIMP',
         })
         def get_number_of_regular_invoices():
-            return self.env['account.move'].search_count([('journal_id', '=', self.main_pos_config.invoice_journal_id.id), ('l10n_es_is_simplified', '=', False), ('pos_order_ids', '!=', False)])
+            return self.env['account.move'].search_count([('journal_id', '=', self.main_pos_config.journal_id.id), ('l10n_es_invoice_type', 'not in', ('F2', 'R5')), ('pos_order_ids', '!=', False)])
         initial_number_of_regular_invoices = get_number_of_regular_invoices()
         self.main_pos_config.l10n_es_simplified_invoice_journal_id = simp
         # this `limit` value is linked to the `SIMPLIFIED_INVOICE_LIMIT` const in the tour
         self._get_main_company().l10n_es_simplified_invoice_limit = 1000
         self.main_pos_config.with_user(self.pos_user).open_ui()
         self.start_pos_tour("spanish_pos_tour")
-        num_of_simp_invoices = self.env['account.move'].search_count([('journal_id', '=', simp.id), ('l10n_es_is_simplified', '=', True)])
+        num_of_simp_invoices = self.env['account.move'].search_count([('journal_id', '=', simp.id), ('l10n_es_invoice_type', 'in', ('F2', 'R5'))])
         num_of_regular_invoices = get_number_of_regular_invoices() - initial_number_of_regular_invoices
         self.assertEqual(num_of_simp_invoices, 3)
         self.assertEqual(num_of_regular_invoices, 2)
@@ -49,7 +54,7 @@ class TestUi(TestPointOfSaleHttpCommon):
         # create customer account payment method
         self.customer_account_payment_method = self.env['pos.payment.method'].create({
             'name': 'Customer Account',
-            'split_transactions': True,
+            'type': 'pay_later',
         })
         # add customer account payment method to pos config
         self.main_pos_config.write({
@@ -78,7 +83,6 @@ class TestUi(TestPointOfSaleHttpCommon):
             'amount_tax': 0.0,
             'amount_return': 0.0,
             'to_invoice': True,
-            'last_order_preparation_change': '{}'
         })
 
         payment_context = {"active_ids": order.ids, "active_id": order.id}
@@ -89,7 +93,7 @@ class TestUi(TestPointOfSaleHttpCommon):
         order_payment.with_context(**payment_context).check()
 
         self.assertEqual(self.partner_test_1.total_due, 10)
-        current_session.action_pos_session_closing_control()
+        current_session.close_session_from_ui()
 
         self.main_pos_config.with_user(self.pos_admin).open_ui()
         self.start_tour("/pos/ui/%d" % self.main_pos_config.id, 'l10n_es_pos_settle_account_due', login="accountman")
@@ -105,7 +109,7 @@ class TestUi(TestPointOfSaleHttpCommon):
             'email': "email@gmail.com",
         })
         self._get_main_company().partner_id.write({
-            'bank_ids': [Command.create({'acc_number': 'FOO42', 'allow_out_payment': True})]
+            'bank_ids': [Command.create({'account_number': 'FOO42', 'allow_out_payment': True})]
         })
         self.main_pos_config.open_ui()
         self.pos_order_pos0 = self.env['pos.order'].create({
@@ -118,11 +122,11 @@ class TestUi(TestPointOfSaleHttpCommon):
                 'price_unit': 100,
                 'qty': 1.0,
                 'tax_ids': self.product_a.taxes_id,
-                'price_subtotal': 85,
-                'price_subtotal_incl': 100,
+                'price_subtotal': 100,
+                'price_subtotal_incl': 115,
                 'discount': 0,
             })],
-            'amount_total': 100,
+            'amount_total': 115,
             'amount_tax': 15,
             'amount_paid': 0,
             'amount_return': 0,
@@ -131,7 +135,7 @@ class TestUi(TestPointOfSaleHttpCommon):
 
         context_make_payment = {"active_ids": [self.pos_order_pos0.id], "active_id": self.pos_order_pos0.id}
         self.pos_make_payment_0 = self.env['pos.make.payment'].with_context(context_make_payment).create({
-            'amount': 100.0,
+            'amount': 115.0,
             'payment_method_id': self.main_pos_config.payment_method_ids[0].id,
         })
         context_payment = {'active_id': self.pos_order_pos0.id}
@@ -140,7 +144,9 @@ class TestUi(TestPointOfSaleHttpCommon):
         self.pos_order_pos0.action_pos_order_invoice()
         attachment_proforma = self.pos_order_pos0.account_move.attachment_ids.filtered(lambda att: "proforma" in att.name)
         self.assertFalse(attachment_proforma)
-        invoice_str = str(self.pos_order_pos0.account_move._get_invoice_legal_documents('pdf', allow_fallback=True).get('content'))
+        legal_documents = self.pos_order_pos0.account_move._get_invoice_legal_documents('pdf', allow_fallback=True)
+        self.assertEqual(len(legal_documents), 1)
+        invoice_str = legal_documents[0]['content'].decode()
         self.assertTrue("invoice" in invoice_str)
         self.assertTrue("proforma" not in invoice_str)
 
@@ -148,6 +154,8 @@ class TestUi(TestPointOfSaleHttpCommon):
         """Checks that when the simplified invoice parter is automatically set
         on the order it does not override the pricelist that was manually selected
         during the order"""
+        self.pricelist = self._enable_pricelists()
+        self.main_pos_config.available_pricelist_ids |= self.pricelist
         self.assertTrue(len(self.main_pos_config.available_pricelist_ids.ids) > 1)
         self.main_pos_config.l10n_es_simplified_invoice_journal_id = self.main_pos_config.journal_id
         self.main_pos_config.default_fiscal_position_id = self.fiscal_pos_a.id

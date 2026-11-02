@@ -1,14 +1,15 @@
-import { ExpenseDashboard } from '../components/expense_dashboard';
-import { ExpenseMobileQRCode } from '../mixins/qrcode';
-import { ExpenseDocumentUpload, ExpenseDocumentDropZone } from '../mixins/document_upload';
+import { render } from "@web/owl2/utils";
+import { ExpenseDashboard } from "@hr_expense/components/expense_dashboard";
+import { ExpenseDocumentUpload, ExpenseDocumentDropZone } from "@hr_expense/mixins/document_upload";
 
 import { registry } from '@web/core/registry';
 import { useService } from '@web/core/utils/hooks';
 import { user } from "@web/core/user";
+import { rpc } from "@web/core/network/rpc";
 import { listView } from "@web/views/list/list_view";
 
 import { ListController } from "@web/views/list/list_controller";
-import { ListRenderer } from "@web/views/list/list_renderer";
+import { ListRenderer, listRendererProps } from "@web/views/list/list_renderer";
 import { onWillStart } from "@odoo/owl";
 
 export class ExpenseListController extends ExpenseDocumentUpload(ListController) {
@@ -20,9 +21,34 @@ export class ExpenseListController extends ExpenseDocumentUpload(ListController)
         this.actionService = useService('action');
 
         onWillStart(async () => {
-            this.userIsExpenseTeamApprover = await user.hasGroup("hr_expense.group_hr_expense_team_approver");
-            this.userIsAccountInvoicing = await user.hasGroup("account.group_account_invoice");
+            [this.userIsExpenseTeamApprover, this.userIsAccountInvoicing, this.userHasEmployee] =
+                await Promise.all([
+                    user.hasGroup("hr_expense.group_hr_expense_team_approver"),
+                    user.hasGroup("account.group_account_invoice"),
+                    rpc(
+                        "/web/dataset/call_kw/res.users/read",
+                        {
+                            model: "res.users",
+                            method: "read",
+                            args: [[user.userId], ["employee_id"]],
+                            kwargs: { context: user.context },
+                        },
+                        { cache: { type: "disk" } }
+                    ).then((r) => !!r?.[0]?.employee_id),
+                ]);
+            if (!this.userHasEmployee && !this.userIsExpenseTeamApprover) {
+                this.activeActions.create = false;
+            }
         });
+    }
+
+    get actionMenuItems() {
+        // Remove automatic print in order to replace it
+        const menuItems = super.actionMenuItems || {};
+        if (menuItems.print) {
+            menuItems.print = [];
+        }
+        return menuItems;
     }
 
     displaySubmit() {
@@ -35,9 +61,11 @@ export class ExpenseListController extends ExpenseDocumentUpload(ListController)
         return this.userIsExpenseTeamApprover && records.length && records.every(record => record.data.state === 'submitted');
     }
 
-    displayPost() {
-        const records = this.model.root.selection;
-        return this.userIsAccountInvoicing && records.length && records.every(record => record.data.state === 'approved');
+    async onClickPrintSelected() {
+        const recordIds = this.model.root.selection.map((r) => r.resId);
+        this.env.services.action.doAction('hr_expense.action_report_hr_expense', {
+            additionalContext: { active_ids: recordIds },
+        });
     }
 
     async onClick (action) {
@@ -54,9 +82,12 @@ export class ExpenseListController extends ExpenseDocumentUpload(ListController)
                 additionalContext: {
                     dont_redirect_to_payments: 1,
                 },
-                onClose: async () => {
+                onClose: async (closeParams) => {
+                    if (closeParams?.noReload) {
+                        return;
+                    }
                     await this.model.root.load();
-                    this.render(true);
+                    render(this, true);
                 }
             });
         }
@@ -64,9 +95,7 @@ export class ExpenseListController extends ExpenseDocumentUpload(ListController)
     }
 }
 
-export class ExpenseListRenderer extends ExpenseDocumentDropZone(
-    ExpenseMobileQRCode(ListRenderer)
-) {
+export class ExpenseListRenderer extends ExpenseDocumentDropZone(ListRenderer, listRendererProps) {
     static template = "hr_expense.ListRenderer";
 }
 

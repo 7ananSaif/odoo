@@ -18,12 +18,12 @@ export class EmbeddedFilePlugin extends FilePlugin {
     /** @type {import("plugins").EditorResources} */
     resources = {
         ...this.resources,
-        mount_component_handlers: this.setupNewFile.bind(this),
+        on_will_mount_component_handlers: this.setupNewFile.bind(this),
     };
 
     /** @override */
     renderDownloadBox(attachment) {
-        return renderEmbeddedFileBox(attachment);
+        return renderEmbeddedFileBox(attachment, this.document);
     }
 
     /** @override */

@@ -10,33 +10,51 @@
 # Emily Jia <eji@odoo.com>, 2023
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# "Chloe Wang (chwa)" <chwa@odoo.com>, 2026.
+# 张飞虎 <feihu.zhang@live.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0beta\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-12 17:36+0000\n"
-"PO-Revision-Date: 2025-11-15 14:15+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
+"POT-Creation-Date: 2026-09-18 17:38+0000\n"
+"PO-Revision-Date: 2026-10-11 06:34+0000\n"
+"Last-Translator: 张飞虎 <feihu.zhang@live.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://translate.odoo.com/"
-"projects/odoo-19/repair/zh_Hans/>\n"
+"projects/odoo-20/repair/zh_Hans/>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: repair
+#: model:ir.module.module,description:base.module_repair
+msgid ""
+"\n"
+"The aim is to have a complete module to manage all products repairs.\n"
+"====================================================================\n"
+"\n"
+"The following topics are covered by this module:\n"
+"------------------------------------------------------\n"
+"    * Add/remove products in the reparation\n"
+"    * Impact for stocks\n"
+"    * Warranty concept\n"
+"    * Repair quotation report\n"
+"    * Notes for the technician and for the final customer\n"
+msgstr ""
+"\n"
+"本模块旨在提供完整的维修管理功能。\n"
+"====================================================================\n"
+"\n"
+"本模块涵盖以下主题：\n"
+"---------------\n"
 
 #. module: repair
 #. odoo-python
 #: code:addons/repair/models/stock_warehouse.py:0
 msgid "%(name)s Sequence repair"
 msgstr "维修序列%(name)s"
-
-#. module: repair
-#. odoo-python
-#: code:addons/repair/models/repair.py:0
-msgid "%(product)s: Insufficient Quantity To Repair"
-msgstr "%(product)s：数量不足，无法维修"
 
 #. module: repair
 #: model:ir.actions.report,print_report_name:repair.action_report_repair_order
@@ -59,20 +77,12 @@ msgid ""
 "* The 'New' status is used when a user is encoding a new and unconfirmed "
 "repair order.\n"
 "* The 'Confirmed' status is used when a user confirms the repair order.\n"
-"* The 'Under Repair' status is used when the repair is ongoing.\n"
-"* The 'Repaired' status is set when repairing is completed.\n"
+"* The 'Done' status is set when repairing is completed.\n"
 "* The 'Cancelled' status is used when user cancel repair order."
 msgstr ""
-"* 当用户正在输入新的未确认维修订单时，使用“New”状态。\n"
-"* 当用户确认维修订单时，使用“Confirmed”状态。\n"
-"* 当维修正在进行中时，使用“Under Repair”状态。\n"
-"* 当维修完成时，设置“Repaired”状态。\n"
-"* 当用户取消维修订单时，使用“Cancelled”状态。"
-
-#. module: repair
-#: model_terms:ir.ui.view,arch_db:repair.stock_warn_insufficient_qty_repair_form_view
-msgid "<br/>You can still confirm the repair of"
-msgstr "<br/>您仍可确认维修"
+"* “新建”状态用于用户正在录入尚未确认的维修订单时。\n"
+"* “已确认”状态用于用户确认维修订单时。\n"
+"* “已完成”状态在维修完成时设置。\n"
 
 #. module: repair
 #: model_terms:ir.ui.view,arch_db:repair.report_repairorder
@@ -88,11 +98,6 @@ msgstr "<span class=\"col-6\">已确认</span>"
 #: model_terms:ir.ui.view,arch_db:repair.stock_repair_type_kanban
 msgid "<span class=\"col-6\">Late</span>"
 msgstr "<span class=\"col-6\">迟到</span>"
-
-#. module: repair
-#: model_terms:ir.ui.view,arch_db:repair.stock_repair_type_kanban
-msgid "<span class=\"col-6\">Under Repair</span>"
-msgstr "<span class=\"col-6\">维修进行中</span>"
 
 #. module: repair
 #: model_terms:ir.ui.view,arch_db:repair.stock_production_lot_view_form
@@ -112,7 +117,7 @@ msgstr "<span class=\"o_stat_text\">销售订单</span>"
 #. module: repair
 #: model_terms:ir.ui.view,arch_db:repair.stock_production_lot_view_form
 msgid "<span class=\"o_stat_text\">To Do:</span>"
-msgstr "<span class=\"o_stat_text\">要做的事</span>"
+msgstr "<span class=\"o_stat_text\">待办事项：</span>"
 
 #. module: repair
 #: model_terms:ir.ui.view,arch_db:repair.stock_repair_type_kanban
@@ -150,13 +155,6 @@ msgid "<strong>Status:</strong>"
 msgstr "<strong>状态:</strong>"
 
 #. module: repair
-#: model_terms:ir.ui.view,arch_db:repair.stock_warn_insufficient_qty_repair_form_view
-msgid ""
-"? , but get ready to have fun taking inventory to fix the negative stock "
-"quantity!"
-msgstr "但需要准备好通过盘点来调整负库存哦！"
-
-#. module: repair
 #: model:ir.model.fields,field_description:repair.field_repair_order__message_needaction
 msgid "Action Needed"
 msgstr "所需操作"
@@ -170,6 +168,11 @@ msgstr "活动"
 #: model:ir.model.fields,field_description:repair.field_repair_order__activity_exception_decoration
 msgid "Activity Exception Decoration"
 msgstr "活动异常标示"
+
+#. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_order__activity_plans_ids
+msgid "Activity Plans"
+msgstr "活动计划"
 
 #. module: repair
 #: model:ir.model.fields,field_description:repair.field_repair_order__activity_state
@@ -229,6 +232,7 @@ msgstr "允许的批次"
 
 #. module: repair
 #: model:ir.model.fields,field_description:repair.field_repair_order__allowed_uom_ids
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__allowed_uom_ids
 msgid "Allowed Uom"
 msgstr "允许的单位"
 
@@ -288,6 +292,16 @@ msgid "BoM Components"
 msgstr "物料清单（BOM）组件"
 
 #. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_order__can_create_extra_invoice
+msgid "Can Create Extra Invoice"
+msgstr "可创建额外发票"
+
+#. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_order__can_create_sale_or_invoice
+msgid "Can Create Sale Or Invoice"
+msgstr "可创建销售单或发票"
+
+#. module: repair
 #. odoo-python
 #: code:addons/repair/models/stock_warehouse.py:0
 msgid "Can't find any production location."
@@ -295,8 +309,8 @@ msgstr "找不到任何生产地点。"
 
 #. module: repair
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
-msgid "Cancel Repair"
-msgstr "取消维修"
+msgid "Cancel"
+msgstr "取消"
 
 #. module: repair
 #: model:ir.model.fields.selection,name:repair.selection__repair_order__state__cancel
@@ -308,11 +322,6 @@ msgstr "已取消"
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
 msgid "Catalog"
 msgstr "目录"
-
-#. module: repair
-#: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
-msgid "Check availability"
-msgstr "检查可用性"
 
 #. module: repair
 #: model:ir.model.fields,help:repair.field_repair_order__partner_id
@@ -330,6 +339,7 @@ msgstr "颜色指标"
 
 #. module: repair
 #: model:ir.model.fields,field_description:repair.field_repair_order__company_id
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__company_id
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form_filter
 msgid "Company"
 msgstr "公司"
@@ -357,6 +367,11 @@ msgid "Configuration"
 msgstr "配置"
 
 #. module: repair
+#: model_terms:ir.ui.view,arch_db:repair.view_repair_consumption_warning_form
+msgid "Confirm"
+msgstr "确认"
+
+#. module: repair
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
 msgid "Confirm Repair"
 msgstr "确认维修"
@@ -370,9 +385,20 @@ msgid "Confirmed"
 msgstr "已确认"
 
 #. module: repair
-#: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
-msgid "Create Quotation"
-msgstr "创建报价"
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning_line__product_consumed_qty_uom
+msgid "Consumed"
+msgstr "已消耗"
+
+#. module: repair
+#: model:ir.actions.act_window,name:repair.action_repair_consumption_warning
+#: model_terms:ir.ui.view,arch_db:repair.view_repair_consumption_warning_form
+msgid "Consumption Warning"
+msgstr "消耗警告"
+
+#. module: repair
+#: model:ir.model,name:repair.model_res_partner
+msgid "Contact"
+msgstr "联系人"
 
 #. module: repair
 #. odoo-python
@@ -380,6 +406,11 @@ msgstr "创建报价"
 #: model:ir.actions.server,name:repair.action_create_repair_order
 msgid "Create Repair"
 msgstr "创建维修单"
+
+#. module: repair
+#: model:ir.model,website_form_label:repair.model_res_partner
+msgid "Create a Customer"
+msgstr "创建客户"
 
 #. module: repair
 #: model_terms:ir.actions.act_window,help:repair.action_repair_order_tag
@@ -393,16 +424,20 @@ msgid "Create on Order"
 msgstr "按订单创建"
 
 #. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning__create_uid
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning_line__create_uid
 #: model:ir.model.fields,field_description:repair.field_repair_order__create_uid
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__create_uid
 #: model:ir.model.fields,field_description:repair.field_repair_tags__create_uid
-#: model:ir.model.fields,field_description:repair.field_stock_warn_insufficient_qty_repair__create_uid
 msgid "Created by"
 msgstr "创建人"
 
 #. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning__create_date
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning_line__create_date
 #: model:ir.model.fields,field_description:repair.field_repair_order__create_date
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__create_date
 #: model:ir.model.fields,field_description:repair.field_repair_tags__create_date
-#: model:ir.model.fields,field_description:repair.field_stock_warn_insufficient_qty_repair__create_date
 msgid "Created on"
 msgstr "创建日期"
 
@@ -428,6 +463,7 @@ msgid "Demand"
 msgstr "需求"
 
 #. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__description
 #: model_terms:ir.ui.view,arch_db:repair.report_repairorder
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
 msgid "Description"
@@ -439,11 +475,21 @@ msgid "Details"
 msgstr "详情"
 
 #. module: repair
+#: model_terms:ir.ui.view,arch_db:repair.view_repair_consumption_warning_form
+msgid "Discard"
+msgstr "丢弃"
+
+#. module: repair
+#: model:ir.model.fields,field_description:repair.field_account_move__display_name
 #: model:ir.model.fields,field_description:repair.field_account_move_line__display_name
 #: model:ir.model.fields,field_description:repair.field_product_product__display_name
 #: model:ir.model.fields,field_description:repair.field_product_template__display_name
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning__display_name
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning_line__display_name
 #: model:ir.model.fields,field_description:repair.field_repair_order__display_name
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__display_name
 #: model:ir.model.fields,field_description:repair.field_repair_tags__display_name
+#: model:ir.model.fields,field_description:repair.field_res_partner__display_name
 #: model:ir.model.fields,field_description:repair.field_sale_order__display_name
 #: model:ir.model.fields,field_description:repair.field_sale_order_line__display_name
 #: model:ir.model.fields,field_description:repair.field_stock_forecasted_product_product__display_name
@@ -454,19 +500,19 @@ msgstr "详情"
 #: model:ir.model.fields,field_description:repair.field_stock_picking_type__display_name
 #: model:ir.model.fields,field_description:repair.field_stock_traceability_report__display_name
 #: model:ir.model.fields,field_description:repair.field_stock_warehouse__display_name
-#: model:ir.model.fields,field_description:repair.field_stock_warn_insufficient_qty_repair__display_name
 msgid "Display Name"
 msgstr "显示名称"
+
+#. module: repair
+#: model:ir.model.fields.selection,name:repair.selection__repair_order__state__done
+#: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form_filter
+msgid "Done"
+msgstr "已完成"
 
 #. module: repair
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
 msgid "End Repair"
 msgstr "结束维修"
-
-#. module: repair
-#: model:ir.model.fields,help:repair.field_repair_order__tracking
-msgid "Ensure the traceability of a storable product in your warehouse."
-msgstr "确保可追溯到仓库中的产品。"
 
 #. module: repair
 #. odoo-python
@@ -490,18 +536,6 @@ msgid "Followers (Partners)"
 msgstr "关注者（合作伙伴）"
 
 #. module: repair
-#: model:ir.model.fields,help:repair.field_repair_order__activity_type_icon
-msgid "Font awesome icon e.g. fa-tasks"
-msgstr "Font Awesome图标，例如：fa-tasks"
-
-#. module: repair
-#: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
-msgid ""
-"For some of the parts, there is a difference between the initial demand and "
-"the actual quantity that was used. Are you sure you want to confirm ?"
-msgstr "对于某些零件，初始需求与实际使用数量之间存在差异。您要确认吗？"
-
-#. module: repair
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form_filter
 msgid "Future Activities"
 msgstr "未来活动"
@@ -517,11 +551,16 @@ msgid "Has Uncomplete Moves"
 msgstr "有未完成的移动"
 
 #. module: repair
+#: model:ir.model.fields,field_description:repair.field_account_move__id
 #: model:ir.model.fields,field_description:repair.field_account_move_line__id
 #: model:ir.model.fields,field_description:repair.field_product_product__id
 #: model:ir.model.fields,field_description:repair.field_product_template__id
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning__id
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning_line__id
 #: model:ir.model.fields,field_description:repair.field_repair_order__id
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__id
 #: model:ir.model.fields,field_description:repair.field_repair_tags__id
+#: model:ir.model.fields,field_description:repair.field_res_partner__id
 #: model:ir.model.fields,field_description:repair.field_sale_order__id
 #: model:ir.model.fields,field_description:repair.field_sale_order_line__id
 #: model:ir.model.fields,field_description:repair.field_stock_forecasted_product_product__id
@@ -532,7 +571,6 @@ msgstr "有未完成的移动"
 #: model:ir.model.fields,field_description:repair.field_stock_picking_type__id
 #: model:ir.model.fields,field_description:repair.field_stock_traceability_report__id
 #: model:ir.model.fields,field_description:repair.field_stock_warehouse__id
-#: model:ir.model.fields,field_description:repair.field_stock_warn_insufficient_qty_repair__id
 msgid "ID"
 msgstr "ID"
 
@@ -601,6 +639,32 @@ msgid "Inventory Moves"
 msgstr "库存移动"
 
 #. module: repair
+#: model:ir.model.fields.selection,name:repair.selection__repair_order__validate_button_style__invisible
+msgid "Invisible"
+msgstr "不可见"
+
+#. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_order__invoice_ids
+#: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
+msgid "Invoice"
+msgstr "发票"
+
+#. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_order__invoice_count
+msgid "Invoice Count"
+msgstr "发票数量"
+
+#. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__invoice_line_ids
+msgid "Invoice Line"
+msgstr "发票行"
+
+#. module: repair
+#: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
+msgid "Invoices"
+msgstr "发票"
+
+#. module: repair
 #: model:ir.model.fields,field_description:repair.field_repair_order__message_is_follower
 msgid "Is Follower"
 msgstr "是关注者"
@@ -616,9 +680,14 @@ msgid "John Doe"
 msgstr "John Doe"
 
 #. module: repair
+#: model:ir.model,name:repair.model_account_move
+msgid "Journal Entry"
+msgstr "日记账分录"
+
+#. module: repair
 #: model:ir.model,name:repair.model_account_move_line
 msgid "Journal Item"
-msgstr "会计分录"
+msgstr "日记账项目"
 
 #. module: repair
 #: model_terms:ir.ui.view,arch_db:repair.report_repairorder
@@ -631,16 +700,20 @@ msgid "Laptop"
 msgstr "笔记本电脑"
 
 #. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning__write_uid
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning_line__write_uid
 #: model:ir.model.fields,field_description:repair.field_repair_order__write_uid
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__write_uid
 #: model:ir.model.fields,field_description:repair.field_repair_tags__write_uid
-#: model:ir.model.fields,field_description:repair.field_stock_warn_insufficient_qty_repair__write_uid
 msgid "Last Updated by"
 msgstr "最后更新人"
 
 #. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning__write_date
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning_line__write_date
 #: model:ir.model.fields,field_description:repair.field_repair_order__write_date
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__write_date
 #: model:ir.model.fields,field_description:repair.field_repair_tags__write_date
-#: model:ir.model.fields,field_description:repair.field_stock_warn_insufficient_qty_repair__write_date
 msgid "Last Updated on"
 msgstr "上次更新日期"
 
@@ -664,15 +737,20 @@ msgstr ""
 "此维修订单（RO）的最新零件可用状态。如果为绿色，则维修订单的状态为准备就绪。"
 
 #. module: repair
-#: model:ir.model.fields,field_description:repair.field_stock_warn_insufficient_qty_repair__location_id
-msgid "Location"
-msgstr "位置"
+#: model:ir.model,name:repair.model_repair_consumption_warning_line
+msgid "Line of issue consumption"
+msgstr "领料消耗明细行"
 
 #. module: repair
 #: model:ir.model,name:repair.model_stock_lot
 #: model:ir.model.fields,field_description:repair.field_repair_order__lot_id
 msgid "Lot/Serial"
 msgstr "批次/序列号"
+
+#. module: repair
+#: model:ir.model.fields,help:repair.field_repair_order__activity_type_icon
+msgid "Material Symbols icon e.g. checklist"
+msgstr "Material Symbols 图标，例如 checklist"
 
 #. module: repair
 #: model:ir.model.fields,field_description:repair.field_repair_order__message_has_error
@@ -683,6 +761,11 @@ msgstr "消息发送错误"
 #: model:ir.model.fields,field_description:repair.field_repair_order__message_ids
 msgid "Messages"
 msgstr "消息"
+
+#. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning_line__move_id
+msgid "Move"
+msgstr "库存移动"
 
 #. module: repair
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form_filter
@@ -727,7 +810,7 @@ msgstr "下一活动类型"
 #. odoo-python
 #: code:addons/repair/models/stock_warehouse.py:0
 msgid "No location of type Inventory Loss found"
-msgstr ""
+msgstr "未找到类型为“库存损耗”的位置"
 
 #. module: repair
 #: model_terms:ir.actions.act_window,help:repair.action_repair_order_tree
@@ -766,11 +849,6 @@ msgstr "最新维修订单数量"
 #: model:ir.model.fields,field_description:repair.field_stock_picking_type__count_repair_confirmed
 msgid "Number of Repair Orders Confirmed"
 msgstr "已确认的维修订单数量"
-
-#. module: repair
-#: model:ir.model.fields,field_description:repair.field_stock_picking_type__count_repair_under_repair
-msgid "Number of Repair Orders Under Repair"
-msgstr "维修中的维修订单数量"
 
 #. module: repair
 #: model:ir.model.fields,field_description:repair.field_stock_picking_type__count_repair_ready
@@ -818,6 +896,11 @@ msgid "Orders"
 msgstr "订单"
 
 #. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning_line__repair_consumption_warning_id
+msgid "Parent Wizard"
+msgstr "父级向导"
+
+#. module: repair
 #: model:ir.model.fields,field_description:repair.field_repair_order__move_ids
 #: model_terms:ir.ui.view,arch_db:repair.report_repairorder
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
@@ -833,11 +916,6 @@ msgstr "部件可用状态"
 #: model_terms:ir.ui.view,arch_db:repair.report_repairorder
 msgid "Pending"
 msgstr "待定"
-
-#. module: repair
-#: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
-msgid "Picked"
-msgstr "已拣货"
 
 #. module: repair
 #: model:ir.model.fields,field_description:repair.field_repair_order__picking_product_ids
@@ -861,14 +939,19 @@ msgid "Please set the first Serial Number or a default sequence"
 msgstr "请设置第一个序列号或默认序列"
 
 #. module: repair
+#: model:ir.model.fields.selection,name:repair.selection__repair_order__validate_button_style__primary
+msgid "Primary"
+msgstr "主要"
+
+#. module: repair
 #: model:ir.model.fields,field_description:repair.field_repair_order__priority
 msgid "Priority"
 msgstr "优先级"
 
 #. module: repair
 #: model:ir.model,name:repair.model_product_template
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning_line__product_id
 #: model:ir.model.fields,field_description:repair.field_repair_order__picking_product_id
-#: model:ir.model.fields,field_description:repair.field_stock_warn_insufficient_qty_repair__product_id
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form_filter
 msgid "Product"
 msgstr "产品"
@@ -882,11 +965,6 @@ msgstr "产品字段"
 #: model_terms:ir.ui.view,arch_db:repair.report_repairorder
 msgid "Product B"
 msgstr "产品 B"
-
-#. module: repair
-#: model:ir.model.fields,field_description:repair.field_product_product__product_catalog_product_is_in_repair
-msgid "Product Catalog Product Is In Repair"
-msgstr "产品目录里维修中的产品"
 
 #. module: repair
 #: model:ir.model.fields,field_description:repair.field_repair_order__product_location_dest_id
@@ -926,11 +1004,6 @@ msgid "Product Variant"
 msgstr "产品变体"
 
 #. module: repair
-#: model:ir.ui.menu,name:repair.repair_menu_product_product
-msgid "Product Variants"
-msgstr "产品规格"
-
-#. module: repair
 #: model:ir.model.fields,field_description:repair.field_repair_order__product_id
 msgid "Product to Repair"
 msgstr "待维修产品"
@@ -952,17 +1025,17 @@ msgid "Properties"
 msgstr "权益"
 
 #. module: repair
-#: model:ir.model.fields,field_description:repair.field_stock_warn_insufficient_qty_repair__quant_ids
-msgid "Quant"
-msgstr "量化"
-
-#. module: repair
-#: model:ir.model.fields,field_description:repair.field_stock_warn_insufficient_qty_repair__quantity
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__quantity
 #: model_terms:ir.ui.view,arch_db:repair.report_repairorder
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_tree
 msgid "Quantity"
 msgstr "数量"
+
+#. module: repair
+#: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
+msgid "Quote"
+msgstr "报价"
 
 #. module: repair
 #: model_terms:ir.ui.view,arch_db:repair.report_repairorder
@@ -1016,12 +1089,18 @@ msgid "Removed Parts Destination Location"
 msgstr "已移除部件目的位置"
 
 #. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning__repair_id
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__repair_id
 #: model:ir.model.fields,field_description:repair.field_stock_move__repair_id
 #: model:ir.model.fields,field_description:repair.field_stock_picking__repair_ids
-#: model:ir.model.fields,field_description:repair.field_stock_warn_insufficient_qty_repair__repair_id
 #: model:ir.model.fields.selection,name:repair.selection__stock_picking_type__code__repair_operation
 msgid "Repair"
 msgstr "维修"
+
+#. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning__repair_consumption_warning_line_ids
+msgid "Repair Consumption Warning Line"
+msgstr "维修消耗警告行"
 
 #. module: repair
 #: model:ir.model.fields,field_description:repair.field_stock_warehouse__repair_mto_pull_id
@@ -1042,12 +1121,22 @@ msgstr "维修操作类型"
 #. module: repair
 #: model:ir.actions.report,name:repair.action_report_repair_order
 #: model:ir.model,name:repair.model_repair_order
+#: model:ir.model.fields,field_description:repair.field_account_bank_statement_line__repair_order_id
+#: model:ir.model.fields,field_description:repair.field_account_move__repair_order_id
+#: model:ir.model.fields,field_description:repair.field_account_move_line__repair_order_id
 #: model:ir.model.fields,field_description:repair.field_sale_order__repair_order_ids
 #: model:ir.model.fields.selection,name:repair.selection__product_template__service_tracking__repair
+#: model_terms:ir.ui.view,arch_db:repair.view_account_move_form_inherit_repair
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form_filter
 msgid "Repair Order"
 msgstr "维修订单"
+
+#. module: repair
+#: model:ir.model.fields,field_description:repair.field_res_partner__repair_order_count
+#: model:ir.model.fields,field_description:repair.field_res_users__repair_order_count
+msgid "Repair Order Count"
+msgstr "维修订单数量"
 
 #. module: repair
 #: model:ir.model.fields,field_description:repair.field_sale_order__repair_count
@@ -1056,6 +1145,7 @@ msgstr "维修订单"
 
 #. module: repair
 #. odoo-python
+#: code:addons/repair/models/res_partner.py:0
 #: code:addons/repair/models/sale_order.py:0
 #: code:addons/repair/models/stock_picking.py:0
 #: model:ir.actions.act_window,name:repair.action_picking_repair
@@ -1096,20 +1186,32 @@ msgid "Repair Request"
 msgstr "维修请求"
 
 #. module: repair
+#: model:ir.model,name:repair.model_repair_service_line
+#: model:ir.model.fields,field_description:repair.field_account_move_line__repair_service_line_id
+#: model:ir.model.fields,field_description:repair.field_sale_order_line__repair_service_line_id
+msgid "Repair Service Line"
+msgstr "维修服务明细行"
+
+#. module: repair
 #: model:product.template,name:repair.product_service_order_repair_product_template
 msgid "Repair Services"
 msgstr "维修服务"
 
 #. module: repair
 #: model:ir.model,name:repair.model_repair_tags
-msgid "Repair Tags"
+msgid "Repair Tag"
 msgstr "维修标签"
+
+#. module: repair
+#: model:ir.module.module,summary:base.module_repair
+msgid "Repair damaged products"
+msgstr "维修受损产品"
 
 #. module: repair
 #. odoo-python
 #: code:addons/repair/models/repair.py:0
-msgid "Repair must be under repair in order to end reparation."
-msgstr "维修订单必须维修，以便结束赔偿。"
+msgid "Repair must be confirmed in order to end reparation."
+msgstr "必须确认维修单才能结束维修。"
 
 #. module: repair
 #. odoo-python
@@ -1123,12 +1225,6 @@ msgid "Repair part count"
 msgstr "维修部件数量"
 
 #. module: repair
-#: model:ir.model.fields.selection,name:repair.selection__repair_order__state__done
-#: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form_filter
-msgid "Repaired"
-msgstr "已维修"
-
-#. module: repair
 #: model:ir.model.fields,field_description:repair.field_stock_lot__repaired_count
 msgid "Repaired count"
 msgstr "维修计数"
@@ -1136,9 +1232,11 @@ msgstr "维修计数"
 #. module: repair
 #. odoo-python
 #: code:addons/repair/models/stock_warehouse.py:0
+#: model:ir.module.module,shortdesc:base.module_repair
 #: model:ir.ui.menu,name:repair.menu_repair_order
 #: model:ir.ui.menu,name:repair.repair_menu
 #: model:stock.picking.type,name:repair.picking_type_warehouse0_repair
+#: model_terms:ir.ui.view,arch_db:repair.view_partner_form
 #: model_terms:ir.ui.view,arch_db:repair.view_sale_order_form_inherit_repair
 msgid "Repairs"
 msgstr "维修"
@@ -1153,13 +1251,18 @@ msgstr "维修订单"
 #. odoo-python
 #: code:addons/repair/models/stock_warehouse.py:0
 msgid "Replenish on Order (MTO)"
-msgstr "按订单补给(MTO)"
+msgstr "按订单补货（MTO）"
 
 #. module: repair
 #: model:ir.ui.menu,name:repair.repair_menu_reporting
 #: model_terms:ir.ui.view,arch_db:repair.stock_repair_type_kanban
 msgid "Reporting"
 msgstr "报表"
+
+#. module: repair
+#: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
+msgid "Reserve"
+msgstr "预留"
 
 #. module: repair
 #: model:ir.model.fields,field_description:repair.field_repair_order__user_id
@@ -1180,6 +1283,11 @@ msgstr "已归还"
 #: model:ir.model.fields,field_description:repair.field_repair_order__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr "短信发送错误"
+
+#. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__sale_line_id
+msgid "Sale Line"
+msgstr "销售明细行"
 
 #. module: repair
 #: model:ir.model.fields,field_description:repair.field_repair_order__sale_order_id
@@ -1228,10 +1336,40 @@ msgid "Search Repair Orders"
 msgstr "搜索维修订单"
 
 #. module: repair
+#: model:ir.model.fields.selection,name:repair.selection__repair_order__validate_button_style__secondary
+msgid "Secondary"
+msgstr "次要"
+
+#. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__sequence
+msgid "Sequence"
+msgstr "序列"
+
+#. module: repair
 #. odoo-python
 #: code:addons/repair/models/repair.py:0
 msgid "Serial number is required for product to repair : %s"
 msgstr "产品维修需要序列号：%s"
+
+#. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__product_id
+msgid "Service"
+msgstr "服务"
+
+#. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_order__repair_service_line_ids
+msgid "Service Lines"
+msgstr "服务明细行"
+
+#. module: repair
+#: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
+msgid "Services"
+msgstr "服务"
+
+#. module: repair
+#: model_terms:ir.ui.view,arch_db:repair.view_repair_consumption_warning_form
+msgid "Set Quantities & Validate"
+msgstr "设置数量并验证"
 
 #. module: repair
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
@@ -1242,11 +1380,6 @@ msgstr "设置为草稿"
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form_filter
 msgid "Show all records whose next activity date is past"
 msgstr "显示所有逾期未完成活动的记录"
-
-#. module: repair
-#: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
-msgid "Start Repair"
-msgstr "开始维修"
 
 #. module: repair
 #: model:ir.model.fields,field_description:repair.field_repair_order__state
@@ -1294,6 +1427,13 @@ msgstr "标签名称已存在！"
 #: model_terms:ir.ui.view,arch_db:repair.view_repair_tag_tree
 msgid "Tags"
 msgstr "标签"
+
+#. module: repair
+#: model:ir.model.fields,help:repair.field_repair_order__tracking
+msgid ""
+"Technical field holding the tracking method. False on a storable product "
+"means it's tracked by quantity only."
+msgstr "保存跟踪方式的技术字段。对于可存储产品，为 False 表示仅按数量跟踪。"
 
 #. module: repair
 #: model:ir.model.fields,help:repair.field_repair_order__reserve_visible
@@ -1368,6 +1508,23 @@ msgid "This is the location where the repaired product is located."
 msgstr "这是维修产品所在的位置。"
 
 #. module: repair
+#. odoo-python
+#: code:addons/repair/models/repair_service_line.py:0
+#: code:addons/repair/models/stock_move.py:0
+msgid ""
+"This line is linked to a posted invoice and cannot be modified.\n"
+"Please create a new line to link to a new invoice or reset the invoice to "
+"draft."
+msgstr ""
+"该明细行已关联到已过账的发票，无法修改。\n"
+"请新建一条明细行以关联新发票，或将该发票重置为草稿。"
+
+#. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning_line__product_expected_qty_uom
+msgid "To Consume"
+msgstr "待消耗"
+
+#. module: repair
 #: model_terms:ir.ui.view,arch_db:repair.stock_repair_type_kanban
 msgid "To Repair"
 msgstr "待维修"
@@ -1403,7 +1560,7 @@ msgstr "调拨"
 #. module: repair
 #: model:ir.model.fields,help:repair.field_repair_order__picking_id
 msgid "Transfer from which the product to be repaired is picked"
-msgstr ""
+msgstr "提取待维修产品所来自的调拨单"
 
 #. module: repair
 #: model:ir.model.fields,field_description:repair.field_stock_move__repair_line_type
@@ -1413,7 +1570,7 @@ msgstr "类型"
 #. module: repair
 #: model:ir.model.fields,field_description:repair.field_stock_picking_type__code
 msgid "Type of Operation"
-msgstr "作业类型"
+msgstr "操作类型"
 
 #. module: repair
 #: model:ir.model.fields,help:repair.field_repair_order__activity_exception_decoration
@@ -1421,19 +1578,14 @@ msgid "Type of the exception activity on record."
 msgstr "记录中异常活动的类型。"
 
 #. module: repair
-#: model:ir.model.fields.selection,name:repair.selection__repair_order__state__under_repair
-#: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form_filter
-msgid "Under Repair"
-msgstr "维修中"
-
-#. module: repair
 #: model:ir.model.fields,field_description:repair.field_repair_order__under_warranty
 msgid "Under Warranty"
 msgstr "在保修期内"
 
 #. module: repair
-#: model:ir.model.fields,field_description:repair.field_repair_order__product_uom
-#: model:ir.model.fields,field_description:repair.field_stock_warn_insufficient_qty_repair__product_uom_name
+#: model:ir.model.fields,field_description:repair.field_repair_consumption_warning_line__uom_id
+#: model:ir.model.fields,field_description:repair.field_repair_order__uom_id
+#: model:ir.model.fields,field_description:repair.field_repair_service_line__uom_id
 msgid "Unit"
 msgstr "单元"
 
@@ -1443,7 +1595,7 @@ msgid "Units"
 msgstr "单位"
 
 #. module: repair
-#: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
+#: model:ir.actions.server,name:repair.action_unreserve
 msgid "Unreserve"
 msgstr "取消保留"
 
@@ -1453,14 +1605,14 @@ msgid "Urgent"
 msgstr "紧急"
 
 #. module: repair
+#: model:ir.model.fields,field_description:repair.field_repair_order__validate_button_style
+msgid "Validate Button Style"
+msgstr "验证按钮样式"
+
+#. module: repair
 #: model:ir.model,name:repair.model_stock_warehouse
 msgid "Warehouse"
 msgstr "仓库"
-
-#. module: repair
-#: model:ir.model,name:repair.model_stock_warn_insufficient_qty_repair
-msgid "Warn Insufficient Repair Quantity"
-msgstr "警告维修数量不足"
 
 #. module: repair
 #. odoo-python
@@ -1469,14 +1621,11 @@ msgid "Warning"
 msgstr "警告"
 
 #. module: repair
-#: model:ir.model.fields,field_description:repair.field_repair_order__website_message_ids
-msgid "Website Messages"
-msgstr "网站消息"
-
-#. module: repair
-#: model:ir.model.fields,help:repair.field_repair_order__website_message_ids
-msgid "Website communication history"
-msgstr "网站沟通记录"
+#: model:ir.model,name:repair.model_repair_consumption_warning
+msgid ""
+"Wizard for warning about mismatching expected vs actual component "
+"consumption quantities for ROs"
+msgstr "用于提示维修订单组件消耗数量与预期不符的向导"
 
 #. module: repair
 #: model:ir.model.fields.selection,name:repair.selection__repair_order__search_date_category__yesterday
@@ -1521,6 +1670,12 @@ msgstr ""
 "%(ref_str)s"
 
 #. module: repair
+#: model_terms:ir.ui.view,arch_db:repair.view_repair_consumption_warning_form
+msgid ""
+"You consumed a different quantity than expected for the following products."
+msgstr "以下产品的消耗数量与预期不符。"
+
+#. module: repair
 #. odoo-python
 #: code:addons/repair/models/repair.py:0
 msgid ""
@@ -1534,11 +1689,6 @@ msgstr ""
 "%(ref_str)s"
 
 #. module: repair
-#: model_terms:ir.ui.view,arch_db:repair.stock_warn_insufficient_qty_repair_form_view
-msgid "from location"
-msgstr "来自位置"
-
-#. module: repair
 #. odoo-python
 #: code:addons/repair/models/stock_picking.py:0
 msgid "id"
@@ -1550,392 +1700,19 @@ msgstr "id"
 msgid "sale_order_id"
 msgstr "sale_order_id"
 
-#~ msgid ""
-#~ "(\n"
-#~ "                object.state == 'draft' and 'Repair Quotation - %s' % "
-#~ "(object.name) or\n"
-#~ "                'Repair Order - %s' % (object.name))"
-#~ msgstr ""
-#~ "(\n"
-#~ "                object.state == 'draft' and '维修报价 - %s' % "
-#~ "(object.name) or\n"
-#~ "                '维修订单 - %s' % (object.name))"
+#. module: repair
+#: model_terms:ir.ui.view,arch_db:repair.view_repair_order_form
+msgid "text"
+msgstr "文本"
 
-#~ msgid "(update)"
-#~ msgstr "（更新）"
+#~ msgid "Ensure the traceability of a storable product in your warehouse."
+#~ msgstr "确保可追溯到仓库中的产品。"
 
-#~ msgid ""
-#~ "* The 'Draft' status is used when a user is encoding a new and "
-#~ "unconfirmed repair order.\n"
-#~ "* The 'Confirmed' status is used when a user confirms the repair order.\n"
-#~ "* The 'Ready to Repair' status is used to start to repairing, user can "
-#~ "start repairing only after repair order is confirmed.\n"
-#~ "* The 'Under Repair' status is used when the repair is ongoing.\n"
-#~ "* The 'To be Invoiced' status is used to generate the invoice before or "
-#~ "after repairing done.\n"
-#~ "* The 'Done' status is set when repairing is completed.\n"
-#~ "* The 'Cancelled' status is used when user cancel repair order."
-#~ msgstr ""
-#~ "* 草稿 \"状态是在用户对新的和未确认的维修单进行编码时使用。\n"
-#~ "* 已确认 \"状态是在用户确认维修单时使用的。\n"
-#~ "* Ready to Repair \"状态用于开始维修，用户只有在维修单被确认后才能开始维"
-#~ "修。\n"
-#~ "* 维修中 \"状态用于维修正在进行中。\n"
-#~ "* 待开结算单 \"状态用于在维修完成之前或之后生成结算单。\n"
-#~ "* 完成 \"状态是在维修完成后设置的。\n"
-#~ "* 取消 \"状态在用户取消维修订单时使用。"
+#~ msgid "Check availability"
+#~ msgstr "检查可用性"
 
-#~ msgid ": Insufficient Quantity To Repair"
-#~ msgstr ": 维修数量不足"
+#~ msgid "Website Messages"
+#~ msgstr "网站消息"
 
-#~ msgid ""
-#~ "<span class=\"o_stat_text\">1</span>\n"
-#~ "                                <span class=\"o_stat_text\">Invoices</"
-#~ "span>"
-#~ msgstr ""
-#~ "<span class=\"o_stat_text\">1</span>\n"
-#~ "                                <span class=\"o_stat_text\">结算单</span>"
-
-#~ msgid "<span class=\"o_stat_text\">Repairs</span>"
-#~ msgstr "<span class=\"o_stat_text\">维修</span>"
-
-#~ msgid "<strong>Lot/Serial Number:</strong>"
-#~ msgstr "<strong>批次/序列号:</strong>"
-
-#~ msgid "<strong>Operations</strong>"
-#~ msgstr "<strong>操作</strong>"
-
-#~ msgid "<strong>Parts</strong>"
-#~ msgstr "<strong>零件</strong>"
-
-#~ msgid "<strong>Printing Date:</strong>"
-#~ msgstr "<strong>打印日期:</strong>"
-
-#~ msgid "<strong>Product to Repair:</strong>"
-#~ msgstr "<strong>待维修产品:</strong>"
-
-#~ msgid "<strong>Total Without Taxes</strong>"
-#~ msgstr "<strong>不含税总计</strong>"
-
-#~ msgid "<strong>Total</strong>"
-#~ msgstr "<strong>总计</strong>"
-
-#~ msgid "<strong>Warranty:</strong>"
-#~ msgstr "<strong>质量保证:</strong>"
-
-#~ msgid "? This may lead to inconsistencies in your inventory."
-#~ msgstr "？这可能会导致库存不一致。"
-
-#~ msgid "Add quotation notes."
-#~ msgstr "添加报价备注。"
-
-#~ msgid "After Repair"
-#~ msgstr "维修后"
-
-#~ msgid "Allowed Picking Type"
-#~ msgstr "允许的拣货类型"
-
-#~ msgid "Before Repair"
-#~ msgstr "维修前"
-
-#~ msgid "Cancel"
-#~ msgstr "取消"
-
-#~ msgid "Category"
-#~ msgstr "类别"
-
-#~ msgid ""
-#~ "Conversion between Units of Measure can only occur if they belong to the "
-#~ "same category. The conversion will be made based on the ratios."
-#~ msgstr "计量单位转换只能基于转换比例对同一个类别进行转换。"
-
-#~ msgid "Create Invoice"
-#~ msgstr "创建结算单"
-
-#~ msgid "Create Mass Invoice (repair)"
-#~ msgstr "创建批量结算单 (维修)"
-
-#~ msgid "Create Repair Orders from Returns"
-#~ msgstr "是否根据退货创建维修订单"
-
-#~ msgid "Create invoices"
-#~ msgstr "创建结算单"
-
-#~ msgid "Currency"
-#~ msgstr "币种"
-
-#~ msgid "Default Address"
-#~ msgstr "默认地址"
-
-#~ msgid "Delivery Address"
-#~ msgstr "送货地址"
-
-#~ msgid "Dest. Location"
-#~ msgstr "目的地的位置"
-
-#~ msgid "Do you confirm you want to repair"
-#~ msgstr "您确认要维修吗"
-
-#~ msgid "Do you really want to create the invoice(s)?"
-#~ msgstr "您真的要创建结算单吗 ？"
-
-#~ msgid "Done"
-#~ msgstr "完成"
-
-#~ msgid "Draft"
-#~ msgstr "草稿"
-
-#~ msgid ""
-#~ "Draft invoices for this order will be cancelled. Do you confirm the "
-#~ "action?"
-#~ msgstr "该订单的结算单草稿将被取消。 您确认吗？"
-
-#~ msgid "Extra Info"
-#~ msgstr "额外信息"
-
-#~ msgid "Fees"
-#~ msgstr "费"
-
-#~ msgid "Group By"
-#~ msgstr "分组"
-
-#~ msgid "Group by partner invoice address"
-#~ msgstr "分组，按业务伙伴结算单地址"
-
-#~ msgid "History"
-#~ msgstr "历史"
-
-#~ msgid ""
-#~ "If ticked, you will be able to directly create repair orders from a "
-#~ "return."
-#~ msgstr "如果勾选，您将能够直接从退货中创建维修订单。"
-
-#~ msgid "Invoice"
-#~ msgstr "结算单"
-
-#~ msgid "Invoice Line"
-#~ msgstr "结算单明细"
-
-#~ msgid "Invoice Method"
-#~ msgstr "开票方式"
-
-#~ msgid "Invoice State"
-#~ msgstr "结算单状态"
-
-#~ msgid "Invoice address:"
-#~ msgstr "结算单寄送地址:"
-
-#~ msgid "Invoice and shipping address:"
-#~ msgstr "结算单和送货地址:"
-
-#~ msgid "Invoice created"
-#~ msgstr "开票日期。"
-
-#~ msgid "Invoiced"
-#~ msgstr "已结算"
-
-#~ msgid "Invoicing Address"
-#~ msgstr "开票地址"
-
-#~ msgid "Journal Entry"
-#~ msgstr "会计凭证"
-
-#~ msgid "No Invoice"
-#~ msgstr "不开票"
-
-#~ msgid "No account defined for product \"%s\"."
-#~ msgstr "产品 \"%s\" 没有指定科目"
-
-#~ msgid "No product defined on fees."
-#~ msgstr "没有定义费用产品."
-
-#~ msgid "Number of messages which requires an action"
-#~ msgstr "需要作业消息数量"
-
-#~ msgid "Only draft repairs can be confirmed."
-#~ msgstr "只能确认维修草案。"
-
-#~ msgid "Price"
-#~ msgstr "价格"
-
-#~ msgid "Pricelist"
-#~ msgstr "价格表"
-
-#~ msgid "Pricelist of the selected partner."
-#~ msgstr "所选伙伴的价格列表"
-
-#~ msgid "Print Quotation"
-#~ msgstr "打印报价"
-
-#~ msgid "Product Unit of Measure"
-#~ msgstr "产品计量单位"
-
-#~ msgid "Quotation"
-#~ msgstr "报价"
-
-#~ msgid "Quotation / Order"
-#~ msgstr "报价/订单"
-
-#~ msgid "Quotation Notes"
-#~ msgstr "报价说明"
-
-#~ msgid "Quotations"
-#~ msgstr "报价"
-
-#~ msgid "Ready To Repair"
-#~ msgstr "准备维修"
-
-#~ msgid "Ready to Repair"
-#~ msgstr "准备维修"
-
-#~ msgid "Repair Description"
-#~ msgstr "维修说明"
-
-#~ msgid "Repair Fee"
-#~ msgstr "维修费用"
-
-#~ msgid "Repair Fees"
-#~ msgstr "维修费"
-
-#~ msgid "Repair Line"
-#~ msgstr "维修明细"
-
-#~ msgid "Repair Line (parts)"
-#~ msgstr "维修明细行(零件)"
-
-#~ msgid "Repair Order #:"
-#~ msgstr "维修订单行"
-
-#~ msgid "Repair Order Reference"
-#~ msgstr "维修单编＃"
-
-#~ msgid "Repair Quotation #:"
-#~ msgstr "维修报价＃"
-
-#~ msgid "Repair must be canceled in order to reset it to draft."
-#~ msgstr "必须取消维修单，以便将其重置为草稿。"
-
-#~ msgid "Repair must be confirmed before starting reparation."
-#~ msgstr "维修单必须确认后才能进行维修。"
-
-#~ msgid "Repair must be repaired in order to make the product moves."
-#~ msgstr "维修单必须维修后，才能移动"
-
-#~ msgid "Repair order count"
-#~ msgstr "维修订单计数"
-
-#~ msgid "Repair: Quotation"
-#~ msgstr "维修：报价"
-
-#~ msgid "Return"
-#~ msgstr "退回"
-
-#~ msgid "Return Order from which the product to be repaired comes from."
-#~ msgstr "要维修的产品来自的退货订单。"
-
-#~ msgid "Return Type Of"
-#~ msgstr "退货类型为"
-
-#~ msgid "Sale Order from which the product to be repaired comes from."
-#~ msgstr "来自的销售订单要维修的产品。"
-
-#~ msgid ""
-#~ "Selecting 'Before Repair' or 'After Repair' will allow you to generate "
-#~ "invoice before or after the repair is done respectively. 'No invoice' "
-#~ "means you don't want to generate invoice for this repair order."
-#~ msgstr ""
-#~ "选择“维修前”或“维修后”选项来确定在维修前后生产结算单。“无结算单”则代表此维"
-#~ "修单无需生成结算单。"
-
-#~ msgid "Send Quotation"
-#~ msgstr "发送报价"
-
-#~ msgid "Sent manually when clicking on \"Send Quotation\" on a repair order"
-#~ msgstr "在维修订单上单击“发送报价”时手动发送"
-
-#~ msgid "Serial number is required for operation lines with products: %s"
-#~ msgstr "产品需要序列号的维修行：%s"
-
-#~ msgid "Show all records which has next action date is before today"
-#~ msgstr "显示所有的在今天之前的下一个行动日期的记录"
-
-#~ msgid "Source Location"
-#~ msgstr "源位置"
-
-#~ msgid "Subtotal"
-#~ msgstr "小计"
-
-#~ msgid "Tax"
-#~ msgstr "税"
-
-#~ msgid "Taxes"
-#~ msgstr "税"
-
-#~ msgid "The name of the Repair Order must be unique!"
-#~ msgstr "维修单的名必须唯一！"
-
-#~ msgid ""
-#~ "The product unit of measure you chose has a different category than the "
-#~ "product unit of measure."
-#~ msgstr "您选择的产品计量单位跟产品的计量单位类别不同。"
-
-#~ msgid ""
-#~ "The status of a repair line is set automatically to the one of the linked "
-#~ "repair order."
-#~ msgstr "维修线的状态自动设置为链接维修顺序之一。"
-
-#~ msgid "To be Invoiced"
-#~ msgstr "要开结算单的"
-
-#~ msgid "Total"
-#~ msgstr "合计"
-
-#~ msgid "Total amount"
-#~ msgstr "合计金额"
-
-#~ msgid ""
-#~ "True if this repair is linked to a Return Order and the order is 'Done'. "
-#~ "False otherwise."
-#~ msgstr ""
-#~ "如果该维修与退货订单链接，并且该订单是 \"完成 \"的，则为真。否则为假。"
-
-#~ msgid "Unit Price"
-#~ msgstr "单价"
-
-#~ msgid "Unit of Measure"
-#~ msgstr "计量单位"
-
-#~ msgid "Untaxed Amount"
-#~ msgstr "未税金额"
-
-#~ msgid "Untaxed amount"
-#~ msgstr "未税金额"
-
-#~ msgid "UoM"
-#~ msgstr "计量单位"
-
-#~ msgid "Warranty Expiration"
-#~ msgstr "质保到期"
-
-#~ msgid ""
-#~ "You can not delete a repair order once it has been confirmed. You must "
-#~ "first cancel it."
-#~ msgstr "确认维修订单后，您将无法删除它。 您必须先取消它。"
-
-#~ msgid ""
-#~ "You can not delete a repair order which is linked to an invoice which has "
-#~ "been posted once."
-#~ msgstr "您不能删除链接到已过帐结算单的维修单。"
-
-#~ msgid "You cannot cancel a completed repair order."
-#~ msgstr "不能删除已完成的维修订单。"
-
-#~ msgid "You have to select an invoice address in the repair form."
-#~ msgstr "您必须在维修单上选择结算单地址。"
-
-#~ msgid ""
-#~ "{{ object.partner_id.name }} Repair Orders (Ref {{ object.name or 'n/"
-#~ "a' }})"
-#~ msgstr ""
-#~ "{{ object.partner_id.name }} 维修单（参考 {{ object.name or 'n/a' }}）。维"
-#~ "修订单（参考 {{ object.name or 'n/a' }})"
+#~ msgid "Website communication history"
+#~ msgstr "网站沟通记录"

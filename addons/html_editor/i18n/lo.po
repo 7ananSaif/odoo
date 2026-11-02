@@ -5,53 +5,62 @@
 # Bone NI <bounkirdni@gmail.com>, 2026.
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0\n"
+"Project-Id-Version: Odoo Server 19.4a1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-05 19:29+0000\n"
-"PO-Revision-Date: 2026-06-06 19:45+0000\n"
+"POT-Creation-Date: 2026-10-23 17:41+0000\n"
+"PO-Revision-Date: 2026-10-21 12:33+0000\n"
 "Last-Translator: Bone NI <bounkirdni@gmail.com>\n"
-"Language-Team: Lao <https://translate.odoo.com/projects/odoo-19/html_editor/"
+"Language-Team: Lao <https://translate.odoo.com/projects/odoo-20/html_editor/"
 "lo/>\n"
 "Language: lo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: html_editor
-#. odoo-javascript
-#: code:addons/html_editor/static/src/main/media/image_description.xml:0
+#: model:ir.module.module,description:base.module_html_editor
 msgid ""
-"'Alt tag' specifies an alternate text for an image, if the image cannot be "
-"displayed (slow connection, missing image, screen reader ...)."
+"\n"
+"Html Editor\n"
+"==========================\n"
+"This addon provides an extensible, maintainable editor.\n"
 msgstr ""
-"'Alt tag' ກຳນົດຂໍ້ຄວາມສຳຮອງສຳລັບຮູບພາບ, ຫາກຮູບພາບບໍ່ສາມາດສະແດງຜົນໄດ້ (ການເຊື່ອມຕໍ່ຊ້າ, "
-"ຮູບພາບຫາຍໄປ, ເຄື່ອງອ່ານໜ້າຈໍ ...)."
+"\n"
+"ຕົວແກ້ໄຂ HTML\n"
+"==========================\n"
+"ໂມດູນເສີມນີ້ໃຫ້ຕົວແກ້ໄຂທີ່ສາມາດຂະຫຍາຍ ແລະ ດູແລຮັກສາໄດ້ງ່າຍ.\n"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/media/image_description.xml:0
-msgid "'Title tag' is shown as a tooltip when you hover the picture."
-msgstr "'Title tag' ຈະສະແດງເປັນຄຳແນະນຳ (tooltip) ເມື່ອທ່ານວາງເມົາສ໌ໄວ້ເທິງຮູບ."
+#: code:addons/html_editor/static/src/components/history_dialog/history_dialog.xml:0
+msgid "'s description from"
+msgstr "ລາຍລະອຽດຂອງ ຈາກ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/components/history_dialog/history_dialog.xml:0
+msgid "'s version from"
+msgstr "ເວີຊັນຂອງ ຈາກ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/media_dialog/video_selector.xml:0
 msgid "(URL or Embed)"
-msgstr "(URL ຫຼື ລະຫັດຝັງ)"
+msgstr "(URL ຫຼື ໂຄ້ດຝັງ)"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/components/history_dialog/history_dialog.xml:0
-msgid ", submited by"
-msgstr ", ສົ່ງໂດຍ"
+#: code:addons/html_editor/static/src/main/media/media_dialog/video_selector.xml:0
+msgid ", as well as a direct link to an"
+msgstr ", ລວມທັງລິ້ງໂດຍກົງຫາ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/column_plugin.js:0
 msgid "2 columns"
-msgstr "2 ຄໍລຳ"
+msgstr "2 ຖັນ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -63,13 +72,13 @@ msgstr "3 ດາວ"
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/column_plugin.js:0
 msgid "3 columns"
-msgstr "3 ຄໍລຳ"
+msgstr "3 ຖັນ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/column_plugin.js:0
 msgid "4 columns"
-msgstr "4 ຄໍລຳ"
+msgstr "4 ຖັນ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -78,16 +87,22 @@ msgid "5 Stars"
 msgstr "5 ດາວ"
 
 #. module: html_editor
+#: model:ir.module.module,summary:base.module_html_editor
+msgid "A Html Editor component and plugin system."
+msgstr "ອົງປະກອບຕົວແກ້ໄຂ HTML ແລະ ລະບົບປລັກອິນ."
+
+#. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/media_dialog/video_selector.xml:0
+#: code:addons/html_editor/static/src/others/embedded_components/plugins/embedded_whiteboard_plugin/whiteboard_popover.xml:0
 msgid "Accepts"
-msgstr "ຮອງຮັບ"
+msgstr "ຍອມຮັບ"
 
 #. module: html_editor
 #. odoo-python
 #: code:addons/html_editor/controllers/main.py:0
 msgid "Action %s is not a window action, link preview is not available"
-msgstr "ການດຳເນີນການ %s ບໍ່ແມ່ນ window action, ບໍ່ສາມາດເບິ່ງຕົວຢ່າງລີ້ງໄດ້"
+msgstr "ການດຳເນີນການ %s ບໍ່ແມ່ນການດຳເນີນການແບບວິນໂດ, ບໍ່ສາມາດສະແດງຕົວຢ່າງລິ້ງໄດ້"
 
 #. module: html_editor
 #. odoo-python
@@ -95,7 +110,8 @@ msgstr "ການດຳເນີນການ %s ບໍ່ແມ່ນ window act
 msgid ""
 "Action %s not found, link preview is not available, please check your url is "
 "correct"
-msgstr "ບໍ່ພົບການດຳເນີນການ %s, ບໍ່ສາມາດເບິ່ງຕົວຢ່າງລີ້ງໄດ້, ກະລຸນາກວດສອບວ່າ URL ຖືກຕ້ອງ"
+msgstr ""
+"ບໍ່ພົບການດຳເນີນການ %s, ບໍ່ສາມາດສະແດງຕົວຢ່າງລິ້ງໄດ້, ກະລຸນາກວດເບິ່ງວ່າ URL ຂອງທ່ານຖືກຕ້ອງຫຼືບໍ່"
 
 #. module: html_editor
 #. odoo-javascript
@@ -112,9 +128,9 @@ msgstr "ເພີ່ມ URL"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/font_plugin.js:0
+#: code:addons/html_editor/static/src/main/font/font_type_plugin.js:0
 msgid "Add a blockquote section"
-msgstr "ເພີ່ມສ່ວນຄຳເວົ້າອ້າງອີງ (blockquote)"
+msgstr "ເພີ່ມສ່ວນຂໍ້ຄວາມອ້າງອີງ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -124,9 +140,9 @@ msgstr "ເພີ່ມປຸ່ມ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/font_plugin.js:0
+#: code:addons/html_editor/static/src/main/code_block_plugin.js:0
 msgid "Add a code section"
-msgstr "ເພີ່ມສ່ວນລະຫັດ (code)"
+msgstr "ເພີ່ມສ່ວນໂຄ້ດ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -138,13 +154,13 @@ msgstr "ເພີ່ມກ່ອງດາວໂຫຼດ"
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/link/link_popover.xml:0
 msgid "Add a label for your link"
-msgstr "ເພີ່ມປ້າຍຊື່ສຳລັບລີ້ງຂອງທ່ານ"
+msgstr "ເພີ່ມປ້າຍຊື່ສຳລັບລິ້ງຂອງທ່ານ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/link/link_plugin.js:0
 msgid "Add a link"
-msgstr "ເພີ່ມລີ້ງ"
+msgstr "ເພີ່ມລິ້ງ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -156,19 +172,19 @@ msgstr "ເພີ່ມອີໂມຈິ"
 #. odoo-javascript
 #: code:addons/html_editor/static/src/others/embedded_components/core/table_of_content/table_of_content.xml:0
 msgid "Add headings to fill the Table of Contents"
-msgstr "ເພີ່ມຫົວຂໍ້ເພື່ອຕື່ມຂໍ້ມູນໃສ່ສາລະບານ"
+msgstr "ເພີ່ມຫົວຂໍ້ເພື່ອສ້າງສາລະບານ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/others/embedded_components/plugins/toggle_block_plugin/toggle_block_plugin.js:0
 msgid "Add something inside this toggle"
-msgstr "ເພີ່ມບາງຢ່າງໃສ່ໃນປຸ່ມສະຫຼັບນີ້"
+msgstr "ເພີ່ມເນື້ອໃນໃສ່ໃນສ່ວນພັບນີ້"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/others/embedded_components/plugins/caption_plugin/caption_plugin.js:0
 msgid "Add/remove a caption"
-msgstr "ເພີ່ມ/ລຶບ ຄຳບັນຍາຍ"
+msgstr "ເພີ່ມ/ລຶບ ຄຳອະທິບາຍພາບ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -180,13 +196,13 @@ msgstr "ໂໝດຂັ້ນສູງ"
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/media_dialog/file_selector.js:0
 msgid "Alert"
-msgstr "ເຕືອນ"
+msgstr "ແຈ້ງເຕືອນ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/align/align_plugin.js:0
 msgid "Align text"
-msgstr "ຈັດວາງຂໍ້ຄວາມ"
+msgstr "ຈັດລຽງຂໍ້ຄວາມ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -208,13 +224,19 @@ msgstr "ໂຫຼດຮູບພາບທັງໝົດແລ້ວ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/media/media_dialog/file_selector.js:0
-msgid "An error occurred while fetching the entered URL."
-msgstr "ເກີດຂໍ້ຜິດພາດຂຶ້ນໃນຂະນະທີ່ດຶງຂໍ້ມູນ URL ທີ່ປ້ອນໃສ່."
+#: code:addons/html_editor/static/src/main/table/table_menu.js:0
+msgid "Alternate row colors"
+msgstr "ສັບປ່ຽນສີແຖວ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/gradient_picker/gradient_picker.xml:0
+#: code:addons/html_editor/static/src/main/media/media_dialog/file_selector.js:0
+msgid "An error occurred while fetching the entered URL."
+msgstr "ເກີດຂໍ້ຜິດພາດຂຶ້ນໃນຂະນະທີ່ກຳລັງດຶງຂໍ້ມູນ URL ທີ່ປ້ອນເຂົ້າ."
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/components/color_picker/gradient_picker/gradient_picker.xml:0
 msgid "Angle"
 msgstr "ມຸມ"
 
@@ -223,13 +245,14 @@ msgstr "ມຸມ"
 #: code:addons/html_editor/static/src/others/collaboration/collaboration_selection_avatar_plugin.js:0
 #: code:addons/html_editor/static/src/others/collaboration/collaboration_selection_plugin.js:0
 msgid "Anonymous"
-msgstr "ຜູ້ບໍ່ປະສົງອອກນາມ"
+msgstr "ບໍ່ລະບຸຊື່"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/link/link_popover.xml:0
 #: code:addons/html_editor/static/src/main/media/image_crop.xml:0
-#: code:addons/html_editor/static/src/main/media/image_description.xml:0
+#: code:addons/html_editor/static/src/main/table/mobile_table_picker.xml:0
+#: code:addons/html_editor/static/src/others/embedded_components/plugins/embedded_whiteboard_plugin/whiteboard_popover.xml:0
 msgid "Apply"
 msgstr "ນຳໃຊ້"
 
@@ -243,7 +266,7 @@ msgstr "ນຳໃຊ້ສີພື້ນຫຼັງ"
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/font/color_ui_plugin.js:0
 msgid "Apply Font Color"
-msgstr "ນຳໃຊ້ສີຕົວອັກສອນ"
+msgstr "ນຳໃຊ້ສີຕົວໜັງສື"
 
 #. module: html_editor
 #. odoo-javascript
@@ -260,18 +283,18 @@ msgstr "ອັດຕາສ່ວນຮູບພາບ"
 #. module: html_editor
 #: model:ir.model,name:html_editor.model_ir_attachment
 msgid "Attachment"
-msgstr "ສິ່ງຄັດຕິດ"
+msgstr "ໄຟລ໌ແນບ"
 
 #. module: html_editor
 #: model:ir.model.fields,field_description:html_editor.field_ir_attachment__local_url
 msgid "Attachment URL"
-msgstr "URL ສິ່ງຄັດຕິດ"
+msgstr "URL ໄຟລ໌ແນບ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/link/link_popover.xml:0
 msgid "Autoconvert to relative link"
-msgstr "ແປງເປັນລີ້ງແບບສຳພັດໂດຍອັດຕະໂນມັດ"
+msgstr "ປ່ຽນເປັນລິ້ງສຳພັນໂດຍອັດຕະໂນມັດ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -281,43 +304,37 @@ msgstr "ຫຼິ້ນອັດຕະໂນມັດ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/column_plugin.js:0
-msgid "Back to one column"
-msgstr "ກັບຄືນສູ່ຄໍລຳດຽວ"
-
-#. module: html_editor
-#. odoo-javascript
 #: code:addons/html_editor/static/src/main/banner_plugin.js:0
 msgid "Banner"
-msgstr "ປ້າຍປະກາດ"
+msgstr "ປ້າຍແບນເນີ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/html_migrations/migration-1.2.js:0
 #: code:addons/html_editor/static/src/main/banner_plugin.js:0
 msgid "Banner Danger"
-msgstr "ປ້າຍປະກາດອັນຕະລາຍ"
+msgstr "ແບນເນີເຕືອນໄພອັນຕະລາຍ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/html_migrations/migration-1.2.js:0
 #: code:addons/html_editor/static/src/main/banner_plugin.js:0
 msgid "Banner Info"
-msgstr "ປ້າຍປະກາດຂໍ້ມູນ"
+msgstr "ແບນເນີແຈ້ງຂໍ້ມູນ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/html_migrations/migration-1.2.js:0
 #: code:addons/html_editor/static/src/main/banner_plugin.js:0
 msgid "Banner Success"
-msgstr "ປ້າຍປະກາດສຳເລັດ"
+msgstr "ແບນເນີສຳເລັດ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/html_migrations/migration-1.2.js:0
 #: code:addons/html_editor/static/src/main/banner_plugin.js:0
 msgid "Banner Warning"
-msgstr "ປ້າຍປະກາດຄຳເຕືອນ"
+msgstr "ແບນເນີແຈ້ງເຕືອນ"
 
 #. module: html_editor
 #: model:ir.model,name:html_editor.model_base
@@ -326,27 +343,39 @@ msgstr "ພື້ນຖານ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/font_plugin.js:0
+#: code:addons/html_editor/static/src/main/user_signature_plugin.js:0
+msgid "Basic Block"
+msgstr "ບລັອກພື້ນຖານ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/font/font_type_plugin.js:0
 msgid "Big section heading"
-msgstr "ຫົວຂໍ້ພາກສ່ວນໃຫຍ່"
+msgstr "ຫົວຂໍ້ພາກສ່ວນຂະໜາດໃຫຍ່"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/link/link_popover.xml:0
-msgid "Border"
-msgstr "ຂອບ"
+#: code:addons/html_editor/static/src/core/format_plugin.js:0
+msgid "Bold (Ctrl + B)"
+msgstr "ໂຕໜາ (Ctrl + B)"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/link/link_popover.xml:0
-msgid "Border Size"
-msgstr "ຂະໜາດຂອບ"
+#: code:addons/html_editor/static/src/main/media/image_plugin.js:0
+msgid "Break text"
+msgstr "ຕັດແຖວຂໍ້ຄວາມ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/list/list_plugin.js:0
 msgid "Bulleted list"
-msgstr "ລາຍການແບບຈຸດ"
+msgstr "ລາຍການຈ້ຳໜ້າ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/list/list_plugin.js:0
+msgid "Bulleted list (Ctrl + Shift + 8)"
+msgstr "ລາຍການຈ້ຳໜ້າ (Ctrl + Shift + 8)"
 
 #. module: html_editor
 #. odoo-javascript
@@ -356,39 +385,83 @@ msgstr "ປຸ່ມ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/link/link_popover.js:0
+#: code:addons/html_editor/static/src/utils/button_style.js:0
 msgid "Button Primary"
 msgstr "ປຸ່ມຫຼັກ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/link/link_popover.js:0
+#: code:addons/html_editor/static/src/utils/button_style.js:0
 msgid "Button Secondary"
-msgstr "ປຸ່ມສຳຮອງ"
+msgstr "ປຸ່ມຮອງ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/chatgpt/chatgpt_translate_dialog.xml:0
+#: code:addons/html_editor/static/src/main/translate/translate_dialog.xml:0
+msgid "By :"
+msgstr "ໂດຍ:"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/backend/dynamic_field/field_selector_popover.xml:0
+#: code:addons/html_editor/static/src/main/translate/translate_dialog.xml:0
 msgid "Cancel"
 msgstr "ຍົກເລີກ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/others/embedded_components/plugins/caption_plugin/caption_plugin.js:0
-msgid "Caption"
-msgstr "ຄຳບັນຍາຍ"
+#: code:addons/html_editor/static/src/main/media/media_dialog/upload_progress_toast/upload_progress_toast.xml:0
+msgid "Cancel Upload"
+msgstr "ຍົກເລີກການອັບໂຫຼດ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/others/embedded_components/plugins/embedded_whiteboard_plugin/whiteboard_popover.xml:0
+msgid "Canva"
+msgstr "Canva"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/align/align_plugin.js:0
+msgid "Center align"
+msgstr "ຈັດໄວ້ເຄິ່ງກາງ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/backend/dynamic_field/dynamic_field_plugin.js:0
+msgid "Change the placeholder or the expression for an existing field"
+msgstr "ປ່ຽນຂໍ້ຄວາມກຳກັບ ຫຼື ນິພົດສຳລັບຊ່ອງຂໍ້ມູນທີ່ມີຢູ່"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/media/media_dialog/video_selector.xml:0
+msgid "Checking the video…"
+msgstr "ກຳລັງກວດສອບວິດີໂອ…"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/list/list_plugin.js:0
 msgid "Checklist"
-msgstr "ລາຍການກວດສອບ"
+msgstr "ລາຍການກວດກາ"
 
 #. module: html_editor
 #. odoo-javascript
+#: code:addons/html_editor/static/src/main/list/list_plugin.js:0
+msgid "Checklist (Ctrl + Shift + 9)"
+msgstr "ລາຍການກວດກາ (Ctrl + Shift + 9)"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/fields/image_field_with_media_dialog/image_field_with_media_dialog.xml:0
 #: code:addons/html_editor/static/src/fields/x2many_field/x2many_image_field.xml:0
 msgid "Clear"
 msgstr "ລຶບລ້າງ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/table/table_menu.js:0
+msgid "Clear alternate colors"
+msgstr "ລຶບລ້າງການສັບປ່ຽນສີ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -398,83 +471,124 @@ msgstr "ລຶບລ້າງເນື້ອໃນ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/media/image_plugin.js:0
-msgid "Click again to reset transformation"
-msgstr "ຄລິກອີກຄັ້ງເພື່ອຕັ້ງຄ່າການປ່ຽນແປງໃໝ່"
+#: code:addons/html_editor/static/src/main/table/table_menu.xml:0
+msgid ""
+"Click to open options\n"
+"Drag to move"
+msgstr ""
+"ຄລິກເພື່ອເປີດຕົວເລືອກ\n"
+"ລາກເພື່ອຍ້າຍ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/movenode_plugin.js:0
+#: code:addons/html_editor/static/src/main/movenode_plugin.xml:0
 msgid "Click to select"
 msgstr "ຄລິກເພື່ອເລືອກ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/media/media_dialog/upload_progress_toast/upload_progress_toast.xml:0
+#: code:addons/html_editor/static/src/backend/dynamic_field/field_selector_popover.xml:0
+#: code:addons/html_editor/static/src/main/media/file_plugin.js:0
 #: code:addons/html_editor/static/src/others/embedded_components/core/file/readonly_file.js:0
 msgid "Close"
 msgstr "ປິດ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/font_plugin.js:0
+#: code:addons/html_editor/static/src/main/code_block_plugin.js:0
 #: code:addons/html_editor/static/src/others/embedded_components/backend/syntax_highlighting/syntax_highlighting.xml:0
 msgid "Code"
-msgstr "ລະຫັດ"
+msgstr "ໂຄ້ດ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/others/embedded_components/backend/syntax_highlighting/code_toolbar.xml:0
 msgid "Code copied to the clipboard."
-msgstr "ສຳເນົາລະຫັດໄປຍັງຄລິບບອດແລ້ວ."
+msgstr "ສຳເນົາໂຄ້ດໄປຍັງຄລິບບອດແລ້ວ."
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/fields/html_field.js:0
 msgid "Code view"
-msgstr "ເບິ່ງລະຫັດ"
+msgstr "ມຸມມອງໂຄ້ດ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/components/color_picker/gradient_picker/gradient_picker.xml:0
+msgid "Colors"
+msgstr "ສີຕ່າງໆ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/table/mobile_table_picker.xml:0
+msgid "Column Count"
+msgstr "ຈຳນວນຖັນ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/table/mobile_table_picker.xml:0
+msgid "Column count"
+msgstr "ຈຳນວນຖັນ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/column_plugin.js:0
 msgid "Columnize"
-msgstr "ແບ່ງເປັນຄໍລຳ"
+msgstr "ແບ່ງເປັນຖັນ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/chatgpt/chatgpt_dialog.js:0
+#: code:addons/html_editor/static/src/components/history_dialog/history_dialog.xml:0
+msgid "Comparing current description with"
+msgstr "ກຳລັງປຽບທຽບລາຍລະອຽດປະຈຸບັນກັບ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/components/color_picker/gradient_picker/gradient_picker.xml:0
+msgid "Conic"
+msgstr "ຮູບຈວຍ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/translate/translate_dialog.js:0
 msgid "Content generated"
-msgstr "ສ້າງເນື້ອໃນແລ້ວ"
+msgstr "ສ້າງເນື້ອໃນສຳເລັດແລ້ວ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/column_plugin.js:0
+msgid "Convert columns to regular content"
+msgstr "ປ່ຽນຖັນເປັນເນື້ອໃນປົກກະຕິ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/column_plugin.js:0
 msgid "Convert into 2 columns"
-msgstr "ແປງເປັນ 2 ຄໍລຳ"
+msgstr "ປ່ຽນເປັນ 2 ຖັນ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/column_plugin.js:0
 msgid "Convert into 3 columns"
-msgstr "ແປງເປັນ 3 ຄໍລຳ"
+msgstr "ປ່ຽນເປັນ 3 ຖັນ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/column_plugin.js:0
 msgid "Convert into 4 columns"
-msgstr "ແປງເປັນ 4 ຄໍລຳ"
+msgstr "ປ່ຽນເປັນ 4 ຖັນ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/column_plugin.js:0
 msgid "Convert into columns"
-msgstr "ແປງເປັນຄໍລຳ"
+msgstr "ປ່ຽນເປັນຖັນ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/others/embedded_components/backend/syntax_highlighting/code_toolbar.xml:0
 msgid "Convert to paragraph"
-msgstr "ແປງເປັນຫຍໍ້ໜ້າ"
+msgstr "ປ່ຽນເປັນວັກຕອນ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -486,7 +600,7 @@ msgstr "ສຳເນົາ"
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/media_dialog/video_selector.xml:0
 msgid "Copy-paste your URL or embed code here"
-msgstr "ຄັດລອກ-ວາງ URL ຫຼື ລະຫັດຝັງຂອງທ່ານທີ່ນີ້"
+msgstr "ຄັດລອກ ແລະ ວາງ URL ຫຼື ໂຄ້ດຝັງຂອງທ່ານໃສ່ນີ້"
 
 #. module: html_editor
 #. odoo-javascript
@@ -504,7 +618,7 @@ msgstr "ສ້າງລາຍການແບບມີຕົວເລກ"
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/list/list_plugin.js:0
 msgid "Create a simple bulleted list"
-msgstr "ສ້າງລາຍການແບບມີຈຸດງ່າຍໆ"
+msgstr "ສ້າງລາຍການຈ້ຳໜ້າແບບງ່າຍດາຍ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -526,12 +640,13 @@ msgstr "ສ້າງເມື່ອ"
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/image_crop_plugin.js:0
 msgid "Crop image"
-msgstr "ຕັດຮູບ"
+msgstr "ຕັດຮູບພາບ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/color_picker_gradient_tab.xml:0
-#: code:addons/html_editor/static/src/main/link/link_popover.js:0
+#: code:addons/html_editor/static/src/components/color_picker/tabs/custom/color_picker_custom_tab.js:0
+#: code:addons/html_editor/static/src/components/color_picker/tabs/gradient/color_picker_gradient_tab.xml:0
+#: code:addons/html_editor/static/src/utils/button_style.js:0
 msgid "Custom"
 msgstr "ກຳນົດເອງ"
 
@@ -543,21 +658,47 @@ msgstr "Dailymotion"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/color_picker_gradient_tab.xml:0
-msgid "Define a custom gradient"
-msgstr "ກຳນົດການໄລ່ສີດ້ວຍຕົນເອງ"
+#: code:addons/html_editor/static/src/backend/dynamic_field/dynamic_field_plugin.js:0
+msgid "Data"
+msgstr "ຂໍ້ມູນ"
 
 #. module: html_editor
 #. odoo-javascript
+#: code:addons/html_editor/static/src/others/embedded_components/plugins/date_plugin/date_plugin.js:0
+msgid "Date"
+msgstr "ວັນທີ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/others/embedded_components/plugins/date_plugin/date_plugin.js:0
+msgid "Date and Time"
+msgstr "ວັນທີ ແລະ ເວລາ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/backend/dynamic_field/field_selector_popover.xml:0
+#: code:addons/html_editor/static/src/main/media/image_plugin.js:0
+msgid "Default"
+msgstr "ຄ່າເລີ່ມຕົ້ນ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/components/color_picker/tabs/gradient/color_picker_gradient_tab.xml:0
+msgid "Define a custom gradient"
+msgstr "ກຳນົດການໄລ່ລະດັບສີເອງ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/media/media_dialog/file_selector.js:0
 #: code:addons/html_editor/static/src/main/table/table_menu.js:0
 msgid "Delete"
 msgstr "ລຶບ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/media/image_description.xml:0
-msgid "Description"
-msgstr "ຄຳອະທິບາຍ"
+#: code:addons/html_editor/static/src/components/history_dialog/history_dialog.xml:0
+msgid "Diff view mode"
+msgstr "ໂໝດສະແດງຄວາມແຕກຕ່າງ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -570,10 +711,10 @@ msgstr "ດາວໂຫຼດໂດຍກົງ"
 #: code:addons/html_editor/static/src/components/history_dialog/history_dialog.xml:0
 #: code:addons/html_editor/static/src/main/link/link_popover.xml:0
 #: code:addons/html_editor/static/src/main/media/image_crop.xml:0
-#: code:addons/html_editor/static/src/main/media/image_description.xml:0
 #: code:addons/html_editor/static/src/main/media/media_dialog/media_dialog.xml:0
+#: code:addons/html_editor/static/src/main/table/mobile_table_picker.xml:0
 msgid "Discard"
-msgstr "ຍົກເລີກ"
+msgstr "ຍົກເລີກການປ່ຽນແປງ"
 
 #. module: html_editor
 #: model:ir.model.fields,field_description:html_editor.field_html_editor_converter_test_sub__display_name
@@ -592,8 +733,6 @@ msgstr "ຍົກເລີກ"
 #: model:ir.model.fields,field_description:html_editor.field_ir_qweb_field_integer__display_name
 #: model:ir.model.fields,field_description:html_editor.field_ir_qweb_field_many2one__display_name
 #: model:ir.model.fields,field_description:html_editor.field_ir_qweb_field_monetary__display_name
-#: model:ir.model.fields,field_description:html_editor.field_ir_qweb_field_qweb__display_name
-#: model:ir.model.fields,field_description:html_editor.field_ir_qweb_field_relative__display_name
 #: model:ir.model.fields,field_description:html_editor.field_ir_qweb_field_selection__display_name
 #: model:ir.model.fields,field_description:html_editor.field_ir_qweb_field_text__display_name
 #: model:ir.model.fields,field_description:html_editor.field_ir_ui_view__display_name
@@ -609,15 +748,9 @@ msgstr "ເອກະສານ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/movenode_plugin.js:0
+#: code:addons/html_editor/static/src/main/movenode_plugin.xml:0
 msgid "Drag to move"
 msgstr "ລາກເພື່ອຍ້າຍ"
-
-#. module: html_editor
-#. odoo-javascript
-#: code:addons/html_editor/static/src/others/dynamic_placeholder_plugin.js:0
-msgid "Dynamic Placeholder"
-msgstr "ຕົວແທນຂໍ້ຄວາມແບບໄດນາມິກ"
 
 #. module: html_editor
 #. odoo-python
@@ -627,8 +760,10 @@ msgstr "ຂໍ້ຜິດພາດ: ບໍ່ສາມາດດຶງ URL ດ�
 
 #. module: html_editor
 #. odoo-javascript
+#: code:addons/html_editor/static/src/fields/image_field_with_media_dialog/image_field_with_media_dialog.xml:0
 #: code:addons/html_editor/static/src/fields/x2many_field/x2many_image_field.xml:0
 #: code:addons/html_editor/static/src/main/link/link_popover.xml:0
+#: code:addons/html_editor/static/src/others/embedded_components/core/whiteboard/whiteboard.xml:0
 msgid "Edit"
 msgstr "ແກ້ໄຂ"
 
@@ -636,13 +771,19 @@ msgstr "ແກ້ໄຂ"
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/link/link_popover.xml:0
 msgid "Edit Link"
-msgstr "ແກ້ໄຂລີ້ງ"
+msgstr "ແກ້ໄຂລິ້ງ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/media/image_plugin.js:0
-msgid "Edit media description"
-msgstr "ແກ້ໄຂຄຳອະທິບາຍສື່"
+#: code:addons/html_editor/static/src/backend/dynamic_field/dynamic_field_plugin.js:0
+msgid "Edit field"
+msgstr "ແກ້ໄຂຊ່ອງຂໍ້ມູນ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/media/video/video_plugin.js:0
+msgid "Embed %s Video"
+msgstr "ຝັງວິດີໂອ %s"
 
 #. module: html_editor
 #. odoo-javascript
@@ -652,9 +793,27 @@ msgstr "ຝັງຮູບພາບ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/youtube_plugin.js:0
-msgid "Embed Youtube Video"
-msgstr "ຝັງວິດີໂອ Youtube"
+#: code:addons/html_editor/static/src/others/embedded_components/plugins/embedded_whiteboard_plugin/embedded_whiteboard_plugin.js:0
+msgid "Embed a whiteboard or a diagram"
+msgstr "ຝັງກະດານຂາວ ຫຼື ແຜນວາດ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/others/embedded_components/plugins/embedded_whiteboard_plugin/embedded_whiteboard_plugin.js:0
+msgid "Embed as a whiteboard or as a diagram"
+msgstr "ຝັງເປັນກະດານຂາວ ຫຼື ເປັນແຜນວາດ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/others/embedded_components/plugins/embedded_whiteboard_plugin/embedded_whiteboard_plugin.js:0
+msgid "Embed as whiteboard"
+msgstr "ຝັງເປັນກະດານຂາວ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/media/video/video_plugin.js:0
+msgid "Embed the %s video in the document."
+msgstr "ຝັງວິດີໂອ %s ລົງໃນເອກະສານ."
 
 #. module: html_editor
 #. odoo-javascript
@@ -664,9 +823,9 @@ msgstr "ຝັງຮູບພາບລົງໃນເອກະສານ."
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/youtube_plugin.js:0
-msgid "Embed the youtube video in the document."
-msgstr "ຝັງວິດີໂອ youtube ລົງໃນເອກະສານ."
+#: code:addons/html_editor/static/src/others/embedded_components/plugins/embedded_whiteboard_plugin/embedded_whiteboard_plugin.js:0
+msgid "Embed whiteboard"
+msgstr "ຝັງກະດານຂາວ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -678,7 +837,7 @@ msgstr "ອີໂມຈິ"
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/column_plugin.js:0
 msgid "Empty column"
-msgstr "ຄໍລຳຫວ່າງ"
+msgstr "ຖັນວ່າງເປົ່າ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -688,50 +847,57 @@ msgstr "ຂະຫຍາຍແຖບເຄື່ອງມື"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/gradient_picker/gradient_picker.xml:0
+#: code:addons/html_editor/static/src/components/color_picker/gradient_picker/gradient_picker.xml:0
 msgid "Extend to the closest corner"
-msgstr "ຂະຫຍາຍໄປຍັງມຸມທີ່ໃກ້ທີ່ສຸດ"
+msgstr "ຂະຫຍາຍໄປຫາມຸມທີ່ໃກ້ທີ່ສຸດ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/gradient_picker/gradient_picker.xml:0
+#: code:addons/html_editor/static/src/components/color_picker/gradient_picker/gradient_picker.xml:0
 msgid "Extend to the closest side"
-msgstr "ຂະຫຍາຍໄປຍັງດ້ານທີ່ໃກ້ທີ່ສຸດ"
+msgstr "ຂະຫຍາຍໄປຫາດ້ານຂ້າງທີ່ໃກ້ທີ່ສຸດ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/gradient_picker/gradient_picker.xml:0
+#: code:addons/html_editor/static/src/components/color_picker/gradient_picker/gradient_picker.xml:0
 msgid "Extend to the farthest corner"
-msgstr "ຂະຫຍາຍໄປຍັງມຸມທີ່ໄກທີ່ສຸດ"
+msgstr "ຂະຫຍາຍໄປຫາມຸມທີ່ໄກທີ່ສຸດ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/gradient_picker/gradient_picker.xml:0
+#: code:addons/html_editor/static/src/components/color_picker/gradient_picker/gradient_picker.xml:0
 msgid "Extend to the farthest side"
-msgstr "ຂະຫຍາຍໄປຍັງດ້ານທີ່ໄກທີ່ສຸດ"
+msgstr "ຂະຫຍາຍໄປຫາດ້ານຂ້າງທີ່ໄກທີ່ສຸດ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/media/media_dialog/video_selector.xml:0
+msgid "Facebook"
+msgstr "Facebook"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/backend/dynamic_field/dynamic_field_plugin.js:0
+#: code:addons/html_editor/static/src/backend/dynamic_field/field_selector_popover.xml:0
+msgid "Field"
+msgstr "ຊ່ອງຂໍ້ມູນ"
 
 #. module: html_editor
 #: model:ir.model,name:html_editor.model_html_field_history_mixin
 msgid "Field html History"
-msgstr "ປະຫວັດຊ່ອງຂໍ້ມູນ html"
+msgstr "ປະຫວັດຊ່ອງຂໍ້ມູນ HTML"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/others/embedded_components/plugins/embedded_whiteboard_plugin/whiteboard_popover.xml:0
+msgid "Figma"
+msgstr "Figma"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/media_dialog/upload_progress_toast/upload_progress_toast.js:0
 msgid "File could not be saved"
 msgstr "ບໍ່ສາມາດບັນທຶກໄຟລ໌ໄດ້"
-
-#. module: html_editor
-#. odoo-javascript
-#: code:addons/html_editor/static/src/main/media/media_dialog/upload_progress_toast/upload_progress_toast.xml:0
-msgid "File has been uploaded"
-msgstr "ໄຟລ໌ຖືກອັບໂຫຼດແລ້ວ"
-
-#. module: html_editor
-#. odoo-javascript
-#: code:addons/html_editor/static/src/main/link/link_popover.xml:0
-msgid "Fill Color"
-msgstr "ສີເຕີມ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -743,25 +909,48 @@ msgstr "ຢືດຢຸ່ນ"
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/image_crop.xml:0
 msgid "Flip Horizontal"
-msgstr "ພິກແນວນອນ"
+msgstr "ພິກຕາມລວງນອນ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/image_crop.xml:0
 msgid "Flip Vertical"
-msgstr "ພິກແນວຕັ້ງ"
+msgstr "ພິກຕາມລວງຕັ້ງ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/font_plugin.js:0
+#: code:addons/html_editor/static/src/main/font/font_type_plugin.js:0
 msgid "Format"
 msgstr "ຮູບແບບ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/color_picker_gradient_tab.js:0
+#: code:addons/html_editor/static/src/others/embedded_components/core/whiteboard/whiteboard.xml:0
+msgid "Full preview"
+msgstr "ສະແດງຕົວຢ່າງເຕັມຮູບແບບ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/others/embedded_components/plugins/embedded_whiteboard_plugin/whiteboard_popover.xml:0
+msgid "Google Docs"
+msgstr "Google Docs"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/media/media_dialog/video_selector.xml:0
+msgid "Google Drive"
+msgstr "Google Drive"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/components/color_picker/tabs/gradient/color_picker_gradient_tab.js:0
 msgid "Gradient"
-msgstr "ການໄລ່ສີ"
+msgstr "ການໄລ່ລະດັບສີ"
+
+#. module: html_editor
+#: model:ir.module.module,shortdesc:base.module_html_editor
+msgid "HTML Editor"
+msgstr "ຕົວແກ້ໄຂ HTML"
 
 #. module: html_editor
 #: model:ir.model,name:html_editor.model_ir_http
@@ -770,79 +959,79 @@ msgstr "ການກຳນົດເສັ້ນທາງ HTTP"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/font_plugin.js:0
+#: code:addons/html_editor/static/src/main/font/font_type_plugin.js:0
 msgid "Header 1"
 msgstr "ຫົວຂໍ້ 1"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/font_plugin.js:0
+#: code:addons/html_editor/static/src/main/font/font_type_plugin.js:0
 msgid "Header 1 Display 1"
-msgstr "ຫົວຂໍ້ 1 ການສະແດງຜົນ 1"
+msgstr "ຫົວຂໍ້ 1 ສະແດງຜົນ 1"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/font_plugin.js:0
+#: code:addons/html_editor/static/src/main/font/font_type_plugin.js:0
 msgid "Header 2"
 msgstr "ຫົວຂໍ້ 2"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/font_plugin.js:0
+#: code:addons/html_editor/static/src/main/font/font_type_plugin.js:0
 msgid "Header 3"
 msgstr "ຫົວຂໍ້ 3"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/font_plugin.js:0
+#: code:addons/html_editor/static/src/main/font/font_type_plugin.js:0
 msgid "Header 4"
 msgstr "ຫົວຂໍ້ 4"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/font_plugin.js:0
+#: code:addons/html_editor/static/src/main/font/font_type_plugin.js:0
 msgid "Header 5"
 msgstr "ຫົວຂໍ້ 5"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/font_plugin.js:0
+#: code:addons/html_editor/static/src/main/font/font_type_plugin.js:0
 msgid "Header 6"
 msgstr "ຫົວຂໍ້ 6"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/font_plugin.js:0
+#: code:addons/html_editor/static/src/main/font/font_type_plugin.js:0
 msgid "Heading 1"
 msgstr "ຫົວຂໍ້ 1"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/font_plugin.js:0
+#: code:addons/html_editor/static/src/main/font/font_type_plugin.js:0
 msgid "Heading 2"
 msgstr "ຫົວຂໍ້ 2"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/font_plugin.js:0
+#: code:addons/html_editor/static/src/main/font/font_type_plugin.js:0
 msgid "Heading 3"
 msgstr "ຫົວຂໍ້ 3"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/font_plugin.js:0
+#: code:addons/html_editor/static/src/main/font/font_type_plugin.js:0
 msgid "Heading 4"
 msgstr "ຫົວຂໍ້ 4"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/font_plugin.js:0
+#: code:addons/html_editor/static/src/main/font/font_type_plugin.js:0
 msgid "Heading 5"
 msgstr "ຫົວຂໍ້ 5"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/font_plugin.js:0
+#: code:addons/html_editor/static/src/main/font/font_type_plugin.js:0
 msgid "Heading 6"
 msgstr "ຫົວຂໍ້ 6"
 
@@ -850,7 +1039,7 @@ msgstr "ຫົວຂໍ້ 6"
 #. odoo-javascript
 #: code:addons/html_editor/static/src/others/embedded_components/plugins/toggle_block_plugin/toggle_block_plugin.js:0
 msgid "Hide Text under foldable toggles"
-msgstr "ເຊື່ອງຂໍ້ຄວາມພາຍໃຕ້ປຸ່ມສະຫຼັບທີ່ພັບໄດ້"
+msgstr "ເຊື່ອງຂໍ້ຄວາມໄວ້ໃຕ້ລາຍການພັບເປີດ-ປິດໄດ້"
 
 #. module: html_editor
 #. odoo-javascript
@@ -862,7 +1051,7 @@ msgstr "ເຊື່ອງປຸ່ມເຕັມຈໍ"
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/media_dialog/video_selector.js:0
 msgid "Hide player controls"
-msgstr "ເຊື່ອງປຸ່ມຄວບຄຸມການຫຼິ້ນ"
+msgstr "ເຊື່ອງແຖບຄວບຄຸມເຄື່ອງຫຼິ້ນ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -884,23 +1073,35 @@ msgstr "ຂໍ້ມູນປະຫວັດ"
 #. module: html_editor
 #: model:ir.model.fields,field_description:html_editor.field_html_field_history_mixin__html_field_history_metadata
 msgid "History metadata"
-msgstr "ຂໍ້ມູນເມຕາຂອງປະຫວັດ"
+msgstr "ເມຕາເດຕາປະຫວັດ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/others/embedded_components/plugins/date_plugin/date_plugin.js:0
+msgid "Hour"
+msgstr "ຊົ່ວໂມງ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/fields/html_field.js:0
 msgid "Html"
-msgstr "Html"
+msgstr "HTML"
 
 #. module: html_editor
 #: model:ir.model,name:html_editor.model_html_editor_converter_test_sub
 msgid "Html Editor Converter Subtest"
-msgstr "ການທົດສອບຍ່ອຍຕົວແປງຕົວແກ້ໄຂ Html"
+msgstr "ການທົດສອບຍ່ອຍຕົວແປງຕົວແກ້ໄຂ HTML"
 
 #. module: html_editor
 #: model:ir.model,name:html_editor.model_html_editor_converter_test
 msgid "Html Editor Converter Test"
-msgstr "ການທົດສອບຕົວແປງຕົວແກ້ໄຂ Html"
+msgstr "ການທົດສອບຕົວແປງຕົວແກ້ໄຂ HTML"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/components/color_picker/custom_color_picker/custom_color_picker.xml:0
+msgid "Hue"
+msgstr "ໂທນສີ"
 
 #. module: html_editor
 #: model:ir.model.fields,field_description:html_editor.field_html_editor_converter_test_sub__id
@@ -919,18 +1120,16 @@ msgstr "ການທົດສອບຕົວແປງຕົວແກ້ໄຂ Ht
 #: model:ir.model.fields,field_description:html_editor.field_ir_qweb_field_integer__id
 #: model:ir.model.fields,field_description:html_editor.field_ir_qweb_field_many2one__id
 #: model:ir.model.fields,field_description:html_editor.field_ir_qweb_field_monetary__id
-#: model:ir.model.fields,field_description:html_editor.field_ir_qweb_field_qweb__id
-#: model:ir.model.fields,field_description:html_editor.field_ir_qweb_field_relative__id
 #: model:ir.model.fields,field_description:html_editor.field_ir_qweb_field_selection__id
 #: model:ir.model.fields,field_description:html_editor.field_ir_qweb_field_text__id
 #: model:ir.model.fields,field_description:html_editor.field_ir_ui_view__id
 #: model:ir.model.fields,field_description:html_editor.field_ir_websocket__id
 msgid "ID"
-msgstr "ID"
+msgstr "ລະຫັດ (ID)"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/media/media_dialog/media_dialog.js:0
+#: code:addons/html_editor/static/src/main/media/media_dialog/media_dialog_utils.js:0
 msgid "Icons"
 msgstr "ໄອຄອນ"
 
@@ -943,33 +1142,33 @@ msgstr "ຮູບປະກອບ"
 #. module: html_editor
 #: model:ir.model.fields,field_description:html_editor.field_ir_attachment__image_height
 msgid "Image Height"
-msgstr "ຄວາມສູງຂອງຮູບ"
+msgstr "ຄວາມສູງຂອງຮູບພາບ"
 
 #. module: html_editor
 #: model:ir.model.fields,field_description:html_editor.field_ir_attachment__image_src
 msgid "Image Src"
-msgstr "ແຫຼ່ງຮູບພາບ"
+msgstr "ທີ່ມາຂອງຮູບພາບ (Src)"
 
 #. module: html_editor
 #: model:ir.model.fields,field_description:html_editor.field_ir_attachment__image_width
 msgid "Image Width"
-msgstr "ຄວາມກວ້າງຂອງຮູບ"
+msgstr "ຄວາມກວ້າງຂອງຮູບພາບ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/media/media_dialog/media_dialog.js:0
+#: code:addons/html_editor/static/src/main/media/media_dialog/media_dialog_utils.js:0
 msgid "Images"
-msgstr "ຮູບພາບ"
+msgstr "ຮູບພາບຕ່າງໆ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/link/link_popover.js:0
-msgid "Indicates the link is sponsored or paid content"
-msgstr "ລະບຸວ່າລີ້ງນັ້ນເປັນເນື້ອໃນທີ່ໄດ້ຮັບການສະໜັບສະໜູນ ຫຼື ຈ່າຍເງິນ"
+#: code:addons/html_editor/static/src/main/media/image_plugin.js:0
+msgid "Inline"
+msgstr "ໃນແຖວ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/chatgpt/chatgpt_translate_dialog.xml:0
+#: code:addons/html_editor/static/src/main/translate/translate_dialog.xml:0
 msgid "Insert"
 msgstr "ແຊກ"
 
@@ -977,11 +1176,11 @@ msgstr "ແຊກ"
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/banner_plugin.js:0
 msgid "Insert a danger banner"
-msgstr "ແຊກປ້າຍປະກາດອັນຕະລາຍ"
+msgstr "ແຊກແບນເນີເຕືອນໄພອັນຕະລາຍ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/others/dynamic_placeholder_plugin.js:0
+#: code:addons/html_editor/static/src/backend/dynamic_field/dynamic_field_plugin.js:0
 msgid "Insert a field"
 msgstr "ແຊກຊ່ອງຂໍ້ມູນ"
 
@@ -989,13 +1188,13 @@ msgstr "ແຊກຊ່ອງຂໍ້ມູນ"
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/separator_plugin.js:0
 msgid "Insert a horizontal rule separator"
-msgstr "ແຊກເສັ້ນຂັ້ນແນວນອນ"
+msgstr "ແຊກເສັ້ນຂັ້ນຕາມລວງນອນ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/banner_plugin.js:0
 msgid "Insert a monospace banner"
-msgstr "ແຊກປ້າຍປະກາດແບບ monospace"
+msgstr "ແຊກແບນເນີຕົວໜັງສືຄວາມກວ້າງສະເໝີ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -1007,19 +1206,19 @@ msgstr "ແຊກການໃຫ້ຄະແນນ"
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/star_plugin.js:0
 msgid "Insert a rating over 3 stars"
-msgstr "ແຊກການໃຫ້ຄະແນນ 3 ດາວ"
+msgstr "ແຊກການໃຫ້ຄະແນນເຕັມ 3 ດາວ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/star_plugin.js:0
 msgid "Insert a rating over 5 stars"
-msgstr "ແຊກການໃຫ້ຄະແນນ 5 ດາວ"
+msgstr "ແຊກການໃຫ້ຄະແນນເຕັມ 5 ດາວ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/banner_plugin.js:0
 msgid "Insert a success banner"
-msgstr "ແຊກປ້າຍປະກາດສຳເລັດ"
+msgstr "ແຊກແບນເນີສຳເລັດ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -1031,25 +1230,37 @@ msgstr "ແຊກຕາຕະລາງ"
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/banner_plugin.js:0
 msgid "Insert a warning banner"
-msgstr "ແຊກປ້າຍປະກາດຄຳເຕືອນ"
+msgstr "ແຊກແບນເນີແຈ້ງເຕືອນ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/table/table_menu.js:0
 msgid "Insert above"
-msgstr "ແຊກດ້ານເທິງ"
+msgstr "ແຊກຂ້າງເທິງ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/banner_plugin.js:0
 msgid "Insert an info banner"
-msgstr "ແຊກປ້າຍປະກາດຂໍ້ມູນ"
+msgstr "ແຊກແບນເນີແຈ້ງຂໍ້ມູນ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/others/embedded_components/plugins/date_plugin/date_plugin.js:0
+msgid "Insert any date"
+msgstr "ແຊກວັນທີໃດໜຶ່ງ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/others/embedded_components/plugins/date_plugin/date_plugin.js:0
+msgid "Insert any date and time"
+msgstr "ແຊກວັນທີ ແລະ ເວລາໃດໜຶ່ງ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/table/table_menu.js:0
 msgid "Insert below"
-msgstr "ແຊກດ້ານລຸ່ມ"
+msgstr "ແຊກຂ້າງລຸ່ມ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -1067,13 +1278,43 @@ msgstr "ແຊກຮູບພາບ, ໄອຄອນ ຫຼື ວິດີໂ�
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/table/table_menu.js:0
 msgid "Insert left"
-msgstr "ແຊກເບື້ອງຊ້າຍ"
+msgstr "ແຊກທາງຊ້າຍ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/link/link_plugin.js:0
+msgid "Insert link (Ctrl + K)"
+msgstr "ແຊກລິ້ງ (Ctrl + K)"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/table/table_menu.js:0
 msgid "Insert right"
-msgstr "ແຊກເບື້ອງຂວາ"
+msgstr "ແຊກທາງຂວາ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/others/embedded_components/plugins/date_plugin/date_plugin.js:0
+msgid "Insert the current time"
+msgstr "ແຊກເວລາປະຈຸບັນ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/others/embedded_components/plugins/date_plugin/date_plugin.js:0
+msgid "Insert today's date"
+msgstr "ແຊກວັນທີຂອງມື້ນີ້"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/user_signature_plugin.js:0
+msgid "Insert your email signature"
+msgstr "ແຊກລາຍເຊັນອີເມວຂອງທ່ານ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/media/signature_plugin.js:0
+msgid "Insert your handwritten signature"
+msgstr "ແຊກລາຍເຊັນຂຽນດ້ວຍມືຂອງທ່ານ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -1082,10 +1323,21 @@ msgid "Instagram"
 msgstr "Instagram"
 
 #. module: html_editor
-#. odoo-python
-#: code:addons/html_editor/models/ir_ui_view.py:0
-msgid "Invalid field value for %(field_name)s: %(value)s"
-msgstr "ຄ່າຊ່ອງຂໍ້ມູນບໍ່ຖືກຕ້ອງສຳລັບ %(field_name)s: %(value)s"
+#. odoo-javascript
+#: code:addons/html_editor/static/src/core/format_plugin.js:0
+msgid "Italic (Ctrl + I)"
+msgstr "ໂຕອຽງ (Ctrl + I)"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/align/align_plugin.js:0
+msgid "Justify"
+msgstr "ຈັດໃຫ້ສະເໝີກັນ"
+
+#. module: html_editor
+#: model:ir.model.fields.selection,name:html_editor.selection__html_editor_converter_test__selection_str__d
+msgid "La réponse D"
+msgstr "ຄຳຕອບ D"
 
 #. module: html_editor
 #. odoo-javascript
@@ -1095,51 +1347,52 @@ msgstr "ປ້າຍຊື່"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/link/link_popover.js:0
+#: code:addons/html_editor/static/src/main/media/image_plugin.js:0
+#: code:addons/html_editor/static/src/utils/button_style.js:0
 msgid "Large"
 msgstr "ໃຫຍ່"
 
 #. module: html_editor
 #: model:ir.model.fields,field_description:html_editor.field_html_editor_converter_test_sub__write_uid
 msgid "Last Updated by"
-msgstr "ແກ້ໄຂຫຼ້າສຸດໂດຍ"
+msgstr "ອັບເດດຫຼ້າສຸດໂດຍ"
 
 #. module: html_editor
 #: model:ir.model.fields,field_description:html_editor.field_html_editor_converter_test_sub__write_date
 msgid "Last Updated on"
-msgstr "ແກ້ໄຂຫຼ້າສຸດເມື່ອ"
+msgstr "ອັບເດດຫຼ້າສຸດເມື່ອ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/gradient_picker/gradient_picker.xml:0
+#: code:addons/html_editor/static/src/main/align/align_plugin.js:0
+msgid "Left align"
+msgstr "ຈັດໄວ້ທາງຊ້າຍ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/components/color_picker/gradient_picker/gradient_picker.xml:0
 msgid "Linear"
 msgstr "ເສັ້ນຊື່"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/link/link_plugin.js:0
-#: code:addons/html_editor/static/src/main/link/link_popover.js:0
+#: code:addons/html_editor/static/src/utils/button_style.js:0
 msgid "Link"
-msgstr "ລີ້ງ"
+msgstr "ລິ້ງ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/link/link_popover.xml:0
 msgid "Link Popover"
-msgstr "ປັອບໂອເວີລີ້ງ"
-
-#. module: html_editor
-#. odoo-javascript
-#: code:addons/html_editor/static/src/main/link/link_popover.js:0
-msgid "Link copied to clipboard."
-msgstr "ສຳເນົາລີ້ງໄປຍັງຄລິບບອດແລ້ວ."
+msgstr "ປັອບໂອເວີລິ້ງ"
 
 #. module: html_editor
 #. odoo-python
 #: code:addons/html_editor/controllers/main.py:0
 msgid ""
 "Link preview is not available because %s, please check if your url is correct"
-msgstr "ບໍ່ສາມາດເບິ່ງຕົວຢ່າງລີ້ງໄດ້ເນື່ອງຈາກ %s, ກະລຸນາກວດສອບວ່າ URL ຖືກຕ້ອງ"
+msgstr "ບໍ່ສາມາດສະແດງຕົວຢ່າງລິ້ງໄດ້ຍ້ອນ %s, ກະລຸນາກວດເບິ່ງວ່າ URL ຂອງທ່ານຖືກຕ້ອງຫຼືບໍ່"
 
 #. module: html_editor
 #. odoo-javascript
@@ -1151,39 +1404,39 @@ msgstr "ລາຍການ"
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/media_dialog/file_selector.xml:0
 msgid "Load more..."
-msgstr "ໂຫຼດຕື່ມ..."
+msgstr "ໂຫຼດເພີ່ມເຕີມ..."
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/components/history_dialog/history_dialog.xml:0
-#: code:addons/html_editor/static/src/main/chatgpt/chatgpt_translate_dialog.xml:0
 #: code:addons/html_editor/static/src/main/media/media_dialog/file_selector.xml:0
+#: code:addons/html_editor/static/src/main/translate/translate_dialog.xml:0
 msgid "Loading..."
 msgstr "ກຳລັງໂຫຼດ..."
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/link/link_popover.js:0
-msgid "Logout"
-msgstr "ອອກຈາກລະບົບ"
+#: code:addons/html_editor/static/src/main/media/media_dialog/video_selector.xml:0
+msgid "Loom"
+msgstr "Loom"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/media_dialog/video_selector.js:0
 msgid "Loop"
-msgstr "ຫຼິ້ນຊ້ຳ"
+msgstr "ຫຼິ້ນວົນຊ້ຳ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/media_dialog/video_selector.xml:0
-msgid "MM:SS"
-msgstr "ນາທີ:ວິນາທີ"
+msgid "M:SS"
+msgstr "ນ:ວວ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/others/dynamic_placeholder_plugin.js:0
-msgid "Marketing Tools"
-msgstr "ເຄື່ອງມືການຕະຫຼາດ"
+#: code:addons/html_editor/static/src/main/media/media_dialog/video_selector.xml:0
+msgid "MP4"
+msgstr "MP4"
 
 #. module: html_editor
 #. odoo-javascript
@@ -1193,39 +1446,77 @@ msgstr "ສື່"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/link/link_popover.js:0
+#: code:addons/html_editor/static/src/main/media/image_plugin.js:0
+#: code:addons/html_editor/static/src/utils/button_style.js:0
 msgid "Medium"
 msgstr "ປານກາງ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/font_plugin.js:0
+#: code:addons/html_editor/static/src/main/font/font_type_plugin.js:0
 msgid "Medium section heading"
-msgstr "ຫົວຂໍ້ພາກສ່ວນປານກາງ"
+msgstr "ຫົວຂໍ້ພາກສ່ວນຂະໜາດກາງ"
 
 #. module: html_editor
 #. odoo-javascript
+#: code:addons/html_editor/static/src/main/table/table_plugin.js:0
+msgid "Merge Cells"
+msgstr "ຮວມຕາລາງ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/table/table_plugin.js:0
+msgid "Merge selected table cells"
+msgstr "ຮວມຕາລາງທີ່ເລືອກໄວ້"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/table/table_menu.js:0
+msgid "Merged columns cannot be moved left or right."
+msgstr "ຖັນທີ່ຮວມກັນແລ້ວບໍ່ສາມາດຍ້າຍໄປທາງຊ້າຍ ຫຼື ທາງຂວາໄດ້."
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/table/table_menu.js:0
+msgid "Merged rows cannot be moved up or down."
+msgstr "ແຖວທີ່ຮວມກັນແລ້ວບໍ່ສາມາດຍ້າຍຂຶ້ນ ຫຼື ຍ້າຍລົງໄດ້."
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/others/embedded_components/plugins/embedded_whiteboard_plugin/whiteboard_popover.xml:0
+msgid "Miro"
+msgstr "Miro"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/media/file_plugin.js:0
 #: code:addons/html_editor/static/src/others/embedded_components/core/file/readonly_file.js:0
 msgid "Missing File"
-msgstr "ໄຟລ໌ຫາຍໄປ"
+msgstr "ຂາດໄຟລ໌"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/backend/dynamic_field/field_selector_popover.xml:0
+msgid "Model"
+msgstr "ໂມເດວ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/powerbox/powerbox_plugin.js:0
 msgid "Modules"
-msgstr "ໂມດູນ"
+msgstr "ໂມດູນຕ່າງໆ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/banner_plugin.js:0
 msgid "Monospace"
-msgstr "Monospace"
+msgstr "ຕົວໜັງສືຄວາມກວ້າງສະເໝີ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/banner_plugin.js:0
 msgid "Monospace Banner"
-msgstr "ປ້າຍປະກາດ Monospace"
+msgstr "ແບນເນີຕົວໜັງສືຄວາມກວ້າງສະເໝີ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -1244,13 +1535,13 @@ msgstr "ຍ້າຍລົງ"
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/table/table_menu.js:0
 msgid "Move left"
-msgstr "ຍ້າຍໄປຊ້າຍ"
+msgstr "ຍ້າຍໄປທາງຊ້າຍ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/table/table_menu.js:0
 msgid "Move right"
-msgstr "ຍ້າຍໄປຂວາ"
+msgstr "ຍ້າຍໄປທາງຂວາ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -1280,7 +1571,7 @@ msgstr "ການນຳທາງ"
 #: code:addons/html_editor/static/src/main/link/link_popover.js:0
 #: code:addons/html_editor/static/src/main/link/link_popover.xml:0
 msgid "No URL specified"
-msgstr "ບໍ່ໄດ້ລະບຸ URL"
+msgstr "ບໍ່ໄດ້ກຳນົດ URL"
 
 #. module: html_editor
 #. odoo-javascript
@@ -1301,22 +1592,59 @@ msgid "No images found."
 msgstr "ບໍ່ພົບຮູບພາບ."
 
 #. module: html_editor
-#. odoo-javascript
-#: code:addons/html_editor/static/src/main/media/media_dialog/icon_selector.xml:0
-msgid "No pictograms found."
-msgstr "ບໍ່ພົບຮູບສັນຍະລັກ."
+#. odoo-python
+#: code:addons/html_editor/controllers/main.py:0
+msgid "Non-internal users can only upload image."
+msgstr "ຜູ້ໃຊ້ທີ່ບໍ່ແມ່ນພາຍໃນສາມາດອັບໂຫຼດໄດ້ສະເພາະຮູບພາບເທົ່ານັ້ນ."
+
+#. module: html_editor
+#. odoo-python
+#: code:addons/html_editor/controllers/main.py:0
+msgid "Non-internal users can't upload large files."
+msgstr "ຜູ້ໃຊ້ທີ່ບໍ່ແມ່ນພາຍໃນບໍ່ສາມາດອັບໂຫຼດໄຟລ໌ຂະໜາດໃຫຍ່ໄດ້."
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/font_plugin.js:0
+#: code:addons/html_editor/static/src/main/media/image_plugin.js:0
+#: code:addons/html_editor/static/src/main/table/table_border_style_selector.xml:0
+msgid "None"
+msgstr "ບໍ່ມີ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/font/font_type_plugin.js:0
 msgid "Normal"
 msgstr "ປົກກະຕິ"
 
 #. module: html_editor
 #. odoo-javascript
+#: code:addons/html_editor/static/src/main/table/mobile_table_picker.xml:0
+msgid "Number of columns"
+msgstr "ຈຳນວນຖັນ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/table/mobile_table_picker.xml:0
+msgid "Number of rows"
+msgstr "ຈຳນວນແຖວ"
+
+#. module: html_editor
+#. odoo-javascript
 #: code:addons/html_editor/static/src/main/list/list_plugin.js:0
 msgid "Numbered list"
-msgstr "ລາຍການແບບຕົວເລກ"
+msgstr "ລາຍການລຳດັບຕົວເລກ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/list/list_plugin.js:0
+msgid "Numbered list (Ctrl + Shift + 7)"
+msgstr "ລາຍການລຳດັບຕົວເລກ (Ctrl + Shift + 7)"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/media/media_dialog/video_selector.xml:0
+msgid "Ogg"
+msgstr "Ogg"
 
 #. module: html_editor
 #. odoo-javascript
@@ -1327,27 +1655,52 @@ msgstr "ຕົກລົງ"
 #. module: html_editor
 #. odoo-python
 #: code:addons/html_editor/controllers/main.py:0
-msgid "Oops, it looks like our AI is unreachable!"
-msgstr "ອຸຍ, ເບິ່ງຄືວ່າ AI ຂອງພວກເຮົາບໍ່ສາມາດເຂົ້າເຖິງໄດ້!"
+msgid "Only internal users can use AI text generation."
+msgstr "ສະເພາະຜູ້ໃຊ້ພາຍໃນເທົ່ານັ້ນທີ່ສາມາດນຳໃຊ້ລະບົບ AI ສ້າງຂໍ້ຄວາມໄດ້."
 
 #. module: html_editor
 #. odoo-javascript
+#: code:addons/html_editor/static/src/backend/dynamic_field/dynamic_field_plugin.js:0
+msgid "Oops! Select a model for this template before editing fields."
+msgstr "ໂອ້ຍ! ກະລຸນາເລືອກໂມເດວສຳລັບແມ່ແບບນີ້ກ່ອນຈະແກ້ໄຂຊ່ອງຂໍ້ມູນ."
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/backend/dynamic_field/dynamic_field_plugin.js:0
+msgid "Oops! Select a model for this template before inserting fields."
+msgstr "ໂອ້ຍ! ກະລຸນາເລືອກໂມເດວສຳລັບແມ່ແບບນີ້ກ່ອນຈະແຊກຊ່ອງຂໍ້ມູນ."
+
+#. module: html_editor
+#. odoo-python
+#: code:addons/html_editor/controllers/main.py:0
+msgid "Oops, it looks like google translation service is unreachable!"
+msgstr "ໂອ້ຍ, ເບິ່ງຄືວ່າບໍ່ສາມາດເຊື່ອມຕໍ່ຫາການບໍລິການແປພາສາ Google ໄດ້!"
+
+#. module: html_editor
+#. odoo-python
+#: code:addons/html_editor/controllers/main.py:0
+msgid "Oops, it looks like our AI is unreachable!"
+msgstr "ໂອ້ຍ, ເບິ່ງຄືວ່າບໍ່ສາມາດເຊື່ອມຕໍ່ຫາ AI ຂອງພວກເຮົາໄດ້!"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/media/file_plugin.js:0
 #: code:addons/html_editor/static/src/others/embedded_components/core/file/readonly_file.js:0
 msgid ""
 "Oops, the file %s could not be found. Please replace this file box by a new "
 "one to re-upload the file."
-msgstr "ອຸຍ, ບໍ່ພົບໄຟລ໌ %s. ກະລຸນາປ່ຽນກ່ອງໄຟລ໌ນີ້ໃໝ່ເພື່ອອັບໂຫຼດໄຟລ໌ອີກຄັ້ງ."
+msgstr "ໂອ້ຍ, ບໍ່ພົບໄຟລ໌ %s. ກະລຸນາປ່ຽນແທນກ່ອງໄຟລ໌ນີ້ດ້ວຍກ່ອງໃໝ່ເພື່ອອັບໂຫຼດໄຟລ໌ຄືນໃໝ່."
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/components/color_picker/custom_color_picker/custom_color_picker.xml:0
+msgid "Opacity"
+msgstr "ຄວາມໂປ່ງໃສ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/link/link_popover.xml:0
 msgid "Open in a new tab"
-msgstr "ເປີດໃນແທັບໃໝ່"
-
-#. module: html_editor
-#. odoo-javascript
-#: code:addons/html_editor/static/src/main/link/link_popover.xml:0
-msgid "Open in new tab"
 msgstr "ເປີດໃນແທັບໃໝ່"
 
 #. module: html_editor
@@ -1359,19 +1712,19 @@ msgstr "ປັບໃຫ້ເໝາະສົມແລ້ວ"
 #. module: html_editor
 #: model:ir.model.fields,field_description:html_editor.field_ir_attachment__original_id
 msgid "Original (unoptimized, unresized) attachment"
-msgstr "ສິ່ງຄັດຕິດຕົ້ນສະບັບ (ບໍ່ໄດ້ປັບແຕ່ງ, ບໍ່ໄດ້ປ່ຽນຂະໜາດ)"
+msgstr "ໄຟລ໌ແນບຕົ້ນສະບັບ (ບໍ່ໄດ້ປັບແຕ່ງ, ບໍ່ໄດ້ປັບຂະໜາດ)"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/font_plugin.js:0
+#: code:addons/html_editor/static/src/main/font/font_type_plugin.js:0
 msgid "Paragraph"
-msgstr "ຫຍໍ້ໜ້າ"
+msgstr "ວັກຕອນ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/font_plugin.js:0
+#: code:addons/html_editor/static/src/main/font/font_type_plugin.js:0
 msgid "Paragraph block"
-msgstr "ບລັອກຫຍໍ້ໜ້າ"
+msgstr "ບລັອກວັກຕອນ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -1381,33 +1734,40 @@ msgstr "ວາງເປັນ URL"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/gradient_picker/gradient_picker.xml:0
+#: code:addons/html_editor/static/src/others/embedded_components/plugins/embedded_whiteboard_plugin/whiteboard_popover.xml:0
+msgid "Paste your URL"
+msgstr "ວາງ URL ຂອງທ່ານ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/components/color_picker/custom_color_picker/custom_color_picker.xml:0
+msgid "Pick a color from the screen"
+msgstr "ເລືອກດູດສີຈາກໜ້າຈໍ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/components/color_picker/gradient_picker/gradient_picker.xml:0
 msgid "Position X"
 msgstr "ຕຳແໜ່ງ X"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/gradient_picker/gradient_picker.xml:0
+#: code:addons/html_editor/static/src/components/color_picker/gradient_picker/gradient_picker.xml:0
 msgid "Position Y"
 msgstr "ຕຳແໜ່ງ Y"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/link/link_popover.js:0
-msgid "Prevents the new page from accessing the original window (security)"
-msgstr "ປ້ອງກັນບໍ່ໃຫ້ໜ້າໃໝ່ເຂົ້າເຖິງໜ້າຕ່າງເດີມ (ເພື່ອຄວາມປອດໄພ)"
-
-#. module: html_editor
-#. odoo-javascript
+#: code:addons/html_editor/static/src/components/history_dialog/history_dialog.xml:0
 #: code:addons/html_editor/static/src/main/media/media_dialog/video_selector.xml:0
 msgid "Preview"
-msgstr "ເບິ່ງຕົວຢ່າງ"
+msgstr "ສະແດງຕົວຢ່າງ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/image_plugin.js:0
 msgid "Preview image"
-msgstr "ເບິ່ງຕົວຢ່າງຮູບ"
+msgstr "ສະແດງຕົວຢ່າງຮູບພາບ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -1418,23 +1778,18 @@ msgstr "ແຖບຄວາມຄືບໜ້າ"
 #. module: html_editor
 #: model:ir.model.fields.selection,name:html_editor.selection__html_editor_converter_test__selection_str__c
 msgid "Qu'est-ce qu'il fout ce maudit pancake, tabernacle ?"
-msgstr "Qu'est-ce qu'il fout ce maudit pancake, tabernacle ?"
-
-#. module: html_editor
-#: model:ir.model.fields.selection,name:html_editor.selection__html_editor_converter_test__selection_str__a
-msgid "Qu'il n'est pas arrivé à Toronto"
-msgstr "Qu'il n'est pas arrivé à Toronto"
+msgstr "ແພນເຄັກນີ້ມັນເປັນຫຍັງໄປແລ້ວ?"
 
 #. module: html_editor
 #: model:ir.model.fields.selection,name:html_editor.selection__html_editor_converter_test__selection_str__b
 msgid "Qu'il était supposé arriver à Toronto"
-msgstr "Qu'il était supposé arriver à Toronto"
+msgstr "ທີ່ຄວນຈະມາຮອດ ໂຕຣອນໂຕ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/font_plugin.js:0
+#: code:addons/html_editor/static/src/main/font/font_type_plugin.js:0
 msgid "Quote"
-msgstr "ອ້າງອີງ"
+msgstr "ຂໍ້ຄວາມອ້າງອີງ"
 
 #. module: html_editor
 #: model:ir.model,name:html_editor.model_ir_qweb
@@ -1449,78 +1804,68 @@ msgstr "ຊ່ອງຂໍ້ມູນ Qweb"
 #. module: html_editor
 #: model:ir.model,name:html_editor.model_ir_qweb_field_contact
 msgid "Qweb Field Contact"
-msgstr "ຊ່ອງຂໍ້ມູນການຕິດຕໍ່ Qweb"
+msgstr "ຊ່ອງຂໍ້ມູນ Qweb ຜູ້ຕິດຕໍ່"
 
 #. module: html_editor
 #: model:ir.model,name:html_editor.model_ir_qweb_field_date
 msgid "Qweb Field Date"
-msgstr "ຊ່ອງຂໍ້ມູນວັນທີ Qweb"
+msgstr "ຊ່ອງຂໍ້ມູນ Qweb ວັນທີ"
 
 #. module: html_editor
 #: model:ir.model,name:html_editor.model_ir_qweb_field_datetime
 msgid "Qweb Field Datetime"
-msgstr "ຊ່ອງຂໍ້ມູນວັນທີເວລາ Qweb"
+msgstr "ຊ່ອງຂໍ້ມູນ Qweb ວັນທີ ແລະ ເວລາ"
 
 #. module: html_editor
 #: model:ir.model,name:html_editor.model_ir_qweb_field_duration
 msgid "Qweb Field Duration"
-msgstr "ຊ່ອງຂໍ້ມູນໄລຍະເວລາ Qweb"
+msgstr "ຊ່ອງຂໍ້ມູນ Qweb ໄລຍະເວລາ"
 
 #. module: html_editor
 #: model:ir.model,name:html_editor.model_ir_qweb_field_float
 msgid "Qweb Field Float"
-msgstr "ຊ່ອງຂໍ້ມູນເລກທົດສະນິຍົມ Qweb"
+msgstr "ຊ່ອງຂໍ້ມູນ Qweb ຈຳນວນທົດສະນິຍົມ"
 
 #. module: html_editor
 #: model:ir.model,name:html_editor.model_ir_qweb_field_html
 msgid "Qweb Field HTML"
-msgstr "ຊ່ອງຂໍ້ມູນ HTML Qweb"
+msgstr "ຊ່ອງຂໍ້ມູນ Qweb HTML"
 
 #. module: html_editor
 #: model:ir.model,name:html_editor.model_ir_qweb_field_image
 msgid "Qweb Field Image"
-msgstr "ຊ່ອງຂໍ້ມູນຮູບພາບ Qweb"
+msgstr "ຊ່ອງຂໍ້ມູນ Qweb ຮູບພາບ"
 
 #. module: html_editor
 #: model:ir.model,name:html_editor.model_ir_qweb_field_integer
 msgid "Qweb Field Integer"
-msgstr "ຊ່ອງຂໍ້ມູນເລກຖ້ວນ Qweb"
+msgstr "ຊ່ອງຂໍ້ມູນ Qweb ຈຳນວນເຕັມ"
 
 #. module: html_editor
 #: model:ir.model,name:html_editor.model_ir_qweb_field_many2one
 msgid "Qweb Field Many to One"
-msgstr "ຊ່ອງຂໍ້ມູນ Many to One Qweb"
+msgstr "ຊ່ອງຂໍ້ມູນ Qweb ຫຼາຍຫາໜຶ່ງ (Many to One)"
 
 #. module: html_editor
 #: model:ir.model,name:html_editor.model_ir_qweb_field_monetary
 msgid "Qweb Field Monetary"
-msgstr "ຊ່ອງຂໍ້ມູນການເງິນ Qweb"
-
-#. module: html_editor
-#: model:ir.model,name:html_editor.model_ir_qweb_field_relative
-msgid "Qweb Field Relative"
-msgstr "ຊ່ອງຂໍ້ມູນສຳພັດ Qweb"
+msgstr "ຊ່ອງຂໍ້ມູນ Qweb ສະກຸນເງິນ"
 
 #. module: html_editor
 #: model:ir.model,name:html_editor.model_ir_qweb_field_selection
 msgid "Qweb Field Selection"
-msgstr "ຊ່ອງຂໍ້ມູນການເລືອກ Qweb"
+msgstr "ຊ່ອງຂໍ້ມູນ Qweb ຕົວເລືອກ"
 
 #. module: html_editor
 #: model:ir.model,name:html_editor.model_ir_qweb_field_text
 msgid "Qweb Field Text"
-msgstr "ຊ່ອງຂໍ້ມູນຂໍ້ຄວາມ Qweb"
-
-#. module: html_editor
-#: model:ir.model,name:html_editor.model_ir_qweb_field_qweb
-msgid "Qweb Field qweb"
-msgstr "ຊ່ອງຂໍ້ມູນ qweb Qweb"
+msgstr "ຊ່ອງຂໍ້ມູນ Qweb ຂໍ້ຄວາມ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/gradient_picker/gradient_picker.xml:0
+#: code:addons/html_editor/static/src/components/color_picker/gradient_picker/gradient_picker.xml:0
 msgid "Radial"
-msgstr "ວົງມົນ"
+msgstr "ລັດສະໝີວົງມົນ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -1538,36 +1883,35 @@ msgstr "ລຶບອອກ"
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/image_plugin.js:0
 msgid "Remove (DELETE) image"
-msgstr "ລຶບຮູບພາບ"
+msgstr "ລຶບ (DELETE) ຮູບພາບ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/core/format_plugin.js:0
 msgid "Remove Format (Ctrl + Space)"
-msgstr ""
+msgstr "ລຶບຮູບແບບອອກ (Ctrl + Space)"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/link/link_plugin.js:0
 #: code:addons/html_editor/static/src/main/link/link_popover.xml:0
 msgid "Remove Link"
-msgstr "ລຶບລີ້ງ"
+msgstr "ລຶບລິ້ງອອກ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/column_plugin.js:0
-msgid "Remove columns"
-msgstr "ລຶບຄໍລຳ"
+msgid "Remove column layout"
+msgstr "ລຶບໂຄງຮ່າງຖັນອອກ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/link/link_popover.js:0
-msgid "Removes referrer information sent to the target site"
-msgstr "ລຶບຂໍ້ມູນຜູ້ອ້າງອີງທີ່ສົ່ງໄປຍັງເວັບໄຊປາຍທາງ"
+#: code:addons/html_editor/static/src/components/color_picker/gradient_picker/gradient_picker.xml:0
+msgid "Repeating"
+msgstr "ເຮັດຊ້ຳ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/media/icon_plugin.js:0
 #: code:addons/html_editor/static/src/others/embedded_components/backend/video/video.xml:0
 msgid "Replace"
 msgstr "ປ່ຽນແທນ"
@@ -1576,13 +1920,13 @@ msgstr "ປ່ຽນແທນ"
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/link/link_popover.xml:0
 msgid "Replace URL with its title"
-msgstr "ປ່ຽນແທນ URL ດ້ວຍຊື່ຫົວຂໍ້"
+msgstr "ປ່ຽນແທນ URL ດ້ວຍຫົວຂໍ້ຂອງມັນ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/link/link_popover.xml:0
 msgid "Replace URL with its title?"
-msgstr "ປ່ຽນແທນ URL ດ້ວຍຊື່ຫົວຂໍ້ບໍ?"
+msgstr "ປ່ຽນແທນ URL ດ້ວຍຫົວຂໍ້ຂອງມັນບໍ່?"
 
 #. module: html_editor
 #. odoo-javascript
@@ -1598,15 +1942,21 @@ msgstr "ປ່ຽນແທນສື່"
 
 #. module: html_editor
 #. odoo-javascript
+#: code:addons/html_editor/static/src/components/color_picker/color_picker.xml:0
+msgid "Reset"
+msgstr "ຕັ້ງຄືນໃໝ່"
+
+#. module: html_editor
+#. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/image_crop.xml:0
 msgid "Reset Image"
-msgstr "ຕັ້ງຄ່າຮູບຄືນໃໝ່"
+msgstr "ຕັ້ງຄ່າຮູບພາບຄືນໃໝ່"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/table/table_menu.js:0
 msgid "Reset column size"
-msgstr "ຕັ້ງຄ່າຂະໜາດຄໍລຳຄືນໃໝ່"
+msgstr "ຕັ້ງຄ່າຂະໜາດຖັນຄືນໃໝ່"
 
 #. module: html_editor
 #. odoo-javascript
@@ -1624,55 +1974,91 @@ msgstr "ຕັ້ງຄ່າຂະໜາດຕາຕະລາງຄືນໃໝ
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/icon_plugin.js:0
 msgid "Resize icon 1x"
-msgstr "ປ່ຽນຂະໜາດໄອຄອນ 1 ເທົ່າ"
+msgstr "ປັບຂະໜາດໄອຄອນ 1x"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/icon_plugin.js:0
 msgid "Resize icon 2x"
-msgstr "ປ່ຽນຂະໜາດໄອຄອນ 2 ເທົ່າ"
+msgstr "ປັບຂະໜາດໄອຄອນ 2x"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/icon_plugin.js:0
 msgid "Resize icon 3x"
-msgstr "ປ່ຽນຂະໜາດໄອຄອນ 3 ເທົ່າ"
+msgstr "ປັບຂະໜາດໄອຄອນ 3x"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/icon_plugin.js:0
 msgid "Resize icon 4x"
-msgstr "ປ່ຽນຂະໜາດໄອຄອນ 4 ເທົ່າ"
+msgstr "ປັບຂະໜາດໄອຄອນ 4x"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/icon_plugin.js:0
 msgid "Resize icon 5x"
-msgstr "ປ່ຽນຂະໜາດໄອຄອນ 5 ເທົ່າ"
+msgstr "ປັບຂະໜາດໄອຄອນ 5x"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/image_plugin.js:0
 msgid "Resize image"
-msgstr "ປ່ຽນຂະໜາດຮູບ"
+msgstr "ປັບຂະໜາດຮູບພາບ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/components/history_dialog/history_dialog.xml:0
 msgid "Restore history"
-msgstr "ຄືນຄ່າປະຫວັດ"
+msgstr "ກູ້ຄືນປະຫວັດ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/components/history_dialog/history_dialog.xml:0
+msgid "Revisions"
+msgstr "ສະບັບປັບປຸງ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/align/align_plugin.js:0
+msgid "Right align"
+msgstr "ຈັດໄວ້ທາງຂວາ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/image_crop.xml:0
 msgid "Rotate Left"
-msgstr "ໝູນໄປຊ້າຍ"
+msgstr "ໝູນໄປທາງຊ້າຍ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/image_crop.xml:0
 msgid "Rotate Right"
-msgstr "ໝູນໄປຂວາ"
+msgstr "ໝູນໄປທາງຂວາ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/table/mobile_table_picker.xml:0
+msgid "Row Count"
+msgstr "ຈຳນວນແຖວ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/table/mobile_table_picker.xml:0
+msgid "Row count"
+msgstr "ຈຳນວນແຖວ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/components/color_picker/custom_color_picker/custom_color_picker.xml:0
+msgid "Saturation and brightness color picker."
+msgstr "ເຄື່ອງມືເລືອກສີຕາມຄວາມອີ່ມສີ ແລະ ຄວາມສະຫວ່າງ."
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/components/color_picker/custom_color_picker/custom_color_picker.js:0
+msgid "Saturation: %(saturationLvl)s %. Brightness: %(brightnessLvl)s %"
+msgstr "ຄວາມອີ່ມສີ: %(saturationLvl)s %. ຄວາມສະຫວ່າງ: %(brightnessLvl)s %"
 
 #. module: html_editor
 #. odoo-javascript
@@ -1714,7 +2100,7 @@ msgstr "ເລືອກສີພື້ນຫຼັງ"
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/icon_color_plugin.js:0
 msgid "Select Font Color"
-msgstr "ເລືອກສີຕົວອັກສອນ"
+msgstr "ເລືອກສີຕົວໜັງສື"
 
 #. module: html_editor
 #. odoo-javascript
@@ -1738,25 +2124,25 @@ msgstr "ເລືອກຂະໜາດປຸ່ມ"
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/font/font_family_plugin.js:0
 msgid "Select font family"
-msgstr "ເລືອກຕະກູນຕົວອັກສອນ"
+msgstr "ເລືອກແບບຕົວໜັງສື"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/font_plugin.js:0
+#: code:addons/html_editor/static/src/main/font/font_size_plugin.js:0
 msgid "Select font size"
-msgstr "ເລືອກຂະໜາດຕົວອັກສອນ"
+msgstr "ເລືອກຂະໜາດຕົວໜັງສື"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/font_plugin.js:0
-msgid "Select font style"
-msgstr "ເລືອກຮູບແບບຕົວອັກສອນ"
+#: code:addons/html_editor/static/src/main/font/font_type_plugin.js:0
+msgid "Select text style"
+msgstr "ເລືອກຮູບແບບຂໍ້ຄວາມ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/core/format_plugin.js:0
 msgid "Selection has no format"
-msgstr "ສິ່ງທີ່ເລືອກບໍ່ມີຮູບແບບ"
+msgstr "ສ່ວນທີ່ເລືອກບໍ່ມີຮູບແບບ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -1767,88 +2153,94 @@ msgstr "ເສັ້ນຂັ້ນ"
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/image_plugin.js:0
+msgid "Set image alignment"
+msgstr "ຕັ້ງຄ່າການຈັດວາງຮູບພາບ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/media/image_plugin.js:0
 msgid "Set image padding"
-msgstr "ກຳນົດໄລຍະຫ່າງຂອບຮູບ"
+msgstr "ຕັ້ງຄ່າໄລຍະຫ່າງຮູບພາບ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/media/image_plugin.js:0
-msgid "Set shape: Circle"
-msgstr "ກຳນົດຮູບຊົງ: ວົງມົນ"
-
-#. module: html_editor
-#. odoo-javascript
-#: code:addons/html_editor/static/src/main/media/image_plugin.js:0
-msgid "Set shape: Rounded"
-msgstr "ກຳນົດຮູບຊົງ: ຂອບມົນ"
-
-#. module: html_editor
-#. odoo-javascript
-#: code:addons/html_editor/static/src/main/media/image_plugin.js:0
-msgid "Set shape: Shadow"
-msgstr "ກຳນົດຮູບຊົງ: ມີເງົາ"
-
-#. module: html_editor
-#. odoo-javascript
-#: code:addons/html_editor/static/src/main/media/image_plugin.js:0
-msgid "Set shape: Thumbnail"
-msgstr "ກຳນົດຮູບຊົງ: ຮູບຂະໜາດນ້ອຍ (Thumbnail)"
+#: code:addons/html_editor/static/src/components/history_dialog/history_dialog.xml:0
+msgid "Show comparison"
+msgstr "ສະແດງການປຽບທຽບ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/media_dialog/file_selector.xml:0
 msgid "Show optimized images"
-msgstr "ສະແດງຮູບພາບທີ່ປັບໃຫ້ເໝາະສົມແລ້ວ"
+msgstr "ສະແດງຮູບພາບທີ່ປັບແຕ່ງແລ້ວ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/components/history_dialog/history_dialog.xml:0
-msgid ""
-"Showing all differences between the current version and the selected one "
-"updated by"
-msgstr "ສະແດງຂໍ້ແຕກຕ່າງທັງໝົດລະຫວ່າງເວີຊັນປັດຈຸບັນ ແລະ ເວີຊັນທີ່ເລືອກ ເຊິ່ງອັບເດດໂດຍ"
+msgid "Showing"
+msgstr "ກຳລັງສະແດງ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/components/history_dialog/history_dialog.xml:0
-msgid "Showing the document as it was on"
-msgstr "ສະແດງເອກະສານຕາມສະພາບໃນວັນທີ"
+#: code:addons/html_editor/static/src/main/media/signature_plugin.js:0
+#: code:addons/html_editor/static/src/main/user_signature_plugin.js:0
+msgid "Signature"
+msgstr "ລາຍເຊັນ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/gradient_picker/gradient_picker.xml:0
+#: code:addons/html_editor/static/src/components/color_picker/gradient_picker/gradient_picker.xml:0
 msgid "Size"
 msgstr "ຂະໜາດ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/link/link_popover.js:0
+#: code:addons/html_editor/static/src/main/media/image_plugin.js:0
+#: code:addons/html_editor/static/src/utils/button_style.js:0
 msgid "Small"
 msgstr "ນ້ອຍ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/font_plugin.js:0
+#: code:addons/html_editor/static/src/main/font/font_type_plugin.js:0
 msgid "Small section heading"
-msgstr "ຫົວຂໍ້ພາກສ່ວນນ້ອຍ"
+msgstr "ຫົວຂໍ້ພາກສ່ວນຂະໜາດນ້ອຍ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/components/color_picker/tabs/solid/color_picker_solid_tab.js:0
+msgid "Solid"
+msgstr "ສີຕຶບ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/others/embedded_components/core/whiteboard/whiteboard.xml:0
+msgid "Sorry, the"
+msgstr "ຂໍອະໄພ,"
 
 #. module: html_editor
 #. odoo-python
 #: code:addons/html_editor/controllers/main.py:0
 msgid "Sorry, we could not generate a response. Please try again later."
-msgstr "ຂໍໂທດ, ພວກເຮົາບໍ່ສາມາດສ້າງຄຳຕອບໄດ້. ກະລຸນາລອງໃໝ່ພາຍຫຼັງ."
+msgstr "ຂໍອະໄພ, ພວກເຮົາບໍ່ສາມາດສ້າງຄຳຕອບໄດ້. ກະລຸນາລອງໃໝ່ອີກຄັ້ງພາຍຫຼັງ."
+
+#. module: html_editor
+#. odoo-python
+#: code:addons/html_editor/controllers/main.py:0
+msgid "Sorry, we could not translate the text. Please try again later."
+msgstr "ຂໍອະໄພ, ພວກເຮົາບໍ່ສາມາດແປຂໍ້ຄວາມນີ້ໄດ້. ກະລຸນາລອງໃໝ່ອີກຄັ້ງພາຍຫຼັງ."
 
 #. module: html_editor
 #. odoo-python
 #: code:addons/html_editor/controllers/main.py:0
 msgid "Sorry, your prompt is too long. Try to say it in fewer words."
-msgstr "ຂໍໂທດ, ຄຳສັ່ງຂອງທ່ານຍາວເກີນໄປ. ລອງໃຊ້ຄຳເວົ້າໃຫ້ໜ້ອຍລົງ."
+msgstr "ຂໍອະໄພ, ຂໍ້ຄວາມຄຳສັ່ງຂອງທ່ານຍາວເກີນໄປ. ກະລຸນາລອງໃສ່ຂໍ້ຄວາມທີ່ສັ້ນກວ່ານີ້."
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/components/history_dialog/history_dialog.xml:0
-msgid "Split view"
-msgstr "ເບິ່ງແບບແຍກໜ້າຈໍ"
+msgid "Split"
+msgstr "ແບ່ງແຍກ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -1860,7 +2252,13 @@ msgstr "ດາວ"
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/media_dialog/video_selector.js:0
 msgid "Start at"
-msgstr "ເລີ່ມຢູ່ທີ່"
+msgstr "ເລີ່ມຕົ້ນທີ່"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/core/format_plugin.js:0
+msgid "Strikethrough (Ctrl + 5)"
+msgstr "ຂີດຂ້າ (Ctrl + 5)"
 
 #. module: html_editor
 #. odoo-javascript
@@ -1878,19 +2276,43 @@ msgstr "ຄຳແນະນຳ"
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/text_direction_plugin.js:0
 msgid "Switch direction"
-msgstr "ສະຫຼັບທິດທາງ"
+msgstr "ປ່ຽນທິດທາງ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/text_direction_plugin.js:0
 msgid "Switch the text's direction"
-msgstr "ສະຫຼັບທິດທາງຂອງຂໍ້ຄວາມ"
+msgstr "ປ່ຽນທິດທາງຂອງຂໍ້ຄວາມ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/table/table_ui_plugin.js:0
 msgid "Table"
 msgstr "ຕາຕະລາງ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/table/mobile_table_picker.xml:0
+msgid "Table Size Popover"
+msgstr "ປັອບໂອເວີຂະໜາດຕາຕະລາງ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/table/table_border_plugin.js:0
+msgid "Table border color"
+msgstr "ສີຂອບຕາຕະລາງ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/table/table_border_plugin.js:0
+msgid "Table border style"
+msgstr "ຮູບແບບຂອບຕາຕະລາງ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/table/table_border_plugin.js:0
+msgid "Table border width"
+msgstr "ຄວາມກວ້າງຂອບຕາຕະລາງ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -1901,39 +2323,39 @@ msgstr "ສາລະບານ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/link/link_popover.js:0
-msgid "Tells search engines not to follow this link"
-msgstr "ບອກໃຫ້ເຄື່ອງມືຄົ້ນຫາບໍ່ຕ້ອງຕິດຕາມລີ້ງນີ້"
+#: code:addons/html_editor/static/src/backend/dynamic_field/field_selector_popover.xml:0
+msgid "Technical name"
+msgstr "ຊື່ທາງເຕັກນິກ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/font_plugin.js:0
+#: code:addons/html_editor/static/src/main/font/font_type_plugin.js:0
 msgid "Text"
 msgstr "ຂໍ້ຄວາມ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/link/link_popover.xml:0
-msgid "Text Color"
-msgstr "ສີຕົວອັກສອນ"
+#: code:addons/html_editor/static/src/backend/dynamic_field/field_selector_popover.xml:0
+msgid "Text shown if field is empty"
+msgstr "ຂໍ້ຄວາມທີ່ຈະສະແດງຫາກຊ່ອງຂໍ້ມູນວ່າງເປົ່າ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/media_dialog/file_selector.xml:0
 msgid "The URL does not seem to work."
-msgstr "ເບິ່ງຄືວ່າ URL ນີ້ໃຊ້ການບໍ່ໄດ້."
+msgstr "ເບິ່ງຄືວ່າ URL ໃຊ້ງານບໍ່ໄດ້."
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/media_dialog/file_selector.xml:0
 msgid "The URL seems valid."
-msgstr "URL ເບິ່ງຄືວ່າຖືກຕ້ອງ."
+msgstr "ເບິ່ງຄືວ່າ URL ຖືກຕ້ອງ."
 
 #. module: html_editor
 #. odoo-python
 #: code:addons/html_editor/models/ir_qweb_fields.py:0
 msgid "The datetime %(value)s does not match the format %(format)s"
-msgstr "ວັນທີເວລາ %(value)s ບໍ່ກົງກັບຮູບແບບ %(format)s"
+msgstr "ວັນທີແລະເວລາ %(value)s ບໍ່ກົງກັບຮູບແບບ %(format)s"
 
 #. module: html_editor
 #. odoo-python
@@ -1942,8 +2364,8 @@ msgid ""
 "The document was already saved from someone with a different history for "
 "model \"%(model)s\", field \"%(field)s\" with id \"%(id)d\"."
 msgstr ""
-"ເອກະສານຖືກບັນທຶກໂດຍບຸກຄົນອື່ນທີ່ມີປະຫວັດແຕກຕ່າງກັນສຳລັບໂມເດວ \"%(model)s\", ຊ່ອງຂໍ້ມູນ \"%"
-"(field)s\" ທີ່ມີ id \"%(id)d\"."
+"ເອກະສານນີ້ຖືກບັນທຶກໄວ້ກ່ອນແລ້ວໂດຍຜູ້ໃຊ້ອື່ນທີ່ມີປະຫວັດແຕກຕ່າງກັນສຳລັບໂມເດວ \"%(model)s\", ຊ່ອງຂໍ້ມູນ "
+"\"%(field)s\" ທີ່ມີລະຫັດ \"%(id)d\"."
 
 #. module: html_editor
 #. odoo-javascript
@@ -1951,55 +2373,65 @@ msgstr ""
 msgid ""
 "The image could not be deleted because it is used in the\n"
 "                following pages or views:"
-msgstr "ບໍ່ສາມາດລຶບຮູບພາບໄດ້ເນື່ອງຈາກມັນຖືກໃຊ້ໃນໜ້າ ຫຼື ມຸມມອງຕໍ່ໄປນີ້:"
+msgstr ""
+"ບໍ່ສາມາດລຶບຮູບພາບນີ້ໄດ້ຍ້ອນວ່າມັນຖືກນຳໃຊ້ຢູ່ໃນ\n"
+"                ໜ້າ ຫຼື ມຸມມອງຕໍ່ໄປນີ້:"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/media_dialog/video_selector.js:0
 msgid "The provided url does not reference any supported video"
-msgstr "URL ທີ່ໃຫ້ມາບໍ່ໄດ້ອ້າງອີງເຖິງວິດີໂອໃດໆທີ່ຮອງຮັບ"
-
-#. module: html_editor
-#. odoo-python
-#: code:addons/html_editor/tools.py:0
-msgid "The provided url is invalid"
-msgstr "URL ທີ່ໃຫ້ມາບໍ່ຖືກຕ້ອງ"
+msgstr "URL ທີ່ລະບຸບໍ່ໄດ້ເຊື່ອມໂຍງກັບວິດີໂອໃດໆທີ່ຮອງຮັບ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/media_dialog/video_selector.js:0
 msgid "The provided url is not valid"
-msgstr "URL ທີ່ໃຫ້ມາບໍ່ຖືກຕ້ອງ"
+msgstr "URL ທີ່ລະບຸບໍ່ຖືກຕ້ອງ"
+
+#. module: html_editor
+#. odoo-python
+#: code:addons/html_editor/controllers/main.py:0
+msgid ""
+"The text you are trying to translate is too long. Please select less text "
+"and try it again."
+msgstr "ຂໍ້ຄວາມທີ່ທ່ານພະຍາຍາມແປນັ້ນຍາວເກີນໄປ. ກະລຸນາເລືອກຂໍ້ຄວາມທີ່ສັ້ນລົງແລ້ວລອງໃໝ່ອີກຄັ້ງ."
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/link/link_popover.js:0
 msgid "This URL is invalid. Preview couldn't be updated."
-msgstr "URL ນີ້ບໍ່ຖືກຕ້ອງ. ບໍ່ສາມາດອັບເດດການເບິ່ງຕົວຢ່າງໄດ້."
+msgstr "URL ນີ້ບໍ່ຖືກຕ້ອງ. ບໍ່ສາມາດອັບເດດການສະແດງຕົວຢ່າງໄດ້."
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/others/embedded_components/plugins/embedded_whiteboard_plugin/whiteboard_popover.xml:0
+msgid "This URL is not supported."
+msgstr "ບໍ່ຮອງຮັບ URL ນີ້."
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/media_dialog/file_selector.js:0
 msgid "This file is a public view attachment."
-msgstr "ໄຟລ໌ນີ້ເປັນສິ່ງຄັດຕິດສຳລັບການເບິ່ງແບບສາທາລະນະ."
+msgstr "ໄຟລ໌ນີ້ແມ່ນໄຟລ໌ແນບສຳລັບການເບິ່ງແບບສາທາລະນະ."
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/media_dialog/file_selector.js:0
 msgid "This file is attached to the current record."
-msgstr "ໄຟລ໌ນີ້ຖືກຄັດຕິດກັບບັນທຶກປັດຈຸບັນ."
+msgstr "ໄຟລ໌ນີ້ຖືກແນບໄວ້ກັບລະບຽນຂໍ້ມູນປະຈຸບັນ."
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/image_crop.js:0
 msgid "This image is an external image"
-msgstr "ຮູບນີ້ເປັນຮູບຈາກພາຍນອກ"
+msgstr "ຮູບພາບນີ້ແມ່ນຮູບພາບຈາກພາຍນອກ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/components/history_dialog/history_dialog.xml:0
 msgid "This is the current version, nothing to compare."
-msgstr "ນີ້ແມ່ນເວີຊັນປັດຈຸບັນ, ບໍ່ມີຫຍັງໃຫ້ປຽບທຽບ."
+msgstr "ນີ້ແມ່ນເວີຊັນປະຈຸບັນ, ບໍ່ມີສິ່ງໃດໃຫ້ປຽບທຽບ."
 
 #. module: html_editor
 #. odoo-javascript
@@ -2008,32 +2440,44 @@ msgid ""
 "This type of image is not supported for cropping.<br/>If you want to crop "
 "it, please first download it from the original source and upload it in Odoo."
 msgstr ""
-"ຮູບພາບປະເພດນີ້ບໍ່ຮອງຮັບການຕັດ.<br/>ຫາກທ່ານຕ້ອງການຕັດມັນ, ກະລຸນາດາວໂຫຼດຈາກແຫຼ່ງຕົ້ນສະບັບກ່ອນ "
+"ຮູບແບບພາບປະເພດນີ້ບໍ່ຮອງຮັບການຕັດ.<br/>ຫາກທ່ານຕ້ອງການຕັດຮູບ, ກະລຸນາດາວໂຫຼດຈາກແຫຼ່ງຕົ້ນສະບັບກ່ອນ "
 "ແລ້ວຈຶ່ງອັບໂຫຼດລົງໃນ Odoo."
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/others/embedded_components/plugins/date_plugin/date_plugin.js:0
+msgid "Today"
+msgstr "ມື້ນີ້"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/list/list_plugin.js:0
 msgid "Toggle List"
-msgstr "ສະຫຼັບລາຍການ"
+msgstr "ລາຍການພັບເປີດ-ປິດ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/core/format_plugin.js:0
 msgid "Toggle bold"
-msgstr "ສະຫຼັບຕົວເຂັ້ມ"
+msgstr "ສະຫຼັບໂຕໜາ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/components/history_dialog/history_dialog.xml:0
+msgid "Toggle comparison view"
+msgstr "ສະຫຼັບມຸມມອງການປຽບທຽບ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/icon_plugin.js:0
 msgid "Toggle icon spin"
-msgstr "ສະຫຼັບການໝູນຂອງໄອຄອນ"
+msgstr "ສະຫຼັບການໝູນໄອຄອນ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/core/format_plugin.js:0
 msgid "Toggle italic"
-msgstr "ສະຫຼັບຕົວອຽງ"
+msgstr "ສະຫຼັບໂຕອຽງ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -2045,7 +2489,7 @@ msgstr "ສະຫຼັບລາຍການ"
 #. odoo-javascript
 #: code:addons/html_editor/static/src/core/format_plugin.js:0
 msgid "Toggle strikethrough"
-msgstr "ສະຫຼັບການຂີດຂ້າ"
+msgstr "ສະຫຼັບຂີດຂ້າ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -2057,50 +2501,37 @@ msgstr "ສະຫຼັບຫົວຂໍ້"
 #. odoo-javascript
 #: code:addons/html_editor/static/src/core/format_plugin.js:0
 msgid "Toggle underline"
-msgstr "ສະຫຼັບການຂີດກ້ອງ"
-
-#. module: html_editor
-#. odoo-javascript
-#: code:addons/html_editor/static/src/main/media/image_description.xml:0
-msgid "Tooltip"
-msgstr "ຄຳແນະນຳ (Tooltip)"
+msgstr "ສະຫຼັບຂີດກ້ອງ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/list/list_plugin.js:0
 msgid "Track tasks with a checklist"
-msgstr "ຕິດຕາມວຽກງານດ້ວຍລາຍການກວດສອບ"
+msgstr "ຕິດຕາມວຽກດ້ວຍລາຍການກວດກາ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/media/image_plugin.js:0
-msgid "Transform the picture (click twice to reset transformation)"
-msgstr "ປັບແຕ່ງຮູບ (ຄລິກສອງຄັ້ງເພື່ອຕັ້ງຄ່າຄືນໃໝ່)"
+#: code:addons/html_editor/static/src/main/translate/translate_dialog.xml:0
+msgid "Translate"
+msgstr "ແປພາສາ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/chatgpt/chatgpt_translate_dialog.xml:0
-#: code:addons/html_editor/static/src/main/chatgpt/chatgpt_translate_plugin.js:0
-msgid "Translate with AI"
-msgstr "ແປດ້ວຍ AI"
+#: code:addons/html_editor/static/src/main/translate/translate_plugin.js:0
+msgid "Translate with Google Translate"
+msgstr "ແປດ້ວຍ Google Translate"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/chatgpt/chatgpt_translate_dialog.xml:0
+#: code:addons/html_editor/static/src/main/translate/translate_dialog.xml:0
 msgid "Translating..."
-msgstr "ກຳລັງແປ..."
-
-#. module: html_editor
-#. odoo-javascript
-#: code:addons/html_editor/static/src/main/media/media_dialog/icon_selector.xml:0
-msgid "Try searching with other keywords."
-msgstr "ລອງຄົ້ນຫາດ້ວຍຄຳສຳຄັນອື່ນ."
+msgstr "ກຳລັງແປພາສາ..."
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/table/table_menu.js:0
 msgid "Turn into header"
-msgstr "ປ່ຽນເປັນສ່ວນຫົວ"
+msgstr "ປ່ຽນເປັນຫົວແຖວ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -2110,7 +2541,13 @@ msgstr "ປ່ຽນເປັນແຖວ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/gradient_picker/gradient_picker.xml:0
+#: code:addons/html_editor/static/src/main/media/media_dialog/video_selector.xml:0
+msgid "Twitch"
+msgstr "Twitch"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/components/color_picker/gradient_picker/gradient_picker.xml:0
 msgid "Type"
 msgstr "ປະເພດ"
 
@@ -2118,7 +2555,7 @@ msgstr "ປະເພດ"
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/powerbox/powerbox_plugin.js:0
 msgid "Type \"/\" for commands"
-msgstr "ພິມ \"/\" ສຳລັບຄຳສັ່ງ"
+msgstr "ພິມ \"/\" ເພື່ອເລືອກຄຳສັ່ງ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -2129,6 +2566,7 @@ msgstr "ພິມ URL ຂອງທ່ານ"
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/link/link_popover.xml:0
+#: code:addons/html_editor/static/src/others/embedded_components/core/whiteboard/whiteboard.xml:0
 msgid "URL"
 msgstr "URL"
 
@@ -2136,19 +2574,31 @@ msgstr "URL"
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/link/link_plugin.js:0
 msgid "Unable to create a link on the current selection."
-msgstr "ບໍ່ສາມາດສ້າງລີ້ງໃນສ່ວນທີ່ເລືອກໄວ້ໄດ້."
+msgstr "ບໍ່ສາມາດສ້າງລິ້ງໃນສ່ວນທີ່ເລືອກໄວ້ປະຈຸບັນໄດ້."
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/core/format_plugin.js:0
+msgid "Underline (Ctrl + U)"
+msgstr "ຂີດກ້ອງ (Ctrl + U)"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/core/history_plugin.js:0
 msgid "Undo"
-msgstr "ຍົກເລີກການເຮັດ"
+msgstr "ກັບຄືນ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/components/history_dialog/history_dialog.xml:0
-msgid "Unified view"
-msgstr "ມຸມມອງແບບລວມ"
+msgid "Unified"
+msgstr "ຮວມເຂົ້າກັນ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/backend/dynamic_field/field_selector_popover.xml:0
+msgid "Update"
+msgstr "ອັບເດດ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -2172,25 +2622,36 @@ msgstr "ອັບໂຫຼດຮູບພາບ"
 #. odoo-python
 #: code:addons/html_editor/controllers/main.py:0
 msgid "Uploaded image's format is not supported. Try with: %s"
-msgstr "ຮູບແບບຮູບພາບທີ່ອັບໂຫຼດບໍ່ຮອງຮັບ. ລອງໃຊ້: %s"
+msgstr "ຮູບແບບຮູບພາບທີ່ອັບໂຫຼດບໍ່ຮອງຮັບ. ລອງໃຊ້ດ້ວຍ: %s"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/components/history_dialog/history_dialog.xml:0
-msgid "Version date"
-msgstr "ວັນທີເວີຊັນ"
+#: code:addons/html_editor/static/src/components/color_picker/custom_color_picker/custom_color_picker.xml:0
+msgid ""
+"Use up and down arrow keys to adapt the brightness. Use left and right arrow "
+"keys to adapt the saturation. Press the Control or Command key at the same "
+"time to have finer control."
+msgstr ""
+"ໃຊ້ປຸ່ມລູກສອນຂຶ້ນ ແລະ ລົງເພື່ອປັບຄວາມສະຫວ່າງ. ໃຊ້ປຸ່ມລູກສອນຊ້າຍ ແລະ ຂວາເພື່ອປັບຄວາມອີ່ມສີ. ກົດປຸ່ມ "
+"Control ຫຼື Command ພ້ອມກັນເພື່ອປັບລະອຽດຍິ່ງຂຶ້ນ."
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/media/media_dialog/video_selector.js:0
+msgid "Vertical"
+msgstr "ລວງຕັ້ງ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/table/table_align_plugin.js:0
 msgid "Vertical align table cells content"
-msgstr "ຈັດວາງເນື້ອໃນໃນຫ້ອງຕາຕະລາງຕາມແນວຕັ້ງ"
+msgstr "ຈັດລຽງເນື້ອໃນຕາລາງຕາມລວງຕັ້ງ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/media_dialog/video_selector.xml:0
 msgid "Video code"
-msgstr "ລະຫັດວິດີໂອ"
+msgstr "ໂຄ້ດວິດີໂອ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -2201,9 +2662,9 @@ msgstr "ເຄື່ອງຫຼິ້ນວິດີໂອ"
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/fields/x2many_field/custom_media_dialog.js:0
-#: code:addons/html_editor/static/src/main/media/video_plugin.js:0
+#: code:addons/html_editor/static/src/main/media/video/video_plugin.js:0
 msgid "Videos"
-msgstr "ວິດີໂອ"
+msgstr "ວິດີໂອຕ່າງໆ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -2214,31 +2675,37 @@ msgstr "ວິດີໂອຈະຖືກປິດສຽງເມື່ອເປ
 #. module: html_editor
 #: model:ir.model,name:html_editor.model_ir_ui_view
 msgid "View"
-msgstr "ເບິ່ງ"
-
-#. module: html_editor
-#. odoo-javascript
-#: code:addons/html_editor/static/src/components/history_dialog/history_dialog.xml:0
-msgid "View Content"
-msgstr "ເບິ່ງເນື້ອໃນ"
-
-#. module: html_editor
-#. odoo-javascript
-#: code:addons/html_editor/static/src/components/history_dialog/history_dialog.xml:0
-msgid "View comparison"
-msgstr "ເບິ່ງການປຽບທຽບ"
-
-#. module: html_editor
-#. odoo-javascript
-#: code:addons/html_editor/static/src/components/history_dialog/history_dialog.xml:0
-msgid "View content"
-msgstr "ເບິ່ງເນື້ອໃນ"
+msgstr "ມຸມມອງ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/media_dialog/video_selector.xml:0
 msgid "Vimeo"
 msgstr "Vimeo"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/media/media_dialog/video_selector.xml:0
+msgid "WebM"
+msgstr "WebM"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/others/embedded_components/plugins/embedded_whiteboard_plugin/embedded_whiteboard_plugin.js:0
+msgid "Whiteboard"
+msgstr "ກະດານຂາວ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/others/embedded_components/plugins/embedded_whiteboard_plugin/whiteboard_popover.xml:0
+msgid "Whiteboard Popover"
+msgstr "ປັອບໂອເວີກະດານຂາວ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/others/embedded_components/plugins/embedded_whiteboard_plugin/whiteboard_popover.xml:0
+msgid "Whiteboard public URL"
+msgstr "URL ສາທາລະນະຂອງກະດານຂາວ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -2252,19 +2719,43 @@ msgstr "ວິດເຈັດ"
 msgid ""
 "Wow, it feels a bit empty in here. Upload from the button in the top right "
 "corner!"
-msgstr "ໂອ້, ບ່ອນນີ້ເບິ່ງຫວ່າງເປົ່າໜ້ອຍໜຶ່ງ. ອັບໂຫຼດຈາກປຸ່ມຢູ່ມຸມຂວາເທິງ!"
+msgstr "ໂອ້, ບ່ອນນີ້ເບິ່ງຄືວ່າງເປົ່າໄປໜ້ອຍໜຶ່ງ. ອັບໂຫຼດໄດ້ຈາກປຸ່ມຢູ່ມຸມຂວາເທິງ!"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/others/embedded_components/backend/syntax_highlighting/code_toolbar.xml:0
+msgid "Wrap"
+msgstr "ຫໍ່ຫຸ້ມ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/media/image_plugin.js:0
+msgid "Wrap text"
+msgstr "ຕັດຂໍ້ຄວາມຂຶ້ນແຖວໃໝ່"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/others/embedded_components/backend/syntax_highlighting/code_toolbar.xml:0
+msgid "Wrap the code"
+msgstr "ຕັດແຖວໂຄ້ດ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/others/embedded_components/plugins/caption_plugin/caption_plugin.js:0
 msgid "Write a caption..."
-msgstr "ຂຽນຄຳບັນຍາຍ..."
+msgstr "ຂຽນຄຳອະທິບາຍພາບ..."
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/media/image_plugin.js:0
+msgid "XL"
+msgstr "XL"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/link/link_popover.xml:0
 msgid "Yes"
-msgstr "ແມ່ນແລ້ວ"
+msgstr "ແມ່ນ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -2273,14 +2764,20 @@ msgid ""
 "You can not replace a field by this image. If you want to use this image, "
 "first save it on your computer and then upload it here."
 msgstr ""
-"ທ່ານບໍ່ສາມາດປ່ຽນແທນຊ່ອງຂໍ້ມູນດ້ວຍຮູບນີ້ໄດ້. ຫາກຕ້ອງການໃຊ້ຮູບນີ້, ກະລຸນາບັນທຶກໄວ້ໃນຄອມພິວເຕີຂອງທ່ານກ່ອນ "
-"ແລ້ວຈຶ່ງອັບໂຫຼດທີ່ນີ້."
+"ທ່ານບໍ່ສາມາດປ່ຽນແທນຊ່ອງຂໍ້ມູນດ້ວຍຮູບນີ້ໄດ້. ຫາກທ່ານຕ້ອງການໃຊ້ຮູບນີ້, "
+"ກະລຸນາບັນທຶກມັນໄວ້ໃນຄອມພິວເຕີຂອງທ່ານກ່ອນ ແລ້ວຈຶ່ງອັບໂຫຼດລົງທີ່ນີ້."
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/media_dialog/image_selector.xml:0
 msgid "You can not use this image in a field"
-msgstr "ທ່ານບໍ່ສາມາດໃຊ້ຮູບນີ້ໃນຊ່ອງຂໍ້ມູນໄດ້"
+msgstr "ທ່ານບໍ່ສາມາດໃຊ້ຮູບພາບນີ້ໃນຊ່ອງຂໍ້ມູນໄດ້"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/others/embedded_components/core/whiteboard/whiteboard.xml:0
+msgid "You can try to insert an image and link it to that URL."
+msgstr "ທ່ານສາມາດລອງແຊກຮູບພາບ ແລະ ເຊື່ອມໂຍງລິ້ງໄປຫາ URL ນັ້ນໄດ້."
 
 #. module: html_editor
 #. odoo-javascript
@@ -2288,7 +2785,7 @@ msgstr "ທ່ານບໍ່ສາມາດໃຊ້ຮູບນີ້ໃນຊ
 msgid ""
 "You can upload documents with the button located in the top left of the "
 "screen."
-msgstr "ທ່ານສາມາດອັບໂຫຼດເອກະສານໄດ້ດ້ວຍປຸ່ມທີ່ຢູ່ເບື້ອງຊ້າຍເທິງຂອງໜ້າຈໍ."
+msgstr "ທ່ານສາມາດອັບໂຫຼດເອກະສານໄດ້ໂດຍໃຊ້ປຸ່ມທີ່ຢູ່ມຸມຊ້າຍເທິງຂອງໜ້າຈໍ."
 
 #. module: html_editor
 #. odoo-python
@@ -2296,20 +2793,13 @@ msgstr "ທ່ານສາມາດອັບໂຫຼດເອກະສານໄ
 msgid ""
 "You have reached the maximum number of requests for this service. Try again "
 "later."
-msgstr "ທ່ານໄດ້ສົ່ງຄຳຮ້ອງຂໍເກີນກຳນົດສຳລັບບໍລິການນີ້ແລ້ວ. ກະລຸນາລອງໃໝ່ພາຍຫຼັງ."
-
-#. module: html_editor
-#. odoo-javascript
-#: code:addons/html_editor/static/src/others/dynamic_placeholder_plugin.js:0
-msgid ""
-"You need to select a model before opening the dynamic placeholder selector."
-msgstr "ທ່ານຕ້ອງເລືອກໂມເດວກ່ອນທີ່ຈະເປີດຕົວເລືອກຕົວແທນຂໍ້ຄວາມແບບໄດນາມິກ."
+msgstr "ທ່ານໄດ້ຮ້ອງຂໍບໍລິການນີ້ຄົບຈຳນວນສູງສຸດແລ້ວ. ກະລຸນາລອງໃໝ່ອີກຄັ້ງພາຍຫຼັງ."
 
 #. module: html_editor
 #. odoo-python
 #: code:addons/html_editor/controllers/main.py:0
 msgid "You need to specify either data or url to create an attachment."
-msgstr "ທ່ານຕ້ອງລະບຸຂໍ້ມູນ ຫຼື URL ເພື່ອສ້າງສິ່ງຄັດຕິດ."
+msgstr "ທ່ານຈຳເປັນຕ້ອງລະບຸຂໍ້ມູນ ຫຼື URL ເພື່ອສ້າງໄຟລ໌ແນບ."
 
 #. module: html_editor
 #. odoo-javascript
@@ -2319,51 +2809,70 @@ msgstr "ບຣາວເຊີຂອງທ່ານບໍ່ຮອງຮັບ if
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/chatgpt/chatgpt_dialog.js:0
+#: code:addons/html_editor/static/src/main/translate/translate_dialog.js:0
 msgid "Your content was successfully generated."
-msgstr "ສ້າງເນື້ອໃນຂອງທ່ານສຳເລັດແລ້ວ."
+msgstr "ສ້າງເນື້ອໃນຂອງທ່ານສຳເລັດຮຽບຮ້ອຍແລ້ວ."
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/media_dialog/video_selector.xml:0
 msgid "Youtube"
-msgstr "Youtube"
+msgstr "YouTube"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/image_crop.xml:0
 msgid "Zoom In"
-msgstr "ຂະຫຍາຍເຂົ້າ"
+msgstr "ຊູມເຂົ້າ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/image_crop.xml:0
 msgid "Zoom Out"
-msgstr "ຫຍໍ້ອອກ"
+msgstr "ຊູມອອກ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/media_dialog/video_selector.xml:0
+#: code:addons/html_editor/static/src/others/embedded_components/plugins/embedded_whiteboard_plugin/whiteboard_popover.xml:0
 msgid "and"
 msgstr "ແລະ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/gradient_picker/gradient_picker.xml:0
+#: code:addons/html_editor/static/src/components/history_dialog/history_dialog.xml:0
+msgid "by"
+msgstr "ໂດຍ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/components/color_picker/gradient_picker/gradient_picker.xml:0
 msgid "deg"
 msgstr "ອົງສາ"
 
 #. module: html_editor
 #. odoo-javascript
+#: code:addons/html_editor/static/src/others/embedded_components/plugins/embedded_whiteboard_plugin/whiteboard_popover.xml:0
+msgid "diagrams"
+msgstr "ແຜນວາດ"
+
+#. module: html_editor
+#. odoo-javascript
 #: code:addons/html_editor/static/src/main/separator_plugin.js:0
 msgid "divider"
-msgstr "ເສັ້ນແບ່ງ"
+msgstr "ເສັ້ນຂັ້ນ"
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/file_plugin.js:0
 msgid "document"
 msgstr "ເອກະສານ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/backend/dynamic_field/dynamic_field_plugin.js:0
+msgid "dynamic"
+msgstr "ໄດນາມິກ"
 
 #. module: html_editor
 #. odoo-javascript
@@ -2374,8 +2883,39 @@ msgstr "ຕົວຢ່າງ: https://www.odoo.com"
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/file_plugin.js:0
+#: code:addons/html_editor/static/src/main/media/media_dialog/video_selector.xml:0
 msgid "file"
 msgstr "ໄຟລ໌"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/components/color_picker/custom_color_picker/custom_color_picker.xml:0
+msgid "hex"
+msgstr "hex"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/others/embedded_components/plugins/embedded_whiteboard_plugin/whiteboard_popover.xml:0
+msgid "https://docs.google.com/drawings/..."
+msgstr "https://docs.google.com/drawings/..."
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/others/embedded_components/plugins/embedded_whiteboard_plugin/whiteboard_popover.xml:0
+msgid "https://miro.com/app/board/.../?share_link_id=..."
+msgstr "https://miro.com/app/board/.../?share_link_id=..."
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/others/embedded_components/plugins/embedded_whiteboard_plugin/whiteboard_popover.xml:0
+msgid "https://www.canva.com/design/..."
+msgstr "https://www.canva.com/design/..."
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/others/embedded_components/plugins/embedded_whiteboard_plugin/whiteboard_popover.xml:0
+msgid "https://www.figma.com/design/...?node-id=..."
+msgstr "https://www.figma.com/design/...?node-id=..."
 
 #. module: html_editor
 #. odoo-javascript
@@ -2385,31 +2925,32 @@ msgstr "ເສັ້ນ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/link/link_popover.xml:0
-msgid "noopener"
-msgstr "noopener"
-
-#. module: html_editor
-#. odoo-javascript
-#: code:addons/html_editor/static/src/components/history_dialog/history_dialog.xml:0
-msgid "on"
-msgstr "ເມື່ອ"
+#: code:addons/html_editor/static/src/main/list/list_plugin.js:0
+msgid "list"
+msgstr ""
 
 #. module: html_editor
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/link/link_popover.xml:0
+#: code:addons/html_editor/static/src/main/media/media_dialog/video_selector.xml:0
 msgid "or"
 msgstr "ຫຼື"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/link/link_popover.xml:0
-msgid "px"
-msgstr "px"
+#: code:addons/html_editor/static/src/backend/dynamic_field/dynamic_field_plugin.js:0
+msgid "personalize"
+msgstr "ປັບແຕ່ງສະເພາະບຸກຄົນ"
 
 #. module: html_editor
 #. odoo-javascript
-#: code:addons/html_editor/static/src/main/font/font_plugin.js:0
+#: code:addons/html_editor/static/src/backend/dynamic_field/dynamic_field_plugin.js:0
+msgid "placeholder"
+msgstr "ຂໍ້ຄວາມກຳກັບ"
+
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/main/font/font_type_plugin.js:0
 msgid "title"
 msgstr "ຫົວຂໍ້"
 
@@ -2417,7 +2958,7 @@ msgstr "ຫົວຂໍ້"
 #. odoo-javascript
 #: code:addons/html_editor/static/src/main/media/media_dialog/video_selector.xml:0
 msgid "videos"
-msgstr "ວິດີໂອ"
+msgstr "ວິດີໂອຕ່າງໆ"
 
 #. module: html_editor
 #: model:ir.model,name:html_editor.model_ir_websocket
@@ -2430,5 +2971,8 @@ msgstr "ການຈັດການຂໍ້ຄວາມ websocket"
 msgid "x"
 msgstr "x"
 
-#~ msgid "Remove Format"
-#~ msgstr "ລຶບຮູບແບບ"
+#. module: html_editor
+#. odoo-javascript
+#: code:addons/html_editor/static/src/others/embedded_components/core/whiteboard/whiteboard.xml:0
+msgid "you used is not recognized by this embedding feature."
+msgstr "ທີ່ທ່ານນຳໃຊ້ນັ້ນ ລະບົບຄຸນສົມບັດການຝັງນີ້ບໍ່ຮອງຮັບ."

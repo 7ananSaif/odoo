@@ -1,16 +1,12 @@
-import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
 import { cookie } from "@web/core/browser/cookie";
 
-import { markup } from "@odoo/owl";
 import { omit } from "@web/core/utils/objects";
-import { stepUtils } from "@web_tour/tour_utils";
 
-export function addMedia(position = "right") {
+export function addMedia() {
     return {
         trigger: `.modal-content footer .btn-primary`,
-        content: markup(_t("<b>Add</b> the selected image.")),
-        tooltipPosition: position,
+        content: "Add the selected image.",
         run: "click",
     };
 }
@@ -32,89 +28,35 @@ export function assertCssVariable(variableName, variableValue, trigger = ":ifram
         },
     };
 }
-export function assertPathName(pathname, trigger) {
-    return {
-        content: `Check if we have been redirected to ${pathname}`,
-        trigger: trigger,
-        async run() {
-            await new Promise((resolve) => {
-                let elapsedTime = 0;
-                const intervalTime = 100;
-                const interval = setInterval(() => {
-                    if (window.location.pathname.startsWith(pathname)) {
-                        clearInterval(interval);
-                        resolve();
-                    }
-                    elapsedTime += intervalTime;
-                    if (elapsedTime >= 5000) {
-                        clearInterval(interval);
-                        console.error(`The pathname ${pathname} has not been found`);
-                    }
-                }, intervalTime);
-            });
-        },
-    };
-}
 
-export function changeBackground(snippet, position = "bottom") {
+export function changeBackground() {
     return [
         {
             trigger: `.o_customize_tab button[data-action-id="replaceBgImage"]`,
-            content: markup(
-                _t(
-                    "<b>Customize</b> any block through this menu. Try to change the background image of this block."
-                )
-            ),
-            tooltipPosition: position,
+            content:
+                "Customize any block through this menu. Try to change the background image of this block.",
             run: "click",
         },
     ];
 }
 
-export function changeBackgroundColor(position = "bottom") {
+export function changeBackgroundColor() {
     return {
         trigger: ".o_customize_tab .o_we_color_preview",
-        content: markup(
-            _t(
-                "<b>Customize</b> any block through this menu. Try to change the background color of this block."
-            )
-        ),
-        tooltipPosition: position,
+        content:
+            "Customize any block through this menu. Try to change the background color of this block.",
         run: "click",
     };
 }
 
-// TODO: RAHG: This function's trigger is same as above. need to be changed
-// to avoid duplication
-export function selectColorPalette(position = "left") {
-    return {
-        trigger: ".o_customize_tab .o_we_color_preview",
-        content: markup(_t(`<b>Select</b> a Color Palette.`)),
-        tooltipPosition: position,
-        run: "click",
-    };
-}
-
-export function changeColumnSize(position = "right") {
-    return {
-        trigger: `.oe_overlay.oe_active .o_handles .o_handle:not(.readonly)`,
-        content: markup(_t("<b>Slide</b> this button to change the column size.")),
-        tooltipPosition: position,
-        run: "click",
-    };
-}
-
-export function changeImage(snippet, position = "bottom") {
+export function changeImage(snippet) {
     return [
         {
             trigger: ".o_builder_sidebar_open",
         },
         {
             trigger: snippet.id ? `#wrapwrap .${snippet.id} img` : snippet,
-            content: markup(
-                _t("<b>Double click on an image</b> to change it with one of your choice.")
-            ),
-            tooltipPosition: position,
+            content: "Double click on an image to change it with one of your choice.",
             run: "dblclick",
         },
     ];
@@ -129,19 +71,16 @@ export function changeOption(
     blockName,
     actionId = "",
     optionTooltipLabel = "",
-    position = "bottom",
     allowPalette = false
 ) {
     const noPalette = allowPalette
         ? ""
-        : !document.querySelector(".o_popover .o_font_color_selector") && ".o_customize_tab";
+        : !document.querySelector(".o_popover .o_font_color_selector") &&
+          ".o-tab-content > [role='tabpanel']";
     const option_block = `${noPalette} [data-container-title='${blockName}']`;
     return {
         trigger: `${option_block} ${actionId}, ${option_block} [data-action-id="${actionId}"]`,
-        content: markup(
-            _t("<b>Click</b> on this option to change the %s of the block.", optionTooltipLabel)
-        ),
-        tooltipPosition: position,
+        content: `Click on this option to change the ${optionTooltipLabel} of the block.`,
         run: "click",
     };
 }
@@ -167,20 +106,29 @@ export function changeOption(
  */
 export function changeOptionInPopover(blockName, optionName, elementName) {
     const itemSelector = [
-        `.o_popover div.o-dropdown-item:contains("${elementName}")`,
-        `.o_popover span.o-dropdown-item:contains("${elementName}")`,
-        `.o_popover div.o-dropdown-item[title="${elementName}"]`,
-        `.o_popover span.o-dropdown-item[title="${elementName}"]`,
-        `.o_popover ${elementName}`,
+        `.o_popover .o-dropdown-item[title="${elementName}"]`,
+        `.o_popover .o-dropdown-item:contains(${elementName})`,
     ].join(", ");
     return [
+        {
+            content: "Wait for the popover of a previous option to be closed",
+            trigger: "body:not(:has(.o_popover .o-dropdown-item))",
+        },
         changeOption(blockName, `[data-label='${optionName}'] .dropdown-toggle`),
         {
             content: `Check if "${elementName}" option is shown. If not, search for it.`,
-            trigger: ".o_popover .o-dropdown-item",
-            async run(helpers) {
-                if (!helpers.queryFirst(itemSelector)) {
-                    await helpers.edit(elementName, ".o_popover input");
+            trigger: ".o_popover .o-dropdown-item:not(.o_we_m2o_search_more)",
+            async run({ waitFor, queryFirst, edit }) {
+                let item = queryFirst(itemSelector);
+                if (!item) {
+                    const popoverInput = queryFirst(".o_popover input");
+                    if (popoverInput) {
+                        await edit(elementName, ".o_popover input");
+                    }
+                }
+                item = await waitFor(itemSelector).catch(() => false);
+                if (!item) {
+                    console.error(`${itemSelector} not found after edit`);
                 }
             },
         },
@@ -202,8 +150,7 @@ export function selectNested(
     const option_block = `${noPalette} we-customizeblock-option[class='snippet-option-${optionName}']`;
     return {
         trigger: trigger + (altTrigger ? `, ${option_block} ${altTrigger}` : ""),
-        content: markup(_t("<b>Select</b> a %s.", optionTooltipLabel)),
-        tooltipPosition: position,
+        content: `Select a ${optionTooltipLabel}.`,
         run: "click",
     };
 }
@@ -217,7 +164,7 @@ export function changePaddingSize(direction) {
     }
     return {
         trigger: `.oe_overlay.oe_active .o_handle.${paddingDirection}`,
-        content: markup(_t("<b>Slide</b> this button to change the %s padding", direction)),
+        content: `Slide this button to change the ${direction} padding`,
         tooltipPosition: position,
         run: "click",
     };
@@ -267,12 +214,12 @@ export function clickOnElement(elementName, selector) {
  *
  * @param {string} position Where the purple arrow will show up
  */
-export function clickOnEditAndWaitEditMode(position = "bottom") {
+export function clickOnEditAndWaitEditMode() {
     return [
         {
-            content: markup(_t("<b>Click Edit</b> to start designing your homepage.")),
-            trigger: "body .o_menu_systray .o_menu_systray_item.o_edit_website_container button",
-            tooltipPosition: position,
+            content: "Click Edit to start designing your homepage.",
+            trigger:
+                "body:has(:iframe body[is-ready=true]) .o_menu_systray .o_menu_systray_item.o_edit_website_container button",
             run: "click",
         },
         {
@@ -288,18 +235,17 @@ export function clickOnEditAndWaitEditMode(position = "bottom") {
  *
  * @param {string} position Where the purple arrow will show up
  */
-export function clickOnEditAndWaitEditModeInTranslatedPage(position = "bottom") {
+export function clickOnEditAndWaitEditModeInTranslatedPage() {
     return [
         {
-            content: markup(_t("<b>Click Edit</b> dropdown")),
-            trigger: "body .o_menu_systray button:contains('Edit')",
-            tooltipPosition: position,
+            content: "Click Edit dropdown",
+            trigger:
+                "body:has(:iframe body[is-ready=true]) .o_menu_systray button:contains('Edit')",
             run: "click",
         },
         {
-            content: markup(_t("<b>Click Edit</b> to start designing your homepage.")),
+            content: "Click Edit to start designing your homepage.",
             trigger: ".o_edit_website_dropdown_item",
-            tooltipPosition: position,
             run: "click",
         },
         {
@@ -319,41 +265,39 @@ export function clickOnSnippet(snippet, position = "bottom") {
     return [
         {
             trigger: ".o-website-builder_sidebar",
-            noPrepend: true,
         },
         {
             trigger: `:iframe ${trigger}`,
-            content: markup(_t("<b>Click on a snippet</b> to access its options menu.")),
+            content: "Click on a snippet to access its options menu.",
             tooltipPosition: position,
             run: "click",
         },
     ];
 }
-
-export function clickOnSave(position = "bottom", timeout = 50000, withContains = true) {
+export function clickOnSave(timeout = 50000, withContains = true) {
     return [
         {
             trigger: ".o-snippets-menu:not(:has(.o_we_ongoing_insertion))",
         },
         {
             trigger: "body:not(:has(.o_dialog))",
-            noPrepend: true,
         },
         {
             trigger: withContains
                 ? "button[data-action=save]:enabled:contains(save)"
                 : "button[data-action=save]:enabled",
-            content: markup(_t("Good job! It's time to <b>Save</b> your work.")),
-            tooltipPosition: position,
+            content: "Good job! It's time to save your work.",
             run: "click",
             timeout,
         },
         {
             trigger: "body:not(.o_builder_open)",
-            noPrepend: true,
             timeout,
         },
-        stepUtils.waitIframeIsReady(),
+        {
+            content: "Wait until the iframe is ready",
+            trigger: ":iframe body[is-ready=true]",
+        },
     ];
 }
 
@@ -363,15 +307,14 @@ export function clickOnSave(position = "bottom", timeout = 50000, withContains =
  * @param {*} element Target the element which should be rewrite
  * @param {*} position
  */
-export function clickOnText(snippet, element, position = "bottom") {
+export function clickOnText(snippet, element) {
     return [
         {
             trigger: ":iframe body .odoo-editor-editable",
         },
         {
             trigger: snippet.id ? `:iframe #wrapwrap .${snippet.id} ${element}` : snippet,
-            content: markup(_t("<b>Click on a text</b> to start editing it.")),
-            tooltipPosition: position,
+            content: "Click on a text to start editing it.",
             run: "click",
         },
         {
@@ -393,7 +336,6 @@ export function insertSnippet(snippet, { position = "bottom", ignoreLoading = fa
     const insertSnippetSteps = [
         {
             trigger: ".o_builder_sidebar_open",
-            noPrepend: true,
         },
     ];
     const snippetIDSelector = snippet.id
@@ -402,26 +344,23 @@ export function insertSnippet(snippet, { position = "bottom", ignoreLoading = fa
     if (snippet.groupName) {
         insertSnippetSteps.push(
             {
-                content: markup(_t("Click on the <b>%s</b> category.", blockEl)),
+                content: `Click on the ${blockEl} category.`,
                 trigger: `.o_block_tab:not(.o_we_ongoing_insertion) #snippet_groups .o_snippet[name="${blockEl}"].o_draggable .o_snippet_thumbnail_area`,
                 tooltipPosition: position,
                 run: "click",
             },
             {
-                content: markup(_t("Click on the <b>%s</b> building block.", snippet.name)),
+                content: `Click on the ${snippet.name} building block.`,
                 // FIXME `:not(.d-none)` should obviously not be needed but it seems
                 // currently needed when using a tour in user/interactive mode.
                 trigger: `.modal .show:iframe .o_snippet_preview_wrap${snippetIDSelector}:not(.d-none)`,
-                noPrepend: true,
                 tooltipPosition: "top",
                 run: "click",
             }
         );
     } else {
         insertSnippetSteps.push({
-            content: markup(
-                _t("Drag the <b>%s</b> block and drop it at the bottom of the page.", blockEl)
-            ),
+            content: `Drag the ${blockEl} block and drop it at the bottom of the page.`,
             trigger: `.o_block_tab:not(.o_we_ongoing_insertion) #snippet_content .o_snippet[name="${blockEl}"].o_draggable .o_snippet_thumbnail`,
             tooltipPosition: position,
             run: "drag_and_drop :iframe #wrapwrap > footer",
@@ -437,24 +376,22 @@ export function insertSnippet(snippet, { position = "bottom", ignoreLoading = fa
     return insertSnippetSteps;
 }
 
-export function goBackToBlocks(position = "bottom") {
+export function goBackToBlocks() {
     return {
         trigger: "button[data-name='blocks']",
-        content: _t("Click here to go back to block tab."),
-        tooltipPosition: position,
+        content: "Click here to go back to block tab.",
         run: "click",
     };
 }
 
-export function goToTheme(position = "bottom") {
+export function goToTheme() {
     return [
         {
             trigger: ".o-website-builder_sidebar",
         },
         {
             trigger: "button[data-name='theme']",
-            content: _t("Go to the Theme tab"),
-            tooltipPosition: position,
+            content: "Go to the Theme tab",
             run: "click",
         },
         {
@@ -464,31 +401,22 @@ export function goToTheme(position = "bottom") {
     ];
 }
 
-export function selectHeader(position = "bottom") {
+export function selectHeader() {
     return {
         trigger: `:iframe header#top`,
-        content: markup(_t(`<b>Click</b> on this header to configure it.`)),
-        tooltipPosition: position,
+        content: "Click on this header to configure it.",
         run: "click",
     };
 }
 
-export function selectSnippetColumn(snippet, index = 0, position = "bottom") {
-    return {
-        trigger: `:iframe #wrapwrap .${snippet.id} .row div[class*="col-lg-"]:eq(${index})`,
-        content: markup(_t("<b>Click</b> on this column to access its options.")),
-        tooltipPosition: position,
-        run: "click",
-    };
-}
-
-export function prepend_trigger(steps, prepend_text = "") {
-    for (const step of steps) {
-        if (!step.noPrepend && prepend_text) {
-            step.trigger = prepend_text + step.trigger;
-        }
-    }
-    return steps;
+export function unfoldOptionsGroup(name) {
+    return [
+        {
+            content: `Unfold the "${name}" group`,
+            trigger: `.options-container[data-container-title="${name}"] .options-container-label i[data-icon='arrow_right']`,
+            run: "click",
+        },
+    ];
 }
 
 export function getClientActionUrl(path, edition) {
@@ -528,6 +456,12 @@ export function clickOnExtraMenuItem(stepOptions, backend = false) {
     );
 }
 
+export const waitForEditMode = {
+    content: "Wait for the edit mode to be started",
+    trigger: ".o_builder_sidebar_open",
+    timeout: 30000,
+};
+
 /**
  * Registers a tour that will go in the website client action.
  *
@@ -544,7 +478,6 @@ export function registerWebsitePreviewTour(name, options, steps) {
     registry.category("web_tour.tours").remove(name);
     return registry.category("web_tour.tours").add(name, {
         ...omit(options, "edition"),
-        url: getClientActionUrl(options.url, !!options.edition),
         steps: () => {
             const tourSteps = [...steps()];
             // Note: for both non edit mode and edit mode, we set a high timeout for the
@@ -553,18 +486,11 @@ export function registerWebsitePreviewTour(name, options, steps) {
             // automatic tests. We'll try and decrease the need for this high timeout
             // of course.
             if (options.edition) {
-                tourSteps.unshift({
-                    content: "Wait for the edit mode to be started",
-                    trigger: ".o_builder_sidebar_open",
-                    timeout: 30000,
-                });
+                tourSteps.unshift(waitForEditMode);
             } else {
                 tourSteps[0].timeout = 20000;
             }
-            return tourSteps.map((step) => {
-                delete step.noPrepend;
-                return step;
-            });
+            return tourSteps;
         },
     });
 }
@@ -575,9 +501,7 @@ export function registerThemeHomepageTour(name, steps) {
     }
     return registerWebsitePreviewTour(
         "homepage", // it overrides the community tour with the associated theme tour
-        {
-            url: "/",
-        },
+        {},
         () => [
             ...clickOnEditAndWaitEditMode(),
             // FIXME(?) this should probably reuse the prepend_trigger function
@@ -606,7 +530,7 @@ export function registerBackendAndFrontendTour(name, options, steps) {
     }
 
     return registry.category("web_tour.tours").add(name, {
-        url: options.url,
+        ...options,
         steps: () => steps(),
     });
 }
@@ -639,6 +563,34 @@ export function switchWebsite(websiteId, websiteName) {
             // some time
             timeout: 20000,
             trigger: `:iframe html[data-website-id="${websiteId}"]`,
+        },
+    ];
+}
+
+export function switchToLang(lang) {
+    return [
+        {
+            content: `Switch to ${lang}`,
+            trigger: `:iframe .js_change_lang[data-url_code^='${lang}']`,
+            // After clicking a language link, the iframe navigates to a new document.
+            // We must wait for the old contentDocument to be replaced and the new
+            // one to be fully loaded before proceeding, otherwise the next steps
+            // may run against the old (unloading) or partially loaded document.
+            async run({ anchor, click }) {
+                const iframe = anchor.ownerDocument.defaultView.frameElement;
+                const oldDoc = iframe.contentDocument;
+                await click(anchor);
+                while (!iframe.contentDocument || iframe.contentDocument === oldDoc) {
+                    await new Promise((r) => setTimeout(r, 50));
+                }
+                while (iframe.contentDocument.readyState !== "complete") {
+                    await new Promise((r) => setTimeout(r, 50));
+                }
+            },
+        },
+        {
+            content: `Wait until ${lang} is applied`,
+            trigger: `:iframe html[lang^="${lang}"]`,
         },
     ];
 }
@@ -693,19 +645,26 @@ export function toggleMobilePreview(toggleOn) {
  *                                      the link element.
  * @returns {TourStep[]} The tour steps that opens the link popup.
  */
-export function openLinkPopup(
-    triggerSelector,
-    linkName = "",
-    focusNodeIndex = 0,
-    triggerClick = false
-) {
-    return [
+export function openLinkPopup({
+    trigger,
+    runClick = true,
+    url = "/",
+    label = "",
+    focusNodeIndex = 1,
+    edit = false,
+    remove = false,
+} = {}) {
+    const linkPopoverTrigger = (label, url) =>
+        `.o-we-linkpopover .o_we_link_preview:has(.o_we_url_link${
+            label ? `:contains(${label})` : ""
+        }[href='${url}'])`;
+    const steps = [
         {
-            content: `Open '${linkName}' link popup`,
-            trigger: triggerSelector,
-            async run(actions) {
-                if (triggerClick) {
-                    actions.click();
+            content: `Open '${label}' link popup`,
+            trigger,
+            async run({ click }) {
+                if (runClick) {
+                    await click();
                 }
                 const el = this.anchor;
                 const sel = el.ownerDocument.getSelection();
@@ -714,10 +673,48 @@ export function openLinkPopup(
             },
         },
         {
-            content: "Check if the link popover opened",
-            trigger: ".o-we-linkpopover",
+            content: "Popover should be shown",
+            trigger: linkPopoverTrigger(label, url),
         },
     ];
+    if (edit || remove) {
+        steps.push({
+            content: "Click on Edit Link in Popover",
+            trigger: `${linkPopoverTrigger(label, url)} .o_we_edit_link`,
+            run: "click",
+        });
+    }
+    if (edit && edit.length > 0) {
+        steps.push(
+            {
+                content: `Type the link URL ${edit}`,
+                trigger: ".o-we-linkpopover .o_we_href_input_link, .modal #url_input",
+                run: `edit ${edit}`,
+            },
+            {
+                content: "Save the link by clicking on Apply button",
+                trigger: ".o-we-linkpopover .o_we_apply_link, .modal-footer button:text(Continue)",
+                run: "click",
+            },
+            {
+                trigger: linkPopoverTrigger(null, edit),
+            }
+        );
+    }
+    if (remove) {
+        steps.push(
+            {
+                content: "Click on Remove Link in Popover",
+                trigger: `.o-we-linkpopover .o_link_popover_container:has(.input-group) .o_we_remove_link`,
+                run: "click",
+            },
+            {
+                content: "Ensure popover is closed",
+                trigger: ".o-overlay-container:not(:visible:has(.o-we-linkpopover))",
+            }
+        );
+    }
+    return steps;
 }
 
 /**
@@ -730,7 +727,6 @@ export function selectFullText(elementName, selector) {
         content: `Select all the text of the ${elementName}`,
         trigger: `:iframe ${selector}`,
         async run(actions) {
-            await actions.click();
             const range = document.createRange();
             const selection = this.anchor.ownerDocument.getSelection();
             range.selectNodeContents(this.anchor);
@@ -742,6 +738,7 @@ export function selectFullText(elementName, selector) {
                     cancelable: true,
                 })
             );
+            await actions.click();
         },
     };
 }
@@ -772,4 +769,130 @@ export function clickToolbarButton(elementName, selector, button, expand = false
         });
     }
     return steps;
+}
+
+export function changeBackgroundShape(shape = "html_builder/Connections/01") {
+    return [
+        {
+            content: "Open Background Shape selector",
+            trigger: "div[data-label='Background'] ~ div[data-label='Shape'] button.o-hb-btn",
+            run: "click",
+        },
+        {
+            content: "Wait for panel to open",
+            trigger: ".hb-sliding-panel.d-block",
+        },
+        {
+            content: "Pick a Background Shape",
+            trigger: `.o_pager_container .o-hb-bg-shape-btn [data-action-id='setBackgroundShape'][data-action-value='${shape}']`,
+            run: "click",
+        },
+        {
+            content: "Wait for panel to close",
+            trigger: "body:not(:has(.hb-panel-slide-out))",
+        },
+    ];
+}
+
+export function changeImageShape(shape = "html_builder/geometric/geo_shuriken") {
+    return [
+        {
+            content: "Open Image Shape selector",
+            trigger: "div[data-label='Media'] ~ div[data-label='Shape'] button.o-hb-btn",
+            run: "click",
+        },
+        {
+            content: "Wait for panel to open",
+            trigger: ".hb-sliding-panel.d-block",
+        },
+        {
+            content: "Pick an Image Shape",
+            trigger: `.o_pager_container .o-hb-img-shape-btn [data-action-id='setImageShape'][data-action-value='${shape}']`,
+            run: "click",
+        },
+        {
+            content: "Wait for panel to close",
+            trigger: ".options-container:visible",
+        },
+    ];
+}
+
+/**
+ *
+ * @param {string} trigger - selector
+ * @returns step
+ */
+export function openPowerbox(trigger) {
+    return {
+        content: "Show the powerbox",
+        trigger,
+        async run(actions) {
+            await actions.editor("/");
+            const wrapwrap = this.anchor.closest("#wrapwrap");
+            wrapwrap.dispatchEvent(
+                new InputEvent("input", {
+                    inputType: "insertText",
+                    data: "/",
+                })
+            );
+        },
+    };
+}
+
+/**
+ * Asserts that an SVG image contains all specified color values.
+ *
+ * @param {HTMLImageElement} img - The image element containing the SVG.
+ * @param {String} errorMessage - The error message to throw if assertion fails.
+ * @param {String[]} colors - The color values to check for in the SVG.
+ */
+export async function assertSvgColors(img, errorMessage, colors) {
+    if (!img || !img.src) {
+        throw new Error("Invalid image element or missing src.");
+    }
+    const response = await fetch(img.src);
+    const svg = await response.text();
+    if (!colors.every((color) => svg.includes(color))) {
+        throw new Error(errorMessage);
+    }
+}
+
+export function addLanguage(lang, lang_code) {
+    return [
+        ...goToTheme(),
+        {
+            content: "click on Add a language",
+            trigger: "button[data-action-id='addLanguage']",
+            run: "click",
+        },
+        {
+            content: "confirm leave editor",
+            trigger: ".modal-dialog button.btn-primary",
+            run: "click",
+        },
+        {
+            content: `type ${lang}`,
+            trigger: 'div[name="lang_ids"] .o_input_dropdown input',
+            run: `edit ${lang}`,
+        },
+        {
+            content: `select ${lang}`,
+            trigger: `.dropdown-item:contains(${lang})`,
+            run: "click",
+        },
+        {
+            trigger: `.modal-dialog div[name="lang_ids"] .rounded-pill .o_tag_badge_text:contains(${lang})`,
+        },
+        {
+            content: `load ${lang}`,
+            trigger: ".modal-footer .btn-primary",
+            run: "click",
+            expectUnloadPage: true,
+        },
+        {
+            content: `Check that the language of the page is ${lang}`,
+            trigger: `:iframe html[lang*="${lang_code}"]`,
+            timeout: 60000,
+        },
+    ];
 }

@@ -1,41 +1,49 @@
-import { useSubEnv } from '@odoo/owl';
-import {
-    ProductConfiguratorDialog
-} from '@sale/js/product_configurator_dialog/product_configurator_dialog';
-import { _t } from '@web/core/l10n/translation';
-import { patch } from '@web/core/utils/patch';
-
-patch(ProductConfiguratorDialog, {
-    props: {
-        ...ProductConfiguratorDialog.props,
-        isFrontend: { type: Boolean, optional: true },
-        options: {
-            ...ProductConfiguratorDialog.props.options,
-            shape: {
-                ...ProductConfiguratorDialog.props.options.shape,
-                isMainProductConfigurable: { type: Boolean, optional: true },
-                isBuyNow: { type: Boolean, optional: true },
-            },
-        },
-    },
-});
+import { t, useProps } from "@odoo/owl";
+import { ProductConfiguratorDialog } from "@sale/js/product_configurator_dialog/product_configurator_dialog";
+import { _t } from "@web/core/l10n/translation";
+import { patch } from "@web/core/utils/patch";
+import { useSubEnv } from "@web/owl2/utils";
 
 patch(ProductConfiguratorDialog.prototype, {
     setup() {
-        super.setup(...arguments);
+        super.setup();
 
-        if (this.props.isFrontend) {
-            this.getValuesUrl = '/website_sale/product_configurator/get_values';
-            this.createProductUrl = '/website_sale/product_configurator/create_product';
-            this.updateCombinationUrl = '/website_sale/product_configurator/update_combination';
-            this.getOptionalProductsUrl = '/website_sale/product_configurator/get_optional_products';
+        this.websiteSaleProps = useProps({
+            isFrontend: t.boolean().optional(),
+            options: t
+                .object({
+                    isMainProductConfigurable: t.boolean().optional(),
+                    isBuyNow: t.boolean().optional(),
+                })
+                .optional(),
+        });
+
+        if (this.websiteSaleProps.isFrontend) {
+            this.createProductUrl = "/website_sale/product_configurator/create_product";
+            this.updateCombinationUrl = "/website_sale/product_configurator/update_combination";
+            this.getOptionalProductsUrl =
+                "/website_sale/product_configurator/get_optional_products";
+            this.getComboDataUrl = "/website_sale/combo_configurator/get_data";
             this.title = _t("Configure");
         }
 
         useSubEnv({
-            isFrontend: this.props.isFrontend,
-            isMainProductConfigurable: this.props.options?.isMainProductConfigurable ?? true,
+            isFrontend: this.websiteSaleProps.isFrontend,
+            isMainProductConfigurable:
+                this.websiteSaleProps.options?.isMainProductConfigurable ?? true,
+            isQuantityAllowed: this._isQuantityInStock.bind(this),
         });
+    },
+
+    /**
+     * Override of `sale` to limit the quantity to the stock availability
+     */
+    async _setQuantity(productTmplId, quantity) {
+        const product = this._findProduct(productTmplId);
+        if (!this._isQuantityInStock(product, quantity)) {
+            quantity = product.free_qty;
+        }
+        return super._setQuantity(productTmplId, quantity);
     },
 
     /**
@@ -44,7 +52,9 @@ patch(ProductConfiguratorDialog.prototype, {
      * @return {Boolean} - Whether all selected products can be sold.
      */
     canBeSold() {
-        return this.state.products.every(p => p.can_be_sold);
+        return this.state.products.every(
+            (p) => p.can_be_sold && this._isQuantityInStock(p, p.quantity)
+        );
     },
 
     /**
@@ -53,7 +63,14 @@ patch(ProductConfiguratorDialog.prototype, {
      * @return {Boolean} - Whether to show the "shop" buttons in the dialog footer.
      */
     showShopButtons() {
-        return this.props.isFrontend && !this.props.edit;
+        return this.websiteSaleProps.isFrontend && !this.props.edit;
+    },
+
+    _handleUnitOfMeasureUpdate(product, combination, uomId) {
+        super._handleUnitOfMeasureUpdate(...arguments);
+        if (this.websiteSaleProps.isFrontend && combination.strikethrough_price) {
+            product.strikethrough_price = parseFloat(combination.strikethrough_price);
+        }
     },
 
     _handleUnitOfMeasureUpdate(product, combination, uomId) {
@@ -74,4 +91,24 @@ patch(ProductConfiguratorDialog.prototype, {
         return super.totalMessage(...arguments);
     },
 
+    /**
+     * Check whether the provided product quantity can be added to the cart.
+     *
+     * @param {Object} product - The provided product.
+     * @param {Number} quantity - The new quantity of the product.
+     * @return {Boolean} - Whether the provided product quantity can be added to the cart.
+     */
+    _isQuantityInStock(product, quantity) {
+        // `product` may be a props object, which always exposes every declared key (including the
+        // optional `free_qty`), so the presence of the key can't be used to detect stock tracking.
+        return product.free_qty === undefined || product.free_qty >= quantity;
+    },
+
+    _getAdditionalDialogProps() {
+        const props = super._getAdditionalDialogProps();
+        if (this.websiteSaleProps.isFrontend) {
+            props.isFrontend = this.websiteSaleProps.isFrontend;
+        }
+        return props;
+    },
 });

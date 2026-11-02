@@ -1,34 +1,44 @@
+import { useProps, proxy, t } from "@odoo/owl";
+import { useCommand } from "@web/core/commands/command_hook";
 import { _t } from "@web/core/l10n/translation";
+import { registry } from "@web/core/registry";
+import { useService } from "@web/core/utils/hooks";
+import { formatSelection } from "@web/views/fields/formatters";
+import { standardFieldProps } from "@web/views/fields/standard_field_props";
 import {
     StateSelectionField,
     stateSelectionField,
 } from "@web/views/fields/state_selection/state_selection_field";
-import { useCommand } from "@web/core/commands/command_hook";
-import { formatSelection } from "@web/views/fields/formatters";
-
-import { registry } from "@web/core/registry";
-import { useState } from "@odoo/owl";
 
 export class ProjectTaskStateSelection extends StateSelectionField {
     static template = "project.ProjectTaskStateSelection";
 
-    static props = {
-        ...stateSelectionField.component.props,
-        isToggleMode: { type: Boolean, optional: true },
-        viewType: { type: String },
-    };
+    props = useProps({
+        ...standardFieldProps,
+        showLabel: t.boolean().optional(true),
+        withCommand: t.boolean().optional(),
+        isToggleMode: t.boolean().optional(),
+        viewType: t.string().optional(),
+    });
 
     setup() {
-        this.state = useState({
+        this.uiService = useService("ui");
+        this.state = proxy({
             isStateButtonHighlighted: false,
         });
         this.icons = {
+            "02_changes_requested": "priority_high",
+            "1_done": "check_circle",
+            "1_canceled": "cancel",
+            "04_waiting_normal": "hourglass_empty",
+        };
+        this.classIcons = {
+            "02_changes_requested": "oi oi-filled o_status",
+            "1_done": "oi oi-filled",
+            "1_canceled": "oi oi-filled",
+            "04_waiting_normal": "oi",
             "01_in_progress": "o_status",
             "03_approved": "o_status o_status_green",
-            "02_changes_requested": "fa fa-lg fa-exclamation-circle",
-            "1_done": "fa fa-lg fa-check-circle",
-            "1_canceled": "fa fa-lg fa-times-circle",
-            "04_waiting_normal": "fa fa-lg fa-hourglass-o",
         };
         this.colorIcons = {
             "01_in_progress": "",
@@ -104,6 +114,10 @@ export class ProjectTaskStateSelection extends StateSelectionField {
         return this.icons[value] || "";
     }
 
+    stateClassIcon(value) {
+        return this.classIcons[value] || "";
+    }
+
     /**
      * @override
      */
@@ -130,14 +144,14 @@ export class ProjectTaskStateSelection extends StateSelectionField {
     }
 
     getDropdownPosition() {
-        if (this.isView(['activity', 'kanban', 'list', 'calendar']) || this.env.isSmall) {
+        if (this.isView(['activity', 'card', 'list', 'calendar']) || this.uiService.isSmall) {
             return '';
         }
         return 'bottom-end';
     }
 
     getTogglerClass(currentValue) {
-        if (this.isView(['activity', 'kanban', 'list', 'calendar']) || this.env.isSmall) {
+        if (this.isView(['activity', 'card', 'list', 'calendar']) || this.uiService.isSmall) {
             return 'btn btn-link d-flex p-0';
         }
         return 'o_state_button btn rounded-pill ' + this.colorButton[currentValue];
@@ -155,7 +169,7 @@ export class ProjectTaskStateSelection extends StateSelectionField {
      * @param {MouseEvent} ev
      */
     onMouseEnterStateButton(ev) {
-        if (!this.env.isSmall) {
+        if (!this.uiService.isSmall) {
             this.state.isStateButtonHighlighted = true;
         }
     }

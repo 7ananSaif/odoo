@@ -10,6 +10,12 @@ patch(PosStore.prototype, {
             // Therefore, no sensitive information is sent through it, only a
             // notification to invite the local browser to do a safe RPC to
             // the server to check the new state of the order.
+            const order = this.models["pos.order"].find((o) => o.id == id);
+            const orders = await this.data.loadServerOrders([["id", "=", id]]);
+            const updatedOrder = orders[0];
+            if (updatedOrder) {
+                order.state = updatedOrder.state;
+            }
             if (this.getOrder()?.id === id) {
                 this.updateOnlinePaymentsDataWithServer(this.getOrder(), false);
             }
@@ -48,10 +54,23 @@ patch(PosStore.prototype, {
                 CONSOLE_COLOR
             );
         }
+
+        const isPaid = "paid_order" in opData;
+        const resolvers = order.payment_ids
+            .map((line) => line.onlinePaymentResolver)
+            .filter(Boolean);
+        if (isPaid || (opData.online_payments && opData.online_payments.length > 0)) {
+            const placeholders = order.payment_ids.filter(
+                (p) => !p.isSynced && p.payment_method_id.type === "online"
+            );
+            for (const p of placeholders) {
+                p.delete();
+            }
+        }
+
         if ("paid_order" in opData) {
             opData.isPaid = true;
-            // only one line will have the `online_payment_resolver` method
-            order.payment_ids.forEach((line) => line.onlinePaymentResolver?.(true));
+            resolvers.forEach((resolve) => resolve(true));
             return opData;
         } else {
             opData.isPaid = false;
@@ -59,7 +78,7 @@ patch(PosStore.prototype, {
 
         if (opData["deleted"] === true) {
             const onlinePm = order.payment_ids.filter(
-                (line) => line.payment_method_id.is_online_payment
+                (line) => line.payment_method_id.type === "online"
             );
 
             for (const line of onlinePm) {
@@ -73,7 +92,7 @@ patch(PosStore.prototype, {
 
         const opLinesToUpdate = order.payment_ids.filter(
             (line) =>
-                line.payment_method_id.is_online_payment &&
+                line.payment_method_id.type === "online" &&
                 ["waiting", "done"].includes(line.getPaymentStatus())
         );
         for (const op of opData.online_payments) {
@@ -97,7 +116,6 @@ patch(PosStore.prototype, {
                 opData["modified_payment_lines"] = true;
             }
             opLine.setAmount(op.amount);
-            opLine.can_be_reversed = false;
             if (opLine.getPaymentStatus() !== "done") {
                 newDoneOnlinePayment = true;
             }
@@ -113,8 +131,7 @@ patch(PosStore.prototype, {
             }
         }
         if (newDoneOnlinePayment || opData["modified_payment_lines"]) {
-            // only one line will have the `online_payment_resolver` method
-            order.payment_ids.forEach((line) => line.onlinePaymentResolver?.());
+            resolvers.forEach((resolve) => resolve());
         }
 
         return opData;

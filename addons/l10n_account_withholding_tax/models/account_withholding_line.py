@@ -18,7 +18,7 @@ class AccountWithholdingLine(models.AbstractModel):
     # Fields declaration
     # ------------------
 
-    name = fields.Char(string="Sequence Number")
+    name = fields.Char(string="Sequence Number", copy=True)
     placeholder_value = fields.Char(help="Populated by the comodel during edition of the line.")
     placeholder_type = fields.Selection(
         selection=[
@@ -48,7 +48,8 @@ class AccountWithholdingLine(models.AbstractModel):
         comodel_name='account.tax',
         check_company=True,
         required=True,
-        domain="[('type_tax_use', '=', type_tax_use), ('is_withholding_tax_on_payment', '=', True)]",
+        index=True,
+        domain="[('type_tax_use', '=', type_tax_use), ('is_withholding_tax', '=', True)]",
     )
     withholding_sequence_id = fields.Many2one(related='tax_id.withholding_sequence_id')
     source_base_amount_currency = fields.Monetary(currency_field='source_currency_id')
@@ -107,8 +108,10 @@ class AccountWithholdingLine(models.AbstractModel):
         compute='_compute_company_id',
         precompute=True,
         required=True,
+        index=True,
         store=True,
     )
+    country_code = fields.Char(related='company_id.account_fiscal_country_id.code')
     comodel_company_currency_id = fields.Many2one(
         related='company_id.currency_id',
     )
@@ -163,7 +166,7 @@ class AccountWithholdingLine(models.AbstractModel):
             company = line.company_id
             date = line.comodel_date
             comp_curr = line.comodel_company_currency_id
-            line_curr = line.comodel_currency_id
+            line_curr = line.comodel_currency_id or comp_curr
             if not source_curr:
                 rate = 1.0
                 base_amount = line.base_amount
@@ -214,7 +217,7 @@ class AccountWithholdingLine(models.AbstractModel):
         support installments, early payment discounts,...
         """
         for line in self:
-            line_curr = line.comodel_currency_id
+            line_curr = line.comodel_currency_id or line.comodel_company_currency_id
             if line.source_currency_id:
                 percentage_paid_factor = line.comodel_percentage_paid_factor
                 line.base_amount = line_curr.round(line.original_base_amount * percentage_paid_factor)
@@ -226,7 +229,7 @@ class AccountWithholdingLine(models.AbstractModel):
         a ratio calculated from the current base amount and the original base amount.
         """
         for line in self:
-            line_curr = line.comodel_currency_id
+            line_curr = line.comodel_currency_id or line.comodel_company_currency_id
             if line.original_base_amount:
                 line.amount = line_curr.round(line.original_tax_amount * line.base_amount / line.original_base_amount)
             else:
@@ -360,16 +363,11 @@ class AccountWithholdingLine(models.AbstractModel):
         company = self.company_id
         AccountTax = self.env['account.tax']
 
-        # Check names first to not consume sequences if any is missing
-        for line in self:
-            if not line.name and not line.withholding_sequence_id:
-                raise UserError(self.env._('Please enter the withholding number for the tax %(tax_name)s', tax_name=line.tax_id.name))
-
         # Convert them to base lines to compute the taxes.
         base_lines = []
         for line in self:
-            if not line.name:
-                line.name = line.tax_id.withholding_sequence_id.next_by_id()
+            if not line.name and line.withholding_sequence_id:
+                line.name = line.withholding_sequence_id.next_by_id()
 
             base_line = line._prepare_base_line_for_taxes_computation()
             AccountTax._add_tax_details_in_base_line(base_line, company)
@@ -383,7 +381,7 @@ class AccountWithholdingLine(models.AbstractModel):
         for tax_line_vals in tax_results['tax_lines_to_add']:
             aml_create_values_list.append({
                 **tax_line_vals,
-                'name': self.env._("WH Tax: %(name)s", name=tax_line_vals['name']),
+                'name': self.env._("WH Tax: %(name)s", name=tax_line_vals['name']) if tax_line_vals.get('name') else self.env._("WH Tax"),
                 'amount_currency': -tax_line_vals['amount_currency'],
                 'balance': -tax_line_vals['balance'],
                 'partner_id': self._get_comodel_partner().id,
@@ -407,9 +405,10 @@ class AccountWithholdingLine(models.AbstractModel):
 
         # Add the base lines.
         for grouping_key, amounts in aggregated_base_lines.items():
+            joined_names = ', '.join(filter(None, amounts['names']))
             aml_create_values_list.append({
                 **grouping_key,
-                'name': self.env._('WH Base: %(names)s', names=', '.join(amounts['names'])),
+                'name': self.env._('WH Base: %(names)s', names=joined_names) if joined_names else self.env._('WH Base'),
                 'tax_ids': [],
                 'tax_tag_ids': [],
                 'amount_currency': amounts['amount_currency'],
@@ -418,7 +417,7 @@ class AccountWithholdingLine(models.AbstractModel):
             })
             aml_create_values_list.append({
                 **grouping_key,
-                'name': self.env._('WH Base Counterpart: %(names)s', names=', '.join(amounts['names'])),
+                'name': self.env._('WH Base Counterpart: %(names)s', names=joined_names) if joined_names else self.env._('WH Base Counterpart'),
                 'analytic_distribution': None,
                 'amount_currency': -amounts['amount_currency'],
                 'balance': -amounts['balance'],
@@ -432,7 +431,7 @@ class AccountWithholdingLine(models.AbstractModel):
         """ Construct and return a domain that will filter withholding taxes available for this company and payment type. """
         filter_domain = models.check_company_domain_parent_of(self, company)
         payment_type = 'purchase' if payment_type == 'outbound' else 'sale'
-        return Domain.AND([filter_domain, Domain('type_tax_use', '=', payment_type), Domain('is_withholding_tax_on_payment', '=', True)])
+        return Domain.AND([filter_domain, Domain('type_tax_use', '=', payment_type), Domain('is_withholding_tax', '=', True)])
 
     def _need_update_withholding_lines_placeholder(self):
         """ Determines if the lines' placeholders needs update or not. """
@@ -488,7 +487,7 @@ class AccountWithholdingLine(models.AbstractModel):
                 'analytic_distribution': base_line_data['analytic_distribution'],
                 'account': account.id,
                 'tax_id': tax_data['tax'].id,
-                'skip': not tax_data['tax'].is_withholding_tax_on_payment,
+                'skip': not tax_data['tax'].is_withholding_tax,
                 'currency_id': base_line_data['currency_id'].id,
             }
 

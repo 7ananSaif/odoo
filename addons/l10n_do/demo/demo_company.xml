@@ -3,15 +3,14 @@
     <record id="base.partner_demo_company_do" model="res.partner" forcecreate="1">
         <field name="name">DO Company</field>
         <field name="vat">088390123</field>
-        <field name="street">A</field>
-        <field name="city">Andrés</field>
+        <field name="street">Calle La Playa #123</field>
+        <field name="city">Santo Domingo</field>
         <field name="country_id" ref="base.do"/>
         <field name="state_id" ref="base.state_DO_32"/>
         <field name="zip">15700</field>
         <field name="phone">+1 809-234-5678</field>
         <field name="email">info@company.doexample.com</field>
         <field name="website">www.doexample.com</field>
-        <field name="is_company" eval="True"/>
     </record>
 
     <record id="base.demo_company_do" model="res.company" forcecreate="1">

@@ -8,6 +8,8 @@ from odoo import Command
 @odoo.tests.tagged('post_install_l10n', 'post_install', '-at_install')
 class TestPoSSaleL10NBe(TestPointOfSaleHttpCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     @TestPointOfSaleHttpCommon.setup_country('be')
     def setUpClass(cls):
@@ -92,7 +94,6 @@ class TestPoSSaleL10NBe(TestPointOfSaleHttpCommon):
         b_pos_config = self.env['pos.config'].with_company(branch).create({
             'name': 'Main',
             'journal_id': self.company_data['default_journal_sale'].id,
-            'invoice_journal_id': self.company_data['default_journal_sale'].id,
             'payment_method_ids': [(4, bank_payment_method.id)],
         })
 
@@ -102,6 +103,8 @@ class TestPoSSaleL10NBe(TestPointOfSaleHttpCommon):
 
 @odoo.tests.tagged('post_install_l10n', 'post_install', '-at_install')
 class TestPoSSaleL10NBeNormalCompany(TestPointOfSaleHttpCommon):
+    _test_user_groups = None  # FIXME list needed groups
+
     def test_settle_order_can_invoice(self):
         """This test makes sure that you can invoice a settled order when l10n_be is installed"""
         self.product_a = self.env['product.product'].create({

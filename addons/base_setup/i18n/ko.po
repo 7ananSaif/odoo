@@ -12,24 +12,29 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-11-17 10:55+0000\n"
-"Last-Translator: \"Kwanghee Park (kwpa)\" <kwpa@odoo.com>\n"
-"Language-Team: Korean <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-08-31 16:27+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Korean <https://translate.odoo.com/projects/odoo-s19-4/"
 "base_setup/ko/>\n"
 "Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+#: model:ir.module.module,description:base.module_base_setup
 msgid ""
-"<span class=\"fa fa-lg fa-users\" aria-label=\"Number of active users\"/>"
+"\n"
+"This module helps to configure the system at the installation of a new "
+"database.\n"
+"================================================================================\n"
+"\n"
+"Shows you a list of applications features to install from.\n"
+"\n"
 msgstr ""
-"<span class=\"fa fa-lg fa-users\" aria-label=\"Number of active users\"/>"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -165,11 +170,6 @@ msgid "Add fun feedback and motivate your employees"
 msgstr "유머러스한 피드백을 추가하여 직원들에게 동기 부여"
 
 #. module: base_setup
-#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_mail_plugin
-msgid "Allow integration with the mail plugins"
-msgstr "메일 플러그인과의 통합을 허용합니다."
-
-#. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_google_calendar
 msgid "Allow the users to synchronize their calendar  with Google Calendar"
 msgstr "구글 캘린더와 내부 일정표 동기화 허용"
@@ -254,15 +254,6 @@ msgstr "환경설정"
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
 msgid "Configure Document Layout"
 msgstr "문서 양식 설정"
-
-#. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid ""
-"Configure company rules to automatically create SO/PO when one of your "
-"company sells/buys to another of your company."
-msgstr ""
-"회사가 다른 회사에 제품을 판매/구매할 때 판매주문서/구매 주문서를 자동으로 생"
-"성하도록 회사 규칙을 구성합니다."
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -358,13 +349,13 @@ msgstr "위치 정보"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Geolocate your partners"
-msgstr "파트너 위치 찾기"
+msgid "Geolocation"
+msgstr "위치정보"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Geolocation"
-msgstr "위치정보"
+msgid "Get the latitude and the longitude of your partners"
+msgstr ""
 
 #. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_google_address_autocomplete
@@ -390,9 +381,9 @@ msgid "Import & Export"
 msgstr "가져오기 및 내보내기"
 
 #. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Integrate with mail client plugins"
-msgstr "메일 클라이언트 플러그인과 통합합니다."
+#: model:ir.module.module,shortdesc:base.module_base_setup
+msgid "Initial Setup Tools"
+msgstr ""
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -429,11 +420,6 @@ msgstr "언어"
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
 msgid "Layout"
 msgstr "레이아웃"
-
-#. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Mail Plugin"
-msgstr "메일 플러그인"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -479,6 +465,11 @@ msgstr "회사 수"
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__language_count
 msgid "Number of Languages"
 msgstr "언어 수"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Number of active users"
+msgstr ""
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -539,7 +530,7 @@ msgstr "CF Turnstile로 서식을 보호하세요."
 #. odoo-javascript
 #: code:addons/base_setup/static/src/views/module_views.xml:0
 msgid "Reset Updating States"
-msgstr "업데이트 상태 초기화"
+msgstr ""
 
 #. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_sms
@@ -649,49 +640,9 @@ msgstr "이 기능을 사용하려면 메일 및 채팅 애플리케이션을 �
 msgid "reCAPTCHA"
 msgstr "reCAPTCHA"
 
-#~ msgid "Asterisk (VoIP)"
-#~ msgstr "Asterisk (VoIP)"
-
 #~ msgid ""
-#~ "Automatically generate counterpart documents for orders/invoices between "
-#~ "companies"
-#~ msgstr "회사 간의 주문/송장에 대한 대응 문서를 자동으로 생성"
-
-#~ msgid ""
-#~ "By default, new users get highest access rights for all installed apps."
+#~ "<span class=\"oi oi-lg oi-filled\" data-icon=\"group\" aria-"
+#~ "label=\"Number of active users\"/>"
 #~ msgstr ""
-#~ "기본적으로 새 사용자는 설치된 모든 앱에 대해 가장 높은 사용 권한을 얻습니"
-#~ "다."
-
-#~ msgid "Default User Template not found."
-#~ msgstr "기본 사용자 서식을 찾을 수 없습니다."
-
-#~ msgid "Documentation"
-#~ msgstr "문서화"
-
-#~ msgid "Geo Localization"
-#~ msgstr "위치 정보"
-
-#~ msgid "GeoLocalize your partners"
-#~ msgstr "협력사 위치 정보"
-
-#~ msgid "Get product pictures using barcode"
-#~ msgstr "바코드를 스캔하여 품목 사진 가져오기"
-
-#~ msgid "Google Calendar"
-#~ msgstr "구글 캘린더"
-
-#~ msgid "On Apple Store"
-#~ msgstr "애플 앱스토어"
-
-#~ msgid "On Google Play"
-#~ msgstr "구글 플레이"
-
-#~ msgid "Outlook Calendar"
-#~ msgstr "아웃룩 달력"
-
-#~ msgid "Synchronize your calendar with Google Calendar"
-#~ msgstr "Google 캘린더와 내부 일정표 동기화"
-
-#~ msgid "Synchronize your calendar with Outlook"
-#~ msgstr "일정을 Outlook과 동기화"
+#~ "<span class=\"oi oi-lg oi-filled\" data-icon=\"group\" aria-"
+#~ "label=\"Number of active users\"/>"

@@ -63,14 +63,20 @@
                         <field name="use_google_maps_static_api"/>
                         <div invisible="not use_google_maps_static_api">
                             <div class="content-group mt16">
-                                <label for="google_maps_static_api_key" class="o_form_label col-lg-3 o_light_label"/>
-                                <field name="google_maps_static_api_key" string="Key"
-                                       required="use_google_maps_static_api"/>
+                                <label for="google_maps_static_api_key" class="o_form_label col-lg-3 o_light_label me-2"/>
+                                <field name="google_maps_static_api_key"
+                                       string="ID"
+                                       required="use_google_maps_static_api"
+                                       placeholder="ID of your Google app"
+                                />
                             </div>
                             <div class="content-group">
-                                <label for="google_maps_static_api_secret" class="o_form_label col-lg-3 o_light_label"/>
-                                <field name="google_maps_static_api_secret" string="Secret"
-                                       required="use_google_maps_static_api"/>
+                                <label for="google_maps_static_api_secret" class="o_form_label col-lg-3 o_light_label me-2"/>
+                                <field name="google_maps_static_api_secret"
+                                       string="Secret"
+                                       required="use_google_maps_static_api"
+                                       placeholder="Secret of your Google app"
+                                />
                             </div>
                         </div>
                     </setting>
@@ -82,7 +88,7 @@
             <field name="name">Settings</field>
             <field name="res_model">res.config.settings</field>
             <field name="view_mode">form</field>
-            <field name="context">{'module' : 'event', 'bin_size': False}</field>
+            <field name="context">{'module' : 'event'}</field>
         </record>
 
         <menuitem id="menu_event_global_settings" name="Settings"

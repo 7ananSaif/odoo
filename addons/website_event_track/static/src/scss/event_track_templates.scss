@@ -7,12 +7,21 @@
         padding: 0;
     }
 
-    i {
-        &.fa-bell,&.fa-bell-o {
-            color: $o-gray-600;
-            -webkit-text-stroke-color: $o-gray-600;
-        }
+    i[data-icon="notifications"] {
+        color: $o-gray-600;
+        -webkit-text-stroke-color: $o-gray-600;
     }
+
+    &.reminder_off {
+        .o_wetrack_js_reminder_on { display: none; }
+        .o_wetrack_js_reminder_off { display: inline; }
+    }
+
+    &.reminder_on {
+        .o_wetrack_js_reminder_on { display: inline; }
+        .o_wetrack_js_reminder_off { display: none; }
+    }
+
 }
 
 /*
@@ -151,12 +160,6 @@
                 > div {
                     padding: 0.3em;
                 }
-                // For unpublished tracks, opacity is already reduced
-                [data-publish='off'] .o_weagenda_track_badges > .o_wevent_online_badge_unpublished {
-                    opacity: unset;
-                }
-
-
             }
         }
     }

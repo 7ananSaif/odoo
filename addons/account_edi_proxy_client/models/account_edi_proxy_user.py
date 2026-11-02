@@ -4,6 +4,7 @@ import uuid
 from typing import Literal
 
 import requests
+from cryptography.fernet import Fernet
 
 from odoo import _, fields, models
 from odoo.exceptions import LockError, UserError
@@ -122,9 +123,15 @@ class Account_Edi_Proxy_ClientUser(models.Model):
                 _('The url that this service requested returned an error. The url it tried to contact was %s', url))
 
         if 'error' in response:
-            message = _('The url that this service requested returned an error. The url it tried to contact was %(url)s. %(error_message)s', url=url, error_message=response['error']['message'])
             if response['error']['code'] == 404:
                 message = _('The url that this service tried to contact does not exist. The url was “%s”', url)
+            else:
+                error_message = response['error'].get('data', {}).get('message') or response['error']['message']
+                message = _(
+                    "The url that this service requested returned an error. The url it tried to contact was %(url)s. %(error_message)s",
+                    url=url,
+                    error_message=error_message,
+                )
             raise AccountEdiProxyError('connection_error', message)
 
         proxy_error = response['result'].pop('proxy_error', False)
@@ -152,7 +159,7 @@ class Account_Edi_Proxy_ClientUser(models.Model):
         edi_identification = self._get_proxy_identification(company, proxy_type)
 
         return {
-            'dbuuid': company.env['ir.config_parameter'].get_param('database.uuid'),
+            'dbuuid': company.env['ir.config_parameter'].get_str('database.uuid'),
             'company_id': company.id,
             'edi_identification': edi_identification,
             'public_key': private_key_sudo._get_public_key_bytes(encoding='pem').decode(),
@@ -174,6 +181,14 @@ class Account_Edi_Proxy_ClientUser(models.Model):
             # simulate registration
             response = {'id_client': f'demo{company.id}{proxy_type}', 'refresh_token': 'demo'}
         else:
+
+            if self.search_count([
+                ('company_id', '=', company.id),
+                ('proxy_type', '=', proxy_type),
+                ('edi_mode', '=', edi_mode),
+            ]):
+                raise UserError(self.env._('A user already exists with this identification.'))
+
             try:
                 # b64encode returns a bytestring, we need it as a string
                 server_url = self._get_server_url(proxy_type, edi_mode)
@@ -218,12 +233,14 @@ class Account_Edi_Proxy_ClientUser(models.Model):
             _logger.error(response['error'])
         self.sudo().refresh_token = response['refresh_token']
 
-    def _decrypt_data(self, data, symmetric_key):
+    def _decrypt_data(self, data: str | bytes, symmetric_key) -> bytes:
         ''' Decrypt the data. Note that the data is encrypted with a symmetric key, which is encrypted with an asymmetric key.
         We must therefore decrypt the symmetric key.
 
-        :param data:            The data to decrypt.
-        :param symmetric_key:   The symmetric_key encrypted with self.private_key_id.public_key()
+        :param data:            The data to decrypt (base64-encoded).
+        :param symmetric_key:   The symmetric_key (base64-encoded) encrypted with self.private_key_id.public_key()
+        :return:                Decrypted raw bytes
         '''
         decrypted_key = self.sudo().private_key_id._decrypt(base64.b64decode(symmetric_key))
-        return self.env['certificate.key']._account_edi_fernet_decrypt(decrypted_key, base64.b64decode(data))
+        key = Fernet(decrypted_key)
+        return key.decrypt(base64.b64decode(data))

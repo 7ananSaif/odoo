@@ -1,13 +1,15 @@
-import { BaseOptionComponent } from "@html_builder/core/utils";
+import { BaseOptionComponent } from "@html_builder/core/base_option_component";
+import { useProps, t } from "@odoo/owl";
 
 export class ShadowOption extends BaseOptionComponent {
     static template = "html_builder.ShadowOption";
-    static props = {
-        setShadowModeAction: { type: String, optional: true },
-        setShadowAction: { type: String, optional: true },
-    };
-    static defaultProps = {
-        setShadowModeAction: "setShadowMode",
-        setShadowAction: "setShadow",
-    };
+    props = useProps({
+        setShadowClassAction: t.string().optional("setShadowClass"),
+        setShadowModeAction: t.string().optional("setShadowMode"),
+        setShadowStyleAction: t.string().optional("setShadowStyle"),
+    });
+
+    getOnClick(shadowClass) {
+        return () => this.env.editThemeOption(shadowClass, "theme-shadow");
+    }
 }

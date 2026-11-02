@@ -1,4 +1,4 @@
-import { after, expect, test } from "@odoo/hoot";
+import { after, expect, queryFirst, test } from "@odoo/hoot";
 import {
     click,
     edit,
@@ -16,14 +16,17 @@ import {
 } from "@web/../tests/core/datetime/datetime_test_helpers";
 import {
     clickSave,
+    contains,
     defineModels,
     defineParams,
     fields,
+    isSmall,
     models,
     mountView,
     onRpc,
-    contains,
+    patchWithCleanup,
 } from "@web/../tests/web_test_helpers";
+import { localization } from "@web/core/l10n/localization";
 import { resetDateFieldWidths } from "@web/views/list/column_width_hook";
 
 class Partner extends models.Model {
@@ -64,8 +67,8 @@ test("DatetimeField in form view", async () => {
         resModel: "partner",
         resId: 1,
         arch: `<form>
-            <field name="datetime"/>
-            <field name="datetime" readonly="1"/>
+            <field name="datetime" options="{'show_seconds': true}"/>
+            <field name="datetime" readonly="1" options="{'show_seconds': true}"/>
         </form>`,
     });
 
@@ -93,10 +96,14 @@ test("DatetimeField in form view", async () => {
     await click(getPickerCell("22"));
     await animationFrame();
     await editTime("8:25");
+
+    if (isSmall()) {
+        // Close the timepicker
+        await click(".o_bottom_sheet_backdrop");
+    }
     // Close the datepicker
     await click(".o_form_view_container");
     await animationFrame();
-
     expect(".o_datetime_picker").toHaveCount(0, { message: "datepicker should be closed" });
 
     const newExpectedDateString = "04/22/2018 08:25:00";
@@ -145,10 +152,13 @@ test("DatetimeField only triggers fieldChange when a day is picked and when an h
 
     expect.verifySteps([]);
 
+    if (isSmall()) {
+        // Close the timepicker
+        await click(".o_bottom_sheet_backdrop");
+    }
     // Close the datepicker
     await click(document.body);
     await animationFrame();
-
     expect(".o_datetime_picker").toHaveCount(0);
 
     expect(".o_field_datetime button").toHaveValue("04/22/2018 08:25:00");
@@ -179,14 +189,27 @@ test("DatetimeField edit hour/minute and click away", async () => {
     // Manually change the time without { confirm: "enter" }
     await click(`.o_time_picker_input:eq(0)`);
     await animationFrame();
-    await edit("8:30");
-    await animationFrame();
-    expect(".o_field_datetime input").toHaveValue("02/08/2017 10:00:00", {
-        message: "Input value shouldn't be updated yet",
-    });
+    if (isSmall()) {
+        await edit("08:30"); // type="time" is always set with two digits format
+        await animationFrame();
+        expect(".o_field_datetime input").toHaveValue("02/08/2017 08:30:00", {
+            message: "Input value is updated instantly because of the time input type.",
+        });
+    } else {
+        await edit("8:30");
+        await animationFrame();
+        expect(".o_field_datetime input").toHaveValue("02/08/2017 10:00:00", {
+            message: "Input value shouldn't be updated yet",
+        });
+    }
 
-    // Close the datepicker
-    await click(document.body);
+    if (isSmall()) {
+        // Close the bottom sheet datepicker
+        await click(".o_bottom_sheet_backdrop");
+    } else {
+        // Close the datepicker
+        await click(document.body);
+    }
     await animationFrame();
     expect(".o_datetime_picker").toHaveCount(0);
 
@@ -277,11 +300,15 @@ test("DatetimeField in editable list view", async () => {
     await editTime("8:25");
     await animationFrame();
 
-    expect(".o_field_datetime input").toHaveValue("04/22/2018 08:25:00", {
+    expect("[data-field=datetime]").toHaveValue("04/22/2018 08:25:00", {
         message: "the date should be correct in edit mode",
     });
-    // save
 
+    if (isSmall()) {
+        await click(".o_bottom_sheet_backdrop");
+    }
+
+    // save
     await click(".o_list_button_save");
     await animationFrame();
     expect("tr.o_data_row td:not(.o_list_record_selector):first").toHaveText(
@@ -516,17 +543,17 @@ test("edit a datetime field in form view with show_seconds option", async () => 
 
     await contains(".o_input:eq(0)").click();
     await animationFrame();
-    expect(".o_time_picker_input").toHaveValue("11:00");
+    expect(queryFirst(".o_time_picker_input").value).toBe("11:00");
     await edit("02/08/2017 11:00:00", { confirm: "Enter" });
     await animationFrame();
 
-    expect(".o_input:eq(0)").toHaveValue("02/08/2017 11:00:00", {
+    expect(queryFirst(".o_input").value).toBe("02/08/2017 11:00:00", {
         message: "seconds should be hidden for showSeconds false",
     });
 
     await contains(".o_input:eq(1)").click();
     await animationFrame();
-    expect(".o_time_picker_input").toHaveValue("11:00:00");
+    expect(queryFirst(".o_time_picker_input").value).toBe("11:00:00");
     await edit("02/08/2017 11:00:30", { confirm: "Enter" });
     await animationFrame();
 
@@ -670,7 +697,7 @@ test("list datetime: column widths (numeric format)", async () => {
         resModel: "partner",
         arch: /* xml */ `
             <list>
-                <field name="datetime" widget="datetime" options="{'numeric': true }" />
+                <field name="datetime" widget="datetime" options="{'numeric': true, 'show_seconds': true }" />
                 <field name="display_name" />
             </list>`,
     });
@@ -680,6 +707,52 @@ test("list datetime: column widths (numeric format)", async () => {
         "partner,1",
     ]);
     expect(queryAllProperties(".o_list_table thead th", "offsetWidth")).toEqual([40, 144, 616]);
+});
+
+test("DateTimeField contains a calendar icon on touch devices", async () => {
+    // The icon is only visible on touch devices, using css rules
+    document.body.classList.add("o_touch_device");
+    await mountView({
+        type: "form",
+        resModel: "partner",
+        resId: 1,
+        arch: `<form>
+            <field name="datetime"/>
+        </form>`,
+    });
+    expect("[data-icon='calendar_today']").toHaveCount(1);
+    expect("[data-icon='calendar_today']").toBeVisible();
+});
+
+test("DateTimeField: placeholder", async () => {
+    await mountView({
+        type: "form",
+        resModel: "partner",
+        arch: `
+            <form>
+                <group>
+                    <field name="datetime" placeholder="I'm the placeholder"/>
+                    <field name="datetime"/>
+                </group>
+            </form>`,
+    });
+
+    patchWithCleanup(localization, {
+        dateFormat: "MM yyyy dd",
+    });
+
+    expect(".o_field_widget[name=datetime]:eq(0) input").toHaveAttribute(
+        "placeholder",
+        "I'm the placeholder"
+    );
+    expect(".o_field_widget[name=datetime]:eq(1) input").toHaveAttribute("placeholder", "");
+
+    // when focused, a default placeholder is displayed and it depends on the localization
+    await contains(".o_field_widget[name=datetime]:eq(1) input").focus();
+    expect(".o_field_widget[name=datetime]:eq(1) input").toHaveAttribute(
+        "placeholder",
+        "mm yyyy dd hh:mm"
+    );
 });
 
 test("DateField: incoherent state and record value", async () => {
@@ -722,4 +795,19 @@ test("DateField: incoherent state and record value", async () => {
     await edit("10/10", { confirm: "Enter" });
     await animationFrame();
     expect(".o_field_widget[name=datetime] button").toHaveValue("10/10/2019 00:00:00");
+});
+
+test("numeric datetime field shouldn't show seconds by default", async () => {
+    mockTimeZone(+2); // UTC+2
+
+    await mountView({
+        type: "form",
+        resModel: "partner",
+        resId: 1,
+        arch: `<form>
+            <field name="datetime"/>
+        </form>`,
+    });
+
+    expect(queryFirst("button.o_daterange_start").textContent).toBe("Feb 8, 2017, 12:00 PM");
 });

@@ -3,7 +3,7 @@ import { tick } from "@odoo/hoot-mock";
 import { press } from "@odoo/hoot-dom";
 import { patchWithCleanup } from "@web/../tests/web_test_helpers";
 import { setupEditor, testEditor } from "../_helpers/editor";
-import { getContent, setSelection } from "../_helpers/selection";
+import { getContent } from "../_helpers/selection";
 import {
     insertText,
     strikeThrough,
@@ -12,6 +12,7 @@ import {
     undo,
 } from "../_helpers/user_actions";
 import { unformat } from "../_helpers/format";
+import { QWebPlugin } from "@html_editor/others/qweb_plugin";
 
 test("should make a few characters strikeThrough", async () => {
     await testEditor({
@@ -32,7 +33,7 @@ test("should make a few characters not strikeThrough", async () => {
 test("should make a few characters strikeThrough then remove style inside", async () => {
     await testEditor({
         contentBefore: `<p>ab[c d]ef</p>`,
-        stepFunction: async (editor) => {
+        stepFunction: async (editor, { setTestSelection }) => {
             strikeThrough(editor);
             const styleSpan = editor.editable.querySelector("s").childNodes[0];
             const selection = {
@@ -41,7 +42,7 @@ test("should make a few characters strikeThrough then remove style inside", asyn
                 focusNode: styleSpan,
                 focusOffset: 2,
             };
-            setSelection(selection);
+            setTestSelection(selection);
             strikeThrough(editor);
         },
         contentAfter: `<p>ab<s>c</s>[ ]<s>d</s>ef</p>`,
@@ -51,7 +52,7 @@ test("should make a few characters strikeThrough then remove style inside", asyn
 test("should make strikeThrough then more then remove (1)", async () => {
     await testEditor({
         contentBefore: `<p>abc[ ]def</p>`,
-        stepFunction: async (editor) => {
+        stepFunction: async (editor, { setTestSelection }) => {
             strikeThrough(editor);
             const pElem = editor.editable.querySelector("p").childNodes;
             const selection = {
@@ -60,7 +61,7 @@ test("should make strikeThrough then more then remove (1)", async () => {
                 focusNode: pElem[2],
                 focusOffset: 1,
             };
-            setSelection(selection);
+            setTestSelection(selection);
             strikeThrough(editor);
         },
         contentAfter: `<p>ab<s>[c d]</s>ef</p>`,
@@ -70,7 +71,7 @@ test("should make strikeThrough then more then remove (1)", async () => {
 test("should make strikeThrough then more then remove (2)", async () => {
     await testEditor({
         contentBefore: `<p>abc[ ]def</p>`,
-        stepFunction: async (editor) => {
+        stepFunction: async (editor, { setTestSelection }) => {
             strikeThrough(editor);
             const pElem = editor.editable.querySelector("p").childNodes;
             const selection = {
@@ -79,7 +80,7 @@ test("should make strikeThrough then more then remove (2)", async () => {
                 focusNode: pElem[2],
                 focusOffset: 1,
             };
-            setSelection(selection);
+            setTestSelection(selection);
             strikeThrough(editor);
             strikeThrough(editor);
         },
@@ -105,9 +106,10 @@ test("should make two paragraphs not strikeThrough", async () => {
 
 test("should make qweb tag strikeThrough", async () => {
     await testEditor({
-        contentBefore: `<div><p t-esc="'Test'" contenteditable="false">[Test]</p></div>`,
+        contentBefore: `<div><p t-out="'Test'" contenteditable="false">[Test]</p></div>`,
         stepFunction: strikeThrough,
-        contentAfter: `<div>[<p t-esc="'Test'" contenteditable="false" style="text-decoration-line: line-through;">Test</p>]</div>`,
+        contentAfter: `<div>[<p t-out="'Test'" style="text-decoration-line: line-through;">Test</p>]</div>`,
+        config: { includePlugins: [QWebPlugin] },
     });
 });
 
@@ -153,24 +155,6 @@ test("should make a selection ending with strikeThrough text fully strikeThrough
         contentBefore: `<p>[ab</p><p><s>c]d</s></p>`,
         stepFunction: strikeThrough,
         contentAfter: `<p><s>[ab</s></p><p><s>c]d</s></p>`,
-    });
-});
-
-test("should get ready to type in strikeThrough", async () => {
-    await testEditor({
-        contentBefore: `<p>ab[]cd</p>`,
-        stepFunction: strikeThrough,
-        contentAfterEdit: `<p>ab<s data-oe-zws-empty-inline="">\u200B[]</s>cd</p>`,
-        contentAfter: `<p>ab[]cd</p>`,
-    });
-});
-
-test("should get ready to type in not underline", async () => {
-    await testEditor({
-        contentBefore: `<p><s>ab[]cd</s></p>`,
-        stepFunction: strikeThrough,
-        contentAfterEdit: `<p><s>ab</s><span data-oe-zws-empty-inline="">\u200B[]</span><s>cd</s></p>`,
-        contentAfter: `<p><s>ab[]cd</s></p>`,
     });
 });
 
@@ -234,7 +218,7 @@ test("should make a few characters strikeThrough inside table (strikeThrough)", 
         stepFunction: strikeThrough,
         contentAfterEdit: unformat(`
             <p data-selection-placeholder=""><br></p>
-            <table class="table table-bordered o_table o_selected_table">
+            <div class="o_table_wrapper"><table class="table table-bordered o_table o_selected_table">
                 <tbody>
                     <tr>
                         <td class="o_selected_td"><p><s>[abc</s></p></td>
@@ -252,37 +236,51 @@ test("should make a few characters strikeThrough inside table (strikeThrough)", 
                         <td><p><br></p></td>
                     </tr>
                 </tbody>
-            </table>
+            </table></div>
             <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`),
     });
 });
 
-test("should remove empty strikeThrough when changing selection", async () => {
+test("should change strikethrough active state when changing selection", async () => {
     const { editor, el } = await setupEditor("<p>ab[]cd</p>");
 
     strikeThrough(editor);
     await tick();
-    expect(getContent(el)).toBe(`<p>ab<s data-oe-zws-empty-inline="">\u200B[]</s>cd</p>`);
+    expect(getContent(el)).toBe(`<p>ab[]cd</p>`);
 
     await simulateArrowKeyPress(editor, "ArrowLeft");
     await tick(); // await selectionchange
     expect(getContent(el)).toBe(`<p>a[]bcd</p>`);
+    await insertText(editor, "x");
+    expect(getContent(el)).toBe(`<p>ax[]bcd</p>`);
 });
 
-test("should not add history step for strikethrough on collapsed selection", async () => {
+test("should not add history commit for strikethrough on collapsed selection", async () => {
     const { editor, el } = await setupEditor("<p>abcd[]</p>");
 
     patchWithCleanup(console, { warn: () => {} });
 
     // Collapsed formatting shortcuts (e.g. Ctrl+5) shouldn’t create a history
-    // step. The empty inline tag is temporary: auto-cleaned if unused. We want
-    // to avoid having a phantom step in the history.
+    // commit. The empty inline tag is temporary: auto-cleaned if unused. We want
+    // to avoid having a phantom commit in the history.
     await press(["ctrl", "5"]);
-    expect(getContent(el)).toBe(`<p>abcd<s data-oe-zws-empty-inline="">\u200B[]</s></p>`);
+    expect(getContent(el)).toBe(`<p>abcd[]</p>`);
 
     await insertText(editor, "A");
     expect(getContent(el)).toBe(`<p>abcd<s>A[]</s></p>`);
 
     undo(editor);
     expect(getContent(el)).toBe(`<p>abcd[]</p>`);
+});
+
+test("should not apply the style on the link itself because it can't be neutralized locally", async () => {
+    const { el, editor } = await setupEditor(`<p><a href="test">[abc]</a></p>`);
+    strikeThrough(editor);
+    expect(getContent(el)).toBe(
+        `<p>\ufeff<a href="test" class="o_link_in_selection">\ufeff<s>[abc]</s>\ufeff</a>\ufeff</p>`
+    );
+    strikeThrough(editor);
+    expect(getContent(el)).toBe(
+        `<p>\ufeff<a href="test" class="o_link_in_selection">\ufeff[abc]\ufeff</a>\ufeff</p>`
+    );
 });

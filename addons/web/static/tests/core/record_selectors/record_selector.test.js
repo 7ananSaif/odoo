@@ -1,7 +1,8 @@
 import { test, expect } from "@odoo/hoot";
 import { RecordSelector } from "@web/core/record_selectors/record_selector";
-import { Component, useState, xml } from "@odoo/owl";
+import { Component, proxy, xml } from "@odoo/owl";
 import {
+    contains,
     defineModels,
     fields,
     models,
@@ -9,7 +10,7 @@ import {
     onRpc,
 } from "@web/../tests/web_test_helpers";
 import { animationFrame } from "@odoo/hoot-mock";
-import { click } from "@odoo/hoot-dom";
+import { click, runAllTimers, waitFor } from "@odoo/hoot-dom";
 
 class Partner extends models.Model {
     _name = "res.partner";
@@ -28,10 +29,9 @@ defineModels([Partner]);
 async function mountRecordSelector(props) {
     class Parent extends Component {
         static components = { RecordSelector };
-        static template = xml`<RecordSelector t-props="recordProps" />`;
-        static props = ["*"];
+        static template = xml`<RecordSelector t-props="this.recordProps" />`;
         setup() {
-            this.state = useState({ resId: props.resId });
+            this.state = proxy({ resId: props.resId });
         }
 
         get recordProps() {
@@ -154,4 +154,35 @@ test("Support placeholder", async () => {
         placeholder: "Select a partner",
     });
     expect(".o_record_selector input").toHaveAttribute("placeholder", "Select a partner");
+});
+
+test.tags("desktop");
+test("Support virtual record in props and custom quickCreate", async () => {
+    let virtualRecord;
+    await mountRecordSelector({
+        resModel: "res.partner",
+        resId: false,
+        get virtualRecord() {
+            return virtualRecord;
+        },
+        buildQuickCreate: ({ request }) => ({
+            cssClass: "o_m2o_dropdown_option",
+            label: `Create ${request}`,
+            onSelect: () => {
+                virtualRecord = {
+                    id: false,
+                    display_name: request,
+                };
+            },
+        }),
+    });
+    await contains(".o-autocomplete--input").edit("I do not exist yet", { confirm: false });
+    await runAllTimers();
+
+    await contains(".o_m2o_dropdown_option a:contains(Create I do not exist yet)").click();
+    await waitFor(".o-autocomplete--input:value(I do not exist yet)");
+    expect(virtualRecord).toEqual({
+        id: false,
+        display_name: "I do not exist yet",
+    });
 });

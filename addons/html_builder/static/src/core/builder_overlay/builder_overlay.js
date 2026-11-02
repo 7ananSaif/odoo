@@ -11,7 +11,7 @@ import {
 export const sizingY = {
     selector: "section, .row > div, .parallax, .s_hr, .carousel-item, .s_rating",
     exclude:
-        "section:has(> .carousel), .s_image_gallery .carousel-item, .s_col_no_resize.row > div, .s_col_no_resize",
+        "section:has(> .carousel), .s_image_gallery .carousel-item, .s_col_no_resize.row > div, .s_col_no_resize, .s_map, .s_google_map",
 };
 export const sizingX = {
     selector: ".row > div",
@@ -34,6 +34,7 @@ export class BuilderOverlay {
             isMobileView,
             mobileBreakpoint,
             isRtl,
+            isHoverOverlay = false,
         }
     ) {
         this.history = history;
@@ -58,6 +59,7 @@ export class BuilderOverlay {
         this.mobileBreakpoint = mobileBreakpoint;
         this.isRtl = isRtl;
 
+        this.overlayElement.classList.toggle("o_hover_overlay", isHoverOverlay);
         this.initHandles();
         this.initSizing();
         this.refreshHandles();
@@ -79,7 +81,7 @@ export class BuilderOverlay {
 
     isActive() {
         // TODO active still necessary ? (check when we have preview mode)
-        return this.overlayElement.matches(".oe_active, .o_we_overlay_preview");
+        return this.overlayElement.matches(".oe_active, .o_we_overlay_preview, .o_hover_overlay");
     }
 
     refreshPosition() {
@@ -636,7 +638,7 @@ export class BuilderOverlay {
             // mutations).
             const wasResized = !directions.every((dir) => dir.initialIndex === dir.currentIndex);
             if (wasResized) {
-                this.history.addStep();
+                this.history.commit();
             } else {
                 cancelSizing();
             }

@@ -1,12 +1,14 @@
-import { Component, useRef, useState, useEffect } from "@odoo/owl";
+import { useLayoutEffect } from "@web/owl2/utils";
+import { Component, proxy, signal, untrack } from "@odoo/owl";
 
 import { useService } from "@web/core/utils/hooks";
 import { debounce } from "@web/core/utils/timing";
 
 export class LivechatButton extends Component {
     static template = "im_livechat.LivechatButton";
-    static props = {};
     static DEBOUNCE_DELAY = 500;
+
+    buttonRef = signal.ref();
 
     setup() {
         this.store = useService("mail.store");
@@ -15,9 +17,8 @@ export class LivechatButton extends Component {
         this.onClick = debounce(this.onClick.bind(this), LivechatButton.DEBOUNCE_DELAY, {
             leading: true,
         });
-        this.ref = useRef("button");
-        this.state = useState({ animateNotification: this.isShown });
-        useEffect(
+        this.state = proxy({ animateNotification: this.isShown });
+        useLayoutEffect(
             (isShown, rootNodeClassList) => {
                 if (isShown && rootNodeClassList) {
                     rootNodeClassList.add("o-livechat-LivechatButton-isVisible");
@@ -26,7 +27,7 @@ export class LivechatButton extends Component {
                     };
                 }
             },
-            () => [this.isShown, this.ref.el?.getRootNode().host?.classList]
+            () => [this.isShown, untrack(this.buttonRef)?.getRootNode().host?.classList]
         );
     }
 

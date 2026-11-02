@@ -1,4 +1,4 @@
-import { Component } from "@odoo/owl";
+import { Component, useProps, t } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 import { Dialog } from "@web/core/dialog/dialog";
 import { SelectionPopup } from "@point_of_sale/app/components/popups/selection_popup/selection_popup";
@@ -10,6 +10,7 @@ import {
 import { _t } from "@web/core/l10n/translation";
 import { makeAwaitable } from "@point_of_sale/app/utils/make_awaitable_dialog";
 import { SelectPartnerButton } from "@point_of_sale/app/screens/product_screen/control_buttons/select_partner_button/select_partner_button";
+import { useAsyncLockedMethod } from "@point_of_sale/app/hooks/hooks";
 
 export class ControlButtons extends Component {
     static template = "point_of_sale.ControlButtons";
@@ -18,22 +19,28 @@ export class ControlButtons extends Component {
         SelectPartnerButton,
         InternalNoteButton,
     };
-    static props = {
-        showRemainingButtons: { type: Boolean, optional: true },
-        onClickMore: { type: Function, optional: true },
-        close: { type: Function, optional: true },
-    };
-    static defaultProps = {
-        showRemainingButtons: false,
-    };
+    props = useProps({
+        showRemainingButtons: t.boolean().optional(false),
+        onClickMore: t.function().optional(),
+    });
     setup() {
         this.pos = usePos();
         this.ui = useService("ui");
         this.dialog = useService("dialog");
         this.notification = useService("notification");
+        this.clickPrintBill = useAsyncLockedMethod(this.clickPrintBill.bind(this));
+    }
+    async clickPrintBill() {
+        this.pos.addPendingOrder([this.currentOrder.id]);
+        await this.pos.syncAllOrders();
+        // Need to await to have the result in case of automatic skip screen.
+        await this.pos.ticketPrinter.printOrderReceipt({
+            order: this.pos.getOrder(),
+            printBillActionTriggered: true,
+        });
     }
     get partner() {
-        return this.pos.getOrder()?.getPartner();
+        return this.currentOrder?.getPartner();
     }
     get currentOrder() {
         return this.pos.getOrder();
@@ -108,24 +115,13 @@ export class ControlButtons extends Component {
         const payload = await makeAwaitable(this.dialog, SelectionPopup, {
             title: _t("Select the pricelist"),
             list: selectionList,
+            size: "md",
+            bodyClass: "pb-4",
         });
 
         if (payload) {
             this.pos.selectPricelist(payload);
         }
-    }
-
-    clickRefund() {
-        const order = this.pos.getOrder();
-        const partner = order.getPartner();
-        const searchDetails = partner ? { fieldName: "PARTNER", searchTerm: partner.name } : {};
-        this.pos.navigate("TicketScreen", {
-            stateOverride: {
-                filter: "SYNCED",
-                search: searchDetails,
-                destinationOrder: order,
-            },
-        });
     }
 
     get buttonClass() {
@@ -147,16 +143,16 @@ export class ControlButtons extends Component {
         );
     }
 
-    onCancelOrder() {
-        this.props.close();
-        this.pos.onDeleteOrder(this.currentOrder);
+    breakSelectedCombo() {
+        const selectedOrderline = this.currentOrder?.getSelectedOrderline();
+        return this.pos.isSelectedLineCombo && this.pos.breakCombo(selectedOrderline.parentLine);
     }
 }
 
 export class ControlButtonsPopup extends Component {
     static components = { Dialog, ControlButtons };
     static template = "point_of_sale.ControlButtonsPopup";
-    static props = {
-        close: Function,
-    };
+    props = useProps({
+        close: t.function().optional(),
+    });
 }

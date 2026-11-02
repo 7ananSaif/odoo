@@ -1,35 +1,37 @@
+import { t, useProps } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
 import { formatAST, toPyValue } from "@web/core/py_js/py_utils";
-import { MultiRecordSelector } from "@web/core/record_selectors/multi_record_selector";
-import { RecordSelector } from "@web/core/record_selectors/record_selector";
+import {
+    MultiRecordSelector,
+    multiRecordSelectorProps,
+} from "@web/core/record_selectors/multi_record_selector";
+import { RecordSelector, recordSelectorProps } from "@web/core/record_selectors/record_selector";
 import { Expression } from "@web/core/tree_editor/condition_tree";
 import { isId } from "@web/core/tree_editor/utils";
 import { imageUrl } from "@web/core/utils/urls";
 
-export const getFormat = (val, displayNames) => {
-    let text;
-    let colorIndex;
+const getFormat = (val, displayNames) => {
     if (isId(val)) {
-        text =
-            typeof displayNames[val] === "string"
-                ? displayNames[val]
-                : _t("Inaccessible/missing record ID: %s", val);
-        colorIndex = typeof displayNames[val] === "string" ? 0 : 2; // 0 = grey, 2 = orange
+        const text = typeof displayNames[val] === "string" ? displayNames[val] : String(val);
+        const colorIndex = typeof displayNames[val] === "string" ? 0 : 1; // 0 = grey, 1 = red
+        const tooltip =
+            typeof displayNames[val] === "string" ? text : _t("Missing record (ID: %s)", val);
+        return { text, colorIndex, tooltip };
     } else {
-        text =
+        const text =
             val instanceof Expression
                 ? String(val)
                 : _t("Invalid record ID: %s", formatAST(toPyValue(val)));
-        colorIndex = val instanceof Expression ? 2 : 1; // 1 = red
+        const colorIndex = val instanceof Expression ? 2 : 1; // 1 = red, 2 = orange
+        return { text, colorIndex, tooltip: text };
     }
-    return { text, colorIndex };
 };
 
 export class DomainSelectorAutocomplete extends MultiRecordSelector {
-    static props = {
-        ...MultiRecordSelector.props,
-        resIds: true, //resIds could be an array of ids or an array of expressions
-    };
+    props = useProps({
+        ...multiRecordSelectorProps,
+        resIds: t.any(), // resIds could be an array of ids or an array of expressions
+    });
 
     getIds(props = this.props) {
         return props.resIds.filter((val) => isId(val));
@@ -37,16 +39,13 @@ export class DomainSelectorAutocomplete extends MultiRecordSelector {
 
     getTags(props, displayNames) {
         return props.resIds.map((val, index) => {
-            const { text, colorIndex } = getFormat(val, displayNames);
+            const { text, colorIndex, tooltip } = getFormat(val, displayNames);
             return {
+                id: val,
                 text,
-                colorIndex,
-                onDelete: () => {
-                    this.props.update([
-                        ...this.props.resIds.slice(0, index),
-                        ...this.props.resIds.slice(index + 1),
-                    ]);
-                },
+                tooltip,
+                color: colorIndex,
+                onDelete: () => super.deleteTag(index),
                 img:
                     this.isAvatarModel &&
                     isId(val) &&
@@ -57,10 +56,10 @@ export class DomainSelectorAutocomplete extends MultiRecordSelector {
 }
 
 export class DomainSelectorSingleAutocomplete extends RecordSelector {
-    static props = {
-        ...RecordSelector.props,
-        resId: true,
-    };
+    props = useProps({
+        ...recordSelectorProps,
+        resId: t.any(),
+    });
 
     getDisplayName(props = this.props, displayNames) {
         const { resId } = props;

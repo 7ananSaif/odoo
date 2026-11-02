@@ -9,12 +9,6 @@
 .o-snippets-top-actions {
     border-bottom: $o-we-border-width solid $o-we-bg-lighter;
     height: 46px;
-
-    .o_rtl & {
-        .fa-undo, .fa-repeat {
-            transform: scaleX(-1);
-        }
-    }
 }
 
 .o-snippets-top-actions, .o-snippets-tabs {
@@ -103,7 +97,7 @@
             border-bottom-color: transparent;
         }
 
-        & .fa {
+        & .oi {
             color: var(--o-snippets-tabs-accent-color);
         }
     }
@@ -114,6 +108,13 @@
     scrollbar-color: $o-we-bg-lightest $o-we-bg-darker;
     scrollbar-width: thin;
     will-change: scroll-position;
+    opacity: 1;
+    transition: opacity 0.2s ease;
+
+    &.o-faded-tab-content {
+        opacity: 0;
+        pointer-events: none;
+    }
 }
 
 .o_theme_tab {
@@ -121,6 +122,22 @@
     --o-hb-btn-secondary-active-bg: RGBA(#{to-rgb($o-we-color-global)}, 0.4);
     --o-hb-input-active-border: #{$o-we-color-global};
     --o-hb-form-switch-color-active: #{$o-we-color-global};
+
+    .o-hb-range .o-hb-rangeInput:focus-visible {
+        &::-webkit-slider-thumb {
+            box-shadow: 0 0 0 1px $o-we-bg-dark, 0 0 0 3px $o-we-color-global;
+        }
+        &::-moz-range-thumb {
+            box-shadow: 0 0 0 1px $o-we-bg-dark, 0 0 0 3px $o-we-color-global;
+        }
+        &::-ms-thumb {
+            box-shadow: 0 0 0 1px $o-we-bg-dark, 0 0 0 3px $o-we-color-global;
+        }
+    }
+}
+
+.o_customize_tab {
+    --o-hb-form-switch-color-active: #{$o-we-color-accent};
 }
 
 .o_we_color_preview {
@@ -145,6 +162,7 @@
 }
 
 .o_we_lower_panel {
+    z-index: 11;
     max-height: 220px;
     overflow-y: auto;
     background-color: $o-we-sidebar-blocks-content-bg;
@@ -205,4 +223,21 @@
 .o_pager_container {
     overflow-y: scroll;
     scroll-behavior: smooth;
+}
+
+// Increase the size of the icon within a button to improve readability
+// (e.g., "fa-table" is hard to understand when the font-size is too small)
+.larger_button_icon {
+    --btn-padding-y: 0.05rem !important;
+    font-size: 14px;
+}
+
+.o-hb-theme-tab-link {
+    align-self: center;
+    border: none;
+    color: $o-we-color-global;
+
+    &:hover {
+        color: $o-we-fg-lighter;
+    }
 }

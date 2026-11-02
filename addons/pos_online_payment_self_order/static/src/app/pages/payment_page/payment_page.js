@@ -4,12 +4,24 @@ import { _t } from "@web/core/l10n/translation";
 import { generateQRCodeDataUrl } from "@point_of_sale/utils";
 
 patch(PaymentPage.prototype, {
+    get showQrCode() {
+        return (
+            super.showQrCode ||
+            (this.selectedPaymentIsOnline && this.selfOrder.config.self_ordering_mode === "kiosk")
+        );
+    },
+    get paymentMethods() {
+        if (this.selfOrder.config.self_ordering_mode === "mobile") {
+            return [this.selfOrder.config.self_order_online_payment_method_id].filter(Boolean);
+        }
+        return super.paymentMethods;
+    },
     async startPayment() {
         let order = this.selfOrder.currentOrder;
         const pm = this.selectedPaymentMethod;
         const device = this.selfOrder.config.self_ordering_mode;
 
-        if (!pm || !pm.is_online_payment) {
+        if (!pm || pm.type !== "online") {
             return super.startPayment(...arguments);
         } else {
             order = await this.selfOrder.sendDraftOrderToServer();
@@ -24,13 +36,16 @@ patch(PaymentPage.prototype, {
     },
     get selectedPaymentIsOnline() {
         const paymentMethods = this.selectedPaymentMethod;
-        return paymentMethods && paymentMethods.is_online_payment;
+        return paymentMethods && paymentMethods.type === "online";
     },
     generateQrcodeImg(url) {
-        this.state.qrImage = generateQRCodeDataUrl(url);
+        this.state.qrCode = generateQRCodeDataUrl(url);
     },
     async checkAndOpenPaymentPage(order) {
         if (order.state === "draft") {
+            // Synchronize the latest order data with IndexedDB before navigating away.
+            await this.selfOrder.data.synchronizeLocalDataInIndexedDB(order);
+
             const onlinePaymentUrl = this.selfOrder.getOnlinePaymentUrl(order, true);
             window.open(onlinePaymentUrl, "_self");
         } else {

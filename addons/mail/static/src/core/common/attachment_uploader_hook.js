@@ -1,4 +1,4 @@
-import { useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 
 import { useService } from "@web/core/utils/hooks";
 
@@ -28,21 +28,25 @@ export class AttachmentUploader {
      * @param {boolean} [options.voice]
      */
     async uploadFile(file, options) {
-        const thread = options?.thread || this.thread;
-        return this.attachmentUploadService.upload(thread, this.composer, file, options);
+        const thread = options?.thread || this.thread();
+        return this.attachmentUploadService.upload(thread, this.composer?.(), file, options);
     }
 
-    async unlink(attachment) {
-        await this.attachmentUploadService.unlink(attachment);
+    /**
+     * @param {import("models").Attachment[]} attachments
+     * @param {Object} [options] see `removeAttachments`
+     */
+    async unlink(attachments, options) {
+        await this.attachmentUploadService.unlink(attachments, options);
     }
 }
 
 /**
- * @param {import("models").Thread} thread
+ * @param {import("@odoo/owl").Signal<import("models").Thread>} thread
  * @param {Object} [param1={}]
- * @param {import("models").Composer} [param1.composer]
+ * @param {import("@odoo/owl").Signal<import("models").Composer>} [param1.composer]
  * @param {function} [param1.onFileUploaded]
  */
 export function useAttachmentUploader(thread, { composer, onFileUploaded } = {}) {
-    return useState(new AttachmentUploader(...arguments));
+    return proxy(new AttachmentUploader(...arguments));
 }

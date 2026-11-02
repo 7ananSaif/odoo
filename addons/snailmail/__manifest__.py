@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 {
     'name': "Snail Mail",
     'description': """
@@ -16,9 +15,8 @@ Allows users to send documents by post
         'data/snailmail_data.xml',
         'views/report_assets.xml',
         'views/snailmail_views.xml',
-        'security/ir.model.access.csv',
+        'security/ir.access.csv',
     ],
-    'auto_install': True,
     'assets': {
         'web.assets_backend': [
             'snailmail/static/src/**/*',
@@ -36,4 +34,5 @@ Allows users to send documents by post
     },
     'author': 'Odoo S.A.',
     'license': 'LGPL-3',
+    'iap_paid_service': True,
 }

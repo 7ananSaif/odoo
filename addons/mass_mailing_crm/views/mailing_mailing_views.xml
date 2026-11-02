@@ -5,10 +5,11 @@
         <field name="model">mailing.mailing</field>
         <field name="inherit_id" ref="mass_mailing.view_mail_mass_mailing_form"/>
         <field name="arch" type="xml">
-    		<xpath expr="//button[@id='button_view_delivered']" position="before">
+    		<xpath expr="//button[@name='action_view_bounced']" position="after">
                 <button name="action_redirect_to_leads_and_opportunities"
                     type="object"
-                    icon="fa-star"
+                    icon="star"
+                    icon_class="oi-filled"
                     class="oe_stat_button"
                     invisible="state == 'draft'">
                     <div class="o_field_widget o_stat_info">

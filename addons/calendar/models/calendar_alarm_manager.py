@@ -2,8 +2,9 @@
 
 from datetime import timedelta
 
-from odoo import api, fields, models
-from odoo.tools import plaintext2html
+from markupsafe import Markup
+
+from odoo import _, api, fields, models
 from odoo.tools.sql import SQL
 
 
@@ -17,7 +18,7 @@ class CalendarAlarm_Manager(models.AbstractModel):
             self.env[model_name].flush_model()
 
         result = {}
-        delta_request = """
+        delta_request = SQL("""
             SELECT
                 rel.calendar_event_id,
                 max(alarm.duration_minutes) AS max_delta,
@@ -27,8 +28,8 @@ class CalendarAlarm_Manager(models.AbstractModel):
             LEFT JOIN calendar_alarm AS alarm ON alarm.id = rel.calendar_alarm_id
             WHERE alarm.alarm_type = %s
             GROUP BY rel.calendar_event_id
-        """
-        base_request = """
+        """, alarm_type)
+        base_request = SQL("""
             SELECT
                 cal.id,
                 cal.start - interval '1' minute * calcul_delta.max_delta AS first_alarm,
@@ -40,46 +41,35 @@ class CalendarAlarm_Manager(models.AbstractModel):
             FROM
                 calendar_event AS cal
             INNER JOIN calcul_delta ON calcul_delta.calendar_event_id = cal.id
-            WHERE cal.active = True
-        """
-        filter_user = """
+            %s
+        """, SQL("""
             INNER JOIN calendar_event_res_partner_rel AS part_rel
                 ON part_rel.calendar_event_id = cal.id
                 AND part_rel.res_partner_id IN %s
             WHERE cal.active = True
-        """
-
-        # Add filter on alarm type
-        tuple_params = (alarm_type,)
-
-        # Add filter on partner_id
-        if partners:
-            base_request = base_request.replace("WHERE cal.active = True", filter_user)
-            tuple_params += (tuple(partners.ids), )
+        """, tuple(partners.ids)) if partners else SQL("WHERE cal.active = True"))
 
         # Upper bound on first_alarm of requested events
-        first_alarm_max_value = ""
         if seconds is None:
             # first alarm in the future + 3 minutes if there is one, now otherwise
-            first_alarm_max_value = """
+            first_alarm_max_value = SQL("""
                 COALESCE((SELECT MIN(cal.start - interval '1' minute  * calcul_delta.max_delta)
                 FROM calendar_event cal
                 RIGHT JOIN calcul_delta ON calcul_delta.calendar_event_id = cal.id
-                WHERE cal.start - interval '1' minute  * calcul_delta.max_delta > now() at time zone 'utc'
-            ) + interval '3' minute, now() at time zone 'utc')"""
+                WHERE cal.start - interval '1' minute  * calcul_delta.max_delta > %(now)s
+            ) + interval '3' minute, %(now)s)""", now=self.env.cr.now())
         else:
             # now + given seconds
-            first_alarm_max_value = "(now() at time zone 'utc' + interval '%s' second )"
-            tuple_params += (seconds,)
+            first_alarm_max_value = SQL("(%(now)s + interval %s second )", seconds, now=self.env.cr.now())
 
         self.env.flush_all()
-        self.env.cr.execute("""
+        self.env.cr.execute(SQL("""
             WITH calcul_delta AS (%s)
             SELECT *
                 FROM ( %s ) AS ALL_EVENTS
             WHERE ALL_EVENTS.first_alarm < %s
-                AND ALL_EVENTS.last_alarm > ('%s' at time zone 'utc')
-        """ % (delta_request, base_request, first_alarm_max_value, fields.Datetime.now()), tuple_params)
+                AND ALL_EVENTS.last_alarm > (%s)
+        """, delta_request, base_request, first_alarm_max_value, self.env.cr.now()))
 
         for event_id, first_alarm, last_alarm, first_meeting, last_meeting, min_duration, max_duration in self.env.cr.fetchall():
             result[event_id] = {
@@ -133,7 +123,7 @@ class CalendarAlarm_Manager(models.AbstractModel):
         return result
 
     @api.model
-    def _get_notify_alert_extra_conditions(self):
+    def _get_notify_alert_extra_conditions(self, alarm_type=None):
         """
         To be overriden on inherited modules
         adding extra conditions to extract only the unsynced events
@@ -151,8 +141,7 @@ class CalendarAlarm_Manager(models.AbstractModel):
         already.
         """
         lastcall = self.env.context.get('lastcall', False) or fields.Date.today() - timedelta(weeks=1)
-        # TODO MASTER: remove context and add a proper parameter
-        extra_conditions = self.with_context(alarm_type=alarm_type)._get_notify_alert_extra_conditions()
+        extra_conditions = self._get_notify_alert_extra_conditions(alarm_type)
         now = fields.Datetime.now()
         self.env.cr.execute(SQL("""
             SELECT alarm.id, event.id
@@ -163,6 +152,7 @@ class CalendarAlarm_Manager(models.AbstractModel):
                 ON event_alarm_rel.calendar_alarm_id = alarm.id
              WHERE alarm.alarm_type = %s
                AND event.active
+               AND event.is_draft IS NOT TRUE
                AND event.start - CAST(alarm.duration || ' ' || alarm.interval AS Interval) >= %s
                AND event.start - CAST(alarm.duration || ' ' || alarm.interval AS Interval) < %s
                %s
@@ -186,7 +176,7 @@ class CalendarAlarm_Manager(models.AbstractModel):
             return
 
         # force_send limit should apply to the total nb of attendees, not per alarm
-        force_send_limit = int(self.env['ir.config_parameter'].sudo().get_param('mail.mail_force_send_limit', 100))
+        force_send_limit = self.env['ir.config_parameter'].sudo().get_int('mail.mail_force_send_limit', 100)
 
         event_ids = list(set(event_id for event_ids in events_by_alarm.values() for event_id in event_ids))
         events = self.env['calendar.event'].browse(event_ids)
@@ -199,6 +189,7 @@ class CalendarAlarm_Manager(models.AbstractModel):
                 alarm.mail_template_id,
                 force_send=len(attendees) <= force_send_limit,
                 notify_author=True,
+                completion_log_message=_('The %s reminder was sent', Markup('<i>%s</i>') % alarm.name)
             )
 
         events._setup_event_recurrent_alarms(events_by_alarm)
@@ -228,10 +219,6 @@ class CalendarAlarm_Manager(models.AbstractModel):
         meeting = self.env['calendar.event'].browse(alert['event_id'])
 
         if alarm.alarm_type == 'notification':
-            message = meeting.display_time
-            if alarm.body:
-                message += '<p>%s</p>' % plaintext2html(alarm.body)
-
             delta = alert['notify_at'] - fields.Datetime.now()
             delta = delta.seconds + delta.days * 3600 * 24
 
@@ -239,7 +226,7 @@ class CalendarAlarm_Manager(models.AbstractModel):
                 'alarm_id': alarm.id,
                 'event_id': meeting.id,
                 'title': meeting.name,
-                'message': message,
+                'message': self._format_notification_message(meeting, alarm),
                 'timer': delta,
                 'notify_at': fields.Datetime.to_string(alert['notify_at']),
             }
@@ -253,3 +240,28 @@ class CalendarAlarm_Manager(models.AbstractModel):
         for user in users:
             notif = self.with_user(user).with_context(allowed_company_ids=user.sudo().company_ids.ids).get_next_notif()
             user._bus_send("calendar.alarm", notif)
+
+    def _format_notification_message(self, event, alarm):
+        is_event_today = fields.Datetime.context_timestamp(event, event.start).date() == fields.Date.context_today(event)
+        date_start, time_start = self.env['calendar.event'].get_formatted_date_and_time(event.start, "d MMMM", "short")
+        date_stop, time_stop = self.env['calendar.event'].get_formatted_date_and_time(event.stop, "d MMMM", "short")
+
+        if is_event_today:
+            if date_start == date_stop:
+                schedule = _("%(time_start)s - %(time_stop)s",
+                    time_start=time_start, time_stop=time_stop)
+            else:
+                schedule = _("%(time_start)s - %(date_stop)s, %(time_stop)s",
+                    time_start=time_start, date_stop=date_stop, time_stop=time_stop)
+        else:
+            if event.duration < 24:
+                schedule = _("%(date_start)s, %(time_start)s - %(time_stop)s",
+                    date_start=date_start, time_start=time_start, time_stop=time_stop)
+            else:
+                schedule = _("%(date_start)s, %(time_start)s - %(date_stop)s, %(time_stop)s",
+                    date_start=date_start, time_start=time_start, date_stop=date_stop, time_stop=time_stop)
+
+        location = event.location if event.location else _("Online")
+        body = alarm.body if alarm.body else ""
+
+        return Markup("<br/>%(schedule)s<br/>%(location)s<br/>%(body)s") % {'schedule': schedule, 'location': location, 'body': body}

@@ -1,60 +1,30 @@
 import {
-    clickOnEditAndWaitEditModeInTranslatedPage,
+    clickOnEditAndWaitEditMode,
     clickOnSave,
     insertSnippet,
-    goToTheme,
     registerWebsitePreviewTour,
+    addLanguage,
 } from "@website/js/tours/tour_utils";
-import { whenReady } from "@odoo/owl";
 import { editorsWeakMap, setSelection } from "@html_editor/../tests/tours/helpers/editor";
+
+function installParseltongueAndOpenLangDropdown() {
+    return [
+        ...addLanguage("Parseltongue", "pa-GB"),
+        {
+            content: "click language dropdown (2)",
+            trigger: ":iframe .js_language_selector .dropdown-toggle",
+            run: "click",
+        },
+    ];
+}
 
 registerWebsitePreviewTour(
     "rte_translator",
     {
-        url: "/",
         edition: true,
-        wait_for: whenReady(),
     },
     () => [
-        ...goToTheme(),
-        {
-            content: "click on Add a language",
-            trigger: "button[data-action-id='addLanguage']",
-            run: "click",
-        },
-        {
-            content: "confirm leave editor",
-            trigger: ".modal-dialog button.btn-primary",
-            run: "click",
-        },
-        {
-            content: "type Parseltongue",
-            trigger: 'div[name="lang_ids"] .o_input_dropdown input',
-            run: "edit Parseltongue",
-        },
-        {
-            content: "select Parseltongue",
-            trigger: ".dropdown-item:contains(Parseltongue)",
-            run: "click",
-        },
-        {
-            trigger:
-                '.modal-dialog div[name="lang_ids"] .rounded-pill .o_tag_badge_text:contains(Parseltongue)',
-        },
-        {
-            content: "load Parseltongue",
-            trigger: ".modal-footer .btn-primary",
-            run: "click",
-        },
-        {
-            content: "click language dropdown (2)",
-            trigger: ":iframe .js_language_selector .dropdown-toggle",
-            timeout: 60000,
-            run: "click",
-        },
-        {
-            trigger: ':iframe html[lang*="pa-GB"]',
-        },
+        ...installParseltongueAndOpenLangDropdown(),
         {
             content: "go to english version",
             trigger: ':iframe .o_header_language_selector a[data-url_code="en"]',
@@ -74,8 +44,8 @@ registerWebsitePreviewTour(
             run: "click",
         },
         {
-            content: "click on Use this template",
-            trigger: ".o_page_template .o_button_area:not(:visible)",
+            content: "click on 'Blank Page'",
+            trigger: "button[data-name='add_blank_page']",
             run: "click",
         },
         {
@@ -115,8 +85,8 @@ registerWebsitePreviewTour(
             run: "click",
         },
         {
-            content: "click on Use this template",
-            trigger: ".o_page_template .o_button_area:not(:visible)",
+            content: "click on 'Blank Page'",
+            trigger: "button[data-name='add_blank_page']",
             run: "click",
         },
         {
@@ -151,7 +121,7 @@ registerWebsitePreviewTour(
             <p>&lt;b&gt;&lt;/b&gt; is an HTML&nbsp;tag &amp; is empty</p>';
                 this.anchor.querySelector(".oe_img_bg").title = "test translate image title";
                 const editor = editorsWeakMap.get(this.anchor.ownerDocument);
-                editor.shared.history.addStep();
+                editor.shared.history.commit();
             },
         },
         {
@@ -168,9 +138,15 @@ registerWebsitePreviewTour(
             trigger: ':iframe html[lang*="en"]',
         },
         {
+            trigger: ":iframe .js_language_selector > button:contains(English)",
+        },
+        {
             content: "click on Parseltongue version",
             trigger: ':iframe .js_language_selector a[data-url_code="pa_GB"]',
             run: "click",
+        },
+        {
+            trigger: ":iframe .js_language_selector > button:contains(Parseltongue)",
         },
         {
             content: "edit",
@@ -198,6 +174,13 @@ registerWebsitePreviewTour(
             trigger: ".o_builder_sidebar_open",
         },
         {
+            content: "Check that the generic 'Translation' option is always visible",
+            trigger: ".o_customize_tab .options-container [data-label='Translate to']",
+        },
+        {
+            trigger: ":iframe .js_language_selector > button:contains(Parseltongue)",
+        },
+        {
             content: "translate text",
             trigger: ":iframe #wrap p font:first",
             async run(actionHelper) {
@@ -214,7 +197,7 @@ registerWebsitePreviewTour(
                 await actionHelper.click();
                 this.anchor.textContent = "<{translated}>" + this.anchor.textContent;
                 const editor = editorsWeakMap.get(this.anchor.ownerDocument);
-                editor.shared.history.addStep();
+                editor.shared.history.commit();
                 setSelection({ anchorNode: this.anchor.childNodes[0], anchorOffset: 0 });
                 this.anchor.dispatchEvent(new KeyboardEvent("keyup", { bubbles: true, key: "_" }));
                 this.anchor.dispatchEvent(new InputEvent("input", { bubbles: true }));
@@ -230,21 +213,13 @@ registerWebsitePreviewTour(
         },
         {
             content: "translate placeholder",
-            trigger: ".modal-dialog input:first",
+            trigger: `.options-container [data-action-id='translateAttribute'][data-action-param='placeholder'] input`,
             run: "edit test Parseltongue placeholder",
         },
         {
             content: "translate default value",
-            trigger: ".modal-dialog input:last",
+            trigger: `.options-container [data-action-id='translateAttribute'][data-action-param='value'] input`,
             run: "edit test Parseltongue default value",
-        },
-        {
-            trigger: '.modal input:value("test Parseltongue placeholder")',
-        },
-        {
-            content: "close modal",
-            trigger: ".modal-footer .btn-primary",
-            run: "click",
         },
         {
             content: "check: input marked as translated",
@@ -281,11 +256,23 @@ registerWebsitePreviewTour(
             run: "click",
         },
         {
+            trigger: ":iframe .js_language_selector > button:contains(English)",
+        },
+        {
+            content: "check: default value translation",
+            trigger: ':iframe input[placeholder="test translate placeholder"]',
+        },
+        {
             content: "Check body",
             trigger:
                 ":iframe body:not(:has(#wrap p font:first:text(paragraphs <b>describing</b>)))",
         },
-        ...clickOnEditAndWaitEditModeInTranslatedPage(),
+        {
+            content: "check edit button is not in translate mode",
+            trigger:
+                "body .o_menu_systray .o_menu_systray_item.o_edit_website_container button:not(.o-dropdown)",
+        },
+        ...clickOnEditAndWaitEditMode(),
         {
             content: "select text",
             trigger: ":iframe #wrap p",
@@ -337,11 +324,11 @@ registerWebsitePreviewTour(
                 );
                 el.dispatchEvent(mouseup);
             },
-            // This is disabled for now because it reveals a bug that is fixed
-            // in saas-15.1 and considered a tradeoff in 15.0. The bug concerns
-            // the invalidation of translations when inserting tags with more
-            // than one character. Whereas <u> didn't trigger an invalidation,
-            // <span style="text-decoration-line: underline;"> does.
+            // This is disabled for now because it reveals a bug that is fixed in saas-15.1
+            // and considered a tradeoff in 15.0. The bug concerns the invalidation of
+            // translations when inserting tags with more than one character. Whereas <u>
+            // didn't trigger an invalidation, <span style="text-decoration-line: underline;">
+            // does.
             // }, {
             //     content: "underline",
             //     trigger: '.oe-toolbar #underline',
@@ -396,7 +383,7 @@ registerWebsitePreviewTour(
                         .querySelector("iframe:not(.o_ignore_in_tour)")
                         .contentDocument.body.classList.add("rte_translator_error");
                     const editor = editorsWeakMap.get(this.anchor.ownerDocument);
-                    editor.shared.history.addStep();
+                    editor.shared.history.commit();
                 }
             },
         },
@@ -405,4 +392,12 @@ registerWebsitePreviewTour(
             trigger: ":iframe body:not(.rte_translator_error)",
         },
     ]
+);
+
+registerWebsitePreviewTour(
+    "multiple_websites_add_language",
+    {
+        edition: true,
+    },
+    () => [...installParseltongueAndOpenLangDropdown()]
 );

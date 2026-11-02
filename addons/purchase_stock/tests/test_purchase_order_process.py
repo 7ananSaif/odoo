@@ -8,6 +8,8 @@ from .common import PurchaseTestCommon
 @tagged('post_install', '-at_install')
 class TestPurchaseOrderProcess(PurchaseTestCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @users('purchase_user')
     def test_00_cancel_purchase_order_flow(self):
         """ Test cancel purchase order with group user."""
@@ -42,12 +44,12 @@ class TestPurchaseOrderProcess(PurchaseTestCommon):
                 Command.create({
                     'product_id': self.product.id,
                     'product_qty': 2.0,
-                    'product_uom_id': self.uom.id,
+                    'uom_id': self.uom.id,
                 }),
                 Command.create({
                     'product_id': self.product_2.id,
                     'product_qty': 3.0,
-                    'product_uom_id': self.uom.id,
+                    'uom_id': self.uom.id,
                 })],
         })
         purchase_order.button_confirm()

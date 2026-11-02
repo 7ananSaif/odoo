@@ -5,7 +5,9 @@ import {
     defineWebsiteModels,
     setupWebsiteBuilder,
     setupWebsiteBuilderWithSnippet,
+    toggleMobilePreview,
 } from "@website/../tests/builder/website_helpers";
+import { unfoldAllOptionsGroups } from "@html_builder/../tests/helpers";
 
 defineWebsiteModels();
 
@@ -37,7 +39,7 @@ test("switch to mobile mode should update number of columns", async () => {
     expect("[data-label='Layout'] .dropdown-toggle").toBeVisible();
     expect("[data-label='Layout'] .dropdown-toggle").toHaveText("3");
 
-    await contains("button[data-action='mobile']").click();
+    await toggleMobilePreview();
     expect("[data-label='Layout'] .dropdown-toggle").toHaveText("1");
 });
 
@@ -54,6 +56,7 @@ test("Changing the number of columns to 'None' (0)", async () => {
 
     await contains("[data-label='Layout'] .dropdown").click();
     await contains("[data-action-id='changeColumnCount'][data-action-value='1']").click();
+    await unfoldAllOptionsGroups();
     expect(":iframe .s_text_block .container > .row:only-child > .col-lg-12").toHaveCount(1);
 
     await contains("[data-label='Layout'] .dropdown").click();
@@ -67,6 +70,20 @@ test("Adding columns does not introduce extra offset (offset class removed on cl
     await contains("[data-label='Layout'] .dropdown").click();
     await contains("[data-action-id='changeColumnCount'][data-action-value='5']").click();
     expect(":iframe .s_text_block .container > .row > .offset-lg-1").toHaveCount(1);
+});
+
+test("Changing the number of columns (base case)", async () => {
+    await setupWebsiteBuilderWithSnippet("s_kickoff");
+    expect(":iframe .s_kickoff > .container").toHaveClass("s_allow_columns");
+    expect(":iframe .s_kickoff .row > .col-lg-6").toHaveCount(0);
+    await contains(":iframe .s_kickoff").click();
+    await contains("[data-label='Layout'] .dropdown").click();
+    await contains("[data-action-id='changeColumnCount'][data-action-value='2']").click();
+    expect(":iframe .s_kickoff .row > .col-lg-6").toHaveCount(2);
+    await unfoldAllOptionsGroups();
+    await contains("[data-label='Layout'] .dropdown").click();
+    await contains("[data-action-id='changeColumnCount'][data-action-value='3']").click();
+    expect(":iframe .s_kickoff .row > .col-lg-4").toHaveCount(3);
 });
 
 test("Column count selector is hidden when the row has s_nb_column_fixed", async () => {

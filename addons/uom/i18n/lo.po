@@ -5,43 +5,59 @@
 # Bone NI <bounkirdni@gmail.com>, 2026.
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0\n"
+"Project-Id-Version: Odoo Server 19.4a1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:40+0000\n"
-"PO-Revision-Date: 2026-06-08 10:51+0000\n"
+"POT-Creation-Date: 2026-09-11 17:43+0000\n"
+"PO-Revision-Date: 2026-10-24 11:33+0000\n"
 "Last-Translator: Bone NI <bounkirdni@gmail.com>\n"
-"Language-Team: Lao <https://translate.odoo.com/projects/odoo-19/uom/lo/>\n"
+"Language-Team: Lao <https://translate.odoo.com/projects/odoo-20/uom/lo/>\n"
 "Language: lo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: uom
+#: model:ir.module.module,description:base.module_uom
+msgid ""
+"\n"
+"This is the base module for managing Units of measure.\n"
+"========================================================================\n"
+msgstr ""
+"\n"
+"ນີ້ແມ່ນໂມດູນພື້ນຖານສຳລັບການຄຸ້ມຄອງຫົວໜ່ວຍວັດແທກ.\n"
+"========================================================================\n"
 
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_uom__factor
 msgid "Absolute Quantity"
-msgstr "ຈຳນວນສົມບູນ"
+msgstr "ຈຳນວນແທ້ຈິງ"
+
+#. module: uom
+#: model:ir.model,name:uom.model_res_groups
+msgid "Access Groups"
+msgstr "ກຸ່ມສິດເຂົ້າເຖິງ"
 
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_uom__active
 msgid "Active"
-msgstr "ເປີດນຳໃຊ້"
+msgstr "ເປີດໃຊ້ງານ"
 
 #. module: uom
-#: model_terms:ir.actions.act_window,help:uom.product_uom_form_action
+#: model_terms:ir.actions.act_window,help:uom.uom_uom_action_list
 msgid "Add a new unit of measure"
 msgstr "ເພີ່ມຫົວໜ່ວຍວັດແທກໃໝ່"
 
 #. module: uom
 #: model_terms:ir.ui.view,arch_db:uom.uom_uom_view_search
 msgid "Archived"
-msgstr "ເກັບມ້ຽນແລ້ວ"
+msgstr "ຈັດເກັບແລ້ວ"
 
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_uom__relative_factor
 msgid "Contains"
-msgstr "ປະກອບມີ"
+msgstr "ບັນຈຸ"
 
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_uom__create_uid
@@ -59,9 +75,10 @@ msgid "Days"
 msgstr "ມື້"
 
 #. module: uom
+#: model:ir.model.fields,field_description:uom.field_res_groups__display_name
 #: model:ir.model.fields,field_description:uom.field_uom_uom__display_name
 msgid "Display Name"
-msgstr "ຊື່ທີ່ສະແດງ"
+msgstr "ຊື່ສະແດງ"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_dozen
@@ -79,37 +96,38 @@ msgid ""
 "How much bigger or smaller this unit is compared to the reference UoM for "
 "this unit"
 msgstr ""
-"ຫົວໜ່ວຍນີ້ໃຫຍ່ ຫຼື ນ້ອຍກວ່າ ເມື່ອທຽບກັບຫົວໜ່ວຍວັດແທກອ້າງອີງຂອງຫົວໜ່ວຍນີ້ ເທົ່າໃດ"
+"ຫົວໜ່ວຍນີ້ໃຫຍ່ກວ່າ ຫຼື ນ້ອຍກວ່າຫຼາຍປານໃດ ເມື່ອທຽບກັບຫົວໜ່ວຍອ້າງອີງສຳລັບຫົວໜ່ວຍນີ້"
 
 #. module: uom
+#: model:ir.model.fields,field_description:uom.field_res_groups__id
 #: model:ir.model.fields,field_description:uom.field_uom_uom__id
 msgid "ID"
-msgstr "ລະຫັດ"
+msgstr "ID"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_kwh
 msgid "KWH"
-msgstr "ກິໂລວັດໂມງ"
+msgstr "KWH"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_litre
 msgid "L"
-msgstr "ລິດ"
+msgstr "L"
 
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_uom__write_uid
 msgid "Last Updated by"
-msgstr "ອັບເດດລ່າສຸດໂດຍ"
+msgstr "ປັບປຸງຫຼ້າສຸດໂດຍ"
 
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_uom__write_date
 msgid "Last Updated on"
-msgstr "ອັບເດດລ່າສຸດເມື່ອ"
+msgstr "ປັບປຸງຫຼ້າສຸດເມື່ອ"
 
 #. module: uom
 #: model:res.groups,name:uom.group_uom
 msgid "Manage Multiple Units of Measure"
-msgstr "ຈັດການຫຼາຍຫົວໜ່ວຍວັດແທກ"
+msgstr "ຄຸ້ມຄອງຫຼາຍຫົວໜ່ວຍວັດແທກ"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_minute
@@ -119,7 +137,7 @@ msgstr "ນາທີ"
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_pack_6
 msgid "Pack of 6"
-msgstr "ແພັກ 6 ຊິ້ນ"
+msgstr "ແພັກລະ 6"
 
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_uom__parent_path
@@ -131,7 +149,7 @@ msgstr "ເສັ້ນທາງຫຼັກ"
 #: code:addons/uom/static/src/components/many2one_uom/many2one_uom_field.js:0
 #: code:addons/uom/static/src/components/many2x_uom_tags/many2x_uom_tags.js:0
 msgid "Product Field Name"
-msgstr "ຊື່ຫ້ອງຂໍ້ມູນສິນຄ້າ"
+msgstr "ຊື່ຊ່ອງຂໍ້ມູນສິນຄ້າ"
 
 #. module: uom
 #: model:ir.model,name:uom.model_uom_uom
@@ -139,7 +157,7 @@ msgid "Product Unit of Measure"
 msgstr "ຫົວໜ່ວຍວັດແທກສິນຄ້າ"
 
 #. module: uom
-#: model_terms:ir.ui.view,arch_db:uom.product_uom_form_view
+#: model_terms:ir.ui.view,arch_db:uom.uom_uom_view_form
 msgid "Quantity"
 msgstr "ຈຳນວນ"
 
@@ -148,11 +166,11 @@ msgstr "ຈຳນວນ"
 #: code:addons/uom/static/src/components/many2one_uom/many2one_uom_field.js:0
 #: code:addons/uom/static/src/components/many2x_uom_tags/many2x_uom_tags.js:0
 msgid "Quantity Field Name"
-msgstr "ຊື່ຫ້ອງຂໍ້ມູນຈຳນວນ"
+msgstr "ຊື່ຊ່ອງຂໍ້ມູນຈຳນວນ"
 
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_uom__relative_uom_id
-#: model_terms:ir.ui.view,arch_db:uom.product_uom_form_view
+#: model_terms:ir.ui.view,arch_db:uom.uom_uom_view_form
 msgid "Reference Unit"
 msgstr "ຫົວໜ່ວຍອ້າງອີງ"
 
@@ -168,11 +186,6 @@ msgid "Related UoMs"
 msgstr "ຫົວໜ່ວຍວັດແທກທີ່ກ່ຽວຂ້ອງ"
 
 #. module: uom
-#: model:ir.model.fields,field_description:uom.field_uom_uom__rounding
-msgid "Rounding Precision"
-msgstr "ຄວາມລະອຽດການປັດເສດ"
-
-#. module: uom
 #: model_terms:ir.ui.view,arch_db:uom.uom_uom_view_search
 msgid "Search UOM"
 msgstr "ຄົ້ນຫາຫົວໜ່ວຍວັດແທກ"
@@ -180,7 +193,7 @@ msgstr "ຄົ້ນຫາຫົວໜ່ວຍວັດແທກ"
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_uom__sequence
 msgid "Sequence"
-msgstr "ລໍາດັບ"
+msgstr "ລຳດັບ"
 
 #. module: uom
 #. odoo-python
@@ -189,41 +202,39 @@ msgid ""
 "Some critical fields have been modified on %s.\n"
 "Note that existing data WON'T be updated by this change.\n"
 "\n"
-"As units of measure impact the whole system, this may cause critical issues.\n"
-"Therefore, changing core units of measure in a running database is not recommended."
+"As units of measure impact the whole system, this may cause critical "
+"issues.\n"
+"Therefore, changing core units of measure in a running database is not "
+"recommended."
 msgstr ""
-"ຂໍ້ມູນບາງຫ້ອງທີ່ສຳຄັນຖືກແກ້ໄຂໃນ %s.\n"
-"ໝາຍເຫດ: ຂໍ້ມູນທີ່ມີຢູ່ຈະບໍ່ຖືກອັບເດດຕາມການປ່ຽນແປງນີ້.\n"
+"ຊ່ອງຂໍ້ມູນສຳຄັນບາງອັນໄດ້ຖືກດັດແກ້ໃນ %s.\n"
+"ກະລຸນາຮັບຊາບວ່າ ຂໍ້ມູນທີ່ມີຢູ່ແລ້ວຈະບໍ່ໄດ້ຮັບການອັບເດດຈາກການປ່ຽນແປງນີ້.\n"
 "\n"
-"ເນື່ອງຈາກຫົວໜ່ວຍວັດແທກມີຜົນກະທົບຕໍ່ທັງລະບົບ, ນີ້ອາດເຮັດໃຫ້ເກີດບັນຫາຮ້າຍແຮງ.\n"
-"ດັ່ງນັ້ນ, ບໍ່ແນະນຳໃຫ້ປ່ຽນແປງຫົວໜ່ວຍວັດແທກຫຼັກໃນຖານຂໍ້ມູນທີ່ກຳລັງໃຊ້ງານຢູ່."
+"ເນື່ອງຈາກຫົວໜ່ວຍວັດແທກມີຜົນກະທົບຕໍ່ທັງໝົດລະບົບ, ສິ່ງນີ້ອາດເຮັດໃຫ້ເກີດບັນຫາຮ້າຍແຮງໄດ້.\n"
+"ດັ່ງນັ້ນ, ຈຶ່ງບໍ່ແນະນຳໃຫ້ປ່ຽນແປງຫົວໜ່ວຍວັດແທກຫຼັກໃນຖານຂໍ້ມູນທີ່ກຳລັງເຮັດວຽກຢູ່."
 
 #. module: uom
 #: model:ir.model.constraint,message:uom.constraint_uom_uom_factor_gt_zero
 msgid "The conversion ratio for a unit of measure cannot be 0!"
-msgstr "ອັດຕາສ່ວນການປ່ຽນແປງສຳລັບຫົວໜ່ວຍວັດແທກບໍ່ສາມາດເປັນ 0 ໄດ້!"
+msgstr "ອັດຕາສ່ວນການແປງສຳລັບຫົວໜ່ວຍວັດແທກ ບໍ່ສາມາດເປັນ 0 ໄດ້!"
 
 #. module: uom
 #. odoo-python
 #: code:addons/uom/models/uom_uom.py:0
 msgid ""
-"The following units of measure are used by the system and cannot be deleted: %s\n"
+"The following units of measure are used by the system and cannot be deleted: "
+"%s\n"
 "You can archive them instead."
 msgstr ""
-"ຫົວໜ່ວຍວັດແທກຕໍ່ໄປນີ້ຖືກໃຊ້ໂດຍລະບົບ ແລະ ບໍ່ສາມາດລຶບໄດ້: %s\n"
-"ທ່ານສາມາດເກັບມ້ຽນພວກມັນແທນໄດ້."
-
-#. module: uom
-#: model:uom.uom,name:uom.product_uom_ton
-msgid "Ton"
-msgstr "ໂຕນ"
+"ຫົວໜ່ວຍວັດແທກຕໍ່ໄປນີ້ຖືກນຳໃຊ້ໂດຍລະບົບ ແລະ ບໍ່ສາມາດລຶບໄດ້: %s\n"
+"ທ່ານສາມາດຈັດເກັບພວກມັນແທນໄດ້."
 
 #. module: uom
 #: model:ir.model.fields,help:uom.field_uom_uom__active
 msgid ""
 "Uncheck the active field to disable a unit of measure without deleting it."
 msgstr ""
-"ຍົກເລີກການເລືອກຊ່ອງ 'ເປີດນຳໃຊ້' ເພື່ອປິດການໃຊ້ງານຫົວໜ່ວຍວັດແທກໂດຍບໍ່ຕ້ອງລຶບມັນ."
+"ຍົກເລີກການໝາຍຕິກໃນຊ່ອງເປີດໃຊ້ງານ ເພື່ອປິດການໃຊ້ງານຫົວໜ່ວຍວັດແທກ ໂດຍບໍ່ຕ້ອງລຶບ."
 
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_uom__name
@@ -236,14 +247,19 @@ msgid "Units"
 msgstr "ຫົວໜ່ວຍ"
 
 #. module: uom
-#: model:ir.actions.act_window,name:uom.product_uom_form_action
-#: model_terms:ir.ui.view,arch_db:uom.product_uom_tree_view
+#: model:ir.actions.act_window,name:uom.uom_uom_action_list
+#: model_terms:ir.ui.view,arch_db:uom.uom_uom_view_list
 msgid "Units & Packagings"
-msgstr "ຫົວໜ່ວຍ & ການຫຸ້ມຫໍ່"
+msgstr "ຫົວໜ່ວຍ ແລະ ການຫຸ້ມຫໍ່"
 
 #. module: uom
-#: model_terms:ir.ui.view,arch_db:uom.product_uom_form_view
+#: model_terms:ir.ui.view,arch_db:uom.uom_uom_view_form
 msgid "Units of Measure"
+msgstr "ຫົວໜ່ວຍວັດແທກ"
+
+#. module: uom
+#: model:ir.module.module,shortdesc:base.module_uom
+msgid "Units of measure"
 msgstr "ຫົວໜ່ວຍວັດແທກ"
 
 #. module: uom
@@ -261,104 +277,109 @@ msgstr "ຄຳເຕືອນສຳລັບ %s"
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_cm
 msgid "cm"
-msgstr "ຊມ"
+msgstr "cm"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_floz
 msgid "fl oz (US)"
-msgstr "ອອນສ໌ (US)"
+msgstr "fl oz (US)"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_foot
 msgid "ft"
-msgstr "ຟຸດ"
+msgstr "ft"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_square_foot
 msgid "ft²"
-msgstr "ຟຸດມົນທົນ"
+msgstr "ft²"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_cubic_foot
 msgid "ft³"
-msgstr "ຟຸດກ້ອນ"
+msgstr "ft³"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_gram
 msgid "g"
-msgstr "ກຣາມ"
+msgstr "g"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_gal
 msgid "gal (US)"
-msgstr "ກາລອນ (US)"
+msgstr "gal (US)"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_inch
 msgid "in"
-msgstr "ນິ້ວ"
+msgstr "in"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_cubic_inch
 msgid "in³"
-msgstr "ນິ້ວກ້ອນ"
+msgstr "in³"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_kgm
 msgid "kg"
-msgstr "ກລ"
+msgstr "kg"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_km
 msgid "km"
-msgstr "ກມ"
+msgstr "km"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_lb
 msgid "lb"
-msgstr "ປອນ"
+msgstr "lb"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_meter
 msgid "m"
-msgstr "ແມັດ"
+msgstr "m"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_mile
 msgid "mi"
-msgstr "ໄມລ໌"
+msgstr "mi"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_milliliter
 msgid "ml"
-msgstr "ມລ"
+msgstr "ml"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_millimeter
 msgid "mm"
-msgstr "ມມ"
+msgstr "mm"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_square_meter
 msgid "m²"
-msgstr "ແມັດມົນທົນ"
+msgstr "m²"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_cubic_meter
 msgid "m³"
-msgstr "ແມັດກ້ອນ"
+msgstr "m³"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_oz
 msgid "oz"
-msgstr "ອອນ"
+msgstr "oz"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_qt
 msgid "qt (US)"
-msgstr "ຄວອດ (US)"
+msgstr "qt (US)"
+
+#. module: uom
+#: model:uom.uom,name:uom.product_uom_ton
+msgid "t"
+msgstr "t"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_yard
 msgid "yd"
-msgstr "ຫລາ"
+msgstr "yd"

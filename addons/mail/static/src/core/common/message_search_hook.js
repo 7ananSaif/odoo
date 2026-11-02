@@ -1,5 +1,6 @@
-import { useSequential } from "@mail/utils/common/hooks";
-import { useState, onWillUnmount, markup } from "@odoo/owl";
+import { SearchState } from "@mail/utils/common/hooks";
+import { getInnerHtml } from "@mail/utils/common/html";
+import { proxy } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 import { createDocumentFragmentFromContent } from "@web/core/utils/html";
 import { escapeRegExp } from "@web/core/utils/strings";
@@ -15,7 +16,7 @@ export function searchHighlight(searchTerm, target) {
         return target;
     }
     const htmlDoc = createDocumentFragmentFromContent(target);
-    for (const term of searchTerm.split(" ")) {
+    for (const term of searchTerm.split(" ").filter(Boolean)) {
         const regexp = new RegExp(`(${escapeRegExp(term)})`, "gi");
         // Special handling for '
         // Note: browsers use XPath 1.0, so uses concat() rather than ||
@@ -59,65 +60,96 @@ export function searchHighlight(searchTerm, target) {
             element.replaceChildren(...newNode);
         }
     }
-    return markup(htmlDoc.body.innerHTML);
+    return getInnerHtml(htmlDoc.body);
 }
 
-/** @param {import('models').Thread} thread */
-export function useMessageSearch(thread) {
-    const store = useService("mail.store");
-    const sequential = useSequential();
-    const state = useState({
-        thread,
-        async search(before = false) {
-            if (this.searchTerm || this.is_notification !== undefined) {
-                this.searching = true;
-                const data = await sequential(() =>
-                    store.searchMessagesInThread(
-                        this.searchTerm,
-                        this.thread,
-                        before,
-                        this.is_notification
-                    )
-                );
-                if (!data) {
-                    return;
-                }
-                const { count, loadMore, messages } = data;
-                this.searched = true;
-                this.searching = false;
-                this.count = count;
-                this.loadMore = loadMore;
-                if (before) {
-                    this.messages.push(...messages);
-                } else {
-                    this.messages = messages;
-                }
-            } else {
-                this.clear();
+export class MessageSearchState extends SearchState {
+    count = 0;
+    /** @type {string | undefined} */
+    search_filter = undefined;
+    hasMore = false;
+    /** @type {import('@mail/core/common/message_model').Message[]} */
+    messages = [];
+    searched = false;
+    /** @type {import('models').Thread | undefined} */
+    thread;
+    loadMoreBeforeMessageId;
+    /** @type {import("models").Store} */
+    store;
+    searchId = 0;
+
+    /** @param {import('models').Thread} [initialThread] */
+    constructor(initialThread) {
+        super();
+        this.store = useService("mail.store");
+        this.thread = initialThread;
+        this.fetch = this.fetchMessages.bind(this);
+    }
+
+    get isActive() {
+        return !!this.searchTerm || this.search_filter !== undefined;
+    }
+
+    get deps() {
+        return [this.search_filter];
+    }
+
+    /** @param {string} term */
+    async fetchMessages(term) {
+        const before = this.loadMoreBeforeMessageId;
+        this.loadMoreBeforeMessageId = undefined;
+        const currentSearchId = ++this.searchId;
+        const data = await this.store.searchMessagesInThread(
+            term,
+            this.thread,
+            before ?? false,
+            this.search_filter
+        );
+        if (!data || currentSearchId !== this.searchId) {
+            return; // Search was cleared or superseded during request.
+        }
+        this.searched = true;
+        this.count = data.count;
+        this.hasMore = data.loadMore;
+        if (before !== undefined) {
+            this.messages.push(...data.messages);
+        } else {
+            this.messages = data.messages;
+            if (data.messages.length === 0) {
+                return false;
             }
-        },
-        count: 0,
-        clear() {
-            this.is_notification = undefined;
-            this.messages = [];
-            this.searched = false;
-            this.searching = false;
-            this.searchTerm = undefined;
-        },
-        /** @type {true | false | undefined} */
-        is_notification: undefined,
-        loadMore: false,
-        /** @type {import('@mail/core/common/message_model').Message[]} */
-        messages: [],
-        /** @type {string|undefined} */
-        searchTerm: undefined,
-        searched: false,
-        searching: false,
-        /** @param {string} target */
-        highlight: (target) => searchHighlight(state.searchTerm, target),
-    });
-    onWillUnmount(() => {
-        state.clear();
-    });
-    return state;
+        }
+    }
+
+    /** @param {number} beforeMessageId */
+    loadMore(beforeMessageId) {
+        this.loadMoreBeforeMessageId = beforeMessageId;
+        this.run();
+    }
+
+    reset() {
+        this.searchId++;
+        super.reset();
+        this.search_filter = undefined;
+        this.messages = [];
+        this.searched = false;
+        this.count = 0;
+        this.hasMore = false;
+        this.loadMoreBeforeMessageId = undefined;
+    }
+
+    /**
+     * Highlights `searchTerm` in `text`.
+     * @param {string} text
+     */
+    highlight(text) {
+        return searchHighlight(this.searchTerm, text);
+    }
+}
+
+/**
+ * @param {import('models').Thread} [initialThread]
+ */
+export function useMessageSearch(initialThread) {
+    return proxy(new MessageSearchState(initialThread));
 }

@@ -3,12 +3,15 @@
 
 from odoo.exceptions import UserError
 from odoo.fields import Command
+from odoo.tests import tagged, users
 
-from odoo.tests import users
 from .common import PurchaseTestCommon
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestDeleteOrder(PurchaseTestCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @users('purchase_user')
     def test_00_delete_order(self):
@@ -48,7 +51,7 @@ class TestDeleteOrder(PurchaseTestCommon):
         move = self.env['stock.move'].create({
             'product_id': self.product.id,
             'product_uom_qty': 1,
-            'product_uom': self.product.uom_id.id,
+            'uom_id': self.product.uom_id.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
             'picking_type_id': self.picking_type_out.id,
@@ -62,13 +65,13 @@ class TestDeleteOrder(PurchaseTestCommon):
                 Command.create({
                     'product_id': self.product.id,
                     'product_qty': 1.0,
-                    'product_uom_id': self.product.uom_id.id,
+                    'uom_id': self.product.uom_id.id,
                     'propagate_cancel': False,
                 })],
         })
         purchase_order.button_confirm()
 
-        self.env['report.stock.report_reception'].action_assign(move.ids, [1], purchase_order.order_line.move_ids.ids)
+        self.env['stock.allocation.report'].action_assign(purchase_order.order_line.move_ids.ids, move.ids, 1)
         self.assertEqual(move.state, 'waiting', 'Move should be waiting for the linked purchase')
         purchase_order.button_cancel()
         # Check purchase order and related move are canceled while linked move state is not

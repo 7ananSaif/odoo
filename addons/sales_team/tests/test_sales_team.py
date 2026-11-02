@@ -11,6 +11,7 @@ from odoo.addons.sales_team.tests.common import (
 )
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestDefaultTeam(TestSalesCommon):
     """Tests to check if correct default team is found."""
 
@@ -18,7 +19,7 @@ class TestDefaultTeam(TestSalesCommon):
     def setUpClass(cls):
         """Set up data for default team tests."""
         super(TestDefaultTeam, cls).setUpClass()
-        cls.env['ir.config_parameter'].set_param('sales_team.membership_multi', True)
+        cls.env['ir.config_parameter'].set_bool('sales_team.membership_multi', True)
 
         # Salesmen organization
         # ------------------------------------------------------------
@@ -62,6 +63,26 @@ class TestDefaultTeam(TestSalesCommon):
             'user_id': cls.user_sales_manager.id,
             'sequence': 3,
         })
+
+    def test_default_team_active_check(self):
+        """
+        _get_default_team_id should not return an archived team,
+        even when `archive_test` is False.
+        """
+        user = self.env.user
+        company_id = user.company_id.id
+        archived_team = self.env['crm.team'].create({
+            'name': "Archived Team",
+            'company_id': company_id,
+            'sequence': -1,
+            'user_id': user.id,
+            'member_ids': [4, user.id],
+            'active': False,
+            })
+
+        crm_team = self.env['crm.team']
+        result = crm_team.with_context(active_test=False)._get_default_team_id(user_id=user.id)
+        self.assertNotEqual(result, archived_team)
 
     def test_default_team_fallback(self):
         """ Test fallbacks when computing default team without any memberships:
@@ -152,6 +173,8 @@ class TestDefaultTeam(TestSalesCommon):
                 'SalesTeam: default taken into account when no member / responsible'
             )
 
+
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestMultiCompany(TestSalesMC):
     """Tests to check multi company management with sales team and their
     members. """
@@ -227,11 +250,17 @@ class TestMultiCompany(TestSalesMC):
 @tagged('post_install', '-at_install')
 class TestAccessRights(SalesTeamCommon):
 
+    _test_user_groups = (
+        'sales_team.group_sale_manager',  # FIXME: use sales_team.group_sale_salesman
+    )
+
+    _test_user_name = 'Test Sales Manager'
+
     @users('salesmanager')
     def test_access_sales_manager(self):
         """ Test sales manager's access rights """
         # Manager can create a Sales Team
-        india_channel = self.env['crm.team'].with_context(tracking_disable=True).create({
+        india_channel = self.env['crm.team'].create({
             'name': 'India',
         })
         self.assertIn(

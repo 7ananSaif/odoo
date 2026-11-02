@@ -13,6 +13,10 @@ class AccountAnalyticLine(models.Model):
     task_id = fields.Many2one(domain="[('allow_timesheets', '=', True), ('project_id', '=?', project_id), ('has_template_ancestor', '=', False), ('is_timeoff_task', '=', False)]")
 
     _timeoff_timesheet_idx = models.Index('(task_id) WHERE (global_leave_id IS NOT NULL OR holiday_id IS NOT NULL) AND project_id IS NOT NULL')
+    _is_timeoff_task_idx = models.Index('(task_id, holiday_id, global_leave_id) WHERE project_id IS NOT NULL')
+
+    def _is_readonly(self):
+        return super()._is_readonly() or self.holiday_id or self.global_leave_id
 
     def _get_redirect_action(self):
         leave_form_view_id = self.env.ref('hr_holidays.hr_leave_view_form').id
@@ -31,7 +35,7 @@ class AccountAnalyticLine(models.Model):
     @api.ondelete(at_uninstall=False)
     def _unlink_except_linked_leave(self):
         if any(line.global_leave_id for line in self):
-            raise UserError(_('You cannot delete timesheets that are linked to global time off.'))
+            raise UserError(self.env._('Timesheets linked to public holidays cannot be deleted.'))
         elif any(line.holiday_id for line in self):
             error_message = _('You cannot delete timesheets that are linked to time off requests. Please cancel your time off request from the Time Off application instead.')
             if not self.env.user.has_group('hr_holidays.group_hr_holidays_user') and self.env.user not in self.holiday_id.sudo().user_id:
@@ -43,12 +47,12 @@ class AccountAnalyticLine(models.Model):
         if not self.env.su and self.global_leave_id:
             raise UserError(self.env._('Timesheets linked to public holidays cannot be modified.'))
         if not self.env.su and self.holiday_id:
-            raise UserError(_('You cannot modify timesheets that are linked to time off requests. Please use the Time Off application to modify your time off requests instead.'))
+            raise UserError(self.env._('Timesheets related to time off cannot be created or modified. Please manage your requests in the Time Off app instead.'))
         return super()._check_can_write(values)
 
     def _check_can_create(self):
         if not self.env.su and any(task.is_timeoff_task for task in self.task_id):
-            raise UserError(_('You cannot create timesheets for a task that is linked to a time off type. Please use the Time Off application to request new time off instead.'))
+            raise UserError(self.env._('Timesheets related to time off cannot be created or modified. Please manage your requests in the Time Off app instead.'))
         return  super()._check_can_create()
 
     def _get_favorite_project_id_domain(self, employee_id=False):

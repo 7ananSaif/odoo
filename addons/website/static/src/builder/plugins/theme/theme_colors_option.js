@@ -1,21 +1,30 @@
-import { onMounted } from "@odoo/owl";
-import { BaseOptionComponent, useDomState } from "@html_builder/core/utils";
+import { onMounted, onWillUnmount, signal } from "@odoo/owl";
+import { BaseOptionComponent } from "@html_builder/core/base_option_component";
+import { useDomState } from "@html_builder/core/utils";
 import { getCSSVariableValue } from "@html_editor/utils/formatting";
+import { _t } from "@web/core/l10n/translation";
+import { ThemeColorsPreviewDialog } from "./theme_colors_preview_dialog";
 
 export class ThemeColorsOption extends BaseOptionComponent {
     static template = "website.ThemeColorsOption";
+    static dependencies = ["themeTab"];
+    isThemeColorsPreviewOpen = signal(false);
+
     setup() {
         super.setup();
         this.palettes = this.getPalettes();
         this.colorPresetToShow = this.env.colorPresetToShow;
+        this.grays = this.dependencies.themeTab.getGrays();
         this.state = useDomState(() => ({
             presets: this.getPresets(),
         }));
+        this.closeThemeColorsPreviewDialog = null;
         onMounted(() => {
             this.iframeDocument = document.querySelector("iframe").contentWindow.document;
             this.state.presets = this.getPresets();
             this.colorPresetToShow = null;
         });
+        onWillUnmount(() => this.closeThemeColorsPreviewDialog?.());
     }
 
     getPalettes() {
@@ -25,17 +34,23 @@ export class ThemeColorsOption extends BaseOptionComponent {
             .split(", ")
             .map((name) => name.replace(/'/g, ""));
         for (const paletteName of allPaletteNames) {
-            const palette = {
+            const colors = Array.from({ length: 5 }, (_, index) =>
+                getCSSVariableValue(`o-palette-${paletteName}-o-color-${index + 1}`, style)
+            );
+            const isDark =
+                getCSSVariableValue(`o-palette-${paletteName}-is-dark`, style) === "true";
+            palettes.push({
                 name: paletteName,
-                colors: [],
-            };
-            [1, 3, 2].forEach((c) => {
-                const color = getCSSVariableValue(`o-palette-${paletteName}-o-color-${c}`, style);
-                palette.colors.push(color);
+                swatchColors: colors.slice(0, 2),
+                backgroundColor: isDark ? colors[3] : colors[2],
+                textColor: colors[4],
             });
-            palettes.push(palette);
         }
         return palettes;
+    }
+
+    getGrayTitle(grayCode) {
+        return _t("Gray %(grayCode)s", { grayCode });
     }
 
     getPresets() {
@@ -75,5 +90,29 @@ export class ThemeColorsOption extends BaseOptionComponent {
             );
         }
         return getCSSVariableValue(color, this.iframeStyle);
+    }
+
+    toggleThemeColorsPreview() {
+        if (this.closeThemeColorsPreviewDialog) {
+            this.closeThemeColorsPreviewDialog();
+            return;
+        }
+
+        this.closeThemeColorsPreviewDialog = this.services.dialog.add(
+            ThemeColorsPreviewDialog,
+            {
+                onIframeLoad: (previewDocument) => {
+                    this.config.extraPreviewDocument = previewDocument;
+                },
+            },
+            {
+                onClose: () => {
+                    this.closeThemeColorsPreviewDialog = null;
+                    this.config.extraPreviewDocument = null;
+                    this.isThemeColorsPreviewOpen.set(false);
+                },
+            }
+        );
+        this.isThemeColorsPreviewOpen.set(true);
     }
 }

@@ -12,17 +12,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~15.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-10-29 11:40+0000\n"
-"Last-Translator: Kristina Pešehodko <kristina@avalah.ee>\n"
-"Language-Team: Estonian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 16:29+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Estonian <https://translate.odoo.com/projects/odoo-s19-4/"
 "crm_livechat/et/>\n"
 "Language: et\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: crm_livechat
 #. odoo-python
@@ -32,8 +32,13 @@ msgstr "%s uus müügivihje"
 
 #. module: crm_livechat
 #: model_terms:ir.ui.view,arch_db:crm_livechat.crm_lead_view_form
-msgid "<span class=\"o_stat_text\">View chat</span>"
-msgstr "<span class=\"o_stat_text\">Vaata vestlust</span>"
+msgid "<span class=\"o_stat_text\">View Live Chat</span>"
+msgstr ""
+
+#. module: crm_livechat
+#: model:ir.module.module,shortdesc:base.module_crm_livechat
+msgid "CRM Livechat"
+msgstr ""
 
 #. module: crm_livechat
 #: model:ir.model,name:crm_livechat.model_chatbot_script
@@ -51,11 +56,6 @@ msgstr "Chatboti skripti samm"
 #: model:ir.model.fields.selection,name:crm_livechat.selection__chatbot_script_step__step_type__create_lead
 msgid "Create Lead"
 msgstr "Loo müügivihje"
-
-#. module: crm_livechat
-#: model:ir.model.fields.selection,name:crm_livechat.selection__chatbot_script_step__step_type__create_lead_and_forward
-msgid "Create Lead & Forward"
-msgstr "Loo müügivihje ja saada edasi"
 
 #. module: crm_livechat
 #. odoo-javascript
@@ -79,11 +79,14 @@ msgid "Create an Opportunity"
 msgstr "Loo müügivõimalus"
 
 #. module: crm_livechat
-#. odoo-python
-#: code:addons/crm_livechat/models/chatbot_script_step.py:0
-#: code:addons/crm_livechat/models/discuss_channel.py:0
-msgid "Created a new lead: %s"
-msgstr "Uue müügivihje looja: %s"
+#: model:ir.module.module,summary:base.module_crm_livechat
+msgid "Create lead from livechat conversation"
+msgstr ""
+
+#. module: crm_livechat
+#: model:ir.module.module,description:base.module_crm_livechat
+msgid "Create new lead with using /lead command in the channel"
+msgstr ""
 
 #. module: crm_livechat
 #: model:ir.model,name:crm_livechat.model_discuss_channel
@@ -225,6 +228,12 @@ msgid ""
 msgstr ""
 "Te ei saa müügivihjet uuendada ning siduda see kanaliga, kuhu Teil ligipääsu "
 "ei ole."
+
+#. module: crm_livechat
+#. odoo-python
+#: code:addons/crm_livechat/models/discuss_channel.py:0
+msgid "created a new lead: %s"
+msgstr ""
 
 #. module: crm_livechat
 #. odoo-javascript

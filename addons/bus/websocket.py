@@ -1,71 +1,71 @@
 import base64
-import bisect
+import contextvars
 import functools
 import hashlib
 import logging
 import os
-import psycopg2
+import queue
 import random
+import selectors
 import socket
 import struct
-import selectors
 import threading
 import time
 from collections import defaultdict, deque
-from contextlib import contextmanager, suppress
+from collections.abc import Buffer
+from contextlib import suppress
 from enum import IntEnum
 from itertools import count
-from psycopg2.pool import PoolError
-from queue import PriorityQueue
 from urllib.parse import urlparse
 from weakref import WeakSet
 
-from werkzeug.local import LocalStack
+import psycopg2
+from psycopg2.pool import PoolError
 from werkzeug.datastructures import ImmutableMultiDict, MultiDict
 from werkzeug.exceptions import BadRequest, HTTPException, ServiceUnavailable
+from werkzeug.local import LocalProxy
 
 import odoo
 from odoo import api, modules
-from .models.bus import dispatch
-from .tools import orjson
-from odoo.http import root, Request, Response, SessionExpiredException, get_default_session
+from odoo.http.requestlib import Request
+from odoo.http.response import Response
+from odoo.http.retrying import retrying
+from odoo.http.session import (
+    SessionExpiredException,
+    get_default_session,
+    session_store,
+)
 from odoo.modules.registry import Registry
-from odoo.service import model as service_model
 from odoo.service.server import CommonServer
-from odoo.service.security import check_session
 from odoo.tools import config
 
+from .bus_dispatcher import dispatch
+from .session_helpers import new_env
+from .tools import orjson
+from .tools.misc import acquire_cursor
+from .websocket_protocol import (
+    CloseCode,
+    ConnectionClosed,
+    ConnectionState,
+    InvalidCloseCodeException,
+    InvalidDatabaseException,
+    InvalidStateException,
+    InvalidWebsocketRequest,
+    LifecycleEvent,
+    Opcode,
+    PayloadTooLargeException,
+    ProtocolError,
+    RateLimitExceededException,
+)
+
 _logger = logging.getLogger(__name__)
+_stopping = threading.Event()
 
-
-MAX_TRY_ON_POOL_ERROR = 10
-DELAY_ON_POOL_ERROR = 0.15
-JITTER_ON_POOL_ERROR = 0.3
-
-
-@contextmanager
-def acquire_cursor(db):
-    """ Try to acquire a cursor up to `MAX_TRY_ON_POOL_ERROR` """
-    delay = DELAY_ON_POOL_ERROR
-    try:
-        for _ in range(MAX_TRY_ON_POOL_ERROR):
-            # Yield before trying to acquire the cursor to let other
-            # greenlets release their cursor.
-            time.sleep(0)
-            with suppress(PoolError), Registry(db).cursor() as cr:
-                yield cr
-                return
-            time.sleep(delay + random.uniform(0, JITTER_ON_POOL_ERROR))
-            delay *= 1.5
-        raise PoolError('Failed to acquire cursor after %s retries' % MAX_TRY_ON_POOL_ERROR)
-    finally:
-        # Yield after releasing the cursor to let waiting greenlets
-        # immediately pick up the freed connection.
-        time.sleep(0)
 
 # ------------------------------------------------------
 # EXCEPTIONS
 # ------------------------------------------------------
+
 
 class UpgradeRequired(HTTPException):
     code = 426
@@ -73,140 +73,58 @@ class UpgradeRequired(HTTPException):
 
     def get_headers(self, environ=None):
         headers = super().get_headers(environ)
-        headers.append((
-            'Sec-WebSocket-Version',
-            '; '.join(WebsocketConnectionHandler.SUPPORTED_VERSIONS)
-        ))
+        headers.append(
+            (
+                'Sec-WebSocket-Version',
+                '; '.join(WebsocketConnectionHandler.SUPPORTED_VERSIONS),
+            ),
+        )
         return headers
-
-
-class WebsocketException(Exception):
-    """ Base class for all websockets exceptions """
-
-
-class ConnectionClosed(WebsocketException):
-    """
-    Raised when the other end closes the socket without performing
-    the closing handshake.
-    """
-
-
-class InvalidCloseCodeException(WebsocketException):
-    def __init__(self, code):
-        super().__init__(f"Invalid close code: {code}")
-
-
-class InvalidDatabaseException(WebsocketException):
-    """
-    When raised: the database probably does not exists anymore, the
-    database is corrupted or the database version doesn't match the
-    server version.
-    """
-
-
-class InvalidStateException(WebsocketException):
-    """
-    Raised when an operation is forbidden in the current state.
-    """
-
-
-class InvalidWebsocketRequest(WebsocketException):
-    """
-    Raised when a websocket request is invalid (format, wrong args).
-    """
-
-
-class PayloadTooLargeException(WebsocketException):
-    """
-    Raised when a websocket message is too large.
-    """
-
-
-class ProtocolError(WebsocketException):
-    """
-    Raised when a frame format doesn't match expectations.
-    """
-
-
-class RateLimitExceededException(Exception):
-    """
-    Raised when a client exceeds the number of request in a given
-    time.
-    """
 
 
 # Idea taken from the python cookbook:
 # https://github.com/dabeaz/python-cookbook/blob/6e46b7/src/12/polling_multiple_thread_queues/pqueue.py
-class PollablePriorityQueue(PriorityQueue):
+class PollablePriorityQueue(queue.PriorityQueue):
     """A custom PriorityQueue than can be polled"""
 
     def __init__(self, maxsize=0):
         super().__init__(maxsize)
         self._putsocket, self._getsocket = socket.socketpair()
+        self._putsocket.setblocking(False)
+        self._getsocket.setblocking(False)
+        self._closed = False
 
     def fileno(self):
         return self._getsocket.fileno()
 
-    def put(self, item, *args, **kwargs):
-        super().put(item, *args, **kwargs)
-        self._putsocket.send(b'.')
+    def _put(self, item, *args, **kwargs):
+        # Protected by self.mutex in threaded mode. Non-yielding in gevent mode.
+        is_empty = self._qsize() == 0
+        super()._put(item, *args, **kwargs)
+        if is_empty and not self._closed:
+            # First item added in the queue: poke the socket to wakeup selectors.
+            self._putsocket.send(b".")
 
-    def get(self, *args, **kwargs):
-        self._getsocket.recv(1)
-        return super().get(*args, **kwargs)
+    def _get(self, *args, **kwargs):
+        # Protected by self.mutex in threaded mode. Non-yielding in gevent mode.
+        result = super()._get(*args, **kwargs)
+        if self._qsize() == 0 and not self._closed:
+            # Last item removed from the queue: drain the socket.
+            self._getsocket.recv(1)
+        return result
 
     def close(self):
-        self._putsocket.close()
-        self._getsocket.close()
-
-
-# ------------------------------------------------------
-# WEBSOCKET LIFECYCLE
-# ------------------------------------------------------
-
-
-class LifecycleEvent(IntEnum):
-    OPEN = 0
-    CLOSE = 1
+        # Under `self.mutex` so that a concurrent `put` cannot be between reading the
+        # wakeup fd and writing to it while it gets closed.
+        with self.mutex:
+            self._closed = True
+            self._putsocket.close()
+            self._getsocket.close()
 
 
 # ------------------------------------------------------
 # WEBSOCKET
 # ------------------------------------------------------
-
-
-class Opcode(IntEnum):
-    CONTINUE = 0x00
-    TEXT = 0x01
-    BINARY = 0x02
-    CLOSE = 0x08
-    PING = 0x09
-    PONG = 0x0A
-
-
-class CloseCode(IntEnum):
-    CLEAN = 1000
-    GOING_AWAY = 1001
-    PROTOCOL_ERROR = 1002
-    INCORRECT_DATA = 1003
-    ABNORMAL_CLOSURE = 1006
-    INCONSISTENT_DATA = 1007
-    MESSAGE_VIOLATING_POLICY = 1008
-    MESSAGE_TOO_BIG = 1009
-    EXTENSION_NEGOTIATION_FAILED = 1010
-    SERVER_ERROR = 1011
-    RESTART = 1012
-    TRY_LATER = 1013
-    BAD_GATEWAY = 1014
-    SESSION_EXPIRED = 4001
-    KEEP_ALIVE_TIMEOUT = 4002
-    KILL_NOW = 4003
-
-
-class ConnectionState(IntEnum):
-    OPEN = 0
-    CLOSING = 1
-    CLOSED = 2
 
 
 # Used to maintain order of commands in the queue according to their priority
@@ -216,7 +134,7 @@ _command_uid = count(0)
 
 class ControlCommand(IntEnum):
     CLOSE = 0
-    DISPATCH = 1
+    SEND = 1
 
 
 DATA_OP = {Opcode.TEXT, Opcode.BINARY}
@@ -239,7 +157,7 @@ class Frame:
         fin=True,
         rsv1=False,
         rsv2=False,
-        rsv3=False
+        rsv3=False,
     ):
         self.opcode = opcode
         self.payload = payload
@@ -269,61 +187,30 @@ class Websocket:
     # Maximum size for a message in bytes, whether it is sent as one
     # frame or many fragmented ones.
     MESSAGE_MAX_SIZE = 2 ** 20
-    # How much time (in second) the history of last dispatched notifications is
-    # kept in memory for each websocket.
-    # To avoid duplicate notifications, we fetch them based on their ids.
-    # However during parallel transactions, ids are assigned immediately (when
-    # they are requested), but the notifications are dispatched at the time of
-    # the commit. This means lower id notifications might be dispatched after
-    # higher id notifications.
-    # Simply incrementing the last id is sufficient to guarantee no duplicates,
-    # but it is not sufficient to guarantee all notifications are dispatched,
-    # and in particular not sufficient for those with a lower id coming after a
-    # higher id was dispatched.
-    # To solve the issue of missed notifications, the lowest id, stored in
-    # ``_last_notif_sent_id``, is held back by a few seconds to give time for
-    # concurrent transactions to finish. To avoid dispatching duplicate
-    # notifications, the history of already dispatched notifications during this
-    # period is kept in memory in ``_notif_history`` and the corresponding
-    # notifications are discarded from subsequent dispatching even if their id
-    # is higher than ``_last_notif_sent_id``.
-    # In practice, what is important functionally is the time between the create
-    # of the notification and the commit of the transaction in business code.
-    # If this time exceeds this threshold, the notification will never be
-    # dispatched if the target user receive any other notification in the
-    # meantime.
-    # Transactions known to be long should therefore create their notifications
-    # at the end, as close as possible to their commit.
-    MAX_NOTIFICATION_HISTORY_SEC = 10
+    # Maximum number of outgoing commands allowed for a socket. Past this, the connection
+    # is aborted instead of letting the queue grow indefinitely.
+    CMD_MAX_SIZE = 1024
     # How many requests can be made in excess of the given rate.
     RL_BURST = int(config['websocket_rate_limit_burst'])
     # How many seconds between each request.
     RL_DELAY = float(config['websocket_rate_limit_delay'])
 
-    def __init__(self, sock, session, cookies):
+    def __init__(self, sock, session, cookies, prelude=b''):
         # Session linked to the current websocket connection.
         self._session = session
         # Cookies linked to the current websocket connection.
         self._cookies = cookies
         self._db = session.db
         self.__socket = sock
+        self._prelude = prelude and memoryview(prelude)
         self._close_sent = False
         self._close_received = False
         self._timeout_manager = TimeoutManager()
         # Used for rate limiting.
         self._incoming_frame_timestamps = deque(maxlen=self.RL_BURST)
-        # Command queue used to manage the websocket instance externally, such
-        # as triggering notification dispatching or terminating the connection.
-        self.__cmd_queue = PollablePriorityQueue()
-        self._waiting_for_dispatch = False
-        self._channels = set()
-        # For ``_last_notif_sent_id and ``_notif_history``, see
-        # ``MAX_NOTIFICATION_HISTORY_SEC`` for more details.
-        # id of the last sent notification that is no longer in _notif_history
-        self._last_notif_sent_id = 0
-        # history of last sent notifications in the format (notif_id, send_time)
-        # always sorted by notif_id ASC
-        self._notif_history = []
+        # Command queue used to manage the websocket instance externally, such as sending
+        # messages or terminating the connection.
+        self.__cmd_queue = PollablePriorityQueue(maxsize=self.CMD_MAX_SIZE)
         # Websocket start up
         self.__selector = (
             selectors.PollSelector()
@@ -368,14 +255,25 @@ class Websocket:
                     message = self._process_next_message()
                     if message is not None:
                         yield message
-            except Exception as exc:
+            except Exception as exc:  # noqa: BLE001
                 self._handle_transport_error(exc)
 
     def close(self, code, reason=None):
         """Notify the socket to initiate closure. The closing handshake
         will start in the subsequent iteration of the event loop.
+
+        If the queue is already full (slow/stuck socket), fall back to shutting the socket
+        down, which interrupts a blocked send/recv in the event loop and let it go through
+        `_handle_transport_error`.
         """
-        self._send_control_command(ControlCommand.CLOSE, {'code': code, 'reason': reason})
+        if self.state is ConnectionState.CLOSED:
+            return
+        self.state = ConnectionState.CLOSING
+        try:
+            self._enqueue_control_command(ControlCommand.CLOSE, {"code": code, "reason": reason})
+        except queue.Full:
+            with suppress(OSError):
+                self.__socket.shutdown(socket.SHUT_RDWR)
 
     @classmethod
     def onopen(cls, func):
@@ -387,28 +285,26 @@ class Websocket:
         cls.__event_callbacks[LifecycleEvent.CLOSE].add(func)
         return func
 
-    def subscribe(self, channels, last):
-        """ Subscribe to bus channels. """
-        self._channels = channels
-        # Only assign the last id according to the client once: the server is
-        # more reliable later on, see ``MAX_NOTIFICATION_HISTORY_SEC``.
-        if self._last_notif_sent_id == 0:
-            self._last_notif_sent_id = last
-        # Dispatch past notifications if there are any.
-        self.trigger_notification_dispatching()
+    def send(self, payload, opcode=None):
+        if self.state is not ConnectionState.OPEN:
+            e = "Trying to send a frame on a closed socket"
+            raise InvalidStateException(e)
+        if opcode is None:
+            opcode = Opcode.BINARY
+            if not isinstance(payload, Buffer):
+                opcode = Opcode.TEXT
+        try:
+            self._enqueue_control_command(ControlCommand.SEND, Frame(opcode, payload))
+        except queue.Full:
+            self.close(CloseCode.TRY_LATER, "OUTGOING_QUEUE_SATURATED")
 
-    def trigger_notification_dispatching(self):
+    def send_worker_internal_message(self, type_, payload=None):
+        """Send a message to the browser worker linked to this WebSocket. The message
+        is delivered only to the current socket instance and is not stored. Used for
+        internal server to worker coordination.
         """
-        Warn the socket that notifications are available. Ignore if a
-        dispatch is already planned or if the socket is already in the
-        closing state.
-        """
-        if self.state is not ConnectionState.OPEN or self._waiting_for_dispatch:
-            return
-        self._waiting_for_dispatch = True
-        # Ignore if the socket was closed in the meantime.
-        with suppress(OSError):
-            self._send_control_command(ControlCommand.DISPATCH)
+        with suppress(InvalidStateException):
+            self.send([{"type": type_, "internal": True, "payload": payload}])
 
     # ------------------------------------------------------
     # PRIVATE METHODS
@@ -435,6 +331,11 @@ class Websocket:
         def recv_bytes(n):
             """ Pull n bytes from the socket """
             data = bytearray()
+            if self._prelude:
+                data.extend(self._prelude[:n])
+                self._prelude = self._prelude[n:]
+                if not self._prelude:
+                    self._prelude = b''  # free the bytes
             while len(data) < n:
                 received_data = self.__socket.recv(n - len(data))
                 if not received_data:
@@ -468,16 +369,18 @@ class Websocket:
         payload_length = second_byte & 0b01111111
 
         if rsv1 or rsv2 or rsv3:
-            raise ProtocolError("Reserved bits must be unset")
+            e = "Reserved bits must be unset"
+            raise ProtocolError(e)
         if not is_bit_set(second_byte, 0):
-            raise ProtocolError("Frame must be masked")
+            e = "Frame must be masked"
+            raise ProtocolError(e)
         if opcode in CTRL_OP:
             if not fin:
-                raise ProtocolError("Control frames cannot be fragmented")
+                e = "Control frames cannot be fragmented"
+                raise ProtocolError(e)
             if payload_length > 125:
-                raise ProtocolError(
-                    "Control frames payload must be smaller than 126"
-                )
+                e = "Control frames payload must be smaller than 126"
+                raise ProtocolError(e)
         if payload_length == 126:
             payload_length = struct.unpack('!H', recv_bytes(2))[0]
         elif payload_length == 127:
@@ -501,14 +404,15 @@ class Websocket:
         frame = self._get_next_frame()
         if frame.opcode in CTRL_OP:
             self._handle_control_frame(frame)
-            return
+            return None
         if self.state is not ConnectionState.OPEN:
             # After receiving a control frame indicating the connection
             # should be closed, a peer discards any further data
             # received.
-            return
+            return None
         if frame.opcode is Opcode.CONTINUE:
-            raise ProtocolError("Unexpected continuation frame")
+            e = "Unexpected continuation frame"
+            raise ProtocolError(e)
         message = frame.payload
         if not frame.fin:
             message = self._recover_fragmented_message(frame)
@@ -526,35 +430,30 @@ class Websocket:
                 # fragmented message, process them as soon as possible.
                 self._handle_control_frame(frame)
                 if self.state is not ConnectionState.OPEN:
-                    return
+                    return None
                 continue
             if frame.opcode is not Opcode.CONTINUE:
-                raise ProtocolError("A continuation frame was expected")
+                e = "A continuation frame was expected"
+                raise ProtocolError(e)
             message_fragments.extend(frame.payload)
             if len(message_fragments) > self.MESSAGE_MAX_SIZE:
                 raise PayloadTooLargeException()
             if frame.fin:
                 return bytes(message_fragments)
 
-    def _send(self, message):
-        if self.state is not ConnectionState.OPEN:
-            raise InvalidStateException(
-                "Trying to send a frame on a closed socket"
-            )
-        opcode = Opcode.BINARY
-        if not isinstance(message, (bytes, bytearray)):
-            opcode = Opcode.TEXT
-        self._send_frame(Frame(opcode, message))
-
     def _send_frame(self, frame):
         if frame.opcode in CTRL_OP and len(frame.payload) > 125:
-            raise ProtocolError(
-                "Control frames should have a payload length smaller than 126"
-            )
+            e = "Control frames should have a payload length smaller than 126"
+            raise ProtocolError(e)
         if isinstance(frame.payload, str):
             frame.payload = frame.payload.encode('utf-8')
-        elif not isinstance(frame.payload, (bytes, bytearray)):
+        elif frame.opcode is Opcode.TEXT and not isinstance(frame.payload, Buffer):
+            # Only encode what's not been encoded by the caller already, this way, the
+            # dispatcher can encode the payload once, to avoid repeating the work accross
+            # all subscribed websockets.
             frame.payload = orjson.dumps(frame.payload)
+        else:
+            frame.payload = bytes(frame.payload)
 
         output = bytearray()
         first_byte = (
@@ -566,17 +465,11 @@ class Websocket:
         )
         payload_length = len(frame.payload)
         if payload_length < 126:
-            output.extend(
-                struct.pack('!BB', first_byte, payload_length)
-            )
+            output.extend(struct.pack('!BB', first_byte, payload_length))
         elif payload_length < 65536:
-            output.extend(
-                struct.pack('!BBH', first_byte, 126, payload_length)
-            )
+            output.extend(struct.pack('!BBH', first_byte, 126, payload_length))
         else:
-            output.extend(
-                struct.pack('!BBQ', first_byte, 127, payload_length)
-            )
+            output.extend(struct.pack('!BBQ', first_byte, 127, payload_length))
         output.extend(frame.payload)
         self.__socket.sendall(output)
         self._timeout_manager.acknowledge_frame_sent(frame)
@@ -641,7 +534,7 @@ class Websocket:
         dispatch.unsubscribe(self)
         self._trigger_lifecycle_event(LifecycleEvent.CLOSE)
         with acquire_cursor(self._db) as cr:
-            env = self.new_env(cr, self._session)
+            env = new_env(cr, self._session)
             env["ir.websocket"]._on_websocket_closed(self._cookies)
 
     def _handle_control_frame(self, frame):
@@ -655,7 +548,8 @@ class Websocket:
                 code = struct.unpack('!H', frame.payload[:2])[0]
                 reason = frame.payload[2:].decode('utf-8')
             elif frame.payload:
-                raise ProtocolError("Malformed closing frame")
+                e = "Malformed closing frame"
+                raise ProtocolError(e)
             if not self._close_sent:
                 self._send_close_frame(code, reason)
             else:
@@ -683,12 +577,13 @@ class Websocket:
         if code is CloseCode.SERVER_ERROR:
             reason = None
             registry = Registry(self._session.db)
-            sequence = registry.registry_sequence
-            registry = registry.check_signaling()
-            if sequence != registry.registry_sequence:
+            with registry.cursor() as cr:
+                env = api.Environment(cr, api.SUPERUSER_ID, {})
+                changed_registry = registry is not env.registry
+            if changed_registry:
                 _logger.warning("Bus operation aborted; registry has been reloaded")
             else:
-                _logger.error(exc, exc_info=True)
+                _logger.error(exc, exc_info=exc)
         if self.state is ConnectionState.OPEN:
             self._disconnect(code, reason)
         else:
@@ -718,24 +613,29 @@ class Websocket:
         if not self.__event_callbacks[event_type]:
             return
         with acquire_cursor(self._db) as cr:
-            env = self.new_env(cr, self._session, set_lang=True)
+            env = new_env(cr, self._session, set_lang=True)
             for callback in self.__event_callbacks[event_type]:
                 try:
-                    service_model.retrying(functools.partial(callback, env, self), env)
+                    retrying(functools.partial(callback, env, self), env, close_on_commit=False)
                 except Exception:
                     _logger.warning(
-                        'Error during Websocket %s callback',
+                        "Error during Websocket %s callback",
                         LifecycleEvent(event_type).name,
-                        exc_info=True
+                        exc_info=True,
                     )
+                finally:
+                    # retrying leaves the cursor in a bad state state, and since
+                    # we continue to use it, we must rollback
+                    cr.rollback()
 
-    def _send_control_command(self, command, data=None):
-        """Send a command to the websocket event loop.
+    def _enqueue_control_command(self, command, data=None):
+        """Enqueue a command to be processed by the websocket event loop.
 
         :param ControlCommand command: The command to be executed.
         :param dict | None data: An optional dictionary of parameters.
+        :raises Full: If the queue is saturated.
         """
-        self.__cmd_queue.put((command, next(_command_uid), data))
+        self.__cmd_queue.put_nowait((command, next(_command_uid), data))
 
     def _process_control_command(self, command, data):
         """Process a command received in `self.__cmd_queue`.
@@ -744,75 +644,10 @@ class Websocket:
         :param dict | None data: An optional dictionary of parameters.
         """
         match command:
-            case ControlCommand.DISPATCH:
-                self._dispatch_bus_notifications()
+            case ControlCommand.SEND:
+                self._send_frame(data)
             case ControlCommand.CLOSE:
                 self._disconnect(data['code'], data.get('reason'))
-
-    def _dispatch_bus_notifications(self):
-        """
-        Dispatch notifications related to the registered channels. If
-        the session is expired, close the connection with the
-        `SESSION_EXPIRED` close code. If no cursor can be acquired,
-        close the connection with the `TRY_LATER` close code.
-        """
-        session = root.session_store.get(self._session.sid)
-        if not session:
-            raise SessionExpiredException()
-        if 'next_sid' in session:
-            self._session = root.session_store.get(session['next_sid'])
-            return self._dispatch_bus_notifications()
-         # Mark the notification request as processed.
-        self._waiting_for_dispatch = False
-        with acquire_cursor(session.db) as cr:
-            env = self.new_env(cr, session)
-            if session.uid is not None and not check_session(session, env):
-                raise SessionExpiredException()
-            notifications = env["bus.bus"]._poll(
-                self._channels, self._last_notif_sent_id, [n[0] for n in self._notif_history]
-            )
-        if not notifications:
-            return
-        for notif in notifications:
-            bisect.insort(self._notif_history, (notif["id"], time.time()), key=lambda x: x[0])
-        # Discard all the smallest notification ids that have expired and
-        # increment the last id accordingly. History can only be trimmed of ids
-        # that are below the new last id otherwise some notifications might be
-        # dispatched again.
-        # For example, if the theshold is 10s, and the state is:
-        # last id 2, history [(3, 8s), (6, 10s), (7, 7s)]
-        # If 6 is removed because it is above the threshold, the next query will
-        # be (id > 2 AND id NOT IN (3, 7)) which will fetch 6 again.
-        # 6 can only be removed after 3 reaches the threshold and is removed as
-        # well, and if 4 appears in the meantime, 3 can be removed but 6 will
-        # have to wait for 4 to reach the threshold as well.
-        last_index = -1
-        for i, notif in enumerate(self._notif_history):
-            if time.time() - notif[1] > self.MAX_NOTIFICATION_HISTORY_SEC:
-                last_index = i
-            else:
-                break
-        if last_index != -1:
-            self._last_notif_sent_id = self._notif_history[last_index][0]
-            self._notif_history = self._notif_history[last_index + 1 :]
-        self._send(notifications)
-
-    def new_env(self, cr, session, *, set_lang=False):
-        """
-        Create a new environment.
-        Make sure the transaction has a `default_env` and if requested, set the
-        language of the user in the context.
-        """
-        uid = session.uid
-        # lang is not guaranteed to be correct, set None
-        ctx = dict(session.context, lang=None)
-        env = api.Environment(cr, uid, ctx)
-        if set_lang:
-            lang = env['res.lang']._get_code(ctx['lang'])
-            env = env(context=dict(ctx, lang=lang))
-        if not env.transaction.default_env:
-            env.transaction.default_env = env
-        return env
 
 
 class TimeoutManager:
@@ -886,8 +721,9 @@ class TimeoutManager:
 # ------------------------------------------------------
 
 
-_wsrequest_stack = LocalStack()
-wsrequest = _wsrequest_stack()
+wsrequest_var = contextvars.ContextVar('wsrequest')
+wsrequest = LocalProxy(wsrequest_var, unbound_message='wsrequest is not bound')
+
 
 class WebsocketRequest:
     def __init__(self, db, httprequest, websocket):
@@ -896,40 +732,30 @@ class WebsocketRequest:
         self.session = None
         self.ws = websocket
 
-    def __enter__(self):
-        _wsrequest_stack.push(self)
-        return self
-
-    def __exit__(self, *args):
-        _wsrequest_stack.pop()
-
     def serve_websocket_message(self, message):
         try:
             jsonrequest = orjson.loads(message)
             event_name = jsonrequest['event_name']  # mandatory
         except KeyError as exc:
-            raise InvalidWebsocketRequest(
-                f'Key {exc.args[0]!r} is missing from request'
-            ) from exc
+            e = "Key {exc.args[0]!r} is missing from request"
+            raise InvalidWebsocketRequest(e) from exc
         except ValueError as exc:
-            raise InvalidWebsocketRequest(
-                f'Invalid JSON data, {exc.args[0]}'
-            ) from exc
+            e = f"Invalid JSON data, {exc.args[0]}"
+            raise InvalidWebsocketRequest(e) from exc
         data = jsonrequest.get('data')
         self.session = self._get_session()
 
-        try:
-            self.registry = Registry(self.db)
-            threading.current_thread().dbname = self.registry.db_name
-            self.registry.check_signaling()
-        except (
-            AttributeError, psycopg2.OperationalError, psycopg2.ProgrammingError
-        ) as exc:
-            raise InvalidDatabaseException() from exc
-
         with acquire_cursor(self.db) as cr:
-            self.env = self.ws.new_env(cr, self.session, set_lang=True)
-            service_model.retrying(
+            try:
+                self.env = new_env(cr, self.session, set_lang=True)
+                self.registry = self.env.registry
+            except (
+                AttributeError,
+                psycopg2.OperationalError,
+                psycopg2.ProgrammingError,
+            ) as exc:
+                raise InvalidDatabaseException() from exc
+            retrying(
                 functools.partial(self._serve_ir_websocket, event_name, data),
                 self.env,
             )
@@ -943,9 +769,9 @@ class WebsocketRequest:
         self.env["ir.websocket"]._serve_ir_websocket(event_name, data)
 
     def _get_session(self):
-        session = root.session_store.get(self.ws._session.sid)
+        session = session_store().get(self.ws._session.sid)
         if 'next_sid' in session:
-            self.ws._session = root.session_store.get(session['next_sid'])
+            self.ws._session = session_store().get(session['next_sid'])
             return self._get_session()
         if not session:
             raise SessionExpiredException()
@@ -985,7 +811,7 @@ class WebsocketConnectionHandler:
     # Latest version of the websocket worker. This version should be incremented
     # every time `websocket_worker.js` is modified to force the browser to fetch
     # the new worker bundle.
-    _VERSION = "19.0-2"
+    _VERSION = "saas-19.5-1"
 
     @classmethod
     def websocket_allowed(cls, request):
@@ -1007,41 +833,49 @@ class WebsocketConnectionHandler:
         :raise: BadRequest if the handshake data is incorrect.
         """
         if not cls.websocket_allowed(request):
-            raise ServiceUnavailable("Websocket is disabled in test mode")
+            e = "Websocket is disabled in test mode"
+            raise ServiceUnavailable(e)
+        if _stopping.is_set():
+            e = "Websocket is shutting down"
+            raise ServiceUnavailable(e)
         public_session = cls._handle_public_configuration(request)
         try:
             response = cls._get_handshake_response(request.httprequest.headers)
             socket = request.httprequest._HTTPRequest__environ['socket']
+            trailing_data = request.httprequest._HTTPRequest__environ.get('odoo.trailing_data', lambda: (b'', False))
             session, db, httprequest = (public_session or request.session), request.db, request.httprequest
-            response.call_on_close(lambda: cls._serve_forever(
-                Websocket(socket, session, httprequest.cookies),
-                db,
-                httprequest,
-                version
-            ))
-            # Force save the session. Session must be persisted to handle
-            # WebSocket authentication.
-            request.session.is_dirty = True
+            response.call_on_close(
+                lambda: cls._serve_forever(
+                    Websocket(socket, session, httprequest.cookies, prelude=trailing_data()[0]),
+                    db,
+                    httprequest,
+                    version,
+                ),
+            )
+            # Save the session, as the WebSocket authentication reads it back
+            # from disk. Marking it dirty would resend the session_id cookie.
+            if request.session.can_save:
+                session_store().save(request.session)
             return response
         except KeyError as exc:
-            raise RuntimeError(
-                f"Couldn't bind the websocket. Is the connection opened on the evented port ({config['gevent_port']})?"
-            ) from exc
+            e = f"Couldn't bind the websocket. Is the connection opened on the evented port ({config['gevent_port']})?"
+            raise RuntimeError(e) from exc
         except HTTPException as exc:
             # The HTTP stack does not log exceptions derivated from the
             # HTTPException class since they are valid responses.
             _logger.error(exc)
             raise
 
-
-
     @classmethod
     def _get_handshake_response(cls, headers):
-        """
-        :return: Response indicating the server performed a connection
-        upgrade.
-        :raise: BadRequest
-        :raise: UpgradeRequired
+        """Build the WebSocket handshake response for a client upgrade request.
+
+        :param headers: Request headers from the client.
+        :returns: Response indicating the server performed a connection
+            upgrade.
+        :raises BadRequest: If the handshake request is invalid.
+        :raises UpgradeRequired: If the client requested version is not
+            supported.
         """
         cls._assert_handshake_validity(headers)
         # sha-1 is used as it is required by
@@ -1058,7 +892,7 @@ class WebsocketConnectionHandler:
     @classmethod
     def _handle_public_configuration(cls, request):
         if not os.getenv('ODOO_BUS_PUBLIC_SAMESITE_WS'):
-            return
+            return None
         headers = request.httprequest.headers
         origin_url = urlparse(headers.get('origin'))
         if origin_url.netloc != headers.get('host') or origin_url.scheme != request.httprequest.scheme:
@@ -1070,17 +904,18 @@ class WebsocketConnectionHandler:
                     'scheme': request.httprequest.scheme,
                 },
             )
-            session = root.session_store.new()
+            session = session_store().new()
             session.update(get_default_session(), db=request.session.db)
-            root.session_store.save(session)
+            session_store().save(session)
             return session
         return None
 
     @classmethod
     def _assert_handshake_validity(cls, headers):
-        """
+        """Validate a WebSocket handshake request.
+
         :raise: UpgradeRequired if there is no intersection between
-        the version the client supports and those we support.
+            the version the client supports and those we support.
         :raise: BadRequest in case of invalid handshake.
         """
         missing_or_empty_headers = {
@@ -1088,14 +923,14 @@ class WebsocketConnectionHandler:
             if header not in headers
         }
         if missing_or_empty_headers:
-            raise BadRequest(
-                f"""Empty or missing header(s): {', '.join(missing_or_empty_headers)}"""
-            )
-
+            e = f"""Empty or missing header(s): {', '.join(missing_or_empty_headers)}"""
+            raise BadRequest(e)
         if headers['upgrade'].lower() != 'websocket':
-            raise BadRequest('Invalid upgrade header')
+            e = "Invalid upgrade header"
+            raise BadRequest(e)
         if 'upgrade' not in headers['connection'].lower():
-            raise BadRequest('Invalid connection header')
+            e = "Invalid connection header"
+            raise BadRequest(e)
         if headers['sec-websocket-version'] not in cls.SUPPORTED_VERSIONS:
             raise UpgradeRequired()
 
@@ -1103,19 +938,17 @@ class WebsocketConnectionHandler:
         try:
             decoded_key = base64.b64decode(key, validate=True)
         except ValueError:
-            raise BadRequest("Sec-WebSocket-Key should be b64 encoded")
+            e = "Sec-WebSocket-Key should be b64 encoded"
+            raise BadRequest(e)
         if len(decoded_key) != 16:
-            raise BadRequest(
-                "Sec-WebSocket-Key should be of length 16 once decoded"
-            )
+            e = "Sec-WebSocket-Key should be of length 16 once decoded"
+            raise BadRequest(e)
 
     @classmethod
     def _serve_forever(cls, websocket, db, httprequest, version):
         """
         Process incoming messages and dispatch them to the application.
         """
-        current_thread = threading.current_thread()
-        current_thread.type = 'websocket'
         if httprequest.user_agent and version != cls._VERSION:
             # Close the connection from an outdated worker. We can't use a
             # custom close code because the connection is considered successful,
@@ -1131,22 +964,57 @@ class WebsocketConnectionHandler:
             if message == b'\x00':
                 # Ignore internal sentinel message used to detect dead/idle connections.
                 continue
-            with WebsocketRequest(db, httprequest, websocket) as req:
-                try:
-                    req.serve_websocket_message(message)
-                except SessionExpiredException:
-                    websocket.close(CloseCode.SESSION_EXPIRED)
-                except PoolError:
-                    websocket.close(CloseCode.TRY_LATER)
-                except Exception:
-                    _logger.exception("Exception occurred during websocket request handling")
+            req = WebsocketRequest(db, httprequest, websocket)
+            req_reset = wsrequest_var.set(req)
+            try:
+                req.serve_websocket_message(message)
+            except SessionExpiredException:
+                websocket.close(CloseCode.SESSION_EXPIRED)
+            except PoolError:
+                websocket.close(CloseCode.TRY_LATER)
+            except Exception:
+                _logger.exception("Exception occurred during websocket request handling")
+            finally:
+                wsrequest_var.reset(req_reset)
+                # Free the request object to avoid keeping a reference to the env / registry
+                # while waiting for the next message. Useful for registry GC.
+                del req
 
 
 def _kick_all(code=CloseCode.GOING_AWAY):
     """ Disconnect all the websocket instances. """
-    for websocket in _websocket_instances:
-        if websocket.state is ConnectionState.OPEN:
-            websocket.close(code)
+    _stopping.set()  # refuse new connections
+    try:
+        _logger.info("Disconnecting %s websockets", len(_websocket_instances))
+        count = 0
+        wait_threshold = max(odoo.sql_db._Pool._maxconn // 8, 8) if odoo.sql_db._Pool else 32
+        for websocket in _websocket_instances:
+            if websocket.state is ConnectionState.OPEN:
+                websocket.close(code)
+                count += 1
+                if count % wait_threshold == 0:
+                    time.sleep(0.5)
+                    _logger.debug("signaling websockets to shutdown %s/%s ...", count, len(_websocket_instances))
+        _logger.debug("signaling websockets to shutdown %s/%s done", count, len(_websocket_instances))
+
+        # Every websocket has been signaled to shut down, but the
+        # closing handshake might not be complete yet, wait up to
+        # 5 seconds for all handshakes to be done.
+        for _ in range(50):
+            time.sleep(.1)
+            if all(
+                websocket.state is ConnectionState.CLOSED
+                for websocket in _websocket_instances
+            ):
+                break
+        else:
+            _logger.info("There remain %s closing websockets", sum(
+                1
+                for websocket in _websocket_instances
+                if websocket.state is not ConnectionState.CLOSED
+            ))
+    finally:
+        _stopping.clear()
 
 
 CommonServer.on_stop(_kick_all)

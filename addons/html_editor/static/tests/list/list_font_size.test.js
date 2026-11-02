@@ -2,6 +2,7 @@ import { testEditor } from "../_helpers/editor";
 import { test, before } from "@odoo/hoot";
 import {
     setFontSize,
+    setFontSizeClassName,
     splitBlock,
     toggleOrderedList,
     toggleUnorderedList,
@@ -58,8 +59,7 @@ test("should apply font-size to completely selected list item (2)", async () => 
 test("should apply font-size to completely selected multiple list items", async () => {
     await testEditor({
         contentBefore: "<ul><li>[abc</li><li>def]</li></ul>",
-        stepFunction: (editor) =>
-            execCommand(editor, "formatFontSizeClassName", { className: "h2-fs" }),
+        stepFunction: setFontSizeClassName("h2-fs"),
         contentAfter: '<ul><li class="h2-fs">[abc</li><li class="h2-fs">def]</li></ul>',
     });
 });
@@ -122,7 +122,7 @@ test("should apply font-size on fully selected list items with empty text nodes 
             setFontSize("32px")(editor);
         },
         contentAfterEdit:
-            '<ul><li style="font-size: 32px;">[\ufeff<a href="#">\ufeffabc\ufeff</a>\ufeff</li><li style="font-size: 32px;">\ufeff<a href="#">\ufeffabc\ufeff</a>\ufeff]</li></ul>',
+            '<ul><li style="font-size: 32px;">\ufeff[<a href="#">\ufeffabc\ufeff</a>\ufeff</li><li style="font-size: 32px;">\ufeff<a href="#">\ufeffabc\ufeff</a>\ufeff]</li></ul>',
         contentAfter:
             '<ul><li style="font-size: 32px;">[<a href="#">abc</a></li><li style="font-size: 32px;"><a href="#">abc</a>]</li></ul>',
     });
@@ -131,8 +131,7 @@ test("should apply font-size on fully selected list items with empty text nodes 
 test("should replace list item inline font-size with font-size class", async () => {
     await testEditor({
         contentBefore: '<ul><li style="font-size: 18px;">[abc]</li></ul>',
-        stepFunction: (editor) =>
-            execCommand(editor, "formatFontSizeClassName", { className: "h2-fs" }),
+        stepFunction: setFontSizeClassName("h2-fs"),
         contentAfter: '<ul><li class="h2-fs">[abc]</li></ul>',
     });
 });
@@ -149,8 +148,7 @@ test("should apply font-size to completely selected and partially selected list 
 test("should apply font-size to completely selected list items and paragraph tag", async () => {
     await testEditor({
         contentBefore: "<ul><li>[abc</li><li>def</li></ul><p>ghi]</p>",
-        stepFunction: (editor) =>
-            execCommand(editor, "formatFontSizeClassName", { className: "h2-fs" }),
+        stepFunction: setFontSizeClassName("h2-fs"),
         contentAfter: `<ul><li class="h2-fs">[abc</li><li class="h2-fs">def</li></ul><p><span class="h2-fs">ghi]</span></p>`,
     });
 });
@@ -290,11 +288,10 @@ test("should change font-size of subpart of a list item (2)", async () => {
 });
 
 test("should pad list based on font-size", async () => {
-    const className = "h2-fs";
     await testEditor({
         contentBefore: "<ol><li>[a]</li></ol>",
-        stepFunction: (editor) => execCommand(editor, "formatFontSizeClassName", { className }),
-        contentAfter: `<ol><li class="${className}">[a]</li></ol>`,
+        stepFunction: setFontSizeClassName("h2-fs"),
+        contentAfter: `<ol><li class="h2-fs">[a]</li></ol>`,
     });
 });
 
@@ -345,6 +342,15 @@ test("should remove font-size from list item containing sublist", async () => {
     });
 });
 
+test("should not remove font size of nested li while removing format of first list item", async () => {
+    await testEditor({
+        styleContent: "ol { font: 14px Roboto }",
+        contentBefore: `<ul><li class="h2-fs"><p>[a]</p><ul class="o_default_font_size"><li class="h2-fs">b</li></ul></li></ul>`,
+        stepFunction: (editor) => execCommand(editor, "removeFormat"),
+        contentAfter: `<ul><li><p>[a]</p><ul><li class="h2-fs">b</li></ul></li></ul>`,
+    });
+});
+
 test("should remove font-size class from list item containing sublist", async () => {
     await testEditor({
         styleContent: "ol { font: 14px Roboto }",
@@ -359,7 +365,7 @@ test("should remove font-size and its classes from partially selected list item 
         styleContent: "ol { font: 14px Roboto }",
         contentBefore: `<ol><li>a</li><li style="font-size: 56px;">b[c]d</li><li>e</li></ol>`,
         stepFunction: (editor) => execCommand(editor, "removeFormat"),
-        contentAfter: `<ol style="padding-inline-start: 60px;"><li>a</li><li style="font-size: 56px;">b<span class="o_default_font_size">[c]</span>d</li><li>e</li></ol>`,
+        contentAfter: `<ol><li>a</li><li style="font-size: 56px;">b<span class="o_default_font_size">[c]</span>d</li><li>e</li></ol>`,
     });
 });
 
@@ -387,5 +393,14 @@ test("should remove font-size and its classes from partially selected list item 
         contentBefore: `<ol><li class="h2-fs">a[bc</li><li class="h2-fs">def</li><li class="h2-fs">gh]i</li></ol>`,
         stepFunction: (editor) => execCommand(editor, "removeFormat"),
         contentAfter: `<ol><li class="h2-fs">a<span class="o_default_font_size">[bc</span></li><li>def</li><li class="h2-fs"><span class="o_default_font_size">gh]</span>i</li></ol>`,
+    });
+});
+
+test.tags("desktop");
+test("should properly pad list from header block", async () => {
+    await testEditor({
+        contentBefore: `<h4><span class="display-1-fs">[awdawd]</span></h4>`,
+        stepFunction: toggleUnorderedList,
+        contentAfter: `<ul style="padding-inline-start: 54px;"><li class="display-1-fs"><h4>[awdawd]</h4></li></ul>`,
     });
 });

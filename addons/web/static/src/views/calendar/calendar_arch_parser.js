@@ -3,14 +3,7 @@ import { exprToBoolean } from "@web/core/utils/strings";
 import { visitXML } from "@web/core/utils/xml";
 import { Field } from "@web/views/fields/field";
 
-const FIELD_ATTRIBUTE_NAMES = [
-    "date_start",
-    "date_delay",
-    "date_stop",
-    "all_day",
-    "create_name_field",
-    "color",
-];
+const FIELD_ATTRIBUTE_NAMES = ["date_start", "date_stop", "all_day", "create_name_field", "color"];
 const SCALES = ["day", "week", "month", "year"];
 
 export class CalendarParseArchError extends Error {}
@@ -45,6 +38,7 @@ export class CalendarArchParser {
         const canCreate = exprToBoolean(xmlDoc.getAttribute("create"), true);
         const canDelete = exprToBoolean(xmlDoc.getAttribute("delete"), true);
         const canEdit = exprToBoolean(xmlDoc.getAttribute("edit"), true);
+        const canSchedule = exprToBoolean(xmlDoc.getAttribute("schedule"), false);
 
         const eventLimit = xmlDoc.hasAttribute("event_limit")
             ? evaluateExpr(xmlDoc.getAttribute("event_limit"))
@@ -62,14 +56,18 @@ export class CalendarArchParser {
         const showDatePicker = exprToBoolean(xmlDoc.getAttribute("show_date_picker"), true);
         const showUnusualDays = exprToBoolean(xmlDoc.getAttribute("show_unusual_days"));
 
+        let popoverNode;
         const popoverFieldNodes = {};
         const filtersInfo = {};
         visitXML(xmlDoc, (node) => {
             switch (node.tagName) {
+                case "popover": {
+                    popoverNode = node;
+                    return false;
+                }
                 case "field": {
                     const fieldName = node.getAttribute("name");
                     fieldNames.add(fieldName);
-
                     const fieldInfo = Field.parseFieldNode(
                         node,
                         models,
@@ -79,35 +77,32 @@ export class CalendarArchParser {
                     );
                     popoverFieldNodes[fieldName] = fieldInfo;
 
-                    if (!node.hasAttribute("invisible") || node.hasAttribute("filters")) {
-                        if (
-                            node.hasAttribute("avatar_field") ||
-                            node.hasAttribute("write_model") ||
-                            node.hasAttribute("write_field") ||
-                            node.hasAttribute("color") ||
-                            node.hasAttribute("filters")
-                        ) {
-                            const field = fields[fieldName];
-                            filtersInfo[fieldName] = filtersInfo[fieldName] || {
-                                avatarFieldName: null,
-                                colorFieldName: null,
-                                context: fieldInfo.context || "{}",
-                                fieldName,
-                                filterFieldName: null,
-                                label: field.string,
-                                resModel: field.relation,
-                                writeFieldName: null,
-                                writeResModel: null,
-                            };
-                            const filterInfo = filtersInfo[fieldName];
-                            filterInfo.avatarFieldName = node.getAttribute("avatar_field") || null;
-                            filterInfo.colorFieldName =
-                                (node.hasAttribute("filters") && node.getAttribute("color")) ||
-                                null;
-                            filterInfo.filterFieldName = node.getAttribute("filter_field") || null;
-                            filterInfo.writeFieldName = node.getAttribute("write_field") || null;
-                            filterInfo.writeResModel = node.getAttribute("write_model") || null;
-                        }
+                    if (
+                        node.hasAttribute("avatar_field") ||
+                        node.hasAttribute("write_model") ||
+                        node.hasAttribute("write_field") ||
+                        node.hasAttribute("color") ||
+                        node.hasAttribute("filters")
+                    ) {
+                        const field = fields[fieldName];
+                        filtersInfo[fieldName] = filtersInfo[fieldName] || {
+                            avatarFieldName: null,
+                            colorFieldName: null,
+                            context: fieldInfo.context || "{}",
+                            fieldName,
+                            filterFieldName: null,
+                            label: node.getAttribute("string") || field.string,
+                            resModel: field.relation,
+                            writeFieldName: null,
+                            writeResModel: null,
+                        };
+                        const filterInfo = filtersInfo[fieldName];
+                        filterInfo.avatarFieldName = node.getAttribute("avatar_field") || null;
+                        filterInfo.colorFieldName =
+                            (node.hasAttribute("filters") && node.getAttribute("color")) || null;
+                        filterInfo.filterFieldName = node.getAttribute("filter_field") || null;
+                        filterInfo.writeFieldName = node.getAttribute("write_field") || null;
+                        filterInfo.writeResModel = node.getAttribute("write_model") || null;
                     }
                     break;
                 }
@@ -124,11 +119,16 @@ export class CalendarArchParser {
             throw new CalendarParseArchError(`Calendar view's event limit should be a number`);
         }
 
+        if (!fieldMapping.date_stop) {
+            fieldMapping.date_stop = fieldMapping.date_start;
+        }
+
         return {
             aggregate,
             canCreate,
             canDelete,
             canEdit,
+            canSchedule,
             eventLimit,
             fieldMapping,
             fieldNames: [...fieldNames],
@@ -141,7 +141,8 @@ export class CalendarArchParser {
             isDateHidden,
             isTimeHidden,
             monthOverflow,
-            popoverFieldNodes,
+            popoverNode,
+            popoverFieldNodes, // temporarily kept for backward compatibility
             scale,
             scales,
             showUnusualDays,

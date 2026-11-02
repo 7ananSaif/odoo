@@ -2,7 +2,7 @@ import * as PosHr from "@pos_hr/../tests/tours/utils/pos_hr_helpers";
 import * as ProductScreen from "@point_of_sale/../tests/pos/tours/utils/product_screen_util";
 import * as Chrome from "@point_of_sale/../tests/pos/tours/utils/chrome_util";
 import * as FloorScreen from "@pos_restaurant/../tests/tours/utils/floor_screen_util";
-import * as SelectionPopup from "@point_of_sale/../tests/generic_helpers/selection_popup_util";
+import * as CashierSelectionPopup from "@pos_hr/../tests/tours/utils/cashier_selection_popup_util";
 import * as Dialog from "@point_of_sale/../tests/generic_helpers/dialog_util";
 import { registry } from "@web/core/registry";
 
@@ -11,7 +11,7 @@ registry.category("web_tour.tours").add("test_post_login_default_screen_is_table
         [
             Chrome.clickBtn("Open Register"),
             PosHr.clickLoginButton(),
-            SelectionPopup.has("Mitchell Admin", { run: "click" }),
+            CashierSelectionPopup.has("Mitchell Admin", { run: "click" }),
             Dialog.confirm("Open Register"),
             FloorScreen.isShown(),
         ].flat(),
@@ -22,7 +22,7 @@ registry.category("web_tour.tours").add("test_post_login_default_screen_is_regis
         [
             Chrome.clickBtn("Open Register"),
             PosHr.clickLoginButton(),
-            SelectionPopup.has("Mitchell Admin", { run: "click" }),
+            CashierSelectionPopup.has("Mitchell Admin", { run: "click" }),
             Dialog.confirm("Open Register"),
             ProductScreen.isShown(),
         ].flat(),
@@ -33,13 +33,13 @@ registry.category("web_tour.tours").add("test_employee_chatter_with_tracked_orde
         [
             Chrome.clickBtn("Open Register"),
             PosHr.clickLoginButton(),
-            SelectionPopup.has("Mitchell Admin", { run: "click" }),
+            CashierSelectionPopup.has("Mitchell Admin", { run: "click" }),
             Dialog.confirm("Open Register"),
             FloorScreen.clickTable("5"),
             ProductScreen.addOrderline("Water", "3"),
             Chrome.clickPlanButton(),
             PosHr.clickCashierName(),
-            SelectionPopup.has("Test Employee 3", { run: "click" }),
+            CashierSelectionPopup.has("Test Employee 3", { run: "click" }),
             FloorScreen.clickTable("5"),
             ProductScreen.clickOrderline("Water", "3"),
             ProductScreen.clickNumpad("⌫"),

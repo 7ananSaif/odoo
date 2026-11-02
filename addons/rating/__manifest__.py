@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
@@ -15,9 +14,8 @@ This module allows a customer to give rating.
         'views/rating_rating_views.xml',
         'views/rating_templates.xml',
         'views/mail_message_views.xml',
-        'security/ir.model.access.csv'
+        'security/ir.access.csv',
     ],
-    'installable': True,
     'assets': {
         'web.assets_backend': [
             "rating/static/src/core/common/**/*",
@@ -29,10 +27,13 @@ This module allows a customer to give rating.
         'web.assets_unit_tests': [
             'rating/static/tests/**/*',
         ],
+        "im_livechat.assets_embed_core": [
+            "rating/static/src/core/common/**/*",
+        ],
         "mail.assets_public": [
             "rating/static/src/core/common/**/*",
         ],
-        "portal.assets_chatter": [
+        "portal.assets_chatter_helpers": [
             "rating/static/src/core/common/**/*",
         ],
     },

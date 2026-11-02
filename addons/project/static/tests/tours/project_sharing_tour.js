@@ -1,4 +1,3 @@
-import { delay } from "@web/core/utils/concurrency";
 import { registry } from "@web/core/registry";
 import { stepUtils } from "@web_tour/tour_utils";
 
@@ -11,7 +10,7 @@ const projectSharingSteps = [...stepUtils.goToAppSteps("project.menu_main_pm", '
     content: 'Start editing the project.',
     run: "click",
 }, {
-    trigger: '.modal div[name="collaborator_ids"] .o_field_x2many_list_row_add > a',
+    trigger: '.modal div[name="collaborator_ids"] .o_field_x2many_list_row_add > button',
     content: 'Add a collaborator to the project.',
     run: "click",
 }, {
@@ -26,7 +25,7 @@ const projectSharingSteps = [...stepUtils.goToAppSteps("project.menu_main_pm", '
     content: 'Open Access mode selection dropdown.',
     run: 'click',
 },{
-    trigger: '.o_select_menu_item:contains(Edit)',
+    trigger: '.o_select_menu_item:contains(Advanced Edit)',
     run: 'click',
 }, {
     trigger: '.modal footer > button[name="action_share_record"]',
@@ -132,14 +131,12 @@ const projectSharingSteps = [...stepUtils.goToAppSteps("project.menu_main_pm", '
 }];
 
 registry.category("web_tour.tours").add('project_sharing_tour', {
-    url: '/odoo',
     steps: () => {
         return projectSharingSteps;
     }
 });
 
 registry.category("web_tour.tours").add("portal_project_sharing_tour", {
-    url: "/my/projects",
     steps: () => {
         // The begining of the project sharing feature
         const projectSharingStepIndex = projectSharingSteps.findIndex(s => s?.id === 'project_sharing_feature');
@@ -148,7 +145,6 @@ registry.category("web_tour.tours").add("portal_project_sharing_tour", {
 });
 
 registry.category("web_tour.tours").add("project_sharing_with_blocked_task_tour", {
-    url: "/my/projects",
     steps: () => [{
         trigger: 'table > tbody > tr a:has(span:contains("Project Sharing"))',
         content: 'Click on the portal project.',
@@ -159,7 +155,7 @@ registry.category("web_tour.tours").add("project_sharing_with_blocked_task_tour"
         content: 'Click on the task',
         run: "click",
     }, {
-        trigger: 'a:contains("Blocked By")',
+        trigger: 'button:contains("Blocked By")',
         content: 'Go to the Block by task tab',
         run: "click",
     }, {
@@ -169,7 +165,6 @@ registry.category("web_tour.tours").add("project_sharing_with_blocked_task_tour"
 ]});
 
 registry.category("web_tour.tours").add("portal_project_sharing_tour_with_disallowed_milestones", {
-    url: "/my/projects",
     steps: () => [
         {
             id: "project_sharing_feature",
@@ -216,7 +211,6 @@ registry.category("web_tour.tours").add("portal_project_sharing_tour_with_disall
 });
 
 registry.category("web_tour.tours").add("test_04_project_sharing_chatter_message_reactions", {
-    url: "/my/projects",
     steps: () => [
         {
             trigger: "table > tbody > tr a:has(span:contains(Project Sharing))",
@@ -231,7 +225,6 @@ registry.category("web_tour.tours").add("test_04_project_sharing_chatter_message
 });
 
 registry.category("web_tour.tours").add("portal_project_sharing_chatter_mention_users", {
-    url: "/my/projects",
     steps: () => [
         {
             trigger: "table > tbody > tr a:has(span:contains(Project Sharing))",
@@ -240,17 +233,7 @@ registry.category("web_tour.tours").add("portal_project_sharing_chatter_mention_
         },
         { trigger: ".o_project_sharing" },
         { trigger: ".o_kanban_record:contains('Test Task')", run: "click" },
-        { trigger: ".o-mail-Composer-input", run: "edit @xxx" },
-        {
-            trigger: "body:not(:has(.o-mail-Composer-suggestion))",
-            run: async () => {
-                const delay_fetch = odoo.loader.modules.get(
-                    "@mail/core/common/suggestion_hook"
-                ).DELAY_FETCH;
-                await delay(delay_fetch);
-            },
-        },
-        { trigger: ".o-mail-Composer-input", run: "edit @Georges" },
-        { trigger: ".o-mail-Composer-suggestion:contains('Georges')" },
+        { trigger: ".o-mail-Composer-input", run: "edit @Alice" },
+        { trigger: ".o-mail-Composer-suggestionPartner-name:text('Alice')" },
     ],
 });

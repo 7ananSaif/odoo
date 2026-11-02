@@ -1,7 +1,7 @@
 import { _t } from "@web/core/l10n/translation";
 import { Dialog } from "@web/core/dialog/dialog";
-import { useChildRef, useService } from "@web/core/utils/hooks";
-import { Component, useState, useRef } from "@odoo/owl";
+import { useService } from "@web/core/utils/hooks";
+import { Component, proxy, signal, useProps, t } from "@odoo/owl";
 
 /**
  * @typedef {import('./google_map_option_plugin.js').ApiKeyValidation} ApiKeyValidation
@@ -10,33 +10,27 @@ import { Component, useState, useRef } from "@odoo/owl";
 export class GoogleMapsApiKeyDialog extends Component {
     static template = "website.GoogleMapsApiKeyDialog";
     static components = { Dialog };
-    static props = {
-        originalApiKey: String,
-        onSave: Function,
-        close: Function,
-    };
+    props = useProps({
+        title: t.string().optional(),
+        originalApiKey: t.string(),
+        onSave: t.function(),
+        close: t.function(),
+    });
 
     setup() {
-        this.modalRef = useChildRef();
+        this.modalRef = signal.ref();
         /** @type {{ apiKey?: string, apiKeyValidation: ApiKeyValidation }} */
-        this.state = useState({
+        this.state = proxy({
             apiKey: this.props.originalApiKey,
             apiKeyValidation: { isValid: false },
         });
-        this.apiKeyInput = useRef("apiKeyInput");
-        // @TODO mysterious-egg: the `google_map service` is a duplicate of the
-        // `website_map_service`, but without the dependency on public
-        // interactions. These are used only to restart the interactions once
-        // the API is loaded. We do this in the plugin instead. Once
-        // `html_builder` replaces `website`, we should be able to remove
-        // `website_map_service` since only google_map service will be used.
         this.googleMapsService = useService("google_maps");
     }
 
     async onClickSave() {
         if (this.state.apiKey) {
             /** @type {NodeList} */
-            const buttons = this.modalRef.el.querySelectorAll("button");
+            const buttons = this.modalRef().querySelectorAll("button");
             buttons.forEach((button) => button.setAttribute("disabled", true));
             /** @type {ApiKeyValidation} */
             const apiKeyValidation = await this.googleMapsService.validateGMapsApiKey(

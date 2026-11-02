@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
-
 from ast import literal_eval
 from unittest.mock import patch
+from typing import NamedTuple
 
-from odoo import http
 from odoo.tools import hash_sign
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 from odoo.addons.account.models.account_payment_method import AccountPaymentMethod
@@ -16,6 +14,8 @@ from odoo import fields, Command
 
 @tagged('post_install', '-at_install')
 class TestAccountJournal(AccountTestInvoicingCommon, HttpCase):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):
@@ -56,7 +56,7 @@ class TestAccountJournal(AccountTestInvoicingCommon, HttpCase):
         invoice_invalid.journal_id = journal
         invoice_invalid.action_post()
         self.assertTrue(invoice_invalid.payment_reference, "A payment reference should be generated.")
-        self.assertIn(str(journal.id), invoice_invalid.payment_reference, "The reference should fall back to using the journal ID.")
+        self.assertIn(str(journal.id), ''.join(invoice_invalid.payment_reference.split()), "The reference should fall back to using the journal ID.")
 
         # Case 3: Code is non-ASCII but alphanumeric (e.g., Greek letter 'INVα'). # noqa: RUF003
         journal.code = 'INVα'
@@ -64,12 +64,12 @@ class TestAccountJournal(AccountTestInvoicingCommon, HttpCase):
         invoice_unicode.journal_id = journal
         invoice_unicode.action_post()
         self.assertTrue(invoice_unicode.payment_reference, "A payment reference should be generated.")
-        self.assertIn(str(journal.id), invoice_unicode.payment_reference, "The reference should fall back to using the journal ID for non-ASCII codes.")
+        self.assertIn(str(journal.id), ''.join(invoice_unicode.payment_reference.split()), "The reference should fall back to using the journal ID for non-ASCII codes.")
 
     def test_changing_journal_company(self):
         ''' Ensure you can't change the company of an account.journal if there are some journal entries '''
 
-        self.company_data['default_journal_sale'].code = "DIFFERENT"
+        self.company_data['default_journal_sale'].code = "DIFRENT"
         self.env['account.move'].create({
             'move_type': 'entry',
             'date': '2019-01-01',
@@ -136,7 +136,21 @@ class TestAccountJournal(AccountTestInvoicingCommon, HttpCase):
             {"name": "OD_BLABLU"},
         ])
 
-        self.assertEqual(sorted(new_journals.mapped("code")), ["MISC1", "OD_BL"], "The journals should be set correctly")
+        self.assertEqual(sorted(new_journals.mapped("code")), ["OD_BLABLA", "OD_BLABLU"], "The journals should be set correctly")
+
+    def test_account_journal_duplicates_same_name(self):
+        new_journals = self.env["account.journal"].with_context(import_file=True).create([
+            {"name": "OD_BLABLA"},
+            {"name": "OD_BLABLA"},
+        ])
+
+        self.assertEqual(sorted(new_journals.mapped("code")), ["MISC1", "OD_BLABLA"], "The second journal should fall back to a default code")
+
+    def test_account_journal_import_code_name(self):
+        journal = self.env["account.journal"].with_context(import_file=True).create({'name': '512000 Bank BNP'})
+
+        self.assertEqual(journal.code, '512000')
+        self.assertEqual(journal.name, 'Bank BNP')
 
     def test_archive_used_journal(self):
         journal = self.env['account.journal'].create({
@@ -185,7 +199,7 @@ class TestAccountJournal(AccountTestInvoicingCommon, HttpCase):
         self.authenticate(self.env.user.login, self.env.user.login)
         res = self.url_open(
             f'/my/journal/{journal.id}/unsubscribe',
-            data={'csrf_token': http.Request.csrf_token(self)},
+            data={'csrf_token': self.csrf_token()},
             method='POST',
         )
         res.raise_for_status()
@@ -206,7 +220,7 @@ class TestAccountJournal(AccountTestInvoicingCommon, HttpCase):
 
         res = self.url_open(
             f'/my/journal/{journal.id}/unsubscribe?token={token}',
-            data={'csrf_token': http.Request.csrf_token(self)},
+            data={'csrf_token': self.csrf_token()},
             method='POST',
         )
         res.raise_for_status()
@@ -229,7 +243,7 @@ class TestAccountJournal(AccountTestInvoicingCommon, HttpCase):
         def _unsubscribe(token, journal_id=journal.id):
             return self.url_open(
                 f'/my/journal/{journal_id}/unsubscribe?token={token}',
-                data={'csrf_token': http.Request.csrf_token(self)},
+                data={'csrf_token': self.csrf_token()},
                 method='POST',
             )
 
@@ -256,6 +270,8 @@ class TestAccountJournal(AccountTestInvoicingCommon, HttpCase):
 
 @tagged('post_install', '-at_install', 'mail_alias')
 class TestAccountJournalAlias(AccountTestInvoicingCommon, MailCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):
@@ -308,10 +324,10 @@ class TestAccountJournalAlias(AccountTestInvoicingCommon, MailCommon):
 
         # other types: no mail support by default
         journals = self.env['account.journal'].create([{
-            'code': f'NEW{jtype}',
+            'code': f'NEW{jtype[:4]}',
             'name': f'Type {jtype}',
             'type': jtype}
-            for jtype in ('general', 'cash', 'bank')
+            for jtype in ['general']
         ])
         self.assertFalse(journals.alias_id, 'Do not create useless aliases')
         self.assertFalse(list(filter(None, journals.mapped('alias_name'))))
@@ -375,8 +391,8 @@ class TestAccountJournalAlias(AccountTestInvoicingCommon, MailCommon):
                 self.assertEqual(journal.alias_name, expected)
                 self.assertEqual(journal_alias.alias_name, expected)
 
-        # changing type should void if not purchase or sale
-        for jtype in ('general', 'cash', 'bank'):
+        # changing type should void if not purchase, sale, bank or cash
+        for jtype in ['general']:
             journal.write({'type': jtype})
             self.assertEqual(journal.alias_id, journal_alias,
                              'Dà not unlink aliases, just reset their value')
@@ -458,7 +474,7 @@ class TestAccountJournalAlias(AccountTestInvoicingCommon, MailCommon):
 
         expected_id = str(invoice_non_latin.journal_id.id)
         ref_parts_non_latin = invoice_non_latin.payment_reference.split()
-        self.assertEqual(ref_parts_non_latin[1][:len(expected_id)], expected_id, "The reference should start with " + expected_id)
+        self.assertEqual(''.join(ref_parts_non_latin[1:])[:len(expected_id)], expected_id, "The reference should start with " + expected_id)
 
         ref_parts_latin = invoice_latin.payment_reference.split()
         self.assertIn(ref_parts_latin[1][:3], latin_code, f"Expected journal code '{latin_code}' in second part of reference")
@@ -521,7 +537,10 @@ class TestAccountJournalAlias(AccountTestInvoicingCommon, MailCommon):
     def test_alias_uniqueness_without_domain(self):
         """Ensure alias_name is unique even if alias_domain is not defined."""
         default_account = self.env['account.account'].search(
-            domain=[('account_type', 'in', ('income', 'income_other'))],
+            domain=[
+                *self.env['account.account']._check_company_domain(self.env.company),
+                ('account_type', 'in', ('income', 'income_other')),
+            ],
             limit=1,
         )
         with Form(self.env['account.journal']) as journal_form:
@@ -538,27 +557,30 @@ class TestAccountJournalAlias(AccountTestInvoicingCommon, MailCommon):
             journal_2 = journal_form.save()
         self.assertNotEqual(journal_1.alias_id.alias_name, journal_2.alias_id.alias_name)
 
-    def test_payment_method_line_accounts_on_recompute(self):
+    def test_payment_method_lines_on_recompute(self):
         """
-        Test that outstanding payments/receipts accounts are not removed during the computation of the payment method lines
+        Test that existing payment method lines are not removed during their computation.
+        A payment method line should be created for each of the default payment methods that has no line yet.
         """
         bank_journal = self.company_data['default_journal_bank']
         outstanding_receipt_account = self.env['account.chart.template'].ref('account_journal_payment_debit_account_id')
         outstanding_payment_account = self.env['account.chart.template'].ref('account_journal_payment_credit_account_id')
+        deferred_expense_account = self.company_data['default_account_deferred_expense']
 
         inbound_method_lines = bank_journal.inbound_payment_method_line_ids
         inbound_method_lines_names = inbound_method_lines.mapped('name')
         inbound_method_lines[0].payment_account_id = outstanding_receipt_account
 
         outbound_method_lines = bank_journal.outbound_payment_method_line_ids
-        outbound_method_lines_names = outbound_method_lines.mapped('name')
         outbound_method_lines[0].payment_account_id = outstanding_payment_account
-        new_outbound_payment_line = outbound_method_lines[0].copy({'payment_account_id': self.company_data['default_account_deferred_expense'].id})
+        new_outbound_payment_line = outbound_method_lines[0].copy({'payment_account_id': deferred_expense_account.id})
         bank_journal.outbound_payment_method_line_ids = [Command.link(new_outbound_payment_line.id)]
+        outbound_method_lines_names = bank_journal.outbound_payment_method_line_ids.mapped('name')
 
         # Set currency_id to trigger the compute of {in,out}bound_payment_method_line_ids
         bank_journal.currency_id = self.company_data['currency']
 
+        # Existing payment method lines should stay unchanged
         self.assertRecordValues(bank_journal.inbound_payment_method_line_ids, [
             {
                 'name': name,
@@ -568,8 +590,35 @@ class TestAccountJournalAlias(AccountTestInvoicingCommon, MailCommon):
         self.assertRecordValues(bank_journal.outbound_payment_method_line_ids, [
             {
                 'name': name,
-                'payment_account_id': outstanding_payment_account.id if index == 0 else False,
+                'payment_account_id': (
+                    outstanding_payment_account.id if index == 0 else (
+                        deferred_expense_account.id if index == len(outbound_method_lines_names) - 1 else False
+                    )
+                ),
             } for index, name in enumerate(outbound_method_lines_names)
+        ])
+
+        # Remove all payment method lines
+        bank_journal.inbound_payment_method_line_ids = [Command.clear()]
+        bank_journal.outbound_payment_method_line_ids = [Command.clear()]
+
+        # Trigger the compute
+        bank_journal.currency_id = self.company_data['currency']
+
+        # Payment method lines should be created for the default payment methods
+        default_inbound_methods = bank_journal._default_inbound_payment_methods()
+        default_outbound_methods = bank_journal._default_outbound_payment_methods()
+        self.assertRecordValues(bank_journal.inbound_payment_method_line_ids, [
+            {
+                'name': inbound_method.name,
+                'payment_account_id': False,
+            } for inbound_method in default_inbound_methods
+        ])
+        self.assertRecordValues(bank_journal.outbound_payment_method_line_ids, [
+            {
+                'name': outbound_method.name,
+                'payment_account_id': False,
+            } for outbound_method in default_outbound_methods
         ])
 
     def test_new_purchase_journal_gets_default_account(self):
@@ -583,3 +632,85 @@ class TestAccountJournalAlias(AccountTestInvoicingCommon, MailCommon):
             journal.default_account_id,
             ProductCategory._fields['property_account_expense_categ_id'].get_company_dependent_fallback(ProductCategory),
         )
+
+    def test_bank_journal_alias_statement_and_lines(self):
+        """ Test that an email to a bank journal alias creates a bank statement,
+            its lines, and correctly links the attachments to the statement.
+        """
+        self.ensure_installed('account_bank_statement_extract')
+
+        class MailAttachment(NamedTuple):
+            fname: str
+            content: bytes
+
+        xml_content = b'<?xml version="1.0" encoding="UTF-8"?><Document>Statement Data</Document>'
+
+        bank_journal = self.company_data['default_journal_bank']
+        bank_journal.write({'alias_name': 'bank_statements'})
+
+        message_parsed = {
+            'message_id': 'message-id-bank-test-001',
+            'message_type': 'email',
+            'subject': 'Incoming Bank Statement',
+            'email_from': 'bank@trusted-bank.com',
+            'to': f'bank_statements@{self.env.company.name}.com',
+            'body': '<p>Attached is the bank statement.</p>',
+            'attachments': [MailAttachment('bank_statement.xml', xml_content)],
+        }
+
+        def mock_create_document(journal, attachments):
+            statement = self.env['account.bank.statement'].create({
+                'name': 'Bank Statement',
+                'journal_id': journal.id,
+            })
+
+            self.env['account.bank.statement.line'].create({
+                'statement_id': statement.id,
+                'journal_id': journal.id,
+                'payment_ref': 'Incoming Transfer A',
+                'date': '2026-03-01',
+                'amount': 500.0,
+            })
+            self.env['account.bank.statement.line'].create({
+                'statement_id': statement.id,
+                'journal_id': journal.id,
+                'payment_ref': 'Incoming Transfer B',
+                'date': '2026-03-02',
+                'amount': 250.0,
+            })
+
+            attachments.write({
+                'res_model': 'account.bank.statement',
+                'res_id': statement.id,
+            })
+
+            return {
+                'type': 'ir.actions.act_window',
+                'res_model': 'account.bank.statement.line',
+                'domain': [('statement_id', 'in', statement.ids)]
+            }
+
+        with patch.object(self.env.registry['account.journal'], '_import_bank_statement', mock_create_document):
+            record = bank_journal.message_new(message_parsed, custom_values={'journal_id': bank_journal.id})
+
+        statement = self.env['account.bank.statement'].search([('name', '=', 'Bank Statement')])
+        self.assertEqual(len(statement), 1, "The Bank Statement should be created.")
+        self.assertEqual(statement.journal_id, bank_journal)
+
+        self.assertEqual(len(statement.line_ids), 2, "The statement should contain exactly two lines.")
+        self.assertSetEqual(
+            set(statement.line_ids.mapped('payment_ref')),
+            {'Incoming Transfer A', 'Incoming Transfer B'},
+            "The statement lines must contain the correct payment references."
+        )
+
+        created_attachments = self.env['ir.attachment'].search([('name', '=', 'bank_statement.xml')])
+        self.assertEqual(len(created_attachments), 1, "The attachment should be extracted and saved.")
+        self.assertEqual(created_attachments.res_model, 'account.bank.statement',
+                         "Attachment must be linked to the statement model.")
+        self.assertEqual(created_attachments.res_id, statement.id,
+                         "Attachment must be linked to the correct statement ID.")
+
+        self.assertTrue(record)
+        self.assertEqual(record._name, 'account.bank.statement.line')
+        self.assertEqual(record.statement_id, statement, "The returned line must belong to the created statement.")

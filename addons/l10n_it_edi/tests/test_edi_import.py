@@ -1,30 +1,37 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from base64 import b64encode
+import base64
 import uuid
 from freezegun import freeze_time
 from lxml import etree
 from unittest.mock import patch
 
+from cryptography.fernet import Fernet
+
 from odoo import fields, sql_db, tools, Command
 from odoo.exceptions import ValidationError
 from odoo.tests import new_test_user, tagged
+
 from odoo.addons.l10n_it_edi.tests.common import TestItEdi
+from odoo.addons.account_edi_proxy_client.tests.test_account_edi_proxy_client import TestAccountEdiProxyUser
 
 import logging
 _logger = logging.getLogger(__name__)
 
 
 @tagged('post_install_l10n', 'post_install', '-at_install')
-class TestItEdiImport(TestItEdi):
+class TestItEdiImport(TestItEdi, TestAccountEdiProxyUser):
     """ Main test class for the l10n_it_edi vendor bills XML import"""
+    _test_user_groups = None  # FIXME list needed groups
 
-    fake_test_content = """<?xml version="1.0" encoding="UTF-8"?>
-        <p:FatturaElettronica versione="FPR12" xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
-        xmlns:p="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2 http://www.fatturapa.gov.it/export/fatturazione/sdi/fatturapa/v1.2/Schema_del_file_xml_FatturaPA_versione_1.2.xsd">
+    fake_test_content = b"""<?xml version="1.0" encoding="UTF-8"?>
+        <p:FatturaElettronica
+            xmlns:ds="___ignore___"
+            xmlns:p="___ignore___"
+            xmlns:xsi="___ignore___"
+            xsi:schemaLocation="___ignore___"
+            versione="FPR12"
+        >
         <FatturaElettronicaHeader>
           <DatiTrasmissione>
             <IdTrasmittente>
@@ -114,6 +121,54 @@ class TestItEdiImport(TestItEdi):
             ],
         }], applied_xml)
 
+    def test_receive_vendor_bill_applies_fiscal_position(self):
+        """ The fiscal position set on the bill remaps the taxes decoded from
+            the XML, matching what a manual line entry produces.
+        """
+        company = self.company
+        fiscal_position = self.env['account.fiscal.position'].with_company(company).create({
+            'name': 'Remap 22% purchase',
+        })
+        # The tax the importer decodes from a 22% line, before any mapping. The
+        # search is the same one _l10n_it_edi_search_tax_for_import runs.
+        source_tax = self.env['account.tax'].search([
+            *self.env['account.tax']._check_company_domain(company),
+            ('amount_type', '=', 'percent'),
+            ('amount', '=', 22.0),
+            ('type_tax_use', '=', 'purchase'),
+            ('l10n_it_exempt_reason', '=', False),
+        ]).filtered(
+            lambda tax: all(rl.factor_percent >= 0 for rl in tax.invoice_repartition_line_ids)
+        )[0]
+        # A distinct rate so the importer's search can never select it directly:
+        # it can only land on the line through the fiscal position mapping.
+        mapped_tax = self.env['account.tax'].with_company(company).create({
+            'name': '10% mapped by fiscal position',
+            'amount': 10.0,
+            'amount_type': 'percent',
+            'type_tax_use': 'purchase',
+            'fiscal_position_ids': [Command.set(fiscal_position.ids)],
+            'original_tax_ids': [Command.set(source_tax.ids)],
+        })
+        self.env['res.partner'].with_company(company).create({
+            'name': 'SELLER FP SRL',
+            'vat': 'IT12345670017',
+            'l10n_it_codice_fiscale': '12345670017',
+            'country_id': self.env.ref('base.it').id,
+            'is_company': True,
+            'property_account_position_id': fiscal_position.id,
+        })
+
+        invoice = self._assert_import_invoice('IT01234567890_FPMAP.xml', [{
+            'move_type': 'in_invoice',
+            'amount_untaxed': 100.0,
+            'invoice_line_ids': [{
+                'price_unit': 100.0,
+                'tax_ids': mapped_tax.ids,
+            }],
+        }])
+        self.assertEqual(invoice.fiscal_position_id, fiscal_position)
+
     def test_receive_vendor_bill_sconto_maggiorazione(self):
         """ Test a sample e-invoice file with
         ScontoMaggiorazione on lines
@@ -161,11 +216,12 @@ class TestItEdiImport(TestItEdi):
         if self.env['ir.module.module']._get('purchase').state != 'installed':
             self.skipTest("purchase module is not installed")
 
+        default_purchase_tax = self.default_tax.copy({'type_tax_use': 'purchase'})
         product = self.env['product.product'].create({
             'name': 'DESCRIZIONE DELLA FORNITURA',
-            'supplier_taxes_id': [Command.set(self.default_tax.ids)],
+            'supplier_taxes_id': [Command.set(default_purchase_tax.ids)],
         })
-        purchase = self.env['purchase.order'].with_company(self.company).with_context(tracking_disable=True).create(
+        purchase = self.env['purchase.order'].with_company(self.company).create(
             {
                 'partner_id': self.italian_partner_a.id,
                 'partner_ref': 'PO-001',
@@ -280,7 +336,7 @@ class TestItEdiImport(TestItEdi):
             self.env['account.move'].with_company(self.company)._l10n_it_edi_process_downloads({
                 '999999999': {
                     'filename': filename,
-                    'file': self.fake_test_content,
+                    'file': "whatever",  # _decrypt_data is patched
                     'key': str(uuid.uuid4()),
                 }},
                 self.proxy_user,
@@ -297,6 +353,8 @@ class TestItEdiImport(TestItEdi):
             self.company.l10n_it_edi_purchase_journal_id = preferred_journal
 
         preferred_journal.default_account_id = self.company_data_2['default_journal_purchase'].default_account_id.id
+        # Retry setting the company's default purchase journal: no error since default_account_id is set
+        self.company.l10n_it_edi_purchase_journal_id = preferred_journal
 
         with tools.file_open(f'{self.module}/tests/import_xmls/{filename}', mode='rb') as fd:
             fake_bill_content = fd.read()
@@ -306,7 +364,7 @@ class TestItEdiImport(TestItEdi):
             self.env['account.move'].with_company(self.company)._l10n_it_edi_process_downloads({
                 '999999999': {
                     'filename': filename,
-                    'file': fake_bill_content,
+                    'file': "whatever",  # _decrypt_data is patched
                     'key': str(uuid.uuid4()),
                 }},
                 self.proxy_user,
@@ -350,7 +408,7 @@ class TestItEdiImport(TestItEdi):
             self.env['account.move'].with_company(self.company)._l10n_it_edi_process_downloads(
                 {'999999999': {
                     'filename': filename,
-                    'file': self.fake_test_content,
+                    'file': "whatever",  # _decrypt_data is patched
                     'key': str(uuid.uuid4()),
                 }},
                 self.proxy_user,
@@ -390,7 +448,7 @@ class TestItEdiImport(TestItEdi):
                 processed = self.env['account.move']._l10n_it_edi_process_downloads({
                     '999999999': {
                         'filename': filename,
-                        'file': self.fake_test_content,
+                        'file': "whatever",  # _decrypt_data is patched
                         'key': str(uuid.uuid4()),
                     }},
                     proxy_user,
@@ -455,9 +513,9 @@ class TestItEdiImport(TestItEdi):
 
         # Check the created bank account
         partner_bank_account = self.env['res.partner.bank'].search([
-            ('acc_number', '=', iban),
+            *self.env['res.company']._check_company_domain(self.company),
+            ('account_number', '=', iban),
             ('partner_id', '=', banksy_partner.id),
-            ('company_id', '=', self.company.id),
         ])
         self.assertEqual(partner_bank_account, banksy_partner.bank_ids)
         self.assertFalse(partner_bank_account.allow_out_payment)
@@ -470,7 +528,7 @@ class TestItEdiImport(TestItEdi):
         }])
 
         banksy_partner.invalidate_recordset(['is_company'])
-        self.assertFalse(invoice.partner_id.is_company)
+        self.assertTrue(invoice.partner_id.is_company)
 
     def test_receive_bill_bank_account_02(self):
         """ When importing a vendor bill, if IBAN is present but the partner's not found, then:
@@ -495,7 +553,7 @@ class TestItEdiImport(TestItEdi):
             'is_company': True,
         }])
         self.assertTrue(invoice.partner_id not in existing_partners)
-        self.assertRecordValues(invoice.partner_bank_id, [{'acc_number': iban, 'allow_out_payment': False}])
+        self.assertRecordValues(invoice.partner_bank_id, [{'account_number': iban, 'allow_out_payment': False}])
 
     def test_receive_bill_bank_account_03(self):
         """Partner retrieved by ``name``, not ``l10n_it_codice_fiscale``
@@ -515,6 +573,42 @@ class TestItEdiImport(TestItEdi):
 
         alpha_partner.invalidate_recordset(['is_company'])
         self.assertFalse(alpha_partner.is_company)
+
+    def test_receive_bill_bank_account_riba(self):
+        """ When importing a RiBa (MP12) vendor bill, our company's IBAN must not be added to the vendor's bank accounts. """
+        vendor = self.env['res.partner'].create({
+            'name': "SOCIETA' ALPHA SRL",
+            'vat': 'IT00313371213',
+            'l10n_it_codice_fiscale': '00313371213',
+            'country_id': self.env.ref('base.it').id,
+            'is_company': True,
+        })
+        vendor_bank = self.env['res.partner.bank'].create({
+            'partner_id': vendor.id,
+            'account_number': 'IT94W0333201600000001112418',
+        })
+        invoice = self._assert_import_invoice('IT01234567889_FPR03.xml', [{}], f"""
+            <xpath expr="//FatturaElettronicaBody/DatiPagamento/DettaglioPagamento/ModalitaPagamento" position="replace">
+                <ModalitaPagamento>MP12</ModalitaPagamento>
+            </xpath>
+            <xpath expr="//FatturaElettronicaBody/DatiPagamento/DettaglioPagamento" position="inside">
+                <IBAN>{self.test_bank.account_number}</IBAN>
+            </xpath>
+        """)
+        self.assertEqual(invoice.partner_id, vendor)
+        self.assertEqual(vendor.bank_ids, vendor_bank)
+        self.assertEqual(invoice.partner_bank_id, vendor_bank)
+
+    def test_receive_bill_bank_account_own_iban(self):
+        """ If the IBAN in the XML is one of our own company accounts, it must not be duplicated on the vendor. """
+        invoice = self._assert_import_invoice('IT01234567889_FPR03.xml', [{}], f"""
+            <xpath expr="//FatturaElettronicaBody/DatiPagamento/DettaglioPagamento" position="inside">
+                <IBAN>{self.test_bank.account_number}</IBAN>
+            </xpath>
+        """)
+        self.assertFalse(invoice.partner_bank_id)
+        self.assertFalse(invoice.partner_id.bank_ids)
+        self.assertEqual(self.env['res.partner.bank'].search([('account_number', '=', self.test_bank.account_number)]), self.test_bank)
 
     def test_import_due_date_on_issued_invoice(self):
         """ DataScadenzaPagamento and CodicePagamento populate
@@ -544,7 +638,7 @@ class TestItEdiImport(TestItEdi):
         # Bank account block stays incoming-only: no res.partner.bank
         # carries the XML IBAN.
         self.assertFalse(self.env['res.partner.bank'].search([
-            ('acc_number', '=', iban),
+            ('account_number', '=', iban),
         ]))
 
     def test_receive_bill_with_multiple_discounts_in_line(self):
@@ -701,8 +795,8 @@ class TestItEdiImport(TestItEdi):
         """Ensure that importing vendor bill with a referenced service product, with a service tax of 22% S
         only applies one tax on the product
         """
-        sale_tax = self.env['account.tax'].search([('display_name', '=', '22%'), ('company_id', '=', self.company.id)])[0]
-        supplier_tax = self.env['account.tax'].search([('display_name', '=', '22% S'), ('company_id', '=', self.company.id)])[0]
+        sale_tax = self.env['account.tax'].search([('display_name', '=', '22%'), ('type_tax_use', '=', 'sale'), ('company_id', '=', self.company.id)])[0]
+        supplier_tax = self.env['account.tax'].search([('display_name', '=', '22% S'), ('type_tax_use', '=', 'purchase'), ('company_id', '=', self.company.id)])[0]
         self.env['product.product'].create({
             'name': 'Servizio tecnico',
             'default_code': 'abcdefgh',
@@ -796,8 +890,28 @@ class TestItEdiImport(TestItEdi):
             ],
         }], applied_xml)
 
+    def test_decrypt_invoice_from_IAP(self):
+        filename = "IT123456789012_10001.xml"
+        invoice_content = "Invoice content here"
+        invoice_content_bytes = invoice_content.encode()
+        Move = self.env['account.move'].with_company(self.company)
+
+        symm_encrypted_invoice = Fernet(self.symmetric_key).encrypt(invoice_content_bytes)
+
+        result = Move._l10n_it_edi_check_and_decrypt_content(
+            filename=filename,
+            content=base64.b64encode(symm_encrypted_invoice),
+            key=base64.b64encode(self.asymm_encrypted_symmetric_key),
+            proxy_user=self.base_proxy_user,
+        )
+
+        self.assertTrue(result)
+        result_filename, result_content = result
+        self.assertEqual(result_filename, filename)
+        self.assertEqual(result_content, invoice_content_bytes)
+
     def test_receive_bill_with_attachment(self):
-        """ Test that a bill with embedded attachments saves attachments and original xml file."""
+        """ Test that a bill with embedded attachments saves attachments and the original xml file."""
         # must build file from scratch in order to check l10n_it_edi_attachment_file
         filename = 'IT01234567890_FPR02.xml'
         embedded_files = {
@@ -811,7 +925,7 @@ class TestItEdiImport(TestItEdi):
                     <NomeAttachment>{filename}</NomeAttachment>
                     <FormatoAttachment>{extension}</FormatoAttachment>
                     <DescrizioneAttachment>An embedded attachment.</DescrizioneAttachment>
-                    <Attachment>{b64encode(raw.encode()).decode()}</Attachment>
+                    <Attachment>{base64.b64encode(raw.encode()).decode()}</Attachment>
                 </Allegati>
             """
             for filename, (extension, raw) in embedded_files.items()
@@ -820,7 +934,7 @@ class TestItEdiImport(TestItEdi):
         applied_xml = f'<xpath expr="//FatturaElettronicaBody/DatiGenerali" position="after">{attachments_str}</xpath>'
 
         tree = self.with_applied_xpath(
-            etree.fromstring(self.fake_test_content.encode()),
+            etree.fromstring(self.fake_test_content),
             applied_xml
         )
         import_content = etree.tostring(tree)
@@ -830,17 +944,11 @@ class TestItEdiImport(TestItEdi):
             self.company,
             [{
                 'name': filename,
-                'raw': import_content.decode(),
+                'raw': import_content,
                 'type': 'binary',
             }])
 
         # There should be one attachment with this filename, and it should match the original XML.
-        # TODO: During bill import, we bypass the ORM to manually create the
-        # `ir.attachment` with `res_field`. This requires cache invalidation,
-        # (or commit) as the Binary field isn't updated automatically.
-        # In `master`, we should fix the import by letting the Binary field
-        # handle attachment creation on write.
-        move.invalidate_recordset(fnames=['l10n_it_edi_attachment_file'])
         it_edi_attachment = self.env['ir.attachment'].search([
             ('name', '=', filename),
             ('res_model', '=', 'account.move'),
@@ -848,7 +956,7 @@ class TestItEdiImport(TestItEdi):
         ])
         self.assertEqual(len(it_edi_attachment), 1)
         self.assertEqual(move.l10n_it_edi_attachment_name, 'IT01234567890_FPR02.xml')
-        self.assertEqual(move.l10n_it_edi_attachment_file, b64encode(import_content))
+        self.assertEqual(move.l10n_it_edi_attachment_file.decode(), import_content.decode())
 
         # ensure that the embedded files are imported correctly
         for filename, (extension, raw) in embedded_files.items():
@@ -958,12 +1066,12 @@ class TestItEdiImport(TestItEdi):
     def test_import_pension_fund_specific_natura(self):
         """ Ensure that the pension fund tax is only applied to lines matching the VAT rate and the exemption reason (Natura) """
 
-        self.env = self.env['base'].with_company(self.company_data_2['company']).env
         pension_tax = self.env['account.tax'].search([
             ('amount', '=', 4.0),
             ('type_tax_use', '=', 'purchase'),
+            *self.env['account.tax']._check_company_domain(self.company),
+            ('l10n_it_pension_fund_type', '=', 'TC22'),
         ], limit=1)
-        pension_tax.write({'l10n_it_exempt_reason': 'N2.1'})
 
         applied_xml = """
             <xpath expr="//FatturaElettronicaBody/DatiBeniServizi" position="replace">
@@ -1008,7 +1116,7 @@ class TestItEdiImport(TestItEdi):
             </xpath>
         """
 
-        invoices = self._assert_import_invoice('IT00470550013_pfun3.xml', [{
+        invoice = self._assert_import_invoice('IT00470550013_pfun3.xml', [{
             'move_type': 'in_invoice',
             'amount_untaxed': 752.00,
             'amount_tax': 30.00,
@@ -1017,7 +1125,39 @@ class TestItEdiImport(TestItEdi):
                 {'quantity': 1.0, 'price_unit': 2.00},
             ],
         }], applied_xml)
-        line_1 = invoices.invoice_line_ids[0]
-        line_2 = invoices.invoice_line_ids[1]
-        self.assertIn(pension_tax.id, line_1.tax_ids.ids)
-        self.assertNotIn(pension_tax.id, line_2.tax_ids.ids)
+        self.assertEqual(
+            [line.tax_ids for line in invoice.invoice_line_ids],
+            [
+                self.vat_0_N2_1_purchase | pension_tax,
+                self.vat_0_N1_purchase,
+            ]
+        )
+
+    def test_import_vendor_bill_no_vat_seller(self):
+        """Do not match an existing partner with vat='/' when the seller has no IdFiscaleIVA"""
+
+        self.env['res.partner'].create({
+            'name': 'Decoy Partner',
+            'vat': '/',
+            'company_id': self.company.id,
+        })
+        existing_partners = self.env['res.partner'].search([])
+
+        # Strip IdFiscaleIVA from the seller so _l10n_it_edi_get_partner_info returns vat='/'
+        applied_xml = """
+            <xpath expr="//CedentePrestatore/DatiAnagrafici/IdFiscaleIVA" position="replace"/>
+            <xpath expr="//CedentePrestatore/DatiAnagrafici/CodiceFiscale" position="replace">
+                <CodiceFiscale>MRTMTT91D08F205J</CodiceFiscale>
+            </xpath>
+        """
+        invoice = self._assert_import_invoice(
+            'IT01234567888_FPR01.xml',
+            [{'move_type': 'in_invoice'}],
+            applied_xml,
+        )
+
+        self.assertNotIn(
+            invoice.partner_id, existing_partners,
+            "A FatturaPA seller with no VAT number must not match any existing partner "
+            "(including partners with '/' as a placeholder VAT). A new partner should be created.",
+        )

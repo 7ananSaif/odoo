@@ -2,21 +2,29 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from datetime import datetime
-import time
 
 from odoo.exceptions import ValidationError
-from odoo.fields import Command
-from odoo.tests import Form
+from odoo.fields import Command, Date
+from odoo.tests import tagged, Form
 from odoo.tools import float_compare
-
 from odoo.addons.product.tests.common import ProductCommon
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestProductPricelist(ProductCommon):
+
+    _test_user_groups = (
+        'base.group_partner_manager',  # FIXME: use base.group_user
+        'product.group_product_manager',
+    )
+
+    _test_user_name = 'Test Product & Contact Manager'
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+
+        cls.pricelist = cls._enable_pricelists()
 
         cls.category_5_id = cls.env['product.category'].create({
             'name': 'Office Furniture',
@@ -64,7 +72,7 @@ class TestProductPricelist(ProductCommon):
         cls.new_currency = cls.env['res.currency'].create({
             'name': 'Wonderful Currency',
             'symbol': ':)',
-            'rate_ids': [Command.create({'rate': 10, 'name': time.strftime('%Y-%m-%d')})],
+            'rate_ids': [Command.create({'rate': 10, 'name': Date.subtract(Date.today(), days=1)})],
         })
 
         cls.ipad_retina_display.write({'uom_id': cls.uom_unit.id, 'categ_id': cls.category_5_id})
@@ -73,7 +81,7 @@ class TestProductPricelist(ProductCommon):
             'item_ids': [
                 Command.create({
                     'name': 'Default pricelist',
-                    'compute_price': 'formula',
+                    'compute_price': 'discount',
                     'base': 'pricelist',
                     'base_pricelist_id': cls.pricelist.id,
                 }),
@@ -81,7 +89,7 @@ class TestProductPricelist(ProductCommon):
                     'name': '10% Discount on Assemble Computer',
                     'applied_on': '1_product',
                     'product_tmpl_id': cls.ipad_retina_display.product_tmpl_id.id,
-                    'compute_price': 'formula',
+                    'compute_price': 'discount',
                     'base': 'list_price',
                     'price_discount': 10,
                 }),
@@ -89,7 +97,7 @@ class TestProductPricelist(ProductCommon):
                     'name': '1 surchange on Laptop',
                     'applied_on': '1_product',
                     'product_tmpl_id': cls.laptop_E5023.product_tmpl_id.id,
-                    'compute_price': 'formula',
+                    'compute_price': 'discount',
                     'base': 'list_price',
                     'price_surcharge': 1,
                 }),
@@ -97,7 +105,7 @@ class TestProductPricelist(ProductCommon):
                     'name': '5% Discount on all Computer related products',
                     'applied_on': '2_product_category',
                     'min_quantity': 2,
-                    'compute_price': 'formula',
+                    'compute_price': 'discount',
                     'base': 'list_price',
                     'categ_id': cls.product_category.id,
                     'price_discount': 5,
@@ -107,7 +115,7 @@ class TestProductPricelist(ProductCommon):
                     'applied_on': '3_global',
                     'date_start': '2011-12-27',
                     'date_end': '2011-12-31',
-                    'compute_price': 'formula',
+                    'compute_price': 'discount',
                     'price_discount': 30,
                     'base': 'list_price',
                 }),
@@ -117,7 +125,7 @@ class TestProductPricelist(ProductCommon):
                     'product_tmpl_id': cls.monitor.product_tmpl_id.id,
                     'date_start': '2020-04-06 09:00:00',
                     'date_end': '2020-04-09 12:00:00',
-                    'compute_price': 'formula',
+                    'compute_price': 'discount',
                     'price_discount': 50,
                     'base': 'list_price',
                 }),
@@ -213,7 +221,7 @@ class TestProductPricelist(ProductCommon):
             'name': 'Currency Pricelist',
             'currency_id': self.new_currency.id,
             'item_ids': [(0, 0, {
-                'compute_price': 'formula',
+                'compute_price': 'discount',
                 'base': 'list_price',
                 'price_surcharge': 100
             })]
@@ -227,7 +235,7 @@ class TestProductPricelist(ProductCommon):
             'name': 'Currency with Margin Pricelist',
             'currency_id': self.new_currency.id,
             'item_ids': [(0, 0, {
-                'compute_price': 'formula',
+                'compute_price': 'discount',
                 'base': 'list_price',
                 'price_min_margin': 10,
                 'price_max_margin': 100,
@@ -242,7 +250,7 @@ class TestProductPricelist(ProductCommon):
             'name': 'Currency with Margin Pricelist',
             'currency_id': self.new_currency.id,
             'item_ids': [(0, 0, {
-                'compute_price': 'formula',
+                'compute_price': 'discount',
                 'base': 'list_price',
                 'price_surcharge': 100,
                 'price_max_margin': 90
@@ -291,7 +299,7 @@ class TestProductPricelist(ProductCommon):
             'name': 'Customer Pricelist',
             'item_ids': [
                 Command.create({
-                    'compute_price': 'formula',
+                    'compute_price': 'discount',
                 }),
             ] * 101,
         })
@@ -301,7 +309,7 @@ class TestProductPricelist(ProductCommon):
         """Test that the min_quantity has the precision of Product UoM."""
         # Arrange: Change precision digits
         uom_precision = self.env.ref("uom.decimal_product_uom")
-        uom_precision.digits = 3
+        uom_precision.sudo().digits = 3
         pricelist_item = self.customer_pricelist.item_ids[0]
         precise_value = 1.234
 
@@ -334,14 +342,15 @@ class TestProductPricelist(ProductCommon):
     def test_pricelist_sync_on_partners(self):
         ResPartner = self.env['res.partner']
 
-        company_1, company_2 = self.env['res.company'].create([
+        company_1, company_2 = self.env['res.company'].sudo().create([
             {'name': 'company_1'},
             {'name': 'company_2'},
         ])
+        self.env.user.company_ids += company_1 + company_2
 
         test_partner_company = ResPartner.create({
             'name': 'This company',
-            'is_company': True,
+            'vat': 'BE0477472701',
         })
         test_partner_company.with_company(company_1).property_product_pricelist = self.business_pricelist.id
         test_partner_company.with_company(company_2).property_product_pricelist = self.customer_pricelist.id

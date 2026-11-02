@@ -12,11 +12,8 @@ export class AttendeeCalendarCommonPopover extends CalendarCommonPopover {
         Dropdown,
         DropdownItem,
     };
-    static subTemplates = {
-        ...CalendarCommonPopover.subTemplates,
-        body: "calendar.AttendeeCalendarCommonPopover.body",
-        footer: "calendar.AttendeeCalendarCommonPopover.footer",
-    };
+    static defaultFooterButtonsTemplate = "calendar.AttendeeCalendarCommonPopover.footer";
+
     setup() {
         super.setup();
         this.orm = useService("orm");
@@ -27,7 +24,6 @@ export class AttendeeCalendarCommonPopover extends CalendarCommonPopover {
     }
 
     async onWillStart() {
-        // Show status dropdown if user is in attendees list
         if (this.isEventEditable) {
             const stateSelections = await this.env.services.orm.call(
                 this.props.model.resModel,
@@ -76,22 +72,11 @@ export class AttendeeCalendarCommonPopover extends CalendarCommonPopover {
         return this.isEventPrivate ? this.isEventEditable : true;
     }
 
-    get isEventArchivable() {
-        return false;
-    }
-
-    async onClickOpenRecord() {
-        const action = await this.orm.call("calendar.event", "action_open_calendar_event", [
-            this.props.record.id,
-        ]);
-        this.actionService.doAction(action);
-    }
-
     /**
      * @override
      */
     get isEventDeletable() {
-        return super.isEventDeletable && this.isEventEditable && !this.isEventArchivable;
+        return super.isEventDeletable && this.isEventEditable;
     }
 
     /**
@@ -103,13 +88,6 @@ export class AttendeeCalendarCommonPopover extends CalendarCommonPopover {
 
     get isEventViewable() {
         return this.isEventPrivate ? this.isEventEditable : super.isEventEditable;
-    }
-
-    /**
-     * @override
-     */
-    get hasFooter() {
-        return this.isEventViewable || super.hasFooter;
     }
 
     async changeAttendeeStatus(selectedStatus) {
@@ -131,10 +109,5 @@ export class AttendeeCalendarCommonPopover extends CalendarCommonPopover {
         ]);
         await this.props.model.load();
         this.props.close();
-    }
-
-    async onClickArchive() {
-        this.props.close();
-        await this.props.model.archiveRecord(this.props.record);
     }
 }

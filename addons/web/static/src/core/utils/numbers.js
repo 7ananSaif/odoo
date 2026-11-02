@@ -16,16 +16,23 @@ export function clamp(num, min, max) {
 
 /**
  * A function to create flexibly-numbered lists of integers, handy for each and map loops.
- * step defaults to 1.
  * Returns a list of integers from start (inclusive) to stop (exclusive), incremented (or decremented) by step.
- * @param {number} start default 0
- * @param {number} stop
- * @param {number} step default 1
+ *
+ * @param {number} start
+ * @param {number} [stop] if not provided, start is used as stop and start is set to 0.
+ * @param {number} [step] default to 1 if start < stop, -1 otherwise.
  * @returns {number[]}
  */
-export function range(start, stop, step = 1) {
+export function range(start, stop, step) {
     const array = [];
-    const nsteps = Math.floor((stop - start) / step);
+    if (stop === undefined) {
+        stop = start;
+        start = 0;
+    }
+    if (step === undefined) {
+        step = start < stop ? 1 : -1;
+    }
+    const nsteps = Math.ceil((stop - start) / step);
     for (let i = 0; i < nsteps; i++) {
         array.push(start + step * i);
     }
@@ -224,20 +231,22 @@ export function formatFloat(value, options = {}) {
     if (options.digits && options.digits[1] !== undefined) {
         precision = options.digits[1];
     } else if (options.minDigits) {
-        const intDigitsCount = (value !== 0) ? Math.floor(Math.log10(Math.abs(value))) + 1 : 1;
-        // Within 15 digits, we have a float with no parasite digits.
-        // 14 is chosen here, as roundPrecision will add a digit when performing its computations.
-        const maxDecDigits = Math.max(14 - intDigitsCount, 0);
-        // We display maximum 6 digits or the number of significant digits (if it's lower)
-        precision = Math.min(6, maxDecDigits);
+        precision = 6;
     } else {
         precision = 2;
     }
+    const intDigitsCount = value !== 0 ? Math.floor(Math.log10(Math.abs(value))) + 1 : 1;
+    // Within 15 digits, we have a float with no parasite digits.
+    // 14 is chosen here, as roundPrecision will add a digit when performing its computations.
+    const maxDecDigits = Math.max(14 - intDigitsCount, 0);
+    // We display maximum 6 digits or the number of significant digits (if it's lower)
+    precision = Math.min(precision, maxDecDigits);
+
     const minPrecision = options.minDigits || precision;
     if (floatIsZero(value, precision)) {
         value = 0.0;
     }
-    if (options.humanReadable) {
+    if (options.humanReadable || value.toString().includes("e")) {
         return humanNumber(value, options);
     }
     const grouping = options.grouping || l10n.grouping;

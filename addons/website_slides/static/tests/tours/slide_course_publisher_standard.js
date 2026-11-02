@@ -1,8 +1,6 @@
+import { registry } from "@web/core/registry";
 import slidesTourTools from "@website_slides/../tests/tours/slides_tour_tools";
-import {
-    clickOnEditAndWaitEditMode,
-    registerWebsitePreviewTour,
-} from "@website/js/tours/tour_utils";
+import { clickOnEditAndWaitEditMode } from "@website/js/tours/tour_utils";
 
 /**
  * Global use case:
@@ -11,12 +9,8 @@ import {
  * they create some lessons in it;
  * they publish it;
  */
-registerWebsitePreviewTour(
-    "course_publisher_standard",
-    {
-        url: "/slides",
-    },
-    () =>
+registry.category("web_tour.tours").add("course_publisher_standard", {
+    steps: () =>
         [
             {
                 content: "eLearning: click on New (top-menu)",
@@ -60,6 +54,10 @@ registerWebsitePreviewTour(
             },
             {
                 trigger: "body:not(:has(.modal))",
+            },
+            {
+                content: "wait the slide course main is in body before edition",
+                trigger: ":iframe main .o_wslides_course_main",
             },
             ...clickOnEditAndWaitEditMode(),
             {
@@ -129,11 +127,11 @@ registerWebsitePreviewTour(
                 {
                     content: "eLearning: use breadcrumb to go back to channel",
                     trigger:
-                        ':iframe .o_wslides_course_nav a:contains("Déboulonnate")[href^="/slides/how-to-deboulonnate"]',
+                        ':iframe .o_wslides_course_nav a:contains("Déboulonnate")[href^="/slides/how-to-déboulonnate"]',
                     run: "click",
                 },
             ],
             slidesTourTools.addImageToSection("Introduction", "Overview", true),
             slidesTourTools.addPdfToSection("Introduction", "Exercise", true)
-        )
-);
+        ),
+});

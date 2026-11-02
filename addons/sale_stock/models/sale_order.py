@@ -3,10 +3,12 @@
 import json
 import logging
 
+from datetime import timedelta
+
 from odoo import api, fields, models, _
 from odoo.fields import Command
 from odoo.exceptions import UserError
-from odoo.tools import float_compare
+
 
 _logger = logging.getLogger(__name__)
 
@@ -14,31 +16,18 @@ _logger = logging.getLogger(__name__)
 class SaleOrder(models.Model):
     _inherit = "sale.order"
 
-    incoterm = fields.Many2one(
-        'account.incoterms', 'Incoterm',
-        help="International Commercial Terms are a series of predefined commercial terms used in international transactions.")
-    incoterm_location = fields.Char(string='Incoterm Location')
     picking_policy = fields.Selection([
-        ('direct', 'As soon as possible'),
-        ('one', 'When all products are ready')],
-        string='Shipping Policy', required=True, default='direct',
-        help="If you deliver all products at once, the delivery order will be scheduled based on the greatest "
-        "product lead time. Otherwise, it will be based on the shortest.")
+        ('direct', 'As soon as possible, with back orders'), ('one', 'When all products are ready')],
+        string='Shipping Policy', required=True, default=lambda self: self.env.company.picking_policy,
+        help="It specifies goods to be deliver partially or all at once")
     warehouse_id = fields.Many2one(
         'stock.warehouse', string='Warehouse',
         compute='_compute_warehouse_id', store=True, readonly=False, precompute=True,
-        check_company=True)
+        init_storage='_init_column_warehouse_id',
+        domain=lambda self: [('company_id', 'in', self.env.companies.ids)]
+    )
     picking_ids = fields.One2many('stock.picking', 'sale_id', string='Transfers')
     delivery_count = fields.Integer(string='Delivery Orders', compute='_compute_picking_ids')
-    delivery_status = fields.Selection([
-        ('pending', 'Not Delivered'),
-        ('started', 'Started'),
-        ('partial', 'Partially Delivered'),
-        ('full', 'Fully Delivered'),
-    ], string='Delivery Status', compute='_compute_delivery_status', store=True,
-       help="Blue: Not Delivered/Started\n\
-            Orange: Partially Delivered\n\
-            Green: Fully Delivered")
     late_availability = fields.Boolean(
         string="Late Availability",
         compute='_compute_late_availability',
@@ -56,7 +45,7 @@ class SaleOrder(models.Model):
     json_popover = fields.Char('JSON data for the popover widget', compute='_compute_json_popover')
     show_json_popover = fields.Boolean('Has late picking', compute='_compute_json_popover')
 
-    def _init_column(self, column_name):
+    def _init_column_warehouse_id(self):
         """ Ensure the default warehouse_id is correctly assigned
 
         At column initialization, the ir.model.fields for res.users.property_warehouse_id isn't created,
@@ -64,9 +53,6 @@ class SaleOrder(models.Model):
         We therefore enforce the default here, without going through
         the default function on the warehouse_id field.
         """
-        if column_name != "warehouse_id":
-            return super(SaleOrder, self)._init_column(column_name)
-
         default_warehouse = self.env["stock.warehouse"].search([], limit=1)
 
         query = """
@@ -77,7 +63,7 @@ class SaleOrder(models.Model):
         """
         params = [default_warehouse.id]
 
-        _logger.debug("Initializing column '%s' in table '%s'", column_name, self._table)
+        _logger.debug("Initializing column 'warehouse_id' in table '%s'", self._table)
         self.env.cr.execute(query, params)
 
     @api.depends('picking_ids.date_done')
@@ -90,12 +76,18 @@ class SaleOrder(models.Model):
     @api.depends('picking_ids', 'picking_ids.state')
     def _compute_delivery_status(self):
         for order in self:
-            if not order.picking_ids or all(p.state == 'cancel' for p in order.picking_ids):
+            if not order.picking_ids or \
+                (
+                    all(p.state in ['done', 'cancel'] for p in order.picking_ids) and
+                    all(line.qty_delivered_method != 'stock_move' or line.product_uom_id.is_zero(line.qty_delivered)
+                    for line in order.order_line)
+                ):
                 order.delivery_status = False
             elif all(p.state in ['done', 'cancel'] for p in order.picking_ids):
                 order.delivery_status = 'full'
             elif any(p.state == 'done' for p in order.picking_ids) and any(
-                    l.qty_delivered for l in order.order_line):
+                    line.qty_delivered_method == 'stock_move' and not line.product_uom_id.is_zero(line.qty_delivered)
+                    for line in order.order_line):
                 order.delivery_status = 'partial'
             elif any(p.state == 'done' for p in order.picking_ids):
                 order.delivery_status = 'started'
@@ -112,6 +104,12 @@ class SaleOrder(models.Model):
             order.late_availability = any(
                 picking.products_availability_state == 'late' for picking in order.picking_ids
             )
+
+    @api.depends('effective_date')
+    def _compute_delivery_date(self):
+        super()._compute_delivery_date()
+        for order in self:
+            order.delivery_date = order.effective_date or order.delivery_date
 
     def _search_late_availability(self, operator, value):
         if operator not in ('=', '!=') or not isinstance(value, bool):
@@ -157,26 +155,19 @@ class SaleOrder(models.Model):
             for order in self:
                 pre_order_line_qty = {order_line: order_line.product_uom_qty for order_line in order.mapped('order_line') if not order_line.is_expense}
 
-        if values.get('partner_shipping_id') and self.env.context.get('update_delivery_shipping_partner'):
-            for order in self:
-                order.picking_ids.partner_id = values.get('partner_shipping_id')
         elif values.get('partner_shipping_id'):
             new_partner = self.env['res.partner'].browse(values.get('partner_shipping_id'))
             for record in self:
                 picking = record.mapped('picking_ids').filtered(lambda x: x.state not in ('done', 'cancel'))
-                message = _("""The delivery address has been changed on the Sales Order<br/>
-                        From <strong>"%(old_address)s"</strong> to <strong>"%(new_address)s"</strong>,
-                        You should probably update the partner on this document.""",
-                            old_address=record.partner_shipping_id.display_name, new_address=new_partner.display_name)
-                picking.activity_schedule('mail.mail_activity_data_warning', note=message, user_id=self.env.user.id)
+                picking.partner_id = new_partner
 
         if 'commitment_date' in values:
-            # protagate commitment_date as the deadline of the related stock move.
+            # propagate commitment_date as the deadline of the related stock move.
             # TODO: Log a note on each down document
             deadline_datetime = values.get('commitment_date')
             for order in self:
                 moves = order.order_line.move_ids.filtered(
-                    lambda m: m.state not in ('done', 'cancel') and m.location_dest_id.usage == 'customer'
+                    lambda m: m.state not in ('done', 'cancel') and m.forecasted_location_id.usage == 'customer'
                 )
                 moves.date_deadline = deadline_datetime or order.expected_date
 
@@ -186,9 +177,9 @@ class SaleOrder(models.Model):
                 to_log = {}
                 order.order_line.fetch(['product_uom_id', 'product_uom_qty', 'display_type', 'is_downpayment'])
                 for order_line in order.order_line:
-                    if order_line.display_type or order_line.is_downpayment:
+                    if not order_line._is_product_line():
                         continue
-                    if float_compare(order_line.product_uom_qty, pre_order_line_qty.get(order_line, 0.0), precision_rounding=order_line.product_uom_id.rounding) < 0:
+                    if order_line.product_uom_id.compare(order_line.product_uom_qty, pre_order_line_qty.get(order_line, 0.0)) < 0:
                         to_log[order_line] = (order_line.product_uom_qty, pre_order_line_qty.get(order_line, 0.0))
                 if to_log:
                     documents = self.env['stock.picking'].sudo()._log_activity_get_documents(to_log, 'move_ids', 'UP')
@@ -211,6 +202,7 @@ class SaleOrder(models.Model):
             order.show_json_popover = bool(late_stock_picking)
 
     def _action_confirm(self):
+        self._update_delivery_partner_company()
         self.order_line._action_launch_stock_rule()
         return super(SaleOrder, self)._action_confirm()
 
@@ -266,6 +258,28 @@ class SaleOrder(models.Model):
             self._log_decrease_ordered_quantity(filtered_documents, cancel=True)
         return super()._action_cancel()
 
+    def _update_delivery_partner_company(self):
+        """ Ensures the delivery address has a company that matches the delivery warehouse, and if not makes the partner visible to all companies,
+            as it is used in cross-company context.
+        """
+        for order in self:
+            partner = order.partner_shipping_id | order.partner_shipping_id.parent_id
+            if partner.company_id and partner.company_id != order.sudo().warehouse_id.company_id:
+                # Partner is used in cross-company context, we remove its company
+                partner.sudo().write({'company_id': False})
+
+    def _is_portal_return_allowed(self):
+        """Return whether we should allow return on sale order portal or not."""
+        self.ensure_one()
+        return (
+            self.company_id.allow_spontaneous_returns
+            and self.state == "sale"
+            and self.effective_date
+            and self.effective_date >= (
+                fields.Datetime.now() - timedelta(days=self.company_id.return_validity_days)
+            )
+        )
+
     def _get_action_view_picking(self, pickings):
         '''
         This function returns an action that display existing delivery orders
@@ -297,7 +311,6 @@ class SaleOrder(models.Model):
 
     def _prepare_invoice(self):
         invoice_vals = super(SaleOrder, self)._prepare_invoice()
-        invoice_vals['invoice_incoterm_id'] = self.incoterm.id
         invoice_vals['delivery_date'] = self.effective_date and fields.Datetime.context_timestamp(self, self.effective_date)
         return invoice_vals
 
@@ -306,7 +319,7 @@ class SaleOrder(models.Model):
         def _render_note_exception_quantity_so(rendering_context):
             order_exceptions, visited_moves = rendering_context
             visited_moves = list(visited_moves)
-            visited_moves = self.env[visited_moves[0]._name].concat(*visited_moves)
+            visited_moves = self.env[visited_moves[0]._name].concat(visited_moves)
             order_line_ids = self.env['sale.order.line'].browse([order_line.id for order in order_exceptions.values() for order_line in order[0]])
             sale_order_ids = order_line_ids.mapped('order_id')
             impacted_pickings = visited_moves.filtered(lambda m: m.state not in ('done', 'cancel')).mapped('picking_id')
@@ -320,17 +333,25 @@ class SaleOrder(models.Model):
 
         self.env['stock.picking']._log_activity(_render_note_exception_quantity_so, documents)
 
-    def _is_display_stock_in_catalog(self):
-        return True
+    def _get_action_add_from_catalog_extra_context(self):
+        return {
+            **super()._get_action_add_from_catalog_extra_context(),
+            "warehouse_id": self.warehouse_id.id,
+            "display_stock": True,
+        }
 
-    # TODO: rename the parameter from reference to references in master for improved readability
-    def _add_reference(self, reference):
+    def _get_product_catalog_product_data(self, product, **kwargs) -> dict:
+        return {
+            **super()._get_product_catalog_product_data(product, **kwargs),
+            "deliveredQty": 0,  # TODO add defaultProps and remove the default here
+        }
+
+    def _add_reference(self, references):
         """ link the given references to the list of references. """
         self.ensure_one()
-        self.stock_reference_ids = [Command.link(stock_reference.id) for stock_reference in reference]
+        self.stock_reference_ids = [Command.link(reference.id) for reference in references]
 
-    # TODO: rename the parameter from reference to references in master for improved readability
-    def _remove_reference(self, reference):
+    def _remove_reference(self, references):
         """ remove the given references from the list of references. """
         self.ensure_one()
-        self.stock_reference_ids = [Command.unlink(stock_reference.id) for stock_reference in reference]
+        self.stock_reference_ids = [Command.unlink(reference.id) for reference in references]

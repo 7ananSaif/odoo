@@ -7,7 +7,7 @@ import {
 import { localization as l10n } from "@web/core/l10n/localization";
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { isBinarySize } from "@web/core/utils/binary";
+import { humanSize } from "@web/core/utils/binary";
 import {
     formatFloat as formatFloatNumber,
     humanNumber,
@@ -17,39 +17,26 @@ import { exprToBoolean } from "@web/core/utils/strings";
 
 import { markup } from "@odoo/owl";
 import { formatCurrency } from "@web/core/currency";
-
-// -----------------------------------------------------------------------------
-// Helpers
-// -----------------------------------------------------------------------------
-
-function humanSize(value) {
-    if (!value) {
-        return "";
-    }
-    const suffix = value < 1024 ? " " + _t("Bytes") : "b";
-    return (
-        humanNumber(value, {
-            decimals: 2,
-        }) + suffix
-    );
-}
+import { normalizeTimeStr } from "@web/core/l10n/time";
 
 // -----------------------------------------------------------------------------
 // Exports
 // -----------------------------------------------------------------------------
 
 /**
- * @param {string} [value] base64 representation of the binary
+ * @param {Object} [value] filename, size, etc. of the binary
  * @returns {string}
  */
 export function formatBinary(value) {
-    if (!isBinarySize(value)) {
-        // Computing approximate size out of base64 encoded string
-        // http://en.wikipedia.org/wiki/Base64#MIME
-        return humanSize(value.length / 1.37);
+    if (!value) {
+        return "";
+    } else if (value.filename) {
+        return value.filename;
+    } else if (value.size) {
+        return humanSize(value.size);
+    } else {
+        return "(file)";
     }
-    // already bin_size
-    return value;
 }
 
 /**
@@ -91,10 +78,15 @@ export function formatDate(value, options = {}) {
     }
 }
 formatDate.extractOptions = ({ options }) => ({
-    numeric: exprToBoolean(options.numeric ?? false),
+    numeric: options.numeric ?? false,
 });
 
 export function formatDateTime(value, options = {}) {
+    const { numeric, showSeconds, showTime } = options;
+    if (numeric && showTime && !showSeconds) {
+        options = { ...options, format: l10n.dateTimeFormat.replace(/:ss/, "") };
+    }
+
     if (options.numeric) {
         if (options.showTime === false) {
             return _formatDate(value, options);
@@ -106,9 +98,8 @@ export function formatDateTime(value, options = {}) {
 }
 formatDateTime.extractOptions = ({ attrs, options }) => ({
     ...formatDate.extractOptions({ attrs, options }),
-    showSeconds: exprToBoolean(options.show_seconds ?? false),
-    showTime: exprToBoolean(options.show_time ?? true),
-    showDate: exprToBoolean(options.show_date ?? true),
+    showSeconds: options.show_seconds ?? false,
+    showTime: options.show_time ?? true,
 });
 
 /**
@@ -185,49 +176,117 @@ formatFloatFactor.extractOptions = ({ attrs, options }) => ({
 });
 
 /**
+ * Returns a string representing a time value, from a Duration object.
+ * The idea is that we sometimes want to display something like 1h 45m instead of 1.75,
+ * or 0:15 instead of 0.25.
+ *
+ * @param {import("./parsers").Duration} value
+ * @param {Object} [options]
+ * @param {boolean} [options.showSeconds] if true, format like 1h 30m 20s otherwise, format like 1h 30m
+ * @param {boolean} [options.numeric] if true, show the duration in the format set on the language
+ * @param {import("./parsers").UnitOfTime} [options.unit="hours"] The unit of measure for the duration
+ * @returns {string}
+ */
+export function formatDuration(value, options = {}) {
+    if (value === false) {
+        return "";
+    }
+
+    const showSeconds = options.showSeconds || options.unit === "seconds";
+    const unit = options.unit || "hours";
+    let seconds = (value.hours || 0) * 3600 + (value.minutes || 0) * 60 + (value.seconds || 0);
+    let isNegative;
+
+    if (seconds < 0) {
+        isNegative = true;
+        seconds = Math.abs(seconds);
+    }
+
+    const duration = {
+        hours: Math.floor(seconds / 3600),
+        minutes: showSeconds
+            ? Math.floor((seconds % 3600) / 60)
+            : Math.round((seconds % 3600) / 60),
+        seconds: showSeconds ? Math.round(seconds % 60) : 0,
+    };
+
+    if (duration.seconds === 60) {
+        duration.minutes += 1;
+        duration.seconds = 0;
+    }
+
+    if (duration.minutes === 60) {
+        duration.hours += 1;
+        duration.minutes = 0;
+    }
+
+    let durationParts = new Intl.DurationFormat(l10n.locale, {
+        style: options.numeric ? "digital" : "narrow",
+        hoursDisplay: unit === "hours" || options.numeric ? "always" : "auto",
+        minutesDisplay: "always",
+        secondsDisplay: showSeconds ? "always" : "auto",
+    })
+        .formatToParts(duration)
+        .filter((d) => d.type !== "literal");
+
+    let formattedValue = "";
+    if (options.numeric) {
+        formattedValue = durationParts
+            .filter((f) => f.type === "integer")
+            .map((f) => normalizeTimeStr(f.value))
+            .join(":");
+    } else {
+        if (
+            duration.minutes === 0 &&
+            unit !== "minutes" &&
+            (!durationParts.some((d) => d.unit === "hour") ||
+                !durationParts.some((d) => d.unit === "second"))
+        ) {
+            durationParts = durationParts.filter((d) => d.unit !== "minute");
+        }
+        durationParts.forEach((d) => {
+            formattedValue += d.value;
+            if (d.type === "unit") {
+                formattedValue += " ";
+            }
+        });
+        formattedValue = formattedValue.trim();
+    }
+
+    return `${isNegative ? "-" : ""}${formattedValue}`;
+}
+
+/**
+ *
  * Returns a string representing a time value, from a float.  The idea is that
- * we sometimes want to display something like 1:45 instead of 1.75, or 0:15
+ * we sometimes want to display something like 1h 45m instead of 1.75, or 0:15
  * instead of 0.25.
  *
- * @param {number | false} value
+ * @param {number} value
  * @param {Object} [options]
- * @param {boolean} [options.noLeadingZeroHour] if true, format like 1:30 otherwise, format like 01:30
- * @param {boolean} [options.displaySeconds] if true, format like ?1:30:00 otherwise, format like ?1:30
+ * @param {boolean} [options.showSeconds] if true, format like 1:30:00 otherwise, format like 1:30
+ * @param {boolean} [options.numeric] if true, show the duration in the format set on the language
+ * @param {import("./parsers").UnitOfTime} [options.unit="hours"] The unit of mesure for the duration
  * @returns {string}
  */
 export function formatFloatTime(value, options = {}) {
     if (value === false) {
         return "";
     }
-    const isNegative = value < 0;
-    value = Math.abs(value);
 
-    let hour = Math.floor(value);
-    const milliSecLeft = Math.round(value * 3600000) - hour * 3600000;
-    // Although looking quite overkill, the following lines ensures that we do
-    // not have float issues while still considering that 59s is 00:00.
-    let min = milliSecLeft / 60000;
-    if (options.displaySeconds) {
-        min = Math.floor(min);
-    } else {
-        min = Math.round(min);
-    }
-    if (min === 60) {
-        min = 0;
-        hour = hour + 1;
-    }
-    min = String(min).padStart(2, "0");
-    if (!options.noLeadingZeroHour) {
-        hour = String(hour).padStart(2, "0");
-    }
-    let sec = "";
-    if (options.displaySeconds) {
-        sec = ":" + String(Math.floor((milliSecLeft % 60000) / 1000)).padStart(2, "0");
-    }
-    return `${isNegative ? "-" : ""}${hour}:${min}${sec}`;
+    options.unit = options.unit || "hours";
+
+    return formatDuration(
+        {
+            [options.unit]: value,
+        },
+        options
+    );
 }
 formatFloatTime.extractOptions = ({ options }) => ({
-    displaySeconds: options.displaySeconds,
+    showSeconds: Boolean(options.show_seconds),
+    numeric: Boolean(options.numeric),
+    unit: options.unit,
 });
 
 /**
@@ -277,17 +336,18 @@ formatInteger.extractOptions = ({ attrs, options }) => ({
  * @returns {string}
  */
 export function formatMany2one(value, options) {
+    let name;
     if (!value) {
-        value = "";
+        name = "";
     } else if ("display_name" in value ? value.display_name : value[1]) {
-        value = "display_name" in value ? value.display_name : value[1];
+        name = "display_name" in value ? value.display_name : value[1];
     } else {
-        value = _t("Unnamed");
+        name = String(_t("Unnamed"));
     }
     if (options && options.escape) {
-        value = encodeURIComponent(value);
+        name = encodeURIComponent(name);
     }
-    return value;
+    return name;
 }
 
 /**
@@ -296,7 +356,6 @@ export function formatMany2one(value, options) {
  * then be the count of ids in the given value in the form "x record(s)".
  *
  * @param {number[] | false} value
- * @returns {string}
  */
 export function formatX2many(value) {
     const count = value.currentIds.length;
@@ -374,7 +433,11 @@ export function formatPercentage(value, options = {}) {
     const formatted = formatFloatNumber(value * 100, options);
     return `${formatted}${options.noSymbol ? "" : "%"}`;
 }
-formatPercentage.extractOptions = formatFloat.extractOptions;
+formatPercentage.extractOptions = ({ attrs, options }) => ({
+    ...formatFloat.extractOptions({ attrs, options }),
+    noSymbol: options.no_symbol,
+    trailingZeros: !(options.hide_trailing_zeros ?? true),
+});
 
 /**
  * Returns a string representing the value of the python properties field
@@ -417,6 +480,7 @@ export function formatMany2oneReference(value) {
 
 /**
  * Returns a string of the value of the selection.
+ * If the value is not found in the selection options, falls back to the raw value.
  *
  * @param {Object} [options={}]
  * @param {[string, string][]} [options.selection]
@@ -426,7 +490,7 @@ export function formatMany2oneReference(value) {
 export function formatSelection(value, options = {}) {
     const selection = options.selection || (options.field && options.field.selection) || [];
     const option = selection.find((option) => option[0] === value);
-    return option ? option[1] : "";
+    return option ? option[1] : value || "";
 }
 
 /**

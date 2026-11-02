@@ -11,10 +11,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:39+0000\n"
-"PO-Revision-Date: 2026-04-14 08:57+0000\n"
-"Last-Translator: \"Marianna Ciofani (cima)\" <cima@odoo.com>\n"
-"Language-Team: Italian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-11 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 20:27+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Italian <https://translate.odoo.com/projects/odoo-s19-4/"
 "snailmail/it/>\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
@@ -22,7 +22,15 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=(n == 1) ? 0 : ((n != 0 && n % 1000000 == "
 "0) ? 1 : 2);\n"
-"X-Generator: Weblate 5.16.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: snailmail
+#: model:ir.module.module,description:base.module_snailmail
+msgid ""
+"\n"
+"Allows users to send documents by post\n"
+"=====================================================\n"
+msgstr ""
 
 #. module: snailmail
 #: model:ir.model.fields.selection,name:snailmail.selection__snailmail_letter__error_code__attachment_error
@@ -92,6 +100,12 @@ msgid "Both sides"
 msgstr "Entrambi i lati"
 
 #. module: snailmail
+#. odoo-javascript
+#: code:addons/snailmail/static/src/core/notification_model_patch.js:0
+msgid "Bounced"
+msgstr ""
+
+#. module: snailmail
 #: model:ir.model.fields.selection,name:snailmail.selection__snailmail_letter__error_code__credit_error
 msgid "CREDIT_ERROR"
 msgstr "ERRORE_CREDITO"
@@ -120,10 +134,6 @@ msgstr "Colore"
 
 #. module: snailmail
 #: model:ir.model,name:snailmail.model_res_company
-msgid "Companies"
-msgstr "Aziende"
-
-#. module: snailmail
 #: model:ir.model.fields,field_description:snailmail.field_snailmail_letter__company_id
 msgid "Company"
 msgstr "Azienda"
@@ -170,6 +180,12 @@ msgid "Created on"
 msgstr "Data creazione"
 
 #. module: snailmail
+#. odoo-javascript
+#: code:addons/snailmail/static/src/core/notification_model_patch.js:0
+msgid "Dispatched"
+msgstr ""
+
+#. module: snailmail
 #: model:ir.model.fields,field_description:snailmail.field_ir_actions_report__display_name
 #: model:ir.model.fields,field_description:snailmail.field_mail_message__display_name
 #: model:ir.model.fields,field_description:snailmail.field_mail_notification__display_name
@@ -182,7 +198,7 @@ msgid "Display Name"
 msgstr "Nome visualizzato"
 
 #. module: snailmail
-#: model:ir.model.fields,field_description:snailmail.field_snailmail_letter__attachment_datas
+#: model:ir.model.fields,field_description:snailmail.field_snailmail_letter__attachment_raw
 #: model_terms:ir.ui.view,arch_db:snailmail.snailmail_letter_list
 msgid "Document"
 msgstr "Documento"
@@ -256,6 +272,11 @@ msgid "Invalid recipient name."
 msgstr "Nome destinatario non valido."
 
 #. module: snailmail
+#: model:ir.model.fields.selection,name:snailmail.selection__snailmail_letter__error_code__letter_undeliverable
+msgid "LETTER_UNDELIVERABLE"
+msgstr ""
+
+#. module: snailmail
 #: model:ir.model.fields,field_description:snailmail.field_snailmail_letter__write_uid
 msgid "Last Updated by"
 msgstr "Ultimo aggiornamento di"
@@ -272,10 +293,28 @@ msgid "Letter"
 msgstr "Lettera"
 
 #. module: snailmail
+#. odoo-javascript
+#: code:addons/snailmail/static/src/core/notification_model_patch.js:0
+msgid "Letter Undeliverable"
+msgstr ""
+
+#. module: snailmail
+#. odoo-python
+#: code:addons/snailmail/controller/snailmail_webhook.py:0
+msgid "Letter is delivered successfully"
+msgstr ""
+
+#. module: snailmail
 #. odoo-python
 #: code:addons/snailmail/models/snailmail_letter.py:0
 msgid "Letter sent by post with Snailmail"
 msgstr "Lettera inviata per posta ordinaria"
+
+#. module: snailmail
+#. odoo-python
+#: code:addons/snailmail/controller/snailmail_webhook.py:0
+msgid "Letter was unable to be delivered"
+msgstr ""
 
 #. module: snailmail
 #: model_terms:ir.ui.view,arch_db:snailmail.snailmail_letter_list
@@ -294,8 +333,8 @@ msgstr "Messaggio"
 
 #. module: snailmail
 #: model:ir.model,name:snailmail.model_mail_notification
-msgid "Message Notifications"
-msgstr "Notifiche messaggio"
+msgid "Message Notification"
+msgstr "Notifica messaggio"
 
 #. module: snailmail
 #. odoo-javascript
@@ -363,6 +402,11 @@ msgid "Print In Color"
 msgstr "Stampa a colori"
 
 #. module: snailmail
+#: model:ir.model.fields.selection,name:snailmail.selection__snailmail_letter__state__process
+msgid "Processing"
+msgstr ""
+
+#. module: snailmail
 #: model:ir.model.fields,field_description:snailmail.field_snailmail_letter__partner_id
 msgid "Recipient"
 msgstr "Destinatario"
@@ -402,6 +446,12 @@ msgid "Sent by"
 msgstr "Inviata da"
 
 #. module: snailmail
+#: model:iap.service,name:snailmail.iap_service_snailmail
+#: model:ir.module.module,shortdesc:base.module_snailmail
+msgid "Snail Mail"
+msgstr ""
+
+#. module: snailmail
 #. odoo-python
 #: code:addons/snailmail/models/snailmail_letter.py:0
 msgid "Snail Mails are successfully sent"
@@ -417,11 +467,6 @@ msgstr "Posta ordinaria"
 #: model:ir.model.fields,field_description:snailmail.field_res_company__snailmail_color
 msgid "Snailmail Color"
 msgstr "Colore posta ordinaria"
-
-#. module: snailmail
-#: model:ir.model.fields,field_description:snailmail.field_res_config_settings__snailmail_cover_readonly
-msgid "Snailmail Cover Readonly"
-msgstr "Copertina posta ordinaria di sola lettura"
 
 #. module: snailmail
 #: model:ir.model.fields.selection,name:snailmail.selection__mail_notification__failure_type__sn_credit
@@ -478,9 +523,19 @@ msgid "Snailmail Trial Error"
 msgstr "Errore nella prova di posta ordinaria"
 
 #. module: snailmail
+#: model:ir.model.fields.selection,name:snailmail.selection__mail_notification__failure_type__sn_undeliverable
+msgid "Snailmail Undeliverable"
+msgstr ""
+
+#. module: snailmail
 #: model:ir.model.fields.selection,name:snailmail.selection__mail_notification__failure_type__sn_error
 msgid "Snailmail Unknown Error"
 msgstr "Errore sconosciuto posta ordinaria"
+
+#. module: snailmail
+#: model:ir.model.fields,field_description:snailmail.field_snailmail_letter__letter_uid
+msgid "Snailmail letter ID"
+msgstr ""
 
 #. module: snailmail
 #: model:ir.model.fields,field_description:snailmail.field_mail_mail__snailmail_error
@@ -548,15 +603,17 @@ msgstr "La nazione del partner non è coperta dalla posta ordinaria."
 #. module: snailmail
 #. odoo-python
 #: code:addons/snailmail/models/snailmail_letter.py:0
-msgid "The document to be sent exceeds the maximum allowed limit of 8 pages."
+msgid ""
+"The document has been accepted by postal service provider and is being "
+"processed.<br>The tracking id is %s"
 msgstr ""
-"Il documento da inviare supera il limite massimo consentito di 8 pagine."
 
 #. module: snailmail
 #. odoo-python
 #: code:addons/snailmail/models/snailmail_letter.py:0
-msgid "The document was correctly sent by post.<br>The tracking id is %s"
-msgstr "Documento inviato correttamente per posta. <br>ID tracciabilità %s"
+msgid "The document to be sent exceeds the maximum allowed limit of 8 pages."
+msgstr ""
+"Il documento da inviare supera il limite massimo consentito di 8 pagine."
 
 #. module: snailmail
 #: model:ir.model.fields,field_description:snailmail.field_mail_mail__message_type
@@ -602,14 +659,12 @@ msgstr ""
 #: model:ir.model.fields,help:snailmail.field_snailmail_letter__state
 msgid ""
 "When a letter is created, the status is 'Pending'.\n"
-"If the letter is correctly sent, the status goes in 'Sent',\n"
-"If not, it will got in state 'Error' and the error message will be displayed "
-"in the field 'Error Message'."
+"If the letter is correctly sent to provider, the status goes in 'process',\n"
+"If the provider confirms the letter is delivered, the status goes in "
+"'Sent'.\n"
+"If not sent or delivered, it will got in state 'Error' and the error message "
+"will be displayed in the field 'Error Message'."
 msgstr ""
-"Quando viene creata una lettera lo stato è \"In attesa\".\n"
-"Se la lettera viene inviata in modo corretto lo stato passa a \"Inviata\".\n"
-"In caso contrario, lo stato diventa \"Errore\" e viene visualizzato un "
-"messaggio nel campo \"Messaggio di errore\"."
 
 #. module: snailmail
 #. odoo-python
@@ -636,109 +691,17 @@ msgstr ""
 msgid "Zip"
 msgstr "CAP"
 
-#~ msgid "Address"
-#~ msgstr "Indirizzo"
-
-#~ msgid "An unknown error occurred. Please contact our"
-#~ msgstr "Si è verificato un errore sconosciuto. Contattare il nostro"
-
-#~ msgid "Buy credits"
-#~ msgstr "Acquista crediti"
-
-#~ msgid "Cancel Letter"
-#~ msgstr "Annulla lettera"
-
-#~ msgid "Cancel letter"
-#~ msgstr "Annulla lettera"
-
-#~ msgid "Cancel notification in failure"
-#~ msgstr "Invalida notifiche di errore"
-
-#~ msgid "Canceled"
-#~ msgstr "Annullata"
-
-#~ msgid "Close"
-#~ msgstr "Chiudi"
-
-#~ msgid "Failed letter"
-#~ msgstr "Errore lettera"
-
-#~ msgid "Format Error Sending a Snailmail Letter"
-#~ msgstr "Errore formato nell'invio di una lettera di posta ordinaria"
+#~ msgid "The document was correctly sent by post.<br>The tracking id is %s"
+#~ msgstr "Documento inviato correttamente per posta. <br>ID tracciabilità %s"
 
 #~ msgid ""
-#~ "Message type: email for email message, notification for system message, "
-#~ "comment for other messages such as user replies"
+#~ "When a letter is created, the status is 'Pending'.\n"
+#~ "If the letter is correctly sent, the status goes in 'Sent',\n"
+#~ "If not, it will got in state 'Error' and the error message will be "
+#~ "displayed in the field 'Error Message'."
 #~ msgstr ""
-#~ "Tipo di messaggio: e-mail per messaggio di posta elettronica, notifica "
-#~ "per messaggio di sistema, commento per altri messaggi come le risposte "
-#~ "dell'utente"
-
-#~ msgid ""
-#~ "Our service cannot read your letter due to its format.<br/>\n"
-#~ "                Please modify the format of the template or update your "
-#~ "settings\n"
-#~ "                to automatically add a blank cover page to all letters."
-#~ msgstr ""
-#~ "Il servizio non riesce a interpretare la lettera a causa del suo formato."
-#~ "<br/>\n"
-#~ "                Modificarlo dal modello o aggiornare le impostazioni per "
-#~ "aggiungere\n"
-#~ "                automaticamente una pagina di copertina vuota a tutte le "
-#~ "lettere."
-
-#~ msgid "Partner"
-#~ msgstr "Partner"
-
-#~ msgid "Re-send letter"
-#~ msgstr "Reinvia lettera"
-
-#~ msgid "Street 2..."
-#~ msgstr "Indirizzo 2…"
-
-#~ msgid "Street..."
-#~ msgstr "Indirizzo…"
-
-#~ msgid ""
-#~ "The country to which you want to send the letter is not supported by our "
-#~ "service."
-#~ msgstr ""
-#~ "La nazione verso la quale si vuole inviare la lettera non è supportata "
-#~ "dal nostro servizio."
-
-#~ msgid ""
-#~ "The customer address is not complete. Update the address here and re-send "
-#~ "the letter."
-#~ msgstr ""
-#~ "L'indirizzo del cliente non è completo, aggiornarlo e reinviare la "
-#~ "lettera."
-
-#~ msgid ""
-#~ "The letter could not be sent due to insufficient credits on your IAP "
-#~ "account."
-#~ msgstr ""
-#~ "Impossibile inviare la lettera, crediti non sufficienti nell'account IAP "
-#~ "(acquisti integrati)."
-
-#~ msgid "Update Config and Re-send"
-#~ msgstr "Aggiorna configurazione e reinvia"
-
-#~ msgid "Update address and re-send"
-#~ msgstr "Aggiorna indirizzo e reinvia"
-
-#~ msgid "Update address of partner"
-#~ msgstr "Aggiornamento indirizzo del partner"
-
-#~ msgid "You need credits on your IAP account to send a letter."
-#~ msgstr ""
-#~ "Per inviare una lettera sono necessari crediti nell'account IAP (acquisti "
-#~ "integrati)."
-
-#~ msgid "ZIP"
-#~ msgstr "CAP"
-
-#~ msgid "for further assistance."
-#~ msgstr "per ulteriore assistenza."
-
-#~ msgid "support"
-#~ msgstr "supporto"
+#~ "Quando viene creata una lettera lo stato è \"In attesa\".\n"
+#~ "Se la lettera viene inviata in modo corretto lo stato passa a "
+#~ "\"Inviata\".\n"
+#~ "In caso contrario, lo stato diventa \"Errore\" e viene visualizzato un "
+#~ "messaggio nel campo \"Messaggio di errore\"."

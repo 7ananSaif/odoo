@@ -7,11 +7,13 @@ class IapService(models.Model):
     _name = 'iap.service'
     _description = 'IAP Service'
 
-    name = fields.Char(required=True)
+    name = fields.Char(required=True, translate=True)
     technical_name = fields.Char(readonly=True, required=True)
     description = fields.Char(required=True, translate=True)
     unit_name = fields.Char(required=True, translate=True)
     integer_balance = fields.Boolean(required=True)
+    price_description = fields.Char(translate=True)
+    pack_ids = fields.One2many('iap.service.pack', 'service_id', string='Service Packs')
 
     _unique_technical_name = models.Constraint(
         'UNIQUE(technical_name)',

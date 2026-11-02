@@ -4,11 +4,13 @@ import {
     focus,
     insertText,
     openDiscuss,
+    openMessagingMenu,
     patchUiSize,
     setupChatHub,
     start,
     startServer,
     triggerHotkey,
+    MENU_ACTIVE_IDS,
 } from "@mail/../tests/mail_test_helpers";
 import { withGuest } from "@mail/../tests/mock_server/mail_mock_server";
 import { describe, test } from "@odoo/hoot";
@@ -36,7 +38,6 @@ test("tab on discuss composer goes to oldest unread livechat", async () => {
                 Command.create({ guest_id: guestId_1, livechat_member_type: "visitor" }),
             ],
             channel_type: "livechat",
-            livechat_operator_id: serverState.partnerId,
             name: "Livechat 1",
         },
         {
@@ -50,7 +51,6 @@ test("tab on discuss composer goes to oldest unread livechat", async () => {
                 Command.create({ guest_id: guestId_2, livechat_member_type: "visitor" }),
             ],
             channel_type: "livechat",
-            livechat_operator_id: serverState.partnerId,
             name: "Livechat 2",
         },
         {
@@ -64,7 +64,6 @@ test("tab on discuss composer goes to oldest unread livechat", async () => {
                 Command.create({ guest_id: guestId_3, livechat_member_type: "visitor" }),
             ],
             channel_type: "livechat",
-            livechat_operator_id: serverState.partnerId,
             name: "Livechat 3",
         },
     ]);
@@ -84,16 +83,29 @@ test("tab on discuss composer goes to oldest unread livechat", async () => {
     ]);
     await start();
     await openDiscuss(channelIds[0]);
-    await contains(".o-mail-DiscussSidebarChannel.o-active", { text: "Visitor 11" });
+    await contains(".o-mail-NotificationItem.o-active:has(:text('Visitor 11'))");
+    await contains(
+        ".o-mail-NotificationItem:has(:text('Visitor 13')) .o-mail-NotificationItem-counter:text(1)"
+    );
+    await contains(".o-mail-Composer-input[placeholder='Tab to next live chat']");
     await focus(".o-mail-Composer-input");
-    await contains(".o-mail-Composer-input[placeholder='Tab to next livechat']");
-    await contains(".o-active .o-mail-DiscussSidebar-badge", { count: 0 });
     triggerHotkey("Tab");
-    await contains(".o-mail-DiscussSidebarChannel.o-active", { text: "Visitor 13" });
+    await contains(
+        ".o-mail-NotificationItem:has(:text('Visitor 13')) .o-mail-NotificationItem-counter:text(1)",
+        { count: 0 }
+    );
+    await contains(".o-mail-NotificationItem.o-active:has(:text('Visitor 13'))");
+    await contains(
+        ".o-mail-NotificationItem:has(:text('Visitor 12')) .o-mail-NotificationItem-counter:text(1)"
+    );
+    await contains(".o-mail-Composer-input[placeholder='Tab to next live chat']");
     await focus(".o-mail-Composer-input");
-    await contains(".o-active .o-mail-DiscussSidebar-badge", { count: 0 });
     triggerHotkey("Tab");
-    await contains(".o-mail-DiscussSidebarChannel.o-active", { text: "Visitor 12" });
+    await contains(
+        ".o-mail-NotificationItem:has(:text('Visitor 12')) .o-mail-NotificationItem-counter:text(1)",
+        { count: 0 }
+    );
+    await contains(".o-mail-NotificationItem.o-active:has(:text('Visitor 12'))");
 });
 
 test.tags("focus required");
@@ -123,7 +135,6 @@ test("Tab livechat picks ended livechats last", async () => {
                 Command.create({ guest_id: guestId, livechat_member_type: "visitor" }),
             ],
             livechat_channel_id: livechatChannelId,
-            livechat_operator_id: serverState.partnerId,
             create_uid: serverState.publicUserId,
         }))
     );
@@ -147,7 +158,7 @@ test("Tab livechat picks ended livechats last", async () => {
     patchUiSize({ width: 1920 });
     setupChatHub({ folded: [channelIds[0], channelIds[1], channelIds[2], channelIds[3]] });
     await start();
-    await click(".o_menu_systray i[aria-label='Messages']");
+    await openMessagingMenu(MENU_ACTIVE_IDS.LIVECHAT);
     await click(".o-mail-NotificationItem", { text: "Visitor 4" });
     await contains(".o-mail-ChatWindow:contains('Visitor 4') .o-mail-Message:contains('Hello')");
     await contains(".o-mail-ChatWindow:contains('Visitor 4') .o-mail-Composer.o-focused");
@@ -233,7 +244,7 @@ test("Tab livechat picks ended livechats last", async () => {
     await contains(".o-mail-ChatWindow:contains('Visitor 0') .badge", { count: 0 });
     await press("Tab");
     await contains(".o-mail-ChatWindow:contains('Visitor 1') .o-mail-Message:contains('Hello')");
-    await contains("span", { text: "This livechat conversation has ended." });
+    await contains("span", { text: "This live chat conversation has ended." });
 });
 
 test.tags("focus required");
@@ -251,7 +262,6 @@ test("switching to folded chat window unfolds it", async () => {
                 Command.create({ guest_id: guestId_1, livechat_member_type: "visitor" }),
             ],
             channel_type: "livechat",
-            livechat_operator_id: serverState.partnerId,
             name: "Livechat 1",
         },
         {
@@ -264,7 +274,6 @@ test("switching to folded chat window unfolds it", async () => {
                 Command.create({ guest_id: guestId_2, livechat_member_type: "visitor" }),
             ],
             channel_type: "livechat",
-            livechat_operator_id: serverState.partnerId,
             name: "Livechat 2",
         },
     ]);
@@ -304,7 +313,6 @@ test("switching to hidden chat window unhides it", async () => {
                 Command.create({ guest_id: guestId_1, livechat_member_type: "visitor" }),
             ],
             channel_type: "livechat",
-            livechat_operator_id: serverState.partnerId,
             name: "Livechat 1",
         },
         {
@@ -317,7 +325,6 @@ test("switching to hidden chat window unhides it", async () => {
                 Command.create({ guest_id: guestId_2, livechat_member_type: "visitor" }),
             ],
             channel_type: "livechat",
-            livechat_operator_id: serverState.partnerId,
             name: "Livechat 2",
         },
         { name: "general" },
@@ -359,7 +366,6 @@ test("tab on composer doesn't switch thread if user is typing", async () => {
                 Command.create({ guest_id: guestId_1, livechat_member_type: "visitor" }),
             ],
             channel_type: "livechat",
-            livechat_operator_id: serverState.partnerId,
             name: "Livechat 1",
         },
         {
@@ -373,7 +379,6 @@ test("tab on composer doesn't switch thread if user is typing", async () => {
                 Command.create({ guest_id: guestId_2, livechat_member_type: "visitor" }),
             ],
             channel_type: "livechat",
-            livechat_operator_id: serverState.partnerId,
             name: "Livechat 2",
         },
     ]);
@@ -381,7 +386,7 @@ test("tab on composer doesn't switch thread if user is typing", async () => {
     await openDiscuss(channelIds[0]);
     await insertText(".o-mail-Composer-input", "Hello, ");
     triggerHotkey("Tab");
-    await contains(".o-mail-DiscussSidebarChannel.o-active", { text: "Visitor 11" });
+    await contains(".o-mail-NotificationItem.o-active", { text: "Visitor 11" });
 });
 
 test("tab on composer doesn't switch thread if no unread thread", async () => {
@@ -398,7 +403,6 @@ test("tab on composer doesn't switch thread if no unread thread", async () => {
                 Command.create({ guest_id: guestId_1, livechat_member_type: "visitor" }),
             ],
             channel_type: "livechat",
-            livechat_operator_id: serverState.partnerId,
             name: "Livechat 1",
         },
         {
@@ -410,7 +414,6 @@ test("tab on composer doesn't switch thread if no unread thread", async () => {
                 Command.create({ guest_id: guestId_2, livechat_member_type: "visitor" }),
             ],
             channel_type: "livechat",
-            livechat_operator_id: serverState.partnerId,
             name: "Livechat 2",
         },
     ]);
@@ -418,5 +421,5 @@ test("tab on composer doesn't switch thread if no unread thread", async () => {
     await openDiscuss(channelIds[0]);
     await focus(".o-mail-Composer-input");
     triggerHotkey("Tab");
-    await contains(".o-mail-DiscussSidebarChannel.o-active", { text: "Visitor 11" });
+    await contains(".o-mail-NotificationItem.o-active", { text: "Visitor 11" });
 });

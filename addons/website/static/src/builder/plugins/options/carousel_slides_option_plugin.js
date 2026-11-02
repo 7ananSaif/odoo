@@ -1,27 +1,27 @@
 import { BuilderAction } from "@html_builder/core/builder_action";
-import { BaseOptionComponent } from "@html_builder/core/utils";
-import { SNIPPET_SPECIFIC_END } from "@html_builder/utils/option_sequence";
 import { Plugin } from "@html_editor/plugin";
-import { withSequence } from "@html_editor/utils/resource";
 import { registry } from "@web/core/registry";
-
-export class CarouselSlidesOption extends BaseOptionComponent {
-    static template = "website.CarouselSlidesOption";
-    static selector = ".carousel .carousel-item";
-    static exclude = ".s_image_gallery .carousel-item";
-}
 
 export class CarouselSlidesOptionPlugin extends Plugin {
     static id = "carouselSlidesOption";
     /** @type {import("plugins").WebsiteResources} */
     resources = {
-        builder_options: [withSequence(SNIPPET_SPECIFIC_END, CarouselSlidesOption)],
         builder_actions: {
             MakeSlideClickableAction,
             SetSlideAnchorUrlAction,
         },
-        clean_for_save_handlers: this.cleanForSave.bind(this),
-        legit_empty_link_predicates: (linkEl) => linkEl.matches(".carousel-item a.slide-link"),
+        clean_for_save_processors: this.cleanForSave.bind(this),
+        is_empty_link_legit_predicates: (linkEl) => {
+            if (linkEl.matches(".carousel-item a.slide-link")) {
+                return true;
+            }
+        },
+        should_show_overlay_buttons_of_ancestor_predicates: (el) => {
+            if (el.matches("div.carousel-item")) {
+                return true;
+            }
+        },
+        anchor_excluded_selectors: ".carousel *",
     };
 
     /**
@@ -34,17 +34,18 @@ export class CarouselSlidesOptionPlugin extends Plugin {
      *
      * @param {HTMLElement} root
      */
-    cleanForSave({ root }) {
+    cleanForSave(root) {
         const noLinkSlideEls = root.querySelectorAll(
             ".carousel-item.clickable-slide:not(:has(.slide-link))"
         );
         for (const slideEl of noLinkSlideEls) {
             slideEl.classList.remove("clickable-slide");
         }
+        return root;
     }
 }
 
-class MakeSlideClickableAction extends BuilderAction {
+export class MakeSlideClickableAction extends BuilderAction {
     static id = "makeSlideClickable";
     setup() {
         this.preview = false;
@@ -60,7 +61,7 @@ class MakeSlideClickableAction extends BuilderAction {
  * Custom action to add, update, or remove a slide-link for clickable carousel
  * slides.
  */
-class SetSlideAnchorUrlAction extends BuilderAction {
+export class SetSlideAnchorUrlAction extends BuilderAction {
     static id = "setSlideAnchorUrl";
     setup() {
         this.preview = false;
@@ -70,7 +71,7 @@ class SetSlideAnchorUrlAction extends BuilderAction {
         const linkEl = editingElement.querySelector("a.slide-link");
 
         if (!url) {
-            linkEl.remove();
+            linkEl?.remove();
             return;
         }
         if (linkEl) {

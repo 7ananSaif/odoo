@@ -1,33 +1,24 @@
 import { registry } from "@web/core/registry";
 import { Plugin } from "@html_editor/plugin";
 import { loadImageInfo } from "@html_editor/utils/image_processing";
-import { ImageGalleryComponent } from "./image_gallery_option";
-import { renderToElement } from "@web/core/utils/render";
 import { updateCarouselIndicators } from "../carousel_option_plugin";
 import { BuilderAction } from "@html_builder/core/builder_action";
 import { hasMediaOnly, isMediaElement } from "@html_editor/utils/dom_info";
 import { selectElements } from "@html_editor/utils/dom_traversal";
-import { withSequence } from "@html_editor/utils/resource";
-import { SNIPPET_SPECIFIC, SNIPPET_SPECIFIC_END } from "@html_builder/utils/option_sequence";
-import { BaseOptionComponent } from "@html_builder/core/utils";
 import { forwardToThumbnail } from "@html_builder/utils/utils_css";
+import { ClassAction } from "@html_builder/core/core_builder_action_plugin";
 import { uuid } from "@web/core/utils/strings";
 
 /**
  * @typedef { Object } ImageGalleryOptionShared
- * @property { ImageGalleryOption['getColumns'] } getColumns
- * @property { ImageGalleryOption['getMode'] } getMode
- * @property { ImageGalleryOption['processImage'] } processImage
- * @property { ImageGalleryOption['restoreSelection'] } restoreSelection
- * @property { ImageGalleryOption['setImages'] } setImages
+ * @property { ImageGalleryOptionPlugin['getColumns'] } getColumns
+ * @property { ImageGalleryOptionPlugin['getMode'] } getMode
+ * @property { ImageGalleryOptionPlugin['processImage'] } processImage
+ * @property { ImageGalleryOptionPlugin['restoreSelection'] } restoreSelection
+ * @property { ImageGalleryOptionPlugin['setImages'] } setImages
  */
 
-export class ImageGalleryImagesOption extends BaseOptionComponent {
-    static template = "website.ImageGalleryImagesOption";
-    static selector = ".s_image_gallery";
-}
-
-class ImageGalleryOption extends Plugin {
+export class ImageGalleryOptionPlugin extends Plugin {
     static id = "imageGalleryOption";
     static dependencies = [
         "media",
@@ -37,37 +28,29 @@ class ImageGalleryOption extends Plugin {
         "selection",
         "builderOptions",
         "imagePostProcess",
+        "websiteBridge",
     ];
     static shared = ["processImages", "getMode", "setImages", "restoreSelection", "getColumns"];
     /** @type {import("plugins").WebsiteResources} */
     resources = {
-        builder_options: [
-            withSequence(SNIPPET_SPECIFIC, ImageGalleryImagesOption),
-            withSequence(SNIPPET_SPECIFIC_END, ImageGalleryComponent),
-        ],
         builder_actions: {
             AddImageAction,
             RemoveAllImagesAction,
             SetImageGalleryLayoutAction,
             SetImageGalleryColumnsAction,
-            SetCarouselSpeedAction,
+            IndicatorsStyleClassAction,
         },
         system_classes: ["o_empty_gallery_alert"],
-        get_gallery_items_handlers: this.getGalleryItems.bind(this),
-        reorder_items_handlers: this.reorderGalleryItems.bind(this),
+        gallery_items_providers: this.getGalleryItems.bind(this),
+        reorder_items_processors: this.reorderGalleryItems.bind(this),
         on_will_remove_handlers: this.onWillRemove.bind(this),
         on_removed_handlers: this.onRemoved.bind(this),
-        on_replaced_media_handlers: ({ newMediaEl }) => this.updateCarouselThumbnail(newMediaEl),
+        clean_for_save_processors: this.cleanForSave.bind(this),
+        on_media_replaced_handlers: ({ newMediaEl }) => this.updateCarouselThumbnail(newMediaEl),
         on_image_updated_handlers: ({ imageEl }) => this.updateCarouselThumbnail(imageEl),
         on_image_saved_handlers: ({ imageEl }) => this.updateCarouselThumbnail(imageEl),
         on_snippet_dropped_handlers: ({ snippetEl }) => {
             const carousels = snippetEl.querySelectorAll(".s_image_gallery .carousel");
-            for (const carousel of carousels) {
-                // TODO: Remove in master. This should be replaced with a simple
-                // `style="margin: 0 12px;"` in the snippet template, similar to
-                // the one used for building carousel items.
-                carousel.style.margin = "0 12px";
-            }
             this.addCarouselListener(carousels);
             this.addUniqueIds(carousels);
         },
@@ -80,7 +63,7 @@ class ImageGalleryOption extends Plugin {
         // versions).
         content_editable_providers: this.getContentEditableEls.bind(this),
         content_not_editable_providers: this.getContentNotEditableEls.bind(this),
-        dropzone_selector: {
+        dropzone_selectors: {
             selector: ".s_image_gallery .row > div",
             dropNear: ".s_image_gallery .row > div",
             dropLockWithin: ".s_image_gallery",
@@ -167,6 +150,7 @@ class ImageGalleryOption extends Plugin {
                 this.dependencies.builderOptions.setNextTarget(activeImageEl);
             }
         }
+        return activeItemEl;
     }
 
     /**
@@ -298,27 +282,38 @@ class ImageGalleryOption extends Plugin {
         });
 
         const images = imagesData.map((data) => data.imgEl);
-        const slideshowEl = renderToElement("website.s_image_gallery_slideshow", {
-            images: images,
-            index: 0,
-            interval: currentInterval || 0,
-            ride: !currentInterval ? "false" : "carousel",
-            id: "slideshow_" + new Date().getTime(),
-            colorContrast,
-            copyAttributes: true,
-        });
+        const slideshowEl = this.dependencies.websiteBridge.renderToElement(
+            "website.s_image_gallery_slideshow",
+            {
+                images: images,
+                index: 0,
+                interval: currentInterval || 0,
+                ride: !currentInterval ? "false" : "carousel",
+                id: "slideshow_" + new Date().getTime(),
+                colorContrast,
+                copyAttributes: true,
+                getIndicatorLabel: (itemPosition, total) =>
+                    this.dependencies.websiteBridge._t("Slide %(itemPosition)s of %(total)s", {
+                        itemPosition,
+                        total,
+                    }),
+                hasPauseBtn: carouselEl.classList.contains("o_carousel_pause_btn_hidden"),
+            }
+        );
         if (carouselEl) {
             carouselEl.removeEventListener("slid.bs.carousel", this.onCarouselSlid);
         }
         container.replaceChildren(slideshowEl);
-        slideshowEl.querySelectorAll("img").forEach((img, index) => {
-            img.setAttribute("data-index", index);
-            if (imagesData[index]?.linkEl) {
-                const linkEl = imagesData[index].linkEl.cloneNode(false);
-                img.before(linkEl);
-                linkEl.append(img);
-            }
-        });
+        slideshowEl
+            .querySelectorAll("img:not(.o_carousel_controllers img)")
+            .forEach((img, index) => {
+                img.setAttribute("data-index", index);
+                if (imagesData[index]?.linkEl) {
+                    const linkEl = imagesData[index].linkEl.cloneNode(false);
+                    img.before(linkEl);
+                    linkEl.append(img);
+                }
+            });
         if (images.length) {
             slideshowEl
                 .querySelector(".carousel .o_carousel_controllers")
@@ -429,7 +424,7 @@ class ImageGalleryOption extends Plugin {
     }
 
     getImages(currentContainer) {
-        const imgs = currentContainer.querySelectorAll("img");
+        const imgs = currentContainer.querySelectorAll("img:not(.o_carousel_controllers img)");
         return [...imgs].sort((imgA, imgB) => this.getIndex(imgA) - this.getIndex(imgB));
     }
 
@@ -455,7 +450,7 @@ class ImageGalleryOption extends Plugin {
     onWillRemove(toRemoveEl) {
         // If the removed element is an image from a gallery, store the gallery
         // element for `onRemoved`.
-        if (toRemoveEl.matches(".s_image_gallery img")) {
+        if (toRemoveEl.matches(".s_image_gallery img:not(.o_carousel_controllers img)")) {
             this.imageRemovedGalleryElement = toRemoveEl.closest(".s_image_gallery");
         }
     }
@@ -471,6 +466,19 @@ class ImageGalleryOption extends Plugin {
         }
     }
 
+    cleanForSave(rootEl) {
+        // A gallery emptied through "Remove all" is kept during edition (to let
+        // the user add media back) but must not be saved as an empty snippet.
+        const mediaSelector =
+            "img, a.o_link_readonly, span.oi.object-fit-cover, div.media_iframe_video";
+        for (const galleryEl of rootEl.querySelectorAll(".s_image_gallery")) {
+            if (!galleryEl.querySelector(mediaSelector)) {
+                galleryEl.remove();
+            }
+        }
+        return rootEl;
+    }
+
     updateCarouselThumbnail(mediaEl) {
         if (mediaEl.matches(".s_image_gallery img")) {
             forwardToThumbnail(mediaEl);
@@ -483,7 +491,9 @@ class ImageGalleryOption extends Plugin {
 
     getContentEditableEls(rootEl) {
         return [...selectElements(rootEl, ".s_image_gallery *")].filter(
-            (el) => isMediaElement(el) || el.tagName === "IMG"
+            (el) =>
+                !el.closest(".o_carousel_controllers") &&
+                (isMediaElement(el) || el.tagName === "IMG")
         );
     }
 
@@ -500,29 +510,29 @@ class ImageGalleryOption extends Plugin {
 export class AddImageAction extends BuilderAction {
     static id = "addImage";
     static dependencies = ["media", "imageGalleryOption"];
-    async load({ editingElement }) {
-        let selectedImages;
-        await new Promise((resolve) => {
-            const onClose = this.dependencies.media.openMediaDialog({
-                onlyImages: true,
-                multiImages: true,
-                save: (images) => {
-                    selectedImages = images;
-                    resolve();
-                },
-            });
-            onClose.then(resolve);
-        });
-        if (!selectedImages) {
-            return [];
-        }
-        return this.dependencies.imageGalleryOption.processImages(editingElement, selectedImages);
+    setup() {
+        this.canTimeout = false;
     }
-    apply({ editingElement, loadResult: { images } }) {
-        if (images && images.length) {
-            const mode = this.dependencies.imageGalleryOption.getMode(editingElement);
-            this.dependencies.imageGalleryOption.setImages(editingElement, mode, images);
-        }
+    async apply({ editingElement }) {
+        await this.dependencies.media.openMediaDialog({
+            onlyImages: true,
+            multiImages: true,
+            save: async (images) => {
+                const { images: processedImages } =
+                    await this.dependencies.imageGalleryOption.processImages(
+                        editingElement,
+                        images
+                    );
+                if (processedImages && processedImages.length) {
+                    const mode = this.dependencies.imageGalleryOption.getMode(editingElement);
+                    this.dependencies.imageGalleryOption.setImages(
+                        editingElement,
+                        mode,
+                        processedImages
+                    );
+                }
+            },
+        });
     }
 }
 export class RemoveAllImagesAction extends BuilderAction {
@@ -577,14 +587,25 @@ export class SetImageGalleryColumnsAction extends BuilderAction {
     }
 }
 
-export class SetCarouselSpeedAction extends BuilderAction {
-    static id = "setCarouselSpeed";
-    apply({ editingElement, value }) {
-        editingElement.dataset.bsInterval = value * 1000;
-    }
-    getValue({ editingElement }) {
-        return editingElement.dataset.bsInterval / 1000;
+export class IndicatorsStyleClassAction extends ClassAction {
+    static id = "indicatorsStyle";
+    apply({ editingElement, params: { mainParam: className } }) {
+        super.apply(...arguments);
+        if (editingElement.matches(".s_image_gallery_indicators_outline")) {
+            // Remove the outline helper when the chosen indicator style no
+            // longer offers that option.
+            if (
+                ![
+                    "s_image_gallery_indicators_squared",
+                    "s_image_gallery_indicators_rounded",
+                ].includes(className)
+            ) {
+                editingElement.classList.remove("s_image_gallery_indicators_outline");
+            }
+        }
     }
 }
 
-registry.category("website-plugins").add(ImageGalleryOption.id, ImageGalleryOption);
+registry.category("website-plugins").add(ImageGalleryOptionPlugin.id, ImageGalleryOptionPlugin);
+// Add it to translation plugins for the thumbnails update.
+registry.category("translation-plugins").add(ImageGalleryOptionPlugin.id, ImageGalleryOptionPlugin);

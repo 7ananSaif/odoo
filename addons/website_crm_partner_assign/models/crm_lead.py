@@ -6,13 +6,14 @@ from markupsafe import Markup
 
 from odoo import api, fields, models, _
 from odoo.exceptions import AccessDenied, AccessError, UserError
+from odoo.fields import Domain
 
 
 class CrmLead(models.Model):
     _inherit = "crm.lead"
 
-    partner_latitude = fields.Float('Geo Latitude', digits=(10, 7))
-    partner_longitude = fields.Float('Geo Longitude', digits=(10, 7))
+    partner_latitude = fields.Float('Latitude', digits=(10, 7))
+    partner_longitude = fields.Float('Longitude', digits=(10, 7))
     partner_assigned_id = fields.Many2one('res.partner', 'Assigned Partner', tracking=True, domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]", index='btree_not_null')
     partner_declined_ids = fields.Many2many(
         'res.partner',
@@ -42,9 +43,15 @@ class CrmLead(models.Model):
 
     def _get_partner_email_update(self, force_void=True):
         self.ensure_one()
-        if self.env.user._is_portal() and self.partner_id.user_id:
+        if 'lead_no_partner_update' in self.env.context:
             return False
         return super()._get_partner_email_update(force_void)
+
+    def _get_partner_phone_update(self, force_void=True):
+        self.ensure_one()
+        if 'lead_no_partner_update' in self.env.context:
+            return False
+        return super()._get_partner_phone_update(force_void)
 
     def write(self, vals):
         if self.env.user._is_portal() and not self.env.su:
@@ -128,8 +135,8 @@ class CrmLead(models.Model):
                     })
         return True
 
-    def _prepare_customer_values(self, partner_name, is_company=False, parent_id=False):
-        res = super()._prepare_customer_values(partner_name, is_company=is_company, parent_id=parent_id)
+    def _prepare_customer_values(self, partner_name, parent_id=False):
+        res = super()._prepare_customer_values(partner_name, parent_id=parent_id)
         res.update({
             'partner_latitude': self.partner_latitude,
             'partner_longitude': self.partner_longitude,
@@ -282,7 +289,7 @@ class CrmLead(models.Model):
             'city', 'zip', 'state_id', 'country_id']
         if any([key not in fields for key in values]):
             raise UserError(_("Not allowed to update the following field(s): %s.", ", ".join([key for key in values if not key in fields])))
-        return self.sudo().write(values)
+        return self.sudo().with_context(lead_no_partner_update=True).write(values)
 
     def update_stage_from_portal(self, stage_id):
         """ Allow portal users to update the stage of their assigned leads """
@@ -352,9 +359,10 @@ class CrmLead(models.Model):
         # Allow readonly posting for assigned users, to avoid ACLs issue in frontend
         # as they do not have write access anymore on the lead itself, just specific
         # controllers and UI
-        assigned = self.filtered_domain([
-            ('partner_assigned_id', 'child_of', self.env.user.commercial_partner_id.id),
-        ]) if message_operation == "create" else self.browse()
-        result = super()._mail_get_operation_for_mail_message_operation(message_operation)
-        result.update(dict.fromkeys(assigned, 'read'))
-        return result
+        operations = super()._mail_get_operation_for_mail_message_operation(message_operation)
+        if message_operation == 'create':
+            return (
+                (Domain('partner_assigned_id', 'child_of', self.env.user.commercial_partner_id.id), 'read'),
+                *operations,
+            )
+        return operations

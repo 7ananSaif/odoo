@@ -5,14 +5,14 @@ export class AvatarUserFormViewDialog extends FormViewDialog {
     setup() {
         super.setup();
         Object.assign(this.viewProps, {
-            buttonTemplate: this.props.isToMany
+            buttonDialogTemplate: this.props.isToMany
                 ? "mail.UserFormViewDialog.ToMany.buttons"
                 : "mail.UserFormViewDialog.ToOne.buttons",
         });
 
         onMounted(() => {
             setTimeout(() => {
-                const input = this.modalRef.el.querySelector("#name_0");
+                const input = this.modalRef().querySelector("#name_0");
                 if (input) {
                     input.focus();
                 }

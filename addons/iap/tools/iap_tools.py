@@ -5,7 +5,8 @@ import logging
 import requests
 import uuid
 
-from odoo import exceptions, modules, _
+from odoo import modules, _
+from odoo.exceptions import UserError
 from odoo.tools import email_normalize, exception_to_unicode
 
 _logger = logging.getLogger(__name__)
@@ -41,7 +42,7 @@ _MAIL_PROVIDERS = {
     'asterisk-tech.mn', 'in.com', 'aliceadsl.fr', 'lycos.com', 'topnet.tn', 'teleworm.us', 'kedgebs.com', 'supinfo.com', 'posteo.de',
     'yahoo.com ', 'op.pl', 'gmail.fr', 'grr.la', 'oci.fr', 'aselcis.com', 'optusnet.com.au', 'mailcatch.com', 'rambler.ru', 'protonmail.ch',
     'prisme.ch', 'bbox.fr', 'orbitalu.com', 'netcourrier.com', 'iinet.net.au', 'cegetel.net', 'proton.me', 'dbmail.com', 'club-internet.fr', 'outlook.jp',
-    'eim.ae', 'pm.me',
+    'eim.ae', 'pm.me', 'ik.me', 'etik.com', 'ikmail.com',
     # Dummy entries
     'example.com',
 }
@@ -87,7 +88,7 @@ def mail_prepare_for_domain_search(email, min_email_length=0):
 
 
 def iap_get_endpoint(env):
-    url = env['ir.config_parameter'].sudo().get_param('iap.endpoint', DEFAULT_ENDPOINT)
+    url = env['ir.config_parameter'].sudo().get_str('iap.endpoint') or DEFAULT_ENDPOINT
     return url
 
 
@@ -95,18 +96,43 @@ class InsufficientCreditError(Exception):
     pass
 
 
-class IAPServerError(Exception):
+class IAPServerError(requests.HTTPError):
+    # We extend HTTPError as it is a subclass of RequestException, it makes error handling on the caller side easier
     pass
 
 
-def iap_jsonrpc(url, method='call', params=None, timeout=15):
+def iap_jsonrpc(url, method='call', params=None, timeout=15, raise_user_error=False):
     """
     Calls the provided JSON-RPC endpoint, unwraps the result and
     returns JSON-RPC errors as exceptions.
+    :param string url: URL to call
+    :param string method: JSON-RPC method to call
+    :param dict params: params to pass to the JSON-RPC call
+    :param int timeout: Timeout in seconds to wait for a response
+    :param bool raise_user_error: Raises a generic UserError exception if an error occurs
+        Useful if you don't want to handle the exception yourself and just want to show a generic message to the user
+    :raise: UserError in case of an error during the request and raise_user_error is True
+    :raise: requests.RequestException in case of an error during the request and raise_user_error is False
+    :raise: InsufficientCreditError in case of insufficient IAP credits
     """
     if modules.module.current_test:
-        raise exceptions.AccessError("Unavailable during tests.")  # pylint: disable=missing-gettext
+        if raise_user_error:
+            raise UserError("Unavailable during tests.")  # pylint: disable=missing-gettext
+        else:
+            raise IAPServerError("Unavailable during tests.")
 
+    try:
+        return _iap_jsonrpc(url, method, params, timeout)
+    except InsufficientCreditError:
+        raise
+    except Exception as e:
+        if raise_user_error:
+            raise UserError(_("An error occurred while reaching %s. Please contact Odoo support if this error persists.", url)) from e
+        else:
+            raise
+
+
+def _iap_jsonrpc(url, method, params, timeout):
     payload = {
         'jsonrpc': '2.0',
         'method': method,
@@ -127,15 +153,12 @@ def iap_jsonrpc(url, method='call', params=None, timeout=15):
                 credit_error.data = response['error']['data']
                 raise credit_error
             else:
+                _logger.warning("iap jsonrpc %s failed, an error occurred on the IAP server")
                 raise IAPServerError("An error occurred on the IAP server")
         return response.get('result')
-    except requests.exceptions.Timeout:
+    except requests.Timeout:
         _logger.warning("iap jsonrpc %s timed out", url)
-        raise exceptions.AccessError(
-            _('The request to the service timed out. Please contact the author of the app. The URL it tried to contact was %s', url)
-        )
-    except (requests.exceptions.RequestException, IAPServerError) as e:
+        raise
+    except requests.RequestException as e:
         _logger.warning("iap jsonrpc %s failed, %s: %s", url, e.__class__.__name__, exception_to_unicode(e))
-        raise exceptions.AccessError(
-            _("An error occurred while reaching %s. Please contact Odoo support if this error persists.", url)
-        )
+        raise

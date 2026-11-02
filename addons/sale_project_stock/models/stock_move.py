@@ -1,6 +1,6 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import fields, models
+from odoo import models
 from odoo.tools import float_is_zero
 
 
@@ -13,11 +13,11 @@ class StockMove(models.Model):
         """
         self.ensure_one()
 
-        if self.product_id.expense_policy == 'sales_price':
+        if self.product_id.reinvoice_policy == 'sales_price':
             return order.pricelist_id._get_product_price(
                 self.product_id,
                 1.0,
-                uom=self.product_uom,
+                uom=self.uom_id,
                 date=order.date_order,
             )
 
@@ -33,7 +33,7 @@ class StockMove(models.Model):
 
         currency_id = self.company_id.currency_id
         if currency_id and currency_id != order.currency_id:
-            price_unit = currency_id._convert(price_unit, order.currency_id, order.company_id, order.date_order or fields.Date.today())
+            price_unit = currency_id._convert(price_unit, order.currency_id, order.company_id, order.date_order)
         return price_unit
 
     def _sale_prepare_sale_line_values(self, order, price, last_sequence):
@@ -58,10 +58,10 @@ class StockMove(models.Model):
         }
 
     def _get_new_picking_values(self):
-        return {
-            **super()._get_new_picking_values(),
-            'project_id': self.sale_line_id.order_id.project_id.id,
-        }
+        vals = super()._get_new_picking_values()
+        if not vals.get('project_id') and self.sale_line_id.order_id.project_id:
+            vals['project_id'] = self.sale_line_id.order_id.project_id.id
+        return vals
 
     def _assign_picking_values(self, picking):
         return {

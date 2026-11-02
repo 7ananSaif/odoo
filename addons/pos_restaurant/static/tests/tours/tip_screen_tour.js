@@ -3,12 +3,15 @@ import * as ProductScreenResto from "@pos_restaurant/../tests/tours/utils/produc
 const ProductScreen = { ...ProductScreenPos, ...ProductScreenResto };
 import * as Dialog from "@point_of_sale/../tests/generic_helpers/dialog_util";
 import * as PaymentScreen from "@point_of_sale/../tests/pos/tours/utils/payment_screen_util";
-import * as ReceiptScreen from "@point_of_sale/../tests/pos/tours/utils/receipt_screen_util";
+import * as FeedbackScreen from "@point_of_sale/../tests/pos/tours/utils/feedback_screen_util";
 import * as FloorScreen from "@pos_restaurant/../tests/tours/utils/floor_screen_util";
 import * as TicketScreen from "@point_of_sale/../tests/pos/tours/utils/ticket_screen_util";
-import * as TipScreen from "@pos_restaurant/../tests/tours/utils/tip_screen_util";
+import * as TipScreen from "@point_of_sale/../tests/pos/tours/utils/tip_screen_util";
 import * as NumberPopup from "@point_of_sale/../tests/generic_helpers/number_popup_util";
-import * as Chrome from "@point_of_sale/../tests/pos/tours/utils/chrome_util";
+import * as ChromePos from "@point_of_sale/../tests/pos/tours/utils/chrome_util";
+import * as ChromeRestaurant from "@pos_restaurant/../tests/tours/utils/chrome";
+import { negateStep } from "@point_of_sale/../tests/generic_helpers/utils";
+const Chrome = { ...ChromePos, ...ChromeRestaurant };
 import { registry } from "@web/core/registry";
 
 registry.category("web_tour.tours").add("PosResTipScreenTour", {
@@ -26,10 +29,10 @@ registry.category("web_tour.tours").add("PosResTipScreenTour", {
             FloorScreen.clickTable("2"),
             ProductScreen.totalAmountIs("2.0"),
             ProductScreen.clickPayButton(false),
-            ProductScreen.discardOrderWarningDialog(),
             PaymentScreen.clickPaymentMethod("Bank"),
             PaymentScreen.clickPaymentMethod("Bank"),
             PaymentScreen.clickValidate(),
+            Chrome.closePrintingWarning(),
             TipScreen.isShown(),
             Chrome.clickPlanButton(),
             FloorScreen.clickTable("4"),
@@ -50,16 +53,16 @@ registry.category("web_tour.tours").add("PosResTipScreenTour", {
             ProductScreen.addOrderline("Minute Maid", "3", "2"),
             ProductScreen.totalAmountIs("6.0"),
             ProductScreen.clickPayButton(false),
-            ProductScreen.discardOrderWarningDialog(),
             PaymentScreen.clickPaymentMethod("Bank"),
             PaymentScreen.clickValidate(),
+            Chrome.closePrintingWarning(),
             TipScreen.isShown(),
             Chrome.clickPlanButton(),
             FloorScreen.clickNewOrder(),
             // order 4
             ProductScreen.addOrderline("Coca-Cola", "4", "2"),
             ProductScreen.totalAmountIs("8.0"),
-            ProductScreen.clickControlButton("Guests"),
+            ProductScreen.clickControlButton("Guest"),
             NumberPopup.enterValue("2"),
             NumberPopup.isShown("2"),
             Dialog.confirm(),
@@ -108,16 +111,16 @@ registry.category("web_tour.tours").add("PosResTipScreenTour", {
             ProductScreen.guestNumberIs("2"),
             ProductScreen.clickCloseButton(),
             ProductScreen.clickPayButton(false),
-            ProductScreen.discardOrderWarningDialog(),
             PaymentScreen.clickPaymentMethod("Bank"),
             PaymentScreen.clickValidate(),
+            Chrome.closePrintingWarning(),
             TipScreen.isShown(),
             TipScreen.totalAmountIs("8.0"),
             TipScreen.percentAmountIs("15%", "1.20"),
             TipScreen.percentAmountIs("20%", "1.60"),
             TipScreen.percentAmountIs("25%", "2.00"),
-            TipScreen.setCustomTip("1.00"),
-            TipScreen.inputAmountIs("1.00"),
+            TipScreen.setCustomTip(1.0),
+            TipScreen.inputAmountIs(1.0),
             Chrome.clickPlanButton(),
             FloorScreen.isShown(),
 
@@ -135,7 +138,6 @@ registry.category("web_tour.tours").add("PosResTipScreenTour", {
             TicketScreen.selectOrderByPrice("4.0"),
             TicketScreen.loadSelectedOrder(),
             ProductScreen.clickPayButton(false),
-            ProductScreen.discardOrderWarningDialog(),
             PaymentScreen.clickTipButton(),
 
             NumberPopup.enterValue("1"),
@@ -144,67 +146,77 @@ registry.category("web_tour.tours").add("PosResTipScreenTour", {
             PaymentScreen.emptyPaymentlines("5.0"),
             PaymentScreen.clickPaymentMethod("Cash"),
             PaymentScreen.clickValidate(),
-            ReceiptScreen.isShown(),
+            Chrome.closePrintingWarning(),
+            FeedbackScreen.isShown(),
 
             // order 5
             // Click directly on "settle" without selecting a Tip
-            ReceiptScreen.clickNextOrder(),
+            FeedbackScreen.clickNextOrder(),
             FloorScreen.clickTable("2"),
             ProductScreen.addOrderline("Minute Maid", "3", "2"),
             ProductScreen.totalAmountIs("6.0"),
             ProductScreen.clickPayButton(false),
-            ProductScreen.discardOrderWarningDialog(),
             PaymentScreen.clickPaymentMethod("Bank"),
             PaymentScreen.clickValidate(),
+            Chrome.closePrintingWarning(),
             TipScreen.isShown(),
-            TipScreen.clickSettle(),
-            ReceiptScreen.isShown(),
-            ReceiptScreen.clickNextOrder(),
+            TipScreen.clickNoTip(),
+            FeedbackScreen.isShown(),
+            FeedbackScreen.clickNextOrder(),
             FloorScreen.isShown(),
         ].flat(),
 });
 
-registry.category("web_tour.tours").add("test_tip_after_payment", {
+registry.category("web_tour.tours").add("test_edit_payments_with_tip", {
     steps: () =>
         [
             Chrome.startPoS(),
-            Dialog.confirm("Open Register"),
+            // tip from payment screen
             FloorScreen.clickTable("2"),
             ProductScreen.addOrderline("Minute Maid", "1", "3"),
             ProductScreen.clickPayButton(false),
-            ProductScreen.discardOrderWarningDialog(),
-            // case 1: remaining < 0 => increase PaymentLine amount
-            PaymentScreen.enterPaymentLineAmount("Bank", "1"),
             PaymentScreen.clickTipButton(),
-            {
-                content: "click numpad button: 1",
-                trigger: ".modal div.numpad button:contains(/^1/)",
-                run: "click",
-            },
-            Dialog.confirm(),
-            PaymentScreen.selectedPaymentlineHas("Bank", "2.00"),
-            // case 2: remaining >= 0 and remaining >= tip => don't change PaymentLine amount
-            PaymentScreen.clickPaymentlineDelButton("Bank", "2.00"),
-            PaymentScreen.enterPaymentLineAmount("Bank", "5"),
+            NumberPopup.enterValue("1"),
+            Dialog.proceed({ title: "add tip", button: "confirm" }),
+            PaymentScreen.clickPaymentMethod("Cash"),
+            PaymentScreen.selectedPaymentlineHas("Cash", "4.00"),
+            PaymentScreen.remainingIs("0"),
+            PaymentScreen.clickValidate(),
+            FeedbackScreen.isShown(),
+            FeedbackScreen.clickEditPayment(),
             PaymentScreen.clickTipButton(),
-            {
-                content: "click numpad button: 2",
-                trigger: ".modal div.numpad button:contains(/^2/)",
-                run: "click",
-            },
+            NumberPopup.enterValue("5"),
+            Dialog.proceed({ title: "change tip", button: "confirm" }),
+            // The selected payment line amount should be updated
+            PaymentScreen.selectedPaymentlineHas("Cash", "8.00"),
+            PaymentScreen.remainingIs("0"),
+            // Edit paymentlines
+            PaymentScreen.clickPaymentlineDelButton("Cash", "8.00"),
+            PaymentScreen.enterPaymentLineAmount("Bank", "2", true, { amount: 2 }),
+            PaymentScreen.clickPaymentMethod("Cash", true, { amount: 6 }),
+            PaymentScreen.clickValidate(),
+            Chrome.clickOrders(),
+            TicketScreen.selectFilter("Paid"),
+            TicketScreen.selectOrder("000001"),
+            TicketScreen.clickControlButton("Details"),
+            // Check the order details dialog
+            TicketScreen.checkOrderDetailsDialog("000001", "$ 8.00", {
+                Bank: "$ 2.00",
+                Cash: "$ 6.00",
+            }),
+            Dialog.confirm("Close", ".btn-secondary"),
+            // Tip after payment case
+            Chrome.clickPlanButton(),
+            FloorScreen.clickTable("2"),
+            ProductScreen.addOrderline("Minute Maid", "1", "3"),
+            ProductScreen.clickPayButton(false),
+            PaymentScreen.clickPaymentMethod("Bank"),
+            PaymentScreen.clickValidate(),
+            TipScreen.isShown(),
+            TipScreen.setCustomTip(1.0),
+            TipScreen.clickSettle(),
             Dialog.confirm(),
-            PaymentScreen.selectedPaymentlineHas("Bank", "5.00"),
-            // case 3: remaining >= 0 and remaining < tip => increase by the difference
-            PaymentScreen.clickPaymentlineDelButton("Bank", "5.00"),
-            PaymentScreen.enterPaymentLineAmount("Bank", "5"),
-            PaymentScreen.clickTipButton(),
-            {
-                content: "click numpad button: 3",
-                trigger: ".modal div.numpad button:contains(/^3/)",
-                run: "click",
-            },
-            Dialog.confirm(),
-            PaymentScreen.selectedPaymentlineHas("Bank", "6.00"),
-            Chrome.endTour(),
+            // Edit payment button shouldn't be available for posted orders
+            negateStep({ trigger: ".feedback-screen .edit-order-payment:contains(Edit Payment)" }),
         ].flat(),
 });

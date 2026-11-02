@@ -1,22 +1,25 @@
 import { beforeEach, expect, test } from "@odoo/hoot";
-import { advanceTime, animationFrame, click, edit, queryOne, queryText } from "@odoo/hoot-dom";
-import { Component, useState, xml } from "@odoo/owl";
+import {
+    advanceTime,
+    animationFrame,
+    click,
+    edit,
+    queryOne,
+    queryText,
+    waitUntil,
+} from "@odoo/hoot-dom";
+import { Component, proxy, xml } from "@odoo/owl";
 import { mountWithCleanup, patchWithCleanup } from "@web/../tests/web_test_helpers";
 
 import { Macro } from "@web/core/macro";
 
 let macro;
 async function waitForMacro() {
-    for (let i = 0; i < 50; i++) {
-        await animationFrame();
-        await advanceTime(265);
-        if (macro.isComplete) {
-            return;
-        }
-    }
-    if (!macro.isComplete) {
-        throw new Error(`Macro is not complete`);
-    }
+    await waitUntil(() => macro.isComplete, {
+        timeout: 5_000,
+        message: "waitForMacro: macro did not complete in time",
+    });
+    await animationFrame();
 }
 
 beforeEach(() => {
@@ -34,12 +37,11 @@ class TestComponent extends Component {
             <p><button class="btn inc" t-on-click="() => this.state.value++">increment</button></p>
             <p><button class="btn dec" t-on-click="() => this.state.value--">decrement</button></p>
             <p><button class="btn double" t-on-click="() => this.state.value = 2*this.state.value">double</button></p>
-            <span class="value"><t t-esc="state.value"/></span>
+            <span class="value"><t t-out="this.state.value"/></span>
             <input />
         </div>`;
-    static props = ["*"];
     setup() {
-        this.state = useState({ value: 0 });
+        this.state = proxy({ value: 0 });
     }
 }
 
@@ -59,7 +61,7 @@ test("simple use", async () => {
             await animationFrame();
             expect.step(queryText("span.value"));
         },
-    }).start(queryOne(".counter"));
+    }).start();
 
     const span = queryOne("span.value");
     expect(span).toHaveText("0");
@@ -97,7 +99,7 @@ test("multiple steps", async () => {
                 expect.step(queryText("span.value"));
             }
         },
-    }).start(queryOne(".counter"));
+    }).start();
     await waitForMacro();
     expect.verifySteps(["1", "2"]);
 });
@@ -116,7 +118,7 @@ test("can input values", async () => {
                 },
             },
         ],
-    }).start(queryOne(".counter"));
+    }).start();
     expect(input).toHaveValue("");
     await waitForMacro();
     expect(input).toHaveValue("aaron");
@@ -139,7 +141,7 @@ test("a step can have no trigger", async () => {
             },
             { action: () => expect.step("3") },
         ],
-    }).start(queryOne(".counter"));
+    }).start();
     expect(input).toHaveValue("");
     await waitForMacro();
     expect(input).toHaveValue("aaron");
@@ -169,7 +171,7 @@ test("onStep function is called at each step", async () => {
                 },
             },
         ],
-    }).start(queryOne(".counter"));
+    }).start();
     await waitForMacro();
     expect(span).toHaveText("1");
     expect.verifySteps([0, 1]);
@@ -190,7 +192,7 @@ test("trigger can be a function returning an htmlelement", async () => {
                 },
             },
         ],
-    }).start(queryOne(".counter"));
+    }).start();
     expect(span).toHaveText("0");
     await waitForMacro();
     expect(span).toHaveText("1");
@@ -216,8 +218,8 @@ test("macro wait element is visible to do action", async () => {
         onError: (error) => {
             expect.step(error);
         },
-    }).start(queryOne(".counter"));
-    advanceTime(500);
+    }).start();
+    await advanceTime(500);
     button.classList.remove("d-none");
     await waitForMacro();
     expect.verifySteps(["element is now visible"]);
@@ -244,7 +246,7 @@ test("macro timeout if element is not visible", async () => {
             expect.step(error.message);
         },
     });
-    macro.start(queryOne(".counter"));
+    macro.start();
     await waitForMacro();
     expect.verifySteps(["TIMEOUT step failed to complete within 1000 ms."]);
 });

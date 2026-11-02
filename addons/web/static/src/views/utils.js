@@ -1,8 +1,11 @@
 import { _t } from "@web/core/l10n/translation";
+import { localeCompare } from "@web/core/l10n/utils";
 import { registry } from "@web/core/registry";
 import { unique } from "@web/core/utils/arrays";
 import { exprToBoolean } from "@web/core/utils/strings";
 import { combineModifiers } from "@web/model/relational_model/utils";
+
+export const TOUCH_SELECTION_THRESHOLD = 400;
 
 export const X2M_TYPES = ["one2many", "many2many"];
 const NUMERIC_TYPES = ["integer", "float", "monetary"];
@@ -124,7 +127,7 @@ export const computeReportMeasures = (
         if (m1 === "__count" || m2 === "__count") {
             return m1 === "__count" ? 1 : -1; // Count is always last
         }
-        return f1.string.toLowerCase().localeCompare(f2.string.toLowerCase());
+        return localeCompare(f1.string, f2.string);
     });
 
     return Object.fromEntries(sortedMeasures);
@@ -230,6 +233,7 @@ export function processButton(node) {
         className: node.getAttribute("class") || "",
         disabled: !!node.getAttribute("disabled") || false,
         icon: node.getAttribute("icon") || false,
+        iconClass: node.getAttribute("icon_class") || "",
         title: node.getAttribute("title") || undefined,
         string: node.getAttribute("string") || undefined,
         options: JSON.parse(node.getAttribute("options") || "{}"),

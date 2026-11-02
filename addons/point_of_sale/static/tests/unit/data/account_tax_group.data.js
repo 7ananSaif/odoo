@@ -12,10 +12,27 @@ export class AccountTaxGroup extends models.ServerModel {
             id: 1,
             name: "Tax 15%",
             pos_receipt_label: false,
+            write_date: "2025-01-01 10:00:00",
         },
         {
             id: 2,
             name: "Tax 0%",
+            pos_receipt_label: false,
+            write_date: "2025-01-01 10:00:00",
+        },
+        {
+            id: 3,
+            name: "Tax 25%",
+            pos_receipt_label: false,
+        },
+        {
+            id: 4,
+            name: "No group",
+            pos_receipt_label: false,
+        },
+        {
+            id: 5,
+            name: "15% incl",
             pos_receipt_label: false,
         },
         {

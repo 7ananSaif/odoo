@@ -1,8 +1,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 import re
+from datetime import datetime, UTC
 
-from datetime import datetime
-from pytz import UTC
 from lxml import etree
 
 from odoo import api, models
@@ -98,6 +97,23 @@ class AccountEdiXmlUBLMyInvoisMY(models.AbstractModel):
                 ],
                 limit=1,
             )
+
+            if not customer and myinvois_document._is_consolidated_invoice():
+                # This could happen if the General Public partner wasn't loaded, or was deleted.
+                # To keep it simple, we will simply use a temporary partner record with the same data for that case.
+                customer = self.env['res.partner'].new({
+                    'name': 'General Public',
+                    'vat': 'EI00000000010',
+                    'country_id': self.env.ref('base.my'),
+                    'state_id': self.env.ref('base.state_my_jhr'),
+                    'phone': 'NA',
+                    'street': 'NA',
+                    'city': 'NA',
+                    'l10n_my_identification_type': 'BRN',
+                    'l10n_my_identification_number': 'NA',
+                    'l10n_my_edi_industrial_classification': self.env.ref('l10n_my_edi.class_00000', raise_if_not_found=False),
+                })
+
             partner_shipping = None
             payment_term_id = None  # wouldn't make sense in a consolidated invoice.
         else:
@@ -106,13 +122,11 @@ class AccountEdiXmlUBLMyInvoisMY(models.AbstractModel):
             partner_shipping = invoice.partner_shipping_id or customer
             payment_term_id = invoice.invoice_payment_term_id
 
-        document_type_code, original_document = self._l10n_my_edi_get_document_type_code(myinvois_document)
+        document_type_code, original_documents = self._l10n_my_edi_get_document_type_code(myinvois_document)
         # In case of self billing, we want to invert the supplier and customer.
         if document_type_code in ("11", "12", "13", "14"):
             supplier, customer = customer, supplier
             partner_shipping = customer
-            # In practice, we should never have multiple self billed invoices being part of a consolidated invoices,
-            # but it doesn't hurt to support it.
             document_ref = ','.join([invoice.ref for invoice in myinvois_document.invoice_ids if invoice.ref]) or None
         else:
             document_ref = None
@@ -120,7 +134,7 @@ class AccountEdiXmlUBLMyInvoisMY(models.AbstractModel):
         vals.update({
             'document_type': 'invoice',
             'document_type_code': document_type_code,
-            'original_document': original_document,
+            'original_documents': original_documents,
 
             'document_name': myinvois_document.name,
 
@@ -180,9 +194,12 @@ class AccountEdiXmlUBLMyInvoisMY(models.AbstractModel):
         myinvois_document = vals["myinvois_document"]
         if myinvois_document.invoice_ids:
             # Add the total amount paid.
+            # Genuine prepayments only; the base implementation would otherwise treat any reconciled payment,
+            # regardless of its date, as a deposit.
+            prepaid_amounts = {invoice: self._l10n_my_edi_get_prepaid_amount(invoice) for invoice in myinvois_document.invoice_ids}
             vals.update({
-                'total_paid_amount': sum((invoice.amount_total - invoice.amount_residual) * invoice.invoice_currency_rate for invoice in myinvois_document.invoice_ids),
-                'total_paid_amount_currency': sum(invoice.amount_total - invoice.amount_residual for invoice in myinvois_document.invoice_ids),
+                'total_paid_amount': sum(amount * invoice.invoice_currency_rate for invoice, amount in prepaid_amounts.items()),
+                'total_paid_amount_currency': sum(prepaid_amounts.values()),
             })
 
     # -------------------------------------------------------------------------
@@ -203,14 +220,11 @@ class AccountEdiXmlUBLMyInvoisMY(models.AbstractModel):
             if (
                 partner._l10n_my_edi_get_tin_for_myinvois() == 'EI00000000010'
                 and partner.l10n_my_identification_number == 'NA'
-            ):
-                # Special case for consolidated entities (e.g., general public).
-                # When TIN is 'EI00000000010' and Identification Number is 'NA', MyInvois requires
-                # the CountrySubentityCode to be fixed as '17' regardless of the actual state.
+            ) or country.code != 'MY':
+                # Special case for consolidated entities (e.g., general public) and non-Malaysian partners:
+                # MyInvois requires the CountrySubentityCode to be fixed as '17' ("not applicable") since
+                # Malaysian state codes don't apply to them.
                 subentity_code = '17'
-            elif country.code != 'MY':
-                # For non-Malaysian partners return the state name instead of state code
-                subentity_code = partner.state_id.name
             else:
                 # Get the subentity code for the partner, based on its state.
                 subentity_code = partner.state_id.code
@@ -335,16 +349,17 @@ class AccountEdiXmlUBLMyInvoisMY(models.AbstractModel):
         }
 
     def _add_myinvois_document_header_nodes(self, document_node, vals):
-        original_document_id = None
-        if vals['document_type_code'] in {'02', '03', '04', '12', '13', '14'} and vals['original_document']:
-            if vals['original_document'].myinvois_file_id:
-                decoded_vals = self._l10n_my_edi_decode_myinvois_attachment(vals['original_document'].myinvois_file_id)
-                original_document_id = decoded_vals.get('original_document_id')
-            original_invoice = vals['original_document'].invoice_ids[:1]
-            if not original_document_id and vals['document_type_code'] in {'12', '13', '14'} and original_invoice.ref:
-                original_document_id = original_invoice.ref
-            if not original_document_id:
-                original_document_id = vals['original_document'].name
+        def _get_original_document_id(original_document):
+            if vals['document_type_code'] in {'02', '03', '04', '12', '13', '14'} and original_document:
+                if original_document.myinvois_file_id:
+                    decoded_vals = self._l10n_my_edi_decode_myinvois_attachment(original_document.myinvois_file_id)
+                    return decoded_vals.get('original_document_id')
+                original_invoice = original_document.invoice_ids[:1]
+                if vals['document_type_code'] in {'12', '13', '14'} and original_invoice.ref:
+                    return original_invoice.ref
+                if original_document.name:
+                    return original_document.name
+            return None
 
         document_node.update({
             'cbc:UBLVersionID': None,
@@ -367,12 +382,12 @@ class AccountEdiXmlUBLMyInvoisMY(models.AbstractModel):
             # Applies to credit notes, debit notes, refunds for both invoices and self-billed invoices.
             # The original document is mandatory; but in some specific cases it will be empty (sending a credit note for an invoice
             # managed outside Odoo/...)
-            'cac:BillingReference': {
+            'cac:BillingReference': [{
                 'cac:InvoiceDocumentReference': {
-                    'cbc:ID': {'_text': original_document_id or 'NA'},
-                    'cbc:UUID': {'_text': (vals['original_document'] and vals['original_document'].myinvois_external_uuid) or 'NA'},
+                    'cbc:ID': {'_text': _get_original_document_id(original_document) or 'NA'},
+                    'cbc:UUID': {'_text': (original_document and original_document.myinvois_external_uuid) or 'NA'},
                 }
-            } if vals['document_type_code'] in {'02', '03', '04', '12', '13', '14'} else None,
+            } for original_document in vals['original_documents'] or [None]] if vals['document_type_code'] in {'02', '03', '04', '12', '13', '14'} else None,
             'cac:AdditionalDocumentReference': [
                 {
                     'cbc:ID': {'_text': vals['custom_form_reference']},
@@ -389,7 +404,7 @@ class AccountEdiXmlUBLMyInvoisMY(models.AbstractModel):
         })
 
         # Self-billed invoices must use the number given by the supplier.
-        if vals['document_type_code'] in ('11', '12', '13', '14') and vals['document_ref']:
+        if vals['document_type_code'] in ('11', '12', '13', '14') and vals['document_ref'] and not vals['myinvois_document']._is_consolidated_invoice():
             document_node['cbc:ID']['_text'] = vals['document_ref']
 
     def _add_myinvois_document_accounting_supplier_party_nodes(self, document_node, vals):
@@ -435,12 +450,13 @@ class AccountEdiXmlUBLMyInvoisMY(models.AbstractModel):
         currency_suffix = vals['currency_suffix']
 
         amount_paid = vals[f'total_paid_amount{currency_suffix}']
+        myinvois_document = vals["myinvois_document"]
+        if myinvois_document._is_consolidated_invoice():
+            amount_paid = 0
+        # For credit, debit, refund notes, and their self-billed variants, the PrepaidPayment amount must be set to 0.
+        amount_paid = 0 if vals['document_type_code'] in ('02', '03', '04', '12', '13', '14') else amount_paid
+        # Omit the node entirely rather than emitting it with a 0.00 amount when there is no genuine prepayment.
         if amount_paid:
-            myinvois_document = vals["myinvois_document"]
-            if myinvois_document._is_consolidated_invoice():
-                amount_paid = 0
-            # For credit, debit, refund notes, and their self-billed variants, the PrepaidPayment amount must be set to 0.
-            amount_paid = 0 if vals['document_type_code'] in ('02', '03', '04', '12', '13', '14') else amount_paid
             document_node['cac:PrepaidPayment'] = {
                 'cbc:PaidAmount': {
                     '_text': self.format_float(amount_paid, vals['currency_dp']),
@@ -523,7 +539,7 @@ class AccountEdiXmlUBLMyInvoisMY(models.AbstractModel):
         if record and record.name:
             line_name = record.name and record.name.replace('\n', ' ')
         else:
-            line_name = vals['base_line']['line_name']
+            line_name = vals['base_line'].get('line_name', '')
         if line_name:
             line_node['cac:Item']['cbc:Description']['_text'] = line_name
             if not line_node['cac:Item']['cbc:Name']['_text']:
@@ -589,6 +605,7 @@ class AccountEdiXmlUBLMyInvoisMY(models.AbstractModel):
                 self._l10n_my_edi_make_validation_error(constraints, 'too_many_sst', partner_type, partner.commercial_partner_id.display_name)
 
         for line_vals in vals['document_node']['cac:InvoiceLine']:
+            myinvois_document = vals["myinvois_document"]
             line_item = line_vals['cac:Item']
             if 'cac:CommodityClassification' not in line_item:
                 self._l10n_my_edi_make_validation_error(constraints, 'class_code_required', line_vals['cbc:ID']['_text'], line_item['cbc:Name']['_text'])
@@ -596,13 +613,36 @@ class AccountEdiXmlUBLMyInvoisMY(models.AbstractModel):
                 self._l10n_my_edi_make_validation_error(constraints, 'tax_ids_required', line_vals['cbc:ID']['_text'], line_item['cbc:Name']['_text'])
             for tax_category in line_item['cac:ClassifiedTaxCategory']:
                 if tax_category['cbc:ID']['_text'] == 'E' and not tax_category['cbc:TaxExemptionReason']['_text']:
-                    self._l10n_my_edi_make_validation_error(constraints, 'tax_exemption_required', line_vals['cbc:ID']['_text'], line_item['cbc:Name']['_text'])
+                    if not myinvois_document._is_consolidated_invoice():
+                        self._l10n_my_edi_make_validation_error(constraints, 'tax_exemption_required', line_vals['cbc:ID']['_text'], line_item['cbc:Name']['_text'])
+                    else:  # On consolidated invoices, you cannot define the reason on the invoice and so the message should be different for clarity
+                        self._l10n_my_edi_make_validation_error(constraints, 'tax_exemption_required_on_tax', line_vals['cbc:ID']['_text'], line_item['cbc:Name']['_text'])
 
-            myinvois_document = vals["myinvois_document"]
-            if myinvois_document._is_consolidated_invoice() or myinvois_document._is_consolidated_invoice_refund():
-                customer_vat = vals['document_node']['cac:AccountingCustomerParty']['cac:Party']['cac:PartyIdentification'][0]['cbc:ID']['_text']
-                if customer_vat != 'EI00000000010':
-                    self._l10n_my_edi_make_validation_error(constraints, 'missing_general_public', vals['customer'].id, vals['customer'].name)
+        # Code '004' (Consolidated e-Invoice) requires the General Public TIN + identification number, and
+        # vice-versa: that TIN + identification number requires every line to use code '004'.
+        invoice_type_code = vals['document_node']['cbc:InvoiceTypeCode']['_text']
+        if invoice_type_code in ("11", "12", "13", "14"):  # For self billed, we validate the supplier
+            party_identification_nodes = vals['document_node']['cac:AccountingSupplierParty']['cac:Party']['cac:PartyIdentification']
+        else:
+            party_identification_nodes = vals['document_node']['cac:AccountingCustomerParty']['cac:Party']['cac:PartyIdentification']
+        vat = party_identification_nodes[0]['cbc:ID']['_text']
+        identification_number = party_identification_nodes[1]['cbc:ID']['_text'] if len(party_identification_nodes) > 1 else None
+        is_general_public = vat == 'EI00000000010' and identification_number == 'NA'
+
+        line_classification_codes = [
+            line_vals['cac:Item'].get('cac:CommodityClassification', {}).get('cbc:ItemClassificationCode', {}).get('_text')
+            for line_vals in vals['document_node']['cac:InvoiceLine']
+        ]
+
+        if any(code == '004' for code in line_classification_codes) and not is_general_public:
+            self._l10n_my_edi_make_validation_error(constraints, 'missing_general_public', vals['customer'].id, vals['customer'].name)
+        if is_general_public and any(code != '004' for code in line_classification_codes):
+            self._l10n_my_edi_make_validation_error(constraints, 'general_public_requires_004', vals['customer'].id, vals['customer'].name)
+
+        # MyInvois limits the InternalID to 50 characters.
+        document_id = vals['document_node']['cbc:ID']['_text']
+        if document_id and len(document_id) > 50:
+            self._l10n_my_edi_make_validation_error(constraints, 'document_id_too_long', vals['myinvois_document'].id, vals['myinvois_document'].display_name)
 
         return constraints
 
@@ -665,10 +705,19 @@ class AccountEdiXmlUBLMyInvoisMY(models.AbstractModel):
                 invoice_name=record_name
             ),
             'tax_exemption_required_on_tax': self.env._(
-                "You must set a Tax Exemption Reason on each tax exempt taxes in order to use them in a Myinvois Document.",
+                "You must set a Tax Exemption Reason on each tax exempt taxes in order to use them in a Consolidated Invoice.",
             ),
             'missing_general_public': self.env._(
-                "You must have a commercial partner named 'General Public' with a VAT number set to 'EI00000000010' in order to proceed.",
+                "Classification code '004' can only be used for consolidated e-invoice issued to general public "
+                "(TIN of 'EI00000000010', BRN/NRIC of 'NA')"
+            ),
+            'general_public_requires_004': self.env._(
+                "TIN 'EI00000000010' (General Public / Consolidated e-Invoice) with BRN/NRIC of 'NA' requires "
+                "classification code '004' on every invoice line."
+            ),
+            'document_id_too_long': self.env._(
+                'The "Bill Reference" for %(invoice_name)s exceeds the maximum limit of 50 characters.',
+                invoice_name=record_name
             ),
         }
 
@@ -688,7 +737,7 @@ class AccountEdiXmlUBLMyInvoisMY(models.AbstractModel):
 
         vals = {}
         try:
-            root = etree.fromstring(attachment.raw)
+            root = etree.fromstring(attachment.raw.content)
             invoice_id_node = get_node(root, "//*[local-name()='Invoice']/*[local-name()='ID']")
         except etree.XMLSyntaxError:
             # Not an xml
@@ -706,46 +755,76 @@ class AccountEdiXmlUBLMyInvoisMY(models.AbstractModel):
 
     @api.model
     def _l10n_my_edi_get_document_type_code(self, myinvois_document):
-        """ Returns the code matching the invoice type, as well as the original document if any. """
+        """ Returns the code matching the invoice type, as well as the original document(s) if any. """
         document_type_code = '01'
-        original_document = None
+        original_documents = None
 
-        if not myinvois_document._is_consolidated_invoice():
-            invoice = myinvois_document.invoice_ids[0]  # Otherwise it would be a consolidated invoice.
-            if 'debit_origin_id' in self.env['account.move']._fields and invoice.debit_origin_id:
-                document_type_code = '03' if invoice.move_type == 'out_invoice' else '13'
-                original_document = invoice.debit_origin_id._get_active_myinvois_document()
-            elif invoice.move_type in ('out_refund', 'in_refund'):
-                is_refund, refunded_document = self._l10n_my_edi_get_refund_details(invoice)
+        # For consolidated invoices, we treat PoS documents as invoice (01) but for accounting documents, we need to look into it for the exact type.
+        if not myinvois_document._is_consolidated_invoice() or bool(myinvois_document.invoice_ids):
+            invoices = myinvois_document.invoice_ids
+            ref_invoice = invoices[0]  # There is only ever one move_type in a same document
+            if self.env['myinvois.document']._myinvois_is_debit_notes_used() and ref_invoice.debit_origin_id:
+                document_type_code = '03' if ref_invoice.move_type == 'out_invoice' else '13'
+                original_documents = invoices.debit_origin_id._get_active_myinvois_document()
+            elif ref_invoice.is_refund():
+                is_refund, refunded_document = self._l10n_my_edi_get_refund_details(invoices)
                 if is_refund:
-                    document_type_code = '04' if invoice.move_type == 'out_refund' else '14'
+                    document_type_code = '04' if ref_invoice.move_type == 'out_refund' else '14'
                 else:
-                    document_type_code = '02' if invoice.move_type == 'out_refund' else '12'
+                    document_type_code = '02' if ref_invoice.move_type == 'out_refund' else '12'
 
-                original_document = refunded_document
+                original_documents = refunded_document
             else:
-                document_type_code = '01' if invoice.move_type == 'out_invoice' else '11'
+                document_type_code = '01' if ref_invoice.move_type == 'out_invoice' else '11'
 
-        return document_type_code, original_document  # Consolidated invoices are fixed to '01'
+        return document_type_code, original_documents
 
     @api.model
-    def _l10n_my_edi_get_refund_details(self, invoice):
+    def _l10n_my_edi_get_refund_details(self, invoices):
         """
         Helper which returns the refunded document in case of out_refund/in_refund.
         In some cases, such as PoS, we could need a different logic than from the regular flow.
-        :param invoice: The credit note for which we want to get the refunded document.
+        :param invoices: The credit note for which we want to get the refunded document.
         :return: A tuple, where the first parameter indicates if this credit note is a refund and the second the credited/refunded document.
         """
         # We consider a credit note a refund if it is paid and fully reconciled with a payment or bank transaction.
-        payment_terms = invoice.line_ids.filtered(lambda aml: aml.display_type == 'payment_term')
+        payment_terms = invoices.line_ids.filtered(lambda aml: aml.display_type == 'payment_term')
         counterpart_amls = payment_terms.reconciled_lines_ids
-        counterpart_move_type = 'out_invoice' if invoice.move_type == 'out_refund' else 'in_invoice'
+        counterpart_move_type = 'out_invoice' if invoices[0].move_type == 'out_refund' else 'in_invoice'
         has_payments = bool(counterpart_amls.move_id.filtered(lambda move: move.move_type != counterpart_move_type))
-        is_paid = invoice.payment_state in ('in_payment', 'paid', 'reversed')
+        # In practice, as a check on this is done when separating invoices for consolidation, checking all of them this way would be enough.
+        is_paid = all(invoice.payment_state in ('in_payment', 'paid', 'reversed') for invoice in invoices)
 
-        refunded_document = invoice.reversed_entry_id._get_active_myinvois_document()
+        refunded_document = invoices.reversed_entry_id._get_active_myinvois_document()
         is_refund = is_paid and has_payments
         return is_refund, refunded_document
+
+    @api.model
+    def _l10n_my_edi_get_prepaid_amount(self, invoice):
+        """ Compute the amount of the invoice that was genuinely paid in advance.
+
+        LHDN only recognizes a reconciled payment as a deposit/prepayment if it was made strictly before the
+        invoice date; a payment made on or after the invoice date is a regular settlement, not a prepayment.
+        Additionally, LHDN never accepts a PayableAmount of 0, so a 100% advance payment must not be reported
+        as a prepayment either: in that case, the full invoice amount is reported as payable instead.
+        Credit/debit notes reconciled against the invoice are not prepayments.
+        """
+        if not invoice.invoice_date:
+            return 0.0
+
+        invoice_partials, exchange_diff_moves = invoice._get_reconciled_invoices_partials()
+        prepaid_amount = sum(
+            amount
+            for partial, amount, aml in invoice_partials
+            if (
+                aml.move_id.id not in exchange_diff_moves
+                and aml.move_id.move_type not in ('out_refund', 'in_refund')
+                and aml.date and aml.date < invoice.invoice_date
+            )
+        )
+        if invoice.currency_id.compare_amounts(prepaid_amount, invoice.amount_total) >= 0:
+            return 0.0
+        return prepaid_amount
 
     @api.model
     def _l10n_my_edi_get_formatted_phone_number(self, number):

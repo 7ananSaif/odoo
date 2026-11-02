@@ -1,19 +1,21 @@
 import { beforeEach, expect, test } from "@odoo/hoot";
-import { click, queryAllTexts, resize } from "@odoo/hoot-dom";
+import { click, queryAllTexts, queryFirst } from "@odoo/hoot-dom";
 import { animationFrame, mockDate } from "@odoo/hoot-mock";
-import { Component, useState, xml } from "@odoo/owl";
-import { DateTimePicker } from "@web/core/datetime/datetime_picker";
-import { ensureArray } from "@web/core/utils/arrays";
+import { Component, proxy, xml } from "@odoo/owl";
 import {
     defineParams,
+    isSmall,
+    makeTestApp,
     mountWithCleanup,
-    makeMockEnv,
     serverState,
 } from "@web/../tests/web_test_helpers";
+import { DateTimePicker } from "@web/core/datetime/datetime_picker";
+import { ensureArray } from "@web/core/utils/arrays";
+import { range } from "@web/core/utils/numbers";
 import {
     assertDateTimePicker,
-    getPickerCell,
     editTime,
+    getPickerCell,
 } from "../../datetime/datetime_test_helpers";
 
 const { DateTime } = luxon;
@@ -31,15 +33,7 @@ const formatForStep = (value) =>
  */
 const pad2 = (value) => String(value).padStart(2, "0");
 
-/**
- * @template {any} [T=number]
- * @param {number} length
- * @param {(index: number) => T} mapping
- */
-const range = (length, mapping) => [...Array(length)].map((_, i) => mapping(i));
-
-const MINUTES = range(60, (i) => i).filter((i) => i % 15 === 0);
-const TIME_OPTIONS = range(24, String).flatMap((h) => MINUTES.map((m) => `${h}:${pad2(m)}`));
+const TIME_OPTIONS = range(24).flatMap((h) => [0, 15, 30, 45].map((m) => `${h}:${pad2(m)}`));
 
 defineParams({
     lang_parameters: {
@@ -54,7 +48,7 @@ test("default params", async () => {
     await mountWithCleanup(DateTimePicker);
 
     assertDateTimePicker({
-        title: "April 2023",
+        title: "Apr 2023",
         date: [
             {
                 cells: [
@@ -72,18 +66,23 @@ test("default params", async () => {
         time: ["13:00"],
     });
 
-    await click(".o_time_picker_input");
-    await animationFrame();
-    expect(queryAllTexts(".o_time_picker_dropdown .o_time_picker_option")).toEqual(TIME_OPTIONS);
     expect(".o_datetime_picker").toHaveStyle({
         "--DateTimePicker__Day-template-columns": "8",
     });
+
+    if (!isSmall()) {
+        await click(".o_time_picker_input");
+        await animationFrame();
+        expect(queryAllTexts(".o_time_picker_dropdown .o_time_picker_option")).toEqual(
+            TIME_OPTIONS
+        );
+    }
 });
 
 test("minDate: correct days/month/year/decades are disabled", async () => {
     serverState.lang = "en-US";
     // necessary to configure the lang before minDate/maxDate are created
-    await makeMockEnv();
+    await makeTestApp();
 
     await mountWithCleanup(DateTimePicker, {
         props: {
@@ -92,7 +91,7 @@ test("minDate: correct days/month/year/decades are disabled", async () => {
     });
 
     assertDateTimePicker({
-        title: "April 2023",
+        title: "Apr 2023",
         date: [
             {
                 cells: [
@@ -110,9 +109,13 @@ test("minDate: correct days/month/year/decades are disabled", async () => {
         time: ["13:00"],
     });
 
-    await click(".o_time_picker_input");
-    await animationFrame();
-    expect(queryAllTexts(".o_time_picker_dropdown .o_time_picker_option")).toEqual(TIME_OPTIONS);
+    if (!isSmall()) {
+        await click(".o_time_picker_input");
+        await animationFrame();
+        expect(queryAllTexts(".o_time_picker_dropdown .o_time_picker_option")).toEqual(
+            TIME_OPTIONS
+        );
+    }
 
     await click(".o_zoom_out");
     await animationFrame();
@@ -175,7 +178,7 @@ test("minDate: correct days/month/year/decades are disabled", async () => {
     await animationFrame();
 
     assertDateTimePicker({
-        title: "April 2023",
+        title: "Apr 2023",
         date: [
             {
                 cells: [
@@ -202,7 +205,7 @@ test("maxDate: correct days/month/year/decades are disabled", async () => {
     });
 
     assertDateTimePicker({
-        title: "April 2023",
+        title: "Apr 2023",
         date: [
             {
                 cells: [
@@ -220,9 +223,13 @@ test("maxDate: correct days/month/year/decades are disabled", async () => {
         time: ["13:00"],
     });
 
-    await click(".o_time_picker_input");
-    await animationFrame();
-    expect(queryAllTexts(".o_time_picker_dropdown .o_time_picker_option")).toEqual(TIME_OPTIONS);
+    if (!isSmall()) {
+        await click(".o_time_picker_input");
+        await animationFrame();
+        expect(queryAllTexts(".o_time_picker_dropdown .o_time_picker_option")).toEqual(
+            TIME_OPTIONS
+        );
+    }
 
     await click(".o_zoom_out");
     await animationFrame();
@@ -298,7 +305,7 @@ test("maxDate: correct days/month/year/decades are disabled", async () => {
     await animationFrame();
 
     assertDateTimePicker({
-        title: "April 2023",
+        title: "Apr 2023",
         date: [
             {
                 cells: [
@@ -320,7 +327,7 @@ test("maxDate: correct days/month/year/decades are disabled", async () => {
 test("min+max date: correct days/month/year/decades are disabled", async () => {
     serverState.lang = "en-US";
     // necessary to configure the lang before minDate/maxDate are created
-    await makeMockEnv();
+    await makeTestApp();
 
     await mountWithCleanup(DateTimePicker, {
         props: {
@@ -330,7 +337,7 @@ test("min+max date: correct days/month/year/decades are disabled", async () => {
     });
 
     assertDateTimePicker({
-        title: "April 2023",
+        title: "Apr 2023",
         date: [
             {
                 cells: [
@@ -348,9 +355,13 @@ test("min+max date: correct days/month/year/decades are disabled", async () => {
         time: ["13:00"],
     });
 
-    await click(".o_time_picker_input");
-    await animationFrame();
-    expect(queryAllTexts(".o_time_picker_dropdown .o_time_picker_option")).toEqual(TIME_OPTIONS);
+    if (!isSmall()) {
+        await click(".o_time_picker_input");
+        await animationFrame();
+        expect(queryAllTexts(".o_time_picker_dropdown .o_time_picker_option")).toEqual(
+            TIME_OPTIONS
+        );
+    }
 
     await click(".o_zoom_out");
     await animationFrame();
@@ -420,7 +431,7 @@ test("min+max date: correct days/month/year/decades are disabled", async () => {
     await animationFrame();
 
     assertDateTimePicker({
-        title: "April 2023",
+        title: "Apr 2023",
         date: [
             {
                 cells: [
@@ -439,6 +450,7 @@ test("min+max date: correct days/month/year/decades are disabled", async () => {
     });
 });
 
+test.tags("desktop");
 test("twelve-hour clock with non-null focus date index", async () => {
     // Test the case when we have focusDateIndex != 0
     defineParams({
@@ -464,6 +476,7 @@ test("twelve-hour clock with non-null focus date index", async () => {
     expect.verifySteps(["2023-04-20T08:45:00,2023-04-23T07:15:00"]);
 });
 
+test.tags("desktop");
 test("twelve-hour clock", async () => {
     defineParams({
         lang_parameters: {
@@ -474,7 +487,7 @@ test("twelve-hour clock", async () => {
     await mountWithCleanup(DateTimePicker);
 
     assertDateTimePicker({
-        title: "April 2023",
+        title: "Apr 2023",
         date: [
             {
                 cells: [
@@ -513,7 +526,7 @@ test("hide time picker", async () => {
     });
 
     assertDateTimePicker({
-        title: "April 2023",
+        title: "Apr 2023",
         date: [
             {
                 cells: [
@@ -566,7 +579,7 @@ test("next month and previous month", async () => {
     });
 
     assertDateTimePicker({
-        title: "April 2023",
+        title: "Apr 2023",
         date: [
             {
                 cells: [
@@ -587,7 +600,7 @@ test("next month and previous month", async () => {
     await animationFrame();
 
     assertDateTimePicker({
-        title: "March 2023",
+        title: "Mar 2023",
         date: [
             {
                 cells: [
@@ -608,7 +621,7 @@ test("next month and previous month", async () => {
     await animationFrame();
 
     assertDateTimePicker({
-        title: "April 2023",
+        title: "Apr 2023",
         date: [
             {
                 cells: [
@@ -660,7 +673,7 @@ test("range value", async () => {
     });
 
     assertDateTimePicker({
-        title: "April 2023",
+        title: "Apr 2023",
         date: [
             {
                 cells: [
@@ -691,9 +704,8 @@ test("range value", async () => {
     });
 });
 
+test.tags("mobile");
 test("range value on small device", async () => {
-    await resize({ width: 300 });
-
     await mountWithCleanup(DateTimePicker, {
         props: {
             value: [
@@ -705,7 +717,7 @@ test("range value on small device", async () => {
     });
 
     assertDateTimePicker({
-        title: "April 2023",
+        title: "Apr 2023",
         date: [
             {
                 cells: [
@@ -723,14 +735,6 @@ test("range value on small device", async () => {
         time: ["9:30", "21:05"],
     });
 
-    await click(".o_time_picker_input:eq(0)");
-    await animationFrame();
-    expect(queryAllTexts(".o_time_picker_option")).toEqual(TIME_OPTIONS);
-
-    await click(".o_time_picker_input:eq(1)");
-    await animationFrame();
-    expect(queryAllTexts(".o_time_picker_option")).toEqual(TIME_OPTIONS);
-
     expect(".o_datetime_picker").toHaveStyle({
         "--DateTimePicker__Day-template-columns": "8",
     });
@@ -746,7 +750,7 @@ test("range value, previous month", async () => {
     });
 
     assertDateTimePicker({
-        title: "April 2023",
+        title: "Apr 2023",
         date: [
             {
                 cells: [
@@ -768,7 +772,7 @@ test("range value, previous month", async () => {
     await animationFrame();
 
     assertDateTimePicker({
-        title: "March 2023",
+        title: "Mar 2023",
         date: [
             {
                 cells: [
@@ -795,7 +799,7 @@ test("days of week narrow format", async () => {
     });
 
     assertDateTimePicker({
-        title: "April 2023",
+        title: "Apr 2023",
         date: [
             {
                 cells: [
@@ -826,7 +830,7 @@ test("different rounding", async () => {
     });
 
     await editTime("10:16");
-    expect(".o_time_picker_input").toHaveValue("10:20");
+    expect(queryFirst(".o_time_picker_input").value).toBe("10:20");
 });
 
 test("rounding=0 enables seconds", async () => {
@@ -836,7 +840,7 @@ test("rounding=0 enables seconds", async () => {
         },
     });
 
-    expect(".o_time_picker_input").toHaveValue("13:00:00");
+    expect(queryFirst(".o_time_picker_input").value).toBe("13:00:00");
 });
 
 test("no value, select date without handler", async () => {
@@ -975,7 +979,7 @@ test("custom invalidity function", async () => {
     });
 
     assertDateTimePicker({
-        title: "April 2023",
+        title: "Apr 2023",
         date: [
             {
                 cells: [
@@ -1042,6 +1046,7 @@ test("single value, select time", async () => {
     expect.verifySteps(["2023-04-30T18:05:00"]);
 });
 
+test.tags("desktop");
 test("single value, select time in twelve-hour clock format", async () => {
     defineParams({
         lang_parameters: {
@@ -1171,11 +1176,10 @@ test("range value, select date for first value after second value", async () => 
 
 test("focus proper month when changing props out of current month", async () => {
     class Parent extends Component {
-        static template = xml`<DateTimePicker value="state.current"/>`;
+        static template = xml`<DateTimePicker value="this.state.current"/>`;
         static components = { DateTimePicker };
-        static props = ["*"];
         setup() {
-            this.state = useState({
+            this.state = proxy({
                 current: DateTime.now(),
             });
         }
@@ -1184,7 +1188,7 @@ test("focus proper month when changing props out of current month", async () => 
     const parent = await mountWithCleanup(Parent);
 
     assertDateTimePicker({
-        title: "April 2023",
+        title: "Apr 2023",
         date: [
             {
                 cells: [
@@ -1229,7 +1233,7 @@ test("disable show week numbers", async () => {
     });
 
     assertDateTimePicker({
-        title: "April 2023",
+        title: "Apr 2023",
         date: [
             {
                 cells: [

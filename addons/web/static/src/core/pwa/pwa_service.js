@@ -1,5 +1,5 @@
-import { reactive } from "@odoo/owl";
-import { browser } from "@web/core/browser/browser";
+import { proxy } from "@odoo/owl";
+import { location, browser } from "@web/core/browser/browser";
 import {
     isDisplayStandalone,
     isIOS,
@@ -39,10 +39,10 @@ const pwaService = {
         let _manifest;
         let nativePrompt;
 
-        const state = reactive({
+        const state = proxy({
             canPromptToInstall: false,
             isAvailable: false,
-            isScopedApp: browser.location.href.includes("/scoped_app"),
+            isScopedApp: location.href.includes("/scoped_app"),
             isSupportedOnBrowser: false,
             startUrl: "/odoo",
             decline,
@@ -71,11 +71,11 @@ const pwaService = {
         }
 
         if (state.isScopedApp) {
-            if (browser.location.pathname === "/scoped_app") {
+            if (location.pathname === "/scoped_app") {
                 // Installation page, use the path parameter in the URL
-                state.startUrl = "/" + new URL(browser.location.href).searchParams.get("path");
+                state.startUrl = "/" + new URL(location.href).searchParams.get("path");
             } else {
-                state.startUrl = browser.location.pathname;
+                state.startUrl = location.pathname;
             }
         }
 

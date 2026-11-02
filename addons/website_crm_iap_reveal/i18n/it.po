@@ -6,14 +6,15 @@
 # Sergio Zanchetta <primes2h@gmail.com>, 2022
 # Martin Trigaux, 2022
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Marianna Ciofani (cima)" <cima@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0beta\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-10-23 15:40+0000\n"
-"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
-"Language-Team: Italian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 19:15+0000\n"
+"Last-Translator: \"Marianna Ciofani (cima)\" <cima@odoo.com>\n"
+"Language-Team: Italian <https://translate.odoo.com/projects/odoo-s19-4/"
 "website_crm_iap_reveal/it/>\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
@@ -21,7 +22,7 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=(n == 1) ? 0 : ((n != 0 && n % 1000000 == "
 "0) ? 1 : 2);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: website_crm_iap_reveal
 #: model_terms:ir.ui.view,arch_db:website_crm_iap_reveal.crm_reveal_rule_form
@@ -32,6 +33,11 @@ msgstr ""
 "Per ogni visitatore che corrisponde ai requisiti per il traffico del sito "
 "web, e per il quale è possibile identificare l'azienda, viene consumato 1 "
 "credito.<br/>"
+
+#. module: website_crm_iap_reveal
+#: model_terms:ir.ui.view,arch_db:website_crm_iap_reveal.enrich_company
+msgid "<b>Contacts</b>"
+msgstr "<b>Contatti</b>"
 
 #. module: website_crm_iap_reveal
 #: model_terms:ir.ui.view,arch_db:website_crm_iap_reveal.crm_reveal_rule_form
@@ -55,8 +61,8 @@ msgstr "In archivio"
 
 #. module: website_crm_iap_reveal
 #: model:ir.model,name:website_crm_iap_reveal.model_crm_reveal_rule
-msgid "CRM Lead Generation Rules"
-msgstr "Regole di generazione lead"
+msgid "CRM Lead Generation Rule"
+msgstr "Regola generazione lead CRM"
 
 #. module: website_crm_iap_reveal
 #: model:ir.model,name:website_crm_iap_reveal.model_crm_reveal_view
@@ -146,6 +152,11 @@ msgid "Display Name"
 msgstr "Nome visualizzato"
 
 #. module: website_crm_iap_reveal
+#: model_terms:ir.ui.view,arch_db:website_crm_iap_reveal.enrich_company
+msgid "Email"
+msgstr "E-mail"
+
+#. module: website_crm_iap_reveal
 #. odoo-python
 #: code:addons/website_crm_iap_reveal/models/crm_reveal_rule.py:0
 msgid "Enter Valid Regex."
@@ -170,6 +181,11 @@ msgstr "Filtra per dimensione"
 #: model_terms:ir.ui.view,arch_db:website_crm_iap_reveal.crm_reveal_rule_form
 msgid "From"
 msgstr "Da"
+
+#. module: website_crm_iap_reveal
+#: model:ir.module.module,summary:base.module_website_crm_iap_reveal
+msgid "Generate Leads/Opportunities from your website's traffic"
+msgstr ""
 
 #. module: website_crm_iap_reveal
 #: model:ir.model.fields,field_description:website_crm_iap_reveal.field_crm_reveal_rule__lead_ids
@@ -234,6 +250,11 @@ msgid "Lead Data"
 msgstr "Dati lead"
 
 #. module: website_crm_iap_reveal
+#: model:ir.module.module,shortdesc:base.module_website_crm_iap_reveal
+msgid "Lead Generation From Website Visits"
+msgstr ""
+
+#. module: website_crm_iap_reveal
 #: model_terms:ir.ui.view,arch_db:website_crm_iap_reveal.crm_reveal_lead_opportunity_form
 msgid "Lead Generation Information"
 msgstr "Informazioni generazione lead"
@@ -285,6 +306,11 @@ msgstr "Sono ammessi al massimo 5 contatti."
 #: model:ir.model.fields.selection,name:website_crm_iap_reveal.selection__crm_reveal_rule__priority__1
 msgid "Medium"
 msgstr "Media"
+
+#. module: website_crm_iap_reveal
+#: model_terms:ir.ui.view,arch_db:website_crm_iap_reveal.enrich_company
+msgid "Name"
+msgstr "Nome completo"
 
 #. module: website_crm_iap_reveal
 #: model:ir.model.fields.selection,name:website_crm_iap_reveal.selection__crm_reveal_view__reveal_state__not_found
@@ -348,6 +374,11 @@ msgstr "Opportunità creata dalla generazione lead di Odoo"
 #: model:ir.model.fields,field_description:website_crm_iap_reveal.field_crm_reveal_rule__other_role_ids
 msgid "Other Roles"
 msgstr "Altri ruoli"
+
+#. module: website_crm_iap_reveal
+#: model_terms:ir.ui.view,arch_db:website_crm_iap_reveal.enrich_company
+msgid "Phone"
+msgstr "Telefono"
 
 #. module: website_crm_iap_reveal
 #: model:ir.model.fields,field_description:website_crm_iap_reveal.field_crm_reveal_rule__preferred_role_id
@@ -530,19 +561,3 @@ msgstr "dipendenti"
 #: model_terms:ir.ui.view,arch_db:website_crm_iap_reveal.crm_reveal_rule_form
 msgid "to"
 msgstr "a"
-
-#~ msgid "Last Modified on"
-#~ msgstr "Ultima modifica il"
-
-#~ msgid ""
-#~ "Lead Generation requires a GeoIP resolver which could not be found on "
-#~ "your system. Please consult https://pypi.org/project/GeoIP/."
-#~ msgstr ""
-#~ "Impossibile trovare nel sistema il risolutore GeoIP necessario per la "
-#~ "generazione dei contatti. Consultare https://pypi.org/project/GeoIP/."
-
-#~ msgid "Lead/Opportunity"
-#~ msgstr "Contatto/Opportunità"
-
-#~ msgid "Missing Library"
-#~ msgstr "Libreria mancante"

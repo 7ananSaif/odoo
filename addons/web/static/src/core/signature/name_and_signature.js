@@ -9,30 +9,24 @@ import { useAutofocus } from "@web/core/utils/hooks";
 import { renderToString } from "@web/core/utils/render";
 import { getDataURLFromFile } from "@web/core/utils/urls";
 
-import { Component, useState, onWillStart, useRef, useEffect } from "@odoo/owl";
+import { Component, onWillStart, proxy, signal, t, untrack, useEffect, useProps } from "@odoo/owl";
 
 let htmlId = 0;
 export class NameAndSignature extends Component {
     static template = "web.NameAndSignature";
     static components = { Dropdown, DropdownItem };
-    static props = {
-        signature: { type: Object },
-        defaultFont: { type: String, optional: true },
-        displaySignatureRatio: { type: Number, optional: true },
-        fontColor: { type: String, optional: true },
-        signatureType: { type: String, optional: true },
-        noInputName: { type: Boolean, optional: true },
-        mode: { type: String, optional: true },
-        onSignatureChange: { type: Function, optional: true },
-    };
-    static defaultProps = {
-        defaultFont: "",
-        displaySignatureRatio: 3.0,
-        fontColor: "DarkBlue",
-        signatureType: "signature",
-        noInputName: false,
-        onSignatureChange: () => {},
-    };
+    props = useProps({
+        signature: t.object(),
+        defaultFont: t.string().optional(""),
+        displaySignatureRatio: t.number().optional(3.0),
+        fontColor: t.string().optional("DarkBlue"),
+        signatureType: t.string().optional("signature"),
+        noInputName: t.boolean().optional(false),
+        mode: t.string().optional(),
+        onSignatureChange: t.function().optional(() => () => {}),
+    });
+
+    signNameInputRef = signal.ref(HTMLInputElement);
 
     setup() {
         this.htmlId = htmlId++;
@@ -40,24 +34,21 @@ export class NameAndSignature extends Component {
         this.currentFont = 0;
         this.drawTimeout = null;
 
-        this.state = useState({
+        this.state = proxy({
             signMode:
                 this.props.mode || (this.props.noInputName && !this.defaultName ? "draw" : "auto"),
             showSignatureArea: !!(this.props.noInputName || this.defaultName),
             showFontList: false,
         });
 
-        this.signNameInputRef = useRef("signNameInput");
-        this.signInputLoad = useRef("signInputLoad");
-        useAutofocus({ refName: "signNameInput" });
-        useEffect(
-            (el) => {
-                if (el) {
-                    el.click();
-                }
-            },
-            () => [this.signInputLoad.el]
-        );
+        this.signInputLoad = signal.ref(HTMLInputElement);
+        useAutofocus({ ref: this.signNameInputRef });
+        useEffect(() => {
+            const el = this.signInputLoad();
+            if (el) {
+                untrack(() => el.click());
+            }
+        });
 
         onWillStart(async () => {
             this.fonts = await rpc(`/web/sign/get_fonts/${this.props.defaultFont}`);
@@ -67,34 +58,35 @@ export class NameAndSignature extends Component {
             await loadJS("/web/static/lib/signature_pad/signature_pad.umd.js");
         });
 
-        this.signatureRef = useRef("signature");
-        useEffect(
-            (el) => {
-                if (el) {
-                    this.signaturePad = new SignaturePad(el, {
-                        penColor: this.props.fontColor,
-                        backgroundColor: "rgba(255,255,255,0)",
-                        minWidth: 2,
-                        maxWidth: 2,
-                    });
-                    this.signaturePad.addEventListener("endStroke", () => {
-                        this.props.signature.isSignatureEmpty = this.isSignatureEmpty;
-                        this.props.onSignatureChange(this.state.signMode);
-                    });
-                    this.resetSignature();
-                    this.props.signature.getSignatureImage = () => this.signaturePad.toDataURL();
-                    this.props.signature.resetSignature = () => this.resetSignature();
-                    if (this.state.signMode === "auto") {
-                        this.drawCurrentName();
-                    }
-                    if (this.props.signature.signatureImage) {
-                        this.clear();
-                        this.fromDataURL(this.props.signature.signatureImage);
-                    }
+        this.signatureRef = signal.ref(HTMLCanvasElement);
+        useEffect(() => {
+            const el = this.signatureRef();
+            if (!el) {
+                return;
+            }
+            untrack(() => {
+                this.signaturePad = new SignaturePad(el, {
+                    penColor: this.props.fontColor,
+                    backgroundColor: "rgba(255,255,255,0)",
+                    minWidth: 2,
+                    maxWidth: 2,
+                });
+                this.signaturePad.addEventListener("endStroke", () => {
+                    this.props.signature.isSignatureEmpty = this.isSignatureEmpty;
+                    this.props.onSignatureChange(this.state.signMode);
+                });
+                this.resetSignature();
+                this.props.signature.getSignatureImage = () => this.signaturePad.toDataURL();
+                this.props.signature.resetSignature = () => this.resetSignature();
+                if (this.state.signMode === "auto") {
+                    this.drawCurrentName();
                 }
-            },
-            () => [this.signatureRef.el]
-        );
+                if (this.props.signature.signatureImage) {
+                    this.clear();
+                    this.fromDataURL(this.props.signature.signatureImage);
+                }
+            });
+        });
     }
 
     /**
@@ -107,15 +99,18 @@ export class NameAndSignature extends Component {
             this.clear();
             return;
         }
-        const canvas = this.signatureRef.el;
+        const canvas = this.signatureRef();
+        if (!canvas) {
+            return;
+        }
         const img = this.getSVGText(font, text, canvas.width, canvas.height);
         await this.printImage(img);
     }
 
     focusName() {
         // Don't focus on mobile
-        if (!isMobileOS() && this.signNameInputRef.el) {
-            this.signNameInputRef.el.focus();
+        if (!isMobileOS() && this.signNameInputRef()) {
+            this.signNameInputRef().focus();
         }
     }
 
@@ -128,8 +123,8 @@ export class NameAndSignature extends Component {
     }
 
     /**
-    * Loads a signature image from a base64 dataURL and updates the empty state.
-    */
+     * Loads a signature image from a base64 dataURL and updates the empty state.
+     */
     async fromDataURL() {
         await this.signaturePad.fromDataURL(...arguments);
         this.props.signature.isSignatureEmpty = this.isSignatureEmpty;
@@ -145,6 +140,7 @@ export class NameAndSignature extends Component {
      */
     getCleanedName() {
         // This replaces non-breaking spaces with breaking spaces
+        // eslint-disable-next-line no-irregular-whitespace
         const text = this.props.signature.name.replace(/ /g, " ");
         if (this.props.signatureType === "initial" && text) {
             return (
@@ -190,7 +186,7 @@ export class NameAndSignature extends Component {
     }
 
     uploadFile() {
-        this.signInputLoad.el?.click();
+        this.signInputLoad()?.click();
     }
 
     /**
@@ -263,13 +259,16 @@ export class NameAndSignature extends Component {
         const img = new Image();
         img.onload = () => {
             const ctx = c.getContext("2d");
-            var ratio = ((img.width / img.height) > (c.width / c.height)) ? c.width / img.width : c.height / img.height;
-            ctx.drawImage( 
+            var ratio =
+                img.width / img.height > c.width / c.height
+                    ? c.width / img.width
+                    : c.height / img.height;
+            ctx.drawImage(
                 img,
-                (c.width / 2) - (img.width * ratio / 2),
-                (c.height / 2) - (img.height * ratio / 2)
-                , img.width * ratio
-                , img.height * ratio
+                c.width / 2 - (img.width * ratio) / 2,
+                c.height / 2 - (img.height * ratio) / 2,
+                img.width * ratio,
+                img.height * ratio
             );
             this.props.signature.isSignatureEmpty = this.isSignatureEmpty;
             this.props.onSignatureChange(this.state.signMode);
@@ -295,10 +294,10 @@ export class NameAndSignature extends Component {
 
     resizeSignature() {
         // recompute size based on the current width
-        const width = this.signatureRef.el.clientWidth;
+        const width = this.signatureRef().clientWidth;
         const height = parseInt(width / this.props.displaySignatureRatio);
 
-        Object.assign(this.signatureRef.el, { width, height });
+        Object.assign(this.signatureRef(), { width, height });
     }
 
     /**

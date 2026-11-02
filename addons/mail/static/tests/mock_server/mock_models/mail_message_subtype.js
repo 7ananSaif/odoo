@@ -3,7 +3,7 @@ import { fields, models } from "@web/../tests/web_test_helpers";
 export class MailMessageSubtype extends models.ServerModel {
     _name = "mail.message.subtype";
 
-    default = fields.Generic({ default: true });
+    default = fields.Boolean({ default: true });
     subtype_xmlid = fields.Char();
 
     _records = [
@@ -11,19 +11,19 @@ export class MailMessageSubtype extends models.ServerModel {
             default: false,
             internal: true,
             name: "Activities",
-            sequence: 90,
+            sequence: 100,
             subtype_xmlid: "mail.mt_activities",
         },
         {
             default: false,
             internal: true,
-            name: "Note",
-            sequence: 100,
+            name: "Notes",
+            sequence: 90,
             subtype_xmlid: "mail.mt_note",
             track_recipients: true,
         },
         {
-            name: "Discussions",
+            name: "Messages",
             sequence: 0,
             subtype_xmlid: "mail.mt_comment",
             track_recipients: true,

@@ -3,22 +3,25 @@ import {
     addBuilderOption,
     setupHTMLBuilder,
 } from "@html_builder/../tests/helpers";
+import { Builder } from "@html_builder/builder";
 import { BuilderAction } from "@html_builder/core/builder_action";
-import { BaseOptionComponent, useDomState } from "@html_builder/core/utils";
+import { BaseOptionComponent } from "@html_builder/core/base_option_component";
+import { useDomState } from "@html_builder/core/utils";
+import { SavePlugin } from "@html_builder/core/save_plugin";
 import { describe, expect, test } from "@odoo/hoot";
-import { animationFrame, Deferred, delay, queryOne } from "@odoo/hoot-dom";
+import { animationFrame, delay, queryOne, tick } from "@odoo/hoot-dom";
 import { xml } from "@odoo/owl";
-import { contains, onRpc } from "@web/../tests/web_test_helpers";
+import { contains, onRpc, patchWithCleanup } from "@web/../tests/web_test_helpers";
 
 describe.current.tags("desktop");
 
 describe("useDomState", () => {
-    test("Should not update the state of an async useDomState if a new step has been made", async () => {
+    test("Should not update the state of an async useDomState if a new commit has been written", async () => {
         let currentResolve;
-        addBuilderOption(
-            class extends BaseOptionComponent {
-                static selector = ".test-options-target";
-                static template = xml`<div t-att-data-letter="getLetter()"/>`;
+        addBuilderOption({
+            selector: ".test-options-target",
+            Component: class extends BaseOptionComponent {
+                static template = xml`<div t-att-data-letter="this.getLetter()"/>`;
                 setup() {
                     super.setup(...arguments);
                     this.state = useDomState(async () => {
@@ -34,8 +37,8 @@ describe("useDomState", () => {
                     expect.step(`state: ${this.state.delay}`);
                     return this.state.delay;
                 }
-            }
-        );
+            },
+        });
         const { getEditor } = await setupHTMLBuilder(`<div class="test-options-target">a</div>`);
         await animationFrame();
         await contains(":iframe .test-options-target").click();
@@ -45,10 +48,10 @@ describe("useDomState", () => {
         await animationFrame();
 
         editor.editable.querySelector(".test-options-target").textContent = "b";
-        editor.shared.history.addStep();
+        editor.shared.history.commit();
         const resolve2 = currentResolve;
         editor.editable.querySelector(".test-options-target").textContent = "c";
-        editor.shared.history.addStep();
+        editor.shared.history.commit();
         const resolve3 = currentResolve;
 
         resolve3("z");
@@ -71,7 +74,7 @@ describe("waitSidebarUpdated", () => {
                 }
                 async apply({ editingElement, value }) {
                     await delay(delayAmount);
-                    await deferred;
+                    await deferred.promise;
                     editingElement.dataset.value = value;
                 }
             },
@@ -79,23 +82,22 @@ describe("waitSidebarUpdated", () => {
         class TestSubComponent extends BaseOptionComponent {
             static template = xml`
                 <div class="test-value-sub">
-                    <t t-out="state.value"/>
+                    <t t-out="this.state.value"/>
                 </div>
             `;
             setup() {
                 super.setup();
                 this.state = useDomState(async (el) => {
                     await delay(delayAmount);
-                    await deferred;
+                    await deferred.promise;
                     return { value: el.dataset.value };
                 });
             }
         }
         class TestOptionComponent extends BaseOptionComponent {
-            static selector = "div.test";
             static template = xml`
                 <div class="test-value-parent">
-                    <t t-out="state.value"/>
+                    <t t-out="this.state.value"/>
                 </div>
                 <div class="test-button-1">
                     <BuilderButton action="'testAction'" actionValue="'b'">b</BuilderButton>
@@ -103,7 +105,7 @@ describe("waitSidebarUpdated", () => {
                 <div class="test-button-2">
                     <BuilderButton id="'button_2_opt'" action="'testAction'" actionValue="'c'">c</BuilderButton>
                 </div>
-                <t t-if="state.showOther and isActiveItem('button_2_opt')">
+                <t t-if="this.state.showOther and this.isActiveItem('button_2_opt')">
                     <TestSubComponent/>
                 </t>
             `;
@@ -112,17 +114,20 @@ describe("waitSidebarUpdated", () => {
                 super.setup();
                 this.state = useDomState(async (el) => {
                     await delay(delayAmount);
-                    await deferred;
+                    await deferred.promise;
                     return { value: el.dataset.value, showOther: el.dataset.value === "c" };
                 });
             }
         }
-        addBuilderOption(TestOptionComponent);
+        addBuilderOption({
+            selector: "div.test",
+            Component: TestOptionComponent,
+        });
         const { waitSidebarUpdated } = await setupHTMLBuilder(
             `<div class="test" data-value="a">a</div>`
         );
 
-        deferred = new Deferred();
+        deferred = Promise.withResolvers();
         await contains(":iframe div.test").click();
         expect(".test-value-parent").toHaveCount(0);
         deferred.resolve();
@@ -130,7 +135,7 @@ describe("waitSidebarUpdated", () => {
         await waitSidebarUpdated();
         expect(".test-value-parent").toHaveText("a");
 
-        deferred = new Deferred();
+        deferred = Promise.withResolvers();
         await contains(".test-button-1 button").click();
         expect(".test-value-parent").toHaveText("a");
         expect(".test-button-3").toHaveCount(0);
@@ -140,7 +145,7 @@ describe("waitSidebarUpdated", () => {
         expect(".test-value-parent").toHaveText("b");
         expect(".test-value-sub").toHaveCount(0);
 
-        deferred = new Deferred();
+        deferred = Promise.withResolvers();
         await contains(".test-button-2 button").click();
         expect(".test-value-parent").toHaveText("b");
         expect(".test-value-sub").toHaveCount(0);
@@ -150,6 +155,65 @@ describe("waitSidebarUpdated", () => {
         expect(".test-value-parent").toHaveText("c");
         expect(".test-value-sub").toHaveText("c");
     });
+});
+
+test("Shouldn't reload(save, etc) when a reload is canceled", async () => {
+    const { promise, resolve } = Promise.withResolvers();
+
+    patchWithCleanup(SavePlugin.prototype, {
+        async save() {
+            expect.step("save");
+            await super.save();
+        },
+    });
+    patchWithCleanup(Builder.prototype, {
+        setup() {
+            super.setup();
+            this.editor.config.reloadEditor = async () => {
+                await promise;
+                expect.step("reload");
+            };
+        },
+    });
+
+    addBuilderAction({
+        TestCancelReloadAction: class extends BuilderAction {
+            static id = "testCancelReload";
+            setup() {
+                this.reload = {};
+            }
+            load({ editingElement }) {
+                return { shouldReload: editingElement.classList.contains("should_reload") };
+            }
+            async apply({ editingElement, loadResult }) {
+                editingElement.dataset.applied = "true";
+                if (!loadResult.shouldReload) {
+                    return BuilderAction.cancelReload;
+                }
+            }
+        },
+    });
+
+    addBuilderOption({
+        selector: ".test-options-target",
+        template: xml`<BuilderButton action="'testCancelReload'">Click</BuilderButton>`,
+    });
+
+    await setupHTMLBuilder(`<div class="test-options-target">Target</div>`);
+    await contains(":iframe .test-options-target").click();
+    await contains(".options-container [data-action-id='testCancelReload']").click();
+    expect(".o_blockUI").toHaveCount(0);
+    expect.verifySteps([]);
+
+    const editingEl = queryOne(":iframe .test-options-target");
+    editingEl.classList.add("should_reload");
+    await contains(":iframe .test-options-target").click();
+    await contains(".options-container [data-action-id='testCancelReload']").click();
+    expect(".o_blockUI").toHaveCount(1);
+    resolve();
+    await animationFrame();
+    expect(".o_blockUI").toHaveCount(0);
+    expect.verifySteps(["save", "reload"]);
 });
 
 test("UI is blocked when doing the reloadable operation", async () => {
@@ -173,12 +237,10 @@ test("UI is blocked when doing the reloadable operation", async () => {
         },
     });
 
-    addBuilderOption(
-        class extends BaseOptionComponent {
-            static selector = ".test-options-target";
-            static template = xml`<BuilderButton action="'testReload'">Click</BuilderButton>`;
-        }
-    );
+    addBuilderOption({
+        selector: ".test-options-target",
+        template: xml`<BuilderButton action="'testReload'">Click</BuilderButton>`,
+    });
 
     const { waitSidebarUpdated } = await setupHTMLBuilder(
         `<div class="test-options-target">Target</div>`
@@ -194,8 +256,7 @@ test("System should not crash if an asynchronous useDomState is working with rem
     let useDomStateStarted;
     let editingElRemoved;
     class TestOptionComponent extends BaseOptionComponent {
-        static template = xml`<BuilderButton t-if="state.showOption" classAction="'y'">Click</BuilderButton>`;
-        static selector = "div.test";
+        static template = xml`<BuilderButton t-if="this.state.showOption" classAction="'y'">Click</BuilderButton>`;
         setup() {
             super.setup();
             this.state = useDomState(async (el) => {
@@ -207,7 +268,10 @@ test("System should not crash if an asynchronous useDomState is working with rem
             });
         }
     }
-    addBuilderOption(TestOptionComponent);
+    addBuilderOption({
+        selector: "div.test",
+        Component: TestOptionComponent,
+    });
     const { waitSidebarUpdated } = await setupHTMLBuilder(`<div class="test">a</div>`);
     await contains(":iframe .test").click();
     await waitSidebarUpdated();
@@ -219,54 +283,85 @@ test("System should not crash if an asynchronous useDomState is working with rem
     editingElRemoved.resolve();
 });
 
-test("Shouldn't reload(save, etc) when a reload is canceled", async () => {
-    const { promise, resolve } = Promise.withResolvers();
-
-    onRpc("ir.ui.view", "save", async () => {
-        await promise;
-        expect.step("save");
-        return true;
-    });
-    addBuilderAction({
-        TestCancelReloadAction: class extends BuilderAction {
-            static id = "testCancelReload";
-            setup() {
-                this.reload = {};
+describe("useSelectableLtrRtlComponent", () => {
+    test("Should register 2*2 ltrRtlMapping with the same name in different parents", async () => {
+        addBuilderOption(
+            class TestOptionComponent extends BaseOptionComponent {
+                static selector = "div.test-options-target";
+                static template = xml`
+                    <BuilderButtonGroup>
+                        <BuilderButton ltrRtlMapping="'test'" classAction="'a'">A</BuilderButton>
+                        <BuilderButton ltrRtlMapping="'test'" classAction="'b'">B</BuilderButton>
+                    </BuilderButtonGroup>
+                    <BuilderButtonGroup>
+                        <BuilderButton ltrRtlMapping="'test'" classAction="'c'">C</BuilderButton>
+                        <BuilderButton ltrRtlMapping="'test'" classAction="'d'">D</BuilderButton>
+                    </BuilderButtonGroup>
+                `;
             }
-            load({ editingElement }) {
-                return { shouldReload: editingElement.classList.contains("should_reload") };
-            }
-            async apply({ editingElement, loadResult }) {
-                editingElement.dataset.applied = "true";
-                if (!loadResult.shouldReload) {
-                    return BuilderAction.cancelReload;
-                }
-            }
-        },
-    });
-
-    addBuilderOption(
-        class extends BaseOptionComponent {
-            static selector = ".test-options-target";
-            static template = xml`<BuilderButton action="'testCancelReload'">Click</BuilderButton>`;
+        );
+        await setupHTMLBuilder(`<div class="test-options-target">Target</div>`);
+        await contains(":iframe .test-options-target").click();
+        await tick();
+        for (const cls of ["a", "b", "c", "d"]) {
+            expect(`[data-class-action=${cls}]`).toBeVisible();
         }
-    );
-
-    await setupHTMLBuilder(`<div class="test-options-target">Target</div>`);
-    await contains(":iframe .test-options-target").click();
-    await contains(".options-container [data-action-id='testCancelReload']").click();
-    expect(".o_blockUI").toHaveCount(0);
-    expect.verifySteps([]);
-
-    const editingEl = queryOne(":iframe .test-options-target");
-    editingEl.classList.add("should_reload");
-    await contains(":iframe .test-options-target").click();
-    await contains(".options-container [data-action-id='testCancelReload']").click();
-    expect(".o_blockUI").toHaveCount(1);
-    resolve();
-    await animationFrame();
-    expect(".o_blockUI").toHaveCount(0);
-    expect.verifySteps(["save"]);
+    });
+    test("Registering only 1 ltrRtlMapping should crash", async () => {
+        addBuilderOption(
+            class TestOptionComponent extends BaseOptionComponent {
+                static selector = "div.test-options-target";
+                static template = xml`
+                    <BuilderButtonGroup>
+                        <BuilderButton ltrRtlMapping="'test'" classAction="'d-none'">Hide</BuilderButton>
+                    </BuilderButtonGroup>
+                `;
+            }
+        );
+        await setupHTMLBuilder(`<div class="test-options-target">Target</div>`);
+        await contains(":iframe .test-options-target").click();
+        await tick();
+        expect.waitForErrors([
+            `ltrRtlMapping "test" has been found only once. They should always come in pair and shouldn't have different render conditions.`,
+        ]);
+    });
+    test("Registering 2 ltrRtlMapping with different rendering conditions should crash", async () => {
+        addBuilderOption(
+            class TestOptionComponent extends BaseOptionComponent {
+                static selector = "div.test-options-target";
+                static template = xml`
+                    <BuilderButtonGroup>
+                        <BuilderButton t-if="true" ltrRtlMapping="'test'" classAction="'button-a'">A</BuilderButton>
+                        <BuilderButton t-if="false" ltrRtlMapping="'test'" classAction="'button-b'">B</BuilderButton>
+                    </BuilderButtonGroup>
+                `;
+            }
+        );
+        await setupHTMLBuilder(`<div class="test-options-target">Target</div>`);
+        await contains(":iframe .test-options-target").click();
+        expect.waitForErrors([
+            `ltrRtlMapping "test" has been found only once. They should always come in pair and shouldn't have different render conditions.`,
+        ]);
+    });
+    test("Registering 3 identical ltrRtlMapping should crash", async () => {
+        addBuilderOption(
+            class TestOptionComponent extends BaseOptionComponent {
+                static selector = "div.test-options-target";
+                static template = xml`
+                    <BuilderButtonGroup>
+                        <BuilderButton ltrRtlMapping="'test'" classAction="'button-a'">Button A</BuilderButton>
+                        <BuilderButton ltrRtlMapping="'test'" classAction="'button-b'">Button B</BuilderButton>
+                        <BuilderButton ltrRtlMapping="'test'" classAction="'button-c'">Button C</BuilderButton>
+                    </BuilderButtonGroup>
+                `;
+            }
+        );
+        await setupHTMLBuilder(`<div class="test-options-target">Target</div>`);
+        await contains(":iframe .test-options-target").click();
+        expect.waitForErrors([
+            `ltrRtlMapping "test" has been found more than twice. They should always come in pair.`,
+        ]);
+    });
 });
 
 test("UI is unblocked when getting an error on a reloadable operation", async () => {
@@ -285,12 +380,11 @@ test("UI is unblocked when getting an error on a reloadable operation", async ()
         },
     });
 
-    addBuilderOption(
-        class extends BaseOptionComponent {
-            static selector = ".test-options-target";
-            static template = xml`<BuilderButton action="'testAction'">Click</BuilderButton>`;
-        }
-    );
+    addBuilderOption({
+        selector: ".test-options-target",
+        template: xml`<BuilderButton action="'testAction'">Click</BuilderButton>`,
+    });
+
     const { waitSidebarUpdated } = await setupHTMLBuilder(
         `<div class="test-options-target">Target</div>`
     );

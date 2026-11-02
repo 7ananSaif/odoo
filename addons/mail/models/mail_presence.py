@@ -3,7 +3,9 @@
 from datetime import timedelta
 
 from odoo import api, fields, models, tools
-from odoo.service.model import PG_CONCURRENCY_EXCEPTIONS_TO_RETRY
+from odoo.sql_db import PG_CONCURRENCY_EXCEPTIONS_TO_RETRY
+
+from odoo.addons.mail.tools.discuss import Store
 
 UPDATE_PRESENCE_DELAY = 60
 DISCONNECTION_TIMER = UPDATE_PRESENCE_DELAY + 5
@@ -54,11 +56,8 @@ class MailPresence(models.Model):
         return result
 
     def unlink(self):
-        guests_or_users = [presence.guest_id or presence.user_id for presence in self]
-        res = super().unlink()
-        for guest_or_user in guests_or_users:
-            self._send_status_updated_notification(guest_or_user=guest_or_user, status="offline")
-        return res
+        self._send_presence("offline")
+        return super().unlink()
 
     @api.model
     def _try_update_presence(self, user_or_guest, inactivity_period=0):
@@ -94,34 +93,22 @@ class MailPresence(models.Model):
             # sudo: res.users/mail.guest can update presence of accessible user/guest
             self.env["mail.presence"].sudo().create(values)
 
-    def _send_presence(self, im_status=None, bus_target=None):
+    def _send_presence(self, im_status=None):
         """Send notification related to bus presence update.
 
         :param im_status: 'online', 'away' or 'offline'
         """
+        stores = Store.Stores()
         for presence in self:
-            self._send_status_updated_notification(
-                guest_or_user=presence.guest_id or presence.user_id,
-                status=im_status or presence.status,
-                bus_target=bus_target,
+            persona = presence.guest_id or presence.user_id
+            stores[persona, "presence"].add(
+                persona,
+                {"im_status": im_status or persona.im_status},
             )
-
-    @api.model
-    def _send_status_updated_notification(self, *, guest_or_user, status, bus_target=None):
-        identity_data = (
-            {"guest_id": guest_or_user.id}
-            if guest_or_user._name == "mail.guest"
-            else {"partner_id": guest_or_user.partner_id.id}
-        )
-        (bus_target or guest_or_user)._bus_send(
-            "bus.bus/im_status_updated",
-            {
-                "presence_status": status,
-                "im_status": guest_or_user.im_status,
-                **identity_data,
-            },
-            subchannel="presence" if not bus_target else None,
-        )
+            stores[persona].add(
+                persona,
+                {"presence_status": im_status or presence.status},
+            )
 
     @api.autovacuum
     def _gc_bus_presence(self):

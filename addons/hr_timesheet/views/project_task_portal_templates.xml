@@ -7,7 +7,7 @@
         </xpath>
         <xpath expr="//div[@id='task-nav']" position="before">
             <div t-if="timesheets and allow_timesheets and show_portal_timesheets" class="d-grid flex-grow-1" id='nav-report'>
-                <a class="btn btn-light o_print_btn o_project_timesheet_print d-block" t-att-href="task.get_portal_url(report_type='pdf')" href="#" title="View Details" role="button" target="_blank"><i class="fa fa-print"/> View Details</a>
+                <a class="btn btn-light o_print_btn o_project_timesheet_print d-block" t-att-href="task.get_portal_url(report_type='pdf')" href="#" title="View Details" role="button" target="_blank"><i class="oi" data-icon="print"/> View Details</a>
             </div>
         </xpath>
         <xpath expr="//li[@id='nav-header']" position="after">
@@ -20,14 +20,17 @@
         <xpath expr="//div[@id='card_body']" position="inside">
             <div class="container" t-if="timesheets and allow_timesheets and show_portal_timesheets">
                 <h5 id="task_timesheets" class="mt-2 mb-2" data-anchor="true">Timesheets</h5>
-                <t t-call="hr_timesheet.portal_timesheet_table"/>
+                <t t-call="hr_timesheet.portal_timesheet_table_with_total"/>
             </div>
         </xpath>
+        <xpath expr="//div[@name='portal_my_task_allocated_hours']" position="attributes">
+            <attribute name="t-if">task.env['account.analytic.line']._show_portal_timesheets()</attribute>
+        </xpath>
         <xpath expr="//div[@name='portal_my_task_allocated_hours']" position="after">
-            <div t-if="task.allocated_hours > 0 and allow_timesheets and show_portal_timesheets"><strong>Progress:</strong> <span t-esc="task.progress * 100" t-options='{"widget": "float", "precision": 0}'/>%</div>
+            <div t-if="task.allocated_hours > 0 and allow_timesheets and show_portal_timesheets"><strong>Progress:</strong> <span t-out="task.progress * 100" t-options='{"widget": "float", "precision": 0}'/>%</div>
         </xpath>
         <xpath expr="//div[@name='portal_my_task_allocated_hours']/t" position="replace">
-            <t t-call="hr_timesheet.portal_my_task_allocated_hours_template"></t>
+            <t t-call="hr_timesheet.portal_my_task_allocated_hours_template"/>
         </xpath>
     </template>
 
@@ -36,7 +39,7 @@
             <t t-if="is_uom_day">
                 <span t-out="timesheets._convert_hours_to_days(task.allocated_hours)" t-options='{"widget": "timesheet_uom"}'/>
             </t>
-            <t t-else="" t-call="project.portal_my_task_allocated_hours_template"></t>
+            <t t-else="" t-call="project.portal_my_task_allocated_hours_template"/>
         </t>
     </template>
 
@@ -49,13 +52,13 @@
             <t t-set="timesheet_ids" t-value="task.sudo().timesheet_ids"/>
             <t t-set="is_uom_day" t-value="timesheet_ids._is_timesheet_encode_uom_day()"/>
         </xpath>
-        <xpath expr="//thead/tr/th[@name='project_portal_milestones']" position="after">
+        <xpath expr="//thead/tr/th[@name='stage_id_col']" position="before">
             <t t-if="(not project or project.allow_timesheets) and show_portal_timesheets">
                 <th class="text-end">Time Spent</th>
             </t>
         </xpath>
-        <xpath expr="//th[@name='state_col']" position="before">
-            <th t-if="not project or project.allow_timesheets" class="text-end text-muted fw-normal">
+        <xpath expr="//tr[@name='grouped_tasks_groupby_columns']//th[@name='stage_id_col']" position="before">
+            <th t-if="(not project or project.allow_timesheets) and show_portal_timesheets" class="text-end text-muted fw-normal">
                 <t t-set="total_hours_dict" t-value="tasks._get_portal_total_hours_dict()"/>
                 <t t-if="total_hours_dict">
                     <t t-set="total_allocated_hours" t-value="tasks.project_id.allocated_hours if groupby == 'project_id' else total_hours_dict['allocated_hours']"/>
@@ -69,16 +72,19 @@
                             </t>
                         </t>
                         <t t-else="">
-                            <t t-out="total_effective_hours" t-options='{"widget": "float_time"}'/>
+                            <t t-if="total_effective_hours">
+                                <t t-out="tasks.env['account.analytic.line']._format_portal_hours(total_effective_hours)"/>
+                            </t>
+                            <t t-else=""> 0h </t>
                             <t t-if="total_allocated_hours"> /
-                                <t t-out="total_allocated_hours" t-options='{"widget": "float_time"}'/>
+                                <t t-out="tasks.env['account.analytic.line']._format_portal_hours(total_allocated_hours)"/>
                             </t>
                         </t>
                     </span>
                 </t>
             </th>
         </xpath>
-        <xpath expr="//tbody/t/tr/td[@name='project_portal_milestones']" position="after">
+        <xpath expr="//tbody/t/tr/td[@name='project_portal_project']" position="after">
             <td t-if="(not project or project.allow_timesheets) and show_portal_timesheets" class="text-end">
                 <t t-if="task.allow_timesheets">
                     <t t-if="is_uom_day">
@@ -86,10 +92,13 @@
                         <span t-if="task.allocated_hours > 0"> / <t t-out="timesheet_ids._convert_hours_to_days(task.allocated_hours)"/></span>
                     </t>
                     <t t-else="">
-                        <span t-field="task.total_hours_spent" t-options='{"widget": "float_time"}'/>
+                        <t t-if="task.total_hours_spent">
+                            <span t-out="timesheet_ids._format_portal_hours(task.total_hours_spent)"/>
+                        </t>
+                        <t t-else=""> 0h </t>
                         <t t-if="task.allocated_hours > 0">
                             /
-                            <span t-field="task.allocated_hours" t-options='{"widget": "float_time"}'/>
+                            <span t-out="timesheet_ids._format_portal_hours(task.allocated_hours)"/>
                         </t>
                     </t>
                 </t>

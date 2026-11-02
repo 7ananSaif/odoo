@@ -1,28 +1,35 @@
-import { Component, onWillStart, onWillUpdateProps } from "@odoo/owl";
+import { Component, onWillStart, onWillUpdateProps, signal, t, useProps } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
-import { TagsList } from "@web/core/tags_list/tags_list";
+import { AvatarTag } from "@web/core/tags_list/avatar_tag";
+import { BadgeTag } from "@web/core/tags_list/badge_tag";
 import { isId } from "@web/core/tree_editor/utils";
 import { useService } from "@web/core/utils/hooks";
 import { imageUrl } from "@web/core/utils/urls";
 import { RecordAutocomplete } from "./record_autocomplete";
 import { useTagNavigation } from "./tag_navigation_hook";
 
+export const multiRecordSelectorProps = {
+    // no element type: subclasses (e.g. DomainSelectorAutocomplete) accept
+    // expressions too, and the base schema is still validated for them
+    resIds: t.array(),
+    resModel: t.string(),
+    update: t.function(),
+    domain: t.array().optional(),
+    context: t.object().optional(),
+    fieldString: t.string().optional(),
+    placeholder: t.string().optional(),
+};
+
 export class MultiRecordSelector extends Component {
-    static props = {
-        resIds: { type: Array, element: Number },
-        resModel: String,
-        update: Function,
-        domain: { type: Array, optional: true },
-        context: { type: Object, optional: true },
-        fieldString: { type: String, optional: true },
-        placeholder: { type: String, optional: true },
-    };
-    static components = { RecordAutocomplete, TagsList };
+    props = useProps(multiRecordSelectorProps);
+    static components = { AvatarTag, BadgeTag, RecordAutocomplete };
     static template = "web.MultiRecordSelector";
+
+    multiRecordSelectorRef = signal.ref();
 
     setup() {
         this.nameService = useService("name");
-        useTagNavigation("multiRecordSelector", {
+        useTagNavigation(this.multiRecordSelectorRef, {
             delete: (index) => this.deleteTag(index),
         });
         onWillStart(() => this.computeDerivedParams());
@@ -39,20 +46,17 @@ export class MultiRecordSelector extends Component {
     async computeDerivedParams(props = this.props) {
         const displayNames = await this.getDisplayNames(props);
         this.tags = this.getTags(props, displayNames);
+        /**
+         * Placeholder should be empty if there is at least one tag. We cannot use
+         * the default behavior of the input placeholder because even if there is
+         * a tag, the input is still empty.
+         */
+        this.placeholder = this.tags.length ? "" : this.props.placeholder;
     }
 
     async getDisplayNames(props) {
         const ids = this.getIds(props);
         return this.nameService.loadDisplayNames(props.resModel, ids);
-    }
-
-    /**
-     * Placeholder should be empty if there is at least one tag. We cannot use
-     * the default behavior of the input placeholder because even if there is
-     * a tag, the input is still empty.
-     */
-    get placeholder() {
-        return this.getTags(this.props, {}).length ? "" : this.props.placeholder;
     }
 
     getIds(props = this.props) {
@@ -61,12 +65,12 @@ export class MultiRecordSelector extends Component {
 
     getTags(props, displayNames) {
         return props.resIds.map((id, index) => {
-            const text =
-                typeof displayNames[id] === "string"
-                    ? displayNames[id]
-                    : _t("Inaccessible/missing record ID: %s", id);
+            const text = typeof displayNames[id] === "string" ? displayNames[id] : String(id);
             return {
+                id,
                 text,
+                tooltip:
+                    typeof displayNames[id] === "string" ? text : _t("Missing record (ID: %s)", id),
                 onDelete: () => {
                     this.deleteTag(index);
                 },

@@ -26,6 +26,8 @@
                     <attribute name="readonly">0</attribute>
                     <attribute name="options">{'no_create': True, 'no_open': True}</attribute>
                     <attribute name="domain">[('product_tmpl_id', '=', parent.id)]</attribute>
+                    <attribute name="placeholder">All variants</attribute>
+                    <attribute name="optional">show</attribute>
                 </xpath>
                 <xpath expr="//field[@name='delay']" position="attributes">
                     <attribute name="optional">show</attribute>
@@ -81,6 +83,13 @@
                         </group>
                     </group>
                 </group>
+                <group name="group_general" position="inside">
+                    <label id="forecasted_qty_no_stock" for="virtual_available" invisible="type != 'consu' or not is_storable"/>
+                    <div name="forecasted_qty_no_stock" class="o_row w-100" invisible="type != 'consu' or not is_storable">
+                        <field name="virtual_available" style="max-width: fit-content;" readonly="True" help="Quantity on hand minus outgoing quantity from Sales Orders plus incoming quantity from Purchase Orders"/>
+                        <field name="uom_name" class="ms-2 oe_inline" groups="uom.group_uom"/>
+                    </div>
+                </group>
             </field>
         </record>
 
@@ -105,14 +114,34 @@
             <field name="arch" type="xml">
                 <button name="action_open_documents" position="after">
                     <button class="oe_stat_button" name="action_view_po"
-                        groups="purchase.group_purchase_user"
-                        type="object" icon="fa-credit-card" invisible="not purchase_ok" help="Purchased in the last 365 days">
-                        <div class="o_field_widget o_stat_info">
+                            groups="purchase.group_purchase_user"
+                            type="object" icon="credit_card" invisible="not purchase_ok"
+                            help="Purchased in the last 365 days. Incoming represents confirmed purchase orders not received, or partially received">
+                        <div class="o_field_widget o_stat_info" invisible="is_storable == True">
                             <span class="o_stat_value d-flex gap-1">
-                                <field name="purchased_product_qty" widget="statinfo" nolabel="1" class="oe_inline"/>
-                                <field name="uom_name"  class="oe_inline" groups="uom.group_uom"/>
+                                <field name="purchased_product_qty" widget="statinfo" nolabel="1" class="oe_inline" options="{'hide_trailing_zeros': true}"/>
+                                <field name="uom_name" class="oe_inline" groups="uom.group_uom"/>
                             </span>
                             <span class="o_stat_text">Purchased</span>
+                        </div>
+                        <div class="d-flex flex-row gap-1 ms-1" invisible="is_storable == False">
+                            <div class="o_field_widget o_stat_info flex-column align-items-end gap-1">
+                                <span class="o_stat_value d-flex gap-1">
+                                    <field name="purchased_product_qty" widget="statinfo" nolabel="1" options="{'hide_trailing_zeros': true}"/>
+                                </span>
+                                <span class="o_stat_value text-info d-flex gap-1">
+                                    <field name="incoming_qty" widget="statinfo" nolabel="1" options="{'hide_trailing_zeros': true}"/>
+                                </span>
+                            </div>
+                            <div class="o_field_widget o_stat_info flex-column align-items-start gap-1">
+                                <span class="o_stat_value">
+                                    <field name="uom_name" widget="statinfo" nolabel="1" groups="uom.group_uom"/>
+                                    <span groups="!uom.group_uom">Purchased</span>
+                                </span>
+                                <span class="o_stat_value text-muted">
+                                    Incoming
+                                </span>
+                            </div>
                         </div>
                     </button>
                 </button>
@@ -126,14 +155,34 @@
             <field name="arch" type="xml">
                 <div name="button_box" position="inside">
                     <button class="oe_stat_button" name="action_view_po"
-                        groups="purchase.group_purchase_user"
-                        type="object" icon="fa-credit-card" invisible="not purchase_ok" help="Purchased in the last 365 days">
-                        <div class="o_field_widget o_stat_info">
+                            groups="purchase.group_purchase_user"
+                            type="object" icon="credit_card" invisible="not purchase_ok"
+                            help="Purchased in the last 365 days. Incoming represents confirmed purchase orders not received, or partially received">
+                        <div class="o_field_widget o_stat_info" invisible="is_storable == True">
                             <span class="o_stat_value d-flex gap-1">
-                                <field name="purchased_product_qty" widget="statinfo" nolabel="1" class="oe_inline"/>
-                                <field name="uom_name"  class="oe_inline" groups="uom.group_uom"/>
+                                <field name="purchased_product_qty" widget="statinfo" nolabel="1" class="oe_inline" options="{'hide_trailing_zeros': true}"/>
+                                <field name="uom_name" class="oe_inline" groups="uom.group_uom"/>
                             </span>
                             <span class="o_stat_text">Purchased</span>
+                        </div>
+                        <div class="d-flex flex-row gap-1 ms-1" invisible="is_storable == False">
+                            <div class="o_field_widget o_stat_info flex-column align-items-end gap-1">
+                                <span class="o_stat_value d-flex gap-1">
+                                    <field name="purchased_product_qty" widget="statinfo" nolabel="1" options="{'hide_trailing_zeros': true}"/>
+                                </span>
+                                <span class="o_stat_value d-flex gap-1">
+                                    <field name="incoming_qty" widget="statinfo" nolabel="1" options="{'hide_trailing_zeros': true}"/>
+                                </span>
+                            </div>
+                            <div class="o_field_widget o_stat_info flex-column align-items-start gap-1">
+                                <span class="o_stat_value">
+                                    <field name="uom_name" widget="statinfo" nolabel="1" groups="uom.group_uom"/>
+                                    <span groups="!uom.group_uom">Purchased</span>
+                                </span>
+                                <span class="o_stat_value text-muted">
+                                    Incoming
+                                </span>
+                            </div>
                         </div>
                     </button>
                 </div>
@@ -148,9 +197,6 @@
                 <field name="categ_id" position="after">
                     <field name="seller_ids" string="Vendor"/>
                 </field>
-                <filter name="filter_to_sell" position="after">
-                    <filter name="filter_to_purchase" string="Purchase" domain="[('purchase_ok', '=', True)]"/>
-                </filter>
             </field>
         </record>
 
@@ -168,21 +214,63 @@
             </field>
         </record>
 
-        <record id="product_view_search_catalog" model="ir.ui.view">
+        <record id="product_view_search_catalog_inherit" model="ir.ui.view">
             <field name="name">product.view.search.catalog.inherit.purchase</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_view_search_catalog"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='seller_ids']" position="replace">
+                    <field name="sold_by_vendor_id" string="Vendor" invisible="not context.get('is_purchase_document', False)"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="product_view_search_catalog" model="ir.ui.view">
+            <field name="name">product.view.search.catalog.purchase</field>
             <field name="model">product.product</field>
             <field name="mode">primary</field>
             <field name="inherit_id" ref="product.product_view_search_catalog"/>
             <field name="arch" type="xml">
-                <xpath expr="//field[@name='product_tmpl_id']" position="after">
-                    <field name="seller_ids" string="Vendor"/>
-                </xpath>
-                <xpath expr="//filter[@name='goods']" position="after">
+                <xpath expr="//filter[@name='favorites']" position="after">
                     <separator/>
                     <filter string="In the Order"
                             name="products_in_purchase_order"
-                            domain="[('is_in_purchase_order', '=', True)]"/>
+                            domain="[('catalog_is_in_order', '=', True)]"/>
                 </xpath>
+            </field>
+        </record>
+
+    <record id="product_product_purchase_tree_view" model="ir.ui.view">
+        <field name="name">product.product.purchase.list</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_product_tree_view"/>
+        <field name="arch" type="xml">
+            <field name="qty_available" position="after">
+                <field name="virtual_available" string="Forecasted" decoration-danger="virtual_available &lt; 0" optional="show" decoration-bf="1" sum="Total Forecasted" readonly="1"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="product_template_purchase_tree_view" model="ir.ui.view">
+        <field name="name">product.template.purchase.list</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_tree_view"/>
+        <field name="arch" type="xml">
+            <field name="qty_available" position="after">
+                <field name="virtual_available" string="Forecasted" decoration-danger="virtual_available &lt; 0" optional="show" decoration-bf="1" sum="Total Forecasted" readonly="1"/>
+            </field>
+        </field>
+    </record>
+
+        <record id="view_category_property_form" model="ir.ui.view">
+            <field name="name">product.category.property.form.inherit.purchase</field>
+            <field name="model">product.category</field>
+            <field name="inherit_id" ref="account.view_category_property_form"/>
+            <field name="arch" type="xml">
+                <field name="property_account_expense_categ_id" position="after">
+                    <field name="property_account_bills_to_receive_id" options="{'no_create': True}" decoration-muted="not property_account_bills_to_receive_active"/>
+                    <field name="property_account_billed_not_received_id" options="{'no_create': True}" decoration-muted="not property_account_billed_not_received_active"/>
+                </field>
             </field>
         </record>
 

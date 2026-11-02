@@ -9,6 +9,7 @@ import json
 import logging
 import typing
 from http import HTTPStatus
+from typing import Self
 
 import docutils.core
 from docutils import parsers, readers, writers
@@ -18,11 +19,11 @@ from werkzeug.http import is_resource_modified, parse_cache_control_header
 
 import odoo
 from odoo import http, models
-from odoo.api import Self
 from odoo.exceptions import AccessError
-from odoo.http import content_disposition, request
+from odoo.http import request
+from odoo.http.stream import content_disposition
+from odoo.models import get_public_method
 from odoo.modules.module_graph import ModuleGraph
-from odoo.service.model import get_public_method
 from odoo.tools import hmac, json_default, lazy_classproperty, py_to_js_locale
 
 logger = logging.getLogger(__name__)
@@ -45,7 +46,7 @@ class DocController(http.Controller):
         res.headers['X-Frame-Options'] = 'deny'
         return res
 
-    @http.route('/doc-bearer/index.json', type='json2', auth='bearer')
+    @http.route('/doc-bearer/index.json', type='json2', auth='bearer', bearer_scope='rpc')
     def doc_bearer_index(self):
         return self.doc_index()
 
@@ -142,12 +143,13 @@ class DocController(http.Controller):
             {
                 'model': ir_model.model,
                 'name': ir_model.name,
+                'doc': ir_model.explanation,
                 'fields': {
                     field.name: {'string': field.field_description}
                     for field in ir_model.field_id
                     # sorted(ir_model.field_id, key=partial(sort_key_field, modules, Model))
                     if field.name in Model._fields  # band-aid, see task 5172546
-                    if Model._has_field_access(Model._fields[field.name], 'read')
+                    if Model.has_field_access(Model._fields[field.name], 'read')
                 },
                 'methods': [
                     method_name
@@ -162,7 +164,7 @@ class DocController(http.Controller):
         ]
         return modules, models
 
-    @http.route('/doc-bearer/<model_name>.json', type='json2', auth='bearer', readonly=True)
+    @http.route('/doc-bearer/<model_name>.json', type='json2', auth='bearer', bearer_scope='rpc', readonly=True)
     def doc_bearer_modec(self, model_name):
         return self.doc_model(model_name)
 
@@ -218,7 +220,7 @@ class DocController(http.Controller):
         result = {
             'model': model_name,
             'name': ir_model.name,
-            'doc': None,  # TODO
+            'doc': ir_model.explanation or '',
             'fields': {
                 field['name']: dict(
                     field,

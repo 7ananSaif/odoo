@@ -5,14 +5,15 @@
 # Translators:
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# Odoo Translation Bot <c3p@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-11-15 14:16+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Russian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-10-08 13:34+0000\n"
+"Last-Translator: Odoo Translation Bot <c3p@odoo.com>\n"
+"Language-Team: Russian <https://translate.odoo.com/projects/odoo-20/"
 "web_hierarchy/ru/>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
@@ -21,7 +22,18 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
 "(n%100>=11 && n%100<=14)? 2 : 3);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: web_hierarchy
+#: model:ir.module.module,description:base.module_web_hierarchy
+msgid ""
+"\n"
+"Odoo Web Hierarchy view\n"
+"=======================\n"
+"\n"
+"This module adds a new view called to be able to define a view to display\n"
+"an organization such as an Organization Chart for employees for instance.\n"
+msgstr ""
 
 #. module: web_hierarchy
 #: model:ir.model,name:web_hierarchy.model_ir_actions_act_window_view
@@ -45,12 +57,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:web_hierarchy.field_ir_ui_view__display_name
 msgid "Display Name"
 msgstr "Display Name"
-
-#. module: web_hierarchy
-#. odoo-javascript
-#: code:addons/web_hierarchy/static/src/hierarchy_card.xml:0
-msgid "Fold"
-msgstr "Сложить"
 
 #. module: web_hierarchy
 #: model:ir.model.fields.selection,name:web_hierarchy.selection__ir_actions_act_window_view__view_mode__hierarchy
@@ -99,6 +105,7 @@ msgstr ""
 #. module: web_hierarchy
 #. odoo-javascript
 #: code:addons/web_hierarchy/static/src/hierarchy_controller.xml:0
+#, fuzzy
 msgid "New"
 msgstr "Новый"
 
@@ -119,12 +126,6 @@ msgid "The parent record cannot be the record dragged."
 msgstr "Родительская запись не может быть перетаскиваемой записью."
 
 #. module: web_hierarchy
-#. odoo-javascript
-#: code:addons/web_hierarchy/static/src/hierarchy_card.xml:0
-msgid "Unfold"
-msgstr "Разворот"
-
-#. module: web_hierarchy
 #: model:ir.model,name:web_hierarchy.model_ir_ui_view
 msgid "View"
 msgstr "Просмотр"
@@ -135,8 +136,7 @@ msgstr "Просмотр"
 msgid "View Type"
 msgstr "Тип просмотра"
 
-#~ msgid ""
-#~ "Invalid attributes (%s) in hierarchy view. Attributes must be in (%s)"
-#~ msgstr ""
-#~ "Недопустимые атрибуты (%s) в представлении иерархии. Атрибуты должны быть "
-#~ "в (%s)"
+#. module: web_hierarchy
+#: model:ir.module.module,shortdesc:base.module_web_hierarchy
+msgid "Web Hierarchy"
+msgstr ""

@@ -1,33 +1,22 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-import odoo
-from odoo import api, models, fields
-from odoo.http import request, DEFAULT_MAX_CONTENT_LENGTH
+from odoo import api, fields, models, release
+from odoo.http import request
+from odoo.http.requestlib import DEFAULT_MAX_CONTENT_LENGTH
 from odoo.tools import config
+from odoo.tools.func import deprecated
 from odoo.tools.misc import hmac, str2bool
-
-
-"""
-Debug mode is stored in session and should always be a string.
-It can be activated with an URL query string `debug=<mode>` where mode
-is either:
-- 'tests' to load tests assets
-- 'assets' to load assets non minified
-- any other truthy value to enable simple debug mode (to show some
-  technical feature, to show complete traceback in frontend error..)
-- any falsy value to disable debug mode
-
-You can use any truthy/falsy value from `str2bool` (eg: 'on', 'f'..)
-Multiple debug modes can be activated simultaneously, separated with a
-comma (eg: 'tests, assets').
-"""
-ALLOWED_DEBUG_MODES = ['', '1', 'assets', 'tests']
 
 
 class IrHttp(models.AbstractModel):
     _inherit = 'ir.http'
 
-    bots = ["bot", "crawl", "slurp", "spider", "curl", "wget", "facebookexternalhit", "whatsapp", "trendsmapresolver", "pinterest", "instagram", "google-pagerenderer", "preview"]
+    bots = [
+        "bot", "crawl", "slurp", "spider", "curl", "wget", "facebookexternalhit",
+        "whatsapp", "trendsmapresolver", "pinterest", "instagram", "xrawler",
+        "google-pagerenderer", "preview", "google-inspectiontool", "googleother",
+        "meta-external", "meta-webindexer", "chatgpt-user", "claude-user", "perplexity-user",
+    ]
 
     @classmethod
     def is_a_bot(cls):
@@ -42,12 +31,29 @@ class IrHttp(models.AbstractModel):
         if cids := cookies.get('cids'):
             cookies['cids'] = '-'.join(cids.split(','))
 
+    def _get_debug_modes(self):
+        """
+        Debug mode is stored in session and should always be a string.
+        It can be activated with an URL query string `debug=<mode>` where mode
+        is either:
+        - 'tests' to load tests assets
+        - 'assets' to load assets non minified
+        - any other truthy value to enable simple debug mode (to show some
+        technical feature, to show complete traceback in frontend error..)
+        - any falsy value to disable debug mode
+
+        You can use any truthy/falsy value from `str2bool` (eg: 'on', 'f'..)
+        Multiple debug modes can be activated simultaneously, separated with a
+        comma (eg: 'tests, assets').
+        """
+        return {'', '1', 'assets', 'tests'}
+
     @classmethod
     def _handle_debug(cls):
         debug = request.httprequest.args.get('debug')
         if debug is not None:
             request.session.debug = ','.join(
-                     mode if mode in ALLOWED_DEBUG_MODES
+                     mode if mode in request.env['ir.http']._get_debug_modes()
                 else '1' if str2bool(mode, mode)
                 else ''
                 for mode in (debug or '').split(',')
@@ -74,12 +80,13 @@ class IrHttp(models.AbstractModel):
 
     @api.model
     def lazy_session_info(self):
-        return {}
+        return {
+            'is_demo': bool(self.env['ir.module.module'].sudo().search_count([('demo', '=', True)])),
+        }
 
     def session_info(self):
         user = self.env.user
         session_uid = request.session.uid
-        version_info = odoo.service.common.exp_version()
 
         if session_uid:
             user_context = dict(self.env['res.users'].context_get())
@@ -89,32 +96,41 @@ class IrHttp(models.AbstractModel):
             user_context = {}
 
         IrConfigSudo = self.env['ir.config_parameter'].sudo()
-        max_file_upload_size = int(IrConfigSudo.get_param(
+        max_file_upload_size = IrConfigSudo.get_int(
             'web.max_file_upload_size',
-            default=DEFAULT_MAX_CONTENT_LENGTH,
-        ))
+            DEFAULT_MAX_CONTENT_LENGTH,
+        )
         is_internal_user = user._is_internal()
+
+        device_salt = (
+            request.session.get('_device_salt', False)  # TODO (v20): remove backward compatibility
+            if IrConfigSudo.get_bool('base.session_check_device') and session_uid
+            else False
+        )
+
         session_info = {
             "uid": session_uid,
+            "device_salt": device_salt,
             "is_system": user._is_system() if session_uid else False,
             "is_admin": user._is_admin() if session_uid else False,
             "is_public": user._is_public(),
             "is_internal_user": is_internal_user,
+            "is_regular_user": user._is_regular() if session_uid else False,
             "user_context": user_context,
             "db": self.env.cr.dbname,
             "registry_hash": hmac(self.env(su=True), "webclient-cache", self.env.registry.registry_sequence),
             "user_settings": self.env['res.users.settings']._find_or_create_for_user(user)._res_users_settings_format(),
-            "server_version": version_info.get('server_version'),
-            "server_version_info": version_info.get('server_version_info'),
+            "server_version": release.version,
+            "server_version_info": release.version_info,
             "support_url": "https://www.odoo.com/buy",
             "name": user.name,
             "username": user.login,
-            "quick_login": str2bool(IrConfigSudo.get_param('web.quick_login', default=True), True),
+            "quick_login": IrConfigSudo.get_bool('web.quick_login', True),
             "partner_write_date": fields.Datetime.to_string(user.partner_id.write_date),
             "partner_display_name": user.partner_id.display_name,
             "partner_id": user.partner_id.id if session_uid and user.partner_id else None,
-            "web.base.url": IrConfigSudo.get_param('web.base.url', default=''),
-            "active_ids_limit": int(IrConfigSudo.get_param('web.active_ids_limit', default='20000')),
+            "web.base.url": IrConfigSudo.get_str('web.base.url'),
+            "active_ids_limit": IrConfigSudo.get_int('web.active_ids_limit') or 20000,
             'profile_session': request.session.get('profile_session'),
             'profile_collectors': request.session.get('profile_collectors'),
             'profile_params': request.session.get('profile_params'),
@@ -124,6 +140,10 @@ class IrHttp(models.AbstractModel):
             'bundle_params': {
                 'lang': request.session.context['lang'],
             },
+            'translation_hash': self._get_cached_web_translations_hash(
+                self._get_web_translations_modules(),
+                self._get_web_translations_lang(user_context.get('lang')),
+            ),
             'test_mode': config['test_enable'],
             'view_info': self.env['ir.ui.view'].get_view_info(),
             'groups': {
@@ -182,24 +202,20 @@ class IrHttp(models.AbstractModel):
             'profile_session': request.session.get('profile_session'),
             'profile_collectors': request.session.get('profile_collectors'),
             'profile_params': request.session.get('profile_params'),
-            'show_effect': bool(request.env['ir.config_parameter'].sudo().get_param('base_setup.show_effect')),
+            'show_effect': request.env['ir.config_parameter'].sudo().get_bool('base_setup.show_effect'),
             'currencies': self.env['res.currency'].get_all_currencies(),
-            'quick_login': str2bool(request.env['ir.config_parameter'].sudo().get_param('web.quick_login', default=True), True),
+            'quick_login': request.env['ir.config_parameter'].sudo().get_bool('web.quick_login', True),
             'bundle_params': {
                 'lang': request.session.context['lang'],
             },
+            'server_version': release.version,
+            'server_version_info': release.version_info,
             'test_mode': config['test_enable'],
         }
         if request.session.debug:
             session_info['bundle_params']['debug'] = request.session.debug
-        if session_uid:
-            version_info = odoo.service.common.exp_version()
-            session_info.update({
-                'server_version': version_info.get('server_version'),
-                'server_version_info': version_info.get('server_version_info')
-            })
         return session_info
 
-    @api.deprecated("Deprecated since 19.0, use get_all_currencies on 'res.currency'")
+    @deprecated("Deprecated since 19.0, use get_all_currencies on 'res.currency'")
     def get_currencies(self):
         return self.env['res.currency'].get_all_currencies()

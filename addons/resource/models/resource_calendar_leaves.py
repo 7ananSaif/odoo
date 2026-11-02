@@ -1,8 +1,9 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from datetime import datetime, time
+from datetime import datetime, time, UTC
+from zoneinfo import ZoneInfo
+
 from dateutil.relativedelta import relativedelta
-from pytz import timezone, utc
 
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
@@ -20,15 +21,12 @@ class ResourceCalendarLeaves(models.Model):
         if 'date_from' in fields and 'date_to' in fields and not res.get('date_from') and not res.get('date_to'):
             # Then we give the current day and we search the begin and end hours for this day in resource.calendar of the current company
             today = Datetime.now()
-            calendar = self.env.company.resource_calendar_id
-            if 'calendar_id' in res:
-                calendar = self.env['resource.calendar'].browse(res['calendar_id'])
-            tz = timezone(calendar.tz or 'UTC')
-            date_from = tz.localize(datetime.combine(today, time.min))
-            date_to = tz.localize(datetime.combine(today, time.max))
+            tz = ZoneInfo(self.env.company.tz or 'UTC')
+            date_from = datetime.combine(today, time.min, tzinfo=tz)
+            date_to = datetime.combine(today, time.max, tzinfo=tz)
             res.update(
-                date_from=date_from.astimezone(utc).replace(tzinfo=None),
-                date_to=date_to.astimezone(utc).replace(tzinfo=None)
+                date_from=date_from.astimezone(UTC).replace(tzinfo=None),
+                date_to=date_to.astimezone(UTC).replace(tzinfo=None)
             )
         return res
 
@@ -47,7 +45,7 @@ class ResourceCalendarLeaves(models.Model):
     resource_id = fields.Many2one(
         "resource.resource", 'Resource', index=True,
         help="If empty, this is a generic time off for the company. If a resource is set, the time off is only for this resource")
-    time_type = fields.Selection([('leave', 'Time Off'), ('other', 'Other')], default='leave',
+    count_as = fields.Selection([('absence', 'Absence'), ('working_time', 'Working Time')], default='absence',
                                  help="Whether this should be computed as a time off or as work time (eg: formation)")
 
     @api.depends('resource_id.calendar_id')
@@ -58,19 +56,19 @@ class ResourceCalendarLeaves(models.Model):
     @api.depends('calendar_id')
     def _compute_company_id(self):
         for leave in self:
-            leave.company_id = leave.calendar_id.company_id or self.env.company
+            leave.company_id = leave.calendar_id.company_id or leave.company_id or self.env.company
 
     @api.depends('date_from')
     def _compute_date_to(self):
         user_tz = self.env.tz
         if not (self.env.user.tz or self.env.context.get('tz')):
-            user_tz = timezone(self.company_id.resource_calendar_id.tz or 'UTC')
+            user_tz = ZoneInfo(self.company_id.tz or 'UTC')
         for leave in self:
             if not leave.date_from or (leave.date_to and leave.date_to > leave.date_from):
                 continue
-            local_date_from = utc.localize(leave.date_from).astimezone(user_tz)
+            local_date_from = leave.date_from.replace(tzinfo=UTC).astimezone(user_tz)
             local_date_to = local_date_from + relativedelta(hour=23, minute=59, second=59)
-            leave.date_to = local_date_to.astimezone(utc).replace(tzinfo=None)
+            leave.date_to = local_date_to.astimezone(UTC).replace(tzinfo=None)
 
     @api.constrains('date_from', 'date_to')
     def check_dates(self):
@@ -78,10 +76,12 @@ class ResourceCalendarLeaves(models.Model):
             raise ValidationError(_('The start date of the time off must be earlier than the end date.'))
 
     def _copy_leave_vals(self):
+        """ Return the values to duplicate this (global) leave on another calendar, used
+        to copy the company's public holidays to a new calendar. """
         self.ensure_one()
         return {
             'name': self.name,
             'date_from': self.date_from,
             'date_to': self.date_to,
-            'time_type': self.time_type,
+            'count_as': self.count_as,
         }

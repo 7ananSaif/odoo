@@ -267,7 +267,8 @@ async function autoHideMenu(el, options) {
         dropdownMenu.className = "dropdown-menu";
         extraItemsToggle.className = "nav-item dropdown o_extra_menu_items";
         extraItemsToggle.setAttribute("role", "presentation");
-        extraItemsToggleIcon.className = "oi oi-plus";
+        extraItemsToggleIcon.className = "oi";
+        extraItemsToggleIcon.dataset.icon = "add";
         const extraItemsToggleAriaLabel = el.closest("[data-extra-items-toggle-aria-label]")
             ?.dataset.extraItemsToggleAriaLabel;
         Object.entries({
@@ -326,7 +327,14 @@ async function autoHideMenu(el, options) {
             if (anchorInExtra) {
                 el.addEventListener("shown.bs.dropdown", setSelection, { once: true });
             }
-            window.Dropdown.getOrCreateInstance(extraMenuEl).show();
+            const dropdown = window.Dropdown.getOrCreateInstance(extraMenuEl);
+            // `extraMenuEl` is recreated on every `_adapt()` cycle (see
+            // `_restore()`), so dispose it as soon as it closes instead of
+            // leaking it.
+            extraMenuEl.addEventListener("hidden.bs.dropdown", () => dropdown.dispose(), {
+                once: true,
+            });
+            dropdown.show();
         }
         el.classList.remove(...options.loadingStyleClasses);
     }

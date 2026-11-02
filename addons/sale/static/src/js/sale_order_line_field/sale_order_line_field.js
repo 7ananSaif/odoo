@@ -1,18 +1,14 @@
+import { useSubEnv } from "@web/owl2/utils";
 import {
     ProductLabelSectionAndNoteListRender,
     productLabelSectionAndNoteOne2Many,
     ProductLabelSectionAndNoteOne2Many,
-} from '@account/components/product_label_section_and_note_field/product_label_section_and_note_field_o2m';
-import {
-    listSectionAndNoteText,
-    ListSectionAndNoteText,
-    sectionAndNoteFieldOne2Many,
-    sectionAndNoteText,
-    SectionAndNoteText,
-} from '@account/components/section_and_note_fields_backend/section_and_note_fields_backend';
-import { useSubEnv } from '@odoo/owl';
-import { registry } from '@web/core/registry';
-import { CharField } from '@web/views/fields/char/char_field';
+} from "@account/components/product_label_section_and_note_o2m/product_label_section_and_note_field_o2m";
+import { sectionAndNoteFieldOne2Many } from "@account/components/section_and_note_fields_backend/section_and_note_fields_backend";
+import { openComboConfigurator } from "@sale/js/combo_configurator_utils";
+import { clearSelectedComboItems, getSelectedComboItems } from "@sale/js/sale_utils";
+import { registry } from "@web/core/registry";
+import { useService } from "@web/core/utils/hooks";
 
 function getComboRecords(listRecords, record) {
     const comboRecords = [];
@@ -39,7 +35,7 @@ function getComboRecords(listRecords, record) {
 
     } else if (record.data.combo_item_id?.id) {
         // if current record is combo item then we move backward util we find associated combo line
-        // Here we assume that the record we get is the last item of the combo 
+        // Here we assume that the record we get is the last item of the combo
         let index = listRecords.indexOf(record);
         while (index >= 0) {
             const r = listRecords[index];
@@ -62,15 +58,23 @@ function getComboRecords(listRecords, record) {
 }
 
 export class SaleOrderLineListRenderer extends ProductLabelSectionAndNoteListRender {
+    static template = "sale.SaleOrderLineListRenderer";
     static recordRowTemplate = 'sale.ListRenderer.RecordRow';
 
-    setup(){
+    setup() {
         super.setup();
         this.priceColumns.push('discount');
+        this.adjustingSectionQuantities = false;
 
         useSubEnv({
             shouldCollapse: this.shouldCollapse.bind(this),
         });
+    }
+
+    get lineNumberOffset() {
+        const { offset, records } = this.props.list;
+        const savedRecords = records.filter((record) => !record.isNew);
+        return Math.min(offset, ...savedRecords.map((record) => record.data.line_number_offset));
     }
 
     /**
@@ -78,29 +82,27 @@ export class SaleOrderLineListRenderer extends ProductLabelSectionAndNoteListRen
      * while accessing comboColumns
      */
     get comboColumns() {
-        return [this.titleField, ...this.props.aggregatedFields, 'product_uom_qty', 'discount'];
+        return [
+            this.productAndDescriptionColumn,
+            ...this.props.aggregatedFields,
+            "product_uom_qty",
+            "discount",
+        ];
     }
 
-    /**
-     * Product description widget logic
-     */
-    getCellTitle(column, record) {
-        // When using this list renderer, we don't want the product_id cell to have a tooltip with
-        // its label.
-        if (column.name === 'product_id' || column.name === 'product_template_id') {
-            return;
-        }
-        return super.getCellTitle(column, record);
+    get sectionColumns() {
+        return [...super.sectionColumns, "line_number", "sol_qty", "sol_uom"];
     }
 
     getActiveColumns() {
         let activeColumns = super.getActiveColumns();
-        let productTmplCol = activeColumns.find((col) => col.name === 'product_template_id');
-        let productCol = activeColumns.find((col) => col.name === 'product_id');
-
-        if (productCol && productTmplCol) {
-            // Hide the template column if the variant one is enabled.
-            activeColumns = activeColumns.filter((col) => col.name != 'product_template_id')
+        // Hide the UOM column if the field is optional and not active
+        const uomCol = activeColumns.find((col) => col.name === "sol_uom");
+        if (uomCol) {
+            const uomField = uomCol.fields.find((field) => field.name === "product_uom_id");
+            if (!uomField || (uomField.optional && !this.optionalActiveFields[uomField.name])) {
+                activeColumns = activeColumns.filter((col) => col.name !== "sol_uom");
+            }
         }
 
         return activeColumns;
@@ -111,11 +113,75 @@ export class SaleOrderLineListRenderer extends ProductLabelSectionAndNoteListRen
         if (this.isCombo(record) || this.isComboItem(record)) {
             classNames = classNames.replace('o_row_draggable', '');
         }
-        return `${classNames} ${this.isCombo(record) ? 'o_is_line_section o_is_line_section_no_indent' : ''}`;
+        return `${classNames} ${this.isCombo(record) ? 'fw-bold' : ''}`;
     }
 
-    isCellReadonly(column, record) {
-        return super.isCellReadonly(column, record) || (
+    /**
+     * @override
+     */
+    focusToName(editRec) {
+        if (editRec && editRec.isNew && this.isSection(editRec)) {
+            // Don't always focus on `productAndDescriptionColumn` for sections since we are adding section_qty and
+            // section_uom_id fields in section row.
+            return;
+        }
+        super.focusToName(editRec);
+    }
+
+    /**
+     * @override
+     */
+    getSectionAndNoteColumns(columns, record) {
+        if (this.isNote(record)) {
+            return super.getSectionAndNoteColumns(columns, record);
+        }
+        return this.getSectionColumns(columns);
+    }
+
+    getSectionColumns(columns) {
+        const isSectionCol = (col) =>
+            [this.productAndDescriptionColumn, ...this.sectionColumns].includes(col.name) || col.widget === "handle";
+
+        let titleColspan = 1;
+        let absorbingColumns = true;
+        let titleCol;
+
+        const sectionCols = [];
+
+        for (const col of columns) {
+            if (col.name === this.productAndDescriptionColumn) {
+                titleCol = col;
+                continue;
+            }
+
+            if (isSectionCol(col)) {
+                if (titleCol) {
+                    // Stop absorbing at the first section column after the title.
+                    absorbingColumns = false;
+                    sectionCols.push({ ...titleCol, colspan: titleColspan }, col);
+                    // Empty titleCol so that we don't add it again if there are multiple section
+                    // columns after this.
+                    titleCol = null;
+                } else {
+                    sectionCols.push(col);
+                }
+                continue;
+            }
+
+            if (absorbingColumns) {
+                // Absorb non-section columns into the title's colspan.
+                titleColspan++;
+                continue;
+            }
+
+            sectionCols.push({ ...col, invisible: "1", readonly: "1" });
+        }
+
+        return sectionCols;
+    }
+
+    isFieldReadonly(column, record) {
+        return super.isFieldReadonly(column, record) || (
             this.isComboItem(record)
                 && !['name', 'tax_ids', 'qty_delivered'].includes(column.name)
         );
@@ -123,7 +189,7 @@ export class SaleOrderLineListRenderer extends ProductLabelSectionAndNoteListRen
 
     async onDeleteRecord(record) {
         if (this.isCombo(record)) {
-            await record.update({ selected_combo_items: JSON.stringify([]) });
+            await clearSelectedComboItems(record);
         }
         await super.onDeleteRecord(record);
     }
@@ -224,6 +290,27 @@ export class SaleOrderLineOne2Many extends ProductLabelSectionAndNoteOne2Many {
         ...ProductLabelSectionAndNoteOne2Many.components,
         ListRenderer: SaleOrderLineListRenderer,
     };
+
+    setup() {
+        super.setup();
+        this.dialog = useService("dialog");
+        this.orm = useService("orm");
+    }
+
+    async openRecord(record) {
+        if (record.data.product_type === "combo") {
+            const selectedComboItems = await getSelectedComboItems(this.orm, record, true);
+            return openComboConfigurator({
+                dialog: this.dialog,
+                comboLineRecord: record,
+                edit: true,
+                selectedComboItems,
+            });
+        }
+        if (!record.data.combo_item_id?.id) {
+            return super.openRecord(record);
+        }
+    }
 }
 export const saleOrderLineOne2Many = {
     ...productLabelSectionAndNoteOne2Many,
@@ -232,28 +319,3 @@ export const saleOrderLineOne2Many = {
 };
 
 registry.category('fields').add('sol_o2m', saleOrderLineOne2Many);
-
-export class SaleOrderLineText extends SectionAndNoteText {
-    get componentToUse() {
-        return this.props.record.data.product_type === 'combo' ? CharField : super.componentToUse;
-    }
-}
-
-export class ListSaleOrderLineText extends ListSectionAndNoteText {
-    get componentToUse() {
-        return this.props.record.data.product_type === 'combo' ? CharField : super.componentToUse;
-    }
-}
-
-export const saleOrderLineText = {
-    ...sectionAndNoteText,
-    component: SaleOrderLineText,
-};
-
-export const listSaleOrderLineText = {
-    ...listSectionAndNoteText,
-    component: ListSaleOrderLineText,
-};
-
-registry.category('fields').add('sol_text', saleOrderLineText);
-registry.category('fields').add('list.sol_text', listSaleOrderLineText);

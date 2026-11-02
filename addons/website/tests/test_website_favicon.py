@@ -4,11 +4,12 @@ from PIL import Image
 
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
-from odoo.tools.image import base64_to_image, image_to_base64
+from odoo.tools import BinaryBytes
+from odoo.tools.image import binary_to_image, image_apply_opt
 
 
-@tagged('post_install', '-at_install')
-class TestWebsiteResetPassword(TransactionCase):
+@tagged('-post_install', 'at_install')
+class TestWebsiteIcons(TransactionCase):
 
     def test_01_website_favicon(self):
         """The goal of this test is to make sure the favicon is correctly
@@ -22,14 +23,23 @@ class TestWebsiteResetPassword(TransactionCase):
             'favicon': Website._default_favicon(),
         })
 
-        image = base64_to_image(website.favicon)
+        image = binary_to_image(website.favicon)
         self.assertEqual(image.format, 'ICO')
 
         # Test setting a JPEG file that is too big, done through write
         bg_color = (135, 90, 123)
         image = Image.new('RGB', (1920, 1080), color=bg_color)
-        website.favicon = image_to_base64(image, 'JPEG')
-        image = base64_to_image(website.favicon)
+        website.favicon = BinaryBytes(image_apply_opt(image, 'JPEG'))
+        image = binary_to_image(website.favicon)
         self.assertEqual(image.format, 'ICO')
         self.assertEqual(image.size, (256, 256))
         self.assertEqual(image.getpixel((0, 0)), bg_color)
+
+        # In RPC calls, binary fields are written as base64 strings,
+        # ensuring it is properly converted to BinaryValue before image processing
+        website.write({'favicon': Website._default_favicon().to_base64()})
+        image = binary_to_image(website.favicon)
+        self.assertEqual(image.format, 'ICO')
+
+    def test_website_has_logo(self):
+        self.assertFalse(self.env['website'].search([('logo', '=', False)]))

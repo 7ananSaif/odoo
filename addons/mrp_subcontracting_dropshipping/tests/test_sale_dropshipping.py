@@ -1,7 +1,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo.tests import Form
 from odoo.fields import Command
+from odoo.tests import tagged, Form
 
 from odoo.addons.mrp_subcontracting.tests.common import TestMrpSubcontractingCommon
 
@@ -25,7 +25,7 @@ class TestSaleDropshippingFlows(TestMrpSubcontractingCommon):
         """
         warehouse = self.env['stock.warehouse'].search([('company_id', '=', self.env.company.id)], limit=1)
         warehouse.delivery_steps = 'pick_ship'
-        mto_route = self.env.ref('stock.route_warehouse0_mto')
+        mto_route = warehouse.mto_pull_id.route_id
         mto_route.active = True
         routes = [self.dropship_route.ids, mto_route.ids, []]
         compo01, compo02, kit = self.env['product.product'].create([{
@@ -75,11 +75,9 @@ class TestSaleDropshippingFlows(TestMrpSubcontractingCommon):
         self.assertEqual(sale_order.order_line.qty_delivered, 3.0)
 
         # Return 3 units of the dropshipped Compo01
-        return_form = Form(self.env['stock.return.picking'].with_context(active_ids=dropship.ids, active_id=dropship.id, active_model='stock.picking'))
-        with return_form.product_return_moves.edit(0) as line_form:
-            line_form.quantity = 3.0
-        return_wiz = return_form.save()
-        dropship_return = Form.from_action(self.env, return_wiz.action_create_returns()).save()
+        dropship_return = dropship._create_return()
+        dropship_return.move_ids.product_uom_qty = 3.0
+        dropship_return.action_confirm()
         dropship_return.button_validate()
         self.assertEqual(sale_order.order_line.qty_delivered, 2.0)
 
@@ -122,12 +120,9 @@ class TestSaleDropshippingFlows(TestMrpSubcontractingCommon):
         for case in ['return', 'deliver again']:
             delivered_before_case = 1.0 if case == 'return' else 0.0
             delivered_after_case = 0.0 if case == 'return' else 1.0
-            return_form = Form(self.env['stock.return.picking'].with_context(active_ids=[picking.id], active_id=picking.id, active_model='stock.picking'))
-            with return_form.product_return_moves.edit(0) as line_form:
-                line_form.quantity = 1.0
-            return_wizard = return_form.save()
-            action = return_wizard.action_create_returns()
-            picking = self.env['stock.picking'].browse(action['res_id'])
+            picking = picking._create_return()
+            picking.move_ids[0].product_uom_qty = 1.0
+            picking.action_assign()
             self.assertEqual(sale_order.order_line.qty_delivered, delivered_before_case, "Incorrect delivered qty for case '%s'" % case)
 
             picking.button_validate()
@@ -180,14 +175,9 @@ class TestSaleDropshippingFlows(TestMrpSubcontractingCommon):
         self.assertEqual(sale_order.order_line.qty_delivered, 0.0, "Delivered components: 2/4")
 
         # Create a return of picking01 (with both components)
-        return_form = Form(self.env['stock.return.picking'].with_context(active_id=picking01.id, active_model='stock.picking'))
-        wizard = return_form.save()
-        wizard.product_return_moves.write({'quantity': 2.0})
-        res = wizard.action_create_returns()
-        return01 = self.env['stock.picking'].browse(res['res_id'])
-
-        return01.move_ids.quantity = 2
-        return01.move_ids.picked = True
+        return01 = picking01._create_return()
+        return01.move_ids.product_uom_qty = 2.0
+        return01.action_assign()
         return01.button_validate()
         self.assertEqual(sale_order.order_line.qty_delivered, 0.0, "Delivered components: 0/4")
 
@@ -204,27 +194,15 @@ class TestSaleDropshippingFlows(TestMrpSubcontractingCommon):
         self.assertEqual(sale_order.order_line.qty_delivered, 0.0, "Delivered components: 2/4")
 
         # Create a return of return01 (with 1 component)
-        return_form = Form(self.env['stock.return.picking'].with_context(active_id=return01.id, active_model='stock.picking'))
-        wizard = return_form.save()
-        wizard.product_return_moves.write({'quantity': 1.0})
-        res = wizard.action_create_returns()
-        picking04 = self.env['stock.picking'].browse(res['res_id'])
-
-        picking04.move_ids.quantity = 1
-        picking04.move_ids.picked = True
-        picking04.button_validate()
+        picking04 = Form.from_action(self.env, return01.action_exchange()).save()
+        picking04.move_ids.quantity = 1.0
+        Form.from_action(self.env, picking04.button_validate()).save().process_cancel_backorder()
         self.assertEqual(sale_order.order_line.qty_delivered, 0.0, "Delivered components: 3/4")
 
         # Create a second return of return01 (with 1 component, the last one)
-        return_form = Form(self.env['stock.return.picking'].with_context(active_id=return01.id, active_model='stock.picking'))
-        wizard = return_form.save()
-        wizard.product_return_moves.write({'quantity': 1.0})
-        res = wizard.action_create_returns()
-        picking04 = self.env['stock.picking'].browse(res['res_id'])
-
-        picking04.move_ids.quantity = 1
-        picking04.move_ids.picked = True
-        picking04.button_validate()
+        picking05 = Form.from_action(self.env, return01.action_exchange()).save()
+        picking05.move_ids.quantity = 1.0
+        Form.from_action(self.env, picking05.button_validate()).save().process_cancel_backorder()
         self.assertEqual(sale_order.order_line.qty_delivered, 1, "Delivered components: 4/4")
 
     def test_cancelled_picking_and_delivered_qty(self):
@@ -319,7 +297,6 @@ class TestSaleDropshippingFlows(TestMrpSubcontractingCommon):
             'product_id': final_product.id,
             'product_tmpl_id': final_product.product_tmpl_id.id,
             'product_qty': 1,
-            'consumption': 'flexible',
             'type': 'phantom',
             'bom_line_ids': [
                 (0, 0, {'product_id': product_a.id, 'product_qty': 1}),
@@ -386,10 +363,9 @@ class TestSaleDropshippingFlows(TestMrpSubcontractingCommon):
 
     def test_mixed_mto_manufacture_and_dropship_so_keeps_links_separate(self):
         warehouse = self.env.ref('stock.warehouse0')
-        manufacture_route = warehouse.manufacture_pull_id.route_id
         mto_route = warehouse.mto_pull_id.route_id
         mto_route.active = True
-        self.comp2.route_ids = [Command.set((manufacture_route | mto_route).ids)]
+        self.comp2.route_ids = [Command.link(mto_route.id)]
         self.comp1.write({
             'seller_ids': [Command.create({'partner_id': self.supplier.id})],
             'route_ids': [Command.set(self.dropship_route.ids)],

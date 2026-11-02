@@ -4,7 +4,6 @@
     'website': 'https://www.odoo.com/documentation/latest/applications/finance/fiscal_localizations/hong_kong.html',
     'icon': '/account/static/description/l10n.png',
     'countries': ['hk'],
-    'version': '1.0',
     'category': 'Accounting/Localizations/Account Charts',
     'description': ' This is the base module to manage chart of accounting and localization for Hong Kong ',
     'depends': [
@@ -13,8 +12,10 @@
     ],
     'auto_install': ['account'],
     'data': [
+        'data/account.account.tag.csv',
         'data/account_chart_template_data.xml',
         'views/res_bank_views.xml',
+        'views/res_config_settings_views.xml',
     ],
     'demo': [
         'demo/demo_company.xml',

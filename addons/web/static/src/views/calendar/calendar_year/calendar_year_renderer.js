@@ -5,76 +5,101 @@ import { useCalendarPopover } from "@web/views/calendar/hooks/calendar_popover_h
 import { useFullCalendar } from "@web/views/calendar/hooks/full_calendar_hook";
 import { makeWeekColumn } from "@web/views/calendar/calendar_common/calendar_common_week_column";
 import { CalendarYearPopover } from "@web/views/calendar/calendar_year/calendar_year_popover";
+import { TOUCH_SELECTION_THRESHOLD } from "@web/views/utils";
 
-import { Component, useEffect, useRef } from "@odoo/owl";
+import { Component, onMounted, onPatched, signal, t, useProps } from "@odoo/owl";
+import { useService } from "@web/core/utils/hooks";
+
+const { DateTime } = luxon;
+
+export const calendarYearRendererProps = {
+    model: t.object(),
+    initialDate: t.object(),
+    createRecord: t.function(),
+    editRecord: t.function(),
+    deleteRecord: t.function(),
+    isDisabled: t.boolean().optional(),
+    isWeekendVisible: t.boolean().optional(),
+};
 
 export class CalendarYearRenderer extends Component {
     static components = {
         Popover: CalendarYearPopover,
     };
     static template = "web.CalendarYearRenderer";
-    static props = {
-        model: Object,
-        createRecord: Function,
-        editRecord: Function,
-        deleteRecord: Function,
-        isWeekendVisible: { type: Boolean, optional: true },
-    };
+    props = useProps(calendarYearRendererProps);
 
     setup() {
         this.months = luxon.Info.months();
         this.fcs = {};
+        this.fcRefs = {};
         for (const month of this.months) {
-            this.fcs[month] = useFullCalendar(
-                `fullCalendar-${month}`,
-                this.getOptionsForMonth(month)
-            );
+            this.fcRefs[month] = signal.ref();
+            this.fcs[month] = useFullCalendar(this.fcRefs[month], this.getOptionsForMonth(month));
         }
         this.popover = useCalendarPopover(this.constructor.components.Popover);
-        this.rootRef = useRef("root");
+        this.rootRef = signal.ref();
+        this.uiService = useService("ui");
 
-        useEffect(() => {
-            this.updateSize();
-        });
+        onMounted(() => this.updateSize());
+        onPatched(() => this.updateSize());
+    }
+
+    get disabledOptions() {
+        return {
+            ...this.options,
+            editable: false,
+            selectable: false,
+            eventStartEditable: false,
+            eventDurationEditable: false,
+            droppable: false,
+        };
+    }
+
+    get interactiveOptions() {
+        return {
+            ...this.options,
+            dateClick: this.handleDateClick.bind(this),
+            dayMaxEventRows: this.props.model.eventLimit,
+            droppable: true,
+            editable: this.props.model.canEdit,
+            eventClassNames: this.eventClassNames.bind(this),
+            eventDidMount: this.onEventDidMount.bind(this),
+            eventReceive: this.onEventScheduled.bind(this),
+            eventResizableFromStart: true,
+            longPressDelay: TOUCH_SELECTION_THRESHOLD,
+            select: this.onSelect.bind(this),
+            selectMinDistance: 5, // needed to not trigger select when click
+            selectMirror: true,
+            selectable: this.props.model.canCreate,
+            unselectAuto: false,
+            windowResize: this.onWindowResize.bind(this),
+            eventContent: this.onEventContent.bind(this),
+            weekends: this.props.isWeekendVisible,
+        };
     }
 
     get options() {
         return {
             dayHeaderFormat: "EEEEE",
-            dateClick: this.onDateClick,
-            dayCellClassNames: this.getDayCellClassNames,
-            initialDate: this.props.model.date.toISO(),
+            dayCellClassNames: this.getDayCellClassNames.bind(this),
+            initialDate: this.props.initialDate.toISO(),
             initialView: "dayGridMonth",
             direction: localization.direction,
-            droppable: true,
-            editable: this.props.model.canEdit,
-            dayMaxEventRows: this.props.model.eventLimit,
-            eventClassNames: this.eventClassNames,
-            eventDidMount: this.onEventDidMount,
-            eventResizableFromStart: true,
             events: (_, successCb) => successCb(this.mapRecordsToEvents()),
             firstDay: this.props.model.firstDayOfWeek,
             headerToolbar: { start: false, center: "title", end: false },
             height: "auto",
             locale: luxon.Settings.defaultLocale,
-            longPressDelay: 500,
             navLinks: false,
             nowIndicator: true,
-            select: this.onSelect,
-            selectMinDistance: 5, // needed to not trigger select when click
-            selectMirror: true,
-            selectable: this.props.model.canCreate,
             showNonCurrentDates: false,
             timeZone: luxon.Settings.defaultZone.name,
             titleFormat: { month: "long", year: "numeric" },
-            unselectAuto: false,
+            viewDidMount: this.viewDidMount.bind(this),
             weekNumberCalculation: (date) => getLocalYearAndWeek(date).week,
             weekNumbers: false,
             weekNumberFormat: { week: "numeric" },
-            windowResize: this.onWindowResize,
-            eventContent: this.onEventContent,
-            viewDidMount: this.viewDidMount,
-            weekends: this.props.isWeekendVisible,
             fixedWeekCount: false,
         };
     }
@@ -93,9 +118,9 @@ export class CalendarYearRenderer extends Component {
             makeWeekColumn({ el, weekText });
         }
     }
-
     mapRecordsToEvents() {
-        return Object.values(this.props.model.records).map((r) => this.convertRecordToEvent(r));
+        const { records } = this.props.model.data;
+        return Object.values(records).map((r) => this.convertRecordToEvent(r));
     }
     convertRecordToEvent(record) {
         return {
@@ -104,11 +129,12 @@ export class CalendarYearRenderer extends Component {
         };
     }
     getDateWithMonth(month) {
-        return this.props.model.date.set({ month: this.months.indexOf(month) + 1 }).toISO();
+        return this.props.initialDate.set({ month: this.months.indexOf(month) + 1 }).toISO();
     }
     getOptionsForMonth(month) {
+        const options = this.props.isDisabled ? this.disabledOptions : this.interactiveOptions;
         return {
-            ...this.options,
+            ...options,
             initialDate: this.getDateWithMonth(month),
         };
     }
@@ -122,21 +148,29 @@ export class CalendarYearRenderer extends Component {
             editRecord: this.props.editRecord,
         };
     }
+    handleDateClick(info) {
+        if (!info.jsEvent || info.jsEvent.defaultPrevented) {
+            // The event might be fired after a touch pointerup without any jsEvent
+            return;
+        }
+        this.onDateClick(info);
+    }
     openPopover(target, date, records) {
         this.popover.open(target, this.getPopoverProps(date, records), "o_cw_popover");
     }
     unselect() {
         for (const fc of Object.values(this.fcs)) {
-            fc.api.unselect();
+            fc().unselect();
         }
     }
     updateSize() {
-        const height = window.innerHeight - this.rootRef.el.getBoundingClientRect().top;
-        this.rootRef.el.style.height = `${height}px`;
+        const rootEl = this.rootRef();
+        const height = window.innerHeight - rootEl.getBoundingClientRect().top;
+        rootEl.style.height = `${height}px`;
     }
 
     onDateClick(info) {
-        if (this.env.isSmall) {
+        if (this.uiService.isSmall) {
             this.props.model.load({
                 date: luxon.DateTime.fromISO(info.dateStr),
                 scale: "day",
@@ -200,6 +234,13 @@ export class CalendarYearRenderer extends Component {
                 el.style.backgroundColor = color;
             }
         }
+    }
+    async onEventScheduled(info) {
+        const original = info.event;
+        const date = DateTime.fromJSDate(original.start);
+        const resId = Number(original.id);
+        await this.props.model.scheduleEvent(resId, date);
+        original.remove();
     }
     async onSelect(info) {
         this.popover.close();

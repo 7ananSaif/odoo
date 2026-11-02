@@ -1,17 +1,12 @@
-import { mailDataHelpers } from "@mail/../tests/mock_server/mail_mock_server";
-import {
-    fields,
-    getKwArgs,
-    makeKwArgs,
-    serverState,
-    webModels,
-} from "@web/../tests/web_test_helpers";
+import { Store } from "@mail/../tests/mock_server/store";
+import { fields, getKwArgs, makeKwArgs, webModels } from "@web/../tests/web_test_helpers";
 
 /** @typedef {import("@web/../tests/web_test_helpers").ModelRecord} ModelRecord */
 
 export class ResPartner extends webModels.ResPartner {
     _inherit = ["mail.thread"];
 
+    complete_name = fields.Char({ compute: "_compute_complete_name" });
     description = fields.Char({ string: "Description" });
     hasWriteAccess = fields.Boolean({ default: true });
     message_main_attachment_id = fields.Many2one({
@@ -19,6 +14,7 @@ export class ResPartner extends webModels.ResPartner {
         string: "Main attachment",
     });
     is_in_call = fields.Boolean({ compute: "_compute_is_in_call" });
+    tz = fields.Char();
 
     _views = {
         form: /* xml */ `
@@ -30,11 +26,20 @@ export class ResPartner extends webModels.ResPartner {
             </form>`,
     };
 
+    _compute_complete_name() {
+        // mock: res.partner.complete_name is computed from name in Python; default to it here so
+        // domains that search complete_name (e.g. voip get_contacts) match, while keeping any value
+        // a test sets explicitly.
+        for (const partner of this) {
+            partner.complete_name ||= partner.name;
+        }
+    }
+
     _compute_is_in_call() {
         for (const partner of this) {
             partner.is_in_call =
                 this.env["discuss.channel.member"].search([
-                    ["rtc_session_ids", "!=", []],
+                    ["rtc_session_ids", "!=", false],
                     ["partner_id", "=", partner.id],
                 ]).length > 0;
         }
@@ -51,6 +56,8 @@ export class ResPartner extends webModels.ResPartner {
 
         /** @type {import("mock_models").ResUsers} */
         const ResUsers = this.env["res.users"];
+        /** @type {import("mock_models").ResRole} */
+        const ResRole = this.env["res.role"];
 
         search = search.toLowerCase();
         /**
@@ -99,16 +106,20 @@ export class ResPartner extends webModels.ResPartner {
             extraMatchingPartnerIds = mentionSuggestionsFilter(partners, search, remainingLimit);
         }
 
-        const store = new mailDataHelpers.Store(
-            this.browse(mainMatchingPartnerIds.concat(extraMatchingPartnerIds))
+        const store = new Store().add(
+            this.browse(mainMatchingPartnerIds.concat(extraMatchingPartnerIds)),
+            (res) => {
+                res.from_method("_store_partner_fields");
+                res.from_method("_store_mention_fields");
+            }
         );
-        const roleIds = this.env["res.role"].search(
+        const roleIds = ResRole.search(
             [["name", "ilike", search || ""]],
             makeKwArgs({ limit: limit || 8 })
         );
-        store.add("res.role", this.env["res.role"]._read_format(roleIds, ["name"], false));
+        store.add(ResRole.browse(roleIds), ["name", "user_ids_count"]);
 
-        return store.get_result();
+        return store.as_dict();
     }
 
     /**
@@ -126,6 +137,8 @@ export class ResPartner extends webModels.ResPartner {
         const DiscussChannelMember = this.env["discuss.channel.member"];
         /** @type {import("mock_models").ResUsers} */
         const ResUsers = this.env["res.users"];
+        /** @type {import("mock_models").ResRole} */
+        const ResRole = this.env["res.role"];
         /** @type {import("mock_models").DiscussChannel} */
         const channel = this.env["discuss.channel"].browse(channel_id)[0];
         const searchLower = search.toLowerCase();
@@ -149,7 +162,7 @@ export class ResPartner extends webModels.ResPartner {
             channel_id,
             extraDomain
         );
-        const store = new mailDataHelpers.Store();
+        const store = new Store();
         const memberIds = DiscussChannelMember.search([
             ["channel_id", "in", [channel.id, channel.parent_channel_id]],
             ["partner_id", "in", partners],
@@ -159,14 +172,11 @@ export class ResPartner extends webModels.ResPartner {
             map[user.partner_id] = user;
             return map;
         }, {});
-        for (const memberId of memberIds) {
-            const [member] = DiscussChannelMember.browse(memberId);
-            store.add(this.browse(member.partner_id));
-            store.add(
-                DiscussChannelMember.browse(member.id),
-                makeKwArgs({ fields: ["channel", "persona"] })
-            );
-        }
+        store.add(DiscussChannelMember.browse(memberIds), "_store_identifying_fields");
+        store.add(this.browse(partners), (res) => {
+            res.from_method("_store_partner_fields");
+            res.from_method("_store_mention_fields");
+        });
         for (const partnerId of partners) {
             const data = {
                 name: users[partnerId]?.name,
@@ -176,25 +186,12 @@ export class ResPartner extends webModels.ResPartner {
             };
             store.add(this.browse(partnerId), data);
         }
-        const roleIds = this.env["res.role"].search(
+        const roleIds = ResRole.search(
             [["name", "ilike", searchLower || ""]],
             makeKwArgs({ limit: limit || 8 })
         );
-        store.add("res.role", this.env["res.role"]._read_format(roleIds, ["name"], false));
-        return store.get_result();
-    }
-
-    compute_im_status(partner) {
-        if (partner.im_status) {
-            return partner.im_status;
-        }
-        if (partner.id === serverState.odoobotId) {
-            return "bot";
-        }
-        if (!partner.user_ids.length) {
-            return "im_status";
-        }
-        return "offline";
+        store.add(ResRole.browse(roleIds), ["name", "user_ids_count"]);
+        return store.as_dict();
     }
 
     /* override */
@@ -221,14 +218,22 @@ export class ResPartner extends webModels.ResPartner {
         const ResUsers = this.env["res.users"];
 
         const channel = this.env["discuss.channel"].browse(channel_id)[0];
+        const memberPartnerIds = DiscussChannelMember.search([
+            ["channel_id", "in", [channel.id, channel.parent_channel_id]],
+        ]).map((memberId) => DiscussChannelMember.browse(memberId)[0].partner_id);
         let partnerIds = [];
         if (!domain?.length && channel) {
-            partnerIds = DiscussChannelMember.search([
-                ["channel_id", "in", [channel.id, channel.parent_channel_id]],
-            ]).map((memberId) => DiscussChannelMember.browse(memberId)[0].partner_id);
+            partnerIds = memberPartnerIds;
         } else {
             partnerIds = ResUsers.search(domain).map(
                 (userId) => ResUsers.browse(userId)[0].partner_id
+            );
+            partnerIds.push(
+                ...this.search([
+                    ["id", "in", memberPartnerIds],
+                    ["user_ids", "=", false],
+                    ...domain,
+                ])
             );
         }
         if (extraDomain?.length) {
@@ -240,97 +245,41 @@ export class ResPartner extends webModels.ResPartner {
         return Array.from(new Set(partnerIds)).slice(0, limit);
     }
 
-    /**
-     * @param {number[]} ids
-     * @returns {Record<string, ModelRecord>}
-     */
-    _to_store(store, fields, extra_fields) {
-        const kwargs = getKwArgs(arguments, "store", "fields", "extra_fields");
-        fields = kwargs.fields;
-        extra_fields = kwargs.extra_fields ?? [];
-        fields = fields.concat(extra_fields);
+    _store_avatar_fields(res) {
+        res.attr("avatar_128_access_token", (p) => p.id); // mock: token is the record id
+        res.attr("write_date");
+    }
 
-        /** @type {import("mock_models").ResCountry} */
-        const ResCountry = this.env["res.country"];
-        /** @type {import("mock_models").ResUsers} */
-        const ResUsers = this.env["res.users"];
+    _store_im_status_fields(res) {
+        res.many("user_ids", "_store_im_status_fields", { sudo: true });
+    }
 
+    _store_mention_fields(res) {
+        res.attr("mention_token", (p) => p.id); // mock simplification
+    }
+
+    _store_avatar_card_fields(res) {
+        res.extend(["name", "partner_share"]);
+        this._store_avatar_fields(res);
+        res.from_method("_store_im_status_fields", { internal: true });
         this._compute_main_user_id(); // compute not automatically triggering when necessary
-        store._add_record_fields(
-            this,
-            fields.filter(
-                (field) =>
-                    ![
-                        "avatar_128",
-                        "country_id",
-                        "display_name",
-                        "is_admin",
-                        "notification_type",
-                        "signature",
-                        "user",
-                    ].includes(field)
-            )
-        );
-        for (const partner of this) {
-            const data = {};
-            if (fields.includes("avatar_128")) {
-                data.avatar_128_access_token = partner.id;
-                data.write_date = partner.write_date;
-            }
-            if (fields.includes("country_id")) {
-                const [country_id] = ResCountry.browse(partner.country_id);
-                data.country_id = country_id || false;
-            }
-            if (fields.includes("display_name")) {
-                data.displayName = partner.display_name || partner.name;
-            }
-            if (fields.includes("im_status")) {
-                data.im_status = this.compute_im_status(partner);
-                data.im_status_access_token = partner.id;
-            }
-            if (fields.includes("user")) {
-                data.main_user_id = partner.main_user_id;
-                if (partner.main_user_id) {
-                    store._add_record_fields(ResUsers.browse(partner.main_user_id), ["share"]);
-                }
-                if (partner.main_user_id && fields.includes("is_admin")) {
-                    const users = ResUsers.search([["login", "=", "admin"]]);
-                    store._add_record_fields(ResUsers.browse(partner.main_user_id), {
-                        is_admin:
-                            this.env.cookie.get("authenticated_user_sid") ===
-                                (Number.isInteger(users?.[0]) ? users?.[0] : users?.[0]?.id) ??
-                            false,
-                    }); // mock server simplification
-                }
-                if (partner.main_user_id && fields.includes("notification_type")) {
-                    store._add_record_fields(
-                        ResUsers.browse(partner.main_user_id),
-                        makeKwArgs({ fields: ["notification_type"] })
-                    );
-                }
-                if (partner.main_user_id && fields.includes("signature")) {
-                    store._add_record_fields(
-                        ResUsers.browse(partner.main_user_id),
-                        makeKwArgs({ fields: ["signature"] })
-                    );
-                }
-            }
-            if (Object.keys(data).length) {
-                store._add_record_fields(this.browse(partner.id), data);
-            }
+        res.one("main_user_id", "_store_avatar_card_fields", { sudo: true });
+        if (res.is_for_internal_users()) {
+            res.extend(["email", "phone", "tz"]);
         }
     }
 
-    get _to_store_defaults() {
-        return [
-            "avatar_128",
-            "name",
-            "email",
-            "active",
-            "im_status",
-            "is_company",
-            mailDataHelpers.Store.one("main_user_id", ["share"]),
-        ];
+    _store_channel_invite_fields(res, { channel } = {}) {
+        this._store_partner_fields(res);
+    }
+
+    _store_partner_fields(res) {
+        res.extend(["active", "is_company", "name", "partner_share"]);
+        this._store_avatar_fields(res);
+        res.from_method("_store_im_status_fields", { internal: true });
+        this._compute_main_user_id(); // compute not automatically triggering when necessary
+        res.one("main_user_id", "_store_main_user_fields", { sudo: true });
+        res.extend(["email", "tz"], { internal: true });
     }
 
     /**
@@ -340,14 +289,14 @@ export class ResPartner extends webModels.ResPartner {
      */
     search_for_channel_invite(search_term, channel_id, limit = 30) {
         const kwargs = getKwArgs(arguments, "search_term", "channel_id", "limit");
-        const store = new mailDataHelpers.Store();
+        const store = new Store();
         const channel_invites = this._search_for_channel_invite(
             store,
             kwargs.search_term,
             kwargs.channel_id,
             kwargs.limit
         );
-        return { store_data: store.get_result(), ...channel_invites };
+        return { store_data: store.as_dict(), ...channel_invites };
     }
 
     /**
@@ -417,7 +366,7 @@ export class ResPartner extends webModels.ResPartner {
     }
 
     _search_for_channel_invite_to_store(ids, store, channel_id) {
-        store.add(this.browse(ids));
+        store.add(this.browse(ids), "_store_channel_invite_fields");
     }
 
     /**
@@ -445,9 +394,5 @@ export class ResPartner extends webModels.ResPartner {
             return [null, MailGuest._get_guest_from_context()];
         }
         return [this.browse(this.env.user.partner_id)[0], null];
-    }
-
-    _get_store_avatar_card_fields() {
-        return ["email", "partner_share", "name", "phone"];
     }
 }

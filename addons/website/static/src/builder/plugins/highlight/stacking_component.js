@@ -1,8 +1,9 @@
-import { xml, Component, reactive, useState, useEffect } from "@odoo/owl";
+import { useLayoutEffect } from "@web/owl2/utils";
+import { xml, Component, proxy, useProps, t } from "@odoo/owl";
 import { POSITION_BUS } from "@web/core/position/position_hook";
 
 export function useStackingComponentState() {
-    const stack = reactive([]);
+    const stack = proxy([]);
     let counter = 0;
     const push = (component, props, title, withPrevious) => {
         stack.push({ id: counter++, component, props, title, withPrevious });
@@ -17,22 +18,22 @@ export class StackingComponent extends Component {
         <t t-foreach="this.stack" t-as="componentSpec" t-key="componentSpec.id">
             <div data-prevent-closing-overlay="true" t-if="componentSpec_last" t-attf-class="{{this.props.class}} {{componentSpec_last ? '': 'd-none' }}" t-att-style="this.props.style">
                 <div t-if="this.stack.length > 1 || componentSpec.title" class="d-flex align-items-center">
-                    <button t-if="this.stack.length > 1 and componentSpec.withPrevious" class="fa fa-angle-left btn btn-secondary bg-transparent border-0" t-on-click="this.props.stackState.pop"></button>
+                    <button t-if="this.stack.length > 1 and componentSpec.withPrevious" class="oi btn btn-secondary bg-transparent border-0" data-icon="keyboard_arrow_left" t-on-click="this.props.stackState.pop"></button>
                     <span t-out="componentSpec.title" t-att-class="{ 'cursor-pointer': componentSpec.withPrevious }" t-on-click="this.props.stackState.pop"/>
                 </div>
                 <t t-component="componentSpec.component" t-props="componentSpec.props" />
             </div>
         </t>
     `;
-    static props = {
-        stackState: { type: Object, required: true },
-        class: { type: String, optional: true },
-        style: { type: String, optional: true },
-        close: { type: Function, optional: true },
-    };
+    props = useProps({
+        stackState: t.object(),
+        class: t.string().optional(),
+        style: t.string().optional(),
+        close: t.function().optional(),
+    });
     setup() {
-        this.stack = useState(this.props.stackState.stack);
-        useEffect(
+        this.stack = proxy(this.props.stackState.stack);
+        useLayoutEffect(
             () => {
                 // Recompute the positioning of the popover if any.
                 this.env[POSITION_BUS]?.trigger("update");

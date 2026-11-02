@@ -1,4 +1,4 @@
-import { useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 
 import { _t } from "@web/core/l10n/translation";
 
@@ -6,9 +6,10 @@ import { TaskListRenderer } from "../task_list_renderer";
 
 export class NotebookTaskListRenderer extends TaskListRenderer {
     static rowsTemplate = "project.NotebookTaskListRenderer.Rows";
+    static createRowTemplate = "project.NotebookTaskListRenderer.CreateRow";
     setup() {
         super.setup();
-        this.hideState = useState({
+        this.hideState = proxy({
             hide: localStorage.getItem(this._getStorageKey) === 'true',
         });
     }

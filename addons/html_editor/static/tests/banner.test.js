@@ -1,13 +1,27 @@
-import { expect, test } from "@odoo/hoot";
-import { click, manuallyDispatchProgrammaticEvent, press, waitFor } from "@odoo/hoot-dom";
-import { animationFrame } from "@odoo/hoot-mock";
+import {
+    animationFrame,
+    click,
+    expect,
+    manuallyDispatchProgrammaticEvent,
+    press,
+    test,
+    waitFor,
+} from "@odoo/hoot";
+import { preloadBundle } from "@web/../tests/web_test_helpers";
 import { setupEditor } from "./_helpers/editor";
-import { getContent, setSelection } from "./_helpers/selection";
-import { insertLineBreak, insertText, keydownShiftTab, keydownTab } from "./_helpers/user_actions";
-import { loader } from "@web/core/emoji_picker/emoji_picker";
-import { execCommand } from "./_helpers/userCommands";
 import { unformat } from "./_helpers/format";
+import { getContent, setSelection } from "./_helpers/selection";
 import { expectElementCount } from "./_helpers/ui_expectations";
+import {
+    insertLineBreak,
+    insertText,
+    keydownShiftTab,
+    keydownTab,
+    undo,
+} from "./_helpers/user_actions";
+import { execCommand } from "./_helpers/userCommands";
+
+preloadBundle("web.assets_emoji");
 
 test("should insert a banner with focus inside followed by a paragraph", async () => {
     const { el, editor } = await setupEditor("<p>Test[]</p>");
@@ -26,14 +40,6 @@ test("should insert a banner with focus inside followed by a paragraph", async (
                 </div><p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`
         )
     );
-
-    await insertText(editor, "/");
-    await animationFrame();
-    await expectElementCount(".o-we-powerbox", 1);
-
-    await insertText(editor, "banner");
-    await animationFrame();
-    await expectElementCount(".o-we-powerbox", 0);
 });
 
 test("press 'ctrl+a' inside a banner should select all the banner content", async () => {
@@ -197,7 +203,6 @@ test("Can change an emoji banner", async () => {
     await insertText(editor, "/bannerinfo");
     await press("enter");
     expect("i.o_editor_banner_icon").toHaveText("💡");
-    await loader.loadEmoji();
     await click("i.o_editor_banner_icon");
     await waitFor(".o-EmojiPicker");
     await click(".o-EmojiPicker .o-Emoji");
@@ -219,7 +224,6 @@ test("toolbar should be closed when you open the emojipicker", async () => {
     setSelection({ anchorNode: textNode, anchorOffset: 0, focusNode: textNode, focusOffset: 2 });
     await waitFor(".o-we-toolbar");
 
-    await loader.loadEmoji();
     await click("i.o_editor_banner_icon");
     await waitFor(".o-EmojiPicker");
     await animationFrame();
@@ -240,7 +244,6 @@ test("toolbar should be closed when you open the emojipicker (iframe)", async ()
     setSelection({ anchorNode: textNode, anchorOffset: 0, focusNode: textNode, focusOffset: 2 });
     await waitFor(".o-we-toolbar");
 
-    await loader.loadEmoji();
     await click(":iframe i.o_editor_banner_icon");
     await waitFor(".o-EmojiPicker");
     await animationFrame();
@@ -260,7 +263,7 @@ test("add banner inside empty list", async () => {
                     <div class="o_editor_banner_content o-contenteditable-true w-100 px-3" contenteditable="true">
                         <p o-we-hint-text='Type "/" for commands' class="o-we-hint">[]<br></p>
                     </div>
-                </div></li></ul>`
+                </div><p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p></li></ul>`
         )
     );
 });
@@ -277,7 +280,7 @@ test("add banner inside non-empty list", async () => {
                     <div class="o_editor_banner_content o-contenteditable-true w-100 px-3" contenteditable="true">
                         <p>Test[]</p>
                     </div>
-                </div></li></ul>`
+                </div><p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p></li></ul>`
         )
     );
 });
@@ -408,5 +411,106 @@ test("Monospace banner should unindent on shift+tab", async () => {
     await keydownShiftTab(editor);
     expect(unformat(getContent(el))).toBe(
         unformat(wrap([`\u200b\u200b[a() {`, `\u200b\u200bx = 1;`, `\u200b\u200b}]`]))
+    );
+});
+
+test("should be able to switch banner type", async () => {
+    const { el, editor } = await setupEditor("<p>Test[]</p>");
+    await insertText(editor, "/bannerinfo");
+    await animationFrame();
+    expect(".active .o-we-command-name").toHaveText("Banner Info");
+
+    await press("enter");
+    expect(unformat(getContent(el))).toBe(
+        unformat(
+            `<p data-selection-placeholder=""><br></p><div class="o_editor_banner user-select-none o-contenteditable-false lh-1 d-flex align-items-center alert alert-info pb-0 pt-3 ps-3 pe-3" data-oe-role="status" contenteditable="false" role="status">
+                    <i class="o_editor_banner_icon mb-3 fst-normal" data-oe-aria-label="Banner Info" aria-label="Banner Info">💡</i>
+                    <div class="o_editor_banner_content o-contenteditable-true w-100 px-3" contenteditable="true">
+                        <p>Test[]</p>
+                    </div>
+                </div><p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`
+        )
+    );
+    await insertText(editor, "/bannersuccess");
+    await animationFrame();
+    expect(".active .o-we-command-name").toHaveText("Banner Success");
+    await press("enter");
+
+    expect(unformat(getContent(el))).toBe(
+        unformat(
+            `<p data-selection-placeholder=""><br></p><div class="o_editor_banner user-select-none o-contenteditable-false lh-1 d-flex align-items-center alert alert-success pb-0 pt-3 ps-3 pe-3" data-oe-role="status" contenteditable="false" role="status">
+                    <i class="o_editor_banner_icon mb-3 fst-normal" data-oe-aria-label="Banner Success" aria-label="Banner Success">✅</i>
+                    <div class="o_editor_banner_content o-contenteditable-true w-100 px-3" contenteditable="true">
+                        <p>Test[]</p>
+                    </div>
+                </div><p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`
+        )
+    );
+});
+
+test("powerbox should not suggest the active banner type", async () => {
+    const { el, editor } = await setupEditor("<p>Test[]</p>");
+    await insertText(editor, "/bannerinfo");
+    await animationFrame();
+    expect(".active .o-we-command-name").toHaveText("Banner Info");
+    await press("enter");
+    expect(unformat(getContent(el))).toBe(
+        unformat(
+            `<p data-selection-placeholder=""><br></p><div class="o_editor_banner user-select-none o-contenteditable-false lh-1 d-flex align-items-center alert alert-info pb-0 pt-3 ps-3 pe-3" data-oe-role="status" contenteditable="false" role="status">
+                    <i class="o_editor_banner_icon mb-3 fst-normal" data-oe-aria-label="Banner Info" aria-label="Banner Info">💡</i>
+                    <div class="o_editor_banner_content o-contenteditable-true w-100 px-3" contenteditable="true">
+                        <p>Test[]</p>
+                    </div>
+                </div><p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`
+        )
+    );
+    await insertText(editor, "/banner");
+    await animationFrame();
+    expect(".o-we-command-name").not.toHaveText("Banner Info");
+});
+
+test("undo restores previous banner style after switching banner type", async () => {
+    const { el, editor } = await setupEditor("<p>Test[]</p>");
+    await insertText(editor, "/bannerinfo");
+    await animationFrame();
+    expect(".active .o-we-command-name").toHaveText("Banner Info");
+
+    await press("enter");
+    expect(unformat(getContent(el))).toBe(
+        unformat(
+            `<p data-selection-placeholder=""><br></p><div class="o_editor_banner user-select-none o-contenteditable-false lh-1 d-flex align-items-center alert alert-info pb-0 pt-3 ps-3 pe-3" data-oe-role="status" contenteditable="false" role="status">
+                    <i class="o_editor_banner_icon mb-3 fst-normal" data-oe-aria-label="Banner Info" aria-label="Banner Info">💡</i>
+                    <div class="o_editor_banner_content o-contenteditable-true w-100 px-3" contenteditable="true">
+                        <p>Test[]</p>
+                    </div>
+                </div><p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`
+        )
+    );
+    await insertText(editor, "/bannersuccess");
+    await animationFrame();
+    expect(".active .o-we-command-name").toHaveText("Banner Success");
+    await press("enter");
+
+    expect(unformat(getContent(el))).toBe(
+        unformat(
+            `<p data-selection-placeholder=""><br></p><div class="o_editor_banner user-select-none o-contenteditable-false lh-1 d-flex align-items-center alert alert-success pb-0 pt-3 ps-3 pe-3" data-oe-role="status" contenteditable="false" role="status">
+                    <i class="o_editor_banner_icon mb-3 fst-normal" data-oe-aria-label="Banner Success" aria-label="Banner Success">✅</i>
+                    <div class="o_editor_banner_content o-contenteditable-true w-100 px-3" contenteditable="true">
+                        <p>Test[]</p>
+                    </div>
+                </div><p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`
+        )
+    );
+    undo(editor);
+    await animationFrame();
+    expect(unformat(getContent(el))).toBe(
+        unformat(
+            `<p data-selection-placeholder=""><br></p><div class="o_editor_banner user-select-none o-contenteditable-false lh-1 d-flex align-items-center alert pb-0 pt-3 ps-3 pe-3 alert-info" data-oe-role="status" contenteditable="false" role="status">
+                    <i class="o_editor_banner_icon mb-3 fst-normal" data-oe-aria-label="Banner Info" aria-label="Banner Info">💡</i>
+                    <div class="o_editor_banner_content o-contenteditable-true w-100 px-3" contenteditable="true">
+                        <p>Test[]</p>
+                    </div>
+                </div><p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`
+        )
     );
 });

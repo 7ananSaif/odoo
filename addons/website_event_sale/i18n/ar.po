@@ -7,14 +7,16 @@
 # Malaz Abuidris <msea@odoo.com>, 2023
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2026.
+# "Malaz Siddig Elsayed Abuidris (msea)" <msea@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-15 17:36+0000\n"
-"PO-Revision-Date: 2025-10-13 12:16+0000\n"
-"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
-"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-10-12 10:33+0000\n"
+"Last-Translator: \"Malaz Siddig Elsayed Abuidris (msea)\" <msea@odoo.com>\n"
+"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-20/"
 "website_event_sale/ar/>\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
@@ -22,7 +24,14 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: website_event_sale
+#: model:ir.module.module,description:base.module_website_event_sale
+msgid ""
+"\n"
+"Sell event tickets through eCommerce app.\n"
+msgstr ""
 
 #. module: website_event_sale
 #: model_terms:ir.ui.view,arch_db:website_event_sale.event_confirmation
@@ -36,17 +45,17 @@ msgstr "<b>البداية</b>"
 
 #. module: website_event_sale
 #: model_terms:ir.ui.view,arch_db:website_event_sale.event_confirmation
-msgid "<i class=\"fa fa-check me-2\" role=\"img\"/>Registered"
-msgstr "<i class=\"fa fa-check me-2\" role=\"img\"/>التسجيلات"
+msgid "<i class=\"oi me-2\" data-icon=\"check\" role=\"img\"/>Registered"
+msgstr "<i class=\"oi me-2\" data-icon=\"check\" role=\"img\"/>التسجيلات"
 
 #. module: website_event_sale
 #: model_terms:ir.ui.view,arch_db:website_event_sale.registration_attendee_details
 msgid ""
 "<span>Sign In</span>\n"
-"                <span class=\"fa fa-sign-in\"/>"
+"                <span class=\"oi\" data-icon=\"login\"/>"
 msgstr ""
 "<span>تسجيل الدخول</span>\n"
-"                <span class=\"fa fa-sign-in\"/>"
+"                <span class=\"oi\" data-icon=\"login\"/>"
 
 #. module: website_event_sale
 #. odoo-python
@@ -59,21 +68,12 @@ msgstr ""
 "الفعالية."
 
 #. module: website_event_sale
-#. odoo-python
-#: code:addons/website_event_sale/models/product_pricelist.py:0
-msgid ""
-"A pricelist item with a positive min. quantity will not be applied to the "
-"event tickets products."
-msgstr ""
-"لن يتم تطبيق عنصر قائمة تسعير ذو حد أدنى موجب للكمية في منتج تذاكر هذه "
-"الفعالية."
-
-#. module: website_event_sale
 #: model_terms:ir.ui.view,arch_db:website_event_sale.registration_attendee_details
 msgid "Confirm Registration"
 msgstr "تأكيد التسجيل"
 
 #. module: website_event_sale
+#: model:ir.model.fields,field_description:website_event_sale.field_event_event__display_name
 #: model:ir.model.fields,field_description:website_event_sale.field_event_event_ticket__display_name
 #: model:ir.model.fields,field_description:website_event_sale.field_event_sale_report__display_name
 #: model:ir.model.fields,field_description:website_event_sale.field_product_pricelist_item__display_name
@@ -83,6 +83,11 @@ msgstr "تأكيد التسجيل"
 #: model:ir.model.fields,field_description:website_event_sale.field_sale_order_line__display_name
 msgid "Display Name"
 msgstr "اسم العرض"
+
+#. module: website_event_sale
+#: model:ir.model,name:website_event_sale.model_event_event
+msgid "Event"
+msgstr ""
 
 #. module: website_event_sale
 #: model:ir.model,name:website_event_sale.model_event_sale_report
@@ -97,7 +102,7 @@ msgstr "العنوان الفرعي للفعالية"
 #. module: website_event_sale
 #: model:ir.model,name:website_event_sale.model_event_event_ticket
 msgid "Event Ticket"
-msgstr ""
+msgstr "تذكرة الفعالية"
 
 #. module: website_event_sale
 #: model:ir.model.fields,field_description:website_event_sale.field_product_product__event_ticket_ids
@@ -125,6 +130,7 @@ msgid "Go to Payment"
 msgstr "الذهاب إلى الدفع"
 
 #. module: website_event_sale
+#: model:ir.model.fields,field_description:website_event_sale.field_event_event__id
 #: model:ir.model.fields,field_description:website_event_sale.field_event_event_ticket__id
 #: model:ir.model.fields,field_description:website_event_sale.field_event_sale_report__id
 #: model:ir.model.fields,field_description:website_event_sale.field_product_pricelist_item__id
@@ -134,6 +140,11 @@ msgstr "الذهاب إلى الدفع"
 #: model:ir.model.fields,field_description:website_event_sale.field_sale_order_line__id
 msgid "ID"
 msgstr "المُعرف"
+
+#. module: website_event_sale
+#: model:ir.module.module,shortdesc:base.module_website_event_sale
+msgid "Online Event Ticketing"
+msgstr ""
 
 #. module: website_event_sale
 #: model:ir.model,name:website_event_sale.model_product_pricelist_item
@@ -165,6 +176,11 @@ msgstr "أمر البيع"
 #: model:ir.model,name:website_event_sale.model_sale_order_line
 msgid "Sales Order Line"
 msgstr "بند أمر المبيعات"
+
+#. module: website_event_sale
+#: model:ir.module.module,summary:base.module_website_event_sale
+msgid "Sell event tickets online"
+msgstr ""
 
 #. module: website_event_sale
 #. odoo-python
@@ -216,45 +232,3 @@ msgstr "لا يمكنك زيادة كمية تذاكر الفعالية في ع�
 #: model_terms:ir.ui.view,arch_db:website_event_sale.modal_ticket_registration
 msgid "to"
 msgstr "إلى"
-
-#~ msgid ""
-#~ "<i class=\"fa fa-ban me-2\"/>\n"
-#~ "                                            Unpublished"
-#~ msgstr ""
-#~ "<i class=\"fa fa-ban me-2\"/>\n"
-#~ "                                            غير منشور "
-
-#~ msgid ""
-#~ "<small class=\"o_wevent_participating text-bg-success\">\n"
-#~ "                                            <i class=\"fa fa-check me-2\"/"
-#~ ">\n"
-#~ "                                            Registered\n"
-#~ "                                        </small>"
-#~ msgstr ""
-#~ "<small class=\"o_wevent_participating text-bg-success\">\n"
-#~ "                                            <i class=\"fa fa-check me-2\"/"
-#~ ">\n"
-#~ "                                            مسجل\n"
-#~ "                                        </small>"
-
-#~ msgid "Go to Event"
-#~ msgstr "الذهاب إلى الفعالية "
-
-#~ msgid ""
-#~ "Sorry, only %(remaining_seats)d seats are still available for the %"
-#~ "(ticket)s ticket for the %(event)s event."
-#~ msgstr ""
-#~ "عذراً، مقاعد %(remaining_seats)d فقط هي المتوفرة لتذكرة %(ticket)s "
-#~ "للفعالية %(event)s. "
-
-#~ msgid "We are looking forward to meeting you at the following"
-#~ msgstr "نتطلع لرؤيتك في "
-
-#~ msgid "Website"
-#~ msgstr "الموقع الإلكتروني"
-
-#~ msgid "event"
-#~ msgstr "الفعالية "
-
-#~ msgid "events"
-#~ msgstr "الفعاليات "

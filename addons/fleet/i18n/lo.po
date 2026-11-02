@@ -9,21 +9,71 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 10.saas~18\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-16 13:48+0000\n"
-"PO-Revision-Date: 2026-06-06 20:20+0000\n"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-10-21 03:18+0000\n"
 "Last-Translator: Bone NI <bounkirdni@gmail.com>\n"
-"Language-Team: Lao <https://translate.odoo.com/projects/odoo-19/fleet/lo/>\n"
+"Language-Team: Lao <https://translate.odoo.com/projects/odoo-20/fleet/lo/>\n"
 "Language: lo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: fleet
+#: model:ir.module.module,description:base.module_fleet
+msgid ""
+"\n"
+"Vehicle, leasing, insurances, cost\n"
+"==================================\n"
+"With this module, Odoo helps you managing all your vehicles, the\n"
+"contracts associated to those vehicle as well as services, costs\n"
+"and many other features necessary to the management of your fleet\n"
+"of vehicle(s)\n"
+"\n"
+"Main Features\n"
+"-------------\n"
+"* Add vehicles to your fleet\n"
+"* Manage contracts for vehicles\n"
+"* Reminder when a contract reach its expiration date\n"
+"* Add services, odometer values for all vehicles\n"
+"* Show all costs associated to a vehicle or to a type of service\n"
+"* Analysis graph for costs\n"
+msgstr ""
+"\n"
+"ພາຫະນະ, ການເຊົ່າ, ປະກັນໄພ, ຄ່າໃຊ້ຈ່າຍ\n"
+"==================================\n"
+"ດ້ວຍໂມດູນນີ້, Odoo ຊ່ວຍໃຫ້ທ່ານຈັດການພາຫະນະທັງໝົດຂອງທ່ານ, \n"
+"ສັນຍາທີ່ຕິດພັນກັບພາຫະນະເຫຼົ່ານັ້ນ ລວມທັງການບໍລິການ, ຄ່າໃຊ້ຈ່າຍ\n"
+"ແລະ ຄຸນສົມບັດອື່ນໆອີກຫຼາຍຢ່າງທີ່ຈຳເປັນຕໍ່ການຄຸ້ມຄອງກອງພາຫະນະຂອງທ່ານ\n"
+"\n"
+"ຄຸນສົມບັດຫຼັກ\n"
+"-------------\n"
+"* ເພີ່ມພາຫະນະເຂົ້າໃນກອງພາຫະນະຂອງທ່ານ\n"
+"* ຄຸ້ມຄອງສັນຍາສຳລັບພາຫະນະ\n"
+"* ແຈ້ງເຕືອນເມື່ອສັນຍາໃກ້ຈະໝົດອາຍຸ\n"
+"* ເພີ່ມການບໍລິການ, ຄ່າເລກກິໂລແມັດສຳລັບພາຫະນະທັງໝົດ\n"
+"* ສະແດງຄ່າໃຊ້ຈ່າຍທັງໝົດທີ່ຕິດພັນກັບພາຫະນະ ຫຼື ປະເພດການບໍລິການ\n"
+"* ແຜນພູມວິເຄາະສຳລັບຄ່າໃຊ້ຈ່າຍ\n"
 
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_kanban
-msgid "<i class=\"fa fa-map-marker\" title=\"Location\"/>"
-msgstr "<i class=\"fa fa-map-marker\" title=\"ສະຖານທີ່\"/>"
+msgid "<i class=\"oi\" data-icon=\"location_on\" title=\"Location\"/>"
+msgstr "<i class=\"oi\" data-icon=\"location_on\" title=\"ສະຖານທີ່\"/>"
+
+#. module: fleet
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_model_view_form
+msgid ""
+"<span class=\"o_stat_value\">New</span>\n"
+"                                <span class=\"o_stat_text\">Vehicle</span>"
+msgstr ""
+"<span class=\"o_stat_value\">ໃໝ່</span>\n"
+"                                <span class=\"o_stat_text\">ພາຫະນະ</span>"
+
+#. module: fleet
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_services_view_kanban
+msgid "<span class=\"text-muted\"> - </span>"
+msgstr "<span class=\"text-muted\"> - </span>"
 
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.res_config_settings_view_form
@@ -41,26 +91,23 @@ msgid "<span>cm</span>"
 msgstr "<span>ຊມ</span>"
 
 #. module: fleet
-#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_model_view_form
-#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_form
-msgid "<span>g/km</span>"
-msgstr "<span>ກຣາມ/ກມ</span>"
-
-#. module: fleet
-#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_model_view_form
-#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_form
-msgid "<span>kW</span>"
-msgstr "<span>ກິໂລວັດ (kW)</span>"
+#: model:ir.model.fields,help:fleet.field_fleet_vehicle__trailer_hook
+msgid ""
+"A trailer hitch is a device attached to a vehicle's chassis for towing "
+"purposes,             such as pulling trailers, boats, or other vehicles."
+msgstr ""
+"ຂໍລາກແກ່ ແມ່ນອຸປະກອນທີ່ຕິດຢູ່ກັບໂຄງຮ່າງຂອງພາຫະນະເພື່ອຈຸດປະສົງໃນການລາກແກ່,             ເຊັ່ນ: ກາ"
+"ນແກ່ລົດພ່ວງ, ເຮືອ, ຫຼື ພາຫະນະອື່ນໆ."
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_1
 msgid "A/C Compressor Replacement"
-msgstr "ການປ່ຽນຄອມເພຣດເຊີແອ"
+msgstr "ການປ່ຽນຄອມແອ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_2
 msgid "A/C Condenser Replacement"
-msgstr "ການປ່ຽນແຜງຮ້ອນແອ"
+msgstr "ການປ່ຽນແຜງລະບາຍຄວາມຮ້ອນແອ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_3
@@ -75,53 +122,77 @@ msgstr "ການປ່ຽນຕູ້ແອ"
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_5
 msgid "A/C Recharge"
-msgstr "ການເຕີມນ້ຳຢາແອ"
+msgstr "ການຕື່ມນ້ຳຢາແອ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__message_needaction
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__message_needaction
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__message_needaction
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__message_needaction
 msgid "Action Needed"
-msgstr "ຈຳເປັນຕ້ອງດຳເນີນການ"
+msgstr "ຕ້ອງດຳເນີນການ"
 
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_contract_view_form
 msgid "Activation Cost"
-msgstr "ຄ່າທຳນຽມເລີ່ມຕົ້ນ"
+msgstr "ຄ່າໃຊ້ຈ່າຍໃນການເປີດໃຊ້ງານ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__active
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__active
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__active
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__active
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model_brand__active
 msgid "Active"
-msgstr "ເປີດນຳໃຊ້"
+msgstr "ເປີດໃຊ້ງານ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__activity_ids
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__activity_ids
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__activity_ids
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__activity_ids
 msgid "Activities"
 msgstr "ກິດຈະກຳ"
+
+#. module: fleet
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_contract_view_search
+msgid "Activities of"
+msgstr "ກິດຈະກຳຂອງ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__activity_exception_decoration
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__activity_exception_decoration
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__activity_exception_decoration
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__activity_exception_decoration
 msgid "Activity Exception Decoration"
-msgstr "ການຕົກແຕ່ງກິດຈະກຳທີ່ຍົກເວັ້ນ"
+msgstr "ການຕົກແຕ່ງຂໍ້ຍົກເວັ້ນກິດຈະກຳ"
+
+#. module: fleet
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__activity_plans_ids
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__activity_plans_ids
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__activity_plans_ids
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__activity_plans_ids
+msgid "Activity Plans"
+msgstr "ແຜນກິດຈະກຳ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__activity_state
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__activity_state
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__activity_state
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__activity_state
 msgid "Activity State"
 msgstr "ສະຖານະກິດຈະກຳ"
+
+#. module: fleet
+#: model:ir.model,name:fleet.model_mail_activity_type
+msgid "Activity Type"
+msgstr "ປະເພດກິດຈະກຳ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__activity_type_icon
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__activity_type_icon
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__activity_type_icon
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__activity_type_icon
 msgid "Activity Type Icon"
 msgstr "ໄອຄອນປະເພດກິດຈະກຳ"
 
@@ -132,9 +203,14 @@ msgid "Activity Types"
 msgstr "ປະເພດກິດຈະກຳ"
 
 #. module: fleet
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_contract_view_search
+msgid "Activity type"
+msgstr "ປະເພດກິດຈະກຳ"
+
+#. module: fleet
 #: model_terms:ir.actions.act_window,help:fleet.fleet_vehicle_tag_action
 msgid "Add a new tag"
-msgstr "ເພີ່ມແທັກໃໝ່"
+msgstr "ເພີ່ມປ້າຍກຳກັບໃໝ່"
 
 #. module: fleet
 #: model:res.groups,name:fleet.fleet_group_manager
@@ -147,9 +223,24 @@ msgid "Air Filter Replacement"
 msgstr "ການປ່ຽນໝໍ້ຕອງອາກາດ"
 
 #. module: fleet
+#. odoo-javascript
+#: code:addons/fleet/static/src/js/fleet_form.js:0
+msgid ""
+"All services and contracts linked to this vehicle will also be archived.\n"
+"Are you sure you want to proceed?"
+msgstr ""
+"ການບໍລິການ ແລະ ສັນຍາທັງໝົດທີ່ເຊື່ອມໂຍງກັບພາຫະນະນີ້ຈະຖືກເກັບໄວ້ເຊັ່ນກັນ.\n"
+"ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການດຳເນີນການຕໍ່?"
+
+#. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_search
 msgid "All vehicles"
 msgstr "ພາຫະນະທັງໝົດ"
+
+#. module: fleet
+#: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle_model__drive_type__awd
+msgid "All-Wheel Drive (AWD)"
+msgstr "ລະບົບຂັບເຄື່ອນທຸກລໍ້ (AWD)"
 
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_form
@@ -157,25 +248,39 @@ msgid "Apply New Driver"
 msgstr "ນຳໃຊ້ຄົນຂັບໃໝ່"
 
 #. module: fleet
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_model_brand_view_kanban
+msgid "Archive"
+msgstr "ຈັດເກັບ"
+
+#. module: fleet
+#. odoo-javascript
+#: code:addons/fleet/static/src/js/fleet_form.js:0
+msgid "Archive Vehicle"
+msgstr "ຈັດເກັບພາຫະນະ"
+
+#. module: fleet
+#. odoo-javascript
+#: code:addons/fleet/static/src/js/fleet_form.js:0
+msgid "Archive Vehicle & Contracts"
+msgstr "ຈັດເກັບພາຫະນະ ແລະ ສັນຍາ"
+
+#. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_contract_view_form
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_contract_view_search
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_services_view_form
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_services_view_search
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_model_brand_view_search
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_model_view_search
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_form
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_search
 msgid "Archived"
-msgstr "ເກັບໄວ້"
-
-#. module: fleet
-#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__next_assignation_date
-msgid "Assignment Date"
-msgstr "ວັນທີມອບໝາຍ"
+msgstr "ຈັດເກັບແລ້ວ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__log_drivers
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_assignation_log_view_list
 msgid "Assignment Logs"
-msgstr "ປະຫວັດການມອບໝາຍ"
+msgstr "ບັນທຶກການມອບໝາຍ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_service_8
@@ -186,13 +291,24 @@ msgstr "ການຊ່ວຍເຫຼືອ"
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__message_attachment_count
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__message_attachment_count
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__message_attachment_count
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__message_attachment_count
 msgid "Attachment Count"
-msgstr "ຈຳນວນໄຟລ໌ຄັດຕິດ"
+msgstr "ຈຳນວນເອກະສານຄັດຕິດ"
+
+#. module: fleet
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_send_mail__attachment_ids
+msgid "Attachments"
+msgstr "ເອກະສານຄັດຕິດ"
 
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_kanban
 msgid "Attention: renewal overdue"
-msgstr "ຄຳເຕືອນ: ກາຍກຳນົດເວລາຕໍ່ອາຍຸ"
+msgstr "ແຈ້ງເຕືອນ: ກາຍກຳນົດການຕໍ່ອາຍຸ"
+
+#. module: fleet
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_send_mail__author_id
+msgid "Author"
+msgstr "ຜູ້ຂຽນ"
 
 #. module: fleet
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle__transmission__automatic
@@ -201,49 +317,55 @@ msgid "Automatic"
 msgstr "ເກຍໂອໂຕ"
 
 #. module: fleet
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_form
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_search
 msgid "Available"
-msgstr "ພ້ອມໃຊ້"
+msgstr "ພ້ອມໃຊ້ງານ"
+
+#. module: fleet
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__next_assignation_date
+msgid "Available From"
+msgstr "ພ້ອມໃຊ້ງານຕັ້ງແຕ່"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__avatar_1920
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__avatar_1920
 msgid "Avatar"
-msgstr "ຮູບຕົວແທນ"
+msgstr "ຮູບໂປຣໄຟລ໌"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__avatar_1024
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__avatar_1024
 msgid "Avatar 1024"
-msgstr "ຮູບຕົວແທນ 1024"
+msgstr "ຮູບໂປຣໄຟລ໌ 1024"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__avatar_128
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__avatar_128
 msgid "Avatar 128"
-msgstr "ຮູບຕົວແທນ 128"
+msgstr "ຮູບໂປຣໄຟລ໌ 128"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__avatar_256
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__avatar_256
 msgid "Avatar 256"
-msgstr "ຮູບຕົວແທນ 256"
+msgstr "ຮູບໂປຣໄຟລ໌ 256"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__avatar_512
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__avatar_512
 msgid "Avatar 512"
-msgstr "ຮູບຕົວແທນ 512"
+msgstr "ຮູບໂປຣໄຟລ໌ 512"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_7
 msgid "Ball Joint Replacement"
-msgstr "ການປ່ຽນໝາກຢາງ"
+msgstr "ການປ່ຽນລູກໝາກ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_9
 msgid "Battery Inspection"
-msgstr "ການກວດເຊັກໝໍ້ໄຟ"
+msgstr "ການກວດກາໝໍ້ໄຟ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_10
@@ -267,14 +389,19 @@ msgid "Bikes"
 msgstr "ລົດຖີບ"
 
 #. module: fleet
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_send_mail__body_has_template_value
+msgid "Body content is the same as the template"
+msgstr "ເນື້ອໃນຄືກັນກັບແມ່ແບບ"
+
+#. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_11
 msgid "Brake Caliper Replacement"
-msgstr "ການປ່ຽນກ້າມເບຣກ"
+msgstr "ການປ່ຽນຄາລິບເປີເບຣກ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_12
 msgid "Brake Inspection"
-msgstr "ການກວດເຊັກລະບົບເບຣກ"
+msgstr "ການກວດກາເບຣກ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_13
@@ -283,6 +410,7 @@ msgstr "ການປ່ຽນຜ້າເບຣກ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__brand_id
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__brand_id
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_search
 msgid "Brand"
 msgstr "ຍີ່ຫໍ້"
@@ -296,23 +424,23 @@ msgstr "ຍີ່ຫໍ້ຂອງພາຫະນະ"
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle__fuel_type__cng
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle_model__default_fuel_type__cng
 msgid "CNG"
-msgstr "ອາຍແກັສທຳມະຊາດ (CNG)"
-
-#. module: fleet
-#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__co2
-#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__default_co2
-msgid "CO2 Emissions"
-msgstr "ການປ່ອຍອາຍພິດ CO2"
+msgstr "CNG"
 
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_tree
-msgid "CO2 Emissions g/km"
-msgstr "ການປ່ອຍອາຍພິດ CO2 ກຣາມ/ກມ"
+msgid "CO2 Emissions"
+msgstr "ການປ່ອຍແກັສ CO2"
 
 #. module: fleet
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle__co2
 msgid "CO2 emissions of the vehicle"
-msgstr "ການປ່ອຍອາຍພິດ CO2 ຂອງພາຫະນະ"
+msgstr "ການປ່ອຍແກັສ CO2 ຂອງພາຫະນະ"
+
+#. module: fleet
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__co2
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__default_co2
+msgid "CO₂ Emissions"
+msgstr "ການປ່ອຍແກັສ CO₂"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_service_1
@@ -320,9 +448,9 @@ msgid "Calculation Benefit In Kind"
 msgstr "ການຄິດໄລ່ຜົນປະໂຫຍດທີ່ບໍ່ແມ່ນຕົວເງິນ"
 
 #. module: fleet
-#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_contract_view_form
-msgid "Cancel"
-msgstr "ຍົກເລີກ"
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_send_mail__can_edit_body
+msgid "Can Edit Body"
+msgstr "ສາມາດແກ້ໄຂເນື້ອໃນໄດ້"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__write_off_date
@@ -351,14 +479,27 @@ msgid "Cars"
 msgstr "ລົດ"
 
 #. module: fleet
+#: model:ir.model.fields,field_description:fleet.field_res_partner__partner_cars_count
+#: model:ir.model.fields,field_description:fleet.field_res_users__partner_cars_count
+msgid "Cars Count"
+msgstr "ຈຳນວນລົດ"
+
+#. module: fleet
+#. odoo-python
+#: code:addons/fleet/models/res_partner.py:0
+#: model_terms:ir.ui.view,arch_db:fleet.view_partner_form
+msgid "Cars History"
+msgstr "ປະຫວັດລົດ"
+
+#. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__car_value
-msgid "Catalog Value (VAT Incl.)"
+msgid "Catalog Value (Tax Incl.)"
 msgstr "ມູນຄ່າຕາມລາຍການ (ລວມອາກອນ)"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_15
 msgid "Catalytic Converter Replacement"
-msgstr "ການປ່ຽນໝໍ້ແຄັດຕາໄລຕິກ"
+msgstr "ການປ່ຽນໝໍ້ຕອງໄອເສຍ"
 
 #. module: fleet
 #: model:ir.actions.act_window,name:fleet.fleet_vehicle_model_category_action
@@ -367,9 +508,20 @@ msgid "Categories"
 msgstr "ໝວດໝູ່"
 
 #. module: fleet
+#: model_terms:ir.actions.act_window,help:fleet.fleet_vehicle_model_category_action
+msgid ""
+"Categories will help you manage your fleet more efficiently and arrange your "
+"vehicles."
+msgstr ""
+"ໝວດໝູ່ຈະຊ່ວຍໃຫ້ທ່ານຈັດການກອງພາຫະນະໄດ້ຢ່າງມີປະສິດທິພາບຫຼາຍຂຶ້ນ ແລະ ຈັດລະບຽບພາຫະນະຂອງທ່ານ."
+
+#. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_service_type__category
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__category_id
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__category_id
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_odometer_report__category_id
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_model_view_search
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_odometer_report_view_search
 msgid "Category"
 msgstr "ໝວດໝູ່"
 
@@ -381,7 +533,7 @@ msgstr "ຊື່ໝວດໝູ່ຕ້ອງບໍ່ຊ້ຳກັນ"
 #. module: fleet
 #: model:ir.model,name:fleet.model_fleet_vehicle_model_category
 msgid "Category of the model"
-msgstr "ໝວດໝູ່ຂອງລຸ້ນ"
+msgstr "ໝວດໝູ່ຂອງຮຸ່ນ"
 
 #. module: fleet
 #: model:mail.message.subtype,description:fleet.mt_fleet_driver_updated
@@ -397,22 +549,22 @@ msgstr "ການກວດເຊັກລະບົບສາກໄຟ"
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__vin_sn
 msgid "Chassis Number"
-msgstr "ເລກຖັງ"
+msgstr "ເລກກົງຊີ"
 
 #. module: fleet
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle_log_contract__state
 msgid "Choose whether the contract is still valid or not"
-msgstr "ເລືອກວ່າສັນຍາຍັງມີຜົນສັກສິດຢູ່ຫຼືບໍ່"
+msgstr "ເລືອກວ່າສັນຍາຍັງມີຜົນບັງຄັບໃຊ້ອີກຫຼືບໍ່"
 
 #. module: fleet
 #: model:ir.model.fields,help:fleet.field_fleet_service_type__category
 msgid "Choose whether the service refer to contracts, vehicle services or both"
-msgstr "ເລືອກວ່າການບໍລິການກ່ຽວຂ້ອງກັບສັນຍາ, ການບໍລິການພາຫະນະ ຫຼື ທັງສອງຢ່າງ"
+msgstr "ເລືອກວ່າການບໍລິການນີ້ກ່ຽວຂ້ອງກັບສັນຍາ, ການບໍລິການພາຫະນະ ຫຼື ທັງສອງຢ່າງ"
 
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_contract_view_form
-msgid "Close Contract"
-msgstr "ປິດສັນຍາ"
+msgid "Close"
+msgstr "ປິດ"
 
 #. module: fleet
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle__contract_state__closed
@@ -421,14 +573,13 @@ msgid "Closed"
 msgstr "ປິດແລ້ວ"
 
 #. module: fleet
-#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__co2_standard
-#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__co2_standard
-msgid "Co2 Standard"
-msgstr "ມາດຕະຖານ CO2"
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__co2_emission_unit
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__co2_emission_unit
+msgid "Co2 Emission Unit"
+msgstr "ຫົວໜ່ວຍການປ່ອຍ Co2"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__color
-#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__color
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_tag__color
 msgid "Color"
 msgstr "ສີ"
@@ -439,10 +590,17 @@ msgid "Color of the vehicle"
 msgstr "ສີຂອງພາຫະນະ"
 
 #. module: fleet
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_send_mail_view_form
+msgid "Communication about your vehicle."
+msgstr "ການສື່ສານກ່ຽວກັບພາຫະນະຂອງທ່ານ."
+
+#. module: fleet
+#: model:ir.model.fields,field_description:fleet.field_fleet_service_type__company_id
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__company_id
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_cost_report__company_id
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__company_id
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__company_id
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__company_id
 msgid "Company"
 msgstr "ບໍລິສັດ"
 
@@ -460,12 +618,17 @@ msgstr "ການຕັ້ງຄ່າ"
 #. module: fleet
 #: model:ir.model,name:fleet.model_res_partner
 msgid "Contact"
-msgstr "ຜູ້ຕິດຕໍ່"
+msgstr "ລາຍຊື່ຕິດຕໍ່"
 
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_model_view_search
-msgid "Contains Vehicles"
+msgid "Contains Vehicle"
 msgstr "ມີພາຫະນະ"
+
+#. module: fleet
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_send_mail__body
+msgid "Contents"
+msgstr "ເນື້ອໃນ"
 
 #. module: fleet
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_service_type__category__contract
@@ -478,7 +641,7 @@ msgstr "ສັນຍາ"
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_contract_view_graph
 msgid "Contract Costs Per Month"
-msgstr "ຄ່າໃຊ້ຈ່າຍຕາມສັນຍາຕໍ່ເດືອນ"
+msgstr "ຄ່າໃຊ້ຈ່າຍສັນຍາຕໍ່ເດືອນ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__contract_count
@@ -488,23 +651,40 @@ msgstr "ຈຳນວນສັນຍາ"
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__expiration_date
 msgid "Contract Expiration Date"
-msgstr "ວັນໝົດອາຍຸສັນຍາ"
+msgstr "ວັນທີໝົດອາຍຸສັນຍາ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__start_date
 msgid "Contract Start Date"
-msgstr "ວັນເລີ່ມຕົ້ນສັນຍາ"
+msgstr "ວັນທີເລີ່ມຕົ້ນສັນຍາ"
+
+#. module: fleet
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__cost_subtype_id
+msgid "Contract Type"
+msgstr "ປະເພດສັນຍາ"
+
+#. module: fleet
+#: model:ir.actions.act_window,name:fleet.fleet_vehicle_contract_types_action
+#: model:ir.ui.menu,name:fleet.fleet_vehicle_contract_types_menu
+msgid "Contract Types"
+msgstr "ປະເພດສັນຍາ"
 
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_contract_view_form
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_contract_view_tree
 msgid "Contract logs"
-msgstr "ປະຫວັດສັນຍາ"
+msgstr "ບັນທຶກສັນຍາ"
 
 #. module: fleet
 #: model:mail.activity.type,name:fleet.mail_act_fleet_contract_to_renew
+#: model:mail.activity.type,summary:fleet.mail_act_fleet_contract_to_renew
 msgid "Contract to Renew"
 msgstr "ສັນຍາທີ່ຕ້ອງຕໍ່ອາຍຸ"
+
+#. module: fleet
+#: model_terms:ir.actions.act_window,help:fleet.fleet_vehicle_contract_types_action
+msgid "Contract types define the kinds of vehicle agreements you can track."
+msgstr "ປະເພດສັນຍາແມ່ນກຳນົດຮູບແບບຂໍ້ຕົກລົງຂອງພາຫະນະທີ່ທ່ານສາມາດຕິດຕາມໄດ້."
 
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_kanban
@@ -514,6 +694,7 @@ msgstr "ສັນຍາ"
 #. module: fleet
 #: model:ir.actions.act_window,name:fleet.fleet_vehicle_log_contract_action
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__log_contracts
+#: model:ir.ui.menu,name:fleet.fleet_contracts_configuration
 #: model:ir.ui.menu,name:fleet.fleet_vehicle_log_contract_menu
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_form
 msgid "Contracts"
@@ -529,18 +710,19 @@ msgstr "ຄ່າໃຊ້ຈ່າຍ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_cost_report__cost_type
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_costs_report_view_search
 msgid "Cost Type"
 msgstr "ປະເພດຄ່າໃຊ້ຈ່າຍ"
 
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_contract_view_form
 msgid "Cost that is paid only once at the creation of the contract"
-msgstr "ຄ່າໃຊ້ຈ່າຍທີ່ຈ່າຍພຽງຄັ້ງດຽວເມື່ອສ້າງສັນຍາ"
+msgstr "ຄ່າໃຊ້ຈ່າຍທີ່ຈ່າຍພຽງຄັ້ງດຽວຕອນສ້າງສັນຍາ"
 
 #. module: fleet
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle_log_contract__cost_subtype_id
 msgid "Cost type purchased with this cost"
-msgstr "ປະເພດຄ່າໃຊ້ຈ່າຍທີ່ຊື້ດ້ວຍມູນຄ່ານີ້"
+msgstr "ປະເພດຄ່າໃຊ້ຈ່າຍທີ່ຊື້ດ້ວຍຕົ້ນທຶນນີ້"
 
 #. module: fleet
 #: model:ir.ui.menu,name:fleet.menu_fleet_reporting_costs
@@ -563,6 +745,11 @@ msgid "Country Code"
 msgstr "ລະຫັດປະເທດ"
 
 #. module: fleet
+#: model:ir.model,website_form_label:fleet.model_res_partner
+msgid "Create a Customer"
+msgstr "ສ້າງລູກຄ້າ"
+
+#. module: fleet
 #: model_terms:ir.actions.act_window,help:fleet.fleet_vehicle_model_category_action
 msgid "Create a new category"
 msgstr "ສ້າງໝວດໝູ່ໃໝ່"
@@ -580,17 +767,22 @@ msgstr "ສ້າງຜູ້ຜະລິດໃໝ່"
 #. module: fleet
 #: model_terms:ir.actions.act_window,help:fleet.fleet_vehicle_model_action
 msgid "Create a new model"
-msgstr "ສ້າງລຸ້ນໃໝ່"
+msgstr "ສ້າງຮຸ່ນໃໝ່"
 
 #. module: fleet
 #: model_terms:ir.actions.act_window,help:fleet.fleet_vehicle_odometer_action
 msgid "Create a new odometer log"
-msgstr "ສ້າງບັນທຶກໄລຍະທາງໃໝ່"
+msgstr "ສ້າງບັນທຶກເລກກິໂລແມັດໃໝ່"
 
 #. module: fleet
 #: model_terms:ir.actions.act_window,help:fleet.fleet_vehicle_log_services_action
 msgid "Create a new service entry"
 msgstr "ສ້າງລາຍການບໍລິການໃໝ່"
+
+#. module: fleet
+#: model_terms:ir.actions.act_window,help:fleet.fleet_vehicle_contract_types_action
+msgid "Create a new type of contract"
+msgstr "ສ້າງປະເພດສັນຍາໃໝ່"
 
 #. module: fleet
 #: model_terms:ir.actions.act_window,help:fleet.fleet_vehicle_service_types_action
@@ -612,6 +804,7 @@ msgstr "ສ້າງສະຖານະພາຫະນະໃໝ່"
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model_brand__create_uid
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model_category__create_uid
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_odometer__create_uid
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_send_mail__create_uid
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_state__create_uid
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_tag__create_uid
 msgid "Created by"
@@ -627,6 +820,7 @@ msgstr "ສ້າງໂດຍ"
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model_brand__create_date
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model_category__create_date
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_odometer__create_date
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_send_mail__create_date
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_state__create_date
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_tag__create_date
 msgid "Created on"
@@ -641,14 +835,13 @@ msgstr "ສະກຸນເງິນ"
 
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_assignation_log_view_list
-#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_search
 msgid "Current Driver"
-msgstr "ຄົນຂັບປັດຈຸບັນ"
+msgstr "ຄົນຂັບປະຈຸບັນ"
 
 #. module: fleet
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle__state_id
 msgid "Current state of the vehicle"
-msgstr "ສະຖານະປັດຈຸບັນຂອງພາຫະນະ"
+msgstr "ສະຖານະປະຈຸບັນຂອງພາຫະນະ"
 
 #. module: fleet
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle_log_contract__cost_frequency__daily
@@ -658,57 +851,68 @@ msgstr "ລາຍວັນ"
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_cost_report__date_start
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__date
-#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__date
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_odometer__date
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_odometer_report__recorded_date
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_services_view_form
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_odometer_report_view_search
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_odometer_view_search
 msgid "Date"
 msgstr "ວັນທີ"
 
 #. module: fleet
+#: model:ir.model.fields,help:fleet.field_fleet_vehicle__acquisition_date
+msgid "Date of vehicle registration"
+msgstr "ວັນທີຈົດທະບຽນພາຫະນະ"
+
+#. module: fleet
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle_log_contract__date
-#: model:ir.model.fields,help:fleet.field_fleet_vehicle_log_services__date
+#: model:ir.model.fields,help:fleet.field_fleet_vehicle_log_services__date_from
 msgid "Date when the cost has been executed"
-msgstr "ວັນທີທີ່ເກີດຄ່າໃຊ້ຈ່າຍ"
+msgstr "ວັນທີທີ່ເກີດຄ່າໃຊ້ຈ່າຍຕົວຈິງ"
 
 #. module: fleet
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle_log_contract__start_date
 msgid "Date when the coverage of the contract begins"
-msgstr "ວັນທີເລີ່ມຕົ້ນການຄຸ້ມຄອງຕາມສັນຍາ"
+msgstr "ວັນທີທີ່ການຄຸ້ມຄອງຂອງສັນຍາເລີ່ມມີຜົນ"
 
 #. module: fleet
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle_log_contract__expiration_date
-msgid "Date when the coverage of the contract expirates (by default, one year after begin date)"
+msgid ""
+"Date when the coverage of the contract expirates (by default, one year after "
+"begin date)"
 msgstr ""
-"ວັນທີໝົດອາຍຸການຄຸ້ມຄອງຕາມສັນຍາ (ໂດຍປົກກະຕິແມ່ນ 1 ປີ ຫຼັງຈາກວັນເລີ່ມຕົ້ນ)"
-
-#. module: fleet
-#: model:ir.model.fields,help:fleet.field_fleet_vehicle__acquisition_date
-msgid "Date when the vehicle has been immatriculated"
-msgstr "ວັນທີຈົດທະບຽນພາຫະນະ"
+"ວັນທີທີ່ການຄຸ້ມຄອງຂອງສັນຍາໝົດອາຍຸ (ຄ່າເລີ່ມຕົ້ນແມ່ນໜຶ່ງປີຫຼັງຈາກວັນທີເລີ່ມຕົ້ນ)"
 
 #. module: fleet
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle__write_off_date
 msgid "Date when the vehicle's license plate has been cancelled/removed."
-msgstr "ວັນທີທີ່ປ້າຍທະບຽນພາຫະນະຖືກຍົກເລີກ ຫຼື ຖອນອອກ."
+msgstr "ວັນທີທີ່ປ້າຍທະບຽນຂອງພາຫະນະຖືກຍົກເລີກ/ຖອນອອກ."
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_res_config_settings__delay_alert_contract
 msgid "Delay alert contract outdated"
-msgstr "ແຈ້ງເຕືອນການຕໍ່ສັນຍາທີ່ຊ້າກວ່າກຳນົດ"
+msgstr "ແຈ້ງເຕືອນຄວາມຫຼ້າຊ້າສັນຍາໝົດອາຍຸ"
+
+#. module: fleet
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_model_brand_view_kanban
+msgid "Delete"
+msgstr "ລຶບ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_service_2
 msgid "Depreciation and Interests"
-msgstr "ຄ່າເສື່ອມລາຄາ ແລະ ດອກເບ້ຍ"
+msgstr "ຄ່າຫຼຸ້ຍຫ້ຽນ ແລະ ດອກເບ້ຍ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__description
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_form
 msgid "Description"
 msgstr "ຄຳອະທິບາຍ"
 
 #. module: fleet
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle__frame_type__diamant
 msgid "Diamant"
-msgstr "ຊົງເພັດ (Diamant)"
+msgstr "Diamant"
 
 #. module: fleet
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle__fuel_type__diesel
@@ -727,31 +931,38 @@ msgstr "ກາຊວນ"
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model_brand__display_name
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model_category__display_name
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_odometer__display_name
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_odometer_report__display_name
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_send_mail__display_name
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_state__display_name
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_tag__display_name
+#: model:ir.model.fields,field_description:fleet.field_mail_activity_type__display_name
+#: model:ir.model.fields,field_description:fleet.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:fleet.field_res_partner__display_name
 msgid "Display Name"
-msgstr "ຊື່ສະແດງ"
+msgstr "ຊື່ທີ່ສະແດງ"
 
 #. module: fleet
+#: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle__contract_state__done
+#: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle_log_contract__state__done
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle_log_services__state__done
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_contract_view_search
 msgid "Done"
-msgstr "ສຳເລັດແລ້ວ"
+msgstr "ສຳເລັດ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_17
 msgid "Door Window Motor/Regulator Replacement"
-msgstr "ການປ່ຽນມໍເຕີ ຫຼື ຕົວຄວບຄຸມກະຈົກປະຕູ"
-
-#. module: fleet
-#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__doors
-#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__doors
-msgid "Doors Number"
-msgstr "ຈຳນວນປະຕູ"
+msgstr "ການປ່ຽນມໍເຕີ/ສະລິງແກ້ວປະຕູ"
 
 #. module: fleet
 #: model:fleet.vehicle.state,name:fleet.fleet_vehicle_state_downgraded
 msgid "Downgraded"
-msgstr "ຫຼຸດລະດັບ"
+msgstr "ຫຼຸດລະດັບແລ້ວ"
+
+#. module: fleet
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__drive_type
+msgid "Drive Type"
+msgstr "ລະບົບຂັບເຄື່ອນ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__driver_id
@@ -769,7 +980,6 @@ msgstr "ຄົນຂັບ"
 #. module: fleet
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle__driver_id
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle_log_contract__purchaser_id
-#: model:ir.model.fields,help:fleet.field_fleet_vehicle_odometer__driver_id
 msgid "Driver address of the vehicle"
 msgstr "ທີ່ຢູ່ຂອງຄົນຂັບພາຫະນະ"
 
@@ -799,14 +1009,8 @@ msgid ""
 "Each contract (e.g.: leasing) may include several services\n"
 "            (reparation, insurances, periodic maintenance)."
 msgstr ""
-"ແຕ່ລະສັນຍາ (ຕົວຢ່າງ: ສັນຍາເຊົ່າຊື້) ອາດລວມມີການບໍລິການຫຼາຍຢ່າງ\n"
-"            (ການສ້ອມແປງ, ການປະກັນໄພ, ການບຳລຸງຮັກສາຕາມກຳນົດເວລາ)."
-
-#. module: fleet
-#: model_terms:ir.actions.act_window,help:fleet.fleet_vehicle_service_types_action
-msgid "Each service can used in contracts, as a standalone service or both."
-msgstr ""
-"ແຕ່ລະການບໍລິການສາມາດນຳໃຊ້ໃນສັນຍາ, ເປັນການບໍລິການແບບເອກະລາດ ຫຼື ທັງສອງຢ່າງ."
+"ແຕ່ລະສັນຍາ (ເຊັ່ນ: ການເຊົ່າ) ອາດປະກອບມີການບໍລິການຫຼາຍຢ່າງ\n"
+"            (ການສ້ອມແປງ, ປະກັນໄພ, ການບຳລຸງຮັກສາຕາມກຳນົດເວລາ)."
 
 #. module: fleet
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle__fuel_type__electric
@@ -818,7 +1022,31 @@ msgstr "ໄຟຟ້າ"
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__electric_assistance
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__electric_assistance
 msgid "Electric Assistance"
-msgstr "ລະບົບຊ່ວຍເຫຼືອໄຟຟ້າ"
+msgstr "ລະບົບຊ່ວຍໄຟຟ້າ"
+
+#. module: fleet
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__co2_standard
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__co2_standard
+msgid "Emission Standard"
+msgstr "ມາດຕະຖານການປ່ອຍອາຍພິດ"
+
+#. module: fleet
+#: model:ir.model.fields,help:fleet.field_fleet_vehicle__co2_standard
+msgid ""
+"Emission Standard specifies the regulatory test procedure             or "
+"guideline under which a vehicle's emissions are measured."
+msgstr ""
+"ມາດຕະຖານການປ່ອຍອາຍພິດລະບຸຂັ້ນຕອນການທົດສອບ             ຫຼື ຄຳແນະນຳທີ່ວັດແທກການປ່ອຍອາຍພິດຂອງ"
+"ພາຫະນະ."
+
+#. module: fleet
+#: model:ir.model.fields,help:fleet.field_fleet_vehicle_model__co2_standard
+msgid ""
+"Emission Standard specifies the regulatory test procedure or             "
+"guideline under which a vehicle's emissions are measured."
+msgstr ""
+"ມາດຕະຖານການປ່ອຍອາຍພິດລະບຸຂັ້ນຕອນການທົດສອບ ຫຼື             ຄຳແນະນຳທີ່ວັດແທກການປ່ອຍອາຍພິດຂອງ"
+"ພາຫະນະ."
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_service_16
@@ -834,7 +1062,7 @@ msgstr "ລົດພະນັກງານ"
 #. odoo-python
 #: code:addons/fleet/models/fleet_vehicle_log_services.py:0
 msgid "Emptying the odometer value of a vehicle is not allowed."
-msgstr "ບໍ່ອະນຸຍາດໃຫ້ລຶບຄ່າໄລຍະທາງຂອງພາຫະນະໃຫ້ຫວ່າງເປົ່າ."
+msgstr "ບໍ່ອະນຸຍາດໃຫ້ລຶບຄ່າເລກກິໂລແມັດຂອງພາຫະນະເປັນຄ່າຫວ່າງເປົ່າ."
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_assignation_log__date_end
@@ -847,42 +1075,50 @@ msgid "End Date Contract Alert"
 msgstr "ແຈ້ງເຕືອນວັນທີສິ້ນສຸດສັນຍາ"
 
 #. module: fleet
+#: model:ir.model.constraint,message:fleet.constraint_fleet_vehicle_log_services_check_service_dates
+msgid "End date must be on or after the start date."
+msgstr "ວັນທີສິ້ນສຸດຕ້ອງຢູ່ຫຼັງ ຫຼື ເປັນມື້ດຽວກັບວັນທີເລີ່ມຕົ້ນ."
+
+#. module: fleet
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__date_to
+msgid "End of Service"
+msgstr "ສິ້ນສຸດການບໍລິການ"
+
+#. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_model_view_form
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_form
 msgid "Engine"
-msgstr "ຈັກ/ເຄື່ອງຈັກ"
+msgstr "ຈັກລົດ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_18
 msgid "Engine Belt Inspection"
-msgstr "ການກວດເຊັກສາຍພານເຄື່ອງຈັກ"
+msgstr "ການກວດກາສາຍພານຈັກ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_19
 msgid "Engine Coolant Replacement"
-msgstr "ການປ່ຽນນ້ຳຢາທຳຄວາມເຢັນເຄື່ອງຈັກ"
+msgstr "ການປ່ຽນນ້ຳຢາຫຼໍ່ເຢັນເຄື່ອງຈັກ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_20
 msgid "Engine/Drive Belt(s) Replacement"
-msgstr "ການປ່ຽນສາຍພານເຄື່ອງຈັກ/ສາຍພານຂັບເຄື່ອນ"
+msgstr "ການປ່ຽນສາຍພານຈັກ/ສາຍພານຂັບເຄື່ອນ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_service_12
 msgid "Entry into service tax"
-msgstr "ພາສີການເລີ່ມນຳໃຊ້ການບໍລິການ"
-
-#. module: fleet
-#. odoo-javascript
-#: code:addons/fleet/static/src/js/fleet_form.js:0
-msgid "Every service and contract of this vehicle will be considered as archived. Are you sure that you want to archive this record?"
-msgstr ""
-"ທຸກໆການບໍລິການ ແລະ ສັນຍາຂອງພາຫະນະນີ້ຈະຖືກເກັບໄວ້. ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການເກັບບັນທຶກນີ້ໄວ້?"
+msgstr "ອາກອນເລີ່ມຕົ້ນນຳໃຊ້"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_21
 msgid "Exhaust Manifold Replacement"
 msgstr "ການປ່ຽນທໍ່ລວມໄອເສຍ"
+
+#. module: fleet
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_contract_view_search
+msgid "Expiration Date"
+msgstr "ວັນທີໝົດອາຍຸ"
 
 #. module: fleet
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle__contract_state__expired
@@ -897,28 +1133,29 @@ msgid "Expires Today"
 msgstr "ໝົດອາຍຸມື້ນີ້"
 
 #. module: fleet
-#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__first_contract_date
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__contract_date_start
 msgid "First Contract Date"
-msgstr "ວັນທີສັນຍາທຳອິດ"
+msgstr "ວັນທີເຮັດສັນຍາຄັ້ງທຳອິດ"
 
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_form
 msgid "Fiscality"
-msgstr "ພາສີອາກອນ"
+msgstr "ລະບົບພາສີອາກອນ"
 
 #. module: fleet
-#: model:ir.module.category,name:fleet.module_fleet_category
+#: model:ir.module.module,shortdesc:base.module_fleet
 #: model:ir.ui.menu,name:fleet.fleet_vehicle_menu
 #: model:ir.ui.menu,name:fleet.fleet_vehicles
 #: model:ir.ui.menu,name:fleet.menu_root
+#: model:res.groups.privilege,name:fleet.res_groups_privilege_fleet
 #: model_terms:ir.ui.view,arch_db:fleet.res_config_settings_view_form
 msgid "Fleet"
-msgstr "ຝູງພາຫະນະ"
+msgstr "ກອງພາຫະນະ"
 
 #. module: fleet
 #: model:ir.model,name:fleet.model_fleet_vehicle_cost_report
 msgid "Fleet Analysis Report"
-msgstr "ບົດລາຍງານການວິເຄາະຝູງພາຫະນະ"
+msgstr "ບົດລາຍງານການວິເຄາະກອງພາຫະນະ"
 
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_costs_report_view_graph
@@ -926,34 +1163,45 @@ msgstr "ບົດລາຍງານການວິເຄາະຝູງພາຫ
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vechicle_costs_report_view_form
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vechicle_costs_report_view_tree
 msgid "Fleet Costs Analysis"
-msgstr "ການວິເຄາະຄ່າໃຊ້ຈ່າຍຝູງພາຫະນະ"
+msgstr "ການວິເຄາະຄ່າໃຊ້ຈ່າຍກອງພາຫະນະ"
 
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.res_config_settings_view_form
 msgid "Fleet Management"
-msgstr "ການບໍລິຫານຝູງພາຫະນະ"
+msgstr "ການຄຸ້ມຄອງກອງພາຫະນະ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__manager_id
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__manager_id
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_services_view_search
 msgid "Fleet Manager"
-msgstr "ຜູ້ຈັດການຝູງພາຫະນະ"
+msgstr "ຜູ້ຈັດການກອງພາຫະນະ"
+
+#. module: fleet
+#: model:ir.model,name:fleet.model_fleet_vehicle_odometer_report
+msgid "Fleet Odometer Analysis Report"
+msgstr "ບົດລາຍງານການວິເຄາະເລກກິໂລແມັດກອງພາຫະນະ"
 
 #. module: fleet
 #: model:ir.model,name:fleet.model_fleet_service_type
 msgid "Fleet Service Type"
-msgstr "ປະເພດການບໍລິການຝູງພາຫະນະ"
+msgstr "ປະເພດການບໍລິການກອງພາຫະນະ"
 
 #. module: fleet
 #: model:ir.actions.server,name:fleet.ir_cron_contract_costs_generator_ir_actions_server
 msgid "Fleet: Generate contracts costs based on costs frequency"
-msgstr "ຝູງພາຫະນະ: ສ້າງຄ່າໃຊ້ຈ່າຍຕາມສັນຍາໂດຍອີງຕາມຄວາມຖີ່ຂອງຄ່າໃຊ້ຈ່າຍ"
+msgstr "ກອງພາຫະນະ: ສ້າງຄ່າໃຊ້ຈ່າຍສັນຍາຕາມຮອບຄວາມຖີ່ຂອງຄ່າໃຊ້ຈ່າຍ"
+
+#. module: fleet
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_state__fold
+msgid "Folded in Kanban"
+msgstr "ພັບໄວ້ໃນ Kanban"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__message_follower_ids
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__message_follower_ids
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__message_follower_ids
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__message_follower_ids
 msgid "Followers"
 msgstr "ຜູ້ຕິດຕາມ"
 
@@ -961,20 +1209,24 @@ msgstr "ຜູ້ຕິດຕາມ"
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__message_partner_ids
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__message_partner_ids
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__message_partner_ids
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__message_partner_ids
 msgid "Followers (Partners)"
-msgstr "ຜູ້ຕິດຕາມ (ຄູ່ຮ່ວມງານ)"
+msgstr "ຜູ້ຕິດຕາມ (ຄູ່ຄ້າ)"
 
 #. module: fleet
-#: model:ir.model.fields,help:fleet.field_fleet_vehicle__activity_type_icon
-#: model:ir.model.fields,help:fleet.field_fleet_vehicle_log_contract__activity_type_icon
-#: model:ir.model.fields,help:fleet.field_fleet_vehicle_log_services__activity_type_icon
-msgid "Font awesome icon e.g. fa-tasks"
-msgstr "ໄອຄອນ Font awesome ຕົວຢ່າງ: fa-tasks"
+#: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle_model__drive_type__4wd
+msgid "Four-Wheel Drive (4WD)"
+msgstr "ລະບົບຂັບເຄື່ອນສີ່ລໍ້ (4WD)"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__frame_size
 msgid "Frame Size"
 msgstr "ຂະໜາດໂຄງ"
+
+#. module: fleet
+#: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle_model__drive_type__fwd
+msgid "Front-Wheel Drive (FWD)"
+msgstr "ລະບົບຂັບເຄື່ອນລໍ້ໜ້າ (FWD)"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_cost_report__fuel_type
@@ -994,15 +1246,17 @@ msgstr "ການປ່ຽນປ້ຳນ້ຳມັນ"
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__fuel_type
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__default_fuel_type
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_odometer_report__fuel_type
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_odometer_report_view_search
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_search
 msgid "Fuel Type"
-msgstr "ປະເພດນ້ຳມັນເຊື້ອໄຟ"
+msgstr "ປະເພດນ້ຳມັນ"
 
 #. module: fleet
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle__fuel_type__full_hybrid
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle_model__default_fuel_type__full_hybrid
 msgid "Full Hybrid"
-msgstr "ໄຮບຣິດເຕັມຮູບແບບ"
+msgstr "ໄຮບຣິດເຕັມລະບົບ"
 
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_contract_view_search
@@ -1027,17 +1281,6 @@ msgid "Gasoline"
 msgstr "ແອັດຊັງ"
 
 #. module: fleet
-#: model_terms:ir.ui.view,arch_db:fleet.fleet_costs_report_view_search
-#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_contract_view_search
-#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_services_view_search
-#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_model_view_search
-#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_odometer_view_search
-#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_service_types_view_search
-#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_search
-msgid "Group By"
-msgstr "ຈັດກຸ່ມໂດຍ"
-
-#. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__contract_renewal_overdue
 msgid "Has Contracts Overdue"
 msgstr "ມີສັນຍາກາຍກຳນົດ"
@@ -1051,45 +1294,51 @@ msgstr "ມີສັນຍາທີ່ຕ້ອງຕໍ່ອາຍຸ"
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__has_message
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__has_message
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__has_message
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__has_message
 msgid "Has Message"
 msgstr "ມີຂໍ້ຄວາມ"
 
 #. module: fleet
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__has_open_contract
+msgid "Has Open Contract"
+msgstr "ມີສັນຍາທີ່ກຳລັງດຳເນີນຢູ່"
+
+#. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_24
 msgid "Head Gasket(s) Replacement"
-msgstr "ການປ່ຽນປາກິ່ນຝາສູບ"
+msgstr "ການປ່ຽນປະເກັນຝາສູບ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_25
 msgid "Heater Blower Motor Replacement"
-msgstr "ການປ່ຽນມໍເຕີພັດລົມຮີດເຕີ"
+msgstr "ການປ່ຽນມໍເຕີພັດລົມຮ້ອນ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_26
 msgid "Heater Control Valve Replacement"
-msgstr "ການປ່ຽນວາວຄວບຄຸມຮີດເຕີ"
+msgstr "ການປ່ຽນວາວຄວບຄຸມຄວາມຮ້ອນ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_27
 msgid "Heater Core Replacement"
-msgstr "ການປ່ຽນໄສ້ຮີດເຕີ"
+msgstr "ການປ່ຽນລັງເຜິ້ງລະບົບຄວາມຮ້ອນ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_28
 msgid "Heater Hose Replacement"
-msgstr "ການປ່ຽນທໍ່ຮີດເຕີ"
+msgstr "ການປ່ຽນທໍ່ນ້ຳຮ້ອນ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__horsepower
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__horsepower
+#: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle__power_unit__horsepower
 msgid "Horsepower"
 msgstr "ແຮງມ້າ"
 
 #. module: fleet
-#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__horsepower_tax
-#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__horsepower_tax
-msgid "Horsepower Taxation"
-msgstr "ການເກັບພາສີຕາມແຮງມ້າ"
+#: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle_model__power_unit__horsepower
+msgid "Horsepower (hp)"
+msgstr "ແຮງມ້າ (hp)"
 
 #. module: fleet
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle__fuel_type__hydrogen
@@ -1108,15 +1357,21 @@ msgstr "ໄຮໂດຣເຈນ"
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model_brand__id
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model_category__id
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_odometer__id
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_odometer_report__id
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_send_mail__id
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_state__id
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_tag__id
+#: model:ir.model.fields,field_description:fleet.field_mail_activity_type__id
+#: model:ir.model.fields,field_description:fleet.field_res_config_settings__id
+#: model:ir.model.fields,field_description:fleet.field_res_partner__id
 msgid "ID"
-msgstr "ລະຫັດ (ID)"
+msgstr "ໄອດີ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__activity_exception_icon
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__activity_exception_icon
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__activity_exception_icon
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__activity_exception_icon
 msgid "Icon"
 msgstr "ໄອຄອນ"
 
@@ -1124,22 +1379,25 @@ msgstr "ໄອຄອນ"
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle__activity_exception_icon
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle_log_contract__activity_exception_icon
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle_log_services__activity_exception_icon
+#: model:ir.model.fields,help:fleet.field_fleet_vehicle_model__activity_exception_icon
 msgid "Icon to indicate an exception activity."
-msgstr "ໄອຄອນເພື່ອບົ່ງບອກກິດຈະກຳທີ່ຍົກເວັ້ນ."
+msgstr "ໄອຄອນເພື່ອບົ່ງບອກກິດຈະກຳທີ່ເປັນຂໍ້ຍົກເວັ້ນ."
 
 #. module: fleet
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle__message_needaction
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle_log_contract__message_needaction
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle_log_services__message_needaction
+#: model:ir.model.fields,help:fleet.field_fleet_vehicle_model__message_needaction
 msgid "If checked, new messages require your attention."
-msgstr "ຖ້າໝາຍເລືອກ, ຂໍ້ຄວາມໃໝ່ຈະຕ້ອງການຄວາມສົນໃຈຈາກທ່ານ."
+msgstr "ຖ້າໝາຍຕິກ, ຂໍ້ຄວາມໃໝ່ຕ້ອງການຄວາມສົນໃຈຈາກທ່ານ."
 
 #. module: fleet
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle__message_has_error
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle_log_contract__message_has_error
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle_log_services__message_has_error
+#: model:ir.model.fields,help:fleet.field_fleet_vehicle_model__message_has_error
 msgid "If checked, some messages have a delivery error."
-msgstr "ຖ້າໝາຍເລືອກ, ບາງຂໍ້ຄວາມມີຂໍ້ຜິດພາດໃນການສົ່ງ."
+msgstr "ຖ້າໝາຍຕິກ, ຂໍ້ຄວາມບາງອັນເກີດຂໍ້ຜິດພາດໃນການສົ່ງ."
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_29
@@ -1177,13 +1435,7 @@ msgid "Image 512"
 msgstr "ຮູບພາບ 512"
 
 #. module: fleet
-#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__acquisition_date
-msgid "Immatriculation Date"
-msgstr "ວັນທີຈົດທະບຽນ"
-
-#. module: fleet
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle__contract_state__open
-#: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle_log_contract__state__open
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_contract_view_search
 msgid "In Progress"
 msgstr "ພວມດຳເນີນການ"
@@ -1191,11 +1443,10 @@ msgstr "ພວມດຳເນີນການ"
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__service_ids
 msgid "Included Services"
-msgstr "ການບໍລິການທີ່ລວມຢູ່ນຳ"
+msgstr "ການບໍລິການທີ່ຮວມຢູ່ນຳ"
 
 #. module: fleet
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle__contract_state__futur
-#: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle_log_contract__state__futur
 msgid "Incoming"
 msgstr "ຂາເຂົ້າ"
 
@@ -1208,30 +1459,36 @@ msgstr "ຂໍ້ມູນ"
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_30
 msgid "Intake Manifold Gasket Replacement"
-msgstr "ການປ່ຽນປາກິ່ນທໍ່ລວມໄອດີ"
+msgstr "ການປ່ຽນປະເກັນທໍ່ລວມໄອດີ"
+
+#. module: fleet
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_send_mail__is_mail_template_editor
+msgid "Is Editor"
+msgstr "ເປັນຜູ້ດັດແກ້"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__message_is_follower
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__message_is_follower
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__message_is_follower
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__message_is_follower
 msgid "Is Follower"
 msgstr "ເປັນຜູ້ຕິດຕາມ"
 
 #. module: fleet
 #: model:fleet.vehicle.tag,name:fleet.vehicle_tag_junior
 msgid "Junior"
-msgstr "ລະດັບເລີ່ມຕົ້ນ (Junior)"
-
-#. module: fleet
-#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_odometer_view_kanban
-msgid "Km"
-msgstr "ກມ"
+msgstr "ລະດັບເລີ່ມຕົ້ນ"
 
 #. module: fleet
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle__fuel_type__lpg
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle_model__default_fuel_type__lpg
 msgid "LPG"
-msgstr "ອາຍແກັສຫຸງຕົ້ມ (LPG)"
+msgstr "LPG"
+
+#. module: fleet
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_send_mail__lang
+msgid "Language"
+msgstr "ພາສາ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__contract_state
@@ -1241,7 +1498,7 @@ msgstr "ສະຖານະສັນຍາຫຼ້າສຸດ"
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__odometer
 msgid "Last Odometer"
-msgstr "ໄລຍະທາງຫຼ້າສຸດ"
+msgstr "ເລກກິໂລແມັດຫຼ້າສຸດ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_service_type__write_uid
@@ -1253,6 +1510,7 @@ msgstr "ໄລຍະທາງຫຼ້າສຸດ"
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model_brand__write_uid
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model_category__write_uid
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_odometer__write_uid
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_send_mail__write_uid
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_state__write_uid
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_tag__write_uid
 msgid "Last Updated by"
@@ -1268,6 +1526,7 @@ msgstr "ອັບເດດຫຼ້າສຸດໂດຍ"
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model_brand__write_date
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model_category__write_date
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_odometer__write_date
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_send_mail__write_date
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_state__write_date
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_tag__write_date
 msgid "Last Updated on"
@@ -1277,17 +1536,17 @@ msgstr "ອັບເດດຫຼ້າສຸດເມື່ອ"
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_contract_view_search
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_search
 msgid "Late Activities"
-msgstr "ກິດຈະກຳທີ່ຫຼ້າຊ້າ"
+msgstr "ກິດຈະກຳຫຼ້າຊ້າ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_contract_leasing
 msgid "Leasing"
-msgstr "ການເຊົ່າຊື້ (Leasing)"
+msgstr "ການເຊົ່າສິນເຊື່ອ"
 
 #. module: fleet
 #: model_terms:ir.actions.act_window,help:fleet.fleet_vehicle_action
 msgid "Let's create your first vehicle."
-msgstr "ມາສ້າງພາຫະນະຄັນທຳອິດຂອງທ່ານກັນເລີຍ."
+msgstr "ມາເລີ່ມສ້າງພາຫະນະທຳອິດຂອງທ່ານ."
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__license_plate
@@ -1298,7 +1557,12 @@ msgstr "ປ້າຍທະບຽນ"
 #. module: fleet
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle__license_plate
 msgid "License plate number of the vehicle (i = plate number for a car)"
-msgstr "ເລກທະບຽນຂອງພາຫະນະ (ຕົວຢ່າງ: ເລກທະບຽນລົດ)"
+msgstr "ເລກປ້າຍທະບຽນຂອງພາຫະນະ (ຕົວຢ່າງ: ເລກທະບຽນລົດ)"
+
+#. module: fleet
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_send_mail_view_form
+msgid "Load template"
+msgstr "ໂຫຼດແມ່ແບບ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__location
@@ -1318,7 +1582,22 @@ msgstr "ໂລໂກ້"
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_model_brand_view_kanban
 msgid "MODELS"
-msgstr "ລຸ້ນຕ່າງໆ"
+msgstr "ຮຸ່ນ"
+
+#. module: fleet
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_send_mail__template_id
+msgid "Mail Template"
+msgstr "ແມ່ແບບອີເມວ"
+
+#. module: fleet
+#: model:ir.actions.server,name:fleet.action_fleet_vehicle_send_mail
+msgid "Mail to Driver"
+msgstr "ສົ່ງອີເມວຫາຄົນຂັບ"
+
+#. module: fleet
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_form
+msgid "Make Vehicle Available"
+msgstr "ຕັ້ງໃຫ້ພາຫະນະພ້ອມໃຊ້ງານ"
 
 #. module: fleet
 #: model_terms:ir.actions.act_window,help:fleet.fleet_vehicle_log_contract_action
@@ -1327,19 +1606,29 @@ msgid ""
 "            their related services, costs. Odoo will automatically warn\n"
 "            you when some contracts have to be renewed."
 msgstr ""
-"ຈັດການທຸກສັນຍາຂອງທ່ານ (ການເຊົ່າຊື້, ການປະກັນໄພ, ແລະ ອື່ນໆ) ພ້ອມກັບ\n"
-"            ການບໍລິການ ແລະ ຄ່າໃຊ້ຈ່າຍທີ່ກ່ຽວຂ້ອງ. Odoo ຈະແຈ້ງເຕືອນທ່ານ\n"
-"            ໂດຍອັດຕະໂນມັດເມື່ອບາງສັນຍາຕ້ອງໄດ້ຮັບການຕໍ່ອາຍຸ."
+"ຈັດການສັນຍາທັງໝົດຂອງທ່ານ (ການເຊົ່າ, ປະກັນໄພ, ອື່ນໆ) ພ້ອມທັງ\n"
+"            ການບໍລິການ ແລະ ຄ່າໃຊ້ຈ່າຍທີ່ກ່ຽວຂ້ອງ. Odoo ຈະແຈ້ງເຕືອນອັດຕະໂນມັດ\n"
+"            ເມື່ອມີສັນຍາທີ່ຕ້ອງຕໍ່ອາຍຸ."
 
 #. module: fleet
 #: model_terms:ir.actions.act_window,help:fleet.fleet_costs_reporting_action
 msgid "Manage efficiently your different effective vehicles Costs with Odoo."
-msgstr "ຈັດການຄ່າໃຊ້ຈ່າຍຂອງພາຫະນະຕ່າງໆຂອງທ່ານຢ່າງມີປະສິດທິພາບດ້ວຍ Odoo."
+msgstr "ຄຸ້ມຄອງຕົ້ນທຶນພາຫະນະຕົວຈິງຂອງທ່ານຢ່າງມີປະສິດທິພາບດ້ວຍ Odoo."
+
+#. module: fleet
+#: model_terms:ir.actions.act_window,help:fleet.fleet_vehicle_odometer_reporting_action
+msgid "Manage efficiently your vehicle Odometers with Odoo."
+msgstr "ຄຸ້ມຄອງເລກກິໂລແມັດພາຫະນະຂອງທ່ານຢ່າງມີປະສິດທິພາບດ້ວຍ Odoo."
+
+#. module: fleet
+#: model:ir.module.module,summary:base.module_fleet
+msgid "Manage your fleet and track car costs"
+msgstr "ຄຸ້ມຄອງກອງພາຫະນະຂອງທ່ານ ແລະ ຕິດຕາມຄ່າໃຊ້ຈ່າຍຂອງລົດ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_service_10
 msgid "Management Fee"
-msgstr "ຄ່າທຳນຽມການບໍລິຫານ"
+msgstr "ຄ່າທຳນຽມການຄຸ້ມຄອງ"
 
 #. module: fleet
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle__transmission__manual
@@ -1348,20 +1637,38 @@ msgid "Manual"
 msgstr "ເກຍກະປຸກ"
 
 #. module: fleet
+#. odoo-python
+#: code:addons/fleet/models/fleet_vehicle_model_brand.py:0
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__brand_id
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_services_view_search
 msgid "Manufacturer"
 msgstr "ຜູ້ຜະລິດ"
 
 #. module: fleet
 #: model:ir.actions.act_window,name:fleet.fleet_vehicle_model_brand_action
 #: model:ir.ui.menu,name:fleet.fleet_vehicle_model_brand_menu
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_model_view_search
 msgid "Manufacturers"
 msgstr "ຜູ້ຜະລິດ"
+
+#. module: fleet
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_contract_view_form
+msgid "Mark as Done"
+msgstr "ໝາຍວ່າສຳເລັດ"
+
+#. module: fleet
+#: model:ir.model.fields,help:fleet.field_fleet_vehicle__activity_type_icon
+#: model:ir.model.fields,help:fleet.field_fleet_vehicle_log_contract__activity_type_icon
+#: model:ir.model.fields,help:fleet.field_fleet_vehicle_log_services__activity_type_icon
+#: model:ir.model.fields,help:fleet.field_fleet_vehicle_model__activity_type_icon
+msgid "Material Symbols icon e.g. checklist"
+msgstr "ໄອຄອນ Material Symbols ເຊັ່ນ checklist"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__message_has_error
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__message_has_error
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__message_has_error
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__message_has_error
 msgid "Message Delivery error"
 msgstr "ຂໍ້ຜິດພາດໃນການສົ່ງຂໍ້ຄວາມ"
 
@@ -1369,53 +1676,65 @@ msgstr "ຂໍ້ຜິດພາດໃນການສົ່ງຂໍ້ຄວາ
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__message_ids
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__message_ids
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__message_ids
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__message_ids
 msgid "Messages"
 msgstr "ຂໍ້ຄວາມ"
 
 #. module: fleet
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_odometer_report__mileage_delta
+msgid "Mileage Delta"
+msgstr "ສ່ວນຕ່າງໄລຍະທາງ"
+
+#. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__model_id
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__model_id
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model_brand__model_ids
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_odometer_report__model_id
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_services_view_search
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_model_view_form
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_model_view_search
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_odometer_report_view_search
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_form
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_search
 msgid "Model"
-msgstr "ລຸ້ນ"
+msgstr "ຮຸ່ນ"
 
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_model_category_view_form
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_model_category_view_tree
 msgid "Model Category"
-msgstr "ໝວດໝູ່ລຸ້ນ"
+msgstr "ໝວດໝູ່ຮຸ່ນ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model_brand__model_count
 msgid "Model Count"
-msgstr "ຈຳນວນລຸ້ນ"
+msgstr "ຈຳນວນຮຸ່ນ"
 
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_model_brand_view_form
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_model_brand_view_tree
 msgid "Model Make"
-msgstr "ຍີ່ຫໍ້ ແລະ ລຸ້ນ"
+msgstr "ຍີ່ຫໍ້ຂອງຮຸ່ນ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__model_year
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__model_year
 msgid "Model Year"
-msgstr "ປີຂອງລຸ້ນ"
+msgstr "ປີຂອງຮຸ່ນ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__name
 msgid "Model name"
-msgstr "ຊື່ລຸ້ນ"
+msgstr "ຊື່ຮຸ່ນ"
 
 #. module: fleet
 #: model:ir.model,name:fleet.model_fleet_vehicle_model
 msgid "Model of a vehicle"
-msgstr "ລຸ້ນຂອງພາຫະນະ"
+msgstr "ຮຸ່ນຂອງພາຫະນະ"
 
 #. module: fleet
+#. odoo-python
+#: code:addons/fleet/models/fleet_vehicle_model_brand.py:0
 #: model:ir.actions.act_window,name:fleet.fleet_vehicle_model_action
 #: model:ir.ui.menu,name:fleet.fleet_models_configuration
 #: model:ir.ui.menu,name:fleet.fleet_vehicle_model_menu
@@ -1424,7 +1743,7 @@ msgstr "ລຸ້ນຂອງພາຫະນະ"
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_model_view_kanban
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_model_view_tree
 msgid "Models"
-msgstr "ລຸ້ນຕ່າງໆ"
+msgstr "ຮຸ່ນ"
 
 #. module: fleet
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle_log_contract__cost_frequency__monthly
@@ -1432,9 +1751,16 @@ msgid "Monthly"
 msgstr "ລາຍເດືອນ"
 
 #. module: fleet
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_contract_view_search
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_search
+msgid "My Activities"
+msgstr "ກິດຈະກຳຂອງຂ້ອຍ"
+
+#. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__my_activity_date_deadline
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__my_activity_date_deadline
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__my_activity_date_deadline
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__my_activity_date_deadline
 msgid "My Activity Deadline"
 msgstr "ກຳນົດເວລາກິດຈະກຳຂອງຂ້ອຍ"
 
@@ -1450,16 +1776,12 @@ msgid "Name"
 msgstr "ຊື່"
 
 #. module: fleet
-#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__contract_renewal_name
-msgid "Name of contract to renew soon"
-msgstr "ຊື່ຂອງສັນຍາທີ່ຈະຕ້ອງຕໍ່ອາຍຸໃນມໍ່ໆນີ້"
-
-#. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_search
 msgid "Need Action"
 msgstr "ຕ້ອງການການດຳເນີນການ"
 
 #. module: fleet
+#: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle_log_contract__state__futur
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle_log_services__state__new
 msgid "New"
 msgstr "ໃໝ່"
@@ -1473,45 +1795,44 @@ msgstr "ຄຳຮ້ອງຂໍໃໝ່"
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__activity_calendar_event_id
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__activity_calendar_event_id
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__activity_calendar_event_id
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__activity_calendar_event_id
 msgid "Next Activity Calendar Event"
-msgstr "ກິດຈະກຳໃນປະຕິທິນຖັດໄປ"
+msgstr "ເຫດການປະຕິທິນກິດຈະກຳຕໍ່ໄປ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__activity_date_deadline
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__activity_date_deadline
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__activity_date_deadline
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__activity_date_deadline
 msgid "Next Activity Deadline"
-msgstr "ກຳນົດເວລາກິດຈະກຳຖັດໄປ"
+msgstr "ກຳນົດເວລາກິດຈະກຳຕໍ່ໄປ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__activity_summary
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__activity_summary
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__activity_summary
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__activity_summary
 msgid "Next Activity Summary"
-msgstr "ບົດສະຫຼຸບກິດຈະກຳຖັດໄປ"
+msgstr "ສະຫຼຸບກິດຈະກຳຕໍ່ໄປ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__activity_type_id
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__activity_type_id
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__activity_type_id
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__activity_type_id
 msgid "Next Activity Type"
-msgstr "ປະເພດກິດຈະກຳຖັດໄປ"
+msgstr "ປະເພດກິດຈະກຳຕໍ່ໄປ"
 
 #. module: fleet
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle__future_driver_id
 msgid "Next Driver Address of the vehicle"
-msgstr "ທີ່ຢູ່ຂອງຄົນຂັບຄົນຖັດໄປຂອງພາຫະນະ"
+msgstr "ທີ່ຢູ່ຄົນຂັບຄົນຕໍ່ໄປຂອງພາຫະນະ"
 
 #. module: fleet
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle_log_contract__cost_frequency__no
+#: model:res.groups.privilege,placeholder:fleet.res_groups_privilege_fleet
 msgid "No"
 msgstr "ບໍ່"
-
-#. module: fleet
-#. odoo-python
-#: code:addons/fleet/models/fleet_vehicle.py:0
-msgid "No Plate"
-msgstr "ບໍ່ມີປ້າຍທະບຽນ"
 
 #. module: fleet
 #: model_terms:ir.actions.act_window,help:fleet.fleet_costs_reporting_action
@@ -1519,20 +1840,20 @@ msgid "No data for analysis"
 msgstr "ບໍ່ມີຂໍ້ມູນສຳລັບການວິເຄາະ"
 
 #. module: fleet
+#: model_terms:ir.actions.act_window,help:fleet.fleet_vehicle_odometer_reporting_action
+msgid "No data for odometer analysis"
+msgstr "ບໍ່ມີຂໍ້ມູນສຳລັບການວິເຄາະເລກກິໂລແມັດ"
+
+#. module: fleet
 #. odoo-python
 #: code:addons/fleet/models/fleet_vehicle.py:0
 msgid "No plate"
-msgstr "ບໍ່ມີປ້າຍ"
+msgstr "ບໍ່ມີປ້າຍທະບຽນ"
 
 #. module: fleet
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle__service_activity__none
 msgid "None"
 msgstr "ບໍ່ມີ"
-
-#. module: fleet
-#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_form
-msgid "Note"
-msgstr "ໝາຍເຫດ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__notes
@@ -1544,8 +1865,15 @@ msgstr "ໝາຍເຫດ"
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__message_needaction_counter
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__message_needaction_counter
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__message_needaction_counter
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__message_needaction_counter
 msgid "Number of Actions"
 msgstr "ຈຳນວນການດຳເນີນການ"
+
+#. module: fleet
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__doors
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__doors
+msgid "Number of Doors"
+msgstr "ຈຳນວນປະຕູ"
 
 #. module: fleet
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle__doors
@@ -1556,6 +1884,7 @@ msgstr "ຈຳນວນປະຕູຂອງພາຫະນະ"
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__message_has_error_counter
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__message_has_error_counter
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__message_has_error_counter
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__message_has_error_counter
 msgid "Number of errors"
 msgstr "ຈຳນວນຂໍ້ຜິດພາດ"
 
@@ -1563,13 +1892,15 @@ msgstr "ຈຳນວນຂໍ້ຜິດພາດ"
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle__message_needaction_counter
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle_log_contract__message_needaction_counter
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle_log_services__message_needaction_counter
-msgid "Number of messages which requires an action"
+#: model:ir.model.fields,help:fleet.field_fleet_vehicle_model__message_needaction_counter
+msgid "Number of messages requiring action"
 msgstr "ຈຳນວນຂໍ້ຄວາມທີ່ຕ້ອງການການດຳເນີນການ"
 
 #. module: fleet
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle__message_has_error_counter
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle_log_contract__message_has_error_counter
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle_log_services__message_has_error_counter
+#: model:ir.model.fields,help:fleet.field_fleet_vehicle_model__message_has_error_counter
 msgid "Number of messages with delivery error"
 msgstr "ຈຳນວນຂໍ້ຄວາມທີ່ມີຂໍ້ຜິດພາດໃນການສົ່ງ"
 
@@ -1583,57 +1914,64 @@ msgstr "ຈຳນວນບ່ອນນັ່ງຂອງພາຫະນະ"
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__odometer_id
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_form
 msgid "Odometer"
-msgstr "ໄລຍະທາງ/ເລກໄມ"
+msgstr "ເລກກິໂລແມັດ"
+
+#. module: fleet
+#: model:ir.actions.act_window,name:fleet.fleet_vehicle_odometer_reporting_action
+msgid "Odometer Analysis"
+msgstr "ການວິເຄາະເລກກິໂລແມັດ"
 
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_odometer_view_form
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_odometer_view_tree
 msgid "Odometer Logs"
-msgstr "ບັນທຶກໄລຍະທາງ"
+msgstr "ບັນທຶກເລກກິໂລແມັດ"
+
+#. module: fleet
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_form
+msgid "Odometer Report"
+msgstr "ບົດລາຍງານເລກກິໂລແມັດ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__odometer_unit
 msgid "Odometer Unit"
-msgstr "ຫົວໜ່ວຍໄລຍະທາງ"
+msgstr "ຫົວໜ່ວຍເລກກິໂລແມັດ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__odometer
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_odometer__value
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_odometer_report__odometer_value
 msgid "Odometer Value"
-msgstr "ຄ່າໄລຍະທາງ"
-
-#. module: fleet
-#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_odometer_view_graph
-msgid "Odometer Values Per Vehicle"
-msgstr "ຄ່າໄລຍະທາງຕໍ່ພາຫະນະ"
+msgstr "ຄ່າເລກກິໂລແມັດ"
 
 #. module: fleet
 #: model:ir.model,name:fleet.model_fleet_vehicle_odometer
 msgid "Odometer log for a vehicle"
-msgstr "ບັນທຶກໄລຍະທາງສຳລັບພາຫະນະ"
+msgstr "ບັນທຶກເລກກິໂລແມັດສຳລັບພາຫະນະ"
 
 #. module: fleet
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle__odometer
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle_log_services__odometer
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle_log_services__odometer_id
 msgid "Odometer measure of the vehicle at the moment of this log"
-msgstr "ການວັດແທກໄລຍະທາງຂອງພາຫະນະໃນເວລາທີ່ບັນທຶກນີ້"
+msgstr "ຄ່າວັດແທກເລກກິໂລແມັດຂອງພາຫະນະໃນຕອນທີ່ບັນທຶກນີ້"
 
 #. module: fleet
 #: model:ir.actions.act_window,name:fleet.fleet_vehicle_odometer_action
 #: model:ir.ui.menu,name:fleet.fleet_vehicle_odometer_menu
+#: model:ir.ui.menu,name:fleet.menu_fleet_odometer_reporting_odometer
 msgid "Odometers"
-msgstr "ເລກໄມ/ໄລຍະທາງ"
+msgstr "ເລກກິໂລແມັດ"
 
 #. module: fleet
 #: model:res.groups,name:fleet.fleet_group_user
 msgid "Officer: Manage all vehicles"
-msgstr "ເຈົ້າໜ້າທີ່: ຈັດການພາຫະນະທັງໝົດ"
+msgstr "ເຈົ້າໜ້າທີ່: ຄຸ້ມຄອງພາຫະນະທັງໝົດ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_31
 msgid "Oil Change"
-msgstr "ການປ່ຽນນ້ຳມັນເຄື່ອງ"
+msgstr "ປ່ຽນນ້ຳມັນເຄື່ອງ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_32
@@ -1643,7 +1981,18 @@ msgstr "ການປ່ຽນປ້ຳນ້ຳມັນເຄື່ອງ"
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_contract_omnium
 msgid "Omnium"
-msgstr "ປະກັນໄພທຸກກໍລະນີ (Omnium)"
+msgstr "ປະກັນໄພຊັ້ນໜຶ່ງ"
+
+#. module: fleet
+#: model:ir.model.fields,help:fleet.field_fleet_vehicle_send_mail__lang
+msgid ""
+"Optional translation language (ISO code) to select when sending out an "
+"email. If not set, the main partner's language will be used. This should "
+"usually be a placeholder expression that provides the appropriate language, "
+"e.g. {{ object.partner_id.lang }}."
+msgstr ""
+"ພາສາແປທາງເລືອກ (ລະຫັດ ISO) ທີ່ຈະເລືອກຕອນສົ່ງອີເມວ. ຖ້າບໍ່ໄດ້ຕັ້ງໄວ້, ພາສາຂອງຄູ່ຄ້າຫຼັກຈະຖືກນຳໃຊ້. ປົ"
+"ກກະຕິແລ້ວຄວນເປັນຕົວປ່ຽນທີ່ລະບຸພາສາທີ່ເໝາະສົມ ເຊັ່ນ: {{ object.partner_id.lang }}."
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_service_15
@@ -1661,6 +2010,11 @@ msgid "Ordered"
 msgstr "ສັ່ງຊື້ແລ້ວ"
 
 #. module: fleet
+#: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle_model__vehicle_type__other
+msgid "Other"
+msgstr "ອື່ນໆ"
+
+#. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_33
 msgid "Other Maintenance"
 msgstr "ການບຳລຸງຮັກສາອື່ນໆ"
@@ -1668,7 +2022,7 @@ msgstr "ການບຳລຸງຮັກສາອື່ນໆ"
 #. module: fleet
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle__service_activity__overdue
 msgid "Overdue"
-msgstr "ກາຍກຳນົດເວລາ"
+msgstr "ກາຍກຳນົດ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_34
@@ -1676,18 +2030,9 @@ msgid "Oxygen Sensor Replacement"
 msgstr "ການປ່ຽນເຊັນເຊີອົກຊີເຈນ"
 
 #. module: fleet
-#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__plan_to_change_bike
-#: model:ir.model.fields,field_description:fleet.field_res_partner__plan_to_change_bike
-#: model:ir.model.fields,field_description:fleet.field_res_users__plan_to_change_bike
-msgid "Plan To Change Bike"
-msgstr "ແຜນທີ່ຈະປ່ຽນລົດຖີບ"
-
-#. module: fleet
-#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__plan_to_change_car
-#: model:ir.model.fields,field_description:fleet.field_res_partner__plan_to_change_car
-#: model:ir.model.fields,field_description:fleet.field_res_users__plan_to_change_car
-msgid "Plan To Change Car"
-msgstr "ແຜນທີ່ຈະປ່ຽນລົດ"
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__plan_to_change_vehicle
+msgid "Plan To Change Vehicle"
+msgstr "ແຜນການປ່ຽນພາຫະນະ"
 
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_search
@@ -1698,13 +2043,13 @@ msgstr "ວາງແຜນທີ່ຈະປ່ຽນ"
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle__fuel_type__plug_in_hybrid_diesel
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle_model__default_fuel_type__plug_in_hybrid_diesel
 msgid "Plug-in Hybrid Diesel"
-msgstr "ປັກອິນໄຮບຣິດ ກາຊວນ"
+msgstr "ປລັກອິນ ໄຮບຣິດ ກາຊວນ"
 
 #. module: fleet
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle__fuel_type__plug_in_hybrid_gasoline
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle_model__default_fuel_type__plug_in_hybrid_gasoline
 msgid "Plug-in Hybrid Gasoline"
-msgstr "ປັກອິນໄຮບຣິດ ແອັດຊັງ"
+msgstr "ປລັກອິນ ໄຮບຣິດ ແອັດຊັງ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__power
@@ -1715,17 +2060,29 @@ msgstr "ກຳລັງ"
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_35
 msgid "Power Steering Hose Replacement"
-msgstr "ການປ່ຽນທໍ່ພວງມະໄລພາວເວີ"
+msgstr "ການປ່ຽນສາຍເພົາເວີ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_36
 msgid "Power Steering Pump Replacement"
-msgstr "ການປ່ຽນປ້ຳພວງມະໄລພາວເວີ"
+msgstr "ການປ່ຽນປ້ຳເພົາເວີ"
+
+#. module: fleet
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__power_unit
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__power_unit
+msgid "Power Unit"
+msgstr "ຫົວໜ່ວຍກຳລັງ"
 
 #. module: fleet
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle__power
 msgid "Power in kW of the vehicle"
-msgstr "ກຳລັງຂອງພາຫະນະເປັນກິໂລວັດ (kW)"
+msgstr "ກຳລັງຂອງພາຫະນະເປັນ kW"
+
+#. module: fleet
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__vehicle_properties
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_search
+msgid "Properties"
+msgstr "ຄຸນສົມບັດ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__net_car_value
@@ -1740,22 +2097,54 @@ msgstr "ຊື້ແລ້ວ"
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_37
 msgid "Radiator Repair"
-msgstr "ສ້ອມແປງໝໍ້ນ້ຳ"
+msgstr "ການສ້ອມແປງໝໍ້ນ້ຳ"
+
+#. module: fleet
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__vehicle_range
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__vehicle_range
+msgid "Range"
+msgstr "ໄລຍະທາງທີ່ແລ່ນໄດ້"
+
+#. module: fleet
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__range_unit
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__range_unit
+msgid "Range Unit"
+msgstr "ຫົວໜ່ວຍໄລຍະທາງ"
+
+#. module: fleet
+#: model:ir.model.fields,help:fleet.field_fleet_vehicle__vehicle_range
+#: model:ir.model.fields,help:fleet.field_fleet_vehicle_model__vehicle_range
+msgid ""
+"Range represents the maximum distance a vehicle can travel on a full charge "
+"(for EVs) or             a full tank (for fuel-powered vehicles)"
+msgstr ""
+"ໄລຍະທາງທີ່ແລ່ນໄດ້ ໝາຍເຖິງໄລຍະທາງສູງສຸດທີ່ພາຫະນະສາມາດແລ່ນໄດ້ຕໍ່ການສາກເຕັມໜຶ່ງຄັ້ງ (ສຳລັບລົດໄຟຟ້າ) ຫຼື"
+"             ເຕັມຖັງ (ສຳລັບພາຫະນະທີ່ໃຊ້ນ້ຳມັນ)"
+
+#. module: fleet
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_contract_view_form
+msgid "Reactivate"
+msgstr "ເປີດໃຊ້ງານຄືນໃໝ່"
 
 #. module: fleet
 #: model_terms:ir.actions.act_window,help:fleet.fleet_vehicle_action
 msgid "Ready to manage your fleet more efficiently?"
-msgstr "ພ້ອມທີ່ຈະຈັດການຝູງພາຫະນະຂອງທ່ານໃຫ້ມີປະສິດທິພາບຫຼາຍຂຶ້ນແລ້ວບໍ?"
+msgstr "ພ້ອມແລ້ວບໍ່ທີ່ຈະຈັດການກອງພາຫະນະຂອງທ່ານໃຫ້ມີປະສິດທິພາບຍິ່ງຂຶ້ນ?"
+
+#. module: fleet
+#: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle_model__drive_type__rwd
+msgid "Rear-Wheel Drive (RWD)"
+msgstr "ລະບົບຂັບເຄື່ອນລໍ້ຫຼັງ (RWD)"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__cost_generated
 msgid "Recurring Cost"
-msgstr "ຄ່າໃຊ້ຈ່າຍທີ່ເກີດຂຶ້ນຊ້ຳ"
+msgstr "ຄ່າໃຊ້ຈ່າຍປະຈຳ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__cost_frequency
 msgid "Recurring Cost Frequency"
-msgstr "ຄວາມຖີ່ຂອງຄ່າໃຊ້ຈ່າຍທີ່ເກີດຂຶ້ນຊ້ຳ"
+msgstr "ຮອບຄວາມຖີ່ຂອງຄ່າໃຊ້ຈ່າຍປະຈຳ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__ins_ref
@@ -1765,7 +2154,7 @@ msgstr "ເອກະສານອ້າງອີງ"
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_refueling
 msgid "Refueling"
-msgstr "ການເຕີມນ້ຳມັນ"
+msgstr "ການຕື່ມນ້ຳມັນ"
 
 #. module: fleet
 #: model:fleet.vehicle.state,name:fleet.fleet_vehicle_state_registered
@@ -1773,8 +2162,18 @@ msgid "Registered"
 msgstr "ຈົດທະບຽນແລ້ວ"
 
 #. module: fleet
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__acquisition_date
+msgid "Registration Date"
+msgstr "ວັນທີຈົດທະບຽນ"
+
+#. module: fleet
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_send_mail__render_model
+msgid "Rendering Model"
+msgstr "ຮູບແບບການສະແດງຜົນ"
+
+#. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_service_11
-msgid "Rent (Excluding VAT)"
+msgid "Rent (Excluding Tax)"
 msgstr "ຄ່າເຊົ່າ (ບໍ່ລວມອາກອນ)"
 
 #. module: fleet
@@ -1785,7 +2184,7 @@ msgstr "ການສ້ອມແປງ ແລະ ບຳລຸງຮັກສາ"
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_contract_repairing
 msgid "Repairing"
-msgstr "ການສ້ອມແປງ"
+msgstr "ກຳລັງສ້ອມແປງ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_service_9
@@ -1803,18 +2202,13 @@ msgid "Reserve"
 msgstr "ສຳຮອງ"
 
 #. module: fleet
-#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_contract_view_form
-msgid "Reset To Draft"
-msgstr "ຕັ້ງຄ່າຄືນເປັນສະບັບຮ່າງ"
-
-#. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__residual_value
 msgid "Residual Value"
 msgstr "ມູນຄ່າຄົງເຫຼືອ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_service_14
-msgid "Residual value (Excluding VAT)"
+msgid "Residual value (Excluding Tax)"
 msgstr "ມູນຄ່າຄົງເຫຼືອ (ບໍ່ລວມອາກອນ)"
 
 #. module: fleet
@@ -1831,8 +2225,14 @@ msgstr "ຜູ້ຮັບຜິດຊອບ"
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__activity_user_id
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__activity_user_id
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__activity_user_id
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__activity_user_id
 msgid "Responsible User"
 msgstr "ຜູ້ໃຊ້ທີ່ຮັບຜິດຊອບ"
+
+#. module: fleet
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_model_brand_view_kanban
+msgid "Restore"
+msgstr "ກູ້ຄືນ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_38
@@ -1840,9 +2240,15 @@ msgid "Resurface Rotors"
 msgstr "ການເຈຍຈານເບຣກ"
 
 #. module: fleet
+#. odoo-python
+#: code:addons/fleet/models/fleet_vehicle.py:0
+msgid "Review driver change"
+msgstr "ກວດສອບການປ່ຽນຄົນຂັບ"
+
+#. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_39
 msgid "Rotate Tires"
-msgstr "ການສະຫຼັບຢາງລົດ"
+msgstr "ສະຫຼັບຢາງລົດ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_40
@@ -1850,20 +2256,48 @@ msgid "Rotor Replacement"
 msgstr "ການປ່ຽນຈານເບຣກ"
 
 #. module: fleet
+#: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle_log_contract__state__open
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle_log_services__state__running
 msgid "Running"
-msgstr "ພວມດຳເນີນງານ"
+msgstr "ກຳລັງເຮັດວຽກ"
+
+#. module: fleet
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_send_mail_view_form
+msgid "Save as new template"
+msgstr "ບັນທຶກເປັນແມ່ແບບໃໝ່"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__seats
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__seats
-msgid "Seats Number"
-msgstr "ຈຳນວນບ່ອນນັ່ງ"
+msgid "Seating Capacity"
+msgstr "ຄວາມຈຸບ່ອນນັ່ງ"
+
+#. module: fleet
+#: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle__transmission__semi_automatic
+#: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle_model__transmission__semi_automatic
+msgid "Semi-Automatic"
+msgstr "ເຄິ່ງອັດຕະໂນມັດ"
+
+#. module: fleet
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_send_mail_view_form
+msgid "Send"
+msgstr "ສົ່ງ"
+
+#. module: fleet
+#. odoo-python
+#: code:addons/fleet/models/fleet_vehicle.py:0
+msgid "Send Email"
+msgstr "ສົ່ງອີເມວ"
+
+#. module: fleet
+#: model:ir.model,name:fleet.model_fleet_vehicle_send_mail
+msgid "Send mails to Drivers"
+msgstr "ສົ່ງອີເມວຫາຄົນຂັບ"
 
 #. module: fleet
 #: model:fleet.vehicle.tag,name:fleet.vehicle_tag_senior
 msgid "Senior"
-msgstr "ລະດັບອາວຸໂສ (Senior)"
+msgstr "ລະດັບສູງ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model_category__sequence
@@ -1884,15 +2318,24 @@ msgid "Service Activity"
 msgstr "ກິດຈະກຳການບໍລິການ"
 
 #. module: fleet
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_cost_report__service_type
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__service_type_id
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_costs_report_view_search
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_services_view_search
 msgid "Service Type"
 msgstr "ປະເພດການບໍລິການ"
 
 #. module: fleet
+#: model:ir.actions.act_window,name:fleet.fleet_vehicle_service_types_action
+#: model:ir.ui.menu,name:fleet.fleet_vehicle_service_types_menu
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_service_types_view_tree
 msgid "Service Types"
 msgstr "ປະເພດການບໍລິການ"
+
+#. module: fleet
+#: model_terms:ir.actions.act_window,help:fleet.fleet_vehicle_service_types_action
+msgid "Service types define categories of vehicle maintenance and servicing."
+msgstr "ປະເພດການບໍລິການແມ່ນກຳນົດໝວດໝູ່ຂອງການບຳລຸງຮັກສາ ແລະ ໃຫ້ບໍລິການພາຫະນະ."
 
 #. module: fleet
 #: model:ir.actions.act_window,name:fleet.fleet_vehicle_log_services_action
@@ -1907,7 +2350,7 @@ msgstr "ການບໍລິການ"
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_services_view_graph
 msgid "Services Costs Per Month"
-msgstr "ຄ່າໃຊ້ຈ່າຍການບໍລິການຕໍ່ເດືອນ"
+msgstr "ຄ່າໃຊ້ຈ່າຍບໍລິການຕໍ່ເດືອນ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__log_services
@@ -1915,7 +2358,7 @@ msgstr "ຄ່າໃຊ້ຈ່າຍການບໍລິການຕໍ່ເ
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_services_view_search
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_services_view_tree
 msgid "Services Logs"
-msgstr "ປະຫວັດການບໍລິການ"
+msgstr "ບັນທຶກການບໍລິການ"
 
 #. module: fleet
 #: model:ir.model,name:fleet.model_fleet_vehicle_log_services
@@ -1931,8 +2374,8 @@ msgstr "ການຕັ້ງຄ່າ"
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_contract_view_search
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_search
-msgid "Show all records which has next action date is before today"
-msgstr "ສະແດງບັນທຶກທັງໝົດທີ່ມີວັນທີດຳເນີນການຖັດໄປກ່ອນມື້ນີ້"
+msgid "Show all records whose next activity date is past"
+msgstr "ສະແດງລາຍການທັງໝົດທີ່ມີວັນທີກິດຈະກຳຕໍ່ໄປກາຍກຳນົດ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_service_6
@@ -1945,10 +2388,11 @@ msgid "Spark Plug Replacement"
 msgstr "ການປ່ຽນຫົວທຽນ"
 
 #. module: fleet
-#. odoo-python
-#: code:addons/fleet/models/fleet_vehicle.py:0
-msgid "Specify the End date of %s"
-msgstr "ລະບຸວັນທີສິ້ນສຸດຂອງ %s"
+#: model:ir.model.fields,help:fleet.field_fleet_vehicle_model__doors
+msgid ""
+"Specifies the total number of doors, including the truck and hatch doors, if "
+"applicable."
+msgstr "ລະບຸຈຳນວນປະຕູທັງໝົດ, ລວມທັງປະຕູທ້າຍ ແລະ ປະຕູກະໂປງຫຼັງ (ຖ້າມີ)."
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__state
@@ -1956,14 +2400,15 @@ msgid "Stage"
 msgstr "ຂັ້ນຕອນ"
 
 #. module: fleet
-#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_contract_view_form
-msgid "Start Contract"
-msgstr "ເລີ່ມຕົ້ນສັນຍາ"
-
-#. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_assignation_log__date_start
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_contract_view_search
 msgid "Start Date"
 msgstr "ວັນທີເລີ່ມຕົ້ນ"
+
+#. module: fleet
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__date_from
+msgid "Start of Service"
+msgstr "ເລີ່ມຕົ້ນການບໍລິການ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_42
@@ -1979,7 +2424,7 @@ msgstr "ສະຖານະ"
 #. module: fleet
 #: model:ir.model.constraint,message:fleet.constraint_fleet_vehicle_state_fleet_state_name_unique
 msgid "State name already exists"
-msgstr "ຊື່ສະຖານະມີຢູ່ແລ້ວ"
+msgstr "ຊື່ສະຖານະນີ້ມີຢູ່ແລ້ວ"
 
 #. module: fleet
 #: model:ir.actions.act_window,name:fleet.fleet_vehicle_state_action
@@ -1987,12 +2432,13 @@ msgstr "ຊື່ສະຖານະມີຢູ່ແລ້ວ"
 #: model:ir.ui.menu,name:fleet.fleet_vehicle_state_menu
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_search
 msgid "Status"
-msgstr "ສະຖານະ"
+msgstr "ສະພາບ"
 
 #. module: fleet
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle__activity_state
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle_log_contract__activity_state
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle_log_services__activity_state
+#: model:ir.model.fields,help:fleet.field_fleet_vehicle_model__activity_state
 msgid ""
 "Status based on activities\n"
 "Overdue: Due date is already passed\n"
@@ -2000,46 +2446,51 @@ msgid ""
 "Planned: Future activities."
 msgstr ""
 "ສະຖານະຕາມກິດຈະກຳ\n"
-"ກາຍກຳນົດ: ວັນທີກຳນົດໄດ້ຜ່ານໄປແລ້ວ\n"
+"ກາຍກຳນົດ: ກາຍກຳນົດເວລາແລ້ວ\n"
 "ມື້ນີ້: ວັນທີກິດຈະກຳແມ່ນມື້ນີ້\n"
 "ວາງແຜນໄວ້: ກິດຈະກຳໃນອະນາຄົດ."
 
 #. module: fleet
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_send_mail__subject
+msgid "Subject"
+msgstr "ຫົວຂໍ້"
+
+#. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vechicle_costs_report_view_tree
 msgid "Sum of Cost"
-msgstr "ຜົນລວມຂອງຄ່າໃຊ້ຈ່າຍ"
+msgstr "ຍອດລວມຄ່າໃຊ້ຈ່າຍ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_service_5
 msgid "Summer tires"
-msgstr "ຢາງລົດສຳລັບລະດູຮ້ອນ"
+msgstr "ຢາງລົດລະດູຮ້ອນ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_tag__name
 msgid "Tag Name"
-msgstr "ຊື່ແທັກ"
+msgstr "ຊື່ປ້າຍກຳກັບ"
 
 #. module: fleet
 #: model:ir.model.constraint,message:fleet.constraint_fleet_vehicle_tag_name_uniq
 msgid "Tag name already exists!"
-msgstr "ຊື່ແທັກນີ້ມີຢູ່ແລ້ວ!"
+msgstr "ຊື່ປ້າຍກຳກັບນີ້ມີຢູ່ແລ້ວ!"
 
 #. module: fleet
 #: model:ir.actions.act_window,name:fleet.fleet_vehicle_tag_action
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__tag_ids
 #: model:ir.ui.menu,name:fleet.fleet_vehicle_tag_menu
 msgid "Tags"
-msgstr "ແທັກ"
+msgstr "ປ້າຍກຳກັບ"
 
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_form
 msgid "Tax Info"
-msgstr "ຂໍ້ມູນພາສີ"
+msgstr "ຂໍ້ມູນອາກອນ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_service_3
 msgid "Tax roll"
-msgstr "ບັນຊີລາຍຊື່ຜູ້ເສຍພາສີ"
+msgstr "ບັນຊີລາຍຊື່ເສຍອາກອນ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__notes
@@ -2054,7 +2505,31 @@ msgid ""
 "You can use this field for quick search."
 msgstr ""
 "ລະຫັດປະເທດ ISO ສອງຕົວອັກສອນ. \n"
-"ທ່ານສາມາດໃຊ້ຫ້ອງນີ້ເພື່ອການຄົ້ນຫາແບບໄວ."
+"ທ່ານສາມາດໃຊ້ຊ່ອງນີ້ເພື່ອການຄົ້ນຫາແບບວ່ອງໄວ."
+
+#. module: fleet
+#: model:ir.model.fields,help:fleet.field_fleet_vehicle__next_assignation_date
+msgid ""
+"The date from which this vehicle becomes available for assignment. Leave "
+"empty if it's available immediately."
+msgstr "ວັນທີທີ່ພາຫະນະນີ້ພ້ອມສຳລັບການມອບໝາຍ. ປະຫວ່າງໄວ້ຖ້າພ້ອມໃຊ້ງານທັນທີ."
+
+#. module: fleet
+#. odoo-python
+#: code:addons/fleet/wizard/fleet_vehicle_send_mail.py:0
+msgid "The following vehicle drivers are missing an email address: %s."
+msgstr "ຄົນຂັບພາຫະນະຕໍ່ໄປນີ້ບໍ່ມີທີ່ຢູ່ອີເມວ: %s."
+
+#. module: fleet
+#: model:ir.model.constraint,message:fleet.constraint_fleet_vehicle_unique_license_plate
+msgid "The license plate must be unique"
+msgstr "ເລກປ້າຍທະບຽນຕ້ອງບໍ່ຊ້ຳກັນ"
+
+#. module: fleet
+#. odoo-python
+#: code:addons/fleet/models/fleet_vehicle.py:0
+msgid "The odometer value cannot be lower than the previous one."
+msgstr "ຄ່າເລກກິໂລແມັດບໍ່ສາມາດຕ່ຳກວ່າຄ່າກ່ອນໜ້ານີ້."
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_43
@@ -2062,14 +2537,15 @@ msgid "Thermostat Replacement"
 msgstr "ການປ່ຽນວາວນ້ຳ"
 
 #. module: fleet
-#: model:ir.model.fields,help:fleet.field_fleet_vehicle__next_assignation_date
-msgid "This is the date at which the car will be available, if not set it means available instantly"
-msgstr "ນີ້ແມ່ນວັນທີທີ່ລົດຈະວ່າງ, ຖ້າບໍ່ໄດ້ຕັ້ງໄວ້ ໝາຍຄວາມວ່າວ່າງທັນທີ"
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_form
+msgid ""
+"This will allow this vehicle to be selectable for the Salary Configurator"
+msgstr "ສິ່ງນີ້ຈະຊ່ວຍໃຫ້ພາຫະນະນີ້ສາມາດເລືອກໄດ້ໃນລະບົບກຳນົດເງິນເດືອນ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_44
 msgid "Tie Rod End Replacement"
-msgstr "ການປ່ຽນລູກໝາກຄັນຊັກນອກ"
+msgstr "ການປ່ຽນລູກໝາກປາຍຄັນຊັກ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_45
@@ -2084,7 +2560,7 @@ msgstr "ການບໍລິການຢາງລົດ"
 #. module: fleet
 #: model:fleet.vehicle.state,name:fleet.fleet_vehicle_state_to_order
 msgid "To Order"
-msgstr "ເພື່ອສັ່ງຊື້"
+msgstr "ຕ້ອງສັ່ງຊື້"
 
 #. module: fleet
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle__service_activity__today
@@ -2100,17 +2576,12 @@ msgstr "ກິດຈະກຳມື້ນີ້"
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_services_view_tree
 msgid "Total"
-msgstr "ລວມ"
+msgstr "ລວມທັງໝົດ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_service_13
-msgid "Total expenses (Excluding VAT)"
+msgid "Total expenses (Excluding Tax)"
 msgstr "ຄ່າໃຊ້ຈ່າຍທັງໝົດ (ບໍ່ລວມອາກອນ)"
-
-#. module: fleet
-#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__contract_renewal_total
-msgid "Total of contracts due or overdue minus one"
-msgstr "ຜົນລວມຂອງສັນຍາທີ່ຮອດກຳນົດ ຫຼື ກາຍກຳນົດ ລົບໜຶ່ງ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_service_17
@@ -2121,22 +2592,22 @@ msgstr "ການຊ່ວຍເຫຼືອໃນການເດີນທາງ
 #: model_terms:ir.actions.act_window,help:fleet.fleet_vehicle_log_services_action
 msgid ""
 "Track all the services done on your vehicle.\n"
-"            Services can be of many types: occasional repair, fixed maintenance, etc."
+"            Services can be of many types: occasional repair, fixed "
+"maintenance, etc."
 msgstr ""
-"ຕິດຕາມທຸກການບໍລິການທີ່ເຮັດກັບພາຫະນະຂອງທ່ານ.\n"
-"            ການບໍລິການສາມາດມີໄດ້ຫຼາຍປະເພດ: ການສ້ອມແປງເປັນບາງຄັ້ງຄາວ, ການບຳລຸງຮັກສາຕາມກຳນົ"
-"ດ, ແລະ ອື່ນໆ."
+"ຕິດຕາມການບໍລິການທັງໝົດທີ່ເຮັດກັບພາຫະນະຂອງທ່ານ.\n"
+"            ການບໍລິການມີໄດ້ຫຼາຍຮູບແບບ: ການສ້ອມແປງເປັນບາງຄັ້ງຄາວ, ການບຳລຸງຮັກສາຕາມກຳນົດເວລ"
+"າ, ອື່ນໆ."
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__trailer_hook
-#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__trailer_hook
 msgid "Trailer Hitch"
-msgstr "ຫົວລາກລົດພ່ວງ"
+msgstr "ຂໍລາກແກ່"
 
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_search
 msgid "Trailer Hook"
-msgstr "ຂໍລາກລົດພ່ວງ"
+msgstr "ຂໍແຂວນລາກລົດ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__transmission
@@ -2147,7 +2618,7 @@ msgstr "ລະບົບສົ່ງກຳລັງ (ເກຍ)"
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_47
 msgid "Transmission Filter Replacement"
-msgstr "ການປ່ຽນໝໍ້ຕອງເກຍ"
+msgstr "ການປ່ຽນໝໍ້ຕອງນ້ຳມັນເກຍ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_48
@@ -2162,30 +2633,20 @@ msgstr "ການປ່ຽນຊຸດເກຍ"
 #. module: fleet
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle__frame_type__trapez
 msgid "Trapez"
-msgstr "ຊົງຄາງໝູ (Trapez)"
-
-#. module: fleet
-#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__cost_subtype_id
-msgid "Type"
-msgstr "ປະເພດ"
+msgstr "Trapez"
 
 #. module: fleet
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle__activity_exception_decoration
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle_log_contract__activity_exception_decoration
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle_log_services__activity_exception_decoration
+#: model:ir.model.fields,help:fleet.field_fleet_vehicle_model__activity_exception_decoration
 msgid "Type of the exception activity on record."
-msgstr "ປະເພດຂອງກິດຈະກຳທີ່ຍົກເວັ້ນໃນບັນທຶກ."
-
-#. module: fleet
-#: model:ir.actions.act_window,name:fleet.fleet_vehicle_service_types_action
-#: model:ir.ui.menu,name:fleet.fleet_vehicle_service_types_menu
-msgid "Types"
-msgstr "ປະເພດຕ່າງໆ"
+msgstr "ປະເພດຂອງກິດຈະກຳຂໍ້ຍົກເວັ້ນໃນບັນທຶກ."
 
 #. module: fleet
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle__vin_sn
 msgid "Unique number written on the vehicle motor (VIN/SN number)"
-msgstr "ເລກທີ່ລະບຸສະເພາະຢູ່ໃນເຄື່ອງຈັກພາຫະນະ (ເລກ VIN/SN)"
+msgstr "ໝາຍເລກສະເພາະທີ່ລະບຸຢູ່ຈັກລົດ (ໝາຍເລກ VIN/SN)"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__odometer_unit
@@ -2194,16 +2655,31 @@ msgid "Unit"
 msgstr "ຫົວໜ່ວຍ"
 
 #. module: fleet
+#. odoo-python
+#: code:addons/fleet/models/fleet_vehicle.py:0
+msgid "Unnamed Vehicle"
+msgstr "ພາຫະນະທີ່ບໍ່ມີຊື່"
+
+#. module: fleet
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_form
+msgid "Unregistered"
+msgstr "ຍັງບໍ່ທັນໄດ້ຈົດທະບຽນ"
+
+#. module: fleet
+#. odoo-python
+#: code:addons/fleet/models/fleet_vehicle_model.py:0
 #: model:ir.model,name:fleet.model_fleet_vehicle
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_assignation_log__vehicle_id
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_cost_report__vehicle_id
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__vehicle_id
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_services__vehicle_id
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_odometer__vehicle_id
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_odometer_report__vehicle_id
 #: model:ir.ui.menu,name:fleet.fleet_vehicles_configuration
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_costs_report_view_search
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_contract_view_form
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_contract_view_search
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_odometer_report_view_search
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_odometer_view_search
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_form
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_search
@@ -2224,17 +2700,22 @@ msgstr "ຈຳນວນພາຫະນະ"
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__description
 msgid "Vehicle Description"
-msgstr "ຄຳອະທິບາຍພາຫະນະ"
-
-#. module: fleet
-#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_model_view_form
-msgid "Vehicle Information"
-msgstr "ຂໍ້ມູນພາຫະນະ"
+msgstr "ລາຍລະອຽດພາຫະນະ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_cost_report__name
 msgid "Vehicle Name"
 msgstr "ຊື່ພາຫະນະ"
+
+#. module: fleet
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_odometer_report_view_graph
+msgid "Vehicle Odometer Timeline"
+msgstr "ກຳນົດເວລາເລກກິໂລແມັດພາຫະນະ"
+
+#. module: fleet
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__vehicle_properties_definition
+msgid "Vehicle Properties"
+msgstr "ຄຸນສົມບັດພາຫະນະ"
 
 #. module: fleet
 #: model:ir.model,name:fleet.model_fleet_vehicle_state
@@ -2244,25 +2725,33 @@ msgstr "ສະຖານະພາຫະນະ"
 #. module: fleet
 #: model:ir.model,name:fleet.model_fleet_vehicle_tag
 msgid "Vehicle Tag"
-msgstr "ແທັກພາຫະນະ"
+msgstr "ປ້າຍກຳກັບພາຫະນະ"
 
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_tag_view_view_form
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_tag_view_view_tree
 msgid "Vehicle Tags"
-msgstr "ແທັກພາຫະນະ"
+msgstr "ປ້າຍກຳກັບພາຫະນະ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle__vehicle_type
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_cost_report__vehicle_type
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_model__vehicle_type
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_model_view_search
 msgid "Vehicle Type"
 msgstr "ປະເພດພາຫະນະ"
 
 #. module: fleet
 #. odoo-python
+#: code:addons/fleet/wizard/fleet_vehicle_send_mail.py:0
+msgid "Vehicle: Mass mail drivers"
+msgstr "ພາຫະນະ: ສົ່ງອີເມວຫາຄົນຂັບເປັນກຸ່ມ"
+
+#. module: fleet
+#. odoo-python
 #: code:addons/fleet/models/fleet_vehicle_model.py:0
 #: model:ir.actions.act_window,name:fleet.fleet_vehicle_action
+#: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_send_mail__vehicle_ids
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_model_view_form
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_model_view_tree
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_activity
@@ -2283,7 +2772,7 @@ msgstr "ຄ່າໃຊ້ຈ່າຍພາຫະນະ"
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_odometer_view_search
 msgid "Vehicles odometers"
-msgstr "ເລກໄມພາຫະນະ"
+msgstr "ເລກກິໂລແມັດພາຫະນະ"
 
 #. module: fleet
 #: model:ir.model.fields,field_description:fleet.field_fleet_vehicle_log_contract__insurer_id
@@ -2304,6 +2793,14 @@ msgid "Vendors"
 msgstr "ຜູ້ສະໜອງ"
 
 #. module: fleet
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vechicle_costs_report_view_form
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_contract_view_form
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_model_view_form
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_form
+msgid "Visible to all"
+msgstr "ທຸກຄົນສາມາດເບິ່ງເຫັນໄດ້"
+
+#. module: fleet
 #: model:fleet.vehicle.state,name:fleet.fleet_vehicle_state_waiting_list
 msgid "Waiting List"
 msgstr "ລາຍຊື່ລໍຖ້າ"
@@ -2316,7 +2813,7 @@ msgstr "ວັນທີແຈ້ງເຕືອນ"
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_kanban
 msgid "Warning: renewal due soon"
-msgstr "ຄຳເຕືອນ: ຮອດກຳນົດຕໍ່ອາຍຸໃນມໍ່ໆນີ້"
+msgstr "ຄຳເຕືອນ: ໃກ້ຮອດກຳນົດການຕໍ່ອາຍຸ"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_50
@@ -2326,7 +2823,7 @@ msgstr "ການປ່ຽນປ້ຳນ້ຳ"
 #. module: fleet
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle__frame_type__wave
 msgid "Wave"
-msgstr "ຊົງຄື້ນ (Wave)"
+msgstr "Wave"
 
 #. module: fleet
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle_log_contract__cost_frequency__weekly
@@ -2336,7 +2833,7 @@ msgstr "ລາຍອາທິດ"
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_51
 msgid "Wheel Alignment"
-msgstr "ການຕັ້ງສູນຖ່ວງລໍ້"
+msgstr "ການຕັ້ງສູນລໍ້"
 
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_52
@@ -2346,32 +2843,40 @@ msgstr "ການປ່ຽນລູກປືນລໍ້"
 #. module: fleet
 #: model:fleet.service.type,name:fleet.type_service_53
 msgid "Windshield Wiper(s) Replacement"
-msgstr "ການປ່ຽນໃບປັດນ້ຳຝົນ"
+msgstr "ການປ່ຽນຢາງປັດນ້ຳຝົນ"
 
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_model_brand_view_search
 msgid "With Models"
-msgstr "ພ້ອມລຸ້ນ"
+msgstr "ມີຮຸ່ນ"
 
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_contract_view_form
 msgid "Write here all other information relative to this contract"
-msgstr "ຂຽນຂໍ້ມູນອື່ນໆທັງໝົດທີ່ກ່ຽວຂ້ອງກັບສັນຍານີ້ທີ່ນີ້"
+msgstr "ຂຽນຂໍ້ມູນອື່ນໆທັງໝົດທີ່ກ່ຽວຂ້ອງກັບສັນຍານີ້ໃສ່ບ່ອນນີ້"
 
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_log_services_view_form
 msgid "Write here any other information related to the service completed."
-msgstr "ຂຽນຂໍ້ມູນອື່ນໆທີ່ກ່ຽວຂ້ອງກັບການບໍລິການທີ່ສຳເລັດແລ້ວທີ່ນີ້."
+msgstr "ຂຽນຂໍ້ມູນອື່ນໆທີ່ກ່ຽວຂ້ອງກັບການບໍລິການທີ່ສຳເລັດແລ້ວໃສ່ບ່ອນນີ້."
 
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_form
-msgid "Write here any other information related to this vehicle"
-msgstr "ຂຽນຂໍ້ມູນອື່ນໆທີ່ກ່ຽວຂ້ອງກັບພາຫະນະຄັນນີ້ທີ່ນີ້"
+msgid ""
+"Write here any other information related to this vehicle to show in salary "
+"configurator"
+msgstr ""
+"ຂຽນຂໍ້ມູນອື່ນໆທີ່ກ່ຽວຂ້ອງກັບພາຫະນະນີ້ເພື່ອສະແດງໃນຕົວຈັດການເງິນເດືອນໃສ່ບ່ອນນີ້"
+
+#. module: fleet
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_send_mail_view_form
+msgid "Write your message here..."
+msgstr "ຂຽນຂໍ້ຄວາມຂອງທ່ານຢູ່ນີ້..."
 
 #. module: fleet
 #: model:ir.model.fields,help:fleet.field_fleet_vehicle__model_year
 msgid "Year of the model"
-msgstr "ປີຂອງລຸ້ນ"
+msgstr "ປີຂອງຮຸ່ນ"
 
 #. module: fleet
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle_log_contract__cost_frequency__yearly
@@ -2381,7 +2886,7 @@ msgstr "ລາຍປີ"
 #. module: fleet
 #: model_terms:ir.actions.act_window,help:fleet.fleet_vehicle_odometer_action
 msgid "You can add various odometer entries for all vehicles."
-msgstr "ທ່ານສາມາດເພີ່ມລາຍການໄລຍະທາງຕ່າງໆສຳລັບທຸກພາຫະນະ."
+msgstr "ທ່ານສາມາດເພີ່ມລາຍການເລກກິໂລແມັດຕ່າງໆ ສຳລັບພາຫະນະທັງໝົດໄດ້."
 
 #. module: fleet
 #: model_terms:ir.actions.act_window,help:fleet.fleet_vehicle_state_action
@@ -2390,21 +2895,22 @@ msgid ""
 "            each vehicle. Example: active, being repaired, sold."
 msgstr ""
 "ທ່ານສາມາດປັບແຕ່ງສະຖານະທີ່ມີຢູ່ເພື່ອຕິດຕາມການປ່ຽນແປງຂອງ\n"
-"            ແຕ່ລະພາຫະນະ. ຕົວຢ່າງ: ໃຊ້ງານຢູ່, ພວມສ້ອມແປງ, ຂາຍແລ້ວ."
+"            ແຕ່ລະພາຫະນະໄດ້. ຕົວຢ່າງ: ໃຊ້ງານຢູ່, ກຳລັງສ້ອມແປງ, ຂາຍແລ້ວ."
 
 #. module: fleet
 #: model_terms:ir.actions.act_window,help:fleet.fleet_vehicle_model_action
 msgid "You can define several models (e.g. A3, A4) for each make (Audi)."
-msgstr "ທ່ານສາມາດກຳນົດໄດ້ຫຼາຍລຸ້ນ (ຕົວຢ່າງ: A3, A4) ສຳລັບແຕ່ລະຍີ່ຫໍ້ (Audi)."
+msgstr "ທ່ານສາມາດກຳນົດໄດ້ຫຼາຍໆຮຸ່ນ (ເຊັ່ນ: A3, A4) ສຳລັບແຕ່ລະຍີ່ຫໍ້ (Audi)."
 
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_model_view_form
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_form
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_form_quick_create
 msgid "e.g. Model S"
-msgstr "ຕົວຢ່າງ: ລຸ້ນ S"
+msgstr "ຕົວຢ່າງ: Model S"
 
 #. module: fleet
-#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_form
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_form_quick_create
 msgid "e.g. PAE 326"
 msgstr "ຕົວຢ່າງ: PAE 326"
 
@@ -2414,31 +2920,60 @@ msgid "e.g. Tesla"
 msgstr "ຕົວຢ່າງ: Tesla"
 
 #. module: fleet
-#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_model_brand_view_kanban
-msgid "img"
-msgstr "ຮູບ"
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_model_view_form
+#: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_form
+msgid "eg. WLTP, Euro 6, or EPA, ..."
+msgstr "ຕົວຢ່າງ: WLTP, Euro 6, ຫຼື EPA, ..."
+
+#. module: fleet
+#: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle__co2_emission_unit__g/km
+#: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle_model__co2_emission_unit__g/km
+msgid "g/km"
+msgstr "ກຣາມ/ກມ"
+
+#. module: fleet
+#: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle__co2_emission_unit__g/mi
+#: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle_model__co2_emission_unit__g/mi
+msgid "g/mi"
+msgstr "ກຣາມ/ໄມລ໌"
+
+#. module: fleet
+#: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle__power_unit__power
+#: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle_model__power_unit__power
+msgid "kW"
+msgstr "kW"
 
 #. module: fleet
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle__odometer_unit__kilometers
+#: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle__range_unit__km
+#: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle_model__range_unit__km
 msgid "km"
 msgstr "ກມ"
 
 #. module: fleet
 #: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle__odometer_unit__miles
+#: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle__range_unit__mi
+#: model:ir.model.fields.selection,name:fleet.selection__fleet_vehicle_model__range_unit__mi
 msgid "mi"
 msgstr "ໄມລ໌"
 
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_form
 msgid "show the contract for this vehicle"
-msgstr "ສະແດງສັນຍາສຳລັບພາຫະນະຄັນນີ້"
+msgstr "ສະແດງສັນຍາສຳລັບພາຫະນະນີ້"
 
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_form
 msgid "show the odometer logs for this vehicle"
-msgstr "ສະແດງບັນທຶກໄລຍະທາງສຳລັບພາຫະນະຄັນນີ້"
+msgstr "ສະແດງບັນທຶກເລກກິໂລແມັດສຳລັບພາຫະນະນີ້"
 
 #. module: fleet
 #: model_terms:ir.ui.view,arch_db:fleet.fleet_vehicle_view_form
 msgid "show the services logs for this vehicle"
-msgstr "ສະແດງບັນທຶກການບໍລິການສຳລັບພາຫະນະຄັນນີ້"
+msgstr "ສະແດງບັນທຶກການບໍລິການສຳລັບພາຫະນະນີ້"
+
+#. module: fleet
+#. odoo-python
+#: code:addons/fleet/models/fleet_vehicle.py:0
+msgid "user_id"
+msgstr "user_id"

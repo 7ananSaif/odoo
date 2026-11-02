@@ -9,6 +9,10 @@ class StockMoveLine(models.Model):
 
     workorder_id = fields.Many2one('mrp.workorder', 'Work Order', check_company=True, index='btree_not_null')
     production_id = fields.Many2one('mrp.production', 'Production Order', check_company=True)
+    visual_lot_name = fields.Char(
+        string="Visual Pre-generated Lot",
+        compute="_compute_visual_lot_name"
+    )
 
     @api.depends('production_id')
     def _compute_picking_type_id(self):
@@ -18,6 +22,19 @@ class StockMoveLine(models.Model):
                 line.picking_type_id = production_id.picking_type_id
                 line_to_remove |= line
         return super(StockMoveLine, self - line_to_remove)._compute_picking_type_id()
+
+    def _compute_visual_lot_name(self):
+        self.visual_lot_name = False
+        final_move_lines = self - self.production_id.move_byproduct_ids.move_line_ids
+        for production, lines in final_move_lines.grouped('production_id').items():
+            lots = production.lot_producing_ids
+            if not production or not lots:
+                continue
+            if len(lots) == 1:  # If tracked by lot or only one serial number
+                lines.visual_lot_name = lots[0].name
+                continue
+            for line, lot in zip(lines, lots):
+                line.visual_lot_name = lot.name
 
     def _search_picking_type_id(self, operator, value):
         if operator in Domain.NEGATIVE_OPERATORS:
@@ -29,15 +46,14 @@ class StockMoveLine(models.Model):
     def create(self, vals_list):
         res = super().create(vals_list)
         for line in res:
-            if self.env.context.get('force_manual_consumption'):
-                if line.quantity:
-                    line.move_id.manual_consumption = True
-                line.move_id.picked = True
-            # If the line is added in a done production, we need to map it
-            # manually to the produced move lines in order to see them in the
-            # traceability report
-            if line.move_id.raw_material_production_id and line.state == 'done':
-                mo = line.move_id.raw_material_production_id
+            if mo := line.move_id.raw_material_production_id:
+                line.production_id = mo
+                # If the line is added in a done production, we need to map it
+                # manually to the produced move lines in order to see them in the
+                # traceability report
+                if line.state != 'done':
+                    continue
+                line.date = mo.date_finished
                 finished_lots = mo.lot_producing_ids
                 finished_lots |= mo.move_finished_ids.filtered(lambda m: m.product_id != mo.product_id).move_line_ids.lot_id
                 if finished_lots:

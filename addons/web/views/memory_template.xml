@@ -57,9 +57,9 @@
 
             <script>
                 // --- DATA FROM SERVER ---
-                const memoryData = JSON.parse(atob('<t t-esc="memory_data"/>'));
-                const fullSpeedscopeBase64 = '<t t-esc="speedscope_base64"/>';
-                const cdn = '<t t-esc="cdn"/>';
+                const memoryData = JSON.parse(atob('<t t-out="memory_data"/>'));
+                const fullSpeedscopeBase64 = '<t t-out="speedscope_base64"/>';
+                const cdn = '<t t-out="cdn"/>';
                 const points = memoryData.points;
 
                 // --- UTILITY ---

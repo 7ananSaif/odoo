@@ -11,14 +11,15 @@
 # Tadeusz Karpiński <tadeuszkarpinski@gmail.com>, 2023
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
 # "Marta (wacm)" <wacm@odoo.com>, 2026.
+# Weblate <noreply-mt-weblate@weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-15 17:36+0000\n"
-"PO-Revision-Date: 2026-05-30 09:46+0000\n"
-"Last-Translator: \"Marta (wacm)\" <wacm@odoo.com>\n"
-"Language-Team: Polish <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 18:22+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Polish <https://translate.odoo.com/projects/odoo-s19-4/"
 "website_event_sale/pl/>\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
@@ -27,7 +28,14 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && "
 "(n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && "
 "n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: website_event_sale
+#: model:ir.module.module,description:base.module_website_event_sale
+msgid ""
+"\n"
+"Sell event tickets through eCommerce app.\n"
+msgstr ""
 
 #. module: website_event_sale
 #: model_terms:ir.ui.view,arch_db:website_event_sale.event_confirmation
@@ -41,17 +49,17 @@ msgstr "<b>Rozpoczęcie</b>"
 
 #. module: website_event_sale
 #: model_terms:ir.ui.view,arch_db:website_event_sale.event_confirmation
-msgid "<i class=\"fa fa-check me-2\" role=\"img\"/>Registered"
-msgstr "<i class=\"fa fa-check me-2\" role=\"img\"/>Zarejestrowany"
+msgid "<i class=\"oi me-2\" data-icon=\"check\" role=\"img\"/>Registered"
+msgstr "<i class=\"oi me-2\" data-icon=\"check\" role=\"img\"/>Zarejestrowany"
 
 #. module: website_event_sale
 #: model_terms:ir.ui.view,arch_db:website_event_sale.registration_attendee_details
 msgid ""
 "<span>Sign In</span>\n"
-"                <span class=\"fa fa-sign-in\"/>"
+"                <span class=\"oi\" data-icon=\"login\"/>"
 msgstr ""
 "<span>Zaloguj się</span>\n"
-"                <span class=\"fa fa-sign-in\"/>"
+"                <span class=\"oi\" data-icon=\"login\"/>"
 
 #. module: website_event_sale
 #. odoo-python
@@ -64,21 +72,12 @@ msgstr ""
 "tego produktu biletu na wydarzenie."
 
 #. module: website_event_sale
-#. odoo-python
-#: code:addons/website_event_sale/models/product_pricelist.py:0
-msgid ""
-"A pricelist item with a positive min. quantity will not be applied to the "
-"event tickets products."
-msgstr ""
-"Pozycja cennika z dodatnią ilością minimalną nie zostanie zastosowana do "
-"produktów typu bilety na wydarzenie."
-
-#. module: website_event_sale
 #: model_terms:ir.ui.view,arch_db:website_event_sale.registration_attendee_details
 msgid "Confirm Registration"
 msgstr "Potwierdź rejestrację"
 
 #. module: website_event_sale
+#: model:ir.model.fields,field_description:website_event_sale.field_event_event__display_name
 #: model:ir.model.fields,field_description:website_event_sale.field_event_event_ticket__display_name
 #: model:ir.model.fields,field_description:website_event_sale.field_event_sale_report__display_name
 #: model:ir.model.fields,field_description:website_event_sale.field_product_pricelist_item__display_name
@@ -88,6 +87,11 @@ msgstr "Potwierdź rejestrację"
 #: model:ir.model.fields,field_description:website_event_sale.field_sale_order_line__display_name
 msgid "Display Name"
 msgstr "Nazwa wyświetlana"
+
+#. module: website_event_sale
+#: model:ir.model,name:website_event_sale.model_event_event
+msgid "Event"
+msgstr ""
 
 #. module: website_event_sale
 #: model:ir.model,name:website_event_sale.model_event_sale_report
@@ -101,6 +105,7 @@ msgstr "Podtytuł wydarzenia"
 
 #. module: website_event_sale
 #: model:ir.model,name:website_event_sale.model_event_event_ticket
+#, fuzzy
 msgid "Event Ticket"
 msgstr "Bilet na wydarzenie"
 
@@ -130,6 +135,7 @@ msgid "Go to Payment"
 msgstr "Przejdź do płatności"
 
 #. module: website_event_sale
+#: model:ir.model.fields,field_description:website_event_sale.field_event_event__id
 #: model:ir.model.fields,field_description:website_event_sale.field_event_event_ticket__id
 #: model:ir.model.fields,field_description:website_event_sale.field_event_sale_report__id
 #: model:ir.model.fields,field_description:website_event_sale.field_product_pricelist_item__id
@@ -139,6 +145,11 @@ msgstr "Przejdź do płatności"
 #: model:ir.model.fields,field_description:website_event_sale.field_sale_order_line__id
 msgid "ID"
 msgstr "ID"
+
+#. module: website_event_sale
+#: model:ir.module.module,shortdesc:base.module_website_event_sale
+msgid "Online Event Ticketing"
+msgstr ""
 
 #. module: website_event_sale
 #: model:ir.model,name:website_event_sale.model_product_pricelist_item
@@ -170,6 +181,11 @@ msgstr "Zamówienie sprzedaży"
 #: model:ir.model,name:website_event_sale.model_sale_order_line
 msgid "Sales Order Line"
 msgstr "Pozycja zamówienia sprzedaży"
+
+#. module: website_event_sale
+#: model:ir.module.module,summary:base.module_website_event_sale
+msgid "Sell event tickets online"
+msgstr ""
 
 #. module: website_event_sale
 #. odoo-python
@@ -222,44 +238,3 @@ msgstr "Nie można ręcznie zwiększyć ilości biletów na wydarzenie w koszyku
 #: model_terms:ir.ui.view,arch_db:website_event_sale.modal_ticket_registration
 msgid "to"
 msgstr "do"
-
-#~ msgid ""
-#~ "<i class=\"fa fa-ban me-2\"/>\n"
-#~ "                                            Unpublished"
-#~ msgstr ""
-#~ "<i class=\"fa fa-ban me-2\"/>\n"
-#~ "                                            Nieopublikowane"
-
-#~ msgid ""
-#~ "<small class=\"o_wevent_participating text-bg-success\">\n"
-#~ "                                            <i class=\"fa fa-check me-2\"/"
-#~ ">\n"
-#~ "                                            Registered\n"
-#~ "                                        </small>"
-#~ msgstr ""
-#~ "<small class=\"o_wevent_participating text-bg-success\">\n"
-#~ "<i class=\"fa fa-check me-2\"/>\n"
-#~ "Zarejestrowany\n"
-#~ "</small>"
-
-#~ msgid "Go to Event"
-#~ msgstr "Idź do wydarzenia"
-
-#~ msgid ""
-#~ "Sorry, only %(remaining_seats)d seats are still available for the %"
-#~ "(ticket)s ticket for the %(event)s event."
-#~ msgstr ""
-#~ "Przepraszamy, tylko %(remaining_seats)d siedzenia są wciąż możliwe do "
-#~ "nabycia %(ticket)s biletów na to %(event)s wydarzenie."
-
-#~ msgid "We are looking forward to meeting you at the following"
-#~ msgstr "Z niecierpliwością czekamy na spotkanie z Tobą na "
-
-#~ msgid "Website"
-#~ msgstr "Strona WWW"
-
-#~ msgid "event"
-#~ msgstr "wydarzenie"
-
-#~ msgid "events"
-#~ msgstr "wydarzenia"

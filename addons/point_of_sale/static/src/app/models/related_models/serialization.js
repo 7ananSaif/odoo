@@ -57,7 +57,7 @@ const deepSerialization = (
                         toUpdate.push(childRecord);
 
                         if (!opts.keepCommands) {
-                            childRecord._dirty = false;
+                            childRecord.unmarkDirty();
                         }
                     } else if (!childRecord.isSynced) {
                         toCreate.push(childRecord);
@@ -101,7 +101,13 @@ const deepSerialization = (
                 const processRecords = (records, cmdCode) => {
                     for (const { id, parentId } of records) {
                         const isAlreadyDeleted = serialized[relatedModel]?.["_deleted_" + id];
-                        if (parentId === record.id && !isAlreadyDeleted) {
+                        // A record cannot be both linked and removed: something re-read the
+                        // parent in between, bringing this record back, so the pending removal
+                        // is stale and must be dropped instead of unlinking the live record.
+                        const isStillLinked = record[fieldName].some(
+                            (childRecord) => childRecord.id === id
+                        );
+                        if (parentId === record.id && !isAlreadyDeleted && !isStillLinked) {
                             const isCascadeDelete =
                                 record.models[relatedModel]?.fields[field.inverse_name]?.ondelete;
                             if (isCascadeDelete) {
@@ -179,7 +185,7 @@ const deepSerialization = (
     }
 
     if (!opts.keepCommands) {
-        record._dirty = false;
+        record.unmarkDirty();
     }
 
     // Cleanup: remove empty entries from uuidMapping.
@@ -197,8 +203,10 @@ const deepSerialization = (
 };
 
 export const ormSerialization = (record, opts) => {
+    const serialized = {};
     const uuidMapping = {};
     const result = deepSerialization(record, opts, {
+        serialized,
         uuidMapping,
     });
     if (Object.keys(uuidMapping).length !== 0) {

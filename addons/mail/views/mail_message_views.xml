@@ -27,7 +27,7 @@
                     <sheet>
                         <div class="oe_button_box" name="button_box">
                             <button name="action_open_document"
-                                type="object" class="oe_link" icon="fa-file-text-o"
+                                type="object" class="oe_link" icon="article"
                                 invisible="not model or res_id == 0">
                                 <div class="o_field_widget o_stat_info">
                                     <span class="o_stat_text">Open Document</span>
@@ -76,7 +76,7 @@
                                     </group>
                                     <group>
                                         <field name="notified_partner_ids" widget="many2many_tags"/>
-                                        <field name="starred_partner_ids" widget="many2many_tags"/>
+                                        <field name="bookmarked_partner_ids" widget="many2many_tags"/>
                                     </group>
                                 </group>
                                 <group>
@@ -89,9 +89,6 @@
                                         </list>
                                     </field>
                                 </group>
-                            </page>
-                            <page string="Tracking" name="page_tracking">
-                                <field name="tracking_value_ids"/>
                             </page>
                         </notebook>
                     </sheet>
@@ -121,7 +118,9 @@
                     <filter string="Need Action"
                             name="message_needaction" help="Unread messages"
                             domain="[('needaction', '=', True)]"/>
-                    <separator/>
+                    <group>
+                        <filter string="Message Type" name="group_by_message_type" domain="[]" context="{'group_by': 'message_type'}"/>
+                    </group>
                 </search>
             </field>
         </record>
@@ -137,20 +136,20 @@
             <field name="name">ir.attachment kanban</field>
             <field name="model">ir.attachment</field>
             <field name="arch" type="xml">
-                <kanban edit="false" import="false">
+                <kanban edit="false" import="false" js_class="ir_attachment_kanban">
                     <field name="id"/>
                     <field name="mimetype"/>
                     <field name="type"/>
                     <templates>
                         <t t-name="menu">
-                            <a t-attf-href="/web/content/ir.attachment/#{record.id.raw_value}/datas?download=true" download="" class="dropdown-item">Download</a>
+                            <a t-attf-href="/web/content/#{record.id.raw_value}?download=true" download="" class="dropdown-item">Download</a>
                             <a t-if="widget.deletable" role="menuitem" type="delete" class="dropdown-item">Delete</a>
                         </t>
                         <t t-name="card" class="o_kanban_attachment flex-row">
                             <aside class="o_kanban_image m-1">
                                 <div class="o_kanban_image_wrapper d-flex align-items-center justify-content-center">
                                     <t t-set="webimage" t-value="new RegExp('image.*(gif|jpeg|jpg|png|webp)').test(record.mimetype.value)"/>
-                                    <div t-if="record.type.raw_value == 'url'" class="fa fa-link fa-3x text-muted" aria-label="Image is a link"/>
+                                    <div t-if="record.type.raw_value == 'url'" class="oi oi-3x text-muted" data-icon="link" aria-label="Image is a link"/>
                                     <img t-elif="webimage" t-attf-src="/web/image/#{record.id.raw_value}" width="100" height="100" alt="Document" class="o_attachment_image"/>
                                     <div t-else="!webimage" class="o_image o_image_thumbnail" t-att-data-mimetype="record.mimetype.value"/>
                                 </div>
@@ -160,7 +159,7 @@
                                     <field name="name" class="text-truncate fw-bold fs-5"/>
                                     <div class="d-flex flex-grow-1 align-items-center">
                                         <t t-if="record.type.raw_value == 'url'">
-                                            <i class="fa fa-globe" aria-label="Document url"/> <field name="url" widget="url"/>
+                                            <i class="oi" data-icon="public" aria-label="Document url"/> <field name="url" widget="url"/>
                                         </t>
                                     </div>
                                     <div class="d-flex">
@@ -172,6 +171,16 @@
                         </t>
                     </templates>
                 </kanban>
+            </field>
+        </record>
+        <record id="ir_attachment_view_list" model="ir.ui.view">
+            <field name="name">ir.attachment.list.inherit.mail</field>
+            <field name="model">ir.attachment</field>
+            <field name="inherit_id" ref="base.view_attachment_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//list" position="attributes">
+                    <attribute name="js_class">ir_attachment_list</attribute>
+                </xpath>
             </field>
         </record>
         <record id="base.action_attachment" model="ir.actions.act_window">

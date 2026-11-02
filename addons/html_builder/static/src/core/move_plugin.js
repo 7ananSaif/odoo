@@ -10,14 +10,21 @@ import { isElementInViewport } from "@html_builder/utils/utils";
 import { scrollTo } from "@html_builder/utils/scrolling";
 import { localization } from "@web/core/l10n/localization";
 
-/** @typedef {import("plugins").CSSSelector} CSSSelector */
+/**
+ * @typedef {import("plugins").CSSSelector} CSSSelector
+ * @typedef {import("@html_builder/core/drag_and_drop_plugin").DragState} DragState
+ */
 /**
  * @typedef {{
  *     selector: CSSSelector;
  *     exclude?: CSSSelector;
  *     direction: "horizontal" | "vertical";
  *     noScroll?: boolean;
- * }[]} is_movable_selector
+ * }[]} is_movable_selectors
+ * @typedef {((arg: {
+ *      movedEl: HTMLElement,
+ *      dragState: DragState,
+ * }) => void)[]} on_element_arrow_moved_handlers
  */
 export class MovePlugin extends Plugin {
     static id = "move";
@@ -31,7 +38,7 @@ export class MovePlugin extends Plugin {
         on_cloned_handlers: this.onCloned.bind(this),
         on_will_remove_handlers: this.onWillRemove.bind(this),
         on_element_dropped_handlers: this.onElementDropped.bind(this),
-        is_movable_selector: [
+        is_movable_selectors: [
             {
                 selector: "section, .s_showcase .row .row:not(.s_col_no_resize) > div",
                 direction: "vertical",
@@ -56,7 +63,7 @@ export class MovePlugin extends Plugin {
         const horizontalSelector = [];
         const horizontalExclude = [];
         const noScrollSelector = [];
-        for (const movableSelector of this.getResource("is_movable_selector")) {
+        for (const movableSelector of this.getResource("is_movable_selectors")) {
             const { selector, exclude, direction, noScroll } = movableSelector;
             if (selector) {
                 const selectors = direction === "vertical" ? verticalSelector : horizontalSelector;
@@ -150,7 +157,8 @@ export class MovePlugin extends Plugin {
             if (previousSiblingEl) {
                 const direction = isVertical ? "up" : reverseButtons ? "right" : "left";
                 const button = {
-                    class: `fa fa-fw fa-angle-${direction}`,
+                    class: "oi oi-fw fw-bolder",
+                    icon: `keyboard_arrow_${direction}`,
                     title: isVertical
                         ? _t("Move up")
                         : this.isEditableRTL
@@ -164,7 +172,8 @@ export class MovePlugin extends Plugin {
             if (nextSiblingEl) {
                 const direction = isVertical ? "down" : reverseButtons ? "left" : "right";
                 const button = {
-                    class: `fa fa-fw fa-angle-${direction}`,
+                    class: "oi oi-fw fw-bolder",
+                    icon: `keyboard_arrow_${direction}`,
                     title: isVertical
                         ? _t("Move down")
                         : this.isEditableRTL
@@ -245,6 +254,9 @@ export class MovePlugin extends Plugin {
      * @param {String} direction "prev" or "next"
      */
     onMoveClick(direction) {
+        const dragState = {};
+        dragState.originPreviousEl = this.overlayTarget.previousElementSibling;
+        dragState.originNextEl = this.overlayTarget.nextElementSibling;
         const isMobile = this.config.isMobileView(this.overlayTarget);
         let hasMobileOrder = !!this.overlayTarget.style.order;
         const parentEl = this.overlayTarget.parentNode;
@@ -279,6 +291,10 @@ export class MovePlugin extends Plugin {
                 this.overlayTarget
             );
         }
+        this.trigger("on_element_arrow_moved_handlers", {
+            movedEl: this.overlayTarget,
+            dragState,
+        });
 
         // Scroll to the element.
         if (!this.noScroll && !isElementInViewport(this.overlayTarget)) {

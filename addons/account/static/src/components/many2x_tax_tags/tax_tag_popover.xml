@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="account.tax_tag_popover_template">
+        <div class="mw-100">
+            <div class="o_tax_tag_popover_header popover-header d-flex justify-content-between align-items-center gap-2">
+                <span class="fw-bold">Tax Distribution</span>
+                <button type="button" class="btn-close" t-on-click="this.props.close" tabindex="-1"/>
+            </div>
+
+            <div class="p-2 o_invoice_tax_summary">
+
+                <span t-if="this.props.description" class="text-capitalize d-block fs-6 mb-2" t-out="this.props.description"/>
+
+                <t t-set="tagRows" t-value="this.rows"/>
+                <t t-set="types" t-value="this.getTypes(tagRows)"/>
+                <table class="fs-6">
+                    <tbody>
+                        <tr t-foreach="tagRows" t-as="row" t-key="row_index">
+                            <th class="fw-bold text-nowrap py-1" t-out="row.label"/>
+                            <td t-foreach="types" t-as="type" t-key="type" class="ps-4 py-1">
+                                <t t-if="row[type]">
+                                    <span t-if="type == 'base'" class="text-muted me-1">Base</span>
+                                    <span t-else="" class="text-muted me-1">Tax</span>
+                                    <span class="font-monospace" t-out="row[type]"/>
+                                </t>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </t>
+
+</templates>

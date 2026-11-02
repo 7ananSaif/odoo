@@ -2,6 +2,8 @@
 
 import re
 
+from odoo import Command
+from odoo.tests.common import TransactionCase
 from odoo.addons.mail.tests.common import mail_new_test_user
 from odoo.addons.product.tests.common import ProductVariantsCommon
 
@@ -36,6 +38,12 @@ class TestStockCommon(ProductVariantsCommon):
     references instead of obtaining global objects on their own. That's because,
     in the future, stock tests will be using a dedicated set of test data.
     """
+    _test_user_groups = (
+        'product.group_product_manager',  # FIXME: use base.group_user
+    )
+
+    _test_user_name = 'Test Product Manager'
+
     def _create_move(self, product, src_location, dst_location, **values):
         # TDE FIXME: user as parameter
         Move = self.env['stock.move'].with_user(self.user_stock_manager)
@@ -48,6 +56,30 @@ class TestStockCommon(ProductVariantsCommon):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.company = cls.env['res.company'].create({
+            'name': 'Stock Tests Company',
+        })
+        # Some models use env.company in various methods, so we make sure they will find the stock company
+        cls.env = cls.env(context=dict(cls.env.context, allowed_company_ids=[cls.company.id]))
+        cls.env.ref('base.user_admin').company_ids |= cls.company
+        # The restricted test_user (see BaseCommon) is only a member of the main
+        # company; the tests here run in cls.company, so grant it access too.
+        if cls._test_user:
+            cls._test_user.company_ids |= cls.company
+
+        cls.env.company.resource_calendar_id = cls.env['resource.calendar'].create({
+            'attendance_ids': [
+                (0, 0,
+                    {
+                        'dayofweek': weekday,
+                        'hour_from': hour,
+                        'hour_to': hour + 4,
+                    })
+                for weekday in ['0', '1', '2', '3', '4']
+                for hour in [8, 13]
+            ],
+            'name': 'Standard 40h/week',
+        })
 
         # Product environment related data
         cls.uom_dunit = cls.env['uom.uom'].create({
@@ -80,13 +112,20 @@ class TestStockCommon(ProductVariantsCommon):
         cls.StockLocationObj = cls.env['stock.location']
 
         # Warehouses
-        cls.warehouse_1 = cls.env['stock.warehouse'].create({
+        cls.warehouse_1 = cls.env['stock.warehouse'].search([('company_id', '=', cls.company.id)], limit=1)
+        cls.warehouse_1.write({
             'name': 'Base Warehouse',
             'reception_steps': 'one_step',
             'delivery_steps': 'ship_only',
             'code': 'BWH',
             'sequence': 5,
         })
+        # Some tests depend on additional warehouse setup
+        cls.warehouse_1.write(cls.warehouse_1._create_or_update_sequences_and_picking_types())
+        cls.env['res.config.settings'].create({
+            'group_stock_multi_locations': True,
+        }).execute()
+
         cls.route_mto = cls.warehouse_1.mto_pull_id.route_id
         cls.route_mto.rule_ids.procure_method = "make_to_order"
 
@@ -94,12 +133,12 @@ class TestStockCommon(ProductVariantsCommon):
         cls.picking_type_in = cls.warehouse_1.in_type_id
         cls.picking_type_int = cls.warehouse_1.int_type_id
         cls.picking_type_out = cls.warehouse_1.out_type_id
+        cls.picking_type_store = cls.warehouse_1.store_type_id
         cls.picking_type_out.reservation_method = 'manual'
 
         cls.stock_location = cls.warehouse_1.lot_stock_id
-        cls.scrap_location = cls.StockLocationObj.search([
-            ('company_id', '=', cls.warehouse_1.company_id.id), ('usage', '=', 'inventory')
-        ], limit=1)
+        cls.view_location = cls.warehouse_1.view_location_id
+        cls.scrap_location = cls.warehouse_1.company_id.scrap_location_id
         cls.shelf_1, cls.shelf_2 = cls.StockLocationObj.create([{
             'name': 'Shelf 1',
             'location_id': cls.stock_location.id,
@@ -115,6 +154,7 @@ class TestStockCommon(ProductVariantsCommon):
         output_location.active = True
         cls.output_location = output_location
 
+        cls.input_location = cls.warehouse_1.wh_input_stock_loc_id
         cls.supplier_location = cls.quick_ref('stock.stock_location_suppliers')
         cls.customer_location = cls.quick_ref('stock.stock_location_customers')
         cls.inter_company_location = cls.quick_ref('stock.stock_location_inter_company')
@@ -179,6 +219,14 @@ class TestStockCommon(ProductVariantsCommon):
     def url_extract_rec_id_and_model(self, url):
         # Extract model and record ID
         action_match = re.findall(r'action-([^/]+)', url)
-        model_name = self.env.ref(action_match[0]).res_model
+        model_name = self.env.ref(action_match[0]).sudo().res_model
         rec_id = re.findall(r'/(\d+)$', url)[0]
         return rec_id, model_name
+
+
+class TestStockBatchCommon(TransactionCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        # Enable batch picking setting.
+        cls.env.user.write({'group_ids': [Command.link(cls.env.ref('stock.group_stock_picking_batch').id)]})

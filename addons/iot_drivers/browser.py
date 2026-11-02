@@ -77,8 +77,8 @@ class Browser:
         subprocess.Popen(
             [
                 self.browser,
-                self.url,
                 *browser_args,
+                self.url,
             ],
             env=self.env,
         )

@@ -1,20 +1,54 @@
 import { _t } from "@web/core/l10n/translation";
 import { patch } from "@web/core/utils/patch";
-import { PhoneField, phoneField, formPhoneField } from "@web/views/fields/phone/phone_field";
-import { SendSMSButton } from '@sms/components/sms_button/sms_button';
+import { useService } from "@web/core/utils/hooks";
+import { user } from "@web/core/user";
+import { t } from "@odoo/owl";
+import { PhoneField, phoneField, phoneFieldProps } from "@web/views/fields/phone/phone_field";
 
-patch(PhoneField, {
-    components: {
-        ...PhoneField.components,
-        SendSMSButton
+Object.assign(phoneFieldProps, {
+    enableButton: t.boolean().optional(true),
+});
+patch(PhoneField.prototype, {
+    setup() {
+        super.setup();
+        this.action = useService("action");
     },
-    defaultProps: {
-        ...PhoneField.defaultProps,
-        enableButton: true,
-    },
-    props: {
-        ...PhoneField.props,
-        enableButton: { type: Boolean, optional: true },
+    get actionButtons() {
+        if (!this.props.enableButton || !this.value) {
+            return super.actionButtons;
+        }
+        return [
+            ...super.actionButtons,
+            {
+                icon: "chat_bubble",
+                onSelected: async () => {
+                    await this.props.record.save();
+                    this.action.doAction(
+                        {
+                            type: "ir.actions.act_window",
+                            target: "new",
+                            name: _t("Send SMS"),
+                            res_model: "sms.composer",
+                            views: [[false, "form"]],
+                            context: {
+                                ...user.context,
+                                default_res_model: this.props.record.resModel,
+                                default_res_id: this.props.record.resId,
+                                default_number_field_name: this.props.name,
+                                default_composition_mode: "comment",
+                                dialog_size: "medium",
+                            },
+                        },
+                        {
+                            onClose: () => {
+                                this.props.record.load();
+                            },
+                        }
+                    );
+                },
+                name: _t("SMS"),
+            },
+        ];
     },
 });
 
@@ -33,4 +67,3 @@ const patchDescr = () => ({
 });
 
 patch(phoneField, patchDescr());
-patch(formPhoneField, patchDescr());

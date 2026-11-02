@@ -1,107 +1,191 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-
 import odoo.tests
-from odoo.addons.point_of_sale.tests.common_setup_methods import setup_product_combo_items
 from odoo.addons.pos_self_order.tests.self_order_common_test import SelfOrderCommonTest
-from odoo import Command
 from odoo.exceptions import UserError
 
 
 @odoo.tests.tagged("post_install", "-at_install")
 class TestSelfOrderCommon(SelfOrderCommonTest):
-    def test_self_order_common(self):
-        self.pos_config.write({
-            'self_ordering_default_user_id': self.pos_admin.id,
-            'self_ordering_mode': 'kiosk',
-            'self_ordering_pay_after': 'each',
-            'self_ordering_service_mode': 'table',
-            'available_preset_ids': [(5, 0)],
-        })
-
-        self.pos_admin.group_ids += self.env.ref('account.group_account_invoice')
-        self_route = self.pos_config._get_self_order_route()
-
-        # Verify behavior when self Order is closed
-        self.start_tour(self_route, "self_order_is_close")
-
-    def test_self_order_consultation_open(self):
-        """Verify than when the pos is open and self ordering is set to consultation the banner isn't shown"""
-        self.pos_config.write({'self_ordering_mode': 'consultation'})
-
-        self_route = self.pos_config._get_self_order_route()
-
-        # Verify behavior when self Order is opened
-        self.pos_config.with_user(self.pos_user).open_ui()
-        self.pos_config.current_session_id.set_opening_control(0, "")
-        self.start_tour(self_route, "self_order_is_open_consultation")
-
-    def test_self_order_pos_landing_page_carousel(self):
-        for mode in ("mobile", "consultation", "kiosk"):
-            self.pos_config.write({"self_ordering_mode": mode})
-            self.start_tour(self.pos_config._get_self_order_route(), "self_order_landing_page_carousel")
-
-    def test_self_order_pos_closed(self):
-        """
-        Verify than when the pos is closed and self ordering is set to mobile, consultation or kiosk,
-        we can see the attributes of a product or the choices of a combo
-        """
-        setup_product_combo_items(self)
-        self.env["product.combo.item"].create({
-            "product_id": self.desk_organizer.id,
-            "extra_price": 0,
-            "combo_id": self.desk_accessories_combo.id,
-        })
-
-        for mode in ("mobile", "consultation"):
-            self.pos_config.write({"self_ordering_mode": mode})
-            # The returned route depend of the pos_config mode
-            self_route = self.pos_config._get_self_order_route()
-            self.start_tour(self_route, "self_order_pos_closed")
-
-        # Kiosk test
-        self.pos_config.write({"self_ordering_mode": "kiosk"})
-        self_route = self.pos_config._get_self_order_route()
-        self.start_tour(self_route, "kiosk_order_pos_closed")
-
     def test_self_order_config_default_user(self):
-        self.pos_config.payment_method_ids = self.pos_config.payment_method_ids.filtered(lambda pm: not pm.is_cash_count)
+        self.pos_config.payment_method_ids = self.pos_config.payment_method_ids.filtered(lambda pm: pm.type != 'cash')
         for mode in ("mobile", "consultation", "kiosk"):
             self.pos_config.write({"self_ordering_mode": mode})
             with self.assertRaises(UserError):
                 self.pos_config.write({"self_ordering_default_user_id": False})
 
-    def test_self_order_product_availability(self):
-        """Test product visibility and cart behavior for kiosk and mobile self-ordering modes."""
-        setup_product_combo_items(self)
+    def test_self_order_products_sorting_order(self):
+        """Test self order products sorting order should follow: favorite, pos_sequence, name"""
 
-        # Remove all combo items except desks_combo
-        self.office_combo.write({
-            "combo_ids": [
-                Command.unlink(c.id)
-                for c in self.office_combo.combo_ids
-                if c.id != self.desks_combo.id
-            ],
-        })
-        floor = self.env["restaurant.floor"].create({
-            "name": 'Main Floor',
-            "background_color": 'rgb(249,250,251)',
-            "table_ids": [(0, 0, {
-                "table_number": 1,
-            })],
-        })
+        products_data = [
+            # product, is_favorite, pos_sequence
+            (self.cola, False, 20),
+            (self.desk_organizer, True, 20),
+            (self.ketchup, False, 5),
+            (self.fanta, False, 10),
+            (self.free, True, 10),
+        ]
 
-        # --- Kiosk Mode Tour ---
+        for product, is_favorite, pos_sequence in products_data:
+            product.write({
+                'is_favorite': is_favorite,
+                'pos_sequence': pos_sequence
+            })
+
+        for mode in ('mobile', 'kiosk', 'consultation'):
+            self.pos_config.write({'self_ordering_mode': mode})
+            self.start_tour(self.pos_config._get_self_order_route(), 'test_self_order_products_sorting_order')
+
+    # --- _get_self_order_route ----------------------------------------------------------
+
+    def _create_order(self, **kwargs):
+        vals = {
+            'session_id': self.pos_config.current_session_id.id,
+            'amount_total': 0.0,
+            'amount_tax': 0.0,
+            'amount_return': 0.0,
+            'amount_paid': 0.0,
+            'preset_id': self.in_preset.id,
+        }
+        vals.update(kwargs)
+        return self.env['pos.order'].create(vals)
+
+    def test_get_self_order_route_consultation(self):
+        self.pos_config.write({
+            'self_ordering_mode': 'consultation',
+            'self_ordering_pay_after': 'each',
+        })
+        self.pos_config.with_user(self.pos_user).open_ui()
+        self.pos_config.current_session_id.set_opening_control(0, '')
+
+        route = self.pos_config._get_self_order_route(table_id=self.pos_table_1.id)
+        self.assertEqual(route, f"/pos-self/{self.pos_config.id}")
+
+        order = self._create_order()
+        route = self.pos_config._get_self_order_route(order=order)
+        self.assertEqual(route, f"/pos-self/{self.pos_config.id}")
+
+    def test_get_self_order_route_mobile(self):
+        self.pos_config.write({
+            'self_ordering_mode': 'mobile',
+            'self_ordering_pay_after': 'each',
+        })
+        self.pos_config.with_user(self.pos_user).open_ui()
+        self.pos_config.current_session_id.set_opening_control(0, '')
+
+        route = self.pos_config._get_self_order_route()
+        self.assertEqual(
+            route,
+            f"/pos-self/{self.pos_config.id}?access_token={self.pos_config.access_token}",
+        )
+
+        route = self.pos_config._get_self_order_route(table_id=self.pos_table_1.id)
+        self.assertEqual(
+            route,
+            f"/pos-self/{self.pos_config.id}"
+            f"?access_token={self.pos_config.access_token}"
+            f"&table_identifier={self.pos_table_1.identifier}",
+        )
+
+        order = self._create_order()
+        route = self.pos_config._get_self_order_route(order=order)
+        self.assertEqual(
+            route,
+            f"/pos-self/{self.pos_config.id}"
+            f"?access_token={self.pos_config.access_token}"
+            f"&order_identifier={order.access_token}",
+        )
+
+    def test_get_self_order_route_kiosk(self):
         self.pos_config.write({
             'self_ordering_mode': 'kiosk',
             'self_ordering_pay_after': 'each',
-            'self_ordering_service_mode': 'table',
         })
         self.pos_config.with_user(self.pos_user).open_ui()
-        self.pos_config.current_session_id.set_opening_control(0, "")
-        self.start_tour(self.pos_config._get_self_order_route(), "test_self_order_kiosk_product_availability")
+        self.pos_config.current_session_id.set_opening_control(0, '')
 
-        # --- Mobile Mode Tour ---
+        route = self.pos_config._get_self_order_route(table_id=self.pos_table_1.id)
+        self.assertEqual(
+            route,
+            f"/pos-self/{self.pos_config.id}?access_token={self.pos_config.access_token}",
+        )
+
+        order = self._create_order()
+        route = self.pos_config._get_self_order_route(order=order)
+        self.assertEqual(
+            route,
+            f"/pos-self/{self.pos_config.id}?access_token={self.pos_config.access_token}",
+        )
+
+    # --- get_dynamic_qr_url ----------------------------------------------------------
+
+    def test_get_dynamic_qr_url(self):
         self.pos_config.write({
             'self_ordering_mode': 'mobile',
+            'self_ordering_pay_after': 'meal',
+            'self_ordering_service_mode': 'dynamic_qr',
         })
-        self.start_tour(self.pos_config._get_self_order_route(floor.table_ids[0].id), "test_self_order_product_availability")
+        self.pos_config.with_user(self.pos_user).open_ui()
+        self.pos_config.current_session_id.set_opening_control(0, '')
+        order = self._create_order(table_id=self.pos_table_1.id)
+
+        # Normal case
+        url = self.pos_config.get_dynamic_qr_url(order.id)
+        self.assertEqual(
+            url,
+            self.pos_config.get_base_url() + f"/pos-self/{self.pos_config.id}"
+            f"?access_token={self.pos_config.access_token}"
+            f"&order_identifier={order.access_token}",
+        )
+
+        # Wrong mode.
+        self.pos_config.self_ordering_mode = 'consultation'
+        self.assertFalse(self.pos_config.get_dynamic_qr_url(order.id))
+        self.pos_config.self_ordering_mode = 'mobile'
+
+        # Unknown order id.
+        self.assertFalse(self.pos_config.get_dynamic_qr_url(order.id + 100000))
+
+        # Order belongs to a different config.
+        other_config = self.env['pos.config'].create({'name': 'Other config'})
+        order.config_id = other_config.id
+        self.assertFalse(self.pos_config.get_dynamic_qr_url(order.id))
+        order.config_id = self.pos_config.id
+
+        # Preset not table service.
+        order.preset_id = self.out_preset.id
+        self.assertFalse(self.pos_config.get_dynamic_qr_url(order.id))
+
+        # No preset at all is still valid.
+        order.preset_id = False
+        self.assertTrue(self.pos_config.get_dynamic_qr_url(order.id))
+
+        # Order no longer draft.
+        order.state = 'paid'
+        self.assertFalse(self.pos_config.get_dynamic_qr_url(order.id))
+
+    def test_get_orders_unknown_table_identifier(self):
+        """An identifier matching no table must not return tableless draft orders."""
+        self.pos_config.write({
+            'self_ordering_mode': 'mobile',
+            'self_ordering_service_mode': 'table',
+            'self_ordering_pay_after': 'meal',
+        })
+        self.pos_config.with_user(self.pos_user).open_ui()
+        session = self.pos_config.current_session_id
+        session.set_opening_control(0, "")
+
+        self.env['pos.order'].create({
+            'session_id': session.id,
+            'company_id': self.pos_config.company_id.id,
+            'amount_tax': 0,
+            'amount_total': 0,
+            'amount_paid': 0,
+            'amount_return': 0,
+        })
+
+        result = self.make_jsonrpc_request('/pos-self-order/get-user-data', {
+            'access_token': self.pos_config.access_token,
+            'order_access_tokens': [],
+            'table_identifier': 'unknown',
+            })
+        self.assertEqual(result, {})

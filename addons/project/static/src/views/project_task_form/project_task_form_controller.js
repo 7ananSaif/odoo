@@ -2,7 +2,8 @@ import { _t } from "@web/core/l10n/translation";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { HistoryDialog } from "@html_editor/components/history_dialog/history_dialog";
 import { useService } from '@web/core/utils/hooks';
-import { markup, useEffect } from "@odoo/owl";
+import { markup, onMounted, useProps, t } from "@odoo/owl";
+import { formControllerProps } from "@web/views/form/form_controller";
 import { FormControllerWithHTMLExpander } from '@resource/views/form_with_html_expander/form_controller_with_html_expander';
 import { getHtmlFieldMetadata, setHtmlFieldMetadata } from "@html_editor/fields/html_field";
 
@@ -16,40 +17,22 @@ Are you sure you want to proceed?`
 );
 
 export class ProjectTaskFormController extends FormControllerWithHTMLExpander {
-    static template = "project.ProjectTaskFormView";
     static components = {
         ...FormControllerWithHTMLExpander.components,
         ProjectTaskTemplateDropdown,
     };
 
-    static props = {
-        ...FormControllerWithHTMLExpander.props,
-        focusTitle: {
-            type: Boolean,
-            optional: true,
-        },
-    };
-    static defaultProps = {
-        ...FormControllerWithHTMLExpander.defaultProps,
-        focusTitle: false,
-    };
+    props = useProps({
+        ...formControllerProps,
+        focusTitle: t.boolean().optional(false),
+    });
 
     setup() {
         super.setup();
         this.notifications = useService("notification");
 
         if (this.props.focusTitle) {
-            useEffect(
-                () => {
-                    if (this.rootRef) {
-                        const title = this.rootRef.el.querySelector("#name_0");
-                        if (title) {
-                            title.focus();
-                        }
-                    }
-                },
-                () => []
-            );
+            onMounted(() => this.rootRef().querySelector("#name_0")?.focus());
         }
     }
 
@@ -61,7 +44,7 @@ export class ProjectTaskFormController extends FormControllerWithHTMLExpander {
             ...super.getStaticActionMenuItems(),
             openHistoryDialog: {
                 sequence: 15,
-                icon: "fa fa-history",
+                icon: "history",
                 description: _t("Version History"),
                 callback: () => this.openHistoryDialog(),
             },

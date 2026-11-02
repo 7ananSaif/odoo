@@ -1,14 +1,13 @@
 import { Plugin } from "@html_editor/plugin";
+import { CARD_PARENT_HANDLERS } from "./utils";
 
 /** @typedef {import("plugins").CSSSelector} CSSSelector */
 /**
- * @typedef {CSSSelector[]} so_content_addition_selector
- * @typedef {CSSSelector[]} so_snippet_addition_selector
+ * @typedef {CSSSelector[]} so_content_addition_selectors
+ * @typedef {CSSSelector[]} so_snippet_addition_selectors
  */
 
-const card_parent_handlers =
-    ".s_three_columns .row > div, .s_comparisons .row > div, .s_cards_grid .row > div, .s_cards_soft .row > div, .s_product_list .row > div, .s_newsletter_centered .row > div, .s_company_team_spotlight .row > div, .s_comparisons_horizontal .row > div, .s_company_team_grid .row > div, .s_company_team_card .row > div, .s_carousel_cards_item";
-const special_cards_selector = `.s_card.s_timeline_card, div:is(${card_parent_handlers}) > .s_card`;
+const special_cards_selector = `.s_card.s_timeline_card, div:is(${CARD_PARENT_HANDLERS}) > .s_card`;
 
 const so_snippet_addition_drop_in =
     ":not(p).oe_structure:not(.oe_structure_solo), :not(.o_mega_menu):not(p)[data-oe-type=html], :not(p).oe_structure.oe_structure_solo:not(:has(> section:not(.s_snippet_group), > div:not(.o_hook_drop_zone)))";
@@ -16,10 +15,10 @@ const so_snippet_addition_drop_in =
 // TODO need to split by addons
 
 export class DropZoneSelectorPlugin extends Plugin {
-    static id = "dropzone_selector";
+    static id = "dropzone_selectors";
     /** @type {import("plugins").BuilderResources} */
     resources = {
-        dropzone_selector: [
+        dropzone_selectors: [
             {
                 selector: ".accordion > .accordion-item",
                 dropIn: ".accordion:has(> .accordion-item)",
@@ -27,7 +26,7 @@ export class DropZoneSelectorPlugin extends Plugin {
             {
                 plugin: this,
                 get selector() {
-                    return this.plugin.getResource("so_snippet_addition_selector").join(", ");
+                    return this.plugin.getResource("so_snippet_addition_selectors").join(", ");
                 },
                 dropIn: so_snippet_addition_drop_in,
             },
@@ -35,19 +34,19 @@ export class DropZoneSelectorPlugin extends Plugin {
                 plugin: this,
                 get selector() {
                     return [
-                        ...this.plugin.getResource("so_content_addition_selector"),
+                        ...this.plugin.getResource("so_content_addition_selectors"),
                         ".s_card",
                     ].join(", ");
                 },
                 exclude: `${special_cards_selector}`,
-                dropIn: "nav, .row.o_grid_mode",
+                dropIn: "nav, .row.o_grid_mode, .o_drop_inner_empty",
                 get dropNear() {
                     return `p, h1, h2, h3, ul, ol, div:not(.o_grid_item_image) > img, div:not(.o_grid_item_image) > a, .btn, ${this.plugin
-                        .getResource("so_content_addition_selector")
+                        .getResource("so_content_addition_selectors")
                         .join(", ")}, .s_card:not(${special_cards_selector})`;
                 },
-                excludeNearParent: so_snippet_addition_drop_in,
-                excludeAncestor: ".s_image_gallery",
+                excludeNearParent: `${so_snippet_addition_drop_in}, .o_no_direct_child_drop`,
+                excludeAncestor: ".s_image_gallery, .s_map, .s_google_map, .s_website_form_label",
             },
             {
                 selector: ".row > div",
@@ -57,11 +56,10 @@ export class DropZoneSelectorPlugin extends Plugin {
                 excludeAncestor: ".s_image_gallery",
             },
         ],
-        so_snippet_addition_selector: ["section", ".parallax", ".s_hr"],
-        so_content_addition_selector: [
+        so_snippet_addition_selectors: ["section", ".parallax", ".s_hr"],
+        so_content_addition_selectors: [
             "blockquote",
             ".s_text_highlight",
-            ".s_donation", // TODO: move to plugin
             ".o_snippet_drop_in_only",
         ],
     };

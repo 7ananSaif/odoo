@@ -34,50 +34,105 @@ class TestPartner(TransactionCase):
         cls.employees = cls.env['hr.employee'].create([{
             'user_id': user.id,
         } for user in cls.users])
-        cls.leave_type = cls.env['hr.leave.type'].create({
+        cls.work_entry_type = cls.env['hr.work.entry.type'].create({
             'requires_allocation': False,
             'name': 'Legal Leaves',
-            'time_type': 'leave',
-            'responsible_ids': cls.users.ids
+            'code': 'Legal Leaves',
+            'count_as': 'absence',
+            'request_unit': 'day',
+            'unit_of_measure': 'day',
         })
         cls.leaves = cls.env['hr.leave'].create([{
             'request_date_from': "2024-06-03",
             'request_date_to': "2024-06-06",
             'employee_id': cls.employees[0].id,
-            'holiday_status_id': cls.leave_type.id,
+            'work_entry_type_id': cls.work_entry_type.id,
         }, {
             'request_date_from': "2024-06-02",
             'request_date_to': "2024-06-05",
             'employee_id': cls.employees[1].id,
-            'holiday_status_id': cls.leave_type.id,
+            'work_entry_type_id': cls.work_entry_type.id,
         }])
         cls.user_no_hr_access = new_test_user(
             cls.env, login="user_no_hr_access",
         )
 
     @freeze_time('2024-06-04')
-    def test_res_partner_to_store(self):
+    def test_store_add_res_partner(self):
         self.leaves.write({'state': 'validate'})
+        store_1 = Store().add(self.partner, "_store_partner_fields")
         self.assertEqual(
-            Store().add(self.partner).get_result()["hr.employee"][0]["leave_date_to"],
-            "2024-06-07",
-            "Return date is the return date of the main user of the partner",
+            store_1._build_result()["hr.employee"],
+            [
+                {
+                    "active": True,
+                    "company_id": self.env.company.id,
+                    "id": self.employees[0].id,
+                    "leave_date_to": "2024-06-07",
+                    "user_id": self.users[0].id,
+                    "work_location_type": False,
+                },
+                {
+                    "active": True,
+                    "company_id": self.env.company.id,
+                    "id": self.employees[1].id,
+                    "leave_date_to": "2024-06-06",
+                    "user_id": self.users[1].id,
+                    "work_location_type": False,
+                },
+            ],
+            "Each user of the partner gets the return date of its own employee",
         )
         self.leaves[0].action_refuse()
+        store_2 = Store().add(self.partner, "_store_partner_fields")
         self.assertEqual(
-            Store().add(self.partner).get_result()["hr.employee"][0]["leave_date_to"],
-            False,
-            "Partner is not considered out of office if their main user is not on holiday",
+            store_2._build_result()["hr.employee"],
+            [
+                {
+                    "active": True,
+                    "company_id": self.env.company.id,
+                    "id": self.employees[0].id,
+                    "leave_date_to": False,
+                    "user_id": self.users[0].id,
+                    "work_location_type": False,
+                },
+                {
+                    "active": True,
+                    "company_id": self.env.company.id,
+                    "id": self.employees[1].id,
+                    "leave_date_to": "2024-06-06",
+                    "user_id": self.users[1].id,
+                    "work_location_type": False,
+                },
+            ],
+            "A refused leave clears the return date of its own employee",
         )
 
     @freeze_time("2024-06-04")
     @users("user_no_hr_access")
-    def test_res_partner_to_store_no_hr_access(self):
+    def test_store_add_res_partner_no_hr_access(self):
         self.leaves.write({"state": "validate"})
-        data = Store().add(self.partner.with_user(self.user_no_hr_access)).get_result()
+        partner = self.partner.with_user(self.user_no_hr_access)
+        store = Store().add(partner, "_store_partner_fields")
         self.assertEqual(
-            data["hr.employee"][0]["leave_date_to"],
-            "2024-06-07",
-            "Return date is the return date of the main user of the partner, "
-            "even if the user has no access to the company",
+            store._build_result()["hr.employee"],
+            [
+                {
+                    "active": True,
+                    "company_id": self.env.company.id,
+                    "id": self.employees[0].id,
+                    "leave_date_to": "2024-06-07",
+                    "user_id": self.users[0].id,
+                    "work_location_type": False,
+                },
+                {
+                    "active": True,
+                    "company_id": self.env.company.id,
+                    "id": self.employees[1].id,
+                    "leave_date_to": "2024-06-06",
+                    "user_id": self.users[1].id,
+                    "work_location_type": False,
+                },
+            ],
+            "Return dates are sent even to a user with no access to the company",
         )

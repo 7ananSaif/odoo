@@ -2,7 +2,6 @@ from contextlib import contextmanager
 from http import HTTPStatus
 from unittest.mock import patch
 
-from odoo import http
 from odoo.exceptions import UserError
 from odoo.tests import HttpCase, tagged
 from odoo.tools import mute_logger
@@ -18,19 +17,20 @@ class TestCaptcha(HttpCase):
     def patch_captcha_valid(self, validity):
         def _verify_request_recaptcha_token(self, captcha):
             if not validity:
-                raise UserError("CAPTCHA test")
+                e = "CAPTCHA test"
+                raise UserError(e)
         with patch.object(self.env.registry['ir.http'], '_verify_request_recaptcha_token', _verify_request_recaptcha_token):
             yield
 
     def test_post_valid(self):
         with self.patch_captcha_valid(True):
-            res = self.url_open('/web/login', data={'csrf_token': http.Request.csrf_token(self), 'login': '_', 'password': '_'})
+            res = self.url_open('/web/login', data={'csrf_token': self.csrf_token(), 'login': '_', 'password': '_'})
             res.raise_for_status()
 
     @mute_logger('odoo.http')
     def test_post_invalid(self):
         with self.patch_captcha_valid(False):
-            res = self.url_open('/web/login', data={'csrf_token': http.Request.csrf_token(self), 'login': '_', 'password': '_'})
+            res = self.url_open('/web/login', data={'csrf_token': self.csrf_token(), 'login': '_', 'password': '_'})
             self.assertEqual(res.status_code, HTTPStatus.UNPROCESSABLE_ENTITY)
             self.assertIn("CAPTCHA test", res.text)
 

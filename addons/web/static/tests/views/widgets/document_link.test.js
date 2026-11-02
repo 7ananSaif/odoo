@@ -27,28 +27,27 @@ test("documentation_link: default label and icon", async () => {
     });
     expect(".o_doc_link").toHaveText("View Documentation");
     expect("a.alert-link").toHaveCount(0);
-    expect(".o_doc_link .fa-external-link").toHaveCount(1);
+    expect(".o_doc_link [data-icon='open_in_new']").toHaveCount(1);
 });
 
-test("documentationLink: alert-link", async () => {
+test("documentationLink: add alert-link class", async () => {
     await mountView({
         type: "form",
         resModel: "partner",
         arch: /* xml */ `
         <form>
             <field name="bar"/>
-            <widget name="documentation_link" path="/this_is_a_test.html" alert_link="true"/>
+            <widget name="documentation_link" path="/this_is_a_test.html" class="alert-link"/>
         </form>`,
     });
     expect("a.alert-link").toHaveCount(1);
 });
 
-test("DocumentationLink Component: alert-link", async () => {
+test("DocumentationLink Component: add alert-link class", async () => {
     class Parent extends Component {
         static components = { DocumentationLink };
         static template = xml`
-        <DocumentationLink path="'/this_is_a_test.html'" alertLink="true"/>`;
-        static props = ["*"];
+        <DocumentationLink path="'/this_is_a_test.html'" class="'alert-link'"/>`;
     }
     await mountWithCleanup(Parent);
     expect("a.alert-link").toHaveCount(1);
@@ -65,7 +64,7 @@ test("documentation_link: given label", async () => {
         </form>`,
     });
     expect(".o_doc_link").toHaveText("docdoc");
-    expect(".o_doc_link .fa").toHaveCount(0);
+    expect(".o_doc_link .oi").toHaveCount(0);
 });
 
 test("documentation_link: given icon", async () => {
@@ -75,11 +74,11 @@ test("documentation_link: given icon", async () => {
         arch: /* xml */ `
         <form>
             <field name="bar"/>
-            <widget name="documentation_link" path="/this_is_a_test.html" icon="fa-question-circle"/>
+            <widget name="documentation_link" path="/this_is_a_test.html" icon="help"/>
         </form>`,
     });
     expect(".o_doc_link").toHaveText("");
-    expect(".o_doc_link .fa-question-circle").toHaveCount(1);
+    expect(".o_doc_link [data-icon='help']").toHaveCount(1);
 });
 
 test("documentation_link: given label and icon", async () => {
@@ -89,11 +88,11 @@ test("documentation_link: given label and icon", async () => {
         arch: /* xml */ `
         <form>
             <field name="bar"/>
-            <widget name="documentation_link" path="/this_is_a_test.html" label="docdoc" icon="fa-question-circle"/>
+            <widget name="documentation_link" path="/this_is_a_test.html" label="docdoc" icon="help"/>
         </form>`,
     });
     expect(".o_doc_link").toHaveText("docdoc");
-    expect(".o_doc_link .fa-question-circle").toHaveCount(1);
+    expect(".o_doc_link [data-icon='help']").toHaveCount(1);
 });
 
 test("documentation_link: relative path", async () => {

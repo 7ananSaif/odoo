@@ -17,11 +17,11 @@ beforeEach(() => {
             department_id: 11,
             date_from: "2016-10-20 09:00:00",
             date_to: "2016-10-25 18:00:00",
-            holiday_status_id: 55,
+            work_entry_type_id: 55,
             state: "validate",
             number_of_days: 5,
             number_of_hours: 40,
-            leave_type_request_unit: "day",
+            work_entry_type_request_unit: "day",
         },
         {
             id: 13,
@@ -29,11 +29,11 @@ beforeEach(() => {
             department_id: 11,
             date_from: "2016-10-02 09:00:00",
             date_to: "2016-10-02 18:00:00",
-            holiday_status_id: 55,
+            work_entry_type_id: 55,
             state: "validate",
             number_of_days: 1,
             number_of_hours: 8,
-            leave_type_request_unit: "day",
+            work_entry_type_request_unit: "day",
         },
         {
             id: 14,
@@ -41,11 +41,11 @@ beforeEach(() => {
             department_id: 11,
             date_from: "2016-10-15 09:00:00",
             date_to: "2016-10-21 18:00:00",
-            holiday_status_id: 55,
+            work_entry_type_id: 55,
             state: "confirm",
             number_of_days: 8,
             number_of_hours: 64,
-            leave_type_request_unit: "day",
+            work_entry_type_request_unit: "day",
         },
         {
             id: 15,
@@ -53,11 +53,11 @@ beforeEach(() => {
             department_id: 11,
             date_from: "2016-10-05 10:00:00",
             date_to: "2016-10-05 11:00:00",
-            holiday_status_id: 65,
+            work_entry_type_id: 65,
             state: "validate",
             number_of_days: 0,
             number_of_hours: 1,
-            leave_type_request_unit: "hour",
+            work_entry_type_request_unit: "hour",
         },
         {
             id: 16,
@@ -65,11 +65,11 @@ beforeEach(() => {
             department_id: 11,
             date_from: "2016-09-11 09:00:00",
             date_to: "2016-09-12 18:00:00",
-            holiday_status_id: 55,
+            work_entry_type_id: 55,
             state: "validate",
             number_of_days: 2,
             number_of_hours: 16,
-            leave_type_request_unit: "day",
+            work_entry_type_request_unit: "day",
         },
         {
             id: 17,
@@ -77,16 +77,53 @@ beforeEach(() => {
             department_id: 11,
             date_from: "2016-10-16 09:00:00",
             date_to: "2016-10-16 11:00:00",
-            holiday_status_id: 65,
+            work_entry_type_id: 65,
             state: "validate",
             number_of_days: 0,
             number_of_hours: 2,
-            leave_type_request_unit: "hour",
+            work_entry_type_request_unit: "hour",
         },
     ];
 });
 
 test("leave stats render correctly", async () => {
+    onRpc(({ method, model }) => {
+        if (model === "hr.work.entry.type" && method === "get_allocation_data_request") {
+            return [
+                [
+                    "Legal Leave",
+                    {
+                        leaves_approved: 2,
+                        max_leaves: 20,
+                        remaining_leaves: 18,
+                        unit_of_measure: "day",
+                        color: 1,
+                    },
+                    false,
+                    55,
+                ],
+                [
+                    "Unpaid Leave",
+                    {
+                        leaves_approved: 1,
+                        max_leaves: 5,
+                        remaining_leaves: 4,
+                        unit_of_measure: "hour",
+                        color: 2,
+                    },
+                    false,
+                    65,
+                ],
+            ];
+        }
+        if (model === "hr.work.entry.type" && method === "search_read") {
+            return [
+                { id: 55, color: 1 },
+                { id: 65, color: 2 },
+            ];
+        }
+    });
+
     await mountView({
         type: "form",
         resModel: "hr.leave",
@@ -103,26 +140,36 @@ test("leave stats render correctly", async () => {
 
     const individualLeaves = queryOne(".o_leave_stats #o_leave_stats_employee");
     const DepartmentLeaves = queryOne(".o_leave_stats #o_leave_stats_department");
+
     // Displays leaves with the correct unit
-    expect(queryAll("span:contains(Legal Leave)", { root: individualLeaves })).toHaveCount(1);
-    expect(queryAll("span:contains(2 days)", { root: individualLeaves })).toHaveCount(1);
-    expect(queryAll("span:contains(Unpaid Leave)", { root: individualLeaves })).toHaveCount(1);
-    expect(queryAll("span:contains(01:00 hours)", { root: individualLeaves })).toHaveCount(1);
+    expect(individualLeaves).toBeVisible();
+    expect(queryAll("p.fw-bold:contains(Legal Leave)", { root: individualLeaves })).toHaveCount(1);
+    expect(queryAll("p:contains(2)", { root: individualLeaves })).toHaveCount(1);
+    expect(queryAll("p.fw-bold:contains(Unpaid Leave)", { root: individualLeaves })).toHaveCount(1);
+    expect(queryAll("p.mb-2:not(.text-muted):contains(1)", { root: individualLeaves })).toHaveCount(
+        1
+    );
 
     // Displays all leaves for that department
-    expect(queryAll("span:contains(Richard)", { root: DepartmentLeaves })).toHaveCount(2);
-    expect(queryAll("span:contains(10/16/2016)", { root: DepartmentLeaves })).toHaveCount(1);
-    expect(queryAll("span:contains(02:00 hours)", { root: DepartmentLeaves })).toHaveCount(1);
-    expect(queryAll("span:contains(10/20/2016)", { root: DepartmentLeaves })).toHaveCount(1);
-    expect(queryAll("span:contains(10/25/2016)", { root: DepartmentLeaves })).toHaveCount(1);
-
+    expect(DepartmentLeaves).toBeVisible();
+    expect(queryAll("h4:contains(Overlaps)", { root: DepartmentLeaves })).toHaveCount(1);
     expect(
-        queryAll("div.o_horizontal_separator:contains(R&D)", { root: DepartmentLeaves })
+        queryAll("p:contains(team members on holiday during this period)", {
+            root: DepartmentLeaves,
+        })
     ).toHaveCount(1);
+    expect(queryAll("a:contains(View Overlaps)", { root: DepartmentLeaves })).toHaveCount(1);
 });
 
 test("leave stats reload when employee/department changes", async () => {
     onRpc(({ args, kwargs, method, model }) => {
+        if (model === "hr.work.entry.type" && method === "get_allocation_data_request") {
+            return [];
+        }
+        if (model === "hr.work.entry.type" && method === "search_read") {
+            return [];
+        }
+
         if (
             model === "hr.leave" &&
             method === "search_read" &&

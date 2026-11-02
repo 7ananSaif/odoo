@@ -1,8 +1,6 @@
 import {
-    Deferred,
     animationFrame,
     click,
-    edit,
     expect,
     mockDate,
     mockTimeZone,
@@ -14,11 +12,7 @@ import {
     test,
     waitFor,
 } from "@odoo/hoot";
-import {
-    assertDateTimePicker,
-    getPickerCell,
-    zoomOut,
-} from "@web/../tests/core/datetime/datetime_test_helpers";
+import { getPickerCell, zoomOut } from "@web/../tests/core/datetime/datetime_test_helpers";
 import {
     clickSave,
     contains,
@@ -29,8 +23,10 @@ import {
     models,
     mountView,
     onRpc,
+    patchWithCleanup,
     serverState,
 } from "@web/../tests/web_test_helpers";
+import { localization } from "@web/core/l10n/localization";
 
 class Partner extends models.Model {
     _name = "res.partner";
@@ -62,7 +58,8 @@ class Partner extends models.Model {
 
 defineModels([Partner]);
 
-test("toggle datepicker", async () => {
+test.tags("desktop");
+test("toggle datepicker on desktop", async () => {
     await mountView({ type: "form", resModel: "res.partner", resId: 1 });
 
     expect(".o_datetime_picker").toHaveCount(0);
@@ -74,10 +71,23 @@ test("toggle datepicker", async () => {
     expect(".o_datetime_picker").toHaveCount(0);
 });
 
+test.tags("mobile");
+test("toggle datepicker on mobile", async () => {
+    await mountView({ type: "form", resModel: "res.partner", resId: 1 });
+
+    expect(".o_datetime_picker").toHaveCount(0);
+    await contains(".o_field_date button").click();
+    await animationFrame();
+    expect(".o_datetime_picker").toHaveCount(1);
+
+    await contains(".o_bottom_sheet_backdrop").click();
+    expect(".o_datetime_picker").toHaveCount(0);
+});
+
 test("datepicker is automatically closed after selecting a value", async () => {
     Partner._onChanges.date = () => {};
-    const def = new Deferred();
-    onRpc("onchange", () => def);
+    const def = Promise.withResolvers();
+    onRpc("onchange", () => def.promise);
 
     await mountView({ type: "form", resModel: "res.partner", resId: 1 });
 
@@ -114,53 +124,24 @@ test("Ensure only one datepicker is open", async () => {
 });
 
 test.tags("desktop");
-test("open datepicker on Control+Enter", async () => {
-    defineParams({
-        lang_parameters: {
-            date_format: "%d/%m/%Y",
-            time_format: "%H:%M:%S",
-        },
-    });
-    await mountView({
-        resModel: "res.partner",
-        type: "form",
-        arch: `
-            <form>
-                <field name="date"/>
-            </form>
-        `,
-    });
+test("pressing Escape discards the edited value", async () => {
+    await mountView({ type: "form", resModel: "res.partner", resId: 1 });
 
-    expect(".o_field_date input").toHaveCount(1);
+    await contains(".o_field_widget[name='date'] button").click();
+    expect(".o_field_widget[name='date'] input").toHaveValue("02/03/2017");
 
-    await press(["ctrl", "enter"]);
+    await fieldInput("date").edit("09/01/1997", { confirm: false });
+    await press("Escape");
     await animationFrame();
-    expect(".o_datetime_picker").toHaveCount(1);
 
-    //edit the input and open the datepicker again with ctrl+enter
-    await contains(".o_field_date .o_input").click();
-    await edit("09/01/1997");
-    await press(["ctrl", "enter"]);
-    await animationFrame();
-    assertDateTimePicker({
-        title: "January 1997",
-        date: [
-            {
-                cells: [
-                    [29, 30, 31, 1, 2, 3, 4],
-                    [5, 6, 7, 8, [9], 10, 11],
-                    [12, 13, 14, 15, 16, 17, 18],
-                    [19, 20, 21, 22, 23, 24, 25],
-                    [26, 27, 28, 29, 30, 31, 1],
-                    [2, 3, 4, 5, 6, 7, 8],
-                ],
-                daysOfWeek: ["", "S", "M", "T", "W", "T", "F", "S"],
-                weekNumbers: [1, 2, 3, 4, 5, 6],
-            },
-        ],
+    expect(".o_datetime_picker").toHaveCount(0);
+    expect(".o_field_date button").toHaveText("Feb 3, 2017", {
+        message: "Should have discarded the edited value",
     });
 });
-test("toggle datepicker far in the future", async () => {
+
+test.tags("desktop");
+test("toggle datepicker far in the future on desktop", async () => {
     Partner._records[0].date = "9999-12-31";
     await mountView({ type: "form", resModel: "res.partner", resId: 1 });
 
@@ -170,6 +151,19 @@ test("toggle datepicker far in the future", async () => {
 
     // focus another field
     await fieldInput("char_field").click();
+    expect(".o_datetime_picker").toHaveCount(0);
+});
+
+test.tags("mobile");
+test("toggle datepicker far in the future on mobile", async () => {
+    Partner._records[0].date = "9999-12-31";
+    await mountView({ type: "form", resModel: "res.partner", resId: 1 });
+
+    expect(".o_datetime_picker").toHaveCount(0);
+    await contains(".o_field_date button").click();
+    expect(".o_datetime_picker").toHaveCount(1);
+
+    await contains(".o_bottom_sheet_backdrop").click();
     expect(".o_datetime_picker").toHaveCount(0);
 });
 
@@ -288,7 +282,7 @@ test("date field with label opens datepicker on click", async () => {
     expect(".o_datetime_picker").toHaveCount(1);
 });
 
-test("date field with warn_future option ", async () => {
+test("date field with warning option: future date", async () => {
     Partner._records[0] = { id: 1 };
     await mountView({
         type: "form",
@@ -296,7 +290,7 @@ test("date field with warn_future option ", async () => {
         resId: 1,
         arch: `
             <form>
-                <field name="date" options="{'warn_future': true}" />
+                <field name="date" options="{'warning': 'future'}" />
             </form>`,
     });
 
@@ -308,11 +302,28 @@ test("date field with warn_future option ", async () => {
     await contains(getPickerCell("22")).click();
     expect(".o_field_date button").toHaveClass("text-danger");
     await contains(".o_field_date button").click();
+    expect(".o_field_date input").toHaveAttribute("title", "This date is in the future");
     await fieldInput("date").clear();
     expect(".o_field_date input").not.toHaveClass("text-danger");
 });
 
-test("date field with warn_future option: do not overwrite datepicker option", async () => {
+test("date field with warning option: past date", async () => {
+    await mountView({
+        type: "form",
+        resModel: "res.partner",
+        resId: 1,
+        arch: `
+            <form>
+                <field name="date" options="{'warning': 'past'}" />
+            </form>`,
+    });
+
+    expect(".o_field_date button").toHaveClass("text-danger");
+    await contains(".o_field_date button").click();
+    expect(".o_field_date input").toHaveAttribute("title", "This date is in the past");
+});
+
+test("date field with warning option: do not overwrite datepicker option", async () => {
     Partner._onChanges.date = () => {};
 
     await mountView({
@@ -324,7 +335,7 @@ test("date field with warn_future option: do not overwrite datepicker option", a
                 <form>
                     <group>
                         <field name="char_field" />
-                        <field name="date" options="{'warn_future': true}" />
+                        <field name="date" options="{'warning': 'future'}" />
                     </group>
                 </form>`,
     });
@@ -447,7 +458,7 @@ test("date field supports internationalization", async () => {
     expect(".o_field_date").toHaveText("3. feb. 2017");
     await contains(".o_field_date button").click();
     expect(".o_field_date input").toHaveValue("02/03/2017");
-    expect(".o_zoom_out strong").toHaveText("februar 2017");
+    expect(".o_zoom_out strong").toHaveText("feb 2017");
 
     await contains(getPickerCell("22")).click();
     await clickSave();
@@ -600,4 +611,73 @@ test("DateField with onchange forcing a specific date", async () => {
     expect(".o_datetime_picker").toHaveCount(1);
     await contains(getPickerCell("22")).click(); // 22 May 2009
     expect(".o_field_date").toHaveText("May 4"); // value forced by the onchange
+});
+
+test("DateField contains a calendar icon on touch devices", async () => {
+    // The icon is only visible on touch devices, using css rules
+    document.body.classList.add("o_touch_device");
+    await mountView({ type: "form", resModel: "res.partner", resId: 1 });
+    expect("[data-icon='calendar_today']").toHaveCount(1);
+    expect("[data-icon='calendar_today']").toBeVisible();
+});
+
+test(`DateField in x2many list: open/close picker`, async () => {
+    Partner._fields.foo_o2m = fields.One2many({ relation: "res.partner" });
+
+    await mountView({
+        resModel: "res.partner",
+        type: "form",
+        arch: `
+            <form>
+                <field name="foo_o2m">
+                    <list editable="bottom">
+                        <field name="date" />
+                    </list>
+                </field>
+            </form>`,
+        resId: 1,
+    });
+
+    await contains(`.o_field_x2many_list_row_add button`).click();
+    await contains(`.o_data_row .o_field_widget[name=date] input`).click();
+    await waitFor(".o_datetime_picker");
+    expect(".o_datetime_picker").toBeDisplayed();
+    expect(".o_field_widget[name=date] input").toBeFocused();
+
+    await contains(getPickerCell("15")).click();
+    await animationFrame();
+    expect(".o_datetime_picker").toHaveCount(0);
+
+    // Wait to check if the picker is still closed
+    await animationFrame();
+    await animationFrame();
+    expect(".o_datetime_picker").toHaveCount(0);
+});
+
+test("DateField: placeholder", async () => {
+    await mountView({
+        type: "form",
+        resModel: "res.partner",
+        arch: `
+            <form>
+                <group>
+                    <field name="date" placeholder="I'm the placeholder"/>
+                    <field name="date"/>
+                </group>
+            </form>`,
+    });
+
+    patchWithCleanup(localization, {
+        dateFormat: "MM yyyy dd",
+    });
+
+    expect(".o_field_widget[name=date]:eq(0) input").toHaveAttribute(
+        "placeholder",
+        "I'm the placeholder"
+    );
+    expect(".o_field_widget[name=date]:eq(1) input").toHaveAttribute("placeholder", "");
+
+    // when focused, a default placeholder is displayed and it depends on the localization
+    await contains(".o_field_widget[name=date]:eq(1) input").focus();
+    expect(".o_field_widget[name=date]:eq(1) input").toHaveAttribute("placeholder", "mm yyyy dd");
 });

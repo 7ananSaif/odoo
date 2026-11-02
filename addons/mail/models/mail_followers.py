@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from collections import defaultdict
-import itertools
 
 from odoo import api, fields, models, Command
 from odoo.addons.mail.tools.discuss import Store
+from odoo.tools import SQL
 
 
 class MailFollowers(models.Model):
@@ -18,8 +17,8 @@ class MailFollowers(models.Model):
     :param: res_id: ID of resource (may be 0 for every objects)
     """
     _name = 'mail.followers'
-    _log_access = False
-    _description = 'Document Followers'
+    _log_access = True
+    _description = 'Document Follower'
 
     # Note. There is no integrity check on model names for performance reasons.
     # However, followers of unlinked models are deleted by models themselves
@@ -36,35 +35,6 @@ class MailFollowers(models.Model):
     name = fields.Char('Name', related='partner_id.name')
     email = fields.Char('Email', related='partner_id.email')
     is_active = fields.Boolean('Is Active', related='partner_id.active')
-
-    def _invalidate_documents(self, vals_list=None):
-        """ Invalidate the cache of the documents followed by ``self``.
-
-        Modifying followers change access rights to individual documents. As the
-        cache may contain accessible/inaccessible data, one has to refresh it.
-        """
-        to_invalidate = defaultdict(list)
-        for record in (vals_list or [{'res_model': rec.res_model, 'res_id': rec.res_id} for rec in self]):
-            if record.get('res_id'):
-                to_invalidate[record.get('res_model')].append(record.get('res_id'))
-
-    @api.model_create_multi
-    def create(self, vals_list):
-        res = super().create(vals_list)
-        res._invalidate_documents(vals_list)
-        return res
-
-    def write(self, vals):
-        if 'res_model' in vals or 'res_id' in vals:
-            self._invalidate_documents()
-        res = super().write(vals)
-        if any(x in vals for x in ['res_model', 'res_id', 'partner_id']):
-            self._invalidate_documents()
-        return res
-
-    def unlink(self):
-        self._invalidate_documents()
-        return super().unlink()
 
     _mail_followers_res_partner_res_model_id_uniq = models.Constraint(
         'unique(res_model,res_id,partner_id)',
@@ -93,63 +63,77 @@ class MailFollowers(models.Model):
         """
         if not mail_ids:
             return {}
-        self.env['mail.mail'].flush_model(['mail_message_id', 'recipient_ids'])
+        self.env['mail.mail'].flush_model(['mail_message_id', 'recipient_ids', 'recipient_cc_ids'])
         self.env['mail.followers'].flush_model(['partner_id', 'res_model', 'res_id'])
         self.env['mail.message'].flush_model(['model', 'res_id'])
-        # mail_mail_res_partner_rel is the join table for the m2m recipient_ids field
+        # mail_mail_res_partner_rel and mail_mail_res_partner_cc_rel are the join tables
+        # for the m2m recipient_ids and recipient_cc_ids fields
         self.env.cr.execute("""
+              WITH mail_partner AS (
+                    SELECT mail_mail_id, res_partner_id FROM mail_mail_res_partner_rel
+                 UNION ALL
+                    SELECT mail_mail_id, res_partner_id FROM mail_mail_res_partner_cc_rel)
             SELECT message.model, message.res_id, mail_partner.res_partner_id
               FROM mail_mail mail
-              JOIN mail_mail_res_partner_rel mail_partner ON mail_partner.mail_mail_id = mail.id
+              JOIN mail_partner ON mail_partner.mail_mail_id = mail.id
               JOIN mail_message message ON mail.mail_message_id = message.id
               JOIN mail_followers follower ON message.model = follower.res_model
                AND message.res_id = follower.res_id
                AND mail_partner.res_partner_id = follower.partner_id
              WHERE mail.id IN %(mail_ids)s
         """, {'mail_ids': tuple(mail_ids)})
-        res = defaultdict(list)
+        # Using a set because of the union all that could return duplicate partner if send in "To" and "Cc".
+        res = defaultdict(set)
         for model, doc_id, partner_id in self.env.cr.fetchall():
-            res[(model, doc_id)].append(partner_id)
-        return res
+            res[model, doc_id].add(partner_id)
+        return {k: list(v) for k, v in res.items()}
 
     def _get_recipient_data(self, records, message_type, subtype_id, pids=None):
-        """ Private method allowing to fetch recipients data based on a subtype.
-        Purpose of this method is to fetch all data necessary to notify recipients
-        in a single query. It fetches data from
+        """Private method allowing to fetch recipients data based on a subtype.
 
-         * followers of records that follow the given subtype if records and
-           subtype are set;
-         * partners if pids is given;
+        The purpose of this method is to fetch all data necessary to notify
+        recipients in a single query. It fetches data from:
+
+        * followers of records that follow the given subtype, if ``records``
+          and ``subtype_id`` are set;
+        * partners if ``pids`` is given.
 
         :param records: fetch data from followers of ``records`` that follow
-          ``subtype_id``;
-        :param str message_type: mail.message.message_type in order to allow custom
-          behavior depending on it (SMS for example);
-        :param int subtype_id: mail.message.subtype to check against followers;
-        :param pids: additional set of partner IDs from which to fetch recipient
-          data independently from following status;
+            ``subtype_id``.
+        :param str message_type: ``mail.message.message_type``, in order to
+            allow custom behavior depending on it (SMS for example).
+        :param int subtype_id: ``mail.message.subtype`` to check against
+            followers.
+        :param pids: additional set of partner IDs from which to fetch
+            recipient data independently from following status.
 
-        :returns: recipients data based on record.ids if given, else a generic
-          '0' key to keep a dict-like return format. Each item is a dict based on
-          recipients partner ids formatted like {
-            'active': partner.active;
-            'email_normalized': partner.email_normalized;
-            'id': res.partner ID;
-            'is_follower': True if linked to a record and if partner is a follower;
-            'lang': partner.lang;
-            'name': partner.name;
-            'groups': groups of the partner's user (see 'uid'). If several users
-                of the same kind (e.g. several internal users) exist groups are
-                concatenated;
-            'notif': notification type ('inbox' or 'email'). Overrides may change
-                this value (e.g. 'sms' in sms module);
-            'share': if partner is a customer (no user or share user);
-            'ushare': if partner has users, whether all are shared (public or portal);
-            'type': summary of partner 'usage' (a string among 'portal', 'customer',
-                'internal user');
-            'uid': linked 'res.users' ID. If several users exist preference is
-                given to internal user, then share users;
-          }
+        :returns: recipients data based on ``record.ids`` if given, else a
+            generic ``0`` key to keep a dict-like return format. Each item
+            is a dict keyed by recipient partner IDs, with the following
+            keys:
+
+            * ``active`` -- ``partner.active``;
+            * ``email_normalized`` -- ``partner.email_normalized``;
+            * ``id`` -- ``res.partner`` ID;
+            * ``is_follower`` -- ``True`` if linked to a record and if the
+              partner is a follower;
+            * ``lang`` -- ``partner.lang``;
+            * ``name`` -- ``partner.name``;
+            * ``groups`` -- groups of the partner's user (see ``uid``). If
+              several users of the same kind (e.g. several internal users)
+              exist, groups are concatenated;
+            * ``notif`` -- notification type (``'inbox'`` or ``'email'``).
+              Overrides may change this value (e.g. ``'sms'`` in the SMS
+              module);
+            * ``share`` -- whether the partner is a customer (no user or
+              share user);
+            * ``ushare`` -- if the partner has users, whether all are
+              shared (public or portal);
+            * ``type`` -- summary of partner usage (a string among
+              ``'portal'``, ``'customer'``, ``'internal user'``);
+            * ``uid`` -- linked ``res.users`` ID. If several users exist,
+              preference is given to internal user, then share users.
+
         :rtype: dict
         """
         self.env['mail.followers'].flush_model(['partner_id', 'subtype_ids'])
@@ -343,6 +327,7 @@ class MailFollowers(models.Model):
                     'active': is_active,
                     'email_normalized': email_normalized,
                     'id': partner_id,
+                    'is_cc': False,
                     'is_follower': is_follower,
                     'lang': lang,
                     'name': name,
@@ -381,39 +366,37 @@ class MailFollowers(models.Model):
           share status of partner (returned only if include_pshare is True)
           active flag status of partner (returned only if include_active is True)
         """
-        self.env['mail.followers'].flush_model(['partner_id', 'res_id', 'res_model', 'subtype_ids'])
-        self.env['res.partner'].flush_model(['active', 'partner_share'])
-        # base query: fetch followers of given documents
-        where_clause = ' OR '.join(['fol.res_model = %s AND fol.res_id IN %s'] * len(doc_data))
-        where_params = list(itertools.chain.from_iterable((rm, tuple(rids)) for rm, rids in doc_data))
+        query = models.Query(self.sudo())
+        fol = query.table
 
-        # additional: filter on optional pids
-        sub_where = []
         if pids:
-            sub_where += ["fol.partner_id IN %s"]
-            where_params.append(tuple(pids))
+            query.add_where(SQL("%s IN %s", fol.partner_id, tuple(pids)))
         elif pids is not None:
-            sub_where += ["fol.partner_id IS NULL"]
-        if sub_where:
-            where_clause += "AND (%s)" % " OR ".join(sub_where)
+            query.add_where(SQL("%s IS NULL", fol.partner_id))
 
-        query = """
-SELECT fol.id, fol.res_id, fol.partner_id, array_agg(subtype.id)%s%s
-FROM mail_followers fol
-%s
-LEFT JOIN mail_followers_mail_message_subtype_rel fol_rel ON fol_rel.mail_followers_id = fol.id
-LEFT JOIN mail_message_subtype subtype ON subtype.id = fol_rel.mail_message_subtype_id
-WHERE %s
-GROUP BY fol.id%s%s""" % (
-            ', partner.partner_share' if include_pshare else '',
-            ', partner.active' if include_active else '',
-            'LEFT JOIN res_partner partner ON partner.id = fol.partner_id' if (include_pshare or include_active) else '',
-            where_clause,
-            ', partner.partner_share' if include_pshare else '',
-            ', partner.active' if include_active else ''
-        )
-        self.env.cr.execute(query, tuple(where_params))
-        return self.env.cr.fetchall()
+        query.add_where(SQL("(%s)", SQL(" OR ").join(
+            SQL("(%s = %s AND %s IN %s)", fol.res_model, rm, fol.res_id, tuple(rids))
+            for rm, rids in doc_data
+        )))
+
+        fol_rel = fol._make_alias('rel')
+        query.add_join('LEFT JOIN', fol_rel, 'mail_followers_mail_message_subtype_rel', SQL("%s = %s", fol_rel.mail_followers_id, fol.id, to_flush=self._fields['subtype_ids']))
+
+        columns = [
+            fol.id,
+            fol.res_id,
+            fol.partner_id,
+            SQL("array_agg(%s)", fol_rel.mail_message_subtype_id),
+        ]
+        group_by = [fol.id]
+        if include_pshare:
+            columns.append(fol.partner_id.partner_share)
+            group_by.append(columns[-1])
+        if include_active:
+            columns.append(fol.partner_id.active)
+            group_by.append(columns[-1])
+        query.groupby = SQL(',').join(group_by)
+        return self.env.execute_query(query.select(*columns))
 
     # --------------------------------------------------
     # Private tools methods to generate new subscription
@@ -544,14 +527,9 @@ GROUP BY fol.id%s%s""" % (
     # Misc discuss
     # --------------------------------------------------
 
-    def _to_store_defaults(self, target):
-        return [
-            "display_name",
-            "email",
-            "is_active",
-            "name",
-            # sudo: res.partner - can read partners of found followers, in particular allows
-            # by-passing multi-company ACL for portal partners
-            Store.One("partner_id", sudo=True),
-            Store.One("thread", [], as_thread=True),
-        ]
+    def _store_follower_fields(self, res: Store.FieldList):
+        res.extend(["display_name", "email", "is_active", "name"])
+        # sudo: res.partner - can read partners of found followers, in particular allows
+        # by-passing multi-company ACL for portal partners
+        res.one("partner_id", "_store_partner_fields", sudo=True)
+        res.one("thread", [], as_thread=True)

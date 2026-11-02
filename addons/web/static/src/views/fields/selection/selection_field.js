@@ -1,4 +1,4 @@
-import { Component } from "@odoo/owl";
+import { Component, t, useProps } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
 import { SelectMenu } from "@web/core/select_menu/select_menu";
@@ -6,22 +6,21 @@ import { getFieldDomain } from "@web/model/relational_model/utils";
 import { useSpecialData } from "@web/views/fields/relational_utils";
 import { hasTouch } from "@web/core/browser/feature_detection";
 import { standardFieldProps } from "../standard_field_props";
+import { ConnectionLostError } from "@web/core/network/rpc";
+
+export const selectionFieldProps = {
+    ...standardFieldProps,
+    placeholder: t.string().optional(),
+    required: t.boolean().optional(),
+    domain: t.or([t.array(), t.function()]).optional(),
+};
 
 export class SelectionField extends Component {
     static components = {
         SelectMenu,
     };
     static template = "web.SelectionField";
-    static props = {
-        ...standardFieldProps,
-        placeholder: { type: String, optional: true },
-        required: { type: Boolean, optional: true },
-        domain: { type: [Array, Function], optional: true },
-        autosave: { type: Boolean, optional: true },
-    };
-    static defaultProps = {
-        autosave: false,
-    };
+    props = useProps(selectionFieldProps);
 
     setup() {
         this.type = this.props.record.fields[this.props.name].type;
@@ -29,16 +28,41 @@ export class SelectionField extends Component {
             this.specialData = useSpecialData((orm, props) => {
                 const { relation } = props.record.fields[props.name];
                 const domain = getFieldDomain(props.record, props.name, props.domain);
-                return orm.call(relation, "name_search", ["", domain]);
+                return orm.call(relation, "name_search", ["", domain]).catch((error) => {
+                    if (error instanceof ConnectionLostError) {
+                        if (this.props.record.data[this.props.name]) {
+                            return [Object.values(this.props.record.data[this.props.name])];
+                        }
+                        return [];
+                    }
+                    throw error;
+                });
             });
         }
     }
 
     get choices() {
-        return this.options.map(([value, label]) => ({ value, label }));
+        const choices = this.options.map(([value, label]) => ({ value, label }));
+
+        // For selection fields, if the current value is not in the options list,
+        // add it as a temporary choice so it can be displayed in the SelectMenu.
+        // Mark it as disabled so it appears in dropdown but cannot be selected.
+        if (this.type === "selection") {
+            const currentValue = this.value;
+            if (currentValue !== false && !choices.some((c) => c.value === currentValue)) {
+                // Add the unknown value as a disabled choice
+                choices.unshift({
+                    value: currentValue,
+                    label: String(currentValue),
+                    enabled: false, // Appears grayed out and cannot be selected
+                });
+            }
+        }
+
+        return choices;
     }
     get isBottomSheet() {
-        return this.env.isSmall && hasTouch();
+        return hasTouch();
     }
     get options() {
         switch (this.type) {
@@ -58,10 +82,12 @@ export class SelectionField extends Component {
                 return this.props.record.data[this.props.name]
                     ? this.props.record.data[this.props.name].display_name
                     : "";
-            case "selection":
-                return this.props.record.data[this.props.name] !== false
-                    ? this.options.find((o) => o[0] === this.props.record.data[this.props.name])[1]
+            case "selection": {
+                const value = this.props.record.data[this.props.name];
+                return value !== false
+                    ? this.options.find((o) => o[0] === value)?.[1] ?? value
                     : "";
+            }
             default:
                 return "";
         }
@@ -79,25 +105,16 @@ export class SelectionField extends Component {
         switch (this.type) {
             case "many2one":
                 if (value === null) {
-                    this.props.record.update(
-                        { [this.props.name]: false },
-                        { save: this.props.autosave }
-                    );
+                    this.props.record.update({ [this.props.name]: false });
                 } else {
                     const option = this.options.find((option) => option[0] === value);
-                    this.props.record.update(
-                        {
-                            [this.props.name]: { id: option[0], display_name: option[1] },
-                        },
-                        { save: this.props.autosave }
-                    );
+                    this.props.record.update({
+                        [this.props.name]: { id: option[0], display_name: option[1] },
+                    });
                 }
                 break;
             case "selection":
-                this.props.record.update(
-                    { [this.props.name]: value ?? false },
-                    { save: this.props.autosave }
-                );
+                this.props.record.update({ [this.props.name]: value ?? false });
                 break;
         }
     }
@@ -118,12 +135,11 @@ export const selectionField = {
     isEmpty: (record, fieldName) => record.data[fieldName] === false,
     extractProps({ viewType, placeholder }, dynamicInfo) {
         const props = {
-            autosave: viewType === "kanban",
             placeholder,
             required: dynamicInfo.required,
             domain: dynamicInfo.domain,
         };
-        if (viewType === "kanban") {
+        if (viewType === "card") {
             props.readonly = dynamicInfo.readonly;
         }
         return props;

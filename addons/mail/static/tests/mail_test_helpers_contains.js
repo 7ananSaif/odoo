@@ -1,21 +1,18 @@
 /** @odoo-module alias=@web/../tests/utils default=false */
 
-import { __debug__, after, afterEach, expect, getFixture } from "@odoo/hoot";
+import { __debug__, after, afterEach, expect, getFixture, globals } from "@odoo/hoot";
 import { queryAll, queryFirst } from "@odoo/hoot-dom";
-import { Deferred, animationFrame, tick } from "@odoo/hoot-mock";
+import { animationFrame, tick } from "@odoo/hoot-mock";
 import { isMacOS } from "@web/core/browser/feature_detection";
 import { isVisible } from "@web/core/utils/ui";
 
 /**
- * Use `expect.step` instead
- * @deprecated
+ * Time the wait helpers give the client before failing. The wait that follows
+ * openDiscuss pays for the whole mount and the first fetches.
  */
-export const step = expect.step;
-/**
- * Use `expect.waitForSteps` instead
- * @deprecated
- */
-export const assertSteps = expect.waitForSteps;
+export const TIMEOUT = 10000;
+const TICK_TIMEOUT = 500;
+const { clearTimeout: unmockedClearTimeout, setTimeout: unmockedSetTimeout } = globals;
 
 /** @param {EventInit} [args] */
 const mapBubblingEvent = (args) => ({ ...args, bubbles: true });
@@ -209,7 +206,7 @@ function triggerEvent(el, selector, eventType, eventInit, options = {}) {
     const event = new Constructor(eventType, processParams(eventInit));
     target.dispatchEvent(event);
 
-    if (__debug__.debug) {
+    if (__debug__().debug) {
         const group = `%c[${event.type.toUpperCase()}]`;
         console.groupCollapsed(group, "color: #b52c9b");
         console.log(target, event);
@@ -612,16 +609,16 @@ class Contains {
     }
 
     setTickTimeout() {
-        this.timer = setTimeout(() => {
+        this.timer = unmockedSetTimeout(() => {
             this.timeoutCount++;
             const res = this.runOnce(
-                `Timeout of ${(this.timeoutCount * this.tickTimeoutDelay) / 1000} seconds`,
-                { crashOnFail: this.timeoutCount >= 3000 / this.tickTimeoutDelay }
+                `Timeout of ${(this.timeoutCount * TICK_TIMEOUT) / 1000} seconds`,
+                { crashOnFail: this.timeoutCount >= TIMEOUT / TICK_TIMEOUT }
             );
-            if (!res) {
+            if (!res && !this.done) {
                 this.setTickTimeout();
             }
-        }, this.tickTimeoutDelay);
+        }, TICK_TIMEOUT);
     }
 
     /**
@@ -631,27 +628,25 @@ class Contains {
      *
      * Success or failure messages will be logged with HOOT as well.
      *
-     * @returns {Promise}
+     * @returns {Promise<void>}
      */
     run() {
         this.done = false;
-        this.def = new Deferred();
+        const { promise: containsPromise, reject, resolve } = Promise.withResolvers();
+        this._rejectContains = reject;
+        this._resolveContains = resolve;
         this.scrollListeners = new Set();
         this.onBlur = () => this.runOnce("after blur");
         this.onChange = () => this.runOnce("after change");
         this.onFocus = () => this.runOnce("after focus");
         this.onScroll = () => this.runOnce("after scroll");
         if (!this.runOnce("immediately")) {
-            const hasValue =
-                this.options.value !== undefined ||
-                (typeof this.selector === "string" && this.selector.includes(":value"));
-            this.tickTimeoutDelay = hasValue ? 500 : 3000;
             this.setTickTimeout();
             this.observer = new MutationObserver((mutations) => {
                 try {
                     this.runOnce("after mutations");
                 } catch (e) {
-                    this.def.reject(e); // prevents infinite loop in case of programming error
+                    this._rejectContains(e); // prevents infinite loop in case of programming error
                 }
             });
             this.observer.observe(document.body, {
@@ -668,7 +663,7 @@ class Contains {
                 }
             });
         }
-        return this.def;
+        return containsPromise;
     }
 
     /**
@@ -688,7 +683,7 @@ class Contains {
         if ((res?.length ?? 0) === this.options.count || crashOnFail) {
             // clean before doing anything else to avoid infinite loop due to side effects
             this.observer?.disconnect();
-            clearTimeout(this.timer);
+            unmockedClearTimeout(this.timer);
             for (const el of this.scrollListeners ?? []) {
                 el.removeEventListener("scroll", this.onScroll);
             }
@@ -717,7 +712,7 @@ class Contains {
                     }
                 }
                 log(false, message);
-                this.def?.reject(new Error(message));
+                this._rejectContains?.(new Error(message));
                 for (const childContains of this.childrenContains || []) {
                     if (childContains.successMessage) {
                         log(true, childContains.successMessage);
@@ -734,7 +729,7 @@ class Contains {
 
     /**
      * Executes the action(s) given to this constructor on the found element,
-     * prints the success messages, and resolves the main deferred.
+     * prints the success messages, and resolves the main promise.
 
      * @param {HTMLElement} el
      */
@@ -840,7 +835,7 @@ class Contains {
         for (const childContains of this.childrenContains) {
             log(true, childContains.successMessage);
         }
-        this.def?.resolve();
+        this._resolveContains?.();
     }
 
     /**

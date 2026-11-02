@@ -2,14 +2,16 @@ import json
 from datetime import timedelta
 from freezegun import freeze_time
 from markupsafe import Markup
+from unittest.mock import patch
 
 from odoo import Command, fields
-from odoo.tests import new_test_user, tagged, users
+from odoo.tests import new_test_user, users
 from odoo.addons.im_livechat.tests.common import TestImLivechatCommon, TestGetOperatorCommon
+from odoo.addons.bus.tests.common import BusResult
 from odoo.addons.mail.tests.common import MailCase
+from odoo.addons.mail.tools.discuss import Store
 
 
-@tagged("-at_install", "post_install")
 class TestDiscussChannel(TestImLivechatCommon, TestGetOperatorCommon, MailCase):
     def test_unfollow_from_non_member_does_not_close_livechat(self):
         bob_user = new_test_user(
@@ -22,7 +24,8 @@ class TestDiscussChannel(TestImLivechatCommon, TestGetOperatorCommon, MailCase):
         self.assertFalse(chat.livechat_end_dt)
         chat.with_user(bob_user).action_unfollow()
         self.assertFalse(chat.livechat_end_dt)
-        chat.with_user(chat.livechat_operator_id.main_user_id).action_unfollow()
+        agent_user = chat.livechat_agent_partner_ids.mapped("main_user_id")
+        chat.with_user(agent_user).action_unfollow()
         self.assertTrue(chat.livechat_end_dt)
 
     def test_human_operator_failure_states(self):
@@ -32,10 +35,48 @@ class TestDiscussChannel(TestImLivechatCommon, TestGetOperatorCommon, MailCase):
         chat = self.env["discuss.channel"].browse(data["channel_id"])
         self.assertFalse(chat.chatbot_current_step_id)  # assert there is no chatbot
         self.assertEqual(chat.livechat_failure, "no_answer")
-        chat.with_user(chat.livechat_operator_id.main_user_id).message_post(
+        agent_user = chat.livechat_agent_partner_ids.mapped("main_user_id")
+        chat.with_user(agent_user).message_post(
             body="I am here to help!",
             message_type="comment",
             subtype_xmlid="mail.mt_comment",
+        )
+        self.assertEqual(chat.livechat_failure, "no_failure")
+
+    def test_agent_message_does_not_rewrite_unchanged_livechat_failure(self):
+        data = self.make_jsonrpc_request(
+            "/im_livechat/get_session", {"channel_id": self.livechat_channel.id}
+        )
+        chat = self.env["discuss.channel"].browse(data["channel_id"])
+        agent_user = chat.livechat_agent_partner_ids.mapped("main_user_id")
+        self.assertEqual(chat.livechat_failure, "no_answer")
+        # First agent message moves the failure to "no_failure".
+        chat.with_user(agent_user).message_post(
+            body="I am here to help!",
+            message_type="comment",
+            subtype_xmlid="mail.mt_comment",
+        )
+        self.assertEqual(chat.livechat_failure, "no_failure")
+        # A second agent message must not write livechat_failure again.
+        DiscussChannel = self.env.registry["discuss.channel"]
+        original_write = DiscussChannel.write
+        failure_writes = []
+
+        def tracking_write(records, vals):
+            if "livechat_failure" in vals:
+                failure_writes.append(vals["livechat_failure"])
+            return original_write(records, vals)
+
+        with patch.object(DiscussChannel, "write", tracking_write):
+            chat.with_user(agent_user).message_post(
+                body="Anything else?",
+                message_type="comment",
+                subtype_xmlid="mail.mt_comment",
+            )
+        self.assertEqual(
+            failure_writes,
+            [],
+            "a redundant agent message should not re-write livechat_failure",
         )
         self.assertEqual(chat.livechat_failure, "no_failure")
 
@@ -63,7 +104,7 @@ class TestDiscussChannel(TestImLivechatCommon, TestGetOperatorCommon, MailCase):
         self.livechat_channel.user_ids += bob_operator
         self.assertTrue(self.livechat_channel.available_operator_ids)
         chat._forward_human_operator(chat.chatbot_current_step_id)
-        self.assertEqual(chat.livechat_operator_id, bob_operator.partner_id)
+        self.assertEqual(chat.livechat_agent_partner_ids, bob_operator.partner_id)
         self.assertEqual(chat.livechat_failure, "no_answer")
         chat.with_user(bob_operator).message_post(
             body="I am here to help!",
@@ -80,11 +121,11 @@ class TestDiscussChannel(TestImLivechatCommon, TestGetOperatorCommon, MailCase):
         )
         channel = self.env["discuss.channel"].browse(data["channel_id"])
         with self.assertBus(
-            [(self.cr.dbname, "discuss.channel", channel.id, "internal_users")],
             [
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
+                BusResult(
+                    (channel, "internal_users"),
+                    "mail.record/insert",
+                    {
                         "discuss.channel": [
                             {
                                 "id": channel.id,
@@ -92,10 +133,27 @@ class TestDiscussChannel(TestImLivechatCommon, TestGetOperatorCommon, MailCase):
                             }
                         ]
                     },
-                }
+                ),
             ],
         ):
             channel.description = "Description of the conversation"
+
+    def test_livechat_description_editable_by_non_member_operator(self):
+        operator = new_test_user(
+            self.env,
+            "operator_non_member",
+            groups="base.group_user,im_livechat.im_livechat_group_user",
+        )
+        data = self.make_jsonrpc_request(
+            "/im_livechat/get_session",
+            {"channel_id": self.livechat_channel.id},
+        )
+        self.livechat_channel.user_ids |= operator
+        channel = self.env["discuss.channel"].browse(data["channel_id"])
+        self.assertNotIn(operator.partner_id, channel.livechat_agent_partner_ids)
+        self.assertTrue(operator.has_access_livechat)
+        channel.with_user(operator).channel_change_description("Updated by non-member operator")
+        self.assertEqual(channel.description, "Updated by non-member operator")
 
     def test_livechat_note_sync_to_internal_user_bus(self):
         """Test that a livechat note is sent to the internal user bus."""
@@ -105,11 +163,11 @@ class TestDiscussChannel(TestImLivechatCommon, TestGetOperatorCommon, MailCase):
         )
         channel = self.env["discuss.channel"].browse(data["channel_id"])
         with self.assertBus(
-            [(self.cr.dbname, "discuss.channel", channel.id, "internal_users")],
             [
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
+                BusResult(
+                    (channel, "internal_users"),
+                    "mail.record/insert",
+                    {
                         "discuss.channel": [
                             {
                                 "id": channel.id,
@@ -120,7 +178,7 @@ class TestDiscussChannel(TestImLivechatCommon, TestGetOperatorCommon, MailCase):
                             }
                         ]
                     },
-                }
+                ),
             ],
         ):
             channel.livechat_note = "This is a note for the internal user."
@@ -132,23 +190,29 @@ class TestDiscussChannel(TestImLivechatCommon, TestGetOperatorCommon, MailCase):
             {"channel_id": self.livechat_channel.id},
         )
         channel = self.env["discuss.channel"].browse(data["channel_id"])
+        group = self.env.ref("im_livechat.im_livechat_group_user")
+
         with self.assertBus(
-            [(self.cr.dbname, "discuss.channel", channel.id, "internal_users")],
-            [
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
-                        "discuss.channel": [
-                            {
-                                "id": channel.id,
-                                "livechat_status": "waiting",
-                            }
-                        ]
-                    },
-                }
+            lambda: [
+                BusResult(
+                    (channel, "internal_users"),
+                    "mail.record/insert",
+                    Store(bus_channel=channel, bus_subchannel="internal_users").add(
+                        channel,
+                        ["livechat_status", "livechat_looking_for_help_since_dt"],
+                    )._build_result(),
+                ),
+                BusResult(
+                    (group, "LOOKING_FOR_HELP"),
+                    "mail.record/insert",
+                    Store(bus_channel=group, bus_subchannel="LOOKING_FOR_HELP").add(
+                        channel,
+                        "_store_channel_fields",
+                    )._build_result(),
+                ),
             ],
         ):
-            channel.livechat_status = "waiting"
+            channel.livechat_status = "need_help"
 
     def test_livechat_status_switch_on_operator_joined_batch(self):
         """Test that the livechat status switches to 'in_progress' when an operator joins multiple channels in a batch,
@@ -156,13 +220,13 @@ class TestDiscussChannel(TestImLivechatCommon, TestGetOperatorCommon, MailCase):
         channel_1 = self.env["discuss.channel"].create({
             "name": "Livechat Channel 1",
             "channel_type": "livechat",
-            "livechat_operator_id": self.operators[0].partner_id.id,
         })
+        channel_1._add_members(users=self.operators[0])
         channel_2 = self.env["discuss.channel"].create({
             "name": "Livechat Channel 2",
             "channel_type": "livechat",
-            "livechat_operator_id": self.operators[0].partner_id.id,
         })
+        channel_2._add_members(users=self.operators[0])
         bob_operator = new_test_user(self.env, "bob_user", groups="im_livechat.im_livechat_group_user")
         channel_1.livechat_status = "need_help"
         channel_2.livechat_status = "need_help"
@@ -172,18 +236,17 @@ class TestDiscussChannel(TestImLivechatCommon, TestGetOperatorCommon, MailCase):
         self.assertFalse(channel_2.livechat_end_dt)
 
         # Add the operator to both channels in a batch, which should switch their status to 'in_progress'
-        (channel_1 | channel_2).with_user(channel_1.livechat_operator_id.main_user_id).add_members(
-            partner_ids=bob_operator.partner_id.ids
-        )
+        self.assertEqual(channel_1.livechat_agent_partner_ids, self.operators[0].partner_id)
+        agent_user = channel_1.livechat_agent_partner_ids.mapped("main_user_id")
+        (channel_1 | channel_2).with_user(agent_user)._add_members(users=bob_operator)
         self.assertEqual(channel_1.livechat_status, "in_progress")
         self.assertEqual(channel_2.livechat_status, "in_progress")
 
         # Re-add the same operator and ensure the status does not change
         channel_1.livechat_status = "need_help"
         self.assertEqual(channel_1.livechat_status, "need_help")
-        channel_1.with_user(channel_1.livechat_operator_id.main_user_id).add_members(
-            partner_ids=bob_operator.partner_id.ids
-        )
+        self.assertEqual(channel_1.livechat_agent_partner_ids, bob_operator.partner_id | self.operators[0].partner_id)
+        channel_1.with_user(agent_user)._add_members(users=bob_operator)
         self.assertEqual(channel_1.livechat_status, "need_help")
 
     def test_join_livechat_needing_help(self):
@@ -224,7 +287,6 @@ class TestDiscussChannel(TestImLivechatCommon, TestGetOperatorCommon, MailCase):
             {
                 "name": "test",
                 "channel_type": "livechat",
-                "livechat_operator_id": self.operators[0].partner_id.id,
                 "channel_member_ids": [
                     Command.create({"partner_id": self.operators[0].partner_id.id}),
                     Command.create({"partner_id": self.visitor_user.partner_id.id}),
@@ -241,8 +303,8 @@ class TestDiscussChannel(TestImLivechatCommon, TestGetOperatorCommon, MailCase):
         channel_history = channel.with_user(self.visitor_user)._get_channel_history()
         self.assertEqual(
             channel_history,
-            "<br/><strong>Michel Operator:</strong><br/>Operator Here<br/>%(attachment_1)s<br/>"
-            "<br/><strong>Rajesh:</strong><br/>Visitor Here<br/>%(attachment_2)s<br/>"
+            "<strong>Michel Operator:</strong><br/>Operator Here<br/>%(attachment_1)s<br/>"
+            "<br/><strong>Rajesh:</strong><br/>Visitor Here<br/>%(attachment_2)s"
             % {
                 "attachment_1": _convert_attachment_to_html(attachment1),
                 "attachment_2": _convert_attachment_to_html(attachment2),
@@ -320,3 +382,31 @@ class TestDiscussChannel(TestImLivechatCommon, TestGetOperatorCommon, MailCase):
         self.assertEqual(channel.livechat_expertise_ids, operator_expertise_ids | cat_expertise)
         channel._add_members(users=bob)
         self.assertEqual(channel.livechat_expertise_ids, operator_expertise_ids | cat_expertise)
+
+    def test_update_looking_for_help_dt(self):
+        bob = self._create_operator()
+        self.livechat_channel.user_ids = bob
+        data = self.make_jsonrpc_request(
+            "/im_livechat/get_session",
+            {"channel_id": self.livechat_channel.id},
+        )
+        self.authenticate(bob.login, bob.login)
+        channel = self.env["discuss.channel"].browse(data["channel_id"])
+        self.assertFalse(channel.livechat_looking_for_help_since_dt)
+        self.make_jsonrpc_request(
+            "/im_livechat/session/update_status",
+            {"channel_id": channel.id, "livechat_status": "need_help"},
+        )
+        self.assertTrue(channel.livechat_looking_for_help_since_dt)
+        self.make_jsonrpc_request(
+            "/im_livechat/session/update_status",
+            {"channel_id": channel.id, "livechat_status": "in_progress"},
+        )
+        self.assertFalse(channel.livechat_looking_for_help_since_dt)
+        self.make_jsonrpc_request(
+            "/im_livechat/session/update_status",
+            {"channel_id": channel.id, "livechat_status": "need_help"},
+        )
+        self.assertTrue(channel.livechat_looking_for_help_since_dt)
+        channel.livechat_end_dt = fields.Datetime.now()
+        self.assertFalse(channel.livechat_looking_for_help_since_dt)

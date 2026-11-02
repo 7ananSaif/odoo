@@ -1,11 +1,19 @@
-import { HtmlField, htmlField } from "@html_editor/fields/html_field";
+import { HtmlField, htmlField, htmlFieldProps } from "@html_editor/fields/html_field";
 import { registry } from "@web/core/registry";
 import { getCSSRules, toInline } from "./convert_inline";
 import { ColumnPlugin } from "@html_editor/main/column_plugin";
+import { MoveNodePlugin } from "@html_editor/main/movenode_plugin";
+import { user } from "@web/core/user";
+import { t, useProps } from "@odoo/owl";
 
 const cssRulesByElement = new WeakMap();
 
 export class HtmlMailField extends HtmlField {
+    props = useProps({
+        ...htmlFieldProps,
+        disableMoveNodePlugin: t.boolean().optional(),
+    });
+
     /**
      * @param {WeakMap} cssRulesByElement
      * @param {Editor} editor
@@ -33,8 +41,51 @@ export class HtmlMailField extends HtmlField {
         const config = super.getConfig();
         config.dropImageAsAttachment = false;
         config.defaultLinkAttributes = { target: "_blank", rel: "noreferrer noopener" };
-        config.Plugins = config.Plugins.filter((plugin) => plugin !== ColumnPlugin);
+        const disabledPlugins = new Set([ColumnPlugin]);
+        if (this.props.disableMoveNodePlugin) {
+            disabledPlugins.add(MoveNodePlugin);
+        }
+        config.Plugins = config.Plugins.filter((plugin) => !disabledPlugins.has(plugin));
+        config.dynamicFieldFilter = this.dynamicFieldFilter.bind(this);
+        config.dynamicFieldPreprocess = ({ resModel }) => this.loadAllowedExpressions(resModel);
+        config.dynamicFieldPostprocess = this.dynamicFieldPostprocess.bind(this);
         return config;
+    }
+
+    dynamicFieldFilter(fieldDef, path) {
+        const fullPath = `object${path ? `.${path}` : ""}.${fieldDef.name}`;
+        if (!this.isTemplateEditor && !this.allowedQwebExpressions.includes(fullPath)) {
+            return false;
+        }
+        return !["one2many", "boolean", "many2many"].includes(fieldDef.type) && fieldDef.searchable;
+    }
+
+    async dynamicFieldPostprocess({ path, label, fieldInfo, resModel, element }) {
+        if (fieldInfo.type !== "datetime") {
+            return;
+        }
+
+        const partnerFields = await this.ormService.call(resModel, "mail_get_partner_fields", [[]]);
+
+        let out = partnerFields.length
+            ? `format_datetime(${path}, tz=object.${partnerFields[0]}.tz)`
+            : `format_datetime(${path})`;
+
+        if (label) {
+            const safeDefaultValue = label.replace(/'/g, "\\'");
+            out += ` or '${safeDefaultValue}'`;
+        }
+
+        element.setAttribute("t-out", out);
+        element.removeAttribute("t-field");
+    }
+
+    async loadAllowedExpressions(resModel) {
+        const getAllowedQwebExpressions = this.env.services["allowed_qweb_expressions"];
+        [this.isTemplateEditor, this.allowedQwebExpressions] = await Promise.all([
+            user.hasGroup("mail.group_mail_template_editor"),
+            getAllowedQwebExpressions(resModel),
+        ]);
     }
 }
 
@@ -44,6 +95,9 @@ export const htmlMailField = {
     additionalClasses: ["o_field_html"],
     extractProps({ attrs, options }, dynamicInfo) {
         const props = htmlField.extractProps({ attrs, options }, dynamicInfo);
+        if ("no_move_node_plugin" in options && Boolean(options.no_move_node_plugin)) {
+            props.disableMoveNodePlugin = true;
+        }
         props.embeddedComponents = false;
         return props;
     },

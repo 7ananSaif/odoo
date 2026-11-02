@@ -4,26 +4,25 @@
         <field name="name">Applicants</field>
         <field name="model">hr.applicant</field>
         <field name="arch" type="xml">
-            <list string="Applicants" class="o_search_matching_applicant" multi_edit="1" sample="1" decoration-danger="application_status == 'refused'" default_order="stage_id">
+            <list string="Applicants" class="o_search_matching_applicant" multi_edit="1" sample="1" decoration-danger="application_status == 'refused'" default_order="priority DESC">
                 <header>
                     <button
-                        name="action_job_add_applicants"
-                        string="Create Applications"
-                        invisible="context.get('default_job_id') or context.get('no_create_application_button')"
+                        name="action_talent_pool_add_applicants"
+                        string="Add to Pool"
                         type="object"
+                        invisible="context.get('default_talent_pool_ids')"
+                        groups="hr_recruitment.group_hr_recruitment_user"
                     />
                     <button
-                        name="action_talent_pool_add_applicants"
+                        name="action_job_add_applicants"
+                        string="Apply to Jobs"
+                        invisible="context.get('default_job_id') or not context.get('default_talent_pool_ids')"
                         type="object"
-                        class="btn-primary"
-                        string="Add Applicants "
-                        display="always"
-                        invisible="not context.get('default_talent_pool_ids')"
-                        groups="hr_recruitment.group_hr_recruitment_user"
                     />
                     <button type="object" 
                         name="archive_applicant" 
                         string="Refuse" class="btn btn-secondary" 
+                        invisible="context.get('default_talent_pool_ids', False)"
                     />
                 </header>
                 <field name="message_needaction" column_invisible="True"/>
@@ -31,23 +30,26 @@
                 <field name="date_last_stage_update" column_invisible="True"/>
                 <field name="partner_name" string="Name" readonly="1" optional="show"/>
                 <field name="create_date" readonly="1" optional="show" options="{'show_time': False}"/>
-                <field name="email_from" readonly="1" optional="hide"/>
-                <field name="partner_phone" widget="phone" readonly="1" optional="hide"/>
+                <field name="email_from" readonly="1" optional="show"/>
+                <field name="partner_phone" widget="phone" readonly="1" optional="show"/>
                 <field name="job_id" optional="show" column_invisible="context.get('default_talent_pool_ids')"/>
-                <field name="stage_id" widget="badge_rotting" optional="show" column_invisible="context.get('default_talent_pool_ids')" options="{'no_open': True}"/>
+                <field name="stage_id" widget="rotting" optional="hide" column_invisible="context.get('default_talent_pool_ids')" options="{'no_open': True}"/>
+                <field name="kanban_state" widget="hr_applicant_state_selection" string="State" optional="hide"/> 
                 <field name="priority" widget="priority" nolabel="1" optional="show"/>
-                <field name="categ_ids" widget="many2many_tags" options="{'color_field': 'color'}" optional="show"/>
-                <field name="user_id" widget="many2one_avatar_user" optional="show"/>
+                <field name="categ_ids" widget="many2many_tags" options="{'color_field': 'color', 'on_tag_click': 'edit_color'}" optional="show"/>
+                <field name="recruiter_id" widget="many2one_avatar_employee" optional="show"/>
                 <field name="is_rotting" column_invisible="True"/>
                 <field name="rotting_days" column_invisible="True"/>
-                <field name="type_id" column_invisible="True"/>
+                <field name="type_id" optional="hide"/>
+                <field name="talent_pool_ids" widget="many2many_tags" options="{'color_field': 'color', 'on_tag_click': 'edit_color'}" optional="hide"/>
                 <field name="application_status" optional="hide" invisible="application_status == 'ongoing'"/>
                 <field name="refuse_reason_id" optional='hide'/>
                 <field name="activity_ids" widget="list_activity" optional="hide"/>
                 <field name="activity_date_deadline" optional="hide"/>
                 <field name="interviewer_ids" widget="many2many_avatar_user" optional="hide"/>
+                <field name="campaign_id" optional="hide"/>
                 <field name="medium_id" optional="hide"/>
-                <field name="source_id" readonly="1" optional="hide"/>
+                <field name="source_id" optional="hide"/>
                 <field name="salary_expected" optional="hide"/>
                 <field name="salary_proposed" optional="hide"/>
                 <field name="availability" optional="hide"/>
@@ -94,15 +96,19 @@
                 <button string="Refuse" name="archive_applicant" type="object" invisible="not active or is_pool_applicant" data-hotkey="d"/>
                 <button string="Restore" name="action_unarchive" type="object" invisible="active" data-hotkey="x"/>
                 <field name="stage_id" widget="rotting_statusbar_duration" options="{'clickable': '1'}" invisible="(not active and not employee_id) or is_pool_applicant"/>
-                <button string="Create Applications" name="action_job_add_applicants" type="object" invisible="not is_pool_applicant"/>
-                <button string="Add to Pool" name="action_talent_pool_add_applicants" type="object" invisible="is_pool_applicant or is_applicant_in_pool"/>
+                <button string="Apply to Jobs"
+                        name="action_job_add_applicants"
+                        type="object"
+                        invisible="not is_pool_applicant"
+                />
+                <button string="Add to Pool" name="action_talent_pool_add_applicants" type="object" invisible="not active or is_pool_applicant or is_applicant_in_pool"/>
             </header>
             <sheet>
                 <div class="oe_button_box" name="button_box">
                     <button name="action_open_employee"
                             type="object"
                             class="oe_stat_button"
-                            icon="fa-id-card-o"
+                            icon="badge"
                             groups="hr.group_hr_user"
                             invisible="not (employee_id or emp_is_active)">
                         <div class="o_field_widget o_stat_info">
@@ -112,13 +118,14 @@
                     </button>
                     <button name="action_open_applications"
                             class="oe_stat_button"
-                            icon="fa-pencil"
+                            icon="edit"
+                            icon_class="oi-filled"
                             type="object"
                             context="{'active_test': False}"
                             invisible="not application_count or (application_count &lt;= 1 and not is_pool_applicant)">
                         <field name="application_count" widget="statinfo" string="Applications"/>
                     </button>
-                    <button name="action_create_meeting" class="oe_stat_button" icon="fa-calendar" type="object" invisible="not id">
+                    <button name="action_create_meeting" class="oe_stat_button" icon="calendar_today" type="object" invisible="not id">
                         <div class="o_field_widget o_stat_info">
                             <span class="o_stat_text"><field name="meeting_display_text" /></span>
                             <span class="o_stat_value"><field name="meeting_display_date" readonly="1"/></span>
@@ -127,7 +134,8 @@
                     <button
                         name="action_talent_pool_stat_button"
                         class="oe_stat_button"
-                        icon="fa-users"
+                        icon="group"
+                        icon_class="oi-filled"
                         type="object"
                         invisible="not id or is_pool_applicant or not is_applicant_in_pool"
                         groups="hr_recruitment.group_hr_recruitment_user">
@@ -136,13 +144,9 @@
                 </div>
                 <!-- Job pipe ribbons -->
                 <widget name="web_ribbon" title="Refused" bg_color="text-bg-danger" invisible="application_status != 'refused'"/>
-                <widget name="web_ribbon" title="Archived" bg_color="text-bg-secondary" invisible="application_status != 'archived'"/>
+                <widget name="web_ribbon" title="Archived" bg_color="text-bg-300" invisible="application_status != 'archived'"/>
                 <widget name="web_ribbon" title="Hired" invisible="application_status != 'hired'" />
                 <field name="active" invisible="1"/>
-                <field name="legend_normal" invisible="1"/>
-                <field name="legend_blocked" invisible="1"/>
-                <field name="legend_waiting" invisible="1"/>
-                <field name="legend_done" invisible="1"/>
                 <field name="kanban_state" widget="hr_applicant_state_selection" invisible="application_status == 'refused' or application_status == 'archived' or is_pool_applicant" class="o_field_state_selection"/>
                 <div class="oe_title pe-0">
                     <label for="partner_name" class="oe_edit_only" string="Applicant" invisible="is_pool_applicant"/>
@@ -163,11 +167,11 @@
                     <group>
                         <field name="priority" widget="priority"/>
                         <field name="job_id" invisible="is_pool_applicant" placeholder="Spontaneous application"/>
-                        <field name="talent_pool_ids" widget="many2many_tags" options="{'color_field': 'color'}" invisible="not is_pool_applicant"/>
-                        <field name="user_id" widget="many2one_avatar_user" placeholder="Unassigned"/>
+                        <field name="talent_pool_ids" widget="many2many_tags" options="{'color_field': 'color', 'on_tag_click': 'edit_color'}" invisible="not is_pool_applicant"/>
+                        <field name="recruiter_id" widget="many2one_avatar_employee" placeholder="Unassigned"/>
                         <field name="interviewer_ids" options="{'no_create': True}" widget="many2many_avatar_user" invisible="is_pool_applicant" placeholder="Who can access applicants" />
                         <field name="date_closed" invisible="not date_closed" />
-                        <field name="categ_ids" placeholder="e.g. Trainee" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}"/>
+                        <field name="categ_ids" placeholder="e.g. Trainee" widget="many2many_tags" options="{'color_field': 'color', 'on_tag_click': 'edit_color', 'no_create_edit': True}"/>
                     </group>
                 </group>
                 <field name="applicant_properties" columns="2"/>
@@ -189,22 +193,29 @@
                         <group>
                             <group string="Salary Package" name="recruitment_contract" groups="hr_recruitment.group_hr_recruitment_user">
                                 <label for="salary_expected"/>
-                                <div class="o_row">
-                                    <field name="salary_expected" placeholder="Expected"/>
+                                <field name="currency_id" invisible="1"/>
+                                <div class="d-flex gap-2 align-items-baseline">
+                                    <field name="salary_expected" placeholder="Expected" class="oe_inline" widget="monetary"/>
+                                    <span> / </span>
+                                    <field name="schedule_pay" class="oe_inline" placeholder="Month"/>
                                     <span invisible="not salary_expected_extra"> + </span>
                                     <field name="salary_expected_extra" placeholder="Other benefits"/>
                                 </div>
                                 <label for="salary_proposed"/>
-                                <div class="o_row">
-                                    <field name="salary_proposed"/>
+                                <div class="d-flex gap-2 align-items-baseline">
+                                    <field name="salary_proposed" placeholder="Expected" class="oe_inline" widget="monetary"/>
+                                    <span> / </span>
+                                    <field name="schedule_pay" class="oe_inline" placeholder="Month"/>
                                     <span invisible="not salary_proposed_extra"> + </span>
                                     <field name="salary_proposed_extra" placeholder="Other benefits"/>
                                 </div>
                             </group>
                             <group string="Sourcing">
-                                <field name="source_id" placeholder="Select where the applicant comes from"/>
-                                <field name="medium_id" placeholder="Select the way applicant found the offer"/>
                                 <field name="campaign_id" placeholder="Select the campaign the applicant was part of"/>
+                                <field name="medium_id" placeholder="Select the way applicant found the offer"/>
+                                <field name="source_id" placeholder="Select where the applicant comes from"/>
+                                <field name="utm_reference" string="Reference" options="{'hide_model': True}"
+                                    invisible="not utm_reference" readonly="True"/>
                             </group>
                         </group>
                     </page>
@@ -263,37 +274,37 @@
                 <field name="job_id"/>
                 <field name="department_id" operator="child_of"/>
                 <field name="company_id" groups="base.group_multi_company"/>
-                <field name="user_id"/>
+                <field name="recruiter_id"/>
                 <field name="stage_id" domain="[]"/>
                 <field name="categ_ids"/>
                 <field name="refuse_reason_id"/>
+                <field name="talent_pool_ids" string="Talent Pools" filter_domain="[('talent_pool_ids', '=', self)]"/>
                 <field name="application_status"/>
                 <field name="date_closed"/>
                 <field name="activity_user_id" string="Activities of"/>
                 <field name="activity_type_id" string="Activity type"/>
                 <field name="attachment_ids" filter_domain="[('attachment_ids', 'any', [('index_content', 'ilike', self), ('res_model', '=', 'hr.applicant')])]" string="Resume's content"/>
-                <filter string="My Applications" name="my_applications" domain="[('user_id', '=', uid)]"/>
-                <filter string="Unassigned" name="unassigned" domain="[('user_id', '=', False)]"/>
+                <filter string="My Applications" name="my_applications" domain="[('recruiter_id.user_id', '=', uid)]"/>
+                <filter string="Unassigned" name="unassigned" domain="[('recruiter_id', '=', False)]"/>
                 <separator/>
-                <filter string="Applicants" name="applicants" domain="[('talent_pool_ids', '=', False)]"/>
-                <filter string="Talents" name="talents" domain="[('talent_pool_ids', '!=', False)]"/>
+                <filter invisible="context.get('default_talent_pool_ids', False)" string="Applicants" name="applicants" domain="[('talent_pool_ids', '=', False)]"/>
+                <filter invisible="context.get('default_talent_pool_ids', False)" string="Talents" name="talents" domain="[('talent_pool_ids', '!=', False)]"/>
+                <filter invisible="1" string="Non-Linked Talents" name="non_linked_talents" domain="[('talent_pool_ids', '!=', False), ('linked_applicant_ids', 'not in', context.get('active_job_applicant_ids', []))]"/>
                 <separator/>
-                <filter string="In Progress" name="ongoing" domain="[('date_closed', '=', False), ('active', '=', True), ('refuse_reason_id', '=', False)]"/>
-                <filter string="Hired" name="hired" domain="[('date_closed', '!=', False)]"/>
+                <filter invisible="context.get('default_talent_pool_ids', False)" string="In Progress" name="ongoing" domain="[('date_closed', '=', False), ('active', '=', True), ('refuse_reason_id', '=', False)]"/>
+                <filter invisible="context.get('default_talent_pool_ids', False)" string="Hired" name="hired" domain="[('date_closed', '!=', False)]"/>
                 <separator/>
                 <filter string="Ready for Next Stage" name="done" domain="[('kanban_state', '=', 'done')]"/>
                 <filter string="Waiting" name="waiting" domain="[('kanban_state', '=', 'waiting')]"/>
                 <filter string="Blocked" name="blocked" domain="[('kanban_state', '=', 'blocked')]"/>
-                <filter string="Rotting" name="filter_rotting" domain="[('is_rotting', '=', True)]"/>
                 <separator/>
                 <filter string="Directly Available" name="applicant_availability" domain="['|',('availability', '&lt;=', 'today'),('availability','=', False)]"/>
                 <separator/>
                 <filter string="Creation Date" name="filter_create" date="create_date"/>
-                <filter string="Last Stage Update" name="filter_date_last_stage_update" date="date_last_stage_update"/>
+                <filter invisible="context.get('default_talent_pool_ids', False)" string="Last Stage Update" name="filter_date_last_stage_update" date="date_last_stage_update"/>
                 <separator/>
                 <filter string="Unread Messages" name="message_needaction" domain="[('message_needaction', '=', True)]" groups="mail.group_mail_notification_type_inbox"/>
                 <separator/>
-                <filter string="Archived" name="inactive" domain="[('active', '=', False), ('refuse_reason_id', '=', False)]"/>
                 <filter string="Refused" name="refused" domain="[('active', '=', False), ('refuse_reason_id', '!=', False)]"/>
                 <separator/>
                 <filter invisible="1" string="My Activities" name="filter_activities_my"
@@ -313,10 +324,9 @@
                 <group>
                     <filter string="Job" name="job" domain="[]" context="{'group_by': 'job_id'}"/>
                     <filter string="Stage" name="stage" domain="[]" context="{'group_by': 'stage_id'}"/>
-                    <filter string="Responsible" name="responsible" domain="[]"  context="{'group_by': 'user_id'}"/>
+                    <filter string="Responsible" name="responsible" domain="[]"  context="{'group_by': 'recruiter_id'}"/>
                     <filter string="Talent Pool" name="talent_pool" domain="[]" context="{'group_by': 'talent_pool_ids'}"/>
                     <filter string="Creation Date" name="creation_date" context="{'group_by': 'create_date'}"/>
-                    <filter string="Hiring Date" name="hired_date" context="{'group_by': 'date_closed'}"/>
                     <filter string="Last Stage Update" name="last_stage_update" context="{'group_by': 'date_last_stage_update'}"/>
                     <filter string="Refuse Reason" name="refuse_reason_id" domain="[]" context="{'group_by': 'refuse_reason_id'}"/>
                     <filter string="Company" name="company" context="{'group_by':'company_id'}" groups="base.group_multi_company"/>
@@ -335,7 +345,7 @@
                 string="Applicants"
                 mode="month"
                 date_start="activity_date_deadline"
-                color="user_id"
+                color="recruiter_id"
                 event_limit="5"
                 hide_time="true"
                 quick_create="0"
@@ -343,7 +353,7 @@
                 <field name="partner_name"/>
                 <field name="job_id"/>
                 <field name="priority" widget="priority"/>
-                <field name="user_id" filters="1" invisible="1"/>
+                <field name="recruiter_id" filters="1" invisible="1"/>
                 <field name="activity_summary"/>
             </calendar>
         </field>
@@ -371,28 +381,13 @@
         <field name="arch" type="xml">
             <kanban  highlight_color="color" default_group_by="stage_id" class="o_kanban_applicant o_search_matching_applicant" quick_create_view="hr_recruitment.quick_create_applicant_form" sample="1" 
                 js_class="rotting_kanban">
-                <header>
-                    <button
-                        name="action_talent_pool_add_applicants"
-                        type="object"
-                        class="btn-primary"
-                        string="Add Applicants "
-                        display="always"
-                        invisible="not context.get('default_talent_pool_ids')"
-                        groups="hr_recruitment.group_hr_recruitment_user"
-                    />
-                </header>
                 <field name="stage_id" options='{"group_by_tooltip": {"requirements": "Requirements"}}'/>
-                <field name="legend_normal"/>
-                <field name="legend_blocked"/>
-                <field name="legend_waiting"/>
-                <field name="legend_done"/>
                 <field name="date_closed"/>
                 <field name="color"/>
-                <field name="user_id"/>
+                <field name="recruiter_id"/>
                 <field name="active"/>
                 <field name="application_status" />
-                <field name="company_id" invisible="1"/> <!-- We need to keep this field as it is used in the domain of user_id in the model -->
+                <field name="company_id" invisible="1"/> <!-- We need to keep this field as it is used in the domain of recruiter in the model -->
                 <progressbar field="kanban_state" colors='{"done": "success", "waiting": "warning", "blocked": "danger"}'/>
                 <templates>
                     <t t-name="menu">
@@ -403,27 +398,29 @@
                         <t t-if="widget.deletable"><a role="menuitem" type="delete" class="dropdown-item">Delete</a></t>
                         <a role="menuitem" name="action_talent_pool_add_applicants" type="object" class="dropdown-item"
                         invisible="is_pool_applicant or is_applicant_in_pool">Add to Pool</a>
+                        <div role="separator" class="dropdown-divider"></div>
+                        <field name="color" widget="kanban_color_picker"/>
                     </t>
                     <t t-name="card">
                         <widget name="web_ribbon" title="Hired" bg_color="text-bg-success" invisible="not date_closed"/>
                         <widget name="web_ribbon" title="Refused" bg_color="text-bg-danger" invisible="application_status != 'refused'"/>
-                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-secondary" invisible="application_status != 'archived'"/>
+                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-300" invisible="application_status != 'archived'"/>
                         <field t-if="record.partner_name.raw_value" class="fw-bold fs-5" name="partner_name"/>
                         <field name="job_id" invisible="context.get('search_default_job_id', False) or is_pool_applicant"/>
-                        <field name="categ_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                        <field name="categ_ids" widget="many2many_tags" options="{'color_field': 'color', 'on_tag_click': 'edit_color'}"/>
                         <field name="applicant_properties" widget="properties"/>
                         <footer>
                             <field name="priority" widget="priority"/>
                             <field class="ms-1 align-items-center" name="activity_ids" widget="kanban_activity"/>
                             <field name="is_rotting" invisible="1"/>
-                            <field name="rotting_days" class="d-flex" widget="rotting"/>
+                            <field name="rotting_days" class="d-flex" widget="rotting_days"/>
                             <div class="d-flex ms-auto align-items-center">
                                 <a name="action_open_attachments" type="object">
-                                    <i class='fa fa-paperclip' role="img" aria-label="Documents"/>
+                                    <i class="oi" data-icon="attach_file" role="img" aria-label="Documents"/>
                                     <field name="attachment_number"/>
                                 </a>
                                 <field name="kanban_state" class="mx-1" widget="hr_applicant_state_selection"/>
-                                <field name="user_id" widget="many2one_avatar_user"/>
+                                <field name="recruiter_id" widget="many2one_avatar_employee"/>
                             </div>
                         </footer>
                     </t>
@@ -439,7 +436,7 @@
             <activity string="Applicants">
                 <templates>
                     <div t-name="activity-box" class="o_hr_applicant_view_activity">
-                        <field name="user_id" widget="many2one_avatar_user"/>
+                        <field name="recruiter_id" widget="many2one_avatar_employee"/>
                         <div class="flex-grow-1 ms-1">
                             <field name="partner_name" muted="1" display="full" class="o_text_block"/>
                         </div>
@@ -490,14 +487,17 @@
         <field name="name">Talents</field>
         <field name="res_model">hr.applicant</field>
         <field name="domain">[
-            ('talent_pool_ids', '=', active_ids),
+            ('talent_pool_ids', '!=', False),
         ]</field>
         <field name="view_mode">list,kanban,form,graph,calendar,pivot,activity</field>
         <field name="view_ids" eval="[
             (5, 0, 0),
             (0, 0, {'view_mode': 'list'}),
             (0, 0, {'view_mode': 'kanban', 'view_id': ref('hr_kanban_view_applicant_talent_pool')})]"/>
-        <field name="context">{'default_talent_pool_ids': active_ids}</field>
+        <field name="context">{
+            'default_talent_pool_ids': active_ids,
+            'search_default_talent_pool_ids': active_ids,
+        }</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_empty_folder">
                 No Talents in the pool yet
@@ -615,10 +615,10 @@
             <search string="Recruitment Analysis">
                 <field name="job_id"/>
                 <field name="department_id" operator="child_of"/>
-                <field name="user_id"/>
+                <field name="recruiter_id"/>
                 <filter string="Creation Date" name="year" date="create_date" default_period="year"/>
                 <separator/>
-                <filter string="Unassigned" name="unassigned" domain="[('user_id', '=', False)]"/>
+                <filter string="Unassigned" name="unassigned" domain="[('recruiter_id', '=', False)]"/>
                 <separator/>
                 <filter string="New" name="new" domain="[('stage_id.sequence', '=', 1)]"/>
                 <separator/>
@@ -635,7 +635,7 @@
                     <field name="date_closed"/>
                 </group>
                 <group>
-                    <filter string="Responsible" name='User' context="{'group_by':'user_id'}"/>
+                    <filter string="Responsible" name='Recruiter' context="{'group_by':'recruiter_id'}"/>
                     <filter string="Company" name="company" context="{'group_by':'company_id'}" groups="base.group_multi_company"/>
                     <filter string="Jobs" name="job" context="{'group_by':'job_id'}"/>
                     <filter string="Department" name="department" context="{'group_by':'department_id'}"/>
@@ -697,15 +697,16 @@
             </p>
         </field>
     </record>
-
-    <record id="action_applicant_send_mail" model="ir.actions.server">
+    <record id="action_applicant_mass_mail" model="ir.actions.act_window">
         <field name="name">Send Email</field>
-        <field name="model_id" ref="hr_recruitment.model_hr_applicant"/>
-        <field name="sequence">1</field>
+        <field name="res_model">mail.compose.message</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{
+            'default_composition_mode': 'mass_mail',
+        }</field>
         <field name="binding_model_id" ref="hr_recruitment.model_hr_applicant"/>
         <field name="binding_view_types">list,kanban</field>
-        <field name="state">code</field>
-        <field name="code">action = records.action_send_email()</field>
     </record>
 
     <!-- Custom reports (aka filters) -->
@@ -714,7 +715,7 @@
         <field name="model_id">hr.applicant</field>
         <field name="user_ids" eval="False"/>
         <field name="action_id" ref="hr_applicant_action_analysis"/>
-        <field name="context">{'group_by': ['create_date:month', 'user_id']}</field>
+        <field name="context">{'group_by': ['create_date:month', 'recruiter_id']}</field>
     </record>
     <record id="hr_applicant_filter_job" model="ir.filters">
         <field name="name">By Job</field>
@@ -739,5 +740,13 @@
         <field name="context">{'default_res_model': 'hr.applicant', 'default_res_ids': active_ids}</field>
         <field name="binding_model_id" ref="hr_recruitment.model_hr_applicant"/>
         <field name="binding_view_types">list,kanban</field>
+    </record>
+    <record id="action_job_add_applicants" model="ir.actions.server">
+        <field name="name">Apply to Jobs</field>
+        <field name="model_id" ref="hr_recruitment.model_hr_applicant"/>
+        <field name="state">code</field>
+        <field name="code">action = records.action_job_add_applicants()</field>
+        <field name="binding_model_id" ref="hr_recruitment.model_hr_applicant"/>
+        <field name="binding_view_types">form</field>
     </record>
 </odoo>

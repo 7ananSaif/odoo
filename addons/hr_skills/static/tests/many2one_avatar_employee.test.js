@@ -1,3 +1,5 @@
+import { createPublicEmployee } from "@hr/../tests/hr_test_helpers";
+
 import { click, contains, start, startServer } from "@mail/../tests/mail_test_helpers";
 import { mountView, onRpc } from "@web/../tests/web_test_helpers";
 import { describe, expect, test } from "@odoo/hoot";
@@ -16,32 +18,19 @@ test("many2one_avatar_employee widget in kanban view with skills on avatar card"
         name: "Pierre",
         user_id: pierreUid,
         user_partner_id: pierrePid,
+        write_date: "2023-02-13 10:00:00",
     });
     const [javaForPierre, tigrinyaForPierre] = pyEnv["hr.employee.skill"].create([
         { employee_id: pierreEid, skill_id: java },
         { employee_id: pierreEid, skill_id: tigrinya },
     ]);
-    pyEnv["hr.employee.public"].create({
+    createPublicEmployee(pyEnv, {
         name: "Pierre",
         employee_skill_ids: [javaForPierre, tigrinyaForPierre],
     });
     pyEnv["m2o.avatar.employee"].create([{ employee_id: pierreEid }]);
     await start();
-
-    onRpc("hr.employee", "get_avatar_card_data", (params) => {
-        const resourceIdArray = params.args[0];
-        const resourceId = resourceIdArray[0];
-        const resources = pyEnv['hr.employee.public'].read([resourceId]);
-        const result = resources.map(resource => ({
-            name: resource.name,
-            role_ids: resource.role_ids,
-            email:resource.email,
-            phone: resource.phone,
-            user_id: resource.user_id,
-            employee_skill_ids: resource.employee_skill_ids
-        }));
-        return result;
-    });
+    onRpc("has_group", () => false);
     await mountView({
         type: "kanban",
         resModel: "m2o.avatar.employee",
@@ -57,7 +46,7 @@ test("many2one_avatar_employee widget in kanban view with skills on avatar card"
     await contains(".o_field_many2one_avatar_employee img", { count: 1 });
     expect(
         queryAttribute(".o_kanban_record .o_field_many2one_avatar_employee img", "data-src")
-    ).toBe(`/web/image/hr.employee/${pierreEid}/avatar_128`);
+    ).toBe(`/web/image/hr.employee.public/${pierreEid}/avatar_128?unique=1676282400000`);
     await click(".o_kanban_record .o_m2o_avatar > img");
     await contains(".o_avatar_card");
     await contains(".o_avatar_card .o_employee_skills_tags > .o_tag", { count: 2 });

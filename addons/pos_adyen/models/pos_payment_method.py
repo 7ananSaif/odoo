@@ -18,12 +18,13 @@ UNPREDICTABLE_ADYEN_DATA = object() # sentinel
 class PosPaymentMethod(models.Model):
     _inherit = 'pos.payment.method'
 
-    def _get_payment_terminal_selection(self):
-        return super(PosPaymentMethod, self)._get_payment_terminal_selection() + [('adyen', 'Adyen')]
+    def _get_terminal_provider_selection(self):
+        return super()._get_terminal_provider_selection() + [('adyen', 'Adyen')]
 
     # Adyen
     adyen_api_key = fields.Char(string="Adyen API key", help='Used when connecting to Adyen: https://docs.adyen.com/user-management/how-to-get-the-api-key/#description', copy=False, groups='base.group_erp_manager')
     adyen_terminal_identifier = fields.Char(help='[Terminal model]-[Serial number], for example: P400Plus-123456789', copy=False)
+    adyen_merchant_account = fields.Char(help='The POS merchant account code used in Adyen')
     adyen_test_mode = fields.Boolean(help='Run transactions in the test environment.', groups='base.group_erp_manager')
 
     adyen_latest_response = fields.Char(copy=False, groups='base.group_erp_manager') # used to buffer the latest asynchronous notification from Adyen.
@@ -38,8 +39,12 @@ class PosPaymentMethod(models.Model):
     @api.model
     def _load_pos_data_fields(self, config):
         params = super()._load_pos_data_fields(config)
-        params += ['adyen_terminal_identifier']
+        params += ['adyen_terminal_identifier', 'adyen_merchant_account']
         return params
+
+    @api.model
+    def _allowed_actions_in_self_order(self):
+        return super()._allowed_actions_in_self_order() + ['proxy_adyen_request', 'get_latest_adyen_status']
 
     @api.constrains('adyen_terminal_identifier')
     def _check_adyen_terminal_identifier(self):
@@ -63,10 +68,10 @@ class PosPaymentMethod(models.Model):
     def _get_adyen_endpoints(self):
         return {
             'terminal_request': 'https://terminal-api-%s.adyen.com/async',
+            'payment_status': 'https://terminal-api-%s.adyen.com/sync',
+            'adjust': 'https://pal-%s.adyen.com/pal/servlet/Payment/v52/adjustAuthorisation',
+            'capture': 'https://pal-%s.adyen.com/pal/servlet/Payment/v52/capture',
         }
-
-    def _is_write_forbidden(self, fields):
-        return super(PosPaymentMethod, self)._is_write_forbidden(fields - {'adyen_latest_response'})
 
     def get_latest_adyen_status(self):
         self.ensure_one()
@@ -128,6 +133,23 @@ class PosPaymentMethod(models.Model):
             },
         })
 
+        is_payment_status_data = operation == 'payment_status' and self._is_valid_adyen_request_data(data, {
+            'SaleToPOIRequest': {
+                'MessageHeader': self._get_expected_message_header('TransactionStatus'),
+                'TransactionStatusRequest': {
+                    'ReceiptReprintFlag': True,
+                    'DocumentQualifier': ['CustomerReceipt', 'CashierReceipt'],
+                    'MessageReference': {
+                        'SaleID': UNPREDICTABLE_ADYEN_DATA,
+                        'ServiceID': UNPREDICTABLE_ADYEN_DATA,
+                        'MessageCategory': UNPREDICTABLE_ADYEN_DATA,
+                    },
+                },
+            },
+        })
+
+        is_reversal_data = operation == 'terminal_request' and self._is_valid_adyen_request_data(data, self._get_expected_reversal_request())
+
         is_payment_request_with_acquirer_data = operation == 'terminal_request' and self._is_valid_adyen_request_data(data, self._get_expected_payment_request(True))
 
         if is_payment_request_with_acquirer_data:
@@ -149,15 +171,16 @@ class PosPaymentMethod(models.Model):
 
         is_payment_request_without_acquirer_data = operation == 'terminal_request' and self._is_valid_adyen_request_data(data, self._get_expected_payment_request(False))
 
-        if not is_payment_request_without_acquirer_data and not is_payment_request_with_acquirer_data and not is_adjust_data and not is_cancel_data and not is_capture_data:
+        if not is_payment_request_without_acquirer_data and not is_payment_request_with_acquirer_data and not is_adjust_data and not is_cancel_data and not is_capture_data and not is_payment_status_data and not is_reversal_data:
             raise UserError(_('Invalid Adyen request'))
 
-        if is_payment_request_with_acquirer_data or is_payment_request_without_acquirer_data:
-            acquirer_data = data['SaleToPOIRequest']['PaymentRequest']['SaleData'].get('SaleToAcquirerData')
+        if is_payment_request_with_acquirer_data or is_payment_request_without_acquirer_data or is_reversal_data:
+            request_name = 'ReversalRequest' if is_reversal_data else 'PaymentRequest'
+            acquirer_data = data['SaleToPOIRequest'][request_name]['SaleData'].get('SaleToAcquirerData')
             msg_header = data['SaleToPOIRequest']['MessageHeader']
-            metadata = 'metadata.pos_hmac=' + self._get_hmac(msg_header['SaleID'], msg_header['ServiceID'], msg_header['POIID'], data['SaleToPOIRequest']['PaymentRequest']['SaleData']['SaleTransactionID']['TransactionID'])
+            metadata = 'metadata.pos_hmac=' + self._get_hmac(msg_header['SaleID'], msg_header['ServiceID'], msg_header['POIID'], data['SaleToPOIRequest'][request_name]['SaleData']['SaleTransactionID']['TransactionID'])
 
-            data['SaleToPOIRequest']['PaymentRequest']['SaleData']['SaleToAcquirerData'] = acquirer_data + '&' + metadata if acquirer_data else metadata
+            data['SaleToPOIRequest'][request_name]['SaleData']['SaleToAcquirerData'] = acquirer_data + '&' + metadata if acquirer_data else metadata
 
         return self._proxy_adyen_request_direct(data, operation)
 
@@ -214,6 +237,30 @@ class PosPaymentMethod(models.Model):
             res['SaleToPOIRequest']['PaymentRequest']['SaleData']['SaleToAcquirerData'] = UNPREDICTABLE_ADYEN_DATA
         return res
 
+    def _get_expected_reversal_request(self):
+        return {
+            'SaleToPOIRequest': {
+                'MessageHeader': self._get_expected_message_header('Reversal'),
+                'ReversalRequest': {
+                    'ReversalReason': 'MerchantCancel',
+                    'ReversedAmount': UNPREDICTABLE_ADYEN_DATA,
+                    'OriginalPOITransaction': {
+                        'POITransactionID': {
+                            'TransactionID': UNPREDICTABLE_ADYEN_DATA,
+                            'TimeStamp': UNPREDICTABLE_ADYEN_DATA,
+                        }
+                    },
+                    'SaleData': {
+                        'SaleToAcquirerData': UNPREDICTABLE_ADYEN_DATA,
+                        'SaleTransactionID': {
+                            'TransactionID': UNPREDICTABLE_ADYEN_DATA,
+                            'TimeStamp': UNPREDICTABLE_ADYEN_DATA,
+                        }
+                    }
+                },
+            },
+        }
+
     @api.model
     def _get_valid_acquirer_data(self):
         return {
@@ -243,7 +290,7 @@ class PosPaymentMethod(models.Model):
         req = requests.post(endpoint, json=data, headers=headers, timeout=TIMEOUT)
 
         # Authentication error doesn't return JSON
-        if req.status_code == 401:
+        if req.status_code in [401, 403]:
             return {
                 'error': {
                     'status_code': req.status_code,

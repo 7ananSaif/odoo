@@ -28,17 +28,35 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:38+0000\n"
-"PO-Revision-Date: 2026-06-06 11:15+0000\n"
+"POT-Creation-Date: 2026-10-16 17:42+0000\n"
+"PO-Revision-Date: 2026-10-23 14:33+0000\n"
 "Last-Translator: Hanna Kharraziha <hakha@odoo.com>\n"
-"Language-Team: Swedish <https://translate.odoo.com/projects/odoo-19/event/"
+"Language-Team: Swedish <https://translate.odoo.com/projects/odoo-20/event/"
 "sv/>\n"
 "Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: event
+#: model:ir.module.module,description:base.module_event
+msgid ""
+"\n"
+"Organization and management of Events.\n"
+"======================================\n"
+"\n"
+"The event module allows you to efficiently organize events and all related "
+"tasks: planning, registration tracking,\n"
+"attendances, etc.\n"
+"\n"
+"Key Features\n"
+"------------\n"
+"* Manage your Events and Registrations\n"
+"* Use emails to automatically confirm and send acknowledgments for any event "
+"registration\n"
+msgstr ""
 
 #. module: event
 #: model:ir.model.fields,field_description:event.field_event_question__event_count
@@ -106,12 +124,6 @@ msgstr "%(ticket_name)s (%(count)s stolar kvar)"
 #: code:addons/event/models/event_ticket.py:0
 msgid "%(ticket_name)s (Sold out)"
 msgstr "%(ticket_name)s (Utsålt)"
-
-#. module: event
-#. odoo-python
-#: code:addons/event/models/event_event.py:0
-msgid "%s (copy)"
-msgstr "%s (kopia)"
 
 #. module: event
 #: model:ir.actions.report,print_report_name:event.action_report_event_event_attendee_list
@@ -284,50 +296,96 @@ msgstr ""
 "teknisk etc. Varje presentation måste vara på engelska.</em>"
 
 #. module: event
-#: model_terms:ir.ui.view,arch_db:event.view_event_slot_form
-msgid "<i class=\"fa fa-arrow-right mx-2\" title=\"to\"/>"
-msgstr "<i class=\"fa fa-pil-höger mx-2\" title=\"till\"/>"
-
-#. module: event
-#: model_terms:ir.ui.view,arch_db:event.event_registration_view_kanban
-msgid "<i class=\"fa fa-building\" title=\"Attendee Company\"/>"
-msgstr "<i class=\"fa fa-building\" title=\"Deltagarens företag\"/>"
-
-#. module: event
-#: model_terms:ir.ui.view,arch_db:event.event_registration_view_kanban
-msgid "<i class=\"fa fa-calendar\" title=\"Slot\"/>"
-msgstr "<i class=\"fa fa-calendar\" title=\"Slot\"/>"
-
-#. module: event
 #: model_terms:ir.ui.view,arch_db:event.view_event_kanban
-msgid "<i class=\"fa fa-group mt-1 me-2 text-center\" title=\"Attendees\"/>"
-msgstr "<i class=\"fa fa-group mt-1 me-2 text-center\" title=\"Deltagare\"/>"
+msgid "<i class=\"oi me-2\" data-icon=\"east\" title=\"End date\"/>"
+msgstr ""
+"<i class=\"oi me-2 oi-pil-höger\" data-icon=\"east\" title=\"Slutdatum\"/>"
 
 #. module: event
 #: model_terms:event.event,description:event.event_0
 msgid ""
-"<i class=\"fa fa-info-circle me-2\"></i>This event and all the conferences "
-"are in <b>English</b>!"
+"<i class=\"oi me-2\" data-icon=\"info\"></i>This event and all the "
+"conferences are in <b>English</b>!"
 msgstr ""
-"<i class=\"fa fa-info-circle me-2\"></i>Detta eventet och hela konferensen "
-"är på <b>engelska</b>!"
+"<i class=\"oi me-2\" data-icon=\"info\"></i>Detta eventet och hela "
+"konferensen är på <b>engelska</b>!"
+
+#. module: event
+#: model_terms:ir.ui.view,arch_db:event.view_event_slot_form
+msgid "<i class=\"oi mx-2\" data-icon=\"arrow_forward\" title=\"to\"/>"
+msgstr ""
+"<i class=\"oi mx-2 fa-pil-höger\" data-icon=\"arrow_forward\" title=\"till\"/"
+">"
 
 #. module: event
 #: model_terms:ir.ui.view,arch_db:event.view_event_kanban
 msgid ""
-"<i class=\"fa fa-map-marker mt-1 me-2 text-center ps-1\" title=\"Location\"/>"
+"<i class=\"oi oi-filled mt-1 me-2 text-center\" data-icon=\"group\" "
+"title=\"Attendees\"/>"
 msgstr ""
-"<i class=\"fa fa-map-marker mt-1 me-2 text-center ps-1\" title=\"Plats\"/>"
-
-#. module: event
-#: model_terms:ir.ui.view,arch_db:event.event_registration_view_kanban
-msgid "<i class=\"fa fa-ticket\" title=\"Ticket type\"/>"
-msgstr "<i class=\"fa fa-ticket\" title=\"Typ av biljett\"/>"
+"<i class=\"oi oi-filled mt-1 me-2 text-center\" data-icon=\"group\" "
+"title=\"Deltagare\"/>"
 
 #. module: event
 #: model_terms:ir.ui.view,arch_db:event.view_event_kanban
-msgid "<i class=\"oi oi-arrow-right me-2\" title=\"End date\"/>"
-msgstr "<i class=\"oi oi-pil-höger me-2\" title=\"Slutdatum\"/>"
+msgid ""
+"<i class=\"oi oi-filled mt-1 me-2 text-center\" data-icon=\"location_on\" "
+"title=\"Location\"/>"
+msgstr ""
+
+#. module: event
+#: model_terms:ir.ui.view,arch_db:event.event_registration_view_kanban
+msgid "<i class=\"oi oi-filled\" data-icon=\"calendar_today\" title=\"Slot\"/>"
+msgstr ""
+"<i class=\"oi oi-filled\" data-icon=\"calendar_today\" title=\"Slot\"/>"
+
+#. module: event
+#: model_terms:ir.ui.view,arch_db:event.portal_my_events
+msgid ""
+"<i class=\"oi oi-fw\" data-icon=\"check\" aria-label=\"Attended\" "
+"title=\"Attended\" role=\"img\"/>\n"
+"                                <span class=\"d-none d-md-inline\"> "
+"Attended</span>"
+msgstr ""
+
+#. module: event
+#: model_terms:ir.ui.view,arch_db:event.portal_my_events
+msgid ""
+"<i class=\"oi oi-fw\" data-icon=\"check\" aria-label=\"Registered\" "
+"title=\"Registered\" role=\"img\"/>\n"
+"                                <span class=\"d-none d-md-inline\"> "
+"Registered</span>"
+msgstr ""
+
+#. module: event
+#: model_terms:ir.ui.view,arch_db:event.portal_my_events
+msgid ""
+"<i class=\"oi oi-fw\" data-icon=\"close\" aria-label=\"Cancelled\" "
+"title=\"Cancelled\" role=\"img\"/>\n"
+"                                <span class=\"d-none d-md-inline\"> "
+"Cancelled</span>"
+msgstr ""
+
+#. module: event
+#: model_terms:ir.ui.view,arch_db:event.portal_my_events
+msgid ""
+"<i class=\"oi oi-fw\" data-icon=\"schedule\" aria-label=\"Unconfirmed\" "
+"title=\"Unconfirmed\" role=\"img\"/>\n"
+"                                <span class=\"d-none d-md-inline\"> "
+"Unconfirmed</span>"
+msgstr ""
+
+#. module: event
+#: model_terms:ir.ui.view,arch_db:event.event_registration_view_kanban
+msgid "<i class=\"oi\" data-icon=\"business\" title=\"Attendee Company\"/>"
+msgstr "<i class=\"oi\" data-icon=\"business\" title=\"Deltagarens företag\"/>"
+
+#. module: event
+#: model_terms:ir.ui.view,arch_db:event.event_registration_view_kanban
+msgid ""
+"<i class=\"oi\" data-icon=\"confirmation_number\" title=\"Ticket type\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"confirmation_number\" title=\"Typ av biljett\"/>"
 
 #. module: event
 #: model_terms:event.event,description:event.event_2
@@ -756,6 +814,381 @@ msgid ""
 "</table>\n"
 "            "
 msgstr ""
+"<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"padding-top: "
+"16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-serif; "
+"color: #454748; width: 100%; border-collapse:separate;\"><tr><td "
+"align=\"center\">\n"
+"<t t-set=\"date_begin\" t-value=\"format_datetime(object.event_begin_date, "
+"tz='UTC', dt_format=&quot;yyyyMMdd'T'HHmmss'Z'&quot;)\"/>\n"
+"<t t-set=\"date_end\" t-value=\"format_datetime(object.event_end_date, "
+"tz='UTC', dt_format=&quot;yyyyMMdd'T'HHmmss'Z'&quot;)\"/>\n"
+"<t t-set=\"is_online\" t-value=\"'is_published' in object.event_id and "
+"object.event_id.is_published\"/>\n"
+"<t t-set=\"event_organizer\" t-value=\"object.event_id.organizer_id\"/>\n"
+"<t t-set=\"event_address\" t-value=\"object.event_id.address_id\"/>\n"
+"<t t-set=\"event_website_url\" t-value=\"object.event_id.event_share_url\"/"
+">\n"
+"<t t-set=\"registration_ids\" t-value=\"object.ids if not is_sale else "
+"object._get_event_registration_ids_from_order()\"/>\n"
+"<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" "
+"style=\"padding: 16px; background-color: white; color: #454748; border-"
+"collapse:separate;\">\n"
+"<tbody>\n"
+"    <!-- HEADER -->\n"
+"    <tr>\n"
+"        <td align=\"center\" style=\"min-width: 590px;\">\n"
+"            <table width=\"590\" border=\"0\" cellpadding=\"0\" "
+"cellspacing=\"0\" style=\"min-width: 590px; background-color: white; "
+"padding: 0px 8px 0px 8px; border-collapse:separate;\">\n"
+"                <tr><td valign=\"middle\">\n"
+"                    <span style=\"font-size: 10px;\">Din anmälan</span><br/"
+">\n"
+"                    <span style=\"font-size: 20px; font-weight: bold;\">\n"
+"                        <t t-set=\"default_name\">Gäst</t>\n"
+"                        <t t-out=\"object.name or default_name\"/>\n"
+"                    </span>\n"
+"                </td><td valign=\"middle\" align=\"right\">\n"
+"                    <a t-attf-href=\"/event/{{ object.event_id.id }}/"
+"my_tickets?badge_mode=1&amp;registration_ids={{ registration_ids }}"
+"&amp;tickets_hash={{ object.event_id._get_tickets_access_hash(registration_ids) }}"
+"\" target=\"_blank\" t-attf-style=\"padding: 8px 12px; font-size: 12px; "
+"color: {{object.event_id.company_id.email_primary_color or '#FFFFFF'}}; text-"
+"decoration: none !important; font-weight: 400; background-color: "
+"{{object.event_id.company_id.email_secondary_color or '#875A7B'}}; border-"
+"radius:3px\">\n"
+"                        Ladda ner brickor\n"
+"                    </a>\n"
+"                    <t t-if=\"not object.company_id.uses_default_logo\">\n"
+"                        <img t-att-src=\"'/logo.png?company=%s' % "
+"object.company_id.id\" style=\"padding: 0px; margin: 0px; height: auto; "
+"width: 80px;\" t-att-alt=\"'%s' % object.company_id.name\"/>\n"
+"                    </t>\n"
+"                </td></tr>\n"
+"                <tr><td colspan=\"2\" style=\"text-align:center;\">\n"
+"                  <hr width=\"100%\" style=\"background-"
+"color:rgb(204,204,204);border:medium none;clear:both;display:block;font-"
+"size:0px;min-height:1px;line-height:0; margin:16px 0px 16px 0px;\"/>\n"
+"                </td></tr>\n"
+"            </table>\n"
+"        </td>\n"
+"    </tr>\n"
+"    <!-- EVENT DESCRIPTION -->\n"
+"    <tr>\n"
+"        <td align=\"center\" style=\"min-width: 590px;\">\n"
+"            <table width=\"590\" border=\"0\" cellpadding=\"0\" "
+"cellspacing=\"0\" style=\"min-width: 590px; background-color: white; "
+"padding: 0px 8px 0px 8px; border-collapse:separate;\">\n"
+"                <tr><td valign=\"top\" style=\"font-size: 14px;\">\n"
+"                    <div>\n"
+"                        <t t-set=\"default_name\">Guest</t>\n"
+"                        Hej <t t-out=\"object.name or default_name\"/>,<br/"
+"><br/>\n"
+"                        Vänligen se bifogad din bricka till\n"
+"                        <t t-if=\"event_website_url\">\n"
+"                            <a t-att-href=\"event_website_url\" t-attf-"
+"style=\"font-weight:bold;color:"
+"{{object.event_id.company_id.email_secondary_color or '#875A7B'}}; text-"
+"decoration:none;\" t-out=\"object.event_id.name or ''\">OpenWood Collection "
+"Online Reveal</a>\n"
+"                        </t>\n"
+"                        <t t-else=\"\">\n"
+"                            <strong t-out=\"object.event_id.name or "
+"''\">OpenWood Collection Online Reveal</strong>.\n"
+"                        </t>\n"
+"                    </div>\n"
+"                    <br/>\n"
+"                    <table style=\"width: auto;\">\n"
+"                        <tr>\n"
+"                            <td>\n"
+"                                <strong>Lägg till evenemanget i din "
+"kalender</strong>\n"
+"                            </td>\n"
+"                            <td>\n"
+"                                <a t-attf-href=\"/event/"
+"{{ slug(object.event_id) }}/ics?slot_id={{ object.event_slot_id.id }}\" "
+"style=\"padding-top: 10px; padding-right:8px; padding-bottom:2px; padding-"
+"left:8px; margin-left: 8px; border-radius: 3px; background-color: #E7E9ED;"
+"\">\n"
+"                                    <img src=\"/event/static/src/img/apple-"
+"calendar-128.png\" alt=\"iCal\" title=\"iCal\" style=\"height: 20px; "
+"vertical-align: baseline;\"/>\n"
+"                                </a>\n"
+"                            </td>\n"
+"                            <td>\n"
+"                                <a t-attf-href=\"/event/"
+"{{ slug(object.event_id) }}/ics?slot_id={{ object.event_slot_id.id }}\" "
+"style=\"padding-top: 10px; padding-right:8px; padding-bottom:2px; padding-"
+"left:8px; margin-left: 8px; border-radius: 3px; background-color: #E7E9ED;"
+"\">\n"
+"                                    <img src=\"/event/static/src/img/outlook-"
+"calendar-128.png\" alt=\"Outlook\" title=\"Outlook\" style=\"height: 20px; "
+"vertical-align: baseline;\"/>\n"
+"                                </a>\n"
+"                            </td>\n"
+"                            <td>\n"
+"                                <a t-attf-href=\"https://www.google.com/"
+"calendar/render?action=TEMPLATE&amp;text={{ object.event_id.name }}"
+"&amp;dates={{ date_begin }}/{{ date_end }}&amp;location={{ location }}"
+"&amp;details={{ object.event_id._get_external_description_url_encoded() }}\" "
+"target=\"new\" style=\"padding-top: 10px; padding-right:8px; padding-"
+"bottom:2px; padding-left:8px; margin-left: 8px; border-radius: 3px; "
+"background-color: #E7E9ED;\">\n"
+"                                    <img src=\"/event/static/src/img/google-"
+"calendar-128.png\" alt=\"Google\" title=\"Google\" style=\"height: 20px; "
+"vertical-align: baseline;\"/>\n"
+"                                </a>\n"
+"                            </td>\n"
+"                        </tr>\n"
+"                    </table>\n"
+"                    <br/><br/>\n"
+"                    <div>\n"
+"                        Med vänliga hälsningar,<br/>\n"
+"                        <span style=\"color: #454748;\">\n"
+"                        -- <br/>\n"
+"                        <t t-if=\"event_organizer\">\n"
+"                            <t t-out=\"event_organizer.name or "
+"''\">YourCompany</t>\n"
+"                        </t>\n"
+"                        <t t-else=\"\">\n"
+"                             <t t-out=\"object.event_id.name or "
+"''\">Arrangörerna för OpenWood Collection Online Reveal</t>\n"
+"                        </t>\n"
+"                        </span>\n"
+"                    </div>\n"
+"                </td></tr>\n"
+"                <tr><td style=\"text-align:center;\">\n"
+"                  <hr width=\"100%\" style=\"background-"
+"color:rgb(204,204,204);border:medium none;clear:both;display:block;font-"
+"size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;\"/>\n"
+"                </td></tr>\n"
+"            </table>\n"
+"        </td>\n"
+"    </tr>\n"
+"    <!-- DETAILS -->\n"
+"    <tr>\n"
+"        <td align=\"center\" style=\"min-width: 590px;\">\n"
+"            <table width=\"590\" border=\"0\" cellpadding=\"0\" "
+"cellspacing=\"0\" style=\"min-width: 590px; background-color: white; "
+"padding: 0px 8px 0px 8px; border-collapse:separate;\">\n"
+"                <tr><td valign=\"top\" style=\"font-size: 14px;\">\n"
+"                    <table style=\"width:100%;\">\n"
+"                        <tr>\n"
+"                            <td style=\"vertical-align:top;\">\n"
+"                                <img src=\"/mail/font_to_img/61555/"
+"rgb(81,81,102)/34\" style=\"padding:4px;max-width:inherit;\" height=\"34\" "
+"alt=\"\"/>\n"
+"                            </td>\n"
+"                            <td style=\"padding: 0px 10px 0px "
+"10px;width:50%;line-height:20px;vertical-align:top;\">\n"
+"                                <div t-if=\"object.event_id.is_one_day\">\n"
+"                                    <t t-out=\"object.event_begin_date\" t-"
+"options=\"{&quot;widget&quot;: &quot;datetime&quot;, &quot;date_only&quot;: "
+"True, &quot;tz_name&quot;: object.event_id.date_tz, &quot;format&quot;: "
+"&quot;long&quot;}\">4 maj 2021</t>\n"
+"                                    <t t-out=\"object.event_begin_date\" t-"
+"options=\"{&quot;widget&quot;: &quot;datetime&quot;, &quot;time_only&quot;: "
+"True, &quot;tz_name&quot;: object.event_id.date_tz, "
+"&quot;hide_seconds&quot;: True, &quot;format&quot;: &quot;short&quot;}"
+"\">7:00 AM</t>\n"
+"                                     - <t t-out=\"object.event_end_date\" t-"
+"options=\"{&quot;widget&quot;: &quot;datetime&quot;, &quot;time_only&quot;: "
+"True, &quot;tz_name&quot;: object.event_id.date_tz, "
+"&quot;hide_seconds&quot;: True, &quot;format&quot;: &quot;short&quot;}"
+"\">17:00 PM</t>\n"
+"                                </div>\n"
+"                                <div t-else=\"\">\n"
+"                                    <strong>Från</strong>\n"
+"                                    <t t-out=\"object.event_begin_date\" t-"
+"options=\"{&quot;widget&quot;: &quot;datetime&quot;, "
+"&quot;show_seconds&quot;: False, &quot;tz_name&quot;: "
+"object.event_id.date_tz, &quot;format&quot;: &quot;medium&quot;}\">4 maj "
+"2021 - 7:00 AM</t>\n"
+"                                    <br/>\n"
+"                                    <strong>To</strong>\n"
+"                                    <t t-out=\"object.event_end_date\" t-"
+"options=\"{&quot;widget&quot;: &quot;datetime&quot;, "
+"&quot;show_seconds&quot;: False, &quot;tz_name&quot;: "
+"object.event_id.date_tz, &quot;format&quot;: &quot;medium&quot;}\">6 maj "
+"2021 - 17:00 PM</t>\n"
+"                                </div>\n"
+"                                <div style=\"font-"
+"size:12px;color:#9e9e9e\"><i>(<t t-out=\"object.event_id.date_tz or "
+"''\">Europa/Bryssel</t>)</i></div>\n"
+"                            </td>\n"
+"                            <td style=\"vertical-align:top;\">\n"
+"                                <t t-if=\"event_address\">\n"
+"                                    <img src=\"/mail/font_to_img/61505/"
+"rgb(81,81,102)/34\" style=\"padding:4px;max-width:inherit;\" height=\"34\" "
+"alt=\"\"/>\n"
+"                                </t>\n"
+"                            </td>\n"
+"                            <td style=\"padding: 0px 10px 0px "
+"10px;width:50%;vertical-align:top;\">\n"
+"                                <t t-if=\"event_address\">\n"
+"                                    <t t-set=\"location\" t-value=\"''\"/>\n"
+"                                    <t t-"
+"if=\"object.event_id.address_id.name\">\n"
+"                                        <div t-"
+"out=\"object.event_id.address_id.name\">Teksa SpA</div>\n"
+"                                    </t>\n"
+"                                    <t t-"
+"if=\"object.event_id.address_id.street\">\n"
+"                                        <div t-"
+"out=\"object.event_id.address_id.street\">Puerto Madero 9710</div>\n"
+"                                        <t t-set=\"location\" t-"
+"value=\"object.event_id.address_id.street\"/>\n"
+"                                    </t>\n"
+"                                    <t t-"
+"if=\"object.event_id.address_id.street2\">\n"
+"                                        <div t-"
+"out=\"object.event_id.address_id.street2\">Of A15, Santiago (RM)</div>\n"
+"                                        <t t-set=\"location\" t-"
+"valuef=\"{{location}}, {{object.event_id.address_id.street2}}\"/>\n"
+"                                    </t>\n"
+"                                    <div>\n"
+"                                    <t t-"
+"if=\"object.event_id.address_id.city\">\n"
+"                                        <t t-"
+"out=\"object.event_id.address_id.city\">Pudahuel</t>,\n"
+"                                        <t t-set=\"location\" t-"
+"valuef=\"{{location}}, {{object.event_id.address_id.city}}\"/>\n"
+"                                    </t>\n"
+"                                    <t t-"
+"if=\"object.event_id.address_id.state_id.name\">\n"
+"                                        <t t-"
+"out=\"object.event_id.address_id.state_id.name\">C1</t>,\n"
+"                                        <t t-set=\"location\" t-"
+"valuef=\"{{location}}, {{object.event_id.address_id.state_id.name}}\"/>\n"
+"                                    </t>\n"
+"                                    <t t-"
+"if=\"object.event_id.address_id.zip\">\n"
+"                                        <t t-"
+"out=\"object.event_id.address_id.zip\">98450</t>\n"
+"                                        <t t-set=\"location\" t-"
+"valuef=\"{{location}}, {{object.event_id.address_id.zip}}\"/>\n"
+"                                    </t>\n"
+"                                    </div>\n"
+"                                    <t t-"
+"if=\"object.event_id.address_id.country_id.name\">\n"
+"                                        <div t-"
+"out=\"object.event_id.address_id.country_id.name\">Argentina</div>\n"
+"                                        <t t-set=\"location\" t-"
+"valuef=\"{{location}}, {{object.event_id.address_id.country_id.name}}\"/>\n"
+"                                    </t>\n"
+"                                </t>\n"
+"                            </td>\n"
+"                        </tr>\n"
+"                    </table>\n"
+"                </td></tr>\n"
+"                <tr><td style=\"text-align:center;\">\n"
+"                    <t t-if=\"event_organizer\">\n"
+"                        <hr width=\"100%\" style=\"background-"
+"color:rgb(204,204,204);border:medium none;clear:both;display:block;font-"
+"size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;\"/>\n"
+"                    </t>\n"
+"                </td></tr>\n"
+"\n"
+"                <tr><td valign=\"top\" style=\"font-size: 14px;\">\n"
+"                    <!-- CONTACT ORGANIZER -->\n"
+"                    <t t-if=\"event_organizer\">\n"
+"                        <div>\n"
+"                            <span style=\"font-weight:300;margin:10px "
+"0px\">Har du några frågor om evenemanget?</span>\n"
+"                            <div>Vänligen kontakta arrangören:</div>\n"
+"                            <ul>\n"
+"                                <li><t t-out=\"event_organizer.name or "
+"''\">YourCompany</t></li>\n"
+"                                <t t-if=\"event_organizer.email\">\n"
+"                                    <li>E-post: <a t-attf-href=\"mailto:"
+"{{ event_organizer.email }}\" t-attf-style=\"text-decoration:none;color: "
+"{{object.event_id.company_id.email_secondary_color or '#875A7B'}};\" t-"
+"out=\"event_organizer.email\">info@yourcompany.com</a></li>\n"
+"                                </t>\n"
+"                                <t t-if=\"event_organizer.phone\">\n"
+"                                    <li>Telefon: <t t-"
+"out=\"event_organizer.phone\">+1 650-123-4567</t></li>\n"
+"                                </t>\n"
+"                            </ul>\n"
+"                        </div>\n"
+"                    </t>\n"
+"                </td></tr>\n"
+"                <tr><td style=\"text-align:center;\">\n"
+"                    <!-- CONTACT ORGANIZER SEPARATION -->\n"
+"                    <t t-if=\"is_online or event_address\">\n"
+"                        <hr width=\"100%\" style=\"background-"
+"color:rgb(204,204,204);border:medium none;clear:both;display:block;font-"
+"size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;\"/>\n"
+"                    </t>\n"
+"                </td></tr>\n"
+"\n"
+"                <tr><td valign=\"top\" style=\"font-size: 14px;\">\n"
+"                    <!-- PWA MARKGETING -->\n"
+"                    <t t-if=\"is_online\">\n"
+"                        <div>\n"
+"                            <strong>Få den bästa mobila upplevelsen.</"
+"strong>\n"
+"                            <a href=\"/event\">Installera vår mobilapp</a>\n"
+"                        </div>\n"
+"                    </t>\n"
+"                </td></tr>\n"
+"                <tr><td style=\"text-align:center;\">\n"
+"                    <!-- PWA MARKGETING SEPARATION-->\n"
+"                    <t t-if=\"is_online and event_address\">\n"
+"                        <hr width=\"100%\" style=\"background-"
+"color:rgb(204,204,204);border:medium none;clear:both;display:block;font-"
+"size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;\"/>\n"
+"                    </t>\n"
+"                </td></tr>\n"
+"\n"
+"                <tr><td valign=\"top\" style=\"font-size: 14px;\">\n"
+"                    <!-- GOOGLE MAPS LINK -->\n"
+"                    <t t-if=\"event_address and location\">\n"
+"                        <table style=\"width:100%;\"><tr><td>\n"
+"                            <div>\n"
+"                                <img src=\"/web_editor/font_to_img/61505/"
+"rgb(81,81,102)/20\" height=\"20\" style=\"vertical-align: bottom;\"/>\n"
+"                                <a t-attf-href=\"https://maps.google.com/"
+"maps?q={{ location }}\" target=\"new\">\n"
+"                                    <img t-if=\"event_address.static_map_url "
+"and event_address.static_map_url_is_valid\" t-att-"
+"src=\"event_address.static_map_url\" style=\"vertical-align:bottom; width: "
+"100%;\" alt=\"Google Maps\"/>\n"
+"                                    <t t-else=\"\">Visa plats i Google "
+"Kartor</t>\n"
+"                                </a>\n"
+"                            </div>\n"
+"                        </td></tr></table>\n"
+"                    </t>\n"
+"                </td></tr>\n"
+"            </table>\n"
+"        </td>\n"
+"    </tr>\n"
+"</tbody>\n"
+"</table>\n"
+"</td></tr>\n"
+"<!-- FOOTER BY -->\n"
+"<tr><td align=\"center\" style=\"min-width: 590px;\">\n"
+"    <t t-if=\"object.company_id\">\n"
+"        <table width=\"590\" border=\"0\" cellpadding=\"0\" "
+"cellspacing=\"0\" style=\"min-width: 590px; background-color: #F1F1F1; "
+"color: #454748; padding: 8px; border-collapse:separate;\">\n"
+"        <tr><td style=\"text-align: center; font-size: 14px;\">\n"
+"            Skickades av <a target=\"_blank\" t-attf-"
+"href=\"{{ object.company_id.website }}\" t-attf-style=\"color: "
+"{{object.event_id.company_id.email_secondary_color or '#875A7B'}};\" t-"
+"out=\"object.company_id.name or ''\">YourCompany</a>\n"
+"            <t t-if=\"is_online\">\n"
+"                <br/>\n"
+"                Upptäck <a href=\"/event\" t-attf-style=\"color: "
+"{{object.event_id.company_id.email_secondary_color or '#875A7B'}};\">alla "
+"våra evenemang</a>.\n"
+"            </t>\n"
+"        </td></tr>\n"
+"        </table>\n"
+"    </t>\n"
+"</td></tr>\n"
+"</table>\n"
+"            "
 
 #. module: event
 #: model:mail.template,body_html:event.event_reminder
@@ -818,7 +1251,7 @@ msgid ""
 "                    <t t-if=\"object.barcode\">\n"
 "                        <div style=\"margin-bottom: 5px;\">\n"
 "                            <img t-attf-src=\"/report/barcode/QR/"
-"{{object.barcode}}?&amp;width=100&amp;height=100&amp;quiet=0\" width=\"100\" "
+"{{object.barcode}}?&amp;width=100&amp;height=100\" width=\"100\" "
 "height=\"100\" alt=\"QR Code\" t-att-style=\"'height: 100px !important;'\"/"
 ">\n"
 "                        </div>\n"
@@ -1216,7 +1649,7 @@ msgid ""
 "                    <t t-if=\"object.barcode\"> \n"
 "                        <div style=\"margin-bottom: 5px;\">\n"
 "                            <img t-attf-src=\"/report/barcode/QR/"
-"{{object.barcode}}?&amp;width=100&amp;height=100&amp;quiet=0\" width=\"100\" "
+"{{object.barcode}}?&amp;width=100&amp;height=100\" width=\"100\" "
 "height=\"100\" alt=\"QR Code\" t-att-style=\"'height: 100px !important;'\"/"
 ">\n"
 "                        </div>\n"
@@ -1592,14 +2025,10 @@ msgstr ""
 msgid ""
 "A slot cannot be scheduled outside of its event time range.\n"
 "\n"
-"Event:\t\t%(event_start)s - %(event_end)s\n"
-"Slot:\t\t%(slot_name)s"
+"Event:\t%(event_start_date)s, %(event_start_time)s - %(event_end_date)s, %"
+"(event_end_time)s\n"
+"Slot:\t%(slot_name)s"
 msgstr ""
-"En öppning kan inte schemaläggas utanför dess tidsintervall för "
-"evenemanget.\n"
-"\n"
-"Händelse: %(event_start)s - %(event_end)s\n"
-"Öppning: %(slot_name)s"
 
 #. module: event
 #. odoo-python
@@ -1628,10 +2057,15 @@ msgid "A6"
 msgstr "A6"
 
 #. module: event
+#: model:portal.entry,description:event.portal_events_client
+msgid "Access all your event tickets"
+msgstr ""
+
+#. module: event
 #: model:ir.model.fields,field_description:event.field_event_event__message_needaction
 #: model:ir.model.fields,field_description:event.field_event_registration__message_needaction
 msgid "Action Needed"
-msgstr "Åtgärd krävs"
+msgstr "Åtgärd Krävs"
 
 #. module: event
 #: model:ir.model.fields,field_description:event.field_event_event__active
@@ -1660,7 +2094,13 @@ msgstr "Verksamhet"
 #: model:ir.model.fields,field_description:event.field_event_event__activity_exception_decoration
 #: model:ir.model.fields,field_description:event.field_event_registration__activity_exception_decoration
 msgid "Activity Exception Decoration"
-msgstr "Undantagsaktiviteter dekoration"
+msgstr "Stilmarkeringar för undantagsaktiviteter"
+
+#. module: event
+#: model:ir.model.fields,field_description:event.field_event_event__activity_plans_ids
+#: model:ir.model.fields,field_description:event.field_event_registration__activity_plans_ids
+msgid "Activity Plans"
+msgstr "Aktivitetsplaner"
 
 #. module: event
 #: model:ir.model.fields,field_description:event.field_event_event__activity_state
@@ -1707,6 +2147,17 @@ msgid "Add some internal notes (to do lists, contact info, ...)"
 msgstr "Lägg till egna anteckningar (att-göra lista, kontaktinformation, ...)"
 
 #. module: event
+#. odoo-javascript
+#: code:addons/event/static/src/views/event_slot/calendar/event_slot_calendar_controller.js:0
+msgid ""
+"Adding these slots will automatically adjust the event's time range to "
+"include them.\n"
+"\n"
+"From:\t%(start)s - %(end)s\n"
+"To:\t\t%(new_start)s - %(new_end)s\n"
+msgstr ""
+
+#. module: event
 #: model:ir.model.fields,field_description:event.field_event_event__address_search
 msgid "Address"
 msgstr "Adress"
@@ -1745,8 +2196,13 @@ msgid "Age"
 msgstr "Ålder"
 
 #. module: event
+#. odoo-python
+#: code:addons/event/controllers/portal.py:0
+msgid "All"
+msgstr ""
+
+#. module: event
 #: model_terms:ir.ui.view,arch_db:event.event_event_ticket_form_view
-#: model_terms:ir.ui.view,arch_db:event.view_event_mail_form
 msgid "All Events"
 msgstr "Alla evenemang"
 
@@ -1810,11 +2266,9 @@ msgstr "Svar"
 
 #. module: event
 #: model:ir.actions.act_window,name:event.action_event_registration_report
-#: model_terms:ir.ui.view,arch_db:event.event_question_view_list
 #: model_terms:ir.ui.view,arch_db:event.event_registration_answer_view_graph
 #: model_terms:ir.ui.view,arch_db:event.event_registration_answer_view_pivot
 #: model_terms:ir.ui.view,arch_db:event.event_registration_answer_view_tree
-#: model_terms:ir.ui.view,arch_db:event.view_event_form
 msgid "Answer Breakdown"
 msgstr "Fördelning av svar"
 
@@ -1832,7 +2286,7 @@ msgstr "Svar"
 #: model_terms:ir.ui.view,arch_db:event.view_event_search
 #: model_terms:ir.ui.view,arch_db:event.view_registration_search
 msgid "Archived"
-msgstr "Arkiverad"
+msgstr "Arkiverade"
 
 #. module: event
 #: model:ir.model.fields,field_description:event.field_event_event_ticket__is_launched
@@ -1904,7 +2358,10 @@ msgid "Attended on %(attended_date)s"
 msgstr "Deltog den %(attended_date)s"
 
 #. module: event
+#. odoo-python
+#: code:addons/event/controllers/portal.py:0
 #: model:ir.model.fields,field_description:event.field_event_mail_registration__registration_id
+#: model_terms:ir.ui.view,arch_db:event.portal_my_events
 #: model_terms:ir.ui.view,arch_db:event.view_event_registration_form
 msgid "Attendee"
 msgstr "Deltagare"
@@ -2006,7 +2463,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:event.field_event_registration__barcode
 #: model_terms:ir.ui.view,arch_db:event.event_report_template_full_page_ticket
 msgid "Barcode"
-msgstr "Streckkod"
+msgstr "Streckkoder"
 
 #. module: event
 #: model:ir.actions.client,name:event.event_barcode_action_main_view
@@ -2147,6 +2604,12 @@ msgstr ""
 "och andra fält."
 
 #. module: event
+#. odoo-javascript
+#: code:addons/event/static/src/client_action/event_registration_summary_dialog.xml:0
+msgid "Close"
+msgstr ""
+
+#. module: event
 #: model:ir.model.fields,field_description:event.field_event_event_ticket__color
 #: model:ir.model.fields,field_description:event.field_event_slot__color
 msgid "Color"
@@ -2236,24 +2699,30 @@ msgstr "Inställningar"
 #. module: event
 #: model:ir.ui.menu,name:event.menu_event_configuration
 msgid "Configuration"
-msgstr "Konfiguration"
+msgstr "Inställningar"
 
 #. module: event
 #. odoo-javascript
 #: code:addons/event/static/src/client_action/event_registration_summary_dialog.xml:0
 msgid "Confirm attendance?"
-msgstr "Bekräfta närvaro?"
+msgstr ""
+
+#. module: event
+#. odoo-javascript
+#: code:addons/event/static/src/js/tours/event_tour.js:0
+msgid "Confirm the selected dates."
+msgstr ""
+
+#. module: event
+#. odoo-javascript
+#: code:addons/event/static/src/views/event_slot/calendar/event_slot_calendar_controller.js:0
+msgid "Confirmation"
+msgstr ""
 
 #. module: event
 #: model:ir.model,name:event.model_res_partner
 msgid "Contact"
 msgstr "Kontakt"
-
-#. module: event
-#. odoo-javascript
-#: code:addons/event/static/src/client_action/event_registration_summary_dialog.xml:0
-msgid "Continue"
-msgstr "Fortsätt"
 
 #. module: event
 #: model:ir.model.fields,field_description:event.field_event_event__country_id
@@ -2336,8 +2805,11 @@ msgid "Culture"
 msgstr "Kultur"
 
 #. module: event
+#. odoo-python
+#: code:addons/event/controllers/portal.py:0
 #: model:ir.model.fields,field_description:event.field_event_slot__date
 #: model_terms:ir.ui.view,arch_db:event.event_event_view_form_quick_create
+#: model_terms:ir.ui.view,arch_db:event.portal_my_events
 #: model_terms:ir.ui.view,arch_db:event.view_event_form
 msgid "Date"
 msgstr "Datum"
@@ -2388,6 +2860,11 @@ msgid "Design Fair Los Angeles"
 msgstr "Designmässan Los Angeles"
 
 #. module: event
+#: model:ir.model,name:event.model_digest_digest
+msgid "Digest"
+msgstr ""
+
+#. module: event
 #: model:event.event,subtitle:event.event_4
 msgid "Discover how to grow a sustainable business with our experts."
 msgstr "Upptäck hur du utvecklar ett hållbart företag med våra experter."
@@ -2398,6 +2875,7 @@ msgid "Discover more"
 msgstr "Upptäck mer"
 
 #. module: event
+#: model:ir.model.fields,field_description:event.field_digest_digest__display_name
 #: model:ir.model.fields,field_description:event.field_event_event__display_name
 #: model:ir.model.fields,field_description:event.field_event_event_ticket__display_name
 #: model:ir.model.fields,field_description:event.field_event_mail__display_name
@@ -2443,8 +2921,8 @@ msgstr "Ladda ner biljetter"
 
 #. module: event
 #: model_terms:ir.ui.view,arch_db:event.event_report_template_full_page_ticket
-msgid "Download Tickets <i class=\"ms-1 fa fa-download\"/>"
-msgstr "Ladda ner biljetter <i class=\"ms-1 fa fa-download\"/>"
+msgid "Download Tickets <i class=\"oi ms-1\" data-icon=\"download\"/>"
+msgstr "Ladda ner biljetter <i class=\"oi ms-1\" data-icon=\"download\"/>"
 
 #. module: event
 #: model_terms:event.event,description:event.event_2
@@ -2458,8 +2936,8 @@ msgstr ""
 #. module: event
 #. odoo-javascript
 #: code:addons/event/static/src/client_action/event_registration_summary_dialog.xml:0
-msgid "Edit"
-msgstr "Redigera"
+msgid "Edit Ticket"
+msgstr ""
 
 #. module: event
 #: model:event.question,title:event.event_question_email
@@ -2470,13 +2948,22 @@ msgstr "E-post"
 
 #. module: event
 #: model:ir.model,name:event.model_mail_template
-msgid "Email Templates"
-msgstr "E-postmallar"
+msgid "Email Template"
+msgstr ""
 
 #. module: event
 #: model_terms:ir.ui.view,arch_db:event.res_config_settings_view_form
 msgid "Enable barcode scanning"
 msgstr "Aktivera streckkodsläsning"
+
+#. module: event
+#: model:ir.model.fields,help:event.field_event_event_ticket__entry_limit
+#: model:ir.model.fields,help:event.field_event_registration__ticket_entry_limit
+msgid ""
+"Enable multi-entry tickets\n"
+"- Set to 0 or 1 to disable.\n"
+"- Enter 2 or more to define the maximum number of allowed entries."
+msgstr ""
 
 #. module: event
 #: model:ir.model.fields,help:event.field_res_config_settings__use_event_barcode
@@ -2514,12 +3001,19 @@ msgid "Enhance your architectural business and improve professional skills."
 msgstr "Förbättra din arkitektverksamhet och dina yrkeskompetenser."
 
 #. module: event
+#: model:ir.model.fields,field_description:event.field_event_event_ticket__entry_limit
+msgid "Entry Limit"
+msgstr ""
+
+#. module: event
 #: model:ir.model.fields.selection,name:event.selection__event_mail__mail_state__error
 msgid "Error"
 msgstr "Fel"
 
 #. module: event
 #. odoo-javascript
+#. odoo-python
+#: code:addons/event/controllers/portal.py:0
 #: code:addons/event/static/src/client_action/event_registration_summary_dialog.xml:0
 #: model:ir.model,name:event.model_event_event
 #: model:ir.model.fields,field_description:event.field_event_event__name
@@ -2528,8 +3022,10 @@ msgstr "Fel"
 #: model:ir.model.fields,field_description:event.field_event_registration__event_id
 #: model:ir.model.fields,field_description:event.field_event_registration_answer__event_id
 #: model:ir.model.fields,field_description:event.field_event_slot__event_id
+#: model_terms:ir.ui.view,arch_db:event.digest_digest_view_form
 #: model_terms:ir.ui.view,arch_db:event.event_event_view_activity
 #: model_terms:ir.ui.view,arch_db:event.event_question_view_search
+#: model_terms:ir.ui.view,arch_db:event.portal_my_events
 #: model_terms:ir.ui.view,arch_db:event.view_event_search
 #: model_terms:ir.ui.view,arch_db:event.view_registration_search
 msgid "Event"
@@ -2784,7 +3280,9 @@ msgstr "Event: påminnelse"
 #: model:ir.model.fields,field_description:event.field_event_question__event_ids
 #: model:ir.ui.menu,name:event.event_main_menu
 #: model:ir.ui.menu,name:event.menu_event_event
+#: model:portal.entry,name:event.portal_events_client
 #: model:res.groups.privilege,name:event.res_groups_privilege_events
+#: model_terms:ir.ui.view,arch_db:event.portal_my_events
 #: model_terms:ir.ui.view,arch_db:event.res_config_settings_view_form
 #: model_terms:ir.ui.view,arch_db:event.res_partner_view_tree
 #: model_terms:ir.ui.view,arch_db:event.view_event_form
@@ -2797,6 +3295,11 @@ msgstr "Evenemang"
 #: model:ir.actions.act_window,name:event.action_event_mail
 msgid "Events Mail Schedulers"
 msgstr "Evenemang e-post-planering"
+
+#. module: event
+#: model:ir.module.module,shortdesc:base.module_event
+msgid "Events Organization"
+msgstr ""
 
 #. module: event
 #: model_terms:ir.ui.view,arch_db:event.event_stage_view_form
@@ -2888,13 +3391,7 @@ msgstr "Följare"
 #: model:ir.model.fields,field_description:event.field_event_event__message_partner_ids
 #: model:ir.model.fields,field_description:event.field_event_registration__message_partner_ids
 msgid "Followers (Partners)"
-msgstr "Följare (partners)"
-
-#. module: event
-#: model:ir.model.fields,help:event.field_event_event__activity_type_icon
-#: model:ir.model.fields,help:event.field_event_registration__activity_type_icon
-msgid "Font awesome icon e.g. fa-tasks"
-msgstr "Font Awesome-ikon t.ex. fa-tasks"
+msgstr "Följare (kontakter)"
 
 #. module: event
 #: model_terms:event.event,description:event.event_2
@@ -3002,7 +3499,7 @@ msgstr "Beskrivning av flödet i de viktiga applikationerna;"
 #: model_terms:ir.ui.view,arch_db:event.view_event_search
 #: model_terms:ir.ui.view,arch_db:event.view_registration_search
 msgid "Future Activities"
-msgstr "Kommande aktiviteter"
+msgstr "Framtida aktiviteter"
 
 #. module: event
 #: model:event.event.ticket,name:event.event_4_ticket_0
@@ -3127,6 +3624,7 @@ msgid "How to Fold (4)"
 msgstr "Hur man viker (4)"
 
 #. module: event
+#: model:ir.model.fields,field_description:event.field_digest_digest__id
 #: model:ir.model.fields,field_description:event.field_event_event__id
 #: model:ir.model.fields,field_description:event.field_event_event_ticket__id
 #: model:ir.model.fields,field_description:event.field_event_mail__id
@@ -3146,8 +3644,14 @@ msgstr "Hur man viker (4)"
 #: model:ir.model.fields,field_description:event.field_mail_template__id
 #: model:ir.model.fields,field_description:event.field_res_config_settings__id
 #: model:ir.model.fields,field_description:event.field_res_partner__id
+#: model_terms:ir.ui.view,arch_db:event.res_config_settings_view_form
 msgid "ID"
 msgstr "ID"
+
+#. module: event
+#: model_terms:ir.ui.view,arch_db:event.res_config_settings_view_form
+msgid "ID of your Google app"
+msgstr ""
 
 #. module: event
 #: model:ir.model.fields,field_description:event.field_event_event__activity_exception_icon
@@ -3172,7 +3676,8 @@ msgstr "Ikon för att indikera en undantagsaktivitet."
 #: model:ir.model.fields,help:event.field_event_registration__message_needaction
 msgid "If checked, new messages require your attention."
 msgstr ""
-"Om ikryssad, så finns det nya meddelanden som kräver din uppmärksamhet."
+"Om rutan är markerad, så finns det nya meddelanden som kräver din "
+"uppmärksamhet."
 
 #. module: event
 #: model:ir.model.fields,help:event.field_event_event__message_has_error
@@ -3180,7 +3685,7 @@ msgstr ""
 #: model:ir.model.fields,help:event.field_event_registration__message_has_error
 #: model:ir.model.fields,help:event.field_event_registration__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
-msgstr "Om ikryssad, så finns det meddelanden med leveransfel."
+msgstr "Om rutan är markerad, så har vissa meddelanden leveransfel."
 
 #. module: event
 #: model:ir.model.fields,help:event.field_event_event__start_sale_datetime
@@ -3251,6 +3756,11 @@ msgstr ""
 "intervallet för varje tidslucka i stället för hela händelsen."
 
 #. module: event
+#: model:ir.model.fields,field_description:event.field_event_registration__ticket_entry_limit
+msgid "Initial Entry Limit"
+msgstr ""
+
+#. module: event
 #: model_terms:ir.ui.view,arch_db:event.res_config_settings_view_form
 msgid "Insert dynamic Google Maps in your email templates"
 msgstr "Infoga dynamiska Google Maps i dina e-postmallar"
@@ -3314,7 +3824,7 @@ msgstr "Är Avslutad"
 #: model:ir.model.fields,field_description:event.field_event_event__message_is_follower
 #: model:ir.model.fields,field_description:event.field_event_registration__message_is_follower
 msgid "Is Follower"
-msgstr "Är följare"
+msgstr "Är Följare"
 
 #. module: event
 #: model:ir.model.fields,field_description:event.field_event_event__is_multi_slots
@@ -3385,9 +3895,9 @@ msgid "Kanban State"
 msgstr "Kanbanetapp"
 
 #. module: event
-#: model_terms:ir.ui.view,arch_db:event.res_config_settings_view_form
-msgid "Key"
-msgstr "Nyckel"
+#: model:ir.model.fields,field_description:event.field_digest_digest__kpi_nbr_of_registrations_value
+msgid "Kpi Nbr Of Registrations Value"
+msgstr ""
 
 #. module: event
 #: model:ir.model.fields,field_description:event.field_event_event__lang
@@ -3454,7 +3964,7 @@ msgstr "Senast uppdaterad den"
 #: model_terms:ir.ui.view,arch_db:event.view_event_search
 #: model_terms:ir.ui.view,arch_db:event.view_registration_search
 msgid "Late Activities"
-msgstr "Försenade aktiviteter"
+msgstr "Sena aktiviteter"
 
 #. module: event
 #. odoo-javascript
@@ -3463,13 +3973,14 @@ msgid "Let's create your first <b>event</b>."
 msgstr "Låt oss skapa ditt första <b>evenemang</b>."
 
 #. module: event
-#: model:ir.model.fields,field_description:event.field_event_event__seats_limited
 #: model:ir.model.fields,field_description:event.field_event_event_ticket__seats_limited
 #: model:ir.model.fields,field_description:event.field_event_type_ticket__seats_limited
 msgid "Limit Attendees"
 msgstr "Begränsat antal deltagare"
 
 #. module: event
+#: model:ir.model.fields,field_description:event.field_event_event__seats_limited
+#: model:ir.model.fields,field_description:event.field_event_type__has_seats_limitation
 #: model_terms:ir.ui.view,arch_db:event.view_event_form
 #: model_terms:ir.ui.view,arch_db:event.view_event_type_form
 msgid "Limit Registrations"
@@ -3479,11 +3990,6 @@ msgstr "Begränsa anmälningar"
 #: model:ir.model.fields,field_description:event.field_event_event_ticket__limit_max_per_order
 msgid "Limit per Order"
 msgstr "Limit per order"
-
-#. module: event
-#: model:ir.model.fields,field_description:event.field_event_type__has_seats_limitation
-msgid "Limited Seats"
-msgstr "Begränsat Antal Platser"
 
 #. module: event
 #: model:ir.model.fields,help:event.field_event_event__event_url
@@ -3551,6 +4057,12 @@ msgid "Mail Slot"
 msgstr "Brevinkast"
 
 #. module: event
+#: model:ir.model.fields,field_description:event.field_event_registration__main_registration_id
+#: model_terms:ir.ui.view,arch_db:event.view_registration_search
+msgid "Main Registration"
+msgstr ""
+
+#. module: event
 #: model_terms:ir.ui.view,arch_db:event.res_config_settings_view_form
 msgid "Manage & publish a schedule with tracks"
 msgstr "Hantera och publicera ett schema med spår"
@@ -3584,23 +4096,25 @@ msgid "Marketing"
 msgstr "Marknadsföring"
 
 #. module: event
+#: model:ir.model.fields,help:event.field_event_event__activity_type_icon
+#: model:ir.model.fields,help:event.field_event_registration__activity_type_icon
+msgid "Material Symbols icon e.g. checklist"
+msgstr "Material Symbols-ikon, t.ex. checklista"
+
+#. module: event
 #: model_terms:ir.ui.view,arch_db:event.event_event_ticket_view_tree_from_event
 msgid "Maximum"
 msgstr "Max"
 
 #. module: event
-#: model:ir.model.fields,field_description:event.field_event_event__seats_max
 #: model:ir.model.fields,field_description:event.field_event_event_ticket__seats_max
 #: model:ir.model.fields,field_description:event.field_event_type_ticket__seats_max
 msgid "Maximum Attendees"
 msgstr "Max antal delatagare"
 
 #. module: event
+#: model:ir.model.fields,field_description:event.field_event_event__seats_max
 #: model:ir.model.fields,field_description:event.field_event_type__seats_max
-msgid "Maximum Registrations"
-msgstr "Max anmälda"
-
-#. module: event
 #: model_terms:ir.ui.view,arch_db:event.view_event_tree
 msgid "Maximum Seats"
 msgstr "Max antal stolar"
@@ -3629,7 +4143,7 @@ msgstr "Medium"
 #: model:ir.model.fields,field_description:event.field_event_event__message_has_error
 #: model:ir.model.fields,field_description:event.field_event_registration__message_has_error
 msgid "Message Delivery error"
-msgstr "Leveransfel för meddelanden"
+msgstr "Fel vid leverans meddelande"
 
 #. module: event
 #: model:ir.model.fields,field_description:event.field_event_event__message_ids
@@ -3663,7 +4177,7 @@ msgstr "Mina aktiviteter"
 #: model:ir.model.fields,field_description:event.field_event_event__my_activity_date_deadline
 #: model:ir.model.fields,field_description:event.field_event_registration__my_activity_date_deadline
 msgid "My Activity Deadline"
-msgstr "Tidsgräns för mina aktiviteter"
+msgstr "Mina aktiviteters sluttid"
 
 #. module: event
 #: model_terms:ir.ui.view,arch_db:event.view_event_search
@@ -3682,39 +4196,57 @@ msgid "Name"
 msgstr "Namn"
 
 #. module: event
+#. odoo-javascript
+#. odoo-python
+#: code:addons/event/models/event_registration.py:0
+#: code:addons/event/static/src/views/event_slot/calendar/event_slot_calendar_controller.xml:0
 #: model:event.stage,name:event.event_stage_new
 msgid "New"
 msgstr "Ny"
 
 #. module: event
 #. odoo-javascript
-#: code:addons/event/static/src/views/event_slot_calendar/event_slot_calendar_controller.js:0
+#: code:addons/event/static/src/views/event_slot/calendar/event_slot_calendar_controller.js:0
+#: code:addons/event/static/src/views/event_slot/list/event_slot_list_controller.js:0
 msgid "New Slot"
 msgstr "Ny spelautomat"
+
+#. module: event
+#. odoo-python
+#: code:addons/event/models/event_registration.py:0
+msgid ""
+"New attendance by this attendee created at %(attendance_datetime)s, see %"
+"(attendance_link)s"
+msgstr ""
 
 #. module: event
 #: model:ir.model.fields,field_description:event.field_event_event__activity_calendar_event_id
 #: model:ir.model.fields,field_description:event.field_event_registration__activity_calendar_event_id
 msgid "Next Activity Calendar Event"
-msgstr "Nästa aktivitetshändelse i kalendern"
+msgstr "Nästa Kalenderhändelse för Aktivitet"
 
 #. module: event
 #: model:ir.model.fields,field_description:event.field_event_event__activity_date_deadline
 #: model:ir.model.fields,field_description:event.field_event_registration__activity_date_deadline
 msgid "Next Activity Deadline"
-msgstr "Nästa tidsgräns för en aktivitet"
+msgstr "Tidsgräns för nästa aktivitet"
 
 #. module: event
 #: model:ir.model.fields,field_description:event.field_event_event__activity_summary
 #: model:ir.model.fields,field_description:event.field_event_registration__activity_summary
 msgid "Next Activity Summary"
-msgstr "Nästa aktivitetssammanfattning"
+msgstr "Sammanfattning av nästa aktivitet"
 
 #. module: event
 #: model:ir.model.fields,field_description:event.field_event_event__activity_type_id
 #: model:ir.model.fields,field_description:event.field_event_registration__activity_type_id
 msgid "Next Activity Type"
 msgstr "Nästa aktivitetstyp"
+
+#. module: event
+#: model:res.groups.privilege,placeholder:event.res_groups_privilege_events
+msgid "No"
+msgstr ""
 
 #. module: event
 #: model_terms:ir.actions.act_window,help:event.action_event_registration_report
@@ -3743,6 +4275,12 @@ msgstr "Inga frågor ännu! Vänligen skapa en."
 #: model:ir.model.fields,field_description:event.field_res_config_settings__barcode_nomenclature_id
 msgid "Nomenclature"
 msgstr "Nomenklatur"
+
+#. module: event
+#. odoo-python
+#: code:addons/event/controllers/portal.py:0
+msgid "None"
+msgstr ""
 
 #. module: event
 #: model_terms:ir.ui.view,arch_db:event.event_question_view_search
@@ -3819,7 +4357,7 @@ msgstr "Antal fel"
 #: model:ir.model.fields,help:event.field_event_event__message_needaction_counter
 #: model:ir.model.fields,help:event.field_event_registration__message_needaction_counter
 msgid "Number of messages requiring action"
-msgstr "Antal meddelanden som kräver åtgärder"
+msgstr "Antal meddelanden som kräver åtgärd"
 
 #. module: event
 #: model:ir.model.fields,help:event.field_event_event__message_has_error_counter
@@ -3899,6 +4437,12 @@ msgstr ""
 "evenemang."
 
 #. module: event
+#. odoo-javascript
+#: code:addons/event/static/src/js/tours/event_tour.js:0
+msgid "Open the Tickets tab."
+msgstr ""
+
+#. module: event
 #: model_terms:event.event,description:event.event_0
 msgid ""
 "OpenElec Applications reserves the right to cancel, re-name or re-locate the "
@@ -3938,6 +4482,12 @@ msgid "Partner"
 msgstr "Partner"
 
 #. module: event
+#. odoo-python
+#: code:addons/event/controllers/portal.py:0
+msgid "Past"
+msgstr ""
+
+#. module: event
 #: model:event.question,title:event.event_question_phone
 #: model:ir.model.fields,field_description:event.field_event_registration__phone
 #: model:ir.model.fields.selection,name:event.selection__event_question__question_type__phone
@@ -3948,6 +4498,18 @@ msgstr "Telefon"
 #: model_terms:ir.ui.view,arch_db:event.attendee_list
 msgid "Phone number"
 msgstr "Telefon"
+
+#. module: event
+#. odoo-javascript
+#: code:addons/event/static/src/js/tours/event_tour.js:0
+msgid "Pick a start date."
+msgstr ""
+
+#. module: event
+#. odoo-javascript
+#: code:addons/event/static/src/js/tours/event_tour.js:0
+msgid "Pick an end date."
+msgstr ""
 
 #. module: event
 #: model_terms:event.event,ticket_instructions:event.event_0
@@ -4047,7 +4609,7 @@ msgstr "Frågesport om spår"
 #: model:ir.model.fields,field_description:event.field_event_event__rating_ids
 #: model:ir.model.fields,field_description:event.field_event_registration__rating_ids
 msgid "Ratings"
-msgstr "Omdömen"
+msgstr "Betyg"
 
 #. module: event
 #: model:ir.model.fields.selection,name:event.selection__event_event__kanban_state__done
@@ -4150,6 +4712,7 @@ msgid "Registration statistics"
 msgstr "Anmälningsstatistik"
 
 #. module: event
+#: model:ir.model.fields,field_description:event.field_digest_digest__kpi_nbr_of_registrations
 #: model:ir.model.fields,field_description:event.field_event_event_ticket__registration_ids
 msgid "Registrations"
 msgstr "Anmälan"
@@ -4173,6 +4736,13 @@ msgid "Registrations started"
 msgstr "Anmälningsstart"
 
 #. module: event
+#. odoo-javascript
+#: code:addons/event/static/src/client_action/event_registration_summary_dialog.xml:0
+#: model:ir.model.fields,field_description:event.field_event_registration__remaining_entries
+msgid "Remaining Entries"
+msgstr ""
+
+#. module: event
 #. odoo-python
 #: code:addons/event/models/event_mail.py:0
 msgid "Rendering of template failed with error: %(error)s."
@@ -4181,7 +4751,7 @@ msgstr "Rendering av mall misslyckades med fel: %(error)s."
 #. module: event
 #: model:ir.ui.menu,name:event.menu_reporting_events
 msgid "Reporting"
-msgstr "Rapportering"
+msgstr "Rapporter"
 
 #. module: event
 #: model:ir.model.fields,field_description:event.field_event_event_ticket__seats_reserved
@@ -4225,7 +4795,13 @@ msgstr "Pågående"
 #: model:ir.model.fields,field_description:event.field_event_event__message_has_sms_error
 #: model:ir.model.fields,field_description:event.field_event_registration__message_has_sms_error
 msgid "SMS Delivery error"
-msgstr "Leveransfel för SMS"
+msgstr "Leveransfel för sms"
+
+#. module: event
+#. odoo-javascript
+#: code:addons/event/static/src/js/tours/event_tour.js:0
+msgid "Save the ticket."
+msgstr ""
 
 #. module: event
 #. odoo-javascript
@@ -4285,10 +4861,21 @@ msgid "Secret"
 msgstr "Hemlighet"
 
 #. module: event
+#: model_terms:ir.ui.view,arch_db:event.res_config_settings_view_form
+msgid "Secret of your Google app"
+msgstr ""
+
+#. module: event
 #. odoo-javascript
 #: code:addons/event/static/src/client_action/event_barcode.xml:0
 msgid "Select Attendee"
 msgstr "Välj deltagare"
+
+#. module: event
+#. odoo-javascript
+#: code:addons/event/static/src/views/event_slot/calendar/event_slot_multi_selection_buttons.xml:0
+msgid "Select days to add slots"
+msgstr ""
 
 #. module: event
 #: model_terms:ir.ui.view,arch_db:event.event_registration_answer_view_tree
@@ -4386,7 +4973,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:event.view_event_search
 #: model_terms:ir.ui.view,arch_db:event.view_registration_search
 msgid "Show all records whose next activity date is past"
-msgstr "Visa alla handlingar vars nästkommande aktivitetsdatum har passerat"
+msgstr "Visa alla poster vars nästa aktivitetsdatum är passerat"
 
 #. module: event
 #. odoo-javascript
@@ -4424,6 +5011,7 @@ msgstr "Slot-baserad kommunikation"
 #: code:addons/event/models/event_event.py:0
 #: model:ir.actions.act_window,name:event.event_slot_action_from_event
 #: model:ir.model.fields,field_description:event.field_event_event__event_slot_ids
+#: model_terms:ir.ui.view,arch_db:event.view_event_form
 #: model_terms:ir.ui.view,arch_db:event.view_event_slot_calendar
 #: model_terms:ir.ui.view,arch_db:event.view_event_slot_tree
 msgid "Slots"
@@ -4522,7 +5110,10 @@ msgid "Stats"
 msgstr "Statistik"
 
 #. module: event
+#. odoo-python
+#: code:addons/event/controllers/portal.py:0
 #: model:ir.model.fields,field_description:event.field_event_registration__state
+#: model_terms:ir.ui.view,arch_db:event.portal_my_events
 #: model_terms:ir.ui.view,arch_db:event.view_registration_search
 msgid "Status"
 msgstr "Status"
@@ -4536,10 +5127,10 @@ msgid ""
 "Today: Activity date is today\n"
 "Planned: Future activities."
 msgstr ""
-"Status baserad på aktiviteter\n"
-"Försenade: Leveranstidpunkten har passerat\n"
-"Idag: Aktivitetsdatum är idag\n"
-"Kommande: Framtida aktiviteter."
+"Status baserat på aktivitetsdatum:\n"
+"Försenade: Aktivitetsdatum har redan passerat.\n"
+"Idag: Aktivitetsdatum är dagens datum.\n"
+"Planerade: Kommande aktiviteter."
 
 #. module: event
 #. odoo-javascript
@@ -4599,6 +5190,13 @@ msgid "Text answer"
 msgstr "Text svar"
 
 #. module: event
+#. odoo-python
+#: code:addons/event/models/event_ticket.py:0
+msgid ""
+"The Entry Limit of event tickets %(ticket_names)s cannot be lower than 0."
+msgstr ""
+
+#. module: event
 #: model:event.event,subtitle:event.event_1
 msgid ""
 "The Great Reno Balloon Race is the world's largest free hot-air ballooning "
@@ -4649,10 +5247,9 @@ msgstr ""
 #. module: event
 #: model_terms:event.event,description:event.event_7
 msgid ""
-"The finest OpenWood furnitures are coming to your house in a brand new "
+"The finest OpenWood furniture is coming to your house in a brand new "
 "collection"
 msgstr ""
-"De finaste OpenWood-möblerna kommer hem till dig i en helt ny kollektion"
 
 #. module: event
 #. odoo-python
@@ -4708,6 +5305,14 @@ msgstr ""
 "(ticket_name)s"
 
 #. module: event
+#. odoo-javascript
+#: code:addons/event/static/src/client_action/event_registration_summary_dialog.xml:0
+msgid ""
+"The offer may have expired or you may have reached the maximum number of "
+"entries allowed."
+msgstr ""
+
+#. module: event
 #: model_terms:event.event,description:event.event_1
 msgid "The safety of our attendees and our aeronauts comes first!"
 msgstr ""
@@ -4732,6 +5337,11 @@ msgid ""
 msgstr ""
 "Om det finns fler anmälningar än denna gräns kommer evenemanget att bli "
 "slutsålt och de extra anmälningarna kommer att finnas kvar."
+
+#. module: event
+#: model_terms:ir.ui.view,arch_db:event.portal_my_events
+msgid "There are no event registrations."
+msgstr ""
 
 #. module: event
 #. odoo-python
@@ -4767,6 +5377,12 @@ msgid ""
 msgstr ""
 "Dessa evenemang kan inte ha luckor schemalagda utanför deras tidsintervall:\n"
 "%(event_names)s"
+
+#. module: event
+#. odoo-javascript
+#: code:addons/event/static/src/client_action/event_registration_summary_dialog.xml:0
+msgid "This Card/Ticket is currently unavailable."
+msgstr ""
 
 #. module: event
 #: model_terms:event.event,description:event.event_0
@@ -4874,15 +5490,10 @@ msgstr "Biljettinstruktioner"
 #: code:addons/event/static/src/client_action/event_registration_summary_dialog.xml:0
 #: model:ir.model.fields,field_description:event.field_event_registration__event_ticket_id
 #: model_terms:ir.ui.view,arch_db:event.event_event_ticket_form_view
+#: model_terms:ir.ui.view,arch_db:event.portal_my_events
 #: model_terms:ir.ui.view,arch_db:event.view_registration_search
 msgid "Ticket Type"
 msgstr "Biljettyp"
-
-#. module: event
-#. odoo-javascript
-#: code:addons/event/static/src/client_action/event_registration_summary_dialog.xml:0
-msgid "Ticket already scanned!"
-msgstr "Biljetten är redan skannad!"
 
 #. module: event
 #: model_terms:ir.ui.view,arch_db:event.attendee_list
@@ -4900,9 +5511,16 @@ msgstr ""
 
 #. module: event
 #. odoo-javascript
+#: code:addons/event/static/src/js/tours/event_tour.js:0
+msgid ""
+"Ticket types allow you to distinguish your attendees. Let's create a new one."
+msgstr ""
+
+#. module: event
+#. odoo-javascript
 #: code:addons/event/static/src/client_action/event_registration_summary_dialog.xml:0
 msgid "Ticket was first scanned on"
-msgstr "Biljetten scannades första gången den"
+msgstr ""
 
 #. module: event
 #. odoo-python
@@ -4984,6 +5602,16 @@ msgid "Training"
 msgstr "Utbildning"
 
 #. module: event
+#: model:ir.module.module,summary:base.module_event
+msgid "Trainings, Conferences, Meetings, Exhibitions, Registrations"
+msgstr ""
+
+#. module: event
+#: model_terms:ir.ui.view,arch_db:event.view_event_registration_form
+msgid "Transaction"
+msgstr ""
+
+#. module: event
 #: model:res.partner,website_short_description:event.res_partner_event_3
 msgid ""
 "Tree Dealers brings honesty and seriousness to wood industry while helping "
@@ -4995,12 +5623,12 @@ msgstr ""
 #. module: event
 #: model:ir.model.fields,field_description:event.field_event_type_mail__interval_type
 msgid "Trigger"
-msgstr "Utlösare"
+msgstr "Trigger"
 
 #. module: event
 #: model:ir.model.fields,field_description:event.field_event_mail__interval_type
 msgid "Trigger "
-msgstr "Utlösare "
+msgstr "Trigger "
 
 #. module: event
 #: model:event.tag.category,name:event.event_tag_category_3
@@ -5055,7 +5683,7 @@ msgstr "Förstå de enskilda modulerna;"
 #. odoo-javascript
 #: code:addons/event/static/src/client_action/event_registration_summary_dialog.xml:0
 msgid "Undo"
-msgstr "Ångra"
+msgstr ""
 
 #. module: event
 #: model:ir.model.fields,field_description:event.field_event_mail__interval_unit
@@ -5069,6 +5697,12 @@ msgid "Until"
 msgstr "Till"
 
 #. module: event
+#. odoo-python
+#: code:addons/event/controllers/portal.py:0
+msgid "Upcoming"
+msgstr ""
+
+#. module: event
 #: model_terms:ir.ui.view,arch_db:event.view_event_search
 msgid "Upcoming events from today"
 msgstr "Kommande evenemang från idag"
@@ -5077,6 +5711,12 @@ msgstr "Kommande evenemang från idag"
 #: model_terms:ir.ui.view,arch_db:event.view_event_search
 msgid "Upcoming/Running"
 msgstr "Kommande/Pågående"
+
+#. module: event
+#. odoo-javascript
+#: code:addons/event/static/src/views/event_slot/calendar/event_slot_calendar_controller.js:0
+msgid "Update Event"
+msgstr ""
 
 #. module: event
 #. odoo-python
@@ -5104,8 +5744,8 @@ msgstr ""
 #. module: event
 #. odoo-javascript
 #: code:addons/event/static/src/js/tours/event_tour.js:0
-msgid "Use the <b>breadcrumbs</b> to go back to your kanban overview."
-msgstr "Använd <b>brödsmulor</b> för att gå tillbaka till din Kanban-översikt."
+msgid "Use the breadcrumbs to go back to your kanban overview."
+msgstr ""
 
 #. module: event
 #: model:ir.model.fields,field_description:event.field_event_event_ticket__seats_used
@@ -5132,7 +5772,7 @@ msgid "Venue"
 msgstr "Mötesplats"
 
 #. module: event
-#: model:ir.model.fields,field_description:event.field_event_event__address_inline
+#: model:ir.model.fields,field_description:event.field_event_event__contact_address_inline
 msgid "Venue (formatted for one line uses)"
 msgstr "Mötesplats (formaterad för användning på en rad)"
 
@@ -5155,7 +5795,7 @@ msgstr ""
 #. module: event
 #: model_terms:event.event,description:event.event_2
 msgid "Warehouse management, Manufacturing (MRP) &amp; Sales, Import/Export."
-msgstr "Lagerhantering, produktion (MRP) &amp; försäljning, import/export."
+msgstr "Lagerhantering, tillverkning (MRP) &amp; försäljning, import/export."
 
 #. module: event
 #: model_terms:event.event,description:event.event_1
@@ -5167,18 +5807,6 @@ msgid ""
 msgstr ""
 "Vi förbehåller oss rätten att ställa in, byta namn på eller flytta "
 "evenemanget eller ändra de datum då det hålls om vädret inte tillåter det."
-
-#. module: event
-#: model:ir.model.fields,field_description:event.field_event_event__website_message_ids
-#: model:ir.model.fields,field_description:event.field_event_registration__website_message_ids
-msgid "Website Messages"
-msgstr "Hemsidesmeddelanden"
-
-#. module: event
-#: model:ir.model.fields,help:event.field_event_event__website_message_ids
-#: model:ir.model.fields,help:event.field_event_registration__website_message_ids
-msgid "Website communication history"
-msgstr "Hemsidans kommunikationshistorik"
 
 #. module: event
 #: model:ir.model.fields.selection,name:event.selection__event_mail__interval_unit__weeks
@@ -5224,6 +5852,15 @@ msgstr "Om platserna är slutsålda för denna slot."
 #: model:event.event.ticket,description:event.event_0_ticket_2
 msgid "You are truly among the best."
 msgstr "Du är verkligen bland de bästa."
+
+#. module: event
+#. odoo-python
+#: code:addons/event/models/event_registration.py:0
+msgid ""
+"You cannot cancel the last attendance of the sub-registration with id: %"
+"(registration_id)s. Please try again from the original registration of this "
+"attendee."
+msgstr ""
 
 #. module: event
 #. odoo-python
@@ -5319,6 +5956,12 @@ msgstr "t.ex. VIP-biljett"
 
 #. module: event
 #. odoo-python
+#: code:addons/event/controllers/portal.py:0
+msgid "event_begin_date"
+msgstr ""
+
+#. module: event
+#. odoo-python
 #: code:addons/event/models/event_event.py:0
 msgid "event_id"
 msgstr "event_id"
@@ -5399,790 +6042,6 @@ msgstr "imorgon"
 msgid "{{ object.event_id.name }}: {{ object.event_date_range }}"
 msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 
-#~ msgid "+123456789"
-#~ msgstr "+123456789"
-
-#~ msgid "10-14"
-#~ msgstr "10-14"
-
-#~ msgid "15-18"
-#~ msgstr "15-18"
-
-#~ msgid "18+"
-#~ msgstr "18+"
-
-#~ msgid "5-10"
-#~ msgstr "5-10"
-
-#~ msgid ""
-#~ "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"padding-"
-#~ "top: 16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-"
-#~ "serif; color: #454748; width: 100%; border-collapse:separate;\"><tr><td "
-#~ "align=\"center\">\n"
-#~ "<t t-set=\"date_begin\" t-"
-#~ "value=\"format_datetime(object.event_begin_date, tz='UTC', "
-#~ "dt_format=&quot;yyyyMMdd'T'HHmmss'Z'&quot;)\"/>\n"
-#~ "<t t-set=\"date_end\" t-value=\"format_datetime(object.event_end_date, "
-#~ "tz='UTC', dt_format=&quot;yyyyMMdd'T'HHmmss'Z'&quot;)\"/>\n"
-#~ "<t t-set=\"is_online\" t-value=\"'is_published' in object.event_id and "
-#~ "object.event_id.is_published\"/>\n"
-#~ "<t t-set=\"event_organizer\" t-value=\"object.event_id.organizer_id\"/>\n"
-#~ "<t t-set=\"event_address\" t-value=\"object.event_id.address_id\"/>\n"
-#~ "<t t-set=\"event_website_url\" t-"
-#~ "value=\"object.event_id.event_share_url\"/>\n"
-#~ "<t t-set=\"registration_ids\" t-value=\"object.ids if not is_sale else "
-#~ "object._get_event_registration_ids_from_order()\"/>\n"
-#~ "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" "
-#~ "style=\"padding: 16px; background-color: white; color: #454748; border-"
-#~ "collapse:separate;\">\n"
-#~ "<tbody>\n"
-#~ "    <!-- HEADER -->\n"
-#~ "    <tr>\n"
-#~ "        <td align=\"center\" style=\"min-width: 590px;\">\n"
-#~ "            <table width=\"590\" border=\"0\" cellpadding=\"0\" "
-#~ "cellspacing=\"0\" style=\"min-width: 590px; background-color: white; "
-#~ "padding: 0px 8px 0px 8px; border-collapse:separate;\">\n"
-#~ "                <tr><td valign=\"middle\">\n"
-#~ "                    <span style=\"font-size: 10px;\">Your registration</"
-#~ "span><br/>\n"
-#~ "                    <span style=\"font-size: 20px; font-weight: bold;\">\n"
-#~ "                        <t t-set=\"default_name\">Guest</t>\n"
-#~ "                        <t t-out=\"object.name or default_name\"/>\n"
-#~ "                    </span>\n"
-#~ "                </td><td valign=\"middle\" align=\"right\">\n"
-#~ "                    <a t-attf-href=\"/event/{{ object.event_id.id }}/"
-#~ "my_tickets?badge_mode=1&amp;registration_ids={{ registration_ids }}"
-#~ "&amp;tickets_hash={{ object.event_id._get_tickets_access_hash(registration_ids) }}"
-#~ "\" target=\"_blank\" t-attf-style=\"padding: 8px 12px; font-size: 12px; "
-#~ "color: {{object.event_id.user_id.company_id.email_primary_color or "
-#~ "'#FFFFFF'}}; text-decoration: none !important; font-weight: 400; "
-#~ "background-color: "
-#~ "{{object.event_id.user_id.company_id.email_secondary_color or "
-#~ "'#875A7B'}}; border-radius:3px\">\n"
-#~ "                        Download Badges\n"
-#~ "                    </a>\n"
-#~ "                    <t t-if=\"not object.company_id.uses_default_logo\">\n"
-#~ "                        <img t-att-src=\"'/logo.png?company=%s' % "
-#~ "object.company_id.id\" style=\"padding: 0px; margin: 0px; height: auto; "
-#~ "width: 80px;\" t-att-alt=\"'%s' % object.company_id.name\"/>\n"
-#~ "                    </t>\n"
-#~ "                </td></tr>\n"
-#~ "                <tr><td colspan=\"2\" style=\"text-align:center;\">\n"
-#~ "                  <hr width=\"100%\" style=\"background-"
-#~ "color:rgb(204,204,204);border:medium none;clear:both;display:block;font-"
-#~ "size:0px;min-height:1px;line-height:0; margin:16px 0px 16px 0px;\"/>\n"
-#~ "                </td></tr>\n"
-#~ "            </table>\n"
-#~ "        </td>\n"
-#~ "    </tr>\n"
-#~ "    <!-- EVENT DESCRIPTION -->\n"
-#~ "    <tr>\n"
-#~ "        <td align=\"center\" style=\"min-width: 590px;\">\n"
-#~ "            <table width=\"590\" border=\"0\" cellpadding=\"0\" "
-#~ "cellspacing=\"0\" style=\"min-width: 590px; background-color: white; "
-#~ "padding: 0px 8px 0px 8px; border-collapse:separate;\">\n"
-#~ "                <tr><td valign=\"top\" style=\"font-size: 14px;\">\n"
-#~ "                    <div>\n"
-#~ "                        <t t-set=\"default_name\">Guest</t>\n"
-#~ "                        Hello <t t-out=\"object.name or default_name\"/>,"
-#~ "<br/><br/>\n"
-#~ "                        Please find attached your badge for\n"
-#~ "                        <t t-if=\"event_website_url\">\n"
-#~ "                            <a t-att-href=\"event_website_url\" t-attf-"
-#~ "style=\"font-weight:bold;color:"
-#~ "{{object.event_id.user_id.company_id.email_secondary_color or "
-#~ "'#875A7B'}}; text-decoration:none;\" t-out=\"object.event_id.name or "
-#~ "''\">OpenWood Collection Online Reveal</a>\n"
-#~ "                        </t>\n"
-#~ "                        <t t-else=\"\">\n"
-#~ "                            <strong t-out=\"object.event_id.name or "
-#~ "''\">OpenWood Collection Online Reveal</strong>.\n"
-#~ "                        </t>\n"
-#~ "                    </div>\n"
-#~ "                    <br/>\n"
-#~ "                    <table style=\"width: auto;\">\n"
-#~ "                        <tr>\n"
-#~ "                            <td>\n"
-#~ "                                <strong>Add this event to your calendar</"
-#~ "strong>\n"
-#~ "                            </td>\n"
-#~ "                            <td>\n"
-#~ "                                <a t-attf-href=\"/event/"
-#~ "{{ slug(object.event_id) }}/ics?slot_id={{ object.event_slot_id.id }}\" "
-#~ "style=\"padding-top: 10px; padding-right:8px; padding-bottom:2px; padding-"
-#~ "left:8px; margin-left: 8px; border-radius: 3px; background-color: #E7E9ED;"
-#~ "\">\n"
-#~ "                                    <img src=\"/event/static/src/img/"
-#~ "apple-calendar-128.png\" alt=\"iCal\" title=\"iCal\" style=\"height: "
-#~ "20px; vertical-align: baseline;\"/>\n"
-#~ "                                </a>\n"
-#~ "                            </td>\n"
-#~ "                            <td>\n"
-#~ "                                <a t-attf-href=\"/event/"
-#~ "{{ slug(object.event_id) }}/ics?slot_id={{ object.event_slot_id.id }}\" "
-#~ "style=\"padding-top: 10px; padding-right:8px; padding-bottom:2px; padding-"
-#~ "left:8px; margin-left: 8px; border-radius: 3px; background-color: #E7E9ED;"
-#~ "\">\n"
-#~ "                                    <img src=\"/event/static/src/img/"
-#~ "outlook-calendar-128.png\" alt=\"Outlook\" title=\"Outlook\" "
-#~ "style=\"height: 20px; vertical-align: baseline;\"/>\n"
-#~ "                                </a>\n"
-#~ "                            </td>\n"
-#~ "                            <td>\n"
-#~ "                                <a t-attf-href=\"https://www.google.com/"
-#~ "calendar/render?action=TEMPLATE&amp;text={{ object.event_id.name }}"
-#~ "&amp;dates={{ date_begin }}/{{ date_end }}&amp;location={{ location }}"
-#~ "&amp;details={{ object.event_id._get_external_description_url_encoded() }}"
-#~ "\" target=\"new\" style=\"padding-top: 10px; padding-right:8px; padding-"
-#~ "bottom:2px; padding-left:8px; margin-left: 8px; border-radius: 3px; "
-#~ "background-color: #E7E9ED;\">\n"
-#~ "                                    <img src=\"/event/static/src/img/"
-#~ "google-calendar-128.png\" alt=\"Google\" title=\"Google\" style=\"height: "
-#~ "20px; vertical-align: baseline;\"/>\n"
-#~ "                                </a>\n"
-#~ "                            </td>\n"
-#~ "                        </tr>\n"
-#~ "                    </table>\n"
-#~ "                    <br/><br/>\n"
-#~ "                    <div>\n"
-#~ "                        See you soon,<br/>\n"
-#~ "                        <span style=\"color: #454748;\">\n"
-#~ "                        -- <br/>\n"
-#~ "                        <t t-if=\"event_organizer\">\n"
-#~ "                            <t t-out=\"event_organizer.name or "
-#~ "''\">YourCompany</t>\n"
-#~ "                        </t>\n"
-#~ "                        <t t-else=\"\">\n"
-#~ "                            The <t t-out=\"object.event_id.name or "
-#~ "''\">OpenWood Collection Online Reveal</t> Team\n"
-#~ "                        </t>\n"
-#~ "                        </span>\n"
-#~ "                    </div>\n"
-#~ "                </td></tr>\n"
-#~ "                <tr><td style=\"text-align:center;\">\n"
-#~ "                  <hr width=\"100%\" style=\"background-"
-#~ "color:rgb(204,204,204);border:medium none;clear:both;display:block;font-"
-#~ "size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;\"/>\n"
-#~ "                </td></tr>\n"
-#~ "            </table>\n"
-#~ "        </td>\n"
-#~ "    </tr>\n"
-#~ "    <!-- DETAILS -->\n"
-#~ "    <tr>\n"
-#~ "        <td align=\"center\" style=\"min-width: 590px;\">\n"
-#~ "            <table width=\"590\" border=\"0\" cellpadding=\"0\" "
-#~ "cellspacing=\"0\" style=\"min-width: 590px; background-color: white; "
-#~ "padding: 0px 8px 0px 8px; border-collapse:separate;\">\n"
-#~ "                <tr><td valign=\"top\" style=\"font-size: 14px;\">\n"
-#~ "                    <table style=\"width:100%;\">\n"
-#~ "                        <tr>\n"
-#~ "                            <td style=\"vertical-align:top;\">\n"
-#~ "                                <img src=\"/mail/font_to_img/61555/"
-#~ "rgb(81,81,102)/34\" style=\"padding:4px;max-width:inherit;\" "
-#~ "height=\"34\" alt=\"\"/>\n"
-#~ "                            </td>\n"
-#~ "                            <td style=\"padding: 0px 10px 0px "
-#~ "10px;width:50%;line-height:20px;vertical-align:top;\">\n"
-#~ "                                <div t-"
-#~ "if=\"object.event_id.is_one_day\">\n"
-#~ "                                    <t t-out=\"object.event_begin_date\" "
-#~ "t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, "
-#~ "&quot;date_only&quot;: True, &quot;tz_name&quot;: "
-#~ "object.event_id.date_tz, &quot;format&quot;: &quot;long&quot;}\">May 4, "
-#~ "2021</t>\n"
-#~ "                                    <t t-out=\"object.event_begin_date\" "
-#~ "t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, "
-#~ "&quot;time_only&quot;: True, &quot;tz_name&quot;: "
-#~ "object.event_id.date_tz, &quot;hide_seconds&quot;: True, "
-#~ "&quot;format&quot;: &quot;short&quot;}\">7:00 AM</t>\n"
-#~ "                                     - <t t-out=\"object.event_end_date\" "
-#~ "t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, "
-#~ "&quot;time_only&quot;: True, &quot;tz_name&quot;: "
-#~ "object.event_id.date_tz, &quot;hide_seconds&quot;: True, "
-#~ "&quot;format&quot;: &quot;short&quot;}\">5:00 PM</t>\n"
-#~ "                                </div>\n"
-#~ "                                <div t-else=\"\">\n"
-#~ "                                    <strong>From</strong>\n"
-#~ "                                    <t t-out=\"object.event_begin_date\" "
-#~ "t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, "
-#~ "&quot;show_seconds&quot;: False, &quot;tz_name&quot;: "
-#~ "object.event_id.date_tz, &quot;format&quot;: &quot;medium&quot;}\">May 4, "
-#~ "2021 - 7:00 AM</t>\n"
-#~ "                                    <br/>\n"
-#~ "                                    <strong>To</strong>\n"
-#~ "                                    <t t-out=\"object.event_end_date\" t-"
-#~ "options=\"{&quot;widget&quot;: &quot;datetime&quot;, "
-#~ "&quot;show_seconds&quot;: False, &quot;tz_name&quot;: "
-#~ "object.event_id.date_tz, &quot;format&quot;: &quot;medium&quot;}\">May 6, "
-#~ "2021 - 5:00 PM</t>\n"
-#~ "                                </div>\n"
-#~ "                                <div style=\"font-"
-#~ "size:12px;color:#9e9e9e\"><i>(<t t-out=\"object.event_id.date_tz or "
-#~ "''\">Europe/Brussels</t>)</i></div>\n"
-#~ "                            </td>\n"
-#~ "                            <td style=\"vertical-align:top;\">\n"
-#~ "                                <t t-if=\"event_address\">\n"
-#~ "                                    <img src=\"/mail/font_to_img/61505/"
-#~ "rgb(81,81,102)/34\" style=\"padding:4px;max-width:inherit;\" "
-#~ "height=\"34\" alt=\"\"/>\n"
-#~ "                                </t>\n"
-#~ "                            </td>\n"
-#~ "                            <td style=\"padding: 0px 10px 0px "
-#~ "10px;width:50%;vertical-align:top;\">\n"
-#~ "                                <t t-if=\"event_address\">\n"
-#~ "                                    <t t-set=\"location\" t-value=\"''\"/"
-#~ ">\n"
-#~ "                                    <t t-"
-#~ "if=\"object.event_id.address_id.name\">\n"
-#~ "                                        <div t-"
-#~ "out=\"object.event_id.address_id.name\">Teksa SpA</div>\n"
-#~ "                                    </t>\n"
-#~ "                                    <t t-"
-#~ "if=\"object.event_id.address_id.street\">\n"
-#~ "                                        <div t-"
-#~ "out=\"object.event_id.address_id.street\">Puerto Madero 9710</div>\n"
-#~ "                                        <t t-set=\"location\" t-"
-#~ "value=\"object.event_id.address_id.street\"/>\n"
-#~ "                                    </t>\n"
-#~ "                                    <t t-"
-#~ "if=\"object.event_id.address_id.street2\">\n"
-#~ "                                        <div t-"
-#~ "out=\"object.event_id.address_id.street2\">Of A15, Santiago (RM)</div>\n"
-#~ "                                        <t t-set=\"location\" t-"
-#~ "valuef=\"{{location}}, {{object.event_id.address_id.street2}}\"/>\n"
-#~ "                                    </t>\n"
-#~ "                                    <div>\n"
-#~ "                                    <t t-"
-#~ "if=\"object.event_id.address_id.city\">\n"
-#~ "                                        <t t-"
-#~ "out=\"object.event_id.address_id.city\">Pudahuel</t>,\n"
-#~ "                                        <t t-set=\"location\" t-"
-#~ "valuef=\"{{location}}, {{object.event_id.address_id.city}}\"/>\n"
-#~ "                                    </t>\n"
-#~ "                                    <t t-"
-#~ "if=\"object.event_id.address_id.state_id.name\">\n"
-#~ "                                        <t t-"
-#~ "out=\"object.event_id.address_id.state_id.name\">C1</t>,\n"
-#~ "                                        <t t-set=\"location\" t-"
-#~ "valuef=\"{{location}}, {{object.event_id.address_id.state_id.name}}\"/>\n"
-#~ "                                    </t>\n"
-#~ "                                    <t t-"
-#~ "if=\"object.event_id.address_id.zip\">\n"
-#~ "                                        <t t-"
-#~ "out=\"object.event_id.address_id.zip\">98450</t>\n"
-#~ "                                        <t t-set=\"location\" t-"
-#~ "valuef=\"{{location}}, {{object.event_id.address_id.zip}}\"/>\n"
-#~ "                                    </t>\n"
-#~ "                                    </div>\n"
-#~ "                                    <t t-"
-#~ "if=\"object.event_id.address_id.country_id.name\">\n"
-#~ "                                        <div t-"
-#~ "out=\"object.event_id.address_id.country_id.name\">Argentina</div>\n"
-#~ "                                        <t t-set=\"location\" t-"
-#~ "valuef=\"{{location}}, {{object.event_id.address_id.country_id.name}}\"/"
-#~ ">\n"
-#~ "                                    </t>\n"
-#~ "                                </t>\n"
-#~ "                            </td>\n"
-#~ "                        </tr>\n"
-#~ "                    </table>\n"
-#~ "                </td></tr>\n"
-#~ "                <tr><td style=\"text-align:center;\">\n"
-#~ "                    <t t-if=\"event_organizer\">\n"
-#~ "                        <hr width=\"100%\" style=\"background-"
-#~ "color:rgb(204,204,204);border:medium none;clear:both;display:block;font-"
-#~ "size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;\"/>\n"
-#~ "                    </t>\n"
-#~ "                </td></tr>\n"
-#~ "\n"
-#~ "                <tr><td valign=\"top\" style=\"font-size: 14px;\">\n"
-#~ "                    <!-- CONTACT ORGANIZER -->\n"
-#~ "                    <t t-if=\"event_organizer\">\n"
-#~ "                        <div>\n"
-#~ "                            <span style=\"font-weight:300;margin:10px "
-#~ "0px\">Questions about this event?</span>\n"
-#~ "                            <div>Please contact the organizer:</div>\n"
-#~ "                            <ul>\n"
-#~ "                                <li><t t-out=\"event_organizer.name or "
-#~ "''\">YourCompany</t></li>\n"
-#~ "                                <t t-if=\"event_organizer.email\">\n"
-#~ "                                    <li>Mail: <a t-attf-href=\"mailto:"
-#~ "{{ event_organizer.email }}\" t-attf-style=\"text-decoration:none;color: "
-#~ "{{object.event_id.user_id.company_id.email_secondary_color or '#875A7B'}};"
-#~ "\" t-out=\"event_organizer.email\">info@yourcompany.com</a></li>\n"
-#~ "                                </t>\n"
-#~ "                                <t t-if=\"event_organizer.phone\">\n"
-#~ "                                    <li>Phone: <t t-"
-#~ "out=\"event_organizer.phone\">+1 650-123-4567</t></li>\n"
-#~ "                                </t>\n"
-#~ "                            </ul>\n"
-#~ "                        </div>\n"
-#~ "                    </t>\n"
-#~ "                </td></tr>\n"
-#~ "                <tr><td style=\"text-align:center;\">\n"
-#~ "                    <!-- CONTACT ORGANIZER SEPARATION -->\n"
-#~ "                    <t t-if=\"is_online or event_address\">\n"
-#~ "                        <hr width=\"100%\" style=\"background-"
-#~ "color:rgb(204,204,204);border:medium none;clear:both;display:block;font-"
-#~ "size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;\"/>\n"
-#~ "                    </t>\n"
-#~ "                </td></tr>\n"
-#~ "\n"
-#~ "                <tr><td valign=\"top\" style=\"font-size: 14px;\">\n"
-#~ "                    <!-- PWA MARKGETING -->\n"
-#~ "                    <t t-if=\"is_online\">\n"
-#~ "                        <div>\n"
-#~ "                            <strong>Get the best mobile experience.</"
-#~ "strong>\n"
-#~ "                            <a href=\"/event\">Install our mobile app</"
-#~ "a>\n"
-#~ "                        </div>\n"
-#~ "                    </t>\n"
-#~ "                </td></tr>\n"
-#~ "                <tr><td style=\"text-align:center;\">\n"
-#~ "                    <!-- PWA MARKGETING SEPARATION-->\n"
-#~ "                    <t t-if=\"is_online and event_address\">\n"
-#~ "                        <hr width=\"100%\" style=\"background-"
-#~ "color:rgb(204,204,204);border:medium none;clear:both;display:block;font-"
-#~ "size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;\"/>\n"
-#~ "                    </t>\n"
-#~ "                </td></tr>\n"
-#~ "\n"
-#~ "                <tr><td valign=\"top\" style=\"font-size: 14px;\">\n"
-#~ "                    <!-- GOOGLE MAPS LINK -->\n"
-#~ "                    <t t-if=\"event_address and location\">\n"
-#~ "                        <table style=\"width:100%;\"><tr><td>\n"
-#~ "                            <div>\n"
-#~ "                                <img src=\"/web_editor/font_to_img/61505/"
-#~ "rgb(81,81,102)/20\" height=\"20\" style=\"vertical-align: bottom;\"/>\n"
-#~ "                                <a t-attf-href=\"https://maps.google.com/"
-#~ "maps?q={{ location }}\" target=\"new\">\n"
-#~ "                                    <img t-"
-#~ "if=\"event_address.static_map_url and "
-#~ "event_address.static_map_url_is_valid\" t-att-"
-#~ "src=\"event_address.static_map_url\" style=\"vertical-align:bottom; "
-#~ "width: 100%;\" alt=\"Google Maps\"/>\n"
-#~ "                                    <t t-else=\"\">See location on Google "
-#~ "Maps</t>\n"
-#~ "                                </a>\n"
-#~ "                            </div>\n"
-#~ "                        </td></tr></table>\n"
-#~ "                    </t>\n"
-#~ "                </td></tr>\n"
-#~ "            </table>\n"
-#~ "        </td>\n"
-#~ "    </tr>\n"
-#~ "</tbody>\n"
-#~ "</table>\n"
-#~ "</td></tr>\n"
-#~ "<!-- FOOTER BY -->\n"
-#~ "<tr><td align=\"center\" style=\"min-width: 590px;\">\n"
-#~ "    <t t-if=\"object.company_id\">\n"
-#~ "        <table width=\"590\" border=\"0\" cellpadding=\"0\" "
-#~ "cellspacing=\"0\" style=\"min-width: 590px; background-color: #F1F1F1; "
-#~ "color: #454748; padding: 8px; border-collapse:separate;\">\n"
-#~ "        <tr><td style=\"text-align: center; font-size: 14px;\">\n"
-#~ "            Sent by <a target=\"_blank\" t-attf-"
-#~ "href=\"{{ object.company_id.website }}\" t-attf-style=\"color: "
-#~ "{{object.event_id.user_id.company_id.email_secondary_color or '#875A7B'}};"
-#~ "\" t-out=\"object.company_id.name or ''\">YourCompany</a>\n"
-#~ "            <t t-if=\"is_online\">\n"
-#~ "                <br/>\n"
-#~ "                Discover <a href=\"/event\" t-attf-style=\"color: "
-#~ "{{object.event_id.user_id.company_id.email_secondary_color or '#875A7B'}};"
-#~ "\">all our events</a>.\n"
-#~ "            </t>\n"
-#~ "        </td></tr>\n"
-#~ "        </table>\n"
-#~ "    </t>\n"
-#~ "</td></tr>\n"
-#~ "</table>\n"
-#~ "            "
-#~ msgstr ""
-#~ "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"padding-"
-#~ "top: 16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-"
-#~ "serif; color: #454748; width: 100%; border-collapse:separate;\"><tr><td "
-#~ "align=\"center\">\n"
-#~ "<t t-set=\"date_begin\" t-"
-#~ "value=\"format_datetime(object.event_begin_date, tz='UTC', "
-#~ "dt_format=&quot;yyyyMMdd'T'HHmmss'Z'&quot;)\"/>\n"
-#~ "<t t-set=\"date_end\" t-value=\"format_datetime(object.event_end_date, "
-#~ "tz='UTC', dt_format=&quot;yyyyMMdd'T'HHmmss'Z'&quot;)\"/>\n"
-#~ "<t t-set=\"is_online\" t-value=\"'is_published' in object.event_id and "
-#~ "object.event_id.is_published\"/>\n"
-#~ "<t t-set=\"event_organizer\" t-value=\"object.event_id.organizer_id\"/>\n"
-#~ "<t t-set=\"event_address\" t-value=\"object.event_id.address_id\"/>\n"
-#~ "<t t-set=\"event_website_url\" t-"
-#~ "value=\"object.event_id.event_share_url\"/>\n"
-#~ "<t t-set=\"registration_ids\" t-value=\"object.ids if not is_sale else "
-#~ "object._get_event_registration_ids_from_order()\"/>\n"
-#~ "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" "
-#~ "style=\"padding: 16px; background-color: white; color: #454748; border-"
-#~ "collapse:separate;\">\n"
-#~ "<tbody>\n"
-#~ "    <!-- HEADER -->\n"
-#~ "    <tr>\n"
-#~ "        <td align=\"center\" style=\"min-width: 590px;\">\n"
-#~ "            <table width=\"590\" border=\"0\" cellpadding=\"0\" "
-#~ "cellspacing=\"0\" style=\"min-width: 590px; background-color: white; "
-#~ "padding: 0px 8px 0px 8px; border-collapse:separate;\">\n"
-#~ "                <tr><td valign=\"middle\">\n"
-#~ "                    <span style=\"font-size: 10px;\">Din registrering</"
-#~ "span><br/>\n"
-#~ "                    <span style=\"font-size: 20px; font-weight: bold;\">\n"
-#~ "                        <t t-set=\"default_name\">Gäst</t>\n"
-#~ "                        <t t-out=\"object.name or default_name\"/>\n"
-#~ "                    </span>\n"
-#~ "                </td><td valign=\"middle\" align=\"right\">\n"
-#~ "                    <a t-attf-href=\"/event/{{ object.event_id.id }}/"
-#~ "my_tickets?badge_mode=1&amp;registration_ids={{ registration_ids }}"
-#~ "&amp;tickets_hash={{ object.event_id._get_tickets_access_hash(registration_ids) }}"
-#~ "\" target=\"_blank\" t-attf-style=\"padding: 8px 12px; font-size: 12px; "
-#~ "color: {{object.event_id.user_id.company_id.email_primary_color or "
-#~ "'#FFFFFF'}}; text-decoration: none !important; font-weight: 400; "
-#~ "background-color: "
-#~ "{{object.event_id.user_id.company_id.email_secondary_color or "
-#~ "'#875A7B'}}; border-radius:3px\">\n"
-#~ "                        Ladda ner märken\n"
-#~ "                    </a>\n"
-#~ "                    <t t-if=\"not object.company_id.uses_default_logo\">\n"
-#~ "                        <img t-att-src=\"'/logo.png?company=%s' % "
-#~ "object.company_id.id\" style=\"padding: 0px; margin: 0px; height: auto; "
-#~ "width: 80px;\" t-att-alt=\"'%s' % object.company_id.name\"/>\n"
-#~ "                    </t>\n"
-#~ "                </td></tr>\n"
-#~ "                <tr><td colspan=\"2\" style=\"text-align:center;\">\n"
-#~ "                  <hr width=\"100%\" style=\"background-"
-#~ "color:rgb(204,204,204);border:medium none;clear:both;display:block;font-"
-#~ "size:0px;min-height:1px;line-height:0; margin:16px 0px 16px 0px;\"/>\n"
-#~ "                </td></tr>\n"
-#~ "            </table>\n"
-#~ "        </td>\n"
-#~ "    </tr>\n"
-#~ "    <!-- EVENT DESCRIPTION -->\n"
-#~ "    <tr>\n"
-#~ "        <td align=\"center\" style=\"min-width: 590px;\">\n"
-#~ "            <table width=\"590\" border=\"0\" cellpadding=\"0\" "
-#~ "cellspacing=\"0\" style=\"min-width: 590px; background-color: white; "
-#~ "padding: 0px 8px 0px 8px; border-collapse:separate;\">\n"
-#~ "                <tr><td valign=\"top\" style=\"font-size: 14px;\">\n"
-#~ "                    <div>\n"
-#~ "                        <t t-set=\"default_name\">Gäst</t>\n"
-#~ "                        Hej <t t-out=\"object.name or default_name\"/>,"
-#~ "<br/><br/>\n"
-#~ "                        Vänligen hitta bifogad din badge för\n"
-#~ "                        <t t-if=\"event_website_url\">\n"
-#~ "                            <a t-att-href=\"event_website_url\" t-attf-"
-#~ "style=\"font-weight:bold;color:"
-#~ "{{object.event_id.user_id.company_id.email_secondary_color or "
-#~ "'#875A7B'}}; text-decoration:none;\" t-out=\"object.event_id.name or "
-#~ "''\">OpenWood Collection Online Reveal</a>\n"
-#~ "                        </t>\n"
-#~ "                        <t t-else=\"\">\n"
-#~ "                            <strong t-out=\"object.event_id.name or "
-#~ "''\">OpenWood Collection Online Reveal</strong>.\n"
-#~ "                        </t>\n"
-#~ "                    </div>\n"
-#~ "                    <br/>\n"
-#~ "                    <table style=\"width: auto;\">\n"
-#~ "                        <tr>\n"
-#~ "                            <td>\n"
-#~ "                                <strong>Lägg till detta evenemang i din "
-#~ "kalender</strong>\n"
-#~ "                            </td>\n"
-#~ "                            <td>\n"
-#~ "                                <a t-attf-href=\"/event/"
-#~ "{{ slug(object.event_id) }}/ics?slot_id={{ object.event_slot_id.id }}\" "
-#~ "style=\"padding-top: 10px; padding-right:8px; padding-bottom:2px; padding-"
-#~ "left:8px; margin-left: 8px; border-radius: 3px; background-color: #E7E9ED;"
-#~ "\">\n"
-#~ "                                    <img src=\"/event/static/src/img/"
-#~ "apple-calendar-128.png\" alt=\"iCal\" title=\"iCal\" style=\"height: "
-#~ "20px; vertical-align: baseline;\"/>\n"
-#~ "                                </a>\n"
-#~ "                            </td>\n"
-#~ "                            <td>\n"
-#~ "                                <a t-attf-href=\"/event/"
-#~ "{{ slug(object.event_id) }}/ics?slot_id={{ object.event_slot_id.id }}\" "
-#~ "style=\"padding-top: 10px; padding-right:8px; padding-bottom:2px; padding-"
-#~ "left:8px; margin-left: 8px; border-radius: 3px; background-color: #E7E9ED;"
-#~ "\">\n"
-#~ "                                    <img src=\"/event/static/src/img/"
-#~ "outlook-calendar-128.png\" alt=\"Outlook\" title=\"Outlook\" "
-#~ "style=\"height: 20px; vertical-align: baseline;\"/>\n"
-#~ "                                </a>\n"
-#~ "                            </td>\n"
-#~ "                            <td>\n"
-#~ "                                <a t-attf-href=\"https://www.google.com/"
-#~ "calendar/render?action=TEMPLATE&amp;text={{ object.event_id.name }}"
-#~ "&amp;dates={{ date_begin }}/{{ date_end }}&amp;location={{ location }}"
-#~ "&amp;details={{ object.event_id._get_external_description_url_encoded() }}"
-#~ "\" target=\"new\" style=\"padding-top: 10px; padding-right:8px; padding-"
-#~ "bottom:2px; padding-left:8px; margin-left: 8px; border-radius: 3px; "
-#~ "background-color: #E7E9ED;\">\n"
-#~ "                                    <img src=\"/event/static/src/img/"
-#~ "google-calendar-128.png\" alt=\"Google\" title=\"Google\" style=\"height: "
-#~ "20px; vertical-align: baseline;\"/>\n"
-#~ "                                </a>\n"
-#~ "                            </td>\n"
-#~ "                        </tr>\n"
-#~ "                    </table>\n"
-#~ "                    <br/><br/>\n"
-#~ "                    <div>\n"
-#~ "                        Vi ses snart,<br/>\n"
-#~ "                        <span style=\"color: #454748;\">\n"
-#~ "                        -- <br/>\n"
-#~ "                        <t t-if=\"event_organizer\">\n"
-#~ "                            <t t-out=\"event_organizer.name or "
-#~ "''\">DittFöretag</t>\n"
-#~ "                        </t>\n"
-#~ "                        <t t-else=\"\">\n"
-#~ "                            <t t-out=\"object.event_id.name or "
-#~ "''\">OpenWood Collection Online Reveal</t> Teamet\n"
-#~ "                        </t>\n"
-#~ "                        </span>\n"
-#~ "                    </div>\n"
-#~ "                </td></tr>\n"
-#~ "                <tr><td style=\"text-align:center;\">\n"
-#~ "                  <hr width=\"100%\" style=\"background-"
-#~ "color:rgb(204,204,204);border:medium none;clear:both;display:block;font-"
-#~ "size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;\"/>\n"
-#~ "                </td></tr>\n"
-#~ "            </table>\n"
-#~ "        </td>\n"
-#~ "    </tr>\n"
-#~ "    <!-- DETAILS -->\n"
-#~ "    <tr>\n"
-#~ "        <td align=\"center\" style=\"min-width: 590px;\">\n"
-#~ "            <table width=\"590\" border=\"0\" cellpadding=\"0\" "
-#~ "cellspacing=\"0\" style=\"min-width: 590px; background-color: white; "
-#~ "padding: 0px 8px 0px 8px; border-collapse:separate;\">\n"
-#~ "                <tr><td valign=\"top\" style=\"font-size: 14px;\">\n"
-#~ "                    <table style=\"width:100%;\">\n"
-#~ "                        <tr>\n"
-#~ "                            <td style=\"vertical-align:top;\">\n"
-#~ "                                <img src=\"/mail/font_to_img/61555/"
-#~ "rgb(81,81,102)/34\" style=\"padding:4px;max-width:inherit;\" "
-#~ "height=\"34\" alt=\"\"/>\n"
-#~ "                            </td>\n"
-#~ "                            <td style=\"padding: 0px 10px 0px "
-#~ "10px;width:50%;line-height:20px;vertical-align:top;\">\n"
-#~ "                                <div t-"
-#~ "if=\"object.event_id.is_one_day\">\n"
-#~ "                                    <t t-out=\"object.event_begin_date\" "
-#~ "t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, "
-#~ "&quot;date_only&quot;: True, &quot;tz_name&quot;: "
-#~ "object.event_id.date_tz, &quot;format&quot;: &quot;long&quot;}\">4 maj, "
-#~ "2021</t>\n"
-#~ "                                    <t t-out=\"object.event_begin_date\" "
-#~ "t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, "
-#~ "&quot;time_only&quot;: True, &quot;tz_name&quot;: "
-#~ "object.event_id.date_tz, &quot;hide_seconds&quot;: True, "
-#~ "&quot;format&quot;: &quot;short&quot;}\">7:00</t>\n"
-#~ "                                     - <t t-out=\"object.event_end_date\" "
-#~ "t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, "
-#~ "&quot;time_only&quot;: True, &quot;tz_name&quot;: "
-#~ "object.event_id.date_tz, &quot;hide_seconds&quot;: True, "
-#~ "&quot;format&quot;: &quot;short&quot;}\">17:00</t>\n"
-#~ "                                </div>\n"
-#~ "                                <div t-else=\"\">\n"
-#~ "                                    <strong>Från</strong>\n"
-#~ "                                    <t t-out=\"object.event_begin_date\" "
-#~ "t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, "
-#~ "&quot;show_seconds&quot;: False, &quot;tz_name&quot;: "
-#~ "object.event_id.date_tz, &quot;format&quot;: &quot;medium&quot;}\">4 maj, "
-#~ "2021 - 7:00</t>\n"
-#~ "                                    <br/>\n"
-#~ "                                    <strong>Till</strong>\n"
-#~ "                                    <t t-out=\"object.event_end_date\" t-"
-#~ "options=\"{&quot;widget&quot;: &quot;datetime&quot;, "
-#~ "&quot;show_seconds&quot;: False, &quot;tz_name&quot;: "
-#~ "object.event_id.date_tz, &quot;format&quot;: &quot;medium&quot;}\">6 maj, "
-#~ "2021 - 17:00</t>\n"
-#~ "                                </div>\n"
-#~ "                                <div style=\"font-"
-#~ "size:12px;color:#9e9e9e\"><i>(<t t-out=\"object.event_id.date_tz or "
-#~ "''\">Europa/Stockholm</t>)</i></div>\n"
-#~ "                            </td>\n"
-#~ "                            <td style=\"vertical-align:top;\">\n"
-#~ "                                <t t-if=\"event_address\">\n"
-#~ "                                    <img src=\"/mail/font_to_img/61505/"
-#~ "rgb(81,81,102)/34\" style=\"padding:4px;max-width:inherit;\" "
-#~ "height=\"34\" alt=\"\"/>\n"
-#~ "                                </t>\n"
-#~ "                            </td>\n"
-#~ "                            <td style=\"padding: 0px 10px 0px "
-#~ "10px;width:50%;vertical-align:top;\">\n"
-#~ "                                <t t-if=\"event_address\">\n"
-#~ "                                    <t t-set=\"location\" t-value=\"''\"/"
-#~ ">\n"
-#~ "                                    <t t-"
-#~ "if=\"object.event_id.address_id.name\">\n"
-#~ "                                        <div t-"
-#~ "out=\"object.event_id.address_id.name\">Teksa SpA</div>\n"
-#~ "                                    </t>\n"
-#~ "                                    <t t-"
-#~ "if=\"object.event_id.address_id.street\">\n"
-#~ "                                        <div t-"
-#~ "out=\"object.event_id.address_id.street\">Puerto Madero 9710</div>\n"
-#~ "                                        <t t-set=\"location\" t-"
-#~ "value=\"object.event_id.address_id.street\"/>\n"
-#~ "                                    </t>\n"
-#~ "                                    <t t-"
-#~ "if=\"object.event_id.address_id.street2\">\n"
-#~ "                                        <div t-"
-#~ "out=\"object.event_id.address_id.street2\">Of A15, Santiago (RM)</div>\n"
-#~ "                                        <t t-set=\"location\" t-"
-#~ "valuef=\"{{location}}, {{object.event_id.address_id.street2}}\"/>\n"
-#~ "                                    </t>\n"
-#~ "                                    <div>\n"
-#~ "                                    <t t-"
-#~ "if=\"object.event_id.address_id.city\">\n"
-#~ "                                        <t t-"
-#~ "out=\"object.event_id.address_id.city\">Pudahuel</t>,\n"
-#~ "                                        <t t-set=\"location\" t-"
-#~ "valuef=\"{{location}}, {{object.event_id.address_id.city}}\"/>\n"
-#~ "                                    </t>\n"
-#~ "                                    <t t-"
-#~ "if=\"object.event_id.address_id.state_id.name\">\n"
-#~ "                                        <t t-"
-#~ "out=\"object.event_id.address_id.state_id.name\">C1</t>,\n"
-#~ "                                        <t t-set=\"location\" t-"
-#~ "valuef=\"{{location}}, {{object.event_id.address_id.state_id.name}}\"/>\n"
-#~ "                                    </t>\n"
-#~ "                                    <t t-"
-#~ "if=\"object.event_id.address_id.zip\">\n"
-#~ "                                        <t t-"
-#~ "out=\"object.event_id.address_id.zip\">98450</t>\n"
-#~ "                                        <t t-set=\"location\" t-"
-#~ "valuef=\"{{location}}, {{object.event_id.address_id.zip}}\"/>\n"
-#~ "                                    </t>\n"
-#~ "                                    </div>\n"
-#~ "                                    <t t-"
-#~ "if=\"object.event_id.address_id.country_id.name\">\n"
-#~ "                                        <div t-"
-#~ "out=\"object.event_id.address_id.country_id.name\">Argentina</div>\n"
-#~ "                                        <t t-set=\"location\" t-"
-#~ "valuef=\"{{location}}, {{object.event_id.address_id.country_id.name}}\"/"
-#~ ">\n"
-#~ "                                    </t>\n"
-#~ "                                </t>\n"
-#~ "                            </td>\n"
-#~ "                        </tr>\n"
-#~ "                    </table>\n"
-#~ "                </td></tr>\n"
-#~ "                <tr><td style=\"text-align:center;\">\n"
-#~ "                    <t t-if=\"event_organizer\">\n"
-#~ "                        <hr width=\"100%\" style=\"background-"
-#~ "color:rgb(204,204,204);border:medium none;clear:both;display:block;font-"
-#~ "size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;\"/>\n"
-#~ "                    </t>\n"
-#~ "                </td></tr>\n"
-#~ "\n"
-#~ "                <tr><td valign=\"top\" style=\"font-size: 14px;\">\n"
-#~ "                    <!-- CONTACT ORGANIZER -->\n"
-#~ "                    <t t-if=\"event_organizer\">\n"
-#~ "                        <div>\n"
-#~ "                            <span style=\"font-weight:300;margin:10px "
-#~ "0px\">Har du frågor om detta eventet?</span>\n"
-#~ "                            <div>Vänligen kontakta arrangören:</div>\n"
-#~ "                            <ul>\n"
-#~ "                                <li><t t-out=\"event_organizer.name or "
-#~ "''\">DittFöretag</t></li>\n"
-#~ "                                <t t-if=\"event_organizer.email\">\n"
-#~ "                                    <li>Mail: <a t-attf-href=\"mailto:"
-#~ "{{ event_organizer.email }}\" t-attf-style=\"text-decoration:none;color: "
-#~ "{{object.event_id.user_id.company_id.email_secondary_color or '#875A7B'}};"
-#~ "\" t-out=\"event_organizer.email\">info@yourcompany.com</a></li>\n"
-#~ "                                </t>\n"
-#~ "                                <t t-if=\"event_organizer.phone\">\n"
-#~ "                                    <li>Telefon: <t t-"
-#~ "out=\"event_organizer.phone\">+1 650-123-4567</t></li>\n"
-#~ "                                </t>\n"
-#~ "                            </ul>\n"
-#~ "                        </div>\n"
-#~ "                    </t>\n"
-#~ "                </td></tr>\n"
-#~ "                <tr><td style=\"text-align:center;\">\n"
-#~ "                    <!-- CONTACT ORGANIZER SEPARATION -->\n"
-#~ "                    <t t-if=\"is_online or event_address\">\n"
-#~ "                        <hr width=\"100%\" style=\"background-"
-#~ "color:rgb(204,204,204);border:medium none;clear:both;display:block;font-"
-#~ "size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;\"/>\n"
-#~ "                    </t>\n"
-#~ "                </td></tr>\n"
-#~ "\n"
-#~ "                <tr><td valign=\"top\" style=\"font-size: 14px;\">\n"
-#~ "                    <!-- PWA MARKGETING -->\n"
-#~ "                    <t t-if=\"is_online\">\n"
-#~ "                        <div>\n"
-#~ "                            <strong>Få den bästa mobila upplevelsen.</"
-#~ "strong>\n"
-#~ "                            <a href=\"/event\">Installera våran mobil "
-#~ "app</a>\n"
-#~ "                        </div>\n"
-#~ "                    </t>\n"
-#~ "                </td></tr>\n"
-#~ "                <tr><td style=\"text-align:center;\">\n"
-#~ "                    <!-- PWA MARKGETING SEPARATION-->\n"
-#~ "                    <t t-if=\"is_online and event_address\">\n"
-#~ "                        <hr width=\"100%\" style=\"background-"
-#~ "color:rgb(204,204,204);border:medium none;clear:both;display:block;font-"
-#~ "size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;\"/>\n"
-#~ "                    </t>\n"
-#~ "                </td></tr>\n"
-#~ "\n"
-#~ "                <tr><td valign=\"top\" style=\"font-size: 14px;\">\n"
-#~ "                    <!-- GOOGLE MAPS LINK -->\n"
-#~ "                    <t t-if=\"event_address and location\">\n"
-#~ "                        <table style=\"width:100%;\"><tr><td>\n"
-#~ "                            <div>\n"
-#~ "                                <img src=\"/web_editor/font_to_img/61505/"
-#~ "rgb(81,81,102)/20\" height=\"20\" style=\"vertical-align: bottom;\"/>\n"
-#~ "                                <a t-attf-href=\"https://maps.google.com/"
-#~ "maps?q={{ location }}\" target=\"new\">\n"
-#~ "                                    <img t-"
-#~ "if=\"event_address.static_map_url and "
-#~ "event_address.static_map_url_is_valid\" t-att-"
-#~ "src=\"event_address.static_map_url\" style=\"vertical-align:bottom; "
-#~ "width: 100%;\" alt=\"Google Maps\"/>\n"
-#~ "                                    <t t-else=\"\">See location on Google "
-#~ "Maps</t>\n"
-#~ "                                </a>\n"
-#~ "                            </div>\n"
-#~ "                        </td></tr></table>\n"
-#~ "                    </t>\n"
-#~ "                </td></tr>\n"
-#~ "            </table>\n"
-#~ "        </td>\n"
-#~ "    </tr>\n"
-#~ "</tbody>\n"
-#~ "</table>\n"
-#~ "</td></tr>\n"
-#~ "<!-- FOOTER BY -->\n"
-#~ "<tr><td align=\"center\" style=\"min-width: 590px;\">\n"
-#~ "    <t t-if=\"object.company_id\">\n"
-#~ "        <table width=\"590\" border=\"0\" cellpadding=\"0\" "
-#~ "cellspacing=\"0\" style=\"min-width: 590px; background-color: #F1F1F1; "
-#~ "color: #454748; padding: 8px; border-collapse:separate;\">\n"
-#~ "        <tr><td style=\"text-align: center; font-size: 14px;\">\n"
-#~ "            Skickat från <a target=\"_blank\" t-attf-"
-#~ "href=\"{{ object.company_id.website }}\" t-attf-style=\"color: "
-#~ "{{object.event_id.user_id.company_id.email_secondary_color or '#875A7B'}};"
-#~ "\" t-out=\"object.company_id.name or ''\">DittFöretag</a>\n"
-#~ "            <t t-if=\"is_online\">\n"
-#~ "                <br/>\n"
-#~ "                Upptäck <a href=\"/event\" t-attf-style=\"color: "
-#~ "{{object.event_id.user_id.company_id.email_secondary_color or '#875A7B'}};"
-#~ "\">alla våra event</a>.\n"
-#~ "            </t>\n"
-#~ "        </td></tr>\n"
-#~ "        </table>\n"
-#~ "    </t>\n"
-#~ "</td></tr>\n"
-#~ "</table>\n"
-#~ "            "
-
 #~ msgid ""
 #~ "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"padding-"
 #~ "top: 16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-"
@@ -6225,10 +6084,9 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "registration_ids={{ object.ids }}"
 #~ "&amp;tickets_hash={{ object.event_id._get_tickets_access_hash(object.ids) }}"
 #~ "&amp;responsive_html=1\" target=\"_blank\" style=\"padding: 8px 12px; "
-#~ "font-size: 12px; color: "
-#~ "{{object.event_id.user_id.company_id.email_primary_color or '#FFFFFF'}}; "
-#~ "text-decoration: none !important; font-weight: 400; background-color: "
-#~ "{{object.event_id.user_id.company_id.email_secondary_color or "
+#~ "font-size: 12px; color: {{object.event_id.company_id.email_primary_color "
+#~ "or '#FFFFFF'}}; text-decoration: none !important; font-weight: 400; "
+#~ "background-color: {{object.event_id.company_id.email_secondary_color or "
 #~ "'#875A7B'}}; border-radius:3px\">\n"
 #~ "                            View Tickets\n"
 #~ "                        </a>\n"
@@ -6279,9 +6137,9 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "                        <t t-if=\"event_website_url\">\n"
 #~ "                            <a t-att-href=\"event_website_url\" t-attf-"
 #~ "style=\"font-weight:bold;color: "
-#~ "{{object.event_id.user_id.company_id.email_secondary_color or "
-#~ "'#875A7B'}}; text-decoration:none;\" t-out=\"object.event_id.name or "
-#~ "''\">OpenWood Collection Online Reveal</a>\n"
+#~ "{{object.event_id.company_id.email_secondary_color or '#875A7B'}}; text-"
+#~ "decoration:none;\" t-out=\"object.event_id.name or ''\">OpenWood "
+#~ "Collection Online Reveal</a>\n"
 #~ "                        </t>\n"
 #~ "                        <t t-else=\"\">\n"
 #~ "                            <strong t-out=\"object.event_id.name or "
@@ -6502,8 +6360,8 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "                                <t t-if=\"event_organizer.email\">\n"
 #~ "                                    <li>Mail: <a t-attf-href=\"mailto:"
 #~ "{{ event_organizer.email }}\" t-attf-style=\"text-decoration:none; color: "
-#~ "{{object.event_id.user_id.company_id.email_secondary_color or '#875A7B'}};"
-#~ "\" t-out=\"event_organizer.email or ''\"/></li>\n"
+#~ "{{object.event_id.company_id.email_secondary_color or '#875A7B'}};\" t-"
+#~ "out=\"event_organizer.email or ''\"/></li>\n"
 #~ "                                </t>\n"
 #~ "                                <t t-if=\"event_organizer.phone\">\n"
 #~ "                                    <li>Phone: <t t-"
@@ -6570,14 +6428,14 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "      <tr><td style=\"text-align: center; font-size: 14px;\">\n"
 #~ "        Sent by <a target=\"_blank\" t-attf-"
 #~ "href=\"{{ object.company_id.website }}\" t-attf-style=\"color: "
-#~ "{{object.event_id.user_id.company_id.email_secondary_color or '#875A7B'}};"
-#~ "\" t-out=\"object.company_id.name or ''\">YourCompany</a>\n"
+#~ "{{object.event_id.company_id.email_secondary_color or '#875A7B'}};\" t-"
+#~ "out=\"object.company_id.name or ''\">YourCompany</a>\n"
 #~ "        <t t-if=\"'website_url' in object.event_id and "
 #~ "object.event_id.website_url\">\n"
 #~ "            <br/>\n"
 #~ "            Discover <a href=\"/event\" t-attf-style=\"color: "
-#~ "{{object.event_id.user_id.company_id.email_secondary_color or '#875A7B'}};"
-#~ "\">all our events</a>.\n"
+#~ "{{object.event_id.company_id.email_secondary_color or '#875A7B'}};\">all "
+#~ "our events</a>.\n"
 #~ "        </t>\n"
 #~ "      </td></tr>\n"
 #~ "    </table>\n"
@@ -6615,7 +6473,7 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "cellspacing=\"0\" style=\"min-width: 590px; background-color: white; "
 #~ "padding: 0px 8px 0px 8px; border-collapse:separate;\">\n"
 #~ "                <tr><td valign=\"middle\">\n"
-#~ "                    <span style=\"font-size: 10px;\">Din registrering</"
+#~ "                    <span style=\"font-size: 10px;\">Din anmälan</"
 #~ "span><br/>\n"
 #~ "                    <t t-set=\"default_name\">Gäst</t>\n"
 #~ "                    <span style=\"font-size: 20px; font-weight: bold;\" t-"
@@ -6626,12 +6484,11 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "registration_ids={{ object.ids }}"
 #~ "&amp;tickets_hash={{ object.event_id._get_tickets_access_hash(object.ids) }}"
 #~ "&amp;responsive_html=1\" target=\"_blank\" style=\"padding: 8px 12px; "
-#~ "font-size: 12px; color: "
-#~ "{{object.event_id.user_id.company_id.email_primary_color or '#FFFFFF'}}; "
-#~ "text-decoration: none !important; font-weight: 400; background-color: "
-#~ "{{object.event_id.user_id.company_id.email_secondary_color or "
+#~ "font-size: 12px; color: {{object.event_id.company_id.email_primary_color "
+#~ "or '#FFFFFF'}}; text-decoration: none !important; font-weight: 400; "
+#~ "background-color: {{object.event_id.company_id.email_secondary_color or "
 #~ "'#875A7B'}}; border-radius:3px\">\n"
-#~ "                            Visa biljett\n"
+#~ "                            Visa biljetter\n"
 #~ "                        </a>\n"
 #~ "                        <a t-else=\"event_website_url\" t-att-"
 #~ "href=\"event_website_url\" target=\"_blank\" style=\"padding: 8px 12px; "
@@ -6676,17 +6533,17 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "                        <t t-set=\"default_name\">Guest</t>\n"
 #~ "                        Hej <t t-out=\"object.name or default_name\"/>,"
 #~ "<br/><br/>\n"
-#~ "                        Vi är glada att kunna påminna er om evenemanget\n"
+#~ "                        Vi är glada att påminna dig om att evenemanget\n"
 #~ "                        <t t-if=\"event_website_url\">\n"
 #~ "                            <a t-att-href=\"event_website_url\" t-attf-"
 #~ "style=\"font-weight:bold;color: "
-#~ "{{object.event_id.user_id.company_id.email_secondary_color or "
-#~ "'#875A7B'}}; text-decoration:none;\" t-out=\"object.event_id.name or "
-#~ "''\">OpenWood Collection Online Reveal</a>\n"
+#~ "{{object.event_id.company_id.email_secondary_color or '#875A7B'}}; text-"
+#~ "decoration:none;\" t-out=\"object.event_id.name or ''\">Online-lansering "
+#~ "av OpenWoods nya kollektion</a>\n"
 #~ "                        </t>\n"
 #~ "                        <t t-else=\"\">\n"
 #~ "                            <strong t-out=\"object.event_id.name or "
-#~ "''\">OpenWood Collection Online Reveal</strong>\n"
+#~ "''\">Online-lansering av OpenWoods nya kollektion</strong>\n"
 #~ "                        </t>\n"
 #~ "                        börjar <strong t-out=\"object.event_date_range or "
 #~ "''\">idag</strong>.\n"
@@ -6695,7 +6552,7 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "                    <table style=\"width: auto;\">\n"
 #~ "                        <tr>\n"
 #~ "                            <td>\n"
-#~ "                                <strong>Lägg in detta eveneman i din "
+#~ "                                <strong>Lägg till evenemanget i din "
 #~ "kalender</strong>\n"
 #~ "                            </td>\n"
 #~ "                            <td>\n"
@@ -6737,17 +6594,17 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "                    </table>\n"
 #~ "                    <br/><br/>\n"
 #~ "                    <div>\n"
-#~ "                        Vi bekräftar din registrering och hoppas att se "
-#~ "dig där,<br/>\n"
+#~ "                        Vi bekräftar din anmälan och hoppas att vi ses "
+#~ "där,<br/>\n"
 #~ "                        <span style=\"color: #454748;\">\n"
 #~ "                        -- <br/>\n"
 #~ "                        <t t-if=\"event_organizer\">\n"
 #~ "                            <t t-out=\"event_organizer.name or "
-#~ "''\">DittFöretag</t>\n"
+#~ "''\">YourCompany</t>\n"
 #~ "                        </t>\n"
 #~ "                        <t t-else=\"\">\n"
 #~ "                            <t t-out=\"object.event_id.name or "
-#~ "''\">OpenWood Collection Online Reveal</t> Teamet\n"
+#~ "''\">Online-lansering av OpenWoods nya kollektion</t>\n"
 #~ "                        </t>\n"
 #~ "                        </span>\n"
 #~ "                    </div>\n"
@@ -6787,12 +6644,12 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, "
 #~ "&quot;time_only&quot;: True, &quot;tz_name&quot;: "
 #~ "object.event_id.date_tz, &quot;hide_seconds&quot;: True, "
-#~ "&quot;format&quot;: &quot;short&quot;}\">7:00</t>\n"
+#~ "&quot;format&quot;: &quot;short&quot;}\">7:00 AM</t>\n"
 #~ "                                     - <t t-out=\"object.event_end_date\" "
 #~ "t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, "
 #~ "&quot;time_only&quot;: True, &quot;tz_name&quot;: "
 #~ "object.event_id.date_tz, &quot;hide_seconds&quot;: True, "
-#~ "&quot;format&quot;: &quot;short&quot;}\">17:00</t>\n"
+#~ "&quot;format&quot;: &quot;short&quot;}\">5:00 PM</t>\n"
 #~ "                                </div>\n"
 #~ "                                <div t-else=\"\">\n"
 #~ "                                    <strong>Från</strong>\n"
@@ -6800,18 +6657,18 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, "
 #~ "&quot;show_seconds&quot;: False, &quot;tz_name&quot;: "
 #~ "object.event_id.date_tz, &quot;format&quot;: &quot;medium&quot;}\">4 maj, "
-#~ "2021 - 7:00</t>\n"
+#~ "2021 - 7:00 AM</t>\n"
 #~ "                                    <br/>\n"
-#~ "                                    <strong>Till</strong>\n"
+#~ "                                    <strong>To</strong>\n"
 #~ "                                    <t t-out=\"object.event_end_date\" t-"
 #~ "options=\"{&quot;widget&quot;: &quot;datetime&quot;, "
 #~ "&quot;show_seconds&quot;: False, &quot;tz_name&quot;: "
 #~ "object.event_id.date_tz, &quot;format&quot;: &quot;medium&quot;}\">6 maj, "
-#~ "2021 - 17:00</t>\n"
+#~ "2021 - 5:00 PM</t>\n"
 #~ "                                </div>\n"
 #~ "                                <div style=\"font-"
 #~ "size:12px;color:#9e9e9e\"><i>(<t t-out=\"object.event_id.date_tz or "
-#~ "''\">Europa/Stockholm</t>)</i></div>\n"
+#~ "''\">Europe/Brussels</t>)</i></div>\n"
 #~ "                            </td>\n"
 #~ "                            <td style=\"vertical-align:top;\">\n"
 #~ "                                <t t-if=\"event_address\">\n"
@@ -6895,17 +6752,16 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "                    <t t-if=\"event_organizer\">\n"
 #~ "                        <div>\n"
 #~ "                            <span style=\"font-weight:300;margin:10px "
-#~ "0px\">Har du frågor om detta eventet?</span>\n"
-#~ "                            <div>Vänligen kontakta arrangören av detta "
-#~ "event:</div>\n"
+#~ "0px\">Har du frågor om evenemanget?</span>\n"
+#~ "                            <div>Vänligen kontakta arrangören:</div>\n"
 #~ "                            <ul>\n"
 #~ "                                <li t-out=\"event_organizer.name or "
-#~ "''\">DittFöretag</li>\n"
+#~ "''\">YourCompany</li>\n"
 #~ "                                <t t-if=\"event_organizer.email\">\n"
 #~ "                                    <li>E-post: <a t-attf-href=\"mailto:"
 #~ "{{ event_organizer.email }}\" t-attf-style=\"text-decoration:none; color: "
-#~ "{{object.event_id.user_id.company_id.email_secondary_color or '#875A7B'}};"
-#~ "\" t-out=\"event_organizer.email or ''\"/></li>\n"
+#~ "{{object.event_id.company_id.email_secondary_color or '#875A7B'}};\" t-"
+#~ "out=\"event_organizer.email or ''\"/></li>\n"
 #~ "                                </t>\n"
 #~ "                                <t t-if=\"event_organizer.phone\">\n"
 #~ "                                    <li>Telefon: <t t-"
@@ -6926,10 +6782,9 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "                <tr><td valign=\"top\" style=\"font-size: 14px;\">\n"
 #~ "                    <!-- PWA MARKGETING -->\n"
 #~ "                    <div t-if=\"is_online\">\n"
-#~ "                        <strong>Få ut det mesta av en mobil upplevelse.</"
+#~ "                        <strong>Få den bästa mobila upplevelsen.</"
 #~ "strong>\n"
-#~ "                        <a href=\"/event\">Installera på våra mobile app</"
-#~ "a>\n"
+#~ "                        <a href=\"/event\">Installera vår mobilapp</a>\n"
 #~ "                    </div>\n"
 #~ "                </td></tr>\n"
 #~ "                <tr><td style=\"text-align:center;\">\n"
@@ -6953,8 +6808,8 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "and event_address.static_map_url_is_valid\" t-attf-"
 #~ "src=\"{{ event_address.static_map_url }}\" style=\"vertical-align:bottom; "
 #~ "width: 100%;\" alt=\"Google Maps\"/>\n"
-#~ "                                <span t-else=\"\">Se detaljer om plats på "
-#~ "Google Maps</span>\n"
+#~ "                                <span t-else=\"\">Visa platsen i Google "
+#~ "Kartor</span>\n"
 #~ "                            </a>\n"
 #~ "                        </div>\n"
 #~ "                    </td></tr></table>\n"
@@ -6972,16 +6827,16 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "color: #F1F1F1; color: #454748; padding: 8px; border-collapse:separate;"
 #~ "\">\n"
 #~ "      <tr><td style=\"text-align: center; font-size: 14px;\">\n"
-#~ "        Skickat av <a target=\"_blank\" t-attf-"
+#~ "        Skickades av <a target=\"_blank\" t-attf-"
 #~ "href=\"{{ object.company_id.website }}\" t-attf-style=\"color: "
-#~ "{{object.event_id.user_id.company_id.email_secondary_color or '#875A7B'}};"
-#~ "\" t-out=\"object.company_id.name or ''\">DittFöretag</a>\n"
+#~ "{{object.event_id.company_id.email_secondary_color or '#875A7B'}};\" t-"
+#~ "out=\"object.company_id.name or ''\">YourCompany</a>\n"
 #~ "        <t t-if=\"'website_url' in object.event_id and "
 #~ "object.event_id.website_url\">\n"
 #~ "            <br/>\n"
-#~ "            Discover <a href=\"/event\" t-attf-style=\"color: "
-#~ "{{object.event_id.user_id.company_id.email_secondary_color or '#875A7B'}};"
-#~ "\">all our events</a>.\n"
+#~ "            Upptäck <a href=\"/event\" t-attf-style=\"color: "
+#~ "{{object.event_id.company_id.email_secondary_color or '#875A7B'}};\">alla "
+#~ "våra evenemang</a>.\n"
 #~ "        </t>\n"
 #~ "      </td></tr>\n"
 #~ "    </table>\n"
@@ -7033,10 +6888,10 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "&amp;tickets_hash={{ object.event_id._get_tickets_access_hash(object.ids) }}"
 #~ "&amp;responsive_html=1\" target=\"_blank\" t-attf-style=\"padding: 8px "
 #~ "12px; font-size: 12px; color: "
-#~ "{{object.event_id.user_id.company_id.email_primary_color or '#FFFFFF'}}; "
-#~ "text-decoration: none !important; font-weight: 400; background-color: "
-#~ "{{object.event_id.user_id.company_id.email_secondary_color or "
-#~ "'#875A7B'}}; border-radius:3px\">\n"
+#~ "{{object.event_id.company_id.email_primary_color or '#FFFFFF'}}; text-"
+#~ "decoration: none !important; font-weight: 400; background-color: "
+#~ "{{object.event_id.company_id.email_secondary_color or '#875A7B'}}; border-"
+#~ "radius:3px\">\n"
 #~ "                            View Tickets\n"
 #~ "                        </a>\n"
 #~ "                        <a t-else=\"event_website_url\" t-att-"
@@ -7086,8 +6941,8 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "event\n"
 #~ "                        <t t-if=\"event_website_url\">\n"
 #~ "                            <a t-att-href=\"event_website_url\" t-attf-"
-#~ "style=\"color: {{object.event_id.user_id.company_id.email_secondary_color "
-#~ "or '#875A7B'}}; text-decoration:none;font-weight:bold;\" t-"
+#~ "style=\"color: {{object.event_id.company_id.email_secondary_color or "
+#~ "'#875A7B'}}; text-decoration:none;font-weight:bold;\" t-"
 #~ "out=\"object.event_id.name or ''\">OpenWood Collection Online Reveal</a>\n"
 #~ "                        </t>\n"
 #~ "                        <t t-else=\"\">\n"
@@ -7106,10 +6961,10 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "out=\"object.sale_order_id.name\"/>\n"
 #~ "                        and was placed on <t t-"
 #~ "out=\"object.sale_order_id.date_order.date()\"/>\n"
-#~ "                        <t t-if=\"object.sale_order_line_id.price_unit\"> "
-#~ "for an amount of\n"
+#~ "                        <t t-"
+#~ "if=\"object.sale_order_line_id.price_total\"> for an amount of\n"
 #~ "                            <t t-"
-#~ "out=\"object.sale_order_line_id.price_unit\" t-options=\"{'widget': "
+#~ "out=\"object.sale_order_line_id.price_total\" t-options=\"{'widget': "
 #~ "'monetary', 'display_currency': object.sale_order_line_id.currency_id}\"/"
 #~ ">\n"
 #~ "                        </t>.\n"
@@ -7323,8 +7178,8 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "                                <t t-if=\"event_organizer.email\">\n"
 #~ "                                    <li>Mail: <a t-attf-href=\"mailto:"
 #~ "{{ event_organizer.email }}\" t-attf-style=\"text-decoration:none; color: "
-#~ "{{object.event_id.user_id.company_id.email_secondary_color or '#875A7B'}};"
-#~ "\" t-out=\"event_organizer.email or ''\">info@yourcompany.com</a></li>\n"
+#~ "{{object.event_id.company_id.email_secondary_color or '#875A7B'}};\" t-"
+#~ "out=\"event_organizer.email or ''\">info@yourcompany.com</a></li>\n"
 #~ "                                </t>\n"
 #~ "                                <t t-if=\"event_organizer.phone\">\n"
 #~ "                                    <li>Phone: <t t-"
@@ -7399,13 +7254,13 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "        <tr><td style=\"text-align: center; font-size: 14px;\">\n"
 #~ "            Sent by <a target=\"_blank\" t-attf-"
 #~ "href=\"{{ object.company_id.website }}\" t-attf-style=\"color: "
-#~ "{{object.event_id.user_id.company_id.email_secondary_color or '#875A7B'}};"
-#~ "\" t-out=\"object.company_id.name or ''\">YourCompany</a>\n"
+#~ "{{object.event_id.company_id.email_secondary_color or '#875A7B'}};\" t-"
+#~ "out=\"object.company_id.name or ''\">YourCompany</a>\n"
 #~ "            <t t-if=\"is_online\">\n"
 #~ "                <br/>\n"
 #~ "                Discover <a href=\"/event\" t-attf-style=\"color: "
-#~ "{{object.event_id.user_id.company_id.email_secondary_color or '#875A7B'}};"
-#~ "\">all our events</a>.\n"
+#~ "{{object.event_id.company_id.email_secondary_color or '#875A7B'}};\">all "
+#~ "our events</a>.\n"
 #~ "            </t>\n"
 #~ "        </td></tr>\n"
 #~ "        </table>\n"
@@ -7444,10 +7299,10 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "cellspacing=\"0\" style=\"min-width: 590px; background-color: white; "
 #~ "padding: 0px 8px 0px 8px; border-collapse:separate;\">\n"
 #~ "                <tr><td valign=\"middle\">\n"
-#~ "                    <span style=\"font-size: 10px;\">Your registration</"
+#~ "                    <span style=\"font-size: 10px;\">Din anmälan</"
 #~ "span><br/>\n"
 #~ "                    <span style=\"font-size: 20px; font-weight: bold;\">\n"
-#~ "                        <t t-set=\"default_name\">Guest</t>\n"
+#~ "                        <t t-set=\"default_name\">Gäst</t>\n"
 #~ "                        <t t-out=\"object.name or default_name\"/>\n"
 #~ "                    </span>\n"
 #~ "                    <div style=\"margin-bottom: 5px;margin-top: 18px;\">\n"
@@ -7457,11 +7312,11 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "&amp;tickets_hash={{ object.event_id._get_tickets_access_hash(object.ids) }}"
 #~ "&amp;responsive_html=1\" target=\"_blank\" t-attf-style=\"padding: 8px "
 #~ "12px; font-size: 12px; color: "
-#~ "{{object.event_id.user_id.company_id.email_primary_color or '#FFFFFF'}}; "
-#~ "text-decoration: none !important; font-weight: 400; background-color: "
-#~ "{{object.event_id.user_id.company_id.email_secondary_color or "
-#~ "'#875A7B'}}; border-radius:3px\">\n"
-#~ "                            Visa biljett\n"
+#~ "{{object.event_id.company_id.email_primary_color or '#FFFFFF'}}; text-"
+#~ "decoration: none !important; font-weight: 400; background-color: "
+#~ "{{object.event_id.company_id.email_secondary_color or '#875A7B'}}; border-"
+#~ "radius:3px\">\n"
+#~ "                            Visa biljetter\n"
 #~ "                        </a>\n"
 #~ "                        <a t-else=\"event_website_url\" t-att-"
 #~ "href=\"event_website_url\" target=\"_blank\" style=\"padding: 8px 12px; "
@@ -7506,12 +7361,11 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "                        <t t-set=\"default_name\">Guest</t>\n"
 #~ "                        Hej <t t-out=\"object.name or default_name\"/>,"
 #~ "<br/><br/>\n"
-#~ "                        i är glada att kunna bekräfta din registrering "
-#~ "till evenemanget\n"
+#~ "                        Vi bekräftar härmed din anmälan till evenemanget\n"
 #~ "                        <t t-if=\"event_website_url\">\n"
 #~ "                            <a t-att-href=\"event_website_url\" t-attf-"
-#~ "style=\"color: {{object.event_id.user_id.company_id.email_secondary_color "
-#~ "or '#875A7B'}}; text-decoration:none;font-weight:bold;\" t-"
+#~ "style=\"color: {{object.event_id.company_id.email_secondary_color or "
+#~ "'#875A7B'}}; text-decoration:none;font-weight:bold;\" t-"
 #~ "out=\"object.event_id.name or ''\">OpenWood Collection Online Reveal</a>\n"
 #~ "                        </t>\n"
 #~ "                        <t t-else=\"\">\n"
@@ -7520,20 +7374,20 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "                        </t>.\n"
 #~ "                        <t t-if=\"object.partner_id and "
 #~ "object.partner_id.name and object.partner_id.name != object.name\">\n"
-#~ "                            Denna biljett registrerades av <t t-"
+#~ "                            Biljetten har registrerats av <t t-"
 #~ "out=\"object.partner_id.name\"/>.\n"
 #~ "                        </t>\n"
 #~ "                    </div>\n"
 #~ "                    <div t-if=\"is_sale\">\n"
 #~ "                        <br/>\n"
-#~ "                        Ordern för denna biljett har referens <t t-"
+#~ "                        Biljettens ordernummer är <t t-"
 #~ "out=\"object.sale_order_id.name\"/>\n"
-#~ "                        och köptes den <t t-"
+#~ "                        och beställningen gjordes den <t t-"
 #~ "out=\"object.sale_order_id.date_order.date()\"/>\n"
-#~ "                        <t t-if=\"object.sale_order_line_id.price_unit\"> "
-#~ "för ett belopp av\n"
+#~ "                        <t t-"
+#~ "if=\"object.sale_order_line_id.price_total\"> för en summa på\n"
 #~ "                            <t t-"
-#~ "out=\"object.sale_order_line_id.price_unit\" t-options=\"{'widget': "
+#~ "out=\"object.sale_order_line_id.price_total\" t-options=\"{'widget': "
 #~ "'monetary', 'display_currency': object.sale_order_line_id.currency_id}\"/"
 #~ ">\n"
 #~ "                        </t>.\n"
@@ -7542,7 +7396,7 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "                    <table style=\"width: auto;\">\n"
 #~ "                        <tr>\n"
 #~ "                            <td>\n"
-#~ "                                <strong>Lägg till detta evenemang i din "
+#~ "                                <strong>Lägg till evenemanget i din "
 #~ "kalender</strong>\n"
 #~ "                            </td>\n"
 #~ "                            <td>\n"
@@ -7584,16 +7438,16 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "                    </table>\n"
 #~ "                    <br/><br/>\n"
 #~ "                    <div>\n"
-#~ "                        Vi ses snart,<br/>\n"
+#~ "                        Med vänliga hälsningar,<br/>\n"
 #~ "                        <span style=\"color: #454748;\">\n"
 #~ "                        -- <br/>\n"
 #~ "                        <t t-if=\"event_organizer\">\n"
 #~ "                            <t t-"
-#~ "out=\"event_organizer.name\">DittFöretag</t>\n"
+#~ "out=\"event_organizer.name\">YourCompany</t>\n"
 #~ "                        </t>\n"
 #~ "                        <t t-else=\"\">\n"
-#~ "                            <t t-out=\"object.event_id.name or "
-#~ "''\">OpenWood Collection Online Reveal</t> Teamet\n"
+#~ "                            The <t t-out=\"object.event_id.name or "
+#~ "''\">OpenWood Collection Online Reveal</t>\n"
 #~ "                        </t>\n"
 #~ "                        </span>\n"
 #~ "                    </div>\n"
@@ -7627,7 +7481,7 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "                                    <t t-out=\"object.event_begin_date\" "
 #~ "t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, "
 #~ "&quot;date_only&quot;: True, &quot;tz_name&quot;: "
-#~ "object.event_id.date_tz, &quot;format&quot;: &quot;long&quot;}\">4 maj, "
+#~ "object.event_id.date_tz, &quot;format&quot;: &quot;long&quot;}\">4 maj "
 #~ "2021</t>\n"
 #~ "                                    <t t-out=\"object.event_begin_date\" "
 #~ "t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, "
@@ -7645,19 +7499,19 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "                                    <t t-out=\"object.event_begin_date\" "
 #~ "t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, "
 #~ "&quot;show_seconds&quot;: False, &quot;tz_name&quot;: "
-#~ "object.event_id.date_tz, &quot;format&quot;: &quot;medium&quot;}\">4 maj, "
-#~ "2021 - 7:00 AM</t>\n"
+#~ "object.event_id.date_tz, &quot;format&quot;: &quot;medium&quot;}\">4 maj "
+#~ "2021 - 7:00</t>\n"
 #~ "                                    <br/>\n"
 #~ "                                    <strong>Till</strong>\n"
 #~ "                                    <t t-out=\"object.event_end_date\" t-"
 #~ "options=\"{&quot;widget&quot;: &quot;datetime&quot;, "
 #~ "&quot;show_seconds&quot;: False, &quot;tz_name&quot;: "
-#~ "object.event_id.date_tz, &quot;format&quot;: &quot;medium&quot;}\">6 maj, "
-#~ "2021 - 17:00 PM</t>\n"
+#~ "object.event_id.date_tz, &quot;format&quot;: &quot;medium&quot;}\">6 maj "
+#~ "2021 - 17:00</t>\n"
 #~ "                                </div>\n"
 #~ "                                <div style=\"font-"
 #~ "size:12px;color:#9e9e9e\"><i>(<t t-out=\"object.event_id.date_tz or "
-#~ "''\">Europa/Stockholm</t>)</i></div>\n"
+#~ "''\">Europa/Bryssel</t>)</i></div>\n"
 #~ "                            </td>\n"
 #~ "                            <td style=\"vertical-align:top;\">\n"
 #~ "                                <t t-if=\"event_address\">\n"
@@ -7739,16 +7593,16 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "                    <t t-if=\"event_organizer\">\n"
 #~ "                        <div>\n"
 #~ "                            <span style=\"font-weight:300;margin:10px "
-#~ "0px\">Frågor om detta event?</span>\n"
+#~ "0px\">Har du några frågor om evenemanget?</span>\n"
 #~ "                            <div>Vänligen kontakta arrangören:</div>\n"
 #~ "                            <ul>\n"
 #~ "                                <li><t t-out=\"event_organizer.name or "
-#~ "''\">DittFöretag</t></li>\n"
+#~ "''\">YourCompany</t></li>\n"
 #~ "                                <t t-if=\"event_organizer.email\">\n"
 #~ "                                    <li>E-post: <a t-attf-href=\"mailto:"
 #~ "{{ event_organizer.email }}\" t-attf-style=\"text-decoration:none; color: "
-#~ "{{object.event_id.user_id.company_id.email_secondary_color or '#875A7B'}};"
-#~ "\" t-out=\"event_organizer.email or ''\">info@yourcompany.com</a></li>\n"
+#~ "{{object.event_id.company_id.email_secondary_color or '#875A7B'}};\" t-"
+#~ "out=\"event_organizer.email or ''\">info@yourcompany.com</a></li>\n"
 #~ "                                </t>\n"
 #~ "                                <t t-if=\"event_organizer.phone\">\n"
 #~ "                                    <li>Telefon: <t t-"
@@ -7773,7 +7627,7 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "                        <div>\n"
 #~ "                            <strong>Få den bästa mobila upplevelsen.</"
 #~ "strong>\n"
-#~ "                            <a href=\"/event\">Installera vår mobil-app.</"
+#~ "                            <a href=\"/event\">Installera vår mobilapp</"
 #~ "a>\n"
 #~ "                        </div>\n"
 #~ "                    </t>\n"
@@ -7801,8 +7655,8 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "event_address.static_map_url_is_valid\" t-att-"
 #~ "src=\"event_address.static_map_url\" style=\"vertical-align:bottom; "
 #~ "width: 100%;\" alt=\"Google Maps\"/>\n"
-#~ "                                    <t t-else=\"\">Se karta på Google "
-#~ "Maps</t>\n"
+#~ "                                    <t t-else=\"\">Visa plats i Google "
+#~ "Kartor</t>\n"
 #~ "                                </a>\n"
 #~ "                            </div>\n"
 #~ "                        </td></tr></table>\n"
@@ -7821,15 +7675,15 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "cellspacing=\"0\" style=\"min-width: 590px; background-color: #F1F1F1; "
 #~ "color: #454748; padding: 8px; border-collapse:separate;\">\n"
 #~ "        <tr><td style=\"text-align: center; font-size: 14px;\">\n"
-#~ "            Skickat <a target=\"_blank\" t-attf-"
+#~ "            Skickades av <a target=\"_blank\" t-attf-"
 #~ "href=\"{{ object.company_id.website }}\" t-attf-style=\"color: "
-#~ "{{object.event_id.user_id.company_id.email_secondary_color or '#875A7B'}};"
-#~ "\" t-out=\"object.company_id.name or ''\">DittFöretag</a>\n"
+#~ "{{object.event_id.company_id.email_secondary_color or '#875A7B'}};\" t-"
+#~ "out=\"object.company_id.name or ''\">YourCompany</a>\n"
 #~ "            <t t-if=\"is_online\">\n"
 #~ "                <br/>\n"
 #~ "                Upptäck <a href=\"/event\" t-attf-style=\"color: "
-#~ "{{object.event_id.user_id.company_id.email_secondary_color or '#875A7B'}};"
-#~ "\">alla våra event</a>.\n"
+#~ "{{object.event_id.company_id.email_secondary_color or '#875A7B'}};\">alla "
+#~ "våra evenemang</a>.\n"
 #~ "            </t>\n"
 #~ "        </td></tr>\n"
 #~ "        </table>\n"
@@ -7838,212 +7692,9 @@ msgstr "{{ object.event_id.name }}: {{ object.event_date_range }}"
 #~ "</table>\n"
 #~ "            "
 
-#~ msgid "Warning"
-#~ msgstr "Varning"
-
 #~ msgid ""
-#~ "<i class=\"fa fa-check fa-3x\" role=\"img\" aria-label=\"Confirm button\" "
-#~ "title=\"Confirm Registration\"/>"
+#~ "<i class=\"oi mt-1 me-2 text-center ps-1\" data-icon=\"location_on\" "
+#~ "title=\"Location\"/>"
 #~ msgstr ""
-#~ "<i class=\"fa fa-check fa-3x\" role=\"img\" aria-label=\"Confirm button\" "
-#~ "title=\"Bekräfta anmälan\"/>"
-
-#~ msgid ""
-#~ "<i class=\"fa fa-check\" role=\"img\" aria-label=\"Confirm button\" "
-#~ "title=\"Confirm Registration\"/>"
-#~ msgstr ""
-#~ "<i class=\"fa fa-check\" role=\"img\" aria-label=\"Confirm button\" "
-#~ "title=\"Bekräfta anmälan\"/>"
-
-#~ msgid "<i class=\"fa fa-level-up fa-rotate-90\" title=\"Confirmed\"/>"
-#~ msgstr "<i class=\"fa fa-level-up fa-rotate-90\" title=\"Confirmed\"/>"
-
-#~ msgid ""
-#~ "<i class=\"fa fa-user-plus fa-3x\" role=\"img\" aria-label=\"Attended "
-#~ "button\" title=\"Confirm Attendance\"/>"
-#~ msgstr ""
-#~ "<i class=\"fa fa-user-plus fa-3x\" role=\"img\" aria-label=\"Attended "
-#~ "button\" title=\"Bekräfta närvaro\"/>"
-
-#~ msgid ""
-#~ "<i class=\"fa fa-user-plus\" role=\"img\" aria-label=\"Attended button\" "
-#~ "title=\"Confirm Attendance\"/>"
-#~ msgstr ""
-#~ "<i class=\"fa fa-user-plus\" role=\"img\" aria-label=\"Attended button\" "
-#~ "title=\"Bekräfta närvaro\"/>"
-
-#~ msgid ""
-#~ "<span class=\"text-muted\" states=\"done\">Attended</span>\n"
-#~ "                                    <span class=\"text-muted\" "
-#~ "states=\"cancel\">Canceled</span>"
-#~ msgstr ""
-#~ "<span class=\"text-muted\" states=\"done\">Deltog</span>\n"
-#~ "                                    <span class=\"text-muted\" "
-#~ "states=\"cancel\">Avbruten</span>"
-
-#~ msgid "After the event"
-#~ msgstr "Efter evenemanget"
-
-#~ msgid "Autoconfirmation"
-#~ msgstr "Autobekräftelse"
-
-#~ msgid "Automatically Confirm Registrations"
-#~ msgstr "Automatiskt Bekräfta Registreringar"
-
-#~ msgid "Before the event"
-#~ msgstr "Innan evenemanget"
-
-#~ msgid "Confirm"
-#~ msgstr "Bekräfta"
-
-#~ msgid "Confirm Attendance"
-#~ msgstr "Bekräfta närvaro"
-
-#~ msgid "Confirm Registration"
-#~ msgstr "Bekräfta anmälan"
-
-#~ msgid "Confirmed"
-#~ msgstr "Bekräftad"
-
-#~ msgid "Customer"
-#~ msgstr "Kund"
-
-#~ msgid "Customer Email"
-#~ msgstr "Kund e-post"
-
-#~ msgid "Done"
-#~ msgstr "Klar"
-
-#~ msgid "End Date Located"
-#~ msgstr "Slutdatum lokaliserat"
-
-#~ msgid ""
-#~ "Event Scheduler for:\n"
-#~ "  - Event: %(event_name)s (%(event_id)s)\n"
-#~ "  - Scheduled: %(date)s\n"
-#~ "  - Template: %(template_name)s (%(template_id)s)\n"
-#~ "\n"
-#~ "Failed with error:\n"
-#~ "  - %(error)s\n"
-#~ "\n"
-#~ "You receive this email because you are:\n"
-#~ "  - the organizer of the event,\n"
-#~ "  - or the responsible of the event,\n"
-#~ "  - or the last writer of the template.\n"
-#~ msgstr ""
-#~ "Evenemangsschemaläggare för:\n"
-#~ "  - Evenemang: %(event_name)s (%(event_id)s)\n"
-#~ "  - Planerat: %(date)s\n"
-#~ "  - Mall: %(template_name)s (%(template_id)s)\n"
-#~ "\n"
-#~ "Fallerade med fel::\n"
-#~ "  - %(error)s\n"
-#~ "\n"
-#~ "Du får detta mejl för att du är::\n"
-#~ "  - organisatören för evenemanget,\n"
-#~ "  - eller ansvarig för evenemanget,\n"
-#~ "  - eller den som senast uppdaterat mallen.\n"
-
-#~ msgid ""
-#~ "Events and registrations will automatically be confirmed upon creation, "
-#~ "easing the flow for simple events."
-#~ msgstr ""
-#~ "Utbildningstillfällen och registreringar bekräftas automatiskt vid "
-#~ "skapande, för att underlätta flödet för enkla händelser."
-
-#~ msgid "Expected"
-#~ msgstr "Förväntat"
-
-#~ msgid "Expected Attendees"
-#~ msgstr "Förväntat deltagarantal"
-
-#~ msgid "Expected attendees"
-#~ msgstr "Förväntat antal deltagare"
-
-#~ msgid "For any additional information, please contact us at"
-#~ msgstr "Om du har några frågor, kontakta oss gärna på "
-
-#~ msgid ""
-#~ "For each event you can define a maximum registration of seats(number of "
-#~ "attendees), above this numbers the registrations are not accepted."
-#~ msgstr ""
-#~ "För varje arrangemang kan du fastställa ett maximalt antal platser(antal "
-#~ "deltagare), utöver detta antal godtages inga fler anmälningar."
-
-#~ msgid "Fully ended"
-#~ msgstr "Helt avslutad"
-
-#~ msgid "Group By"
-#~ msgstr "Gruppera efter"
-
-#~ msgid "Mobile"
-#~ msgstr "Mobil"
-
-#~ msgid "None"
-#~ msgstr "Inga"
-
-#~ msgid "Number of Expected Attendees"
-#~ msgstr "Antal förväntade deltagare"
-
-#~ msgid "Number of messages which requires an action"
-#~ msgstr "Antal meddelanden som kräver en åtgärd"
-
-#~ msgid ""
-#~ "OpenWood brings honesty and seriousness to wood industry while helping "
-#~ "customers deal with trees, flowers and fungi."
-#~ msgstr ""
-#~ "OpenWood tillför ärlighet och seriositet till träindustrin samtidigt som "
-#~ "det hjälper kunder att hantera träd, blommor och svamp "
-
-#~ msgid ""
-#~ "Registrations are open if:\n"
-#~ "- the event is not ended\n"
-#~ "- there are seats available on event\n"
-#~ "- the tickets are sellable (if ticketing is used)"
-#~ msgstr ""
-#~ "Anmälan är öppen då:\n"
-#~ "- Evenemanget inte är avslutat\n"
-#~ "- Det finns platser kvar\n"
-#~ "- Det finns biljetter till salu (när biljettförsäljning är aktiverad)"
-
-#~ msgid "Set To Unconfirmed"
-#~ msgstr "Sätt till obekräftad"
-
-#~ msgid "Show all records which has next action date is before today"
-#~ msgstr "Visa alla poster som har nästa händelse före idag"
-
-#~ msgid "Stage Description and Tooltips"
-#~ msgstr "Etappbeskrivning och vektygstips"
-
-#~ msgid "Task is blocked. Click to unblock or set as done."
-#~ msgstr "Ärendet är blockerat. Klicka för avblockering eller klarmarkering."
-
-#~ msgid "The event has been cancelled"
-#~ msgstr "Evenemanget inställt"
-
-#~ msgid "The place has been reserved"
-#~ msgstr "Platsen är reserverad"
-
-#~ msgid "This operator is not supported"
-#~ msgstr "Icke giltig operator"
-
-#~ msgid "This step is done. Click to block or set in progress."
-#~ msgstr "Etappen klar. Klicka för blockering eller starta."
-
-#~ msgid "Unconfirmed Seats"
-#~ msgstr "Obekräftade platser"
-
-#~ msgid "events@odoo.com"
-#~ msgstr "events@odoo.com"
-
-#~ msgid "events@penwood.example.com"
-#~ msgstr "events@penwood.example.com"
-
-#~ msgid "events@yourcompany.com"
-#~ msgstr "events@yourcompany.com"
-
-#~ msgid "reserved +"
-#~ msgstr "reserverad + "
-
-#~ msgid "unconfirmed"
-#~ msgstr "Obekräftad"
+#~ "<i class=\"oi mt-1 me-2 text-center ps-1\" data-icon=\"location_on\" "
+#~ "title=\"Plats\"/>"

@@ -1,63 +1,74 @@
-import { Component, onMounted, useExternalListener, useRef } from "@odoo/owl";
+import { Component, onMounted, signal, t, useListener, useProps } from "@odoo/owl";
+
+import { propSignal } from "@mail/utils/common/hooks";
+import { useService } from "@web/core/utils/hooks";
 
 export class ActivityMarkAsDone extends Component {
     static template = "mail.ActivityMarkAsDone";
-    static props = [
-        "activity",
-        "close?",
-        "hasHeader?",
-        "onClickDoneAndScheduleNext?",
-        "onActivityChanged",
-    ];
-    static defaultProps = {
-        hasHeader: false,
-    };
 
-    get isSuggested() {
-        return this.props.activity.chaining_type === "suggest";
-    }
+    textArea = signal.ref();
 
     setup() {
         super.setup();
-        this.textArea = useRef("textarea");
+        this.store = useService("mail.store");
+        this.activity = propSignal("activity", t.instanceOf(this.store["mail.activity"]));
+        this.close = useProps.static("close", t.function([t.instanceOf(MouseEvent)]).optional());
+        this.hasHeader = useProps.static("hasHeader", t.boolean().optional(false));
+        this.onActivityChanged = useProps.static(
+            "onActivityChanged",
+            t.function([t.instanceOf(this.store["mail.thread"])])
+        );
+        this.onClickDoneProp = useProps.static("onClickDone", t.function([]).optional());
+        this.onClickDoneAndScheduleNextProp = useProps.static(
+            "onClickDoneAndScheduleNext",
+            t.function([]).optional()
+        );
+        this.disableDoneButton = signal(false);
         onMounted(() => {
-            this.textArea.el.focus();
+            this.textArea()?.focus();
         });
-        useExternalListener(window, "keydown", this.onKeydown);
+        useListener(window, "keydown", (ev) => this.onKeydown(ev));
     }
 
     onKeydown(ev) {
-        if (ev.key === "Escape" && this.props.close) {
-            this.props.close();
+        if (ev.key === "Escape" && this.close) {
+            this.close();
         }
     }
 
     async onClickDone() {
-        const { res_id, res_model } = this.props.activity;
-        const thread = this.env.services["mail.store"].Thread.insert({
+        if (this.disableDoneButton()) {
+            return;
+        }
+        const { res_id, res_model } = this.activity();
+        const thread = this.env.services["mail.store"]["mail.thread"].insert({
             model: res_model,
             id: res_id,
         });
-        await this.props.activity.markAsDone();
-        this.props.onActivityChanged(thread);
-        await thread.fetchNewMessages();
+        this.disableDoneButton.set(true);
+        try {
+            if (this.onClickDoneProp) {
+                this.onClickDoneProp();
+            }
+            await this.activity().markAsDone();
+            this.onActivityChanged(thread);
+            await thread.fetchNewMessages();
+        } finally {
+            this.disableDoneButton.set(false);
+        }
     }
 
     async onClickDoneAndScheduleNext() {
-        const { res_id, res_model } = this.props.activity;
-        const thread = this.env.services["mail.store"].Thread.insert({
+        const { res_id, res_model } = this.activity();
+        const thread = this.env.services["mail.store"]["mail.thread"].insert({
             model: res_model,
             id: res_id,
         });
-        if (this.props.onClickDoneAndScheduleNext) {
-            this.props.onClickDoneAndScheduleNext();
-        }
-        if (this.props.close) {
-            this.props.close();
-        }
-        const action = await this.props.activity.markAsDoneAndScheduleNext();
+        this.onClickDoneAndScheduleNextProp?.();
+        this.close?.();
+        const action = await this.activity().markAsDoneAndScheduleNext();
         thread.fetchNewMessages();
-        this.props.onActivityChanged(thread);
+        this.onActivityChanged(thread);
         if (!action) {
             return;
         }
@@ -66,6 +77,6 @@ export class ActivityMarkAsDone extends Component {
                 onClose: resolve,
             });
         });
-        this.props.onActivityChanged(thread);
+        this.onActivityChanged(thread);
     }
 }

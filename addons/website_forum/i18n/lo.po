@@ -5,31 +5,40 @@
 # Bone NI <bounkirdni@gmail.com>, 2026.
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0\n"
+"Project-Id-Version: Odoo Server 19.4a1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-20 18:37+0000\n"
-"PO-Revision-Date: 2026-06-06 13:56+0000\n"
+"POT-Creation-Date: 2026-09-11 17:44+0000\n"
+"PO-Revision-Date: 2026-10-17 10:33+0000\n"
 "Last-Translator: Bone NI <bounkirdni@gmail.com>\n"
-"Language-Team: Lao <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Lao <https://translate.odoo.com/projects/odoo-20/"
 "website_forum/lo/>\n"
 "Language: lo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: website_forum
+#: model:ir.module.module,description:base.module_website_forum
+msgid ""
+"\n"
+"Ask questions, get answers, no distractions\n"
+msgstr ""
+"\n"
+"ຖາມຄຳຖາມ, ຮັບຄຳຕອບ, ບໍ່ມີສິ່ງລົບກວນ\n"
 
 #. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/interactions/website_forum.js:0
 msgid " Flag"
-msgstr " ໝາຍເຫດ"
+msgstr " ໝາຍລາຍງານ"
 
 #. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/interactions/website_forum.js:0
 msgid " Flagged"
-msgstr " ຖືກໝາຍເຫດແລ້ວ"
+msgstr " ຖືກໝາຍລາຍງານແລ້ວ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__total_answers
@@ -51,147 +60,165 @@ msgstr "# ໂພສ"
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__total_views
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_tree
 msgid "# Views"
-msgstr "# ຍອດເຂົ້າຊົມ"
+msgstr "# ຈຳນວນຄັ້ງທີ່ເບິ່ງ"
 
 #. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/interactions/website_forum.js:0
 msgid ""
 "%(link_start)sRead the guidelines to know how to gain karma.%(link_end)s"
-msgstr "%(link_start)sອ່ານຄຳແນະນຳເພື່ອຮູ່ວິທີການສະສົມຄະແນນກາມະ.%(link_end)s"
+msgstr "%(link_start)sອ່ານຂໍ້ແນະນຳເພື່ອຮຽນຮູ້ວິທີສະສົມຄະແນນ karma.%(link_end)s"
 
 #. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/interactions/website_forum.js:0
 msgid "%(score)s karma is required to perform this action."
-msgstr "ຕ້ອງມີ %(score)s ຄະແນນກາມະ ເພື່ອດຳເນີນການນີ້."
+msgstr "ຕ້ອງການ %(score)s karma ເພື່ອດຳເນີນການນີ້."
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "%d karma required to accept or refuse an answer."
-msgstr "ຕ້ອງມີ %d ຄະແນນກາມະ ເພື່ອຍອມຮັບ ຫຼື ປະຕິເສດຄຳຕອບ."
+msgstr "ຕ້ອງການ %d karma ເພື່ອຍອມຮັບ ຫຼື ປະຕິເສດຄຳຕອບ."
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "%d karma required to answer a question."
-msgstr "ຕ້ອງມີ %d ຄະແນນກາມະ ເພື່ອຕອບຄຳຖາມ."
+msgstr "ຕ້ອງການ %d karma ເພື່ອຕອບຄຳຖາມ."
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "%d karma required to close or reopen a post."
-msgstr "ຕ້ອງມີ %d ຄະແນນກາມະ ເພື່ອປິດ ຫຼື ເປີດໂພສຄືນໃໝ່."
+msgstr "ຕ້ອງການ %d karma ເພື່ອປິດ ຫຼື ເປີດໂພສຄືນໃໝ່."
 
 #. module: website_forum
 #. odoo-python
-#: code:addons/website_forum/models/forum_post.py:0
-msgid "%d karma required to comment."
-msgstr "ຕ້ອງມີ %d ຄະແນນກາມະ ເພື່ອສະແດງຄວາມຄິດເຫັນ."
-
-#. module: website_forum
-#. odoo-python
-#: code:addons/website_forum/models/forum_post.py:0
+#: code:addons/website_forum/models/forum_post_comment.py:0
 msgid "%d karma required to convert a comment to an answer."
-msgstr "ຕ້ອງມີ %d ຄະແນນກາມະ ເພື່ອປ່ຽນຄວາມຄິດເຫັນເປັນຄຳຕອບ."
+msgstr "ຕ້ອງການ %d karma ເພື່ອປ່ຽນຄຳເຫັນເປັນຄຳຕອບ."
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "%d karma required to convert an answer to a comment."
-msgstr "ຕ້ອງມີ %d ຄະແນນກາມະ ເພື່ອປ່ຽນຄຳຕອບເປັນຄວາມຄິດເຫັນ."
+msgstr "ຕ້ອງການ %d karma ເພື່ອປ່ຽນຄຳຕອບເປັນຄຳເຫັນ."
 
 #. module: website_forum
 #. odoo-python
-#: code:addons/website_forum/models/forum_post.py:0
+#: code:addons/website_forum/models/forum_post_comment.py:0
 msgid "%d karma required to convert your comment to an answer."
-msgstr "ຕ້ອງມີ %d ຄະແນນກາມະ ເພື່ອປ່ຽນຄວາມຄິດເຫັນຂອງທ່ານເປັນຄຳຕອບ."
+msgstr "ຕ້ອງການ %d karma ເພື່ອປ່ຽນຄຳເຫັນຂອງທ່ານເປັນຄຳຕອບ."
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/forum_tag.py:0
 msgid "%d karma required to create a new Tag."
-msgstr "ຕ້ອງມີ %d ຄະແນນກາມະ ເພື່ອສ້າງແທັກໃໝ່."
+msgstr "ຕ້ອງການ %d karma ເພື່ອສ້າງແທັກໃໝ່."
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "%d karma required to create a new question."
-msgstr "ຕ້ອງມີ %d ຄະແນນກາມະ ເພື່ອສ້າງຄຳຖາມໃໝ່."
+msgstr "ຕ້ອງການ %d karma ເພື່ອສ້າງຄຳຖາມໃໝ່."
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "%d karma required to delete a comment."
-msgstr "ຕ້ອງມີ %d ຄະແນນກາມະ ເພື່ອລຶບຄວາມຄິດເຫັນ."
+msgstr "ຕ້ອງການ %d karma ເພື່ອລຶບຄຳເຫັນ."
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "%d karma required to delete or reactivate a post."
-msgstr "ຕ້ອງມີ %d ຄະແນນກາມະ ເພື່ອລຶບ ຫຼື ເປີດໃຊ້ໂພສຄືນໃໝ່."
+msgstr "ຕ້ອງການ %d karma ເພື່ອລຶບ ຫຼື ເປີດໃຊ້ງານໂພສຄືນໃໝ່."
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/forum_post_vote.py:0
 msgid "%d karma required to downvote."
-msgstr "ຕ້ອງມີ %d ຄະແນນກາມະ ເພື່ອໂຫວດລົງ."
+msgstr "ຕ້ອງການ %d karma ເພື່ອລົງຄະແນນລົບ."
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "%d karma required to edit a post."
-msgstr "ຕ້ອງມີ %d ຄະແນນກາມະ ເພື່ອແກ້ໄຂໂພສ."
+msgstr "ຕ້ອງການ %d karma ເພື່ອແກ້ໄຂໂພສ."
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "%d karma required to flag a post."
-msgstr "ຕ້ອງມີ %d ຄະແນນກາມະ ເພື່ອໝາຍເຫດໂພສ."
+msgstr "ຕ້ອງການ %d karma ເພື່ອໝາຍລາຍງານໂພສ."
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/controllers/website_forum.py:0
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "%d karma required to mark a post as offensive."
-msgstr "ຕ້ອງມີ %d ຄະແນນກາມະ ເພື່ອໝາຍວ່າໂພສນີ້ບໍ່ເໝາະສົມ."
+msgstr "ຕ້ອງການ %d karma ເພື່ອໝາຍວ່າໂພສບໍ່ເໝາະສົມ."
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "%d karma required to post an image or link."
-msgstr "ຕ້ອງມີ %d ຄະແນນກາມະ ເພື່ອໂພສຮູບພາບ ຫຼື ລິ້ງ."
+msgstr "ຕ້ອງການ %d karma ເພື່ອໂພສຮູບພາບ ຫຼື ລິ້ງ."
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "%d karma required to refuse a post."
-msgstr "ຕ້ອງມີ %d ຄະແນນກາມະ ເພື່ອປະຕິເສດໂພສ."
+msgstr "ຕ້ອງການ %d karma ເພື່ອປະຕິເສດໂພສ."
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "%d karma required to retag."
-msgstr "ຕ້ອງມີ %d ຄະແນນກາມະ ເພື່ອປ່ຽນແທັກໃໝ່."
+msgstr "ຕ້ອງການ %d karma ເພື່ອປ່ຽນແທັກໃໝ່."
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "%d karma required to unlink a post."
-msgstr "ຕ້ອງມີ %d ຄະແນນກາມະ ເພື່ອຍົກເລີກການເຊື່ອມໂຍງໂພສ."
+msgstr "ຕ້ອງການ %d karma ເພື່ອຍົກເລີກການເຊື່ອມໂຍງໂພສ."
+
+#. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_post.py:0
+msgid "%d karma required to update a flagged post."
+msgstr "ຕ້ອງການ %d karma ເພື່ອອັບເດດໂພສທີ່ຖືກໝາຍລາຍງານ."
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/forum_post_vote.py:0
 msgid "%d karma required to upvote."
-msgstr "ຕ້ອງມີ %d ຄະແນນກາມະ ເພື່ອໂຫວດຂຶ້ນ."
+msgstr "ຕ້ອງການ %d karma ເພື່ອລົງຄະແນນບວກ."
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "%d karma required to validate a post."
-msgstr "ຕ້ອງມີ %d ຄະແນນກາມະ ເພື່ອຢືນຢັນໂພສ."
+msgstr "ຕ້ອງການ %d karma ເພື່ອກວດສອບຢືນຢັນໂພສ."
+
+#. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_post_comment.py:0
+msgid "%i karma required to comment."
+msgstr "ຕ້ອງການ %i karma ເພື່ອອອກຄຳເຫັນ."
+
+#. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_post_comment.py:0
+msgid "%i karma required to delete a comment."
+msgstr "ຕ້ອງການ %i karma ເພື່ອລຶບຄຳເຫັນ."
+
+#. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_post_comment.py:0
+msgid "%i karma required to edit a comment."
+msgstr "ຕ້ອງການ %i karma ເພື່ອແກ້ໄຂຄຳເຫັນ."
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_index_tags
@@ -202,23 +229,23 @@ msgstr "&amp;nbsp;"
 #: model_terms:forum.forum,faq:website_forum.forum_help
 #: model_terms:ir.ui.view,arch_db:website_forum.default_faq
 msgid "(The above section was adapted from Stackoverflow’s FAQ.)"
-msgstr "(ເນື້ອໃນຂ້າງເທິງນີ້ໄດ້ຮັບການດັດແກ້ມາຈາກ FAQ ຂອງ Stackoverflow.)"
+msgstr "(ພາກສ່ວນຂ້າງເທິງນີ້ດັດແປງມາຈາກ FAQ ຂອງ Stackoverflow.)"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_forum_view_form
 msgid "(votes - 1) **"
-msgstr "(ຄະແນນໂຫວດ - 1) **"
+msgstr "(votes - 1) **"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_forum_view_form
 msgid "/ (days + 2) **"
-msgstr "/ (ມື້ + 2) **"
+msgstr "/ (days + 2) **"
 
 #. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/xml/public_templates.xml:0
 msgid "45% of questions shared"
-msgstr "45% ຂອງຄຳຖາມຖືກແບ່ງປັນ"
+msgstr "45% ຂອງຄຳຖາມທີ່ຖືກແບ່ງປັນ"
 
 #. module: website_forum
 #. odoo-javascript
@@ -227,14 +254,14 @@ msgid ""
 "65% more chance to get an\n"
 "        answer"
 msgstr ""
-"ມີໂອກາດເພີ່ມຂຶ້ນ 65% ທີ່ຈະໄດ້ຮັບ\n"
-"        ຄຳຕອບ"
+"ມີໂອກາດໄດ້ຮັບຄຳຕອບ\n"
+"        ເພີ່ມຂຶ້ນ 65%"
 
 #. module: website_forum
 #: model_terms:forum.forum,welcome_message:website_forum.forum_help
 msgid ""
-"<a class=\"btn btn-primary forum_register_url o_translate_inline\" "
-"href=\"/web/login\">Sign up</a>"
+"<a class=\"btn btn-primary forum_register_url o_translate_inline\" href=\"/"
+"web/login\">Sign up</a>"
 msgstr ""
 "<a class=\"btn btn-primary forum_register_url o_translate_inline\" href=\"/"
 "web/login\">ລົງທະບຽນ</a>"
@@ -243,20 +270,23 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:website_forum.post_display
 msgid ""
 "<b class=\"d-block \">This answer has been flagged</b>\n"
-"                            As a moderator, you can either validate or reject this answer."
+"                            As a moderator, you can either validate or "
+"reject this answer."
 msgstr ""
-"<b class=\"d-block \">ຄຳຕອບນີ້ຖືກໝາຍເຫດແລ້ວ</b>\n"
-"                            ໃນຖານະຜູ້ດູແລ, ທ່ານສາມາດຢືນຢັນ ຫຼື ປະຕິເສດຄຳຕອບນີ້ໄດ້."
+"<b class=\"d-block \">ຄຳຕອບນີ້ຖືກໝາຍລາຍງານ</b>\n"
+"                            ໃນຖານະຜູ້ຄວບຄຸມ, ທ່ານສາມາດກວດສອບຢືນຢັນ ຫຼື ປະຕິເສດຄຳຕອບນີ້ໄ"
+"ດ້."
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
 msgid ""
 "<b class=\"d-block\">You have a pending post</b>\n"
-"                        Please wait for a moderator to validate your previous post to be allowed replying questions."
+"                        Please wait for a moderator to validate your "
+"previous post to be allowed replying questions."
 msgstr ""
-"<b class=\"d-block\">ທ່ານມີໂພສທີ່ພວມລໍຖ້າການກວດສອບ</b>\n"
-"                        ກະລຸນາລໍຖ້າໃຫ້ຜູ້ດູແລຢືນຢັນໂພສກ່ອນໜ້ານີ້ຂອງທ່ານ ເພື່ອຈະສາມາດຕອບຄຳຖາມຕໍ່"
-"ໄປໄດ້."
+"<b class=\"d-block\">ທ່ານມີໂພສທີ່ລໍຖ້າການອະນຸມັດ</b>\n"
+"                        ກະລຸນາລໍຖ້າໃຫ້ຜູ້ຄວບຄຸມກວດສອບໂພສກ່ອນໜ້ານີ້ຂອງທ່ານ ກ່ອນຈຶ່ງຈະສາມາດຕອບ"
+"ຄຳຖາມໄດ້."
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
@@ -265,8 +295,7 @@ msgid ""
 "<b>Answers should not add or expand questions</b>. Instead either edit the "
 "question or add a question comment."
 msgstr ""
-"<b>ຄຳຕອບບໍ່ຄວນເປັນການເພີ່ມ ຫຼື ຂະຫຍາຍຄຳຖາມ</b>. ແຕ່ຄວນແກ້ໄຂຄຳຖາມນັ້ນໂດຍກົງ ຫຼື ເພີ່ມຄວາມຄິດເຫັນ"
-"ໃສ່ຄຳຖາມແທນ."
+"<b>ຄຳຕອບບໍ່ຄວນເພີ່ມ ຫຼື ຂະຫຍາຍຄຳຖາມ</b>. ໃຫ້ແກ້ໄຂຄຳຖາມ ຫຼື ເພີ່ມຄຳເຫັນໃສ່ຄຳຖາມແທນ."
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
@@ -275,7 +304,7 @@ msgid ""
 "<b>Answers should not add or expand questions</b>. Instead, either edit the "
 "question or add a comment."
 msgstr ""
-"<b>ຄຳຕອບບໍ່ຄວນເປັນການເພີ່ມ ຫຼື ຂະຫຍາຍຄຳຖາມ</b>. ແຕ່ຄວນແກ້ໄຂຄຳຖາມນັ້ນ ຫຼື ເພີ່ມຄວາມຄິດເຫັນແທນ."
+"<b>ຄຳຕອບບໍ່ຄວນເພີ່ມ ຫຼື ຂະຫຍາຍຄຳຖາມ</b>. ໃຫ້ແກ້ໄຂຄຳຖາມ ຫຼື ເພີ່ມຄຳເຫັນແທນ."
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
@@ -283,8 +312,7 @@ msgstr ""
 msgid ""
 "<b>Answers should not comment other answers</b>. Instead add a comment on "
 "the other answers."
-msgstr ""
-"<b>ຄຳຕອບບໍ່ຄວນເປັນການວິຈານຄຳຕອບອື່ນ</b>. ແຕ່ໃຫ້ເພີ່ມຄວາມຄິດເຫັນໃສ່ຄຳຕອບນັ້ນໆແທນ."
+msgstr "<b>ຄຳຕອບບໍ່ຄວນອອກຄຳເຫັນໃສ່ຄຳຕອບອື່ນ</b>. ໃຫ້ຂຽນຄຳເຫັນໃສ່ຄຳຕອບນັ້ນແທນ."
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
@@ -292,12 +320,12 @@ msgstr ""
 msgid ""
 "<b>Answers should not start debates</b> This community Q&amp;A is not a "
 "discussion group. Please avoid holding debates in your answers as they tend "
-"to dilute the essence of questions and answers. For brief discussions please"
-" use commenting facility."
+"to dilute the essence of questions and answers. For brief discussions please "
+"use commenting facility."
 msgstr ""
-"<b>ຄຳຕອບບໍ່ຄວນເປັນການເລີ່ມການໂຕ້ຖຽງ</b>. ກຸ່ມຖາມ-ຕອບຂອງຊຸມຊົນນີ້ບໍ່ແມ່ນກຸ່ມສົນທະນາທົ່ວໄປ. ກະລຸນາຫຼີກ"
-"ລ່ຽງການໂຕ້ຖຽງໃນຄຳຕອບຂອງທ່ານ ເພາະມັນຈະເຮັດໃຫ້ເນື້ອຫາຫຼັກຂອງຄຳຖາມ ແລະ ຄຳຕອບຫຼຸດລົງ. ສຳລັບການສົ"
-"ນທະນາສັ້ນໆ ກະລຸນາໃຊ້ຊ່ອງທາງການສະແດງຄວາມຄິດເຫັນ."
+"<b>ຄຳຕອບບໍ່ຄວນເລີ່ມການໂຕ້ວາທີ</b> ພາກສ່ວນຖາມ-ຕອບຂອງຊຸມຊົນນີ້ບໍ່ແມ່ນກຸ່ມສົນທະນາ. ກະລຸນາຫຼີກລ່ຽງການໂ"
+"ຕ້ວາທີໃນຄຳຕອບຂອງທ່ານ ເພາະຈະເຮັດໃຫ້ເນື້ອຫາຫຼັກຂອງຄຳຖາມ ແລະ ຄຳຕອບຫຼຸດລົງ. ສຳລັບການສົນທະນາສັ້ນໆ "
+"ກະລຸນາໃຊ້ລະບົບການອອກຄຳເຫັນ."
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
@@ -305,74 +333,76 @@ msgstr ""
 msgid ""
 "<b>Answers shouldn't just point to other Questions</b>. Instead add a "
 "question comment indication \"Possible duplicate of...\". However, it's ok "
-"to include links to other questions or answers providing relevant additional"
-" information."
+"to include links to other questions or answers providing relevant additional "
+"information."
 msgstr ""
-"<b>ຄຳຕອບບໍ່ຄວນພຽງແຕ່ບອກໃຫ້ໄປເບິ່ງຄຳຖາມອື່ນ</b>. ແຕ່ໃຫ້ເພີ່ມຄວາມຄິດເຫັນວ່າ \"ອາດຈະຊ້ຳຊ້ອນກັ"
-"ບ...\" ແທນ. ເຖິງຢ່າງໃດກໍຕາມ, ທ່ານສາມາດໃສ່ລິ້ງຄຳຖາມ ຫຼື ຄຳຕອບອື່ນເພື່ອເປັນຂໍ້ມູນເພີ່ມເຕີມທີ່ກ່ຽວຂ້ອງໄ"
-"ດ້."
+"<b>ຄຳຕອບບໍ່ຄວນພຽງແຕ່ຊີ້ໄປຫາຄຳຖາມອື່ນ</b>. ໃຫ້ໃສ່ຄຳເຫັນໃນຄຳຖາມແທນວ່າ \"ອາດຈະຊ້ຳຊ້ອນກັ"
+"ບ...\". ເຖິງຢ່າງໃດກໍຕາມ, ສາມາດແນບລິ້ງຫາຄຳຖາມ ຫຼື ຄຳຕອບອື່ນທີ່ມີຂໍ້ມູນເພີ່ມເຕີມທີ່ກ່ຽວຂ້ອງໄດ້."
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
 #: model_terms:ir.ui.view,arch_db:website_forum.default_faq
 msgid ""
-"<b>Answers shouldn't just point to other questions</b>.Instead add a comment"
-" indicating <i>\"Possible duplicate of...\"</i>. However, it's fine to "
+"<b>Answers shouldn't just point to other questions</b>.Instead add a comment "
+"indicating <i>\"Possible duplicate of...\"</i>. However, it's fine to "
 "include links to other questions or answers providing relevant additional "
 "information."
 msgstr ""
-"<b>ຄຳຕອບບໍ່ຄວນພຽງແຕ່ບອກໃຫ້ໄປເບິ່ງຄຳຖາມອື່ນ</b>. ແຕ່ໃຫ້ເພີ່ມຄວາມຄິດເຫັນວ່າ <i>\"ອາດຈະຊ້ຳຊ້ອນກັ"
-"ບ...\"</i> ແທນ. ເຖິງຢ່າງໃດກໍຕາມ, ທ່ານສາມາດໃສ່ລິ້ງຄຳຖາມ ຫຼື ຄຳຕອບອື່ນເພື່ອເປັນຂໍ້ມູນເພີ່ມເຕີມທີ່ກ່ຽວຂ້"
-"ອງໄດ້."
+"<b>ຄຳຕອບບໍ່ຄວນພຽງແຕ່ຊີ້ໄປຫາຄຳຖາມອື່ນ</b>. ໃຫ້ໃສ່ຄຳເຫັນແທນວ່າ <i>\"ອາດຈະຊ້ຳຊ້ອນກັບ...\"</i>"
+". ເຖິງຢ່າງໃດກໍຕາມ, ສາມາດແນບລິ້ງຫາຄຳຖາມ ຫຼື ຄຳຕອບອື່ນທີ່ມີຂໍ້ມູນເພີ່ມເຕີມທີ່ກ່ຽວຂ້ອງໄດ້."
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
 #: model_terms:ir.ui.view,arch_db:website_forum.default_faq
 msgid ""
-"<b>Answers shouldn't just provide a link a solution</b>. Instead provide the"
-" solution description text in your answer, even if it's just a copy/paste. "
+"<b>Answers shouldn't just provide a link a solution</b>. Instead provide the "
+"solution description text in your answer, even if it's just a copy/paste. "
 "Links are welcome, but should be complementary to answer, referring sources "
 "or additional reading."
 msgstr ""
-"<b>ຄຳຕອບບໍ່ຄວນມີພຽງແຕ່ລິ້ງໄປຫາວິທີແກ້ໄຂ</b>. ແຕ່ຄວນອະທິບາຍວິທີແກ້ໄຂໃນຄຳຕອບຂອງທ່ານນຳ, ເຖິງວ່າມັນ"
-"ຈະເປັນການຄັດລອກມາແປະລົງກໍຕາມ. ທ່ານສາມາດໃສ່ລິ້ງໄດ້ ແຕ່ຄວນເປັນພຽງສ່ວນເສີມ, ເປັນການອ້າງອີງແຫຼ່ງຂໍ້ມູ"
-"ນ ຫຼື ເພື່ອອ່ານເພີ່ມເຕີມ."
+"<b>ຄຳຕອບບໍ່ຄວນໃຫ້ພຽງແຕ່ລິ້ງແກ້ໄຂບັນຫາ</b>. ຄວນອະທິບາຍວິທີແກ້ໄຂໃນຄຳຕອບຂອງທ່ານນຳ ເຖິງແມ່ນວ່າຈະເ"
+"ປັນການກັອບປີ້ມາວາງກໍຕາມ. ທ່ານສາມາດແນບລິ້ງໄດ້ ແຕ່ຄວນໃຊ້ເປັນຂໍ້ມູນເສີມ, ອ້າງອີງແຫຼ່ງທີ່ມາ ຫຼື ອ່ານເພີ່ມເຕີ"
+"ມ."
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
 #: model_terms:ir.ui.view,arch_db:website_forum.default_faq
 msgid ""
 "<b>Before you ask - please make sure to search for a similar question.</b> "
-"You can search questions by their title or tags. It’s also OK to answer your"
-" own question."
+"You can search questions by their title or tags. It’s also OK to answer your "
+"own question."
 msgstr ""
-"<b>ກ່ອນຈະຖາມ - ກະລຸນາກວດສອບໃຫ້ແນ່ໃຈວ່າໄດ້ຄົ້ນຫາຄຳຖາມທີ່ຄ້າຍຄືກັນແລ້ວ.</b> ທ່ານສາມາດຄົ້ນຫາຄຳຖາມ"
-"ໄດ້ຈາກຫົວຂໍ້ ຫຼື ແທັກ. ແລະ ທ່ານຍັງສາມາດຕອບຄຳຖາມຂອງທ່ານເອງໄດ້ນຳອີກ."
+"<b>ກ່ອນຈະຖາມ - ກະລຸນາກວດສອບໃຫ້ແນ່ໃຈໂດຍການຄົ້ນຫາຄຳຖາມທີ່ຄ້າຍຄືກັນ.</b> ທ່ານສາມາດຄົ້ນຫາຄຳຖາມຕ"
+"າມຫົວຂໍ້ ຫຼື ແທັກ. ນອກຈາກນີ້ທ່ານຍັງສາມາດຕອບຄຳຖາມຂອງຕົນເອງໄດ້ເຊັ່ນກັນ."
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
 #: model_terms:ir.ui.view,arch_db:website_forum.default_faq
 msgid ""
-"<b>Please avoid asking questions that are too subjective and "
-"argumentative</b> or not relevant to this community."
+"<b>Please avoid asking questions that are too subjective and argumentative</"
+"b> or not relevant to this community."
 msgstr ""
-"<b>ກະລຸນາຫຼີກລ່ຽງການຖາມຄຳຖາມທີ່ເປັນຄວາມຄິດເຫັນສ່ວນຕົວເກີນໄປ, ເປັນການໂຕ້ຖຽງ</b> ຫຼື ບໍ່ກ່ຽວຂ້ອງກັບຊຸ"
-"ມຊົນນີ້."
+"<b>ກະລຸນາຫຼີກລ່ຽງການຕັ້ງຄຳຖາມທີ່ເປັນຄວາມຄິດເຫັນສ່ວນຕົວເກີນໄປ, ກໍ່ໃຫ້ເກີດການໂຕ້ຖຽງ</b> ຫຼື ບໍ່ກ່ຽວຂ້ອງກັ"
+"ບຊຸມຊົນນີ້."
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_answer
 msgid ""
-"<b>Please try to give a substantial answer.</b> If you wanted to comment on the question or answer, just\n"
-"            <b>use the commenting tool.</b> Please remember that you can always <b>revise your answers</b>\n"
-"            - no need to answer the same question twice. Also, please <b>don't forget to vote</b>\n"
+"<b>Please try to give a substantial answer.</b> If you wanted to comment on "
+"the question or answer, just\n"
+"            <b>use the commenting tool.</b> Please remember that you can "
+"always <b>revise your answers</b>\n"
+"            - no need to answer the same question twice. Also, please "
+"<b>don't forget to vote</b>\n"
 "            - it really helps to select the best questions and answers!"
 msgstr ""
-"<b>ກະລຸນາພະຍາຍາມໃຫ້ຄຳຕອບທີ່ມີເນື້ອຫາຄົບຖ້ວນ.</b> ຫາກທ່ານຕ້ອງການພຽງແຕ່ສະແດງຄວາມຄິດເຫັນຕໍ່ຄຳຖາ"
-"ມ ຫຼື ຄຳຕອບ,\n"
-"            <b>ໃຫ້ໃຊ້ເຄື່ອງມືສະແດງຄວາມຄິດເຫັນ.</b> ກະລຸນາຈື່ໄວ້ວ່າທ່ານສາມາດ <b>ປັບປຸງຄຳຕອບຂອ"
-"ງທ່ານ</b> ໄດ້ສະເໝີ\n"
-"            - ບໍ່ຈຳເປັນຕ້ອງຕອບຄຳຖາມເດີມສອງຄັ້ງ. ນອກຈາກນີ້, <b>ຢ່າລືມໂຫວດ</b>\n"
-"            - ມັນຊ່ວຍໃນການຄັດເລືອກຄຳຖາມ ແລະ ຄຳຕອບທີ່ດີທີ່ສຸດແທ້ໆ!"
+"<b>ກະລຸນາພະຍາຍາມໃຫ້ຄຳຕອບທີ່ມີເນື້ອຫາຈະແຈ້ງ ແລະ ເປັນປະໂຫຍດ.</b> ຖ້າທ່ານຕ້ອງການອອກຄຳເຫັນໃສ່ຄຳ"
+"ຖາມ ຫຼື ຄຳຕອບ, ພຽງແຕ່\n"
+"            <b>ໃຊ້ເຄື່ອງມືການອອກຄຳເຫັນ.</b> ກະລຸນາຈື່ໄວ້ວ່າທ່ານສາມາດ <b>ດັດແກ້ຄຳຕອບຂອງທ່າ"
+"ນ</b> ໄດ້ຕະຫຼອດເວລາ\n"
+"            - ບໍ່ຈຳເປັນຕ້ອງຕອບຄຳຖາມດຽວກັນສອງຄັ້ງ. ນອກຈາກນັ້ນ, ກະລຸນາ <b>ຢ່າລືມລົງຄະແນນ</b>"
+"\n"
+"            - ເພາະມັນຊ່ວຍໃນການຄັດເລືອກຄຳຖາມ ແລະ ຄຳຕອບທີ່ດີທີ່ສຸດໄດ້ແທ້ໆ!"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.faq_karma
@@ -382,17 +412,18 @@ msgstr "<b>ເປັນຫຍັງຄົນອື່ນຈຶ່ງສາມາ
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.new_question
 msgid "<b>You already have a pending post.</b><br/>"
-msgstr "<b>ທ່ານມີໂພສທີ່ພວມລໍຖ້າການກວດສອບຢູ່ແລ້ວ.</b><br/>"
+msgstr "<b>ທ່ານມີໂພສທີ່ລໍຖ້າການອະນຸມັດຢູ່ແລ້ວ.</b><br/>"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.contact
 msgid ""
 "<b>|</b>\n"
-"                    <span class=\"fa fa-trophy o-text-gold ms-2\" role=\"img\" aria-label=\"Gold badge\" title=\"Gold badge\"/>"
+"                    <span class=\"oi oi-filled o-text-gold ms-2\" data-"
+"icon=\"trophy\" role=\"img\" aria-label=\"Gold badge\" title=\"Gold badge\"/>"
 msgstr ""
 "<b>|</b>\n"
-"                    <span class=\"fa fa-trophy o-text-gold ms-2\" "
-"role=\"img\" aria-label=\"Gold badge\" title=\"ຫຼຽນຄຳ\"/>"
+"                    <span class=\"oi oi-filled o-text-gold ms-2\" data-"
+"icon=\"trophy\" role=\"img\" aria-label=\"Gold badge\" title=\"Gold badge\"/>"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
@@ -400,243 +431,257 @@ msgid "<br/>by"
 msgstr "<br/>ໂດຍ"
 
 #. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.new_question
-msgid "<i class=\"fa fa-angle-left me-2\"/>Back to All Posts"
-msgstr "<i class=\"fa fa-angle-left me-2\"/>ກັບຄືນໄປຫາ ໂພສທັງໝົດ"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.user_votes
-msgid "<i class=\"fa fa-arrow-right\"/> Go To Forums"
-msgstr "<i class=\"fa fa-arrow-right\"/> ໄປຫາ ຟໍຣຳ"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.forum_model_nav
-msgid "<i class=\"fa fa-bug me-1\"/>Filter Tool"
-msgstr "<i class=\"fa fa-bug me-1\"/>ເຄື່ອງມືກັ່ນຕອງ"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.vote
-msgid ""
-"<i class=\"fa fa-caret-down\" data-bs-toggle=\"tooltip\" data-bs-"
-"placement=\"top\" title=\"Downvote\"/>"
-msgstr ""
-"<i class=\"fa fa-caret-down\" data-bs-toggle=\"tooltip\" data-bs-"
-"placement=\"top\" title=\"ໂໂຫວດລົງ\"/>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.vote
-msgid ""
-"<i class=\"fa fa-caret-up\" data-bs-toggle=\"tooltip\" data-bs-"
-"placement=\"top\" title=\"Upvote\"/>"
-msgstr ""
-"<i class=\"fa fa-caret-up\" data-bs-toggle=\"tooltip\" data-bs-"
-"placement=\"top\" title=\"ໂຫວດຂຶ້ນ\"/>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
-msgid "<i class=\"fa fa-check fa-fw me-1\"/>Accept"
-msgstr "<i class=\"fa fa-check fa-fw me-1\"/>ຍອມຮັບ"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
-msgid ""
-"<i class=\"fa fa-check fa-fw me-1\"/>Be less specific in your wording for a "
-"wider search result."
-msgstr ""
-"<i class=\"fa fa-check fa-fw me-1\"/>ໃຊ້ຄຳສັບທີ່ກວ້າງຂຶ້ນ ເພື່ອໃຫ້ໄດ້ຜົນການຄົ້ນຫາທີ່ຫຼາຍຂຶ້ນ."
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
-msgid "<i class=\"fa fa-check fa-fw me-1\"/>Check your spelling and try again."
-msgstr ""
-"<i class=\"fa fa-check fa-fw me-1\"/>ກວດສອບຕົວສະກົດຂອງທ່ານ ແລະ ລອງໃໝ່ອີກຄັ້ງ."
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
-msgid "<i class=\"fa fa-check fa-fw me-1\"/>Try searching for one or two words."
-msgstr ""
-"<i class=\"fa fa-check fa-fw me-1\"/>ລອງຄົ້ນຫາດ້ວຍຄຳສັບພຽງໜຶ່ງ ຫຼື ສອງຄຳ."
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.display_post_question_block
-msgid "<i class=\"fa fa-check me-1\"/>Solved"
-msgstr "<i class=\"fa fa-check me-1\"/>ແກ້ໄຂແລ້ວ"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.show_flag_validator
-msgid "<i class=\"fa fa-check\"/> Accept"
-msgstr "<i class=\"fa fa-check\"/> ຍອມຮັບ"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.edit_post
-#: model_terms:ir.ui.view,arch_db:website_forum.new_question
-msgid "<i class=\"fa fa-check\"/> How to configure TPS and TVQ's canadian taxes?"
-msgstr "<i class=\"fa fa-check\"/> ວິທີການຕັ້ງຄ່າພາສີ TPS ແລະ TVQ ຂອງການາດາ?"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
-msgid "<i class=\"fa fa-check\"/><span class=\"ms-2\">Accept</span>"
-msgstr "<i class=\"fa fa-check\"/><span class=\"ms-2\">ຍອມຮັບ</span>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_kanban
-msgid "<i class=\"fa fa-comments-o me-1\" title=\"Forum\"/>"
-msgstr "<i class=\"fa fa-comments-o me-1\" title=\"ຟໍຣຳ\"/>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_kanban
-msgid "<i class=\"fa fa-eye me-1\" title=\"Views\"/>"
-msgstr "<i class=\"fa fa-eye me-1\" title=\"ຍອດເຂົ້າຊົມ\"/>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
-msgid "<i class=\"fa fa-flag\"/> Country"
-msgstr "<i class=\"fa fa-flag\"/> ປະເທດ"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
-msgid "<i class=\"fa fa-font\"/> Text"
-msgstr "<i class=\"fa fa-font\"/> ຂໍ້ຄວາມ"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.follow
-msgid "<i class=\"fa fa-fw fa-check me-1\"/>Following"
-msgstr "<i class=\"fa fa-fw fa-check me-1\"/>ຕິດຕາມຢູ່"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_kanban
-msgid "<i class=\"fa fa-globe me-1\" title=\"Website\"/>"
-msgstr "<i class=\"fa fa-globe me-1\" title=\"ເວັບໄຊ\"/>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar
-#: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar_mobile
-msgid "<i class=\"fa fa-info-circle fa-fw\"/> About this forum"
-msgstr "<i class=\"fa fa-info-circle fa-fw\"/> ກ່ຽວກັບຟໍຣຳນີ້"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.post_display
-msgid ""
-"<i class=\"fa fa-pencil\"/>\n"
-"                                Edit<span class=\"d-none d-lg-inline\"> your answer</span>"
-msgstr ""
-"<i class=\"fa fa-pencil\"/>\n"
-"                                ແກ້ໄຂ<span class=\"d-none d-lg-inline\"> ຄຳຕອບ"
-"ຂອງທ່ານ</span>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.display_post
-msgid ""
-"<i class=\"fa fa-reply me-1 d-lg-none\"/>\n"
-"                0"
-msgstr ""
-"<i class=\"fa fa-reply me-1 d-lg-none\"/>\n"
-"                0"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
-#: model_terms:ir.ui.view,arch_db:website_forum.post_display
-msgid "<i class=\"fa fa-reply me-1\"/>Reply"
-msgstr "<i class=\"fa fa-reply me-1\"/>ຕອບ"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.post_display
-msgid ""
-"<i class=\"fa fa-share-alt\" data-bs-toggle=\"tooltip\" data-bs-"
-"placement=\"top\" title=\"Share\"/>"
-msgstr ""
-"<i class=\"fa fa-share-alt\" data-bs-toggle=\"tooltip\" data-bs-"
-"placement=\"top\" title=\"ແບ່ງປັນ\"/>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar_body
-msgid "<i class=\"fa fa-shield fa-fw opacity-50\"/> Badges"
-msgstr "<i class=\"fa fa-shield fa-fw opacity-50\"/> ຫຼຽນກຽດຕິຍົດ"
-
-#. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.user_profile_content
-msgid ""
-"<i class=\"fa fa-thumbs-down text-danger ms-3\" role=\"img\" aria-"
-"label=\"Negative votes\" title=\"Negative votes\"/>"
-msgstr ""
-"<i class=\"fa fa-thumbs-down text-danger ms-3\" role=\"img\" aria-"
-"label=\"Negative votes\" title=\"ຄະແນນລົບ\"/>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.user_profile_content
-msgid ""
-"<i class=\"fa fa-thumbs-up text-success\" role=\"img\" aria-label=\"Positive"
-" votes\" title=\"Positive votes\"/>"
-msgstr ""
-"<i class=\"fa fa-thumbs-up text-success\" role=\"img\" aria-label=\"Positive "
-"votes\" title=\"ຄະແນນບວກ\"/>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
-msgid "<i class=\"fa fa-times fa-fw me-1\"/>Reject"
-msgstr "<i class=\"fa fa-times fa-fw me-1\"/>ປະຕິເສດ"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.edit_post
-#: model_terms:ir.ui.view,arch_db:website_forum.new_question
-msgid ""
-"<i class=\"fa fa-times\"/> Good morning to all! Please, can someone help "
-"solve my tax computation problem in Canada? Thanks!"
-msgstr ""
-"<i class=\"fa fa-times\"/> ສະບາຍດີທຸກຄົນ! ກະລຸນາ, ມີໃຜສາມາດຊ່ວຍແກ້ໄຂບັນຫາການຄິດໄລ່ພາສີໃນ"
-"ການາດາຂອງຂ້ອຍໄດ້ບໍ່? ຂອບໃຈ!"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.show_flag_validator
-msgid "<i class=\"fa fa-times\"/> Reject"
-msgstr "<i class=\"fa fa-times\"/> ປະຕິເສດ"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
-msgid "<i class=\"fa fa-times\"/><span class=\"ms-2\">Offensive</span>"
-msgstr "<i class=\"fa fa-times\"/><span class=\"ms-2\">ບໍ່ເໝາະສົມ</span>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
-msgid "<i class=\"fa fa-times\"/><span class=\"ms-2\">Reject</span>"
-msgstr "<i class=\"fa fa-times\"/><span class=\"ms-2\">ປະຕິເສດ</span>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
-msgid "<i class=\"fa fa-user\"/> User"
-msgstr "<i class=\"fa fa-user\"/> ຜູ້ໃຊ້"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar_body
-msgid "<i class=\"fa fa-users fa-fw opacity-50\"/> People"
-msgstr "<i class=\"fa fa-users fa-fw opacity-50\"/> ຜູ້ຄົນ"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.user_profile_content
-msgid "<i class=\"oi oi-arrow-right d-inline-block\"/> Go to Forums"
-msgstr "<i class=\"oi oi-arrow-right d-inline-block\"/> ໄປຫາ ຟໍຣຳ"
+msgid "<i class=\"oi d-inline-block\" data-icon=\"east\"/> Go to Forums"
+msgstr "<i class=\"oi d-inline-block\" data-icon=\"east\"/> ໄປທີ່ກະດານສົນທະນາ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.404
 msgid ""
-"<i class=\"oi oi-arrow-right display-inline-block\"/> Return to questions "
-"list"
+"<i class=\"oi display-inline-block\" data-icon=\"east\"/> Return to "
+"questions list"
 msgstr ""
-"<i class=\"oi oi-arrow-right display-inline-block\"/> ກັບຄືນໄປຫາລາຍການຄຳຖາມ"
+"<i class=\"oi display-inline-block\" data-icon=\"east\"/> ກັບຄືນໄປລາຍການຄຳຖາມ"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.display_post
+msgid ""
+"<i class=\"oi me-1 d-lg-none\" data-icon=\"reply\"/>\n"
+"                0"
+msgstr ""
+"<i class=\"oi me-1 d-lg-none\" data-icon=\"reply\"/>\n"
+"                0"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.forum_model_nav
+msgid "<i class=\"oi me-1\" data-icon=\"bug_report\"/>Filter Tool"
+msgstr "<i class=\"oi me-1\" data-icon=\"bug_report\"/>ເຄື່ອງມືກັ່ນຕອງ"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.display_post_question_block
+msgid "<i class=\"oi me-1\" data-icon=\"check\"/>Solved"
+msgstr "<i class=\"oi me-1\" data-icon=\"check\"/>ແກ້ໄຂແລ້ວ"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_kanban
+msgid "<i class=\"oi me-1\" data-icon=\"forum\" title=\"Forum\"/>"
+msgstr "<i class=\"oi me-1\" data-icon=\"forum\" title=\"Forum\"/>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_kanban
+msgid "<i class=\"oi me-1\" data-icon=\"public\" title=\"Website\"/>"
+msgstr "<i class=\"oi me-1\" data-icon=\"public\" title=\"Website\"/>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
+#: model_terms:ir.ui.view,arch_db:website_forum.post_display
+msgid "<i class=\"oi me-1\" data-icon=\"reply\"/>Reply"
+msgstr "<i class=\"oi me-1\" data-icon=\"reply\"/>ຕອບກັບ"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_kanban
+msgid "<i class=\"oi me-1\" data-icon=\"visibility\" title=\"Views\"/>"
+msgstr "<i class=\"oi me-1\" data-icon=\"visibility\" title=\"Views\"/>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.new_question
+msgid ""
+"<i class=\"oi me-2\" data-icon=\"keyboard_arrow_left\"/>Back to All Posts"
+msgstr "<i class=\"oi me-2\" data-icon=\"keyboard_arrow_left\"/>ກັບໄປທຸກໂພສ"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar_body
+msgid "<i class=\"oi oi-filled oi-fw opacity-50\" data-icon=\"group\"/> People"
+msgstr "<i class=\"oi oi-filled oi-fw opacity-50\" data-icon=\"group\"/> ຜູ້ຄົນ"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.user_profile_content
+msgid ""
+"<i class=\"oi oi-filled text-danger ms-3\" data-icon=\"thumb_down\" "
+"role=\"img\" aria-label=\"Negative votes\" title=\"Negative votes\"/>"
+msgstr ""
+"<i class=\"oi oi-filled text-danger ms-3\" data-icon=\"thumb_down\" "
+"role=\"img\" aria-label=\"Negative votes\" title=\"Negative votes\"/>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.user_profile_content
+msgid ""
+"<i class=\"oi oi-filled text-success\" data-icon=\"thumb_up\" role=\"img\" "
+"aria-label=\"Positive votes\" title=\"Positive votes\"/>"
+msgstr ""
+"<i class=\"oi oi-filled text-success\" data-icon=\"thumb_up\" role=\"img\" "
+"aria-label=\"Positive votes\" title=\"Positive votes\"/>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.post_display
+msgid ""
+"<i class=\"oi oi-filled\" data-icon=\"edit\"/>\n"
+"                                Edit<span class=\"d-none d-lg-inline\"> your "
+"answer</span>"
+msgstr ""
+"<i class=\"oi oi-filled\" data-icon=\"edit\"/>\n"
+"                                ແກ້ໄຂ<span class=\"d-none d-lg-inline\"> ຄຳຕອບ"
+"ຂອງທ່ານ</span>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
+msgid "<i class=\"oi oi-filled\" data-icon=\"flag\"/> Country"
+msgstr "<i class=\"oi oi-filled\" data-icon=\"flag\"/> ປະເທດ"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
+msgid "<i class=\"oi oi-filled\" data-icon=\"person\"/> User"
+msgstr "<i class=\"oi oi-filled\" data-icon=\"person\"/> ຜູ້ໃຊ້"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
+msgid "<i class=\"oi oi-fw me-1\" data-icon=\"check\"/>Accept"
+msgstr "<i class=\"oi oi-fw me-1\" data-icon=\"check\"/>ຍອມຮັບ"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
+msgid ""
+"<i class=\"oi oi-fw me-1\" data-icon=\"check\"/>Be less specific in your "
+"wording for a wider search result."
+msgstr ""
+"<i class=\"oi oi-fw me-1\" data-icon=\"check\"/>ໃຊ້ຄຳສັບທົ່ວໄປຫຼາຍຂຶ້ນ ເພື່ອຜົນການຄົ້ນຫາທີ່"
+"ກວ້າງກວ່າ."
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
+msgid ""
+"<i class=\"oi oi-fw me-1\" data-icon=\"check\"/>Check your spelling and try "
+"again."
+msgstr ""
+"<i class=\"oi oi-fw me-1\" data-icon=\"check\"/>ກວດເບິ່ງການສະກົດຄຳ ແລ້ວລອງໃໝ່ອີກຄັ້ງ."
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.follow_button
+msgid "<i class=\"oi oi-fw me-1\" data-icon=\"check\"/>Following"
+msgstr "<i class=\"oi oi-fw me-1\" data-icon=\"check\"/>ກຳລັງຕິດຕາມ"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
+msgid ""
+"<i class=\"oi oi-fw me-1\" data-icon=\"check\"/>Try searching for one or two "
+"words."
+msgstr ""
+"<i class=\"oi oi-fw me-1\" data-icon=\"check\"/>ລອງຄົ້ນຫາດ້ວຍຄຳສັບພຽງໜຶ່ງ ຫຼື ສອງຄຳ."
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
+msgid "<i class=\"oi oi-fw me-1\" data-icon=\"close\"/>Reject"
+msgstr "<i class=\"oi oi-fw me-1\" data-icon=\"close\"/>ປະຕິເສດ"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar_body
+msgid "<i class=\"oi oi-fw opacity-50\" data-icon=\"security\"/> Badges"
+msgstr "<i class=\"oi oi-fw opacity-50\" data-icon=\"security\"/> ຫຼຽນກຽດຕິຍົດ"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar
+#: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar_mobile
+msgid "<i class=\"oi oi-fw\" data-icon=\"info\"/> About this forum"
+msgstr "<i class=\"oi oi-fw\" data-icon=\"info\"/> ກ່ຽວກັບກະດານສົນທະນານີ້"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.vote
+msgid ""
+"<i class=\"oi\" data-icon=\"arrow_drop_down\" data-bs-toggle=\"tooltip\" "
+"data-bs-placement=\"top\" title=\"Downvote\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"arrow_drop_down\" data-bs-toggle=\"tooltip\" "
+"data-bs-placement=\"top\" title=\"Downvote\"/>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.vote
+msgid ""
+"<i class=\"oi\" data-icon=\"arrow_drop_up\" data-bs-toggle=\"tooltip\" data-"
+"bs-placement=\"top\" title=\"Upvote\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"arrow_drop_up\" data-bs-toggle=\"tooltip\" data-"
+"bs-placement=\"top\" title=\"Upvote\"/>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.user_votes
+msgid "<i class=\"oi\" data-icon=\"arrow_forward\"/> Go To Forums"
+msgstr "<i class=\"oi\" data-icon=\"arrow_forward\"/> ໄປທີ່ກະດານສົນທະນາ"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.show_flag_validator
+msgid "<i class=\"oi\" data-icon=\"check\"/> Accept"
+msgstr "<i class=\"oi\" data-icon=\"check\"/> ຍອມຮັບ"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.edit_post
+#: model_terms:ir.ui.view,arch_db:website_forum.new_question
+msgid ""
+"<i class=\"oi\" data-icon=\"check\"/> How to configure TPS and TVQ's "
+"canadian taxes?"
+msgstr ""
+"<i class=\"oi\" data-icon=\"check\"/> ວິທີການກຳນົດຄ່າພາສີ TPS ແລະ TVQ ຂອງປະເທດການາ"
+"ດາ?"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
+msgid "<i class=\"oi\" data-icon=\"check\"/><span class=\"ms-2\">Accept</span>"
+msgstr "<i class=\"oi\" data-icon=\"check\"/><span class=\"ms-2\">ຍອມຮັບ</span>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.edit_post
+#: model_terms:ir.ui.view,arch_db:website_forum.new_question
+msgid ""
+"<i class=\"oi\" data-icon=\"close\"/> Good morning to all! Please, can "
+"someone help solve my tax computation problem in Canada? Thanks!"
+msgstr ""
+"<i class=\"oi\" data-icon=\"close\"/> ສະບາຍດີຕອນເຊົ້າທຸກຄົນ! ມີໃຜຊ່ວຍແກ້ໄຂບັນຫາການຄິດໄລ່"
+"ພາສີໃນການາດາໄດ້ບໍ່? ຂອບໃຈ!"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.show_flag_validator
+msgid "<i class=\"oi\" data-icon=\"close\"/> Reject"
+msgstr "<i class=\"oi\" data-icon=\"close\"/> ປະຕິເສດ"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
+msgid ""
+"<i class=\"oi\" data-icon=\"close\"/><span class=\"ms-2\">Offensive</span>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"close\"/><span class=\"ms-2\">ບໍ່ເໝາະສົມ</span>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
+msgid "<i class=\"oi\" data-icon=\"close\"/><span class=\"ms-2\">Reject</span>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"close\"/><span class=\"ms-2\">ປະຕິເສດ</span>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.post_display
+msgid ""
+"<i class=\"oi\" data-icon=\"family_history\" data-bs-toggle=\"tooltip\" data-"
+"bs-placement=\"top\" title=\"Share\"/>"
+msgstr ""
+"<i class=\"oi\" data-icon=\"family_history\" data-bs-toggle=\"tooltip\" data-"
+"bs-placement=\"top\" title=\"Share\"/>"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_dropdown
 msgid ""
-"<i class=\"oi oi-ellipsis-h\" data-bs-toggle=\"tooltip\" data-bs-"
+"<i class=\"oi\" data-icon=\"more_horiz\" data-bs-toggle=\"tooltip\" data-bs-"
 "placement=\"top\" title=\"More\"/>"
 msgstr ""
-"<i class=\"oi oi-ellipsis-h\" data-bs-toggle=\"tooltip\" data-bs-"
-"placement=\"top\" title=\"ເພີ່ມເຕີມ\"/>"
+"<i class=\"oi\" data-icon=\"more_horiz\" data-bs-toggle=\"tooltip\" data-bs-"
+"placement=\"top\" title=\"More\"/>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
+msgid "<i class=\"oi\" data-icon=\"text_fields\"/> Text"
+msgstr "<i class=\"oi\" data-icon=\"text_fields\"/> ຂໍ້ຄວາມ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.user_profile_content
 msgid "<small class=\"fw-bold\">Votes</small>"
-msgstr "<small class=\"fw-bold\">ຄະແນນໂຫວດ</small>"
+msgstr "<small class=\"fw-bold\">ຄະແນນສຽງ</small>"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar_body
@@ -646,53 +691,34 @@ msgstr "<small>(ເບິ່ງທັງໝົດ)</small>"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_all_all_entries
 msgid "<span class=\"badge bg-dark me-1\">Last post:</span>"
-msgstr "<span class=\"badge bg-dark me-1\">ໂພສຫຼ້າສຸດ:</span>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.contact
-msgid ""
-"<span class=\"fa fa-trophy o-text-bronze ms-2\" role=\"img\" aria-"
-"label=\"Bronze badge\" title=\"Bronze badge\"/>"
-msgstr ""
-"<span class=\"fa fa-trophy o-text-bronze ms-2\" role=\"img\" aria-"
-"label=\"Bronze badge\" title=\"ຫຼຽນທອງ\"/>"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.contact
-msgid ""
-"<span class=\"fa fa-trophy o-text-silver ms-2\" role=\"img\" aria-"
-"label=\"Silver badge\" title=\"Silver badge\"/>"
-msgstr ""
-"<span class=\"fa fa-trophy o-text-silver ms-2\" role=\"img\" aria-"
-"label=\"Silver badge\" title=\"ຫຼຽນເງິນ\"/>"
+msgstr "<span class=\"badge bg-dark me-1\">ໂພສລ່າສຸດ:</span>"
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
 #: model_terms:ir.ui.view,arch_db:website_forum.default_faq
-msgid "<span class=\"flex-grow-1\">What kind of questions can I ask here?</span>"
+msgid ""
+"<span class=\"flex-grow-1\">What kind of questions can I ask here?</span>"
 msgstr ""
-"<span class=\"flex-grow-1\">ຄຳຖາມປະເພດໃດທີ່ຂ້ອຍສາມາດຖາມຢູ່ທີ່ນີ້ໄດ້?</span>"
+"<span class=\"flex-grow-1\">ຂ້ອຍສາມາດຖາມຄຳຖາມປະເພດໃດໄດ້ແດ່ຢູ່ນີ້?</span>"
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
 #: model_terms:ir.ui.view,arch_db:website_forum.default_faq
 msgid "<span class=\"flex-grow-1\">What should I avoid in my answers?</span>"
-msgstr ""
-"<span class=\"flex-grow-1\">ສິ່ງໃດທີ່ຂ້ອຍຄວນຫຼີກລ່ຽງໃນການຕອບຄຳຖາມ?</span>"
+msgstr "<span class=\"flex-grow-1\">ສິ່ງໃດແດ່ທີ່ຂ້ອຍຄວນຫຼີກລ່ຽງໃນຄຳຕອບ?</span>"
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
 #: model_terms:ir.ui.view,arch_db:website_forum.default_faq
 msgid "<span class=\"flex-grow-1\">What should I avoid in my questions?</span>"
-msgstr ""
-"<span class=\"flex-grow-1\">ສິ່ງໃດທີ່ຂ້ອຍຄວນຫຼີກລ່ຽງໃນການຕັ້ງຄຳຖາມ?</span>"
+msgstr "<span class=\"flex-grow-1\">ສິ່ງໃດແດ່ທີ່ຂ້ອຍຄວນຫຼີກລ່ຽງໃນຄຳຖາມ?</span>"
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
 #: model_terms:ir.ui.view,arch_db:website_forum.default_faq
 msgid ""
-"<span class=\"flex-grow-1\">Why can other people edit my "
-"questions/answers?</span>"
+"<span class=\"flex-grow-1\">Why can other people edit my questions/answers?</"
+"span>"
 msgstr ""
 "<span class=\"flex-grow-1\">ເປັນຫຍັງຄົນອື່ນຈຶ່ງສາມາດແກ້ໄຂຄຳຖາມ/ຄຳຕອບຂອງຂ້ອຍໄດ້?</span>"
 
@@ -703,14 +729,15 @@ msgid ""
 "<span class=\"form-text small text-muted d-block\">consider adding an "
 "example.</span>"
 msgstr ""
-"<span class=\"form-text small text-muted d-block\">ພິຈາລະນາເພີ່ມຕົວຢ່າງ.</span>"
+"<span class=\"form-text small text-muted d-block\">ພິຈາລະນາເພີ່ມຕົວຢ່າງໃສ່ນຳ.</"
+"span>"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.edit_post
 #: model_terms:ir.ui.view,arch_db:website_forum.new_question
 msgid ""
-"<span class=\"form-text small text-muted d-block\">select text to format "
-"it.</span>"
+"<span class=\"form-text small text-muted d-block\">select text to format it."
+"</span>"
 msgstr ""
 "<span class=\"form-text small text-muted d-block\">ເລືອກຂໍ້ຄວາມເພື່ອຈັດຮູບແບບ.</"
 "span>"
@@ -719,20 +746,20 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:website_forum.edit_post
 #: model_terms:ir.ui.view,arch_db:website_forum.new_question
 msgid ""
-"<span class=\"form-text small text-muted d-block\">use '/' to insert "
-"images.</span>"
+"<span class=\"form-text small text-muted d-block\">use '/' to insert images."
+"</span>"
 msgstr ""
-"<span class=\"form-text small text-muted d-block\">ໃຊ້ '/' ເພື່ອແຊກຮູບພາບ.</span>"
+"<span class=\"form-text small text-muted d-block\">ໃຊ້ '/' ເພື່ອໃສ່ຮູບພາບ.</span>"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.edit_post
 #: model_terms:ir.ui.view,arch_db:website_forum.new_question
 msgid ""
-"<span class=\"form-text small text-muted me-1\"><i class=\"fa fa-"
-"lightbulb-o\"/> Tip:</span>"
+"<span class=\"form-text small text-muted me-1\"><i class=\"oi\" data-"
+"icon=\"lightbulb\"/> Tip:</span>"
 msgstr ""
-"<span class=\"form-text small text-muted me-1\"><i class=\"fa fa-lightbulb-"
-"o\"/> ເຄັດລັບ:</span>"
+"<span class=\"form-text small text-muted me-1\"><i class=\"oi\" data-"
+"icon=\"lightbulb\"/> ຄຳແນະນຳ:</span>"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_forum_view_form
@@ -743,12 +770,30 @@ msgstr "<span class=\"o_stat_text\">ລາຍການທີ່ມັກ</span>"
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_forum_view_form
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_form
 msgid "<span class=\"o_stat_text\">Go to <br/>Website</span>"
-msgstr "<span class=\"o_stat_text\">ໄປຫາ <br/>ເວັບໄຊ</span>"
+msgstr "<span class=\"o_stat_text\">ໄປທີ່ <br/>ເວັບໄຊ</span>"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_forum_view_form
 msgid "<span class=\"o_stat_text\">Posts</span>"
 msgstr "<span class=\"o_stat_text\">ໂພສ</span>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.contact
+msgid ""
+"<span class=\"oi oi-filled o-text-bronze ms-2\" data-icon=\"trophy\" "
+"role=\"img\" aria-label=\"Bronze badge\" title=\"Bronze badge\"/>"
+msgstr ""
+"<span class=\"oi oi-filled o-text-bronze ms-2\" data-icon=\"trophy\" "
+"role=\"img\" aria-label=\"Bronze badge\" title=\"Bronze badge\"/>"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.contact
+msgid ""
+"<span class=\"oi oi-filled o-text-silver ms-2\" data-icon=\"trophy\" "
+"role=\"img\" aria-label=\"Silver badge\" title=\"Silver badge\"/>"
+msgstr ""
+"<span class=\"oi oi-filled o-text-silver ms-2\" data-icon=\"trophy\" "
+"role=\"img\" aria-label=\"Silver badge\" title=\"Silver badge\"/>"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.display_activities
@@ -758,17 +803,17 @@ msgstr "<span class=\"text-muted\">ຍັງບໍ່ມີການເຄື່
 #. module: website_forum
 #: model_terms:web_tour.tour,rainbow_man_message:website_forum.question
 msgid "<span><b>Good job!</b> You went through all steps of this tour.</span>"
-msgstr "<span><b>ເກັ່ງຫຼາຍ!</b> ທ່ານໄດ້ສຳເລັດທຸກຂັ້ນຕອນການແນະນຳນີ້ແລ້ວ.</span>"
+msgstr "<span><b>ເກັ່ງຫຼາຍ!</b> ທ່ານໄດ້ຜ່ານທຸກຂັ້ນຕອນຂອງການແນະນຳນີ້ແລ້ວ.</span>"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
 msgid "<span>Be the first to answer this question</span>"
-msgstr "<span>ເປັນຄົນທຳອິດທີ່ຈະຕອບຄຳຖາມນີ້</span>"
+msgstr "<span>ເປັນຄົນທຳອິດທີ່ຕອບຄຳຖາມນີ້</span>"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_model_nav
 msgid "<span>Moderation</span>"
-msgstr "<span>ການກວດສອບ</span>"
+msgstr "<span>ການຄວບຄຸມກວດສອບ</span>"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
@@ -776,23 +821,24 @@ msgid ""
 "<span>Please wait for a moderator to validate your previous post to be "
 "allowed to reply to questions.</span>"
 msgstr ""
-"<span>ກະລຸນາລໍຖ້າໃຫ້ຜູ້ດູແລຢືນຢັນໂພສກ່ອນໜ້ານີ້ຂອງທ່ານ ເພື່ອຈະໄດ້ຮັບອະນຸຍາດໃຫ້ຕອບຄຳຖາມໄດ້.</span>"
+"<span>ກະລຸນາລໍຖ້າໃຫ້ຜູ້ຄວບຄຸມກວດສອບໂພສກ່ອນໜ້ານີ້ຂອງທ່ານ ກ່ອນຈຶ່ງຈະໄດ້ຮັບອະນຸຍາດໃຫ້ຕອບຄຳຖາມ.</"
+"span>"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar_header
 msgid "<span>You need to be registered to interact with the community.</span>"
-msgstr "<span>ທ່ານຈຳເປັນຕ້ອງລົງທະບຽນ ເພື່ອມີສ່ວນຮ່ວມກັບຊຸມຊົນ.</span>"
+msgstr "<span>ທ່ານຕ້ອງລົງທະບຽນກ່ອນ ຈຶ່ງຈະສາມາດມີສ່ວນຮ່ວມກັບຊຸມຊົນໄດ້.</span>"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_template_new_answer
 msgid "A new answer on"
-msgstr "ມີຄຳຕອບໃໝ່ໃນ"
+msgstr "ຄຳຕອບໃໝ່ໃນ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_template_new_question
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_template_validation
 msgid "A new question"
-msgstr "ມີຄຳຖາມໃໝ່"
+msgstr "ຄຳຖາມໃໝ່"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_answer_accept_own
@@ -802,7 +848,7 @@ msgstr "ຍອມຮັບຄຳຕອບໃນຄຳຖາມຂອງຕົນ
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_answer_accept_all
 msgid "Accept an answer to all questions"
-msgstr "ຍອມຮັບຄຳຕອບໃນທຸກຄຳຖາມ"
+msgstr "ຍອມຮັບຄຳຕອບສຳລັບທຸກຄຳຖາມ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_search
@@ -813,7 +859,7 @@ msgstr "ຄຳຕອບທີ່ຖືກຍອມຮັບ"
 #. odoo-python
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "Accepted answer removed"
-msgstr "ຄຳຕອບທີ່ເຄີຍຍອມຮັບໄດ້ຖືກລຶບອອກ"
+msgstr "ລຶບຄຳຕອບທີ່ຖືກຍອມຮັບອອກແລ້ວ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_gen_answer_accept
@@ -828,8 +874,6 @@ msgstr "ການເຂົ້າເຖິງຖືກປະຕິເສດ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__message_needaction
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__message_needaction
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__message_needaction
 msgid "Action Needed"
 msgstr "ຈຳເປັນຕ້ອງດຳເນີນການ"
 
@@ -843,7 +887,7 @@ msgstr "ເປີດໃຊ້ງານ"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.user_profile_content
 msgid "Activities"
-msgstr "ການເຄື່ອນໄຫວ"
+msgstr "ກິດຈະກຳ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_index
@@ -855,7 +899,7 @@ msgstr "ກິດຈະກຳ"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_comment
 msgid "Add a comment"
-msgstr "ເພີ່ມຄວາມຄິດເຫັນ"
+msgstr "ເພີ່ມຄຳເຫັນ"
 
 #. module: website_forum
 #: model:ir.model.fields,help:website_forum.field_forum_forum__allow_share
@@ -863,8 +907,8 @@ msgid ""
 "After posting the user will be proposed to share its question or answer on "
 "social networks, enabling social network propagation of the forum content."
 msgstr ""
-"ຫຼັງຈາກໂພສແລ້ວ, ຜູ້ໃຊ້ຈະຖືກແນະນຳໃຫ້ແບ່ງປັນຄຳຖາມ ຫຼື ຄຳຕອບລົງໃນສື່ສັງຄົມອອນລາຍ ເພື່ອຊ່ວຍຂະຫຍາຍເນື້ອຫ"
-"າຂອງຟໍຣຳ."
+"ຫຼັງຈາກໂພສແລ້ວ ຜູ້ໃຊ້ຈະໄດ້ຮັບການແນະນຳໃຫ້ແບ່ງປັນຄຳຖາມ ຫຼື ຄຳຕອບລົງໃນສື່ສັງຄົມອອນລາຍ ເພື່ອຊ່ວຍເຜີຍແຜ່ເ"
+"ນື້ອຫາຂອງກະດານສົນທະນາ."
 
 #. module: website_forum
 #. odoo-python
@@ -874,33 +918,40 @@ msgid "All"
 msgstr "ທັງໝົດ"
 
 #. module: website_forum
+#. odoo-javascript
+#: code:addons/website_forum/static/src/website_builder/forum_floating_snippets_plugin.js:0
+msgid "All Forums"
+msgstr "ທຸກກະດານສົນທະນາ"
+
+#. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar_body
 msgid "All Posts"
-msgstr "ໂພສທັງໝົດ"
+msgstr "ທຸກໂພສ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.new_question
 msgid "All Topics"
-msgstr "ຫົວຂໍ້ທັງໝົດ"
+msgstr "ທຸກຫົວຂໍ້"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_model_nav
 msgid "All forums"
-msgstr "ຟໍຣຳທັງໝົດ"
+msgstr "ທຸກກະດານສົນທະນາ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
 msgid "Animation of a pen checking a checkbox"
-msgstr "ພາບເຄື່ອນໄຫວຂອງບິກທີ່ກຳລັງໝາຍຕິກໃນຊ່ອງ"
+msgstr "ພາບເຄື່ອນໄຫວຂອງບິກທີ່ກຳລັງໝາຍຕິກໃນກ່ອງໝາຍ"
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/forum_post_vote.py:0
 msgid "Answer %s"
-msgstr "ຄຳຕອບ %s"
+msgstr "ຕອບ %s"
 
 #. module: website_forum
 #. odoo-python
+#: code:addons/website_forum/controllers/website_forum.py:0
 #: code:addons/website_forum/models/forum_post.py:0
 #: model:mail.message.subtype,description:website_forum.mt_answer_edit
 #: model:mail.message.subtype,name:website_forum.mt_answer_edit
@@ -910,22 +961,28 @@ msgstr "ຄຳຕອບຖືກແກ້ໄຂແລ້ວ"
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_gen_answer_accepted
 msgid "Answer accepted"
-msgstr "ຄຳຕອບຖືກຍອມຮັບ"
+msgstr "ຄຳຕອບຖືກຍອມຮັບແລ້ວ"
 
 #. module: website_forum
 #: model_terms:gamification.badge,description:website_forum.badge_a_6
 msgid "Answer accepted with 15 or more votes"
-msgstr "ຄຳຕອບຖືກຍອມຮັບດ້ວຍຄະແນນໂຫວດ 15 ຂຶ້ນໄປ"
+msgstr "ຄຳຕອບຖືກຍອມຮັບພ້ອມຄະແນນສຽງ 15 ສຽງຂຶ້ນໄປ"
+
+#. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_post.py:0
+msgid "Answer converted to comment in \"%s\""
+msgstr "ຄຳຕອບຖືກປ່ຽນເປັນຄຳເຫັນໃນ \"%s\""
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_gen_answer_downvote
 msgid "Answer downvoted"
-msgstr "ຄຳຕອບຖືກໂຫວດລົງ"
+msgstr "ຄຳຕອບຖືກລົງຄະແນນລົບ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_gen_answer_flagged
 msgid "Answer flagged"
-msgstr "ຄຳຕອບຖືກໝາຍເຫດ"
+msgstr "ຄຳຕອບຖືກໝາຍລາຍງານ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_answer
@@ -935,27 +992,27 @@ msgstr "ຕອບຄຳຖາມ"
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_gen_answer_upvote
 msgid "Answer upvoted"
-msgstr "ຄຳຕອບຖືກໂຫວດຂຶ້ນ"
+msgstr "ຄຳຕອບຖືກລົງຄະແນນບວກ"
 
 #. module: website_forum
 #: model_terms:gamification.badge,description:website_forum.badge_a_4
 msgid "Answer voted up 15 times"
-msgstr "ຄຳຕອບຖືກໂຫວດຂຶ້ນ 15 ຄັ້ງ"
+msgstr "ຄຳຕອບໄດ້ຮັບຄະແນນບວກ 15 ຄັ້ງ"
 
 #. module: website_forum
 #: model_terms:gamification.badge,description:website_forum.badge_a_2
 msgid "Answer voted up 4 times"
-msgstr "ຄຳຕອບຖືກໂຫວດຂຶ້ນ 4 ຄັ້ງ"
+msgstr "ຄຳຕອບໄດ້ຮັບຄະແນນບວກ 4 ຄັ້ງ"
 
 #. module: website_forum
 #: model_terms:gamification.badge,description:website_forum.badge_a_3
 msgid "Answer voted up 6 times"
-msgstr "ຄຳຕອບຖືກໂຫວດຂຶ້ນ 6 ຄັ້ງ"
+msgstr "ຄຳຕອບໄດ້ຮັບຄະແນນບວກ 6 ຄັ້ງ"
 
 #. module: website_forum
 #: model_terms:gamification.badge,description:website_forum.badge_a_5
 msgid "Answer was accepted with 3 or more votes"
-msgstr "ຄຳຕອບຖືກຍອມຮັບດ້ວຍຄະແນນໂຫວດ 3 ຂຶ້ນໄປ"
+msgstr "ຄຳຕອບຖືກຍອມຮັບພ້ອມຄະແນນສຽງ 3 ສຽງຂຶ້ນໄປ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
@@ -985,7 +1042,7 @@ msgstr "ຕອບເມື່ອ"
 #. module: website_forum
 #: model_terms:gamification.badge,description:website_forum.badge_a_8
 msgid "Answered own question with at least 4 up votes"
-msgstr "ຕອບຄຳຖາມຂອງຕົນເອງດ້ວຍຄະແນນໂຫວດຂຶ້ນຢ່າງໜ້ອຍ 4 ຄັ້ງ"
+msgstr "ຕອບຄຳຖາມຂອງຕົນເອງໂດຍໄດ້ຮັບຄະແນນບວກຢ່າງໜ້ອຍ 4 ສຽງ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__child_count
@@ -999,7 +1056,7 @@ msgstr "ຄຳຕອບ"
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_gamification_challenge__challenge_category
 msgid "Appears in"
-msgstr "ປາກົດໃນ"
+msgstr "ປະກົດໃນ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_forum_view_form
@@ -1013,12 +1070,12 @@ msgstr "ເກັບໄວ້ແລ້ວ"
 #. odoo-javascript
 #: code:addons/website_forum/static/src/interactions/website_forum.js:0
 msgid "Are you sure you want to delete this comment?"
-msgstr "ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບຄວາມຄິດເຫັນນີ້?"
+msgstr "ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບຄຳເຫັນນີ້?"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
 msgid "As a moderator, you can either validate or reject this answer."
-msgstr "ໃນຖານະຜູ້ດູແລ, ທ່ານສາມາດຢືນຢັນ ຫຼື ປະຕິເສດຄຳຕອບນີ້ໄດ້."
+msgstr "ໃນຖານະຜູ້ຄວບຄຸມ, ທ່ານສາມາດກວດສອບຢືນຢັນ ຫຼື ປະຕິເສດຄຳຕອບນີ້ໄດ້."
 
 #. module: website_forum
 #. odoo-python
@@ -1035,42 +1092,42 @@ msgstr "ຕັ້ງຄຳຖາມ"
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_ask
 msgid "Ask questions"
-msgstr "ຖາມຄຳຖາມ"
+msgstr "ຕັ້ງຄຳຖາມ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_post
 msgid "Ask questions without validation"
-msgstr "ຖາມຄຳຖາມໂດຍບໍ່ຕ້ອງມີການກວດສອບ"
+msgstr "ຕັ້ງຄຳຖາມໂດຍບໍ່ຕ້ອງຜ່ານການກວດສອບ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.new_question
 msgid "Ask your question"
-msgstr "ຖາມຄຳຖາມຂອງທ່ານ"
+msgstr "ຕັ້ງຄຳຖາມຂອງທ່ານ"
 
 #. module: website_forum
 #: model_terms:gamification.badge,description:website_forum.badge_26
 msgid "Asked a question and accepted an answer"
-msgstr "ໄດ້ຕັ້ງຄຳຖາມ ແລະ ຍອມຮັບຄຳຕອບແລ້ວ"
+msgstr "ຕັ້ງຄຳຖາມ ແລະ ຍອມຮັບຄຳຕອບແລ້ວ"
 
 #. module: website_forum
 #: model_terms:gamification.badge,description:website_forum.badge_q_1
 msgid "Asked a question with at least 150 views"
-msgstr "ໄດ້ຕັ້ງຄຳຖາມທີ່ມີຍອດເຂົ້າຊົມຢ່າງໜ້ອຍ 150 ຄັ້ງ"
+msgstr "ຕັ້ງຄຳຖາມທີ່ມີຜູ້ເຂົ້າເບິ່ງຢ່າງໜ້ອຍ 150 ຄັ້ງ"
 
 #. module: website_forum
 #: model_terms:gamification.badge,description:website_forum.badge_q_2
 msgid "Asked a question with at least 250 views"
-msgstr "ໄດ້ຕັ້ງຄຳຖາມທີ່ມີຍອດເຂົ້າຊົມຢ່າງໜ້ອຍ 250 ຄັ້ງ"
+msgstr "ຕັ້ງຄຳຖາມທີ່ມີຜູ້ເຂົ້າເບິ່ງຢ່າງໜ້ອຍ 250 ຄັ້ງ"
 
 #. module: website_forum
 #: model_terms:gamification.badge,description:website_forum.badge_q_3
 msgid "Asked a question with at least 500 views"
-msgstr "ໄດ້ຕັ້ງຄຳຖາມທີ່ມີຍອດເຂົ້າຊົມຢ່າງໜ້ອຍ 500 ຄັ້ງ"
+msgstr "ຕັ້ງຄຳຖາມທີ່ມີຜູ້ເຂົ້າເບິ່ງຢ່າງໜ້ອຍ 500 ຄັ້ງ"
 
 #. module: website_forum
 #: model_terms:gamification.badge,description:website_forum.badge_q_7
 msgid "Asked first question with at least one up vote"
-msgstr "ໄດ້ຕັ້ງຄຳຖາມທຳອິດທີ່ມີຄະແນນໂຫວດຂຶ້ນຢ່າງໜ້ອຍໜຶ່ງຄັ້ງ"
+msgstr "ຕັ້ງຄຳຖາມທຳອິດໂດຍໄດ້ຮັບຄະແນນບວກຢ່າງໜ້ອຍໜຶ່ງສຽງ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__create_date
@@ -1080,7 +1137,7 @@ msgstr "ຖາມເມື່ອ"
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_gen_question_new
 msgid "Asking a question"
-msgstr "ກຳລັງຕັ້ງຄຳຖາມ"
+msgstr "ການຕັ້ງຄຳຖາມ"
 
 #. module: website_forum
 #: model:ir.model,name:website_forum.model_ir_attachment
@@ -1089,8 +1146,6 @@ msgstr "ໄຟລ໌ຄັດຕິດ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__message_attachment_count
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__message_attachment_count
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__message_attachment_count
 msgid "Attachment Count"
 msgstr "ຈຳນວນໄຟລ໌ຄັດຕິດ"
 
@@ -1109,7 +1164,7 @@ msgstr "ກຸ່ມທີ່ໄດ້ຮັບອະນຸຍາດ"
 #. module: website_forum
 #: model:gamification.badge,name:website_forum.badge_p_1
 msgid "Autobiographer"
-msgstr "ນັກຂຽນຊີວະປະຫວັດ"
+msgstr "ຜູ້ຂຽນຊີວະປະຫວັດຕົນເອງ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.author_box
@@ -1118,13 +1173,13 @@ msgstr "ນັກຂຽນຊີວະປະຫວັດ"
 #: model_terms:ir.ui.view,arch_db:website_forum.post_comment
 #: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar_header
 msgid "Avatar"
-msgstr "ຮູບແທນຕົວ"
+msgstr "ຮູບໂປຣໄຟລ໌"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.edit_post
 #: model_terms:ir.ui.view,arch_db:website_forum.new_question
 msgid "Back to Question"
-msgstr "ກັບຄືນໄປຫາຄຳຖາມ"
+msgstr "ກັບໄປທີ່ຄຳຖາມ"
 
 #. module: website_forum
 #. odoo-python
@@ -1157,12 +1212,17 @@ msgstr "ພື້ນຖານ"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
 msgid "Because there are no posts in this forum yet."
-msgstr "ເນື່ອງຈາກວ່າຍັງບໍ່ມີໂພສໃດໆໃນຟໍຣຳນີ້ເທື່ອ."
+msgstr "ເນື່ອງຈາກຍັງບໍ່ມີໂພສໃດໆໃນກະດານສົນທະນານີ້ເທື່ອ."
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_display
 msgid "Best Answer"
 msgstr "ຄຳຕອບທີ່ດີທີ່ສຸດ"
+
+#. module: website_forum
+#: model:ir.model.fields,field_description:website_forum.field_forum_post_comment__body
+msgid "Body"
+msgstr "ເນື້ອຫາ"
 
 #. module: website_forum
 #. odoo-javascript
@@ -1188,7 +1248,7 @@ msgstr "ສາມາດຖາມໄດ້"
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__can_post
 msgid "Can Automatically be Validated"
-msgstr "ສາມາດຖືກຢືນຢັນໂດຍອັດຕະໂນມັດ"
+msgstr "ສາມາດກວດສອບຢືນຢັນໄດ້ໂດຍອັດຕະໂນມັດ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__can_close
@@ -1198,17 +1258,17 @@ msgstr "ສາມາດປິດໄດ້"
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__can_comment
 msgid "Can Comment"
-msgstr "ສາມາດສະແດງຄວາມຄິດເຫັນໄດ້"
+msgstr "ສາມາດອອກຄຳເຫັນໄດ້"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__can_comment_convert
 msgid "Can Convert to Comment"
-msgstr "ສາມາດປ່ຽນເປັນຄວາມຄິດເຫັນໄດ້"
+msgstr "ສາມາດປ່ຽນເປັນຄຳເຫັນໄດ້"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__can_downvote
 msgid "Can Downvote"
-msgstr "ສາມາດໂຫວດລົງໄດ້"
+msgstr "ສາມາດລົງຄະແນນລົບໄດ້"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__can_edit
@@ -1218,12 +1278,12 @@ msgstr "ສາມາດແກ້ໄຂໄດ້"
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__can_flag
 msgid "Can Flag"
-msgstr "ສາມາດໝາຍເຫດໄດ້"
+msgstr "ສາມາດໝາຍລາຍງານໄດ້"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__can_moderate
 msgid "Can Moderate"
-msgstr "ສາມາດກວດສອບໄດ້"
+msgstr "ສາມາດຄວບຄຸມກວດສອບໄດ້"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__can_unlink
@@ -1233,12 +1293,12 @@ msgstr "ສາມາດຍົກເລີກການເຊື່ອມໂຍງ
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__can_upvote
 msgid "Can Upvote"
-msgstr "ສາມາດໂຫວດຂຶ້ນໄດ້"
+msgstr "ສາມາດລົງຄະແນນບວກໄດ້"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__can_use_full_editor
 msgid "Can Use Full Editor"
-msgstr "ສາມາດໃຊ້ເຄື່ອງມືແກ້ໄຂແບບເຕັມໄດ້"
+msgstr "ສາມາດໃຊ້ເຄື່ອງມືແກ້ໄຂແບບເຕັມຮູບແບບໄດ້"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__can_view
@@ -1246,39 +1306,57 @@ msgid "Can View"
 msgstr "ສາມາດເບິ່ງໄດ້"
 
 #. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_post_comment.py:0
+msgid "Cannot change the post of a comment."
+msgstr "ບໍ່ສາມາດປ່ຽນໂພສຂອງຄຳເຫັນໄດ້."
+
+#. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_post.py:0
+msgid "Cannot convert a question to a comment"
+msgstr "ບໍ່ສາມາດປ່ຽນຄຳຖາມເປັນຄຳເຫັນໄດ້"
+
+#. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_edit_retag
 msgid "Change question tags"
 msgstr "ປ່ຽນແທັກຂອງຄຳຖາມ"
 
 #. module: website_forum
+#. odoo-javascript
+#: code:addons/website_forum/static/src/js/tours/website_forum.js:0
+msgid "Check edit button is there"
+msgstr "ກວດສອບວ່າມີປຸ່ມແກ້ໄຂຢູ່ບໍ່"
+
+#. module: website_forum
 #: model:gamification.badge,name:website_forum.badge_p_4
 #: model:gamification.challenge,name:website_forum.challenge_chief_commentator
 msgid "Chief Commentator"
-msgstr "ຫົວໜ້ານັກວິຈານ"
+msgstr "ຫົວໜ້າຜູ້ອອກຄຳເຫັນ"
 
 #. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/js/tours/website_forum.js:0
 msgid "Click here to accept this answer."
-msgstr "ຄລິກທີ່ນີ້ເພື່ອຍອມຮັບຄຳຕອບນີ້."
+msgstr "ກົດບ່ອນນີ້ເພື່ອຍອມຮັບຄຳຕອບນີ້."
 
 #. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/js/tours/website_forum.js:0
 msgid "Click to post your answer."
-msgstr "ຄລິກເພື່ອໂພສຄຳຕອບຂອງທ່ານ."
+msgstr "ກົດເພື່ອໂພສຄຳຕອບຂອງທ່ານ."
 
 #. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/js/tours/website_forum.js:0
 msgid "Click to post your question."
-msgstr "ຄລິກເພື່ອໂພສຄຳຖາມຂອງທ່ານ."
+msgstr "ກົດເພື່ອໂພສຄຳຖາມຂອງທ່ານ."
 
 #. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/js/tours/website_forum.js:0
 msgid "Click to reply."
-msgstr "ຄລິກເພື່ອຕອບ."
+msgstr "ກົດເພື່ອຕອບກັບ."
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_dropdown
@@ -1289,7 +1367,7 @@ msgstr "ປິດ"
 #. module: website_forum
 #: model:ir.ui.menu,name:website_forum.menu_forum_post_reasons
 msgid "Close Reasons"
-msgstr "ເຫດຜົນການປິດ"
+msgstr "ເຫດຜົນໃນການປິດ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_close_all
@@ -1305,6 +1383,18 @@ msgstr "ປິດໂພສຂອງຕົນເອງ"
 #: model_terms:ir.ui.view,arch_db:website_forum.mark_as_offensive
 msgid "Close post"
 msgstr "ປິດໂພສ"
+
+#. module: website_forum
+#. odoo-javascript
+#: code:addons/website_forum/static/src/js/tours/website_forum.js:0
+msgid "Close search bar"
+msgstr "ປິດແຖບຄົ້ນຫາ"
+
+#. module: website_forum
+#. odoo-javascript
+#: code:addons/website_forum/static/src/js/tours/website_forum.js:0
+msgid "Close this dialog."
+msgstr "ປິດໜ້າຕ່າງນີ້."
 
 #. module: website_forum
 #: model:ir.model.fields.selection,name:website_forum.selection__forum_post__state__close
@@ -1336,7 +1426,7 @@ msgstr "ກຳລັງປິດ"
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_reason__name
 msgid "Closing Reason"
-msgstr "ເຫດຜົນໃນການປິດ"
+msgstr "ເຫດຜົນການປິດ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_tag__color
@@ -1346,50 +1436,55 @@ msgstr "ສີ"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_display
 msgid "Comment"
-msgstr "ຄວາມຄິດເຫັນ"
+msgstr "ຄຳເຫັນ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_comment_all
 msgid "Comment all posts"
-msgstr "ສະແດງຄວາມຄິດເຫັນໃນທຸກໂພສ"
+msgstr "ອອກຄຳເຫັນທຸກໂພສ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_comment_own
 msgid "Comment own posts"
-msgstr "ສະແດງຄວາມຄິດເຫັນໃນໂພສຂອງຕົນເອງ"
+msgstr "ອອກຄຳເຫັນໂພສຂອງຕົນເອງ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_comment
 msgid "Comment this post"
-msgstr "ສະແດງຄວາມຄິດເຫັນໃນໂພສນີ້"
+msgstr "ອອກຄຳເຫັນໂພສນີ້"
 
 #. module: website_forum
 #: model:gamification.badge,name:website_forum.badge_p_2
 #: model:gamification.challenge,name:website_forum.challenge_commentator
 #: model:gamification.goal.definition,name:website_forum.definition_commentator
 msgid "Commentator"
-msgstr "ນັກວິຈານ"
+msgstr "ຜູ້ອອກຄຳເຫັນ"
+
+#. module: website_forum
+#: model:ir.model.fields,field_description:website_forum.field_forum_post__comment_ids
+msgid "Comments"
+msgstr "ຄຳເຫັນ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_all_oe_structure_forum_all_top
 msgid "Community Forums"
-msgstr "ຟໍຣຳຊຸມຊົນ"
+msgstr "ກະດານສົນທະນາຊຸມຊົນ"
 
 #. module: website_forum
 #: model:gamification.challenge,name:website_forum.challenge_configure_profile
 msgid "Complete own biography"
-msgstr "ຂຽນຊີວະປະຫວັດຂອງຕົນເອງໃຫ້ສຳເລັດ"
+msgstr "ຂຽນຊີວະປະຫວັດຂອງຕົນເອງໃຫ້ຄົບຖ້ວນ"
 
 #. module: website_forum
 #: model:gamification.goal.definition,name:website_forum.definition_configure_profile
 #: model_terms:gamification.badge,description:website_forum.badge_p_1
 msgid "Completed own biography"
-msgstr "ຂຽນຊີວະປະຫວັດຂອງຕົນເອງສຳເລັດແລ້ວ"
+msgstr "ຂຽນຊີວະປະຫວັດຂອງຕົນເອງຄົບຖ້ວນແລ້ວ"
 
 #. module: website_forum
 #: model:forum.post.reason,name:website_forum.reason_7
 msgid "Contains offensive or malicious remarks"
-msgstr "ມີການໃຊ້ຄຳເວົ້າທີ່ບໍ່ເໝາະສົມ ຫຼື ມຸ່ງຮ້າຍ"
+msgstr "ມີຂໍ້ຄວາມທີ່ບໍ່ສຸພາບ ຫຼື ມີເຈດຕະນາຮ້າຍ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__content
@@ -1398,24 +1493,29 @@ msgid "Content"
 msgstr "ເນື້ອຫາ"
 
 #. module: website_forum
+#: model:ir.model.fields,field_description:website_forum.field_forum_post__write_date_content
+msgid "Content Updated on"
+msgstr "ອັບເດດເນື້ອຫາເມື່ອ"
+
+#. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_comment_convert_all
 msgid "Convert all comments to answers"
-msgstr "ປ່ຽນທຸກຄວາມຄິດເຫັນເປັນຄຳຕອບ"
+msgstr "ປ່ຽນທຸກຄຳເຫັນເປັນຄຳຕອບ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__karma_accept
 msgid "Convert comment to answer"
-msgstr "ປ່ຽນຄວາມຄິດເຫັນເປັນຄຳຕອບ"
+msgstr "ປ່ຽນຄຳເຫັນເປັນຄຳຕອບ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_comment_convert_own
 msgid "Convert own comments to answers"
-msgstr "ປ່ຽນຄວາມຄິດເຫັນຂອງຕົນເອງເປັນຄຳຕອບ"
+msgstr "ປ່ຽນຄຳເຫັນຂອງຕົນເອງເປັນຄຳຕອບ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_dropdown
 msgid "Convert to Comment"
-msgstr "ປ່ຽນເປັນຄວາມຄິດເຫັນ"
+msgstr "ປ່ຽນເປັນຄຳເຫັນ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_comment
@@ -1430,7 +1530,7 @@ msgstr "ຖືກຕ້ອງ"
 #. module: website_forum
 #: model:ir.model.fields,help:website_forum.field_forum_post__is_correct
 msgid "Correct answer or answer accepted"
-msgstr "ຄຳຕອບທີ່ຖືກຕ້ອງ ຫຼື ຄຳຕອບທີ່ຖືກຍອມຮັບ"
+msgstr "ຄຳຕອບທີ່ຖືກຕ້ອງ ຫຼື ຄຳຕອບຖືກຍອມຮັບແລ້ວ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_vote__create_date
@@ -1441,13 +1541,13 @@ msgstr "ວັນທີສ້າງ"
 #. module: website_forum
 #: model_terms:ir.actions.act_window,help:website_forum.forum_post_action
 msgid "Create a new forum post"
-msgstr "ສ້າງໂພສຟໍຣຳໃໝ່"
+msgstr "ສ້າງໂພສໃໝ່ໃນກະດານສົນທະນາ"
 
 #. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/js/tours/website_forum.js:0
 msgid "Create a new post in this forum by clicking on the button."
-msgstr "ສ້າງໂພສໃໝ່ໃນຟໍຣຳນີ້ໂດຍການຄລິກທີ່ປຸ່ມ."
+msgstr "ສ້າງໂພສໃໝ່ໃນກະດານສົນທະນານີ້ໂດຍການກົດປຸ່ມ."
 
 #. module: website_forum
 #: model_terms:ir.actions.act_window,help:website_forum.forum_tag_action
@@ -1460,7 +1560,7 @@ msgid ""
 "Create an account today to enjoy exclusive features and engage with our "
 "awesome community!"
 msgstr ""
-"ສ້າງບັນຊີມື້ນີ້ເພື່ອເພີດເພີນກັບຟີເຈີພິເສດ ແລະ ມີສ່ວນຮ່ວມກັບຊຸມຊົນທີ່ຍອດຢ້ຽມຂອງພວກເຮົາ!"
+"ສ້າງບັນຊີມື້ນີ້ເພື່ອເພີດເພີນກັບຄຸນສົມບັດພິເສດ ແລະ ຮ່ວມມີສ່ວນຮ່ວມກັບຊຸມຊົນອັນຍອດຢ້ຽມຂອງພວກເຮົາ!"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_tag_create
@@ -1476,11 +1576,12 @@ msgstr "ສ້າງຕົວເລືອກ \""
 #. module: website_forum
 #: model_terms:gamification.badge,description:website_forum.badge_32
 msgid "Created a tag used by 15 questions"
-msgstr "ໄດ້ສ້າງແທັກທີ່ຖືກໃຊ້ໂດຍ 15 ຄຳຖາມ"
+msgstr "ສ້າງແທັກທີ່ຖືກໃຊ້ໂດຍ 15 ຄຳຖາມ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__create_uid
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__create_uid
+#: model:ir.model.fields,field_description:website_forum.field_forum_post_comment__create_uid
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_reason__create_uid
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_vote__create_uid
 #: model:ir.model.fields,field_description:website_forum.field_forum_tag__create_uid
@@ -1489,6 +1590,7 @@ msgstr "ສ້າງໂດຍ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__create_date
+#: model:ir.model.fields,field_description:website_forum.field_forum_post_comment__create_date
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_reason__create_date
 #: model:ir.model.fields,field_description:website_forum.field_forum_tag__create_date
 #: model_terms:ir.ui.view,arch_db:website_forum.display_post
@@ -1511,12 +1613,6 @@ msgstr "ນັກວິຈານ"
 #. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/website_builder/forum_searchbar_option_plugin.js:0
-msgid "Date"
-msgstr "ວັນທີ"
-
-#. module: website_forum
-#. odoo-javascript
-#: code:addons/website_forum/static/src/website_builder/forum_searchbar_option_plugin.js:0
 msgid "Date (new to old)"
 msgstr "ວັນທີ (ໃໝ່ຫາເກົ່າ)"
 
@@ -1534,12 +1630,12 @@ msgstr "ຄ່າເລີ່ມຕົ້ນ"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_forum_view_form
 msgid "Default Sort"
-msgstr "ການຈັດລຽງເລີ່ມຕົ້ນ"
+msgstr "ການຈັດຮຽງເລີ່ມຕົ້ນ"
 
 #. module: website_forum
 #: model:ir.model.fields,help:website_forum.field_gamification_challenge__challenge_category
 msgid "Define the visibility of the challenge through menus"
-msgstr "ກຳນົດການເບິ່ງເຫັນຂອງສິ່ງທ້າທາຍຜ່ານເມນູ"
+msgstr "ກຳນົດການເບິ່ງເຫັນຂອງການທ້າທາຍຜ່ານເມນູ"
 
 #. module: website_forum
 #. odoo-javascript
@@ -1553,7 +1649,7 @@ msgstr "ລຶບ"
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_comment_unlink_all
 msgid "Delete all comments"
-msgstr "ລຶບທຸກຄວາມຄິດເຫັນ"
+msgstr "ລຶບທຸກຄຳເຫັນ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_unlink_all
@@ -1563,7 +1659,7 @@ msgstr "ລຶບທຸກໂພສ"
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_comment_unlink_own
 msgid "Delete own comments"
-msgstr "ລຶບຄວາມຄິດເຫັນຂອງຕົນເອງ"
+msgstr "ລຶບຄຳເຫັນຂອງຕົນເອງ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_unlink_own
@@ -1574,7 +1670,7 @@ msgstr "ລຶບໂພສຂອງຕົນເອງ"
 #. odoo-python
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "Delete the accepted answer"
-msgstr "ລຶບຄຳຕອບທີ່ຖືກຍອມຮັບແລ້ວ"
+msgstr "ລຶບຄຳຕອບທີ່ຖືກຍອມຮັບ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_model_nav
@@ -1584,16 +1680,14 @@ msgstr "ລຶບແລ້ວ"
 #. module: website_forum
 #: model_terms:gamification.badge,description:website_forum.badge_23
 msgid "Deleted own post with 3 or more downvotes"
-msgstr "ລຶບໂພສຂອງຕົນເອງທີ່ມີຄະແນນໂຫວດລົງ 3 ຂຶ້ນໄປ"
+msgstr "ລຶບໂພສຂອງຕົນເອງທີ່ມີຄະແນນລົບ 3 ສຽງຂຶ້ນໄປ"
 
 #. module: website_forum
 #: model_terms:gamification.badge,description:website_forum.badge_6
 msgid "Deleted own post with 3 or more upvotes"
-msgstr "ລຶບໂພສຂອງຕົນເອງທີ່ມີຄະແນນໂຫວດຂຶ້ນ 3 ຂຶ້ນໄປ"
+msgstr "ລຶບໂພສຂອງຕົນເອງທີ່ມີຄະແນນບວກ 3 ສຽງຂຶ້ນໄປ"
 
 #. module: website_forum
-#. odoo-javascript
-#: code:addons/website_forum/static/src/website_builder/forum_searchbar_option_plugin.js:0
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__description
 #: model_terms:ir.ui.view,arch_db:website_forum.edit_post
 #: model_terms:ir.ui.view,arch_db:website_forum.new_question
@@ -1603,7 +1697,7 @@ msgstr "ຄຳອະທິບາຍ"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_forum_view_form
 msgid "Description visible on website"
-msgstr "ຄຳອະທິບາຍທີ່ສະແດງໃນເວັບໄຊ"
+msgstr "ຄຳອະທິບາຍທີ່ສະແດງເທິງເວັບໄຊ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.edit_post
@@ -1624,14 +1718,14 @@ msgstr "ມີລະບຽບວິໄນ"
 #. module: website_forum
 #: model:ir.model.fields.selection,name:website_forum.selection__forum_forum__mode__discussions
 msgid "Discussions (multiple answers)"
-msgstr "ການສົນທະນາ (ຕອບໄດ້ຫຼາຍຄັ້ງ)"
+msgstr "ການສົນທະນາ (ຫຼາຍຄຳຕອບ)"
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/forum_forum.py:0
 #: model_terms:forum.forum,welcome_message:website_forum.forum_help
 msgid "Dismiss"
-msgstr "ປິດໄວ້"
+msgstr "ປິດແຈ້ງເຕືອນ"
 
 #. module: website_forum
 #: model_terms:forum.forum,welcome_message:website_forum.forum_help
@@ -1641,38 +1735,46 @@ msgstr "ປິດຂໍ້ຄວາມ"
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__display_name
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__display_name
+#: model:ir.model.fields,field_description:website_forum.field_forum_post_comment__display_name
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_reason__display_name
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_vote__display_name
 #: model:ir.model.fields,field_description:website_forum.field_forum_tag__display_name
 #: model:ir.model.fields,field_description:website_forum.field_gamification_challenge__display_name
 #: model:ir.model.fields,field_description:website_forum.field_gamification_karma_tracking__display_name
 #: model:ir.model.fields,field_description:website_forum.field_ir_attachment__display_name
+#: model:ir.model.fields,field_description:website_forum.field_ir_http__display_name
+#: model:ir.model.fields,field_description:website_forum.field_mail_thread__display_name
 #: model:ir.model.fields,field_description:website_forum.field_res_users__display_name
 #: model:ir.model.fields,field_description:website_forum.field_website__display_name
 msgid "Display Name"
-msgstr "ຊື່ທີ່ສະແດງ"
+msgstr "ຊື່ສະແດງ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_user_bio
 msgid "Display detailed user biography"
-msgstr "ສະແດງຊີວະປະຫວັດຜູ້ໃຊ້ແບບລະອຽດ"
+msgstr "ສະແດງຊີວະປະຫວັດແບບລະອຽດຂອງຜູ້ໃຊ້"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_downvote
 #: model_terms:ir.ui.view,arch_db:website_forum.vote
 msgid "Downvote"
-msgstr "ໂໂຫວດລົງ"
+msgstr "ລົງຄະແນນລົບ"
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "Downvote for posting offensive contents"
-msgstr "ໂຫວດລົງ ເນື່ອງຈາກໂພສເນື້ອຫາທີ່ບໍ່ເໝາະສົມ"
+msgstr "ລົງຄະແນນລົບເນື່ອງຈາກໂພສເນື້ອຫາທີ່ບໍ່ເໝາະສົມ"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.header
+msgid "Drag blocks here to add them on all forum"
+msgstr "ລາກບລັອກມາວາງບ່ອນນີ້ເພື່ອເພີ່ມໃສ່ທຸກກະດານສົນທະນາ"
 
 #. module: website_forum
 #: model:forum.post.reason,name:website_forum.reason_1
 msgid "Duplicate post"
-msgstr "ໂໂພສຊ້ຳຊ້ອນ"
+msgstr "ໂພສຊ້ຳຊ້ອນ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_dropdown
@@ -1724,34 +1826,39 @@ msgstr "ຜູ້ແກ້ໄຂ"
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_editor
 msgid "Editor Features: image and links"
-msgstr "ຟີເຈີຂອງຜູ້ແກ້ໄຂ: ຮູບພາບ ແລະ ລິ້ງ"
+msgstr "ຄຸນສົມບັດຂອງຕົວແກ້ໄຂ: ຮູບພາບ ແລະ ລິ້ງ"
+
+#. module: website_forum
+#: model:ir.model,name:website_forum.model_mail_thread
+msgid "Email Thread"
+msgstr "ສາຍການສົນທະນາອີເມວ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
 msgid "Empty box"
-msgstr "ກ່ອງຫວ່າງເປົ່າ"
+msgstr "ກ່ອງວ່າງເປົ່າ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_sign_up_cta
 msgid "Enjoying the discussion? Don't just read, join in!"
-msgstr "ມ່ວນກັບການສົນທະນາຢູ່ບໍ່? ຢ່າອ່ານລ້າໆ, ເຂົ້າມາມີສ່ວນຮ່ວມນຳກັນເລີຍ!"
+msgstr "ເພີດເພີນກັບການສົນທະນາຢູ່ບໍ່? ຢ່າພຽງແຕ່ອ່ານ, ເຂົ້າມາຮ່ວມນຳກັນເລີຍ!"
 
 #. module: website_forum
 #: model:gamification.badge,name:website_forum.badge_a_5
 #: model:gamification.challenge,name:website_forum.challenge_enlightened
 #: model:gamification.goal.definition,name:website_forum.definition_enlightened
 msgid "Enlightened"
-msgstr "ຜູ້ຮູ້ແຈ້ງ"
+msgstr "ຕາສະຫວ່າງ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.edit_post
 #: model_terms:ir.ui.view,arch_db:website_forum.new_question
 msgid ""
 "Example\n"
-"                            <i class=\"fa fa-question-circle\"/>"
+"                            <i class=\"oi\" data-icon=\"help\"/>"
 msgstr ""
 "ຕົວຢ່າງ\n"
-"                            <i class=\"fa fa-question-circle\"/>"
+"                            <i class=\"oi\" data-icon=\"help\"/>"
 
 #. module: website_forum
 #. odoo-javascript
@@ -1764,7 +1871,7 @@ msgstr "Facebook"
 #: model:gamification.badge,name:website_forum.badge_q_3
 #: model:gamification.challenge,name:website_forum.challenge_famous_question
 msgid "Famous Question"
-msgstr "ຄຳຖາມທີ່ມີຊື່ສຽງ"
+msgstr "ຄຳຖາມຍອດນິຍົມ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__favourite_count
@@ -1781,7 +1888,7 @@ msgstr "ຄຳຖາມທີ່ມັກ"
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__favourite_ids
 msgid "Favourite"
-msgstr "ມັກ"
+msgstr "ລາຍການທີ່ມັກ"
 
 #. module: website_forum
 #: model:gamification.goal.definition,name:website_forum.definition_favorite_question_1
@@ -1814,23 +1921,23 @@ msgid ""
 "Field to keep track of a post's last activity. Updated whenever it is "
 "replied to, or when a comment is added on the post or one of its replies."
 msgstr ""
-"ຊ່ອງຂໍ້ມູນເພື່ອຕິດຕາມການເຄື່ອນໄຫວຫຼ້າສຸດຂອງໂພສ. ຈະອັບເດດທຸກຄັ້ງທີ່ມີການຕອບກັບ, ຫຼື ເມື່ອມີການເພີ່ມຄວາມຄິດ"
-"ເຫັນໃສ່ໂພສ ຫຼື ຄຳຕອບນັ້ນໆ."
+"ຊ່ອງຂໍ້ມູນສຳລັບຕິດຕາມກິດຈະກຳລ່າສຸດຂອງໂພສ. ຈະອັບເດດທຸກຄັ້ງທີ່ມີການຕອບກັບ ຫຼື ມີການເພີ່ມຄຳເຫັນໃສ່ໂພສ ຫຼື "
+"ຄຳຕອບ."
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
 msgid "Filter by:"
-msgstr "ກັ່ນຕອງໂດຍ:"
+msgstr "ກັ່ນຕອງຕາມ:"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__relevancy_post_vote
 msgid "First Relevance Parameter"
-msgstr "ພາຣາມິເຕີຄວາມກ່ຽວຂ້ອງທຳອິດ"
+msgstr "ພາລາມິເຕີຄວາມກ່ຽວຂ້ອງອັນທຳອິດ"
 
 #. module: website_forum
 #: model_terms:gamification.badge,description:website_forum.badge_5
 msgid "First downvote"
-msgstr "ໂໂຫວດລົງຄັ້ງທຳອິດ"
+msgstr "ລົງຄະແນນລົບຄັ້ງທຳອິດ"
 
 #. module: website_forum
 #: model_terms:gamification.badge,description:website_forum.badge_7
@@ -1840,59 +1947,57 @@ msgstr "ແກ້ໄຂຄັ້ງທຳອິດ"
 #. module: website_forum
 #: model_terms:gamification.badge,description:website_forum.badge_31
 msgid "First upvote"
-msgstr "ໂໂຫວດຂຶ້ນຄັ້ງທຳອິດ"
+msgstr "ລົງຄະແນນບວກຄັ້ງທຳອິດ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_dropdown
 msgid "Flag"
-msgstr "ໝາຍເຫດ"
+msgstr "ໝາຍລາຍງານ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_flag
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__karma_flag
 msgid "Flag a post as offensive"
-msgstr "ໝາຍເຫດໂພສວ່າບໍ່ເໝາະສົມ"
+msgstr "ໝາຍລາຍງານໂພສວ່າບໍ່ເໝາະສົມ"
 
 #. module: website_forum
 #: model:ir.model.fields.selection,name:website_forum.selection__forum_post__state__flagged
 #: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
 #: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar_body
 msgid "Flagged"
-msgstr "ຖືກໝາຍເຫດ"
+msgstr "ຖືກໝາຍລາຍງານແລ້ວ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__flag_user_id
 msgid "Flagged by"
-msgstr "ໝາຍເຫດໂດຍ"
+msgstr "ຖືກໝາຍລາຍງານໂດຍ"
 
 #. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.follow
+#: model_terms:ir.ui.view,arch_db:website_forum.follow_button
 msgid "Follow"
 msgstr "ຕິດຕາມ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.user_profile_content
 msgid "Followed Questions"
-msgstr "ຄຳຖາມທີ່ຕິດຕາມຢູ່"
+msgstr "ຄຳຖາມທີ່ຕິດຕາມ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_model_nav
 msgid "Followed Tags"
-msgstr "ແທັກທີ່ຕິດຕາມຢູ່"
+msgstr "ແທັກທີ່ຕິດຕາມ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__message_follower_ids
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__message_follower_ids
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__message_follower_ids
+#: model:ir.model.fields,field_description:website_forum.field_forum_post__follower_ids
+#: model:ir.model.fields,field_description:website_forum.field_forum_tag__follower_ids
 msgid "Followers"
 msgstr "ຜູ້ຕິດຕາມ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__message_partner_ids
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__message_partner_ids
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__message_partner_ids
 msgid "Followers (Partners)"
-msgstr "ຜູ້ຕິດຕາມ (ຄູ່ຄ້າ)"
+msgstr "ຜູ້ຕິດຕາມ (ຄູ່ຮ່ວມງານ)"
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
@@ -1905,21 +2010,23 @@ msgid ""
 "accumulated for a question or answer per day. The table given at the end "
 "explains reputation point requirements for each type of moderation task."
 msgstr ""
-"ຕົວຢ່າງ: ຖ້າທ່ານຕັ້ງຄຳຖາມທີ່ໜ້າສົນໃຈ ຫຼື ໃຫ້ຄຳຕອບທີ່ເປັນປະໂຫຍດ, ທ່ານຈະໄດ້ຮັບຄະແນນໂຫວດຂຶ້ນ. ໃນທາງກົງ"
-"ກັນຂ້າມ, ຖ້າຄຳຕອບເຮັດໃຫ້ເຂົ້າໃຈຜິດ, ທ່ານຈະຖືກໂຫວດລົງ. ແຕ່ລະຄະແນນໂຫວດຂຶ້ນຈະໄດ້ 10 ຄະແນນ, ແລະ "
-"ແຕ່ລະຄະແນນໂຫວດລົງຈະຖືກລົບ 2 ຄະແນນ. ທ່ານສາມາດສະສົມຄະແນນໄດ້ສູງສຸດ 200 ຄະແນນຕໍ່ຄຳຖາມ ຫຼື ຄຳຕອ"
-"ບໃນແຕ່ລະມື້. ຕາຕະລາງໃນຕອນທ້າຍຈະອະທິບາຍເຖິງຂໍ້ກຳນົດຄະແນນຊື່ສຽງ (karma) ສຳລັບວຽກງານການກວດສອ"
-"ບແຕ່ລະປະເພດ."
+"ຕົວຢ່າງ: ຖ້າທ່ານຕັ້ງຄຳຖາມທີ່ໜ້າສົນໃຈ ຫຼື ໃຫ້ຄຳຕອບທີ່ເປັນປະໂຫຍດ, ໂພສຂອງທ່ານຈະໄດ້ຮັບຄະແນນບວກ. ໃນທາ"
+"ງກົງກັນຂ້າມ ຖ້າຄຳຕອບເຮັດໃຫ້ເຂົ້າໃຈຜິດ - ກໍຈະຖືກລົງຄະແນນລົບ. ແຕ່ລະຄະແນນເຫັນດີຈະໄດ້ 10 ຄະແນນ, ແຕ່"
+"ລະຄະແນນຄັດຄ້ານຈະຖືກຫັກ 2 ຄະແນນ. ສາມາດສະສົມຄະແນນສຳລັບຄຳຖາມ ຫຼື ຄຳຕອບໄດ້ສູງສຸດ 200 ຄະແນນຕໍ່"
+"ມື້. ຕາຕະລາງຢູ່ສ່ວນທ້າຍຈະອະທິບາຍກ່ຽວກັບຄະແນນຊື່ສຽງທີ່ຈຳເປັນສຳລັບໜ້າທີ່ການຄວບຄຸມກວດສອບແຕ່ລະປະເພດ."
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/controllers/website_forum.py:0
+#: code:addons/website_forum/models/forum_forum.py:0
 #: code:addons/website_forum/models/website.py:0
 #: model:ir.actions.act_url,name:website_forum.action_open_forum
 #: model:ir.model,name:website_forum.model_forum_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__forum_id
+#: model:ir.model.fields,field_description:website_forum.field_forum_post_comment__forum_id
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_vote__forum_id
 #: model:ir.model.fields,field_description:website_forum.field_forum_tag__forum_id
+#: model:ir.module.module,shortdesc:base.module_website_forum
 #: model:ir.ui.menu,name:website_forum.menu_website_forum_global
 #: model:website.menu,name:website_forum.menu_website_forums
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_forum_view_form
@@ -1927,77 +2034,88 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_search
 #: model_terms:ir.ui.view,arch_db:website_forum.gamification_karma_tracking_view_search
 msgid "Forum"
-msgstr "ຟໍຣຳ"
+msgstr "ກະດານສົນທະນາ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_website__forum_count
 msgid "Forum Count"
-msgstr "ຈຳນວນຟໍຣຳ"
+msgstr "ຈຳນວນກະດານສົນທະນາ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_forum_view_form_add
 msgid "Forum Mode"
-msgstr "ໂໝດຟໍຣຳ"
+msgstr "ໂໝດກະດານສົນທະນາ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__name
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_forum_view_form_add
 msgid "Forum Name"
-msgstr "ຊື່ຟໍຣຳ"
+msgstr "ຊື່ກະດານສົນທະນາ"
 
 #. module: website_forum
 #. odoo-javascript
-#: code:addons/website_forum/static/src/website_builder/forum_page_option_plugin.js:0
+#: code:addons/website_forum/static/src/website_builder/forum_page_option.xml:0
 msgid "Forum Page"
-msgstr "ໜ້າຟໍຣຳ"
+msgstr "ໜ້າກະດານສົນທະນາ"
 
 #. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_post.py:0
 #: model:ir.model,name:website_forum.model_forum_post
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_form
 msgid "Forum Post"
-msgstr "ໂພສຟໍຣຳ"
+msgstr "ໂພສກະດານສົນທະນາ"
+
+#. module: website_forum
+#: model:ir.model,name:website_forum.model_forum_post_comment
+msgid "Forum Post Comment"
+msgstr "ຄຳເຫັນໂພສກະດານສົນທະນາ"
 
 #. module: website_forum
 #: model:ir.actions.act_window,name:website_forum.forum_post_action
 msgid "Forum Post Pages"
-msgstr "ໜ້າໂພສຟໍຣຳ"
+msgstr "ໜ້າໂພສກະດານສົນທະນາ"
 
 #. module: website_forum
 #: model:ir.ui.menu,name:website_forum.menu_forum_post_pages
 msgid "Forum Posts"
-msgstr "ໂພສຟໍຣຳ"
+msgstr "ໂພສກະດານສົນທະນາ"
 
 #. module: website_forum
 #: model:ir.model,name:website_forum.model_forum_tag
 msgid "Forum Tag"
-msgstr "ແທັກຟໍຣຳ"
+msgstr "ແທັກກະດານສົນທະນາ"
 
 #. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_tag.py:0
 #: model:ir.actions.act_window,name:website_forum.forum_tag_action
 msgid "Forum Tags"
-msgstr "ແທັກຟໍຣຳ"
+msgstr "ແທັກກະດານສົນທະນາ"
 
 #. module: website_forum
-#. odoo-javascript
-#: code:addons/website_forum/static/src/website_builder/forum_searchbar_option.xml:0
+#. odoo-python
+#: code:addons/website_forum/models/forum_forum.py:0
+#: code:addons/website_forum/models/forum_post.py:0
+#: code:addons/website_forum/models/website.py:0
 #: model:ir.actions.act_window,name:website_forum.forum_forum_action
 #: model:ir.ui.menu,name:website_forum.menu_forum_global
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_forum_view_tree
 msgid "Forums"
-msgstr "ຟໍຣຳ"
+msgstr "ກະດານສົນທະນາ"
 
 #. module: website_forum
 #: model:ir.model,name:website_forum.model_gamification_challenge
 msgid "Gamification Challenge"
-msgstr "ສິ່ງທ້າທາຍໃນຮູບແບບເກມ"
+msgstr "ການທ້າທາຍຮູບແບບເກມ"
 
 #. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.follow
+#: model_terms:ir.ui.view,arch_db:website_forum.follow_button
 msgid "Get notified when there's activity on this post"
 msgstr "ຮັບການແຈ້ງເຕືອນເມື່ອມີການເຄື່ອນໄຫວໃນໂພສນີ້"
 
 #. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.follow
+#: model_terms:ir.ui.view,arch_db:website_forum.follow_button
 msgid "Get notified when this tag is used"
 msgstr "ຮັບການແຈ້ງເຕືອນເມື່ອມີການໃຊ້ແທັກນີ້"
 
@@ -2005,17 +2123,17 @@ msgstr "ຮັບການແຈ້ງເຕືອນເມື່ອມີກາ
 #. odoo-javascript
 #: code:addons/website_forum/static/src/js/tours/website_forum.js:0
 msgid "Give your post title."
-msgstr "ໃສ່ຫົວຂໍ້ໃຫ້ໂພສຂອງທ່ານ."
+msgstr "ໃສ່ຫົວຂໍ້ໂພສຂອງທ່ານ."
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
 msgid "Go back to the list of"
-msgstr "ກັບຄືນໄປຫາລາຍການຂອງ"
+msgstr "ກັບໄປທີ່ລາຍການຂອງ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
 msgid "Go enjoy a cup of coffee."
-msgstr "ໄປດື່ມກາເຟໃຫ້ສະບາຍໃຈກ່ອນ."
+msgstr "ໄປດື່ມກາເຟໃຫ້ສະບາຍໃຈໄດ້ເລີຍ."
 
 #. module: website_forum
 #: model:gamification.badge,name:website_forum.badge_a_3
@@ -2066,35 +2184,43 @@ msgstr "ຕາຕະລາງ"
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__faq
 #: model_terms:ir.ui.view,arch_db:website_forum.faq
 msgid "Guidelines"
-msgstr "ຄຳແນະນຳ"
+msgstr "ຂໍ້ແນະນຳ"
 
 #. module: website_forum
 #: model:gamification.badge,name:website_forum.badge_a_6
 #: model:gamification.challenge,name:website_forum.challenge_guru
 msgid "Guru"
-msgstr "ກູຣູ"
+msgstr "ຜູ້ຊ່ຽວຊານ"
 
 #. module: website_forum
 #: model:gamification.goal.definition,name:website_forum.definition_guru
 msgid "Guru (15)"
-msgstr "ກູຣູ (15)"
+msgstr "ຜູ້ຊ່ຽວຊານ (15)"
+
+#. module: website_forum
+#: model:ir.model,name:website_forum.model_ir_http
+msgid "HTTP Routing"
+msgstr "HTTP Routing"
+
+#. module: website_forum
+#: model:ir.model.fields,field_description:website_forum.field_forum_forum__can_access
+msgid "Has Access"
+msgstr "ມີສິດເຂົ້າເຖິງ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__uid_has_answered
 msgid "Has Answered"
-msgstr "ຕອບແລ້ວ"
+msgstr "ໄດ້ຕອບແລ້ວ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__has_message
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__has_message
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__has_message
 msgid "Has Message"
 msgstr "ມີຂໍ້ຄວາມ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__has_pending_post
 msgid "Has pending post"
-msgstr "ມີໂພສທີ່ພວມລໍຖ້າການກວດສອບ"
+msgstr "ມີໂພສທີ່ລໍຖ້າການອະນຸມັດ"
 
 #. module: website_forum
 #: model:forum.forum,name:website_forum.forum_help
@@ -2104,57 +2230,54 @@ msgstr "ຊ່ວຍເຫຼືອ"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.user_votes
 msgid "Help moderating the forums by upvoting and downvoting posts. <br/>"
-msgstr "ຊ່ວຍກວດສອບຟໍຣຳໂດຍການໂຫວດຂຶ້ນ ຫຼື ໂຫວດລົງໂພສຕ່າງໆ. <br/>"
+msgstr "ຊ່ວຍດູແລເວທີສົນທະນາໂດຍການກົດໂຫວດເຫັນດີ ແລະ ບໍ່ເຫັນດີໃຫ້ກັບໂພສ. <br/>"
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
 #: model_terms:ir.ui.view,arch_db:website_forum.default_faq
 msgid "Here a table with the privileges and the karma level"
-msgstr "ນີ້ຄືຕາຕະລາງສະແດງສິດທິພິເສດ ແລະ ລະດັບຄະແນນຊື່ສຽງ (karma)"
+msgstr "ນີ້ແມ່ນຕາຕະລາງສິດທິພິເສດ ແລະ ລະດັບຄະແນນ Karma"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__id
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__id
+#: model:ir.model.fields,field_description:website_forum.field_forum_post_comment__id
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_reason__id
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_vote__id
 #: model:ir.model.fields,field_description:website_forum.field_forum_tag__id
 #: model:ir.model.fields,field_description:website_forum.field_gamification_challenge__id
 #: model:ir.model.fields,field_description:website_forum.field_gamification_karma_tracking__id
 #: model:ir.model.fields,field_description:website_forum.field_ir_attachment__id
+#: model:ir.model.fields,field_description:website_forum.field_ir_http__id
+#: model:ir.model.fields,field_description:website_forum.field_mail_thread__id
 #: model:ir.model.fields,field_description:website_forum.field_res_users__id
 #: model:ir.model.fields,field_description:website_forum.field_website__id
 msgid "ID"
-msgstr "ID"
+msgstr "ລະຫັດປະຈຳຕົວ"
 
 #. module: website_forum
 #: model:ir.model.fields,help:website_forum.field_forum_forum__message_needaction
-#: model:ir.model.fields,help:website_forum.field_forum_post__message_needaction
-#: model:ir.model.fields,help:website_forum.field_forum_tag__message_needaction
 msgid "If checked, new messages require your attention."
 msgstr "ຖ້າໝາຍຕິກ, ຂໍ້ຄວາມໃໝ່ຈະຕ້ອງການຄວາມສົນໃຈຈາກທ່ານ."
 
 #. module: website_forum
 #: model:ir.model.fields,help:website_forum.field_forum_forum__message_has_error
 #: model:ir.model.fields,help:website_forum.field_forum_forum__message_has_sms_error
-#: model:ir.model.fields,help:website_forum.field_forum_post__message_has_error
-#: model:ir.model.fields,help:website_forum.field_forum_post__message_has_sms_error
-#: model:ir.model.fields,help:website_forum.field_forum_tag__message_has_error
-#: model:ir.model.fields,help:website_forum.field_forum_tag__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
-msgstr "ຖ້າໝາຍຕິກ, ບາງຂໍ້ຄວາມອາດມີຂໍ້ຜິດພາດໃນການສົ່ງ."
+msgstr "ຖ້າໝາຍຕິກ, ບາງຂໍ້ຄວາມເກີດຂໍ້ຜິດພາດໃນການສົ່ງ."
 
 #. module: website_forum
 #: model:ir.model.fields,help:website_forum.field_forum_forum__karma_dofollow
 msgid ""
 "If the author has not enough karma, a nofollow attribute is added to links"
-msgstr "ຖ້າຜູ້ຂຽນມີຄະແນນຊື່ສຽງບໍ່ພຽງພໍ, ຄຸນລັກສະນະ nofollow ຈະຖືກເພີ່ມໃສ່ລິ້ງ"
+msgstr "ຖ້າຜູ້ຂຽນມີຄະແນນ Karma ບໍ່ພໍ, ຄຸນລັກສະນະ nofollow ຈະຖືກເພີ່ມໃສ່ລິ້ງຄ໌"
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
 #: model_terms:ir.ui.view,arch_db:website_forum.default_faq
 #: model_terms:ir.ui.view,arch_db:website_forum.faq_karma
 msgid "If this approach is not for you, please respect the community."
-msgstr "ຖ້າວິທີການນີ້ບໍ່ເໝາະກັບທ່ານ, ກະລຸນາໃຫ້ກຽດຊຸມຊົນດ້ວຍ."
+msgstr "ຖ້າວິທີການນີ້ບໍ່ເໝາະກັບທ່ານ, ກະລຸນາເຄົາລົບຊຸມຊົນດ້ວຍ."
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.mark_as_offensive
@@ -2163,23 +2286,23 @@ msgid ""
 "            users having a high karma can see closed posts to moderate\n"
 "            them."
 msgstr ""
-"ຖ້າທ່ານປິດໂພສນີ້, ມັນຈະຖືກເຊື່ອງໄວ້ຈາກຜູ້ໃຊ້ສ່ວນໃຫຍ່. ມີພຽງ\n"
-"            ຜູ້ໃຊ້ທີ່ມີຄະແນນຊື່ສຽງສູງເທົ່ານັ້ນທີ່ສາມາດເຫັນໂພສທີ່ປິດແລ້ວ ເພື່ອກວດສອບ\n"
-"            ພວກມັນໄດ້."
+"ຖ້າທ່ານປິດໂພສນີ້, ມັນຈະຖືກເຊື່ອງຈາກຜູ້ໃຊ້ສ່ວນໃຫຍ່. ມີພຽງແຕ່\n"
+"            ຜູ້ໃຊ້ທີ່ມີຄະແນນ Karma ສູງເທົ່ານັ້ນທີ່ຈະເຫັນໂພສທີ່ປິດແລ້ວເພື່ອດູແລ\n"
+"            ຈັດການ."
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
 #: model_terms:ir.ui.view,arch_db:website_forum.default_faq
 msgid ""
 "If you fit in one of these example or if your motivation for asking the "
-"question is “I would like to participate in a discussion about ______”, then"
-" you should not be asking here but on our mailing lists. However, if your "
+"question is “I would like to participate in a discussion about ______”, then "
+"you should not be asking here but on our mailing lists. However, if your "
 "motivation is “I would like others to explain ______ to me”, then you are "
 "probably OK."
 msgstr ""
-"ຖ້າທ່ານກົງກັບຕົວຢ່າງເຫຼົ່ານີ້ ຫຼື ຖ້າເຫດຜົນໃນການຖາມແມ່ນ “ຂ້ອຍຢາກມີສ່ວນຮ່ວມໃນການສົນທະນາກ່ຽວກັບ "
-"______”, ທ່ານບໍ່ຄວນຖາມຢູ່ທີ່ນີ້ ແຕ່ຄວນໄປຖາມໃນລາຍການສົ່ງອີເມວ (mailing lists) ຂອງພວກເຮົາແທ"
-"ນ. ແຕ່ຖ້າເຫດຜົນຂອງທ່ານແມ່ນ “ຂ້ອຍຢາກໃຫ້ຄົນອື່ນອະທິບາຍ ______ ໃຫ້ຂ້ອຍຟັງ”, ທ່ານສາມາດຖາມຢູ່ທີ່ນີ້ໄດ້."
+"ຖ້າທ່ານຕົກຢູ່ໃນຕົວຢ່າງເຫຼົ່ານີ້ ຫຼື ຈຸດປະສົງໃນການຖາມແມ່ນ “ຂ້ອຍຢາກມີສ່ວນຮ່ວມໃນການສົນທະນາກ່ຽວກັບ "
+"______”, ທ່ານກໍບໍ່ຄວນຖາມຢູ່ນີ້ ແຕ່ຄວນໄປຖາມໃນລາຍຊື່ຜູ້ຮັບອີເມວຂອງພວກເຮົາ. ແຕ່ຖ້າຈຸດປະສົງຂອງທ່ານແມ່ນ "
+"“ຂ້ອຍຢາກໃຫ້ຄົນອື່ນອະທິບາຍ ______ ໃຫ້ຂ້ອຍຟັງ”, ນັ້ນຖືວ່າເໝາະສົມແລ້ວ."
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.mark_as_offensive
@@ -2188,9 +2311,9 @@ msgid ""
 "            users having a high karma can see offensive posts to moderate\n"
 "            them."
 msgstr ""
-"ຖ້າທ່ານໝາຍໂພສນີ້ວ່າບໍ່ເໝາະສົມ, ມັນຈະຖືກເຊື່ອງໄວ້ຈາກຜູ້ໃຊ້ສ່ວນໃຫຍ່. ມີພຽງ\n"
-"            ຜູ້ໃຊ້ທີ່ມີຄະແນນຊື່ສຽງສູງເທົ່ານັ້ນທີ່ສາມາດເຫັນໂພສທີ່ບໍ່ເໝາະສົມ ເພື່ອກວດສອບ\n"
-"            ພວກມັນໄດ້."
+"ຖ້າທ່ານໝາຍວ່າໂພສນີ້ບໍ່ເໝາະສົມ, ມັນຈະຖືກເຊື່ອງຈາກຜູ້ໃຊ້ສ່ວນໃຫຍ່. ມີພຽງແຕ່\n"
+"            ຜູ້ໃຊ້ທີ່ມີຄະແນນ Karma ສູງເທົ່ານັ້ນທີ່ຈະເຫັນໂພສທີ່ບໍ່ເໝາະສົມເພື່ອດູແລ\n"
+"            ຈັດການ."
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__image_1920
@@ -2205,33 +2328,33 @@ msgstr "ຮູບພາບ 1024"
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__image_128
 msgid "Image 128"
-msgstr "ຮູບ 128"
+msgstr "ຮູບພາບ 128"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__image_256
 msgid "Image 256"
-msgstr "ຮູບ 256"
+msgstr "ຮູບພາບ 256"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__image_512
 msgid "Image 512"
-msgstr "ຮູບ 512"
+msgstr "ຮູບພາບ 512"
 
 #. module: website_forum
 #: model:forum.post.reason,name:website_forum.reason_13
 msgid "Inappropriate and unacceptable statements"
-msgstr "ຄຳຖະແຫຼງທີ່ບໍ່ເໝາະສົມ ແລະ ບໍ່ສາມາດຍອມຮັບໄດ້"
+msgstr "ຂໍ້ຄວາມທີ່ບໍ່ເໝາະສົມ ແລະ ຍອມຮັບບໍ່ໄດ້"
 
 #. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/js/tours/website_forum.js:0
 msgid "Insert tags related to your question."
-msgstr "ໃສ່ແທັກທີ່ກ່ຽວຂ້ອງກັບຄຳຖາມຂອງທ່ານ."
+msgstr "ໃສ່ປ້າຍກຳກັບທີ່ກ່ຽວຂ້ອງກັບຄຳຖາມຂອງທ່ານ."
 
 #. module: website_forum
 #: model:forum.post.reason,name:website_forum.reason_11
 msgid "Insulting and offensive language"
-msgstr "ພາສາທີ່ດູຖູກ ແລະ ຫຍາບຄາຍ"
+msgstr "ຄຳເວົ້າດູຖູກ ແລະ ຫຍາບຄາຍ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__user_favourite
@@ -2240,83 +2363,83 @@ msgstr "ເປັນລາຍການໂປດ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__message_is_follower
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__message_is_follower
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__message_is_follower
+#: model:ir.model.fields,field_description:website_forum.field_forum_post__is_follower
+#: model:ir.model.fields,field_description:website_forum.field_forum_tag__is_follower
 msgid "Is Follower"
 msgstr "ເປັນຜູ້ຕິດຕາມ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__can_moderate
 msgid "Is a moderator"
-msgstr "ເປັນຜູ້ຄວບຄຸມ"
+msgstr "ເປັນຜູ້ດູແລ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__has_validated_answer
 msgid "Is answered"
-msgstr "ໄດ້ຮັບຄຳຕອບແລ້ວ"
+msgstr "ຕອບແລ້ວ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__can_display_biography
 msgid "Is the author's biography visible from his post"
-msgstr "ຊີວະປະຫວັດຂອງຜູ້ຂຽນສາມາດເບິ່ງເຫັນໄດ້ຈາກໂພສຂອງລາວ"
+msgstr "ປະຫວັດຂອງຜູ້ຂຽນສາມາດເບິ່ງເຫັນໄດ້ຈາກໂພສຫຼືບໍ່"
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/forum_post_vote.py:0
 msgid "It is not allowed to modify someone else's vote."
-msgstr "ບໍ່ອະນຸຍາດໃຫ້ແກ້ໄຂການໂຫວດຂອງຄົນອື່ນ."
+msgstr "ບໍ່ອະນຸຍາດໃຫ້ດັດແກ້ການລົງຄະແນນຂອງຄົນອື່ນ."
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/forum_post_vote.py:0
 msgid "It is not allowed to vote for its own post."
-msgstr "ບໍ່ອະນຸຍາດໃຫ້ໂຫວດໃຫ້ໂພສຂອງຕົນເອງ."
+msgstr "ບໍ່ອະນຸຍາດໃຫ້ລົງຄະແນນໂພສຂອງຕົນເອງ."
 
 #. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/interactions/website_forum.js:0
 msgid "Karma Error"
-msgstr "ຂໍ້ຜິດພາດກ່ຽວກັບຄະແນນກຳ"
+msgstr "ຂໍ້ຜິດພາດກ່ຽວກັບ Karma"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_forum_view_form
 msgid "Karma Gains"
-msgstr "ຄະແນນກຳທີ່ໄດ້ຮັບ"
+msgstr "ຄະແນນ Karma ທີ່ໄດ້ຮັບ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_forum_view_form
 msgid "Karma Related Rights"
-msgstr "ສິດທິທີ່ກ່ຽວຂ້ອງກັບຄະແນນກຳ"
+msgstr "ສິດທິທີ່ກ່ຽວຂ້ອງກັບ Karma"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__karma_close
 msgid "Karma to close"
-msgstr "ຄະແນນກຳເພື່ອປິດ"
+msgstr "Karma ສຳລັບປິດ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__karma_comment
 msgid "Karma to comment"
-msgstr "ຄະແນນກຳເພື່ອສະແດງຄວາມຄິດເຫັນ"
+msgstr "Karma ສຳລັບສະແດງຄວາມຄິດເຫັນ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__karma_comment_convert
 msgid "Karma to convert comment to answer"
-msgstr "ຄະແນນກຳເພື່ອປ່ຽນຄວາມຄິດເຫັນເປັນຄຳຕອບ"
+msgstr "Karma ສຳລັບປ່ຽນຄວາມຄິດເຫັນເປັນຄຳຕອບ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__karma_edit
 msgid "Karma to edit"
-msgstr "ຄະແນນກຳເພື່ອແກ້ໄຂ"
+msgstr "Karma ສຳລັບດັດແກ້"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__karma_unlink
 msgid "Karma to unlink"
-msgstr "ຄະແນນກຳເພື່ອຍົກເລີກການເຊື່ອມຕໍ່"
+msgstr "Karma ສຳລັບຍົກເລີກການເຊື່ອມໂຍງ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.display_post
 msgid "Last Activity"
-msgstr "ກິດຈະກຳຫຼ້າສຸດ"
+msgstr "ການເຄື່ອນໄຫວຫຼ້າສຸດ"
 
 #. module: website_forum
 #. odoo-javascript
@@ -2332,6 +2455,7 @@ msgstr "ອັບເດດຫຼ້າສຸດ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__write_uid
+#: model:ir.model.fields,field_description:website_forum.field_forum_post_comment__write_uid
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_reason__write_uid
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_vote__write_uid
 #: model:ir.model.fields,field_description:website_forum.field_forum_tag__write_uid
@@ -2340,6 +2464,7 @@ msgstr "ອັບເດດຫຼ້າສຸດໂດຍ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__write_date
+#: model:ir.model.fields,field_description:website_forum.field_forum_post_comment__write_date
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_reason__write_date
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_vote__write_date
 #: model:ir.model.fields,field_description:website_forum.field_forum_tag__write_date
@@ -2349,23 +2474,18 @@ msgstr "ອັບເດດຫຼ້າສຸດເມື່ອ"
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__last_activity_date
 msgid "Last activity on"
-msgstr "ກິດຈະກຳຫຼ້າສຸດເມື່ອ"
+msgstr "ການເຄື່ອນໄຫວຫຼ້າສຸດເມື່ອ"
 
 #. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/website_builder/forum_page_option.xml:0
 msgid "Layout"
-msgstr "ການຈັດວາງ"
+msgstr "ໂຄງຮ່າງ"
 
 #. module: website_forum
 #: model_terms:gamification.badge,description:website_forum.badge_25
 msgid "Left 10 answers with score of 10 or more"
-msgstr "ໃຫ້ 10 ຄຳຕອບ ທີ່ມີຄະແນນ 10 ຂຶ້ນໄປ"
-
-#. module: website_forum
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__website_url
-msgid "Link to questions with the tag"
-msgstr "ລິ້ງໄປຫາຄຳຖາມທີ່ມີແທັກນີ້"
+msgstr "ຕອບໄດ້ 10 ຄຳຕອບ ໂດຍມີຄະແນນ 10 ຂຶ້ນໄປ"
 
 #. module: website_forum
 #. odoo-javascript
@@ -2381,6 +2501,11 @@ msgid "List"
 msgstr "ລາຍການ"
 
 #. module: website_forum
+#: model:ir.module.module,summary:base.module_website_forum
+msgid "Manage a forum with FAQ and Q&A"
+msgstr "ຈັດການເວທີສົນທະນາພ້ອມຄຳຖາມທີ່ພົບເລື້ອຍ ແລະ ຖາມ-ຕອບ"
+
+#. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_display
 msgid "Mark as Best Answer"
 msgstr "ໝາຍເປັນຄຳຕອບທີ່ດີທີ່ສຸດ"
@@ -2388,13 +2513,13 @@ msgstr "ໝາຍເປັນຄຳຕອບທີ່ດີທີ່ສຸດ"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.show_flag_validator
 msgid "Mark as Offensive"
-msgstr "ໝາຍວ່າຫຍາບຄາຍ"
+msgstr "ໝາຍວ່າບໍ່ເໝາະສົມ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.mark_as_offensive
 #: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
 msgid "Mark as offensive"
-msgstr "ໝາຍວ່າຫຍາບຄາຍ"
+msgstr "ໝາຍວ່າບໍ່ເໝາະສົມ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
@@ -2404,19 +2529,15 @@ msgstr "ໝາຍວ່າເປັນສະແປມ"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_all_oe_structure_forum_all_top
 msgid "Meet our community members"
-msgstr "ພົບກັບສະມາຊິກໃນຊຸມຊົນຂອງພວກເຮົາ"
+msgstr "ພົບກັບສະມາຊິກຊຸມຊົນຂອງພວກເຮົາ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__message_has_error
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__message_has_error
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__message_has_error
 msgid "Message Delivery error"
 msgstr "ຂໍ້ຜິດພາດໃນການສົ່ງຂໍ້ຄວາມ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__message_ids
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__message_ids
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__message_ids
 msgid "Messages"
 msgstr "ຂໍ້ຄວາມ"
 
@@ -2428,38 +2549,38 @@ msgstr "ໂໝດ"
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_moderate
 msgid "Moderate posts"
-msgstr "ຄວບຄຸມໂພສ"
+msgstr "ດູແລກວດກາໂພສ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar_body
 msgid "Moderation tools"
-msgstr "ເຄື່ອງມືໃນການຄວບຄຸມ"
+msgstr "ເຄື່ອງມືດູແລລະບົບ"
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
 #: model_terms:ir.ui.view,arch_db:website_forum.default_faq
 msgid "More over:"
-msgstr "ນອກຈາກນັ້ນ:"
+msgstr "ຍິ່ງໄປກວ່ານັ້ນ:"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_model_nav
 msgid "Most Used Tags"
-msgstr "ແທັກທີ່ໃຊ້ຫຼາຍທີ່ສຸດ"
+msgstr "ປ້າຍກຳກັບທີ່ໃຊ້ຫຼາຍທີ່ສຸດ"
 
 #. module: website_forum
 #: model:ir.model.fields.selection,name:website_forum.selection__forum_forum__default_order__vote_count_desc
 msgid "Most Voted"
-msgstr "ຖືກໂຫວດຫຼາຍທີ່ສຸດ"
+msgstr "ໄດ້ຮັບການໂຫວດຫຼາຍທີ່ສຸດ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_model_nav
 msgid "Most used Tags"
-msgstr "ແທັກທີ່ໃຊ້ຫຼາຍທີ່ສຸດ"
+msgstr "ປ້າຍກຳກັບທີ່ໃຊ້ຫຼາຍທີ່ສຸດ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__tag_most_used_ids
 msgid "Most used tags"
-msgstr "ແທັກທີ່ໃຊ້ຫຼາຍທີ່ສຸດ"
+msgstr "ປ້າຍກຳກັບທີ່ໃຊ້ຫຼາຍທີ່ສຸດ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_index
@@ -2480,7 +2601,7 @@ msgstr "ການໂຫວດຂອງຂ້ອຍ"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar_body
 msgid "My forums"
-msgstr "ຟໍຣຳຂອງຂ້ອຍ"
+msgstr "ເວທີສົນທະນາຂອງຂ້ອຍ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar_header
@@ -2495,9 +2616,11 @@ msgstr "ຊື່"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.user_votes
 msgid "Negative vote"
-msgstr "ໂຫວດລົບ"
+msgstr "ໂຫວດບໍ່ເຫັນດີ"
 
 #. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/controllers/website_forum.py:0
 #: model:mail.message.subtype,description:website_forum.mt_answer_new
 #: model:mail.message.subtype,name:website_forum.mt_answer_new
 #: model:mail.message.subtype,name:website_forum.mt_forum_answer_new
@@ -2505,9 +2628,15 @@ msgid "New Answer"
 msgstr "ຄຳຕອບໃໝ່"
 
 #. module: website_forum
+#: model:mail.message.subtype,description:website_forum.mt_comment_new
+#: model:mail.message.subtype,name:website_forum.mt_comment_new
+msgid "New Comment"
+msgstr "ຄວາມຄິດເຫັນໃໝ່"
+
+#. module: website_forum
 #: model:ir.actions.act_window,name:website_forum.forum_forum_action_add
 msgid "New Forum"
-msgstr "ຟໍຣຳໃໝ່"
+msgstr "ເວທີສົນທະນາໃໝ່"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_model_nav
@@ -2515,6 +2644,8 @@ msgid "New Post"
 msgstr "ໂພສໃໝ່"
 
 #. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/controllers/website_forum.py:0
 #: model:mail.message.subtype,description:website_forum.mt_question_new
 #: model:mail.message.subtype,name:website_forum.mt_forum_question_new
 #: model:mail.message.subtype,name:website_forum.mt_question_new
@@ -2522,9 +2653,15 @@ msgid "New Question"
 msgstr "ຄຳຖາມໃໝ່"
 
 #. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_post_comment.py:0
+msgid "New comment in %s"
+msgstr "ຄວາມຄິດເຫັນໃໝ່ໃນ %s"
+
+#. module: website_forum
 #: model:ir.model.fields.selection,name:website_forum.selection__forum_forum__default_order__create_date_desc
 msgid "Newest"
-msgstr "ໃໝ່ທີ່ສຸດ"
+msgstr "ໃໝ່ສຸດ"
 
 #. module: website_forum
 #: model:gamification.badge,name:website_forum.badge_a_2
@@ -2546,7 +2683,7 @@ msgstr "ຄຳຖາມທີ່ດີ"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_all
 msgid "No forum is available yet."
-msgstr "ຍັງບໍ່ມີຟໍຣຳເທື່ອ."
+msgstr "ຍັງບໍ່ມີເວທີສົນທະນາເທື່ອ."
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_all_all_entries
@@ -2556,12 +2693,12 @@ msgstr "ຍັງບໍ່ມີໂພສເທື່ອ"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.user_profile_content
 msgid "No results."
-msgstr "ບໍ່ມີຜົນການຄົ້ນຫາ."
+msgstr "ບໍ່ພົບຜົນການຄົ້ນຫາ."
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_dofollow
 msgid "Nofollow links"
-msgstr "ລິ້ງ Nofollow"
+msgstr "ລິ້ງຄ໌ Nofollow"
 
 #. module: website_forum
 #: model:forum.post.reason,name:website_forum.reason_4
@@ -2571,18 +2708,16 @@ msgstr "ບໍ່ແມ່ນໂພສແທ້"
 #. module: website_forum
 #: model:forum.post.reason,name:website_forum.reason_6
 msgid "Not relevant or out dated"
-msgstr "ບໍ່ກ່ຽວຂ້ອງ ຫຼື ຫຼ້າສະໄໝ"
+msgstr "ບໍ່ກ່ຽວຂ້ອງ ຫຼື ຫຼ້າສະໄໝແລ້ວ"
 
 #. module: website_forum
 #: model:gamification.badge,name:website_forum.badge_q_2
 #: model:gamification.challenge,name:website_forum.challenge_notable_question
 msgid "Notable Question"
-msgstr "ຄຳຖາມທີ່ໜ້າສົນໃຈ"
+msgstr "ຄຳຖາມທີ່ໂດດເດັ່ນ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__message_needaction_counter
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__message_needaction_counter
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__message_needaction_counter
 msgid "Number of Actions"
 msgstr "ຈຳນວນການດຳເນີນການ"
 
@@ -2593,39 +2728,33 @@ msgstr "ຈຳນວນໂພສ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__message_has_error_counter
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__message_has_error_counter
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__message_has_error_counter
 msgid "Number of errors"
 msgstr "ຈຳນວນຂໍ້ຜິດພາດ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__count_flagged_posts
 msgid "Number of flagged posts"
-msgstr "ຈຳນວນໂພສທີ່ຖືກໝາຍໄວ້"
+msgstr "ຈຳນວນໂພສທີ່ຖືກລາຍງານ"
 
 #. module: website_forum
 #: model:ir.model.fields,help:website_forum.field_forum_forum__message_needaction_counter
-#: model:ir.model.fields,help:website_forum.field_forum_post__message_needaction_counter
-#: model:ir.model.fields,help:website_forum.field_forum_tag__message_needaction_counter
 msgid "Number of messages requiring action"
-msgstr "ຈຳນວນຂໍ້ຄວາມທີ່ຕ້ອງດຳເນີນການ"
+msgstr "ຈຳນວນຂໍ້ຄວາມທີ່ຕ້ອງການການດຳເນີນການ"
 
 #. module: website_forum
 #: model:ir.model.fields,help:website_forum.field_forum_forum__message_has_error_counter
-#: model:ir.model.fields,help:website_forum.field_forum_post__message_has_error_counter
-#: model:ir.model.fields,help:website_forum.field_forum_tag__message_has_error_counter
 msgid "Number of messages with delivery error"
-msgstr "ຈຳນວນຂໍ້ຄວາມທີ່ສົ່ງຜິດພາດ"
+msgstr "ຈຳນວນຂໍ້ຄວາມທີ່ສົ່ງບໍ່ສຳເລັດ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__count_posts_waiting_validation
 msgid "Number of posts waiting for validation"
-msgstr "ຈຳນວນໂພສທີ່ລໍຖ້າການກວດສອບ"
+msgstr "ຈຳນວນໂພສທີ່ລໍຖ້າການອະນຸມັດ"
 
 #. module: website_forum
 #: model:forum.post.reason,name:website_forum.reason_2
 msgid "Off-topic or not relevant"
-msgstr "ນອກເລື່ອງ ຫຼື ບໍ່ກ່ຽວຂ້ອງ"
+msgstr "ອອກນອກເລື່ອງ ຫຼື ບໍ່ກ່ຽວຂ້ອງ"
 
 #. module: website_forum
 #: model:ir.model.fields.selection,name:website_forum.selection__forum_post__state__offensive
@@ -2634,18 +2763,18 @@ msgstr "ນອກເລື່ອງ ຫຼື ບໍ່ກ່ຽວຂ້ອງ"
 #: model_terms:ir.ui.view,arch_db:website_forum.mark_as_offensive
 #: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
 msgid "Offensive"
-msgstr "ຫຍາບຄາຍ"
+msgstr "ບໍ່ເໝາະສົມ"
 
 #. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/interactions/website_forum.js:0
 msgid "Offensive Post"
-msgstr "ໂພສທີ່ຫຍາບຄາຍ"
+msgstr "ໂພສທີ່ບໍ່ເໝາະສົມ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
 msgid "Offensive Posts"
-msgstr "ໂພສທີ່ຫຍາບຄາຍ"
+msgstr "ໂພສຕ່າງໆທີ່ບໍ່ເໝາະສົມ"
 
 #. module: website_forum
 #. odoo-javascript
@@ -2656,7 +2785,7 @@ msgstr "ໂດຍສະເລ່ຍ,"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
 msgid "Oops!"
-msgstr "ອຸ້ຍ!"
+msgstr "ອຸບສ໌!"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_forum_view_form
@@ -2673,7 +2802,7 @@ msgstr "ລຳດັບ ແລະ ການເບິ່ງເຫັນ"
 #: model:gamification.challenge,name:website_forum.challenge_peer_pressure
 #: model:gamification.goal.definition,name:website_forum.definition_peer_pressure
 msgid "Peer Pressure"
-msgstr "ຄວາມກົດດັນຈາກເພື່ອນຮ່ວມງານ"
+msgstr "ແຮງກົດດັນຈາກກຸ່ມ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__plain_content
@@ -2690,9 +2819,8 @@ msgstr "ກະລຸນາປ້ອນ 2 ຕົວອັກສອນຂຶ້ນ
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_model_nav
 #: model_terms:ir.ui.view,arch_db:website_forum.new_question
 msgid ""
-"Please wait for a moderator to validate your previous post before "
-"continuing."
-msgstr "ກະລຸນາລໍຖ້າໃຫ້ຜູ້ຄວບຄຸມກວດສອບໂພສກ່ອນໜ້ານີ້ຂອງທ່ານກ່ອນທີ່ຈະສືບຕໍ່."
+"Please wait for a moderator to validate your previous post before continuing."
+msgstr "ກະລຸນາລໍຖ້າໃຫ້ຜູ້ດູແລອະນຸມັດໂພສກ່ອນໜ້າຂອງທ່ານກ່ອນ ຈຶ່ງດຳເນີນການຕໍ່ໄດ້."
 
 #. module: website_forum
 #: model:gamification.badge,name:website_forum.badge_q_1
@@ -2718,9 +2846,10 @@ msgstr "ຄຳຖາມຍອດນິຍົມ (500)"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.user_votes
 msgid "Positive vote"
-msgstr "ໂຫວດບວກ"
+msgstr "ໂຫວດເຫັນດີ"
 
 #. module: website_forum
+#: model:ir.model.fields,field_description:website_forum.field_forum_post_comment__post_id
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_vote__post_id
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_search
 msgid "Post"
@@ -2729,17 +2858,17 @@ msgstr "ໂພສ"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_answer
 msgid "Post Answer"
-msgstr "ຕອບຄຳຖາມ"
+msgstr "ໂພສຄຳຕອບ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__child_ids
 msgid "Post Answers"
-msgstr "ຄຳຕອບຂອງໂພສ"
+msgstr "ໂພສຄຳຕອບຕ່າງໆ"
 
 #. module: website_forum
 #: model:ir.actions.act_window,name:website_forum.forum_post_reason_action
 msgid "Post Close Reason"
-msgstr "ເຫດຜົນການປິດໂພສ"
+msgstr "ເຫດຜົນໃນການປິດໂພສ"
 
 #. module: website_forum
 #: model:ir.model,name:website_forum.model_forum_post_reason
@@ -2760,13 +2889,13 @@ msgstr "ໂຫວດໂພສ"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.new_question
 msgid "Post Your Question"
-msgstr "ຕັ້ງຄຳຖາມຂອງທ່ານ"
+msgstr "ໂພສຄຳຖາມຂອງທ່ານ"
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "Post is closed and marked as offensive content"
-msgstr "ໂພສຖືກປິດ ແລະ ຖືກໝາຍວ່າເປັນເນື້ອຫາທີ່ຫຍາບຄາຍ"
+msgstr "ໂພສຖືກປິດ ແລະ ຖືກໝາຍວ່າເປັນເນື້ອຫາທີ່ບໍ່ເໝາະສົມ"
 
 #. module: website_forum
 #. odoo-python
@@ -2782,18 +2911,24 @@ msgstr "ໂພສ:"
 #. module: website_forum
 #: model_terms:gamification.badge,description:website_forum.badge_p_2
 msgid "Posted 10 comments"
-msgstr "ໂພສ 10 ຄວາມຄິດເຫັນ"
+msgstr "ໂພສໄປແລ້ວ 10 ຄວາມຄິດເຫັນ"
 
 #. module: website_forum
 #: model_terms:gamification.badge,description:website_forum.badge_p_4
 msgid "Posted 100 comments"
-msgstr "ໂພສ 100 ຄວາມຄິດເຫັນ"
+msgstr "ໂພສໄປແລ້ວ 100 ຄວາມຄິດເຫັນ"
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "Posting answer on a [Deleted] or [Closed] question is not possible."
-msgstr "ບໍ່ສາມາດຕອບຄຳຖາມທີ່ [ຖືກລຶບ] ຫຼື [ປິດ] ແລ້ວໄດ້."
+msgstr "ບໍ່ສາມາດໂພສຄຳຕອບໃນຄຳຖາມທີ່ [ຖືກລຶບ] ຫຼື [ປິດແລ້ວ] ໄດ້."
+
+#. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_post.py:0
+msgid "Posting answer on a [Flagged] question is not possible."
+msgstr "ບໍ່ສາມາດໂພສຄຳຕອບໃນຄຳຖາມທີ່ [ຖືກລາຍງານ] ໄດ້."
 
 #. module: website_forum
 #: model:ir.actions.act_window,name:website_forum.forum_post_action_forum_main
@@ -2801,7 +2936,7 @@ msgstr "ບໍ່ສາມາດຕອບຄຳຖາມທີ່ [ຖືກລ�
 #: model:ir.model.fields,field_description:website_forum.field_forum_tag__post_ids
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_search
 msgid "Posts"
-msgstr "ໂພສ"
+msgstr "ໂພສທັງໝົດ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__privacy
@@ -2818,11 +2953,12 @@ msgstr "ສາທາລະນະ"
 msgid ""
 "Public: Forum is public\n"
 "Signed In: Forum is visible for signed in users\n"
-"Some users: Forum and their content are hidden for non members of selected group"
+"Some users: Forum and their content are hidden for non members of selected "
+"group"
 msgstr ""
-"ສາທາລະນະ: ຟໍຣຳເປັນແບບສາທາລະນະ\n"
-"ເຂົ້າສູ່ລະບົບ: ຟໍຣຳຈະເຫັນໄດ້ສຳລັບຜູ້ໃຊ້ທີ່ເຂົ້າສູ່ລະບົບແລ້ວ\n"
-"ຜູ້ໃຊ້ບາງຄົນ: ຟໍຣຳ ແລະ ເນື້ອຫາຈະຖືກເຊື່ອງໄວ້ສຳລັບຜູ້ທີ່ບໍ່ແມ່ນສະມາຊິກຂອງກຸ່ມທີ່ເລືອກ"
+"ສາທາລະນະ: ເວທີສົນທະນາເປັນແບບເປີດທົ່ວໄປ\n"
+"ເຂົ້າສູ່ລະບົບແລ້ວ: ເວທີສົນທະນາເບິ່ງເຫັນໄດ້ສະເພາະຜູ້ໃຊ້ທີ່ເຂົ້າສູ່ລະບົບ\n"
+"ຜູ້ໃຊ້ບາງກຸ່ມ: ເວທີສົນທະນາ ແລະ ເນື້ອຫາຈະຖືກເຊື່ອງຈາກຄົນທີ່ບໍ່ແມ່ນສະມາຊິກຂອງກຸ່ມທີ່ເລືອກ"
 
 #. module: website_forum
 #: model:gamification.badge,name:website_forum.badge_25
@@ -2835,13 +2971,13 @@ msgstr "ຜູ້ຊ່ຽວຊານ"
 #. odoo-javascript
 #: code:addons/website_forum/static/src/js/tours/website_forum.js:0
 msgid "Put your answer here."
-msgstr "ໃສ່ຄຳຕອບຂອງທ່ານຢູ່ບ່ອນນີ້."
+msgstr "ໃສ່ຄຳຕອບຂອງທ່ານຢູ່ນີ້."
 
 #. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/js/tours/website_forum.js:0
 msgid "Put your question here."
-msgstr "ໃສ່ຄຳຖາມຂອງທ່ານຢູ່ບ່ອນນີ້."
+msgstr "ໃສ່ຄຳຖາມຂອງທ່ານຢູ່ນີ້."
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__parent_id
@@ -2856,17 +2992,24 @@ msgid "Question %s"
 msgstr "ຄຳຖາມ %s"
 
 #. module: website_forum
+#: model:mail.message.subtype,description:website_forum.mt_ask_validation
+#: model:mail.message.subtype,name:website_forum.mt_ask_validation
+msgid "Question Ask Validation"
+msgstr "ການກວດສອບການຕັ້ງຄຳຖາມ"
+
+#. module: website_forum
 #. odoo-python
+#: code:addons/website_forum/controllers/website_forum.py:0
 #: code:addons/website_forum/models/forum_post.py:0
 #: model:mail.message.subtype,description:website_forum.mt_question_edit
 #: model:mail.message.subtype,name:website_forum.mt_question_edit
 msgid "Question Edited"
-msgstr "ຄຳຖາມຖືກແກ້ໄຂ"
+msgstr "ຄຳຖາມຖືກດັດແກ້ແລ້ວ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_gen_question_downvote
 msgid "Question downvoted"
-msgstr "ຄຳຖາມຖືກໂຫວດລົງ"
+msgstr "ຄຳຖາມຖືກໂຫວດບໍ່ເຫັນດີ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.404
@@ -2876,43 +3019,43 @@ msgstr "ບໍ່ພົບຄຳຖາມ!"
 #. module: website_forum
 #: model_terms:gamification.badge,description:website_forum.badge_q_4
 msgid "Question set as favorite by 1 user"
-msgstr "ຄຳຖາມຖືກຕັ້ງເປັນລາຍການໂປດໂດຍ 1 ຜູ້ໃຊ້"
+msgstr "ຄຳຖາມຖືກບັນທຶກເປັນລາຍການໂປດໂດຍ 1 ຜູ້ໃຊ້"
 
 #. module: website_forum
 #: model_terms:gamification.badge,description:website_forum.badge_q_6
 msgid "Question set as favorite by 25 users"
-msgstr "ຄຳຖາມຖືກຕັ້ງເປັນລາຍການໂປດໂດຍ 25 ຜູ້ໃຊ້"
+msgstr "ຄຳຖາມຖືກບັນທຶກເປັນລາຍການໂປດໂດຍ 25 ຜູ້ໃຊ້"
 
 #. module: website_forum
 #: model_terms:gamification.badge,description:website_forum.badge_q_5
 msgid "Question set as favorite by 5 users"
-msgstr "ຄຳຖາມຖືກຕັ້ງເປັນລາຍການໂປດໂດຍ 5 ຜູ້ໃຊ້"
+msgstr "ຄຳຖາມຖືກບັນທຶກເປັນລາຍການໂປດໂດຍ 5 ຜູ້ໃຊ້"
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/controllers/website_forum.py:0
 msgid "Question should not be empty."
-msgstr "ຄຳຖາມບໍ່ຄວນວ່າງເປົ່າ."
+msgstr "ຄຳຖາມຕ້ອງບໍ່ວ່າງເປົ່າ."
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_gen_question_upvote
 msgid "Question upvoted"
-msgstr "ຄຳຖາມຖືກໂຫວດຂຶ້ນ"
+msgstr "ຄຳຖາມຖືກໂຫວດເຫັນດີ"
 
 #. module: website_forum
 #: model_terms:gamification.badge,description:website_forum.badge_q_10
 msgid "Question voted up 15 times"
-msgstr "ຄຳຖາມຖືກໂຫວດຂຶ້ນ 15 ຄັ້ງ"
+msgstr "ຄຳຖາມຖືກໂຫວດເຫັນດີ 15 ຄັ້ງ"
 
 #. module: website_forum
 #: model_terms:gamification.badge,description:website_forum.badge_q_8
 msgid "Question voted up 4 times"
-msgstr "ຄຳຖາມຖືກໂຫວດຂຶ້ນ 4 ຄັ້ງ"
+msgstr "ຄຳຖາມຖືກໂຫວດເຫັນດີ 4 ຄັ້ງ"
 
 #. module: website_forum
 #: model_terms:gamification.badge,description:website_forum.badge_q_9
 msgid "Question voted up 6 times"
-msgstr "ຄຳຖາມຖືກໂຫວດຂຶ້ນ 6 ຄັ້ງ"
+msgstr "ຄຳຖາມຖືກໂຫວດເຫັນດີ 6 ຄັ້ງ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
@@ -2922,7 +3065,7 @@ msgstr "ຄຳຖາມ:"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.user_profile_content
 msgid "Questions"
-msgstr "ຄຳຖາມ"
+msgstr "ຄຳຖາມທັງໝົດ"
 
 #. module: website_forum
 #: model:ir.model.fields.selection,name:website_forum.selection__forum_forum__mode__questions
@@ -2935,37 +3078,35 @@ msgid ""
 "Questions mode: only one answer allowed\n"
 " Discussions mode: multiple answers allowed"
 msgstr ""
-"ໂໝດຄຳຖາມ: ອະນຸຍາດພຽງແຕ່ໜຶ່ງຄຳຕອບ\n"
+"ໂໝດຄຳຖາມ: ອະນຸຍາດພຽງຄຳຕອບດຽວ\n"
 " ໂໝດສົນທະນາ: ອະນຸຍາດຫຼາຍຄຳຕອບ"
 
 #. module: website_forum
 #: model:forum.post.reason,name:website_forum.reason_15
 msgid "Racist and hate speech"
-msgstr "ການເວົ້າຈາທີ່ກຽດຊັງ ແລະ ແບ່ງແຍກເຊື້ອຊາດ"
+msgstr "ການຈຳແນກເຊື້ອຊາດ ແລະ ຄຳເວົ້າສ້າງຄວາມກຽດຊັງ"
 
 #. module: website_forum
 #: model:ir.ui.menu,name:website_forum.menu_forum_rank_global
 msgid "Ranks"
-msgstr "ອັນດັບ"
+msgstr "ລະດັບຂັ້ນ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__rating_ids
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__rating_ids
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__rating_ids
 msgid "Ratings"
 msgstr "ການໃຫ້ຄະແນນ"
 
 #. module: website_forum
 #. odoo-python
-#: code:addons/website_forum/models/forum_post.py:0
+#: code:addons/website_forum/models/forum_post_comment.py:0
 msgid "Re: %s"
-msgstr "ຕອບ: %s"
+msgstr "ຕອບກັບ: %s"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.display_post_question_block
 #: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
 msgid "Read: {{0}}"
-msgstr "ອ່ານ: {{0}}"
+msgstr "ອ່ານແລ້ວ: {{0}}"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__closed_reason_id
@@ -2985,12 +3126,12 @@ msgstr "ເຫດຜົນ:"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_reason_view_list
 msgid "Reasons"
-msgstr "ເຫດຜົນ"
+msgstr "ເຫດຜົນຕ່າງໆ"
 
 #. module: website_forum
 #: model_terms:gamification.badge,description:website_forum.badge_a_1
 msgid "Received at least 3 upvote for an answer for the first time"
-msgstr "ໄດ້ຮັບຢ່າງໜ້ອຍ 3 ໂຫວດຂຶ້ນສຳລັບຄຳຕອບເປັນຄັ້ງທຳອິດ"
+msgstr "ໄດ້ຮັບການໂຫວດເຫັນດີຢ່າງໜ້ອຍ 3 ຄັ້ງສຳລັບຄຳຕອບເປັນເທື່ອທຳອິດ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
@@ -3017,7 +3158,7 @@ msgstr "ການຄິດໄລ່ຄວາມກ່ຽວຂ້ອງ"
 #. odoo-python
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "Remove validated answer"
-msgstr "ເອົາຄຳຕອບທີ່ກວດສອບແລ້ວອອກ"
+msgstr "ລຶບຄຳຕອບທີ່ອະນຸມັດແລ້ວອອກ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
@@ -3030,14 +3171,14 @@ msgstr "ເປີດຄືນໃໝ່"
 #. odoo-python
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "Reopen a banned question"
-msgstr "ເປີດຄືນຄຳຖາມທີ່ຖືກແບນ"
+msgstr "ເປີດຄຳຖາມທີ່ຖືກຫ້າມຄືນໃໝ່"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_index
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_related_posts
 #: model_terms:ir.ui.view,arch_db:website_forum.post_stats
 msgid "Replies"
-msgstr "ການຕອບກັບ"
+msgstr "ຄຳຕອບກັບ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_stats
@@ -3048,12 +3189,12 @@ msgstr "ຕອບກັບ"
 #. odoo-python
 #: code:addons/website_forum/controllers/website_forum.py:0
 msgid "Reply should not be empty."
-msgstr "ການຕອບກັບບໍ່ຄວນວ່າງເປົ່າ."
+msgstr "ຄຳຕອບກັບຕ້ອງບໍ່ວ່າງເປົ່າ."
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__self_reply
 msgid "Reply to own question"
-msgstr "ຕອບຄຳຖາມຂອງຕົນເອງ"
+msgstr "ຕອບກັບຄຳຖາມຂອງຕົນເອງ"
 
 #. module: website_forum
 #: model:ir.model.fields,help:website_forum.field_forum_forum__website_id
@@ -3064,7 +3205,7 @@ msgstr "ຈຳກັດສະເພາະເວັບໄຊໃດໜຶ່ງ."
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.profile_access_denied
 msgid "Return to the forum"
-msgstr "ກັບໄປທີ່ຟໍຣຳ"
+msgstr "ກັບໄປທີ່ເວທີສົນທະນາ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__moderator_id
@@ -3080,8 +3221,6 @@ msgstr "ປັບແຕ່ງ SEO ແລ້ວ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__message_has_sms_error
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__message_has_sms_error
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr "ຂໍ້ຜິດພາດໃນການສົ່ງ SMS"
 
@@ -3125,18 +3264,18 @@ msgstr "ຄົ້ນຫາ..."
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__relevancy_time_decay
 msgid "Second Relevance Parameter"
-msgstr "ພະລາມິເຕີຄວາມກ່ຽວຂ້ອງອັນທີສອງ"
+msgstr "ພາຣາມິເຕີຄວາມກ່ຽວຂ້ອງທີສອງ"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.forum_post_template_new_answer
+msgid "See answer"
+msgstr "ເບິ່ງຄຳຕອບ"
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/res_users.py:0
 msgid "See our Forum"
-msgstr "ເບິ່ງຟໍຣຳຂອງພວກເຮົາ"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.forum_post_template_new_answer
-msgid "See post"
-msgstr "ເບິ່ງໂພສ"
+msgstr "ເບິ່ງເວທີສົນທະນາຂອງພວກເຮົາ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_template_new_question
@@ -3147,6 +3286,18 @@ msgstr "ເບິ່ງຄຳຖາມ"
 #: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
 msgid "Select All"
 msgstr "ເລືອກທັງໝົດ"
+
+#. module: website_forum
+#. odoo-javascript
+#: code:addons/website_forum/static/src/js/tours/website_forum.js:0
+msgid "Select a forum to post your question in."
+msgstr "ເລືອກເວທີສົນທະນາເພື່ອໂພສຄຳຖາມຂອງທ່ານ."
+
+#. module: website_forum
+#. odoo-javascript
+#: code:addons/website_forum/static/src/js/tours/website_forum.js:0
+msgid "Select found select menu item"
+msgstr "ເລືອກລາຍການເມນູທີ່ຄົ້ນພົບ"
 
 #. module: website_forum
 #: model:gamification.badge,name:website_forum.badge_a_8
@@ -3160,7 +3311,7 @@ msgstr "ຜູ້ຮຽນຮູ້ດ້ວຍຕົນເອງ"
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__seo_name
 #: model:ir.model.fields,field_description:website_forum.field_forum_tag__seo_name
 msgid "Seo name"
-msgstr "ຊື່ Seo"
+msgstr "ຊື່ SEO"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__sequence
@@ -3175,17 +3326,17 @@ msgid ""
 "Share and discuss the best content and new marketing ideas, build your "
 "professional profile and become a better marketer together."
 msgstr ""
-"ແບ່ງປັນ ແລະ ສົນທະນາກ່ຽວກັບເນື້ອຫາທີ່ດີທີ່ສຸດ ແລະ ແນວຄວາມຄິດທາງການຕະຫຼາດໃໝ່, ສ້າງໂປຣໄຟລ໌ມືອາຊີບຂອງ"
-"ທ່ານ ແລະ ກາຍເປັນນັກການຕະຫຼາດທີ່ດີຂຶ້ນໄປນຳກັນ."
+"ແບ່ງປັນ ແລະ ສົນທະນາກ່ຽວກັບເນື້ອຫາທີ່ດີທີ່ສຸດ ລວມທັງແນວຄິດການຕະຫຼາດໃໝ່ໆ, ສ້າງໂປຣໄຟລ໌ມືອາຊີບ ແລະ ພັດທ"
+"ະນາການເປັນນັກການຕະຫຼາດທີ່ດີຂຶ້ນໄປພ້ອມກັນ."
 
 #. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/xml/public_templates.xml:0
 msgid ""
-"Share this content to increase your chances to be featured on the front page"
-" and attract more visitors."
+"Share this content to increase your chances to be featured on the front page "
+"and attract more visitors."
 msgstr ""
-"ແບ່ງປັນເນື້ອຫານີ້ເພື່ອເພີ່ມໂອກາດໃຫ້ມັນປະກົດຢູ່ໜ້າທຳອິດ ແລະ ດຶງດູດຜູ້ເຂົ້າຊົມໃຫ້ຫຼາຍຂຶ້ນ."
+"ແບ່ງປັນເນື້ອຫານີ້ເພື່ອເພີ່ມໂອກາດໃນການຖືກສະແດງຢູ່ໜ້າຫຼັກ ແລະ ດຶງດູດຜູ້ເຂົ້າຊົມຫຼາຍຂຶ້ນ."
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__allow_share
@@ -3195,7 +3346,7 @@ msgstr "ຕົວເລືອກການແບ່ງປັນ"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_index_tags
 msgid "Show Tags Starting with"
-msgstr "ສະແດງແທັກທີ່ເລີ່ມຕົ້ນດ້ວຍ"
+msgstr "ສະແດງປ້າຍກຳກັບທີ່ເລີ່ມຕົ້ນດ້ວຍ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
@@ -3229,44 +3380,44 @@ msgstr "ຜູ້ໃຊ້ບາງຄົນ"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.404
 msgid "Sorry, this question is not available anymore."
-msgstr "ຂໍໂທດ, ຄຳຖາມນີ້ບໍ່ມີໃຫ້ບໍລິການແລ້ວ."
+msgstr "ຂໍອະໄພ, ຄຳຖາມນີ້ບໍ່ມີໃຫ້ໃຊ້ງານແລ້ວ."
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
 msgid "Sorry, we could not find any <b>solved</b> results"
-msgstr "ຂໍໂທດ, ພວກເຮົາບໍ່ພົບຜົນການຄົ້ນຫາທີ່ <b>ແກ້ໄຂແລ້ວ</b>"
+msgstr "ຂໍອະໄພ, ພວກເຮົາບໍ່ພົບຜົນການຄົ້ນຫາທີ່ <b>ແກ້ໄຂແລ້ວ</b>"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
 msgid "Sorry, we could not find any <b>unanswered</b> results"
-msgstr "ຂໍໂທດ, ພວກເຮົາບໍ່ພົບຜົນການຄົ້ນຫາທີ່ <b>ຍັງບໍ່ມີຄຳຕອບ</b>"
+msgstr "ຂໍອະໄພ, ພວກເຮົາບໍ່ພົບຜົນການຄົ້ນຫາທີ່ <b>ຍັງບໍ່ມີຄຳຕອບ</b>"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
 msgid "Sorry, we could not find any <b>unsolved</b> results"
-msgstr "ຂໍໂທດ, ພວກເຮົາບໍ່ພົບຜົນການຄົ້ນຫາທີ່ <b>ຍັງບໍ່ໄດ້ແກ້ໄຂ</b>"
+msgstr "ຂໍອະໄພ, ພວກເຮົາບໍ່ພົບຜົນການຄົ້ນຫາທີ່ <b>ຍັງບໍ່ໄດ້ແກ້ໄຂ</b>"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
 msgid "Sorry, we could not find any results"
-msgstr "ຂໍໂທດ, ພວກເຮົາບໍ່ພົບຜົນການຄົ້ນຫາໃດໆ"
+msgstr "ຂໍອະໄພ, ພວກເຮົາບໍ່ພົບຜົນການຄົ້ນຫາໃດໆ"
 
 #. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/interactions/website_forum.js:0
 msgid "Sorry, you cannot select your own posts as best answer"
-msgstr "ຂໍໂທດ, ທ່ານບໍ່ສາມາດເລືອກໂພສຂອງທ່ານເອງເປັນຄຳຕອບທີ່ດີທີ່ສຸດ"
+msgstr "ຂໍອະໄພ, ທ່ານບໍ່ສາມາດເລືອກໂພສຂອງຕົນເອງເປັນຄຳຕອບທີ່ດີທີ່ສຸດໄດ້"
 
 #. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/interactions/website_forum.js:0
 msgid "Sorry, you cannot vote for your own posts"
-msgstr "ຂໍໂທດ, ທ່ານບໍ່ສາມາດໂຫວດໃຫ້ໂພສຂອງທ່ານເອງ"
+msgstr "ຂໍອະໄພ, ທ່ານບໍ່ສາມາດໂຫວດໃຫ້ໂພສຂອງຕົນເອງໄດ້"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
 msgid "Spam all post"
-msgstr "ໝາຍເປັນສະແປມທຸກໂພສ"
+msgstr "ໝາຍວ່າເປັນສະແປມທຸກໂພສ"
 
 #. module: website_forum
 #: model:forum.post.reason,name:website_forum.reason_8
@@ -3287,7 +3438,7 @@ msgstr "ສະຖານະ"
 #: model:gamification.badge,name:website_forum.badge_q_6
 #: model:gamification.challenge,name:website_forum.challenge_stellar_question_25
 msgid "Stellar Question"
-msgstr "ຄຳຖາມທີ່ໂດດເດັ່ນ"
+msgstr "ຄຳຖາມດີເດັ່ນ"
 
 #. module: website_forum
 #: model:gamification.badge,name:website_forum.badge_q_7
@@ -3296,7 +3447,7 @@ msgid "Student"
 msgstr "ນັກຮຽນ"
 
 #. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.follow
+#: model_terms:ir.ui.view,arch_db:website_forum.follow_button
 msgid "Subscribe"
 msgstr "ຕິດຕາມ"
 
@@ -3311,12 +3462,12 @@ msgstr "ຜູ້ສະໜັບສະໜູນ"
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_search
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_tag_view_form
 msgid "Tag"
-msgstr "ແທັກ"
+msgstr "ປ້າຍກຳກັບ"
 
 #. module: website_forum
 #: model:ir.model.constraint,message:website_forum.constraint_forum_tag_name_uniq
 msgid "Tag name already exists!"
-msgstr "ມີຊື່ແທັກນີ້ຢູ່ແລ້ວ!"
+msgstr "ມີຊື່ປ້າຍກຳກັບນີ້ແລ້ວ!"
 
 #. module: website_forum
 #. odoo-javascript
@@ -3330,7 +3481,7 @@ msgstr "ມີຊື່ແທັກນີ້ຢູ່ແລ້ວ!"
 #: model_terms:ir.ui.view,arch_db:website_forum.new_question
 #: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar_body
 msgid "Tags"
-msgstr "ແທັກ"
+msgstr "ປ້າຍກຳກັບຕ່າງໆ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_all_oe_structure_forum_all_top
@@ -3338,8 +3489,8 @@ msgid ""
 "Tap into the collective knowledge of our community by asking your questions "
 "in our forums,<br/> where helpful members are ready to assist you."
 msgstr ""
-"ນຳໃຊ້ຄວາມຮູ້ລວມຂອງຊຸມຊົນພວກເຮົາ ໂດຍການຕັ້ງຄຳຖາມຂອງທ່ານໃນເວທີສົນທະນາຂອງພວກເຮົາ,<br/> ບ່ອນທີ່ມີ"
-"ສະມາຊິກທີ່ພ້ອມຈະຊ່ວຍເຫຼືອທ່ານ."
+"ເຂົ້າເຖິງຄັງຄວາມຮູ້ຮ່ວມກັນຂອງຊຸມຊົນພວກເຮົາໂດຍການຕັ້ງຄຳຖາມໃນເວທີສົນທະນາ,<br/> ບ່ອນທີ່ມີສະມາຊິກພ້ອມທີ່"
+"ຈະຊ່ວຍເຫຼືອທ່ານສະເໝີ."
 
 #. module: website_forum
 #: model:gamification.badge,name:website_forum.badge_32
@@ -3353,7 +3504,7 @@ msgstr "ນັກຈັດໝວດໝູ່"
 #: model:gamification.challenge,name:website_forum.challenge_teacher
 #: model:gamification.goal.definition,name:website_forum.definition_teacher
 msgid "Teacher"
-msgstr "ຄູສອນ"
+msgstr "ຄູອາຈານ"
 
 #. module: website_forum
 #. odoo-javascript
@@ -3365,7 +3516,21 @@ msgstr "ຂອບໃຈສຳລັບການໂພສ!"
 #. odoo-python
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "The accepted answer is deleted"
-msgstr "ຄຳຕອບທີ່ຖືກຍອມຮັບໄດ້ຖືກລຶບແລ້ວ"
+msgstr "ຄຳຕອບທີ່ຖືກເລືອກຖືກລຶບອອກແລ້ວ"
+
+#. module: website_forum
+#: model:ir.model.fields,help:website_forum.field_forum_forum__website_absolute_url
+#: model:ir.model.fields,help:website_forum.field_forum_post__website_absolute_url
+#: model:ir.model.fields,help:website_forum.field_forum_tag__website_absolute_url
+msgid "The full absolute URL to access the document through the website."
+msgstr "URL ແບບເຕັມ (Absolute URL) ເພື່ອເຂົ້າເຖິງເອກະສານຜ່ານເວັບໄຊ."
+
+#. module: website_forum
+#: model:ir.model.fields,help:website_forum.field_forum_forum__website_url
+#: model:ir.model.fields,help:website_forum.field_forum_post__website_url
+#: model:ir.model.fields,help:website_forum.field_forum_tag__website_url
+msgid "The full relative URL to access the document through the website."
+msgstr "URL ແບບສຳພັນ (Relative URL) ເພື່ອເຂົ້າເຖິງເອກະສານຜ່ານເວັບໄຊ."
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
@@ -3375,12 +3540,12 @@ msgid ""
 "The goal of this site is create a relevant knowledge base that would answer "
 "questions related to Odoo."
 msgstr ""
-"ເປົ້າໝາຍຂອງເວັບໄຊນີ້ແມ່ນເພື່ອສ້າງຖານຄວາມຮູ້ທີ່ກ່ຽວຂ້ອງ ເພື່ອຕອບຄຳຖາມກ່ຽວກັບ Odoo."
+"ເປົ້າໝາຍຂອງເວັບໄຊນີ້ແມ່ນເພື່ອສ້າງຄັງຄວາມຮູ້ທີ່ກ່ຽວຂ້ອງເພື່ອຕອບຄຳຖາມຕ່າງໆກ່ຽວກັບ Odoo."
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
 msgid "The question has been closed"
-msgstr "ຄຳຖາມນີ້ໄດ້ຖືກປິດແລ້ວ"
+msgstr "ຄຳຖາມນີ້ຖືກປິດແລ້ວ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
@@ -3390,30 +3555,31 @@ msgstr "ຍັງບໍ່ມີຄຳຕອບເທື່ອ"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_index_tags
 msgid "There are no tags being used in this forum."
-msgstr "ຍັງບໍ່ມີແທັກຖືກໃຊ້ໃນຟໍຣຳນີ້."
+msgstr "ບໍ່ມີການນຳໃຊ້ປ້າຍກຳກັບໃດໆໃນເວທີສົນທະນານີ້."
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_index_tags
 msgid "There are no tags matching the selected filter"
-msgstr "ບໍ່ມີແທັກທີ່ກົງກັບຕົວຕອງທີ່ເລືອກ"
+msgstr "ບໍ່ມີປ້າຍກຳກັບທີ່ກົງກັບຕົວກັ່ນຕອງທີ່ເລືອກ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_index_tags
 msgid "There are no tags matching the selected search."
-msgstr "ບໍ່ມີແທັກທີ່ກົງກັບການຄົ້ນຫາທີ່ເລືອກ."
+msgstr "ບໍ່ມີປ້າຍກຳກັບທີ່ກົງກັບການຄົ້ນຫາທີ່ເລືອກ."
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
 #: model_terms:ir.ui.view,arch_db:website_forum.default_faq
 #: model_terms:ir.ui.view,arch_db:website_forum.faq_karma
 msgid ""
-"Therefore questions and answers can be edited like wiki pages by experienced"
-" users of this site in order to improve the overall quality of the knowledge"
-" base content. Such privileges are granted based on user karma level: you "
+"Therefore questions and answers can be edited like wiki pages by experienced "
+"users of this site in order to improve the overall quality of the knowledge "
+"base content. Such privileges are granted based on user karma level: you "
 "will be able to do the same once your karma gets high enough."
 msgstr ""
-"ດັ່ງນັ້ນ ຄຳຖາມ ແລະ ຄຳຕອບສາມາດຖືກແກ້ໄຂໄດ້ຄືກັບໜ້າ wiki ໂດຍຜູ້ໃຊ້ທີ່ມີປະສົບການ ເພື່ອປັບປຸງຄຸນນະພາບຂອງ"
-"ຖານຄວາມຮູ້. ສິດທິເຫຼົ່ານີ້ຈະຖືກມອບໃຫ້ຕາມລະດັບຄະແນນກຳ: ທ່ານຈະສາມາດເຮັດໄດ້ເມື່ອຄະແນນກຳຂອງທ່ານສູງພໍ."
+"ດັ່ງນັ້ນ ຄຳຖາມ ແລະ ຄຳຕອບຈຶ່ງສາມາດດັດແກ້ໄດ້ຄືກັບໜ້າ wiki ໂດຍຜູ້ໃຊ້ທີ່ມີປະສົບການ ເພື່ອປັບປຸງຄຸນນະພາບໂດຍ"
+"ລວມຂອງເນື້ອຫາຄັງຄວາມຮູ້. ສິດທິພິເສດດັ່ງກ່າວຈະມອບໃຫ້ຕາມລະດັບຄະແນນ Karma ຂອງຜູ້ໃຊ້: ທ່ານຈະສາມາດເ"
+"ຮັດແບບດຽວກັນນີ້ໄດ້ເມື່ອມີ Karma ສູງພໍ."
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
@@ -3422,8 +3588,7 @@ msgid ""
 "This community is for professional and enthusiast users, partners and "
 "programmers. You can ask questions about:"
 msgstr ""
-"ຊຸມຊົນນີ້ແມ່ນສຳລັບຜູ້ໃຊ້ທີ່ເປັນມືອາຊີບ, ຜູ້ທີ່ສົນໃຈ, ພາກສ່ວນຮ່ວມງານ ແລະ ນັກຂຽນໂປຣແກຣມ. ທ່ານສາມາດຖາມຄ"
-"ຳຖາມກ່ຽວກັບ:"
+"ຊຸມຊົນນີ້ແມ່ນສຳລັບຜູ້ໃຊ້ລະດັບມືອາຊີບ, ຜູ້ທີ່ສົນໃຈ, ຄູ່ຮ່ວມງານ ແລະ ນັກຂຽນໂປຣແກຣມ. ທ່ານສາມາດຖາມກ່ຽວກັບ:"
 
 #. module: website_forum
 #: model:forum.forum,description:website_forum.forum_help
@@ -3432,9 +3597,9 @@ msgid ""
 "services. Share and discuss the best content and new marketing ideas, build "
 "your professional profile and become a better marketer together."
 msgstr ""
-"ຊຸມຊົນນີ້ແມ່ນສຳລັບຜູ້ຊ່ຽວຊານ ແລະ ຜູ້ທີ່ຊື່ນຊອບໃນຜະລິດຕະພັນ ແລະ ບໍລິການຂອງພວກເຮົາ. ແບ່ງປັນ ແລະ ສົນທະນ"
-"າກ່ຽວກັບເນື້ອຫາທີ່ດີທີ່ສຸດ ແລະ ແນວຄວາມຄິດທາງການຕະຫຼາດໃໝ່, ສ້າງໂປຣໄຟລ໌ມືອາຊີບຂອງທ່ານ ແລະ ກາຍເປັນນັ"
-"ກການຕະຫຼາດທີ່ດີຂຶ້ນໄປນຳກັນ."
+"ຊຸມຊົນນີ້ແມ່ນສຳລັບມືອາຊີບ ແລະ ຜູ້ທີ່ສົນໃຈໃນຜະລິດຕະພັນ ແລະ ການບໍລິການຂອງພວກເຮົາ. ແບ່ງປັນ ແລະ ສົນທະນ"
+"າກ່ຽວກັບເນື້ອຫາທີ່ດີທີ່ສຸດ ລວມທັງແນວຄິດການຕະຫຼາດໃໝ່ໆ, ສ້າງໂປຣໄຟລ໌ມືອາຊີບ ແລະ ພັດທະນາການເປັນນັກການຕ"
+"ະຫຼາດທີ່ດີຂຶ້ນໄປພ້ອມກັນ."
 
 #. module: website_forum
 #: model:ir.model.fields,help:website_forum.field_forum_forum__relevancy_post_vote
@@ -3443,60 +3608,61 @@ msgid ""
 "represents number of votes for a post, and 'days' is number of days since "
 "the post creation"
 msgstr ""
-"ສູດນີ້ຖືກນໍາໃຊ້ເພື່ອຈັດລຽງຕາມຄວາມກ່ຽວຂ້ອງ. ຕົວປ່ຽນ 'votes' ແທນໃຫ້ຈຳນວນການລົງຄະແນນສຽງຂອງໂພສ, "
-"ແລະ 'days' ແມ່ນຈຳນວນມື້ນັບຕັ້ງແຕ່ມື້ສ້າງໂພສ"
+"ສູດນີ້ໃຊ້ສຳລັບການຈັດຮຽງຕາມຄວາມກ່ຽວຂ້ອງ. ຕົວປ່ຽນ 'votes' ໝາຍເຖິງຈຳນວນການໂຫວດໃຫ້ໂພສ, ແລະ "
+"'days' ແມ່ນຈຳນວນມື້ນັບຕັ້ງແຕ່ສ້າງໂພສ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.header
 msgid "This forum has been archived."
-msgstr "ຟໍຣຳນີ້ຖືກເກັບໄວ້ແລ້ວ."
+msgstr "ເວທີສົນທະນານີ້ຖືກເກັບໄວ້ໃນສາງແລ້ວ."
 
 #. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/interactions/website_forum.js:0
 msgid "This post can not be flagged"
-msgstr "ໂພສນີ້ບໍ່ສາມາດຖືກໝາຍໄວ້ໄດ້"
+msgstr "ໂພສນີ້ບໍ່ສາມາດລາຍງານໄດ້"
 
 #. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/interactions/website_forum.js:0
 msgid "This post is already flagged"
-msgstr "ໂພສນີ້ຖືກໝາຍໄວ້ແລ້ວ"
+msgstr "ໂພສນີ້ຖືກລາຍງານແລ້ວ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
 msgid "This post is awaiting validation"
-msgstr "ໂພສນີ້ກຳລັງລໍຖ້າການກວດສອບ"
+msgstr "ໂພສນີ້ກຳລັງລໍຖ້າການອະນຸມັດ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
 msgid ""
 "This post is currently awaiting moderation and is not published yet.<br/>\n"
-"                    As a moderator you can either <b>Accept</b> or <b>Reject</b> this post."
+"                    As a moderator you can either <b>Accept</b> or "
+"<b>Reject</b> this post."
 msgstr ""
-"ໂພສນີ້ກຳລັງລໍຖ້າການກວດສອບຈາກຜູ້ຄວບຄຸມ ແລະ ຍັງບໍ່ທັນໄດ້ເຜີຍແຜ່ເທື່ອ.<br/>\n"
-"                    ໃນຖານະຜູ້ຄວບຄຸມ ທ່ານສາມາດ <b>ຍອມຮັບ</b> ຫຼື <b>ປະຕິເສດ</b> ໂພສນີ້ໄ"
-"ດ້."
+"ຕອນນີ້ໂພສນີ້ກຳລັງລໍຖ້າການກວດສອບ ແລະ ຍັງບໍ່ທັນຖືກເຜີຍແຜ່ເທື່ອ.<br/>\n"
+"                    ໃນຖານະຜູ້ດູແລ ທ່ານສາມາດເລືອກ <b>ຍອມຮັບ</b> ຫຼື <b>ປະຕິເສດ</b> ໂພສນີ້"
+"ໄດ້."
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
 msgid "This question has been flagged"
-msgstr "ຄຳຖາມນີ້ຖືກໝາຍໄວ້ແລ້ວ"
+msgstr "ຄຳຖາມນີ້ຖືກລາຍງານແລ້ວ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.user_profile_content
 msgid "This user hasn't answered any questions yet."
-msgstr "ຜູ້ໃຊ້ນີ້ຍັງບໍ່ໄດ້ຕອບຄຳຖາມໃດໆເທື່ອ."
+msgstr "ຜູ້ໃຊ້ນີ້ຍັງບໍ່ທັນໄດ້ຕອບຄຳຖາມໃດໆເທື່ອ."
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.user_profile_content
 msgid "This user hasn't posted any questions yet."
-msgstr "ຜູ້ໃຊ້ນີ້ຍັງບໍ່ໄດ້ໂພສຄຳຖາມໃດໆເທື່ອ."
+msgstr "ຜູ້ໃຊ້ນີ້ຍັງບໍ່ທັນໄດ້ຕັ້ງຄຳຖາມໃດໆເທື່ອ."
 
 #. module: website_forum
 #: model:forum.post.reason,name:website_forum.reason_14
 msgid "Threatening language"
-msgstr "ພາສາທີ່ຂົ່ມຂູ່"
+msgstr "ຄຳເວົ້າຂົ່ມຂູ່"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__name
@@ -3515,7 +3681,7 @@ msgstr "ຫົວຂໍ້ຕ້ອງບໍ່ວ່າງເປົ່າ"
 #. odoo-python
 #: code:addons/website_forum/controllers/website_forum.py:0
 msgid "Title should not be empty."
-msgstr "ຫົວຂໍ້ບໍ່ຄວນວ່າງເປົ່າ."
+msgstr "ຫົວຂໍ້ຕ້ອງບໍ່ວ່າງເປົ່າ."
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_vote__recipient_id
@@ -3526,7 +3692,7 @@ msgstr "ເຖິງ"
 #: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
 #: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar_body
 msgid "To Validate"
-msgstr "ເພື່ອກວດສອບ"
+msgstr "ລໍຖ້າກວດສອບ"
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
@@ -3535,23 +3701,23 @@ msgid ""
 "To prevent your question from being flagged and possibly removed, avoid "
 "asking subjective questions where …"
 msgstr ""
-"ເພື່ອປ້ອງກັນບໍ່ໃຫ້ຄຳຖາມຂອງທ່ານຖືກໝາຍໄວ້ ຫຼື ຖືກລຶບອອກ, ໃຫ້ຫຼີກລ່ຽງການຖາມຄຳຖາມທີ່ເປັນຄວາມຄິດເຫັນສ່ວນຕົວ"
-"ເກີນໄປ ບ່ອນທີ່…"
+"ເພື່ອປ້ອງກັນບໍ່ໃຫ້ຄຳຖາມຂອງທ່ານຖືກລາຍງານ ແລະ ອາດຖືກລຶບອອກ, ຄວນຫຼີກລ່ຽງການຕັ້ງຄຳຖາມແບບເນັ້ນຄວາມເຫັ"
+"ນສ່ວນຕົວ ທີ່…"
 
 #. module: website_forum
 #: model:forum.post.reason,name:website_forum.reason_9
 msgid "Too localized"
-msgstr "ຈຳກັດສະເພາະທ້ອງຖິ່ນເກີນໄປ"
+msgstr "ສະເພາະເຈາະຈົງທ້ອງຖິ່ນເກີນໄປ"
 
 #. module: website_forum
 #: model:forum.post.reason,name:website_forum.reason_3
 msgid "Too subjective and argumentative"
-msgstr "ເປັນຄວາມຄິດເຫັນສ່ວນຕົວ ແລະ ມີການໂຕ້ຖຽງກັນເກີນໄປ"
+msgstr "ມີລັກສະນະຄວາມເຫັນສ່ວນຕົວ ແລະ ພາໃຫ້ເກີດການໂຕ້ຖຽງຫຼາຍເກີນໄປ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_index_tags
 msgid "Toolbar with button groups"
-msgstr "ແຖບເຄື່ອງມືທີ່ມີກຸ່ມປຸ່ມ"
+msgstr "ແຖບເຄື່ອງມືພ້ອມກຸ່ມປຸ່ມ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_tree
@@ -3567,17 +3733,17 @@ msgstr "ໂພສທັງໝົດ"
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_forum_view_tree
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_tree
 msgid "Total Views"
-msgstr "ການເຂົ້າເບິ່ງທັງໝົດ"
+msgstr "ຈຳນວນການເບິ່ງທັງໝົດ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__vote_count
 msgid "Total Votes"
-msgstr "ຄະແນນໂໂຫວດທັງໝົດ"
+msgstr "ຄະແນນໂຫວດທັງໝົດ"
 
 #. module: website_forum
 #: model:ir.model,name:website_forum.model_gamification_karma_tracking
 msgid "Track Karma Changes"
-msgstr "ຕິດຕາມການປ່ຽນແປງຄະແນນກຳ"
+msgstr "ຕິດຕາມການປ່ຽນແປງຂອງ Karma"
 
 #. module: website_forum
 #. odoo-javascript
@@ -3589,7 +3755,7 @@ msgstr "Twitter"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_model_nav
 msgid "Unanswered"
-msgstr "ຍັງບໍ່ມີຄຳຕອບ"
+msgstr "ຍັງບໍ່ໄດ້ຕອບ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_dropdown
@@ -3597,7 +3763,7 @@ msgid "Undelete"
 msgstr "ຍົກເລີກການລຶບ"
 
 #. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.follow
+#: model_terms:ir.ui.view,arch_db:website_forum.follow_button
 msgid "Unfollow"
 msgstr "ເຊົາຕິດຕາມ"
 
@@ -3614,12 +3780,12 @@ msgstr "ຍັງບໍ່ໄດ້ແກ້ໄຂ"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_model_nav
 msgid "Unused Tags"
-msgstr "ແທັກທີ່ບໍ່ໄດ້ໃຊ້"
+msgstr "ປ້າຍກຳກັບທີ່ບໍ່ໄດ້ໃຊ້"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__tag_unused_ids
 msgid "Unused tags"
-msgstr "ແທັກທີ່ບໍ່ໄດ້ໃຊ້"
+msgstr "ປ້າຍກຳກັບທີ່ບໍ່ໄດ້ໃຊ້"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__write_uid
@@ -3635,32 +3801,32 @@ msgstr "ອັບເດດເມື່ອ"
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__karma_upvote
 #: model_terms:ir.ui.view,arch_db:website_forum.vote
 msgid "Upvote"
-msgstr "ໂຫວດຂຶ້ນ"
+msgstr "ໂຫວດເຫັນດີ"
 
 #. module: website_forum
 #: model:gamification.goal.definition,name:website_forum.definition_student
 msgid "Upvoted question (1)"
-msgstr "ຄຳຖາມທີ່ຖືກໂຫວດຂຶ້ນ (1)"
+msgstr "ຄຳຖາມທີ່ຖືກໂຫວດເຫັນດີ (1)"
 
 #. module: website_forum
 #: model:gamification.goal.definition,name:website_forum.definition_great_question
 msgid "Upvoted question (15)"
-msgstr "ຄຳຖາມທີ່ຖືກໂຫວດຂຶ້ນ (15)"
+msgstr "ຄຳຖາມທີ່ຖືກໂຫວດເຫັນດີ (15)"
 
 #. module: website_forum
 #: model:gamification.goal.definition,name:website_forum.definition_nice_question
 msgid "Upvoted question (4)"
-msgstr "ຄຳຖາມທີ່ຖືກໂຫວດຂຶ້ນ (4)"
+msgstr "ຄຳຖາມທີ່ຖືກໂຫວດເຫັນດີ (4)"
 
 #. module: website_forum
 #: model:gamification.goal.definition,name:website_forum.definition_good_question
 msgid "Upvoted question (6)"
-msgstr "ຄຳຖາມທີ່ຖືກໂຫວດຂຶ້ນ (6)"
+msgstr "ຄຳຖາມທີ່ຖືກໂຫວດເຫັນດີ (6)"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.edit_post
 msgid "Use a clear, explicit and concise title"
-msgstr "ໃຊ້ຫົວຂໍ້ທີ່ຊັດເຈນ, ຈະແຈ້ງ ແລະ ສັ້ນກະທັດຮັດ"
+msgstr "ໃຊ້ຫົວຂໍ້ທີ່ຊັດເຈນ, ກົງໄປກົງມາ ແລະ ກະທັດຮັດ"
 
 #. module: website_forum
 #: model:ir.model,name:website_forum.model_res_users
@@ -3672,30 +3838,30 @@ msgstr "ຜູ້ໃຊ້"
 #. odoo-python
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "User answer accepted"
-msgstr "ຍອມຮັບຄຳຕອບຂອງຜູ້ໃຊ້ແລ້ວ"
+msgstr "ຄຳຕອບຂອງຜູ້ໃຊ້ຖືກຍອມຮັບແລ້ວ"
 
 #. module: website_forum
 #: model:ir.actions.act_window,name:website_forum.forum_post_action_favorites
 msgid "Users favorite posts"
-msgstr "ໂໂພສທີ່ຜູ້ໃຊ້ຊື່ນຊອບ"
+msgstr "ໂພສທີ່ຜູ້ໃຊ້ບັນທຶກເປັນລາຍການໂປດ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.moderation_queue
 #: model_terms:ir.ui.view,arch_db:website_forum.post_dropdown
 #: model_terms:ir.ui.view,arch_db:website_forum.show_flag_validator
 msgid "Validate"
-msgstr "ກວດສອບ"
+msgstr "ອະນຸມັດ"
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "Validate an answer"
-msgstr "ກວດສອບຄຳຕອບ"
+msgstr "ອະນຸມັດຄຳຕອບ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_template_validation
 msgid "Validate question"
-msgstr "ກວດສອບຄຳຖາມ"
+msgstr "ອະນຸມັດຄຳຖາມ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_stats
@@ -3704,8 +3870,8 @@ msgstr "ເບິ່ງ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_display
-msgid "View my answer <i class=\"oi oi-arrow-right ms-1\"/>"
-msgstr "ເບິ່ງຄຳຕອບຂອງຂ້ອຍ <i class=\"oi oi-arrow-right ms-1\"/>"
+msgid "View my answer <i class=\"oi ms-1\" data-icon=\"east\"/>"
+msgstr "ເບິ່ງຄຳຕອບຂອງຂ້ອຍ <i class=\"oi ms-1\" data-icon=\"east\"/>"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__views
@@ -3713,12 +3879,12 @@ msgstr "ເບິ່ງຄຳຕອບຂອງຂ້ອຍ <i class=\"oi oi-arr
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_related_posts
 #: model_terms:ir.ui.view,arch_db:website_forum.post_stats
 msgid "Views"
-msgstr "ເບິ່ງ"
+msgstr "ຍອດເບິ່ງ"
 
 #. module: website_forum
 #: model:forum.post.reason,name:website_forum.reason_12
 msgid "Violent language"
-msgstr "ພາສາທີ່ຮຸນແຮງ"
+msgstr "ຄຳເວົ້າຮຸນແຮງ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_vote__vote
@@ -3728,7 +3894,7 @@ msgstr "ໂຫວດ"
 #. module: website_forum
 #: model:ir.model.constraint,message:website_forum.constraint_forum_post_vote_vote_uniq
 msgid "Vote already exists!"
-msgstr "ມີການໂຫວດຢູ່ແລ້ວ!"
+msgstr "ມີການໂຫວດນີ້ຢູ່ແລ້ວ!"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__vote_ids
@@ -3739,7 +3905,7 @@ msgstr "ຄະແນນໂຫວດ"
 #. module: website_forum
 #: model:ir.model.fields.selection,name:website_forum.selection__forum_post__state__pending
 msgid "Waiting Validation"
-msgstr "ກຳລັງລໍຖ້າການກວດສອບ"
+msgstr "ກຳລັງລໍຖ້າການອະນຸມັດ"
 
 #. module: website_forum
 #: model:ir.model,name:website_forum.model_website
@@ -3751,54 +3917,49 @@ msgstr "ເວັບໄຊ"
 #. module: website_forum
 #: model:ir.model.fields.selection,name:website_forum.selection__gamification_challenge__challenge_category__forum
 msgid "Website / Forum"
-msgstr "ເວັບໄຊ / ຟໍຣຳ"
+msgstr "ເວັບໄຊ / ເວທີສົນທະນາ"
 
 #. module: website_forum
-#: model:ir.model.fields,field_description:website_forum.field_forum_forum__website_message_ids
-#: model:ir.model.fields,field_description:website_forum.field_forum_post__website_message_ids
-#: model:ir.model.fields,field_description:website_forum.field_forum_tag__website_message_ids
-msgid "Website Messages"
-msgstr "ຂໍ້ຄວາມຈາກເວັບໄຊ"
+#: model:ir.model.fields,field_description:website_forum.field_forum_forum__website_absolute_url
+#: model:ir.model.fields,field_description:website_forum.field_forum_post__website_absolute_url
+#: model:ir.model.fields,field_description:website_forum.field_forum_tag__website_absolute_url
+msgid "Website Absolute URL"
+msgstr "URL ເວັບໄຊແບບເຕັມ"
 
 #. module: website_forum
+#: model:ir.model.fields,field_description:website_forum.field_forum_forum__website_url
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__website_url
+#: model:ir.model.fields,field_description:website_forum.field_forum_tag__website_url
 msgid "Website URL"
 msgstr "URL ເວັບໄຊ"
-
-#. module: website_forum
-#: model:ir.model.fields,help:website_forum.field_forum_forum__website_message_ids
-#: model:ir.model.fields,help:website_forum.field_forum_post__website_message_ids
-#: model:ir.model.fields,help:website_forum.field_forum_tag__website_message_ids
-msgid "Website communication history"
-msgstr "ປະຫວັດການຕິດຕໍ່ສື່ສານທາງເວັບໄຊ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__website_meta_description
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__website_meta_description
 #: model:ir.model.fields,field_description:website_forum.field_forum_tag__website_meta_description
 msgid "Website meta description"
-msgstr "ຄຳອະທິບາຍ meta ຂອງເວັບໄຊ"
+msgstr "Meta description ຂອງເວັບໄຊ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__website_meta_keywords
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__website_meta_keywords
 #: model:ir.model.fields,field_description:website_forum.field_forum_tag__website_meta_keywords
 msgid "Website meta keywords"
-msgstr "ຄຳຄົ້ນ meta ຂອງເວັບໄຊ"
+msgstr "Meta keywords ຂອງເວັບໄຊ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__website_meta_title
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__website_meta_title
 #: model:ir.model.fields,field_description:website_forum.field_forum_tag__website_meta_title
 msgid "Website meta title"
-msgstr "ຫົວຂໍ້ meta ຂອງເວັບໄຊ"
+msgstr "Meta title ຂອງເວັບໄຊ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__website_meta_og_img
 #: model:ir.model.fields,field_description:website_forum.field_forum_post__website_meta_og_img
 #: model:ir.model.fields,field_description:website_forum.field_forum_tag__website_meta_og_img
 msgid "Website opengraph image"
-msgstr "ຮູບພາບ opengraph ຂອງເວັບໄຊ"
+msgstr "ຮູບພາບ OpenGraph ຂອງເວັບໄຊ"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum__welcome_message
@@ -3821,14 +3982,14 @@ msgid ""
 "rough measure of the community trust to him/her. Various moderation tasks "
 "are gradually assigned to the users based on those points."
 msgstr ""
-"ເມື່ອຄຳຖາມ ຫຼື ຄຳຕອບຖືກໂຫວດຂຶ້ນ, ຜູ້ທີ່ໂພສຈະໄດ້ຮັບຄະແນນ ເຊິ່ງເອີ້ນວ່າ \"ຄະແນນກຳ\". ຄະແນນເຫຼົ່ານີ້ແມ່ນ"
-"ເຄື່ອງວັດແທກຄວາມໄວ້ວາງໃຈຂອງຊຸມຊົນທີ່ມີຕໍ່ລາວ. ໜ້າທີ່ໃນການຄວບຄຸມຕ່າງໆ ຈະຖືກມອບໝາຍໃຫ້ຜູ້ໃຊ້ໂດຍອີງຕາມຄ"
-"ະແນນເຫຼົ່ານັ້ນ."
+"ເມື່ອຄຳຖາມ ຫຼື ຄຳຕອບຖືກໂຫວດເຫັນດີ, ຜູ້ໃຊ້ທີ່ໂພສຈະໄດ້ຮັບຄະແນນ ເຊິ່ງເອີ້ນວ່າ \"ຄະແນນ karma\". ຄະແນ"
+"ນເຫຼົ່ານີ້ໃຊ້ເປັນຕົວວັດແທກຄວາມໄວ້ວາງໃຈຂອງຊຸມຊົນທີ່ມີຕໍ່ຜູ້ກ່ຽວ. ໜ້າທີ່ການດູແລລະບົບຕ່າງໆຈະຄ່ອຍໆມອບໝາຍໃຫ້ຜູ້ໃ"
+"ຊ້ຕາມຄະແນນເຫຼົ່ານັ້ນ."
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.new_question
 msgid "Write a clear, explicit and concise title"
-msgstr "ຂຽນຫົວຂໍ້ທີ່ຊັດເຈນ, ຈະແຈ້ງ ແລະ ສັ້ນກະທັດຮັດ"
+msgstr "ຂຽນຫົວຂໍ້ໃຫ້ຊັດເຈນ, ກົງໄປກົງມາ ແລະ ກະທັດຮັດ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.user_sidebar_header
@@ -3838,24 +3999,30 @@ msgstr "XP"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_model_nav
 msgid "You already have a pending post"
-msgstr "ທ່ານມີໂພສທີ່ຍັງລໍຖ້າການກວດສອບຢູ່ແລ້ວ"
+msgstr "ທ່ານມີໂພສທີ່ກຳລັງລໍຖ້າການອະນຸມັດຢູ່ແລ້ວ"
+
+#. module: website_forum
+#. odoo-python
+#: code:addons/website_forum/models/forum_post.py:0
+msgid "You can post only one answer."
+msgstr "ທ່ານສາມາດໂພສໄດ້ພຽງແຕ່ຄຳຕອບດຽວເທົ່ານັ້ນ."
 
 #. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/xml/public_templates.xml:0
 msgid "You can share your question once it has been validated"
-msgstr "ທ່ານສາມາດແບ່ງປັນຄຳຖາມຂອງທ່ານໄດ້ເມື່ອມັນຖືກກວດສອບແລ້ວ"
+msgstr "ທ່ານສາມາດແບ່ງປັນຄຳຖາມຂອງທ່ານໄດ້ເມື່ອມັນຜ່ານການອະນຸມັດແລ້ວ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_display
 msgid "You can't vote for your own post"
-msgstr "ທ່ານບໍ່ສາມາດໂຫວດໃຫ້ໂພສຂອງທ່ານເອງໄດ້"
+msgstr "ທ່ານບໍ່ສາມາດໂຫວດໃຫ້ໂພສຂອງຕົນເອງໄດ້"
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/forum_post.py:0
 msgid "You cannot create recursive forum posts."
-msgstr "ທ່ານບໍ່ສາມາດສ້າງໂພສຟໍຣຳແບບຊ້ອນກັນໄດ້."
+msgstr "ທ່ານບໍ່ສາມາດສ້າງໂພສເວທີສົນທະນາແບບວົນຊ້ຳໄດ້."
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_answer
@@ -3865,58 +4032,58 @@ msgstr "ທ່ານບໍ່ສາມາດໂພສຄຳຕອບທີ່ວ
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_display
 msgid "You don't have enough karma"
-msgstr "ທ່ານມີຄະແນນກຳບໍ່ພຽງພໍ"
+msgstr "ທ່ານມີຄະແນນ Karma ບໍ່ພຽງພໍ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
 msgid "You have a pending post"
-msgstr "ທ່ານມີໂພສທີ່ຍັງລໍຖ້າການກວດສອບ"
+msgstr "ທ່ານມີໂພສທີ່ກຳລັງລໍຖ້າການອະນຸມັດ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.user_profile_content
 msgid "You have not answered any questions yet."
-msgstr "ທ່ານຍັງບໍ່ໄດ້ຕອບຄຳຖາມໃດໆເທື່ອ."
+msgstr "ທ່ານຍັງບໍ່ທັນໄດ້ຕອບຄຳຖາມໃດໆເທື່ອ."
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.user_profile_content
 msgid "You have not posted any questions yet."
-msgstr "ທ່ານຍັງບໍ່ໄດ້ໂພສຄຳຖາມໃດໆເທື່ອ."
+msgstr "ທ່ານຍັງບໍ່ທັນໄດ້ຕັ້ງຄຳຖາມໃດໆເທື່ອ."
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.user_votes
 msgid "You haven't given any votes yet."
-msgstr "ທ່ານຍັງບໍ່ທັນໄດ້ໂຫວດເທື່ອ."
+msgstr "ທ່ານຍັງບໍ່ທັນໄດ້ລົງຄະແນນໂຫວດເທື່ອ."
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.header
 msgid "You may now participate in our forums."
-msgstr "ຕອນນີ້ທ່ານສາມາດເຂົ້າຮ່ວມໃນຟໍຣຳຂອງພວກເຮົາໄດ້ແລ້ວ."
+msgstr "ຕອນນີ້ທ່ານສາມາດມີສ່ວນຮ່ວມໃນເວທີສົນທະນາຂອງພວກເຮົາໄດ້ແລ້ວ."
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.edit_post
 msgid "You need to have sufficient karma to edit tags"
-msgstr "ທ່ານຕ້ອງມີຄະແນນກຳພຽງພໍເພື່ອແກ້ໄຂແທັກ"
+msgstr "ທ່ານຕ້ອງມີຄະແນນ Karma ພຽງພໍເພື່ອດັດແກ້ປ້າຍກຳກັບ"
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
 #: model_terms:ir.ui.view,arch_db:website_forum.default_faq
 msgid ""
-"You should only ask practical, answerable questions based on actual problems"
-" that you face. Chatty, open-ended questions diminish the usefulness of this"
-" site and push other questions off the front page."
+"You should only ask practical, answerable questions based on actual problems "
+"that you face. Chatty, open-ended questions diminish the usefulness of this "
+"site and push other questions off the front page."
 msgstr ""
-"ທ່ານຄວນຖາມພຽງແຕ່ຄຳຖາມທີ່ສາມາດຕອບໄດ້ ແລະ ເປັນປະໂຫຍດ ໂດຍອີງໃສ່ບັນຫາຕົວຈິງທີ່ທ່ານພົບ. ຄຳຖາມປາຍເ"
-"ປີດ ຫຼື ຄຳຖາມທີ່ເປັນການສົນທະນາທົ່ວໄປ ຈະເຮັດໃຫ້ເວັບໄຊນີ້ຫຼຸດຄວາມສຳຄັນລົງ."
+"ທ່ານຄວນຖາມສະເພາະຄຳຖາມທີ່ນຳໃຊ້ໄດ້ຕົວຈິງ ແລະ ສາມາດຕອບໄດ້ ໂດຍອີງຕາມບັນຫາຕົວຈິງທີ່ທ່ານພົບພໍ້. ຄຳຖາມ"
+"ແບບຊວນຄຸຍຫຼິ້ນ ຫຼື ຄຳຖາມປາຍເປີດຈະຫຼຸດປະໂຫຍດຂອງເວັບໄຊນີ້ ແລະ ດັນໃຫ້ຄຳຖາມອື່ນໆຕົກຈາກໜ້າຫຼັກ."
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.display_post_question_block
 msgid "You're following this post"
-msgstr "ທ່ານກຳລັງຕິດຕາມໂພສນີ້"
+msgstr "ທ່ານກຳລັງຕິດຕາມໂພສນີ້ຢູ່"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
 msgid "You've Completely Caught&amp;nbsp;Up!"
-msgstr "ທ່ານໄດ້ຕິດຕາມທັນໝົດແລ້ວ!"
+msgstr "ທ່ານອັບເດດຕິດຕາມຄົບໝົດທຸກຢ່າງແລ້ວ!"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.edit_post
@@ -3932,12 +4099,12 @@ msgstr "ລາຍການໂປດຂອງທ່ານ"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.faq_karma
 msgid "accept any answer"
-msgstr "ຍອມຮັບຄຳຕອບໃດໜຶ່ງ"
+msgstr "ຍອມຮັບທຸກຄຳຕອບ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.header
 msgid "and join this Forum"
-msgstr "ແລະ ເຂົ້າຮ່ວມຟໍຣຳນີ້"
+msgstr "ແລະ ເຂົ້າຮ່ວມເວທີສົນທະນານີ້"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_index_tags
@@ -3952,7 +4119,7 @@ msgstr "ທີ່"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_model_nav
 msgid "breadcrumb"
-msgstr "breadcrumb"
+msgstr "ແຖບເສັ້ນທາງນຳທາງ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.edit_post
@@ -3962,17 +4129,17 @@ msgstr "ໂດຍ"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.faq_karma
 msgid "close any posts"
-msgstr "ປິດໂພສໃດໜຶ່ງ"
+msgstr "ປິດທຸກໂພສ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.faq_karma
 msgid "delete any comment"
-msgstr "ລຶບຄວາມຄິດເຫັນໃດໜຶ່ງ"
+msgstr "ລຶບທຸກຄວາມຄິດເຫັນ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.faq_karma
 msgid "delete any question or answer"
-msgstr "ລຶບຄຳຖາມ ຫຼື ຄຳຕອບໃດໜຶ່ງ"
+msgstr "ລຶບທຸກຄຳຖາມ ຫຼື ຄຳຕອບ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.faq_karma
@@ -3982,13 +4149,13 @@ msgstr "ລຶບຄວາມຄິດເຫັນຂອງຕົນເອງ"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.faq_karma
 msgid "downvote"
-msgstr "ໂຫວດລົງ"
+msgstr "ໂຫວດບໍ່ເຫັນດີ"
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/forum_post_vote.py:0
 msgid "downvoted"
-msgstr "ຖືກໂຫວດລົງແລ້ວ"
+msgstr "ຖືກໂຫວດບໍ່ເຫັນດີແລ້ວ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_forum_view_form
@@ -4003,23 +4170,23 @@ msgstr "ຕົວຢ່າງ: ການຊ່ວຍເຫຼືອດ້ານ�
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_view_form
 msgid "e.g. When should I plant my tomatoes?"
-msgstr "ຕົວຢ່າງ: ຂ້ອຍຄວນປູກໝາກເລັ່ນຕອນໃດ?"
+msgstr "ຕົວຢ່າງ: ຄວນປູກໝາກເລັ່ນຍາມໃດ?"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.faq_karma
 msgid "edit any post, view offensive flags"
-msgstr "ແກ້ໄຂໂພສໃດໜຶ່ງ, ເບິ່ງທຸງທີ່ໝາຍວ່າຫຍາບຄາຍ"
+msgstr "ດັດແກ້ທຸກໂພສ, ເບິ່ງລາຍການທີ່ຖືກລາຍງານວ່າບໍ່ເໝາະສົມ"
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
 #: model_terms:ir.ui.view,arch_db:website_forum.default_faq
 msgid "every answer is equally valid: “What’s your favorite ______?”"
-msgstr "ທຸກຄຳຕອບມີຄວາມໝາຍຄືກັນ: “______ ທີ່ທ່ານມັກທີ່ສຸດແມ່ນຫຍັງ?”"
+msgstr "ທຸກຄຳຕອບມີນ້ຳໜັກເທົ່າກັນ: “ອັນໃດທີ່ເຈົ້າມັກທີ່ສຸດ ______?”"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.faq_karma
 msgid "flag offensive, close own questions"
-msgstr "ໝາຍວ່າຫຍາບຄາຍ, ປິດຄຳຖາມຂອງຕົນເອງ"
+msgstr "ລາຍງານເນື້ອຫາບໍ່ເໝາະສົມ, ປິດຄຳຖາມຂອງຕົນເອງ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.post_description_full
@@ -4029,44 +4196,44 @@ msgstr "ດ້ວຍເຫດຜົນ:"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_template_validation
 msgid ""
-"has been posted and require your validation. Click here to access the "
+"has been posted and requires your validation. Click here to access the "
 "question :"
 msgstr ""
-"ໄດ້ຖືກໂພສແລ້ວ ແລະ ຕ້ອງການການກວດສອບຂອງທ່ານ. ຄລິກບ່ອນນີ້ເພື່ອເຂົ້າເບິ່ງຄຳຖາມ:"
-
-#. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.forum_post_template_new_answer
-msgid "has been posted. Click here to access the post :"
-msgstr "ໄດ້ຖືກໂພສແລ້ວ. ຄລິກບ່ອນນີ້ເພື່ອເຂົ້າເບິ່ງໂພສ:"
+"ຖືກໂພສແລ້ວ ແລະ ຕ້ອງການການອະນຸມັດຈາກທ່ານ. ກົດຢູ່ນີ້ເພື່ອເຂົ້າເບິ່ງຄຳຖາມ :"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_template_new_question
 msgid "has been posted. Click here to access the question :"
-msgstr "ໄດ້ຖືກໂພສແລ້ວ. ຄລິກບ່ອນນີ້ເພື່ອເຂົ້າເບິ່ງຄຳຖາມ:"
+msgstr "ຖືກໂພສແລ້ວ. ກົດຢູ່ນີ້ເພື່ອເຂົ້າເບິ່ງຄຳຖາມ :"
+
+#. module: website_forum
+#: model_terms:ir.ui.view,arch_db:website_forum.forum_post_template_new_answer
+msgid "has been posted. Click here to access the question:"
+msgstr "ຖືກໂພສແລ້ວ. ກົດຢູ່ນີ້ເພື່ອເຂົ້າເບິ່ງຄຳຖາມ:"
 
 #. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/xml/public_templates.xml:0
 msgid "here"
-msgstr "ບ່ອນນີ້"
+msgstr "ທີ່ນີ້"
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
 #: model_terms:ir.ui.view,arch_db:website_forum.default_faq
 msgid "how to configure or customize Odoo to specific business needs,"
-msgstr "ວິທີການຕັ້ງຄ່າ ຫຼື ປັບແຕ່ງ Odoo ໃຫ້ເຂົ້າກັບຄວາມຕ້ອງການທາງທຸລະກິດສະເພາະ,"
+msgstr "ວິທີການກຳນົດຄ່າ ຫຼື ປັບແຕ່ງ Odoo ໃຫ້ເໝາະກັບຄວາມຕ້ອງການສະເພາະຂອງທຸລະກິດ,"
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
 #: model_terms:ir.ui.view,arch_db:website_forum.default_faq
 msgid "how to develop modules for your own need,"
-msgstr "ວິທີການພັດທະນາໂມດູນສຳລັບຄວາມຕ້ອງການຂອງທ່ານເອງ,"
+msgstr "ວິທີພັດທະນາໂມດູນສຳລັບຄວາມຕ້ອງການຂອງທ່ານເອງ,"
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
 #: model_terms:ir.ui.view,arch_db:website_forum.default_faq
 msgid "how to install Odoo on a specific infrastructure,"
-msgstr "ວິທີການຕິດຕັ້ງ Odoo ໃນໂຄງສ້າງພື້ນຖານສະເພາະ,"
+msgstr "ວິທີຕິດຕັ້ງ Odoo ໃນລະບົບໂຄງຮ່າງພື້ນຖານສະເພາະ,"
 
 #. module: website_forum
 #. odoo-javascript
@@ -4076,7 +4243,7 @@ msgid ""
 "        answer is selected as the right one. See what you can do with karma"
 msgstr ""
 "ຖ້າ\n"
-"        ຄຳຕອບຂອງທ່ານຖືກເລືອກວ່າຖືກຕ້ອງ. ເບິ່ງສິ່ງທີ່ທ່ານສາມາດເຮັດໄດ້ດ້ວຍຄະແນນກຳ"
+"        ຄຳຕອບຂອງທ່ານຖືກເລືອກວ່າຖືກຕ້ອງ. ເບິ່ງສິ່ງທີ່ທ່ານສາມາດເຮັດໄດ້ດ້ວຍຄະແນນ karma"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
@@ -4091,7 +4258,7 @@ msgstr "ໃນໂພສຂອງທ່ານ"
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.faq_karma
 msgid "insert text link, upload files"
-msgstr "ແຊກລິ້ງຂໍ້ຄວາມ, ອັບໂຫຼດໄຟລ໌"
+msgstr "ໃສ່ລິ້ງຄ໌ຂໍ້ຄວາມ, ອັບໂຫຼດໄຟລ໌"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
@@ -4102,18 +4269,18 @@ msgstr "ແທນ."
 #: model_terms:forum.forum,faq:website_forum.forum_help
 #: model_terms:ir.ui.view,arch_db:website_forum.default_faq
 msgid "it is a rant disguised as a question: “______ sucks, am I right?”"
-msgstr "ມັນເປັນການຈົ່ມທີ່ປອມແປງມາເປັນຄຳຖາມ: “______ ບໍ່ດີເລີຍ, ແມ່ນບໍ່?”"
+msgstr "ເປັນການຈົ່ມລະບາຍທີ່ປອມມາໃນຮູບແບບຄຳຖາມ: “______ ຫ່ວຍຫຼາຍ, ແມ່ນບໍ່?”"
 
 #. module: website_forum
 #. odoo-javascript
 #: code:addons/website_forum/static/src/xml/public_templates.xml:0
 msgid "karma points"
-msgstr "ຄະແນນກຳ"
+msgstr "ຄະແນນ karma"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
 msgid "matching \""
-msgstr "ທີ່ກົງກັບ \""
+msgstr "ກົງກັບ \""
 
 #. module: website_forum
 #. odoo-python
@@ -4125,13 +4292,13 @@ msgstr "ບໍ່ມີການປ່ຽນແປງ"
 #. odoo-python
 #: code:addons/website_forum/models/forum_post_vote.py:0
 msgid "no more downvoted"
-msgstr "ບໍ່ຖືກໂຫວດລົງອີກແລ້ວ"
+msgstr "ບໍ່ມີການໂຫວດບໍ່ເຫັນດີອີກຕໍ່ໄປ"
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/forum_post_vote.py:0
 msgid "no more upvoted"
-msgstr "ບໍ່ຖືກໂຫວດຂຶ້ນອີກແລ້ວ"
+msgstr "ບໍ່ມີການໂຫວດເຫັນດີອີກຕໍ່ໄປ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_post_template_new_question
@@ -4147,8 +4314,8 @@ msgid ""
 "on social networks get an answer within\n"
 "        5 hours. Questions shared on two social networks have"
 msgstr ""
-"ໃນເຄືອຂ່າຍສັງຄົມ ຈະໄດ້ຮັບຄຳຕອບພາຍໃນ\n"
-"        5 ຊົ່ວໂມງ. ຄຳຖາມທີ່ແບ່ງປັນໃນສອງເຄືອຂ່າຍສັງຄົມມີ"
+"ໃນສື່ສັງຄົມອອນລາຍໄດ້ຮັບຄຳຕອບພາຍໃນ\n"
+"        5 ຊົ່ວໂມງ. ຄຳຖາມທີ່ຖືກແບ່ງປັນລົງສອງສື່ສັງຄົມອອນລາຍມີ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_all_all_entries
@@ -4160,23 +4327,23 @@ msgstr "ໂພສ"
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_index
 #: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
 msgid "posts"
-msgstr "ໂພສ"
+msgstr "ໂພສຕ່າງໆ"
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
 #: model_terms:ir.ui.view,arch_db:website_forum.default_faq
 msgid "specific questions about Odoo service offers, etc."
-msgstr "ຄຳຖາມສະເພາະກ່ຽວກັບການສະເໜີບໍລິການ Odoo ແລະ ອື່ນໆ."
+msgstr "ຄຳຖາມສະເພາະກ່ຽວກັບຂໍ້ສະເໜີການບໍລິການຂອງ Odoo ແລະ ອື່ນໆ."
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
 msgid "tag"
-msgstr "ແທັກ"
+msgstr "ປ້າຍກຳກັບ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.forum_index_tags
 msgid "tags"
-msgstr "ແທັກ"
+msgstr "ປ້າຍກຳກັບຕ່າງໆ"
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
@@ -4184,23 +4351,23 @@ msgstr "ແທັກ"
 msgid ""
 "there is no actual problem to be solved: “I’m curious if other people feel "
 "like I do.”"
-msgstr "ບໍ່ມີບັນຫາແທ້ຈິງທີ່ຕ້ອງແກ້ໄຂ: “ຂ້ອຍຢາກຮູ້ວ່າຄົນອື່ນຮູ້ສຶກຄືຂ້ອຍບໍ່.”"
+msgstr "ບໍ່ມີບັນຫາຕົວຈິງທີ່ຈະຕ້ອງແກ້ໄຂ: “ຂ້ອຍຢາກຮູ້ວ່າມີຄົນອື່ນຄິດຄືຂ້ອຍບໍ່.”"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.faq_karma
 msgid "upvote, add comments"
-msgstr "ໂຫວດຂຶ້ນ, ເພີ່ມຄວາມຄິດເຫັນ"
+msgstr "ໂຫວດເຫັນດີ, ເພີ່ມຄວາມຄິດເຫັນ"
 
 #. module: website_forum
 #. odoo-python
 #: code:addons/website_forum/models/forum_post_vote.py:0
 msgid "upvoted"
-msgstr "ຖືກໂຫວດຂຶ້ນແລ້ວ"
+msgstr "ຖືກໂຫວດເຫັນດີແລ້ວ"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.no_results_message
 msgid "using the"
-msgstr "ໂດຍການໃຊ້"
+msgstr "ໂດຍນຳໃຊ້"
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
@@ -4209,13 +4376,14 @@ msgid ""
 "we are being asked an open-ended, hypothetical question: “What if ______ "
 "happened?”"
 msgstr ""
-"ພວກເຮົາກຳລັງຖືກຖາມຄຳຖາມປາຍເປີດ, ຄຳຖາມສົມມຸດ: “ຈະເກີດຫຍັງຂຶ້ນ ຖ້າ ______ ເກີດຂຶ້ນ?”"
+"ພວກເຮົາກຳລັງຖືກຖາມຄຳຖາມປາຍເປີດແບບສົມມຸດຕິຖານ: “ຈະເປັນແນວໃດຖ້າ ______ ເກີດຂຶ້ນ?”"
 
 #. module: website_forum
 #: model_terms:forum.forum,faq:website_forum.forum_help
 #: model_terms:ir.ui.view,arch_db:website_forum.default_faq
 msgid "what's the best way to use Odoo for a specific business need,"
-msgstr "ວິທີທີ່ດີທີ່ສຸດໃນການໃຊ້ Odoo ສຳລັບຄວາມຕ້ອງການທາງທຸລະກິດສະເພາະແມ່ນຫຍັງ,"
+msgstr ""
+"ວິທີທີ່ດີທີ່ສຸດໃນການນຳໃຊ້ Odoo ສຳລັບຄວາມຕ້ອງການສະເພາະຂອງທຸລະກິດແມ່ນຫຍັງ,"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.author_box
@@ -4229,15 +4397,15 @@ msgid ""
 "your answer is provided along with the question, and you expect more "
 "answers: “I use ______ for ______, what do you use?”"
 msgstr ""
-"ຄຳຕອບຂອງທ່ານຖືກໃຫ້ພ້ອມກັບຄຳຖາມ ແລະ ທ່ານຄາດຫວັງຄຳຕອບເພີ່ມເຕີມ: “ຂ້ອຍໃຊ້ ______ ສຳລັບ "
-"______, ທ່ານໃຊ້ຫຍັງ?”"
+"ຄຳຕອບຂອງທ່ານຖືກໃສ່ໄວ້ພ້ອມກັບຄຳຖາມ ແລະ ທ່ານຄາດຫວັງຄຳຕອບເພີ່ມເຕີມ: “ຂ້ອຍໃຊ້ ______ ສຳລັບ "
+"______, ແລ້ວທ່ານເດ ໃຊ້ອັນໃດ?”"
 
 #. module: website_forum
 #: model_terms:ir.ui.view,arch_db:website_forum.faq_karma
 msgid "your biography can be seen as tooltip"
-msgstr "ຊີວະປະຫວັດຂອງທ່ານສາມາດເຫັນໄດ້ເປັນ tooltip"
+msgstr "ປະຫວັດຂອງທ່ານສາມາດເບິ່ງເຫັນເປັນຄຳແນະນຳຂໍ້ຄວາມ (tooltip)"
 
 #. module: website_forum
-#: model_terms:ir.ui.view,arch_db:website_forum.follow
+#: model_terms:ir.ui.view,arch_db:website_forum.follow_button
 msgid "your email..."
 msgstr "ອີເມວຂອງທ່ານ..."

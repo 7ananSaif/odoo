@@ -5,12 +5,11 @@ import json
 from datetime import datetime, timedelta
 from freezegun import freeze_time
 
-from odoo.tests import HttpCase, tagged, new_test_user
+from odoo.tests import HttpCase, new_test_user
 from ..models.mail_presence import PRESENCE_OUTDATED_TIMER
 from odoo.addons.bus.models.bus import channel_with_db, json_dump
 
 
-@tagged("-at_install", "post_install")
 class TestMailPresence(HttpCase):
     def test_bus_presence_auto_vacuum(self):
         user = new_test_user(self.env, login="bob_user")
@@ -33,9 +32,19 @@ class TestMailPresence(HttpCase):
         self.env["mail.presence"]._update_presence(inactivity_period=0, user_or_guest=bob)
         self.env["mail.presence"].search([("user_id", "=", bob.id)]).unlink()
         self.env.cr.precommit.run()  # trigger the creation of bus.bus records
-        channel = json_dump(channel_with_db(self.env.cr.dbname, (bob.partner_id, "presence")))
-        bus_notif = self.env["bus.bus"].sudo().search(
-            [("channel", "=", channel)], order="id desc", limit=1,
+        presence_channel = json_dump(channel_with_db(self.env.cr.dbname, (bob, "presence")))
+        presence_bus_notif = self.env["bus.bus"].sudo().search(
+            [("channel", "=", presence_channel)], order="id desc", limit=1,
         )
-        self.assertEqual(json.loads(bus_notif.message)["payload"]["presence_status"], "offline")
-        self.assertEqual(json.loads(bus_notif.message)["payload"]["im_status"], "offline")
+        user_channel = json_dump(channel_with_db(self.env.cr.dbname, bob))
+        user_bus_notif = self.env["bus.bus"].sudo().search(
+            [("channel", "=", user_channel)], order="id desc", limit=1,
+        )
+        self.assertEqual(
+            json.loads(presence_bus_notif.message)["payload"]["res.users"][0]["im_status"],
+            "offline",
+        )
+        self.assertEqual(
+            json.loads(user_bus_notif.message)["payload"]["res.users"][0]["presence_status"],
+            "offline",
+        )

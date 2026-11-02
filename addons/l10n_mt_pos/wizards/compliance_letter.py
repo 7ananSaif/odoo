@@ -17,13 +17,13 @@ class ComplianceLetter(models.TransientModel):
             "date": self._get_formatted_date(),
             "name": self.company_id.name,
             "vat": self.company_id.vat,
-            "address": self.company_id.partner_id.pos_contact_address,
+            "address": self.company_id.partner_id.address,
         }
         return self.env.ref('l10n_mt_pos.report_compliance_letter').report_action([], data=data)
 
     def _get_formatted_date(self):
         """Returns the formatted date as 'Date (Month, xxth, 20XX)'."""
-        date_obj = datetime.strptime(str(fields.Date.today()), '%Y-%m-%d')
+        date_obj = datetime.strptime(str(fields.Date.context_today(self)), '%Y-%m-%d')
         day = date_obj.day
         day_suffix = 'th' if 11 <= day <= 13 else {1: 'st', 2: 'nd', 3: 'rd'}.get(day % 10, 'th')
         return tools.format_date(self.env, date_obj, date_format=f"MMMM d'{day_suffix}', Y")

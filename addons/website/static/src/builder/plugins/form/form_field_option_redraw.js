@@ -1,11 +1,13 @@
-import { BaseOptionComponent, useDomState } from "@html_builder/core/utils";
-import { FormFieldOption } from "./form_field_option";
+import { BaseOptionComponent } from "@html_builder/core/base_option_component";
+import { useDomState } from "@html_builder/core/utils";
+import { useProps } from "@odoo/owl";
+import { registry } from "@web/core/registry";
+import { FormFieldOption, formFieldOptionProps } from "./form_field_option";
 
 export class FormFieldOptionRedraw extends BaseOptionComponent {
+    static id = "form_field_option_redraw";
     static template = "website.s_website_form_field_option_redraw";
-    static props = FormFieldOption.props;
-    static selector = ".s_website_form_field";
-    static exclude = ".s_website_form_dnone";
+    props = useProps(formFieldOptionProps);
     static components = { FormFieldOption };
 
     setup() {
@@ -19,3 +21,5 @@ export class FormFieldOptionRedraw extends BaseOptionComponent {
         });
     }
 }
+
+registry.category("website-options").add(FormFieldOptionRedraw.id, FormFieldOptionRedraw);

@@ -5,24 +5,24 @@
 # Bone NI <bounkirdni@gmail.com>, 2026.
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0\n"
+"Project-Id-Version: Odoo Server 19.4a1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:38+0000\n"
-"PO-Revision-Date: 2026-06-06 20:23+0000\n"
+"POT-Creation-Date: 2026-09-18 17:38+0000\n"
+"PO-Revision-Date: 2026-10-19 10:33+0000\n"
 "Last-Translator: Bone NI <bounkirdni@gmail.com>\n"
-"Language-Team: Lao <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Lao <https://translate.odoo.com/projects/odoo-20/"
 "purchase_stock/lo/>\n"
 "Language: lo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.purchase_order_view_form_inherit
-msgid "% On-Time Delivery"
-msgstr "% ການຈັດສົ່ງກົງເວລາ"
+msgid "% On Time"
+msgstr "% ຕົງເວລາ"
 
 #. module: purchase_stock
 #. odoo-python
@@ -41,29 +41,39 @@ msgstr "%(value)s ສຳລັບ %(quantity)s %(unit)s ຈາກ %(bills)s"
 #: code:addons/purchase_stock/models/stock_move.py:0
 msgid "%(value)s for %(quantity)s %(unit)s from %(quotation)s (not billed)"
 msgstr ""
-"%(value)s ສຳລັບ %(quantity)s %(unit)s ຈາກ %(quotation)s (ຍັງບໍ່ໄດ້ອອກບິນ)"
+"%(value)s ສຳລັບ %(quantity)s %(unit)s ຈາກ %(quotation)s (ຍັງບໍ່ທັນວາງບິນ)"
 
 #. module: purchase_stock
 #. odoo-python
 #: code:addons/purchase_stock/models/stock_rule.py:0
-msgid "+ %d day(s)"
+msgid "+ %d days"
 msgstr "+ %d ມື້"
 
 #. module: purchase_stock
 #. odoo-python
 #: code:addons/purchase_stock/models/stock_rule.py:0
-msgid "+ %s day(s)"
+msgid "+ %s days"
 msgstr "+ %s ມື້"
+
+#. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_kanban_catalog_purchase_only
+msgid "<small class=\"text-muted ms-1\"> / month</small>"
+msgstr "<small class=\"text-muted ms-1\"> / ເດືອນ</small>"
+
+#. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_kanban_catalog_purchase_only
+msgid "<small class=\"text-muted\">Demand: </small>"
+msgstr "<small class=\"text-muted\">ຄວາມຕ້ອງການ: </small>"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.res_partner_view_purchase_buttons_inherit
 msgid "<span class=\"o_stat_text\">On-time Rate</span>"
-msgstr "<span class=\"o_stat_text\">ອັດຕາກົງເວລາ</span>"
+msgstr "<span class=\"o_stat_text\">ອັດຕາຕົງເວລາ</span>"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.stock_production_lot_view_form
 msgid "<span class=\"o_stat_text\">Purchases</span>"
-msgstr "<span class=\"o_stat_text\">ການຊື້</span>"
+msgstr "<span class=\"o_stat_text\">ການສັ່ງຊື້</span>"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.res_partner_view_purchase_buttons_inherit
@@ -77,18 +87,8 @@ msgstr "<span class=\"text-info fw-bold fs-5 me-1\">ແນະນຳ</span>"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_kanban_catalog_purchase_only
-msgid "<span class=\"text-muted small me-1\">Monthly Demand:</span>"
-msgstr "<span class=\"text-muted small me-1\">ຄວາມຕ້ອງການລາຍເດືອນ:</span>"
-
-#. module: purchase_stock
-#: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_kanban_catalog_purchase_only
 msgid "<span class=\"text-muted small ms-1\">Forecasted</span>"
-msgstr "<span class=\"text-muted small ms-1\">ຄາດການແລ້ວ</span>"
-
-#. module: purchase_stock
-#: model_terms:ir.ui.view,arch_db:purchase_stock.purchase_order_view_form_inherit
-msgid "<span invisible=\"on_time_rate &gt;= 0\">No data yet</span>"
-msgstr "<span invisible=\"on_time_rate &gt;= 0\">ຍັງບໍ່ມີຂໍ້ມູນ</span>"
+msgstr "<span class=\"text-muted small ms-1\">ຄາດຄະເນ</span>"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_kanban_catalog_purchase_only
@@ -107,31 +107,26 @@ msgid "<strong class=\"d-block mt-3\">Shipping address</strong>"
 msgstr "<strong class=\"d-block mt-3\">ທີ່ຢູ່ຈັດສົ່ງ</strong>"
 
 #. module: purchase_stock
-#: model_terms:ir.ui.view,arch_db:purchase_stock.report_purchaseorder_document
-#: model_terms:ir.ui.view,arch_db:purchase_stock.report_purchasequotation_document
-msgid "<strong>Incoterm:</strong>"
-msgstr "<strong>Incoterm:</strong>"
-
-#. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.report_purchasequotation_document
 msgid "<strong>Requested Ship Date:</strong>"
-msgstr "<strong>ວັນທີຈັດສົ່ງທີ່ຕ້ອງການ:</strong>"
+msgstr "<strong>ວັນທີຮ້ອງຂໍໃຫ້ຈັດສົ່ງ:</strong>"
 
 #. module: purchase_stock
 #: model:ir.model.fields,help:purchase_stock.field_purchase_order_line__is_storable
 msgid "A storable product is a product for which you manage stock."
-msgstr "ສິນຄ້າທີ່ຈັດເກັບໄດ້ ແມ່ນສິນຄ້າທີ່ທ່ານຈັດການສະຕັອກ."
+msgstr "ສິນຄ້າທີ່ສາມາດເກັບໃນສາງໄດ້ ແມ່ນສິນຄ້າທີ່ທ່ານຄຸ້ມຄອງສະຕັອກ."
 
 #. module: purchase_stock
 #: model:ir.model.fields,help:purchase_stock.field_purchase_order_line__qty_received_method
 msgid ""
-"According to product configuration, the received quantity can be automatically computed by mechanism:\n"
+"According to product configuration, the received quantity can be "
+"automatically computed by mechanism:\n"
 "  - Manual: the quantity is set manually on the line\n"
 "  - Stock Moves: the quantity comes from confirmed pickings\n"
 msgstr ""
-"ອີງຕາມການຕັ້ງຄ່າສິນຄ້າ, ຈຳນວນທີ່ໄດ້ຮັບສາມາດຄິດໄລ່ໂດຍອັດຕະໂນມັດດ້ວຍກົນໄກ:\n"
-"  - ດ້ວຍຕົນເອງ (Manual): ຈຳນວນຖືກຕັ້ງຄ່າເອງໃນລາຍການ\n"
-"  - ການເຄື່ອນຍ້າຍສະຕັອກ (Stock Moves): ຈຳນວນມາຈາກການຮັບສິນຄ້າທີ່ຢືນຢັນແລ້ວ\n"
+"ອີງຕາມການກຳນົດຄ່າສິນຄ້າ, ຈຳນວນທີ່ໄດ້ຮັບສາມາດຄິດໄລ່ໂດຍອັດຕະໂນມັດຜ່ານລະບົບ:\n"
+"  - ດ້ວຍຕົນເອງ: ຈຳນວນຖືກກຳນົດເອງໃນແຖວລາຍການ\n"
+"  - ການເຄື່ອນຍ້າຍສະຕັອກ: ຈຳນວນມາຈາກລາຍການຮັບສິນຄ້າທີ່ຢືນຢັນແລ້ວ\n"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_rule__action
@@ -148,7 +143,7 @@ msgstr "ເພີ່ມທັງໝົດ"
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/product_catalog/search/search_panel.js:0
 msgid "After next month last year"
-msgstr "ຫຼັງເດືອນໜ້າຂອງປີຜ່ານມາ"
+msgstr "ຫຼັງເດືອນໜ້າຂອງປີກາຍ"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.res_config_settings_view_form_purchase
@@ -156,8 +151,8 @@ msgid ""
 "Allow Make to Order, or automate PO, when a product is sold and get direct "
 "links between documents."
 msgstr ""
-"ອະນຸຍາດໃຫ້ເຮັດຕາມຄຳສັ່ງຊື້ (Make to Order), ຫຼື ອອກໃບສັ່ງຊື້ອັດຕະໂນມັດ ເມື່ອສິນຄ້າຖືກຂາຍ ແລະ ເຊື່ອມ"
-"ຕໍ່ເອກະສານໂດຍກົງ."
+"ອະນຸຍາດໃຫ້ສັ່ງຊື້ຕາມຄຳສັ່ງ (Make to Order) ຫຼື ສ້າງໃບສັ່ງຊື້ອັດຕະໂນມັດ ເມື່ອສິນຄ້າຖືກຂາຍ ແລະ ເຊື່ອມຕໍ່ເ"
+"ອກະສານໂດຍກົງ."
 
 #. module: purchase_stock
 #: model:ir.model.fields.selection,name:purchase_stock.selection__res_partner__group_rfq__all
@@ -167,12 +162,12 @@ msgstr "ສະເໝີ"
 #. module: purchase_stock
 #: model:ir.model.fields,help:purchase_stock.field_stock_warehouse_orderpoint__available_vendor
 msgid "Any vendor on the product's pricelist"
-msgstr "ຜູ້ສະໜອງໃດໜຶ່ງໃນລາຍການລາຄາສິນຄ້າ"
+msgstr "ຜູ້ສະໜອງໃດໜຶ່ງໃນລາຍການລາຄາຂອງສິນຄ້າ"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_order__effective_date
 msgid "Arrival"
-msgstr "ການມາເຖິງ"
+msgstr "ມາຮອດ"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_warehouse_orderpoint__available_vendor
@@ -183,7 +178,7 @@ msgstr "ຜູ້ສະໜອງທີ່ມີຢູ່"
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/product_catalog/search/search_panel.xml:0
 msgid "Based on"
-msgstr "ອີງຕາມ"
+msgstr "ອີງໃສ່"
 
 #. module: purchase_stock
 #. odoo-python
@@ -197,27 +192,27 @@ msgstr "ຊື້"
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_warehouse__buy_pull_id
 msgid "Buy rule"
-msgstr "ກົດການຊື້"
+msgstr "ກົດລະບຽບການຊື້"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_warehouse__buy_to_resupply
 msgid "Buy to Resupply"
-msgstr "ຊື້ເພື່ອເຕີມສິນຄ້າ"
+msgstr "ຊື້ເພື່ອເຕີມສາງ"
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_res_company
-msgid "Companies"
+msgid "Company"
 msgstr "ບໍລິສັດ"
 
 #. module: purchase_stock
 #: model:ir.model.fields,help:purchase_stock.field_purchase_order__effective_date
-msgid "Completion date of the first receipt order."
-msgstr "ວັນທີສຳເລັດຂອງໃບຮັບສິນຄ້າຄັ້ງທຳອິດ."
+msgid "Completion date of the last receipt order."
+msgstr "ວັນທີສຳເລັດຂອງໃບຮັບສິນຄ້າຫຼ້າສຸດ."
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_res_config_settings
 msgid "Config Settings"
-msgstr "ການຕັ້ງຄ່າ"
+msgstr "ຕັ້ງຄ່າລະບົບ"
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_res_partner
@@ -238,7 +233,7 @@ msgstr "ສ້າງລູກຄ້າ"
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_move__created_purchase_line_ids
 msgid "Created Purchase Order Lines"
-msgstr "ລາຍການໃບສັ່ງຊື້ທີ່ສ້າງຂຶ້ນ"
+msgstr "ແຖວລາຍການໃບສັ່ງຊື້ທີ່ສ້າງແລ້ວ"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_order_line__product_description_variants
@@ -251,21 +246,27 @@ msgid "Daily"
 msgstr "ລາຍວັນ"
 
 #. module: purchase_stock
+#: model:ir.model.fields,help:purchase_stock.field_purchase_order__date_promised
+msgid ""
+"Date promised by the vendor for at least 1 or more products to be delivered "
+"by."
+msgstr "ວັນທີທີ່ຜູ້ສະໜອງສັນຍາວ່າຈະຈັດສົ່ງສິນຄ້າຢ່າງໜ້ອຍ 1 ລາຍການຂຶ້ນໄປ."
+
+#. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_picking__days_to_arrive
 msgid "Days To Arrive"
-msgstr "ຈຳນວນວັນທີ່ຈະມາເຖິງ"
+msgstr "ຈຳນວນມື້ກວ່າຈະມາຮອດ"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.res_config_settings_view_form_stock
 msgid "Days needed to confirm a PO"
-msgstr "ຈຳນວນວັນທີ່ຕ້ອງການເພື່ອຢືນຢັນໃບສັ່ງຊື້"
+msgstr "ຈຳນວນມື້ທີ່ຕ້ອງໃຊ້ເພື່ອຢືນຢັນໃບສັ່ງຊື້"
 
 #. module: purchase_stock
 #: model:ir.model.fields,help:purchase_stock.field_res_company__days_to_purchase
 #: model:ir.model.fields,help:purchase_stock.field_res_config_settings__days_to_purchase
 msgid "Days needed to confirm a PO, define when a PO should be validated"
-msgstr ""
-"ຈຳນວນວັນທີ່ຕ້ອງການເພື່ອຢືນຢັນໃບສັ່ງຊື້, ກຳນົດເວລາທີ່ໃບສັ່ງຊື້ຄວນຖືກກວດສອບ"
+msgstr "ຈຳນວນມື້ທີ່ຕ້ອງໃຊ້ເພື່ອຢືນຢັນໃບສັ່ງຊື້, ກຳນົດເວລາທີ່ຄວນຢືນຢັນໃບສັ່ງຊື້"
 
 #. module: purchase_stock
 #. odoo-python
@@ -273,36 +274,48 @@ msgstr ""
 #: model:ir.model.fields,field_description:purchase_stock.field_res_company__days_to_purchase
 #: model:ir.model.fields,field_description:purchase_stock.field_res_config_settings__days_to_purchase
 msgid "Days to Purchase"
-msgstr "ຈຳນວນວັນໃນການຊື້"
+msgstr "ຈຳນວນມື້ໃນການສັ່ງຊື້"
 
 #. module: purchase_stock
 #: model:ir.model.fields,help:purchase_stock.field_res_partner__group_rfq
 #: model:ir.model.fields,help:purchase_stock.field_res_users__group_rfq
 msgid ""
-"Define if RFQ should be grouped         together based on expected arrival, except for dropship operations.\n"
-"         On Order: Replenishment needs will be grouped together except for MTO.\n"
-"         Daily: Replenishment needs will be grouped if the expected arrival is the same day\n"
-"         Weekly: Replenishment needs will be grouped if the expected arrival is the same week or week day\n"
+"Define if RFQ should be grouped         together based on expected arrival, "
+"except for dropship operations.\n"
+"         On Order: Replenishment needs will be grouped together except for "
+"MTO.\n"
+"         Daily: Replenishment needs will be grouped if the expected arrival "
+"is the same day\n"
+"         Weekly: Replenishment needs will be grouped if the expected arrival "
+"is the same week or week day\n"
 "         Always: Replenishment needs will always be grouped."
 msgstr ""
-"ກຳນົດວ່າໃບຂໍລາຄາຄວນຖືກລວມເຂົ້າກັນຫຼືບໍ່ ອີງຕາມການມາເຖິງທີ່ຄາດໄວ້, ຍົກເວັ້ນການດຳເນີນການ "
-"dropship.\n"
-"         ຕາມຄຳສັ່ງ (On Order): ຄວາມຕ້ອງການເຕີມສິນຄ້າຈະຖືກລວມກັນ ຍົກເວັ້ນ MTO.\n"
-"         ລາຍວັນ (Daily): ຄວາມຕ້ອງການເຕີມສິນຄ້າຈະຖືກລວມກັນ ຖ້າວັນທີມາເຖິງທີ່ຄາດໄວ້ແມ່ນວັນດຽວກັ"
-"ນ.\n"
-"         ລາຍອາທິດ (Weekly): ຄວາມຕ້ອງການເຕີມສິນຄ້າຈະຖືກລວມກັນ ຖ້າວັນທີມາເຖິງແມ່ນໃນອາທິດດຽວກັ"
-"ນ.\n"
-"         ສະເໝີ (Always): ຄວາມຕ້ອງການເຕີມສິນຄ້າຈະຖືກລວມກັນສະເໝີ."
+"ກຳນົດວ່າຄວນຮວມໃບຂໍໃບສະເໜີລາຄາ (RFQ) ເຂົ້າກັນຕາມເວລາຄາດວ່າຈະມາຮອດຫຼືບໍ່, ຍົກເວັ້ນການຈັດສົ່ງແບບ "
+"Dropship.\n"
+"         ຕາມການສັ່ງຊື້ (On Order): ຄວາມຕ້ອງການເຕີມສາງຈະຖືກຮວມກັນ ຍົກເວັ້ນ MTO.\n"
+"         ລາຍວັນ (Daily): ຄວາມຕ້ອງການເຕີມສາງຈະຖືກຮວມກັນ ຖ້າມື້ຄາດວ່າຈະມາຮອດແມ່ນມື້ດຽວກັນ.\n"
+"         ລາຍອາທິດ (Weekly): ຄວາມຕ້ອງການເຕີມສາງຈະຖືກຮວມກັນ ຖ້າຄາດວ່າຈະມາຮອດໃນອາທິດດຽວກັ"
+"ນ ຫຼື ມື້ດຽວກັນໃນອາທິດ.\n"
+"         ສະເໝີ (Always): ຄວາມຕ້ອງການເຕີມສາງຈະຖືກຮວມກັນສະເໝີ."
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_picking__delay_pass
 msgid "Delay Pass"
-msgstr "ການສົ່ງຕໍ່ທີ່ຊັກຊ້າ"
+msgstr "ອະນຸຍາດໃຫ້ຊັກຊ້າ"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_order__picking_type_id
 msgid "Deliver To"
-msgstr "ສົ່ງເຖິງ"
+msgstr "ຈັດສົ່ງໄປຍັງ"
+
+#. module: purchase_stock
+#: model:ir.model.fields,help:purchase_stock.field_purchase_order_line__date_promised
+msgid ""
+"Delivery Date promised by the vendor. If the vendor delivers products after "
+"this date, their On-Time rate will be negatively impacted."
+msgstr ""
+"ວັນທີຈັດສົ່ງທີ່ຜູ້ສະໜອງສັນຍາໄວ້. ຖ້າຜູ້ສະໜອງຈັດສົ່ງສິນຄ້າຫຼັງຈາກວັນທີນີ້, ອັດຕາການຈັດສົ່ງຕົງເວລາຂອງພວກເຂົາຈະ"
+"ຫຼຸດລົງ."
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.product_supplierinfo_replenishment_tree_view
@@ -315,7 +328,6 @@ msgid "Destination Location Type"
 msgstr "ປະເພດສະຖານທີ່ປາຍທາງ"
 
 #. module: purchase_stock
-#: model:ir.model.fields,field_description:purchase_stock.field_account_move__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_account_move_line__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_product_product__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_product_replenish__display_name
@@ -328,6 +340,7 @@ msgstr "ປະເພດສະຖານທີ່ປາຍທາງ"
 #: model:ir.model.fields,field_description:purchase_stock.field_res_company__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_res_config_settings__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_res_partner__display_name
+#: model:ir.model.fields,field_description:purchase_stock.field_stock_allocation_report__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_forecasted_product_product__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_lot__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_move__display_name
@@ -336,7 +349,6 @@ msgstr "ປະເພດສະຖານທີ່ປາຍທາງ"
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_replenish_mixin__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_replenishment_info__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_replenishment_option__display_name
-#: model:ir.model.fields,field_description:purchase_stock.field_stock_return_picking__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_route__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_rule__display_name
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_warehouse__display_name
@@ -353,33 +365,33 @@ msgstr "ການເຄື່ອນຍ້າຍຂັ້ນຕໍ່ໄປ"
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_order__dest_address_id
 msgid "Dropship Address"
-msgstr "ທີ່ຢູ່ Dropship"
+msgstr "ທີ່ຢູ່ຈັດສົ່ງແບບ Dropship"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_res_config_settings__module_stock_dropshipping
 msgid "Dropshipping"
-msgstr "ການສົ່ງສິນຄ້າໂດຍກົງ (Dropshipping)"
+msgstr "ການຈັດສົ່ງແບບ Dropshipping"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_report__effective_date
 #: model:ir.model.fields,field_description:purchase_stock.field_vendor_delay_report__date
 msgid "Effective Date"
-msgstr "ວັນທີມີຜົນ"
+msgstr "ວັນທີມີຜົນສັກສິດ"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.vendor_delay_report_filter
 msgid "Effective Date Last Year"
-msgstr "ວັນທີມີຜົນໃນປີຜ່ານມາ"
+msgstr "ວັນທີມີຜົນສັກສິດປີກາຍ"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_report__days_to_arrival
 msgid "Effective Days To Arrival"
-msgstr "ຈຳນວນວັນທີ່ມີຜົນຈົນກວ່າຈະມາເຖິງ"
+msgstr "ຈຳນວນມື້ຕົວຈິງກວ່າຈະມາຮອດ"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_warehouse_orderpoint__effective_vendor_id
 msgid "Effective Vendor"
-msgstr "ຜູ້ສະໜອງທີ່ມີຜົນ"
+msgstr "ຜູ້ສະໜອງຕົວຈິງ"
 
 #. module: purchase_stock
 #: model:ir.model.fields,help:purchase_stock.field_stock_warehouse_orderpoint__effective_vendor_id
@@ -387,38 +399,43 @@ msgid ""
 "Either the vendor set directly or the one computed to be used by this "
 "replenishment"
 msgstr ""
-"ບໍ່ວ່າຈະເປັນຜູ້ສະໜອງທີ່ຕັ້ງຄ່າໂດຍກົງ ຫຼື ຜູ້ທີ່ຖືກຄິດໄລ່ເພື່ອໃຊ້ໃນການເຕີມສິນຄ້ານີ້"
+"ບໍ່ວ່າຈະເປັນຜູ້ສະໜອງທີ່ກຳນົດໂດຍກົງ ຫຼື ຜູ້ທີ່ຖືກຄິດໄລ່ເພື່ອນຳໃຊ້ໃນການເຕີມສາງນີ້"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.exception_on_po
 msgid "Exception(s) occurred on the purchase order(s):"
-msgstr "ມີຂໍ້ຍົກເວັ້ນເກີດຂຶ້ນໃນໃບສັ່ງຊື້:"
+msgstr "ມີຂໍ້ຜິດພາດເກີດຂຶ້ນກັບໃບສັ່ງຊື້:"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.exception_on_po
 msgid "Exception(s):"
-msgstr "ຂໍ້ຍົກເວັ້ນ:"
+msgstr "ຂໍ້ຜິດພາດ:"
 
 #. module: purchase_stock
 #: model:ir.model.fields.selection,name:purchase_stock.selection__res_partner__group_on__default
 msgid "Expected Date"
-msgstr "ວັນທີຄາດໄວ້"
+msgstr "ວັນທີຄາດໝາຍ"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.purchase_order_view_form_inherit
 msgid "Forecast Report"
-msgstr "ລາຍງານການຄາດການ"
+msgstr "ລາຍງານການຄາດຄະເນ"
 
 #. module: purchase_stock
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/product_catalog/search/search_panel.js:0
 msgid "Forecasted"
-msgstr "ຄາດການແລ້ວ"
+msgstr "ຄາດຄະເນໄວ້"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_order_line__forecasted_issue
 msgid "Forecasted Issue"
-msgstr "ບັນຫາທີ່ຄາດການໄວ້"
+msgstr "ບັນຫາທີ່ຄາດຄະເນ"
+
+#. module: purchase_stock
+#: model:ir.model.fields,field_description:purchase_stock.field_purchase_order_line__forecasted_location_id
+msgid "Forecasted Location"
+msgstr "ສະຖານທີ່ຄາດຄະເນ"
 
 #. module: purchase_stock
 #: model:ir.model.fields.selection,name:purchase_stock.selection__res_partner__group_on__5
@@ -426,50 +443,40 @@ msgid "Friday"
 msgstr "ວັນສຸກ"
 
 #. module: purchase_stock
-#: model:ir.model.fields.selection,name:purchase_stock.selection__purchase_order__receipt_status__full
-msgid "Fully Received"
-msgstr "ຮັບຄົບຖ້ວນ"
-
-#. module: purchase_stock
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/js/tours/purchase_stock.js:0
 msgid "Generate the draft vendor bill."
-msgstr "ສ້າງຮ່າງບິນຜູ້ສະໜອງ."
+msgstr "ສ້າງຮ່າງໃບຮຽກເກັບເງິນຈາກຜູ້ສະໜອງ."
 
 #. module: purchase_stock
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/product_catalog/search/search_panel.js:0
 msgid ""
-"Get recommendations of products to purchase at %(vendorName)s based on stock on hand, incoming quantities, and expected sales volumes.\n"
+"Get recommendations of products to purchase at %(vendorName)s based on stock "
+"on hand, incoming quantities, and expected sales volumes.\n"
 "\n"
-" Set a reference period to estimate sales, and use the percentage to take into account seasonality and the increase/decrease of business."
+" Set a reference period to estimate sales, and use the percentage to take "
+"into account seasonality and the increase/decrease of business."
 msgstr ""
-"ຮັບຄຳແນະນຳສິນຄ້າທີ່ຈະຊື້ຈາກ %(vendorName)s ອີງຕາມສິນຄ້າໃນສາງ, ຈຳນວນຂາເຂົ້າ, ແລະ ປະລິມານການ"
-"ຂາຍທີ່ຄາດໄວ້.\n"
+"ຮັບຄຳແນະນຳສິນຄ້າທີ່ຈະສັ່ງຊື້ຈາກ %(vendorName)s ໂດຍອີງໃສ່ສິນຄ້າໃນສາງ, ຈຳນວນທີ່ກຳລັງເຂົ້າມາ, ແລະ "
+"ຍອດຂາຍທີ່ຄາດໄວ້.\n"
 "\n"
-" ຕັ້ງຄ່າໄລຍະເວລາອ້າງອີງເພື່ອປະເມີນການຂາຍ, ແລະ ໃຊ້ເປີເຊັນເພື່ອພິຈາລະນາຕາມລະດູການ ແລະ ການເພີ່ມຂຶ້"
+" ກຳນົດໄລຍະເວລາອ້າງອີງເພື່ອປະເມີນຍອດຂາຍ, ແລະ ໃຊ້ເປີເຊັນເພື່ອພິຈາລະນາຕາມລະດູການ ແລະ ການເພີ່ມຂຶ້"
 "ນ/ຫຼຸດລົງຂອງທຸລະກິດ."
 
 #. module: purchase_stock
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/js/tours/purchase_stock.js:0
 msgid "Go back to the purchase order to generate the vendor bill."
-msgstr "ກັບໄປທີ່ໃບສັ່ງຊື້ເພື່ອສ້າງບິນຜູ້ສະໜອງ."
-
-#. module: purchase_stock
-#. odoo-javascript
-#: code:addons/purchase_stock/static/src/stock_valuation/stock_valuation_report.js:0
-msgid "Goods Received Not Invoiced"
-msgstr "ໄດ້ຮັບສິນຄ້າແລ້ວແຕ່ຍັງບໍ່ໄດ້ອອກບິນ"
+msgstr "ກັບຄືນໄປທີ່ໃບສັ່ງຊື້ເພື່ອສ້າງໃບຮຽກເກັບເງິນຈາກຜູ້ສະໜອງ."
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_res_partner__group_rfq
 #: model:ir.model.fields,field_description:purchase_stock.field_res_users__group_rfq
 msgid "Group RFQ"
-msgstr "ກຸ່ມໃບຂໍລາຄາ"
+msgstr "ຮວມກຸ່ມໃບຂໍໃບສະເໜີລາຄາ"
 
 #. module: purchase_stock
-#: model:ir.model.fields,field_description:purchase_stock.field_account_move__id
 #: model:ir.model.fields,field_description:purchase_stock.field_account_move_line__id
 #: model:ir.model.fields,field_description:purchase_stock.field_product_product__id
 #: model:ir.model.fields,field_description:purchase_stock.field_product_replenish__id
@@ -482,6 +489,7 @@ msgstr "ກຸ່ມໃບຂໍລາຄາ"
 #: model:ir.model.fields,field_description:purchase_stock.field_res_company__id
 #: model:ir.model.fields,field_description:purchase_stock.field_res_config_settings__id
 #: model:ir.model.fields,field_description:purchase_stock.field_res_partner__id
+#: model:ir.model.fields,field_description:purchase_stock.field_stock_allocation_report__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_forecasted_product_product__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_lot__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_move__id
@@ -490,49 +498,38 @@ msgstr "ກຸ່ມໃບຂໍລາຄາ"
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_replenish_mixin__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_replenishment_info__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_replenishment_option__id
-#: model:ir.model.fields,field_description:purchase_stock.field_stock_return_picking__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_route__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_rule__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_warehouse__id
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_warehouse_orderpoint__id
 #: model:ir.model.fields,field_description:purchase_stock.field_vendor_delay_report__id
 msgid "ID"
-msgstr "ລະຫັດ (ID)"
+msgstr "ລະຫັດ"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_order__incoming_picking_count
 msgid "Incoming Shipment count"
-msgstr "ຈຳນວນການຈັດສົ່ງຂາເຂົ້າ"
+msgstr "ຈຳນວນການຈັດສົ່ງສິນຄ້າຂາເຂົ້າ"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.purchase_order_view_form_inherit
 msgid "Incoming Shipments"
-msgstr "ການຈັດສົ່ງຂາເຂົ້າ"
-
-#. module: purchase_stock
-#: model:ir.model.fields,field_description:purchase_stock.field_purchase_order__incoterm_location
-msgid "Incoterm Location"
-msgstr "ສະຖານທີ່ Incoterm"
+msgstr "ການຈັດສົ່ງສິນຄ້າຂາເຂົ້າ"
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_stock_route
-msgid "Inventory Routes"
-msgstr "ເສັ້ນທາງສິນຄ້າຄົງຄັງ"
+msgid "Inventory Route"
+msgstr "ເສັ້ນທາງສາງສິນຄ້າ"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_order__is_shipped
 msgid "Is Shipped"
-msgstr "ສົ່ງແລ້ວ"
+msgstr "ຈັດສົ່ງແລ້ວ"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_res_config_settings__is_installed_sale
 msgid "Is the Sale Module Installed"
-msgstr "ໂມດູນການຂາຍຖືກຕິດຕັ້ງແລ້ວຫຼືບໍ່"
-
-#. module: purchase_stock
-#: model:ir.model,name:purchase_stock.model_account_move
-msgid "Journal Entry"
-msgstr "ການບັນທຶກບັນຊີ"
+msgstr "ໂມດູນການຂາຍໄດ້ຖືກຕິດຕັ້ງແລ້ວບໍ່"
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_account_move_line
@@ -566,18 +563,18 @@ msgstr "7 ມື້ຜ່ານມາ"
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_product_supplierinfo__last_purchase_date
 msgid "Last Purchase"
-msgstr "ການຊື້ຄັ້ງລ່າສຸດ"
+msgstr "ການສັ່ງຊື້ຫຼ້າສຸດ"
 
 #. module: purchase_stock
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/product_catalog/search/search_panel.js:0
 msgid "Last year quarter"
-msgstr "ໄຕມາດຂອງປີຜ່ານມາ"
+msgstr "ໄຕມາດດຽວກັນຂອງປີກາຍ"
 
 #. module: purchase_stock
-#: model:ir.model.fields,field_description:purchase_stock.field_purchase_order_line__location_final_id
-msgid "Location from procurement"
-msgstr "ສະຖານທີ່ຈາກການຈັດຊື້"
+#: model:ir.model.fields,help:purchase_stock.field_purchase_order_line__forecasted_location_id
+msgid "Location used in the computation of the forecast."
+msgstr "ສະຖານທີ່ທີ່ໃຊ້ໃນການຄິດໄລ່ການຄາດຄະເນ."
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.res_config_settings_view_form_purchase
@@ -587,17 +584,23 @@ msgstr "ໂລຈິສຕິກ"
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_stock_lot
 msgid "Lot/Serial"
-msgstr "ລັອດ/ຊີຣຽວ"
+msgstr "ຊຸດ/ເລກລຳດັບ"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.exception_on_po
 msgid "Manual actions may be needed."
-msgstr "ອາດຕ້ອງໄດ້ດຳເນີນການດ້ວຍຕົນເອງ."
+msgstr "ອາດຈຳເປັນຕ້ອງດຳເນີນການດ້ວຍຕົນເອງ."
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_stock_warehouse_orderpoint
 msgid "Minimum Inventory Rule"
-msgstr "ກົດເກນສິນຄ້າຄົງຄັງຂັ້ນຕ່ຳ"
+msgstr "ກົດລະບຽບສິນຄ້າຄົງສາງຂັ້ນຕ່ຳ"
+
+#. module: purchase_stock
+#. odoo-python
+#: code:addons/purchase_stock/models/stock.py:0
+msgid "Missing products in receipt"
+msgstr "ສິນຄ້າຂາດຫາຍໃນໃບຮັບສິນຄ້າ"
 
 #. module: purchase_stock
 #: model:ir.model.fields.selection,name:purchase_stock.selection__res_partner__group_on__1
@@ -613,12 +616,12 @@ msgstr "ຄວາມຕ້ອງການລາຍເດືອນ"
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/product_catalog/search/search_panel.js:0
 msgid "Next month last year"
-msgstr "ເດືອນໜ້າຂອງປີຜ່ານມາ"
+msgstr "ເດືອນຕໍ່ໄປຂອງປີກາຍ"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.exception_on_po
 msgid "Next transfer(s) impacted:"
-msgstr "ການໂອນຍ້າຍຄັ້ງຕໍ່ໄປທີ່ໄດ້ຮັບຜົນກະທົບ:"
+msgstr "ການໂອນຍ້າຍຕໍ່ໄປທີ່ໄດ້ຮັບຜົນກະທົບ:"
 
 #. module: purchase_stock
 #. odoo-python
@@ -629,39 +632,34 @@ msgstr "ບໍ່ພົບຜູ້ສະໜອງ"
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.purchase_help_message_template
 msgid "No receipt yet! Automate them with purchase orders."
-msgstr "ຍັງບໍ່ມີໃບຮັບສິນຄ້າ! ເຮັດໃຫ້ເປັນອັດຕະໂນມັດດ້ວຍໃບສັ່ງຊື້."
+msgstr "ຍັງບໍ່ມີໃບຮັບສິນຄ້າເທື່ອ! ສ້າງແບບອັດຕະໂນມັດດ້ວຍໃບສັ່ງຊື້."
 
 #. module: purchase_stock
 #. odoo-python
 #: code:addons/purchase_stock/models/stock_rule.py:0
 msgid "No supplier has been found to replenish"
-msgstr "ບໍ່ພົບຜູ້ສະໜອງເພື່ອເຕີມສິນຄ້າ"
-
-#. module: purchase_stock
-#: model:ir.model.fields.selection,name:purchase_stock.selection__purchase_order__receipt_status__pending
-msgid "Not Received"
-msgstr "ຍັງບໍ່ໄດ້ຮັບ"
+msgstr "ບໍ່ພົບຜູ້ສະໜອງເພື່ອເຕີມສາງ"
 
 #. module: purchase_stock
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/purchase_dashboard/purchase_dashboard.xml:0
 msgid "OTD"
-msgstr "OTD (ຈັດສົ່ງກົງເວລາ)"
+msgstr "OTD"
 
 #. module: purchase_stock
-#: model_terms:ir.ui.view,arch_db:purchase_stock.res_partner_view_purchase_buttons_inherit
+#: model_terms:ir.ui.view,arch_db:purchase_stock.purchase_order_view_form_inherit
 msgid "On"
-msgstr "ໃນວັນ"
+msgstr "ໃນ"
 
 #. module: purchase_stock
 #: model:ir.model.fields.selection,name:purchase_stock.selection__res_partner__group_rfq__default
 msgid "On Order"
-msgstr "ຕາມຄຳສັ່ງ"
+msgstr "ຕາມການສັ່ງຊື້"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.vendor_delay_report_view_graph
 msgid "On-Time Delivery"
-msgstr "ການຈັດສົ່ງກົງເວລາ"
+msgstr "ການຈັດສົ່ງຕົງເວລາ"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_order__on_time_rate
@@ -669,23 +667,28 @@ msgstr "ການຈັດສົ່ງກົງເວລາ"
 #: model:ir.model.fields,field_description:purchase_stock.field_res_users__on_time_rate
 #: model:ir.model.fields,field_description:purchase_stock.field_vendor_delay_report__on_time_rate
 msgid "On-Time Delivery Rate"
-msgstr "ອັດຕາການຈັດສົ່ງກົງເວລາ"
+msgstr "ອັດຕາການຈັດສົ່ງຕົງເວລາ"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_vendor_delay_report__qty_on_time
 msgid "On-Time Quantity"
-msgstr "ຈຳນວນທີ່ກົງເວລາ"
+msgstr "ຈຳນວນທີ່ຕົງເວລາ"
 
 #. module: purchase_stock
 #: model:ir.actions.act_window,name:purchase_stock.action_purchase_vendor_delay_report
 #: model_terms:ir.ui.view,arch_db:purchase_stock.vendor_delay_report_filter
 msgid "On-time Delivery"
-msgstr "ການຈັດສົ່ງກົງເວລາ"
+msgstr "ການຈັດສົ່ງຕົງເວລາ"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.res_partner_view_purchase_buttons_inherit
 msgid "On-time Rate"
-msgstr "ອັດຕາກົງເວລາ"
+msgstr "ອັດຕາຕົງເວລາ"
+
+#. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.exception_on_picking
+msgid "Only"
+msgstr "ເທົ່ານັ້ນ"
 
 #. module: purchase_stock
 #. odoo-python
@@ -703,28 +706,23 @@ msgstr "ຈຸດສັ່ງຊື້"
 #: model:ir.model.fields,help:purchase_stock.field_res_partner__on_time_rate
 #: model:ir.model.fields,help:purchase_stock.field_res_users__on_time_rate
 msgid ""
-"Over the past x days; the number of products received on time divided by the"
-" number of ordered products.x is either the System Parameter "
+"Over the past x days; the number of products received on time divided by the "
+"number of ordered products.x is either the System Parameter "
 "purchase_stock.on_time_delivery_days or the default 365"
 msgstr ""
-"ໃນໄລຍະ x ມື້ຜ່ານມາ; ຈຳນວນສິນຄ້າທີ່ໄດ້ຮັບກົງເວລາຫານດ້ວຍຈຳນວນສິນຄ້າທີ່ສັ່ງຊື້. x ແມ່ນພາຣາມີເຕີລະບົບ "
-"purchase_stock.on_time_delivery_days ຫຼື ຄ່າເລີ່ມຕົ້ນ 365 ມື້"
+"ໃນໄລຍະ x ມື້ຜ່ານມາ; ຈຳນວນສິນຄ້າທີ່ໄດ້ຮັບຕົງເວລາ ຫານດ້ວຍຈຳນວນສິນຄ້າທີ່ສັ່ງຊື້. x ແມ່ນຄ່າຕົວແປລະບົບ "
+"purchase_stock.on_time_delivery_days ຫຼື ຄ່າເລີ່ມຕົ້ນ 365"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_product_product__purchase_order_line_ids
 msgid "PO Lines"
-msgstr "ລາຍການໃບສັ່ງຊື້"
-
-#. module: purchase_stock
-#: model:ir.model.fields.selection,name:purchase_stock.selection__purchase_order__receipt_status__partial
-msgid "Partially Received"
-msgstr "ຮັບບາງສ່ວນ"
+msgstr "ແຖວລາຍການໃບສັ່ງຊື້"
 
 #. module: purchase_stock
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/js/tours/purchase_stock.js:0
 msgid "Process all the receipt quantities."
-msgstr "ປະມວນຜົນຈຳນວນທີ່ຮັບທັງໝົດ."
+msgstr "ດຳເນີນການຕາມຈຳນວນໃບຮັບສິນຄ້າທັງໝົດ."
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_product_template
@@ -740,17 +738,23 @@ msgstr "ໝວດໝູ່ສິນຄ້າ"
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_product_replenish
 msgid "Product Replenish"
-msgstr "ການເຕີມສິນຄ້າ"
+msgstr "ເຕີມສາງສິນຄ້າ"
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_stock_replenish_mixin
 msgid "Product Replenish Mixin"
-msgstr "Product Replenish Mixin"
+msgstr "ມິກຊິນເຕີມສາງສິນຄ້າ"
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_product_product
 msgid "Product Variant"
-msgstr "ລຸ້ນສິນຄ້າ"
+msgstr "ແບບຍ່ອຍສິນຄ້າ"
+
+#. module: purchase_stock
+#: model:ir.model.fields,field_description:purchase_stock.field_purchase_order__date_promised
+#: model:ir.model.fields,field_description:purchase_stock.field_purchase_order_line__date_promised
+msgid "Promised Date"
+msgstr "ວັນທີສັນຍາໄວ້"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_order_line__propagate_cancel
@@ -761,7 +765,7 @@ msgstr "ສົ່ງຕໍ່ການຍົກເລີກ"
 #: model:ir.model.fields,field_description:purchase_stock.field_res_partner__purchase_line_ids
 #: model:ir.model.fields,field_description:purchase_stock.field_res_users__purchase_line_ids
 msgid "Purchase Lines"
-msgstr "ລາຍການຊື້"
+msgstr "ແຖວລາຍການຊື້"
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_purchase_order
@@ -772,11 +776,9 @@ msgstr "ໃບສັ່ງຊື້"
 #: model:ir.model,name:purchase_stock.model_purchase_order_line
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_move__purchase_line_id
 msgid "Purchase Order Line"
-msgstr "ລາຍການໃບສັ່ງຊື້"
+msgstr "ແຖວລາຍການໃບສັ່ງຊື້"
 
 #. module: purchase_stock
-#. odoo-javascript
-#: code:addons/purchase_stock/static/src/stock_valuation/stock_valuation_report.js:0
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_lot__purchase_order_ids
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_picking__purchase_id
 #: model_terms:ir.ui.view,arch_db:purchase_stock.purchase_help_message_template
@@ -785,9 +787,19 @@ msgid "Purchase Orders"
 msgstr "ໃບສັ່ງຊື້"
 
 #. module: purchase_stock
+#: model:ir.module.module,summary:base.module_purchase_stock
+msgid "Purchase Orders, Receipts, Vendor Bills for Stock"
+msgstr "ໃບສັ່ງຊື້, ໃບຮັບສິນຄ້າ, ໃບຮຽກເກັບເງິນຈາກຜູ້ສະໜອງສຳລັບສາງ"
+
+#. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_purchase_report
 msgid "Purchase Report"
-msgstr "ລາຍງານການຊື້"
+msgstr "ລາຍງານການສັ່ງຊື້"
+
+#. module: purchase_stock
+#: model:ir.module.module,shortdesc:base.module_purchase_stock
+msgid "Purchase Stock"
+msgstr "ສະຕັອກການສັ່ງຊື້"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_lot__purchase_order_count
@@ -797,7 +809,7 @@ msgstr "ຈຳນວນໃບສັ່ງຊື້"
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_reference__purchase_ids
 msgid "Purchases"
-msgstr "ການຊື້"
+msgstr "ການສັ່ງຊື້"
 
 #. module: purchase_stock
 #: model:ir.model.fields,help:purchase_stock.field_purchase_order__dest_address_id
@@ -805,8 +817,8 @@ msgid ""
 "Put an address if you want to deliver directly from the vendor to the "
 "customer. Otherwise, keep empty to deliver to your own company."
 msgstr ""
-"ໃສ່ທີ່ຢູ່ຖ້າທ່ານຕ້ອງການຈັດສົ່ງໂດຍກົງຈາກຜູ້ສະໜອງໃຫ້ລູກຄ້າ. ຖ້າບໍ່ດັ່ງນັ້ນ, ໃຫ້ປະວ່າງໄວ້ເພື່ອຈັດສົ່ງໃຫ້ບໍລິສັດຂອງທ່າ"
-"ນເອງ."
+"ໃສ່ທີ່ຢູ່ຖ້າທ່ານຕ້ອງການຈັດສົ່ງໂດຍກົງຈາກຜູ້ສະໜອງໄປຫາລູກຄ້າ. ຖ້າບໍ່ດັ່ງນັ້ນ, ໃຫ້ປະວ່າງໄວ້ເພື່ອຈັດສົ່ງມາຍັງບໍລິສັດຂ"
+"ອງທ່ານເອງ."
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.purchase_order_view_form_inherit
@@ -818,11 +830,6 @@ msgstr "ໃບຮັບສິນຄ້າ"
 #: code:addons/purchase_stock/models/stock_rule.py:0
 msgid "Receipt Date"
 msgstr "ວັນທີຮັບສິນຄ້າ"
-
-#. module: purchase_stock
-#: model:ir.model.fields,field_description:purchase_stock.field_purchase_order__receipt_status
-msgid "Receipt Status"
-msgstr "ສະຖານະການຮັບ"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.purchase_order_view_form_inherit
@@ -838,7 +845,12 @@ msgstr "ຮັບສິນຄ້າທີ່ສັ່ງຊື້."
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_order_line__qty_received_method
 msgid "Received Qty Method"
-msgstr "ວິທີການຮັບຈຳນວນ"
+msgstr "ວິທີການຄິດໄລ່ຈຳນວນທີ່ໄດ້ຮັບ"
+
+#. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.exception_on_picking
+msgid "Received quantity is less than the expected quantity for transfer"
+msgstr "ຈຳນວນທີ່ໄດ້ຮັບໜ້ອຍກວ່າຈຳນວນທີ່ຄາດໄວ້ສຳລັບການໂອນຍ້າຍ"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_order__picking_ids
@@ -846,42 +858,31 @@ msgid "Receptions"
 msgstr "ການຮັບສິນຄ້າ"
 
 #. module: purchase_stock
-#: model:ir.model.fields,help:purchase_stock.field_purchase_order__receipt_status
-msgid ""
-"Red: Late\n"
-"            Orange: To process today\n"
-"            Green: On time"
-msgstr ""
-"ສີແດງ: ຊັກຊ້າ\n"
-"            ສີສົ້ມ: ຕ້ອງປະມວນຜົນມື້ນີ້\n"
-"            ສີຂຽວ: ກົງເວລາ"
-
-#. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_stock_reference
 msgid "Reference between stock documents"
-msgstr "ການອ້າງອີງລະຫວ່າງເອກະສານສະຕັອກ"
+msgstr "ເອກະສານອ້າງອີງລະຫວ່າງເອກະສານສາງ"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_order__reference_ids
 msgid "References"
-msgstr "ການອ້າງອີງ"
+msgstr "ເອກະສານອ້າງອີງ"
 
 #. module: purchase_stock
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/product_catalog/search/search_panel.xml:0
 msgid "Replenish for"
-msgstr "ເຕີມສິນຄ້າສຳລັບ"
+msgstr "ເຕີມສາງສຳລັບ"
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.res_config_settings_view_form_purchase
 msgid "Request your vendors to deliver to your customers"
-msgstr "ຮ້ອງຂໍໃຫ້ຜູ້ສະໜອງຈັດສົ່ງໃຫ້ລູກຄ້າຂອງທ່ານໂດຍກົງ"
+msgstr "ຮ້ອງຂໍໃຫ້ຜູ້ສະໜອງຂອງທ່ານຈັດສົ່ງໄປຫາລູກຄ້າຂອງທ່ານ"
 
 #. module: purchase_stock
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/purchase_stock_forecasted/forecasted_details.xml:0
 msgid "Requests for quotation :"
-msgstr "ໃບຂໍລາຄາ :"
+msgstr "ໃບຂໍໃບສະເໜີລາຄາ:"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_order_line__move_ids
@@ -889,15 +890,10 @@ msgid "Reservation"
 msgstr "ການຈອງ"
 
 #. module: purchase_stock
-#: model:ir.model,name:purchase_stock.model_stock_return_picking
-msgid "Return Picking"
-msgstr "ການສົ່ງສິນຄ້າຄືນ"
-
-#. module: purchase_stock
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/product_catalog/search/search_panel.js:0
 msgid "Same month last year"
-msgstr "ເດືອນດຽວກັນຂອງປີຜ່ານມາ"
+msgstr "ເດືອນດຽວກັນຂອງປີກາຍ"
 
 #. module: purchase_stock
 #: model:ir.model.fields.selection,name:purchase_stock.selection__res_partner__group_on__6
@@ -912,7 +908,7 @@ msgstr "ຕັ້ງເປັນຜູ້ສະໜອງ"
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_product_supplierinfo__show_set_supplier_button
 msgid "Show Set Supplier Button"
-msgstr "ສະແດງປຸ່ມຕັ້ງຄ່າຜູ້ສະໜອງ"
+msgstr "ສະແດງປຸ່ມຕັ້ງເປັນຜູ້ສະໜອງ"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_product_replenish__show_vendor
@@ -931,40 +927,45 @@ msgid "Show supplier column"
 msgstr "ສະແດງຖັນຜູ້ສະໜອງ"
 
 #. module: purchase_stock
+#: model:ir.model,name:purchase_stock.model_stock_allocation_report
+msgid "Stock Allocation Report"
+msgstr "ລາຍງານການຈັດສັນສາງ"
+
+#. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_stock_move
 msgid "Stock Move"
-msgstr "ການເຄື່ອນຍ້າຍສະຕັອກ"
+msgstr "ການເຄື່ອນຍ້າຍສິນຄ້າ"
 
 #. module: purchase_stock
 #: model:ir.model.fields.selection,name:purchase_stock.selection__purchase_order_line__qty_received_method__stock_moves
 #: model_terms:ir.ui.view,arch_db:purchase_stock.purchase_order_line_view_form_inherit
 msgid "Stock Moves"
-msgstr "ການເຄື່ອນຍ້າຍສະຕັອກ"
+msgstr "ການເຄື່ອນຍ້າຍສິນຄ້າ"
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_stock_forecasted_product_product
 msgid "Stock Replenishment Report"
-msgstr "ລາຍງານການເຕີມສິນຄ້າຄົງຄັງ"
+msgstr "ລາຍງານການເຕີມສາງສິນຄ້າ"
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_stock_rule
 msgid "Stock Rule"
-msgstr "ກົດເກນສະຕັອກ"
+msgstr "ກົດລະບຽບສາງສິນຄ້າ"
+
+#. module: purchase_stock
+#: model:ir.model,name:purchase_stock.model_stock_replenishment_info
+msgid "Stock delivery time information"
+msgstr "ຂໍ້ມູນເວລາຈັດສົ່ງສິນຄ້າ"
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_report_stock_report_stock_rule
 msgid "Stock rule report"
-msgstr "ລາຍງານກົດເກນສະຕັອກ"
-
-#. module: purchase_stock
-#: model:ir.model,name:purchase_stock.model_stock_replenishment_info
-msgid "Stock supplier replenishment information"
-msgstr "ຂໍ້ມູນການເຕີມສິນຄ້າຈາກຜູ້ສະໜອງ"
+msgstr "ລາຍງານກົດລະບຽບສາງສິນຄ້າ"
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_stock_replenishment_option
 msgid "Stock warehouse replenishment option"
-msgstr "ທາງເລືອກການເຕີມສິນຄ້າໃນຄັງ"
+msgstr "ຕົວເລືອກການເຕີມສາງສິນຄ້າ"
 
 #. module: purchase_stock
 #. odoo-javascript
@@ -976,7 +977,7 @@ msgstr "ແນະນຳ"
 #: model:ir.model.fields,field_description:purchase_stock.field_res_partner__suggest_based_on
 #: model:ir.model.fields,field_description:purchase_stock.field_res_users__suggest_based_on
 msgid "Suggest Based On"
-msgstr "ແນະນຳອີງຕາມ"
+msgstr "ແນະນຳໂດຍອີງໃສ່"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_res_partner__suggest_days
@@ -998,7 +999,7 @@ msgstr "ແນະນຳເປີເຊັນ"
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_search_catalog
 msgid "Suggested"
-msgstr "ທີ່ຖືກແນະນຳ"
+msgstr "ແນະນຳແລ້ວ"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_product_product__suggested_qty
@@ -1011,9 +1012,14 @@ msgid "Sunday"
 msgstr "ວັນອາທິດ"
 
 #. module: purchase_stock
+#: model:ir.model.fields,field_description:purchase_stock.field_product_replenish__partner_id
+msgid "Supplier"
+msgstr "ຜູ້ສະໜອງ"
+
+#. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_warehouse_orderpoint__supplier_id_placeholder
 msgid "Supplier Id Placeholder"
-msgstr "ຕົວກຳນົດລະຫັດຜູ້ສະໜອງ"
+msgstr "ຂໍ້ຄວາມແທນລະຫັດຜູ້ສະໜອງ"
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_product_supplierinfo
@@ -1028,19 +1034,19 @@ msgstr "ຂໍ້ມູນຜູ້ສະໜອງ"
 #. module: purchase_stock
 #: model:ir.model.fields,help:purchase_stock.field_purchase_order__default_location_dest_id_usage
 msgid "Technical field used to display the Drop Ship Address"
-msgstr "ຟິວທາງເຕັກນິກທີ່ໃຊ້ເພື່ອສະແດງທີ່ຢູ່ Drop Ship"
+msgstr "ຊ່ອງຂໍ້ມູນທາງເຕັກນິກທີ່ໃຊ້ສະແດງທີ່ຢູ່ Drop Ship"
 
 #. module: purchase_stock
 #. odoo-python
 #: code:addons/purchase_stock/models/stock.py:0
 msgid "The following replenishment order has been generated"
-msgstr "ໃບສັ່ງເຕີມສິນຄ້າຕໍ່ໄປນີ້ຖືກສ້າງຂຶ້ນແລ້ວ"
+msgstr "ຄຳສັ່ງເຕີມສາງຕໍ່ໄປນີ້ໄດ້ຖືກສ້າງຂຶ້ນແລ້ວ"
 
 #. module: purchase_stock
 #. odoo-python
 #: code:addons/purchase_stock/models/purchase_order.py:0
 msgid "The purchase order %s this receipt is linked to was cancelled."
-msgstr "ໃບສັ່ງຊື້ %s ທີ່ໃບຮັບນີ້ເຊື່ອມຕໍ່ຢູ່ນັ້ນຖືກຍົກເລີກແລ້ວ."
+msgstr "ໃບສັ່ງຊື້ %s ທີ່ໃບຮັບສິນຄ້ານີ້ເຊື່ອມໂຍງຢູ່ ໄດ້ຖືກຍົກເລີກແລ້ວ."
 
 #. module: purchase_stock
 #. odoo-python
@@ -1048,30 +1054,42 @@ msgstr "ໃບສັ່ງຊື້ %s ທີ່ໃບຮັບນີ້ເຊ�
 msgid ""
 "The quantities on your purchase order indicate less than billed. You should "
 "ask for a refund."
-msgstr "ຈຳນວນໃນໃບສັ່ງຊື້ຂອງທ່ານໜ້ອຍກວ່າທີ່ອອກບິນ. ທ່ານຄວນຂໍຄືນເງິນ."
+msgstr ""
+"ຈຳນວນໃນໃບສັ່ງຊື້ຂອງທ່ານສະແດງວ່າມີໜ້ອຍກວ່າຈຳນວນທີ່ຮຽກເກັບເງິນ. ທ່ານຄວນຂໍເງິນຄືນ."
 
 #. module: purchase_stock
 #. odoo-python
 #: code:addons/purchase_stock/models/purchase_order_line.py:0
 msgid ""
 "The warehouse of operation type (%(operation_type)s) is inconsistent with "
-"location (%(location)s) of reordering rule (%(reordering_rule)s) for product"
-" %(product)s. Change the operation type or cancel the request for quotation."
+"location (%(location)s) of reordering rule (%(reordering_rule)s) for product "
+"%(product)s. Change the operation type or cancel the request for quotation."
 msgstr ""
-"ສາງຂອງປະເພດການດຳເນີນການ (%(operation_type)s) ບໍ່ກົງກັບສະຖານທີ່ (%(location)s) ຂອງກົດເ"
-"ກນການສັ່ງຊື້ຄືນ (%(reordering_rule)s) ສຳລັບສິນຄ້າ %(product)s. ກະລຸນາປ່ຽນປະເພດການດຳເນີນກ"
-"ານ ຫຼື ຍົກເລີກໃບຂໍລາຄາ."
+"ສາງຂອງປະເພດການດຳເນີນງານ (%(operation_type)s) ບໍ່ສອດຄ່ອງກັບສະຖານທີ່ (%(location)s) ຂອ"
+"ງກົດລະບຽບການສັ່ງຊື້ຊ້ຳ (%(reordering_rule)s) ສຳລັບສິນຄ້າ %(product)s. ກະລຸນາປ່ຽນປະເພດການ"
+"ດຳເນີນງານ ຫຼື ຍົກເລີກໃບຂໍໃບສະເໜີລາຄາ."
+
+#. module: purchase_stock
+#. odoo-python
+#: code:addons/purchase_stock/models/purchase_order_line.py:0
+msgid ""
+"There is a mismatch between the company the Vendor is restricted to and the "
+"company receiving the purchased products. Please ensure the company is the "
+"same or that the Contact has no company restriction set."
+msgstr ""
+"ມີຄວາມບໍ່ກົງກັນລະຫວ່າງບໍລິສັດທີ່ຜູ້ສະໜອງຖືກຈຳກັດໄວ້ ກັບບໍລິສັດທີ່ຮັບສິນຄ້າທີ່ສັ່ງຊື້. ກະລຸນາກວດສອບໃຫ້ແນ່ໃຈວ່າແມ່ນ"
+"ບໍລິສັດດຽວກັນ ຫຼື ຜູ້ຕິດຕໍ່ດັ່ງກ່າວບໍ່ໄດ້ກຳນົດການຈຳກັດບໍລິສັດໄວ້."
 
 #. module: purchase_stock
 #. odoo-python
 #: code:addons/purchase_stock/models/stock_rule.py:0
 msgid ""
-"There is no matching vendor price to generate the purchase order for product"
-" %s (no vendor defined, minimum quantity not reached, dates not valid, ...)."
-" Go on the product form and complete the list of vendors."
+"There is no matching vendor price to generate the purchase order for product "
+"%s (no vendor defined, minimum quantity not reached, dates not valid, ...). "
+"Go on the product form and complete the list of vendors."
 msgstr ""
-"ບໍ່ມີລາຄາຜູ້ສະໜອງທີ່ກົງກັນເພື່ອສ້າງໃບສັ່ງຊື້ສຳລັບສິນຄ້າ %s (ບໍ່ໄດ້ກຳນົດຜູ້ສະໜອງ, ຈຳນວນບໍ່ເຖິງຂັ້ນຕ່ຳ, ວັນທີບໍ່ຖືກ"
-"ຕ້ອງ, ...). ກະລຸນາໄປທີ່ຟອມສິນຄ້າ ແລະ ຕື່ມລາຍຊື່ຜູ້ສະໜອງໃຫ້ຄົບຖ້ວນ."
+"ບໍ່ມີລາຄາຜູ້ສະໜອງທີ່ກົງກັນເພື່ອສ້າງໃບສັ່ງຊື້ສຳລັບສິນຄ້າ %s (ບໍ່ໄດ້ກຳນົດຜູ້ສະໜອງ, ຍັງບໍ່ຮອດຈຳນວນຂັ້ນຕ່ຳ, ວັນທີບໍ່"
+"ຖືກຕ້ອງ, ...). ໃຫ້ໄປທີ່ແບບຟອມສິນຄ້າ ແລະ ເພີ່ມລາຍຊື່ຜູ້ສະໜອງໃຫ້ຄົບຖ້ວນ."
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.res_config_settings_view_form_purchase
@@ -1082,33 +1100,34 @@ msgid ""
 "manufacturing orders, etc. are triggered based on what way to replenish is "
 "set on the product (Buy or Manufacture route)."
 msgstr ""
-"ນີ້ຈະເພີ່ມເສັ້ນທາງການເຕີມສິນຄ້າຕາມຄຳສັ່ງ (MTO) ເພື່ອໃຊ້ກັບສິນຄ້າ ເພື່ອສ້າງການເຕີມສິນຄ້າຕາມຄວາມຕ້ອງການ"
-"ທີ່ເຊື່ອມໂຍງກັບໃບສັ່ງຂາຍຂອງທ່ານທັນທີທີ່ໄດ້ຮັບການຢືນຢັນ. ໃບສັ່ງຊື້, ໃບສັ່ງຜະລິດ, ແລະອື່ນໆ ຈະຖືກກະຕຸ້ນຕາມວິທີ"
-"ການເຕີມສິນຄ້າທີ່ຕັ້ງໄວ້ (ຊື້ ຫຼື ຜະລິດ)."
+"ສິ່ງນີ້ຈະເພີ່ມເສັ້ນທາງ 'ເຕີມສາງຕາມການສັ່ງຊື້ (MTO)' ເພື່ອນຳໃຊ້ກັບສິນຄ້າ ໃນການສ້າງການເຕີມສາງຕາມຄວາມ"
+"ຕ້ອງການທີ່ເຊື່ອມໂຍງກັບໃບສັ່ງຂາຍຂອງທ່ານ (ຕົວຢ່າງ) ທັນທີທີ່ໄດ້ຮັບການຢືນຢັນ, ໂດຍມີການເຊື່ອມຕໍ່ໂດຍກົງ. ໃບສັ່"
+"ງຊື້, ໃບສັ່ງຜະລິດ ແລະ ອື່ນໆ ຈະຖືກກະຕຸ້ນຂຶ້ນໂດຍອີງຕາມວິທີການເຕີມສາງທີ່ຕັ້ງໄວ້ໃນສິນຄ້າ (ເສັ້ນທາງ 'ຊື້' ຫຼື "
+"'ຜະລິດ')."
 
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.res_config_settings_view_form_purchase
 msgid ""
-"This adds a dropshipping route to apply on products in order to request your"
-" vendors to deliver to your customers. A product to dropship will generate a"
-" purchase request for quotation once the sales order confirmed. This is a "
-"on-demand flow. The requested delivery address will be the customer delivery"
-" address and not your warehouse."
+"This adds a dropshipping route to apply on products in order to request your "
+"vendors to deliver to your customers. A product to dropship will generate a "
+"purchase request for quotation once the sales order confirmed. This is a on-"
+"demand flow. The requested delivery address will be the customer delivery "
+"address and not your warehouse."
 msgstr ""
-"ນີ້ຈະເພີ່ມເສັ້ນທາງ dropshipping ເພື່ອໃຊ້ກັບສິນຄ້າ ເພື່ອຮ້ອງຂໍໃຫ້ຜູ້ສະໜອງຈັດສົ່ງໃຫ້ລູກຄ້າຂອງທ່ານໂດຍກົງ. ສິ"
-"ນຄ້າແບບ dropship ຈະສ້າງໃບຂໍລາຄາຊື້ທັນທີທີ່ໃບສັ່ງຂາຍຖືກຢືນຢັນ. ນີ້ແມ່ນຂັ້ນຕອນການເຮັດວຽກຕາມຄວາມຕ້ອງກ"
-"ານ. ທີ່ຢູ່ຈັດສົ່ງທີ່ລະບຸຈະແມ່ນທີ່ຢູ່ຂອງລູກຄ້າ ແລະ ບໍ່ແມ່ນສາງຂອງທ່ານ."
+"ສິ່ງນີ້ຈະເພີ່ມເສັ້ນທາງ dropshipping ເພື່ອນຳໃຊ້ກັບສິນຄ້າ ໃນການຮ້ອງຂໍໃຫ້ຜູ້ສະໜອງຂອງທ່ານຈັດສົ່ງສິນຄ້າໄປຫາ"
+"ລູກຄ້າຂອງທ່ານໂດຍກົງ. ສິນຄ້າທີ່ dropship ຈະສ້າງໃບຂໍໃບສະເໜີລາຄາຊື້ເມື່ອໃບສັ່ງຂາຍຖືກຢືນຢັນ. ນີ້ແມ່ນຂະບວ"
+"ນການຕາມຄວາມຕ້ອງການ. ທີ່ຢູ່ຈັດສົ່ງທີ່ຮ້ອງຂໍຈະເປັນທີ່ຢູ່ຈັດສົ່ງຂອງລູກຄ້າ ແລະ ບໍ່ແມ່ນສາງຂອງທ່ານ."
 
 #. module: purchase_stock
 #. odoo-python
 #: code:addons/purchase_stock/models/product.py:0
 msgid "This product has the \"Buy\" route checked but is not purchasable."
-msgstr "ສິນຄ້ານີ້ໄດ້ເລືອກເສັ້ນທາງ \"ຊື້\" ແຕ່ບໍ່ສາມາດສັ່ງຊື້ໄດ້."
+msgstr "ສິນຄ້ານີ້ໄດ້ເລືອກເສັ້ນທາງ \"ຊື້\" ໄວ້ ແຕ່ບໍ່ສາມາດສັ່ງຊື້ໄດ້."
 
 #. module: purchase_stock
 #: model:ir.model.fields,help:purchase_stock.field_purchase_order__picking_type_id
 msgid "This will determine operation type of incoming shipment"
-msgstr "ນີ້ຈະກຳນົດປະເພດການດຳເນີນການຂອງການຈັດສົ່ງຂາເຂົ້າ"
+msgstr "ສິ່ງນີ້ຈະກຳນົດປະເພດການດຳເນີນງານຂອງການຈັດສົ່ງສິນຄ້າຂາເຂົ້າ"
 
 #. module: purchase_stock
 #. odoo-python
@@ -1116,13 +1135,14 @@ msgstr "ນີ້ຈະກຳນົດປະເພດການດຳເນີນ
 msgid ""
 "Those dates couldn’t be modified accordingly on the receipt %s which had "
 "already been validated."
-msgstr "ວັນທີເຫຼົ່ານັ້ນບໍ່ສາມາດປ່ຽນແປງໄດ້ໃນໃບຮັບ %s ເຊິ່ງໄດ້ຮັບການຢືນຢັນໄປແລ້ວ."
+msgstr ""
+"ວັນທີເຫຼົ່ານັ້ນບໍ່ສາມາດແກ້ໄຂໃຫ້ສອດຄ່ອງກັນໃນໃບຮັບສິນຄ້າ %s ທີ່ໄດ້ຮັບການຢືນຢັນໄປແລ້ວ."
 
 #. module: purchase_stock
 #. odoo-python
 #: code:addons/purchase_stock/models/purchase_order.py:0
 msgid "Those dates have been updated accordingly on the receipt %s."
-msgstr "ວັນທີເຫຼົ່ານັ້ນໄດ້ຖືກປັບປຸງແລ້ວໃນໃບຮັບ %s."
+msgstr "ວັນທີເຫຼົ່ານັ້ນໄດ້ຮັບການອັບເດດໃຫ້ສອດຄ່ອງກັນແລ້ວໃນໃບຮັບສິນຄ້າ %s."
 
 #. module: purchase_stock
 #: model:ir.model.fields.selection,name:purchase_stock.selection__res_partner__group_on__4
@@ -1138,7 +1158,13 @@ msgstr "ການເລືອກໄລຍະເວລາ"
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_search_catalog
 msgid "To Order"
-msgstr "ທີ່ຕ້ອງສັ່ງຊື້"
+msgstr "ທີ່ຈະສັ່ງຊື້"
+
+#. module: purchase_stock
+#. odoo-javascript
+#: code:addons/purchase_stock/static/src/product_catalog/search/search_panel.xml:0
+msgid "Total"
+msgstr "ລວມ"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_vendor_delay_report__qty_total
@@ -1148,7 +1174,7 @@ msgstr "ຈຳນວນທັງໝົດ"
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_order_line__is_storable
 msgid "Track Inventory"
-msgstr "ຕິດຕາມສິນຄ້າຄົງຄັງ"
+msgstr "ຕິດຕາມສິນຄ້າຄົງສາງ"
 
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_stock_picking
@@ -1161,15 +1187,10 @@ msgid "Tuesday"
 msgstr "ວັນອັງຄານ"
 
 #. module: purchase_stock
-#: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_kanban_catalog_purchase_only
-msgid "Units"
-msgstr "ຫົວໜ່ວຍ"
-
-#. module: purchase_stock
 #. odoo-javascript
 #: code:addons/purchase_stock/static/src/js/tours/purchase_stock.js:0
 msgid "Validate the receipt of all ordered products."
-msgstr "ຢືນຢັນການຮັບສິນຄ້າທີ່ສັ່ງຊື້ທັງໝົດ."
+msgstr "ຢືນຢັນການຮັບສິນຄ້າທັງໝົດທີ່ໄດ້ສັ່ງຊື້."
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_product_replenish__supplier_id
@@ -1183,18 +1204,18 @@ msgstr "ຜູ້ສະໜອງ"
 #. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_vendor_delay_report
 msgid "Vendor Delay Report"
-msgstr "ລາຍງານການຊັກຊ້າຂອງຜູ້ສະໜອງ"
+msgstr "ລາຍງານຄວາມຊັກຊ້າຂອງຜູ້ສະໜອງ"
 
 #. module: purchase_stock
 #. odoo-python
 #: code:addons/purchase_stock/models/stock_rule.py:0
 msgid "Vendor Lead Time"
-msgstr "ໄລຍະເວລານຳສົ່ງຂອງຜູ້ສະໜອງ"
+msgstr "ໄລຍະເວລາຈັດສົ່ງຂອງຜູ້ສະໜອງ"
 
 #. module: purchase_stock
 #: model_terms:ir.actions.act_window,help:purchase_stock.action_purchase_vendor_delay_report
 msgid "Vendor On-time Delivery analysis"
-msgstr "ການວິເຄາະການຈັດສົ່ງກົງເວລາຂອງຜູ້ສະໜອງ"
+msgstr "ການວິເຄາະການຈັດສົ່ງຕົງເວລາຂອງຜູ້ສະໜອງ"
 
 #. module: purchase_stock
 #: model:ir.model.fields,field_description:purchase_stock.field_stock_replenishment_info__supplierinfo_id
@@ -1209,16 +1230,21 @@ msgid "Vendors"
 msgstr "ຜູ້ສະໜອງ"
 
 #. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.product_product_tree_view_stock
+msgid "View Forecast"
+msgstr "ເບິ່ງການຄາດຄະເນ"
+
+#. module: purchase_stock
 #: model:ir.model,name:purchase_stock.model_stock_warehouse
 #: model:ir.model.fields,field_description:purchase_stock.field_purchase_report__picking_type_id
 msgid "Warehouse"
-msgstr "ຄັງສິນຄ້າ"
+msgstr "ສາງສິນຄ້າ"
 
 #. module: purchase_stock
 #. odoo-python
 #: code:addons/purchase_stock/models/product.py:0
 msgid "Warning!"
-msgstr "ຄຳເຕືອນ!"
+msgstr "ແຈ້ງເຕືອນ!"
 
 #. module: purchase_stock
 #: model:ir.model.fields.selection,name:purchase_stock.selection__res_partner__group_on__3
@@ -1229,7 +1255,7 @@ msgstr "ວັນພຸດ"
 #: model:ir.model.fields,field_description:purchase_stock.field_res_partner__group_on
 #: model:ir.model.fields,field_description:purchase_stock.field_res_users__group_on
 msgid "Week Day"
-msgstr "ມື້ໃນອາທິດ"
+msgstr "ມື້ຂອງອາທິດ"
 
 #. module: purchase_stock
 #: model:ir.model.fields.selection,name:purchase_stock.selection__res_partner__group_rfq__week
@@ -1239,24 +1265,30 @@ msgstr "ລາຍອາທິດ"
 #. module: purchase_stock
 #: model:ir.model.fields,help:purchase_stock.field_stock_warehouse__buy_to_resupply
 msgid "When products are bought, they can be delivered to this warehouse"
-msgstr "ເມື່ອສິນຄ້າຖືກຊື້, ພວກມັນສາມາດຖືກຈັດສົ່ງມາທີ່ສາງນີ້"
+msgstr "ເມື່ອສິນຄ້າຖືກຊື້, ພວກມັນສາມາດຈັດສົ່ງມາຍັງສາງສິນຄ້ານີ້ໄດ້"
 
 #. module: purchase_stock
 #. odoo-python
 #: code:addons/purchase_stock/models/stock_rule.py:0
 msgid ""
 "When products are needed in <b>%s</b>, <br/> a request for quotation is "
-"created to fulfill the need.<br/>Note: This rule will be used in combination"
-" with the rules<br/>of the reception route(s)"
+"created to fulfill the need.<br/>Note: This rule will be used in combination "
+"with the rules<br/>of the reception route(s)"
 msgstr ""
-"ເມື່ອມີຄວາມຕ້ອງການສິນຄ້າໃນ <b>%s</b>, <br/> ໃບຂໍລາຄາຈະຖືກສ້າງຂຶ້ນເພື່ອຕອບສະໜອງຄວາມຕ້ອງກາ"
-"ນ.<br/>ໝາຍເຫດ: ກົດເກນນີ້ຈະຖືກໃຊ້ຮ່ວມກັບກົດເກນ<br/>ຂອງເສັ້ນທາງການຮັບສິນຄ້າ"
+"ເມື່ອມີຄວາມຕ້ອງການສິນຄ້າໃນ <b>%s</b>, <br/> ໃບຂໍໃບສະເໜີລາຄາຈະຖືກສ້າງຂຶ້ນເພື່ອຕອບສະໜອງຄວາມຕ້ອ"
+"ງການ.<br/>ໝາຍເຫດ: ກົດລະບຽບນີ້ຈະຖືກນຳໃຊ້ຮ່ວມກັບກົດລະບຽບ<br/>ຂອງເສັ້ນທາງການຮັບສິນຄ້າ"
 
 #. module: purchase_stock
 #. odoo-python
-#: code:addons/purchase_stock/models/purchase_order.py:0
-msgid "You must set a Vendor Location for this partner %s"
-msgstr "ທ່ານຕ້ອງກຳນົດສະຖານທີ່ຜູ້ສະໜອງສຳລັບຄູ່ຄ້າ %s ນີ້"
+#: code:addons/purchase_stock/models/purchase_order_line.py:0
+msgid "You must set a Vendor Location for partner %(partner_name)s"
+msgstr "ທ່ານຕ້ອງກຳນົດສະຖານທີ່ຜູ້ສະໜອງສຳລັບຄູ່ຮ່ວມຄ້າ %(partner_name)s"
+
+#. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.exception_on_picking
+msgid "and no backorder is planned. Manual action may be needed."
+msgstr ""
+"ແລະ ບໍ່ມີແຜນສັ່ງຊື້ຄ້າງສົ່ງ (Backorder). ອາດຈຳເປັນຕ້ອງດຳເນີນການດ້ວຍຕົນເອງ."
 
 #. module: purchase_stock
 #. odoo-javascript
@@ -1265,6 +1297,7 @@ msgid "day(s)"
 msgstr "ມື້"
 
 #. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.exception_on_picking
 #: model_terms:ir.ui.view,arch_db:purchase_stock.exception_on_po
 msgid "of"
 msgstr "ຂອງ"
@@ -1272,13 +1305,23 @@ msgstr "ຂອງ"
 #. module: purchase_stock
 #: model_terms:ir.ui.view,arch_db:purchase_stock.exception_on_po
 msgid "ordered instead of"
-msgstr "ສັ່ງຊື້ແທນທີ່"
+msgstr "ສັ່ງຊື້ແທນທີ່ຈະເປັນ"
+
+#. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.exception_on_picking
+msgid "received in contrast to the expected"
+msgstr "ໄດ້ຮັບແຕກຕ່າງຈາກທີ່ຄາດໄວ້"
 
 #. module: purchase_stock
 #. odoo-python
 #: code:addons/purchase_stock/models/stock_rule.py:0
 msgid "this product should be manually replenished."
-msgstr "ສິນຄ້ານີ້ຄວນໄດ້ຮັບການເຕີມສິນຄ້າດ້ວຍຕົນເອງ."
+msgstr "ສິນຄ້ານີ້ຄວນໄດ້ຮັບການເຕີມສາງດ້ວຍຕົນເອງ."
+
+#. module: purchase_stock
+#: model_terms:ir.ui.view,arch_db:purchase_stock.product_view_kanban_catalog_purchase_only
+msgid "units"
+msgstr "ໜ່ວຍ"
 
 #. module: purchase_stock
 #. odoo-javascript

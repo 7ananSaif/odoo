@@ -39,7 +39,7 @@
             t-if="submenu.is_mega_menu and is_vertical_nav"
             t-attf-class="o_mega_nav o_cc1 position-fixed top-0 #{offcanvas_is_leftside and 'start-0' or 'end-0'} invisible d-flex align-items-center w-100"
         >
-            <button class="btn nav-link oi oi-chevron-left ms-n2 px-2"/>
+            <button class="btn nav-link oi ms-n2 px-2" data-icon="chevron_backward"/>
         </div>
         <!-- Is a dropdown in desktop -> becomes accordion in Mobile / Sidebar / Hamburger -->
         <div t-elif="is_accordion_nav" class="accordion-item">
@@ -86,9 +86,11 @@
             'data-edit_translations': '1' if edit_translations else None,
             'data-main-object': repr(main_object) if main_object else None,
             'data-seo-object': repr(seo_object) if seo_object else None,
+            'data-tracking-enabled': website._is_tracking_enabled(main_object) if main_object else None,
         }"/>
-        <t t-if="not request.env.user._is_public()" t-set="nothing" t-value="html_data.update({
+        <t t-if="not env.user._is_public()" t-set="nothing" t-value="html_data.update({
             'data-is-published': 'website_published' in main_object._fields and main_object.sudo().website_published,
+            'data-publish-on': 'publish_on' in main_object._fields and (main_object.sudo().publish_on or ''),
             'data-can-optimize-seo': 'website_meta_description' in main_object._fields,
             'data-can-publish': 'can_publish' in main_object._fields and main_object.sudo(False).can_publish,
             'data-editable-in-backend': edit_in_backend or ('website_published' in main_object._fields and main_object._name != 'website.page'),
@@ -130,14 +132,22 @@
         "/>
         <meta t-if="no_index" name="robots" content="noindex"/>
         <t t-set="seo_object" t-value="seo_object or main_object"/>
-        <t t-set="meta_description" t-value="seo_object and 'website_meta_description' in seo_object
-            and seo_object.sudo().website_meta_description or website_meta_description or website_meta.get('meta_description', '')"/>
-        <t t-set="meta_keywords" t-value="seo_object and 'website_meta_keywords' in seo_object
-            and seo_object.sudo().website_meta_keywords or website_meta_keywords"/>
+        <t t-set="record" t-value="seo_object.view_id.sudo() if seo_object._name in ('website.page', 'website.controller.page') else seo_object.sudo()"/>
+        <t t-set="needs_translation" t-value="request.lang and website and request.lang.id != website.default_lang_id.id"/>
+        <t t-set="meta_description" t-value="(website_meta.get('meta_description') or '').strip() if not needs_translation else (website_meta.get('default_meta_description') or '').strip()"/>
+        <t t-if="record and needs_translation and 'website_meta_description' in record._fields">
+            <t t-set="translated_description" t-value="(record.get_website_meta_i18n_value('website_meta_description', request.lang.code) or '').strip()"/>
+            <t t-if="translated_description">
+                <t t-set="meta_description" t-value="translated_description"/>
+            </t>
+        </t>
+        <t t-set="meta_keywords" t-value="(record.website_meta_keywords or '').strip() if record and not needs_translation and 'website_meta_keywords' in record._fields else ''"/>
+        <t t-if="record and needs_translation and 'website_meta_keywords' in record._fields">
+            <t t-set="meta_keywords" t-value="(record.get_website_meta_i18n_value('website_meta_keywords', request.lang.code) or '').strip()"/>
+        </t>
         <meta t-if="meta_description or editable" name="description" t-att-content="meta_description"/>
         <meta t-if="meta_keywords or editable" name="keywords" t-att-content="meta_keywords"/>
-        <t t-if="seo_object">
-        <meta name="default_description" t-att-content="website_meta_description or website_meta.get('meta_description')" groups="website.group_website_designer"/>
+        <t t-if="seo_object and not disable_opengraph">
             <!-- OpenGraph tags for Facebook sharing -->
             <t t-set="opengraph_meta" t-value="website_meta.get('opengraph_meta')"/>
             <t t-if="opengraph_meta">
@@ -154,7 +164,7 @@
             </t>
             <!-- Twitter tags for sharing -->
             <t t-set="twitter_meta" t-value="website_meta.get('twitter_meta')"/>
-            <t t-if="opengraph_meta">
+            <t t-if="twitter_meta">
                 <t t-foreach="twitter_meta" t-as="t_meta">
         <meta t-att-name="t_meta" t-att-content="twitter_meta[t_meta]"/>
                 </t>
@@ -166,25 +176,37 @@
             <t t-foreach="frontend_languages.values()" t-as="lg">
         <link rel="alternate" t-att-hreflang="lg.hreflang" t-att-href="url_localized(lang_code=lg.code, prefetch_langs=True, canonical_domain=canonical_domain)"/>
             </t>
-        <link rel="alternate" hreflang="x-default" t-att-href="url_localized(lang_code=website.env['res.lang']._get_data(id=website._get_cached('default_lang_id')).code, canonical_domain=canonical_domain)"/>
+        <link rel="alternate" hreflang="x-default" t-att-href="url_localized(lang_code=website.default_lang_id.code, canonical_domain=canonical_domain)"/>
         </t>
         <link rel="canonical" t-att-href="website._get_canonical_url()"/>
         <!-- TODO: Once we have style in DB, add this preconnect only if a
         google font is actually used. Note that if no font is used, the
         preconnect is actually not connecting to the google servers. -->
-        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin=""/>
+        <t t-call="website.font_links"/>
+        <link rel="apple-touch-icon" t-att-href="x_icon"/>
+        <!-- JSON-LD structured data: page-specific payload or fall back to the website's Organization schema. -->
+        <script type="application/ld+json" t-out="structured_data or website._render_jsonld()"/>
     </xpath>
 
     <xpath expr="//head/script" position="before">
         <t t-if="website and website.cookies_bar and website.block_third_party_domains
-                 and not request.env['ir.http']._is_allowed_cookie('optional')
+                 and not env['ir.http']._is_allowed_cookie('optional')
                  and not editable and not translatable
-                 and not request.env.user.has_group('website.group_website_restricted_editor')">
+                 and not env.user.has_group('website.group_website_restricted_editor')">
             <script src="/website/static/src/js/content/cookie_watcher.js"/>
             <script>
                 watch3rdPartyScripts(<t t-out="json.dumps(website._get_blocked_third_party_domains_list())"/>);
             </script>
         </t>
+    </xpath>
+
+    <xpath expr="//t[@t-set='body_classname']" position="after">
+        <t t-set="default_lang_code" t-value="website.default_lang_id.code"/>
+        <t t-set="mainobject_url" t-value="main_object.with_context(lang=default_lang_code).website_url if main_object and 'website_url' in main_object else ''"/>
+        <t t-set="mainobject_url" t-value="mainobject_url.split('?')[0].split('#')[0]"/>
+        <t t-set="mainobject_url" t-value="'_home' if mainobject_url == '/' else mainobject_url"/>
+        <t t-set="classname_from_mainobject" t-value="' o_website_url' + mainobject_url.replace('/', '_').replace('-', '_') if mainobject_url else ''"/>
+        <t t-set="body_classname" t-valuef="{{body_classname}}{{classname_from_mainobject}}"/>
     </xpath>
 
     <xpath expr="//header" position="attributes">
@@ -207,6 +229,10 @@
         </t>
     </xpath>
 
+    <xpath expr="//header//nav" position="before">
+        <t t-call="website.placeholder_header_disclaimer"/>
+    </xpath>
+
     <xpath expr="//footer" position="attributes">
         <attribute name="data-name">Footer</attribute>
         <!-- Background now controlled by css configuration, using color combinations -->
@@ -219,48 +245,112 @@
     </xpath>
     <xpath expr="//t[@t-call='web.brand_promotion']/.." position="attributes">
         <attribute name="class" add="o_not_editable small" separator=" "/>
-        <attribute name="t-if">not editable</attribute>
+        <attribute name="t-if">not editable and not translatable</attribute>
     </xpath>
-    <xpath expr="//div[hasclass('o_footer_copyright')]//div[hasclass('col-sm')][2]" position="attributes">
-        <attribute name="class" remove="col-sm text-sm-end" add="col-md mt-auto mb-0 text-md-end" separator=" "/>
+    <xpath expr="//t[@t-call='web.brand_promotion']/.." position="attributes">
+        <attribute name="class" remove="text-sm-end" add="mt-auto mb-0 text-md-end" separator=" "/>
     </xpath>
 
     <xpath expr="//head" position="inside">
         <t t-if="website.google_analytics_key and not editable">
-            <script id="tracking_code" t-attf-src="https://www.googletagmanager.com/gtag/js?id={{ website.google_analytics_key }}" async="async"/>
-            <script id="tracking_code_config">
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('consent', 'default', {
-                    'ad_storage': 'denied',
-                    'ad_user_data': 'denied',
-                    'ad_personalization': 'denied',
-                    'analytics_storage': 'denied',
-                });
-                gtag('js', new Date());
-                gtag('config', '<t t-out="website.google_analytics_key"/>');
-                function allConsentsGranted() {
-                    gtag('consent', 'update', {
-                        'ad_storage': 'granted',
-                        'ad_user_data': 'granted',
-                        'ad_personalization': 'granted',
-                        'analytics_storage': 'granted',
+            <t t-set="is_google_analytics" t-value="website.google_analytics_key.startswith('G-')"/>
+            <t t-set="is_google_tag_manager" t-value="website.google_analytics_key.startswith('GTM-')"/>
+            <t t-if="is_google_analytics or is_google_tag_manager">
+                <script id="tracking_code_config">
+                    window.dataLayer = window.dataLayer || [];
+                    function gtag(){dataLayer.push(arguments);}
+
+                    gtag('consent', 'default', {
+                        'ad_storage': 'denied',
+                        'ad_user_data': 'denied',
+                        'ad_personalization': 'denied',
+                        'analytics_storage': 'denied',
                     });
-                }
-                <t t-if="website._allConsentsGranted()">
-                    allConsentsGranted();
-                </t>
-                <t t-else="">
-                    document.addEventListener(
-                        "optionalCookiesAccepted",
-                        allConsentsGranted,
-                        {once: true}
-                    );
-                </t>
-            </script>
+
+                    function updateConsents(consentState) {
+                        gtag("consent", "update", {
+                            "ad_storage": consentState,
+                            "ad_user_data": consentState,
+                            "ad_personalization": consentState,
+                            "analytics_storage": consentState,
+                        });
+                    }
+                    document.addEventListener("optionalCookiesAccepted", () =&gt; {
+                        updateConsents("granted");
+                    });
+                    document.addEventListener("optionalCookiesDenied", () =&gt; {
+                        updateConsents("denied");
+                    });
+                    <t t-if="website._allConsentsGranted()">
+                        updateConsents("granted");
+                    </t>
+                </script>
+            </t>
+            <t t-if="is_google_analytics">
+                <!-- Google tag (gtag.js) -->
+                <script id="tracking_code" t-attf-src="https://www.googletagmanager.com/gtag/js?id={{ website.google_analytics_key }}" async="async"/>
+                <script>
+                    gtag('js', new Date());
+                    gtag('config', <t t-out="json.dumps(website.google_analytics_key)"/>);
+                </script>
+            </t>
+            <t t-elif="is_google_tag_manager">
+                <!-- Google Tag Manager -->
+                <script id="tracking_code">
+                    (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+                    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+                    j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+                    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+                    })(window,document,'script','dataLayer',<t t-out="json.dumps(website.google_analytics_key)"/>);
+                </script>
+                <!-- End Google Tag Manager -->
+            </t>
         </t>
         <t t-if="website.plausible_shared_key and not editable">
             <script id="plausible_script" name="plausible" defer="defer" t-att-data-domain="website.plausible_site" t-att-src="website._get_plausible_script_url()"></script>
+        </t>
+    </xpath>
+
+    <!-- Breadcrumb -->
+    <xpath expr="//main/*[1]" position="before">
+        <t t-if="main_object.sudo()._name == 'website.page' and main_object.sudo()['parent_id']">
+            <div data-name="Breadcrumb"
+                t-attf-class="o_page_breadcrumb #{breadcrumb_bg_color_class} #{breadcrumb_text_color_class} #{'d-none o_snippet_invisible' if 'breadcrumb_visible' in main_object and not main_object.sudo().breadcrumb_visible else ''}"
+                t-attf-style="#{breadcrumb_bg_color_style and ('background-color: %s;' % breadcrumb_bg_color_style)} #{breadcrumb_text_color_style and ('color: %s;' % breadcrumb_text_color_style)}"
+                t-att-data-invisible="'1' if 'breadcrumb_visible' in main_object and not main_object.sudo().breadcrumb_visible else None"
+            >
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb container p-2 mb-0">
+                        <t t-set="ancestors" t-value="main_object.sudo().parent_ids"/>
+                        <!-- Grand Parent -->
+                        <li class="breadcrumb-item">
+                            <a t-att-href="ancestors[0].url" t-out="ancestors[0].name"/>
+                        </li>
+                        <t t-if="len(ancestors) &lt;= 2">
+                            <li t-foreach="ancestors[1:]" t-as="ancestor" class="breadcrumb-item">
+                                <a t-att-href="ancestor.url" t-out="ancestor.name"/>
+                            </li>
+                        </t>
+                        <t t-else="">
+                            <!-- Dropdown -->
+                            <li class="breadcrumb-item dropdown">
+                                <a role="button" data-bs-toggle="dropdown">...</a>
+                                <div role="menu" class="dropdown-menu">
+                                    <a t-foreach="ancestors[1:len(ancestors)-1]" t-as="ancestor" class="dropdown-item" t-att-href="ancestor.url" t-out="ancestor.name"/>
+                                </div>
+                            </li>
+                            <!-- Direct Parent -->
+                            <li class="breadcrumb-item">
+                                <a t-att-href="ancestors[len(ancestors)-1].url" t-out="ancestors[len(ancestors)-1].name"/>
+                            </li>
+                        </t>
+                        <!-- Current Page -->
+                        <li class="breadcrumb-item active" aria-current="page">
+                            <t t-out="main_object.sudo().name"/>
+                        </li>
+                    </ol>
+                </nav>
+            </div>
         </t>
     </xpath>
 
@@ -268,7 +358,7 @@
     <xpath expr="//div[@id='wrapwrap']" position="before">
         <!-- Todo: Refactor this part. These inputs were initially used for multiple use cases but are now only used to determine if a given option is activated on the page. We should probably implement the feature using an RPC. -->
         <t groups="website.group_website_restricted_editor">
-            <t t-foreach="['header_overlay', 'header_color', 'header_text_color', 'header_visible', 'footer_visible']" t-as="optionName">
+            <t t-foreach="['header_overlay', 'header_color', 'header_text_color', 'header_visible', 'footer_visible', 'breadcrumb_overlay', 'breadcrumb_color', 'breadcrumb_text_color', 'breadcrumb_visible']" t-as="optionName">
                 <!-- Firefox autocomplete is too aggressive and works on hidden inputs,
                 so we need to disable it (https://bugzilla.mozilla.org/show_bug.cgi?id=520561) -->
                 <input t-if="optionName in main_object" type="hidden" class="o_page_option_data" autocomplete="off" t-att-name="optionName" t-att-value="main_object.sudo()[optionName]"/>
@@ -285,13 +375,25 @@
         <t t-set="header_text_color_class" t-value="header_text_color_is_class and header_text_color or ''"/>
         <t t-set="header_text_color_style" t-value="(not header_text_color_is_class) and header_text_color or ''"/>
 
+        <t t-set="breadcrumb_bg_color" t-value="'breadcrumb_color' in main_object and main_object.sudo().breadcrumb_color or ''"/>
+        <t t-set="breadcrumb_bg_color_is_class" t-value="'bg-' in breadcrumb_bg_color"/>
+        <t t-set="breadcrumb_bg_color_class" t-value="breadcrumb_bg_color_is_class and breadcrumb_bg_color or ''"/>
+        <t t-set="breadcrumb_bg_color_style" t-value="(not breadcrumb_bg_color_is_class) and breadcrumb_bg_color or ''"/>
+
+        <t t-set="breadcrumb_text_color" t-value="'breadcrumb_text_color' in main_object and main_object.sudo().breadcrumb_text_color or ''"/>
+        <t t-set="breadcrumb_text_color_is_class" t-value="'text-' in breadcrumb_text_color"/>
+        <t t-set="breadcrumb_text_color_class" t-value="breadcrumb_text_color_is_class and breadcrumb_text_color or ''"/>
+        <t t-set="breadcrumb_text_color_style" t-value="(not breadcrumb_text_color_is_class) and breadcrumb_text_color or ''"/>
+
         <div groups="base.group_user" class="o_frontend_to_backend_nav position-fixed d-none">
-            <svg class="o_frontend_to_backend_icon position-absolute" width="24px" height="24px"
-                 viewBox="-7 -7 24 24" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin">
+            <svg xmlns="http://www.w3.org/2000/svg" class="o_frontend_to_backend_icon position-absolute" width="24px" height="24px"
+                 viewBox="-7 -7 24 24" preserveAspectRatio="xMinYMin">
                 <path fill="#FFF" d="M8 8V1a1 1 0 1 1 2 0v8a1 1 0 0 1-1 1H1a1 1 0 1 1 0-2h7z"/>
             </svg>
             <div class="o_frontend_to_backend_buttons d-flex">
-                <a href="#" title="Go to your Odoo Apps" class="o_frontend_to_backend_apps_btn fa fa-th d-flex align-items-center justify-content-center text-decoration-none" data-bs-toggle="dropdown"/>
+                <a href="#" title="Go to your Odoo Apps" class="o_frontend_to_backend_apps_btn d-flex align-items-center justify-content-center text-decoration-none" data-bs-toggle="dropdown" data-bs-display="static" data-hotkey="h">
+                    <i class="oi oi-lg" data-icon="apps" aria-hidden="true"/>
+                </a>
                 <div class="dropdown-menu o_frontend_to_backend_apps_menu" role="menu">
                     <a role="menuitem" class="dropdown-item" t-out="menu['name']"
                        t-as="menu" t-foreach="env['ir.ui.menu'].with_context(force_action=True).load_menus_root()['children']"
@@ -319,6 +421,29 @@
     <xpath expr="//footer[@id='bottom']" position="attributes">
         <attribute name="t-attf-class" add="#{'d-none o_snippet_invisible' if 'footer_visible' in main_object and not main_object.sudo().footer_visible else ''}" separator=" "/>
         <attribute name="t-att-data-invisible">'1' if 'footer_visible' in main_object and not main_object.sudo().footer_visible else None</attribute>
+    </xpath>
+    <xpath expr="//main" position="attributes">
+        <attribute name="t-attf-class" add="#{'o_breadcrumb_overlay' if 'breadcrumb_overlay' in main_object and main_object.sudo().breadcrumb_overlay else ''}" />
+    </xpath>
+</template>
+
+<template id="font_links" name="Font Links">
+    <t t-set="font_urls" t-value="website._get_font_urls()"/>
+    <t t-if="any([url.startswith('https://fonts.google') for url in font_urls])">
+        <link rel="preconnect" href="https://fonts.googleapis.com"/>
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+    </t>
+    <t t-foreach="font_urls" t-as="url">
+        <link t-att-href="url" rel="stylesheet"/>
+    </t>
+</template>
+
+<template id="icons_fonts_preload" name="Icons fonts preload" inherit_id="web.frontend_layout">
+    <xpath expr="//t[@t-call-assets='web.material_symbols_outlined']" position="replace">
+        <t t-set="icon_font_family" t-value="website and website._get_icon_font_family()"/>
+        <t t-if="icon_font_family == 'Material Symbols Rounded'" t-call-assets="web.material_symbols_rounded" t-binary="True"/>
+        <t t-elif="icon_font_family == 'Material Symbols Sharp'" t-call-assets="web.material_symbols_sharp" t-binary="True"/>
+        <t t-else="" t-call-assets="web.material_symbols_outlined" t-binary="True"/>
     </xpath>
 </template>
 
@@ -366,7 +491,7 @@
 </template>
 
 <template id="navbar_nav" name="Navbar Nav">
-    <ul t-att-id="not is_mobile and 'top_menu'" t-attf-class="nav navbar-nav top_menu #{'' if _no_autohide_menu_mobile else 'o_menu_loading'} #{is_vertical_nav and 'o_mega_menu_is_offcanvas mx-n3'} #{_nav_class} #{(_navbar_pills and not is_mobile) and 'nav-pills'}" role="menu">
+    <ul t-att-id="not is_mobile and 'top_menu'" t-attf-class="nav navbar-nav top_menu #{'' if _no_autohide_menu_mobile else 'o_menu_loading'} #{is_vertical_nav and 'o_mega_menu_is_offcanvas mx-n3'} #{_nav_class} #{_navbar_pills and 'nav-pills'}" role="menu">
         <t t-out="0"/>
     </ul>
 </template>
@@ -384,7 +509,7 @@
     <t t-set="is_mobile" t-value="True"/>
 
     <t t-call="website.navbar"
-        _navbar_classes.f="o_header_mobile d-block d-lg-none shadow-sm"
+        _navbar_classes.f="o_header_mobile d-block d-lg-none"
         _navbar_expand_class.f=""
         _navbar_name.f="Mobile">
 
@@ -413,10 +538,11 @@
                     <ul class="navbar-nav">
                         <!-- Search bar -->
                         <t t-call="website.placeholder_header_search_box"
-                            _classes.f="mb-3"
-                            _input_classes.f="rounded-start-pill text-bg-light ps-3"
+                            _form_classes.f="mt-1"
+                            _input_classes.f="border-0 rounded-start-pill text-bg-light ps-3"
                             _submit_classes.f="rounded-end-pill bg-o-color-3 pe-3"
-                            limit.f="0"/>
+                            _input_group_classes.f="mb-3"
+                            _force_modal_trigger="True"/>
                         <!-- Navbar -->
                         <li>
                             <t t-set="is_vertical_nav" t-valuef="True"/>
@@ -522,8 +648,8 @@
 <!-- "Default" template -->
 <template id="template_header_default" inherit_id="website.layout" name="Template Header Default" active="True">
     <xpath expr="//header//nav" position="replace">
-        <t t-call="website.navbar">
-            <t t-set="_navbar_classes" t-valuef="d-none d-lg-block shadow-sm"/>
+        <t t-set="_navbar_classes" t-valuef="d-none d-lg-block"/>
+        <t t-call="website.navbar" _navbar_classes="_navbar_classes">
 
             <div id="o_main_nav" t-attf-class="o_main_nav #{header_content_width}">
                 <!-- Brand -->
@@ -543,10 +669,8 @@
                 <ul class="navbar-nav align-items-center gap-2 flex-shrink-0 justify-content-end ps-3">
                     <!-- Search Bar -->
                     <t t-call="website.placeholder_header_search_box"
-                        _layout.f="modal"
-                        _input_classes.f="border border-end-0 p-3"
-                        _submit_classes.f="border border-start-0 px-4 bg-o-color-4"
-                        _button_classes.f="o_navlink_background text-reset"/>
+                        _simple_button_layout="True"
+                        _simple_button_classes.f="o_navlink_background rounded-circle p-1 lh-1 text-reset"/>
                     <!-- Text element -->
                     <t t-call="website.placeholder_header_text_element"/>
                     <!-- Social -->
@@ -589,7 +713,7 @@
 <template id="template_header_hamburger" inherit_id="website.layout" name="Template Header Hamburger" active="False">
     <xpath expr="//header//nav" position="replace">
         <t t-call="website.navbar"
-            _navbar_classes.f="d-none d-lg-block shadow-sm"
+            _navbar_classes.f="d-none d-lg-block"
             _navbar_expand_class.f="">
 
             <div id="o_main_nav" t-attf-class="o_main_nav d-grid py-0 o_grid_header_3_cols #{header_content_width}">
@@ -607,7 +731,7 @@
                     <t t-call="portal.user_dropdown"
                         _icon="true"
                         _item_class.f="dropdown"
-                        _icon_class.f="fa-stack"
+                        _icon_class.f="oi-stack"
                         _link_class.f="o_navlink_background btn d-flex align-items-center rounded-circle p-1 pe-2 text-reset"
                         _dropdown_menu_class.f="dropdown-menu-end"/>
                 </ul>
@@ -619,9 +743,10 @@
                         <ul class="navbar-nav">
                             <!-- Search bar -->
                             <t t-call="website.placeholder_header_search_box"
-                                _input_classes.f="rounded-start-pill ps-3 text-bg-light"
-                                _submit_classes.f="rounded-end-pill bg-o-color-3"
-                                limit.f="0"/>
+                                _input_classes.f="border-0 rounded-start-pill text-bg-light ps-3"
+                                _submit_classes.f="rounded-end-pill bg-o-color-3 pe-3"
+                                _input_group_classes.f="mb-3"
+                                _force_modal_trigger="True"/>
                             <!-- Navbar -->
                             <li>
                                 <t t-set="is_vertical_nav" t-valuef="True"/>
@@ -721,7 +846,7 @@
 <template id="template_header_stretch" inherit_id="website.layout" name="Template Header Stretch" active="False">
     <xpath expr="//header//nav" position="replace">
         <t t-call="website.navbar"
-            _navbar_classes.f="d-none d-lg-block py-0 shadow-sm">
+            _navbar_classes.f="d-none d-lg-block py-0">
 
             <div id="o_main_nav" t-attf-class="o_main_nav align-items-stretch #{header_content_width}">
                 <!-- Brand -->
@@ -746,9 +871,9 @@
                     <!-- Search bar -->
                     <t t-call="website.placeholder_header_search_box"
                         _input_classes.f="o_header_stretch_search_input border-0 rounded-0 bg-transparent text-reset"
-                        _submit_classes.f="o_navlink_background_hover rounded-0 text-reset"
+                        _submit_classes.f="o_navlink_background_hover rounded-0 bg-transparent border-0 text-reset"
                         _form_classes.f="h-100 z-0"
-                        _classes.f="h-100 border-start o_border_contrast"/>
+                        _input_group_classes.f="h-100 border-start o_border_contrast"/>
                     <!-- Social -->
                     <t t-call="website.placeholder_header_social_links"
                         _div_class.f="d-flex align-items-center h-100 border-start px-2 o_border_contrast"/>
@@ -803,17 +928,15 @@
 <template id="template_header_vertical" inherit_id="website.layout" name="Template Header Vertical" active="False">
     <xpath expr="//header//nav" position="replace">
         <t t-call="website.navbar"
-            _navbar_classes.f="d-none d-lg-block pt-3 shadow-sm">
+            _navbar_classes.f="d-none d-lg-block pt-3">
 
             <div id="o_main_nav" t-attf-class="o_main_nav flex-wrap #{header_content_width}">
                 <div class="o_header_hide_on_scroll d-grid align-items-center w-100 o_grid_header_3_cols pb-3">
                     <ul class="navbar-nav align-items-center gap-1">
                         <!-- Search bar -->
                         <t t-call="website.placeholder_header_search_box"
-                            _layout.f="modal"
-                            _input_classes.f="border border-end-0 p-3"
-                            _submit_classes.f="border border-start-0 px-4 bg-o-color-4"
-                            _button_classes.f="o_navlink_background text-reset"/>
+                            _simple_button_layout="True"
+                            _simple_button_classes.f="o_navlink_background rounded-circle p-1 lh-1 text-reset"/>
                         <!-- Social Links -->
                         <t t-call="website.placeholder_header_social_links"/>
                         <!-- Text element -->
@@ -875,7 +998,7 @@
 <template id="template_header_search" inherit_id="website.layout" name="Template Header Search" active="False">
     <xpath expr="//header//nav" position="replace">
         <t t-call="website.navbar"
-            _navbar_classes.f="d-none d-lg-block p-0 shadow-sm">
+            _navbar_classes.f="d-none d-lg-block p-0">
 
             <div id="o_main_nav" class="o_main_nav flex-wrap">
                 <div aria-label="Top" class="o_header_hide_on_scroll border-bottom o_border_contrast">
@@ -920,11 +1043,13 @@
                     <!-- Brand -->
                     <t t-call="website.placeholder_header_brand"
                         _link_class.f="mw-100 mx-auto"/>
-                    <ul class="o_header_search_right_col navbar-nav align-items-center gap-2 ms-auto ps-3">
+                    <ul class="o_header_search_right_col navbar-nav align-items-center gap-2 ms-auto ps-4 w-75">
                         <!-- Search bar -->
                         <t t-call="website.placeholder_header_search_box"
-                            _input_classes.f="rounded-start-pill ps-3 text-bg-light"
-                            _submit_classes.f="rounded-end-pill pe-3 bg-o-color-3"/>
+                            _submit_classes.f="rounded-end-pill pe-3 bg-o-color-3"
+                            _form_classes.f="o_search_radius_pill"
+                            _item_class.f="o_header_search flex-grow-1"
+                            _input_classes.f="border-0 rounded-start-pill ps-3 text-bg-light"/>
                         <!-- Call To Action -->
                         <t t-call="website.placeholder_header_call_to_action"/>
                     </ul>
@@ -964,49 +1089,49 @@
 <template id="template_header_sales_one" inherit_id="website.layout" name="Template Header Sale 1" active="False">
     <xpath expr="//header//nav" position="replace">
         <t t-call="website.navbar"
-            _navbar_classes.f="o_header_force_no_radius d-none d-lg-block p-0 shadow-sm">
+            _navbar_classes.f="o_header_force_no_radius d-none d-lg-block p-0">
             <div id="o_main_nav" class="o_main_nav">
-                <div aria-label="Top" t-attf-class="#{header_content_width} d-flex align-items-center justify-content-between py-3">
-                    <!-- Brand -->
-                    <t t-call="website.placeholder_header_brand"
-                        _link_class.f="me-4"/>
-                    <!-- Navbar -->
-                    <t t-call="website.navbar_nav"
-                        _nav_class.f="pe-2">
-                        <!-- Menu -->
-                        <t t-foreach="website.menu_id.child_id" t-as="submenu">
-                            <t t-call="website.submenu"
-                                item_class.f="nav-item"
-                                link_class.f="nav-link"/>
+                <div aria-label="Top" class="position-relative">
+                    <div t-attf-class="#{header_content_width} d-flex align-items-center justify-content-between py-3">
+                        <!-- Brand -->
+                        <t t-call="website.placeholder_header_brand"
+                            _link_class.f="me-4"/>
+                        <!-- Navbar -->
+                        <t t-call="website.navbar_nav"
+                            _nav_class.f="pe-2">
+                            <!-- Menu -->
+                            <t t-foreach="website.menu_id.child_id" t-as="submenu">
+                                <t t-call="website.submenu"
+                                    item_class.f="nav-item"
+                                    link_class.f="nav-link"/>
+                            </t>
                         </t>
-                    </t>
-                    <ul class="o_header_sales_one_right_col navbar-nav align-items-center gap-1 flex-grow-1 justify-content-end">
-                        <!-- Call To Action -->
-                        <t t-call="website.placeholder_header_call_to_action"
-                            _item_class.f="flex-grow-1"
-                            _div_class.f="d-flex align-items-center"/>
-                        <!-- Search bar -->
-                        <t t-call="website.placeholder_header_search_box"
-                            _layout.f="modal"
-                            _input_classes.f="border border-end-0 p-3"
-                            _submit_classes.f="border border-start-0 px-4 bg-o-color-4"
-                            _button_classes.f="o_navlink_background text-reset"/>
-                        <!-- Sign In -->
-                        <t t-call="portal.placeholder_user_sign_in"
-                            _link_class.f="btn rounded-circle text-reset fw-bold o_navlink_background"/>
-                        <!-- User Dropdown -->
-                        <t t-call="portal.user_dropdown"
-                            _icon="true"
-                            _item_class.f="dropdown"
-                            _icon_class.f="fa-stack"
-                            _link_class.f="btn d-flex align-items-center rounded-circle p-1 pe-3 text-reset o_navlink_background"
-                            _dropdown_menu_class.f="dropdown-menu-end"/>
-                        <!-- Language Selector -->
-                        <t t-call="website.placeholder_header_language_selector"
-                            _btn_class.f="btn rounded-circle text-reset o_navlink_background"
-                            _txt_class.f="small"
-                            _dropdown_menu_class.f="dropdown-menu-end"/>
-                    </ul>
+                        <ul class="o_header_sales_one_right_col navbar-nav align-items-center gap-1 flex-grow-1 justify-content-end">
+                            <!-- Call To Action -->
+                            <t t-call="website.placeholder_header_call_to_action"
+                                _item_class.f="flex-grow-1"
+                                _div_class.f="d-flex align-items-center"/>
+                            <!-- Search bar -->
+                            <t t-call="website.placeholder_header_search_box"
+                                _simple_button_layout="True"
+                                _simple_button_classes.f="o_navlink_background rounded-circle p-1 lh-1 text-reset"/>
+                            <!-- Sign In -->
+                            <t t-call="portal.placeholder_user_sign_in"
+                                _link_class.f="btn rounded-circle text-reset fw-bold o_navlink_background"/>
+                            <!-- User Dropdown -->
+                            <t t-call="portal.user_dropdown"
+                                _icon="true"
+                                _item_class.f="dropdown"
+                                _icon_class.f="oi-stack"
+                                _link_class.f="btn d-flex align-items-center rounded-circle p-1 pe-3 text-reset o_navlink_background"
+                                _dropdown_menu_class.f="dropdown-menu-end"/>
+                            <!-- Language Selector -->
+                            <t t-call="website.placeholder_header_language_selector"
+                                _btn_class.f="btn rounded-circle text-reset o_navlink_background"
+                                _txt_class.f="small"
+                                _dropdown_menu_class.f="dropdown-menu-end"/>
+                        </ul>
+                    </div>
                 </div>
                 <div aria-label="Bottom" t-if="is_view_active('website.header_text_element') or is_view_active('website.header_social_links')" class="o_header_sales_one_bot o_header_hide_on_scroll gap-3 py-2">
                     <ul t-attf-class="#{header_content_width} navbar-nav justify-content-between align-items-center">
@@ -1045,7 +1170,7 @@
 <template id="template_header_sales_two" inherit_id="website.layout" name="Template Header Sale 2" active="False">
     <xpath expr="//header//nav" position="replace">
         <t t-call="website.navbar"
-            _navbar_classes.f="o_header_force_no_radius d-none d-lg-block p-0 shadow-sm">
+            _navbar_classes.f="o_header_force_no_radius d-none d-lg-block p-0">
             <div id="o_main_nav" class="o_main_nav">
                 <div class="o_header_hide_on_scroll">
                     <div aria-label="Top" t-if="is_view_active('website.header_text_element') or is_view_active('website.header_social_links') or is_view_active('website.header_language_selector')" class="o_header_sales_two_top py-1">
@@ -1077,7 +1202,8 @@
                         <ul class="navbar-nav align-items-center gap-1">
                             <!-- Search bar -->
                             <t t-call="website.placeholder_header_search_box"
-                                _input_classes.f="rounded-start-pill ps-3 text-bg-light"
+                                _input_classes.f="border-0 rounded-start-pill ps-3 text-bg-light"
+                                _form_classes.f="o_search_radius_pill"
                                 _submit_classes.f="rounded-end-pill p-3 bg-o-color-3 lh-1"/>
                             <!-- Sign In -->
                             <t t-call="portal.placeholder_user_sign_in"
@@ -1086,7 +1212,7 @@
                             <t t-call="portal.user_dropdown"
                                 _user_name="true"
                                 _icon="true"
-                                _icon_class.f="fa-stack"
+                                _icon_class.f="oi-stack"
                                 _item_class.f="dropdown"
                                 _link_class.f="btn d-flex align-items-center border-0 fw-bold text-reset o_navlink_trigger_hover"
                                 _icon_wrap_class.f="position-relative me-2 p-2 rounded-circle o_navlink_background transition-base"
@@ -1137,7 +1263,7 @@
 <template id="template_header_sales_three" inherit_id="website.layout" name="Template Header Sale 3" active="False">
     <xpath expr="//header//nav" position="replace">
         <t t-call="website.navbar"
-            _navbar_classes.f="o_header_force_no_radius d-none d-lg-block p-0 shadow-sm rounded-0">
+            _navbar_classes.f="o_header_force_no_radius d-none d-lg-block p-0 rounded-0">
             <div id="o_main_nav" class="o_main_nav">
                 <div aria-label="Top" t-if="is_view_active('website.header_text_element') or is_view_active('website.header_social_links') or is_view_active('website.header_search_box') or is_view_active('website.header_call_to_action')"
                      class="o_header_sales_three_top o_header_hide_on_scroll position-relative border-bottom z-1 o_border_contrast">
@@ -1151,13 +1277,14 @@
                                 _div_class.f="mx-auto"
                                 _item_class.f="flex-basis-0 flex-grow-1 flex-shrink-0"/>
                         </ul>
-                        <ul class="navbar-nav">
+                        <ul class="navbar-nav flex-fill justify-content-end">
                             <!-- Search bar -->
                             <t t-call="website.placeholder_header_search_box"
-                                _input_classes.f="border-0 border-start rounded-0"
-                                _submit_classes.f="rounded-0 bg-o-color-4"
+                                _input_classes.f="border-0 border-start rounded-0 bg-light"
+                                _submit_classes.f="rounded-0 o_cc o_cc2"
+                                _item_class.f="flex-grow-1 mw-50"
                                 _form_classes.f="h-100 z-0"
-                                _classes.f="h-100"/>
+                                _input_group_classes.f="h-100"/>
                             <!-- Call To Action -->
                             <t t-call="website.header_call_to_action_stretched"
                                 _div_class.f="d-flex h-100"/>
@@ -1228,47 +1355,49 @@
     </xpath>
     <xpath expr="//header//nav" position="replace">
         <t t-call="website.navbar"
-            _navbar_classes.f="o_header_sales_four_top o_header_force_no_radius d-none d-lg-block p-0 shadow-sm z-1">
+            _navbar_classes.f="o_header_sales_four_top o_header_force_no_radius d-none d-lg-block p-0 z-1">
             <div id="o_main_nav" class="o_main_nav">
-                <div aria-label="Top" t-attf-class="#{header_content_width} d-flex">
-                    <!-- Navbar -->
-                    <t t-call="website.navbar_nav"
-                        _nav_class.f="align-items-center me-auto pe-3">
-                        <!-- Menu -->
-                        <t t-foreach="website.menu_id.child_id" t-as="submenu">
-                            <t t-call="website.submenu"
-                                item_class.f="nav-item small"
-                                link_class.f="nav-link"/>
+                <div aria-label="Top" class="position-relative">
+                    <div t-attf-class="#{header_content_width} d-flex">
+                        <!-- Navbar -->
+                        <t t-call="website.navbar_nav"
+                            _nav_class.f="align-items-center me-auto pe-3">
+                            <!-- Menu -->
+                            <t t-foreach="website.menu_id.child_id" t-as="submenu">
+                                <t t-call="website.submenu"
+                                    item_class.f="nav-item small"
+                                    link_class.f="nav-link"/>
+                            </t>
                         </t>
-                    </t>
-                    <ul class="o_header_separator navbar-nav align-items-center gap-3 flex-shrink-0">
-                        <!-- Text element -->
-                        <t t-call="website.placeholder_header_text_element"
-                            _txt_elt_content.f="mail"
-                            _div_class.f="d-flex align-items-center"
-                            _item_class.f="position-relative"/>
-                        <!-- Social -->
-                        <t t-call="website.placeholder_header_social_links"
-                            _div_class.f="d-flex align-items-center"
-                            _item_class.f="position-relative"/>
-                        <!-- Sign In -->
-                        <t t-call="portal.placeholder_user_sign_in"
-                            _item_class.f="position-relative small"
-                            _link_class.f="{{_additional_btn_color or 'nav-link'}} d-flex align-items-center h-100 border-0 px-2 text-decoration-none"/>
-                        <!-- User Dropdown -->
-                        <t t-call="portal.user_dropdown"
-                            _user_name="true"
-                            _item_class.f="dropdown position-relative d-flex align-items-center"
-                            _link_class.f="nav-link border-0"
-                            _user_name_class.f="small"
-                            _dropdown_menu_class.f="dropdown-menu-end"/>
-                        <!-- Language Selector -->
-                        <t t-call="website.placeholder_header_language_selector"
-                            _div_classes.f="position-relative"
-                            _btn_class.f="nav-link"
-                            _txt_class.f="small"
-                            _dropdown_menu_class.f="dropdown-menu-end"/>
-                    </ul>
+                        <ul class="o_header_separator navbar-nav align-items-center gap-3 flex-shrink-0">
+                            <!-- Text element -->
+                            <t t-call="website.placeholder_header_text_element"
+                                _txt_elt_content.f="mail"
+                                _div_class.f="d-flex align-items-center"
+                                _item_class.f="position-relative"/>
+                            <!-- Social -->
+                            <t t-call="website.placeholder_header_social_links"
+                                _div_class.f="d-flex align-items-center"
+                                _item_class.f="position-relative"/>
+                            <!-- Sign In -->
+                            <t t-call="portal.placeholder_user_sign_in"
+                                _item_class.f="position-relative small"
+                                _link_class.f="{{_additional_btn_color or 'nav-link'}} d-flex align-items-center h-100 border-0 px-2 text-decoration-none"/>
+                            <!-- User Dropdown -->
+                            <t t-call="portal.user_dropdown"
+                                _user_name="true"
+                                _item_class.f="dropdown position-relative d-flex align-items-center"
+                                _link_class.f="nav-link border-0"
+                                _user_name_class.f="small"
+                                _dropdown_menu_class.f="dropdown-menu-end"/>
+                            <!-- Language Selector -->
+                            <t t-call="website.placeholder_header_language_selector"
+                                _item_class.f="position-relative"
+                                _btn_class.f="nav-link"
+                                _txt_class.f="small"
+                                _dropdown_menu_class.f="dropdown-menu-end"/>
+                        </ul>
+                    </div>
                 </div>
                 <div aria-label="Bottom" class="o_header_sales_four_bot o_header_hide_on_scroll z-0">
                     <div t-attf-class="#{header_content_width}">
@@ -1276,9 +1405,9 @@
                             <!-- Search bar -->
                             <li class="o_header_sales_four_search_placeholder" t-if="is_view_active('website.header_search_box') == False"/>
                             <t t-call="website.placeholder_header_search_box"
-                                _form_classes.f="me-auto"
-                                _input_classes.f="rounded-start-pill ps-3 text-bg-light"
-                                _submit_classes.f="rounded-end-pill bg-o-color-3 lh-1"
+                                _form_classes.f="o_search_radius_pill me-auto"
+                                _input_classes.f="border-0 rounded-start-pill ps-3 text-bg-light"
+                                _submit_classes.f="rounded-end-pill bg-o-color-3"
                                 _item_class.f="d-flex"/>
                             <!-- Brand -->
                             <li t-if="is_view_active('website.placeholder_header_brand')">
@@ -1321,7 +1450,7 @@
     </xpath>
     <xpath expr="//header//nav" position="replace">
         <t t-call="website.navbar"
-            _navbar_classes.f="o_border_right_only d-none d-lg-block shadow">
+            _navbar_classes.f="o_border_right_only d-none d-lg-block">
             <div id="o_main_nav" class="o_main_nav navbar-nav d-flex flex-column justify-content-between h-100 w-100">
                <div class="d-flex flex-column w-100 h-100">
                     <div class="d-flex pb-3">
@@ -1332,10 +1461,11 @@
                         <ul class="navbar-nav p-0">
                             <!-- Search bar -->
                             <t t-call="website.placeholder_header_search_box"
-                                _classes.f="mb-3"
-                                _input_classes.f="rounded-start-pill ps-3 text-bg-light"
-                                _submit_classes.f="rounded-end-pill pe-3 bg-o-color-3"
-                                limit.f="0"/>
+                                _input_classes.f="border-0 rounded-start-pill text-bg-light ps-3"
+                                _submit_classes.f="rounded-end-pill bg-o-color-3 pe-3"
+                                _input_group_classes.f="mb-3"
+                                _force_modal_trigger="True"
+                                _form_classes.f="o_search_radius_pill"/>
                             <!-- Navbar -->
                             <li>
                                 <t t-set="is_vertical_nav" t-valuef="True"/>
@@ -1433,7 +1563,7 @@
     <xpath expr="//header//nav" position="replace">
         <div t-attf-class="#{header_content_width} py-3 px-0">
             <t t-call="website.navbar"
-                    _navbar_classes.f="o_full_border d-none d-lg-block rounded-pill px-4 shadow-sm">
+                    _navbar_classes.f="o_full_border d-none d-lg-block rounded-pill px-4">
                 <div id="o_main_nav" t-attf-class="#{header_content_width} o_main_nav">
                     <!-- Brand -->
                     <t t-call="website.placeholder_header_brand"
@@ -1454,9 +1584,8 @@
                         <!-- Search Bar -->
                         <t t-call="website.placeholder_header_search_box"
                             _layout.f="modal"
-                            _input_classes.f="border border-end-0 p-3"
-                            _submit_classes.f="border border-start-0 px-4 bg-o-color-4"
-                            _button_classes.f="o_navlink_background text-reset"/>
+                            _simple_button_layout="True"
+                            _simple_button_classes.f="o_navlink_background rounded-circle p-1 lh-1 text-reset"/>
                         <!-- Text element -->
                         <t t-call="website.placeholder_header_text_element"/>
                         <!-- Social -->
@@ -1521,6 +1650,20 @@
 
 <template id="placeholder_header_brand" name="Placeholder Header Brand">
     <span id="o_fake_navbar_brand"/><!-- Need a fake element so that the menu is still placed correctly -->
+</template>
+
+<template id="placeholder_header_disclaimer" name="Placeholder Header Disclaimer">
+    <span id="o_fake_header_disclaimer"/>
+</template>
+
+<template id="option_header_disclaimer" inherit_id="website.placeholder_header_disclaimer" name="Header Disclaimer" active="False">
+    <xpath expr="//*[@id='o_fake_header_disclaimer']" position="replace">
+        <div class="s_headline oe_no_drop_above o_colored_level o_cc o_cc5 pt4 pb4">
+            <div style="text-align: center;">
+                <small> Free Returns and Standard Shipping </small>
+            </div>
+        </div>
+    </xpath>
 </template>
 
 <template id="option_header_brand_logo" inherit_id="website.placeholder_header_brand" name="Header Brand Logo" active="True">
@@ -1602,7 +1745,7 @@
 
 <template id="header_hoverable_dropdown" inherit_id="website.layout" name="Header Hoverable Dropdown" active="False">
     <xpath expr="//header" position="attributes">
-        <attribute name="t-attf-class" add="o_hoverable_dropdown" separator=" "/>
+        <attribute name="t-attf-class" add="#{'' if is_view_active('website.template_header_hamburger') else 'o_hoverable_dropdown'}" separator=" "/>
     </xpath>
 </template>
 
@@ -1621,7 +1764,7 @@
 <!-- Features template -->
 <template id="login_layout" inherit_id="web.login_layout" name="Website Login Layout" priority="20">
     <xpath expr="t[@t-call]" position="replace">
-        <t t-call="website.layout">
+        <t t-call="website.layout" head="head" disable_opengraph="disable_opengraph">
             <div class="oe_website_login_container" t-out="0"/>
         </t>
     </xpath>
@@ -1664,23 +1807,23 @@
                         <div class="col-lg-4 offset-lg-1 pt24 pb24">
                             <h5>Connect with us</h5>
                             <ul class="list-unstyled">
-                                <li><i class="fa fa-comment fa-fw me-2"/><a href="/contactus">Contact us</a></li>
-                                <li><i class="fa fa-envelope fa-fw me-2"/><a href="mailto:info@yourcompany.example.com">info@yourcompany.example.com</a></li>
-                                <li><i class="fa fa-phone fa-fw me-2"/><a href="tel:+1 555-555-5556"><span class="o_force_ltr">+1 555-555-5556</span></a></li>
+                                <li><i class="oi oi-filled oi-fw me-2" data-icon="chat_bubble"/><a href="/contactus">Contact us</a></li>
+                                <li><i class="oi oi-filled oi-fw me-2" data-icon="mail"/><a href="mailto:info@yourcompany.example.com">info@yourcompany.example.com</a></li>
+                                <li><i class="oi oi-filled oi-fw me-2" data-icon="phone"/><a href="tel:+1 555-555-5556"><span class="o_force_ltr">+1 555-555-5556</span></a></li>
                             </ul>
                             <div class="s_social_media text-start o_not_editable" data-snippet="s_social_media" data-name="Social Media" contenteditable="false">
                                 <h5 class="s_social_media_title d-none" contenteditable="true">Follow us</h5>
-                                <a href="/website/social/facebook" class="s_social_media_facebook" target="_blank" aria-label="Facebook">
-                                    <i class="fa fa-facebook rounded-circle shadow-sm o_editable_media"/>
+                                <a href="#" class="s_social_media_facebook" target="_blank" aria-label="Facebook">
+                                    <i class="oi rounded-circle shadow-sm o_editable_media" data-icon="oi_facebook"/>
                                 </a>
-                                <a href="/website/social/twitter" class="s_social_media_twitter" target="_blank" aria-label="X">
-                                    <i class="fa fa-twitter rounded-circle shadow-sm o_editable_media"/>
+                                <a href="#" class="s_social_media_twitter" target="_blank" aria-label="X">
+                                    <i class="oi rounded-circle shadow-sm o_editable_media" data-icon="oi_x"/>
                                 </a>
-                                <a href="/website/social/linkedin" class="s_social_media_linkedin" target="_blank" aria-label="LinkedIn">
-                                    <i class="fa fa-linkedin rounded-circle shadow-sm o_editable_media"/>
+                                <a href="#" class="s_social_media_linkedin" target="_blank" aria-label="LinkedIn">
+                                    <i class="oi rounded-circle shadow-sm o_editable_media" data-icon="oi_linkedin"/>
                                 </a>
                                 <a href="/" class="text-800" aria-label="Extra page">
-                                    <i class="fa fa-home rounded-circle shadow-sm o_editable_media"/>
+                                    <i class="oi rounded-circle shadow-sm o_editable_media" data-icon="home"/>
                                 </a>
                             </div>
                         </div>
@@ -1708,22 +1851,22 @@
                         <div class="col-lg-4 offset-lg-3 pb48">
                             <p><b>My Company</b><br/>8000 Marina Blvd, Suite 300 <br/> Brisbane CA 94005 <br/>United States</p>
                             <ul class="list-unstyled mb-2">
-                                <li><i class="fa fa-phone fa-fw me-2"/><span class="o_force_ltr"><a href="tel:+1 555-555-5556">+1 555-555-5556</a></span></li>
-                                <li><i class="fa fa-envelope fa-fw me-2"/><span><a href="mailto:hello@mycompany.com">hello@mycompany.com</a></span></li>
+                                <li><i class="oi oi-filled oi-fw me-2" data-icon="phone"/><span class="o_force_ltr"><a href="tel:+1 555-555-5556">+1 555-555-5556</a></span></li>
+                                <li><i class="oi oi-filled oi-fw me-2" data-icon="mail"/><span><a href="mailto:hello@mycompany.com">hello@mycompany.com</a></span></li>
                             </ul>
                             <div class="s_social_media text-start o_not_editable" data-snippet="s_social_media" data-name="Social Media" contenteditable="false">
                                 <h5 class="s_social_media_title d-none" contenteditable="true">Follow us</h5>
-                                <a href="/website/social/facebook" class="s_social_media_facebook" target="_blank">
-                                    <i class="fa fa-facebook rounded-circle shadow-sm o_editable_media"/>
+                                <a href="#" class="s_social_media_facebook" target="_blank">
+                                    <i class="oi rounded-circle shadow-sm o_editable_media" data-icon="oi_facebook"/>
                                 </a>
-                                <a href="/website/social/twitter" class="s_social_media_twitter" target="_blank">
-                                    <i class="fa fa-twitter rounded-circle shadow-sm o_editable_media"/>
+                                <a href="#" class="s_social_media_twitter" target="_blank">
+                                    <i class="oi rounded-circle shadow-sm o_editable_media" data-icon="oi_x"/>
                                 </a>
-                                <a href="/website/social/instagram" class="s_social_media_instagram" target="_blank">
-                                    <i class="fa fa-instagram rounded-circle shadow-sm o_editable_media"/>
+                                <a href="#" class="s_social_media_instagram" target="_blank">
+                                    <i class="oi rounded-circle shadow-sm o_editable_media" data-icon="oi_instagram"/>
                                 </a>
-                                <a href="/website/social/linkedin" class="s_social_media_linkedin" target="_blank">
-                                    <i class="fa fa-linkedin rounded-circle shadow-sm o_editable_media"/>
+                                <a href="#" class="s_social_media_linkedin" target="_blank">
+                                    <i class="oi rounded-circle shadow-sm o_editable_media" data-icon="oi_linkedin"/>
                                 </a>
                             </div>
                         </div>
@@ -1743,14 +1886,14 @@
                         <div class="col-lg-12 order-lg-0" style="order: 0;">
                             <div class="s_social_media text-center o_not_editable no_icon_color" data-snippet="s_social_media" data-name="Social Media" contenteditable="false">
                                 <h5 class="s_social_media_title d-none" contenteditable="true">Follow us</h5>
-                                <a href="/website/social/facebook" class="s_social_media_facebook" target="_blank" aria-label="Facebook">
-                                    <i class="fa fa-facebook rounded-empty-circle shadow-sm o_editable_media"/>
+                                <a href="#" class="s_social_media_facebook" target="_blank" aria-label="Facebook">
+                                    <i class="oi rounded-empty-circle shadow-sm o_editable_media" data-icon="oi_facebook"/>
                                 </a>
-                                <a href="/website/social/twitter" class="s_social_media_twitter" target="_blank" aria-label="X">
-                                    <i class="fa fa-twitter rounded-empty-circle shadow-sm o_editable_media"/>
+                                <a href="#" class="s_social_media_twitter" target="_blank" aria-label="X">
+                                    <i class="oi rounded-empty-circle shadow-sm o_editable_media" data-icon="oi_x"/>
                                 </a>
-                                <a href="/website/social/linkedin" class="s_social_media_linkedin" target="_blank" aria-label="LinkedIn">
-                                    <i class="fa fa-linkedin rounded-empty-circle shadow-sm o_editable_media"/>
+                                <a href="#" class="s_social_media_linkedin" target="_blank" aria-label="LinkedIn">
+                                    <i class="oi rounded-empty-circle shadow-sm o_editable_media" data-icon="oi_linkedin"/>
                                 </a>
                             </div>
                             <div class="s_hr pt24 pb24" data-snippet="s_hr" data-name="Separator">
@@ -1810,17 +1953,17 @@
                         <div class="col-lg-2 col-10 offset-1 offset-lg-0 pb16">
                             <h5>Follow us</h5>
                             <ul class="list-unstyled">
-                                <li><i class="fa fa-fw fa-facebook-square me-2"/><a href="/website/social/facebook" target="_blank">Facebook</a></li>
-                                <li><i class="fa fa-fw fa-twitter-square me-2"/><a href="/website/social/twitter" target="_blank">X</a></li>
-                                <li><i class="fa fa-fw fa-linkedin-square me-2"/><a href="/website/social/linkedin" target="_blank">Linkedin</a></li>
-                                <li><i class="fa fa-fw fa-instagram me-2"/><a href="/website/social/instagram" target="_blank">Instagram</a></li>
+                                <li><i class="oi oi-fw me-2" data-icon="oi_facebook-square"/><a href="#" target="_blank">Facebook</a></li>
+                                <li><i class="oi oi-fw me-2" data-icon="oi_x-square"/><a href="#" target="_blank">X</a></li>
+                                <li><i class="oi oi-fw me-2" data-icon="oi_linkedin-square"/><a href="#" target="_blank">Linkedin</a></li>
+                                <li><i class="oi oi-fw me-2" data-icon="oi_instagram"/><a href="#" target="_blank">Instagram</a></li>
                             </ul>
                         </div>
                         <div class="col-lg-3 col-10 offset-1 offset-lg-0 pb16">
                             <h5>Get in touch</h5>
                             <ul class="list-unstyled">
-                                <li><i class="fa fa-fw fa-envelope me-2"/><a href="mailto:info@yourcompany.com">info@yourcompany.com</a></li>
-                                <li><i class="fa fa-fw fa-phone me-2"/><a href="tel:+1 555-555-5556"><span class="o_force_ltr">+1 555-555-5556"</span></a></li>
+                                <li><i class="oi oi-fw oi-filled me-2" data-icon="mail"/><a href="mailto:info@yourcompany.com">info@yourcompany.com</a></li>
+                                <li><i class="oi oi-fw oi-filled me-2" data-icon="phone"/><a href="tel:+1 555-555-5556"><span class="o_force_ltr">+1 555-555-5556"</span></a></li>
                             </ul>
                         </div>
                         <div class="col-lg-3 col-10 offset-1 offset-lg-0 pb16">
@@ -1859,14 +2002,14 @@
                         <div class="col-lg-2 pt16 pb16">
                             <div class="s_social_media no_icon_color o_not_editable text-center" data-snippet="s_social_media" data-name="Social Media" contenteditable="false">
                                 <h5 class="s_social_media_title d-none" contenteditable="true">Follow us</h5>
-                                <a href="/website/social/facebook" class="s_social_media_facebook" target="_blank">
-                                    <i class="fa fa-facebook fa-stack o_editable_media"/>
+                                <a href="#" class="s_social_media_facebook" target="_blank">
+                                    <i class="oi oi-stack o_editable_media" data-icon="oi_facebook"/>
                                 </a>
-                                <a href="/website/social/twitter" class="s_social_media_twitter" target="_blank">
-                                    <i class="fa fa-twitter fa-stack o_editable_media"/>
+                                <a href="#" class="s_social_media_twitter" target="_blank">
+                                    <i class="oi oi-stack o_editable_media" data-icon="oi_x"/>
                                 </a>
-                                <a href="/website/social/instagram" class="s_social_media_instagram" target="_blank">
-                                    <i class="fa fa-instagram fa-stack o_editable_media"/>
+                                <a href="#" class="s_social_media_instagram" target="_blank">
+                                    <i class="oi oi-stack o_editable_media" data-icon="oi_instagram"/>
                                 </a>
                             </div>
                         </div>
@@ -1898,14 +2041,14 @@
                         <div class="col-lg-3 o_grid_item g-col-lg-3 g-height-2 offset-1 offset-lg-0 col-10 o_cc o_cc1 rounded pt16 pb16" style="z-index: 4; grid-area: 1 / 10 / 3 / 13; --grid-item-padding-x: 30px; --grid-item-padding-y: 30px; border-radius: 24px !important;">
                             <div class="s_social_media text-start no_icon_color o_not_editable" data-snippet="s_social_media" data-name="Social Media" contenteditable="false">
                                 <h6 class="s_social_media_title d-block mb-2" contenteditable="true">Follow us</h6>
-                                <a href="/website/social/twitter" class="s_social_media_twitter" target="_blank">
-                                    <i class="fa fa-twitter fa-stack o_editable_media"/>
+                                <a href="#" class="s_social_media_twitter" target="_blank">
+                                    <i class="oi oi-stack o_editable_media" data-icon="oi_x"/>
                                 </a>
-                                <a href="/website/social/linkedin" class="s_social_media_linkedin" target="_blank">
-                                    <i class="fa fa-linkedin fa-stack o_editable_media"/>
+                                <a href="#" class="s_social_media_linkedin" target="_blank">
+                                    <i class="oi oi-stack o_editable_media" data-icon="oi_linkedin"/>
                                 </a>
-                                <a href="/website/social/instagram" class="s_social_media_instagram" target="_blank">
-                                    <i class="fa fa-instagram fa-stack o_editable_media"/>
+                                <a href="#" class="s_social_media_instagram" target="_blank">
+                                    <i class="oi oi-stack o_editable_media" data-icon="oi_instagram"/>
                                 </a>
                             </div>
                         </div>
@@ -1927,7 +2070,7 @@
                                     <a href="#">Terms of Services</a>
                                 </li>
                                 <t t-set="configurator_footer_links" t-value="[]"/>
-                                <t t-foreach="configurator_footer_links" t-as="link" class="list-inline-item">
+                                <t t-foreach="configurator_footer_links" t-as="link">
                                     <li class="list-inline-item">•</li>
                                     <li class="list-inline-item">
                                         <a t-att-href="link['href']" t-out="link['text']"/>
@@ -1959,7 +2102,7 @@
                             <p>
                                 8000 Marina Blvd, Suite 300 • Brisbane CA 94005 • United States
                             </p>
-                            <div class="s_hr d-lg-none o_snippet_desktop_invisible pb16 pt16">
+                            <div class="s_hr d-lg-none o_snippet_desktop_invisible pb16 pt16" data-snippet="s_hr" data-name="Separator">
                                 <hr class="w-100 mx-auto"/>
                             </div>
                         </div>
@@ -1991,22 +2134,22 @@
                             <a href="#" class="o_translate_inline btn btn-primary">Get in touch</a>
                         </div>
                         <div class="col-lg-4">
-                            <i class="fa fa-envelope fa-fw me-2"/><a href="mailto:info@yourcompany.example.com">info@yourcompany.example.com</a>
+                            <i class="oi oi-filled oi-fw me-2" data-icon="mail"/><a href="mailto:info@yourcompany.example.com">info@yourcompany.example.com</a>
                         </div>
                         <div class="col-lg-4 pb24">
-                            <i class="fa fa-phone fa-fw me-2"/><a href="tel:+1 555-555-5556"><span class="o_force_ltr">+1 555-555-5556</span></a>
+                            <i class="oi oi-filled oi-fw me-2" data-icon="phone"/><a href="tel:+1 555-555-5556"><span class="o_force_ltr">+1 555-555-5556</span></a>
                         </div>
                         <div class="col-lg-2 offset-lg-2 pb24">
                             <div class="s_social_media text-start o_not_editable" data-snippet="s_social_media" data-name="Social Media" contenteditable="false">
                                 <h5 class="s_social_media_title d-none" contenteditable="true">Follow Us</h5>
-                                <a href="/website/social/facebook" class="s_social_media_facebook" target="_blank" aria-label="Facebook">
-                                    <i class="fa fa-facebook rounded-circle shadow-sm o_editable_media"/>
+                                <a href="#" class="s_social_media_facebook" target="_blank" aria-label="Facebook">
+                                    <i class="oi rounded-circle shadow-sm o_editable_media" data-icon="oi_facebook"/>
                                 </a>
-                                <a href="/website/social/twitter" class="s_social_media_twitter" target="_blank" aria-label="X">
-                                    <i class="fa fa-twitter rounded-circle shadow-sm o_editable_media"/>
+                                <a href="#" class="s_social_media_twitter" target="_blank" aria-label="X">
+                                    <i class="oi rounded-circle shadow-sm o_editable_media" data-icon="oi_x"/>
                                 </a>
-                                <a href="/website/social/instagram" class="s_social_media_instagram" target="_blank" aria-label="Instagram">
-                                    <i class="fa fa-instagram rounded-circle shadow-sm o_editable_media"/>
+                                <a href="#" class="s_social_media_instagram" target="_blank" aria-label="Instagram">
+                                    <i class="oi rounded-circle shadow-sm o_editable_media" data-icon="oi_instagram"/>
                                 </a>
                             </div>
                         </div>
@@ -2032,7 +2175,7 @@
                                 <li><a href="#">Services</a></li>
                                 <t t-set="configurator_footer_links" t-value="[]"/>
                                 <li t-foreach="configurator_footer_links" t-as="link">
-                                    <a t-att-href="link['href']" t-esc="link['text']"/>
+                                    <a t-att-href="link['href']" t-out="link['text']"/>
                                 </li>
                             </ul>
                         </div>
@@ -2075,20 +2218,20 @@
                         <div class="col-lg-6 pt8 pb8">
                             <div class="s_social_media text-start o_not_editable no_icon_color" data-snippet="s_social_media" data-name="Social Media" contenteditable="false">
                                 <p class="s_social_media_title d-none" contenteditable="true">Follow us</p>
-                                <a href="/website/social/twitter" class="s_social_media_twitter" target="_blank">
-                                    <i class="fa fa-twitter fa-stack o_editable_media"/>
+                                <a href="#" class="s_social_media_twitter" target="_blank">
+                                    <i class="oi oi-stack o_editable_media" data-icon="oi_x"/>
                                 </a>
-                                <a href="/website/social/linkedin" class="s_social_media_linkedin" target="_blank">
-                                    <i class="fa fa-linkedin fa-stack o_editable_media"/>
+                                <a href="#" class="s_social_media_linkedin" target="_blank">
+                                    <i class="oi oi-stack o_editable_media" data-icon="oi_linkedin"/>
                                 </a>
-                                <a href="/website/social/instagram" class="s_social_media_instagram" target="_blank">
-                                    <i class="fa fa-instagram fa-stack o_editable_media"/>
+                                <a href="#" class="s_social_media_instagram" target="_blank">
+                                    <i class="oi oi-stack o_editable_media" data-icon="oi_instagram"/>
                                 </a>
-                                <a href="/website/social/facebook" class="s_social_media_facebook" target="_blank">
-                                    <i class="fa fa-facebook fa-stack o_editable_media"/>
+                                <a href="#" class="s_social_media_facebook" target="_blank">
+                                    <i class="oi oi-stack o_editable_media" data-icon="oi_facebook"/>
                                 </a>
-                                <a href="/website/social/youtube" class="s_social_media_youtube" target="_blank">
-                                    <i class="fa fa-youtube-play fa-stack o_editable_media"/>
+                                <a href="#" class="s_social_media_youtube" target="_blank">
+                                    <i class="oi oi-stack o_editable_media" data-icon="oi_youtube-play"/>
                                 </a>
                             </div>
                         </div>
@@ -2104,10 +2247,10 @@
             </section>
         </div>
     </xpath>
-    <xpath expr="//div[hasclass('o_footer_copyright')]//div[hasclass('col-md')]" position="attributes">
+    <xpath expr="//footer//span[hasclass('o_footer_copyright_name')]/.." position="attributes">
         <attribute name="class" remove="text-center" separator=" "/>
     </xpath>
-    <xpath expr="//div[hasclass('o_footer_copyright')]//div[hasclass('col-md')][2]" position="attributes">
+    <xpath expr="//t[@t-call='web.brand_promotion']/.." position="attributes">
         <attribute name="class" remove="text-center" separator=" "/>
     </xpath>
 </template>
@@ -2141,7 +2284,7 @@
                                             <li><a href="#">Services</a></li>
                                             <t t-set="configurator_footer_links" t-value="[]"/>
                                             <li t-foreach="configurator_footer_links" t-as="link">
-                                                <a t-att-href="link['href']" t-esc="link['text']"/>
+                                                <a t-att-href="link['href']" t-out="link['text']"/>
                                             </li>
                                         </ul>
                                     </div>
@@ -2191,20 +2334,20 @@
                             <p>Sign up to receive the best promotions, our events and personal advice.</p>
                             <div class="s_social_media text-start o_not_editable no_icon_color" data-snippet="s_social_media" data-name="Social Media" contenteditable="false">
                                 <p class="s_social_media_title d-none" contenteditable="true">Follow us</p>
-                                <a href="/website/social/twitter" class="s_social_media_twitter" target="_blank">
-                                    <i class="fa fa-twitter fa-stack o_editable_media"/>
+                                <a href="#" class="s_social_media_twitter" target="_blank">
+                                    <i class="oi oi-stack o_editable_media" data-icon="oi_x"/>
                                 </a>
-                                <a href="/website/social/linkedin" class="s_social_media_linkedin" target="_blank">
-                                    <i class="fa fa-linkedin fa-stack o_editable_media"/>
+                                <a href="#" class="s_social_media_linkedin" target="_blank">
+                                    <i class="oi oi-stack o_editable_media" data-icon="oi_linkedin"/>
                                 </a>
-                                <a href="/website/social/instagram" class="s_social_media_instagram" target="_blank">
-                                    <i class="fa fa-instagram fa-stack o_editable_media"/>
+                                <a href="#" class="s_social_media_instagram" target="_blank">
+                                    <i class="oi oi-stack o_editable_media" data-icon="oi_instagram"/>
                                 </a>
-                                <a href="/website/social/facebook" class="s_social_media_facebook" target="_blank">
-                                    <i class="fa fa-facebook fa-stack o_editable_media"/>
+                                <a href="#" class="s_social_media_facebook" target="_blank">
+                                    <i class="oi oi-stack o_editable_media" data-icon="oi_facebook"/>
                                 </a>
-                                <a href="/website/social/youtube" class="s_social_media_youtube" target="_blank">
-                                    <i class="fa fa-youtube-play fa-stack o_editable_media"/>
+                                <a href="#" class="s_social_media_youtube" target="_blank">
+                                    <i class="oi oi-stack o_editable_media" data-icon="oi_youtube-play"/>
                                 </a>
                             </div>
                         </div>
@@ -2232,10 +2375,10 @@
             </section>
         </div>
     </xpath>
-    <xpath expr="//div[hasclass('o_footer_copyright')]//div[hasclass('col-md')]" position="attributes">
+    <xpath expr="//footer//span[hasclass('o_footer_copyright_name')]/.." position="attributes">
         <attribute name="class" remove="text-center" separator=" "/>
     </xpath>
-    <xpath expr="//div[hasclass('o_footer_copyright')]//div[hasclass('col-md')][2]" position="attributes">
+    <xpath expr="//t[@t-call='web.brand_promotion']/.." position="attributes">
         <attribute name="class" remove="text-center" separator=" "/>
     </xpath>
 </template>
@@ -2273,7 +2416,7 @@
                                             <li><a href="#">Services</a></li>
                                             <t t-set="configurator_footer_links" t-value="[]"/>
                                             <li t-foreach="configurator_footer_links" t-as="link">
-                                                <a t-att-href="link['href']" t-esc="link['text']"/>
+                                                <a t-att-href="link['href']" t-out="link['text']"/>
                                             </li>
                                         </ul>
                                     </div>
@@ -2320,20 +2463,20 @@
                         <div class="col-lg-12 pt8 pb8">
                             <div class="s_social_media text-start o_not_editable no_icon_color" data-snippet="s_social_media" data-name="Social Media" contenteditable="false">
                                 <p class="s_social_media_title d-none" contenteditable="true">Follow us</p>
-                                <a href="/website/social/twitter" class="s_social_media_twitter" target="_blank">
-                                    <i class="fa fa-twitter fa-stack o_editable_media"/>
+                                <a href="#" class="s_social_media_twitter" target="_blank">
+                                    <i class="oi oi-stack o_editable_media" data-icon="oi_x"/>
                                 </a>
-                                <a href="/website/social/linkedin" class="s_social_media_linkedin" target="_blank">
-                                    <i class="fa fa-linkedin fa-stack o_editable_media"/>
+                                <a href="#" class="s_social_media_linkedin" target="_blank">
+                                    <i class="oi oi-stack o_editable_media" data-icon="oi_linkedin"/>
                                 </a>
-                                <a href="/website/social/instagram" class="s_social_media_instagram" target="_blank">
-                                    <i class="fa fa-instagram fa-stack o_editable_media"/>
+                                <a href="#" class="s_social_media_instagram" target="_blank">
+                                    <i class="oi oi-stack o_editable_media" data-icon="oi_instagram"/>
                                 </a>
-                                <a href="/website/social/facebook" class="s_social_media_facebook" target="_blank">
-                                    <i class="fa fa-facebook fa-stack o_editable_media"/>
+                                <a href="#" class="s_social_media_facebook" target="_blank">
+                                    <i class="oi oi-stack o_editable_media" data-icon="oi_facebook"/>
                                 </a>
-                                <a href="/website/social/youtube" class="s_social_media_youtube" target="_blank">
-                                    <i class="fa fa-youtube-play fa-stack o_editable_media"/>
+                                <a href="#" class="s_social_media_youtube" target="_blank">
+                                    <i class="oi oi-stack o_editable_media" data-icon="oi_youtube-play"/>
                                 </a>
                             </div>
                         </div>
@@ -2342,10 +2485,10 @@
             </section>
         </div>
     </xpath>
-    <xpath expr="//div[hasclass('o_footer_copyright')]//div[hasclass('col-md')]" position="attributes">
+    <xpath expr="//footer//span[hasclass('o_footer_copyright_name')]/.." position="attributes">
         <attribute name="class" remove="text-center" separator=" "/>
     </xpath>
-    <xpath expr="//div[hasclass('o_footer_copyright')]//div[hasclass('col-md')][2]" position="attributes">
+    <xpath expr="//t[@t-call='web.brand_promotion']/.." position="attributes">
         <attribute name="class" remove="text-center" separator=" "/>
     </xpath>
 </template>
@@ -2399,20 +2542,20 @@
                         <div class="o_grid_item g-col-lg-4 col-lg-4 g-height-3 offset-1 offset-lg-0 col-10 o_cc o_cc1" style="z-index: 6; grid-area: 5 / 9 / 8 / 13; --grid-item-padding-y: 24px; --grid-item-padding-x: 24px; border-radius: 24px !important;">
                             <div class="s_social_media text-start o_not_editable" data-snippet="s_social_media" data-name="Social Media" contenteditable="false">
                                 <h5 class="s_social_media_title d-block mb-2" contenteditable="true">Follow us</h5>
-                                <a href="/website/social/twitter" class="s_social_media_twitter" target="_blank">
-                                    <i class="fa fa-twitter fa-stack rounded-circle shadow-sm o_editable_media"/>
+                                <a href="#" class="s_social_media_twitter" target="_blank">
+                                    <i class="oi oi-stack rounded-circle shadow-sm o_editable_media" data-icon="oi_x"/>
                                 </a>
-                                <a href="/website/social/linkedin" class="s_social_media_linkedin" target="_blank">
-                                    <i class="fa fa-linkedin fa-stack rounded-circle shadow-sm o_editable_media"/>
+                                <a href="#" class="s_social_media_linkedin" target="_blank">
+                                    <i class="oi oi-stack rounded-circle shadow-sm o_editable_media" data-icon="oi_linkedin"/>
                                 </a>
-                                <a href="/website/social/instagram" class="s_social_media_instagram" target="_blank">
-                                    <i class="fa fa-instagram fa-stack rounded-circle shadow-sm o_editable_media"/>
+                                <a href="#" class="s_social_media_instagram" target="_blank">
+                                    <i class="oi oi-stack rounded-circle shadow-sm o_editable_media" data-icon="oi_instagram"/>
                                 </a>
-                                <a href="/website/social/facebook" class="s_social_media_facebook" target="_blank">
-                                    <i class="fa fa-facebook fa-stack rounded-circle shadow-sm o_editable_media"/>
+                                <a href="#" class="s_social_media_facebook" target="_blank">
+                                    <i class="oi oi-stack rounded-circle shadow-sm o_editable_media" data-icon="oi_facebook"/>
                                 </a>
-                                <a href="/website/social/youtube" class="s_social_media_youtube" target="_blank">
-                                    <i class="fa fa-youtube-play fa-stack rounded-circle shadow-sm o_editable_media"/>
+                                <a href="#" class="s_social_media_youtube" target="_blank">
+                                    <i class="oi oi-stack rounded-circle shadow-sm o_editable_media" data-icon="oi_youtube-play"/>
                                 </a>
                             </div>
                         </div>
@@ -2427,9 +2570,6 @@
 <template id="template_footer_slideout" inherit_id="website.layout" name="Template Footer Slideout" active="False">
     <xpath expr="//footer[@id='bottom']" position="attributes">
         <attribute name="t-attf-class" add="o_footer_slideout" separator=" "/>
-    </xpath>
-    <xpath expr="//div[@id='wrapwrap']" position="attributes">
-        <attribute name="t-attf-class" add="o_footer_effect_enable" separator=" "/>
     </xpath>
 </template>
 
@@ -2453,12 +2593,27 @@
     </xpath>
 </template>
 
-<template id="footer_copyright_company_name" inherit_id="website.layout" priority="15">
+<template id="footer_copyright_company_name" inherit_id="website.layout">
     <xpath expr="//footer//span[hasclass('o_footer_copyright_name')]" position="replace">
-        <span class="o_footer_copyright_name me-2 small">Copyright &amp;copy; Company name</span>
+        <span class="o_footer_copyright_name small" t-ignore="true">
+            Copyright &amp;copy; <span t-out="res_company.name"/>
+        </span>
     </xpath>
-    <xpath expr="//div[hasclass('o_footer_copyright')]//div[hasclass('col-sm')]" position="attributes">
-        <attribute name="class" remove="col-sm text-sm-start" add="col-md d-flex flex-column-reverse gap-2 text-md-start" separator=" "/>
+    <xpath expr="//footer//div[@name='footer_copyright_col']" position="attributes">
+        <attribute name="class" remove="text-sm-start" add="d-flex flex-column-reverse gap-2 text-md-start" separator=" "/>
+    </xpath>
+</template>
+
+<!-- Cookie Policy Link -->
+<template id="footer_cookie_policy_link" inherit_id="website.layout" name="Footer Cookie Policy Link">
+    <xpath expr="//div[@id='footer']" position="after">
+        <div t-if="website.cookies_bar" class="o_cookie_policy_link_container container text-center text-md-start">
+            <p class="m-0">
+                <a href="/website/cookie-policy" class="oe_unremovable small o_translate_inline">Cookie Policy</a>
+                <span class="text-muted  mx-2">•</span>
+                <a href="#" class="o_cookies_bar_toggle oe_unremovable small o_translate_inline">Update Cookie Preferences</a>
+            </p>
+        </div>
     </xpath>
 </template>
 
@@ -2471,7 +2626,7 @@
                href="#top"
                title="Scroll To Top"
                class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center">
-                <span class="oi fa-1x oi-chevron-up"/>
+                <span class="oi" data-icon="keyboard_arrow_up"/>
             </a>
         </div>
     </xpath>
@@ -2480,7 +2635,8 @@
 <!-- Cookie Bar -->
 <template id="cookies_bar" inherit_id="website.layout" name="Cookies Bar">
     <xpath expr="//footer" position="after">
-        <div id="website_cookies_bar" t-if="website.cookies_bar" class="s_popup o_snippet_invisible d-none o_no_save" data-name="Cookies Bar" data-vcss="001" data-invisible="1">
+        <div id="website_cookies_bar" t-if="website.cookies_bar" class="s_popup o_snippet_invisible d-none o_no_save" data-name="Cookies Bar" data-vcss="001" data-invisible="1"
+             t-att-data-cookie-policy-url="website.cookie_policy_id.sudo().url or '/cookie-policy'">
             <div class="modal s_popup_bottom s_popup_no_backdrop o_cookies_discrete"
                  data-show-after="500"
                  data-display="afterDelay"
@@ -2489,27 +2645,29 @@
                  data-bs-backdrop="false"
                  data-bs-keyboard="false"
                  tabindex="-1"
-                 role="dialog">
+                 role="dialog"
+                 aria-label="Cookie bar">
                 <div class="modal-dialog d-flex s_popup_size_full">
                     <div class="modal-content oe_structure">
                         <!-- Keep this section equivalent to the rendering of the `website.cookies_bar.discrete` client template -->
-                        <section class="o_colored_level o_cc o_cc1">
+                        <section class="o_colored_level o_cc o_cc1 pe-5 oe_unremovable">
                             <div class="container">
                                 <div class="row">
                                     <div class="col-lg-8 pt16">
                                         <p>
-                                            <span class="pe-1">We use cookies to provide you a better user experience on this website.</span>
-                                            <a href="/cookie-policy" class="o_cookies_bar_text_policy btn btn-link btn-sm px-0 o_translate_inline">Cookie Policy</a>
+                                            <span>We use cookies to provide you a better user experience on this website.</span>
+                                            <a href="/website/cookie-policy" class="o_cookies_bar_text_policy small o_translate_inline">Cookie Policy</a>
                                         </p>
                                     </div>
-                                    <div class="col-lg-4 text-end pt16 pb16">
-                                        <a href="#" id="cookies-consent-essential" role="button"
-                                           class="js_close_popup btn btn-outline-primary rounded-circle btn-sm px-2">Only essentials</a>
-                                        <a href="#" id="cookies-consent-all" role="button"
-                                           class="js_close_popup btn btn-outline-primary rounded-circle btn-sm">I agree</a>
+                                    <div class="col-lg-4 text-end pt16 pb16 oe_unremovable">
+                                        <a href="#" id="cookies-consent-essential" role="button" data-name="Refuse optional cookies"
+                                           class="js_close_popup btn btn-outline-primary rounded-circle btn-sm px-2 mb-2 oe_unremovable">Only essentials</a>
+                                        <a href="#" id="cookies-consent-all" role="button" data-name="Accept all cookies"
+                                           class="js_close_popup btn btn-outline-primary rounded-circle btn-sm mb-2 oe_unremovable">I agree</a>
                                     </div>
                                 </div>
                             </div>
+                            <button type="button" class="s_popup_close o_cookies_bar_close border-0 p-0 o_we_no_overlay o_not_editable shadow-none" aria-label="Close">×</button>
                         </section>
                     </div>
                 </div>
@@ -2542,6 +2700,7 @@
     </xpath>
     <xpath expr="//*[contains(@t-attf-class, 'js_change_lang')]/span" position="before">
         <t t-if="flags">
+            <t t-if="no_text and not codes" t-set="flag_lang_alt" t-value="lg.name.split('/').pop()"/>
             <t t-call="website.lang_flag"
                 flag_image_url="lg.flag_image_url"/>
         </t>
@@ -2700,6 +2859,21 @@
     </div>
 </template>
 
+<template id="website.unpublished_badge" name="Unpublished Badge">
+    <t t-set="badge_offset" t-value="badge_offset or '2'"/>
+    <t t-if="not badge_position == 'static' and not badge_classes">
+        <t t-if="badge_position == 'left'" t-set="badge_classes" t-valuef="position-absolute start-0 top-0 z-1 mt-{{badge_offset}} ms-{{badge_offset}}"/>
+        <t t-else="" t-set="badge_classes" t-valuef="position-absolute end-0 top-0 z-1 mt-{{badge_offset}} me-{{badge_offset}}"/>
+    </t>
+    <t t-set="unpublished_label">Unpublished</t>
+    <small
+        t-attf-class="o_unpublished_badge badge bg-black-75 shadow-sm {{badge_classes}}"
+        t-att-title="is_minimal_badge and unpublished_label or ''"
+    >
+        <i t-attf-class="oi {{not is_minimal_badge and 'me-2' or ''}}" aria-hidden="true" data-icon="block"/><t t-if="not is_minimal_badge"><t t-out="unpublished_label"/></t>
+    </small>
+</template>
+
 <template id="pager" name="Pager" inherit_id="portal.pager">
 </template>
 
@@ -2718,13 +2892,25 @@
 
 <!-- Error and special pages -->
 <template id="website_info" name="Odoo Information">
-    <t t-call="website.layout">
-        <div id="wrap" class="o_website_info"/>
+    <t t-set="head">
+        <meta name="robots" content="noindex, nofollow"/>
+    </t>
+    <t t-call="website.layout" head="head">
+        <div id="wrap" class="o_website_info">
+            <section class="container">
+                <div class="alert alert-warning alert-dismissible mt16" groups="website.group_website_designer" role="status">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <p>
+                        Note: To view the website information, enable it from the Style tab in edit mode.
+                    </p>
+                </div>
+            </section>
+        </div>
     </t>
 </template>
 
-<template id="show_website_info" inherit_id="website.website_info" name="Show Odoo Information">
-    <xpath expr="//div[@id='wrap']" position="inside">
+<template id="show_website_info" inherit_id="website.website_info" name="Show Odoo Information" active="False">
+    <xpath expr="//div[@id='wrap']/section[hasclass('container')]" position="replace">
         <div class="oe_structure">
             <section class="container">
                 <h1><t t-out="res_company.name"/>
@@ -2734,10 +2920,10 @@
                     Information about the <t t-out="res_company.name"/> instance of Odoo, the <a class="o_translate_inline" target="_blank" href="https://www.odoo.com">Open Source ERP</a>.
                 </p>
 
-                <div class="alert alert-warning alert-dismissable mt16" groups="website.group_website_restricted_editor" role="status">
+                <div class="alert alert-warning alert-dismissible mt16" groups="website.group_website_designer" role="status">
                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                    <p>
-                     Note: To hide this page, uncheck it from the Customize tab in edit mode.
+                     Note: To hide this page, uncheck it from the Style tab in edit mode.
                    </p>
                 </div>
                 <h2>Installed Applications</h2>
@@ -2834,13 +3020,13 @@
                 <form class="offset-md-3 col-md-6" method="POST">
                     <div class="alert alert-info mt32" t-if="not request.params.get('visibility_password')">
                         <div class="h5 text-center">
-                            <i class="fa fa-lock fa-2x"/><br/>
+                            <i class="oi oi-2x" data-icon="lock"/><br/>
                             <span class="mt-1">A password is required to access this page.</span>
                         </div>
                     </div>
                     <div class="alert alert-warning mt32" t-else="">
                         <div class="h5 text-center">
-                            <i class="fa fa-lock fa-2x"/><br/>
+                            <i class="oi oi-2x" data-icon="lock"/><br/>
                             <span class="mt-1">Wrong password</span>
                         </div>
                     </div>
@@ -2850,11 +3036,11 @@
                             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
                             <input type="password" id="password" class="form-control" required="required" name="visibility_password" />
                           <button class="btn border border-start-0 o_show_password" type="button">
-                            <i class="fa fa-eye"></i>
+                            <i class="oi" data-icon="visibility"></i>
                           </button>
                         </div>
                     </div>
-                    <button type="submit" class="h4 btn btn-primary btn-block">Access to this page</button>
+                    <button type="submit" class="h4 btn btn-primary">Access to this page</button>
                 </form>
             </div>
         </div>
@@ -2877,17 +3063,23 @@
     <xpath expr="//style" position="after">
         <t t-if='view'>
             <script>
-                $(document).ready(function() {
-                    var button = $('.reset_templates_button');
-                    button.click(function() {
-                        $('#reset_templates_mode').val($(this).data('mode'));
-                        var dialog = $('#reset_template_confirmation').modal('show');
-                        var input = dialog.find('input[type="text"]').val('').focus();
-                        var dialog_form = dialog.find('form');
-                        dialog_form.submit(function() {
-                            if (input.val() == dialog.find('.confirm_word').text()) {
-                                dialog.modal('hide');
-                                button.prop('disabled', true).text('Working...');
+                document.addEventListener('DOMContentLoaded', () =&gt; {
+                    const buttons = document.querySelectorAll('.reset_templates_button');
+                    const onClick = (event) =&gt; {
+                        event.preventDefault();
+                        const button = event.currentTarget;
+                        document.getElementById('reset_templates_mode').value = button.dataset.mode;
+                        const dialog = document.getElementById('reset_template_confirmation');
+                        window.Modal.getOrCreateInstance(dialog).show();
+                        const input = dialog.querySelector('input[type="text"]');
+                        input.value = '';
+                        input.focus();
+                        dialog.querySelector('form').addEventListener('submit', (event) =&gt; {
+                            event.preventDefault();
+                            if (input.value == dialog.querySelector('.confirm_word').textContent) {
+                                window.Modal.getInstance(dialog).hide();
+                                button.disabled = true;
+                                button.textContent = 'Working...';
                                 const id = document.querySelector('input[id="reset_templates_view_id"]').value;
                                 const redirect = document.querySelector('input[name="redirect"]').value;
                                 const mode = document.querySelector('input[id="reset_templates_mode"]').value;
@@ -2897,20 +3089,21 @@
                                         "Content-Type": "application/json",
                                     },
                                     'body': JSON.stringify({'params': {'view_id': id, 'mode': mode}})
-                                }).then(() => window.location = redirect);
+                                }).then(() =&gt; window.location = redirect);
                             } else {
-                                input.val('').focus();
+                                input.value = '';
+                                input.focus();
                             }
                             return false;
                         });
-                        return false;
-                    });
+                    };
+                    buttons.forEach(button =&gt; button.addEventListener("click", onClick));
                 });
             </script>
         </t>
     </xpath>
     <xpath expr="//div[@id='wrapwrap']" position="before">
-        <div t-if="view" role="dialog" id="reset_template_confirmation" class="modal" tabindex="-1" t-ignore="true">
+        <div t-if="view" role="dialog" id="reset_template_confirmation" class="modal" tabindex="-1" t-ignore="true" aria-label="Reset template confirmation">
             <div class="modal-dialog">
                 <form role="form">
                     <div class="modal-content">
@@ -2934,7 +3127,7 @@
                             </div>
                         </main>
                         <footer class="modal-footer">
-                            <button type="button" class="btn" data-bs-dismiss="modal" aria-label="Cancel">Cancel</button>
+                            <button type="button" class="btn" data-bs-dismiss="modal" aria-label="Discard">Discard</button>
                             <input type="submit" value="Confirm" class="btn btn-primary"/>
                         </footer>
                     </div>
@@ -2979,13 +3172,22 @@ Sitemap: <t t-out="website.domain"/>/sitemap.xml
 </t>
 <t t-else="">
 Sitemap: <t t-out="url_root"/>sitemap.xml
-
+<t id="robots_module_rules">
+Disallow: /web/login
+Disallow: /*/web/login
+Disallow: /web/signup
+Disallow: /*/web/signup
+Disallow: /web/reset_password
+Disallow: /*/web/reset_password
+Disallow: /my/
+Disallow: /*/my/*
+</t>
 
 ##############
 #   custom   #
 ##############
 
-<t t-out="request.website.sudo().robots_txt" />
+<t t-out="website.sudo().robots_txt" />
 </t>
 </t>
 </template>
@@ -3015,20 +3217,54 @@ Sitemap: <t t-out="url_root"/>sitemap.xml
 </template>
 
 <template id="website_search_box" name="Website Searchbox">
-    <div t-attf-class="input-group #{_classes}" role="search">
-        <t t-set="search_placeholder">Search...</t>
-        <input type="search" name="search" t-att-class="'search-query form-control oe_search_box %s %s' % (_input_classes or '', '' if default_style else 'border-0 bg-light')" t-att-placeholder="placeholder if placeholder else search_placeholder" t-att-value="search"/>
-        <button type="submit" t-att-class="'btn oe_search_button %s' % (_submit_classes or ('btn-primary' if default_style else 'btn-light'))" aria-label="Search" title="Search">
-            <i class="oi oi-search"/>
-            <span t-if="search" class="oe_search_found">
-                <small>(<t t-out="search_count or 0"/> found)</small>
+    <!--
+        '_simple_button_layout': Renders a simple button that triggers the
+                                 search dialog instead of displaying search input.
+        '_force_modal_trigger' : forces the search to open in a modal
+    -->
+    <t t-set="search_count" t-value="search_count or 0"/>
+    <div
+        t-attf-class="{{_input_group_classes}} o_search_input_group input-group {{'d-none' if _simple_button_layout else ''}}" role="search"
+        t-att-data-force-modal-trigger="_force_modal_trigger or _simple_button_layout">
+        <input
+            type="search"
+            name="search"
+            t-attf-class="{{_input_classes or 'border-0 bg-light'}} search-query form-control oe_search_box"
+            t-att-placeholder="placeholder"
+            t-att-value="search"/>
+        <button
+            type="submit"
+            t-attf-class="{{_submit_classes}} btn btn-light oe_search_button" aria-label="Search"
+            title="Search">
+            <span
+                class="o_search_spinner d-none spinner-border spinner-border-sm text-500"
+                style="--spinner-border-width: 0.1em;"
+                role="status">
+                <span class="visually-hidden">Loading...</span>
             </span>
+            <small t-attf-class="o_search_found_results {{'d-none' if not search else ''}}">
+                <span class="o_search_count" t-out="search_count"/> result(s)
+            </small>
+            <i t-attf-class="{{'d-none' if search else ''}} oi" data-icon="search"/>
         </button>
     </div>
 </template>
 
 <template id="search_text_with_highlight" name="Website Searchbox item highlight">
-    <span t-foreach="enumerate(parts)" t-as="part" t-att-class="'text-primary-emphasis' if part[0] % 2 else None" t-out="part[1]"/>
+    <span t-foreach="enumerate(parts)" t-as="part" t-att-class="'o_search_matching_text text-body position-relative' if part[0] % 2 else None" t-out="part[1]"/>
+</template>
+
+<template id="search_tags_highlight" name="Website Searchbar: Tag Highlight">
+    <div class="o_search_tags_highlight d-flex gap-1 flex-wrap">
+        <span t-foreach="tags"
+            t-as="tag"
+            class="badge o_color_0">
+            <span t-foreach="enumerate(tag['parts'])"
+               t-as="part"
+               t-att-class="'o_search_matching_text text-body position-relative' if part[0] % 2 else None"
+               t-out="part[1]" />
+        </span>
+    </div>
 </template>
 
 <template id="list_website_public_pages" name="Website Pages">
@@ -3069,95 +3305,115 @@ Sitemap: <t t-out="url_root"/>sitemap.xml
     </t>
 </template>
 
+<template id="website.search_image_item_view">
+    <img t-if="result.get('image_url')" t-att-src="result['image_url']" class="o_search_result_image flex-shrink-0 rounded-2"/>
+    <i t-else="" t-attf-class="o_search_result_image flex-shrink-0 align-content-center rounded-2 fs-6 text-center text-muted oi" t-att-data-icon="result['_icon']"/>
+</template>
+
+<template id="website.search_result_items">
+    <t t-foreach="results" t-as="result">
+        <li t-attf-class="o_search_result_item #{'rounded mx-n2' if is_search_page else ''}">
+            <a t-att-href="result['website_url']" class="o_search_result_link d-flex gap-2 p-2 text-decoration-none text-muted">
+                <t t-call="website.search_image_item_view"/>
+                <div class="o_search_result_content d-flex flex-grow-1">
+                    <div>
+                        <h3 class="h6 mb-0 d-inline" t-out="result['name']"/>
+                        <span t-if="result.get('search_item_metadata')" class="align-baseline text-nowrap smaller">
+                            <span> · </span>
+                            <t t-out="result.get('search_item_metadata')"/>
+                        </span>
+                    </div>
+                    <div class="o_search_result_description d-empty-none">
+                        <t t-if="result.get('tags')" t-out="result['tags']"/>
+                        <p
+                            t-elif="result.get('description')"
+                            class="o_line_clamp o_line_clamp_1 mb-0 small"
+                            t-out="result['description']"
+                        />
+                    </div>
+                </div>
+            </a>
+        </li>
+    </t>
+</template>
+
 <template id="list_hybrid" name="Any Search Results">
     <t t-call="website.layout">
         <div id="wrap">
-            <div class="container pt24 pb24">
-                <t t-call="website.website_search_box_input"
-                    _classes.f="mt8"
-                    search_type.f="all"
-                    action.f="/website/search"/>
-                <h1 class="mt24 h3-fs">Search Results</h1>
-                <t t-if="not results">
-                    <div class="text-center">
-                        <div class="mt-5 mb-3"><t t-call="website.empty_search_svg"/></div>
-                        <t t-if="search">
-                            Your search '<t t-out="search" />' did not match anything.
+            <div class="o_search_page container pt24 pb24">
+                <div class="row justify-content-center">
+                    <div class="col-12 col-xxl-10">
+                        <t t-call="website.website_search_box_input"
+                            _input_group_classes.f="mt8"
+                            search_type.f="all"
+                            action.f="/website/search"/>
+                        <t t-if="not results">
+                            <div class="text-center">
+                                <div class="mt-5 mb-3"><t t-call="website.empty_search_svg"/></div>
+                                <t t-if="search">
+                                    Your search '<t t-out="search" />' did not match anything.
+                                </t>
+                                <t t-else="">
+                                    Specify a search term.
+                                </t>
+                            </div>
                         </t>
-                        <t t-else="">
-                            Specify a search term.
+                        <t t-elif="fuzzy_search">
+                            <div class="alert alert-warning mt8" role="alert">
+                                Your search '<t t-out="search" />' did not match anything.
+                                Results are displayed for '<t t-out="fuzzy_search"/>'.
+                            </div>
                         </t>
+                        <div t-if="results" class="o_searchbar_result">
+                            <t t-foreach="results.items()" t-as="group_result">
+                                <t t-set="bucket" t-value="group_result[1]"/>
+                                <section t-att-id="bucket['groupName'].replace(' ', '_').lower()" t-attf-class="mb-4 #{'mt-4' if group_result_first else ''}">
+                                    <!-- Group header -->
+                                    <h2 class="small fw-normal text-muted">
+                                        <t t-out="bucket['groupName']"/> - <t t-out="bucket['searchCount']"/>
+                                        <t t-out="'result' if bucket['searchCount'] == 1 else 'results'"/>
+                                    </h2>
+                                    <!-- Items -->
+                                    <ul class="list-unstyled mb-0">
+                                        <t t-call="website.search_result_items" results="bucket['data']" is_search_page="True"/>
+                                    </ul>
+                                    <t t-set="has_more" t-value="(bucket.get('searchCount') &gt; limit)"/>
+                                    <div t-if="has_more" class="d-flex justify-content-center py-2">
+                                        <button class="o_load_more btn btn-light"
+                                            t-att-data-search-type="group_result[0]">
+                                            Load More
+                                        </button>
+                                    </div>
+                                </section>
+                            </t>
+                        </div>
                     </div>
-                </t>
-                <t t-elif="fuzzy_search">
-                    <div class="alert alert-warning mt8" role="alert">
-                        Your search '<t t-out="search" />' did not match anything.
-                        Results are displayed for '<t t-out="fuzzy_search"/>'.
-                    </div>
-                </t>
-                <div t-if="results" class="table-responsive">
-                    <t t-call="website.one_hybrid" t-foreach="results" t-as="result" t-key="result_index"/>
-                </div>
-                <div t-if="pager" class="o_portal_pager d-flex justify-content-center">
-                    <t t-call="website.pager"/>
                 </div>
             </div>
         </div>
     </t>
 </template>
 
-<template id="one_hybrid" name="Single any Search Results">
-    <a t-att-href="result.get('website_url')" class="dropdown-item p-2 text-wrap">
-        <div class="d-flex align-items-center flex-wrap o_search_result_item">
-            <img t-if="result.get('image_url')" t-att-src="result.get('image_url')" role="presentation" alt="" class="flex-shrink-0 o_image_64_contain"/>
-            <i t-else="" t-att-class="'o_image_64_contain text-center pt16 fa %s' % result.get('_fa')" style="font-size: 34px;"/>
-            <div class="o_search_result_item_detail px-3">
-                <t t-set="description" t-value="result.get('description')"/>
-                <t t-set="extra_link" t-value="result.get('extra_link_url') and result.get('extra_link')"/>
-                <t t-set="extra_link_html" t-value="not result.get('extra_link_url') and result.get('extra_link')"/>
-                <div t-att-class="'h6 fw-bold %s' % ('' if description else 'mb-0')" t-out="result['name']"/>
-                <p t-if="description" class="mb-0" t-out="description"/>
-                <button t-if="extra_link" class="extra_link btn btn-link btn-sm" t-out="extra_link"
-                    t-attf-onclick="location.href='#{result.get('extra_link_url')}';return false;"/>
-                <t t-if="extra_link_html" t-out="extra_link_html"/>
-            </div>
-            <div class="flex-shrink-0 ms-auto">
-                <t t-if="result.get('detail_strike')">
-                    <span class="text-muted text-nowrap" style="text-decoration: line-through;">
-                        <t t-out="result.get('detail_strike')"/>
-                    </span>
-                    <br/>
-                </t>
-                <b t-if="result.get('detail')" class="text-nowrap">
-                    <t t-out="result.get('detail')"/>
-                </b>
-                <t t-if="result.get('detail_extra')">
-                    <br/>
-                    <span class="text-nowrap" t-out="result.get('detail_extra')"/>
-                </t>
-            </div>
-        </div>
-    </a>
-</template>
-
 <!-- Search Bar input-group template -->
 <template id="website_search_box_input" inherit_id="website.website_search_box" primary="True">
     <xpath expr="//input[@name='search']" position="attributes">
         <attribute name="t-att-data-search-type">search_type</attribute>
-        <attribute name="t-att-data-limit">limit or '5'</attribute>
-        <attribute name="t-att-data-display-image">display_image or 'true'</attribute>
-        <attribute name="t-att-data-display-description">display_description or 'true'</attribute>
-        <attribute name="t-att-data-display-extra-link">display_extra_link or 'true'</attribute>
-        <attribute name="t-att-data-display-detail">display_detail or 'true'</attribute>
-        <attribute name="t-att-data-order-by">order_by or 'name asc'</attribute>
+        <attribute name="t-att-data-limit">limit</attribute>
+        <attribute name="t-att-data-order-by">order_by</attribute>
     </xpath>
     <xpath expr="//div[@role='search']" position="attributes">
         <attribute name="t-attf-class" remove="s_searchbar_input" separator=" "/>
     </xpath>
     <xpath expr="//div[@role='search']" position="replace">
+        <t t-if="not placeholder" t-set="placeholder">Search...</t>
+        <t t-set="limit" t-value="'6' if limit is None else str(limit)"/>
+        <t t-set="order_by" t-value="order_by or 'name asc'"/>
         <form t-attf-class="o_searchbar_form s_searchbar_input #{_form_classes}" t-att-action="action" method="get" t-attf-data-snippet="s_searchbar_input">
+            <a t-if="_simple_button_layout" t-attf-class="o_search_btn {{_simple_button_classes or 'p-1 bg-o-color-3 lh-1'}} btn o_not_editable" role="button" title="Search" href="#">
+                <i class="oi-stack lh-lg oi" data-icon="search" role="img"/>
+            </a>
             <t>$0</t>
-            <input name="order" type="hidden" class="o_search_order_by oe_unremovable" t-att-value="order_by if order_by else 'name asc'"/>
+            <input name="order" type="hidden" class="o_search_order_by oe_unremovable" t-att-value="order_by"/>
             <t t-out="0"/>
         </form>
     </xpath>
@@ -3185,7 +3441,8 @@ Sitemap: <t t-out="url_root"/>sitemap.xml
                     </p>
                     <span
                         t-if="not step_last"
-                        class="fa fa-angle-right d-inline-block align-middle mx-3 text-muted fs-5"
+                        class="oi d-inline-block align-middle mx-3 text-muted fs-5"
+                        data-icon="keyboard_arrow_right"
                     />
                 </div>
             </span>
@@ -3201,7 +3458,8 @@ Sitemap: <t t-out="url_root"/>sitemap.xml
                     </p>
                     <span
                         t-if="not step_last"
-                        class="fa fa-angle-right d-inline-block align-middle mx-3 text-muted fs-5"
+                        class="oi d-inline-block align-middle mx-3 text-muted fs-5"
+                        data-icon="keyboard_arrow_right"
                     />
                 </div>
             </a>
@@ -3224,17 +3482,17 @@ Sitemap: <t t-out="url_root"/>sitemap.xml
             <div t-attf-class="o_header_social_links #{_div_class}">
                 <div class="s_social_media o_not_editable oe_unmovable oe_unremovable" data-snippet="s_social_media" data-name="Social Media">
                     <h5 class="s_social_media_title d-none">Follow us</h5>
-                    <a href="/website/social/facebook" class="s_social_media_facebook o_nav-link_secondary nav-link m-0 p-0 text-decoration-none" target="_blank" aria-label="Facebook">
-                        <i class="fa fa-facebook fa-stack p-1 o_editable_media"/>
+                    <a href="#" class="s_social_media_facebook o_nav-link_secondary nav-link m-0 p-0 text-decoration-none" target="_blank" aria-label="Facebook">
+                        <i class="oi oi-stack p-1 o_editable_media" data-icon="oi_facebook"/>
                     </a>
-                    <a href="/website/social/twitter" class="s_social_media_twitter o_nav-link_secondary nav-link m-0 p-0 text-decoration-none" target="_blank" aria-label="X">
-                        <i class="fa fa-twitter fa-stack p-1 o_editable_media"/>
+                    <a href="#" class="s_social_media_twitter o_nav-link_secondary nav-link m-0 p-0 text-decoration-none" target="_blank" aria-label="X">
+                        <i class="oi oi-stack p-1 o_editable_media" data-icon="oi_x"/>
                     </a>
-                    <a href="/website/social/linkedin" class="s_social_media_linkedin o_nav-link_secondary nav-link m-0 p-0 text-decoration-none" target="_blank" aria-label="LinkedIn">
-                        <i class="fa fa-linkedin fa-stack p-1 o_editable_media"/>
+                    <a href="#" class="s_social_media_linkedin o_nav-link_secondary nav-link m-0 p-0 text-decoration-none" target="_blank" aria-label="LinkedIn">
+                        <i class="oi oi-stack p-1 o_editable_media" data-icon="oi_linkedin"/>
                     </a>
-                    <a href="/website/social/instagram" class="s_social_media_instagram o_nav-link_secondary nav-link m-0 p-0 text-decoration-none" target="_blank" aria-label="Instagram">
-                        <i class="fa fa-instagram fa-stack p-1 o_editable_media"/>
+                    <a href="#" class="s_social_media_instagram o_nav-link_secondary nav-link m-0 p-0 text-decoration-none" target="_blank" aria-label="Instagram">
+                        <i class="oi oi-stack p-1 o_editable_media" data-icon="oi_instagram"/>
                     </a>
                 </div>
             </div>
@@ -3242,42 +3500,21 @@ Sitemap: <t t-out="url_root"/>sitemap.xml
     </xpath>
 </template>
 
-<!--
-    This template allows to use the website_search_box_input many times keeping
-    the same parameters (eg. header desktop + header mobile)
--->
-<template id="header_search_box_input" name="Header Search Box Input">
-    <t t-call="website.website_search_box_input"
-        search_type.f="all"
-        action.f="/website/search"
-        limit="limit or '5'"
-        display_image.f="true"
-        display_description.f="true"
-        display_extra_link.f="true"
-        display_detail.f="true"/>
-</template>
 
 <!-- Extra element : Search -->
 <template id="website.placeholder_header_search_box" name="Placeholder Header Search Bar"/>
 <template id="website.header_search_box" inherit_id="website.placeholder_header_search_box" name="Header Search Bar" active="True">
     <xpath expr="." position="inside">
         <li t-attf-class="#{_item_class}">
-            <t t-if="_layout == 'modal'">
-                <div class="modal fade css_editable_mode_hidden" id="o_search_modal" aria-hidden="true" tabindex="-1">
-                    <div class="modal-dialog modal-lg pt-5">
-                        <div class="modal-content mt-5">
-                            <t t-call="website.header_search_box_input"
-                                _classes.f="input-group-lg"/>
-                        </div>
-                    </div>
-                </div>
-                <a t-attf-class="btn rounded-circle p-1 lh-1 #{_button_classes or 'bg-o-color-3'} o_not_editable" data-bs-target="#o_search_modal" data-bs-toggle="modal" role="button" title="Search" href="#">
-                    <i class="oi oi-search fa-stack lh-lg"/>
-                </a>
-            </t>
-            <t t-else="">
-                <t t-call="website.header_search_box_input"/>
-            </t>
+            <t t-set="_search_scope" t-value="website._get_header_search_scope()"/>
+            <t
+                t-call="website.website_search_box_input"
+                _form_classes.f="o_header_searchbar o_no_save {{_form_classes}}"
+                search_type="_search_scope['search_type']"
+                action="_search_scope['url']"
+                order_by="website.header_search_order_by"
+                limit="website.header_search_limit"
+            />
         </li>
     </xpath>
 </template>
@@ -3295,15 +3532,15 @@ Sitemap: <t t-out="url_root"/>sitemap.xml
             <t t-elif="_txt_elt_content == 'list'">
                 <div t-attf-class="s_text_block d-flex flex-column flex-lg-row gap-1 gap-lg-4 align-items-lg-center #{_div_class}" data-name="Text">
                     <small class="d-flex align-items-center">
-                        <i class="fa fa-1x fa-fw fa-usd fa-stack me-1"/>
+                        <i class="oi oi-1x oi-fw oi-stack me-1" data-icon="attach_money"/>
                         Low Price Guarantee
                     </small>
                     <small class="d-flex align-items-center">
-                        <i class="fa fa-1x fa-fw fa-shopping-basket fa-stack me-1"/>
+                        <i class="oi oi-1x oi-fw oi-stack me-1" data-icon="shopping_basket"/>
                         30 Days Online Returns
                     </small>
                     <small class="d-flex align-items-center">
-                        <i class="fa fa-1x fa-fw fa-truck fa-stack me-1"/>
+                        <i class="oi oi-1x oi-fw oi-stack me-1" data-icon="local_shipping"/>
                         Standard Shipping
                     </small>
                 </div>
@@ -3312,13 +3549,13 @@ Sitemap: <t t-out="url_root"/>sitemap.xml
                 <div t-attf-class="s_text_block #{_div_class}" data-name="Text">
                     <a href="tel:+1 555-555-5556" class="nav-link o_nav-link_secondary">
                         <small>
-                            <i class="fa fa-1x fa-fw fa-phone me-1"/>&#847; <!-- Empty character needed to be able to delete the icon. -->
+                            <i class="oi oi-1x oi-fw oi-filled me-1" data-icon="phone"/>͏ <!-- Empty character needed to be able to delete the icon. -->
                             <span class="o_force_ltr">+1 555-555-5556</span>
                         </small>
                     </a>
                     <a href="mailto:info@yourcompany.example.com" class="nav-link o_nav-link_secondary">
                         <small>
-                            <i class="fa fa-1x fa-fw fa-envelope me-1"/>
+                            <i class="oi oi-1x oi-fw oi-filled me-1" data-icon="mail"/>
                             info@yourcompany.example.com
                         </small>
                     </a>
@@ -3327,14 +3564,14 @@ Sitemap: <t t-out="url_root"/>sitemap.xml
             <t t-elif="_txt_elt_content == 'mail'">
                 <div t-attf-class="s_text_block #{_div_class}" data-name="Text">
                     <a href="mailto:info@yourcompany.example.com" class="nav-link o_nav-link_secondary">
-                        <small><i class="fa fa-1x fa-fw fa-envelope me-1"/> info@yourcompany.example.com</small>
+                        <small><i class="oi oi-1x oi-fw oi-filled me-1" data-icon="mail"/> info@yourcompany.example.com</small>
                     </a>
                 </div>
             </t>
             <t t-elif="_txt_elt_content == 'mail_stretched'">
                 <div t-attf-class="s_text_block #{_div_class}" data-name="Text">
                     <a href="tel:+1 555-555-5556" class="nav-link o_nav-link_secondary p-2 o_navlink_background_hover d-flex align-items-center h-100 text-reset">
-                        <i class="fa fa-1x fa-fw fa-phone me-1"/>
+                        <i class="oi oi-1x oi-fw i-filled me-1" data-icon="phone"/>
                         <span class="o_force_ltr"><small>+1 555-555-5556</small></span>
                     </a>
                 </div>
@@ -3342,7 +3579,7 @@ Sitemap: <t t-out="url_root"/>sitemap.xml
             <t t-else="">
                 <div t-attf-class="s_text_block #{_div_class}" data-name="Text">
                     <a href="tel:+1 555-555-5556" class="nav-link o_nav-link_secondary p-2">
-                        <i class="fa fa-1x fa-fw fa-phone me-1"/>
+                        <i class="oi oi-1x oi-fw oi-filled me-1" data-icon="phone"/>
                         <span class="o_force_ltr"><small>+1 555-555-5556</small></span>
                     </a>
                 </div>

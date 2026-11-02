@@ -1,12 +1,12 @@
-import { browser } from "./browser/browser";
-
 import {
     Component,
+    onMounted,
+    onPatched,
     onWillUpdateProps,
-    status,
-    useComponent,
-    useEffect,
-    useState,
+    signal,
+    t,
+    useProps,
+    useScope,
     xml,
 } from "@odoo/owl";
 
@@ -43,19 +43,18 @@ export function useTransition({
     leaveDuration = 500,
     onLeave = () => {},
 }) {
-    const component = useComponent();
-    const state = useState({
-        shouldMount: initialVisibility,
-        stage: initialVisibility ? "enter" : "leave",
-    });
+    const scope = useScope();
+
+    const shouldMount = signal(initialVisibility);
+    const stage = signal(initialVisibility ? "enter" : "leave");
 
     if (config.disabled) {
         return {
             get shouldMount() {
-                return state.shouldMount;
+                return shouldMount();
             },
             set shouldMount(val) {
-                state.shouldMount = val;
+                shouldMount.set(val);
             },
             get className() {
                 return `${name} ${name}-enter-active`;
@@ -70,51 +69,53 @@ export function useTransition({
     // onNextPatch allows us to activate the class that we want the next time
     // the component is patched.
     let onNextPatch = null;
-    useEffect(() => {
+    const runOnNextPatch = () => {
         if (onNextPatch) {
             onNextPatch();
             onNextPatch = null;
         }
-    });
+    };
+    onMounted(runOnNextPatch);
+    onPatched(runOnNextPatch);
 
     let prevState, timer;
     const transition = {
         get shouldMount() {
-            return state.shouldMount;
+            return shouldMount();
         },
         set shouldMount(newState) {
             if (newState === prevState) {
                 return;
             }
-            browser.clearTimeout(timer);
+            clearTimeout(timer);
             prevState = newState;
             // when true - transition from enter to enter-active
             // when false - transition from enter-active to leave, unmount after leaveDuration
             if (newState) {
-                if (status(component) === "mounted" || immediate) {
-                    state.stage = "enter";
+                if (immediate || scope.status === 1) {
+                    stage.set("enter");
                     // force a render here so that we get a patch even if the state didn't change
-                    component.render();
+                    signal.trigger(stage);
                     onNextPatch = () => {
-                        state.stage = "enter-active";
+                        stage.set("enter-active");
                     };
                 } else {
-                    state.stage = "enter-active";
+                    stage.set("enter-active");
                 }
-                state.shouldMount = true;
+                shouldMount.set(true);
             } else {
-                state.stage = "leave";
-                timer = browser.setTimeout(() => {
-                    state.shouldMount = false;
+                stage.set("leave");
+                timer = setTimeout(() => {
+                    shouldMount.set(false);
                     onLeave();
                 }, leaveDuration);
             }
         },
         get className() {
-            return `${name} ${name}-${state.stage}`;
+            return `${name} ${name}-${stage()}`;
         },
         get stage() {
-            return state.stage;
+            return stage();
         },
     };
     transition.shouldMount = initialVisibility;
@@ -129,15 +130,15 @@ export function useTransition({
  * to be created. @see useTransition
  */
 export class Transition extends Component {
-    static template = xml`<t t-slot="default" t-if="transition.shouldMount" className="transition.className"/>`;
-    static props = {
-        name: String,
-        visible: { type: Boolean, optional: true },
-        immediate: { type: Boolean, optional: true },
-        leaveDuration: { type: Number, optional: true },
-        onLeave: { type: Function, optional: true },
-        slots: Object,
-    };
+    static template = xml`<t t-call-slot="default" t-if="this.transition.shouldMount" className="this.transition.className"/>`;
+    props = useProps({
+        name: t.string(),
+        visible: t.boolean().optional(),
+        immediate: t.boolean().optional(),
+        leaveDuration: t.number().optional(),
+        onLeave: t.function().optional(),
+        slots: t.object(),
+    });
 
     setup() {
         const { immediate, visible, leaveDuration, name, onLeave } = this.props;

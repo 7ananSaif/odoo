@@ -5,9 +5,10 @@
         <xpath expr="//button[hasclass('o_form_button_save')]" position="replace">
             <button
                 class="btn btn-primary o_form_button_save"
-                t-on-click="saveButtonClicked"
+                t-on-click="this.saveButtonClicked"
                 data-hotkey="q">
-                <span>Submit Request</span>
+                <span t-if="this.model.root.data.is_officer">Grant</span>
+                <span t-else="">Submit Request</span>
             </button>
         </xpath>
     </t>

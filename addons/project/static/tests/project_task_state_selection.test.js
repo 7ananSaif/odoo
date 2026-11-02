@@ -1,5 +1,5 @@
 import { expect, test, describe } from "@odoo/hoot";
-import { click, queryAllTexts } from "@odoo/hoot-dom";
+import { click, queryAll, queryAllTexts } from "@odoo/hoot-dom";
 import { animationFrame } from "@odoo/hoot-mock";
 
 import { mountView } from "@web/../tests/web_test_helpers";
@@ -35,12 +35,12 @@ test("project.task (kanban): check task state widget", async () => {
 
     await click(".o-dropdown--menu span.text-danger");
     await animationFrame();
-    expect("div[name='state']:first-child button.dropdown-toggle i.fa-times-circle").toBeVisible({
+    expect("div[name='state']:first-child button.dropdown-toggle i[data-icon='cancel']").toBeVisible({
         message:
-            "If the canceled state as been selected, the fa-times-circle icon should be displayed",
+            "If the canceled state as been selected, the cancel icon should be displayed",
     });
 
-    await click("div[name='state'] i.fa-hourglass-o");
+    await click("div[name='state'] i[data-icon='hourglass_empty']");
     await animationFrame();
     expect(".o-dropdown--menu").toHaveCount(0, {
         message: "When trying to click on the waiting icon, no dropdown menu should display",
@@ -82,4 +82,43 @@ test("project.task (form): check task state widget", async () => {
         "Cancelled",
         "Done",
     ]);
+});
+
+test("project.task (kanban): every state has the same height", async () => {
+    const states = [
+        "01_in_progress",
+        "02_changes_requested",
+        "03_approved",
+        "1_canceled",
+        "1_done",
+    ];
+    ProjectTask._records = states.map((state, index) => ({
+        id: index + 1,
+        name: state,
+        project_id: 1,
+        stage_id: 1,
+        state,
+    }));
+    await mountView({
+        resModel: "project.task",
+        type: "kanban",
+        arch: `
+            <kanban js_class="project_task_kanban">
+                <templates>
+                    <t t-name="card">
+                        <field name="state" widget="project_task_state_selection"/>
+                    </t>
+                </templates>
+            </kanban>
+        `,
+    });
+
+    const icons = queryAll(".o_kanban_record div[name='state'] i");
+    expect(icons).toHaveLength(states.length);
+    const referenceHeight = icons[0].getBoundingClientRect().height;
+    for (const [index, icon] of icons.entries()) {
+        expect(icon.getBoundingClientRect().height).toBe(referenceHeight, {
+            message: `the "${states[index]}" state should have the same height as the other ones`,
+        });
+    }
 });

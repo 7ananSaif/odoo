@@ -7,7 +7,7 @@ export class ResUsers extends mailModels.ResUsers {
      */
     _init_store_data(store) {
         super._init_store_data(...arguments);
-        store.add({
+        store.add_global_values({
             has_access_livechat: this.env.user?.group_ids.includes(serverState.groupLivechatId),
         });
         store.add(this.browse(this.env.uid), {

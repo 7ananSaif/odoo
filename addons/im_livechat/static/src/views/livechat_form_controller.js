@@ -6,13 +6,10 @@ export class LivechatSessionFormController extends FormController {
         super.setup();
         this.store = useService("mail.store");
     }
-    get thread() {
-        return this.store.Thread.get({
-            model: "discuss.channel",
-            id: this.model.root.resId,
-        });
+    get channel() {
+        return this.store["discuss.channel"].get(this.model.root.resId);
     }
     displayName() {
-        return this.thread?.displayName || super.displayName();
+        return this.channel?.displayName || super.displayName();
     }
 }

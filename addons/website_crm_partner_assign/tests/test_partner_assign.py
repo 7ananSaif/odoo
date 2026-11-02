@@ -51,7 +51,7 @@ class TestPartnerAssign(TransactionCase):
         """ Test the automatic assignation using geolocalisation """
         partner_be = self.env['res.partner'].create({
             "name": "Agrolait",
-            "is_company": True,
+            "vat": "BE0477472701",
             "city": "Wavre",
             "zip": "1300",
             "country_id": self.env.ref("base.be").id,
@@ -60,7 +60,7 @@ class TestPartnerAssign(TransactionCase):
         })
         partner_uk = self.env['res.partner'].create({
             "name": "Think Big Systems",
-            "is_company": True,
+            "vat": "GB123456782",
             "city": "London",
             "country_id": self.env.ref("base.uk").id,
             "street": "89 Lingfield Tower",
@@ -119,7 +119,7 @@ class TestPartnerLeadPortal(TestCrmCommon, HttpCase):
         )
 
         # New lead, assigned to the new portal
-        self.lead_portal = self.env['crm.lead'].with_context(mail_notrack=True).create({
+        self.lead_portal = self.env['crm.lead'].create({
             'type': "lead",
             'name': "Test lead new",
             'user_id': False,
@@ -158,7 +158,7 @@ class TestPartnerLeadPortal(TestCrmCommon, HttpCase):
     def test_lead_access_right(self):
         """ Test another portal user can not write on every leads """
         # portal user having no right
-        poor_portal_user = self.env['res.users'].with_context({'no_reset_password': True, 'mail_notrack': True}).create({
+        poor_portal_user = self.env['res.users'].with_context({'no_reset_password': True}).create({
             'name': 'Poor Partner (not integrating one)',
             'email': 'poor.partner@ododo.com',
             'login': 'poorpartner',
@@ -189,14 +189,13 @@ class TestPartnerLeadPortal(TestCrmCommon, HttpCase):
         })
         opportunity = self.env['crm.lead'].browse(data['id'])
 
-        email_1 = 'test_partner@test.com'
+        origin_email = 'test_partner@test.com'
         test_user = self.env['res.users'].create({
             'name': 'test user',
             'login': 'user',
-            'email': email_1,
+            'email': origin_email,
         })
         test_partner = test_user.partner_id
-        test_partner.user_id = test_user
 
         with self.assertRaises(AccessError):
             opportunity.with_user(self.user_portal).write({
@@ -218,18 +217,24 @@ class TestPartnerLeadPortal(TestCrmCommon, HttpCase):
         opportunity.with_user(self.user_portal).update_lead_portal(update_values)
         self.assertEqual(opportunity.expected_revenue, 9999.0, "Portal user should be able to update revenue or other details via portal method")
 
-        email_2 = 'test_partner_updated@test.com'
-        opportunity.with_user(self.user_portal).update_contact_details_from_portal({
-            'email_from': email_2,
-        })
-        self.assertEqual(opportunity.email_from, email_2, 'Address email on the opportunity must be updated')
-        self.assertEqual(test_partner.email, email_1, 'Adress email on the partner should not be updated')
+        # `update_contact_details_from_portal` should not update partner's email address
 
+        # Lead linked to a user via a partner
+        new_email = 'test_partner_update1@test.com'
+        opportunity.with_user(self.user_portal).update_contact_details_from_portal({
+            'email_from': new_email,
+        })
+        self.assertEqual(opportunity.email_from, new_email, 'Address email on the opportunity must be updated')
+        self.assertEqual(test_partner.email, origin_email, 'Adress email on the partner should not be updated')
+
+        # Lead not linked to a user via a parter
+        new_email = 'test_partner_update2@test.com'
         test_user.unlink()
         opportunity.with_user(self.user_portal).update_contact_details_from_portal({
-            'email_from': email_2,
+            'email_from': new_email,
         })
-        self.assertEqual(test_partner.email, email_2, 'Adress email on the partner must be updated')
+        self.assertEqual(opportunity.email_from, new_email, 'Address email on the opportunity must be updated')
+        self.assertEqual(test_partner.email, origin_email, 'Adress email on the partner should not be updated')
 
         # Portal user must be able to write to the thread
         old_message_ids = opportunity.message_ids
@@ -357,12 +362,12 @@ class TestPartnerLeadPortal(TestCrmCommon, HttpCase):
             )
 
         with self.with_user(self.user_portal.login), MockRequest(
-            self.env, website=self.env["website"].browse(1)
+            self.env, website=self.env.ref('base.default_website')
         ) as mock_request:
             mock_request.render = render_function
             WebsiteAccount().portal_my_opportunities(filterby="today")
 
-    @patch('odoo.http.GeoIP')
+    @patch('odoo.http.geoip.GeoIP')
     def test_03_crm_partner_assign_geolocalization(self, GeoIpMock):
         """
             This test checks situation when "{OdooURL}/partners" is visited from foreign country without resellers.
@@ -379,7 +384,7 @@ class TestPartnerLeadPortal(TestCrmCommon, HttpCase):
         # Create a partner outside of Mexico
         non_mexican_partner = self.env['res.partner'].create({
             'name': 'Non_Mexican_Partner',
-            'is_company': True,
+            'vat': 'ABC010203AB9',
             'grade_id': self.env['res.partner.grade'].search([], limit=1).id,
             'website_published': True,
             'country_id': self.env['res.country'].search([('code', '!=', 'mx')], limit=1).id
@@ -391,7 +396,7 @@ class TestPartnerLeadPortal(TestCrmCommon, HttpCase):
             self.assertIn(non_mexican_partner, values['partners'], "Non-Mexican Partner is not present when rendering partners from Mexico; fallback protection (protecting from no results) didn't work.")
             return 'rendered'
 
-        with MockRequest(self.env, website=self.env['website'].browse(1)) as mock_request:
+        with MockRequest(self.env, website=self.env.ref('base.default_website')) as mock_request:
             mock_request.render = render_function
             res = WebsiteCrmPartnerAssign().partners()
             self.assertEqual([b'rendered'], res.response, "render_function wasn't called")
@@ -417,7 +422,7 @@ class TestPublish(HttpCase):
         })
         cls.partner = cls.env['res.partner'].create({
             'name': "Agrolait",
-            'is_company': True,
+            'vat': "BE0477472701",
             'city': "Wavre",
             'zip': "1300",
             'country_id': cls.env.ref('base.be').id,

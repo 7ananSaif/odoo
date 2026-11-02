@@ -1,19 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="1">
+        <!-- Discussion categories -->
+        <record model="discuss.category" id="mail.discuss_category_favorites">
+            <field name="name">Favorites</field>
+            <field name="sequence">1</field>
+        </record>
+        <record model="discuss.category" id="mail.discuss_category_products_services">
+            <field name="name">Products &amp; Services</field>
+            <field name="sequence">2</field>
+        </record>
+        <record model="discuss.category" id="mail.discuss_category_community">
+            <field name="name">Community</field>
+            <field name="sequence">3</field>
+        </record>
+        <record model="discuss.category" id="mail.discuss_category_admin">
+            <field name="name">Admin</field>
+            <field name="sequence">4</field>
+        </record>
+
+        <record model="discuss.channel" id="mail.channel_all_employees">
+            <field name="discuss_category_id" ref="mail.discuss_category_favorites"/>
+        </record>
+        <record model="discuss.channel" id="mail.channel_admin">
+            <field name="discuss_category_id" ref="mail.discuss_category_admin"/>
+        </record>
 
         <!-- Discussion groups, done in 2 steps to remove creator from followers -->
         <record model="discuss.channel" id="mail.channel_1">
             <field name="name">sales</field>
             <field name="description">Discussion about best sales practices and deals.</field>
+            <field name="discuss_category_id" ref="mail.discuss_category_products_services"/>
         </record>
         <record model="discuss.channel" id="mail.channel_2">
             <field name="name">board-meetings</field>
             <field name="description">Board meetings, budgets, strategic plans</field>
+            <field name="discuss_category_id" ref="mail.discuss_category_admin"/>
         </record>
         <record model="discuss.channel" id="mail.channel_3">
             <field name="name">rd</field>
             <field name="description">Research and development discussion group</field>
+            <field name="discuss_category_id" ref="mail.discuss_category_products_services"/>
         </record>
 
         <!-- Best sales practices messages -->
@@ -159,7 +186,7 @@
         <record model="discuss.channel" id="mail.from_notification_message">
             <field name="parent_channel_id" ref="mail.channel_all_employees"/>
             <field name="from_message_id" ref="mail.module_install_notification"/>
-            <field name="name">Welcome to the #general channel</field>
+            <field name="name">Welcome to the #General channel</field>
         </record>
         <record model="discuss.channel.member" id="mail.admin_member_from_notification">
             <field name="partner_id" ref="base.partner_admin"/>
@@ -222,14 +249,13 @@
         <record model="discuss.channel.member" id="mail.admin_member_troubleshooting">
             <field name="partner_id" ref="base.partner_admin"/>
             <field name="channel_id" ref="mail.troubleshooting_sub"/>
-            <field name="fetched_message_id" ref="mail.troubleshooting_message_2"/>
+            <field name="channel_role" eval="'owner'"/>
             <field name="seen_message_id" ref="mail.troubleshooting_message_2"/>
             <field name="new_message_separator" eval="ref('mail.troubleshooting_message_2') + 1"/>
         </record>
         <record model="discuss.channel.member" id="mail.demo_member_troubleshooting">
             <field name="partner_id" ref="base.partner_demo"/>
             <field name="channel_id" ref="mail.troubleshooting_sub"/>
-            <field name="fetched_message_id" ref="mail.troubleshooting_message_2"/>
             <field name="seen_message_id" ref="mail.troubleshooting_message_2"/>
             <field name="new_message_separator" eval="ref('mail.troubleshooting_message_2') + 1"/>
         </record>

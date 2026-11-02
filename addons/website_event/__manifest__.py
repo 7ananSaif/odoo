@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
@@ -18,9 +17,10 @@
     'data': [
         'data/event_data.xml',
         'data/website_snippet_data.xml',
-        'views/event_snippets.xml',
         'views/snippets/s_events.xml',
+        'views/snippets/s_events_carousel.xml',
         'views/snippets/s_event_upcoming_snippet_preview_data.xml',
+        'views/snippets/s_event_carousel_preview_data.xml',
         'views/snippets/snippets.xml',
         'views/event_templates_list.xml',
         'views/event_templates_svg.xml',
@@ -33,13 +33,14 @@
         'views/event_tag_category_views.xml',
         'views/event_tag_views.xml',
         'views/event_type_views.xml',
+        'views/portal_templates.xml',
         'views/website_event_menu_views.xml',
         'views/website_visitor_views.xml',
         'views/event_menus.xml',
         'views/website_pages_views.xml',
         'views/event_event_add.xml',
-        'security/ir.model.access.csv',
         'security/event_security.xml',
+        'security/ir.access.csv',
     ],
     'demo': [
         'data/res_partner_demo.xml',

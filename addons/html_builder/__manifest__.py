@@ -6,23 +6,16 @@
     used by the website builder and mass mailing editor.
     """,
 
-    'author': "Odoo",
-    'website': "https://www.odoo.com",
+    'author': 'Odoo S.A.',
 
-    # Categories can be used to filter modules in modules listing
-    # Check https://github.com/odoo/odoo/blob/15.0/odoo/addons/base/data/ir_module_category_data.xml
-    # for the full list
-    'category': 'Uncategorized',
-    'version': '0.1',
-
-    # any module necessary for this one to work correctly
-    # so stupid that we need to use the stupid defineMailModel helper, so we need
-    # to depend on mail
-    'depends': ['base', 'html_editor', 'mail'],
+    'depends': ['html_editor'],
 
     'assets': {
         'web._assets_primary_variables': [
             'html_builder/static/src/**/*.variables.scss',
+        ],
+        'web.assets_backend': [
+            'html_builder/static/src/utils/keyboard_navigation.js',
         ],
         # this bundle is lazy loaded when the editor is ready
         'html_builder.assets': [
@@ -49,7 +42,7 @@
 
             'web/static/src/scss/bootstrap_overridden.scss',
             'html_builder/static/src/**/*.edit.*',
-            'html_editor/static/src/main/chatgpt/chatgpt_plugin.scss',
+            'html_editor/static/src/main/translate/translate_plugin.scss',
             'html_editor/static/src/main/link/link.scss',
         ],
         'html_builder.iframe_add_dialog': [

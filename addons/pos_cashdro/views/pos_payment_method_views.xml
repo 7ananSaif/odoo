@@ -6,11 +6,11 @@
         <field name="inherit_id" ref="point_of_sale.pos_payment_method_view_form"/>
         <field name="arch" type="xml">
             <xpath expr="//sheet" position="inside">
-                <notebook invisible="payment_method_type != 'cashdro'">
+                <notebook invisible="payment_provider != 'cashdro'">
                     <page name="settings" string="Cashdro Settings">
                         <group>
                             <group>
-                                <field name="cashdro_ip" required="payment_method_type == 'cashdro'"/>
+                                <field name="cashdro_ip" required="payment_provider == 'cashdro'"/>
                                 <field name="cashdro_username"/>
                                 <field name="cashdro_password" password="True"/>
                                 <field name="cashdro_use_lna"/>

@@ -1,9 +1,11 @@
 import json
 
 from odoo.tests import new_test_user
-from odoo.tests.common import RecordCapturer, HttpCase
+from odoo.tests.common import tagged, RecordCapturer, HttpCase
+from odoo.tools import BinaryBytes
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestPropertiesExportImport(HttpCase):
     maxDiff = None
 
@@ -351,7 +353,7 @@ class TestPropertiesExportImport(HttpCase):
 
         import_wizard = self.env['base_import.import'].create({
             'res_model': self.ModelProperty._name,
-            'file': '\n'.join([';'.join(values) for values in values_list]),
+            'file': BinaryBytes('\n'.join([';'.join(values) for values in values_list]).encode()),
             'file_type': 'text/csv',
         })
         opts = {'quoting': '"', 'separator': ';', 'has_headers': True}
@@ -435,7 +437,7 @@ class TestPropertiesExportImport(HttpCase):
 
         import_wizard = self.env['base_import.import'].create({
             'res_model': self.ModelProperty._name,
-            'file': '\n'.join([';'.join(values) for values in values_list]),
+            'file': BinaryBytes('\n'.join([';'.join(values) for values in values_list]).encode()),
             'file_type': 'text/csv',
         })
         opts = {'quoting': '"', 'separator': ';', 'has_headers': True}
@@ -483,12 +485,12 @@ class TestPropertiesExportImport(HttpCase):
         model_id = self.env['ir.model']._get_id(self.ModelDefinition._name)
 
         user = new_test_user(self.env, login='AAA', groups='base.group_system')
-        self.env['ir.model.access'].search([('model_id', '=', model_id)]).unlink()
-        self.env['ir.model.access'].create({
+        self.env['ir.access'].search([('model_id', '=', model_id)]).unlink()
+        self.env['ir.access'].create({
             'name': "don't care",
             'model_id': model_id,
             'group_id': self.env.ref('base.group_system').id,
-            'perm_read': False,
+            'operation': 'c',
         })
 
         values_list = [
@@ -503,7 +505,7 @@ class TestPropertiesExportImport(HttpCase):
 
         import_wizard = Import.create({
             'res_model': self.ModelProperty._name,
-            'file': '\n'.join([';'.join(values) for values in values_list]),
+            'file': BinaryBytes('\n'.join([';'.join(values) for values in values_list]).encode()),
             'file_type': 'text/csv',
         })
         opts = {'quoting': '"', 'separator': ';', 'has_headers': True}
@@ -534,7 +536,7 @@ class TestPropertiesExportImport(HttpCase):
 
         import_wizard = Import.create({
             'res_model': self.ModelProperty._name,
-            'file': '\n'.join([';'.join(values) for values in values_list]),
+            'file': BinaryBytes('\n'.join([';'.join(values) for values in values_list]).encode()),
             'file_type': 'text/csv',
         })
         opts = {'quoting': '"', 'separator': ';', 'has_headers': True}
@@ -547,3 +549,41 @@ class TestPropertiesExportImport(HttpCase):
                 0: ['record_definition_id'],
             },
         )
+
+    def test_import_properties_definition(self):
+        definition = '[{"name": "char_prop", "type": "char", "string": "TextType"}]'
+        values_list = [
+            ["Properties Definition"],
+            [definition],
+        ]
+
+        import_wizard = self.env['base_import.import'].create({
+            'res_model': self.ModelDefinition._name,
+            'file': BinaryBytes('\n'.join([';'.join(values) for values in values_list]).encode()),
+            'file_type': 'text/csv',
+        })
+        opts = {'quoting': '"', 'separator': ';', 'has_headers': True}
+        preview = import_wizard.parse_preview(opts)
+        self.assertEqual(preview['matches'], {0: ['properties_definition']})
+
+        with RecordCapturer(self.ModelDefinition, []) as capture:
+            results = import_wizard.execute_import(['properties_definition'], [], opts)
+
+        self.assertItemsEqual(results['messages'], [])
+        self.assertEqual(capture.records.properties_definition, json.loads(definition))
+
+    def test_import_properties_definition_invalid(self):
+        for definition, message in [
+            ("[{'name': 'char_prop', 'type': 'char', 'string': 'TextType'}]", "does not seem to be a valid JSON"),
+            ('{"name": "char_prop", "type": "char", "string": "TextType"}', "Properties definitions must be dicts"),
+            ('["char_prop"]', "Properties definitions must be dicts"),
+            ('[{"type": "char", "string": "TextType"}]', "Some key are missing"),
+            ('[{"name": "char_prop", "type": "char", "wrong_key": 1}]', "Some key are not allowed"),
+            ('[{"name": "char_prop", "type": "wrong", "string": "TextType"}]', "Wrong property type"),
+        ]:
+            with self.subTest(definition=definition):
+                results = self.ModelDefinition.load(['properties_definition'], [[definition]])
+                self.assertFalse(results['ids'])
+                # the converter reports it, the write does not blow up on it
+                self.assertNotIn('Unknown error', results['messages'][0]['message'])
+                self.assertIn(message, results['messages'][0]['message'])

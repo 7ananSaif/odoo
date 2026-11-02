@@ -10,10 +10,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-04-24 07:52+0000\n"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 19:42+0000\n"
 "Last-Translator: \"Anastasiia Koroleva (koan)\" <koan@odoo.com>\n"
-"Language-Team: Russian <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Russian <https://translate.odoo.com/projects/odoo-s19-4/"
 "google_gmail/ru/>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
@@ -22,22 +22,24 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
 "(n%100>=11 && n%100<=14)? 2 : 3);\n"
-"X-Generator: Weblate 5.17\n"
-
-#. module: google_gmail
-#: model_terms:ir.ui.view,arch_db:google_gmail.fetchmail_server_view_form
-#: model_terms:ir.ui.view,arch_db:google_gmail.ir_mail_server_view_form
-msgid "<i class=\"fa fa-cog\" title=\"Edit Settings\"/>"
-msgstr "<i class=\"fa fa-cog\" title=\"Edit Settings\"/>"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: google_gmail
 #: model_terms:ir.ui.view,arch_db:google_gmail.fetchmail_server_view_form
 #: model_terms:ir.ui.view,arch_db:google_gmail.ir_mail_server_view_form
 msgid ""
-"<i class=\"oi oi-arrow-right\"/>\n"
+"<i class=\"oi oi-filled\" data-icon=\"settings\" title=\"Edit Settings\"/>"
+msgstr ""
+"<i class=\"oi oi-filled\" data-icon=\"settings\" title=\"Edit Settings\"/>"
+
+#. module: google_gmail
+#: model_terms:ir.ui.view,arch_db:google_gmail.fetchmail_server_view_form
+#: model_terms:ir.ui.view,arch_db:google_gmail.ir_mail_server_view_form
+msgid ""
+"<i class=\"oi\" data-icon=\"east\"/>\n"
 "                        Connect your Gmail account"
 msgstr ""
-"<i class=\"oi oi-arrow-right\"/>\n"
+"<i class=\"oi\" data-icon=\"east\"/>\n"
 "                        Подключите учетную запись Gmail"
 
 #. module: google_gmail
@@ -166,9 +168,19 @@ msgid "Gmail OAuth Authentication"
 msgstr "Аутентификация Gmail OAuth"
 
 #. module: google_gmail
+#: model:ir.module.module,description:base.module_google_gmail
+msgid "Gmail support for incoming / outgoing mail servers"
+msgstr ""
+
+#. module: google_gmail
 #: model_terms:ir.ui.view,arch_db:google_gmail.google_gmail_oauth_error
 msgid "Go back"
 msgstr "Назад"
+
+#. module: google_gmail
+#: model:ir.module.module,shortdesc:base.module_google_gmail
+msgid "Google Gmail"
+msgstr ""
 
 #. module: google_gmail
 #: model:ir.model,name:google_gmail.model_google_gmail_mixin
@@ -229,6 +241,8 @@ msgid ""
 "Oops, you're creating an authorization to send from %(email_login)s but your "
 "address is %(email_server)s. Make sure your addresses match!"
 msgstr ""
+"Ой, вы создаете разрешение на отправку с адреса %(email_login)s, но ваш "
+"адрес — %(email_server)s. Убедитесь, что адреса совпадают!"
 
 #. module: google_gmail
 #: model:ir.model.fields,field_description:google_gmail.field_res_users__outgoing_mail_server_type
@@ -332,30 +346,3 @@ msgstr "Пользователь"
 #: code:addons/google_gmail/tools.py:0
 msgid "You don't have an active subscription"
 msgstr "У вас нет действующей подписки"
-
-#~ msgid "An error occur during the authentication process."
-#~ msgstr "В процессе аутентификации произошла ошибка."
-
-#~ msgid "Authorization Code"
-#~ msgstr "Код авторизации"
-
-#~ msgid ""
-#~ "Incorrect Connection Security for Gmail mail server %r. Please set it to "
-#~ "\"TLS (STARTTLS)\"."
-#~ msgstr ""
-#~ "Неверная защита соединения для почтового сервера Gmail %r. Пожалуйста, "
-#~ "установите значение \"TLS (STARTTLS)\"."
-
-#~ msgid ""
-#~ "Please leave the password field empty for Gmail mail server %r. The OAuth "
-#~ "process does not require it"
-#~ msgstr ""
-#~ "Пожалуйста, оставьте поле пароля пустым для почтового сервера Gmail %r. "
-#~ "Процесс OAuth не требует этого"
-
-#~ msgid ""
-#~ "Setup your Gmail API credentials in the general settings to link a Gmail "
-#~ "account."
-#~ msgstr ""
-#~ "Установите учетные данные Gmail API в общих настройках, чтобы связать "
-#~ "учетную запись Gmail."

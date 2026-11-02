@@ -6,33 +6,25 @@ import enum
 import json
 import logging
 import re
-import warnings
+import typing
 from binascii import crc32
 from collections import defaultdict
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from odoo.fields import Field
+if typing.TYPE_CHECKING:
     from collections.abc import Iterable
 
+    from odoo.fields import Field
+    from odoo.sql_db import Cursor
+
 import psycopg2
+from psycopg2.extensions import quote_ident
 
-from .misc import named_to_positional_printf
-
-__all__ = [
-    "SQL",
-    "create_index",
-    "drop_view_if_exists",
-    "escape_psql",
-    "index_exists",
-    "make_identifier",
-    "make_index_name",
-    "reverse_order",
-]
+from .func import deprecated
+from .misc import freehash, named_to_positional_printf
 
 _schema = logging.getLogger('odoo.schema')
 
-IDENT_RE = re.compile(r'^[a-z0-9_][a-z0-9_$\-]*$', re.I)
+IDENT_RE = re.compile(r'^[a-z0-9_][a-z0-9_$\-]*$', re.IGNORECASE)
 
 _CONFDELTYPES = {
     'RESTRICT': 'r',
@@ -43,7 +35,18 @@ _CONFDELTYPES = {
 }
 
 
-class SQL:
+class _SQLMeta(type):
+    @staticmethod
+    def identifier(name: str, subname: str | None = None, to_flush: Field | None = None) -> SQL:
+        """ Return an SQL object that represents an identifier. """
+        assert name.isidentifier() or IDENT_RE.match(name), f"{name!r} invalid for SQL.identifier()"
+        if subname is None:
+            return SQL(f'"{name}"', to_flush=to_flush)  # pylint: disable=sql-injection
+        assert subname.isidentifier() or IDENT_RE.match(subname), f"{subname!r} invalid for SQL.identifier()"
+        return SQL(f'"{name}"."{subname}"', to_flush=to_flush)  # pylint: disable=sql-injection
+
+
+class SQL(metaclass=_SQLMeta):
     """ An object that wraps SQL code with its parameters, like::
 
         sql = SQL("UPDATE TABLE foo SET a = %s, b = %s", 'hello', 42)
@@ -64,35 +67,64 @@ class SQL:
             SQL("%s = %s", SQL.identifier(columnname), value),
         )
 
-    The combined SQL code is given by ``sql.code``, while the corresponding
-    combined parameters are given by the list ``sql.params``. This allows to
-    combine any number of SQL terms without having to separately combine their
-    parameters, which can be tedious, bug-prone, and is the main downside of
-    `psycopg2.sql <https://www.psycopg.org/docs/sql.html>`.
+    The combined result is available in ``_sql_tuple`` which contains ``code``,
+    ``params``, ``to_flush``. This allows to combine any number of SQL terms
+    without having to separately combine their parameters, which can be tedious,
+    bug-prone, and is the main downside of `psycopg2.sql
+    <https://www.psycopg.org/docs/sql.html>`.
+    The metadata ``to_flush`` contains fields on which the SQL code depends on.
 
     The second purpose of the wrapper is to discourage SQL injections. Indeed,
     if ``code`` is a string literal (not a dynamic string), then the SQL object
     made with ``code`` is guaranteed to be safe, provided the SQL objects
     within its parameters are themselves safe.
-
-    The wrapper may also contain some metadata ``to_flush``.  If not ``None``,
-    its value is a field which the SQL code depends on.  The metadata of a
-    wrapper and its parts can be accessed by the iterator ``sql.to_flush``.
     """
-    __slots__ = ('__code', '__params', '__to_flush')
+    __slots__ = ()
 
-    __code: str
-    __params: tuple
-    __to_flush: tuple[Field, ...]
+    @typing.overload
+    def __new__[T: SQL](cls: type[T], *a, **kw) -> T:
+        ...
 
-    # pylint: disable=keyword-arg-before-vararg
-    def __init__(self, code: (str | SQL) = "", /, *args, to_flush: (Field | Iterable[Field] | None) = None, **kwargs):
-        if isinstance(code, SQL):
-            if args or kwargs or to_flush:
+    @typing.overload
+    def __new__(cls: type[SQL], code: typing.LiteralString | SQL, /, *args, to_flush: Field | Iterable[Field] | None = None, **kw) -> LiteralSQL:
+        ...
+
+    def __new__(cls, *a, **kw):
+        if cls is SQL:
+            cls = LiteralSQL  # noqa: PLW0642
+        return object.__new__(cls)
+
+    _sql_tuple: tuple[str, tuple, tuple[Field, ...]]
+    """ The tuple used to execute the query: (code, params, to_flush) """
+
+    def __eq__(self, other):
+        if not isinstance(other, SQL):
+            return False
+        return self._sql_tuple[:2] == other._sql_tuple[:2]
+
+    def __hash__(self):
+        return freehash(self._sql_tuple[:2])
+
+    def __bool__(self):
+        return bool(self._sql_tuple[0])
+
+
+class LiteralSQL(SQL):
+    __slots__ = ('__sql_tuple',)
+    __sql_tuple: tuple[str, tuple, tuple[Field, ...]]
+
+    def __init__(self, code: typing.LiteralString | SQL = "", /, *args, to_flush: Field | Iterable[Field] | None = None, **kwargs):
+        if isinstance(code, SQL) or (code == "%s" and len(args) == 1 and isinstance(args[0], SQL)):
+            if code == "%s":
+                code, args = args[0], ()
+            if args or kwargs:
                 raise TypeError("SQL() unexpected arguments when code has type SQL")
-            self.__code = code.__code
-            self.__params = code.__params
-            self.__to_flush = code.__to_flush
+            if to_flush is None:
+                self.__sql_tuple = code._sql_tuple
+            else:
+                code, args, _ = code._sql_tuple
+                to_flush = (to_flush,) if getattr(to_flush.__class__, '__iter__', None) is None else tuple(to_flush)
+                self.__sql_tuple = (code, args, to_flush)
             return
 
         # validate the format of code and parameters
@@ -103,14 +135,13 @@ class SQL:
             code, args = named_to_positional_printf(code, kwargs)
         elif not args:
             code % ()  # check that code does not contain %s
-            self.__code = code
-            self.__params = ()
             if to_flush is None:
-                self.__to_flush = ()
-            elif hasattr(to_flush, '__iter__'):
-                self.__to_flush = tuple(to_flush)
+                to_flush = ()
+            elif getattr(to_flush.__class__, '__iter__', None) is not None:
+                to_flush = tuple(to_flush)
             else:
-                self.__to_flush = (to_flush,)
+                to_flush = (to_flush,)
+            self.__sql_tuple = (code, (), to_flush)
             return
 
         code_list = []
@@ -118,62 +149,32 @@ class SQL:
         to_flush_list = []
         for arg in args:
             if isinstance(arg, SQL):
-                code_list.append(arg.__code)
-                params_list.extend(arg.__params)
-                to_flush_list.extend(arg.__to_flush)
+                arg_code, arg_params, arg_to_flush = arg._sql_tuple
+                code_list.append(arg_code)
+                params_list.extend(arg_params)
+                to_flush_list.extend(arg_to_flush)
             else:
                 code_list.append("%s")
                 params_list.append(arg)
         if to_flush is not None:
-            if hasattr(to_flush, '__iter__'):
+            if getattr(to_flush.__class__, '__iter__', None) is not None:
                 to_flush_list.extend(to_flush)
             else:
                 to_flush_list.append(to_flush)
 
-        self.__code = code.replace('%%', '%%%%') % tuple(code_list)
-        self.__params = tuple(params_list)
-        self.__to_flush = tuple(to_flush_list)
+        code = code.replace('%%', '%%%%') % tuple(code_list)
+        params = tuple(params_list)
+        to_flush = tuple(to_flush_list)
+        self.__sql_tuple = (code, params, to_flush)
 
     @property
-    def code(self) -> str:
-        """ Return the combined SQL code string. """
-        return self.__code
-
-    @property
-    def params(self) -> list:
-        """ Return the combined SQL code params as a list of values. """
-        return list(self.__params)
-
-    @property
-    def to_flush(self) -> Iterable[Field]:
-        """ Return an iterator on the fields to flush in the metadata of
-        ``self`` and all of its parts.
-        """
-        return self.__to_flush
+    def _sql_tuple(self):
+        # property makes the attribute read-only
+        return self.__sql_tuple
 
     def __repr__(self):
-        return f"SQL({', '.join(map(repr, [self.__code, *self.__params]))})"
-
-    def __bool__(self):
-        return bool(self.__code)
-
-    def __eq__(self, other):
-        return isinstance(other, SQL) and self.__code == other.__code and self.__params == other.__params
-
-    def __hash__(self):
-        return hash((self.__code, self.__params))
-
-    def __iter__(self):
-        """ Yields ``self.code`` and ``self.params``. This was introduced for
-        backward compatibility, as it enables to access the SQL and parameters
-        by deconstructing the object::
-
-            sql = SQL(...)
-            code, params = sql
-        """
-        warnings.warn("Deprecated since 19.0, use code and params properties directly", DeprecationWarning)
-        yield self.code
-        yield self.params
+        code, params, _ = self.__sql_tuple
+        return f"SQL({', '.join(map(repr, [code, *params]))})"
 
     def join(self, args: Iterable) -> SQL:
         """ Join SQL objects or parameters with ``self`` as a separator. """
@@ -183,25 +184,17 @@ class SQL:
             return SQL()
         if len(args) == 1 and isinstance(args[0], SQL):
             return args[0]
-        if not self.__params:
-            return SQL(self.__code.join("%s" for arg in args), *args)
+        code, params, to_flush = self.__sql_tuple
+        if not params:
+            return SQL(code.join(("%s",) * len(args)), *args, to_flush=to_flush)  # pylint: disable=sql-injection
         # general case: alternate args with self
         items = [self] * (len(args) * 2 - 1)
         for index, arg in enumerate(args):
             items[index * 2] = arg
-        return SQL("%s" * len(items), *items)
-
-    @classmethod
-    def identifier(cls, name: str, subname: (str | None) = None, to_flush: (Field | None) = None) -> SQL:
-        """ Return an SQL object that represents an identifier. """
-        assert name.isidentifier() or IDENT_RE.match(name), f"{name!r} invalid for SQL.identifier()"
-        if subname is None:
-            return cls(f'"{name}"', to_flush=to_flush)
-        assert subname.isidentifier() or IDENT_RE.match(subname), f"{subname!r} invalid for SQL.identifier()"
-        return cls(f'"{name}"."{subname}"', to_flush=to_flush)
+        return SQL("%s" * len(items), *items)  # pylint: disable=sql-injection
 
 
-def existing_tables(cr, tablenames):
+def existing_tables(cr: Cursor, tablenames: Iterable[str]) -> list[str]:
     """ Return the names of existing tables among ``tablenames``. """
     cr.execute(SQL("""
         SELECT c.relname
@@ -213,7 +206,7 @@ def existing_tables(cr, tablenames):
     return [row[0] for row in cr.fetchall()]
 
 
-def table_exists(cr, tablename):
+def table_exists(cr: Cursor, tablename: str) -> bool:
     """ Return whether the given table exists. """
     return len(existing_tables(cr, {tablename})) == 1
 
@@ -227,7 +220,7 @@ class TableKind(enum.Enum):
     Other = None
 
 
-def table_kind(cr, tablename: str) -> TableKind | None:
+def table_kind(cr: Cursor, tablename: str) -> TableKind | None:
     """ Return the kind of a table, if ``tablename`` is a regular or foreign
     table, or a view (ignores indexes, sequences, toast tables, and partitioned
     tables; unlogged tables are considered regular)
@@ -271,11 +264,11 @@ SQL_ORDER_BY_TYPE = defaultdict(lambda: 16, {
 })
 
 
-def create_model_table(cr, tablename, comment=None, columns=()):
+def create_model_table(cr: Cursor, tablename: str, comment: str | None = None, columns: Iterable[tuple[str, SQL, str | None]] = ()):
     """ Create the table for a model. """
     colspecs = [
         SQL('id SERIAL NOT NULL'),
-        *(SQL("%s %s", SQL.identifier(colname), SQL(coltype)) for colname, coltype, _ in columns),
+        *(SQL("%s %s", SQL.identifier(colname), coldef) for colname, coldef, _ in columns),
         SQL('PRIMARY KEY(id)'),
     ]
     queries = [
@@ -296,41 +289,69 @@ def create_model_table(cr, tablename, comment=None, columns=()):
     _schema.debug("Table %r: created", tablename)
 
 
-def table_columns(cr, tablename):
+def table_columns(cr: Cursor, tablename: str) -> dict[str, tuple[str, str, int, str]]:
     """ Return a dict mapping column names to their configuration. The latter is
         a dict with the data from the table ``information_schema.columns``.
     """
     # Do not select the field `character_octet_length` from `information_schema.columns`
     # because specific access right restriction in the context of shared hosting (Heroku, OVH, ...)
     # might prevent a postgres user to read this field.
-    cr.execute(SQL(
-        ''' SELECT column_name, udt_name, character_maximum_length, is_nullable
-            FROM information_schema.columns WHERE table_name=%s
-            AND table_schema = current_schema ''',
-        tablename,
-    ))
+    query = """
+        SELECT a.attname AS column_name,
+               coalesce(bt.typname, t.typname) AS udt_name,
+               information_schema._pg_char_max_length(information_schema._pg_truetypid(a.*, t.*), information_schema._pg_truetypmod(a.*, t.*)) AS character_maximum_length,
+               CASE WHEN a.attnotnull OR t.typtype = 'd' AND t.typnotnull THEN 'NO'
+                    ELSE 'YES'
+               END AS is_nullable
+          FROM pg_attribute a
+          JOIN pg_class c
+            ON a.attrelid = c.oid
+          JOIN pg_namespace nc
+            ON c.relnamespace = nc.oid
+          JOIN pg_type t
+            ON a.atttypid = t.oid
+     LEFT JOIN (pg_type bt JOIN pg_namespace nbt ON bt.typnamespace = nbt.oid)
+            ON t.typtype = 'd'::"char"
+           AND t.typbasetype = bt.oid
+         WHERE nc.nspname = current_schema
+           AND a.attnum > 0
+           AND NOT a.attisdropped
+           AND c.relkind IN ('r', 'v', 'f', 'p')
+           AND (pg_has_role(c.relowner, 'USAGE'::text) OR has_column_privilege(c.oid, a.attnum, 'SELECT, INSERT, UPDATE, REFERENCES'))
+           AND c.relname=%s
+    """
+    cr.execute(SQL(query, tablename))
     return {row['column_name']: row for row in cr.dictfetchall()}
 
 
-def column_exists(cr, tablename, columnname):
+def column_exists(cr: Cursor, tablename: str, columnname: str) -> bool:
     """ Return whether the given column exists. """
-    cr.execute(SQL(
-        """ SELECT 1 FROM information_schema.columns
-            WHERE table_name=%s AND column_name=%s
-            AND table_schema = current_schema """,
-        tablename, columnname,
-    ))
+    query = """
+        SELECT 1
+          FROM pg_attribute a
+          JOIN pg_class c
+            ON a.attrelid = c.oid
+          JOIN pg_namespace nc
+            ON c.relnamespace = nc.oid
+         WHERE nc.nspname = current_schema
+           AND a.attnum > 0
+           AND NOT a.attisdropped
+           AND c.relkind IN ('r', 'v', 'f', 'p')
+           AND (pg_has_role(c.relowner, 'USAGE'::text) OR has_column_privilege(c.oid, a.attnum, 'SELECT, INSERT, UPDATE, REFERENCES'))
+           AND c.relname=%s
+           AND a.attname=%s
+    """
+    cr.execute(SQL(query, tablename, columnname))
     return cr.rowcount
 
 
-def create_column(cr, tablename, columnname, columntype, comment=None):
+def create_column(cr: Cursor, tablename: str, columnname: str, columntype: str | SQL, comment: str | None = None):
     """ Create a column with the given type. """
     sql = SQL(
-        "ALTER TABLE %s ADD COLUMN %s %s %s",
+        "ALTER TABLE %s ADD COLUMN %s %s",
         SQL.identifier(tablename),
         SQL.identifier(columnname),
-        SQL(columntype),
-        SQL("DEFAULT false" if columntype.upper() == 'BOOLEAN' else ""),
+        columntype if isinstance(columntype, SQL) else SQL.identifier(columntype),
     )
     if comment:
         sql = SQL("%s; %s", sql, SQL(
@@ -341,7 +362,7 @@ def create_column(cr, tablename, columnname, columntype, comment=None):
     _schema.debug("Table %r: added column %r of type %s", tablename, columnname, columntype)
 
 
-def rename_column(cr, tablename, columnname1, columnname2):
+def rename_column(cr: Cursor, tablename: str, columnname1: str, columnname2: str):
     """ Rename the given column. """
     cr.execute(SQL(
         "ALTER TABLE %s RENAME COLUMN %s TO %s",
@@ -352,16 +373,18 @@ def rename_column(cr, tablename, columnname1, columnname2):
     _schema.debug("Table %r: renamed column %r to %r", tablename, columnname1, columnname2)
 
 
-def convert_column(cr, tablename, columnname, columntype):
+def convert_column(cr: Cursor, tablename: str, columnname: str, columntype: str | SQL):
     """ Convert the column to the given type. """
-    using = SQL("%s::%s", SQL.identifier(columnname), SQL(columntype))
+    if not isinstance(columntype, SQL):
+        columntype = SQL.identifier(columntype)
+    using = SQL("%s::%s", SQL.identifier(columnname), columntype)
     _convert_column(cr, tablename, columnname, columntype, using)
 
 
-def convert_column_translatable(cr, tablename, columnname, columntype):
+def convert_column_translatable(cr: Cursor, tablename: str, columnname: str, columntype: str | SQL):
     """ Convert the column from/to a 'jsonb' translated field column. """
     drop_index(cr, make_index_name(tablename, columnname), tablename)
-    if columntype == "jsonb":
+    if columntype == "jsonb" or columntype == SQL("jsonb"):
         using = SQL(
             "CASE WHEN %s IS NOT NULL THEN jsonb_build_object('en_US', %s::varchar) END",
             SQL.identifier(columnname), SQL.identifier(columnname),
@@ -371,11 +394,13 @@ def convert_column_translatable(cr, tablename, columnname, columntype):
     _convert_column(cr, tablename, columnname, columntype, using)
 
 
-def _convert_column(cr, tablename, columnname, columntype, using: SQL):
+def _convert_column(cr: Cursor, tablename: str, columnname: str, columntype: str | SQL, using: SQL):
+    if not isinstance(columntype, SQL):
+        columntype = SQL.identifier(columntype)
     query = SQL(
         "ALTER TABLE %s ALTER COLUMN %s DROP DEFAULT, ALTER COLUMN %s TYPE %s USING %s",
         SQL.identifier(tablename), SQL.identifier(columnname),
-        SQL.identifier(columnname), SQL(columntype), using,
+        SQL.identifier(columnname), columntype, using,
     )
     try:
         with cr.savepoint(flush=False):
@@ -386,7 +411,7 @@ def _convert_column(cr, tablename, columnname, columntype, using: SQL):
     _schema.debug("Table %r: column %r changed to type %s", tablename, columnname, columntype)
 
 
-def drop_depending_views(cr, table, column):
+def drop_depending_views(cr: Cursor, table: str, column: str):
     """drop views depending on a field to allow the ORM to resize it in-place"""
     for v, k in get_depending_views(cr, table, column):
         cr.execute(SQL(
@@ -397,7 +422,7 @@ def drop_depending_views(cr, table, column):
         _schema.debug("Drop view %r", v)
 
 
-def get_depending_views(cr, table, column):
+def get_depending_views(cr: Cursor, table: str, column: str) -> list[tuple[str, str]]:
     # http://stackoverflow.com/a/11773226/75349
     cr.execute(SQL("""
         SELECT distinct quote_ident(dependee.relname), dependee.relkind
@@ -416,7 +441,7 @@ def get_depending_views(cr, table, column):
     return cr.fetchall()
 
 
-def set_not_null(cr, tablename, columnname):
+def set_not_null(cr: Cursor, tablename: str, columnname: str):
     """ Add a NOT NULL constraint on the given column. """
     query = SQL(
         "ALTER TABLE %s ALTER COLUMN %s SET NOT NULL",
@@ -426,7 +451,7 @@ def set_not_null(cr, tablename, columnname):
     _schema.debug("Table %r: column %r: added constraint NOT NULL", tablename, columnname)
 
 
-def drop_not_null(cr, tablename, columnname):
+def drop_not_null(cr: str, tablename: str, columnname: str):
     """ Drop the NOT NULL constraint on the given column. """
     cr.execute(SQL(
         "ALTER TABLE %s ALTER COLUMN %s DROP NOT NULL",
@@ -435,7 +460,7 @@ def drop_not_null(cr, tablename, columnname):
     _schema.debug("Table %r: column %r: dropped constraint NOT NULL", tablename, columnname)
 
 
-def constraint_definition(cr, tablename, constraintname):
+def constraint_definition(cr: str, tablename: str, constraintname: str) -> str | None:
     """ Return the given constraint's definition. """
     cr.execute(SQL("""
         SELECT COALESCE(d.description, pg_get_constraintdef(c.oid))
@@ -448,11 +473,11 @@ def constraint_definition(cr, tablename, constraintname):
     return cr.fetchone()[0] if cr.rowcount else None
 
 
-def add_constraint(cr, tablename, constraintname, definition):
+def add_constraint(cr: Cursor, tablename: str, constraintname: str, definition: str):
     """ Add a constraint on the given table. """
     query1 = SQL(
         "ALTER TABLE %s ADD CONSTRAINT %s %s",
-        SQL.identifier(tablename), SQL.identifier(constraintname), SQL(definition.replace('%', '%%')),
+        SQL.identifier(tablename), SQL.identifier(constraintname), SQL(definition.replace('%', '%%')),  # pylint: disable=sql-injection
     )
     query2 = SQL(
         "COMMENT ON CONSTRAINT %s ON %s IS %s",
@@ -463,7 +488,7 @@ def add_constraint(cr, tablename, constraintname, definition):
     _schema.debug("Table %r: added constraint %r as %s", tablename, constraintname, definition)
 
 
-def drop_constraint(cr, tablename, constraintname):
+def drop_constraint(cr: Cursor, tablename: str, constraintname: str):
     """ Drop the given constraint. """
     cr.execute(SQL(
         "ALTER TABLE %s DROP CONSTRAINT %s",
@@ -472,19 +497,19 @@ def drop_constraint(cr, tablename, constraintname):
     _schema.debug("Table %r: dropped constraint %r", tablename, constraintname)
 
 
-def add_foreign_key(cr, tablename1, columnname1, tablename2, columnname2, ondelete):
+def add_foreign_key(cr: Cursor, tablename1: str, columnname1: str, tablename2: str, columnname2: str, ondelete: str):
     """ Create the given foreign key, and return ``True``. """
     cr.execute(SQL(
         "ALTER TABLE %s ADD FOREIGN KEY (%s) REFERENCES %s(%s) ON DELETE %s",
         SQL.identifier(tablename1), SQL.identifier(columnname1),
         SQL.identifier(tablename2), SQL.identifier(columnname2),
-        SQL(ondelete),
+        SQL(ondelete),  # pylint: disable=sql-injection
     ))
     _schema.debug("Table %r: added foreign key %r references %r(%r) ON DELETE %s",
                   tablename1, columnname1, tablename2, columnname2, ondelete)
 
 
-def get_foreign_keys(cr, tablename1, columnname1, tablename2, columnname2, ondelete):
+def get_foreign_keys(cr: Cursor, tablename1: str, columnname1: str, tablename2: str, columnname2: str, ondelete: str) -> list[str]:
     deltype = _CONFDELTYPES[ondelete.upper()]
     cr.execute(SQL(
         """
@@ -507,6 +532,7 @@ def get_foreign_keys(cr, tablename1, columnname1, tablename2, columnname2, ondel
     return [r[0] for r in cr.fetchall()]
 
 
+@deprecated("Removed after 20.0")
 def fix_foreign_key(cr, tablename1, columnname1, tablename2, columnname2, ondelete):
     """ Update the foreign keys between tables to match the given one, and
         return ``True`` if the given foreign key has been recreated.
@@ -537,18 +563,19 @@ def fix_foreign_key(cr, tablename1, columnname1, tablename2, columnname2, ondele
     return True
 
 
-def index_exists(cr, indexname):
+def index_exists(cr: Cursor, indexname: str) -> bool:
     """ Return whether the given index exists. """
     cr.execute(SQL("SELECT 1 FROM pg_indexes WHERE indexname=%s"
                    " AND schemaname = current_schema", indexname))
-    return cr.rowcount
+    return bool(cr.rowcount)
 
 
+@deprecated("Removed after 20.0")
 def check_index_exist(cr, indexname):
     assert index_exists(cr, indexname), f"{indexname} does not exist"
 
 
-def index_definition(cr, indexname):
+def index_definition(cr: Cursor, indexname: str) -> tuple[str, str | None] | tuple[None, None]:
     """ Read the index definition from the database """
     cr.execute(SQL("""
         SELECT idx.indexdef, d.description
@@ -562,15 +589,15 @@ def index_definition(cr, indexname):
 
 
 def create_index(
-    cr,
-    indexname,
-    tablename,
-    expressions,
-    method='btree',
+    cr: Cursor,
+    indexname: str,
+    tablename: str,
+    expressions: Iterable,
+    method: str = 'btree',
     where='',
     *,
-    comment=None,
-    unique=False
+    comment: str | None = None,
+    unique: bool = False,
 ):
     """ Create the given index unless it exists.
 
@@ -587,19 +614,17 @@ def create_index(
         return
     definition = SQL(
         "USING %s (%s)%s",
-        SQL(method),
-        SQL(", ").join(SQL(expression) for expression in expressions),
-        SQL(" WHERE %s", SQL(where)) if where else SQL(),
+        SQL.identifier(method.lower()),
+        SQL(", ").join(SQL(expression) for expression in expressions),  # pylint: disable=sql-injection
+        SQL(" WHERE %s", SQL(where)) if where else SQL(),  # pylint: disable=sql-injection
     )
     add_index(cr, indexname, tablename, definition, unique=unique, comment=comment)
 
 
-def add_index(cr, indexname, tablename, definition, *, unique: bool, comment=''):
+def add_index(cr: Cursor, indexname: str, tablename: str, definition: str | SQL, *, unique: bool, comment: str | None = ''):
     """ Create an index. """
     if isinstance(definition, str):
-        definition = SQL(definition.replace('%', '%%'))
-    else:
-        definition = SQL(definition)
+        definition = SQL(definition.replace('%', '%%'))  # pylint: disable=sql-injection
     query = SQL(
         "CREATE %sINDEX %s ON %s %s",
         SQL("UNIQUE ") if unique else SQL(),
@@ -610,26 +635,20 @@ def add_index(cr, indexname, tablename, definition, *, unique: bool, comment='')
     query_comment = SQL(
         "COMMENT ON INDEX %s IS %s",
         SQL.identifier(indexname), comment,
-    ) if comment else None
+    ) if comment else SQL()
     cr.execute(query, log_exceptions=False)
     if query_comment:
         cr.execute(query_comment, log_exceptions=False)
-    _schema.debug("Table %r: created index %r (%s)", tablename, indexname, definition.code)
+    _schema.debug("Table %r: created index %r (%s)", tablename, indexname, definition)
 
 
-def create_unique_index(cr, indexname, tablename, expressions):
-    """ Create the given index unless it exists. """
-    warnings.warn("Since 19.0, use create_index(unique=True)", DeprecationWarning)
-    return create_index(cr, indexname, tablename, expressions, unique=True)
-
-
-def drop_index(cr, indexname, tablename):
+def drop_index(cr: Cursor, indexname: str, tablename: str):
     """ Drop the given index if it exists. """
     cr.execute(SQL("DROP INDEX IF EXISTS %s", SQL.identifier(indexname)))
     _schema.debug("Table %r: dropped index %r", tablename, indexname)
 
 
-def drop_view_if_exists(cr, viewname):
+def drop_view_if_exists(cr: Cursor, viewname: str):
     kind = table_kind(cr, viewname)
     if kind == TableKind.View:
         cr.execute(SQL("DROP VIEW %s CASCADE", SQL.identifier(viewname)))
@@ -637,28 +656,17 @@ def drop_view_if_exists(cr, viewname):
         cr.execute(SQL("DROP MATERIALIZED VIEW %s CASCADE", SQL.identifier(viewname)))
 
 
-def escape_psql(to_escape):
+@deprecated("Since 20.0, use escape_like_value")
+def escape_psql(to_escape: str) -> str:
+    return escape_like_value(to_escape)
+
+
+def escape_like_value(to_escape: str) -> str:
+    """ Escapes a string for injection into a LIKE statement. """
     return to_escape.replace('\\', r'\\').replace('%', r'\%').replace('_', r'\_')
 
 
-def pg_varchar(size=0):
-    """ Returns the VARCHAR declaration for the provided size:
-
-    * If no size (or an empty or negative size is provided) return an
-      'infinite' VARCHAR
-    * Otherwise return a VARCHAR(n)
-
-    :param int size: varchar size, optional
-    :rtype: str
-    """
-    if size:
-        if not isinstance(size, int):
-            raise ValueError("VARCHAR parameter should be an int, got %s" % type(size))
-        if size > 0:
-            return 'VARCHAR(%d)' % size
-    return 'VARCHAR'
-
-
+@deprecated("Removed after 20.0")
 def reverse_order(order):
     """ Reverse an ORDER BY clause """
     items = []
@@ -686,6 +694,7 @@ def increment_fields_skiplock(records, *fields):
     for field in fields:
         assert records._fields[field].type == 'integer'
 
+    records.invalidate_recordset(fields)
     cr = records.env.cr
     tablename = records._table
     cr.execute(SQL(
@@ -705,14 +714,14 @@ def increment_fields_skiplock(records, *fields):
     return bool(cr.rowcount)
 
 
-def value_to_translated_trigram_pattern(value):
+def value_to_translated_trigram_pattern(value: str) -> str:
     """ Escape value to match a translated field's trigram index content
 
     The trigram index function jsonb_path_query_array("column_name", '$.*')::text
     uses all translations' representations to build the indexed text. So the
     original text needs to be JSON-escaped correctly to match it.
 
-    :param str value: value provided in domain
+    :param value: value provided in domain
     :return: a pattern to match the indexed text
     """
     if len(value) < 3:
@@ -731,7 +740,7 @@ def value_to_translated_trigram_pattern(value):
     return f"%{wildcard_escaped}%"
 
 
-def pattern_to_translated_trigram_pattern(pattern):
+def pattern_to_translated_trigram_pattern(pattern: str) -> str:
     """ Escape pattern to match a translated field's trigram index content
 
     The trigram index function jsonb_path_query_array("column_name", '$.*')::text
@@ -779,3 +788,74 @@ def make_identifier(identifier: str) -> str:
 def make_index_name(table_name: str, column_name: str) -> str:
     """ Return an index name according to conventions for the given table and column. """
     return make_identifier(f"{table_name}__{column_name}_index")
+
+
+def quoted_identifier(cr, name: str) -> SQL:
+    """Quote a database identifier.
+
+    Use instead of `SQL.identifier` to accept all kinds of identifiers.
+    """
+    name = quote_ident(name, cr._cnx)
+    return SQL(name)  # pylint: disable=sql-injection
+
+
+_TOKEN_SPECIFICATION = [
+    ('PAREN_OPEN', r'\('),
+    ('PAREN_CLOSE', r'\)'),
+    ('LINE_COMMENT', r'--[^\n]*'),
+    ('STATEMENT_TERMINATOR', r';'),
+    ('STRING_LITERAL', r"'[^']*'"),
+    ('QUOTED_IDENTIFIER', r'"[^"]*"'),
+    ('KEYWORD', r'''(?<![\w.])(?:
+                          and | or | with | select | from | where | having | limit | offset | exists
+                        | (?:group|order)\s+by | union(?:\s+all)? | values | returning
+                        | insert\s+into | delete\s+from | update | set
+                        | (?:(?:left|right|full|inner|cross)\s+)?(?:outer\s+)?join
+                    )(?![\w.])'''),
+]
+
+
+_TOKEN_REGEX = re.compile(
+    '|'.join(f'(?P<{name}>{pattern})' for name, pattern in _TOKEN_SPECIFICATION),
+    re.IGNORECASE | re.VERBOSE
+)
+
+
+def format_query(query: str) -> str:
+    """ This is a naive, best-effort SQL query formatter. The result is not meant to be "correct".
+    """
+    lines: list[str] = []
+    line = ''
+    depth = 0  # current parenthesis nesting level
+    end = 0  # end of the previous token in ``query``
+
+    for match in _TOKEN_REGEX.finditer(query):
+        kind = match.lastgroup
+        token = match.group()
+
+        # `finditer` leaps between tokens and we manually grab the raw text we skipped over.
+        line += query[end:match.start()]
+        end = match.end()
+
+        if kind == 'KEYWORD':
+            # start a new line
+            lines.append(line)
+            indent = depth + (token.lower() in ('and', 'or'))  # one level deeper for the conditions of a WHERE clause
+            line = 4 * indent * ' ' + ' '.join(token.split())
+
+        elif kind == 'PAREN_OPEN':
+            depth += 1
+            line += token
+
+        elif kind == 'PAREN_CLOSE':
+            depth -= 1
+            line += token
+
+        else:
+            line += token
+
+    line += query[end:]
+    lines.append(line)
+
+    result = '\n'.join(line.rstrip() for line in lines).strip()
+    return result if result.endswith(';') else result + ';'

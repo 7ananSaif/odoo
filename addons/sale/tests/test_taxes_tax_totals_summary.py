@@ -1,10 +1,14 @@
-from odoo.addons.account.tests.test_taxes_tax_totals_summary import TestTaxesTaxTotalsSummary
-from odoo.addons.sale.tests.common import TestTaxCommonSale
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
 from odoo.tests import tagged
 
+from odoo.addons.account.tests.test_taxes_tax_totals_summary import TestTaxesTaxTotalsSummary
+from odoo.addons.sale.tests.common import TestTaxCommonSale
 
-@tagged('post_install', '-at_install')
+
+@tagged("post_install", "-at_install")
 class TestTaxesTaxTotalsSummarySale(TestTaxCommonSale, TestTaxesTaxTotalsSummary):
+    _test_user_groups = None  # FIXME list needed groups
 
     def test_taxes_l10n_in_sale_orders(self):
         for test_index, document, expected_values in self._test_taxes_l10n_in():
@@ -68,20 +72,30 @@ class TestTaxesTaxTotalsSummarySale(TestTaxCommonSale, TestTaxesTaxTotalsSummary
             with self.subTest(test_index=test_index):
                 sale_order = self.convert_document_to_sale_order(document)
                 self.assert_sale_order_tax_totals_summary(sale_order, expected_values)
-                self.assertRecordValues(sale_order.order_line, [{
-                    'price_subtotal': expected_values['total_amount_currency'],
-                    'price_total': expected_values['total_amount_currency'],
-                }])
+                self.assertRecordValues(
+                    sale_order.order_line,
+                    [
+                        {
+                            "price_subtotal": expected_values["total_amount_currency"],
+                            "price_total": expected_values["total_amount_currency"],
+                        }
+                    ],
+                )
 
     def test_reverse_charge_division_tax_sale_orders(self):
         for test_index, document, expected_values in self._test_reverse_charge_division_tax():
             with self.subTest(test_index=test_index):
                 sale_order = self.convert_document_to_sale_order(document)
                 self.assert_sale_order_tax_totals_summary(sale_order, expected_values)
-                self.assertRecordValues(sale_order.order_line, [{
-                    'price_subtotal': expected_values['total_amount_currency'],
-                    'price_total': expected_values['total_amount_currency'],
-                }])
+                self.assertRecordValues(
+                    sale_order.order_line,
+                    [
+                        {
+                            "price_subtotal": expected_values["total_amount_currency"],
+                            "price_total": expected_values["total_amount_currency"],
+                        }
+                    ],
+                )
 
     def test_discount_with_round_globally_sale_orders(self):
         for test_index, document, expected_values in self._test_discount_with_round_globally():

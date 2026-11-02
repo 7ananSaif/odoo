@@ -4,6 +4,7 @@ from dateutil.relativedelta import relativedelta
 
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError, UserError
+from odoo.tools.date_utils import get_timedelta
 
 
 def _get_selection_days(self):
@@ -20,6 +21,7 @@ class HrLeaveAccrualLevel(models.Model):
         help='Sequence is generated automatically by start time delta.')
     accrual_plan_id = fields.Many2one('hr.leave.accrual.plan', "Accrual Plan", required=True, index=True, ondelete="cascade", default=lambda self: self.env.context.get("active_id", None))
     accrued_gain_time = fields.Selection(related='accrual_plan_id.accrued_gain_time', export_string_translation=False)
+    is_based_on_worked_time = fields.Boolean(related='accrual_plan_id.is_based_on_worked_time', export_string_translation=False)
     start_count = fields.Integer(export_string_translation=False,
         help="The accrual starts after a defined period from the allocation start date. This field defines the number of days, months or years after which accrual is used.")
     start_type = fields.Selection(
@@ -103,20 +105,22 @@ class HrLeaveAccrualLevel(models.Model):
         export_string_translation=False)
     cap_accrued_time = fields.Boolean(export_string_translation=False,
         help="When the field is checked the balance of an allocation using this accrual plan will never exceed the specified amount.")
+    # Unit defined by `added_value_type`
     maximum_leave = fields.Float(
         digits=(16, 2), compute="_compute_maximum_leave", default=0, readonly=False, store=True,
         help="Choose a cap for this accrual.", export_string_translation=False)
     cap_accrued_time_yearly = fields.Boolean(export_string_translation=False,
         store=True, readonly=False,
         help="When the field is checked the total amount accrued each year will be capped at the specified amount")
+    # Unit defined by `added_value_type`
     maximum_leave_yearly = fields.Float(digits=(16, 2), export_string_translation=False)
     can_be_carryover = fields.Boolean(related='accrual_plan_id.can_be_carryover', readonly=True,
         export_string_translation=False)
     action_with_unused_accruals = fields.Selection(
-        [('lost', 'Lost'),
+        [('lost', 'Lost (Reset)'),
          ('all', 'Carried over')],
         compute="_compute_action_with_unused_accruals",
-        store=True,
+        store=True, readonly=False,
         export_string_translation=False,
         default='lost', required=True,
         help="When the Carry-Over Time is reached, according to Plan's setting, select what you want "
@@ -131,7 +135,8 @@ class HrLeaveAccrualLevel(models.Model):
         default='unlimited', required=True,
         help="You can limit the accrued time carried over for the next period."
     )
-    postpone_max_days = fields.Integer(export_string_translation=False,
+    # Unit defined by `added_value_type`
+    max_carriedover_duration = fields.Integer(export_string_translation=False,
         help="Set a maximum of accruals an allocation keeps at the end of the year.")
     can_modify_value_type = fields.Boolean(compute="_compute_can_modify_value_type", default=False,
         export_string_translation=False)
@@ -144,6 +149,7 @@ class HrLeaveAccrualLevel(models.Model):
          ('month', 'Months')],
         default='day', export_string_translation=False, required=True,
         help="This field defines the unit of time after which the accrual ends.")
+    yearly_gain = fields.Float(compute="_compute_yearly_gain")
 
     _start_count_check = models.Constraint(
         "CHECK((start_count > 0 AND milestone_date = 'after') OR (start_count = 0 AND milestone_date = 'creation'))",
@@ -153,8 +159,8 @@ class HrLeaveAccrualLevel(models.Model):
         'CHECK(added_value > 0)',
         'You must give a rate greater than 0 in accrual plan levels.',
     )
-    _valid_postpone_max_days_value = models.Constraint(
-        "CHECK(action_with_unused_accruals <> 'all' OR carryover_options <> 'limited' OR COALESCE(postpone_max_days, 0) > 0)",
+    _valid_max_carriedover_duration_value = models.Constraint(
+        "CHECK(action_with_unused_accruals <> 'all' OR carryover_options <> 'limited' OR COALESCE(max_carriedover_duration, 0) > 0)",
         'You cannot have a maximum quantity to carryover set to 0.',
     )
     _valid_accrual_validity_value = models.Constraint(
@@ -194,22 +200,20 @@ class HrLeaveAccrualLevel(models.Model):
         for level in self:
             level.sequence = level.start_count * start_type_multipliers[level.start_type]
 
-    @api.depends('accrual_plan_id', 'accrual_plan_id.level_ids', 'accrual_plan_id.time_off_type_id')
+    @api.depends('accrual_plan_id', 'accrual_plan_id.level_ids')
     def _compute_can_modify_value_type(self):
         for level in self:
-            level.can_modify_value_type = not level.accrual_plan_id.time_off_type_id and level.accrual_plan_id.level_ids and level.accrual_plan_id.level_ids[0] == level
+            level.can_modify_value_type = level.accrual_plan_id.level_ids and level.accrual_plan_id.level_ids[0] == level
 
     def _inverse_added_value_type(self):
         for level in self:
             if level.accrual_plan_id.level_ids[0] == level:
                 level.accrual_plan_id.added_value_type = level.added_value_type
 
-    @api.depends('accrual_plan_id', 'accrual_plan_id.level_ids', 'accrual_plan_id.added_value_type', 'accrual_plan_id.time_off_type_id')
+    @api.depends('accrual_plan_id', 'accrual_plan_id.level_ids', 'accrual_plan_id.added_value_type')
     def _compute_added_value_type(self):
         for level in self:
-            if level.accrual_plan_id.time_off_type_id:
-                level.added_value_type = "day" if level.accrual_plan_id.time_off_type_id.request_unit in ["day", "half_day"] else "hour"
-            elif level.accrual_plan_id.level_ids and level.accrual_plan_id.level_ids[0] != level:
+            if level.accrual_plan_id.level_ids and level.accrual_plan_id.level_ids[0] != level:
                 level.added_value_type = level.accrual_plan_id.level_ids[0].added_value_type
             elif not level.added_value_type:
                 level.added_value_type = "day"  # default value
@@ -266,12 +270,44 @@ class HrLeaveAccrualLevel(models.Model):
             if level.milestone_date == 'creation':
                 level.start_count = 0
 
+    @api.depends('frequency', 'added_value')
+    def _compute_yearly_gain(self):
+        company_calendar = self.env.company.resource_calendar_id
+        hours_per_week = company_calendar.hours_per_week
+        days_per_week = company_calendar.days_per_week
+        for level in self:
+            yearly_gain = 0
+            if level.frequency == 'hourly':
+                yearly_gain = level.added_value * 52 * hours_per_week
+            elif level.frequency == 'daily':
+                if level.is_based_on_worked_time:
+                    yearly_gain = level.added_value * 52 * days_per_week
+                else:
+                    yearly_gain = level.added_value * 365
+            elif level.frequency == 'weekly':
+                yearly_gain = level.added_value * 52
+            elif level.frequency == 'monthly':
+                yearly_gain = level.added_value * 12
+            elif level.frequency == 'bimonthly':
+                yearly_gain = level.added_value * 24
+            elif level.frequency == 'yearly':
+                yearly_gain = level.added_value
+            elif level.frequency == 'biyearly':
+                yearly_gain = level.added_value * 2
+            level.yearly_gain = yearly_gain
+
     def _get_hourly_frequencies(self):
+        """Return the frequencies accruing per hour of the period instead of per period.
+
+        :rtype: list[str]
+        """
         return ['hourly']
 
     def _get_next_date(self, last_call):
-        """
-        Returns the next date with the given last call
+        """Return the first accrual date of the level after ``last_call`` (excluded).
+
+        :param datetime.date last_call: reference date
+        :rtype: datetime.date
         """
         self.ensure_one()
         if self.frequency in self._get_hourly_frequencies() + ['daily']:
@@ -314,10 +350,12 @@ class HrLeaveAccrualLevel(models.Model):
             "Hourly, Daily, Weekly, Twice a month, Monthly, Twice a year and Yearly."))
 
     def _get_previous_date(self, last_call):
-        """
-        Returns the date a potential previous call would have been at
-        For example if you have a monthly level giving 16/02 would return 01/02
-        Contrary to `_get_next_date` this function will return the 01/02 if that date is given
+        """Return the last accrual date of the level on or before ``last_call`` (included).
+
+        For instance, the 1st of the month for a monthly level.
+
+        :param datetime.date last_call: reference date
+        :rtype: datetime.date
         """
         self.ensure_one()
         if self.frequency in self._get_hourly_frequencies() + ['daily']:
@@ -339,7 +377,7 @@ class HrLeaveAccrualLevel(models.Model):
             date = last_call + relativedelta(day=int(self.first_day))
             if last_call >= date:
                 return date
-            return last_call + relativedelta(day=int(self.first_day), months=-1, days=1)
+            return last_call + relativedelta(day=int(self.first_day), months=-1)
 
         if self.frequency == 'biyearly':
             first_date = last_call + relativedelta(month=int(self.first_month), day=int(self.first_month_day))
@@ -360,6 +398,10 @@ class HrLeaveAccrualLevel(models.Model):
             "Hourly, Daily, Weekly, Twice a month, Monthly, Twice a year and Yearly."))
 
     def _get_level_transition_date(self, allocation_start):
+        """Return the date the level starts for an allocation starting on ``allocation_start``.
+
+        :rtype: datetime.date
+        """
         if self.start_type == 'day':
             return allocation_start + relativedelta(days=self.start_count)
         if self.start_type == 'month':
@@ -369,3 +411,11 @@ class HrLeaveAccrualLevel(models.Model):
 
     def action_save_new(self):
         return self.accrual_plan_id.action_create_accrual_plan_level()
+
+    def _get_start_date(self, date_from):
+        """Return ``date_from`` plus the start delay of the level (``start_count`` ``start_type``).
+
+        :rtype: datetime.date
+        """
+        self.ensure_one()
+        return date_from + get_timedelta(self.start_count, self.start_type)

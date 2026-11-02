@@ -1,25 +1,24 @@
-import { Product } from '@sale/js/product/product';
-import { formatCurrency } from '@web/core/currency';
-import { patch } from '@web/core/utils/patch';
+import { productProps, Product } from "@sale/js/product/product";
+import { patch } from "@web/core/utils/patch";
+import { t } from "@odoo/owl";
 
-patch(Product, {
-    props: {
-        ...Product.props,
-        strikethrough_price: { type: Number, optional: true },
-        can_be_sold: { type: Boolean, optional: true },
-        // The following fields are needed for tracking.
-        category_name: { type: String, optional: true },
-        currency_name: { type: String, optional: true },
-    },
+Object.assign(productProps, {
+    strikethrough_price: t.number().optional(),
+    base_unit_price: t.number().optional(),
+    can_be_sold: t.boolean().optional(),
+    free_qty: t.number().optional(),
+    // The following fields are needed for tracking.
+    category_name: t.string().optional(),
+    currency_name: t.string().optional(),
 });
 
 patch(Product.prototype, {
     /**
-     * Return the strikethrough price, formatted using the environment's currency.
+     * Check whether this product is out of stock.
      *
-     * @return {String} - The formatted strikethrough price.
+     * @return {Boolean} - Whether this product is out of stock.
      */
-    get formattedStrikethroughPrice() {
-        return formatCurrency(this.props.strikethrough_price, this.env.currency.id);
+    isOutOfStock() {
+        return !this.env.isQuantityAllowed(this.props, 1);
     },
 });

@@ -1,4 +1,4 @@
-import { expect, test } from "@odoo/hoot";
+import { expect, test, tick } from "@odoo/hoot";
 import OrderPaymentValidation from "@point_of_sale/app/utils/order_payment_validation";
 import { getFilledOrder, setupPosEnv } from "../utils";
 import { definePosModels } from "../data/generate_model_definitions";
@@ -8,6 +8,9 @@ definePosModels();
 test("validateOrder", async () => {
     const store = await setupPosEnv();
     const order = await getFilledOrder(store);
+    const product_tmpl_id = store.models["product.template"].get(8);
+    await store.addLineToOrder({ product_tmpl_id, qty: 0 }, order);
+
     const fastPaymentMethod = order.config.fast_payment_method_ids[0];
     const validation = new OrderPaymentValidation({
         pos: store,
@@ -15,9 +18,14 @@ test("validateOrder", async () => {
         fastPaymentMethod: fastPaymentMethod,
     });
     await validation.validateOrder(false);
+    // validateOrder launches a promise. We need to wait for its resolution.
+    // tick will ensure that all microtasks like resolved promises are handled.
+    // Here the promise is resolved as it is only synchronous code.
+    await tick();
     expect(order.payment_ids[0].payment_method_id).toEqual(fastPaymentMethod);
     expect(order.state).toBe("paid");
-    expect(order.amount_paid).toBe(17.85);
+    expect(order.amount_paid).toBe(595);
+    expect(order.lines.length).toBe(3); // Keep lines with zero quantity
 });
 test("isOrderValid", async () => {
     const store = await setupPosEnv();

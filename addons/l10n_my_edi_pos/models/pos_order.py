@@ -1,5 +1,5 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-from odoo import Command, api, fields, models
+from odoo import api, fields, models
 from odoo.exceptions import UserError
 
 
@@ -18,6 +18,33 @@ class PosOrder(models.Model):
         column2="document_id",
         groups="account.group_account_invoice",
     )
+    l10n_my_edi_state = fields.Selection(
+        string="MyInvois State",
+        help="State of this order on the MyInvois portal.",
+        selection=[
+            ('in_progress', 'Validation In Progress'),
+            ('valid', 'Valid'),
+            ('rejected', 'Rejected'),
+            ('invalid', 'Invalid'),
+            ('cancelled', 'Cancelled'),
+        ],
+        compute='_compute_l10n_my_edi_state',
+        store=True,
+        groups="account.group_account_invoice",
+    )
+
+    # --------------------------------
+    # Compute, inverse, search methods
+    # --------------------------------
+
+    @api.depends('consolidated_invoice_ids.myinvois_state', 'account_move.l10n_my_edi_state')
+    def _compute_l10n_my_edi_state(self):
+        for order in self:
+            consolidated_invoice = order._get_active_consolidated_invoice(including_in_progress=True)
+            if consolidated_invoice:
+                order.l10n_my_edi_state = consolidated_invoice.myinvois_state
+            else:
+                order.l10n_my_edi_state = order.account_move.l10n_my_edi_state
 
     # -----------------------
     # CRUD, inherited methods
@@ -46,7 +73,7 @@ class PosOrder(models.Model):
         to_invoice = order.get('to_invoice')
 
         for refunded_order in refunded_orders:
-            submitted = ((refunded_order.is_invoiced and refunded_order.account_move.l10n_my_edi_state in ["in_progress", "valid", "rejected"])
+            submitted = ((refunded_order.is_singly_invoiced and refunded_order.account_move.l10n_my_edi_state in ["in_progress", "valid", "rejected"])
                          or (refunded_order._get_active_consolidated_invoice() and refunded_order._get_active_consolidated_invoice().myinvois_state in ["in_progress", "valid", "rejected"]))
 
             if submitted and not to_invoice:
@@ -60,13 +87,6 @@ class PosOrder(models.Model):
                     order['consolidated_invoice_ids'] = refunded_order._get_active_consolidated_invoice().id
 
         return super()._process_order(order, existing_order)
-
-    @api.model
-    def _order_fields(self, ui_order):
-        order_fields = super()._order_fields(ui_order)
-        if ui_order.get('consolidated_invoice_ids'):
-            order_fields['consolidated_invoice_ids'] = [Command.link(ui_order['consolidated_invoice_ids'])]
-        return order_fields
 
     @api.model
     def _generate_pos_order_invoice(self):
@@ -95,7 +115,9 @@ class PosOrder(models.Model):
 
             # At this point we don't want to raise anymore, if there are issues it'll be logged on the invoice, and we will
             # move on.
-            self.account_move.action_l10n_my_edi_send_invoice()
+            # Do not raise for public (portal / POS) users: errors are logged on the invoice
+            # to avoid breaking the HTTP flow. Internal users still get raised errors.
+            self.account_move.action_l10n_my_edi_send_invoice(allow_raising=not self.env.user.is_public)
 
             if self.env.context.get('generate_pdf', True):
                 self.account_move.with_context(skip_invoice_sync=True)._generate_and_send()
@@ -116,4 +138,4 @@ class PosOrder(models.Model):
 
     def _get_active_consolidated_invoice(self, including_in_progress=False):
         """ Small helper to get the currently active consolidated invoice if more that one is linked to an order. """
-        return self.env['myinvois.document'].union(*[order.consolidated_invoice_ids._get_active_myinvois_document(including_in_progress) for order in self])
+        return self.env['myinvois.document'].union(order.consolidated_invoice_ids._get_active_myinvois_document(including_in_progress) for order in self)

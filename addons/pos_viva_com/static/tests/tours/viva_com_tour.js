@@ -1,20 +1,20 @@
 /* global posmodel */
 
+import * as FeedbackScreen from "@point_of_sale/../tests/pos/tours/utils/feedback_screen_util";
 import * as ProductScreen from "@point_of_sale/../tests/pos/tours/utils/product_screen_util";
 import * as PaymentScreen from "@point_of_sale/../tests/pos/tours/utils/payment_screen_util";
-import * as ReceiptScreen from "@point_of_sale/../tests/pos/tours/utils/receipt_screen_util";
 import * as TicketScreen from "@point_of_sale/../tests/pos/tours/utils/ticket_screen_util";
 import * as Chrome from "@point_of_sale/../tests/pos/tours/utils/chrome_util";
 import * as Dialog from "@point_of_sale/../tests/generic_helpers/dialog_util";
 import { registry } from "@web/core/registry";
 import * as PaymentScreenViva from "./utils/payment_screen_viva_com_util";
 
-const mockVivaWebhook = () => ({
+const mockVivaWebhook = (isRefund) => ({
     content: "Waiting for Viva payment to be processed",
-    trigger: ".electronic_status",
+    trigger: `.paymentline_status_title_${isRefund ? "waiting_refund" : "waiting_card"}`,
     run: async function () {
         const payment_terminal =
-            posmodel.getPendingPaymentLine("viva_com").payment_method_id.payment_terminal;
+            posmodel.getPendingPaymentLine("viva_com").payment_method_id.payment_interface;
 
         // ==> pretend to be viva and send the notification to the POS
         const resp = await fetch(
@@ -46,22 +46,19 @@ registry.category("web_tour.tours").add("VivaComTour", {
             ProductScreen.clickPayButton(),
             PaymentScreen.isShown(),
             PaymentScreen.clickPaymentMethod("Viva"),
-            mockVivaWebhook(),
-            ReceiptScreen.isShown(),
-            ReceiptScreen.clickNextOrder(),
+            PaymentScreen.clickSendButton(),
+            mockVivaWebhook(false),
+            FeedbackScreen.isShown(),
+            FeedbackScreen.clickNextOrder(),
             Chrome.clickOrders(),
             TicketScreen.selectFilter("Paid"),
             TicketScreen.selectOrder("0001"),
             TicketScreen.confirmRefund(),
             PaymentScreen.isShown(),
             PaymentScreen.clickPaymentMethod("Viva"),
-            {
-                content: "Click Refund",
-                trigger: "div.button:contains('Refund')",
-                run: "click",
-            },
-            mockVivaWebhook(),
-            ReceiptScreen.isShown(),
+            PaymentScreen.clickRefundButton(),
+            mockVivaWebhook(true),
+            FeedbackScreen.isShown(),
         ].flat(),
 });
 

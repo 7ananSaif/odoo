@@ -1,23 +1,31 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# * sms_twilio
+# 	* sms_twilio
 #
-# Weblate <noreply-mt-weblate@weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:39+0000\n"
-"PO-Revision-Date: 2026-06-13 04:56+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Slovak <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 20:33+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Slovak <https://translate.odoo.com/projects/odoo-s19-4/"
 "sms_twilio/sk/>\n"
 "Language: sk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: sms_twilio
+#: model:ir.module.module,description:base.module_sms_twilio
+msgid ""
+"\n"
+"This module allows using Twilio as a provider for SMS messaging.\n"
+"The user has to create an account on twilio.com and top\n"
+"up their account to start sending SMS messages.\n"
+msgstr ""
 
 #. module: sms_twilio
 #. odoo-python
@@ -51,9 +59,8 @@ msgstr ""
 #. module: sms_twilio
 #: model:ir.model.fields,field_description:sms_twilio.field_res_company__sms_twilio_account_sid
 #: model:ir.model.fields,field_description:sms_twilio.field_sms_twilio_account_manage__sms_twilio_account_sid
-#, fuzzy
 msgid "Account SID"
-msgstr "SID účtu"
+msgstr ""
 
 #. module: sms_twilio
 #. odoo-python
@@ -68,6 +75,12 @@ msgid "Auth Token"
 msgstr ""
 
 #. module: sms_twilio
+#. odoo-javascript
+#: code:addons/sms_twilio/static/src/core/notification_model.js:0
+msgid "Authentication Error"
+msgstr ""
+
+#. module: sms_twilio
 #: model:ir.model.fields.selection,name:sms_twilio.selection__mail_notification__failure_type__twilio_authentication
 #: model:ir.model.fields.selection,name:sms_twilio.selection__sms_sms__failure_type__twilio_authentication
 msgid "Authentication Error\""
@@ -75,23 +88,16 @@ msgstr ""
 
 #. module: sms_twilio
 #: model:ir.model,name:sms_twilio.model_res_company
-#, fuzzy
-msgid "Companies"
-msgstr "Spoločnosti"
-
-#. module: sms_twilio
 #: model:ir.model.fields,field_description:sms_twilio.field_sms_sms__record_company_id
 #: model:ir.model.fields,field_description:sms_twilio.field_sms_twilio_account_manage__company_id
 #: model:ir.model.fields,field_description:sms_twilio.field_sms_twilio_number__company_id
-#, fuzzy
 msgid "Company"
-msgstr "Spoločnosť"
+msgstr ""
 
 #. module: sms_twilio
 #: model:ir.model,name:sms_twilio.model_res_config_settings
-#, fuzzy
 msgid "Config Settings"
-msgstr "Nastavenia konfigurácie"
+msgstr ""
 
 #. module: sms_twilio
 #: model_terms:ir.ui.view,arch_db:sms_twilio.res_config_settings_view_form
@@ -100,47 +106,30 @@ msgstr ""
 
 #. module: sms_twilio
 #: model:ir.model.fields,field_description:sms_twilio.field_sms_twilio_number__country_id
-#, fuzzy
 msgid "Country"
-msgstr "Krajina"
+msgstr ""
 
 #. module: sms_twilio
 #: model:ir.model.fields,field_description:sms_twilio.field_sms_twilio_number__country_code
-#, fuzzy
 msgid "Country Code"
-msgstr "Kód štátu"
+msgstr ""
 
 #. module: sms_twilio
 #: model:ir.model.fields,field_description:sms_twilio.field_sms_twilio_account_manage__create_uid
 #: model:ir.model.fields,field_description:sms_twilio.field_sms_twilio_number__create_uid
-#, fuzzy
 msgid "Created by"
-msgstr "Vytvoril"
+msgstr ""
 
 #. module: sms_twilio
 #: model:ir.model.fields,field_description:sms_twilio.field_sms_twilio_account_manage__create_date
 #: model:ir.model.fields,field_description:sms_twilio.field_sms_twilio_number__create_date
-#, fuzzy
 msgid "Created on"
-msgstr "Vytvorené"
+msgstr ""
 
 #. module: sms_twilio
 #: model_terms:ir.ui.view,arch_db:sms_twilio.sms_twilio_account_manage_view_form
-#, fuzzy
 msgid "Credentials"
-msgstr "Poverenia"
-
-#. module: sms_twilio
-#: model_terms:ir.ui.view,arch_db:sms_twilio.sms_twilio_account_manage_view_form
-#, fuzzy
-msgid "Delete"
-msgstr "Zmazať"
-
-#. module: sms_twilio
-#: model_terms:ir.ui.view,arch_db:sms_twilio.sms_twilio_account_manage_view_form
-#, fuzzy
-msgid "Discard"
-msgstr "Zrušiť"
+msgstr ""
 
 #. module: sms_twilio
 #: model:ir.model.fields,field_description:sms_twilio.field_mail_notification__display_name
@@ -151,9 +140,8 @@ msgstr "Zrušiť"
 #: model:ir.model.fields,field_description:sms_twilio.field_sms_tracker__display_name
 #: model:ir.model.fields,field_description:sms_twilio.field_sms_twilio_account_manage__display_name
 #: model:ir.model.fields,field_description:sms_twilio.field_sms_twilio_number__display_name
-#, fuzzy
 msgid "Display Name"
-msgstr "Zobrazovaný názov"
+msgstr ""
 
 #. module: sms_twilio
 #. odoo-python
@@ -168,11 +156,12 @@ msgstr ""
 
 #. module: sms_twilio
 #: model:ir.model.fields,field_description:sms_twilio.field_mail_notification__failure_type
-#, fuzzy
 msgid "Failure type"
-msgstr "Typ zlyhania"
+msgstr ""
 
 #. module: sms_twilio
+#. odoo-javascript
+#: code:addons/sms_twilio/static/src/core/notification_model.js:0
 #: model:ir.model.fields.selection,name:sms_twilio.selection__mail_notification__failure_type__twilio_from_to
 #: model:ir.model.fields.selection,name:sms_twilio.selection__sms_sms__failure_type__twilio_from_to
 msgid "From / To identic"
@@ -187,11 +176,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:sms_twilio.field_sms_tracker__id
 #: model:ir.model.fields,field_description:sms_twilio.field_sms_twilio_account_manage__id
 #: model:ir.model.fields,field_description:sms_twilio.field_sms_twilio_number__id
-#, fuzzy
 msgid "ID"
-msgstr "ID"
+msgstr ""
 
 #. module: sms_twilio
+#. odoo-javascript
+#: code:addons/sms_twilio/static/src/core/notification_model.js:0
 #: model:ir.model.fields.selection,name:sms_twilio.selection__mail_notification__failure_type__twilio_callback
 #: model:ir.model.fields.selection,name:sms_twilio.selection__sms_sms__failure_type__twilio_callback
 msgid "Incorrect callback URL"
@@ -215,20 +205,23 @@ msgstr ""
 #. module: sms_twilio
 #: model:ir.model.fields,field_description:sms_twilio.field_sms_twilio_account_manage__write_uid
 #: model:ir.model.fields,field_description:sms_twilio.field_sms_twilio_number__write_uid
-#, fuzzy
 msgid "Last Updated by"
-msgstr "Naposledy upravoval"
+msgstr ""
 
 #. module: sms_twilio
 #: model:ir.model.fields,field_description:sms_twilio.field_sms_twilio_account_manage__write_date
 #: model:ir.model.fields,field_description:sms_twilio.field_sms_twilio_number__write_date
-#, fuzzy
 msgid "Last Updated on"
-msgstr "Naposledy upravované"
+msgstr ""
 
 #. module: sms_twilio
 #: model:ir.model,name:sms_twilio.model_sms_tracker
 msgid "Link SMS to mailing/sms tracking models"
+msgstr ""
+
+#. module: sms_twilio
+#: model_terms:ir.ui.view,arch_db:sms_twilio.sms_twilio_account_manage_view_form
+msgid "Load from Twilio"
 msgstr ""
 
 #. module: sms_twilio
@@ -240,11 +233,12 @@ msgstr ""
 
 #. module: sms_twilio
 #: model:ir.model,name:sms_twilio.model_mail_notification
-#, fuzzy
-msgid "Message Notifications"
-msgstr "Upozornenie na správu"
+msgid "Message Notification"
+msgstr ""
 
 #. module: sms_twilio
+#. odoo-javascript
+#: code:addons/sms_twilio/static/src/core/notification_model.js:0
 #: model:ir.model.fields.selection,name:sms_twilio.selection__mail_notification__failure_type__twilio_from_missing
 #: model:ir.model.fields.selection,name:sms_twilio.selection__sms_sms__failure_type__twilio_from_missing
 msgid "Missing From Number"
@@ -254,16 +248,15 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sms_twilio.sms_twilio_account_manage_view_form
 msgid ""
 "Need help ?\n"
-"                            <i class=\"fa fa-external-link\" aria-"
+"                            <i class=\"oi\" data-icon=\"open_in_new\" aria-"
 "hidden=\"true\"/>"
 msgstr ""
 
 #. module: sms_twilio
 #: model:ir.model.fields,field_description:sms_twilio.field_res_company__sms_twilio_number_ids
 #: model:ir.model.fields,field_description:sms_twilio.field_sms_twilio_account_manage__sms_twilio_number_ids
-#, fuzzy
 msgid "Numbers"
-msgstr "Čísla"
+msgstr ""
 
 #. module: sms_twilio
 #: model:ir.model,name:sms_twilio.model_sms_sms
@@ -282,8 +275,9 @@ msgid "Please set the number to which you want to send a test SMS."
 msgstr ""
 
 #. module: sms_twilio
-#: model_terms:ir.ui.view,arch_db:sms_twilio.sms_twilio_account_manage_view_form
-msgid "Reload Numbers from Twilio"
+#. odoo-python
+#: code:addons/sms_twilio/tools/sms_api.py:0
+msgid "Recheck your credentials"
 msgstr ""
 
 #. module: sms_twilio
@@ -304,6 +298,11 @@ msgid "Send SMS Wizard"
 msgstr ""
 
 #. module: sms_twilio
+#: model:ir.module.module,summary:base.module_sms_twilio
+msgid "Send SMS messages using Twilio"
+msgstr ""
+
+#. module: sms_twilio
 #: model_terms:ir.ui.view,arch_db:sms_twilio.sms_twilio_account_manage_view_form
 msgid "Send test SMS"
 msgstr ""
@@ -320,9 +319,8 @@ msgstr ""
 
 #. module: sms_twilio
 #: model:ir.model.fields,field_description:sms_twilio.field_sms_twilio_number__sequence
-#, fuzzy
 msgid "Sequence"
-msgstr "Postupnosť"
+msgstr ""
 
 #. module: sms_twilio
 #: model:ir.model.fields,field_description:sms_twilio.field_sms_twilio_account_manage__test_number
@@ -331,13 +329,10 @@ msgstr ""
 
 #. module: sms_twilio
 #: model:ir.model.fields,help:sms_twilio.field_sms_twilio_number__country_code
-#, fuzzy
 msgid ""
 "The ISO country code in two chars. \n"
 "You can use this field for quick search."
 msgstr ""
-"ISO kód krajiny v dvoch znakoch.\n"
-"Môžete použiť toto pole pre rýchle vyhľadanie."
 
 #. module: sms_twilio
 #. odoo-python
@@ -378,6 +373,7 @@ msgstr ""
 #. module: sms_twilio
 #. odoo-python
 #: code:addons/sms_twilio/wizard/sms_twilio_account_manage.py:0
+#: model:ir.module.module,shortdesc:base.module_sms_twilio
 msgid "Twilio SMS"
 msgstr ""
 
@@ -396,6 +392,14 @@ msgstr ""
 #. odoo-python
 #: code:addons/sms_twilio/tools/sms_api.py:0
 msgid "Twilio StatusCallback URL is incorrect"
+msgstr ""
+
+#. module: sms_twilio
+#. odoo-javascript
+#: code:addons/sms_twilio/static/src/core/notification_model.js:0
+#: model:ir.model.fields.selection,name:sms_twilio.selection__mail_notification__failure_type__twilio_wrong_credentials
+#: model:ir.model.fields.selection,name:sms_twilio.selection__sms_sms__failure_type__twilio_wrong_credentials
+msgid "Twilio Wrong Credentials"
 msgstr ""
 
 #. module: sms_twilio

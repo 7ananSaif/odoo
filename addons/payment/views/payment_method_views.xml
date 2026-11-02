@@ -13,8 +13,9 @@
                         <h1><field name="name" placeholder="Name"/></h1>
                     </div>
                     <group>
-                        <field name="code" readonly="id" groups="base.group_no_one"/>
-                        <field name="primary_payment_method_id" invisible="is_primary"/>
+                        <field name="code" invisible="id"/>
+                        <field name="code" invisible="not id" readonly="id" groups="base.group_no_one"/>
+                        <field name="primary_payment_method_id" invisible="is_primary or context.get('hide_primary_pm')"/>
                         <field name="active"/>
                         <label for="supported_country_ids"/>
                         <div>
@@ -40,28 +41,26 @@
                         </div>
                     </group>
                     <notebook>
-                        <page string="Providers" name="providers">
-                            <field name="provider_ids" readonly="1">
-                                <list decoration-muted="state == 'disabled'" editable="bottom">
-                                    <field name="name"/>
-                                    <field name="state"/>
-                                </list>
-                            </field>
-                        </page>
                         <page string="Brands" name="brands" invisible="not is_primary">
-                            <field name="brand_ids"/>
+                            <field name="provider_id" invisible="True"/>
+                            <field
+                                name="brand_ids"
+                                delete="False"
+                                context="{'default_provider_id': provider_id, 'hide_primary_pm': True}"
+                            />
                         </page>
                         <page string="Configuration"
                               name="configuration"
                               groups="base.group_no_one"
                         >
                             <div class="alert alert-warning" role="alert">
-                                <i class="fa fa-exclamation-triangle"/> These properties are set to
+                                <i class="oi" data-icon="warning"/> These properties are set to
                                 match the behavior of providers and that of their integration with
                                 Odoo regarding this payment method. Any change may result in errors
                                 and should be tested on a test database first.
                             </div>
                             <group>
+                                <field name="allow_amount_selection"/>
                                 <field name="support_tokenization"/>
                                 <field name="support_manual_capture"/>
                                 <field name="support_express_checkout"/>
@@ -74,9 +73,11 @@
                                        widget="many2many_tags"
                                        placeholder="Select currencies. Leave empty to allow any."
                                 />
-                                <field name="provider_ids"
-                                       string="Supported by"
-                                       widget="many2many_tags"
+                                <field
+                                    name="provider_id"
+                                    string="Supported by"
+                                    invisible="context.get('hide_provider')"
+                                    readonly="id"
                                 />
                             </group>
                         </page>
@@ -123,7 +124,7 @@
                 <field name="name" string="Name"/>
                 <filter name="available_pms"
                         string="Available methods"
-                        domain="[('provider_ids.state', '!=', 'disabled')]"
+                        domain="[('provider_id.module_state', '=', 'installed')]"
                 />
             </search>
         </field>
@@ -142,7 +143,7 @@
             </p>
             <p>
                 <a type="action" class="text-primary" name="%(payment.action_payment_provider)d">
-                    <i class="oi oi-arrow-right me-1"/> Configure a payment provider
+                    <i class="oi me-1" data-icon="east"/> Configure a payment provider
                 </a>
             </p>
         </field>

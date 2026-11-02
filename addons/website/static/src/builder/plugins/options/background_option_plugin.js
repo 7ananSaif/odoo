@@ -4,6 +4,7 @@ import { withSequence } from "@html_editor/utils/resource";
 import { BuilderAction } from "@html_builder/core/builder_action";
 import { _t } from "@web/core/l10n/translation";
 import { VideoSelector } from "@html_editor/main/media/media_dialog/video_selector";
+import { getBgImageURLFromEl } from "@html_builder/utils/utils_css";
 
 /**
  * @typedef { Object } WebsiteBackgroundVideoShared
@@ -18,18 +19,31 @@ function getBgVideoOrParallax(editingElement) {
     if (bgVideoEl) {
         return bgVideoEl;
     }
-    return editingElement.querySelector(":scope > .s_parallax_bg");
+    return (
+        editingElement.querySelector(":scope > .s_parallax_bg_wrap") ||
+        editingElement.querySelector(":scope > .s_parallax_bg")
+    ); // Kept for compatibility.
 }
 
-class WebsiteBackgroundImageOptionPlugin extends Plugin {
+export class WebsiteBackgroundImageOptionPlugin extends Plugin {
     static id = "websiteBackgroundImageOptionPlugin";
+    static dependencies = ["websiteParallaxPlugin"];
     /** @type {import("plugins").WebsiteResources} */
     resources = {
         background_filter_target_providers: withSequence(10, getBgVideoOrParallax),
+        should_ignore_background_color_for_shapes_predicates: (el) =>
+            // This computation is what is done for the `isApplied` of
+            // `toggleBgImage` with the website module's xpath
+            getBgImageURLFromEl(
+                el.querySelector(this.dependencies.websiteParallaxPlugin.getParallaxBgSelector()) ??
+                    el
+            )
+                ? true
+                : undefined,
     };
 }
 
-class WebsiteBackgroundShapeOptionPlugin extends Plugin {
+export class WebsiteBackgroundShapeOptionPlugin extends Plugin {
     static id = "websiteBackgroundShapeOptionPlugin";
     /** @type {import("plugins").WebsiteResources} */
     resources = {
@@ -37,7 +51,7 @@ class WebsiteBackgroundShapeOptionPlugin extends Plugin {
     };
 }
 
-class WebsiteBackgroundVideoPlugin extends Plugin {
+export class WebsiteBackgroundVideoPlugin extends Plugin {
     static id = "websiteBackgroundVideoPlugin";
     static dependencies = ["media"];
     static shared = [
@@ -53,6 +67,8 @@ class WebsiteBackgroundVideoPlugin extends Plugin {
             ReplaceBgVideoAction,
         },
         system_node_selectors: ".o_bg_video_container",
+        should_ignore_background_color_for_shapes_predicates: (el) =>
+            el.classList.contains("o_background_video") ? true : undefined,
     };
     loadReplaceBackgroundVideo() {
         return new Promise((resolve) => {
@@ -64,6 +80,7 @@ class WebsiteBackgroundVideoPlugin extends Plugin {
                         Component: VideoSelector,
                         props: {
                             isForBgVideo: true,
+                            allowVideoFile: !!this.config.allowVideoFile,
                             vimeoPreviewIds: [
                                 "528686125",
                                 "430330731",
@@ -82,17 +99,18 @@ class WebsiteBackgroundVideoPlugin extends Plugin {
                 ],
                 visibleTabs: ["VIDEO_BACKGROUND"],
                 save: (media) => {
-                    resolve(media.querySelector("iframe").src);
+                    const playerEl = media.querySelector("iframe, video");
+                    resolve({
+                        src: playerEl.getAttribute("src"),
+                        isVideoFile: playerEl.tagName === "VIDEO",
+                    });
                 },
             });
             onClose.then(resolve);
         });
     }
-    applyReplaceBackgroundVideo({
-        editingElement,
-        loadResult: mediaSrc,
-        params: { forceClean = false },
-    }) {
+    applyReplaceBackgroundVideo({ editingElement, loadResult, params: { forceClean = false } }) {
+        const { src: mediaSrc, isVideoFile } = loadResult || {};
         if (!forceClean && !mediaSrc) {
             // No video has been chosen by the user on the media dialog
             return;
@@ -100,8 +118,14 @@ class WebsiteBackgroundVideoPlugin extends Plugin {
         editingElement.classList.toggle("o_background_video", !!mediaSrc);
         if (mediaSrc) {
             editingElement.dataset.bgVideoSrc = mediaSrc;
+            if (isVideoFile) {
+                editingElement.dataset.bgVideoIsFile = "true";
+            } else {
+                delete editingElement.dataset.bgVideoIsFile;
+            }
         } else {
             delete editingElement.dataset.bgVideoSrc;
+            delete editingElement.dataset.bgVideoIsFile;
         }
     }
     /**
@@ -115,10 +139,10 @@ class WebsiteBackgroundVideoPlugin extends Plugin {
         editingElement.querySelector(":scope > .o_we_bg_filter")?.remove();
         this.applyReplaceBackgroundVideo({
             editingElement,
-            loadResult: "",
+            loadResult: {},
             params: { ...params, forceClean: true },
         });
-        this.dispatchTo("on_bg_image_hide_handlers", editingElement);
+        this.trigger("on_bg_image_hidden_handlers", editingElement);
     }
 }
 
@@ -134,7 +158,7 @@ export class ToggleBgVideoAction extends BuilderAction {
             params: params,
             loadResult: loadResult,
         });
-        this.dispatchTo("on_bg_image_hide_handlers", editingElement);
+        this.trigger("on_bg_image_hidden_handlers", editingElement);
     }
     isApplied({ editingElement }) {
         return editingElement.classList.contains("o_background_video");

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import logging
@@ -10,7 +9,7 @@ from odoo.tests import tagged
 from odoo.tools.misc import file_path
 from odoo.modules import get_modules
 
-from . import lint_case
+from .common import LintCase
 
 _logger = logging.getLogger(__name__)
 
@@ -22,7 +21,7 @@ except IOError:
 
 @skipIf(eslint is None, "eslint tool not found on this system")
 @tagged("test_themes")
-class TestESLint(lint_case.LintCase):
+class TestESLint(LintCase):
 
     longMessage = True
 
@@ -47,6 +46,6 @@ stderr: {process.stderr}
     def test_eslint(self):
         basic_test, strict_test = [], []
         for module in get_modules():
-            strict_test.append(module) if re.search('^point_of_sale$|^pos_.*$|^.*_pos$|^.*_pos_.*$', module) else basic_test.append(module)
+            strict_test.append(module) if re.search(r'^point_of_sale$|^pos_.*$|^.*_pos$|^.*_pos_.*$|^iot$|^iot_.*$|^obox$|^obox_.*$', module) else basic_test.append(module)
         self._test_eslint(basic_test, file_path('test_lint/tests/eslintrc'))
         self._test_eslint(strict_test, file_path('web/tooling/_eslintrc.json'))

@@ -49,6 +49,33 @@ describe("Pivot custom groups", () => {
         });
     });
 
+    test("Can have custom groups with monetary measures", async function () {
+        const { model, pivotId } = await createSpreadsheetWithPivot();
+        updatePivot(model, pivotId, {
+            columns: [{ fieldName: "GroupedProducts", order: "asc" }],
+            rows: [],
+            measures: [
+                { id: "pognon:sum_currency", fieldName: "pognon", aggregator: "sum_currency" },
+            ],
+            customFields: {
+                GroupedProducts: {
+                    parentField: "product_id",
+                    name: "GroupedProducts",
+                    groups: [{ name: "A Group", values: [37, 41] }],
+                },
+            },
+        });
+        await waitForDataLoaded(model);
+        setCellContent(model, "A1", "=PIVOT(1)");
+
+        // prettier-ignore
+        expect(getFormattedValueGrid(model, "A1:E3")).toEqual({
+            A1:"Partner Pivot",  B1: "A Group",      C1: "chair",        D1: "table",        E1: "Total",
+            A2: "",              B2: "Money!",       C2: "Money!",       D2: "Money!",       E2: "Money!",
+            A3: "Total",         B3: "1,153.20",     C3: "0.00",         D3: "0.00",         E3: "1,153.20",
+        });
+    });
+
     test("Can have custom groups on char field", async function () {
         Partner._records = Partner._records.map((record, i) => ({
             ...record,
@@ -115,9 +142,16 @@ describe("Pivot custom groups", () => {
     });
 
     test("Can have both the grouped field and the base field at the same time in the pivot", async function () {
-        const { model, pivotId } = await createSpreadsheetWithPivot();
+        const { model, pivotId } = await createSpreadsheetWithPivot({
+            mockRPC: (route, { model, method, kwargs }) => {
+                if (method === "formatted_read_grouping_sets") {
+                    expect.step(kwargs.order);
+                }
+            },
+        });
+        expect.verifySteps(["foo,bar"]);
         updatePivot(model, pivotId, {
-            columns: [{ fieldName: "GroupedProducts", order: "asc" }],
+            columns: [{ fieldName: "GroupedProducts" }],
             rows: [{ fieldName: "product_id", order: "asc" }],
             measures: [{ id: "probability:sum", fieldName: "probability", aggregator: "sum" }],
             customFields: {
@@ -144,6 +178,7 @@ describe("Pivot custom groups", () => {
             A6: "table",         B6: "",             C6: "50.00",        D6: "50.00",
             A7: "Total",         B7: "131.00",       C7: "150.00",       D7: "281.00",
         });
+        expect.verifySteps(["product_id asc"]);
     });
 
     test("Custom groups handle None values", async function () {

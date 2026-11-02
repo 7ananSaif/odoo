@@ -1,10 +1,30 @@
+import { getCSSVariableValue, getHtmlStyle } from "@html_editor/utils/formatting";
+import { Component, onWillStart, proxy, t, useProps } from "@odoo/owl";
+import { rpc } from "@web/core/network/rpc";
 import { SearchMedia } from "./search_media";
-import { fonts } from "@html_editor/utils/fonts";
 
-import { Component, useState } from "@odoo/owl";
+/**
+ * Search icons, matched against their name and tags in the backend.
+ *
+ * @param {string} [needle] search term; every icon is returned when empty
+ * @returns {Promise<Array.<{id: string, name: string, dataIcon: string, hasFilledVersion: boolean, source: string}>>}
+ */
+async function searchIcons(needle = "") {
+    // The full list only changes with the icon font, so it is served from the
+    // cache until the assets version changes. Searches always hit the server.
+    const settings = needle ? {} : { cache: { type: "disk" } };
+    const rows = await rpc("/html_editor/icons_search", { needle }, settings);
+    return rows.map(({ name, has_fill }) => ({
+        id: name,
+        name,
+        dataIcon: name,
+        hasFilledVersion: has_fill,
+        source: name.startsWith("oi_") ? "oi" : "ms",
+    }));
+}
 
 export class IconSelector extends Component {
-    static mediaSpecificClasses = ["fa"];
+    static mediaSpecificClasses = ["oi"];
     static mediaSpecificStyles = ["color", "background-color"];
     static mediaExtraClasses = [/^text-\S+$/, /^bg-\S+$/, /^fa-\S+$/];
     static tagNames = ["SPAN", "I"];
@@ -12,43 +32,77 @@ export class IconSelector extends Component {
     static components = {
         SearchMedia,
     };
-    static props = ["*"];
+
+    props = useProps({
+        document: t
+            .customValidator(t.object(), (p) => p.nodeType === Node.DOCUMENT_NODE)
+            .optional(),
+        id: t.string(),
+        media: t.object().optional(),
+        save: t.function(),
+        selectedMedia: t.object(),
+        selectMedia: t.function(),
+    });
 
     setup() {
-        this.state = useState({
-            fonts: this.props.fonts,
+        this.state = proxy({
             needle: "",
+            filteredIcons: [],
+        });
+        // The dialog is rendered outside of the edited document, so the icon
+        // font selected there (e.g. sharp) has to be mirrored on the previews.
+        const iconFontFamily = getCSSVariableValue(
+            "icon-font-family",
+            getHtmlStyle(this.props.document || document)
+        )
+            .replaceAll("'", "")
+            .trim();
+        this.iconsStyle = iconFontFamily ? `--icon-font-family: '${iconFontFamily}'` : undefined;
+        onWillStart(async () => {
+            this.allIcons = await searchIcons();
+            this.state.filteredIcons = this.allIcons;
         });
     }
 
-    get selectedMediaIds() {
-        return this.props.selectedMedia[this.props.id].map(({ id }) => id);
+    isIconSelected(icon, filled) {
+        return this.props.selectedMedia[this.props.id].some(
+            (media) => media.id === icon.id && media.filled === filled
+        );
     }
 
-    search(needle) {
+    async search(needle) {
         this.state.needle = needle;
-        if (!this.state.needle) {
-            this.state.fonts = this.props.fonts;
-        } else {
-            this.state.fonts = this.props.fonts.map((font) => {
-                const icons = font.icons.filter(
-                    (icon) => icon.alias.indexOf(this.state.needle.toLowerCase()) >= 0
-                );
-                return { ...font, icons };
-            });
+        const lower = needle.toLowerCase();
+        if (!lower) {
+            this.state.filteredIcons = this.allIcons;
+            return;
         }
+        this.state.filteredIcons = await searchIcons(lower);
     }
 
-    async onClickIcon(font, icon) {
+    /**
+     * Determines whether the icon being selected differs from the current media element.
+     * For MS/OI icons this compares the data-icon attribute and filled state;
+     * for FA icons it compares class names.
+     *
+     * @param {Object} icon
+     * @returns {boolean}
+     */
+    iconHasChanged(icon, filled) {
+        if (!this.props.media) {
+            return false;
+        }
+        // Material Symbols and Odoo UI icons: compare data-icon and filled state
+        const dataIconChanged = this.props.media.dataset.icon !== icon.dataIcon;
+        const filledChanged = this.props.media.classList.contains("oi-filled") !== filled;
+        return dataIconChanged || filledChanged;
+    }
+
+    async onClickIcon(icon, filled) {
         this.props.selectMedia({
             ...icon,
-            fontBase: font.base,
-            // To check if the icon has changed, we only need to compare
-            // an alias of the icon with the class from the old media (some
-            // icons can have multiple classes e.g. "fa-gears" ~ "fa-cogs")
-            initialIconChanged:
-                this.props.media &&
-                !icon.names.some((name) => this.props.media.classList.contains(name)),
+            filled,
+            initialIconChanged: this.iconHasChanged(icon, filled),
         });
         await this.props.save();
     }
@@ -56,27 +110,16 @@ export class IconSelector extends Component {
     /**
      * Utility methods, used by the MediaDialog component.
      */
-    static createElements(selectedMedia) {
+    static createElements(selectedMedia, { document = window.document } = {}) {
         return selectedMedia.map((icon) => {
             const iconEl = document.createElement("span");
-            iconEl.classList.add(icon.fontBase, icon.names[0]);
+            // Material Symbols and Odoo UI icons: icon is identified by data-icon attribute
+            iconEl.classList.add("oi");
+            if (icon.filled) {
+                iconEl.classList.add("oi-filled");
+            }
+            iconEl.dataset.icon = icon.dataIcon;
             return iconEl;
         });
-    }
-    static initFonts() {
-        fonts.computeFonts();
-        const allFonts = fonts.fontIcons.map(({ cssData, base }) => {
-            const uniqueIcons = Array.from(
-                new Map(
-                    cssData.map((icon) => {
-                        const alias = icon.names.join(",");
-                        const id = `${base}_${alias}`;
-                        return [id, { ...icon, alias, id }];
-                    })
-                ).values()
-            );
-            return { base, icons: uniqueIcons };
-        });
-        return allFonts;
     }
 }

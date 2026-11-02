@@ -1,10 +1,10 @@
-import { mailModels } from "@mail/../tests/mail_test_helpers";
 import { animationFrame } from "@odoo/hoot-mock";
 import { registry } from "@web/core/registry";
 import { buildEditableInteractions } from "@website/core/website_edit_service";
 import { setupInteractionWhiteList } from "@web/../tests/public/helpers";
 import { Website } from "./mock_server/mock_models/website";
-import { WebsiteVisitor } from "./mock_server/mock_models/website_visitor";
+import { WebsitePage } from "./mock_server/mock_models/website_page";
+import { WebsiteTrack, WebsiteVisitor } from "./mock_server/mock_models/website_visitor";
 
 export async function switchToEditMode(core) {
     core.stopInteractions();
@@ -27,7 +27,8 @@ export async function switchToEditMode(core) {
 }
 
 export const websiteModels = {
-    ...mailModels,
     Website,
+    WebsitePage,
+    WebsiteTrack,
     WebsiteVisitor,
 };

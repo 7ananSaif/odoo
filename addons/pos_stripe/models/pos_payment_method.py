@@ -1,4 +1,3 @@
-# coding: utf-8
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 import werkzeug
 
@@ -6,12 +5,11 @@ from odoo import fields, models, api, _
 from odoo.exceptions import ValidationError, UserError, AccessError
 
 
-
 class PosPaymentMethod(models.Model):
     _inherit = 'pos.payment.method'
 
-    def _get_payment_terminal_selection(self):
-        return super()._get_payment_terminal_selection() + [('stripe', 'Stripe')]
+    def _get_terminal_provider_selection(self):
+        return super()._get_terminal_provider_selection() + [('stripe', 'Stripe')]
 
     # Stripe
     stripe_serial_number = fields.Char(help='[Serial number of the stripe terminal], for example: WSC513105011295', copy=False)
@@ -21,6 +19,9 @@ class PosPaymentMethod(models.Model):
         params = super()._load_pos_data_fields(config)
         params += ['stripe_serial_number']
         return params
+
+    def _allowed_actions_in_self_order(self):
+        return super()._allowed_actions_in_self_order() + ['stripe_connection_token', 'stripe_payment_intent', 'stripe_capture_payment']
 
     @api.constrains('stripe_serial_number')
     def _check_stripe_serial_number(self):
@@ -47,18 +48,20 @@ class PosPaymentMethod(models.Model):
 
     @api.model
     def stripe_connection_token(self):
-        if not self.env.user.has_group('point_of_sale.group_pos_user'):
-            raise AccessError(_("Do not have access to fetch token from Stripe"))
-        
+        self._stripe_check_access()
+
         return self.sudo()._get_stripe_payment_provider()._send_api_request('POST', 'terminal/connection_tokens')
 
     def _stripe_calculate_amount(self, amount):
         currency = self.journal_id.currency_id or self.company_id.currency_id
-        return round(amount/currency.rounding)
+        return round(amount / currency.rounding)
 
-    def stripe_payment_intent(self, amount):
+    def _stripe_check_access(self):
         if not self.env.user.has_group('point_of_sale.group_pos_user'):
             raise AccessError(_("Do not have access to fetch token from Stripe"))
+
+    def stripe_payment_intent(self, amount):
+        self._stripe_check_access()
 
         # For Terminal payments, the 'payment_method_types' parameter must include
         # at least 'card_present' and the 'capture_method' must be set to 'manual'.
@@ -81,8 +84,7 @@ class PosPaymentMethod(models.Model):
         return self.sudo()._get_stripe_payment_provider()._send_api_request('POST', 'payment_intents', data=params)
 
     def stripe_refund(self, payment_intent_id, amount):
-        if not self.env.user.has_group('point_of_sale.group_pos_user'):
-            raise AccessError(_("Do not have access to refund Stripe payment"))
+        self._stripe_check_access()
 
         id_type = "payment_intent" if payment_intent_id.startswith("pi") else "charge"
         params = [
@@ -104,8 +106,7 @@ class PosPaymentMethod(models.Model):
                        amount is captured. Specifying a larger amount allows
                        overcapturing to support tips.
         """
-        if not self.env.user.has_group('point_of_sale.group_pos_user'):
-            raise AccessError(_("Do not have access to fetch token from Stripe"))
+        self._stripe_check_access()
 
         endpoint = ('payment_intents/%s/capture') % (werkzeug.urls.url_quote(paymentIntentId))
 

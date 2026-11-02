@@ -1,46 +1,51 @@
-import { Component, useRef } from "@odoo/owl";
+import { Component, signal, t, useProps } from "@odoo/owl";
 import { Dropdown } from "@web/core/dropdown/dropdown";
 import { DropdownItem } from "@web/core/dropdown/dropdown_item";
 import { _t } from "@web/core/l10n/translation";
 import { usePopover } from "@web/core/popover/popover_hook";
 import { registry } from "@web/core/registry";
-import { utils } from "@web/core/ui/ui_service";
+import { utils } from "@web/core/ui/ui_utils";
 import { memoize } from "@web/core/utils/functions";
 import { useService } from "@web/core/utils/hooks";
+import { odoomark } from "@web/core/utils/html";
 import { useDebounced } from "@web/core/utils/timing";
 import { ColumnProgress } from "@web/views/view_components/column_progress";
 import { GroupConfigMenu } from "@web/views/view_components/group_config_menu";
+import { QuickCreateState } from "./kanban_record_quick_create";
 
 class KanbanHeaderTooltip extends Component {
     static template = "web.KanbanGroupTooltip";
-    static props = {
-        tooltip: Array,
-        close: Function,
-    };
+    props = useProps({
+        tooltip: t.array(),
+        close: t.function(),
+    });
 }
 
 export class KanbanHeader extends Component {
     static template = "web.KanbanHeader";
     static components = { ColumnProgress, Dropdown, DropdownItem, GroupConfigMenu };
-    static props = {
-        activeActions: { type: Object },
-        canQuickCreate: { type: Boolean },
-        deleteGroup: { type: Function },
-        dialogClose: { type: Array },
-        group: { type: Object },
-        list: { type: Object },
-        quickCreateState: { type: Object },
-        scrollTop: { type: Function },
-        tooltipInfo: { type: Object },
-        progressBarState: { type: true, optional: true },
-    };
+    props = useProps({
+        activeActions: t.object(),
+        canQuickCreate: t.boolean(),
+        deleteGroup: t.function(),
+        dialogClose: t.array(),
+        group: t.object(),
+        list: t.object(),
+        quickCreateState: t.instanceOf(QuickCreateState),
+        scrollTop: t.function(),
+        tooltipInfo: t.object(),
+        progressBarState: t.any().optional(),
+    });
+
+    rootRef = signal.ref();
 
     setup() {
         this.dialog = useService("dialog");
         this.orm = useService("orm");
-        this.rootRef = useRef("root");
+        this.uiService = useService("ui");
         this.popover = usePopover(KanbanHeaderTooltip);
-        this.onTitleMouseEnter = useDebounced(this.onTitleMouseEnter, 400);
+        this.onTitleMouseEnter = useDebounced(this.onTitleMouseEnter.bind(this), 400);
+        this.odoomark = odoomark;
     }
 
     async onTitleMouseEnter(ev) {
@@ -76,7 +81,7 @@ export class KanbanHeader extends Component {
                             o_kanban_toggle_fold: true,
                             disabled: this.props.list.model.useSampleModel,
                         }),
-                        icon: "fa-compress",
+                        icon: "close_fullscreen",
                     },
                 ],
                 ...registry.category("group_config_items").getEntries(),
@@ -126,8 +131,8 @@ export class KanbanHeader extends Component {
             .map((fieldName) => ({ title: tooltipInfo[fieldName], value: values[fieldName] }));
     });
 
-    quickCreate(group) {
-        this.props.quickCreateState.groupId = this.group.id;
+    async quickCreate() {
+        this.props.quickCreateState.openQuickCreate(this.group.id);
     }
 
     toggleGroup() {

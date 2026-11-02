@@ -1,7 +1,7 @@
+import { Component, t, useProps } from "@odoo/owl";
 import { Dropdown } from "@web/core/dropdown/dropdown";
 import { DropdownItem } from "@web/core/dropdown/dropdown_item";
-
-import { Component } from "@odoo/owl";
+import { useService } from "@web/core/utils/hooks";
 
 export class StatusBarButtons extends Component {
     static template = "web.StatusBarButtons";
@@ -9,9 +9,13 @@ export class StatusBarButtons extends Component {
         Dropdown,
         DropdownItem,
     };
-    static props = {
-        slots: { type: Object, optional: 1 },
-    };
+    props = useProps({
+        slots: t.object().optional(),
+    });
+
+    setup() {
+        this.uiService = useService("ui");
+    }
 
     get visibleSlotNames() {
         if (!this.props.slots) {

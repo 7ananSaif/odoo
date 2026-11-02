@@ -1,19 +1,16 @@
-import { BaseOptionComponent } from "@html_builder/core/utils";
-import { useState, onWillStart } from "@odoo/owl";
-import { _t } from "@web/core/l10n/translation";
+import { BaseOptionComponent } from "@html_builder/core/base_option_component";
+import { onWillStart, proxy } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
+import { registry } from "@web/core/registry";
 
-export class WebsiteCRMPartnersPage extends BaseOptionComponent {
+export class WebsiteCRMPartnersPageOption extends BaseOptionComponent {
+    static id = "website_crm_partners_page_option"
     static template = "website_crm_partner_assign.PartnersPageOption";
-    static selector = "main:has(#oe_structure_website_crm_partner_assign_layout_1):has(.o_wcrm_filters_top)";
-    static title = _t("Partners Page");
-    static groups = ["website.group_website_designer"];
-    static editableOnly = false;
 
     setup() {
         super.setup();
         this.googleMaps = useService("google_maps");
-        this.state = useState({
+        this.state = proxy({
             has_google_maps_api_key: false,
         });
 
@@ -22,3 +19,6 @@ export class WebsiteCRMPartnersPage extends BaseOptionComponent {
         });
     }
 }
+
+registry.category("website-options").add(WebsiteCRMPartnersPageOption.id, WebsiteCRMPartnersPageOption);
+

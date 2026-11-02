@@ -1,8 +1,8 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from . import test_db_manager
 from . import test_health
 from . import test_image
+from . import test_icons
 from . import test_ir_model
 from . import test_js
 from . import test_router
@@ -17,6 +17,7 @@ from . import test_assets
 from . import test_login
 from . import test_web_read
 from . import test_web_search_read
+from . import test_web_unlink
 from . import test_domain
 from . import test_translate
 from . import test_web_redirect

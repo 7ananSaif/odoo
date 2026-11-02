@@ -1,9 +1,10 @@
-import { Component, onMounted, onWillDestroy, useRef, useSubEnv } from "@odoo/owl";
-import { Editor } from "./editor";
-import { Toolbar } from "./main/toolbar/toolbar";
-import { useChildRef, useSpellCheck } from "@web/core/utils/hooks";
-import { LocalOverlayContainer } from "./local_overlay_container";
+import { Component, onMounted, onWillDestroy, signal, t, useProps } from "@odoo/owl";
 import { uniqueId } from "@web/core/utils/functions";
+import { useSpellCheck } from "@web/core/utils/hooks";
+import { render } from "@web/owl2/utils";
+import { useEditor } from "./editor";
+import { LocalOverlayContainer } from "./local_overlay_container";
+import { Toolbar } from "./main/toolbar/toolbar";
 
 /**
  * @typedef { import("./editor").EditorConfig } EditorConfig
@@ -22,43 +23,39 @@ function copyCssRules(sourceDoc, targetDoc) {
     }
 }
 
+export const wysiwygProps = {
+    config: t.object().optional(),
+    class: t.string().optional(),
+    contentClass: t.string().optional(), // on editable element
+    style: t.string().optional(),
+    iframe: t.boolean().optional(),
+    copyCss: t.boolean().optional(),
+    onLoad: t.function().optional(() => () => {}),
+    onBlur: t.function().optional(() => () => {}),
+    dynamicPlaceholder: t.boolean().optional(),
+};
+
 export class Wysiwyg extends Component {
     static template = "html_editor.Wysiwyg";
     static components = { Toolbar, LocalOverlayContainer };
-    static props = {
-        config: { type: Object, optional: true },
-        class: { type: String, optional: true },
-        contentClass: { type: String, optional: true }, // on editable element
-        style: { type: String, optional: true },
-        iframe: { type: Boolean, optional: true },
-        copyCss: { type: Boolean, optional: true },
-        onLoad: { type: Function, optional: true },
-        onBlur: { type: Function, optional: true },
-        dynamicPlaceholder: { type: Boolean, optional: true },
-    };
+    props = useProps(wysiwygProps);
 
-    static defaultProps = {
-        onLoad: () => {},
-        onBlur: () => {},
-    };
+    contentRef = signal.ref();
 
     setup() {
-        this.overlayRef = useChildRef();
-        useSubEnv({
-            localOverlayContainerKey: uniqueId("wysiwyg"),
-        });
-        const contentRef = useRef("content");
+        this.overlayRef = signal.ref();
+        this.localOverlayContainerKey = uniqueId("wysiwyg");
         this.editor = this.props.editor;
         const config = this.getEditorConfig();
-        this.editor = new Editor(config, this.env.services);
+        this.editor = useEditor(config);
         this.props.onLoad(this.editor);
         useSpellCheck({
-            refName: "content",
+            ref: this.contentRef,
         });
 
         onMounted(() => {
             /** @type { any } **/
-            const el = contentRef.el;
+            const el = this.contentRef();
 
             if (el.tagName === "IFRAME") {
                 // grab the inner body instead
@@ -85,7 +82,7 @@ export class Wysiwyg extends Component {
                         "load",
                         () => {
                             attachEditor();
-                            this.render();
+                            render(this);
                         },
                         { once: true }
                     );
@@ -101,7 +98,7 @@ export class Wysiwyg extends Component {
         return {
             ...this.props.config,
             localOverlayContainers: {
-                key: this.env.localOverlayContainerKey,
+                key: this.localOverlayContainerKey,
                 ref: this.overlayRef,
             },
         };

@@ -4,7 +4,7 @@
 <t t-name="website.FooterTemplateOption">
     <BuilderRow label.translate="Template">
         <BuilderSelect action="'websiteConfigFooter'">
-            <t t-foreach="footerTemplates" t-as="template" t-key="template.key">
+            <t t-foreach="this.footerTemplates" t-as="template" t-key="template.key">
                 <t t-component="template.Component" t-props="template.props"/>
             </t>
         </BuilderSelect>
@@ -12,8 +12,8 @@
 </t>
 
 <t t-name="website.FooterTemplateChoice">
-    <BuilderSelectItem title="props.title" actionParam="{ view: props.view, vars: { 'footer-template': props.varName } }">
-        <Img attrs="{ style: 'width: 100%;' }" src="props.imgSrc"/>
+    <BuilderSelectItem title="this.props.title" actionParam="{ view: this.props.view, vars: { 'footer-template': this.props.varName } }">
+        <Image attrs="{ style: 'width: 100%;' }" src="this.props.imgSrc"/>
     </BuilderSelectItem>
 </t>
 
@@ -21,13 +21,13 @@
     <BuilderRow label.translate="Content width">
         <BuilderButtonGroup action="'previewableWebsiteConfig'">
             <BuilderButton actionParam="{ views: ['website.footer_copyright_content_width_small'], previewClass: 'o_container_small'}">
-                <Img src="'/website/static/src/img/snippets_options/content_width_small.svg'"/>
+                <Image src="'/website/static/src/img/snippets_options/content_width_small.svg'"/>
             </BuilderButton>
             <BuilderButton actionParam="{ views: [], previewClass: 'container'}">
-                <Img src="'/website/static/src/img/snippets_options/content_width_normal.svg'"/>
+                <Image src="'/website/static/src/img/snippets_options/content_width_normal.svg'"/>
             </BuilderButton>
             <BuilderButton actionParam="{ views: ['website.footer_copyright_content_width_fluid'], previewClass: 'container-fluid'}">
-                <Img src="'/website/static/src/img/snippets_options/content_width_full.svg'"/>
+                <Image src="'/website/static/src/img/snippets_options/content_width_full.svg'"/>
             </BuilderButton>
         </BuilderButtonGroup>
     </BuilderRow>
@@ -72,6 +72,13 @@
     </BuilderRow>
 </t>
 
+<t t-name="website.ToggleFooterCookiePolicyLinkOption">
+    <BuilderRow label.translate="Cookie Policy Link">
+        <BuilderCheckbox action="'websiteConfig'" preview="false"
+                actionParam="{ views: ['website.footer_cookie_policy_link'], resetViewArch: true }"/>
+    </BuilderRow>
+</t>
+
 <t t-name="website.FooterBorder">
     <BorderConfigurator label.translate="Border"/>
     <ShadowOption/>
@@ -85,11 +92,62 @@
             varsOnClean: {'footer-scrolltop': 'false'}
         }"/>
         <BuilderSelect t-if="this.isActiveItem('footer_scrolltop_opt')" applyTo="'#o_footer_scrolltop_wrapper'">
-            <BuilderSelectItem classAction="'justify-content-start'">Left</BuilderSelectItem>
+            <BuilderSelectItem ltrRtlMapping="'left-right'" classAction="'justify-content-start'">Left</BuilderSelectItem>
             <BuilderSelectItem classAction="'justify-content-center'">Center</BuilderSelectItem>
-            <BuilderSelectItem classAction="'justify-content-end'">Right</BuilderSelectItem>
+            <BuilderSelectItem ltrRtlMapping="'left-right'" classAction="'justify-content-end'">Right</BuilderSelectItem>
         </BuilderSelect>
     </BuilderRow>
+</t>
+
+<t t-inherit="website.BuilderOptions" t-inherit-mode="extension">
+    <xpath expr="//t[@id='page_options_hook']" position="after">
+        <footer_template_option
+            selector="#wrapwrap > footer"
+            editableOnly="false"
+            groups='["website.group_website_designer"]'/>
+        <footer_colors_option
+            template="website.FooterColorsOption"
+            selector="#wrapwrap > footer"
+            editableOnly="false"
+            groups='["website.group_website_designer"]'/>
+        <footer_width_option
+            template="website.FooterWidthOption"
+            selector="#wrapwrap > footer"
+            applyTo=":is(:scope > #footer > section, .o_footer_copyright) > :is(.container, .container-fluid, .o_container_small)"
+            editableOnly="false"
+            groups='["website.group_website_designer"]'/>
+        <footer_slideout_option
+            template="website.FooterSlideoutOption"
+            selector="#wrapwrap > footer"
+            editableOnly="false"
+            groups='["website.group_website_designer"]'/>
+        <footer_scroll_to_top_option
+            template="website.FooterScrollToTopOption"
+            selector="#wrapwrap > footer"
+            editableOnly="false"
+            groups='["website.group_website_designer"]'/>
+        <toggle_footer_copyright_option
+            template="website.ToggleFooterCopyrightOption"
+            selector="#wrapwrap > footer"
+            editableOnly="false"
+            groups='["website.group_website_designer"]'/>
+        <toggle_footer_cookies_policy_link_option
+            template="website.ToggleFooterCookiePolicyLinkOption"
+            selector="#wrapwrap:has(#website_cookies_bar) > footer"
+            editableOnly="false"
+            groups='["website.group_website_designer"]'/>
+        <hide_footer_option
+            template="website.HideFooterOption"
+            selector="[data-main-object]:has(input.o_page_option_data[name='footer_visible']) #wrapwrap > footer"
+            editableOnly="false"
+            groups='["website.group_website_designer"]'/>
+        <footer_border_option
+            template="website.FooterBorder"
+            selector="#wrapwrap > footer"
+            applyTo="#footer"
+            editableOnly="false"
+            groups='["website.group_website_designer"]'/>
+    </xpath>
 </t>
 
 </templates>

@@ -31,14 +31,14 @@ export const DEFAULT_IMAGE_QUALITY = "92";
  *     svgAspectRatio: number,
  *     svgWidth: number,
  *   }>
- * )[]} process_image_warmup_handlers
+ * )[]} on_will_process_image_handlers
  * @typedef {(
  *   (
  *     url: string,
  *     newDataset: object,
  *     processContext: { svg: SVGElement, svgAspectRatio: number, svgWidth: number }
  *   ) => Promise<[newUrl: string, handlerDataset: object]>
- * )[]} process_image_post_handlers
+ * )[]} on_image_processed_handlers
  * @typedef {((args: {imageEl: HTMLElement}) => void)[]} on_image_updated_handlers
  */
 
@@ -53,22 +53,15 @@ export class ImagePostProcessPlugin extends Plugin {
      *
      * @param {HTMLImageElement} img the image to which modifications are applied
      * @param {Object} newDataset an object containing the modifications to apply
-     * @param {Function} [onImageInfoLoaded] can be used to fill
-     * newDataset after having access to image info, return true to cancel call
      * @returns {{ url: string, newDataset: object }} Object containing the image
      * URL and the updated dataset.
      */
-    async _processImage({ img, newDataset = {}, onImageInfoLoaded }) {
+    async _processImage({ img, newDataset = {} }) {
         const processContext = {};
         if (!newDataset.originalSrc || !newDataset.mimetypeBeforeConversion) {
             Object.assign(newDataset, await loadImageInfo(img));
         }
-        if (onImageInfoLoaded) {
-            if (await onImageInfoLoaded(newDataset)) {
-                return;
-            }
-        }
-        for (const cb of this.getResource("process_image_warmup_handlers")) {
+        for (const cb of this.getResource("on_will_process_image_handlers")) {
             const addedContext = await cb(img, newDataset);
             if (addedContext) {
                 if (addedContext.newDataset) {
@@ -267,7 +260,7 @@ export class ImagePostProcessPlugin extends Plugin {
         return getDataURLBinarySize(processed.url);
     }
     async postProcessImage(url, newDataset, processContext) {
-        for (const cb of this.getResource("process_image_post_handlers")) {
+        for (const cb of this.getResource("on_image_processed_handlers")) {
             const [newUrl, handlerDataset] = (await cb(url, newDataset, processContext)) || [];
             url = newUrl || url;
             newDataset = handlerDataset || newDataset;
@@ -278,6 +271,7 @@ export class ImagePostProcessPlugin extends Plugin {
         el.classList.add("o_modified_image_to_save");
         if (el.tagName === "IMG") {
             el.setAttribute("src", url);
+            el.removeAttribute("srcset");
         } else {
             this.dependencies.style.setBackgroundImageUrl(el, url);
         }
@@ -289,7 +283,7 @@ export class ImagePostProcessPlugin extends Plugin {
                 delete el.dataset[key];
             }
         }
-        this.dispatchTo("on_image_updated_handlers", { imageEl: el });
+        this.trigger("on_image_updated_handlers", { imageEl: el });
     }
 }
 

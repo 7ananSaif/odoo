@@ -9,6 +9,7 @@ from odoo.tests import tagged
 @tagged('post_install_l10n', 'post_install', '-at_install')
 class TestL10nHKEmvQrCode(AccountTestInvoicingCommon):
     """ Test the generation of the EMV QR Code on invoices """
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setup_armageddon_tax(cls, tax_name, company_data):
@@ -23,7 +24,7 @@ class TestL10nHKEmvQrCode(AccountTestInvoicingCommon):
         cls.company_data['company'].partner_id.city = 'HK'
 
         cls.acc_emv_hk = cls.env['res.partner.bank'].create({
-            'acc_number': '123456789012345678',
+            'account_number': '123456789012345678',
             'partner_id': cls.company_data['company'].partner_id.id,
             'proxy_type': 'mobile',
             'proxy_value': '+852-67891234',
@@ -31,7 +32,7 @@ class TestL10nHKEmvQrCode(AccountTestInvoicingCommon):
         })
 
         cls.acc_emv_hk_without_fps_info = cls.env['res.partner.bank'].create({
-            'acc_number': '1234567890',
+            'account_number': '1234567890',
             'partner_id': cls.company_data['company'].partner_id.id,
         })
 

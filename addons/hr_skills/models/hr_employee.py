@@ -9,6 +9,7 @@ from odoo import api, fields, models
 from odoo.exceptions import AccessError
 from odoo.fields import Domain
 from odoo.tools import convert
+from odoo.addons.mail.tools.discuss import Store
 
 
 class HrEmployee(models.Model):
@@ -85,7 +86,7 @@ class HrEmployee(models.Model):
                     [
                         Domain("user_id", "!=", False),
                         Domain("parent_id.user_id", "!=", False),
-                        Domain("job_id.user_id", "!=", False),
+                        Domain("job_id.recruiter_id.user_id", "!=", False),
                     ],
                 ),
             ],
@@ -119,7 +120,7 @@ class HrEmployee(models.Model):
 
         for employee in employees:
             job_id = employee.job_id
-            responsible = employee.user_id or employee.parent_id.user_id or job_id.user_id
+            responsible = employee.user_id or employee.parent_id.user_id or job_id.recruiter_id.user_id
             if job_id not in job_skill_level_mapping or not responsible:
                 continue
 
@@ -132,8 +133,8 @@ class HrEmployee(models.Model):
                     continue
 
                 activity = employee.activity_schedule(
-                    act_type_xmlid="hr_skills.mail_activity_data_upload_certification",
-                    summary=summary,
+                    act_type_xmlid="mail.mail_activity_data_upload_document",
+                    summary=summary or self.env._("Upload a document for a missing certification"),
                     note="Certification missing or expiring soon",
                     date_deadline=valid_to_date or today,
                     user_id=responsible.id,
@@ -207,3 +208,12 @@ class HrEmployee(models.Model):
                 'date_end': current_date_start + relativedelta(days=-1),
             })
         return res[::-1]
+
+    def _store_avatar_card_fields(self, res: Store.FieldList):
+        super()._store_avatar_card_fields(res)
+        res.many("employee_skill_ids", ["color", "display_name"])
+
+    @api.model
+    def load_demo_data(self):
+        super().load_demo_data()
+        convert.convert_file(env=self.env, module='hr_skills', filename='data/scenarios/hr_skills_scenario.xml', idref=None, mode='init')

@@ -49,7 +49,7 @@
                                 <field name="can_write" invisible="1"/>
                                 <field name="body_html" widget="html_mail" class="oe-bordered-editor"
                                     placeholder="Write your message here..."
-                                    options="{'codeview': true, 'dynamic_placeholder': true, 'allowCommandVideo': false}"
+                                    options="{'codeview': true, 'dynamic_placeholder': true, 'allowVideo': false}"
                                     readonly="not can_write and id"/>
                                 <div invisible="not can_write" class="fst-italic text-muted">Tip: Write /field to insert dynamic content!</div>
                             </page>
@@ -57,15 +57,17 @@
                                 <group col="2">
                                     <group>
                                         <separator string="Sender &amp; Recipients"/>
-                                        <field name="email_from" placeholder="Sender's email"/>
+                                        <field name="email_from" placeholder="Sender's email" options="{'dynamic_placeholder': true}"/>
                                         <field name="use_default_to"/>
-                                        <field name="email_to" invisible="use_default_to"
+                                        <field name="email_to" invisible="use_default_to" options="{'dynamic_placeholder': true}"
                                                 placeholder="Comma-separated recipient addresses"/>
-                                        <field name="partner_to" invisible="use_default_to"
-                                                placeholder="Comma-separated ids of recipient partners"/>
-                                        <field name="email_cc" invisible="use_default_to"
+                                        <field name="partner_to" invisible="use_default_to" options="{'dynamic_placeholder': true}"
+                                                placeholder="Comma-separated ids of To recipient partners"/>
+                                        <field name="email_cc" invisible="use_default_to" options="{'dynamic_placeholder': true}"
                                                 placeholder="Comma-separated carbon copy of recipients addresses"/>
-                                        <field name="reply_to" placeholder="Capture replies in the chatter"/>
+                                        <field name="partner_cc" invisible="use_default_to" options="{'dynamic_placeholder': true}"
+                                                placeholder="Comma-separated ids of Cc recipient partners"/>
+                                        <field name="reply_to" placeholder="Chatter of the record"/>
                                     </group>
                                     <group>
                                         <separator string="Technical"/>
@@ -73,7 +75,7 @@
                                         <field name="has_mail_server" invisible="1"/>
                                         <field name="mail_server_id" invisible="not has_mail_server" placeholder="By order of server priority"/>
                                         <field name="auto_delete"/>
-                                        <field name="scheduled_date" string="Scheduled Send Date" placeholder="Send Instantly" options="{'dynamic_placeholder': true}"/>
+                                        <field name="scheduled_date" string="Send Date" placeholder="Send Instantly" options="{'dynamic_placeholder': true}"/>
                                     </group>
                                 </group>
                             </page>
@@ -117,6 +119,7 @@
                     <field name="email_from" optional="hidden"/>
                     <field name="email_to" optional="hidden"/>
                     <field name="partner_to" optional="hidden"/>
+                    <field name="partner_cc" optional="hidden"/>
                 </list>
             </field>
         </record>

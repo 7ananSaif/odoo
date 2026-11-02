@@ -8,11 +8,11 @@ class UomUom(models.Model):
     is_pos_groupable = fields.Boolean(string='Group Products in POS', help="Check if you want to group products of this unit in point of sale orders")
 
     @api.model
-    def _load_pos_data_search_read(self, data, config):
-        return super(UomUom, self.with_context(active_test=False))._load_pos_data_search_read(data, config)
+    def _load_pos_metadata(self, data, search_params={}):
+        return super(UomUom, self.with_context(active_test=False))._load_pos_metadata(data, search_params)
 
     @api.model
     def _load_pos_data_fields(self, config):
         taxes = self.env['account.tax'].search(self.env['account.tax']._check_company_domain(config.company_id.id))
         product_uom_fields = taxes._eval_taxes_computation_prepare_product_uom_fields()
-        return list(product_uom_fields.union({'id', 'name', 'factor', 'is_pos_groupable', 'parent_path', 'rounding'}))
+        return list(product_uom_fields.union({'id', 'name', 'factor', 'is_pos_groupable', 'parent_path'}))

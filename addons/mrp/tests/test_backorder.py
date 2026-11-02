@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 from datetime import datetime, timedelta
 
@@ -9,6 +8,17 @@ from odoo.tests.common import TransactionCase, freeze_time
 
 
 class TestMrpProductionBackorder(TestMrpCommon):
+
+    _test_user_groups = (
+        'product.group_product_manager',  # FIXME: use base.group_user
+        'mrp.group_mrp_manager',
+        'mrp.group_mrp_routings',  # view visibility (duration/workorder fields) granted to cls.env.user in Common
+        'mrp.group_mrp_byproducts',  # view visibility (byproducts) granted to mrp users in Common
+        'stock.group_stock_manager',  # setup: warehouse/route/rule/orderpoint/location/picking_type config in test bodies
+        'uom.group_uom',  # view visibility (uom_id) granted to cls.env.user in Common
+    )
+
+    _test_user_name = 'Test Product Manager'
 
     @classmethod
     def setUpClass(cls):
@@ -296,14 +306,13 @@ class TestMrpProductionBackorder(TestMrpCommon):
         mo_form.bom_id = self.env['mrp.bom'].create({
             'product_id': product_finished.id,
             'product_tmpl_id': product_finished.product_tmpl_id.id,
-            'product_uom_id': self.uom_unit.id,
+            'uom_id': self.uom_unit.id,
             'product_qty': 1.0,
             'type': 'normal',
-            'consumption': 'flexible',
             'bom_line_ids': [Command.create({
                 'product_id': product_component.id,
                 'product_qty': 1,
-                'product_uom_id': self.uom_gm.id,
+                'uom_id': self.uom_gm.id,
             })],
         })
         mo_form.product_qty = 1000
@@ -342,9 +351,11 @@ class TestMrpProductionBackorder(TestMrpCommon):
 
         details_operation_form.save()
 
-        action = production.button_mark_done()
-        backorder_form = Form(self.env['mrp.production.backorder'].with_context(**action['context']))
-        backorder_form.save().action_backorder()
+        warning = Form.from_action(self.env, production.button_mark_done()).save()
+        Form.from_action(self.env, warning.action_confirm()).save().action_backorder()
+        self.assertRecordValues(warning.mrp_consumption_warning_line_ids, [
+            {'product_consumed_qty_uom': 3.09, 'product_expected_qty_uom': 3.1},
+        ])
         backorder = production.production_group_id.production_ids[-1]
         # 3.09 consumed and 1.9 reserved
         self.assertAlmostEqual(self.env['stock.quant']._gather(p1, self.stock_location).reserved_quantity, 1.9)
@@ -392,11 +403,15 @@ class TestMrpProductionBackorder(TestMrpCommon):
                 ml.quantity = 1
                 ml.lot_id = serials_p2[i]
             details_operation_form.save()
-            active_production.button_mark_done()
+            action = active_production.button_mark_done()
             if i + 1 != nb_product_todo:  # If last MO, don't make a backorder
-                action = active_production.button_mark_done()
-                backorder = Form(self.env['mrp.production.backorder'].with_context(**action['context']))
-                backorder.save().action_backorder()
+                warning = Form(self.env['mrp.consumption.warning'].with_context(**action['context'])).save()
+                self.assertRecordValues(warning.mrp_consumption_warning_line_ids, [
+                    {'product_consumed_qty_uom': nb_product_todo - i, 'product_expected_qty_uom': 1},
+                    {'product_consumed_qty_uom': nb_product_todo - i, 'product_expected_qty_uom': 1},
+                ])
+                action = warning.action_confirm()
+                Form(self.env['mrp.production.backorder'].with_context(**action['context'])).save().action_backorder()
             active_production = active_production.production_group_id.production_ids[-1]
 
         self.assertEqual(self.env['stock.quant']._get_available_quantity(p_final, self.stock_location), nb_product_todo, f'You should have the {nb_product_todo} final product in stock')
@@ -533,7 +548,7 @@ class TestMrpProductionBackorder(TestMrpCommon):
 
     def test_split_merge(self):
         # Change 'Units' rounding to 1 (integer only quantities)
-        self.env['decimal.precision'].search([('name', '=', 'Product Unit')]).digits = 0
+        self.env['decimal.precision'].sudo().search([('name', '=', 'Product Unit')]).digits = 0
         # Create a mo for 10 products
         mo, _, _, p1, p2 = self.generate_mo(qty_final=10)
         # Split in 3 parts
@@ -559,12 +574,12 @@ class TestMrpProductionBackorder(TestMrpCommon):
         self.assertEqual(mo3.move_raw_ids.filtered(lambda m: m.product_id == p2).product_qty, 2)
 
         location = self.env['stock.location'].search([], limit=1)
-        mo.production_group_id.production_ids.location_final_id = location
+        mo.production_group_id.production_ids.forecasted_location_id = location
         # Merge them back
         expected_origin = ",".join([mo1.name, mo2.name, mo3.name])
         action = (mo1 + mo2 + mo3).action_merge()
         mo = self.env[action['res_model']].browse(action['res_id'])
-        self.assertEqual(mo.location_final_id, location)
+        self.assertEqual(mo.forecasted_location_id, location)
         # Check origin & initial quantity
         self.assertEqual(mo.origin, expected_origin)
         self.assertEqual(mo.product_qty, 10)
@@ -620,6 +635,7 @@ class TestMrpProductionBackorder(TestMrpCommon):
             mo_form = Form(mo)
             mo_form.qty_producing = 1
             mo = mo_form.save()
+            mo.action_start()
             action = mo.button_mark_done()
             backorder = Form(self.env['mrp.production.backorder'].with_context(**action['context']))
             backorder.save().action_backorder()
@@ -664,7 +680,8 @@ class TestMrpProductionBackorder(TestMrpCommon):
         self.assertEqual(production.reserve_visible, True)
         backorder = produce_one(production)
         self.assertEqual(backorder.state, 'confirmed')
-        self.assertEqual(backorder.reserve_visible, True)
+        # The backorder is re reserved as the date_start is now 'now'
+        self.assertEqual(backorder.reserve_visible, False)
 
         # within scheduled date + reservation days before => auto-assign
         production = create_mo()
@@ -790,9 +807,12 @@ class TestMrpProductionBackorder(TestMrpCommon):
         - Ask (backorder=yes) + Never => only the ask is backordered
         - Always + Ask (backorder=no) => only the always is backordered
         - Ask (backorder=no) + Never => neither is backordered
-        In every case, we also include a MO Produce All (i.e. `qty_producing` untouched, so all produced)
+        In every case, we also include an MO 'Close Production' (i.e. `qty_producing` untouched, so all produced)
         and a fully produced (i.e. `qty_producing`=`product_qty`) to ensure they are always correctly passed
         as MOs that are done, but not backordered (i.e. their priority should be removed when done)
+
+        The consumption warning wizard will treat MOs create_backorder='never' picking types specially, treating
+        'Produce' as 'Close Production'. (ie checking `product_qty` instead of `qty_producing`)
         """
         product_qty = 10.0  # for MOs with no backorder, qty_produced = product_qty
         qty_produced = 3.0  # for MOs where qty_produced < product_qty
@@ -804,9 +824,10 @@ class TestMrpProductionBackorder(TestMrpCommon):
             'priority': '1',
             'picking_type_id': picking_type_id or self.picking_type_manu.id,
         })
-        picking_type_always = self.picking_type_manu.copy({'name': "Always BO", 'sequence_code': "always", 'create_backorder': "always"})
-        picking_type_ask = self.picking_type_manu.copy({'name': "Ask BO", 'sequence_code': "ask", 'create_backorder': "ask"})
-        picking_type_never = self.picking_type_manu.copy({'name': "Never BO", 'sequence_code': "never", 'create_backorder': "never"})
+        # setup: copying a picking type writes ir.sequence via the sequence_code related inverse
+        picking_type_always = self.picking_type_manu.sudo().copy({'name': "Always BO", 'sequence_code': "always", 'create_backorder': "always"})
+        picking_type_ask = self.picking_type_manu.sudo().copy({'name': "Ask BO", 'sequence_code': "ask", 'create_backorder': "ask"})
+        picking_type_never = self.picking_type_manu.sudo().copy({'name': "Never BO", 'sequence_code': "never", 'create_backorder': "never"})
 
         # always + ask (backorder=yes) => both are backordered in the end
         mo_produce_all = create_mo()
@@ -825,11 +846,13 @@ class TestMrpProductionBackorder(TestMrpCommon):
         with Form(mo_ask) as mo_form:
             mo_form.qty_producing = qty_produced
         mo_form.save()
-
         self.assertTrue(all(p == '1' for p in mos.mapped("priority")))
-        action = mos.button_mark_done()
-        backorder = Form(self.env['mrp.production.backorder'].with_context(**action['context']))
-        backorder.save().action_backorder()
+
+        warning = Form.from_action(self.env, mos.button_mark_done()).save()
+        Form.from_action(self.env, warning.action_confirm()).save().action_backorder()
+        self.assertRecordValues(warning.mrp_consumption_warning_line_ids, [
+            {'product_consumed_qty_uom': 0, 'product_expected_qty_uom': 5, 'mrp_production_id': mo_all_produced.id},
+        ])
         self.assertRecordValues(mo_produce_all, [{'state': 'done', 'qty_produced': product_qty, 'mrp_production_backorder_count': 1, 'priority': '0'}])
         self.assertRecordValues(mo_all_produced, [{'state': 'done', 'qty_produced': product_qty, 'mrp_production_backorder_count': 1, 'priority': '0'}])
         self.assertRecordValues(mo_always, [{'state': 'done', 'qty_produced': qty_produced, 'mrp_production_backorder_count': 2, 'priority': '0'}])
@@ -856,9 +879,16 @@ class TestMrpProductionBackorder(TestMrpCommon):
         with Form(mo_never) as mo_form:
             mo_form.qty_producing = qty_produced
         mo_form.save()
-
         self.assertTrue(all(p == '1' for p in mos.mapped("priority")))
-        action = mos.button_mark_done()
+
+        warning = Form.from_action(self.env, mos.button_mark_done()).save()
+        action = warning.action_confirm()
+        self.assertNotEqual(action['res_model'], 'mrp.production.backorder')
+        self.assertRecordValues(warning.mrp_consumption_warning_line_ids, [
+            {'product_consumed_qty_uom': 0,   'product_expected_qty_uom':  5, 'mrp_production_id': mo_all_produced.id},
+            {'product_consumed_qty_uom': 1.5, 'product_expected_qty_uom':  5, 'mrp_production_id': mo_never.id},
+            {'product_consumed_qty_uom': 3,   'product_expected_qty_uom': 10, 'mrp_production_id': mo_never.id},
+        ])
         self.assertRecordValues(mo_produce_all, [{'state': 'done', 'qty_produced': product_qty, 'mrp_production_backorder_count': 1, 'priority': '0'}])
         self.assertRecordValues(mo_all_produced, [{'state': 'done', 'qty_produced': product_qty, 'mrp_production_backorder_count': 1, 'priority': '0'}])
         self.assertRecordValues(mo_always, [{'state': 'done', 'qty_produced': qty_produced, 'mrp_production_backorder_count': 2, 'priority': '0'}])
@@ -883,11 +913,15 @@ class TestMrpProductionBackorder(TestMrpCommon):
         with Form(mo_never) as mo_form:
             mo_form.qty_producing = qty_produced
         mo_never = mo_form.save()
-
         self.assertTrue(all(p == '1' for p in mos.mapped("priority")))
-        action = mos.button_mark_done()
-        backorder = Form(self.env['mrp.production.backorder'].with_context(**action['context']))
-        backorder.save().action_backorder()
+
+        warning = Form.from_action(self.env, mos.button_mark_done()).save()
+        Form.from_action(self.env, warning.action_confirm()).save().action_backorder()
+        self.assertRecordValues(warning.mrp_consumption_warning_line_ids, [
+            {'product_consumed_qty_uom': 0,   'product_expected_qty_uom':  5, 'mrp_production_id': mo_all_produced.id},
+            {'product_consumed_qty_uom': 1.5, 'product_expected_qty_uom':  5, 'mrp_production_id': mo_never.id},
+            {'product_consumed_qty_uom': 3,   'product_expected_qty_uom': 10, 'mrp_production_id': mo_never.id},
+        ])
         self.assertRecordValues(mo_produce_all, [{'state': 'done', 'qty_produced': product_qty, 'mrp_production_backorder_count': 1, 'priority': '0'}])
         self.assertRecordValues(mo_all_produced, [{'state': 'done', 'qty_produced': product_qty, 'mrp_production_backorder_count': 1, 'priority': '0'}])
         self.assertRecordValues(mo_ask, [{'state': 'done', 'qty_produced': qty_produced, 'mrp_production_backorder_count': 2, 'priority': '0'}])
@@ -912,11 +946,16 @@ class TestMrpProductionBackorder(TestMrpCommon):
         with Form(mo_ask) as mo_form:
             mo_form.qty_producing = qty_produced
         mo_form.save()
-
         self.assertTrue(all(p == '1' for p in mos.mapped("priority")))
-        action = mos.button_mark_done()
-        backorder = Form(self.env['mrp.production.backorder'].with_context(**action['context']))
-        backorder.save().action_close_mo()
+
+        partial_production_warning = Form.from_action(self.env, mos.button_mark_done()).save()
+        backorder = Form.from_action(self.env, partial_production_warning.action_confirm()).save()
+        self.assertRecordValues(partial_production_warning.mrp_consumption_warning_line_ids, [
+            {'product_consumed_qty_uom': 0, 'product_expected_qty_uom': 5, 'mrp_production_id': mo_all_produced.id},
+        ])
+        close_production_warning = Form.from_action(self.env, backorder.action_close_mo()).save()
+        close_production_warning.action_confirm()
+
         self.assertRecordValues(mo_produce_all, [{'state': 'done', 'qty_produced': product_qty, 'mrp_production_backorder_count': 1, 'priority': '0'}])
         self.assertRecordValues(mo_all_produced, [{'state': 'done', 'qty_produced': product_qty, 'mrp_production_backorder_count': 1, 'priority': '0'}])
         self.assertRecordValues(mo_always, [{'state': 'done', 'qty_produced': qty_produced, 'mrp_production_backorder_count': 2, 'priority': '0'}])
@@ -941,11 +980,18 @@ class TestMrpProductionBackorder(TestMrpCommon):
         with Form(mo_never) as mo_form:
             mo_form.qty_producing = qty_produced
         mo_form.save()
-
         self.assertTrue(all(p == '1' for p in mos.mapped("priority")))
-        action = mos.button_mark_done()
-        backorder = Form(self.env['mrp.production.backorder'].with_context(**action['context']))
-        backorder.save().action_close_mo()
+
+        partial_production_warning = Form.from_action(self.env, mos.button_mark_done()).save()
+        backorder = Form.from_action(self.env, partial_production_warning.action_confirm()).save()
+        self.assertRecordValues(partial_production_warning.mrp_consumption_warning_line_ids, [
+            {'product_consumed_qty_uom': 0,   'product_expected_qty_uom':  5, 'mrp_production_id': mo_all_produced.id},
+            {'product_consumed_qty_uom': 1.5, 'product_expected_qty_uom':  5, 'mrp_production_id': mo_never.id},
+            {'product_consumed_qty_uom': 3,   'product_expected_qty_uom': 10, 'mrp_production_id': mo_never.id},
+        ])
+        close_production_warning = Form.from_action(self.env, backorder.action_close_mo()).save()
+        close_production_warning.action_confirm()
+
         self.assertRecordValues(mo_produce_all, [{'state': 'done', 'qty_produced': product_qty, 'mrp_production_backorder_count': 1, 'priority': '0'}])
         self.assertRecordValues(mo_all_produced, [{'state': 'done', 'qty_produced': product_qty, 'mrp_production_backorder_count': 1, 'priority': '0'}])
         self.assertRecordValues(mo_ask, [{'state': 'done', 'qty_produced': qty_produced, 'mrp_production_backorder_count': 1, 'priority': '0'}])
@@ -992,15 +1038,12 @@ class TestMrpProductionBackorder(TestMrpCommon):
         bom = self.env['mrp.bom'].create({
             'product_id': final_product.id,
             'product_tmpl_id': final_product.product_tmpl_id.id,
-            'product_uom_id': self.uom_unit.id,
+            'uom_id': self.uom_unit.id,
             'product_qty': 1.0,
             'type': 'normal',
-            'consumption': 'flexible',
             'bom_line_ids': [Command.create({'product_id': component.id, 'product_qty': 2.0})],
         })
-        lot = self.env['stock.lot'].create({'name': 'LOT001', 'product_id': component.id})
-        self.env['stock.quant']._update_available_quantity(component, self.stock_location, 10.0, lot_id=lot)
-
+        lots = self.env['stock.lot'].create([{'name': f'LOT00{i + 1}', 'product_id': component.id} for i in range(2)])
         mo = self.env['mrp.production'].create({
             'product_id': final_product.id,
             'bom_id': bom.id,
@@ -1012,6 +1055,7 @@ class TestMrpProductionBackorder(TestMrpCommon):
         # Reserve and partially validate the PBM picking
         pbm_picking = mo.picking_ids
         pbm_picking.move_ids.quantity = 6.0
+        pbm_picking.move_ids.move_line_ids.lot_id = lots[0]
         Form.from_action(self.env, pbm_picking.button_validate()).save().process()
 
         # Produce 1 unit (consumes 2 components), then create a backorder
@@ -1024,18 +1068,51 @@ class TestMrpProductionBackorder(TestMrpCommon):
         with Form(backorder) as backorder_form:
             backorder_form.qty_producing = 3
         self.assertEqual(backorder.move_raw_ids.quantity, 4.0)
-        backorder.picking_ids[-1].button_validate()
+        pbm_picking_bo = backorder.picking_ids[-1]
+        pbm_picking_bo.move_ids.quantity = 4.0
+        pbm_picking_bo.move_ids.move_line_ids.lot_id = lots[1]
+        pbm_picking_bo.button_validate()
         with Form(backorder) as backorder_form:
             backorder_form.qty_producing = 4
         self.assertEqual(backorder.move_raw_ids.quantity, 8.0)
         mo.button_mark_done()
         self.assertEqual(backorder.move_raw_ids.quantity, 8.0)
 
+    def test_backorder_workorder_name_not_suffixed(self):
+        """
+        A backorder's workorders should keep the exact same name as the
+        original ones: the generic "(copy)" suffix applied by default to
+        'name' fields on copy should not apply to workorders.
+        """
+        self.bom_1.write({
+            'operation_ids': [
+                Command.create({'name': 'Cutting Machine', 'workcenter_id': self.workcenter_1.id, 'sequence': 1}),
+                Command.create({'name': 'Weld Machine', 'workcenter_id': self.workcenter_1.id, 'sequence': 2}),
+            ],
+        })
+        mo_form = Form(self.env['mrp.production'])
+        mo_form.bom_id = self.bom_1
+        mo_form.product_qty = 4
+        mo = mo_form.save()
+        mo.picking_type_id.create_backorder = 'ask'
+        mo.action_confirm()
+        original_names = mo.workorder_ids.mapped('name')
+        self.assertEqual(original_names, ['Cutting Machine', 'Weld Machine'])
+
+        with Form(mo) as mo_form:
+            mo_form.qty_producing = 2
+        action = mo.button_mark_done()
+        backorder = Form(self.env['mrp.production.backorder'].with_context(**action['context']))
+        backorder.save().action_backorder()
+
+        bo = mo.production_group_id.production_ids - mo
+        self.assertEqual(bo.workorder_ids.mapped('name'), original_names)
+
 
 class TestMrpWorkorderBackorder(TransactionCase):
     @classmethod
     def setUpClass(cls):
-        super(TestMrpWorkorderBackorder, cls).setUpClass()
+        super().setUpClass()
         cls.uom_unit = cls.env.ref('uom.product_uom_unit')
         cls.finished1 = cls.env['product.product'].create({
             'name': 'finished1',
@@ -1062,10 +1139,10 @@ class TestMrpWorkorderBackorder(TransactionCase):
         cls.bom_finished1 = cls.env['mrp.bom'].create({
             'product_id': cls.finished1.id,
             'product_tmpl_id': cls.finished1.product_tmpl_id.id,
-            'product_uom_id': cls.uom_unit.id,
+            'uom_id': cls.uom_unit.id,
             'product_qty': 1,
-            'consumption': 'flexible',
             'type': 'normal',
+            'continuous': True,
             'bom_line_ids': [
                 Command.create({'product_id': cls.compfinished1.id, 'product_qty': 1}),
                 Command.create({'product_id': cls.compfinished2.id, 'product_qty': 1}),
@@ -1075,8 +1152,6 @@ class TestMrpWorkorderBackorder(TransactionCase):
                 Command.create({'sequence': 2, 'name': 'finished operation 2', 'workcenter_id': cls.workcenter2.id}),
             ],
         })
-        cls.bom_finished1.bom_line_ids[0].operation_id = cls.bom_finished1.operation_ids[0].id
-        cls.bom_finished1.bom_line_ids[1].operation_id = cls.bom_finished1.operation_ids[1].id
 
     @freeze_time('2025-10-27 12:00:00')
     def test_mrp_backorder_operations(self):
@@ -1093,6 +1168,7 @@ class TestMrpWorkorderBackorder(TransactionCase):
         mo_form.bom_id = self.bom_finished1
         mo_form.product_qty = 10
         mo = mo_form.save()
+        mo.picking_type_id.create_backorder = 'ask'
         mo.action_confirm()
         op_1, op_2 = mo.workorder_ids
         with Form(mo) as fmo:
@@ -1132,8 +1208,8 @@ class TestMrpWorkorderBackorder(TransactionCase):
         op_6.button_finish()
         bo_2.button_mark_done()
         self.assertRecordValues(bo_2.workorder_ids, [
-            {'state': 'cancel', 'qty_remaining': 0.0, 'duration': 0.0},
-            {'state': 'done', 'qty_remaining': 0.0, 'duration': 240.0}
+            {'state': 'done', 'qty_remaining': 0.0, 'duration': 240.0},
+            {'state': 'cancel', 'qty_remaining': 0.0, 'duration': 0.0}
         ])
 
     def test_kit_bom_order_splitting(self):

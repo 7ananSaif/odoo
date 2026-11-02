@@ -1,112 +1,142 @@
+import { useSubEnv } from "@web/owl2/utils";
 import { ActionList } from "@mail/core/common/action_list";
 import { Composer } from "@mail/core/common/composer";
-import { ImStatus } from "@mail/core/common/im_status";
+import { DiscussAvatar } from "@mail/core/common/discuss_avatar";
 import { Thread } from "@mail/core/common/thread";
 import { AutoresizeInput } from "@mail/core/common/autoresize_input";
 import { CountryFlag } from "@mail/core/common/country_flag";
+import { RenameThreadPlugin } from "@mail/core/common/rename_thread_plugin";
 import { useThreadActions } from "@mail/core/common/thread_actions";
-import { ThreadIcon } from "@mail/core/common/thread_icon";
 import { useHover, useMessageScrolling } from "@mail/utils/common/hooks";
 import { isEventHandled } from "@web/core/utils/misc";
 
-import { Component, toRaw, useChildSubEnv, useRef, useState, useSubEnv } from "@odoo/owl";
+import {
+    Component,
+    computed,
+    providePlugins,
+    proxy,
+    signal,
+    t,
+    useProps,
+    usePlugin,
+} from "@odoo/owl";
 
 import { Dropdown } from "@web/core/dropdown/dropdown";
 import { localization } from "@web/core/l10n/localization";
 import { _t } from "@web/core/l10n/translation";
-import { useService } from "@web/core/utils/hooks";
+import { useBackButton, useService } from "@web/core/utils/hooks";
 import { Typing } from "@mail/discuss/typing/common/typing";
-import { getActiveHotkey } from "@web/core/hotkeys/hotkey_service";
+import { getActiveHotkey } from "@web/core/hotkeys/hotkey_utils";
 import { isMobileOS } from "@web/core/browser/feature_detection";
 
-/**
- * @typedef {Object} Props
- * @property {import("models").ChatWindow} chatWindow
- * @property {boolean} [right]
- * @extends {Component<Props, Env>}
- */
 export class ChatWindow extends Component {
     static components = {
         ActionList,
         CountryFlag,
+        DiscussAvatar,
         Dropdown,
         Thread,
         Composer,
-        ThreadIcon,
-        ImStatus,
         AutoresizeInput,
         Typing,
     };
-    static props = ["chatWindow", "right?"];
     static template = "mail.ChatWindow";
 
+    actionsMenuButtonRef = signal.ref();
+    parentChannelRef = signal.ref();
+    needactionCounterRef = signal.ref();
+    composerHiddenContainerRef = signal.ref();
+
     setup() {
-        super.setup();
-        useSubEnv({ inChatWindow: true });
+        super.setup(...arguments);
         this.store = useService("mail.store");
-        this.messageHighlight = useMessageScrolling();
-        this.state = useState({
+        this.props = useProps({
+            chatWindow: t.instanceOf(this.store.ChatWindow),
+            right: t.number().optional(),
+        });
+        useSubEnv({ inChatWindow: true });
+        this.messageHighlight = useMessageScrolling({ thread: () => this.channel?.thread });
+        providePlugins([RenameThreadPlugin]);
+        this.editingName = usePlugin(RenameThreadPlugin).editingName;
+        this.state = proxy({
             actionsMenuOpened: false,
             jumpThreadPresent: 0,
             editingGuestName: false,
-            editingName: false,
         });
         this.ui = useService("ui");
-        this.contentRef = useRef("content");
-        this.threadActions = useThreadActions({ thread: () => this.thread });
-        this.actionsMenuButtonHover = useHover("actionsMenuButton");
-        this.parentChannelHover = useHover("parentChannel");
-        this.isMobileOS = isMobileOS();
-
-        useChildSubEnv({
-            closeActionPanel: () => this.threadActions.activeAction?.close(),
-            messageHighlight: this.messageHighlight,
+        this.chatWindowContentRef = signal.ref(HTMLDivElement);
+        this.threadActions = useThreadActions({ thread: () => this.channel?.thread });
+        this.quickActionsList = computed(() =>
+            this.threadActions.partition.quick.slice(0, this.ui.isSmall ? 2 : 4).reverse()
+        );
+        this.dropdownActionsList = computed(() => {
+            const partition = this.threadActions.partition;
+            const quickInDropdown = partition.quick.slice(this.ui.isSmall ? 2 : 4);
+            return [quickInDropdown, partition.other, ...partition.group];
         });
+        this.actionsMenuButtonHover = useHover(this.actionsMenuButtonRef);
+        this.parentChannelHover = useHover(this.parentChannelRef);
+        this.isMobileOS = isMobileOS();
+        this.selfGuestName = computed(() => this.store.self_guest?.name);
+        this.channelDisplayName = computed(() => this.props.chatWindow.channel?.displayName);
+        useSubEnv({ messageHighlight: this.messageHighlight });
+        useBackButton(() => this.close());
     }
 
     get autofocusComposer() {
-        if (this.isMobileOS || this.thread.composerDisabled) {
+        if (this.isMobileOS || this.channel.composerDisabled || this.channel.composerHidden) {
             return undefined;
         }
         return this.props.chatWindow.autofocus;
     }
 
     get autofocusThread() {
-        if (this.isMobileOS || this.thread.composerDisabled) {
+        if (this.isMobileOS || this.channel.composerDisabled || this.channel.composerHidden) {
             return this.props.chatWindow.autofocus;
         }
         return undefined;
     }
 
-    get composerType() {
-        if (this.thread.model !== "discuss.channel") {
-            return "note";
-        }
-        return undefined;
-    }
-
     get hasActionsMenu() {
+        const partition = this.threadActions.partition;
         return (
-            this.partitionedActions.group.length > 0 ||
-            this.partitionedActions.other.length > 0 ||
-            (this.ui.isSmall && this.partitionedActions.quick.length > 2) ||
-            (!this.ui.isSmall && this.partitionedActions.quick.length > 3)
+            partition.group.length > 0 ||
+            partition.other.length > 0 ||
+            (this.ui.isSmall && partition.quick.length > 2) ||
+            (!this.ui.isSmall && partition.quick.length > 3)
         );
     }
 
-    get thread() {
-        return this.props.chatWindow.thread;
-    }
-
-    get showImStatus() {
-        return this.thread?.channel_type === "chat" && this.thread.correspondent;
+    get channel() {
+        return this.props.chatWindow.channel;
     }
 
     get attClass() {
         return {
             "w-100 h-100 o-mobile": this.ui.isSmall,
-            "o-rounded-bubble border border-dark mb-2": !this.ui.isSmall,
+            "border border-dark mb-2": !this.ui.isSmall,
+            "o-highlighted": this.props.chatWindow.highlighted,
         };
+    }
+
+    get threadAvatarAttClass() {
+        return {
+            "py-1": !(this.threadActions.actions.length > 3),
+            "py-2": this.threadActions.actions.length <= 3,
+            "ps-2": !this.hasActionsMenu,
+        };
+    }
+
+    /** Whether an extra line is shown below the display name in the header. */
+    get hasNameSubline() {
+        return false;
+    }
+
+    get displayNameFontSizeClass() {
+        if (this.hasNameSubline) {
+            return this.ui.isSmall ? "fs-5" : "fs-6";
+        }
+        return this.ui.isSmall ? "fs-4" : "fs-5";
     }
 
     get style() {
@@ -118,9 +148,8 @@ export class ChatWindow extends Component {
     }
 
     onKeydown(ev) {
-        const chatWindow = toRaw(this.props.chatWindow);
         if (ev.key === "Escape" && this.threadActions.activeAction) {
-            this.threadActions.activeAction.close();
+            this.threadActions.activeAction.actionPanelClose();
             ev.stopPropagation();
             return;
         }
@@ -136,14 +165,16 @@ export class ChatWindow extends Component {
                 ) {
                     return;
                 }
-                if (this.state.editingName) {
-                    this.state.editingName = false;
+                if (this.editingName()) {
+                    this.editingName.set(false);
                     return;
                 }
                 this.close({ escape: true });
                 break;
             case "tab": {
-                const index = this.store.chatHub.opened.findIndex((cw) => cw.eq(chatWindow));
+                const index = this.store.chatHub.opened.findIndex((cw) =>
+                    cw.eq(this.props.chatWindow)
+                );
                 if (index === this.store.chatHub.opened.length - 1) {
                     this.store.chatHub.opened[0].focus({ jumpToNewMessage: true });
                 } else {
@@ -161,9 +192,9 @@ export class ChatWindow extends Component {
     onClickHeader(ev) {
         if (
             this.ui.isSmall ||
-            this.state.editingName ||
+            this.editingName() ||
             this.props.chatWindow.actionsDisabled ||
-            isEventHandled(ev, "ThreadAction.onSelected")
+            isEventHandled(ev, "Action.onSelected")
         ) {
             return;
         }
@@ -171,32 +202,29 @@ export class ChatWindow extends Component {
     }
 
     toggleFold() {
-        const chatWindow = toRaw(this.props.chatWindow);
         if (this.state.actionsMenuOpened) {
             return;
         }
-        chatWindow.fold();
+        this.props.chatWindow.fold();
     }
 
     close(options) {
-        const chatWindow = toRaw(this.props.chatWindow);
-        chatWindow.close(options);
+        this.props.chatWindow.requestClose(options);
     }
 
     get actionsMenuTitleText() {
         return _t("Open Actions Menu");
     }
 
-    async renameThread(name) {
-        const thread = toRaw(this.thread);
-        await thread.rename(name);
-        this.state.editingName = false;
+    async renameChannel(name) {
+        await this.channel.rename(name);
+        this.editingName.set(false);
     }
 
     async renameGuest(name) {
         const newName = name.trim();
-        if (this.store.self.name !== newName) {
-            await this.store.self.updateGuestName(newName);
+        if (this.store.self_guest.name !== newName) {
+            await this.store.self_guest.updateGuestName(newName);
         }
         this.state.editingGuestName = false;
     }
@@ -204,5 +232,8 @@ export class ChatWindow extends Component {
     async onActionsMenuStateChanged(isOpen) {
         // await new Promise(setTimeout); // wait for bubbling header
         this.state.actionsMenuOpened = isOpen;
+    }
+    get showBlankBeforeComposerHiddenText() {
+        return true;
     }
 }

@@ -11,8 +11,6 @@
         <field name="phone">+961 76 88 99 95</field>
         <field name="email">lebanoncompany@example.com</field>
         <field name="website">www.lbexample.com</field>
-        <field name="company_type">company</field>
-        <field name="is_company" eval="True"/>
     </record>
 
     <record id="base.demo_company_lb" model="res.company" forcecreate="1">
@@ -21,7 +19,7 @@
     </record>
 
     <record id="base.demo_bank_lb" model="res.partner.bank" forcecreate="1">
-        <field name="acc_number">LB76429468789995</field>
+        <field name="account_number">LB76429468789995</field>
         <field name="partner_id" ref="base.partner_demo_company_lb" />
         <field name="company_id" ref="base.demo_company_lb" />
         <field name="allow_out_payment" eval="True"/>

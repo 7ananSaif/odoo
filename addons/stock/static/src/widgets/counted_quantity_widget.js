@@ -1,37 +1,30 @@
+import { proxy, useEffect } from "@odoo/owl";
 import { FloatField, floatField } from "@web/views/fields/float/float_field";
 import { registry } from "@web/core/registry";
-import { getActiveHotkey } from "@web/core/hotkeys/hotkey_service";
-import { useEffect, useRef } from "@odoo/owl";
+import { getActiveHotkey } from "@web/core/hotkeys/hotkey_utils";
 
 export class CountedQuantityWidgetField extends FloatField {
     setup() {
         // Need to adapt useInputField to overide onInput and onChange
         super.setup();
 
-        const inputRef = useRef("numpadDecimal");
-
-        useEffect(
-            (inputEl) => {
-                if (inputEl) {
-                    const boundOnInput = this.onInput.bind(this);
-                    const boundOnKeydown = this.onKeydown.bind(this);
-                    const boundOnBlur = this.onBlur.bind(this);
-                    inputEl.addEventListener("input", boundOnInput);
-                    inputEl.addEventListener("keydown", boundOnKeydown);
-                    inputEl.addEventListener("blur", boundOnBlur);
-                    return () => {
-                        inputEl.removeEventListener("input", boundOnInput);
-                        inputEl.removeEventListener("keydown", boundOnKeydown);
-                        inputEl.removeEventListener("blur", boundOnBlur);
-                    };
-                }
-            },
-            () => [inputRef.el]
-        );
-    }
-
-    onInput(ev) {
-        //TODO remove in master
+        this.hasInput = proxy({ value: false });
+        useEffect(() => {
+            const inputEl = this.numpadDecimalRef();
+            if (inputEl) {
+                const boundOnInput = this.onInput.bind(this);
+                const boundOnKeydown = this.onKeydown.bind(this);
+                const boundOnBlur = this.onBlur.bind(this);
+                inputEl.addEventListener("input", boundOnInput);
+                inputEl.addEventListener("keydown", boundOnKeydown);
+                inputEl.addEventListener("blur", boundOnBlur);
+                return () => {
+                    inputEl.removeEventListener("input", boundOnInput);
+                    inputEl.removeEventListener("keydown", boundOnKeydown);
+                    inputEl.removeEventListener("blur", boundOnBlur);
+                };
+            }
+        });
     }
 
     updateValue(ev){
@@ -41,15 +34,21 @@ export class CountedQuantityWidgetField extends FloatField {
         } catch {} // ignore since it will be handled later
     }
 
+    onInput(ev) {
+        this.hasInput.value = true;
+    }
+
     onBlur(ev) {
-        this.updateValue(ev);
+        if (this.hasInput.value) {
+            this.updateValue(ev);
+            this.hasInput.value = false;
+        }
     }
 
     onKeydown(ev) {
         const hotkey = getActiveHotkey(ev);
         if (["enter", "tab", "shift+tab"].includes(hotkey)) {
             this.updateValue(ev);
-            this.onInput(ev);
         }
     }
 

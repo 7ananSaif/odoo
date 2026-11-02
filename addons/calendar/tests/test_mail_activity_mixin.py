@@ -1,22 +1,25 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from datetime import datetime, time
+from datetime import datetime, time, UTC
+from zoneinfo import ZoneInfo
+
 from dateutil.relativedelta import relativedelta
 
-import pytz
-
 from odoo import tests
+from odoo.tests import tagged
+
 from odoo.addons.mail.tests.common import MailCommon
 
 
 @tests.tagged('mail_activity_mixin')
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestMailActivityMixin(MailCommon):
 
     @classmethod
     def setUpClass(cls):
         super(TestMailActivityMixin, cls).setUpClass()
         # using res.partner as the model inheriting from mail.activity.mixin
-        cls.test_record = cls.env['res.partner'].with_context(cls._test_context).create({'name': 'Test'})
+        cls.test_record = cls.env['res.partner'].create({'name': 'Test'})
         cls.activity_type_1 = cls.env['mail.activity.type'].create({
             'name': 'Calendar Activity Test Default',
             'summary': 'default activity',
@@ -53,8 +56,8 @@ class TestMailActivityMixin(MailCommon):
             test_record = self.env['res.partner'].browse(self.test_record.id)
             self.assertEqual(test_record.activity_ids, self.env['mail.activity'])
 
-            now_utc = datetime.now(pytz.UTC)
-            now_user = now_utc.astimezone(pytz.timezone(self.env.user.tz or 'UTC'))
+            now_utc = datetime.now(UTC)
+            now_user = now_utc.astimezone(ZoneInfo(self.env.user.tz or 'UTC'))
             today_user = now_user.date()
 
             date1 = today_user + relativedelta(days=1)

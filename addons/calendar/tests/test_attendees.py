@@ -4,11 +4,12 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 from odoo.tests.common import TransactionCase, new_test_user
-from odoo.tests import Form
+from odoo.tests import tagged, Form
 from odoo import fields, Command
 from freezegun import freeze_time
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestEventNotifications(TransactionCase):
 
     @classmethod
@@ -19,7 +20,7 @@ class TestEventNotifications(TransactionCase):
             'name': "Doom's day",
             'start': datetime(2019, 10, 25, 8, 0),
             'stop': datetime(2019, 10, 27, 18, 0),
-        }).with_context(mail_notrack=True)
+        })
         cls.partner = cls.user.partner_id
 
     def test_attendee_added(self):

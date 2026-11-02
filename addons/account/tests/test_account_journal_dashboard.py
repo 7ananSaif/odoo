@@ -1,3 +1,5 @@
+import json
+
 from dateutil.relativedelta import relativedelta
 from freezegun import freeze_time
 
@@ -8,6 +10,8 @@ from odoo.tools.misc import format_amount
 
 @tagged('post_install', '-at_install')
 class TestAccountJournalDashboard(TestAccountJournalDashboardCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @freeze_time("2019-01-22")
     def test_customer_invoice_dashboard(self):
@@ -202,6 +206,110 @@ class TestAccountJournalDashboard(TestAccountJournalDashboardCommon):
         self.assertEqual(format_amount(self.env, 55, company_currency), dashboard_data['sum_waiting'])
         self.assertEqual(format_amount(self.env, 55, company_currency), dashboard_data['sum_late'])
 
+    @freeze_time("2026-07-15")
+    def test_sale_purchase_graph_monthly_total_values(self):
+        sale_journal = self.company_data['default_journal_sale']
+        purchase_journal = self.company_data['default_journal_purchase']
+
+        invoice = self.env['account.move'].create({
+            'move_type': 'out_invoice',
+            'journal_id': sale_journal.id,
+            'partner_id': self.partner_a.id,
+            'invoice_date': '2026-07-10',
+            'date': '2026-07-10',
+            'invoice_line_ids': [Command.create({
+                'product_id': self.product_a.id,
+                'quantity': 1,
+                'price_unit': 100,
+                'tax_ids': [],
+            })],
+        })
+        bill = self.env['account.move'].create({
+            'move_type': 'in_invoice',
+            'journal_id': purchase_journal.id,
+            'partner_id': self.partner_a.id,
+            'invoice_date': '2026-07-10',
+            'date': '2026-07-10',
+            'invoice_line_ids': [Command.create({
+                'product_id': self.product_a.id,
+                'quantity': 1,
+                'price_unit': 200,
+                'tax_ids': [],
+            })],
+        })
+        (invoice + bill).action_post()
+
+        customer_payment_move = self.env['account.move'].create({
+            'move_type': 'entry',
+            'journal_id': self.company_data['default_journal_misc'].id,
+            'date': '2026-07-10',
+            'line_ids': [
+                Command.create({
+                    'account_id': self.company_data['default_account_receivable'].id,
+                    'partner_id': self.partner_a.id,
+                    'credit': 25,
+                }),
+                Command.create({
+                    'account_id': self.company_data['default_account_assets'].id,
+                    'debit': 25,
+                }),
+            ],
+        })
+        customer_payment_move.action_post()
+        (invoice + customer_payment_move).line_ids.filtered_domain([
+            ('account_id', '=', self.company_data['default_account_receivable'].id),
+        ]).reconcile()
+
+        supplier_payment_move = self.env['account.move'].create({
+            'move_type': 'entry',
+            'journal_id': self.company_data['default_journal_misc'].id,
+            'date': '2026-07-10',
+            'line_ids': [
+                Command.create({
+                    'account_id': self.company_data['default_account_payable'].id,
+                    'partner_id': self.partner_a.id,
+                    'debit': 50,
+                }),
+                Command.create({
+                    'account_id': self.company_data['default_account_assets'].id,
+                    'credit': 50,
+                }),
+            ],
+        })
+        supplier_payment_move.action_post()
+        (bill + supplier_payment_move).line_ids.filtered_domain([
+            ('account_id', '=', self.company_data['default_account_payable'].id),
+        ]).reconcile()
+
+        self.env['account.move'].flush_model(['amount_total', 'amount_total_signed'])
+        graph_data = (sale_journal + purchase_journal)._get_sale_purchase_graph_data()
+        sale_graph = graph_data[sale_journal.id][0]
+        purchase_graph = graph_data[purchase_journal.id][0]
+
+        self.assertEqual(sale_graph['type'], 'monthly_total')
+        self.assertEqual(purchase_graph['type'], 'monthly_total')
+        self.assertNotIn('is_sample_data', sale_graph)
+        self.assertNotIn('is_sample_data', purchase_graph)
+
+        self.assertEqual(sale_graph['key'], 'Total')
+        self.assertEqual(purchase_graph['key'], 'Total')
+        self.assertEqual(sale_graph['values'][-1], 100)
+        self.assertEqual(purchase_graph['values'][-1], 200)
+
+    def test_disable_dashboard_graph_skips_sale_purchase_graph(self):
+        sale_journal = self.company_data['default_journal_sale']
+
+        sale_journal.disable_dashboard_graph = True
+        sale_journal._kanban_dashboard_graph()
+
+        self.assertFalse(sale_journal.kanban_dashboard_graph)
+
+        sale_journal.disable_dashboard_graph = False
+        sale_journal._kanban_dashboard_graph()
+
+        graph_data = json.loads(sale_journal.kanban_dashboard_graph)
+        self.assertEqual(graph_data[0]['type'], 'monthly_total')
+
     @freeze_time("2023-03-15")
     def test_purchase_journal_numbers_and_sums(self):
         # This test is defined in the account_3way_match module with different values, so we skip it when the module is installed
@@ -336,7 +444,7 @@ class TestAccountJournalDashboard(TestAccountJournalDashboardCommon):
             'move_type': 'out_invoice',
             'journal_id': journal.id,
             'partner_id': self.partner_a.id,
-            'checked': False,
+            'review_state': 'todo',
             'invoice_line_ids': [
                 Command.create({
                     'product_id': self.product_a.id,
@@ -351,7 +459,7 @@ class TestAccountJournalDashboard(TestAccountJournalDashboardCommon):
         self.assertEqual(dashboard_data['to_check_balance'], journal.currency_id.format(0))
 
         move.action_post()
-        move.checked = False
+        move.review_state = 'todo'
 
         dashboard_data = journal._get_journal_dashboard_data_batched()[journal.id]
         self.assertEqual(dashboard_data['to_check_balance'], journal.currency_id.format(100))
@@ -389,7 +497,7 @@ class TestAccountJournalDashboard(TestAccountJournalDashboardCommon):
             'journal_id': journal.id,
             'partner_id': self.partner_a.id,
             'currency_id': currency.id,
-            'checked': False,
+            'review_state': 'todo',
             'invoice_line_ids': [
                 Command.create({
                     'product_id': self.product_a.id,
@@ -400,7 +508,110 @@ class TestAccountJournalDashboard(TestAccountJournalDashboardCommon):
             ]
         } for currency in (self.env.ref('base.EUR'), self.env.ref('base.CHF'))])
         moves.action_post()
-        moves.checked = False
+        moves.review_state = 'todo'
 
         dashboard_data = journal._get_journal_dashboard_data_batched()[journal.id]
         self.assertEqual(dashboard_data['to_check_balance'], journal.currency_id.format(150))
+
+    @freeze_time("2025-01-22")
+    def test_journal_dashboard_kpi(self):
+        self.env.ref('base.CHF').write({'active': True})
+        self.env['res.currency.rate'].create([{
+            'currency_id': self.env.ref('base.EUR').id,
+            'name': '2024-12-01',
+            'rate': 2.0,
+        }, {
+            'currency_id': self.env.ref('base.CHF').id,
+            'name': '2024-12-01',
+            'rate': 4.0,
+        }])
+        coa_ref = self.env['account.chart.template'].ref
+
+        moves = self.env['account.move'].create([
+            {
+                'move_type': 'out_invoice',
+                'journal_id': coa_ref('sale').id,
+                'partner_id': self.partner_a.id,
+                'currency_id': currency.id,
+                'review_state': 'todo',
+                'invoice_line_ids': [
+                    Command.create({
+                        'product_id': self.product_a.id,
+                        'quantity': 1,
+                        'price_unit': 100,
+                        'tax_ids': [],
+                    }),
+                ],
+            } for currency in (self.env.ref('base.EUR'), self.env.ref('base.CHF'))
+        ] + [
+            {
+                'move_type': 'in_invoice',
+                'invoice_date': '2025-01-01',
+                'journal_id': coa_ref('purchase').id,
+                'partner_id': self.partner_a.id,
+                'currency_id': currency.id,
+                'review_state': 'todo',
+                'invoice_line_ids': [
+                    Command.create({
+                        'product_id': self.product_a.id,
+                        'quantity': 1,
+                        'price_unit': 1000,
+                        'tax_ids': [],
+                    }),
+                ],
+            } for currency in (self.env.ref('base.EUR'), self.env.ref('base.CHF'))
+        ])
+        moves.action_post()
+
+        self.env['account.bank.statement'].create([{
+            'name': 'statement_2',
+            'balance_start': 0.0,
+            'balance_end_real': 10000.0,
+            'line_ids': [
+                Command.create({
+                    'payment_ref': 'Opening balance',
+                    'amount': 10000.0,
+                    'journal_id': coa_ref('bank').id,
+                }),
+            ],
+        }])
+
+        invoice_analysis_action = self.env.ref('account.action_account_invoice_report_all')
+        profit_and_loss_action = self.env.ref('account_reports.action_account_report_pl', raise_if_not_found=False)
+        aged_receivable_action = self.env.ref('account_reports.action_account_report_ar', raise_if_not_found=False)
+        aged_payable_action = self.env.ref('account_reports.action_account_report_ap', raise_if_not_found=False)
+        cashflow_analysis_action = self.env.ref('account.action_account_cashflow_analysis')
+        invoice_layout_action = self.env.ref('account.action_base_document_layout_configurator')
+        kpis = self.env['account.journal'].get_account_dashboard_kpis()
+        self.assertEqual(kpis, [{
+            'action_id': invoice_analysis_action.id,
+            'id': 'invoices',
+            'name': 'Invoices',
+            'value': '$\xa075.00',
+        }, {
+            'action_id': profit_and_loss_action.id if profit_and_loss_action else False,
+            'id': 'expenses',
+            'name': 'Expenses',
+            'value': '$\xa0750.00',
+        }, {
+            'action_id': cashflow_analysis_action.id,
+            'id': 'cash',
+            'name': 'Cash',
+            'value': '$\xa010,000.00',
+        }, {
+            'action_id': aged_receivable_action.id if aged_receivable_action else False,
+            'id': 'receivable',
+            'name': 'Receivable',
+            'value': '$\xa075.00',
+        }, {
+            'action_id': aged_payable_action.id if aged_payable_action else False,
+            'id': 'payable',
+            'name': 'Payable',
+            'value': '$\xa0750.00',
+        }, {
+            'action_id': invoice_layout_action.id,
+            'id': 'invoice_layout',
+            'image': '/web/static/img/mimetypes/document.svg',
+            'is_invoice_layout_card': True,
+            'name': 'Setup Your Invoice Layout',
+        }])

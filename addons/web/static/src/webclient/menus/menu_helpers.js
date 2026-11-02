@@ -25,6 +25,10 @@ export function computeAppsAndMenuItems(menuTree) {
             return;
         }
         const isApp = menuItem.id === menuItem.appID;
+        let href = `/odoo/${menuItem.actionPath || "action-" + menuItem.actionID}`;
+        if (odoo.debug) {
+            href += "?debug=" + odoo.debug;
+        }
         const item = {
             parents: parents
                 .slice(1)
@@ -34,17 +38,17 @@ export function computeAppsAndMenuItems(menuTree) {
             id: menuItem.id,
             xmlid: menuItem.xmlid,
             actionID: menuItem.actionID,
-            href: `/odoo/${menuItem.actionPath || "action-" + menuItem.actionID}`,
+            href,
             appID: menuItem.appID,
         };
         if (isApp) {
             if (menuItem.webIconData) {
                 item.webIconData = menuItem.webIconData;
             } else {
-                const [iconClass, color, backgroundColor] = (menuItem.webIcon || "").split(",");
+                const [icon, color, backgroundColor] = (menuItem.webIcon || "").split(",");
                 if (backgroundColor !== undefined) {
                     // Could split in three parts?
-                    item.webIcon = { iconClass, color, backgroundColor };
+                    item.webIcon = { icon, color, backgroundColor };
                 } else {
                     item.webIconData = "/web/static/img/default_icon_app.png";
                 }

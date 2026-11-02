@@ -1,9 +1,40 @@
-import { useState, onWillUnmount, status, useComponent } from "@odoo/owl";
-import { useService } from "@web/core/utils/hooks";
-import { _t } from "@web/core/l10n/translation";
-import { browser } from "@web/core/browser/browser";
-import { Mp3Encoder } from "./mp3_encoder";
+import { Component, onWillUnmount, proxy, types, useProps, useScope } from "@odoo/owl";
+
+import { CallPermissionDeniedDialog } from "@mail/discuss/call/common/call_permission_denied_dialog";
 import { loadLamejs } from "@mail/discuss/voice_message/common/voice_message_service";
+import { monitorAudio } from "@mail/utils/common/media_monitoring";
+import { browser } from "@web/core/browser/browser";
+import { _t } from "@web/core/l10n/translation";
+import { useService } from "@web/core/utils/hooks";
+import { Mp3Encoder } from "./mp3_encoder";
+
+/** @typedef {import("@mail/discuss/call/common/rtc_service").ContextOptions} ContextOptions */
+
+export class VoiceRecorder extends Component {
+    static template = "mail.VoiceRecorder";
+
+    setup() {
+        super.setup(...arguments);
+        this.store = useService("mail.store");
+        this.props = useProps({
+            composer: types.instanceOf(this.store["Composer"]),
+            state: types.object({
+                cancelRecording: types.function([]),
+                elapsed: types.string(),
+                limitWarning: types.boolean(),
+                onClick: types.function([]),
+                volumes: types.array(types.number()),
+            }),
+        });
+    }
+
+    get title() {
+        return _t("Stop Recording");
+    }
+    get cancelTitle() {
+        return _t("Cancel");
+    }
+}
 
 export const patchable = {
     makeFile(file) {
@@ -11,7 +42,16 @@ export const patchable = {
     },
 };
 
-export function useVoiceRecorder() {
+/**
+ * @param {Object} [params={}]
+ * @param {number} [params.maxDuration=60] Maximum recording duration in seconds.
+ * @param {Function} params.onRecordReady Callback when recording is finished.
+ * @param {ContextOptions} [options]
+ */
+export function useVoiceRecorder(params = {}, options = {}) {
+    const maxDuration = params.maxDuration ?? 60;
+    const scope = useScope();
+    const onRecordReady = params.onRecordReady;
     /** @type {MediaStream} */
     let microphone;
     /** @type {number} */
@@ -24,22 +64,32 @@ export function useVoiceRecorder() {
     let processor;
     /** @type {Mp3Encoder} */
     let encoder;
+    /** @type {Function} */
+    let disconnectAudioMonitor;
 
-    const component = useComponent();
-    const state = useState({
+    const state = proxy({
         limitWarning: false,
         isActionPending: false,
-        recording: component.props.state?.recording ?? false,
+        recording: false,
         elapsed: "00 : 00",
+        volumes: new Array(3).fill(0),
         onClick() {
             if (state.recording) {
-                stopRecording();
+                return stopRecording();
             } else {
-                startRecording();
+                return startRecording();
+            }
+        },
+        /**
+         * Stops the recording without uploading the file
+         */
+        cancelRecording() {
+            if (state.recording) {
+                cleanUp();
             }
         },
     });
-    /** @type {ReturnType<typeof import("@web/core/notifications/notification_service").notificationService.start>} */
+    const dialog = useService("dialog");
     const notification = useService("notification");
     const store = useService("mail.store");
     const config = { bitRate: 128 }; // 128 or 160 kbit/s – mid-range bitrate quality
@@ -69,19 +119,19 @@ export function useVoiceRecorder() {
         state.isActionPending = true;
         if (!microphone) {
             try {
-                microphone = await browser.navigator.mediaDevices.getUserMedia({
+                const sourceWindow = options.rootRef?.()?.ownerDocument?.defaultView || browser;
+                microphone = await sourceWindow.navigator.mediaDevices.getUserMedia({
                     audio: store.settings.audioConstraints,
                 });
-                if (status(component) === "destroyed") {
+                if (scope.status === 3 /* destroyed */) {
                     cleanUp();
                     return;
                 }
             } catch {
-                notification.add(
-                    _t('"%(hostname)s" needs to access your microphone', {
-                        hostname: window.location.host,
-                    }),
-                    { type: "warning" }
+                dialog.add(
+                    CallPermissionDeniedDialog,
+                    { permissionType: "microphone" },
+                    { rootRef: options.rootRef }
                 );
                 state.isActionPending = false;
                 return;
@@ -108,13 +158,19 @@ export function useVoiceRecorder() {
                 (minute < 10 ? "0" + minute : minute) +
                 " : " +
                 (second < 10 ? "0" + second : second);
-            if (elapsedSeconds > 55 && elapsedSeconds < 60) {
+            if (elapsedSeconds > maxDuration - 5 && elapsedSeconds < maxDuration) {
                 state.limitWarning = true;
             }
-            if (elapsedSeconds === 60) {
-                notification.add(_t("The duration of voice messages is limited to 1 minute."), {
-                    type: "warning",
-                });
+            if (elapsedSeconds >= maxDuration) {
+                notification.add(
+                    _t(
+                        "The duration of voice messages is limited to %s minute(s).",
+                        Math.round(maxDuration / 60)
+                    ),
+                    {
+                        type: "warning",
+                    }
+                );
                 stopRecording();
             }
             if (!e.data) {
@@ -130,6 +186,25 @@ export function useVoiceRecorder() {
         config.sampleRate = audioContext.sampleRate;
         encoder = new Mp3Encoder(config);
         state.isActionPending = false;
+
+        // Live waveform audio feedback
+        let lastTic = 0;
+        const track = microphone.getAudioTracks()[0];
+        const monitorPromise = monitorAudio(track, {
+            onTic: (volume) => {
+                const now = Date.now();
+                if (now - lastTic < 80) {
+                    return;
+                }
+                lastTic = now;
+                state.volumes = [...state.volumes.slice(1), volume];
+            },
+        });
+        disconnectAudioMonitor = await monitorPromise;
+        if (!state.recording) {
+            disconnectAudioMonitor();
+            disconnectAudioMonitor = undefined;
+        }
     }
 
     function _encode(data) {
@@ -144,17 +219,22 @@ export function useVoiceRecorder() {
         return patchable.makeFile(new File(buffer, filename(), { type }));
     }
 
+    /**
+     * @returns {Promise} a promise that resolves when the recording
+     * is finished and the file upload has been initiated
+     */
     function stopRecording() {
-        getMp3()
+        const promise = getMp3()
             .then((buffer) => {
                 const file = _makeFile(buffer, "audio/mp3");
                 if (file.size === 0) {
                     return;
                 }
-                component.attachmentUploader.uploadFile(file, { voice: true });
+                return onRecordReady(file);
             })
             .catch(() => {});
         cleanUp();
+        return promise;
     }
 
     function cleanUp() {
@@ -170,6 +250,9 @@ export function useVoiceRecorder() {
             }
         }
 
+        disconnectAudioMonitor?.();
+        disconnectAudioMonitor = undefined;
+        state.volumes = new Array(3).fill(0);
         startTimeStamp = false;
         microphone?.getTracks().forEach((track) => track.stop());
         microphone = null;

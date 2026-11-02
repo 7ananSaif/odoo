@@ -6,35 +6,41 @@
 # Martin Trigaux, 2022
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
-# "Kwanghee Park (kwpa)" <kwpa@odoo.com>, 2025.
+# "Kwanghee Park (kwpa)" <kwpa@odoo.com>, 2025, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~15.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-10-24 02:31+0000\n"
-"Last-Translator: \"Kwanghee Park (kwpa)\" <kwpa@odoo.com>\n"
-"Language-Team: Korean <https://translate.odoo.com/projects/odoo-19/iap/ko/>\n"
+"POT-Creation-Date: 2026-09-25 17:38+0000\n"
+"PO-Revision-Date: 2026-08-31 16:52+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Korean <https://translate.odoo.com/projects/odoo-s19-4/iap/ko/"
+">\n"
 "Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: iap
-#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
+#: model:ir.module.module,description:base.module_iap
 msgid ""
-"<i class=\"oi oi-arrow-right\"/>\n"
-"                                    Buy Credit"
+"\n"
+"This module provides standard tools (account model, context manager and "
+"helpers)\n"
+"to support In-App Purchase inside Odoo. "
 msgstr ""
-"<i class=\"oi oi-arrow-right\"/>\n"
-"                                    크레딧 구매"
 
 #. module: iap
 #: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
 msgid "Account Information"
 msgstr "계정 정보"
+
+#. module: iap
+#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
+msgid "Account Name"
+msgstr "계정명"
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__account_token
@@ -63,9 +69,25 @@ msgid "Balance"
 msgstr "잔액"
 
 #. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_account__balance_amount
+msgid "Balance Amount"
+msgstr "잔액"
+
+#. module: iap
 #: model:ir.model.fields.selection,name:iap.selection__iap_account__state__banned
 msgid "Banned"
 msgstr "차단됨"
+
+#. module: iap
+#: model:ir.module.module,summary:base.module_iap
+msgid "Basic models and helpers to support In-App Purchase."
+msgstr ""
+
+#. module: iap
+#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
+#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_tree
+msgid "Buy Credits"
+msgstr "크레딧 구매하기"
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__company_ids
@@ -75,14 +97,21 @@ msgstr "회사"
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__create_uid
 #: model:ir.model.fields,field_description:iap.field_iap_service__create_uid
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__create_uid
 msgid "Created by"
 msgstr "작성자"
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__create_date
 #: model:ir.model.fields,field_description:iap.field_iap_service__create_date
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__create_date
 msgid "Created on"
 msgstr "작성일자"
+
+#. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__credit
+msgid "Credit"
+msgstr "크레딧"
 
 #. module: iap
 #: model:iap.service,unit_name:iap.iap_service_reveal
@@ -99,8 +128,14 @@ msgstr "설명"
 #: model:ir.model.fields,field_description:iap.field_iap_account__display_name
 #: model:ir.model.fields,field_description:iap.field_iap_enrich_api__display_name
 #: model:ir.model.fields,field_description:iap.field_iap_service__display_name
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__display_name
 msgid "Display Name"
 msgstr "표시명"
+
+#. module: iap
+#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
+msgid "Email Alert"
+msgstr "이메일 알림"
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__warning_user_ids
@@ -128,16 +163,8 @@ msgid "IAP"
 msgstr "IAP"
 
 #. module: iap
-#: model:ir.actions.act_window,name:iap.iap_account_action
 #: model:ir.model,name:iap.model_iap_account
-#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
 msgid "IAP Account"
-msgstr "IAP 계정"
-
-#. module: iap
-#: model:ir.ui.menu,name:iap.iap_account_menu
-#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_tree
-msgid "IAP Accounts"
 msgstr "IAP 계정"
 
 #. module: iap
@@ -151,11 +178,44 @@ msgid "IAP Service"
 msgstr "IAP 서비스"
 
 #. module: iap
+#: model:ir.model,name:iap.model_iap_service_pack
+msgid "IAP Service Pack"
+msgstr "IAP 서비스 팩"
+
+#. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__id
 #: model:ir.model.fields,field_description:iap.field_iap_enrich_api__id
 #: model:ir.model.fields,field_description:iap.field_iap_service__id
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__id
 msgid "ID"
 msgstr "ID"
+
+#. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__iap_service_pack_identifier
+msgid "Iap Service Pack Identifier"
+msgstr "IAP 서비스 팩 식별 기호"
+
+#. module: iap
+#: model:ir.module.module,shortdesc:base.module_iap
+msgid "In-App Purchase"
+msgstr ""
+
+#. module: iap
+#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
+msgid "In-App Purchase Account"
+msgstr "인앱 결제 계정"
+
+#. module: iap
+#: model:ir.actions.act_window,name:iap.iap_account_action
+#: model:ir.ui.menu,name:iap.iap_account_menu
+#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_tree
+msgid "In-App Purchase Accounts"
+msgstr "인앱 결제 계정"
+
+#. module: iap
+#: model_terms:ir.ui.view,arch_db:iap.iap_service_pack_view_tree
+msgid "In-App Purchase Service Packs"
+msgstr "인앱 결제 서비스 팩"
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_service__integer_balance
@@ -163,26 +223,39 @@ msgid "Integer Balance"
 msgstr "정수 잔액"
 
 #. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_account__is_balance_below_warning_threshold
+msgid "Is Balance Below Warning Threshold"
+msgstr "잔액이 경고 대상 임계값 미만인지 여부"
+
+#. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__write_uid
 #: model:ir.model.fields,field_description:iap.field_iap_service__write_uid
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__write_uid
 msgid "Last Updated by"
 msgstr "최근 갱신한 사람"
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__write_date
 #: model:ir.model.fields,field_description:iap.field_iap_service__write_date
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__write_date
 msgid "Last Updated on"
 msgstr "최근 갱신 일자"
+
+#. module: iap
+#: model:iap.service,name:iap.iap_service_reveal
+msgid "Lead Generation"
+msgstr ""
 
 #. module: iap
 #. odoo-javascript
 #: code:addons/iap/static/src/action_buttons_widget/action_buttons_widget.xml:0
 msgid "Manage Service & Buy Credits"
-msgstr "서비스 관리 및 크레딧 구매"
+msgstr ""
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__name
 #: model:ir.model.fields,field_description:iap.field_iap_service__name
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__name
 msgid "Name"
 msgstr "이름"
 
@@ -194,8 +267,15 @@ msgstr "제공된 기술 이름에 해당하는 서비스가 없습니다."
 
 #. module: iap
 #: model_terms:ir.ui.view,arch_db:iap.res_config_settings_view_form
-msgid "Odoo IAP"
-msgstr "Odoo IAP"
+msgid "Odoo In-App Purchase"
+msgstr "Odoo 인앱 결제"
+
+#. module: iap
+#: model:ir.model.fields,help:iap.field_iap_account__warning_threshold
+msgid ""
+"Once you have this many credits or less, the system will automatically "
+"notify the following recipients by email. Set to 0 to disable email warnings."
+msgstr ""
 
 #. module: iap
 #. odoo-python
@@ -213,10 +293,22 @@ msgid "Only one service can exist with a specific technical_name"
 msgstr "특정 technical_name을 가진 서비스는 하나만 존재할 수 있습니다."
 
 #. module: iap
+#: model:ir.model.constraint,message:iap.constraint_iap_service_pack_unique_iap_service_pack_identifier
+msgid ""
+"Only one service pack can exist with a specific iap_service_pack_identifier"
+msgstr ""
+
+#. module: iap
 #. odoo-python
 #: code:addons/iap/models/iap_account.py:0
 msgid "Please set a positive email alert threshold."
 msgstr "양수 이메일 알림 임계값을 설정하세요."
+
+#. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_account__service_price_description
+#: model:ir.model.fields,field_description:iap.field_iap_service__price_description
+msgid "Price Description"
+msgstr "가격 설명"
 
 #. module: iap
 #: model:ir.model.fields.selection,name:iap.selection__iap_account__state__registered
@@ -224,7 +316,13 @@ msgid "Registered"
 msgstr "등록함"
 
 #. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__price
+msgid "Sales Price (EUR)"
+msgstr "판매 가격 (유로)"
+
+#. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__service_id
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__service_id
 msgid "Service"
 msgstr "서비스"
 
@@ -232,6 +330,11 @@ msgstr "서비스"
 #: model:ir.model.fields,field_description:iap.field_iap_account__service_locked
 msgid "Service Locked"
 msgstr "서비스 잠김"
+
+#. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_service__pack_ids
+msgid "Service Packs"
+msgstr "서비스 팩"
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__state
@@ -247,18 +350,16 @@ msgstr "기술 이름"
 #. module: iap
 #. odoo-python
 #: code:addons/iap/models/iap_account.py:0
-msgid "The IAP token provided is invalid or empty."
-msgstr "선택한 IAP 토큰이 유효하지 않거나 내용이 없습니다."
+msgid ""
+"The IAP server is unreachable and the information may not be up to date. "
+"Please try again later."
+msgstr ""
 
 #. module: iap
 #. odoo-python
-#: code:addons/iap/tools/iap_tools.py:0
-msgid ""
-"The request to the service timed out. Please contact the author of the app. "
-"The URL it tried to contact was %s"
-msgstr ""
-"서비스 요청이 시간 초과되었습니다. 앱 개발자에게 문의하십시오. 연결을 시도한 "
-"URL은 %s입니다."
+#: code:addons/iap/models/iap_account.py:0
+msgid "The IAP token provided is invalid or empty."
+msgstr "선택한 IAP 토큰이 유효하지 않거나 내용이 없습니다."
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_service__unit_name
@@ -269,6 +370,11 @@ msgstr "단위 이름"
 #: model:ir.model.fields.selection,name:iap.selection__iap_account__state__unregistered
 msgid "Unregistered"
 msgstr "등록되지 않음"
+
+#. module: iap
+#: model_terms:ir.ui.view,arch_db:iap.view_iap_users_tree
+msgid "Users"
+msgstr "사용자"
 
 #. module: iap
 #. odoo-javascript
@@ -282,30 +388,27 @@ msgstr "내 서비스 보기"
 msgid "View your IAP Services and recharge your credits"
 msgstr "IAP 서비스를 보고 크레딧을 재충전하십시오"
 
-#~ msgid "Buy credits"
-#~ msgstr "크레딧 구매하기"
+#~ msgid "Auto-Refill"
+#~ msgstr "자동 리필"
 
-#~ msgid "Cancel"
-#~ msgstr "취소"
+#~ msgid "Auto-refill Pack"
+#~ msgstr "자동 리필 팩"
 
-#~ msgid "Config Settings"
-#~ msgstr "설정 구성"
+#~ msgid "Auto-refill Threshold"
+#~ msgstr "자동 리필 임계값"
 
-#~ msgid "Insufficient credit to perform this service."
-#~ msgstr "이 서비스를 실행하기에는 크레딧이 부족합니다."
+#~ msgid "Buy"
+#~ msgstr "구매"
 
-#~ msgid "Open IAP Account"
-#~ msgstr "Open IAP 계정"
+#~ msgid "Manage your auto-refill payment method"
+#~ msgstr "자동 재충전 결제 수단 관리하기"
 
-#~ msgid "Service Name"
-#~ msgstr "서비스 이름"
-
-#~ msgid "Start a Trial at Odoo"
-#~ msgstr "Odoo에서 시험판 시작"
+#~ msgid "Set Alerts & Auto-Refill"
+#~ msgstr "알림 설정 및 자동 재충전"
 
 #~ msgid ""
-#~ "The url that this service requested returned an error. Please contact the "
-#~ "author of the app. The url it tried to contact was %s"
+#~ "The request to the service timed out. Please contact the author of the "
+#~ "app. The URL it tried to contact was %s"
 #~ msgstr ""
-#~ "이 서비스가 요청한 URL이 오류를 반환했습니다. 앱 작성자에게 문의하십시오. "
-#~ "연락을 시도한 URL은 %s입니다."
+#~ "서비스 요청이 시간 초과되었습니다. 앱 개발자에게 문의하십시오. 연결을 시도"
+#~ "한 URL은 %s입니다."

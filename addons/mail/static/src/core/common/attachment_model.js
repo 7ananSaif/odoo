@@ -1,6 +1,6 @@
-import { fields, Record } from "@mail/core/common/record";
+import { fields, Record } from "@mail/model/export";
 import { assignDefined } from "@mail/utils/common/misc";
-import { generatePdfThumbnail } from "@mail/utils/common/pdf_thumbnail";
+import { generatePdfThumbnail } from "@web/core/utils/pdfjs";
 
 import { FileModelMixin } from "@web/core/file_viewer/file_model";
 import { _t } from "@web/core/l10n/translation";
@@ -9,60 +9,111 @@ import { imageUrl, url } from "@web/core/utils/urls";
 
 export class Attachment extends FileModelMixin(Record) {
     static _name = "ir.attachment";
-    static id = "id";
-    static new() {
-        /** @type {import("models").Attachment} */
-        const attachment = super.new(...arguments);
-        Record.onChange(attachment, ["extension", "name"], () => {
-            if (!attachment.extension && attachment.name) {
-                attachment.extension = attachment.name.split(".").pop();
-            }
-        });
-        return attachment;
+    setup() {
+        super.setup(...arguments);
+        this.onChange(
+            () => [this.extension, this.name],
+            function onChangeName(extension, name) {
+                if (!extension && name) {
+                    this.extension = name.split(".").pop();
+                }
+            },
+            { immediate: true }
+        );
+        this.onChange(
+            () => [this.has_thumbnail],
+            function onChangeHasThumbnail(hasThumbnail) {
+                if (
+                    (this.isPdf || this.isVideo) &&
+                    !hasThumbnail &&
+                    (this.ownership_token ||
+                        // If related to a record, must have write access to it
+                        ((!this.thread || this.thread.hasWriteAccess) &&
+                            this.store.self_user?.share === false))
+                ) {
+                    this.setThumbnail();
+                }
+            },
+            { immediate: true }
+        );
     }
 
     composer = fields.One("Composer", { inverse: "attachments" });
-    thread = fields.One("Thread", { inverse: "attachments" });
+    thread = fields.One("mail.thread", { inverse: "attachments" });
+    /** @type {number} */
+    file_size;
     /** @type {string} */
     raw_access_token;
     res_name;
+    /** @type {string} */
+    res_model;
     /** @type {string} */
     thumbnail_access_token;
     message = fields.One("mail.message", { inverse: "attachment_ids" });
     /** @type {string} */
     ownership_token;
     create_date = fields.Datetime();
-    has_thumbnail = fields.Attr(undefined, {
-        onUpdate() {
-            if (
-                this.isPdf &&
-                !this.has_thumbnail &&
-                (this.ownership_token ||
-                    // If related to a record, must have write access to it
-                    ((!this.thread || this.thread.hasWriteAccess) &&
-                        this.store.self.main_user_id?.share === false))
-            ) {
-                this.setPdfThumbnail();
-            }
-        },
-    });
-
+    /** @type {boolean} */
+    has_thumbnail;
     get thumbnailUrl() {
-        return imageUrl(
-            "ir.attachment",
-            this.id,
-            "thumbnail",
-            assignDefined(
-                {},
-                {
-                    access_token: this.thumbnail_access_token,
-                    crop: "top",
-                    height: 110,
-                    unique: this.checksum,
-                    width: 180,
-                }
-            )
+        const params = assignDefined(
+            {},
+            {
+                access_token: this.thumbnail_access_token,
+                crop: "top",
+                unique: this.checksum,
+            }
         );
+        // We don't force the size for video thumbnail to not alter the aspect
+        // ratio
+        if (this.isPdf) {
+            params.width = 180;
+            params.height = 110;
+        }
+        return imageUrl("ir.attachment", this.id, "thumbnail", params);
+    }
+    generateVideoThumbnail() {
+        return new Promise((resolve) => {
+            const video = document.createElement("video");
+            video.preload = "metadata";
+            video.src = this.defaultSource;
+            video.addEventListener(
+                "loadedmetadata",
+                () => {
+                    const thumbnailCanvas = document.createElement("canvas");
+                    const ratio = Math.min(320 / video.videoWidth, 196 / video.videoHeight);
+                    const width = video.videoWidth * ratio;
+                    const height = video.videoHeight * ratio;
+                    thumbnailCanvas.width = width;
+                    thumbnailCanvas.height = height;
+                    video.currentTime = video.duration / 2;
+                    video.addEventListener(
+                        "seeked",
+                        () => {
+                            thumbnailCanvas
+                                .getContext("2d")
+                                .drawImage(
+                                    video,
+                                    0,
+                                    0,
+                                    video.videoWidth,
+                                    video.videoHeight,
+                                    0,
+                                    0,
+                                    width,
+                                    height
+                                );
+                            const thumbnail = thumbnailCanvas
+                                .toDataURL("image/jpeg")
+                                .replace("data:image/jpeg;base64,", "");
+                            resolve(thumbnail);
+                        },
+                        { once: true }
+                    );
+                },
+                { once: true }
+            );
+        });
     }
 
     get gifPaused() {
@@ -70,7 +121,7 @@ export class Attachment extends FileModelMixin(Record) {
     }
 
     get isDeletable() {
-        if (this.message && this.store.self.main_user_id?.share !== false) {
+        if (this.message && this.store.self_user?.share !== false) {
             return this.message.editable;
         }
         return true;
@@ -100,27 +151,28 @@ export class Attachment extends FileModelMixin(Record) {
      * globally.
      */
     async remove() {
-        if (this.id > 0) {
-            await rpc(
-                "/mail/attachment/delete",
-                assignDefined({ attachment_id: this.id }, { access_token: this.ownership_token })
-            );
-        }
-        this.delete();
+        await this.store.removeAttachments([this]);
     }
 
     get previewName() {
         return this.voice ? _t("Voice Message") : this.name || "";
     }
 
-    async setPdfThumbnail() {
-        const { isPdfValid, thumbnail } = await generatePdfThumbnail(
-            url(
-                `/mail/attachment/pdf_first_page/${this.id}`,
-                assignDefined({}, { access_token: this.ownership_token })
-            )
-        );
-        if (isPdfValid) {
+    async setThumbnail() {
+        let thumbnail;
+        if (this.isPdf) {
+            const pdfThumbnail = await generatePdfThumbnail(
+                url(
+                    `/mail/attachment/pdf_first_page/${this.id}`,
+                    assignDefined({}, { access_token: this.ownership_token })
+                )
+            );
+            thumbnail = pdfThumbnail.thumbnail;
+        }
+        if (this.isVideo) {
+            thumbnail = await this.generateVideoThumbnail();
+        }
+        if (thumbnail) {
             rpc(
                 `/mail/attachment/update_thumbnail`,
                 assignDefined(
@@ -129,6 +181,26 @@ export class Attachment extends FileModelMixin(Record) {
                 )
             );
         }
+    }
+
+    get textThumbnailUrl() {
+        if (this.id < 0) {
+            return "";
+        }
+        return url(`/mail/attachment/render_text/${encodeURIComponent(this.id)}`, {
+            ...this.urlQueryParams,
+            head: "1",
+        });
+    }
+
+    get defaultSource() {
+        if (this.isText) {
+            return url(
+                `/mail/attachment/render_text/${encodeURIComponent(this.id)}`,
+                this.urlQueryParams
+            );
+        }
+        return super.defaultSource;
     }
 }
 

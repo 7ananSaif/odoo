@@ -10,7 +10,6 @@ import {
 import { beforeEach, describe, expect, test } from "@odoo/hoot";
 import { queryFirst } from "@odoo/hoot-dom";
 import { defineResourceMailModels } from "./resource_mail_test_helpers";
-import { onRpc } from "@web/../tests/web_test_helpers";
 
 describe.current.tags("desktop");
 const data = {};
@@ -19,7 +18,7 @@ beforeEach(async () => {
     /* 1. Create data
         3 type of records tested:
         - Task linked to a material resource (resourceComputer)
-            - fa-wrench should be used instead of avatar
+            - "build" icon should be used instead of avatar
             - clicking the icon should not open any popover
         - Task linked to a human resource not linked to a user (resourceMarie)
             (- avatar of the resource should not be displayed)
@@ -40,6 +39,7 @@ beforeEach(async () => {
         phone: "+32487898933",
     });
     data.userPierreId = pyEnv["res.users"].create({
+        im_status: "online",
         name: "Pierre",
         partner_id: data.partnerPierreId,
     });
@@ -60,7 +60,6 @@ beforeEach(async () => {
             name: "Pierre",
             resource_type: "user",
             user_id: data.userPierreId,
-            im_status: "online",
         },
     ]);
 
@@ -82,20 +81,6 @@ beforeEach(async () => {
             resource_type: "user",
         },
     ]);
-    onRpc("resource.resource", "get_avatar_card_data", (params) => {
-        const resourceIdArray = params.args[0];
-        const resourceId = resourceIdArray[0];
-        const resources = pyEnv['resource.resource'].read([resourceId]);
-        const result = resources.map(resource => ({
-            name: resource.name,
-            role_ids: resource.role_ids,
-            email:resource.email,
-            phone: resource.phone,
-            user_id: resource.user_id,
-        }));
-        return result;
-    });
-
 });
 
 test("many2one_avatar_resource widget in form view", async () => {
@@ -119,8 +104,8 @@ test("many2one_avatar_resource widget in list view", async () => {
             </list>`,
     });
     await contains(".o_m2o_avatar", { count: 3 });
-    // fa-wrench should be displayed for the first task
-    await contains(".o_m2o_avatar > span.o_material_resource > i.fa-wrench");
+    // "build" icon should be displayed for the first task
+    await contains(".o_m2o_avatar > span.o_material_resource > i[data-icon='build']");
     // Second and third slots should display employee avatar
     await contains(".o_field_many2one_avatar_resource img", { count: 2 });
     await contains(".o_field_many2one_avatar_resource a", { count: 0 });
@@ -139,8 +124,8 @@ test("many2one_avatar_resource widget in kanban view", async () => {
             </kanban>`,
     });
     await contains(".o_m2o_avatar", { count: 3 });
-    // fa-wrench should be displayed for the first task
-    await contains(".o_m2o_avatar > span.o_material_resource > i.fa-wrench");
+    // "build" icon should be displayed for the first task
+    await contains(".o_m2o_avatar > span.o_material_resource > i[data-icon='build']");
     // Second and third slots should display employee avatar
     await contains(".o_field_many2one_avatar_resource img", { count: 2 });
     expect(queryFirst(".o_field_many2one_avatar_resource img").getAttribute("data-src")).toBe(
@@ -156,7 +141,7 @@ test("many2one_avatar_resource widget in kanban view", async () => {
     await contains(".o_avatar_card", { count: 0 });
     // 2. Clicking on human resource's avatar with no user associated
     await click(".o_kanban_record:nth-of-type(2) .o_m2o_avatar > img");
-    await contains(".o_card_user_infos span", { text: "Marie" });
+    await contains(".o-mail-avatar-card-name", { text: "Marie" });
     await contains(
         ".o_avatar_card",
         { count: 1 },
@@ -169,7 +154,7 @@ test("many2one_avatar_resource widget in kanban view", async () => {
     );
     // 3. Clicking on human resource's avatar with one user associated
     await click(".o_kanban_record:nth-of-type(3) .o_m2o_avatar > img");
-    await contains(".o_card_user_infos span", { text: "Pierre" });
+    await contains(".o-mail-avatar-card-name", { text: "Pierre" });
     await contains(
         ".o_avatar_card",
         { count: 1 },
@@ -177,8 +162,7 @@ test("many2one_avatar_resource widget in kanban view", async () => {
     );
     await contains(".o_card_user_infos > a", { text: "Pierre@odoo.test" });
     await contains(".o_card_user_infos > a", { text: "+32487898933" });
-    expect(".o_avatar_card_buttons button:first").toHaveText("Send message");
-    await click(".o_avatar_card_buttons button");
+    await click(".o_avatar_card_buttons button:first:text(Send message)");
     await contains(".o-mail-ChatWindow");
-    expect(".o-mail-ChatWindow-moreActions > .text-truncate:first").toHaveText("Pierre");
+    expect(".o-mail-ChatWindow-displayName").toHaveText("Pierre");
 });

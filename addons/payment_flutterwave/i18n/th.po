@@ -4,34 +4,62 @@
 #
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# Nusara Boonma <nuboo@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-11-08 19:08+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Thai <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:44+0000\n"
+"PO-Revision-Date: 2026-08-31 13:39+0000\n"
+"Last-Translator: Nusara Boonma <nuboo@odoo.com>\n"
+"Language-Team: Thai <https://translate.odoo.com/projects/odoo-s19-4/"
 "payment_flutterwave/th/>\n"
 "Language: th\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: payment_flutterwave
-#. odoo-python
-#: code:addons/payment_flutterwave/models/payment_transaction.py:0
-msgid ""
-"An error occurred during the processing of your payment (status %s). Please "
-"try again."
-msgstr "เกิดข้อผิดพลาดระหว่างการประมวลผลการชำระเงินของคุณ (สถานะ %s) กรุณาลองใหม่อีกครั้ง"
+#: model:ir.module.module,summary:base.module_payment_flutterwave
+msgid "A Nigerian payment provider covering several African countries."
+msgstr ""
+
+#. module: payment_flutterwave
+#: model:payment.method,name:payment_flutterwave.payment_method_amex
+msgid "American Express"
+msgstr "American Express"
+
+#. module: payment_flutterwave
+#: model:payment.method,name:payment_flutterwave.payment_method_bank_account
+msgid "Bank Account"
+msgstr ""
+
+#. module: payment_flutterwave
+#: model:payment.method,name:payment_flutterwave.payment_method_bank_transfer
+msgid "Bank Transfer"
+msgstr ""
+
+#. module: payment_flutterwave
+#: model:payment.method,name:payment_flutterwave.payment_method_card
+msgid "Card"
+msgstr ""
 
 #. module: payment_flutterwave
 #: model:ir.model.fields,field_description:payment_flutterwave.field_payment_provider__code
 msgid "Code"
 msgstr "โค้ด"
+
+#. module: payment_flutterwave
+#: model:payment.method,name:payment_flutterwave.payment_method_credit
+msgid "Credit Payment"
+msgstr ""
+
+#. module: payment_flutterwave
+#: model:payment.method,name:payment_flutterwave.payment_method_discover
+msgid "Discover"
+msgstr ""
 
 #. module: payment_flutterwave
 #: model:ir.model.fields,field_description:payment_flutterwave.field_payment_provider__display_name
@@ -73,9 +101,29 @@ msgid "ID"
 msgstr "ไอดี"
 
 #. module: payment_flutterwave
+#: model:payment.method,name:payment_flutterwave.payment_method_mpesa
+msgid "M-Pesa"
+msgstr ""
+
+#. module: payment_flutterwave
+#: model:payment.method,name:payment_flutterwave.payment_method_mastercard
+msgid "MasterCard"
+msgstr ""
+
+#. module: payment_flutterwave
+#: model:payment.method,name:payment_flutterwave.payment_method_mobile_money
+msgid "Mobile money"
+msgstr ""
+
+#. module: payment_flutterwave
 #: model:ir.model,name:payment_flutterwave.model_payment_provider
 msgid "Payment Provider"
 msgstr "ผู้ให้บริการชำระเงิน"
+
+#. module: payment_flutterwave
+#: model:ir.module.module,shortdesc:base.module_payment_flutterwave
+msgid "Payment Provider: Flutterwave"
+msgstr ""
 
 #. module: payment_flutterwave
 #: model:ir.model,name:payment_flutterwave.model_payment_token
@@ -86,6 +134,11 @@ msgstr "โทเค็นการชำระเงิน"
 #: model:ir.model,name:payment_flutterwave.model_payment_transaction
 msgid "Payment Transaction"
 msgstr "ธุรกรรมสำหรับการชำระเงิน"
+
+#. module: payment_flutterwave
+#: model:payment.method,name:payment_flutterwave.payment_method_paypal
+msgid "Paypal"
+msgstr ""
 
 #. module: payment_flutterwave
 #: model_terms:ir.ui.view,arch_db:payment_flutterwave.payment_provider_form
@@ -113,29 +166,22 @@ msgid "The technical code of this payment provider."
 msgstr "รหัสทางเทคนิคของผู้ให้บริการชำระเงินรายนี้"
 
 #. module: payment_flutterwave
+#: model:payment.method,name:payment_flutterwave.payment_method_ussd
+msgid "USSD"
+msgstr ""
+
+#. module: payment_flutterwave
 #. odoo-python
 #: code:addons/payment_flutterwave/models/payment_transaction.py:0
 msgid "Unknown payment status: %s"
 msgstr "ไม่ทราบสถานะการชำระเงิน: %s"
 
 #. module: payment_flutterwave
+#: model:payment.method,name:payment_flutterwave.payment_method_visa
+msgid "VISA"
+msgstr ""
+
+#. module: payment_flutterwave
 #: model_terms:ir.ui.view,arch_db:payment_flutterwave.payment_provider_form
 msgid "Webhook Secret"
 msgstr "เว็บฮุคลับ"
-
-#~ msgid "Could not establish the connection to the API."
-#~ msgstr "ไม่สามารถสร้างการเชื่อมต่อกับ API ได้"
-
-#~ msgid "No transaction found matching reference %s."
-#~ msgstr "ไม่พบธุรกรรมที่ตรงกับการอ้างอิง %s"
-
-#~ msgid "Received data with missing reference."
-#~ msgstr "ได้รับข้อมูลโดยไม่มีการอ้างอิง"
-
-#~ msgid ""
-#~ "The communication with the API failed. Flutterwave gave us the following "
-#~ "information: '%s'"
-#~ msgstr "การสื่อสารกับ API ล้มเหลว Flutterwave ให้ข้อมูลต่อไปนี้กับเรา: '%s'"
-
-#~ msgid "The transaction is not linked to a token."
-#~ msgstr "ธุรกรรมไม่ได้เชื่อมโยงกับโทเค็น"

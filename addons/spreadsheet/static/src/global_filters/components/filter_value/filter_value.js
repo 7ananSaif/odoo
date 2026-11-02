@@ -3,7 +3,7 @@
 import { MultiRecordSelector } from "@web/core/record_selectors/multi_record_selector";
 import { DateFilterValue } from "../date_filter_value/date_filter_value";
 
-import { Component, onWillStart } from "@odoo/owl";
+import { Component, onWillStart, t, useProps } from "@odoo/owl";
 import { components } from "@odoo/o-spreadsheet";
 import { _t } from "@web/core/l10n/translation";
 import { useService } from "@web/core/utils/hooks";
@@ -16,10 +16,10 @@ import {
     isTextualOperator,
     isSetOperator,
     getDefaultValue,
+    getFilterValuePlaceholder,
 } from "@spreadsheet/global_filters/helpers";
-import { NumericFilterValue } from "../numeric_filter_value/numeric_filter_value";
 
-const { ValidationMessages } = components;
+const { ValidationMessages, NumberInput } = components;
 
 export class FilterValue extends Component {
     static template = "spreadsheet.FilterValue";
@@ -29,16 +29,17 @@ export class FilterValue extends Component {
         MultiRecordSelector,
         SelectionFilterValue,
         ValidationMessages,
-        NumericFilterValue,
+        NumberInput,
     };
-    static props = {
-        filter: Object,
-        model: Object,
-        setGlobalFilterValue: Function,
-        globalFilterValue: { optional: true },
-        showTitle: { type: Boolean, optional: true },
-        showClear: { type: Boolean, optional: true },
-    };
+    props = useProps({
+        filter: t.object(),
+        model: t.object(),
+        setGlobalFilterValue: t.function(),
+        globalFilterValue: t.any().optional(),
+        showTitle: t.boolean().optional(),
+        showClear: t.boolean().optional(),
+        rangesOfAllowedValues: t.array().optional(),
+    });
 
     setup() {
         this.getters = this.props.model.getters;
@@ -79,6 +80,9 @@ export class FilterValue extends Component {
     }
 
     get textAllowedValues() {
+        if (this.props.rangesOfAllowedValues) {
+            return this.getters.getTextFilterOptionsFromRanges(this.props.rangesOfAllowedValues);
+        }
         return this.getters.getTextFilterOptions(this.filter.id);
     }
 
@@ -98,6 +102,11 @@ export class FilterValue extends Component {
                 model,
             }
         );
+    }
+
+    get placeholder() {
+        const operator = this.filterValue?.operator || this.getDefaultOperator();
+        return getFilterValuePlaceholder(this.filter, operator);
     }
 
     getDefaultOperator() {
@@ -121,7 +130,7 @@ export class FilterValue extends Component {
         const operator = this.filterValue?.operator ?? this.getDefaultOperator();
         const newFilterValue = {
             operator,
-            targetValue: value,
+            targetValue: value === "" ? undefined : parseFloat(value),
         };
         this.props.setGlobalFilterValue(id, newFilterValue);
     }
@@ -139,7 +148,10 @@ export class FilterValue extends Component {
         const operator = this.filterValue?.operator ?? this.getDefaultOperator();
         const newFilterValue = {
             operator,
-            ...this.reorderValues(value, this.filterValue?.maximumValue),
+            ...this.reorderValues(
+                value === "" ? undefined : parseFloat(value),
+                this.filterValue?.maximumValue
+            ),
         };
         this.props.setGlobalFilterValue(id, newFilterValue);
     }
@@ -148,7 +160,10 @@ export class FilterValue extends Component {
         const operator = this.filterValue?.operator ?? this.getDefaultOperator();
         const newFilterValue = {
             operator,
-            ...this.reorderValues(this.filterValue?.minimumValue, value),
+            ...this.reorderValues(
+                this.filterValue?.minimumValue,
+                value === "" ? undefined : parseFloat(value)
+            ),
         };
         this.props.setGlobalFilterValue(id, newFilterValue);
     }

@@ -19,7 +19,7 @@ class TestUi(HttpCase):
             'website_published': True,
         })
         # set current company's fiscal country to Taiwan
-        website = self.env['website'].get_current_website()
+        website = self.env.ref('base.default_website')
         website.company_id.write({
             'l10n_tw_edi_ecpay_staging_mode': True,
             'l10n_tw_edi_ecpay_merchant_id': '1234',
@@ -28,8 +28,7 @@ class TestUi(HttpCase):
             'phone': '+886 123 456 781',
         })
         website.company_id.account_fiscal_country_id = website.company_id.country_id = self.env.ref('base.tw')
-        self.env.ref('l10n_tw_edi_ecpay_website_sale.checkout_step_invoicing').website_id = website
-        self.env.ref('l10n_tw_edi_ecpay_website_sale.checkout_step_invoicing').is_published = True
+        website.company_id.country_id.enforce_cities = False
 
     def test_validate_customer_info_error(self):
         with patch(CALL_API_METHOD, new=self._test_validation_mock):

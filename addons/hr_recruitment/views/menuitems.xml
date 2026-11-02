@@ -5,7 +5,7 @@
         id="menu_hr_recruitment_root"
         web_icon="hr_recruitment,static/description/icon.png"
         groups="hr_recruitment.group_hr_recruitment_user,hr_recruitment.group_hr_recruitment_interviewer"
-        sequence="210"/>
+        sequence="205"/>
 
         <menuitem
             name="Applications"
@@ -95,6 +95,13 @@
                     sequence="2"
                     groups="hr.group_hr_user"/>
 
+                <menuitem
+                    id="menu_hr_job_tag_menu"
+                    action="hr_job_tag_action"
+                    parent="menu_hr_recruitment_config_jobs"
+                    sequence="3"
+                    groups="hr.group_hr_user"/>
+
             <menuitem
                 id="menu_hr_recruitment_utm"
                 parent="menu_hr_recruitment_configuration"
@@ -118,6 +125,14 @@
                     groups="base.group_no_one"
                     sequence="15"/>
 
+                <menuitem
+                    id="menu_hr_recruitment_utm_campaigns"
+                    parent="menu_hr_recruitment_utm"
+                    name="Campaigns"
+                    action="utm.utm_campaign_action"
+                    groups="base.group_no_one"
+                    sequence="15"/>
+                    
             <menuitem
                 id="menu_hr_recruitment_config_applications"
                 name="Applications"

@@ -19,23 +19,32 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-11-28 12:47+0000\n"
-"Last-Translator: \"Malaz Siddig Elsayed Abuidris (msea)\" <msea@odoo.com>\n"
-"Language-Team: Turkish <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 16:34+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Turkish <https://translate.odoo.com/projects/odoo-s19-4/"
 "hr_presence/tr/>\n"
 "Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: hr_presence
-#. odoo-python
-#: code:addons/hr_presence/models/hr_employee.py:0
-msgid "%(name)s has been noted as %(state)s today"
-msgstr "Bugün %(state)s olarak kaydedilenler: %(name)s"
+#: model:ir.module.module,description:base.module_hr_presence
+msgid ""
+"\n"
+"Control Employees Presence\n"
+"==========================\n"
+"\n"
+"Based on:\n"
+"    * The IP Address\n"
+"    * The User's Session\n"
+"    * The Sent Emails\n"
+"\n"
+"Allows to contact directly the employee in case of unjustified absence.\n"
+msgstr ""
 
 #. module: hr_presence
 #: model:mail.template,body_html:hr_presence.mail_template_presence
@@ -71,21 +80,14 @@ msgstr ""
 "            "
 
 #. module: hr_presence
-#: model:ir.model.fields.selection,name:hr_presence.selection__hr_employee__hr_presence_state_display__absent
-#: model:ir.model.fields.selection,name:hr_presence.selection__hr_employee_public__hr_presence_state_display__absent
 #: model_terms:ir.ui.view,arch_db:hr_presence.hr_employee_view_search
 msgid "Absent"
 msgstr "Mevcut Değil"
 
 #. module: hr_presence
-#: model:ir.actions.server,name:hr_presence.action_hr_employee_presence_log
-msgid "Add a log note"
-msgstr "Kayıt notu ekleyin"
-
-#. module: hr_presence
 #: model:ir.model,name:hr_presence.model_res_company
-msgid "Companies"
-msgstr "Şirketler"
+msgid "Company"
+msgstr ""
 
 #. module: hr_presence
 #: model:ir.model,name:hr_presence.model_res_config_settings
@@ -119,6 +121,11 @@ msgid "Employee"
 msgstr "Çalışan"
 
 #. module: hr_presence
+#: model:ir.module.module,shortdesc:base.module_hr_presence
+msgid "Employee Presence Control"
+msgstr ""
+
+#. module: hr_presence
 #: model:sms.template,name:hr_presence.sms_template_data_hr_presence
 msgid "Employee: Presence Reminder"
 msgstr "Personel: Hazır Bulunma Hatırlatması"
@@ -148,12 +155,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:hr_presence.field_res_company__hr_presence_last_compute_date
 msgid "Hr Presence Last Compute Date"
 msgstr "İk Hazır Bulunma Son İşlem Tarihi"
-
-#. module: hr_presence
-#: model:ir.model.fields,field_description:hr_presence.field_hr_employee__hr_presence_state_display
-#: model:ir.model.fields,field_description:hr_presence.field_hr_employee_public__hr_presence_state_display
-msgid "Hr Presence State Display"
-msgstr "İk Hazır Bulunma Durumu Ekranı"
 
 #. module: hr_presence
 #: model:ir.model.fields,field_description:hr_presence.field_hr_employee__id
@@ -189,28 +190,10 @@ msgid "Manually Set Present"
 msgstr "Manuel olarak Ayarla"
 
 #. module: hr_presence
-#: model:ir.model.fields.selection,name:hr_presence.selection__hr_employee__hr_presence_state_display__out_of_working_hour
-#: model:ir.model.fields.selection,name:hr_presence.selection__hr_employee_public__hr_presence_state_display__out_of_working_hour
-#: model_terms:ir.ui.view,arch_db:hr_presence.hr_employee_view_search
-msgid "Off-Hours"
-msgstr "Mesai Dışı"
-
-#. module: hr_presence
 #. odoo-javascript
-#: code:addons/hr_presence/static/src/search/hr_presence_cog_menu/hr_presence_cog_menu.xml:0
+#: code:addons/hr_presence/static/src/presence_cog_menu/presence_cog_menu.xml:0
 msgid "Presence Control"
 msgstr "Çalışan Mevcudiyet Kontrolü"
-
-#. module: hr_presence
-#: model_terms:ir.ui.view,arch_db:hr_presence.hr_employee_view_search
-msgid "Presence/Absence"
-msgstr "Varlık/Yokluk"
-
-#. module: hr_presence
-#: model:ir.model.fields.selection,name:hr_presence.selection__hr_employee__hr_presence_state_display__present
-#: model:ir.model.fields.selection,name:hr_presence.selection__hr_employee_public__hr_presence_state_display__present
-msgid "Present"
-msgstr "Mevcut"
 
 #. module: hr_presence
 #: model:ir.model,name:hr_presence.model_hr_employee_public
@@ -220,13 +203,9 @@ msgstr "Herkese Açık Personel"
 #. module: hr_presence
 #. odoo-python
 #: code:addons/hr_presence/models/hr_employee.py:0
+#: model:ir.actions.server,name:hr_presence.action_hr_employee_presence_sms
 msgid "Send SMS"
 msgstr "SMS Gönder"
-
-#. module: hr_presence
-#: model:ir.actions.server,name:hr_presence.action_hr_employee_presence_sms
-msgid "Send a SMS"
-msgstr "SMS Gönderin"
 
 #. module: hr_presence
 #: model:mail.template,description:hr_presence.mail_template_presence
@@ -295,63 +274,3 @@ msgstr "Bunu yapma hakkınız yok. Lütfen bir Yöneticiye başvurun."
 #: model:ir.model,name:hr_presence.model_ir_websocket
 msgid "websocket message handling"
 msgstr "websocket mesaj işleme"
-
-#~ msgid "Absence/Presence"
-#~ msgstr "Devamsızlık/Varlık"
-
-#~ msgid "Basic Employee"
-#~ msgstr "Temel Personel"
-
-#~ msgid "Compose Email"
-#~ msgstr "E-posta Oluştur"
-
-#~ msgid "Compute presence and open presence view"
-#~ msgstr "Hazır bulunma ve açık bulunma görünümünü hesaplama"
-
-#~ msgid "Create Uid"
-#~ msgstr "Kullanıcı Kimliği Oluştur"
-
-#~ msgid "Employee's Presence to Define"
-#~ msgstr "Tanımlamak için Çalışanın Varlığı"
-
-#~ msgid "Employees"
-#~ msgstr "Personel"
-
-#~ msgid ""
-#~ "Exception made if there was a mistake of ours, it seems that you are not "
-#~ "at your office and there is not request of time off from you.\n"
-#~ "Please, take appropriate measures in order to carry out this work "
-#~ "absence.\n"
-#~ "Do not hesitate to contact your manager or the human resource department."
-#~ msgstr ""
-#~ "Bizim bir hatamız varsa gözardı edin, ofisinizde olmadığınız ve sizden "
-#~ "izin talebi olmadığı anlaşılıyor.\n"
-#~ "Lütfen, bu iş devamsızlığını gerçekleştirmek için uygun önlemleri alın.\n"
-#~ "Yöneticinize veya insan kaynakları departmanınıza başvurmaktan çekinmeyin."
-
-#~ msgid "Log"
-#~ msgstr "Kayıt"
-
-#~ msgid "Presence"
-#~ msgstr "Hazır Bulunma"
-
-#~ msgid "SMS"
-#~ msgstr "SMS"
-
-#~ msgid "Set as absent"
-#~ msgstr "Yok olarak ayarla"
-
-#~ msgid "Set as present"
-#~ msgstr "Mevcut olarak ayarla"
-
-#~ msgid "There is no professional email address for this employee."
-#~ msgstr "Bu personel için profesyonel bir e-posta adresi yok."
-
-#~ msgid "There is no professional mobile for this employee."
-#~ msgstr "Bu personel için profesyonel bir cep telefonu yok."
-
-#~ msgid "Time Off"
-#~ msgstr "İzin"
-
-#~ msgid "To Define"
-#~ msgstr "Tanımlanacak"

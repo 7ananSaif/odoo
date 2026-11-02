@@ -1,12 +1,3 @@
-.o_cw_popover .o_cw_popover_fields_secondary {
-    max-height: 75vh;
-
-    & > li > div {
-        min-width: 0;
-    }
-}
-
-
 .o_cw_body .o_field_copy {
     max-width: calc(100% - 6rem);
     width: unset !important;
@@ -16,12 +7,26 @@
     padding-top: 0px !important;
 }
 
-.o_cw_body li:has(.o_field_html[name="description"]){
-    span:has(i) {
-        align-self: flex-start;
+.o_cw_body .o_field_widget.o_field_html[name="description"] {
+    text-wrap: wrap;
+}
+
+.o_cw_activity_popover {
+    div:first-child {
+        // Remove popover focus outline.
+        // NB: On open, popover auto-focus the first tabable element (cf useActiveElement hook).
+        //     tabindex="0" has been added to the first div wrapper to make it the first tabable element.
+        //     This prevents having, on popover open, a weird auto-focus style on the first button/link.
+        outline: none;
     }
-    .o_field_html {
-        text-wrap: wrap;
+    .o-mail-ActivityListPopoverItem > :first-child .btn-link {
+        // Adjust spacings to prevent buttons box-shadow from overflowing the item container
+        width: 23px;
+        margin: map-get($spacers, 1);
+        padding-right: map-get($spacers, 1);
+        padding-left: map-get($spacers, 1);
+        padding-top: 0;
+        padding-bottom: 0;
     }
 }
 
@@ -56,20 +61,20 @@
     &.o_event_dot {
         &.o_attendee_status_needsAction {
             &:before {
-                content: "\f1db"; // fa-circle-thin
+                content: "radio_button_unchecked";
             }
         }
 
         &.o_attendee_status_tentative:before {
-            content: "\f059"; // fa-question-circle
+            content: "help_f";
         }
 
         &.o_attendee_status_declined:before {
-            content: "\f05e"; // fa-ban
+            content: "block";
         }
 
         &.o_attendee_status_alone {
-            content: "\f06a"; // fa-exclamation-circle
+            content: "error_f";
         }
     }
 
@@ -77,6 +82,38 @@
         .fc-event-main {
             text-decoration: line-through;
         }
+    }
+
+    &.o_activity_event {
+        // For the user activity events, use the user color with
+        // a slight change so that activities can be spotted
+        // more easily in the calendar view.
+        @for $i from 1 through length($o-colors-complete) {
+            $color: nth($o-colors-complete, $i);
+            &.o_calendar_color_#{$i - 1} {
+                --fc-event-bg-color: #{mix($o-white, $color, 80%)};
+            }
+        }
+    }
+
+    &.o_calendar_event_draft::after {
+        content: '';
+        @include o-position-absolute(0, 0, 0, 0);
+        display: block;
+        z-index: 3;
+        background-color: rgba($o-view-background-color, var(--o-overlay-opacity));
+    }
+}
+
+// Color the attendee tags in the "Meet with" calendar filters to match their event color.
+@for $i from 1 through length($o-colors-complete) {
+    $color: nth($o-colors-complete, $i);
+    $color-subtle: mix($o-white, $color, 55%);
+    .o_calendar_filter[data-name="partner_ids"] .o_tag_color_#{$i - 1} {
+        color: color-contrast($color-subtle) !important;
+        background-color: $color-subtle !important;
+        font-weight: normal !important;
+        border: 0;
     }
 }
 

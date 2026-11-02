@@ -19,6 +19,7 @@ class CrmTeamFormController extends FormController {
 
     setup() {
         super.setup();
+        this.action = useService("action");
         this.orm = useService("orm");
     }
 
@@ -29,11 +30,13 @@ class CrmTeamFormController extends FormController {
             }
             const alert = document.querySelector(".alert");
             try {
-                await this.orm.call("ir.config_parameter", "set_param", [
+                await this.orm.call("ir.config_parameter", "set_bool", [
                     "sales_team.membership_multi",
                     true,
                 ]);
-                alert?.classList.add('d-none');
+                // Reload so the session's "is_membership_multi" flag is updated
+                // which correctly activates the team switcher.
+                await this.action.doAction("reload");
             } catch {
                 if (alert) {
                     alert.classList.replace("alert-info", "alert-danger");

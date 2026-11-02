@@ -30,13 +30,14 @@ class CrmPartnerReportAssign(models.Model):
     }
 
     @property
-    def _table_query(self):
+    def _table_sql(self):
         """
             CRM Lead Report
             @param cr: the current row, from the database cursor
         """
+        to_flush = super()._table_sql._sql_tuple[2]
         return SQL(
-            """
+            """(
                 SELECT
                     COALESCE(2 * i.id, 2 * p.id + 1) AS id,
                     p.id as partner_id,
@@ -51,8 +52,9 @@ class CrmPartnerReportAssign(models.Model):
                     i.invoice_date as date
                 FROM
                     res_partner p
-                    left join (%(account_invoice_report)s) i
+                    left join %(account_invoice_report)s i
                         on (i.partner_id=p.id and i.move_type in ('out_invoice','out_refund') and i.state='posted')
-            """,
-            account_invoice_report=self.env['account.invoice.report']._table_query,
+            )""",
+            account_invoice_report=self.env['account.invoice.report']._table_sql,
+            to_flush=to_flush,
         )

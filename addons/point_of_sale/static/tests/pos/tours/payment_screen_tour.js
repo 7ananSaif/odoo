@@ -1,15 +1,13 @@
-/* global posmodel */
-
 import * as Chrome from "@point_of_sale/../tests/pos/tours/utils/chrome_util";
 import * as Dialog from "@point_of_sale/../tests/generic_helpers/dialog_util";
 import * as ProductScreen from "@point_of_sale/../tests/pos/tours/utils/product_screen_util";
 import * as PaymentScreen from "@point_of_sale/../tests/pos/tours/utils/payment_screen_util";
 import { registry } from "@web/core/registry";
 import * as OfflineUtil from "@point_of_sale/../tests/generic_helpers/offline_util";
+import { negateStep, refresh } from "@point_of_sale/../tests/generic_helpers/utils";
 import * as TicketScreen from "@point_of_sale/../tests/pos/tours/utils/ticket_screen_util";
 import * as Order from "@point_of_sale/../tests/generic_helpers/order_widget_util";
 import * as Numpad from "@point_of_sale/../tests/generic_helpers/numpad_util";
-import * as NumberPopup from "@point_of_sale/../tests/generic_helpers/number_popup_util";
 import { inLeftSide } from "./utils/common";
 
 registry.category("web_tour.tours").add("PaymentScreenTour", {
@@ -18,6 +16,7 @@ registry.category("web_tour.tours").add("PaymentScreenTour", {
             Chrome.startPoS(),
             Dialog.confirm("Open Register"),
             OfflineUtil.setOfflineMode(),
+            Dialog.cancel(), // Offline mode after opening register will trigger the offline popup since the device try to sync
             ProductScreen.addOrderline("Letter Tray", "10"),
             ProductScreen.clickPayButton(),
             PaymentScreen.emptyPaymentlines("52.8"),
@@ -61,7 +60,7 @@ registry.category("web_tour.tours").add("PaymentScreenTour", {
             // Multiple paymentlines
             PaymentScreen.clickPaymentMethod("Cash"),
             PaymentScreen.clickNumpad("1"),
-            PaymentScreen.fillPaymentLineAmountMobile("Cash", "1"),
+            PaymentScreen.fillPaymentLineAmountMobile("52.80", "1", 1),
             PaymentScreen.remainingIs("51.8"),
             PaymentScreen.validateButtonIsHighlighted(false),
             PaymentScreen.clickPaymentMethod("Bank"),
@@ -75,112 +74,6 @@ registry.category("web_tour.tours").add("PaymentScreenTour", {
         ].flat(),
 });
 
-registry.category("web_tour.tours").add("PaymentScreenTour2", {
-    steps: () =>
-        [
-            Chrome.startPoS(),
-            Dialog.confirm("Open Register"),
-            ProductScreen.addOrderline("Letter Tray", "1", "10"),
-            ProductScreen.clickPayButton(),
-
-            // check that ship later button is present
-            { trigger: ".payment-buttons button:contains('Ship Later')" },
-
-            PaymentScreen.enterPaymentLineAmount("Bank", "99"),
-            // trying to put 99 as an amount should throw an error. We thus confirm the dialog.
-            Dialog.confirm(),
-            PaymentScreen.remainingIs("0.0"),
-        ].flat(),
-});
-
-registry.category("web_tour.tours").add("PaymentScreenRoundingUp", {
-    steps: () =>
-        [
-            Chrome.startPoS(),
-            Dialog.confirm("Open Register"),
-            ProductScreen.addOrderline("Product Test", "1"),
-            ProductScreen.clickPayButton(),
-
-            PaymentScreen.totalIs("1.96"),
-            PaymentScreen.clickPaymentMethod("Cash", true, { remaining: "0.0", amount: "2.00" }),
-            PaymentScreen.clickValidate(),
-
-            Chrome.clickOrders(),
-            TicketScreen.selectFilter("Paid"),
-            TicketScreen.selectOrder("001"),
-            inLeftSide([
-                ...Order.hasLine({ productName: "Product Test", withClass: ".selected" }),
-                Numpad.click("1"),
-            ]),
-            TicketScreen.confirmRefund(),
-
-            // To get negative of existing quantity just send -
-            PaymentScreen.isShown(),
-            PaymentScreen.totalIs("-1.96"),
-            PaymentScreen.clickPaymentMethod("Cash", true, { remaining: "0.0", amount: "-2.00" }),
-        ].flat(),
-});
-
-registry.category("web_tour.tours").add("PaymentScreenRoundingDown", {
-    steps: () =>
-        [
-            Chrome.startPoS(),
-            Dialog.confirm("Open Register"),
-            ProductScreen.addOrderline("Product Test", "1"),
-            ProductScreen.clickPayButton(),
-
-            PaymentScreen.totalIs("1.98"),
-            PaymentScreen.clickPaymentMethod("Cash", true, { remaining: "0.0", amount: "1.95" }),
-            PaymentScreen.clickValidate(),
-
-            Chrome.clickOrders(),
-            TicketScreen.selectFilter("Paid"),
-            TicketScreen.selectOrder("001"),
-            inLeftSide([
-                ...Order.hasLine({ productName: "Product Test", withClass: ".selected" }),
-                Numpad.click("1"),
-            ]),
-            TicketScreen.confirmRefund(),
-
-            // To get negative of existing quantity just send -
-            PaymentScreen.isShown(),
-            PaymentScreen.totalIs("-1.98"),
-            PaymentScreen.clickPaymentMethod("Cash", true, { remaining: "0.0", amount: "-1.95" }),
-        ].flat(),
-});
-
-registry.category("web_tour.tours").add("PaymentScreenTotalDueWithOverPayment", {
-    steps: () =>
-        [
-            Chrome.startPoS(),
-            ProductScreen.addOrderline("Product Test", "1"),
-            ProductScreen.clickPayButton(),
-
-            PaymentScreen.totalIs("1.98"),
-            PaymentScreen.clickPaymentMethod("Cash"),
-            PaymentScreen.enterPaymentLineAmount("Cash", "5", true, {
-                change: "3",
-            }),
-        ].flat(),
-});
-
-registry.category("web_tour.tours").add("InvoiceShipLaterAccessRight", {
-    steps: () =>
-        [
-            Chrome.startPoS(),
-            ProductScreen.confirmOpeningPopup(),
-            ProductScreen.clickHomeCategory(),
-            ProductScreen.addOrderline("Whiteboard Pen", "1"),
-            ProductScreen.clickPartnerButton(),
-            ProductScreen.clickCustomer("Acme Corporation"),
-            ProductScreen.clickPayButton(),
-
-            PaymentScreen.clickPaymentMethod("Cash"),
-            PaymentScreen.clickShipLaterButton(),
-            PaymentScreen.clickValidate(),
-        ].flat(),
-});
-
 registry.category("web_tour.tours").add("PaymentScreenInvoiceOrder", {
     steps: () =>
         [
@@ -188,85 +81,40 @@ registry.category("web_tour.tours").add("PaymentScreenInvoiceOrder", {
             Dialog.confirm("Open Register"),
             ProductScreen.addOrderline("Product Test", "1"),
             ProductScreen.clickPartnerButton(),
-            ProductScreen.clickCustomer("Partner Test 1"),
+            ProductScreen.clickCustomer("Partner Test 1", true),
             ProductScreen.clickPayButton(),
 
             PaymentScreen.clickPaymentMethod("Bank"),
             PaymentScreen.clickInvoiceButton(),
-            PaymentScreen.clickValidate(),
-        ].flat(),
-});
-
-registry.category("web_tour.tours").add("test_pos_large_amount_confirmation_dialog", {
-    steps: () =>
-        [
-            Chrome.startPoS(),
-            Dialog.confirm("Open Register"),
-            ProductScreen.clickDisplayedProduct("Overpay Test Product"),
-            ProductScreen.clickPayButton(),
-            PaymentScreen.clickPaymentMethod("Cash"),
-            PaymentScreen.enterPaymentLineAmount("Cash", "1500"),
-            PaymentScreen.clickValidate(),
             {
-                trigger: ".modal .modal-footer .btn-primary",
-                run: "click",
-            },
-            Chrome.endTour(),
-        ].flat(),
-});
-
-registry.category("web_tour.tours").add("test_add_money_button_with_different_decimal_separator", {
-    steps: () =>
-        [
-            Chrome.startPoS(),
-            Dialog.confirm("Open Register"),
-            ProductScreen.addOrderline("Whiteboard Pen", "1"),
-            ProductScreen.clickPayButton(),
-            PaymentScreen.clickPaymentMethod("Bank"),
-            PaymentScreen.clickNumpad("+50"),
-            PaymentScreen.fillPaymentLineAmountMobile("Bank", "53,20"),
-            PaymentScreen.changeIs("50"),
-        ].flat(),
-});
-
-registry.category("web_tour.tours").add("test_payment_screen_tip_scenario", {
-    steps: () =>
-        [
-            Chrome.startPoS(),
-            Dialog.confirm("Open Register"),
-            ProductScreen.addOrderline("Letter Tray", "1", "10"),
-            ProductScreen.clickPayButton(),
-
-            {
-                content: "Switch localization to comma",
+                content: "wait for 200 ms",
                 trigger: "body",
-                run: () => {
-                    posmodel.numberBuffer.localization.decimalPoint = ",";
-                    posmodel.numberBuffer.localization.thousandsSep = ".";
-                    posmodel.numberBuffer._setUp();
+                run: async () => {
+                    await new Promise((resolve) => setTimeout(resolve, 200));
                 },
             },
-
-            PaymentScreen.clickTipButton(),
-            NumberPopup.enterValue("1,50"),
-            NumberPopup.isShown("1,50"),
-            Dialog.confirm(),
-            PaymentScreen.totalIs("12,50"),
-
+            PaymentScreen.clickValidate(),
+            // Edit payment button shouldn't be available for posted orders
+            negateStep({ trigger: ".feedback-screen .edit-order-payment:contains(Edit Payment)" }),
+            Chrome.clickOrders(),
+            TicketScreen.isReady(),
+            TicketScreen.selectFilter("Paid"),
+            TicketScreen.selectOrder("001"),
+            inLeftSide([
+                ...Order.hasLine({ productName: "Product Test", withClass: ".selected" }),
+                Numpad.click("1"),
+            ]),
+            TicketScreen.confirmRefund(),
+            PaymentScreen.isShown(),
             {
-                content: "Switch localization back to dot",
-                trigger: "body",
-                run: () => {
-                    posmodel.numberBuffer.localization.decimalPoint = ".";
-                    posmodel.numberBuffer.localization.thousandsSep = ",";
-                    posmodel.numberBuffer._setUp();
-                },
+                content: "invoice button is disabled for refund of an invoiced order",
+                trigger: ".js_invoice[disabled]",
             },
-
-            PaymentScreen.clickTipButton(),
-            NumberPopup.enterValue("2.5"),
-            NumberPopup.isShown("2.5"),
-            Dialog.confirm(),
-            PaymentScreen.totalIs("13.50"),
+            refresh(),
+            PaymentScreen.isShown(),
+            {
+                content: "invoice button is still disabled after refresh",
+                trigger: ".js_invoice[disabled]",
+            },
         ].flat(),
 });

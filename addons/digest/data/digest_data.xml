@@ -65,10 +65,6 @@
                 color: #007e84;
                 font-size: 14px;
             }
-            .header_date {
-                color: #878d97;
-                font-size: 14px;
-            }
             .tip_title {
                 margin-top: 0;
                 font-weight: bold;
@@ -105,6 +101,11 @@
                 font-weight: bold;
                 color: #374151;
             }
+            .kpi_header_icon {
+                width: 2em;
+                height: 2em;
+                vertical-align: middle;
+            }
             .kpi_cell {
                 width: 33%;
                 text-align: center;
@@ -119,6 +120,14 @@
             }
             .kpi_border_col {
                 color: #374151;
+            }
+            .kpi_tip {
+                background-color: #d1ecf1;
+                border-radius: 5px;
+                color: #09414a;
+            }
+            .kpi_tip_icon {
+                width: auto;
             }
             .kpi_value_label {
                 display: inline-block;
@@ -201,10 +210,6 @@
                 #button_connect {
                     font-size: 12px;
                 }
-                .header_date {
-                    margin-top: 10px;
-                    font-size: 10px;
-                }
                 .tip_title {
                     font-size: 14px;
                 }
@@ -282,7 +287,7 @@
                                         <tr>
                                             <td class="td_button td_button_connect" style="height: 29px;padding: 3px 10px;">
                                                 <a t-att-href="top_button_url" target="_blank">
-                                                    <span t-esc="top_button_label" class="button" id="button_connect" />
+                                                    <span t-out="top_button_label" class="button" id="button_connect" />
                                                 </a>
                                             </td>
                                         </tr>
@@ -291,16 +296,11 @@
                             </td>
                         </tr>
                         <tr>
-                            <td style="padding-left: 20px" class="p0" colspan="2">
+                            <td style="padding-left: 20px" class="p0" colspan="4">
                                 <div class="header_title">
-                                    <p t-esc="title"/>
-                                    <p t-if="sub_title" t-esc="sub_title"/>
+                                    <p><t t-out="title"/> - <span t-out="formatted_date"/></p>
+                                    <p t-if="sub_title" t-out="sub_title"/>
                                 </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 10px 0px 20px 20px;" class="p0" colspan="2">
-                                <span t-esc="formatted_date" class="header_date"/>
                             </td>
                         </tr>
                     </tbody>
@@ -335,7 +335,13 @@
                                                     t-att-data-field="kpi_info['kpi_name']" cellspacing="0" cellpadding="10" style="width: 100%;margin-bottom: 5px;">
                                                 <tr class="kpi_header">
                                                     <td colspan="2" style="padding: 0px 0px 5px 0px;">
-                                                        <span style="text-transform: uppercase;" t-esc="kpi_info['kpi_fullname']"  />
+                                                        <img t-if="kpi_info.get('kpi_icon')"
+                                                            class="kpi_header_icon"
+                                                            t-att-src="kpi_info['kpi_icon']"
+                                                            valign="middle" width="30" height="30"
+                                                            style="padding-right: 3px"/>
+                                                        <span style="text-transform: uppercase;" t-out="kpi_info['kpi_fullname']"  />
+                                                        <span t-if="kpi_info.get('kpi_is_cross_company')" style="color: #878d97; font-weight: normal; margin-left: 3px;">All Companies</span>
                                                     </td>
                                                     <td t-if="kpi_info['kpi_action']" align="right" style="padding: 0px 0px 5px 0px;">
                                                         <table>
@@ -376,6 +382,12 @@
                                                                 kpi_subtitle="kpi_info['kpi_col3']['col_subtitle']"/>
                                                         </div>
                                                     </td>
+                                                </tr>
+                                            </table>
+                                            <table t-if="kpi_info.get('kpi_tip')" class="kpi_tip">
+                                                <tr>
+                                                    <td class="kpi_tip_icon">💡</td>
+                                                    <td t-out="kpi_info['kpi_tip']"/>
                                                 </tr>
                                             </table>
                                         </td>
@@ -436,7 +448,7 @@
                     <tbody>
                         <tr>
                             <div id="footer">
-                                <p style="font-weight: bold;" t-esc="company.name" />
+                                <p style="font-weight: bold;" t-out="company.name" />
                                 <p class="by_odoo" id="powered">
                                     Powered by <a href="https://www.odoo.com" target="_blank" class="odoo_link">
                                         <span class="odoo_link_text">Odoo</span></a>
@@ -477,10 +489,6 @@
                                             <img class="download_app" height="40" width="135"
                                                     src="https://download.odoocdn.com/digests/digest/static/src/img/google_play.png" />
                                     </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
                                     <a href="https://itunes.apple.com/us/app/odoo/id1272543640" target="_blank">
                                         <img class="download_app" height="40" width="135"
                                                 src="https://download.odoocdn.com/digests/digest/static/src/img/app_store.png" />
@@ -501,16 +509,16 @@
 
     <!-- KPI DISPLAY -->
     <template id="digest_tool_kpi">
-<span t-esc="kpi_value" style="color: #374151;text-decoration: none;" class="kpi_value kpi_border_col" />
+<span t-out="kpi_value" style="color: #374151;text-decoration: none;" class="kpi_value kpi_border_col" />
 <br/>
-<span t-esc="kpi_subtitle" class="kpi_value_label" />
+<span t-out="kpi_subtitle" class="kpi_value_label" />
 <table t-if="kpi_margin" class="kpi_margin_margin" align="center" border="0" cellspacing="0" cellpadding="0">
     <tr>
         <td t-if="kpi_margin &gt; 0.0" class="kpi_margin positive_kpi_margin" style="padding: 3px 10px;font-size: 12px;text-decoration: none;border-radius: 50px;border: 1px solid #c4ecd7;border-radius: 5px; background-color: #c4ecd7;color: #17613a;">
-            ⬆ <t t-esc="'%.2f' % kpi_margin" /> %
+            ⬆ <t t-out="'%.2f' % kpi_margin" /> %
         </td>
         <td t-elif="kpi_margin &lt; 0.0" class="kpi_margin negative_kpi_margin" style="padding: 3px 10px;font-size: 12px;text-decoration: none;border-radius: 50px;border: 1px solid #f4cfce;background-color: #f7dddc;color: #712b29;">
-            ⬇ <t t-esc="'%.2f' % kpi_margin" /> %
+            ⬇ <t t-out="'%.2f' % kpi_margin" /> %
         </td>
     </tr>
 </table>

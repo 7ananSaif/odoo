@@ -4,6 +4,8 @@ import { patch } from "@web/core/utils/patch";
 import { EventConfiguratorPopup } from "@pos_event/app/components/popup/event_configurator_popup/event_configurator_popup";
 import { EventRegistrationPopup } from "../../components/popup/event_registration_popup/event_registration_popup";
 import { EventSlotSelectionPopup } from "../../components/popup/event_slot_selection_popup/event_slot_selection_popup";
+import { createRegistrationAnswer, extractRegistrationData } from "@pos_event/app/utils/event_util";
+import { _t } from "@web/core/l10n/translation";
 
 const { DateTime } = luxon;
 
@@ -16,25 +18,50 @@ patch(ProductScreen.prototype, {
         if (!product.event_id) {
             return super.getProductImage(product);
         }
-
-        return `/web/image?model=event.event&id=${product.event_id.id}&field=image_1024&unique=${product.event_id.write_date}`;
+        return product.event_id.image_1024
+            ? `/web/image?model=event.event&id=${product.event_id.id}&field=image_1024&unique=${product.event_id.write_date}`
+            : false;
     },
     async addProductToOrder(product) {
         if (!product.event_id) {
             return await super.addProductToOrder(product);
         }
 
-        if (product.event_id.seats_available === 0 && product.event_id.seats_limited) {
-            this.notification.add("No more seats available for this event", {
+        const event = product.event_id;
+        const tickets = event.event_ticket_ids.filter(
+            (ticket) => ticket.product_id && ticket.product_id.service_tracking === "event"
+        );
+
+        // Used to dynamically update the event ticket availabilities depending on
+        // the unsynced registrations of all the orders (open, or paid but not synced yet).
+        // Synced registrations are already counted in the seats availability loaded in the PoS.
+        // NB: everything is computed from the data loaded in the PoS so it works offline.
+        const openOrdersEventRegistrations = this.pos.models["pos.order"]
+            .getAll()
+            .flatMap((order) => order.lines)
+            .flatMap((line) => line.event_registration_ids.flat())
+            .filter((reg) => reg.event_id?.id === event.id && !reg.isSynced);
+
+        // Sold out alert: for event limit
+        const eventCurrentAvailability = Math.max(
+            event.seats_available - openOrdersEventRegistrations.length,
+            0
+        );
+        const soldOutMessage = _t("No more seats available for this event");
+        if (event.seats_limited && eventCurrentAvailability === 0) {
+            this.notification.add(soldOutMessage, {
                 type: "danger",
             });
             return;
         }
 
-        const event = product.event_id;
-        const tickets = event.event_ticket_ids.filter(
-            (ticket) => ticket.product_id && ticket.product_id.service_tracking === "event"
-        );
+        // Number of unsynced registrations for a slot and/or a ticket
+        const countRegs = (slotId, ticketId) =>
+            openOrdersEventRegistrations.filter(
+                (reg) =>
+                    (!slotId || reg.event_slot_id?.id === slotId) &&
+                    (!ticketId || reg.event_ticket_id?.id === ticketId)
+            ).length;
 
         // Multi Slot
         let avaibilityByTicket = {};
@@ -66,54 +93,88 @@ patch(ProductScreen.prototype, {
                 "get_slot_tickets_availability_pos",
                 [event.id, slotTickets]
             );
-            const eventSeats = event.seats_limited ? event.seats_available : "unlimited";
             avaibilityByTicket = slotTicketAvailabilities.reduce((acc, availability, idx) => {
-                const ticketsData = slotTickets[idx];
-                const slotId = ticketsData[0];
-                const ticketId = ticketsData[1];
-                if (!acc[ticketId]) {
-                    acc[ticketId] = {};
-                }
-                if (!acc[ticketId][slotId]) {
-                    acc[ticketId][slotId] = {};
-                }
+                const [slotId, ticketId] = slotTickets[idx];
+                const currentCount = countRegs(slotId, ticketId);
+                // Maximum number of ticket the user can select in the selection box.
+                // NB: This number doesn't refer to a global limit for the order.
+                const ticketSelectionMax =
+                    tickets.find((t) => t.id === ticketId)?.limit_max_per_order ?? 0;
+
+                acc[ticketId] ??= {};
+                let slotTicketAvailability;
                 if (availability === null) {
-                    acc[ticketId][slotId] = "unlimited";
+                    slotTicketAvailability = "unlimited";
                 } else if (typeof availability === "number") {
-                    acc[ticketId][slotId] = availability;
+                    slotTicketAvailability = availability - currentCount;
+                    if (event.seats_limited && event.seats_max) {
+                        // The slot limit is considered into the 'availability' but only the unsynced registrations
+                        // for this ticket 'currentCount' were subtracted. Also considering that the other tickets
+                        // unsynced registrations can reduce the slot limit.
+                        const slotSeats = slots.find((slot) => slot.id === slotId).seats_available;
+                        slotTicketAvailability = Math.min(
+                            slotTicketAvailability,
+                            slotSeats - countRegs(slotId)
+                        );
+                    }
                 } else {
-                    acc[ticketId][slotId] = 0;
+                    slotTicketAvailability = 0;
                 }
+                if (ticketSelectionMax > 0) {
+                    slotTicketAvailability =
+                        slotTicketAvailability === "unlimited"
+                            ? ticketSelectionMax
+                            : Math.min(ticketSelectionMax, slotTicketAvailability);
+                }
+                if (slotTicketAvailability !== "unlimited") {
+                    slotTicketAvailability = Math.max(0, slotTicketAvailability);
+                }
+                acc[ticketId][slotId] = slotTicketAvailability;
                 return acc;
             }, {});
             const isAvailable = Object.values(avaibilityByTicket).some((av) =>
                 Object.values(av).some((a) => (typeof a === "number" && a > 0) || a === "unlimited")
             );
-            if (!isAvailable || eventSeats === 0) {
-                this.notification.add("All slots are booked out for this event.", {
+            // Sold out alert: for slot ticket limits
+            if (!isAvailable) {
+                this.notification.add(soldOutMessage, {
                     type: "danger",
                 });
                 return;
             }
-            const availabilityPerSlot = Object.values(avaibilityByTicket).reduce(
-                (acc, ticketAvailability) => {
-                    Object.entries(ticketAvailability).forEach(([slotId, availability]) => {
-                        if (!acc[slotId]) {
-                            acc[slotId] = 0;
-                        } else if (acc[slotId] === "unlimited") {
-                            return acc;
-                        }
-                        if (availability === "unlimited") {
-                            acc[slotId] = "unlimited";
-                        } else if (typeof availability === "number") {
-                            acc[slotId] = Math.max(acc[slotId], availability);
-                        } else {
-                            acc[slotId] = Math.max(acc[slotId], 0);
-                        }
-                    });
-                    return acc;
-                },
-                {}
+            // Availability per slot is the minimum between:
+            // - the sum of each slot ticket availabilities
+            // - the slot seats_available which accounts for the event seats_max limitation (i.e. max X attendees per slot)
+            // Both considering the current order registrations for the slot and tickets.
+            const availabilityPerSlot = Object.fromEntries(
+                slots.map((slot) => {
+                    const slotAvailability = Math.max(slot.seats_available - countRegs(slot.id), 0);
+                    // Sum of ticket availabilities for the slot, already accounting for current order count.
+                    // Ex: Standard ticket: 2 seats available, VIP ticket: 1 seats available => total = 3
+                    //     If one is "unlimited" then total = "unlimited".
+                    const ticketAvailabilities = tickets.map(
+                        (ticket) => avaibilityByTicket[ticket.id][slot.id]
+                    );
+                    const slotTotalTicketAvailability = ticketAvailabilities.includes("unlimited")
+                        ? "unlimited"
+                        : ticketAvailabilities.reduce((sum, availability) => sum + availability, 0);
+
+                    let availability = 0;
+                    if (!event.seats_limited) {
+                        // Slot = unlimited seats
+                        availability = slotTotalTicketAvailability;
+                    } else if (slotTotalTicketAvailability === "unlimited") {
+                        // Slot = limited seats, Tickets = total is unlimited
+                        availability = slotAvailability;
+                    } else {
+                        // Slot = limited seats, Tickets = total is limited
+                        availability = Math.max(
+                            Math.min(slotAvailability, slotTotalTicketAvailability),
+                            0
+                        );
+                    }
+                    return [slot.id, availability];
+                })
             );
             slotResult = await makeAwaitable(this.dialog, EventSlotSelectionPopup, {
                 availabilityPerSlot: availabilityPerSlot,
@@ -125,13 +186,40 @@ patch(ProductScreen.prototype, {
             slotSelected = this.pos.models["event.slot"].get(slotResult.slotId);
         } else {
             avaibilityByTicket = tickets.reduce((acc, ticket) => {
+                const openOrdersTicketRegCount = countRegs(null, ticket.id);
+                // Maximum number of ticket the user can select in the selection box.
+                // NB: This number doesn't refer to a global limit for the order
+                const ticketSelectionMax = ticket.limit_max_per_order ?? 0;
+                let availability;
                 if (ticket.seats_max === 0) {
-                    acc[ticket.id] = event.seats_limited ? event.seats_available : "unlimited";
+                    // Ticket = unlimited seats
+                    availability = "unlimited";
                 } else {
-                    acc[ticket.id] = ticket.seats_available;
+                    // Ticket = limited seats
+                    availability = ticket.seats_available - openOrdersTicketRegCount;
                 }
+                if (ticketSelectionMax > 0) {
+                    availability =
+                        availability === "unlimited"
+                            ? ticketSelectionMax
+                            : Math.min(ticketSelectionMax, availability);
+                }
+                if (availability !== "unlimited") {
+                    availability = Math.max(0, availability);
+                }
+                acc[ticket.id] = availability;
                 return acc;
             }, {});
+            const isAvailable = Object.values(avaibilityByTicket).some(
+                (av) => (typeof av === "number" && av > 0) || av === "unlimited"
+            );
+            // Sold out alert: for ticket limits
+            if (!isAvailable) {
+                this.notification.add(soldOutMessage, {
+                    type: "danger",
+                });
+                return;
+            }
         }
 
         const ticketResult = await makeAwaitable(this.dialog, EventConfiguratorPopup, {
@@ -152,30 +240,9 @@ patch(ProductScreen.prototype, {
             return;
         }
 
-        const globalIdentificationAnswers = {};
-        const identificationQuestionTypes = ["name", "email", "phone", "company_name"];
-
-        const { globalSimpleChoice, globalTextAnswer } = Object.entries(result.byOrder).reduce(
-            (acc, [questionId, answer]) => {
-                const question = this.pos.models["event.question"].get(parseInt(questionId));
-                if (
-                    question.question_type === "simple_choice" &&
-                    this.pos.models["event.question.answer"].get(parseInt(answer))
-                ) {
-                    acc.globalSimpleChoice[questionId] = answer;
-                } else if (answer) {
-                    acc.globalTextAnswer[questionId] = answer;
-                    if (
-                        identificationQuestionTypes.includes(question.question_type) &&
-                        !(question.question_type in globalIdentificationAnswers)
-                    ) {
-                        globalIdentificationAnswers[question.question_type] = answer;
-                    }
-                }
-
-                return acc;
-            },
-            { globalSimpleChoice: {}, globalTextAnswer: {} }
+        const { textAnswer: globalTextAnswer, userData: globalUserData } = extractRegistrationData(
+            this.pos.models,
+            result.byOrder
         );
 
         for (const [ticketId, data] of Object.entries(result.byRegistration)) {
@@ -200,49 +267,12 @@ patch(ProductScreen.prototype, {
             });
 
             for (const registration of data) {
-                // Global answers have precedence for identification question types.
-                const userData = { ...globalIdentificationAnswers };
-                for (const [questionId, answer] of Object.entries(registration)) {
-                    const question = this.pos.models["event.question"].get(parseInt(questionId));
-
-                    if (
-                        !question ||
-                        !answer ||
-                        !identificationQuestionTypes.includes(question.question_type) ||
-                        question.question_type in userData
-                    ) {
-                        continue;
-                    }
-
-                    if (question.question_type === "email") {
-                        userData.email = answer;
-                    } else if (question.question_type === "phone") {
-                        userData.phone = answer;
-                    } else if (question.question_type === "name") {
-                        userData.name = answer;
-                    } else if (question.question_type === "company_name") {
-                        userData.company_name = answer;
-                    }
-                }
-
-                const { simpleChoice, textAnswer } = Object.entries(registration).reduce(
-                    (acc, [questionId, answer]) => {
-                        const question = this.pos.models["event.question"].get(
-                            parseInt(questionId)
-                        );
-                        if (
-                            question.question_type === "simple_choice" &&
-                            this.pos.models["event.question.answer"].get(parseInt(answer))
-                        ) {
-                            acc.simpleChoice[questionId] = answer;
-                        } else if (answer) {
-                            acc.textAnswer[questionId] = answer;
-                        }
-
-                        return acc;
-                    },
-                    { simpleChoice: {}, textAnswer: {} }
+                const { textAnswer, userData } = extractRegistrationData(
+                    this.pos.models,
+                    registration,
+                    { ...globalUserData }
                 );
+
                 // This will throw an error on creation if not possible (python constraint)
                 this.pos.models["event.registration"].create({
                     ...userData,
@@ -251,35 +281,10 @@ patch(ProductScreen.prototype, {
                     event_slot_id: slotSelected,
                     pos_order_line_id: line,
                     partner_id: this.pos.getOrder().partner_id,
-                    registration_answer_ids: Object.entries({
-                        ...textAnswer,
-                        ...globalTextAnswer,
-                    })
-                        .map(([questionId, answer]) => [
-                            "create",
-                            {
-                                question_id: this.pos.models["event.question"].get(
-                                    parseInt(questionId)
-                                ),
-                                value_text_box: answer,
-                            },
-                        ])
-                        .concat(
-                            Object.entries({
-                                ...simpleChoice,
-                                ...globalSimpleChoice,
-                            }).map(([questionId, answer]) => [
-                                "create",
-                                {
-                                    question_id: this.pos.models["event.question"].get(
-                                        parseInt(questionId)
-                                    ),
-                                    value_answer_id: this.pos.models["event.question.answer"].get(
-                                        parseInt(answer)
-                                    ),
-                                },
-                            ])
-                        ),
+                    registration_answer_ids: createRegistrationAnswer(
+                        this.pos.models,
+                        Object.entries({ ...textAnswer, ...globalTextAnswer })
+                    ),
                 });
             }
         }

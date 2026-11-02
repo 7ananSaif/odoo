@@ -22,7 +22,7 @@ class BaseFollowersTest(MailCommon):
     @classmethod
     def setUpClass(cls):
         super(BaseFollowersTest, cls).setUpClass()
-        cls.test_record = cls.env['mail.test.simple'].with_context(cls._test_context).create({'name': 'Test', 'email_from': 'ignasse@example.com'})
+        cls.test_record = cls.env['mail.test.simple'].create({'name': 'Test', 'email_from': 'ignasse@example.com'})
         cls._create_portal_user()
 
         Subtype = cls.env['mail.message.subtype']
@@ -58,7 +58,7 @@ class BaseFollowersTest(MailCommon):
         followed_after = self.env['mail.test.simple'].search([('message_partner_ids', 'in', partner.ids)])
         self.assertTrue(partner in test_record.message_partner_ids)
         self.assertEqual(followed_before + test_record, followed_after)
-        with self.assertRaisesRegex(AccessError, 'Portal users can only filter threads'):
+        with self.assertRaises(AccessError):  # previously 'Portal users can only filter threads'
             self.env['mail.test.simple'].with_user(self.user_portal).search([('message_partner_ids', 'in', partner.ids)])
 
     def test_field_followers(self):
@@ -163,6 +163,26 @@ class BaseFollowersTest(MailCommon):
         self.assertEqual(document.message_partner_ids, self.partner_portal, 'No active test: customer not visible')
         self.assertEqual(document.message_follower_ids.partner_id, self.partner_portal | customer)
 
+    def test_followers_public_user_self_added(self):
+        """ The public user cannot subscribe themselves to followers """
+        public_user = self.env.ref('base.public_user')
+        public_partner = public_user.partner_id
+        test_record = self.test_record.with_user(public_user).sudo()
+
+        self.assertNotIn(public_partner, test_record.message_partner_ids)
+        test_record.message_subscribe(partner_ids=public_partner.ids)
+        self.assertNotIn(public_partner, test_record.message_partner_ids)
+
+    def test_followers_public_user_added_by_other_user(self):
+        """ The public user cannot be subscribed by other users """
+        public_user = self.env.ref('base.public_user')
+        public_partner = public_user.partner_id
+        test_record = self.test_record
+
+        self.assertNotEqual(test_record.env.user, public_user)
+        test_record.message_subscribe(partner_ids=public_partner.ids)
+        self.assertNotIn(public_partner, test_record.message_partner_ids)
+
     @users('employee')
     @mute_logger('odoo.models.unlink')
     def test_followers_inverse_message_partner(self):
@@ -215,7 +235,7 @@ class BaseFollowersTest(MailCommon):
         records.message_partner_ids -= partner2
         self.assertEqual(records.message_partner_ids, partner3)
 
-    @mute_logger('odoo.addons.base.models.ir_model', 'odoo.models')
+    @mute_logger('odoo.addons.base.models.ir_access', 'odoo.models')
     def test_followers_inverse_message_partner_access_rights(self):
         """ Make sure we're not bypassing security checks by setting a partner
         instead of a follower """
@@ -274,6 +294,29 @@ class BaseFollowersTest(MailCommon):
         subscription_data = self.env['mail.followers']._get_subscription_data([(test_records._name, test_records.ids)], None)
         self.assertEqual(len(subscription_data), 1)
         self.assertEqual(subscription_data[0][1], test_record_copy.id)
+
+    @users('employee')
+    def test_message_update_siblings_subscription(self):
+        """ message_update_siblings_subscription should update the subscription
+        of all sibling records sharing the same parent (found through the
+        parent_id / relation_field configuration of mail.message.subtype) """
+        container = self.env['mail.test.container'].create({'name': 'Container'})
+        ticket_1, ticket_2 = self.env['mail.test.ticket'].create([
+            {'name': 'Ticket1', 'container_id': container.id},
+            {'name': 'Ticket2', 'container_id': container.id},
+        ])
+        subtype = self.env.ref('test_mail.st_mail_test_ticket_container_upd')
+        partner = self.env['res.partner'].create({'name': 'Test Partner', 'email': 'test.partner@test.example.com'})
+
+        ticket_1.message_update_siblings_subscription(partner_ids=partner.ids, subtype_ids=subtype.ids)
+        self.assertIn(partner, ticket_1.message_partner_ids)
+        self.assertIn(partner, ticket_2.message_partner_ids, 'Sibling ticket should be subscribed too')
+        self.assertEqual(ticket_1.message_follower_ids.filtered(lambda f: f.partner_id == partner).subtype_ids, subtype)
+        self.assertEqual(ticket_2.message_follower_ids.filtered(lambda f: f.partner_id == partner).subtype_ids, subtype)
+
+        ticket_1.message_update_siblings_subscription(partner_ids=partner.ids)
+        self.assertNotIn(partner, ticket_1.message_partner_ids)
+        self.assertNotIn(partner, ticket_2.message_partner_ids, 'Sibling ticket should be unsubscribed too')
 
 
 @tagged('mail_followers')
@@ -422,6 +465,13 @@ class AdvancedFollowersTest(MailCommon):
         })
         self.assertEqual(sub.message_partner_ids, (self.user_employee.partner_id | self.user_admin.partner_id))
 
+        # After unsubscribing, current user should not appear in suggested recipients
+        sub.message_unsubscribe(partner_ids=self.user_admin.partner_id.ids)
+        suggested = sub.with_user(self.user_admin)._message_get_suggested_recipients()
+        suggested_partner_ids = [r['partner_id'] for r in suggested if r.get('partner_id')]
+        self.assertNotIn(self.user_admin.partner_id.id, suggested_partner_ids,
+                         'Current user should not appear in suggested recipients after unsubscribing')
+
     @mute_logger('odoo.models.unlink')
     def test_auto_subscribe_defaults(self):
         """ Test auto subscription based on an container record. This mimics
@@ -437,7 +487,7 @@ class AdvancedFollowersTest(MailCommon):
 
         Inactive partners should not be auto subscribed.
         """
-        container = self.env['mail.test.container'].with_context(self._test_context).create({
+        container = self.env['mail.test.container'].create({
             'name': 'Project-Like',
         })
 
@@ -888,9 +938,9 @@ class UnfollowLinkTest(MailCommon, HttpCase):
         super().setUpClass()
         cls.user_portal = cls._create_portal_user()
         cls.partner_portal = cls.user_portal.partner_id
-        cls.test_record = cls.env['mail.test.simple'].with_context(cls._test_context).create({'name': 'Test'})
+        cls.test_record = cls.env['mail.test.simple'].create({'name': 'Test'})
         cls.test_record_copy = cls.test_record.copy()
-        cls.test_record_unfollow = cls.env['mail.test.simple.unfollow'].with_context(cls._test_context).create(
+        cls.test_record_unfollow = cls.env['mail.test.simple.unfollow'].create(
             {'name': 'unfollow'})
         cls.partner_without_user = cls.env['res.partner'].create({
             'name': 'Dave',
@@ -978,9 +1028,9 @@ class UnfollowLinkTest(MailCommon, HttpCase):
         )
         # The user doesn't follow the record
         self.authenticate(self.env.user.login, self.env.user.login)
-        message_data = self.make_jsonrpc_request("/mail/inbox/messages")["data"]
-        self.assertFalse(message_data["mail.thread"][0]["selfFollower"])
-        self.assertFalse(message_data.get("mail.followers"), "Should not have void followers data")
+        data = self.make_jsonrpc_request("/mail/store", {"fetch_params": [["/mail/messaging_menu/mail.message/load_more", {"tab_id": "notification", "filter_ids": ["notification_unread"], "limit": 20}]]})
+        self.assertFalse(data["mail.thread"][0]["selfFollower"])
+        self.assertFalse(data.get("mail.followers"), "Should not have void followers data")
         self.assertFalse(test_record.with_user(self.user_employee).message_is_follower)
 
         # The user follows the record
@@ -988,15 +1038,15 @@ class UnfollowLinkTest(MailCommon, HttpCase):
         follower = test_record.message_follower_ids.filtered(
             lambda follower: follower.partner_id == self.env.user.partner_id
         )
-        message_data = self.make_jsonrpc_request("/mail/inbox/messages")["data"]
-        self.assertEqual(message_data["mail.followers"], [
+        data = self.make_jsonrpc_request("/mail/store", {"fetch_params": [["/mail/messaging_menu/mail.message/load_more", {"tab_id": "notification", "filter_ids": ["notification_unread"], "limit": 20}]]})
+        self.assertEqual(data["mail.followers"], [
             {
                 "id": follower.id,
                 "is_active": True,
                 "partner_id": self.env.user.partner_id.id,
             },
         ])
-        self.assertEqual(message_data["mail.thread"][0]["selfFollower"], follower.id, "Should have follower ID")
+        self.assertEqual(data["mail.thread"][0]["selfFollower"], follower.id, "Should have follower ID")
 
     @mute_logger('odoo.addons.base.models', 'odoo.addons.mail.controllers.mail', 'odoo.http', 'odoo.models')
     def test_notification_email_unfollow_link(self):

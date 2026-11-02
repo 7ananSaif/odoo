@@ -35,7 +35,7 @@ patch(Composer.prototype, {
      * @param {boolean} [is_typing=true]
      */
     notifyIsTyping(is_typing = true) {
-        if (this.thread?.model === "discuss.channel" && this.thread.id > 0) {
+        if (this.thread?.channel && this.thread.id > 0) {
             rpc(
                 "/discuss/channel/notify_typing",
                 {
@@ -56,7 +56,7 @@ patch(Composer.prototype, {
             return;
         }
         const value = this.props.composer.composerText;
-        if (this.thread?.model === "discuss.channel" && value.startsWith("/")) {
+        if (this.thread?.channel && value.startsWith("/")) {
             const [firstWord] = value.substring(1).split(/\s/);
             const command = commandRegistry.get(firstWord, false);
             if (
@@ -64,9 +64,7 @@ patch(Composer.prototype, {
                 this.hasSuggestions ||
                 (command &&
                     (!command.condition ||
-                        command.condition({ store: this.store, thread: this.thread })) &&
-                    (!command.channel_types ||
-                        command.channel_types.includes(this.thread.channel_type)))
+                        command.condition({ store: this.store, channel: this.thread.channel })))
             ) {
                 this.stopTyping();
                 return;

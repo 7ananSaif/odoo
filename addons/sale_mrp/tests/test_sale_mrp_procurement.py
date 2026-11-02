@@ -3,11 +3,12 @@
 
 import time
 
-from odoo.tests import Form, TransactionCase
+from odoo.tests import tagged, Form, TransactionCase
 from odoo.tools import mute_logger
 from odoo import Command
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestSaleMrpProcurement(TransactionCase):
 
     @classmethod
@@ -18,8 +19,11 @@ class TestSaleMrpProcurement(TransactionCase):
     def test_sale_mrp(self):
         # Required for `uom_id` to be visible in the view
         self.env.user.group_ids += self.env.ref('uom.group_uom')
-        self.env.ref('stock.route_warehouse0_mto').active = True
+        # Required for `tracking` to be visible in the view
+        self.env.user.group_ids += self.env.ref('stock.group_production_lot')
         warehouse0 = self.env.ref('stock.warehouse0')
+        route_mto = warehouse0.mto_pull_id.route_id
+        route_mto.active = True
         # In order to test the sale_mrp module in OpenERP, I start by creating a new product 'Slider Mobile'
         # I define product category Mobile Products Sellable.
 
@@ -40,11 +44,10 @@ class TestSaleMrpProcurement(TransactionCase):
         product.categ_id = product_category_allproductssellable0
         product.list_price = 200.0
         product.name = 'Slider Mobile'
-        product.is_storable = True
+        product.store_by = 'quantity'
         product.uom_id = uom_unit
         product.route_ids.clear()
-        product.route_ids.add(warehouse0.manufacture_pull_id.route_id)
-        product.route_ids.add(warehouse0.mto_pull_id.route_id)
+        product.route_ids.add(route_mto)
         product_template_slidermobile0 = product.save()
 
         product_template_slidermobile0.standard_price = 189
@@ -88,20 +91,23 @@ class TestSaleMrpProcurement(TransactionCase):
         self.env.user.group_ids += self.env.ref('uom.group_uom')
         # Required for `manufacture_step` to be visible in the view
         self.env.user.group_ids += self.env.ref('stock.group_adv_location')
-        self.env.ref('stock.route_warehouse0_mto').active = True
+        # Required for `tracking` to be visible in the view
+        self.env.user.group_ids += self.env.ref('stock.group_production_lot')
         # Create warehouse
         self.customer_location = self.env['ir.model.data']._xmlid_to_res_id('stock.stock_location_customers')
-        self.warehouse = self.env['stock.warehouse'].create({
+        self.warehouse = self.env['stock.warehouse'].sudo().create({
             'name': 'Test Warehouse',
             'code': 'TWH'
         })
+        route_mto = self.warehouse.mto_pull_id.route_id
+        route_mto.active = True
 
         self.uom_unit = self.env.ref('uom.product_uom_unit')
 
         # Create raw product for manufactured product
         product_form = Form(self.env['product.product'])
         product_form.name = 'Raw Stick'
-        product_form.is_storable = True
+        product_form.store_by = 'quantity'
         product_form.uom_id = self.uom_unit
         self.raw_product = product_form.save()
 
@@ -109,25 +115,23 @@ class TestSaleMrpProcurement(TransactionCase):
         product_form = Form(self.env['product.product'])
         product_form.name = 'Stick'
         product_form.uom_id = self.uom_unit
-        product_form.is_storable = True
+        product_form.store_by = 'quantity'
         product_form.route_ids.clear()
-        product_form.route_ids.add(self.warehouse.manufacture_pull_id.route_id)
-        product_form.route_ids.add(self.warehouse.mto_pull_id.route_id)
+        product_form.route_ids.add(route_mto)
         self.finished_product = product_form.save()
 
         # Create manifactured product which uses another manifactured
         product_form = Form(self.env['product.product'])
         product_form.name = 'Arrow'
-        product_form.is_storable = True
+        product_form.store_by = 'quantity'
         product_form.route_ids.clear()
-        product_form.route_ids.add(self.warehouse.manufacture_pull_id.route_id)
-        product_form.route_ids.add(self.warehouse.mto_pull_id.route_id)
+        product_form.route_ids.add(route_mto)
         self.complex_product = product_form.save()
 
         ## Create raw product for manufactured product
         product_form = Form(self.env['product.product'])
         product_form.name = 'Raw Iron'
-        product_form.is_storable = True
+        product_form.store_by = 'quantity'
         product_form.uom_id = self.uom_unit
         self.raw_product_2 = product_form.save()
 
@@ -196,7 +200,6 @@ class TestSaleMrpProcurement(TransactionCase):
         RR min=max=0. Confirm a SO with that product -> It should generate a MO
         """
         warehouse = self.env['stock.warehouse'].search([('company_id', '=', self.env.company.id)], limit=1)
-        manufacture_route = warehouse.manufacture_pull_id.route_id
 
         warehouse.manufacture_steps = 'pbm_sam'
         warehouse.sam_loc_id.location_id = warehouse.lot_stock_id
@@ -204,7 +207,6 @@ class TestSaleMrpProcurement(TransactionCase):
         product, component = self.env['product.product'].create([{
             'name': 'Finished',
             'is_storable': True,
-            'route_ids': [(6, 0, manufacture_route.ids)],
         }, {
             'name': 'Component',
             'type': 'consu',
@@ -213,7 +215,7 @@ class TestSaleMrpProcurement(TransactionCase):
         self.env['mrp.bom'].create({
             'product_id': product.id,
             'product_tmpl_id': product.product_tmpl_id.id,
-            'product_uom_id': product.uom_id.id,
+            'uom_id': product.uom_id.id,
             'product_qty': 1.0,
             'type': 'normal',
             'bom_line_ids': [
@@ -286,7 +288,6 @@ class TestSaleMrpProcurement(TransactionCase):
         Create a second SO with 510g -> It should update the MO to 1020g.
         """
         warehouse = self.env['stock.warehouse'].search([('company_id', '=', self.env.company.id)], limit=1)
-        manufacture_route = warehouse.manufacture_pull_id.route_id
         mto_route = warehouse.mto_pull_id.route_id
         mto_route.active = True
 
@@ -297,10 +298,7 @@ class TestSaleMrpProcurement(TransactionCase):
             'name': 'Finished',
             'is_storable': True,
             'uom_id': uom_kg.id,
-            'route_ids': [
-                Command.link(manufacture_route.id),
-                Command.link(mto_route.id),
-            ],
+            'route_ids': [Command.set([mto_route.id])],
         }, {
             'name': 'Component',
             'type': 'consu',
@@ -309,7 +307,7 @@ class TestSaleMrpProcurement(TransactionCase):
         self.env['mrp.bom'].create({
             'product_id': product.id,
             'product_tmpl_id': product.product_tmpl_id.id,
-            'product_uom_id': uom_gram.id,
+            'uom_id': uom_gram.id,
             'product_qty': 1.0,
             'type': 'normal',
             'bom_line_ids': [
@@ -333,11 +331,11 @@ class TestSaleMrpProcurement(TransactionCase):
 
         mo = self.env['mrp.production'].search([('product_id', '=', product.id)], order='id desc', limit=1)
         self.assertIn(so.name, mo.origin)
-        self.assertEqual(mo.product_uom_id, uom_gram)
+        self.assertEqual(mo.uom_id, uom_gram)
         self.assertEqual(mo.product_qty, 510)
 
         so.order_line.product_uom_qty = 510 * 2
-        self.assertEqual(mo.product_uom_id, uom_gram)
+        self.assertEqual(mo.uom_id, uom_gram)
         self.assertEqual(mo.product_qty, 1020)
 
     def test_sale_mrp_avoid_multiple_pickings(self):
@@ -368,3 +366,51 @@ class TestSaleMrpProcurement(TransactionCase):
         so.action_confirm()
         self.assertEqual(len(so.picking_ids), 1)
         self.assertEqual(so.picking_ids.picking_type_id, warehouse.out_type_id)
+
+    def test_mo_confirm_does_not_copy_section_sale_line(self):
+        """Section sale lines must not be copied onto the finished move."""
+        product, component = self.env['product.product'].create([{
+            'name': name,
+            'is_storable': True,
+        } for name in ('Finished', 'Component')])
+        self.env['mrp.bom'].create({
+            'product_tmpl_id': product.product_tmpl_id.id,
+            'product_qty': 1.0,
+            'bom_line_ids': [Command.create({
+                'product_id': component.id,
+                'product_qty': 1.0,
+            })],
+        })
+        sale_order = self.env['sale.order'].create({
+            'partner_id': self.env['res.partner'].create({'name': 'Section Partner'}).id,
+            'order_line': [
+                Command.create({
+                    'display_type': 'line_section',
+                    'name': 'Equipment',
+                }),
+                Command.create({
+                    'product_id': product.id,
+                    'product_uom_qty': 1.0,
+                }),
+            ],
+        })
+        section_line, product_line = sale_order.order_line
+
+        mo = self.env['mrp.production'].create({
+            'product_id': product.id,
+            'product_qty': 1.0,
+            'sale_line_id': section_line.id,
+        })
+        mo.action_confirm()
+        self.assertFalse(mo.move_finished_ids.filtered(lambda m: m.product_id == product).sale_line_id)
+
+        mo_ok = self.env['mrp.production'].create({
+            'product_id': product.id,
+            'product_qty': 1.0,
+            'sale_line_id': product_line.id,
+        })
+        mo_ok.action_confirm()
+        self.assertEqual(
+            mo_ok.move_finished_ids.filtered(lambda m: m.product_id == product).sale_line_id,
+            product_line,
+        )

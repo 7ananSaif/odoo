@@ -8,6 +8,7 @@ from google.oauth2 import service_account
 
 from odoo import models
 from odoo.exceptions import ValidationError
+from odoo.http.stream import content_disposition
 
 from ..utils.cloud_storage_google_utils import generate_signed_url_v4
 
@@ -19,7 +20,7 @@ def get_cloud_storage_google_credential(env):
     This method is cached to because from_service_account_info is slow.
     """
     cached_account_info, cached_credential = CloudStorageGoogleCredentials.get(env.registry.db_name, (None, None))
-    account_info = json.loads(env['ir.config_parameter'].sudo().get_param('cloud_storage_google_account_info'))
+    account_info = json.loads(env['ir.config_parameter'].sudo().get_str('cloud_storage_google_account_info'))
     if cached_account_info == account_info:
         return cached_credential
     credential = service_account.Credentials.from_service_account_info(account_info)
@@ -41,7 +42,7 @@ class IrAttachment(models.Model):
         }
 
     def _generate_cloud_storage_google_url(self, blob_name):
-        bucket_name = self.env['ir.config_parameter'].get_param('cloud_storage_google_bucket_name')
+        bucket_name = self.env['ir.config_parameter'].get_str('cloud_storage_google_bucket_name')
         return f"https://storage.googleapis.com/{bucket_name}/{quote(blob_name)}"
 
     def _generate_cloud_storage_google_signed_url(self, bucket_name, blob_name, **kwargs):
@@ -54,26 +55,34 @@ class IrAttachment(models.Model):
 
     # OVERRIDES
     def _generate_cloud_storage_url(self):
-        if self.env['ir.config_parameter'].sudo().get_param('cloud_storage_provider') != 'google':
+        if self.env['ir.config_parameter'].sudo().get_str('cloud_storage_provider') != 'google':
             return super()._generate_cloud_storage_url()
         blob_name = self._generate_cloud_storage_blob_name()
         return self._generate_cloud_storage_google_url(blob_name)
 
     def _generate_cloud_storage_download_info(self):
-        if self.env['ir.config_parameter'].sudo().get_param('cloud_storage_provider') != 'google':
+        if self.env['ir.config_parameter'].sudo().get_str('cloud_storage_provider') != 'google':
             return super()._generate_cloud_storage_download_info()
         info = self._get_cloud_storage_google_info()
+        time_to_expiry = self._get_cloud_storage_download_url_time_to_expiry()
         return {
-            'url': self._generate_cloud_storage_google_signed_url(info['bucket_name'], info['blob_name'], method='GET', expiration=self._cloud_storage_download_url_time_to_expiry),
-            'time_to_expiry': self._cloud_storage_download_url_time_to_expiry,
+            'url': self._generate_cloud_storage_google_signed_url(
+                info['bucket_name'], info['blob_name'],
+                method='GET',
+                expiration=time_to_expiry,
+                response_type=self.mimetype or None,
+                response_disposition=content_disposition(self.name) if self.env.context.get('download_attachments') else None,
+            ),
+            'time_to_expiry': time_to_expiry,
         }
 
     def _generate_cloud_storage_upload_info(self):
-        if self.env['ir.config_parameter'].sudo().get_param('cloud_storage_provider') != 'google':
+        if self.env['ir.config_parameter'].sudo().get_str('cloud_storage_provider') != 'google':
             return super()._generate_cloud_storage_upload_info()
         info = self._get_cloud_storage_google_info()
         return {
             'url': self._generate_cloud_storage_google_signed_url(info['bucket_name'], info['blob_name'], method='PUT', expiration=self._cloud_storage_upload_url_time_to_expiry),
             'method': 'PUT',
             'response_status': 200,
+            'headers': {'Content-Type': self.mimetype} if self.mimetype else None,
         }

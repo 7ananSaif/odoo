@@ -1,4 +1,4 @@
-import { mailDataHelpers } from "@mail/../tests/mock_server/mail_mock_server";
+import { Store } from "@mail/../tests/mock_server/store";
 
 import { Command, serverState } from "@web/../tests/web_test_helpers";
 import { websiteModels } from "@website/../tests/helpers";
@@ -24,34 +24,74 @@ export class WebsiteVisitor extends websiteModels.WebsiteVisitor {
             const operator = this.env.user;
             const country = visitor.country_id ? ResCountry.browse(visitor.country_id) : undefined;
             const visitor_name = `Visitor #${visitor.id}${country ? ` (${country.name})` : ""}`;
-            const membersToAdd = [Command.create({ partner_id: serverState.partnerId })];
+            const membersToAdd = [
+                Command.create({
+                    partner_id: serverState.partnerId,
+                    livechat_member_type: "agent",
+                }),
+            ];
             if (visitor.partner_id) {
-                membersToAdd.push(Command.create({ partner_id: visitor.partner_id }));
+                membersToAdd.push(
+                    Command.create({
+                        partner_id: visitor.partner_id,
+                        livechat_member_type: "visitor",
+                    })
+                );
+            } else {
+                const guestId = MailGuest.create({ name: `Visitor #${visitor.id}` });
+                membersToAdd.push(
+                    Command.create({
+                        guest_id: guestId,
+                        livechat_member_type: "visitor",
+                    })
+                );
             }
             const livechatId = DiscussChannel.create({
                 channel_member_ids: membersToAdd,
                 channel_type: "livechat",
-                livechat_operator_id: serverState.partnerId,
                 name: `${visitor_name}, ${
                     operator.livechat_username ? operator.livechat_username : operator.name
                 }`,
             });
-            if (!visitor.partner_id) {
-                const guestId = MailGuest.create({ name: `Visitor #${visitor.id}` });
-                DiscussChannel.write([livechatId], {
-                    channel_member_ids: [Command.create({ guest_id: guestId })],
-                });
-            }
             const [partner] = ResPartner.read(serverState.partnerId);
             const channel = DiscussChannel.browse(livechatId);
             // notify operator
             BusBus._sendone(
                 partner,
                 "mail.record/insert",
-                new mailDataHelpers.Store(channel)
-                    .add(channel, { open_chat_window: true })
-                    .get_result()
+                new Store().add(channel, "_store_open_chat_window_fields").as_dict()
             );
         }
+    }
+
+    _store_visitor_history_fields(res) {
+        /** @type {import("mock_models").WebsiteTrack} */
+        const WebsiteTrack = this.env["website.track"];
+
+        res.many(
+            "last_track_ids",
+            (trackRes) => {
+                trackRes.one("page_id", ["name"]);
+                trackRes.attr("visit_datetime");
+            },
+            {
+                sort: (a, b) => {
+                    if (a.visit_datetime === b.visit_datetime) {
+                        return a.id - b.id;
+                    }
+                    return a.visit_datetime < b.visit_datetime ? 1 : -1;
+                },
+                value: (visitor) =>
+                    WebsiteTrack.browse(
+                        WebsiteTrack.search_read(
+                            [
+                                ["page_id", "!=", false],
+                                ["visitor_id", "=", visitor.id],
+                            ],
+                            { limit: 3 }
+                        ).map((t) => t.id)
+                    ),
+            }
+        );
     }
 }

@@ -7,9 +7,8 @@ import * as PartnerList from "@point_of_sale/../tests/pos/tours/utils/partner_li
 import * as PaymentScreen from "@point_of_sale/../tests/pos/tours/utils/payment_screen_util";
 import * as Numpad from "@point_of_sale/../tests/generic_helpers/numpad_util";
 import * as Order from "@point_of_sale/../tests/generic_helpers/order_widget_util";
-import * as ReceiptScreen from "@point_of_sale/../tests/pos/tours/utils/receipt_screen_util";
+import * as FeedbackScreen from "@point_of_sale/../tests/pos/tours/utils/feedback_screen_util";
 import { negateStep } from "@point_of_sale/../tests/generic_helpers/utils";
-import { delay } from "@web/core/utils/concurrency";
 import { registry } from "@web/core/registry";
 
 registry.category("web_tour.tours").add("EWalletProgramTour1", {
@@ -20,11 +19,9 @@ registry.category("web_tour.tours").add("EWalletProgramTour1", {
 
             // Topup 50$ for partner_aaa
             ProductScreen.clickDisplayedProduct("Top-up eWallet"),
+            PartnerList.clickPartner("AAAAAAA"),
             PosLoyalty.orderTotalIs("50.00"),
             ProductScreen.clickPayButton(false),
-            // If there's no partner, we asked to redirect to the partner list screen.
-            Dialog.confirm(),
-            PartnerList.clickPartner("AAAAAAA"),
             PosLoyalty.finalizeOrder("Cash", "50"),
 
             // Topup 10$ for partner_bbb
@@ -45,14 +42,6 @@ registry.category("web_tour.tours").add("EWalletProgramTour1", {
             }),
             PosLoyalty.orderTotalIs("0.00"),
             ...ProductScreen.clickLine("eWallet"),
-            // Added a small wait because the clickLine function uses a 300ms timeout
-            {
-                content: "Wait 300ms after clicking orderline",
-                trigger: "body",
-                async run() {
-                    await delay(300);
-                },
-            },
             Numpad.isVisible(),
             ...Order.hasLine({
                 withClass: ".selected",
@@ -60,13 +49,6 @@ registry.category("web_tour.tours").add("EWalletProgramTour1", {
                 productName: "eWallet",
                 quantity: "1.0",
             }),
-            {
-                content: "Wait 300ms after clicking orderline",
-                trigger: "body",
-                async run() {
-                    await delay(300);
-                },
-            },
             negateStep(Numpad.isVisible()),
             {
                 content: "Click Current Balance line in orderline",
@@ -168,9 +150,7 @@ registry.category("web_tour.tours").add("ExpiredEWalletProgramTour", {
             ProductScreen.clickPartnerButton(),
             ProductScreen.clickCustomer("AAAA"),
             ProductScreen.addOrderline("Whiteboard Pen", "2", "6", "12.00"),
-            PosLoyalty.eWalletButtonState({ highlighted: false, click: true }),
-            Dialog.is({ title: "No valid eWallet found" }),
-            Dialog.confirm(),
+            PosLoyalty.eWalletButtonState({ highlighted: false }),
         ].flat(),
 });
 
@@ -200,9 +180,8 @@ registry.category("web_tour.tours").add("EWalletLoyaltyHistory", {
             Dialog.confirm("Open Register"),
 
             ProductScreen.clickDisplayedProduct("Top-up eWallet"),
-            PosLoyalty.orderTotalIs("50.00"),
-            ProductScreen.clickPartnerButton(),
             PartnerList.clickPartner("AAAAAAA"),
+            PosLoyalty.orderTotalIs("50.00"),
             PosLoyalty.finalizeOrder("Cash", "50"),
 
             ProductScreen.addOrderline("Whiteboard Pen", "2", "6", "12.00"),
@@ -229,10 +208,9 @@ registry.category("web_tour.tours").add("EWalletRefundCreditNoteQtyTour", {
             ProductScreen.addOrderline("Whiteboard Pen", "1", "20", "20.00"),
             ProductScreen.clickPayButton(),
             PaymentScreen.clickInvoiceButton(),
-            PaymentScreen.isInvoiceOptionSelected(),
             PaymentScreen.clickPaymentMethod("Cash"),
             PaymentScreen.clickValidate(),
-            ReceiptScreen.clickNextOrder(),
+            FeedbackScreen.clickNextOrder(),
             ProductScreen.clickRefund(),
             TicketScreen.filterIs("Paid"),
             TicketScreen.selectOrder("Ewal"),
@@ -246,7 +224,7 @@ registry.category("web_tour.tours").add("EWalletRefundCreditNoteQtyTour", {
             }),
             PosLoyalty.orderTotalIs("0.00"),
             ProductScreen.clickPayButton(),
-            PaymentScreen.isInvoiceOptionSelected(),
+            PaymentScreen.isInvoiceButtonChecked(),
             PaymentScreen.clickValidate(),
         ].flat(),
 });

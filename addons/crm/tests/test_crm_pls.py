@@ -94,8 +94,8 @@ class TestConfig(CrmPlsCommon):
         pls_fields_str = ','.join(frequency_fields.mapped('field_id.name'))
         pls_start_date_str = "2021-01-01"
         IrConfigSudo = self.env['ir.config_parameter'].sudo()
-        IrConfigSudo.set_param("crm.pls_start_date", pls_start_date_str)
-        IrConfigSudo.set_param("crm.pls_fields", pls_fields_str)
+        IrConfigSudo.set_str("crm.pls_start_date", pls_start_date_str)
+        IrConfigSudo.set_str("crm.pls_fields", pls_fields_str)
 
         date_to_update = "2021-02-02"
         fields_to_remove = frequency_fields.filtered(lambda f: f.field_id.name in ['source_id', 'lang_id'])
@@ -115,8 +115,8 @@ class TestConfig(CrmPlsCommon):
         pls_update_wizard0.action_update_crm_lead_probabilities()
 
         # Config params should have been updated
-        self.assertEqual(IrConfigSudo.get_param("crm.pls_start_date"), date_to_update, 'Correct date is updated in config')
-        self.assertEqual(IrConfigSudo.get_param("crm.pls_fields"), fields_after_updation_str, 'Correct fields are updated in config')
+        self.assertEqual(IrConfigSudo.get_str("crm.pls_start_date"), date_to_update, 'Correct date is updated in config')
+        self.assertEqual(IrConfigSudo.get_str("crm.pls_fields"), fields_after_updation_str, 'Correct fields are updated in config')
 
     def test_settings_pls_start_date(self):
         """ Test various use cases of 'crm.pls_start_date' """
@@ -129,7 +129,7 @@ class TestConfig(CrmPlsCommon):
             ("One does not simply walk into system parameters to corrupt them", str_date_8_days_ago),
         ]:
             with self.subTest(value=value):
-                self.env['ir.config_parameter'].sudo().set_param('crm.pls_start_date', value)
+                self.env['ir.config_parameter'].sudo().set_str('crm.pls_start_date', value)
                 res_config_new = self.env['res.config.settings'].new()
                 self.assertEqual(Date.to_string(res_config_new.predictive_lead_scoring_start_date), expected)
 
@@ -202,8 +202,8 @@ class TestCrmPls(CrmPlsCommon):
         leads[-4::].team_id = team_ids[2]
 
         # Set the PLS config
-        self.env['ir.config_parameter'].sudo().set_param("crm.pls_start_date", "2000-01-01")
-        self.env['ir.config_parameter'].sudo().set_param("crm.pls_fields", "country_id,state_id,email_state,phone_state,source_id,tag_ids")
+        self.env['ir.config_parameter'].sudo().set_str("crm.pls_start_date", "2000-01-01")
+        self.env['ir.config_parameter'].sudo().set_str("crm.pls_fields", "country_id,state_id,email_state,phone_state,source_id,tag_ids")
 
         # set leads as won and lost
         # for Team 1
@@ -502,7 +502,7 @@ class TestCrmPls(CrmPlsCommon):
         self.assertEqual(tools.float_compare(leads[8].automated_probability, 0.23, 2), 0)
 
         # remove all pls fields
-        self.env['ir.config_parameter'].sudo().set_param("crm.pls_fields", False)
+        self.env['ir.config_parameter'].sudo().set_str("crm.pls_fields", None)
         Lead._cron_update_automated_probabilities()
         self.env.invalidate_all()
 
@@ -510,7 +510,7 @@ class TestCrmPls(CrmPlsCommon):
         self.assertEqual(tools.float_compare(leads[8].automated_probability, 50.0, 2), 0)
 
         # check if the probabilities are the same with the old param
-        self.env['ir.config_parameter'].sudo().set_param("crm.pls_fields", "country_id,state_id,email_state,phone_state,source_id")
+        self.env['ir.config_parameter'].sudo().set_str("crm.pls_fields", "country_id,state_id,email_state,phone_state,source_id")
         Lead._cron_update_automated_probabilities()
         self.env.invalidate_all()
 
@@ -548,9 +548,9 @@ class TestCrmPls(CrmPlsCommon):
         leads.tag_ids = self.env['crm.tag'].create({'name': 'lead scoring edge case'})
 
         # Set the PLS config
-        self.env['ir.config_parameter'].sudo().set_param("crm.pls_start_date", "2000-01-01")
+        self.env['ir.config_parameter'].sudo().set_str("crm.pls_start_date", "2000-01-01")
         # tag_ids can be used in versions newer than v14
-        self.env['ir.config_parameter'].sudo().set_param("crm.pls_fields", "country_id")
+        self.env['ir.config_parameter'].sudo().set_str("crm.pls_fields", "country_id")
 
         # set leads as won and lost
         leads[1].action_set_lost()
@@ -598,7 +598,7 @@ class TestCrmPls(CrmPlsCommon):
             values, in order of importance, of TOP 3 and LOW 3 criterions in PLS computation.
             See Table in docstring below for more details and a practical situation."""
         Lead = self.env['crm.lead']
-        self.env['ir.config_parameter'].sudo().set_param(
+        self.env['ir.config_parameter'].sudo().set_str(
             "crm.pls_fields",
             "country_id,state_id,email_state,phone_state,source_id"
         )
@@ -653,7 +653,7 @@ class TestCrmPls(CrmPlsCommon):
         # Assert scores for phone/email_state are excluded if absurd,
         # e.g. in top 3 when incorrect / not set or in low 3 if correct
         # Stage does not change and always has a score of 0.645
-        self.env['ir.config_parameter'].sudo().set_param("crm.pls_fields", "email_state,phone_state")
+        self.env['ir.config_parameter'].sudo().set_str("crm.pls_fields", "email_state,phone_state")
 
         leads[5].phone_state = False
         leads[5].email_state = 'incorrect'
@@ -861,7 +861,7 @@ class TestCrmPlsSides(CrmPlsCommon):
         self.assertEqual(len(existing_noteam), len(final_noteam))
 
 
-@tagged('lead_manage', 'crm_lead_pls')
+@tagged('post_install', '-at_install', 'crm_lead_pls', 'lead_manage')
 class TestLeadLost(TestCrmCommon):
 
     @classmethod
@@ -876,6 +876,7 @@ class TestLeadLost(TestCrmCommon):
         """ Test setting a lead as lost using the wizard. Also check that an
         'html editor' void content used as feedback is not logged on the lead. """
         # Initial data
+        self.env = self.env(context={**self.env.context, 'lang': 'en_US'})
         self.assertEqual(len(self.lead_1.message_ids), 1, 'Should contain creation message')
         creation_message = self.lead_1.message_ids[0]
         self.assertEqual(creation_message.subtype_id, self.env.ref('crm.mt_lead_create'))
@@ -906,7 +907,7 @@ class TestLeadLost(TestCrmCommon):
                 'notified_partner_ids': self.env['res.partner'],
                 'partner_ids': self.env['res.partner'],
                 'subtype_id': self.env.ref('mail.mt_note'),
-                'tracking_field_names': ['user_id'],
+                'tracking_values': [('user_id', 'many2one', self.user_sales_leads, self.user_sales_salesman)],
             }
         )
 
@@ -933,11 +934,10 @@ class TestLeadLost(TestCrmCommon):
                 'notified_partner_ids': self.env['res.partner'],
                 'partner_ids': self.env['res.partner'],
                 'subtype_id': self.env.ref('crm.mt_lead_lost'),
-                'tracking_field_names': ['active', 'lost_reason_id', 'won_status'],
                 'tracking_values': [
                     ('active', 'boolean', True, False),
                     ('lost_reason_id', 'many2one', False, self.lost_reason),
-                    ('won_status', 'char', 'Pending', 'Lost'),
+                    ('won_status', 'selection', 'Pending', 'Lost'),
                 ],
             }
         )
@@ -946,14 +946,16 @@ class TestLeadLost(TestCrmCommon):
     def test_lead_lost_batch_wfeedback(self):
         """ Test setting leads as lost in batch using the wizard, including a log
         message. """
+        self.env = self.env(context={**self.env.context, 'lang': 'en_US'})
         leads = self._create_leads_batch(lead_type='lead', count=10, probabilities=[10, 20, 30])
         self.assertEqual(len(leads), 10)
         self.flush_tracking()
 
+        feedback_str = '<p>I cannot find it. It was in my closet and pouf, disappeared.</p>'
         lost_wizard = self.env['crm.lead.lost'].create({
             'lead_ids': leads.ids,
             'lost_reason_id': self.lost_reason.id,
-            'lost_feedback': '<p>I cannot find it. It was in my closet and pouf, disappeared.</p>',
+            'lost_feedback': feedback_str,
         })
         lost_wizard.action_lost_reason_apply()
         self.flush_tracking()
@@ -968,14 +970,16 @@ class TestLeadLost(TestCrmCommon):
             self.assertEqual(len(lead.message_ids), 2, 'Should have 2 messages: creation, lost with log')
             lost_message = lead.message_ids.filtered(lambda msg: msg.subtype_id == self.env.ref('crm.mt_lead_lost'))
             self.assertTrue(lost_message)
-            self.assertTracking(
-                lost_message,
-                [('active', 'boolean', True, False),
-                 ('lost_reason_id', 'many2one', False, self.lost_reason)
-                ]
+            self.assertMessageFields(
+                lost_message, {
+                    'body': f'<div style="margin-bottom:4px"><p>Lost Comment:</p>{feedback_str}<br></div>',
+                    'tracking_values': [
+                        ('active', 'boolean', True, False),
+                        ('lost_reason_id', 'many2one', False, self.lost_reason),
+                        ('won_status', 'selection', 'Pending', 'Lost'),
+                    ],
+                }
             )
-            self.assertIn('<p>I cannot find it. It was in my closet and pouf, disappeared.</p>', lost_message.body,
-                          'Feedback should be included directly within tracking message')
 
     @users('user_sales_salesman')
     @mute_logger('odoo.addons.base.models')

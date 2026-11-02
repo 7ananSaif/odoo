@@ -38,6 +38,13 @@ class AccountChartTemplate(models.AbstractModel):
                 'reconcile': True,
                 'non_trade': True,
             },
+            'l10n_ng_withholding_receivable': {
+                'name': _("Withholding Tax Payable"),
+                'code': '252004',
+                'account_type': 'asset_receivable',
+                'reconcile': True,
+                'non_trade': True,
+            },
         }
 
     @template('ng')
@@ -55,7 +62,6 @@ class AccountChartTemplate(models.AbstractModel):
         res_company_data = self._get_generic_coa_res_company()[self.env.company.id]
         res_company_data.update({
             'account_fiscal_country_id': 'base.ng',
-            'account_stock_journal_id': 'inventory_valuation',
             'account_stock_valuation_id': 'l10n_ng_stock_valuation',
         })
 

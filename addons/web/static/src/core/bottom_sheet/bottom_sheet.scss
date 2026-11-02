@@ -30,9 +30,8 @@
     contain: layout paint size;
 
     // Workaround
-    animation-name: has-animation;
-    @media (prefers-reduced-motion: reduce) {
-        animation-name: none;
+    @media (prefers-reduced-motion: no-preference) {
+        animation-name: has-animation;
     }
 
     // Main scroll container for gesture handling
@@ -71,14 +70,13 @@
         inset: 0;
         background-color: rgba($modal-backdrop-bg, $modal-backdrop-opacity);
         opacity: 0;
-        transition: all 0.2s ease;
+        @media (prefers-reduced-motion: no-preference) {
+            transition: all 0.2s ease;
+        }
         pointer-events: auto;
         touch-action: none;
         z-index: $zindex-offcanvas - 1;
-        backdrop-filter: blur(0px) grayscale(0%);
-        @media (prefers-reduced-motion: reduce) {
-            transition: none;
-        }
+        backdrop-filter: grayscale(0%);
     }
 
     // Dismiss area
@@ -97,6 +95,7 @@
         --offcanvas-box-shadow: #{$box-shadow};
 
         margin: 0 auto;
+        max-width: 640px;
         min-height: var(--sheet-height);
         max-height: var(--sheet-max-height);
         border-radius: $border-radius-xl $border-radius-xl 0 0;
@@ -133,15 +132,14 @@
         opacity: 1;
 
         .o_bottom_sheet_sheet {
-            animation: var(--BottomSheet-slideIn-duration, 500ms) bottom-sheet-in var(--BottomSheet-slideIn-easing, ease-out) forwards;
-            @media (prefers-reduced-motion: reduce) {
-                animation: none;
+            @media (prefers-reduced-motion: no-preference) {
+                animation: var(--BottomSheet-slideIn-duration, 500ms) bottom-sheet-in var(--BottomSheet-slideIn-easing, ease-out) forwards;
             }
         }
 
         .o_bottom_sheet_backdrop {
             opacity: MAX(var(--BottomSheet-progress, 0), 0.2);
-            backdrop-filter: blur(.5px) grayscale(50%);
+            backdrop-filter: grayscale(50%);
         }
     }
 
@@ -178,48 +176,16 @@
     // Dismissing the sheet
     &.o_bottom_sheet_dismissing {
         .o_bottom_sheet_sheet {
-            animation: var(--BottomSheet-slideOut-duration, 300ms) bottom-sheet-out var(--BottomSheet-slideOut-easing, ease-in) forwards;
-            @media (prefers-reduced-motion: reduce) {
-                animation: none;
+            @media (prefers-reduced-motion: no-preference) {
+                animation: var(--BottomSheet-slideOut-duration, 300ms) bottom-sheet-out var(--BottomSheet-slideOut-easing, ease-in) forwards;
             }
         }
 
         .o_bottom_sheet_backdrop {
             opacity: 0;
-            backdrop-filter: blur(0) grayscale(0%);
-            transition: all var(--BottomSheet-slideOut-duration, 300ms) var(--BottomSheet-slideOut-easing, ease-in);
-            @media (prefers-reduced-motion: reduce) {
-                transition: none;
-            }
-        }
-    }
-
-    // When bottom sheet is open, apply styles to the body
-    @at-root .bottom-sheet-open {
-        overflow: hidden;
-
-        // Scale down the main content
-        .o_navbar, .o_action_manager {
-            transition: transform $o_BottomSheet_slideIn_duration ease;
-            transform: scale(.95) translateZ(0);
-            transform-origin: center top;
-            @media (prefers-reduced-motion: reduce) {
-                transition: none;
-            }
-        }
-
-        // Avoid blank on the side
-        &:not(.o_home_menu_background) .o_main_navbar {
-            box-shadow: 20px 0 0 $o-navbar-background, -20px 0 0 $o-navbar-background;
-        }
-
-        &:not(.bottom-sheet-open-multiple):has(.o_bottom_sheet_dismissing) {
-            .o_navbar, .o_action_manager {
-                transition: transform $o_BottomSheet_slideOut_duration ease;
-                transform: scale(1) translateZ(0);
-                @media (prefers-reduced-motion: reduce) {
-                    transition: none;
-                }
+            backdrop-filter: grayscale(0%);
+            @media (prefers-reduced-motion: no-preference) {
+                transition: all var(--BottomSheet-slideOut-duration, 300ms) var(--BottomSheet-slideOut-easing, ease-in);
             }
         }
     }
@@ -248,12 +214,10 @@
         &::after {
             @include o-position-absolute(50%, $list-group-item-padding-x);
             transform: translateY(-50%);
-            color: $o-action;
-            // .fa
+            color: var(--BottomSheetStatusBar__entry-caret--active, $o-action);
             text-rendering: auto;
-            font: normal normal normal 14px/1 FontAwesome;
-            // .fa-check
-            content: "";
+            font: normal normal normal 14px/1 'Material Symbols Outlined';
+            content: "check";
         }
     }
 
@@ -275,6 +239,7 @@
         font-size: $h5-font-size;
         font-weight: $o-font-weight-medium;
         text-align: start !important;
+        white-space: normal;
     }
 
     .dropdown-item .o_stat_value {
@@ -282,8 +247,13 @@
     }
 
     .o_bottom_sheet_body:not(.o_custom_bottom_sheet) {
+        // Leave space for the active checkmark icon
+        &:has(.dropdown-item.active, .dropdown-item.selected) .dropdown-item {
+            padding-right: $spacer * 2.5;
+        }
+
         // Dropdown
-        .dropdown-item {
+        .dropdown-item:not(.dropdown-item_active_noarrow) {
             &.active, &.selected {
                 @extend %BottomSheet-Entry-active;
             }
@@ -298,26 +268,23 @@
 
             @include o-position-absolute(var(--dropdown-item-padding-y), $list-group-item-padding-x);
             padding-block: map-get($spacers, 2);
-            // .fa
             text-rendering: auto;
-            font: normal normal normal 14px/1 FontAwesome;
-            // .fa-caret-down
-            content: "\f0d7";
+            font: normal normal normal 14px/1 'Material Symbols Outlined';
+            content: "arrow_drop_down";
         }
         &.open::after {
-            // .fa-caret-up
-            content: "\f0d8";
+            content: "arrow_drop_up";
         }
     }
 
-    .o_kanban_card_manage_settings:has(.o_colorlist) {
-        &, > div:last-child {
-            padding: 0;
-        }
+    .o_kanban_card_manage_settings.row .o_colorlist {
+        --ColorListField-columns: 6;
     }
     .row.o_kanban_card_manage_settings:last-child {
         &:has(:not(.o_field_boolean_favorite)) {
-            flex-direction: column-reverse;
+            @include media-breakpoint-down(md) {
+                flex-direction: column-reverse;
+            }
 
             .o_field_kanban_color_picker {
                 padding: map-get($spacers, 3);

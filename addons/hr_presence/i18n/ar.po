@@ -12,10 +12,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-11-20 13:20+0000\n"
-"Last-Translator: \"Malaz Siddig Elsayed Abuidris (msea)\" <msea@odoo.com>\n"
-"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 16:33+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-s19-4/"
 "hr_presence/ar/>\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
@@ -23,13 +23,22 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: hr_presence
-#. odoo-python
-#: code:addons/hr_presence/models/hr_employee.py:0
-msgid "%(name)s has been noted as %(state)s today"
-msgstr "تم تعيين %(name)s كـ %(state)s اليوم"
+#: model:ir.module.module,description:base.module_hr_presence
+msgid ""
+"\n"
+"Control Employees Presence\n"
+"==========================\n"
+"\n"
+"Based on:\n"
+"    * The IP Address\n"
+"    * The User's Session\n"
+"    * The Sent Emails\n"
+"\n"
+"Allows to contact directly the employee in case of unjustified absence.\n"
+msgstr ""
 
 #. module: hr_presence
 #: model:mail.template,body_html:hr_presence.mail_template_presence
@@ -64,21 +73,14 @@ msgstr ""
 "            "
 
 #. module: hr_presence
-#: model:ir.model.fields.selection,name:hr_presence.selection__hr_employee__hr_presence_state_display__absent
-#: model:ir.model.fields.selection,name:hr_presence.selection__hr_employee_public__hr_presence_state_display__absent
 #: model_terms:ir.ui.view,arch_db:hr_presence.hr_employee_view_search
 msgid "Absent"
 msgstr "غائب"
 
 #. module: hr_presence
-#: model:ir.actions.server,name:hr_presence.action_hr_employee_presence_log
-msgid "Add a log note"
-msgstr "إضافة ملاحظة في السجل"
-
-#. module: hr_presence
 #: model:ir.model,name:hr_presence.model_res_company
-msgid "Companies"
-msgstr "الشركات"
+msgid "Company"
+msgstr ""
 
 #. module: hr_presence
 #: model:ir.model,name:hr_presence.model_res_config_settings
@@ -112,6 +114,11 @@ msgid "Employee"
 msgstr "الموظف"
 
 #. module: hr_presence
+#: model:ir.module.module,shortdesc:base.module_hr_presence
+msgid "Employee Presence Control"
+msgstr ""
+
+#. module: hr_presence
 #: model:sms.template,name:hr_presence.sms_template_data_hr_presence
 msgid "Employee: Presence Reminder"
 msgstr "الموظف: تذكير الحضور"
@@ -141,12 +148,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:hr_presence.field_res_company__hr_presence_last_compute_date
 msgid "Hr Presence Last Compute Date"
 msgstr "تاريخ آخر احتساب لحضور الموارد البشرية"
-
-#. module: hr_presence
-#: model:ir.model.fields,field_description:hr_presence.field_hr_employee__hr_presence_state_display
-#: model:ir.model.fields,field_description:hr_presence.field_hr_employee_public__hr_presence_state_display
-msgid "Hr Presence State Display"
-msgstr "عرض حالة حضور الموارد البشرية"
 
 #. module: hr_presence
 #: model:ir.model.fields,field_description:hr_presence.field_hr_employee__id
@@ -182,28 +183,10 @@ msgid "Manually Set Present"
 msgstr "تعيين الحضور يدوياً"
 
 #. module: hr_presence
-#: model:ir.model.fields.selection,name:hr_presence.selection__hr_employee__hr_presence_state_display__out_of_working_hour
-#: model:ir.model.fields.selection,name:hr_presence.selection__hr_employee_public__hr_presence_state_display__out_of_working_hour
-#: model_terms:ir.ui.view,arch_db:hr_presence.hr_employee_view_search
-msgid "Off-Hours"
-msgstr "خارج ساعات العمل"
-
-#. module: hr_presence
 #. odoo-javascript
-#: code:addons/hr_presence/static/src/search/hr_presence_cog_menu/hr_presence_cog_menu.xml:0
+#: code:addons/hr_presence/static/src/presence_cog_menu/presence_cog_menu.xml:0
 msgid "Presence Control"
 msgstr "التحكم في الحضور"
-
-#. module: hr_presence
-#: model_terms:ir.ui.view,arch_db:hr_presence.hr_employee_view_search
-msgid "Presence/Absence"
-msgstr "الحضور/الغياب"
-
-#. module: hr_presence
-#: model:ir.model.fields.selection,name:hr_presence.selection__hr_employee__hr_presence_state_display__present
-#: model:ir.model.fields.selection,name:hr_presence.selection__hr_employee_public__hr_presence_state_display__present
-msgid "Present"
-msgstr "حاضر"
 
 #. module: hr_presence
 #: model:ir.model,name:hr_presence.model_hr_employee_public
@@ -213,13 +196,9 @@ msgstr "موظف في القطاع العام"
 #. module: hr_presence
 #. odoo-python
 #: code:addons/hr_presence/models/hr_employee.py:0
+#: model:ir.actions.server,name:hr_presence.action_hr_employee_presence_sms
 msgid "Send SMS"
 msgstr "إرسال رسالة نصية قصيرة"
-
-#. module: hr_presence
-#: model:ir.actions.server,name:hr_presence.action_hr_employee_presence_sms
-msgid "Send a SMS"
-msgstr "ارسال رسالة نصية قصيرة"
 
 #. module: hr_presence
 #: model:mail.template,description:hr_presence.mail_template_presence
@@ -286,63 +265,3 @@ msgstr "لا تملك حق القيام بذلك. يرجى التواصل مع �
 #: model:ir.model,name:hr_presence.model_ir_websocket
 msgid "websocket message handling"
 msgstr "التعامل مع رسائل websocket"
-
-#~ msgid "Absence/Presence"
-#~ msgstr "الغياب/الحضور "
-
-#~ msgid "Basic Employee"
-#~ msgstr "الموظف الأساسي"
-
-#~ msgid "Compose Email"
-#~ msgstr "إنشاء رسالة جديدة "
-
-#~ msgid "Compute presence and open presence view"
-#~ msgstr "احتساب الحضور وفتح عرض الحضور "
-
-#~ msgid "Create Uid"
-#~ msgstr "إنشاء Uid"
-
-#~ msgid "Employee's Presence to Define"
-#~ msgstr "حضور الموظف لتحديده "
-
-#~ msgid "Employees"
-#~ msgstr "الموظفون"
-
-#~ msgid ""
-#~ "Exception made if there was a mistake of ours, it seems that you are not "
-#~ "at your office and there is not request of time off from you.\n"
-#~ "Please, take appropriate measures in order to carry out this work "
-#~ "absence.\n"
-#~ "Do not hesitate to contact your manager or the human resource department."
-#~ msgstr ""
-#~ "يبدو أنك غير متواجد في المكتب ولا يوجد طلب إجازة مقدم، إلا إذا كان هذا "
-#~ "خطأً من جهتنا.\n"
-#~ "يرجى أخذ الإجراء اللازم لتنفيذ هذا الغياب.\n"
-#~ "لا تتردد في التواصل مع مديرك أو قسم الموارد البشرية. "
-
-#~ msgid "Log"
-#~ msgstr "سجل"
-
-#~ msgid "Presence"
-#~ msgstr "الحضور "
-
-#~ msgid "SMS"
-#~ msgstr "الرسائل النصية القصيرة "
-
-#~ msgid "Set as absent"
-#~ msgstr "التعيين كغائب "
-
-#~ msgid "Set as present"
-#~ msgstr "التعيين كحاضر "
-
-#~ msgid "There is no professional email address for this employee."
-#~ msgstr "ليس هناك عنوان بريد إلكتروني مهني لهذا الموظف. "
-
-#~ msgid "There is no professional mobile for this employee."
-#~ msgstr "ليس هناك رقم هاتف محمول مهني لهذا الموظف. "
-
-#~ msgid "Time Off"
-#~ msgstr "الإجازات "
-
-#~ msgid "To Define"
-#~ msgstr "بانتظار التحديد "

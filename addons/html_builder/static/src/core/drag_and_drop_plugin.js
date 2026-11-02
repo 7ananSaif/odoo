@@ -7,6 +7,7 @@ import { clamp } from "@web/core/utils/numbers";
 import { rowSize } from "@html_builder/utils/grid_layout_utils";
 import { isEditable, isVisible } from "@html_builder/utils/utils";
 import { DragAndDropMoveHandle } from "./drag_and_drop_move_handle";
+import { selectElements } from "@html_editor/utils/dom_traversal";
 
 /**
  * @typedef {{
@@ -21,6 +22,8 @@ import { DragAndDropMoveHandle } from "./drag_and_drop_move_handle";
  *     marginToAdd: string[];
  *     mousePositionYOnElement: number;
  *     mousePositionXOnElement: number;
+ *     originNextEl: HTMLElement | undefined;
+ *     originPreviousEl: HTMLElement | undefined;
  *     overFirstDropzone: boolean;
  *     overGrid: boolean;
  *     restoreCallbacks?: ReturnType<on_prepare_drag_handlers[0]>[] | null;
@@ -46,7 +49,7 @@ import { DragAndDropMoveHandle } from "./drag_and_drop_move_handle";
  * @typedef {((arg: {
  *      droppedEl: HTMLElement,
  *      dragState: DragState,
- * }) => Promise<boolean>)[]} on_element_dropped_handlers
+ * }) => Promise<void>)[]} on_element_dropped_handlers
  * @typedef {((arg: {
  *      droppedEl: HTMLElement,
  *      dropzoneEl: HTMLElement,
@@ -72,7 +75,7 @@ import { DragAndDropMoveHandle } from "./drag_and_drop_move_handle";
  * }) => void)[]} on_element_over_dropzone_handlers
  * @typedef {(() => (() => void))[]} on_prepare_drag_handlers
  *
- * @typedef {((el: HTMLElement) => boolean)[]} is_draggable_handlers
+ * @typedef {((el: HTMLElement) => boolean | undefined)[]} is_draggable_predicates
  */
 
 export class DragAndDropPlugin extends Plugin {
@@ -85,11 +88,11 @@ export class DragAndDropPlugin extends Plugin {
             getButtons: this.getActiveOverlayButtons.bind(this),
         }),
         system_classes: ["o_draggable"],
-        clean_for_save_handlers: this.cleanForSave.bind(this),
+        clean_for_save_processors: this.cleanForSave.bind(this),
     };
 
     setup() {
-        this.dropzoneSelectors = this.getResource("dropzone_selector");
+        this.dropzoneSelectors = this.getResource("dropzone_selectors");
         this.overlayTarget = null;
         this.iframe = this.document.defaultView.frameElement;
         this.isRtl = this.config.isEditableRTL;
@@ -100,10 +103,11 @@ export class DragAndDropPlugin extends Plugin {
         this.draggableComponentImgs?.destroy();
     }
 
-    cleanForSave({ root }) {
-        [root, ...root.querySelectorAll(".o_draggable")].forEach((el) => {
+    cleanForSave(root) {
+        selectElements(root, ".o_draggable").forEach((el) => {
             el.classList.remove("o_draggable");
         });
+        return root;
     }
 
     isDraggable(el) {
@@ -117,10 +121,8 @@ export class DragAndDropPlugin extends Plugin {
             return false;
         }
 
-        for (const isDraggable of this.getResource("is_draggable_handlers")) {
-            if (!isDraggable(el)) {
-                return false;
-            }
+        if (!(this.checkPredicates("is_draggable_predicates", el) ?? true)) {
+            return false;
         }
         return true;
     }
@@ -190,7 +192,7 @@ export class DragAndDropPlugin extends Plugin {
         };
 
         const dragAndDropOptions = {
-            ref: { el: element },
+            ref: () => element,
             iframeWindow,
             cursor: "move",
             elements: elementsSelector,
@@ -215,7 +217,11 @@ export class DragAndDropPlugin extends Plugin {
             onDragStart: ({ x, y }) => {
                 const dragAndDropProm = new Promise(
                     (resolve) => (dragAndDropResolve = () => resolve())
-                );
+                ).then(() => {
+                    this.dependencies.builderOptions.updateContainers(this.overlayTarget, {
+                        forceUpdate: true,
+                    });
+                });
                 this.dependencies.operation.next(async () => await dragAndDropProm, {
                     withLoadingEffect: false,
                     canTimeout: false,
@@ -227,7 +233,6 @@ export class DragAndDropPlugin extends Plugin {
                     this.dragState.restoreCallbacks?.forEach((restore) => restore());
                     restoreDragSavePoint();
                     dragAndDropResolve();
-                    this.dependencies.builderOptions.updateContainers(this.overlayTarget);
                 };
 
                 this.dragStarted = true;
@@ -246,17 +251,16 @@ export class DragAndDropPlugin extends Plugin {
                 );
                 this.dragState.mousePositionYOnElement = boundedYMousePosition - targetRect.y;
                 this.dragState.mousePositionXOnElement = (x - targetRect.x) * (this.isRtl ? -1 : 1);
+                this.dragState.originPreviousEl = this.overlayTarget.previousElementSibling;
+                this.dragState.originNextEl = this.overlayTarget.nextElementSibling;
 
                 // Stop marking the elements with mutations as dirty and make
                 // some changes on the page to ease the drag and drop.
-                const restoreCallbacks = [];
-                for (const prepareDrag of this.getResource("on_prepare_drag_handlers")) {
-                    const restore = prepareDrag();
-                    restoreCallbacks.unshift(restore);
-                }
-                this.dragState.restoreCallbacks = restoreCallbacks;
+                this.dragState.restoreCallbacks = this.trigger(
+                    "on_prepare_drag_handlers"
+                ).reverse();
 
-                this.dispatchTo("on_element_dragged_handlers", {
+                this.trigger("on_element_dragged_handlers", {
                     draggedEl: this.overlayTarget,
                     dragState: this.dragState,
                 });
@@ -300,9 +304,8 @@ export class DragAndDropPlugin extends Plugin {
                     withGrids
                 );
 
-                // Remove the dragged element and deactivate the options.
+                // Remove the dragged element
                 this.overlayTarget.remove();
-                this.dependencies.builderOptions.deactivateContainers();
 
                 // Add the dropzones.
                 dropzoneEls = this.dependencies.dropzone.activateDropzones(selectors, {
@@ -339,7 +342,7 @@ export class DragAndDropPlugin extends Plugin {
                 dropzoneEl.after(this.overlayTarget);
                 this.dragState.currentDropzoneEl = dropzoneEl;
 
-                this.dispatchTo("on_element_over_dropzone_handlers", {
+                this.trigger("on_element_over_dropzone_handlers", {
                     draggedEl: this.overlayTarget,
                     dragState: this.dragState,
                 });
@@ -349,7 +352,7 @@ export class DragAndDropPlugin extends Plugin {
                     return;
                 }
 
-                this.dispatchTo("on_element_move_handlers", {
+                this.trigger("on_element_move_handlers", {
                     draggedEl: this.overlayTarget,
                     dragState: this.dragState,
                     x,
@@ -362,7 +365,7 @@ export class DragAndDropPlugin extends Plugin {
                     return;
                 }
 
-                this.dispatchTo("on_element_out_dropzone_handlers", {
+                this.trigger("on_element_out_dropzone_handlers", {
                     draggedEl: this.overlayTarget,
                     dragState: this.dragState,
                 });
@@ -388,13 +391,13 @@ export class DragAndDropPlugin extends Plugin {
                 }
 
                 if (isDroppedOver) {
-                    this.dispatchTo("on_element_dropped_over_handlers", {
+                    this.trigger("on_element_dropped_over_handlers", {
                         droppedEl: this.overlayTarget,
                         dragState: this.dragState,
                     });
                 } else {
                     currentDropzoneEl.after(this.overlayTarget);
-                    this.dispatchTo("on_element_dropped_near_handlers", {
+                    this.trigger("on_element_dropped_near_handlers", {
                         droppedEl: this.overlayTarget,
                         dropzoneEl: currentDropzoneEl,
                         dragState: this.dragState,
@@ -425,19 +428,12 @@ export class DragAndDropPlugin extends Plugin {
                 this.dragState.dropCloneEl?.remove();
 
                 // Process the dropped element.
-                for (const onElementDropped of this.getResource("on_element_dropped_handlers")) {
-                    const cancel = await onElementDropped({
-                        droppedEl: this.overlayTarget,
-                        dragState: this.dragState,
-                    });
-                    // Cancel everything if the resource asked to.
-                    if (cancel) {
-                        this.cancelDragAndDrop();
-                        return;
-                    }
-                }
+                await this.triggerAsync("on_element_dropped_handlers", {
+                    droppedEl: this.overlayTarget,
+                    dragState: this.dragState,
+                });
 
-                // Add a history step only if the element was not dropped where
+                // Add a history commit only if the element was not dropped where
                 // it was before, otherwise cancel everything.
                 let hasSamePositionAsStart;
                 if ("hasSamePositionAsStart" in this.dragState) {
@@ -452,14 +448,13 @@ export class DragAndDropPlugin extends Plugin {
                         startParentEl === parentEl;
                 }
                 if (!hasSamePositionAsStart) {
-                    this.dependencies.history.addStep();
+                    this.dependencies.history.commit();
                 } else {
                     this.cancelDragAndDrop();
                     return;
                 }
 
                 dragAndDropResolve();
-                this.dependencies.builderOptions.updateContainers(this.overlayTarget);
             },
         };
 

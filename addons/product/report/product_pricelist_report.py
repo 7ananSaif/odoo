@@ -1,9 +1,9 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import api, models
+from odoo import api, fields, models
 
 
-class ReportProductReport_Pricelist(models.AbstractModel):
+class ProductPricelistReport(models.AbstractModel):
     _name = 'report.product.report_pricelist'
     _description = 'Pricelist Report'
 
@@ -23,6 +23,8 @@ class ReportProductReport_Pricelist(models.AbstractModel):
         pricelist = self.env['product.pricelist'].browse(pricelist_id).exists()
         if not pricelist:
             pricelist = self.env['product.pricelist'].search([], limit=1)
+        date_str = data.get('date')
+        date = fields.Date.to_date(date_str) if date_str else fields.Date.context_today(self)
 
         active_model = data.get('active_model', 'product.template')
         active_ids = data.get('active_ids') or []
@@ -31,34 +33,60 @@ class ReportProductReport_Pricelist(models.AbstractModel):
 
         products = ProductClass.browse(active_ids) if active_ids else []
         products_data = [
-            self._get_product_data(is_product_tmpl, product, pricelist, quantities)
+            self._get_product_data(is_product_tmpl, product, pricelist, quantities, date)
             for product in products
         ]
+
+        # We display a row with the category name in the xml every time
+        # the category changes, so we need to make sure that the products list
+        # is sorted by category.
+        products_data.sort(key=lambda x: x['category'] or '')
 
         return {
             'is_html_type': report_type == 'html',
             'is_product_tmpl': is_product_tmpl,
-            'display_pricelist_title': data.get('display_pricelist_title', False) and bool(data['display_pricelist_title']),
+            'display_pricelist_title': bool(data.get('display_pricelist_title', False)),
             'pricelist': pricelist,
             'products': products_data,
             'quantities': quantities,
             'docs': pricelist,
+            'currency': pricelist.currency_id or self.env.company.currency_id,
+            'date': date,
         }
 
-    def _get_product_data(self, is_product_tmpl, product, pricelist, quantities):
+    def _get_product_data(self, is_product_tmpl, product, pricelist, quantities, date):
+        product = product.with_context(display_default_code=False)
+        has_multiple_variants = is_product_tmpl and product.product_variant_count > 1
+
+        # Determine applicable UoMs
+        if product._has_multiple_uoms() and not has_multiple_variants:
+            product_uoms = pricelist._get_related_uoms(product) + product.uom_id
+        else:
+            product_uoms = product.uom_id
+
         data = {
-            'id': product.id,
-            'name': is_product_tmpl and product.name or product.display_name,
-            'price': dict.fromkeys(quantities, 0.0),
-            'uom': product.uom_id.name,
+            "id": product.id,
+            "name": product.name if is_product_tmpl else product.display_name,
+            "price": {uom.id: {qty: {} for qty in quantities} for uom in product_uoms},
+            "uoms": product_uoms.read(["id", "name"]),
+            "default_code": product.default_code,
+            "barcode": product.barcode,
+            "category": product.categ_id.name,
+            "show_product_data": not has_multiple_variants,
         }
-        for qty in quantities:
-            data['price'][qty] = pricelist._get_product_price(product, qty)
 
-        if is_product_tmpl and product.product_variant_count > 1:
-            data['variants'] = [
-                self._get_product_data(False, variant, pricelist, quantities)
+        if has_multiple_variants:
+            # Expand variants when template has multiple variants
+            data["variants"] = [
+                self._get_product_data(False, variant, pricelist, quantities, date)
                 for variant in product.product_variant_ids
             ]
+        else:
+            # Compute prices only when we actually show product data
+            for uom in product_uoms:
+                for qty in quantities:
+                    data["price"][uom.id][qty] = pricelist._get_product_price(
+                        product, qty, date=date, uom=uom
+                    )
 
         return data

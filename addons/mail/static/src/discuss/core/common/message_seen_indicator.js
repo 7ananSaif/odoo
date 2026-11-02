@@ -1,60 +1,64 @@
-import { Component, useExternalListener, useRef } from "@odoo/owl";
+import { Component, signal, t, useListener, useProps } from "@odoo/owl";
 import { Dialog } from "@web/core/dialog/dialog";
 import { _t } from "@web/core/l10n/translation";
-import { useService } from "@web/core/utils/hooks";
+import { useBackButton, useService } from "@web/core/utils/hooks";
 import { browser } from "@web/core/browser/browser";
 
 class MessageSeenIndicatorDialog extends Component {
     static components = { Dialog };
     static template = "mail.MessageSeenIndicatorDialog";
-    static props = ["message", "close?"];
+
+    contentRef = signal.ref();
 
     setup() {
         super.setup();
-        this.contentRef = useRef("content");
-        useExternalListener(
+        this.store = useService("mail.store");
+        this.props = useProps({
+            close: t.function([]).optional(),
+            message: t.instanceOf(this.store["mail.message"]),
+        });
+        useListener(
             browser,
             "click",
             (ev) => {
-                if (!this.contentRef?.el.contains(ev.target)) {
+                if (!this.contentRef()?.contains(ev.target)) {
                     this.props.close();
                 }
             },
             true
         );
+        useBackButton(() => this.props.close());
     }
 }
 
-/**
- * @typedef {Object} Props
- * @property {import("models").Message} message
- * @property {import("models").Thread} thread
- * @extends {Component<Props, Env>}
- */
 export class MessageSeenIndicator extends Component {
     static template = "mail.MessageSeenIndicator";
-    static props = ["message", "thread", "className?"];
 
     setup() {
         super.setup();
+        this.store = useService("mail.store");
+        this.props = useProps({
+            className: t.string().optional(),
+            message: t.instanceOf(this.store["mail.message"]),
+        });
         this.dialog = useService("dialog");
     }
 
     get summary() {
         if (this.props.message.hasEveryoneSeen) {
             if (
-                this.props.thread.correspondent &&
-                this.props.thread.channel_member_ids.length === 2
+                this.props.message.channel_id.correspondent &&
+                this.props.message.channel_id.channel_member_ids.length === 2
             ) {
-                return _t("Seen by %(user)s", { user: this.props.thread.correspondent.name });
+                return _t("Seen by %(user)s", {
+                    user: this.props.message.channel_id.correspondent.name,
+                });
             }
             return _t("Seen by everyone");
         }
         const seenMembers = this.props.message.channelMemberHaveSeen;
         const [user1, user2, user3] = seenMembers.map((member) => member.name);
         switch (seenMembers.length) {
-            case 0:
-                return _t("Sent");
             case 1:
                 return _t("Seen by %(user)s", { user: user1 });
             case 2:
@@ -78,9 +82,6 @@ export class MessageSeenIndicator extends Component {
     }
 
     openDialog() {
-        if (this.props.message.channelMemberHaveSeen.length === 0) {
-            return;
-        }
         this.dialog.add(MessageSeenIndicatorDialog, { message: this.props.message });
     }
 }

@@ -4,6 +4,7 @@ import {
     insertSnippet,
     goBackToBlocks,
     registerWebsitePreviewTour,
+    unfoldOptionsGroup,
 } from "@website/js/tours/tour_utils";
 
 const scrollToHeading = function (position) {
@@ -18,18 +19,24 @@ const scrollToHeading = function (position) {
 const checkTOCNavBar = function (tocPosition, activeHeaderPosition) {
     return {
         content: `Check that the header ${activeHeaderPosition} is active for TOC ${tocPosition}`,
-        trigger: `:iframe .s_table_of_content:eq(${tocPosition}) .table_of_content_link:eq(${activeHeaderPosition}).active `,
+        trigger: `:iframe .s_table_of_content:eq(${tocPosition}) .table_of_content_link.table_of_content_link_depth_0:eq(${activeHeaderPosition}).active `,
     };
 };
 
 registerWebsitePreviewTour(
     "snippet_table_of_content",
     {
-        url: "/",
         edition: true,
     },
     () => [
         ...insertSnippet({ id: "s_table_of_content", name: "Table of Content", groupName: "Text" }),
+        // Add a banner snippet at the end of the page to avoid an edge case
+        // with the table of content: When the table of content is the last
+        // snippet, scrolling to the last h2 title would scroll to the end of
+        // the page. Therefore, the last title of the table of content will be
+        // activated, instead of the h2 we scrolled to. The extra banner ensures
+        // correct activation behavior.
+        ...insertSnippet({ id: "s_banner", name: "Banner", groupName: "Intro" }),
         {
             content: "Drag the Text snippet group and drop it.",
             trigger:
@@ -70,10 +77,15 @@ registerWebsitePreviewTour(
             trigger: ":iframe .s_table_of_content:eq(0) h2",
             run: "click",
         },
+        ...unfoldOptionsGroup("Table of Content"),
         {
             content: "Hide the first TOC on mobile",
-            trigger: '[data-action-param="no_mobile"]',
+            trigger:
+                '.options-container[data-container-title="Table of Content"] [data-action-param="no_mobile"]',
             run: "click",
+        },
+        {
+            trigger: ":iframe .s_table_of_content:eq(0).o_snippet_mobile_invisible",
         },
         // Go back to blocks tabs to avoid changing the first ToC options
         goBackToBlocks(),
@@ -82,10 +94,15 @@ registerWebsitePreviewTour(
             trigger: ":iframe .s_table_of_content:eq(1) h2",
             run: "click",
         },
+        ...unfoldOptionsGroup("Table of Content"),
         {
             content: "Hide the second TOC on desktop",
-            trigger: '[data-action-param="no_desktop"]',
+            trigger:
+                '.options-container[data-container-title="Table of Content"] [data-action-param="no_desktop"]',
             run: "click",
+        },
+        {
+            trigger: ":iframe .s_table_of_content:eq(1).o_snippet_desktop_invisible:not(:visible)",
         },
         ...clickOnSave(),
         {

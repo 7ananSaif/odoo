@@ -1,23 +1,26 @@
-import { Component } from "@odoo/owl";
+import { Component, t, usePlugin, useProps } from "@odoo/owl";
 import { CheckBox } from "@web/core/checkbox/checkbox";
+import { DebugModePlugin } from "@web/core/debug_mode_plugin";
 import { _t } from "@web/core/l10n/translation";
 import { DocumentationLink } from "@web/views/widgets/documentation_link/documentation_link";
 
 export class ImportDataSidepanel extends Component {
     static template = "ImportDataSidepanel";
     static components = { CheckBox, DocumentationLink };
-    static props = {
-        filename: { type: String },
-        formattingOptions: { type: Object, optional: true },
-        options: { type: Object },
-        importTemplates: { type: Array, optional: true },
-        isBatched: { type: Boolean, optional: true },
-        onOptionChanged: { type: Function },
-        onReload: { type: Function },
-        hasBinaryFields: { type: Boolean },
-        binaryFilesParams: { type: Object },
-        onBinaryFilesParamsChanged: { type: Function },
-    };
+
+    props = useProps({
+        filename: t.string(),
+        formattingOptions: t.object().optional(),
+        options: t.object(),
+        importTemplates: t.array().optional(),
+        isBatched: t.boolean().optional(),
+        onOptionChanged: t.function(),
+        hasBinaryFields: t.boolean(),
+        binaryFilesParams: t.object(),
+        onBinaryFilesParamsChanged: t.function(),
+    });
+
+    debugMode = usePlugin(DebugModePlugin);
 
     get fileName() {
         return this.props.filename.split(".")[0];
@@ -25,6 +28,28 @@ export class ImportDataSidepanel extends Component {
 
     get fileExtension() {
         return "." + this.props.filename.split(".").pop();
+    }
+
+    get attachmentsTooltip() {
+        return _t(
+            "Upload attachments such as images or files that can be mapped with imported data"
+        );
+    }
+
+    get batchLimitTooltip() {
+        return _t(
+            "Defines the number of records that will be imported in one transaction. Reduce the batch size in case of heavy imports"
+        );
+    }
+
+    get headersTooltip() {
+        return _t("If checked, the first row of the sheet will not be imported");
+    }
+
+    get trackingTooltip() {
+        return _t(
+            "If checked, the changes are tracked in the chatter and notifications can be sent to followers, which could slow down the import"
+        );
     }
 
     getOptionValue(name) {

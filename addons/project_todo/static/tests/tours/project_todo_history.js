@@ -2,32 +2,44 @@ import { registry } from "@web/core/registry";
 import { stepUtils } from "@web_tour/tour_utils";
 
 const baseDescriptionContent = "Test project todo history version";
-const descriptionField = `div.note-editable.odoo-editor-editable div.o-paragraph`;
+const descriptionField = `div.note-editable.odoo-editor-editable .o-paragraph`;
 function changeDescriptionContentAndSave(newContent) {
     const newText = `${baseDescriptionContent} ${newContent}`;
     return [
         {
             // force focus on editable so editor will create initial p (if not yet done)
+            content: "focus in editable",
             trigger: "div.note-editable.odoo-editor-editable",
             run: "click",
         },
         {
+            content: "change html field content",
             trigger: descriptionField,
             run: `editor ${newText}`,
         },
         {
-            trigger: "button.o_form_button_save",
+            content: "focus in editable",
+            trigger: "div.note-editable.odoo-editor-editable",
             run: "click",
         },
         {
-            content: "Wait the form is saved",
-            trigger: ".o_form_saved",
+            content: "ensure edition is done",
+            trigger: `div.note-editable.odoo-editor-editable .o-paragraph:contains(${newText})`,
         },
+        {
+            content: "focus out to force blur on the html_field",
+            trigger: ".o_form_renderer",
+            run: "click",
+        },
+        {
+            content: "wait for record to be flagged dirty",
+            trigger: ".o_form_dirty",
+        },
+        ...stepUtils.saveForm(),
     ];
 }
 
 registry.category("web_tour.tours").add("project_todo_history_tour", {
-    url: "/odoo?debug=1,tests",
     steps: () => [stepUtils.showAppsMenuItem(), {
         content: "Open the Todo app",
         trigger: ".o_app[data-menu-xmlid='project_todo.menu_todo_todos']",
@@ -47,42 +59,34 @@ registry.category("web_tour.tours").add("project_todo_history_tour", {
         content: "Go back to kanban view of todos. this step is added because it takes some time to save the changes, so it's a sort of timeout to wait a bit for the save",
         trigger: ".o_back_button a",
         run: "click",
-    },
-    {
+    }, {
         content: "Open Test Todo",
         trigger: ".o_kanban_view .o_kanban_record:contains(Test History Todo)",
         run: "click",
-    },
-    {
+    }, {
+        content: "ensure record is loaded",
+        trigger: `div.note-editable.odoo-editor-editable .o-paragraph:contains(${baseDescriptionContent} 3)`,
+    }, {
         content: "Open History Dialog",
-        trigger: ".o_form_view .o_cp_action_menus i.fa-cog",
+        trigger: ".o_form_view .o_cp_action_menus button[aria-label='Actions menu']",
         run: "click",
-    },
-    {
+    }, {
         trigger: ".dropdown-menu",
-    },
-    {
+    }, {
         content: "Open History Dialog",
-        trigger: ".o_menu_item i.fa-history",
+        trigger: ".o_menu_item i[data-icon='history']",
         run: "click",
-
     }, {
         trigger: ".modal .html-history-dialog.html-history-loaded",
     }, {
         content: "Verify that 5 revisions are displayed (default empty description after the creation of the todo + 3 edits)",
-        trigger: ".modal .html-history-dialog .revision-list .btn",
-        run: function () {
-            const items = document.querySelectorAll(".revision-list .btn");
-            if (items.length !== 5) {
-                throw new Error('Expect 5 Revisions in the history dialog, got ' + items.length);
-            }
-        },
+        trigger: ".modal .html-history-dialog .o_revision_panel .list-group-item:count(5)",
     }, {
         content: "Verify that the active revision (revision 4) is related to the current version",
         trigger: `.modal .history-container .history-content-view .history-view-inner:contains(${baseDescriptionContent} 3)`,
     }, {
         content: "Go to the third revision related to the second edit",
-        trigger: ".modal .html-history-dialog .revision-list .btn:nth-child(3)",
+        trigger: ".modal .html-history-dialog .o_revision_panel .list-group-item:nth-child(3)",
         run: "click",
     }, {
         trigger: ".modal .html-history-dialog.html-history-loaded",
@@ -91,7 +95,7 @@ registry.category("web_tour.tours").add("project_todo_history_tour", {
         trigger: `.modal .history-container .history-content-view .history-view-inner:contains(${baseDescriptionContent} 1)`,
     }, {
         // click on the split comparison tab
-        trigger: '.history-container .history-view-top-bar a:contains(Comparison)',
+        trigger: '.history-container .history-view-top-bar label:contains(Show comparison)',
         run: "click",
     }, {
         content: "Verify comparaison text",
@@ -115,14 +119,7 @@ registry.category("web_tour.tours").add("project_todo_history_tour", {
         run: "click",
     }, {
         content: "Verify that the description contains the right text after the restore",
-        trigger: descriptionField,
-        run: function () {
-            const p = this.anchor?.innerText;
-            const expected = `${baseDescriptionContent} 1`;
-            if (p !== expected) {
-                throw new Error(`Expect description to be ${expected}, got ${p}`);
-            }
-        }
+        trigger: `${descriptionField}:contains(/^${baseDescriptionContent} 1$/)`,
     }, {
         trigger: "button.o_form_button_save",
         run: "click",

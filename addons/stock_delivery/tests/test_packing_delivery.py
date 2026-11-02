@@ -3,16 +3,28 @@
 from odoo import Command
 from odoo.addons.stock.tests.test_packing import TestPackingCommon
 from odoo.exceptions import UserError
-from odoo.tests import Form
+from odoo.tests import tagged, Form
 from unittest.mock import patch
 
 
-class TestPacking(TestPackingCommon):
+class TestPackingDelivery(TestPackingCommon):
+
+    _test_user_groups = (
+        'product.group_product_manager',  # FIXME: use base.group_user
+        # Delivery/packing scenarios are the subject under test: they create
+        # delivery.carrier, stock.package.type and write stock.location (via
+        # warehouse.delivery_steps), all of which require Inventory / Administrator.
+        'stock.group_stock_manager',
+        # test_multistep_delivery_tracking confirms a sale.order to drive the
+        # multistep delivery/tracking flow (the subject under test).
+        'sales_team.group_sale_salesman',
+    )
+
+    _test_user_name = 'Test Product Manager'
 
     @classmethod
     def setUpClass(cls):
-        super(TestPacking, cls).setUpClass()
-        cls.uom_kg = cls.env.ref('uom.product_uom_kgm')
+        super().setUpClass()
         cls.product_aw = cls.env['product.product'].create({
             'name': 'Product AW',
             'is_storable': True,
@@ -43,15 +55,15 @@ class TestPacking(TestPackingCommon):
         self.env['stock.quant']._update_available_quantity(self.product_bw, self.stock_location, 20.0)
 
         picking_ship = self.env['stock.picking'].create({
-            'partner_id': self.env['res.partner'].create({'name': 'A partner'}).id,
-            'picking_type_id': self.warehouse.out_type_id.id,
+            'partner_id': self.env['res.partner'].sudo().create({'name': 'A partner'}).id,
+            'picking_type_id': self.picking_type_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
             'carrier_id': self.test_carrier.id
         })
         move_line = self.env['stock.move.line'].create({
             'product_id': self.product_aw.id,
-            'product_uom_id': self.uom_kg.id,
+            'uom_id': self.uom_kg.id,
             'picking_id': picking_ship.id,
             'quantity': 5,
             'location_id': self.stock_location.id,
@@ -60,7 +72,7 @@ class TestPacking(TestPackingCommon):
         })
         self.env['stock.move.line'].create({
             'product_id': self.product_bw.id,
-            'product_uom_id': self.uom_kg.id,
+            'uom_id': self.uom_kg.id,
             'picking_id': picking_ship.id,
             'quantity': 5,
             'location_id': self.stock_location.id,
@@ -95,6 +107,31 @@ class TestPacking(TestPackingCommon):
 
         self.assertEqual(picking_ship.shipping_weight, 17)  # 2.4 * 5 + 5
 
+    def test_put_in_pack_sets_shipping_weight_without_wizard(self):
+        """ Putting products in a pack outside the put in pack wizard (e.g. from the
+        Barcode app, where the wizard is bypassed) must still set the package shipping
+        weight, so the carrier reads a positive weight.
+        """
+        self.env['stock.quant']._update_available_quantity(self.product_aw, self.stock_location, 5.0)
+        picking_ship = self.env['stock.picking'].create({
+            'picking_type_id': self.picking_type_out.id,
+            'location_id': self.stock_location.id,
+            'location_dest_id': self.customer_location.id,
+            'carrier_id': self.test_carrier.id,
+            'move_ids': [Command.create({
+                'product_id': self.product_aw.id,
+                'product_uom_qty': 5,
+                'location_id': self.stock_location.id,
+                'location_dest_id': self.customer_location.id,
+            })],
+        })
+        picking_ship.action_confirm()
+        # Providing the package details directly bypasses the put in pack wizard, so the
+        # hook runs without a 'weight' in context, as happens in wizard-less flows.
+        picking_ship.action_put_in_pack(package_name='Package bypassing wizard')
+        package = picking_ship.move_line_ids.result_package_id
+        self.assertEqual(package.shipping_weight, 12.0)  # 2.4 * 5
+
     def test_pack_in_pack_weight_wizard(self):
         """ Check that de default weight is correctly set by default when using the 'stock.put.in.pack' wizard on packages.
         """
@@ -103,7 +140,7 @@ class TestPacking(TestPackingCommon):
         self.env['stock.quant']._update_available_quantity(self.product_bw, self.stock_location, 5.0)
 
         delivery = self.env['stock.picking'].create({
-            'picking_type_id': self.warehouse.out_type_id.id,
+            'picking_type_id': self.picking_type_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
             'carrier_id': self.test_carrier.id,
@@ -158,15 +195,15 @@ class TestPacking(TestPackingCommon):
         self.env['stock.quant']._update_available_quantity(self.product_aw, self.stock_location, 20.0)
 
         picking_ship = self.env['stock.picking'].create({
-            'partner_id': self.env['res.partner'].create({'name': 'A partner'}).id,
-            'picking_type_id': self.warehouse.out_type_id.id,
+            'partner_id': self.env['res.partner'].sudo().create({'name': 'A partner'}).id,
+            'picking_type_id': self.picking_type_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
             'carrier_id': self.test_carrier.id
         })
         self.env['stock.move.line'].create({
             'product_id': self.product_aw.id,
-            'product_uom_id': self.uom_kg.id,
+            'uom_id': self.uom_kg.id,
             'picking_id': picking_ship.id,
             'quantity': 5,
             'location_id': self.stock_location.id,
@@ -179,13 +216,10 @@ class TestPacking(TestPackingCommon):
         self.assertEqual(picking_ship.state, 'done')
 
     def test_multistep_delivery_tracking(self):
-        # Set Warehouse as multi steps delivery
-        self.warehouse.delivery_steps = "pick_pack_ship"
-
         # Create and confirm the SO
         so = self.env['sale.order'].create({
             'name': 'Sale order',
-            'partner_id': self.env['res.partner'].create({'name': 'Rando le clodo'}).id,
+            'partner_id': self.env['res.partner'].sudo().create({'name': 'Rando le clodo'}).id,
             'order_line': [
                 (0, 0, {'name': self.product_aw.name, 'product_id': self.product_aw.id, 'product_uom_qty': 1, 'price_unit': 1})
             ]
@@ -207,7 +241,7 @@ class TestPacking(TestPackingCommon):
         picking_ship.move_ids.picked = True
         picking_ship.button_validate()
 
-        # Mock carrier shipping method
+        # Mock carrier delivery method
         with patch(
             'odoo.addons.stock_delivery.models.delivery_carrier.DeliveryCarrier.fixed_send_shipping',
             return_value=[{'exact_price': 0, 'tracking_number': "666"}]
@@ -236,15 +270,15 @@ class TestPacking(TestPackingCommon):
         })
 
         delivery_1 = self.env['stock.picking'].create({
-            'partner_id': self.env['res.partner'].create({'name': 'A partner'}).id,
-            'picking_type_id': self.warehouse.out_type_id.id,
+            'partner_id': self.env['res.partner'].sudo().create({'name': 'A partner'}).id,
+            'picking_type_id': self.picking_type_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
             'carrier_id': self.test_carrier.id
         })
         ml_1 = self.env['stock.move.line'].create({
             'product_id': self.productA.id,
-            'product_uom_id': self.productA.uom_id.id,
+            'uom_id': self.productA.uom_id.id,
             'picking_id': delivery_1.id,
             'quantity': 1,
             'location_id': self.stock_location.id,
@@ -274,16 +308,16 @@ class TestPacking(TestPackingCommon):
         """ In a multi-company environment, a reusable package which is used by 2+ companies can cause access errors
         on a company's picking history when it is in an in-use state (waiting to be unpacked)
         """
-        company_a_user = self.env['res.users'].create({
+        company_a_user = self.env['res.users'].sudo().create({
             'name': 'test user company a',
             'login': 'test@testing.testing',
             'password': 'password',
             'group_ids': [Command.set([self.env.ref('stock.group_stock_user').id])],
         })
         wh_a = self.env['stock.warehouse'].search([('company_id', '=', self.env.company.id)], limit=1)
-        wh_a.delivery_steps = 'pick_pack_ship'
-        company_b = self.env['res.company'].create({'name': 'Company B'})
-        wh_b = self.env['stock.warehouse'].with_company(company_b).create({
+        wh_a.sudo().delivery_steps = 'pick_pack_ship'
+        company_b = self.env['res.company'].sudo().create({'name': 'Company B'})
+        wh_b = self.env['stock.warehouse'].sudo().with_company(company_b).create({
             'name': 'Company B WH',
             'code': 'WH B',
             'delivery_steps': 'pick_pack_ship',
@@ -299,14 +333,14 @@ class TestPacking(TestPackingCommon):
         })
 
         delivery_company_a = self.env['stock.picking'].create({
-            'picking_type_id': self.warehouse.out_type_id.id,
+            'picking_type_id': self.picking_type_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
             'move_ids': [Command.create({
                 'product_id': self.productA.id,
                 'product_uom_qty': 5.0,
                 'location_id': self.stock_location.id,
-                'product_uom': self.productA.uom_id.id,
+                'uom_id': self.productA.uom_id.id,
                 'location_dest_id': self.customer_location.id,
             })],
             'move_line_ids': [Command.create({
@@ -315,7 +349,7 @@ class TestPacking(TestPackingCommon):
                 'quantity': 5.0,
                 'product_id': self.productA.id,
                 'location_dest_id': self.customer_location.id,
-                'product_uom_id': self.productA.uom_id.id,
+                'uom_id': self.productA.uom_id.id,
             })],
         })
         delivery_company_a.action_confirm()
@@ -332,7 +366,7 @@ class TestPacking(TestPackingCommon):
                 'product_uom_qty': 3.0,
                 'location_id': wh_b.lot_stock_id.id,
                 'location_dest_id': wh_b.lot_stock_id.id,
-                'product_uom': self.productA.uom_id.id,
+                'uom_id': self.productA.uom_id.id,
             })],
             'move_line_ids': [Command.create({
                 'location_id': wh_b.lot_stock_id.id,
@@ -340,7 +374,7 @@ class TestPacking(TestPackingCommon):
                 'result_package_id': reusable_box.id,
                 'quantity': 3.0,
                 'product_id': self.productA.id,
-                'product_uom_id': self.productA.uom_id.id,
+                'uom_id': self.productA.uom_id.id,
             })],
         })
         other_picking_company_b.action_confirm()
@@ -359,15 +393,15 @@ class TestPacking(TestPackingCommon):
         self.env['stock.quant']._update_available_quantity(self.product_bw, self.stock_location, 5.0)
 
         picking_ship = self.env['stock.picking'].create({
-            'partner_id': self.env['res.partner'].create({'name': 'A partner'}).id,
-            'picking_type_id': self.warehouse.out_type_id.id,
+            'partner_id': self.env['res.partner'].sudo().create({'name': 'A partner'}).id,
+            'picking_type_id': self.picking_type_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
             'carrier_id': self.test_carrier.id
         })
         move_line_1 = self.env['stock.move.line'].create({
             'product_id': self.product_aw.id,
-            'product_uom_id': self.uom_kg.id,
+            'uom_id': self.uom_kg.id,
             'picking_id': picking_ship.id,
             'quantity': 5,
             'location_id': self.stock_location.id,
@@ -376,7 +410,7 @@ class TestPacking(TestPackingCommon):
         })
         move_line_2 = self.env['stock.move.line'].create({
             'product_id': self.product_bw.id,
-            'product_uom_id': self.uom_kg.id,
+            'uom_id': self.uom_kg.id,
             'picking_id': picking_ship.id,
             'quantity': 5,
             'location_id': self.stock_location.id,
@@ -394,7 +428,7 @@ class TestPacking(TestPackingCommon):
         self.assertFalse(move_line_2.result_package_id, 'The other move line should not be packed')
 
     def test_multi_level_package_weight(self):
-        self.warehouse.delivery_steps = 'ship_only'
+        self.warehouse_1.delivery_steps = 'ship_only'
         self.productA.weight = 2
         self.productB.weight = 5
         sbox_type, bbox_type, pallet_type = self.env['stock.package.type'].create([{
@@ -426,7 +460,7 @@ class TestPacking(TestPackingCommon):
 
         # Now check that the weight is correctly computed for ongoing pickings
         delivery = self.env['stock.picking'].create({
-            'picking_type_id': self.warehouse.out_type_id.id,
+            'picking_type_id': self.picking_type_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
             'move_ids': [
@@ -461,7 +495,7 @@ class TestPacking(TestPackingCommon):
         """
         self.env['stock.quant']._update_available_quantity(self.product_aw, self.stock_location, 1)
         picking_ship = self.env['stock.picking'].create({
-            'picking_type_id': self.warehouse.out_type_id.id,
+            'picking_type_id': self.picking_type_out.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.customer_location.id,
             'move_ids': [Command.create({
@@ -493,15 +527,15 @@ class TestPacking(TestPackingCommon):
         Ensure outgoing pickings are not considered returns.
         '''
         picking_in = self.env['stock.picking'].create({
-            'partner_id': self.env['res.partner'].create({'name': 'A partner'}).id,
-            'picking_type_id': self.warehouse.in_type_id.id,
+            'partner_id': self.env['res.partner'].sudo().create({'name': 'A partner'}).id,
+            'picking_type_id': self.warehouse_1.in_type_id.id,
             'location_id': self.customer_location.id,
             'location_dest_id': self.stock_location.id,
             'carrier_id': self.test_carrier.id,
         })
         self.env['stock.move.line'].create({
             'product_id': self.product_aw.id,
-            'product_uom_id': self.uom_kg.id,
+            'uom_id': self.uom_kg.id,
             'picking_id': picking_in.id,
             'quantity': 5,
             'location_id': self.customer_location.id,
@@ -512,12 +546,9 @@ class TestPacking(TestPackingCommon):
         self.assertEqual(picking_in.state, 'done')
 
         # Process return
-        wiz_form_return = Form(self.env['stock.return.picking'].with_context(active_id=picking_in.id, active_model='stock.picking'))
-        wiz_return = wiz_form_return.save()
-        wiz_return.product_return_moves.quantity = 3
-        action = wiz_return.action_create_returns()
-        return_picking = self.env["stock.picking"].browse(action["res_id"])
-        return_picking.move_line_ids.quantity = 3
+        return_picking = picking_in._create_return()
+        return_picking.move_ids.product_uom_qty = 3
+        return_picking.action_confirm()
         return_picking.carrier_id = self.test_carrier
         return_picking.button_validate()
         self.test_carrier.can_generate_return = True

@@ -11,32 +11,32 @@
         'static/src/img/default_image.png',
     ],
     'depends': [
+        'auth_signup',
         'base_setup',
         'digest',
         'phone_validation',
         'resource_mail',
-        'web',
+        'web_hierarchy',
     ],
     'data': [
         'security/hr_security.xml',
-        'security/ir.model.access.csv',
         'data/digest_data.xml',
         'data/report_paperformat.xml',
-        'wizard/hr_departure_wizard_views.xml',
-        'wizard/hr_contract_template_wizard.views.xml',
         'wizard/mail_activity_schedule_views.xml',
         'wizard/hr_bank_account_allocation_wizard.xml',
         'wizard/hr_bank_account_allocation_wizard_line.xml',
+        'wizard/hr_employee_create_version_wizard.xml',
         'views/mail_activity_plan_views.xml',
         'views/hr_version_views.xml',
         'views/hr_contract_template_views.xml',
         'views/hr_departure_reason_views.xml',
-        'views/hr_contract_type_views.xml',
+        'views/hr_employee_type_views.xml',
         'views/hr_job_views.xml',
         'views/hr_employee_category_views.xml',
         'views/hr_employee_public_views.xml',
         'report/hr_employee_badge.xml',
         'views/hr_employee_views.xml',
+        'views/hr_employee_departure_views.xml',
         'views/hr_department_views.xml',
         'views/hr_work_location_views.xml',
         'views/hr_views.xml',
@@ -46,29 +46,48 @@
         'views/discuss_channel_views.xml',
         'views/res_users.xml',
         'views/hr_templates.xml',
+        'views/resource_resource_views.xml',
+        'views/resource_calendar_views.xml',
         'data/hr_data.xml',
+        'data/ir_cron_data.xml',
+        'data/hr_employee_type_data.xml',
+        'security/ir.access.csv',
     ],
     'demo': [
-        'data/hr_demo.xml'
+        'data/hr_demo.xml',
     ],
-    'installable': True,
+    'other_files': [
+        'data/scenarios/hr_scenario.xml',
+    ],
     'application': True,
     'assets': {
+        'web._assets_primary_variables': [
+            'hr/static/src/scss/variables.scss',
+        ],
         'web.assets_backend': [
+            "hr/static/src/core/common/**/*",
+            "hr/static/src/core/web/**/*",
             'hr/static/src/**/*',
+            ('remove', 'hr/static/src/views/hr_employee_hierarchy/*'),
+        ],
+        'web.assets_backend_lazy': [
+            'hr/static/src/views/hr_employee_hierarchy/*',
         ],
         'im_livechat.assets_embed_core': [
             'hr/static/src/core/common/**/*',
         ],
+        'im_livechat.embed_assets_unit_tests_setup': [
+            "hr/static/tests/hr_test_helpers.js",
+            "hr/static/tests/mock_server/**/*",
+        ],
         'mail.assets_public': [
             'hr/static/src/core/common/**/*',
         ],
-        'web.qunit_suite_tests': [
-            'hr/static/tests/legacy/**/*',
+        'portal.assets_chatter_helpers': [
+            'hr/static/src/core/common/**/*',
         ],
         'web.assets_unit_tests': [
             'hr/static/tests/**/*',
-            'hr/static/tests/mock_server/mock_server.js',
             ('remove', 'hr/static/tests/tours/**/*'),
             ('remove', 'hr/static/tests/legacy/**/*'),
         ],
@@ -78,4 +97,5 @@
     },
     'author': 'Odoo S.A.',
     'license': 'LGPL-3',
+    'uninstall_hook': 'uninstall_hook',
 }

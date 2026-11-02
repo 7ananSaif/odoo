@@ -14,15 +14,35 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-05 19:29+0000\n"
-"PO-Revision-Date: 2025-10-08 18:38+0000\n"
-"Last-Translator: \n"
-"Language-Team: \n"
+"POT-Creation-Date: 2026-10-16 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 15:16+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Uzbek <https://translate.odoo.com/projects/odoo-s19-4/"
+"mrp_account/uz/>\n"
 "Language: uz\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: mrp_account
+#: model:ir.module.module,description:base.module_mrp_account
+msgid ""
+"\n"
+"Analytic Accounting in MRP\n"
+"==========================\n"
+"\n"
+"* Cost structure report\n"
+"\n"
+"Also, allows to compute the cost of the product based on its BoM, using the "
+"costs of its components and work center operations.\n"
+"It adds a button on the product itself but also an action in the list view "
+"of the products.\n"
+"If the automated inventory valuation is active, the necessary accounting "
+"entries will be created.\n"
+"\n"
+msgstr ""
 
 #. module: mrp_account
 #. odoo-python
@@ -110,12 +130,9 @@ msgid "Account Move Line"
 msgstr "Hisob harakati qatori"
 
 #. module: mrp_account
-#: model:ir.model,name:mrp_account.model_mrp_account_wip_accounting_line
-#, fuzzy
-msgid "Account move line to be created when posting WIP account move"
+#: model:ir.module.module,shortdesc:base.module_mrp_account
+msgid "Accounting - MRP"
 msgstr ""
-"Tugallanmagan ishlab chiqarish hisob harakatini yuborishda yaratilishi kerak "
-"bo‘lgan hisob harakati qatori"
 
 #. module: mrp_account
 #: model:ir.model,name:mrp_account.model_account_analytic_account
@@ -148,6 +165,21 @@ msgid "Analytic Precision"
 msgstr "Tahliliy aniqlik"
 
 #. module: mrp_account
+#: model:ir.module.module,summary:base.module_mrp_account
+msgid "Analytic accounting in Manufacturing"
+msgstr ""
+
+#. module: mrp_account
+#: model:ir.model,name:mrp_account.model_report_mrp_report_bom_structure
+msgid "BOM Overview Report"
+msgstr ""
+
+#. module: mrp_account
+#: model:ir.model,name:mrp_account.model_mrp_bom
+msgid "Bill of Material"
+msgstr ""
+
+#. module: mrp_account
 #. odoo-python
 #: code:addons/mrp_account/models/analytic_account.py:0
 #: model_terms:ir.ui.view,arch_db:mrp_account.account_analytic_account_view_form_mrp
@@ -175,7 +207,7 @@ msgstr "Toifa"
 
 #. module: mrp_account
 #: model:ir.model,name:mrp_account.model_res_company
-msgid "Companies"
+msgid "Company"
 msgstr ""
 
 #. module: mrp_account
@@ -183,7 +215,6 @@ msgstr ""
 #: model:ir.actions.server,name:mrp_account.action_compute_price_bom_template
 #: model_terms:ir.ui.view,arch_db:mrp_account.product_product_ext_form_view2
 #: model_terms:ir.ui.view,arch_db:mrp_account.product_product_view_form_normal_inherit_extended
-#: model_terms:ir.ui.view,arch_db:mrp_account.product_variant_easy_edit_view_bom_inherit
 #, fuzzy
 msgid "Compute Price from BoM"
 msgstr "Materiallar ro‘yxatidan narxni hisoblash"
@@ -191,7 +222,6 @@ msgstr "Materiallar ro‘yxatidan narxni hisoblash"
 #. module: mrp_account
 #: model_terms:ir.ui.view,arch_db:mrp_account.product_product_ext_form_view2
 #: model_terms:ir.ui.view,arch_db:mrp_account.product_product_view_form_normal_inherit_extended
-#: model_terms:ir.ui.view,arch_db:mrp_account.product_variant_easy_edit_view_bom_inherit
 #, fuzzy
 msgid ""
 "Compute the price of the product using products and operations of related "
@@ -199,6 +229,11 @@ msgid ""
 msgstr ""
 "Faqat ishlab chiqarilgan mahsulotlar uchun tegishli materiallar ro‘yxatidagi "
 "mahsulotlar va operatsiyalardan foydalangan holda mahsulot narxini hisoblash."
+
+#. module: mrp_account
+#: model:ir.model.fields,field_description:mrp_account.field_mrp_production__consolidation_currency_id
+msgid "Consolidation Currency"
+msgstr ""
 
 #. module: mrp_account
 #. odoo-javascript
@@ -238,6 +273,7 @@ msgstr "Kredit"
 
 #. module: mrp_account
 #: model:ir.model.fields,field_description:mrp_account.field_mrp_account_wip_accounting_line__currency_id
+#: model:ir.model.fields,field_description:mrp_account.field_mrp_bom__currency_id
 #, fuzzy
 msgid "Currency"
 msgstr "Valyuta"
@@ -255,19 +291,15 @@ msgid "Debit"
 msgstr "Debet"
 
 #. module: mrp_account
-#: model_terms:ir.ui.view,arch_db:mrp_account.view_wip_accounting_form
-#, fuzzy
-msgid "Discard"
-msgstr "Bekor qilish"
-
-#. module: mrp_account
 #: model:ir.model.fields,field_description:mrp_account.field_account_analytic_account__display_name
 #: model:ir.model.fields,field_description:mrp_account.field_account_analytic_applicability__display_name
 #: model:ir.model.fields,field_description:mrp_account.field_account_analytic_line__display_name
 #: model:ir.model.fields,field_description:mrp_account.field_account_move__display_name
 #: model:ir.model.fields,field_description:mrp_account.field_account_move_line__display_name
+#: model:ir.model.fields,field_description:mrp_account.field_account_stock_valuation_report__display_name
 #: model:ir.model.fields,field_description:mrp_account.field_mrp_account_wip_accounting__display_name
 #: model:ir.model.fields,field_description:mrp_account.field_mrp_account_wip_accounting_line__display_name
+#: model:ir.model.fields,field_description:mrp_account.field_mrp_bom__display_name
 #: model:ir.model.fields,field_description:mrp_account.field_mrp_production__display_name
 #: model:ir.model.fields,field_description:mrp_account.field_mrp_workcenter__display_name
 #: model:ir.model.fields,field_description:mrp_account.field_mrp_workcenter_productivity__display_name
@@ -275,9 +307,9 @@ msgstr "Bekor qilish"
 #: model:ir.model.fields,field_description:mrp_account.field_product_category__display_name
 #: model:ir.model.fields,field_description:mrp_account.field_product_product__display_name
 #: model:ir.model.fields,field_description:mrp_account.field_product_template__display_name
+#: model:ir.model.fields,field_description:mrp_account.field_report_mrp_report_bom_structure__display_name
 #: model:ir.model.fields,field_description:mrp_account.field_report_mrp_report_mo_overview__display_name
 #: model:ir.model.fields,field_description:mrp_account.field_res_company__display_name
-#: model:ir.model.fields,field_description:mrp_account.field_stock_account_stock_valuation_report__display_name
 #: model:ir.model.fields,field_description:mrp_account.field_stock_move__display_name
 #, fuzzy
 msgid "Display Name"
@@ -302,6 +334,20 @@ msgid "Expense Account"
 msgstr "Xarajatlar hisobi"
 
 #. module: mrp_account
+#: model_terms:ir.ui.view,arch_db:mrp_account.mo_overview_components
+msgid "Extra BoM Cost"
+msgstr ""
+
+#. module: mrp_account
+#. odoo-javascript
+#: code:addons/mrp_account/static/src/components/bom_overview_extra_bom_cost_line/bom_overview_extra_bom_cost_line.xml:0
+#: code:addons/mrp_account/static/src/components/mo_overview_extra_bom_cost_line/mo_overview_extra_bom_cost_line.xml:0
+#: model:ir.model.fields,field_description:mrp_account.field_mrp_bom__extra_cost
+#: model_terms:ir.ui.view,arch_db:mrp_account.mrp_account_inherits_mrp_bom_form_view
+msgid "Extra Cost"
+msgstr ""
+
+#. module: mrp_account
 #: model:ir.model.fields,field_description:mrp_account.field_mrp_production__extra_cost
 #, fuzzy
 msgid "Extra Unit Cost"
@@ -313,8 +359,10 @@ msgstr "Qo‘shimcha birlik tannarxi"
 #: model:ir.model.fields,field_description:mrp_account.field_account_analytic_line__id
 #: model:ir.model.fields,field_description:mrp_account.field_account_move__id
 #: model:ir.model.fields,field_description:mrp_account.field_account_move_line__id
+#: model:ir.model.fields,field_description:mrp_account.field_account_stock_valuation_report__id
 #: model:ir.model.fields,field_description:mrp_account.field_mrp_account_wip_accounting__id
 #: model:ir.model.fields,field_description:mrp_account.field_mrp_account_wip_accounting_line__id
+#: model:ir.model.fields,field_description:mrp_account.field_mrp_bom__id
 #: model:ir.model.fields,field_description:mrp_account.field_mrp_production__id
 #: model:ir.model.fields,field_description:mrp_account.field_mrp_workcenter__id
 #: model:ir.model.fields,field_description:mrp_account.field_mrp_workcenter_productivity__id
@@ -322,9 +370,9 @@ msgstr "Qo‘shimcha birlik tannarxi"
 #: model:ir.model.fields,field_description:mrp_account.field_product_category__id
 #: model:ir.model.fields,field_description:mrp_account.field_product_product__id
 #: model:ir.model.fields,field_description:mrp_account.field_product_template__id
+#: model:ir.model.fields,field_description:mrp_account.field_report_mrp_report_bom_structure__id
 #: model:ir.model.fields,field_description:mrp_account.field_report_mrp_report_mo_overview__id
 #: model:ir.model.fields,field_description:mrp_account.field_res_company__id
-#: model:ir.model.fields,field_description:mrp_account.field_stock_account_stock_valuation_report__id
 #: model:ir.model.fields,field_description:mrp_account.field_stock_move__id
 #, fuzzy
 msgid "ID"
@@ -347,6 +395,11 @@ msgstr "Jurnal yozuvi"
 #, fuzzy
 msgid "Journal Item"
 msgstr "Jurnal elementi"
+
+#. module: mrp_account
+#: model:ir.model,name:mrp_account.model_mrp_account_wip_accounting_line
+msgid "Journal item to be created when posting WIP journal entry"
+msgstr ""
 
 #. module: mrp_account
 #: model:ir.model.fields,field_description:mrp_account.field_mrp_account_wip_accounting_line__label
@@ -384,7 +437,6 @@ msgstr "Qo‘lda kiritish"
 #. module: mrp_account
 #: model:ir.model,name:mrp_account.model_mrp_production
 #: model:ir.model.fields.selection,name:mrp_account.selection__account_analytic_applicability__business_domain__manufacturing_order
-#: model:ir.model.fields.selection,name:mrp_account.selection__account_analytic_line__category__manufacturing_order
 #, fuzzy
 msgid "Manufacturing Order"
 msgstr "Ishlab chiqarish buyurtmasi"
@@ -392,6 +444,7 @@ msgstr "Ishlab chiqarish buyurtmasi"
 #. module: mrp_account
 #. odoo-python
 #: code:addons/mrp_account/models/analytic_account.py:0
+#: model:ir.model.fields.selection,name:mrp_account.selection__account_analytic_line__category__manufacturing_order
 #: model_terms:ir.ui.view,arch_db:mrp_account.account_analytic_account_view_form_mrp
 #, fuzzy
 msgid "Manufacturing Orders"
@@ -476,9 +529,15 @@ msgstr "Ishlab chiqarish"
 
 #. module: mrp_account
 #: model:ir.model.fields,field_description:mrp_account.field_product_category__property_stock_account_production_cost_id
+#: model:ir.model.fields,field_description:mrp_account.field_res_company__stock_account_production_cost_id
 #, fuzzy
 msgid "Production Account"
 msgstr "Ishlab chiqarish hisobi"
+
+#. module: mrp_account
+#: model:ir.model.fields,field_description:mrp_account.field_mrp_production__consolidation_rate
+msgid "Rate"
+msgstr ""
 
 #. module: mrp_account
 #: model:ir.model.fields,field_description:mrp_account.field_mrp_account_wip_accounting__reference
@@ -514,6 +573,12 @@ msgid "Reversal of: %s"
 msgstr "%s ning bekor qilinishi"
 
 #. module: mrp_account
+#: model:ir.model.fields,help:mrp_account.field_mrp_bom__extra_cost
+msgid ""
+"Set an additional cost per manufactured unit (e.g. labour, energy, packaging)"
+msgstr ""
+
+#. module: mrp_account
 #: model:ir.model.fields,field_description:mrp_account.field_mrp_production__show_valuation
 #, fuzzy
 msgid "Show Valuation"
@@ -526,7 +591,7 @@ msgid "Stock Move"
 msgstr "Zaxira harakati"
 
 #. module: mrp_account
-#: model:ir.model,name:mrp_account.model_stock_account_stock_valuation_report
+#: model:ir.model,name:mrp_account.model_account_stock_valuation_report
 #, fuzzy
 msgid "Stock Valuation"
 msgstr "Zaxira baholanishi"
@@ -652,11 +717,8 @@ msgstr "Jarayondagi ish harakati"
 
 #. module: mrp_account
 #: model:ir.model,name:mrp_account.model_mrp_account_wip_accounting
-#, fuzzy
-msgid "Wizard to post Manufacturing WIP account move"
+msgid "Wizard to post Manufacturing WIP journal entry"
 msgstr ""
-"Ishlab chiqarish jarayonidagi ish hisobi harakatini qayd etish uchun "
-"yordamchi"
 
 #. module: mrp_account
 #: model:ir.model,name:mrp_account.model_mrp_workcenter
@@ -694,6 +756,14 @@ msgstr "Ish markazi"
 #, fuzzy
 msgid "Workcenter Productivity Log"
 msgstr "Ish markazi unumdorligi qaydnomasi"
+
+#. module: mrp_account
+#. odoo-python
+#: code:addons/mrp_account/models/mrp_production.py:0
+msgid ""
+"You cannot change the end date of a manufacturing order with associated "
+"journal entries."
+msgstr ""
 
 #. module: mrp_account
 #. odoo-python

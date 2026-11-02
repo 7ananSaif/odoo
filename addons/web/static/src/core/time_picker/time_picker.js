@@ -1,14 +1,12 @@
-import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
+import { Component, onWillUpdateProps, proxy, signal, t, useProps } from "@odoo/owl";
 import { Dropdown } from "@web/core/dropdown/dropdown";
 import { useDropdownState } from "@web/core/dropdown/dropdown_hooks";
 import { DropdownItem } from "@web/core/dropdown/dropdown_item";
-import { getActiveHotkey } from "@web/core/hotkeys/hotkey_service";
+import { getActiveHotkey } from "@web/core/hotkeys/hotkey_utils";
 import { Time, parseTime } from "@web/core/l10n/time";
 import { mergeClasses } from "@web/core/utils/classname";
-import { useChildRef } from "@web/core/utils/hooks";
-
-const HOURS = [...Array(24)].map((_, i) => i);
-const MINUTES = [...Array(60)].map((_, i) => i);
+import { useService } from "@web/core/utils/hooks";
+import { range } from "@web/core/utils/numbers";
 
 /**
  * @typedef TimePickerProps
@@ -20,38 +18,34 @@ const MINUTES = [...Array(60)].map((_, i) => i);
  * @property {number} [minutesRounding=5]
  */
 
+export const timePickerProps = {
+    cssClass: t.or([t.string(), t.array(), t.object()]).optional({}),
+    inputCssClass: t.or([t.string(), t.array(), t.object()]).optional({}),
+    value: t
+        .or([t.string(), t.instanceOf(Time), t.literal(false), t.literal(null)])
+        .optional("00:00"),
+    onChange: t.function().optional(() => () => {}),
+    onInvalid: t.function().optional(() => () => {}),
+    showSeconds: t.boolean().optional(false),
+    minutesRounding: t.number().optional(5),
+    placeholder: t.string().optional(),
+};
+
 export class TimePicker extends Component {
     static template = "web.TimePicker";
     static components = {
         Dropdown,
         DropdownItem,
     };
-    static props = {
-        cssClass: { type: [String, Array, Object], optional: true },
-        inputCssClass: { type: [String, Array, Object], optional: true },
-        value: { type: [String, Time, { value: false }, { value: null }], optional: true },
-        onChange: { type: Function, optional: true },
-        onInvalid: { type: Function, optional: true },
-        showSeconds: { type: Boolean, optional: true },
-        minutesRounding: { type: Number, optional: true },
-        placeholder: { type: String, optional: true },
-    };
-    static defaultProps = {
-        cssClass: {},
-        inputCssClass: {},
-        value: "00:00",
-        onChange: () => {},
-        onInvalid: () => {},
-        showSeconds: false,
-        minutesRounding: 5,
-    };
+    props = useProps(timePickerProps);
+
+    inputRef = signal.ref();
 
     setup() {
-        this.inputRef = useRef("inputRef");
-        this.menuRef = useChildRef();
         this.dropdownState = useDropdownState();
+        this.uiService = useService("ui");
 
-        this.state = useState({
+        this.state = proxy({
             value: null,
             inputValue: "",
             isValid: true,
@@ -97,7 +91,7 @@ export class TimePicker extends Component {
                     bypassEditableProtection: true,
                     callback: (navigator) => {
                         if (!this.isNavigating) {
-                            const value = parseTime(this.inputRef.el.value, this.props.showSeconds);
+                            const value = parseTime(this.inputRef().value, this.props.showSeconds);
                             if (value) {
                                 this.setValue(value);
                                 this.close();
@@ -150,8 +144,8 @@ export class TimePicker extends Component {
     getSuggestions(props) {
         const suggestions = [];
         const rounding = props.minutesRounding <= 5 ? 15 : props.minutesRounding;
-        const minutes = MINUTES.filter((m) => !(m % rounding));
-        for (const hour of HOURS) {
+        const minutes = range(0, 60, rounding);
+        for (const hour of range(24)) {
             for (const minute of minutes) {
                 suggestions.push(new Time({ hour, minute }));
             }
@@ -195,7 +189,15 @@ export class TimePicker extends Component {
 
         this.lastValue = newValue?.copy() ?? newValue;
         this.state.value = newValue;
-        this.state.inputValue = newValue ? newValue.toString(this.props.showSeconds) : "";
+        if (this.uiService.isSmall) {
+            // Force format as defined in the doc for ´<input type="time">´
+            const format = this.props.showSeconds ? "HH:mm:ss" : "HH:mm";
+            this.state.inputValue = newValue
+                ? newValue.toDateTime().setLocale("UTC").toFormat(format)
+                : "";
+        } else {
+            this.state.inputValue = newValue ? newValue.toString(this.props.showSeconds) : "";
+        }
         this.state.isValid = true;
     }
 
@@ -213,7 +215,7 @@ export class TimePicker extends Component {
     onInput(event) {
         this.ensureOpen();
 
-        const value = parseTime(this.inputRef.el.value, this.props.showSeconds);
+        const value = parseTime(this.inputRef().value, this.props.showSeconds);
         this.state.isValid = value !== null;
 
         if (!this.navigator) {
@@ -233,7 +235,7 @@ export class TimePicker extends Component {
     }
 
     onChange() {
-        const value = parseTime(this.inputRef.el.value, this.props.showSeconds);
+        const value = parseTime(this.inputRef().value, this.props.showSeconds);
         this.state.isValid = value !== null;
         if (this.state.isValid) {
             this.setValue(value);
@@ -254,7 +256,7 @@ export class TimePicker extends Component {
         if (!this.dropdownState.isOpen) {
             this.isNavigating = false;
             this.dropdownState.open();
-            this.inputRef.el.select();
+            this.inputRef().select();
         }
     }
 

@@ -1,4 +1,5 @@
-import { useChildRef, useService } from "@web/core/utils/hooks";
+import { signal } from "@odoo/owl";
+import { useService } from "@web/core/utils/hooks";
 import { registry } from "@web/core/registry";
 import { _t } from "@web/core/l10n/translation";
 import { CharField, charField } from "@web/views/fields/char/char_field";
@@ -19,7 +20,7 @@ export class PartnerAutoCompleteCharField extends CharField {
         this.orm = useService("orm");
         this.partnerAutocomplete = usePartnerAutocomplete();
 
-        this.inputRef = useChildRef();
+        this.inputRef = signal.ref();
         useInputField({ getValue: () => this.props.record.data[this.props.name] || "", parse: (v) => this.parse(v), ref: this.inputRef});
     }
 
@@ -27,7 +28,7 @@ export class PartnerAutoCompleteCharField extends CharField {
         return request && request.length > 2;
     }
 
-    get sources() {
+    getSources(fieldName) {
         return [
             {
                 options: async (request, shouldSearchWorldWide) => {
@@ -36,7 +37,7 @@ export class PartnerAutoCompleteCharField extends CharField {
                         if (shouldSearchWorldWide){
                         	queryCountryId = 0;
                         }
-                        const suggestions = await this.partnerAutocomplete.autocomplete(request, queryCountryId);
+                        const suggestions = await this.partnerAutocomplete.autocomplete(fieldName, request, queryCountryId);
                         return suggestions.map((suggestion) => ({
                             cssClass: "partner_autocomplete_dropdown_char",
                             data: suggestion,
@@ -86,9 +87,8 @@ export class PartnerAutoCompleteCharField extends CharField {
                 this.props.record.load();
             }
         }
-        if (this.props.setDirty) {
-            this.props.setDirty(false);
-        }
+
+        this.props.record.model.bus.trigger("FIELD_IS_DIRTY", false);
     }
 }
 

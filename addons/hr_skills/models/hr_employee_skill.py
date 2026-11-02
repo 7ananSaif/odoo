@@ -7,10 +7,10 @@ class HrEmployeeSkill(models.Model):
     _name = 'hr.employee.skill'
     _inherit = 'hr.individual.skill.mixin'
     _description = "Skill level for employee"
-    _order = "skill_type_id, skill_level_id"
     _rec_name = "skill_id"
 
     employee_id = fields.Many2one('hr.employee', required=True, index=True, ondelete='cascade')
+    company_id = fields.Many2one(related='employee_id.company_id')
 
     def _linked_field_name(self):
         return 'employee_id'
@@ -18,9 +18,10 @@ class HrEmployeeSkill(models.Model):
     def get_current_skills_by_employee(self):
         emp_skill_grouped = dict(self.grouped(lambda emp_skill: (emp_skill.employee_id, emp_skill.skill_id)))
         result_dict = defaultdict(lambda: self.env['hr.employee.skill'])
+        today = fields.Date.context_today(self)
         for (employee, skill), emp_skills in emp_skill_grouped.items():
             filtered_emp_skill = emp_skills.filtered(
-                lambda employee_skill: not employee_skill.valid_to or employee_skill.valid_to >= fields.Date.today()
+                lambda employee_skill: not employee_skill.valid_to or employee_skill.valid_to >= today,
             )
             if skill.skill_type_id.is_certification and not filtered_emp_skill:
                 expired_skills = (emp_skills - filtered_emp_skill)
@@ -43,6 +44,28 @@ class HrEmployeeSkill(models.Model):
             },
             'views': [(self.env.ref('hr_skills.employee_skill_view_inherit_certificate_form').id, 'form')],
         }
+
+    def action_hr_employee_skill_certification(self):
+        skill_type = self.env["hr.skill.type"].search(
+            [("is_certification", "=", True)], limit=1
+        )
+        show_certificate_button = bool(skill_type)
+        action = self.env["ir.actions.act_window"]._for_xml_id(
+            "hr_skills.action_hr_employee_skill_certification"
+        )
+        action["context"] = {"show_certificate": show_certificate_button}
+        if self.env.user.has_group("hr.group_hr_manager"):
+            action["help"] = (
+                self.env._("""<p class="o_view_nocontent_smiling_face">No Certifications available. Navigate to Skill types!</p>
+                <a type="action" name="hr_skills.hr_skill_type_action" class="btn btn-primary">
+                Show Skill Types
+                </a>""")
+            )
+        else:
+            action["help"] = self.env._(
+                """<p class="o_view_nocontent_smiling_face">No Certifications available!</p>"""
+            )
+        return action
 
     def action_save(self):
         return {'type': 'ir.actions.act_window_close'}

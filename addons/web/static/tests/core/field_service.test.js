@@ -3,15 +3,15 @@ import {
     defineModels,
     fields,
     getService,
-    makeMockEnv,
+    makeTestApp,
     MockServer,
     models,
     mountWithCleanup,
     onRpc,
 } from "@web/../tests/web_test_helpers";
 
-import { Deferred, animationFrame } from "@odoo/hoot-mock";
-import { Component, useState, xml } from "@odoo/owl";
+import { animationFrame } from "@odoo/hoot-mock";
+import { Component, proxy, xml } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 
 /**
@@ -96,7 +96,7 @@ class Species extends models.Model {
 defineModels([Tortoise, Location, Species]);
 
 test("loadPath", async () => {
-    await makeMockEnv();
+    await makeTestApp();
 
     const toTest = [
         {
@@ -220,7 +220,7 @@ test("loadPath", async () => {
 });
 
 test("loadPath follow relational properties", async () => {
-    await makeMockEnv();
+    await makeTestApp();
 
     const toTest = [
         {
@@ -351,7 +351,7 @@ test("store loadFields calls in cache in success", async () => {
         expect.step("fields_get");
     });
 
-    await makeMockEnv();
+    await makeTestApp();
 
     await getService("field").loadFields("tortoise");
     await getService("field").loadFields("tortoise");
@@ -365,7 +365,7 @@ test("does not store loadFields calls in cache when failed", async () => {
         throw "my little error";
     });
 
-    await makeMockEnv();
+    await makeTestApp();
     await expect(getService("field").loadFields("take.five")).rejects.toThrow(/my little error/);
     await expect(getService("field").loadFields("take.five")).rejects.toThrow(/my little error/);
 
@@ -378,7 +378,6 @@ test("async method loadFields is protected", async () => {
         static template = xml`
             <div class="o_child_component" />
         `;
-        static props = ["*"];
         setup() {
             this.fieldService = useService("field");
             callFieldService = async () => {
@@ -392,19 +391,18 @@ test("async method loadFields is protected", async () => {
     class Parent extends Component {
         static components = { Child };
         static template = xml`
-            <t t-if="state.displayChild">
+            <t t-if="this.state.displayChild">
                 <Child />
             </t>
         `;
-        static props = ["*"];
         setup() {
-            this.state = useState({ displayChild: true });
+            this.state = proxy({ displayChild: true });
         }
     }
 
-    const def = new Deferred();
+    const def = Promise.withResolvers();
     onRpc(async () => {
-        await def;
+        await def.promise;
     });
     const parent = await mountWithCleanup(Parent);
 

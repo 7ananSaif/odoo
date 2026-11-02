@@ -23,6 +23,29 @@
                     <t t-set="report_name" t-value="stock_doc_type.report_name"/>
                 </t>
                 <t t-set="custom_header" t-value="'l10n_ar_stock.custom_header'"/>
+                <t t-set="custom_footer">
+                    <div class="row">
+                        <div name="footer_left_column" class="col-6 text-start">
+                            <div name="pager" t-if="report_type == 'pdf'">
+                                Page: <span class="page"/> / <span class="topage"/>
+                            </div>
+                            <div name="sequence_range" t-if="o.l10n_ar_cai_data">
+                                <div t-if="o.l10n_ar_cai_data['sequence_number_start']">Sequence from: <t t-out="o.l10n_ar_cai_data['sequence_number_start']"/></div>
+                                <div t-if="o.l10n_ar_cai_data['sequence_number_end']">Sequence to: <t t-out="o.l10n_ar_cai_data['sequence_number_end']"/></div>
+                            </div>
+                        </div>
+                        <div name="footer_right_column" class="col-6 text-end" t-if="o.l10n_ar_cai_data">
+                            <div name="cai_number" t-if="o.l10n_ar_cai_data['cai_authorization_code']">
+                                CAI: <t t-out="o.l10n_ar_cai_data['cai_authorization_code']"/>
+                            </div>
+                            <div name="cai_expiration_date" t-if="o.l10n_ar_cai_data['cai_expiration_date']">
+                                CAI Expiration Date: <t t-out="o.l10n_ar_cai_data['cai_expiration_date']" t-options='{"widget": "date"}'/>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </xpath>
+            <xpath expr="//div[hasclass('page')]" position="before">
                 <div id="informations">
                     <t><strong>Customer: </strong></t>
                     <span t-field="o.partner_id.commercial_partner_id.name"/>
@@ -31,39 +54,16 @@
                           t-options="{'widget': 'contact', 'fields': ['address'], 'no_marker': true, 'no_tag_br': True}"/>
                     <strong>VAT Cond: </strong>
                     <span t-field="o.partner_id.l10n_ar_afip_responsibility_type_id"/>
-                    <t t-if="o.partner_id.vat and
-                             o.partner_id.l10n_latam_identification_type_id and
-                             o.partner_id.l10n_latam_identification_type_id.l10n_ar_afip_code != '99'">
+                    <t t-if="o.partner_id.l10n_ar_afip_code and o.partner_id.l10n_ar_afip_code != '99'">
+                        <t t-set="ar_doc_vals" t-value="o.partner_id._get_preferred_legal_entity_identifier_vals()"/>
+                        <t t-set="ar_doc_label" t-value="ar_doc_vals.get('label') or
+                                                          o.company_id.account_fiscal_country_id.vat_label"/>
                         <br/>
-                        <strong>
-                            <t t-out="o.partner_id.l10n_latam_identification_type_id.name or
-                                      o.company_id.account_fiscal_country_id.vat_label"
-                               id="inv_tax_id_label"/>:
-                        </strong>
-                        <span t-if="o.partner_id.l10n_ar_vat" t-out="o.partner_id.l10n_ar_formatted_vat"/>
-                        <span t-else="" t-out="o.partner_id.vat"/>
+                        <strong><t t-out="ar_doc_label" id="inv_tax_id_label"/>:</strong>
+                        <span t-if="o.partner_id.l10n_ar_formatted_vat" t-out="o.partner_id.l10n_ar_formatted_vat"/>
+                        <span t-else="" t-out="ar_doc_vals.get('value', '')"/>
                     </t>
                 </div>
-                <t t-set="custom_footer">
-                    <div class="row">
-                        <div name="footer_left_column" class="col-6 text-start">
-                            <div name="pager" t-if="report_type == 'pdf'">
-                                Page: <span class="page"/> / <span class="topage"/>
-                            </div>
-                            <div name="sequence_range" t-if="o.l10n_ar_cai_data">
-                                Sequence from <t t-out="o.l10n_ar_cai_data['sequence_number_start']"/> to <t t-out="o.l10n_ar_cai_data['sequence_number_end']"/>
-                            </div>
-                        </div>
-                        <div name="footer_right_column" class="col-6 text-end" t-if="o.l10n_ar_cai_data">
-                            <div name="cai_number">
-                                CAI: <t t-out="o.l10n_ar_cai_data['cai_authorization_code']"/>
-                            </div>
-                            <div name="cai_expiration_date">
-                                CAI Expiration Date: <t t-out="o.l10n_ar_cai_data['cai_expiration_date']" t-options='{"widget": "date"}'/>
-                            </div>
-                        </div>
-                    </div>
-                </t>
             </xpath>
             <xpath expr="//t[@t-set='address']" position="replace"/>
             <xpath expr="//t[@t-set='information_block']" position="replace"/>
@@ -84,7 +84,6 @@
             <field name="model">stock.picking</field>
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">l10n_ar_stock.report_delivery_guide</field>
-            <field name="report_file">l10n_ar_stock.report_delivery_guide</field>
             <field name="print_report_name">'Remito - %s' % (object.l10n_ar_delivery_guide_number or 's/n')</field>
             <field name="binding_model_id" ref="model_stock_picking"/>
             <field name="binding_type">report</field>

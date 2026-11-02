@@ -11,17 +11,16 @@
 # Lilach Gilliam <lilach.gilliam@gmail.com>, 2022
 # NoaFarkash, 2022
 # Ha Ketem <haketem@gmail.com>, 2022
-# or balmas <or@laylinetech.com>, 2025, 2026.
-# Weblate <noreply-mt-weblate@weblate.org>, 2025.
-# Yoram Lavi <yoram@digitale.co.il>, 2026.
+# or balmas <or@laylinetech.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-05-16 09:37+0000\n"
-"Last-Translator: or balmas <or@laylinetech.com>\n"
-"Language-Team: Hebrew <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-08-31 16:16+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Hebrew <https://translate.odoo.com/projects/odoo-s19-4/"
 "auth_oauth/he/>\n"
 "Language: he\n"
 "MIME-Version: 1.0\n"
@@ -29,7 +28,15 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=4; plural=(n == 1) ? 0 : ((n == 2) ? 1 : ((n > 10 && "
 "n % 10 == 0) ? 2 : 3));\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: auth_oauth
+#: model:ir.module.module,description:base.module_auth_oauth
+msgid ""
+"\n"
+"Allow users to login through OAuth2 Provider.\n"
+"=============================================\n"
+msgstr ""
 
 #. module: auth_oauth
 #. odoo-python
@@ -65,13 +72,9 @@ msgstr ""
 #. module: auth_oauth
 #: model:ir.model.fields,field_description:auth_oauth.field_auth_oauth_provider__client_id
 #: model:ir.model.fields,field_description:auth_oauth.field_res_config_settings__auth_oauth_google_client_id
+#: model_terms:ir.ui.view,arch_db:auth_oauth.res_config_settings_view_form
 msgid "Client ID"
 msgstr "מזהה לקוח"
-
-#. module: auth_oauth
-#: model_terms:ir.ui.view,arch_db:auth_oauth.res_config_settings_view_form
-msgid "Client ID:"
-msgstr "מספר לקוח:"
 
 #. module: auth_oauth
 #: model:ir.model,name:auth_oauth.model_res_config_settings
@@ -87,6 +90,11 @@ msgstr "נוצר על-ידי"
 #: model:ir.model.fields,field_description:auth_oauth.field_auth_oauth_provider__create_date
 msgid "Created on"
 msgstr "נוצר ב-"
+
+#. module: auth_oauth
+#: model:ir.model.fields,field_description:auth_oauth.field_auth_oauth_provider__icon
+msgid "Custom Material Symbols Icon"
+msgstr ""
 
 #. module: auth_oauth
 #: model:ir.model.fields,field_description:auth_oauth.field_auth_oauth_provider__data_endpoint
@@ -142,6 +150,7 @@ msgstr "תגית בכפתור כניסה"
 #. module: auth_oauth
 #. odoo-python
 #: code:addons/auth_oauth/models/res_users.py:0
+#, fuzzy
 msgid "Missing subject identity"
 msgstr "חסר מזהה נושא"
 
@@ -152,32 +161,43 @@ msgstr ""
 
 #. module: auth_oauth
 #: model:ir.model.fields,field_description:auth_oauth.field_res_users__oauth_provider_id
+#, fuzzy
 msgid "OAuth Provider"
 msgstr "ספק זיהוי"
 
 #. module: auth_oauth
 #: model:ir.ui.menu,name:auth_oauth.menu_oauth_providers
 #: model_terms:ir.ui.view,arch_db:auth_oauth.res_config_settings_view_form
+#, fuzzy
 msgid "OAuth Providers"
 msgstr "ספקי זיהוי"
 
 #. module: auth_oauth
 #: model:ir.model.constraint,message:auth_oauth.constraint_res_users_uniq_users_oauth_provider_oauth_uid
+#, fuzzy
 msgid "OAuth UID must be unique per provider"
 msgstr "OAuth UID חייב להיות יחודי לספק"
 
 #. module: auth_oauth
 #: model:ir.model.fields,field_description:auth_oauth.field_res_users__oauth_uid
+#, fuzzy
 msgid "OAuth User ID"
 msgstr "OAuth מזהה משתמש"
 
 #. module: auth_oauth
+#: model:ir.module.module,shortdesc:base.module_auth_oauth
+msgid "OAuth2 Authentication"
+msgstr ""
+
+#. module: auth_oauth
 #: model:ir.model,name:auth_oauth.model_auth_oauth_provider
+#, fuzzy
 msgid "OAuth2 provider"
 msgstr "OAuth 2 ספק"
 
 #. module: auth_oauth
 #: model:ir.model.fields,help:auth_oauth.field_res_users__oauth_uid
+#, fuzzy
 msgid "Oauth Provider user_id"
 msgstr "OAuth מזהה_משתמש לספק "
 
@@ -194,7 +214,7 @@ msgstr "ספקים"
 #. module: auth_oauth
 #: model:ir.model.fields,field_description:auth_oauth.field_auth_oauth_provider__scope
 msgid "Scope"
-msgstr "תכולה"
+msgstr "תחום"
 
 #. module: auth_oauth
 #: model:ir.model.fields,field_description:auth_oauth.field_auth_oauth_provider__sequence
@@ -203,27 +223,32 @@ msgstr "רצף"
 
 #. module: auth_oauth
 #: model:ir.model.fields,field_description:auth_oauth.field_res_config_settings__server_uri_google
+#, fuzzy
 msgid "Server uri"
 msgstr "כתבות שרת"
 
 #. module: auth_oauth
 #: model:auth.oauth.provider,body:auth_oauth.provider_facebook
+#, fuzzy
 msgid "Sign in with Facebook"
 msgstr "כניסה באמצעות פייסבוק"
 
 #. module: auth_oauth
 #: model:auth.oauth.provider,body:auth_oauth.provider_google
+#, fuzzy
 msgid "Sign in with Google"
 msgstr "כניסה באמצעות גוגל"
 
 #. module: auth_oauth
 #: model:auth.oauth.provider,body:auth_oauth.provider_openerp
+#, fuzzy
 msgid "Sign in with Odoo.com"
 msgstr "כניסה באמצעות Odoo"
 
 #. module: auth_oauth
 #. odoo-python
 #: code:addons/auth_oauth/controllers/main.py:0
+#, fuzzy
 msgid "Sign up is not allowed on this database."
 msgstr "הרשמה לדאטהבייס זה אינה אפשרית"
 
@@ -233,23 +258,20 @@ msgid "System Parameter"
 msgstr "פרמטר מערכת"
 
 #. module: auth_oauth
-#: model_terms:ir.ui.view,arch_db:auth_oauth.res_config_settings_view_form
-msgid "Tutorial"
-msgstr "מדריך"
-
-#. module: auth_oauth
 #: model:ir.model,name:auth_oauth.model_res_users
 msgid "User"
 msgstr "משתמש"
 
 #. module: auth_oauth
 #: model:ir.model.fields,field_description:auth_oauth.field_auth_oauth_provider__validation_endpoint
+#, fuzzy
 msgid "UserInfo URL"
 msgstr "כתובת מידע משתמש"
 
 #. module: auth_oauth
 #. odoo-python
 #: code:addons/auth_oauth/controllers/main.py:0
+#, fuzzy
 msgid ""
 "You do not have access to this database or your invitation has expired. "
 "Please ask for an invitation and be sure to follow the link in your "
@@ -261,28 +283,19 @@ msgstr ""
 #. module: auth_oauth
 #. odoo-python
 #: code:addons/auth_oauth/models/res_users.py:0
+#, fuzzy
 msgid "You do not have permissions to remove the access token"
 msgstr "אין לך הרשאה למחוק את טוקן הגישה"
 
 #. module: auth_oauth
 #: model_terms:ir.ui.view,arch_db:auth_oauth.view_oauth_provider_form
 #: model_terms:ir.ui.view,arch_db:auth_oauth.view_oauth_provider_tree
+#, fuzzy
 msgid "arch"
 msgstr "arch"
 
 #. module: auth_oauth
 #: model_terms:ir.ui.view,arch_db:auth_oauth.res_config_settings_view_form
+#, fuzzy
 msgid "e.g. 1234-xyz.apps.googleusercontent.com"
 msgstr "לדוגמא 1234-xyz.apps.googleusercontent.com"
-
-#~ msgid "- or -"
-#~ msgstr "- או -"
-
-#~ msgid "Log in with Facebook"
-#~ msgstr "התחברות עם פייסבוק"
-
-#~ msgid "Log in with Google"
-#~ msgstr "התחברות עם גוגל"
-
-#~ msgid "Log in with Odoo.com"
-#~ msgstr "התחברות עם Odoo.com"

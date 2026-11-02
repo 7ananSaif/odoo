@@ -1,9 +1,8 @@
-import { fields, Record } from "@mail/core/common/record";
+import { fields, Record } from "@mail/model/export";
 import { assignDefined } from "@mail/utils/common/misc";
 
 export class Activity extends Record {
     static _name = "mail.activity";
-    static id = "id";
     /**
      * @param {Object} data
      * @param {Object} [param1]
@@ -36,22 +35,20 @@ export class Activity extends Record {
     attachment_ids;
     /** @type {boolean} */
     can_write;
-    /** @type {'suggest'|'trigger'} */
-    chaining_type;
     create_date = fields.Datetime();
     create_uid = fields.One("res.users");
     date_deadline = fields.Date();
     date_done = fields.Date();
     /** @type {string} */
     display_name;
-    /** @type {boolean} */
-    has_recommended_activities;
     /** @type {string} */
     feedback;
     /** @type {string} */
-    icon = "fa-tasks";
+    icon = "checklist";
     mail_template_ids = fields.Many("mail.template");
     note = fields.Html("");
+    /** @type {string|false} */
+    phone;
     /** @type {string} */
     res_model;
     /** @type {[number, string]} */
@@ -60,6 +57,7 @@ export class Activity extends Record {
     res_id;
     /** @type {string} */
     res_name;
+    role_id = fields.One("res.role");
     /** @type {'overdue'|'planned'|'today'} */
     state;
     /** @type {string} */
@@ -70,8 +68,15 @@ export class Activity extends Record {
     /** @type {[number, string]} */
     write_uid;
 
+    get thread() {
+        return this.store["mail.thread"].insert({
+            model: this.res_model,
+            id: this.res_id,
+        });
+    }
+
     serialize() {
-        return JSON.parse(JSON.stringify(this.toData(["user_id"])));
+        return JSON.parse(JSON.stringify(this.toData(["user_id", "role_id"])));
     }
 }
 

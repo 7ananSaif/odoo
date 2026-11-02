@@ -3,108 +3,178 @@
 # * website_event_sale
 #
 # Translators:
-# Bone NI <bounkirdni@gmail.com>, 2026.
+# Weblate <noreply-mt-weblate@weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo 9.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-16 13:50+0000\n"
-"PO-Revision-Date: 2026-06-06 19:46+0000\n"
-"Last-Translator: Bone NI <bounkirdni@gmail.com>\n"
-"Language-Team: Lao <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 18:22+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Lao <https://translate.odoo.com/projects/odoo-s19-4/"
 "website_event_sale/lo/>\n"
 "Language: lo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: website_event_sale
-#: model_terms:ir.ui.view,arch_db:website_event_sale.event_confirmation
+#: model:ir.module.module,description:base.module_website_event_sale
 msgid ""
-"<i class=\"fa fa-ban me-2\"/>\n"
-"                                            Unpublished"
+"\n"
+"Sell event tickets through eCommerce app.\n"
 msgstr ""
 
 #. module: website_event_sale
 #: model_terms:ir.ui.view,arch_db:website_event_sale.event_confirmation
-msgid ""
-"<small class=\"o_wevent_participating text-bg-success\">\n"
-"                                            <i class=\"fa fa-check me-2\"/>\n"
-"                                            Registered\n"
-"                                        </small>"
+#, fuzzy
+msgid "<b>End</b>"
+msgstr "<b>ສິ້ນສຸດ</b>"
+
+#. module: website_event_sale
+#: model_terms:ir.ui.view,arch_db:website_event_sale.event_confirmation
+#, fuzzy
+msgid "<b>Start</b>"
+msgstr "<b>ເລີ່ມຕົ້ນ</b>"
+
+#. module: website_event_sale
+#: model_terms:ir.ui.view,arch_db:website_event_sale.event_confirmation
+msgid "<i class=\"oi me-2\" data-icon=\"check\" role=\"img\"/>Registered"
 msgstr ""
 
 #. module: website_event_sale
 #: model_terms:ir.ui.view,arch_db:website_event_sale.registration_attendee_details
 msgid ""
 "<span>Sign In</span>\n"
-"                <span class=\"fa fa-sign-in\"/>"
+"                <span class=\"oi\" data-icon=\"login\"/>"
 msgstr ""
 
 #. module: website_event_sale
 #. odoo-python
 #: code:addons/website_event_sale/models/product_pricelist.py:0
-msgid "A pricelist item with a positive min. quantity cannot be applied to this event tickets product."
+#, fuzzy
+msgid ""
+"A pricelist item with a positive min. quantity cannot be applied to this "
+"event tickets product."
 msgstr ""
-
-#. module: website_event_sale
-#. odoo-python
-#: code:addons/website_event_sale/models/product_pricelist.py:0
-msgid "A pricelist item with a positive min. quantity will not be applied to the event tickets products."
-msgstr ""
+"ລາຍການໃນລາຍການລາຄາທີ່ມີຈຳນວນຕ່ຳສຸດເປັນຄ່າບວກ ບໍ່ສາມາດນຳໃຊ້ກັບຜະລິດຕະພັນປີ້ງານກິດຈະກຳນີ້ໄດ້."
 
 #. module: website_event_sale
 #: model_terms:ir.ui.view,arch_db:website_event_sale.registration_attendee_details
+#, fuzzy
 msgid "Confirm Registration"
+msgstr "ຢືນຢັນການລົງທະບຽນ"
+
+#. module: website_event_sale
+#: model:ir.model.fields,field_description:website_event_sale.field_event_event__display_name
+#: model:ir.model.fields,field_description:website_event_sale.field_event_event_ticket__display_name
+#: model:ir.model.fields,field_description:website_event_sale.field_event_sale_report__display_name
+#: model:ir.model.fields,field_description:website_event_sale.field_product_pricelist_item__display_name
+#: model:ir.model.fields,field_description:website_event_sale.field_product_product__display_name
+#: model:ir.model.fields,field_description:website_event_sale.field_product_template__display_name
+#: model:ir.model.fields,field_description:website_event_sale.field_sale_order__display_name
+#: model:ir.model.fields,field_description:website_event_sale.field_sale_order_line__display_name
+#, fuzzy
+msgid "Display Name"
+msgstr "ຊື່ທີ່ສະແດງ"
+
+#. module: website_event_sale
+#: model:ir.model,name:website_event_sale.model_event_event
+msgid "Event"
 msgstr ""
 
 #. module: website_event_sale
 #: model:ir.model,name:website_event_sale.model_event_sale_report
+#, fuzzy
 msgid "Event Sales Report"
-msgstr ""
-
-#. module: website_event_sale
-#: model:ir.model.fields,field_description:website_event_sale.field_product_product__event_ticket_ids
-msgid "Event Tickets"
-msgstr ""
-
-#. module: website_event_sale
-#: model_terms:ir.ui.view,arch_db:website_event_sale.registration_template
-msgid "Free"
-msgstr ""
-
-#. module: website_event_sale
-#: model_terms:ir.ui.view,arch_db:website_event_sale.registration_template
-msgid "From"
-msgstr ""
+msgstr "ລາຍງານການຂາຍງານ"
 
 #. module: website_event_sale
 #: model_terms:ir.ui.view,arch_db:website_event_sale.event_confirmation
-msgid "Go to Event"
-msgstr ""
+#, fuzzy
+msgid "Event Subtitle"
+msgstr "ຄຳບັນຍາຍຮອງຂອງງານ"
+
+#. module: website_event_sale
+#: model:ir.model,name:website_event_sale.model_event_event_ticket
+#, fuzzy
+msgid "Event Ticket"
+msgstr "ປີ້ເຂົ້າງານ"
+
+#. module: website_event_sale
+#: model:ir.model.fields,field_description:website_event_sale.field_product_product__event_ticket_ids
+#, fuzzy
+msgid "Event Tickets"
+msgstr "ປີ້ງານ"
+
+#. module: website_event_sale
+#: model_terms:ir.ui.view,arch_db:website_event_sale.event_confirmation
+#, fuzzy
+msgid "Event Title"
+msgstr "ຊື່ຂອງງານ"
+
+#. module: website_event_sale
+#: model_terms:ir.ui.view,arch_db:website_event_sale.modal_ticket_registration
+#, fuzzy
+msgid "Free"
+msgstr "ຟຣີ"
+
+#. module: website_event_sale
+#: model_terms:ir.ui.view,arch_db:website_event_sale.modal_ticket_registration
+#, fuzzy
+msgid "From"
+msgstr "ຈາກ"
 
 #. module: website_event_sale
 #: model_terms:ir.ui.view,arch_db:website_event_sale.registration_attendee_details
+#, fuzzy
 msgid "Go to Payment"
+msgstr "ໄປທີ່ການຊຳລະເງິນ"
+
+#. module: website_event_sale
+#: model:ir.model.fields,field_description:website_event_sale.field_event_event__id
+#: model:ir.model.fields,field_description:website_event_sale.field_event_event_ticket__id
+#: model:ir.model.fields,field_description:website_event_sale.field_event_sale_report__id
+#: model:ir.model.fields,field_description:website_event_sale.field_product_pricelist_item__id
+#: model:ir.model.fields,field_description:website_event_sale.field_product_product__id
+#: model:ir.model.fields,field_description:website_event_sale.field_product_template__id
+#: model:ir.model.fields,field_description:website_event_sale.field_sale_order__id
+#: model:ir.model.fields,field_description:website_event_sale.field_sale_order_line__id
+#, fuzzy
+msgid "ID"
+msgstr "ລະຫັດ"
+
+#. module: website_event_sale
+#: model:ir.module.module,shortdesc:base.module_website_event_sale
+msgid "Online Event Ticketing"
 msgstr ""
 
 #. module: website_event_sale
 #: model:ir.model,name:website_event_sale.model_product_pricelist_item
+#, fuzzy
 msgid "Pricelist Rule"
-msgstr ""
+msgstr "ກົດເກນລາຍການລາຄາ"
+
+#. module: website_event_sale
+#: model:ir.model,name:website_event_sale.model_product_template
+#, fuzzy
+msgid "Product"
+msgstr "ສິນຄ້າ"
 
 #. module: website_event_sale
 #: model:ir.model,name:website_event_sale.model_product_product
+#, fuzzy
 msgid "Product Variant"
-msgstr ""
+msgstr "ສິນຄ້າທີ່ແຕກຕ່າງ"
 
 #. module: website_event_sale
 #: model:ir.model.fields,field_description:website_event_sale.field_event_sale_report__is_published
 #: model_terms:ir.ui.view,arch_db:website_event_sale.event_sale_report_view_search
+#, fuzzy
 msgid "Published Events"
-msgstr ""
+msgstr "ງານກິດຈະກຳທີ່ເຜີຍແຜ່ແລ້ວ"
 
 #. module: website_event_sale
 #: model:ir.model,name:website_event_sale.model_sale_order
@@ -113,66 +183,66 @@ msgstr "ໃບສັ່ງຊື້"
 
 #. module: website_event_sale
 #: model:ir.model,name:website_event_sale.model_sale_order_line
+#, fuzzy
 msgid "Sales Order Line"
+msgstr "ລາຍການສິນຄ້າທີ່ສັ່ງຊື້"
+
+#. module: website_event_sale
+#: model:ir.module.module,summary:base.module_website_event_sale
+msgid "Sell event tickets online"
 msgstr ""
 
 #. module: website_event_sale
 #. odoo-python
 #: code:addons/website_event_sale/models/sale_order.py:0
+#, fuzzy
 msgid "Sorry, The %(ticket)s tickets for the %(event)s event are sold out."
+msgstr "ຂໍອະໄພ, ປີ້ %(ticket)s ສຳລັບງານ %(event)s ແມ່ນຂາຍໝົດແລ້ວ."
+
+#. module: website_event_sale
+#. odoo-python
+#: code:addons/website_event_sale/models/sale_order.py:0
+msgid ""
+"Sorry, only %(remaining_seats)d seats are still available for the %(ticket)s "
+"ticket for the %(event)s event%(slot)s."
 msgstr ""
 
 #. module: website_event_sale
 #. odoo-python
 #: code:addons/website_event_sale/models/sale_order.py:0
-msgid "Sorry, only %(remaining_seats)d seats are still available for the %(ticket)s ticket for the %(event)s event."
-msgstr ""
-
-#. module: website_event_sale
-#. odoo-python
-#: code:addons/website_event_sale/models/sale_order.py:0
+#, fuzzy
 msgid "The provided ticket doesn't exist"
+msgstr "ປີ້ທີ່ລະບຸບໍ່ມີໃນລະບົບ"
+
+#. module: website_event_sale
+#. odoo-python
+#: code:addons/website_event_sale/models/sale_order.py:0
+msgid "The provided ticket slot doesn't exist"
 msgstr ""
 
 #. module: website_event_sale
 #. odoo-python
 #: code:addons/website_event_sale/models/sale_order.py:0
+#, fuzzy
 msgid "The ticket doesn't match with this product."
-msgstr ""
+msgstr "ປີ້ບໍ່ກົງກັບຜະລິດຕະພັນນີ້."
 
 #. module: website_event_sale
 #. odoo-python
 #: code:addons/website_event_sale/models/product_pricelist.py:0
+#, fuzzy
 msgid "Warning"
-msgstr ""
-
-#. module: website_event_sale
-#: model_terms:ir.ui.view,arch_db:website_event_sale.event_confirmation
-msgid "We are looking forward to meeting you at the following"
-msgstr ""
-
-#. module: website_event_sale
-#: model:ir.model,name:website_event_sale.model_website
-msgid "Website"
-msgstr ""
+msgstr "ຄຳເຕືອນ"
 
 #. module: website_event_sale
 #. odoo-python
 #: code:addons/website_event_sale/models/sale_order.py:0
+#, fuzzy
 msgid "You cannot raise manually the event ticket quantity in your cart"
-msgstr ""
+msgstr "ທ່ານບໍ່ສາມາດເພີ່ມຈຳນວນປີ້ງານກິດຈະກຳໃນກະຕ່າສິນຄ້າດ້ວຍຕົນເອງໄດ້"
 
 #. module: website_event_sale
-#: model_terms:ir.ui.view,arch_db:website_event_sale.event_confirmation
-msgid "event"
-msgstr ""
-
-#. module: website_event_sale
-#: model_terms:ir.ui.view,arch_db:website_event_sale.event_confirmation
-msgid "events"
-msgstr ""
-
-#. module: website_event_sale
-#: model_terms:ir.ui.view,arch_db:website_event_sale.registration_template
+#: model_terms:ir.ui.view,arch_db:website_event_sale.modal_ticket_registration
+#, fuzzy
 msgid "to"
-msgstr ""
+msgstr "ຫາ"

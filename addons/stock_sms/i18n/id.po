@@ -3,51 +3,56 @@
 # * stock_sms
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Abe Manyo (abem)" <abem@odoo.com>, 2026.
+# "Nurul Aini Akrima Sabila (nuaas)" <nuaas@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-09-16 02:36+0000\n"
-"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
-"Language-Team: Indonesian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-09-09 15:04+0000\n"
+"Last-Translator: \"Nurul Aini Akrima Sabila (nuaas)\" <nuaas@odoo.com>\n"
+"Language-Team: Indonesian <https://translate.odoo.com/projects/odoo-master/"
 "stock_sms/id/>\n"
 "Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: stock_sms
 #: model:sms.template,body:stock_sms.sms_template_data_stock_delivery
 msgid ""
 "\n"
-"                {{ (object.company_id.name + ': We are glad to inform you "
-"that your order n° ' + object.origin + ' has been shipped.' if object.origin "
-"else object.company_id.name + ': We are glad to inform you that your order "
-"has been shipped.') + (' Your tracking reference is ' + "
+"                {{ (object.company_id.name + ': Your order n° ' + "
+"object.origin + ' has been collected.' if object.origin else "
+"object.company_id.name + ': Your order has been collected.') if "
+"hasattr(object, 'delivery_type') and object.delivery_type == 'in_store' else "
+"(object.company_id.name + ': We are glad to inform you that your order n° ' "
+"+ object.origin + ' has been shipped.' if object.origin else "
+"object.company_id.name + ': We are glad to inform you that your order has "
+"been shipped.') + (' Your tracking reference is ' + "
 "(object.carrier_tracking_ref) + '.' if hasattr(object, "
 "'carrier_tracking_ref') and object.carrier_tracking_ref else '') }}\n"
 "            "
 msgstr ""
 "\n"
-"                {{ (object.company_id.name + ': We are glad to inform you "
-"that your order n° ' + object.origin + ' has been shipped.' if object.origin "
-"else object.company_id.name + ': We are glad to inform you that your order "
-"has been shipped.') + (' Your tracking reference is ' + "
+"                {{ (object.company_id.name + ': Pesanan Anda n° ' + "
+"object.origin + ' telah diambil.' if object.origin else "
+"object.company_id.name + ': Pesanan Anda telah diambil.') if hasattr(object, "
+"'delivery_type') and object.delivery_type == 'in_store' else "
+"(object.company_id.name + ': Dengan senang hati kami informasikan bahwa "
+"pesanan Anda n° ' + object.origin + ' telah dikirim.' if object.origin else "
+"object.company_id.name + Dengan senang hati kami informasikan bahwa pesanan "
+"Anda telah dikirim.') + (' Referensi pelacakan Anda adalah ' + "
 "(object.carrier_tracking_ref) + '.' if hasattr(object, "
 "'carrier_tracking_ref') and object.carrier_tracking_ref else '') }}\n"
 "            "
 
 #. module: stock_sms
-#: model_terms:ir.ui.view,arch_db:stock_sms.view_confirm_stock_sms
-msgid "Cancel"
-msgstr "Batal"
-
-#. module: stock_sms
 #: model:ir.model,name:stock_sms.model_res_company
-msgid "Companies"
+msgid "Company"
 msgstr "Perusahaan"
 
 #. module: stock_sms
@@ -141,6 +146,17 @@ msgid "SMS sent to the customer once the order is delivered."
 msgstr "SMS dikirim ke pelanggan setelah order dikirim."
 
 #. module: stock_sms
+#: model:ir.module.module,description:base.module_stock_sms
+#: model:ir.module.module,summary:base.module_stock_sms
+msgid "Send text messages when final stock move"
+msgstr ""
+
+#. module: stock_sms
+#: model:ir.module.module,shortdesc:base.module_stock_sms
+msgid "Stock - SMS"
+msgstr ""
+
+#. module: stock_sms
 #: model:ir.model,name:stock_sms.model_stock_picking
 msgid "Transfer"
 msgstr "Transfer"
@@ -155,9 +171,3 @@ msgstr ""
 "Anda akan mengonfirmasi Pesanan Pengiriman melalui Pesan Teks SMS.<br/>\n"
 "                Fitur ini dapat dengan mudah dinonaktifkan dari Pengaturan "
 "di Inventaris dengan mengeklik \"Nonaktifkan SMS\".<br/>"
-
-#~ msgid "SMS Confirmation"
-#~ msgstr "SMS Konfirmasi"
-
-#~ msgid "SMS Validation with stock move"
-#~ msgstr "Validasi SMS dengan pergerakkan stok"

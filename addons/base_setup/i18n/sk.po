@@ -15,10 +15,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-11-16 15:33+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Slovak <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-08-31 16:28+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Slovak <https://translate.odoo.com/projects/odoo-s19-4/"
 "base_setup/sk/>\n"
 "Language: sk\n"
 "MIME-Version: 1.0\n"
@@ -26,14 +26,19 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n == 1 ? 0 : n % 1 == 0 && n "
 ">= 2 && n <= 4 ? 1 : n % 1 != 0 ? 2: 3);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+#: model:ir.module.module,description:base.module_base_setup
 msgid ""
-"<span class=\"fa fa-lg fa-users\" aria-label=\"Number of active users\"/>"
+"\n"
+"This module helps to configure the system at the installation of a new "
+"database.\n"
+"================================================================================\n"
+"\n"
+"Shows you a list of applications features to install from.\n"
+"\n"
 msgstr ""
-"<span class=\"fa fa-lg fa-users\" aria-label=\"Number of active users\"/>"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -142,11 +147,6 @@ msgid "Add fun feedback and motivate your employees"
 msgstr "Pridajte zábavnú spätnú väzbu a motivujte svojich zamestnancov"
 
 #. module: base_setup
-#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_mail_plugin
-msgid "Allow integration with the mail plugins"
-msgstr ""
-
-#. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_google_calendar
 msgid "Allow the users to synchronize their calendar  with Google Calendar"
 msgstr "Povoliť používateľom synchronizovať svoj kalendár s Google Calendar"
@@ -230,15 +230,6 @@ msgstr "Nastavenia konfigurácie"
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
 msgid "Configure Document Layout"
 msgstr "Konfigurácia rozloženia dokumentu"
-
-#. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid ""
-"Configure company rules to automatically create SO/PO when one of your "
-"company sells/buys to another of your company."
-msgstr ""
-"Nakonfigurujte pravidlá spoločnosti pre automatické vytvorenie SO/PO, keď "
-"jedna vaša spoločnosť kupuje / predáva ďalšej vašej spoločnosti."
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -332,12 +323,12 @@ msgstr "Geolokalizácia"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Geolocate your partners"
+msgid "Geolocation"
 msgstr ""
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Geolocation"
+msgid "Get the latitude and the longitude of your partners"
 msgstr ""
 
 #. module: base_setup
@@ -364,8 +355,8 @@ msgid "Import & Export"
 msgstr "Import & Export"
 
 #. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Integrate with mail client plugins"
+#: model:ir.module.module,shortdesc:base.module_base_setup
+msgid "Initial Setup Tools"
 msgstr ""
 
 #. module: base_setup
@@ -403,11 +394,6 @@ msgstr "Jazyky"
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
 msgid "Layout"
 msgstr "Usporiadanie"
-
-#. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Mail Plugin"
-msgstr ""
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -453,6 +439,11 @@ msgstr "Počet spoločností"
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__language_count
 msgid "Number of Languages"
 msgstr "Počet jazykov"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Number of active users"
+msgstr ""
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -623,45 +614,9 @@ msgstr ""
 msgid "reCAPTCHA"
 msgstr ""
 
-#~ msgid "Asterisk (VoIP)"
-#~ msgstr "Asterisk (VoIP)"
-
 #~ msgid ""
-#~ "Automatically generate counterpart documents for orders/invoices between "
-#~ "companies"
+#~ "<span class=\"oi oi-lg oi-filled\" data-icon=\"group\" aria-"
+#~ "label=\"Number of active users\"/>"
 #~ msgstr ""
-#~ "Automaticky generujte párovacie dokumenty pre objednávky / faktúry medzi "
-#~ "spoločnosťami"
-
-#~ msgid ""
-#~ "By default, new users get highest access rights for all installed apps."
-#~ msgstr ""
-#~ "Predvolené, že nový užívateľ dostane maximálne práva na všetky "
-#~ "inštalované aplikácie."
-
-#~ msgid "Documentation"
-#~ msgstr "Dokumentácia"
-
-#~ msgid "Geo Localization"
-#~ msgstr "Geo lokalizácia "
-
-#~ msgid "GeoLocalize your partners"
-#~ msgstr "Geolokalizujte svojich partnerov"
-
-#~ msgid "Google Calendar"
-#~ msgstr "Google kalendár"
-
-#~ msgid "On Apple Store"
-#~ msgstr "V Apple Store"
-
-#~ msgid "On Google Play"
-#~ msgstr "V Google Play"
-
-#~ msgid "Outlook Calendar"
-#~ msgstr "Outlook kalendár"
-
-#~ msgid "Synchronize your calendar with Google Calendar"
-#~ msgstr "Synchronizuj svoj kalendár s Google Calendar"
-
-#~ msgid "Synchronize your calendar with Outlook"
-#~ msgstr "Synchronizujte svoj kalendár s programom Outlook"
+#~ "<span class=\"oi oi-lg oi-filled\" data-icon=\"group\" aria-"
+#~ "label=\"Number of active users\"/>"

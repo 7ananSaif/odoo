@@ -6,7 +6,7 @@
 
 /**
  * @param {Iterable<HTMLElement>} elements
- * @param {Position} targetPos
+ * @param {Position | DOMRect} targetPos
  * @returns {HTMLElement | null}
  */
 export function closest(elements, targetPos) {
@@ -57,22 +57,63 @@ export function isVisible(el) {
 
 /**
  * @param {DOMRect} rect
- * @param {Position} pos
+ * @param {Position | DOMRect} pos
  * @returns {number}
  */
 export function getQuadrance(rect, pos) {
-    let q = 0;
-    if (pos.x < rect.x) {
-        q += (rect.x - pos.x) ** 2;
-    } else if (rect.x + rect.width < pos.x) {
-        q += (pos.x - (rect.x + rect.width)) ** 2;
+    const isPoint = !pos.width || !pos.height;
+
+    if (isPoint) {
+        // For a point, use standard point-to-rectangle distance
+        const dx = Math.max(rect.x - pos.x, 0, pos.x - (rect.x + rect.width));
+        const dy = Math.max(rect.y - pos.y, 0, pos.y - (rect.y + rect.height));
+        return dx ** 2 + dy ** 2;
     }
-    if (pos.y < rect.y) {
-        q += (rect.y - pos.y) ** 2;
-    } else if (rect.y + rect.height < pos.y) {
-        q += (pos.y - (rect.y + rect.height)) ** 2;
+
+    const rectCenter = {
+        x: rect.x + rect.width / 2,
+        y: rect.y + rect.height / 2,
+    };
+    const posCenter = {
+        x: pos.x + pos.width / 2,
+        y: pos.y + pos.height / 2,
+    };
+
+    // Compute the distance between the centers
+    const dx = Math.abs(rectCenter.x - posCenter.x);
+    const dy = Math.abs(rectCenter.y - posCenter.y);
+    // Gap is negative if rects are overlapping
+    const gapX = dx - (rect.width + pos.width) / 2;
+    const gapY = dy - (rect.height + pos.height) / 2;
+
+    // Rectangles don't overlap (at least one gap is positive)
+    if (gapX >= 0 || gapY >= 0) {
+        // Return squared Euclidean distance to nearest edge
+        return Math.max(0, gapX) ** 2 + Math.max(0, gapY) ** 2;
     }
-    return q;
+
+    // Rectangles overlap - calculate the overlap region
+    const overlapRect = {
+        left: Math.max(rect.x, pos.x),
+        right: Math.min(rect.x + rect.width, pos.x + pos.width),
+        top: Math.max(rect.y, pos.y),
+        bottom: Math.min(rect.y + rect.height, pos.y + pos.height),
+    };
+    const overlapArea =
+        (overlapRect.right - overlapRect.left) * (overlapRect.bottom - overlapRect.top);
+    const rectArea = rect.width * rect.height;
+    // Normalize the overlap area by rect size to prefer smaller elements when
+    // overlap area is similar (e.g., nested dropzones). Return negative
+    // value so larger overlap ratios are "closer".
+    // Example: two rects both have overlapArea = 15
+    //   Rect A: area = 100 → ratio = 15/100 = 0.15
+    //   Rect B: area = 30  → ratio = 15/30  = 0.50
+    //
+    // A higher ratio means we cover more of that element, so Rect B is the
+    // better target. But standard min-distance logic favors smaller values so
+    // we negate the ratio: -0.15 > -0.50, making Rect B "closer" and correctly
+    // selected as the nearest match.
+    return -(overlapArea / rectArea);
 }
 
 /**
@@ -180,24 +221,50 @@ export function getPreviousTabableElement(container = document.body) {
 }
 
 /**
- * Gives the button a loading effect by disabling it and adding a `fa` spinner
- * icon. The existing button `fa` icons will be hidden through css.
+ * Gives the button a loading effect by disabling it and adding a `oi` spinner
+ * icon. The existing button `oi` icons will be hidden through css.
  *
  * @param {HTMLElement} btnEl - the button to disable/load
  * @return {function} a callback function that will restore the button to its
  *         initial state
  */
 export function addLoadingEffect(btnEl) {
-    // Note that pe-none is used alongside "disabled" so that the behavior is
-    // the same on links not using the "btn" class -> pointer-events disabled.
-    btnEl.classList.add("o_btn_loading", "disabled", "pe-none");
-    btnEl.disabled = true;
-    const loaderEl = document.createElement("span");
-    loaderEl.classList.add("fa", "fa-circle-o-notch", "fa-spin", "me-2");
-    btnEl.prepend(loaderEl);
+    let loaderContainerEl;
+    if (!btnEl.classList.contains("o_btn_loading")) {
+        // Note that pe-none is used alongside "disabled" so that the behavior
+        // is the same on links not using the "btn" class -> pointer-events
+        // disabled.
+        btnEl.classList.add("o_btn_loading", "disabled", "pe-none");
+        btnEl.disabled = true;
+        btnEl.setAttribute("aria-disabled", "true");
+        loaderContainerEl = document.createElement("span");
+        loaderContainerEl.classList.add("o_btn_loading_spinner");
+        const loaderEl = document.createElement("span");
+        loaderEl.classList.add("spinner-border", "spinner-border-sm");
+        loaderContainerEl.appendChild(loaderEl);
+        btnEl.prepend(loaderContainerEl);
+    } else {
+        btnEl.classList.add("o_btn_keep_loading");
+        loaderContainerEl = btnEl.querySelector(".o_btn_loading_spinner");
+    }
     return () => {
+        if (btnEl.classList.contains("o_btn_keep_loading")) {
+            btnEl.classList.remove("o_btn_keep_loading");
+            return;
+        }
         btnEl.classList.remove("o_btn_loading", "disabled", "pe-none");
         btnEl.disabled = false;
-        loaderEl.remove();
+        btnEl.removeAttribute("aria-disabled");
+        loaderContainerEl.remove();
     };
+}
+
+/**
+ * Check if an element is clickable.
+ *
+ * @param {HTMLElement} el
+ * @returns {boolean}
+ */
+export function isClickable(el) {
+    return isVisible(el) && !el.closest(":disabled, [aria-disabled='true'], .disabled, [inert]");
 }

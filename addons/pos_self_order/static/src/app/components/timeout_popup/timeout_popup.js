@@ -1,10 +1,13 @@
-import { Component, onMounted, onWillUnmount, useState } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount, proxy, useProps, t } from "@odoo/owl";
 
 export class TimeoutPopup extends Component {
     static template = "pos_self_order.TimeoutPopup";
-    static props = ["close", "onTimeout"];
+    props = useProps({
+        close: t.function(),
+        onTimeout: t.function(),
+    });
     setup() {
-        this.state = useState({ time: 10 });
+        this.state = proxy({ time: 10 });
 
         onMounted(() => {
             this.interval = setInterval(() => {

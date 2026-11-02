@@ -10,7 +10,9 @@
             </xpath>
             <xpath expr="//t[@t-name='card']/div" position="before">
                 <field name="website_published" invisible="1"/>
-                <widget name="web_ribbon" title="Published" bg_color="text-bg-success" invisible="not website_published"/>
+                <field name="publish_on" invisible="1"/> <!-- Needed for web_ribbon widget -->
+                <widget name="web_ribbon" title="Scheduled" bg_color="text-bg-warning" invisible="not publish_on"/>
+                <widget name="web_ribbon" title="Published" bg_color="text-bg-success" invisible="not website_published or publish_on"/>
             </xpath>
             <xpath expr="//button[@name='%(hr_recruitment.action_hr_job_applications)d']" position="replace">
                 <a type="object" name="open_website_url" class="btn btn-primary" role="button">
@@ -19,6 +21,13 @@
             </xpath>
             <xpath expr="//div[@name='large_screen_job_page_div']" position="attributes">
                 <attribute name="invisible">0</attribute>
+            </xpath>
+
+            <xpath expr="//div[@name='kanban_job_more_options']" position="inside">
+                <a class="dropdown-item d-flex position-relative">
+                    <field string="Published" name="website_published" widget="boolean_toggle"></field>
+                    Published
+                </a>
             </xpath>
         </field>
     </record>

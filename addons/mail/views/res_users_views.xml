@@ -38,10 +38,11 @@
                     <group name="calendar_preferences" position="inside">
                         <label for="out_of_office_from" string="Out-of-office" />
                         <div class="o_row">
-                            <field name="out_of_office_from" widget="daterange" options="{'end_date_field': 'out_of_office_to', 'show_time': False}" placeholder="None planned"/>
-                            <field name="out_of_office_to" invisible="1"/> <!-- otherwise it is visible, smort -->
+                            <field name="out_of_office_from" placeholder="None planned"/>
+                            <i class="oi mx-2" data-icon="arrow_forward" invisible="not out_of_office_from" title="to"/>
+                            <field name="out_of_office_to" invisible="not out_of_office_from" placeholder="Forever"/>
                         </div>
-                        <field name="out_of_office_message" string="" options="{'height': 112}" class="border border-secondary w-100" placeholder="Your out-of-office message..."/>
+                        <field name="out_of_office_message" string="" options="{'height': 112}" class="o_field_border_visible w-100" placeholder="Your out-of-office message..."/>
                     </group>
                 </data>
             </field>
@@ -54,6 +55,9 @@
             <field name="inherit_id" ref="base.view_users_form"/>
             <field name="arch" type="xml">
                 <data>
+                    <xpath expr="//sheet" position="after">
+                        <chatter reload_on_follower="True"/>
+                    </xpath>
                     <xpath expr="//group[@name='other_preferences']" position="inside">
                         <field name="notification_type" widget="radio" invisible="share" options="{'horizontal': true}"/>
                         <field name="outgoing_mail_server_id" invisible="1"/> <!-- Used by the mail_server_configurator_selection widget -->
@@ -70,10 +74,11 @@
                     <group name="calendar_preferences" position="inside">
                         <label for="out_of_office_from" string="Out-of-office" />
                         <div class="o_row">
-                            <field name="out_of_office_from" widget="daterange" options="{'end_date_field': 'out_of_office_to', 'show_time': False}" placeholder="None planned"/>
-                            <field name="out_of_office_to" invisible="1"/> <!-- otherwise it is visible, smort -->
+                            <field name="out_of_office_from" placeholder="None planned"/>
+                            <i class="oi mx-2" data-icon="arrow_forward" invisible="not out_of_office_from" title="to"/>
+                            <field name="out_of_office_to" invisible="not out_of_office_from" placeholder="Forever"/>
                         </div>
-                        <field name="out_of_office_message" string="" options="{'height': 112}" class="border border-secondary w-100" placeholder="Your out-of-office message..."/>
+                        <field name="out_of_office_message" string="" options="{'height': 112}" class="o_field_border_visible w-100" placeholder="Your out-of-office message..."/>
                     </group>
                 </data>
             </field>

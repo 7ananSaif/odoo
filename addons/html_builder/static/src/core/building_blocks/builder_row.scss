@@ -19,7 +19,7 @@
         --o-hb-row-color: var(--o-hb-row-color-popover, #{$o-we-bg-lightest});
         --o-hb-row-color-active: var(--o-hb-row-color-active-popover, #{$o-we-bg-darkest});
         --o-hb-row-sublevel-color: var(--o-hb-row-sublevel-color-popover, #{mix($o-we-bg-lighter, $o-we-fg-light)});
-        .hb-row-content:has(button.fa-trash) {
+        .hb-row-content:has(button[data-icon="delete"]) {
             align-items: stretch;
         }
         .hb-row-label {
@@ -76,23 +76,23 @@
 
     .o_hb_collapse_toggler {
         position: absolute;
-        padding-left: $o-hb-row-spacing;
-        align-self: baseline;
+        margin-left: -1px;
+        padding-left: 0;
         z-index: $_z-index + 1;
         box-shadow: none;
-        font-size: 1em;
+        font-size: 1.25em;
         color: inherit;
 
-        &.active i {
-            margin-left: -1px;
+        &:focus-visible {
+            box-shadow: var(--btn-active-shadow), var(--btn-focus-box-shadow);
         }
     }
 
     .icon-sup {
         position: relative;
         top: -0.4em;
-        margin-left: 0.2em;
-        font-size: 0.65em;
+        margin-left: 0.25em;
+        font-size: 0.75em;
     }
 
     &:has(> div > .o_cc_preview_wrapper) > .o_hb_collapse_toggler {

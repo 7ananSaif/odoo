@@ -15,6 +15,7 @@ class AccountAnalyticDistributionModel(models.Model):
     _check_company_auto = True
     _check_company_domain = models.check_company_domain_parent_of
 
+    analytic_distribution = fields.Json(required=True)
     sequence = fields.Integer(default=10)
     partner_id = fields.Many2one(
         'res.partner',
@@ -46,8 +47,7 @@ class AccountAnalyticDistributionModel(models.Model):
               JOIN account_analytic_account account
                 ON ARRAY[account.id::text] && %s
              WHERE account.company_id IS NOT NULL AND model.id = ANY(%s)
-               AND (model.company_id IS NULL 
-                OR model.company_id != account.company_id)
+               AND (model.company_id IS NULL OR model.company_id != account.company_id)
             """,
             self._query_analytic_accounts('model'),
             self.ids,
@@ -67,9 +67,12 @@ class AccountAnalyticDistributionModel(models.Model):
         applied_plans = vals.get('related_root_plan_ids', self.env['account.analytic.plan'])
         for model in applicable_models:
             # ignore model if it contains an account having a root plan that was already applied
-            if not applied_plans & model.distribution_analytic_account_ids.root_plan_id:
-                res |= model.analytic_distribution or {}
-                applied_plans += model.distribution_analytic_account_ids.root_plan_id
+            current_plans = model.distribution_analytic_account_ids.root_plan_id
+            if current_plans and not applied_plans & current_plans:
+                applied_plans += current_plans
+                res = self._merge_distribution(res, model.analytic_distribution | {
+                    '__update__': current_plans.mapped(lambda p: p._column_name()),
+                })
         return res
 
     @api.model

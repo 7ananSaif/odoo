@@ -9,10 +9,9 @@
                 <field name="contract_date_start" string="Start"/>
                 <field name="contract_date_end" string="End"/>
                 <field name="employee_id" optional="show"/>
-                <field name="additional_note" string="Note" optional="show"/>
                 <field name="currency_id" column_invisible="1"/>
                 <field name="wage" widget="monetary" optional="hide"/>
-                <field name="contract_type_id" optional="show"/>
+                <field name="employee_type_id" optional="show"/>
                 <field name="structure_type_id" optional="hide"/>
                 <field name="job_id" optional="show"/>
                 <field name="department_id" optional="show"/>
@@ -24,6 +23,31 @@
                 <field name="last_modified_uid" optional="hide" readonly="1"/>
                 <field name="last_modified_date" optional="hide" readonly="1"/>
                 <button name="action_open_version_form_view" type="object" string="View" class="btn-link" groups="base.group_no_one"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="hr_version_list_view_enhanced" model="ir.ui.view">
+        <field name="name">hr.version.list.view.enhanced</field>
+        <field name="model">hr.version</field>
+        <field name="arch" type="xml">
+            <list string="Records" default_order='employee_id ASC' create="0" delete="0">
+                <field name="employee_id" optional="show" widget="many2one_avatar_employee"/>
+                <field name="date_version" readonly="False" string="Effective Date"/>
+                <field name="contract_date_start" string="Contract Period" widget="daterange" options="{'end_date_field': 'contract_date_end'}" optional="hide"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="wage" widget="monetary" optional="hide"/>
+                <field name="employee_type_id" optional="hide"/>
+                <field name="structure_type_id" optional="hide"/>
+                <field name="job_id" optional="show"/>
+                <field name="department_id" optional="show"/>
+                <field name="hr_responsible_id" optional="hide"/>
+                <field name="resource_calendar_id" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" readonly="1" optional="hide"/>
+                <field name="create_uid" optional="hide"/>
+                <field name="create_date" optional="hide"/>
+                <field name="last_modified_uid" optional="hide" readonly="1"/>
+                <field name="last_modified_date" optional="hide" readonly="1"/>
             </list>
         </field>
     </record>
@@ -63,9 +87,7 @@
                 <filter string="Running Contract" name="running_contract"
                         domain="[
                             '&amp;',
-                                '|',
-                                    ('contract_date_start', '=', False),
-                                    ('contract_date_start', '&lt;', 'today'),
+                                ('contract_date_start', '&lt;=', 'today'),
                                 '|',
                                     ('contract_date_end', '=', False),
                                     ('contract_date_end', '>=', 'today')
@@ -80,18 +102,22 @@
                             ('contract_date_start', '!=', False),
                             ('contract_date_start', '>', 'today'),
                         ]"/>
+                <filter string="Active Employees" name="active_employees"
+                        domain="[
+                            ('employee_id.active', '=', True)
+                        ]"/>
                 <separator />
                 <filter string="Contract Start Date" name="contract_date_start" date="contract_date_start" groups="hr.group_hr_manager"/>
                 <filter string="Contract End Date" name="contract_date_end" date="contract_date_end" groups="hr.group_hr_manager"/>
                 <separator />
                 <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
                 <filter invisible="1" string="Late Activities" name="activities_overdue"
-                    domain="[('my_activity_date_deadline', '&lt;', context_today().strftime('%Y-%m-%d'))]"
+                    domain="[('my_activity_date_deadline', '&lt;', 'today')]"
                     help="Show all records whose next activity date is past"/>
                 <filter invisible="1" string="Today Activities" name="activities_today"
-                    domain="[('my_activity_date_deadline', '=', context_today().strftime('%Y-%m-%d'))]"/>
+                    domain="[('my_activity_date_deadline', '=', 'today')]"/>
                 <filter invisible="1" string="Future Activities" name="activities_upcoming_all"
-                    domain="[('my_activity_date_deadline', '&gt;', context_today().strftime('%Y-%m-%d'))]"/>
+                    domain="[('my_activity_date_deadline', '&gt;', 'today')]"/>
 
                 <filter string="Employee" name="group_by_employee" domain="[]" context="{'group_by': 'employee_id'}"/>
                 <separator />
@@ -104,6 +130,41 @@
         </field>
     </record>
 
+    <record id="hr_version_search_view_enhanced" model="ir.ui.view">
+        <field name="name">hr.version.search.view.enhanced</field>
+        <field name="model">hr.version</field>
+        <field name="arch" type="xml">
+            <search string="Employees">
+                <field name="employee_id" string="Employee" filter_domain="['|', ('employee_id.work_email', 'ilike', self), ('employee_id.name', 'ilike', self)]"/>
+                <field name="department_id"/>
+                <field name="job_id"/>
+                <field name="resource_calendar_id"/>
+                <field name="company_id"/>
+                <separator/>
+                <filter name="employee_id.newly_hired" string="Newly Hired" domain="[('employee_id.newly_hired', '=', True)]"/>
+                <filter name="departure_reason_id" string="Departure" domain="[('departure_reason_id', '!=', False)]" />
+                <separator/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <separator/>
+                <filter string="Permanent Contract" name="permanent_contract"
+                    domain="[
+                        ('contract_date_start', '!=', False),
+                        ('contract_date_end', '=', False)
+                    ]"/>
+                <filter string="Fixed-term Contract" name="fixed_term_contract"
+                    domain="[
+                        ('contract_date_start', '!=', False),
+                        ('contract_date_end', '!=', False),
+                        ('departure_reason_id', '=', False)
+                    ]"/>                
+                <group>
+                    <filter name="group_department" string="Department" domain="[]" context="{'group_by': 'department_id'}"/>
+                    <filter name="group_job" string="Job Position" domain="[]" context="{'group_by': 'job_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
     <record id="action_hr_version" model="ir.actions.act_window">
         <field name="name">Employee Records</field>
         <field name="path">versions</field>
@@ -111,7 +172,6 @@
         <field name="view_mode">list,graph,pivot</field>
         <field name="view_ids" eval="[(5, 0, 0),
             (0, 0, {'view_mode': 'list', 'view_id': ref('hr.hr_version_list_view')}),
-            (0, 0, {'view_mode': 'kanban'}),
             (0, 0, {'view_mode': 'pivot'})
         ]"/>
         <field name="domain">[('employee_id', '!=', False)]</field>

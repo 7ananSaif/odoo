@@ -3,11 +3,14 @@
 from datetime import timedelta
 
 from odoo import fields, Command
-from odoo.tests import Form
+from odoo.tests import tagged, Form
 from odoo.addons.purchase_stock.tests.common import PurchaseTestCommon
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestPurchaseOldRules(PurchaseTestCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     def create_picking_out(self, warehouse):
         picking_out = self.env['stock.picking'].create({
@@ -19,7 +22,7 @@ class TestPurchaseOldRules(PurchaseTestCommon):
         self.env['stock.move'].create({
             'product_id': self.product.id,
             'product_uom_qty': 10,
-            'product_uom': self.product.uom_id.id,
+            'uom_id': self.product.uom_id.id,
             'picking_id': picking_out.id,
             'reference_ids': [Command.link(self.reference.id)],
             'location_id': warehouse.out_type_id.default_location_src_id.id,
@@ -36,7 +39,7 @@ class TestPurchaseOldRules(PurchaseTestCommon):
         cls.product = cls.env['product.product'].create({
             'name': 'Geyser',
             'is_storable': True,
-            'route_ids': [Command.set([cls.route_mto.id, cls.route_buy.id])],
+            'route_ids': [Command.set([cls.route_mto.id])],
             'seller_ids': [Command.create({
                 'partner_id': cls.customer.id,
                 'price': 100.0,
@@ -261,7 +264,7 @@ class TestPurchaseOldRules(PurchaseTestCommon):
         schedule_date = order_date + timedelta(days=self.product.seller_ids.delay + rule_delay)
         self.assertEqual(date_planned, schedule_date, 'Schedule date should be equal to: Order date of Purchase order + Delivery Lead Time(supplier and pull rules).')
 
-        # Check the picking crated or not
+        # Check if the picking is created
         self.assertTrue(purchase.picking_ids, "Picking should be created.")
 
         # Check scheduled date of Internal Type shipment
@@ -277,9 +280,10 @@ class TestPurchaseOldRules(PurchaseTestCommon):
         self.assertEqual(incoming_shipment2.date_deadline, incoming_shipment2_date)
         old_deadline2 = incoming_shipment2.date_deadline
 
-        # Modify the date_planned of the purchase -> propagate the deadline
+        # Modify the date_planned of the purchase -> propagate the scheduled date in a receipt, so the deadline remains unchanged
         purchase_form = Form(purchase)
         purchase_form.date_planned = purchase.date_planned + timedelta(days=1)
         purchase_form.save()
-        self.assertEqual(incoming_shipment2.date_deadline, old_deadline2 + timedelta(days=1), 'Deadline should be propagate')
-        self.assertEqual(incoming_shipment1.date_deadline, old_deadline1 + timedelta(days=1), 'Deadline should be propagate')
+        self.assertEqual(incoming_shipment2.date_deadline, old_deadline2, 'Deadline should remain unchanged')
+        self.assertEqual(incoming_shipment1.date_deadline, old_deadline1, 'Deadline should remain unchanged')
+        self.assertEqual(purchase.order_line.move_ids.picking_id.scheduled_date, purchase.date_planned, 'Scheduled Date should propagate')

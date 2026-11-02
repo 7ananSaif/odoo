@@ -1,10 +1,14 @@
 from odoo import Command
 from odoo.tests import tagged
 from odoo.addons.l10n_jo_edi_pos.tests.jo_edi_pos_common import JoEdiPosCommon
+from freezegun import freeze_time
 
 
 @tagged('post_install_l10n', 'post_install', '-at_install')
 class TestJoEdiPosTypes(JoEdiPosCommon):
+    _test_user_groups = None  # FIXME list needed groups
+
+    @freeze_time('2022-09-27')
     def test_jo_pos_income_invoice(self):
         self.company.l10n_jo_edi_taxpayer_type = 'income'
         self.company.l10n_jo_edi_sequence_income_source = '4419618'
@@ -31,6 +35,7 @@ class TestJoEdiPosTypes(JoEdiPosCommon):
             self.get_xml_tree_from_string(expected_file)
         )
 
+    @freeze_time('2022-09-27')
     def test_jo_pos_income_refund(self):
         self.company.l10n_jo_edi_taxpayer_type = 'income'
         self.company.l10n_jo_edi_sequence_income_source = '4419618'
@@ -68,6 +73,7 @@ class TestJoEdiPosTypes(JoEdiPosCommon):
             self.get_xml_tree_from_string(expected_file)
         )
 
+    @freeze_time('2023-11-10')
     def test_jo_pos_sales_invoice(self):
         self.company.l10n_jo_edi_taxpayer_type = 'sales'
         self.company.l10n_jo_edi_sequence_income_source = '16683693'
@@ -95,6 +101,7 @@ class TestJoEdiPosTypes(JoEdiPosCommon):
             self.get_xml_tree_from_string(expected_file)
         )
 
+    @freeze_time('2023-11-10')
     def test_jo_pos_sales_refund(self):
         self.company.l10n_jo_edi_taxpayer_type = 'sales'
         self.company.l10n_jo_edi_sequence_income_source = '16683693'
@@ -127,6 +134,7 @@ class TestJoEdiPosTypes(JoEdiPosCommon):
             self.get_xml_tree_from_string(expected_file)
         )
 
+    @freeze_time('2023-11-10')
     def test_jo_pos_special_invoice(self):
         self.company.l10n_jo_edi_taxpayer_type = 'special'
         self.company.l10n_jo_edi_sequence_income_source = '16683696'
@@ -153,6 +161,7 @@ class TestJoEdiPosTypes(JoEdiPosCommon):
             self.get_xml_tree_from_string(expected_file)
         )
 
+    @freeze_time('2023-11-10')
     def test_jo_pos_special_refund(self):
         self.company.l10n_jo_edi_taxpayer_type = 'special'
         self.company.l10n_jo_edi_sequence_income_source = '16683696'
@@ -201,7 +210,8 @@ class TestJoEdiPosTypes(JoEdiPosCommon):
                 },
             ],
         }
-        order = self._l10n_jo_create_order(order_vals)
+        cash_pm = self.main_pos_config.payment_method_ids.filtered(lambda pm: pm.l10n_jo_edi_pos_is_cash)[0]
+        order = self._l10n_jo_create_order(order_vals, [(cash_pm, 132)], default_payment=False)
 
         expected_file = self._read_xml_test_file('type_7')
         generated_file = self.env['pos.edi.xml.ubl_21.jo']._export_pos_order(order)[0]
@@ -210,6 +220,7 @@ class TestJoEdiPosTypes(JoEdiPosCommon):
             self.get_xml_tree_from_string(expected_file)
         )
 
+    @freeze_time('2022-09-27')
     def test_jo_pos_no_country_customer(self):
         self.company.l10n_jo_edi_taxpayer_type = 'income'
         self.company.l10n_jo_edi_sequence_income_source = '4419618'
@@ -339,19 +350,19 @@ class TestJoEdiPosTypes(JoEdiPosCommon):
                 {  # id = 3
                     'product_id': self.product_a.id,
                     'price_unit': 10,
-                    'qty': 2,
+                    'qty': -2,
                     'name': '3',  # label should not affect matching
                 },
                 {  # id = 1
                     'product_id': self.product_a.id,
                     'price_unit': 10,
-                    'qty': 1,
+                    'qty': -1,
                     'name': '1',
                 },
                 {  # id = 2
                     'product_id': self.product_a.id,
                     'price_unit': 10,
-                    'qty': 2,
+                    'qty': -2,
                     'name': '2',
                 },
             ],
@@ -364,7 +375,7 @@ class TestJoEdiPosTypes(JoEdiPosCommon):
 
     def test_different_payment_methods(self):
         def get_xml_order_type(order):
-            if order._l10n_jo_validate_fields():  # conflicting payment methods
+            if order._l10n_jo_edi_get_field_errors():  # conflicting payment methods
                 return False
 
             generated_file = self.env['pos.edi.xml.ubl_21.jo']._export_pos_order(order)[0]
@@ -374,28 +385,35 @@ class TestJoEdiPosTypes(JoEdiPosCommon):
         self.company.l10n_jo_edi_taxpayer_type = 'income'
         self.company.l10n_jo_edi_sequence_income_source = '4419618'
 
-        cash_pm1, cash_pm2, bank_pm1, bank_pm2 = self.env['pos.payment.method'].create([
+        cash_journal = self.env['account.journal'].create({
+            'name': 'Cash Test',
+            'type': 'cash',
+            'company_id': self.env.company.id,
+            'code': 'MOD',
+            'sequence': 10,
+        })
+        cash_pm1, bank_pm1, bank_pm2 = self.env['pos.payment.method'].create([
             {
                 'name': 'Cash 1',
-                'l10n_jo_edi_pos_is_cash': True,
-            },
-            {
-                'name': 'Cash 2',
+                'type': 'cash',
+                'journal_id': cash_journal.id,
                 'l10n_jo_edi_pos_is_cash': True,
             },
             {
                 'name': 'Bank 1',
+                'type': 'bank',
                 'l10n_jo_edi_pos_is_cash': False,
             },
             {
                 'name': 'Bank 2',
+                'type': 'bank',
                 'l10n_jo_edi_pos_is_cash': False,
             },
         ])
         self.main_pos_config.write({
             'payment_method_ids': [
+                Command.clear(),
                 Command.link(cash_pm1.id),
-                Command.link(cash_pm2.id),
                 Command.link(bank_pm1.id),
                 Command.link(bank_pm2.id),
             ],
@@ -405,7 +423,7 @@ class TestJoEdiPosTypes(JoEdiPosCommon):
             ([(bank_pm1, 100)], '021'),
             ([(cash_pm1, 50), (bank_pm1, 50)], False),
             ([], False),
-            ([(cash_pm1, 50), (cash_pm2, 50)], '011'),
+            ([(cash_pm1, 50), (cash_pm1, 50)], '011'),
             ([(bank_pm1, 50), (bank_pm2, 50)], '021'),
         ]:
             order_vals = {
@@ -429,18 +447,29 @@ class TestJoEdiPosTypes(JoEdiPosCommon):
     def test_mandatory_customer(self):
         self.company.l10n_jo_edi_taxpayer_type = 'income'
         self.company.l10n_jo_edi_sequence_income_source = '4419618'
+        cash_journal = self.env['account.journal'].create({
+            'name': 'Cash Test',
+            'type': 'cash',
+            'company_id': self.env.company.id,
+            'code': 'MOD',
+            'sequence': 10,
+        })
         cash_pm, bank_pm = self.env['pos.payment.method'].create([
             {
                 'name': 'Cash',
+                'type': 'cash',
+                'journal_id': cash_journal.id,
                 'l10n_jo_edi_pos_is_cash': True,
             },
             {
                 'name': 'Bank',
+                'type': 'bank',
                 'l10n_jo_edi_pos_is_cash': False,
             },
         ])
         self.main_pos_config.write({
             'payment_method_ids': [
+                Command.clear(),
                 Command.link(cash_pm.id),
                 Command.link(bank_pm.id),
             ],
@@ -481,4 +510,4 @@ class TestJoEdiPosTypes(JoEdiPosCommon):
                 ],
             }
             order = self._l10n_jo_create_order(order_vals, payments=[(payment_method, amount_total)], default_payment=False)
-            self.assertEqual(bool(order._l10n_jo_validate_fields()), not is_valid)
+            self.assertEqual(bool(order._l10n_jo_edi_get_field_errors()), not is_valid)

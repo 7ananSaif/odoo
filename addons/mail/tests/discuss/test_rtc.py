@@ -1,1295 +1,1515 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from dateutil.relativedelta import relativedelta
-from freezegun import freeze_time
+from datetime import UTC
+from types import SimpleNamespace
 from unittest.mock import patch
 
+from dateutil.relativedelta import relativedelta
+from freezegun import freeze_time
+from werkzeug.exceptions import NotFound
+
 from odoo import fields
-from odoo.addons.mail.tests.common import MailCommon
-from odoo.addons.mail.tools.discuss import Store
 from odoo.tests.common import HttpCase, new_test_user, tagged, users
 from odoo.tools.misc import mute_logger
 
+from odoo.addons.bus.tests.common import BusResult
+from odoo.addons.mail.controllers.discuss.rtc import _check_jwt
+from odoo.addons.mail.tests.common import MailCommon
+from odoo.addons.mail.tools import discuss, jwt
+from odoo.addons.mail.tools.discuss import Store
 
-@tagged("RTC", "post_install", "-at_install")
+
+@tagged("RTC")
 class TestChannelRTC(MailCommon, HttpCase):
+    sfu_key = "u6bsUQEWrHdKIuYplirRnbBmLbrKV5PxKG7DtA71mng="
 
-    @users('employee')
-    @mute_logger('odoo.models.unlink')
+    @classmethod
+    @freeze_time("2023-03-15 12:34:56")
+    def setUpClass(cls):
+        super().setUpClass()
+        # clean up before test to avoid unexpected side effects
+        cls.env["discuss.channel.rtc.session"].sudo().search([]).unlink()
+        cls.env["ir.config_parameter"].set_str("mail.sfu_server_key", cls.sfu_key)
+        cls.env["mail.presence"]._update_presence(cls.guest)
+        # ensure the pre-created records have the right env because all tests
+        # are executed as employee and setUpClass as admin
+        cls.test_user = new_test_user(
+            cls.env,
+            "test_user",
+            groups="base.group_user",
+            email="test_user@example.com",
+        )
+        cls.test_partner = cls.test_user.partner_id
+        cls.channel_internal = (
+            cls.env["discuss.channel"]
+            .with_user(cls.user_employee)
+            ._create_channel(
+                name="A channel restricted to internal users with only user_employee inside",
+                group_id=cls.env.ref("base.group_user").id,
+            )
+        )
+        cls.member_of_employee_in_channel_internal = cls.channel_internal.self_member_id
+        cls.chat = (
+            cls.env["discuss.channel"]
+            .with_user(cls.user_employee)
+            ._get_or_create_chat(
+                partners_to=cls.test_user.partner_id.ids,
+            )
+        )
+        cls.member_of_employee_in_chat = cls.chat.self_member_id
+        cls.member_of_test_user_in_chat = cls.chat.with_user(cls.test_user).self_member_id
+        cls.channel_group_a = (
+            cls.env["discuss.channel"]
+            .with_user(cls.user_employee)
+            ._create_group(
+                users_to=cls.user_employee + cls.test_user,
+                name="A group with user_employee, test_user and guest inside",
+            )
+        )
+        cls.channel_group_a._add_members(guests=cls.guest)
+        cls.member_of_employee_in_group_a = cls.channel_group_a.self_member_id
+        cls.member_of_test_user_in_group_a = cls.channel_group_a.with_user(
+            cls.test_user,
+        ).self_member_id
+        cls.member_of_guest_in_group_a = cls.channel_group_a.channel_member_ids.filtered(
+            lambda m: m.guest_id == cls.guest,
+        )
+        cls.channel_group_b = (
+            cls.env["discuss.channel"]
+            .with_user(cls.user_employee)
+            ._create_group(
+                users_to=cls.user_employee,
+                name="A group with only user_employee inside",
+            )
+        )
+        cls.member_of_employee_in_group_b = cls.channel_group_b.self_member_id
+
+    @users("employee")
+    def test_00_get_derived_sfu_key(self):
+        channel_key = discuss.get_derived_sfu_key(self.env, 42)
+        self.assertEqual(channel_key, discuss.get_derived_sfu_key(self.env, 42))
+        self.assertNotEqual(channel_key, discuss.get_derived_sfu_key(self.env, 43))
+
+    @users("employee")
+    @mute_logger("odoo.models.unlink")
     @freeze_time("2023-03-15 12:34:56")
     def test_01_join_call(self):
         """Join call should remove existing sessions, remove invitation, create a new session, and return data."""
-        self.maxDiff = None
-        channel = self.env['discuss.channel']._create_channel(name='Test Channel', group_id=self.env.ref('base.group_user').id)
-        channel_member = channel.sudo().channel_member_ids.filtered(lambda channel_member: channel_member.partner_id == self.user_employee.partner_id)
-        channel_member._rtc_join_call()
-        with self.assertBus(
-            [
-                # delete of old sessions
-                (self.cr.dbname, "discuss.channel", channel.id),
-                # end of old sessions
-                (self.cr.dbname, "res.partner", self.user_employee.partner_id.id),
-                # update history with duration of previous session
-                (self.cr.dbname, "discuss.channel", channel.id),
-                # insert new session
-                (self.cr.dbname, "discuss.channel", channel.id),
-                # message unread counter (message post)
-                (self.cr.dbname, "res.partner", self.user_employee.partner_id.id),
-                # start call notification message post
-                (self.cr.dbname, "discuss.channel", channel.id),
-                # new call history (not asserted below)
-                (self.cr.dbname, "discuss.channel", channel.id),
-            ],
-            [
-                {
-                    "type": "discuss.channel.rtc.session/ended",
-                    "payload": {"sessionId": channel_member.rtc_session_ids.id},
-                },
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
+        self.member_of_employee_in_channel_internal.sudo()._rtc_join_call()
+        initial_rtc_session = self.member_of_employee_in_channel_internal.sudo().rtc_session_ids
+
+        def notifications():
+            message = self.env["mail.message"].search(
+                [
+                    ("model", "=", "discuss.channel"),
+                    ("res_id", "=", self.channel_internal.id),
+                    ("message_type", "=", "notification"),
+                ],
+                order="id desc",
+                limit=1,
+            )
+            rtc_session = self.member_of_employee_in_channel_internal.sudo().rtc_session_ids
+            call_history = self.channel_internal.call_history_ids.filtered("end_dt")
+            return [
+                BusResult(
+                    self.user_employee,
+                    "discuss.channel.rtc.session/ended",
+                    {"sessionId": initial_rtc_session.id},
+                ),
+                BusResult(
+                    self.channel_internal,
+                    "mail.record/insert",
+                    {
+                        "discuss.call.history": [
+                            {
+                                "duration_hour": 0.0,
+                                "end_dt": "2023-03-15 12:34:56",
+                                "id": call_history.id,
+                            },
+                        ],
                         "discuss.channel": [
                             {
-                                "id": channel.id,
-                                "rtc_session_ids": [("DELETE", [channel_member.rtc_session_ids.id])],
+                                "id": self.channel_internal.id,
+                                "rtc_session_ids": [("DELETE", initial_rtc_session.ids)],
                             },
                         ],
                     },
-                },
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
+                ),
+                BusResult(
+                    self.user_employee,
+                    "mail.record/insert",
+                    {
+                        "discuss.channel.member": [
+                            self._res_for_member(
+                                self.member_of_employee_in_channel_internal,
+                                message_unread_counter=0,
+                                message_unread_counter_bus_id=0,
+                                new_message_separator=message.id + 1,
+                            ),
+                        ],
+                    },
+                ),
+                BusResult(self.channel_internal, "discuss.channel/new_message"),
+                BusResult(
+                    self.channel_internal,
+                    "mail.record/insert",
+                    {
                         "discuss.channel": [
                             {
-                                "id": channel.id,
-                                "rtc_session_ids": [("ADD", [channel_member.rtc_session_ids.id + 1])],
+                                "id": self.channel_internal.id,
+                                "rtc_session_ids": [("ADD", rtc_session.ids)],
                             },
                         ],
                         "discuss.channel.member": [
-                            {
-                                "id": channel_member.id,
-                                "partner_id": channel_member.partner_id.id,
-                                "channel_id": {
-                                    "id": channel_member.channel_id.id,
-                                    "model": "discuss.channel",
-                                },
-                            },
+                            self._res_for_member(self.member_of_employee_in_channel_internal),
                         ],
                         "discuss.channel.rtc.session": [
+                            self._res_for_rtc_session(rtc_session),
+                        ],
+                        "mail.message": [
                             {
-                                "channel_member_id": channel_member.id,
-                                "id": channel_member.rtc_session_ids.id + 1,
+                                "call_history_ids": message.call_history_ids.ids,
+                                "id": message.id,
                             },
                         ],
                         "res.partner": self._filter_partners_fields(
-                            {
-                                "avatar_128_access_token": channel_member.partner_id._get_avatar_128_access_token(),
-                                "id": channel_member.partner_id.id,
-                                "im_status": channel_member.partner_id.im_status,
-                                "im_status_access_token": channel_member.partner_id._get_im_status_access_token(),
-                                "mention_token": channel_member.partner_id._get_mention_token(),
-                                "name": channel_member.partner_id.name,
-                                "write_date": fields.Datetime.to_string(
-                                    channel_member.partner_id.write_date
-                                ),
-                            },
+                            self._res_for_partner(self.partner_employee, internal=True),
+                        ),
+                        "res.users": self._filter_users_fields(
+                            self._res_for_user(self.user_employee, internal=True),
                         ),
                     },
-                },
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
-                        "discuss.channel.member": [
-                            {
-                                "id": channel_member.id,
-                                "new_message_separator": channel_member.new_message_separator + 1,
-                                "partner_id": channel_member.partner_id.id,
-                                "channel_id": {"id": channel.id, "model": "discuss.channel"}
-                            }
-                        ]
-                    },
-                },
-            ],
-        ):
+                ),
+            ]
+
+        with self.assertBus(notifications):
             store = Store()
-            channel_member._rtc_join_call(store)
-            res = store.get_result()
+            self.member_of_employee_in_channel_internal.sudo()._rtc_join_call(store)
+            res = store._build_result()
+        rtc_session = self.member_of_employee_in_channel_internal.sudo().rtc_session_ids
         self.assertEqual(
             res,
             {
                 "discuss.channel": [
                     {
-                        "id": channel.id,
+                        "id": self.channel_internal.id,
                         "rtc_session_ids": [
-                            ("ADD", [channel_member.rtc_session_ids.id]),
-                            ("DELETE", [channel_member.rtc_session_ids.id - 1]),
+                            ("ADD", rtc_session.ids),
+                            ("DELETE", initial_rtc_session.ids),
                         ],
                     },
                 ],
                 "discuss.channel.member": [
-                    {
-                        "id": channel_member.id,
-                        "partner_id": channel_member.partner_id.id,
-                        "channel_id": {
-                            "id": channel_member.channel_id.id,
-                            "model": "discuss.channel",
-                        },
-                    },
+                    self._res_for_member(self.member_of_employee_in_channel_internal),
                 ],
                 "discuss.channel.rtc.session": [
-                    {
-                        "channel_member_id": channel_member.id,
-                        "id": channel_member.rtc_session_ids.id,
-                    },
+                    self._res_for_rtc_session(rtc_session),
                 ],
                 "res.partner": self._filter_partners_fields(
-                    {
-                        "avatar_128_access_token": channel_member.partner_id._get_avatar_128_access_token(),
-                        "id": channel_member.partner_id.id,
-                        "im_status": channel_member.partner_id.im_status,
-                        "im_status_access_token": channel_member.partner_id._get_im_status_access_token(),
-                        "mention_token": channel_member.partner_id._get_mention_token(),
-                        "name": channel_member.partner_id.name,
-                        "write_date": fields.Datetime.to_string(
-                            channel_member.partner_id.write_date
-                        ),
-                    },
+                    self._res_for_partner(self.partner_employee, internal=True),
+                ),
+                "res.users": self._filter_users_fields(
+                    self._res_for_user(self.user_employee, internal=True),
                 ),
                 "Rtc": {
+                    "can_record_audio": False,
+                    "can_record_transcription": False,
+                    "can_record_video": False,
                     "iceServers": False,
-                    "localSession": channel_member.rtc_session_ids.id,
+                    "localSession": rtc_session.id,
                     "serverInfo": None,
                 },
             },
         )
 
-    @users('employee')
-    @mute_logger('odoo.models.unlink')
-    def test_10_start_call_in_chat_should_invite_all_members_to_call(self):
-        test_user = self.env['res.users'].sudo().create({'name': "Test User", 'login': 'test'})
-        channel = self.env['discuss.channel']._get_or_create_chat(partners_to=(self.user_employee.partner_id + test_user.partner_id).ids)
-        channel_member = channel.sudo().channel_member_ids.filtered(lambda channel_member: channel_member.partner_id == self.user_employee.partner_id)
-        channel_member_test_user = channel.sudo().channel_member_ids.filtered(lambda channel_member: channel_member.partner_id == test_user.partner_id)
-        channel_member._rtc_join_call()
-        last_rtc_session_id = channel_member.rtc_session_ids.id
-        channel_member._rtc_leave_call()
+    def test_02_recording_permissions_internal_only(self):
+        portal_user = new_test_user(
+            self.env,
+            "recording_portal_user",
+            groups="base.group_portal",
+            email="recording_portal_user@example.com",
+            partner_id=self.partner_employee.id,
+        )
+        expected_permissions = {
+            "audioRecording": True,
+            "transcription": "ai" in self.env["ir.module.module"]._installed(),
+            "videoRecording": True,
+        }
+        self.assertEqual(
+            self.member_of_employee_in_group_a._get_recording_permissions(
+                self.user_employee,
+            ),
+            expected_permissions,
+        )
+        expected_permissions = dict.fromkeys(expected_permissions, False)
+        self.assertEqual(
+            self.member_of_employee_in_group_a._get_recording_permissions(
+                self.user_employee,
+                False,
+            ),
+            expected_permissions,
+        )
+        self.assertEqual(
+            self.member_of_employee_in_group_a._get_recording_permissions(portal_user),
+            expected_permissions,
+        )
+        self.assertEqual(
+            self.member_of_employee_in_group_a._get_recording_permissions(
+                self.env["res.users"],
+            ),
+            expected_permissions,
+        )
+        self.assertFalse(portal_user.partner_id.partner_share)
 
-        with self.assertBus(
-            [
-                # update new session
-                (self.cr.dbname, "discuss.channel", channel.id),
-                # update new message separator
-                (self.cr.dbname, "res.partner", self.user_employee.partner_id.id),
-                # message_post "started a live conference" (not asserted below)
-                (self.cr.dbname, "discuss.channel", channel.id),
-                # update call history (not asserted below)
-                (self.cr.dbname, "discuss.channel", channel.id),
-                # incoming invitation
-                (self.cr.dbname, "res.partner", test_user.partner_id.id),
-                # update list of invitations
-                (self.cr.dbname, "discuss.channel", channel.id),
-            ],
-            [
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
-                        "discuss.channel": [
-                            {
-                                "id": channel.id,
-                                "rtc_session_ids": [("ADD", [last_rtc_session_id + 1])],
-                            },
-                        ],
-                        "discuss.channel.member": [
-                            {
-                                "id": channel_member.id,
-                                "partner_id": channel_member.partner_id.id,
-                                "channel_id": {
-                                    "id": channel_member.channel_id.id,
-                                    "model": "discuss.channel",
-                                },
-                            },
-                        ],
-                        "discuss.channel.rtc.session": [
-                            {
-                                "channel_member_id": channel_member.id,
-                                "id": last_rtc_session_id + 1,
-                            },
-                        ],
-                        "res.partner": self._filter_partners_fields(
-                            {
-                                "avatar_128_access_token": channel_member.partner_id._get_avatar_128_access_token(),
-                                "id": channel_member.partner_id.id,
-                                "im_status": channel_member.partner_id.im_status,
-                                "im_status_access_token": channel_member.partner_id._get_im_status_access_token(),
-                                "mention_token": channel_member.partner_id._get_mention_token(),
-                                "name": channel_member.partner_id.name,
-                                "write_date": fields.Datetime.to_string(
-                                    channel_member.partner_id.write_date
-                                ),
-                            },
-                        ),
-                    },
-                },
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
-                        "discuss.channel": [
-                            {
-                                "id": channel.id,
-                                "invited_member_ids": [("ADD", [channel_member_test_user.id])],
-                            }
-                        ],
-                        "discuss.channel.member": [
-                            {
-                                "id": channel_member_test_user.id,
-                                "partner_id": channel_member_test_user.partner_id.id,
-                                "channel_id": {
-                                    "id": channel_member_test_user.channel_id.id,
-                                    "model": "discuss.channel",
-                                },
-                            },
-                        ],
-                        "res.partner": self._filter_partners_fields(
-                            {
-                                "avatar_128_access_token": channel_member_test_user.partner_id._get_avatar_128_access_token(),
-                                "id": channel_member_test_user.partner_id.id,
-                                "im_status": channel_member_test_user.partner_id.im_status,
-                                "im_status_access_token": channel_member_test_user.partner_id._get_im_status_access_token(),
-                                "mention_token": channel_member_test_user.partner_id._get_mention_token(),
-                                "name": channel_member_test_user.partner_id.name,
-                                "write_date": fields.Datetime.to_string(
-                                    channel_member_test_user.partner_id.write_date
-                                ),
-                            },
-                        ),
-                    },
-                },
-            ],
+    def test_03_transcription_route_is_unavailable_without_ai(self):
+        if "ai" in self.env["ir.module.module"]._installed():
+            self.skipTest("The AI module provides the transcription route.")
+        call_start = fields.Datetime.now()
+        call = self.env["discuss.call.history"].create(
+            {
+                "channel_id": self.channel_group_a.id,
+                "start_dt": call_start,
+            },
+        )
+        call_start_ms = int(call_start.replace(tzinfo=UTC).timestamp() * 1000)
+        token = jwt.sign(
+            {"iat": int(call_start.replace(tzinfo=UTC).timestamp())},
+            discuss.get_derived_sfu_key(self.env, call.channel_id.id),
+            ttl=60,
+            algorithm=jwt.Algorithm.HS256,
+        )
+        response = self.url_open(
+            f"/mail/rtc/recording/{call.id}/transcribe",
+            data=b"audio",
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "audio/ogg",
+            },
+            params={
+                "start_ms": call_start_ms + 1_000,
+                "end_ms": call_start_ms + 3_000,
+            },
+        )
+        self.assertEqual(response.status_code, 404)
+        call.invalidate_recordset(["artifact_ids"])
+        self.assertFalse(call.artifact_ids)
+
+    def test_04_recording_routing_rejects_session_token(self):
+        call_start = fields.Datetime.now()
+        call = self.env["discuss.call.history"].create(
+            {
+                "channel_id": self.channel_group_a.id,
+                "start_dt": call_start,
+            },
+        )
+        token = jwt.sign(
+            {"session_id": 1},
+            discuss.get_derived_sfu_key(self.env, call.channel_id.id),
+            ttl=60,
+            algorithm=jwt.Algorithm.HS256,
+        )
+        routing_response = self.url_open(
+            f"/mail/rtc/recording/{call.id}/routing",
+            method="POST",
+            headers={"Authorization": f"Bearer {token}"},
+            params={"start_ms": 1_000, "end_ms": 3_000},
+        )
+        self.assertEqual(routing_response.status_code, 404)
+
+    def test_05_recording_jwt_returns_user(self):
+        now = fields.Datetime.now()
+        request = SimpleNamespace(
+            env=self.env,
+            httprequest=SimpleNamespace(headers={}),
+        )
+        for user_claims, valid in (
+            ({"user_id": self.user_employee.id}, True),
+            ({}, True),
+            ({"user_id": True}, False),
+            ({"user_id": "1"}, False),
+            ({"user_id": None}, False),
+            ({"user_id": 0}, False),
+            ({"user_id": -1}, False),
+            ({"partner_id": self.partner_employee.id}, False),
         ):
+            with self.subTest(user_claims=user_claims):
+                claims = {
+                    "iat": int(now.replace(tzinfo=UTC).timestamp()),
+                    **user_claims,
+                }
+                token = jwt.sign(
+                    claims,
+                    discuss.get_derived_sfu_key(self.env, self.channel_group_a.id),
+                    ttl=60,
+                    algorithm=jwt.Algorithm.HS256,
+                )
+                request.httprequest.headers["Authorization"] = f"Bearer {token}"
+                if valid:
+                    self.assertEqual(_check_jwt(request, self.channel_group_a), claims)
+                    with self.assertRaises(NotFound):
+                        _check_jwt(request, self.channel_group_b)
+                else:
+                    with self.assertRaises(NotFound):
+                        _check_jwt(request, self.channel_group_a)
+
+    @users("employee")
+    def test_06_sfu_provisioning_preserves_recording_identity(self):
+        rtc_sessions = self.env["discuss.channel.rtc.session"].sudo()
+        for member, user in (
+            (self.member_of_employee_in_group_a, self.user_employee),
+            (self.member_of_test_user_in_group_a, self.test_user),
+            (self.member_of_guest_in_group_a, self.env.ref("base.public_user")),
+        ):
+            rtc_sessions += (
+                rtc_sessions.with_user(user)
+                .sudo()
+                .create(
+                    {
+                        "channel_member_id": member.id,
+                    },
+                )
+            )
+        params = self.env["ir.config_parameter"].sudo()
+        params.set_bool("mail.use_call_server", True)
+        params.set_bool("mail.use_sfu_server", True)
+        params.set_str("mail.sfu_server_url", "https://sfu.example.com")
+        with patch(
+            "odoo.addons.mail.models.discuss.discuss_channel_member.requests.get",
+        ) as get_channel:
+            get_channel.return_value.json.return_value = {
+                "uuid": "sfu-channel-uuid",
+                "url": "https://sfu.example.com",
+            }
+            self.member_of_employee_in_group_a.sudo()._join_sfu()
+        authorization = get_channel.call_args.kwargs["headers"]["Authorization"]
+        claims = jwt.verify(
+            authorization.removeprefix("Bearer "),
+            self.sfu_key,
+            algorithm=jwt.Algorithm.HS256,
+        )
+        channel_key = discuss.get_derived_sfu_key(self.env, self.channel_group_a.id)
+        self.assertEqual(claims["key"], channel_key)
+        for rtc_session, user, label in (
+            (rtc_sessions[0], self.user_employee, self.partner_employee.name),
+            (rtc_sessions[1], self.test_user, self.test_partner.name),
+            (rtc_sessions[2], self.env["res.users"], self.guest.name),
+        ):
+            with self.subTest(session=rtc_session.id):
+                server_info = (
+                    self.member_of_employee_in_group_a.sudo()._get_rtc_server_info(
+                        rtc_session,
+                    )
+                )
+                client_claims = jwt.verify(
+                    server_info["jsonWebToken"],
+                    channel_key,
+                    algorithm=jwt.Algorithm.HS256,
+                )
+                self.assertEqual(client_claims["session_id"], rtc_session.id)
+                self.assertEqual(
+                    client_claims.get("user_id"),
+                    user.id if user else None,
+                )
+                self.assertEqual("user_id" in client_claims, bool(user))
+                self.assertNotIn("partner_id", client_claims)
+                self.assertEqual(client_claims["label"], label)
+
+    @users("employee")
+    def test_07_force_sfu_for_solo_recording(self):
+        member = self.member_of_employee_in_group_b.sudo()
+        member._rtc_join_call()
+        params = self.env["ir.config_parameter"].sudo()
+        params.set_bool("mail.use_call_server", True)
+        params.set_bool("mail.use_sfu_server", True)
+        params.set_str("mail.sfu_server_url", "https://sfu.example.com")
+        with patch(
+            "odoo.addons.mail.models.discuss.discuss_channel_member.requests.get",
+        ) as get_channel:
+            get_channel.return_value.json.return_value = {
+                "uuid": "solo-recording-channel",
+                "url": "https://sfu.example.com",
+            }
+            member._join_sfu()
+            get_channel.assert_not_called()
+            member._join_sfu(force=True)
+        get_channel.assert_called_once()
+        self.assertEqual(member.channel_id.sfu_channel_uuid, "solo-recording-channel")
+        self.assertEqual(member.channel_id.sfu_server_url, "https://sfu.example.com")
+        self.assertTrue(member._get_rtc_server_info(member.rtc_session_ids))
+
+    @users("employee")
+    def test_08_sfu_identity_uses_joining_user(self):
+        other_user = new_test_user(
+            self.env,
+            "recording_other_user",
+            partner_id=self.partner_employee.id,
+        )
+        member = self.member_of_employee_in_group_b.with_user(other_user).sudo()
+        member._rtc_join_call()
+        member.channel_id.write(
+            {
+                "sfu_channel_uuid": "recording-channel",
+                "sfu_server_url": "https://sfu.example.com",
+            },
+        )
+        session = member.rtc_session_ids
+        server_info = (
+            member.with_user(self.user_employee).sudo()._get_rtc_server_info(session)
+        )
+        claims = jwt.verify(
+            server_info["jsonWebToken"],
+            discuss.get_derived_sfu_key(self.env, member.channel_id.id),
+            algorithm=jwt.Algorithm.HS256,
+        )
+        self.assertEqual(session.partner_id, self.partner_employee)
+        self.assertEqual(claims["user_id"], other_user.id)
+
+    @users("employee")
+    @mute_logger("odoo.models.unlink")
+    @freeze_time("2023-03-15 12:34:56")
+    def test_10_start_call_in_chat_should_invite_all_members_to_call(self):
+        self.member_of_employee_in_chat.sudo()._rtc_join_call()
+        self.member_of_employee_in_chat.sudo()._rtc_leave_call()
+
+        def notifications():
+            message = self.env["mail.message"].search(
+                [
+                    ("model", "=", "discuss.channel"),
+                    ("res_id", "=", self.chat.id),
+                    ("message_type", "=", "notification"),
+                ],
+                order="id desc",
+                limit=1,
+            )
+            rtc_session = self.member_of_employee_in_chat.sudo().rtc_session_ids
+            return [
+                # update channel interest date on first call participant
+                BusResult(self.chat, "mail.record/insert"),
+                BusResult(
+                    # update new message separator (message_post)
+                    self.user_employee,
+                    "mail.record/insert",
+                    {
+                        "discuss.channel.member": [
+                            self._res_for_member(
+                                self.member_of_employee_in_chat,
+                                message_unread_counter=0,
+                                message_unread_counter_bus_id=0,
+                                new_message_separator=message.id + 1,
+                            ),
+                        ],
+                    },
+                ),
+                BusResult(self.chat, "discuss.channel/new_message"),
+                BusResult(
+                    self.chat,
+                    "mail.record/insert",
+                    {
+                        "discuss.channel": [
+                            {
+                                "id": self.chat.id,
+                                "rtc_session_ids": [("ADD", rtc_session.ids)],
+                            },
+                        ],
+                        "discuss.channel.member": [
+                            self._res_for_member(self.member_of_employee_in_chat),
+                        ],
+                        "discuss.channel.rtc.session": [
+                            self._res_for_rtc_session(rtc_session),
+                        ],
+                        "mail.message": [
+                            {
+                                "call_history_ids": message.call_history_ids.ids,
+                                "id": message.id,
+                            },
+                        ],
+                        "res.partner": self._filter_partners_fields(
+                            self._res_for_partner(self.partner_employee),
+                        ),
+                    },
+                ),
+                BusResult(
+                    (self.chat, "internal_users"),
+                    "mail.record/insert",
+                    {
+                        "res.partner": self._filter_partners_fields(
+                            self._res_for_partner(
+                                self.partner_employee,
+                                common=False,
+                                internal=True,
+                            ),
+                        ),
+                        "res.users": self._filter_users_fields(
+                            self._res_for_user(self.user_employee, internal=True),
+                        ),
+                    },
+                ),
+                BusResult(
+                    # incoming invitation
+                    self.test_user,
+                    "mail.record/insert",
+                    {
+                        "discuss.channel.member": [
+                            self._res_for_member(
+                                self.member_of_test_user_in_chat,
+                                rtc_inviting_session_id=rtc_session.id,
+                            ),
+                            self._res_for_member(self.member_of_employee_in_chat),
+                        ],
+                        "discuss.channel.rtc.session": [
+                            self._res_for_rtc_session(rtc_session, extra=True),
+                        ],
+                        "res.partner": self._filter_partners_fields(
+                            self._res_for_partner(self.partner_employee, internal=True),
+                        ),
+                        "res.users": self._filter_users_fields(
+                            self._res_for_user(self.user_employee, internal=True),
+                        ),
+                    },
+                ),
+                BusResult(
+                    self.chat,
+                    "mail.record/insert",
+                    {
+                        "discuss.channel": [
+                            {
+                                "id": self.chat.id,
+                                "invited_member_ids": [
+                                    ("ADD", self.member_of_test_user_in_chat.ids),
+                                ],
+                            },
+                        ],
+                        "discuss.channel.member": [
+                            self._res_for_member(self.member_of_test_user_in_chat),
+                        ],
+                        "res.partner": self._filter_partners_fields(
+                            self._res_for_partner(self.test_partner),
+                        ),
+                    },
+                ),
+                BusResult(
+                    (self.chat, "internal_users"),
+                    "mail.record/insert",
+                    {
+                        "res.partner": self._filter_partners_fields(
+                            self._res_for_partner(self.test_partner, common=False, internal=True),
+                        ),
+                        "res.users": self._filter_users_fields(
+                            self._res_for_user(self.test_user, internal=True),
+                        ),
+                    },
+                ),
+            ]
+
+        with self.assertBus(notifications):
             now = fields.Datetime.now()
-            with patch.object(fields.Datetime, 'now', lambda: now + relativedelta(seconds=5)):
-                channel_member._rtc_join_call()
+            with patch.object(fields.Datetime, "now", lambda: now + relativedelta(seconds=5)):
+                self.member_of_employee_in_chat.sudo()._rtc_join_call()
 
-    @users('employee')
-    @mute_logger('odoo.models.unlink')
+    @users("employee")
+    @mute_logger("odoo.models.unlink")
+    @freeze_time("2023-03-15 12:34:56")
     def test_11_start_call_in_group_should_invite_all_members_to_call(self):
-        test_user = self.env['res.users'].sudo().create({'name': "Test User", 'login': 'test'})
-        test_guest = self.env['mail.guest'].sudo().create({'name': "Test Guest"})
-        self.env["mail.presence"]._update_presence(test_guest)
-        channel = self.env['discuss.channel']._create_group(partners_to=(self.user_employee.partner_id + test_user.partner_id).ids)
-        channel._add_members(guests=test_guest)
-        channel_member_test_user = channel.sudo().channel_member_ids.filtered(lambda channel_member: channel_member.partner_id == test_user.partner_id)
-        channel_member_test_guest = channel.sudo().channel_member_ids.filtered(lambda channel_member: channel_member.guest_id == test_guest)
-        channel_member = channel.sudo().channel_member_ids.filtered(lambda channel_member: channel_member.partner_id == self.user_employee.partner_id)
-        channel_member._rtc_join_call()
-        last_rtc_session_id = channel_member.rtc_session_ids.id
-        channel_member._rtc_leave_call()
+        self.member_of_employee_in_group_a.sudo()._rtc_join_call()
+        self.member_of_employee_in_group_a.sudo()._rtc_leave_call()
 
-        with self.assertBus(
-            [
-                # update new session
-                (self.cr.dbname, "discuss.channel", channel.id),
-                # update new message separator
-                (self.cr.dbname, "res.partner", self.user_employee.partner_id.id),
-                # message_post "started a live conference" (not asserted below)
-                (self.cr.dbname, "discuss.channel", channel.id),
-                # update call history (not asserted below)
-                (self.cr.dbname, "discuss.channel", channel.id),
-                # incoming invitation
-                (self.cr.dbname, "res.partner", test_user.partner_id.id),
-                # incoming invitation
-                (self.cr.dbname, "mail.guest", test_guest.id),
-                # update list of invitations
-                (self.cr.dbname, "discuss.channel", channel.id),
-            ],
-            [
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
+        def notifications():
+            message = self.env["mail.message"].search(
+                [
+                    ("model", "=", "discuss.channel"),
+                    ("res_id", "=", self.channel_group_a.id),
+                    ("message_type", "=", "notification"),
+                ],
+                order="id desc",
+                limit=1,
+            )
+            rtc_session = self.member_of_employee_in_group_a.sudo().rtc_session_ids
+            return [
+                # update channel interest date on first call participant
+                BusResult(self.channel_group_a, "mail.record/insert"),
+                BusResult(
+                    self.user_employee,
+                    # Update of the author's member record after posting the call message.
+                    "mail.record/insert",
+                    {
+                        "discuss.channel.member": [
+                            self._res_for_member(
+                                self.member_of_employee_in_group_a,
+                                message_unread_counter=0,
+                                message_unread_counter_bus_id=0,
+                                new_message_separator=message.id + 1,
+                            ),
+                        ],
+                    },
+                ),
+                BusResult(self.channel_group_a, "discuss.channel/new_message"),
+                BusResult(
+                    self.channel_group_a,
+                    "mail.record/insert",
+                    {
                         "discuss.channel": [
                             {
-                                "id": channel.id,
-                                "rtc_session_ids": [("ADD", [last_rtc_session_id + 1])],
+                                "id": self.channel_group_a.id,
+                                "rtc_session_ids": [("ADD", rtc_session.ids)],
                             },
                         ],
                         "discuss.channel.member": [
-                            {
-                                "id": channel_member.id,
-                                "partner_id": channel_member.partner_id.id,
-                                "channel_id": {
-                                    "id": channel_member.channel_id.id,
-                                    "model": "discuss.channel",
-                                },
-                            },
+                            self._res_for_member(self.member_of_employee_in_group_a),
                         ],
                         "discuss.channel.rtc.session": [
+                            self._res_for_rtc_session(rtc_session),
+                        ],
+                        "mail.message": [
                             {
-                                "channel_member_id": channel_member.id,
-                                "id": last_rtc_session_id + 1,
+                                "call_history_ids": message.call_history_ids.ids,
+                                "id": message.id,
                             },
                         ],
                         "res.partner": self._filter_partners_fields(
-                            {
-                                "avatar_128_access_token": channel_member.partner_id._get_avatar_128_access_token(),
-                                "id": channel_member.partner_id.id,
-                                "im_status": channel_member.partner_id.im_status,
-                                "im_status_access_token":  channel_member.partner_id._get_im_status_access_token(),
-                                "mention_token": channel_member.partner_id._get_mention_token(),
-                                "name": channel_member.partner_id.name,
-                                "write_date": fields.Datetime.to_string(
-                                    channel_member.partner_id.write_date
-                                ),
-                            },
+                            self._res_for_partner(self.partner_employee),
                         ),
                     },
-                },
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
-                        "discuss.channel": [
-                            {
-                                "id": channel.id,
-                                "rtc_session_ids": [("ADD", [last_rtc_session_id + 1])],
-                            },
-                        ],
+                ),
+                BusResult(
+                    (self.channel_group_a, "internal_users"),
+                    "mail.record/insert",
+                    {
+                        "res.partner": self._filter_partners_fields(
+                            self._res_for_partner(
+                                self.partner_employee,
+                                common=False,
+                                internal=True,
+                            ),
+                        ),
+                        "res.users": self._filter_users_fields(
+                            self._res_for_user(self.user_employee, internal=True),
+                        ),
+                    },
+                ),
+                BusResult(
+                    # incoming invitation
+                    self.test_user,
+                    "mail.record/insert",
+                    {
                         "discuss.channel.member": [
-                            {
-                                "id": channel_member.id,
-                                "partner_id": channel_member.partner_id.id,
-                                "channel_id": {
-                                    "id": channel_member.channel_id.id,
-                                    "model": "discuss.channel",
-                                },
-                            },
+                            self._res_for_member(
+                                self.member_of_test_user_in_group_a,
+                                rtc_inviting_session_id=rtc_session.id,
+                            ),
+                            self._res_for_member(self.member_of_employee_in_group_a),
                         ],
                         "discuss.channel.rtc.session": [
-                            {
-                                "channel_member_id": channel_member.id,
-                                "id": last_rtc_session_id + 1,
-                            },
+                            self._res_for_rtc_session(rtc_session, extra=True),
                         ],
                         "res.partner": self._filter_partners_fields(
-                            {
-                                "avatar_128_access_token": channel_member.partner_id._get_avatar_128_access_token(),
-                                "id": channel_member.partner_id.id,
-                                "im_status": channel_member.partner_id.im_status,
-                                "im_status_access_token": channel_member.partner_id._get_im_status_access_token(),
-                                "mention_token": channel_member.partner_id._get_mention_token(),
-                                "name": channel_member.partner_id.name,
-                                "write_date": fields.Datetime.to_string(
-                                    channel_member.partner_id.write_date
-                                ),
-                            },
+                            self._res_for_partner(self.partner_employee, internal=True),
+                        ),
+                        "res.users": self._filter_users_fields(
+                            self._res_for_user(self.user_employee, internal=True),
                         ),
                     },
-                },
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
+                ),
+                BusResult(
+                    # incoming invitation
+                    self.guest,
+                    "mail.record/insert",
+                    {
+                        "discuss.channel.member": [
+                            self._res_for_member(
+                                self.member_of_guest_in_group_a,
+                                rtc_inviting_session_id=rtc_session.id,
+                            ),
+                            self._res_for_member(self.member_of_employee_in_group_a),
+                        ],
+                        "discuss.channel.rtc.session": [
+                            self._res_for_rtc_session(rtc_session, extra=True),
+                        ],
+                        "res.partner": self._filter_partners_fields(
+                            self._res_for_partner(self.partner_employee),
+                        ),
+                    },
+                ),
+                BusResult(
+                    self.channel_group_a,
+                    "mail.record/insert",
+                    {
                         "discuss.channel": [
                             {
-                                "id": channel.id,
+                                "id": self.channel_group_a.id,
                                 "invited_member_ids": [
                                     (
                                         "ADD",
-                                        [channel_member_test_user.id, channel_member_test_guest.id],
-                                    )
+                                        (
+                                            self.member_of_test_user_in_group_a
+                                            + self.member_of_guest_in_group_a
+                                        ).ids,
+                                    ),
                                 ],
                             },
                         ],
                         "discuss.channel.member": [
-                            {
-                                "id": channel_member_test_user.id,
-                                "partner_id": channel_member_test_user.partner_id.id,
-                                "channel_id": {
-                                    "id": channel_member_test_user.channel_id.id,
-                                    "model": "discuss.channel",
-                                },
-                            },
-                            {
-                                "id": channel_member_test_guest.id,
-                                "guest_id": channel_member_test_guest.guest_id.id,
-                                "channel_id": {
-                                    "id": channel_member_test_guest.channel_id.id,
-                                    "model": "discuss.channel",
-                                },
-                            },
+                            self._res_for_member(self.member_of_test_user_in_group_a),
+                            self._res_for_member(self.member_of_guest_in_group_a),
                         ],
                         "mail.guest": [
-                            {
-                                "avatar_128_access_token": channel_member_test_guest.guest_id._get_avatar_128_access_token(),
-                                "id": channel_member_test_guest.guest_id.id,
-                                "im_status": channel_member_test_guest.guest_id.im_status,
-                                "im_status_access_token": channel_member_test_guest.guest_id._get_im_status_access_token(),
-                                "name": channel_member_test_guest.guest_id.name,
-                                "write_date": fields.Datetime.to_string(
-                                    channel_member_test_guest.guest_id.write_date
-                                ),
-                            },
+                            self._res_for_guest(self.guest),
                         ],
                         "res.partner": self._filter_partners_fields(
-                            {
-                                "avatar_128_access_token": channel_member_test_user.partner_id._get_avatar_128_access_token(),
-                                "id": channel_member_test_user.partner_id.id,
-                                "im_status": channel_member_test_user.partner_id.im_status,
-                                "im_status_access_token": channel_member_test_user.partner_id._get_im_status_access_token(),
-                                "mention_token": channel_member_test_user.partner_id._get_mention_token(),
-                                "name": channel_member_test_user.partner_id.name,
-                                "write_date": fields.Datetime.to_string(
-                                    channel_member_test_user.partner_id.write_date
-                                ),
-                            },
+                            self._res_for_partner(self.test_partner),
                         ),
                     },
-                },
-            ],
-        ):
+                ),
+                BusResult(
+                    (self.channel_group_a, "internal_users"),
+                    "mail.record/insert",
+                    {
+                        "mail.guest": [
+                            self._res_for_guest(self.guest, common=False, internal=True),
+                        ],
+                        "res.partner": self._filter_partners_fields(
+                            self._res_for_partner(self.test_partner, common=False, internal=True),
+                        ),
+                        "res.users": self._filter_users_fields(
+                            self._res_for_user(self.test_user, internal=True),
+                        ),
+                    },
+                ),
+            ]
+
+        with self.assertBus(notifications):
             now = fields.Datetime.now()
-            with patch.object(fields.Datetime, 'now', lambda: now + relativedelta(seconds=5)):
-                channel_member._rtc_join_call()
+            with patch.object(fields.Datetime, "now", lambda: now + relativedelta(seconds=5)):
+                self.member_of_employee_in_group_a.sudo()._rtc_join_call()
 
-    @users('employee')
-    @mute_logger('odoo.models.unlink')
+    @users("employee")
+    @mute_logger("odoo.models.unlink")
+    @freeze_time("2023-03-15 12:34:56")
     def test_20_join_call_should_cancel_pending_invitations(self):
-        test_user = self.env['res.users'].sudo().create({'name': "Test User", 'login': 'test'})
-        test_guest = self.env['mail.guest'].sudo().create({'name': "Test Guest"})
-        self.env["mail.presence"]._update_presence(test_guest)
-        channel = self.env['discuss.channel']._create_group(partners_to=(self.user_employee.partner_id + test_user.partner_id).ids)
-        channel._add_members(guests=test_guest)
-        channel_member = channel.sudo().channel_member_ids.filtered(lambda channel_member: channel_member.partner_id == self.user_employee.partner_id)
-        channel_member._rtc_join_call()
+        self.member_of_employee_in_group_a.sudo()._rtc_join_call()
 
-        channel_member_test_user = channel.sudo().channel_member_ids.filtered(lambda channel_member: channel_member.partner_id == test_user.partner_id)
-        with self.assertBus(
-            [
-                # update invitation
-                (self.cr.dbname, "res.partner", test_user.partner_id.id),
-                # update list of invitations
-                (self.cr.dbname, "discuss.channel", channel.id),
-                # update sessions
-                (self.cr.dbname, "discuss.channel", channel.id),
-            ],
-            [
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
+        def notifications():
+            rtc_session = self.member_of_test_user_in_group_a.sudo().rtc_session_ids
+            return [
+                BusResult(
+                    self.test_user,
+                    "mail.record/insert",
+                    {
                         "discuss.channel.member": [
-                            {
-                                "channel_id": {"id": channel.id, "model": "discuss.channel"},
-                                "id": channel_member_test_user.id,
-                                "partner_id": channel_member_test_user.partner_id.id,
-                                "rtc_inviting_session_id": False,
-                            },
+                            self._res_for_member(
+                                self.member_of_test_user_in_group_a,
+                                rtc_inviting_session_id=False,
+                            ),
                         ],
                     },
-                },
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
+                ),
+                BusResult(
+                    self.channel_group_a,
+                    "mail.record/insert",
+                    {
                         "discuss.channel": [
                             {
-                                "id": channel.id,
-                                "invited_member_ids": [("DELETE", [channel_member_test_user.id])],
-                            },
-                        ],
-                        "discuss.channel.member": [
-                            {
-                                "id": channel_member_test_user.id,
-                                "partner_id": channel_member_test_user.partner_id.id,
-                                "channel_id": {
-                                    "id": channel_member_test_user.channel_id.id,
-                                    "model": "discuss.channel",
-                                },
-                            },
-                        ],
-                        "res.partner": self._filter_partners_fields(
-                            {
-                                "avatar_128_access_token": channel_member_test_user.partner_id._get_avatar_128_access_token(),
-                                "id": channel_member_test_user.partner_id.id,
-                                "im_status": channel_member_test_user.partner_id.im_status,
-                                "im_status_access_token": channel_member_test_user.partner_id._get_im_status_access_token(),
-                                "mention_token": channel_member_test_user.partner_id._get_mention_token(),
-                                "name": channel_member_test_user.partner_id.name,
-                                "write_date": fields.Datetime.to_string(
-                                    channel_member_test_user.partner_id.write_date
-                                ),
-                            },
-                        ),
-                    },
-                },
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
-                        "discuss.channel": [
-                            {
-                                "id": channel.id,
-                                "rtc_session_ids": [("ADD", [channel_member.rtc_session_ids.id + 1])],
-                            },
-                        ],
-                        "discuss.channel.member": [
-                            {
-                                "id": channel_member_test_user.id,
-                                "partner_id": channel_member_test_user.partner_id.id,
-                                "channel_id": {
-                                    "id": channel_member_test_user.channel_id.id,
-                                    "model": "discuss.channel",
-                                },
-                            },
-                        ],
-                        "discuss.channel.rtc.session": [
-                            {
-                                "channel_member_id": channel_member_test_user.id,
-                                "id": channel_member.rtc_session_ids.id + 1,
-                            },
-                        ],
-                        "res.partner": self._filter_partners_fields(
-                            {
-                                "avatar_128_access_token": channel_member_test_user.partner_id._get_avatar_128_access_token(),
-                                "id": channel_member_test_user.partner_id.id,
-                                "im_status": channel_member_test_user.partner_id.im_status,
-                                "im_status_access_token": channel_member_test_user.partner_id._get_im_status_access_token(),
-                                "mention_token": channel_member_test_user.partner_id._get_mention_token(),
-                                "name": channel_member_test_user.partner_id.name,
-                                "write_date": fields.Datetime.to_string(
-                                    channel_member_test_user.partner_id.write_date
-                                ),
-                            },
-                        ),
-                    },
-                },
-            ],
-        ):
-            channel_member_test_user._rtc_join_call()
-
-        channel_member_test_guest = channel.sudo().channel_member_ids.filtered(lambda channel_member: channel_member.guest_id == test_guest)
-        with self.assertBus(
-            [
-                # update invitation
-                (self.cr.dbname, "mail.guest", test_guest.id),
-                # update list of invitations
-                (self.cr.dbname, "discuss.channel", channel.id),
-                # update sessions
-                (self.cr.dbname, "discuss.channel", channel.id),
-            ],
-            [
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
-                        "discuss.channel.member": [
-                            {
-                                "channel_id": {"id": channel.id, "model": "discuss.channel"},
-                                "guest_id": channel_member_test_guest.guest_id.id,
-                                "id": channel_member_test_guest.id,
-                                "rtc_inviting_session_id": False,
-                            },
-                        ],
-                    },
-                },
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
-                        "discuss.channel": [
-                            {
-                                "id": channel.id,
-                                "invited_member_ids": [("DELETE", [channel_member_test_guest.id])],
-                            },
-                        ],
-                        "discuss.channel.member": [
-                            {
-                                "id": channel_member_test_guest.id,
-                                "guest_id": channel_member_test_guest.guest_id.id,
-                                "channel_id": {
-                                    "id": channel_member_test_guest.channel_id.id,
-                                    "model": "discuss.channel",
-                                },
-                            },
-                        ],
-                        "mail.guest": [
-                            {
-                                "avatar_128_access_token": channel_member_test_guest.guest_id._get_avatar_128_access_token(),
-                                "id": channel_member_test_guest.guest_id.id,
-                                "im_status": channel_member_test_guest.guest_id.im_status,
-                                "im_status_access_token": channel_member_test_guest.guest_id._get_im_status_access_token(),
-                                "name": channel_member_test_guest.guest_id.name,
-                                "write_date": fields.Datetime.to_string(
-                                    channel_member_test_guest.guest_id.write_date
-                                ),
-                            },
-                        ],
-                    },
-                },
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
-                        "discuss.channel": [
-                            {
-                                "id": channel.id,
-                                "rtc_session_ids": [
-                                    ("ADD", [channel_member.rtc_session_ids.id + 2])
+                                "id": self.channel_group_a.id,
+                                "invited_member_ids": [
+                                    ("DELETE", self.member_of_test_user_in_group_a.ids),
                                 ],
                             },
                         ],
                         "discuss.channel.member": [
-                            {
-                                "id": channel_member_test_guest.id,
-                                "guest_id": channel_member_test_guest.guest_id.id,
-                                "channel_id": {
-                                    "id": channel_member_test_guest.channel_id.id,
-                                    "model": "discuss.channel",
-                                },
-                            },
-                        ],
-                        "discuss.channel.rtc.session": [
-                            {
-                                "channel_member_id": channel_member_test_guest.id,
-                                "id": channel_member.rtc_session_ids.id + 2,
-                            },
-                        ],
-                        "mail.guest": [
-                            {
-                                "avatar_128_access_token": channel_member_test_guest.guest_id._get_avatar_128_access_token(),
-                                "id": channel_member_test_guest.guest_id.id,
-                                "im_status": channel_member_test_guest.guest_id.im_status,
-                                "im_status_access_token": channel_member_test_guest.guest_id._get_im_status_access_token(),
-                                "name": channel_member_test_guest.guest_id.name,
-                                "write_date": fields.Datetime.to_string(
-                                    channel_member_test_guest.guest_id.write_date
-                                ),
-                            },
-                        ],
-                    },
-                },
-            ],
-        ):
-            channel_member_test_guest._rtc_join_call()
-
-    @users('employee')
-    @mute_logger('odoo.models.unlink')
-    def test_21_leave_call_should_cancel_pending_invitations(self):
-        test_user = self.env['res.users'].sudo().create({'name': "Test User", 'login': 'test'})
-        test_guest = self.env['mail.guest'].sudo().create({'name': "Test Guest"})
-        self.env["mail.presence"]._update_presence(test_guest)
-        channel = self.env['discuss.channel']._create_group(partners_to=(self.user_employee.partner_id + test_user.partner_id).ids)
-        channel._add_members(guests=test_guest)
-        channel_member = channel.sudo().channel_member_ids.filtered(lambda channel_member: channel_member.partner_id == self.user_employee.partner_id)
-        channel_member._rtc_join_call()
-
-        channel_member_test_user = channel.sudo().channel_member_ids.filtered(lambda channel_member: channel_member.partner_id == test_user.partner_id)
-        with self.assertBus(
-            [
-                # update invitation
-                (self.cr.dbname, "res.partner", test_user.partner_id.id),
-                # update list of invitations
-                (self.cr.dbname, "discuss.channel", channel.id),
-            ],
-            [
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
-                        "discuss.channel.member": [
-                            {
-                                "channel_id": {"id": channel.id, "model": "discuss.channel"},
-                                "id": channel_member_test_user.id,
-                                "partner_id": channel_member_test_user.partner_id.id,
-                                "rtc_inviting_session_id": False,
-                            },
-                        ],
-                    },
-                },
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
-                        "discuss.channel": [
-                            {
-                                "id": channel.id,
-                                "invited_member_ids": [("DELETE", [channel_member_test_user.id])],
-                            },
-                        ],
-                        "discuss.channel.member": [
-                            {
-                                "id": channel_member_test_user.id,
-                                "partner_id": channel_member_test_user.partner_id.id,
-                                "channel_id": {
-                                    "id": channel_member_test_user.channel_id.id,
-                                    "model": "discuss.channel",
-                                },
-                            },
+                            self._res_for_member(self.member_of_test_user_in_group_a),
                         ],
                         "res.partner": self._filter_partners_fields(
-                            {
-                                "avatar_128_access_token": channel_member_test_user.partner_id._get_avatar_128_access_token(),
-                                "id": channel_member_test_user.partner_id.id,
-                                "im_status": channel_member_test_user.partner_id.im_status,
-                                "im_status_access_token": channel_member_test_user.partner_id._get_im_status_access_token(),
-                                "mention_token": channel_member_test_user.partner_id._get_mention_token(),
-                                "name": channel_member_test_user.partner_id.name,
-                                "write_date": fields.Datetime.to_string(
-                                    channel_member_test_user.partner_id.write_date
-                                ),
-                            },
+                            self._res_for_partner(self.test_partner),
                         ),
                     },
-                },
-            ],
-        ):
-            channel_member_test_user._rtc_leave_call()
-
-        channel_member_test_guest = channel.sudo().channel_member_ids.filtered(lambda channel_member: channel_member.guest_id == test_guest)
-        with self.assertBus(
-            [
-                # update invitation
-                (self.cr.dbname, "mail.guest", test_guest.id),
-                # update list of invitations
-                (self.cr.dbname, "discuss.channel", channel.id),
-            ],
-            [
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
-                        "discuss.channel.member": [
-                            {
-                                "channel_id": {"id": channel.id, "model": "discuss.channel"},
-                                "guest_id": channel_member_test_guest.guest_id.id,
-                                "id": channel_member_test_guest.id,
-                                "rtc_inviting_session_id": False,
-                            },
-                        ],
+                ),
+                BusResult(
+                    (self.channel_group_a, "internal_users"),
+                    "mail.record/insert",
+                    {
+                        "res.partner": self._filter_partners_fields(
+                            self._res_for_partner(self.test_partner, common=False, internal=True),
+                        ),
+                        "res.users": self._filter_users_fields(
+                            self._res_for_user(self.test_user, internal=True),
+                        ),
                     },
-                },
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
+                ),
+                BusResult(
+                    self.channel_group_a,
+                    "mail.record/insert",
+                    {
                         "discuss.channel": [
                             {
-                                "id": channel.id,
-                                "invited_member_ids": [("DELETE", [channel_member_test_guest.id])],
+                                "id": self.channel_group_a.id,
+                                "rtc_session_ids": [("ADD", rtc_session.ids)],
                             },
                         ],
                         "discuss.channel.member": [
+                            self._res_for_member(self.member_of_test_user_in_group_a),
+                        ],
+                        "discuss.channel.rtc.session": [
+                            self._res_for_rtc_session(rtc_session),
+                        ],
+                        "res.partner": self._filter_partners_fields(
+                            self._res_for_partner(self.test_partner),
+                        ),
+                    },
+                ),
+                BusResult(
+                    (self.channel_group_a, "internal_users"),
+                    "mail.record/insert",
+                    {
+                        "res.partner": self._filter_partners_fields(
+                            self._res_for_partner(self.test_partner, common=False, internal=True),
+                        ),
+                        "res.users": self._filter_users_fields(
+                            self._res_for_user(self.test_user, internal=True),
+                        ),
+                    },
+                ),
+            ]
+
+        with self.assertBus(notifications):
+            self.member_of_test_user_in_group_a.sudo()._rtc_join_call()
+
+        def notifications_2():
+            rtc_session = self.member_of_guest_in_group_a.sudo().rtc_session_ids
+            return [
+                BusResult(
+                    self.guest,
+                    "mail.record/insert",
+                    {
+                        "discuss.channel.member": [
+                            self._res_for_member(
+                                self.member_of_guest_in_group_a,
+                                rtc_inviting_session_id=False,
+                            ),
+                        ],
+                    },
+                ),
+                BusResult(
+                    self.channel_group_a,
+                    "mail.record/insert",
+                    {
+                        "discuss.channel": [
                             {
-                                "id": channel_member_test_guest.id,
-                                "guest_id": channel_member_test_guest.guest_id.id,
-                                "channel_id": {
-                                    "id": channel_member_test_guest.channel_id.id,
-                                    "model": "discuss.channel",
-                                },
+                                "id": self.channel_group_a.id,
+                                "invited_member_ids": [
+                                    ("DELETE", self.member_of_guest_in_group_a.ids),
+                                ],
                             },
+                        ],
+                        "discuss.channel.member": [
+                            self._res_for_member(self.member_of_guest_in_group_a),
                         ],
                         "mail.guest": [
-                            {
-                                "avatar_128_access_token": channel_member_test_guest.guest_id._get_avatar_128_access_token(),
-                                "id": channel_member_test_guest.guest_id.id,
-                                "im_status": channel_member_test_guest.guest_id.im_status,
-                                "im_status_access_token": channel_member_test_guest.guest_id._get_im_status_access_token(),
-                                "name": channel_member_test_guest.guest_id.name,
-                                "write_date": fields.Datetime.to_string(
-                                    channel_member_test_guest.guest_id.write_date
-                                ),
-                            },
+                            self._res_for_guest(self.guest),
                         ],
                     },
-                },
+                ),
+                BusResult(
+                    (self.channel_group_a, "internal_users"),
+                    "mail.record/insert",
+                    {
+                        "mail.guest": [
+                            self._res_for_guest(self.guest, common=False, internal=True),
+                        ],
+                    },
+                ),
+                BusResult(
+                    self.channel_group_a,
+                    "mail.record/insert",
+                    {
+                        "discuss.channel": [
+                            {
+                                "id": self.channel_group_a.id,
+                                "rtc_session_ids": [("ADD", rtc_session.ids)],
+                            },
+                        ],
+                        "discuss.channel.member": [
+                            self._res_for_member(self.member_of_guest_in_group_a),
+                        ],
+                        "discuss.channel.rtc.session": [
+                            self._res_for_rtc_session(rtc_session),
+                        ],
+                        "mail.guest": [
+                            self._res_for_guest(self.guest),
+                        ],
+                    },
+                ),
+                BusResult(
+                    (self.channel_group_a, "internal_users"),
+                    "mail.record/insert",
+                    {
+                        "mail.guest": [
+                            self._res_for_guest(self.guest, common=False, internal=True),
+                        ],
+                    },
+                ),
+            ]
+
+        with self.assertBus(notifications_2):
+            self.member_of_guest_in_group_a.sudo()._rtc_join_call()
+
+    @users("employee")
+    @mute_logger("odoo.models.unlink")
+    @freeze_time("2023-03-15 12:34:56")
+    def test_21_leave_call_should_cancel_pending_invitations(self):
+        self.channel_group_a._add_members(guests=self.guest)
+        self.member_of_employee_in_group_a.sudo()._rtc_join_call()
+        with self.assertBus(
+            [
+                BusResult(
+                    self.test_user,
+                    "mail.record/insert",
+                    {
+                        "discuss.channel.member": [
+                            self._res_for_member(
+                                self.member_of_test_user_in_group_a,
+                                rtc_inviting_session_id=False,
+                            ),
+                        ],
+                    },
+                ),
+                BusResult(
+                    self.channel_group_a,
+                    "mail.record/insert",
+                    {
+                        "discuss.channel": [
+                            {
+                                "id": self.channel_group_a.id,
+                                "invited_member_ids": [
+                                    ("DELETE", self.member_of_test_user_in_group_a.ids),
+                                ],
+                            },
+                        ],
+                        "discuss.channel.member": [
+                            self._res_for_member(self.member_of_test_user_in_group_a),
+                        ],
+                        "res.partner": self._filter_partners_fields(
+                            self._res_for_partner(self.test_partner),
+                        ),
+                    },
+                ),
+                BusResult(
+                    (self.channel_group_a, "internal_users"),
+                    "mail.record/insert",
+                    {
+                        "res.partner": self._filter_partners_fields(
+                            self._res_for_partner(self.test_partner, common=False, internal=True),
+                        ),
+                        "res.users": self._filter_users_fields(
+                            self._res_for_user(self.test_user, internal=True),
+                        ),
+                    },
+                ),
             ],
         ):
-            channel_member_test_guest._rtc_leave_call()
-
-    @users('employee')
-    @mute_logger('odoo.models.unlink')
-    def test_25_lone_call_participant_leaving_call_should_cancel_pending_invitations(self):
-        test_user = self.env['res.users'].sudo().create({'name': "Test User", 'login': 'test'})
-        test_guest = self.env['mail.guest'].sudo().create({'name': "Test Guest"})
-        self.env["mail.presence"]._update_presence(test_guest)
-        channel = self.env['discuss.channel']._create_group(partners_to=(self.user_employee.partner_id + test_user.partner_id).ids)
-        channel._add_members(guests=test_guest)
-        channel_member = channel.sudo().channel_member_ids.filtered(lambda channel_member: channel_member.partner_id == self.user_employee.partner_id)
-        channel_member_test_user = channel.sudo().channel_member_ids.filtered(lambda channel_member: channel_member.partner_id == test_user.partner_id)
-        channel_member_test_guest = channel.sudo().channel_member_ids.filtered(lambda channel_member: channel_member.guest_id == test_guest)
-        channel_member._rtc_join_call()
+            self.member_of_test_user_in_group_a.sudo()._rtc_leave_call()
 
         with self.assertBus(
             [
-                # update invitation
-                (self.cr.dbname, "res.partner", test_user.partner_id.id),
-                # update invitation
-                (self.cr.dbname, "mail.guest", test_guest.id),
-                # update list of invitations
-                (self.cr.dbname, "discuss.channel", channel.id),
-                # update sessions
-                (self.cr.dbname, "discuss.channel", channel.id),
-                # end session
-                (self.cr.dbname, "res.partner", self.user_employee.partner_id.id),
-                # update call history (not asserted below)
-                (self.cr.dbname, "discuss.channel", channel.id),
-            ],
-            [
-                {
-                    "type": "discuss.channel.rtc.session/ended",
-                    "payload": {"sessionId": channel_member.rtc_session_ids.id},
-                },
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
+                BusResult(
+                    self.guest,
+                    "mail.record/insert",
+                    {
                         "discuss.channel.member": [
-                            {
-                                "channel_id": {"id": channel.id, "model": "discuss.channel"},
-                                "id": channel_member_test_user.id,
-                                "partner_id": channel_member_test_user.partner_id.id,
-                                "rtc_inviting_session_id": False,
-                            },
+                            self._res_for_member(
+                                self.member_of_guest_in_group_a,
+                                rtc_inviting_session_id=False,
+                            ),
                         ],
                     },
-                },
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
-                        "discuss.channel.member": [
-                            {
-                                "channel_id": {"id": channel.id, "model": "discuss.channel"},
-                                "guest_id": channel_member_test_guest.guest_id.id,
-                                "id": channel_member_test_guest.id,
-                                "rtc_inviting_session_id": False,
-                            },
-                        ],
-                    },
-                },
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
+                ),
+                BusResult(
+                    self.channel_group_a,
+                    "mail.record/insert",
+                    {
                         "discuss.channel": [
                             {
-                                "id": channel.id,
+                                "id": self.channel_group_a.id,
+                                "invited_member_ids": [
+                                    ("DELETE", self.member_of_guest_in_group_a.ids),
+                                ],
+                            },
+                        ],
+                        "discuss.channel.member": [
+                            self._res_for_member(self.member_of_guest_in_group_a),
+                        ],
+                        "mail.guest": [
+                            self._res_for_guest(self.guest),
+                        ],
+                    },
+                ),
+                BusResult(
+                    (self.channel_group_a, "internal_users"),
+                    "mail.record/insert",
+                    {
+                        "mail.guest": [
+                            self._res_for_guest(self.guest, common=False, internal=True),
+                        ],
+                    },
+                ),
+            ],
+        ):
+            self.member_of_guest_in_group_a.sudo()._rtc_leave_call()
+
+    @users("employee")
+    @mute_logger("odoo.models.unlink")
+    @freeze_time("2023-03-15 12:34:56")
+    def test_25_lone_call_participant_leaving_call_should_cancel_pending_invitations(self):
+        self.channel_group_a._add_members(guests=self.guest)
+        self.member_of_employee_in_group_a.sudo()._rtc_join_call()
+        last_rtc_session = self.member_of_employee_in_group_a.sudo().rtc_session_ids
+        with self.assertBus(
+            [
+                BusResult(
+                    self.test_user,
+                    "mail.record/insert",
+                    {
+                        "discuss.channel.member": [
+                            self._res_for_member(
+                                self.member_of_test_user_in_group_a,
+                                rtc_inviting_session_id=False,
+                            ),
+                        ],
+                    },
+                ),
+                BusResult(
+                    self.guest,
+                    "mail.record/insert",
+                    {
+                        "discuss.channel.member": [
+                            self._res_for_member(
+                                self.member_of_guest_in_group_a,
+                                rtc_inviting_session_id=False,
+                            ),
+                        ],
+                    },
+                ),
+                BusResult(
+                    self.channel_group_a,
+                    "mail.record/insert",
+                    {
+                        "discuss.channel": [
+                            {
+                                "id": self.channel_group_a.id,
                                 "invited_member_ids": [
                                     (
                                         "DELETE",
-                                        [channel_member_test_user.id, channel_member_test_guest.id],
-                                    )
+                                        (
+                                            self.member_of_test_user_in_group_a
+                                            + self.member_of_guest_in_group_a
+                                        ).ids,
+                                    ),
                                 ],
                             },
                         ],
                         "discuss.channel.member": [
-                            {
-                                "id": channel_member_test_user.id,
-                                "partner_id": channel_member_test_user.partner_id.id,
-                                "channel_id": {
-                                    "id": channel_member_test_user.channel_id.id,
-                                    "model": "discuss.channel",
-                                },
-                            },
-                            {
-                                "id": channel_member_test_guest.id,
-                                "guest_id": channel_member_test_guest.guest_id.id,
-                                "channel_id": {
-                                    "id": channel_member_test_guest.channel_id.id,
-                                    "model": "discuss.channel",
-                                },
-                            },
+                            self._res_for_member(self.member_of_test_user_in_group_a),
+                            self._res_for_member(self.member_of_guest_in_group_a),
                         ],
                         "mail.guest": [
-                            {
-                                "avatar_128_access_token": channel_member_test_guest.guest_id._get_avatar_128_access_token(),
-                                "id": channel_member_test_guest.guest_id.id,
-                                "im_status": channel_member_test_guest.guest_id.im_status,
-                                "im_status_access_token": channel_member_test_guest.guest_id._get_im_status_access_token(),
-                                "name": channel_member_test_guest.guest_id.name,
-                                "write_date": fields.Datetime.to_string(
-                                    channel_member_test_guest.guest_id.write_date
-                                ),
-                            },
+                            self._res_for_guest(self.guest),
                         ],
                         "res.partner": self._filter_partners_fields(
-                            {
-                                "avatar_128_access_token": channel_member_test_user.partner_id._get_avatar_128_access_token(),
-                                "id": channel_member_test_user.partner_id.id,
-                                "im_status": channel_member_test_user.partner_id.im_status,
-                                "im_status_access_token": channel_member_test_user.partner_id._get_im_status_access_token(),
-                                "mention_token": channel_member_test_user.partner_id._get_mention_token(),
-                                "name": channel_member_test_user.partner_id.name,
-                                "write_date": fields.Datetime.to_string(
-                                    channel_member_test_user.partner_id.write_date
-                                ),
-                            },
+                            self._res_for_partner(self.test_partner),
                         ),
                     },
-                },
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
+                ),
+                BusResult(
+                    (self.channel_group_a, "internal_users"),
+                    "mail.record/insert",
+                    {
+                        "mail.guest": [
+                            self._res_for_guest(self.guest, common=False, internal=True),
+                        ],
+                        "res.partner": self._filter_partners_fields(
+                            self._res_for_partner(self.test_partner, common=False, internal=True),
+                        ),
+                        "res.users": self._filter_users_fields(
+                            self._res_for_user(self.test_user, internal=True),
+                        ),
+                    },
+                ),
+                BusResult(
+                    self.user_employee,
+                    "discuss.channel.rtc.session/ended",
+                    {"sessionId": last_rtc_session.id},
+                ),
+                BusResult(
+                    self.channel_group_a,
+                    "mail.record/insert",
+                    {
+                        "discuss.call.history": [
+                            {
+                                "duration_hour": 0.0,
+                                "end_dt": "2023-03-15 12:34:56",
+                                "id": self.channel_group_a.call_history_ids.id,
+                            },
+                        ],
                         "discuss.channel": [
                             {
-                                "id": channel.id,
-                                "rtc_session_ids": [("DELETE", [channel_member.rtc_session_ids.id])],
+                                "id": self.channel_group_a.id,
+                                "rtc_session_ids": [("DELETE", last_rtc_session.ids)],
                             },
                         ],
                     },
-                },
+                ),
             ],
         ):
-            channel_member._rtc_leave_call()
+            self.member_of_employee_in_group_a.sudo()._rtc_leave_call()
 
-    @users('employee')
-    @mute_logger('odoo.models.unlink')
+    @users("employee")
+    @mute_logger("odoo.models.unlink")
+    @freeze_time("2023-03-15 12:34:56")
     def test_30_add_members_while_in_call_should_invite_new_members_to_call(self):
-        test_user = self.env['res.users'].sudo().create({'name': "Test User", 'login': 'test'})
-        test_guest = self.env['mail.guest'].sudo().create({'name': "Test Guest"})
-        self.env["mail.presence"]._update_presence(test_guest)
-        channel = self.env['discuss.channel']._create_group(partners_to=self.user_employee.partner_id.ids)
-        channel_member = channel.sudo().channel_member_ids.filtered(lambda member: member.partner_id == self.user_employee.partner_id)
         now = fields.Datetime.now()
-        with patch.object(fields.Datetime, 'now', lambda: now + relativedelta(seconds=5)):
-            channel_member._rtc_join_call()
-        self._reset_bus()
+        with patch.object(fields.Datetime, "now", lambda: now + relativedelta(seconds=5)):
+            self.member_of_employee_in_group_b.sudo()._rtc_join_call()
 
-        with self.mock_bus():
-            with patch.object(fields.Datetime, 'now', lambda: now + relativedelta(seconds=10)):
-                channel._add_members(users=test_user, guests=test_guest, invite_to_rtc_call=True)
-
-        channel_member_test_user = channel.sudo().channel_member_ids.filtered(lambda member: member.partner_id == test_user.partner_id)
-        channel_member_test_guest = channel.sudo().channel_member_ids.filtered(lambda member: member.guest_id == test_guest)
-        found_bus_notifs = self.assertBusNotifications(
-            [
-                # mail.record/insert - discuss.channel (channel_name_member_ids)
-                (self.cr.dbname, "discuss.channel", channel.id),
-                # discuss.channel/joined
-                (self.cr.dbname, "res.partner", test_user.partner_id.id),
-                # mail.record/insert - discuss.channel.member (message_unread_counter, new_message_separator, …)
-                (self.cr.dbname, "res.partner", self.user_employee.partner_id.id),
-                # discuss.channel/new_message
-                (self.cr.dbname, "discuss.channel", channel.id),
-                # discuss.channel/joined
-                (self.cr.dbname, "mail.guest", test_guest.id),
-                # mail.record/insert - discuss.channel.member (message_unread_counter, new_message_separator, …)
-                (self.cr.dbname, "res.partner", self.user_employee.partner_id.id),
-                # discuss.channel/new_message
-                (self.cr.dbname, "discuss.channel", channel.id),
-                # mail.record/insert - discuss.channel (member_count), discuss.channel.member
-                (self.cr.dbname, "discuss.channel", channel.id),
-                # mail.record/insert - discuss.channel.member (rtc_inviting_session_id)
-                (self.cr.dbname, "res.partner", test_user.partner_id.id),
-                # mail.record/insert - discuss.channel.member (rtc_inviting_session_id)
-                (self.cr.dbname, "mail.guest", test_guest.id),
-                # mail.record/insert - discuss.channel (invited_member_ids), discuss.channel.member
-                (self.cr.dbname, "discuss.channel", channel.id),
-            ],
-            message_items=[
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
+        def notifications():
+            member_of_test_user = self.channel_group_b.channel_member_ids.filtered(
+                lambda member: member.partner_id == self.test_partner,
+            )
+            member_of_guest = self.channel_group_b.channel_member_ids.filtered(
+                lambda member: member.guest_id == self.guest,
+            )
+            rtc_session_of_employee = self.member_of_employee_in_group_b.sudo().rtc_session_ids
+            return [
+                # discuss.channel (channel_name_member_ids)
+                BusResult(self.channel_group_b, "mail.record/insert"),
+                BusResult((self.channel_group_b, "internal_users"), "mail.record/insert"),
+                BusResult(self.test_user, "discuss.channel/joined"),
+                # discuss.channel.member (message_unread_counter, new_message_separator, …)
+                BusResult(self.user_employee, "mail.record/insert"),
+                BusResult(self.channel_group_b, "discuss.channel/new_message"),
+                BusResult(self.guest, "discuss.channel/joined"),
+                # discuss.channel.member (message_unread_counter, new_message_separator, …)
+                BusResult(self.user_employee, "mail.record/insert"),
+                BusResult(self.channel_group_b, "discuss.channel/new_message"),
+                # discuss.channel (member_count), discuss.channel.member
+                BusResult(self.channel_group_b, "mail.record/insert"),
+                BusResult((self.channel_group_b, "internal_users"), "mail.record/insert"),
+                BusResult(
+                    self.test_user,
+                    "mail.record/insert",
+                    {
                         "discuss.channel.member": [
-                            {
-                                "channel_id": {
-                                    "id": channel_member_test_user.channel_id.id,
-                                    "model": "discuss.channel",
-                                },
-                                "id": channel_member_test_user.id,
-                                "partner_id": channel_member_test_user.partner_id.id,
-                                "rtc_inviting_session_id": channel_member_test_user.rtc_inviting_session_id.id,
-                            },
-                            {
-                                "id": channel_member.id,
-                                "partner_id": channel_member.partner_id.id,
-                                "channel_id": {
-                                    "id": channel_member.channel_id.id,
-                                    "model": "discuss.channel",
-                                },
-                            },
+                            self._res_for_member(
+                                member_of_test_user,
+                                rtc_inviting_session_id=member_of_test_user.rtc_inviting_session_id.id,
+                            ),
+                            self._res_for_member(self.member_of_employee_in_group_b),
                         ],
                         "discuss.channel.rtc.session": [
-                            {
-                                "channel_member_id": channel_member.id,
-                                "id": channel_member.rtc_session_ids.id,
-                                "is_camera_on": channel_member.rtc_session_ids.is_camera_on,
-                                "is_deaf": channel_member.rtc_session_ids.is_deaf,
-                                "is_muted": channel_member.rtc_session_ids.is_muted,
-                                "is_screen_sharing_on": channel_member.rtc_session_ids.is_screen_sharing_on,
-                            },
+                            self._res_for_rtc_session(rtc_session_of_employee, extra=True),
                         ],
                         "res.partner": self._filter_partners_fields(
-                            {
-                                "avatar_128_access_token": channel_member.partner_id._get_avatar_128_access_token(),
-                                "id": channel_member.partner_id.id,
-                                "im_status": channel_member.partner_id.im_status,
-                                "im_status_access_token": channel_member.partner_id._get_im_status_access_token(),
-                                "mention_token": channel_member.partner_id._get_mention_token(),
-                                "name": channel_member.partner_id.name,
-                                "write_date": fields.Datetime.to_string(
-                                    channel_member.partner_id.write_date
-                                ),
-                            },
+                            self._res_for_partner(self.partner_employee, internal=True),
+                        ),
+                        "res.users": self._filter_users_fields(
+                            self._res_for_user(self.user_employee, internal=True),
                         ),
                     },
-                },
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
+                ),
+                BusResult(
+                    self.guest,
+                    "mail.record/insert",
+                    {
                         "discuss.channel.member": [
-                            {
-                                "channel_id": {
-                                    "id": channel_member_test_guest.channel_id.id,
-                                    "model": "discuss.channel",
-                                },
-                                "guest_id": channel_member_test_guest.guest_id.id,
-                                "id": channel_member_test_guest.id,
-                                "rtc_inviting_session_id": channel_member_test_guest.rtc_inviting_session_id.id,
-                            },
-                            {
-                                "id": channel_member.id,
-                                "partner_id": channel_member.partner_id.id,
-                                "channel_id": {
-                                    "id": channel_member.channel_id.id,
-                                    "model": "discuss.channel",
-                                },
-                            },
+                            self._res_for_member(
+                                member_of_guest,
+                                rtc_inviting_session_id=member_of_guest.rtc_inviting_session_id.id,
+                            ),
+                            self._res_for_member(self.member_of_employee_in_group_b),
                         ],
                         "discuss.channel.rtc.session": [
-                            {
-                                "channel_member_id": channel_member.id,
-                                "id": channel_member.rtc_session_ids.id,
-                                "is_camera_on": channel_member.rtc_session_ids.is_camera_on,
-                                "is_deaf": channel_member.rtc_session_ids.is_deaf,
-                                "is_muted": channel_member.rtc_session_ids.is_muted,
-                                "is_screen_sharing_on": channel_member.rtc_session_ids.is_screen_sharing_on,
-                            },
+                            self._res_for_rtc_session(rtc_session_of_employee, extra=True),
                         ],
                         "res.partner": self._filter_partners_fields(
-                            {
-                                "avatar_128_access_token": channel_member.partner_id._get_avatar_128_access_token(),
-                                "id": channel_member.partner_id.id,
-                                "im_status": channel_member.partner_id.im_status,
-                                "im_status_access_token": channel_member.partner_id._get_im_status_access_token(),
-                                "mention_token": channel_member.partner_id._get_mention_token(),
-                                "name": channel_member.partner_id.name,
-                                "write_date": fields.Datetime.to_string(
-                                    channel_member.partner_id.write_date
-                                ),
-                            },
+                            self._res_for_partner(self.partner_employee),
                         ),
                     },
-                },
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
+                ),
+                BusResult(
+                    self.channel_group_b,
+                    "mail.record/insert",
+                    {
                         "discuss.channel": [
                             {
-                                "id": channel.id,
+                                "id": self.channel_group_b.id,
                                 "invited_member_ids": [
                                     (
                                         "ADD",
-                                        [channel_member_test_user.id, channel_member_test_guest.id],
-                                    )
+                                        [member_of_test_user.id, member_of_guest.id],
+                                    ),
                                 ],
-                            }
+                            },
                         ],
                         "discuss.channel.member": [
-                            {
-                                "id": channel_member_test_user.id,
-                                "partner_id": channel_member_test_user.partner_id.id,
-                                "channel_id": {
-                                    "id": channel_member_test_user.channel_id.id,
-                                    "model": "discuss.channel",
-                                },
-                            },
-                            {
-                                "id": channel_member_test_guest.id,
-                                "guest_id": channel_member_test_guest.guest_id.id,
-                                "channel_id": {
-                                    "id": channel_member_test_guest.channel_id.id,
-                                    "model": "discuss.channel",
-                                },
-                            },
+                            self._res_for_member(member_of_test_user),
+                            self._res_for_member(member_of_guest),
                         ],
                         "mail.guest": [
-                            {
-                                "avatar_128_access_token": channel_member_test_guest.guest_id._get_avatar_128_access_token(),
-                                "id": channel_member_test_guest.guest_id.id,
-                                "im_status": channel_member_test_guest.guest_id.im_status,
-                                "im_status_access_token": channel_member_test_guest.guest_id._get_im_status_access_token(),
-                                "name": channel_member_test_guest.guest_id.name,
-                                "write_date": fields.Datetime.to_string(
-                                    channel_member_test_guest.guest_id.write_date
-                                ),
-                            },
+                            self._res_for_guest(self.guest),
                         ],
                         "res.partner": self._filter_partners_fields(
-                            {
-                                "avatar_128_access_token": channel_member_test_user.partner_id._get_avatar_128_access_token(),
-                                "id": channel_member_test_user.partner_id.id,
-                                "im_status": channel_member_test_user.partner_id.im_status,
-                                "im_status_access_token": channel_member_test_user.partner_id._get_im_status_access_token(),
-                                "mention_token": channel_member_test_user.partner_id._get_mention_token(),
-                                "name": channel_member_test_user.partner_id.name,
-                                "write_date": fields.Datetime.to_string(
-                                    channel_member_test_user.partner_id.write_date
-                                ),
-                            },
+                            self._res_for_partner(self.test_partner),
                         ),
                     },
-                },
-            ],
-        )
-        self.assertEqual(self._new_bus_notifs, found_bus_notifs)
+                ),
+                BusResult(
+                    (self.channel_group_b, "internal_users"),
+                    "mail.record/insert",
+                    {
+                        "mail.guest": [
+                            self._res_for_guest(self.guest, common=False, internal=True),
+                        ],
+                        "res.partner": self._filter_partners_fields(
+                            self._res_for_partner(self.test_partner, common=False, internal=True),
+                        ),
+                        "res.users": self._filter_users_fields(
+                            self._res_for_user(self.test_user, internal=True),
+                        ),
+                    },
+                ),
+            ]
 
-    @users('employee')
-    @mute_logger('odoo.models.unlink')
+        with self.assertBus(notifications):
+            with patch.object(fields.Datetime, "now", lambda: now + relativedelta(seconds=10)):
+                self.channel_group_b._add_members(
+                    users=self.test_user,
+                    guests=self.guest,
+                    invite_to_rtc_call=True,
+                )
+
+    @users("employee")
+    @mute_logger("odoo.models.unlink")
+    @freeze_time("2023-03-15 12:34:56")
     def test_40_leave_call_should_remove_existing_sessions_of_user_in_channel_and_return_data(self):
-        channel = self.env['discuss.channel']._create_group(partners_to=self.user_employee.partner_id.ids)
-        channel_member = channel.sudo().channel_member_ids.filtered(lambda channel_member: channel_member.partner_id == self.user_employee.partner_id)
-        channel_member._rtc_join_call()
+        self.member_of_employee_in_group_b.sudo()._rtc_join_call()
+        last_rtc_session = self.member_of_employee_in_group_b.sudo().rtc_session_ids
         with self.assertBus(
             [
-                # update list of sessions
-                (self.cr.dbname, "discuss.channel", channel.id),
-                # end session
-                (self.cr.dbname, "res.partner", self.user_employee.partner_id.id),
-                # update call history (not asserted below)
-                (self.cr.dbname, "discuss.channel", channel.id),
-            ],
-            [
-                {
-                    "type": "discuss.channel.rtc.session/ended",
-                    "payload": {"sessionId": channel_member.rtc_session_ids.id},
-                },
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
+                BusResult(
+                    self.user_employee,
+                    "discuss.channel.rtc.session/ended",
+                    {"sessionId": last_rtc_session.id},
+                ),
+                BusResult(
+                    self.channel_group_b,
+                    "mail.record/insert",
+                    {
+                        "discuss.call.history": [
+                            {
+                                "duration_hour": 1.0,
+                                "end_dt": "2023-03-15 13:34:56",
+                                "id": self.channel_group_b.call_history_ids.id,
+                            },
+                        ],
                         "discuss.channel": [
                             {
-                                "id": channel.id,
-                                "rtc_session_ids": [("DELETE", [channel_member.rtc_session_ids.id])],
+                                "id": self.channel_group_b.id,
+                                "rtc_session_ids": [["DELETE", last_rtc_session.ids]],
                             },
                         ],
                     },
-                },
+                ),
             ],
         ):
             now = fields.Datetime.now()
-            with patch.object(fields.Datetime, 'now', lambda: now + relativedelta(seconds=5)):
-                channel_member._rtc_leave_call()
+            with patch.object(fields.Datetime, "now", lambda: now + relativedelta(hours=1)):
+                self.member_of_employee_in_group_b.sudo()._rtc_leave_call()
 
-    @users('employee')
-    @mute_logger('odoo.models.unlink')
+    @users("employee")
+    @mute_logger("odoo.models.unlink")
+    @freeze_time("2023-03-15 12:34:56")
     def test_50_garbage_collect_should_remove_old_sessions_and_notify_data(self):
-        self.env["discuss.channel.rtc.session"].sudo().search([]).unlink()  # clean up before test
-        channel = self.env['discuss.channel']._create_group(partners_to=self.user_employee.partner_id.ids)
-        channel_member = channel.sudo().channel_member_ids.filtered(lambda channel_member: channel_member.partner_id == self.user_employee.partner_id)
-        channel_member._rtc_join_call()
-        channel_member.rtc_session_ids.flush_model()
-        channel_member.rtc_session_ids._write({'write_date': fields.Datetime.now() - relativedelta(days=2)})
+        self.member_of_employee_in_group_b.sudo()._rtc_join_call()
+        self.env["discuss.channel.rtc.session"].flush_model()
+        self.member_of_employee_in_group_b.sudo().rtc_session_ids._write(
+            {"write_date": fields.Datetime.now() - relativedelta(days=2)},
+        )
+        last_rtc_session = self.member_of_employee_in_group_b.sudo().rtc_session_ids
         with self.assertBus(
             [
-                # update list of sessions
-                (self.cr.dbname, "discuss.channel", channel.id),
-                # session ended
-                (self.cr.dbname, "res.partner", self.user_employee.partner_id.id),
-                # update call history duration
-                (self.cr.dbname, "discuss.channel", channel.id),
-            ],
-            [
-                {
-                    "type": "discuss.channel.rtc.session/ended",
-                    "payload": {"sessionId": channel_member.rtc_session_ids.id},
-                },
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
+                BusResult(
+                    self.user_employee,
+                    "discuss.channel.rtc.session/ended",
+                    {"sessionId": last_rtc_session.id},
+                ),
+                BusResult(
+                    self.channel_group_b,
+                    "mail.record/insert",
+                    {
+                        "discuss.call.history": [
+                            {
+                                "duration_hour": 0.0,
+                                "end_dt": "2023-03-15 12:34:56",
+                                "id": self.channel_group_b.call_history_ids.id,
+                            },
+                        ],
                         "discuss.channel": [
                             {
-                                "id": channel.id,
-                                "rtc_session_ids": [("DELETE", [channel_member.rtc_session_ids.id])],
+                                "id": self.channel_group_b.id,
+                                "rtc_session_ids": [("DELETE", last_rtc_session.ids)],
                             },
                         ],
                     },
-                },
+                ),
             ],
         ):
-            self.env['discuss.channel.rtc.session'].sudo()._gc_inactive_sessions()
-        self.assertFalse(channel_member.rtc_session_ids)
+            self.env["discuss.channel.rtc.session"].sudo()._gc_inactive_sessions()
+        self.assertFalse(self.member_of_employee_in_group_b.sudo().rtc_session_ids)
 
-    @users('employee')
-    @mute_logger('odoo.models.unlink')
+    @users("employee")
+    @mute_logger("odoo.models.unlink")
+    @freeze_time("2023-03-15 12:34:56")
     def test_51_action_disconnect_should_remove_selected_session_and_notify_data(self):
-        channel = self.env['discuss.channel']._create_group(partners_to=self.user_employee.partner_id.ids)
-        channel_member = channel.sudo().channel_member_ids.filtered(lambda channel_member: channel_member.partner_id == self.user_employee.partner_id)
-        channel_member._rtc_join_call()
+        self.member_of_employee_in_group_b.sudo()._rtc_join_call()
+        last_rtc_session = self.member_of_employee_in_group_b.sudo().rtc_session_ids
         with self.assertBus(
             [
-                # update list of sessions
-                (self.cr.dbname, "discuss.channel", channel.id),
-                # session ended
-                (self.cr.dbname, "res.partner", self.user_employee.partner_id.id),
-                # update call history duration
-                (self.cr.dbname, "discuss.channel", channel.id),
-            ],
-            [
-                {
-                    "type": "discuss.channel.rtc.session/ended",
-                    "payload": {"sessionId": channel_member.rtc_session_ids.id},
-                },
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
+                BusResult(
+                    self.user_employee,
+                    "discuss.channel.rtc.session/ended",
+                    {"sessionId": last_rtc_session.id},
+                ),
+                BusResult(
+                    self.channel_group_b,
+                    "mail.record/insert",
+                    {
+                        "discuss.call.history": [
+                            {
+                                "duration_hour": 0.0,
+                                "end_dt": "2023-03-15 12:34:56",
+                                "id": self.channel_group_b.call_history_ids.id,
+                            },
+                        ],
                         "discuss.channel": [
                             {
-                                "id": channel.id,
-                                "rtc_session_ids": [("DELETE", [channel_member.rtc_session_ids.id])],
+                                "id": self.channel_group_b.id,
+                                "rtc_session_ids": [("DELETE", last_rtc_session.ids)],
                             },
                         ],
                     },
-                },
+                ),
             ],
         ):
-            channel_member.rtc_session_ids.action_disconnect()
-        self.assertFalse(channel_member.rtc_session_ids)
+            self.member_of_employee_in_group_b.sudo().rtc_session_ids.action_disconnect()
+        self.assertFalse(self.member_of_employee_in_group_b.sudo().rtc_session_ids)
 
-    @users('employee')
-    @mute_logger('odoo.models.unlink')
+    @users("employee")
+    @mute_logger("odoo.models.unlink")
+    @freeze_time("2023-03-15 12:34:56")
     def test_60_rtc_sync_sessions_should_gc_and_return_outdated_and_active_sessions(self):
-        channel = self.env['discuss.channel']._create_group(partners_to=self.user_employee.partner_id.ids)
-        channel_member = channel.sudo().channel_member_ids.filtered(lambda channel_member: channel_member.partner_id == self.user_employee.partner_id)
         store = Store()
-        channel_member._rtc_join_call(store)
-        join_call_values = store.get_result()
-        test_guest = self.env['mail.guest'].sudo().create({'name': "Test Guest"})
-        test_channel_member = self.env['discuss.channel.member'].create({
-            'guest_id': test_guest.id,
-            'channel_id': channel.id,
-        })
-        test_session = self.env['discuss.channel.rtc.session'].sudo().create({'channel_member_id': test_channel_member.id})
+        self.member_of_employee_in_group_a.sudo()._rtc_join_call(store)
+        join_call_values = store._build_result()
+        test_session = (
+            self.env["discuss.channel.rtc.session"]
+            .sudo()
+            .create({"channel_member_id": self.member_of_guest_in_group_a.id})
+        )
         test_session.flush_model()
-        test_session._write({'write_date': fields.Datetime.now() - relativedelta(days=2)})
+        test_session._write({"write_date": fields.Datetime.now() - relativedelta(days=2)})
         unused_ids = [9998, 9999]
         with self.assertBus(
             [
-                # update list of sessions
-                (self.cr.dbname, "discuss.channel", channel.id),
-                # session ended
-                (self.cr.dbname, "mail.guest", test_guest.id),
-            ],
-            [
-                {
-                    "type": "discuss.channel.rtc.session/ended",
-                    "payload": {"sessionId": test_session.id},
-                },
-                {
-                    "type": "mail.record/insert",
-                    "payload": {
+                BusResult(
+                    self.guest,
+                    "discuss.channel.rtc.session/ended",
+                    {"sessionId": test_session.id},
+                ),
+                BusResult(
+                    self.channel_group_a,
+                    "mail.record/insert",
+                    {
                         "discuss.channel": [
-                            {"id": channel.id, "rtc_session_ids": [("DELETE", [test_session.id])]},
+                            {
+                                "id": self.channel_group_a.id,
+                                "rtc_session_ids": [("DELETE", test_session.ids)],
+                            },
                         ],
                     },
-                },
+                ),
             ],
         ):
-            current_rtc_sessions, outdated_rtc_sessions = channel_member._rtc_sync_sessions(
-                check_rtc_session_ids=[join_call_values["Rtc"]["localSession"]] + unused_ids
+            current_rtc_sessions, outdated_rtc_sessions = (
+                self.member_of_employee_in_group_a.sudo()._rtc_sync_sessions(
+                    check_rtc_session_ids=[join_call_values["Rtc"]["localSession"]] + unused_ids,
+                )
             )
-        self.assertEqual(channel_member.rtc_session_ids, current_rtc_sessions)
+        self.assertEqual(
+            self.member_of_employee_in_group_a.sudo().rtc_session_ids,
+            current_rtc_sessions,
+        )
         self.assertEqual(unused_ids, outdated_rtc_sessions.ids)
         self.assertFalse(outdated_rtc_sessions.exists())
 
-    def test_07_call_invitation_ui(self):
-        bob = new_test_user(self.env, "bob", groups="base.group_user", email="bob@test.com")
-        john = new_test_user(self.env, "john", groups="base.group_user", email="john@test.com")
-        channel = self.env["discuss.channel"].with_user(bob)._create_group(partners_to=(bob | john).partner_id.ids)
-        channel.with_user(bob).self_member_id.sudo()._rtc_join_call()
+    @freeze_time("2023-03-15 12:34:56")
+    def test_70_call_invitation_ui(self):
+        self.member_of_employee_in_group_a.sudo()._rtc_join_call()
         self._reset_bus()
-        self.start_tour("/odoo", "discuss_call_invitation.js", login="john")
+        self.start_tour("/odoo", "discuss_call_invitation.js", login="test_user")
+
+    def _res_for_guest(self, guest, common=True, internal=False):
+        res = {"id": guest.id}
+        if common:
+            res["avatar_128_access_token"] = guest._get_avatar_128_access_token()
+            res["id"] = guest.id
+            res["name"] = guest.name
+            res["write_date"] = fields.Datetime.to_string(guest.write_date)
+        if internal:
+            res["im_status"] = guest.im_status
+            res["im_status_access_token"] = guest._get_im_status_access_token()
+        return res
+
+    def _res_for_member(self, member, **kwargs):
+        res = {
+            "channel_id": member.channel_id.id,
+            "id": member.id,
+            **kwargs,
+        }
+        if member.partner_id:
+            res["partner_id"] = member.partner_id.id
+        if member.guest_id:
+            res["guest_id"] = member.guest_id.id
+        return res
+
+    def _res_for_partner(self, partner, common=True, internal=False):
+        res = {"id": partner.id}
+        if common:
+            res["avatar_128_access_token"] = partner._get_avatar_128_access_token()
+            res["mention_token"] = partner._get_mention_token()
+            res["name"] = partner.name
+            res["write_date"] = fields.Datetime.to_string(partner.write_date)
+        if internal:
+            res["agent_ids"] = []
+            res["user_ids"] = partner.user_ids.ids
+        return res
+
+    def _res_for_rtc_session(self, rtc_session, extra=False):
+        res = {
+            "id": rtc_session.id,
+            "channel_member_id": rtc_session.channel_member_id.id,
+        }
+        if extra:
+            res["is_camera_on"] = rtc_session.is_camera_on
+            res["is_deaf"] = rtc_session.is_deaf
+            res["is_muted"] = rtc_session.is_muted
+            res["is_screen_sharing_on"] = rtc_session.is_screen_sharing_on
+        return res
+
+    def _res_for_user(self, user, internal=False):
+        res = {
+            "all_employee_ids": [],
+            "should_display_in_call_im_status": False,
+            "id": user.id,
+            "partner_id": user.partner_id.id,
+        }
+        if internal:
+            res["im_status"] = user.im_status
+            res["im_status_access_token"] = user._get_im_status_access_token()
+        return res

@@ -1,74 +1,94 @@
-import { escapeTextNodes } from "@html_builder/utils/escaping";
 import { Plugin } from "@html_editor/plugin";
 import { withSequence } from "@html_editor/utils/resource";
-import { groupBy } from "@web/core/utils/arrays";
 import { uniqueId } from "@web/core/utils/functions";
+import { isZWS } from "@html_editor/utils/dom_info";
+import { _t } from "@web/core/l10n/translation";
+import { EDITOR_MUTATION_TYPES } from "@html_editor/core/dom_observer_plugin";
 
 /** @typedef {import("plugins").CSSSelector} CSSSelector */
 /**
  * @typedef { Object } SaveShared
  * @property { SavePlugin['save'] } save
- * @property { SavePlugin['saveView'] } saveView
  * @property { SavePlugin['ignoreDirty'] } ignoreDirty
  * @property { SavePlugin['groupElements'] } groupElements
+ * @property { SavePlugin['setDirtyElement'] } setDirtyElement
  */
 
 /**
- * @typedef {(() => void)[]} after_save_handlers
- * @typedef {((el?: HTMLElement) => Promise<void>)[]} before_save_handlers
- * Called at the very beginning of the save process.
+ * @typedef {((el?: HTMLElement) => void)[]} on_saved_handlers
+ * @typedef {((el?: HTMLElement, groupedEls?: Object.<string, HTMLElement[]>) => Promise<void>)[]} on_will_save_handlers
+ * Called before the save process.
  *
- * @typedef {((groupedEls: Object.<string, HTMLElement[]>) => Promise<void>)[]} pre_save_handlers
- * Called before the save process with the grouped dirty elements.
- *
- * @typedef {((el: HTMLElement) => Promise<void>)[]} save_element_handlers
+ * @typedef {((el: HTMLElement) => Promise<void>)[]} on_will_save_element_handlers
  * Called when saving an element (in parallel to saving the view).
  *
- * @typedef {(() => Promise<boolean>)[]} save_handlers
- * Called at the very end of the save process.
+ * @typedef {(() => Promise<boolean>)[]} on_ready_to_save_document_handlers
+ * Called concurrently as part of the save process.
  *
  * @typedef {((cleanedEls: HTMLElement[]) => Promise<boolean>)[]} save_elements_overrides
  *
- * @typedef {(() => HTMLElement[] | NodeList)[]} get_dirty_els
+ * @typedef {(() => HTMLElement[] | NodeList)[]} dirty_els_providers
  *
- * @typedef {CSSSelector[]} savable_selectors
+ * @typedef {{
+ *      selector: CSSSelector;
+ *      dirtyClass: string;
+ *      match?: "closest" | "self";
+ * }[]} dirty_trackers
+ *
+ * A mutation marks the element matching `selector` with `dirtyClass`. Declare one to be
+ * notified of changes to an element that cannot be saved as view arch, and pair it with
+ * `on_ready_to_save_document_handlers` to persist it another way. Declaring a tracker does
+ * not make the element savable: only `.o_savable` / `o_dirty` feeds the arch saving pipeline.
+ *
+ * `match` defaults to `"closest"`, which walks up the ancestors of the mutated element. Use
+ * `"self"` when the state you persist lives in the element's own attributes, so that changes
+ * inside it, such as editing a branded field in a descendant, do not mark it dirty. Not
+ * literally self: `handleMutations` resolves an added or removed node to its parent, so a
+ * direct child appearing or disappearing marks the element too.
  */
 
 export class SavePlugin extends Plugin {
     static id = "savePlugin";
-    static shared = ["save", "saveView", "ignoreDirty", "groupElements"];
-    static dependencies = ["history"];
+    static shared = ["save", "ignoreDirty", "groupElements", "setDirtyElement"];
+    static dependencies = ["history", "domReferenceMap"];
 
     /** @type {import("plugins").BuilderResources} */
     resources = {
-        handleNewRecords: this.handleMutations.bind(this),
-        start_edition_handlers: this.startObserving.bind(this),
+        on_pending_mutations_staged_handlers: this.handleMutations.bind(this),
+        on_editor_started_handlers: this.startObserving.bind(this),
         // Resource definitions:
-        savable_selectors: [
-            "#wrapwrap .oe_structure[data-oe-xpath][data-oe-id]",
-            "#wrapwrap [data-oe-field]:not([data-oe-sanitize-prevent-edition])",
-            "#wrapwrap .s_cover[data-res-model]",
-        ],
-        clean_for_save_handlers: [
-            // ({root}) => {
+        clean_for_save_processors: [
+            // (root) => {
             //     clean DOM before save (leaving edit mode)
             //     root is the clone of a node that was o_dirty
             // }
         ],
-        save_element_handlers: [this.saveView.bind(this)],
-        get_dirty_els: () => this.editable.querySelectorAll(".o_dirty"),
+        dirty_els_providers: () => this.editable.querySelectorAll(".o_dirty"),
+        dirty_trackers: { selector: ".o_savable", dirtyClass: "o_dirty" },
         // Do not change the sequence of this resource, it must stay the first
         // one to avoid marking dirty when not needed during the drag and drop.
         on_prepare_drag_handlers: withSequence(0, this.ignoreDirty.bind(this)),
+        on_will_save_handlers: this.removeZWSPFromEmbeddedFields.bind(this),
     };
+
+    removeZWSPFromEmbeddedFields(editableEl) {
+        // Remove zero-width spaces left by DeletePlugin.fillEmptyInlines on
+        // embedded fields to prevent saving blank model fields.
+        const selector = '[data-oe-model]:not([data-oe-model="ir.ui.view"])';
+        for (const el of editableEl.querySelectorAll(selector)) {
+            if (isZWS(el)) {
+                el.innerHTML = "";
+            }
+        }
+    }
 
     setup() {
         this.canObserve = false;
-        this.savableSelector = this.getResource("savable_selectors").join(", ");
+        this.dirtyTrackers = this.getResource("dirty_trackers");
     }
 
     groupElements(toGroupEls) {
-        return groupBy(toGroupEls, (toGroupEl) => {
+        return Object.groupBy(toGroupEls, (toGroupEl) => {
             const model = toGroupEl.dataset.oeModel;
             const recordId = toGroupEl.dataset.oeId;
             const field = toGroupEl.dataset.oeField;
@@ -88,33 +108,34 @@ export class SavePlugin extends Plugin {
     async save({ shouldSkipAfterSaveHandlers = async () => true } = {}) {
         let skipAfterSaveHandlers;
         try {
-            await Promise.all(this.getResource("before_save_handlers").map((handler) => handler()));
-            await this._save();
+            // Get elements to save, then group them if possible.
+            const dirtyEls = this.getResource("dirty_els_providers").flatMap((p) => [...p()]);
+            const groupedElements = this.groupElements(dirtyEls);
+            await Promise.all(
+                this.trigger("on_will_save_handlers", this.editable, groupedElements)
+            );
+            await this._save(groupedElements);
             skipAfterSaveHandlers = await shouldSkipAfterSaveHandlers();
+        } catch (error) {
+            if (error.exceptionName === "odoo.exceptions.ValidationError") {
+                this.services.notification.add(_t("Previous values restored."), {
+                    title: _t("One or more fields were not valid"),
+                    type: "warning",
+                });
+            } else {
+                throw error;
+            }
         } finally {
             if (!skipAfterSaveHandlers) {
-                this.getResource("after_save_handlers").forEach((handler) => handler());
+                this.trigger("on_saved_handlers");
             }
         }
     }
-    async _save() {
-        const dirtyEls = [];
-        for (const getDirtyEls of this.getResource("get_dirty_els")) {
-            dirtyEls.push(...getDirtyEls());
-        }
-        // Group elements to save if possible
-        const groupedElements = this.groupElements(dirtyEls);
-        const preSaveHandlers = [];
-        for (const preSaveHandler of this.getResource("pre_save_handlers")) {
-            preSaveHandlers.push(preSaveHandler(groupedElements));
-        }
-        await Promise.all(preSaveHandlers);
+    async _save(groupedElements) {
         const saveProms = Object.values(groupedElements).map(async (dirtyEls) => {
             const cleanedEls = dirtyEls.map((dirtyEl) => {
                 dirtyEl.classList.remove("o_dirty");
-                const cleanedEl = dirtyEl.cloneNode(true);
-                this.dispatchTo("clean_for_save_handlers", { root: cleanedEl });
-                return cleanedEl;
+                return this.processThrough("clean_for_save_processors", dirtyEl.cloneNode(true));
             });
             for (const saveElementsOverride of this.getResource("save_elements_overrides")) {
                 if (await saveElementsOverride(cleanedEls)) {
@@ -122,45 +143,13 @@ export class SavePlugin extends Plugin {
                 }
             }
             for (const cleanedEl of cleanedEls) {
-                for (const saveElementHandler of this.getResource("save_element_handlers")) {
-                    await saveElementHandler(cleanedEl);
-                }
+                await Promise.all(this.trigger("on_will_save_element_handlers", cleanedEl));
             }
         });
         // used to track dirty out of the editable scope, like header, footer or wrapwrap
-        const willSaves = this.getResource("save_handlers").map((c) => c());
+        const willSaves = this.trigger("on_ready_to_save_document_handlers");
         await Promise.all(saveProms.concat(willSaves));
         this.dependencies.history.reset();
-    }
-
-    /**
-     * Saves one (dirty) element of the page.
-     *
-     * @param {HTMLElement} el - the element to save.
-     */
-    saveView(el, delayTranslations = true) {
-        const viewID = Number(el.dataset["oeId"]);
-        if (!viewID) {
-            return;
-        }
-
-        let context = {};
-        if (this.services.website) {
-            const delay = delayTranslations ? { delay_translations: true } : {};
-            context = {
-                website_id: this.services.website.currentWebsite.id,
-                lang: this.services.website.currentWebsite.metadata.lang,
-                ...delay,
-            };
-        }
-
-        escapeTextNodes(el);
-        return this.services.orm.call(
-            "ir.ui.view",
-            "save",
-            [viewID, el.outerHTML, (!el.dataset["oeExpression"] && el.dataset["oeXpath"]) || null],
-            { context }
-        );
     }
 
     startObserving() {
@@ -169,23 +158,31 @@ export class SavePlugin extends Plugin {
     /**
      * Handles the flag of the closest savable element to the mutation as dirty
      *
-     * @param {Object} records - The observed mutations
-     * @param {String} currentOperation - The name of the current operation
+     * @param {import("@html_editor/core/dom_observer_plugin").SerializedMutation[]} mutations - The observed mutations
      */
-    handleMutations(records, currentOperation) {
+    handleMutations(mutations) {
         if (!this.canObserve) {
             return;
         }
-        if (currentOperation === "undo" || currentOperation === "redo") {
-            // Do nothing as `o_dirty` has already been handled by the history
-            // plugin.
-            return;
-        }
-        for (const record of records) {
-            if (record.attributeName === "contenteditable") {
+        for (const mutation of mutations) {
+            if (mutation.isAutomatic) {
                 continue;
             }
-            let targetEl = record.target;
+            if (
+                mutation.type === EDITOR_MUTATION_TYPES.ATTRIBUTES &&
+                mutation.attributeName === "contenteditable"
+            ) {
+                continue;
+            }
+            let targetId = mutation.nodeId;
+            // TODO: Wouldn't doing this only for "remove" be enough?
+            if (
+                [EDITOR_MUTATION_TYPES.ADD, EDITOR_MUTATION_TYPES.REMOVE].includes(mutation.type) &&
+                mutation.parentNodeId
+            ) {
+                targetId = mutation.parentNodeId;
+            }
+            let targetEl = this.dependencies.domReferenceMap.getNodeById(targetId);
             if (!targetEl.isConnected) {
                 continue;
             }
@@ -195,15 +192,20 @@ export class SavePlugin extends Plugin {
             if (!targetEl) {
                 continue;
             }
-            const savableEl = targetEl.closest(this.savableSelector);
-            if (
-                !savableEl ||
-                savableEl.classList.contains("o_dirty") ||
-                savableEl.hasAttribute("data-oe-readonly")
-            ) {
-                continue;
+            for (const { selector, dirtyClass, match } of this.dirtyTrackers) {
+                const dirtyEl =
+                    match === "self"
+                        ? targetEl.matches(selector) && targetEl
+                        : targetEl.closest(selector);
+                if (
+                    !dirtyEl ||
+                    dirtyEl.classList.contains(dirtyClass) ||
+                    dirtyEl.hasAttribute("data-oe-readonly")
+                ) {
+                    continue;
+                }
+                dirtyEl.classList.add(dirtyClass);
             }
-            savableEl.classList.add("o_dirty");
         }
     }
 
@@ -218,5 +220,9 @@ export class SavePlugin extends Plugin {
         return () => {
             this.canObserve = true;
         };
+    }
+
+    setDirtyElement(el) {
+        el.classList.add("o_dirty");
     }
 }

@@ -7,9 +7,15 @@ from odoo.addons.mail.tools.discuss import Store
 class MailMessage(models.Model):
     _inherit = "mail.message"
 
-    def _to_store(self, store: Store, fields, **kwargs):
-        super()._to_store(store, fields, **kwargs)
+    def _store_message_fields(self, res: Store.FieldList, **kwargs):
+        super()._store_message_fields(res, **kwargs)
         slides = self._records_by_model_name().get("slide.slide")
         if not slides:
             return
-        store.add(slides, as_thread=True, fields=["comments_count"])
+        res.many(
+            "records",
+            ["comments_count"],
+            as_thread=True,
+            only_data=True,
+            value=slides,
+        )

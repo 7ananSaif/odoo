@@ -1,17 +1,19 @@
 import { markRaw, markup, toRaw } from "@odoo/owl";
 import { serializeDate, serializeDateTime } from "@web/core/l10n/dates";
 import { _t } from "@web/core/l10n/translation";
-import { x2ManyCommands } from "@web/core/orm_service";
+import { ConnectionLostError, RPCError } from "@web/core/network/rpc";
 import { evaluateBooleanExpr } from "@web/core/py_js/py";
+import { pick } from "@web/core/utils/objects";
 import { DataPoint } from "./datapoint";
-import { Operation } from "./operation";
 import { FetchRecordError } from "./errors";
-import { RequestEntityTooLargeError } from "@web/core/network/rpc";
+import { Operation } from "./operation";
 import {
     createPropertyActiveField,
     getBasicEvalContext,
     getFieldContext,
     getFieldsSpec,
+    getOfflineDisplayName,
+    getScheduleORMExtras,
     parseServerValue,
 } from "./utils";
 
@@ -39,6 +41,7 @@ export class Record extends DataPoint {
 
     /**
      * @type {typeof DataPoint.prototype.setup<{
+     *  group?: import("./group").Group;
      *  manuallyAdded?: boolean;
      *  onUpdate?: () => unknown;
      *  parentRecord?: Record;
@@ -46,6 +49,8 @@ export class Record extends DataPoint {
      * }>}
      */
     setup(_config, data, options = {}) {
+        /** set only when the record comes from a grouped list */
+        this.group = options.group;
         this._manuallyAdded = options.manuallyAdded === true;
         this._onUpdate = options.onUpdate || (() => {});
         this._parentRecord = options.parentRecord;
@@ -57,9 +62,10 @@ export class Record extends DataPoint {
         // be false even though there are changes in a field. Consider calling "isDirty()" instead.
         this.dirty = false;
         this.selected = false;
-
-        /** @type {Set<string>} */
+        this.evalContext = {};
+        this.evalContextWithVirtualIds = {};
         this._invalidFields = new Set();
+
         /** @type {Set<string>} */
         this._unsetRequiredFields = markRaw(new Set());
         this._closeInvalidFieldsNotification = () => {};
@@ -76,9 +82,6 @@ export class Record extends DataPoint {
                     return parentRecord.evalContextWithVirtualIds;
                 },
             };
-        } else {
-            this.evalContext = {};
-            this.evalContextWithVirtualIds = {};
         }
         const missingFields = this.fieldNames.filter((fieldName) => !(fieldName in data));
         data = { ...this._getDefaultValues(missingFields), ...data };
@@ -107,8 +110,9 @@ export class Record extends DataPoint {
         }
         if (!keepChanges) {
             this._changes = markRaw({});
+            this.dirty = false;
+            this._savePoint = undefined;
         }
-        this.dirty = false;
         this.data = { ...this._values, ...this._changes };
         this._setEvalContext();
         this._initialTextValues = { ...this._textValues };
@@ -117,7 +121,6 @@ export class Record extends DataPoint {
         if (!this.isNew && this.isInEdition && !this._parentRecord) {
             this._checkValidity();
         }
-        this._savePoint = undefined;
     }
 
     // -------------------------------------------------------------------------
@@ -146,6 +149,7 @@ export class Record extends DataPoint {
         if (this.config.mode === "readonly") {
             return false;
         } else {
+            // FIXME: why the or ? if it's not in 'readonly' it's in 'edit', in which case the first is false ?
             return this.config.mode === "edit" || !this.resId;
         }
     }
@@ -166,6 +170,10 @@ export class Record extends DataPoint {
         return this.config.resIds;
     }
 
+    get offlineId() {
+        return this._offlineId;
+    }
+
     // -------------------------------------------------------------------------
     // Public
     // -------------------------------------------------------------------------
@@ -183,9 +191,25 @@ export class Record extends DataPoint {
 
     delete() {
         return this.model.mutex.exec(async () => {
-            const unlinked = await this.model.orm.unlink(this.resModel, [this.resId], {
-                context: this.context,
-            });
+            let unlinked = false;
+            try {
+                unlinked = await this.model.orm.webUnlink(this.resModel, [this.resId], {
+                    context: this.context,
+                });
+            } catch (e) {
+                if (e instanceof ConnectionLostError) {
+                    return this.model.offlinePlugin.scheduleORM(
+                        this.resModel,
+                        "web_unlink",
+                        [[this.resId]],
+                        { context: this.context },
+                        {
+                            extras: getScheduleORMExtras(this.model, [this]),
+                        }
+                    );
+                }
+                throw e;
+            }
             if (!unlinked) {
                 return false;
             }
@@ -251,6 +275,13 @@ export class Record extends DataPoint {
         return this._invalidFields.has(fieldName);
     }
 
+    /**
+     * @param {string} fieldName
+     */
+    isFieldTranslatable(fieldName) {
+        return this.model.allowTranslate && !!this.fields[fieldName].translate;
+    }
+
     load() {
         if (arguments.length > 0) {
             throw new Error("Record.load() does not accept arguments");
@@ -259,20 +290,35 @@ export class Record extends DataPoint {
     }
 
     /**
+     * Only reload if the record exists, and keep potential pending changes.
+     *
+     * @returns {Promise}
+     */
+    async safeLoad() {
+        if (this.resId) {
+            if (arguments.length > 0) {
+                throw new Error("Record.safeLoad() does not accept arguments");
+            }
+            return this.model.mutex.exec(() => this._load({}, { keepChanges: true }));
+        }
+    }
+
+    /**
+     * Only save if the record is a main record, do not save if it is a one2many
+     * record.
+     *
+     * @returns {Promise<boolean>}
+     */
+    async safeSave() {
+        return !!this._parentRecord || (await this.save());
+    }
+
+    /**
      * @param {Parameters<Record["_save"]>[0]} options
      */
     async save(options) {
         await this.model._askChanges();
         return this.model.mutex.exec(() => this._save(options));
-    }
-
-    /**
-     * Sometimes necessary when fields have an expensive computation to do
-     * before an update (e.g. HtmlField). Could be removed when external usages
-     * of dirty are replaced by isDirty() (e.g. FormController.beforeLeave)
-     */
-    setDirty() {
-        this.dirty = true;
     }
 
     /**
@@ -308,13 +354,14 @@ export class Record extends DataPoint {
         return this.model.mutex.exec(() => this._toggleArchive(false));
     }
 
-    update(changes, { save } = {}) {
+    update(changes) {
         if (this.model._urgentSave) {
             return this._update(changes);
         }
         return this.model.mutex.exec(async () => {
+            const save = !this.isInEdition && this.canSaveOnUpdate;
             await this._update(changes, { withoutOnchange: save });
-            if (save && this.canSaveOnUpdate) {
+            if (save) {
                 return this._save();
             }
         });
@@ -323,9 +370,58 @@ export class Record extends DataPoint {
     async urgentSave() {
         this.model._urgentSave = true;
         this.model.bus.trigger("WILL_SAVE_URGENTLY");
+        if (!this.resId && !this.dirty) {
+            return true;
+        }
         const succeeded = await this._save({ reload: false });
         this.model._urgentSave = false;
         return succeeded;
+    }
+
+    saveToTranslate() {
+        if (this._parentRecord && this.isNew) {
+            // A new record in a relation is not translatable
+            // We couldn't match the id from the server with "this"
+            return false;
+        }
+        const root = this.model.root;
+        let recordToSave;
+        if (root instanceof Record && !this._noUpdateParent) {
+            // Save the main Form view record if we are not an extended Record
+            // => We are a record being edited in a x2m list
+            //    OR the main record itself
+            recordToSave = root;
+        } else {
+            // We are in editing a record in a main List view (root is not a Record)
+            // OR a record in a X2M relation being edited in its Form view (this._noUpdateParent can be true)
+            // We have an ID already, we just have to save the current changes
+            // In order for the PY translations to update with any new value we have
+            recordToSave = this;
+        }
+        return recordToSave.save();
+    }
+
+    setOfflineChanges(id) {
+        let scheduledORM;
+        if (id) {
+            scheduledORM = this.model.offlinePlugin._ormToSync()[id];
+        } else {
+            scheduledORM = Object.values(this.model.offlinePlugin._ormToSync()).find(
+                (s) =>
+                    s.value.extras?.actionId === this.model.env.config.actionId &&
+                    s.value.method === "web_save" && // Only web_save changes are applied
+                    s.value.extras.viewType === "form" && // Only changes made on a view form are applied
+                    s.value.args[0]?.[0] === this.resId
+            );
+        }
+        if (scheduledORM) {
+            this._offlineId = scheduledORM.key;
+            this._offlineChanges = markRaw(
+                this._parseOfflineValues(scheduledORM.value.extras.changes)
+            );
+            this._offlineTimeStamp = scheduledORM.value.extras.timeStamp;
+            return this.update(this._offlineChanges);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -537,14 +633,18 @@ export class Record extends DataPoint {
             });
             return pair && { id: pair[0], display_name: pair[1] };
         }
-        if (resId && displayName === undefined) {
+        const activeField = this.activeFields[fieldName];
+        const relatedFields = ["display_name"].concat(
+            Object.keys(activeField.related?.activeFields || {})
+        );
+        if (resId && relatedFields.some((relatedField) => value[relatedField] === undefined)) {
             const fieldSpec = { display_name: {} };
-            if (this.activeFields[fieldName].related) {
+            if (activeField.related) {
                 Object.assign(
                     fieldSpec,
                     getFieldsSpec(
-                        this.activeFields[fieldName].related.activeFields,
-                        this.activeFields[fieldName].related.fields,
+                        activeField.related.activeFields,
+                        activeField.related.fields,
                         getBasicEvalContext(this.config)
                     )
                 );
@@ -553,7 +653,23 @@ export class Record extends DataPoint {
                 context,
                 specification: fieldSpec,
             };
-            const records = await this.model.orm.webRead(resModel, [resId], kwargs);
+            let records;
+            try {
+                records = await this.model.orm.webRead(resModel, [resId], kwargs);
+            } catch (e) {
+                if (e instanceof ConnectionLostError) {
+                    // In the case of display_name is not in valie, `Unamed` will be shown, but it will work. (search create dialog case)
+                    records = [value];
+                } else {
+                    throw e;
+                }
+            }
+            for (const fieldName in records[0]) {
+                const field = activeField.related?.fields[fieldName];
+                if (field) {
+                    records[0][fieldName] = parseServerValue(field, records[0][fieldName]);
+                }
+            }
             return records[0];
         }
         return value;
@@ -648,12 +764,13 @@ export class Record extends DataPoint {
         this._savePoint = undefined;
         this._setEvalContext();
         this._invalidFields.clear();
-        if (!this.isNew) {
+        if (!this.isNew && this.isInEdition) {
             this._checkValidity();
         }
         this._closeInvalidFieldsNotification();
         this._closeInvalidFieldsNotification = () => {};
         this._restoreActiveFields();
+        this.model.hooks.onRecordDiscarded(this);
     }
 
     _displayInvalidFieldNotification() {
@@ -701,6 +818,47 @@ export class Record extends DataPoint {
         return value;
     }
 
+    _formatOfflineValues(values, { changes } = { changes: true }) {
+        const result = {};
+        for (const [fieldName, value] of Object.entries(values)) {
+            const field = this.fields[fieldName];
+            switch (field.type) {
+                case "one2many":
+                case "many2many": {
+                    if (value) {
+                        result[fieldName] = {};
+                        if (changes) {
+                            result[fieldName].commands = value._getCommands();
+                        }
+                        result[fieldName].display_name = value._currentIds
+                            .map((id) => value._cache[id])
+                            .map((r) => getOfflineDisplayName(r))
+                            .join(", ");
+                    } else {
+                        result[fieldName] = false;
+                    }
+                    break;
+                }
+                case "many2one": {
+                    result[fieldName] = value;
+                    break;
+                }
+                case "reference": {
+                    result[fieldName] = value
+                        ? {
+                              id: { id: value.resId, model: value.resModel },
+                              display_name: value.displayName,
+                          }
+                        : false;
+                    break;
+                }
+                default:
+                    result[fieldName] = this._formatServerValue(field.type, value);
+            }
+        }
+        return result;
+    }
+
     /**
      * @param {RecordType<string, unknown>} [changes]
      * @param {FieldSpecifications} [params]
@@ -710,6 +868,7 @@ export class Record extends DataPoint {
             // Apply the initial changes when the record is new
             changes = { ...this._values, ...changes };
         }
+
         const result = {};
         for (const [fieldName, value] of Object.entries(changes)) {
             const field = this.fields[fieldName];
@@ -800,7 +959,7 @@ export class Record extends DataPoint {
         return required ? evaluateBooleanExpr(required, this.evalContextWithVirtualIds) : false;
     }
 
-    async _load(nextConfig = {}) {
+    async _load(nextConfig = {}, options = {}) {
         if ("resId" in nextConfig && this.resId) {
             throw new Error("Cannot change resId of a record");
         }
@@ -809,7 +968,7 @@ export class Record extends DataPoint {
                 if (this.resId) {
                     this.model._updateSimilarRecords(this, values);
                 }
-                this._setData(values);
+                this._setData(values, { keepChanges: options.keepChanges });
             },
         });
     }
@@ -916,21 +1075,42 @@ export class Record extends DataPoint {
                 parsedValues[fieldName] = staticList;
             } else {
                 parsedValues[fieldName] = parseServerValue(field, value);
-                if (field.type === "properties") {
+                const parsedValue = parsedValues[fieldName];
+                if (field.type === "many2one" && parsedValue) {
+                    const relFields = this.activeFields[fieldName].related?.fields || {};
+                    for (const relFieldName of Object.keys(parsedValues[fieldName])) {
+                        const relField = relFields[relFieldName];
+                        if (relField) {
+                            const relValue = parsedValue[relFieldName];
+                            parsedValue[relFieldName] = parseServerValue(relField, relValue);
+                        }
+                    }
+                } else if (field.type === "properties") {
                     const parent = serverValues[field.definition_record];
                     Object.assign(
                         parsedValues,
-                        this._processProperties(
-                            parsedValues[fieldName],
-                            fieldName,
-                            parent,
-                            currentValues
-                        )
+                        this._processProperties(parsedValue, fieldName, parent, currentValues)
                     );
                 }
             }
         }
         return parsedValues;
+    }
+
+    _parseOfflineValues(changes) {
+        const result = {};
+        for (const [fieldName, value] of Object.entries(changes)) {
+            const field = this.fields[fieldName];
+            switch (field.type) {
+                case "one2many":
+                case "many2many":
+                    result[fieldName] = value ? value.commands : false;
+                    break;
+                default:
+                    result[fieldName] = parseServerValue(field, value);
+            }
+        }
+        return result;
     }
 
     async _preprocessMany2oneChanges(changes) {
@@ -998,24 +1178,15 @@ export class Record extends DataPoint {
     }
 
     async _preprocessX2manyChanges(changes) {
-        for (const [fieldName, value] of Object.entries(changes)) {
+        for (const [fieldName, commands] of Object.entries(changes)) {
             if (
                 this.fields[fieldName].type !== "one2many" &&
                 this.fields[fieldName].type !== "many2many"
             ) {
                 continue;
             }
-            const list = this.data[fieldName];
-            for (const command of value) {
-                switch (command[0]) {
-                    case x2ManyCommands.SET:
-                        await list._replaceWith(command[2]);
-                        break;
-                    default:
-                        await list._applyCommands([command]);
-                }
-            }
-            changes[fieldName] = list;
+            await this.data[fieldName]._applyCommands(commands);
+            changes[fieldName] = this.data[fieldName];
         }
     }
 
@@ -1107,6 +1278,7 @@ export class Record extends DataPoint {
             if (nextId) {
                 return this.model.load({ resId: nextId });
             }
+            // toRaw to prevent effect
             this._changes = markRaw({});
             this.data = { ...this._values };
             this.dirty = false;
@@ -1117,6 +1289,18 @@ export class Record extends DataPoint {
             this.model.useSendBeaconToSaveUrgently &&
             !this.model.env.inDialog
         ) {
+            // We are trying to sa ve urgently because the user is closing the page when offline.
+            // Unfortunately, we can't save on IndexedDB before unload.
+            if (this.model.offlinePlugin.isOffline()) {
+                this.model._closeUrgentSaveNotification = this.model.notification.add(
+                    _t(
+                        `Heads up! Your recent changes cannot be saved automatically while you are offline. Please click the %(uploadIcon)s button now to ensure your work is saved before you exit this tab.`,
+                        { uploadIcon: markup`<i class="oi oi-fw" data-icon="cloud_upload"></i>` }
+                    ),
+                    { sticky: true }
+                );
+                return false;
+            }
             // We are trying to save urgently because the user is closing the page. To
             // ensure that the save succeeds, we can't do a classic rpc, as these requests
             // can be cancelled (payload too heavy, network too slow, computer too fast...).
@@ -1139,8 +1323,8 @@ export class Record extends DataPoint {
             } else {
                 this.model._closeUrgentSaveNotification = this.model.notification.add(
                     _t(
-                        `Heads up! Your recent changes are too large to save automatically. Please click the %(upload_icon)s button now to ensure your work is saved before you exit this tab.`,
-                        { upload_icon: markup`<i class="fa fa-cloud-upload fa-fw"></i>` }
+                        `Heads up! Your recent changes are too large to save automatically. Please click the %(uploadIcon)s button now to ensure your work is saved before you exit this tab.`,
+                        { uploadIcon: markup`<i class="oi oi-fw" data-icon="cloud_upload"></i>` }
                     ),
                     { sticky: true }
                 );
@@ -1183,7 +1367,10 @@ export class Record extends DataPoint {
                 kwargs
             );
         } catch (e) {
-            if (onError && !(e instanceof RequestEntityTooLargeError)) {
+            if (e instanceof ConnectionLostError) {
+                return this._offlineSave();
+            }
+            if (onError && e instanceof RPCError) {
                 return onError(e, {
                     discard: () => this._discard(),
                     retry: () => this._save(...arguments),
@@ -1215,23 +1402,55 @@ export class Record extends DataPoint {
             }
             this._setData(records[0], { orderBys });
         } else {
-            this._values = markRaw({ ...this._values, ...this._changes });
-            if ("id" in this.activeFields) {
-                this._values.id = records[0].id;
-            }
-            for (const fieldName in this.activeFields) {
-                const field = this.fields[fieldName];
-                if (["one2many", "many2many"].includes(field.type) && !field.relatedPropertyField) {
-                    this._changes[fieldName]?._clearCommands();
-                }
-            }
-            this._changes = markRaw({});
-            this.data = { ...this._values };
-            this.dirty = false;
+            this._commitSave(records);
         }
         return true;
     }
 
+    _commitSave(records) {
+        this._values = markRaw({ ...this._values, ...this._changes });
+        if ("id" in this.activeFields && records) {
+            this._values.id = records[0].id;
+        }
+        for (const fieldName in this.activeFields) {
+            const field = this.fields[fieldName];
+            if (["one2many", "many2many"].includes(field.type) && !field.relatedPropertyField) {
+                this._values[fieldName]?._clearCommands();
+            }
+        }
+        this._changes = markRaw({});
+        this.data = { ...this._values };
+        this.dirty = false;
+    }
+
+    _offlineSave() {
+        this._offlineChanges = markRaw({ ...(this._offlineChanges || {}), ...this._changes });
+        const offlineChanges = this._getChanges(this._offlineChanges);
+        delete offlineChanges.id; // id never changes, and should not be written
+
+        this._offlineTimeStamp = this._offlineTimeStamp || Date.now();
+        this._offlineId = this.model.offlinePlugin.scheduleORM(
+            this.resModel,
+            "web_save",
+            [this.resId ? [this.resId] : [], offlineChanges],
+            { context: this.context, specification: {} }, //Here for the kwargs we don't need the specification or the next_id
+            {
+                id: this._offlineId,
+                extras: {
+                    ...getScheduleORMExtras(this.model, [this]),
+                    changes: this._formatOfflineValues(this._offlineChanges),
+                    originalValues: this._formatOfflineValues(
+                        pick(this._values, ...Object.keys(this._offlineChanges)),
+                        { changes: false }
+                    ),
+                    timeStamp: this._offlineTimeStamp,
+                },
+            }
+        );
+
+        this._commitSave();
+        return true;
+    }
     /**
      * For owl reactivity, it's better to only update the keys inside the evalContext
      * instead of replacing the evalContext itself, because a lot of components are
@@ -1293,9 +1512,25 @@ export class Record extends DataPoint {
      */
     async _toggleArchive(state) {
         const method = state ? "action_archive" : "action_unarchive";
-        const action = await this.model.orm.call(this.resModel, method, [[this.resId]], {
-            context: this.context,
-        });
+        let action;
+        try {
+            action = await this.model.orm.call(this.resModel, method, [[this.resId]], {
+                context: this.context,
+            });
+        } catch (e) {
+            if (e instanceof ConnectionLostError) {
+                return this.model.offlinePlugin.scheduleORM(
+                    this.resModel,
+                    method,
+                    [[this.resId]],
+                    { context: this.context },
+                    {
+                        extras: getScheduleORMExtras(this.model, [this]),
+                    }
+                );
+            }
+            throw e;
+        }
         if (action && Object.keys(action).length) {
             this.model.action.doAction(action, { onClose: () => this._load() });
         } else {
@@ -1346,6 +1581,9 @@ export class Record extends DataPoint {
             fieldNames: onChangeFields,
             evalContext: toRaw(this.evalContext),
             onError: (e) => {
+                if (e instanceof ConnectionLostError) {
+                    return false;
+                }
                 // We apply changes and revert them after to force a render of the Field components
                 const undoChanges = this._applyChanges(changes);
                 undoChanges();

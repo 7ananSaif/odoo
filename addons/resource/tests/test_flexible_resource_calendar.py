@@ -1,31 +1,36 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-import pytz
-from datetime import datetime, date
+from datetime import datetime, date, UTC
 
-from odoo.tests.common import TransactionCase
-
-UTC = pytz.timezone('UTC')
+from odoo.tests.common import tagged, TransactionCase
+from odoo.tools.intervals import Intervals
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestFlexibleResourceCalendar(TransactionCase):
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.flex_calendar = cls.env['resource.calendar'].create({
-            'name': 'Flexible 40h/week',
-            'tz': 'UTC',
+        fully_flex_calendar, flex_calendar = cls.env['resource.calendar'].create([{
+            'name': 'Fully Flexible Calendar',
+            'calendar_type': 'undefined',
+            'attendance_ids': [],
+            'hours_per_week': 0,
+            'hours_per_day': 0,
+        }, {
+            'name': 'Flexible Calendar',
+            'calendar_type': 'undefined',
+            'attendance_ids': [],
+            'hours_per_week': 40,
             'hours_per_day': 8.0,
-            'flexible_hours': True,
-        })
-
+        }])
         cls.fully_flex_resource, cls.flex_resource = cls.env['resource.resource'].create([{
             'name': 'Wade Wilson',
-            'calendar_id': False,
+            'calendar_id': fully_flex_calendar.id,
             'tz': 'UTC',
         }, {
             'name': 'Wade Wilson',
-            'calendar_id': cls.flex_calendar.id,
+            'calendar_id': flex_calendar.id,
             'tz': 'UTC',
         }])
 
@@ -51,7 +56,7 @@ class TestFlexibleResourceCalendar(TransactionCase):
                 'date_to': datetime(2025, 8, 1, 17),
             },
             {
-                'calendar_id': cls.flex_calendar.id,
+                'calendar_id': False,
                 'date_from': datetime(2025, 8, 4, 8),
                 'date_to': datetime(2025, 8, 4, 17),
             },
@@ -65,19 +70,28 @@ class TestFlexibleResourceCalendar(TransactionCase):
         cls.resources = cls.flex_resource | cls.fully_flex_resource
 
     def test_flexible_resource_hours_per_week(self):
-        cal = self.env['resource.calendar'].create({
-            'name': 'Flexible 38h',
-            'tz': 'UTC',
-            'hours_per_day': 7.6,
-            'flexible_hours': True,
-            'hours_per_week': 38.0,
+        # create a standard 40h/week calendar and make it the company's default
+        cal_40 = self.env['resource.calendar'].create({
+            'name': 'Company 40h',
+            'hours_per_week': 40.0,
             'full_time_required_hours': 40.0,
+            'attendance_ids': [
+                (0, 0, {'dayofweek': str(d), 'hour_from': 9.0, 'hour_to': 17.0})
+                for d in range(5)  # Monday to Friday 8h
+            ],
         })
-        self.assertAlmostEqual(cal.work_time_rate, 95.0, 2)
+        self.env.company.resource_calendar_id = cal_40
+        flex_calendar = self.env['resource.calendar'].create({
+            'name': 'Flexible Part Time Calendar',
+            'calendar_type': 'undefined',
+            'attendance_ids': [],
+            'hours_per_week': 38.0,
+            'hours_per_day': 7.6,
+        })
         resource = self.env['resource.resource'].create({
             'name': 'flexpt',
             'tz': 'UTC',
-            'calendar_id': cal.id,
+            'calendar_id': flex_calendar.id,
         })
         start_dt = datetime(2025, 7, 28).astimezone(UTC)
         end_dt = datetime(2025, 8, 3).astimezone(UTC)
@@ -122,34 +136,9 @@ class TestFlexibleResourceCalendar(TransactionCase):
 
         work_intervals, hours_per_day, hours_per_week = self.resources._get_flexible_resource_valid_work_intervals(start_dt, end_dt)
 
-        self.assertEqual(work_intervals[self.flex_resource.id]._items, [], "flex calendar have a public holidays on day 4, and there's a public holiday on day 5 for all calendars")
+        self.assertEqual(work_intervals[self.flex_resource.id]._items, [], "there's a public holiday on day 4 and 5 for all calendars")
 
-        self.assertEqual(work_intervals[self.fully_flex_resource.id]._items, [
-            (datetime(2025, 8, 4, 0, 0, tzinfo=UTC), datetime(2025, 8, 4, 23, 59, 59, 999999, tzinfo=UTC), self.env['resource.calendar.attendance']),
-        ], "fully flex resource doesn't have a calendar, he should not follow the flex calendar public holiday, he follows holidays without a calendar")
-
-    def test_flexible_resource_work_intervals_with_public_holiday_different_company(self):
-        company_2 = self.env["res.company"].create({"name": "Company 2"})
-        leave = self.env['resource.calendar.leaves'].create([{
-            'name': "Public Holiday for different company",
-            'company_id': company_2.id,
-            'date_from': datetime(2025, 8, 29, 0, 0, 0),
-            'date_to': datetime(2025, 8, 30, 0, 0, 0),
-            'resource_id': False,
-            'time_type': "leave",
-        }])
-        leave.company_id = company_2
-
-        start_dt = datetime(2025, 8, 28).astimezone(UTC)
-        end_dt = datetime(2025, 8, 31, 17, 0).astimezone(UTC)
-
-        work_intervals, _, _ = self.fully_flex_resource._get_flexible_resource_valid_work_intervals(start_dt, end_dt)
-        self.assertEqual(work_intervals[self.fully_flex_resource.id]._items, [
-                (datetime(2025, 8, 28, 0, 0, tzinfo=UTC), datetime(2025, 8, 28, 23, 59, 59, 999999, tzinfo=UTC), self.env['resource.calendar.attendance']),
-                (datetime(2025, 8, 29, 0, 0, tzinfo=UTC), datetime(2025, 8, 29, 23, 59, 59, 999999, tzinfo=UTC), self.env['resource.calendar.attendance']),
-                (datetime(2025, 8, 30, 0, 0, tzinfo=UTC), datetime(2025, 8, 30, 23, 59, 59, 999999, tzinfo=UTC), self.env['resource.calendar.attendance']),
-                (datetime(2025, 8, 31, 0, 0, tzinfo=UTC), datetime(2025, 8, 31, 17, 0, 0, tzinfo=UTC), self.env['resource.calendar.attendance']),
-            ])
+        self.assertEqual(work_intervals[self.fully_flex_resource.id]._items, [], "there's a public holiday on day 4 and 5 for all calendars")
 
     def test_flexible_resource_work_hours_first_week_day(self):
         """
@@ -158,7 +147,6 @@ class TestFlexibleResourceCalendar(TransactionCase):
         """
         self.env['res.lang']._activate_lang(code='en_GB')
         self.env['res.lang'].search([('code', '=', 'en_GB')]).week_start = "7"
-        self.flex_calendar.hours_per_week = 40
 
         # Sunday to Saturday
         start_dt = datetime(2026, 4, 12, 0, 0, 0).astimezone(UTC)
@@ -182,3 +170,53 @@ class TestFlexibleResourceCalendar(TransactionCase):
             (2025, 52): 40.0,
             (2026, 1): 40.0,
         }, "weeks are well computed when ")
+
+    def test_flexible_resource_unavailable_intervals(self):
+        """Flexible resources are only unavailable during their leaves, returned as Intervals.
+        Without leave, they have no entry in the batch result."""
+        unavailable = self.flex_resource.calendar_id._unavailable_intervals(
+            datetime(2025, 7, 14, tzinfo=UTC), datetime(2025, 7, 19, tzinfo=UTC), resource=self.flex_resource,
+        )
+        self.assertIsInstance(unavailable, Intervals)
+        self.assertFalse(unavailable)
+        unavailable_per_resource = self.resources._get_unavailable_intervals(datetime(2025, 7, 14), datetime(2025, 7, 19))
+        self.assertNotIn(self.flex_resource.id, unavailable_per_resource)
+        self.assertNotIn(self.fully_flex_resource.id, unavailable_per_resource)
+
+        unavailable_per_resource = self.resources._get_unavailable_intervals(datetime(2025, 7, 28), datetime(2025, 8, 2))
+        for resource in self.resources:
+            unavailable = unavailable_per_resource[resource.id]
+            self.assertIsInstance(unavailable, Intervals)
+            self.assertEqual(
+                [(start.date(), stop.date(), start.tzinfo) for start, stop, _leaves in unavailable],
+                [(date(2025, 7, 29), date(2025, 7, 29), UTC), (date(2025, 7, 31), date(2025, 8, 1), UTC)],
+            )
+
+    def test_flexible_resource_working_time_leave(self):
+        """A leave counted as working time does not make the flexible resource unavailable."""
+        self.env['resource.calendar.leaves'].create({
+            'name': 'Training',
+            'resource_id': self.flex_resource.id,
+            'date_from': datetime(2025, 7, 30, 8),
+            'date_to': datetime(2025, 7, 30, 17),
+            'count_as': 'working_time',
+        })
+        start_dt = datetime(2025, 7, 28, tzinfo=UTC)
+        end_dt = datetime(2025, 8, 3, 17, tzinfo=UTC)
+        work_intervals, hours_per_day, hours_per_week = self.flex_resource._get_flexible_resource_valid_work_intervals(start_dt, end_dt)
+        self.assertIn(
+            date(2025, 7, 30),
+            {start.date() for start, _stop, _records in work_intervals[self.flex_resource.id]},
+        )
+        self.assertEqual(hours_per_day[self.flex_resource.id][date(2025, 7, 30)], 8.0)
+        self.assertEqual(hours_per_week[self.flex_resource.id][2025, 31], 16.0)
+
+        unusual_days = self.flex_resource.calendar_id._get_unusual_days(
+            datetime(2025, 7, 28, tzinfo=UTC), datetime(2025, 7, 31, 12, tzinfo=UTC), resource=self.flex_resource,
+        )
+        self.assertEqual(unusual_days, {
+            '2025-07-28': False,
+            '2025-07-29': True,
+            '2025-07-30': False,
+            '2025-07-31': True,
+        })

@@ -11,16 +11,16 @@
 # ExcaliberX <excaliberx@gmail.com>, 2022
 # Yihya Hugirat <hugirat@gmail.com>, 2022
 # ZVI BLONDER <ZVIBLONDER@gmail.com>, 2023
-# or balmas <or@laylinetech.com>, 2025, 2026.
+# or balmas <or@laylinetech.com>, 2025.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-05-16 09:42+0000\n"
-"Last-Translator: or balmas <or@laylinetech.com>\n"
-"Language-Team: Hebrew <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 13:37+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Hebrew <https://translate.odoo.com/projects/odoo-s19-4/"
 "event_sale/he/>\n"
 "Language: he\n"
 "MIME-Version: 1.0\n"
@@ -28,7 +28,30 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=4; plural=(n == 1) ? 0 : ((n == 2) ? 1 : ((n > 10 && "
 "n % 10 == 0) ? 2 : 3));\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: event_sale
+#: model:ir.module.module,description:base.module_event_sale
+msgid ""
+"\n"
+"Creating registration with sales orders.\n"
+"========================================\n"
+"\n"
+"This module allows you to automate and connect your registration creation "
+"with\n"
+"your main sale flow and therefore, to enable the invoicing feature of "
+"registrations.\n"
+"\n"
+"It defines a new kind of service products that offers you the possibility "
+"to\n"
+"choose an event category associated with it. When you encode a sales order "
+"for\n"
+"that product, you will be able to choose an existing event of that category "
+"and\n"
+"when you confirm your sales order it will automatically create a "
+"registration for\n"
+"this event.\n"
+msgstr ""
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_registration_change_exception
@@ -41,8 +64,10 @@ msgstr ""
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_configurator_view_form
-msgid "<i class=\"fa fa-arrow-right\"/> Configure Events &amp; Tickets"
-msgstr "<i class=\"fa fa-arrow-right\"/> הגדרת אירועים &amp; כרטיסים"
+msgid ""
+"<i class=\"oi\" data-icon=\"arrow_forward\"/> Configure Events &amp; Tickets"
+msgstr ""
+"<i class=\"oi\" data-icon=\"arrow_forward\"/> הגדרת אירועים &amp; כרטיסים"
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_registration_ticket_view_form
@@ -63,6 +88,11 @@ msgstr "<span>שינוי רישום למשתתף</span>"
 #: model_terms:ir.ui.view,arch_db:event_sale.event_configurator_view_form
 msgid "Add"
 msgstr "הוסף"
+
+#. module: event_sale
+#: model:ir.model.fields,field_description:event_sale.field_event_event_configurator__additional_product_ids
+msgid "Additional Products"
+msgstr ""
 
 #. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_configurator_view_form
@@ -307,6 +337,11 @@ msgid "Event Type"
 msgstr "סוג אירוע"
 
 #. module: event_sale
+#: model:ir.module.module,shortdesc:base.module_event_sale
+msgid "Events Sales"
+msgstr ""
+
+#. module: event_sale
 #: model_terms:ir.ui.view,arch_db:event_sale.event_sale_report_view_search
 msgid "Events that have ended"
 msgstr "אירועים שהסתיימו"
@@ -320,7 +355,7 @@ msgstr "חריג:"
 #: model:ir.model.fields.selection,name:event_sale.selection__event_sale_report__sale_status__free
 #: model_terms:ir.ui.view,arch_db:event_sale.event_sale_report_view_search
 msgid "Free"
-msgstr "ללא עלות"
+msgstr "פנוי"
 
 #. module: event_sale
 #: model:ir.model.fields,field_description:event_sale.field_event_event_configurator__has_available_tickets
@@ -566,6 +601,13 @@ msgid "Select an Event"
 msgstr "בחר אירוע"
 
 #. module: event_sale
+#: model:ir.model.fields,help:event_sale.field_event_event_configurator__additional_product_ids
+msgid ""
+"Select products to include with each registration. They will also show up "
+"separately on Sale Orders."
+msgstr ""
+
+#. module: event_sale
 #. odoo-python
 #: code:addons/event_sale/models/event_registration.py:0
 #: model:ir.model.fields,field_description:event_sale.field_event_event_configurator__event_slot_id
@@ -675,102 +717,3 @@ msgstr "נא לצרף את פרטי המשתתף."
 #: model_terms:ir.ui.view,arch_db:event_sale.event_registration_change_exception
 msgid "to"
 msgstr "ל"
-
-#~ msgid ""
-#~ "A description of the ticket that you want to communicate to your "
-#~ "customers."
-#~ msgstr "תיאור של הכרטיס שאתה רוצה להעביר ללקוחות שלך."
-
-#~ msgid ""
-#~ "A storable product is a product for which you manage stock. The Inventory "
-#~ "app has to be installed.\n"
-#~ "A consumable product is a product for which stock is not managed.\n"
-#~ "A service is a non-material product you provide."
-#~ msgstr ""
-#~ "מוצר מנוהל מלאי הוא מוצר שעבורו מתבצע ניהול מלאי במערכת. יש להתקין את "
-#~ "יישום המלאי.מוצר לא מנוהל מלאי הוא מוצר אשר לא מתבצע עבורו ניהול מלאי "
-#~ "במערכת.שירות הוא מוצר לא חומרי שאתה מספק."
-
-#~ msgid "Cancel"
-#~ msgstr "בטל"
-
-#~ msgid "Configure an event"
-#~ msgstr "הגדר אירוע"
-
-#~ msgid "Currency"
-#~ msgstr "מטבע"
-
-#~ msgid "Description"
-#~ msgstr "תיאור"
-
-#~ msgid "Event Template Ticket"
-#~ msgstr "תבניות כרטיסים לארוע"
-
-#~ msgid "Event Tickets"
-#~ msgstr "כרטיסים לאירוע"
-
-#~ msgid "Group By"
-#~ msgstr "קבץ לפי"
-
-#~ msgid "Is Paid"
-#~ msgstr "שולם"
-
-#~ msgid "Journal Entry"
-#~ msgstr "פקודת יומן"
-
-#~ msgid "Locked"
-#~ msgstr "נעולה"
-
-#~ msgid "Mobile"
-#~ msgstr "נייד"
-
-#~ msgid "Not Paid"
-#~ msgstr "לא שולם"
-
-#~ msgid "Ok"
-#~ msgstr "אישור"
-
-#~ msgid "Order Ref"
-#~ msgstr "מזהה הזמנה"
-
-#~ msgid "Paid"
-#~ msgstr "שולם"
-
-#~ msgid "Price"
-#~ msgstr "מחיר"
-
-#~ msgid "Price Reduce"
-#~ msgstr "הורדת מחיר"
-
-#~ msgid "Price Reduce Tax inc"
-#~ msgstr "הורדת מחיר מיסים כלולים"
-
-#~ msgid "Product Type"
-#~ msgstr "סוג מוצר"
-
-#~ msgid "Product Variant"
-#~ msgstr "וריאנט מוצר"
-
-#~ msgid "Quotation Template Line"
-#~ msgstr "שורת תבנית הצעת מחיר"
-
-#~ msgid "Quotation Template Option"
-#~ msgstr "אפשרות תבנית הצעת מחיר"
-
-#~ msgid "Sales (Tax Excluded)"
-#~ msgstr "מכירות (ללא מיסים)"
-
-#~ msgid "Sales End"
-#~ msgstr "סיום מכירה"
-
-#~ msgid "Sales Start"
-#~ msgstr "תחילת מכירות"
-
-#~ msgid "Skip"
-#~ msgstr "דלג"
-
-#~ msgid "Ticket changed from"
-#~ msgstr "הכרטיס שונה מ-"
-
-#~ msgid "Transaction"
-#~ msgstr "עסקה"

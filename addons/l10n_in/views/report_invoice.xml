@@ -1,44 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <template id="l10n_in_report_invoice_document_inherit" inherit_id="account.report_invoice_document" primary="True">
+        <xpath expr="//t[@t-set='layout_document_title']" position="before">
+            <t t-set="custom_in_footer">
+                <t t-if="o.company_id.account_fiscal_country_id.code == 'IN' and o.move_type in ['out_invoice', 'out_refund', 'out_receipt']
+                and o.company_id.l10n_in_gst_registration_type == 'composition'">
+                    <div class="mx-1">
+                        Composition Taxable Person – Not Eligible to Collect Tax on Supplies
+                    </div>
+                </t>
+            </t>
+        </xpath>
         <xpath expr="//div[@name='shipping_address_block']" position="inside">
-            <div t-if="o.company_id.account_fiscal_country_id.code == 'IN' and o.company_id.l10n_in_is_gst_registered and o.partner_shipping_id.vat">
+            <div t-if="o.company_id.account_fiscal_country_id.code == 'IN' and o.company_id.l10n_in_gst_registration_type and o.partner_shipping_id.has_vat">
                 GSTIN: <span t-field="o.partner_shipping_id.vat"/>
             </div>
         </xpath>
         <xpath expr="//div[@id='partner_vat_address_same_as_shipping']" position="attributes">
-            <attribute name="t-if" add="o.company_id.l10n_in_is_gst_registered" separator="and"/>
+            <attribute name="t-if" add="o.company_id.l10n_in_gst_registration_type" separator="and"/>
         </xpath>
         <xpath expr="//div[@id='partner_vat_address_not_same_as_shipping']" position="attributes">
-            <attribute name="t-if" add="o.company_id.l10n_in_is_gst_registered" separator="and"/>
+            <attribute name="t-if" add="o.company_id.l10n_in_gst_registration_type" separator="and"/>
         </xpath>
         <xpath expr="//div[@id='partner_vat_no_shipping']" position="attributes">
-            <attribute name="t-if" add="o.company_id.l10n_in_is_gst_registered" separator="and"/>
+            <attribute name="t-if" add="o.company_id.l10n_in_gst_registration_type" separator="and"/>
         </xpath>
-        <xpath expr="//div[@name='address_not_same_as_shipping']//t[@t-set='address']" position="inside">
+        <xpath expr="//t[@name='address_not_same_as_shipping']/address" position="before">
+            <strong t-if="o.l10n_in_is_self_invoice" class="d-block mb-1">Bill From:</strong>
             <t t-call="l10n_in.place_of_supply"/>
         </xpath>
-        <xpath expr="//div[@name='address_same_as_shipping']//t[@t-set='address']" position="inside">
+        <xpath expr="//t[@name='address_same_as_shipping']/address" position="before">
+            <strong t-if="o.l10n_in_is_self_invoice" class="d-block mb-1">Bill From:</strong>
             <t t-call="l10n_in.place_of_supply"/>
         </xpath>
-        <xpath expr="//div[@name='no_shipping']//t[@t-set='address']" position="inside">
+        <xpath expr="//t[@name='no_shipping']/address" position="before">
+            <strong t-if="o.l10n_in_is_self_invoice" class="d-block mb-1">Bill From:</strong>
             <t t-call="l10n_in.place_of_supply"/>
         </xpath>
 
+        <xpath expr="//div[@id='informations']" position="inside">
+            <div class="col" t-if="o.l10n_in_adjustment_type and o.l10n_in_adjustment_type != 'standard'" name="l10n_in_adjustment_type">
+                <strong>Adjustment Type</strong>
+                <div t-field="o.l10n_in_adjustment_type">Price Adjustment</div>
+            </div>
+        </xpath>
+
         <xpath expr="//table[@name='invoice_line_table']/thead/tr/th[1]" position="after">
-            <t t-if="o.company_id.account_fiscal_country_id.code == 'IN' and o.company_id.l10n_in_is_gst_registered">
+            <t t-if="o.company_id.account_fiscal_country_id.code == 'IN' and o.company_id.l10n_in_gst_registration_type">
                 <th>HSN/SAC</th>
             </t>
         </xpath>
 
         <xpath expr="//t[@name='account_invoice_line_accountable']/td[1]" position="after">
-            <td t-if="o.company_id.account_fiscal_country_id.code == 'IN' and o.company_id.l10n_in_is_gst_registered">
+            <td t-if="o.company_id.account_fiscal_country_id.code == 'IN' and o.company_id.l10n_in_gst_registration_type">
               <span t-if="line.l10n_in_hsn_code" t-field="line.l10n_in_hsn_code"></span>
             </td>
         </xpath>
 
-        <xpath expr="//t[@name='account_invoice_line_accountable']/following-sibling::*[1]/td[1]" position="after">
-            <td t-if="o.company_id.account_fiscal_country_id.code == 'IN' and o.company_id.l10n_in_is_gst_registered"></td>
+        <xpath expr="//t[@name='account_invoice_line_section']/td[1]" position="after">
+            <td t-if="o.company_id.account_fiscal_country_id.code == 'IN' and o.company_id.l10n_in_gst_registration_type"></td>
         </xpath>
 
         <xpath expr="//div[@id='qrcode_info']" position="attributes">
@@ -68,14 +88,52 @@
                 <span t-out="o._get_l10n_in_invoice_label()"/>
             </t>
         </t>
+
+        <t name="vendor_bill_title" position="replace">
+            <t name="vendor_bill_title">
+                <span t-if="o.l10n_in_is_self_invoice">Tax Invoice</span>
+                <span t-else="">Vendor Bill</span>
+            </t>
+        </t>
+
         <t name="proforma_invoice_title" position="replace">
             <t name="proforma_invoice_title">
                 Proforma <span t-out="o._get_l10n_in_invoice_label()"/>
             </t>
         </t>
 
+        <xpath expr="//t[@t-call='account.document_tax_totals']" position="attributes">
+            <attribute name="tax_totals">
+                o._l10n_in_get_invoice_totals_for_self_invoice() if o.l10n_in_is_self_invoice else o.tax_totals
+            </attribute>
+        </xpath>
+
+        <xpath expr="//span[@t-field='o.amount_total_words']" position="replace">
+            <t t-if="o.l10n_in_is_self_invoice">
+                <t t-set="self_invoice_totals" t-value="o._l10n_in_get_invoice_totals_for_self_invoice()"/>
+                <span t-out="o.currency_id.amount_to_text(self_invoice_totals.get('total_amount_currency', o.amount_total)).replace(',', '')"/>
+            </t>
+            <span t-else="" t-field="o.amount_total_words"/>
+        </xpath>
+
+        <xpath expr="//div[p[@name='payment_communication']]" position="attributes">
+            <attribute name="t-if" add="o.l10n_in_is_self_invoice" separator=" or "/>
+        </xpath>
+
+        <xpath expr="//p[@name='payment_communication']/span[@t-field='o.payment_reference']" position="replace">
+            <span t-if="o.l10n_in_is_self_invoice" class="fw-bold" t-out="o.name"/>
+            <span t-else="" class="fw-bold" t-field="o.payment_reference">INV/2023/00001</span>
+        </xpath>
+
+        <xpath expr="//div[p[@name='payment_communication']]" position="after">
+            <div t-if="o.l10n_in_is_self_invoice" class="text-muted mt-2">
+                <p class="mb-0">THE SUPPLY IS SUBJECT TO REVERSE CHARGE MECHANISM, SO THE RECIPIENT IS RESPONSIBLE FOR PAYING TAX.</p>
+                <p class="mb-0">THIS SELF TAX INVOICE IS ISSUED UNDER SEC 31(3)(f) OF CGST ACT 2017.</p>
+            </div>
+        </xpath>
+
         <xpath expr="//div[@id='payment_term']" position="after">
-            <t t-if="o.company_id.account_fiscal_country_id.code == 'IN' and o.company_id.l10n_in_is_gst_registered">
+            <t t-if="o.company_id.account_fiscal_country_id.code == 'IN' and o.company_id.l10n_in_gst_registration_type">
                 <t t-set="hsn_summary" t-value="o._l10n_in_get_hsn_summary_table()"/>
                 <t t-if="hsn_summary">
                     <div name="l10n_in_hsn_summary" class="mt-3" style="page-break-inside: avoid;">
@@ -92,30 +150,30 @@
                                 <th class="text-end" t-if="hsn_summary['has_cess']">CESS</th>
                             </thead>
                             <tr t-foreach="hsn_summary['items']" t-as="item">
-                                <td t-esc="item['l10n_in_hsn_code']"/>
+                                <td t-out="item['l10n_in_hsn_code']"/>
                                 <td class="text-end">
-                                    <span t-esc="item['quantity']"/>
-                                    <span t-if="hsn_summary['display_uom']">(<t t-esc="item['uom_name']"/>)</span>
+                                    <span t-out="item['quantity']"/>
+                                    <span t-if="hsn_summary['display_uom']">(<t t-out="item['uom_name']"/>)</span>
                                 </td>
-                                <td class="text-end" t-esc="item['rate']"/>
+                                <td class="text-end" t-out="item['rate']"/>
                                 <td class="text-end">
-                                    <span t-esc="item['amount_untaxed']"
+                                    <span t-out="item['amount_untaxed']"
                                           t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
                                 </td>
                                 <td class="text-end" t-if="hsn_summary['has_gst']">
-                                    <span t-esc="item['tax_amount_sgst']"
+                                    <span t-out="item['tax_amount_sgst']"
                                           t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
                                 </td>
                                 <td class="text-end" t-if="hsn_summary['has_gst']">
-                                    <span t-esc="item['tax_amount_cgst']"
+                                    <span t-out="item['tax_amount_cgst']"
                                           t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
                                 </td>
                                 <td class="text-end" t-if="hsn_summary['has_igst']">
-                                    <span t-esc="item['tax_amount_igst']"
+                                    <span t-out="item['tax_amount_igst']"
                                           t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
                                 </td>
                                 <td class="text-end" t-if="hsn_summary['has_cess']">
-                                    <span t-esc="item['tax_amount_cess']"
+                                    <span t-out="item['tax_amount_cess']"
                                           t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
                                 </td>
                             </tr>
@@ -143,7 +201,7 @@
     </template>
 
     <template id="place_of_supply">
-        <div t-if="o.company_id.l10n_in_is_gst_registered and o.l10n_in_state_id">
+        <div t-if="o.company_id.l10n_in_gst_registration_type and o.l10n_in_state_id">
             Place of supply: <span t-out="o.l10n_in_state_id.name" />
         </div>
     </template>
@@ -167,4 +225,9 @@
         </t>
     </template>
 
+    <template id="external_layout_footer_content" inherit_id="web.external_layout_footer_content">
+        <xpath expr="//div[hasclass('o_footer_pager_pdf')]" position="before">
+            <span t-if="report_type == 'pdf' and custom_in_footer" t-out="custom_in_footer"/>
+        </xpath>
+    </template>
 </odoo>

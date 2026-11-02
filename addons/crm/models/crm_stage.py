@@ -1,7 +1,8 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import _, api, fields, models
+from odoo.fields import Domain
+from odoo.tools import sql
 
 AVAILABLE_PRIORITIES = [
     ('0', 'Low'),
@@ -18,7 +19,8 @@ class CrmStage(models.Model):
         Stages are for example used to display the kanban view of records.
     """
     _name = 'crm.stage'
-    _description = "CRM Stages"
+    _description = "CRM Stage"
+    _explanation = "Represents a step in the sales pipeline (e.g., New, Qualified, Proposition, Won). Used to organize and track the progress of crm.lead records."
     _rec_name = 'name'
     _order = "sequence, name, id"
 
@@ -33,7 +35,20 @@ class CrmStage(models.Model):
         help='This stage is folded in the kanban view when there are no records in that stage to display.')
     # This field for interface only
     team_count = fields.Integer('team_count', compute='_compute_team_count')
-    color = fields.Integer(string='Color', export_string_translation=False)
+
+    @api.model
+    def _get_visible_stages_domain(self, team_ids):
+        """ Returns the "crm.stage" domain to know which stages are visible for the given team ids. """
+        return Domain("team_ids", "in", team_ids) | Domain("team_ids", "=", False)
+
+    def _auto_init(self):
+        # TODO stop hardcoding ids in tests and remove this
+        cr = self.env.cr
+        reset_sequence = self._auto and not sql.table_exists(cr, self._table)
+        res = super()._auto_init()
+        if reset_sequence:
+            cr.execute("SELECT setval(pg_get_serial_sequence(%s, 'id'), 1, false)", (self._table,))
+        return res
 
     @api.depends('team_ids')
     def _compute_team_count(self):
@@ -41,6 +56,9 @@ class CrmStage(models.Model):
 
     @api.onchange('is_won')
     def _onchange_is_won(self):
+        if not self._origin:
+            # don't display the warning when creating a new stage
+            return
         return {
             'warning': {
                 'title': _("Do you really want to update this stage?"),

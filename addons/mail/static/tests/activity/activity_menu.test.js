@@ -25,7 +25,20 @@ test("should update activities when opening the activity menu", async () => {
         res_model: "res.partner",
     });
     await click(".o_menu_systray i[aria-label='Activities']");
-    await contains(".o-mail-ActivityMenu-counter", { text: "1" });
+    await contains(".o-mail-ActivityMenu-counter:text('1')");
+});
+
+test("global shortcut", async () => {
+    await mountWithCleanup(ActivityMenu);
+    await triggerHotkey("control+k");
+    await animationFrame();
+    expect(queryText(`.o_command:contains("Activity") .o_command_hotkey`)).toEqual(
+        "Activity\nALT + SHIFT + A",
+        { message: "The command should be registered with the right hotkey" }
+    );
+    await triggerHotkey("alt+shift+a");
+    await animationFrame();
+    expect(".modal-dialog .modal-title").toHaveText("Schedule Activity");
 });
 
 test("global shortcut", async () => {

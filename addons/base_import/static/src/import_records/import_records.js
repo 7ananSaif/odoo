@@ -16,7 +16,6 @@ const cogMenuRegistry = registry.category("cogMenu");
 export class ImportRecords extends Component {
     static template = "base_import.ImportRecords";
     static components = { DropdownItem };
-    static props = {};
 
     setup() {
         this.action = useService("action");
@@ -39,12 +38,16 @@ export class ImportRecords extends Component {
 export const importRecordsItem = {
     Component: ImportRecords,
     groupNumber: STATIC_ACTIONS_GROUP_NUMBER,
-    isDisplayed: ({ config, isSmall }) =>
-        !isSmall &&
-        config.actionType === "ir.actions.act_window" &&
-        ["kanban", "list"].includes(config.viewType) &&
-        exprToBoolean(config.viewArch.getAttribute("import"), true) &&
-        exprToBoolean(config.viewArch.getAttribute("create"), true),
+    isDisplayed: ({ config }) => {
+        const ui = useService("ui");
+        return (
+            !ui.isSmall &&
+            config.actionType === "ir.actions.act_window" &&
+            ["kanban", "list", "grid"].includes(config.viewType) &&
+            exprToBoolean(config.viewArch.getAttribute("import"), true) &&
+            exprToBoolean(config.viewArch.getAttribute("create"), true)
+        );
+    },
 };
 
 cogMenuRegistry.add("import-menu", importRecordsItem, { sequence: 1 });

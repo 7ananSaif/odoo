@@ -5,6 +5,7 @@ from markupsafe import Markup
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Domain
+from odoo.tools import BinaryBytes
 
 _logger = logging.getLogger(__name__)
 
@@ -28,7 +29,7 @@ FLOW_SENT_STATES = tuple(dict(FLOW_SENT_STATES_SELECTION))
 
 class PdpFlow(models.Model):
     _name = 'l10n.fr.pdp.reports.flow'
-    _description = 'French PDP Flow'
+    _description = 'French E-Reporting Flow'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'create_date desc'
 
@@ -40,8 +41,8 @@ class PdpFlow(models.Model):
         default='ready',
     )
     payload_id = fields.Many2one('ir.attachment', string="XML Payload", compute='_compute_payload_attachment')
-    transport_status = fields.Char(help="Raw status returned by the PDP transport API.")
-    transport_message = fields.Text(help="Additional message or error returned by the PDP transport API.")
+    transport_status = fields.Char(help="Raw status returned by the Approved Platform transport API.")
+    transport_message = fields.Text(help="Additional message or error returned by the Approved Platform transport API.")
     report_type = fields.Selection(
         selection=[('transaction', "Transaction"), ('payment', "Payment")],
         required=True,
@@ -105,7 +106,7 @@ class PdpFlow(models.Model):
         # get all the moves for which this is the orignial flow but also all the moves linked to any flow with same scope
         for flow in self:
             flow.move_ids = flow._get_moves()
-            flow.error_moves_count = sum(move.l10n_fr_pdp_status == 'error' for move in flow.move_ids)
+            flow.error_moves_count = sum(flow.move_ids.mapped('l10n_fr_pdp_has_error'))
 
     def _compute_payload_attachment(self):
         """Compute the payload attachment record linked to this flow."""
@@ -113,8 +114,11 @@ class PdpFlow(models.Model):
             ('res_model', '=', self._name),
             ('res_id', 'in', self.ids),
             ('mimetype', '=', 'application/xml'),
+            ('name', 'not like', 'message.%'),
         ], order='id desc')
-        attachments_map = {attachment.res_id: attachment for attachment in attachments}
+        attachments_map = {}
+        for attachment in attachments:
+            attachments_map.setdefault(attachment.res_id, attachment)
         for flow in self:
             flow.payload_id = attachments_map.get(flow.id)
 
@@ -156,9 +160,14 @@ class PdpFlow(models.Model):
         but it DOES NOT verify if move is eligible for flow 10
         """
         report_type = move.l10n_fr_pdp_flow_10_report_type
-        transaction = move if report_type == 'transaction' else move._l10n_fr_pdp_get_matched_transactions()[0]
         period_data = self._get_period_flow_properties(move.company_id, move.date, report_type)
-        operation_type = 'purchase' if transaction._l10n_fr_pdp_is_purchase() else 'sale'
+        if report_type == 'transaction':
+            operation_type = 'purchase' if move._l10n_fr_pdp_is_purchase() else 'sale'
+        elif matched_transactions := move._l10n_fr_pdp_get_matched_transactions():
+            operation_type = 'purchase' if matched_transactions[0]._l10n_fr_pdp_is_purchase() else 'sale'
+        else:
+            # The related transaction can already be out of scope when a sent payment needs an RE.
+            operation_type = move.l10n_fr_pdp_sent_in_flow_ids.sorted('id')[-1].operation_type
         return {
             'company_id': move.company_id.id,
             'period_start': period_data['period_start'],
@@ -206,27 +215,29 @@ class PdpFlow(models.Model):
 
     def _build_payload(self, moves=None):
         """Build single XML payload for the entire flow period."""
-        invalid_move_states = {None, 'out_of_scope', 'error'}
+        invalid_move_states = {None, 'out_of_scope'}
         for flow in self:
-            if flow.state not in FLOW_OPEN_STATES:
+            if flow.state not in FLOW_OPEN_STATES + ('error',):
                 raise UserError(self.env._("Flow %(name)s has already been sent.", name=flow.name))
 
             if moves is None:
                 moves = flow._get_moves()
-            valid_moves = moves.filtered(lambda move: move.l10n_fr_pdp_status not in invalid_move_states)
+            valid_moves = moves.filtered(
+                lambda move: move.l10n_fr_pdp_status not in invalid_move_states and not move.l10n_fr_pdp_has_error
+            )
 
-            if not valid_moves:
+            if not flow.initial_flow_id and not valid_moves:
                 flow._message_post_once(self.env._("Payload build failed: no valid invoices."))
                 continue
 
             payload = self.env['pdp.flow.10.xml.builder']._build_payload(flow, valid_moves)
             filename = flow._get_tracking_id() + '.xml'
 
-            if flow.payload_id:
+            if flow.payload_id and flow.state != 'error':
                 flow.payload_id.unlink()
             flow.payload_id = self.env['ir.attachment'].create({
                 'name': filename,
-                'datas': payload,
+                'raw': BinaryBytes(payload),
                 'res_model': flow._name,
                 'res_id': flow.id,
                 'type': 'binary',
@@ -234,12 +245,12 @@ class PdpFlow(models.Model):
             })
 
             # Log build completion
-            error_moves_len = len(valid_moves) < len(moves)
-            if error_moves_len:
+            invalid_count = len(moves) - len(valid_moves)
+            if invalid_count:
                 flow._message_post_once(self.env._(
                     "Payload built with %(valid)s valid invoice(s) and %(invalid)s error(s).",
                     valid=len(valid_moves),
-                    invalid=error_moves_len,
+                    invalid=invalid_count,
                 ))
             else:
                 flow._message_post_once(self.env._(
@@ -249,22 +260,25 @@ class PdpFlow(models.Model):
 
     def _get_tracking_id(self):
         self.ensure_one()
-        return ''.join([
-            f'{self.id:x}',
+        tracking_parts = [f'{self.id:x}']
+        if send_attempt := self.env.context.get('l10n_fr_pdp_send_attempt'):
+            tracking_parts.append(f'_{send_attempt}')
+        tracking_parts.extend([
             self.operation_type[0],
             self.report_type[0],
             "R" if self.initial_flow_id else "I",
             self.period_start.strftime("%y%m%d")
-        ]).upper().zfill(19)
+        ])
+        return ''.join(tracking_parts).upper().zfill(19)
 
     # -------------------------------------------------------------------------
     # Business Methods - Sending
     # -------------------------------------------------------------------------
 
-    def action_send(self, check_totp=True):
-        """Send flow payload to transport gateway. The parameter check totp is no longer useful and will be remove in master """
+    def action_send(self):
+        """Send flow payload to transport gateway."""
         for flow in self:
-            if flow.state != 'ready':
+            if flow.state not in FLOW_OPEN_STATES + ('error',):
                 continue
 
             valid_moves_ids = []
@@ -273,7 +287,7 @@ class PdpFlow(models.Model):
             for move in flow_moves:
                 if not move.l10n_fr_pdp_status or move.l10n_fr_pdp_status == 'out_of_scope':
                     continue
-                if move.l10n_fr_pdp_status == 'error':
+                if move.l10n_fr_pdp_has_error:
                     error_moves_ids.append(move.id)
                 else:
                     valid_moves_ids.append(move.id)
@@ -286,7 +300,7 @@ class PdpFlow(models.Model):
                         name=previous_flow.name
                     ))
                     continue
-                if set(previous_flow.sent_move_ids.ids) == set(valid_moves_ids):
+                if flow.state != 'error' and set(previous_flow.sent_move_ids.ids) == set(valid_moves_ids):
                     flow._message_post_once(self.env._(
                         "This flow is identical to the previous flow %(name)s.",
                         name=previous_flow.name
@@ -296,11 +310,23 @@ class PdpFlow(models.Model):
                 flow._message_post_once(self.env._("No valid transactions/payments to send."))
                 continue
 
+            if flow.state == 'error':
+                send_attempt = self.env['ir.attachment'].search_count([
+                    ('res_model', '=', flow._name),
+                    ('res_id', '=', flow.id),
+                    ('mimetype', '=', 'application/xml'),
+                    ('name', 'not like', 'message.%'),
+                ])
+                flow = flow.with_context(l10n_fr_pdp_send_attempt=max(1, send_attempt))
             flow._build_payload(flow_moves)
 
             response = flow._send_to_proxy()
-            flow.pdp_flow_id = response['flow_id'].split('_')[-1]
-            flow.state = 'sent'
+            flow.write({
+                'pdp_flow_id': response['flow_id'].split('_')[-1],
+                'state': 'sent',
+                'transport_status': False,
+                'transport_message': False,
+            })
 
             # Post audit messages on sent moves
             if flow.state in FLOW_SENT_STATES:
@@ -335,7 +361,7 @@ class PdpFlow(models.Model):
         proxy_user = self.company_id.account_peppol_edi_user
         if not proxy_user:
             raise UserError(self.env._(
-                "No active PDP proxy user is configured for company %(company)s.",
+                "No active Approved Platform connection is configured for company %(company)s.",
                 company=self.company_id.display_name,
             ))
         return proxy_user
@@ -348,7 +374,7 @@ class PdpFlow(models.Model):
         payload_doc = {
             'flow_number': 10,
             'filename': self.payload_id.name,
-            'ubl': self.payload_id.datas.decode(),
+            'ubl': self.payload_id.raw.to_base64(),
             'external_ref': self._get_tracking_id(),
         }
 
@@ -358,7 +384,7 @@ class PdpFlow(models.Model):
         )
         ppf_messages = result.get('ppf_messages') or []
         if not ppf_messages:
-            raise UserError(self.env._("The PDP proxy did not return a flow tracking identifier."))
+            raise UserError(self.env._("The Approved Platform did not return a flow tracking identifier."))
 
         proxy_message = ppf_messages[0]
         return {
@@ -473,7 +499,7 @@ class PdpFlow(models.Model):
 
     def _get_moves(self):
         self.ensure_one()
-        if self.state in FLOW_SENT_STATES_SELECTION:
+        if self.state in FLOW_SENT_STATES:
             return self.sent_move_ids
         moves = self.env['account.move'].search_fetch(
                 domain=[
@@ -499,6 +525,8 @@ class PdpFlow(models.Model):
 
     def action_build_payload_manual(self):
         """Manual trigger for payload building."""
+        if any(flow.state == 'error' for flow in self):
+            raise UserError(self.env._("Rejected flows are rebuilt when resent."))
         self._build_payload()
         _logger.info('Manual payload build triggered for flows: %s', self.ids)
         return True
@@ -540,8 +568,11 @@ class PdpFlow(models.Model):
 
     def action_view_moves(self):
         """Open list view of related invoices."""
+        ereporting_view = self.env.ref("l10n_fr_pdp.l10n_fr_pdp_list_view_move_ereporting", raise_if_not_found=False)
+        view = ereporting_view.id if ereporting_view else False
         return self._get_moves()._get_records_action(
             name=self.env._("Related Invoices"),
+            views=[(view, 'list'), (False, 'form')],
             context={'create': False, 'group_by': ['move_type']},
         )
 
@@ -584,7 +615,7 @@ class PdpFlow(models.Model):
                     # RE flows: send immediately when ready (no deadline constraint)
                     if flow.state != 'ready' or flow.error_moves_count:
                         continue
-                flow.with_company(flow.company_id).sudo().action_send(check_totp=False)
+                flow.with_company(flow.company_id).sudo().action_send()
                 flow._log_cron_event(
                     self.env._("Flow automatically sent by cron (status: %(status)s). %(extra)s",
                       status=flow.transport_status or flow.state,

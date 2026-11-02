@@ -39,6 +39,7 @@ class Employee extends models.Model {
         relation: "hr.employee",
         relation_field: "parent_id",
     });
+    avatar_128 = fields.Image();
 
     _records = [
         { id: 1, name: "Albert", parent_id: false, child_ids: [2, 3] },
@@ -112,16 +113,14 @@ test("load hierarchy view", async () => {
     expect(".o_hierarchy_node_container").toHaveCount(3);
     expect(".o_hierarchy_node").toHaveCount(3);
     expect(".o_hierarchy_node_button").toHaveCount(2);
-    expect(".o_hierarchy_node_button.btn-primary").toHaveCount(1);
-    expect(".o_hierarchy_node_button.btn-primary.d-grid").toHaveCount(1);
-    expect(".o_hierarchy_node_button.btn-primary.rounded-0").toHaveCount(1);
-    expect(".o_hierarchy_node_button.btn-primary .fa-rotate-90.align-text-top").toHaveCount(1);
-    expect(".o_hierarchy_node_button.btn-primary").toHaveText("Unfold\n1");
+    expect(".o_hierarchy_node_button[title='Unfold']").toHaveCount(1);
+    expect(".o_hierarchy_node_button[title='Unfold'].d-grid").toHaveCount(1);
+    expect(".o_hierarchy_node_button[title='Unfold']").toHaveText("1 Unfold");
 
     expect(".o_hierarchy_row:eq(0) .o_hierarchy_node").toHaveCount(1);
     expect(".o_hierarchy_row:eq(0) .o_hierarchy_node_content").toHaveText("Albert");
-    expect(".o_hierarchy_node_button.btn-secondary").toHaveCount(1);
-    expect(".o_hierarchy_node_button.btn-secondary").toHaveText("Fold");
+    expect(".o_hierarchy_node_button[title='Fold']").toHaveCount(1);
+    expect(".o_hierarchy_node_button[title='Fold']").toHaveText("2 Fold");
 });
 
 test("display child nodes", async () => {
@@ -138,9 +137,9 @@ test("display child nodes", async () => {
 
     expect(".o_hierarchy_row").toHaveCount(2);
     expect(".o_hierarchy_node_button").toHaveCount(2);
-    expect(".o_hierarchy_node_button.btn-secondary").toHaveCount(1);
-    expect(".o_hierarchy_node_button.btn-primary").toHaveCount(1);
-    await contains(".o_hierarchy_node_button.btn-primary").click();
+    expect(".o_hierarchy_node_button[title='Fold']").toHaveCount(1);
+    expect(".o_hierarchy_node_button[title='Unfold']").toHaveCount(1);
+    await contains(".o_hierarchy_node_button[title='Unfold']").click();
     expect(".o_hierarchy_row").toHaveCount(3);
     expect(".o_hierarchy_separator").toHaveCount(2);
     expect(".o_hierarchy_line_part").toHaveCount(4);
@@ -149,9 +148,12 @@ test("display child nodes", async () => {
     expect(".o_hierarchy_node_container").toHaveCount(4);
     expect(".o_hierarchy_node").toHaveCount(4);
     expect(".o_hierarchy_node_button").toHaveCount(2);
-    expect(".o_hierarchy_node_button.btn-primary").toHaveCount(0);
-    expect(".o_hierarchy_node_button.btn-secondary").toHaveCount(2);
-    expect(".o_hierarchy_node_button.btn-secondary").toHaveText("Fold");
+    expect(".o_hierarchy_node_button[title='Unfold']").toHaveCount(0);
+    expect(".o_hierarchy_node_button[title='Fold']").toHaveCount(2);
+    expect(queryAllTexts(".o_hierarchy_node_button[title='Fold']")).toEqual([
+        "2 Fold",
+        "1 Fold",
+    ]);
     // check nodes in each row
     expect(".o_hierarchy_row:eq(0) .o_hierarchy_node").toHaveCount(1);
     expect(".o_hierarchy_row:eq(0) .o_hierarchy_node_content").toHaveText("Albert");
@@ -180,9 +182,9 @@ test("display child nodes with child_field set on the view", async () => {
 
     expect(".o_hierarchy_row").toHaveCount(2);
     expect(".o_hierarchy_node_button").toHaveCount(2);
-    expect(".o_hierarchy_node_button.btn-secondary").toHaveCount(1);
-    expect(".o_hierarchy_node_button.btn-primary").toHaveCount(1);
-    await contains(".o_hierarchy_node_button.btn-primary").click();
+    expect(".o_hierarchy_node_button[title='Fold']").toHaveCount(1);
+    expect(".o_hierarchy_node_button[title='Unfold']").toHaveCount(1);
+    await contains(".o_hierarchy_node_button[title='Unfold']").click();
     expect(".o_hierarchy_row").toHaveCount(3);
     expect(".o_hierarchy_separator").toHaveCount(2);
     expect(".o_hierarchy_line_part").toHaveCount(4);
@@ -191,8 +193,8 @@ test("display child nodes with child_field set on the view", async () => {
     expect(".o_hierarchy_node_container").toHaveCount(4);
     expect(".o_hierarchy_node").toHaveCount(4);
     expect(".o_hierarchy_node_button").toHaveCount(2);
-    expect(".o_hierarchy_node_button.btn-primary").toHaveCount(0);
-    expect(".o_hierarchy_node_button.btn-secondary").toHaveCount(2);
+    expect(".o_hierarchy_node_button[title='Unfold']").toHaveCount(0);
+    expect(".o_hierarchy_node_button[title='Fold']").toHaveCount(2);
     expect.verifySteps(["get child data with descendants"]);
 });
 
@@ -209,7 +211,7 @@ test("collapse child nodes", async () => {
     expect(".o_hierarchy_line_right").toHaveCount(1);
     expect(".o_hierarchy_node_container").toHaveCount(3);
     expect(".o_hierarchy_node").toHaveCount(3);
-    await contains(".o_hierarchy_node_button.btn-secondary").click();
+    await contains(".o_hierarchy_node_button[title='Fold']").click();
     expect(".o_hierarchy_row").toHaveCount(1);
     expect(".o_hierarchy_separator").toHaveCount(0);
     expect(".o_hierarchy_line_part").toHaveCount(0);
@@ -217,7 +219,7 @@ test("collapse child nodes", async () => {
     expect(".o_hierarchy_line_right").toHaveCount(0);
     expect(".o_hierarchy_node_container").toHaveCount(1);
     expect(".o_hierarchy_node").toHaveCount(1);
-    expect(".o_hierarchy_node_button.btn-secondary").toHaveCount(0);
+    expect(".o_hierarchy_node_button[title='Fold']").toHaveCount(0);
     expect(".o_hierarchy_node_button").toHaveCount(1);
     expect(".o_hierarchy_node_container:not(.o_hierarchy_node_button)").toHaveCount(1);
     expect(queryAllTexts(".o_hierarchy_row .o_hierarchy_node_content")).toEqual(["Albert"]);
@@ -237,14 +239,28 @@ test("display the parent above the line when many records on the parent row", as
     expect(".o_hierarchy_row").toHaveCount(1);
     expect(".o_hierarchy_separator").toHaveCount(0);
     expect(".o_hierarchy_node").toHaveCount(2);
-    expect(".o_hierarchy_node_button.btn-primary").toHaveCount(1);
-    await contains(".o_hierarchy_node_button.btn-primary").click();
+    expect(".o_hierarchy_node_button[title='Unfold']").toHaveCount(1);
+    await contains(".o_hierarchy_node_button[title='Unfold']").click();
     expect(".o_hierarchy_row").toHaveCount(2);
     expect(".o_hierarchy_separator").toHaveCount(1);
     expect(".o_hierarchy_line_left").toHaveCount(1);
     expect(".o_hierarchy_line_right").toHaveCount(1);
     expect(".o_hierarchy_parent_node_container").toHaveCount(1);
     expect(".o_hierarchy_parent_node_container").toHaveText("Albert");
+});
+
+test("display the parent with avatar above the line when many records on the parent row", async () => {
+    Employee._views["hierarchy"] = Employee._views["hierarchy"].replace(
+        "<hierarchy>",
+        "<hierarchy avatar_field='avatar_128'>"
+    );
+    await mountView({
+        type: "hierarchy",
+        resModel: "hr.employee",
+    });
+
+    await contains(".o_hierarchy_node_button[title='Unfold']").click();
+    expect(".o_hierarchy_parent_node_container .o_avatar").toHaveCount(1);
 });
 
 test("Add a custom domain leaf on default state of the view with a globalDomain and search default filters", async () => {
@@ -365,11 +381,11 @@ test("fetch parent record", async () => {
     expect(".o_hierarchy_row:eq(0) .o_hierarchy_node_content").toHaveText("Josephine\nAlbert");
 
     expect(".o_hierarchy_row:eq(1) .o_hierarchy_node_content").toHaveText("Louis\nJosephine");
-    expect(".o_hierarchy_node_container button .fa-chevron-up").toHaveCount(1, {
+    expect(".o_hierarchy_node_container button [data-icon='expand_less']").toHaveCount(1, {
         message:
             "Button to fetch the parent node should be visible on the first node displayed in the view.",
     });
-    await contains(".o_hierarchy_node_container button .fa-chevron-up").click();
+    await contains(".o_hierarchy_node_container button [data-icon='expand_less']").click();
     expect(".o_hierarchy_row").toHaveCount(3);
     expect(".o_hierarchy_node").toHaveCount(4);
     expect(".o_hierarchy_separator").toHaveCount(2);
@@ -410,16 +426,16 @@ test("fetch parent when there are many records without the same parent in the sa
         "Louis\nJosephine",
         "Albert",
     ]);
-    expect(".o_hierarchy_node_container button .fa-chevron-up").toHaveCount(2);
-    await contains(".o_hierarchy_node_container button .fa-chevron-up").click();
+    expect(".o_hierarchy_node_container button [data-icon='expand_less']").toHaveCount(2);
+    await contains(".o_hierarchy_node_container button [data-icon='expand_less']").click();
     expect(".o_hierarchy_row").toHaveCount(2);
     expect(".o_hierarchy_node").toHaveCount(2);
     expect(queryAllTexts(".o_hierarchy_node_content")).toEqual([
         "Georges\nAlbert",
         "Lisa\nGeorges",
     ]);
-    expect(".o_hierarchy_node_container button .fa-chevron-up").toHaveCount(1);
-    await contains(".o_hierarchy_node_container button .fa-chevron-up").click();
+    expect(".o_hierarchy_node_container button [data-icon='expand_less']").toHaveCount(1);
+    await contains(".o_hierarchy_node_container button [data-icon='expand_less']").click();
     expect(".o_hierarchy_row").toHaveCount(3);
     expect(".o_hierarchy_node").toHaveCount(4);
 });
@@ -445,8 +461,8 @@ test("fetch parent when parent record is in the same row", async () => {
 
     expect(".o_hierarchy_row").toHaveCount(1);
     expect(".o_hierarchy_node_container").toHaveCount(5);
-    expect(".o_hierarchy_node_container button .fa-chevron-up").toHaveCount(4);
-    await contains(".o_hierarchy_node_container button .fa-chevron-up").click();
+    expect(".o_hierarchy_node_container button [data-icon='expand_less']").toHaveCount(4);
+    await contains(".o_hierarchy_node_container button [data-icon='expand_less']").click();
     expect(".o_hierarchy_row").toHaveCount(2);
     expect(".o_hierarchy_node").toHaveCount(3);
     expect(queryAllTexts(".o_hierarchy_node_content")).toEqual([
@@ -478,7 +494,7 @@ test("fetch parent of node with children displayed", async () => {
 
     expect(".o_hierarchy_row").toHaveCount(1);
     expect(".o_hierarchy_node_container").toHaveCount(5);
-    expect(".o_hierarchy_node_container button .fa-chevron-up").toHaveCount(4);
+    expect(".o_hierarchy_node_container button [data-icon='expand_less']").toHaveCount(4);
     const georgesNode = queryOne(
         ".o_hierarchy_node_container:has(button[name=hierarchy_search_parent_node]):eq(0)"
     );
@@ -499,7 +515,7 @@ test("fetch parent of node with children displayed", async () => {
     ]);
     expect(".o_hierarchy_row:eq(1) .o_hierarchy_node").toHaveCount(1);
     expect(".o_hierarchy_row:eq(1) .o_hierarchy_node_content").toHaveText("Lisa\nGeorges");
-    await contains(".o_hierarchy_node_container button .fa-chevron-up").click();
+    await contains(".o_hierarchy_node_container button [data-icon='expand_less']").click();
     expect(".o_hierarchy_row").toHaveCount(3);
     expect(".o_hierarchy_node").toHaveCount(4);
 });
@@ -676,9 +692,9 @@ test("drag and drop record on node of another tree", async () => {
     });
 
     expect(".o_hierarchy_row").toHaveCount(1);
-    await contains(".o_hierarchy_node_button.btn-primary").click();
+    await contains(".o_hierarchy_node_button[title='Unfold']").click();
     expect(".o_hierarchy_row").toHaveCount(2);
-    await contains(".o_hierarchy_node_button.btn-primary").click();
+    await contains(".o_hierarchy_node_button[title='Unfold']").click();
     expect(".o_hierarchy_row").toHaveCount(3);
     expect(queryAllTexts(".o_hierarchy_row .o_hierarchy_node_content")).toEqual([
         "A",
@@ -701,13 +717,13 @@ test("drag and drop record on node of another tree", async () => {
     expect(".o_hierarchy_node_container:eq(0) .o_hierarchy_node_content").toHaveText("A");
 
     await contains(
-        ".o_hierarchy_node_container:eq(0) .o_hierarchy_node_button.btn-primary"
+        ".o_hierarchy_node_container:eq(0) .o_hierarchy_node_button[title='Unfold']"
     ).click();
 
     expect(".o_hierarchy_node_container:eq(2) .o_hierarchy_node_content").toHaveText("C\nA");
 
     await contains(
-        ".o_hierarchy_node_container:eq(2) .o_hierarchy_node_button.btn-primary"
+        ".o_hierarchy_node_container:eq(2) .o_hierarchy_node_button[title='Unfold']"
     ).click();
 
     expect(queryAllTexts(".o_hierarchy_row .o_hierarchy_node_content")).toEqual(
@@ -899,7 +915,7 @@ test("drag and drop node as a child of a sibling of its parent", async () => {
         viewId: 1,
     });
     expect(".o_hierarchy_row").toHaveCount(2);
-    await contains(".o_hierarchy_node_button.btn-primary").click();
+    await contains(".o_hierarchy_node_button[title='Unfold']").click();
     expect(".o_hierarchy_row").toHaveCount(3);
     expect(queryAllTexts(".o_hierarchy_row .o_hierarchy_node_content")).toEqual([
         "A",
@@ -940,7 +956,7 @@ test("drag and drop record and respect ordering", async () => {
         resModel: "hr.employee",
     });
     expect(".o_hierarchy_row").toHaveCount(1);
-    await contains(".o_hierarchy_node_button.btn-primary").click();
+    await contains(".o_hierarchy_node_button[title='Unfold']").click();
 
     expect(".o_hierarchy_row").toHaveCount(2);
     expect(".o_hierarchy_node").toHaveCount(6);
@@ -1064,13 +1080,13 @@ test("drag node to scroll", async () => {
 
     // Fully open the view
     expect(".o_hierarchy_row").toHaveCount(1);
-    await contains(".o_hierarchy_node_button.btn-primary").click();
+    await contains(".o_hierarchy_node_button[title='Unfold']").click();
     expect(".o_hierarchy_row").toHaveCount(2);
-    await contains(".o_hierarchy_node_button.btn-primary").click();
+    await contains(".o_hierarchy_node_button[title='Unfold']").click();
     expect(".o_hierarchy_row").toHaveCount(3);
-    await contains(".o_hierarchy_node_button.btn-primary").click();
+    await contains(".o_hierarchy_node_button[title='Unfold']").click();
     expect(".o_hierarchy_row").toHaveCount(4);
-    await contains(".o_hierarchy_node_button.btn-primary").click();
+    await contains(".o_hierarchy_node_button[title='Unfold']").click();
     expect(".o_hierarchy_row").toHaveCount(5);
     expect(queryAllTexts(".o_hierarchy_row .o_hierarchy_node_content")).toEqual([
         "A",
@@ -1119,48 +1135,17 @@ test("drag node to scroll", async () => {
     expect(".o_hierarchy_node_container.o_hierarchy_dragged").toHaveCount(0);
 });
 
-test("check default icon is correctly used inside button to display child nodes", async () => {
+test("should display 'Unfold' button label when no label is provided", async () => {
     await mountView({
         type: "hierarchy",
         resModel: "hr.employee",
     });
 
-    expect(".o_hierarchy_node button[name=hierarchy_search_subsidiaries].btn-primary").toHaveCount(
+    expect(".o_hierarchy_node button[name=hierarchy_search_subsidiaries][title='Unfold']").toHaveCount(
         1
     );
-    expect(".o_hierarchy_node button[name=hierarchy_search_subsidiaries].btn-primary").toHaveText(
-        "Unfold\n1"
-    );
-    expect(
-        ".o_hierarchy_node button[name=hierarchy_search_subsidiaries] i.fa-share-alt.fa-rotate-90.align-text-top"
-    ).toHaveCount(1, {
-        message:
-            "The default icon of the hierarchy view should be displayed inside the button to unfold the node.",
-    });
-});
-
-test("use other icon used next to Unfold string displayed inside the button", async () => {
-    Employee._views["hierarchy"] = Employee._views["hierarchy"].replace(
-        "<hierarchy>",
-        "<hierarchy icon='fa-users'>"
-    );
-    await mountView({
-        type: "hierarchy",
-        resModel: "hr.employee",
-    });
-
-    expect(".o_hierarchy_node button[name=hierarchy_search_subsidiaries].btn-primary").toHaveCount(
-        1
-    );
-    expect(".o_hierarchy_node button[name=hierarchy_search_subsidiaries].btn-primary").toHaveText(
-        "Unfold\n1"
-    );
-    expect(".o_hierarchy_node button[name=hierarchy_search_subsidiaries] i.fa-users").toHaveCount(
-        1,
-        {
-            message:
-                "The icon defined in the attribute icon in hierarchy tag should be displayed inside the button to unfold the node instead of the default one.",
-        }
+    expect(".o_hierarchy_node button[name=hierarchy_search_subsidiaries][title='Unfold']").toHaveText(
+        "1 Unfold"
     );
 });
 
@@ -1253,7 +1238,7 @@ test("cannot create cyclic", async () => {
     expect(".o_notification").toHaveCount(1);
     expect(".o_notification_bar.bg-danger").toHaveCount(1);
 
-    await contains(".o_hierarchy_node_button.btn-primary").click();
+    await contains(".o_hierarchy_node_button[title='Unfold']").click();
     expect(".o_hierarchy_row").toHaveCount(3);
     expect(".o_hierarchy_node").toHaveCount(4);
     expect(queryAllTexts(".o_hierarchy_node_content")).toEqual([
@@ -1271,8 +1256,8 @@ test("cannot create cyclic", async () => {
         "Josephine\nAlbert",
         "Louis\nJosephine",
     ]);
-    expect(".o_notification").toHaveCount(2);
-    expect(".o_notification_bar.bg-danger").toHaveCount(2);
+    expect(".o_notification").toHaveCount(1);
+    expect(".o_notification_bar.bg-danger").toHaveCount(1);
 
     await contains(".o_hierarchy_node:eq(0)").dragAndDrop(".o_hierarchy_row:eq(2)");
     expect(".o_hierarchy_row").toHaveCount(3);
@@ -1283,8 +1268,8 @@ test("cannot create cyclic", async () => {
         "Josephine\nAlbert",
         "Louis\nJosephine",
     ]);
-    expect(".o_notification").toHaveCount(3);
-    expect(".o_notification_bar.bg-danger").toHaveCount(3);
+    expect(".o_notification").toHaveCount(1);
+    expect(".o_notification_bar.bg-danger").toHaveCount(1);
 
     expect.verifySteps([]);
 });
@@ -1356,7 +1341,7 @@ test("Reload the view with the same unfolded records when clicking with a view b
                 </hierarchy>
             `,
     });
-    await contains(".o_hierarchy_node_button.btn-primary").click();
+    await contains(".o_hierarchy_node_button[title='Unfold']").click();
     expect(".o_hierarchy_row").toHaveCount(3);
     expect(".o_hierarchy_node").toHaveCount(4);
     expect(queryAllTexts(".o_hierarchy_node_content")).toEqual([
@@ -1404,9 +1389,9 @@ test("Keep the same hierarchy state when we go back to the view with the breadcr
 
     expect(".o_hierarchy_row").toHaveCount(2);
     expect(".o_hierarchy_node_button").toHaveCount(2);
-    expect(".o_hierarchy_node_button.btn-secondary").toHaveCount(1);
-    expect(".o_hierarchy_node_button.btn-primary").toHaveCount(1);
-    await contains(".o_hierarchy_node_button.btn-primary").click();
+    expect(".o_hierarchy_node_button[title='Fold']").toHaveCount(1);
+    expect(".o_hierarchy_node_button[title='Unfold']").toHaveCount(1);
+    await contains(".o_hierarchy_node_button[title='Unfold']").click();
     expect(".o_hierarchy_row").toHaveCount(3);
     expect(".o_hierarchy_separator").toHaveCount(2);
     expect(".o_hierarchy_node_container").toHaveCount(4);
@@ -1447,14 +1432,14 @@ test("Keep the state of the branch when we open another branch in the same level
         "Georges\nAlbert",
         "Josephine\nAlbert",
     ]);
-    await contains(".o_hierarchy_node_button.btn-primary:eq(0)").click();
+    await contains(".o_hierarchy_node_button[title='Unfold']:eq(0)").click();
     expect(queryAllTexts(".o_hierarchy_node_content")).toEqual([
         "Albert",
         "Georges\nAlbert",
         "Josephine\nAlbert",
         "Jean\nGeorges",
     ]);
-    await contains(".o_hierarchy_node_button.btn-primary:eq(1)").click();
+    await contains(".o_hierarchy_node_button[title='Unfold']:eq(1)").click();
     expect(queryAllTexts(".o_hierarchy_node_content")).toEqual([
         "Albert",
         "Georges\nAlbert",
@@ -1462,16 +1447,16 @@ test("Keep the state of the branch when we open another branch in the same level
         "Jean\nGeorges",
         "Claude\nJean",
     ]);
-    expect(".o_hierarchy_node_button.btn-primary").toHaveCount(1);
-    await contains(".o_hierarchy_node_button.btn-primary").click();
+    expect(".o_hierarchy_node_button[title='Unfold']").toHaveCount(1);
+    await contains(".o_hierarchy_node_button[title='Unfold']").click();
     expect(queryAllTexts(".o_hierarchy_node_content")).toEqual([
         "Albert",
         "Georges\nAlbert",
         "Josephine\nAlbert",
         "Louis\nJosephine",
     ]);
-    expect(".o_hierarchy_node_button.btn-primary").toHaveCount(1);
-    await contains(".o_hierarchy_node_button.btn-primary").click();
+    expect(".o_hierarchy_node_button[title='Unfold']").toHaveCount(1);
+    await contains(".o_hierarchy_node_button[title='Unfold']").click();
     expect(queryAllTexts(".o_hierarchy_node_content")).toEqual([
         "Albert",
         "Georges\nAlbert",
@@ -1510,7 +1495,7 @@ test("Avoid fetching subnodes if those subnodes are already in the view", async 
         "Louis\nJosephine",
         "Jean\nGeorges",
     ]);
-    await contains(".o_hierarchy_node_button.btn-primary:eq(0)").click();
+    await contains(".o_hierarchy_node_button[title='Unfold']:eq(0)").click();
     expect.verifySteps([]);
     expect(".o_hierarchy_row").toHaveCount(2);
     expect(queryAllTexts(".o_hierarchy_row:first-child .o_hierarchy_node_content")).toEqual([
@@ -1523,7 +1508,7 @@ test("Avoid fetching subnodes if those subnodes are already in the view", async 
         "Josephine\nAlbert",
     ]);
     // The button to show the subnodes should be displayed for Georges and Josephine
-    expect(".o_hierarchy_node_button.btn-primary").toHaveCount(2);
+    expect(".o_hierarchy_node_button[title='Unfold']").toHaveCount(2);
 });
 
 test("Open record on new window", async () => {
@@ -1568,7 +1553,7 @@ test("Open record on new window", async () => {
         'get current_state-{"actionStack":[{"displayName":"","model":"hr.employee","view_type":"hierarchy"}],"model":"hr.employee"}',
         'set current_action-{"res_model":"hr.employee","type":"ir.actions.act_window","views":[[false,"hierarchy"],[false,"form"]]}',
         'set current_state-{"actionStack":[{"displayName":"","model":"hr.employee","view_type":"hierarchy"},{"displayName":"","model":"hr.employee","view_type":"form","resId":2}],"resId":2,"model":"hr.employee"}',
-        "opened in new window: /odoo/hr.employee/hr.employee/2",
+        "opened in new window: /odoo/hr.employee/2",
         'set current_action-{"res_model":"hr.employee","type":"ir.actions.act_window","views":[[false,"hierarchy"],[false,"form"]]}',
         'set current_state-{"actionStack":[{"displayName":"","model":"hr.employee","view_type":"hierarchy"}],"model":"hr.employee"}',
     ]);

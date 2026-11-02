@@ -1,19 +1,19 @@
 import { queryAll, queryAllTexts, queryOne, queryText } from "@odoo/hoot";
 import { Component, xml } from "@odoo/owl";
-import { findComponent, mountWithCleanup } from "./component_test_helpers";
-import { contains } from "./dom_test_helpers";
-import { getMockEnv, makeMockEnv } from "./env_test_helpers";
-
 import { WithSearch } from "@web/search/with_search/with_search";
 import { getDefaultConfig } from "@web/views/view";
+import { assignTestEnv } from "./app_test_helpers";
+import { findComponent, mountWithCleanup } from "./component_test_helpers";
+import { contains } from "./dom_test_helpers";
+import { isSmall } from "./ui_test_helpers";
 
 const ensureSearchView = async () => {
     if (
-        getMockEnv().isSmall &&
+        isSmall() &&
         queryAll`.o_control_panel_navigation`.length &&
         !queryAll`.o_searchview`.length
     ) {
-        await contains(`.o_control_panel_navigation .fa-search`).click();
+        await contains(`.o_control_panel_navigation [data-icon="search"]`).click();
     }
 };
 
@@ -22,41 +22,6 @@ const ensureSearchBarMenu = async () => {
         await toggleSearchBarMenu();
     }
 };
-
-/**
- * This function is aim to be used only in the tests.
- * It will filter the props that are needed by the Component.
- * This is to avoid errors of props validation. This occurs for example, on ControlPanel tests.
- * In production, View use WithSearch for the Controllers, and the Layout send only the props that
- * need to the ControlPanel.
- *
- * @param {Component} Component
- * @param {Object} props
- * @returns {Object} filtered props
- */
-function filterPropsForComponent(Component, props) {
-    // This if, can be removed once all the Components have the props defined
-    if (Component.props) {
-        let componentKeys = null;
-        if (Component.props instanceof Array) {
-            componentKeys = Component.props.map((x) => x.replace("?", ""));
-        } else {
-            componentKeys = Object.keys(Component.props);
-        }
-        if (componentKeys.includes("*")) {
-            return props;
-        } else {
-            return Object.keys(props)
-                .filter((k) => componentKeys.includes(k))
-                .reduce((o, k) => {
-                    o[k] = props[k];
-                    return o;
-                }, {});
-        }
-    } else {
-        return props;
-    }
-}
 
 //-----------------------------------------------------------------------------
 // Search view
@@ -74,12 +39,11 @@ function filterPropsForComponent(Component, props) {
 export async function mountWithSearch(componentConstructor, searchProps = {}, config = {}) {
     class ComponentWithSearch extends Component {
         static template = xml`
-            <WithSearch t-props="withSearchProps" t-slot-scope="search">
-                <t t-component="component" t-props="getProps(search)"/>
+            <WithSearch t-props="this.withSearchProps" t-slot-scope="search">
+                <t t-component="this.component" t-props="this.getProps(search)"/>
             </WithSearch>
         `;
         static components = { WithSearch };
-        static props = ["*"];
 
         setup() {
             this.withSearchProps = searchProps;
@@ -87,7 +51,9 @@ export async function mountWithSearch(componentConstructor, searchProps = {}, co
         }
 
         getProps(search) {
-            const props = {
+            // Every prop is forwarded: owl3 validation is loose, and a
+            // component only ever sees the props it declares.
+            return {
                 context: search.context,
                 domain: search.domain,
                 groupBy: search.groupBy,
@@ -95,13 +61,12 @@ export async function mountWithSearch(componentConstructor, searchProps = {}, co
                 comparison: search.comparison,
                 display: search.display,
             };
-            return filterPropsForComponent(componentConstructor, props);
         }
     }
 
     const fullConfig = { ...getDefaultConfig(), ...config };
-    const env = await makeMockEnv({ config: fullConfig });
-    const root = await mountWithCleanup(ComponentWithSearch, { env });
+    assignTestEnv({ config: fullConfig });
+    const root = await mountWithCleanup(ComponentWithSearch);
     return findComponent(root, (component) => component instanceof componentConstructor);
 }
 
@@ -155,9 +120,7 @@ export function isItemSelected(label) {
  */
 export function isOptionSelected(itemLabel, optionLabel) {
     const { parentElement: root } = queryOne`.o_menu_item:text(${itemLabel})`;
-    return queryOne(`.o_item_option:text(${optionLabel})`, { root }).classList.contains(
-        "selected"
-    );
+    return queryOne(`.o_item_option:text(${optionLabel})`, { root }).classList.contains("selected");
 }
 
 export function getMenuItemTexts() {
@@ -217,7 +180,7 @@ export async function toggleFavoriteMenu() {
  */
 export async function editFavorite(text) {
     await ensureSearchBarMenu();
-    await contains(`.o_favorite_menu .o_menu_item:text(${text}) i.fa-pencil`, {
+    await contains(`.o_favorite_menu .o_menu_item:text(${text}) i[data-icon="edit"]`, {
         visible: false,
     }).click();
 }
@@ -284,7 +247,7 @@ export async function validateSearch() {
  * @param {import("./mock_server/mock_server").ViewType} viewType
  */
 export async function switchView(viewType) {
-    if (getMockEnv().isSmall) {
+    if (isSmall()) {
         await contains(".o_cp_switch_buttons .dropdown-toggle").click();
         await contains(`.dropdown-item:contains(${viewType.toUpperCase()})`).click();
     } else {

@@ -29,7 +29,8 @@
         <xpath expr="//p[@name='payment_communication']/parent::*" position="attributes">
             <attribute name="t-if">o.payment_reference</attribute>
         </xpath>
-        <xpath expr="//t[@t-set='layout_document_title']" position="before">
+        <xpath expr="//t[@t-set='address']" position="after">
+            <t t-set="forced_vat" t-value="o.fiscal_position_id.foreign_vat"/>
             <t t-set="address">
                 <ul class="list-unstyled m-0">
                     <li t-if="company.is_company_details_empty">
@@ -39,12 +40,12 @@
                         <span t-field="company.company_details"/>
                     </li>
                     <li t-if="not forced_vat and company.vat">
-                        <t t-esc="company.country_id.vat_label or 'Tax ID'">Tax ID</t>:
-                        <span t-esc="company.vat"/>
+                        <t t-out="company.country_id.vat_label or 'Tax ID'">Tax ID</t>:
+                        <span t-out="company.vat"/>
                     </li>
                     <li t-elif="forced_vat">
-                        <t t-esc="company.country_id.vat_label or 'Tax ID'">Tax ID</t>:
-                        <span t-esc="forced_vat"/>
+                        <t t-out="company.country_id.vat_label or 'Tax ID'">Tax ID</t>:
+                        <span t-out="forced_vat"/>
                     </li>
                 </ul>
             </t>
@@ -52,8 +53,11 @@
     </template>
 
     <template id="layout_invoices_generated_by_odoo" inherit_id="web.external_layout_standard" primary="True">
-        <xpath expr="//div[contains(@t-attf-class, 'header')]//div[hasclass('d-flex', 'justify-content-between')]" position="replace">
+        <xpath expr="//div[contains(@t-attf-class, 'header')]/table" position="replace">
             <div class="mb-2" style="height: 50px" />
+            <div class="row">
+                <div name="company_address"/>
+            </div>
         </xpath>
         <xpath expr="//div[@name='company_address']" position="replace">
             <div class="col-6" name="company_address">
@@ -90,6 +94,5 @@
         <field name="model">account.move</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">account_edi_ubl_cii.account_invoices_generated_by_odoo</field>
-        <field name="report_file">account_edi_ubl_cii.account_invoices_generated_by_odoo</field>
     </record>
 </odoo>

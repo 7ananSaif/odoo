@@ -4,13 +4,18 @@
 from . import mail_message
 
 # discuss
+from . import bus
+from . import bus_sync_mixin
 from . import discuss_call_history
+from . import discuss_category
 from . import discuss_channel_member
 from . import discuss_channel_rtc_session
 from . import discuss_channel
+from . import discuss_channel_last_interest_update
 from . import discuss_gif_favorite
 from . import discuss_voice_metadata
 from . import mail_guest
+from . import res_users_settings_volumes
 
 # odoo models
 from . import bus_listener_mixin
@@ -19,3 +24,4 @@ from . import ir_websocket
 from . import res_groups
 from . import res_partner
 from . import res_users
+from . import res_users_settings

@@ -11,6 +11,7 @@
                 // When visible, adapt its position in order to visually
                 // "replace" the magnify icon.
                 &::-webkit-search-cancel-button {
+                    cursor: pointer;
                     transform: translateX(map-get($spacers, 3));
                 }
 
@@ -33,6 +34,12 @@
 
             min-width: 200px;
             max-width: 250px;
+
+            .list-group-item:focus-visible {
+                box-shadow: inset 0 0 0 2px $o-we-handles-accent-color;
+                border-color: $o-we-handles-accent-color;
+                outline: none;
+            }
         }
     }
 

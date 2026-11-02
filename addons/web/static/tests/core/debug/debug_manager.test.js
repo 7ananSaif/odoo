@@ -1,22 +1,25 @@
-import { beforeEach, describe, expect, test } from "@odoo/hoot";
 import {
+    animationFrame,
+    beforeEach,
     click,
+    describe,
+    expect,
     queryAll,
     queryAllProperties,
     queryAllTexts,
     queryOne,
     queryText,
-} from "@odoo/hoot-dom";
-import { animationFrame } from "@odoo/hoot-mock";
+    test,
+} from "@odoo/hoot";
 import { Component, xml } from "@odoo/owl";
 import {
+    assignDialogTestEnv,
     clearRegistry,
     contains,
     defineModels,
     defineWebModels,
     fields,
     getService,
-    makeDialogMockEnv,
     models,
     mountWithCleanup,
     onRpc,
@@ -24,12 +27,18 @@ import {
     serverState,
     webModels,
 } from "@web/../tests/web_test_helpers";
-import { browser } from "@web/core/browser/browser";
+import { location } from "@web/core/browser/browser";
 import { useDebugCategory, useOwnDebugContext } from "@web/core/debug/debug_context";
 import { DebugMenu } from "@web/core/debug/debug_menu";
-import { becomeSuperuser, regenerateAssets } from "@web/core/debug/debug_menu_items";
+import {
+    becomeSuperuser,
+    regenerateAssets,
+    toggleRPCCache,
+} from "@web/core/debug/debug_menu_items";
+import { isRPCCacheDisabled } from "@web/core/network/rpc_cache";
 import { registry } from "@web/core/registry";
 import { user } from "@web/core/user";
+import { redirect } from "@web/core/utils/urls";
 import { ActionDialog } from "@web/webclient/actions/action_dialog";
 import { openViewItem } from "@web/webclient/debug/debug_items";
 import { WebClient } from "@web/webclient/webclient";
@@ -37,7 +46,6 @@ import { WebClient } from "@web/webclient/webclient";
 class DebugMenuParent extends Component {
     static template = xml`<DebugMenu/>`;
     static components = { DebugMenu };
-    static props = ["*"];
     setup() {
         useOwnDebugContext({ categories: ["default", "custom"] });
     }
@@ -140,13 +148,12 @@ describe("DebugMenu", () => {
     });
 
     test("Don't display the DebugMenu if debug mode is disabled", async () => {
-        const env = await makeDialogMockEnv();
+        assignDialogTestEnv();
         await mountWithCleanup(ActionDialog, {
-            env,
             props: { close: () => {} },
         });
         expect(".o_dialog").toHaveCount(1);
-        expect(".o_dialog .o_debug_manager .fa-bug").toHaveCount(0);
+        expect(".o_dialog .o_debug_manager [data-icon='bug_report']").toHaveCount(0);
     });
 
     test("Display the DebugMenu correctly in a ActionDialog if debug mode is enabled", async () => {
@@ -184,13 +191,12 @@ describe("DebugMenu", () => {
             }
         }
         serverState.debug = "1";
-        const env = await makeDialogMockEnv();
+        assignDialogTestEnv();
         await mountWithCleanup(WithCustom, {
-            env,
             props: { close: () => {} },
         });
         expect(".o_dialog").toHaveCount(1);
-        expect(".o_dialog .o_debug_manager .fa-bug").toHaveCount(1);
+        expect(".o_dialog .o_debug_manager [data-icon='bug_report']").toHaveCount(1);
         await contains(".o_dialog .o_debug_manager button").click();
         expect(".dropdown-menu .dropdown-item").toHaveCount(2);
         // Check that global debugManager elements are not displayed (global_1)
@@ -203,7 +209,7 @@ describe("DebugMenu", () => {
     });
 
     test("can regenerate assets bundles", async () => {
-        patchWithCleanup(browser.location, {
+        patchWithCleanup(location, {
             reload: () => expect.step("reloadPage"),
         });
         debugRegistry.category("default").add("regenerateAssets", regenerateAssets);
@@ -215,6 +221,42 @@ describe("DebugMenu", () => {
         await click(item);
         await animationFrame();
         expect.verifySteps(["ir.attachment/regenerate_assets_bundles", "reloadPage"]);
+    });
+
+    test("can disable the rpc cache", async () => {
+        redirect("/odoo");
+        patchWithCleanup(location, {
+            reload: () => expect.step("reloadPage"),
+        });
+        debugRegistry.category("default").add("toggleRPCCache", toggleRPCCache);
+        await mountWithCleanup(DebugMenuParent);
+        await contains("button.dropdown-toggle").click();
+        const item = queryOne(".dropdown-menu .dropdown-item");
+        expect(item).toHaveText("Disable RPC Cache");
+        expect(isRPCCacheDisabled()).toBe(false);
+
+        await click(item);
+        await animationFrame();
+        expect(isRPCCacheDisabled()).toBe(true);
+        expect.verifySteps(["reloadPage"]);
+    });
+
+    test("can re-enable the rpc cache", async () => {
+        redirect("/odoo?cache=0");
+        patchWithCleanup(location, {
+            reload: () => expect.step("reloadPage"),
+        });
+        debugRegistry.category("default").add("toggleRPCCache", toggleRPCCache);
+        await mountWithCleanup(DebugMenuParent);
+        await contains("button.dropdown-toggle").click();
+        const item = queryOne(".dropdown-menu .dropdown-item");
+        expect(item).toHaveText("Enable RPC Cache");
+        expect(isRPCCacheDisabled()).toBe(true);
+
+        await click(item);
+        await animationFrame();
+        expect(isRPCCacheDisabled()).toBe(false);
+        expect.verifySteps(["reloadPage"]);
     });
 
     test("cannot acess the Become superuser menu if not admin", async () => {
@@ -764,5 +806,85 @@ describe("DebugMenu", () => {
         await contains(".modal .modal-footer button:nth-child(2)").click();
         expect(".modal").toHaveCount(0);
         expect.verifySteps([["partner", "foo", fooValue, true, true, false]]);
+    });
+
+    test("set defaults: settings default value with date and datetime values", async () => {
+        serverState.debug = "1";
+
+        const dateValue = "2024-01-01 00:00:00";
+        const datetimeValue = "2024-01-01 12:34:56";
+        const argSteps = [];
+
+        onRpc("ir.default", "set", async (args) => {
+            argSteps.push(args.args);
+            return true;
+        });
+
+        class Partner extends models.Model {
+            _name = "partner";
+
+            dateField = fields.Date();
+            datetimeField = fields.Datetime();
+
+            _records = [
+                {
+                    id: 1,
+                    display_name: "p1",
+                    dateField: dateValue,
+                    datetimeField: datetimeValue,
+                },
+            ];
+
+            _views = {
+                form: `
+                    <form>
+                        <field name="dateField"/>
+                        <field name="datetimeField"/>
+                    </form>`,
+            };
+        }
+
+        defineModels([Partner]);
+
+        await mountWithCleanup(WebClient);
+
+        await getService("action").doAction({
+            name: "Partners",
+            res_model: "partner",
+            res_id: 1,
+            type: "ir.actions.act_window",
+            views: [[false, "form"]],
+        });
+        await contains(".o_debug_manager button").click();
+        await contains(".dropdown-menu .dropdown-item:contains('Set Default Values')").click();
+        expect(".modal").toHaveCount(1);
+
+        expect(queryAllTexts`.modal #formview_default_fields option`).toEqual([
+            "",
+            "Date field = 01/01/2024",
+            "Datetime field = 01/01/2024 13:34:56",
+        ]);
+
+        expect(queryAllProperties(".modal #formview_default_fields option", "value")).toEqual([
+            "",
+            "dateField",
+            "datetimeField",
+        ]);
+
+        await contains(".modal #formview_default_fields").select("dateField");
+        await contains(".modal .modal-footer button:nth-child(2)").click();
+        expect(".modal").toHaveCount(0);
+
+        await contains(".o_debug_manager button").click();
+        await contains(".dropdown-menu .dropdown-item:contains('Set Default Values')").click();
+        expect(".modal").toHaveCount(1);
+        await contains(".modal #formview_default_fields").select("datetimeField");
+        await contains(".modal .modal-footer button:nth-child(2)").click();
+        expect(".modal").toHaveCount(0);
+
+        expect(argSteps).toEqual([
+            ["partner", "dateField", "2024-01-01", true, true, false],
+            ["partner", "datetimeField", "2024-01-01 12:34:56", true, true, false],
+        ]);
     });
 });

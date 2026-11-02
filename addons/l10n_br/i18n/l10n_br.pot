@@ -4,16 +4,63 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0+e\n"
+"Project-Id-Version: Odoo Server 20.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-02 18:59+0000\n"
-"PO-Revision-Date: 2026-01-02 18:59+0000\n"
+"POT-Creation-Date: 2026-10-16 18:27+0000\n"
+"PO-Revision-Date: 2026-10-16 18:27+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
+
+#. module: l10n_br
+#: model:ir.module.module,description:base.module_l10n_br
+msgid ""
+"\n"
+"Base module for the Brazilian localization\n"
+"==========================================\n"
+"\n"
+"This module consists of:\n"
+"\n"
+"- Generic Brazilian chart of accounts\n"
+"- Brazilian taxes such as:\n"
+"\n"
+"  - IPI\n"
+"  - ICMS\n"
+"  - PIS\n"
+"  - COFINS\n"
+"  - ISS\n"
+"  - IR\n"
+"  - CSLL\n"
+"\n"
+"- Document Types as NFC-e, NFS-e, etc.\n"
+"- Identification Documents as CNPJ and CPF\n"
+"\n"
+"In addition to this module, the Brazilian Localizations is also\n"
+"extended and complemented with several additional modules.\n"
+"\n"
+"Brazil - Accounting Reports (l10n_br_reports)\n"
+"---------------------------------------------\n"
+"Adds a simple tax report that helps check the tax amount per tax group\n"
+"in a given period of time. Also adds the P&L and BS adapted for the\n"
+"Brazilian market.\n"
+"\n"
+"Avatax Brazil (l10n_br_avatax)\n"
+"------------------------------\n"
+"Add Brazilian tax calculation via Avatax and all necessary fields needed to\n"
+"configure Odoo in order to properly use Avatax and send the needed fiscal\n"
+"information to retrieve the correct taxes.\n"
+"\n"
+"Avatax for SOs in Brazil (l10n_br_avatax_sale)\n"
+"----------------------------------------------\n"
+"Same as the l10n_br_avatax module with the extension to the sales order module.\n"
+"\n"
+"Electronic invoicing through Avatax (l10n_br_edi)\n"
+"-------------------------------------------------\n"
+"Create electronic sales invoices with Avatax.\n"
+msgstr ""
 
 #. module: l10n_br
 #. odoo-python
@@ -28,11 +75,6 @@ msgid "%s is not a valid email."
 msgstr ""
 
 #. module: l10n_br
-#: model_terms:ir.ui.view,arch_db:l10n_br.address_form_fields
-msgid "<option value=\"\">City...</option>"
-msgstr ""
-
-#. module: l10n_br
 #: model_terms:ir.ui.view,arch_db:l10n_br.br_partner_address_form
 msgid "<span> - </span>"
 msgstr ""
@@ -43,8 +85,16 @@ msgid "Account Chart Template"
 msgstr ""
 
 #. module: l10n_br
-#: model:ir.model,name:l10n_br.model_account_move_reversal
-msgid "Account Move Reversal"
+#: model:ir.model.fields,field_description:l10n_br.field_account_setup_bank_manual_config__proxy_type
+#: model:ir.model.fields,field_description:l10n_br.field_res_partner_bank__proxy_type
+msgid "Account Identifier Type"
+msgstr ""
+
+#. module: l10n_br
+#: model_terms:ir.ui.view,arch_db:l10n_br.res_config_settings_view_form
+msgid ""
+"Add a QR-code to your invoices so that your customers can pay instantly with"
+" their mobile banking application."
 msgstr ""
 
 #. module: l10n_br
@@ -54,7 +104,7 @@ msgstr ""
 
 #. module: l10n_br
 #: model:ir.model,name:l10n_br.model_res_partner_bank
-msgid "Bank Accounts"
+msgid "Bank Account"
 msgstr ""
 
 #. module: l10n_br
@@ -89,11 +139,23 @@ msgid ""
 msgstr ""
 
 #. module: l10n_br
+#: model:ir.module.module,shortdesc:base.module_l10n_br
+msgid "Brazilian - Accounting"
+msgstr ""
+
+#. module: l10n_br
 #: model:ir.model,name:l10n_br.model_l10n_br_zip_range
 msgid "Brazilian city zip range"
 msgstr ""
 
 #. module: l10n_br
+#. odoo-python
+#: code:addons/l10n_br/tools/partner_identifiers.py:0
+msgid "Brazilian individual identification number."
+msgstr ""
+
+#. module: l10n_br
+#: model:account.report,name:l10n_br.cbs_tax_report
 #: model:account.report.line,name:l10n_br.tax_report_cbs
 msgid "CBS"
 msgstr ""
@@ -229,8 +291,29 @@ msgid "CBSTC tax"
 msgstr ""
 
 #. module: l10n_br
+#: model:account.report,name:l10n_br.cofins_tax_report
+msgid "COFINS"
+msgstr ""
+
+#. module: l10n_br
+#. odoo-python
+#: code:addons/l10n_br/tools/partner_identifiers.py:0
+msgid "CPF"
+msgstr ""
+
+#. module: l10n_br
 #: model:ir.model.fields.selection,name:l10n_br.selection__res_partner_bank__proxy_type__br_cpf_cnpj
 msgid "CPF/CNPJ (BR)"
+msgstr ""
+
+#. module: l10n_br
+#: model:account.report,name:l10n_br.cprb_tax_report
+msgid "CPRB"
+msgstr ""
+
+#. module: l10n_br
+#: model:account.report,name:l10n_br.csll_tax_report
+msgid "CSLL"
 msgstr ""
 
 #. module: l10n_br
@@ -248,7 +331,7 @@ msgstr ""
 
 #. module: l10n_br
 #: model:ir.model,name:l10n_br.model_res_company
-msgid "Companies"
+msgid "Company"
 msgstr ""
 
 #. module: l10n_br
@@ -263,6 +346,12 @@ msgid "Contact"
 msgstr ""
 
 #. module: l10n_br
+#: model_terms:ir.ui.view,arch_db:l10n_br.report_invoice_document
+msgid "Copy and paste below<br/>PIX code into your banking application"
+msgstr ""
+
+#. module: l10n_br
+#: model:ir.model,name:l10n_br.model_res_country
 #: model_terms:ir.ui.view,arch_db:l10n_br.br_partner_address_form
 msgid "Country"
 msgstr ""
@@ -302,6 +391,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br.field_l10n_br_zip_range__display_name
 #: model:ir.model.fields,field_description:l10n_br.field_res_city__display_name
 #: model:ir.model.fields,field_description:l10n_br.field_res_company__display_name
+#: model:ir.model.fields,field_description:l10n_br.field_res_country__display_name
 #: model:ir.model.fields,field_description:l10n_br.field_res_partner__display_name
 #: model:ir.model.fields,field_description:l10n_br.field_res_partner_bank__display_name
 msgid "Display Name"
@@ -378,6 +468,7 @@ msgid "Ground Bill of Lading"
 msgstr ""
 
 #. module: l10n_br
+#: model:account.report,name:l10n_br.ibs_tax_report
 #: model:account.report.line,name:l10n_br.tax_report_ibs
 msgid "IBS"
 msgstr ""
@@ -648,6 +739,26 @@ msgid "IBSZFMPC tax"
 msgstr ""
 
 #. module: l10n_br
+#: model:account.report,name:l10n_br.icms_tax_report
+msgid "ICMS"
+msgstr ""
+
+#. module: l10n_br
+#: model:account.report,name:l10n_br.icms_difal_tax_report
+msgid "ICMS DIFAL"
+msgstr ""
+
+#. module: l10n_br
+#: model:account.report,name:l10n_br.icms_fcp_tax_report
+msgid "ICMS FCP"
+msgstr ""
+
+#. module: l10n_br
+#: model:account.report,name:l10n_br.icms_st_tax_report
+msgid "ICMS ST"
+msgstr ""
+
+#. module: l10n_br
 #: model:ir.model.fields,field_description:l10n_br.field_account_chart_template__id
 #: model:ir.model.fields,field_description:l10n_br.field_account_fiscal_position__id
 #: model:ir.model.fields,field_description:l10n_br.field_account_journal__id
@@ -657,6 +768,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br.field_l10n_br_zip_range__id
 #: model:ir.model.fields,field_description:l10n_br.field_res_city__id
 #: model:ir.model.fields,field_description:l10n_br.field_res_company__id
+#: model:ir.model.fields,field_description:l10n_br.field_res_country__id
 #: model:ir.model.fields,field_description:l10n_br.field_res_partner__id
 #: model:ir.model.fields,field_description:l10n_br.field_res_partner_bank__id
 msgid "ID"
@@ -670,6 +782,11 @@ msgid "IE"
 msgstr ""
 
 #. module: l10n_br
+#: model:account.report,name:l10n_br.ii_tax_report
+msgid "II"
+msgstr ""
+
+#. module: l10n_br
 #: model:ir.model.fields,field_description:l10n_br.field_res_company__l10n_br_im_code
 #: model:ir.model.fields,field_description:l10n_br.field_res_partner__l10n_br_im_code
 #: model:ir.model.fields,field_description:l10n_br.field_res_users__l10n_br_im_code
@@ -677,6 +794,22 @@ msgid "IM"
 msgstr ""
 
 #. module: l10n_br
+#: model:account.report,name:l10n_br.inss_tax_report
+msgid "INSS"
+msgstr ""
+
+#. module: l10n_br
+#: model:account.report,name:l10n_br.ipi_tax_report
+msgid "IPI"
+msgstr ""
+
+#. module: l10n_br
+#: model:account.report,name:l10n_br.irpj_tax_report
+msgid "IRPJ"
+msgstr ""
+
+#. module: l10n_br
+#: model:account.report,name:l10n_br.is_tax_report
 #: model:account.report.line,name:l10n_br.tax_report_is
 msgid "IS"
 msgstr ""
@@ -689,6 +822,11 @@ msgstr ""
 #. module: l10n_br
 #: model:account.report.line,name:l10n_br.tax_report_is_2
 msgid "IS tax"
+msgstr ""
+
+#. module: l10n_br
+#: model:account.report,name:l10n_br.iss_tax_report
+msgid "ISS"
 msgstr ""
 
 #. module: l10n_br
@@ -780,6 +918,11 @@ msgid "Journal Entry"
 msgstr ""
 
 #. module: l10n_br
+#: model:ir.model,name:l10n_br.model_account_move_reversal
+msgid "Journal Entry Reversal"
+msgstr ""
+
+#. module: l10n_br
 #: model:ir.model.fields,field_description:l10n_br.field_l10n_br_zip_range__write_uid
 msgid "Last Updated by"
 msgstr ""
@@ -827,7 +970,8 @@ msgid "NIRE"
 msgstr ""
 
 #. module: l10n_br
-#: model_terms:ir.ui.view,arch_db:l10n_br.address_form_fields
+#. odoo-javascript
+#: code:addons/l10n_br/static/src/interactions/address.js:0
 #: model_terms:ir.ui.view,arch_db:l10n_br.br_partner_address_form
 msgid "Neighborhood"
 msgstr ""
@@ -838,14 +982,25 @@ msgid "Nota Fiscal / Electricity Bill"
 msgstr ""
 
 #. module: l10n_br
+#: model_terms:ir.ui.view,arch_db:l10n_br.report_invoice_document
+msgid "Or"
+msgstr ""
+
+#. module: l10n_br
 #: model:ir.model.fields.selection,name:l10n_br.selection__account_fiscal_position__l10n_br_fp_type__interstate
 msgid "Other interstate"
 msgstr ""
 
 #. module: l10n_br
-#: model:ir.model.fields,field_description:l10n_br.field_account_setup_bank_manual_config__proxy_type
-#: model:ir.model.fields,field_description:l10n_br.field_res_partner_bank__proxy_type
-msgid "Proxy Type"
+#: model:account.report,name:l10n_br.pis_tax_report
+msgid "PIS"
+msgstr ""
+
+#. module: l10n_br
+#. odoo-python
+#: code:addons/l10n_br/models/res_partner_bank.py:0
+#: model_terms:ir.ui.view,arch_db:l10n_br.res_config_settings_view_form
+msgid "Pix QR Code"
 msgstr ""
 
 #. module: l10n_br
@@ -968,16 +1123,24 @@ msgstr ""
 #. odoo-python
 #: code:addons/l10n_br/models/res_partner_bank.py:0
 msgid ""
-"The mobile number %s is invalid. It must start with +55, contain a 2 digit "
-"territory or state code followed by a 9 digit number."
+"The account identifier type must be Email Address, Mobile Number, CPF/CNPJ "
+"(BR) or Random Key (BR) for Pix code generation."
+msgstr ""
+
+#. module: l10n_br
+#: model:ir.model.fields,help:l10n_br.field_account_setup_bank_manual_config__proxy_type
+#: model:ir.model.fields,help:l10n_br.field_res_partner_bank__proxy_type
+msgid ""
+"The identification method linked to this bank account (e.g., Mobile Number, "
+"Company ID) used to route QR payments to this account."
 msgstr ""
 
 #. module: l10n_br
 #. odoo-python
 #: code:addons/l10n_br/models/res_partner_bank.py:0
 msgid ""
-"The proxy type must be Email Address, Mobile Number, CPF/CNPJ (BR) or Random"
-" Key (BR) for Pix code generation."
+"The mobile number %s is invalid. It must start with +55, contain a 2 digit "
+"territory or state code followed by a 9 digit number."
 msgstr ""
 
 #. module: l10n_br
@@ -997,8 +1160,8 @@ msgstr ""
 #. odoo-python
 #: code:addons/l10n_br/models/res_partner_bank.py:0
 msgid ""
-"To generate a Pix code the proxy type for %s must be Email Address, Mobile "
-"Number, CPF/CNPJ (BR) or Random Key (BR)."
+"To generate a Pix code the account identifier type for %s must be Email "
+"Address, Mobile Number, CPF/CNPJ (BR) or Random Key (BR)."
 msgstr ""
 
 #. module: l10n_br

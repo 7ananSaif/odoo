@@ -1,81 +1,90 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates>
+    <t t-name="web.SelectMenuTagsList">
+        <t t-foreach="this.props.tags" t-as="tag" t-key="tag.id">
+            <BadgeTag onDelete="tag.onDelete" text="tag.text"/>
+        </t>
+    </t>
+
     <t t-name="web.SelectMenu.search">
         <input
             type="text"
             t-attf-class="o_input {{inputClass}}"
             t-ref="inputRef"
-            t-on-input="onSearchInput"
-            t-on-focus="onInputFocus"
-            t-on-blur="onInputBlur"
-            t-att-placeholder="placeholderValue"
-            t-att-value="displayValue"
-            t-att-id="props.id"
-            t-att-name="props.name"
-            t-att-disabled="props.disabled"
-            t-on-click="onInputClick"
-            autocomplete="selectMenuAutocompleteOff"
+            t-on-input="this.handleInputDebounced"
+            t-on-focus="this.onInputFocus"
+            t-on-blur="this.onInputBlur"
+            t-att-placeholder="this.placeholderValue"
+            t-att-id="this.props.id"
+            t-att-name="this.props.name"
+            t-att-disabled="this.props.disabled"
+            t-on-click="this.onInputClick"
+            t-on-keydown="this.onKeyDown"
+            autocomplete="off"
             autocorrect="off"
             spellcheck="false"
         />
     </t>
 
     <t t-name="web.SelectMenu">
-        <div t-att-class="`o_select_menu w-auto position-relative ${props.multiSelect ? 'o_select_menu_multi_select' : ''} ${displayInputInToggler ? 'o_input_dropdown' : ''} ${props.class || ''}`" t-att-data-id="selectMenuId">
+        <div t-att-class="`o_select_menu w-auto position-relative ${this.props.multiSelect ? 'o_select_menu_multi_select' : ''} ${this.displayInputInToggler ? 'o_input_dropdown' : ''} ${this.props.class || ''}`" t-att-data-id="this.selectMenuId">
             <Dropdown
                 menuClass="this.menuClass"
                 menuRef="this.menuRef"
-                position="'bottom-fit'"
-                beforeOpen.bind="onBeforeOpen"
-                focusToggleOnClosed="!isBottomSheet"
-                onStateChanged.bind="onStateChanged"
-                navigationOptions="navigationOptions"
-                state="dropdownState"
+                position="this.props.position"
+                beforeOpen.bind="this.onBeforeOpen"
+                focusToggleOnClosed="!this.isBottomSheet"
+                onStateChanged.bind="this.onStateChanged"
+                navigationOptions="this.navigationOptions"
+                state="this.dropdownState"
                 >
-                <t t-if="displayInputInToggler">
-                    <t t-set="inputClass" t-value="'o_select_menu_toggler ' + (!displayInputInDropdown ? 'o_select_menu_input ' : '') + props.togglerClass"/>
+                <t t-if="this.displayInputInToggler">
+                    <t t-set="inputClass" t-value="'o_select_menu_toggler ' + (!this.displayInputInDropdown ? 'o_select_menu_input ' : '') + this.props.togglerClass"/>
+                    <t t-set="inputRef" t-value="this.inputRefs.toggler"/>
                     <div class="w-100 d-flex flex-column">
-                        <t t-if="props.multiSelect">
-                            <div t-if="props.value.length" class="d-flex flex-wrap mb-1">
-                                <TagsList tags="multiSelectChoices"/>
+                        <t t-if="this.props.multiSelect">
+                            <div t-if="this.props.value.length" class="d-flex flex-wrap mb-1">
+                                <TagsList tags="this.multiSelectChoices"/>
                             </div>
                         </t>
                         <div class="position-relative d-flex">
                             <t t-call="web.SelectMenu.search" />
-                            <span class="o_select_menu_caret align-self-center" />
+                            <span class="o_dropdown_button" />
                         </div>
                     </div>
                 </t>
                 <t t-else="">
-                    <button type="button" t-attf-class="o_select_menu_toggler d-flex border btn btn-light w-100 bg-light {{ props.togglerClass }}" t-att-disabled="props.disabled">
+                    <button type="button" t-attf-class="o_select_menu_toggler d-flex border btn btn-light w-100 bg-light {{ this.props.togglerClass }}" t-att-disabled="this.props.disabled">
                         <span class="o_select_menu_toggler_slot text-start text-truncate">
-                            <span t-if="props.placeholder and !props.value" class="text-muted" t-out="props.placeholder"/>
-                            <t t-slot="default" />
+                            <span t-if="this.props.placeholder and !this.props.value" class="text-muted" t-out="this.props.placeholder"/>
+                            <t t-call-slot="default" />
                         </span>
-                        <span t-if="canDeselect" t-on-click.stop="onInputClear" class="o_select_menu_toggler_clear position-absolute top-50 end-0 me-3">
-                            <i class="fa fa-times"></i>
+                        <span t-if="this.canDeselect" t-on-click.stop="this.onInputClear" class="o_select_menu_toggler_clear position-absolute top-50 end-0 me-3">
+                            <i class="oi" data-icon="close"></i>
                         </span>
                         <span class="o_select_menu_caret align-self-center" />
                     </button>
                 </t>
                 <t t-set-slot="content">
-                    <button t-if="isBottomSheet and canDeselect" class="btn o_clear_button px-4 d-block ms-auto" t-on-click="onInputClear">Clear</button>
-                    <div class="o_select_menu_searchbox position-sticky start-0 d-empty-none" t-att-data-id="selectMenuId">
-                        <t t-if="displayInputInDropdown">
+                    <button t-if="this.isBottomSheet and this.canDeselect" class="btn o_clear_button px-4 d-block ms-auto" t-on-click="this.onInputClear">Clear</button>
+                    <div class="o_select_menu_searchbox d-empty-none ps-2" t-att-data-id="this.selectMenuId">
+                        <t t-if="this.displayInputInDropdown">
                             <t t-set="inputClass" t-value="'o_select_menu_input dropdown-item'"/>
+                            <t t-set="inputRef" t-value="this.inputRefs.menu"/>
                             <t t-call="web.SelectMenu.search" />
                         </t>
                     </div>
-                    <t t-if="state.choices.length === 0">
-                        <p class="text-muted fst-italic mx-4 my-1">No results</p>
-                    </t>
-                    <t t-foreach="state.displayedOptions" t-as="choice" t-key="choice_index">
-                        <t t-call="{{ this.constructor.choiceItemTemplate }}">
-                            <t t-set="choice" t-value="choice" />
-                            <t t-set="choice_index" t-value="choice_index" />
+                    <div class="overflow-auto position-relative o_select_menu-choices" style="scrollbar-width: thin;" t-ref="this.choicesRef">
+                        <t t-if="this.state.choices.length === 0">
+                            <p class="py-2 text-center text-muted fst-italic">No results</p>
                         </t>
-                    </t>
-                    <t t-if="props.slots and props.slots.bottomArea" t-slot="bottomArea" data="state"/>
+                        <t t-foreach="this.state.displayedOptions" t-as="choice" t-key="choice_index">
+                            <t t-call="{{ this.constructor.choiceItemTemplate }}"
+                                choice="choice"
+                                choice_index="choice_index"/>
+                        </t>
+                        <t t-if="this.props.slots and this.props.slots.bottomArea" t-call-slot="bottomArea" data="{searchValue: this.pendingValue || ''}"/>
+                    </div>
                 </t>
             </Dropdown>
         </div>
@@ -85,19 +94,20 @@
         <div
             t-if="choice.isGroup and choice.label"
             class="o_select_menu_group position-sticky start-0 px-1 fw-bolder user-select-none"
-            t-att-class="{'o_select_menu_searchable_group': displayInputInDropdown, 'ms-2': !!choice.section }"
+            t-att-class="{'o_select_menu_searchable_group': this.displayInputInDropdown, 'ms-2': !!choice.section }"
         >
-            <span t-esc="choice.label" />
+            <span t-out="choice.label" />
         </div>
         <DropdownItem
             t-if="!choice.isGroup"
-            onSelected="() => this.onItemSelected(choice.value)"
-            class="getItemClass(choice) + ' text-wrap'"
-            attrs="{ 'data-choice-index': choice_index }"
+            closingMode="choice.enabled ? 'all' : 'none'"
+            onSelected="() => choice.enabled and this.onItemSelected(choice.value)"
+            class="this.getItemClass(choice)"
+            attrs="{ 'data-choice-index': choice_index, ...choice.attrs }"
         >
-            <t t-if="props.slots and props.slots.choice" t-slot="choice" data="choice"/>
+            <t t-if="this.props.slots and this.props.slots.choice" t-call-slot="choice" data="choice"/>
             <t t-else="">
-                <div t-esc="choice.label || choice.value" />
+                <div class="text-truncate" t-out="choice.label" />
             </t>
         </DropdownItem>
     </t>

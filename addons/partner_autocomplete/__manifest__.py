@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 
@@ -16,9 +15,11 @@ Auto-complete partner companies' data
     'data': [
         'views/res_company_views.xml',
         'views/res_config_settings_views.xml',
+        'views/res_partner_views.xml',
         'data/iap_service_data.xml',
     ],
     'auto_install': True,
+    'iap_paid_service': True,
     'assets': {
         'web.assets_backend': [
             'partner_autocomplete/static/src/scss/*',

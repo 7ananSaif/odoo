@@ -1,12 +1,13 @@
+import { useProps, t } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { Many2XAutocomplete } from "@web/views/fields/relational_utils";
+import { Many2XAutocomplete, many2XAutocompleteProps } from "@web/views/fields/relational_utils";
 import {
-    Many2ManyTagsFieldColorEditable,
-    many2ManyTagsFieldColorEditable,
+    Many2ManyTagsField,
+    many2ManyTagsField,
+    many2ManyTagsFieldProps,
 } from "@web/views/fields/many2many_tags/many2many_tags_field";
-import { roundPrecision } from "@web/core/utils/numbers";
-import { onWillUpdateProps } from "@odoo/owl";
+import { roundDecimals } from "@web/core/utils/numbers";
 
 export function getProductRelatedModel() {
     const field = this.props.record.fields[this.props.productField];
@@ -18,54 +19,62 @@ export function getProductRelatedModel() {
     return resModel;
 }
 
+export function hasCommonReference(uom1, uom2) {
+    const uom1Path = uom1.parent_path.split("/");
+    const uom2Path = uom2.parent_path.split("/");
+    return uom1Path[0] === uom2Path[0];
+}
+
 export class Many2XUomTagsAutocomplete extends Many2XAutocomplete {
-    static props = {
-        ...Many2XAutocomplete.props,
-        productModel: { type: String, optional: true },
-        productId: { type: Number, optional: true },
-        productQuantity: { type: Number, optional: true },
-    };
-
-    async setup() {
-        super.setup();
-        onWillUpdateProps(async (nextProps) => {
-            if (nextProps.productModel !== this.props.productModel ||
-                nextProps.productId !== this.props.productId
-            ) {
-                await this.updateReferenceUnit(nextProps);
-            }
-        });
-        await this.updateReferenceUnit();
-    }
-
-    async updateReferenceUnit(props = this.props) {
-        if (props.productModel && props.productId) {
-            const context = { "active_test" : false };
-            const product = await this.orm.searchRead(props.productModel, [["id", "=", props.productId]], ["uom_id"], { context });
-            this.referenceUnit = (await this.orm.searchRead("uom.uom", [["id", "=", product[0].uom_id[0]]], ["name", "factor", "parent_path", "rounding"]))[0];
-        }
-    }
+    props = useProps({
+        ...many2XAutocompleteProps,
+        productModel: t.string().optional(),
+        productId: t.number().optional(),
+        productQuantity: t.number().optional(),
+    });
 
     async search(name) {
-        let records = await this.orm.searchRead(
+        let roundingDigitsPromise = null;
+        let referenceUnitPromise = null;
+        let records;
+
+        const recordsPromise = this.orm.searchRead(
             this.props.resModel,
             [...this.props.getDomain(), ["name", "ilike", name]],
             ["id", "display_name", "relative_factor", "factor", "relative_uom_id", "parent_path"],
-        );
-        const hasCommonReference = (uom1, uom2) => {
-            const uom1Path = uom1.parent_path.split("/");
-            const uom2Path = uom2.parent_path.split("/");
-            return uom1Path[0] === uom2Path[0];
-        };
+        ).then((res) => records = res);
+
+        if (
+            this.props.productModel &&
+            this.props.productId &&
+            (
+                this.props.productModel !== this.currentProductModel ||
+                this.props.productId !== this.currentProductId
+            )
+        ) {
+            this.currentProductModel = this.props.productModel;
+            this.currentProductId = this.props.productId;
+            roundingDigitsPromise = this.orm.cache({ type: "disk" })
+                .call("decimal.precision", "precision_get", ["Product Unit"])
+                .then((res) => this.roundingDigits = res);
+            referenceUnitPromise = this.orm.read(
+                this.props.productModel, [this.props.productId], ["uom_id"], { context: { "active_test": false } }
+            ).then((product) =>
+                this.orm.cache({ type: "disk" }).read("uom.uom", [product[0].uom_id[0]], ["name", "factor", "parent_path"])
+            ).then((res) => this.referenceUnit = res[0]);
+        }
+
+        await Promise.all([recordsPromise, roundingDigitsPromise, referenceUnitPromise]);
+
         records = records.map((record) => {
-            let relativeInfo = this.referenceUnit && this.referenceUnit.id !== record.id ? `${roundPrecision((this.props.productQuantity || 1) * record.factor / this.referenceUnit.factor, this.referenceUnit.rounding)} ${this.referenceUnit.name}` : "";
+            let relativeInfo = this.referenceUnit && this.referenceUnit.id !== record.id ? `${roundDecimals((this.props.productQuantity || 1) * record.factor / this.referenceUnit.factor, this.roundingDigits)} ${this.referenceUnit.name}` : "";
             if (
                 this.referenceUnit &&
                 record.id !== this.referenceUnit.id &&
                 hasCommonReference(record, this.referenceUnit) &&
                 record.relative_uom_id
             ) {
-                relativeInfo = `${roundPrecision((this.props.productQuantity || 1) * record.relative_factor, this.referenceUnit.rounding)} ${record.relative_uom_id[1]}`;
+                relativeInfo = `${roundDecimals((this.props.productQuantity || 1) * record.relative_factor, this.roundingDigits)} ${record.relative_uom_id[1]}`;
             }
             return {
                 ...record,
@@ -79,22 +88,17 @@ export class Many2XUomTagsAutocomplete extends Many2XAutocomplete {
     }
 }
 
-export class Many2ManyUomTagsField extends Many2ManyTagsFieldColorEditable {
+export class Many2ManyUomTagsField extends Many2ManyTagsField {
     static template = "uom.Many2ManyUomTagsField";
     static components = {
-        ...Many2ManyTagsFieldColorEditable.components,
+        ...Many2ManyTagsField.components,
         Many2XAutocomplete: Many2XUomTagsAutocomplete,
     };
-    static props = {
-        ...Many2ManyTagsFieldColorEditable.props,
-        productField: { type: String, optional: true },
-        quantityField: { type: String, optional: true },
-    }
-    static defaultProps = {
-        ...Many2ManyTagsFieldColorEditable.defaultProps,
-        productField: "product_id",
-        quantityField: "product_uom_qty",
-    }
+    props = useProps({
+        ...many2ManyTagsFieldProps,
+        productField: t.string().optional("product_id"),
+        quantityField: t.string().optional("product_uom_qty"),
+    });
 
     async setup() {
         super.setup();
@@ -103,26 +107,26 @@ export class Many2ManyUomTagsField extends Many2ManyTagsFieldColorEditable {
 }
 
 export const many2ManyUomTagsField = {
-    ...many2ManyTagsFieldColorEditable,
+    ...many2ManyTagsField,
     component: Many2ManyUomTagsField,
     additionalClasses: ['o_field_many2many_tags'],
     supportedOptions: [
-        ...(many2ManyTagsFieldColorEditable.supportedOptions || []),
+        ...many2ManyTagsField.supportedOptions.filter((option) => option.name !== "color_field"),
         {
             label: _t("Product Field Name"),
             name: "product_field",
             type: "field",
-            availableTypes: ["many2one"]
+            availableTypes: ["many2one"],
         },
         {
             label: _t("Quantity Field Name"),
             name: "quantity_field",
             type: "field",
-            availableTypes: ["many2one"]
-        }
+            availableTypes: ["many2one"],
+        },
     ],
     extractProps({ options }) {
-        const props = many2ManyTagsFieldColorEditable.extractProps(...arguments);
+        const props = many2ManyTagsField.extractProps(...arguments);
         props.productField = options.product_field;
         props.quantityField = options.quantity_field;
         return props;

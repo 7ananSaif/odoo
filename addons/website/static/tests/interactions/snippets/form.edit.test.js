@@ -2,8 +2,9 @@ import { describe, expect, test } from "@odoo/hoot";
 import { setupInteractionWhiteList, startInteractions } from "@web/../tests/public/helpers";
 import { onRpc } from "@web/../tests/web_test_helpers";
 import { switchToEditMode } from "../../helpers";
+import { formSelectXml } from "@website/../tests/interactions/snippets/helpers";
 
-setupInteractionWhiteList("website.form");
+setupInteractionWhiteList(["website.form", "website.form.add_other_option"]);
 
 describe.current.tags("interaction_dev");
 
@@ -22,7 +23,7 @@ const formXml = `
                                     <div class="s_website_form_datetime input-group date">
                                         <input type="text" class="form-control datetimepicker-input s_website_form_input" name="When" placeholder="" id="onbni9ji3oa" value="1735722000"/>
                                         <div class="input-group-text o_input_group_date_icon">
-                                            <i class="fa fa-calendar"/>
+                                            <i class="oi oi-filled" data-icon="calendar_today"/>
                                         </div>
                                     </div>
                                 </div>
@@ -34,7 +35,7 @@ const formXml = `
                                     <span class="s_website_form_label_content">Company</span>
                                 </label>
                                 <div class="col-sm">
-                                    <input class="form-control s_website_form_input" type="text" name="company" data-fill-with="commercial_company_name" id="o291di1too2s"/>
+                                    <input class="form-control s_website_form_input" type="text" name="company" data-fill-with="parent_name" id="o291di1too2s"/>
                                 </div>
                             </div>
                         </div>
@@ -53,7 +54,7 @@ const formXml = `
 function setupUser() {
     onRpc("res.users", "read", ({ parent }) => {
         const result = parent();
-        result[0].commercial_company_name = "TestCompany";
+        result[0].parent_name = "TestCompany";
         return result;
     });
 }
@@ -80,4 +81,13 @@ test("form is NOT prefilled in translate mode", async () => {
     const { core } = await startInteractions(formXml, { waitForStart: true, translateMode: true });
     expect(core.interactions).toHaveLength(1);
     expect("form input[name=company]").toHaveValue("");
+});
+
+test("should show 'other option' input field in edit mode by default when enabled 'Add other' option", async () => {
+    setupUser();
+    const { core } = await startInteractions(formSelectXml);
+    await switchToEditMode(core);
+    expect(core.interactions).toHaveLength(1);
+    expect(".o_other_input").toBeDisplayed();
+    expect(".o_other_input").toHaveAttribute("placeholder", "Other option...");
 });

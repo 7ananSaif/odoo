@@ -1,3 +1,4 @@
+import { render } from "@web/owl2/utils";
 import { AttendeeCalendarController } from "@calendar/views/attendee_calendar/attendee_calendar_controller";
 
 import { _t } from "@web/core/l10n/translation";
@@ -14,11 +15,6 @@ patch(AttendeeCalendarController.prototype, {
     },
 
     async onGoogleSyncCalendar() {
-        await this.orm.call(
-            "res.users",
-            "restart_google_synchronization",
-            [[user.userId]],
-        );
         const syncResult = await this.model.syncGoogleCalendar();
         if (syncResult.status === "need_auth") {
             window.location.assign(syncResult.url);
@@ -30,7 +26,6 @@ patch(AttendeeCalendarController.prototype, {
                     confirm: this.actionService.doAction.bind(this.actionService, syncResult.action),
                     confirmLabel: _t("Configure"),
                     cancel: () => {},
-                    cancelLabel: _t("Discard"),
                 });
             } else {
                 this.dialog.add(AlertDialog, {
@@ -40,18 +35,20 @@ patch(AttendeeCalendarController.prototype, {
             }
         } else {
             await this.model.load();
-            this.render(true);
+            render(this, true);
         }
     },
 
     async onStopGoogleSynchronization() {
-        await this.orm.call(
-            "res.users",
-            "stop_google_synchronization",
-            [[user.userId]],
-        );
+        await this.orm.call("res.users", "stop_google_synchronization");
+        this.model._loaded = false;
         await this.model.load();
-        this.render(true);
+        render(this, true);
+    },
+
+    async onRetryGoogleSync() {
+        await this.orm.call("res.users", "stop_google_synchronization");
+        await this.onGoogleSyncCalendar();
     },
 
     async onUnpauseGoogleSynchronization() {
@@ -60,7 +57,8 @@ patch(AttendeeCalendarController.prototype, {
             "unpause_google_synchronization",
             [[user.userId]],
         );
-        await this.onStopGoogleSynchronization();
-        this.render(true);
+        this.model._loaded = false;
+        await this.model.load();
+        render(this, true);
     }
 });

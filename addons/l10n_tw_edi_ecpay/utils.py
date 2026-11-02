@@ -3,11 +3,14 @@
 import base64
 import datetime
 import json
-import pytz
 import urllib.parse
+from zoneinfo import ZoneInfo
+
 import requests
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+
+from odoo.tools.date_utils import localized
 
 
 PRODUCTION_URL = "https://einvoice.ecpay.com.tw/"
@@ -17,8 +20,18 @@ TIMEOUT = 20
 
 def transfer_time(time_before):
     ecpay_time = datetime.datetime.strptime(time_before, "%Y-%m-%d %H:%M:%S")
-    ecpay_time = pytz.timezone('Asia/Taipei').localize(ecpay_time)
-    return ecpay_time.astimezone(pytz.UTC).strftime("%Y-%m-%d %H:%M:%S")
+    ecpay_time = ecpay_time.replace(tzinfo=ZoneInfo('Asia/Taipei'))
+    return ecpay_time.astimezone(datetime.UTC).strftime("%Y-%m-%d %H:%M:%S")
+
+
+def convert_utc_time_to_tw_time(utc_datetime):
+    """
+        Converts UTC datetime object to a TW date string.
+
+        :param utc_datetime: datetime.datetime(2026, 1, 23, 18, 0, 0)
+        :return: "2026-01-24"
+    """
+    return localized(utc_datetime).astimezone(ZoneInfo("Asia/Taipei")).strftime("%Y-%m-%d")
 
 
 def convert_utc_time_to_tw_time(utc_datetime):
@@ -61,17 +74,18 @@ def call_ecpay_api(endpoint, json_data, company_id, is_b2b=False):
     AES-CBC encryption is used for hashashkey and hashIV:
     https://developers.ecpay.com.tw/?p=22160
     """
-    url = STAGING_URL if company_id.l10n_tw_edi_ecpay_staging_mode else PRODUCTION_URL
+    company_sudo = company_id.sudo()
+    url = STAGING_URL if company_sudo.l10n_tw_edi_ecpay_staging_mode else PRODUCTION_URL
     request_url = url + ("B2BInvoice" if is_b2b else "B2CInvoice")
-    hashkey = company_id.sudo().l10n_tw_edi_ecpay_hashkey
-    hashIV = company_id.sudo().l10n_tw_edi_ecpay_hashIV
+    hashkey = company_sudo.l10n_tw_edi_ecpay_hashkey
+    hashIV = company_sudo.l10n_tw_edi_ecpay_hashIV
     try:
         cipher = Cipher(algorithms.AES(hashkey.encode('utf-8')), modes.CBC(hashIV.encode('utf-8')))
         # Encode the JSON string firstly then do AES encryption
         urlencode_data = urllib.parse.quote(json.dumps(json_data))
         encrypted_data = encrypt(urlencode_data, cipher)
         json_body = {
-            "MerchantID": company_id.sudo().l10n_tw_edi_ecpay_merchant_id,
+            "MerchantID": company_sudo.l10n_tw_edi_ecpay_merchant_id,
             "RqHeader": {
                 "Timestamp": round(datetime.datetime.now().timestamp()),
             },

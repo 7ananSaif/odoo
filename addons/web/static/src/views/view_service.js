@@ -1,6 +1,8 @@
+import { usePlugin } from "@odoo/owl";
+import { DebugModePlugin } from "@web/core/debug_mode_plugin";
 import { rpcBus } from "@web/core/network/rpc";
+import { UPDATE_METHODS } from "@web/core/orm_plugin";
 import { registry } from "@web/core/registry";
-import { UPDATE_METHODS } from "@web/core/orm_service";
 
 /**
  * @typedef {Object} IrFilter
@@ -41,12 +43,14 @@ import { UPDATE_METHODS } from "@web/core/orm_service";
  */
 
 export const viewService = {
-    dependencies: ["orm"],
+    dependencies: ["orm", "ui"],
     async: ["loadViews"],
-    start(env, { orm }) {
+    start(env, { orm, ui }) {
+        const debugMode = usePlugin(DebugModePlugin);
+
         rpcBus.addEventListener("RPC:RESPONSE", (ev) => {
             const { model, method } = ev.detail.data.params;
-            if (["ir.ui.view", "ir.filters"].includes(model)) {
+            if (["ir.ui.view", "ir.filters"].includes(model) && !ev.detail.error) {
                 if (UPDATE_METHODS.includes(method)) {
                     rpcBus.trigger("CLEAR-CACHES", "get_views");
                 }
@@ -83,10 +87,10 @@ export const viewService = {
                     loadViewsOptions[key] = options[key];
                 }
             }
-            if (env.isSmall) {
+            if (ui.isSmall) {
                 loadViewsOptions.mobile = true;
             }
-            if (env.debug) {
+            if (debugMode.isActive()) {
                 loadViewsOptions.debug = true;
             }
             const filteredContext = Object.fromEntries(

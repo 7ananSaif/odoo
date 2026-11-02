@@ -1,6 +1,5 @@
 import { Plugin } from "@html_editor/plugin";
 import { getElementsWithOption } from "@html_builder/utils/utils";
-import { withSequence } from "@html_editor/utils/resource";
 
 /**
  * @typedef { Object } VisibilityShared
@@ -11,8 +10,8 @@ import { withSequence } from "@html_editor/utils/resource";
  */
 
 /**
- * @typedef {((targetEl: HTMLElement) => void)[]} target_hide
- * @typedef {((targetEl: HTMLElement) => void)[]} target_show
+ * @typedef {((targetEl: HTMLElement) => void)[]} on_target_hidden_handlers
+ * @typedef {((targetEl: HTMLElement) => void)[]} on_target_shown_handlers
  */
 
 const invisibleElementsSelector =
@@ -30,12 +29,20 @@ export class VisibilityPlugin extends Plugin {
     ];
     /** @type {import("plugins").BuilderResources} */
     resources = {
-        on_mobile_preview_clicked: withSequence(10, this.onMobilePreviewClicked.bind(this)),
+        on_mobile_view_switched_handlers: this.onMobileViewSwitched.bind(this),
         system_attributes: ["data-invisible"],
         system_classes: ["o_snippet_override_invisible"],
-        clean_for_save_handlers: this.cleanForSaveVisibility.bind(this),
+        clean_for_save_processors: this.cleanForSaveVisibility.bind(this),
         on_snippet_dropped_handlers: this.onSnippetDropped.bind(this),
-        on_restore_containers_handlers: (newTargetEl) => this.makeTargetVisible(newTargetEl),
+        on_will_restore_containers_handlers: (newTargetEl) => this.makeTargetVisible(newTargetEl),
+        is_element_in_invisible_panel_predicates: (el) => {
+            const invisibleSelector = `.o_snippet_invisible, ${
+                this.config.isMobileView(this.editable)
+                    ? ".o_snippet_mobile_invisible"
+                    : ".o_snippet_desktop_invisible"
+            }`;
+            return el.matches(invisibleSelector);
+        },
     };
 
     setup() {
@@ -53,6 +60,7 @@ export class VisibilityPlugin extends Plugin {
                 invisibleEl.removeAttribute("data-invisible");
             }
         });
+        this.ignoredSiblingSelectors = this.getResource("ignored_sibling_selectors").join(", ");
     }
 
     getVisibleSibling(target, direction) {
@@ -60,7 +68,7 @@ export class VisibilityPlugin extends Plugin {
         const siblingEls = [...target.parentNode.children];
         const visibleSiblingEls = siblingEls.filter(
             (el) =>
-                !el.classList.contains("o_we_no_overlay") &&
+                !el.matches(this.ignoredSiblingSelectors) &&
                 window.getComputedStyle(el).display !== "none" &&
                 !el.closest(systemNodeSelectors)
         );
@@ -96,7 +104,7 @@ export class VisibilityPlugin extends Plugin {
         this.config.updateInvisibleElementsPanel();
     }
 
-    cleanForSaveVisibility({ root: rootEl }) {
+    cleanForSaveVisibility(rootEl) {
         const invisibleEls = getElementsWithOption(rootEl, invisibleElementsSelector);
         for (const invisibleEl of invisibleEls) {
             // Hide the invisible elements.
@@ -107,6 +115,7 @@ export class VisibilityPlugin extends Plugin {
                 invisibleEl.removeAttribute("data-invisible");
             }
         }
+        return rootEl;
     }
 
     onSnippetDropped({ snippetEl }) {
@@ -117,7 +126,7 @@ export class VisibilityPlugin extends Plugin {
         }
     }
 
-    onMobilePreviewClicked() {
+    onMobileViewSwitched() {
         const deviceInvisibleEls = this.editable.querySelectorAll(deviceInvisibleSelector);
         const currentContainerTargetEl = this.dependencies["builderOptions"].getTarget();
         for (const deviceInvisibleEl of [...deviceInvisibleEls]) {
@@ -142,8 +151,8 @@ export class VisibilityPlugin extends Plugin {
      */
     toggleTargetVisibility(editingEl, show, considerDeviceVisibility, isCleaning = false) {
         show = this.toggleVisibilityStatus(editingEl, show, considerDeviceVisibility);
-        const resourceName = show ? "target_show" : "target_hide";
-        this.dispatchTo(resourceName, editingEl);
+        const resourceName = show ? "on_target_shown_handlers" : "on_target_hidden_handlers";
+        this.trigger(resourceName, editingEl);
         return show;
     }
 
@@ -197,8 +206,8 @@ export class VisibilityPlugin extends Plugin {
 
     /**
      * Hides the given element and updates what needs to be.
-     * Note: to use only when hiding things without adding history steps:
-     * - if an action adding a history step hides the element, it should call
+     * Note: to use only when hiding things without adding history commits:
+     * - if an action adding a history commit hides the element, it should call
      *   `onOptionVisibilityUpdate`
      * - if it concerns the "Invisible Element" panel, refer to its component.
      *
@@ -212,6 +221,6 @@ export class VisibilityPlugin extends Plugin {
     }
 }
 
-function isTargetVisible(editingEl) {
+export function isTargetVisible(editingEl) {
     return editingEl.dataset.invisible !== "1";
 }

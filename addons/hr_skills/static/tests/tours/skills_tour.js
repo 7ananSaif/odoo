@@ -2,12 +2,16 @@ import { registry } from "@web/core/registry";
 import { stepUtils } from "@web_tour/tour_utils";
 
 registry.category("web_tour.tours").add("hr_skills_tour", {
-    url: "/odoo",
     steps: () => [
         stepUtils.showAppsMenuItem(),
         {
             content: "Open Employees app",
             trigger: ".o_app[data-menu-xmlid='hr.menu_hr_root']",
+            run: "click",
+        },
+        {
+            content: "Open Management menu",
+            trigger: '[data-menu-xmlid="hr.menu_hr_employee_payroll"]',
             run: "click",
         },
         {
@@ -71,7 +75,8 @@ registry.category("web_tour.tours").add("hr_skills_tour", {
         },
         {
             content: "Change type",
-            trigger: ".modal:contains(new resume line) .o_field_widget[name='line_type_id'] .o_selection_badge:contains(Other Experience)",
+            trigger:
+                ".modal:contains(new resume line) .o_field_widget[name='line_type_id'] .o_selection_badge:contains(Other Experience)",
             run: "click",
         },
         {

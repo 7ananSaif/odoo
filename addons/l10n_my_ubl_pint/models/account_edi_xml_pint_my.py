@@ -16,10 +16,6 @@ class AccountEdiXmlPint_My(models.AbstractModel):
         # EXTENDS account_edi_ubl_cii
         return f"{invoice.name.replace('/', '_')}_pint_my.xml"
 
-    def _get_customization_id(self, process_type='billing'):
-        if process_type == 'billing':
-            return 'urn:peppol:pint:billing-1@my-1'
-
     # -------------------------------------------------------------------------
     # EXPORT: Templates
     # -------------------------------------------------------------------------
@@ -49,6 +45,10 @@ class AccountEdiXmlPint_My(models.AbstractModel):
             grouping_key['tax_category_code'] = 'E'
 
         return grouping_key
+
+    def _get_customization_id(self, process_type='billing'):
+        if process_type == 'billing':
+            return 'urn:peppol:pint:billing-1@my-1'
 
     def _ubl_add_tax_totals_nodes(self, vals):
         # EXTENDS account.edi.xml.ubl_bis3
@@ -131,6 +131,7 @@ class AccountEdiXmlPint_My(models.AbstractModel):
     # -------------------------------------------------------------------------
     # IMPORT
     # -------------------------------------------------------------------------
+
     def _import_ubl_invoice_add_customer_values(self, collected_values):
         # EXTENDS account.edi.xml.ubl_bis3; Prioritize PartyLegalEntity when inferring the supplier tax identifier.
         super()._import_ubl_invoice_add_customer_values(collected_values)

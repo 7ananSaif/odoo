@@ -10,6 +10,8 @@ from odoo.tests import tagged
 @tagged('post_install', '-at_install')
 class TestAccessRights(TestCommonSalePurchaseNoChart):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super(TestAccessRights, cls).setUpClass()
@@ -31,7 +33,6 @@ class TestAccessRights(TestCommonSalePurchaseNoChart):
         This test ensures that an activity (warning) is added to the PO
         """
         mto_route = self.env.ref('stock.route_warehouse0_mto')
-        buy_route = self.env.ref('purchase_stock.route_warehouse0_buy')
         mto_route.rule_ids.procure_method = "make_to_order"
         mto_route.active = True
 
@@ -44,7 +45,7 @@ class TestAccessRights(TestCommonSalePurchaseNoChart):
                 'partner_id': vendor.id,
                 'price': 8,
             })],
-            'route_ids': [(6, 0, (mto_route + buy_route).ids)]
+            'route_ids': [Command.set([mto_route.id])],
         })
 
         so = self.env['sale.order'].with_user(self.user_salesperson).create({
@@ -131,7 +132,7 @@ class TestAccessRights(TestCommonSalePurchaseNoChart):
                 'name': 'test',
                 'product_id': self.product.id,
                 'product_qty': 1,
-                'product_uom_id': self.product.uom_id.id,
+                'uom_id': self.product.uom_id.id,
             })]
         })
         # This PO belongs to a different company, it should not be shown
@@ -142,7 +143,7 @@ class TestAccessRights(TestCommonSalePurchaseNoChart):
                 'name': 'test',
                 'product_id': self.product.id,
                 'product_qty': 2,
-                'product_uom_id': self.product.uom_id.id,
+                'uom_id': self.product.uom_id.id,
             })]
         })
         # (POs are not confirmed, to keep the lines in the 'draft' state)

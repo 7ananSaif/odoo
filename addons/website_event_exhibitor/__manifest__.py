@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
@@ -12,8 +11,6 @@
         'website_event',
     ],
     'data': [
-        'security/security.xml',
-        'security/ir.model.access.csv',
         'data/event_sponsor_data.xml',
         'report/website_event_exhibitor_reports.xml',
         'report/website_event_exhibitor_templates.xml',
@@ -24,12 +21,12 @@
         'views/event_exhibitor_templates_page.xml',
         'views/event_type_views.xml',
         'views/event_menus.xml',
+        'security/ir.access.csv',
     ],
     'demo': [
         'data/event_demo.xml',
         'data/event_sponsor_demo.xml',
     ],
-    'installable': True,
     'assets': {
         'web.assets_frontend': [
             'website_event_exhibitor/static/src/scss/event_templates_sponsor.scss',

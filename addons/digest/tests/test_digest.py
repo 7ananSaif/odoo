@@ -1,13 +1,9 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from ast import literal_eval
-from contextlib import contextmanager
-from freezegun import freeze_time
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from lxml import html
-from unittest.mock import patch
 from werkzeug.urls import url_encode
 
 from odoo import SUPERUSER_ID
@@ -19,16 +15,8 @@ from odoo.tests.common import users
 from odoo.tools import mute_logger, urls
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestDigest(TestDigestCommon):
-
-    @contextmanager
-    def mock_datetime_and_now(self, mock_dt):
-        """ Used when synchronization date (using env.cr.now()) is important
-        in addition to standard datetime mocks. Used mainly to detect sync
-        issues. """
-        with freeze_time(mock_dt), \
-             patch.object(self.env.cr, 'now', lambda: mock_dt):
-            yield
 
     @classmethod
     def setUpClass(cls):
@@ -49,7 +37,7 @@ class TestDigest(TestDigestCommon):
         # create logs for user_admin
         cls._setup_logs_for_users(cls.user_admin, cls.reference_datetime - relativedelta(days=5))
 
-        with cls.mock_datetime_and_now(cls, cls.reference_datetime):
+        with cls.mock_datetime_and_now(cls.reference_datetime):
             cls.test_digest, cls.test_digest_2 = cls.env['digest.digest'].create([
                 {
                     "kpi_mail_message_total": True,
@@ -67,7 +55,7 @@ class TestDigest(TestDigestCommon):
 
     @classmethod
     def _setup_logs_for_users(cls, res_users, log_dt):
-        with cls.mock_datetime_and_now(cls, log_dt):
+        with cls.mock_datetime_and_now(log_dt):
             for user in res_users:
                 cls.env['res.users.log'].with_user(SUPERUSER_ID).create({
                     'create_uid': user.id,
@@ -114,26 +102,28 @@ class TestDigest(TestDigestCommon):
     @users('admin')
     def test_digest_numbers(self):
         digest = self.env['digest.digest'].browse(self.digest_1.ids)
-        digest._action_subscribe_users(self.user_employee)
+        for user, expected_kpis in ((self.user_employee, []), (self.user_admin, ['3', '8', '15'])):
+            digest._action_unsubscribe_users(self.user_employee + self.user_admin)
+            digest._action_subscribe_users(user)
 
-        # digest creates its mails in auto_delete mode so we need to capture
-        # the formatted body during the sending process
-        digest.flush_recordset()
-        with self.mock_mail_gateway():
-            digest.action_send()
+            # digest creates its mails in auto_delete mode so we need to capture
+            # the formatted body during the sending process
+            digest.flush_recordset()
+            with self.mock_mail_gateway():
+                digest.action_send()
 
-        self.assertEqual(len(self._new_mails), 1, "A new mail.mail should have been created")
-        mail = self._new_mails[0]
-        # check mail.mail content
-        self.assertEqual(mail.author_id, self.partner_admin)
-        self.assertEqual(mail.email_from, self.company_admin.email_formatted)
-        self.assertEqual(mail.state, 'outgoing', 'Mail should use the queue')
+            self.assertEqual(len(self._new_mails), 1, "A new mail.mail should have been created")
+            mail = self._new_mails[0]
+            # check mail.mail content
+            self.assertEqual(mail.author_id, self.partner_admin)
+            self.assertEqual(mail.email_from, self.company_admin.email_formatted)
+            self.assertEqual(mail.state, 'outgoing', 'Mail should use the queue')
 
-        kpi_message_values = html.fromstring(mail.body_html).xpath('//table[@data-field="kpi_mail_message_total"]//*[hasclass("kpi_value")]/text()')
-        self.assertEqual(
-            [t.strip() for t in kpi_message_values],
-            ['3', '8', '15']
-        )
+            kpi_message_values = html.fromstring(mail.body_html).xpath('//table[@data-field="kpi_mail_message_total"]//*[hasclass("kpi_value")]/text()')
+            self.assertEqual(
+                [t.strip() for t in kpi_message_values],
+                expected_kpis
+            )
 
     @users('admin')
     def test_digest_subscribe(self):
@@ -314,7 +304,7 @@ class TestUnsubscribe(MailCommon, HttpCaseWithUserDemo):
             'user_ids': self.user_demo.ids,
         })
         self.test_digest._action_subscribe_users(self.user_demo)
-        self.base_url = self.test_digest.get_base_url()
+        self._base_url = self.test_digest.get_base_url()
         self.user_demo_unsubscribe_token = self.test_digest._get_unsubscribe_token(self.user_demo.id)
 
     def test_mail_mail_headers(self):
@@ -391,5 +381,5 @@ class TestUnsubscribe(MailCommon, HttpCaseWithUserDemo):
         else:
             unsubscribe_route = "unsubscribe"
 
-        url = urls.urljoin(self.base_url, f'digest/{self.test_digest.id}/{unsubscribe_route}?{url_encode(url_params)}')
+        url = urls.urljoin(self._base_url, f'digest/{self.test_digest.id}/{unsubscribe_route}?{url_encode(url_params)}')
         return self.url_open(url, timeout=10, allow_redirects=True, method=method)

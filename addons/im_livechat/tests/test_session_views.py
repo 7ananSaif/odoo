@@ -1,10 +1,13 @@
-from odoo import Command
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from odoo import Command, fields
 from odoo.tests import new_test_user
 from odoo.addons.im_livechat.tests.common import TestImLivechatCommon
-from odoo.tests.common import users, tagged
+from odoo.tests.common import users
+
+from datetime import timedelta
 
 
-@tagged("-at_install", "post_install")
 class TestImLivechatSessionViews(TestImLivechatCommon):
     def test_session_history_navigation_back_and_forth(self):
         operator = new_test_user(
@@ -12,19 +15,18 @@ class TestImLivechatSessionViews(TestImLivechatCommon):
             login="operator",
             groups="base.group_user,im_livechat.im_livechat_group_manager",
         )
-        self.env["mail.presence"]._update_presence(operator)
         self.livechat_channel.user_ids |= operator
         self.authenticate(None, None)
-        data = self.make_jsonrpc_request(
-            "/im_livechat/get_session",
-            {
+        # Freeze time to get around the last 30 days default filter hidding messages in tours
+        with self.mock_datetime_and_now(fields.Datetime.now() - timedelta(days=15)):
+            self.env["mail.presence"]._update_presence(operator)
+            data = self.make_jsonrpc_request("/im_livechat/get_session", {
                 "channel_id": self.livechat_channel.id,
-                "previous_operator_id": operator.partner_id.id,
-            },
-        )
-        channel = self.env["discuss.channel"].browse(data["channel_id"])
-        channel.with_user(operator).message_post(body="Hello, how can I help you?")
-        self._reset_bus()
+                "previous_operator_id": operator.partner_id.id
+            })
+            channel = self.env["discuss.channel"].browse(data["channel_id"])
+            channel.with_user(operator).message_post(body="Hello, how can I help you?")
+            self._reset_bus()
         action = self.env.ref("im_livechat.discuss_channel_action_from_livechat_channel")
         self.start_tour(
             f"/odoo/livechat/{self.livechat_channel.id}/action-{action.id}",
@@ -34,36 +36,36 @@ class TestImLivechatSessionViews(TestImLivechatCommon):
 
     @users("admin")
     def test_form_view_embed_thread(self):
-        operator = new_test_user(
+        new_test_user(
             self.env,
             login="operator",
             groups="base.group_user,im_livechat.im_livechat_group_manager",
         )
         [user_1, user_2] = self.env["res.partner"].create([{"name": "test 1"}, {"name": "test 2"}])
-        [channel1, channel2] = self.env["discuss.channel"].create(
-            [
-                {
-                    "name": "test 1",
-                    "channel_type": "livechat",
-                    "livechat_channel_id": self.livechat_channel.id,
-                    "livechat_operator_id": operator.partner_id.id,
-                    "channel_member_ids": [Command.create({"partner_id": user_1.id})],
-                },
-                {
-                    "name": "test 2",
-                    "channel_type": "livechat",
-                    "livechat_channel_id": self.livechat_channel.id,
-                    "livechat_operator_id": operator.partner_id.id,
-                    "channel_member_ids": [Command.create({"partner_id": user_2.id})],
-                },
-            ]
-        )
-        channel1.message_post(
-            body="Test Channel 1 Msg", message_type="comment", subtype_xmlid="mail.mt_comment"
-        )
-        channel2.message_post(
-            body="Test Channel 2 Msg", message_type="comment", subtype_xmlid="mail.mt_comment"
-        )
+        # Freeze time to get around the last 30 days default filter hidding messages in tours
+        with self.mock_datetime_and_now(fields.Datetime.now() - timedelta(days=15)):
+            [channel1, channel2] = self.env["discuss.channel"].create(
+                [
+                    {
+                        "name": "test 1",
+                        "channel_type": "livechat",
+                        "livechat_channel_id": self.livechat_channel.id,
+                        "channel_member_ids": [Command.create({"partner_id": user_1.id})],
+                    },
+                    {
+                        "name": "test 2",
+                        "channel_type": "livechat",
+                        "livechat_channel_id": self.livechat_channel.id,
+                        "channel_member_ids": [Command.create({"partner_id": user_2.id})],
+                    },
+                ]
+            )
+            channel1.message_post(
+                body="Test Channel 1 Msg", message_type="comment", subtype_xmlid="mail.mt_comment"
+            )
+            channel2.message_post(
+                body="Test Channel 2 Msg", message_type="comment", subtype_xmlid="mail.mt_comment"
+            )
         action = self.env.ref("im_livechat.discuss_channel_action_from_livechat_channel")
         self.start_tour(
             f"/odoo/livechat/{self.livechat_channel.id}/action-{action.id}",
@@ -73,7 +75,7 @@ class TestImLivechatSessionViews(TestImLivechatCommon):
 
     def test_partner_display_name(self):
         user = new_test_user(self.env, login="agent", name="john")
-        company = self.env["res.partner"].create({"name": "TestCompany", "is_company": True})
+        company = self.env["res.partner"].create({"name": "TestCompany"})
         user.partner_id.parent_id = company.id
         self.assertEqual(
             user.with_context(im_livechat_hide_partner_company=True).partner_id.display_name,
@@ -83,6 +85,7 @@ class TestImLivechatSessionViews(TestImLivechatCommon):
 
 
 class TestImLivechatLookingForHelpViews(TestImLivechatSessionViews):
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -93,9 +96,6 @@ class TestImLivechatLookingForHelpViews(TestImLivechatSessionViews):
             groups="base.group_user,im_livechat.im_livechat_group_user",
         )
         cls.livechat_channel.user_ids |= cls.bob
-        cls.looking_for_help_action = cls.env.ref(
-            "im_livechat.discuss_channel_looking_for_help_action"
-        )
 
     def start_needhelp_session(self, guest_name=None):
         self.authenticate(None, None)
@@ -124,9 +124,13 @@ class TestImLivechatLookingForHelpViews(TestImLivechatSessionViews):
         agent.livechat_expertise_ids = sales_expertise
         accounting_chat = self.start_needhelp_session(guest_name="Visitor Accounting")
         accounting_chat.livechat_expertise_ids = accounting_expertise
+        accounting_chat.description = "Invoice SO0042 not received"
         sales_chat = self.start_needhelp_session(guest_name="Visitor Sales")
         sales_chat.livechat_expertise_ids = sales_expertise
+        sales_chat.description = "Delivery delayed for PO0099"
         self._reset_bus()
         self.start_tour(
-            "/odoo/discuss", "im_livechat.looking_for_help_discuss_category_tour", login="agent"
+            "/odoo/discuss",
+            "im_livechat.looking_for_help_discuss_category_tour",
+            login="agent",
         )

@@ -1,23 +1,39 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# * sale_timesheet
+# 	* sale_timesheet
 #
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-01-25 18:37+0000\n"
+"PO-Revision-Date: 2025-12-30 18:37+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+========
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-11-08 17:54+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Kurdish (Central) <https://translate.odoo.com/projects/"
-"odoo-19/sale_timesheet/ckb/>\n"
+"POT-Creation-Date: 2026-10-09 17:40+0000\n"
+"PO-Revision-Date: 2026-08-31 19:48+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Kurdish (Sorani) <https://translate.odoo.com/projects/odoo-"
+"s19-4/sale_timesheet/ckb/>\n"
 "Language: ku\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 
 #. module: sale_timesheet
 #. odoo-python
@@ -52,8 +68,25 @@ msgid ""
 msgstr ""
 
 #. module: sale_timesheet
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 #. odoo-python
 #: code:addons/sale_timesheet/models/hr_timesheet.py:0
+========
+#: model:ir.module.module,description:base.module_sale_timesheet
+msgid ""
+"\n"
+"Allows to sell timesheets in your sales order\n"
+"=============================================\n"
+"\n"
+"This module set the right product on all timesheet lines\n"
+"according to the order/contract you work on. This allows to\n"
+"have real delivered quantities in sales orders.\n"
+msgstr ""
+
+#. module: sale_timesheet
+#. odoo-python
+#: code:addons/sale_timesheet/models/account_analytic_line.py:0
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 msgid ""
 "'%(missing_plan_names)s' analytic plan(s) required on the analytic "
 "distribution of the sale order item '%(so_line_name)s' linked to the "
@@ -61,8 +94,13 @@ msgid ""
 msgstr ""
 
 #. module: sale_timesheet
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_sale_page
 msgid "- Timesheet product"
+========
+#: model:ir.actions.report,print_report_name:sale_timesheet.timesheet_report_account_move
+msgid "('%s Timesheets' % (object.name))"
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 msgstr ""
 
 #. module: sale_timesheet
@@ -122,13 +160,18 @@ msgstr ""
 #. module: sale_timesheet
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.project_project_view_form
 msgid ""
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 "<i class=\"fa fa-lightbulb-o\"/>\n"
+========
+"<i class=\"oi\" data-icon=\"lightbulb\"/>\n"
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 "                        <span>\n"
 "                            Define the rate at which an employee's time is "
 "billed based on their expertise, skills, or experience.\n"
 "                            To bill the same service at a different rate, "
 "create separate sales order items.\n"
 "                        </span>"
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 msgstr ""
 
 #. module: sale_timesheet
@@ -137,6 +180,8 @@ msgid ""
 "<span class=\"fa fa-exclamation-triangle text-warning\" title=\"The sales "
 "order associated with this timesheet entry has been cancelled.\" "
 "invisible=\"sale_order_state != 'cancel'\"/>"
+========
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 msgstr ""
 
 #. module: sale_timesheet
@@ -156,6 +201,17 @@ msgid "<span class=\"o_stat_text\">Sales Order</span>"
 msgstr ""
 
 #. module: sale_timesheet
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
+========
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.hr_timesheet_line_form_inherit
+msgid ""
+"<span class=\"oi text-warning\" data-icon=\"warning\" title=\"The sales "
+"order associated with this timesheet entry has been cancelled.\" "
+"invisible=\"sale_order_state != 'cancel'\"/>"
+msgstr ""
+
+#. module: sale_timesheet
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 #: model_terms:hr.job,job_details:sale_timesheet.job_engineer
 #: model_terms:hr.job,job_details:sale_timesheet.job_interior_designer
 #: model_terms:hr.job,job_details:sale_timesheet.job_labour
@@ -177,37 +233,79 @@ msgid "<span class=\"text-muted small\">Time to Answer</span>"
 msgstr ""
 
 #. module: sale_timesheet
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 #: model_terms:hr.job,website_description:sale_timesheet.job_engineer
 #: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
 #: model_terms:hr.job,website_description:sale_timesheet.job_labour
+========
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.project_project_view_form
+msgid ""
+"<span class=\"text-muted\">Timesheets without a sales order item are "
+"reported as </span>"
+msgstr ""
+
+#. module: sale_timesheet
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.report_timesheet_sale_timesheet
+msgid "<span>Sales Order Item: </span>"
+msgstr ""
+
+#. module: sale_timesheet
+#: model_terms:hr.job,website_rating:sale_timesheet.job_engineer
+#: model_terms:hr.job,website_rating:sale_timesheet.job_interior_designer
+#: model_terms:hr.job,website_rating:sale_timesheet.job_labour
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 msgid "<strong class=\"s_rating_title\">Administrative Work</strong>"
 msgstr ""
 
 #. module: sale_timesheet
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 #: model_terms:hr.job,website_description:sale_timesheet.job_engineer
 #: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
 #: model_terms:hr.job,website_description:sale_timesheet.job_labour
+========
+#: model_terms:hr.job,website_rating:sale_timesheet.job_engineer
+#: model_terms:hr.job,website_rating:sale_timesheet.job_interior_designer
+#: model_terms:hr.job,website_rating:sale_timesheet.job_labour
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 msgid "<strong class=\"s_rating_title\">Autonomy</strong>"
 msgstr ""
 
 #. module: sale_timesheet
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 #: model_terms:hr.job,website_description:sale_timesheet.job_engineer
 #: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
 #: model_terms:hr.job,website_description:sale_timesheet.job_labour
+========
+#: model_terms:hr.job,website_rating:sale_timesheet.job_engineer
+#: model_terms:hr.job,website_rating:sale_timesheet.job_interior_designer
+#: model_terms:hr.job,website_rating:sale_timesheet.job_labour
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 msgid "<strong class=\"s_rating_title\">Customer Relationship</strong>"
 msgstr ""
 
 #. module: sale_timesheet
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 #: model_terms:hr.job,website_description:sale_timesheet.job_engineer
 #: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
 #: model_terms:hr.job,website_description:sale_timesheet.job_labour
+========
+#: model_terms:hr.job,website_rating:sale_timesheet.job_engineer
+#: model_terms:hr.job,website_rating:sale_timesheet.job_interior_designer
+#: model_terms:hr.job,website_rating:sale_timesheet.job_labour
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 msgid "<strong class=\"s_rating_title\">Personal Evolution</strong>"
 msgstr ""
 
 #. module: sale_timesheet
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 #: model_terms:hr.job,website_description:sale_timesheet.job_engineer
 #: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
 #: model_terms:hr.job,website_description:sale_timesheet.job_labour
+========
+#: model_terms:hr.job,website_rating:sale_timesheet.job_engineer
+#: model_terms:hr.job,website_rating:sale_timesheet.job_interior_designer
+#: model_terms:hr.job,website_rating:sale_timesheet.job_labour
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 msgid "<strong class=\"s_rating_title\">Technical Expertise</strong>"
 msgstr ""
 
@@ -232,7 +330,11 @@ msgid "<strong>Sales Order:</strong>"
 msgstr ""
 
 #. module: sale_timesheet
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.portal_timesheet_table_inherit
+========
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.portal_timesheet_table_with_total_inherit
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 msgid "<strong>Time Remaining on SO: </strong>"
 msgstr ""
 
@@ -252,16 +354,23 @@ msgid ""
 "  - Analytic From expenses: the quantity is the quantity sum from posted "
 "expenses\n"
 "  - Timesheet: the quantity is the sum of hours recorded on tasks linked to "
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 "this sale line\n"
+========
+"this line\n"
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 "  - Stock Moves: the quantity comes from confirmed pickings\n"
 msgstr ""
 
 #. module: sale_timesheet
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 #: model:ir.model,name:sale_timesheet.model_account_move_reversal
 msgid "Account Move Reversal"
 msgstr ""
 
 #. module: sale_timesheet
+========
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 #: model_terms:hr.job,website_description:sale_timesheet.job_engineer
 #: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
 #: model_terms:hr.job,website_description:sale_timesheet.job_labour
@@ -304,6 +413,7 @@ msgid "Analytic lines"
 msgstr "هێڵەکانی شیکاری"
 
 #. module: sale_timesheet
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 #: model_terms:hr.job,website_description:sale_timesheet.job_engineer
 #: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
 #: model_terms:hr.job,website_description:sale_timesheet.job_labour
@@ -323,6 +433,25 @@ msgid ""
 "proactive and have a \"get it done\"\n"
 "                        spirit. To be successful, you will have solid "
 "solving problem skills."
+========
+#: model_terms:hr.job,description:sale_timesheet.job_engineer
+#: model_terms:hr.job,description:sale_timesheet.job_interior_designer
+#: model_terms:hr.job,description:sale_timesheet.job_labour
+msgid ""
+"As an employee of our company, you will <b>collaborate with each department\n"
+"to create and deploy disruptive products.</b> Come work at a growing "
+"company\n"
+"that offers great benefits with opportunities to moving forward and learn\n"
+"alongside accomplished leaders. We're seeking an experienced and "
+"outstanding\n"
+"member of staff.\n"
+"<br><br>\n"
+"This position is both <b>creative and rigorous</b> by nature you need to "
+"think\n"
+"outside the box. We expect the candidate to be proactive and have a \"get it "
+"done\"\n"
+"spirit. To be successful, you will have solid solving problem skills."
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 msgstr ""
 
 #. module: sale_timesheet
@@ -340,6 +469,7 @@ msgstr ""
 
 #. module: sale_timesheet
 #: model:ir.model.fields,field_description:sale_timesheet.field_account_analytic_line__allow_billable
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_view_search
 msgid "Billable"
 msgstr ""
 
@@ -349,41 +479,13 @@ msgid "Billable Time"
 msgstr ""
 
 #. module: sale_timesheet
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 #: model:ir.model.fields,field_description:sale_timesheet.field_account_analytic_line__timesheet_invoice_type
 #: model:ir.model.fields,field_description:sale_timesheet.field_timesheets_analysis_report__timesheet_invoice_type
+========
+#: model:ir.model.fields,field_description:sale_timesheet.field_timesheets_analysis_report__billable_type
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 msgid "Billable Type"
-msgstr ""
-
-#. module: sale_timesheet
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__account_analytic_line__timesheet_invoice_type__billable_manual
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__timesheets_analysis_report__timesheet_invoice_type__billable_manual
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_view_search
-msgid "Billed Manually"
-msgstr ""
-
-#. module: sale_timesheet
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_view_search
-msgid "Billed at a Fixed Price"
-msgstr ""
-
-#. module: sale_timesheet
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__account_analytic_line__timesheet_invoice_type__billable_fixed
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__timesheets_analysis_report__timesheet_invoice_type__billable_fixed
-msgid "Billed at a Fixed price"
-msgstr ""
-
-#. module: sale_timesheet
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__account_analytic_line__timesheet_invoice_type__billable_milestones
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__timesheets_analysis_report__timesheet_invoice_type__billable_milestones
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_view_search
-msgid "Billed on Milestones"
-msgstr ""
-
-#. module: sale_timesheet
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__account_analytic_line__timesheet_invoice_type__billable_time
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__timesheets_analysis_report__timesheet_invoice_type__billable_time
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_view_search
-msgid "Billed on Timesheets"
 msgstr ""
 
 #. module: sale_timesheet
@@ -428,6 +530,12 @@ msgid "Create a Task"
 msgstr ""
 
 #. module: sale_timesheet
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
+#: model:ir.model,website_form_label:sale_timesheet.model_project_task
+msgid "Create a Task"
+msgstr ""
+
+#. module: sale_timesheet
 #: model_terms:hr.job,website_description:sale_timesheet.job_engineer
 #: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
 #: model_terms:hr.job,website_description:sale_timesheet.job_labour
@@ -435,6 +543,15 @@ msgid "Create content that will help our users on a daily basis"
 msgstr ""
 
 #. module: sale_timesheet
+========
+#: model_terms:hr.job,website_description:sale_timesheet.job_engineer
+#: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
+#: model_terms:hr.job,website_description:sale_timesheet.job_labour
+msgid "Create content that will help our users on a daily basis"
+msgstr ""
+
+#. module: sale_timesheet
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 #: model:ir.model.fields,field_description:sale_timesheet.field_project_sale_line_employee_map__create_uid
 msgid "Created by"
 msgstr "دروستکراوە لەلایەن..."
@@ -460,11 +577,14 @@ msgid "Customer Care (Prepaid Hours)"
 msgstr ""
 
 #. module: sale_timesheet
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.project_project_view_kanban_inherit_sale_timesheet
 msgid "Customer Ratings"
 msgstr ""
 
 #. module: sale_timesheet
+========
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.portal_my_timesheets_inherit
 msgid "Days Ordered,"
 msgstr ""
@@ -486,7 +606,13 @@ msgstr ""
 #: model:ir.model.fields,field_description:sale_timesheet.field_account_move__display_name
 #: model:ir.model.fields,field_description:sale_timesheet.field_account_move_line__display_name
 #: model:ir.model.fields,field_description:sale_timesheet.field_account_move_reversal__display_name
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 #: model:ir.model.fields,field_description:sale_timesheet.field_hr_employee__display_name
+========
+#: model:ir.model.fields,field_description:sale_timesheet.field_account_move_send__display_name
+#: model:ir.model.fields,field_description:sale_timesheet.field_hr_employee__display_name
+#: model:ir.model.fields,field_description:sale_timesheet.field_hr_employee_departure__display_name
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 #: model:ir.model.fields,field_description:sale_timesheet.field_product_product__display_name
 #: model:ir.model.fields,field_description:sale_timesheet.field_product_template__display_name
 #: model:ir.model.fields,field_description:sale_timesheet.field_project_project__display_name
@@ -504,7 +630,11 @@ msgstr ""
 #. module: sale_timesheet
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_sale_page
 msgid "Draft"
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
+msgstr ""
+========
 msgstr "ڕەشنووس"
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 
 #. module: sale_timesheet
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.portal_my_task_inherit
@@ -530,6 +660,24 @@ msgstr ""
 #: model_terms:hr.job,website_description:sale_timesheet.job_engineer
 #: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
 #: model_terms:hr.job,website_description:sale_timesheet.job_labour
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
+msgid ""
+"Each employee has a chance to see the impact of his work.\n"
+"                    You can make a real contribution to the success of the "
+"company.\n"
+"                    <br>\n"
+"                    Several activities are often organized all over the "
+"year, such as weekly\n"
+"                    sports sessions, team building events, monthly drink, "
+"and much more"
+msgstr ""
+
+#. module: sale_timesheet
+#: model_terms:hr.job,website_description:sale_timesheet.job_engineer
+#: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
+#: model_terms:hr.job,website_description:sale_timesheet.job_labour
+========
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 msgid "Eat &amp; Drink"
 msgstr ""
 
@@ -545,6 +693,11 @@ msgid "Employee"
 msgstr "کارمەند"
 
 #. module: sale_timesheet
+#: model:ir.model,name:sale_timesheet.model_hr_employee_departure
+msgid "Employee Departure"
+msgstr ""
+
+#. module: sale_timesheet
 #: model:ir.model.fields.selection,name:sale_timesheet.selection__project_project__pricing_type__employee_rate
 msgid "Employee rate"
 msgstr ""
@@ -552,6 +705,8 @@ msgstr ""
 #. module: sale_timesheet
 #: model:ir.model.fields,field_description:sale_timesheet.field_sale_advance_payment_inv__date_end_invoice_timesheet
 msgid "End Date"
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
+========
 msgstr "بەرواری کۆتایی"
 
 #. module: sale_timesheet
@@ -559,12 +714,23 @@ msgstr "بەرواری کۆتایی"
 #: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
 #: model_terms:hr.job,website_description:sale_timesheet.job_labour
 msgid "Expand your knowledge of various business industries"
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 msgstr ""
 
 #. module: sale_timesheet
 #: model_terms:hr.job,website_description:sale_timesheet.job_engineer
 #: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
 #: model_terms:hr.job,website_description:sale_timesheet.job_labour
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
+msgid "Expand your knowledge of various business industries"
+msgstr ""
+
+#. module: sale_timesheet
+#: model_terms:hr.job,website_description:sale_timesheet.job_engineer
+#: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
+#: model_terms:hr.job,website_description:sale_timesheet.job_labour
+========
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 msgid "Experience in writing online content"
 msgstr ""
 
@@ -636,7 +802,13 @@ msgstr ""
 #: model:ir.model.fields,field_description:sale_timesheet.field_account_move__id
 #: model:ir.model.fields,field_description:sale_timesheet.field_account_move_line__id
 #: model:ir.model.fields,field_description:sale_timesheet.field_account_move_reversal__id
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 #: model:ir.model.fields,field_description:sale_timesheet.field_hr_employee__id
+========
+#: model:ir.model.fields,field_description:sale_timesheet.field_account_move_send__id
+#: model:ir.model.fields,field_description:sale_timesheet.field_hr_employee__id
+#: model:ir.model.fields,field_description:sale_timesheet.field_hr_employee_departure__id
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 #: model:ir.model.fields,field_description:sale_timesheet.field_product_product__id
 #: model:ir.model.fields,field_description:sale_timesheet.field_product_template__id
 #: model:ir.model.fields,field_description:sale_timesheet.field_project_project__id
@@ -657,6 +829,14 @@ msgid "Interior Designer"
 msgstr ""
 
 #. module: sale_timesheet
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
+#: model:hr.job,name:sale_timesheet.job_interior_designer
+msgid "Interior Designer"
+msgstr ""
+
+#. module: sale_timesheet
+========
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 #: model:product.template,name:sale_timesheet.product_product_interior_designing_product_template
 msgid "Interior Designing"
 msgstr ""
@@ -664,12 +844,17 @@ msgstr ""
 #. module: sale_timesheet
 #. odoo-python
 #: code:addons/sale_timesheet/controllers/portal.py:0
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 #: code:addons/sale_timesheet/models/hr_timesheet.py:0
 #: model:ir.model.fields,field_description:sale_timesheet.field_account_analytic_line__timesheet_invoice_id
 #: model:ir.model.fields,field_description:sale_timesheet.field_timesheets_analysis_report__timesheet_invoice_id
+========
+#: code:addons/sale_timesheet/models/account_analytic_line.py:0
+#: model:ir.model.fields,field_description:sale_timesheet.field_timesheets_analysis_report__reinvoice_move_id
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.portal_my_timesheets_inherit
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.report_timesheet_account_move
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_view_search
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_sale_page
 msgid "Invoice"
 msgstr "فاکتورە"
 
@@ -685,8 +870,12 @@ msgid "Invoice based on timesheets (delivered quantity)."
 msgstr ""
 
 #. module: sale_timesheet
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 #: model:ir.model.fields,help:sale_timesheet.field_account_analytic_line__timesheet_invoice_id
 #: model:ir.model.fields,help:sale_timesheet.field_timesheets_analysis_report__timesheet_invoice_id
+========
+#: model:ir.model.fields,help:sale_timesheet.field_timesheets_analysis_report__reinvoice_move_id
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 msgid "Invoice created from the timesheet"
 msgstr ""
 
@@ -699,7 +888,11 @@ msgstr "فاکتورەکان"
 #. module: sale_timesheet
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.project_project_view_form
 msgid "Invoicing"
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
+msgstr ""
+========
 msgstr "فاکتورەکردن"
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 
 #. module: sale_timesheet
 #: model:ir.model.fields,field_description:sale_timesheet.field_project_task__is_project_map_empty
@@ -714,6 +907,11 @@ msgstr ""
 #. module: sale_timesheet
 #: model:ir.model,name:sale_timesheet.model_account_move
 msgid "Journal Entry"
+msgstr ""
+
+#. module: sale_timesheet
+#: model:ir.model,name:sale_timesheet.model_account_move_reversal
+msgid "Journal Entry Reversal"
 msgstr ""
 
 #. module: sale_timesheet
@@ -775,12 +973,15 @@ msgstr ""
 #: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
 #: model_terms:hr.job,website_description:sale_timesheet.job_labour
 msgid "Master demos of our software"
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 msgstr ""
 
 #. module: sale_timesheet
 #. odoo-python
 #: code:addons/sale_timesheet/models/project_project.py:0
 msgid "Materials"
+========
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 msgstr ""
 
 #. module: sale_timesheet
@@ -794,6 +995,14 @@ msgid "Milestone services"
 msgstr ""
 
 #. module: sale_timesheet
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
+========
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.hr_timesheet_line_search
+msgid "Mine"
+msgstr ""
+
+#. module: sale_timesheet
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 #: model_terms:hr.job,website_description:sale_timesheet.job_engineer
 #: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
 #: model_terms:hr.job,website_description:sale_timesheet.job_labour
@@ -839,6 +1048,17 @@ msgstr ""
 #: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
 #: model_terms:hr.job,website_description:sale_timesheet.job_labour
 msgid "No dumb managers, no stupid tools to use, no rigid working hours"
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
+========
+msgstr ""
+
+#. module: sale_timesheet
+#: model_terms:hr.job,website_description:sale_timesheet.job_engineer
+#: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
+#: model_terms:hr.job,website_description:sale_timesheet.job_labour
+msgid ""
+"No waste of time in enterprise processes, real responsibilities and autonomy"
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 msgstr ""
 
 #. module: sale_timesheet
@@ -876,6 +1096,16 @@ msgstr ""
 #. module: sale_timesheet
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.portal_my_timesheets_inherit
 msgid "Not Billed"
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
+========
+msgstr ""
+
+#. module: sale_timesheet
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.view_product_timesheet_form
+msgid ""
+"Notify the salesperson about an upsell opportunity when completed work "
+"exceeds"
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 msgstr ""
 
 #. module: sale_timesheet
@@ -902,14 +1132,25 @@ msgid ""
 "period will be invoiced. If the period is not indicated, all timesheets not "
 "yet invoiced (and validated, if applicable) will be invoiced without "
 "distinction."
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
+========
 msgstr ""
 
 #. module: sale_timesheet
-#: model:ir.model.fields,field_description:sale_timesheet.field_account_analytic_line__order_id
-msgid "Order Reference"
-msgstr "ئاماژەی داواکاری"
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_sale_page
+msgid "Order"
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
+msgstr ""
 
 #. module: sale_timesheet
+#: model_terms:hr.job,website_description:sale_timesheet.job_engineer
+#: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
+#: model_terms:hr.job,website_description:sale_timesheet.job_labour
+msgid "Our Product"
+msgstr ""
+
+#. module: sale_timesheet
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 #: model:ir.model.fields.selection,name:sale_timesheet.selection__account_analytic_line__timesheet_invoice_type__other_costs
 #: model:ir.model.fields.selection,name:sale_timesheet.selection__timesheets_analysis_report__timesheet_invoice_type__other_costs
 msgid "Other costs"
@@ -929,6 +1170,8 @@ msgid "Our Product"
 msgstr ""
 
 #. module: sale_timesheet
+========
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 #: model_terms:hr.job,website_description:sale_timesheet.job_engineer
 #: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
 #: model_terms:hr.job,website_description:sale_timesheet.job_labour
@@ -972,13 +1215,18 @@ msgstr "نرخدانان"
 
 #. module: sale_timesheet
 #: model:ir.model,name:sale_timesheet.model_product_template
+#: model:ir.model.fields,field_description:sale_timesheet.field_account_analytic_line__product_id
 msgid "Product"
 msgstr "بەرهەم"
 
 #. module: sale_timesheet
 #: model:ir.model,name:sale_timesheet.model_product_product
 msgid "Product Variant"
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
+msgstr ""
+========
 msgstr "جۆری بەرهەم"
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 
 #. module: sale_timesheet
 #: model:ir.model,name:sale_timesheet.model_project_project
@@ -1046,11 +1294,14 @@ msgstr ""
 #. module: sale_timesheet
 #: model:product.template,name:sale_timesheet.product_product_roofing_product_template
 msgid "Roofing"
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 msgstr ""
 
 #. module: sale_timesheet
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_sale_page
 msgid "S0001"
+========
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 msgstr ""
 
 #. module: sale_timesheet
@@ -1061,7 +1312,11 @@ msgstr ""
 #. module: sale_timesheet
 #. odoo-python
 #: code:addons/sale_timesheet/controllers/portal.py:0
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 #: code:addons/sale_timesheet/models/hr_timesheet.py:0
+========
+#: code:addons/sale_timesheet/models/account_analytic_line.py:0
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 #: model:ir.model,name:sale_timesheet.model_sale_order
 #: model:ir.model.fields,field_description:sale_timesheet.field_project_task__sale_order_id
 #: model:ir.model.fields,field_description:sale_timesheet.field_timesheets_analysis_report__order_id
@@ -1079,6 +1334,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.portal_my_timesheets_inherit
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.portal_timesheet_table_inherit
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.report_timesheet_sale_order
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.report_timesheet_sale_timesheet
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_view_search
 msgid "Sales Order Item"
 msgstr ""
@@ -1089,8 +1345,13 @@ msgid "Sales Order Line"
 msgstr ""
 
 #. module: sale_timesheet
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.project_project_view_kanban_inherit_sale_timesheet_so_button
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.project_project_view_card_inherit_sale_timesheet_so_button
 msgid "Sales Orders"
+msgstr ""
+
+#. module: sale_timesheet
+#: model:ir.module.module,shortdesc:base.module_sale_timesheet
+msgid "Sales Timesheet"
 msgstr ""
 
 #. module: sale_timesheet
@@ -1135,6 +1396,14 @@ msgid "Search in Sales Order Item"
 msgstr ""
 
 #. module: sale_timesheet
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
+========
+#: model:ir.module.module,summary:base.module_sale_timesheet
+msgid "Sell based on timesheets"
+msgstr ""
+
+#. module: sale_timesheet
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.res_config_settings_view_form
 msgid "Sell services and invoice time spent"
 msgstr ""
@@ -1145,12 +1414,15 @@ msgid "Senior Architect (Invoice on Timesheets)"
 msgstr ""
 
 #. module: sale_timesheet
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 #: model:ir.model.fields.selection,name:sale_timesheet.selection__account_analytic_line__timesheet_invoice_type__service_revenues
 #: model:ir.model.fields.selection,name:sale_timesheet.selection__timesheets_analysis_report__timesheet_invoice_type__service_revenues
 msgid "Service Revenues"
 msgstr ""
 
 #. module: sale_timesheet
+========
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 #: model:product.template,name:sale_timesheet.time_product_product_template
 msgid "Service on Timesheets"
 msgstr ""
@@ -1169,6 +1441,11 @@ msgstr ""
 #: model:project.project,label_tasks:sale_timesheet.project_support
 msgid "Services"
 msgstr "خزمەتگوزارییەکان"
+
+#. module: sale_timesheet
+#: model:ir.model,name:sale_timesheet.model_account_move_send
+msgid "Shared Send Invoice Wizard Functions"
+msgstr ""
 
 #. module: sale_timesheet
 #: model:hr.job,name:sale_timesheet.job_engineer
@@ -1195,7 +1472,11 @@ msgstr ""
 #. module: sale_timesheet
 #: model:ir.model.fields,field_description:sale_timesheet.field_account_analytic_line__sale_order_state
 msgid "Status"
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
+msgstr ""
+========
 msgstr "دۆخ"
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 
 #. module: sale_timesheet
 #: model_terms:hr.job,website_description:sale_timesheet.job_engineer
@@ -1252,12 +1533,15 @@ msgstr ""
 msgid ""
 "This cost overrides the employee's default employee hourly wage in "
 "employee's HR Settings"
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 msgstr ""
 
 #. module: sale_timesheet
 #. odoo-python
 #: code:addons/sale_timesheet/models/project_project.py:0
 msgid "This project is current linked to timesheet."
+========
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 msgstr ""
 
 #. module: sale_timesheet
@@ -1267,6 +1551,7 @@ msgid "Threshold"
 msgstr ""
 
 #. module: sale_timesheet
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.project_project_view_form
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.res_config_settings_view_form
 msgid "Time Billing"
 msgstr ""
@@ -1322,8 +1607,6 @@ msgstr ""
 
 #. module: sale_timesheet
 #: model:ir.model.fields,field_description:sale_timesheet.field_timesheets_analysis_report__timesheet_revenues
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__account_analytic_line__timesheet_invoice_type__timesheet_revenues
-#: model:ir.model.fields.selection,name:sale_timesheet.selection__timesheets_analysis_report__timesheet_invoice_type__timesheet_revenues
 msgid "Timesheet Revenues"
 msgstr ""
 
@@ -1342,6 +1625,7 @@ msgstr ""
 #: model:ir.actions.report,name:sale_timesheet.timesheet_report_account_move
 #: model:ir.actions.report,name:sale_timesheet.timesheet_report_sale_order
 #: model:ir.model.fields.selection,name:sale_timesheet.selection__sale_order_line__qty_delivered_method__timesheet
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_sale_page
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheets_analysis_report_graph_invoice_type
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.view_hr_timesheet_line_pivot_billing_rate
 msgid "Timesheets"
@@ -1349,6 +1633,7 @@ msgstr ""
 
 #. module: sale_timesheet
 #. odoo-python
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 #: code:addons/sale_timesheet/models/project_project.py:0
 msgid "Timesheets (Billed Manually)"
 msgstr ""
@@ -1368,13 +1653,39 @@ msgstr ""
 #. module: sale_timesheet
 #. odoo-python
 #: code:addons/sale_timesheet/models/project_project.py:0
+========
+#: code:addons/sale_timesheet/models/account_analytic_line.py:0
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 msgid "Timesheets (Fixed Price)"
 msgstr ""
 
 #. module: sale_timesheet
 #. odoo-python
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 #: code:addons/sale_timesheet/models/project_project.py:0
 msgid "Timesheets (Non-Billable)"
+========
+#: code:addons/sale_timesheet/models/account_analytic_line.py:0
+msgid "Timesheets (Manual)"
+msgstr ""
+
+#. module: sale_timesheet
+#. odoo-python
+#: code:addons/sale_timesheet/models/account_analytic_line.py:0
+msgid "Timesheets (Milestones)"
+msgstr ""
+
+#. module: sale_timesheet
+#. odoo-python
+#: code:addons/sale_timesheet/models/account_analytic_line.py:0
+msgid "Timesheets (Non-Billable)"
+msgstr ""
+
+#. module: sale_timesheet
+#. odoo-python
+#: code:addons/sale_timesheet/models/account_analytic_line.py:0
+msgid "Timesheets (Time & Materials)"
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 msgstr ""
 
 #. module: sale_timesheet
@@ -1398,11 +1709,6 @@ msgid "Timesheets by Billing Type"
 msgstr ""
 
 #. module: sale_timesheet
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheet_sale_page
-msgid "Timesheets for the"
-msgstr ""
-
-#. module: sale_timesheet
 #. odoo-python
 #: code:addons/sale_timesheet/models/project_project.py:0
 msgid "Timesheets of %s"
@@ -1414,12 +1720,15 @@ msgid "Timesheets on project (one fare per SO/Project)"
 msgstr ""
 
 #. module: sale_timesheet
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 #. odoo-python
 #: code:addons/sale_timesheet/models/project_project.py:0
 msgid "Timesheets revenues"
 msgstr ""
 
 #. module: sale_timesheet
+========
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 #: model:ir.model.fields,help:sale_timesheet.field_timesheets_analysis_report__margin
 msgid "Timesheets revenues minus the costs"
 msgstr ""
@@ -1435,6 +1744,7 @@ msgid "Timesheets taken when invoicing time spent"
 msgstr ""
 
 #. module: sale_timesheet
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.project_project_view_form
 msgid "Timesheets without a sales order item are reported as"
 msgstr ""
@@ -1442,7 +1752,12 @@ msgstr ""
 #. module: sale_timesheet
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheets_analysis_report_list_inherited
 msgid "Total"
+msgstr ""
+========
+#: model_terms:ir.ui.view,arch_db:sale_timesheet.timesheets_analysis_report_list_inherited
+msgid "Total"
 msgstr "کۆ"
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 
 #. module: sale_timesheet
 #: model:ir.model.fields,help:sale_timesheet.field_account_bank_statement_line__timesheet_total_duration
@@ -1496,6 +1811,23 @@ msgid ""
 msgstr ""
 
 #. module: sale_timesheet
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
+#: model:ir.model.fields,help:sale_timesheet.field_project_task__display_name
+msgid ""
+"Use these keywords in the title to set new tasks:\n"
+"\n"
+"        30h Allocate 30 hours to the task\n"
+"        #tags Set tags on the task\n"
+"        @user Assign the task to a user\n"
+"        ! Set the task a medium priority\n"
+"        !! Set the task a high priority\n"
+"        !!! Set the task a urgent priority\n"
+"\n"
+"        Make sure to use the right format and order e.g. Improve the "
+"configuration screen 5h #feature #v16 @Mitchell !"
+msgstr ""
+
+#. module: sale_timesheet
 #: model_terms:hr.job,website_description:sale_timesheet.job_engineer
 #: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
 #: model_terms:hr.job,website_description:sale_timesheet.job_labour
@@ -1503,6 +1835,15 @@ msgid "Valid work permit for Belgium"
 msgstr ""
 
 #. module: sale_timesheet
+========
+#: model_terms:hr.job,website_description:sale_timesheet.job_engineer
+#: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
+#: model_terms:hr.job,website_description:sale_timesheet.job_labour
+msgid "Valid work permit for Belgium"
+msgstr ""
+
+#. module: sale_timesheet
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.portal_invoice_page_inherit
 msgid "View Timesheet"
 msgstr ""
@@ -1511,11 +1852,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.portal_invoice_page_inherit
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.sale_order_portal_content_inherit
 msgid "View Timesheets"
-msgstr ""
-
-#. module: sale_timesheet
-#: model_terms:ir.ui.view,arch_db:sale_timesheet.view_product_timesheet_form
-msgid "Warn the salesperson for an upsell when work done exceeds"
 msgstr ""
 
 #. module: sale_timesheet
@@ -1529,10 +1865,24 @@ msgstr ""
 #: model_terms:hr.job,website_description:sale_timesheet.job_engineer
 #: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
 #: model_terms:hr.job,website_description:sale_timesheet.job_labour
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
+msgid "What We Offer"
+msgstr ""
+
+#. module: sale_timesheet
+#: model_terms:hr.job,website_description:sale_timesheet.job_engineer
+#: model_terms:hr.job,website_description:sale_timesheet.job_interior_designer
+#: model_terms:hr.job,website_description:sale_timesheet.job_labour
 msgid "What's great in the job?"
 msgstr ""
 
 #. module: sale_timesheet
+========
+msgid "What's great in the job?"
+msgstr ""
+
+#. module: sale_timesheet
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 #. odoo-python
 #: code:addons/sale_timesheet/models/project_project.py:0
 msgid ""
@@ -1550,14 +1900,24 @@ msgstr ""
 
 #. module: sale_timesheet
 #. odoo-python
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 #: code:addons/sale_timesheet/models/hr_timesheet.py:0
 msgid "You cannot modify timesheets that are already invoiced."
+========
+#: code:addons/sale_timesheet/models/account_analytic_line.py:0
+msgid "You cannot modify timsheets that are already invoiced."
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 msgstr ""
 
 #. module: sale_timesheet
 #. odoo-python
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 #: code:addons/sale_timesheet/models/hr_timesheet.py:0
 msgid "You cannot remove a timesheet that has already been invoiced."
+========
+#: code:addons/sale_timesheet/models/account_analytic_line.py:0
+msgid "You cannot remove timsheets that are already invoiced."
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 msgstr ""
 
 #. module: sale_timesheet
@@ -1578,17 +1938,20 @@ msgstr ""
 
 #. module: sale_timesheet
 #: model_terms:ir.ui.view,arch_db:sale_timesheet.view_product_timesheet_form
-msgid "of hours sold."
+msgid "of the hours sold."
 msgstr ""
 
 #. module: sale_timesheet
 #. odoo-python
 #: code:addons/sale_timesheet/models/account_move.py:0
 msgid "project_id"
+<<<<<<<< HEAD:addons/sale_timesheet/i18n/sq.po
 msgstr ""
 
 #. module: sale_timesheet
 #. odoo-python
 #: code:addons/sale_timesheet/models/sale_order_line.py:0
 msgid "remaining"
+========
+>>>>>>>> main-20-custom:addons/sale_timesheet/i18n/ku.po
 msgstr ""

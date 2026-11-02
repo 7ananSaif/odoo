@@ -8,56 +8,69 @@ try:
 except ImportError:
     ws = None
 
-from odoo.tests import new_test_user, tagged
+from odoo.tests import new_test_user
+
 from odoo.addons.bus.tests.common import WebsocketCase
-from odoo.addons.bus.models.bus import channel_with_db, json_dump
 from odoo.addons.mail.models.mail_presence import AWAY_TIMER
 
 
-@tagged("-at_install", "post_install")
 class TestIrWebsocket(WebsocketCase):
+    def _assert_presence_notified(self, websocket, user, status):
+        """Assert both notifications of a presence change are received.
+
+        A presence change notifies two distinct channels: the presence channel
+        of the user (``im_status``) and its record channel (``presence_status``).
+        The dispatcher sends one frame per channel, in the iteration order of a
+        set of topics, which is not guaranteed: gather both notifications and
+        key them by their field rather than relying on arrival order. Consuming
+        both also matters, as any frame left behind would be picked up by a
+        later ``recv``.
+        """
+        notifications = []
+        while len(notifications) < 2:
+            notifications += json.loads(websocket.recv())
+        payload_by_field = {}
+        for notification in notifications:
+            message = notification["message"]
+            self.assertEqual(message["type"], "mail.record/insert")
+            payload = message["payload"]["res.users"][0]
+            field = "im_status" if "im_status" in payload else "presence_status"
+            payload_by_field[field] = payload
+        self.assertEqual(payload_by_field.keys(), {"im_status", "presence_status"})
+        for field, payload in payload_by_field.items():
+            self.assertEqual(payload["id"], user.id)
+            self.assertEqual(payload[field], status)
+
     def test_notify_on_status_change(self):
         bob = new_test_user(self.env, login="bob_user", groups="base.group_user")
         session = self.authenticate("bob_user", "bob_user")
         websocket = self.websocket_connect(cookie=f"session_id={session.sid};")
         self.subscribe(
             websocket,
-            [f"odoo-presence-res.partner_{bob.partner_id.id}"],
+            [f"odoo-presence-res.users_{bob.id}"],
             self.env["bus.bus"]._bus_last_id(),
         )
         # offline => online
         self.env["mail.presence"]._update_presence(bob)
-        self.trigger_notification_dispatching([(bob.partner_id, "presence")])
-        message = json.loads(websocket.recv())[0]["message"]
-        self.assertEqual(message["type"], "bus.bus/im_status_updated")
-        self.assertEqual(message["payload"]["im_status"], "online")
-        self.assertEqual(message["payload"]["presence_status"], "online")
-        self.assertEqual(message["payload"]["partner_id"], bob.partner_id.id)
+        self.trigger_notification_dispatching()
+        self._assert_presence_notified(websocket, bob, "online")
         # online => away
         away_timer_later = datetime.now() + timedelta(seconds=AWAY_TIMER + 1)
         with freeze_time(away_timer_later):
             self.env["mail.presence"]._update_presence(bob, (AWAY_TIMER + 1) * 1000)
-            self.trigger_notification_dispatching([(bob.partner_id, "presence")])
-            message = json.loads(websocket.recv())[0]["message"]
-            self.assertEqual(message["type"], "bus.bus/im_status_updated")
-            self.assertEqual(message["payload"]["im_status"], "away")
-            self.assertEqual(message["payload"]["presence_status"], "away")
-            self.assertEqual(message["payload"]["partner_id"], bob.partner_id.id)
+            self.trigger_notification_dispatching()
+            self._assert_presence_notified(websocket, bob, "away")
         # away => online
         ten_minutes_later = datetime.now() + timedelta(minutes=10)
         with freeze_time(ten_minutes_later):
             self.env["mail.presence"]._update_presence(bob)
-            self.trigger_notification_dispatching([(bob.partner_id, "presence")])
-            message = json.loads(websocket.recv())[0]["message"]
-            self.assertEqual(message["type"], "bus.bus/im_status_updated")
-            self.assertEqual(message["payload"]["im_status"], "online")
-            self.assertEqual(message["payload"]["presence_status"], "online")
-            self.assertEqual(message["payload"]["partner_id"], bob.partner_id.id)
+            self.trigger_notification_dispatching()
+            self._assert_presence_notified(websocket, bob, "online")
         # online => online, nothing happens
         ten_minutes_later = datetime.now() + timedelta(minutes=10)
         with freeze_time(ten_minutes_later):
             self.env["mail.presence"]._update_presence(bob)
-            self.trigger_notification_dispatching([(bob.partner_id, "presence")])
+            self.trigger_notification_dispatching()
             timeout_occurred = False
             # Save point rollback of `assertRaises` can compete with `on_websocket_close`
             # leading to `InvalidSavepoint` errors. We need to avoid it.
@@ -67,51 +80,18 @@ class TestIrWebsocket(WebsocketCase):
                 timeout_occurred = True
             self.assertTrue(timeout_occurred)
 
-    def test_receive_missed_presences_on_subscribe(self):
-        bob = new_test_user(self.env, login="bob_user", groups="base.group_user")
+    def test_subscribe_discuss_category_without_token(self):
+        new_test_user(self.env, login="bob_user", groups="base.group_user")
         session = self.authenticate("bob_user", "bob_user")
+        category = self.env["discuss.category"].create({"name": "favorites"})
         websocket = self.websocket_connect(cookie=f"session_id={session.sid};")
-        self.env["mail.presence"]._update_presence(bob)
-        self.env.cr.precommit.run()  # trigger the creation of bus.bus records
         self.subscribe(
             websocket,
-            [f"odoo-presence-res.partner_{bob.partner_id.id}"],
+            [f"discuss.category_{category.id}"],
             self.env["bus.bus"]._bus_last_id(),
         )
-        self.trigger_notification_dispatching([(bob.partner_id, "presence")])
-        notification = json.loads(websocket.recv())[0]
-        self._close_websockets()
-        bus_record = self.env["bus.bus"].search([("id", "=", int(notification["id"]))])
-        self.assertEqual(
-            bus_record.channel,
-            json_dump(channel_with_db(self.env.cr.dbname, bob.partner_id)),
-        )
-        self.assertEqual(notification["message"]["type"], "bus.bus/im_status_updated")
-        self.assertEqual(notification["message"]["payload"]["im_status"], "online")
-        self.assertEqual(notification["message"]["payload"]["presence_status"], "online")
-        self.assertEqual(notification["message"]["payload"]["partner_id"], bob.partner_id.id)
-
-    def test_receive_others_missed_presences_on_subscribe(self):
-        bob = new_test_user(self.env, login="bob_user", groups="base.group_user")
-        away_user = new_test_user(self.env, login="idler", groups="base.group_user")
-        session = self.authenticate("bob_user", "bob_user")
-        websocket = self.websocket_connect(cookie=f"session_id={session.sid};")
-        self.env["mail.presence"]._update_presence(away_user, (AWAY_TIMER + 1) * 1000)
-        self.env.cr.precommit.run()  # trigger the creation of bus.bus records
-        self.subscribe(
-            websocket,
-            [f"odoo-presence-res.partner_{away_user.partner_id.id}"],
-            self.env["bus.bus"]._bus_last_id(),
-        )
-        self.trigger_notification_dispatching([(away_user.partner_id, "presence")])
-        notification = json.loads(websocket.recv())[0]
-        self._close_websockets()
-        bus_record = self.env["bus.bus"].search([("id", "=", int(notification["id"]))])
-        self.assertEqual(
-            bus_record.channel,
-            json_dump(channel_with_db(self.env.cr.dbname, bob.partner_id)),
-        )
-        self.assertEqual(notification["message"]["type"], "bus.bus/im_status_updated")
-        self.assertEqual(notification["message"]["payload"]["im_status"], "away")
-        self.assertEqual(notification["message"]["payload"]["presence_status"], "away")
-        self.assertEqual(notification["message"]["payload"]["partner_id"], away_user.partner_id.id)
+        category._bus_send("sanity_check", None)
+        self.trigger_notification_dispatching()
+        notifications = json.loads(websocket.recv())
+        self.assertEqual(len(notifications), 1)
+        self.assertEqual(notifications[0]["message"]["type"], "sanity_check")

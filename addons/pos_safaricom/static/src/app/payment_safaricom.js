@@ -1,7 +1,7 @@
 import { _t } from "@web/core/l10n/translation";
 import { PaymentInterface } from "@point_of_sale/app/utils/payment/payment_interface";
 import { AlertDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
-import { register_payment_method } from "@point_of_sale/app/services/pos_store";
+import { registry } from "@web/core/registry";
 import { TextInputPopup } from "@point_of_sale/app/components/popups/text_input_popup/text_input_popup";
 import { makeAwaitable } from "@point_of_sale/app/utils/make_awaitable_dialog";
 import { MpesaTransactionPopup } from "@pos_safaricom/app/components/popups/mpesa_transaction_popup";
@@ -12,12 +12,12 @@ export class PaymentSafaricom extends PaymentInterface {
         this.paymentLineResolvers = {};
     }
 
-    sendPaymentRequest(uuid) {
-        super.sendPaymentRequest(uuid);
+    async sendPaymentRequest(line) {
+        await super.sendPaymentRequest(...arguments);
         if (this.payment_method_id.safaricom_payment_type == "mpesa_express") {
-            return this._mpesa_express_pay(uuid);
+            return this._mpesa_express_pay(line.uuid);
         } else {
-            return this._lipa_na_mpesa_pay(uuid);
+            return this._lipa_na_mpesa_pay(line.uuid);
         }
     }
 
@@ -171,17 +171,9 @@ export class PaymentSafaricom extends PaymentInterface {
             return false;
         }
 
-        // Set QR payment data for customer display
-        line.qrPaymentData = {
-            name: this.payment_method_id.name,
-            amount: this.pos.env.utils.formatCurrency(line.amount),
-            qrCode: "data:image/png;base64," + qrCode,
-        };
-
-        // Update customer display to show the QR code
-        if (this.pos.customerDisplay) {
-            this.pos.customerDisplay.update();
-        }
+        // Shows the QR on the customer display too, via the selected
+        // in-progress payment line fallback.
+        line.qr_code = "data:image/png;base64," + qrCode;
 
         try {
             const transaction = await makeAwaitable(
@@ -198,6 +190,7 @@ export class PaymentSafaricom extends PaymentInterface {
             }
             line.setAmount(transaction.amount);
             line.transaction_id = transaction.id;
+            line.safaricom_transaction_id = transaction.trans_id;
             line.card_type = "M-Pesa";
             line.cardholder_name = transaction.phone;
             line.setPaymentStatus("done");
@@ -208,12 +201,9 @@ export class PaymentSafaricom extends PaymentInterface {
             return true;
         } finally {
             // Clear QR payment data from customer display
-            line.qrPaymentData = null;
-            if (this.pos.customerDisplay) {
-                this.pos.customerDisplay.update();
-            }
+            line.qr_code = null;
         }
     }
 }
 
-register_payment_method("safaricom", PaymentSafaricom);
+registry.category("pos_payment_providers").add("safaricom", PaymentSafaricom);

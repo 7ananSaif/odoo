@@ -1,4 +1,4 @@
-from odoo import Command, fields
+from odoo import api, Command, fields
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 from odoo.tests import HttpCase, tagged
 
@@ -8,15 +8,20 @@ import json
 @tagged('-at_install', 'post_install')
 class TestPurchaseProductCatalog(AccountTestInvoicingCommon, HttpCase):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     def test_catalog_price(self):
         """
         Products having a SupplierInfo record in a foreign currency should have their price
         converted in the product catalog
         When it's the same currency, the price shouldn't be changed
         """
+        # Enable UoM
+        self.env['res.users'].sudo().browse(api.SUPERUSER_ID).group_ids += self.env.ref('uom.group_uom')
+
         self.authenticate(self.env.user.login, self.env.user.login)
         company_currency = self.env.company.currency_id
-        other_currency = self.setup_other_currency('HRK', rates=[(fields.Date.today(), 0.5)])
+        other_currency = self.setup_other_currency('HRK', rates=[(fields.Date.subtract(fields.Date.today(), days=1), 0.5)])
 
         other_product_price = 100
         company_product_price = 150
@@ -78,13 +83,14 @@ class TestPurchaseProductCatalog(AccountTestInvoicingCommon, HttpCase):
                     'order_id': purchase_order.id,
                     'product_id': other_product.id,
                     'quantity': 1,
-                    'res_model': 'purchase.order'
+                    'res_model': 'purchase.order',
+                    'uom_id': other_product.uom_id.id,
                 }
             }),
             headers={'Content-Type': 'application/json'},
         )
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.json()['result'], other_product_price_converted)
+        self.assertEqual(resp.json()['result']['price'], other_product_price_converted)
 
         resp = self.url_open(
             url='/product/catalog/update_order_line_info',
@@ -94,13 +100,34 @@ class TestPurchaseProductCatalog(AccountTestInvoicingCommon, HttpCase):
                     'order_id': purchase_order.id,
                     'product_id': company_product.id,
                     'quantity': 1,
-                    'res_model': 'purchase.order'
+                    'res_model': 'purchase.order',
+                    'uom_id': company_product.uom_id.id,
                 }
             }),
             headers={'Content-Type': 'application/json'},
         )
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.json()['result'], company_product_price)
+        self.assertEqual(resp.json()['result']['price'], company_product_price)
+
+        self._enable_uom()
+        pack_6_uom = self.env.ref('uom.product_uom_pack_6')
+        purchase_order.order_line[0].uom_id = pack_6_uom
+        resp = self.make_jsonrpc_request(
+            route='/product/catalog/update_order_line_info',
+            params={
+                'child_field': 'order_line',
+                'order_id': purchase_order.id,
+                'product_id': other_product.id,
+                'quantity': 2,
+                'res_model': 'purchase.order',
+                'uom_id': pack_6_uom.id,
+            },
+            headers={'Content-Type': 'application/json'},
+        )['price']
+        self.assertTrue(resp)
+        product_uom_factor = purchase_order.order_line[0]._get_product_catalog_lines_data(purchase_order)['productUomFactor']
+        self.assertEqual(resp, other_product_price_converted * 6)
+        self.assertEqual(resp * product_uom_factor, other_product_price_converted)  # Price in product unit
 
     # === TOUR TESTS ===#
     def test_catalog_vendor_uom(self):
@@ -118,24 +145,28 @@ class TestPurchaseProductCatalog(AccountTestInvoicingCommon, HttpCase):
             'seller_ids': [
                 Command.create({
                     'partner_id': vendor_by_liter.id,
-                    'product_uom_id': uom_liter.id,
+                    'uom_id': uom_liter.id,
                     'price': 2,
                     'discount': 22.5
                 }),
                 Command.create({
+                    'partner_id': vendor_by_liter.id,
+                    'price': 3.0,
+                }),
+                Command.create({
                     'partner_id': vendor_by_unit.id,
-                    'product_uom_id': self.uom_unit.id,
+                    'uom_id': self.uom_unit.id,
                     'price': 2.5,
                 }),
                 Command.create({
                     'partner_id': vendor_by_unit.id,
-                    'product_uom_id': self.uom_unit.id,
+                    'uom_id': self.uom_unit.id,
                     'min_qty': 6,
                     'price': 2.45,
                 }),
                 Command.create({
                     'partner_id': vendor_by_unit.id,
-                    'product_uom_id': self.uom_unit.id,
+                    'uom_id': self.uom_unit.id,
                     'min_qty': 12,
                     'price': 2.45,
                     'discount': 10.2,
@@ -163,7 +194,7 @@ class TestPurchaseProductCatalog(AccountTestInvoicingCommon, HttpCase):
 
         product_template = self.env['product.template'].create({
             'name': 'Test Product Template',
-            'uom_id': self.env.ref('uom.product_uom_unit').id,
+            'uom_id': self.uom_unit.id,
             'standard_price': 200.0,
             'attribute_line_ids': [
                 Command.create({
@@ -176,12 +207,21 @@ class TestPurchaseProductCatalog(AccountTestInvoicingCommon, HttpCase):
         supplier_info = self.env['product.supplierinfo'].create({
             'partner_id': self.partner_a.id,
             'product_tmpl_id': product_template.id,
-            'product_uom_id': self.env.ref('uom.product_uom_pack_6').id,
+            'uom_id': self.uom_pack_6.id,
             'price': 100.0,
         })
 
         purchase_order = self.env['purchase.order'].create({
             'partner_id': self.partner_a.id,
         })
-        catalog_info = purchase_order._get_product_price_and_data(supplier_info.product_tmpl_id.product_variant_ids[0])
+        catalog_info = purchase_order._get_product_catalog_product_data(
+            supplier_info.product_tmpl_id.product_variant_ids[0]
+        )
         self.assertEqual(catalog_info['price'], 100.0)
+        vals = purchase_order._update_order_line_info(
+            product=product_template.product_variant_ids[0],
+            quantity=0,
+            uom=self.uom_pack_6,
+            child_field='order_line',
+        )
+        self.assertEqual(vals['price'], 100.0)

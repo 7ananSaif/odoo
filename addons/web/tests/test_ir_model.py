@@ -13,28 +13,19 @@ class IrModelAccessTest(TransactionCase):
 
     @classmethod
     def setUpClass(cls):
-        super(IrModelAccessTest, cls).setUpClass()
+        super().setUpClass()
 
-        cls.env['ir.model.access'].create({
+        cls.env['ir.access'].create([{
             'name': "read",
-            'model_id': cls.env['ir.model'].search([("model", "=", "res.company")]).id,
-            'group_id': cls.env.ref("base.group_public").id,
-            'perm_read': False,
-        })
-
-        cls.env['ir.model.access'].create({
-            'name': "read",
-            'model_id': cls.env['ir.model'].search([("model", "=", "res.company")]).id,
+            'model_id': cls.env['ir.model']._get("res.company").id,
             'group_id': cls.env.ref("base.group_portal").id,
-            'perm_read': True,
-        })
-
-        cls.env['ir.model.access'].create({
+            'operation': "r",
+        }, {
             'name': "read",
-            'model_id': cls.env['ir.model'].search([("model", "=", "res.company")]).id,
+            'model_id': cls.env['ir.model']._get("res.company").id,
             'group_id': cls.env.ref("base.group_user").id,
-            'perm_read': True,
-        })
+            'operation': "r",
+        }])
 
         cls.portal_user = new_test_user(
             cls.env, login="portalDude", groups="base.group_portal"
@@ -49,7 +40,7 @@ class IrModelAccessTest(TransactionCase):
     def test_display_name_for(self):
         # Internal User with access rights can access the business name
         result = self.env['ir.model'].with_user(self.spreadsheet_user).display_name_for(["res.company"])
-        self.assertEqual(result, [{"display_name": "Companies", "model": "res.company"}])
+        self.assertEqual(result, [{"display_name": "Company", "model": "res.company"}])
         # external user with access rights cannot access business name
         result = self.env['ir.model'].with_user(self.portal_user).display_name_for(["res.company"])
         self.assertEqual(result, [{"display_name": "res.company", "model": "res.company"}])
@@ -58,16 +49,16 @@ class IrModelAccessTest(TransactionCase):
         self.assertEqual(result, [{"display_name": "res.company", "model": "res.company"}])
         # admin has all rights
         result = self.env['ir.model'].display_name_for(["res.company"])
-        self.assertEqual(result, [{"display_name": "Companies", "model": "res.company"}])
+        self.assertEqual(result, [{"display_name": "Company", "model": "res.company"}])
         # non existent model yields same result as a lack of access rights
         result = self.env['ir.model'].display_name_for(["unexistent"])
         self.assertEqual(result, [{"display_name": "unexistent", "model": "unexistent"}])
         # non existent model comes after existent model
         result = self.env['ir.model'].display_name_for(["res.company", "unexistent"])
-        self.assertEqual(result, [{"display_name": "Companies", "model": "res.company"}, {"display_name": "unexistent", "model": "unexistent"}])
+        self.assertEqual(result, [{"display_name": "Company", "model": "res.company"}, {"display_name": "unexistent", "model": "unexistent"}])
         # transient models
         result = self.env['ir.model'].display_name_for(["res.company", "base.language.export"])
-        self.assertEqual(result, [{"display_name": "Companies", "model": "res.company"}, {"display_name": "base.language.export", "model": "base.language.export"}])
+        self.assertEqual(result, [{"display_name": "Company", "model": "res.company"}, {"display_name": "base.language.export", "model": "base.language.export"}])
 
         # do not return results for transient models
         result = self.env['ir.model'].get_available_models()
@@ -76,19 +67,13 @@ class IrModelAccessTest(TransactionCase):
         self.assertNotIn("base.language.export", result)
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestIrModel(TransactionCase):
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-
-        # The test mode is necessary in this case.  After each test, we call
-        # registry.reset_changes(), which opens a new cursor to retrieve custom
-        # models and fields.  A regular cursor would correspond to the state of
-        # the database before setUpClass(), which is not correct.  Instead, a
-        # test cursor will correspond to the state of the database of cls.cr at
-        # that point, i.e., before the call to setUp().
-        cls.registry_enter_test_mode_cls()
+        cls.enterClassContext(cls.registry_test_mode())
 
         # model and records for banana stages
         cls.env['ir.model'].create({
@@ -141,11 +126,6 @@ class TestIrModel(TransactionCase):
             'x_length': 10,
             'x_color': 6,
         }])
-
-    def setUp(self):
-        # this cleanup is necessary after each test, and must be done last
-        self.addCleanup(self.registry.reset_changes)
-        super().setUp()
 
     def test_model_order_constraint(self):
         """Check that the order constraint is properly enforced."""
@@ -236,7 +216,7 @@ class TestIrModel(TransactionCase):
         # unlinking x_name should fixup _rec_name and display_name
         self.env['ir.model.fields']._get('x_bananas', 'x_name').unlink()
         record = self.env['x_bananas'].browse(record.id)
-        self.assertEqual(record._rec_name, None)
+        self.assertEqual(record._rec_name, '')
         self.assertEqual(self.registry.field_depends[ClassRecord.display_name], ())
         self.assertEqual(record.display_name, f"x_bananas,{record.id}")
 

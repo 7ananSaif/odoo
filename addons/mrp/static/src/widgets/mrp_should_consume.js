@@ -1,7 +1,7 @@
 import { FloatField, floatField } from "@web/views/fields/float/float_field";
 import { formatFloat } from "@web/views/fields/formatters";
 import { registry } from "@web/core/registry";
-import { useRef, onPatched, onMounted, useState } from "@odoo/owl";
+import { onPatched, onMounted, proxy } from "@odoo/owl";
 
 /**
  * This widget is used to display alongside the total quantity to consume of a production order,
@@ -16,16 +16,16 @@ export class MrpShouldConsumeOwl extends FloatField {
     setup() {
         super.setup();
         this.fields = this.props.record.fields;
-        this.record = useState(this.props.record);
+        this.record = proxy(this.props.record);
         this.displayShouldConsume = !["done", "draft", "cancel"].includes(this.record.data.state);
-        this.inputSpanRef = useRef("numpadDecimal");
         onMounted(this._renderPrefix);
         onPatched(this._renderPrefix);
     }
 
     _renderPrefix() {
-        if (this.displayShouldConsume && this.inputSpanRef.el) {
-            this.inputSpanRef.el.classList.add(
+        const inputEl = this.numpadDecimalRef();
+        if (this.displayShouldConsume && inputEl) {
+            inputEl.classList.add(
                 "o_quick_editable",
                 "o_field_widget",
                 "o_field_number",

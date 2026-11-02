@@ -5,7 +5,6 @@ import { withSequence } from "@html_editor/utils/resource";
 import { closestElement } from "@html_editor/utils/dom_traversal";
 
 /**
- * @typedef {import("./powerbox_plugin").PowerboxCategory} CommandGroup
  * @typedef {import("../core/selection_plugin").EditorSelection} EditorSelection
  */
 
@@ -14,11 +13,11 @@ export class SearchPowerboxPlugin extends Plugin {
     static dependencies = ["powerbox", "selection", "history", "input"];
     /** @type {import("plugins").EditorResources} */
     resources = {
-        beforeinput_handlers: this.onBeforeInput.bind(this),
-        input_handlers: this.onInput.bind(this),
-        delete_handlers: this.update.bind(this),
-        post_undo_handlers: this.update.bind(this),
-        post_redo_handlers: this.update.bind(this),
+        on_beforeinput_handlers: this.onBeforeInput.bind(this),
+        on_input_handlers: this.onInput.bind(this),
+        on_deleted_handlers: this.update.bind(this),
+        on_history_commit_undone_handlers: this.update.bind(this),
+        on_history_commit_redone_handlers: this.update.bind(this),
         user_commands: {
             id: "openSearchPowerbox",
             run: () => {
@@ -32,7 +31,7 @@ export class SearchPowerboxPlugin extends Plugin {
         power_buttons: withSequence(100, {
             commandId: "openSearchPowerbox",
             description: _t("More options"),
-            icon: "oi-ellipsis-v",
+            icon: "more_vert",
         }),
     };
     setup() {
@@ -58,7 +57,10 @@ export class SearchPowerboxPlugin extends Plugin {
     }
     onInput(ev) {
         this.searchTerm = undefined;
-        if (ev.data === "/") {
+        // Check DOM instead of ev.data because a previous on_input_handlers
+        // (e.g. emoji plugin) may have already replaced the typed character.
+        const selection = this.dependencies.selection.getEditableSelection();
+        if (selection.anchorNode.textContent.charAt(selection.anchorOffset - 1) === "/") {
             this.openSearchPowerbox();
         } else {
             this.update();
@@ -137,26 +139,6 @@ export class SearchPowerboxPlugin extends Plugin {
             onClose: () => {
                 this.shouldUpdate = false;
                 this.powerButtonAnchorEl = false;
-            },
-        });
-        this.shouldUpdate = true;
-    }
-    /**
-     * @deprecated
-     */
-    openPowerbox() {
-        const selection = this.dependencies.selection.getEditableSelection();
-        this.offset = selection.startOffset - 1;
-        this.enabledCommands = this.dependencies.powerbox.getAvailablePowerboxCommands();
-        this.dependencies.powerbox.openPowerbox({
-            commands: this.enabledCommands,
-            categories: this.categories,
-            onApplyCommand: (command, context) => {
-                context.searchTerm = this.searchTerm;
-                this.historySavePointRestore?.();
-            },
-            onClose: () => {
-                this.shouldUpdate = false;
             },
         });
         this.shouldUpdate = true;

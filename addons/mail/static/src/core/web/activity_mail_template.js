@@ -1,25 +1,24 @@
-import { Component } from "@odoo/owl";
+import { Component, t, useProps } from "@odoo/owl";
 
+import { propSignal } from "@mail/utils/common/hooks";
 import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
 
-/**
- * @typedef {Object} Props
- * @property {import("models").Activity} activity
- * @property {function} [onClickButtons]
- * @property {function} [onActivityChanged]
- * @extends {Component<Props, Env>}
- */
 export class ActivityMailTemplate extends Component {
-    static defaultProps = {
-        onClickButtons: () => {},
-    };
-    static props = ["activity", "onClickButtons?", "onActivityChanged?"];
     static template = "mail.ActivityMailTemplate";
 
     setup() {
         super.setup();
         this.store = useService("mail.store");
+        this.activity = propSignal("activity", t.instanceOf(this.store["mail.activity"]));
+        this.onActivityChanged = useProps.static(
+            "onActivityChanged",
+            t.function([t.instanceOf(this.store["mail.thread"])]).optional()
+        );
+        this.onClickButtons = useProps.static(
+            "onClickButtons",
+            t.function([]).optional(() => () => {})
+        );
     }
 
     /**
@@ -29,7 +28,7 @@ export class ActivityMailTemplate extends Component {
     onClickPreview(ev, mailTemplate) {
         ev.stopPropagation();
         ev.preventDefault();
-        this.props.onClickButtons();
+        this.onClickButtons();
         const action = {
             name: _t("Compose Email"),
             type: "ir.actions.act_window",
@@ -37,19 +36,19 @@ export class ActivityMailTemplate extends Component {
             views: [[false, "form"]],
             target: "new",
             context: {
-                default_res_ids: [this.props.activity.res_id],
-                default_model: this.props.activity.res_model,
+                default_res_ids: [this.activity().res_id],
+                default_model: this.activity().res_model,
                 default_subtype_xmlid: "mail.mt_comment",
                 default_template_id: mailTemplate.id,
                 force_email: true,
             },
         };
-        const thread = this.store.Thread.insert({
-            model: this.props.activity.res_model,
-            id: this.props.activity.res_id,
+        const thread = this.store["mail.thread"].insert({
+            model: this.activity().res_model,
+            id: this.activity().res_id,
         });
         this.env.services.action.doAction(action, {
-            onClose: () => this.props.onActivityChanged?.(thread),
+            onClose: () => this.onActivityChanged?.(thread),
         });
     }
 
@@ -60,15 +59,15 @@ export class ActivityMailTemplate extends Component {
     async onClickSend(ev, mailTemplate) {
         ev.stopPropagation();
         ev.preventDefault();
-        this.props.onClickButtons();
-        const thread = this.store.Thread.insert({
-            model: this.props.activity.res_model,
-            id: this.props.activity.res_id,
+        this.onClickButtons();
+        const thread = this.store["mail.thread"].insert({
+            model: this.activity().res_model,
+            id: this.activity().res_id,
         });
-        await this.env.services.orm.call(this.props.activity.res_model, "activity_send_mail", [
-            [this.props.activity.res_id],
+        await this.env.services.orm.call(this.activity().res_model, "activity_send_mail", [
+            [this.activity().res_id],
             mailTemplate.id,
         ]);
-        this.props.onActivityChanged?.(thread);
+        this.onActivityChanged?.(thread);
     }
 }

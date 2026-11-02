@@ -1,15 +1,15 @@
 import { AttachmentView } from "@mail/core/common/attachment_view";
-import { Chatter } from "@mail/chatter/web_portal/chatter";
+import { Chatter } from "@mail/chatter/web_portal_project/chatter";
 
-import { onMounted, onWillUnmount, useState } from "@odoo/owl";
+import { onMounted, onWillUnmount, signal, types } from "@odoo/owl";
 
 import { browser } from "@web/core/browser/browser";
-import { router } from "@web/core/browser/router";
-import { SIZES } from "@web/core/ui/ui_service";
+import { SIZES } from "@web/core/ui/ui_utils";
 import { useService } from "@web/core/utils/hooks";
 import { patch } from "@web/core/utils/patch";
 import { useDebounced } from "@web/core/utils/timing";
 import { FormRenderer } from "@web/views/form/form_renderer";
+import { render } from "@web/owl2/utils";
 
 patch(FormRenderer.prototype, {
     setup() {
@@ -18,18 +18,16 @@ patch(FormRenderer.prototype, {
             AttachmentView,
             Chatter,
         };
-        this.highlightMessageId = router.current.highlight_message_id;
-        this.messagingState = useState({
-            /** @type {import("models").Thread} */
-            thread: undefined,
-        });
         if (this.env.services["mail.store"]) {
             this.mailStore = useService("mail.store");
+            this.thread = signal(null, {
+                type: types.instanceOf(this.mailStore["mail.thread"]),
+            });
         }
         this.uiService = useService("ui");
         this.mailPopoutService = useService("mail.popout");
 
-        this.onResize = useDebounced(this.render, 200);
+        this.onResize = useDebounced(() => render(this), 200);
         onMounted(() => browser.addEventListener("resize", this.onResize));
         onWillUnmount(() => browser.removeEventListener("resize", this.onResize));
     },
@@ -40,11 +38,13 @@ patch(FormRenderer.prototype, {
         if (!this.mailStore || !this.props.record.resId) {
             return false;
         }
-        this.messagingState.thread = this.mailStore.Thread.insert({
-            id: this.props.record.resId,
-            model: this.props.record.resModel,
-        });
-        return this.messagingState.thread.attachmentsInWebClientView.length > 0;
+        this.thread.set(
+            this.mailStore["mail.thread"].insert({
+                id: this.props.record.resId,
+                model: this.props.record.resModel,
+            })
+        );
+        return this.thread().attachmentsInWebClientView.length > 0;
     },
     mailLayout(hasAttachmentContainer) {
         const xxl = this.uiService.size >= SIZES.XXL;

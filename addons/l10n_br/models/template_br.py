@@ -10,8 +10,6 @@ class AccountChartTemplate(models.AbstractModel):
     def _get_br_template_data(self):
         return {
             'code_digits': '6',
-            'property_account_receivable_id': 'account_template_101010401',
-            'property_account_payable_id': 'account_template_201010301',
         }
 
     @template('br', 'res.company')
@@ -25,14 +23,21 @@ class AccountChartTemplate(models.AbstractModel):
                 'account_default_pos_receivable_account_id': 'account_template_101010402',
                 'income_currency_exchange_account_id': 'br_3_01_01_05_01_47',
                 'expense_currency_exchange_account_id': 'br_3_11_01_09_01_40',
-                'account_journal_early_pay_discount_loss_account_id': 'account_template_31101010202',
+                'account_journal_early_pay_discount_loss_account_id': 'account_template_30101010202',
                 'account_journal_early_pay_discount_gain_account_id': 'account_template_30101050148',
+                'account_discount_expense_allocation_id': 'account_template_30101010202',
                 'account_sale_tax_id': 'tax_template_out_icms_interno17',
                 'account_purchase_tax_id': 'tax_template_in_icms_interno17',
-                'expense_account_id': 'account_template_30101030101',
+                'deferred_expense_account_id': 'account_template_101050109',
+                'deferred_revenue_account_id': 'account_template_201011901',
+                'expense_account_id': 'account_template_30101030102',
                 'income_account_id': 'account_template_30101010105',
-                'account_stock_journal_id': 'inventory_valuation',
-                'account_stock_valuation_id': 'account_template_101030401',
+                'receivable_account_id': 'account_template_101010401',
+                'payable_account_id': 'account_template_201010301',
+                'downpayment_account_id': 'account_template_201010501',
+                'account_stock_valuation_id': 'account_template_101030101',
+                'account_production_wip_account_id': 'account_template_101030203',
+                'account_production_wip_overhead_account_id': 'account_template_30101090199',
             },
         }
 
@@ -43,13 +48,47 @@ class AccountChartTemplate(models.AbstractModel):
                 'l10n_br_invoice_serial': '1',
                 'refund_sequence': False,
             },
+            'purchase': {
+                'default_account_id': 'account_template_30101090199',
+            },
         }
 
     @template('br', 'account.account')
     def _get_br_account_account(self):
         return {
-            'account_template_101030401': {
+            'account_template_101030101': {
                 'account_stock_expense_id': 'account_template_30101030102',
-                'account_stock_variation_id': 'account_template_101030405',
+                'account_stock_variation_id': 'account_template_30101030102',
             },
+            'account_template_102030102': {'asset_depreciation_account_id': 'account_template_102030131', 'asset_expense_account_id': 'account_template_30101070123'},
+            'account_template_102030103': {'asset_depreciation_account_id': 'account_template_102030131', 'asset_expense_account_id': 'account_template_30101070123'},
+            'account_template_102030105': {'asset_depreciation_account_id': 'account_template_102030231', 'asset_expense_account_id': 'account_template_30101090116'},
+            'account_template_102030106': {'asset_depreciation_account_id': 'account_template_102030131', 'asset_expense_account_id': 'account_template_30101070123'},
+            'account_template_102030107': {'asset_depreciation_account_id': 'account_template_102030131', 'asset_expense_account_id': 'account_template_30101070123'},
+            'account_template_102030108': {'asset_depreciation_account_id': 'account_template_102030131', 'asset_expense_account_id': 'account_template_30101070123'},
+            'account_template_102030109': {'asset_depreciation_account_id': 'account_template_102030131', 'asset_expense_account_id': 'account_template_30101070123'},
+            'account_template_102030110': {'asset_depreciation_account_id': 'account_template_102030131', 'asset_expense_account_id': 'account_template_30101070123'},
+            'account_template_102030111': {'asset_depreciation_account_id': 'account_template_102030132', 'asset_expense_account_id': 'account_template_30101070123'},
+            'account_template_102030112': {'asset_depreciation_account_id': 'account_template_102030131', 'asset_expense_account_id': 'account_template_30101070123'},
+            'account_template_102030113': {'asset_depreciation_account_id': 'account_template_102030131', 'asset_expense_account_id': 'account_template_30101070123'},
+            'account_template_102030114': {'asset_depreciation_account_id': 'account_template_102030131', 'asset_expense_account_id': 'account_template_30101070123'},
+            'account_template_102030115': {'asset_depreciation_account_id': 'account_template_102030131', 'asset_expense_account_id': 'account_template_30101070123'},
+            'account_template_102030116': {'asset_depreciation_account_id': 'account_template_102030131', 'asset_expense_account_id': 'account_template_30101070123'},
+            'account_template_102030128': {'asset_depreciation_account_id': 'account_template_102030131', 'asset_expense_account_id': 'account_template_30101070123'},
+            'account_template_102030130': {'asset_depreciation_account_id': 'account_template_102030131', 'asset_expense_account_id': 'account_template_30101070123'},
+            'account_template_102030155': {'asset_depreciation_account_id': 'account_template_102030131', 'asset_expense_account_id': 'account_template_30101070123'},
+            'account_template_102030175': {'asset_depreciation_account_id': 'account_template_102030131', 'asset_expense_account_id': 'account_template_30101070123'},
+            'account_template_102030176': {'asset_depreciation_account_id': 'account_template_102030131', 'asset_expense_account_id': 'account_template_30101070123'},
+            'account_template_102030177': {'asset_depreciation_account_id': 'account_template_102030131', 'asset_expense_account_id': 'account_template_30101070123'},
+            'account_template_102030190': {'asset_depreciation_account_id': 'account_template_102030131', 'asset_expense_account_id': 'account_template_30101070123'},
+            'account_template_102030195': {'asset_depreciation_account_id': 'account_template_102030131', 'asset_expense_account_id': 'account_template_30101070123'},
+            'account_template_102030201': {'asset_depreciation_account_id': 'account_template_102030131', 'asset_expense_account_id': 'account_template_30101070123'},
+            'account_template_102030202': {'asset_depreciation_account_id': 'account_template_102030131', 'asset_expense_account_id': 'account_template_30101070123'},
+            'account_template_102030203': {'asset_depreciation_account_id': 'account_template_102030131', 'asset_expense_account_id': 'account_template_30101070123'},
+            'account_template_102030204': {'asset_depreciation_account_id': 'account_template_102030131', 'asset_expense_account_id': 'account_template_30101070123'},
+            'account_template_102030205': {'asset_depreciation_account_id': 'account_template_102030131', 'asset_expense_account_id': 'account_template_30101070123'},
+            'account_template_102030206': {'asset_depreciation_account_id': 'account_template_102030131', 'asset_expense_account_id': 'account_template_30101070123'},
+            'account_template_102030209': {'asset_depreciation_account_id': 'account_template_102030231', 'asset_expense_account_id': 'account_template_30101090116'},
+            'account_template_102030230': {'asset_depreciation_account_id': 'account_template_102030231', 'asset_expense_account_id': 'account_template_30101090116'},
+            'account_template_102030255': {'asset_depreciation_account_id': 'account_template_102030231', 'asset_expense_account_id': 'account_template_30101090116'},
         }

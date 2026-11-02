@@ -1,9 +1,7 @@
 import { Plugin } from "@html_editor/plugin";
 import { registry } from "@web/core/registry";
-import { SnippetVisibilityOption } from "../options/snippet_visibility_option";
-import { withSequence } from "@html_editor/utils/resource";
-import { effect } from "@web/core/utils/reactive";
 import { DataAttributeAction } from "@html_builder/core/core_builder_action_plugin";
+import { effect } from "@odoo/owl";
 
 class DataAttributeChangeAction extends DataAttributeAction {
     static id = "dataAttributeChangeAction";
@@ -20,29 +18,26 @@ class DataAttributeChangeAction extends DataAttributeAction {
     }
 }
 
-class SnippetVisibilityPlugin extends Plugin {
+export class SnippetVisibilityPlugin extends Plugin {
     static id = "mass_mailing.SnippetVisibility";
     static shared = ["getModel"];
 
     resources = {
         builder_actions: { DataAttributeChangeAction },
-        builder_options: [withSequence(Infinity, SnippetVisibilityOption)],
         system_attributes: "data-filter-domain",
     };
     setup() {
         this.mailingModelId = this.config.record.data.mailing_model_id.id;
-        effect(
-            (record) => {
-                if (this.isDestroyed) {
-                    return;
-                }
-                if (record.data.mailing_model_id.id !== this.mailingModelId) {
-                    this.mailingModelId = record.data.mailing_model_id.id;
-                    this.resetFilterDomains();
-                }
-            },
-            [this.config.record]
-        );
+        const disposeEffect = effect(() => {
+            if (this.isDestroyed) {
+                return;
+            }
+            if (this.config.record.data.mailing_model_id.id !== this.mailingModelId) {
+                this.mailingModelId = this.config.record.data.mailing_model_id.id;
+                this.resetFilterDomains();
+            }
+        });
+        this._cleanups.push(disposeEffect);
     }
 
     getModel() {

@@ -1,20 +1,25 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 import json
-
+from contextlib import contextmanager
 from datetime import date
 from unittest.mock import patch
 
 from odoo import Command
-from odoo.addons.account.tests.common import AccountTestInvoicingCommon
-from odoo.addons.mail.tests.common import MailCommon
 from odoo.exceptions import UserError
-from odoo.tests import users, warmup, tagged, Form
+from odoo.tests import Form, tagged, users, warmup
+from odoo.tests.common import new_test_user
+from odoo.tests.test_cursor import TestCursor
 from odoo.tools import formataddr, mute_logger
+
+from odoo.addons.account.tests.common import AccountTestInvoicingCommon
+from odoo.addons.bus.models.bus import channel_with_db, json_dump
+from odoo.addons.mail.tests.common import MailCommon
 
 
 @tagged('post_install_l10n', 'post_install', '-at_install', 'mail_flow')
 class TestAccountComposerPerformance(AccountTestInvoicingCommon, MailCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):
@@ -500,6 +505,8 @@ class TestAccountComposerPerformance(AccountTestInvoicingCommon, MailCommon):
 
 class TestAccountMoveSendCommon(AccountTestInvoicingCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -520,17 +527,17 @@ class TestAccountMoveSendCommon(AccountTestInvoicingCommon):
                 {k: v for k, v in expected_values.items() if not check_id_needed and k != 'id'},
             )
 
-    def create_send_and_print(self, invoices, default=False, **kwargs):
-        invoices.action_send_and_print()
+    def create_send_and_print(self, invoices, default=False, *, as_user=None, no_invoice_reminder=False, **kwargs):
+        invoices.with_user(as_user).action_send_and_print()
         if len(invoices) == 1:
             if not default and not kwargs.get('sending_methods'):
                 # In most cases, for testing purpose you only want to try to generate the document, no need to send it.
                 # Therefore by default we deactivate sending methods, unless default parameter is set to True,
                 # or they are explicitly given.
                 kwargs['sending_methods'] = []
-            return self._create_account_move_send_wizard_single(invoices, **kwargs)
+            return self._create_account_move_send_wizard_single(invoices, as_user=as_user, no_invoice_reminder=no_invoice_reminder, **kwargs)
         else:
-            return self._create_account_move_send_wizard_multi(invoices, **kwargs)
+            return self._create_account_move_send_wizard_multi(invoices, as_user=as_user, **kwargs)
 
     def _get_mail_message(self, move, limit=1):
         return self.env['mail.message'].search([('model', '=', move._name), ('res_id', '=', move.id)], limit=limit)
@@ -538,6 +545,8 @@ class TestAccountMoveSendCommon(AccountTestInvoicingCommon):
 
 @tagged('post_install_l10n', 'post_install', '-at_install', 'mail_template')
 class TestAccountMoveSend(TestAccountMoveSendCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):
@@ -592,7 +601,7 @@ class TestAccountMoveSend(TestAccountMoveSendCommon):
         self.assertTrue(self._get_mail_message(invoice))
 
         # Send it again. The PDF must not be created again.
-        wizard = self.create_send_and_print(invoice, sending_methods=['email', 'manual'])
+        wizard = self.create_send_and_print(invoice, no_invoice_reminder=True, sending_methods=['email', 'manual'])
         with patch('odoo.addons.account.models.account_move_send.AccountMoveSend._hook_invoice_document_after_pdf_report_render') as mocked_method:
             results = wizard.action_send_and_print()
             mocked_method.assert_not_called()
@@ -626,10 +635,24 @@ class TestAccountMoveSend(TestAccountMoveSendCommon):
         wizard = self.create_send_and_print(invoice1 + invoice2)
         self.assertEqual(wizard.move_ids, invoice1 + invoice2)
         self.assertFalse(wizard.alerts)
-        self.assertEqual(wizard.summary_data, {
-            'manual': {'count': 1, 'label': 'Manually'},
-            'email': {'count': 1, 'label': 'by Email'},
-        })
+        expected_batch_wizard_result = {
+            "email": {
+                "count": 1,
+                "label": "by Email",
+                "moves": [
+                    {"id": invoice1.id, "name": invoice1.name, "partner_name": "partner_a"},
+                ],
+            },
+            "manual": {
+                "count": 1,
+                "label": "Manually",
+                "moves": [
+                    {"id": invoice2.id, "name": invoice2.name, "partner_name": "partner_b"},
+                ],
+            },
+        }
+
+        self.assertEqual(wizard.summary_data, expected_batch_wizard_result)
 
         # Process.
         results = wizard.action_send_and_print()
@@ -667,10 +690,24 @@ class TestAccountMoveSend(TestAccountMoveSendCommon):
         invoice3 = self.init_invoice("out_invoice", partner=self.partner_b, amounts=[1000], post=True)
         wizard = self.create_send_and_print(invoice1 + invoice2 + invoice3)
         self.assertEqual(wizard.move_ids, invoice1 + invoice2 + invoice3)
-        self.assertEqual(wizard.summary_data, {
-            'manual': {'count': 2, 'label': 'Manually'},
-            'email': {'count': 1, 'label': 'by Email'},
-        })
+        expected_batch_wizard_result = {
+            "email": {
+                "count": 1,
+                "label": "by Email",
+                "moves": [
+                    {"id": invoice1.id, "name": invoice1.name, "partner_name": "partner_a"},
+                ],
+            },
+            "manual": {
+                "count": 2,
+                "label": "Manually",
+                "moves": [
+                    {"id": invoice2.id, "name": invoice2.name, "partner_name": "partner_b"},
+                    {"id": invoice3.id, "name": invoice3.name, "partner_name": "partner_b"},
+                ],
+            },
+        }
+        self.assertEqual(wizard.summary_data, expected_batch_wizard_result)
         wizard.action_send_and_print()
         with self.enter_registry_test_mode():
             self.env.ref('account.ir_cron_account_move_send').method_direct_trigger()
@@ -695,10 +732,9 @@ class TestAccountMoveSend(TestAccountMoveSendCommon):
         self.assertEqual(len(invoice_attachments), 1)
 
     def test_compute_value_of_send_invoice_batch_wizard(self):
-        invoices = (
-            self.init_invoice("out_invoice", partner=self.partner_a, amounts=[1000], post=True) +
-            self.init_invoice("out_invoice", partner=self.partner_b, amounts=[1000], post=True)
-        )
+        inv1 = self.init_invoice("out_invoice", partner=self.partner_a, amounts=[1000], post=True)
+        inv2 = self.init_invoice("out_invoice", partner=self.partner_b, amounts=[1000], post=True)
+        invoices = (inv1 + inv2)
         template = self.env.ref('account.email_template_edi_invoice')
         template.write({
             'use_default_to': False,
@@ -709,7 +745,17 @@ class TestAccountMoveSend(TestAccountMoveSendCommon):
             active_model='account.move', active_ids=invoices.ids))
 
         self.assertEqual(move_send_batch_wizard.move_ids.ids, invoices.ids)
-        self.assertEqual(move_send_batch_wizard.summary_data, {'email': {'count': len(invoices), 'label': 'by Email'}})
+        expected_wizard_batch_result = {
+            "email": {
+                "count": 2,
+                "label": "by Email",
+                "moves": [
+                    {"id": inv1.id, "name": inv1.name, "partner_name": "partner_a"},
+                    {"id": inv2.id, "name": inv2.name, "partner_name": "partner_b"},
+                ],
+            },
+        }
+        self.assertEqual(move_send_batch_wizard.summary_data, expected_wizard_batch_result)
         self.assertFalse(move_send_batch_wizard.alerts)
 
     def test_invoice_multi_email_missing(self):
@@ -719,17 +765,27 @@ class TestAccountMoveSend(TestAccountMoveSendCommon):
         self.partner_a.email = None
         self.assertTrue(bool(self.partner_b.email))
         wizard = self.create_send_and_print(invoice1 + invoice2)
-        self.assertEqual(wizard.summary_data, {
-            'email': {'count': 1, 'label': 'by Email'},  # Only one will be actually sent by email
-        })
+        expected_batch_wizard_result = {
+            "email": {
+                "count": 1,
+                "label": "by Email",
+                "moves": [
+                    {"id": invoice2.id, "name": invoice2.name, "partner_name": "partner_b"},
+                ],
+            },
+        }
+
+        self.assertEqual(wizard.summary_data, expected_batch_wizard_result)
         self.assertTrue('account_missing_email' in wizard.alerts)
         self.assertEqual(wizard.alerts['account_missing_email']['level'], 'warning')
         wizard.action_send_and_print()
         with self.enter_registry_test_mode():
             self.env.ref('account.ir_cron_account_move_send').method_direct_trigger()
-        # invoices are generated, but only partner_b got an email, without raising any errors
+        # invoices are generated, but only partner_b got an email
         self.assertTrue(invoice1.invoice_pdf_report_id)
         self.assertFalse(self._get_mail_message(invoice1, limit=None).partner_ids)
+        # invoice1 has no applicable sending method (missing email), so it is flagged as generated but not sent
+        self.assertIn('Invoice generated but not sent.', self._get_mail_message(invoice1).body)
         self.assertTrue(invoice2.invoice_pdf_report_id)
         self.assertTrue(self._get_mail_message(invoice2, limit=None).partner_ids)
 
@@ -750,8 +806,8 @@ class TestAccountMoveSend(TestAccountMoveSendCommon):
 
         def get_default_extra_edis(self, move):
             if move == invoice1:
-                return {'edi1'}
-            return {'edi1', 'edi2'}
+                return ['edi1']
+            return ['edi1', 'edi2']
 
         def get_all_extra_edis(self):
             return {
@@ -764,12 +820,58 @@ class TestAccountMoveSend(TestAccountMoveSendCommon):
             patch('odoo.addons.account.models.account_move_send.AccountMoveSend._get_all_extra_edis', get_all_extra_edis)
         ):
             wizard = self.create_send_and_print(invoice1 + invoice2)
-            self.assertEqual(wizard.summary_data, {
-                'edi1': {'count': 2, 'label': 'by EDI 1'},
-                'edi2': {'count': 1, 'label': 'by EDI 2'},
-                'manual': {'count': 1, 'label': 'Manually'},
-                'email': {'count': 1, 'label': 'by Email'},
-            })
+            expected_wizard_batch_result = {
+                "edi1": {
+                    "count": 2,
+                    "label": "by EDI 1",
+                    "moves": [
+                        {
+                            "id": invoice1.id,
+                            "name": invoice1.name,
+                            "partner_name": "partner_a",
+                        },
+                        {
+                            "id": invoice2.id,
+                            "name": invoice2.name,
+                            "partner_name": "partner_b",
+                        },
+                    ],
+                },
+                "edi2": {
+                    "count": 1,
+                    "label": "by EDI 2",
+                    "moves": [
+                        {
+                            "id": invoice2.id,
+                            "name": invoice2.name,
+                            "partner_name": "partner_b",
+                        }
+                    ],
+                },
+                "email": {
+                    "count": 1,
+                    "label": "by Email",
+                    "moves": [
+                        {
+                            "id": invoice1.id,
+                            "name": invoice1.name,
+                            "partner_name": "partner_a",
+                        }
+                    ],
+                },
+                "manual": {
+                    "count": 1,
+                    "label": "Manually",
+                    "moves": [
+                        {
+                            "id": invoice2.id,
+                            "name": invoice2.name,
+                            "partner_name": "partner_b",
+                        }
+                    ],
+                },
+            }
+            self.assertEqual(wizard.summary_data, expected_wizard_batch_result)
 
     def test_invoice_multi_child_contact(self):
         """ Test bulk invoice sending will retrieve info from the main partner. """
@@ -777,14 +879,31 @@ class TestAccountMoveSend(TestAccountMoveSendCommon):
         partner = self.env['res.partner'].create({
             'type': 'invoice',
             'email': 'child@example.com',
-            'parent_id': self.partner_a.id
+            'parent_id': self.partner_a.id,
+            'name': 'child_partner',
         })
         invoice1 = self.init_invoice("out_invoice", amounts=[1000], partner=partner, post=True)
         invoice2 = self.init_invoice("out_invoice", amounts=[1000], partner=partner, post=True)
         wizard = self.create_send_and_print(invoice1 + invoice2)
-        self.assertEqual(wizard.summary_data, {
-            'manual': {'count': 2, 'label': 'Manually'}
-        })
+        expected_wizard_batch_result = {
+            "manual": {
+                "count": 2,
+                "label": "Manually",
+                "moves": [
+                    {
+                        "id": invoice1.id,
+                        "name": invoice1.name,
+                        "partner_name": "child_partner",
+                    },
+                    {
+                        "id": invoice2.id,
+                        "name": invoice2.name,
+                        "partner_name": "child_partner",
+                    },
+                ],
+            },
+        }
+        self.assertEqual(wizard.summary_data, expected_wizard_batch_result)
 
     def test_invoice_mail_attachments_widget(self):
         invoice = self.init_invoice("out_invoice", amounts=[1000], post=True)
@@ -847,20 +966,20 @@ class TestAccountMoveSend(TestAccountMoveSendCommon):
         self.assertRecordValues(message.attachment_ids.sorted('name'), [
             {
                 'name': invoice.invoice_pdf_report_id.name,
-                'datas': invoice.invoice_pdf_report_id.datas,
+                'raw': invoice.invoice_pdf_report_id.raw,
             },
             {
                 'name': extra_attachment2.name,
-                'datas': extra_attachment2.datas,
+                'raw': extra_attachment2.raw,
             },
             {
                 'name': manual_attachment.name,
-                'datas': manual_attachment.datas,
+                'raw': manual_attachment.raw,
             },
         ])
 
         # Resend.
-        wizard = self.create_send_and_print(invoice, sending_methods=['email'])
+        wizard = self.create_send_and_print(invoice, no_invoice_reminder=True, sending_methods=['email'])
         pdf_report_values['id'] = invoice.invoice_pdf_report_id.id
         self._assert_mail_attachments_widget(wizard, [
             pdf_report_values,
@@ -880,26 +999,26 @@ class TestAccountMoveSend(TestAccountMoveSendCommon):
         self.assertRecordValues(message.attachment_ids.sorted('name'), [
             {
                 'name': invoice.invoice_pdf_report_id.name,
-                'datas': invoice.invoice_pdf_report_id.datas,
+                'raw': invoice.invoice_pdf_report_id.raw,
             },
             {
                 'name': extra_attachment2.name,
-                'datas': extra_attachment2.datas,
+                'raw': extra_attachment2.raw,
             },
         ])
 
         # Manually remove the attachment and check the mail's attachments are not removed.
         invoice_pdf_report_name = invoice.invoice_pdf_report_id.name
-        invoice_pdf_report_datas = invoice.invoice_pdf_report_id.datas
+        invoice_pdf_report_raw = invoice.invoice_pdf_report_id.raw
         invoice.invoice_pdf_report_id.unlink()
         self.assertRecordValues(message.attachment_ids.sorted('name'), [
             {
                 'name': invoice_pdf_report_name,
-                'datas': invoice_pdf_report_datas,
+                'raw': invoice_pdf_report_raw,
             },
             {
                 'name': extra_attachment2.name,
-                'datas': extra_attachment2.datas,
+                'raw': extra_attachment2.raw,
             },
         ])
 
@@ -1088,10 +1207,12 @@ class TestAccountMoveSend(TestAccountMoveSendCommon):
         sp_partner_1 = self.env.user.partner_id
         wizard_partner_1 = self.create_send_and_print(invoices_success)
         wizard_partner_1.action_send_and_print()
-
-        sp_partner_2 = self.env['res.partner'].create({'name': 'Partner 2', 'email': 'test@test.odoo.com'})
-        self.env.user.partner_id = sp_partner_2
-        wizard_partner_2 = self.create_send_and_print(invoices_error)
+        user_2 = new_test_user(
+            self.env,
+            "Partner 2",
+            "account.group_account_invoice,base.group_partner_manager",
+        )
+        wizard_partner_2 = self.create_send_and_print(invoices_error, as_user=user_2)
         wizard_partner_2.action_send_and_print()
 
         def _hook_invoice_document_before_pdf_report_render(self, invoice, invoice_data):
@@ -1100,7 +1221,7 @@ class TestAccountMoveSend(TestAccountMoveSendCommon):
 
         self.assertTrue(all(invoice.sending_data for invoice in invoices_success + invoices_error))
         self.assertTrue(all(invoice.sending_data.get('author_partner_id') == sp_partner_1.id for invoice in invoices_success))
-        self.assertTrue(all(invoice.sending_data.get('author_partner_id') == sp_partner_2.id for invoice in invoices_error))
+        self.assertTrue(all(invoice.sending_data.get('author_partner_id') == user_2.partner_id.id for invoice in invoices_error))
 
         #  reset bus
         self.env.cr.precommit.run()
@@ -1114,7 +1235,7 @@ class TestAccountMoveSend(TestAccountMoveSendCommon):
             self.env.cr.precommit.run()  # trigger the creation of bus.bus records
 
         bus_1 = self.env['bus.bus'].sudo().search(
-            [('channel', 'like', f'"res.partner",{sp_partner_1.id}')],
+            [('channel', '=', json_dump(channel_with_db(self.cr.dbname, self.env.user)))],
             order='id desc',
             limit=1,
         )
@@ -1123,7 +1244,7 @@ class TestAccountMoveSend(TestAccountMoveSendCommon):
         self.assertEqual(sorted(payload_1['action_button']['res_ids']), invoices_success.ids)
 
         bus_2 = self.env['bus.bus'].sudo().search(
-            [('channel', 'like', f'"res.partner",{sp_partner_2.id}')],
+            [('channel', '=', json_dump(channel_with_db(self.cr.dbname, user_2)))],
             order='id desc',
             limit=1,
         )
@@ -1298,3 +1419,104 @@ class TestAccountMoveSend(TestAccountMoveSendCommon):
 
         message = self._get_mail_message(invoice)
         self.assertEqual(message.reply_to, custom_reply_to)
+
+    @contextmanager
+    def _send_after_commit(self):
+        """ Allow the sending to be postponed after commit, and run the post-commit hooks when leaving.
+        Everything happens in registry test mode: the cursor opened by the hook is a TestCursor on top of
+        the test cursor, so its commit only releases a savepoint and nothing is ever committed for real.
+        """
+        with (
+            self.enter_registry_test_mode(),
+            patch.object(self.registry['account.move'], '_can_commit', return_value=True),
+        ):
+            yield
+            self.env.flush_all()  # as done by the commit
+            self.env.cr.postcommit.run()
+
+    def test_generate_and_send_invoices_post_commit(self):
+        """ The invoice must only be sent once the current transaction is committed,
+        in a new cursor, with all the records given as arguments bound to that cursor. """
+        invoice = self.init_invoice("out_invoice", amounts=[1000], post=True)
+        template = self.env.ref('account.email_template_edi_invoice').copy({'subject': "Sent after commit"}).sudo()
+
+        AccountMoveSend = self.registry['account.move.send']
+        generate_and_send_invoices = AccountMoveSend._generate_and_send_invoices
+        calls = []
+
+        def spy(self, moves, **kwargs):
+            calls.append((self, moves, kwargs))
+            return generate_and_send_invoices(self, moves, **kwargs)
+
+        with patch.object(AccountMoveSend, '_generate_and_send_invoices', spy), self._send_after_commit():
+            self.env['account.move.send']._generate_and_send_invoices_post_commit(
+                invoice,
+                sending_methods=['email'],
+                mail_template=template,
+            )
+            self.assertFalse(calls, "Nothing should be sent before the commit")
+            self.assertFalse(invoice.invoice_pdf_report_id)
+            self.assertFalse(invoice.is_move_sent)
+            self.assertTrue(invoice.sending_data, "The invoice must be flagged for the cron in the current transaction")
+
+        self.assertEqual(len(calls), 1)
+        send, moves, kwargs = calls[0]
+        self.assertEqual(moves, invoice)
+        self.assertEqual(kwargs['mail_template'], template)
+        new_cr = send.env.cr
+        self.assertIsInstance(new_cr, TestCursor)
+        self.assertNotEqual(self.env.cr, new_cr)
+        self.assertIs(moves.env.cr, new_cr)
+        self.assertIs(kwargs['mail_template'].env.cr, new_cr)
+        self.assertTrue(kwargs['mail_template'].env.su, "The sudo flag must be kept on the new cursor")
+
+        self.env.invalidate_all()
+        self.assertTrue(invoice.invoice_pdf_report_id)
+        self.assertTrue(invoice.message_ids.filtered(lambda m: m.subject == "Sent after commit"))
+        self.assertTrue(invoice.is_move_sent)
+        self.assertFalse(invoice.sending_data)
+
+    def test_generate_and_send_invoices_post_commit_error(self):
+        """ An error while sending after the commit must be logged and rolled back,
+        not raised: the transaction that triggered the sending is already committed.
+        The invoice is left to the sending cron. """
+        invoice = self.init_invoice("out_invoice", amounts=[1000], post=True)
+
+        def failing_hook(self, invoice, invoice_data):
+            invoice.ref = "Should be rolled back"
+            raise ValueError("Sending failed")
+
+        with (
+            self.assertLogs('odoo.addons.account.tools.after_commit', level='ERROR'),
+            patch.object(self.registry['account.move.send'], '_hook_invoice_document_before_pdf_report_render', failing_hook),
+            self._send_after_commit(),
+        ):
+            self.env['account.move.send']._generate_and_send_invoices_post_commit(invoice, sending_methods=['email'])
+
+        self.env.invalidate_all()
+        self.assertFalse(invoice.ref)
+        self.assertFalse(invoice.invoice_pdf_report_id)
+        self.assertFalse(invoice.is_move_sent)
+        self.assertTrue(invoice.sending_data)
+
+    def test_generate_and_send_invoices_post_commit_locked(self):
+        """ An invoice locked by another transaction is not sent after the commit,
+        but left to the sending cron. """
+        invoice = self.init_invoice("out_invoice", amounts=[1000], post=True)
+
+        with (
+            patch.object(self.registry['account.move'], 'try_lock_for_update', lambda self, **kwargs: self.browse()),
+            self._send_after_commit(),
+        ):
+            self.env['account.move.send']._generate_and_send_invoices_post_commit(invoice, sending_methods=['email'])
+
+        self.env.invalidate_all()
+        self.assertFalse(invoice.invoice_pdf_report_id)
+        self.assertFalse(invoice.is_move_sent)
+        self.assertTrue(invoice.sending_data)
+
+        with self.enter_registry_test_mode():
+            self.env.ref('account.ir_cron_account_move_send').method_direct_trigger()
+        self.assertTrue(invoice.invoice_pdf_report_id)
+        self.assertTrue(invoice.is_move_sent)
+        self.assertFalse(invoice.sending_data)

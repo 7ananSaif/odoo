@@ -1,8 +1,8 @@
 import { waitForDataLoaded } from "@spreadsheet/helpers/model";
-import { generateListDefinition } from "@spreadsheet/../tests/helpers/data";
 import { createModelWithDataSource } from "@spreadsheet/../tests/helpers/model";
 
 /**
+ * @typedef {import("@spreadsheet").OdooSpreadsheetModel} OdooSpreadsheetModel
  * @typedef {import("@spreadsheet/o_spreadsheet/o_spreadsheet").Model} Model
  */
 
@@ -17,24 +17,29 @@ import { createModelWithDataSource } from "@spreadsheet/../tests/helpers/model";
  * @param {[number, number]} [params.position]
  * @param {string} [params.sheetId]
  * @param {{name: string, asc: boolean}[]} [params.orderBy]
+ * @param { "static" | "dynamic"} [mode]
  */
-export function insertListInSpreadsheet(model, params) {
-    const { definition, columns } = generateListDefinition(
-        params.model,
-        params.columns,
-        params.actionXmlId,
-        params.orderBy
-    );
+export function insertListInSpreadsheet(model, params, mode = "static") {
+    const definition = {
+        model: params.model,
+        columns: params.columns,
+        domain: [],
+        context: {},
+        orderBy: params.orderBy || [],
+        actionXmlId: params.actionXmlId,
+        name: params.name || "List",
+    };
+    const listId = model.getters.getNextListId();
     const [col, row] = params.position || [0, 0];
 
     model.dispatch("INSERT_ODOO_LIST", {
         sheetId: params.sheetId || model.getters.getActiveSheetId(),
-        definition,
+        listId,
         linesNumber: params.linesNumber || 10,
-        columns,
-        id: model.getters.getNextListId(),
         col,
         row,
+        definition,
+        mode,
     });
 }
 
@@ -51,6 +56,7 @@ export function insertListInSpreadsheet(model, params) {
  * @param {string} [params.sheetId]
  * @param {object} [params.modelConfig]
  * @param {{name: string, asc: boolean}[]} [params.orderBy]
+ * @param { "static" | "dynamic"} [params.mode]
  *
  * @returns { Promise<{ model: OdooSpreadsheetModel, env: Object }>}
  */
@@ -61,14 +67,23 @@ export async function createSpreadsheetWithList(params = {}) {
         modelConfig: params.modelConfig,
     });
 
-    insertListInSpreadsheet(model, {
-        columns: params.columns || ["foo", "bar", "date", "product_id"],
-        model: params.model || "partner",
-        linesNumber: params.linesNumber,
-        position: params.position,
-        sheetId: params.sheetId,
-        orderBy: params.orderBy,
-    });
+    insertListInSpreadsheet(
+        model,
+        {
+            columns: params.columns || [
+                { name: "foo", string: "Foo" },
+                { name: "bar", string: "Bar" },
+                { name: "date", string: "Date" },
+                { name: "product_id", string: "Product" },
+            ],
+            model: params.model || "partner",
+            linesNumber: params.linesNumber,
+            position: params.position,
+            sheetId: params.sheetId,
+            orderBy: params.orderBy,
+        },
+        params.mode
+    );
 
     if (!params.skipWaitForDataLoaded) {
         await waitForDataLoaded(model);

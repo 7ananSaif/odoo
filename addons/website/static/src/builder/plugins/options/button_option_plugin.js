@@ -13,7 +13,7 @@ const styleClasses = [
 ];
 const sizeClasses = ["btn-sm", "btn-lg"];
 
-class ButtonOptionPlugin extends Plugin {
+export class ButtonOptionPlugin extends Plugin {
     static id = "buttonOption";
     /** @type {import("plugins").WebsiteResources} */
     resources = {
@@ -154,6 +154,9 @@ class ButtonOptionPlugin extends Plugin {
                 // existing buttons) + custom ?
                 const styleClass = styleClasses.find((c) => siblingButtonEl.classList.contains(c));
                 const sizeClass = sizeClasses.find((c) => siblingButtonEl.classList.contains(c));
+                const roundedClass = ["rounded-circle", "rounded-pill"].find((c) =>
+                    siblingButtonEl.classList.contains(c)
+                );
 
                 if (styleClass) {
                     editingElement.classList.remove("btn-primary");
@@ -162,8 +165,8 @@ class ButtonOptionPlugin extends Plugin {
                 if (sizeClass) {
                     editingElement.classList.add(sizeClass);
                 }
-                if (siblingButtonEl.classList.contains("rounded-circle")) {
-                    editingElement.classList.add("rounded-circle");
+                if (roundedClass) {
+                    editingElement.classList.add(roundedClass);
                 }
             } else if (!siblingButtonEl) {
                 // To align with the editor's behavior, we need to enclose the
@@ -187,7 +190,7 @@ class ButtonOptionPlugin extends Plugin {
     }
 }
 
-export class ButtonTranslationPlugin extends Plugin {
+class ButtonTranslationPlugin extends Plugin {
     static id = "buttonTranslation";
     /** @type {import("plugins").WebsiteResources} */
     resources = {
@@ -196,3 +199,4 @@ export class ButtonTranslationPlugin extends Plugin {
 }
 
 registry.category("website-plugins").add(ButtonOptionPlugin.id, ButtonOptionPlugin);
+registry.category("translation-plugins").add(ButtonTranslationPlugin.id, ButtonTranslationPlugin);

@@ -1,22 +1,20 @@
 import { beforeEach, expect, test } from "@odoo/hoot";
 import {
-    Deferred,
     advanceTime,
     animationFrame,
     click,
-    hover,
-    pointerDown,
-    pointerUp,
+    drag,
     press,
     queryAllRects,
     queryAllTexts,
     queryFirst,
     queryOne,
     queryRect,
+    resize,
     runAllTimers,
 } from "@odoo/hoot-dom";
-import { mockDate, mockTimeZone } from "@odoo/hoot-mock";
-import { Component, onRendered, onWillStart, xml } from "@odoo/owl";
+import { mockDate, mockTimeZone, mockTouch } from "@odoo/hoot-mock";
+import { Component, onMounted, onPatched, onWillStart, xml } from "@odoo/owl";
 import {
     MockServer,
     contains,
@@ -24,8 +22,8 @@ import {
     defineModels,
     defineParams,
     fields,
-    getMockEnv,
     getService,
+    isSmall,
     makeServerError,
     mockService,
     models,
@@ -37,6 +35,19 @@ import {
     serverState,
     validateSearch,
 } from "@web/../tests/web_test_helpers";
+import { hasTouch } from "@web/core/browser/feature_detection";
+import { serializeDateTime } from "@web/core/l10n/dates";
+import { registry } from "@web/core/registry";
+import { zip } from "@web/core/utils/arrays";
+import { range } from "@web/core/utils/numbers";
+import { CalendarCommonRenderer } from "@web/views/calendar/calendar_common/calendar_common_renderer";
+import { CalendarController } from "@web/views/calendar/calendar_controller";
+import { CalendarModel } from "@web/views/calendar/calendar_model";
+import { CalendarRenderer } from "@web/views/calendar/calendar_renderer";
+import { calendarView } from "@web/views/calendar/calendar_view";
+import { CalendarYearRenderer } from "@web/views/calendar/calendar_year/calendar_year_renderer";
+import { TOUCH_SELECTION_THRESHOLD } from "@web/views/utils";
+import { WebClient } from "@web/webclient/webclient";
 import {
     changeScale,
     clickAllDaySlot,
@@ -45,6 +56,7 @@ import {
     closeCwPopOver,
     displayCalendarPanel,
     expandCalendarView,
+    findEvent,
     hideCalendarPanel,
     moveEventToAllDaySlot,
     moveEventToDate,
@@ -61,15 +73,6 @@ import {
     toggleFilter,
     toggleSectionFilter,
 } from "./calendar_test_helpers";
-
-import { registry } from "@web/core/registry";
-import { zip } from "@web/core/utils/arrays";
-import { CalendarCommonRenderer } from "@web/views/calendar/calendar_common/calendar_common_renderer";
-import { CalendarController } from "@web/views/calendar/calendar_controller";
-import { CalendarRenderer } from "@web/views/calendar/calendar_renderer";
-import { calendarView } from "@web/views/calendar/calendar_view";
-import { CalendarYearRenderer } from "@web/views/calendar/calendar_year/calendar_year_renderer";
-import { WebClient } from "@web/webclient/webclient";
 
 class Event extends models.Model {
     name = fields.Char();
@@ -261,77 +264,30 @@ defineModels([Event, EventType, CalendarUsers, CalendarPartner, FilterPartner]);
 preloadBundle("web.fullcalendar_lib");
 beforeEach(() => {
     mockDate("2016-12-12T08:00:00", 1);
-    const patchFullCalendarOptions = () => ({
-        get options() {
-            return Object.assign({}, super.options, {
-                longPressDelay: 0,
-                selectLongPressDelay: 0,
-            });
+    patchWithCleanup(CalendarController.prototype, {
+        get modelParams() {
+            const params = super.modelParams;
+            // avoid to change the range on the model between 'desktop' and 'mobile' tests
+            params.loadSurroundings = false;
+            return params;
         },
     });
-    patchWithCleanup(CalendarYearRenderer.prototype, patchFullCalendarOptions());
-    patchWithCleanup(CalendarCommonRenderer.prototype, patchFullCalendarOptions());
 });
 
-onRpc("has_group", () => true);
-
-/**
- * @param {import("@odoo/hoot-dom").Target} from
- * @param {import("@odoo/hoot-dom").Target} to
- * @param {{
- *  start: "top" | "center" | "bottom";
- *  end: "top" | "center" | "bottom";
- * }} [positions] specify where the touches will occur in the start and end elements
- *  (default: `"center"` for both)
- * @returns {Promise<void>}
- */
-async function selectRange(from, to, positions) {
-    const startTarget = queryFirst(from);
-
-    const startRect = queryRect(startTarget);
-    const startPosition = {
-        x: startRect.width / 2,
-        y: 0,
-    };
-    if (positions?.start === "top") {
-        startPosition.y += 1;
-    } else if (positions?.start === "bottom") {
-        startPosition.y += startRect.height - 1;
-    } else {
-        startPosition.y += startRect.height / 2;
-    }
-
-    const endRect = queryRect(to);
-    const endPosition = {
-        x: endRect.width / 2,
-        y: 0,
-    };
-    if (positions?.end === "top") {
-        endPosition.y += 1;
-    } else if (positions?.end === "bottom") {
-        endPosition.y += endRect.height - 1;
-    } else {
-        endPosition.y += endRect.height / 2;
-    }
-
-    await pointerDown(startTarget, {
-        position: startPosition,
-        relative: true,
+function enableLoadSurroundingsInTest() {
+    patchWithCleanup(CalendarController.prototype, {
+        get modelParams() {
+            const params = super.modelParams;
+            if (hasTouch()) {
+                // this parameter must be set to true for the test
+                params.loadSurroundings = true;
+            }
+            return params;
+        },
     });
-    await animationFrame();
-
-    await hover(to, {
-        position: endPosition,
-        relative: true,
-    });
-    await animationFrame();
-
-    await pointerUp(to, {
-        position: endPosition,
-        relative: true,
-    });
-    await animationFrame();
 }
+
+onRpc("has_group", () => true);
 
 function expectEventToBeOver(eventSelector, ranges) {
     const eventRects = queryAllRects(eventSelector);
@@ -366,7 +322,7 @@ test(`simple calendar rendering on desktop`, async () => {
             id: 8,
             user_id: serverState.userId,
             partner_id: false,
-            name: "event 7",
+            name: "event 8",
             start: "2016-12-18 09:00:00",
             stop: "2016-12-18 10:00:00",
             attendee_ids: [2],
@@ -375,11 +331,20 @@ test(`simple calendar rendering on desktop`, async () => {
             id: 9,
             user_id: serverState.userId,
             partner_id: false,
-            name: "event 8",
+            name: "event 9",
             start: "2016-12-11 05:15:00",
             stop: "2016-12-11 05:30:00",
             attendee_ids: [1, 2, 3],
             delay: 0.25,
+        },
+        {
+            id: 10,
+            user_id: serverState.userId,
+            partner_id: false,
+            name: "event 10",
+            start: "2016-12-16 11:45:00",
+            stop: false,
+            attendee_ids: [1, 2, 3],
         }
     );
 
@@ -387,7 +352,7 @@ test(`simple calendar rendering on desktop`, async () => {
         resModel: "event",
         type: "calendar",
         arch: `
-            <calendar event_open_popup="1" date_start="start" date_stop="stop" all_day="is_all_day" mode="week" attendee="attendee_ids" color="partner_id" date_delay="delay">
+            <calendar event_open_popup="1" date_start="start" date_stop="stop" all_day="is_all_day" mode="week" attendee="attendee_ids" color="partner_id">
                 <filter name="user_id" avatar_field="image"/>
                 <field name="attendee_ids" write_model="filter.partner" write_field="partner_id"/>
                 <field name="partner_id" filters="1" invisible="1"/>
@@ -403,8 +368,9 @@ test(`simple calendar rendering on desktop`, async () => {
     });
 
     await toggleSectionFilter("attendee_ids");
-    expect(`.o_event`).toHaveCount(6, {
-        message: "should display 6 events on the week (4 event + 1 is_all_day + 1 >24h is_all_day)",
+    expect(`.o_event`).toHaveCount(7, {
+        message:
+            "should display 7 events on the week (including one without stop + 1 is_all_day + 1 >24h is_all_day)",
     });
     expect(`.o_event_oneliner`).toHaveCount(1, {
         message: "should contain 1 oneliner event (the one we add)",
@@ -412,19 +378,19 @@ test(`simple calendar rendering on desktop`, async () => {
 
     await changeScale("day");
     expect(`.o_event`).toHaveCount(2);
-    expect(`.o_calendar_sidebar .o_datetime_picker .o_selected`).toHaveCount(1);
+    expect(`.o_calendar_sidepanel .o_datetime_picker .o_selected`).toHaveCount(1);
 
     await changeScale("month");
     await toggleSectionFilter("attendee_ids");
     await toggleFilter("attendee_ids", "1");
     await toggleFilter("attendee_ids", "2");
-    expect(`.o_event`).toHaveCount(8, {
+    expect(`.o_event`).toHaveCount(9, {
         message:
-            "should display 7 events on the month (6 events + 2 week event - 1 'event 6' is filtered + 1 'Undefined event')",
+            "should display 9 events on the month (8 events - 1 'event 6' is filtered + 2 week event)",
     });
 
     // test filters
-    expect(`.o_calendar_sidebar .o_calendar_filter`).toHaveCount(2);
+    expect(`.o_calendar_sidepanel .o_calendar_filter`).toHaveCount(2);
     expect(`.o_calendar_filter:eq(1)`).toBeVisible();
     expect(`.o_calendar_filter:eq(1) .o_calendar_filter_item`).toHaveCount(3);
 
@@ -439,20 +405,20 @@ test(`simple calendar rendering on desktop`, async () => {
     expect(`.o_calendar_filter:eq(0) .o-autocomplete`).toHaveCount(1);
 
     await toggleFilter("attendee_ids", "1");
-    expect(`.o_event`).toHaveCount(6);
+    expect(`.o_event`).toHaveCount(7);
 
     await toggleFilter("attendee_ids", "2");
     expect(`.o_event`).toHaveCount(0);
 
     // test search bar in filter
-    await contains(`.o_calendar_sidebar input[type=text]`).click();
+    await contains(`.o_calendar_sidepanel input[type=text]`).click();
     expect(`.dropdown-item`).toHaveCount(2);
     expect(queryAllTexts`.dropdown-item`).toEqual(["partner 3", "partner 4"]);
 
     await contains(`.dropdown-item:eq(0)`).click();
     expect(`.o_calendar_filter:eq(0) .o_calendar_filter_item`).toHaveCount(3);
 
-    await contains(`.o_calendar_sidebar input[type=text]`).click();
+    await contains(`.o_calendar_sidepanel input[type=text]`).click();
     expect(`.dropdown-item`).toHaveCount(1);
     expect(`.dropdown-item`).toHaveText("partner 4");
 
@@ -489,7 +455,7 @@ test(`simple calendar rendering on mobile`, async () => {
         resModel: "event",
         type: "calendar",
         arch: `
-            <calendar event_open_popup="1" date_start="start" date_stop="stop" all_day="is_all_day" mode="week" attendee="attendee_ids" color="partner_id" date_delay="delay">
+            <calendar event_open_popup="1" date_start="start" date_stop="stop" all_day="is_all_day" mode="week" attendee="attendee_ids" color="partner_id">
                 <filter name="user_id" avatar_field="image"/>
                 <field name="attendee_ids" write_model="filter.partner" write_field="partner_id"/>
                 <field name="partner_id" filters="1" invisible="1"/>
@@ -499,7 +465,8 @@ test(`simple calendar rendering on mobile`, async () => {
     });
 
     // test events in different scale
-    expect(`.o_calendar_renderer .fc-view`).toHaveCount(1);
+    expect(`.o_calendar_renderer .fc-view`).toHaveCount(3);
+    expect(`.o_calendar_renderer .o_calendar_current`).toHaveCount(1);
     expect(`.o_event`).toHaveCount(0, {
         message: "By default, only the events of the current user are displayed (0 in this case)",
     });
@@ -525,7 +492,7 @@ test(`simple calendar rendering on mobile`, async () => {
 
     // test filters
     await displayCalendarPanel();
-    expect(`.o_calendar_sidebar .o_calendar_filter`).toHaveCount(2);
+    expect(`.o_calendar_sidepanel .o_calendar_filter`).toHaveCount(2);
     expect(`.o_calendar_filter:eq(1)`).toBeVisible();
     expect(`.o_calendar_filter:eq(1) .o_calendar_filter_item`).toHaveCount(3);
 
@@ -547,14 +514,14 @@ test(`simple calendar rendering on mobile`, async () => {
 
     // test search bar in filter
     await displayCalendarPanel();
-    await contains(`.o_calendar_sidebar input[type=text]`).click();
+    await contains(`.o_calendar_sidepanel input[type=text]`).click();
     expect(`.dropdown-item`).toHaveCount(2);
     expect(queryAllTexts`.dropdown-item`).toEqual(["partner 3", "partner 4"]);
 
     await contains(`.dropdown-item:eq(0)`).click();
     expect(`.o_calendar_filter:eq(0) .o_calendar_filter_item`).toHaveCount(3);
 
-    await contains(`.o_calendar_sidebar input[type=text]`).click();
+    await contains(`.o_calendar_sidepanel input[type=text]`).click();
     expect(`.dropdown-item`).toHaveCount(1);
     expect(`.dropdown-item`).toHaveText("partner 4");
 
@@ -630,7 +597,7 @@ test(`check the avatar of the attendee in the calendar filter panel`, async () =
     await displayCalendarPanel();
     const section = `.o_calendar_filter[data-name="attendee_ids"]`;
 
-    expect(`.o_calendar_sidebar .o_calendar_filter`).toHaveCount(1);
+    expect(`.o_calendar_sidepanel .o_calendar_filter`).toHaveCount(1);
     expect(`.o_calendar_filter:eq(0) .o-autocomplete`).toHaveCount(1);
     expect(".o_calendar_filter_item:eq(-2)").not.toHaveText("partner 3");
 
@@ -674,7 +641,7 @@ test(`Select multiple attendees in the calendar filter panel autocomplete on des
     });
 
     const section = `.o_calendar_filter[data-name="attendee_ids"]`;
-    expect(`.o_calendar_sidebar .o_calendar_filter`).toHaveCount(1);
+    expect(`.o_calendar_sidepanel .o_calendar_filter`).toHaveCount(1);
     await checkFilterItems(2);
     expect(queryAllTexts`.o_calendar_filter_item`).toEqual(["partner 1", "partner 2"]);
 
@@ -701,7 +668,7 @@ test(`Select multiple attendees in the calendar filter panel autocomplete on des
     await contains(".o_dialog .o_select_button").click();
     expect("o_dialog").toHaveCount(0);
 
-    expect(`.o_calendar_sidebar .o_calendar_filter`).toHaveCount(1);
+    expect(`.o_calendar_sidepanel .o_calendar_filter`).toHaveCount(1);
     await checkFilterItems(4);
     expect(queryAllTexts`.o_calendar_filter_item`).toEqual([
         "partner 1",
@@ -804,7 +771,7 @@ test(`add a filter with the search more dialog on desktop`, async () => {
     await contains(".o_dialog .o_select_button").click();
     expect("o_dialog").toHaveCount(0);
 
-    expect(`.o_calendar_sidebar .o_calendar_filter`).toHaveCount(1);
+    expect(`.o_calendar_sidepanel .o_calendar_filter`).toHaveCount(1);
     await checkFilterItems(4);
     expect(queryAllTexts`.o_calendar_filter_item`).toEqual([
         "foo partner 5",
@@ -1017,7 +984,7 @@ test(`add a filter with the search more dialog on mobile`, async () => {
     await contains(".o_data_row:eq(0)").click();
     expect("o_dialog").toHaveCount(0);
 
-    expect(`.o_calendar_sidebar .o_calendar_filter`).toHaveCount(1);
+    expect(`.o_calendar_sidepanel .o_calendar_filter`).toHaveCount(1);
     expect(`.o_calendar_filter_item`).toHaveCount(4);
     expect(queryAllTexts`.o_calendar_filter_item`).toEqual([
         "foo partner 5",
@@ -1077,7 +1044,7 @@ test(`add a filter with the search more dialog on mobile`, async () => {
         "foo partner 13",
         "foo partner 14",
     ]);
-    await closeCwPopOver();
+    await contains(`[data-icon='arrow_back']`).click();
     expect(`.modal`).toHaveCount(0);
     expect(`${section} .o_calendar_filter_item`).toHaveCount(4);
     expect(queryAllTexts`.o_calendar_filter_item`).toEqual([
@@ -1097,9 +1064,8 @@ test(`delete attribute on calendar doesn't show delete button in popover`, async
     });
 
     await clickEvent(4);
-    const container = getMockEnv().isSmall ? ".modal" : ".o_cw_popover";
-    expect(container).toHaveCount(1);
-    expect(`${container} .o_cw_popover_delete`).toHaveCount(0);
+    expect(".o_cw_popover").toHaveCount(1);
+    expect(`.o_cw_popover .o_cw_popover_delete`).toHaveCount(0);
 });
 
 test.tags("desktop");
@@ -1122,7 +1088,7 @@ test(`create and change events on desktop`, async () => {
     expect(`.o_cw_popover`).toHaveCount(1);
     expect(`.o_cw_popover .o_cw_popover_edit`).toHaveCount(1);
     expect(`.o_cw_popover .o_cw_popover_delete`).toHaveCount(1);
-    expect(`.o_cw_popover .o_cw_popover_close`).toHaveCount(1);
+    expect(`.o_cw_popover .o_card_popover_close`).toHaveCount(1);
 
     await contains(`.o_cw_popover .o_cw_popover_edit`).click();
     expect(`.modal-body`).toHaveCount(1);
@@ -1184,7 +1150,7 @@ test(`create and change events on desktop`, async () => {
     expectEventToBeOver(`.o_event[data-event-id="11"]`, [["2016-12-20", "2016-12-21"]]);
 
     await clickEvent(11);
-    expect(`.o_cw_popover .list-group-item:eq(0)`).toHaveText("December 20-21, 2016 2 days");
+    expect(`.o_cw_popover .o_card_record > div:eq(0)`).toHaveText("December 20-21, 2016\n2 days");
     await closeCwPopOver();
 
     // delete the a record
@@ -1192,7 +1158,7 @@ test(`create and change events on desktop`, async () => {
     await contains(`.o_cw_popover_delete`).click();
     expect(`.modal-title`).toHaveText("Bye-bye, record!");
 
-    await contains(`.modal-footer button.btn-primary`).click();
+    await contains(`.modal-footer button.btn-danger`).click();
     expect(`.o_event[data-event-id="4"]`).toHaveCount(0);
     expect(`.o_event`).toHaveCount(10);
 
@@ -1226,18 +1192,16 @@ test(`create and change events on mobile`, async () => {
         type: "calendar",
         arch: `<calendar event_open_popup="1" date_start="start" date_stop="stop" all_day="is_all_day" mode="month"/>`,
     });
-    expect(`.fc-dayGridMonth-view`).toHaveCount(1);
+    expect(`.fc-dayGridMonth-view`).toHaveCount(3);
 
     // click on an existing event to open the formViewDialog
     await clickEvent(4);
-    const container = ".modal";
-    const closeButton = ".oi-arrow-left";
-    expect(container).toHaveCount(1);
-    expect(`${container} .o_cw_popover_edit`).toHaveCount(1);
-    expect(`${container} .o_cw_popover_delete`).toHaveCount(1);
-    expect(`${container} ${closeButton}`).toHaveCount(1);
+    expect(".o_cw_popover").toHaveCount(1);
+    expect(`.o_cw_popover .o_cw_popover_edit`).toHaveCount(1);
+    expect(`.o_cw_popover .o_cw_popover_delete`).toHaveCount(1);
+    expect(`.o_cw_popover .o_card_popover_close`).toHaveCount(1);
 
-    await contains(`${container} .o_cw_popover_edit`).click();
+    await contains(`.o_cw_popover .o_cw_popover_edit`).click();
     expect(`.modal-body`).toHaveCount(1);
 
     await contains(`.modal-body input:eq(0)`).edit("event 4 modified");
@@ -1298,7 +1262,7 @@ test(`create and change events on mobile`, async () => {
 
     await clickEvent(11);
 
-    expect(`${container} .list-group-item:eq(0)`).toHaveText("December 20-21, 2016 2 days");
+    expect(`.o_cw_popover .o_card_record > div:eq(0)`).toHaveText("December 20-21, 2016\n2 days");
 
     await closeCwPopOver();
 
@@ -1307,7 +1271,7 @@ test(`create and change events on mobile`, async () => {
     await contains(`.o_cw_popover_delete`).click();
     expect(`.modal-title`).toHaveText("Bye-bye, record!");
 
-    await contains(`.modal-footer button.btn-primary`).click();
+    await contains(`.modal-footer button.btn-danger`).click();
     expect(`.o_event[data-event-id="4"]`).toHaveCount(0);
     expect(`.o_event`).toHaveCount(10);
 
@@ -1455,7 +1419,7 @@ test(`create event with timezone in week mode European locale`, async () => {
 
     await clickEvent(1);
     await contains(`.o_cw_popover_delete`).click();
-    await contains(`.modal button.btn-primary`).click();
+    await contains(`.modal button.btn-danger`).click();
     expect(`.fc-event-main`).toHaveCount(0);
 });
 
@@ -1463,8 +1427,8 @@ test(`create multi day event in week mode`, async () => {
     mockTimeZone(2);
 
     patchWithCleanup(CalendarCommonRenderer.prototype, {
-        get options() {
-            return { ...super.options, selectAllow: () => true };
+        get interactiveOptions() {
+            return { ...super.interactiveOptions, selectAllow: () => true };
         },
     });
     await mountView({
@@ -1482,8 +1446,11 @@ test(`default week start (US)`, async () => {
     onRpc("event", "search_read", ({ kwargs }) => {
         expect.step("event.search_read");
         expect(kwargs.domain).toEqual([
+            "&",
             ["start", "<=", "2016-12-18 06:59:59"],
+            "|",
             ["stop", ">=", "2016-12-11 07:00:00"],
+            ["start", ">=", "2016-12-11 07:00:00"],
         ]);
     });
     await mountView({
@@ -1503,8 +1470,11 @@ test(`European week start`, async () => {
     onRpc("event", "search_read", ({ kwargs }) => {
         expect.step("event.search_read");
         expect(kwargs.domain).toEqual([
+            "&",
             ["start", "<=", "2016-12-18 22:59:59"],
+            "|",
             ["stop", ">=", "2016-12-11 23:00:00"],
+            ["start", ">=", "2016-12-11 23:00:00"],
         ]);
     });
     await mountView({
@@ -1547,33 +1517,42 @@ test(`render popover`, async () => {
 
     await clickEvent(2);
     expect(`.o_cw_popover`).toHaveCount(1);
-    expect(`.o_cw_popover .popover-header`).toHaveText("event 2");
+    expect(`.o_cw_popover .o_popover_header`).toHaveText("event 2");
     expect(`.o_cw_popover .o_cw_popover_edit`).toHaveCount(1);
     expect(`.o_cw_popover .o_cw_popover_delete`).toHaveCount(1);
-    expect(`.o_cw_popover .o_cw_popover_close`).toHaveCount(1);
-    expect(`.o_cw_popover .list-group-item:eq(0)`).toHaveText("December 12, 2016");
-    expect(`.o_cw_popover .list-group-item:eq(1)`).toHaveText("11:55 - 15:55 (4 hours)");
-    expect(`.o_cw_popover .o_cw_popover_fields_secondary .list-group-item`).toHaveCount(2);
-    expect(
-        `.o_cw_popover .o_cw_popover_fields_secondary .list-group-item:eq(0) .o_field_char`
-    ).toHaveCount(1);
-    expect(
-        `.o_cw_popover .o_cw_popover_fields_secondary .list-group-item:eq(0) .o_field_char`
-    ).toHaveText("event 2");
-    expect(
-        `.o_cw_popover .o_cw_popover_fields_secondary .list-group-item:eq(0) span.fw-bold`
-    ).toHaveText("Custom Name");
-    expect(
-        `.o_cw_popover .o_cw_popover_fields_secondary .list-group-item:eq(1) .o_form_uri`
-    ).toHaveCount(1);
-    expect(
-        `.o_cw_popover .o_cw_popover_fields_secondary .list-group-item:eq(1) .o_form_uri`
-    ).toHaveText("partner 1");
-    expect(
-        `.o_cw_popover .o_cw_popover_fields_secondary .list-group-item:eq(1) span.fw-bold`
-    ).toHaveText("Partner");
+    expect(`.o_cw_popover .o_card_popover_close`).toHaveCount(1);
+    expect(`.o_cw_popover .o_card_record > div:eq(0)`).toHaveText("December 12, 2016");
+    expect(`.o_cw_popover .o_card_record > div:eq(1)`).toHaveText("11:55 - 15:55\n(4 hours)");
+    expect(`.o_cw_popover .o_card_record > div:eq(2) .o_field_char`).toHaveCount(1);
+    expect(`.o_cw_popover .o_card_record > div:eq(2) .o_field_char`).toHaveText("event 2");
+    expect(`.o_cw_popover .o_card_record > div:eq(2) span.fw-bold`).toHaveText("Custom Name");
+    expect(`.o_cw_popover .o_card_record > div:eq(3) .o_form_uri`).toHaveCount(1);
+    expect(`.o_cw_popover .o_card_record > div:eq(3) .o_form_uri`).toHaveText("partner 1");
+    expect(`.o_cw_popover .o_card_record > div:eq(3) span.fw-bold`).toHaveText("Partner");
 
-    await contains(`.o_cw_popover .o_cw_popover_close`).click();
+    await animationFrame();
+    // Fully visible
+    const popover = document.querySelector(`.o_cw_popover`).getBoundingClientRect();
+    expect(
+        popover.top >= 0 &&
+            popover.left >= 0 &&
+            popover.bottom <= window.innerHeight &&
+            popover.right <= window.innerWidth
+    ).toBe(true);
+    // Displayed nearby its targeted full calendar event
+    const popoverTarget = document
+        .querySelector(`.fc-event[data-event-id='2']`)
+        .getBoundingClientRect();
+    expect(
+        Math.min(
+            Math.abs(popover.top - popoverTarget.bottom),
+            Math.abs(popover.bottom - popoverTarget.top),
+            Math.abs(popover.left - popoverTarget.right),
+            Math.abs(popover.right - popoverTarget.left)
+        )
+    ).toBeLessThan(35);
+
+    await contains(`.o_cw_popover .o_card_popover_close`).click();
     expect(`.o_cw_popover`).toHaveCount(0);
 
     // Drag and drop with opened popover should work and close popover
@@ -1612,16 +1591,16 @@ test(`render popover with modifiers`, async () => {
     expect(`.o_cw_popover li.o_invisible_modifier`).toHaveCount(0);
     expect(`.o_cw_popover .o_field_datetime`).toHaveCount(1);
 
-    await contains(`.o_cw_popover .o_cw_popover_close`).click();
+    await contains(`.o_cw_popover .o_card_popover_close`).click();
     expect(`.o_cw_popover`).toHaveCount(0);
 });
 
 test.tags("desktop");
 test(`render popover: inside fullcalendar popover`, async () => {
     // add 10 records the same day
-    Event._records = Array.from({ length: 10 }).map((_, i) => ({
-        id: i + 1,
-        name: `event ${i + 1}`,
+    Event._records = range(1, 11).map((id) => ({
+        id,
+        name: `event ${id}`,
         start: "2016-12-14 10:00:00",
         stop: "2016-12-14 15:00:00",
         user_id: serverState.userId,
@@ -1743,7 +1722,10 @@ test(`create event with timezone in week mode with formViewDialog`, async () => 
     // use datepicker to enter a date: 12/13/2016 10:00:00
     await contains(`.o_field_widget[name='stop'] button`).click();
     await selectHourOnPicker("10");
-
+    if (isSmall()) {
+        // Close the timepicker
+        await click(".o_bottom_sheet_backdrop");
+    }
     await contains(`.modal-footer .o_form_button_save`).click();
     expect.verifySteps(["web_save"]);
     expect(`.o_event[data-event-id="1"] .o_event_title`).toHaveText("new event");
@@ -1798,7 +1780,7 @@ test(`create event with timezone in week mode American locale`, async () => {
     // delete record
     await clickEvent(1);
     await contains(`.o_cw_popover_delete`).click();
-    await contains(`.modal button.btn-primary`).click();
+    await contains(`.modal button.btn-danger`).click();
     expect(`.fc-event-main`).toHaveCount(0);
 });
 
@@ -1807,8 +1789,11 @@ test(`fetch event when being in timezone`, async () => {
     onRpc("event", "search_read", ({ kwargs }) => {
         expect.step("event.search_read");
         expect(kwargs.domain).toEqual([
+            "&",
             ["start", "<=", "2016-12-17 12:59:59"],
+            "|",
             ["stop", ">=", "2016-12-10 13:00:00"],
+            ["start", ">=", "2016-12-10 13:00:00"],
         ]);
     });
 
@@ -1824,8 +1809,8 @@ test(`fetch event when being in timezone`, async () => {
         `,
     });
     expect.verifySteps(["event.search_read"]);
-    expect(`.fc-col-header-cell .o_cw_day_number:eq(0)`).toHaveText("11");
-    expect(`.fc-col-header-cell .o_cw_day_number:eq(-1)`).toHaveText("17");
+    expect(`.o_calendar_current .fc-col-header-cell .o_cw_day_number:eq(0)`).toHaveText("11");
+    expect(`.o_calendar_current .fc-col-header-cell .o_cw_day_number:eq(-1)`).toHaveText("17");
 });
 
 test(`check calendar week column time format`, async () => {
@@ -2115,7 +2100,10 @@ test(`rendering, with many2many on desktop`, async () => {
 
     await clickEvent(1);
     expect(`.o_cw_popover`).toHaveCount(1);
-    expect(`.o_cw_popover img`).toHaveCount(5);
+    // the card variant of the many2many_tags_avatar widget limits visible avatars to 1,
+    // grouping the rest behind a "+4" overflow badge
+    expect(`.o_cw_popover img`).toHaveCount(1);
+    expect(`.o_cw_popover .o_m2m_avatar_empty`).toHaveText("+4");
 });
 
 test.tags("mobile");
@@ -2141,12 +2129,15 @@ test(`rendering, with many2many on mobile`, async () => {
     await hideCalendarPanel();
     await toggleSectionFilter("attendee_ids");
     await clickEvent(4);
-    expect(".modal").toHaveCount(1);
-    expect(`.modal img`).toHaveCount(1);
+    expect(".o_cw_popover").toHaveCount(1);
+    expect(`.o_cw_popover img`).toHaveCount(1);
     await closeCwPopOver();
     await clickEvent(1);
-    expect(".modal").toHaveCount(1);
-    expect(`.modal img`).toHaveCount(5);
+    expect(".o_cw_popover").toHaveCount(1);
+    // the card variant of the many2many_tags_avatar widget limits visible avatars to 1,
+    // grouping the rest behind a "+4" overflow badge
+    expect(`.o_cw_popover img`).toHaveCount(1);
+    expect(`.o_cw_popover .o_m2m_avatar_empty`).toHaveText("+4");
 });
 
 test.tags("desktop");
@@ -2649,25 +2640,57 @@ test(`dynamic filters with selection fields`, async () => {
     ).toEqual(["Desert", "Forest", "Undefined"]);
 });
 
+test.tags("desktop");
+test(`string is used as label when provided`, async () => {
+    await mountView({
+        resModel: "event",
+        type: "calendar",
+        arch: `
+            <calendar date_start="start" date_stop="stop" all_day="is_all_day" mode="week">
+                <field name="attendee_ids" write_model="filter.partner" write_field="partner_id" filter_field="is_checked" string="Custom Label"/>
+            </calendar>
+        `,
+    });
+    expect(`.o_calendar_filter[data-name="attendee_ids"] .o_cw_filter_label`).toHaveText(
+        "Custom Label"
+    );
+});
+
+test.tags("desktop");
+test(`filter label falls back to field name when string is absent`, async () => {
+    await mountView({
+        resModel: "event",
+        type: "calendar",
+        arch: `
+            <calendar date_start="start" date_stop="stop" all_day="is_all_day" mode="week">
+                <field name="attendee_ids" write_model="filter.partner" write_field="partner_id" filter_field="is_checked"/>
+            </calendar>
+        `,
+    });
+    expect(`.o_calendar_filter[data-name="attendee_ids"] .o_cw_filter_label`).toHaveText(
+        "Attendees"
+    );
+});
+
 test(`Colors: cycling through available colors`, async () => {
-    FilterPartner._records = Array.from({ length: 56 }, (_, i) => ({
-        id: i + 1,
+    FilterPartner._records = range(1, 57).map((id) => ({
+        id,
         user_id: serverState.userId,
-        partner_id: i + 1,
+        partner_id: id,
         is_checked: true,
     }));
-    CalendarPartner._records = Array.from({ length: 56 }, (_, i) => ({
-        id: i + 1,
-        name: `partner ${i + 1}`,
+    CalendarPartner._records = range(1, 57).map((id) => ({
+        id,
+        name: `partner ${id}`,
     }));
-    Event._records = Array.from({ length: 56 }, (_, i) => ({
-        id: i + 1,
+    Event._records = range(1, 57).map((id) => ({
+        id,
         user_id: serverState.userId,
-        partner_id: i + 1,
-        name: `event ${i + 1}`,
-        start: `2016-12-12 0${i % 10}:00:00`,
-        stop: `2016-12-12 0${i % 10}:00:00`,
-        attendee_ids: [i + 1],
+        partner_id: id,
+        name: `event ${id}`,
+        start: `2016-12-12 0${(id - 1) % 10}:00:00`,
+        stop: `2016-12-12 0${(id - 1) % 10}:00:00`,
+        attendee_ids: [id],
     }));
     await mountView({
         resModel: "event",
@@ -3481,7 +3504,7 @@ test(`events starting at midnight on desktop`, async () => {
     await mountView({
         resModel: "event",
         type: "calendar",
-        arch: `<calendar date_start="start" mode="week"/>`,
+        arch: `<calendar date_start="start" date_stop="stop" mode="week"/>`,
     });
 
     // Click on Tuesday 12am
@@ -3501,7 +3524,7 @@ test(`events starting at midnight on mobile`, async () => {
     await mountView({
         resModel: "event",
         type: "calendar",
-        arch: `<calendar date_start="start" mode="week"/>`,
+        arch: `<calendar date_start="start" date_stop="stop" mode="week"/>`,
     });
 
     // Click on Tuesday 12am
@@ -3684,7 +3707,7 @@ test(`set event as all day when field is date`, async () => {
     expect(`.fc-daygrid-body .fc-event`).toHaveCount(1);
 
     await clickEvent(1);
-    expect(`.list-group-item:eq(0)`).toHaveText("December 14, 2016");
+    expect(`.o_card_record > div:eq(0)`).toHaveText("December 14, 2016");
 });
 
 test(`set event as all day when field is date (without all_day mapping)`, async () => {
@@ -3704,17 +3727,17 @@ test(`set event as all day when field is datetime (without all_day mapping)`, as
         type: "calendar",
         arch: `<calendar date_start="start" date_stop="stop" mode="week"/>`,
     });
-    expect(`.fc-daygrid-body .fc-event`).toHaveCount(1, {
+    expect(`.o_calendar_current .fc-daygrid-body .fc-event`).toHaveCount(1, {
         message: "should be one event in the all day row",
     });
 });
 
 test(`quickcreate avoid double event creation`, async () => {
-    const deferred = new Deferred();
+    const deferred = Promise.withResolvers();
 
     onRpc("create", async () => {
         expect.step("create");
-        await deferred;
+        await deferred.promise;
     });
     await mountView({
         resModel: "event",
@@ -3773,7 +3796,7 @@ test(`timezone does not affect drag and drop on desktop`, async () => {
         resModel: "event",
         type: "calendar",
         arch: `
-            <calendar date_start="start" mode="month">
+            <calendar date_start="start" date_stop="stop" mode="month">
                 <field name="name"/>
                 <field name="start"/>
             </calendar>
@@ -3803,14 +3826,6 @@ test(`timezone does not affect drag and drop on desktop`, async () => {
 test.tags("mobile");
 test(`timezone does not affect drag and drop on mobile`, async () => {
     mockTimeZone(-40);
-    patchWithCleanup(CalendarRenderer.prototype, {
-        get actionSwiperProps() {
-            const props = super.actionSwiperProps;
-            props.onLeftSwipe = undefined;
-            props.onRightSwipe = undefined;
-            return props;
-        },
-    });
     onRpc("write", ({ args }) => {
         expect.step("write");
         expect(args[0]).toEqual([6]);
@@ -3820,7 +3835,7 @@ test(`timezone does not affect drag and drop on mobile`, async () => {
         resModel: "event",
         type: "calendar",
         arch: `
-            <calendar date_start="start" mode="month">
+            <calendar date_start="start" date_stop="stop" mode="month">
                 <field name="name"/>
                 <field name="start"/>
             </calendar>
@@ -3878,9 +3893,7 @@ test(`timezone does not affect calendar with date field on desktop`, async () =>
 
     await clickEvent(8);
     expect(`.o_cw_popover`).toHaveCount(1);
-    expect(
-        `.o_cw_popover .o_cw_popover_fields_secondary .list-group-item .o_field_date`
-    ).toHaveText("Dec 20");
+    expect(`.o_cw_popover .o_card_record .o_field_date`).toHaveText("Dec 20");
 
     await closeCwPopOver();
     await moveEventToDate(8, "2016-11-27");
@@ -3888,23 +3901,13 @@ test(`timezone does not affect calendar with date field on desktop`, async () =>
 
     await clickEvent(8);
     expect(`.o_cw_popover`).toHaveCount(1);
-    expect(
-        `.o_cw_popover .o_cw_popover_fields_secondary .list-group-item .o_field_date`
-    ).toHaveText("Nov 27");
+    expect(`.o_cw_popover .o_card_record .o_field_date`).toHaveText("Nov 27");
 });
 
 test.tags("mobile");
 test(`timezone does not affect calendar with date field on mobile`, async () => {
     Event._fields.start_date = fields.Date();
     mockTimeZone(2);
-    patchWithCleanup(CalendarRenderer.prototype, {
-        get actionSwiperProps() {
-            const props = super.actionSwiperProps;
-            props.onLeftSwipe = undefined;
-            props.onRightSwipe = undefined;
-            return props;
-        },
-    });
     onRpc("create", ({ args }) => {
         expect.step(`create ${args[0][0].start_date}`);
     });
@@ -3928,20 +3931,16 @@ test(`timezone does not affect calendar with date field on mobile`, async () => 
     expect.verifySteps(["create 2016-12-20"]);
 
     await clickEvent(8);
-    expect(`.modal`).toHaveCount(1);
-    expect(`.modal .o_cw_popover_fields_secondary .list-group-item .o_field_date`).toHaveText(
-        "Dec 20"
-    );
+    expect(`.o_cw_popover`).toHaveCount(1);
+    expect(`.o_cw_popover .o_card_record .o_field_date`).toHaveText("Dec 20");
 
     await closeCwPopOver();
     await moveEventToDate(8, "2016-11-27");
     expect.verifySteps(["write 2016-11-27"]);
 
     await clickEvent(8);
-    expect(`.modal`).toHaveCount(1);
-    expect(`.modal .o_cw_popover_fields_secondary .list-group-item .o_field_date`).toHaveText(
-        "Nov 27"
-    );
+    expect(`.o_cw_popover`).toHaveCount(1);
+    expect(`.o_cw_popover .o_card_record .o_field_date`).toHaveText("Nov 27");
 });
 
 test(`drag and drop on month mode`, async () => {
@@ -3960,11 +3959,11 @@ test(`drag and drop on month mode`, async () => {
     await contains(`.modal-body .o_field_widget[name=name] input`).edit("An event");
     await contains(`.modal .o_form_button_save`).click();
     await moveEventToDate(1, "2016-12-19", { disableDrop: true });
-    expect(`.o_event[data-event-id="1"]`).toHaveClass("dayGridMonth");
+    expect(`.o_event[data-event-id="1"].fc-event-dragging`).toHaveClass("dayGridMonth");
 
     await moveEventToDate(8, "2016-12-19");
     await clickEvent(8);
-    expect(`.list-group-item:eq(1)`).toHaveText("07:00 - 19:00 (12 hours)");
+    expect(`.o_card_record > div:eq(1)`).toHaveText("07:00 - 19:00\n(12 hours)");
 });
 
 test(`drag and drop on month mode with all_day mapping`, async () => {
@@ -3981,7 +3980,6 @@ test(`drag and drop on month mode with all_day mapping`, async () => {
             </calendar>
         `,
     });
-
     await clickDate("2016-12-20");
     await contains(`.o_field_widget[name="name"] input`).edit("An event");
     await contains(`.o_field_widget[name="is_all_day"] input`).click();
@@ -3989,38 +3987,21 @@ test(`drag and drop on month mode with all_day mapping`, async () => {
     // use datepicker to enter a date: 12/20/2016 07:00:00
     await contains(`.o_field_widget[name="start"] button`).click();
     await selectHourOnPicker("7:00");
+    if (isSmall()) {
+        await click(".o_bottom_sheet_backdrop");
+    }
 
     // use datepicker to enter a date: 12/20/2016 19:00:00
     await contains(`.o_field_widget[name="stop"] button`).click();
     await selectHourOnPicker("19:00");
+    if (isSmall()) {
+        await click(".o_bottom_sheet_backdrop");
+    }
+
     await contains(`.modal .o_form_button_save`).click();
     await moveEventToDate(8, "2016-12-19");
     await clickEvent(8);
-    expect(`.list-group-item:eq(1)`).toHaveText("07:00 - 19:00 (12 hours)");
-});
-
-test(`drag and drop on month mode with date_start and date_delay`, async () => {
-    onRpc("write", ({ args }) => {
-        expect.step("write");
-        expect(args[1].delay).toBe(undefined);
-    });
-    await mountView({
-        resModel: "event",
-        type: "calendar",
-        arch: `
-            <calendar date_start="start" date_delay="delay" mode="month">
-                <field name="name"/>
-                <field name="start"/>
-                <field name="delay"/>
-            </calendar>
-        `,
-    });
-
-    await clickDate("2016-12-20");
-    await contains(`.o-calendar-quick-create--input`).edit("An event", { confirm: false });
-    await contains(`.o-calendar-quick-create--create-btn`).click();
-    await moveEventToDate(8, "2016-11-27");
-    expect.verifySteps(["write"]);
+    expect(`.o_card_record > div:eq(1)`).toHaveText("07:00 - 19:00\n(12 hours)");
 });
 
 test(`form_view_id attribute works (for creating events)`, async () => {
@@ -4127,7 +4108,7 @@ test(`fullcalendar initializes with right locale`, async () => {
         type: "calendar",
         arch: `<calendar date_start="start" date_stop="stop" mode="week"/>`,
     });
-    expect(queryAllTexts`.fc-col-header-cell`).toEqual([
+    expect(queryAllTexts`.o_calendar_current .fc-col-header-cell`).toEqual([
         "DIM.\n11",
         "LUN.\n12",
         "MAR.\n13",
@@ -4156,8 +4137,8 @@ test(`initial_date given in the context`, async () => {
     await mountWithCleanup(WebClient);
     await getService("action").doAction(1);
     expect(`.o_breadcrumb`).toHaveText("context initial date");
-    expect(`.o_calendar_renderer .fc-col-header-cell .o_cw_day_name`).toHaveText("Saturday");
-    expect(`.o_calendar_renderer .fc-col-header-cell .o_cw_day_number`).toHaveText("30");
+    expect(`.o_calendar_current .fc-col-header-cell .o_cw_day_name`).toHaveText("Saturday");
+    expect(`.o_calendar_current .fc-col-header-cell .o_cw_day_number`).toHaveText("30");
 });
 
 test.tags("desktop");
@@ -4168,8 +4149,11 @@ test(`default week start (US) month mode on desktop`, async () => {
     onRpc("event", "search_read", ({ kwargs }) => {
         expect.step("event.search_read");
         expect(kwargs.domain).toEqual([
+            "&",
             ["start", "<=", "2019-10-13 06:59:59"],
+            "|",
             ["stop", ">=", "2019-09-01 07:00:00"],
+            ["start", ">=", "2019-09-01 07:00:00"],
         ]);
     });
     await mountView({
@@ -4195,8 +4179,11 @@ test(`default week start (US) month mode on mobile`, async () => {
     onRpc("event", "search_read", ({ kwargs }) => {
         expect.step("event.search_read");
         expect(kwargs.domain).toEqual([
+            "&",
             ["start", "<=", "2019-10-13 06:59:59"],
+            "|",
             ["stop", ">=", "2019-09-01 07:00:00"],
+            ["start", ">=", "2019-09-01 07:00:00"],
         ]);
     });
     await mountView({
@@ -4205,13 +4192,13 @@ test(`default week start (US) month mode on mobile`, async () => {
         arch: `<calendar date_start="start" date_stop="stop" mode="month"/>`,
     });
     expect.verifySteps(["event.search_read"]);
-    expect(`.fc-col-header-cell .o_cw_day_name:eq(0)`).toHaveText("SUN");
-    expect(`.fc-col-header-cell .o_cw_day_name:eq(-1)`).toHaveText("SAT");
-    expect(`.o-fc-week:eq(0)`).toHaveText("36");
-    expect(`.fc-daygrid-day:eq(0) .fc-daygrid-day-number`).toHaveText("1");
-    expect(`.fc-daygrid-day:eq(0)`).toHaveAttribute("data-date", "2019-09-01");
-    expect(`.fc-daygrid-day:eq(-1) .fc-daygrid-day-number`).toHaveText("5");
-    expect(`.fc-daygrid-day:eq(-1)`).toHaveAttribute("data-date", "2019-10-05");
+    expect(`.o_calendar_current .fc-col-header-cell .o_cw_day_name:eq(0)`).toHaveText("SUN");
+    expect(`.o_calendar_current .fc-col-header-cell .o_cw_day_name:eq(-1)`).toHaveText("SAT");
+    expect(`.o_calendar_current .o-fc-week:eq(0)`).toHaveText("36");
+    expect(`.o_calendar_current .fc-daygrid-day:eq(0) .fc-daygrid-day-number`).toHaveText("1");
+    expect(`.o_calendar_current .fc-daygrid-day:eq(0)`).toHaveAttribute("data-date", "2019-09-01");
+    expect(`.o_calendar_current .fc-daygrid-day:eq(-1) .fc-daygrid-day-number`).toHaveText("5");
+    expect(`.o_calendar_current .fc-daygrid-day:eq(-1)`).toHaveAttribute("data-date", "2019-10-05");
 });
 
 test.tags("desktop");
@@ -4223,8 +4210,11 @@ test(`European week start month mode on chat`, async () => {
     onRpc("event", "search_read", ({ kwargs }) => {
         expect.step("event.search_read");
         expect(kwargs.domain).toEqual([
+            "&",
             ["start", "<=", "2019-10-06 22:59:59"],
+            "|",
             ["stop", ">=", "2019-08-25 23:00:00"],
+            ["start", ">=", "2019-08-25 23:00:00"],
         ]);
     });
     await mountView({
@@ -4251,8 +4241,11 @@ test(`European week start month mode on mobile`, async () => {
     onRpc("event", "search_read", ({ kwargs }) => {
         expect.step("event.search_read");
         expect(kwargs.domain).toEqual([
+            "&",
             ["start", "<=", "2019-10-06 22:59:59"],
+            "|",
             ["stop", ">=", "2019-08-25 23:00:00"],
+            ["start", ">=", "2019-08-25 23:00:00"],
         ]);
     });
     await mountView({
@@ -4261,13 +4254,13 @@ test(`European week start month mode on mobile`, async () => {
         arch: `<calendar date_start="start" date_stop="stop" mode="month"/>`,
     });
     expect.verifySteps(["event.search_read"]);
-    expect(`.fc-col-header-cell .o_cw_day_name:eq(0)`).toHaveText("MON");
-    expect(`.fc-col-header-cell .o_cw_day_name:eq(-1)`).toHaveText("SUN");
-    expect(`.o-fc-week:eq(0)`).toHaveText("35");
-    expect(`.fc-daygrid-day:eq(0) .fc-daygrid-day-number`).toHaveText("26");
-    expect(`.fc-daygrid-day:eq(0)`).toHaveAttribute("data-date", "2019-08-26");
-    expect(`.fc-daygrid-day:eq(-1) .fc-daygrid-day-number`).toHaveText("6");
-    expect(`.fc-daygrid-day:eq(-1)`).toHaveAttribute("data-date", "2019-10-06");
+    expect(`.o_calendar_current .fc-col-header-cell .o_cw_day_name:eq(0)`).toHaveText("MON");
+    expect(`.o_calendar_current .fc-col-header-cell .o_cw_day_name:eq(-1)`).toHaveText("SUN");
+    expect(`.o_calendar_current .o-fc-week:eq(0)`).toHaveText("35");
+    expect(`.o_calendar_current .fc-daygrid-day:eq(0) .fc-daygrid-day-number`).toHaveText("26");
+    expect(`.o_calendar_current .fc-daygrid-day:eq(0)`).toHaveAttribute("data-date", "2019-08-26");
+    expect(`.o_calendar_current .fc-daygrid-day:eq(-1) .fc-daygrid-day-number`).toHaveText("6");
+    expect(`.o_calendar_current .fc-daygrid-day:eq(-1)`).toHaveAttribute("data-date", "2019-10-06");
 });
 
 test.tags("desktop");
@@ -4279,8 +4272,11 @@ test(`Monday week start week mode on desktop`, async () => {
     onRpc("event", "search_read", ({ kwargs }) => {
         expect.step("event.search_read");
         expect(kwargs.domain).toEqual([
+            "&",
             ["start", "<=", "2019-09-15 22:59:59"],
+            "|",
             ["stop", ">=", "2019-09-08 23:00:00"],
+            ["start", ">=", "2019-09-08 23:00:00"],
         ]);
     });
     await mountView({
@@ -4299,6 +4295,7 @@ test(`Monday week start week mode on desktop`, async () => {
 
 test.tags("mobile");
 test(`Monday week start week mode on mobile`, async () => {
+    enableLoadSurroundingsInTest();
     mockDate("2019-09-15 08:00:00");
     // the week start depends on the locale
     defineParams({ lang_parameters: { week_start: 1 } });
@@ -4306,8 +4303,11 @@ test(`Monday week start week mode on mobile`, async () => {
     onRpc("event", "search_read", ({ kwargs }) => {
         expect.step("event.search_read");
         expect(kwargs.domain).toEqual([
-            ["start", "<=", "2019-09-15 22:59:59"],
-            ["stop", ">=", "2019-09-08 23:00:00"],
+            "&",
+            ["start", "<=", "2019-09-22 22:59:59"],
+            "|",
+            ["stop", ">=", "2019-09-01 23:00:00"],
+            ["start", ">=", "2019-09-01 23:00:00"],
         ]);
     });
     await mountView({
@@ -4316,12 +4316,12 @@ test(`Monday week start week mode on mobile`, async () => {
         arch: `<calendar date_start="start" date_stop="stop" mode="week"/>`,
     });
     expect.verifySteps(["event.search_read"]);
-    expect(`.fc-timeGridWeek-view .fc-daygrid-body`).toHaveCount(1);
-    expect(`.fc-col-header-cell .o_cw_day_name:eq(0)`).toHaveText("MON");
-    expect(`.fc-col-header-cell .o_cw_day_number:eq(0)`).toHaveText("9");
-    expect(`.fc-col-header-cell .o_cw_day_name:eq(-1)`).toHaveText("SUN");
-    expect(`.fc-col-header-cell .o_cw_day_number:eq(-1)`).toHaveText("15");
-    expect(`.fc-timegrid-axis-cushion:eq(0)`).toHaveText("37");
+    expect(`.o_calendar_current .fc-timeGridWeek-view .fc-daygrid-body`).toHaveCount(1);
+    expect(`.o_calendar_current .fc-col-header-cell .o_cw_day_name:eq(0)`).toHaveText("MON");
+    expect(`.o_calendar_current .fc-col-header-cell .o_cw_day_number:eq(0)`).toHaveText("9");
+    expect(`.o_calendar_current .fc-col-header-cell .o_cw_day_name:eq(-1)`).toHaveText("SUN");
+    expect(`.o_calendar_current .fc-col-header-cell .o_cw_day_number:eq(-1)`).toHaveText("15");
+    expect(`.o_calendar_current .fc-timegrid-axis-cushion:eq(0)`).toHaveText("37");
     expect(`.o_calendar_header .badge`).toHaveText("Week 37");
 });
 
@@ -4334,8 +4334,11 @@ test(`Saturday week start week mode on desktop`, async () => {
     onRpc("event", "search_read", ({ kwargs }) => {
         expect.step("event.search_read");
         expect(kwargs.domain).toEqual([
+            "&",
             ["start", "<=", "2019-09-13 22:59:59"],
+            "|",
             ["stop", ">=", "2019-09-06 23:00:00"],
+            ["start", ">=", "2019-09-06 23:00:00"],
         ]);
     });
     await mountView({
@@ -4361,8 +4364,11 @@ test(`Saturday week start week mode on mobile`, async () => {
     onRpc("event", "search_read", ({ kwargs }) => {
         expect.step("event.search_read");
         expect(kwargs.domain).toEqual([
+            "&",
             ["start", "<=", "2019-09-13 22:59:59"],
+            "|",
             ["stop", ">=", "2019-09-06 23:00:00"],
+            ["start", ">=", "2019-09-06 23:00:00"],
         ]);
     });
     await mountView({
@@ -4371,12 +4377,12 @@ test(`Saturday week start week mode on mobile`, async () => {
         arch: `<calendar date_start="start" date_stop="stop" mode="week"/>`,
     });
     expect.verifySteps(["event.search_read"]);
-    expect(`.fc-timeGridWeek-view .fc-daygrid-body`).toHaveCount(1);
-    expect(`.fc-col-header-cell .o_cw_day_name:eq(0)`).toHaveText("SAT");
-    expect(`.fc-col-header-cell .o_cw_day_number:eq(0)`).toHaveText("7");
-    expect(`.fc-col-header-cell .o_cw_day_name:eq(-1)`).toHaveText("FRI");
-    expect(`.fc-col-header-cell .o_cw_day_number:eq(-1)`).toHaveText("13");
-    expect(`.fc-timegrid-axis-cushion:eq(0)`).toHaveText("37");
+    expect(`.o_calendar_current .fc-timeGridWeek-view .fc-daygrid-body`).toHaveCount(1);
+    expect(`.o_calendar_current .fc-col-header-cell .o_cw_day_name:eq(0)`).toHaveText("SAT");
+    expect(`.o_calendar_current .fc-col-header-cell .o_cw_day_number:eq(0)`).toHaveText("7");
+    expect(`.o_calendar_current .fc-col-header-cell .o_cw_day_name:eq(-1)`).toHaveText("FRI");
+    expect(`.o_calendar_current .fc-col-header-cell .o_cw_day_number:eq(-1)`).toHaveText("13");
+    expect(`.o_calendar_current .fc-timegrid-axis-cushion:eq(0)`).toHaveText("37");
     expect(`.o_calendar_header .badge`).toHaveText("Week 37");
 });
 
@@ -4394,8 +4400,11 @@ test(`Monday week start year mode`, async () => {
     onRpc("event", "search_read", ({ kwargs }) => {
         expect.step("event.search_read");
         expect(kwargs.domain).toEqual([
+            "&",
             ["start", "<=", "2019-12-31 22:59:59"],
+            "|",
             ["stop", ">=", "2018-12-31 23:00:00"],
+            ["start", ">=", "2018-12-31 23:00:00"],
         ]);
     });
     await mountView({
@@ -4430,8 +4439,11 @@ test(`Sunday week start year mode`, async () => {
     onRpc("event", "search_read", ({ kwargs }) => {
         expect.step("event.search_read");
         expect(kwargs.domain).toEqual([
+            "&",
             ["start", "<=", "2019-12-31 22:59:59"],
+            "|",
             ["stop", ">=", "2018-12-31 23:00:00"],
+            ["start", ">=", "2018-12-31 23:00:00"],
         ]);
     });
     await mountView({
@@ -4466,14 +4478,12 @@ test(`edit record and attempt to create a record with "create" attribute set to 
     // editing existing events should still be possible
     // click on an existing event to open the formViewDialog
     await clickEvent(4);
-    const popover = getMockEnv().isSmall ? ".modal" : ".o_cw_popover";
-    const closeButton = getMockEnv().isSmall ? ".oi-arrow-left" : ".o_cw_popover_close";
-    expect(popover).toHaveCount(1);
-    expect(`${popover} .o_cw_popover_edit`).toHaveCount(1);
-    expect(`${popover} .o_cw_popover_delete`).toHaveCount(1);
-    expect(`${popover} ${closeButton}`).toHaveCount(1);
+    expect(".o_cw_popover").toHaveCount(1);
+    expect(`.o_cw_popover .o_cw_popover_edit`).toHaveCount(1);
+    expect(`.o_cw_popover .o_cw_popover_delete`).toHaveCount(1);
+    expect(`.o_cw_popover .o_card_popover_close`).toHaveCount(1);
 
-    await contains(`${popover} .o_cw_popover_edit`).click();
+    await contains(`.o_cw_popover .o_cw_popover_edit`).click();
     expect(`.modal-body`).toHaveCount(1);
 
     await contains(`.modal-body input`).edit("event 4 modified");
@@ -4536,32 +4546,47 @@ test(`attempt to create multiples events and the same day and check the ordering
         type: "calendar",
         arch: `<calendar date_start="start" date_stop="stop" all_day="is_all_day" mode="month"/>`,
     });
-    expect(`.o_calendar_renderer .fc-view`).toHaveCount(1);
+    expect(`.o_calendar_current .fc-view`).toHaveCount(1);
     expect(queryAllTexts`.o_event_title`).toEqual(["First event", "Second event", "Third event"]);
 });
 
 test.tags("desktop");
-test(`Resizing Pill of Multiple Days(Allday)`, async () => {
-    onRpc("web_save", ({ args }) => {
-        expect.step("web_save");
-        expect(args[1]).toEqual({
+test(`Resizing Pill of Multiple Days on month mode`, async () => {
+    mockDate("2016-12-12 08:00:00");
+
+    // midnight to midnight, in the timezone of the user
+    const midnightStart = luxon.DateTime.local(2016, 12, 13, 0, 0, 0).setZone("utc");
+    const midnightStop = luxon.DateTime.local(2016, 12, 14, 0, 0, 0).setZone("utc");
+
+    Event._records = [
+        {
+            id: 1,
             is_all_day: true,
-            name: "foobar",
+            name: "All-day midnight",
             start: "2016-12-13 00:00:00",
             start_date: false,
             stop: "2016-12-14 00:00:00",
             stop_date: false,
-        });
-    });
-
-    onRpc("write", ({ args }) => {
-        expect.step("write");
-        expect(args[1]).toEqual({
-            is_all_day: true,
-            start: "2016-12-13",
-            stop: "2016-12-16",
-        });
-    });
+        },
+        {
+            id: 2,
+            name: "Datetime midnight",
+            is_all_day: false,
+            start: midnightStart.toFormat("yyyy-MM-dd HH:mm:ss"),
+            start_date: false,
+            stop: midnightStop.toFormat("yyyy-MM-dd HH:mm:ss"),
+            stop_date: false,
+        },
+        {
+            id: 3,
+            name: "Datetime specific time",
+            is_all_day: false,
+            start: "2016-12-13 20:30:20",
+            start_date: false,
+            stop: "2016-12-15 12:18:30",
+            stop_date: false,
+        },
+    ];
 
     await mountView({
         resModel: "event",
@@ -4569,16 +4594,64 @@ test(`Resizing Pill of Multiple Days(Allday)`, async () => {
         arch: `<calendar event_open_popup="1" quick_create="0" date_start="start" date_stop="stop" all_day="is_all_day" mode="month"/>`,
     });
 
-    await selectDateRange("2016-12-13", "2016-12-14");
-    await contains(`.modal .o_field_widget[name="name"] input`).edit("foobar", { confirm: false });
-    await contains(`.modal .o_form_button_save`).click();
-    expect.verifySteps(["web_save"]);
+    // extend event left and right, expect that it will start and end on those dates
+    await resizeEventToDate(1, "2016-12-12", true);
+    await resizeEventToDate(1, "2016-12-16", false);
+    let eventEl = queryFirst('.o_event[data-event-id="1"]');
+    expect(eventEl).toHaveText("All-day midnight");
+    let { is_all_day, start, stop } = MockServer.env["event"].read(1)[0];
+    expect(is_all_day).toEqual(true);
+    expect(start).toEqual("2016-12-12");
+    expect(stop).toEqual("2016-12-16");
+    eventEl = queryFirst('.o_event[data-event-id="1"]');
+    expect(eventEl.closest("[data-date]").dataset.date).toBe("2016-12-12");
+    const { width: eventElFullWeekWidth } = queryRect(eventEl);
+    // resize down to 1 day, should remain allday
+    await resizeEventToDate(1, "2016-12-12", false);
+    ({ is_all_day, start, stop } = MockServer.env["event"].read(1)[0]);
+    expect(is_all_day).toEqual(true);
+    expect(start).toEqual("2016-12-12");
+    expect(stop).toEqual("2016-12-12");
 
-    await resizeEventToDate(8, "2016-12-16");
-    const event = queryFirst`.o_event[data-event-id="8"]`;
-    expect(event).toHaveText("foobar");
-    expect(event.closest(".fc-daygrid-day")).not.toBeEmpty();
-    expect.verifySteps(["write"]);
+    // extend event left and right, expect that it will end on the day following the end and not become allday
+    await resizeEventToDate(2, "2016-12-12", true);
+    await resizeEventToDate(2, "2016-12-16", false);
+    eventEl = queryFirst('.o_event[data-event-id="2"]');
+    expect(eventEl).toHaveText("Datetime midnight");
+    ({ is_all_day, start, stop } = MockServer.env["event"].read(2)[0]);
+    expect(is_all_day).toEqual(false);
+    expect(start).toEqual(midnightStart.minus({ days: 1 }).toFormat("yyyy-MM-dd HH:mm:ss"));
+    // as it ends at midnight in the UI, it effectively shows up as ending on the 13th rather than 14th
+    // hence from the UI the event actually gets extended from the 13th to the 16th (in reality 14th 00:00 to 17th 00:00)
+    expect(stop).toEqual(midnightStop.plus({ days: 3 }).toFormat("yyyy-MM-dd HH:mm:ss"));
+    eventEl = queryFirst('.o_event[data-event-id="2"]');
+    expect(eventEl.closest("[data-date]").dataset.date).toBe("2016-12-12");
+    expect(queryRect(eventEl).width).toBe(eventElFullWeekWidth);
+    // resize down to 1 day, expect to remain exactly 24-hours long and still not allday
+    await resizeEventToDate(2, "2016-12-12", false);
+    ({ is_all_day, start, stop } = MockServer.env["event"].read(2)[0]);
+    expect(is_all_day).toEqual(false);
+    expect(start).toEqual(midnightStart.minus({ days: 1 }).toFormat("yyyy-MM-dd HH:mm:ss"));
+    expect(stop).toEqual(midnightStart.toFormat("yyyy-MM-dd HH:mm:ss"));
+
+    // extend event left and right, expect that it will start and end on those dates keeping its existing start and stop time
+    await resizeEventToDate(3, "2016-12-12", true);
+    await resizeEventToDate(3, "2016-12-16", false);
+    eventEl = queryFirst('.o_event[data-event-id="3"]');
+    expect(eventEl).toHaveText("Datetime specific time");
+    ({ is_all_day, start, stop } = MockServer.env["event"].read(3)[0]);
+    expect(is_all_day).toEqual(false);
+    expect(start).toEqual("2016-12-12 20:30:00");
+    expect(stop).toEqual("2016-12-16 12:18:00");
+    eventEl = queryFirst('.o_event[data-event-id="3"]');
+    expect(eventEl.closest("[data-date]").dataset.date).toBe("2016-12-12");
+    expect(queryRect(eventEl).width).toBe(eventElFullWeekWidth);
+    // resize down to 1 day, expect the end time will be set the same day
+    await resizeEventToDate(3, "2016-12-12", false);
+    ({ is_all_day, start, stop } = MockServer.env["event"].read(3)[0]);
+    expect(is_all_day).toEqual(false);
+    expect(start).toEqual("2016-12-12 20:30:00");
+    expect(stop).toEqual("2016-12-12 12:18:00");
 });
 
 test.tags("desktop");
@@ -4700,6 +4773,14 @@ test(`correctly display year view`, async () => {
 });
 
 test(`toggle filters in year view`, async () => {
+    patchWithCleanup(CalendarRenderer.prototype, {
+        get actionSwiperProps() {
+            return {
+                animationType: "forwards",
+                enabledDuration: 0,
+            };
+        },
+    });
     await mountView({
         resModel: "event",
         type: "calendar",
@@ -4811,12 +4892,11 @@ test(`click outside the popup should close it`, async () => {
 });
 
 test(`fields are added in the right order in popover`, async () => {
-    const deferred = new Deferred();
+    const deferred = Promise.withResolvers();
     class DeferredWidget extends Component {
         static template = xml``;
-        static props = ["*"];
         setup() {
-            onWillStart(() => deferred);
+            onWillStart(() => deferred.promise);
         }
     }
     registry.category("fields").add("deferred_widget", { component: DeferredWidget });
@@ -4833,13 +4913,13 @@ test(`fields are added in the right order in popover`, async () => {
     });
 
     await clickEvent(4);
-    const popover = getMockEnv().isSmall ? ".modal" : ".o_cw_popover";
-    expect(popover).toHaveCount(0);
+    expect(".o_cw_popover").toHaveCount(0);
 
     deferred.resolve();
     await animationFrame();
-    expect(popover).toHaveCount(1);
-    expect(`${popover} .o_cw_popover_fields_secondary`).toHaveText("User\nName\nevent 4");
+    expect(".o_cw_popover").toHaveCount(1);
+    expect(`.o_cw_popover .o_card_record > div:eq(1)`).toHaveText("User");
+    expect(`.o_cw_popover .o_card_record > div:eq(2)`).toHaveText("Name\nevent 4");
 });
 
 test(`select events and discard create`, async () => {
@@ -4848,7 +4928,7 @@ test(`select events and discard create`, async () => {
         type: "calendar",
         arch: `<calendar event_open_popup="1" date_start="start" date_stop="stop" all_day="is_all_day" mode="year"/>`,
     });
-    expect(`.fc-dayGridMonth-view`).toHaveCount(12);
+    expect(`.o_calendar_current .fc-dayGridMonth-view`).toHaveCount(12);
 
     await selectDateRange("2016-11-13", "2016-11-19");
     expect(`.o-calendar-quick-create`).toHaveCount(1);
@@ -4926,8 +5006,7 @@ test(`popover ignores readonly field modifier`, async () => {
 
     await clickEvent(4);
     // test would fail here if we don't ignore readonly modifier
-    const popover = getMockEnv().isSmall ? ".modal" : ".o_cw_popover";
-    expect(popover).toHaveCount(1);
+    expect(".o_cw_popover").toHaveCount(1);
 });
 
 test.tags("desktop");
@@ -4942,8 +5021,7 @@ test(`calendar with option show_date_picker set to false and no filter`, async (
         `,
     });
     expect(`.o_datetime_picker`).toHaveCount(0);
-    expect(`.o_calendar_sidebar`).toHaveCount(0);
-    expect(`.o_sidebar_toggler`).toHaveCount(0);
+    expect(`.o_calendar_sidepanel`).toHaveCount(0);
 });
 
 test.tags("desktop");
@@ -4959,8 +5037,11 @@ test(`calendar with option show_date_picker set to false and filters`, async () 
         `,
     });
     expect(`.o_datetime_picker`).toHaveCount(0);
-    expect(`.o_calendar_sidebar`).toHaveCount(1);
-    expect(`.o_sidebar_toggler`).toHaveCount(1);
+    expect(`.o_calendar_sidepanel`).toHaveCount(1);
+    await contains('.o_calendar_sidebar_controller button[title="Toggle Side Panel"]').click();
+    expect(`.o_calendar_sidepanel`).toHaveCount(0);
+    expect(`.o_calendar_sidebar_controller`).toHaveCount(1);
+    expect(`.o_calendar_sidebar_controller`).toHaveText("Partner");
 });
 
 test(`calendar with option month_overflow not set (default)`, async () => {
@@ -4986,6 +5067,7 @@ test(`calendar with option month_overflow not set (default)`, async () => {
     onRpc("search_read", ({ kwargs }) => {
         expect.step("search_read");
         expect(kwargs.domain).toEqual([
+            "&",
             ["start", "<=", "2017-01-07 22:59:59"],
             ["start", ">=", "2016-11-26 23:00:00"],
         ]);
@@ -5035,6 +5117,7 @@ test(`calendar with option month_overflow set to false`, async () => {
     onRpc("search_read", ({ kwargs }) => {
         expect.step("search_read");
         expect(kwargs.domain).toEqual([
+            "&",
             ["start", "<=", "2016-12-31 22:59:59"],
             ["start", ">=", "2016-11-30 23:00:00"],
         ]);
@@ -5049,7 +5132,7 @@ test(`calendar with option month_overflow set to false`, async () => {
         `,
     });
     expect(".o_event").toHaveCount(1);
-    expect(".fc-day-disabled").toHaveCount(4);
+    expect(".o_calendar_current .fc-day-disabled").toHaveCount(4);
     expect.verifySteps(["search_read"]);
 });
 
@@ -5166,17 +5249,11 @@ test(`calendar render properties in popover`, async () => {
     });
 
     await clickEvent(1);
-    const popover = getMockEnv().isSmall ? ".modal" : ".o_popover";
-    // Labels:
-    expect(queryAllTexts(`${popover} .o_calendar_property_field span.fw-bold`)).toEqual([
-        "My Char",
-        "My Selection",
-    ]);
+    // Only the 2 properties with view_in_cards=true are shown ("property_3" is hidden):
+    expect(`.o_popover .o_card_property_field`).toHaveCount(2);
     // Values:
-    expect(queryAllTexts(`${popover} .o_calendar_property_field div.text-truncate`)).toEqual([
-        "hello",
-        "B",
-    ]);
+    expect(`.o_popover .o_card_property_field:eq(0) span`).toHaveText("hello");
+    expect(`.o_popover .o_card_property_field:eq(1) span`).toHaveText("B");
 });
 
 test(`calendar create record with default properties`, async () => {
@@ -5229,31 +5306,70 @@ test(`calendar show past events with background blur`, async () => {
 });
 
 test.tags("desktop");
-test(`calendar sidebar state is saved on session storage`, async () => {
-    patchWithCleanup(sessionStorage, {
+test(`calendar sidepanel can be collapsed/expanded`, async () => {
+    patchWithCleanup(localStorage, {
         setItem(key, value) {
-            if (key === "calendar.showSideBar") {
-                expect.step(`${key}-${value}`);
+            if (key.startsWith("calendar_sidepanel_expanded")) {
+                expect.step(["setItem", key, value]);
             }
-        },
-        getItem(key) {
-            if (key === "calendar.showSideBar") {
-                expect.step(`${key}-read`);
-                return false;
-            }
+            super.setItem(...arguments);
         },
     });
-
     await mountView({
         resModel: "event",
         type: "calendar",
         arch: `<calendar date_start="start" mode="week"/>`,
     });
-    expect(`.o_calendar_sidebar`).toHaveCount(0);
+    expect(`.o_calendar_sidepanel`).toHaveCount(1);
+    await contains(`.o_calendar_sidebar_controller button`).click();
+    expect(`.o_calendar_sidepanel`).toHaveCount(0);
+    expect.verifySteps([["setItem", "calendar_sidepanel_expanded,-1,false", false]]);
+    await contains(`.o_calendar_sidebar_controller button`).click();
+    expect(`.o_calendar_sidepanel`).toHaveCount(1);
+    expect.verifySteps([["setItem", "calendar_sidepanel_expanded,-1,false", true]]);
+});
 
-    await contains(`.o_sidebar_toggler .oi-panel-right`).click();
-    expect(`.o_calendar_sidebar`).toHaveCount(1);
-    expect.verifySteps(["calendar.showSideBar-read", "calendar.showSideBar-true"]);
+test.tags("desktop");
+test(`calendar sidepanel can be collapsed by default if it was set in local storage beforehand`, async () => {
+    localStorage.setItem("calendar_sidepanel_expanded,-1,false", false);
+    await mountView({
+        resModel: "event",
+        type: "calendar",
+        arch: `<calendar date_start="start" mode="week"/>`,
+    });
+    expect(`.o_calendar_sidepanel`).toHaveCount(0);
+});
+
+test.tags("desktop");
+test("calendar sidebar reacts to isSmall changes", async () => {
+    await mountView({
+        resModel: "event",
+        type: "calendar",
+        arch: `<calendar date_start="start" mode="week"/>`,
+    });
+    expect(".o_calendar_renderer").toHaveCount(1);
+    expect(".o_calendar_sidepanel").toHaveCount(1);
+    expect(".o_calendar_sidebar").toHaveCount(0);
+    expect(".o_other_calendar_panel").toHaveCount(0);
+
+    // Reduce the viewport to a mobile size (isSmall = true)
+    // The sidepanel (which is expanded by default) should be hidden without interaction,
+    // and swapped for the mobile filter panel's toggle bar instead of the desktop sidepanel.
+    await resize({ width: 500 });
+    await animationFrame();
+    expect(".o_calendar_renderer").toHaveCount(1);
+    expect(".o_calendar_sidepanel").toHaveCount(0);
+    expect(".o_calendar_sidebar").toHaveCount(0);
+    expect(".o_other_calendar_panel").toHaveCount(1);
+
+    // Expand the viewport to desktop size, the sidepanel should show again,
+    // and the mobile filter panel should be removed.
+    await resize({ width: 1200 });
+    await animationFrame();
+    expect(".o_calendar_renderer").toHaveCount(1);
+    expect(".o_calendar_sidepanel").toHaveCount(1);
+    expect(".o_calendar_sidebar").toHaveCount(0);
+    expect(".o_other_calendar_panel").toHaveCount(0);
 });
 
 test(`calendar should show date information on header`, async () => {
@@ -5433,12 +5549,12 @@ test(`scroll to current hour when clicking on today`, async () => {
         arch: `<calendar event_open_popup="1" date_start="start" date_stop="stop" all_day="is_all_day" mode="week"/>`,
     });
     // Default scroll time should be 6am no matter the current hour
-    expect(queryOne(".fc-scroller:last").scrollTop).toBeWithin(210, 230);
+    expect(queryOne(".fc-scroller:last").scrollTop).toBeWithin(280, 300);
     await contains(".o_calendar_button_today").click();
     expect(queryOne(".fc-scroller:last").scrollTop).toBe(0);
     mockDate("2016-12-12T20:00:00", 1);
     await contains(".o_calendar_button_today").click();
-    expect(queryOne(".fc-scroller:last").scrollTop).toBeWithin(360, 380);
+    expect(queryOne(".fc-scroller:last").scrollTop).toBeWithin(620, 640);
 });
 
 test("save selected date during view switching", async () => {
@@ -5478,16 +5594,15 @@ test("save selected date during view switching", async () => {
 test(`check if active fields are fetched in addition to field names in record data(search_read rpc)`, async () => {
     class CustomWidget extends Component {
         static template = xml``;
-        static props = ["*"];
     }
     registry.category("fields").add("custom_widget", {
         component: CustomWidget,
         fieldDependencies: [{ name: "delay", type: "float" }],
     });
 
-    onRpc("event", "search_read", ({ kwargs }) => {
-        expect.step("event.search_read");
-        expect(kwargs.fields).toInclude("delay");
+    onRpc("event", "web_read", ({ kwargs }) => {
+        expect.step("event.web_read");
+        expect(Object.keys(kwargs.specification)).toInclude("delay");
     });
 
     await mountView({
@@ -5500,18 +5615,13 @@ test(`check if active fields are fetched in addition to field names in record da
         `,
     });
 
-    expect.verifySteps(["event.search_read"]);
+    // the widget's field dependency is fetched when the record's popover
+    // (and its underlying Card/Record) is loaded, not with the grid's records
+    await clickEvent(1);
+    expect.verifySteps(["event.web_read"]);
 });
 
 test("update time while drag and drop on month mode", async () => {
-    patchWithCleanup(CalendarRenderer.prototype, {
-        get actionSwiperProps() {
-            const props = super.actionSwiperProps;
-            props.onLeftSwipe = undefined;
-            props.onRightSwipe = undefined;
-            return props;
-        },
-    });
     await mountView({
         resModel: "event",
         type: "calendar",
@@ -5528,13 +5638,13 @@ test("update time while drag and drop on month mode", async () => {
     await contains(".modal-body .o_field_widget[name=start] button").click();
     await contains(".modal-body .o_field_widget[name=start] input").edit("2016-12-20 08:00:00");
     await contains(".modal-body .o_field_widget[name=stop] button").click();
-    await contains(".modal-body .o_field_widget[name=stop] input").edit("2016-12-23 10:00:00");
+    await contains(".modal-body .o_field_widget[name=stop] input").edit("2016-12-24 10:00:00");
     await contains(".modal .o_form_button_save").click();
     await moveEventToDate(8, "2016-12-27");
     await clickEvent(8);
     await contains(".o_cw_popover_edit").click();
 
-    expect(".o_field_widget[name='start']").toHaveText("Dec 26, 8:00 AM");
+    expect(".o_field_widget[name='start']").toHaveText("Dec 25, 8:00 AM");
     expect(".o_field_widget[name='stop']").toHaveText("Dec 29, 10:00 AM");
 });
 
@@ -5553,12 +5663,14 @@ test("html and boolean fields on calendar shouldn't have a tooltip", async () =>
     });
 
     await clickEvent(MockServer.env["event"][0].id);
-    const descriptionField = queryFirst('.o_cw_popover_field .o_field_widget[name="description"]');
-    let parentLi = descriptionField.closest("li");
-    expect(parentLi).toHaveAttribute("data-tooltip", "");
-    const isAllDayField = queryFirst('.o_cw_popover_field .o_field_widget[name="is_all_day"]');
-    parentLi = isAllDayField.closest("li");
-    expect(parentLi).toHaveAttribute("data-tooltip", "");
+    expect(`.o_card_record .o_field_widget[name="description"]`).toHaveCount(1);
+    expect(`.o_card_record > div:has(.o_field_widget[name="description"])`).not.toHaveAttribute(
+        "data-tooltip"
+    );
+    expect(`.o_card_record .o_field_widget[name="is_all_day"]`).toHaveCount(1);
+    expect(`.o_card_record > div:has(.o_field_widget[name="is_all_day"])`).not.toHaveAttribute(
+        "data-tooltip"
+    );
 });
 
 test.tags("mobile");
@@ -5604,8 +5716,7 @@ test("simple calendar rendering in mobile", async () => {
 });
 
 test.tags("mobile");
-test("calendar: popover is rendered as dialog in mobile", async () => {
-    // Legacy name of this test: "calendar: popover rendering in mobile"
+test("calendar: popover rendering in mobile", async () => {
     await mountView({
         type: "calendar",
         resModel: "event",
@@ -5613,13 +5724,13 @@ test("calendar: popover is rendered as dialog in mobile", async () => {
     });
 
     await clickEvent(1);
-    expect(".o_cw_popover").toHaveCount(0);
-    expect(".modal").toHaveCount(1);
-    expect(".modal").toHaveClass("o_modal_full");
+    expect(".o_cw_popover").toHaveCount(1);
 
-    expect(".modal-footer .btn").toHaveCount(2);
-    expect(".modal-footer .btn.btn-primary.o_cw_popover_edit").toHaveCount(1);
-    expect(".modal-footer .btn.btn-secondary.o_cw_popover_delete").toHaveCount(1);
+    // note: these buttons render as part of the card's own footer (inside the modal
+    // body), not projected into the Dialog's actual bootstrap `.modal-footer` slot
+    expect(".o_cw_popover .o_popover_footer .btn").toHaveCount(2);
+    expect(".o_cw_popover .o_popover_footer .btn.btn-primary.o_cw_popover_edit").toHaveCount(1);
+    expect(".o_cw_popover .o_popover_footer .btn.btn-danger.o_cw_popover_delete").toHaveCount(1);
 });
 
 test.tags("mobile");
@@ -5662,7 +5773,7 @@ test("calendar: show and change other calendar", async () => {
         message: "should contain 2 child nodes -> 2 resources",
     });
 
-    expect(".o_calendar_sidebar").toHaveCount(1);
+    expect(".o_calendar_sidepanel").toHaveCount(1);
     expect(".o_calendar_renderer").toHaveCount(0);
     expect(".o_calendar_filter").toHaveCount(1);
     expect(".o_calendar_filter[data-name=partner_id]").toHaveCount(1);
@@ -5677,7 +5788,7 @@ test("calendar: show and change other calendar", async () => {
 
     // Toggle again the other calendar panel should hide the sidebar and show the calendar view
     await contains(".o_other_calendar_panel").click();
-    expect(".o_calendar_sidebar").toHaveCount(0);
+    expect(".o_calendar_sidepanel").toHaveCount(0);
     expect(".o_calendar_renderer").toHaveCount(1);
 });
 
@@ -5731,12 +5842,7 @@ test('calendar: select range on "Free Zone" opens quick create', async () => {
         arch: `<calendar mode="day" date_start="start" date_stop="stop"/>`,
     });
     expandCalendarView();
-
-    await selectRange(
-        ".fc-timegrid-slot-lane[data-time='08:00:00']",
-        ".fc-timegrid-slot-lane[data-time='08:30:00']",
-        { start: "top", end: "bottom" }
-    );
+    await selectTimeRange("2016-12-12 08:00:00", "2016-12-12 09:00:00");
 
     // should open a Quick create modal view in mobile on short tap
     expect(".modal").toHaveCount(1);
@@ -5765,10 +5871,7 @@ test("calendar (year): select date range opens quick create", async () => {
     expandCalendarView();
 
     // Tap on a date
-    await selectRange(
-        ".fc-daygrid-day[data-date='2016-02-02']",
-        ".fc-daygrid-day[data-date='2016-02-05']"
-    );
+    await selectDateRange("2016-02-02", "2016-02-05");
 
     // should open a Quick create modal view in mobile on short tap
     expect(".modal").toHaveCount(1);
@@ -5785,29 +5888,31 @@ test("calendar (year): tap on date switch to day scale", async () => {
     expandCalendarView();
 
     // Should display year view
-    expect(".fc-dayGridYear-view").toHaveCount(1);
-    expect(".fc-month-container").toHaveCount(12);
+    expect(".o_calendar_current .fc-dayGridYear-view").toHaveCount(1);
+    expect(".o_calendar_current .fc-month-container").toHaveCount(12);
 
     // Tap on a date
-    await click(".fc-daygrid-day[data-date='2016-02-05']");
+    await click(".o_calendar_current .fc-daygrid-day[data-date='2016-02-05']");
     await animationFrame(); // switch renderer
     await animationFrame(); // await breadcrumb update
     expect(".o_calendar_container .o_calendar_header h5").toHaveText("5 February 2016");
 
     // Should display day view
-    expect(".fc-dayGridYear-view").toHaveCount(0);
-    expect(".fc-timeGridDay-view").toHaveCount(1);
-    expect(queryFirst(".fc-col-header-cell[data-date]").dataset.date).toBe("2016-02-05");
+    expect(".o_calendar_current .fc-dayGridYear-view").toHaveCount(0);
+    expect(".o_calendar_current .fc-timeGridDay-view").toHaveCount(1);
+    expect(queryFirst(".o_calendar_current .fc-col-header-cell[data-date]").dataset.date).toBe(
+        "2016-02-05"
+    );
 
     // Change scale to month
     await changeScale("month");
     expect(".o_calendar_container .o_calendar_header h5").toHaveCount(1);
     expect(".o_calendar_container .o_calendar_header h5").toHaveText("February 2016");
-    expect(".fc-timeGridDay-view").toHaveCount(0);
-    expect(".fc-dayGridMonth-view").toHaveCount(1);
+    expect(".o_calendar_current .fc-timeGridDay-view").toHaveCount(0);
+    expect(".o_calendar_current .fc-dayGridMonth-view").toHaveCount(1);
 
     // Tap on a date
-    await click(".fc-daygrid-day[data-date='2016-02-10']");
+    await click(".o_calendar_current .fc-daygrid-day[data-date='2016-02-10']");
     await animationFrame(); // await reload & render
     await animationFrame(); // await breadcrumb update
     expect(".o_calendar_container .o_calendar_header h5").toHaveText("February 2016");
@@ -5896,12 +6001,19 @@ test(`calendar view with show_unusual_days`, async () => {
     ]);
 });
 
-test.tags("desktop");
 test(`calendar renderer is rendered once after search refresh`, async () => {
     patchWithCleanup(CalendarRenderer.prototype, {
         setup() {
             super.setup();
-            onRendered(() => expect.step("rendered"));
+            onMounted(() => expect.step("mounted"));
+            onPatched(() => expect.step("patched"));
+        },
+    });
+    patchWithCleanup(CalendarModel.prototype, {
+        async load(params) {
+            expect.step("before load");
+            await super.load(params);
+            expect.step("after load");
         },
     });
     await mountView({
@@ -5913,9 +6025,80 @@ test(`calendar renderer is rendered once after search refresh`, async () => {
             </calendar>
         `,
     });
-    expect.verifySteps(["rendered"]);
+    expect.verifySteps(["before load", "after load", "mounted"], {
+        message: "no additional notify",
+    });
     await validateSearch();
-    expect.verifySteps(["rendered"]);
+    expect.verifySteps(["before load", "after load", "patched"], {
+        message: "no additional notify",
+    });
+});
+
+test(`calendar renderer is rendered once after event drag and drop`, async () => {
+    patchWithCleanup(CalendarRenderer.prototype, {
+        get calendarKey() {
+            expect.step("rendered");
+            return super.calendarKey;
+        },
+    });
+    patchWithCleanup(CalendarModel.prototype, {
+        async load(params) {
+            expect.step("before load");
+            await super.load(params);
+            expect.step("after load");
+        },
+    });
+    await mountView({
+        resModel: "event",
+        type: "calendar",
+        arch: `
+            <calendar date_start="start" date_stop="stop">
+                <filter name="user_id"/>
+            </calendar>
+        `,
+    });
+    expect.verifySteps(["before load", "after load", "rendered"], {
+        message: "no additional notify",
+    });
+    await moveEventToTime(1, "2016-12-12 08:00:00");
+    expect.verifySteps(["before load", "rendered", "after load"], {
+        // render is trigger sync before load ends
+        message: "no additional notify",
+    });
+});
+
+test.tags("desktop");
+test(`calendar renderer is rendered twice after date change`, async () => {
+    patchWithCleanup(CalendarRenderer.prototype, {
+        get calendarKey() {
+            expect.step("rendered");
+            return super.calendarKey;
+        },
+    });
+    patchWithCleanup(CalendarModel.prototype, {
+        async load(params) {
+            expect.step("before load");
+            await super.load(params);
+            expect.step("after load");
+        },
+    });
+    await mountView({
+        resModel: "event",
+        type: "calendar",
+        arch: `
+            <calendar date_start="start" date_stop="stop">
+                <filter name="user_id"/>
+            </calendar>
+        `,
+    });
+    expect.verifySteps(["before load", "after load", "rendered"], {
+        message: "no additional notify",
+    });
+    await contains(".o_calendar_button_next").click();
+    expect.verifySteps(["before load", "rendered", "rendered", "after load"], {
+        // render is trigger sync before load ends
+        message: "additional notify is called to prerender the view and avoid flickering",
+    });
 });
 
 test.tags("desktop");
@@ -5982,4 +6165,288 @@ test(`Hour format mirror event`, async () => {
 
     expect(`.o_event[data-event-id="8"] .fc-event-main .o_event_title`).toHaveText("mirror_event");
     expect(`.o_event[data-event-id="8"] .fc-event-main .fc-time`).toHaveText("11:00");
+});
+
+test(`three calendars are rendered in the ActionSwiper on touch devices`, async () => {
+    mockTouch(true);
+    enableLoadSurroundingsInTest();
+    // if not given any option, default week start is on Sunday
+    mockTimeZone(-7);
+    onRpc("event", "search_read", ({ kwargs }) => {
+        expect.step("event.search_read");
+    });
+    await mountView({
+        resModel: "event",
+        type: "calendar",
+        arch: `<calendar date_start="start" date_stop="stop" mode="week"/>`,
+    });
+    expect.verifySteps(["event.search_read"]);
+    expect(".o_calendar_widget").toHaveCount(3);
+    expect(".o_actionswiper_left_swipe_area .fc-event").toHaveCount(2, {
+        message: "events are displayed on the following month",
+    });
+    expect(".o_actionswiper_left_swipe_area .fc-daygrid-body .fc-event").toHaveText("event 5");
+});
+
+test.tags("desktop");
+test("swiping from an event being dragged on touch devices", async () => {
+    mockTouch(true);
+    await mountView({
+        resModel: "event",
+        type: "calendar",
+        arch: `<calendar date_start="start" date_stop="stop" mode="month"/>`,
+    });
+    expect(".o_calendar_header h5").toHaveText("December 2016");
+
+    const eventEl = findEvent(2);
+    const swipeWidth = queryRect(".o_actionswiper").width;
+    const { moveTo, drop } = await drag(eventEl, { position: { x: 10 }, relative: true });
+    // move a bit before the swiper gets disabled
+    await moveTo(eventEl, { position: { x: 5 }, relative: true });
+    // long press: fullcalendar starts dragging the event
+    await advanceTime(TOUCH_SELECTION_THRESHOLD);
+    expect(".o_calendar_widget.o_interacting").toHaveCount(1);
+
+    // swipe to the next month: the calendar is re-rendered while the event is being dragged
+    await moveTo(eventEl, { position: { x: -swipeWidth }, relative: true });
+    await drop();
+    await advanceTime(1000);
+    await animationFrame();
+    expect(".o_calendar_header h5").toHaveText("January 2017");
+    expect(".o_interacting").toHaveCount(0);
+});
+
+test("Revert to the previous state if updateRecord fails (onEventResize)", async () => {
+    expect.errors(1);
+    Event._records = [Event._records[1]];
+    onRpc("write", () => {
+        throw makeServerError({ type: "ValidationError" });
+    });
+
+    await mountView({
+        resModel: "event",
+        type: "calendar",
+        arch: `<calendar date_start="start" date_stop="stop" all_day="is_all_day" mode="week"/>`,
+    });
+
+    const event = findEvent(2);
+    const oldInsetSize = event.parentElement.style.inset;
+    await resizeEventToTime(2, "2016-12-12 17:00:00");
+    expect(event.parentElement.style.inset).toEqual(oldInsetSize);
+    expect.verifyErrors(["RPC_ERROR: Odoo Server Error"]);
+});
+
+test("Revert to the previous state if updateRecord fails (onEventDrop)", async () => {
+    expect.errors(1);
+    Event._records = [Event._records[1]];
+    onRpc("write", () => {
+        throw makeServerError({ type: "ValidationError" });
+    });
+
+    await mountView({
+        resModel: "event",
+        type: "calendar",
+        arch: `<calendar date_start="start" date_stop="stop" all_day="is_all_day" mode="week"/>`,
+    });
+
+    let event = findEvent(2);
+    const columnEvent = queryFirst(".fc-timegrid-col.fc-day[data-date='2016-12-12']");
+    await moveEventToTime(2, "2016-12-14 11:00:00");
+    event = findEvent(2);
+    expect(columnEvent.contains(event)).toBe(true, { message: "Event shouldn't move column " });
+    expect.verifyErrors(["RPC_ERROR: Odoo Server Error"]);
+});
+
+test.tags("desktop");
+test(`drag and drop events from side panel to schedule them`, async () => {
+    Event._records.push(
+        {
+            id: 8,
+            user_id: serverState.userId,
+            name: "event 8",
+            start: false,
+            stop: false,
+        },
+        {
+            id: 9,
+            user_id: serverState.userId,
+            name: "event 9",
+            start: false,
+            stop: false,
+        }
+    );
+    let expectedDate = null;
+    onRpc("event", "search_read", () => {
+        expect.step("search_read");
+    });
+    onRpc("event", "web_search_read", ({ kwargs }) => {
+        expect(kwargs.domain).toEqual(["&", ["start", "=", false], ["stop", "=", false]]);
+        expect(kwargs.specification).toEqual({
+            display_name: {},
+        });
+        expect.step("fetch events to schedule");
+    });
+    onRpc("event", "write", ({ args, kwargs }) => {
+        expect(args[0][0]).toBe(8);
+        expect(args[1]).toEqual({
+            start: serializeDateTime(expectedDate),
+            stop: serializeDateTime(expectedDate.plus({ hours: 1 })),
+        });
+        expect(kwargs.context.from_custom_context).toBe(true);
+        expect.step("write");
+    });
+
+    await mountView({
+        resModel: "event",
+        type: "calendar",
+        arch: `
+            <calendar schedule="1" date_start="start" date_stop="stop" mode="week" color="partner_id">
+                <filter name="user_id" avatar_field="image"/>
+            </calendar>
+        `,
+        context: { from_custom_context: true },
+    });
+    expect(".o_event_to_schedule_draggable").toHaveCount(2);
+    const { drop, moveTo } = await contains(".o_event_to_schedule_draggable:first").drag();
+    const dateCell = queryFirst(".fc-day.fc-day-today.fc-daygrid-day");
+    expectedDate = luxon.DateTime.fromISO(dateCell.dataset.date);
+    await moveTo(dateCell);
+    expect(queryFirst(".fc-highlight", { root: dateCell })).toHaveCount(1);
+    await drop();
+    expect.verifySteps([
+        "search_read",
+        "fetch events to schedule",
+        "write",
+        "search_read",
+        "fetch events to schedule",
+    ]);
+    expect(".o_event_to_schedule_draggable").toHaveCount(1);
+    expect(".o_event_to_schedule_draggable").toHaveText("event 9");
+});
+
+test.tags("desktop");
+test(`load more events to schedule`, async () => {
+    for (let i = 8; i <= 40; i++) {
+        Event._records.push({
+            id: i,
+            user_id: serverState.userId,
+            name: `event ${i}`,
+            start: false,
+            stop: false,
+        });
+    }
+    onRpc("event", "search_read", () => {
+        expect.step("search_read");
+    });
+    let expectedLimit = 20;
+    onRpc("event", "web_search_read", ({ kwargs }) => {
+        expect(kwargs.limit).toBe(expectedLimit);
+        expect.step("fetch events to schedule");
+    });
+
+    await mountView({
+        resModel: "event",
+        type: "calendar",
+        arch: `
+            <calendar schedule="1" date_start="start" date_stop="stop" mode="week" color="partner_id">
+                <filter name="user_id" avatar_field="image"/>
+            </calendar>
+        `,
+    });
+    expect(".o_event_to_schedule_draggable").toHaveCount(20);
+    expect(".o_calendar_sidepanel button:contains(Load More)").toHaveCount(1);
+    expect.verifySteps(["search_read", "fetch events to schedule"]);
+    expectedLimit += 20;
+    await contains(".o_calendar_sidepanel button:contains(Load More)").click();
+    expect.verifySteps(["fetch events to schedule"]);
+    expect(".o_event_to_schedule_draggable").toHaveCount(33);
+});
+
+test.tags("desktop");
+test(`no event to schedule`, async () => {
+    onRpc("event", "search_read", () => {
+        expect.step("search_read");
+    });
+    onRpc("event", "web_search_read", () => {
+        expect.step("fetch events to schedule");
+    });
+
+    await mountView({
+        resModel: "event",
+        type: "calendar",
+        arch: `
+            <calendar schedule="1" date_start="start" date_stop="stop" mode="week" color="partner_id">
+                <filter name="user_id" avatar_field="image"/>
+            </calendar>
+        `,
+    });
+    expect(".o_event_to_schedule_draggable").toHaveCount(0);
+    expect(".o_calendar_sidepanel h5").toHaveText("Nothing to schedule");
+    expect.verifySteps(["search_read", "fetch events to schedule"]);
+});
+
+test.tags("desktop");
+test(`drag and drop to unschedule`, async () => {
+    onRpc("event", "search_read", () => {
+        expect.step("search_read");
+    });
+    onRpc("event", "web_search_read", () => {
+        expect.step("fetch events to schedule");
+    });
+    onRpc("event", "write", ({ args, kwargs }) => {
+        expect(args[0][0]).toBe(2);
+        expect(args[1]).toEqual({
+            start: false,
+            stop: false,
+        });
+        expect(kwargs.context.from_custom_context).toBe(true);
+        expect.step("write");
+    });
+    await mountView({
+        resModel: "event",
+        type: "calendar",
+        arch: `
+            <calendar schedule="1" date_start="start" date_stop="stop" mode="week" color="partner_id">
+                <filter name="user_id" avatar_field="image"/>
+            </calendar>
+        `,
+        context: { from_custom_context: true },
+    });
+    expect(".o_calendar_unschedule_zone").toHaveCount(0);
+    expect(".o_calendar_sidepanel h5").toBeVisible();
+    expect(".o_calendar_sidepanel h5").toHaveText("Nothing to schedule");
+    expect.verifySteps(["search_read", "fetch events to schedule"]);
+    const { drop } = await contains('.o_event[data-event-id="2"]').drag();
+    expect(".o_calendar_unschedule_zone").toHaveCount(1);
+    expect(".o_calendar_unschedule_zone").toHaveText("Drop here to unschedule");
+    expect(".o_calendar_sidepanel h5").not.toBeVisible();
+    await drop(queryFirst(".o_calendar_unschedule_zone"));
+    expect.verifySteps(["write", "search_read", "fetch events to schedule"]);
+    expect(".o_event_to_schedule_draggable").toHaveCount(1);
+    expect(".o_event_to_schedule_draggable").toHaveText("event 2");
+    expect(".o_calendar_sidepanel h5").toBeVisible();
+    expect(".o_calendar_sidepanel h5").toHaveText("1 to schedule");
+});
+
+test.tags("desktop");
+test(`show display name of event in edit mode`, async () => {
+    Event._records.push({
+        id: 8,
+        name: "event 8",
+        start: false,
+        stop: false,
+    });
+
+    await mountView({
+        resModel: "event",
+        type: "calendar",
+        arch: `
+            <calendar schedule="1" date_start="start" date_stop="stop" event_open_popup="1"/>
+        `,
+    });
+    expect(".o_event_to_schedule_draggable span").toHaveText("event 8");
+    await contains(".o_event_to_schedule_draggable").click();
+    expect(".modal-content .modal-title").toHaveText("Open: event 8", {
+        message: "The title of the edit modal should contain the display name of the event",
+    });
 });

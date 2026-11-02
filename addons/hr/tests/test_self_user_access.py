@@ -17,7 +17,7 @@ class TestSelfAccessPreferences(TestHrCommon):
         """ A simple user should be able to read all fields in the preferences form """
         james = new_test_user(self.env, login='hel', groups='base.group_user', name='Simple employee', email='ric@example.com')
         james = james.with_user(james)
-        james_bank_account = self.env['res.partner.bank'].create({'acc_number': 'BE1234567890', 'partner_id': james.partner_id.id})
+        james_bank_account = self.env['res.partner.bank'].create({'account_number': 'BE1234567890', 'partner_id': james.partner_id.id})
         self.env['hr.employee'].create({
             'name': 'James',
             'user_id': james.id,
@@ -65,7 +65,7 @@ class TestSelfAccessPreferences(TestHrCommon):
         })
         view = self.env.ref('hr.res_users_view_form_preferences')
         available_actions = james.get_views([(view.id, 'form')], {'toolbar': True})['views']['form']['toolbar'].get('action', {})
-        change_password_action = self.env.ref("base.change_password_wizard_action")
+        change_password_action = self.env.ref("base.ir_actions_server_change_password_wizard")
 
         self.assertFalse(any(x['id'] == change_password_action.id for x in available_actions))
 
@@ -101,12 +101,14 @@ class TestSelfAccessPreferences(TestHrCommon):
         self.assertEqual(action['type'], 'ir.actions.act_window')
         self.assertEqual(action['display_name'], 'Change my Preferences')
 
+
+@tagged('at_install', '-post_install')  # LEGACY at_install, fails post install
 class TestSelfAccessRights(TestHrCommon):
 
     @classmethod
     def setUpClass(cls):
         super(TestSelfAccessRights, cls).setUpClass()
-        cls.richard = new_test_user(cls.env, login='ric', groups='base.group_user', name='Simple employee', email='ric@example.com')
+        cls.richard = new_test_user(cls.env, login='ric', groups='base.group_user,base.group_user_regular', name='Simple employee', email='ric@example.com')
         cls.richard_emp = cls.env['hr.employee'].create({
             'name': 'Richard',
             'user_id': cls.richard.id,
@@ -122,9 +124,10 @@ class TestSelfAccessRights(TestHrCommon):
         # Compute fields and id field are always readable by everyone
         cls.read_protected_fields_emp = OrderedDict([(k, v) for k, v in cls.env['hr.employee']._fields.items() if not v.compute and k != 'id'])
         cls.self_protected_fields_user = OrderedDict([
-            (k, v)
-            for k, v in cls.env['res.users']._fields.items()
-            if v.groups == 'hr.group_hr_user' and k in cls.env['res.users'].SELF_READABLE_FIELDS
+            (k, field)
+            for k, field in cls.env['res.users']._fields.items()
+            # get fields built with `employee_field` function
+            if callable(field.compute) and hasattr(field.compute, 'employee_field_name')
         ])
 
     # Read hr.employee #
@@ -181,8 +184,45 @@ class TestSelfAccessRights(TestHrCommon):
         # Searching user based on employee_id field should not raise bad query error
         self.env['res.users'].with_user(self.richard).search([('employee_id', 'ilike', 'Hubert')])
 
-    # Write hr.department
-    def testWriteDepartmentEmployee(self):
+    def test_user_can_edit_department_they_manage(self):
+        dept = self.env['hr.department'].create({
+            'name': 'Managed Dept',
+            'manager_id': self.richard_emp.id,
+        })
+
+        dept.with_user(self.richard).write({
+            'name': 'Renamed Managed Dept'
+        })
+
+        self.assertEqual(dept.name, 'Renamed Managed Dept')
+
+    def test_user_can_edit_department_managed_by_subordinate(self):
+        # Subordinate user
+        alice = new_test_user(
+            self.env,
+            login='alice',
+            groups='base.group_user',
+            name='Alice User',
+            email='alice@example.com'
+        )
+
+        alice_emp = self.env['hr.employee'].create({
+            'name': 'Alice',
+            'user_id': alice.id,
+            'parent_id': self.richard_emp.id,
+        })
+        dept = self.env['hr.department'].create({
+            'name': 'Subordinate Dept',
+            'manager_id': alice_emp.id,
+        })
+
+        dept.with_user(self.richard).write({
+            'name': 'Renamed Subordinate Dept'
+        })
+
+        self.assertEqual(dept.name, 'Renamed Subordinate Dept')
+
+    def test_user_cannot_create_nor_edit_random_department(self):
         with self.assertRaises(AccessError):
             self.env['hr.department'].with_user(self.richard).create({'name': 'New Dept'})
         dept = self.env['hr.department'].create({'name': 'New Dept'})
@@ -191,11 +231,11 @@ class TestSelfAccessRights(TestHrCommon):
 
     def test_onchange_readable_fields_with_no_access(self):
         """
-            The purpose is to test that the onchange logic takes into account `SELF_READABLE_FIELDS`.
+            The purpose is to test that the onchange logic takes into account custom field access.
 
-            The view contains fields that are in `SELF_READABLE_FIELDS` (example: `private_street`).
+            The view contains fields that are `field_employee` (example: `private_street`).
             Even if the user does not have read access to the employee,
-            it should not cause an access error if these fields are in `SELF_READABLE_FIELDS`.
+            it should not cause an access error for these fields.
         """
         self.env['res.lang']._activate_lang("fr_FR")
         with Form(self.richard.with_user(self.richard), view='hr.res_users_view_form_preferences') as form:
@@ -206,7 +246,7 @@ class TestSelfAccessRights(TestHrCommon):
     def test_access_employee_account(self):
         hubert = new_test_user(self.env, login='hubert', groups='base.group_user', name='Hubert Bonisseur de La Bath', email='hubert@oss.fr')
         hubert = hubert.with_user(hubert)
-        hubert_acc = self.env['res.partner.bank'].create({'acc_number': 'FR1234567890', 'partner_id': hubert.partner_id.id})
+        hubert_acc = self.env['res.partner.bank'].create({'account_number': 'FR1234567890', 'partner_id': hubert.partner_id.id})
         hubert_emp = self.env['hr.employee'].create({
             'name': 'Hubert',
             'user_id': hubert.id,

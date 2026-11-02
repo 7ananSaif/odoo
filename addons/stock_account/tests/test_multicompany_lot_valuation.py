@@ -7,7 +7,7 @@ from odoo.tests import tagged
 @tagged('post_install', '-at_install')
 class TestMultiCompanyLotValuation(TransactionCase):
     """
-    Test that lot.avg_cost computes correctly per company context in multi-company
+    Test lot.avg_cost computes correctly per company context in multi-company
     databases with FIFO costing and lot valuation enabled.
     """
 
@@ -51,7 +51,7 @@ class TestMultiCompanyLotValuation(TransactionCase):
 
         move_in_b = self.env['stock.move'].with_company(self.company_b).create({
             'product_id': self.product_fifo_lot.id,
-            'product_uom': self.product_fifo_lot.uom_id.id,
+            'uom_id': self.product_fifo_lot.uom_id.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.warehouse_b.lot_stock_id.id,
             'product_uom_qty': 1.0,
@@ -65,7 +65,7 @@ class TestMultiCompanyLotValuation(TransactionCase):
         move_in_b._action_done()
 
         self.assertEqual(
-            lot_b.with_company(self.env.company).avg_cost, 0.0,
+            lot_b.with_context(allowed_company_ids=self.env.company.ids).avg_cost, 0.0,
             "avg_cost should be 0 in Company A context"
         )
         self.assertEqual(

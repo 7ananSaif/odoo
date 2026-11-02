@@ -3,7 +3,7 @@ import { PaymentInterface } from "@point_of_sale/app/utils/payment/payment_inter
 import { AlertDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { roundPrecision } from "@web/core/utils/numbers";
 import { uuidv4 } from "@point_of_sale/utils";
-import { register_payment_method } from "@point_of_sale/app/services/pos_store";
+import { registry } from "@web/core/registry";
 
 // Due to consistency issues with the webhook, we also poll
 // the status of the payment periodically as a fallback.
@@ -17,25 +17,43 @@ export class PaymentVivaCom extends PaymentInterface {
 
     setup() {
         super.setup(...arguments);
+        this.connectWebSocket("VIVA_COM_LATEST_RESPONSE", (payload) => {
+            if (payload.config_id === this.pos.config.id) {
+                const paymentLine = this.pos.models["pos.payment"].find(
+                    (line) => line.viva_com_session_id === payload.session_id
+                );
+
+                if (
+                    paymentLine &&
+                    !paymentLine.isDone() &&
+                    paymentLine.getPaymentStatus() !== "retry"
+                ) {
+                    paymentLine.payment_method_id.payment_interface.handleVivaComStatusResponse(
+                        paymentLine,
+                        payload
+                    );
+                }
+            }
+        });
         this.paymentLineResolvers = {};
     }
-    sendPaymentRequest(uuid) {
-        super.sendPaymentRequest(uuid);
-        return this._viva_com_pay(uuid);
+    async sendPaymentRequest(line) {
+        super.sendPaymentRequest(...arguments);
+        return await this._viva_com_pay(line);
     }
-    sendPaymentCancel(order, uuid) {
-        super.sendPaymentCancel(order, uuid);
-        return this._viva_com_cancel(order, uuid);
+    async sendPaymentCancel(line) {
+        super.sendPaymentCancel(...arguments);
+        return await this._viva_com_cancel(line);
     }
 
     getCashRegisterId() {
-        return this.pos.getCashier().name?.trim() || this.pos.config.name;
+        return this.pos.accessRight?.loggedCashier?.name?.trim() || this.pos.config.name;
     }
 
     _call_viva_com(data, action, paymentLine) {
-        return this.env.services.orm.silent
-            .call("pos.payment.method", action, [[this.payment_method_id.id], data])
-            .catch(this._handleOdooConnectionFailure.bind(this, paymentLine));
+        return this.callPaymentMethod(action, [[this.payment_method_id.id], data]).catch(
+            this._handleOdooConnectionFailure.bind(this, paymentLine)
+        );
     }
 
     _handleOdooConnectionFailure(paymentLine, data = {}) {
@@ -57,18 +75,13 @@ export class PaymentVivaCom extends PaymentInterface {
             this._show_error(response.error);
             return false;
         }
+        paymentLine.setPaymentStatus("waitingCard");
         return this.waitForPaymentConfirmation(paymentLine);
     }
 
-    _viva_com_pay() {
-        /**
-         * Override
-         */
-        super.sendPaymentRequest(...arguments);
-        var order = this.pos.getOrder();
-        var line = order.getSelectedPaymentline();
+    _viva_com_pay(line) {
+        const order = line.pos_order_id;
         let customerTrns = " ";
-        line.setPaymentStatus("waitingCard");
 
         if (order.partner) {
             customerTrns = order.partner.name + " - " + order.partner.email;
@@ -98,9 +111,7 @@ export class PaymentVivaCom extends PaymentInterface {
         );
     }
 
-    async _viva_com_cancel(order, uuid) {
-        const line = order.getPaymentlineByUuid(uuid);
-
+    async _viva_com_cancel(line) {
         const cashRegisterId = this.getCashRegisterId();
         var data = {
             sessionId: line.viva_com_session_id,
@@ -164,14 +175,10 @@ export class PaymentVivaCom extends PaymentInterface {
 
                 let result;
                 try {
-                    // Use a direct silent ORM call instead of _call_viva_com
-                    // so that _handleOdooConnectionFailure is NOT triggered
-                    // during polling (no error dialog spam).
-                    result = await this.env.services.orm.silent.call(
-                        "pos.payment.method",
-                        "viva_com_get_payment_status",
-                        [[this.payment_method_id.id], sessionId]
-                    );
+                    result = await this.callPaymentMethod("viva_com_get_payment_status", [
+                        [this.payment_method_id.id],
+                        sessionId,
+                    ]);
                 } catch {
                     // Connection failure during polling — the payment may have
                     // gone through on Viva's side. Keep polling silently until
@@ -221,4 +228,4 @@ export class PaymentVivaCom extends PaymentInterface {
     }
 }
 
-register_payment_method("viva_com", PaymentVivaCom);
+registry.category("pos_payment_providers").add("viva_com", PaymentVivaCom);

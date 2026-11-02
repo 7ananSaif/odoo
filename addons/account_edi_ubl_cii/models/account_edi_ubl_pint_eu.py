@@ -39,18 +39,51 @@ class AccountEdiUBLPintEU(models.AbstractModel):
 
         return node
 
+    def _ubl_add_line_allowance_charge_nodes(self, vals):
+        super()._ubl_add_line_allowance_charge_nodes(vals)
+
+        # Discount.
+        self._ubl_add_line_allowance_charge_nodes_for_discount(vals)
+
+        # Recycling contribution taxes.
+        self._ubl_add_line_allowance_charge_nodes_for_recycling_contribution_taxes(vals)
+
+        # Excise taxes.
+        self._ubl_add_line_allowance_charge_nodes_for_excise_taxes(vals)
+
     def _ubl_add_payment_means_nodes(self, vals):
         super()._ubl_add_payment_means_nodes(vals)
 
         if self._is_document(vals, 'invoice', 'self_invoice', 'credit_note', 'self_credit_note'):
+            nodes = vals['document_node']['cac:PaymentMeans']
+            invoice = vals['invoice']
+            customer = vals['customer'].commercial_partner_id
+
             # [DK] In Denmark payment code 30 is not allowed. Hardcode to 1 ("unknown")
             # as we cannot deduce this information from the invoice.
-            customer = vals['customer'].commercial_partner_id
             if customer.country_code == 'DK':
-                nodes = vals['document_node']['cac:PaymentMeans']
                 for node in nodes:
                     node['cbc:PaymentMeansCode']['_text'] = 1
                     node['cbc:PaymentMeansCode']['name'] = 'unknown'
+
+            # Set up SEPA Direct Debit payment means and mandate node if a usable mandate exists
+
+            if (
+                self.module_installed('account_sepa_direct_debit')
+                and (sdd_mandate := invoice._get_usable_mandate(mandate_type='sepa'))
+                and sdd_mandate.partner_bank_id.account_number
+                and sdd_mandate.company_id.sdd_creditor_identifier
+            ):
+                # If the group "DIRECT DEBIT" (BG-19) is delivered, the element "Debited account identifier" (BT-91) shall be provided.
+                # If the group "DIRECT DEBIT" (BG-19) is delivered, the element "Bank assigned creditor identifier" (BT-90) shall be provided
+                vals['document_node']['cac:AccountingSupplierParty']['cac:Party']['cac:PartyIdentification'].append({
+                    'cbc:ID': {'_text': sdd_mandate.company_id.sdd_creditor_identifier, 'schemeID': 'SEPA'},
+                })
+                for node in nodes:
+                    node['cbc:PaymentMeansCode']['_text'] = 59
+                    node['cbc:PaymentMeansCode']['name'] = 'sepa direct debit'
+                    node['cac:PaymentMandate'] = self._ubl_get_payment_means_payment_mandate_node_from_mandate(vals, sdd_mandate)
+                    node['cac:PayeeFinancialAccount'] = None
 
     def _ubl_add_billing_reference_nodes(self, vals):
         super()._ubl_add_billing_reference_nodes(vals)
@@ -99,8 +132,8 @@ class AccountEdiUBLPintEU(models.AbstractModel):
 
             # [NL-R-003] For suppliers in the Netherlands, the legal entity identifier MUST be either a
             # KVK or OIN number (schemeID 0106 or 0190)
-            if all(node['cbc:CompanyID'] not in ('0106', '0190') for node in document_node['cac:AccountingSupplierParty']['cac:Party']['cac:PartyLegalEntity']):
-                constraints['nl_r_003'] = self._check_required_fields(vals['supplier'], 'vat')
+            if all((node.get('cbc:CompanyID') or {}).get('schemeID') not in ('0106', '0190') for node in document_node['cac:AccountingSupplierParty']['cac:Party']['cac:PartyLegalEntity']):
+                constraints['nl_r_003'] = _("%s should have a KVK or OIN number set.", vals['supplier'].display_name)
 
             # [NL-R-007] For suppliers in the Netherlands, the supplier MUST provide a means of payment
             # (cac:PaymentMeans) if the payment is from customer to supplier
@@ -119,8 +152,8 @@ class AccountEdiUBLPintEU(models.AbstractModel):
 
                 # [NL-R-005] For suppliers in the Netherlands, if the customer is in the Netherlands,
                 # the customer's legal entity identifier MUST be either a KVK or OIN number (schemeID 0106 or 0190)
-                if all(node['cbc:CompanyID'] not in ('0106', '0190') for node in document_node['cac:AccountingCustomerParty']['cac:Party']['cac:PartyLegalEntity']):
-                    constraints['nl_r_005'] = self._check_required_fields(vals['customer'], 'vat')
+                if all((node.get('cbc:CompanyID') or {}).get('schemeID') not in ('0106', '0190') for node in document_node['cac:AccountingCustomerParty']['cac:Party']['cac:PartyLegalEntity']):
+                    constraints['nl_r_005'] = _("%s should have a KVK or OIN number set.", vals['customer'].display_name)
 
         if (
             self._is_document(vals, 'credit_note')

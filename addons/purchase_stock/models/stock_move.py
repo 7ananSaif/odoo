@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 from collections import deque
-from datetime import datetime
 
 from odoo import api, Command, fields, models, _
-from odoo.fields import Date
-from odoo.tools.float_utils import float_round, float_is_zero, float_compare
-from odoo.exceptions import UserError
+from odoo.fields import Domain
+from odoo.tools.sql import SQL
 
 
 class StockMove(models.Model):
@@ -29,12 +27,19 @@ class StockMove(models.Model):
     def _prepare_merge_negative_moves_excluded_distinct_fields(self):
         return super()._prepare_merge_negative_moves_excluded_distinct_fields() + ['created_purchase_line_ids']
 
-    @api.depends('purchase_line_id', 'purchase_line_id.product_uom_id')
+    @api.depends('company_id', 'purchase_line_id', 'purchase_line_id.company_id')
+    def _compute_origin_company_id(self):
+        super()._compute_origin_company_id()
+        for move in self:
+            if move.purchase_line_id and move.purchase_line_id.company_id != move.company_id:
+                move.origin_company_id = move.purchase_line_id.company_id
+
+    @api.depends('purchase_line_id', 'purchase_line_id.uom_id')
     def _compute_packaging_uom_id(self):
         super()._compute_packaging_uom_id()
         for move in self:
             if move.purchase_line_id:
-                move.packaging_uom_id = move.purchase_line_id.product_uom_id
+                move.packaging_uom_id = move.purchase_line_id.uom_id
 
     def _compute_partner_id(self):
         # dropshipped moves should have their partner_ids directly set
@@ -45,15 +50,25 @@ class StockMove(models.Model):
     def _compute_description_picking(self):
         super()._compute_description_picking()
         for move in self:
-            if move.purchase_line_id:
+            if move.purchase_line_id and not move.description_picking_manual:
                 current_description = move.description_picking
                 seller = move.purchase_line_id.sudo().selected_seller_id
                 vendor_reference = f'[{seller.product_code}]' if seller.product_code else ''
                 vendor_reference += f' {seller.product_name}' if seller.product_name else ''
-                if vendor_reference.strip() in current_description:
+                if current_description and vendor_reference.strip() in current_description:
                     vendor_reference = ''
-                no_variant_attributes = '\n'.join(f'{attribute.attribute_id.name}: {attribute.name}' for attribute in move.purchase_line_id.sudo().product_no_variant_attribute_value_ids)
-                move.description_picking = (no_variant_attributes + '\n' + vendor_reference + '\n' + current_description).strip()
+                product = move.product_id.with_context(lang=move._get_lang())
+                has_receipt_description = bool(product._get_picking_description(move.picking_type_id))
+                no_variant_attributes = ''
+                if has_receipt_description:
+                    no_variant_attributes = '\n'.join(f'{attribute.attribute_id.name}: {attribute.name}' for attribute in move.purchase_line_id.sudo().product_no_variant_attribute_value_ids)
+                move.description_picking = '\n'.join(part for part in (no_variant_attributes, vendor_reference, current_description) if part).strip()
+
+    def write(self, vals):
+        res = super().write(vals)
+        if vals.get('date') and vals.get('state') != "done":
+            self._set_date_planned(vals.get('date'))
+        return res
 
     def _get_description(self):
         return self.purchase_line_id.name if self.purchase_line_id else super()._get_description()
@@ -81,7 +96,7 @@ class StockMove(models.Model):
                 'order_id': purchase_order.id,
                 'product_id': product.id,
                 'product_qty': 0,
-                'product_uom_id': move.product_uom.id,
+                'uom_id': move.uom_id.id,
                 'qty_received': quantity
             }
             if product.purchase_method == 'purchase':
@@ -95,11 +110,6 @@ class StockMove(models.Model):
     def _should_ignore_pol_price(self):
         self.ensure_one()
         return self.origin_returned_move_id or not self.purchase_line_id or not self.product_id.id
-
-    def _prepare_extra_move_vals(self, qty):
-        vals = super()._prepare_extra_move_vals(qty)
-        vals['purchase_line_id'] = self.purchase_line_id.id
-        return vals
 
     def _prepare_move_split_vals(self, uom_qty):
         vals = super(StockMove, self)._prepare_move_split_vals(uom_qty)
@@ -122,6 +132,20 @@ class StockMove(models.Model):
         else:
             return super(StockMove, self)._get_upstream_documents_and_responsibles(visited)
 
+    def _get_origin_company_domains(self, operator, value):
+        domains = super()._get_origin_company_domains(operator, value)
+        domains.append(Domain.AND([
+            Domain.custom(
+                to_sql=lambda table: SQL(
+                    "%(move_company_id)s != %(pol_company_id)s",
+                    move_company_id=table.company_id,
+                    pol_company_id=table._join('purchase_line_id').company_id,
+                ),
+            ),
+            Domain('purchase_line_id.company_id', operator, value),
+        ]))
+        return domains
+
     def _get_source_document(self):
         res = super()._get_source_document()
         return self.purchase_line_id.order_id or res
@@ -133,9 +157,6 @@ class StockMove(models.Model):
                 self.location_dest_id == self.env.ref('stock.stock_location_inter_company', raise_if_not_found=False) or
                 self.origin_returned_move_id.location_usage == "supplier"
             )
-
-    def _get_all_related_sm(self, product):
-        return super()._get_all_related_sm(product) | self.filtered(lambda m: m.purchase_line_id.product_id == product)
 
     def _get_purchase_line_and_partner_from_chain(self):
         moves_to_check = deque(self)
@@ -150,25 +171,27 @@ class StockMove(models.Model):
             )
         return None, None
 
+    def _set_date_planned(self, date_planned):
+        already_set_ids = self.env.context.get('date_planned_set_ids', set())
+        for move in self:
+            if move.picking_id.picking_type_code != 'incoming' or move.picking_id.state in ('done', 'cancel') or move.purchase_line_id.id in already_set_ids:
+                continue
+            already_set_ids.update(move.purchase_line_id.ids)
+            move.with_context(date_planned_set_ids=already_set_ids).purchase_line_id.date_planned = date_planned
+
     # --------------------------------------------------------
     # Valuation
     # --------------------------------------------------------
 
-    def _get_value_from_account_move(self, quantity, at_date=None):
-        valuation_data = super()._get_value_from_account_move(quantity, at_date=at_date)
+    def _get_value_from_account_move(self, quantity):
+        valuation_data = super()._get_value_from_account_move(quantity)
         if not self.purchase_line_id:
             return valuation_data
-
-        if isinstance(at_date, datetime):
-            # Since aml.date are Date, we don't need the extra precision here.
-            at_date = Date.to_date(at_date)
 
         aml_quantity = 0
         value = 0
         aml_ids = set()
         for aml in self.purchase_line_id.invoice_lines:
-            if at_date and aml.date > at_date:
-                continue
             if aml.move_id.state != 'posted':
                 continue
             aml_ids.add(aml.id)
@@ -195,7 +218,7 @@ class StockMove(models.Model):
             elif move.is_out:
                 other_candidates_qty -= -move._get_valued_qty()
 
-        if self.product_uom.compare(aml_quantity, other_candidates_qty) <= 0:
+        if self.uom_id.compare(aml_quantity, other_candidates_qty) <= 0:
             return valuation_data
 
         # Remove quantity from prior moves.
@@ -216,7 +239,17 @@ class StockMove(models.Model):
 
     def _get_value_from_bill(self, aml):
         self.ensure_one()
-        return aml.company_id.currency_id.round(aml.price_subtotal / aml.currency_rate)
+        value = aml.price_subtotal
+        if aml.tax_ids:
+            value = aml.tax_ids.compute_all(
+                aml.price_unit * (1 - (aml.discount or 0.0) / 100.0),
+                currency=aml.currency_id,
+                quantity=aml.quantity,
+                product=aml.product_id,
+                partner=aml.partner_id,
+                rounding_method="round_globally",
+            )['total_void']
+        return aml.company_id.currency_id.round(value / aml.currency_rate)
 
     def _get_quantity_from_bill(self, aml, quantity):
         self.ensure_one()
@@ -226,12 +259,12 @@ class StockMove(models.Model):
         self.ensure_one()
         return quantity
 
-    def _get_value_from_quotation(self, quantity, at_date=None):
+    def _get_value_from_quotation(self, quantity):
         # TODO: Start from global value
         if not self.purchase_line_id:
-            return super()._get_value_from_quotation(quantity, at_date)
-        price_unit = self.purchase_line_id.with_context(conversion_date=self.date)._get_stock_move_price_unit()
-        uom_quantity = self.product_uom._compute_quantity(quantity, self.product_id.uom_id)
+            return super()._get_value_from_quotation(quantity)
+        price_unit = self.purchase_line_id._get_stock_move_price_unit(self.date)
+        uom_quantity = self.uom_id._compute_quantity(quantity, self.product_id.uom_id)
         quantity = min(quantity, uom_quantity)
         cost_ratio = self._get_cost_ratio(quantity)
         value = price_unit * cost_ratio
@@ -242,11 +275,3 @@ class StockMove(models.Model):
                 value=self.company_currency_id.format(value), quantity=quantity, unit=self.product_id.uom_id.name,
                 quotation=self.purchase_line_id.order_id.display_name),
         }
-
-    def _get_related_invoices(self):
-        """ Overridden to return the vendor bills related to this stock move.
-        """
-        rslt = super()._get_related_invoices()
-        purchase_ids = self.env['purchase.order'].search([('picking_ids', 'in', self.picking_id.ids)])
-        rslt += purchase_ids.invoice_ids.filtered(lambda x: x.state == 'posted')
-        return rslt

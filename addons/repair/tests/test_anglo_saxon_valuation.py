@@ -13,6 +13,8 @@ from odoo.exceptions import UserError
 @skip('Temporary to fast merge new valuation')
 class TestAngloSaxonValuation(ValuationReconciliationTestCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -38,7 +40,7 @@ class TestAngloSaxonValuation(ValuationReconciliationTestCommon):
             'product_id': product.id,
             'location_id': self.env.ref('stock.stock_location_suppliers').id,
             'location_dest_id': self.company_data['default_warehouse'].lot_stock_id.id,
-            'product_uom': product.uom_id.id,
+            'uom_id': product.uom_id.id,
             'product_uom_qty': quantity,
             'price_unit': unit_cost,
         })
@@ -65,7 +67,6 @@ class TestAngloSaxonValuation(ValuationReconciliationTestCommon):
             })],
         })
         ro.action_validate()
-        ro.action_repair_start()
         ro.action_repair_end()
 
         ro.sudo().action_create_sale_order()
@@ -89,15 +90,28 @@ class TestAngloSaxonValuation(ValuationReconciliationTestCommon):
 @tagged('post_install', '-at_install')
 class TestAngloSaxonValuationNoSkip(TestStockValuationCommon):
 
+    _test_user_groups = (
+        'product.group_product_manager',  # product cost/category writes
+        'stock.group_stock_manager',  # subject: repair orders & deliveries
+        'account.group_account_invoice',  # anglo-saxon COGS entries asserted
+        'account.group_account_readonly',  # FIXME: valuation reads account.fiscal.year (account_accountant)
+    )
+
+    _test_user_name = 'Test Stock & Account User'
+
     def test_ro_invoice_double_valuation(self):
         """This test make sure that the valuation entry for a repair is created only once.
            It could happen if the repair order was already creating the valuation, then the sale order would also create it
            when invoiced"""
 
         self.product_fifo_auto.taxes_id = False
-        self.env['stock.quant']._update_available_quantity(self.product_fifo_auto, self.warehouse.lot_stock_id, 5)
+        self.env['stock.quant'].create({
+            'product_id': self.product_fifo_auto.id,
+            'location_id': self.warehouse.lot_stock_id.id,
+            'inventory_quantity': 5,
+        }).action_apply_inventory()
 
-        self.account_inventory = self.env['account.account'].create({
+        self.account_inventory = self.env['account.account'].sudo().create({
             'name': 'Inventory Account',
             'code': '100101',
             'account_type': 'asset_current',
@@ -115,7 +129,6 @@ class TestAngloSaxonValuationNoSkip(TestStockValuationCommon):
             })],
         })
         ro.action_validate()
-        ro.action_repair_start()
         ro.action_repair_end()
 
         ro.sudo().action_create_sale_order()
@@ -125,10 +138,11 @@ class TestAngloSaxonValuationNoSkip(TestStockValuationCommon):
 
         invoice = so._create_invoices()
         invoice.action_post()
-
-        self.assertRecordValues(invoice.line_ids, [
-            {'debit': 0.0, 'credit': 20.0, 'account_id': self.account_income.id},
+        self.assertRecordValues(invoice.line_ids.sorted('account_id'), [
+            {'debit': 0.0, 'credit': 10.0, 'account_id': self.account_stock_valuation.id},
             {'debit': 20.0, 'credit': 0.0, 'account_id': self.account_receivable.id},
+            {'debit': 0.0, 'credit': 20.0, 'account_id': self.account_income.id},
+            {'debit': 10.0, 'credit': 0.0, 'account_id': self.account_expense.id},
         ])
         self.assertRecordValues(ro.move_ids.account_move_id.line_ids, [
             {'debit': 0.0, 'credit': 10.0, 'account_id': self.account_stock_valuation.id},

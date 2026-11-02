@@ -1,4 +1,4 @@
-import { beforeEach, expect, test } from "@odoo/hoot";
+import { animationFrame, beforeEach, expect, test } from "@odoo/hoot";
 import { browser } from "@web/core/browser/browser";
 import { WebClient } from "@web/webclient/webclient";
 import {
@@ -9,6 +9,7 @@ import {
     models,
     mountWithCleanup,
     patchWithCleanup,
+    serverState,
 } from "@web/../tests/web_test_helpers";
 import { Component, xml } from "@odoo/owl";
 import { registry } from "@web/core/registry";
@@ -18,7 +19,6 @@ class TestClientAction extends Component {
         <div class="test_client_action">
             ClientAction
         </div>`;
-    static props = ["*"];
 }
 
 class Partner extends models.Model {
@@ -81,6 +81,17 @@ test("can execute act_window actions from db ID in a new window", async () => {
     expect.verifySteps(["open: /odoo/action-1"]);
 });
 
+test("debug flag is copied from current state", async () => {
+    serverState.debug = "assets";
+
+    await mountWithCleanup(WebClient);
+    await getService("action").doAction(1);
+    await animationFrame();
+
+    await getService("action").doAction(1, { newWindow: true });
+    expect.verifySteps(["open: /odoo/action-1?debug=assets"]);
+});
+
 test("'CLEAR-UNCOMMITTED-CHANGES' is not triggered for window action", async () => {
     const webClient = await mountWithCleanup(WebClient);
     webClient.env.bus.addEventListener("CLEAR-UNCOMMITTED-CHANGES", () => {
@@ -94,7 +105,6 @@ test("'CLEAR-UNCOMMITTED-CHANGES' is not triggered for window action", async () 
 test("'CLEAR-UNCOMMITTED-CHANGES' is not triggered for client actions", async () => {
     class ClientAction extends Component {
         static template = xml`<div class="o_client_action_test">Hello World</div>`;
-        static props = ["*"];
     }
     registry.category("actions").add("my_action", ClientAction);
 

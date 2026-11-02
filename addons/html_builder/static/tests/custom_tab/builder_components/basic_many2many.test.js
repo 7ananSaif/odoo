@@ -1,8 +1,8 @@
 import { addBuilderOption, setupHTMLBuilder } from "@html_builder/../tests/helpers";
-import { BaseOptionComponent } from "@html_builder/core/utils";
+import { BaseOptionComponent } from "@html_builder/core/base_option_component";
 import { describe, expect, test } from "@odoo/hoot";
 import { advanceTime, animationFrame } from "@odoo/hoot-mock";
-import { reactive, xml } from "@odoo/owl";
+import { xml, proxy } from "@odoo/owl";
 import { contains, defineModels, fields, models, onRpc } from "@web/../tests/web_test_helpers";
 import { delay } from "@web/core/utils/concurrency";
 
@@ -32,10 +32,9 @@ test("basic many2many: find tag, select tag, unselect tag", async () => {
             expect(kwargs.domain).toEqual([["id", "not in", [1]]]);
         }
     });
-    const selection = reactive([]);
+    const selection = proxy([]);
     class TestComponent extends BaseOptionComponent {
-        static selector = ".test-options-target";
-        static template = xml`<BasicMany2Many selection="this.selection" model="'test'" setSelection="this.setSelection.bind(this)"/>`;
+        static template = xml`<BasicMany2Many selection="this.selection" model="'test'" setSelection.bind="this.setSelection"/>`;
         selection = selection;
         setSelection(newSelection) {
             selection.length = 0;
@@ -44,7 +43,10 @@ test("basic many2many: find tag, select tag, unselect tag", async () => {
             }
         }
     }
-    addBuilderOption(TestComponent);
+    addBuilderOption({
+        selector: ".test-options-target",
+        Component: TestComponent,
+    });
     await setupHTMLBuilder(`<div class="test-options-target">b</div>`);
 
     await contains(":iframe .test-options-target").click();
@@ -73,7 +75,7 @@ test("basic many2many: find tag, select tag, unselect tag", async () => {
     ]);
     expect("table tr").toHaveCount(2);
 
-    await contains("button.fa-minus").click();
+    await contains("button[data-icon='remove']").click();
     expect(selection).toEqual([{ id: 2, name: "Second", display_name: "Second" }]);
     expect("table tr").toHaveCount(1);
     expect("table input").toHaveValue("Second");
@@ -89,10 +91,9 @@ test("basic many2many: toggle dropdown without changing search term or selection
             expect(kwargs.domain).toEqual([]);
         }
     });
-    const selection = reactive([]);
+    const selection = proxy([]);
     class TestComponent extends BaseOptionComponent {
-        static selector = ".test-options-target";
-        static template = xml`<BasicMany2Many selection="this.selection" model="'test'" setSelection="this.setSelection.bind(this)" limit="1"/>`;
+        static template = xml`<BasicMany2Many selection="this.selection" model="'test'" setSelection.bind="this.setSelection" limit="1"/>`;
         selection = selection;
         setSelection(newSelection) {
             selection.length = 0;
@@ -101,7 +102,10 @@ test("basic many2many: toggle dropdown without changing search term or selection
             }
         }
     }
-    addBuilderOption(TestComponent);
+    addBuilderOption({
+        selector: ".test-options-target",
+        Component: TestComponent,
+    });
     await setupHTMLBuilder(`<div class="test-options-target">b</div>`);
 
     await contains(":iframe .test-options-target").click();
@@ -150,19 +154,22 @@ test("basic many2many: search with uncreated records", async () => {
     });
     class TestComponent extends BaseOptionComponent {
         static selector = ".test-options-target";
-        static template = xml`<BasicMany2Many selection="this.selection" model="'test'" limit="1" setSelection="this.setSelection.bind(this)"/>`;
-        setup() {
-            this.selection = [
-                { id: 1, name: "First" },
-                { id: 2, name: "Second" },
-                { id: "new-3", name: "Third" },
-            ]
-        }
+        static template = xml`<BasicMany2Many selection="this.selection" model="'test'" limit="1" setSelection.bind="this.setSelection"/>`;
+
+        selection = [
+            { id: 1, name: "First" },
+            { id: 2, name: "Second" },
+            { id: "new-3", name: "Third" },
+        ];
+
         setSelection() {
             //Not used but necessary for the component
         }
     }
-    addBuilderOption(TestComponent);
+    addBuilderOption({
+        selector: ".test-options-target",
+        Component: TestComponent,
+    });
     await setupHTMLBuilder(`<div class="test-options-target">b</div>`);
 
     await contains(":iframe .test-options-target").click();

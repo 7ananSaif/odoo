@@ -18,17 +18,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0beta\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-03 18:37+0000\n"
-"PO-Revision-Date: 2025-11-16 15:06+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Catalan <https://translate.odoo.com/projects/odoo-19/bus/ca/"
-">\n"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-08-31 19:04+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Catalan <https://translate.odoo.com/projects/odoo-s19-4/bus/"
+"ca/>\n"
 "Language: ca\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: bus
 #: model:ir.model,name:bus.model_res_groups
@@ -39,6 +39,14 @@ msgstr "Grups d'accés"
 #: model:ir.model,name:bus.model_ir_attachment
 msgid "Attachment"
 msgstr "Adjunt"
+
+#. module: bus
+#. odoo-javascript
+#: code:addons/bus/static/src/debug/bus_logs_menu_item.js:0
+msgid ""
+"Bus logs contain confidential information and must only be shared with "
+"trusted recipients."
+msgstr ""
 
 #. module: bus
 #: model:ir.model,name:bus.model_bus_listener_mixin
@@ -61,6 +69,11 @@ msgid "Contact"
 msgstr "Contacte"
 
 #. module: bus
+#: model:ir.model.fields,field_description:bus.field_bus_bus__create_date
+msgid "Create Date"
+msgstr ""
+
+#. module: bus
 #: model:ir.model,website_form_label:bus.model_res_partner
 msgid "Create a Customer"
 msgstr "Crear un client"
@@ -69,11 +82,6 @@ msgstr "Crear un client"
 #: model:ir.model.fields,field_description:bus.field_bus_bus__create_uid
 msgid "Created by"
 msgstr "Creat per"
-
-#. module: bus
-#: model:ir.model.fields,field_description:bus.field_bus_bus__create_date
-msgid "Created on"
-msgstr "Creat el"
 
 #. module: bus
 #: model:ir.model.fields,field_description:bus.field_bus_bus__display_name
@@ -89,6 +97,12 @@ msgstr "Creat el"
 #: model:ir.model.fields,field_description:bus.field_res_users_settings__display_name
 msgid "Display Name"
 msgstr "Nom de visualització"
+
+#. module: bus
+#. odoo-javascript
+#: code:addons/bus/static/src/debug/bus_logs_menu_item.js:0
+msgid "Download"
+msgstr ""
 
 #. module: bus
 #. odoo-javascript
@@ -123,6 +137,16 @@ msgid "ID"
 msgstr "ID"
 
 #. module: bus
+#: model:ir.module.module,shortdesc:base.module_bus
+msgid "IM Bus"
+msgstr ""
+
+#. module: bus
+#: model:ir.module.module,description:base.module_bus
+msgid "Instant Messaging Bus allow you to send messages to users, in live."
+msgstr ""
+
+#. module: bus
 #: model:ir.model.fields,field_description:bus.field_bus_bus__write_uid
 msgid "Last Updated by"
 msgstr "Última actualització per"
@@ -139,8 +163,8 @@ msgstr "Missatge"
 
 #. module: bus
 #: model:ir.model,name:bus.model_ir_model
-msgid "Models"
-msgstr "Models"
+msgid "Model"
+msgstr ""
 
 #. module: bus
 #: model:ir.model,name:bus.model_ir_qweb
@@ -149,35 +173,15 @@ msgstr ""
 
 #. module: bus
 #. odoo-javascript
-#: code:addons/bus/static/src/outdated_page_watcher_service.js:0
-#: code:addons/bus/static/src/services/assets_watchdog_service.js:0
-#: code:addons/bus/static/src/services/bus_service.js:0
+#: code:addons/bus/static/src/services/assets_watchdog_plugin.js:0
 msgid "Refresh"
 msgstr "Refresca"
 
 #. module: bus
 #. odoo-javascript
-#: code:addons/bus/static/src/outdated_page_watcher_service.js:0
-#: code:addons/bus/static/src/services/bus_service.js:0
-msgid ""
-"Save your work and refresh to get the latest updates and avoid potential "
-"issues."
-msgstr ""
-"Desa el teu treball i actualitza per obtindre les darreres novetats i evitar "
-"possibles problemes."
-
-#. module: bus
-#. odoo-javascript
-#: code:addons/bus/static/src/services/assets_watchdog_service.js:0
+#: code:addons/bus/static/src/services/assets_watchdog_plugin.js:0
 msgid "The page appears to be out of date."
 msgstr "Sembla que la pàgina està desactualitzada."
-
-#. module: bus
-#. odoo-javascript
-#: code:addons/bus/static/src/outdated_page_watcher_service.js:0
-#: code:addons/bus/static/src/services/bus_service.js:0
-msgid "The page is out of date"
-msgstr "La pàgina està desactualitzada"
 
 #. module: bus
 #: model:ir.model,name:bus.model_res_users
@@ -188,6 +192,12 @@ msgstr "Usuari"
 #: model:ir.model,name:bus.model_res_users_settings
 msgid "User Settings"
 msgstr "Arranjament d' usuari"
+
+#. module: bus
+#. odoo-javascript
+#: code:addons/bus/static/src/debug/bus_logs_menu_item.js:0
+msgid "You're about to download the bus logs"
+msgstr ""
 
 #. module: bus
 #. odoo-python
@@ -206,26 +216,12 @@ msgstr ""
 msgid "websocket message handling"
 msgstr "gestió de missatges websocket"
 
-#~ msgid "Away"
-#~ msgstr "Absent"
+msgid ""
+"Save your work and refresh to get the latest updates and avoid potential "
+"issues."
+msgstr ""
+"Desa el teu treball i actualitza per obtindre les darreres novetats i evitar "
+"possibles problemes."
 
-#~ msgid "IM Status"
-#~ msgstr "Estat de la conversa"
-
-#~ msgid "Last Poll"
-#~ msgstr "Última conversa"
-
-#~ msgid "Last Presence"
-#~ msgstr "Última presencia"
-
-#~ msgid "Offline"
-#~ msgstr "Fora de línia"
-
-#~ msgid "Online"
-#~ msgstr "En línia"
-
-#~ msgid "User Presence"
-#~ msgstr "Presència del usuari"
-
-#~ msgid "Users"
-#~ msgstr "Usuaris"
+msgid "The page is out of date"
+msgstr "La pàgina està desactualitzada"

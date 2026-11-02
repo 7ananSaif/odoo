@@ -15,13 +15,12 @@
                     confirm-title="Confirm Cards Update" confirm-label="Update Cards">Update <field name="card_requires_sync_count"/> Cards</button>
                 </header>
             </xpath>
-            <xpath expr="//header//button[@name='action_set_favorite']" position="attributes">
-                <attribute name="invisible" separator=" or " add="card_campaign_id"/>
-            </xpath>
             <xpath expr="//field[@name='mailing_model_id']" position="attributes">
                 <attribute name="readonly" separator=" or " add="card_campaign_id"/>
+                <attribute name="force_save">1</attribute> <!--send compute result instead of context default-->
             </xpath>
             <xpath expr="//label[@for='mailing_model_id']" position="before">
+                <field name="card_lang" invisible="not card_campaign_id"/>
                 <field name="card_campaign_id" invisible="not card_campaign_id" readonly="1"/>
             </xpath>
         </field>

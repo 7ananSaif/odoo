@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 import re
 
 from odoo import api, fields, models, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 
 class AccountReconcileModelLine(models.Model):
@@ -26,7 +25,7 @@ class AccountReconcileModelLine(models.Model):
         selection=[
             ('fixed', 'Fixed'),
             ('percentage', 'Percentage of balance'),
-            ('percentage_st_line', 'Percentage of statement line'),
+            ("percentage_st_line", "Percentage of transaction"),
             ('regex', 'From label'),
         ],
         required=True,
@@ -51,6 +50,9 @@ class AccountReconcileModelLine(models.Model):
     """)
     tax_ids = fields.Many2many(
         comodel_name='account.tax',
+        relation='account_reconcile_model_line_account_tax_rel',
+        column1='account_reconcile_model_line_id',
+        column2='account_tax_id',
         string="Taxes",
         ondelete='restrict',
         check_company=True,
@@ -78,9 +80,9 @@ class AccountReconcileModelLine(models.Model):
             if record.amount_type == 'fixed' and record.amount == 0:
                 raise UserError(_("The amount is not a number"))
             if record.amount_type == 'percentage_st_line' and record.amount == 0:
-                raise UserError(_("Balance percentage can't be 0"))
+                raise UserError(self.env._("Transaction percentage can't be 0"))
             if record.amount_type == 'percentage' and record.amount == 0:
-                raise UserError(_("Statement line percentage can't be 0"))
+                raise UserError(_("Balance percentage can't be 0"))
             if record.amount_type == 'regex':
                 try:
                     re.compile(record.amount_string)
@@ -104,8 +106,14 @@ class AccountReconcileModel(models.Model):
         string='Company', required=True, readonly=True,
         default=lambda self: self.env.company)
 
-    trigger = fields.Selection([('manual', 'Manual'), ('auto_reconcile', 'Automated')], default='manual', required=True, tracking=True,
-        help='Validate the statement line automatically (reconciliation based on your rule).')
+    trigger = fields.Selection(selection=[
+            ('manual', 'Manual'),
+            ('auto_reconcile', 'Automated'),
+        ],
+        compute='_compute_trigger',
+        required=True, tracking=True, store=True, readonly=False, precompute=True,
+        help="Validate the transaction automatically (reconciliation based on your rule)."
+    )
     next_activity_type_id = fields.Many2one(
         comodel_name='mail.activity.type',
         string='Next Activity')
@@ -136,15 +144,43 @@ class AccountReconcileModel(models.Model):
         ('contains', 'Contains'),
         ('not_contains', 'Not Contains'),
         ('match_regex', 'Match Regex'),
-    ], string='Label', tracking=True, help='''The reconciliation model will only be applied when either the statement line label, the transaction details or the note matches the following:
-        * Contains: The statement line must contains this string (case insensitive).
+    ], string="Label", tracking=True, help="""The reconciliation model will only be applied when either the transaction label, the transaction details or the note matches the following:
+        * Contains: The transaction must contain this string (case insensitive).
         * Not Contains: Negation of "Contains".
-        * Match Regex: Define your own regular expression.''')
+        * Match Regex: Define your own regular expression.""")
     match_label_param = fields.Char(string='Label Parameter', tracking=True)
     match_partner_ids = fields.Many2many('res.partner', string='Partners',
         help='The reconciliation model will only be applied to the selected customers/vendors.')
+    payment_tolerance = fields.Float(
+        string="Payment Tolerance",
+        required=True,
+        default=0.0,
+        tracking=True,
+    )
+    payment_tolerance_type = fields.Selection(selection=[
+        ('amount', "In amount"),
+        ('percentage', "In percentage"),
+    ], required=True, default='percentage', tracking=True)
+    matching_order = fields.Selection(selection=[
+        ('new_first', "Newest first"),
+        ('old_first', "Oldest first"),
+    ], required=True, default='old_first', tracking=True)
+    rule_type = fields.Selection(selection=[
+        ('matching_rule', "Matching rule"),
+        ('reco_model', "Reconciliation model"),
+    ], default='reco_model')
 
     line_ids = fields.One2many('account.reconcile.model.line', 'model_id', copy=True)
+
+    @api.constrains('payment_tolerance', 'payment_tolerance_type', 'rule_type')
+    def _check_matching_rules(self):
+        for model in self:
+            if model.payment_tolerance_type == 'amount' and model.payment_tolerance < 0:
+                raise ValidationError(self.env._("The payment tolerance must be positive."))
+            if model.payment_tolerance_type == 'percentage' and not 0 <= model.payment_tolerance <= 100:
+                raise ValidationError(self.env._("The percentage tolerance must be between 0 and 100."))
+            if model.rule_type == 'matching_rule' and model.trigger != 'auto_reconcile':
+                raise ValidationError(self.env._("Matching rules must be automatic."))
 
     @api.constrains('match_label', 'match_label_param')
     def _check_match_label_param(self):
@@ -166,6 +202,11 @@ class AccountReconcileModel(models.Model):
             is_partner_mapping = model.match_label and len(model.line_ids) == 1 and model.line_ids[0].partner_id and not model.line_ids[0].account_id
             model.mapped_partner_id = is_partner_mapping and model.line_ids[0].partner_id.id
 
+    @api.depends('rule_type')
+    def _compute_trigger(self):
+        for model in self:
+            model.trigger = 'auto_reconcile' if model.rule_type == 'matching_rule' else 'manual'
+
     def action_set_manual(self):
         self.trigger = 'manual'
 
@@ -186,15 +227,3 @@ class AccountReconcileModel(models.Model):
             'help': """<p class="o_view_nocontent_empty_folder">{}</p>""".format(_('This reconciliation model has created no entry so far')),
         })
         return action
-
-    def copy_data(self, default=None):
-        default = dict(default or {})
-        vals_list = super().copy_data(default)
-        if default.get('name'):
-            return vals_list
-        for model, vals in zip(self, vals_list):
-            name = _("%s (copy)", model.name)
-            while self.env['account.reconcile.model'].search_count([('name', '=', name)], limit=1):
-                name = _("%s (copy)", name)
-            vals['name'] = name
-        return vals_list

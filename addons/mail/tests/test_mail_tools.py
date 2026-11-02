@@ -6,6 +6,7 @@ from odoo.tests import tagged, users
 
 
 @tagged('mail_tools', 'res_partner')
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestMailTools(MailCommon):
 
     @classmethod
@@ -80,7 +81,7 @@ class TestMailTools(MailCommon):
         self.assertFalse(found, f'Found {found.email} / {found.name} instead of empty recordset')
 
         # limit incoming-compat aliases to a fixed set of domains
-        self.env['ir.config_parameter'].set_param('mail.catchall.domain.allowed', "tartopoils.com, brutijus.com")
+        self.env['ir.config_parameter'].set_str('mail.catchall.domain.allowed', "tartopoils.com, brutijus.com")
         for test_email, email_normalized, done in [
             ('"Customer" <test_localpart@gmail.com>', 'test_localpart@gmail.com', True),
             ('"Customer" <test_localpart@tartopoils.com>', 'test_localpart@tartopoils.com', False),
@@ -148,16 +149,18 @@ class TestMailTools(MailCommon):
         # formatted email
         encapsulated_test_email = f'"Robert Astaire" <{self._test_email}>'
         (follower_partner + test_partner).sudo().write({'email': encapsulated_test_email})
+        other_test_partner = follower_partner.copy({'name': 'Other Test Partner'})
         cases = [
-            (self._test_email, True),  # normalized
-            (self._test_email, False),  # normalized
-            (encapsulated_test_email, True),  # encapsulated, same
-            (encapsulated_test_email, False),  # encapsulated, same
-            (f'"AnotherName" <{self._test_email}', True),  # same normalized, other name
-            (f'"AnotherName" <{self._test_email}', False),  # same normalized, other name
+            (self._test_email, True, follower_partner),  # normalized
+            (self._test_email, False, test_partner),  # normalized
+            (encapsulated_test_email, True, follower_partner),  # encapsulated, same
+            (encapsulated_test_email, False, test_partner),  # encapsulated, same
+            (f'"AnotherName" <{self._test_email}', True, follower_partner),  # same normalized, other name
+            (f'"AnotherName" <{self._test_email}', False, test_partner),  # same normalized, other name
+            (f'"{other_test_partner.name}" <{self._test_email}>', True, follower_partner),  # same normalized, existing name
+            (f'"{other_test_partner.name}" <{self._test_email}>', False, other_test_partner),  # same normalized, existing name
         ]
-        for source, follower_check in cases:
-            expected_partner = follower_partner if follower_check else test_partner
+        for source, follower_check, expected_partner in cases:
             with self.subTest(source=source, follower_check=follower_check):
                 partner = self.env['res.partner']._mail_find_partner_from_emails(
                     [source], records=linked_record if follower_check else None
@@ -224,14 +227,15 @@ class TestMailTools(MailCommon):
 
 
 @tagged('mail_tools', 'mail_init')
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestMailUtils(MailCommon):
 
     def test_migrate_icp_to_domain(self):
         """ Test ICP to alias domain migration """
-        self.env["ir.config_parameter"].set_param("mail.catchall.domain", "test.migration.com")
-        self.env["ir.config_parameter"].set_param("mail.bounce.alias", "migrate+bounce")
-        self.env["ir.config_parameter"].set_param("mail.catchall.alias", "migrate+catchall")
-        self.env["ir.config_parameter"].set_param("mail.default.from", "migrate+default_from")
+        self.env["ir.config_parameter"].set_str("mail.catchall.domain", "test.migration.com")
+        self.env["ir.config_parameter"].set_str("mail.bounce.alias", "migrate+bounce")
+        self.env["ir.config_parameter"].set_str("mail.catchall.alias", "migrate+catchall")
+        self.env["ir.config_parameter"].set_str("mail.default.from", "migrate+default_from")
 
         existing = self.env["mail.alias.domain"].search([('name', '=', 'test.migration.com')])
         self.assertFalse(existing)

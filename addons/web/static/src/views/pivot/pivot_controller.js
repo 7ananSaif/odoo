@@ -8,18 +8,19 @@ import { CogMenu } from "@web/search/cog_menu/cog_menu";
 import { Widget } from "@web/views/widgets/widget";
 import { ActionHelper } from "@web/views/action_helper";
 
-import { Component, useEffect, useRef } from "@odoo/owl";
+import { Component, onMounted, onPatched, signal, t, useProps } from "@odoo/owl";
 
 export class PivotController extends Component {
     static template = "web.PivotView";
     static components = { Layout, SearchBar, CogMenu, Widget, ActionHelper };
-    static props = {
+    props = useProps({
         ...standardViewProps,
-        Model: Function,
-        modelParams: Object,
-        Renderer: Function,
-        buttonTemplate: String,
-    };
+        Model: t.function(),
+        modelParams: t.object(),
+        Renderer: t.function(),
+        buttonTemplate: t.string(),
+    });
+    rootRef = signal.ref();
 
     setup() {
         this.model = useModelWithSampleData(
@@ -29,21 +30,20 @@ export class PivotController extends Component {
         );
 
         const { setScrollFromState } = useSetupAction({
-            rootRef: useRef("root"),
+            rootRef: this.rootRef,
             getLocalState: () => {
                 const { data, metaData } = this.model;
                 return { data, metaData };
             },
             getContext: () => this.getContext(),
         });
-        useEffect(
-            (isReady) => {
-                if (isReady) {
-                    setScrollFromState();
-                }
-            },
-            () => [this.model.isReady]
-        );
+        const restoreScroll = () => {
+            if (this.model.isReady()) {
+                setScrollFromState();
+            }
+        };
+        onMounted(restoreScroll);
+        onPatched(restoreScroll);
         this.searchBarToggler = useSearchBarToggler();
     }
 

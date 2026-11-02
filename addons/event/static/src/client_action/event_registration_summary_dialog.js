@@ -1,4 +1,4 @@
-import { Component, onMounted, useState, useRef } from "@odoo/owl";
+import { Component, onMounted, proxy, signal, t, useProps } from "@odoo/owl";
 import { isBarcodeScannerSupported } from "@web/core/barcode/barcode_video_scanner";
 import { Dialog } from "@web/core/dialog/dialog";
 import { useService } from "@web/core/utils/hooks";
@@ -6,32 +6,43 @@ import { useService } from "@web/core/utils/hooks";
 export class EventRegistrationSummaryDialog extends Component {
     static template = "event.EventRegistrationSummaryDialog";
     static components = { Dialog };
-    static props = {
-        close: Function,
-        doNextScan: { type: Function, optional: true },
-        model: { type: Object, optional: true },
-        playSound: { type: Function, optional: true },
-        registration: { type: Object },
-    };
+
+    props = useProps({
+        close: t.function(),
+        doNextScan: t.function().optional(),
+        playSound: t.function().optional(),
+        registration: t.object(),
+    });
+
+    continueButtonRef = signal.ref();
 
     setup() {
         this.actionService = useService("action");
         this.isBarcodeScannerSupported = isBarcodeScannerSupported();
         this.orm = useService("orm");
         this.notification = useService("notification");
-        this.continueButtonRef = useRef("continueButton");
-        this.button = useState({enabled: true});
+        this.button = proxy({ enabled: true });
 
-        this.registrationStatus = useState({value: this.registration.status});
+        this.registrationStatus = proxy({ value: this.registration.status });
 
         onMounted(() => {
-            if (['already_registered', 'need_manual_confirmation'].includes(this.props.registration.status) && this.props.playSound) {
+            if (
+                ["already_registered", "need_manual_confirmation"].includes(
+                    this.props.registration.status
+                ) &&
+                this.props.playSound
+            ) {
                 this.props.playSound("notify");
-            } else if (['not_ongoing_event', 'canceled_registration'].includes(this.props.registration.status) && this.props.playSound) {
+            } else if (
+                ["not_ongoing_event", "canceled_registration"].includes(
+                    this.props.registration.status
+                ) &&
+                this.props.playSound
+            ) {
                 this.props.playSound("error");
             }
             // Without this, repeat barcode scans don't work as focus is lost
-            this.continueButtonRef.el?.focus();
+            this.continueButtonRef()?.focus();
         });
     }
 
@@ -43,31 +54,30 @@ export class EventRegistrationSummaryDialog extends Component {
         return this.registrationStatus.value === "need_manual_confirmation";
     }
 
-    async onRegistrationConfirm() {
-        if (this.registrationStatus.value !== "confirmed_registration") {
-            this.button.enabled = false
-            await this.orm.call("event.registration", "action_set_done", [this.registration.id]).catch(() => this.button.enabled = true);
-            this.registrationStatus.value = "confirmed_registration";
-        }
+    async onRegistrationClose() {
         this.props.close();
-        if (this.props.model) {
-            this.props.model.load();
-        }
         if (this.props.doNextScan) {
             this.onScanNext();
         }
     }
 
     async undoRegistration() {
-        if (["confirmed_registration", "already_registered"].includes(this.registrationStatus.value)) {
-            await this.orm.call("event.registration", "action_confirm", [this.registration.id]);
+        if (
+            ["confirmed_registration", "already_registered"].includes(this.registrationStatus.value)
+        ) {
+            if (this.registration.remaining_entries === 0) {
+                await this.orm.call("event.registration", "action_confirm_and_reset", [
+                    this.registration.id,
+                ]);
+            } else if (this.registration.remaining_entries > 0) {
+                await this.orm.call("event.registration", "action_cancel_last_sub_registration", [
+                    this.registration.id,
+                ]);
+            }
         } else if (this.registrationStatus.value == "unconfirmed_registration") {
             await this.orm.call("event.registration", "action_set_draft", [this.registration.id]);
         }
         this.props.close();
-        if (this.props.model) {
-            this.props.model.load();
-        }
     }
 
     async onRegistrationPrintPdf() {

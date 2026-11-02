@@ -1,9 +1,9 @@
 import { Domain } from "@web/core/domain";
 import { ChartDataSource, chartTypeToDataSourceMode } from "../data_source/chart_data_source";
-import { OdooUIPlugin } from "@spreadsheet/plugins";
+import { OdooEvaluationPlugin } from "@spreadsheet/plugins";
 import { deepEqual } from "@web/core/utils/objects";
 
-export class OdooChartCoreViewPlugin extends OdooUIPlugin {
+export class OdooChartCoreViewPlugin extends OdooEvaluationPlugin {
     static getters = /** @type {const} */ (["getChartDataSource", "getOdooEnv"]);
 
     shouldChartUpdateReloadDataSource = false;
@@ -26,7 +26,7 @@ export class OdooChartCoreViewPlugin extends OdooUIPlugin {
                 }
                 break;
             case "UPDATE_CHART": {
-                if (cmd.definition.type.startsWith("odoo_")) {
+                if (cmd.definition.dataSource?.type === "odoo") {
                     const chart = this.getters.getChart(cmd.chartId);
                     if (this._shouldReloadDataSource(cmd.chartId, cmd.definition)) {
                         this.shouldChartUpdateReloadDataSource = true;
@@ -48,18 +48,17 @@ export class OdooChartCoreViewPlugin extends OdooUIPlugin {
     handle(cmd) {
         switch (cmd.type) {
             case "CREATE_CHART": {
-                if (cmd.definition.type.startsWith("odoo_")) {
+                if (cmd.definition.dataSource?.type === "odoo") {
                     this._setupChartDataSource(cmd.chartId);
                 }
                 break;
             }
             case "UPDATE_CHART": {
-                if (cmd.definition.type.startsWith("odoo_")) {
+                if (cmd.definition.dataSource?.type === "odoo") {
                     if (this.shouldChartUpdateReloadDataSource) {
                         this._resetChartDataSource(cmd.chartId);
                         this.shouldChartUpdateReloadDataSource = false;
                     }
-                    this._setChartDataSource(cmd.chartId);
                 }
                 break;
             }
@@ -174,20 +173,10 @@ export class OdooChartCoreViewPlugin extends OdooUIPlugin {
      * @param {string} chartId
      */
     _resetChartDataSource(chartId) {
-        const definition = this.getters.getChart(chartId).getDefinitionForDataSource();
+        const definition = this.getters.getChartDefinition(chartId);
         const dataSourceId = this._getOdooChartDataSourceId(chartId);
         this.charts[dataSourceId] = new ChartDataSource(this.custom, definition);
         this._addDomain(chartId);
-        this._setChartDataSource(chartId);
-    }
-
-    /**
-     * Sets the datasource on the corresponding chart
-     * @param {string} chartId
-     */
-    _setChartDataSource(chartId) {
-        const chart = this.getters.getChart(chartId);
-        chart.setDataSource(this.getChartDataSource(chartId));
     }
 
     _getOdooChartDataSourceId(chartId) {
@@ -212,14 +201,19 @@ export class OdooChartCoreViewPlugin extends OdooUIPlugin {
     }
 
     _shouldReloadDataSource(chartId, definition) {
-        const chart = this.getters.getChart(chartId);
-        const dataSource = this.getChartDataSource(chartId);
+        const newDataSource = definition.dataSource;
+        const currentDefinition = this.getters.getChartDefinition(chartId);
+        const currentDataSource = currentDefinition.dataSource;
+        const dataSourceInstance = this.getChartDataSource(chartId);
         return (
-            !deepEqual(chart.searchParams.groupBy, definition.searchParams.groupBy) ||
-            chart.metaData.cumulated !== definition.cumulative ||
-            chart.cumulatedStart !== definition.cumulatedStart ||
-            dataSource.getInitialDomainString() !==
-                new Domain(definition.searchParams.domain).toString()
+            !deepEqual(
+                currentDataSource.searchParams.groupBy,
+                newDataSource.searchParams.groupBy
+            ) ||
+            currentDataSource.metaData.cumulated !== newDataSource.cumulative ||
+            currentDataSource.cumulatedStart !== newDataSource.cumulatedStart ||
+            dataSourceInstance.getInitialDomainString() !==
+                new Domain(newDataSource.searchParams.domain).toString()
         );
     }
 }

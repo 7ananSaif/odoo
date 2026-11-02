@@ -8,6 +8,11 @@ class ResPartner(models.Model):
 
     invoice_edi_format = fields.Selection(selection_add=[('tw_ecpay', "ECPay")])
 
-    def _l10n_tw_edi_formatted_address(self):
-        address = self._display_address(without_company=True)
-        return ", ".join(filter(None, map(str.strip, address.splitlines())))
+    def _compute_is_company(self):
+        l10n_tw_partners = self.filtered(lambda p: p.country_code == 'TW')
+        for partner in l10n_tw_partners:
+            partner.is_company = False
+            if partner.has_vat and partner.vat.isdigit() and len(partner.vat) == 8:
+                partner.is_company = True
+
+        super(ResPartner, self - l10n_tw_partners)._compute_is_company()

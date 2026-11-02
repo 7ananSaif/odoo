@@ -6,19 +6,18 @@
     'description': """
 Convert employee's extra hours to leave allocations.
     """,
-    'version': '1.0',
     'depends': ['hr_attendance', 'hr_holidays'],
     'auto_install': True,
     'data': [
-        'security/ir.model.access.csv',
         'views/hr_leave_allocation_views.xml',
-        'views/hr_leave_type_views.xml',
-        'views/hr_leave_views.xml',
-        'views/hr_employee_views.xml',
         'views/hr_leave_accrual_level_views.xml',
         'views/hr_leave_attendance_report_views.xml',
         'views/hr_attendance_overtime_views.xml',
-        'data/hr_holidays_attendance_data.xml',
+        'views/hr_attendance_views.xml',
+        'security/ir.access.csv',
+    ],
+    'demo': [
+        'data/hr_holidays_attendance_demo.xml',
     ],
     'assets': {
         'web.assets_backend': [

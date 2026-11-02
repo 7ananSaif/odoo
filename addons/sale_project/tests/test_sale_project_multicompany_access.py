@@ -1,71 +1,69 @@
-from odoo.tests import TransactionCase
-from odoo.tests import Form
+from odoo import Command
+from odoo.tests import Form, TransactionCase
 
 
 class TestSaleOrderAccess(TransactionCase):
-
-    def setUp(self):
-
-        self.company_1 = self.env['res.company'].create({
-            'name': 'Company 1',
-            'currency_id': self.env.ref('base.USD').id,
-        })
-        self.company_2 = self.env['res.company'].create({
-            'name': 'Company 2',
-            'currency_id': self.env.ref('base.EUR').id,
-        })
-        self.user_company_1 = self.env['res.users'].create({
+    def test_user_with_company_1_access_can_open_sale_order(self):
+        company_1, company_2 = self.env['res.company'].create([
+            {"name": "Company 1 Sale Order"},
+            {"name": "Company 2 Project"},
+        ])
+        user_company_1 = self.env['res.users'].create({
             'name': 'User 1',
             'login': 'user1',
             'password': 'password',
-            'company_ids': [(6, 0, [self.company_1.id])],
-            'company_id': self.company_1.id,
+            'company_ids': [(6, 0, [company_1.id])],
+            'company_id': company_1.id,
             'group_ids': [(6, 0, [
                 self.env.ref('sales_team.group_sale_manager').id,
                 self.env.ref('project.group_project_manager').id,
             ])]
         })
-        self.admin_user = self.env['res.users'].create({
+        admin_user = self.env['res.users'].create({
             'name': 'Admin User',
             'login': 'adminn',
             'password': 'password',
-            'company_ids': [(6, 0, [self.company_1.id, self.company_2.id])],
-            'company_id': self.company_1.id,
+            'company_ids': [(6, 0, [company_1.id, company_2.id])],
+            'company_id': company_1.id,
             'group_ids': [(6, 0, [
                 self.env.ref('sales_team.group_sale_manager').id,
                 self.env.ref('project.group_project_manager').id,
             ])],
             })
-        self.partner = self.env['res.partner'].create({
+        partner = self.env['res.partner'].create({
             'name': 'XYZ',
             'type': 'contact'
         })
-        self.project_company_2 = self.env['project.project'].create({
+        product_order_service = self.env['product.product'].create({
+            'name': "Service Ordered",
+            'standard_price': 11,
+            'list_price': 13,
+            'type': 'service',
+        })
+        project_company_2 = self.env['project.project'].create({
             'name': 'Project Company 2',
-            'user_id': self.admin_user.id,
-            'company_id': self.company_2.id,
-            'partner_id': self.partner.id,
+            'user_id': admin_user.id,
+            'company_id': company_2.id,
+            'partner_id': partner.id,
             'allow_billable': True,
         })
-        self.sale_order_company_1 = self.env['sale.order'].create({
-            'user_id': self.admin_user.id,
-            'partner_id': self.partner.id,
-            'company_id': self.company_1.id,
+        sale_order_company_1 = self.env['sale.order'].create({
+            'user_id': admin_user.id,
+            'partner_id': partner.id,
+            'company_id': company_1.id,
             'state': 'sale',
-            'project_id': self.project_company_2.id
+            'project_id': project_company_2.id,
+            'order_line': [
+                Command.create({
+                    'product_id': product_order_service.id,
+                    'product_uom_qty': 1,
+                    'project_id':  project_company_2.id,
+                }),
+            ]
         })
-        self.sale_line = self.env['sale.order.line'].create({
-            'name': 'XA',
-            'product_uom_qty': 1.00,
-            'price_unit': 20.00,
-            'order_id': self.sale_order_company_1.id,
-            'project_id': self.project_company_2.id,
+        project_company_2.write({
+            'sale_order_id': sale_order_company_1.id,
+            'sale_line_id': sale_order_company_1.order_line.id
         })
-        self.project_company_2.write({
-            'sale_order_id': self.sale_order_company_1.id,
-            'sale_line_id': self.sale_line.id,
-        })
-
-    def test_user_with_company_1_access_can_open_sale_order(self):
-        Form(self.sale_order_company_1.with_user(self.admin_user).with_company(self.company_1))
-        Form(self.sale_order_company_1.with_user(self.user_company_1).with_company(self.company_1))
+        Form(sale_order_company_1.with_user(admin_user).with_company(company_1))
+        Form(sale_order_company_1.with_user(user_company_1).with_company(company_1))

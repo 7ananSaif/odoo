@@ -3,9 +3,9 @@ import { ProductPricelist } from "@point_of_sale/../tests/unit/data/product_pric
 ProductPricelist._records = [
     ...ProductPricelist._records,
     {
-        id: 4,
+        id: 101,
         name: "Test Pricelist Variants",
         display_name: "Test Pricelist Variants (USD)",
-        item_ids: [3, 4],
+        item_ids: [101, 102],
     },
 ];

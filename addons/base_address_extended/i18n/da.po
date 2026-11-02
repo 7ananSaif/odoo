@@ -7,21 +7,35 @@
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# "Kira Petersen François (peti)" <peti@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~15.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-11-08 17:56+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Danish <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-11 17:42+0000\n"
+"PO-Revision-Date: 2026-09-09 14:03+0000\n"
+"Last-Translator: \"Kira Petersen François (peti)\" <peti@odoo.com>\n"
+"Language-Team: Danish <https://translate.odoo.com/projects/odoo-master/"
 "base_address_extended/da/>\n"
 "Language: da\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: base_address_extended
+#: model:ir.module.module,description:base.module_base_address_extended
+msgid ""
+"\n"
+"Extended Addresses Management\n"
+"=============================\n"
+"\n"
+"This module provides the ability to choose a city from a list (in specific "
+"countries).\n"
+"\n"
+"It is primarily used for EDIs that might need a special city code.\n"
+msgstr ""
 
 #. module: base_address_extended
 #: model_terms:ir.ui.view,arch_db:base_address_extended.view_res_country_city_extended_form
@@ -29,9 +43,9 @@ msgid "<span class=\"o_stat_text\">Cities</span>"
 msgstr "<span class=\"o_stat_text\">Byer</span>"
 
 #. module: base_address_extended
-#: model_terms:ir.ui.view,arch_db:base_address_extended.address_street_extended_form
-msgid "<span> - </span>"
-msgstr "<span> - </span>"
+#: model:ir.module.module,summary:base.module_base_address_extended
+msgid "Add extra fields on addresses"
+msgstr ""
 
 #. module: base_address_extended
 #: model:ir.model.fields,help:base_address_extended.field_res_country__enforce_cities
@@ -41,19 +55,17 @@ msgid ""
 "Check this box to ensure every address created in that country has a 'City' "
 "chosen in the list of the country's cities."
 msgstr ""
-"Afkryds denne boks for at være sikker på at alle adresser, som oprettes i "
-"det land, har en 'By' valgt fra listen over det pågældende lands byer."
+"Sæt kryds i dette felt for at sikre, at alle adresser oprettet i dette land "
+"har en by valgt fra listen over landets byer."
 
 #. module: base_address_extended
 #: model:ir.actions.act_window,name:base_address_extended.action_res_city_tree
-#: model:ir.ui.menu,name:base_address_extended.menu_res_city
 msgid "Cities"
 msgstr "Byer"
 
 #. module: base_address_extended
 #: model:ir.model,name:base_address_extended.model_res_city
 #: model_terms:ir.ui.view,arch_db:base_address_extended.address_street_extended_city_form
-#: model_terms:ir.ui.view,arch_db:base_address_extended.address_street_extended_form
 #: model_terms:ir.ui.view,arch_db:base_address_extended.view_city_filter
 #: model_terms:ir.ui.view,arch_db:base_address_extended.view_city_tree
 msgid "City"
@@ -63,7 +75,7 @@ msgstr "By"
 #: model:ir.model.fields,field_description:base_address_extended.field_res_partner__city_id
 #: model:ir.model.fields,field_description:base_address_extended.field_res_users__city_id
 msgid "City ID"
-msgstr "By ID"
+msgstr "By-ID"
 
 #. module: base_address_extended
 #: model:ir.model,name:base_address_extended.model_res_partner
@@ -73,9 +85,13 @@ msgstr "Kontakt"
 #. module: base_address_extended
 #: model:ir.model,name:base_address_extended.model_res_country
 #: model:ir.model.fields,field_description:base_address_extended.field_res_city__country_id
-#: model_terms:ir.ui.view,arch_db:base_address_extended.address_street_extended_form
 msgid "Country"
 msgstr "Land"
+
+#. module: base_address_extended
+#: model:ir.model.fields,field_description:base_address_extended.field_res_city__country_code
+msgid "Country Code"
+msgstr "Landekode"
 
 #. module: base_address_extended
 #: model:ir.model,website_form_label:base_address_extended.model_res_partner
@@ -97,7 +113,7 @@ msgstr "Oprettet den"
 #: model:ir.model.fields,field_description:base_address_extended.field_res_country__display_name
 #: model:ir.model.fields,field_description:base_address_extended.field_res_partner__display_name
 msgid "Display Name"
-msgstr "Vis navn"
+msgstr "Visningsnavn"
 
 #. module: base_address_extended
 #: model_terms:ir.actions.act_window,help:base_address_extended.action_res_city_tree
@@ -107,22 +123,17 @@ msgid ""
 "country separately\n"
 "                to enforce any address of it to have a city in this list."
 msgstr ""
-"Vis og administrer listen over alle byer, der kan tildeles\n"
-"               din partners lister. Bemærk, at en valgmulighed kan "
-"indstilles for hvert land separat\n"
-"                for at gennemtvinge at enhver adresse i en by er i denne "
-"liste."
+"Vis og administrér listen over alle byer, der kan tildeles\n"
+"               dine partnere. Bemærk, at indstillingen kan konfigureres "
+"separat\n"
+"                for hvert land for at sikre, at enhver adresse i en by skal "
+"være på denne liste."
 
 #. module: base_address_extended
 #: model:ir.model.fields,field_description:base_address_extended.field_res_partner__street_number2
 #: model:ir.model.fields,field_description:base_address_extended.field_res_users__street_number2
 msgid "Door"
 msgstr "Dør"
-
-#. module: base_address_extended
-#: model_terms:ir.ui.view,arch_db:base_address_extended.address_street_extended_form
-msgid "Door #"
-msgstr "Dør #"
 
 #. module: base_address_extended
 #: model:ir.model.fields,field_description:base_address_extended.field_res_country__enforce_cities
@@ -132,15 +143,15 @@ msgid "Enforce Cities"
 msgstr "Gennemtving byer"
 
 #. module: base_address_extended
+#: model:ir.module.module,shortdesc:base.module_base_address_extended
+msgid "Extended Addresses"
+msgstr ""
+
+#. module: base_address_extended
 #: model:ir.model.fields,field_description:base_address_extended.field_res_partner__street_number
 #: model:ir.model.fields,field_description:base_address_extended.field_res_users__street_number
 msgid "House"
 msgstr "Hus"
-
-#. module: base_address_extended
-#: model_terms:ir.ui.view,arch_db:base_address_extended.address_street_extended_form
-msgid "House #"
-msgstr "Hus #"
 
 #. module: base_address_extended
 #: model:ir.model.fields,field_description:base_address_extended.field_res_city__id
@@ -161,6 +172,7 @@ msgstr "Sidst opdateret den"
 
 #. module: base_address_extended
 #: model:ir.model.fields,field_description:base_address_extended.field_res_city__name
+#: model_terms:ir.ui.view,arch_db:base_address_extended.res_city_view_form
 msgid "Name"
 msgstr "Navn"
 
@@ -171,19 +183,8 @@ msgstr "Søg by"
 
 #. module: base_address_extended
 #: model:ir.model.fields,field_description:base_address_extended.field_res_city__state_id
-#: model_terms:ir.ui.view,arch_db:base_address_extended.address_street_extended_form
 msgid "State"
-msgstr "Status"
-
-#. module: base_address_extended
-#: model_terms:ir.ui.view,arch_db:base_address_extended.address_street_extended_form
-msgid "Street"
-msgstr "Vej"
-
-#. module: base_address_extended
-#: model_terms:ir.ui.view,arch_db:base_address_extended.address_street_extended_form
-msgid "Street 2..."
-msgstr "Gade 2..."
+msgstr "Stat"
 
 #. module: base_address_extended
 #: model:ir.model.fields,field_description:base_address_extended.field_res_partner__street_name
@@ -192,16 +193,43 @@ msgid "Street Name"
 msgstr "Gadenavn"
 
 #. module: base_address_extended
-#: model_terms:ir.ui.view,arch_db:base_address_extended.address_street_extended_form
-msgid "Street..."
-msgstr "Gade..."
+#: model:ir.model.fields,help:base_address_extended.field_res_city__country_code
+msgid ""
+"The ISO country code in two chars. \n"
+"You can use this field for quick search."
+msgstr ""
+"SO-landekoden med to tegn. \n"
+"Dette felt kan bruges til hurtig søgning."
 
 #. module: base_address_extended
-#: model_terms:ir.ui.view,arch_db:base_address_extended.address_street_extended_form
+#: model_terms:ir.ui.view,arch_db:base_address_extended.res_city_view_form
 msgid "ZIP"
-msgstr "Post nr."
+msgstr "Postnummer"
 
 #. module: base_address_extended
 #: model:ir.model.fields,field_description:base_address_extended.field_res_city__zipcode
 msgid "Zip"
 msgstr "Postnummer"
+
+#. module: base_address_extended
+#: model_terms:ir.ui.view,arch_db:base_address_extended.res_city_view_form
+msgid "e.g. London"
+msgstr "f.eks. London"
+
+#~ msgid "<span> - </span>"
+#~ msgstr "<span> - </span>"
+
+#~ msgid "Door #"
+#~ msgstr "Dør #"
+
+#~ msgid "House #"
+#~ msgstr "Hus #"
+
+#~ msgid "Street"
+#~ msgstr "Gade"
+
+#~ msgid "Street 2..."
+#~ msgstr "Gade 2 ..."
+
+#~ msgid "Street..."
+#~ msgstr "Gade ..."

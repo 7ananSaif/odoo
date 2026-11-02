@@ -1,10 +1,10 @@
 import { BorderConfigurator } from "@html_builder/plugins/border_configurator_option";
+import { addBuilderOption } from "@html_builder/../tests/helpers";
 import { expect, test } from "@odoo/hoot";
 import { waitFor, waitForNone, click, queryOne } from "@odoo/hoot-dom";
 import { xml } from "@odoo/owl";
 import { contains, patchWithCleanup } from "@web/../tests/web_test_helpers";
 import {
-    addOption,
     defineWebsiteModels,
     setupWebsiteBuilder,
 } from "@website/../tests/builder/website_helpers";
@@ -30,7 +30,7 @@ test("empty border input is treated as 0", async () => {
             return hasBorder;
         },
     });
-    addOption({
+    addBuilderOption({
         selector: ".test-options-target",
         template: xml`<BorderConfigurator label="'Border'"/>`,
     });
@@ -60,7 +60,7 @@ test("empty border input is treated as 0", async () => {
     expect.verifySteps(["hasBorder"]);
 });
 test("hasBorder is true when multiple-value border starts by 0", async () => {
-    addOption({
+    addBuilderOption({
         selector: ".test-options-target",
         template: xml`<BorderConfigurator label="'Border'"/>`,
     });

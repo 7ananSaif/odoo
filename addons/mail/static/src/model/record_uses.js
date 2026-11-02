@@ -1,38 +1,42 @@
 export class RecordUses {
     /**
      * Track the uses of a record. Each record contains a single `RecordUses`:
-     * - Key: localId of record that uses current record
+     * - Key: raw record that uses current record
      * - Value: Map where key is relational field name, and value is number
      *          of time current record is present in this relation.
      *
-     * @type {Map<string, Map<string, number>>}}
+     * @type {Map<Record, Map<string, number>>}}
      */
     data = new Map();
     /** @param {RecordList} list */
     add(list) {
-        const record = list._.owner;
-        if (!this.data.has(record.localId)) {
-            this.data.set(record.localId, new Map());
+        const owner = list._.owner;
+        let use = this.data.get(owner);
+        if (!use) {
+            use = new Map();
+            this.data.set(owner, use);
         }
-        const use = this.data.get(record.localId);
-        if (!use.get(list._.name)) {
-            use.set(list._.name, 0);
-        }
-        use.set(list._.name, use.get(list._.name) + 1);
+        const name = list._.name;
+        use.set(name, (use.get(name) ?? 0) + 1);
     }
     /** @param {RecordList} list */
     delete(list) {
-        const record = list._.owner;
-        if (!this.data.has(record.localId)) {
+        const use = this.data.get(list._.owner);
+        if (!use) {
             return;
         }
-        const use = this.data.get(record.localId);
-        if (!use.get(list._.name)) {
+        const name = list._.name;
+        const count = use.get(name);
+        if (!count) {
             return;
         }
-        use.set(list._.name, use.get(list._.name) - 1);
-        if (use.get(list._.name) === 0) {
-            use.delete(list._.name);
+        if (count === 1) {
+            use.delete(name);
+        } else {
+            use.set(name, count - 1);
+        }
+        if (use.size === 0) {
+            this.data.delete(list._.owner);
         }
     }
 }

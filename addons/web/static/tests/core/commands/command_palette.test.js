@@ -1,6 +1,5 @@
 import { expect, getFixture, test } from "@odoo/hoot";
 import {
-    Deferred,
     advanceTime,
     animationFrame,
     click,
@@ -12,21 +11,19 @@ import {
     queryOne,
     runAllTimers,
 } from "@odoo/hoot-dom";
+import { Component, useProps, xml } from "@odoo/owl";
 import {
     contains,
     getService,
+    isSmall,
     mountWithCleanup,
     patchWithCleanup,
 } from "@web/../tests/web_test_helpers";
-
-import { Component, xml } from "@odoo/owl";
-
 import { CommandPalette } from "@web/core/commands/command_palette";
 import { MainComponentsContainer } from "@web/core/main_components_container";
 
 class FooterComponent extends Component {
     static template = xml`<span>My footer</span>`;
-    static props = ["*"];
 }
 
 test("empty providers", async () => {
@@ -239,6 +236,7 @@ test("custom placeholder", async () => {
     expect(".o_command_palette_search input").toHaveAttribute("placeholder", "@ placeholder");
 });
 
+test.tags("desktop");
 test("add a footer", async () => {
     await mountWithCleanup(MainComponentsContainer);
     const config = {
@@ -259,10 +257,10 @@ test("command with a Custom Component", async () => {
     class CustomComponent extends Component {
         static template = xml`
             <div class="o_command_custom">
-                <span t-esc="props.name"/>
+                <span t-out="this.props.name"/>
             </div>
         `;
-        static props = ["*"];
+        props = useProps();
     }
 
     await mountWithCleanup(MainComponentsContainer);
@@ -445,10 +443,10 @@ test("multi provider with the same namespace", async () => {
 
 test("check the concurrency during a research", async () => {
     await mountWithCleanup(MainComponentsContainer);
-    const imSearchDef = new Deferred();
-    const provide = async (env, options) => {
+    const imSearchDef = Promise.withResolvers();
+    const provide = async (options) => {
         if (options.searchValue) {
-            await imSearchDef;
+            await imSearchDef.promise;
         }
         return [
             {
@@ -567,12 +565,20 @@ test("command palette keeps the same top position when its content changes", asy
     await animationFrame();
     expect(".o_command_palette").toHaveCount(1);
     expect(".o_command").toHaveCount(4);
-    expect(".o_command_palette").toHaveRect({ top: 120 });
+    if (isSmall()) {
+        expect(".o_command_palette").toHaveRect({ top: 0 });
+    } else {
+        expect(".o_command_palette").toHaveRect({ top: 120 });
+    }
     await click(".o_command_palette_search input");
     await edit("z");
     await runAllTimers();
     expect(".o_command").toHaveCount(0);
-    expect(".o_command_palette").toHaveRect({ top: 120 });
+    if (isSmall()) {
+        expect(".o_command_palette").toHaveRect({ top: 0 });
+    } else {
+        expect(".o_command_palette").toHaveRect({ top: 120 });
+    }
 });
 
 test("open the command palette with a namespace already in the searchbar", async () => {
@@ -886,8 +892,8 @@ test("click on command", async () => {
     expect(".o_command_palette").toHaveCount(1);
     expect(".o_command").toHaveCount(2);
     expect(queryAllTexts(".o_command")).toEqual(["Command1", "Command2"]);
-    expect(".o_command.focused").toHaveText(commands[0].name);
-    await contains(".o_command.focused").click();
+    expect(".o_command:first").toHaveText(commands[0].name);
+    await contains(".o_command:first").click();
     expect.verifySteps(["C1"]);
 });
 
@@ -922,7 +928,7 @@ test("press enter on command", async () => {
     expect(".o_command_palette").toHaveCount(1);
     expect(".o_command").toHaveCount(2);
     expect(queryAllTexts(".o_command")).toEqual(["Command1", "Command2"]);
-    expect(".o_command.focused").toHaveText(commands[0].name);
+    expect(".o_command:first").toHaveText(commands[0].name);
     await press("arrowdown");
     await animationFrame();
     await press("enter");
@@ -931,6 +937,7 @@ test("press enter on command", async () => {
     expect.verifySteps(["C2"]);
 });
 
+test.tags("desktop");
 test("keyboard navigation scroll", async () => {
     await mountWithCleanup(MainComponentsContainer);
     const commands = [
@@ -1119,7 +1126,7 @@ test("multi level command", async () => {
     await runAllTimers();
     expect(".o_command").toHaveCount(1);
     expect(queryAllTexts(".o_command")).toEqual(["Command1"]);
-    expect(".o_command.focused").toHaveText(commands[0].name);
+    expect(".o_command:first").toHaveText(commands[0].name);
     await press("enter");
     await animationFrame();
     expect(".o_command").toHaveCount(1);
@@ -1152,6 +1159,7 @@ test("command palette dialog can be rendered and closed on outside click", async
     expect(".o_command_palette").toHaveCount(0);
 });
 
+test.tags("desktop");
 test("navigate in the command palette with the arrows", async () => {
     expect.assertions(6);
 
@@ -1426,7 +1434,7 @@ test("generate new session id when opened", async () => {
     await mountWithCleanup(MainComponentsContainer);
     const providers = [
         {
-            provide: (env, { sessionId }) => {
+            provide: ({ sessionId }) => {
                 lastSessionId = sessionId;
                 return [];
             },
@@ -1506,14 +1514,14 @@ test("checks that href is correctly used", async () => {
 });
 
 test("searchValue must not change without edition", async () => {
-    const provideDef = new Deferred();
+    const provideDef = Promise.withResolvers();
 
     await mountWithCleanup(MainComponentsContainer);
     const providers = [
         {
-            provide: async (env, { searchValue }) => {
+            provide: async ({ searchValue }) => {
                 if (searchValue === "abc") {
-                    await provideDef;
+                    await provideDef.promise;
                 }
                 return [
                     {
@@ -1548,15 +1556,15 @@ test("searchValue must not change without edition", async () => {
 });
 
 test("display spinner while loading results from providers", async () => {
-    const provideDef = new Deferred();
+    const provideDef = Promise.withResolvers();
     await mountWithCleanup(MainComponentsContainer);
     getService("dialog").add(CommandPalette, {
         config: {
             providers: [
                 {
                     namespace: "?",
-                    provide: async (env, { searchValue }) => {
-                        await provideDef;
+                    provide: async () => {
+                        await provideDef.promise;
                         return [];
                     },
                 },
@@ -1565,15 +1573,15 @@ test("display spinner while loading results from providers", async () => {
     });
 
     await animationFrame();
-    expect(".o_command_palette_search i.oi.oi-search").toHaveCount(1);
-    expect(".o_command_palette_search i.fa.fa-circle-o-notch").toHaveCount(0);
+    expect(".o_command_palette_search i[data-icon='search']").toHaveCount(1);
+    expect(".o_command_palette_search i[data-icon='autorenew']").toHaveCount(0);
     await click(".o_command_palette_search input");
     await edit("? blabla");
     await runAllTimers();
-    expect(".o_command_palette_search i.oi.oi-search").toHaveCount(0);
-    expect(".o_command_palette_search i.fa.fa-circle-o-notch").toHaveCount(1);
+    expect(".o_command_palette_search i[data-icon='search']").toHaveCount(0);
+    expect(".o_command_palette_search i[data-icon='autorenew']").toHaveCount(1);
     provideDef.resolve();
     await animationFrame();
-    expect(".o_command_palette_search i.oi.oi-search").toHaveCount(1);
-    expect(".o_command_palette_search i.fa.fa-circle-o-notch").toHaveCount(0);
+    expect(".o_command_palette_search i[data-icon='search']").toHaveCount(1);
+    expect(".o_command_palette_search i[data-icon='autorenew']").toHaveCount(0);
 });

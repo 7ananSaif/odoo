@@ -1,9 +1,11 @@
-import { onWillUnmount, useEffect, useExternalListener, useRef } from "@odoo/owl";
+import { useLayoutEffect } from "@web/owl2/utils";
+import { onWillDestroy, useListener } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 import { deepMerge } from "@web/core/utils/objects";
 import { scrollTo } from "@web/core/utils/scrolling";
 import { throttleForAnimation } from "@web/core/utils/timing";
 import { browser } from "@web/core/browser/browser";
+import { isVisible } from "@web/core/utils/ui";
 
 export const ACTIVE_ELEMENT_CLASS = "focus";
 const throttledFocus = throttleForAnimation((el) => el?.focus());
@@ -41,7 +43,7 @@ class NavigationItem {
         this.el = el;
         if (this._options.shouldFocusChildInput) {
             const subInput = el.querySelector(":scope input, :scope button, :scope textarea");
-            this.target = subInput || el;
+            this.target = isVisible(subInput) ? subInput : el;
         } else {
             this.target = el;
         }
@@ -117,7 +119,7 @@ export class Navigator {
 
     /**
      * @param {NavigationOptions} options
-     * @param {import("@web/core/hotkeys/hotkey_service").HotkeyService} hotkeyService
+     * @param {import("@web/core/hotkeys/hotkey_plugin").HotkeyService} hotkeyService
      */
     constructor(options, hotkeyService) {
         this._hotkeyService = hotkeyService;
@@ -132,16 +134,20 @@ export class Navigator {
                 shouldRegisterHotkeys: true,
                 virtualFocus: false,
                 hotkeys: {
+                    ...(!options.virtualFocus
+                        ? {}
+                        : {
+                              tab: {
+                                  callback: () => this.next(),
+                                  bypassEditableProtection: true,
+                              },
+                              "shift+tab": {
+                                  callback: () => this.previous(),
+                                  bypassEditableProtection: true,
+                              },
+                          }),
                     home: () => this.items[0]?.setActive(),
                     end: () => this.items.at(-1)?.setActive(),
-                    tab: {
-                        callback: () => this.next(),
-                        bypassEditableProtection: true,
-                    },
-                    "shift+tab": {
-                        callback: () => this.previous(),
-                        bypassEditableProtection: true,
-                    },
                     arrowdown: {
                         callback: () => this.next(),
                         bypassEditableProtection: true,
@@ -421,23 +427,26 @@ export class Navigator {
  * - Optional virtual focus
  * - Focus on mouse enter
  *
- * @param {string|Object} containerRef
+ * @param {import("@odoo/owl").Signal<HTMLElement>} containerRef ref on the
+ *  container element (`null` while unmounted)
  * @param {NavigationOptions} options
  * @returns {Navigator}
  */
 export function useNavigation(containerRef, options = {}) {
-    containerRef = typeof containerRef === "string" ? useRef(containerRef) : containerRef;
+    // The optional chaining keeps this null-safe (a ref can be undefined before
+    // mount), so it can never throw "Cannot read properties of undefined".
+    const getContainerEl = () => containerRef?.();
 
     const newOptions = { ...options };
     if (!newOptions.getItems) {
-        newOptions.getItems = () => containerRef.el?.querySelectorAll(":scope .o-navigable") ?? [];
+        newOptions.getItems = () => getContainerEl()?.querySelectorAll(":scope .o-navigable") ?? [];
     }
 
     const hotkeyService = useService("hotkey");
     const navigator = new Navigator(newOptions, hotkeyService);
     const observer = new MutationObserver(() => navigator.update());
 
-    useEffect(
+    useLayoutEffect(
         (containerEl) => {
             if (containerEl) {
                 navigator.update();
@@ -448,11 +457,11 @@ export function useNavigation(containerRef, options = {}) {
             }
             return () => observer.disconnect();
         },
-        () => [containerRef.el]
+        () => [getContainerEl()]
     );
 
-    useExternalListener(browser, "focus", ({ target }) => navigator._checkFocus(target), true);
-    onWillUnmount(() => navigator._destroy());
+    useListener(browser, "focus", ({ target }) => navigator._checkFocus(target), true);
+    onWillDestroy(() => navigator._destroy());
 
     return navigator;
 }

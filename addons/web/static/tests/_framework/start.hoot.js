@@ -1,6 +1,6 @@
 // ! WARNING: this module cannot depend on modules not ending with ".hoot" (except libs) !
 
-import { definePreset, defineTags, isHootReady } from "@odoo/hoot";
+import { definePreset, defineTags, globals, isHootReady } from "@odoo/hoot";
 import { runTests } from "./module_set.hoot";
 
 function beforeFocusRequired(test) {
@@ -13,14 +13,14 @@ function beforeFocusRequired(test) {
 }
 
 definePreset("desktop", {
-    icon: "fa-desktop",
+    icon: "desktop_windows",
     label: "Desktop",
     size: [1366, 768],
     tags: ["-mobile"],
     touch: false,
 });
 definePreset("mobile", {
-    icon: "fa-mobile font-bold",
+    icon: "smartphone",
     label: "Mobile",
     size: [375, 667],
     tags: ["-desktop"],
@@ -46,4 +46,9 @@ defineTags(
 );
 
 // Invoke tests after the interface has finished loading.
-isHootReady.then(() => runTests({ fileSuffix: ".test" }));
+isHootReady.then(() =>
+    runTests({ fileSuffix: ".test" }).catch((error) => {
+        // Bypass the logger, as the server does not stop on a "[HOOT]" error.
+        globals.console.error("Test run aborted:", error);
+    })
+);

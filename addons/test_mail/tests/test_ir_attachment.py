@@ -1,5 +1,3 @@
-import base64
-
 from odoo.addons.mail.tests.common import MailCommon
 from odoo.tests import tagged, users
 
@@ -25,7 +23,7 @@ class TestAttachment(MailCommon):
         record_nomain = self.env["mail.test.simple"].create({"name": "No Main Attachment"})
         attachments = self.env["ir.attachment"].create([
             {
-                "datas": base64.b64encode(b'AttContent'),
+                "raw": b'AttContent',
                 "name": f"AttachName_{record.name}.pdf",
                 "mimetype": "application/pdf",
                 "res_id": record.id,
@@ -34,7 +32,7 @@ class TestAttachment(MailCommon):
             for record in records_model1
         ] + [
             {
-                "datas": base64.b64encode(b'AttContent'),
+                "raw": b'AttContent',
                 "name": f"AttachName_{record.name}.pdf",
                 "mimetype": "application/pdf",
                 "res_id": record.id,
@@ -43,11 +41,11 @@ class TestAttachment(MailCommon):
             for record in records_model2
         ] + [
             {
-                "datas": base64.b64encode(b'AttContent'),
+                "raw": b'AttContent',
                 "name": "AttachName_free.pdf",
                 "mimetype": "application/pdf",
             }, {
-                "datas": base64.b64encode(b'AttContent'),
+                "raw": b'AttContent',
                 "name": f"AttachName_{record_nomain.name}.pdf",
                 "mimetype": "application/pdf",
                 "res_id": record_nomain.id,

@@ -1,16 +1,42 @@
-import { Component } from "@odoo/owl";
+import { Component, useProps, t } from "@odoo/owl";
 import { PriceFormatter } from "@point_of_sale/app/components/price_formatter/price_formatter";
+import { usePos } from "@point_of_sale/app/hooks/pos_hook";
+import { PosOrder } from "@point_of_sale/app/models/pos_order";
 import { _t } from "@web/core/l10n/translation";
 
 export class PaymentScreenStatus extends Component {
     static template = "point_of_sale.PaymentScreenStatus";
-    static props = {
-        order: Object,
-    };
+    props = useProps({
+        order: t.instanceOf(PosOrder),
+    });
     static components = { PriceFormatter };
 
+    setup() {
+        this.pos = usePos();
+    }
+
+    get currentTip() {
+        return this.pos.getTip();
+    }
+
+    get tipLabel() {
+        let label = "Tip";
+        if (this.currentTip.type === "percent") {
+            label = _t(`Tip (%s%)`, this.currentTip.value);
+        }
+        return label;
+    }
+
+    get tipText() {
+        return this.pos.formatCurrency(this.currentTip.amount);
+    }
+
+    get changeText() {
+        return this.pos.formatCurrency(this.props.order.getChange());
+    }
+
     get isComplete() {
-        return this.isRemaining && this.order.orderHasZeroRemaining;
+        return this.order.hasRemainingDue && this.order.orderHasZeroRemaining;
     }
 
     get isIncompleteAndPositive() {
@@ -21,30 +47,11 @@ export class PaymentScreenStatus extends Component {
         return this.props.order;
     }
 
-    get isRemaining() {
-        const isNegative = this.order.totalDue < 0;
-        const remainingDue = this.order.remainingDue;
-
-        if ((isNegative && remainingDue > 0) || (!isNegative && remainingDue <= 0)) {
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    get statusText() {
-        if (!this.isRemaining) {
-            return _t("Change");
-        } else {
-            return _t("Remaining");
-        }
+    get showStatus() {
+        return Boolean(this.order.remainingDue || this.order.change);
     }
 
     get amountText() {
-        if (!this.isRemaining) {
-            return this.env.utils.formatCurrency(this.order.change);
-        } else {
-            return this.env.utils.formatCurrency(this.order.remainingDue);
-        }
+        return this.pos.formatCurrency(this.order.remainingDueAmount, this.order.orderCurrency.id);
     }
 }

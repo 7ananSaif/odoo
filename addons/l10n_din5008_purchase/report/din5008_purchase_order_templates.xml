@@ -19,11 +19,15 @@
                 </tr>
                 <tr t-if="o.date_approve">
                     <td>Order Date:</td>
-                    <td><t t-out="o.date_approve" t-options="{'widget': 'date'}"/></td>
+                    <td><t t-out="o.date_approve" t-options="{'widget': 'date', 'format': 'dd.MM.yyyy'}"/></td>
                 </tr>
                 <tr t-if="o.date_order">
                     <td>Order Deadline:</td>
-                    <td><t t-out="o.date_order" t-options="{'widget': 'date'}"/></td>
+                    <td><t t-out="o.date_order" t-options="{'widget': 'date', 'format': 'dd.MM.yyyy'}"/></td>
+                </tr>
+                <tr t-if="o.date_planned">
+                    <td>Expected Arrival:</td>
+                    <td><t t-out="o.date_planned" t-options="{'widget': 'date', 'format': 'dd.MM.yyyy'}"/></td>
                 </tr>
                 <tr t-if="o.date_planned">
                     <td>Expected Arrival:</td>
@@ -40,11 +44,11 @@
         <tr t-if="o and o._name=='purchase.order'">
             <td class="shipping_address" t-if="o.dest_address_id">
                 <span class="fw-bold">Shipping Address:</span>
-                <address t-esc="o.dest_address_id" t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True}'/>
+                <address t-out="o.dest_address_id" t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True}'/>
             </td>
             <td class="shipping_address" t-elif="'picking_type_id' in o._fields and o.picking_type_id.warehouse_id">
                 <span class="fw-bold">Shipping Address:</span>
-                <address t-esc="o.picking_type_id.warehouse_id.partner_id" t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True}'/>
+                <address t-out="o.picking_type_id.warehouse_id.partner_id" t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True}'/>
             </td>
         </tr>
     </template>

@@ -2,7 +2,7 @@ import { test, expect } from "@odoo/hoot";
 import { Transition, useTransition, config as transitionConfig } from "@web/core/transition";
 import { mountWithCleanup, patchWithCleanup } from "@web/../tests/web_test_helpers";
 
-import { Component, xml, useState } from "@odoo/owl";
+import { Component, proxy, xml } from "@odoo/owl";
 import { animationFrame, runAllTimers } from "@odoo/hoot-mock";
 
 test("useTransition hook (default params)", async () => {
@@ -10,8 +10,7 @@ test("useTransition hook (default params)", async () => {
         disabled: false,
     });
     class Parent extends Component {
-        static template = xml`<div t-if="transition.shouldMount" t-att-class="transition.className"/>`;
-        static props = ["*"];
+        static template = xml`<div t-if="this.transition.shouldMount" t-att-class="this.transition.className"/>`;
         setup() {
             this.transition = useTransition({
                 name: "test",
@@ -42,8 +41,7 @@ test("useTransition hook (initially visible and immediate=true)", async () => {
         disabled: false,
     });
     class Parent extends Component {
-        static template = xml`<div t-if="transition.shouldMount" t-att-class="transition.className"/>`;
-        static props = ["*"];
+        static template = xml`<div t-if="this.transition.shouldMount" t-att-class="this.transition.className"/>`;
         setup() {
             this.transition = useTransition({
                 name: "test",
@@ -79,8 +77,7 @@ test("useTransition hook (initially not visible)", async () => {
         disabled: false,
     });
     class Parent extends Component {
-        static template = xml`<div t-if="transition.shouldMount" t-att-class="transition.className"/>`;
-        static props = ["*"];
+        static template = xml`<div t-if="this.transition.shouldMount" t-att-class="this.transition.className"/>`;
         setup() {
             this.transition = useTransition({
                 name: "test",
@@ -114,14 +111,13 @@ test("Transition HOC", async () => {
     });
     class Parent extends Component {
         static template = xml`
-            <Transition name="'test'" visible="state.show" immediate="true" t-slot-scope="transition" onLeave="onLeave">
+            <Transition name="'test'" visible="this.state.show" immediate="true" t-slot-scope="transition" onLeave="this.onLeave">
                 <div t-att-class="transition.className"/>
             </Transition>
         `;
         static components = { Transition };
-        static props = ["*"];
         setup() {
-            this.state = useState({ show: true });
+            this.state = proxy({ show: true });
         }
         onLeave() {
             expect.step("leave");

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from odoo import Command
-from odoo.exceptions import RedirectWarning
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 from odoo.addons.l10n_eu_oss.models.eu_tag_map import EU_TAG_MAP
 from odoo.tests import tagged
@@ -9,6 +8,8 @@ from odoo.tests import tagged
 
 @tagged('post_install', 'post_install_l10n', '-at_install')
 class TestOSSBelgium(AccountTestInvoicingCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     @AccountTestInvoicingCommon.setup_country('be')
@@ -85,6 +86,8 @@ class TestOSSBelgium(AccountTestInvoicingCommon):
 @tagged('post_install', 'post_install_l10n', '-at_install')
 class TestOSSSpain(AccountTestInvoicingCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     @AccountTestInvoicingCommon.setup_country('es')
     def setUpClass(cls):
@@ -101,7 +104,7 @@ class TestOSSSpain(AccountTestInvoicingCommon):
         tax_oss = self.env['account.tax'].search([('name', 'ilike', f'%"{another_eu_country_code}"%')], limit=1)
 
         for doc_type, tag_xml_id in (
-                ("invoice", "l10n_es.mod_303_casilla_124_balance"),
+                ("invoice", "l10n_es.mod_303_casilla_123_balance"),
         ):
             with self.subTest(doc_type=doc_type, report_line_xml_id=tag_xml_id):
                 oss_tag_id = tax_oss[f"{doc_type}_repartition_line_ids"]\
@@ -116,8 +119,7 @@ class TestOSSSpain(AccountTestInvoicingCommon):
         """
         Test that the foreign oss taxes generate with l10n_es_type as no_sujeto_loc
         """
-        if self.env['ir.module.module']._get('l10n_es').state != 'installed':
-            self.skipTest(reason="L10n_es is required for this test.")
+        self.ensure_installed('l10n_es')
 
         another_eu_country_code = (self.env.ref('base.europe').country_ids - self.company_data['company'].country_id)[0].code
         tax_oss = self.env['account.tax'].search([('name', 'ilike', f'%"{another_eu_country_code}"%')], limit=1)
@@ -127,6 +129,8 @@ class TestOSSSpain(AccountTestInvoicingCommon):
 
 @tagged('post_install', 'post_install_l10n', '-at_install')
 class TestOSSUSA(AccountTestInvoicingCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):
@@ -143,8 +147,7 @@ class TestOSSUSA(AccountTestInvoicingCommon):
     def test_oss_tax_on_eu_branch(self):
         """Ensure a company outside EU can have an EU branch with an EU VAT and that the OSS feature could be used on those"""
         # This test can only be run if l10n_be is installed
-        if not self.env['ir.module.module'].search_count([('name', '=', 'l10n_be'), ('state', '=', 'installed')], limit=1):
-            self.skipTest(reason="The belgian CoA is required for this test to be performed but the corresponding localization module isn't installed")
+        self.ensure_installed('l10n_be')
 
         self.root_company = self.company_data['company']
         self.root_company.child_ids = [Command.create({'name': 'Branch A'})]
@@ -185,6 +188,8 @@ class TestOSSUSA(AccountTestInvoicingCommon):
 @tagged('post_install', 'post_install_l10n', '-at_install')
 class TestOSSMap(AccountTestInvoicingCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     def test_oss_eu_tag_map(self):
         """ Checks that the xml_id referenced in the map are correct.
         In case of failure display the couple (chart_template_xml_id, tax_report_line_xml_id).
@@ -199,17 +204,3 @@ class TestOSSMap(AccountTestInvoicingCommon):
                 with self.subTest(chart_template=chart_template, tax_report_line_xml_id=tax_report_line_xml_id):
                     tag = self.env.ref(tax_report_line_xml_id, raise_if_not_found=False)
                     self.assertIsNotNone(tag, f"The following xml_id is incorrect in EU_TAG_MAP.py: {tax_report_line_xml_id}")
-
-    def test_oss_missing_account_in_tax_groups(self):
-        """ Checks that a warning is thrown in case of missing payable
-        and receivable accounts from all company's tax groups instead
-        of traceback error.
-        """
-        company = self.company_data['company']
-        TaxGroup = self.env['account.tax.group']
-        for tax_group in TaxGroup.search(TaxGroup._check_company_domain(company)):
-            tax_group.tax_payable_account_id = False
-            tax_group.tax_receivable_account_id = False
-
-        with self.assertRaises(RedirectWarning):
-            company._map_eu_taxes()

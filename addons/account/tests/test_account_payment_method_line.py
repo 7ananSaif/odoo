@@ -1,9 +1,12 @@
+from odoo import Command
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 from odoo.tests import tagged, Form
 
 
 @tagged('post_install', '-at_install')
 class TestAccountPaymentMethodLine(AccountTestInvoicingCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):
@@ -129,3 +132,21 @@ class TestAccountPaymentMethodLine(AccountTestInvoicingCommon):
             pay_form.partner_id = self.partner_c
             self.assertEqual(pay_form.journal_id.id, self.bank_journal_2.id)
             self.assertEqual(pay_form.payment_method_line_id.id, self.inbound_payment_method_line_other_journal.id)
+
+    def test_display_name_without_journal_access(self):
+        """ The display name of a payment method line carries the name of its
+        journal, and an employee picking one (on an expense for instance) has
+        no access to the journals.
+        """
+        employee = self.env['res.users'].create({
+            'name': "Employee",
+            'login': "payment_method_line_employee",
+            'group_ids': [Command.set(self.env.ref('base.group_user').ids)],
+        })
+        self.assertFalse(
+            self.env['account.journal'].with_user(employee).has_access('read'),
+            "an employee is not an accountant: the journals stay out of reach")
+
+        self.env.invalidate_all()
+        line = self.inbound_payment_method_line_1.with_user(employee)
+        self.assertEqual(line.display_name, f"{line.name} ({self.bank_journal_1.name})")

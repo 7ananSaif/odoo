@@ -1,14 +1,6 @@
 import { onWillStart, xml } from "@odoo/owl";
 import { beforeEach, describe, expect, test } from "@odoo/hoot";
-import {
-    advanceTime,
-    animationFrame,
-    click,
-    Deferred,
-    press,
-    queryOne,
-    waitFor,
-} from "@odoo/hoot-dom";
+import { advanceTime, animationFrame, click, press, queryOne, waitFor } from "@odoo/hoot-dom";
 import { Builder } from "@html_builder/builder";
 import { Plugin } from "@html_editor/plugin";
 import { setSelection } from "@html_editor/../tests/_helpers/selection";
@@ -19,7 +11,6 @@ import {
     waitForEndOfOperation,
 } from "@html_builder/../tests/helpers";
 import { BuilderAction } from "@html_builder/core/builder_action";
-import { BaseOptionComponent } from "@html_builder/core/utils";
 import {
     contains,
     defineModels,
@@ -28,7 +19,12 @@ import {
     onRpc,
     patchWithCleanup,
 } from "@web/../tests/web_test_helpers";
-import { addPlugin, defineWebsiteModels, setupWebsiteBuilder } from "./website_helpers";
+import {
+    addPlugin,
+    defineWebsiteModels,
+    setupWebsiteBuilder,
+    toggleMobilePreview,
+} from "./website_helpers";
 import { WebsiteBuilderClientAction } from "@website/client_actions/website_preview/website_builder_action";
 
 beforeEach(defineWebsiteModels);
@@ -36,7 +32,7 @@ beforeEach(defineWebsiteModels);
 test("trigger mobile view", async () => {
     await setupWebsiteBuilder(`<h1> Homepage </h1>`);
     expect(".o_website_preview.o_is_mobile").toHaveCount(0);
-    await contains("button[data-action='mobile']").click();
+    await toggleMobilePreview();
     expect(".o_website_preview.o_is_mobile").toHaveCount(1);
 });
 
@@ -100,11 +96,11 @@ test("getRecordInfo retrieves the info from the #wrap element", async () => {
 });
 
 test("elements within iframe can't be clicked while the builder is being set up", async () => {
-    const def = new Deferred();
+    const def = Promise.withResolvers();
     patchWithCleanup(WebsiteBuilderClientAction.prototype, {
         async loadIframeAndBundles(isEditing) {
             super.loadIframeAndBundles(isEditing);
-            await def;
+            await def.promise;
         },
     });
     await setupWebsiteBuilder(
@@ -161,12 +157,10 @@ describe("BuilderMany2One: exit editor when previewing", () => {
                 }
             },
         });
-        addBuilderOption(
-            class extends BaseOptionComponent {
-                static selector = ".test-options-target";
-                static template = xml`<BuilderMany2One action="'testAction'" model="'test'" limit="10" preview="true"/>`;
-            }
-        );
+        addBuilderOption({
+            selector: ".test-options-target",
+            template: xml`<BuilderMany2One action="'testAction'" model="'test'" limit="10" preview="true"/>`,
+        });
 
         await setupWebsiteBuilder(`<div class="test-options-target">Homepage</div>`);
         await contains(":iframe .test-options-target").click();
@@ -218,21 +212,19 @@ test("Builder is disabled when reloading", async () => {
         },
     });
 
-    addBuilderOption(
-        class extends BaseOptionComponent {
-            static selector = ".target";
-            static template = xml`<BuilderButton action="'testReload'">Reload editor</BuilderButton>`;
-        }
-    );
+    addBuilderOption({
+        selector: ".target",
+        template: xml`<BuilderButton action="'testReload'">Reload editor</BuilderButton>`,
+    });
     const { waitSidebarUpdated } = await setupWebsiteBuilder(
         `<section class="target">Section</section>`
     );
-    const def = new Deferred();
+    const builderStart = Promise.withResolvers();
     patchWithCleanup(Builder.prototype, {
         setup() {
             super.setup();
             onWillStart(async () => {
-                await def;
+                await builderStart.promise;
             });
         },
     });
@@ -245,7 +237,7 @@ test("Builder is disabled when reloading", async () => {
     await contains(".o-snippets-tabs [data-name='blocks']").click();
     expect(".o-snippets-tabs [data-name='customize']").toHaveClass("active");
     // new instance of the builder shouldn't be disabled
-    def.resolve();
+    builderStart.resolve();
     await waitSidebarUpdated();
     expect(".o-website-builder_sidebar .o_builder_disabled").toHaveCount(0);
     await contains(".o-snippets-tabs [data-name='blocks']").click();

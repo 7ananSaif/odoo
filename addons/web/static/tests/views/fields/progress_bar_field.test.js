@@ -62,17 +62,21 @@ test("ProgressBarField: max_value should update", async () => {
             <form>
                 <field name="name" />
                 <field name="float_field" invisible="1" />
-                <field name="int_field" widget="progressbar" options="{'current_value': 'int_field', 'max_value': 'float_field'}" />
+                <field name="int_field" widget="progressbar" options="{'max_value': 'float_field'}" />
             </form>`,
         resId: 1,
     });
 
-    expect(".o_progressbar").toHaveText("10\n/\n2");
+    expect(queryValue(".o_progressbar_value .o_input") + queryText(".o_progressbar")).toBe(
+        "10/\n2"
+    );
     await click(".o_field_widget[name=name] input");
     await edit("new name", { confirm: "enter" });
     await clickSave();
     await animationFrame();
-    expect(".o_progressbar").toHaveText("999\n/\n5");
+    expect(queryValue(".o_progressbar_value .o_input") + queryText(".o_progressbar")).toBe(
+        "999/\n5"
+    );
 });
 
 test("ProgressBarField: value should update in edit mode when typing in input", async () => {
@@ -86,7 +90,7 @@ test("ProgressBarField: value should update in edit mode when typing in input", 
         resModel: "partner",
         arch: /* xml */ `
             <form>
-                <field name="int_field" widget="progressbar" options="{'editable': true}"/>
+                <field name="int_field" widget="progressbar"/>
             </form>`,
         resId: 1,
     });
@@ -125,7 +129,7 @@ test("ProgressBarField: value should update in edit mode when typing in input wi
         arch: /* xml */ `
             <form>
                 <field name="float_field" invisible="1" />
-                <field name="int_field" widget="progressbar" options="{'editable': true, 'max_value': 'float_field'}" />
+                <field name="int_field" widget="progressbar" options="{'max_value': 'float_field'}" />
             </form>`,
         resId: 1,
     });
@@ -147,47 +151,6 @@ test("ProgressBarField: value should update in edit mode when typing in input wi
     );
 });
 
-test("ProgressBarField: max value should update in edit mode when typing in input with field max value", async () => {
-    expect.assertions(5);
-    Partner._records[0].int_field = 99;
-
-    onRpc("web_save", ({ args }) => {
-        expect(args[1].float_field).toBe(69);
-    });
-    await mountView({
-        type: "form",
-        resModel: "partner",
-        arch: /* xml */ `
-            <form>
-                <field name="float_field" invisible="1" />
-                <field name="int_field" widget="progressbar" options="{'editable': true, 'max_value': 'float_field', 'edit_max_value': true}" />
-            </form>`,
-        resId: 1,
-    });
-
-    expect(queryText(".o_progressbar") + queryValue(".o_progressbar_value .o_input")).toBe(
-        "99\n/0",
-        { message: "Initial value should be correct" }
-    );
-    expect(".o_form_view .o_form_editable").toHaveCount(1, { message: "Form in edit mode" });
-    queryOne(".o_progressbar input").focus();
-    await animationFrame();
-
-    expect(queryText(".o_progressbar") + queryValue(".o_progressbar_value .o_input")).toBe(
-        "99\n/0.44",
-        { message: "Initial value is not formatted when focused" }
-    );
-
-    await click(".o_progressbar_value .o_input");
-    await edit("69", { confirm: "enter" });
-    await clickSave();
-
-    expect(queryText(".o_progressbar") + queryValue(".o_progressbar_value .o_input")).toBe(
-        "99\n/69",
-        { message: "New value should be different than initial after click" }
-    );
-});
-
 test("ProgressBarField: Standard readonly mode is readonly", async () => {
     Partner._records[0].int_field = 99;
 
@@ -198,7 +161,7 @@ test("ProgressBarField: Standard readonly mode is readonly", async () => {
         arch: /* xml */ `
             <form edit="0">
                 <field name="float_field" invisible="1"/>
-                <field name="int_field" widget="progressbar" options="{'editable': true, 'max_value': 'float_field', 'edit_max_value': true}"/>
+                <field name="int_field" widget="progressbar" options="{'max_value': 'float_field'}"/>
             </form>`,
         resId: 1,
     });
@@ -207,7 +170,7 @@ test("ProgressBarField: Standard readonly mode is readonly", async () => {
         message: "Initial value should be correct",
     });
 
-    await click(".o_progress");
+    await click(".progress");
     await animationFrame();
 
     expect(".o_progressbar_value .o_input").toHaveCount(0, {
@@ -216,47 +179,33 @@ test("ProgressBarField: Standard readonly mode is readonly", async () => {
     expect.verifySteps(["get_views", "web_read"]);
 });
 
-test("ProgressBarField: field is editable in kanban", async () => {
-    expect.assertions(7);
-    Partner._records[0].int_field = 99;
-
-    onRpc("web_save", ({ args }) => {
-        expect(args[1].int_field).toBe(69);
-    });
+test("ProgressBarField: clicking progress bar focuses input when editable", async () => {
+    Partner._records[0].int_field = 50;
     await mountView({
-        type: "kanban",
+        type: "form",
         resModel: "partner",
         arch: /* xml */ `
-                <kanban>
-                    <templates>
-                        <t t-name="card">
-                            <field name="int_field" title="ProgressBarTitle" widget="progressbar" options="{'editable': true, 'max_value': 'float_field'}" />
-                        </t>
-                    </templates>
-                </kanban>`,
+            <form>
+                <field name="int_field" widget="progressbar"/>
+            </form>`,
         resId: 1,
     });
 
-    expect(".o_progressbar_value .o_input").toHaveValue("99", {
-        message: "Initial input value should be correct",
+    expect(".o_progressbar_value .o_input").toHaveCount(1, {
+        message: "Input should be present in editable mode",
     });
-    expect(".o_progressbar_value span").toHaveText("100", {
-        message: "Initial max value should be correct",
+    expect(document.activeElement).not.toBe(queryOne(".o_progressbar_value .o_input"), {
+        message: "Input should not be focused initially",
     });
-    expect(".o_progressbar_title").toHaveText("ProgressBarTitle");
 
-    await click(".o_progressbar_value .o_input");
-    await edit("69", { confirm: "enter" });
-    await animationFrame();
+    await click(".o_progressbar .progress");
 
-    expect(".o_progressbar_value .o_input").toHaveValue("69");
-    expect(".o_progressbar_value span").toHaveText("100", {
-        message: "Max value is still the same be correct",
+    expect(document.activeElement).toBe(queryOne(".o_progressbar_value .o_input"), {
+        message: "Clicking progress bar should focus the input",
     });
-    expect(".o_progressbar_title").toHaveText("ProgressBarTitle");
 });
 
-test("force readonly in kanban", async (assert) => {
+test("ProgressBarField: force readonly in kanban", async (assert) => {
     expect.assertions(2);
     Partner._records[0].int_field = 99;
     onRpc("web_save", () => {
@@ -269,7 +218,7 @@ test("force readonly in kanban", async (assert) => {
         <kanban>
             <templates>
                 <t t-name="card">
-                    <field name="int_field" widget="progressbar" options="{'editable': true, 'max_value': 'float_field', 'readonly': True}" />
+                    <field name="int_field" widget="progressbar" options="{'max_value': 'float_field'}" readonly="1" />
                 </t>
             </templates>
         </kanban>`,
@@ -277,47 +226,6 @@ test("force readonly in kanban", async (assert) => {
     });
     expect(".o_progressbar").toHaveText("99\n/\n100");
     expect(".o_progressbar_value .o_input").toHaveCount(0);
-});
-
-test("ProgressBarField: readonly and editable attrs/options in kanban", async () => {
-    expect.assertions(4);
-    Partner._records[0].int_field = 29;
-    Partner._records[0].int_field2 = 59;
-    Partner._records[0].int_field3 = 99;
-
-    await mountView({
-        type: "kanban",
-        resModel: "partner",
-        arch: /* xml */ `
-            <kanban>
-                <templates>
-                    <t t-name="card">
-                        <field name="int_field" readonly="1" widget="progressbar" options="{'max_value': 'float_field'}" />
-                        <field name="int_field2" widget="progressbar" options="{'max_value': 'float_field'}" />
-                        <field name="int_field3" widget="progressbar" options="{'editable': true, 'max_value': 'float_field'}" />
-                    </t>
-                </templates>
-            </kanban>`,
-        resId: 1,
-    });
-
-    expect("[name='int_field'] .o_progressbar_value .o_input").toHaveCount(0, {
-        message: "the field is still in readonly since there is readonly attribute",
-    });
-    expect("[name='int_field2'] .o_progressbar_value .o_input").toHaveCount(0, {
-        message: "the field is still in readonly since there is readonly attribute",
-    });
-    expect("[name='int_field3'] .o_progressbar_value .o_input").toHaveCount(1, {
-        message: "the field is still in readonly since there is readonly attribute",
-    });
-
-    await click(".o_field_progressbar[name='int_field3'] .o_progressbar_value .o_input");
-    await edit("69", { confirm: "enter" });
-    await animationFrame();
-    expect(".o_field_progressbar[name='int_field3'] .o_progressbar_value .o_input").toHaveValue(
-        "69",
-        { message: "New value should be different than initial after click" }
-    );
 });
 
 test("ProgressBarField: write float instead of int works, in locale", async () => {
@@ -337,7 +245,7 @@ test("ProgressBarField: write float instead of int works, in locale", async () =
         resModel: "partner",
         arch: /* xml */ `
             <form>
-                <field name="int_field" widget="progressbar" options="{'editable': true}"/>
+                <field name="int_field" widget="progressbar"/>
             </form>`,
         resId: 1,
     });
@@ -350,7 +258,7 @@ test("ProgressBarField: write float instead of int works, in locale", async () =
 
     await click(".o_field_widget input");
     await animationFrame();
-    await edit("1#037:9", { confirm: "enter" });
+    await edit("1#037.9", { confirm: "enter" });
     await animationFrame();
     await clickSave();
     await animationFrame();
@@ -367,7 +275,7 @@ test("ProgressBarField: write gibberish instead of int throws warning", async ()
         resModel: "partner",
         arch: /* xml */ `
             <form>
-                <field name="int_field" widget="progressbar" options="{'editable': true}"/>
+                <field name="int_field" widget="progressbar"/>
             </form>`,
         resId: 1,
     });
@@ -397,11 +305,114 @@ test("ProgressBarField: color is correctly set when value > max value", async ()
         resModel: "partner",
         arch: /* xml */ `
             <form>
-                <field name="float_field" widget="progressbar" options="{'overflow_class': 'bg-warning'}"/>
+                <field name="float_field" widget="progressbar" decoration-warning="float_field > 100"/>
             </form>`,
         resId: 1,
     });
     expect(".o_progressbar .bg-warning").toHaveCount(1, {
         message: "As the value has excedded the max value, the color should be set to bg-warning",
+    });
+});
+
+test("ProgressBarField: decoration-success applies green when condition is true", async () => {
+    Partner._records[0].float_field = 80;
+    await mountView({
+        type: "form",
+        resModel: "partner",
+        arch: /* xml */ `
+            <form>
+                <field name="float_field" widget="progressbar" decoration-success="float_field >= 50"/>
+            </form>`,
+        resId: 1,
+    });
+    expect(".o_progressbar .progress-bar.bg-success").toHaveCount(1, {
+        message: "decoration-success should apply bg-success when condition is met",
+    });
+});
+
+test("ProgressBarField: decoration-danger applies red when condition is true", async () => {
+    Partner._records[0].float_field = 25;
+    await mountView({
+        type: "form",
+        resModel: "partner",
+        arch: /* xml */ `
+            <form>
+                <field name="float_field" widget="progressbar" decoration-danger="float_field &lt; 50"/>
+            </form>`,
+        resId: 1,
+    });
+    expect(".o_progressbar .progress-bar.bg-danger").toHaveCount(1, {
+        message: "decoration-danger should apply bg-danger when condition is met",
+    });
+});
+
+test("ProgressBarField: decoration-warning applies warning color", async () => {
+    Partner._records[0].float_field = 55;
+    await mountView({
+        type: "form",
+        resModel: "partner",
+        arch: /* xml */ `
+            <form>
+                <field name="float_field" widget="progressbar" decoration-warning="float_field >= 50 and float_field &lt; 80"/>
+            </form>`,
+        resId: 1,
+    });
+    expect(".o_progressbar .progress-bar.bg-warning").toHaveCount(1, {
+        message: "decoration-warning should apply bg-warning when condition is met",
+    });
+});
+
+test("ProgressBarField: multiple decorations - first matching wins", async () => {
+    Partner._records[0].float_field = 90;
+    await mountView({
+        type: "form",
+        resModel: "partner",
+        arch: /* xml */ `
+            <form>
+                <field name="float_field" widget="progressbar"
+                       decoration-success="float_field >= 80"
+                       decoration-warning="float_field >= 50"
+                       decoration-danger="float_field &lt; 50"/>
+            </form>`,
+        resId: 1,
+    });
+    expect(".o_progressbar .progress-bar.bg-success").toHaveCount(1, {
+        message: "First matching decoration (success) should be applied",
+    });
+});
+
+test("ProgressBarField: no decoration applied when no condition matches", async () => {
+    Partner._records[0].float_field = 60;
+    await mountView({
+        type: "form",
+        resModel: "partner",
+        arch: /* xml */ `
+            <form>
+                <field name="float_field" widget="progressbar"
+                       decoration-success="float_field >= 80"
+                       decoration-danger="float_field &lt; 30"/>
+            </form>`,
+        resId: 1,
+    });
+    expect(".o_progressbar .progress-bar:not(.bg-success):not(.bg-danger)").toHaveCount(1, {
+        message: "No decoration should be applied when no condition matches",
+    });
+});
+
+test("ProgressBarField: decoration with field comparison", async () => {
+    Partner._records[0].float_field = 75;
+    Partner._records[0].int_field = 50;
+    await mountView({
+        type: "form",
+        resModel: "partner",
+        arch: /* xml */ `
+            <form>
+                <field name="float_field" widget="progressbar" decoration-success="float_field >= int_field"/>
+                <field name="int_field" invisible="1"/>
+            </form>`,
+        resId: 1,
+    });
+    expect(".o_progressbar .progress-bar.bg-success").toHaveCount(1, {
+        message: "Decoration should support field comparisons in expressions",
     });
 });

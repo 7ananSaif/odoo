@@ -36,7 +36,7 @@
         <field name="arch" type="xml">
             <form string="Lead Generation Rule">
                 <header>
-                    <button class="btn btn-primary" name="action_execute_rule" type="object" string="Execute Rule" help="Execute this rule for all ongoing and future events."/>
+                    <button class="btn btn-primary" name="action_execute_rule" type="object" string="Run Rule" help="Execute this rule for all ongoing and future events."/>
                 </header>
                 <sheet>
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
@@ -73,7 +73,7 @@
                             <field name="lead_user_id" widget="many2one_avatar_leader_user" teamField="lead_sales_team_id"/>
                         </group>
                         <group class="col">
-                            <field name="lead_tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                            <field name="lead_tag_ids" widget="many2many_tags" options="{'color_field': 'color', 'on_tag_click': 'edit_color'}"/>
                         </group>
                     </group>
                 </sheet>

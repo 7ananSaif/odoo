@@ -1,8 +1,9 @@
-import { browser } from '@web/core/browser/browser';
+import { location } from '@web/core/browser/browser';
 import { ConfirmationDialog } from '@web/core/confirmation_dialog/confirmation_dialog';
 import { _t } from '@web/core/l10n/translation';
 import { rpc, RPCError } from '@web/core/network/rpc';
 import { registry } from '@web/core/registry';
+import { roundDecimals } from "@web/core/utils/numbers";
 import { renderToMarkup } from '@web/core/utils/render';
 import { Interaction } from '@web/public/interaction';
 
@@ -12,6 +13,7 @@ export class PaymentForm extends Interaction {
         '[name="o_payment_radio"]': { 't-on-change': this.selectPaymentOption },
         '[name="o_payment_delete_token"]': { 't-on-click': this.fetchTokenData },
         '[name="o_payment_expand_button"]': { 't-on-click': this.hideExpandButton },
+        '[name="o_payment_amount"]': { 't-on-blur': this.ensureValidAmount },
         '[name="o_payment_submit_button"]': { 't-on-click': this.submitForm },
     };
 
@@ -25,12 +27,6 @@ export class PaymentForm extends Interaction {
         this.defaultSubmitButtonLabel = document.querySelector(
             'button[name="o_payment_submit_button"]'
         )?.textContent;
-
-        // Enable tooltips.
-        this.el.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
-            const tooltip = window.Tooltip.getOrCreateInstance(el);
-            this.registerCleanup(() => tooltip.dispose());
-        });
     }
 
     async willStart() {
@@ -40,6 +36,12 @@ export class PaymentForm extends Interaction {
             await this.waitFor(this._expandInlineForm(checkedRadio));
             this._enableButton(false);
         } else {
+            const firstRadio = this.el.querySelector('input[name="o_payment_radio"]');
+            if (firstRadio) {
+                const firstPaymentMethodCode = this._getPaymentMethodCode(firstRadio);
+                this._adaptSubmitButtonLabel(firstPaymentMethodCode);
+            }
+
             this._setPaymentFlow(); // Initialize the payment flow to let providers overwrite it.
         }
     }
@@ -104,6 +106,25 @@ export class PaymentForm extends Interaction {
     }
 
     /**
+     * Round the split payment amount to the currency's decimal precision and cap it to the input's
+     * max.
+     *
+     * @param {Event} ev
+     * @return {void}
+     */
+    ensureValidAmount(ev) {
+        const amountInput = ev.target;
+        const amount = amountInput.valueAsNumber;
+        if (!isNaN(amount)) {
+            const decimals = parseInt(amountInput.dataset.decimals) || 0;
+            const roundedAmount = roundDecimals(amount, decimals);
+            amountInput.value = roundedAmount < 0
+                ? amountInput.max
+                : Math.min(roundedAmount, amountInput.max);
+        }
+    }
+
+    /**
      * Update the payment context with the selected payment option and initiate its payment flow.
      *
      * @param {Event} ev
@@ -117,6 +138,12 @@ export class PaymentForm extends Interaction {
 
         // Block the entire UI to prevent fiddling with other interactions.
         this._disableButton(true);
+
+        // Use the amount chosen by the customer for payment methods that support split payments
+        const amountInput = this._getPaymentAmountContainer(checkedRadio)?.querySelector('input');
+        if (amountInput) {
+            this.paymentContext.amount = amountInput.value;
+        }
 
         // Initiate the payment flow of the selected payment option.
         const flow = this.paymentContext.flow = this._getPaymentFlow(checkedRadio);
@@ -218,6 +245,7 @@ export class PaymentForm extends Interaction {
      * @return {void}
      */
     async _expandInlineForm(radio) {
+        this._collapseAmountContainers(); // Collapse previously opened amount containers
         this._collapseInlineForms(); // Collapse previously opened inline forms.
         this._setPaymentFlow(); // Reset the payment flow to let providers overwrite it.
 
@@ -227,12 +255,24 @@ export class PaymentForm extends Interaction {
         const paymentOptionId = this._getPaymentOptionId(radio);
         const paymentMethodCode = this._getPaymentMethodCode(radio);
         const flow = this._getPaymentFlow(radio);
-        await this.waitFor(this._prepareInlineForm(
-            providerId, providerCode, paymentOptionId, paymentMethodCode, flow
-        ));
+        try {
+            await this.waitFor(this._prepareInlineForm(
+                providerId, providerCode, paymentOptionId, paymentMethodCode, flow
+            ));
+        } catch {
+            this._displayErrorDialog(
+                _t("Payment method unavailable"),
+                _t("Please choose another payment method."),
+            );
+            return;
+        }
 
         // Adapt the payment button's label based on the selected payment method.
         this._adaptSubmitButtonLabel(paymentMethodCode);
+
+        // Display the amount container
+        const amountContainer = this._getPaymentAmountContainer(radio);
+        amountContainer?.classList.remove('d-none');
 
         // Display the prepared inline form if it contains visible elements.
         const isVisible = element => {
@@ -251,6 +291,18 @@ export class PaymentForm extends Interaction {
         if (inlineForm && isVisible(inlineForm)) {
             inlineForm.classList.remove('d-none');
         }
+    }
+
+    /**
+     * Collapse all amount containers of the current interaction.
+     *
+     * @private
+     * @return {void}
+     */
+    _collapseAmountContainers() {
+        this.el.querySelectorAll('[name="o_payment_amount"]').forEach(amountContainer => {
+            amountContainer.classList.add('d-none');
+        });
     }
 
     /**
@@ -282,21 +334,22 @@ export class PaymentForm extends Interaction {
     async _prepareInlineForm(providerId, providerCode, paymentOptionId, paymentMethodCode, flow) {}
 
     /**
-     * Update the payment button's label for "pay later" payment methods.
+     * Update the submit button's label depending on the type of payment method ("pay now" or
+     * "pay later").
      *
      * @private
      * @param {string} paymentMethodCode - The code of the selected payment method, if any.
      * @return {void}
      */
     _adaptSubmitButtonLabel(paymentMethodCode) {
-        const buttonLabel = this._isPayLaterPaymentMethod(paymentMethodCode)
-            ? _t("Confirm")
-            : this.defaultSubmitButtonLabel;
-        for (const btn of document.querySelectorAll('button[name="o_payment_submit_button"]')) {
-            if (btn.textContent !== buttonLabel) {
-                btn.textContent = buttonLabel;
-            }
-        }
+        const isPayLaterMethod = this._isPayLaterPaymentMethod(paymentMethodCode);
+        const submitButtons = document.querySelectorAll('button[name="o_payment_submit_button"]');
+        submitButtons.forEach(btn => {
+            const payNowLabel = btn.querySelector('[name="o_pay_now_label"]');
+            const payLaterLabel = btn.querySelector('[name="o_pay_later_label"]');
+            payNowLabel?.classList.toggle('d-none', isPayLaterMethod);
+            payLaterLabel?.classList.toggle('d-none', !isPayLaterMethod);
+        });
     }
 
     /**
@@ -413,10 +466,7 @@ export class PaymentForm extends Interaction {
                 this.paymentContext['transactionRoute'], this._prepareTransactionRouteParams()
             ));
             if (processingValues.state === 'error') {
-                this._displayErrorDialog(
-                    _t("Payment processing failed"), processingValues.state_message
-                );
-                this._enableButton(); // The button has been disabled before initiating the flow.
+                this._handlePaymentProcessingError(processingValues);
                 return;
             }
             if (flow === 'redirect') {
@@ -471,6 +521,18 @@ export class PaymentForm extends Interaction {
             });
         }
         return transactionRouteParams;
+    }
+
+    /**
+     * Handle the processing values if the transaction creation failed by displaying a dialog and
+     * re-enabling the payment button.
+     *
+     * @param {Object} processingValues - The response values returned at the transaction creation
+     * @param {string} processingValues.state_message - The error message to display to the user
+     */
+    _handlePaymentProcessingError(processingValues) {
+        this._displayErrorDialog(_t("Payment processing failed"), processingValues.state_message);
+        this._enableButton(); // The button has been disabled before initiating the flow.
     }
 
     /**
@@ -535,7 +597,7 @@ export class PaymentForm extends Interaction {
             await this.waitFor(rpc('/payment/archive_token', {
                 'token_id': tokenId,
             }));
-            browser.location.reload();
+            location.reload();
         } catch (error) {
             if (error instanceof RPCError) {
                 this._displayErrorDialog(
@@ -550,6 +612,18 @@ export class PaymentForm extends Interaction {
     // #=== GETTERS ===#
 
     /**
+     * Determine and return the amount input container of the selected payment option.
+     *
+     * @private
+     * @param {HTMLInputElement} radio - The radio button linked to the payment option
+     * @return {Element | null} The amount input container of the selected payment option, if any
+     */
+    _getPaymentAmountContainer(radio) {
+        const paymentOptionContainer = radio.closest('[name="o_payment_option"]');
+        return paymentOptionContainer?.querySelector('[name="o_payment_amount"]');
+    }
+
+    /**
      * Determine and return the inline form of the selected payment option.
      *
      * @private
@@ -557,8 +631,8 @@ export class PaymentForm extends Interaction {
      * @return {Element | null} The inline form of the selected payment option, if any.
      */
     _getInlineForm(radio) {
-        const inlineFormContainer = radio.closest('[name="o_payment_option"]');
-        return inlineFormContainer?.querySelector('[name="o_payment_inline_form"]');
+        const paymentOptionContainer = radio.closest('[name="o_payment_option"]');
+        return paymentOptionContainer?.querySelector('[name="o_payment_inline_form"]');
     }
 
     /**
@@ -640,14 +714,14 @@ export class PaymentForm extends Interaction {
     }
 
     /**
-     * Determine and return the state of the provider of the selected payment option.
+     * Determine and return whether the provider of the selected payment option is in live mode.
      *
      * @private
      * @param {HTMLElement} radio - The radio button linked to the payment option.
-     * @return {string} The state of the provider of the selected payment option.
+     * @return {string} Whether the provider of the selected payment option is in live mode.
      */
-    _getProviderState(radio) {
-        return radio.dataset['providerState'];
+    _getProviderIsLive(radio) {
+        return radio.dataset['providerIsLive'];
     }
 
 }

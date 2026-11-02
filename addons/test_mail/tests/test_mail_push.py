@@ -31,7 +31,7 @@ class TestWebPushNotification(SMSCommon):
             notification_type='inbox'
         )
 
-        cls.record_simple = cls.env['mail.test.simple'].with_context(cls._test_context).create({
+        cls.record_simple = cls.env['mail.test.simple'].create({
             'name': 'Test',
             'email_from': 'ignasse@example.com'
         })
@@ -110,7 +110,7 @@ class TestWebPushNotification(SMSCommon):
                 else:
                     channel_as_sender = channel.with_user(self.user_email)
                 # sudo: discuss.channel - guest can post as sudo in a test (simulating RPC without using network)
-                channel_as_sender.sudo().message_post(
+                message = channel_as_sender.sudo().message_post(
                         body='Test Push',
                         message_type='comment',
                         subtype_xmlid='mail.mt_comment',
@@ -136,6 +136,7 @@ class TestWebPushNotification(SMSCommon):
                     self.assertEqual(payload_value['options']['body'], 'Test Push')
                     self.assertEqual(payload_value['options']['data']['res_id'], channel.id)
                     self.assertEqual(payload_value['options']['data']['model'], channel._name)
+                    self.assertEqual(payload_value['options']['data']['message_id'], message.id)
                     self.assertEqual(push_to_end_point.call_args.kwargs['device']['endpoint'], 'https://test.odoo.com/webpush/user2')
                 push_to_end_point.reset_mock()
 
@@ -322,7 +323,7 @@ class TestWebPushNotification(SMSCommon):
         for recipient, has_notification in [(self.user_email, False), (self.user_inbox, True)]:
             with self.subTest(recipient=recipient):
                 with self.mock_mail_gateway():
-                    self.record_simple.with_user(self.user_admin).message_notify(
+                    message = self.record_simple.with_user(self.user_admin).message_notify(
                         body='Test Push Body',
                         partner_ids=recipient.partner_id.ids,
                         subject='Test Push Notification',
@@ -336,7 +337,11 @@ class TestWebPushNotification(SMSCommon):
                         title=f'{self.user_admin.name}: {self.record_simple.display_name}',
                         body_content='Test Push Body',
                         options={
-                            'data': {'model': self.record_simple._name, 'res_id': self.record_simple.id,},
+                            'data': {
+                                'message_id': message.id,
+                                'model': self.record_simple._name,
+                                'res_id': self.record_simple.id,
+                            },
                         },
                     )
                 else:
@@ -348,12 +353,10 @@ class TestWebPushNotification(SMSCommon):
         inviting_user = self.env['res.users'].sudo().create({'name': "Test User", 'login': 'test'})
         channel = self.env['discuss.channel'].with_user(inviting_user)._get_or_create_chat(
             partners_to=[self.user_email.partner_id.id])
-        inviting_channel_member = channel.sudo().channel_member_ids.filtered(
-            lambda channel_member: channel_member.partner_id == inviting_user.partner_id)
-
-        inviting_channel_member._rtc_join_call()
-        push_to_end_point.assert_called_once()
-        payload_value = json.loads(push_to_end_point.call_args.kwargs['payload'])
+        inviting_channel_member = channel.with_user(inviting_user).self_member_id
+        inviting_channel_member.sudo()._rtc_join_call()
+        self.assertEqual(push_to_end_point.call_count, 2)
+        payload_value = json.loads(push_to_end_point.call_args_list[1].kwargs['payload'])
         self.assertEqual(
             payload_value['title'],
             "Incoming call",
@@ -378,8 +381,7 @@ class TestWebPushNotification(SMSCommon):
         self.assertEqual(data['res_id'], channel.id)
         self.assertEqual(data['model'], "discuss.channel")
         push_to_end_point.reset_mock()
-
-        inviting_channel_member._rtc_leave_call()
+        inviting_channel_member.sudo()._rtc_leave_call()
         push_to_end_point.assert_called_once()
         payload_value = json.loads(push_to_end_point.call_args.kwargs['payload'])
         self.assertEqual(payload_value['options']['data']['type'], "CANCEL")
@@ -421,8 +423,8 @@ class TestWebPushNotification(SMSCommon):
         self._assert_notification_count_for_cron(0)
         push_to_end_point.assert_called_once()
         payload_value = json.loads(push_to_end_point.call_args.kwargs['payload'])
-        self.assertIn(
-            f'{container_update_subtype.description}\nContainer: {container.name} → {container2.name}',
+        self.assertEqual(
+            f'{container_update_subtype.description}\n{container.name} → *{container2.name}* ({container.name})',
             payload_value['options']['body'],
             'Tracking changes should be included in push notif payload'
         )
@@ -586,9 +588,9 @@ class TestWebPushNotification(SMSCommon):
         - UTF-8 characters (Ø), at various offsets
         """
         # compute the size of an empty notification with these parameters
-        # this could change based on the id of record_simple for example
-        # but is otherwise constant for any notification sent with the same parameters
-        self.record_simple.with_user(self.user_email).message_notify(
+        # this could change based on the id of record_simple or of the message for example
+        # but is otherwise constant for any notification of the same message
+        message = self.record_simple.with_user(self.user_email).message_notify(
             partner_ids=self.user_inbox.partner_id.ids,
             body='',
             subject='Test Payload',
@@ -599,6 +601,7 @@ class TestWebPushNotification(SMSCommon):
         self.assertEqual(effective_payload_size_limit, 3993, "Payload limit should come out to 3990.")
         body_size_limit = effective_payload_size_limit - base_payload_size
         encryption_overhead = ENCRYPTION_HEADER_SIZE + ENCRYPTION_BLOCK_OVERHEAD
+        recipients_data = [{'active': True, 'id': self.user_inbox.partner_id.id, 'notif': 'inbox'}]
 
         test_cases = [
             # (description, body)
@@ -619,11 +622,8 @@ class TestWebPushNotification(SMSCommon):
 
         for description, body, expected_body_length, expected_body_size in test_cases:
             with self.subTest(description):
-                self.record_simple.with_user(self.user_email).message_notify(
-                    partner_ids=self.user_inbox.partner_id.ids,
-                    body=body,
-                    subject='Test Payload',
-                )
+                message.body = body
+                self.record_simple._notify_thread_by_web_push(message, recipients_data)
 
                 encrypted_payload = session_post_mock.call_args.kwargs['data']
                 payload_before_encryption = thread_push_mock.call_args.kwargs['payload']
@@ -658,7 +658,8 @@ class TestWebPushNotification(SMSCommon):
 
         See MailThread._truncate_payload for a more thorough explanation.
         """
-        self.record_simple.with_user(self.user_email).message_notify(
+        # payload size depends on the message (e.g. its id), reuse the same one for every notification
+        message = self.record_simple.with_user(self.user_email).message_notify(
             partner_ids=self.user_inbox.partner_id.ids,
             body="",
             subject='Test Payload',
@@ -666,6 +667,7 @@ class TestWebPushNotification(SMSCommon):
         base_payload = thread_push_mock.call_args.kwargs['payload'].encode()
         base_payload_size = len(base_payload)
         encryption_overhead = ENCRYPTION_HEADER_SIZE + ENCRYPTION_BLOCK_OVERHEAD
+        recipients_data = [{'active': True, 'id': self.user_inbox.partner_id.id, 'notif': 'inbox'}]
 
         body = "BØDY"
         body_json = json.dumps(body)[1:-1]
@@ -684,11 +686,8 @@ class TestWebPushNotification(SMSCommon):
                 odoo.addons.mail.models.mail_thread.MailThread, '_truncate_payload_get_max_payload_length',
                 return_value=size_limit,
             ):
-                self.record_simple.with_user(self.user_email).message_notify(
-                    partner_ids=self.user_inbox.partner_id.ids,
-                    body=body,
-                    subject='Test Payload',
-                )
+                message.body = body
+                self.record_simple._notify_thread_by_web_push(message, recipients_data)
                 payload_at_push = thread_push_mock.call_args.kwargs['payload']
                 payload_before_encrypt = web_push_encrypt_payload_mock.call_args.args[0]
                 encrypted_payload = session_post_mock.call_args.kwargs['data']

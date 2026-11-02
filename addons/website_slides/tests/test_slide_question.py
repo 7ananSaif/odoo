@@ -3,7 +3,8 @@
 from odoo import Command
 
 from odoo.addons.website_slides.tests import common as slides_common
-from odoo.tests.common import users
+from odoo.tests.common import tagged, users
+
 
 class TestSlideQuestionManagement(slides_common.SlidesCase):
 

@@ -16,27 +16,35 @@ from odoo.addons.stock_account.tests.test_anglo_saxon_valuation_reconciliation_c
 @tagged('post_install', '-at_install')
 class TestSaleExpectedDate(ValuationReconciliationTestCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.test_product_order.invoice_policy = 'order'
+
     def test_sale_order_expected_date(self):
         """ Test expected date and effective date of Sales Orders """
         Product = self.env['product.product']
 
+        unit = self.ref('uom.product_uom_unit')
         product_A = Product.create({
             'name': 'Product A',
             'is_storable': True,
             'sale_delay': 5,
-            'uom_id': 1,
+            'uom_id': unit,
         })
         product_B = Product.create({
             'name': 'Product B',
             'is_storable': True,
             'sale_delay': 10,
-            'uom_id': 1,
+            'uom_id': unit,
         })
         product_C = Product.create({
             'name': 'Product C',
             'is_storable': True,
             'sale_delay': 15,
-            'uom_id': 1,
+            'uom_id': unit,
         })
 
         self.env['stock.quant']._update_available_quantity(product_A, self.company_data['default_warehouse'].lot_stock_id, 10)
@@ -149,6 +157,9 @@ class TestSaleExpectedDate(ValuationReconciliationTestCommon):
         self.assertEqual(sale_order.expected_date, fields.Datetime.now() + timedelta(days=sale_delay))
 
     def test_invoice_delivery_date(self):
+        """Check correct computation of the invoice delivery date. This value should get derived
+        from the earliest effective delivery date on a sale order, and not change on confirmation.
+        """
         self.env['stock.quant']._update_available_quantity(
             self.test_product_order,
             self.company_data['default_warehouse'].lot_stock_id,
@@ -247,4 +258,33 @@ class TestSaleExpectedDate(ValuationReconciliationTestCommon):
         self.assertEqual(
             invoice.delivery_date, expected_date,
             "Delivery date should use the client's timezone after effective date change.",
+        )
+
+    def test_invoice_delivery_date_frozen_when_posted(self):
+        order = self.env['sale.order'].sudo().create({
+            'partner_id': self.partner_a.id,
+            'picking_policy': 'one',
+            'order_line': [Command.create({
+                'product_id': self.test_product_order.id,
+                'product_uom_qty': 10.0,
+            })],
+        })
+        order.action_confirm()
+        picking_1 = order.picking_ids
+        picking_1.move_ids.write({'quantity': 10.0, 'picked': True})
+        picking_1._action_done()
+        invoice = order._create_invoices()
+        invoice.action_post()
+        delivery_date_before = invoice.delivery_date
+        order.write({'order_line': [Command.create({
+            'product_id': self.test_product_order.id,
+            'product_uom_qty': 5.0,
+        })]})
+        picking_2 = (order.picking_ids - picking_1).ensure_one()
+        picking_2.move_ids.write({'quantity': 5.0, 'picked': True})
+        with freeze_time(fields.Date.today() - timedelta(days=3)):
+            picking_2._action_done()
+        self.assertEqual(
+            invoice.delivery_date, delivery_date_before,
+            "Posted invoice's delivery_date must not change after later delivery activity",
         )

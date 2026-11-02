@@ -1,21 +1,19 @@
+import { Component, onMounted, onWillStart, proxy, useListener, usePlugin } from "@odoo/owl";
+import { location, browser } from "@web/core/browser/browser";
+import { router, routerBus } from "@web/core/browser/router";
 import { useOwnDebugContext } from "@web/core/debug/debug_context";
-import { Deferred } from "@web/core/utils/concurrency";
 import { DebugMenu } from "@web/core/debug/debug_menu";
+import { DebugModePlugin } from "@web/core/debug_mode_plugin";
 import { localization } from "@web/core/l10n/localization";
 import { MainComponentsContainer } from "@web/core/main_components_container";
+import { rpcBus } from "@web/core/network/rpc";
 import { registry } from "@web/core/registry";
 import { useBus, useService } from "@web/core/utils/hooks";
-import { ActionContainer } from "./actions/action_container";
-import { NavBar } from "./navbar/navbar";
-
-import { Component, onMounted, onWillStart, useExternalListener, useState } from "@odoo/owl";
-import { router, routerBus } from "@web/core/browser/router";
-import { browser } from "@web/core/browser/browser";
-import { rpcBus } from "@web/core/network/rpc";
+import { ActionContainer } from "@web/webclient/actions/action_container";
+import { NavBar } from "@web/webclient/navbar/navbar";
 
 export class WebClient extends Component {
     static template = "web.WebClient";
-    static props = {};
     static components = {
         ActionContainer,
         NavBar,
@@ -27,7 +25,8 @@ export class WebClient extends Component {
         this.actionService = useService("action");
         this.title = useService("title");
         useOwnDebugContext({ categories: ["default"] });
-        if (this.env.debug) {
+        const debugMode = usePlugin(DebugModePlugin);
+        if (debugMode.isActive()) {
             registry.category("systray").add(
                 "web.debug_mode_menu",
                 {
@@ -37,7 +36,7 @@ export class WebClient extends Component {
             );
         }
         this.localization = localization;
-        this.state = useState({
+        this.state = proxy({
             fullscreen: false,
         });
         useBus(routerBus, "ROUTE_CHANGE", async () => {
@@ -48,20 +47,26 @@ export class WebClient extends Component {
                 document.body.style.pointerEvents = "auto";
             }
         });
+        useBus(this.env.bus, "ACTION_MANAGER:UPDATE", ({ detail: info }) => {
+            if (info.fullscreen) {
+                this.state.fullscreen = true;
+            }
+        });
         useBus(this.env.bus, "ACTION_MANAGER:UI-UPDATED", ({ detail: mode }) => {
             if (mode !== "new") {
                 this.state.fullscreen = mode === "fullscreen";
             }
         });
-        useBus(this.env.bus, "WEBCLIENT:LOAD_DEFAULT_APP", this._loadDefaultApp);
+        useBus(this.env.bus, "WEBCLIENT:LOAD_DEFAULT_APP", this._loadDefaultApp.bind(this));
         onMounted(() => {
             this.loadRouterState();
             // the chat window and dialog services listen to 'web_client_ready' event in
             // order to initialize themselves:
             this.env.bus.trigger("WEB_CLIENT_READY");
         });
-        useExternalListener(window, "click", this.onGlobalClick, { capture: true });
-        this.serviceWorkerActivatedDeferred = new Deferred();
+        useListener(window, "click", this.onGlobalClick.bind(this), { capture: true });
+        this.serviceWorkerActivationResolvers = Promise.withResolvers();
+        this.serviceWorkerIsActivated = this.serviceWorkerActivationResolvers.promise;
         onWillStart(this.registerServiceWorker);
     }
 
@@ -79,9 +84,7 @@ export class WebClient extends Component {
 
             if (matchingMenus.length > 0) {
                 // Use sessionStorage context to determine the correct menu
-                menuId = matchingMenus.find(m => 
-                    m.appID === storedMenuId
-                )?.appID;
+                menuId = matchingMenus.find((m) => m.appID === storedMenuId)?.appID;
                 if (!menuId) {
                     menuId = matchingMenus[0]?.appID;
                 }
@@ -122,9 +125,9 @@ export class WebClient extends Component {
 
         // Scroll to anchor after the state is loaded
         if (stateLoaded) {
-            if (browser.location.hash !== "") {
+            if (location.hash !== "") {
                 try {
-                    const el = document.querySelector(browser.location.hash);
+                    const el = document.querySelector(location.hash);
                     if (el !== null) {
                         el.scrollIntoView(true);
                     }
@@ -173,13 +176,13 @@ export class WebClient extends Component {
                 .register("/web/service-worker.js", { scope: "/odoo" })
                 .then((registration) => {
                     if (registration.active && registration.active.state === "activated") {
-                        this.serviceWorkerActivatedDeferred.resolve();
+                        this.serviceWorkerActivationResolvers.resolve();
                     } else {
                         const sw =
                             registration.installing || registration.waiting || registration.active;
                         sw.addEventListener("statechange", (e) => {
                             if (e.target.state === "activated") {
-                                this.serviceWorkerActivatedDeferred.resolve();
+                                this.serviceWorkerActivationResolvers.resolve();
                             }
                         });
                     }

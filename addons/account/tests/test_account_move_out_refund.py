@@ -9,16 +9,17 @@ from collections import defaultdict
 @tagged('post_install', '-at_install')
 class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
 
         cls.other_currency = cls.setup_other_currency('HRK')
 
-        cls.invoice = cls.init_invoice('out_refund', products=cls.product_a+cls.product_b)
+        cls.invoice = cls.init_invoice('out_refund', products=cls.product_a + cls.product_b)
 
         cls.product_line_vals_1 = {
-            'name': 'product_a',
             'product_id': cls.product_a.id,
             'account_id': cls.product_a.property_account_income_id.id,
             'partner_id': cls.partner_a.id,
@@ -28,7 +29,7 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
             'price_unit': 1000.0,
             'price_subtotal': 1000.0,
             'price_total': 1150.0,
-            'tax_ids': cls.product_a.taxes_id.ids,
+            'tax_ids': cls.product_a.taxes_id.filtered(lambda t: t.company_id == cls.invoice.company_id).ids,
             'tax_line_id': False,
             'currency_id': cls.company_data['currency'].id,
             'amount_currency': 1000.0,
@@ -37,7 +38,6 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
             'date_maturity': False,
         }
         cls.product_line_vals_2 = {
-            'name': 'product_b',
             'product_id': cls.product_b.id,
             'account_id': cls.product_b.property_account_income_id.id,
             'partner_id': cls.partner_a.id,
@@ -47,7 +47,7 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
             'price_unit': 200.0,
             'price_subtotal': 200.0,
             'price_total': 260.0,
-            'tax_ids': cls.product_b.taxes_id.ids,
+            'tax_ids': cls.product_b.taxes_id.filtered(lambda t: t.company_id == cls.invoice.company_id).ids,
             'tax_line_id': False,
             'currency_id': cls.company_data['currency'].id,
             'amount_currency': 200.0,
@@ -144,7 +144,6 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
         self.assertInvoiceValues(self.invoice, [
             {
                 **self.product_line_vals_1,
-                'name': 'product_b',
                 'product_id': self.product_b.id,
                 'product_uom_id': self.product_b.uom_id.id,
                 'account_id': self.product_b.property_account_income_id.id,
@@ -439,7 +438,7 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
         # Test 'add_invoice_line' rounding
         move_form = Form(self.invoice)
         # Add a cash rounding having 'add_invoice_line'.
-        move_form.invoice_cash_rounding_id = self.cash_rounding_a
+        self.invoice.invoice_cash_rounding_id = self.cash_rounding_a
         move_form.save()
 
         # The cash rounding does nothing as the total is already rounded.
@@ -966,7 +965,6 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
             'name': 'TAX_WAIT',
             'code': 'TWAIT',
             'account_type': 'liability_current',
-            'reconcile': True,
         })
         tax_final_account = self.env['account.account'].create({
             'name': 'TAX_TO_DEDUCT',
@@ -1075,21 +1073,14 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
         # unreconcile
         credit_aml = invoice.line_ids.filtered('credit')
         credit_aml.remove_move_reconcile()
-        # check caba move reverse is same as caba move with only debit/credit inverted
-        reversed_caba_move = self.env['account.move'].search([('reversed_entry_id', '=', caba_move.id)])
-        for value in expected_values:
-            value.update({
-                'debit': value['credit'],
-                'credit': value['debit'],
-            })
-        self.assertRecordValues(reversed_caba_move.line_ids, expected_values)
+        # unlocked caba moves should get deleted upon unreconciliation
+        self.assertFalse(caba_move.exists())
 
     def test_out_refund_with_down_payment_caba(self):
         tax_waiting_account = self.env['account.account'].create({
             'name': 'TAX_WAIT',
             'code': 'TWAIT',
             'account_type': 'liability_current',
-            'reconcile': True,
         })
         tax_final_account = self.env['account.account'].create({
             'name': 'TAX_TO_DEDUCT',

@@ -4,15 +4,16 @@
 #
 # Translators:
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2026.
 # "Anastasiia Koroleva (koan)" <koan@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2026-03-14 09:41+0000\n"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 19:16+0000\n"
 "Last-Translator: \"Anastasiia Koroleva (koan)\" <koan@odoo.com>\n"
-"Language-Team: Russian <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Russian <https://translate.odoo.com/projects/odoo-s19-4/"
 "website_crm_iap_reveal/ru/>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
@@ -21,7 +22,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
 "(n%100>=11 && n%100<=14)? 2 : 3);\n"
-"X-Generator: Weblate 5.16.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: website_crm_iap_reveal
 #: model_terms:ir.ui.view,arch_db:website_crm_iap_reveal.crm_reveal_rule_form
@@ -31,6 +32,11 @@ msgid ""
 msgstr ""
 "1 кредит расходуется на одного посетителя, соответствующего условиям "
 "посещаемости сайта и чья компания может быть идентифицирована.<br/>"
+
+#. module: website_crm_iap_reveal
+#: model_terms:ir.ui.view,arch_db:website_crm_iap_reveal.enrich_company
+msgid "<b>Contacts</b>"
+msgstr ""
 
 #. module: website_crm_iap_reveal
 #: model_terms:ir.ui.view,arch_db:website_crm_iap_reveal.crm_reveal_rule_form
@@ -54,8 +60,8 @@ msgstr "Архивировано"
 
 #. module: website_crm_iap_reveal
 #: model:ir.model,name:website_crm_iap_reveal.model_crm_reveal_rule
-msgid "CRM Lead Generation Rules"
-msgstr "Правила генерации лидов с помощью CRM"
+msgid "CRM Lead Generation Rule"
+msgstr ""
 
 #. module: website_crm_iap_reveal
 #: model:ir.model,name:website_crm_iap_reveal.model_crm_reveal_view
@@ -145,6 +151,11 @@ msgid "Display Name"
 msgstr "Отображаемое имя"
 
 #. module: website_crm_iap_reveal
+#: model_terms:ir.ui.view,arch_db:website_crm_iap_reveal.enrich_company
+msgid "Email"
+msgstr ""
+
+#. module: website_crm_iap_reveal
 #. odoo-python
 #: code:addons/website_crm_iap_reveal/models/crm_reveal_rule.py:0
 msgid "Enter Valid Regex."
@@ -169,6 +180,11 @@ msgstr "Фильтр по размеру"
 #: model_terms:ir.ui.view,arch_db:website_crm_iap_reveal.crm_reveal_rule_form
 msgid "From"
 msgstr "От"
+
+#. module: website_crm_iap_reveal
+#: model:ir.module.module,summary:base.module_website_crm_iap_reveal
+msgid "Generate Leads/Opportunities from your website's traffic"
+msgstr ""
 
 #. module: website_crm_iap_reveal
 #: model:ir.model.fields,field_description:website_crm_iap_reveal.field_crm_reveal_rule__lead_ids
@@ -233,6 +249,11 @@ msgid "Lead Data"
 msgstr "Данные Лида"
 
 #. module: website_crm_iap_reveal
+#: model:ir.module.module,shortdesc:base.module_website_crm_iap_reveal
+msgid "Lead Generation From Website Visits"
+msgstr ""
+
+#. module: website_crm_iap_reveal
 #: model_terms:ir.ui.view,arch_db:website_crm_iap_reveal.crm_reveal_lead_opportunity_form
 msgid "Lead Generation Information"
 msgstr "Информация о генерации свинца"
@@ -284,6 +305,11 @@ msgstr "Допускается не более 5 контактов!"
 #: model:ir.model.fields.selection,name:website_crm_iap_reveal.selection__crm_reveal_rule__priority__1
 msgid "Medium"
 msgstr "Канал"
+
+#. module: website_crm_iap_reveal
+#: model_terms:ir.ui.view,arch_db:website_crm_iap_reveal.enrich_company
+msgid "Name"
+msgstr ""
 
 #. module: website_crm_iap_reveal
 #: model:ir.model.fields.selection,name:website_crm_iap_reveal.selection__crm_reveal_view__reveal_state__not_found
@@ -347,6 +373,11 @@ msgstr "Возможности, созданные Odoo Lead Generation"
 #: model:ir.model.fields,field_description:website_crm_iap_reveal.field_crm_reveal_rule__other_role_ids
 msgid "Other Roles"
 msgstr "Другие роли"
+
+#. module: website_crm_iap_reveal
+#: model_terms:ir.ui.view,arch_db:website_crm_iap_reveal.enrich_company
+msgid "Phone"
+msgstr ""
 
 #. module: website_crm_iap_reveal
 #: model:ir.model.fields,field_description:website_crm_iap_reveal.field_crm_reveal_rule__preferred_role_id
@@ -532,6 +563,3 @@ msgstr "сотрудники"
 #: model_terms:ir.ui.view,arch_db:website_crm_iap_reveal.crm_reveal_rule_form
 msgid "to"
 msgstr "в"
-
-#~ msgid "Lead/Opportunity"
-#~ msgstr "Лид/Возможность"

@@ -6,48 +6,46 @@ import { useDynamicPlaceholder } from "../dynamic_placeholder_hook";
 import { useInputField } from "../input_field_hook";
 import { parseInteger } from "../parsers";
 import { standardFieldProps } from "../standard_field_props";
-import { TranslationButton } from "../translation_button";
+import { TranslationButton } from "../translation/translation";
 
-import { Component, useExternalListener, useEffect, useRef } from "@odoo/owl";
+import { Component, onMounted, onPatched, signal, t, useListener, useProps } from "@odoo/owl";
+
+export const textFieldProps = {
+    ...standardFieldProps,
+    lineBreaks: t.boolean().optional(true),
+    placeholder: t.string().optional(),
+    dynamicPlaceholder: t.boolean().optional(false),
+    dynamicPlaceholderModelReferenceField: t.string().optional(),
+    rowCount: t.number().optional(2),
+};
 
 export class TextField extends Component {
     static template = "web.TextField";
     static components = {
         TranslationButton,
     };
-    static props = {
-        ...standardFieldProps,
-        lineBreaks: { type: Boolean, optional: true },
-        placeholder: { type: String, optional: true },
-        dynamicPlaceholder: { type: Boolean, optional: true },
-        dynamicPlaceholderModelReferenceField: { type: String, optional: true },
-        rowCount: { type: Number, optional: true },
-    };
-    static defaultProps = {
-        lineBreaks: true,
-        dynamicPlaceholder: false,
-        rowCount: 2,
-    };
+    props = useProps(textFieldProps);
+    textareaRef = signal.ref();
 
     setup() {
-        this.divRef = useRef("div");
-        this.textareaRef = useRef("textarea");
         if (this.props.dynamicPlaceholder) {
             this.dynamicPlaceholder = useDynamicPlaceholder(this.textareaRef);
-            useExternalListener(document, "keydown", this.dynamicPlaceholder.onKeydown);
-            useEffect(() =>
+            useListener(document, "keydown", this.dynamicPlaceholder.onKeydown);
+            const updatePlaceholderModel = () => {
                 this.dynamicPlaceholder.updateModel(
                     this.props.dynamicPlaceholderModelReferenceField
-                )
-            );
+                );
+            };
+            onMounted(updatePlaceholderModel);
+            onPatched(updatePlaceholderModel);
         }
         useInputField({
-            getValue: () => this.props.record.data[this.props.name] || "",
-            refName: "textarea",
+            ref: this.textareaRef,
+            getValue: () => this.value,
             parse: (v) => this.parse(v),
             preventLineBreaks: !this.props.lineBreaks,
         });
-        useSpellCheck({ refName: "textarea" });
+        useSpellCheck({ ref: this.textareaRef });
 
         useAutoresize(this.textareaRef, { minimumHeight: this.minimumHeight });
 
@@ -58,6 +56,10 @@ export class TextField extends Component {
         return this.props.record.fields[this.props.name].trim;
     }
 
+    get value() {
+        return this.props.record.data[this.props.name] || "";
+    }
+
     parse(value) {
         if (this.shouldTrim) {
             return value.trim();
@@ -65,8 +67,8 @@ export class TextField extends Component {
         return value;
     }
 
-    async onBlur() {
-        this.selectionStart = this.textareaRef.el.selectionStart;
+    onBlur() {
+        this.selectionStart = this.textareaRef()?.selectionStart || 0;
     }
 
     async onDynamicPlaceholderOpen() {
@@ -76,7 +78,7 @@ export class TextField extends Component {
     }
 
     get isTranslatable() {
-        return this.props.record.fields[this.props.name].translate;
+        return this.props.record.isFieldTranslatable(this.props.name);
     }
     get minimumHeight() {
         return this.props.lineBreaks ? 50 : 0;
@@ -87,20 +89,20 @@ export class TextField extends Component {
 
     async onDynamicPlaceholderValidate(chain, defaultValue) {
         if (chain) {
-            this.textareaRef.el.focus();
+            this.textareaRef().focus();
             const dynamicPlaceholder = ` {{object.${chain}${
                 defaultValue?.length ? ` ||| ${defaultValue}` : ""
             }}}`;
-            this.textareaRef.el.setRangeText(
+            this.textareaRef().setRangeText(
                 dynamicPlaceholder,
                 this.selectionStart,
                 this.selectionStart,
                 "end"
             );
             // trigger events to make the field dirty
-            this.textareaRef.el.dispatchEvent(new InputEvent("input"));
-            this.textareaRef.el.dispatchEvent(new KeyboardEvent("keydown"));
-            this.textareaRef.el.focus();
+            this.textareaRef().dispatchEvent(new InputEvent("input"));
+            this.textareaRef().dispatchEvent(new KeyboardEvent("keydown"));
+            this.textareaRef().focus();
         }
     }
 }
@@ -136,10 +138,10 @@ export const textField = {
 registry.category("fields").add("text", textField);
 
 export class ListTextField extends TextField {
-    static defaultProps = {
-        ...super.defaultProps,
-        rowCount: 1,
-    };
+    props = useProps({
+        ...textFieldProps,
+        rowCount: t.number().optional(1),
+    });
 
     get minimumHeight() {
         return 0;

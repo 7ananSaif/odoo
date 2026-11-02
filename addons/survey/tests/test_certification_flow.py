@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+from freezegun import freeze_time
 from unittest.mock import patch
 
 from odoo import Command
@@ -14,6 +15,7 @@ from odoo.tests.common import HttpCase
 @tagged('-at_install', 'post_install', 'functional', 'is_query_count')
 class TestCertificationFlow(common.TestSurveyCommon, MockEmail, HttpCase):
 
+    @freeze_time("2020-02-15 18:00")
     def test_flow_certification(self):
         # Step: survey user creates the certification
         # --------------------------------------------------
@@ -92,7 +94,7 @@ class TestCertificationFlow(common.TestSurveyCommon, MockEmail, HttpCase):
 
         # Employee opens start page
         response = self._access_start(certification)
-        self.assertResponse(response, 200, [certification.title, 'Time limit for this certification', '10 minutes'])
+        self.assertResponse(response, 200, [certification.title, '10 minutes'])
 
         # -> this should have generated a new user_input with a token
         user_inputs = self.env['survey.user_input'].search([('survey_id', '=', certification.id)])
@@ -108,6 +110,8 @@ class TestCertificationFlow(common.TestSurveyCommon, MockEmail, HttpCase):
         r = self._access_begin(certification, answer_token)
         self.assertResponse(r, 200)
 
+        self.assertFalse(self.env["mail.presence"].search([("user_id", "=", self.user_emp.id)], limit=1))
+
         with self.mock_mail_gateway():
             self._answer_question(q01, q01.suggested_answer_ids.ids[3], answer_token, csrf_token)
             self._answer_question(q02, q02.suggested_answer_ids.ids[0], answer_token, csrf_token)  # incorrect => no points
@@ -117,12 +121,12 @@ class TestCertificationFlow(common.TestSurveyCommon, MockEmail, HttpCase):
             self._answer_question(q04, q04.suggested_answer_ids.ids[0], answer_token, csrf_token, button_submit='previous')
             self._answer_question(q03, "Just kidding, I don't like it...", answer_token, csrf_token)
             self._answer_question(q04, q04.suggested_answer_ids.ids[0], answer_token, csrf_token,
-                                  submit_query_count=43, access_page_query_count=24)
+                                  submit_query_count=44, access_page_query_count=25)
             q05_answers = q05.suggested_answer_ids.ids[0:2] + [q05.suggested_answer_ids.ids[3]]
             self._answer_question(q05, q05_answers, answer_token, csrf_token,
-                                  submit_query_count=28, access_page_query_count=24)
+                                  submit_query_count=30, access_page_query_count=25)
             self._answer_question(q06, q06.suggested_answer_ids.ids[0], answer_token, csrf_token,
-                                  submit_query_count=108, access_page_query_count=24)
+                                  submit_query_count=109, access_page_query_count=25)
 
         user_inputs.invalidate_recordset()
         # Check that certification is successfully passed
@@ -187,6 +191,21 @@ class TestCertificationFlow(common.TestSurveyCommon, MockEmail, HttpCase):
             new_company.invalidate_model()  # cache pollution
         self.env['ir.actions.report'].with_user(user_new_company).with_company(new_company)\
             ._render_qweb_pdf('survey.certification_report_view', res_ids=user_inputs.ids)
+
+        # Check the rendering of all layout in html
+        for layout_value, _ in self.env['survey.survey']._fields['certification_report_layout'].selection:
+            with self.subTest(layout_value=layout_value):
+                user_inputs.survey_id.certification_report_layout = layout_value
+                layout, color = layout_value.split('_')
+                html = str(self.env['ir.actions.report'].with_user(user_new_company).with_company(
+                    new_company)._render_qweb_html('survey.certification_report_view', user_inputs.ids)[0])
+                self.assertIn(f'o_layout_{layout}', html)
+                self.assertIn(f'o_color_{color}_{self.survey_user.company_id.id}', html)
+                self.assertIn('Eglantine Employee', html)
+                self.assertIn(self.survey_user.company_id.name, html)
+                self.assertIn(str(user_inputs.id), html)
+                self.assertIn('02/15/2020', html)
+                self.assertNotIn('Certification failed', html)
 
     def test_randomized_certification(self):
         # Step: survey user creates the randomized certification

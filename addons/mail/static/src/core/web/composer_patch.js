@@ -1,11 +1,10 @@
-import { wrapInlinesInBlocks } from "@html_editor/utils/dom";
+import { TranslatePlugin } from "@html_editor/main/translate/translate_plugin";
+import { SIGNATURE_CLASS } from "@html_editor/main/user_signature_plugin";
 import { childNodes } from "@html_editor/utils/dom_traversal";
 
 import { Composer } from "@mail/core/common/composer";
+import { createElementFromContent, getInnerHtml } from "@mail/utils/common/html";
 
-import { markup } from "@odoo/owl";
-
-import { createDocumentFragmentFromContent } from "@web/core/utils/html";
 import { patch } from "@web/core/utils/patch";
 import { renderToElement } from "@web/core/utils/render";
 
@@ -18,21 +17,24 @@ patch(Composer.prototype, {
      * @returns {ReturnType<markup>}
      */
     formatDefaultBodyForFullComposer(defaultBody, signature = "") {
-        const fragment = createDocumentFragmentFromContent(defaultBody).body;
+        const fragment = createElementFromContent(defaultBody);
         if (!fragment.firstChild) {
             fragment.append(document.createElement("BR"));
         }
         if (signature) {
             const signatureEl = renderToElement("html_editor.Signature", {
                 signature,
-                signatureClass: "o-signature-container",
+                signatureClass: SIGNATURE_CLASS,
             });
             fragment.append(document.createElement("BR"));
             fragment.append(signatureEl);
         }
         const container = document.createElement("DIV");
         container.append(...childNodes(fragment));
-        wrapInlinesInBlocks(container, { baseContainerNodeName: "DIV" });
-        return markup(container.innerHTML);
+        return getInnerHtml(container);
+    },
+    get wysiwygConfig() {
+        const config = super.wysiwygConfig;
+        return { ...config, Plugins: [...config.Plugins, TranslatePlugin] };
     },
 });

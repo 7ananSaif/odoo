@@ -59,19 +59,17 @@ LEFT JOIN
 LEFT JOIN
     product_category pc ON pt.categ_id = pc.id
 LEFT JOIN
-    res_company company ON sm.company_id = company.id
+    ir_default cost_method_default ON cost_method_default.company_id = sm.company_id
+                                  AND cost_method_default.field_id = (SELECT id FROM ir_model_fields WHERE name = 'property_cost_method' AND model = 'product.category')
 LEFT JOIN
-    uom_uom um ON um.id = sm.product_uom
+    uom_uom um ON um.id = sm.uom_id
 LEFT JOIN
     uom_uom up ON up.id = pt.uom_id
 WHERE
     sm.state = 'done'
     AND (sm.is_in = TRUE OR sm.is_out = TRUE)
     -- Ignore moves for standard cost method. Only display the list of cost updates
-    AND (
-        (pt.categ_id IS NOT NULL AND pc.property_cost_method ->> company.id::text IN ('fifo', 'average'))
-        OR (pt.categ_id IS NULL OR (pc.property_cost_method IS NULL OR pc.property_cost_method ->> company.id::text IS NULL) AND company.cost_method IN ('fifo', 'average'))
-    )
+    AND COALESCE(pc.property_cost_method ->> sm.company_id::text, cost_method_default.json_value::jsonb #>> '{}') IN ('fifo', 'average')
 UNION ALL
 SELECT
     -pv.id,
@@ -96,6 +94,7 @@ WHERE
         total_records_grouped = self.env['stock.avco.report'].search(
             [('product_id', 'in', self.product_id.mapped('id')), ('company_id', 'in', self.company_id.mapped('id'))]
         ).grouped(lambda m: (m.product_id, m.company_id))
+        precision_digits = self.env['decimal.precision'].precision_get('Product Unit')
         for records in self.grouped(lambda m: (m.product_id, m.company_id)).values():
             current_page_records = records.sorted('date, id')
             total_records = total_records_grouped.get((records.product_id, records.company_id)).sorted('date, id')
@@ -113,11 +112,15 @@ WHERE
                         # Regular case, value from accumulation
                         if previous_qty > 0:
                             total_value += added_value
-                            avco = total_value / total_quantity if not float_is_zero(total_quantity, precision_digits=self.env['decimal.precision'].precision_get('Product Unit')) else avco
+                            avco = total_value / total_quantity if not float_is_zero(total_quantity, precision_digits=precision_digits) else avco
                         # From negative quantity case, value from last_in
                         elif previous_qty <= 0:
                             avco = added_value / qty if qty else avco
                             total_value = avco * total_quantity
+                    elif qty < 0 and record.product_id.lot_valuated:
+                        added_value = -record.value
+                        total_value += added_value
+                        avco = total_value / total_quantity if not float_is_zero(total_quantity, precision_digits=precision_digits) else avco
                     else:
                         added_value = avco * qty
                         total_value += added_value

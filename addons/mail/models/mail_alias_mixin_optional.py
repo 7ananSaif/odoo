@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import logging
 
 from odoo import api, fields, models
+from odoo.fields import Domain
 
 _logger = logging.getLogger(__name__)
 
@@ -18,7 +18,7 @@ class MailAliasMixinOptional(models.AbstractModel):
     _description = 'Email Aliases Mixin (light)'
     ALIAS_WRITEABLE_FIELDS = ['alias_domain_id', 'alias_name', 'alias_contact', 'alias_defaults', 'alias_bounced_content']
 
-    alias_id = fields.Many2one('mail.alias', string='Alias', ondelete="restrict", required=False, copy=False)
+    alias_id = fields.Many2one('mail.alias', string='Alias', ondelete="restrict", required=False, copy=False, index='btree_not_null')
     alias_name = fields.Char(related='alias_id.alias_name', readonly=False)
     alias_domain_id = fields.Many2one(
         'mail.alias.domain', string='Alias Domain',
@@ -37,7 +37,12 @@ class MailAliasMixinOptional(models.AbstractModel):
             record.alias_email = f"{record.alias_name}@{record.alias_domain}"
 
     def _search_alias_email(self, operator, operand):
-        return [('alias_id.alias_full_name', operator, operand)]
+        if operator in Domain.NEGATIVE_OPERATORS:
+            return NotImplemented
+        domain = Domain('alias_id.alias_full_name', operator, operand)
+        if operator == 'in' and False in operand:  # relation may be falsy
+            domain |= Domain('alias_id', '=', False)
+        return domain
 
     # --------------------------------------------------
     # CRUD

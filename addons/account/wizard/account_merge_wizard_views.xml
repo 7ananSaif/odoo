@@ -8,7 +8,9 @@
                 <form>
                     <field name="disable_merge_button" invisible="1"/>
                     <group>
-                        <field name="is_group_by_name"/>
+                        <field name="is_group_by_name" />
+                    </group>
+                    <group>
                         <field name="wizard_line_ids"
                                colspan="4"
                                nolabel="1"
@@ -29,7 +31,7 @@
                     <footer>
                         <button string="Merge" name="action_merge" type="object" class="oe_highlight" data-hotkey="q" invisible="disable_merge_button"/>
                         <button string="Merge" name="action_merge" type="object" class="oe_highlight disabled" data-hotkey="q" invisible="not disable_merge_button"/>
-                        <button string="Cancel" class="btn btn-secondary" special="cancel" data-hotkey="x"/>
+                        <button class="btn btn-secondary" special="cancel" data-hotkey="x"/>
                     </footer>
                 </form>
             </field>

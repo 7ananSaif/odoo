@@ -9,6 +9,7 @@ import {
     clickOnSave,
     registerWebsitePreviewTour,
     goBackToBlocks,
+    unfoldOptionsGroup,
 } from "@website/js/tours/tour_utils";
 
 const carouselInnerSelector = ":iframe .carousel-inner";
@@ -16,7 +17,6 @@ const carouselInnerSelector = ":iframe .carousel-inner";
 registerWebsitePreviewTour(
     "carousel_content_removal",
     {
-        url: "/",
         edition: true,
     },
     () => [
@@ -82,7 +82,6 @@ const checkSlides = (number, position) => {
 registerWebsitePreviewTour(
     "snippet_carousel",
     {
-        url: "/",
         edition: true,
     },
     () => [
@@ -104,6 +103,7 @@ registerWebsitePreviewTour(
         },
         checkSlides(3, 1),
         // Add a slide (with the "Carousel" option).
+        ...unfoldOptionsGroup("Carousel"),
         changeOption("Carousel", "[data-action-id='addSlide']"),
         checkSlides(4, 2),
         {
@@ -149,6 +149,19 @@ registerWebsitePreviewTour(
         ...clickOnSave(),
         // Check that saving always sets the first slide as active.
         checkSlides(4, 1),
+        {
+            content: "Slide the carousel",
+            trigger: ":iframe .carousel .carousel-control-next",
+            run: "click",
+        },
+        // Ensure opening edit mode while sliding doesn't cause any issue.
+        ...clickOnEditAndWaitEditMode(),
+        {
+            content: "Slide the carousel in edit mode",
+            trigger: ":iframe .carousel .carousel-control-next",
+            run: "click",
+        },
+        checkSlides(4, 3),
     ]
 );
 
@@ -168,7 +181,6 @@ const checkSlideNotClickable = () => ({
 registerWebsitePreviewTour(
     "snippet_carousel_clickable_slides",
     {
-        url: "/",
         edition: true,
     },
     () => [

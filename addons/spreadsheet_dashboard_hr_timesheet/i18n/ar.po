@@ -7,10 +7,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-09-16 13:44+0000\n"
-"Last-Translator: \"Tiffany Chang (tic)\" <tic@odoo.com>\n"
-"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 17:58+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-s19-4/"
 "spreadsheet_dashboard_hr_timesheet/ar/>\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: spreadsheet_dashboard_hr_timesheet
 #. odoo-javascript
@@ -29,8 +29,14 @@ msgstr " أيام"
 #. module: spreadsheet_dashboard_hr_timesheet
 #. odoo-javascript
 #: code:addons/spreadsheet_dashboard_hr_timesheet/data/files/tasks_dashboard.json:0
-msgid "Assignee"
-msgstr "المُسند إليه"
+msgid "% of allocated hours"
+msgstr ""
+
+#. module: spreadsheet_dashboard_hr_timesheet
+#. odoo-javascript
+#: code:addons/spreadsheet_dashboard_hr_timesheet/data/files/tasks_dashboard.json:0
+msgid "Allocated Hours"
+msgstr ""
 
 #. module: spreadsheet_dashboard_hr_timesheet
 #. odoo-javascript
@@ -65,6 +71,7 @@ msgstr "أيام حتى الإقفال"
 #. module: spreadsheet_dashboard_hr_timesheet
 #. odoo-javascript
 #: code:addons/spreadsheet_dashboard_hr_timesheet/data/files/tasks_dashboard.json:0
+#: code:addons/spreadsheet_dashboard_hr_timesheet/data/files/tasks_sample_dashboard.json:0
 msgid "Hours Logged"
 msgstr "الساعات المسجلة"
 
@@ -100,10 +107,15 @@ msgid "Project"
 msgstr "المشروع"
 
 #. module: spreadsheet_dashboard_hr_timesheet
-#. odoo-javascript
-#: code:addons/spreadsheet_dashboard_hr_timesheet/data/files/tasks_dashboard.json:0
-msgid "Tag"
-msgstr "علامة تصنيف"
+#: model:ir.module.module,description:base.module_spreadsheet_dashboard_hr_timesheet
+#: model:ir.module.module,summary:base.module_spreadsheet_dashboard_hr_timesheet
+msgid "Spreadsheet"
+msgstr ""
+
+#. module: spreadsheet_dashboard_hr_timesheet
+#: model:ir.module.module,shortdesc:base.module_spreadsheet_dashboard_hr_timesheet
+msgid "Spreadsheet dashboard for time sheets"
+msgstr ""
 
 #. module: spreadsheet_dashboard_hr_timesheet
 #. odoo-javascript
@@ -114,6 +126,7 @@ msgstr "علامات التصنيف"
 #. module: spreadsheet_dashboard_hr_timesheet
 #. odoo-javascript
 #: code:addons/spreadsheet_dashboard_hr_timesheet/data/files/tasks_dashboard.json:0
+#: code:addons/spreadsheet_dashboard_hr_timesheet/data/files/tasks_sample_dashboard.json:0
 msgid "Tasks"
 msgstr "المهام"
 
@@ -132,47 +145,55 @@ msgstr "المهام حسب الحالة"
 #. module: spreadsheet_dashboard_hr_timesheet
 #. odoo-javascript
 #: code:addons/spreadsheet_dashboard_hr_timesheet/data/files/tasks_dashboard.json:0
+#: code:addons/spreadsheet_dashboard_hr_timesheet/data/files/tasks_sample_dashboard.json:0
 msgid "Time to Assign"
 msgstr "الوقت لتعيينه"
 
 #. module: spreadsheet_dashboard_hr_timesheet
 #. odoo-javascript
 #: code:addons/spreadsheet_dashboard_hr_timesheet/data/files/tasks_dashboard.json:0
+#: code:addons/spreadsheet_dashboard_hr_timesheet/data/files/tasks_sample_dashboard.json:0
 msgid "Time to Close"
 msgstr "الوقت حتى الإغلاق"
 
 #. module: spreadsheet_dashboard_hr_timesheet
 #. odoo-javascript
 #: code:addons/spreadsheet_dashboard_hr_timesheet/data/files/tasks_dashboard.json:0
+#: code:addons/spreadsheet_dashboard_hr_timesheet/data/files/tasks_sample_dashboard.json:0
 msgid "Top Assignees"
 msgstr "أهم المسند إليهم"
 
 #. module: spreadsheet_dashboard_hr_timesheet
 #. odoo-javascript
 #: code:addons/spreadsheet_dashboard_hr_timesheet/data/files/tasks_dashboard.json:0
+#: code:addons/spreadsheet_dashboard_hr_timesheet/data/files/tasks_sample_dashboard.json:0
 msgid "Top Customers"
 msgstr "كبار العملاء"
 
 #. module: spreadsheet_dashboard_hr_timesheet
 #. odoo-javascript
 #: code:addons/spreadsheet_dashboard_hr_timesheet/data/files/tasks_dashboard.json:0
+#: code:addons/spreadsheet_dashboard_hr_timesheet/data/files/tasks_sample_dashboard.json:0
 msgid "Top Projects"
 msgstr "أهم المشاريع"
 
 #. module: spreadsheet_dashboard_hr_timesheet
 #. odoo-javascript
 #: code:addons/spreadsheet_dashboard_hr_timesheet/data/files/tasks_dashboard.json:0
+#: code:addons/spreadsheet_dashboard_hr_timesheet/data/files/tasks_sample_dashboard.json:0
 msgid "Top Tags"
 msgstr "أهم علامات التصنيف"
 
 #. module: spreadsheet_dashboard_hr_timesheet
 #. odoo-javascript
 #: code:addons/spreadsheet_dashboard_hr_timesheet/data/files/tasks_dashboard.json:0
+#: code:addons/spreadsheet_dashboard_hr_timesheet/data/files/tasks_sample_dashboard.json:0
 msgid "last period"
 msgstr "الفترة الاخيرة"
 
 #. module: spreadsheet_dashboard_hr_timesheet
 #. odoo-javascript
 #: code:addons/spreadsheet_dashboard_hr_timesheet/data/files/tasks_dashboard.json:0
+#: code:addons/spreadsheet_dashboard_hr_timesheet/data/files/tasks_sample_dashboard.json:0
 msgid "since last period"
 msgstr "منذ الفترة الماضية"

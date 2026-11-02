@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
@@ -7,7 +6,7 @@
     'category': 'Hidden',
     'depends': ['resource'],
     'data': [
-        'security/ir.model.access.csv',
+        'security/ir.access.csv',
     ],
     'author': 'Odoo S.A.',
     'license': 'LGPL-3',

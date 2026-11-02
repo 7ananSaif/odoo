@@ -36,3 +36,10 @@ test("isReadyToFire", async () => {
     course.line_ids = [line];
     expect(course.isReadyToFire()).toBe(true);
 });
+
+test("isSynced", async () => {
+    const store = await setupPosEnv();
+    store.addNewOrder();
+    const course = store.addCourse();
+    expect(course.isSynced).toBe(false);
+});

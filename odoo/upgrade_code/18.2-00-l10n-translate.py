@@ -1,8 +1,8 @@
+# test: skip; finds l10n to migrate, do manually if needed
 from __future__ import annotations
 
 import csv
 import difflib
-import glob
 import re
 import typing
 from collections import defaultdict
@@ -31,7 +31,7 @@ MODELS = {
     'hr.contract.salary.benefit': ['name', 'description', 'fold_label'],
     'hr.contract.salary.benefit.value': ['name'],
     'hr.contract.salary.personal.info': ['name', 'helper', 'value', 'placeholder'],
-    'hr.leave.type': ['name'],
+    'hr.work.entry.type': ['name'],
     'hr.payroll.dashboard.warning': ['name'],
     'hr.payroll.structure': ['payslip_name'],
     'hr.salary.rule': ['name'],

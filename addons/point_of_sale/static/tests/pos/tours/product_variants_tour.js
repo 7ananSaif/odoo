@@ -10,10 +10,14 @@ function check_variant_price(product, choices, price) {
         steps.push(...ProductConfiguratorPopup.pickRadio(choice));
     }
     steps.push(
-        Dialog.confirm(),
+        Dialog.proceed({ title: product, button: "add" }),
         ...ProductScreen.totalAmountIs(price),
         ...ProductScreen.clickNumpad("⌫"),
-        ...ProductScreen.clickNumpad("⌫")
+        ...ProductScreen.clickNumpad("⌫"),
+        {
+            content: "Ensure the leftpane is empty after remove product",
+            trigger: `.leftpane > div:first:empty`,
+        }
     );
     return steps.flat();
 }

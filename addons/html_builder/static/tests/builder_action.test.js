@@ -2,15 +2,14 @@ import {
     addBuilderAction,
     addBuilderOption,
     setupHTMLBuilder,
-    addLegacyBuilderOption,
 } from "@html_builder/../tests/helpers";
 import { Builder } from "@html_builder/builder";
+import { BaseOptionComponent } from "@html_builder/core/base_option_component";
 import { BuilderAction } from "@html_builder/core/builder_action";
 import { SavePlugin } from "@html_builder/core/save_plugin";
-import { BaseOptionComponent } from "@html_builder/core/utils";
 import { beforeEach, describe, expect, test } from "@odoo/hoot";
-import { advanceTime, animationFrame, Deferred, tick } from "@odoo/hoot-dom";
-import { useState, xml } from "@odoo/owl";
+import { advanceTime, animationFrame, tick } from "@odoo/hoot-dom";
+import { signal, xml } from "@odoo/owl";
 import {
     contains,
     defineModels,
@@ -39,24 +38,7 @@ beforeEach(() => {
 });
 
 test("apply is called if clean is not defined", async () => {
-    addBuilderOption(
-        class extends BaseOptionComponent {
-            static selector = ".s_test";
-            static template = xml`<BuilderButton action="'testAction'">Click</BuilderButton>`;
-        }
-    );
-    await setupHTMLBuilder(`<section class="s_test">Test</section>`);
-    await contains(":iframe .s_test").click();
-    await contains("[data-action-id='testAction']").click();
-    expect("[data-action-id='testAction']").toHaveClass("active");
-    expect.verifySteps(["apply", "apply"]); // preview, apply
-    await contains("[data-action-id='testAction']").click();
-    expect("[data-action-id='testAction']").not.toHaveClass("active");
-    expect.verifySteps(["apply"]); // clean
-});
-
-test("check Legacy Builder Option is supported", async () => {
-    addLegacyBuilderOption({
+    addBuilderOption({
         selector: ".s_test",
         template: xml`<BuilderButton action="'testAction'">Click</BuilderButton>`,
     });
@@ -71,12 +53,10 @@ test("check Legacy Builder Option is supported", async () => {
 });
 
 test("custom action and shorthand action: clean actions are independent, apply is called on custom action if clean is not defined", async () => {
-    addBuilderOption(
-        class extends BaseOptionComponent {
-            static selector = ".s_test";
-            static template = xml`<BuilderButton action="'testAction'" classAction="'custom-class'">Click</BuilderButton>`;
-        }
-    );
+    addBuilderOption({
+        selector: ".s_test",
+        template: xml`<BuilderButton action="'testAction'" classAction="'custom-class'">Click</BuilderButton>`,
+    });
     await setupHTMLBuilder(`<section class="s_test">Test</section>`);
     await contains(":iframe .s_test").click();
     await contains("[data-action-id='testAction']").click();
@@ -88,25 +68,59 @@ test("custom action and shorthand action: clean actions are independent, apply i
 });
 
 test("Prepare is triggered on props updated", async () => {
-    const newPropDeferred = new Deferred();
-    let prepareDeferred = new Promise((r) => r());
+    const newPropDeferred = Promise.withResolvers();
+    const param = signal("old param");
+    let prepareDeferred;
     class TestOption extends BaseOptionComponent {
-        static template = xml`<BuilderCheckbox action="'customAction'" actionParam="state.param"/>`;
-        static selector = ".test-options-target";
-        static props = {};
-        setup() {
-            super.setup();
-            this.state = useState({ param: "old param" });
-            newPropDeferred.then(() => {
-                this.state.param = "new param";
-            });
-        }
+        static template = xml`<BuilderCheckbox action="'customAction'" actionParam="this.param()"/>`;
+
+        param = param;
     }
     class CustomAction extends BuilderAction {
         static id = "customAction";
         async prepare() {
-            await prepareDeferred;
+            await prepareDeferred?.promise;
             expect.step("prepare");
+        }
+        apply() {}
+    }
+    addBuilderAction({
+        CustomAction,
+    });
+    addBuilderOption({
+        selector: ".test-options-target",
+        Component: TestOption,
+    });
+    await setupHTMLBuilder(`<section class="test-options-target">Homepage</section>`);
+    await contains(":iframe .test-options-target").click();
+    expect.verifySteps(["prepare"]);
+    prepareDeferred = Promise.withResolvers();
+    // Update prop
+    param.set("new param");
+    newPropDeferred.resolve();
+    await animationFrame();
+    expect.verifySteps([]);
+    prepareDeferred.resolve();
+    await animationFrame();
+    expect.verifySteps(["prepare"]);
+});
+
+test("prepare is triggered before getValue(useInputBuilderComponent)", async () => {
+    const prepareDeferred = Promise.withResolvers();
+    class TestOption extends BaseOptionComponent {
+        static template = xml`<BuilderList action="'customAction'"/>`;
+        static selector = ".test-options-target";
+    }
+    class CustomAction extends BuilderAction {
+        static id = "customAction";
+        async prepare() {
+            expect.step("prepare-start");
+            await prepareDeferred.promise;
+            expect.step("prepare-end");
+        }
+        getValue() {
+            expect.step("getValue");
+            return false;
         }
         apply() {}
     }
@@ -116,24 +130,17 @@ test("Prepare is triggered on props updated", async () => {
     addBuilderOption(TestOption);
     await setupHTMLBuilder(`<section class="test-options-target">Homepage</section>`);
     await contains(":iframe .test-options-target").click();
-    expect.verifySteps(["prepare"]);
-    prepareDeferred = new Deferred();
-    // Update prop
-    newPropDeferred.resolve();
-    await animationFrame();
-    expect.verifySteps([]);
+    expect.verifySteps(["prepare-start"]);
     prepareDeferred.resolve();
     await animationFrame();
-    expect.verifySteps(["prepare"]);
+    expect.verifySteps(["prepare-end", "getValue"]);
 });
 
 test("Data Attribute action works with non string values", async () => {
-    addBuilderOption(
-        class extends BaseOptionComponent {
-            static selector = ".s_test";
-            static template = xml`<BuilderButton dataAttributeAction="'customerOrderIds'" dataAttributeActionValue="[100, 200]">Click</BuilderButton>`;
-        }
-    );
+    addBuilderOption({
+        selector: ".s_test",
+        template: xml`<BuilderButton dataAttributeAction="'customerOrderIds'" dataAttributeActionValue="[100, 200]">Click</BuilderButton>`,
+    });
     await setupHTMLBuilder(`<section class="s_test">Test</section>`);
     await contains(":iframe .s_test").click();
     await contains(".we-bg-options-container button:contains('Click')").click();
@@ -170,12 +177,10 @@ describe("isPreviewing is passed to action's apply and clean", () => {
     });
 
     test("useClickableBuilderComponent", async () => {
-        addBuilderOption(
-            class extends BaseOptionComponent {
-                static selector = ".test-options-target";
-                static template = xml`<BuilderButton action="'isPreviewing'" actionValue="true">Toggle</BuilderButton>`;
-            }
-        );
+        addBuilderOption({
+            selector: ".test-options-target",
+            template: xml`<BuilderButton action="'isPreviewing'" actionValue="true">Toggle</BuilderButton>`,
+        });
         await setupHTMLBuilder(`<section class="test-options-target">Homepage</section>`);
         await contains(":iframe .test-options-target").click();
 
@@ -192,12 +197,10 @@ describe("isPreviewing is passed to action's apply and clean", () => {
     });
 
     test("useInputBuilderComponent", async () => {
-        addBuilderOption(
-            class extends BaseOptionComponent {
-                static selector = ".test-options-target";
-                static template = xml`<BuilderTextInput action="'isPreviewing'"/>`;
-            }
-        );
+        addBuilderOption({
+            selector: ".test-options-target",
+            template: xml`<BuilderTextInput action="'isPreviewing'"/>`,
+        });
         await setupHTMLBuilder(`<section class="test-options-target">Homepage</section>`);
         await contains(":iframe .test-options-target").click();
 
@@ -207,12 +210,10 @@ describe("isPreviewing is passed to action's apply and clean", () => {
     });
 
     test("useColorPickerBuilderComponent", async () => {
-        addBuilderOption(
-            class extends BaseOptionComponent {
-                static selector = ".test-options-target";
-                static template = xml`<BuilderColorPicker action="'isPreviewing'"/>`;
-            }
-        );
+        addBuilderOption({
+            selector: ".test-options-target",
+            template: xml`<BuilderColorPicker action="'isPreviewing'"/>`,
+        });
         await setupHTMLBuilder(`<section class="test-options-target">Homepage</section>`);
         await contains(":iframe .test-options-target").click();
 
@@ -241,12 +242,10 @@ describe("isPreviewing is passed to action's apply and clean", () => {
 
         defineModels([Test]);
 
-        addBuilderOption(
-            class extends BaseOptionComponent {
-                static selector = ".test-options-target";
-                static template = xml`<BuilderMany2One action="'isPreviewing'" model="'test'" limit="10" allowUnselect="true"/>`;
-            }
-        );
+        addBuilderOption({
+            selector: ".test-options-target",
+            template: xml`<BuilderMany2One action="'isPreviewing'" model="'test'" limit="10" allowUnselect="true"/>`,
+        });
         await setupHTMLBuilder(`<section class="test-options-target">Homepage</section>`);
         await contains(":iframe .test-options-target").click();
 
@@ -258,7 +257,7 @@ describe("isPreviewing is passed to action's apply and clean", () => {
         expect.verifySteps(["apply true", "apply false"]);
 
         // clean
-        await contains(".o_select_menu + button > .oi-close").click();
+        await contains(".o_select_menu + button > [data-icon='close_small']").click();
         expect.verifySteps(["clean true", "clean false"]);
     });
 });
@@ -296,44 +295,42 @@ test("reload action: apply, clean save and reload are called in the right order 
             }
             async apply({ editingElement }) {
                 expect.step("apply sync");
-                await applyDef;
+                await applyDef.promise;
                 expect.step("apply async");
                 editingElement.dataset.applied = "true";
             }
             async clean({ editingElement }) {
                 expect.step("clean sync");
-                await cleanDef;
+                await cleanDef.promise;
                 expect.step("clean async");
                 editingElement.dataset.applied = "false";
             }
         },
     });
 
-    addBuilderOption(
-        class extends BaseOptionComponent {
-            static selector = ".test-options-target";
-            static template = xml`<BuilderButton action="'testReload'">Click</BuilderButton>`;
-        }
-    );
+    addBuilderOption({
+        selector: ".test-options-target",
+        template: xml`<BuilderButton action="'testReload'">Click</BuilderButton>`,
+    });
     await setupHTMLBuilder(`<section class="test-options-target">Test</section>`);
     await contains(":iframe .test-options-target").click();
 
     // Apply
-    reloadDef = new Deferred();
-    applyDef = new Deferred();
+    reloadDef = Promise.withResolvers();
+    applyDef = Promise.withResolvers();
     await contains("[data-action-id='testReload']").click();
     expect.verifySteps(["apply sync"]);
     applyDef.resolve();
-    await reloadDef;
+    await reloadDef.promise;
     expect.verifySteps(["apply async", "save sync", "save async", "reload"]);
 
     // Clean
-    reloadDef = new Deferred();
-    cleanDef = new Deferred();
+    reloadDef = Promise.withResolvers();
+    cleanDef = Promise.withResolvers();
     await contains("[data-action-id='testReload']").click();
     expect.verifySteps(["clean sync"]);
     cleanDef.resolve();
-    await reloadDef;
+    await reloadDef.promise;
     expect.verifySteps(["clean async", "save sync", "save async", "reload"]);
 });
 
@@ -349,12 +346,10 @@ test("shows notification when a BuilderAction.apply times out", async () => {
             }
         },
     });
-    addBuilderOption(
-        class extends BaseOptionComponent {
-            static selector = ".test-options-target";
-            static template = xml`<BuilderButton action="'timeoutAction'"/>`;
-        }
-    );
+    addBuilderOption({
+        selector: ".test-options-target",
+        template: xml`<BuilderButton action="'timeoutAction'"/>`,
+    });
 
     await setupHTMLBuilder(`<div class="test-options-target">TEST</div>`);
     await contains(":iframe .test-options-target").click();

@@ -7,6 +7,10 @@ from odoo.addons.stock_account.tests.common import TestStockValuationCommon
 @tagged('-at_install', 'post_install')
 class TestBomPriceCommon(TestStockValuationCommon):
 
+    _test_user_groups = ('base.group_user',)
+
+    _test_user_name = 'Test User'
+
     @classmethod
     def _create_product(cls, name, price, quantity=100, category=None):
         vals = {
@@ -52,7 +56,15 @@ class TestBomPriceCommon(TestStockValuationCommon):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        # Required for `product_uom_id ` to be visible in the view
+        # TestStockValuationCommon creates its own `cls.company` after
+        # BaseCommon has already built `cls._test_user` (bound to the original
+        # env company) and sets `allowed_company_ids=[cls.company.id]`. The
+        # restricted test user must therefore be granted access to that company,
+        # otherwise `env.companies` raises "Access to unauthorized or invalid
+        # companies." on the first access check. Setup master-data -> sudo.
+        if cls._test_user:
+            cls._test_user.sudo().company_ids = [(4, cls.company.id)]
+        # Required for `uom_id ` to be visible in the view
         cls.env.user.group_ids += cls.env.ref('uom.group_uom')
         # Required for `product_id ` to be visible in the view
         cls.env.user.group_ids += cls.env.ref('product.group_product_variant')
@@ -84,7 +96,7 @@ class TestBomPriceCommon(TestStockValuationCommon):
         bom_form.product_id = cls.dining_table
         bom_form.product_tmpl_id = cls.dining_table.product_tmpl_id
         bom_form.product_qty = 1.0
-        bom_form.product_uom_id = cls.uom
+        bom_form.uom_id = cls.uom
         bom_form.type = 'normal'
         with bom_form.bom_line_ids.new() as line:
             line.product_id = cls.table_head
@@ -120,7 +132,7 @@ class TestBomPriceCommon(TestStockValuationCommon):
         bom_form2.product_id = cls.table_head
         bom_form2.product_tmpl_id = cls.table_head.product_tmpl_id
         bom_form2.product_qty = 1.0
-        bom_form2.product_uom_id = cls.dozen
+        bom_form2.uom_id = cls.dozen
         bom_form2.type = 'phantom'
         with bom_form2.bom_line_ids.new() as line:
             line.product_id = cls.plywood_sheet
@@ -140,6 +152,10 @@ class TestBomPriceCommon(TestStockValuationCommon):
 
 class TestBomPriceOperationCommon(TestBomPriceCommon):
     """ Common bom setup with workorder operations"""
+    _test_user_groups = ('base.group_user',)
+
+    _test_user_name = 'Test User'
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -256,14 +272,14 @@ class TestBomPriceOperationCommon(TestBomPriceCommon):
             'byproduct_ids': [
                 (0, 0, {
                     'product_id': cls.scrap_wood.id,
-                    'product_uom_id': cls.uom.id,
+                    'uom_id': cls.uom.id,
                     'product_qty': 8,
                     'bom_id': cls.bom_1.id,
                     'cost_share': 1,
                 }),
                 (0, 0, {
                     'product_id': cls.scrap_wood.id,
-                    'product_uom_id': cls.dozen.id,
+                    'uom_id': cls.dozen.id,
                     'product_qty': 1,
                     'bom_id': cls.bom_1.id,
                     'cost_share': 12,

@@ -10,8 +10,6 @@ class AccountChartTemplate(models.AbstractModel):
     def _get_gt_template_data(self):
         return {
             'code_digits': '9',
-            'property_account_receivable_id': 'cta110201',
-            'property_account_payable_id': 'cta210101',
         }
 
     @template('gt', 'res.company')
@@ -23,20 +21,36 @@ class AccountChartTemplate(models.AbstractModel):
                 'cash_account_code_prefix': '1.0.02.0',
                 'transfer_account_code_prefix': '1.0.03.01',
                 'account_default_pos_receivable_account_id': 'cta110205',
-                'income_currency_exchange_account_id': 'cta410103',
+                'income_currency_exchange_account_id': 'cta420101',
                 'expense_currency_exchange_account_id': 'cta710101',
+                'account_discount_expense_allocation_id': 'cta410102',
+                'account_discount_income_allocation_id': 'cta420102',
                 'account_sale_tax_id': 'impuestos_plantilla_iva_por_pagar',
                 'account_purchase_tax_id': 'impuestos_plantilla_iva_por_cobrar',
+                'deferred_expense_account_id': 'cta130201',
+                'deferred_revenue_account_id': 'cta230101',
                 'income_account_id': 'cta410101',
                 'expense_account_id': 'cta510101',
-                'account_stock_journal_id': 'inventory_valuation',
+                'receivable_account_id': 'cta110201',
+                'payable_account_id': 'cta210101',
+                'downpayment_account_id': 'cta230101',
                 'account_stock_valuation_id': 'cta140101',
+                'account_production_wip_account_id': 'cta140201',
+                'account_production_wip_overhead_account_id': 'cta140202',
             },
         }
 
     @template('gt', 'account.account')
     def _get_gt_account_account(self):
         return {
+            'cta120102': {'asset_depreciation_account_id': 'cta120201', 'asset_expense_account_id': 'cta680101'},
+            'cta120104': {'asset_depreciation_account_id': 'cta120201', 'asset_expense_account_id': 'cta680101'},
+            'cta120105': {'asset_depreciation_account_id': 'cta120201', 'asset_expense_account_id': 'cta680101'},
+            'cta120106': {'asset_depreciation_account_id': 'cta120201', 'asset_expense_account_id': 'cta680101'},
+            'cta120107': {'asset_depreciation_account_id': 'cta120201', 'asset_expense_account_id': 'cta680101'},
+            'cta120108': {'asset_depreciation_account_id': 'cta120201', 'asset_expense_account_id': 'cta680101'},
+            'cta120109': {'asset_depreciation_account_id': 'cta120201', 'asset_expense_account_id': 'cta680101'},
+            'cta120110': {'asset_depreciation_account_id': 'cta120201', 'asset_expense_account_id': 'cta680101'},
             'cta140101': {
                 'account_stock_expense_id': 'cta510101',
                 'account_stock_variation_id': 'cta640101',

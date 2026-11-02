@@ -11,30 +11,26 @@ QR_IBAN = 'CH21 3080 8001 2345 6782 7'
 @tagged('post_install_l10n', 'post_install', '-at_install')
 class TestGenQRRReference(AccountTestInvoicingCommon):
     """Check condition of generation of and content of the structured ref"""
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     @AccountTestInvoicingCommon.setup_country('ch')
     def setUpClass(cls):
         super().setUpClass()
-        cls.bank = cls.env["res.bank"].create(
-            {
-                "name": "Alternative Bank Schweiz AG",
-                "bic": "ALSWCH21XXX",
-            }
-        )
         cls.partner = cls.env['res.partner'].create({
             'name': 'Bobby',
             'country_id': cls.env.ref('base.ch').id,
         })
         cls.bank_acc_qriban = cls.env["res.partner.bank"].create(
             {
-                "acc_number": QR_IBAN,
-                "bank_id": cls.bank.id,
+                "account_number": QR_IBAN,
+                "bank_name": "Alternative Bank Schweiz AG",
+                "bank_bic": "ALSWCH21XXX",
                 "partner_id": cls.partner.id,
             }
         )
         cls.qr_bank_account = cls.env['res.partner.bank'].create({
-            'acc_number': "CH4431999123000889012",
+            'account_number': "CH4431999123000889012",
             'partner_id': cls.partner.id,
         })
 
@@ -74,3 +70,34 @@ class TestGenQRRReference(AccountTestInvoicingCommon):
         self.invoice.partner_bank_id = self.bank_acc_qriban
         self.invoice.currency_id = self.env.ref("base.BTN")
         self.assertFalse(self.invoice.get_l10n_ch_qrr_number())
+
+    def test_payment_reference_foreign_debtor(self):
+        """Swiss communication standard must set a QRR reference even for non-CH/LI debtors."""
+        foreign_partner = self.env['res.partner'].create({
+            'name': 'US Customer',
+            'country_id': self.env.ref('base.us').id,
+        })
+        sale_journal = self.company_data['default_journal_sale']
+        sale_journal.invoice_reference_model = 'ch'
+        partner_bank = self.env['res.partner.bank'].create({
+            'account_number': QR_IBAN,
+            'bank_name': "Alternative Bank Schweiz AG",
+            'bank_bic': "ALSWCH21XXX",
+            'partner_id': self.env.company.partner_id.id,
+            'allow_out_payment': True,
+        })
+
+        invoice = self._create_invoice(
+            invoice_date='2026-01-01',
+            partner_id=foreign_partner,
+            partner_bank_id=partner_bank,
+            currency_id=self.env.ref('base.CHF'),
+            post=True
+        )
+
+        invoice_ref = ''.join(filter(str.isdigit, invoice.name))
+        expected_qrr = self.env['account.move']._compute_qrr_number(invoice_ref)
+
+        self.assertTrue(invoice.payment_reference)
+        self.assertEqual(invoice.payment_reference, expected_qrr)
+        self.assertEqual(len(invoice.payment_reference), 27)

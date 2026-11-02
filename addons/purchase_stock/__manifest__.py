@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
@@ -9,7 +8,6 @@
     'summary': 'Purchase Orders, Receipts, Vendor Bills for Stock',
     'depends': ['stock_account', 'purchase'],
     'data': [
-        'security/ir.model.access.csv',
         'data/purchase_stock_data.xml',
         'data/mail_templates.xml',
         'report/vendor_delay_report.xml',
@@ -28,13 +26,14 @@
         'report/report_stock_rule.xml',
         'wizard/stock_replenishment_info.xml',
         'wizard/product_replenish_views.xml',
+        'security/ir.access.csv',
     ],
     'demo': [
         'data/purchase_stock_demo.xml',
     ],
-    'installable': True,
     'auto_install': True,
-    'post_init_hook': '_create_buy_rules',
+    'pre_init_hook': '_split_partial_purchase_order_lines',
+    'post_init_hook': '_post_init_hook',
     'assets': {
         'web.assets_backend': [
             'purchase_stock/static/src/**/*',

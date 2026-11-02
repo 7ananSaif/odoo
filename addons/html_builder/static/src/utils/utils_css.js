@@ -1,8 +1,13 @@
 import { EDITOR_COLOR_CSS_VARIABLES, isColorCombinationName } from "@html_editor/utils/color";
 import { selectElements } from "@html_editor/utils/dom_traversal";
-import { backgroundImageCssToParts, getBgImageURLFromURL } from "@html_editor/utils/image";
-import { normalizeCSSColor, isCSSColor, isColorGradient } from "@web/core/utils/colors";
 import { convertNumericToUnit, getCSSVariableValue } from "@html_editor/utils/formatting";
+import { backgroundImageCssToParts, getBgImageURLFromURL } from "@html_editor/utils/image";
+import {
+    normalizeCSSColor,
+    isCSSColor,
+    isColorGradient,
+    convertCSSColorToRgba,
+} from "@web/core/utils/colors";
 
 /**
  * window.getComputedStyle cannot work properly with CSS shortcuts (like
@@ -208,9 +213,10 @@ export function areCssValuesEqual(value1, value2, cssProp, htmlStyle) {
     }
     const numValue1 = data[0];
     // Zero values don't need unit conversion (0px === 0rem === 0em === 0)
-    const numValue2 = parseFloat(numValue1) === 0
-        ? getNumericAndUnit(value2)[0]
-        : convertValueToUnit(value2, data[1], htmlStyle);
+    const numValue2 =
+        parseFloat(numValue1) === 0
+            ? getNumericAndUnit(value2)[0]
+            : convertValueToUnit(value2, data[1], htmlStyle);
     return Math.abs(numValue1 - numValue2) < Number.EPSILON;
 }
 /**
@@ -267,15 +273,6 @@ export function getBgImageURLFromEl(el) {
     return getBgImageURLFromURL(string);
 }
 /**
- * Generates a string ID.
- *
- * @private
- * @returns {string}
- */
-export function generateHTMLId() {
-    return `o${Math.random().toString(36).substring(2, 15)}`;
-}
-/**
  * Returns the class of the element that matches the specified prefix.
  *
  * @private
@@ -316,7 +313,7 @@ export function isBackgroundImageAttribute(attribute) {
  *
  * TODO: the name of this function is voluntarily bad to reflect the fact that
  * this system should be improved. The combination of o_not_editable,
- * o_editable, getContentEditableAreas, getReadOnlyAreas and other concepts
+ * o_savable, getContentEditableAreas, getReadOnlyAreas and other concepts
  * related to what should be editable or not should be reviewed.
  *
  * @returns {boolean}
@@ -329,7 +326,10 @@ export function shouldEditableMediaBeEditable(mediaEl) {
     // This case is complex and the solution to support it is not
     // perfect: we mark those media with a class and check that they
     // are descendant of a savable.
-    return mediaEl.parentElement && mediaEl.parentElement.closest(".o_editable");
+    return (
+        (mediaEl.parentElement && !!mediaEl.parentElement.closest(".o_savable")) ||
+        mediaEl.matches(".o_savable_attribute")
+    );
 }
 /**
  * Returns the label of a link element.
@@ -352,40 +352,13 @@ export function forwardToThumbnail(imgEl) {
         if (carouselInnerEl && carouselItemEl) {
             const imageIndex = [...carouselInnerEl.children].indexOf(carouselItemEl);
             const miniatureEl = carouselEl.querySelector(
-                `.carousel-indicators [data-bs-slide-to="${imageIndex}"]`
+                `.carousel-indicators [data-bs-slide-to="${imageIndex}"] img`
             );
-            if (miniatureEl && miniatureEl.style.backgroundImage) {
-                miniatureEl.style.backgroundImage = `url(${imgEl.getAttribute("src")})`;
+            if (miniatureEl) {
+                miniatureEl.setAttribute("src", imgEl.getAttribute("src"));
             }
         }
     }
-}
-
-// TODO: to remove in master (use the one of html_editor instead)
-/**
- * @param {HTMLImageElement} img
- * @returns {Promise<Boolean>}
- */
-export async function isImageCorsProtected(img) {
-    const src = img.getAttribute("src");
-    if (!src) {
-        return false;
-    }
-    let isCorsProtected = false;
-    if (!src.startsWith("/") || /\/web\/image\/\d+-redirect\//.test(src)) {
-        // The `fetch()` used later in the code might fail if the image is
-        // CORS protected. We check upfront if it's the case.
-        // Two possible cases:
-        // 1. the `src` is an absolute URL from another domain.
-        //    For instance, abc.odoo.com vs abc.com which are actually the
-        //    same database behind.
-        // 2. A "attachment-url" which is just a redirect to the real image
-        //    which could be hosted on another website.
-        isCorsProtected = await fetch(src, { method: "HEAD" })
-            .then(() => false)
-            .catch(() => true);
-    }
-    return isCorsProtected;
 }
 
 /**
@@ -413,31 +386,25 @@ export function applyNeededCss(
         el.style.setProperty(cssProp, cssValue, allowImportant ? "important" : "");
         return true;
     }
-    el.style.removeProperty(cssProp);
-    if (
+
+    const isChangeNeeded = () =>
         !areCssValuesEqual(
             computedStyle.getPropertyValue(cssProp),
             cssValue,
             cssProp,
             computedStyle
-        )
-    ) {
-        el.style.setProperty(cssProp, cssValue);
-        // If change had no effect then make it important.
-        if (
-            allowImportant &&
-            !areCssValuesEqual(
-                computedStyle.getPropertyValue(cssProp),
-                cssValue,
-                cssProp,
-                computedStyle
-            )
-        ) {
-            el.style.setProperty(cssProp, cssValue, "important");
-        }
-        return true;
+        );
+    el.style.removeProperty(cssProp);
+    if (!isChangeNeeded()) {
+        return false;
     }
-    return false;
+
+    el.style.setProperty(cssProp, cssValue);
+    // If change had no effect then make it important.
+    if (allowImportant && isChangeNeeded()) {
+        el.style.setProperty(cssProp, cssValue, "important");
+    }
+    return true;
 }
 
 const builderStylesheet = new CSSStyleSheet();
@@ -509,4 +476,45 @@ export function getAllUsedColors(el) {
         collectUrlColors(getBgImageURLFromEl(bgEl));
     }
     return usedCustomColors;
+}
+
+/**
+ * Returns the most contrasting color (pure black or white) with the given CSS
+ * color or custom property.
+ *
+ * @param {string} color - CSS color or CSS custom property
+ * @param {CSSStyleDeclaration} htmlStyle - styles of the document element
+ * @returns {"#000000"|"#FFFFFF"}
+ */
+export function getContrastingColor(color, htmlStyle) {
+    color = normalizeColor(color, htmlStyle);
+    return isRelativeLuminanceLight(color) ? "#000000" : "#FFFFFF";
+}
+
+/**
+ * Returns whether the given color's luminance is light.
+ * Formula adapted from APCA's simplification at
+ * https://gist.github.com/Myndex/e1025706436736166561d339fd667493#the-38-flip
+ *
+ * @param {string} color - CSS color
+ * @returns {boolean|undefined} true if the color is light, false if it's dark,
+ * undefined if the color is not recognized.
+ */
+function isRelativeLuminanceLight(color) {
+    color = convertCSSColorToRgba(color);
+    if (!color) {
+        return;
+    }
+    const { red, green, blue } = color;
+    const rgbContrastRatios = { red: 0.2126, green: 0.7152, blue: 0.0722 };
+    const channelLuminance = (channel, value) =>
+        Math.pow(value / 255, 2.2) * rgbContrastRatios[channel];
+    const l =
+        channelLuminance("red", red) +
+        channelLuminance("green", green) +
+        channelLuminance("blue", blue);
+    // Perceptual luminance inflection point for the human eye is 0.38, not 0.5.
+    // > 0.38 => light luminance
+    // < 0.38 => dark luminance
+    return l > 0.38;
 }

@@ -1,17 +1,18 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 """ Implementation of "INVENTORY VALUATION TESTS (With valuation layers)" spreadsheet. """
-
 from unittest import skip
 
 from odoo import fields
+from odoo.fields import Command
 from odoo.tests import Form, tagged
 from odoo.addons.stock_landed_costs.tests.common import TestStockLandedCostsCommon
 from freezegun import freeze_time
-import time
 
 
 class TestStockValuationLCCommon(TestStockLandedCostsCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):
@@ -79,7 +80,7 @@ class TestStockValuationLCCommon(TestStockLandedCostsCommon):
             'product_id': product.id,
             'location_id': self.env.ref('stock.stock_location_suppliers').id,
             'location_dest_id': self.company_data['default_warehouse'].lot_stock_id.id,
-            'product_uom': product_uom.id if product_uom else self.env.ref('uom.product_uom_unit').id,
+            'uom_id': product_uom.id if product_uom else self.env.ref('uom.product_uom_unit').id,
             'product_uom_qty': quantity,
             'price_unit': unit_cost,
             'picking_type_id': self.company_data['default_warehouse'].in_type_id.id,
@@ -109,7 +110,7 @@ class TestStockValuationLCCommon(TestStockLandedCostsCommon):
             'product_id': product.id,
             'location_id': self.company_data['default_warehouse'].lot_stock_id.id,
             'location_dest_id': self.env.ref('stock.stock_location_customers').id,
-            'product_uom': self.env.ref('uom.product_uom_unit').id,
+            'uom_id': self.env.ref('uom.product_uom_unit').id,
             'product_uom_qty': quantity,
             'picking_type_id': self.company_data['default_warehouse'].out_type_id.id,
         })
@@ -128,7 +129,7 @@ class TestStockValuationLCCommon(TestStockLandedCostsCommon):
             self.env['stock.move.line'].create({
                 'move_id': out_move.id,
                 'product_id': out_move.product_id.id,
-                'product_uom_id': out_move.product_uom.id,
+                'uom_id': out_move.uom_id.id,
                 'location_id': out_move.location_id.id,
                 'location_dest_id': out_move.location_dest_id.id,
             })
@@ -139,10 +140,39 @@ class TestStockValuationLCCommon(TestStockLandedCostsCommon):
         self.days += 1
         return out_move.with_context(svl=True)
 
+    def test_out_move_validate_as_stock_user(self):
+        """An Inventory/User (no landed costs access) must be able to validate the delivery
+        of a dropship product with an AVCO costing method."""
+        self.product1.product_tmpl_id.categ_id.property_cost_method = 'average'
+        account_expense_product = self.env['account.account'].create({
+            'code': 'EXPENSE.PROD111',
+            'name': 'Expense - Test Account',
+            'account_type': 'expense',
+        })
+        self.product1.product_tmpl_id.categ_id.write({
+            'property_account_expense_categ_id': account_expense_product.id,
+        })
+        self._make_in_move(self.product1, 100, unit_cost=10)
+        picking = self.env['stock.picking'].create({
+            'picking_type_id': self.warehouse.in_type_id.id,
+            'location_id': self.supplier_location_id,
+            'location_dest_id': self.customer_location_id,
+            'move_line_ids': [Command.create({
+                'product_id': self.product1.id,
+                'quantity': 100
+            })],
+        })
+        self._make_lc(picking.move_ids, 500)
+        # Shoud not raise an Access Error
+        self.assertTrue(picking.with_user(self.res_users_stock_user).button_validate())
+        self.assertEqual(picking.move_ids.state, 'done')
+        self.assertEqual(self.product1.standard_price, 10)
 
 @tagged('-at_install', 'post_install')
 @skip('Temporary to fast merge new valuation')
 class TestStockValuationLCFIFO(TestStockValuationLCCommon):
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -275,6 +305,8 @@ class TestStockValuationLCFIFO(TestStockValuationLCCommon):
 @tagged('-at_install', 'post_install')
 @skip('Temporary to fast merge new valuation')
 class TestStockValuationLCAVCO(TestStockValuationLCCommon):
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -363,6 +395,8 @@ class TestStockValuationLCAVCO(TestStockValuationLCCommon):
 @tagged('-at_install', 'post_install')
 @skip('Temporary to fast merge new valuation')
 class TestStockValuationLCFIFOVB(TestStockValuationLCCommon):
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super(TestStockValuationLCFIFOVB, cls).setUpClass()
@@ -672,6 +706,8 @@ class TestStockValuationLCFIFOVB(TestStockValuationLCCommon):
 @tagged('-at_install', 'post_install')
 @skip('Temporary to fast merge new valuation')
 class TestAccountInvoicingWithCOA(TestStockValuationLCCommon):
+    _test_user_groups = None  # FIXME list needed groups
+
     def setUp(self):
         self.usd = self.env.ref('base.USD')
         self.eur = self.env.ref('base.EUR')
@@ -680,7 +716,7 @@ class TestAccountInvoicingWithCOA(TestStockValuationLCCommon):
 
     def create_rate(self, inv_rate):
         return self.env['res.currency.rate'].create({
-            'name': time.strftime('%Y-%m-%d'),
+            'name': fields.Date.subtract(fields.Date.today(), days=1),
             'inverse_company_rate': inv_rate,
             'currency_id': self.eur.id,
             'company_id': self.env.company.id,
@@ -698,11 +734,9 @@ class TestAccountInvoicingWithCOA(TestStockValuationLCCommon):
         return bill
 
     def _return(self, picking, qty):
-        wizard_form = Form(self.env['stock.return.picking'].with_context(active_ids=picking.ids, active_id=picking.id, active_model='stock.picking'))
-        wizard = wizard_form.save()
-        wizard.product_return_moves.quantity = qty
-        return_picking = wizard._create_return()
-        return_picking.move_ids.quantity = qty
+        return_picking = picking._create_return()
+        return_picking.move_ids.product_uom_qty = qty
+        return_picking.action_assign()
         return_picking.button_validate()
         return return_picking
 

@@ -4,14 +4,15 @@
 #
 # Translators:
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Anastasiia Koroleva (koan)" <koan@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-10-22 11:28+0000\n"
-"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
-"Language-Team: Russian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-08-31 17:57+0000\n"
+"Last-Translator: \"Anastasiia Koroleva (koan)\" <koan@odoo.com>\n"
+"Language-Team: Russian <https://translate.odoo.com/projects/odoo-s19-4/"
 "sale_pdf_quote_builder/ru/>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
@@ -20,7 +21,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
 "(n%100>=11 && n%100<=14)? 2 : 3);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: sale_pdf_quote_builder
 #: model:ir.actions.report,print_report_name:sale_pdf_quote_builder.action_report_saleorder_raw
@@ -30,11 +31,6 @@ msgid ""
 msgstr ""
 "(object.state in ('draft', 'sent') and 'Quotation - %s' % (object.name)) or "
 "'Order - %s' % (object.name)"
-
-#. module: sale_pdf_quote_builder
-#: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.sale_order_template_form
-msgid "<i class=\"fa fa-arrow-right\"/> Link to the demo video"
-msgstr ""
 
 #. module: sale_pdf_quote_builder
 #: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.quotation_document_kanban
@@ -80,7 +76,7 @@ msgstr "Активный"
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__add_by_default
 #: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.quotation_document_search_view
 msgid "Add By Default"
-msgstr ""
+msgstr "Добавлять по умолчанию"
 
 #. module: sale_pdf_quote_builder
 #: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.quotation_document_search_view
@@ -92,34 +88,6 @@ msgstr "Все"
 #: code:addons/sale_pdf_quote_builder/controllers/quotation_document.py:0
 msgid "All files uploaded"
 msgstr "Все загруженные файлы"
-
-#. module: sale_pdf_quote_builder
-#: model:ir.model.fields,help:sale_pdf_quote_builder.field_product_document__attached_on_sale
-msgid ""
-"Allows you to share the document with your customers within a sale.\n"
-"Leave it empty if you don't want to share this document with sales "
-"customer.\n"
-"On quote: the document will be sent to and accessible by customers at any "
-"time.\n"
-"e.g. this option can be useful to share Product description files.\n"
-"On order confirmation: the document will be sent to and accessible by "
-"customers.\n"
-"e.g. this option can be useful to share User Manual or digital content "
-"bought on ecommerce. \n"
-"Inside quote: The document will be included in the pdf of the quotation and "
-"sale order between the header pages and the quote table. "
-msgstr ""
-"Позволяет делиться документом с клиентами в рамках продажи.\n"
-"Оставьте это поле пустым, если не хотите предоставлять документ "
-"покупателям.\n"
-"Коммерческое предложение: документ будет отправлен клиентам и доступен им в "
-"любое время.\n"
-"Например, эта настройка полезна для передачи файлов с описанием товара.\n"
-"Подтвержденный заказ: документ будет отправлен клиентам и доступен для "
-"просмотра. Например, это удобно для передачи руководств пользователя или "
-"цифрового контента, приобретенного через интернет-магазин.\n"
-"В составе КП: документ будет включен в PDF коммерческого предложения между "
-"заголовком и таблицей. "
 
 #. module: sale_pdf_quote_builder
 #: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.quotation_document_kanban
@@ -145,6 +113,11 @@ msgstr "Доступные документы по товарам"
 #. module: sale_pdf_quote_builder
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_sale_order__available_quotation_document_ids
 msgid "Available Quotation Documents"
+msgstr "Доступные документы коммерческого предложения"
+
+#. module: sale_pdf_quote_builder
+#: model:ir.module.module,description:base.module_sale_pdf_quote_builder
+msgid "Build nice quotations"
 msgstr ""
 
 #. module: sale_pdf_quote_builder
@@ -165,6 +138,10 @@ msgstr "Компания"
 
 #. module: sale_pdf_quote_builder
 #: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.product_document_form
+msgid "Configure"
+msgstr ""
+
+#. module: sale_pdf_quote_builder
 #: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.quotation_document_form
 msgid "Configure dynamic fields"
 msgstr "Настроить динамические поля"
@@ -244,19 +221,14 @@ msgid "Download"
 msgstr "Скачать"
 
 #. module: sale_pdf_quote_builder
-#: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.sale_order_template_form
-msgid "Download examples"
-msgstr "Примеры для скачивания"
-
-#. module: sale_pdf_quote_builder
 #: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.quotation_document_kanban
 msgid "Edit"
 msgstr "Редактировать"
 
 #. module: sale_pdf_quote_builder
-#: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__datas
-msgid "File Content (base64)"
-msgstr "Содержимое файла (base64)"
+#: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_product_document__form_field_ids
+msgid "Fields"
+msgstr ""
 
 #. module: sale_pdf_quote_builder
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__raw
@@ -288,7 +260,6 @@ msgid "Form Fields"
 msgstr "Поля формы"
 
 #. module: sale_pdf_quote_builder
-#: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_product_document__form_field_ids
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__form_field_ids
 msgid "Form Fields Included"
 msgstr "Включенные поля формы"
@@ -306,7 +277,7 @@ msgstr "Поля формы внутри документов коммерчес
 #. module: sale_pdf_quote_builder
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__has_thumbnail
 msgid "Has Thumbnail"
-msgstr ""
+msgstr "Есть миниатюра"
 
 #. module: sale_pdf_quote_builder
 #. odoo-python
@@ -354,6 +325,8 @@ msgstr "ID"
 msgid ""
 "If checked, this header or footer will be added by default on new quotes."
 msgstr ""
+"Если отмечено, этот верхний или нижний колонтитул будет автоматически "
+"добавляться в новые коммерческие предложения."
 
 #. module: sale_pdf_quote_builder
 #: model:ir.model.fields,help:sale_pdf_quote_builder.field_quotation_document__active
@@ -383,11 +356,6 @@ msgstr "Ширина изображения"
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__index_content
 msgid "Indexed Content"
 msgstr "Индексированное содержимое"
-
-#. module: sale_pdf_quote_builder
-#: model:ir.model.fields.selection,name:sale_pdf_quote_builder.selection__product_document__attached_on_sale__inside
-msgid "Inside quote pdf"
-msgstr "Внутри PDF-предложения"
 
 #. module: sale_pdf_quote_builder
 #. odoo-python
@@ -431,7 +399,7 @@ msgstr "Является публичным документом"
 
 #. module: sale_pdf_quote_builder
 #. odoo-python
-#: code:addons/sale_pdf_quote_builder/utils.py:0
+#: code:addons/sale_pdf_quote_builder/models/sale_pdf_form_field.py:0
 msgid ""
 "It seems that we're not able to process this pdf inside a quotation. It is "
 "either encrypted, or encoded in a format we do not support."
@@ -480,15 +448,14 @@ msgstr "Нет"
 
 #. module: sale_pdf_quote_builder
 #. odoo-python
-#: code:addons/sale_pdf_quote_builder/models/product_document.py:0
-msgid "Only PDF documents can be attached inside a quote."
-msgstr "В цитату можно вложить только документы в формате PDF."
-
-#. module: sale_pdf_quote_builder
-#. odoo-python
 #: code:addons/sale_pdf_quote_builder/models/quotation_document.py:0
 msgid "Only PDF documents can be used as header or footer."
 msgstr "В качестве колонтитулов можно использовать только PDF-документы."
+
+#. module: sale_pdf_quote_builder
+#: model:ir.model,name:sale_pdf_quote_builder.model_sale_order_template
+msgid "Order Templates"
+msgstr ""
 
 #. module: sale_pdf_quote_builder
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__original_id
@@ -521,12 +488,6 @@ msgstr ""
 "вашего пути."
 
 #. module: sale_pdf_quote_builder
-#. odoo-python
-#: code:addons/sale_pdf_quote_builder/models/sale_order.py:0
-msgid "Product"
-msgstr "Товар"
-
-#. module: sale_pdf_quote_builder
 #: model:ir.model,name:sale_pdf_quote_builder.model_product_document
 #: model:ir.model.fields.selection,name:sale_pdf_quote_builder.selection__sale_pdf_form_field__document_type__product_document
 msgid "Product Document"
@@ -537,30 +498,6 @@ msgstr "Документ товара"
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_sale_pdf_form_field__product_document_ids
 msgid "Product Documents"
 msgstr "Документы по товарам"
-
-#. module: sale_pdf_quote_builder
-#: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.sale_order_template_form
-msgid ""
-"Provide header pages and footer pages to compose an attractive quotation "
-"with more information\n"
-"                        about your company, your products and you services. "
-"<br/>\n"
-"                        The pdf of your quotes will be built by putting "
-"together header pages, product descriptions,\n"
-"                        details of the quote and then the footer pages. <br/"
-">\n"
-"                        If empty, it will use those define in the company "
-"settings. <br/>"
-msgstr ""
-"Добавьте верхний и нижний колонтитул, чтобы создать привлекательное "
-"коммерческое предложение с дополнительной информацией\n"
-"                        о вашей компании, товарах и услугах.<br/>\n"
-"                        PDF вашего предложения будет сформирован путем "
-"объединения титульных страниц, описаний товаров,\n"
-"                        деталей предложения и затем завершающих страниц.<br/"
-">\n"
-"                        Если пусто, будут использованы значения из настроек "
-"компании.<br/>"
 
 #. module: sale_pdf_quote_builder
 #: model:ir.actions.report,name:sale_pdf_quote_builder.action_report_saleorder_raw
@@ -578,7 +515,6 @@ msgid "Quotation Documents"
 msgstr "Документы коммерческих предложений"
 
 #. module: sale_pdf_quote_builder
-#: model:ir.model,name:sale_pdf_quote_builder.model_sale_order_template
 #: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.quotation_document_search_view
 msgid "Quotation Template"
 msgstr "Шаблон предложения"
@@ -600,11 +536,6 @@ msgid "Quote Builder"
 msgstr "Конструктор коммерческих предложений"
 
 #. module: sale_pdf_quote_builder
-#: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.sale_order_template_form
-msgid "Quote Builder Demo Video"
-msgstr ""
-
-#. module: sale_pdf_quote_builder
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__ir_attachment_id
 msgid "Related attachment"
 msgstr "Связанное крепление"
@@ -613,6 +544,16 @@ msgstr "Связанное крепление"
 #: model:ir.model,name:sale_pdf_quote_builder.model_ir_actions_report
 msgid "Report Action"
 msgstr "Отчет о действиях"
+
+#. module: sale_pdf_quote_builder
+#: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__res_access_read
+msgid "Res Access Read"
+msgstr ""
+
+#. module: sale_pdf_quote_builder
+#: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__res_access_write
+msgid "Res Access Write"
+msgstr ""
 
 #. module: sale_pdf_quote_builder
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__res_field
@@ -635,11 +576,6 @@ msgid "Resource Name"
 msgstr "Название Ресурса"
 
 #. module: sale_pdf_quote_builder
-#: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_product_document__attached_on_sale
-msgid "Sale : Visible at"
-msgstr "Продажа : отображается в"
-
-#. module: sale_pdf_quote_builder
 #: model:ir.actions.server,name:sale_pdf_quote_builder.cron_post_upgrade_assign_missing_form_fields_ir_actions_server
 msgid "Sale Pdf Quote Builder: assign form fields to documents post upgrade"
 msgstr ""
@@ -655,6 +591,11 @@ msgstr "Заказ на продажу"
 #: model:ir.model,name:sale_pdf_quote_builder.model_sale_order_line
 msgid "Sales Order Line"
 msgstr "Позиция заказа на продажу"
+
+#. module: sale_pdf_quote_builder
+#: model:ir.module.module,shortdesc:base.module_sale_pdf_quote_builder
+msgid "Sales PDF Quotation Builder"
+msgstr ""
 
 #. module: sale_pdf_quote_builder
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__sequence
@@ -709,7 +650,7 @@ msgstr "Этот документ"
 #. module: sale_pdf_quote_builder
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__thumbnail
 msgid "Thumbnail"
-msgstr ""
+msgstr "Миниатюра"
 
 #. module: sale_pdf_quote_builder
 #: model:ir.model.fields,field_description:sale_pdf_quote_builder.field_quotation_document__type
@@ -743,13 +684,6 @@ msgstr "Сайт"
 
 #. module: sale_pdf_quote_builder
 #. odoo-python
-#: code:addons/sale_pdf_quote_builder/models/product_document.py:0
-msgid "When attached inside a quote, the document must be a file, not a URL."
-msgstr ""
-"Если документ прикреплён к предложению, он должен быть файлом, а не ссылкой."
-
-#. module: sale_pdf_quote_builder
-#. odoo-python
 #: code:addons/sale_pdf_quote_builder/models/ir_actions_report.py:0
 msgid "Yes"
 msgstr "Да"
@@ -767,135 +701,3 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sale_pdf_quote_builder.quotation_document_form
 msgid "on"
 msgstr "вкл"
-
-#~ msgid "<i class=\"fa fa-arrow-right\"/> Download examples"
-#~ msgstr "<i class=\"fa fa-arrow-right\"/> Примеры для скачивания"
-
-#~ msgid ""
-#~ "Allows you to share the document with your customers within a sale.\n"
-#~ "Leave it empty if you don't want to share this document with sales "
-#~ "customer.\n"
-#~ "Quotation: the document will be sent to and accessible by customers at "
-#~ "any time.\n"
-#~ "e.g. this option can be useful to share Product description files.\n"
-#~ "Confirmed order: the document will be sent to and accessible by "
-#~ "customers.\n"
-#~ "e.g. this option can be useful to share User Manual or digital content "
-#~ "bought on ecommerce. \n"
-#~ "Inside quote: The document will be included in the pdf of the quotation "
-#~ "between the header pages and the quote table. "
-#~ msgstr ""
-#~ "Позволяет поделиться документом с клиентами в рамках продажи.\n"
-#~ "Оставьте это поле пустым, если вы не хотите предоставлять этот документ "
-#~ "покупателям.\n"
-#~ "Предложение: документ будет отправлен клиентам и доступен им в любое "
-#~ "время.\n"
-#~ "например, этот параметр может быть полезен для обмена файлами с описанием "
-#~ "товара.\n"
-#~ "Подтвержденный заказ: документ будет отправлен клиентам и доступен для "
-#~ "просмотра.\n"
-#~ "например, эта опция может быть полезна для обмена руководствами "
-#~ "пользователя или цифровым контентом, купленным в электронной коммерции.\n"
-#~ "Внутренняя цитата: Документ будет включен в pdf-файл коммерческого "
-#~ "предложения между заголовочными страницами и таблицей коммерческого "
-#~ "предложения."
-
-#~ msgid "Companies"
-#~ msgstr "Компании"
-
-#~ msgid "Config Settings"
-#~ msgstr "Параметры конфигурации"
-
-#~ msgid "Footer pages"
-#~ msgstr "Страницы нижнего колонтитула"
-
-#~ msgid "Header pages"
-#~ msgstr "Заглавные страницы"
-
-#~ msgid "Inside quote"
-#~ msgstr "Внутренняя цитата"
-
-#~ msgid "Learn more from the documentation."
-#~ msgstr "Узнайте больше из документации."
-
-#~ msgid ""
-#~ "Make your quote attractive by adding header pages, product descriptions "
-#~ "and footer pages to your quote."
-#~ msgstr ""
-#~ "Сделайте свое предложение привлекательным, добавив к нему начальные "
-#~ "страницы, описания товаров и нижние колонтитулы."
-
-#~ msgid "PDF Quote Builder"
-#~ msgstr "Построитель цитат в формате PDF"
-
-#~ msgid "PDF Quote builder"
-#~ msgstr "Построитель цитат в формате PDF"
-
-#~ msgid ""
-#~ "Products descriptions are pdf documents you can add directly on "
-#~ "products.\n"
-#~ "                            To do so, go on a product, find the \"product "
-#~ "documents\" button, then add a\n"
-#~ "                            new pdf document with a visibility set as "
-#~ "\"Inside Quotes\". For each product\n"
-#~ "                            in the quote, if the product has an \"inside "
-#~ "quotes\" document, this document\n"
-#~ "                            will be added after header pages and before "
-#~ "the quotation details."
-#~ msgstr ""
-#~ "Описания товаров - это документы в формате pdf, которые можно добавлять "
-#~ "непосредственно к товарам.\n"
-#~ "                            Для этого перейдите к товару, найдите кнопку "
-#~ "\"Документы товара\", а затем добавьте\n"
-#~ "                            новый pdf-документ с параметром видимости "
-#~ "\"Внутренние цитаты\". Для каждого товара\n"
-#~ "                            в цитате, если у товара есть документ "
-#~ "\"Внутри цитат\", этот документ\n"
-#~ "                            будет добавлен после заглавных страниц и "
-#~ "перед деталями предложения."
-
-#~ msgid ""
-#~ "Provide header pages and footer pages to compose an attractive quotation\n"
-#~ "                            with more information about your company, "
-#~ "your products and your services.\n"
-#~ "                            The pdf of your quotes will be built by "
-#~ "putting together header pages,\n"
-#~ "                            product descriptions, details of the quote "
-#~ "and then the footer pages.\n"
-#~ "                            If empty, it will use those define in the "
-#~ "company settings.<br/>"
-#~ msgstr ""
-#~ "Предоставьте начальные и нижние страницы, чтобы составить привлекательное "
-#~ "предложение\n"
-#~ "                            с дополнительной информацией о вашей "
-#~ "компании, ваших продуктах и услугах.\n"
-#~ "                            Pdf-версия вашего коммерческого предложения "
-#~ "будет создана путем объединения начальных страниц,\n"
-#~ "                            описания продуктов, деталей предложения, а "
-#~ "затем нижних колонтитулов.\n"
-#~ "                            Если они пустые, то будут использоваться те, "
-#~ "которые заданы в настройках компании.<br/>"
-
-#~ msgid "Sale Footer Name"
-#~ msgstr "Название нижнего колонтитула"
-
-#~ msgid "Sale Header Name"
-#~ msgstr "Название заголовка продажи"
-
-#~ msgid ""
-#~ "Some information specific to the quote (customer name, quotation "
-#~ "reference, ... )\n"
-#~ "                            can be injected in these documents using pdf "
-#~ "forms.\n"
-#~ "                            Refer to the documentation to know more about "
-#~ "this feature."
-#~ msgstr ""
-#~ "Некоторая информация, специфичная для предложения (имя заказчика, ссылка "
-#~ "на предложение, ... )\n"
-#~ "                            может быть добавлена в эти документы с "
-#~ "помощью pdf-форм.\n"
-#~ "                            Подробнее об этой возможности читайте в "
-#~ "документации."
-
-#~ msgid "Visible at"
-#~ msgstr "Виден на"

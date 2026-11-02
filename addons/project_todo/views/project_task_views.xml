@@ -30,8 +30,8 @@
                         <t t-set="todoHasAssignees" t-value="record.user_ids.raw_value.length &gt; 1"/>
                         <div t-att-class="{'opacity-50': ['1_done', '1_canceled'].includes(record.state.raw_value)}">
                             <field name="name" class="fw-bold fs-5" widget="name_with_subtask_count"/>
-                            <field t-if="record.date_deadline.raw_value" name="date_deadline" widget="remaining_days"/>
-                            <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                            <field t-if="record.date_deadline.raw_value" name="date_deadline" widget="relative_date"/>
+                            <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color', 'on_tag_click': 'edit_color'}" context="{'use_user_history':True}"/>
                             <field t-if="record.displayed_image_id.value" name="displayed_image_id" widget="attachment_image"/>
                         </div>
                         <div class="d-flex pt-2">
@@ -65,11 +65,11 @@
                   js_class="todo_list">
                 <field name="state" widget="todo_done_checkmark" nolabel="1" width="20px"/>
                 <field name="name"/>
-                <field name="user_ids" optional="show" required="1" widget="many2many_avatar_user"/>
-                <field name="priority" widget="priority" optional="hidden" width="70px"/>
-                <field name="date_deadline" optional="show" widget="remaining_days"/>
-                <field name="activity_ids" optional="show" widget="list_activity"/>
-                <field name="tag_ids" optional="show" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}"/>
+                <field name="user_ids" optional="hidden" required="1" widget="many2many_avatar_user"/>
+                <field name="priority" widget="priority" optional="show" width="70px"/>
+                <field name="date_deadline" optional="show" widget="relative_date"/>
+                <field name="activity_ids" optional="hidden" widget="list_activity"/>
+                <field name="tag_ids" optional="hidden" widget="many2many_tags" options="{'color_field': 'color', 'on_tag_click': 'edit_color', 'no_create_edit': True}" context="{'use_user_history': True}"/>
                 <field name="personal_stage_type_id" string="Stage" optional="hide"/>
             </list>
         </field>
@@ -95,11 +95,11 @@
                 </header>
                 <sheet class="o_todo_form_sheet_bg">
                     <widget name="web_ribbon" class="todo_archived" title="Archived" bg_color="text-bg-danger" invisible="active"/>
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex flex-wrap-reverse flex-lg-nowrap justify-content-between align-items-center gap-2 mb-3 mb-lg-0">
                         <h1 class="d-flex w-100">
                             <field name="name" options="{'line_breaks': False}" widget="text" class="o_task_name text-truncate w-md-75 w-100 pe-2" placeholder="Task Title..."/>
                         </h1>
-                        <div class="d-flex justify-content-end align-items-center px-1" invisible="not active">
+                        <div class="d-flex justify-content-between justify-content-lg-end align-items-center px-1 w-100 w-lg-auto" invisible="not active">
                             <field name="priority" class="h3 pe-2" widget="priority_switch"/>
                             <field name="state" widget="todo_done_checkmark" class="o_task_state_widget" />
                         </div>
@@ -118,13 +118,14 @@
                         <group>
                             <field name="tag_ids"
                                 widget="many2many_tags"
-                                options="{'color_field': 'color', 'no_create_edit': True}"
+                                options="{'color_field': 'color', 'on_tag_click': 'edit_color', 'no_create_edit': True}"
+                                context="{'use_user_history': True}"
                                 class="me-2"/>
                             <field name="date_deadline"
                                 decoration-danger="date_deadline &lt; current_date"/>
                         </group>
                     </group>
-                    <field name="description" type="html" class="oe_description" default_focus="1" options="{'resizable': false, 'collaborative': true}"
+                    <field name="description" type="html" class="oe_description" default_focus="1" options="{'resizable': false, 'collaborative': true, 'allowWhiteboard': true}"
                         placeholder="Type Here..."/>
                 </sheet>
                 <widget name="todo_chatter_panel"/>
@@ -180,14 +181,14 @@
                                options="{'no_open': True}"
                                widget="many2many_avatar_user"/>
                         <field name="tag_ids" widget="many2many_tags"
-                               options="{'color_field': 'color', 'no_create_edit': True}"
+                               options="{'color_field': 'color', 'on_tag_click': 'edit_color', 'no_create_edit': True}"
                                context="{'project_id': project_id}"
                                placeholder="Choose tags from the selected project"/>
                     </group>
                 </sheet>
                 <footer>
                     <button name="action_convert_to_task" string="Convert to Task" type="object" class="btn-primary"/>
-                    <button string="Discard" special="cancel"/>
+                    <button special="cancel"/>
                 </footer>
             </form>
         </field>
@@ -205,7 +206,7 @@
                       scales="day,week,month,year">
                 <field name="name"/>
                 <field name="priority" widget="priority"/>
-                <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}" invisible="not tag_ids"/>
+                <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color', 'on_tag_click': 'edit_color'}" invisible="not tag_ids" context="{'use_user_history': True}"/>
                 <field name="personal_stage_id" string="Personal Stage" options="{'no_open': True}" invisible="not personal_stage_id"/>
             </calendar>
         </field>
@@ -242,8 +243,6 @@
             <search string="Todos">
                 <field name="name"/>
                 <field name="tag_ids"/>
-                <field name="user_ids"/>
-                <field name="personal_stage_type_ids" string="Stage"/>
                 <separator/>
                 <filter name="open_tasks" string="Open" domain="[('is_closed', '=', False)]"/>
                 <filter name="closed_tasks" string="Closed" domain="[('is_closed', '=', True)]"/>
@@ -251,7 +250,6 @@
                 <separator/>
                 <filter name="date_deadline" string="Deadline" domain="[('date_deadline', '!=', False)]" date="date_deadline"/>
                 <separator/>
-                <filter name="active_false" string="Archived" domain="[('active', '=', False)]"/>
                 <filter invisible="1" string="My Activities" name="filter_activities_my"
                     domain="[('activity_user_id', '=', uid)]"/>
                 <separator invisible="1"/>
@@ -264,10 +262,8 @@
                         domain="[('my_activity_date_deadline', '&gt;', 'today')]"/>
                 <group>
                     <filter string="Priority" name="groupby_priority" context="{'group_by': 'priority'}"/>
-                    <filter string="Tags" name="tags" help="By assigned tags" context="{'group_by':'tag_ids'}"/>
-                    <filter string="Assignees" name="user_ids" context="{'group_by': 'user_ids'}"/>
-                    <filter string="Stage" name="stage" help="By personal stages" context="{'group_by':'personal_stage_type_id'}"/>
                     <filter string="Deadline" name="deadline" context="{'group_by': 'date_deadline'}"/>
+                    <filter string="Tags" name="tags" help="By assigned tags" context="{'group_by':'tag_ids'}"/>
                 </group>
             </search>
         </field>
@@ -278,7 +274,7 @@
         <field name="name">To-dos</field>
         <field name="res_model">project.task</field>
         <field name="path">to-do</field>
-        <field name="domain">[('user_ids', 'in', [uid]), ('project_id', '=', False), ('parent_id', '=', False)]</field>
+        <field name="domain">[('user_ids', 'in', [uid]), ('project_id', '=', False), ('parent_id', '=', False), ('is_template', '=', False)]</field>
         <field name="view_mode">kanban,form,list,calendar,activity</field>
         <field name="search_view_id" ref="project_task_view_todo_search"/>
         <field name="context">{

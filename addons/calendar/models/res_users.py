@@ -1,31 +1,63 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import datetime
+from zoneinfo import ZoneInfo
 
-from odoo import api, fields, models, modules, _
-from odoo.exceptions import AccessError
-
-from pytz import timezone, UTC
+from odoo import api, Command, fields, models, modules, _
+from odoo.fields import Domain
 
 
 class ResUsers(models.Model):
     _inherit = 'res.users'
 
-    calendar_default_privacy = fields.Selection(
-        [('public', 'Public by default'),
-         ('private', 'Private by default'),
-         ('confidential', 'Internal users only')],
-        compute="_compute_calendar_default_privacy",
-        inverse="_inverse_calendar_res_users_settings",
-    )
+    calendar_user_ids = fields.One2many('calendar.user', 'user_id')
+    calendar_ids = fields.One2many('calendar.calendar', compute='_compute_calendar_ids', readonly=False, user_writeable=True)
+    owned_calendar_ids = fields.One2many('calendar.calendar', compute='_compute_calendar_ids')
+    writable_calendar_ids = fields.One2many('calendar.calendar', compute='_compute_calendar_ids')
+    primary_calendar_id = fields.Many2one('calendar.calendar', compute='_compute_primary_calendar', store=True)
 
-    @property
-    def SELF_READABLE_FIELDS(self):
-        return super().SELF_READABLE_FIELDS + ['calendar_default_privacy']
+    @api.depends('calendar_user_ids.is_primary', 'calendar_user_ids.access_role', 'calendar_user_ids.calendar_id')
+    def _compute_primary_calendar(self):
+        for user in self:
+            user.primary_calendar_id = user.calendar_user_ids.filtered(
+                lambda l: l.is_primary and l.access_role == 'owner').calendar_id
 
-    @property
-    def SELF_WRITEABLE_FIELDS(self):
-        return super().SELF_WRITEABLE_FIELDS + ['calendar_default_privacy']
+    @api.depends('calendar_user_ids')
+    def _compute_calendar_ids(self):
+        calendar_user_records = self.env['calendar.user'].sudo().search([('user_id', 'in', self.ids)])
+        for user in self:
+            user.calendar_ids = calendar_user_records.filtered(lambda l: l.user_id.id == user.id).calendar_id
+            user.owned_calendar_ids = calendar_user_records.filtered(
+                lambda l: l.user_id.id == user.id and l.access_role == 'owner').calendar_id
+            user.writable_calendar_ids = calendar_user_records.filtered(
+                lambda l: l.user_id.id == user.id and l.access_role in ('owner', 'writer')).calendar_id
+
+    @api.model
+    def _find_or_create_primary_calendar(self):
+        self.ensure_one()
+        if self.primary_calendar_id:
+            return self.primary_calendar_id
+
+        self._generate_primary_calendar()
+        # Field should be recomputed after the creation of the primary calendar
+        return self.primary_calendar_id
+
+    def _generate_primary_calendar(self):
+        self.env['calendar.calendar'].sudo().create([
+            {
+                'name': user.display_name,
+                'calendar_default_privacy': self.env['ir.config_parameter'].sudo().get_str('calendar.default_privacy', 'public'),
+                'calendar_user_ids': [Command.create({
+                    'user_id': user.id,
+                    'is_primary': True,
+                    'access_role': 'owner',
+                    'is_filter_active': True,
+                    'is_filter_checked': True,
+                    'name': user.display_name,
+                })],
+            }
+            for user in self
+        ])
 
     def get_selected_calendars_partner_ids(self, include_user=True):
         """
@@ -39,72 +71,30 @@ class ResUsers(models.Model):
         self.ensure_one()
         partner_ids = self.env['calendar.filters'].search([
             ('user_id', '=', self.id),
-            ('partner_checked', '=', True)
         ]).partner_id.ids
 
         if include_user:
             partner_ids += [self.env.user.partner_id.id]
         return partner_ids
 
-    @api.model
-    def _default_user_calendar_default_privacy(self):
-        """ Get the calendar default privacy from the Default User Template, set public as default. """
-        return self.env['ir.config_parameter'].sudo().get_param('calendar.default_privacy', 'public')
-
     @api.model_create_multi
     def create(self, vals_list):
-        """ Set the calendar default privacy as the same as Default User Template when defined. """
-        default_privacy = self._default_user_calendar_default_privacy()
-        # Update the dictionaries in vals_list with the calendar default privacy.
-        for vals_dict in vals_list:
-            if not vals_dict.get('calendar_default_privacy'):
-                vals_dict.update(calendar_default_privacy=default_privacy)
+        users = super().create(vals_list)
+        users.filtered(lambda u: not u.share)._generate_primary_calendar()
+        return users
 
-        res = super().create(vals_list)
-        return res
-
-    def write(self, vals):
-        """ Forbid the calendar default privacy update from different users for keeping private events secured. """
-        privacy_update = 'calendar_default_privacy' in vals
-        if privacy_update and self != self.env.user:
-            raise AccessError(_("You are not allowed to change the calendar default privacy of another user due to privacy constraints."))
-        return super().write(vals)
-
-    @api.depends("res_users_settings_id.calendar_default_privacy")
-    def _compute_calendar_default_privacy(self):
-        """
-        Compute the calendar default privacy of the users, pointing to its ResUsersSettings.
-        When any user doesn't have its setting from ResUsersSettings defined, fallback to Default User Template's.
-        """
-        fallback_default_privacy = 'public'
-        # sudo: any user has access to other users calendar_default_privacy setting
-        if any(not user.sudo().res_users_settings_id.calendar_default_privacy for user in self):
-            fallback_default_privacy = self._default_user_calendar_default_privacy()
-
-        for user in self:
-            user.calendar_default_privacy = user.sudo().res_users_settings_id.calendar_default_privacy or fallback_default_privacy
-
-    def _inverse_calendar_res_users_settings(self):
-        """
-        Updates the values of the calendar fields in 'res_users_settings_ids' to have the same values as their related
-        fields in 'res.users'. If there is no 'res.users.settings' record for the user, then the record is created.
-        """
-        for user in self.filtered(lambda user: user._is_internal()):
-            settings = self.env["res.users.settings"].sudo()._find_or_create_for_user(user)
-            configuration = {field: user[field] for field in self._get_user_calendar_configuration_fields()}
-            settings.sudo().update(configuration)
-
-    @api.model
-    def _get_user_calendar_configuration_fields(self) -> list[str]:
-        """ Return the list of configurable fields for the user related to the res.users.settings table. """
-        return ['calendar_default_privacy']
+    def unlink(self):
+        # Normal ondelete=cascade does not go through unlink() overrides, which we need to remove
+        # the calendar if this was its last user. Otherwise, we would end up with orphaned calendars.
+        self.calendar_user_ids.sudo().unlink()
+        return super().unlink()
 
     def _systray_get_calendar_event_domain(self):
         # Determine the domain for which the users should be notified. This method sends notification to
-        # events occurring between now and the end of the day. Note that "now" needs to be computed in the
-        # user TZ and converted into UTC to compare with the records values and "the end of the day" needs
-        # also conversion. Otherwise TZ diverting a lot from UTC would send notification for events occurring
-        # tomorrow.
+        # events for which there's a reminder set and occurring between now and the end of the day.
+        # Note that "now" needs to be computed in the user TZ and converted into UTC to compare with the records values
+        # and "the end of the day" needs also conversion. Otherwise TZ diverting a lot from UTC would send notification
+        # for events occurring tomorrow.
         # The user is notified if the start is occurring between now and the end of the day
         # if the event is not finished.
         #   |           |
@@ -126,15 +116,15 @@ class ResUsers(models.Model):
         #   |           |
         #   |           | <--- `stop_dt_utc` = `stop_dt` if user lives in an area of West longitude (positive shift compared to UTC, America for example)
         #   |           |
-        start_dt_utc = start_dt = datetime.datetime.now(UTC)
-        stop_dt_utc = UTC.localize(datetime.datetime.combine(start_dt_utc.date(), datetime.time.max))
+        start_dt_utc = start_dt = datetime.datetime.now(datetime.UTC)
+        stop_dt_utc = datetime.datetime.combine(start_dt_utc.date(), datetime.time.max.replace(tzinfo=datetime.UTC))
 
         tz = self.env.user.tz
         if tz:
-            user_tz = timezone(tz)
+            user_tz = ZoneInfo(tz)
             start_dt = start_dt_utc.astimezone(user_tz)
-            stop_dt = user_tz.localize(datetime.datetime.combine(start_dt.date(), datetime.time.max))
-            stop_dt_utc = stop_dt.astimezone(UTC)
+            stop_dt = datetime.datetime.combine(start_dt.date(), datetime.time.max.replace(tzinfo=user_tz, fold=1))
+            stop_dt_utc = stop_dt.astimezone(datetime.UTC)
 
         start_date = start_dt.date()
 
@@ -143,16 +133,26 @@ class ResUsers(models.Model):
             ('state', '!=', 'declined'),
         ])
 
-        return ['&', '|',
-                '&',
-                    '|',
-                        ['start', '>=', fields.Datetime.to_string(start_dt_utc)],
-                        ['stop', '>=', fields.Datetime.to_string(start_dt_utc)],
-                    ['start', '<=', fields.Datetime.to_string(stop_dt_utc)],
-                '&',
-                    ['allday', '=', True],
-                    ['start_date', '=', fields.Date.to_string(start_date)],
-                ('attendee_ids', 'in', current_user_non_declined_attendee_ids)]
+        is_today_allday = Domain.AND([
+            Domain('allday', '=', True),
+            Domain('start_date', '=', fields.Date.to_string(start_date)),
+        ])
+        is_today_ongoing_or_future = Domain.AND([
+            Domain.OR([
+                Domain('start', '>=', fields.Datetime.to_string(start_dt_utc)),
+                Domain('stop', '>=', fields.Datetime.to_string(start_dt_utc)),
+            ]),
+            Domain('start', '<=', fields.Datetime.to_string(stop_dt_utc)),
+        ])
+
+        return Domain.AND([
+            Domain('alarm_ids', "!=", False),
+            Domain('attendee_ids', 'in', current_user_non_declined_attendee_ids),
+            Domain.OR([
+                is_today_allday,
+                is_today_ongoing_or_future,
+            ])
+        ])
 
     @api.model
     def _get_activity_groups(self):
@@ -161,13 +161,16 @@ class ResUsers(models.Model):
         meetings_lines = EventModel.search_read(
             self._systray_get_calendar_event_domain(),
             ['id', 'start', 'name', 'allday'],
-            order='start')
+            order='start',
+            limit=2,
+        )
         if meetings_lines:
-            meeting_label = _("Today's Meetings")
+            meeting_label = _("Upcoming Meetings")
             meetings_systray = {
                 'id': self.env['ir.model']._get('calendar.event').id,
                 'type': 'meeting',
                 'name': meeting_label,
+                'is_today_meetings': True,
                 'model': 'calendar.event',
                 'icon': modules.module.get_module_icon(EventModel._original_module),
                 'domain': [('active', 'in', [True, False])],
@@ -183,6 +186,20 @@ class ResUsers(models.Model):
 
     def check_synchronization_status(self):
         return {}
+
+    @api.model
+    def get_calendar_sync_email(self):
+        """Meant to be overridden by a specific calendar provider"""
+        return False
+
+    @api.model
+    def get_calendar_model_data(self):
+        return {
+            'credential_status': self.env.user.check_calendar_credentials(),
+            'sync_status': self.env.user.check_synchronization_status(),
+            'sync_email': self.env.user.get_calendar_sync_email(),
+            'default_duration': self.env['calendar.event'].get_default_duration(),
+        }
 
     def _has_any_active_synchronization(self):
         """

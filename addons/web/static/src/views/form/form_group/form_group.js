@@ -1,12 +1,18 @@
-import { Component } from "@odoo/owl";
+import { Component, t, useProps } from "@odoo/owl";
 import { sortBy } from "@web/core/utils/arrays";
+import { useService } from "@web/core/utils/hooks";
+
+export const groupProps = {
+    class: t.any().optional(),
+    slots: t.any().optional(),
+    maxCols: t.any().optional(2),
+    style: t.any().optional(),
+};
 
 class Group extends Component {
     static template = "";
-    static props = ["class?", "slots?", "maxCols?", "style?"];
-    static defaultProps = {
-        maxCols: 2,
-    };
+    static propShape = groupProps;
+    props = useProps(this.constructor.propShape);
 
     _getItems() {
         const items = Object.entries(this.props.slots || {}).filter(([k, v]) => v.type === "item");
@@ -24,11 +30,12 @@ class Group extends Component {
 
 export class OuterGroup extends Group {
     static template = "web.Form.OuterGroup";
-    static defaultProps = {
-        ...Group.defaultProps,
-        slots: [],
-        hasOuterTemplate: true,
+    static propShape = {
+        ...groupProps,
+        slots: t.any().optional([]),
+        hasOuterTemplate: t.any().optional(true),
     };
+    props = useProps(this.constructor.propShape);
 
     getItems() {
         const nbCols = this.props.maxCols;
@@ -51,6 +58,9 @@ export class OuterGroup extends Group {
 
 export class InnerGroup extends Group {
     static template = "web.Form.InnerGroup";
+    setup() {
+        this.uiService = useService("ui");
+    }
     getTemplate(subType) {
         return this.constructor.templates[subType] || this.constructor.templates.default;
     }
@@ -69,7 +79,7 @@ export class InnerGroup extends Group {
                 continue;
             }
 
-            const { newline, itemSpan } = slot;
+            const { newline, itemSpan, noBox } = slot;
             if (newline) {
                 rows.push(currentRow);
                 currentRow = [];
@@ -85,7 +95,7 @@ export class InnerGroup extends Group {
             }
 
             const isVisible = !("isVisible" in slot) || slot.isVisible;
-            currentRow.push({ ...slot, name: slotName, itemSpan, isVisible });
+            currentRow.push({ ...slot, name: slotName, itemSpan, isVisible, noBox });
             reservedSpace += itemSpan || 1;
 
             // Allows to remove the line if the content is not visible instead of leaving an empty line.

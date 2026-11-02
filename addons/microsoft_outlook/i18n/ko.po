@@ -9,32 +9,34 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-12-11 06:44+0000\n"
-"Last-Translator: \"Kwanghee Park (kwpa)\" <kwpa@odoo.com>\n"
-"Language-Team: Korean <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 14:24+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Korean <https://translate.odoo.com/projects/odoo-s19-4/"
 "microsoft_outlook/ko/>\n"
 "Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.14.3\n"
-
-#. module: microsoft_outlook
-#: model_terms:ir.ui.view,arch_db:microsoft_outlook.fetchmail_server_view_form
-#: model_terms:ir.ui.view,arch_db:microsoft_outlook.ir_mail_server_view_form
-msgid "<i class=\"fa fa-cog\" title=\"Edit Settings\"/>"
-msgstr "<i class=\"fa fa-cog\" title=\"Edit Settings\"/>"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: microsoft_outlook
 #: model_terms:ir.ui.view,arch_db:microsoft_outlook.fetchmail_server_view_form
 #: model_terms:ir.ui.view,arch_db:microsoft_outlook.ir_mail_server_view_form
 msgid ""
-"<i class=\"oi oi-arrow-right\"/>\n"
+"<i class=\"oi oi-filled\" data-icon=\"settings\" title=\"Edit Settings\"/>"
+msgstr ""
+"<i class=\"oi oi-filled\" data-icon=\"settings\" title=\"Edit Settings\"/>"
+
+#. module: microsoft_outlook
+#: model_terms:ir.ui.view,arch_db:microsoft_outlook.fetchmail_server_view_form
+#: model_terms:ir.ui.view,arch_db:microsoft_outlook.ir_mail_server_view_form
+msgid ""
+"<i class=\"oi\" data-icon=\"east\"/>\n"
 "                        Connect your Outlook account"
 msgstr ""
-"<i class=\"oi oi-arrow-right\"/>\n"
+"<i class=\"oi\" data-icon=\"east\"/>\n"
 "                        Outlook 계정 연결하기"
 
 #. module: microsoft_outlook
@@ -166,6 +168,11 @@ msgid "Mail Server"
 msgstr "메일 서버"
 
 #. module: microsoft_outlook
+#: model:ir.module.module,shortdesc:base.module_microsoft_outlook
+msgid "Microsoft Outlook"
+msgstr ""
+
+#. module: microsoft_outlook
 #: model:ir.model,name:microsoft_outlook.model_microsoft_outlook_mixin
 msgid "Microsoft Outlook Mixin"
 msgstr "Microsoft Outlook 믹스인"
@@ -236,6 +243,11 @@ msgstr "Outlook OAuth 인증"
 #: model:ir.model.fields,field_description:microsoft_outlook.field_microsoft_outlook_mixin__microsoft_outlook_refresh_token
 msgid "Outlook Refresh Token"
 msgstr "Outlook 새로고침 토큰"
+
+#. module: microsoft_outlook
+#: model:ir.module.module,description:base.module_microsoft_outlook
+msgid "Outlook support for incoming / outgoing mail servers"
+msgstr ""
 
 #. module: microsoft_outlook
 #. odoo-python
@@ -319,16 +331,3 @@ msgstr "알 수 없는 오류"
 #: model:ir.model,name:microsoft_outlook.model_res_users
 msgid "User"
 msgstr "사용자"
-
-#~ msgid "Go back to your mail server"
-#~ msgstr "메일 서버로 돌아가기"
-
-#~ msgid "Is Outlook Credential Configured"
-#~ msgstr "Outlook 자격 증명 설정 여부"
-
-#~ msgid ""
-#~ "Setup your Outlook API credentials in the general settings to link a "
-#~ "Outlook account."
-#~ msgstr ""
-#~ "Outlook 계정을 연결하려면 일반 설정 항목에서 Outlook API 자격 증명을 설정"
-#~ "하십시오."

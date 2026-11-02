@@ -1,9 +1,11 @@
 import { after, before, describe, expect, test } from "@odoo/hoot";
 import { setupEditor, testEditor } from "./_helpers/editor";
 import { unformat } from "./_helpers/format";
-import { setColor } from "./_helpers/user_actions";
+import { insertText, setColor } from "./_helpers/user_actions";
+import { execCommand } from "./_helpers/userCommands";
 import { getContent } from "./_helpers/selection";
 import { animationFrame, press } from "@odoo/hoot-dom";
+import { QWebPlugin } from "@html_editor/others/qweb_plugin";
 
 const redToBlueGradient = "linear-gradient(rgb(255, 0, 0), rgb(0, 0, 255))";
 const greenToBlueGradient = "linear-gradient(rgb(0, 255, 0), rgb(0, 0, 255))";
@@ -13,17 +15,16 @@ test("should apply a color to a slice of text in a span in a font", async () => 
         contentBefore: '<p>a<font class="a">b<span class="b">c[def]g</span>h</font>i</p>',
         stepFunction: setColor("rgb(255, 0, 0)", "color"),
         contentAfter:
-            '<p>a<font class="a">b<span class="b">c</span></font>' +
-            '<font class="a" style="color: rgb(255, 0, 0);"><span class="b">[def]</span></font>' +
-            '<font class="a"><span class="b">g</span>h</font>i</p>',
+            '<p>a<font class="a">b<span class="b">c<font style="color: rgb(255, 0, 0);">[def]</font>g</span>h</font>i</p>',
     });
 });
 
 test("should apply a color to the qweb tag (1)", async () => {
     await testEditor({
-        contentBefore: `<div><p t-esc="'Test'" contenteditable="false">[Test]</p></div>`,
+        contentBefore: `<div><p t-out="'Test'" contenteditable="false">[Test]</p></div>`,
         stepFunction: setColor("rgb(255, 0, 0)", "color"),
-        contentAfter: `<div>[<p t-esc="'Test'" contenteditable="false" style="color: rgb(255, 0, 0);">Test</p>]</div>`,
+        contentAfter: `<div>[<p t-out="'Test'" style="color: rgb(255, 0, 0);">Test</p>]</div>`,
+        config: { includePlugins: [QWebPlugin] },
     });
 });
 
@@ -31,7 +32,8 @@ test("should apply a color to the qweb tag (2)", async () => {
     await testEditor({
         contentBefore: `<div><p t-field="record.display_name" contenteditable="false">[Test]</p></div>`,
         stepFunction: setColor("rgb(255, 0, 0)", "color"),
-        contentAfter: `<div>[<p t-field="record.display_name" contenteditable="false" style="color: rgb(255, 0, 0);">Test</p>]</div>`,
+        contentAfter: `<div>[<p t-field="record.display_name" style="color: rgb(255, 0, 0);">Test</p>]</div>`,
+        config: { includePlugins: [QWebPlugin] },
     });
 });
 
@@ -40,25 +42,57 @@ test("should apply a background color to a slice of text in a span in a font", a
         contentBefore: '<p>a<font class="a">b<span class="b">c[def]g</span>h</font>i</p>',
         stepFunction: setColor("rgb(255, 0, 0)", "backgroundColor"),
         contentAfter:
-            '<p>a<font class="a">b<span class="b">c</span></font>' +
-            '<font class="a" style="background-color: rgb(255, 0, 0);"><span class="b">[def]</span></font>' +
-            '<font class="a"><span class="b">g</span>h</font>i</p>',
+            '<p>a<font class="a">b<span class="b">c<font style="background-color: rgb(255, 0, 0);">[def]</font>g</span>h</font>i</p>',
     });
 });
 
 test("should get ready to type with a different color", async () => {
-    await testEditor({
-        contentBefore: "<p>ab[]cd</p>",
-        stepFunction: setColor("rgb(255, 0, 0)", "color"),
-        contentAfter: '<p>ab<font style="color: rgb(255, 0, 0);">\u200B[]</font>cd</p>',
-    });
+    const { el, editor } = await setupEditor("<p>ab[]cd</p>");
+    await setColor("rgb(255, 0, 0)", "color")(editor);
+    expect(getContent(el)).toBe("<p>ab[]cd</p>");
+    await insertText(editor, "x");
+    expect(getContent(el)).toBe('<p>ab<font style="color: rgb(255, 0, 0);">x[]</font>cd</p>');
 });
 
 test("should get ready to type with a different background color", async () => {
+    const { el, editor } = await setupEditor("<p>ab[]cd</p>");
+    await setColor("rgb(255, 0, 0)", "backgroundColor")(editor);
+    expect(getContent(el)).toBe("<p>ab[]cd</p>");
+    await insertText(editor, "x");
+    expect(getContent(el)).toBe(
+        '<p>ab<font style="background-color: rgb(255, 0, 0);">x[]</font>cd</p>'
+    );
+});
+
+test("should get ready to type without color after removing format on a collapsed selection", async () => {
+    const { el, editor } = await setupEditor(
+        '<p>ab<font style="color: rgb(255, 0, 0);">cd[]ef</font>gh</p>'
+    );
+    execCommand(editor, "removeFormat");
+    expect(getContent(el)).toBe('<p>ab<font style="color: rgb(255, 0, 0);">cd[]ef</font>gh</p>');
+    await insertText(editor, "x");
+    expect(getContent(el)).toBe(
+        '<p>ab<font style="color: rgb(255, 0, 0);">cd</font>x[]<font style="color: rgb(255, 0, 0);">ef</font>gh</p>'
+    );
+});
+
+test("collapsed remove-format defers color removal when the color is on an ancestor", async () => {
+    const { el, editor } = await setupEditor(
+        '<p><font style="color: rgb(255, 0, 0);"><strong>ab[]cd</strong></font></p>'
+    );
+    execCommand(editor, "removeFormat");
+    await insertText(editor, "x");
+    expect(getContent(el)).toBe(
+        `<p><font style="color: rgb(255, 0, 0);"><strong>ab</strong></font>x[]<font style="color: rgb(255, 0, 0);"><strong>cd</strong></font></p>`
+    );
+});
+
+test("should not wrap br in font tag in non-empty block", async () => {
     await testEditor({
-        contentBefore: "<p>ab[]cd</p>",
-        stepFunction: setColor("rgb(255, 0, 0)", "backgroundColor"),
-        contentAfter: '<p>ab<font style="background-color: rgb(255, 0, 0);">\u200B[]</font>cd</p>',
+        contentBefore: "<p>[abc<br>def]</p>",
+        stepFunction: setColor("rgb(255, 0, 0)", "color"),
+        contentAfter:
+            '<p><font style="color: rgb(255, 0, 0);">[abc</font><br><font style="color: rgb(255, 0, 0);">def]</font></p>',
     });
 });
 
@@ -67,10 +101,13 @@ test("should apply a color on empty selection", async () => {
         contentBefore: "<p>[<br></p><p><br></p><p>]<br></p>",
         stepFunction: setColor("rgb(255, 0, 0)", "color"),
         contentAfterEdit:
-            '<p>[<font data-oe-zws-empty-inline="" style="color: rgb(255, 0, 0);">\u200B</font></p>' +
-            '<p><font data-oe-zws-empty-inline="" style="color: rgb(255, 0, 0);">\u200B</font></p>' +
-            '<p>]<font data-oe-zws-empty-inline="" style="color: rgb(255, 0, 0);">\u200B</font></p>',
-        contentAfter: "<p>[<br></p><p><br></p><p>]<br></p>",
+            '<p><font style="color: rgb(255, 0, 0);">[<br></font></p>' +
+            '<p><font style="color: rgb(255, 0, 0);"><br></font></p>' +
+            '<p><font style="color: rgb(255, 0, 0);">]<br></font></p>',
+        contentAfter:
+            '<p><font style="color: rgb(255, 0, 0);">[<br></font></p>' +
+            '<p><font style="color: rgb(255, 0, 0);"><br></font></p>' +
+            '<p><font style="color: rgb(255, 0, 0);">]<br></font></p>',
     });
 });
 
@@ -79,10 +116,13 @@ test("should apply a background color on empty selection", async () => {
         contentBefore: "<p>[<br></p><p><br></p><p>]<br></p>",
         stepFunction: setColor("rgb(255, 0, 0)", "backgroundColor"),
         contentAfterEdit:
-            '<p>[<font data-oe-zws-empty-inline="" style="background-color: rgb(255, 0, 0);">\u200B</font></p>' +
-            '<p><font data-oe-zws-empty-inline="" style="background-color: rgb(255, 0, 0);">\u200B</font></p>' +
-            '<p>]<font data-oe-zws-empty-inline="" style="background-color: rgb(255, 0, 0);">\u200B</font></p>',
-        contentAfter: "<p>[<br></p><p><br></p><p>]<br></p>",
+            '<p><font style="background-color: rgb(255, 0, 0);">[<br></font></p>' +
+            '<p><font style="background-color: rgb(255, 0, 0);"><br></font></p>' +
+            '<p><font style="background-color: rgb(255, 0, 0);">]<br></font></p>',
+        contentAfter:
+            '<p><font style="background-color: rgb(255, 0, 0);">[<br></font></p>' +
+            '<p><font style="background-color: rgb(255, 0, 0);"><br></font></p>' +
+            '<p><font style="background-color: rgb(255, 0, 0);">]<br></font></p>',
     });
 });
 
@@ -200,16 +240,17 @@ test("should not apply font tag to t nodes (protects if else nodes separation)",
             <p>
                 <t t-if="object.partner_id.parent_id">
                     <t t-out="object.partner_id.parent_id.name or ''" style="color: red;">
-                        <font style="color: red;">Azure Interior</font>
+                        Azure Interior
                     </t>
                 </t>
                 <t t-else="">
                     <t t-out="object.partner_id.name or ''" style="color: red;">
-                        <font style="color: red;">Brandon Freeman</font>
+                        Brandon Freeman
                     </t>
                 </t>
             </p>
         ]`),
+        config: { includePlugins: [QWebPlugin] },
     });
 });
 
@@ -265,6 +306,15 @@ test("should remove font tag if font-color and background-color both are removed
             setColor("", "backgroundColor")(editor);
         },
         contentAfter: "<p>[abcabc]</p>",
+    });
+});
+
+test("should preserve color tag when removing font color if it has other styles", async () => {
+    await testEditor({
+        contentBefore:
+            '<p><span style="font-size: 36px; color: rgb(255, 0, 0);">[abcabc]</span></p>',
+        stepFunction: setColor("", "color"),
+        contentAfter: '<p><span style="font-size: 36px;">[abcabc]</span></p>',
     });
 });
 
@@ -409,7 +459,7 @@ test("should apply background color whithout interrupting gradient text color on
             '<p><font class="text-gradient" style="background-image: linear-gradient(135deg, rgb(214, 255, 127) 0%, rgb(0, 179, 204) 100%);">ab[ca]bc</font></p>',
         stepFunction: setColor("rgb(255, 0, 0)", "backgroundColor"),
         contentAfter:
-            '<p><font class="text-gradient" style="background-image: linear-gradient(135deg, rgb(214, 255, 127) 0%, rgb(0, 179, 204) 100%);">ab<font style="background-image: none; background-color: rgb(255, 0, 0);">[ca]</font>bc</font></p>',
+            '<p><font class="text-gradient" style="background-image: linear-gradient(135deg, rgb(214, 255, 127) 0%, rgb(0, 179, 204) 100%);">ab<font style="background-color: rgb(255, 0, 0);">[ca]</font>bc</font></p>',
     });
 });
 test("should apply background color whithout interrupting gradient text color on fully selected gradient", async () => {
@@ -418,7 +468,7 @@ test("should apply background color whithout interrupting gradient text color on
             '<p><font class="text-gradient" style="background-image: linear-gradient(135deg, rgb(214, 255, 127) 0%, rgb(0, 179, 204) 100%);">[abcde]</font></p>',
         stepFunction: setColor("rgb(255, 0, 0)", "backgroundColor"),
         contentAfter:
-            '<p><font class="text-gradient" style="background-image: linear-gradient(135deg, rgb(214, 255, 127) 0%, rgb(0, 179, 204) 100%);"><font style="background-image: none; background-color: rgb(255, 0, 0);">[abcde]</font></font></p>',
+            '<p><font class="text-gradient" style="background-image: linear-gradient(135deg, rgb(214, 255, 127) 0%, rgb(0, 179, 204) 100%);"><font style="background-color: rgb(255, 0, 0);">[abcde]</font></font></p>',
     });
 });
 test("should apply background color whithout interrupting gradient background color on selected text", async () => {
@@ -449,32 +499,8 @@ test("should break gradient color on selected text", async () => {
         ),
         contentAfter:
             '<p><font class="text-gradient" style="background-image: linear-gradient(135deg, rgb(214, 255, 127) 0%, rgb(0, 179, 204) 100%);">ab</font>' +
-            '<font style="background-image: linear-gradient(135deg, rgb(255, 174, 127) 0%, rgb(109, 204, 0) 100%);">[ca]</font>' +
+            '<font style="background-color: transparent; background-image: linear-gradient(135deg, rgb(255, 174, 127) 0%, rgb(109, 204, 0) 100%);">[ca]</font>' +
             '<font class="text-gradient" style="background-image: linear-gradient(135deg, rgb(214, 255, 127) 0%, rgb(0, 179, 204) 100%);">bc</font></p>',
-    });
-});
-test("should update the gradient color and remove the nested background color to make the gradient visible", async () => {
-    await testEditor({
-        contentBefore:
-            '<p><font style="background-image: linear-gradient(135deg, rgb(214, 255, 127) 0%, rgb(0, 179, 204) 100%);"><font style="background-color: rgb(255, 0, 0);">[abc]</font></font></p>',
-        stepFunction: setColor(
-            "linear-gradient(135deg, rgb(255, 174, 127) 0%, rgb(109, 204, 0) 100%)",
-            "backgroundColor"
-        ),
-        contentAfter:
-            '<p><font style="background-image: linear-gradient(135deg, rgb(255, 174, 127) 0%, rgb(109, 204, 0) 100%);">[abc]</font></p>',
-    });
-});
-test("should update the gradient text color and remove the nested text color to make the gradient visible", async () => {
-    await testEditor({
-        contentBefore:
-            '<p><font class="text-gradient" style="background-image: linear-gradient(135deg, rgb(214, 255, 127) 0%, rgb(0, 179, 204) 100%);"><font style="-webkit-text-fill-color: rgb(255, 0, 0); color: rgb(255, 0, 0);">[abc]</font></font></p>',
-        stepFunction: setColor(
-            "linear-gradient(135deg, rgb(255, 174, 127) 0%, rgb(109, 204, 0) 100%)",
-            "color"
-        ),
-        contentAfter:
-            '<p><font class="text-gradient" style="background-image: linear-gradient(135deg, rgb(255, 174, 127) 0%, rgb(109, 204, 0) 100%);">[abc]</font></p>',
     });
 });
 test("should apply gradient color when a when background color is applied on span", async () => {
@@ -508,7 +534,7 @@ test("should applied background color to slice of text in a span without interru
             '<p><font style="background-image: linear-gradient(135deg, rgb(214, 255, 127) 0%, rgb(0, 179, 204) 100%);"><span class="a">ab<font style="background-color: rgb(255, 0, 0);">[ca]</font>bc</span></font></p>',
     });
 });
-test("should break a gradient and apply gradient background color to a slice of text within a span", async () => {
+test("should not break a gradient and apply gradient background color to a slice of text within a span", async () => {
     await testEditor({
         contentBefore:
             '<p><font style="background-image: linear-gradient(135deg, rgb(214, 255, 127) 0%, rgb(0, 179, 204) 100%);"><span class="a">ab<font style="background-color: rgb(255, 0, 0);">[ca]</font>bc</span></font></p>',
@@ -517,9 +543,7 @@ test("should break a gradient and apply gradient background color to a slice of 
             "color"
         ),
         contentAfter:
-            '<p><font style="background-image: linear-gradient(135deg, rgb(214, 255, 127) 0%, rgb(0, 179, 204) 100%);"><span class="a">ab</span></font>' +
-            '<font style="background-image: linear-gradient(135deg, rgb(255, 174, 127) 0%, rgb(109, 204, 0) 100%);" class="text-gradient"><span class="a"><font style="background-color: rgb(255, 0, 0);">[ca]</font></span></font>' +
-            '<font style="background-image: linear-gradient(135deg, rgb(214, 255, 127) 0%, rgb(0, 179, 204) 100%);"><span class="a">bc</span></font></p>',
+            '<p><font style="background-image: linear-gradient(135deg, rgb(214, 255, 127) 0%, rgb(0, 179, 204) 100%);"><span class="a">ab<font style="background-color: rgb(255, 0, 0);"><font class="text-gradient" style="background-image: linear-gradient(135deg, rgb(255, 174, 127) 0%, rgb(109, 204, 0) 100%);">[ca]</font></font>bc</span></font></p>',
     });
 });
 test("should apply gradient color on selected text", async () => {
@@ -530,7 +554,7 @@ test("should apply gradient color on selected text", async () => {
             "backgroundColor"
         ),
         contentAfter:
-            '<div style="background-image:none"><p><font style="background-image: linear-gradient(135deg, rgb(255, 174, 127) 0%, rgb(109, 204, 0) 100%);">[ab<strong>cd</strong>ef]</font></p></div>',
+            '<div style="background-image:none"><p><font style="background-color: transparent; background-image: linear-gradient(135deg, rgb(255, 174, 127) 0%, rgb(109, 204, 0) 100%);">[ab<strong>cd</strong>ef]</font></p></div>',
     });
 });
 test("should apply gradient text color on selected text", async () => {
@@ -599,6 +623,254 @@ test("should keep font element on top of underline/strike (2)", async () => {
         ),
         contentAfter:
             '<p><font class="text-gradient" style="background-image: linear-gradient(135deg, rgb(255, 174, 127) 0%, rgb(109, 204, 0) 100%);"><u><s>[abc]</s></u></font></p>',
+    });
+});
+
+test("should keep font element on top of underline/strike (3)", async () => {
+    await testEditor({
+        contentBefore: "<p><u><s>[a]bc</s></u></p>",
+        stepFunction: setColor("red", "color"),
+        contentAfter: '<p><font style="color: red;"><u><s>[a]</s></u></font><u><s>bc</s></u></p>',
+    });
+});
+
+test("should keep font element on top of underline/strike (4)", async () => {
+    await testEditor({
+        contentBefore: "<p><u><s><a>[a]</a>bc</s></u></p>",
+        stepFunction: setColor("red", "color"),
+        contentAfter:
+            '<p><font style="color: red;"><u><s><a>[a]</a></s></u></font><u><s>bc</s></u></p>',
+    });
+});
+
+test("should keep font element on top of underline/strike (5)", async () => {
+    await testEditor({
+        contentBefore: "<p><u><a><s>[a]bc</s></a></u></p>",
+        stepFunction: setColor("red", "color"),
+        contentAfter:
+            '<p><a><font style="color: red;"><u><s>[a]</s></u></font><u><s>bc</s></u></a></p>',
+    });
+});
+
+test("should keep font element on top of underline/strike (6)", async () => {
+    await testEditor({
+        contentBefore: "<p><s><u><a>a[b</a></u></s>c]</p>",
+        stepFunction: setColor("red", "color"),
+        contentAfter:
+            '<p><a><s><u>a</u></s><font style="color: red;"><s><u>[b</u></s></font></a><font style="color: red;">c]</font></p>',
+    });
+});
+
+test("should keep font element on top of underline/strike (7)", async () => {
+    await testEditor({
+        contentBefore: "<p><s><u><a>[ab</a></u>c]d</s></p>",
+        stepFunction: setColor("red", "color"),
+        contentAfter:
+            '<p><a><font style="color: red;"><s><u>[ab</u></s></font></a><font style="color: red;"><s>c]</s></font><s>d</s></p>',
+    });
+});
+
+test("should keep font element on top of underline/strike (8)", async () => {
+    await testEditor({
+        contentBefore: unformat(`
+                <p>
+                    <s>a
+                        <span class="oe_unbreakable">b
+                            <u>c
+                                <span class="oe_unbreakable">[d]</span>
+                            </u>e
+                        </span>
+                    </s>
+                </p>
+        `),
+        stepFunction: setColor("red", "color"),
+        contentAfter: unformat(`
+            <p>
+                <s>a</s>
+                <span class="oe_unbreakable">
+                    <s>b<u>c</u></s>
+                    <font style="color: red;"><s><u><span class="oe_unbreakable">[d]</span></u></s></font>
+                    <s>e</s>
+                </span>
+            </p>
+        `),
+    });
+});
+
+test("should keep font element on top of underline/strike (9)", async () => {
+    await testEditor({
+        contentBefore: unformat(`
+                <p>
+                    <s>a
+                        <span class="oe_unbreakable">b
+                            <u>[c]
+                                <span class="oe_unbreakable">d</span>
+                            </u>e
+                        </span>
+                    </s>
+                </p>
+        `),
+        stepFunction: setColor("red", "color"),
+        contentAfter: unformat(`
+            <p>
+                <s>a</s>
+                <span class="oe_unbreakable">
+                    <s>b</s>
+                    <font style="color: red;"><s><u>[c]</u></s></font>
+                    <s>
+                        <u>
+                            <span class="oe_unbreakable">d</span>
+                        </u>
+                    e</s>
+                </span>
+            </p>
+        `),
+    });
+});
+
+test("should keep font element on top of underline/strike (10)", async () => {
+    await testEditor({
+        contentBefore: unformat(`
+                <p>
+                    <s>a
+                        <span class="oe_unbreakable">b
+                            <u>[c
+                                <span class="oe_unbreakable">d</span>
+                            </u>e]
+                        </span>
+                    </s>
+                </p>
+        `),
+        stepFunction: setColor("red", "color"),
+        contentAfter: unformat(`
+            <p>
+                <s>a</s>
+                <span class="oe_unbreakable">
+                    <s>b</s>
+                    <font style="color: red;">
+                        <s>
+                            <u>[c
+                                <span class="oe_unbreakable">d</span>
+                            </u>e]
+                        </s>
+                    </font>
+                </span>
+            </p>
+        `),
+    });
+});
+
+test("should keep font element on top of underline/strike (11)", async () => {
+    await testEditor({
+        contentBefore: unformat(`
+                <p>
+                    <u>a
+                        <span class="oe_unbreakable">[b]</span>
+                    c</u>
+                </p>
+        `),
+        stepFunction: setColor("red", "color"),
+        contentAfter: unformat(`
+            <p>
+                <u>a</u>
+                <font style="color: red;">
+                    <u>
+                        <span class="oe_unbreakable">[b]</span>
+                    </u>
+                </font>
+                <u>c</u>
+            </p>
+        `),
+    });
+});
+
+test("should keep font element on top of underline/strike (12)", async () => {
+    await testEditor({
+        contentBefore: unformat(`
+                <p>
+                    <s>
+                        <span class="oe_unbreakable">a</span>
+                        [b]
+                    </s>
+                </p>
+        `),
+        stepFunction: setColor("red", "color"),
+        contentAfter: unformat(`
+            <p>
+                <s><span class="oe_unbreakable">a</span></s>
+                <font style="color: red;"><s>[b]</s></font>
+            </p>
+        `),
+    });
+});
+
+test("should keep font element on top of underline/strike (13)", async () => {
+    await testEditor({
+        contentBefore: unformat(`
+                <p>
+                    <s>a
+                        <span>
+                            <span class="oe_unbreakable">[b]</span>
+                        </span>
+                    c</s>
+                </p>
+        `),
+        stepFunction: setColor("red", "color"),
+        contentAfter: unformat(`
+            <p>
+                <s>a</s>
+                <font style="color: red;">
+                    <s>
+                        <span>
+                            <span class="oe_unbreakable">[b]</span>
+                        </span>
+                    </s>
+                </font>
+                <s>c</s>
+            </p>
+        `),
+    });
+});
+
+test("should keep font element on top of underline/strike (14)", async () => {
+    await testEditor({
+        contentBefore: unformat(`
+                <p>
+                    <s>[a
+                        <span class="oe_unbreakable">b</span>
+                    c]</s>
+                </p>
+        `),
+        stepFunction: setColor("red", "color"),
+        contentAfter: unformat(`
+            <p>
+                <font style="color: red;">
+                    <s>[a
+                        <span class="oe_unbreakable">b</span>
+                    c]</s>
+                </font>
+            </p>
+        `),
+    });
+});
+
+test("should keep font element on top of underline/strike (15)", async () => {
+    await testEditor({
+        contentBefore: unformat(`
+                <p>
+                    <s>a
+                        <span class="oe_unbreakable">[b]</span>
+                    c</s>
+                </p>
+        `),
+        stepFunction: setColor("red", "backgroundColor"),
+        contentAfter: unformat(`
+            <p>
+                <s>a</s>
+                <font style="background-color: red;"><s><span class="oe_unbreakable">[b]</span></s></font>
+                <s>c</s>
+            </p>
+        `),
     });
 });
 
@@ -697,7 +969,7 @@ describe("colorElement", () => {
                     "backgroundColor"
                 );
             },
-            contentAfter: `<div style='background-image: url("https://example.com/image.png"), ${greenToBlueGradient};'>a</div>`,
+            contentAfter: `<div style='background-image: url("https://example.com/image.png"), ${greenToBlueGradient}; background-color: transparent;'>a</div>`,
         });
     });
     test("should keep the background image when switching o_cc class", async () => {
@@ -715,7 +987,7 @@ describe("colorElement", () => {
                     "backgroundColor"
                 );
             },
-            contentAfter: `<div style='background-image: url("https://example.com/image.png");' class="o_cc o_cc1">a</div>`,
+            contentAfter: `<div class="o_cc o_cc1" style='background-image: url("https://example.com/image.png");'>a</div>`,
         });
     });
     test("should not keep custom gradient when switching o_cc class", async () => {
@@ -790,7 +1062,7 @@ describe("colorElement", () => {
                         "backgroundColor"
                     );
                 },
-                contentAfter: `<div style='background-image: url("https://example.com/image.png"), ${redToBlueGradient};' class="o_cc o_cc1">a</div>`,
+                contentAfter: `<div class="o_cc o_cc1" style='background-image: url("https://example.com/image.png"), ${redToBlueGradient};'>a</div>`,
             });
         });
         test("change o_cc1 (with gradient) with o_cc2 (without gradient)", async () => {
@@ -818,7 +1090,7 @@ describe("colorElement", () => {
                             "backgroundColor"
                         );
                     },
-                    contentAfter: `<div style="background-image: ${redToBlueGradient};" class="o_cc o_cc1">a</div>`,
+                    contentAfter: `<div class="o_cc o_cc1" style="background-image: ${redToBlueGradient};">a</div>`,
                 });
             });
             test("should write o_cc1 gradient when bg-900 is already present", async () => {
@@ -844,7 +1116,7 @@ describe("colorElement", () => {
                             "backgroundColor"
                         );
                     },
-                    contentAfter: `<div style="background-image: ${redToBlueGradient};" class="o_cc o_cc1">a</div>`,
+                    contentAfter: `<div class="o_cc o_cc1" style="background-image: ${redToBlueGradient};">a</div>`,
                 });
             });
         });
@@ -860,7 +1132,7 @@ describe("colorElement", () => {
                         );
                     },
                     contentAfter:
-                        '<div class="o_cc o_cc1" style="background-image: none; background-color: rgb(255, 0, 0);">a</div>',
+                        '<div class="o_cc o_cc1" style="background-color: rgb(255, 0, 0);">a</div>',
                 });
             });
             test("should not have an o_cc1 gradient when applying the color bg-900", async () => {
@@ -873,8 +1145,7 @@ describe("colorElement", () => {
                             "backgroundColor"
                         );
                     },
-                    contentAfter:
-                        '<div class="o_cc o_cc1 bg-900" style="background-image: none;">a</div>',
+                    contentAfter: '<div class="o_cc o_cc1 bg-900">a</div>',
                 });
             });
             test("should not have an o_cc1 gradient when applying a gradient color", async () => {
@@ -887,7 +1158,7 @@ describe("colorElement", () => {
                             "backgroundColor"
                         );
                     },
-                    contentAfter: `<div class="o_cc o_cc1" style="background-image: ${greenToBlueGradient};">a</div>`,
+                    contentAfter: `<div class="o_cc o_cc1" style="background-color: transparent; background-image: ${greenToBlueGradient};">a</div>`,
                 });
             });
         });
@@ -921,35 +1192,35 @@ test("should not split unsplittable element when applying color (3)", async () =
 test("should be able to apply color on icon along with text", async () => {
     await testEditor({
         contentBefore:
-            '<p>a[bc\ufeff<span class="fa fa-glass" contenteditable="false">\u200b</span>\ufeffde]f</p>',
+            '<p>a[bc\ufeff<span class="oi" data-icon="local_bar" contenteditable="false">\u200b</span>\ufeffde]f</p>',
         stepFunction: setColor("rgb(255, 0, 0)", "color"),
         contentAfterEdit:
-            '<p>a<font style="color: rgb(255, 0, 0);">[bc</font>\ufeff<span class="fa fa-glass" contenteditable="false" style="color: rgb(255, 0, 0);">\u200b</span>\ufeff<font style="color: rgb(255, 0, 0);">de]</font>f</p>',
+            '<p>a<font style="color: rgb(255, 0, 0);">[bc\ufeff<span class="oi" data-icon="local_bar" contenteditable="false">\u200b</span>\ufeffde]</font>f</p>',
         contentAfter:
-            '<p>a<font style="color: rgb(255, 0, 0);">[bc</font><span class="fa fa-glass" style="color: rgb(255, 0, 0);"></span><font style="color: rgb(255, 0, 0);">de]</font>f</p>',
+            '<p>a<font style="color: rgb(255, 0, 0);">[bc<span class="oi" data-icon="local_bar"></span>de]</font>f</p>',
     });
 });
 
 test("should be able to change color of an icon", async () => {
     await testEditor({
         contentBefore:
-            '<p><font style="color: rgb(255, 0, 0);">\ufeff<span class="fa fa-glass" contenteditable="false">[]\u200b</span>\ufeff</font></p>',
+            '<p><font style="color: rgb(255, 0, 0);">\ufeff<span class="oi" data-icon="local_bar" contenteditable="false">[]\u200b</span>\ufeff</font></p>',
         stepFunction: setColor("rgb(255, 255, 0)", "color"),
         contentAfterEdit:
-            '<p><font style="color: rgb(255, 255, 0);">\ufeff[<span class="fa fa-glass" contenteditable="false">\u200b</span>]\ufeff</font></p>',
+            '<p>[<font style="color: rgb(255, 255, 0);">\ufeff<span class="oi" data-icon="local_bar" contenteditable="false">\u200b</span>\ufeff</font>]</p>',
         contentAfter:
-            '<p><font style="color: rgb(255, 255, 0);">[<span class="fa fa-glass"></span>]</font></p>',
+            '<p>[<font style="color: rgb(255, 255, 0);"><span class="oi" data-icon="local_bar"></span></font>]</p>',
     });
 });
 
 test("should be able to remove color of an icon", async () => {
     await testEditor({
         contentBefore:
-            '<p><font style="color: rgb(255, 0, 0);">\ufeff<span class="fa fa-glass" contenteditable="false">[]\u200b</span>\ufeff</font></p>',
+            '<p><font style="color: rgb(255, 0, 0);">\ufeff<span class="oi" data-icon="local_bar" contenteditable="false">[]\u200b</span>\ufeff</font></p>',
         stepFunction: setColor("", "color"),
         contentAfterEdit:
-            '<p>\ufeff[<span class="fa fa-glass" contenteditable="false">\u200b</span>]\ufeff</p>',
-        contentAfter: '<p>[<span class="fa fa-glass"></span>]</p>',
+            '<p>\ufeff[<span class="oi" data-icon="local_bar" contenteditable="false">\u200b</span>\ufeff]</p>',
+        contentAfter: '<p>[<span class="oi" data-icon="local_bar"></span>]</p>',
     });
 });
 
@@ -958,18 +1229,18 @@ test("doesn't change the color of the whole section when there's an icon next to
         contentBefore: `
         <section style="color: rgb(255, 0, 0);">
             <p>a[bc]d</p>
-            <span class="fa fa-glass" contenteditable="false">\u200b</span>
+            <span class="oi" data-icon="local_bar" contenteditable="false">\u200b</span>
         </section>`,
         stepFunction: setColor("rgb(0, 0, 255)", "color"),
         contentAfterEdit: `
         <p data-selection-placeholder=""><br></p><section style="color: rgb(255, 0, 0);">
             <p>a<font style="color: rgb(0, 0, 255);">[bc]</font>d</p>
-            <span class="fa fa-glass" contenteditable="false">\u200b</span>
+            <span class="oi" data-icon="local_bar" contenteditable="false">\u200b</span>
         </section><p data-selection-placeholder=""><br></p>`,
         contentAfter: `
         <section style="color: rgb(255, 0, 0);">
             <p>a<font style="color: rgb(0, 0, 255);">[bc]</font>d</p>
-            <span class="fa fa-glass"></span>
+            <span class="oi" data-icon="local_bar"></span>
         </section>`,
     });
 });
@@ -1061,6 +1332,14 @@ test("Should properly apply color when selection on feff", async () => {
     expect(getComputedStyle(a).color).toBe("rgb(255, 0, 0)");
 });
 
+test("should change text color for text with color and background gradient", async () => {
+    await testEditor({
+        contentBefore: `<p><font style="color: rgb(255, 0, 0);">this <font style="background-image: ${redToBlueGradient};">is a [tes]t</font> line</font></p>`,
+        stepFunction: setColor("rgb(0, 0, 255)", "color"),
+        contentAfter: `<p><font style="color: rgb(255, 0, 0);">this <font style="background-image: ${redToBlueGradient};">is a <font style="color: rgb(0, 0, 255);">[tes]</font>t</font> line</font></p>`,
+    });
+});
+
 test("should not apply color to selection placeholder nodes", async () => {
     const { el, editor } = await setupEditor(
         unformat(`
@@ -1078,28 +1357,37 @@ test("should not apply color to selection placeholder nodes", async () => {
     expect(getContent(el)).toBe(
         unformat(`
             <p data-selection-placeholder="">[<br></p>
-            <table class="o_selected_table">
+            <div class="o_table_wrapper"><table class="o_selected_table">
                 <tbody>
                     <tr>
                         <td class="o_selected_td">1</td>
                     </tr>
                 </tbody>
-            </table>
-            <p data-selection-placeholder="">]<br></p>
+            </table></div>
+            <p data-selection-placeholder="" style="margin: -9px 0px 8px;">]<br></p>
         `)
     );
     setColor("#FF0000", "color")(editor);
     expect(getContent(el)).toBe(
         unformat(`
             <p data-selection-placeholder="">[<br></p>
-            <table class="o_selected_table">
+            <div class="o_table_wrapper"><table class="o_selected_table">
                 <tbody>
                     <tr>
                         <td class="o_selected_td"><font style="color: rgb(255, 0, 0);">1</font></td>
                     </tr>
                 </tbody>
-            </table>
-            <p data-selection-placeholder="">]<br></p>
+            </table></div>
+            <p data-selection-placeholder="" style="margin: -9px 0px 8px;">]<br></p>
         `)
     );
+});
+
+test("should only target fully selected nodes when applying color", async () => {
+    await testEditor({
+        contentBefore: "<p><b>a[b</b>c]d</p>",
+        stepFunction: setColor("red", "color"),
+        contentAfter:
+            '<p><b>a<font style="color: red;">[b</font></b><font style="color: red;">c]</font>d</p>',
+    });
 });

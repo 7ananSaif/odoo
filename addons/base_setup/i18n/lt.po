@@ -20,10 +20,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-11-15 11:28+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Lithuanian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-08-31 16:27+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Lithuanian <https://translate.odoo.com/projects/odoo-s19-4/"
 "base_setup/lt/>\n"
 "Language: lt\n"
 "MIME-Version: 1.0\n"
@@ -32,14 +32,19 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n % 10 == 1 && (n % 100 > 19 || n % 100 < "
 "11) ? 0 : (n % 10 >= 2 && n % 10 <=9) && (n % 100 > 19 || n % 100 < 11) ? "
 "1 : n % 1 != 0 ? 2: 3);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+#: model:ir.module.module,description:base.module_base_setup
 msgid ""
-"<span class=\"fa fa-lg fa-users\" aria-label=\"Number of active users\"/>"
+"\n"
+"This module helps to configure the system at the installation of a new "
+"database.\n"
+"================================================================================\n"
+"\n"
+"Shows you a list of applications features to install from.\n"
+"\n"
 msgstr ""
-"<span class=\"fa fa-lg fa-users\" aria-label=\"Aktyvių vartotojų skaičius\"/>"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -146,11 +151,6 @@ msgid "Add fun feedback and motivate your employees"
 msgstr "Pridėkite smagių atsiliepimų ir motyvuokite savo darbuotojus"
 
 #. module: base_setup
-#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_mail_plugin
-msgid "Allow integration with the mail plugins"
-msgstr ""
-
-#. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_google_calendar
 msgid "Allow the users to synchronize their calendar  with Google Calendar"
 msgstr "Leisti vartotojams sinchronizuoti jų kalendorių su \"Google Calendar\""
@@ -232,15 +232,6 @@ msgstr "Konfigūracijos nustatymai"
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
 msgid "Configure Document Layout"
 msgstr "Konfigūruoti dokumentų šabloną"
-
-#. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid ""
-"Configure company rules to automatically create SO/PO when one of your "
-"company sells/buys to another of your company."
-msgstr ""
-"Nustatykite savo įmonės taisykles, kad automatiškai būtų sukuriami pirkimo/"
-"pardavimo užsakymai, kai viena iš jūsų įmonių parduoda ar perka iš kitos."
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -334,13 +325,13 @@ msgstr ""
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Geolocate your partners"
-msgstr ""
+msgid "Geolocation"
+msgstr "Geografinė padėtis"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Geolocation"
-msgstr "Geografinė padėtis"
+msgid "Get the latitude and the longitude of your partners"
+msgstr ""
 
 #. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_google_address_autocomplete
@@ -366,8 +357,8 @@ msgid "Import & Export"
 msgstr "Importavimas ir eksportavimas"
 
 #. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Integrate with mail client plugins"
+#: model:ir.module.module,shortdesc:base.module_base_setup
+msgid "Initial Setup Tools"
 msgstr ""
 
 #. module: base_setup
@@ -405,11 +396,6 @@ msgstr "Kalbos"
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
 msgid "Layout"
 msgstr "Išdėstymas"
-
-#. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Mail Plugin"
-msgstr ""
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -455,6 +441,11 @@ msgstr "Įmonių skaičius"
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__language_count
 msgid "Number of Languages"
 msgstr "Kalbų Skaičius"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Number of active users"
+msgstr ""
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -626,36 +617,9 @@ msgstr ""
 msgid "reCAPTCHA"
 msgstr ""
 
-#~ msgid "Asterisk (VoIP)"
-#~ msgstr "Žvaigždutė (VoIP)"
-
 #~ msgid ""
-#~ "Automatically generate counterpart documents for orders/invoices between "
-#~ "companies"
+#~ "<span class=\"oi oi-lg oi-filled\" data-icon=\"group\" aria-"
+#~ "label=\"Number of active users\"/>"
 #~ msgstr ""
-#~ "Automatiškai generuoti užsakymų ir (arba) sąskaitų faktūrų tarp vidinių "
-#~ "įmonių priešpriešinius dokumentus"
-
-#~ msgid ""
-#~ "By default, new users get highest access rights for all installed apps."
-#~ msgstr ""
-#~ "Standartiškai, nauji vartotojai gauna aukščiausias prieigos teises visoms "
-#~ "įdiegtoms programoms."
-
-#~ msgid "Documentation"
-#~ msgstr "Dokumentacija"
-
-#~ msgid "Geo Localization"
-#~ msgstr "Geo Lokalizacija"
-
-#~ msgid "GeoLocalize your partners"
-#~ msgstr "Naudokite GeoLokalizaciją Jūsų partneriams."
-
-#~ msgid "Get product pictures using barcode"
-#~ msgstr "Gaukite produktų nuotraukas naudodami brūkšninį kodą"
-
-#~ msgid "Google Calendar"
-#~ msgstr "Google Kalendorius"
-
-#~ msgid "Synchronize your calendar with Google Calendar"
-#~ msgstr "Sinchronizuoti savo kalendorių su \"Google Calendar\""
+#~ "<span class=\"oi oi-lg oi-filled\" data-icon=\"group\" aria-"
+#~ "label=\"Aktyvių vartotojų skaičius\"/>"

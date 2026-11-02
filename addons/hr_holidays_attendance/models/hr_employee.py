@@ -1,82 +1,67 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-from collections import defaultdict
-from odoo import models
+from datetime import UTC
+from zoneinfo import ZoneInfo
+
+from odoo import fields, models
+from odoo.fields import Domain
 
 
 class HrEmployee(models.Model):
     _inherit = "hr.employee"
 
-    def _get_deductible_employee_overtime(self):
-        # return dict {employee: number of hours}
-        diff_by_employee = defaultdict(lambda: 0)
-        for employee, hours in self.env['hr.attendance.overtime.line'].sudo()._read_group(
+    def _get_calendar_attendance_domain(self):
+        """Exclude the schedule attendances whose work entry type counts as an absence."""
+        return Domain.AND([
+            super()._get_calendar_attendance_domain(),
+            Domain.OR([
+                Domain("work_entry_type_id", "=", False),
+                Domain("work_entry_type_id.count_as", "!=", "absence")
+            ]),
+        ])
+
+    def _compute_hours_last_month(self):
+        """Recompute ``hours_last_month_overtime`` from the time rule outputs overlapping the
+        current month until now."""
+        super()._compute_hours_last_month()
+        now = fields.Datetime.now()
+        now_utc = now.replace(tzinfo=UTC)
+        for timezone, employees in self.grouped('tz').items():
+            tz = ZoneInfo(timezone or 'UTC')
+            now_tz = now_utc.astimezone(tz)
+            start_tz = now_tz.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+            start_naive = start_tz.astimezone(UTC).replace(tzinfo=None)
+            end_naive = now_tz.astimezone(UTC).replace(tzinfo=None)
+
+            overtime_by_employee = dict(self.env['hr.attendance']._read_group(
+                domain=[
+                    ('time_rule_id', '!=', False),
+                    ('employee_id', 'in', employees.ids),
+                    ('check_in', '<', end_naive),
+                    ('check_out', '>', start_naive),
+                ],
+                groupby=['employee_id'],
+                aggregates=['worked_hours:sum'],
+            ))
+            for employee in employees:
+                employee.hours_last_month_overtime = round(
+                    overtime_by_employee.get(employee, 0.0), 2
+                )
+
+    def get_attendance_data_by_employee(self, date_start, date_stop):
+        """Set ``overtime_hours`` to the sum of the time rule outputs overlapping the period."""
+        attendance_data = super().get_attendance_data_by_employee(date_start, date_stop)
+
+        overtime_atts = self.env['hr.attendance']._read_group(
             domain=[
-                ('compensable_as_leave', '=', True),
+                ('time_rule_id', '!=', False),
                 ('employee_id', 'in', self.ids),
-                ('status', '=', 'approved'),
+                ('check_in', '<', date_stop),
+                ('check_out', '>', date_start),
             ],
             groupby=['employee_id'],
-            aggregates=['manual_duration:sum'],
-        ):
-            diff_by_employee[employee] += hours
-        for employee, hours in self.env['hr.leave']._read_group(
-            domain=[
-                ('holiday_status_id.overtime_deductible', '=', True),
-                ('holiday_status_id.requires_allocation', '=', False),
-                ('employee_id', 'in', self.ids),
-                ('state', 'not in', ['refuse', 'cancel']),
-            ],
-            groupby=['employee_id'],
-            aggregates=['number_of_hours:sum'],
-        ):
-            diff_by_employee[employee] -= hours
-        for employee, hours in self.env['hr.leave.allocation']._read_group(
-            domain=[
-                ('holiday_status_id.overtime_deductible', '=', True),
-                ('employee_id', 'in', self.ids),
-                ('state', 'in', ['confirm', 'validate', 'validate1']),
-            ],
-            groupby=['employee_id'],
-            aggregates=['number_of_hours_display:sum'],
-        ):
-            diff_by_employee[employee] -= hours
-        return diff_by_employee
-
-    def get_overtime_data_by_employee(self):
-        """
-        Provide a summary of an employee's overtime.
-        A compensable overtime is an overtime that can be cumulated to be used
-        as time off.
-        Extra hours and overtime is used interchangably.
-        """
-        # Make so that at least all employees are present in return value
-        overtime_data = {}
-        for employee_id in self.ids:
-            overtime_data[employee_id] = {
-                "compensable_overtime": 0,
-                "not_compensable_overtime": 0,
-                "unspent_compensable_overtime": 0,
-            }
-
-        unspent_overtime = self._get_deductible_employee_overtime()
-        for employee in unspent_overtime:
-            overtime_data[employee.id]['unspent_compensable_overtime'] += max(
-                0, unspent_overtime[employee]
-            )
-
-        all_overtimes = self.env['hr.attendance.overtime.line']._read_group(
-            domain=[
-                ('employee_id', 'in', self.ids),
-            ],
-            groupby=["employee_id", "compensable_as_leave"],
-            aggregates=["duration:sum"],
+            aggregates=['worked_hours:sum'],
         )
-        for employee, is_compensable, amount in all_overtimes:
-            overtime_type = (
-                'compensable_overtime'
-                if is_compensable
-                else 'not_compensable_overtime'
-            )
-            overtime_data[employee.id][overtime_type] += amount
+        for employee, overtime_hours in overtime_atts:
+            attendance_data[employee.id]['overtime_hours'] = overtime_hours
 
-        return overtime_data
+        return attendance_data

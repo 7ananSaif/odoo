@@ -1,16 +1,17 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from contextlib import contextmanager
-from datetime import datetime
+from datetime import date, datetime
 
 import psycopg2
 import psycopg2.errors
 
 import odoo
 from odoo.exceptions import UserError
+from odoo.fields import Command
 from odoo.modules.registry import Registry
-from odoo.tests import common
-from odoo.tests.common import BaseCase
+from odoo.tests import tagged, common
+from odoo.tests.common import BaseCase, TransactionCase
 from odoo.tools.misc import mute_logger
 
 ADMIN_USER_ID = common.ADMIN_USER_ID
@@ -32,6 +33,7 @@ def drop_sequence(code):
         seq.unlink()
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestIrSequenceStandard(BaseCase):
     """ A few tests for a 'Standard' (i.e. PostgreSQL) sequence. """
 
@@ -70,6 +72,7 @@ class TestIrSequenceStandard(BaseCase):
         drop_sequence('test_sequence_type')
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestIrSequenceNoGap(BaseCase):
     """ Copy of the previous tests for a 'No gap' sequence. """
 
@@ -101,12 +104,15 @@ class TestIrSequenceNoGap(BaseCase):
                 n0 = env0['ir.sequence'].next_by_code('test_sequence_type_2')
                 self.assertTrue(n0)
                 env1['ir.sequence'].next_by_code('test_sequence_type_2')
+            env0.cr.rollback()
+            env1.cr.rollback()
 
     @classmethod
     def tearDownClass(cls):
         drop_sequence('test_sequence_type_2')
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestIrSequenceChangeImplementation(BaseCase):
     """ Create sequence objects and change their ``implementation`` field. """
 
@@ -144,6 +150,7 @@ class TestIrSequenceChangeImplementation(BaseCase):
         drop_sequence('test_sequence_type_4')
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestIrSequenceGenerate(BaseCase):
     """ Create sequence objects and generate some values. """
 
@@ -202,7 +209,7 @@ class TestIrSequenceGenerate(BaseCase):
                 'suffix': '/%(y)s/%(doy)s/%(woy)s',
             })
             self.assertTrue(seq)
-            now = datetime.now()
+            now = datetime.now(env.tz)
             self.assertEqual(
                 env['ir.sequence'].next_by_code('test_sequence_type_8'),
                 now.strftime('%Y/%m/%d/1/%y/%j/%W'),
@@ -218,7 +225,7 @@ class TestIrSequenceGenerate(BaseCase):
                 'suffix': '/%(isoweek)s/%(weekday)s',
             })
             self.assertTrue(seq)
-            isoyear, isoweek, weekday = datetime.now().isocalendar()
+            isoyear, isoweek, weekday = datetime.now(env.tz).isocalendar()
             self.assertEqual(
                 env['ir.sequence'].next_by_code('test_sequence_type_9'),
                 f"{isoyear}/{isoyear % 100:02d}/1/{isoweek:02d}/{weekday % 7}",
@@ -249,16 +256,17 @@ class TestIrSequenceGenerate(BaseCase):
             env['ir.sequence'].search([('id', 'not in', cls._sequence_ids)]).unlink()
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestIrSequenceInit(common.TransactionCase):
 
-    def test_00(self):
+    def test_00_read_next_sequence(self):
         """ test whether the read method returns the right number_next value
             (from postgreSQL sequence and not ir_sequence value)
         """
         # first creation of sequence (normal)
         seq = self.env['ir.sequence'].create({
             'number_next': 1,
-            'company_id': 1,
+            'company_id': self.ref('base.main_company'),
             'padding': 4,
             'number_increment': 1,
             'implementation': 'standard',
@@ -275,3 +283,161 @@ class TestIrSequenceInit(common.TransactionCase):
         # Read the value of the current sequence
         n = seq.next_by_id()
         self.assertEqual(n, "0001", 'The actual sequence value must be 1. reading : %s' % n)
+
+
+@tagged('at_install', '-post_install')
+class TestIrSequenceDateRangeStandard(TransactionCase):
+    """ A few tests for a 'Standard' (i.e. PostgreSQL) sequence. """
+
+    def test_ir_sequence_date_range_1_create(self):
+        """ Try to create a sequence object with date ranges enabled. """
+        seq = self.env['ir.sequence'].create({
+            'code': 'test_sequence_date_range',
+            'name': 'Test sequence',
+            'use_date_range': True,
+        })
+        self.assertTrue(seq)
+        """ Draw numbers to create a first subsequence then change its date range. Then, try to draw a new number adn check a new subsequence was correctly created. """
+        year = date.today().year - 1
+        january = lambda d: datetime(year, 1, d)  # noqa: E731
+
+        seq16 = self.env['ir.sequence'].with_context(ir_sequence_date=january(16))
+        n = seq16.next_by_code('test_sequence_date_range')
+        self.assertEqual(n, '1')
+        n = seq16.next_by_code('test_sequence_date_range')
+        self.assertEqual(n, '2')
+
+        # modify the range of date created
+        domain = [('sequence_id.code', '=', 'test_sequence_date_range'), ('date_from', '=', january(1))]
+        seq_date_range = self.env['ir.sequence.date_range'].search(domain)
+        seq_date_range.write({'date_from': january(18)})
+        n = seq16.next_by_code('test_sequence_date_range')
+        self.assertEqual(n, '1')
+
+        # check the newly created sequence stops at the 17th of January
+        domain = [('sequence_id.code', '=', 'test_sequence_date_range'), ('date_from', '=', january(1))]
+        seq_date_range = self.env['ir.sequence.date_range'].search(domain)
+        self.assertEqual(seq_date_range.date_to, january(17).date())
+
+        seq = self.env['ir.sequence'].search([('code', '=', 'test_sequence_date_range')])
+        seq.unlink()
+
+
+@tagged('at_install', '-post_install')
+class TestIrSequenceDateRangeNoGap(TransactionCase):
+    """ Copy of the previous tests for a 'No gap' sequence. """
+
+    def test_ir_sequence_date_range_1_create_no_gap(self):
+        """ Try to create a sequence object. """
+        seq = self.env['ir.sequence'].create({
+            'code': 'test_sequence_date_range_2',
+            'name': 'Test sequence',
+            'use_date_range': True,
+            'implementation': 'no_gap',
+        })
+        self.assertTrue(seq)
+
+        """ Draw numbers to create a first subsequence then change its date range. Then, try to draw a new number adn check a new subsequence was correctly created. """
+        year = date.today().year - 1
+        january = lambda d: datetime(year, 1, d)  # noqa: E731
+
+        seq16 = self.env['ir.sequence'].with_context({'ir_sequence_date': january(16)})
+        n = seq16.next_by_code('test_sequence_date_range_2')
+        self.assertEqual(n, '1')
+        n = seq16.next_by_code('test_sequence_date_range_2')
+        self.assertEqual(n, '2')
+
+        # modify the range of date created
+        domain = [('sequence_id.code', '=', 'test_sequence_date_range_2'), ('date_from', '=', january(1))]
+        seq_date_range = self.env['ir.sequence.date_range'].search(domain)
+        seq_date_range.write({'date_from': january(18)})
+        n = seq16.next_by_code('test_sequence_date_range_2')
+        self.assertEqual(n, '1')
+
+        # check the newly created sequence stops at the 17th of January
+        domain = [('sequence_id.code', '=', 'test_sequence_date_range_2'), ('date_from', '=', january(1))]
+        seq_date_range = self.env['ir.sequence.date_range'].search(domain)
+        self.assertEqual(seq_date_range.date_to, january(17).date())
+
+        seq = self.env['ir.sequence'].search([('code', '=', 'test_sequence_date_range_2')])
+        seq.unlink()
+
+
+@tagged('at_install', '-post_install')
+class TestIrSequenceDateRangeChangeImplementation(TransactionCase):
+    """ Create sequence objects and change their ``implementation`` field. """
+
+    def test_ir_sequence_date_range_1_create(self):
+        year = date.today().year - 1
+        january = lambda d, h=0, m=0, s=0: datetime(year, 1, d, h, m, s)   # noqa: E731
+        february = lambda d, h=0, m=0, s=0: datetime(year, 2, d, h, m, s)  # noqa: E731
+
+        """ Try to create a sequence object. """
+        seq = self.env['ir.sequence'].create({
+            'code': 'test_sequence_date_range_3',
+            'name': 'Test sequence',
+            'use_date_range': True,
+        })
+        self.assertTrue(seq)
+
+        seq = self.env['ir.sequence'].create({
+            'code': 'test_sequence_date_range_4',
+            'name': 'Test sequence',
+            'use_date_range': True,
+            'implementation': 'no_gap',
+        })
+        self.assertTrue(seq)
+
+        seq = self.env['ir.sequence'].create({
+            'code': 'test_sequence_date_range_5',
+            'name': 'Test sequence',
+            'use_date_range': True,
+            'prefix': '%(month)s/%(day)s/',
+            'suffix': '/%(h24)s/%(min)s/%(sec)s',
+            'date_range_ids': [
+                Command.create({
+                    'date_from': january(1),
+                    'date_to': january(31),
+                    'number_next_actual': 15,
+                }),
+                Command.create({
+                    'date_from': february(1),
+                    'date_to': february(28),
+                    'number_next_actual': 1
+                })
+            ]
+        })
+        self.assertTrue(seq)
+
+        """ Make some use of the sequences to create some subsequences """
+        seq = self.env['ir.sequence']
+        seq16 = self.env['ir.sequence'].with_context({'ir_sequence_date': january(16)})
+
+        for i in range(1, 5):
+            n = seq.next_by_code('test_sequence_date_range_3')
+            self.assertEqual(n, str(i))
+        for i in range(1, 5):
+            n = seq16.next_by_code('test_sequence_date_range_3')
+            self.assertEqual(n, str(i))
+        for i in range(1, 5):
+            n = seq.next_by_code('test_sequence_date_range_4')
+            self.assertEqual(n, str(i))
+        for i in range(1, 5):
+            n = seq16.next_by_code('test_sequence_date_range_4')
+            self.assertEqual(n, str(i))
+        for i in range(5):
+            n = seq.next_by_code('test_sequence_date_range_5', sequence_date=january(16, 1, 2, 3))   # January 16, 01:02:03
+            self.assertEqual(n, f'01/16/{i + 15}/01/02/03')
+        for i in range(1, 5):
+            n = seq.next_by_code('test_sequence_date_range_5', sequence_date=february(16, 15, 40, 32))   # February 16, 15:40:32
+            self.assertEqual(n, f'02/16/{i}/15/40/32')
+
+        """swap the implementation method on both"""
+        domain = [('code', 'in', ['test_sequence_date_range_3', 'test_sequence_date_range_4'])]
+        seqs = self.env['ir.sequence'].search(domain)
+        seqs.write({'implementation': 'standard'})
+        seqs.write({'implementation': 'no_gap'})
+
+        domain = [('code', 'in', ['test_sequence_date_range_3', 'test_sequence_date_range_4'])]
+        seqs = self.env['ir.sequence'].search(domain)
+        seqs.unlink()

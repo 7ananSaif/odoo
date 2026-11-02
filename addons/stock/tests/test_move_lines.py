@@ -1,16 +1,20 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-import datetime
-from freezegun import freeze_time
-
 from odoo import Command
 from odoo.addons.stock.tests.common import TestStockCommon
-from odoo.exceptions import UserError
-from odoo.tests import Form
+from odoo.exceptions import UserError, ValidationError
+from odoo.tests import tagged, Form
 
 
 class TestStockMoveLine(TestStockCommon):
+    _test_user_groups = (
+        'product.group_product_manager',  # FIXME: use base.group_user
+        'stock.group_stock_user',
+    )
+
+    _test_user_name = 'Test Product Manager'
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -25,6 +29,9 @@ class TestStockMoveLine(TestStockCommon):
         })
         cls.pack = cls.env['stock.package'].create({
             'name': 'Pack A',
+        })
+        cls.package_type = cls.env['stock.package.type'].create({
+            'name': 'Super Package Type',
         })
         cls.lot = cls.env['stock.lot'].create({
             'product_id': cls.product.id,
@@ -52,7 +59,7 @@ class TestStockMoveLine(TestStockCommon):
         """ Create a move line from a quant"""
         move = self.env['stock.move'].create({
             'product_id': self.product.id,
-            'product_uom': self.product.uom_id.id,
+            'uom_id': self.product.uom_id.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.stock_location.id,
         })
@@ -72,7 +79,7 @@ class TestStockMoveLine(TestStockCommon):
         """ check the quantity done is added up to the initial demand"""
         move = self.env['stock.move'].create({
             'product_id': self.product.id,
-            'product_uom': self.product.uom_id.id,
+            'uom_id': self.product.uom_id.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.stock_location.id,
             'picking_type_id': self.picking_type_int.id,
@@ -95,7 +102,7 @@ class TestStockMoveLine(TestStockCommon):
         self.assertEqual(self.quant.quantity, -10)
         move = self.env['stock.move'].create({
             'product_id': self.product.id,
-            'product_uom': self.product.uom_id.id,
+            'uom_id': self.product.uom_id.id,
             'location_id': self.stock_location.id,
             'location_dest_id': self.stock_location.id,
         })
@@ -108,7 +115,7 @@ class TestStockMoveLine(TestStockCommon):
     def test_pick_from_5(self):
         """ check small quantities get handled correctly """
         precision = self.env.ref('uom.decimal_product_uom')
-        precision.digits = 6
+        precision.sudo().digits = 6
         self.product.uom_id = self.uom_kg
         move = self.env['stock.move'].create({
             'product_id': self.product.id,
@@ -148,6 +155,96 @@ class TestStockMoveLine(TestStockCommon):
         (move_line1 | move_line2).action_put_in_pack()
         self.assertEqual(move_line1.result_package_id, move_line2.result_package_id)
 
+    def test_put_in_pack_with_split_picking_error(self):
+        """
+        Check putting in pack with splitting. It should throw an error,
+        because multiple MLs are passed
+        """
+
+        move1 = self.env['stock.move'].create({
+            'location_id': self.supplier_location.id,
+            'location_dest_id': self.stock_location.id,
+            'product_id': self.productA.id,
+            'uom_id': self.uom_unit.id,
+            'product_uom_qty': 12.0,
+            'move_line_ids': [Command.create({
+                'product_id': self.productA.id,
+                'quantity': qty,
+                'uom_id': self.uom_unit.id,
+                'location_id': self.supplier_location.id,
+                'location_dest_id': self.stock_location.id,
+            }) for qty in (6, 6)],
+        })
+
+        with self.assertRaises(ValueError):
+            move1.move_line_ids.action_put_in_pack(package_type_id=self.package_type.id, package_capacity=6)
+
+    def test_put_in_pack_with_split_moves(self):
+        """
+        Check putting in pack with splitting from the Moves button.
+        First time it should throw an error because we are trying to Put in Pack with
+        a capacity higher than the ML quantity.
+        Next time it should split existing line into 3 lines with quantity 5, 5, and 2.
+        """
+
+        move1 = self.env['stock.move'].create({
+            'location_id': self.supplier_location.id,
+            'location_dest_id': self.stock_location.id,
+            'product_id': self.productA.id,
+            'uom_id': self.uom_unit.id,
+            'product_uom_qty': 12.0,
+            'move_line_ids': [Command.create({
+                'product_id': self.productA.id,
+                'quantity': 12,
+                'uom_id': self.uom_unit.id,
+                'location_id': self.supplier_location.id,
+                'location_dest_id': self.stock_location.id,
+            })],
+        })
+
+        with self.assertRaises(ValidationError):
+            move1.move_line_ids.action_put_in_pack(package_type_id=self.package_type.id, package_capacity=13)
+
+        move1.move_line_ids.action_put_in_pack(package_type_id=self.package_type.id, package_capacity=5)
+        self.assertEqual(len(move1.move_line_ids), 3)
+        move_line1, move_line2, move_line3 = move1.move_line_ids[0], move1.move_line_ids[1], move1.move_line_ids[2]
+        self.assertEqual(move_line1.quantity, 5.0)
+        self.assertEqual(move_line2.quantity, 5.0)
+        self.assertEqual(move_line3.quantity, 2.0)
+        self.assertEqual(move_line1.result_package_id.package_type_id.id, self.package_type.id)
+        self.assertEqual(move_line2.result_package_id.package_type_id.id, self.package_type.id)
+        self.assertEqual(move_line3.result_package_id.package_type_id.id, self.package_type.id)
+
+    def test_put_in_pack_with_split_moves_with_package(self):
+        """
+        Check putting in pack with splitting from the Moves button with a package.
+        Should split existing line into 2 lines with quantity 5, 7, with the first
+        one having a package, and the second one not.
+        """
+
+        move1 = self.env['stock.move'].create({
+            'location_id': self.supplier_location.id,
+            'location_dest_id': self.stock_location.id,
+            'product_id': self.productA.id,
+            'uom_id': self.uom_unit.id,
+            'product_uom_qty': 12.0,
+            'move_line_ids': [Command.create({
+                'product_id': self.productA.id,
+                'quantity': 12,
+                'uom_id': self.uom_unit.id,
+                'location_id': self.supplier_location.id,
+                'location_dest_id': self.stock_location.id,
+            })],
+        })
+
+        move1.move_line_ids.action_put_in_pack(package_id=self.pack.id, package_capacity=5)
+        self.assertEqual(len(move1.move_line_ids), 2)
+        move_line1, move_line2 = move1.move_line_ids[0], move1.move_line_ids[1]
+        self.assertEqual(move_line1.quantity, 5.0)
+        self.assertEqual(move_line2.quantity, 7.0)
+        self.assertEqual(move_line1.result_package_id.id, self.pack.id)
+        self.assertEqual(move_line2.result_package_id.id, False)
+
     def test_multi_edit_quant_and_lot(self):
         """
         Ensure that the quant_id and lot_id cannot be updated in multi-edit mode when the move lines use different products.
@@ -175,60 +272,12 @@ class TestStockMoveLine(TestStockCommon):
         with self.assertRaises(UserError):
             (move_line1 | move_line2).quant_id = quant_productA
 
-    def test_move_line_date(self):
-        # we need to freezetime due to write time being too fast for date changes to be observed
-        with freeze_time() as freeze:
-            move = self.env['stock.move'].create({
-                'location_id': self.stock_location.id,
-                'location_dest_id': self.customer_location.id,
-                'product_id': self.productA.id,
-                'product_uom': self.uom_unit.id,
-                'product_uom_qty': 10.0,
-            })
-            move.quantity = 1
-            ml = move.move_line_ids
-            self.assertFalse(ml.picked, "Move line shouldn't be 'picked' yet")
-            freeze.tick(delta=datetime.timedelta(seconds=2))
-            create_date = ml.date
-            ml.quantity = 2
-            self.assertFalse(ml.picked, "Move line shouldn't be 'picked' yet")
-            self.assertEqual(ml.date, create_date, "Increasing a quantity that isn't 'picked' shouldn't update its date")
-            freeze.tick(delta=datetime.timedelta(seconds=2))
-            ml.picked = True
-            update_date_1 = ml.date
-            self.assertTrue(update_date_1 > create_date, "Marking a ml as 'picked' should update its date")
-            freeze.tick(delta=datetime.timedelta(seconds=2))
-            ml.quantity = 3
-            update_date_2 = ml.date
-            self.assertTrue(update_date_2 > update_date_1, "Increasing a ml's quantity should update its date")
-            freeze.tick(delta=datetime.timedelta(seconds=2))
-            ml.product_uom_id = self.uom_dozen
-            update_date_3 = ml.date
-            self.assertTrue(update_date_3 > update_date_2, "Increasing a ml's quantity (via UoM type) should update its date")
-            freeze.tick(delta=datetime.timedelta(seconds=2))
-            ml.quantity = 2
-            self.assertEqual(update_date_3, ml.date, "Decreasing a ml's quantity shouldn't update its date")
-            freeze.tick(delta=datetime.timedelta(seconds=2))
-            ml.write({
-                'product_uom_id': self.uom_unit.id,
-                'quantity': 24
-            })
-            # 2 dozen = 24 units
-            self.assertEqual(update_date_3, ml.date, "Quantity change check for date should take into account UoM conversion")
-            freeze.tick(delta=datetime.timedelta(seconds=2))
-            ml.write({
-                'product_uom_id': self.uom_dozen.id,
-                'quantity': 3
-            })
-            # 36 units > 24 units
-            self.assertTrue(ml.date > update_date_3, "Quantity change check for date should take into account UoM conversion")
-
     def test_lot_creation_from_move_line_with_generic_stock(self):
         """
         Test that if the product already have quantities and after that tracking is set to serial,
         we can create a lot and assign it to the move.
         """
-        self.productA.tracking = "none"
+        self.productA.tracking = False
 
         self.env["stock.quant"]._update_available_quantity(self.productA, self.stock_location, 100)
 
@@ -245,7 +294,6 @@ class TestStockMoveLine(TestStockCommon):
         move = self.env["stock.move"].create(
             {
                 "product_id": self.productA.id,
-                "product_uom": self.productA.uom_id.id,
                 "product_uom_qty": 1.0,
                 "location_id": self.stock_location.id,
                 "location_dest_id": self.customer_location.id,
@@ -265,7 +313,6 @@ class TestStockMoveLine(TestStockCommon):
             'move_ids': [Command.create({
                 'product_id': self.productA.id,
                 'product_uom_qty': 10.0,
-                'product_uom': self.productA.uom_id.id,
                 'location_id': self.supplier_location.id,
                 'location_dest_id': self.stock_location.id,
             })],
@@ -279,7 +326,6 @@ class TestStockMoveLine(TestStockCommon):
         new_move_line = self.env['stock.move.line'].create({
             'picking_id': receipt.id,
             'product_id': self.productA.id,
-            'product_uom_id': self.productA.uom_id.id,
             'location_id': self.supplier_location.id,
             'location_dest_id': self.stock_location.id,
             'move_id': receipt.move_ids.id,

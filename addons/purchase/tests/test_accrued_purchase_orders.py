@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import fields, Command
+from odoo import Command
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 from odoo.tests import Form, tagged
 from odoo.exceptions import UserError
@@ -7,6 +7,8 @@ from odoo.exceptions import UserError
 
 @tagged('post_install', '-at_install')
 class TestAccruedPurchaseOrders(AccountTestInvoicingCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):
@@ -29,14 +31,14 @@ class TestAccruedPurchaseOrders(AccountTestInvoicingCommon):
             'company_id': False,
         })
         cls.product_b.property_account_expense_id = cls.alt_exp_account
-        cls.purchase_order = cls.env['purchase.order'].with_context(tracking_disable=True).create({
+        cls.purchase_order = cls.env['purchase.order'].create({
             'partner_id': cls.partner_a.id,
             'order_line': [
                 Command.create({
                     'name': cls.product_a.name,
                     'product_id': cls.product_a.id,
                     'product_qty': 10.0,
-                    'product_uom_id': cls.product_a.uom_id.id,
+                    'uom_id': cls.product_a.uom_id.id,
                     'price_unit': cls.product_a.list_price,
                     'tax_ids': False,
                     'analytic_distribution': {
@@ -48,7 +50,7 @@ class TestAccruedPurchaseOrders(AccountTestInvoicingCommon):
                     'name': cls.product_b.name,
                     'product_id': cls.product_b.id,
                     'product_qty': 10.0,
-                    'product_uom_id': cls.product_b.uom_id.id,
+                    'uom_id': cls.product_b.uom_id.id,
                     'price_unit': cls.product_b.list_price,
                     'tax_ids': False,
                     'analytic_distribution': {
@@ -60,38 +62,19 @@ class TestAccruedPurchaseOrders(AccountTestInvoicingCommon):
         cls.purchase_order.button_confirm()
         cls.account_revenue = cls.company_data['default_account_revenue']
         cls.account_expense = cls.company_data['default_account_expense']
-        cls.wizard = cls.env['account.accrued.orders.wizard'].with_context({
+        cls.wizard = cls.create_wizard(cls)
+
+    def create_wizard(self, **kwargs):
+        account_id = kwargs.pop('account_id', self.account_revenue.id)
+
+        return self.env['account.accrued.orders.wizard'].with_context({
             'active_model': 'purchase.order',
-            'active_ids': cls.purchase_order.ids
+            'active_ids': self.purchase_order.ids,
+            'default_accrual_type': 'bill_to_receive',
+            **kwargs,
         }).create({
-            'account_id': cls.account_revenue.id,
+            'account_id': account_id,
         })
-
-    def test_accrued_order(self):
-        # nothing to bill : no entries to be created
-        with self.assertRaises(UserError):
-            self.wizard.create_entries()
-
-        # 5 qty of each product billeable
-        self.purchase_order.order_line.qty_received = 5
-        self.assertRecordValues(self.env['account.move'].search(self.wizard.create_entries()['domain']).line_ids, [
-            # reverse move lines
-            {'account_id': self.account_expense.id, 'debit': 0, 'credit': 5000},
-            {'account_id': self.alt_exp_account.id, 'debit': 0, 'credit': 1000},
-            {'account_id': self.account_revenue.id, 'debit': 6000, 'credit': 0},
-            # move lines
-            {'account_id': self.account_expense.id, 'debit': 5000, 'credit': 0},
-            {'account_id': self.alt_exp_account.id, 'debit': 1000, 'credit': 0},
-            {'account_id': self.account_revenue.id, 'debit': 0, 'credit': 6000},
-        ])
-
-        # received products billed, nothing to bill left
-        move = self.env['account.move'].browse(self.purchase_order.action_create_invoice()['res_id'])
-        move.invoice_date = '2020-01-01'
-        move.action_post()
-
-        with self.assertRaises(UserError):
-            self.wizard.with_context(accrual_entry_date='2020-01-30').create_entries()
 
     def test_multi_currency_accrued_order(self):
         # 5 qty of each product billeable
@@ -182,60 +165,6 @@ class TestAccruedPurchaseOrders(AccountTestInvoicingCommon):
             {'account_id': self.account_revenue.id, 'debit': 12000.0, 'credit': 0.0},
         ])
 
-    def test_error_when_different_currencies_accrued(self):
-        """
-        Tests that if two Purchase Orders with different currencies are selected for Accrued Expense Entry, 
-        a UserError is raised.
-        """
-        purchase_orders = self.env['purchase.order'].create([
-            {
-                'partner_id': self.partner_a.id,
-                'currency_id': self.company_data['currency'].id,
-            }, 
-            {
-                'partner_id': self.partner_a.id,
-                'currency_id': self.other_currency.id,
-            }
-        ])
-        purchase_orders.button_confirm()
-        accrued_wizard = self.env['account.accrued.orders.wizard'].with_context(
-            active_model='purchase.order',
-            active_ids=purchase_orders.ids,
-        ).new()
-        with self.assertRaises(UserError, msg="An error should be raised if two different currencies are used for Accrued Expense Entry."):
-            accrued_wizard._compute_move_vals()
-
-    def test_accrued_entries_with_discount(self):
-        purchase_order = self.env['purchase.order'].create({
-            'partner_id': self.partner_a.id,
-            'order_line': [
-                Command.create({
-                    'name': self.product_a.name,
-                    'product_id': self.product_a.id,
-                    'product_qty': 10.0,
-                    'product_uom_id': self.product_a.uom_id.id,
-                    'price_unit': 10.0,
-                    'tax_ids': False,
-                    'discount': 10,
-                }),
-            ],
-        })
-        purchase_order.button_confirm()
-        purchase_order.order_line.qty_received = 10
-        accrued_wizard = self.env['account.accrued.orders.wizard'].with_context(
-            active_model='purchase.order',
-            active_ids=purchase_order.ids,
-        ).create({
-            'account_id': self.account_revenue.id,
-        })
-        res = self.env['account.move'].search(accrued_wizard.create_entries()['domain']).line_ids
-        self.assertRecordValues(res, [
-            {'debit': 0.0, 'credit': 90.0},
-            {'debit': 90.0, 'credit': 0.0},
-            {'debit': 90.0, 'credit': 0.0},
-            {'debit': 0.0, 'credit': 90.0},
-        ])
-
     def test_accrual_entry_date_as_string_from_context(self):
         """
         Test that passing `accrual_entry_date` as a string in the context
@@ -259,8 +188,102 @@ class TestAccruedPurchaseOrders(AccountTestInvoicingCommon):
             {'account_id': self.account_revenue.id, 'debit': 0.0, 'credit': 6000.0},
         ])
 
+    def test_error_when_different_currencies_accrued(self):
+        """
+        Tests that if two Purchase Orders with different currencies are selected for Accrued Expense Entry, 
+        a UserError is raised.
+        """
+        purchase_orders = self.env['purchase.order'].create([
+            {
+                'partner_id': self.partner_a.id,
+                'currency_id': self.company_data['currency'].id,
+            }, 
+            {
+                'partner_id': self.partner_a.id,
+                'currency_id': self.other_currency.id,
+            }
+        ])
+        purchase_orders.button_confirm()
+        accrued_wizard = self.create_wizard(active_ids=purchase_orders.ids)
+        with self.assertRaises(UserError, msg="An error should be raised if two different currencies are used for Accrued Expense Entry."):
+            accrued_wizard._compute_move_vals()
+
+    def test_accrued_entries_with_discount(self):
+        purchase_order = self.env['purchase.order'].create({
+            'partner_id': self.partner_a.id,
+            'order_line': [
+                Command.create({
+                    'name': self.product_a.name,
+                    'product_id': self.product_a.id,
+                    'product_qty': 10.0,
+                    'uom_id': self.product_a.uom_id.id,
+                    'price_unit': 10.0,
+                    'tax_ids': False,
+                    'discount': 10,
+                }),
+            ],
+        })
+        purchase_order.button_confirm()
+        purchase_order.order_line.qty_received = 10
+        accrued_wizard = self.create_wizard(active_ids=purchase_order.ids)
+
+        res = self.env['account.move'].search(accrued_wizard.create_entries()['domain']).line_ids
+        self.assertRecordValues(res, [
+            {'debit': 0.0, 'credit': 90.0},
+            {'debit': 90.0, 'credit': 0.0},
+            {'debit': 90.0, 'credit': 0.0},
+            {'debit': 0.0, 'credit': 90.0},
+        ])
+
     def test_accrued_entries_with_no_date(self):
         wizard_form = Form(self.wizard)
         wizard_form.date = False
         with self.assertRaises(AssertionError):
             wizard_form.save()
+
+    def test_accrued_order_wizard_zero_total(self):
+        """
+        Test that setting a PO line quantity to 0 (resulting in a 0 total)
+        does not cause a ZeroDivisionError in the Accrued Expense Entry wizard.
+        """
+        purchase_order = self.env['purchase.order'].create({
+            'partner_id': self.partner_a.id,
+            'order_line': [
+                Command.create({
+                    'name': self.product_a.name,
+                    'product_id': self.product_a.id,
+                    'product_qty': 10.0,
+                    'price_unit': 100.0,
+                })
+            ]
+        })
+        purchase_order.button_confirm()
+        purchase_order.order_line.qty_received = 10.0
+        purchase_order.order_line.product_qty = 0.0
+
+        wizard = self.create_wizard(
+            active_ids=purchase_order.ids,
+            account_id=self.company_data['default_account_payable'].id,
+        )
+
+        accrued_entry = wizard.create_entries()
+        self.assertTrue(accrued_entry)
+
+    def test_duplicate_entry_detection(self):
+        self.purchase_order.order_line.qty_received = 5
+        accrual_entries = self.env['account.move'].search(self.wizard.with_context(default_accrual_type='bill_to_receive').create_entries()['domain'])
+        duplicate = self.wizard.with_context(default_accrual_type='bill_to_receive').copy().duplicate_entry_id
+
+        self.assertTrue(duplicate)
+        self.assertIn(duplicate.id, accrual_entries.ids)
+
+    def test_duplicate_entries_are_deleted(self):
+        self.purchase_order.order_line.qty_received = 5
+        accrual_entries = self.env['account.move'].search(self.create_wizard().create_entries()['domain'])
+
+        self.assertTrue(accrual_entries.exists())
+
+        new_accrual_entries = self.env['account.move'].search(self.create_wizard().create_entries()['domain'])
+
+        self.assertTrue(new_accrual_entries.exists())
+        self.assertFalse(accrual_entries.exists())

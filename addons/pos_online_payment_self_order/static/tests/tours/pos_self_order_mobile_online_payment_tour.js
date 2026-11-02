@@ -28,6 +28,27 @@ registry.category("web_tour.tours").add("self_mobile_online_payment_meal_table",
     ],
 });
 
+registry.category("web_tour.tours").add("self_mobile_online_payment_meal_dynamic_qr", {
+    steps: () => [
+        Utils.checkBtn("My Order"),
+        Utils.clickBtn("Order Now"),
+        ProductPage.clickProduct("Coca-Cola"),
+        Utils.clickBtn("Checkout"),
+        CartPage.checkProduct("Coca-Cola", "2.53", "1"),
+        Utils.clickBtn("Order"),
+        Utils.clickBtn("Ok"),
+        Utils.clickBtn("Order Now"),
+        ProductPage.clickProduct("Fanta"),
+        Utils.clickBtn("Checkout"),
+        CartPage.checkProduct("Fanta", "2.53", "1"),
+        Utils.clickBtn("Order"),
+        ConfirmationPage.isShown(),
+        Utils.clickBtn("Ok"),
+        Utils.clickBtn("My Order"),
+        Utils.clickBtn("Pay"),
+    ],
+});
+
 registry.category("web_tour.tours").add("self_mobile_online_payment_meal", {
     steps: () => [
         Utils.checkIsNoBtn("My Order"),
@@ -39,6 +60,7 @@ registry.category("web_tour.tours").add("self_mobile_online_payment_meal", {
         CartPage.checkProduct("Coca-Cola", "2.53", "1"),
         Utils.clickBtn("Order"),
         CartPage.fillInput("Name", "Dr Dre"),
+        CartPage.fillInput("Phone", "490904390"),
         Utils.clickBtn("Continue"),
         Utils.clickBtn("Ok"),
         Utils.clickBtn("Order Now"),
@@ -107,5 +129,29 @@ registry.category("web_tour.tours").add("test_kiosk_cart_restore_and_cancel", {
         CartPage.checkProduct("Fanta", "2.53", "1"),
         Utils.clickBackBtn(),
         ...ProductPage.clickCancel(),
+    ],
+});
+
+registry.category("web_tour.tours").add("self_order_tip_amount_with_tax", {
+    steps: () => [
+        Utils.clickBtn("Order Now"),
+        ProductPage.clickProduct("Coca-Cola"),
+        Utils.clickBtn("Checkout"),
+        CartPage.checkProduct("Coca-Cola", "2.53", "1"),
+        Utils.clickBtn("15%"), // Select 15% tip
+        CartPage.checkTotalPrice("2.97"), // Total with tax on tip
+        Utils.clickBtn("Pay"),
+    ],
+});
+
+registry.category("web_tour.tours").add("self_order_tip_amount_without_tax", {
+    steps: () => [
+        Utils.clickBtn("Order Now"),
+        ProductPage.clickProduct("Coca-Cola"),
+        Utils.clickBtn("Checkout"),
+        CartPage.checkProduct("Coca-Cola", "2.53", "1"),
+        Utils.clickBtn("15%"), // Select 15% tip
+        CartPage.checkTotalPrice("2.91"), // Total without tax on tip
+        Utils.clickBtn("Pay"),
     ],
 });

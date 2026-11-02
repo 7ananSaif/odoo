@@ -1,74 +1,42 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# * sale_gelato
+# 	* sale_gelato
 #
-# Bone NI <bounkirdni@gmail.com>, 2026.
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0\n"
+"Project-Id-Version: Odoo Server 19.4a1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-24 17:37+0000\n"
-"PO-Revision-Date: 2026-06-07 18:03+0000\n"
-"Last-Translator: Bone NI <bounkirdni@gmail.com>\n"
-"Language-Team: Lao <https://translate.odoo.com/projects/odoo-19/sale_gelato/"
-"lo/>\n"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 18:10+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Lao <https://translate.odoo.com/projects/odoo-s19-4/"
+"sale_gelato/lo/>\n"
 "Language: lo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: sale_gelato
 #: model:mail.template,body_html:sale_gelato.order_status_update
 msgid ""
 "<div style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
-"                Hello <t t-out=\"object.partner_id.name or ''\">Brandon Freeman</t>,<br/><br/>\n"
+"                Hello <t t-out=\"object.partner_id.name or ''\">Brandon "
+"Freeman</t>,<br/><br/>\n"
 "                <!-- Order in transit body -->\n"
 "                <t t-if=\"ctx.get('tracking_data')\">\n"
-"                    We are glad to inform you that your order is in transit.\n"
+"                    We are glad to inform you that your order is in "
+"transit.\n"
 "                    <t t-if=\"len(ctx['tracking_data']) == 1\">\n"
-"                        <t t-set=\"tracking_url\" t-value=\"list(ctx['tracking_data'].keys())[0]\"/>\n"
-"                        Your tracking number is <a t-att-href=\"tracking_url\" t-out=\"ctx['tracking_data'][tracking_url]\"/>.\n"
+"                        <t t-set=\"tracking_url\" t-"
+"value=\"list(ctx['tracking_data'].keys())[0]\"/>\n"
+"                        Your tracking number is <a t-att-"
+"href=\"tracking_url\" t-out=\"ctx['tracking_data'][tracking_url]\"/>.\n"
 "                        <br/><br/>\n"
 "                    </t>\n"
 "                    <t t-else=\"\">\n"
 "                        Your tracking numbers are:\n"
-"                        <ul>\n"
-"                            <li t-foreach=\"ctx['tracking_data']\" t-as=\"tracking_url\">\n"
-"                                <a t-att-href=\"tracking_url\" t-out=\"ctx['tracking_data'][tracking_url]\"/>\n"
-"                            </li>\n"
-"                        </ul>\n"
-"                    </t>\n"
-"                </t>\n"
-"                <!-- Order delivered body -->\n"
-"                <t t-if=\"ctx.get('order_delivered')\">\n"
-"                    We are glad to inform you that your order has been delivered.\n"
-"                    <br/><br/>\n"
-"                </t>\n"
-"                Thank you,\n"
-"                <t t-if=\"object.user_id.name\" data-o-mail-quote-container=\"1\">\n"
-"                    <br/>\n"
-"                    <div data-o-mail-quote=\"1\">--<br data-o-mail-quote=\"1\"/><t t-out=\"object.user_id.name or ''\" data-o-mail-quote=\"1\">Mitchell Admin</t></div>\n"
-"                </t>\n"
-"            </div>\n"
-"        "
-msgstr ""
-"<div style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
-"                ສະບາຍດີ <t t-out=\"object.partner_id.name or ''\">Brandon "
-"Freeman</t>,<br/><br/>\n"
-"                <!-- Order in transit body -->\n"
-"                <t t-if=\"ctx.get('tracking_data')\">\n"
-"                    ພວກເຮົາຂໍແຈ້ງໃຫ້ທ່ານຊາບວ່າ ຄຳສັ່ງຊື້ຂອງທ່ານກຳລັງຢູ່ໃນລະຫວ່າງການຂົນສົ່ງ.\n"
-"                    <t t-if=\"len(ctx['tracking_data']) == 1\">\n"
-"                        <t t-set=\"tracking_url\" t-value=\"list"
-"(ctx['tracking_data'].keys())[0]\"/>\n"
-"                        ໝາຍເລກຕິດຕາມຂອງທ່ານແມ່ນ <a t-att-href=\"tracking_url\" "
-"t-out=\"ctx['tracking_data'][tracking_url]\"/>.\n"
-"                        <br/><br/>\n"
-"                    </t>\n"
-"                    <t t-else=\"\">\n"
-"                        ໝາຍເລກຕິດຕາມຂອງທ່ານແມ່ນ:\n"
 "                        <ul>\n"
 "                            <li t-foreach=\"ctx['tracking_data']\" t-"
 "as=\"tracking_url\">\n"
@@ -80,68 +48,72 @@ msgstr ""
 "                </t>\n"
 "                <!-- Order delivered body -->\n"
 "                <t t-if=\"ctx.get('order_delivered')\">\n"
-"                    ພວກເຮົາຂໍແຈ້ງໃຫ້ທ່ານຊາບວ່າ ຄຳສັ່ງຊື້ຂອງທ່ານໄດ້ຖືກຈັດສົ່ງສຳເລັດແລ້ວ.\n"
+"                    We are glad to inform you that your order has been "
+"delivered.\n"
 "                    <br/><br/>\n"
 "                </t>\n"
-"                ຂອບໃຈ,\n"
-"                <t t-if=\"object.user_id.name\" data-o-mail-quote-"
-"container=\"1\">\n"
+"                Thank you,\n"
+"                <t t-if=\"object.user_id.name\">\n"
 "                    <br/>\n"
 "                    <div data-o-mail-quote=\"1\">--<br data-o-mail-"
-"quote=\"1\"/><t t-out=\"object.user_id.name or ''\" data-o-mail-quote=\"1\">"
-"Mitchell Admin</t></div>\n"
+"quote=\"1\"/><t t-out=\"object.user_id.name or ''\">Mitchell Admin</t></"
+"div>\n"
 "                </t>\n"
 "            </div>\n"
 "        "
+msgstr ""
 
 #. module: sale_gelato
 #: model_terms:ir.ui.view,arch_db:sale_gelato.product_template_form
 msgid ""
-"<i title=\"All print images are set\" invisible=\"gelato_missing_images\" class=\"fa fa-check-circle text-success fs-3 me-3\"/>\n"
-"                        <i title=\"Some print images are missing\" invisible=\"not gelato_missing_images\" class=\"fa fa-question-circle text-danger fs-3 me-3\"/>"
+"<i title=\"All print images are set\" invisible=\"gelato_missing_images\" "
+"class=\"oi oi-filled text-success fs-3 me-3\" data-icon=\"check_circle\"/>\n"
+"                        <i title=\"Some print images are missing\" "
+"invisible=\"not gelato_missing_images\" class=\"oi text-danger fs-3 me-3\" "
+"data-icon=\"help\"/>"
 msgstr ""
-"<i title=\"ຕັ້ງຄ່າຮູບພາບການພິມທັງໝົດແລ້ວ\" invisible=\"gelato_missing_images\" "
-"class=\"fa fa-check-circle text-success fs-3 me-3\"/>\n"
-"                        <i title=\"ບາງຮູບພາບການພິມຫາຍໄປ\" invisible=\"not "
-"gelato_missing_images\" class=\"fa fa-question-circle text-danger fs-3 me-"
-"3\"/>"
 
 #. module: sale_gelato
 #: model_terms:ir.ui.view,arch_db:sale_gelato.res_config_settings_form
 msgid "API Key"
-msgstr "ລະຫັດ API"
+msgstr ""
 
 #. module: sale_gelato
 #: model:ir.model,name:sale_gelato.model_res_company
-msgid "Companies"
-msgstr "ບໍລິສັດ"
+msgid "Company"
+msgstr ""
 
 #. module: sale_gelato
 #: model:ir.model,name:sale_gelato.model_res_config_settings
 msgid "Config Settings"
-msgstr "ການຕັ້ງຄ່າລະບົບ"
+msgstr ""
 
 #. module: sale_gelato
 #: model:ir.model,name:sale_gelato.model_res_partner
 msgid "Contact"
-msgstr "ຜູ້ຕິດຕໍ່"
+msgstr ""
 
 #. module: sale_gelato
 #. odoo-python
 #: code:addons/sale_gelato/utils.py:0
 msgid "Could not establish the connection to the Gelato API."
-msgstr "ບໍ່ສາມາດເຊື່ອມຕໍ່ກັບ Gelato API ໄດ້."
+msgstr ""
 
 #. module: sale_gelato
 #. odoo-python
 #: code:addons/sale_gelato/models/product_template.py:0
 msgid "Could not synchronize with Gelato"
-msgstr "ບໍ່ສາມາດຊິງໂຄຣໄນກັບ Gelato ໄດ້"
+msgstr ""
 
 #. module: sale_gelato
 #: model:ir.model,website_form_label:sale_gelato.model_res_partner
 msgid "Create a Customer"
-msgstr "ສ້າງລູກຄ້າ"
+msgstr ""
+
+#. module: sale_gelato
+#: model:ir.model,name:sale_gelato.model_delivery_carrier
+msgid "Delivery Method"
+msgstr ""
 
 #. module: sale_gelato
 #: model:ir.model.fields,field_description:sale_gelato.field_delivery_carrier__display_name
@@ -154,91 +126,100 @@ msgstr "ສ້າງລູກຄ້າ"
 #: model:ir.model.fields,field_description:sale_gelato.field_sale_order__display_name
 #: model:ir.model.fields,field_description:sale_gelato.field_sale_order_line__display_name
 msgid "Display Name"
-msgstr "ຊື່ສະແດງ"
+msgstr ""
 
 #. module: sale_gelato
 #: model:delivery.carrier,name:sale_gelato.express_delivery
 #: model:ir.model.fields.selection,name:sale_gelato.selection__delivery_carrier__gelato_shipping_service_type__express
 msgid "Express Delivery"
-msgstr "ການຈັດສົ່ງແບບດ່ວນ"
+msgstr ""
 
 #. module: sale_gelato
 #: model:product.template,name:sale_gelato.express_delivery_product_product_template
 msgid "Express Delivery (Gelato)"
-msgstr "ການຈັດສົ່ງແບບດ່ວນ (Gelato)"
+msgstr ""
 
 #. module: sale_gelato
 #: model:ir.model.fields.selection,name:sale_gelato.selection__delivery_carrier__delivery_type__gelato
-#: model_terms:ir.ui.view,arch_db:sale_gelato.product_product_easy_form
+#: model:ir.module.module,shortdesc:base.module_sale_gelato
 #: model_terms:ir.ui.view,arch_db:sale_gelato.product_product_normal_form
 #: model_terms:ir.ui.view,arch_db:sale_gelato.product_template_form
 msgid "Gelato"
-msgstr "Gelato"
+msgstr ""
 
 #. module: sale_gelato
 #: model:ir.model.fields,field_description:sale_gelato.field_res_company__gelato_api_key
 #: model:ir.model.fields,field_description:sale_gelato.field_res_config_settings__gelato_api_key
 msgid "Gelato API Key"
-msgstr "ລະຫັດ API Gelato"
+msgstr ""
 
 #. module: sale_gelato
 #: model:ir.model.fields,field_description:sale_gelato.field_product_product__gelato_image_ids
 #: model:ir.model.fields,field_description:sale_gelato.field_product_template__gelato_image_ids
 msgid "Gelato Print Images"
-msgstr "ຮູບພາບການພິມ Gelato"
+msgstr ""
 
 #. module: sale_gelato
 #: model:ir.model.fields,field_description:sale_gelato.field_product_template__gelato_product_uid
 msgid "Gelato Product UID"
-msgstr "UID ຜະລິດຕະພັນ Gelato"
+msgstr ""
 
 #. module: sale_gelato
 #: model:ir.model.fields,field_description:sale_gelato.field_product_product__gelato_product_uid
 msgid "Gelato Product Uid"
-msgstr "UID ຜະລິດຕະພັນ Gelato"
+msgstr ""
 
 #. module: sale_gelato
 #: model:ir.model.fields,field_description:sale_gelato.field_delivery_carrier__gelato_shipping_service_type
 msgid "Gelato Shipping Service Type"
-msgstr "ປະເພດບໍລິການຈັດສົ່ງ Gelato"
+msgstr ""
 
 #. module: sale_gelato
 #: model:ir.model.fields,field_description:sale_gelato.field_product_product__gelato_template_ref
 #: model:ir.model.fields,field_description:sale_gelato.field_product_template__gelato_template_ref
 msgid "Gelato Template Reference"
-msgstr "ການອ້າງອີງແມ່ແບບ Gelato"
+msgstr ""
+
+#. module: sale_gelato
+#: model:ir.model.fields,field_description:sale_gelato.field_product_product__gelato_variant_image_ids
+msgid "Gelato Variant Print Images"
+msgstr ""
 
 #. module: sale_gelato
 #: model:ir.model.fields,field_description:sale_gelato.field_res_company__gelato_webhook_secret
 #: model:ir.model.fields,field_description:sale_gelato.field_res_config_settings__gelato_webhook_secret
 msgid "Gelato Webhook Secret"
-msgstr "ລະຫັດລັບ Webhook Gelato"
-
-#. module: sale_gelato
-#. odoo-python
-#: code:addons/sale_gelato/controlers/main.py:0
-msgid ""
-"Gelato could not proceed with the fulfillment of order %(order_reference)s: "
-"%(gelato_message)s"
 msgstr ""
-"Gelato ບໍ່ສາມາດດຳເນີນການຕາມຄຳສັ່ງຊື້ %(order_reference)s: %(gelato_message)s"
 
 #. module: sale_gelato
 #. odoo-python
-#: code:addons/sale_gelato/controlers/main.py:0
+#: code:addons/sale_gelato/controllers/main.py:0
+msgid ""
+"Gelato could not proceed with the fulfillment of order %(order_reference)s: %"
+"(gelato_message)s"
+msgstr ""
+
+#. module: sale_gelato
+#. odoo-python
+#: code:addons/sale_gelato/controllers/main.py:0
 msgid "Gelato has canceled order %(reference)s."
-msgstr "Gelato ໄດ້ຍົກເລີກຄຳສັ່ງຊື້ %(reference)s."
+msgstr ""
 
 #. module: sale_gelato
 #. odoo-python
-#: code:addons/sale_gelato/controlers/main.py:0
+#: code:addons/sale_gelato/controllers/main.py:0
 msgid "Gelato has returned order %(reference)s."
-msgstr "Gelato ໄດ້ສົ່ງຄືນຄຳສັ່ງຊື້ %(reference)s."
+msgstr ""
 
 #. module: sale_gelato
 #: model:mail.template,name:sale_gelato.order_status_update
 msgid "Gelato: Order status update"
-msgstr "Gelato: ອັບເດດສະຖານະຄຳສັ່ງຊື້"
+msgstr ""
+
+#. module: sale_gelato
+#: model_terms:ir.ui.view,arch_db:sale_gelato.product_product_normal_form
+msgid "Generate Print Images"
+msgstr ""
 
 #. module: sale_gelato
 #: model:ir.model.fields,field_description:sale_gelato.field_delivery_carrier__id
@@ -251,144 +232,169 @@ msgstr "Gelato: ອັບເດດສະຖານະຄຳສັ່ງຊື້"
 #: model:ir.model.fields,field_description:sale_gelato.field_sale_order__id
 #: model:ir.model.fields,field_description:sale_gelato.field_sale_order_line__id
 msgid "ID"
-msgstr "ລະຫັດ"
+msgstr ""
 
 #. module: sale_gelato
 #. odoo-python
 #: code:addons/sale_gelato/models/delivery_carrier.py:0
 msgid "Invalid source document type"
-msgstr "ປະເພດເອກະສານຕົ້ນທາງບໍ່ຖືກຕ້ອງ"
+msgstr ""
 
 #. module: sale_gelato
 #: model:ir.model.fields,field_description:sale_gelato.field_product_document__is_gelato
 msgid "Is Gelato"
-msgstr "ແມ່ນ Gelato"
+msgstr ""
 
 #. module: sale_gelato
 #: model_terms:ir.ui.view,arch_db:sale_gelato.res_config_settings_form
 msgid "Manage Delivery Methods"
-msgstr "ຈັດການວິທີການຈັດສົ່ງ"
+msgstr ""
 
 #. module: sale_gelato
 #: model:ir.model.fields,field_description:sale_gelato.field_product_product__gelato_missing_images
 #: model:ir.model.fields,field_description:sale_gelato.field_product_template__gelato_missing_images
 msgid "Missing Print Images"
-msgstr "ຮູບພາບການພິມຫາຍໄປ"
+msgstr ""
+
+#. module: sale_gelato
+#. odoo-python
+#: code:addons/sale_gelato/models/product_product.py:0
+msgid "Missing images have been successfully created."
+msgstr ""
 
 #. module: sale_gelato
 #. odoo-python
 #: code:addons/sale_gelato/models/product_template.py:0
 msgid "Missing product variants and images have been successfully created."
-msgstr "ສ້າງຮູບແບບຜະລິດຕະພັນ ແລະ ຮູບພາບທີ່ຫາຍໄປສຳເລັດແລ້ວ."
+msgstr ""
 
 #. module: sale_gelato
+#: model:ir.module.module,summary:base.module_sale_gelato
+msgid "Place orders through Gelato's print-on-demand service"
+msgstr ""
+
+#. module: sale_gelato
+#: model_terms:ir.ui.view,arch_db:sale_gelato.product_product_normal_form
 #: model_terms:ir.ui.view,arch_db:sale_gelato.product_template_form
 msgid "Print Images"
-msgstr "ຮູບພາບການພິມ"
+msgstr ""
 
 #. module: sale_gelato
 #. odoo-python
 #: code:addons/sale_gelato/models/product_document.py:0
 msgid "Print images must be set on products before they can be ordered."
-msgstr "ຕ້ອງຕັ້ງຄ່າຮູບພາບການພິມໃນຜະລິດຕະພັນກ່ອນທີ່ຈະສາມາດສັ່ງຊື້ໄດ້."
+msgstr ""
 
 #. module: sale_gelato
 #: model:ir.model,name:sale_gelato.model_product_template
 msgid "Product"
-msgstr "ຜະລິດຕະພັນ"
+msgstr ""
 
 #. module: sale_gelato
 #: model:ir.model,name:sale_gelato.model_product_document
 msgid "Product Document"
-msgstr "ເອກະສານຜະລິດຕະພັນ"
+msgstr ""
 
 #. module: sale_gelato
-#: model_terms:ir.ui.view,arch_db:sale_gelato.product_product_easy_form
 #: model_terms:ir.ui.view,arch_db:sale_gelato.product_product_normal_form
 #: model_terms:ir.ui.view,arch_db:sale_gelato.product_template_form
 msgid "Product UID"
-msgstr "UID ຜະລິດຕະພັນ"
+msgstr ""
 
 #. module: sale_gelato
 #: model:ir.model,name:sale_gelato.model_product_product
 msgid "Product Variant"
-msgstr "ຮູບແບບຜະລິດຕະພັນ"
+msgstr ""
 
 #. module: sale_gelato
 #: model:ir.model.fields,field_description:sale_gelato.field_delivery_carrier__delivery_type
 msgid "Provider"
-msgstr "ຜູ້ໃຫ້ບໍລິການ"
+msgstr ""
 
 #. module: sale_gelato
 #: model:ir.model,name:sale_gelato.model_sale_order
 msgid "Sales Order"
-msgstr "ຄຳສັ່ງຂາຍ"
+msgstr ""
 
 #. module: sale_gelato
 #: model:ir.model,name:sale_gelato.model_sale_order_line
 msgid "Sales Order Line"
-msgstr "ລາຍການຄຳສັ່ງຂາຍ"
+msgstr ""
 
 #. module: sale_gelato
 #: model:mail.template,description:sale_gelato.order_status_update
 msgid "Sent to the customer when Gelato updates the status of an order"
-msgstr "ສົ່ງໃຫ້ລູກຄ້າເມື່ອ Gelato ອັບເດດສະຖານະຂອງຄຳສັ່ງຊື້"
-
-#. module: sale_gelato
-#: model:ir.model,name:sale_gelato.model_delivery_carrier
-msgid "Shipping Methods"
-msgstr "ວິທີການຈັດສົ່ງ"
+msgstr ""
 
 #. module: sale_gelato
 #: model:delivery.carrier,name:sale_gelato.standard_delivery
 #: model:ir.model.fields.selection,name:sale_gelato.selection__delivery_carrier__gelato_shipping_service_type__normal
 msgid "Standard Delivery"
-msgstr "ການຈັດສົ່ງແບບມາດຕະຖານ"
+msgstr ""
 
 #. module: sale_gelato
 #: model:product.template,name:sale_gelato.standard_delivery_product_product_template
 msgid "Standard Delivery (Gelato)"
-msgstr "ການຈັດສົ່ງແບບມາດຕະຖານ (Gelato)"
+msgstr ""
 
 #. module: sale_gelato
 #. odoo-python
 #: code:addons/sale_gelato/models/product_template.py:0
 msgid "Successfully synchronized with Gelato"
-msgstr "ຊິງໂຄຣໄນກັບ Gelato ສຳເລັດແລ້ວ"
+msgstr ""
 
 #. module: sale_gelato
+#. odoo-python
+#: code:addons/sale_gelato/models/product_product.py:0
+msgid "Successfully updated print images."
+msgstr ""
+
+#. module: sale_gelato
+#: model_terms:ir.ui.view,arch_db:sale_gelato.product_product_normal_form
 #: model_terms:ir.ui.view,arch_db:sale_gelato.product_template_form
 msgid "Synchronize"
-msgstr "ຊິງໂຄຣໄນ"
+msgstr ""
 
 #. module: sale_gelato
 #: model:ir.model.fields,help:sale_gelato.field_product_product__gelato_template_ref
 #: model:ir.model.fields,help:sale_gelato.field_product_template__gelato_template_ref
 msgid "Synchronize to fetch variants from Gelato"
-msgstr "ຊິງໂຄຣໄນເພື່ອດຶງຂໍ້ມູນຮູບແບບຜະລິດຕະພັນຈາກ Gelato"
+msgstr ""
 
 #. module: sale_gelato
 #: model_terms:ir.ui.view,arch_db:sale_gelato.product_template_form
 msgid "Template Reference"
-msgstr "ການອ້າງອີງແມ່ແບບ"
+msgstr ""
+
+#. module: sale_gelato
+#. odoo-python
+#: code:addons/sale_gelato/models/sale_order.py:0
+msgid "The address is incorrect."
+msgstr ""
 
 #. module: sale_gelato
 #. odoo-python
 #: code:addons/sale_gelato/models/delivery_carrier.py:0
 msgid "The delivery method is not available for this order."
-msgstr "ວິທີການຈັດສົ່ງນີ້ບໍ່ພ້ອມໃຊ້ງານສຳລັບຄຳສັ່ງຊື້ສິນຄ້ານີ້."
+msgstr ""
 
 #. module: sale_gelato
 #. odoo-python
-#: code:addons/sale_gelato/models/sale_order.py:0
+#: code:addons/sale_gelato/models/res_partner.py:0
+msgid "The following address fields are too long: %s"
+msgstr ""
+
+#. module: sale_gelato
+#. odoo-python
+#: code:addons/sale_gelato/models/res_partner.py:0
 msgid "The following required address fields are missing: %s"
-msgstr "ຂໍ້ມູນທີ່ຢູ່ທີ່ຈຳເປັນຕໍ່ໄປນີ້ຫາຍໄປ: %s"
+msgstr ""
 
 #. module: sale_gelato
 #. odoo-python
 #: code:addons/sale_gelato/models/sale_order.py:0
 msgid "The order has been successfully passed on Gelato."
-msgstr "ຄຳສັ່ງຊື້ໄດ້ຖືກສົ່ງໃຫ້ Gelato ສຳເລັດແລ້ວ."
+msgstr ""
 
 #. module: sale_gelato
 #. odoo-python
@@ -397,25 +403,34 @@ msgid ""
 "The order with reference %(order_reference)s was not sent to Gelato.\n"
 "Reason: %(error_message)s"
 msgstr ""
-"ຄຳສັ່ງຊື້ທີ່ມີການອ້າງອີງ %(order_reference)s ບໍ່ໄດ້ຖືກສົ່ງໃຫ້ Gelato.\n"
-"ສາເຫດ: %(error_message)s"
+
+#. module: sale_gelato
+#: model:ir.model.fields,help:sale_gelato.field_product_product__gelato_image_ids
+#: model:ir.model.fields,help:sale_gelato.field_product_product__gelato_variant_image_ids
+#: model:ir.model.fields,help:sale_gelato.field_product_template__gelato_image_ids
+msgid ""
+"To ensure a good printing result, upload a PNG of the entire printing area "
+"with your graphics correctly placed on it."
+msgstr ""
 
 #. module: sale_gelato
 #. odoo-python
 #: code:addons/sale_gelato/models/sale_order.py:0
-msgid "Unable to confirm the order %s on Gelato."
-msgstr "ບໍ່ສາມາດຢືນຢັນຄຳສັ່ງຊື້ %s ໃນ Gelato ໄດ້."
+msgid ""
+"Unable to confirm the order %(order_reference)s on Gelato.%(error_message)s"
+msgstr ""
 
 #. module: sale_gelato
 #. odoo-python
 #: code:addons/sale_gelato/models/sale_order.py:0
-msgid "Unable to delete the order %s on Gelato."
-msgstr "ບໍ່ສາມາດລຶບຄຳສັ່ງຊື້ %s ໃນ Gelato ໄດ້."
+msgid ""
+"Unable to delete the order %(order_reference)s on Gelato.%(error_message)s"
+msgstr ""
 
 #. module: sale_gelato
 #: model_terms:ir.ui.view,arch_db:sale_gelato.res_config_settings_form
 msgid "Webhook Secret"
-msgstr "ລະຫັດລັບ Webhook"
+msgstr ""
 
 #. module: sale_gelato
 #. odoo-python
@@ -423,9 +438,14 @@ msgstr "ລະຫັດລັບ Webhook"
 msgid ""
 "You cannot mix Gelato products with non-Gelato products in the same order."
 msgstr ""
-"ທ່ານບໍ່ສາມາດປະສົມຜະລິດຕະພັນ Gelato ກັບຜະລິດຕະພັນອື່ນໃນຄຳສັ່ງຊື້ດຽວກັນໄດ້."
+
+#. module: sale_gelato
+#. odoo-python
+#: code:addons/sale_gelato/models/sale_order_line.py:0
+msgid "You cannot order unconfigured Gelato products."
+msgstr ""
 
 #. module: sale_gelato
 #: model:mail.template,subject:sale_gelato.order_status_update
 msgid "{{ object.reference }}"
-msgstr "{{ object.reference }}"
+msgstr ""

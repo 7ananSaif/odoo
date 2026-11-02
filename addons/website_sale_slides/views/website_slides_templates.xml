@@ -16,11 +16,8 @@
 <template name="Buy Course To Download Resource" id="slide_aside_training_category_buy_course" inherit_id="website_slides.slide_aside_training_category">
     <xpath expr="//div[hasclass('o_wslides_js_course_join') and hasclass('o_wslides_no_access')]" position="inside">
         <li t-elif="aside_slide.channel_id.enroll == 'payment'" class="text-decoration-none small">
-            <i class="fa fa-download me-1"/>
-            <t t-call="website_sale_slides.course_buy_course_link">
-                <t t-set="for_resources" t-value="1"/>
-                <t t-set="slide" t-value="aside_slide"/>
-            </t>
+            <i class="oi me-1" data-icon="download"/>
+            <t t-call="website_sale_slides.course_buy_course_link" for_resources="1" slide="aside_slide"/>
         </li>
     </xpath>
 </template>
@@ -28,9 +25,7 @@
 <template name="Buy Course To Access Resources or Interact Slide Detail" id="slide_content_detailed_buy_course" inherit_id="website_slides.slide_content_detailed">
     <xpath expr="//div[hasclass('o_wslides_js_course_join') and hasclass('o_wslides_no_access')] //div[@t-else='']" position="before">
         <span t-elif="slide.channel_id.enroll == 'payment'" class="text-muted me-auto border-start ps-3">
-            <t t-call="website_sale_slides.course_buy_course_link">
-                <t t-set="for_resources" t-value="1"/>
-            </t>
+            <t t-call="website_sale_slides.course_buy_course_link" for_resources="1"/>
         </span>
     </xpath>
     <xpath expr="//div[hasclass('o_wslides_js_course_join') and hasclass('o_wslides_no_access_comments')]" position="inside">
@@ -69,10 +64,8 @@
 <template name="Buy Course To Download Resource Fullscreen" id="slide_fullscreen_sidebar_category_buy_course" inherit_id="website_slides.slide_fullscreen_sidebar_category">
     <xpath expr="//div[hasclass('o_wslides_js_course_join') and hasclass('o_wslides_no_access')]" position="inside">
         <li t-elif="slide.channel_id.enroll == 'payment'" class="o_wslides_fs_slide_link mb-1">
-            <i class="fa fa-download me-1"/>
-            <t t-call="website_sale_slides.course_buy_course_link">
-                <t t-set="for_resources" t-value="1"/>
-            </t>
+            <i class="oi me-1" data-icon="download"/>
+            <t t-call="website_sale_slides.course_buy_course_link" for_resources="1"/>
         </li>
     </xpath>
 </template>
@@ -101,27 +94,20 @@
 
 <!-- TOOLS -->
 <template name="Buy Course Link" id="course_buy_course_link">
-    <form class="oe_website_sale">
-        <input
-            type="hidden"
-            name="product_template_id"
-            t-att-value="slide.channel_id.product_id.product_tmpl_id.id"
-        />
-        <input
-            type="hidden"
-            class="product_id"
-            name="product_id"
-            t-att-value="slide.channel_id.product_id.id"
-        />
-        <a
-            id="add_to_cart"
-            role="button"
-            class="btn btn-primary d-block"
+    <div class="oe_website_sale">
+        <t t-set="product" t-value="slide.channel_id.product_id"/>
+        <button
+            name="add_to_cart"
+            class="btn btn-primary w-100"
+            t-att-data-product-id="product.id"
+            t-att-data-product-template-id="product.product_tmpl_id.id"
+            t-att-data-product-type="product.product_tmpl_id.type"
+            t-att-data-show-quantity="False"
         >
             Join this Course
-        </a>
+        </button>
         <t t-if="for_resources"> to access resources</t>
-    </form>
+    </div>
 </template>
 
 <template name="Buy Course Button" id="course_buy_course_button">
@@ -132,8 +118,8 @@
                 <div t-attf-class="oe_price fw-bold text-nowrap my-2 #{'h4' if len(str(product_info['price'])) > 10 else 'h2'}"
                      t-out="product_info['price']"
                      t-options="{'widget': 'monetary', 'display_currency': product_info['currency']}"/>
-                <span itemprop="price" style="display:none;" t-out="product_info['price']"/>
-                <span itemprop="priceCurrency" style="display:none;" t-out="product_info['currency'].name"/>
+                <span style="display:none;" t-out="product_info['price']"/>
+                <span style="display:none;" t-out="product_info['currency'].name"/>
                 <!-- original discounted price, if any -->
                 <del t-att-class="'text-600 text-nowrap oe_default_price %s' % ('' if product_info['has_discounted_price'] else 'd-none')"
                      t-out="product_info['list_price']"
@@ -170,28 +156,17 @@
             </a>
         </t>
         <div t-else="" class="oe_website_sale">
-            <form>
-                <input
-                    type="hidden"
-                    name="product_template_id"
-                    t-att-value="channel.product_id.product_tmpl_id.id"
-                />
-                <input
-                    type="hidden"
-                    class="product_id"
-                    name="product_id"
-                    t-att-value="channel.product_id.id"
-                />
-                <a
-                    id="add_to_cart"
-                    role="button"
-                    class="btn btn-primary d-block"
-                >
-                    <i class="fa fa-shopping-cart"></i> Add to Cart
-                </a>
-                <!-- Hook for wishlist -->
-                <div id="product_option_block"/>
-            </form>
+            <t t-set="product" t-value="channel.product_id"/>
+            <button
+                name="add_to_cart"
+                class="btn btn-primary w-100"
+                t-att-data-product-id="product.id"
+                t-att-data-product-template-id="product.product_tmpl_id.id"
+                t-att-data-product-type="product.product_tmpl_id.type"
+                t-att-data-show-quantity="False"
+            >
+                <i class="oi" data-icon="shopping_cart"></i> Add to Cart
+            </button>
         </div>
     </t>
     <t t-elif="not channel.is_member">
@@ -202,17 +177,22 @@
 </template>
 
 <template name="Display 'Buy Now'" id="course_option_buy_course_now" inherit_id="website_sale_slides.course_buy_course_button" active="False">
-    <xpath expr="//form//a[@id='add_to_cart']" position="before">
-        <a
-            role="button"
-            class="btn btn-primary d-block o_we_buy_now mb-1"
+    <button name="add_to_cart" position="before">
+        <button
+            name="add_to_cart"
+            class="btn btn-primary w-100 mb-1"
+            data-action="buy_now"
+            t-att-data-product-id="product.id"
+            t-att-data-product-template-id="product.product_tmpl_id.id"
+            t-att-data-product-type="product.product_tmpl_id.type"
+            t-att-data-show-quantity="False"
         >
-            <i class="fa fa-bolt"></i> Buy Now
-        </a>
-    </xpath>
-    <xpath expr="//form//a[@id='add_to_cart']" position="attributes">
+            <i class="oi" data-icon="flash_on"></i> Buy Now
+        </button>
+    </button>
+    <button name="add_to_cart" position="attributes">
         <attribute name="class" remove="btn-primary" add="btn-outline-primary" separator=" "/>
-    </xpath>
+    </button>
 </template>
 
 </data></odoo>

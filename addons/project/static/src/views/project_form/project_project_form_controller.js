@@ -1,25 +1,18 @@
-import { onWillStart, useEffect } from "@odoo/owl";
+import { onWillStart, t, onMounted, useProps } from "@odoo/owl";
+import { FormControllerWithHTMLExpander } from '@resource/views/form_with_html_expander/form_controller_with_html_expander';
 import { user } from "@web/core/user";
-import { FormControllerWithHTMLExpander } from '@resource/views/form_with_html_expander/form_controller_with_html_expander'
+import { formControllerProps } from "@web/views/form/form_controller";
 import { ProjectTemplateDropdown } from "../components/project_template_dropdown";
 
 export class ProjectProjectFormController extends FormControllerWithHTMLExpander {
-    static template = "project.ProjectFormView";
     static components = {
         ...FormControllerWithHTMLExpander.components,
         ProjectTemplateDropdown,
     };
-    static props = {
-        ...FormControllerWithHTMLExpander.props,
-        focusTitle: {
-            type: Boolean,
-            optional: true,
-        },
-    };
-    static defaultProps = {
-        ...FormControllerWithHTMLExpander.defaultProps,
-        focusTitle: false,
-    };
+    props = useProps({
+        ...formControllerProps,
+        focusTitle: t.boolean().optional(false),
+    });
 
     setup() {
         super.setup();
@@ -33,17 +26,7 @@ export class ProjectProjectFormController extends FormControllerWithHTMLExpander
         });
 
         if (this.props.focusTitle) {
-            useEffect(
-                (el) => {
-                    if (el) {
-                        const title = this.rootRef.el.querySelector("#name_0");
-                        if (title) {
-                            title.focus();
-                        }
-                    }
-                },
-                () => [this.rootRef.el]
-            );
+            onMounted(() => this.rootRef().querySelector("#name_0")?.focus());
         }
     }
 

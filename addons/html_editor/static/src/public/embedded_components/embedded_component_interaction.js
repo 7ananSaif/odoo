@@ -1,5 +1,6 @@
+import { useSubEnv } from "@web/owl2/utils";
 import { TableOfContentManager } from "@html_editor/others/embedded_components/core/table_of_content/table_of_content_manager";
-import { Component, onMounted, onWillDestroy, useSubEnv, xml } from "@odoo/owl";
+import { Component, onMounted, onWillDestroy, xml } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { memoize } from "@web/core/utils/functions";
 import { Interaction } from "@web/public/interaction";
@@ -7,14 +8,13 @@ import { PUBLIC_EMBEDDINGS } from "@html_editor/public/embedding_sets";
 
 class EmbeddedDummy extends Component {
     static template = xml``;
-    static props = ["*"];
 }
 
 export const getEmbeddingMap = memoize(
     (embeddings) => new Map(embeddings.map((embedding) => [embedding.name, embedding]))
 );
 
-const getTocManager = memoize((element) => new TableOfContentManager({ el: element }));
+const getTocManager = memoize((element) => new TableOfContentManager(() => element));
 
 /**
  * Mount EmbeddedComponent in the Knowledge public view.
@@ -91,3 +91,7 @@ export class EmbeddedComponentInteraction extends Interaction {
 registry
     .category("public.interactions")
     .add("html_editor.embedded_component", EmbeddedComponentInteraction);
+
+registry.category("public.interactions.edit").add("html_editor.embedded_component", {
+    Interaction: EmbeddedComponentInteraction,
+});

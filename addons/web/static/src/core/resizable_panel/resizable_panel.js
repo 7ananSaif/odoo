@@ -1,12 +1,12 @@
 import {
     Component,
     onMounted,
-    onWillUpdateProps,
     onWillUnmount,
-    useEffect,
-    useExternalListener,
-    useRef,
-    useComponent,
+    signal,
+    t,
+    useListener,
+    useOnChange,
+    useProps,
 } from "@odoo/owl";
 
 function useResizable({
@@ -17,18 +17,17 @@ function useResizable({
     onResize = () => {},
     getResizeSide = () => "end",
 }) {
-    containerRef = typeof containerRef == "string" ? useRef(containerRef) : containerRef;
-    handleRef = typeof handleRef == "string" ? useRef(handleRef) : handleRef;
-    const props = useComponent().props;
+    const resizeableProps = useProps(resizablePanelProps);
 
-    let minWidth = getMinWidth(props);
-    let resizeSide = getResizeSide(props);
     let isChangingSize = false;
 
-    useExternalListener(document, "mouseup", () => onMouseUp());
-    useExternalListener(document, "mousemove", (ev) => onMouseMove(ev));
+    useListener(document, "mouseup", () => onMouseUp());
+    useListener(document, "mousemove", (ev) => onMouseMove(ev));
 
-    useExternalListener(window, "resize", () => {
+    useListener(window, "resize", () => {
+        if (!containerRef()) {
+            return;
+        }
         const limit = getLimitWidth();
         if (getContainerRect().width >= limit) {
             resize(computeFinalWidth(limit));
@@ -36,31 +35,25 @@ function useResizable({
     });
 
     let docDirection;
-    useEffect(
+    useOnChange(
+        () => [containerRef()],
         (container) => {
             if (container) {
                 docDirection = getComputedStyle(container).direction;
             }
-        },
-        () => [containerRef.el]
+        }
     );
 
     onMounted(() => {
-        if (handleRef.el) {
-            resize(initialWidth);
-            handleRef.el.addEventListener("mousedown", onMouseDown);
+        const handleEl = handleRef();
+        if (handleEl) {
+            resize(Math.max(initialWidth, getMinWidth(resizeableProps) || 0));
+            handleEl.addEventListener("mousedown", onMouseDown);
         }
-    });
-
-    onWillUpdateProps((nextProps) => {
-        minWidth = getMinWidth(nextProps);
-        resizeSide = getResizeSide(nextProps);
     });
 
     onWillUnmount(() => {
-        if (handleRef.el) {
-            handleRef.el.removeEventListener("mousedown", onMouseDown);
-        }
+        handleRef()?.removeEventListener("mousedown", onMouseDown);
     });
 
     function onMouseDown() {
@@ -74,9 +67,10 @@ function useResizable({
     }
 
     function onMouseMove(ev) {
-        if (!isChangingSize || !containerRef.el) {
+        if (!isChangingSize || !containerRef()) {
             return;
         }
+        const resizeSide = getResizeSide(resizeableProps);
         const direction =
             (docDirection === "ltr" && resizeSide === "end") ||
             (docDirection === "rtl" && resizeSide === "start")
@@ -89,14 +83,15 @@ function useResizable({
     }
 
     function computeFinalWidth(targetContainerWidth) {
-        const handlerSpacing = handleRef.el ? handleRef.el.offsetWidth / 2 : 10;
-        const w = Math.max(minWidth, targetContainerWidth + handlerSpacing);
+        const handleEl = handleRef();
+        const handlerSpacing = handleEl ? handleEl.offsetWidth / 2 : 10;
+        const w = Math.max(getMinWidth(resizeableProps), targetContainerWidth + handlerSpacing);
         const limit = getLimitWidth();
         return Math.min(w, limit - handlerSpacing);
     }
 
     function getContainerRect() {
-        const container = containerRef.el;
+        const container = containerRef();
         const offsetParent = container.offsetParent;
         let containerRect = {};
         if (!offsetParent) {
@@ -110,45 +105,39 @@ function useResizable({
     }
 
     function getLimitWidth() {
-        const offsetParent = containerRef.el.offsetParent;
+        const offsetParent = containerRef().offsetParent;
         return offsetParent ? offsetParent.offsetWidth : window.innerWidth;
     }
 
     function resize(width) {
-        containerRef.el.style.setProperty("width", `${width}px`);
+        containerRef().style.setProperty("width", `${width}px`);
         onResize(width);
     }
 }
+
+export const resizablePanelProps = {
+    onResize: t.function().optional(() => () => {}),
+    initialWidth: t.number().optional(),
+    minWidth: t.number().optional(400),
+    class: t.string().optional(""),
+    handleSide: t.selection(["start", "end"]).optional("end"),
+};
 
 export class ResizablePanel extends Component {
     static template = "web_studio.ResizablePanel";
 
     static components = {};
-    static props = {
-        onResize: { type: Function, optional: true },
-        initialWidth: { type: Number, optional: true },
-        minWidth: { type: Number, optional: true },
-        class: { type: String, optional: true },
-        slots: { type: Object },
-        handleSide: {
-            validate: (val) => ["start", "end"].includes(val),
-            optional: true,
-        },
-    };
-    static defaultProps = {
-        onResize: () => {},
-        width: 400,
-        minWidth: 400,
-        class: "",
-        handleSide: "end",
-    };
+    props = useProps(resizablePanelProps);
+
+    containerRef = signal.ref();
+    handleRef = signal.ref();
 
     setup() {
         useResizable({
-            containerRef: "containerRef",
-            handleRef: "handleRef",
+            containerRef: this.containerRef,
+            handleRef: this.handleRef,
             onResize: this.props.onResize,
-            initialWidth: this.props.initialWidth,
+            initialWidth: Math.max(this.props.minWidth, this.props.initialWidth || 400),
             getMinWidth: (props) => props.minWidth,
             getResizeSide: (props) => props.handleSide,
         });

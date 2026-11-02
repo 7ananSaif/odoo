@@ -8,7 +8,6 @@ import {
 } from "@website/../tests/builder/website_helpers";
 import { setSelection, thirdClick } from "@html_editor/../tests/_helpers/selection";
 import { advanceTime } from "@odoo/hoot-mock";
-import { onRpcImg } from "../image_test_helpers";
 
 defineWebsiteModels();
 
@@ -66,8 +65,8 @@ describe("onAppearance", () => {
         );
         expect(".options-container [data-label='Intensity']").not.toHaveCount();
         expect(".options-container [data-label='Scroll Zone']").not.toHaveCount();
-        expect(".options-container [data-label='Start After'] input").toHaveValue("0");
-        expect(".options-container [data-label='Duration'] input").toHaveValue("1");
+        expect(".options-container [data-label='Start After'] input").toHaveValue(0);
+        expect(".options-container [data-label='Duration'] input").toHaveValue(1);
     });
     test("visibility of animation animation=onAppearance effect=slide", async () => {
         const { waitSidebarUpdated } = await setupWebsiteBuilder(
@@ -95,8 +94,8 @@ describe("onAppearance", () => {
         );
         expect(".options-container [data-label='Intensity'] input").toHaveValue(50);
         expect(".options-container [data-label='Scroll Zone']").not.toHaveCount();
-        expect(".options-container [data-label='Start After'] input").toHaveValue("0");
-        expect(".options-container [data-label='Duration'] input").toHaveValue("1");
+        expect(".options-container [data-label='Start After'] input").toHaveValue(0);
+        expect(".options-container [data-label='Duration'] input").toHaveValue(1);
     });
     test("visibility of animation animation=onAppearance effect=bounce", async () => {
         const { waitSidebarUpdated } = await setupWebsiteBuilder(
@@ -124,8 +123,8 @@ describe("onAppearance", () => {
         );
         expect(".options-container [data-label='Intensity'] input").toHaveValue(50);
         expect(".options-container [data-label='Scroll Zone']").not.toHaveCount();
-        expect(".options-container [data-label='Start After'] input").toHaveValue("0");
-        expect(".options-container [data-label='Duration'] input").toHaveValue("1");
+        expect(".options-container [data-label='Start After'] input").toHaveValue(0);
+        expect(".options-container [data-label='Duration'] input").toHaveValue(1);
         await contains(".options-container [data-label='Animation'] .dropdown-toggle").click();
         await contains(".o-dropdown--menu [data-action-value='onScroll']").click();
         await waitSidebarUpdated();
@@ -157,8 +156,8 @@ describe("onAppearance", () => {
         );
         expect(".options-container [data-label='Intensity'] input").toHaveValue(50);
         expect(".options-container [data-label='Scroll Zone']").not.toHaveCount();
-        expect(".options-container [data-label='Start After'] input").toHaveValue("0");
-        expect(".options-container [data-label='Duration'] input").toHaveValue("1");
+        expect(".options-container [data-label='Start After'] input").toHaveValue(0);
+        expect(".options-container [data-label='Duration'] input").toHaveValue(1);
     });
 });
 test("visibility of animation animation=onScroll", async () => {
@@ -185,7 +184,7 @@ test("visibility of animation animation=onScroll", async () => {
 
     expect(".options-container [data-label='Scroll Zone']").toBeVisible();
 });
-test("animation=onScroll should not be visible when the animation is limited", async () => {
+test("reset to 'Fade' effect on animation=onScroll if current effect is appearance-only", async () => {
     const { waitSidebarUpdated } = await setupWebsiteBuilder(
         `
                 <div class="test-options-target">
@@ -206,7 +205,13 @@ test("animation=onScroll should not be visible when the animation is limited", a
     expect(".options-container [data-label='Effect'] .o-dropdown").toHaveText("Flash");
 
     await contains(".options-container [data-label='Animation'] .dropdown-toggle").click();
-    expect(".o-dropdown--menu [data-action-value='onScroll']").not.toHaveCount();
+    await contains(".o-dropdown--menu [data-action-value='onScroll']").click();
+    await waitSidebarUpdated();
+    expect(".options-container [data-label='Animation'] .o-dropdown").toHaveText("On Scroll");
+
+    expect(".options-container [data-label='Effect'] .o-dropdown").toHaveText("Fade");
+    expect(":iframe .test-options-target img").not.toHaveClass("o_anim_flash");
+    expect(":iframe .test-options-target img").toHaveClass("o_anim_fade_in");
 });
 test("visibility of animation animation=onHover", async () => {
     function expectOnHoverOptions(options) {
@@ -280,7 +285,6 @@ test("visibility of animation animation=onHover", async () => {
     expectOnHoverOptions({ Effect: "Mirror Blur", Intensity: 1 });
 });
 test("animation=onHover should not be visible when the image is a device shape", async () => {
-    onRpcImg("/html_builder/static/image_shapes/devices/iphone_front_portrait.svg");
     const { waitSidebarUpdated } = await setupWebsiteBuilder(`
         <div class="test-options-target">
             <img data-shape="html_builder/devices/iphone_front_portrait" src='${base64Img}'>
@@ -374,7 +378,7 @@ test("should not show the animation options if the image has a parent [data-oe-t
 
     const optionTarget = queryFirst(":iframe .test-options-target");
     optionTarget.setAttribute("data-oe-type", "image");
-    editor.shared.history.addStep();
+    editor.shared.history.commit();
     await waitSidebarUpdated();
     expect(".options-container [data-label='Animation'] .dropdown-toggle").not.toHaveCount();
 });
@@ -391,7 +395,7 @@ test("should not show the animation options if the image has is [data-oe-xpath]"
     expect(".options-container [data-label='Animation'] .dropdown-toggle").toBeVisible();
     const optionTarget = queryFirst(":iframe .test-options-target img");
     optionTarget.setAttribute("data-oe-xpath", "/foo/bar");
-    editor.shared.history.addStep();
+    editor.shared.history.commit();
 
     await waitSidebarUpdated();
     expect(".options-container [data-label='Animation'] .dropdown-toggle").not.toHaveCount();
@@ -433,6 +437,67 @@ describe("animate text in toolbar", () => {
         // undo removes the span
         editor.shared.history.undo();
         expect(":iframe span").toHaveCount(0);
+    });
+
+    test("create one animated span per selected block", async () => {
+        const websiteBuilder = await setupWebsiteBuilder(`
+            <div class="test">
+                <h1 class="display-3" style="text-align: center;">Heading</h1>
+                <p class="lead" style="text-align: center;">Paragraph</p>
+            </div>
+        `);
+        const editable = websiteBuilder.getEditableContent();
+        const selection = editable.ownerDocument.getSelection();
+        const heading = editable.querySelector(".test h1");
+        const paragraph = editable.querySelector(".test p");
+
+        selection.setBaseAndExtent(
+            heading.firstChild,
+            0,
+            paragraph.firstChild,
+            paragraph.firstChild.length
+        );
+
+        await expandToolbar();
+        await contains("button[title='Animate Text']").click();
+
+        expect(":iframe .test > h1 > span.o_animated_text.o_animate").toHaveText("Heading");
+        expect(":iframe .test > p > span.o_animated_text.o_animate").toHaveText("Paragraph");
+        expect(":iframe .test .o_animated_text").toHaveCount(2);
+        expect(":iframe span > h1").not.toHaveCount();
+        expect(":iframe span > p").not.toHaveCount();
+        expect(heading).toHaveClass("display-3");
+        expect(heading.style.textAlign).toBe("center");
+        expect(paragraph).toHaveClass("lead");
+        expect(paragraph.style.textAlign).toBe("center");
+
+        await contains("button[title=Reset]").click();
+        expect(":iframe .test .o_animated_text").not.toHaveCount();
+        expect(":iframe .test > h1.display-3").toHaveText("Heading");
+        expect(":iframe .test > p.lead").toHaveText("Paragraph");
+    });
+
+    test("does not create separate animated spans around a line break", async () => {
+        const websiteBuilder = await setupWebsiteBuilder(
+            `<h1 class="test"><span class="display-4-fs">Embark on your<br>Next Adventure</span></h1>`
+        );
+        const editable = websiteBuilder.getEditableContent();
+        const selection = editable.ownerDocument.getSelection();
+        const heading = editable.querySelector(".test");
+        const animatedText = heading.querySelector(".display-4-fs");
+        const firstLine = animatedText.firstChild;
+        const secondLine = animatedText.lastChild;
+
+        selection.setBaseAndExtent(firstLine, 0, secondLine, "Next".length);
+
+        await expandToolbar();
+        await contains("button[title='Animate Text']").click();
+
+        expect(":iframe .test > .o_animated_text").toHaveCount(1);
+        expect(":iframe .test > .o_animated_text:eq(0) > .display-4-fs").toHaveText(
+            "Embark on your\nNext"
+        );
+        expect(":iframe .test").toHaveText("Embark on your\nNext Adventure");
     });
 
     test("change existing animated span with a collapsed selection inside it", async () => {
@@ -483,7 +548,7 @@ describe("animate text in toolbar", () => {
         expect(":iframe span:contains('bc')").not.toHaveClass("o_anim_fade_in");
 
         // undo restore the classes
-        await contains("button.fa-undo").click();
+        await contains("button[data-icon='undo']").click();
         expect(":iframe span:contains('bc')").not.toHaveClass("o_anim_rotate_in");
         expect(":iframe span:contains('bc')").toHaveClass("o_anim_fade_in");
 

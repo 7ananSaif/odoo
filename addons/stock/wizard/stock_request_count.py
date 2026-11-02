@@ -17,16 +17,11 @@ class StockRequestCount(models.TransientModel):
     show_expected_quantity = fields.Boolean(help='If the user can see the expected quantity or not', compute='_compute_show_expected_quantity', inverse='_set_show_expected_quantity')
 
     def _compute_show_expected_quantity(self):
-        show_quantity_count = self.env['ir.config_parameter'].sudo().get_param('stock.show_expected_quantity_count', default='False') == 'True'
-        for record in self:
-            record.show_expected_quantity = show_quantity_count
+        self.show_expected_quantity = self.env['ir.config_parameter'].sudo().get_bool('stock.show_expected_quantity_count')
 
     def _set_show_expected_quantity(self):
         for record in self:
-            if record.show_expected_quantity:
-                self.env['ir.config_parameter'].sudo().set_param('stock.show_expected_quantity_count', 'True')
-            else:
-                self.env['ir.config_parameter'].sudo().set_param('stock.show_expected_quantity_count', 'False')
+            self.env['ir.config_parameter'].sudo().set_bool('stock.show_expected_quantity_count', record.show_expected_quantity)
 
     def action_request_count(self):
         for count_request in self:
@@ -37,16 +32,15 @@ class StockRequestCount(models.TransientModel):
     def _get_quants_to_count(self):
         self.ensure_one()
         quants_to_count = self.quant_ids
-        tracked_quants = self.quant_ids.filtered(lambda q: q.product_id.tracking != 'none')
+        tracked_quants = self.quant_ids.filtered(lambda q: q.product_id.tracking in ['lot', 'serial'])
         if not self.env.user.has_group('stock.group_production_lot') or not tracked_quants:
             return quants_to_count
         # Searches sibling quants for tracked product.
         if tracked_quants:
-            domain = {
+            domain = Domain.OR(
                 Domain('product_id', '=', quant.product_id.id) & Domain('location_id', '=', quant.location_id.id)
                 for quant in tracked_quants
-            }
-            domain = Domain.OR(domain)
+            )
             sibling_quants = self.env['stock.quant'].search(domain)
             quants_to_count |= sibling_quants
         return quants_to_count

@@ -10,7 +10,7 @@ export function confirmPopup() {
 export function clickMenuButton() {
     return {
         content: "Click on the menu button",
-        trigger: ".pos-rightheader button:has(.fa-bars)",
+        trigger: ".pos-rightheader button:has([data-icon='menu'])",
         run: "click",
     };
 }
@@ -19,27 +19,34 @@ export function clickMenuOption(name, options) {
         waitForMenuButtons(),
         clickMenuButton(),
         waitForMenuOptionsToOpen(),
-        clickMenuDropdownOption(name, options),
+        clickMenuDialogOption(name, options),
     ];
 }
 export function waitForMenuButtons() {
     return {
         content: "Wait for the menu buttons to be available",
-        trigger: ".pos-rightheader button:has(.fa-bars)",
+        trigger: ".pos-rightheader button:has([data-icon='menu'])",
     };
 }
 export function waitForMenuOptionsToOpen() {
     return {
         content: `Wait for the menu options to be available`,
-        trigger: `span.dropdown-item`,
+        trigger: `.o_pos_burger_menu_buttons > button.btn`,
     };
 }
-export function clickMenuDropdownOption(name, { expectUnloadPage = false } = {}) {
+export function clickMenuDialogOption(name, { expectUnloadPage = false } = {}) {
     return {
         content: `click on something in the burger menu`,
-        trigger: `span.dropdown-item:contains(${name})`,
+        trigger: `.o_pos_burger_menu_buttons > button.btn:contains(${name})`,
         run: "click",
         expectUnloadPage,
+    };
+}
+export function closeBurgerMenu() {
+    return {
+        content: "close the burger menu dialog",
+        trigger: `.modal:not(.o_inactive_modal) .modal-body button[aria-label="Close"]`,
+        run: "click",
     };
 }
 export function existMenuOption(name) {
@@ -47,18 +54,20 @@ export function existMenuOption(name) {
         clickMenuButton(),
         {
             content: `check that ${name} exists in the burger menu`,
-            trigger: `span.dropdown-item:contains(${name})`,
+            trigger: `.o_pos_burger_menu_buttons > button.btn:contains(${name})`,
         },
-        clickMenuButton(),
+        closeBurgerMenu(),
     ];
 }
 export function notExistMenuOption(name) {
     return [
         clickMenuButton(),
+        waitForMenuOptionsToOpen(),
         {
             content: `check that ${name} doesn't exist in the burger menu`,
-            trigger: negate(`span.dropdown-item:contains(${name})`),
+            trigger: negate(`.o_pos_burger_menu_buttons > button.btn:contains(${name})`),
         },
+        closeBurgerMenu(),
     ];
 }
 export function isCashMoveButtonHidden() {
@@ -91,12 +100,47 @@ export function doCashMove(amount, reason) {
         })),
         {
             isActive: ["mobile"],
-            trigger: ".o-overlay-item:nth-child(2) .modal-footer button:contains('Confirm')",
-            run: "click",
+            trigger: `.input-value:contains(${amount})`,
         },
-        Dialog.confirm(),
+        {
+            isActive: ["mobile"],
+            ...Dialog.proceed({ title: "Amount", button: "Confirm" }),
+        },
+        {
+            isActive: ["mobile"],
+            ...Dialog.isNot({ title: "Amount" }),
+        },
+        {
+            isActive: ["mobile"],
+            trigger: `.input-amount input:value(${amount})`,
+        },
+        Dialog.proceed({ button: "Confirm" }),
     ];
 }
+export function snoozeServiceForHours(hour) {
+    return {
+        trigger: `.modal-body .btn-group .form-check-input[id="${hour}hour"]`,
+        run: "click",
+    };
+}
+export function orderTrackerShown() {
+    return {
+        trigger: ".order_tracker",
+    };
+}
+export function toggleOrderStatus() {
+    return [
+        {
+            trigger: ".order_tracker",
+            run: "click",
+        },
+        {
+            trigger: ".order_tracker_dropdown_container .form-switch input",
+            run: "click",
+        },
+    ];
+}
+
 export function endTour() {
     return {
         content: "Last tour step that avoids error mentioned in commit 443c209",
@@ -116,6 +160,7 @@ export function clickPlanButton() {
             run: "click",
         },
         ...waitRequest(),
+        ...waitForOrdersSync(),
     ];
 }
 export function startPoS() {
@@ -152,29 +197,31 @@ export function createFloatingOrder() {
     return { trigger: ".pos-leftheader .list-plus-btn", run: "click" };
 }
 
-function _hasFloatingOrder(name, yes) {
+function _hasFloatingOrder(name, yes, click) {
     const negateIfNecessary = (trigger) => (yes ? trigger : negate(trigger));
     return [
         {
             isActive: ["desktop"],
             trigger: negateIfNecessary(
-                `.pos-topheader .floating-order-container:contains('${name}')`
+                `.pos-topheader .floating-order-container button:contains('${name}')`
             ),
+            run: click ? "click" : undefined,
         },
         {
             isActive: ["mobile"],
-            trigger: ".pos-leftheader button.fa-caret-down",
+            trigger: ".pos-leftheader button[data-icon='arrow_drop_down']",
             run: "click",
         },
         {
             isActive: ["mobile"],
             trigger: negateIfNecessary(
-                `.modal-header:contains(Choose an order) ~ .modal-body .floating-order-container:contains('${name}')`
+                `.modal-header:contains(Choose an order) ~ .modal-body .floating-order-container button:contains('${name}')`
             ),
+            run: click ? "click" : undefined,
         },
         {
             isActive: ["mobile"],
-            trigger: ".oi-arrow-left",
+            trigger: "[data-icon='arrow_back']",
             run: "click",
         },
     ];
@@ -183,23 +230,22 @@ function _hasFloatingOrder(name, yes) {
 export function hasFloatingOrder(name) {
     return _hasFloatingOrder(name, true);
 }
-
-export function noFloatingOrder(name) {
-    return _hasFloatingOrder(name, false);
+export function clickFloatingOrder(name) {
+    return _hasFloatingOrder(name, true, true);
 }
 export function clickOrders() {
     return { trigger: ".pos-leftheader .orders-button", run: "click" };
 }
-export function selectPresetTimingSlotHour(hour) {
+export function selectPresetTimingSlotHour({ title, hour } = {}) {
     return [
         {
             content: `Click on the slot hour ${hour} in the modal`,
-            trigger: `.modal:has(.modal-header:contains(select a preset)) button:contains('${hour}')`,
+            trigger: `.modal:has(.modal-header:contains(${title})) button:contains('${hour}')`,
             run: "click",
         },
         {
             content: `Wait the slot hour ${hour} is set and loading is done (to avoid currency error)`,
-            trigger: `body:not(:has(.modal)):not(:has(.oe_status .fa-spin)) .pos-leftheader .preset-time-btn:contains(${hour})`,
+            trigger: `body:not(:has(.modal)):not(:has(.oe_status .oi-spin)) .pos-leftheader .preset-time-btn:contains(${hour})`,
         },
     ];
 }
@@ -216,10 +262,15 @@ export function presetTimingSlotHourExists(hour) {
     return { trigger: `.modal button:contains('${hour}')` };
 }
 export function selectSlotDays(d) {
-    return {
-        trigger: `.modal .d-flex.w-100.flex-wrap.gap-2.mt-2 button:nth-of-type(${d})`,
-        run: "click",
-    };
+    return [
+        {
+            trigger: `.modal .preset_date_buttons:nth-of-type(${d})`,
+            run: "click",
+        },
+        {
+            trigger: `.modal .preset_date_buttons:nth-of-type(${d}).btn-primary`,
+        },
+    ];
 }
 export function selectPresetTimingSlotIndex(index) {
     return {
@@ -239,12 +290,14 @@ export function waitRequest() {
             async run({ waitFor }) {
                 let isLoading = false;
                 try {
-                    isLoading = await waitFor("body:has(.fa-circle-o-notch)", { timeout: 2000 });
+                    isLoading = await waitFor("body:has([data-icon='autorenew'])", {
+                        timeout: 2000,
+                    });
                 } catch {
-                    /* fa-circle-o-notch will certainly never appears :'( */
+                    /* autorenew icon will certainly never appears :'( */
                 }
                 if (isLoading) {
-                    await waitFor("body:not(:has(.fa-circle-o-notch))", { timeout: 10000 });
+                    await waitFor("body:not(:has([data-icon='autorenew']))", { timeout: 10000 });
                 }
             },
         },
@@ -266,17 +319,24 @@ export function storedOrderCount(expectedCount) {
     };
 }
 
+export function checkButtonDisabled(text) {
+    return {
+        trigger: `button:contains("${text}")[disabled]`,
+        content: `Verify that the "${text}" button is disabled.`,
+    };
+}
+
 export function isSynced() {
     return {
         content: "Check if the request is proceeded",
-        trigger: negate(".fa-spin", ".status-buttons"),
+        trigger: negate(".oi-spin", ".status-buttons"),
     };
 }
 
 export function clickOnScanButton() {
     return {
         content: "Click the Scan button located in the top header.",
-        trigger: ".pos-topheader .status-buttons .fa-barcode",
+        trigger: ".pos-topheader .status-buttons [data-icon='barcode']",
         run: "click",
     };
 }
@@ -284,7 +344,7 @@ export function clickOnScanButton() {
 export function ClickOnCustomerDisplayButton() {
     return {
         content: "Click on the customer display button inside the burger menu",
-        trigger: "span i.fa-desktop",
+        trigger: "button i[data-icon='desktop_windows']",
         run: "click",
     };
 }
@@ -292,29 +352,21 @@ export function CustomerDisplayHasThisDeviceButton() {
     return {
         isActive: ["desktop"],
         content: "Check that the customer display popup has a 'This device' button",
-        trigger: ".o_dialog .modal-body .container .btn-primary:contains('This device')",
+        trigger: ".o_dialog .modal-footer .btn-primary:contains('This device')",
     };
 }
 export function CustomerDisplayHasQRButton() {
     return {
         isActive: ["desktop"],
         content: "Check that the customer display popup has a 'Display QR' button",
-        trigger: ".o_dialog .modal-body .container .btn-secondary:contains('Display QR')",
-    };
-}
-export function ClickCustomerDisplayThisDeviceButton() {
-    return {
-        isActive: ["desktop"],
-        content: "Check that the customer display popup has a 'This device' button",
-        trigger: ".btn-primary:contains('This device')",
-        run: "click",
+        trigger: ".o_dialog .modal-footer .btn-secondary:contains('Display QR')",
     };
 }
 export function ClickCustomerDisplayQRButton() {
     return {
         isActive: ["desktop"],
         content: "Check that the customer display popup has a 'Display QR' button",
-        trigger: ".btn-secondary:contains('Display QR')",
+        trigger: ".o_dialog .modal-footer .btn-secondary:contains('Display QR')",
         run: "click",
     };
 }
@@ -322,7 +374,7 @@ export function CustomerDisplayQRIsDisplayed() {
     return {
         isActive: ["desktop"],
         content: "Check that the QR code is displayed on screen",
-        trigger: ".o-overlay-item .modal .modal-body img.square",
+        trigger: ".o-overlay-item .modal .modal-body img#CustomerDisplayqrCode",
     };
 }
 export function freezeDateTime(millis) {
@@ -365,9 +417,47 @@ if (sessionStorage.getItem("pos_test_frozen_time")) {
     DateTime.now = () => DateTime.fromMillis(millis);
 }
 
-export function selectPresetDateButton(formattedDate) {
+export function waitForOrdersSync() {
+    return [
+        {
+            trigger: "body",
+            content: "Wait for the orders to be synced",
+            timeout: 15000,
+            async run({ waitUntil }) {
+                await waitUntil(() => !posmodel.syncingOrders.size, { timeout: 10000 });
+                await new Promise((resolve) => setTimeout(resolve));
+            },
+        },
+    ];
+}
+
+export function flushPendingOrdersSync() {
+    return [
+        {
+            trigger: "body",
+            content: "Flush pending PoS orders to the server (sync_all_orders)",
+            timeout: 15000,
+            async run() {
+                await posmodel.syncAllOrders({ force: true });
+            },
+        },
+    ];
+}
+
+export function closePrintingWarning() {
+    return [
+        {
+            content: "acknowledge printing error ( because we don't have printer in the test. )",
+            trigger: `.modal:has(.modal-header:contains(printing failed)) .modal-footer .btn-primary:contains(continue)`,
+            run: "click",
+            timeout: 15000,
+        },
+    ];
+}
+
+export function closeRegisterPopupIsShown() {
     return {
-        trigger: `.modal-body button:contains("${formattedDate}")`,
-        run: "click",
+        content: "Check that the close register popup is shown",
+        trigger: ".modal .close-pos-popup",
     };
 }

@@ -3,10 +3,7 @@
 /* global idbKeyval */
 importScripts("/mail/static/lib/idb-keyval/idb-keyval.js");
 
-const MESSAGE_TYPE = {
-    UNEXPECTED_CALL_TERMINATION: "UNEXPECTED_CALL_TERMINATION", // deprecated
-    POST_RTC_LOGS: "POST_RTC_LOGS",
-};
+const MESSAGE_TYPE = { POST_RTC_LOGS: "POST_RTC_LOGS" };
 const PUSH_NOTIFICATION_TYPE = {
     CALL: "CALL",
     CANCEL: "CANCEL",
@@ -122,6 +119,23 @@ async function storeLogs(logs, { download = false } = {}) {
 }
 
 /**
+ * Encode an ArrayBuffer as a base64url string without padding.
+ * Mirrors _arrayBufferToBase64() in webclient.js, but uses the global btoa()
+ * instead of window.btoa() since window is not available in service workers.
+ *
+ * @param {ArrayBuffer} buffer
+ * @returns {string}
+ */
+function arrayBufferToBase64Url(buffer) {
+    const bytes = new Uint8Array(buffer);
+    let binary = "";
+    for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+}
+
+/**
  * @param {number} channelId id of the mail discuss channel
  * @param {Object} param1
  * @param {string} [param1.action] odoo client action
@@ -163,40 +177,40 @@ async function openDiscussChannel(channelId, { action, joinCall = false, source 
     }
 }
 
+async function handleNotificationClick(event) {
+    const { action, model, res_id } = event.notification.data;
+    if (model === "discuss.channel") {
+        if (event.action === PUSH_NOTIFICATION_ACTION.DECLINE) {
+            return fetch("/mail/rtc/channel/leave_call", {
+                headers: { "Content-type": "application/json" },
+                body: JSON.stringify({
+                    id: 1,
+                    jsonrpc: "2.0",
+                    method: "call",
+                    params: { channel_id: res_id },
+                }),
+                method: "POST",
+                mode: "cors",
+                credentials: "include",
+            });
+        }
+        return openDiscussChannel(res_id, {
+            action,
+            joinCall: event.action === PUSH_NOTIFICATION_ACTION.ACCEPT,
+        });
+    } else {
+        const modelPath = model.includes(".") ? model : `m-${model}`;
+        return clients.openWindow(`/odoo/${modelPath}/${res_id}`);
+    }
+}
+
 self.addEventListener("notificationclick", (event) => {
     event.notification.close();
     if (event.notification.data) {
-        const { action, model, res_id } = event.notification.data;
-        if (model === "discuss.channel") {
-            if (event.action === PUSH_NOTIFICATION_ACTION.DECLINE) {
-                event.waitUntil(
-                    fetch("/mail/rtc/channel/leave_call", {
-                        headers: { "Content-type": "application/json" },
-                        body: JSON.stringify({
-                            id: 1,
-                            jsonrpc: "2.0",
-                            method: "call",
-                            params: { channel_id: res_id },
-                        }),
-                        method: "POST",
-                        mode: "cors",
-                        credentials: "include",
-                    })
-                );
-                return;
-            }
-            event.waitUntil(
-                openDiscussChannel(res_id, {
-                    action,
-                    joinCall: event.action === PUSH_NOTIFICATION_ACTION.ACCEPT,
-                })
-            );
-        } else {
-            const modelPath = model.includes(".") ? model : `m-${model}`;
-            event.waitUntil(clients.openWindow(`/odoo/${modelPath}/${res_id}`));
-        }
+        event.waitUntil(handleNotificationClick(event));
     }
 });
+
 self.addEventListener("push", async (event) => {
     const notification = event.data.json();
     switch (notification.options?.data?.type) {
@@ -244,7 +258,7 @@ async function incrementUnread() {
 }
 
 async function handlePushEvent(notification) {
-    const { model, res_id } = notification.options?.data || {};
+    const { model, res_id, message_id } = notification.options?.data || {};
     const correlationId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
     let timeoutId;
     let promResolve;
@@ -262,7 +276,7 @@ async function handlePushEvent(notification) {
             clients.forEach((client) =>
                 client.postMessage({
                     type: "notification-display-request",
-                    payload: { correlationId, model, res_id },
+                    payload: { correlationId, model, res_id, message_id },
                 })
             );
         });
@@ -287,6 +301,10 @@ self.addEventListener("pushsubscriptionchange", async (event) => {
     const subscription = await self.registration.pushManager.subscribe(
         event.oldSubscription.options
     );
+    // Encode the VAPID public key as base64url to pass to the server for validation.
+    // Without this, register_devices always raises InvalidVapidError and the renewed
+    // subscription is never saved, breaking push notifications after a few days.
+    const vapid_public_key = arrayBufferToBase64Url(subscription.options.applicationServerKey);
     await fetch("/web/dataset/call_kw/mail.push.device/register_devices", {
         headers: {
             "Content-type": "application/json",
@@ -302,6 +320,7 @@ self.addEventListener("pushsubscriptionchange", async (event) => {
                 kwargs: {
                     ...subscription.toJSON(),
                     previousEndpoint: event.oldSubscription.endpoint,
+                    vapid_public_key,
                 },
                 context: {},
             },
@@ -313,10 +332,6 @@ self.addEventListener("pushsubscriptionchange", async (event) => {
 });
 self.addEventListener("message", async ({ data, source }) => {
     switch (data.name) {
-        case MESSAGE_TYPE.UNEXPECTED_CALL_TERMINATION:
-            // deprecated
-            openDiscussChannel(data.channelId, { joinCall: true, source });
-            break;
         case MESSAGE_TYPE.POST_RTC_LOGS: {
             const { logs, download } = data;
             try {

@@ -18,16 +18,6 @@
         <field name="model">res.config.settings</field>
         <field name="inherit_id" ref="website_payment.res_config_settings_view_form"/>
         <field name="arch" type="xml">
-            <setting id="shared_user_account_setting" position="after">
-                <setting
-                    id="autocomplete_googleplaces_setting"
-                    string="Google Address Validation"
-                    help="Use Google Places API to validate addresses"
-                    documentation="/applications/websites/website/configuration/address_autocomplete.html"
-                >
-                    <field name="module_website_sale_autocomplete"/>
-                </setting>
-            </setting>
             <block id="website_payment_block" position="attributes">
                 <attribute name="title">eCommerce</attribute>
             </block>
@@ -36,7 +26,7 @@
                     string="Configure Delivery Methods"
                     id="website_delivery_setting"
                     help="Configure delivery methods or work with delivery providers using existing integrations."
-                    documentation="/applications/inventory_and_mrp/inventory/shipping/setup/third_party_shipper.html"
+                    documentation="/applications/inventory_and_mrp/inventory/shipping_receiving/setup_configuration.html"
                 >
                     <button
                         string="Configure Methods"
@@ -47,9 +37,9 @@
                     <button
                         string="Find a Delivery Provider"
                         type="object"
-                        name="action_view_delivery_provider_modules"
+                        name="action_install_more_provider"
                         class="btn btn-link"
-                        icon="oi-arrow-right"
+                        icon="east"
                     />
                 </setting>
                 <setting string="Display Product Prices" id="website_tax_inclusion_setting">
@@ -75,31 +65,61 @@
                     <field name="account_on_checkout" widget="radio"/>
                 </setting>
                 <setting
-                    string="Add to Cart"
-                    id="cart_redirect_setting"
-                    help="What should be done on &quot;Add to Cart&quot;?"
-                >
-                    <field name="add_to_cart_action" widget="radio"/>
-                </setting>
-                <setting
                     string="Invoicing Policy"
                     id="invoicing_policy_setting"
                     title="The mode selected here applies as invoicing policy of any new product
                            created but not of products already existing."
                     info="This setting is common to all websites."
                 >
-                    <field name="default_invoice_policy" widget="radio" class="o_light_label"/>
+                    <field name="sale_invoice_policy" widget="radio" class="o_light_label"/>
                 </setting>
                 <setting
                     id="automatic_invoice_generation_setting"
                     help="Invoice automatically on payment."
-                    invisible="default_invoice_policy == 'delivery'"
+                    invisible="sale_invoice_policy == 'delivery'"
                 >
-                    <field name="automatic_invoice"/>
-                    <div invisible="not automatic_invoice">
+                    <field name="sale_automatic_invoice"/>
+                    <div invisible="not sale_automatic_invoice">
                         <label for="invoice_mail_template_id" class="o_light_label me-2"/>
-                        <field name="invoice_mail_template_id" class="oe_inline"/>
+                        <field name="invoice_mail_template_id" class="oe_inline" context="{'default_model': 'account.move'}"/>
                     </div>
+                </setting>
+                <setting
+                    string="Inventory Defaults"
+                    id="product_availability_setting"
+                    info="This setting is common to all websites."
+                >
+                    <div class="content-group">
+                        <div class="row mt16"
+                            id="allow_out_of_stock_order_setting"
+                            title="Default availability mode set on newly created storable products. This can be changed at the product level.">
+                            <div class="col-12">
+                                <label for="default_allow_out_of_stock_order" string="Out-of-Stock" class="p-0 col-4 o_light_label"/>
+                                <field name="default_allow_out_of_stock_order" class=" w-auto"/>
+                                <label for="default_allow_out_of_stock_order" class="o_light_label" string="Continue Selling"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="content-group">
+                        <label for="default_show_availability" string="Show Available Quantity" class="p-0 col-4 o_light_label mt-2"/>
+                        <field name="default_show_availability" class="w-auto"/>
+                        <label for="default_available_threshold" string="only if below" class="o_light_label" invisible="not default_show_availability"/>
+                        <field
+                            name="default_available_threshold"
+                            style="width: 30px;"
+                            digits="[42, 0]"
+                            invisible="not default_show_availability"
+                        />
+                        <span invisible="not default_show_availability">units</span>
+                    </div>
+                </setting>
+                <setting
+                    string="Unpublish out-of-stock products"
+                    id="unpublish_out_of_stock_setting"
+                    help="Unpublish/Republish products based on stock availability."
+                    info="This setting is shared across all companies."
+                >
+                    <field name="group_unpublish_out_of_stock"/>
                 </setting>
                 <setting
                     help="Add a strikethrough price, as a comparison"
@@ -108,13 +128,20 @@
                     <field name="group_product_price_comparison"/>
                 </setting>
                 <setting
+                    help="Automatically add optional, accessory, and alternative products."
+                    info="This setting is shared across all companies."
+                >
+                    <field name="group_automate_suggested_products"/>
+                </setting>
+                <field name="group_show_uom_price" invisible="1"/>
+                <!-- Needed so its onchange value is tracked and saved. -->
+                <setting
                     string="Product Reference Price"
                     id="ecom_uom_price_option_setting"
-                    help="Add a reference price per UoM on products (i.e $/kg), in addition to the
+                    help="Add a reference price per UoM on products (e.g $/kg), in addition to the
                           sale price"
-                    info="This setting is common to all websites."
                 >
-                    <field name="group_show_uom_price"/>
+                    <field name="website_show_reference_price"/>
                 </setting>
                 <setting
                     string="Product Variants"
@@ -129,7 +156,7 @@
                         name="%(product.attribute_action)d"
                         invisible="not group_product_variant"
                         class="btn-link"
-                        icon="oi-arrow-right"
+                        icon="east"
                     />
                 </setting>
                 <setting
@@ -157,22 +184,41 @@
                         groups="product.group_product_pricelist"
                         invisible="not group_product_pricelist"
                         class="btn-link"
-                        icon="oi-arrow-right"
+                        icon="east"
                     />
                 </setting>
                 <setting
                     id="hide_add_to_cart_setting"
-                    help="If product price equals 0, replace 'Add to Cart' by 'Contact us'."
+                    help="Show &quot;Contact Us&quot; for zero-priced products or specific categories."
                 >
-                    <field name="website_sale_prevent_zero_price_sale"/>
-                    <div class="content-group" invisible="not website_sale_prevent_zero_price_sale">
+                    <field name="prevent_sale"/>
+                    <div class="content-group" invisible="not prevent_sale">
                         <div class="row mt16">
                             <label
-                                string="Button URL"
-                                for="website_sale_contact_us_button_url"
+                                string="For"
+                                for="prevent_sale_for"
                                 class="o_light_label col-lg-3"
                             />
-                            <field name="website_sale_contact_us_button_url"/>
+                            <field name="prevent_sale_for" required="prevent_sale"/>
+                        </div>
+                        <div
+                            class="row mt16"
+                            invisible="prevent_sale_for != 'specific_categories'"
+                        >
+                            <label
+                                for="prevent_sale_for_categories"
+                                class="o_light_label col-lg-3"
+                            />
+                            <field
+                                name="prevent_sale_for_categories"
+                                widget="many2many_tags"
+                                options="{'no_create': True}"
+                                required="prevent_sale_for == 'specific_categories'"
+                            />
+                        </div>
+                        <div class="row mt16">
+                            <label for="contact_us_link_url" class="o_light_label col-lg-3"/>
+                            <field name="contact_us_link_url"/>
                         </div>
                     </div>
                 </setting>
@@ -184,18 +230,18 @@
                                 for="confirmation_email_template_id"
                                 class="o_light_label col-lg-3"
                             />
-                            <field name="confirmation_email_template_id"/>
+                            <field name="confirmation_email_template_id" context="{'default_model': 'sale.order'}"/>
                         </div>
                     </div>
                 </setting>
                 <setting
                     string="Follow up abandoned carts"
                     id="abandoned_carts_setting"
-                    help="Automate abandoned checkout emails"
+                    help="Send automated reminders for cart recovery"
                     documentation="/applications/websites/ecommerce/ecommerce_management/order_handling.html#abandoned-cart"
                 >
-                    <field name="send_abandoned_cart_email"/>
-                    <div invisible="not send_abandoned_cart_email" class="content-group">
+                    <field name="send_abandoned_cart_followup"/>
+                    <div invisible="not send_abandoned_cart_followup" class="content-group">
                         <div class="row mt16">
                             <div class="col-12">
                                 <label
@@ -208,12 +254,43 @@
                                     widget="float_time"
                                     class="ms-1"
                                     style="width: 50px;"
-                                /> hours.
+                                />
                             </div>
                         </div>
                     </div>
-                    <div invisible="not send_abandoned_cart_email" class="mt8">
-                        <button type="object" name="action_open_abandoned_cart_mail_template" string="Customize Abandoned Email Template" class="btn-link" icon="oi-arrow-right"/>
+                    <div invisible="not send_abandoned_cart_followup" class="content-group" id="abandoned_cart_templates">
+                        <div class="content-group">
+                            <div class="row">
+                                <label
+                                    string="Email"
+                                    for="cart_recovery_mail_template"
+                                    class="o_light_label col-lg-3"
+                                />
+                                <field name="cart_recovery_mail_template"/>
+                            </div>
+                        </div>
+                    </div>
+                </setting>
+                <setting
+                    id="send_order_rating_emails_setting"
+                    help="Send a rating request for each order"
+                >
+                    <field name="send_order_rating_emails"/>
+                    <div invisible="not send_order_rating_emails" class="mt-1">
+                        <field name="rating_email_delay" style="width: 1rem;"/> days after order confirmation
+                    </div>
+                    <div invisible="not send_order_rating_emails" class="mt-2">
+                        <label
+                            string="Email"
+                            for="rating_email_template_id"
+                            class="o_light_label me-2"
+                        />
+                        <field
+                            name="rating_email_template_id"
+                            class="oe_inline"
+                            style="min-width: 16rem;"
+                            context="{'default_model': 'sale.order'}"
+                        />
                     </div>
                 </setting>
                 <setting string="Orders Assignment" help="Assignment of online orders">
@@ -242,6 +319,29 @@
                 >
                     <field name="module_website_sale_collect"/>
                 </setting>
+                <setting
+                    id="restrict_packagings_setting"
+                    help="Prevent from selling the specified packagings"
+                    invisible="not group_uom"
+                >
+                    <field name="restricted_uom_ids" widget="many2many_tags"/>
+                </setting>
+                <setting
+                    string="Invoicing Journal"
+                    help="Default accounting journal for online orders"
+                    groups="account.group_account_readonly,account.group_account_invoice"
+                >
+                    <label
+                        string="Journal"
+                        for="journal_id"
+                        class="o_light_label col-lg-3"
+                    />
+                    <field
+                        name="journal_id"
+                        context="{'default_type': 'sale'}"
+                        domain="[('type', '=', 'sale')]"
+                    />
+                </setting>
             </block>
             <setting id="google_analytics_setting" position="after">
                 <setting
@@ -256,7 +356,7 @@
                             name="action_open_product_feeds"
                             string="Manage feeds"
                             class="btn-link"
-                            icon="oi-arrow-right"
+                            icon="east"
                         />
                     </div>
                 </setting>

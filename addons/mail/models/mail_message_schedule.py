@@ -20,7 +20,7 @@ class MailMessageSchedule(models.Model):
     of the <bus.bus> notifications.
     """
     _name = 'mail.message.schedule'
-    _description = 'Scheduled Messages'
+    _description = 'Scheduled Message'
     _order = 'scheduled_datetime DESC, id DESC'
     _rec_name = 'mail_message_id'
 
@@ -63,7 +63,7 @@ class MailMessageSchedule(models.Model):
         """
         for model, schedules in self._group_by_model().items():
             if model:
-                records = self.env[model].browse(schedules.mapped('mail_message_id.res_id'))
+                records = self.env[model].browse(id_ for id_ in schedules.mapped('mail_message_id.res_id') if id_)
                 existing = records.exists()
             else:
                 records = [self.env['mail.thread']] * len(schedules)
@@ -81,7 +81,7 @@ class MailMessageSchedule(models.Model):
                     schedule_notify_kwargs.pop('scheduled_date', None)
                     notify_kwargs.update(schedule_notify_kwargs)
 
-                record._notify_thread(schedule.mail_message_id, msg_vals=False, **notify_kwargs)
+                record._notify_thread(schedule.mail_message_id, **notify_kwargs)
 
         self.unlink()
         return True

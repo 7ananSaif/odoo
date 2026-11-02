@@ -14,18 +14,18 @@ This is the latest Indonesian Odoo localisation necessary to run Odoo accounting
     'website': 'https://www.odoo.com/documentation/latest/applications/finance/fiscal_localizations/indonesia.html',
     'depends': [
         'account',
-        'base_iban',
-        'base_vat',
     ],
     'auto_install': ['account'],
     'data': [
-        'security/ir.model.access.csv',
         'data/ir_cron.xml',
         'views/account_move_views.xml',
         'views/res_bank.xml',
+        'views/res_config_settings_views.xml',
+        'security/ir.access.csv',
     ],
     'demo': [
         'demo/demo_company.xml',
     ],
+    'post_init_hook': 'post_init',
     'license': 'LGPL-3',
 }

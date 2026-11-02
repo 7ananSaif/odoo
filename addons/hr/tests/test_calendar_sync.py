@@ -1,6 +1,8 @@
 from odoo.fields import Datetime, Date
+from odoo.tests import tagged
+
 from odoo.addons.hr.tests.common import TestHrCommon
-from odoo.tests import Form
+from odoo.tests import Form, freeze_time
 
 
 class TestContractCalendars(TestHrCommon):
@@ -23,11 +25,17 @@ class TestContractCalendars(TestHrCommon):
             'wage': 5000.0,
         }
 
+        cls.calendar_fully_flexible = cls.env['resource.calendar'].create({
+            'name': 'Fully Flexible Calendar',
+            'calendar_type': 'undefined',
+            'attendance_ids': [],
+        })
+
         cls.contract_fully_flexible_values = {
             'date_version': Date.to_date('2017-01-01'),
             'date_start': Date.to_date('2017-01-01'),
             'name': 'Fully Flexible Contract for Richard',
-            'resource_calendar_id': False,
+            'resource_calendar_id': cls.calendar_fully_flexible.id,
             'wage': 5000.0,
         }
 
@@ -39,11 +47,12 @@ class TestContractCalendars(TestHrCommon):
         self.assertEqual(self.employee.resource_calendar_id, cdd.resource_calendar_id, "The employee should have the calendar of its contract.")
 
     def test_set_fully_flexible_contract_should_change_resource_calendar(self):
-        # Setting a running contract with fully flexible calendar should set the employee's calendar to False (fully flexible)
+        # Setting a running contract with a fully flexible calendar should set the employee's calendar accordingly
         self.assertEqual(self.employee.resource_calendar_id, self.calendar_richard)
         flexijob = self.employee.create_version(self.contract_fully_flexible_values)
         self.assertEqual(self.employee.version_id.id, flexijob.id, "The version of the employee should be updated to the last version.")
-        self.assertFalse(self.employee.resource_calendar_id, "The employee should have a fully flexible calendar.")
+        self.assertEqual(self.employee.resource_calendar_id, self.calendar_fully_flexible, "The employee should have the fully flexible calendar.")
+        self.assertTrue(self.employee._is_fully_flexible(), "The employee should be fully flexible.")
 
     def test_contract_transfer_leaves(self):
 
@@ -54,7 +63,7 @@ class TestContractCalendars(TestHrCommon):
                 'date_to': end,
                 'resource_id': resource.id if resource else None,
                 'calendar_id': self.employee.resource_calendar_id.id,
-                'time_type': 'leave',
+                'count_as': 'absence',
             })
 
         start = Datetime.to_datetime('2015-11-17 07:00:00')
@@ -91,6 +100,32 @@ class TestContractCalendars(TestHrCommon):
         self.employee.resource_calendar_id = calendar_38h
         self.assertEqual(self.employee.version_id.resource_calendar_id, calendar_38h)
         self.assertEqual(self.employee.version_ids[0].resource_calendar_id, self.calendar_richard)
+
+    def test_change_resource_calendar_on_version_change(self):
+        # When a new version/contract becomes active, ensure that `resource_id.calendar_id` is updated to the new working schedule
+        old_schedule = self.employee.resource_calendar_id
+        new_schedule = self.env['resource.calendar'].create({'name': 'New Schedule'})
+        with freeze_time('2016-01-01'):
+            self.employee.create_version({
+                'date_version': Date.to_date('2016-01-02'),
+                'date_start': Date.to_date('2016-01-02'),
+                'name': 'New Contract',
+                'resource_calendar_id': new_schedule.id,
+                'wage': 5000.0,
+            })
+        with freeze_time('2016-01-02'):
+            self.employee._cron_update_current_version_id()
+
+        self.assertEqual(
+            self.employee.resource_calendar_id,
+            self.employee.resource_id.calendar_id,
+            "The working schedule should match between the employee and resource records."
+        )
+        self.assertEqual(
+            self.employee.version_ids[0].resource_calendar_id,
+            old_schedule,
+            "The old schedule on previous version shouldn't be erased by the latter modification."
+        )
 
     def test_employee_resource_contract_without_and_with_date_from(self):
         """

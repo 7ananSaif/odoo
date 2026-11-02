@@ -1,34 +1,84 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-import base64
 import logging
 
+from psycopg2.extras import Json
+from zeep.cache import Base as ZeepCache
+
 from odoo import api, fields, models, modules, tools
-from odoo.api import SUPERUSER_ID
-from odoo.exceptions import ValidationError, UserError
+from odoo.api import SUPERUSER_ID, ormcache
+from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Command, Domain
-from odoo.tools import html2plaintext, file_open, ormcache
-from odoo.tools import saas_lock  # SAAS-PATCH
+from odoo.tools import SQL, BinaryBytes, file_open, html2plaintext, zeep
 from odoo.tools.image import image_process
+from odoo.tools.sql import table_columns
 
 _logger = logging.getLogger(__name__)
 
 
-class ResCompany(models.Model):
+def company_default_for(fname, target_model, target_fname):
+    """Return the attributes needed to sync a company field with `ir.default` for company dependent fields."""
+    def _compute_from_ir_default(self):
+        model = self.env[target_model]
+        field = model._fields[target_fname]
+        for company in self:
+            default = field.get_company_dependent_fallback(model.with_company(company))
+            if field.type == 'many2one':
+                default = default.exists()
+            company[fname] = default
+
+    def _inverse_to_ir_default(self):
+        # guard against invalidation
+        company_defaults = {company: self._fields[fname].convert_to_cache(company[fname], company) for company in self}
+        for company in self:
+            self.env['ir.default'].with_user(SUPERUSER_ID).set(target_model, target_fname, company_defaults[company], company_id=company.id)
+
+    def _compute_sql_ir_default(self, table):
+        model = self.env[target_model]
+        field = model._fields[target_fname]
+        data = {}
+        for company_id in self.env['res.company'].sudo()._cached_data()['id']:
+            model = model.with_company(company_id)
+            data[company_id] = field.convert_to_column(field.convert_to_write(field.get_company_dependent_fallback(model), model), model)
+        default_sql = SQL("(%s::jsonb->>%s::text)::%s", Json(data), table.id, field.sql_column_type)
+        if field.type == 'many2one':
+            related_alias = table._make_alias(fname)
+            table._query.add_join('LEFT JOIN', related_alias, self.env[field.comodel_name]._table, SQL("%s = %s", default_sql, related_alias.id))
+            return related_alias.id
+        return default_sql
+
+    return {
+        'company_default_for': (fname, target_model, target_fname),
+        'compute': _compute_from_ir_default,
+        'inverse': _inverse_to_ir_default,
+        'compute_sql': _compute_sql_ir_default,
+        'compute_sudo': True,
+        'write_sequence': -10,  # inverse before other fields to apply the company default
+    }
+
+
+class ResCompany(models.CachedModel):
     _name = 'res.company'
-    _description = 'Companies'
+    _description = 'Company'
+    _explanation = "Represents a legal entity within the Odoo database. Odoo supports multi-company environments where each company has its own settings, chart of accounts, and business data."
     _order = 'sequence, name'
     _inherit = ['format.address.mixin', 'format.vat.label.mixin']
     _parent_store = True
+    _clear_asset_cache_on_fields = {'font', 'primary_color', 'secondary_color', 'external_report_layout_id'}
+    _cached_data_fields = ('name', 'active', 'sequence', 'currency_id', 'parent_id', 'partner_id')
 
     def copy(self, default=None):
         raise UserError(self.env._('Duplicating a company is not allowed. Please create a new company instead.'))
 
     def _get_logo(self):
-        with file_open('base/static/img/res_company_logo.png', 'rb') as file:
-            return base64.b64encode(file.read())
+        with file_open('base/static/img/res_company_logo.png', 'rb') as f:
+            return BinaryBytes(f.read(), filename='logo.png')
 
     def _default_currency_id(self):
+        if not self.env.registry.ready and not (set(self._cached_data_fields) <= table_columns(self.env.cr, self._table).keys()):
+            # The database is being initialized, _init_column calls and tries to
+            # access the cache.
+            return None
         return self.env.user.company_id.currency_id
 
     name = fields.Char(related='partner_id.name', string='Company Name', required=True, store=True, readonly=False)
@@ -43,12 +93,18 @@ class ResCompany(models.Model):
     partner_id = fields.Many2one('res.partner', string='Partner', required=True, index=True)
     report_header = fields.Html(string='Company Tagline', translate=True, help="Company tagline, which is included in a printed document's header or footer (depending on the selected layout).")
     report_footer = fields.Html(string='Report Footer', translate=True, help="Footer text displayed at the bottom of all reports.")
-    company_details = fields.Html(string='Company Details', translate=True, help="Header text displayed at the top of all reports.")
+    company_details = fields.Html(
+        string="Company Details",
+        translate=True,
+        help="Header text displayed at the top of all reports.",
+        compute="_compute_parent_fields",
+        store=True,
+        readonly=False,
+        recursive=True,
+    )
     is_company_details_empty = fields.Boolean(compute='_compute_empty_company_details')
     logo = fields.Binary(related='partner_id.image_1920', default=_get_logo, string="Company Logo", readonly=False)
-    # logo_web: do not store in attachments, since the image is retrieved in SQL for
-    # performance reasons (see addons/web/controllers/main.py, Binary.company_logo)
-    logo_web = fields.Binary(compute='_compute_logo_web', store=True, attachment=False)
+    logo_web = fields.Binary(compute='_compute_logo_web', store=True)
     uses_default_logo = fields.Boolean(compute='_compute_uses_default_logo', store=True)
     currency_id = fields.Many2one('res.currency', string='Currency', required=True, default=lambda self: self._default_currency_id())
     user_ids = fields.Many2many('res.users', 'res_company_users_rel', 'cid', 'user_id', string='Accepted Users')
@@ -68,16 +124,24 @@ class ResCompany(models.Model):
     phone = fields.Char(related='partner_id.phone', store=True, readonly=False)
     website = fields.Char(related='partner_id.website', readonly=False)
     vat = fields.Char(related='partner_id.vat', string="Tax ID", readonly=False)
-    company_registry = fields.Char(related='partner_id.company_registry', string="Company ID", readonly=False)
-    company_registry_placeholder = fields.Char(related='partner_id.company_registry_placeholder')
+    has_vat = fields.Boolean(related='partner_id.has_vat', depends=['vat'])
+    additional_identifiers = fields.Json(related='partner_id.additional_identifiers', readonly=False)
+    available_additional_identifiers_metadata = fields.Json(related='partner_id.available_additional_identifiers_metadata')
     paperformat_id = fields.Many2one('report.paperformat', 'Paper format', default=lambda self: self.env.ref('base.paperformat_euro', raise_if_not_found=False))
     external_report_layout_id = fields.Many2one('ir.ui.view', 'Document Template')
-    font = fields.Selection([("Lato", "Lato"), ("Roboto", "Roboto"), ("Open_Sans", "Open Sans"), ("Montserrat", "Montserrat"), ("Oswald", "Oswald"), ("Raleway", "Raleway"), ('Tajawal', 'Tajawal'), ('Fira_Mono', 'Fira Mono')], default="Lato")
+    report_tables_id = fields.Selection([
+        ('light', 'Light'),
+        ('boxed', 'Boxed'),
+        ('bold', 'Bold'),
+        ('striped', 'Striped'),
+        ('bubble', 'Bubble'),
+        ('column', 'Column'),
+        ('compact', 'Compact'),
+    ], string='Table Design', default='light')
+    font = fields.Selection([("Lato", "Lato"), ("Roboto", "Roboto"), ("Open_Sans", "Open Sans"), ("Montserrat", "Montserrat"), ("Oswald", "Oswald"), ("Raleway", "Raleway"), ('Tajawal', 'Tajawal'), ('Noto_Sans_Mono', 'Noto Sans Mono')], default="Lato")
     primary_color = fields.Char()
     secondary_color = fields.Char()
     color = fields.Integer(compute='_compute_color', inverse='_inverse_color')
-    layout_background = fields.Selection([('Blank', 'Blank'), ('Demo logo', 'Demo logo'), ('Custom', 'Custom')], default="Blank", required=True)
-    layout_background_image = fields.Binary("Background Image")
     uninstalled_l10n_module_ids = fields.Many2many('ir.module.module', compute='_compute_uninstalled_l10n_module_ids')
 
     _name_uniq = models.Constraint(
@@ -90,9 +154,11 @@ class ResCompany(models.Model):
             paperformat_euro = self.env.ref('base.paperformat_euro', False)
             if paperformat_euro:
                 company.write({'paperformat_id': paperformat_euro.id})
-        sup = super()
-        if hasattr(sup, 'init'):
-            sup.init()
+        if any(hasattr(f, 'company_default_for') for f in self._fields.values()):
+            def init_company_defaults(env):
+                env['res.company'].with_context(active_test=False).search([])._init_company_defaults()
+            self.pool.post_init(init_company_defaults, self.env)
+        super().init()
 
     def _get_company_root_delegated_field_names(self):
         """Get the set of fields delegated to the root company.
@@ -112,6 +178,12 @@ class ResCompany(models.Model):
     def _get_company_address_update(self, partner):
         return dict((fname, partner[fname])
                     for fname in self._get_company_address_field_names())
+
+    @api.depends('parent_id', 'parent_id.company_details')
+    def _compute_parent_fields(self):
+        for company in self:
+            if company.parent_id and not company.company_details:
+                company.company_details = company.parent_id.company_details
 
     @api.depends('parent_path')
     def _compute_parent_ids(self):
@@ -155,13 +227,13 @@ class ResCompany(models.Model):
     def _compute_logo_web(self):
         for company in self:
             img = company.partner_id.image_1920
-            company.logo_web = img and base64.b64encode(image_process(base64.b64decode(img), size=(180, 0)))
+            company.logo_web = img and BinaryBytes(image_process(img.content, size=(180, 0)), filename='logo.png')
 
     @api.depends('partner_id.image_1920')
     def _compute_uses_default_logo(self):
         default_logo = self._get_logo()
         for company in self:
-            company.uses_default_logo = not company.logo or company.logo == default_logo
+            company.uses_default_logo = not company.logo or company.logo.content == default_logo.content
 
     @api.depends('root_id')
     def _compute_color(self):
@@ -227,10 +299,11 @@ class ResCompany(models.Model):
             company.uninstalled_l10n_module_ids = self.env['ir.module.module'].browse(mapping.get(company.country_id.id))
 
     def install_l10n_modules(self):
+        self.env.flush_all()
         uninstalled_modules = self.uninstalled_l10n_module_ids
         is_ready_and_not_test = (
             not tools.config['test_enable']
-            and (self.env.registry.ready or not self.env.registry._init)
+            and self.env.registry.ready
             and not modules.module.current_test
             and not self.env.context.get('install_mode') and not self.env.context.get('import_file')  # due to savepoint when importing the file
         )
@@ -273,8 +346,6 @@ class ResCompany(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        # SAAS-PATCH: enforce the subscription plan's company limit.
-        saas_lock.check_saas_limit(self.env, 'max_companies', extra=len(vals_list))
 
         # create missing partners
         no_partner_vals_list = [
@@ -286,7 +357,6 @@ class ResCompany(models.Model):
             partners = self.env['res.partner'].with_context(default_parent_id=False).create([
                 {
                     'name': vals['name'],
-                    'is_company': True,
                     'image_1920': vals.get('logo'),
                     'email': vals.get('email'),
                     'phone': vals.get('phone'),
@@ -307,7 +377,6 @@ class ResCompany(models.Model):
                 for fname in self._get_company_root_delegated_field_names():
                     vals.setdefault(fname, self._fields[fname].convert_to_write(parent[fname], parent))
 
-        self.env.registry.clear_cache()
         companies = super().create(vals_list)
 
         # The write is made on the user to set it automatically in the multi company group.
@@ -323,23 +392,8 @@ class ResCompany(models.Model):
         if companies_needs_l10n:
             companies_needs_l10n.install_l10n_modules()
 
+        companies._init_company_defaults()
         return companies
-
-    def cache_invalidation_fields(self):
-        # This list is not well defined and tests should be improved
-        return {
-            'active', # user._get_company_ids and other potential cached search
-            'sequence', # user._get_company_ids and other potential cached search
-        }
-
-    def unlink(self):
-        """
-        Unlink the companies and clear the cache to make sure that
-        _get_company_ids of res.users gets only existing company ids.
-        """
-        res = super().unlink()
-        self.env.registry.clear_cache()
-        return res
 
     def write(self, vals):
         if 'parent_id' in vals:
@@ -350,21 +404,18 @@ class ResCompany(models.Model):
             if not currency.active:
                 currency.write({'active': True})
 
-        res = super().write(vals)
-        invalidation_fields = self.cache_invalidation_fields()
-        asset_invalidation_fields = {'font', 'primary_color', 'secondary_color', 'external_report_layout_id'}
-
+        # computed before the write: afterwards, every company has the new country
         companies_needs_l10n = (
             vals.get('country_id')
             and self.filtered(lambda company: not company.country_id)
         ) or self.browse()
-        if not invalidation_fields.isdisjoint(vals):
-            self.env.registry.clear_cache()
 
-        if not asset_invalidation_fields.isdisjoint(vals):
+        res = super().write(vals)
+
+        if any(self._ids) and not self._clear_asset_cache_on_fields.isdisjoint(vals):
             # this is used in the content of an asset (see asset_styles_company_report)
             # and thus needs to invalidate the assets cache when this is changed
-            self.env.registry.clear_cache('assets')  # not 100% it is useful a test is missing if it is the case
+            self.env.transaction.invalidate_ormcache('assets')  # not 100% it is useful a test is missing if it is the case
 
         # Archiving a company should also archive all of its branches
         if vals.get('active') is False:
@@ -429,7 +480,7 @@ class ResCompany(models.Model):
 
         return main_company
 
-    @ormcache('tuple(self.env.companies.ids)', 'self.id', 'self.env.uid')
+    @api.ormcache('frozenset(self.env.companies.ids)', 'self.id', 'self.env.uid')
     def __accessible_branches(self):
         # Get branches of this company that the current user can use
         self.ensure_one()
@@ -491,6 +542,45 @@ class ResCompany(models.Model):
                 'company_ids': [(6, 0, [self.id])],
             })
 
-    @ormcache()
-    def _get_company_partner_ids(self):
-        return tuple(self.env['res.company'].sudo().with_context(active_test=False).search([]).partner_id.ids)
+    def _valid_field_parameter(self, field, name):
+        if name == 'company_default_for':
+            assert field.name == field.company_default_for[0], f"{field.company_default_for[0]} is not {field.name}"
+            return True
+        return super()._valid_field_parameter(field, name)
+
+    def _init_company_defaults(self):
+        """Write ir.default entries for company_default_for fields that declare a default."""
+        for fname, field in self._fields.items():
+            if not hasattr(field, 'company_default_for') or not field.default:
+                continue
+            fname, target_model, target_fname = field.company_default_for
+            for company in self:
+                existing = self.env['ir.default'].with_user(SUPERUSER_ID).with_company(company)._get_model_defaults(target_model).get(target_fname)
+                if existing is None:
+                    company[fname] = field.default(company)
+
+    @ormcache('self.id', cache='stable')
+    def _get_zeep_cache__(self):  # noqa: PLW3201
+        """Return a cache bucket used by ``odoo.tools.zeep`` for XSDs/WSDLs."""
+        return {}
+
+    def _get_zeep_client__(self, url, *args, **kwargs):  # noqa: PLW3201
+        """Return a Zeep Client which uses the ORM cache for XSDs/WSDLs."""
+        self.ensure_one()
+        transport = kwargs.setdefault('transport', zeep.Transport())
+        if not transport.cache:
+            transport.cache = ZeepOrmCache(self)
+        return zeep.Client(url, *args, **kwargs)
+
+
+class ZeepOrmCache(ZeepCache):
+    """Zeep cache for XSD/WSDL resources backed by the ORM cache."""
+
+    def __init__(self, company):
+        self.company = company
+
+    def add(self, url, content):
+        self.company._get_zeep_cache__()[url] = content
+
+    def get(self, url):
+        return self.company._get_zeep_cache__().get(url)

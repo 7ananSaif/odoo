@@ -8,6 +8,8 @@ from odoo.addons.point_of_sale.tests.test_frontend import TestPointOfSaleHttpCom
 
 @tagged('post_install', '-at_install')
 class TestUi(TestPointOfSaleHttpCommon):
+    _test_user_groups = None  # FIXME list needed groups
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -85,15 +87,113 @@ class TestUi(TestPointOfSaleHttpCommon):
                 (0, 0, {
                     'title': 'Name',
                     'question_type': 'name',
-                    'once_per_order': False,
                 }),
                 (0, 0, {
                     'title': 'Email',
                     'question_type': 'email',
-                    'once_per_order': False,
+                }),
+                (0, 0, {
+                    'title': 'Phone',
+                    'question_type': 'phone',
                 }),
             ]
         })
+
+        # pass the tickets explicitly, otherwise copy() suffixes their names with "(copy)"
+        cls.test_multislot_event = cls.test_event.copy({
+            'event_ticket_ids': [Command.create({
+                'name': ticket.name,
+                'product_id': ticket.product_id.id,
+                'seats_max': ticket.seats_max,
+                'price': ticket.price,
+            }) for ticket in cls.test_event.event_ticket_ids],
+        })
+        slots_day = cls.test_multislot_event.date_begin.date() + datetime.timedelta(days=2)
+        slot_1, slot_2 = cls.env['event.slot'].create([
+            {
+                'date': slots_day,
+                'start_hour': start_hour,
+                'end_hour': start_hour + 1,
+                'event_id': cls.test_multislot_event.id,
+            }
+            for start_hour in [8, 10]
+        ])
+        cls.test_multislot_event.write({
+            'name': 'My Awesome MultiSlot Event',
+            'is_multi_slots': True,
+            'event_slot_ids': [(6, 0, (slot_1 + slot_2).ids)],
+        })
+
+    def test_event_availability_in_pos(self):
+        self.pos_user.write({
+            'group_ids': [
+                (4, self.env.ref('event.group_event_user').id),
+            ]
+        })
+        self.main_pos_config.write({
+            "limit_categories": True,
+            "iface_available_categ_ids": [(6, 0, [self.event_category.id])],
+        })
+
+        # Basic ticket = unlimited / 3 max per order
+        # VIP ticket = 1 max
+        basic_ticket, _ = self.test_event.event_ticket_ids
+        basic_ticket.seats_max = 0
+        basic_ticket.limit_max_per_order = 3
+
+        # Event limited (seats max = 2)
+        test_event_limited = self.test_event.copy()
+        test_event_limited.name = "Event Limited"
+        self.assertTrue(test_event_limited.seats_limited and test_event_limited.seats_max == 2)
+        # Event not limited
+        test_event_unlimited = self.test_event.copy()
+        test_event_unlimited.name = "Event Unlimited"
+        test_event_unlimited.seats_limited = False
+        test_event_unlimited.seats_max = 0
+
+        self.main_pos_config.with_user(self.pos_user).open_ui()
+        self.start_tour("/pos/ui?config_id=%d" % self.main_pos_config.id, 'CheckEventAvailability', login="pos_user")
+
+        order = self.env['pos.order'].search([], order='id desc', limit=1)
+        event_registrations = order.lines.event_registration_ids
+        self.assertEqual(len(event_registrations), 6)
+        self.assertTrue(test_event_limited.event_registrations_sold_out)
+        self.assertFalse(test_event_unlimited.event_registrations_sold_out)
+
+    def test_multislot_event_availability_in_pos(self):
+        self.pos_user.write({
+            'group_ids': [
+                (4, self.env.ref('event.group_event_user').id),
+            ]
+        })
+        self.main_pos_config.write({
+            "limit_categories": True,
+            "iface_available_categ_ids": [(6, 0, [self.event_category.id])],
+        })
+
+        # Basic ticket = unlimited / 3 max per order
+        # VIP ticket = 1 max per slot
+        basic_ticket, _ = self.test_multislot_event.event_ticket_ids
+        basic_ticket.seats_max = 0
+        basic_ticket.limit_max_per_order = 3
+
+        # Event/slots limited (seats max = 2 per slot)
+        test_multislot_event_limited = self.test_multislot_event.copy()
+        test_multislot_event_limited.name = "MultiSlot Event Limited"
+        # Event/slots not limited
+        test_multislot_event_unlimited = self.test_multislot_event.copy()
+        test_multislot_event_unlimited.name = "MultiSlot Event Unlimited"
+        test_multislot_event_unlimited.seats_limited = False
+        test_multislot_event_unlimited.seats_max = 0
+
+        self.main_pos_config.with_user(self.pos_user).open_ui()
+        self.start_tour("/pos/ui?config_id=%d" % self.main_pos_config.id, 'CheckMultiSlotEventAvailability', login="pos_user")
+
+        order = self.env['pos.order'].search([], order='id desc', limit=1)
+        event_registrations = order.lines.event_registration_ids
+        self.assertEqual(len(event_registrations), 10)
+        self.assertTrue(test_multislot_event_limited.event_registrations_sold_out)
+        self.assertFalse(test_multislot_event_unlimited.event_registrations_sold_out)
 
     def test_selling_event_in_pos(self):
         self.pos_user.write({
@@ -110,8 +210,8 @@ class TestUi(TestPointOfSaleHttpCommon):
             'event_ticket_ids': [(1, self.test_event.event_ticket_ids[1].id, {'seats_max': 3})],
             'question_ids': [
                 Command.create({'title': 'Text Box 1', 'question_type': 'text_box', 'once_per_order': True}),
-                Command.create({'title': 'Text Box 2', 'question_type': 'text_box'})
-            ]
+                Command.create({'title': 'Text Box 2', 'question_type': 'text_box'}),
+            ],
         })
         self.main_pos_config.with_user(self.pos_user).open_ui()
         self.start_pos_tour('SellingEventInPosWithTextAnswers')
@@ -141,6 +241,7 @@ class TestUi(TestPointOfSaleHttpCommon):
         self.assertEqual(event_answer_name, ['Q1-Answer1', 'Q2-Answer1', 'Q3-Answer1'])
 
     def test_event_pricelist_pos(self):
+        self.pricelist = self._enable_pricelists()
         self.pos_user.write({
             'group_ids': [
                 (4, self.env.ref('event.group_event_user').id),
@@ -156,7 +257,7 @@ class TestUi(TestPointOfSaleHttpCommon):
             'item_ids': [Command.create({
                 'compute_price': 'fixed',
                 'applied_on': '1_product',
-                'fixed_price': 120,
+                'fixed_price': 80,
                 'product_id': self.event_ticket_product.id,
             })],
         })
@@ -182,31 +283,13 @@ class TestUi(TestPointOfSaleHttpCommon):
             "iface_available_categ_ids": [(6, 0, [self.event_category.id])],
         })
 
-        slots_day = self.test_event.date_begin.date() + datetime.timedelta(days=2)
-        slot_1, slot_2 = self.env['event.slot'].create([
-            {
-                'date': slots_day,
-                'start_hour': 8,
-                'end_hour': 9,
-                'event_id': self.test_event.id,
-            },
-            {
-                'date': slots_day,
-                'start_hour': 10,
-                'end_hour': 11,
-                'event_id': self.test_event.id,
-            }
-        ])
-        self.test_event.write({
-            'is_multi_slots': True,
-            'event_slot_ids': [(6, 0, (slot_1 + slot_2).ids)],
-        })
         # Reduce first slot availability by one
+        slot_1, slot_2 = self.test_multislot_event.event_slot_ids
         registration_1_basic = self.env['event.registration'].create([{
-            'event_id': self.test_event.id,
+            'event_id': self.test_multislot_event.id,
             'event_slot_id': slot_1.id,
             'state': 'open',
-            'event_ticket_id': self.test_event.event_ticket_ids[0].id,
+            'event_ticket_id': self.test_multislot_event.event_ticket_ids[0].id,
         }])
         self.assertEqual(registration_1_basic.event_ticket_id.name, 'Ticket Basic')
         self.assertEqual(slot_1.seats_available, 1)
@@ -238,8 +321,12 @@ class TestUi(TestPointOfSaleHttpCommon):
         self.start_tour("/pos/ui?config_id=%d" % self.main_pos_config.id, 'test_selling_multiple_ticket_saved', login="pos_user")
 
         order = self.env['pos.order'].search([], order='id desc', limit=1)
-        self.assertTrue(order.lines[0].event_registration_ids)
+        basic_event_registration = order.lines[0].event_registration_ids
+        self.assertTrue(basic_event_registration)
         self.assertTrue(order.lines[1].event_registration_ids)
+        self.assertTrue(order.lines[2].event_registration_ids)
+        self.assertEqual(basic_event_registration.name, 'DEMO')
+        self.assertEqual(basic_event_registration.email, 'demo@test.com')
 
     def test_orderline_price_remain_same_as_ticket_price(self):
         """ Test that the order line price remains the same as the ticket price when the customer added to the order. """
@@ -258,6 +345,9 @@ class TestUi(TestPointOfSaleHttpCommon):
         self.main_pos_config.with_user(self.pos_user).open_ui()
         self.start_pos_tour('test_orderline_price_remain_same_as_ticket_price')
         order = self.main_pos_config.current_session_id.order_ids[0]
+        event_registration = order.lines[0].event_registration_ids
+        event_answer_name = event_registration.registration_answer_ids.value_answer_id.mapped('name')
+        self.assertEqual(event_answer_name, ['Q1-Answer2', 'Q2-Answer2'])
         self.assertEqual(order.amount_total, 200)
         self.assertEqual(order.lines[0].event_ticket_id.event_id.id, self.test_event.id)
 
@@ -283,9 +373,9 @@ class TestUi(TestPointOfSaleHttpCommon):
         # No customer during order, filled registration information
         no_partner_registration = registrations.filtered(lambda r: not r.partner_id)
         self.assertEqual(len(no_partner_registration), 1)
-        self.assertEqual(no_partner_registration.name, "Name 1")
-        self.assertEqual(no_partner_registration.email, "1@test.com")
-
+        self.assertEqual(no_partner_registration.name, "TEST")
+        self.assertEqual(no_partner_registration.email, "2@test.com")
+        self.assertEqual(no_partner_registration.phone, "1234567890")
         partner_registrations = registrations.filtered(lambda r: r.partner_id == event_partner)
         self.assertEqual(len(partner_registrations), 3)
 
@@ -293,6 +383,7 @@ class TestUi(TestPointOfSaleHttpCommon):
         r2 = partner_registrations.filtered(lambda r: r.name == "Name 2")
         self.assertEqual(len(r2), 1)
         self.assertEqual(r2.email, "2@test.com")
+        self.assertEqual(r2.phone, "+99999999")
 
         # Customer during order, partial registration information
         r3 = partner_registrations.filtered(lambda r: r.name == "Name 3")
@@ -303,32 +394,3 @@ class TestUi(TestPointOfSaleHttpCommon):
         r_empty = partner_registrations.filtered(lambda r: r.name == "Event Parter")
         self.assertEqual(len(r_empty), 1)
         self.assertEqual(r_empty.email, "event@partner.com")
-
-    def test_multislot_unlimited_qty(self):
-        self.pos_user.write({
-            'group_ids': [
-                (4, self.env.ref('event.group_event_user').id),
-            ]
-        })
-        self.main_pos_config.write({
-            "limit_categories": True,
-            "iface_available_categ_ids": [(6, 0, [self.event_category.id])],
-        })
-
-        slot_1 = self.env['event.slot'].create([
-            {
-                'date': self.test_event.date_begin.date() + datetime.timedelta(days=2),
-                'start_hour': 8,
-                'end_hour': 9,
-                'event_id': self.test_event.id,
-            },
-        ])
-        self.test_event.write({
-            'is_multi_slots': True,
-            'seats_limited': False,
-            'seats_max': 0,
-            'event_slot_ids': [(6, 0, slot_1.ids)],
-        })
-        self.test_event.event_ticket_ids.write({'seats_max': 0})
-        self.main_pos_config.with_user(self.pos_user).open_ui()
-        self.start_tour("/pos/ui?config_id=%d" % self.main_pos_config.id, 'test_multislot_unlimited_qty', login="pos_user")

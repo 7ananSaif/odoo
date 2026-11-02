@@ -1,9 +1,7 @@
-import { markup } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { stepUtils } from "@web_tour/tour_utils";
 
 registry.category("web_tour.tours").add('mass_mailing_code_view_tour', {
-    url: '/odoo?debug=tests',
     steps: () => [
         stepUtils.showAppsMenuItem(),
         {
@@ -14,8 +12,7 @@ registry.category("web_tour.tours").add('mass_mailing_code_view_tour', {
             run: "click",
         }, {
             trigger: 'input#subject_0',
-            content: markup('Pick the <b>email subject</b>.'),
-            tooltipPosition: 'bottom',
+            content: 'Pick the email subject.',
             run: "edit Test",
         }, {
             trigger: 'div[name="contact_list_ids"] .o_input_dropdown input[type="text"]',
@@ -26,12 +23,12 @@ registry.category("web_tour.tours").add('mass_mailing_code_view_tour', {
             content: 'Select item from dropdown',
             run: 'click',
         }, {
-            trigger: 'div[name="body_arch"] .o_mailing_template_preview_wrapper [data-name="default"]',
-            content: markup('Choose this <b>theme</b>.'),
+            trigger: 'div[name="body_arch"] :iframe .o_mailing_template_preview_wrapper [data-name="default"]',
+            content: 'Choose this theme.',
             run: 'click',
         }, {
             trigger: '.o_codeview_btn',
-            content: markup('Click here to switch to <b>code view</b>'),
+            content: 'Click here to switch to code view',
             run: 'click'
         }, {
             trigger: "textarea.o_codeview",
@@ -42,11 +39,15 @@ registry.category("web_tour.tours").add('mass_mailing_code_view_tour', {
             },
         }, {
             trigger: '.o_codeview_btn',
-            content: markup('Click here to switch back from <b>code view</b>'),
+            content: 'Click here to switch back from code view',
             run: 'click'
         }, {
             trigger: '[name="body_arch"] :iframe .o_mail_wrapper_td',
             content: 'Verify that the dropable zone was not removed',
+        }, {
+            content: "Open the mailing in full-screen mode",
+            trigger: ".o_mass_mailing_iframe_wrapper .o_mass_mailing_can_edit_overlay",
+            run: "click",
         }, {
             trigger: ".o_builder_sidebar_open",
             content: "Wait for the html_builder to be visible",
@@ -61,7 +62,7 @@ registry.category("web_tour.tours").add('mass_mailing_code_view_tour', {
             run: "click",
         },
         {
-            trigger: '[name="body_arch"] :iframe .o_editable h1',
+            trigger: '[name="body_arch"] :iframe .o_savable h1',
             content: 'Verify that the title was inserted properly in the editor',
         },
         ...stepUtils.discardForm(),

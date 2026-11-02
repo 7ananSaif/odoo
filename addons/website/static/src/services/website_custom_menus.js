@@ -11,14 +11,22 @@ import { PagePropertiesDialog } from "@website/components/dialog/page_properties
  * are not client actions.
  */
 export const websiteCustomMenus = {
-    dependencies: ["website", "orm", "dialog", "ui"],
-    start(env, { website, orm, dialog, ui }) {
+    dependencies: ["website", "orm", "dialog", "ui", "menu"],
+    start(env, { website, orm, dialog, ui, menu }) {
         const services = { website, orm, dialog, ui };
         return {
             get(xmlId) {
                 return registry.category("website_custom_menus").get(xmlId, null);
             },
             async open(customMenu) {
+                const parentMenu = menu.getAll().find((m) => m.children.includes(customMenu.id));
+                // Wait for navigation to complete if the selected item requires the page document
+                if (
+                    parentMenu?.xmlid === "website.menu_current_page" &&
+                    website.isNavigatingToAnotherPage
+                ) {
+                    await website.isNavigatingToAnotherPage.promise;
+                }
                 const menuConfig = this.get(customMenu.xmlid);
                 if (menuConfig.openWidget) {
                     return menuConfig.openWidget(services);
@@ -87,12 +95,22 @@ registry.category("website_custom_menus").add("website.menu_edit_menu", {
         env.services.website.isDesigner &&
         !env.services.website.currentWebsite.metadata.translatable,
 });
+registry
+    .category("website.should_display_seo")
+    .add(
+        "seo_test_fn",
+        (env) =>
+            env.services.website.currentWebsite &&
+            env.services.website.isRestrictedEditor &&
+            !!env.services.website.currentWebsite.metadata.canOptimizeSeo
+    );
 registry.category("website_custom_menus").add("website.menu_optimize_seo", {
     Component: OptimizeSEODialog,
     isDisplayed: (env) =>
-        env.services.website.currentWebsite &&
-        env.services.website.isRestrictedEditor &&
-        !!env.services.website.currentWebsite.metadata.canOptimizeSeo,
+        registry
+            .category("website.should_display_seo")
+            .getAll()
+            .every((fn) => fn(env)),
 });
 registry.category("website_custom_menus").add("website.menu_ace_editor", {
     openWidget: (services) => (services.website.context.showResourceEditor = true),
@@ -101,12 +119,22 @@ registry.category("website_custom_menus").add("website.menu_ace_editor", {
         env.services.website.currentWebsite.metadata.viewXmlid &&
         !env.services.ui.isSmall,
 });
+registry
+    .category("website.should_display_page_properties")
+    .add(
+        "page_properties_test_fn",
+        (env) =>
+            env.services.website.currentWebsite &&
+            env.services.website.isDesigner &&
+            !!env.services.website.currentWebsite.metadata.mainObject
+    );
 registry.category("website_custom_menus").add("website.menu_page_properties", {
     Component: PagePropertiesDialog,
     isDisplayed: (env) =>
-        env.services.website.currentWebsite &&
-        env.services.website.isDesigner &&
-        !!env.services.website.currentWebsite.metadata.mainObject,
+        registry
+            .category("website.should_display_page_properties")
+            .getAll()
+            .every((fn) => fn(env)),
     getProps: async ({ orm, website }) => {
         const mainObject = website.currentWebsite.metadata.mainObject;
         const isPage = mainObject.model === "website.page";

@@ -1,38 +1,91 @@
 import { Dialog } from "@web/core/dialog/dialog";
 import { _t } from "@web/core/l10n/translation";
+import { smartDateUnits } from "@web/core/l10n/dates";
+import { registry } from "@web/core/registry";
 import { useAutofocus } from "@web/core/utils/hooks";
-import { TagsList } from "@web/core/tags_list/tags_list";
+import { BadgeTag } from "@web/core/tags_list/badge_tag";
 import { Operation } from "@web/model/relational_model/operation";
 import { Field, fieldVisualFeedback } from "@web/views/fields/field";
+import { formatDate } from "@web/views/fields/formatters";
 
-import { Component } from "@odoo/owl";
+import { Component, signal, t, useProps } from "@odoo/owl";
+const { DateTime } = luxon;
+
+const formatters = registry.category("formatters");
 
 export class ListConfirmationDialog extends Component {
     static template = "web.ListView.ConfirmationModal";
-    static components = { Dialog, Field, TagsList };
-    static props = {
-        close: Function,
-        title: {
-            validate: (m) =>
-                typeof m === "string" ||
-                (typeof m === "object" && typeof m.toString === "function"),
-            optional: true,
-        },
-        confirm: { type: Function, optional: true },
-        cancel: { type: Function, optional: true },
-        isDomainSelected: Boolean,
-        fields: Object,
-        nbRecords: Number,
-        nbValidRecords: Number,
-        record: Object,
-        changes: Object,
-    };
-    static defaultProps = {
-        title: _t("Confirmation"),
-    };
+    static components = { BadgeTag, Dialog, Field };
+    props = useProps({
+        close: t.function(),
+        title: t
+            .customValidator(
+                t.any(),
+                (m) =>
+                    typeof m === "string" ||
+                    (typeof m === "object" && typeof m.toString === "function")
+            )
+            .optional(_t("Confirmation")),
+        confirm: t.function().optional(),
+        cancel: t.function().optional(),
+        isDomainSelected: t.boolean(),
+        fields: t.array(),
+        nbRecords: t.number(),
+        nbValidRecords: t.number(),
+        record: t.object(),
+        changes: t.object(),
+    });
+
+    autofocusRef = signal.ref();
 
     setup() {
-        useAutofocus();
+        useAutofocus({ ref: this.autofocusRef });
+    }
+
+    get dateTip() {
+        const invertedSmartDateUnits = Object.create(null);
+        for (const [k, v] of Object.entries(smartDateUnits)) {
+            invertedSmartDateUnits[v] = k;
+        }
+        return _t(
+            `Use the operators "+=", "-=" to update the current date by days (%(days)s), 
+            weeks (%(weeks)s), months (%(months)s), years (%(years)s), hours (%(hours)s), 
+            minutes (%(minutes)s) and seconds (%(seconds)s).`,
+            invertedSmartDateUnits
+        );
+    }
+
+    get dateTipExample() {
+        return _t(
+            `For example, if the date is %(today)s and you enter "+=2d", 
+            it will be updated to %(future)s.`,
+            {
+                today: formatDate(DateTime.now()),
+                future: formatDate(DateTime.now().plus({ days: 2 })),
+            }
+        );
+    }
+
+    get showDateTip() {
+        return this.props.fields.some((field) =>
+            ["date", "datetime"].includes(field.fieldNode?.type)
+        );
+    }
+
+    get showNumberTip() {
+        return this.props.fields.some((field) =>
+            ["monetary", "integer", "float"].includes(field.fieldNode?.type)
+        );
+    }
+
+    get showTip() {
+        return this.showDateTip || this.showNumberTip;
+    }
+
+    get updateConfirmationText() {
+        return _t("Are you sure you want to update %(count)s records?", {
+            count: this.props.nbValidRecords,
+        });
     }
 
     get validRecordsText() {
@@ -42,18 +95,6 @@ export class ListConfirmationDialog extends Component {
                 total: this.props.nbRecords,
                 valid_count: this.props.nbValidRecords,
             }
-        );
-    }
-
-    get updateConfirmationText() {
-        return _t("Are you sure you want to update %(count)s records?", {
-            count: this.props.nbValidRecords,
-        });
-    }
-
-    get showTip() {
-        return this.props.fields.some((field) =>
-            ["monetary", "integer", "float"].includes(field.fieldNode?.type)
         );
     }
 
@@ -75,9 +116,8 @@ export class ListConfirmationDialog extends Component {
         const colorField = field.fieldNode.options?.color_field;
         return records.map((record) => ({
             id: record.id,
-            resId: record.resId,
             text: record.data.display_name,
-            colorIndex: colorField ? record.data[colorField] : undefined,
+            color: colorField ? record.data[colorField] : undefined,
         }));
     }
 
@@ -92,5 +132,15 @@ export class ListConfirmationDialog extends Component {
 
     isValueOperation(field) {
         return this.props.changes[field.name] instanceof Operation;
+    }
+
+    operationText(field) {
+        const operation = this.props.changes[field.name];
+        const formatter = typeof operation.operand === "number" && formatters.get(field.widget, false);
+        if (!formatter) {
+            return `${field.label} ${operation}`;
+        }
+        const operand = formatter(operation.operand, formatter.extractOptions?.(field.fieldNode) || {});
+        return `${field.label} ${operation.operator} ${operand}`;
     }
 }

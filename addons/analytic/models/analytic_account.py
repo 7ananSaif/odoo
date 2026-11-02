@@ -15,7 +15,7 @@ class AccountAnalyticAccount(models.Model):
     _order = 'plan_id, name asc'
     _check_company_auto = True
     _check_company_domain = models.check_company_domain_parent_of
-    _rec_names_search = ['name', 'code']
+    _rec_names_search = ('name', 'code')
 
     name = fields.Char(
         string='Analytic Account',
@@ -62,6 +62,7 @@ class AccountAnalyticAccount(models.Model):
         'res.company',
         string='Company',
         default=lambda self: self.env.company,
+        index=True,
     )
 
     partner_id = fields.Many2one(
@@ -111,21 +112,13 @@ class AccountAnalyticAccount(models.Model):
                 name = f'{name} - {analytic.partner_id.commercial_partner_id.name}'
             analytic.display_name = name
 
-    def copy_data(self, default=None):
-        default = dict(default or {})
-        vals_list = super().copy_data(default=default)
-        if 'name' not in default:
-            for account, vals in zip(self, vals_list):
-                vals['name'] = _("%s (copy)", account.name)
-        return vals_list
-
     def web_read(self, specification: dict[str, dict]) -> list[dict]:
         self_context = self
         if len(self) == 1:
             self_context = self.with_context(analytic_plan_id=self.plan_id.id)
         return super(AccountAnalyticAccount, self_context).web_read(specification)
 
-    def _read_group_select(self, aggregate_spec, query):
+    def _read_group_select(self, table, aggregate_spec):
         # flag balance/debit/credit as aggregatable, and manually sum the values
         # from the records in the group
         if aggregate_spec in (
@@ -136,8 +129,8 @@ class AccountAnalyticAccount(models.Model):
             'credit:sum',
             'credit:sum_currency',
         ):
-            return super()._read_group_select('id:recordset', query)
-        return super()._read_group_select(aggregate_spec, query)
+            aggregate_spec = 'id:recordset'
+        return super()._read_group_select(table, aggregate_spec)
 
     def _read_group_postprocess_aggregate(self, aggregate_spec, raw_values):
         if aggregate_spec in (
@@ -166,7 +159,6 @@ class AccountAnalyticAccount(models.Model):
                 from_amount=amount,
                 to_currency=self.env.company.currency_id,
                 company=self.env.company,
-                date=fields.Date.today(),
             )
 
         domain = [('company_id', 'in', [False] + self.env.companies.ids)]

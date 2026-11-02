@@ -1,9 +1,9 @@
 import { describe, expect, test } from "@odoo/hoot";
 import { press } from "@odoo/hoot-dom";
 import { setupEditor } from "./_helpers/editor";
-import { MAIN_PLUGINS } from "@html_editor/plugin_sets";
 import { getContent } from "./_helpers/selection";
 import { unformat } from "./_helpers/format";
+import { SelectionPlaceholderPlugin } from "@html_editor/main/selection_placeholder_plugin";
 
 describe("range collapsed", () => {
     test("should ignore copying an empty selection with empty clipboardData", async () => {
@@ -44,31 +44,57 @@ describe("range not collapsed", () => {
     });
 
     test.tags("focus required");
+    test("should copy a single selected table cell as text/plain, text/html and application/vnd.odoo.odoo-editor", async () => {
+        await setupEditor(
+            `<table class="o_selected_table"><tbody><tr><td class="o_selected_td">[ab]</td></tr><tr><td>ab</td></tr></tbody></table>`,
+            // Exclude the selection placeholder plugin so we have a DOM that
+            // really starts with a table.
+            { config: { excludePlugins: [SelectionPlaceholderPlugin] } }
+        );
+
+        const clipboardData = new DataTransfer();
+        await press(["ctrl", "c"], { dataTransfer: clipboardData });
+
+        // Plain text should still be copied
+        expect(clipboardData.getData("text/plain")).toBe("ab");
+
+        // HTML should preserve table structure (1×1 table)
+        expect(clipboardData.getData("text/html")).toBe(
+            `<table class="o_selected_table"><tbody><tr><td class="o_selected_td">ab</td></tr></tbody></table>`
+        );
+
+        // Editor-specific format should also preserve the table
+        expect(clipboardData.getData("application/vnd.odoo.odoo-editor")).toBe(
+            `<table class="o_selected_table"><tbody><tr><td class="o_selected_td">ab</td></tr></tbody></table>`
+        );
+    });
+
+    test.tags("focus required");
     test("should copy a selection as text/plain, text/html and application/vnd.odoo.odoo-editor in table", async () => {
         const { el } = await setupEditor(
             `]<table><tbody><tr><td><ul><li>a[</li><li>b</li><li>c</li></ul></td><td><br></td></tr></tbody></table>`,
             // Exclude the selection placeholder plugin so we have a DOM that
             // really starts with a table.
-            { config: { Plugins: MAIN_PLUGINS.filter((p) => p.id !== "selectionPlaceholder") } }
+            { config: { excludePlugins: [SelectionPlaceholderPlugin] } }
         );
         expect(getContent(el)).toBe(
             unformat(
-                `]<table class="o_selected_table"><tbody><tr>
+                `]<div class="o_table_wrapper"><table class="o_selected_table"><tbody><tr>
                     <td class="o_selected_td">
                         <ul><li>a</li><li>b</li><li>c</li></ul>
                     </td>
                     <td class="o_selected_td">[<br></td>
-                </tr></tbody></table>`
+                </tr></tbody></table></div>`
             )
         );
         const clipboardData = new DataTransfer();
         await press(["ctrl", "c"], { dataTransfer: clipboardData });
         expect(clipboardData.getData("text/plain")).toBe("a\nb\nc\n");
         expect(clipboardData.getData("text/html")).toBe(
-            "<table><tbody><tr><td><ul><li>a</li><li>b</li><li>c</li></ul></td><td><br></td></tr></tbody></table>"
+            '<div class="o_table_wrapper"><table><tbody><tr><td><ul><li>a</li><li>b</li><li>c</li></ul></td><td><br></td></tr></tbody></table></div>'
         );
         expect(clipboardData.getData("application/vnd.odoo.odoo-editor")).toBe(
-            "<table><tbody><tr><td><ul><li>a</li><li>b</li><li>c</li></ul></td><td><br></td></tr></tbody></table>"
+            '<div class="o_table_wrapper"><table><tbody><tr><td><ul><li>a</li><li>b</li><li>c</li></ul></td><td><br></td></tr></tbody></table></div>'
         );
     });
 
@@ -79,10 +105,10 @@ describe("range not collapsed", () => {
         const clipboardData = new DataTransfer();
         await press(["ctrl", "c"], { dataTransfer: clipboardData });
         expect(clipboardData.getData("text/html")).toBe(
-            "<p>abcd</p><table><tbody><tr><td><br></td><td><br></td></tr></tbody></table>"
+            '<p>abcd</p><div class="o_table_wrapper"><table><tbody><tr><td><br></td><td><br></td></tr></tbody></table></div>'
         );
         expect(clipboardData.getData("application/vnd.odoo.odoo-editor")).toBe(
-            "<p>abcd</p><table><tbody><tr><td><br></td><td><br></td></tr></tbody></table>"
+            '<p>abcd</p><div class="o_table_wrapper"><table><tbody><tr><td><br></td><td><br></td></tr></tbody></table></div>'
         );
     });
 
@@ -238,5 +264,48 @@ describe("range not collapsed", () => {
         expect(clipboardData.getData("text/html")).toBe(`<p>b<b contenteditable="true">c</b>d</p>`);
         expect(clipboardData.getData("application/vnd.odoo.odoo-editor")).toBe("");
         expect(clipboardData.types).not.toInclude("application/vnd.odoo.odoo-editor");
+    });
+});
+
+describe("list", () => {
+    test("should copy the selection inside a nested list item's paragraph without leaking the nested list (1)", async () => {
+        await setupEditor(
+            '<ul><li><div class="o-paragraph">a[bc]d</div><ul><li>test</li><li>adwwd</li></ul></li></ul>'
+        );
+        const clipboardData = new DataTransfer();
+        await press(["ctrl", "c"], { dataTransfer: clipboardData });
+        expect(clipboardData.getData("text/html")).toBe("<div>bc</div>");
+    });
+
+    test("should copy the selection inside a nested list item's paragraph without leaking the nested list (2)", async () => {
+        await setupEditor(
+            '<ul><li><div class="o-paragraph">[abcd]</div><ul><li>test</li><li>adwwd</li></ul></li></ul>'
+        );
+        const clipboardData = new DataTransfer();
+        await press(["ctrl", "c"], { dataTransfer: clipboardData });
+        expect(clipboardData.getData("text/html")).toBe("<ul><li><div>abcd</div></li></ul>");
+    });
+
+    test("should copy the whole list item, including its nested list, when the selection spans both", async () => {
+        await setupEditor(
+            unformat(`
+                <ul><li>
+                    <div class="o-paragraph">[abcd</div>
+                    <ul><li>test</li><li>adwwd]</li></ul>
+                </li></ul>
+            `)
+        );
+        const clipboardData = new DataTransfer();
+        await press(["ctrl", "c"], { dataTransfer: clipboardData });
+        expect(clipboardData.getData("text/html")).toBe(
+            unformat(`
+                <ul>
+                    <li>
+                        <div>abcd</div>
+                        <ul><li>test</li><li>adwwd</li></ul>
+                    </li>
+                </ul>
+            `)
+        );
     });
 });

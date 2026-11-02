@@ -1,24 +1,19 @@
 import { _t } from "@web/core/l10n/translation";
 import { useService } from "@web/core/utils/hooks";
-import { Component, useState } from "@odoo/owl";
+import { Component, proxy, t, useProps } from "@odoo/owl";
 
 export class ProgressBar extends Component {
     static template = "html_editor.ProgressBar";
-    static props = {
-        progress: { type: Number, optional: true },
-        hasError: { type: Boolean, optional: true },
-        uploaded: { type: Boolean, optional: true },
-        name: String,
-        size: { type: String, optional: true },
-        errorMessage: { type: String, optional: true },
-    };
-    static defaultProps = {
-        progress: 0,
-        hasError: false,
-        uploaded: false,
-        size: "",
-        errorMessage: "",
-    };
+    props = useProps({
+        progress: t.number().optional(0),
+        hasError: t.boolean().optional(false),
+        uploaded: t.boolean().optional(false),
+        name: t.string(),
+        size: t.string().optional(""),
+        errorMessage: t.string().optional(""),
+        mimetype: t.string().optional(""),
+        cancelUpload: t.function().optional(() => () => {}),
+    });
 
     get errorMessage() {
         return this.props.errorMessage || _t("File could not be saved");
@@ -34,12 +29,12 @@ export class UploadProgressToast extends Component {
     static components = {
         ProgressBar,
     };
-    static props = {
-        close: Function,
-    };
+    props = useProps({
+        close: t.function(),
+    });
 
     setup() {
         this.uploadService = useService("upload");
-        this.state = useState(this.uploadService.progressToast);
+        this.state = proxy(this.uploadService.progressToast);
     }
 }

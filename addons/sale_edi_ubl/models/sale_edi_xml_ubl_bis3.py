@@ -102,7 +102,14 @@ class SaleEdiXmlUbl_Bis3(models.AbstractModel):
         })
 
     def _add_sale_order_base_lines_vals(self, vals):
-        pass
+        sale_order = vals['sale_order']
+        AccountTax = self.env['account.tax']
+
+        base_lines = [line._prepare_base_line_for_taxes_computation() for line in sale_order.order_line.filtered(lambda line: not line.display_type)]
+        AccountTax._add_tax_details_in_base_lines(base_lines, sale_order.company_id)
+        AccountTax._round_base_lines_tax_details(base_lines, sale_order.company_id)
+
+        vals['base_lines'] = base_lines
 
     def _add_sale_order_currency_vals(self, vals):
         self._add_document_currency_vals(vals)
@@ -301,29 +308,6 @@ class SaleEdiXmlUbl_Bis3(models.AbstractModel):
         }
         self._ubl_add_line_price_node(sub_vals)
 
-    def _export_order_vals(self, sale_order):
-        vals = super()._export_order_vals(sale_order)
-
-        customer = sale_order.partner_id
-        supplier = sale_order.company_id.partner_id
-        customer_delivery_address = customer.child_ids.filtered(lambda child: child.type == 'delivery')
-        delivery = (sale_order.partner_shipping_id
-                    or (customer_delivery_address and customer_delivery_address[0])
-                    or customer)
-        order_line_vals = self._get_order_line_vals(sale_order.order_line, customer, supplier)
-
-        vals['vals'].update({
-            'order_type_code': 220,
-            'validity_date': sale_order.validity_date,
-            'originator_document_reference': sale_order.client_order_ref,
-            'customer_party_vals': self._get_partner_party_vals(customer, role='customer'),
-            'supplier_party_vals': self._get_partner_party_vals(supplier, role='supplier'),
-            'delivery_party_vals': self._get_partner_party_vals(delivery, role='delivery'),
-            'anticipated_monetary_total_vals': self._get_anticipated_monetary_total_vals(order_line_vals, sale_order.currency_id, sale_order.amount_total, sale_order.amount_paid),
-            'order_lines': order_line_vals,
-        })
-        return vals
-
     def _ubl_get_line_allowance_charge_discount_node(self, vals, discount_values):
         # EXTENDS account.edi.xml.ubl_bis3
         discount_node = super()._ubl_get_line_allowance_charge_discount_node(vals, discount_values)
@@ -335,6 +319,30 @@ class SaleEdiXmlUbl_Bis3(models.AbstractModel):
     # -------------------------------------------------------------------------
     # Order EDI Import
     # -------------------------------------------------------------------------
+
+    def _retrieve_line_vals(self, record, tree, document_type=False, qty_factor=1):
+        """Override of `account.edi.xml.ubl_bis3` to set/update a customer product reference."""
+        line_vals = super()._retrieve_line_vals(
+            record, tree, document_type=document_type, qty_factor=qty_factor
+        )
+        line_vals['product_uom_qty'] = line_vals.pop('quantity')
+        if not line_vals.get('product_id'):
+            # Set customer product reference on order line
+            line_vals['edi_customer_product_ref'] = self._find_value(
+                './cac:Item/cac:BuyersItemIdentification/cbc:ID', tree
+            )
+        return line_vals
+
+    def _import_product(self, partner, **product_vals):
+        """Override of `account.edi.xml.ubl_bis3` to search for the product from customer product
+        reference."""
+        product = super()._import_product(partner, **product_vals)
+        if not product:
+            # Find product related to customer product reference
+            return self.env['customer.product.reference'].sudo().find_product_matching_reference(
+                partner, product_vals['edi_customer_product_ref']
+            )
+        return product
 
     def _retrieve_order_vals(self, order, tree):
         """ Fill order details by extracting details from xml tree.
@@ -350,6 +358,8 @@ class SaleEdiXmlUbl_Bis3(models.AbstractModel):
         )
         if partner:
             order_vals['partner_id'] = partner.id
+            # Need to set partner before in order to find products from previous order
+            order.partner_id = partner.id
         order_vals['client_order_ref'] = tree.findtext('./{*}ID')
         order_vals['origin'] = tree.findtext('./{*}QuotationDocumentReference/{*}ID')
 
@@ -396,11 +406,5 @@ class SaleEdiXmlUbl_Bis3(models.AbstractModel):
             **super()._get_product_xpaths(),
             'variant_barcode': './cac:Item/cac:StandardItemIdentification/cbc:ExtendedID',
             'variant_default_code': './cac:Item/cac:SellersItemIdentification/cbc:ExtendedID',
+            'edi_customer_product_ref': './cac:Item/cac:BuyersItemIdentification/cbc:ID',
         }
-
-    def _retrieve_line_vals(self, tree, document_type=False, qty_factor=1):
-        """Override of `account.edi.common` to adapt dictionary keys from the base method to be
-        compatible with the `sale.order.line` model."""
-        line_vals = super()._retrieve_line_vals(tree, document_type, qty_factor)
-        line_vals['product_uom_qty'] = line_vals.pop('quantity')
-        return line_vals

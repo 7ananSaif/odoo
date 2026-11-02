@@ -25,7 +25,7 @@ class PaymentPortal(payment_portal.PaymentPortal):
 
     @staticmethod
     def _ensure_session_open(pos_order_sudo):
-        if pos_order_sudo.session_id.state != 'opened':
+        if pos_order_sudo.session_id.state == 'closed':
             raise AccessError(_("The POS session is not opened."))
 
     def _get_partner_sudo(self, user_sudo):
@@ -52,11 +52,11 @@ class PaymentPortal(payment_portal.PaymentPortal):
         payment_method = pos_order_sudo.online_payment_method_id
         if not payment_method:
             raise UserError(_("There is no online payment method configured for this Point of Sale order."))
-        compatible_providers_sudo = request.env['payment.provider'].sudo()._get_compatible_providers(
+        available_providers_sudo = request.env['payment.provider'].sudo()._find_available_providers(
             pos_order_sudo.company_id.id, partner_id, amount_to_pay, currency_id=pos_order_sudo.currency_id.id
         )  # In sudo mode to read the fields of providers and partner (if logged out).
         # Return the payment providers configured in the pos.payment.method that are compatible for the payment API
-        return compatible_providers_sudo & payment_method._get_online_payment_providers(pos_order_sudo.config_id.id, error_if_invalid=False)
+        return available_providers_sudo & payment_method._get_online_payment_providers(pos_order_sudo.config_id.id, error_if_invalid=False)
 
     @staticmethod
     def _new_url_params(access_token, exit_route=None):
@@ -105,6 +105,8 @@ class PaymentPortal(payment_portal.PaymentPortal):
         kwargs = {
             'pos_order_id': pos_order_sudo.id,
         }
+        if pos_order_sudo.source == 'kiosk':
+            exit_route = None
         rendering_context = {
             **kwargs,
             'exit_route': exit_route,
@@ -125,21 +127,19 @@ class PaymentPortal(payment_portal.PaymentPortal):
 
         amount_to_pay = self._get_amount_to_pay(pos_order_sudo)
         if not self._is_valid_amount(amount_to_pay, currency_id):
+            if exit_route:
+                return request.redirect(exit_route)
             rendering_context['amount'] = False
             return self._render_pay(rendering_context)
         rendering_context['amount'] = amount_to_pay
 
         # Select all the payment methods and tokens that match the payment context.
         providers_sudo = self._get_allowed_providers_sudo(pos_order_sudo, partner_sudo.id, amount_to_pay)
-        payment_methods_sudo = request.env['payment.method'].sudo()._get_compatible_payment_methods(
-            providers_sudo.ids,
-            partner_sudo.id,
-            currency_id=currency_id.id,
-        )  # In sudo mode to read the fields of providers.
+        payment_methods_sudo = providers_sudo._find_available_payment_methods(
+            partner_sudo.id, currency_id=currency_id.id
+        )._deduplicate_by_code()
         if logged_in:
-            tokens_sudo = request.env['payment.token'].sudo()._get_available_tokens(
-                providers_sudo.ids, partner_sudo.id
-            )  # In sudo mode to be able to read the fields of providers.
+            tokens_sudo = providers_sudo._find_available_tokens(partner_sudo.id)
             show_tokenize_input_mapping = self._compute_show_tokenize_input_mapping(
                 providers_sudo, **kwargs)
         else:
@@ -184,7 +184,7 @@ class PaymentPortal(payment_portal.PaymentPortal):
         if not partner_sudo:
             return self._redirect_login()
 
-        self._validate_transaction_kwargs(kwargs)
+        self._validate_transaction_kwargs(kwargs, additional_allowed_keys=("override_pending_payment",))
         if kwargs.get('is_validation'):
             raise UserError(
                 _("A validation payment cannot be used for a Point of Sale online payment."))
@@ -212,9 +212,35 @@ class PaymentPortal(payment_portal.PaymentPortal):
         # Ignore the currency provided by the customer
         kwargs['currency_id'] = currency_id.id
 
+        pos_order_sudo.env.cr.execute("SELECT id FROM pos_order WHERE id = %s FOR UPDATE", (pos_order_sudo.id,))
+        pos_order_sudo.invalidate_recordset()
+
         amount_to_pay = self._get_amount_to_pay(pos_order_sudo)
         if not self._is_valid_amount(amount_to_pay, currency_id):
-            raise ValidationError(_("There is nothing to pay for this order."))
+            return {
+                'state': 'error',
+                'state_message': _("There is nothing to pay for this order."),
+                'pos_online_payment_nothing_to_pay': True,
+                'exit_route': exit_route,
+            }
+
+        pending_tx_sudo = request.env['payment.transaction'].sudo().search([
+            ('pos_order_id', '=', pos_order_sudo.id),
+            ('state', 'in', ('draft', 'pending')),
+        ])
+        if pending_tx_sudo and not kwargs.get('override_pending_payment'):
+            return {
+                'state': 'error',
+                'state_message': _(
+                    "It looks like a payment for this order is already being processed "
+                    "— maybe from this device, maybe from another. If you continue, "
+                    "you risk to pay the order twice. Only continue if you're sure the "
+                    "earlier attempt was abandoned.",
+                ),
+                'pos_online_payment_conflict': True,
+                'exit_route': exit_route,
+            }
+
         if tools.float_compare(kwargs['amount'], amount_to_pay, precision_rounding=currency_id.rounding) != 0:
             raise ValidationError(
                 _("The amount to pay has changed. Please refresh the page."))
@@ -227,8 +253,7 @@ class PaymentPortal(payment_portal.PaymentPortal):
             raise UserError(_("The payment should either be direct, with redirection, or made by a token."))
         providers_sudo = self._get_allowed_providers_sudo(pos_order_sudo, partner_sudo.id, amount_to_pay)
         if flow == 'token':
-            tokens_sudo = request.env['payment.token']._get_available_tokens(
-                providers_sudo.ids, partner_sudo.id)
+            tokens_sudo = providers_sudo._find_available_tokens(partner_sudo.id)
             if payment_option_id not in tokens_sudo.ids:
                 raise UserError(_("The payment token is invalid."))
         else:
@@ -239,7 +264,12 @@ class PaymentPortal(payment_portal.PaymentPortal):
         kwargs.pop('pos_order_id', None) # _create_transaction kwargs keys must be different than custom_create_values keys
 
         tx_sudo = self._create_transaction(**kwargs)
-        tx_sudo.landing_route = PaymentPortal._get_landing_route(pos_order_sudo.id, access_token, exit_route=exit_route, tx_id=tx_sudo.id)
+        tx_sudo.with_context(
+            # The transaction was just created; no concurrent write is possible
+            payment_safe_write=True
+        ).landing_route = PaymentPortal._get_landing_route(
+            pos_order_sudo.id, access_token, exit_route=exit_route, tx_id=tx_sudo.id
+        )
 
         return tx_sudo._get_processing_values()
 
@@ -286,7 +316,9 @@ class PaymentPortal(payment_portal.PaymentPortal):
             rendering_context['state'] = 'tx_error'
             return self._render_pay_confirmation(rendering_context)
 
-        tx_sudo._process_pos_online_payment()
+        tx_sudo.with_context(
+            payment_safe_write=True  # Actually not; post-processing should be kept separate
+        )._process_pos_online_payment()
 
         rendering_context['state'] = 'success'
         if exit_route:

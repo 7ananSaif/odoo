@@ -1,13 +1,16 @@
-import { useEnv } from "@odoo/owl";
+import { useEnv } from "@web/owl2/utils";
 import { _t } from "@web/core/l10n/translation";
-import { AccountProductCatalogSearchPanel } from "@account/components/product_catalog/search/search_panel";
+import { AccountProductCatalogSearchPanel } from "@account/components/product_catalog/search/search_panel/search_panel";
 import { TimePeriodSelectionField } from "./time_period_selection_fields";
 import { formatMonetary } from "@web/views/fields/formatters";
 import { clamp } from "@web/core/utils/numbers";
 
 export class PurchaseSuggestCatalogSearchPanel extends AccountProductCatalogSearchPanel {
     static template = "purchase_stock.ProductCatalogSearchPanel";
-    static components = { TimePeriodSelectionField };
+    static components = {
+        ...AccountProductCatalogSearchPanel.components,
+        TimePeriodSelectionField,
+    };
     static basedOnOptions = [
         ["actual_demand", _t("Forecasted")],
         ["one_week", _t("Last 7 days")],

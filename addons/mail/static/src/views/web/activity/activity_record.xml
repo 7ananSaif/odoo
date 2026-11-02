@@ -2,8 +2,8 @@
 <templates xml:space="preserve">
 
 <t t-name="mail.ActivityRecord">
-    <td class="o_activity_record p-2 cursor-pointer" t-custom-click="(ev, newWindow) => this.props.openRecord(this.props.record, { newWindow })">
-        <t t-call="{{ recordTemplate }}" t-call-context="this.getRenderingContext()"/>
+    <td class="o_activity_record py-2 px-3 cursor-pointer" t-custom-click="(ev, newWindow) => this.props.openRecord(this.props.record, { newWindow })">
+        <t t-call="{{ this.recordTemplate }}" t-call-context="this.getRenderingContext()"/>
     </td>
 </t>
 

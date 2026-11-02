@@ -9,6 +9,7 @@
         <field name="partner_to" eval="False"/>
         <field name="use_default_to" eval="True"/>
         <field name="auto_delete" eval="True"/>
+        <field name="email_layout_xmlid">mail.mail_notification_light</field>
         <field name="body_html" type="html">
 <div style="margin: 0px; padding: 0px; font-size: 13px;">
     <p style="margin: 0px; padding: 0px; font-size: 13px;">
@@ -37,6 +38,7 @@
         <field name="use_default_to" eval="True"/>
         <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
         <field name="auto_delete" eval="True"/>
+        <field name="email_layout_xmlid">mail.mail_notification_light</field>
         <field name="body_html" type="html">
 <div style="margin: 0px; padding: 0px; font-size: 13px;">
 Dear <t t-out="object.partner_id.name or ''"></t><br/><br/>
@@ -54,8 +56,8 @@ Dear <t t-out="object.partner_id.name or ''"></t><br/><br/>
 <t t-set="expiration" t-value="code_expiration[1]"/>
 <div style="margin: 16px 0px 16px 0px; text-align: center;">
     <span t-out="code" style="background-color:#faf9fa; border: 1px solid #dad8de; padding: 8px 16px 8px 16px; font-size: 24px; color: #875A7B; border-radius: 5px;"/>
+    <p><small>Expires in <t t-out="expiration"/>.</small></p>
 </div>
-<small>Please note that this code expires in <t t-out="expiration"/>.</small>
 
 <p style="margin: 16px 0px 16px 0px;">
     If you did NOT initiate this log-in,

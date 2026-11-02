@@ -4,16 +4,21 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0\n"
+"Project-Id-Version: Odoo Server 19.5a1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-08 17:36+0000\n"
-"PO-Revision-Date: 2026-05-08 17:36+0000\n"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-28 17:43+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
+
+#. module: web_unsplash
+#: model_terms:ir.ui.view,arch_db:web_unsplash.res_config_settings_view_form
+msgid "<i class=\"oi\" data-icon=\"east\"/> Create Unsplash Account"
+msgstr ""
 
 #. module: web_unsplash
 #: model:ir.model.fields,field_description:web_unsplash.field_res_config_settings__unsplash_access_key
@@ -34,11 +39,17 @@ msgid "Apply"
 msgstr ""
 
 #. module: web_unsplash
+#: model:ir.model,name:web_unsplash.model_ir_attachment
+msgid "Attachment"
+msgstr ""
+
+#. module: web_unsplash
 #: model:ir.model,name:web_unsplash.model_res_config_settings
 msgid "Config Settings"
 msgstr ""
 
 #. module: web_unsplash
+#: model:ir.model.fields,field_description:web_unsplash.field_ir_attachment__display_name
 #: model:ir.model.fields,field_description:web_unsplash.field_ir_qweb_field_image__display_name
 #: model:ir.model.fields,field_description:web_unsplash.field_res_config_settings__display_name
 #: model:ir.model.fields,field_description:web_unsplash.field_res_users__display_name
@@ -58,8 +69,16 @@ msgid "ERROR: Unknown Unsplash notify URL!"
 msgstr ""
 
 #. module: web_unsplash
-#: model_terms:ir.ui.view,arch_db:web_unsplash.res_config_settings_view_form
-msgid "Generate an Access Key"
+#: model:ir.module.module,description:base.module_web_unsplash
+msgid ""
+"Explore the free high-resolution image library of Unsplash.com and find "
+"images to use in Odoo. An Unsplash search bar is added to the image library "
+"modal."
+msgstr ""
+
+#. module: web_unsplash
+#: model:ir.module.module,summary:base.module_web_unsplash
+msgid "Find free high-resolution images from Unsplash"
 msgstr ""
 
 #. module: web_unsplash
@@ -69,6 +88,7 @@ msgid "Get an Access key"
 msgstr ""
 
 #. module: web_unsplash
+#: model:ir.model.fields,field_description:web_unsplash.field_ir_attachment__id
 #: model:ir.model.fields,field_description:web_unsplash.field_ir_qweb_field_image__id
 #: model:ir.model.fields,field_description:web_unsplash.field_res_config_settings__id
 #: model:ir.model.fields,field_description:web_unsplash.field_res_users__id
@@ -140,6 +160,17 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/web_unsplash/static/src/media_dialog/image_selector_patch.js:0
 msgid "Unauthorized Key"
+msgstr ""
+
+#. module: web_unsplash
+#: model:ir.module.module,shortdesc:base.module_web_unsplash
+msgid "Unsplash Image Library"
+msgstr ""
+
+#. module: web_unsplash
+#. odoo-python
+#: code:addons/web_unsplash/models/ir_attachment.py:0
+msgid "Unsplash attachments must be images."
 msgstr ""
 
 #. module: web_unsplash

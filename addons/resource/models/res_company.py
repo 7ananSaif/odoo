@@ -1,7 +1,8 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import api, fields, models, _
+from odoo.addons.base.models.res_partner import _tz_get
+from odoo.modules.db import country_timezones as _country_timezones
 
 
 class ResCompany(models.Model):
@@ -11,12 +12,27 @@ class ResCompany(models.Model):
         'resource.calendar', 'company_id', 'Working Hours')
     resource_calendar_id = fields.Many2one(
         'resource.calendar', 'Default Working Hours', ondelete='restrict')
+    tz = fields.Selection(
+        _tz_get, string='Timezone',
+        compute='_compute_tz', store=True, readonly=False)
+
+    @api.depends('country_id')
+    def _compute_tz(self):
+        country_tz = _country_timezones()
+        for company in self:
+            company.tz = self.env.context.get('tz') or self.env.user.tz or 'UTC'
+            if company.country_id:
+                country_timezones = country_tz.get(company.country_id.code, [])
+                if len(country_timezones) == 1:
+                    company.tz = country_timezones[0]
 
     @api.model
     def _init_data_resource_calendar(self):
         self.search([('resource_calendar_id', '=', False)])._create_resource_calendar()
 
     def _create_resource_calendar(self):
+        """ Create a default working schedule for each company of ``self`` and set it as
+        their ``resource_calendar_id``. """
         vals_list = [
             company._prepare_resource_calendar_values()
             for company in self
@@ -26,9 +42,11 @@ class ResCompany(models.Model):
             company.resource_calendar_id = calendar
 
     def _prepare_resource_calendar_values(self):
+        """ Hook returning the creation values of the company's default working schedule
+        (40 hours/week by default). """
         self.ensure_one()
         return {
-            'name': _('Standard 40 hours/week'),
+            'name': _('40 hours/week'),
             'company_id': self.id,
         }
 

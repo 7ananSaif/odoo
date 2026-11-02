@@ -1,16 +1,16 @@
 import { registry } from "@web/core/registry";
 import { CommandPalette } from "./command_palette";
 
-import { Component, EventBus } from "@odoo/owl";
+import { Component, EventBus, t, useProps } from "@odoo/owl";
 
 /**
  * @typedef {import("./command_palette").CommandPaletteConfig} CommandPaletteConfig
- * @typedef {import("../hotkeys/hotkey_service").HotkeyOptions} HotkeyOptions
+ * @typedef {import("../hotkeys/hotkey_plugin").HotkeyOptions} HotkeyOptions
  */
 
 /**
  * @typedef {{
- *  name: string;
+ *  name: TranslatedString;
  *  action: ()=>(void | CommandPaletteConfig);
  *  category?: string;
  *  href?: string;
@@ -40,9 +40,9 @@ const commandSetupRegistry = registry.category("command_setup");
 
 class DefaultFooter extends Component {
     static template = "web.DefaultFooter";
-    static props = {
-        switchNamespace: { type: Function },
-    };
+    props = useProps({
+        switchNamespace: t.function(),
+    });
     setup() {
         this.elements = commandSetupRegistry
             .getEntries()
@@ -71,7 +71,7 @@ export const commandService = {
 
         /**
          * @param {CommandPaletteConfig} config command palette config merged with default config
-         * @param {Function} onClose called when the command palette is closed
+         * @param {Function} [onClose] called when the command palette is closed
          * @returns the actual command palette config if the command palette is already open
          */
         function openMainPalette(config = {}, onClose) {
@@ -125,7 +125,7 @@ export const commandService = {
 
         /**
          * @param {CommandPaletteConfig} config
-         * @param {Function} onClose called when the command palette is closed
+         * @param {Function} [onClose] called when the command palette is closed
          */
         function openPalette(config, onClose) {
             if (isPaletteOpened) {
@@ -181,10 +181,9 @@ export const commandService = {
             }
             if (registration.hotkey) {
                 const action = async () => {
-                    const commandService = env.services.command;
                     const config = await command.action();
                     if (!isPaletteOpened && config) {
-                        commandService.openPalette(config);
+                        openPalette(config);
                     }
                 };
                 registration.removeHotkey = hotkeyService.add(registration.hotkey, action, {
@@ -232,7 +231,7 @@ export const commandService = {
 
         return {
             /**
-             * @param {string} name
+             * @param {TranslatedString} name
              * @param {()=>(void | CommandPaletteConfig)} action
              * @param {CommandOptions} [options]
              * @returns {() => void}

@@ -16,17 +16,29 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~15.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-11-18 13:49+0000\n"
-"Last-Translator: Saara Hakanen <sahak@odoo.com>\n"
-"Language-Team: Finnish <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-08-31 18:12+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Finnish <https://translate.odoo.com/projects/odoo-s19-4/"
 "website_crm/fi/>\n"
 "Language: fi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: website_crm
+#: model:ir.module.module,description:base.module_website_crm
+msgid ""
+"\n"
+"Add capability to your website forms to generate leads or opportunities in "
+"the CRM app.\n"
+"Forms has to be customized inside the *Website Builder* in order to generate "
+"leads.\n"
+"\n"
+"This module includes contact phone and mobile numbers validation."
+msgstr ""
 
 #. module: website_crm
 #: model:ir.model.fields,field_description:website_crm.field_website_visitor__lead_count
@@ -49,6 +61,11 @@ msgstr "Kohdista liidit tai myyntimahdollisuudet myyntitiimille."
 #: code:addons/website_crm/static/src/js/website_crm_editor.js:0
 msgid "Assign leads/opportunities to a salesperson."
 msgstr "Kohdista liidit tai myyntimahdollisuudet myyjälle."
+
+#. module: website_crm
+#: model:ir.module.module,shortdesc:base.module_website_crm
+msgid "Contact Form"
+msgstr ""
 
 #. module: website_crm
 #: model:ir.model,website_form_label:website_crm.model_crm_lead
@@ -83,6 +100,11 @@ msgstr "Oletus myyjä uusille liideille, jotka luodaan yhteydenottolomakkeelta."
 #: model:ir.model.fields,field_description:website_crm.field_website_visitor__display_name
 msgid "Display Name"
 msgstr "Näyttönimi"
+
+#. module: website_crm
+#: model:ir.module.module,summary:base.module_website_crm
+msgid "Generate leads from a contact form"
+msgstr ""
 
 #. module: website_crm
 #: model:ir.model.fields,field_description:website_crm.field_crm_lead__id
@@ -121,7 +143,7 @@ msgstr "Sivun katselukerrat"
 
 #. module: website_crm
 #. odoo-javascript
-#: code:addons/website_crm/static/src/js/website_crm_editor.js:0
+#: code:addons/website_crm/static/src/js/website_crm_editor.edit.js:0
 msgid "Phone Number"
 msgstr "Puhelinnumero"
 
@@ -139,7 +161,7 @@ msgstr "Myyjä"
 
 #. module: website_crm
 #. odoo-javascript
-#: code:addons/website_crm/static/src/js/website_crm_editor.js:0
+#: code:addons/website_crm/static/src/js/website_crm_editor.edit.js:0
 msgid "Subject"
 msgstr "Aihe"
 
@@ -170,27 +192,24 @@ msgstr "Verkkosivun vierailija"
 
 #. module: website_crm
 #. odoo-javascript
-#: code:addons/website_crm/static/src/js/website_crm_editor.js:0
+#: code:addons/website_crm/static/src/js/website_crm_editor.edit.js:0
 msgid "Your Company"
 msgstr "Oma yritys"
 
 #. module: website_crm
 #. odoo-javascript
-#: code:addons/website_crm/static/src/js/website_crm_editor.js:0
+#: code:addons/website_crm/static/src/js/website_crm_editor.edit.js:0
 msgid "Your Email"
 msgstr "Sähköpostisi"
 
 #. module: website_crm
 #. odoo-javascript
-#: code:addons/website_crm/static/src/js/website_crm_editor.js:0
+#: code:addons/website_crm/static/src/js/website_crm_editor.edit.js:0
 msgid "Your Name"
 msgstr "Nimesi"
 
 #. module: website_crm
 #. odoo-javascript
-#: code:addons/website_crm/static/src/js/website_crm_editor.js:0
+#: code:addons/website_crm/static/src/js/website_crm_editor.edit.js:0
 msgid "Your Question"
 msgstr "Kysymyksesi"
-
-#~ msgid "Lead/Opportunity"
-#~ msgstr "Liidi/mahdollisuus"

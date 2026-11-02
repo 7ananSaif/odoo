@@ -17,6 +17,7 @@ export default class IndexedDB {
         this.dialog = dialog;
         this._isReconnecting = false;
         this._reloadDialogShown = false;
+        this._isClosing = false;
         this.databaseEventListener(whenReady);
     }
 
@@ -25,12 +26,10 @@ export default class IndexedDB {
             window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
 
         if (!indexedDB) {
-            logPosMessage(
-                "IndexedDB",
-                "databaseEventListener",
-                "Your browser does not support IndexedDB. Data will not be saved.",
-                CONSOLE_COLOR
-            );
+            const errMsg = "Your browser does not support IndexedDB. Data will not be saved.";
+            logPosMessage("IndexedDB", "databaseEventListener", errMsg, CONSOLE_COLOR);
+            console.error("Your browser does not support IndexedDB. Data will not be saved."); // Must crash on runbot
+            return;
         }
 
         this.dbInstance = indexedDB;
@@ -61,6 +60,7 @@ export default class IndexedDB {
             this.db = event.target.result;
 
             const actualStoreNames = this.db.objectStoreNames;
+            const expectedStoreNames = new Set(this.dbStores.map(([, storeName]) => storeName));
             let needsUpgrade = false;
 
             for (const [, storeName] of this.dbStores) {
@@ -76,9 +76,25 @@ export default class IndexedDB {
                 }
             }
 
+            if (!needsUpgrade) {
+                for (const storeName of actualStoreNames) {
+                    if (!expectedStoreNames.has(storeName)) {
+                        logPosMessage(
+                            "IndexedDB",
+                            "onsuccess",
+                            `Schema mismatch: Store '${storeName}' is no longer expected (ex: module uninstalled). Triggering upgrade.`,
+                            CONSOLE_COLOR
+                        );
+                        needsUpgrade = true;
+                        break;
+                    }
+                }
+            }
+
             if (needsUpgrade) {
                 const newVersion = this.db.version + 1;
                 this.db.close();
+                this.db = null;
                 this.dbVersion = newVersion;
 
                 logPosMessage(
@@ -92,19 +108,30 @@ export default class IndexedDB {
                 return;
             }
 
+            this._isClosing = false;
             this._setupVisibilityProbe();
             logPosMessage(
                 "IndexedDB",
                 "databaseEventListener",
-                `IndexedDB ${this.dbVersion} Ready`,
+                `IndexedDB ${this.dbName} Ready`,
                 CONSOLE_COLOR
             );
             whenReady?.();
         };
         dbInstance.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            const expectedStoreNames = new Set(this.dbStores.map(([, storeName]) => storeName));
+
             for (const [id, storeName] of this.dbStores) {
-                if (!event.target.result.objectStoreNames.contains(storeName)) {
-                    event.target.result.createObjectStore(storeName, { keyPath: id });
+                if (!db.objectStoreNames.contains(storeName)) {
+                    db.createObjectStore(storeName, { keyPath: id });
+                }
+            }
+
+            // Drop stores for models that are no longer expected (ex: module uninstalled).
+            for (const storeName of Array.from(db.objectStoreNames)) {
+                if (!expectedStoreNames.has(storeName)) {
+                    db.deleteObjectStore(storeName);
                 }
             }
         };
@@ -117,7 +144,6 @@ export default class IndexedDB {
 
         // Batch processing for large arrays to avoid performance issues
         // or transaction failures due to large data sets
-        const results = [];
         for (let i = 0; i < arrData.length; i += BATCH_SIZE) {
             let timeoutId;
             let finished = false;
@@ -126,8 +152,7 @@ export default class IndexedDB {
             const transaction = this.getNewTransaction([storeName], "readwrite");
 
             if (!transaction) {
-                results.push(Promise.reject("Transaction could not be created"));
-                continue;
+                return;
             }
 
             const doneMethod = () => {
@@ -202,29 +227,46 @@ export default class IndexedDB {
                             );
                             reject(event.target?.error || "Unknown error");
                         };
-                    } catch {
+                    } catch (e) {
+                        hasError = true;
+                        clearTimeout(timeoutId);
                         logPosMessage(
                             "IndexedDB",
                             method,
                             `Error processing ${method} for ${storeName}: Invalid data format`,
-                            CONSOLE_COLOR
+                            CONSOLE_COLOR,
+                            [],
+                            true
                         );
+                        reject(e);
+                        try {
+                            transaction.abort();
+                        } catch {
+                            // transaction may already be aborted/completed
+                        }
                     }
                 }
             });
 
-            const result = await batchPromise
-                .then(() => ({ status: "fulfilled" }))
-                .catch((err) => ({ status: "rejected", reason: err }));
-            results.push(result);
+            // Batch failures are already logged, keep processing the next ones
+            await batchPromise.catch(() => {});
         }
-
-        return results;
     }
 
-    getNewTransaction(dbStore) {
+    getNewTransaction(dbStore, mode = "readwrite") {
         try {
+            if (this._isClosing) {
+                logPosMessage(
+                    "IndexedDB",
+                    "getNewTransaction.closing",
+                    "db is closing, transaction skipped",
+                    CONSOLE_COLOR
+                );
+                return false;
+            }
+
             if (!this.db) {
+                console.error("IndexedDB db is null"); // Must crash on runbot
                 logPosMessage(
                     "IndexedDB",
                     "getNewTransaction.null",
@@ -233,13 +275,15 @@ export default class IndexedDB {
                     [],
                     true
                 );
+                console.error("IndexedDB db is null"); // Must crash on runbot
                 return false;
             }
 
-            const transaction = this.db.transaction(dbStore, "readwrite");
+            const transaction = this.db.transaction(dbStore, mode);
             this.activeTransactions.add(transaction);
             return transaction;
         } catch (e) {
+            console.error("Error creating transaction:", e); // Must crash on runbot
             logPosMessage(
                 "IndexedDB",
                 `getNewTransaction.${e.name}`,
@@ -319,8 +363,10 @@ export default class IndexedDB {
 
     reset() {
         return new Promise((resolve) => {
+            this._isClosing = true;
             if (this.db) {
                 this.db.close();
+                this.db = null;
             }
 
             if (!this.dbInstance) {
@@ -341,7 +387,6 @@ export default class IndexedDB {
 
             request.onsuccess = () => {
                 logPosMessage("IndexedDB", "reset", "Database deleted successfully", CONSOLE_COLOR);
-                this.db = null;
                 clearTimeout(timeout);
                 resolve(true);
             };
@@ -371,13 +416,13 @@ export default class IndexedDB {
         }
         return this.promises(storeName, arrData, "put");
     }
-    async readAllExceptStores(storeToIgnores = [], options) {
+    async readAllExceptStores(storeToIgnores = []) {
         const allStoreNames = this.dbStores.map((store) => store[1]);
         const storeNames =
             storeToIgnores.length > 0
                 ? allStoreNames.filter((s) => !storeToIgnores.includes(s))
                 : allStoreNames;
-        return this.readAll(storeNames, options);
+        return this.readAll(storeNames);
     }
 
     readAll(store = [], retry = 0) {
@@ -387,7 +432,7 @@ export default class IndexedDB {
         if (!transaction && retry < 5) {
             return this.readAll(store, retry + 1);
         } else if (!transaction) {
-            return new Promise((reject) => reject(false));
+            return new Promise((resolve) => resolve(false));
         }
 
         const removeTransaction = () => {

@@ -14,10 +14,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-11-25 02:33+0000\n"
-"Last-Translator: Dorin Hongu <dhongu@gmail.com>\n"
-"Language-Team: Romanian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-08-31 16:28+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Romanian <https://translate.odoo.com/projects/odoo-s19-4/"
 "base_setup/ro/>\n"
 "Language: ro\n"
 "MIME-Version: 1.0\n"
@@ -25,14 +25,19 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
 "20)) ? 1 : 2;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+#: model:ir.module.module,description:base.module_base_setup
 msgid ""
-"<span class=\"fa fa-lg fa-users\" aria-label=\"Number of active users\"/>"
+"\n"
+"This module helps to configure the system at the installation of a new "
+"database.\n"
+"================================================================================\n"
+"\n"
+"Shows you a list of applications features to install from.\n"
+"\n"
 msgstr ""
-"<span class=\"fa fa-lg fa-users\" aria-label=\"Number of active users\"/>"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -170,11 +175,6 @@ msgid "Add fun feedback and motivate your employees"
 msgstr "Adăugați feedback distractiv și motivați-vă angajații"
 
 #. module: base_setup
-#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_mail_plugin
-msgid "Allow integration with the mail plugins"
-msgstr "Permite integrare cu plug-in de email"
-
-#. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_google_calendar
 msgid "Allow the users to synchronize their calendar  with Google Calendar"
 msgstr "Permite utilizatorilor să-și sincronizeze calendarul cu Google"
@@ -260,15 +260,6 @@ msgstr "Setări de configurare"
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
 msgid "Configure Document Layout"
 msgstr "Configurare aspect document"
-
-#. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid ""
-"Configure company rules to automatically create SO/PO when one of your "
-"company sells/buys to another of your company."
-msgstr ""
-"Configurați regulile companiei pentru a crea automat SO / PO atunci când una "
-"dintre companiile dvs. vinde / cumpără unei alte companii"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -364,13 +355,13 @@ msgstr "GeoLocalizare"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Geolocate your partners"
-msgstr "Geolocalizați-vă partenerii"
+msgid "Geolocation"
+msgstr "Geolocation"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Geolocation"
-msgstr "Geolocation"
+msgid "Get the latitude and the longitude of your partners"
+msgstr ""
 
 #. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_google_address_autocomplete
@@ -396,9 +387,9 @@ msgid "Import & Export"
 msgstr "Import & Export"
 
 #. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Integrate with mail client plugins"
-msgstr "Integrați cu pluginurile clientului de e-mail"
+#: model:ir.module.module,shortdesc:base.module_base_setup
+msgid "Initial Setup Tools"
+msgstr ""
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -435,11 +426,6 @@ msgstr "Limbi"
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
 msgid "Layout"
 msgstr "Aspect"
-
-#. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Mail Plugin"
-msgstr "Plugin email"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -485,6 +471,11 @@ msgstr "Număr de companii"
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__language_count
 msgid "Number of Languages"
 msgstr "Număr de Limbi"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Number of active users"
+msgstr ""
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -660,51 +651,9 @@ msgstr ""
 msgid "reCAPTCHA"
 msgstr "reCAPTCHA"
 
-#~ msgid "Asterisk (VoIP)"
-#~ msgstr "Asterisk (VoIP)"
-
 #~ msgid ""
-#~ "Automatically generate counterpart documents for orders/invoices between "
-#~ "companies"
+#~ "<span class=\"oi oi-lg oi-filled\" data-icon=\"group\" aria-"
+#~ "label=\"Number of active users\"/>"
 #~ msgstr ""
-#~ "Generați automat documente de contrapartidă pentru comenzi / facturi "
-#~ "între companii"
-
-#~ msgid ""
-#~ "By default, new users get highest access rights for all installed apps."
-#~ msgstr ""
-#~ "În mod implicit, noii utilizatori beneficiază de cele mai mari drepturi "
-#~ "de acces pentru toate aplicațiile instalate."
-
-#~ msgid "Default User Template not found."
-#~ msgstr "Șablonul de utilizator implicit nu a fost găsit."
-
-#~ msgid "Documentation"
-#~ msgstr "Documentație"
-
-#~ msgid "Geo Localization"
-#~ msgstr "Localizare Geografică"
-
-#~ msgid "GeoLocalize your partners"
-#~ msgstr "Localizați-vă partenerii"
-
-#~ msgid "Get product pictures using barcode"
-#~ msgstr "Obțineți imaginea produsului folosind cod de bare"
-
-#~ msgid "Google Calendar"
-#~ msgstr "Calendar Google"
-
-#~ msgid "On Apple Store"
-#~ msgstr "În Apple Store"
-
-#~ msgid "On Google Play"
-#~ msgstr "În Google Store"
-
-#~ msgid "Outlook Calendar"
-#~ msgstr "Calendar Outlook"
-
-#~ msgid "Synchronize your calendar with Google Calendar"
-#~ msgstr "Sincronizați-vă calendarul cu Google Calendar"
-
-#~ msgid "Synchronize your calendar with Outlook"
-#~ msgstr "Sincronizați-vă calendarul cu Outlook"
+#~ "<span class=\"oi oi-lg oi-filled\" data-icon=\"group\" aria-"
+#~ "label=\"Number of active users\"/>"

@@ -2,11 +2,12 @@ import { useService } from "@web/core/utils/hooks";
 import { isObject, pick } from "@web/core/utils/objects";
 import { RelationalModel } from "@web/model/relational_model/relational_model";
 import { getFieldsSpec } from "@web/model/relational_model/utils";
-import { Component, xml, onWillStart, onWillUpdateProps, useState } from "@odoo/owl";
+import { Component, xml, onWillStart, onWillUpdateProps, useProps, proxy, t } from "@odoo/owl";
 
 const defaultActiveField = { attrs: {}, options: {}, domain: "[]", string: "" };
 
 class StandaloneRelationalModel extends RelationalModel {
+    static withCache = false;
     load(params = {}) {
         if (params.values) {
             const data = params.values;
@@ -21,8 +22,13 @@ class StandaloneRelationalModel extends RelationalModel {
 }
 
 class _Record extends Component {
-    static template = xml`<t t-slot="default" record="model.root"/>`;
-    static props = ["slots", "info", "fields", "values?"];
+    static template = xml`<t t-call-slot="default" record="this.model.root"/>`;
+    props = useProps({
+        slots: t.any(),
+        info: t.any(),
+        fields: t.any(),
+        values: t.any().optional(),
+    });
     setup() {
         this.orm = useService("orm");
         const resModel = this.props.info.resModel;
@@ -33,17 +39,18 @@ class _Record extends Component {
                 fields: this.props.fields,
                 isMonoRecord: true,
                 activeFields,
-                resId: this.props.info.resId,
+                resId: this.props.info.resId || false,
                 mode: this.props.info.mode,
                 context: this.props.info.context,
             },
             hooks: this.props.info.hooks,
+            allowTranslate: this.props.info.allowTranslate,
         };
         const modelServices = Object.fromEntries(
             StandaloneRelationalModel.services.map((servName) => [servName, useService(servName)])
         );
         modelServices.orm = this.orm;
-        this.model = useState(new StandaloneRelationalModel(this.env, modelParams, modelServices));
+        this.model = proxy(new StandaloneRelationalModel(this.env, modelParams, modelServices));
 
         const prepareLoadWithValues = async (values) => {
             values = pick(values, ...Object.keys(modelParams.config.activeFields));
@@ -136,8 +143,9 @@ class _Record extends Component {
         });
         onWillUpdateProps(async (nextProps) => {
             const params = {};
-            if (nextProps.info.resId !== this.model.root.resId) {
-                params.resId = nextProps.info.resId;
+            const nextResId = nextProps.info.resId || false;
+            if (nextResId !== this.model.root.resId) {
+                params.resId = nextResId;
             }
             if (nextProps.values) {
                 params.values = await prepareLoadWithValues(nextProps.values);
@@ -163,23 +171,21 @@ class _Record extends Component {
 }
 
 export class Record extends Component {
-    static template = xml`<_Record fields="fields" slots="props.slots" values="props.values" info="props" />`;
+    static template = xml`<_Record fields="this.fields" slots="this.props.slots" values="this.props.values" info="this.props" />`;
     static components = { _Record };
-    static props = [
-        "slots",
-        "resModel?",
-        "fieldNames?",
-        "activeFields?",
-        "fields?",
-        "resId?",
-        "mode?",
-        "values?",
-        "context?",
-        "hooks?",
-    ];
-    static defaultProps = {
-        context: {},
-    };
+    props = useProps({
+        slots: t.any(),
+        resModel: t.any().optional(),
+        fieldNames: t.any().optional(),
+        activeFields: t.any().optional(),
+        fields: t.any().optional(),
+        resId: t.any().optional(),
+        mode: t.any().optional(),
+        values: t.any().optional(),
+        context: t.any().optional({}),
+        hooks: t.any().optional(),
+        allowTranslate: t.any().optional(),
+    });
     setup() {
         const { activeFields, fieldNames, fields, resModel } = this.props;
         if (!activeFields && !fieldNames) {

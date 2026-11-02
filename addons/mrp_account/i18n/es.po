@@ -12,10 +12,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-05 19:29+0000\n"
-"PO-Revision-Date: 2026-05-02 09:47+0000\n"
+"POT-Creation-Date: 2026-10-16 17:42+0000\n"
+"PO-Revision-Date: 2026-10-13 11:33+0000\n"
 "Last-Translator: \"Noemi Pla Garcia (nopl)\" <nopl@odoo.com>\n"
-"Language-Team: Spanish <https://translate.odoo.com/projects/odoo-19/"
+"Language-Team: Spanish <https://translate.odoo.com/projects/odoo-20/"
 "mrp_account/es/>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
@@ -23,7 +23,25 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=(n == 1) ? 0 : ((n != 0 && n % 1000000 == "
 "0) ? 1 : 2);\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: mrp_account
+#: model:ir.module.module,description:base.module_mrp_account
+msgid ""
+"\n"
+"Analytic Accounting in MRP\n"
+"==========================\n"
+"\n"
+"* Cost structure report\n"
+"\n"
+"Also, allows to compute the cost of the product based on its BoM, using the "
+"costs of its components and work center operations.\n"
+"It adds a button on the product itself but also an action in the list view "
+"of the products.\n"
+"If the automated inventory valuation is active, the necessary accounting "
+"entries will be created.\n"
+"\n"
+msgstr ""
 
 #. module: mrp_account
 #. odoo-python
@@ -95,14 +113,12 @@ msgstr "Cuenta"
 #. module: mrp_account
 #: model:ir.model.fields,field_description:mrp_account.field_mrp_workcenter_productivity__account_move_line_id
 msgid "Account Move Line"
-msgstr "Línea de movimiento de la cuenta|"
+msgstr "Línea de movimiento de la cuenta"
 
 #. module: mrp_account
-#: model:ir.model,name:mrp_account.model_mrp_account_wip_accounting_line
-msgid "Account move line to be created when posting WIP account move"
+#: model:ir.module.module,shortdesc:base.module_mrp_account
+msgid "Accounting - MRP"
 msgstr ""
-"Asiento de la cuenta a crear al registrar el asiento de la cuenta de trabajo "
-"en curso"
 
 #. module: mrp_account
 #: model:ir.model,name:mrp_account.model_account_analytic_account
@@ -130,6 +146,21 @@ msgid "Analytic Precision"
 msgstr "Precisión analítica"
 
 #. module: mrp_account
+#: model:ir.module.module,summary:base.module_mrp_account
+msgid "Analytic accounting in Manufacturing"
+msgstr ""
+
+#. module: mrp_account
+#: model:ir.model,name:mrp_account.model_report_mrp_report_bom_structure
+msgid "BOM Overview Report"
+msgstr ""
+
+#. module: mrp_account
+#: model:ir.model,name:mrp_account.model_mrp_bom
+msgid "Bill of Material"
+msgstr ""
+
+#. module: mrp_account
 #. odoo-python
 #: code:addons/mrp_account/models/analytic_account.py:0
 #: model_terms:ir.ui.view,arch_db:mrp_account.account_analytic_account_view_form_mrp
@@ -153,22 +184,20 @@ msgstr "Categoría"
 
 #. module: mrp_account
 #: model:ir.model,name:mrp_account.model_res_company
-msgid "Companies"
-msgstr "Empresas"
+msgid "Company"
+msgstr "Compañía"
 
 #. module: mrp_account
 #: model:ir.actions.server,name:mrp_account.action_compute_price_bom_product
 #: model:ir.actions.server,name:mrp_account.action_compute_price_bom_template
 #: model_terms:ir.ui.view,arch_db:mrp_account.product_product_ext_form_view2
 #: model_terms:ir.ui.view,arch_db:mrp_account.product_product_view_form_normal_inherit_extended
-#: model_terms:ir.ui.view,arch_db:mrp_account.product_variant_easy_edit_view_bom_inherit
 msgid "Compute Price from BoM"
 msgstr "Calcular el precio con LdM"
 
 #. module: mrp_account
 #: model_terms:ir.ui.view,arch_db:mrp_account.product_product_ext_form_view2
 #: model_terms:ir.ui.view,arch_db:mrp_account.product_product_view_form_normal_inherit_extended
-#: model_terms:ir.ui.view,arch_db:mrp_account.product_variant_easy_edit_view_bom_inherit
 msgid ""
 "Compute the price of the product using products and operations of related "
 "bill of materials, for manufactured products only."
@@ -176,6 +205,11 @@ msgstr ""
 "Podrá calcular el precio del producto mediante productos y operaciones que "
 "pertenezcan a listas de materiales relacionadas, pero solo puede hacer esto "
 "para productos de fabricación."
+
+#. module: mrp_account
+#: model:ir.model.fields,field_description:mrp_account.field_mrp_production__consolidation_currency_id
+msgid "Consolidation Currency"
+msgstr ""
 
 #. module: mrp_account
 #. odoo-javascript
@@ -210,6 +244,7 @@ msgstr "Haber"
 
 #. module: mrp_account
 #: model:ir.model.fields,field_description:mrp_account.field_mrp_account_wip_accounting_line__currency_id
+#: model:ir.model.fields,field_description:mrp_account.field_mrp_bom__currency_id
 msgid "Currency"
 msgstr "Moneda"
 
@@ -224,18 +259,15 @@ msgid "Debit"
 msgstr "Debe"
 
 #. module: mrp_account
-#: model_terms:ir.ui.view,arch_db:mrp_account.view_wip_accounting_form
-msgid "Discard"
-msgstr "Descartar"
-
-#. module: mrp_account
 #: model:ir.model.fields,field_description:mrp_account.field_account_analytic_account__display_name
 #: model:ir.model.fields,field_description:mrp_account.field_account_analytic_applicability__display_name
 #: model:ir.model.fields,field_description:mrp_account.field_account_analytic_line__display_name
 #: model:ir.model.fields,field_description:mrp_account.field_account_move__display_name
 #: model:ir.model.fields,field_description:mrp_account.field_account_move_line__display_name
+#: model:ir.model.fields,field_description:mrp_account.field_account_stock_valuation_report__display_name
 #: model:ir.model.fields,field_description:mrp_account.field_mrp_account_wip_accounting__display_name
 #: model:ir.model.fields,field_description:mrp_account.field_mrp_account_wip_accounting_line__display_name
+#: model:ir.model.fields,field_description:mrp_account.field_mrp_bom__display_name
 #: model:ir.model.fields,field_description:mrp_account.field_mrp_production__display_name
 #: model:ir.model.fields,field_description:mrp_account.field_mrp_workcenter__display_name
 #: model:ir.model.fields,field_description:mrp_account.field_mrp_workcenter_productivity__display_name
@@ -243,9 +275,9 @@ msgstr "Descartar"
 #: model:ir.model.fields,field_description:mrp_account.field_product_category__display_name
 #: model:ir.model.fields,field_description:mrp_account.field_product_product__display_name
 #: model:ir.model.fields,field_description:mrp_account.field_product_template__display_name
+#: model:ir.model.fields,field_description:mrp_account.field_report_mrp_report_bom_structure__display_name
 #: model:ir.model.fields,field_description:mrp_account.field_report_mrp_report_mo_overview__display_name
 #: model:ir.model.fields,field_description:mrp_account.field_res_company__display_name
-#: model:ir.model.fields,field_description:mrp_account.field_stock_account_stock_valuation_report__display_name
 #: model:ir.model.fields,field_description:mrp_account.field_stock_move__display_name
 msgid "Display Name"
 msgstr "Nombre para mostrar"
@@ -266,6 +298,20 @@ msgid "Expense Account"
 msgstr "Cuenta de gastos"
 
 #. module: mrp_account
+#: model_terms:ir.ui.view,arch_db:mrp_account.mo_overview_components
+msgid "Extra BoM Cost"
+msgstr ""
+
+#. module: mrp_account
+#. odoo-javascript
+#: code:addons/mrp_account/static/src/components/bom_overview_extra_bom_cost_line/bom_overview_extra_bom_cost_line.xml:0
+#: code:addons/mrp_account/static/src/components/mo_overview_extra_bom_cost_line/mo_overview_extra_bom_cost_line.xml:0
+#: model:ir.model.fields,field_description:mrp_account.field_mrp_bom__extra_cost
+#: model_terms:ir.ui.view,arch_db:mrp_account.mrp_account_inherits_mrp_bom_form_view
+msgid "Extra Cost"
+msgstr ""
+
+#. module: mrp_account
 #: model:ir.model.fields,field_description:mrp_account.field_mrp_production__extra_cost
 msgid "Extra Unit Cost"
 msgstr "Coste unitario adicional"
@@ -276,8 +322,10 @@ msgstr "Coste unitario adicional"
 #: model:ir.model.fields,field_description:mrp_account.field_account_analytic_line__id
 #: model:ir.model.fields,field_description:mrp_account.field_account_move__id
 #: model:ir.model.fields,field_description:mrp_account.field_account_move_line__id
+#: model:ir.model.fields,field_description:mrp_account.field_account_stock_valuation_report__id
 #: model:ir.model.fields,field_description:mrp_account.field_mrp_account_wip_accounting__id
 #: model:ir.model.fields,field_description:mrp_account.field_mrp_account_wip_accounting_line__id
+#: model:ir.model.fields,field_description:mrp_account.field_mrp_bom__id
 #: model:ir.model.fields,field_description:mrp_account.field_mrp_production__id
 #: model:ir.model.fields,field_description:mrp_account.field_mrp_workcenter__id
 #: model:ir.model.fields,field_description:mrp_account.field_mrp_workcenter_productivity__id
@@ -285,9 +333,9 @@ msgstr "Coste unitario adicional"
 #: model:ir.model.fields,field_description:mrp_account.field_product_category__id
 #: model:ir.model.fields,field_description:mrp_account.field_product_product__id
 #: model:ir.model.fields,field_description:mrp_account.field_product_template__id
+#: model:ir.model.fields,field_description:mrp_account.field_report_mrp_report_bom_structure__id
 #: model:ir.model.fields,field_description:mrp_account.field_report_mrp_report_mo_overview__id
 #: model:ir.model.fields,field_description:mrp_account.field_res_company__id
-#: model:ir.model.fields,field_description:mrp_account.field_stock_account_stock_valuation_report__id
 #: model:ir.model.fields,field_description:mrp_account.field_stock_move__id
 msgid "ID"
 msgstr "ID"
@@ -306,6 +354,11 @@ msgstr "Asiento contable"
 #: model:ir.model,name:mrp_account.model_account_move_line
 msgid "Journal Item"
 msgstr "Apunte contable"
+
+#. module: mrp_account
+#: model:ir.model,name:mrp_account.model_mrp_account_wip_accounting_line
+msgid "Journal item to be created when posting WIP journal entry"
+msgstr ""
 
 #. module: mrp_account
 #: model:ir.model.fields,field_description:mrp_account.field_mrp_account_wip_accounting_line__label
@@ -338,13 +391,13 @@ msgstr "Entrada manual"
 #. module: mrp_account
 #: model:ir.model,name:mrp_account.model_mrp_production
 #: model:ir.model.fields.selection,name:mrp_account.selection__account_analytic_applicability__business_domain__manufacturing_order
-#: model:ir.model.fields.selection,name:mrp_account.selection__account_analytic_line__category__manufacturing_order
 msgid "Manufacturing Order"
 msgstr "Orden de fabricación"
 
 #. module: mrp_account
 #. odoo-python
 #: code:addons/mrp_account/models/analytic_account.py:0
+#: model:ir.model.fields.selection,name:mrp_account.selection__account_analytic_line__category__manufacturing_order
 #: model_terms:ir.ui.view,arch_db:mrp_account.account_analytic_account_view_form_mrp
 msgid "Manufacturing Orders"
 msgstr "Órdenes de fabricación"
@@ -417,8 +470,14 @@ msgstr "Producción"
 
 #. module: mrp_account
 #: model:ir.model.fields,field_description:mrp_account.field_product_category__property_stock_account_production_cost_id
+#: model:ir.model.fields,field_description:mrp_account.field_res_company__stock_account_production_cost_id
 msgid "Production Account"
 msgstr "Cuenta de producción"
+
+#. module: mrp_account
+#: model:ir.model.fields,field_description:mrp_account.field_mrp_production__consolidation_rate
+msgid "Rate"
+msgstr ""
 
 #. module: mrp_account
 #: model:ir.model.fields,field_description:mrp_account.field_mrp_account_wip_accounting__reference
@@ -449,6 +508,12 @@ msgid "Reversal of: %s"
 msgstr "Reversión de: %s"
 
 #. module: mrp_account
+#: model:ir.model.fields,help:mrp_account.field_mrp_bom__extra_cost
+msgid ""
+"Set an additional cost per manufactured unit (e.g. labour, energy, packaging)"
+msgstr ""
+
+#. module: mrp_account
 #: model:ir.model.fields,field_description:mrp_account.field_mrp_production__show_valuation
 msgid "Show Valuation"
 msgstr "Mostrar valoración"
@@ -459,7 +524,7 @@ msgid "Stock Move"
 msgstr "Movimiento de stock"
 
 #. module: mrp_account
-#: model:ir.model,name:mrp_account.model_stock_account_stock_valuation_report
+#: model:ir.model,name:mrp_account.model_account_stock_valuation_report
 msgid "Stock Valuation"
 msgstr "Valoración de stock"
 
@@ -568,9 +633,8 @@ msgstr "Asiento de trabajo en curso"
 
 #. module: mrp_account
 #: model:ir.model,name:mrp_account.model_mrp_account_wip_accounting
-msgid "Wizard to post Manufacturing WIP account move"
+msgid "Wizard to post Manufacturing WIP journal entry"
 msgstr ""
-"Asistente para publicar los asientos del trabajo de fabricación en curso"
 
 #. module: mrp_account
 #: model:ir.model,name:mrp_account.model_mrp_workcenter
@@ -606,6 +670,14 @@ msgstr "Registro de productividad del centro de trabajo"
 #. module: mrp_account
 #. odoo-python
 #: code:addons/mrp_account/models/mrp_production.py:0
+msgid ""
+"You cannot change the end date of a manufacturing order with associated "
+"journal entries."
+msgstr ""
+
+#. module: mrp_account
+#. odoo-python
+#: code:addons/mrp_account/models/mrp_production.py:0
 #: code:addons/mrp_account/models/mrp_workorder.py:0
 msgid "[WC] %s"
 msgstr "[Centro de trabajo] %s"
@@ -621,44 +693,3 @@ msgstr "[Centro de trabajo] %s"
 
 #~ msgid "Units"
 #~ msgstr "Unidades"
-
-#~ msgid "$1000"
-#~ msgstr "1000 €"
-
-#~ msgid "$5000"
-#~ msgstr "5000 €"
-
-#~ msgid "2023-08-15"
-#~ msgstr "15-08-2023"
-
-#~ msgid ""
-#~ "Analytic account in which cost and revenue entries will take        place "
-#~ "for financial management of the manufacturing order."
-#~ msgstr ""
-#~ "Cuenta analítica en la que se producirán los asientos de costos e "
-#~ "ingresos        para la gestión financiera de la orden de fabricación."
-
-#~ msgid ""
-#~ "Analytic account in which cost and revenue entries will take place for "
-#~ "financial management of the manufacturing order."
-#~ msgstr ""
-#~ "Cuenta analítica en la que se producirán los asientos de costos e "
-#~ "ingresos para la gestión financiera de la orden de fabricación."
-
-#~ msgid "Bill of Material"
-#~ msgstr "Lista de materiales"
-
-#~ msgid "Production Order"
-#~ msgstr "Orden de producción"
-
-#~ msgid "Stock Rule"
-#~ msgstr "Regla de Inventario"
-
-#~ msgid "Work Center Usage"
-#~ msgstr "Utilización del centro de producción"
-
-#~ msgid "Workcenters"
-#~ msgstr "Centros de trabajo"
-
-#~ msgid "[Raw] %s"
-#~ msgstr "[Materia prima] %s"

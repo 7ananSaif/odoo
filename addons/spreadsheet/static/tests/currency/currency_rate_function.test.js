@@ -4,7 +4,6 @@ import { getCellValue, getEvaluatedCell } from "@spreadsheet/../tests/helpers/ge
 import { createModelWithDataSource } from "@spreadsheet/../tests/helpers/model";
 import { waitForDataLoaded } from "@spreadsheet/helpers/model";
 import { defineSpreadsheetActions, defineSpreadsheetModels } from "../helpers/data";
-import { RPCError } from "@web/core/network/rpc";
 
 describe.current.tags("headless");
 
@@ -95,9 +94,7 @@ test("invalid company id", async () => {
     const { model } = await createModelWithDataSource({
         mockRPC: async function (route, args) {
             if (args.method === "get_rates_for_spreadsheet") {
-                const error = new RPCError();
-                error.data = { message: "Invalid company id." };
-                throw error;
+                return [{ __error__: "Invalid company id." }];
             }
         },
     });
@@ -157,4 +154,24 @@ test("Currency rates are loaded once by clock", async () => {
     setCellContent(model, "A2", `=ODOO.CURRENCY.RATE("EUR","SEK")`);
     await waitForDataLoaded(model);
     expect.verifySteps(["FETCH:2"]);
+});
+
+test("Rate is updated when refreshing the data sources", async () => {
+    let currentRate = 0.9;
+    const { model } = await createModelWithDataSource({
+        mockRPC: async function (route, args) {
+            if (args.method === "get_rates_for_spreadsheet") {
+                const info = args.args[0][0];
+                return [{ ...info, rate: currentRate }];
+            }
+        },
+    });
+    setCellContent(model, "A1", `=ODOO.CURRENCY.RATE("EUR","USD")`);
+    await waitForDataLoaded(model);
+    expect(getCellValue(model, "A1")).toBe(0.9);
+
+    currentRate = 0.8;
+    model.dispatch("REFRESH_ALL_DATA_SOURCES");
+    await waitForDataLoaded(model);
+    expect(getCellValue(model, "A1")).toBe(0.8);
 });

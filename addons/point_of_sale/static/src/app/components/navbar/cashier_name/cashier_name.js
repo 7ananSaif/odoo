@@ -5,14 +5,13 @@ import { useService } from "@web/core/utils/hooks";
 // Previously UsernameWidget
 export class CashierName extends Component {
     static template = "point_of_sale.CashierName";
-    static props = {};
 
     setup() {
         this.pos = usePos();
         this.ui = useService("ui");
     }
     get avatar() {
-        const user_id = this.pos.getCashierUserId();
+        const user_id = this.pos.accessRight.cashierUserId;
         const id = user_id ? user_id : -1;
         return `/web/image/res.users/${id}/avatar_128`;
     }

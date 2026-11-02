@@ -1,24 +1,40 @@
-import { _t } from "@web/core/l10n/translation";
+import {
+    Component,
+    computed,
+    onMounted,
+    onWillStart,
+    onWillUnmount,
+    proxy,
+    signal,
+    t,
+    usePlugin,
+    useProps,
+} from "@odoo/owl";
+import { AutoComplete } from "@web/core/autocomplete/autocomplete";
 import { browser } from "@web/core/browser/browser";
 import { CheckBox } from "@web/core/checkbox/checkbox";
+import { DebugModePlugin } from "@web/core/debug_mode_plugin";
 import { Dialog } from "@web/core/dialog/dialog";
+import { _t } from "@web/core/l10n/translation";
 import { rpc } from "@web/core/network/rpc";
+import { x2ManyCommands } from "@web/core/orm_plugin";
+import { BadgeTag } from "@web/core/tags_list/badge_tag";
+import { TagsList } from "@web/core/tags_list/tags_list";
+import { user } from "@web/core/user";
 import { unique } from "@web/core/utils/arrays";
-import { useService } from "@web/core/utils/hooks";
+import { useAutofocus, useService } from "@web/core/utils/hooks";
 import { fuzzyLookup } from "@web/core/utils/search";
 import { useSortable } from "@web/core/utils/sortable_owl";
 import { useDebounced } from "@web/core/utils/timing";
 
-import { Component, useRef, useState, onMounted, onWillStart, onWillUnmount } from "@odoo/owl";
-
 class DeleteExportListDialog extends Component {
     static components = { Dialog };
     static template = "web.DeleteExportListDialog";
-    static props = {
-        text: String,
-        close: Function,
-        delete: Function,
-    };
+    props = useProps({
+        text: t.string(),
+        close: t.function(),
+        delete: t.function(),
+    });
     async onDelete() {
         await this.props.delete();
         this.props.close();
@@ -28,19 +44,20 @@ class DeleteExportListDialog extends Component {
 class ExportDataItem extends Component {
     static template = "web.ExportDataItem";
     static components = { ExportDataItem };
-    static props = {
-        exportList: { type: Object, optional: true },
-        field: { type: Object, optional: true },
-        filterSubfields: Function,
-        isDebug: Boolean,
-        isExpanded: Boolean,
-        isFieldExpandable: Function,
-        onAdd: Function,
-        loadFields: Function,
-    };
+    props = useProps({
+        // array of export templates — legacy `{ type: Object }` was never enforced
+        exportList: t.array().optional(),
+        field: t.object().optional(),
+        filterSubfields: t.function(),
+        isDebug: t.boolean(),
+        isExpanded: t.boolean(),
+        isFieldExpandable: t.function(),
+        onAdd: t.function(),
+        loadFields: t.function(),
+    });
 
     setup() {
-        this.state = useState({
+        this.state = proxy({
             subfields: [],
         });
         onWillStart(() => {
@@ -82,49 +99,70 @@ class ExportDataItem extends Component {
 
 export class ExportDataDialog extends Component {
     static template = "web.ExportDataDialog";
-    static components = { CheckBox, Dialog, ExportDataItem };
-    static props = {
-        close: { type: Function },
-        context: { type: Object, optional: true },
-        defaultExportList: { type: Array },
-        download: { type: Function },
-        getExportedFields: { type: Function },
-        root: { type: Object },
+    static components = {
+        AutoComplete,
+        BadgeTag,
+        CheckBox,
+        Dialog,
+        ExportDataItem,
+        TagsList,
     };
+    props = useProps({
+        close: t.function(),
+        context: t.object().optional(),
+        defaultExportList: t.array(),
+        download: t.function(),
+        getExportedFields: t.function(),
+        root: t.object(),
+    });
+
+    draggableRef = signal.ref();
+    searchRef = signal.ref();
+    templateNameRef = signal.ref();
+
+    applyChangesTitle = computed(() =>
+        this.state.templateName ? this.applyChangesText : this.noChangesText
+    );
+
+    debugMode = usePlugin(DebugModePlugin);
 
     setup() {
         this.dialog = useService("dialog");
         this.notification = useService("notification");
         this.orm = useService("orm");
-        this.draggableRef = useRef("draggable");
-        this.exportListRef = useRef("exportList");
-        this.searchRef = useRef("search");
+        this.uiService = useService("ui");
+        useAutofocus({ ref: this.templateNameRef });
 
         this.knownFields = {};
         this.expandedFields = {};
         this.availableFormats = [];
         this.templates = [];
+        this.languagesInstalled = [];
         this.isCompatible = false;
 
-        this.state = useState({
+        this.state = proxy({
             exportList: [],
+            exportLanguages: [],
             isEditingTemplate: false,
             search: [],
             selectedFormat: 0,
             templateId: null,
-            isSmall: this.env.isSmall,
+            templateName: "",
+            isSmall: this.uiService.isSmall,
             disabled: false,
         });
 
-        this.newTemplateText = _t("New template");
         this.removeFieldText = _t("Remove field");
+        this.applyChangesText = _t("Apply changes");
+        this.noChangesText = _t("No changes to apply");
 
-        this.debouncedOnResize = useDebounced(this.updateSize, 300);
+        this.debouncedOnResize = useDebounced(this.updateSize.bind(this), 300);
 
         useSortable({
             // Params
             ref: this.draggableRef,
             elements: ".o_export_field",
+            ignore: ".o_remove_field",
             enable: !this.state.isSmall,
             cursor: "grabbing",
             // Hooks
@@ -147,15 +185,21 @@ export class ExportDataDialog extends Component {
         });
 
         onWillStart(async () => {
-            this.availableFormats = await rpc("/web/export/formats");
-            this.templates = await this.orm.searchRead(
-                "ir.exports",
-                [["resource", "=", this.props.root.resModel]],
-                [],
-                {
-                    context: this.props.context,
-                }
-            );
+            // formats and installed languages only change when a module or a
+            // language is installed, unlike the templates this dialog itself
+            // creates, edits and deletes
+            [this.availableFormats, this.templates, this.languagesInstalled] = await Promise.all([
+                rpc("/web/export/formats", {}, { cache: true }),
+                this.orm.searchRead(
+                    "ir.exports",
+                    [["resource", "=", this.props.root.resModel]],
+                    [],
+                    {
+                        context: this.props.context,
+                    }
+                ),
+                this.orm.cache().searchRead("res.lang", [], ["code", "name"], { order: "name" }),
+            ]);
             await this.fetchFields();
         });
 
@@ -168,18 +212,66 @@ export class ExportDataDialog extends Component {
     }
 
     get fieldsAvailable() {
-        if (this.searchRef.el && this.searchRef.el.value) {
+        if (this.searchRef() && this.searchRef().value) {
             return this.state.search.length && Object.values(this.state.search);
         }
         return Object.values(this.knownFields);
     }
 
-    get isDebug() {
-        return Boolean(odoo.debug);
+    /**
+     * Languages are only worth selecting when at least one field of the export
+     * list is translatable: without any, every language would produce the very
+     * same columns, so the selector is hidden instead of being a no-op.
+     */
+    get canExportTranslations() {
+        return (
+            this.languagesInstalled.length > 1 &&
+            this.state.exportList.some(({ translate }) => translate)
+        );
+    }
+
+    get languageChoices() {
+        return this.languagesInstalled
+            .filter(({ code }) => !this.state.exportLanguages.some((lang) => lang.code === code))
+            .map((language) => ({ value: language, label: language.name }));
+    }
+
+    get userLanguageName() {
+        const userLanguage = user.lang.replace("-", "_");
+        return (
+            this.languagesInstalled.find(({ code }) => code === userLanguage)?.name || userLanguage
+        );
+    }
+
+    get languageSources() {
+        return [{ options: this.loadLanguageOptions.bind(this) }];
+    }
+
+    loadLanguageOptions(request) {
+        const choices = request
+            ? fuzzyLookup(request, this.languageChoices, (choice) => choice.label)
+            : this.languageChoices;
+        return choices.map(({ value, label }) => ({
+            label,
+            onSelect: () => this.onAddLanguage(value),
+        }));
+    }
+
+    get languageTags() {
+        return this.state.exportLanguages.map(({ code, name }) => ({
+            id: code,
+            text: name,
+            onDelete: () => {
+                this.state.exportLanguages = this.state.exportLanguages.filter(
+                    (lang) => lang.code !== code
+                );
+                this.resetTemplateSelection();
+            },
+        }));
     }
 
     get rootFields() {
-        if (this.searchRef.el && this.searchRef.el.value) {
+        if (this.searchRef() && this.searchRef().value) {
             const rootFromSearchResults = this.fieldsAvailable.map((f) => {
                 if (f.parent) {
                     const parentEl = this.knownFields[f.parent.id];
@@ -195,11 +287,11 @@ export class ExportDataDialog extends Component {
     filterSubfields(subfields) {
         let subfieldsFromSearchResults = [];
         let searchResults;
-        if (this.searchRef.el && this.searchRef.el.value) {
-            searchResults = this.lookup(this.searchRef.el.value);
+        if (this.searchRef() && this.searchRef().value) {
+            searchResults = this.lookup(this.searchRef().value);
         }
         const fieldsAvailable = Object.values(searchResults || this.knownFields);
-        if (this.searchRef.el && this.searchRef.el.value) {
+        if (this.searchRef() && this.searchRef().value) {
             subfieldsFromSearchResults = fieldsAvailable
                 .filter((f) => f.parent && this.knownFields[f.parent.id].parent)
                 .map((f) => f.parent);
@@ -209,29 +301,42 @@ export class ExportDataDialog extends Component {
     }
 
     updateSize() {
-        this.state.isSmall = this.env.isSmall;
+        this.state.isSmall = this.uiService.isSmall;
     }
 
     /**
-     * Load fields to display and (re)set the list of available fields
+     * Load fields to display and (re)set the list of available fields.
+     *
+     * @param {boolean} [keepExportList=false] when true, the current export
+     *  list is left untouched. This is used when only the available fields
+     *  change (e.g. toggling the "Updatable fields only" switch), which must
+     *  not affect the fields the user already chose to export.
      */
-    async fetchFields() {
+    async fetchFields(keepExportList = false) {
         this.knownFields = {};
         this.expandedFields = {};
         await this.loadFields();
-        await this.setDefaultExportList();
-        this.state.search = [];
-        if (this.searchRef.el) {
-            this.searchRef.el.value = "";
+        if (!keepExportList) {
+            await this.setDefaultExportList();
         }
-        if (this.state.templateId) {
+        this.state.search = [];
+        if (this.searchRef()) {
+            this.searchRef().value = "";
+        }
+        if (this.state.templateId && !keepExportList) {
             this.loadExportList(this.state.templateId);
         }
     }
 
-    enterTemplateEdition() {
+    /**
+     * Changing the export list or the selected languages while a template is
+     * loaded but not being edited detaches from that template: the current
+     * selection is kept as a plain (unsaved) working set, allowing the user
+     * to build a new template on top of an existing one without altering it.
+     */
+    resetTemplateSelection() {
         if (this.state.templateId && !this.state.isEditingTemplate) {
-            this.state.isEditingTemplate = true;
+            this.state.templateId = null;
         }
     }
 
@@ -240,17 +345,19 @@ export class ExportDataDialog extends Component {
     }
 
     async loadExportList(value) {
-        this.state.templateId = value === "new_template" ? value : Number(value);
-        this.state.isEditingTemplate = value === "new_template";
-        if (!value || value === "new_template") {
+        this.state.templateId = value ? Number(value) : null;
+        if (!value) {
             return;
         }
-        const fields = await rpc("/web/export/namelist", {
+        const { fields, export_languages } = await rpc("/web/export/namelist", {
             model: this.props.root.resModel,
             export_id: Number(value),
         });
         // Don't safe the result in this.knownFields because, the result is only partial
         this.state.exportList = fields;
+        this.state.exportLanguages = this.languagesInstalled.filter(({ code }) =>
+            export_languages.includes(code)
+        );
     }
 
     async loadFields(id, preventLoad = false) {
@@ -287,50 +394,92 @@ export class ExportDataDialog extends Component {
 
     onDraggingEnd(item, target) {
         this.state.exportList.splice(target, 0, this.state.exportList.splice(item, 1)[0]);
+        this.resetTemplateSelection();
     }
 
     onAddItemExportList(fieldId) {
         this.state.exportList.push(this.knownFields[fieldId]);
-        this.enterTemplateEdition();
+        this.resetTemplateSelection();
     }
 
     onRemoveItemExportList(fieldId) {
         const item = this.state.exportList.findIndex(({ id }) => id === fieldId);
         this.state.exportList.splice(item, 1);
-        this.enterTemplateEdition();
+        this.resetTemplateSelection();
     }
 
     async onChangeExportList(ev) {
         this.loadExportList(ev.target.value);
     }
 
-    async onSaveExportTemplate() {
-        const name = this.exportListRef.el.value;
-        if (!name) {
-            return this.notification.add(_t("Please enter save field list name"), {
-                type: "danger",
-            });
+    onCreateExportTemplate() {
+        this.state.templateId = "new_template";
+        this.state.templateName = "";
+        this.state.isEditingTemplate = true;
+    }
+
+    onEditExportTemplate() {
+        const template = this.templates.find(({ id }) => id === this.state.templateId);
+        this.state.templateName = template ? template.name : "";
+        this.state.isEditingTemplate = true;
+    }
+
+    onTemplateNameKeydown(ev) {
+        if (ev.key === "Enter") {
+            ev.preventDefault();
+            if (this.state.templateName) {
+                this.onSaveExportTemplate();
+            }
+        } else if (ev.key === "Escape") {
+            ev.preventDefault();
+            this.onCancelExportTemplate();
         }
-        const [id] = await this.orm.create(
-            "ir.exports",
-            [
+    }
+
+    async onSaveExportTemplate() {
+        const name = this.state.templateName;
+        if (!name) {
+            return;
+        }
+        const exportLanguageIds = this.canExportTranslations
+            ? this.state.exportLanguages.map(({ id }) => id)
+            : [];
+        const exportFieldsCommands = this.state.exportList.map((field, index) =>
+            x2ManyCommands.create(false, { name: field.id, sequence: (index + 1) * 10 })
+        );
+        if (this.state.templateId === "new_template") {
+            const [id] = await this.orm.create(
+                "ir.exports",
+                [
+                    {
+                        name,
+                        export_fields: exportFieldsCommands,
+                        export_language_ids: [x2ManyCommands.set(exportLanguageIds)],
+                        resource: this.props.root.resModel,
+                    },
+                ],
+                { context: this.props.context }
+            );
+            this.templates.push({ id, name });
+            this.state.templateId = id;
+        } else {
+            const id = this.state.templateId;
+            await this.orm.write(
+                "ir.exports",
+                [id],
                 {
                     name,
-                    export_fields: this.state.exportList.map((field) => [
-                        0,
-                        0,
-                        {
-                            name: field.id,
-                        },
-                    ]),
-                    resource: this.props.root.resModel,
+                    export_fields: [x2ManyCommands.clear(), ...exportFieldsCommands],
+                    export_language_ids: [x2ManyCommands.set(exportLanguageIds)],
                 },
-            ],
-            { context: this.props.context }
-        );
+                { context: this.props.context }
+            );
+            const template = this.templates.find((i) => i.id === id);
+            if (template) {
+                template.name = name;
+            }
+        }
         this.state.isEditingTemplate = false;
-        this.state.templateId = id;
-        this.templates.push({ id, name });
     }
 
     onCancelExportTemplate() {
@@ -350,7 +499,7 @@ export class ExportDataDialog extends Component {
         }
         this.state.disabled = true;
         await this.props.download(
-            this.state.exportList,
+            this.getFieldsToExport(),
             this.isCompatible,
             this.availableFormats[this.state.selectedFormat].tag
         );
@@ -373,6 +522,35 @@ export class ExportDataDialog extends Component {
         });
     }
 
+    /**
+     * Return the fields to export: each translatable field of the export list
+     * is replaced by one column per selected export language, using the same
+     * `@lang` suffix convention as the import (e.g. `name@fr_FR`) on both the
+     * technical name and the label, so the columns stay import-compatible.
+     * The unsuffixed column (in the active language) is dropped to avoid
+     * exporting the same column twice under different headers.
+     */
+    getFieldsToExport() {
+        if (!this.state.exportLanguages.length) {
+            return this.state.exportList;
+        }
+        return this.state.exportList.flatMap((field) => {
+            if (!field.translate) {
+                return [field];
+            }
+            return this.state.exportLanguages.map(({ code }) => ({
+                ...field,
+                id: `${field.id}@${code}`,
+                string: `${field.string}@${code}`,
+            }));
+        });
+    }
+
+    onAddLanguage(language) {
+        this.state.exportLanguages.push(language);
+        this.resetTemplateSelection();
+    }
+
     onSearch(ev) {
         this.state.search = this.lookup(ev.target.value);
     }
@@ -385,7 +563,7 @@ export class ExportDataDialog extends Component {
             // reversing the string makes the search more reliable in this context
             (field) => field.string.split("/").reverse().join("/")
         );
-        if (this.isDebug) {
+        if (this.debugMode.isActive()) {
             lookupResult = unique([
                 ...lookupResult,
                 ...Object.values(this.knownFields).filter((f) => f.id.includes(value)),
@@ -396,7 +574,7 @@ export class ExportDataDialog extends Component {
 
     onToggleCompatibleExport(value) {
         this.isCompatible = value;
-        this.fetchFields();
+        this.fetchFields(true);
     }
 
     async setDefaultExportList() {
@@ -412,10 +590,8 @@ export class ExportDataDialog extends Component {
     }
 
     setFormat(ev) {
-        if (ev.target.checked) {
-            this.state.selectedFormat = this.availableFormats.findIndex(
-                ({ tag }) => tag === ev.target.value
-            );
-        }
+        this.state.selectedFormat = this.availableFormats.findIndex(
+            ({ tag }) => tag === ev.target.value
+        );
     }
 }

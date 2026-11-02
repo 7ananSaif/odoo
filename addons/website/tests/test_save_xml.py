@@ -39,7 +39,7 @@ class TestWebsiteSaveXml(HttpCase):
 
     def test_save_xml_disabled_delay_translations(self):
         """Test that disable_delay_translations disable delayed translation on save_xml call"""
-        self.env['ir.config_parameter'].sudo().set_param('website.disable_delay_translations', '1')
+        self.env['ir.config_parameter'].sudo().set_bool('website.disable_delay_translations', True)
 
         self.assertEqual(
             self.view.with_context(lang='fr_FR').arch,

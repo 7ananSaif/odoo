@@ -7,7 +7,7 @@ class EventEventTicket(models.Model):
     def _show_discount(self):
         """Determine if the discount should be shown on the website for this ticket."""
         self.ensure_one()
-        if not self.price:
+        if not self.total_price:
             return False
 
         product_sudo = self.product_id.sudo()
@@ -20,4 +20,4 @@ class EventEventTicket(models.Model):
             quantity=1.0,
         )
         pricelist_item = self.env['product.pricelist.item'].browse(rule_id)
-        return pricelist_item._show_discount_on_shop() and (self.price - self.price_reduce) > 0
+        return pricelist_item._show_discount_on_shop() and (self.total_price - self.total_price_reduce) > 0

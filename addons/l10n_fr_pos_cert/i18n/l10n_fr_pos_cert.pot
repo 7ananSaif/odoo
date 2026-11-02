@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0+e\n"
+"Project-Id-Version: Odoo Server 20.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-30 19:06+0000\n"
-"PO-Revision-Date: 2025-12-30 19:06+0000\n"
+"POT-Creation-Date: 2026-10-09 18:23+0000\n"
+"PO-Revision-Date: 2026-10-09 18:23+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,16 +16,34 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: l10n_fr_pos_cert
+#: model:ir.module.module,description:base.module_l10n_fr_pos_cert
+msgid ""
+"\n"
+"This add-on brings the technical requirements of the French regulation CGI art. 286, I. 3° bis that stipulates certain criteria concerning the inalterability, security, storage and archiving of data related to sales to private individuals (B2C).\n"
+"-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
+"\n"
+"Install it if you use the Point of Sale app to sell to individuals.\n"
+"\n"
+"The module adds following features:\n"
+"\n"
+"    Inalterability: deactivation of all the ways to cancel or modify key data of POS orders, invoices and journal entries\n"
+"\n"
+"    Security: chaining algorithm to verify the inalterability\n"
+"\n"
+"    Storage: automatic sales closings with computation of both period and cumulative totals (daily, monthly, annually)\n"
+"\n"
+"    Access to download the mandatory Certificate of Conformity delivered by Odoo SA (only for Odoo Enterprise users)\n"
+msgstr ""
+
+#. module: l10n_fr_pos_cert
 #. odoo-python
 #: code:addons/l10n_fr_pos_cert/models/res_company.py:0
 msgid "(Receipt ref.: %s)"
 msgstr ""
 
 #. module: l10n_fr_pos_cert
-#. odoo-javascript
-#: code:addons/l10n_fr_pos_cert/static/src/xml/OrderReceipt.xml:0
-#: code:addons/l10n_fr_pos_cert/static/src/xml/OrderSummary.xml:0
-msgid "/ Units"
+#: model_terms:ir.ui.view,arch_db:l10n_fr_pos_cert.pos_orderline_receipt_information
+msgid "<span>Old unit price </span>"
 msgstr ""
 
 #. module: l10n_fr_pos_cert
@@ -99,10 +117,6 @@ msgstr ""
 
 #. module: l10n_fr_pos_cert
 #: model:ir.model,name:l10n_fr_pos_cert.model_res_company
-msgid "Companies"
-msgstr ""
-
-#. module: l10n_fr_pos_cert
 #: model:ir.model.fields,field_description:l10n_fr_pos_cert.field_account_sale_closing__company_id
 msgid "Company"
 msgstr ""
@@ -180,6 +194,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_fr_pos_cert.field_pos_config__display_name
 #: model:ir.model.fields,field_description:l10n_fr_pos_cert.field_pos_order__display_name
 #: model:ir.model.fields,field_description:l10n_fr_pos_cert.field_pos_order_line__display_name
+#: model:ir.model.fields,field_description:l10n_fr_pos_cert.field_pos_order_receipt__display_name
 #: model:ir.model.fields,field_description:l10n_fr_pos_cert.field_pos_session__display_name
 #: model:ir.model.fields,field_description:l10n_fr_pos_cert.field_report_l10n_fr_pos_cert_report_pos_hash_integrity__display_name
 #: model:ir.model.fields,field_description:l10n_fr_pos_cert.field_res_company__display_name
@@ -194,6 +209,12 @@ msgstr ""
 #. module: l10n_fr_pos_cert
 #: model:ir.model,name:l10n_fr_pos_cert.model_account_fiscal_position
 msgid "Fiscal Position"
+msgstr ""
+
+#. module: l10n_fr_pos_cert
+#: model:ir.module.module,shortdesc:base.module_l10n_fr_pos_cert
+msgid ""
+"France - VAT Anti-Fraud Certification for Point of Sale (CGI 286 I-3 bis)"
 msgstr ""
 
 #. module: l10n_fr_pos_cert
@@ -247,6 +268,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_fr_pos_cert.field_pos_config__id
 #: model:ir.model.fields,field_description:l10n_fr_pos_cert.field_pos_order__id
 #: model:ir.model.fields,field_description:l10n_fr_pos_cert.field_pos_order_line__id
+#: model:ir.model.fields,field_description:l10n_fr_pos_cert.field_pos_order_receipt__id
 #: model:ir.model.fields,field_description:l10n_fr_pos_cert.field_pos_session__id
 #: model:ir.model.fields,field_description:l10n_fr_pos_cert.field_report_l10n_fr_pos_cert_report_pos_hash_integrity__id
 #: model:ir.model.fields,field_description:l10n_fr_pos_cert.field_res_company__id
@@ -363,7 +385,6 @@ msgstr ""
 
 #. module: l10n_fr_pos_cert
 #. odoo-javascript
-#: code:addons/l10n_fr_pos_cert/static/src/xml/OrderReceipt.xml:0
 #: code:addons/l10n_fr_pos_cert/static/src/xml/OrderSummary.xml:0
 msgid "Old unit price:"
 msgstr ""
@@ -385,13 +406,18 @@ msgid "Point of Sale Configuration"
 msgstr ""
 
 #. module: l10n_fr_pos_cert
-#: model:ir.model,name:l10n_fr_pos_cert.model_pos_order_line
-msgid "Point of Sale Order Lines"
+#: model:ir.model,name:l10n_fr_pos_cert.model_pos_order
+msgid "Point of Sale Order"
 msgstr ""
 
 #. module: l10n_fr_pos_cert
-#: model:ir.model,name:l10n_fr_pos_cert.model_pos_order
-msgid "Point of Sale Orders"
+#: model:ir.model,name:l10n_fr_pos_cert.model_pos_order_line
+msgid "Point of Sale Order Line"
+msgstr ""
+
+#. module: l10n_fr_pos_cert
+#: model:ir.model,name:l10n_fr_pos_cert.model_pos_order_receipt
+msgid "Point of Sale Order Receipt Generator"
 msgstr ""
 
 #. module: l10n_fr_pos_cert

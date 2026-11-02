@@ -1,22 +1,20 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from ast import literal_eval
-from collections import defaultdict
-from datetime import timedelta
-from pytz import timezone, utc
-from werkzeug.exceptions import Forbidden, NotFound
-
-import babel
-import babel.dates
-import base64
 import json
 import operator
-import pytz
+from ast import literal_eval
+from collections import defaultdict
+from datetime import UTC, timedelta
+from zoneinfo import ZoneInfo
 
-from odoo import http, fields, tools, _
+import babel.dates
+from werkzeug.exceptions import Forbidden, NotFound
+
+from odoo import _, fields, http, tools
 from odoo.fields import Domain
-from odoo.http import content_disposition, request
-from odoo.tools import is_html_empty, plaintext2html
+from odoo.http import request
+from odoo.http.stream import content_disposition
+from odoo.tools import BinaryBytes, is_html_empty, plaintext2html
 from odoo.tools.misc import babel_locale_parse
 
 
@@ -122,7 +120,7 @@ class EventTrackController(http.Controller):
             ])
 
         # fetch data to display with TZ set for both event and tracks
-        now_tz = utc.localize(fields.Datetime.now().replace(microsecond=0), is_dst=False).astimezone(timezone(event.date_tz))
+        now_tz = fields.Datetime.now().replace(tzinfo=UTC).astimezone(ZoneInfo(event.date_tz))
         today_tz = now_tz.date()
         event = event.with_context(tz=event.date_tz or 'UTC')
         tracks_sudo = event.env['event.track'].sudo().search(search_domain, order='is_published desc, date asc')
@@ -214,7 +212,7 @@ class EventTrackController(http.Controller):
         divided into rows of 15 min, and the talks will cover the corresponding
         number of rows (15 min slots). """
         event = event.with_context(tz=event.date_tz or 'UTC')
-        local_tz = pytz.timezone(event.date_tz or 'UTC')
+        local_tz = ZoneInfo(event.date_tz or 'UTC')
         lang_code = request.env.context.get('lang')
 
         base_track_domain = Domain.AND([
@@ -241,7 +239,7 @@ class EventTrackController(http.Controller):
         time_slots_by_day = dict((day, dict(start=set(), end=set())) for day in days)
         tracks_by_rounded_times = dict((time_slot, dict((location, {}) for location in locations)) for time_slot in track_time_slots)
         for track, time_slots in time_slots_by_tracks.items():
-            start_date = fields.Datetime.from_string(track.date).replace(tzinfo=pytz.utc).astimezone(local_tz)
+            start_date = fields.Datetime.from_string(track.date).replace(tzinfo=UTC).astimezone(local_tz)
             end_date = start_date + timedelta(hours=(track.duration or 0.25))
 
             for time_slot, duration in time_slots.items():
@@ -275,7 +273,7 @@ class EventTrackController(http.Controller):
         tracks_by_days = dict.fromkeys(days, 0)
         locations_by_days = defaultdict(list)
         for track in tracks_sudo:
-            track_day = fields.Datetime.from_string(track.date).replace(tzinfo=pytz.utc).astimezone(local_tz).date()
+            track_day = fields.Datetime.from_string(track.date).replace(tzinfo=UTC).astimezone(local_tz).date()
             tracks_by_days[track_day] += 1
             if track.location_id not in locations_by_days[track_day]:
                 locations_by_days[track_day].append(track.location_id)
@@ -320,7 +318,7 @@ class EventTrackController(http.Controller):
                 }
         Also return a set of all the time slots
         """
-        start_date = fields.Datetime.from_string(track.date).replace(tzinfo=pytz.utc).astimezone(local_tz)
+        start_date = fields.Datetime.from_string(track.date).replace(tzinfo=UTC).astimezone(local_tz)
         start_datetime = self.time_slot_rounder(start_date, 15)
         end_datetime = self.time_slot_rounder(start_datetime + timedelta(hours=(track.duration or 0.25)), 15)
         time_slots_count = int(((end_datetime - start_datetime).total_seconds() / 3600) * 4)
@@ -345,7 +343,7 @@ class EventTrackController(http.Controller):
         """
         occupied_cells = []
 
-        start_date = fields.Datetime.from_string(track.date).replace(tzinfo=pytz.utc).astimezone(local_tz)
+        start_date = fields.Datetime.from_string(track.date).replace(tzinfo=UTC).astimezone(local_tz)
         start_date = self.time_slot_rounder(start_date, 15)
         for i in range(0, rowspan):
             time_slot = start_date + timedelta(minutes=15*i)
@@ -473,7 +471,7 @@ class EventTrackController(http.Controller):
 
     @http.route(['''/event/<model("event.event"):event>/track_proposal/post'''], type='http', auth="public", methods=['POST'], website=True)
     def event_track_proposal_post(self, event, **post):
-        if not event.can_access_from_current_website():
+        if event.website_id and event.website_id.id != self.env.context['website_id']:
             return json.dumps({'error': 'forbidden'})
 
         # Only accept existing tag indices. Use search instead of browse + exists:
@@ -482,7 +480,7 @@ class EventTrackController(http.Controller):
         valid_tag_indices = request.env['event.track.tag'].search([('id', 'in', input_tag_indices)]).ids
 
         contact = request.env['res.partner']
-        visitor_partner = request.env['website.visitor']._get_visitor_from_request().partner_id
+        visitor_partner = request.env['ir.http']._get_visitor_from_request().partner_id
         # Contact name is required. Therefore, empty contacts are not considered here. At least one of contact_phone
         # and contact_email must be filled. Email is verified. If the post tries to create contact with no valid entry,
         # raise exception. If normalized email is the same as logged partner, use its partner_id on track instead.
@@ -523,10 +521,10 @@ class EventTrackController(http.Controller):
             'description': plaintext2html(post['description']),
             'partner_biography': plaintext2html(post['partner_biography']),
             'user_id': False,
-            'image': base64.b64encode(post['image'].read()) if post.get('image') else False,
+            'image': BinaryBytes(post['image'].read()) if post.get('image') else False,
         })
 
-        if request.env.user != request.website.user_id:
+        if request.env.user != self.env.website.user_id:
             track.sudo().message_subscribe(partner_ids=request.env.user.partner_id.ids)
 
         return json.dumps({'success': True})
@@ -540,12 +538,8 @@ class EventTrackController(http.Controller):
     # HELPERS ROUTES
     # ------------------------------------------------------------
 
-    @http.route(['''/event/<model("event.event"):event>/track/<model("event.track"):track>/ics'''], type='http', auth="public")
+    @http.route(['''/event/<model("event.event"):event>/track/<model("event.track"):track>/ics'''], type='http', auth="public", website=True, sitemap=False)
     def event_track_ics_file(self, event, track):
-        lang = request.env.context.get('lang', request.env.user.lang)
-        if request.env.user._is_public():
-            lang = request.cookies.get('frontend_lang')
-        track = track.with_context(lang=lang)
         files = track._get_ics_file()
         content = files.get(track.id)
         if not content:
@@ -571,7 +565,7 @@ class EventTrackController(http.Controller):
 
         event = track.event_id
         # JSON RPC have no website in requests
-        if hasattr(request, 'website_id') and not event.can_access_from_current_website():
+        if (website_id := self.env.context.get('website_id')) and event.website_id and event.website_id.id != website_id:
             raise NotFound()
         if not event.has_access('read'):
             raise Forbidden()
@@ -592,6 +586,6 @@ class EventTrackController(http.Controller):
     def _get_dt_in_event_tz(self, datetimes, event):
         tz_name = event.date_tz
         return [
-            utc.localize(dt, is_dst=False).astimezone(timezone(tz_name))
+            dt.replace(tzinfo=UTC).astimezone(ZoneInfo(tz_name))
             for dt in datetimes
         ]

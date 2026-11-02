@@ -1,9 +1,9 @@
-import { useState, useEffect } from "@odoo/owl";
+import { onMounted, onWillUnmount, proxy } from "@odoo/owl";
 import { localization } from "@web/core/l10n/localization";
 const { DateTime } = luxon;
 
 export function useTime() {
-    const state = useState({ hours: "", day: "", date: "" });
+    const state = proxy({ hours: "", day: "", date: "" });
     const timeFormat = localization.timeFormat;
     const dateFormat = localization.dateFormat
         .replace(/MM/g, "LLLL")
@@ -15,16 +15,13 @@ export function useTime() {
         state.day = dateNow.toFormat("cccc");
         state.date = dateNow.toFormat(dateFormat);
     }
-    useEffect(
-        () => {
-            const interval = setInterval(() => setTime(), 500);
-
-            return () => {
-                clearInterval(interval);
-            };
-        },
-        () => []
-    );
+    let interval;
+    onMounted(() => {
+        interval = setInterval(() => setTime(), 500);
+    });
+    onWillUnmount(() => {
+        clearInterval(interval);
+    });
     setTime();
     return state;
 }

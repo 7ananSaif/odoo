@@ -8,13 +8,6 @@ from odoo.addons.project.controllers.portal import CustomerPortal
 
 class ProjectCustomerPortal(CustomerPortal):
 
-    def _get_project_sharing_company(self, project):
-        company = project.company_id
-        if not company:
-            timesheet = request.env['account.analytic.line'].sudo().search([('project_id', '=', project.id)], limit=1)
-            company = timesheet.company_id or request.env.user.company_id
-        return company
-
     def _prepare_project_sharing_session_info(self, project):
         session_info = super()._prepare_project_sharing_session_info(project)
         company = request.env['res.company'].sudo().browse(session_info['user_companies']['current_company'])
@@ -34,7 +27,6 @@ class ProjectCustomerPortal(CustomerPortal):
                 {
                     'id': uom.id,
                     'name': uom.name,
-                    'rounding': uom.rounding,
                     'timesheet_widget': uom.timesheet_widget,
                 } for uom in [timesheet_encode_uom, project_time_mode_uom]
         }

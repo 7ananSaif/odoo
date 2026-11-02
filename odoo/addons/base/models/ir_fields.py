@@ -1,14 +1,13 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-import json
 import functools
 import itertools
+import json
+from datetime import UTC
 from typing import NamedTuple
 
-import pytz
-
 from odoo import api, Command, fields, models
-from odoo.tools import OrderedSet
+from odoo.tools import OrderedSet, SQL, is_list_of
 from odoo.tools.translate import _, code_translations, LazyTranslate
 
 _lt = LazyTranslate(__name__)
@@ -124,6 +123,9 @@ class IrFieldsConverter(models.AbstractModel):
                 if not value:
                     converted[field] = False
                     continue
+                if model._fields[field].translate and isinstance(value, dict) and not any(value.values()):
+                    converted[field] = False
+                    continue
                 try:
                     converted[field], ws = converters[field](value)
                     for w in ws:
@@ -210,6 +212,17 @@ class IrFieldsConverter(models.AbstractModel):
         except ValueError:
             msg = self.env._("'%s' does not seem to be a valid JSON for field '%%(field)s'")
             raise self._format_import_error(ValueError, msg, value)
+
+    def _str_to_properties_definition(self, model, field, value, savepoint):
+        definition, warnings = self._str_to_json(model, field, value, savepoint)
+        try:
+            if not is_list_of(definition, dict):
+                raise ValueError("Properties definitions must be dicts")  # noqa: TRY301
+            field.convert_to_cache(definition, model)
+        except ValueError as error:
+            msg = _("'%(value)s' does not seem to be a valid properties definition for field '%%(field)s': %(error)s")
+            raise self._format_import_error(ValueError, msg, {'value': value, 'error': str(error)})
+        return definition, warnings
 
     def _str_to_properties(self, model, field, value, savepoint):
 
@@ -396,9 +409,9 @@ class IrFieldsConverter(models.AbstractModel):
             )
 
         input_tz = self._input_tz()# Apply input tz to the parsed naive datetime
-        dt = input_tz.localize(parsed_value, is_dst=False)
+        dt = parsed_value.replace(tzinfo=input_tz, fold=1)
         # And convert to UTC before reformatting for writing
-        return fields.Datetime.to_string(dt.astimezone(pytz.UTC)), []
+        return fields.Datetime.to_string(dt.astimezone(UTC)), []
 
     @api.model
     def _get_boolean_translations(self, src):
@@ -570,7 +583,7 @@ class IrFieldsConverter(models.AbstractModel):
         skip_record = False
         if self.env.context.get('import_file'):
             import_set_empty_fields = self.env.context.get('import_set_empty_fields') or []
-            field_path = "/".join((self.env.context.get('parent_fields_hierarchy', []) + [field.name]))
+            field_path = "/".join(self.env.context.get('parent_fields_hierarchy', []) + [field.name])
             set_empty = field_path in import_set_empty_fields
             skip_record = field_path in self.env.context.get('import_skip_records', [])
         if id is None and not set_empty and not skip_record:
@@ -602,14 +615,13 @@ class IrFieldsConverter(models.AbstractModel):
 
         if not result:
             module, name = xmlid.split('.', 1)
-            query = """
+            result = next(iter(self.env.execute_query(SQL("""
                 SELECT d.model, d.res_id
                 FROM ir_model_data d
-                JOIN "{}" r ON d.res_id = r.id
+                JOIN %s r ON d.res_id = r.id
                 WHERE d.module = %s AND d.name = %s
-            """.format(model._table)
-            self.env.cr.execute(query, [module, name])
-            result = self.env.cr.fetchone()
+                LIMIT 1
+            """, SQL.identifier(model._table), module, name))), None)
 
         if result:
             res_model, res_id = import_cache[xmlid] = result
@@ -617,6 +629,7 @@ class IrFieldsConverter(models.AbstractModel):
                 MSG = "Invalid external ID %s: expected model %r, found %r"
                 raise ValueError(MSG % (xmlid, model._name, res_model))
             return res_id
+        return None
 
     def _referencing_subfield(self, record):
         """ Checks the record for the subfields allowing referencing (an

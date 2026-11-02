@@ -3,14 +3,13 @@ import uuid
 from werkzeug.urls import url_encode
 
 from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
-from odoo.tools.sql import column_exists, create_column
+from odoo.tools import BinaryBytes
 
 
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
-    l10n_jo_edi_uuid = fields.Char(string="Invoice UUID", copy=False, compute="_compute_l10n_jo_edi_uuid", store=True)
+    l10n_jo_edi_uuid = fields.Char(string="Invoice UUID", copy=False, compute="_compute_l10n_jo_edi_uuid", store=True, init_storage=lambda model: None)
     l10n_jo_edi_qr = fields.Char(string="QR", copy=False)
 
     l10n_jo_edi_is_needed = fields.Boolean(
@@ -66,11 +65,6 @@ class AccountMove(models.Model):
         help="Invoice Types as per the Income and Sales Tax Department for JoFotara",
     )
 
-    def _auto_init(self):
-        if not column_exists(self.env.cr, 'account_move', 'l10n_jo_edi_uuid'):
-            create_column(self.env.cr, 'account_move', 'l10n_jo_edi_uuid', 'char')
-        return super()._auto_init()
-
     @api.depends("country_code", "move_type")
     def _compute_l10n_jo_edi_is_needed(self):
         for move in self:
@@ -96,7 +90,7 @@ class AccountMove(models.Model):
         for invoice in self:
             if invoice.state == 'posted' and invoice.l10n_jo_edi_is_needed:
                 xml_content = self.env['account.edi.xml.ubl_21.jo']._export_invoice(invoice)[0]
-                invoice.l10n_jo_edi_computed_xml = base64.b64encode(xml_content)
+                invoice.l10n_jo_edi_computed_xml = BinaryBytes(xml_content)
             else:
                 invoice.l10n_jo_edi_computed_xml = False
 
@@ -125,9 +119,8 @@ class AccountMove(models.Model):
             if journal and (payment_method_line := journal.inbound_payment_method_line_ids[0]):
                 move.preferred_payment_method_line_id = payment_method_line
 
-    def download_l10n_jo_edi_computed_xml(self):
-        if error_message := self._l10n_jo_validate_config() or self._l10n_jo_validate_fields():
-            raise ValidationError(_("The following errors have to be fixed in order to create an XML:\n") + error_message)
+    def _l10n_jo_edi_get_computed_xml_url(self):
+        self.ensure_one()
         params = url_encode({
             'model': self._name,
             'id': self.id,
@@ -136,7 +129,7 @@ class AccountMove(models.Model):
             'mimetype': 'application/xml',
             'download': 'true',
         })
-        return {'type': 'ir.actions.act_url', 'url': '/web/content/?' + params, 'target': 'new'}
+        return f'/web/content/?{params}'
 
     def _l10n_jo_qr_code_src(self):
         self.ensure_one()
@@ -148,6 +141,10 @@ class AccountMove(models.Model):
             'height': 200,
         })
         return f'/report/barcode/?{encoded_params}'
+
+    def _l10n_jo_edi_is_legal(self):
+        self.ensure_one()
+        return self.l10n_jo_edi_state == 'sent' and bool(self.l10n_jo_edi_qr)
 
     def _is_sales_refund(self):
         self.ensure_one()
@@ -232,22 +229,24 @@ class AccountMove(models.Model):
     def _l10n_jo_edi_get_xml_attachment_name(self):
         return f"{self.name.replace('/', '_')}_edi.xml"
 
-    def _l10n_jo_validate_config(self):
-        return self.company_id._l10n_jo_validate_config()
+    def _l10n_jo_edi_get_validation_errors(self):
+        self.ensure_one()
+        return self.company_id._l10n_jo_edi_get_config_errors() + self._l10n_jo_edi_get_field_errors()
 
-    def _l10n_jo_validate_fields(self):
+    def _l10n_jo_edi_get_field_errors(self):
+        # these literals intentionally mirror the UI labels, so anyone renaming a field finds them
         def has_non_digit_vat(partner, partner_type, error_msgs):
             if partner.vat and not partner.vat.isdigit():
-                error_msgs.append(_("JoFotara portal cannot process %s VAT with non-digit characters in it", partner_type))
+                error_msgs.append(_('JoFotara portal cannot process %s "VAT" with non-digit characters in it', partner_type))
 
         error_msgs = []
 
         if not self.preferred_payment_method_line_id:
-            error_msgs.append(_("Please select a payment method before submission."))
+            error_msgs.append(_('Please select a "Payment Method" before submission.'))
         if not self.l10n_jo_edi_invoice_type:
-            error_msgs.append(_("Please select an invoice type before submitting this invoice to JoFotara."))
+            error_msgs.append(_('Please select an "Invoice Type" before submitting this invoice to JoFotara.'))
         if self.l10n_jo_edi_invoice_type in ('transit', 'foreign', 'freezone') and self.company_id.l10n_jo_edi_taxpayer_type != 'sales':
-            error_msgs.append(_("To issue the selected Invoice type, please set the Taxpayer Type to 'Registered in the sales tax' by going to Accounting > Configuration > Settings > Electronic Invoicing (Jordan)"))
+            error_msgs.append(_('To issue the selected "Invoice Type", please set the "Taxpayer Type" to "Registered in the sales tax" by going to Accounting > Configuration > Settings > Electronic Invoicing (Jordan)'))
 
         customer = self.partner_id
         has_non_digit_vat(customer, 'customer', error_msgs)
@@ -279,7 +278,19 @@ class AccountMove(models.Model):
             elif self.company_id.l10n_jo_edi_taxpayer_type == 'special' and len(line.tax_ids) != 2:
                 error_msgs.append(_("One special and one general tax per invoice line is expected for taxpayers registered in the special tax"))
 
-        return "\n".join(error_msgs)
+        missing_fields = [
+            field for field, condition in [
+                (_("TIN"), not self.company_id.vat),
+                (_("Country"), not self.company_id.country_id)
+            ] if condition
+        ]
+
+        if missing_fields:
+            error_msgs.append(_("Please define the following for %(company)s: %(missing_fields)s", company=self.company_id.name, missing_fields=", ".join(f'"{field}"' for field in missing_fields)))
+        if self.company_id.country_id and self.company_id.country_code != 'JO':
+            error_msgs.append(_('%(company)s\'s "Country" must be Jordan', company=self.company_id.name))
+
+        return error_msgs
 
     def _mark_sent_jo_edi(self):
         self.l10n_jo_edi_error = False
@@ -289,7 +300,7 @@ class AccountMove(models.Model):
         self.ensure_one()
         if not self.env['res.company']._with_locked_records(records=self, allow_raising=False):
             return
-        if error_message := self._l10n_jo_validate_config() or self._l10n_jo_validate_fields() or self._submit_to_jofotara():
+        if error_message := "\n".join(self._l10n_jo_edi_get_validation_errors()) or self._submit_to_jofotara():
             self.l10n_jo_edi_error = error_message
             return error_message
         else:

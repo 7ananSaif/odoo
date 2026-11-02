@@ -92,15 +92,19 @@
             action="'productPageContainerOrder'"
             applyTo="'#product_detail_main'"
         >
-            <BuilderButton
-                actionParam="{ previewClass: ''}"
+            <BuilderButton ltrRtlMapping="'left-right'"
+                title.translate="Image on the left"
+                actionParam="{ previewClass: '' }"
                 actionValue="'regular'"
-                iconImg="'/website/static/src/img/snippets_options/image_left.svg'"
+                icon="'format_image_left'"
+                iconClass="'oi-filled'"
             />
-            <BuilderButton
-                actionParam="{ previewClass: 'flex-lg-row-reverse'}"
+            <BuilderButton ltrRtlMapping="'left-right'"
+                title.translate="Image on the right"
+                actionParam="{ previewClass: 'flex-lg-row-reverse' }"
                 actionValue="'inverse'"
-                iconImg="'/website/static/src/img/snippets_options/image_right.svg'"
+                icon="'format_image_right'"
+                iconClass="'oi-flip-horizontal oi-filled'"
             />
         </BuilderButtonGroup>
     </BuilderRow>
@@ -111,20 +115,8 @@
         <hr class="mx-2 mt-0 mb-2"/>
     </t>
 
-    <t t-if="domState.hasImages and !this.isActiveItem('opt_product_page_image_width_hide')">
-	    <BuilderRow label.translate="Main Image">
-	        <BuilderButton id="'o_wsale_replace_main_image'" type="'success'" className="'flex-grow-1'" preview="false"
-	            applyTo="'#product_detail_main'" action="'productReplaceMainImage'"
-	        >Replace</BuilderButton>
-	    </BuilderRow>
-	    <BuilderRow label.translate="Extra Media">
-	        <BuilderButton id="'o_wsale_add_extra_images'" className="'btn-success-color-hover'" action="'productAddExtraImage'">Add More</BuilderButton>
-	        <BuilderButton id="'o_wsale_clear_extra_images'" className="'btn-danger-color-hover'" action="'productRemoveAllExtraImages'">Remove All</BuilderButton>
-	    </BuilderRow>
-        <div class="pb-2"/> <!-- Spacer -->
-    </t>
 
-    <t t-if="domState.multipleImages and !this.isActiveItem('opt_product_page_image_width_hide')">
+    <t t-if="this.domState.multipleImages and !this.isActiveItem('opt_product_page_image_width_hide')">
 	    <BuilderRow label.translate="Display" applyTo="'#product_detail_main'">
 	        <BuilderSelect action="'productPageImageLayout'" id="'o_wsale_image_layout'">
 	            <BuilderSelectItem actionValue="'carousel'">
@@ -134,7 +126,7 @@
                 </BuilderSelectItem>
 	            <BuilderSelectItem actionValue="'grid'">
                     <div class="d-flex align-items-center gap-2">
-                        <i class="oi oi-apps"/>Grid
+                        <i class="oi" data-icon="apps"/>Grid
                     </div>
                 </BuilderSelectItem>
 	        </BuilderSelect>
@@ -142,23 +134,37 @@
     </t>
     <!-- Carousel config -->
     <t
-        t-if="domState.hasCarousel and domState.hasImages and domState.multipleImages and !this.isActiveItem('opt_product_page_image_width_hide')"
+        t-if="this.domState.hasCarousel and this.domState.hasImages and this.domState.multipleImages and !this.isActiveItem('opt_product_page_image_width_hide')"
     >
 	    <BuilderRow label.translate="Thumbnails" level="1">
 	        <BuilderButtonGroup action="'websiteConfig'" id="'o_wsale_thumbnail_pos'">
-	            <BuilderButton className="'fa fa-fw fa-long-arrow-left'" actionParam="{ views: ['website_sale.carousel_product_indicators_left'] }" title="Left"></BuilderButton>
-	            <BuilderButton className="'fa fa-fw fa-long-arrow-down'" actionParam="{ views: ['website_sale.carousel_product_indicators_bottom'] }" title="Bottom"></BuilderButton>
+                <t t-set="isSameLangDir" t-value="this.env.langDir.content === this.env.langDir.builder"/>
+                <t t-set="left">Left</t>
+                <t t-set="right">Right</t>
+                <BuilderButton t-if="isSameLangDir"
+                    title="this.env.langDir.builder === 'ltr' ? left : right"
+                    iconClass="'oi-fw'"
+                    icon="'west'"
+                    actionParam="{ views: ['website_sale.carousel_product_indicators_left'] }"
+                />
+                <BuilderButton icon="'south'" iconClass="'oi-fw'" actionParam="{ views: ['website_sale.carousel_product_indicators_bottom'] }" title.translate="Bottom"/>
+                <BuilderButton t-if="!isSameLangDir"
+                    title="this.env.langDir.builder === 'ltr' ? right : left"
+                    icon="'east'"
+                    iconClass="'oi-fw'"
+                    actionParam="{ views: ['website_sale.carousel_product_indicators_left'] }"
+                />
 	        </BuilderButtonGroup>
 	    </BuilderRow>
     </t>
     <!-- Grid config -->
     <t
-        t-if="domState.isGrid"
+        t-if="this.domState.isGrid"
     >
         <t
             t-if="
-                domState.hasGrid and
-                domState.multipleImages and
+                this.domState.hasGrid and
+                this.domState.multipleImages and
                 !this.isActiveItem('opt_product_page_image_width_hide') and
                 !this.isActiveItem('opt_product_page_image_width_full')
             "
@@ -173,7 +179,7 @@
         </t>
 	    <BuilderRow
             t-if="
-                domState.multipleImages and !this.isActiveItem('opt_product_page_image_width_hide')
+                this.domState.multipleImages and !this.isActiveItem('opt_product_page_image_width_hide')
             "
             label.translate="Spacing"
             level="1"
@@ -209,10 +215,10 @@
     <BuilderRow
         label.translate="Roundness"
         t-if="
-                (domState.hasImages and !this.isActiveItem('o_wsale_product_page_grid_gap_0')) and
+                (this.domState.hasImages and !this.isActiveItem('o_wsale_product_page_grid_gap_0')) and
                 !this.isActiveItem('opt_product_page_image_width_hide')
             "
-        level="domState.multipleImages ? 1 : 0"
+        level="this.domState.multipleImages ? 1 : 0"
     >
         <BuilderSelect
             action="'productPageRoundness'"
@@ -314,7 +320,7 @@
         </t>
     </BuilderRow>
 
-    <t t-if="domState.hasImages and !this.isActiveItem('opt_product_page_image_width_hide')">
+    <t t-if="this.domState.hasImages and !this.isActiveItem('opt_product_page_image_width_hide')">
 	    <BuilderRow label.translate="Zoom on click" level="1">
             <BuilderCheckbox
                 action="'websiteConfig'"
@@ -336,13 +342,13 @@
         />
         <t t-set="CtaBoxedViews" t-value="['website_sale.cta_wrapper_boxed']"/>
         <BuilderSelect action="'websiteConfig'" id="'o_wsale_product_cta_style'">
-            <BuilderSelectItem id="cta_default_opt" actionParam="{ views: [] }">
+            <BuilderSelectItem id="this.cta_default_opt" actionParam="{ views: [] }">
                 <em>Default</em>
             </BuilderSelectItem>
-            <BuilderSelectItem id="cta_boxed_opt" actionParam="{ views: CtaBoxedViews }">
+            <BuilderSelectItem id="this.cta_boxed_opt" actionParam="{ views: CtaBoxedViews }">
                 Boxed
             </BuilderSelectItem>
-            <BuilderSelectItem id="cta_large_opt" actionParam="{ views: CtaLargeViews }">
+            <BuilderSelectItem id="this.cta_large_opt" actionParam="{ views: CtaLargeViews }">
                 Large
             </BuilderSelectItem>
         </BuilderSelect>
@@ -352,7 +358,7 @@
             action="'websiteConfig'"
             actionParam="{ views: ['website_sale.product_buy_now'] }"
         >
-            <i class="fa fa-fw fa-bolt"/>
+            <i class="oi oi-fw" data-icon="flash_on"/>
             Buy Now
         </BuilderButton>
         <BuilderButton title.translate="Select Quantity" className="'o_we_buy_now_btn'"
@@ -363,7 +369,27 @@
         </BuilderButton>
     </BuilderRow>
     <BuilderRow id="'o_we_actions_opt'" label.translate="Actions">
-        <!-- Filled by other modules -->
+        <BuilderButton title.translate="Compare"
+            action="'websiteConfig'"
+            actionParam="{views:['website_sale.product_add_to_compare']}"
+        >
+            <i class="oi oi-fw" data-icon="swap_horiz"/>
+            Compare
+        </BuilderButton>
+        <BuilderButton title.translate="Wishlist"
+            action="'websiteConfig'"
+            actionParam="{views:['website_sale.product_add_to_wishlist']}"
+        >
+            <i class="oi oi-fw oi-filled" data-icon="favorite"/>
+            Wishlist
+        </BuilderButton>
+    </BuilderRow>
+    <BuilderRow label.translate="Specification">
+        <BuilderSelect action="'websiteConfig'">
+            <BuilderSelectItem actionParam="{views:[]}">None</BuilderSelectItem>
+            <BuilderSelectItem actionParam="{views:['website_sale.product_attributes_body']}">Bottom of Page</BuilderSelectItem>
+            <BuilderSelectItem actionParam="{views:['website_sale.accordion_specs_item']}">In accordion</BuilderSelectItem>
+        </BuilderSelect>
     </BuilderRow>
     <BuilderRow label.translate="Separators">
         <BuilderCheckbox
@@ -374,15 +400,6 @@
     </BuilderRow>
     <BuilderRow label.translate="Tax Indication">
         <BuilderCheckbox action="'websiteConfig'" actionParam="{ views: ['website_sale.tax_indication'] }"/>
-    </BuilderRow>
-    <BuilderRow label.translate="Tags">
-        <BuilderCheckbox action="'websiteConfig'" actionParam="{ views: ['website_sale.product_tags'] }"/>
-    </BuilderRow>
-    <BuilderRow label.translate="Terms and Conditions">
-        <BuilderCheckbox
-            action="'websiteConfig'"
-            actionParam="{ views: ['website_sale.product_terms_and_conditions'] }"
-        />
     </BuilderRow>
     <BuilderRow label.translate="Reviews">
         <BuilderCheckbox action="'websiteConfig'" actionParam="{ views: ['website_sale.product_comment'] }"/>

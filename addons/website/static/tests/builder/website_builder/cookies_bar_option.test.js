@@ -12,26 +12,27 @@ import {
 defineWebsiteModels();
 
 const cookiesBarTemplate = `
-    <div id="website_cookies_bar" class="s_popup o_snippet_invisible o_no_save o_editable o_dirty" data-name="Cookies Bar" data-vcss="001" data-oe-id="1328" data-oe-xpath="/data/xpath/div" data-oe-model="ir.ui.view" data-oe-field="arch" contenteditable="true" data-invisible="1">
+    <div id="website_cookies_bar" class="s_popup o_snippet_invisible o_no_save o_savable o_dirty" data-name="Cookies Bar" data-vcss="001" data-oe-id="1328" data-oe-xpath="/data/xpath/div" data-oe-model="ir.ui.view" data-oe-field="arch" contenteditable="true" data-invisible="1">
         <div class="modal s_popup_bottom s_popup_no_backdrop o_cookies_discrete modal_shown show" data-show-after="500" data-display="afterDelay" data-consents-duration="999" data-bs-focus="false" data-bs-backdrop="false" data-bs-keyboard="false" tabindex="-1" style="display: block;" aria-modal="true" role="dialog">
             <div class="modal-dialog d-flex s_popup_size_full">
                 <div class="modal-content oe_structure">
 
-                    <section class="o_colored_level o_cc o_cc1">
+                    <section class="o_colored_level o_cc o_cc1 pe-5 oe_unremovable">
                         <div class="container">
                             <div class="row">
                                 <div class="col-lg-8 pt16">
                                     <p>
                                         <span class="pe-1">We use cookies to provide you a better user experience on this website.</span>
-                                        <a href="/cookie-policy" class="o_cookies_bar_text_policy btn btn-link btn-sm px-0">Cookie Policy</a>
+                                        <a href="/website/cookie-policy" class="o_cookies_bar_text_policy small">Cookie Policy</a>
                                     </p>
                                 </div>
-                                <div class="col-lg-4 text-end pt16 pb16">
-                                    <a href="#" id="cookies-consent-essential" role="button" class="js_close_popup btn btn-outline-primary rounded-circle btn-sm px-2">Only essentials</a>
-                                    <a href="#" id="cookies-consent-all" role="button" class="js_close_popup btn btn-outline-primary rounded-circle btn-sm">I agree</a>
+                                <div class="col-lg-4 text-end pt16 pb16 oe_unremovable">
+                                    <a href="#" id="cookies-consent-essential" role="button" data-name="Refuse optional cookies" class="js_close_popup btn btn-outline-primary rounded-circle btn-sm px-2 oe_unremovable">Only essentials</a>
+                                    <a href="#" id="cookies-consent-all" role="button" data-name="Accept all cookies" class="js_close_popup btn btn-outline-primary rounded-circle btn-sm oe_unremovable">I agree</a>
                                 </div>
                             </div>
                         </div>
+                        <button type="button" class="s_popup_close o_cookies_bar_close border-0 p-0 o_we_no_overlay o_not_editable shadow-none" aria-label="Close" contenteditable="false">×</button>
                     </section>
                 </div>
             </div>
@@ -52,6 +53,7 @@ describe("Cookies bar popup options", () => {
         await setupWebsiteBuilder(cookiesBarTemplate, {
             loadIframeBundles: true,
             loadAssetsFrontendJS: true,
+            loadIframeBuilderTemplates: true,
         });
         await contains(".o_we_invisible_el_panel .o_we_invisible_entry").click();
         await contains(".dropdown-toggle:contains('Discrete')").click();
@@ -79,6 +81,7 @@ describe("Cookies bar popup options", () => {
         const { getEditor } = await setupWebsiteBuilder(cookiesBarTemplate, {
             loadIframeBundles: true,
             loadAssetsFrontendJS: true,
+            loadIframeBuilderTemplates: true,
         });
         const editor = getEditor();
         await contains(".o_we_invisible_el_panel .o_we_invisible_entry").click();
@@ -109,6 +112,34 @@ describe("Cookies bar popup options", () => {
         await contains("[data-class-action=o_cookies_classic]").click();
         expectCookieBarContent();
     });
+
+    test("Close Button Color option applies the picked color to the close button", async () => {
+        await setupWebsiteBuilder(cookiesBarTemplate, {
+            loadIframeBundles: true,
+            loadAssetsFrontendJS: true,
+        });
+        await contains(".o_we_invisible_el_panel .o_we_invisible_entry").click();
+        await waitFor(".options-container");
+        await contains("[data-label='Close Button Color'] .o_we_color_preview").click();
+        await contains(".o-overlay-item [data-color='#FF0000']").click();
+        expect(":iframe .o_cookies_bar_close").toHaveStyle({ color: "rgb(255, 0, 0)" });
+    });
+});
+
+test("Shouldn't be able to drop a popup in the cookie bar", async () => {
+    await setupWebsiteBuilder(cookiesBarTemplate, {
+        loadIframeBundles: true,
+        loadAssetsFrontendJS: true,
+    });
+
+    await contains(".o_we_invisible_entry i[data-icon='visibility_off']").click();
+
+    await contains("#blocks-tab").click();
+    await contains(".o_snippets_container .o_snippet_thumbnail button").click();
+    await waitForSnippetDialog();
+
+    await contains(".o_add_snippet_dialog_search").edit("s_popup");
+    await waitFor(".o_add_snippet_dialog:contains('No snippets found.')");
 });
 
 test("Shouldn't be able to drop a popup in the cookie bar", async () => {

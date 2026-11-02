@@ -1,20 +1,23 @@
-import { Component, useEffect, useState, onWillUnmount } from "@odoo/owl";
+import { useLayoutEffect } from "@web/owl2/utils";
+import { Component, onWillUnmount, proxy, useProps, t } from "@odoo/owl";
 import { usePos } from "@point_of_sale/app/hooks/pos_hook";
 import { useTrackedAsync } from "@point_of_sale/app/hooks/hooks";
 import { useService } from "@web/core/utils/hooks";
 import { AccordionItem } from "@point_of_sale/app/components/accordion_item/accordion_item";
 import { debounce } from "@web/core/utils/timing";
+import { ProductTemplate } from "@point_of_sale/app/models/product_template";
+import { ProductProduct } from "@point_of_sale/app/models/product_product";
 
 export class ProductInfoBanner extends Component {
     static template = "point_of_sale.ProductInfoBanner";
     static components = {
         AccordionItem,
     };
-    static props = {
-        productTemplate: Object,
-        product: { type: Object | null, optional: true },
-        info: { type: Object, optional: true },
-    };
+    props = useProps({
+        productTemplate: t.instanceOf(ProductTemplate),
+        product: t.or([t.instanceOf(ProductProduct), t.literal(null)]).optional(),
+        info: t.object().optional(),
+    });
 
     setup() {
         this.pos = usePos();
@@ -22,13 +25,12 @@ export class ProductInfoBanner extends Component {
             keepLast: true,
         });
         this.ui = useService("ui");
-        this.state = useState({
+        this.state = proxy({
             other_warehouses: [],
             available_quantity: 0,
             free_qty: 0,
             uom: "",
         });
-
         const debouncedFetchStocks = debounce(async (product, productTemplate) => {
             let result = {};
             if (!this.props.info) {
@@ -42,15 +44,11 @@ export class ProductInfoBanner extends Component {
             }
 
             if (result) {
-                const productInfo = result.productInfo;
-                this.state.other_warehouses = productInfo.warehouses.slice(1);
-                this.state.available_quantity = productInfo.warehouses[0]?.available_quantity;
-                this.state.free_qty = productInfo.warehouses[0]?.free_qty;
-                this.state.uom = productInfo.warehouses[0]?.uom;
+                this.updateState(result.productInfo);
             }
         }, 500);
 
-        useEffect(
+        useLayoutEffect(
             () => {
                 if (this.props.productTemplate) {
                     debouncedFetchStocks(this.props.product, this.props.productTemplate);
@@ -59,5 +57,10 @@ export class ProductInfoBanner extends Component {
             () => [this.props.product]
         );
         onWillUnmount(() => debouncedFetchStocks.cancel());
+    }
+
+    updateState(productInfo) {
+        this.state.free_qty = productInfo.free_qty;
+        this.state.uom = productInfo.uom;
     }
 }

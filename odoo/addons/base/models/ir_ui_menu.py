@@ -1,14 +1,12 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-import base64
 from collections import defaultdict
 from os.path import join as opj
 import re
 
-from odoo import api, fields, models, tools
-from odoo.exceptions import ValidationError
+from odoo import api, fields, models
 from odoo.http import request
-from odoo.tools import saas_lock  # SAAS-PATCH
+from odoo.tools import BinaryBytes, file_open
 
 MENU_ITEM_SEPARATOR = "/"
 NUMBER_PARENS = re.compile(r"\(([0-9]+)\)")
@@ -20,6 +18,7 @@ class IrUiMenu(models.Model):
     _order = "sequence,id"
     _parent_store = True
     _allow_sudo_commands = False
+    _clear_cache_name = 'default'
 
     name = fields.Char(string='Menu', required=True, translate=True)
     active = fields.Boolean(default=True)
@@ -61,22 +60,19 @@ class IrUiMenu(models.Model):
         path_info = path.split(',')
         icon_path = opj(path_info[0], path_info[1])
         try:
-            with tools.file_open(icon_path, 'rb', filter_ext=('.png', '.gif', '.ico', '.jfif', '.jpeg', '.jpg', '.svg', '.webp')) as icon_file:
-                return base64.encodebytes(icon_file.read())
+            with file_open(icon_path, 'rb', filter_ext=('.png', '.gif', '.ico', '.jfif', '.jpeg', '.jpg', '.svg', '.webp')) as f:
+                return BinaryBytes(f.read())
         except FileNotFoundError:
             return False
 
-    @api.constrains('parent_id')
-    def _check_parent_id(self):
-        if self._has_cycle():
-            raise ValidationError(self.env._('Error! You cannot create recursive menus.'))
-
     @api.model
-    @tools.ormcache('frozenset(self.env.user._get_group_ids())', 'debug')
+    @api.ormcache('frozenset(self.env.user._get_group_ids())', 'debug')
     def _visible_menu_ids(self, debug=False):
         """ Return the ids of the menu items visible to the user. """
         group_ids = set(self.env.user._get_group_ids())
-        if not debug:
+        # "Technical Features" is a developer tool: it is only effective in debug
+        # mode, and a light user has no technical menu at all.
+        if not debug or not self.env.user._is_regular():
             group_ids.discard(self.env['ir.model.data']._xmlid_to_res_id('base.group_no_one', raise_if_not_found=False))
 
         # retrieve menus with a domain to filter out menus with groups the user does not have.
@@ -117,7 +113,6 @@ class IrUiMenu(models.Model):
         }
         menu_ids = set(menus._ids)
         visible_ids = set()
-        access = self.env['ir.model.access']
         # process action menus, check whether their action is allowed
         for menu in menus:
             action = menu.action
@@ -125,7 +120,7 @@ class IrUiMenu(models.Model):
                 continue
             model_fname = MODEL_BY_TYPE.get(action._name)
             # action[model_fname] has been fetched in batch in `exists_actions`
-            if model_fname and not access.check(action[model_fname], 'read', False):
+            if model_fname and not ((model := self.env.get(action[model_fname])) is not None and model.has_access('read')):
                 continue
             # make menu visible, and its folder ancestors, too
             menu_id = menu.id
@@ -134,32 +129,7 @@ class IrUiMenu(models.Model):
                 menu = menu.parent_id
                 menu_id =  menu.id
 
-        # SAAS-PATCH: hide the Apps and Technical menus for client users.
-        blocked_ids = self._saas_blocked_menu_ids()
-        if blocked_ids:
-            visible_ids -= blocked_ids
         return frozenset(visible_ids)
-
-    @api.model
-    @tools.ormcache(cache='stable')
-    def _saas_blocked_menu_ids(self):
-        """SAAS-PATCH: menu ids hidden from client users when saas_lock is on.
-
-        Hides the whole "Apps" application menu and the "Settings > Technical"
-        subtree. Returns an empty set when the lock is disabled.
-        """
-        if not saas_lock.saas_enabled():
-            return frozenset()
-        iref = self.env['ir.model.data'].sudo()
-        root_ids = []
-        for xmlid in ('base.menu_apps', 'base.menu_management', 'base.menu_custom'):
-            res_id = iref._xmlid_to_res_id(xmlid, raise_if_not_found=False)
-            if res_id:
-                root_ids.append(res_id)
-        if not root_ids:
-            return frozenset()
-        menus = self.sudo().with_context(active_test=False).search([('id', 'child_of', root_ids)])
-        return frozenset(menus.ids)
 
     def _filter_visible_menus(self):
         """ Filter `self` to only keep the menu items that should be visible in
@@ -176,14 +146,12 @@ class IrUiMenu(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        self.env.registry.clear_cache()
         for values in vals_list:
             if 'web_icon' in values:
                 values['web_icon_data'] = self._compute_web_icon_data(values.get('web_icon'))
         return super().create(vals_list)
 
     def write(self, vals):
-        self.env.registry.clear_cache()
         if 'web_icon' in vals:
             vals['web_icon_data'] = self._compute_web_icon_data(vals.get('web_icon'))
         return super().write(vals)
@@ -201,6 +169,7 @@ class IrUiMenu(models.Model):
         """
         if web_icon and len(web_icon.split(',')) == 2:
             return self._read_image(web_icon)
+        return False
 
     def unlink(self):
         # Detach children and promote them to top-level, because it would be unwise to
@@ -210,8 +179,7 @@ class IrUiMenu(models.Model):
         direct_children = self.with_context(active_test=False).search([('parent_id', 'in', self.ids)])
         direct_children.write({'parent_id': False})
 
-        self.env.registry.clear_cache()
-        return super(IrUiMenu, self).unlink()
+        return super().unlink()
 
     def copy(self, default=None):
         new_menus = super().copy(default=default)
@@ -237,7 +205,7 @@ class IrUiMenu(models.Model):
         return []
 
     @api.model
-    @tools.ormcache('self.env.uid', 'self.env.lang')
+    @api.ormcache('self.env.uid', 'self.env.lang')
     def load_menus_root(self):
         fields = ['name', 'sequence', 'parent_id', 'action', 'web_icon_data']
         menu_roots = self.get_user_roots()
@@ -258,7 +226,7 @@ class IrUiMenu(models.Model):
         return menu_root
 
     @api.model
-    @tools.ormcache('self.env.uid', 'debug', 'self.env.lang')
+    @api.ormcache('self.env.uid', 'debug', 'self.env.lang')
     def load_menus(self, debug):
         blacklisted_menu_ids = self._load_menus_blacklist()
         visible_menus = self.search_fetch(
@@ -285,12 +253,16 @@ class IrUiMenu(models.Model):
         visible_menus = visible_menus.filtered(lambda menu: menu.id in app_info)
 
         xmlids = visible_menus._get_menuitems_xmlids()
-        icon_attachments = self.env['ir.attachment'].sudo().search_read(
-            domain=[('res_model', '=', 'ir.ui.menu'),
-                    ('res_id', 'in', visible_menus._ids),
-                    ('res_field', '=', 'web_icon_data')],
-            fields=['res_id', 'datas', 'mimetype'])
-        icon_attachments_res_id = {attachment['res_id']: attachment for attachment in icon_attachments}
+        icon_attachments = self.env['ir.attachment'].sudo().search_fetch(
+            domain=[
+                ('res_model', '=', 'ir.ui.menu'),
+                ('res_id', 'in', visible_menus._ids),
+                ('res_field', '=', 'web_icon_data'),
+            ],
+            field_names=['res_id', 'raw', 'mimetype'],
+            order='res_id',
+        )
+        icon_attachments_res_id = {attachment.res_id: attachment for attachment in icon_attachments}
 
         menus_dict = {}
         action_ids_by_type = defaultdict(list)
@@ -314,8 +286,8 @@ class IrUiMenu(models.Model):
                 'action_model': action_model,
                 'action_id': action_id,
                 'web_icon': menu.web_icon,
-                'web_icon_data': attachment['datas'].decode() if attachment else False,
-                'web_icon_data_mimetype': attachment['mimetype'] if attachment else False,
+                'web_icon_data': attachment.raw.to_base64() if attachment else False,
+                'web_icon_data_mimetype': attachment.mimetype if attachment else False,
                 'xmlid': xmlids.get(menu_id, ""),
             }
 

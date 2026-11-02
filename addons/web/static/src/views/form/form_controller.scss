@@ -17,7 +17,6 @@
     --fieldWidget-margin-bottom: 0;
 
     grid-template-columns: minmax(0, 1fr);
-    margin-bottom: $o-form-spacing-unit * 4;
 
     .o_cell {
         max-width: 100%;
@@ -65,7 +64,7 @@
     .oe_inline, .o_field_widget.oe_inline > * {
         width: auto!important;
     }
-    @for $i from 2 through 13 {
+    @for $i from 2 through 16 {
         .o_field_widget.o_input_#{$i}ch input{
             width: 1ch * $i !important;
         }
@@ -103,8 +102,6 @@
             align-self: center;
         }
     }
-
-    .o_row > div > .o_field_widget,
 
     // Readonly specific rules
     .o_form_readonly {
@@ -157,7 +154,7 @@
                 flex: 1 1 auto;
                 width: 0!important; // 3rd flex argument does not work with input (must be auto and real width 0)
 
-                &.o_field_boolean, &.o_field_boolean_toggle, &.o_priority {
+                &.o_field_boolean, &.o_field_boolean_toggle, &.o_priority, &.o_field_additional_identifiers_button {
                     flex: 0 0 auto;
                     width: auto!important;
                 }
@@ -165,15 +162,6 @@
             .o_many2one {
                 width: 100% !important;
             }
-        }
-    }
-
-    &, & .o_form_editable {
-        // FIXME: those specific rules shouldn't be necessary but require a more
-        // global cleanup of the fields + .o_row styling to be removed in master.
-        .o_field_reference .o_row > * {
-            flex: 1 1 auto;
-            width: auto !important;
         }
     }
 
@@ -210,10 +198,7 @@
         // entire available room. To define its properties we use sheet's CSS
         // variables in order to keep consistency and ease inner components
         // contextual adaptations (notepad, alerts, listView...).
-        --formView-sheet-padding-y: #{$o-sheet-vpadding};
-        --formView-sheet-padding-x: #{$o-horizontal-padding};
-
-        padding: var(--formView-sheet-padding-y) var(--formView-sheet-padding-x);
+        padding: var(--formView-sheet-padding-y, #{$o-sheet-vpadding}) var(--formView-sheet-padding-x, #{$o-horizontal-padding});
         background-color: $o-view-background-color;
 
         .o_notebook {
@@ -237,31 +222,29 @@
         padding-right: var(--formView-sheetBg-padding-right, var(--formView-sheetBg-padding-x));
         width: 100%;
         max-width: $o-form-view-sheet-max-width;
-        margin-right: auto; // Always align to le left
+        margin-right: auto; // Always align to the left
 
         &:not(:has(.o_form_statusbar)) {
-            padding-top: map-get($spacers, 2);
+            padding-top: var(--formView-sheetBg-padding-top, #{map-get($spacers, 2)});
         }
     }
 
     // Sheet
     .o_form_sheet {
-        --formView-sheet-padding-y: #{map-get($spacers, 3)};
-        --formView-sheet-padding-x: #{map-get($spacers, 3)};
-
         margin: 0 var(--formView-sheet-margin-x, calc(var(--formView-sheetBg-padding-x) * -1));
-        padding: var(--formView-sheet-padding-y) var(--formView-sheet-padding-x);
-        border-style: solid;
-        border-color: $border-color;
-        border-width: var(--formView-sheet-border-width, 1px 0 1px 0);
-        border-radius: var(--formView-sheet-border-radius, 0);
-        background-color: $o-view-background-color;
+        padding: var(--formView-sheet-padding-y, #{map-get($spacers, 3)}) var(--formView-sheet-padding-x, #{map-get($spacers, 3)});
 
         @include media-breakpoint-up(md) {
+            border-style: solid;
+            border-color: $border-color;
+            border-width: var(--formView-sheet-border-width, 1px 0 1px 0);
+            border-radius: var(--formView-sheet-border-radius, 0);
+            background-color: $o-view-background-color;
+
             --formView-sheet-padding-y: var(--formView-sheet-padding-y-md, #{map-get($spacers, 3)});
             --formView-sheet-margin-x: var(--formView-sheet-margin-x-md, 0);
             --formView-sheet-border-width: var(--formView-sheet-border-width-md, #{$border-width});
-            --formView-sheet-border-radius: var(--formView-sheet-border-radius-md, #{$border-radius});
+            --formView-sheet-border-radius: var(--formView-sheet-border-radius-md, #{$border-radius-lg});
         }
 
         @include media-breakpoint-up(lg) {
@@ -270,14 +253,10 @@
         }
 
         @include media-breakpoint-up(xxl) {
-            --formView-sheet-padding-y: var(--formView-sheet-padding-y-xxl, #{map-get($spacers, 3)});
-            --formView-sheet-padding-x: var(--formView-sheet-padding-x-xxl, #{map-get($spacers, 3)});
+            --formView-sheet-padding-y: var(--formView-sheet-padding-y-xxl, #{map-get($spacers, 4)});
+            --formView-sheet-padding-x: var(--formView-sheet-padding-x-xxl, #{map-get($spacers, 4)});
         }
 
-        // Selection
-        > .o_selection {
-            float: right;
-        }
     }
 
     // Alerts
@@ -303,6 +282,7 @@
         z-index: 0;
         margin-inline: calc(-1 * var(--formView-sheetBg-padding-x)) calc(-1 * var(--formView-sheetBg-padding-right, --formView-sheetBg-padding-x));
         padding-inline: var(--formView-sheetBg-padding-x) var(--formView-sheetBg-padding-right, --formView-sheetBg-padding-x);
+        padding-top: var(--formView-statusbar-padding-top, #{map-get($spacers, 2)});
 
         @include media-breakpoint-up(md) {
             position: sticky;
@@ -311,6 +291,8 @@
             background-color: $body-bg;
 
             .modal & {
+                --formView-statusbar-padding-top: #{map-get($spacers, 2)};
+
                 background-color: $o-view-background-color;
             }
         }
@@ -338,28 +320,23 @@
     .oe_title {
         color: $headings-color;
 
-        @include media-breakpoint-up(sm) {
+        @include media-breakpoint-up(md) {
             max-width: 75%;
-        }
 
-        > h1, > h2, > h3 {
-            width: 100%; // Needed because inline-block when is a hx.o_row
-            margin-top: 0;
-            margin-bottom: 0;
-            line-height: $headings-line-height;
+            > h1, > h2, > h3 {
+                width: 100%; // Needed because inline-block when is a hx.o_row
+                margin-top: 0;
+                margin-bottom: map-get($spacers, 3);
+                line-height: $headings-line-height;
 
-            &.d-flex > .o_input {
-                height: max-content;
+                &.d-flex > .o_input {
+                    height: max-content;
+                }
             }
-        }
-        .o_priority > .o_priority_star {
-            font-size: inherit;
-        }
-        > h1 {
-            min-height: 55px;
-        }
-        > h2 {
-            min-height: 42px;
+
+            .o_priority > .o_priority_star, .o_favorite.btn, .o_favorite i.oi {
+                font-size: inherit !important;
+            }
         }
     }
 
@@ -374,12 +351,6 @@
             object-fit: contain;
             vertical-align: top;
             border: 1px solid $o-gray-300;
-        }
-
-        @include media-breakpoint-down(sm) {
-            + .oe_title {
-                max-width: calc(100% - #{$o-form-picture-size} - #{map-get($spacers, 2)});
-            }
         }
     }
 
@@ -400,7 +371,8 @@
         .o_field_widget {
             > .btn {
                 flex: 0 0 auto;
-                padding: 0 10px;
+                --btn-padding-x: 10px;
+                --btn-padding-y: 0;
             }
         }
 
@@ -468,6 +440,18 @@
         }
     }
 
+    // The quick create is a narrow container whatever the viewport, so it never
+    // uses the two columns layout defined above.
+    &.o_kanban_quick_create_form {
+        .o_inner_group {
+            @include form-break-table;
+        }
+
+        &.o_form_editable .o_inner_group {
+            @include editable-form-break-table();
+        }
+    }
+
     .o_group, .o_inner_group {
         .o_field_widget {
             width: 100%;
@@ -494,6 +478,8 @@
 
     // Separators
     .o_horizontal_separator {
+        color: $gray-700;
+
         &:not(:empty) {
             box-shadow: 0 $border-width 0 $o-form-separator-color;
         }
@@ -506,9 +492,13 @@
     // Contextual adaptation
     .o_kanban_renderer {
         --Kanban-background: transparent;
-        --Kanban-gap: #{map-get($spacers, 2)};
         --KanbanRecord-margin-v: 0;
         --KanbanRecord-margin-h: 0;
+
+        &.o_kanban_ungrouped, &.o_kanban_grouped {
+            --Kanban-padding: 0;
+            --Kanban-gap: #{map-get($spacers, 2)};
+        }
     }
 
     // Notebooks
@@ -604,7 +594,7 @@
         }
 
         &.o_form_label_empty, &.o_form_label_false, &.o_form_label_readonly {
-            opacity: 0.66;
+            color: $text-muted;
             font-weight: $font-weight-normal;
         }
     }
@@ -654,7 +644,7 @@
 
     .oe_no_translation_content {
         // hide content but show the translate button EN
-        height: 0px;
+        height: 0;
 
         .o_field_translate:not(.o_field_input_buttons):not(.btn) {
             display: none;
@@ -665,17 +655,12 @@
             visibility: hidden !important;
             margin-top: -10px;
 
-            // force the the translate button to EN
+            // force the translate button to EN
             &:after {
                 content: 'EN';
                 visibility: visible;
             }
         }
-    }
-
-    iframe.wysiwyg_iframe + .o_field_translate {
-        right: $o-field-translate-padding !important;
-        top: 7px !important;
     }
 
     // Text field with oe_inline class
@@ -686,18 +671,7 @@
         }
     }
 
-    span.o_list_monetary {
-        display: block
-    }
-
     .o_field_monetary {
-        /*rtl:ignore*/
-        direction : ltr;
-    }
-
-    .o_list_monetary {
-        /*rtl:ignore*/
-        text-align: right;
         /*rtl:ignore*/
         direction : ltr;
     }
@@ -744,42 +718,45 @@
     }
 
     // Specific style classes
-    .o_inner_group.oe_subtotal_footer {
-        grid-template-columns: 1fr auto;
-        width: auto;
-        margin-left: auto;
-        border-top: 1px solid $border-color;
+    --o-subtotal-footer-label-padding: 20px;
+    @include media-breakpoint-up(md) {
+        .o_inner_group.oe_subtotal_footer {
+            grid-template-columns: 1fr auto;
+            width: auto;
+            margin-left: auto;
+            border-top: 1px solid $border-color;
 
-        .o_cell {
-            padding: 0;
+            .o_cell {
+                padding: 0;
 
-            &.o_wrap_label {
-                text-align: right;
-            }
+                &.o_wrap_label {
+                    text-align: right;
+                }
 
-            .o_form_label {
-                padding-right: 20px;
-                margin-right: 0;
-                min-width: 0;
-                white-space: nowrap;
-                &:after {
-                    content: ":";
+                .o_form_label {
+                    padding-right: var(--o-subtotal-footer-label-padding);
+                    margin-right: 0;
+                    min-width: 0;
+                    white-space: nowrap;
+                    &:after {
+                        content: ":";
+                    }
+                }
+
+                .o_field_widget  {
+                    text-align: right;
+                    justify-content: flex-end;
+                    width: 100%;
                 }
             }
 
-            .o_field_widget {
-                text-align: right;
-                justify-content: flex-end;
+            .oe_subtotal_footer_separator {
                 width: 100%;
+                text-align: right;
+                border-top: 1px solid $border-color;
+                font-weight: $font-weight-bold;
+                font-size: 1.3em;
             }
-        }
-
-        .oe_subtotal_footer_separator {
-            width: 100%;
-            text-align: right;
-            border-top: 1px solid $border-color;
-            font-weight: $font-weight-bold;
-            font-size: 1.3em;
         }
     }
 
@@ -822,6 +799,9 @@
             display: inline-block;
             width: 38%;
             margin-right: 2%;
+            .o-autocomplete--dropdown-menu {
+                min-width: 240px;
+            }
         }
         .o_address_state {
             display: inline-block;
@@ -920,21 +900,6 @@
             margin-top: 32px !important;
         }
     }
-    .o_company_document_layout {
-        .report_layout_container {
-            display: inline-block;
-            div {
-                display: inline-block;
-                img {
-                    margin-left: 0 !important;
-                }
-            }
-        }
-        img[name="logo"] {
-            max-height: 100px;
-            max-width: 300px;
-        }
-    }
     @include media-breakpoint-down(md) {
         .o_form_label:not(.o_invisible_modifier) {
             padding-bottom: 4px;
@@ -942,33 +907,10 @@
 
         .o_group {
             margin-top: 0;
+        }
 
-            .o_inner_group {
-                margin-bottom: 0 !important;
-                &:last-child {
-                    margin-bottom: map-get($spacers, 3) !important;
-                }
-
-                div[name="carrier_selection"] {
-                    > div:not(.alert) {
-                        display: inline-flex;
-                        align-items: baseline;
-                        justify-content: space-evenly;
-
-                        &:first-child {
-                            width: 100%;
-
-                            .o_field_widget {
-                                width: 100% !important;
-                            }
-
-                            .text-success {
-                                margin: 2px 10px;
-                            }
-                        }
-                    }
-                }
-            }
+        .o_inner_group {
+            margin-bottom: 0;
         }
 
         .o_notebook {
@@ -994,10 +936,6 @@
             margin-bottom: 10px !important;
         }
 
-        button.btn.o_external_button.fa {
-            padding-right: 0 !important;
-        }
-
         .oe_inline.o_field_widget.o_field_many2one {
             width: 100% !important;
         }
@@ -1010,7 +948,6 @@
     .o_form_view {
         min-height: auto;
 
-        --formView-sheetBg-padding-top: #{map-get($spacers, 2)};
         --formView-sheetBg-padding-x: #{$modal-inner-padding};
     }
 
@@ -1036,13 +973,6 @@
     .o_notebook {
         --Notebook-margin-x: calc(var(--formView-sheetBg-padding-x) * -1);
         --Notebook-padding-x: var(--formView-sheetBg-padding-x);
-    }
-
-    &.o_onboarding_payment_provider_wizard .o_form_renderer {
-        a[type="action"] {
-            color: $link-color;
-            cursor: pointer;
-        }
     }
 
     @include media-breakpoint-down(lg) {
@@ -1109,45 +1039,23 @@
 
 .o_form_view.o_xxs_form_view {
     .o_group {
-        .o_inner_group {
-            margin-bottom: $o-form-spacing-unit * 4;
-
-        }
-
         .o_form_label {
             font-size: $o-label-font-size-factor * $o-font-size-base-touch;
             font-weight: $font-weight-normal;
-            color: $o-brand-secondary;
         }
     }
 }
 
-.o_form_view.o_xxs_form_view {
-    .o_inner_group {
-        @include form-break-table;
+@include media-breakpoint-down(md) {
+    .o_form_view {
+        .o_inner_group {
+            @include form-break-table;
+        }
+
+        .o_form_editable .o_inner_group {
+            @include editable-form-break-table();
+        }
     }
-
-    .o_form_editable .o_inner_group {
-        @include editable-form-break-table();
-    }
-}
-
-// Settings form views
-.o_settings_container {
-    display: flex;
-    flex: 0 1 auto;
-    flex-flow: row wrap;
-    padding: 0;
-    margin: auto 0 auto 0;
-
-    .o_form_label.o_light_label, .o_light_label .o_form_label {
-        font-weight: $font-weight-normal;
-    }
-}
-
-.o_field_section_and_note_one2many ~ .row.o_group {
-    clear: both;
-    justify-content: space-between;
 }
 
 // This ensures correct alignment with the cog button when there is no breadcrumb displayed.

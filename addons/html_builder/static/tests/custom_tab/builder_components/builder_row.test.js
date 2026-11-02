@@ -1,6 +1,5 @@
 import { addBuilderOption, setupHTMLBuilder } from "@html_builder/../tests/helpers";
 import { refreshSublevelLines } from "@html_builder/core/building_blocks/builder_row";
-import { BaseOptionComponent } from "@html_builder/core/utils";
 import { describe, expect, test } from "@odoo/hoot";
 import {
     advanceTime,
@@ -23,27 +22,25 @@ function reapplyCollapseTransition() {
     `);
 }
 
+const ONE_ROW_HEIGHT = 32; // $o-hb-row-min-height (28px) + the row's 4px padding-top.
+
 describe.current.tags("desktop");
 
 test("show row title", async () => {
-    addBuilderOption(
-        class extends BaseOptionComponent {
-            static selector = ".test-options-target";
-            static template = xml`<BuilderRow label="'my label'">row text</BuilderRow>`;
-        }
-    );
+    addBuilderOption({
+        selector: ".test-options-target",
+        template: xml`<BuilderRow label="'my label'">row text</BuilderRow>`,
+    });
     await setupHTMLBuilder(`<div class="test-options-target">b</div>`);
     await contains(":iframe .test-options-target").click();
     expect(".options-container").toBeVisible();
     expect(".hb-row .text-nowrap").toHaveText("my label");
 });
 test("show row tooltip", async () => {
-    addBuilderOption(
-        class extends BaseOptionComponent {
-            static selector = ".test-options-target";
-            static template = xml`<BuilderRow label="'my label'" tooltip="'my tooltip'">row text</BuilderRow>`;
-        }
-    );
+    addBuilderOption({
+        selector: ".test-options-target",
+        template: xml`<BuilderRow label="'my label'" tooltip="'my tooltip'">row text</BuilderRow>`,
+    });
     await setupHTMLBuilder(`<div class="test-options-target">b</div>`);
     await contains(":iframe .test-options-target").click();
     expect(".options-container").toBeVisible();
@@ -57,30 +54,30 @@ test("show row tooltip", async () => {
     expect(".o-tooltip").not.toHaveCount();
 });
 test("hide empty row and display row with content", async () => {
-    addBuilderOption(
-        class extends BaseOptionComponent {
-            static selector = ".parent-target";
-            static template = xml`<BuilderRow label="'Row 1'">
-                        <BuilderButton applyTo="'.child-target'" classAction="'my-custom-class'"/>
-                    </BuilderRow>`;
-        }
-    );
-    addBuilderOption(
-        class extends BaseOptionComponent {
-            static selector = ".parent-target";
-            static template = xml`<BuilderRow label="'Row 2'">
-                        <BuilderButton applyTo="':not(.my-custom-class)'" classAction="'test'"/>
-                    </BuilderRow>`;
-        }
-    );
-    addBuilderOption(
-        class extends BaseOptionComponent {
-            static selector = ".parent-target";
-            static template = xml`<BuilderRow label="'Row 3'">
-                        <BuilderButton applyTo="'.my-custom-class'" classAction="'test'"/>
-                    </BuilderRow>`;
-        }
-    );
+    addBuilderOption({
+        selector: ".parent-target",
+        template: xml`
+            <BuilderRow label="'Row 1'">
+                <BuilderButton applyTo="'.child-target'" classAction="'my-custom-class'"/>
+            </BuilderRow>
+        `,
+    });
+    addBuilderOption({
+        selector: ".parent-target",
+        template: xml`
+            <BuilderRow label="'Row 2'">
+                <BuilderButton applyTo="':not(.my-custom-class)'" classAction="'test'"/>
+            </BuilderRow>
+        `,
+    });
+    addBuilderOption({
+        selector: ".parent-target",
+        template: xml`
+            <BuilderRow label="'Row 3'">
+                <BuilderButton applyTo="'.my-custom-class'" classAction="'test'"/>
+            </BuilderRow>
+        `,
+    });
     await setupHTMLBuilder(`<div class="parent-target"><div class="child-target">b</div></div>`);
     const selectorRowLabel = ".options-container .hb-row:not(.d-none) .hb-row-label";
     await contains(":iframe .parent-target").click();
@@ -91,26 +88,25 @@ test("hide empty row and display row with content", async () => {
 });
 
 test("reconnects lines across mixed levels", async () => {
-    addBuilderOption(
-        class extends BaseOptionComponent {
-            static selector = ".test-options-target";
-            static template = xml`
-                <div class="options-container">
-                    <BuilderRow label="'root-1'">root-1</BuilderRow>
-                    <BuilderRow label="'level-1'" level="1">A</BuilderRow>
-                    <BuilderRow label="'level-2'" level="2">B</BuilderRow>
-                    <BuilderRow label="'level-1'" level="1">C</BuilderRow>
-                    <BuilderRow label="'root-2'">root-2</BuilderRow>
-                    <BuilderRow label="'level-1'" level="1">D</BuilderRow>
-                    <BuilderRow label="'level-2'" level="2">E</BuilderRow>
-                    <BuilderRow label="'level-2'" level="2">F</BuilderRow>
-                    <BuilderRow label="'level-3'" level="3">G</BuilderRow>
-                    <BuilderRow label="'level-3'" level="3">H</BuilderRow>
-                    <BuilderRow label="'level-2'" level="2">I</BuilderRow>
-                    <BuilderRow label="'level-1'" level="1">J</BuilderRow>
-                </div>`;
-        }
-    );
+    addBuilderOption({
+        selector: ".test-options-target",
+        template: xml`
+            <div class="options-container">
+                <BuilderRow label="'root-1'">root-1</BuilderRow>
+                <BuilderRow label="'level-1'" level="1">A</BuilderRow>
+                <BuilderRow label="'level-2'" level="2">B</BuilderRow>
+                <BuilderRow label="'level-1'" level="1">C</BuilderRow>
+                <BuilderRow label="'root-2'">root-2</BuilderRow>
+                <BuilderRow label="'level-1'" level="1">D</BuilderRow>
+                <BuilderRow label="'level-2'" level="2">E</BuilderRow>
+                <BuilderRow label="'level-2'" level="2">F</BuilderRow>
+                <BuilderRow label="'level-3'" level="3">G</BuilderRow>
+                <BuilderRow label="'level-3'" level="3">H</BuilderRow>
+                <BuilderRow label="'level-2'" level="2">I</BuilderRow>
+                <BuilderRow label="'level-1'" level="1">J</BuilderRow>
+            </div>
+        `,
+    });
 
     await setupHTMLBuilder(`<div class="test-options-target">b</div>`);
     await contains(":iframe .test-options-target").click();
@@ -156,7 +152,7 @@ const collapseOptionTemplate = ({
             }>A</BuilderButton>
             <t t-set-slot="collapse">
                 <BuilderRow level="1" label="'B'" ${
-                    dependency ? "t-if=\"isActiveItem('test_opt')\"" : ""
+                    dependency ? "t-if=\"this.isActiveItem('test_opt')\"" : ""
                 }>
                     <BuilderButton classAction="'b'">B</BuilderButton>
                 </BuilderRow>
@@ -165,12 +161,10 @@ const collapseOptionTemplate = ({
 
 describe("BuilderRow with collapse content", () => {
     test("expand=false is collapsed by default", async () => {
-        addBuilderOption(
-            class extends BaseOptionComponent {
-                static selector = ".test-options-target";
-                static template = collapseOptionTemplate();
-            }
-        );
+        addBuilderOption({
+            selector: ".test-options-target",
+            template: collapseOptionTemplate(),
+        });
         await setupHTMLBuilder(`<div class="test-options-target">b</div>`);
         await contains(":iframe .test-options-target").click();
         expect(".options-container").toBeVisible();
@@ -178,12 +172,10 @@ describe("BuilderRow with collapse content", () => {
     });
 
     test("expand=true is expanded by default", async () => {
-        addBuilderOption(
-            class extends BaseOptionComponent {
-                static selector = ".test-options-target";
-                static template = collapseOptionTemplate({ dependency: false, expand: true });
-            }
-        );
+        addBuilderOption({
+            selector: ".test-options-target",
+            template: collapseOptionTemplate({ dependency: false, expand: true }),
+        });
         await setupHTMLBuilder(`<div class="test-options-target">b</div>`);
         await contains(":iframe .test-options-target").click();
         expect(".options-container").toBeVisible();
@@ -192,15 +184,13 @@ describe("BuilderRow with collapse content", () => {
     });
 
     test("Toggler button is not visible if no dependency is active", async () => {
-        addBuilderOption(
-            class extends BaseOptionComponent {
-                static selector = ".test-options-target";
-                static template = collapseOptionTemplate({
-                    dependency: true,
-                    observeCollapseContent: true,
-                });
-            }
-        );
+        addBuilderOption({
+            selector: ".test-options-target",
+            template: collapseOptionTemplate({
+                dependency: true,
+                observeCollapseContent: true,
+            }),
+        });
         await setupHTMLBuilder(`<div class="test-options-target">b</div>`);
         await contains(":iframe .test-options-target").click();
         expect(".options-container").toBeVisible();
@@ -208,12 +198,10 @@ describe("BuilderRow with collapse content", () => {
     });
 
     test("expand=true works when a dependency becomes active", async () => {
-        addBuilderOption(
-            class extends BaseOptionComponent {
-                static selector = ".test-options-target";
-                static template = collapseOptionTemplate({ dependency: true, expand: true });
-            }
-        );
+        addBuilderOption({
+            selector: ".test-options-target",
+            template: collapseOptionTemplate({ dependency: true, expand: true }),
+        });
         await setupHTMLBuilder(`<div class="test-options-target">b</div>`);
         await contains(":iframe .test-options-target").click();
         expect(".options-container").toBeVisible();
@@ -225,26 +213,25 @@ describe("BuilderRow with collapse content", () => {
     });
 
     test("Collapse works with several dependencies", async () => {
-        addBuilderOption(
-            class extends BaseOptionComponent {
-                static selector = ".test-options-target";
-                static template = xml`
-                    <BuilderRow label="'Test Collapse'" expand="true">
-                        <BuilderSelect>
-                            <BuilderSelectItem classAction="'a'" id="'test_opt'">A</BuilderSelectItem>
-                            <BuilderSelectItem classAction="'c'" id="'random_opt'">C</BuilderSelectItem>
-                        </BuilderSelect>
-                        <t t-set-slot="collapse">
-                            <BuilderRow level="1" t-if="isActiveItem('test_opt')" label="'B'">
-                                <BuilderButton classAction="'b'">B</BuilderButton>
-                            </BuilderRow>
-                            <BuilderRow level="1" t-if="isActiveItem('random_opt')" label="'D'">
-                                <BuilderButton classAction="'d'">D</BuilderButton>
-                            </BuilderRow>
-                        </t>
-                    </BuilderRow>`;
-            }
-        );
+        addBuilderOption({
+            selector: ".test-options-target",
+            template: xml`
+                <BuilderRow label="'Test Collapse'" expand="true">
+                    <BuilderSelect>
+                        <BuilderSelectItem classAction="'a'" id="'test_opt'">A</BuilderSelectItem>
+                        <BuilderSelectItem classAction="'c'" id="'random_opt'">C</BuilderSelectItem>
+                    </BuilderSelect>
+                    <t t-set-slot="collapse">
+                        <BuilderRow level="1" t-if="this.isActiveItem('test_opt')" label="'B'">
+                            <BuilderButton classAction="'b'">B</BuilderButton>
+                        </BuilderRow>
+                        <BuilderRow level="1" t-if="this.isActiveItem('random_opt')" label="'D'">
+                            <BuilderButton classAction="'d'">D</BuilderButton>
+                        </BuilderRow>
+                    </t>
+                </BuilderRow>
+            `,
+        });
         await setupHTMLBuilder(`<div class="test-options-target">b</div>`);
         await contains(":iframe .test-options-target").click();
         expect(".options-container").toBeVisible();
@@ -265,12 +252,10 @@ describe("BuilderRow with collapse content", () => {
 
     test("Click on toggler collapses / expands the BuilderRow", async () => {
         reapplyCollapseTransition();
-        addBuilderOption(
-            class extends BaseOptionComponent {
-                static selector = ".test-options-target";
-                static template = collapseOptionTemplate();
-            }
-        );
+        addBuilderOption({
+            selector: ".test-options-target",
+            template: collapseOptionTemplate(),
+        });
         await setupHTMLBuilder(`<div class="test-options-target">b</div>`);
         await contains(":iframe .test-options-target").click();
         expect(".options-container").toBeVisible();
@@ -279,28 +264,39 @@ describe("BuilderRow with collapse content", () => {
         await contains(".o_hb_collapse_toggler:not(.d-none)").click();
         expect(".o_hb_collapse_toggler:not(.d-none)").toHaveClass("active");
         expect(".options-container button[data-class-action='b']").toBeVisible();
+        const contentEl = queryOne(".options-container .hb-collapse-content");
+        expect(contentEl.style.height).toBe(`${ONE_ROW_HEIGHT}px`);
+        expect(parseFloat(getComputedStyle(contentEl).height)).toBeLessThan(ONE_ROW_HEIGHT);
+        // Collapsing pins the measured height, then targets 0 for the CSS transition.
         await contains(".o_hb_collapse_toggler:not(.d-none)").click();
+        expect(contentEl.style.height).toBe("0px");
+        expect(parseFloat(getComputedStyle(contentEl).height)).toBeGreaterThan(0);
         advanceTime(400); // wait for the collapse transition to be over
         await animationFrame();
         expect(".o_hb_collapse_toggler:not(.d-none)").not.toHaveClass("active");
         expect(".options-container button[data-class-action='b']").toHaveCount(0);
+        expect(parseFloat(getComputedStyle(contentEl).height)).toBe(NaN);
     });
 
     test("Click on toggler collapses / expands the BuilderRow (with observeCollapseContent)", async () => {
-        addBuilderOption(
-            class extends BaseOptionComponent {
-                static selector = ".test-options-target";
-                static template = collapseOptionTemplate({ observeCollapseContent: true });
-            }
-        );
+        reapplyCollapseTransition();
+        addBuilderOption({
+            selector: ".test-options-target",
+            template: collapseOptionTemplate({ observeCollapseContent: true }),
+        });
         await setupHTMLBuilder(`<div class="test-options-target">b</div>`);
         await contains(":iframe .test-options-target").click();
         expect(".options-container").toBeVisible();
         expect(".o_hb_collapse_toggler:not(.d-none)").not.toHaveClass("active");
         expect(".options-container button[data-class-action='b']").not.toBeVisible();
+        // The content is never unmounted here, only hidden: it starts collapsed at 0.
+        const contentEl = queryOne(".options-container .hb-collapse-content");
+        expect(contentEl.style.height).toBe("0px");
         await contains(".o_hb_collapse_toggler:not(.d-none)").click();
         expect(".o_hb_collapse_toggler:not(.d-none)").toHaveClass("active");
         expect(".options-container button[data-class-action='b']").toBeVisible();
+        expect(contentEl.style.height).toBe(`${ONE_ROW_HEIGHT}px`);
+        expect(parseFloat(getComputedStyle(contentEl).height)).toBeLessThan(ONE_ROW_HEIGHT);
         await contains(".o_hb_collapse_toggler:not(.d-none)").click();
         expect(".o_hb_collapse_toggler:not(.d-none)").not.toHaveClass("active");
         advanceTime(400); // wait for the collapse transition to be over
@@ -310,12 +306,10 @@ describe("BuilderRow with collapse content", () => {
 
     test("Click header row's label collapses / expands the BuilderRow", async () => {
         reapplyCollapseTransition();
-        addBuilderOption(
-            class extends BaseOptionComponent {
-                static selector = ".test-options-target";
-                static template = collapseOptionTemplate();
-            }
-        );
+        addBuilderOption({
+            selector: ".test-options-target",
+            template: collapseOptionTemplate(),
+        });
         await setupHTMLBuilder(`<div class="test-options-target">b</div>`);
         await contains(":iframe .test-options-target").click();
         expect(".options-container").toBeVisible();
@@ -332,12 +326,10 @@ describe("BuilderRow with collapse content", () => {
     });
 
     test("Click header row's label collapses / expands the BuilderRow (with observeCollapseContent)", async () => {
-        addBuilderOption(
-            class extends BaseOptionComponent {
-                static selector = ".test-options-target";
-                static template = collapseOptionTemplate({ observeCollapseContent: true });
-            }
-        );
+        addBuilderOption({
+            selector: ".test-options-target",
+            template: collapseOptionTemplate({ observeCollapseContent: true }),
+        });
         await setupHTMLBuilder(`<div class="test-options-target">b</div>`);
         await contains(":iframe .test-options-target").click();
         expect(".options-container").toBeVisible();
@@ -354,18 +346,14 @@ describe("BuilderRow with collapse content", () => {
     });
 
     test("Two BuilderRows with collapse content on the same option are toggled independently", async () => {
-        addBuilderOption(
-            class extends BaseOptionComponent {
-                static selector = ".test-options-target";
-                static template = collapseOptionTemplate({ dependency: true, expand: true });
-            }
-        );
-        addBuilderOption(
-            class extends BaseOptionComponent {
-                static selector = ".test-options-target";
-                static template = collapseOptionTemplate();
-            }
-        );
+        addBuilderOption({
+            selector: ".test-options-target",
+            template: collapseOptionTemplate({ dependency: true, expand: true }),
+        });
+        addBuilderOption({
+            selector: ".test-options-target",
+            template: collapseOptionTemplate(),
+        });
         await setupHTMLBuilder(`<div class="test-options-target">b</div>`);
         await contains(":iframe .test-options-target").click();
         expect(".options-container").toBeVisible();
@@ -388,41 +376,37 @@ describe("BuilderRow with collapse content", () => {
 describe.tags("desktop");
 describe("HTML builder tests", () => {
     test("add tooltip when label is too long", async () => {
-        addBuilderOption(
-            class extends BaseOptionComponent {
-                static selector = ".test-options-target";
-                static template = xml`<BuilderRow label="'Supercalifragilisticexpalidocious'">Palais chatouille</BuilderRow>`;
-            }
-        );
+        addBuilderOption({
+            selector: ".test-options-target",
+            template: xml`<BuilderRow label="'Supercalifragilisticexpalidocious'">Palais chatouille</BuilderRow>`,
+        });
         await setupHTMLBuilder(`<div class="test-options-target">b</div>`);
         await contains(":iframe .test-options-target").click();
-        await hover("[data-label='Supercalifragilisticexpalidocious'] .text-truncate");
+        const textEl = queryOne(
+            "[data-label='Supercalifragilisticexpalidocious'] > .hb-row-label span"
+        );
+        await hover(textEl);
         await advanceTime(OPEN_DELAY);
-        await waitFor(".o-tooltip");
-        const label = queryOne("[data-label='Supercalifragilisticexpalidocious'] .text-truncate");
-        expect(label.scrollWidth).toBeGreaterThan(label.clientWidth); // the text is longer than the available width.
-        expect(".o-tooltip").toHaveText("Supercalifragilisticexpalidocious");
-
-        await contains(":iframe .test-options-target").hover();
-        expect(".o-tooltip").toHaveCount(0);
+        await waitFor(
+            "[data-text-truncate-tooltip][data-text-truncate-tooltip-checked='true'][data-tooltip='Supercalifragilisticexpalidocious']"
+        );
+        expect(textEl.scrollWidth).toBeGreaterThan(textEl.clientWidth); // the text is longer than the available width.
     });
-    test("show row label before tooltip when label is truncated", async () => {
-        addBuilderOption(
-            class extends BaseOptionComponent {
-                static selector = ".test-options-target";
-                static template = xml`<BuilderRow label="'Supercalifragilisticexpalidocious'" tooltip="'my tooltip'">Palais chatouille</BuilderRow>`;
-            }
-        );
+    test("show row label before tooltip when label is truncated and hovering on wrapper", async () => {
+        addBuilderOption({
+            selector: ".test-options-target",
+            template: xml`<BuilderRow label="'Supercalifragilisticexpalidocious'" tooltip="'my tooltip'">Palais chatouille</BuilderRow>`,
+        });
         await setupHTMLBuilder(`<div class="test-options-target">b</div>`);
         await contains(":iframe .test-options-target").click();
-        await hover("[data-label='Supercalifragilisticexpalidocious'] .text-truncate");
+        const textEl = queryOne(
+            "[data-label='Supercalifragilisticexpalidocious'] > .hb-row-label span"
+        );
+        await hover(textEl);
         await advanceTime(OPEN_DELAY);
-        await waitFor(".o-tooltip");
-        const label = queryOne("[data-label='Supercalifragilisticexpalidocious'] .text-truncate");
-        expect(label.scrollWidth).toBeGreaterThan(label.clientWidth); // the text is longer than the available width.
-        expect(".o-tooltip").toHaveText("Supercalifragilisticexpalidocious : my tooltip");
-
-        await contains(":iframe .test-options-target").hover();
-        expect(".o-tooltip").toHaveCount(0);
+        await waitFor(
+            "[data-tooltip='Supercalifragilisticexpalidocious\\00a0: my tooltip'] > [data-text-truncate-tooltip][data-text-truncate-tooltip-checked='true']"
+        );
+        expect(textEl.scrollWidth).toBeGreaterThan(textEl.clientWidth); // the text is longer than the available width.
     });
 });

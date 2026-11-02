@@ -8,15 +8,15 @@
 # Martin Trigaux, 2022
 # NoaFarkash, 2022
 # Ha Ketem <haketem@gmail.com>, 2022
-# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-11-10 13:16+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Hebrew <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:42+0000\n"
+"PO-Revision-Date: 2026-08-31 16:51+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Hebrew <https://translate.odoo.com/projects/odoo-s19-4/"
 "hr_recruitment_survey/he/>\n"
 "Language: he\n"
 "MIME-Version: 1.0\n"
@@ -24,7 +24,16 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=4; plural=(n == 1) ? 0 : ((n == 2) ? 1 : ((n > 10 && "
 "n % 10 == 0) ? 2 : 3));\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: hr_recruitment_survey
+#: model:ir.module.module,description:base.module_hr_recruitment_survey
+msgid ""
+"\n"
+"Use interview forms during recruitment process.\n"
+"This module is integrated with the survey module\n"
+"to allow you to define interviews for different jobs.\n"
+msgstr ""
 
 #. module: hr_recruitment_survey
 #: model:mail.template,body_html:hr_recruitment_survey.mail_template_applicant_interview_invite
@@ -63,7 +72,7 @@ msgstr ""
 
 #. module: hr_recruitment_survey
 #: model_terms:ir.ui.view,arch_db:hr_recruitment_survey.hr_recruitment_survey_button_form_view
-msgid "<i class=\"oi oi-fw oi-arrow-right\"/>Go to Recruitment"
+msgid "<i class=\"oi me-2\" data-icon=\"east\"/>Go to Recruitment"
 msgstr ""
 
 #. module: hr_recruitment_survey
@@ -74,9 +83,24 @@ msgid ""
 msgstr ""
 
 #. module: hr_recruitment_survey
+#: model_terms:ir.ui.view,arch_db:hr_recruitment_survey.survey_survey_view_form
+msgid "<span class=\"o_stat_text\">Jobs</span>"
+msgstr ""
+
+#. module: hr_recruitment_survey
 #: model:survey.question,title:hr_recruitment_survey.survey_recruitment_form_p1
 msgid "About you"
 msgstr "על עצמך"
+
+#. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__accessible_by_current_user
+msgid "Accessible By Current User"
+msgstr ""
+
+#. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__accessible_by_interviewer_user
+msgid "Accessible By Interviewer User"
+msgstr ""
 
 #. module: hr_recruitment_survey
 #: model:survey.question,title:hr_recruitment_survey.survey_recruitment_form_p1_q7
@@ -89,8 +113,25 @@ msgid "Add a new survey"
 msgstr "הוסף סקר חדש"
 
 #. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__emails
+#, fuzzy
+msgid "Additional emails"
+msgstr "כתובות דוא\"ל נוספות"
+
+#. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__all_surveys_are_recruitment
+msgid "All Surveys Are Recruitment"
+msgstr ""
+
+#. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__deadline
+#, fuzzy
+msgid "Answer deadline"
+msgstr "מועד אחרון למענה"
+
+#. module: hr_recruitment_survey
 #: model:ir.model,name:hr_recruitment_survey.model_hr_applicant
-#: model:ir.model.fields,field_description:hr_recruitment_survey.field_survey_invite__applicant_id
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__applicant_ids
 #: model:ir.model.fields,field_description:hr_recruitment_survey.field_survey_user_input__applicant_id
 msgid "Applicant"
 msgstr "מועמד"
@@ -106,12 +147,54 @@ msgid "Apply for a Job"
 msgstr ""
 
 #. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__attachment_ids
+#, fuzzy
+msgid "Attachments"
+msgstr "קבצים מצורפים"
+
+#. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__author_id
+#, fuzzy
+msgid "Author"
+msgstr "מחבר"
+
+#. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__body_has_template_value
+#, fuzzy
+msgid "Body content is the same as the template"
+msgstr "תוכן הגוף זהה לתבנית."
+
+#. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__can_edit_body
+#, fuzzy
+msgid "Can Edit Body"
+msgstr "ניתן לערוך גוף"
+
+#. module: hr_recruitment_survey
 #: model:ir.model.fields,help:hr_recruitment_survey.field_hr_applicant__survey_id
 #: model:ir.model.fields,help:hr_recruitment_survey.field_hr_job__survey_id
 msgid ""
 "Choose an interview form for this job position and you will be able to print/"
 "answer this interview from all applicants who apply for this job"
 msgstr ""
+
+#. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__body
+#, fuzzy
+msgid "Contents"
+msgstr "תוכן"
+
+#. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__create_uid
+#, fuzzy
+msgid "Created by"
+msgstr "נוצר על-ידי"
+
+#. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__create_date
+#, fuzzy
+msgid "Created on"
+msgstr "נוצר ב-"
 
 #. module: hr_recruitment_survey
 #: model_terms:ir.ui.view,arch_db:hr_recruitment_survey.view_hr_job_kanban_inherit
@@ -121,7 +204,7 @@ msgstr "הצגת טופס ראיון"
 #. module: hr_recruitment_survey
 #: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_applicant__display_name
 #: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_job__display_name
-#: model:ir.model.fields,field_description:hr_recruitment_survey.field_survey_invite__display_name
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__display_name
 #: model:ir.model.fields,field_description:hr_recruitment_survey.field_survey_survey__display_name
 #: model:ir.model.fields,field_description:hr_recruitment_survey.field_survey_user_input__display_name
 msgid "Display Name"
@@ -131,6 +214,17 @@ msgstr "שם לתצוגה"
 #: model:survey.question,title:hr_recruitment_survey.survey_recruitment_form_p1_q4
 msgid "Education"
 msgstr "חינוך"
+
+#. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__existing_partner_ids
+#, fuzzy
+msgid "Existing Partner"
+msgstr "לקוח/ספק קיים"
+
+#. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__existing_emails
+msgid "Existing emails"
+msgstr ""
 
 #. module: hr_recruitment_survey
 #: model:survey.question,title:hr_recruitment_survey.survey_recruitment_form_p1_q2
@@ -145,6 +239,16 @@ msgstr ""
 #. module: hr_recruitment_survey
 #: model:survey.question.answer,value:hr_recruitment_survey.survey_recruitment_form_p1_q8_row8
 msgid "Getting perks such as free parking, gym passes"
+msgstr ""
+
+#. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__existing_mode
+msgid "Handle existing"
+msgstr ""
+
+#. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__has_many_applicants
+msgid "Has Many Applicants"
 msgstr ""
 
 #. module: hr_recruitment_survey
@@ -163,13 +267,30 @@ msgid "Having freebies such as tea, coffee and stationery"
 msgstr ""
 
 #. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__hide_url
+msgid "Hide Url"
+msgstr ""
+
+#. module: hr_recruitment_survey
+#: model:ir.module.module,shortdesc:base.module_hr_recruitment_survey
+msgid "Hr Recruitment Interview Forms"
+msgstr ""
+
+#. module: hr_recruitment_survey
 #: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_applicant__id
 #: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_job__id
-#: model:ir.model.fields,field_description:hr_recruitment_survey.field_survey_invite__id
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__id
 #: model:ir.model.fields,field_description:hr_recruitment_survey.field_survey_survey__id
 #: model:ir.model.fields,field_description:hr_recruitment_survey.field_survey_user_input__id
 msgid "ID"
 msgstr "מזהה"
+
+#. module: hr_recruitment_survey
+#: model:ir.model.fields,help:hr_recruitment_survey.field_hr_recruitment_survey_invite__survey_users_login_required
+#, fuzzy
+msgid ""
+"If checked, users have to login before answering even with a valid token."
+msgstr "אם מסומן, המשתמשים צריכים להתחבר לפני שהם עונים אפילו עם אסימון חוקי."
 
 #. module: hr_recruitment_survey
 #: model:survey.question.answer,value:hr_recruitment_survey.survey_recruitment_form_p1_q8_col2
@@ -189,6 +310,18 @@ msgid "Interview Form: %s"
 msgstr "טופס ראיון: %s"
 
 #. module: hr_recruitment_survey
+#. odoo-python
+#: code:addons/hr_recruitment_survey/wizard/hr_recruitment_survey_invite.py:0
+msgid "Interview Invitation"
+msgstr ""
+
+#. module: hr_recruitment_survey
+#. odoo-python
+#: code:addons/hr_recruitment_survey/wizard/hr_recruitment_survey_invite.py:0
+msgid "Interview Invitation: %(survey_name)s"
+msgstr ""
+
+#. module: hr_recruitment_survey
 #: model_terms:ir.ui.view,arch_db:hr_recruitment_survey.res_config_settings_view_form
 msgid "Interview Survey"
 msgstr "סקר ראיון"
@@ -201,6 +334,24 @@ msgid "Interviews"
 msgstr "ראיונות"
 
 #. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__is_mail_template_editor
+#, fuzzy
+msgid "Is Editor"
+msgstr "האם עורך"
+
+#. module: hr_recruitment_survey
+#. odoo-python
+#: code:addons/hr_recruitment_survey/models/survey_survey.py:0
+#, fuzzy
+msgid "Job"
+msgstr "משרה"
+
+#. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_survey_survey__job_count
+msgid "Job Count"
+msgstr ""
+
+#. module: hr_recruitment_survey
 #: model:ir.model,name:hr_recruitment_survey.model_hr_job
 #: model:ir.model.fields,field_description:hr_recruitment_survey.field_survey_survey__hr_job_ids
 msgid "Job Position"
@@ -210,6 +361,30 @@ msgstr "תפקיד"
 #: model:survey.question,title:hr_recruitment_survey.survey_recruitment_form_p1_q6
 msgid "Knowledge"
 msgstr "ידע"
+
+#. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__lang
+#, fuzzy
+msgid "Language"
+msgstr "שפה"
+
+#. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__write_uid
+#, fuzzy
+msgid "Last Updated by"
+msgstr "עודכן לאחרונה על-ידי"
+
+#. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__write_date
+#, fuzzy
+msgid "Last Updated on"
+msgstr "עדכון אחרון ב"
+
+#. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__template_id
+#, fuzzy
+msgid "Mail Template"
+msgstr "תבנית דואר"
 
 #. module: hr_recruitment_survey
 #: model:survey.question.answer,value:hr_recruitment_survey.survey_recruitment_form_p1_q8_row6
@@ -225,6 +400,21 @@ msgstr ""
 #: model:survey.question.answer,value:hr_recruitment_survey.survey_recruitment_form_p1_q8_row5
 msgid "Office location"
 msgstr ""
+
+#. module: hr_recruitment_survey
+#: model:ir.model.fields,help:hr_recruitment_survey.field_hr_recruitment_survey_invite__lang
+msgid ""
+"Optional translation language (ISO code) to select when sending out an "
+"email. If not set, the main partner's language will be used. This should "
+"usually be a placeholder expression that provides the appropriate language, "
+"e.g. {{ object.partner_id.lang }}."
+msgstr ""
+
+#. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__mail_server_id
+#, fuzzy
+msgid "Outgoing mail server"
+msgstr "שרת דואר יוצא"
 
 #. module: hr_recruitment_survey
 #: model:mail.template,subject:hr_recruitment_survey.mail_template_applicant_interview_invite
@@ -271,6 +461,12 @@ msgid ""
 msgstr ""
 
 #. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__partner_ids
+#, fuzzy
+msgid "Recipients"
+msgstr "נמענים"
+
+#. module: hr_recruitment_survey
 #: model:ir.model.fields.selection,name:hr_recruitment_survey.selection__survey_survey__survey_type__recruitment
 msgid "Recruitment"
 msgstr "גיוס"
@@ -281,9 +477,39 @@ msgid "Recruitment Form"
 msgstr ""
 
 #. module: hr_recruitment_survey
+#. odoo-python
+#: code:addons/hr_recruitment_survey/models/survey_survey.py:0
+msgid "Related Jobs"
+msgstr ""
+
+#. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__render_model
+#, fuzzy
+msgid "Rendering Model"
+msgstr "דגם עיבוד"
+
+#. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__survey_users_login_required
+#, fuzzy
+msgid "Require Login"
+msgstr "דרוש התחברות"
+
+#. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__existing_text
+#, fuzzy
+msgid "Resend Comment"
+msgstr "שלח שוב תגובה"
+
+#. module: hr_recruitment_survey
 #: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_applicant__response_ids
 msgid "Responses"
 msgstr ""
+
+#. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__scheduled_date
+#, fuzzy
+msgid "Scheduled Date"
+msgstr "תאריך מתוזמן"
 
 #. module: hr_recruitment_survey
 #: model_terms:ir.ui.view,arch_db:hr_recruitment_survey.hr_applicant_view_form_inherit
@@ -291,28 +517,52 @@ msgid "See interview report"
 msgstr ""
 
 #. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__send_email
+#, fuzzy
+msgid "Send Email"
+msgstr "שלח דוא\"ל"
+
+#. module: hr_recruitment_survey
+#: model:ir.actions.server,name:hr_recruitment_survey.action_applicant_send_interview
 #: model_terms:ir.ui.view,arch_db:hr_recruitment_survey.hr_applicant_view_form_inherit
 msgid "Send Interview"
 msgstr "שלח טופס ראיון"
 
 #. module: hr_recruitment_survey
+#: model_terms:ir.ui.view,arch_db:hr_recruitment_survey.crm_case_tree_view_job_inherit
+msgid "Send Interviews"
+msgstr ""
+
+#. module: hr_recruitment_survey
 #. odoo-python
 #: code:addons/hr_recruitment_survey/models/hr_applicant.py:0
-msgid "Send an interview"
-msgstr "שלח טופס ראיון"
+msgid "Send interviews"
+msgstr ""
+
+#. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__single_survey_id
+msgid "Single Survey"
+msgstr ""
+
+#. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__subject
+#, fuzzy
+msgid "Subject"
+msgstr "נושא"
 
 #. module: hr_recruitment_survey
 #. odoo-python
 #: code:addons/hr_recruitment_survey/models/hr_job.py:0
 #: model:ir.model,name:hr_recruitment_survey.model_survey_survey
 #: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_applicant__survey_id
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__survey_id
 msgid "Survey"
 msgstr "סקר"
 
 #. module: hr_recruitment_survey
-#: model:ir.model,name:hr_recruitment_survey.model_survey_invite
-msgid "Survey Invitation Wizard"
-msgstr "אשף הזמנה של סקר"
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__survey_access_mode
+msgid "Survey Access Mode"
+msgstr ""
 
 #. module: hr_recruitment_survey
 #: model:ir.model.fields,field_description:hr_recruitment_survey.field_survey_survey__survey_type
@@ -320,9 +570,22 @@ msgid "Survey Type"
 msgstr "סוג סקר"
 
 #. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__survey_start_url
+#, fuzzy
+msgid "Survey URL"
+msgstr "לינק לסקר"
+
+#. module: hr_recruitment_survey
 #: model:ir.model,name:hr_recruitment_survey.model_survey_user_input
 msgid "Survey User Input"
 msgstr "תגובת המשתמש לסקר"
+
+#. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__survey_ids
+#: model:ir.module.module,summary:base.module_hr_recruitment_survey
+#, fuzzy
+msgid "Surveys"
+msgstr "סקרים"
 
 #. module: hr_recruitment_survey
 #: model_terms:survey.survey,description_done:hr_recruitment_survey.survey_recruitment_form
@@ -337,9 +600,42 @@ msgstr ""
 
 #. module: hr_recruitment_survey
 #. odoo-python
-#: code:addons/hr_recruitment_survey/wizard/survey_invite.py:0
+#: code:addons/hr_recruitment_survey/wizard/hr_recruitment_survey_invite.py:0
+msgid ""
+"The following emails you just entered are invalid:\n"
+"%s"
+msgstr ""
+
+#. module: hr_recruitment_survey
+#. odoo-python
+#: code:addons/hr_recruitment_survey/wizard/hr_recruitment_survey_invite.py:0
+msgid ""
+"The following recipients have no user account: %s. You should create user "
+"accounts for them or allow external signup in configuration."
+msgstr ""
+
+#. module: hr_recruitment_survey
+#. odoo-python
+#: code:addons/hr_recruitment_survey/wizard/hr_recruitment_survey_invite.py:0
 msgid "The survey %(survey_link)s has been sent to %(partner_link)s"
 msgstr ""
+
+#. module: hr_recruitment_survey
+#. odoo-python
+#: code:addons/hr_recruitment_survey/wizard/hr_recruitment_survey_invite.py:0
+#, fuzzy
+msgid ""
+"This survey does not allow external people to participate. You should create "
+"user accounts or update survey access mode accordingly."
+msgstr ""
+"סקר זה אינו מאפשר לאנשים חיצוניים להשתתף. עליך ליצור חשבונות משתמשים או "
+"לעדכן את מצב הגישה לסקר בהתאם."
+
+#. module: hr_recruitment_survey
+#: model:ir.model.fields,field_description:hr_recruitment_survey.field_hr_recruitment_survey_invite__survey_users_can_signup
+#, fuzzy
+msgid "Users can signup"
+msgstr "משתמשים יכולים להירשם"
 
 #. module: hr_recruitment_survey
 #: model:survey.question.answer,value:hr_recruitment_survey.survey_recruitment_form_p1_q8_col3
@@ -367,6 +663,13 @@ msgid "Which country are you from?"
 msgstr ""
 
 #. module: hr_recruitment_survey
+#: model:ir.model,name:hr_recruitment_survey.model_hr_recruitment_survey_invite
+msgid ""
+"Wizard for sending interview invitations to job applicants during "
+"recruitment process"
+msgstr ""
+
+#. module: hr_recruitment_survey
 #: model:survey.question.answer,value:hr_recruitment_survey.survey_recruitment_form_p1_q8_row4
 msgid "Working with state of the art technology"
 msgstr ""
@@ -376,4 +679,18 @@ msgstr ""
 msgid ""
 "You can create surveys used for recruitments. Design easily your interview,\n"
 "                send invitations and analyze answers."
+msgstr ""
+
+#. module: hr_recruitment_survey
+#. odoo-python
+#: code:addons/hr_recruitment_survey/models/survey_survey.py:0
+#, fuzzy
+msgid "id"
+msgstr "מספר זיהוי"
+
+#. module: hr_recruitment_survey
+#: model:ir.model.fields,help:hr_recruitment_survey.field_hr_recruitment_survey_invite__scheduled_date
+msgid ""
+"send emails after that date. This date is considered as being in UTC "
+"timezone."
 msgstr ""

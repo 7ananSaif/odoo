@@ -1,27 +1,13 @@
 import { patch } from '@web/core/utils/patch';
-import { patchDynamicContent } from '@web/public/utils';
 import { CustomerAddress } from '@portal/interactions/address';
-import { SelectMenuWrapper } from '@l10n_latam_base/components/select_menu_wrapper/select_menu_wrapper';
+import { _t } from "@web/core/l10n/translation";
 
 patch(CustomerAddress.prototype, {
+
     setup() {
+        // Set main street2 label before updating it
+        this.street2LabelText = document.querySelector('label[for="o_street2"]').textContent;
         super.setup();
-        patchDynamicContent(this.dynamicContent, {
-            'input[name="zip"]': { 't-on-input': this.onChangeZip.bind(this) },
-            '.o_select_city': { 't-on-change': this.onChangeBrazilianCity.bind(this) },
-        });
-
-        this.citySelect = this.el.querySelector('select[name="city_id"]');
-    },
-
-    async willStart() {
-        await this.waitFor(super.willStart());
-        if (this.countryCode !== 'BR') return;
-
-        this.mountComponent(
-            this.citySelect.parentElement, SelectMenuWrapper, { el: this.citySelect }
-        );
-        await this._onChangeCountry();
     },
 
     _selectState(id) {
@@ -30,13 +16,15 @@ patch(CustomerAddress.prototype, {
         ).selected = 'selected';
     },
 
-    onChangeZip() {
-        if (this.countryCode !== 'BR' || this._getSelectedCountryCode() !== 'BR') return;
+    async onChangeZip() {
+        await super.onChangeZip();
+        if (this._getSelectedCountryCode() !== 'BR') return;
 
+        const cities = this.addressForm.city_id;
         const newZip = this.addressForm.zip.value.padEnd(5, '0');
 
-        for (const option of this.addressForm.querySelectorAll('.o_select_city option')) {
-            const ranges = option.getAttribute('zip-ranges');
+        for (const option of cities.options) {
+            const ranges = option.dataset.l10n_br_zip_ranges;
             if (ranges) {
                 // Parse the l10n_br_zip_ranges field (e.g. "[01000-001 05999-999] [08000-000 08499-999]").
                 // Loop over each range that is enclosed in [] (e.g. "[01000-001 05999-999]" followed by "[08000-000 08499-999]").
@@ -48,11 +36,11 @@ patch(CustomerAddress.prototype, {
 
                     // Rely on lexicographical order to figure out if the new zip is in this range.
                     if (newZip >= start && newZip <= end) {
-                        this.citySelect.dispatchEvent(
+                        cities.dispatchEvent(
                             new CustomEvent('select', { detail: { value: option.value } })
                         );
                         option.selected = 'selected';
-                        this._selectState(option.getAttribute('state-id'));
+                        this._selectState(option.dataset.state_id);
                         return;
                     }
                 }
@@ -60,47 +48,51 @@ patch(CustomerAddress.prototype, {
         }
     },
 
-    onChangeBrazilianCity() {
-        if (this.countryCode !== 'BR' || this._getSelectedCountryCode() !== 'BR') return;
+    async onChangeCity() {
+        await super.onChangeCity();
+        if (this._getSelectedCountryCode() !== 'BR') return;
 
-        if (this.addressForm.city_id.value) {
-            this._selectState(
-                this.addressForm.city_id
-                    .querySelector(`option[value='${this.addressForm.city_id.value}']`)
-                    .getAttribute('state-id')
-            );
+        const cities = this.addressForm.city_id;
+        if (cities.options) {
+            this._selectState(cities.selectedOptions[0].dataset.state_id);
         }
     },
 
-    _setVisibility(selector, should_show) {
-        this.addressForm.querySelectorAll(selector).forEach((el) => {
-            if (should_show) {
-                el.classList.remove('d-none');
-            } else {
-                el.classList.add('d-none');
-            }
-
-            // Disable hidden inputs to avoid sending back e.g. an empty street when street_name and street_number is
-            // filled. It causes street_name and street_number to be lost.
-            if (el.tagName === 'INPUT') {
-                el.disabled = !should_show;
-            }
-
-            el.querySelectorAll('input').forEach((input) => (input.disabled = !should_show));
-        });
+    async onChangeState() {
+        // For BR: don't want the standard behavior of reloading cities based on state
+        if (this._getSelectedCountryCode() == 'BR') {
+            this.addressForm.city_id.value = "";
+            return;
+        }
+        return await super.onChangeState();
     },
 
-    async _onChangeCountry(init=false) {
-        await this.waitFor(super._onChangeCountry(...arguments));
-        if (this.countryCode !== 'BR') return;
-
+    async onChangeCountry() {
+        await super.onChangeCountry();
         if (this._getSelectedCountryCode() === 'BR') {
             this._setVisibility('.o_standard_address', false); // hide
-            this._setVisibility('.o_extended_address', true); // show
+            this._setVisibility('.o_l10n_br_extended_address', true); // show
             this.onChangeZip();
         } else {
             this._setVisibility('.o_standard_address', true); // show
-            this._setVisibility('.o_extended_address', false); // hide
+            this._setVisibility('.o_l10n_br_extended_address', false); // hide
+        }
+    },
+
+    _updateAddressLayout() {
+        super._updateAddressLayout();
+        const street2Label = this._getInputLabel("street2");
+        street2Label.textContent =
+            this._getSelectedCountryCode() === "BR" ? _t("Neighborhood") : this.street2LabelText;
+    },
+
+    _setVisibility(selector, shouldShow) {
+        for (const field of this.addressForm.querySelectorAll(`${selector}[name]`)) {
+            if (shouldShow) {
+                this._showInput(field.name);
+            } else {
+                this._hideInput(field.name);
+            }
         }
     },
 });

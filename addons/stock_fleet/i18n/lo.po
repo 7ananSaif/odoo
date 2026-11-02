@@ -2,22 +2,23 @@
 # This file contains the translation of the following modules:
 # * stock_fleet
 #
+# Weblate <noreply-mt-weblate@weblate.org>, 2026.
 # Bone NI <bounkirdni@gmail.com>, 2026.
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0\n"
+"Project-Id-Version: Odoo Server saas~19.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2026-06-08 11:06+0000\n"
+"POT-Creation-Date: 2026-09-11 17:43+0000\n"
+"PO-Revision-Date: 2026-10-24 11:33+0000\n"
 "Last-Translator: Bone NI <bounkirdni@gmail.com>\n"
-"Language-Team: Lao <https://translate.odoo.com/projects/odoo-19/stock_fleet/"
+"Language-Team: Lao <https://translate.odoo.com/projects/odoo-20/stock_fleet/"
 "lo/>\n"
 "Language: lo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: stock_fleet
 #. odoo-python
@@ -38,10 +39,40 @@ msgid "%(weight_capacity)s %(weight_uom)s"
 msgstr "%(weight_capacity)s %(weight_uom)s"
 
 #. module: stock_fleet
+#: model:ir.actions.report,print_report_name:stock_fleet.action_report_cmr
+#: model:ir.actions.report,print_report_name:stock_fleet.action_report_cmr_batch
+msgid "'CMR - %s' % (object.name)"
+msgstr "'CMR - %s' % (object.name)"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.stock_picking_batch_card
+msgid "<i class=\"oi mx-2\" data-icon=\"east\" title=\"Arrow\"/>"
+msgstr "<i class=\"oi mx-2\" data-icon=\"east\" title=\"ລູກສອນ\"/>"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.stock_picking_batch_card
+msgid ""
+"<i class=\"oi text-primary me-2\" data-icon=\"inventory_2\" "
+"title=\"Location\"/>"
+msgstr ""
+"<i class=\"oi text-primary me-2\" data-icon=\"inventory_2\" title=\"ສະຖານ"
+"ທີ່\"/>"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.stock_picking_batch_card
+msgid ""
+"<i class=\"oi text-primary me-2\" data-icon=\"local_shipping\" "
+"title=\"Vehicle\"/>"
+msgstr ""
+"<i class=\"oi text-primary me-2\" data-icon=\"local_shipping\" title=\"ພາຫະນ"
+"ະ\"/>"
+
+#. module: stock_fleet
 #: model_terms:ir.ui.view,arch_db:stock_fleet.view_picking_type_form
 msgid ""
 "<span class=\"fw-bold\" invisible=\"code !='outgoing'\">From</span>\n"
-"                        <span class=\"fw-bold\" invisible=\"code =='outgoing'\">To</span>"
+"                        <span class=\"fw-bold\" invisible=\"code "
+"=='outgoing'\">To</span>"
 msgstr ""
 "<span class=\"fw-bold\" invisible=\"code !='outgoing'\">ຈາກ</span>\n"
 "                        <span class=\"fw-bold\" invisible=\"code "
@@ -63,9 +94,38 @@ msgid "<strong>Vehicle:</strong>"
 msgstr "<strong>ພາຫະນະ:</strong>"
 
 #. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Address"
+msgstr "ທີ່ຢູ່"
+
+#. module: stock_fleet
 #: model:ir.model.fields,field_description:stock_fleet.field_stock_picking_batch__allowed_dock_ids
 msgid "Allowed Docks"
 msgstr "ຊ່ອງໂຫຼດສິນຄ້າທີ່ອະນຸຍາດ"
+
+#. module: stock_fleet
+#: model:ir.module.module,description:base.module_stock_fleet
+msgid ""
+"Allows organizing deliveries by dock, assigning drivers and vehicles, and "
+"printing the associated consignment notes."
+msgstr ""
+"ຊ່ວຍໃນການຈັດການຈັດສົ່ງຕາມຊ່ອງໂຫຼດສິນຄ້າ, ກຳນົດຄົນຂັບ ແລະ ພາຫະນະ, ລວມທັງພິມໃບກຳກັບການຂົນສົ່ງທີ່ກ່ຽວ"
+"ຂ້ອງ."
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Annexed documents"
+msgstr "ເອກະສານຕິດຄັດ"
+
+#. module: stock_fleet
+#: model:ir.model.fields,field_description:stock_fleet.field_stock_picking_type__auto_print_cmr_report
+msgid "Auto Print Consignment Note (CMR)"
+msgstr "ພິມໃບກຳກັບການຂົນສົ່ງ (CMR) ອັດຕະໂນມັດ"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Balance"
+msgstr "ຍອດເຫຼືອ"
 
 #. module: stock_fleet
 #: model:ir.model,name:stock_fleet.model_stock_picking_batch
@@ -79,14 +139,96 @@ msgid "Batches by Route"
 msgstr "ຊຸດຕາມເສັ້ນທາງ"
 
 #. module: stock_fleet
+#: model:ir.model,name:stock_fleet.model_report_stock_fleet_report_cmr_batch
+msgid "CMR Batch Report"
+msgstr "ລາຍງານຊຸດ CMR"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "CMR INTERNATIONAL CONSIGNMENT NOTE"
+msgstr "ໃບກຳກັບການຂົນສົ່ງສິນຄ້າລະຫວ່າງປະເທດ CMR"
+
+#. module: stock_fleet
+#: model:ir.model,name:stock_fleet.model_report_stock_fleet_report_cmr
+msgid "CMR Report"
+msgstr "ລາຍງານ CMR"
+
+#. module: stock_fleet
 #: model_terms:ir.ui.view,arch_db:stock_fleet.stock_picking_type_kanban_inherit_stock_fleet
 msgid "Calendar"
 msgstr "ປະຕິທິນ"
 
 #. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Carriage charges"
+msgstr "ຄ່າຂົນສົ່ງ"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Carrier (name, address, country)"
+msgstr "ຜູ້ຂົນສົ່ງ (ຊື່, ທີ່ຢູ່, ປະເທດ)"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Carrier's reservations and observations"
+msgstr "ຂໍ້ສະຫງວນ ແລະ ຂໍ້ສັງເກດຂອງຜູ້ຂົນສົ່ງ"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Cash on delivery"
+msgstr "ເກັບເງິນປາຍທາງ"
+
+#. module: stock_fleet
 #: model:ir.model,name:stock_fleet.model_fleet_vehicle_model_category
 msgid "Category of the model"
 msgstr "ໝວດໝູ່ຂອງລຸ້ນ"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Class"
+msgstr "ປະເພດ"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Consignee"
+msgstr "ຜູ້ຮັບສິນຄ້າ"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Consignee (name, address, country)"
+msgstr "ຜູ້ຮັບສິນຄ້າ (ຊື່, ທີ່ຢູ່, ປະເທດ)"
+
+#. module: stock_fleet
+#: model:ir.actions.report,name:stock_fleet.action_report_cmr
+#: model:ir.actions.report,name:stock_fleet.action_report_cmr_batch
+#: model_terms:ir.ui.view,arch_db:stock_fleet.view_picking_type_form
+msgid "Consignment Note (CMR)"
+msgstr "ໃບກຳກັບການຂົນສົ່ງ (CMR)"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Copy for the carrier"
+msgstr "ສະບັບສຳລັບຜູ້ຂົນສົ່ງ"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Copy for the consignee"
+msgstr "ສະບັບສຳລັບຜູ້ຮັບສິນຄ້າ"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Copy for the sender"
+msgstr "ສະບັບສຳລັບຜູ້ສົ່ງ"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Date"
+msgstr "ວັນທີ"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Directions as to freight payment"
+msgstr "ຄຳແນະນຳກ່ຽວກັບການຊຳລະຄ່າຂົນສົ່ງ"
 
 #. module: stock_fleet
 #: model:ir.model.fields,field_description:stock_fleet.field_stock_picking_batch__has_dispatch_management
@@ -96,6 +238,8 @@ msgstr "ການຈັດການການສົ່ງເຄື່ອງ"
 
 #. module: stock_fleet
 #: model:ir.model.fields,field_description:stock_fleet.field_fleet_vehicle_model_category__display_name
+#: model:ir.model.fields,field_description:stock_fleet.field_report_stock_fleet_report_cmr__display_name
+#: model:ir.model.fields,field_description:stock_fleet.field_report_stock_fleet_report_cmr_batch__display_name
 #: model:ir.model.fields,field_description:stock_fleet.field_stock_picking__display_name
 #: model:ir.model.fields,field_description:stock_fleet.field_stock_picking_batch__display_name
 #: model:ir.model.fields,field_description:stock_fleet.field_stock_picking_type__display_name
@@ -145,12 +289,34 @@ msgid "End Date"
 msgstr "ວັນທີສິ້ນສຸດ"
 
 #. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Established in / on"
+msgstr "ເຮັດຂຶ້ນທີ່ / ວັນທີ"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Freight paid"
+msgstr "ຈ່າຍຄ່າຂົນສົ່ງແລ້ວ"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Freight to be paid"
+msgstr "ຄ່າຂົນສົ່ງທີ່ຕ້ອງຈ່າຍ"
+
+#. module: stock_fleet
 #: model_terms:ir.ui.view,arch_db:stock_fleet.stock_picking_batch_graph
 msgid "Graph View"
 msgstr "ມຸມມອງກຣາບ"
 
 #. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Gross weight kg"
+msgstr "ນ້ຳໜັກລວມ ກິໂລກຣາມ"
+
+#. module: stock_fleet
 #: model:ir.model.fields,field_description:stock_fleet.field_fleet_vehicle_model_category__id
+#: model:ir.model.fields,field_description:stock_fleet.field_report_stock_fleet_report_cmr__id
+#: model:ir.model.fields,field_description:stock_fleet.field_report_stock_fleet_report_cmr_batch__id
 #: model:ir.model.fields,field_description:stock_fleet.field_stock_picking__id
 #: model:ir.model.fields,field_description:stock_fleet.field_stock_picking_batch__id
 #: model:ir.model.fields,field_description:stock_fleet.field_stock_picking_type__id
@@ -159,9 +325,33 @@ msgid "ID"
 msgstr "ລະຫັດ"
 
 #. module: stock_fleet
+#: model:ir.model.fields,help:stock_fleet.field_stock_picking_type__auto_print_cmr_report
+msgid ""
+"If this checkbox is ticked, Odoo will automatically print the Consignment "
+"Note (CMR) of a delivery when it is validated."
+msgstr ""
+"ຖ້າໝາຍຕິກໃສ່ຊ່ອງນີ້, Odoo ຈະພິມໃບກຳກັບການຂົນສົ່ງ (CMR) ຂອງການຈັດສົ່ງໂດຍອັດຕະໂນມັດເມື່ອກວດສອບຢືນຢັ"
+"ນແລ້ວ."
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Letter"
+msgstr "ຕົວອັກສອນ"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Loading list of products"
+msgstr "ລາຍການສິນຄ້າທີ່ໂຫຼດຂຶ້ນ"
+
+#. module: stock_fleet
 #: model_terms:ir.ui.view,arch_db:stock_fleet.stock_picking_type_kanban_inherit_stock_fleet
 msgid "Manage Batches"
 msgstr "ຈັດການຊຸດ"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Marks and Nos."
+msgstr "ເຄື່ອງໝາຍ ແລະ ເລກລຳດັບ."
 
 #. module: stock_fleet
 #: model:ir.model.fields,field_description:stock_fleet.field_fleet_vehicle_model_category__volume_capacity
@@ -179,14 +369,39 @@ msgid "Max Weight"
 msgstr "ນ້ຳໜັກສູງສຸດ"
 
 #. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Method of packing"
+msgstr "ວິທີການຫຸ້ມຫໍ່"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Miscellaneous"
+msgstr "ເບັດຕະເລັດ"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Name"
+msgstr "ຊື່"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Nature of the goods"
+msgstr "ລັກສະນະຂອງສິນຄ້າ"
+
+#. module: stock_fleet
 #: model_terms:ir.ui.view,arch_db:stock_fleet.stock_picking_batch_filter
 msgid "Next 7 Days"
 msgstr "7 ວັນຂ້າງໜ້າ"
 
 #. module: stock_fleet
-#: model_terms:ir.ui.view,arch_db:stock_fleet.stock_picking_batch_filter
-msgid "Operation Type"
-msgstr "ປະເພດການປະຕິບັດງານ"
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Number"
+msgstr "ໝາຍເລກ"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Number of packages"
+msgstr "ຈຳນວນຫີບຫໍ່"
 
 #. module: stock_fleet
 #: model_terms:ir.ui.view,arch_db:stock_fleet.stock_picking_batch_filter
@@ -196,12 +411,47 @@ msgstr "ກອງລົດຂອງຕົນເອງ"
 #. module: stock_fleet
 #: model:ir.model,name:stock_fleet.model_stock_picking_type
 msgid "Picking Type"
-msgstr "ປະເພດການເກັບສິນຄ້າ"
+msgstr "ປະເພດການເກັບເຄື່ອງ"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Place and date of taking over the goods (place, country, date)"
+msgstr "ສະຖານທີ່ ແລະ ວັນທີຮັບສິນຄ້າ (ສະຖານທີ່, ປະເທດ, ວັນທີ)"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Place of delivery of the goods (place, country)"
+msgstr "ສະຖານທີ່ສົ່ງມອບສິນຄ້າ (ສະຖານທີ່, ປະເທດ)"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Reductions"
+msgstr "ສ່ວນຫຼຸດ"
 
 #. module: stock_fleet
 #: model_terms:ir.ui.view,arch_db:stock_fleet.stock_picking_batch_filter
 msgid "Scheduled Date"
 msgstr "ວັນທີກຳນົດໄວ້"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "See the attached loading list of products"
+msgstr "ເບິ່ງລາຍການສິນຄ້າທີ່ໂຫຼດຂຶ້ນຕິດຄັດ"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Sender"
+msgstr "ຜູ້ສົ່ງ"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Sender (name, address, country)"
+msgstr "ຜູ້ສົ່ງ (ຊື່, ທີ່ຢູ່, ປະເທດ)"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Sender's instructions (customs and other formalities)"
+msgstr "ຄຳແນະນຳຂອງຜູ້ສົ່ງ (ລະບຽບການພາສີ ແລະ ອື່ນໆ)"
 
 #. module: stock_fleet
 #: model_terms:ir.ui.view,arch_db:stock_fleet.report_picking_batch_inherit
@@ -216,12 +466,57 @@ msgstr "ບໍລິມາດການຂົນສົ່ງ"
 #. module: stock_fleet
 #: model_terms:ir.ui.view,arch_db:stock_fleet.vpicktree
 msgid "Shipping Weight"
-msgstr "ນ້ຳໜັກການຂົນສົ່ງ"
+msgstr "ນ້ຳໜັກໃນການຈັດສົ່ງ"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Signature and stamp of the carrier"
+msgstr "ລາຍເຊັນ ແລະ ກາຈ້ຳຂອງຜູ້ຂົນສົ່ງ"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Signature and stamp of the consignee"
+msgstr "ລາຍເຊັນ ແລະ ກາຈ້ຳຂອງຜູ້ຮັບສິນຄ້າ"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Signature and stamp of the sender"
+msgstr "ລາຍເຊັນ ແລະ ກາຈ້ຳຂອງຜູ້ສົ່ງ"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Special agreements"
+msgstr "ຂໍ້ຕົກລົງພິເສດ"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Statistical No."
+msgstr "ເລກສະຖິຕິ."
 
 #. module: stock_fleet
 #: model_terms:ir.ui.view,arch_db:stock_fleet.stock_picking_type_kanban_inherit_stock_fleet
 msgid "Statistics"
 msgstr "ສະຖິຕິ"
+
+#. module: stock_fleet
+#: model:ir.module.module,shortdesc:base.module_stock_fleet
+msgid "Stock Transport"
+msgstr "ການຂົນສົ່ງສາງ"
+
+#. module: stock_fleet
+#: model:ir.module.module,summary:base.module_stock_fleet
+msgid "Stock Transport Management"
+msgstr "ການຈັດການການຂົນສົ່ງສາງ"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Successive carriers (name, address, country)"
+msgstr "ຜູ້ຂົນສົ່ງຕໍ່ເນື່ອງ (ຊື່, ທີ່ຢູ່, ປະເທດ)"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Supplement charges"
+msgstr "ຄ່າທຳນຽມເພີ່ມເຕີມ"
 
 #. module: stock_fleet
 #: model_terms:ir.ui.view,arch_db:stock_fleet.stock_picking_batch_filter
@@ -234,9 +529,29 @@ msgid "Third Party Provider"
 msgstr "ຜູ້ໃຫ້ບໍລິການພາຍນອກ"
 
 #. module: stock_fleet
-#: model_terms:ir.ui.view,arch_db:stock_fleet.stock_picking_batch_filter
-msgid "Today"
-msgstr "ມື້ນີ້"
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid ""
+"This carriage is subject notwithstanding any clause to the contrary, to the "
+"convention on the contact for the international carriage of goods by road "
+"(CMR)"
+msgstr ""
+"ການຂົນສົ່ງນີ້ແມ່ນຂຶ້ນກັບສົນທິສັນຍາວ່າດ້ວຍສັນຍາການຂົນສົ່ງສິນຄ້າທາງຖະໜົນລະຫວ່າງປະເທດ (CMR) ເຖິງວ່າຈະມີຂໍ້ກ"
+"ຳນົດອື່ນທີ່ຂັດແຍ່ງກັນກໍຕາມ"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Time of arrival"
+msgstr "ເວລາເຖິງ"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Time of departure"
+msgstr "ເວລາອອກເດີນທາງ"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "To be paid by"
+msgstr "ຈ່າຍໂດຍ"
 
 #. module: stock_fleet
 #: model_terms:ir.ui.view,arch_db:stock_fleet.stock_picking_batch_filter
@@ -254,9 +569,24 @@ msgid "Total Shipping Weight"
 msgstr "ນ້ຳໜັກການຂົນສົ່ງທັງໝົດ"
 
 #. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Total to be paid"
+msgstr "ຍອດລວມທີ່ຕ້ອງຈ່າຍ"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Tractor licence plate"
+msgstr "ປ້າຍທະບຽນລົດຫົວລາກ"
+
+#. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Trailer licence plate"
+msgstr "ປ້າຍທະບຽນຫາງລາກ"
+
+#. module: stock_fleet
 #: model:ir.model,name:stock_fleet.model_stock_picking
 msgid "Transfer"
-msgstr "ການໂອນຍ້າຍ"
+msgstr "ໂອນ"
 
 #. module: stock_fleet
 #: model:fleet.vehicle.tag,name:stock_fleet.vehicle_tag_transport
@@ -296,6 +626,11 @@ msgid "Volume %"
 msgstr "ບໍລິມາດ %"
 
 #. module: stock_fleet
+#: model_terms:ir.ui.view,arch_db:stock_fleet.report_cmr_translated_label
+msgid "Volume m³"
+msgstr "ບໍລິມາດ ມ³"
+
+#. module: stock_fleet
 #: model:ir.model.fields,field_description:stock_fleet.field_fleet_vehicle_model_category__volume_capacity_uom_name
 #: model:ir.model.fields,field_description:stock_fleet.field_stock_picking_batch__volume_uom_name
 msgid "Volume unit of measure label"
@@ -309,7 +644,7 @@ msgstr "ສາງສິນຄ້າ"
 #. module: stock_fleet
 #: model_terms:ir.ui.view,arch_db:stock_fleet.stock_picking_batch_form
 msgid "Weight"
-msgstr "ນ້ຳໜັກ"
+msgstr "ນໍ້າໜັກ"
 
 #. module: stock_fleet
 #: model:ir.model.fields,field_description:stock_fleet.field_stock_picking_batch__used_weight_percentage
@@ -320,7 +655,7 @@ msgstr "ນ້ຳໜັກ %"
 #: model:ir.model.fields,field_description:stock_fleet.field_fleet_vehicle_model_category__weight_capacity_uom_name
 #: model:ir.model.fields,field_description:stock_fleet.field_stock_picking_batch__weight_uom_name
 msgid "Weight unit of measure label"
-msgstr "ປ້າຍຫົວໜ່ວຍວັດແທກນ້ຳໜັກ"
+msgstr "ສະຫຼາກຫົວໜ່ວຍວັດແທກນ້ຳໜັກ"
 
 #. module: stock_fleet
 #: model:ir.model.fields,field_description:stock_fleet.field_stock_picking__zip
@@ -331,3 +666,7 @@ msgstr "ລະຫັດໄປສະນີ"
 #: model_terms:ir.ui.view,arch_db:stock_fleet.stock_picking_batch_form
 msgid "semi-truck"
 msgstr "ລົດຫົວລາກ"
+
+#, fuzzy
+#~ msgid "Operation Type"
+#~ msgstr "ປະເພດການດຳເນີນງານ"

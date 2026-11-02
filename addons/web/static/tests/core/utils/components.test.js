@@ -1,3 +1,4 @@
+import { render } from "@web/owl2/utils";
 import { expect, getFixture, test } from "@odoo/hoot";
 import { Component, xml } from "@odoo/owl";
 import { mountWithCleanup } from "@web/../tests/web_test_helpers";
@@ -5,14 +6,13 @@ import { ErrorHandler } from "@web/core/utils/components";
 
 test("ErrorHandler component", async () => {
     class Boom extends Component {
-        static template = xml`<div><t t-esc="this.will.throw"/></div>`;
-        static props = ["*"];
+        static template = xml`<div><t t-out="this.will.throw"/></div>`;
     }
 
     class Parent extends Component {
         static template = xml`
             <div>
-                <t t-if="flag">
+                <t t-if="this.flag">
                     <ErrorHandler onError="() => this.handleError()">
                         <Boom/>
                     </ErrorHandler>
@@ -21,13 +21,12 @@ test("ErrorHandler component", async () => {
             </div>
         `;
         static components = { Boom, ErrorHandler };
-        static props = ["*"];
         setup() {
             this.flag = true;
         }
         handleError() {
             this.flag = false;
-            this.render();
+            render(this);
         }
     }
 

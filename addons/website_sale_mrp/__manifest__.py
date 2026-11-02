@@ -2,7 +2,6 @@
 
 {
     'name': 'Kit Availability',
-    'version': '1.0',
     'category': 'Website/Website',
     'summary': 'Manage Kit product inventory & availability',
     'description': """
@@ -15,7 +14,7 @@ Manage the inventory of your Kit products and display their availability status 
     'auto_install': True,
     'assets': {
         'web.assets_frontend': [
-            'website_sale_mrp/static/src/js/**/*',
+            'website_sale_mrp/static/src/interactions/**/*',
         ],
         'web.assets_tests': [
             'website_sale_mrp/static/tests/tours/*',

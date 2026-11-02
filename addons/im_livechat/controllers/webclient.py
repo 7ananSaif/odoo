@@ -1,8 +1,10 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo.http import request, route
+
 from odoo.addons.mail.controllers.webclient import WebclientController
 from odoo.addons.mail.tools.discuss import Store
+from odoo.addons.mail.tools.store_handler import store_handler
 
 
 class WebClient(WebclientController):
@@ -16,65 +18,79 @@ class WebClient(WebclientController):
             },
         )
 
-    @classmethod
-    def _process_request_for_internal_user(self, store: Store, name, params):
-        super()._process_request_for_internal_user(store, name, params)
-        if name == "im_livechat.channel":
-            store.add(request.env["im_livechat.channel"].search([]), ["are_you_inside", "name"])
-        if name == "/im_livechat/looking_for_help":
-            chats_looking_for_help = request.env["discuss.channel"].search(
-                [("livechat_status", "=", "need_help")], order="id ASC", limit=100
-            )
-            request.update_context(
-                channels=request.env.context["channels"] | chats_looking_for_help
-            )
-        if name == "/im_livechat/session/data":
-            channel_id = params.get("channel_id")
-            if not channel_id:
-                return
-            channel = request.env["discuss.channel"].search([("id", "=", channel_id)])
-            if not channel:
-                return
-            fields_to_store = channel._get_livechat_session_fields_to_store()
-            store.add(channel, fields=fields_to_store)
-        if name == "/im_livechat/fetch_self_expertise":
-            store.add(request.env.user, Store.Many("livechat_expertise_ids", ["name"]))
+    @store_handler("im_livechat.channel")
+    def store_im_livechat_channel(self, store: Store):
+        store.add(request.env["im_livechat.channel"].search([]), ["are_you_inside", "name"])
+
+    @store_handler("/im_livechat/session/data")
+    def store_im_livechat_session_data(self, store: Store, channel_id):
+        if not channel_id:
+            return
+        channel = request.env["discuss.channel"].search([("id", "=", channel_id)])
+        store.add(channel, "_store_livechat_extra_fields")
+
+    @store_handler("/im_livechat/fetch_self_expertise")
+    def store_im_livechat_fetch_self_expertise(self, store: Store):
+        store.add(request.env.user, lambda res: res.many("livechat_expertise_ids", ["name"]))
+
+    @store_handler("init_livechat", audience="everyone", readonly=False)
+    def store_init_livechat(self, store: Store, livechat_channel_id=None):
+        store.add_global_values(
+            lambda res: self._store_init_livechat_fields(res, livechat_channel_id),
+        )
 
     @classmethod
-    def _process_request_for_all(self, store: Store, name, params):
-        super()._process_request_for_all(store, name, params)
-        if name == "init_livechat":
-            partner, guest = request.env["res.partner"]._get_current_persona()
-            if partner:
-                store.add_global_values(self_partner=Store.One(partner, extra_fields="email"))
-            if guest:
-                store.add_global_values(self_guest=Store.One(guest))
-            # sudo - im_livechat.channel: allow access to live chat channel to
-            # check if operators are available.
-            channel = request.env["im_livechat.channel"].sudo().search([("id", "=", params)])
-            if not channel:
-                return
-            country_id = (
-                # sudo - res.country: accessing user country is allowed.
-                request.env["res.country"].sudo().search([("code", "=", code)]).id
-                if (code := request.geoip.country_code)
-                else None
-            )
-            url = request.httprequest.headers.get("Referer")
-            if (
-                # sudo - im_livechat.channel.rule: getting channel's rule is allowed.
-                matching_rule := request.env["im_livechat.channel.rule"]
-                .sudo()
-                .match_rule(params, url, country_id)
-            ):
-                matching_rule = matching_rule.with_context(
-                    lang=request.env["chatbot.script"]._get_chatbot_language(),
-                )
-                store.add_global_values(livechat_rule=Store.One(matching_rule))
-            store.add_global_values(
-                livechat_available=matching_rule.action != "hide_button"
-                and bool(matching_rule._is_bot_configured() or channel.available_operator_ids),
-                can_download_transcript=bool(
-                    request.env.ref("im_livechat.action_report_livechat_conversation", False),
+    def _store_init_livechat_fields(cls, res: Store.FieldList, params):
+        user = request.env.user
+        if user and not user._is_public():
+            res.one(
+                "self_user",
+                lambda res: res.one(
+                    "partner_id",
+                    lambda res: (
+                        res.from_method("_store_partner_fields"),
+                        res.attr("email"),
+                    ),
                 ),
+                value=user,
             )
+        if guest := request.env["mail.guest"]._get_guest_from_context():
+            res.one(
+                "self_guest",
+                lambda res: (
+                    res.from_method("_store_avatar_fields"),
+                    res.from_method("_store_im_status_fields"),
+                ),
+                value=guest,
+            )
+        # sudo - im_livechat.channel: allow access to live chat channel to
+        # check if operators are available.
+        channel = request.env["im_livechat.channel"].sudo().search([("id", "=", params)])
+        if not channel:
+            return
+        country_id = (
+            # sudo - res.country: accessing user country is allowed.
+            request.env["res.country"].sudo().search([("code", "=", code)]).id
+            if (code := request.geoip.country_code)
+            else None
+        )
+        url = request.httprequest.headers.get("Referer")
+        if (
+            # sudo - im_livechat.channel.rule: getting channel's rule is allowed.
+            matching_rule := request.env["im_livechat.channel.rule"]
+            .sudo()
+            .match_rule(params, url, country_id)
+        ):
+            matching_rule = matching_rule.with_context(
+                lang=request.env["chatbot.script"]._get_chatbot_language(),
+            )
+            res.one("livechat_rule", "_store_channel_rule_fields", value=matching_rule)
+        res.attr(
+            "livechat_available",
+            matching_rule.action != "hide_button"
+            and bool(matching_rule._is_bot_configured() or channel.available_operator_ids),
+        )
+        res.attr(
+            "can_download_transcript",
+            bool(request.env.ref("im_livechat.action_report_livechat_conversation", False)),
+        )

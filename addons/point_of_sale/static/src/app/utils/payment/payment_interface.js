@@ -6,11 +6,10 @@
  *
  * To connect the interface to the right payment methods register it:
  *
- * import { register_payment_method } models from "@point_of_sale/app/store/pos_store";
- * register_payment_method('my_payment', MyPayment);
+ * import { registry } models from "@web/core/registry";
+ * registry.category("pos_payment_providers").add("my_payment", MyPayment);
  *
- * my_payment is the technical name of the added selection in
- * use_payment_terminal.
+ * my_payment is the technical name of the added selection in payment_provider
  *
  * If necessary new fields can be loaded on any model:
  * by overriding the loader_params of the models in the back end
@@ -24,18 +23,23 @@ export class PaymentInterface {
     setup(pos, payment_method_id) {
         this.env = pos.env;
         this.pos = pos;
+        this.notification = pos.notification;
+        this.orm = pos.data.orm;
+        this.dialog = pos.dialog;
         this.payment_method_id = payment_method_id;
-        this.supports_reversals = false;
+        this.supports_refunds = true;
     }
 
     /**
-     * This getter determines if send_payment_request
-     * is called automatically upon selecting the payment method.
-     * Overriding this to false allows manual input of an amount
-     * before sending the request to the terminal.
+     * This getter is used for cash machines to display the amount
+     * of money that has been inserted in real time. If a number is
+     * returned, it will be shown as a formatted currency in the
+     * payment line display.
+     *
+     * @returns {number | null}
      */
-    get fastPayments() {
-        return true;
+    get amountInserted() {
+        return null;
     }
 
     /**
@@ -49,12 +53,12 @@ export class PaymentInterface {
      * should also set card_type and transaction_id on the line for
      * successful transactions.
      *
-     * @param {string} uuid - The uuid of the paymentline
+     * @param {Object} line - The payment line object
      * @returns {Promise} resolved with a boolean that is false when
      * the payment should be retried. Rejected when the status of the
      * paymentline will be manually updated.
      */
-    sendPaymentRequest(uuid) {}
+    async sendPaymentRequest(line) {}
 
     /**
      * Called when a user removes a payment line that's still waiting
@@ -64,23 +68,10 @@ export class PaymentInterface {
      * them. The payment line being cancelled will be deleted
      * automatically after the returned promise resolves.
      *
-     * @param {} order - The order of the paymentline
-     * @param {string} uuid - The id of the paymentline
+     * @param {Object} line - The payment line object
      * @returns {Promise}
      */
-    sendPaymentCancel(order, uuid) {}
-
-    /**
-     * This is an optional method. When implementing this make sure to
-     * call enable_reversals() in the constructor of your
-     * interface. This should reverse a previous payment with status
-     * 'done'. The paymentline will be removed based on returned
-     * Promise.
-     *
-     * @param {string} uuid - The id of the paymentline
-     * @returns {Promise} returns true if the reversal was successful.
-     */
-    sendPaymentReversal(uuid) {}
+    async sendPaymentCancel(line) {}
 
     /**
      * Called when the payment screen in the POS is closed (by
@@ -88,4 +79,47 @@ export class PaymentInterface {
      * progress payments.
      */
     close() {}
+
+    /**
+     * This method is a helper for the payment terminal to
+     * subscribe to its corresponding bus messages in the backend,
+     * enabling webhook payment confirmations.
+     *
+     * @param {string} channel - The message channel to subscribe to
+     * @param {(message) => void} callback - The callback to run
+     */
+    connectWebSocket(channel, callback) {
+        if (!this.pos.data.channels.some((channelInfo) => channelInfo.channel === channel)) {
+            this.pos.data.connectWebSocket(channel, callback);
+        }
+    }
+
+    /**
+     * This wraps calls to actions on the `pos.payment.method` model.
+     * It should always be used instead of calling the ORM directly, so
+     * that it can be overridden in e.g. `pos_self_order`.
+     *
+     * @param {string} method - The action to call on `pos.payment.method`
+     * @param {any[]} params - The action params to send
+     */
+    async callPaymentMethod(method, params) {
+        return await this.env.services.orm.silent.call("pos.payment.method", method, params);
+    }
+
+    /**
+     * Return true if the amount that was authorized can be modified,
+     * false otherwise
+     * @param {string} uuid - The id of the paymentline
+     */
+    canBeAdjusted(uuid) {
+        return false;
+    }
+
+    /**
+     * Called when the amount authorized by a payment request should
+     * be adjusted to account for a new order line, it can only be called if
+     * canBeAdjusted returns True
+     * @param {string} uuid - The id of the paymentline
+     */
+    sendPaymentAdjust(uuid) {}
 }

@@ -1,4 +1,3 @@
-# Part of Odoo. See LICENSE file for full copyright and licensing details.
 {
     'name': 'Pakistan - Accounting',
     'website': 'https://www.odoo.com/documentation/latest/applications/finance/fiscal_localizations.html',
@@ -18,11 +17,18 @@ Activates:
 - Tax Report
 - Withholding Tax Report
     """,
-    'depends': ['account'],
+    'depends': [
+        'account',
+        'account_tax_python',
+        'l10n_account_withholding_tax',
+        'product',
+    ],
     'auto_install': ['account'],
     'data': [
-        'data/account_tax_vat_report.xml',
-        'data/account_tax_wh_report.xml',
+        'data/ir_actions_server_data.xml',
+        'data/ir_config_data.xml',
+        'data/res_country_data.xml',
+        'views/account_tax_views.xml',
     ],
     'demo': [
         'demo/res_partner_demo.xml',

@@ -1,13 +1,5 @@
 $o-discuss-talkingColor: lighten($success, 10%);
 
-.o-mail-discussSidebarBgColor {
-    background-color: $white !important;
-}
-
-.o-mail-brighter {
-    filter: brightness(1.2);
-}
-
 .o-mail-emoji {
     font-size: 121%;
     line-height: $display-line-height;
@@ -21,12 +13,8 @@ $o-discuss-talkingColor: lighten($success, 10%);
     background-color: $body-bg !important;
 }
 
-.o-border-opacity-25 {
-    --border-opacity: 0.25;
-}
-
-.o-border-opacity-50 {
-    --border-opacity: 0.5;
+.o-border-opacity-7_5 {
+    --border-opacity: 0.075;
 }
 
 .o-discuss-badge {
@@ -39,7 +27,7 @@ $o-discuss-talkingColor: lighten($success, 10%);
         padding: 3px 4px;
 
         &.o-muted {
-            --o-discuss-badge-bg: #{$gray-400};
+            --o-discuss-badge-bg: #{var(--mail-discuss-badge-mutedBg, mix($gray-500, $gray-600))};
         }
     }
 
@@ -48,12 +36,46 @@ $o-discuss-talkingColor: lighten($success, 10%);
     }
 }
 
+.o-discuss-warningBadge {
+    background-color: $warning !important;
+}
+
 @function o-rounded-bubble() {
-    @return calc((#{$border-radius} + #{$border-radius-lg}) * 3 / 4);
+    @return calc((#{$border-radius} + #{$border-radius-lg}) * 7 / 8);
+}
+
+// Colors used to tint a `bubbleColor`-ed message's bubble.
+// See `o-bubble-color-vars` below.
+$o-bubble-colors: (
+    'o-blue': $info,
+    'o-green': $success,
+    'o-orange': $warning,
+);
+
+// Sets the CSS custom properties of bubbleColor. These are consumed by
+// specific component that wants the bubbleColor tint with the color
+// registered for $type in $o-bubble-colors.
+@mixin o-bubble-color-vars($type) {
+    $_color: map-get($o-bubble-colors, $type);
+    $_border-base: mix($_color, $body-color, 75%);
+    // The orange bubble marks an important message: given it more tint/contrast
+    // than the other colors makes it stand out in the conversation at a glance.
+    $_bg-ratio: if($type == 'o-orange', 80%, 90%);
+    $_border-ratio: if($type == 'o-orange', 65%, 80%);
+    --o-bubble-bg: #{mix($o-view-background-color, $_color, $_bg-ratio)};
+    --o-bubble-bg-muted: #{color-mix(
+        in srgb,
+        #{$o-view-background-color} 97.5%,
+        var(--o-bubble-color-base) 2.5%
+    )};
+    --o-bubble-border-color: #{mix($o-view-background-color, $_border-base, $_border-ratio)};
+    --o-bubble-color-base: #{$_color};
 }
 
 .o-discuss-dropdownMenu {
     --Dropdown_menu-margin-y: 0;
+
+    padding: $dropdown-padding-y $dropdown-padding-x;
 
     &.o-simulateDarkTheme {
         background-color: $gray-800;
@@ -63,16 +85,12 @@ $o-discuss-talkingColor: lighten($success, 10%);
             color: white;
         }
 
-        select, .form-check-input {
-            border-color: $gray-600;
-        }
-
-        .form-select {
-            --#{$prefix}form-select-bg-img: #{escape-svg($form-select-indicator-dark)};
+        .btn, .o-dropdown-item {
+            --gradient: transparent;
         }
 
         .form-switch .form-check-input {
-            &:not(:checked):not(:focus) {
+            &:checked {
                 --#{$prefix}form-switch-bg: #{escape-svg($form-switch-bg-image-dark)};
             }
         }
@@ -82,9 +100,44 @@ $o-discuss-talkingColor: lighten($success, 10%);
         }
     }
 
-    .o_bottom_sheet_sheet:has(&) {
-        background-color: $gray-100;
-        box-shadow: unset !important;
+    .popover-arrow {
+        --position-max: calc(100% - #{map-get($spacers, 4)});
+    }
+
+    .dropdown-item {
+        --#{$prefix}dropdown-item-padding-y: #{$dropdown-item-padding-y};
+        --#{$prefix}dropdown-item-padding-x: #{$dropdown-item-padding-x};
+        --#{$prefix}dropdown-item-border-radius: calc(#{$dropdown-border-radius - $dropdown-padding-x});
+        --#{$prefix}gradient: 0;
+
+        font-size: $dropdown-font-size;
+
+        &:hover {
+            background-color: $dropdown-link-hover-bg;
+        }
+    }
+}
+
+.o-discuss-ellipsisButton {
+    @include material-icon-base;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1;
+    padding: 0;
+    border-radius: 50%;
+    --btn-border-color: #{rgba($dark, var(--o-discuss-ellipsisButton-mutedBorderOpacity, .5))};
+    --btn-hover-border-color: #{$dark};
+    --btn-active-border-color: #{$o-action};
+    --btn-hover-color: #{color-contrast($light)};
+    --btn-active-color: #{color-contrast($light)};
+
+    &::before {
+        content: "more_horiz" / ""; // empty alt text: keeps the ligature out of the accessible name
+        font-size: map-get($icon-sizes, 'lg'); // .oi-lg
+        width: #{$oi-fw-ratio}em; // .oi-fw
+        text-align: center;
     }
 }
 
@@ -109,16 +162,20 @@ $o-discuss-talkingColor: lighten($success, 10%);
     }
 }
 
-.o-fw-600 {
-    font-weight: 600;
+.o-dvh-100 {
+    height: 100dvh;
+}
+
+.o-inset-0 {
+    inset: 0;
+}
+
+.o-min-dvh-100 {
+    min-height: 100dvh;
 }
 
 .o-min-height-0 {
     min-height: 0;
-}
-
-.o-min-width-0 {
-    min-width: 0;
 }
 
 .o-opacity-35 {
@@ -127,10 +184,6 @@ $o-discuss-talkingColor: lighten($success, 10%);
 
 .o-opacity-65 {
     opacity: 65%;
-}
-
-.o-outline-secondary {
-    outline: 1px solid $o-gray-300;
 }
 
 .o-hover-text-underline:hover {
@@ -282,6 +335,10 @@ $o-mail-utilities: map-merge(
     color: #FFF !important;
 }
 
+.o-text-wrap-balance {
+    text-wrap: balance;
+}
+
 .o-xsmaller {
     font-size: 0.65rem;
 }
@@ -290,24 +347,8 @@ $o-mail-utilities: map-merge(
     font-size: 0.5rem;
 }
 
-.o-xxxs {
-    font-size: 0.35rem;
-}
-
 .o-yellow {
     color: $yellow;
-}
-
-.o-info {
-    color: $o-info;
-}
-
-.o-secondary {
-    color: var(--o-secondary, mix($o-gray-200, $o-gray-300));
-}
-
-.o-warning {
-    color: $o-warning;
 }
 
 @mixin o-mail-call-bordered($opacity) {
@@ -355,9 +396,9 @@ $o-mail-utilities: map-merge(
 
 a.o_mail_redirect, a.o_channel_redirect, a.o-discuss-mention, a.o_message_redirect_transformed {
     user-select: none;
-    border-radius: $btn-border-radius-sm;
-    padding: 0rem 0.15rem;
-    margin: 0rem 0.025rem;
+    border-radius: $btn-border-radius-lg;
+    padding: 0rem 0.25rem;
+    margin: 0rem;
     outline: 1px solid;
     outline-offset: -1px;
     font-weight: $font-weight-bold;
@@ -373,19 +414,20 @@ a.o-discuss-mention {
     cursor: default !important;
 }
 
-.o-discuss-inCallIconColor {
+.o-discuss-inCallIcon {
+    @include o-mail-call-bordered(.35);
     color: $o-action;
+    aspect-ratio: 1;
+
+
+    &.o-muted {
+        border-color: $gray-400 !important;
+        color: $gray-700;
+    }
 }
 
 .o-mail-DiscussSystray {
     --border-color: #{$o-gray-300} !important; // cancel custom border color of dropdown
-}
-
-.o-mail-DiscussSystray-class {
-    margin-top: - $o-navbar-padding-v; // cancel navbar padding
-    margin-bottom: - $o-navbar-padding-v; // cancel navbar padding
-    display: flex;
-    align-items: center;
 }
 
 .o-mail-systrayFullscreenDropdownMenu {
@@ -394,8 +436,11 @@ a.o-discuss-mention {
     border-radius: 0 !important;
 }
 
-.o-pointer-events-none {
-    pointer-events: none;
+.o-disable-safari-native-long-press {
+    // Prevent user selection so that this isn't accidentally triggered with long-press.
+    -webkit-touch-callout: none; // disable iOS Safari native selection UI
+    -webkit-user-select: none; // disable iOS Safari native selection UI
+    user-select: none;
 }
 
 .o-visible-short-delay {
@@ -417,7 +462,21 @@ a.o-discuss-mention {
     }
 }
 
-.o-mail-starred {
+.o-mail-favorite {
     color: $o-main-favorite-color;
     filter: drop-shadow(1px 1px 0px #000000b0);
+}
+
+.o_popover_card {
+    --card-bg: #{$popover-bg};
+    --card-border-color: #{$popover-border-color};
+    --card-border-radius: #{$popover-border-radius};
+    --card-border-width: 0;
+
+    overflow: hidden;
+
+    max-width: 380px;
+    @media screen  and (max-width: 480px) {
+        max-width: 90vw;
+    }
 }

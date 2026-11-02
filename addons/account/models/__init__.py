@@ -1,3 +1,4 @@
+from . import res_currency_rate_consolidation_mixin
 from . import sequence_mixin
 from . import account_document_import_mixin
 from . import partner
@@ -29,6 +30,7 @@ from . import account_analytic_line
 from . import account_journal_dashboard
 from . import product
 from . import product_catalog_mixin
+from . import product_catalog_line_mixin
 from . import company
 from . import res_config_settings
 from . import res_country_group
@@ -44,10 +46,11 @@ from . import ir_http
 from . import ir_module
 from . import mail_message
 from . import mail_template
-from . import mail_tracking_value
 from . import merge_partner_automatic
 from . import res_currency
 from . import account_report
 from . import onboarding_onboarding_step
 from . import template_generic_coa
 from . import uom_uom
+
+from . import res_groups

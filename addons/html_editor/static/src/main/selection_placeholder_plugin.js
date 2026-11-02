@@ -1,8 +1,8 @@
 import { Plugin } from "@html_editor/plugin";
 import { closestBlock, isBlock } from "@html_editor/utils/blocks";
-import { fillEmpty } from "@html_editor/utils/dom";
 import {
     allowsParagraphRelatedElements,
+    isContentEditable,
     isEmpty,
     isNotEditableNode,
     isPhrasingContent,
@@ -11,6 +11,7 @@ import {
     closestElement,
     getAdjacentNextSiblings,
     getAdjacentPreviousSiblings,
+    selectElements,
 } from "@html_editor/utils/dom_traversal";
 import { withSequence } from "@html_editor/utils/resource";
 
@@ -20,16 +21,17 @@ const PLACEHOLDER_SELECTOR = `[${PLACEHOLDER_ATTRIBUTE}]`;
 
 export class SelectionPlaceholderPlugin extends Plugin {
     static id = "selectionPlaceholder";
-    static dependencies = ["baseContainer", "history", "selection"];
+    static dependencies = ["baseContainer", "history", "selection", "domObserver"];
     resources = {
-        external_history_step_handlers: this.updatePlaceholders.bind(this),
-        normalize_handlers: withSequence(100, this.updatePlaceholders.bind(this)),
-        step_added_handlers: this.updatePlaceholders.bind(this),
-        selectionchange_handlers: (selectionData) => this.onSelectionChange(selectionData),
-        clean_for_save_handlers: withSequence(0, ({ root }) => {
+        on_remote_history_commits_applied_handlers: this.updatePlaceholders.bind(this),
+        normalize_processors: withSequence(100, this.updatePlaceholders.bind(this)),
+        on_committed_to_history_handlers: this.updatePlaceholders.bind(this),
+        on_selectionchange_handlers: (selectionData) => this.onSelectionChange(selectionData),
+        clean_for_save_processors: withSequence(0, (root) => {
             for (const placeholder of root.querySelectorAll(PLACEHOLDER_SELECTOR)) {
                 placeholder.remove();
             }
+            return root;
         }),
         split_element_block_overrides: ({ blockToSplit }) => {
             if (blockToSplit.hasAttribute(PLACEHOLDER_ATTRIBUTE)) {
@@ -37,22 +39,33 @@ export class SelectionPlaceholderPlugin extends Plugin {
                 return true;
             }
         },
-        selection_blocker_predicates: (blocker) => {
-            if (isNotEditableNode(blocker)) {
-                return isBlock(blocker);
-            }
-        },
-        selection_placeholder_container_predicates: (container) => {
+        is_selection_blocker_predicates: (blocker) => {
             if (
-                container.getAttribute("contenteditable") === "true" &&
-                !isPhrasingContent(container) &&
-                allowsParagraphRelatedElements(container)
+                (blocker.nodeType === Node.ELEMENT_NODE &&
+                    blocker.hasAttribute(PLACEHOLDER_ATTRIBUTE)) ||
+                !isBlock(blocker)
             ) {
+                return false;
+            } else if (isNotEditableNode(blocker)) {
                 return true;
             }
         },
-        power_buttons_visibility_predicates: ({ anchorNode }) =>
-            !closestElement(anchorNode, PLACEHOLDER_SELECTOR),
+        can_contain_selection_placeholder_predicates: (container) => {
+            if (
+                !isContentEditable(container) ||
+                isPhrasingContent(container) ||
+                !allowsParagraphRelatedElements(container)
+            ) {
+                return false;
+            } else if (container.getAttribute("contenteditable") === "true") {
+                return true;
+            }
+        },
+        should_show_power_buttons_predicates: ({ anchorNode }) => {
+            if (closestElement(anchorNode, PLACEHOLDER_SELECTOR)) {
+                return false;
+            }
+        },
         move_node_blacklist_selectors: PLACEHOLDER_SELECTOR,
         system_node_selectors: PLACEHOLDER_SELECTOR,
         system_classes: BLINKER_CLASS,
@@ -74,16 +87,13 @@ export class SelectionPlaceholderPlugin extends Plugin {
      * Update all placeholders and blinker classes so they are present
      * everywhere we need them, and absent wherever they are not useful.
      */
-    updatePlaceholders() {
-        const checkPredicate = (resourceId, node) => {
-            const results = this.getResource(resourceId)
-                .map((p) => p(node))
-                .filter((result) => result !== undefined);
-            return !!results.length && results.every(Boolean);
-        };
-        const isSelectionBlocker = (node) => checkPredicate("selection_blocker_predicates", node);
-        const placeholderParents = [this.editable, ...this.editable.querySelectorAll("*")].filter(
-            (container) => checkPredicate("selection_placeholder_container_predicates", container)
+    updatePlaceholders(root = this.editable) {
+        const isSelectionBlocker = (node) =>
+            this.checkPredicates("is_selection_blocker_predicates", node) ?? false;
+        const placeholderParents = selectElements(this.editable, "*").filter(
+            (container) =>
+                this.checkPredicates("can_contain_selection_placeholder_predicates", container) ??
+                false
         );
 
         const marginUpdates = [];
@@ -126,7 +136,6 @@ export class SelectionPlaceholderPlugin extends Plugin {
                 if (!sibling || isSelectionBlocker(sibling)) {
                     // Create the placeholder.
                     const placeholder = this.dependencies.baseContainer.createBaseContainer();
-                    fillEmpty(placeholder);
                     placeholder.setAttribute(PLACEHOLDER_ATTRIBUTE, "");
                     // Position the placeholder.
                     const siblings = side === "before" ? [sibling, blocker] : [blocker, sibling];
@@ -155,6 +164,7 @@ export class SelectionPlaceholderPlugin extends Plugin {
 
         // 3. Reset blinker classes.
         this.resetBlinkerClasses();
+        return root;
     }
 
     /**
@@ -240,8 +250,8 @@ export class SelectionPlaceholderPlugin extends Plugin {
             ) {
                 // If it's at the bottom of the document, just persist immediately.
                 this.persistPlaceholder(anchor);
-                if (this.dependencies.history.getIsCurrentStepModified()) {
-                    this.dependencies.history.addStep();
+                if (this.dependencies.domObserver.hasStagedMutations()) {
+                    this.dependencies.history.commit();
                 }
             }
         }

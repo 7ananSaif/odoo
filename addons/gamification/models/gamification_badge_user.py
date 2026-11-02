@@ -1,6 +1,9 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import _, api, fields, models
+from odoo.tools.translate import LazyTranslate
+
+_lt = LazyTranslate(__name__)
 
 
 class GamificationBadgeUser(models.Model):
@@ -32,7 +35,11 @@ class GamificationBadgeUser(models.Model):
         """
         body_html = self.env.ref('gamification.email_template_badge_received')._render_field('body_html', self.ids)[self.id]
         for badge_user in self:
-            badge_user.message_notify(
+            badge_user.with_context(
+                email_notification_force_header=True,
+                email_notification_force_footer=True,
+                email_notification_subtitles_highlight_index=1,
+            ).message_notify(
                 model=badge_user._name,
                 res_id=badge_user.id,
                 body=body_html,
@@ -40,12 +47,13 @@ class GamificationBadgeUser(models.Model):
                 subject=_("🎉 You've earned the %(badge)s badge!", badge=badge_user.badge_name),
                 subtype_xmlid='mail.mt_comment',
                 email_layout_xmlid='mail.mail_notification_layout',
+                subtitles=[_lt('Your Badge'), badge_user.badge_id.name or ''],
             )
 
         return True
 
-    def _notify_get_recipients_groups(self, message, model_description, msg_vals=False):
-        groups = super()._notify_get_recipients_groups(message, model_description, msg_vals)
+    def _notify_get_recipients_groups(self, message, model_description):
+        groups = super()._notify_get_recipients_groups(message, model_description)
         self.ensure_one()
         for group in groups:
             if group[0] == 'user':

@@ -1,51 +1,56 @@
-import { _t } from "@web/core/l10n/translation";
 import { hasTouch } from "@web/core/browser/feature_detection";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { makeContext } from "@web/core/context";
 import { useDebugCategory } from "@web/core/debug/debug_context";
+import { _t } from "@web/core/l10n/translation";
+import { evaluateBooleanExpr } from "@web/core/py_js/py";
 import { registry } from "@web/core/registry";
-import { SIZES } from "@web/core/ui/ui_service";
+import { SIZES } from "@web/core/ui/ui_utils";
 import { user } from "@web/core/user";
 import { useBus, useService } from "@web/core/utils/hooks";
 import { omit } from "@web/core/utils/objects";
 import { createElement, parseXML } from "@web/core/utils/xml";
-import { evaluateBooleanExpr } from "@web/core/py_js/py";
-import { useSetupAction } from "@web/search/action_hook";
-import { Layout } from "@web/search/layout";
-import { usePager } from "@web/search/pager_hook";
-import { standardViewProps } from "@web/views/standard_view_props";
-import { isX2Many } from "@web/views/utils";
-import { executeButtonCallback, useViewButtons } from "@web/views/view_button/view_button_hook";
-import { ViewButton } from "@web/views/view_button/view_button";
-import { Field } from "@web/views/fields/field";
 import { useModel } from "@web/model/model";
 import { addFieldDependencies, extractFieldsFromArchInfo } from "@web/model/relational_model/utils";
+import { render, useEnv, useSubEnv } from "@web/owl2/utils";
+import { useSetupAction } from "@web/search/action_hook";
+import { STATIC_ACTIONS_GROUP_NUMBER } from "@web/search/action_menus/action_menus";
+import { Layout } from "@web/search/layout";
+import { usePager } from "@web/search/pager_hook";
+import { Field } from "@web/views/fields/field";
+import { standardViewProps } from "@web/views/standard_view_props";
+import { isX2Many } from "@web/views/utils";
+import { ViewButton } from "@web/views/view_button/view_button";
+import { executeButtonCallback, useViewButtons } from "@web/views/view_button/view_button_hook";
 import { useViewCompiler } from "@web/views/view_compiler";
 import { useDeleteRecords } from "@web/views/view_hook";
 import { Widget } from "@web/views/widgets/widget";
-import { STATIC_ACTIONS_GROUP_NUMBER } from "@web/search/action_menus/action_menus";
 
 import { ButtonBox } from "./button_box/button_box";
+import { FormCogMenu } from "./form_cog_menu/form_cog_menu";
 import { FormCompiler } from "./form_compiler";
 import { FormErrorDialog } from "./form_error_dialog/form_error_dialog";
-import { FormStatusIndicator } from "./form_status_indicator/form_status_indicator";
-import { FormCogMenu } from "./form_cog_menu/form_cog_menu";
+import {
+    FormStatusIndicator,
+    useStatusIndicator,
+} from "./form_status_indicator/form_status_indicator";
 
 import {
     Component,
+    effect,
     onError,
     onMounted,
-    onRendered,
+    onPatched,
+    onWillDestroy,
     onWillUnmount,
-    status,
-    useComponent,
-    useEffect,
-    useRef,
-    useState,
-    useSubEnv,
+    proxy,
+    signal,
+    t,
+    usePlugin,
+    useProps,
 } from "@odoo/owl";
+import { OfflinePlugin } from "@web/core/offline/offline_plugin";
 import { FetchRecordError } from "@web/model/relational_model/errors";
-import { effect } from "@web/core/utils/reactive";
 
 const viewRegistry = registry.category("views");
 
@@ -111,16 +116,36 @@ export async function loadSubViews(fieldNodes, fields, context, resModel, viewSe
 }
 
 export function useFormViewInDialog() {
-    const component = useComponent();
+    const env = useEnv();
     onMounted(() => {
-        component.env.bus.trigger("FORM-CONTROLLER:FORM-IN-DIALOG:ADD");
+        env.bus.trigger("FORM-CONTROLLER:FORM-IN-DIALOG:ADD");
     });
 
     onWillUnmount(() => {
-        component.env.bus.trigger("FORM-CONTROLLER:FORM-IN-DIALOG:REMOVE");
+        env.bus.trigger("FORM-CONTROLLER:FORM-IN-DIALOG:REMOVE");
     });
 }
 // -----------------------------------------------------------------------------
+
+export const formControllerProps = {
+    ...standardViewProps,
+    discardRecord: t.function().optional(),
+    readonly: t.boolean().optional(false),
+    saveRecord: t.function().optional(),
+    removeRecord: t.function().optional(),
+    Model: t.function(),
+    Renderer: t.function(),
+    Compiler: t.function(),
+    archInfo: t.object(),
+    buttonTemplate: t.string(),
+    buttonDialogTemplate: t.string(),
+    preventCreate: t.boolean().optional(false),
+    preventEdit: t.boolean().optional(false),
+    onDiscard: t.function().optional(),
+    onSave: t.function().optional(() => () => {}),
+    offlineId: t.string().optional(),
+    updateActionState: t.function().optional(() => () => {}),
+};
 
 export class FormController extends Component {
     static template = `web.FormView`;
@@ -134,27 +159,9 @@ export class FormController extends Component {
         Widget,
     };
 
-    static props = {
-        ...standardViewProps,
-        discardRecord: { type: Function, optional: true },
-        readonly: { type: Boolean, optional: true },
-        saveRecord: { type: Function, optional: true },
-        removeRecord: { type: Function, optional: true },
-        Model: Function,
-        Renderer: Function,
-        Compiler: Function,
-        archInfo: Object,
-        buttonTemplate: String,
-        preventCreate: { type: Boolean, optional: true },
-        preventEdit: { type: Boolean, optional: true },
-        onDiscard: { type: Function, optional: true },
-        onSave: { type: Function, optional: true },
-    };
-    static defaultProps = {
-        preventCreate: false,
-        preventEdit: false,
-        updateActionState: () => {},
-    };
+    props = useProps(formControllerProps);
+
+    rootRef = signal.ref();
 
     setup() {
         this.evaluateBooleanExpr = evaluateBooleanExpr;
@@ -163,7 +170,8 @@ export class FormController extends Component {
         this.orm = useService("orm");
         this.viewService = useService("view");
         this.ui = useService("ui");
-        useBus(this.ui.bus, "resize", this.render);
+        this.offlinePlugin = usePlugin(OfflinePlugin);
+        useBus(this.ui.bus, "resize", () => render(this));
 
         this.archInfo = this.props.archInfo;
         const { create, edit } = this.archInfo.activeActions;
@@ -180,6 +188,8 @@ export class FormController extends Component {
         useBus(this.env.bus, "FORM-CONTROLLER:FORM-IN-DIALOG:ADD", () => this.formInDialog++);
         useBus(this.env.bus, "FORM-CONTROLLER:FORM-IN-DIALOG:REMOVE", () => this.formInDialog--);
 
+        this.disableSaveOnVisibilityChange = false;
+
         // Wait to be mounted before displaying dialog/notification for onchange warnings returned
         // by the first onchange, for 2 reasons:
         //  1) we don't want to show twice the warning if the component is destroyed before being
@@ -195,7 +205,7 @@ export class FormController extends Component {
                 this.props.context,
                 this.props.resModel,
                 this.viewService,
-                this.env.isSmall
+                this.ui.isSmall
             );
             const { activeFields, fields } = extractFieldsFromArchInfo(
                 this.archInfo,
@@ -209,23 +219,21 @@ export class FormController extends Component {
             this.model.config.activeFields = activeFields;
             this.model.config.fields = fields;
         };
-        this.model = useState(useModel(this.props.Model, this.modelParams, { beforeFirstLoad }));
+        this.model = proxy(useModel(this.props.Model, this.modelParams, { beforeFirstLoad }));
         useSubEnv({ model: this.model });
+
+        let disposeEffect = () => {};
         onMounted(() => {
-            effect(
-                (model) => {
-                    if (status(this) === "mounted") {
-                        this.props.updateActionState({ resId: model.root.resId });
-                    }
-                },
-                [this.model]
-            );
+            disposeEffect = effect(() => {
+                this.props.updateActionState({ resId: this.model.root.resId });
+            });
         });
+        onWillDestroy(disposeEffect);
 
         onError((error) => {
-            const suggestedCompany = error.cause?.data?.context?.suggested_company;
+            const suggestedCompany = error.data?.context?.suggested_company;
             if (
-                error.cause?.data?.name === "odoo.exceptions.AccessError" &&
+                error.data?.name === "odoo.exceptions.AccessError" &&
                 suggestedCompany &&
                 !this.env.inDialog
             ) {
@@ -261,7 +269,6 @@ export class FormController extends Component {
             this.buttonBoxTemplate = buttonBoxTemplates.ButtonBox;
         }
 
-        this.rootRef = useRef("root");
         useViewButtons(this.rootRef, {
             beforeExecuteAction: this.beforeExecuteActionButton.bind(this),
             afterExecuteAction: this.afterExecuteActionButton.bind(this),
@@ -291,7 +298,15 @@ export class FormController extends Component {
 
         usePager(() => {
             if (!this.model.root.isNew) {
-                const resIds = this.model.root.resIds;
+                let resIds = this.model.root.resIds;
+                if (this.offlinePlugin.isOffline()) {
+                    const actionId = this.env.config.actionId;
+                    resIds = resIds.filter(
+                        (resId) =>
+                            resId === this.model.root.resId ||
+                            this.offlinePlugin.isAvailableOffline(actionId, "form", resId)
+                    );
+                }
                 return {
                     offset: resIds.indexOf(this.model.root.resId),
                     limit: 1,
@@ -301,30 +316,36 @@ export class FormController extends Component {
             }
         });
 
-        onRendered(() => {
-            this.env.config.setDisplayName(this.displayName());
-        });
-
         const { disableAutofocus } = this.archInfo;
         if (!disableAutofocus) {
-            useEffect(
-                (isInEdition) => {
-                    if (
-                        !isInEdition &&
-                        !this.rootRef.el
-                            .querySelector(".o_content")
-                            .contains(document.activeElement)
-                    ) {
-                        const elementToFocus = this.rootRef.el.querySelector(
-                            ".o_content button.btn-primary"
-                        );
-                        if (elementToFocus) {
-                            elementToFocus.focus();
-                        }
+            const focusPrimaryButton = () => {
+                const rootEl = this.rootRef();
+                if (
+                    !this.model.root.isInEdition &&
+                    !rootEl.querySelector(".o_content").contains(document.activeElement)
+                ) {
+                    const elementToFocus = rootEl.querySelector(".o_content button.btn-primary");
+                    if (elementToFocus) {
+                        elementToFocus.focus();
                     }
-                },
-                () => [this.model.root.isInEdition]
-            );
+                }
+            };
+            // Deliberately lifecycle-driven rather than a `useEffect`: the
+            // button to focus must be looked up in the *patched* DOM, and an
+            // effect fires when `isInEdition` changes, not after the patch it
+            // triggers.
+            let lastIsInEdition;
+            onMounted(() => {
+                lastIsInEdition = this.model.root.isInEdition;
+                focusPrimaryButton();
+            });
+            onPatched(() => {
+                const isInEdition = this.model.root.isInEdition;
+                if (isInEdition !== lastIsInEdition) {
+                    lastIsInEdition = isInEdition;
+                    focusPrimaryButton();
+                }
+            });
         }
 
         if (this.env.inDialog) {
@@ -332,6 +353,16 @@ export class FormController extends Component {
         }
 
         this.deleteRecordsWithConfirmation = useDeleteRecords(this.model);
+
+        this.propertiesState = proxy({
+            editable: false,
+        });
+        useSubEnv({ propertiesState: this.propertiesState });
+
+        this.statusIndicator = useStatusIndicator(this.model, {
+            save: () => this.saveButtonClicked(),
+            discard: () => this.discard(),
+        });
     }
 
     get cogMenuProps() {
@@ -361,15 +392,18 @@ export class FormController extends Component {
                 fields: this.props.fields,
                 activeFields: {}, // will be generated after loading sub views (see willStart)
                 isMonoRecord: true,
-                mode: this.props.readonly ? "readonly" : "edit",
+                mode: !this.props.readonly && this.canEdit ? "edit" : "readonly",
                 context: this.props.context,
             },
             state: this.props.state?.modelState,
             hooks: {
                 onWillLoadRoot: this.onWillLoadRoot.bind(this),
                 onWillSaveRecord: this.onWillSaveRecord.bind(this),
+                onRecordChanged: this.onRecordChanged.bind(this),
                 onRecordSaved: this.onRecordSaved.bind(this),
                 onWillDisplayOnchangeWarning: this.onWillDisplayOnchangeWarning.bind(this),
+                onRootLoaded: this.onRootLoaded.bind(this),
+                onRootUpdated: this.onRootUpdated.bind(this),
             },
             useSendBeaconToSaveUrgently: true,
         };
@@ -382,6 +416,31 @@ export class FormController extends Component {
      */
     onWillLoadRoot() {
         this.duplicateId = undefined;
+        if (this.propertiesState.editable) {
+            // Reset properties edit mode
+            this.propertiesState.editable = false;
+            this.model.bus.trigger("PROPERTY_FIELD:EDIT", { editable: false });
+        }
+    }
+
+    async onRootLoaded() {
+        await this.model.root.setOfflineChanges(this.props.offlineId);
+        this.env.config.setDisplayName(this.displayName());
+    }
+
+    onRootUpdated() {
+        this.env.config.setDisplayName(this.displayName());
+    }
+
+    onRecordChanged() {
+        this.disableSaveOnVisibilityChange = false;
+    }
+
+    get isNewButtonAvailableOffline() {
+        if (this.offlinePlugin.isAvailableOffline(this.env.config.actionId, "form", false)) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -459,7 +518,11 @@ export class FormController extends Component {
     }
 
     displayName() {
-        return this.model.root.data.display_name || (this.model.root.isNew && _t("New")) || "";
+        return (
+            this.model.root.data.display_name?.split("\n")[0] ||
+            (this.model.root.isNew && _t("New")) ||
+            ""
+        );
     }
 
     async onPagerUpdate({ offset, resIds }) {
@@ -473,6 +536,7 @@ export class FormController extends Component {
             } else {
                 await this.model.load({ resId: resIds[offset] });
             }
+            this.env.config.setDisplayName(this.displayName());
         } catch (e) {
             if (e instanceof FetchRecordError) {
                 this.model.load({
@@ -483,14 +547,39 @@ export class FormController extends Component {
         }
     }
 
-    beforeVisibilityChange() {
-        if (document.visibilityState === "hidden" && this.formInDialog === 0) {
-            return this.model.root.save();
+    async beforeVisibilityChange() {
+        const root = this.model.root;
+        const isEditingX2Many = Object.keys(root.activeFields).some((fieldName) => {
+            const field = root.fields[fieldName];
+            return (
+                ["one2many", "many2many"].includes(field.type) &&
+                !field.relatedPropertyField &&
+                root.data[fieldName].editedRecord
+            );
+        });
+        if (document.visibilityState === "hidden" && this.formInDialog === 0 && !isEditingX2Many) {
+            // calling isDirty forces all fields to commit their changes
+            const isDirty = await this.model.root.isDirty();
+            if (isDirty && !this.disableSaveOnVisibilityChange) {
+                const saved = await this.model.root.save({
+                    onError: (e) => {
+                        this.disableSaveOnVisibilityChange = true;
+                        throw e;
+                    },
+                });
+                if (!saved) {
+                    this.disableSaveOnVisibilityChange = true;
+                }
+            }
         }
     }
 
     async beforeLeave({ forceLeave } = {}) {
-        if (this.model.root.dirty && !forceLeave) {
+        if (forceLeave || this.skipSaveOnLeave) {
+            return true;
+        }
+        const isDirty = await this.model.root.isDirty();
+        if (isDirty) {
             return this.save({
                 reload: false,
                 onError: (error, options) => this.onSaveError(error, options, true),
@@ -499,6 +588,9 @@ export class FormController extends Component {
     }
 
     async beforeUnload(ev) {
+        if (!this.model.root) {
+            return;
+        }
         const succeeded = await this.model.root.urgentSave();
         if (!succeeded) {
             ev.preventDefault();
@@ -512,37 +604,47 @@ export class FormController extends Component {
             addPropertyFieldValue: {
                 isAvailable: () => activeActions.addPropertyFieldValue,
                 sequence: 10,
-                icon: "fa fa-cogs",
-                description: _t("Edit Properties"),
-                callback: () => this.model.bus.trigger("PROPERTY_FIELD:EDIT"),
+                description: this.propertiesState.editable
+                    ? _t("Save Properties")
+                    : _t("Edit Properties"),
+                icon: "settings_applications",
+                callback: () => {
+                    this.propertiesState.editable = !this.propertiesState.editable;
+                    this.model.bus.trigger("PROPERTY_FIELD:EDIT", {
+                        editable: this.propertiesState.editable,
+                    });
+                },
             },
             duplicate: {
                 isAvailable: () => activeActions.create && activeActions.duplicate,
                 sequence: 30,
-                icon: "fa fa-clone",
+                icon: "content_copy",
                 description: _t("Duplicate"),
                 callback: () => this.duplicateRecord(),
             },
             archive: {
                 isAvailable: () => this.archiveEnabled && this.model.root.isActive,
+                availableOffline: true,
                 sequence: 40,
                 description: _t("Archive"),
-                icon: "oi oi-archive",
+                icon: "archive",
                 callback: () => {
                     this.dialogService.add(ConfirmationDialog, this.archiveDialogProps);
                 },
             },
             unarchive: {
                 isAvailable: () => this.archiveEnabled && !this.model.root.isActive,
+                availableOffline: true,
                 sequence: 45,
-                icon: "oi oi-unarchive",
+                icon: "unarchive",
                 description: _t("Unarchive"),
                 callback: () => this.model.root.unarchive(),
             },
             delete: {
                 isAvailable: () => activeActions.delete && !this.model.root.isNew,
+                availableOffline: true,
                 sequence: 50,
-                icon: "fa fa-trash-o",
+                icon: "delete",
                 description: _t("Delete"),
                 class: "text-danger",
                 callback: () => this.deleteRecord(),
@@ -611,6 +713,7 @@ export class FormController extends Component {
             confirm: async () => {
                 await this.model.root.delete();
                 if (!this.model.root.resId) {
+                    this.skipSaveOnLeave = true;
                     this.env.config.historyBack();
                 }
             },
@@ -631,7 +734,8 @@ export class FormController extends Component {
                 const params = { reload: !(this.env.inDialog && clickParams.close) };
                 saved = await record.save(params);
             }
-            if (saved !== false && this.props.onSave) {
+            if (saved !== false) {
+                this.env.config.setDisplayName(this.displayName());
                 this.props.onSave(record, clickParams);
             }
             return saved;
@@ -665,7 +769,8 @@ export class FormController extends Component {
                 ...params,
             });
         }
-        if (saved && this.props.onSave) {
+        if (saved) {
+            this.env.config.setDisplayName(this.displayName());
             this.props.onSave(record, params);
         }
         return saved;

@@ -9,15 +9,14 @@
 # Martin Trigaux, 2022
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
-# "Marta (wacm)" <wacm@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-05 19:30+0000\n"
-"PO-Revision-Date: 2026-06-06 11:23+0000\n"
-"Last-Translator: \"Marta (wacm)\" <wacm@odoo.com>\n"
-"Language-Team: Czech <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 14:01+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Czech <https://translate.odoo.com/projects/odoo-s19-4/"
 "website_links/cs/>\n"
 "Language: cs\n"
 "MIME-Version: 1.0\n"
@@ -25,7 +24,18 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n "
 "<= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: website_links
+#: model:ir.module.module,description:base.module_website_links
+msgid ""
+"\n"
+"Generate short links with analytics trackers (UTM) to share your pages "
+"through marketing campaigns.\n"
+"Those trackers can be used in Google Analytics to track clicks and visitors, "
+"or in Odoo reports to analyze the efficiency of those campaigns in terms of "
+"lead generation, related revenues (sales orders), recruitment, etc.\n"
+msgstr ""
 
 #. module: website_links
 #. odoo-javascript
@@ -37,12 +47,22 @@ msgstr "počet kliknutí"
 #: model_terms:ir.ui.view,arch_db:website_links.create_shorten_url
 msgid ""
 "<a class=\"copy-to-clipboard btn btn-success text-nowrap "
-"o_translate_inline\"><i class=\"fa fa-copy me-2\"/>Copy</a>"
+"o_translate_inline\"><i class=\"oi me-2\" data-icon=\"content_copy\"/>Copy</"
+"a>\n"
+"                                        <a class=\"download-qr-code btn btn-"
+"info text-nowrap o_translate_inline\"><i class=\"oi align-middle me-2\" data-"
+"icon=\"qr_code\"/>Download QR Code</a>"
 msgstr ""
 
 #. module: website_links
 #: model_terms:ir.ui.view,arch_db:website_links.graphs
-msgid "<i class=\"fa fa-copy me-2\"/>Copy"
+msgid ""
+"<i class=\"oi align-middle me-2\" data-icon=\"qr_code\"/>Download QR Code"
+msgstr ""
+
+#. module: website_links
+#: model_terms:ir.ui.view,arch_db:website_links.graphs
+msgid "<i class=\"oi me-2\" data-icon=\"content_copy\"/>Copy"
 msgstr ""
 
 #. module: website_links
@@ -118,7 +138,7 @@ msgstr "<strong>Sledovaný odkaz</strong>"
 #. module: website_links
 #: model_terms:ir.ui.view,arch_db:website_links.graphs
 msgid "All Time"
-msgstr "Celé období"
+msgstr "Stále"
 
 #. module: website_links
 #: model_terms:ir.ui.view,arch_db:website_links.create_shorten_url
@@ -164,6 +184,11 @@ msgid "Generate Link Tracker"
 msgstr ""
 
 #. module: website_links
+#: model:ir.module.module,summary:base.module_website_links
+msgid "Generate trackable & short URLs"
+msgstr ""
+
+#. module: website_links
 #: model:ir.model.fields,field_description:website_links.field_link_tracker__id
 msgid "ID"
 msgstr "ID"
@@ -192,6 +217,7 @@ msgstr "Odkaz zkopírován!"
 
 #. module: website_links
 #: model:ir.model,name:website_links.model_link_tracker
+#: model:ir.module.module,shortdesc:base.module_website_links
 #: model:ir.ui.menu,name:website_links.menu_link_tracker
 #: model_terms:ir.ui.view,arch_db:website_links.graphs
 msgid "Link Tracker"
@@ -351,54 +377,3 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:website_links.create_shorten_url
 msgid "e.g. https://www.odoo.com/contactus"
 msgstr "např. https://www.odoo.com/contactus"
-
-#~ msgid " clicks"
-#~ msgstr "kliknutí"
-
-#~ msgid " countries"
-#~ msgstr "země"
-
-#~ msgid "Copied"
-#~ msgstr "Kopírováno"
-
-#~ msgid "Generating link..."
-#~ msgstr "Generování odkazu ..."
-
-#~ msgid "Get tracked link"
-#~ msgstr "Získat sledovací odkaz"
-
-#~ msgid "Icon"
-#~ msgstr "Ikona"
-
-#~ msgid "Most Clicked"
-#~ msgstr "Nejvíce klikané"
-
-#~ msgid "No data"
-#~ msgstr "Žádná data"
-
-#~ msgid "Recently Used"
-#~ msgstr "Nedávno použito"
-
-#~ msgid "Stats"
-#~ msgstr "Statistiky"
-
-#~ msgid "URL"
-#~ msgstr "URL"
-
-#~ msgid "Unable to get recent links"
-#~ msgstr "Nelze získat poslední odkazy"
-
-#~ msgid "You don't have any recent links."
-#~ msgstr "Nemáte žádné nedávné odkazy."
-
-#~ msgid "cancel"
-#~ msgstr "zrušit"
-
-#~ msgid "copy"
-#~ msgstr "kopírovat"
-
-#~ msgid "ok"
-#~ msgstr "ok"
-
-#~ msgid "or"
-#~ msgstr "nebo"

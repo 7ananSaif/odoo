@@ -12,15 +12,15 @@
 # Piotr Szlązak <szlazakpiotr@gmail.com>, 2022
 # Tadeusz Karpiński <tadeuszkarpinski@gmail.com>, 2023
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
-# "Marta (wacm)" <wacm@odoo.com>, 2025, 2026.
+# "Marta (wacm)" <wacm@odoo.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-06-11 12:01+0000\n"
-"Last-Translator: \"Marta (wacm)\" <wacm@odoo.com>\n"
-"Language-Team: Polish <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:41+0000\n"
+"PO-Revision-Date: 2026-08-31 16:16+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Polish <https://translate.odoo.com/projects/odoo-s19-4/"
 "auth_oauth/pl/>\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
@@ -29,7 +29,15 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && "
 "(n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && "
 "n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: auth_oauth
+#: model:ir.module.module,description:base.module_auth_oauth
+msgid ""
+"\n"
+"Allow users to login through OAuth2 Provider.\n"
+"=============================================\n"
+msgstr ""
 
 #. module: auth_oauth
 #. odoo-python
@@ -65,18 +73,14 @@ msgstr "Klasa CSS"
 #. module: auth_oauth
 #: model:ir.model.fields,field_description:auth_oauth.field_auth_oauth_provider__client_id
 #: model:ir.model.fields,field_description:auth_oauth.field_res_config_settings__auth_oauth_google_client_id
+#: model_terms:ir.ui.view,arch_db:auth_oauth.res_config_settings_view_form
 msgid "Client ID"
 msgstr "ID klienta"
 
 #. module: auth_oauth
-#: model_terms:ir.ui.view,arch_db:auth_oauth.res_config_settings_view_form
-msgid "Client ID:"
-msgstr "ID klienta:"
-
-#. module: auth_oauth
 #: model:ir.model,name:auth_oauth.model_res_config_settings
 msgid "Config Settings"
-msgstr "Konfiguracja ustawień"
+msgstr "Ustawienia konfiguracji"
 
 #. module: auth_oauth
 #: model:ir.model.fields,field_description:auth_oauth.field_auth_oauth_provider__create_uid
@@ -87,6 +91,11 @@ msgstr "Utworzone przez"
 #: model:ir.model.fields,field_description:auth_oauth.field_auth_oauth_provider__create_date
 msgid "Created on"
 msgstr "Data utworzenia"
+
+#. module: auth_oauth
+#: model:ir.model.fields,field_description:auth_oauth.field_auth_oauth_provider__icon
+msgid "Custom Material Symbols Icon"
+msgstr ""
 
 #. module: auth_oauth
 #: model:ir.model.fields,field_description:auth_oauth.field_auth_oauth_provider__data_endpoint
@@ -148,7 +157,7 @@ msgstr "Brak tożsamości podmiotu"
 #. module: auth_oauth
 #: model:ir.model.fields,field_description:auth_oauth.field_res_users__oauth_access_token
 msgid "OAuth Access Token Store"
-msgstr "Magazyn tokenów dostępu OAuth"
+msgstr "Sklep z tokenami dostępu OAuth"
 
 #. module: auth_oauth
 #: model:ir.model.fields,field_description:auth_oauth.field_res_users__oauth_provider_id
@@ -170,6 +179,11 @@ msgstr "Identyfikator użytkownika OAuth musi być unikalny dla danego dostawcy"
 #: model:ir.model.fields,field_description:auth_oauth.field_res_users__oauth_uid
 msgid "OAuth User ID"
 msgstr "Identyfikator użytkownika OAuth"
+
+#. module: auth_oauth
+#: model:ir.module.module,shortdesc:base.module_auth_oauth
+msgid "OAuth2 Authentication"
+msgstr ""
 
 #. module: auth_oauth
 #: model:ir.model,name:auth_oauth.model_auth_oauth_provider
@@ -233,11 +247,6 @@ msgid "System Parameter"
 msgstr "Parametr systemu"
 
 #. module: auth_oauth
-#: model_terms:ir.ui.view,arch_db:auth_oauth.res_config_settings_view_form
-msgid "Tutorial"
-msgstr "Tutorial"
-
-#. module: auth_oauth
 #: model:ir.model,name:auth_oauth.model_res_users
 msgid "User"
 msgstr "Użytkownik"
@@ -274,21 +283,3 @@ msgstr "arch"
 #: model_terms:ir.ui.view,arch_db:auth_oauth.res_config_settings_view_form
 msgid "e.g. 1234-xyz.apps.googleusercontent.com"
 msgstr "np. 1234-xyz.apps.googleusercontent.com"
-
-#~ msgid "- or -"
-#~ msgstr "- lub -"
-
-#~ msgid "Log in with Facebook"
-#~ msgstr "Zaloguj przez Facebook"
-
-#~ msgid "Log in with Google"
-#~ msgstr "Zaloguj przez Google"
-
-#~ msgid "Log in with Odoo.com"
-#~ msgstr "Zaloguj przez Odoo.com"
-
-#~ msgid "OAuth Access Token"
-#~ msgstr "Token dostępu OAuth"
-
-#~ msgid "Oauth"
-#~ msgstr "Oauth"

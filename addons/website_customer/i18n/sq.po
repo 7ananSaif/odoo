@@ -1,25 +1,39 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# 	* website_customer
+# * website_customer
 #
+# Translators:
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0\n"
+"Project-Id-Version: Odoo 9.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-12-30 18:37+0000\n"
-"Last-Translator: \n"
-"Language-Team: \n"
-"Language: \n"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2016-03-31 13:21+0000\n"
+"Last-Translator: Martin Trigaux\n"
+"Language-Team: Albanian (http://www.transifex.com/odoo/odoo-9/language/sq/)\n"
+"Language: sq\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
-"Plural-Forms: \n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: website_customer
+#: model:ir.module.module,description:base.module_website_customer
+msgid ""
+"\n"
+"Publish your customers as business references on your website to attract new "
+"potential prospects.\n"
+msgstr ""
+
+#. module: website_customer
+#: model_terms:ir.ui.view,arch_db:website_customer.details
+msgid "<i class=\"oi me-2\" data-icon=\"chevron_backward\"/>Back to references"
+msgstr ""
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.index
 msgid ""
-"<i class=\"fa fa-info-circle me-2\"/>\n"
+"<i class=\"oi me-2\" data-icon=\"info\"/>\n"
 "                        There are no matching customers found for the "
 "selected country. Displaying results across all countries instead."
 msgstr ""
@@ -27,19 +41,14 @@ msgstr ""
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.opt_country
 msgid ""
-"<i class=\"fa fa-map-marker\" role=\"img\" aria-label=\"Open map\" "
-"title=\"Open map\"/>"
-msgstr ""
-
-#. module: website_customer
-#: model_terms:ir.ui.view,arch_db:website_customer.details
-msgid "<i class=\"oi oi-chevron-left me-2\"/>Back to references"
+"<i class=\"oi\" data-icon=\"location_on\" role=\"img\" aria-label=\"Open "
+"map\" title=\"Open map\"/>"
 msgstr ""
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.index
 #: model_terms:ir.ui.view,arch_db:website_customer.opt_tag_list
-msgid "<span class=\"fa fa-1x fa-tags\"/> All"
+msgid "<span class=\"oi oi-1x\" data-icon=\"sell\"/> All"
 msgstr ""
 
 #. module: website_customer
@@ -50,7 +59,7 @@ msgstr ""
 #. module: website_customer
 #: model:ir.model.fields,field_description:website_customer.field_res_partner_tag__active
 msgid "Active"
-msgstr ""
+msgstr "Aktiv"
 
 #. module: website_customer
 #. odoo-python
@@ -67,6 +76,16 @@ msgstr ""
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.res_partner_tag_view_search
 msgid "Archived"
+msgstr ""
+
+#. module: website_customer
+#: model:ir.model.fields,field_description:website_customer.field_res_partner_tag__publish_on
+msgid "Auto publish on"
+msgstr ""
+
+#. module: website_customer
+#: model:ir.model.fields,help:website_customer.field_res_partner_tag__publish_on
+msgid "Automatically publish the page on the chosen date and time."
 msgstr ""
 
 #. module: website_customer
@@ -124,11 +143,16 @@ msgstr ""
 #. module: website_customer
 #: model:ir.model.fields,field_description:website_customer.field_res_partner_tag__create_uid
 msgid "Created by"
-msgstr ""
+msgstr "Krijuar nga"
 
 #. module: website_customer
 #: model:ir.model.fields,field_description:website_customer.field_res_partner_tag__create_date
 msgid "Created on"
+msgstr "Krijuar me"
+
+#. module: website_customer
+#: model:ir.module.module,shortdesc:base.module_website_customer
+msgid "Customer References"
 msgstr ""
 
 #. module: website_customer
@@ -139,13 +163,8 @@ msgstr ""
 
 #. module: website_customer
 #. odoo-javascript
-#: code:addons/website_customer/static/src/website_builder/customer_filter_option.js:0
+#: code:addons/website_customer/static/src/website_builder/customer_filter_option.xml:0
 msgid "Customers Page"
-msgstr ""
-
-#. module: website_customer
-#: model_terms:ir.ui.view,arch_db:website_customer.details
-msgid "DROP BUILDING BLOCKS HERE TO MAKE THEM AVAILABLE ACROSS ALL CUSTOMERS"
 msgstr ""
 
 #. module: website_customer
@@ -153,6 +172,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:website_customer.field_res_partner_tag__display_name
 #: model:ir.model.fields,field_description:website_customer.field_website__display_name
 msgid "Display Name"
+msgstr "Emri i paraqitur"
+
+#. module: website_customer
+#: model_terms:ir.ui.view,arch_db:website_customer.details
+msgid "Drag blocks here to add them on all customers"
 msgstr ""
 
 #. module: website_customer
@@ -206,7 +230,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:website_customer.field_res_partner_tag__id
 #: model:ir.model.fields,field_description:website_customer.field_website__id
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #. module: website_customer
 #. odoo-javascript
@@ -222,12 +246,12 @@ msgstr ""
 #. module: website_customer
 #: model:ir.model.fields,field_description:website_customer.field_res_partner_tag__write_uid
 msgid "Last Updated by"
-msgstr ""
+msgstr "Modifikuar per here te fundit nga"
 
 #. module: website_customer
 #: model:ir.model.fields,field_description:website_customer.field_res_partner_tag__write_date
 msgid "Last Updated on"
-msgstr ""
+msgstr "Modifikuar per here te fundit me"
 
 #. module: website_customer
 #: model_terms:ir.actions.act_window,help:website_customer.action_partner_tag_form
@@ -261,6 +285,16 @@ msgstr ""
 #. module: website_customer
 #: model:ir.model.fields,field_description:website_customer.field_res_partner_tag__partner_ids
 msgid "Partners"
+msgstr "Partner"
+
+#. module: website_customer
+#: model:ir.module.module,summary:base.module_website_customer
+msgid "Publish your customer references"
+msgstr ""
+
+#. module: website_customer
+#: model:ir.model.fields,field_description:website_customer.field_res_partner_tag__published_date
+msgid "Published date"
 msgstr ""
 
 #. module: website_customer
@@ -268,7 +302,7 @@ msgstr ""
 #: code:addons/website_customer/models/website.py:0
 #: model_terms:ir.ui.view,arch_db:website_customer.references_block
 msgid "References"
-msgstr ""
+msgstr "Referenca"
 
 #. module: website_customer
 #: model_terms:ir.ui.view,arch_db:website_customer.index

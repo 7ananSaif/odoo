@@ -16,6 +16,8 @@ class ResConfigSettings(models.TransientModel):
         implied_group='stock.group_stock_lot_print_gs1')
     group_lot_on_delivery_slip = fields.Boolean("Display Lots & Serial Numbers on Delivery Slips",
         implied_group='stock.group_lot_on_delivery_slip', group="base.group_user,base.group_portal")
+    group_stock_picking_batch = fields.Boolean("Batch, Wave & Cluster Transfers",
+        implied_group='stock.group_stock_picking_batch')
     group_stock_tracking_lot = fields.Boolean("Packages",
         implied_group='stock.group_tracking_lot')
     group_stock_tracking_owner = fields.Boolean("Consignment",
@@ -25,38 +27,27 @@ class ResConfigSettings(models.TransientModel):
         help="Add and customize route operations to process product moves in your warehouse(s): e.g. unload > quality control > stock for incoming products, pick > pack > ship for outgoing products. \n You can also set putaway strategies on warehouse locations in order to send incoming products into specific child locations straight away (e.g. specific bins, racks).")
     group_warning_stock = fields.Boolean("Warnings for Stock", implied_group='stock.group_warning_stock')
     group_stock_sign_delivery = fields.Boolean("Signature", implied_group='stock.group_stock_sign_delivery')
-    module_stock_picking_batch = fields.Boolean("Batch, Wave & Cluster Transfers")
     module_stock_barcode = fields.Boolean("Barcode Scanner")
     module_stock_barcode_barcodelookup = fields.Boolean("Stock Barcode Database")
     stock_move_email_validation = fields.Boolean(related='company_id.stock_move_email_validation', readonly=False)
     module_stock_sms = fields.Boolean("SMS Confirmation")
     module_delivery = fields.Boolean("Delivery Methods")
-    module_delivery_dhl = fields.Boolean("DHL Express Connector")
-    module_delivery_fedex_rest = fields.Boolean("FedEx Connector")
-    module_delivery_ups_rest = fields.Boolean("UPS Connector")
-    module_delivery_usps_rest = fields.Boolean("USPS Connector")
-    module_delivery_bpost = fields.Boolean("bpost Connector")
-    module_delivery_easypost = fields.Boolean("Easypost Connector")
-    module_delivery_sendcloud = fields.Boolean("Sendcloud Connector")
-    module_delivery_shiprocket = fields.Boolean("Shiprocket Connector")
-    module_delivery_starshipit = fields.Boolean("Starshipit Connector")
-    module_delivery_envia = fields.Boolean("Envia.com Connector")
     module_quality_control = fields.Boolean("Quality")
     module_quality_control_worksheet = fields.Boolean("Quality Worksheet")
     group_stock_multi_locations = fields.Boolean('Storage Locations', implied_group='stock.group_stock_multi_locations',
         help="Store products in specific locations of your warehouse (e.g. bins, racks) and to track inventory accordingly.")
     annual_inventory_month = fields.Selection(related='company_id.annual_inventory_month', readonly=False)
     annual_inventory_day = fields.Integer(related='company_id.annual_inventory_day', readonly=False)
-    group_stock_reception_report = fields.Boolean("Reception Report", implied_group='stock.group_reception_report')
     module_stock_dropshipping = fields.Boolean("Dropshipping")
     barcode_separator = fields.Char(
         "Separator", config_parameter='stock.barcode_separator',
         help="Character(s) used to separate data contained within an aggregate barcode (i.e. a barcode containing multiple barcode encodings)")
-    module_stock_fleet = fields.Boolean("Dispatch Management System")
+    module_stock_fleet = fields.Boolean("Transport Management")
     replenish_on_order = fields.Boolean("Replenish on Order (MTO)", compute='_compute_replenish_on_order', inverse='_inverse_replenish_on_order')
     stock_text_confirmation = fields.Boolean(related='company_id.stock_text_confirmation', string='Stock Text Validation with stock move', readonly=False)
     stock_confirmation_type = fields.Selection(related='company_id.stock_confirmation_type', string='Stock Text Validation type', readonly=False)
-    horizon_days = fields.Float(related='company_id.horizon_days', readonly=False)
+    horizon_days = fields.Integer(related='company_id.horizon_days', readonly=False)
+    picking_policy = fields.Selection(related="company_id.picking_policy", readonly=False, required=True)
 
     def _compute_replenish_on_order(self):
         route = self.env.ref('stock.route_warehouse0_mto', raise_if_not_found=False)
@@ -73,6 +64,11 @@ class ResConfigSettings(models.TransientModel):
         if not self.group_stock_multi_locations:
             self.group_stock_adv_location = False
 
+    @api.onchange('group_stock_picking_batch')
+    def _onchange_group_stock_picking_batch(self):
+        if not self.group_stock_picking_batch:
+            self.module_stock_fleet = False
+
     @api.onchange('group_stock_production_lot')
     def _onchange_group_stock_production_lot(self):
         if not self.group_stock_production_lot:
@@ -83,6 +79,21 @@ class ResConfigSettings(models.TransientModel):
     def _onchange_stock_confirmation_fields(self):
         if self.stock_text_confirmation and self.stock_confirmation_type == 'sms':
             self.module_stock_sms = True
+
+    @api.onchange('module_product_barcodelookup')
+    def onchange_module_product_barcodelookup(self):
+        if not self.module_product_barcodelookup:
+            self.module_stock_barcode_barcodelookup = False
+
+    @api.onchange('module_stock_barcode_barcodelookup')
+    def onchange_module_stock_barcode_barcodelookup(self):
+        if self.module_stock_barcode_barcodelookup:
+            self.module_product_barcodelookup = True
+
+    @api.onchange('module_stock_fleet')
+    def _onchange_module_stock_fleet(self):
+        if self.module_stock_fleet and not self.group_stock_picking_batch:
+            self.group_stock_picking_batch = True
 
     @api.onchange('group_stock_adv_location')
     def onchange_adv_location(self):
@@ -95,7 +106,15 @@ class ResConfigSettings(models.TransientModel):
         base_user = self.env.ref('base.group_user')
         base_user_implied_ids = base_user.implied_ids
         if not self.group_stock_multi_locations and location_grp in base_user_implied_ids and warehouse_grp in base_user_implied_ids:
-            raise UserError(_("You can't deactivate the multi-location if you have more than once warehouse by company"))
+            raise UserError(_("You can't deactivate the multi-location feature if you have more than one warehouse per company"))
+
+        # Update all picking types of this company to keep their move_type aligned with the configured picking policy
+        picking_types = self.env['stock.picking.type'].search([
+            ('move_type', '!=', self.picking_policy),
+            ('company_id', '=', self.company_id.id)
+        ])
+        if picking_types:
+            picking_types.move_type = self.picking_policy
 
         previous_group = self.default_get(['group_stock_multi_locations', 'group_stock_production_lot', 'group_stock_tracking_lot'])
         super().set_values()
@@ -133,7 +152,12 @@ class ResConfigSettings(models.TransientModel):
                     view.active = True
 
         if not self.group_stock_production_lot and previous_group.get('group_stock_production_lot'):
-            if self.env['product.product'].search_count([('tracking', '!=', 'none')], limit=1):
+            if self.env['product.product'].search_count([('tracking', 'in', ['lot', 'serial'])], limit=1):
                 raise UserError(_("You have product(s) in stock that have lot/serial number tracking enabled. \nSwitch off tracking on all the products before switching off this setting."))
 
+        return
+
+    def action_view_delivery_methods(self):
+        if action := self.env.ref('delivery.action_delivery_carrier_form', raise_if_not_found=False):
+            return action._get_action_dict()
         return

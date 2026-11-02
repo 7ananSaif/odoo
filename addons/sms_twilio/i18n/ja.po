@@ -3,23 +3,32 @@
 # * sms_twilio
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
-# "Junko Augias (juau)" <juau@odoo.com>, 2025.
+# "Junko Augias (juau)" <juau@odoo.com>, 2025, 2026.
 # Weblate <noreply-mt-weblate@weblate.org>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:39+0000\n"
-"PO-Revision-Date: 2025-11-24 12:09+0000\n"
-"Last-Translator: \"Junko Augias (juau)\" <juau@odoo.com>\n"
-"Language-Team: Japanese <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 20:32+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Japanese <https://translate.odoo.com/projects/odoo-s19-4/"
 "sms_twilio/ja/>\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: sms_twilio
+#: model:ir.module.module,description:base.module_sms_twilio
+msgid ""
+"\n"
+"This module allows using Twilio as a provider for SMS messaging.\n"
+"The user has to create an account on twilio.com and top\n"
+"up their account to start sending SMS messages.\n"
+msgstr ""
 
 #. module: sms_twilio
 #. odoo-python
@@ -69,6 +78,12 @@ msgid "Auth Token"
 msgstr "認証トークン"
 
 #. module: sms_twilio
+#. odoo-javascript
+#: code:addons/sms_twilio/static/src/core/notification_model.js:0
+msgid "Authentication Error"
+msgstr "認証エラー"
+
+#. module: sms_twilio
 #: model:ir.model.fields.selection,name:sms_twilio.selection__mail_notification__failure_type__twilio_authentication
 #: model:ir.model.fields.selection,name:sms_twilio.selection__sms_sms__failure_type__twilio_authentication
 msgid "Authentication Error\""
@@ -76,10 +91,6 @@ msgstr "認証エラー"
 
 #. module: sms_twilio
 #: model:ir.model,name:sms_twilio.model_res_company
-msgid "Companies"
-msgstr "会社"
-
-#. module: sms_twilio
 #: model:ir.model.fields,field_description:sms_twilio.field_sms_sms__record_company_id
 #: model:ir.model.fields,field_description:sms_twilio.field_sms_twilio_account_manage__company_id
 #: model:ir.model.fields,field_description:sms_twilio.field_sms_twilio_number__company_id
@@ -124,16 +135,6 @@ msgid "Credentials"
 msgstr "認証情報"
 
 #. module: sms_twilio
-#: model_terms:ir.ui.view,arch_db:sms_twilio.sms_twilio_account_manage_view_form
-msgid "Delete"
-msgstr "削除"
-
-#. module: sms_twilio
-#: model_terms:ir.ui.view,arch_db:sms_twilio.sms_twilio_account_manage_view_form
-msgid "Discard"
-msgstr "破棄"
-
-#. module: sms_twilio
 #: model:ir.model.fields,field_description:sms_twilio.field_mail_notification__display_name
 #: model:ir.model.fields,field_description:sms_twilio.field_res_company__display_name
 #: model:ir.model.fields,field_description:sms_twilio.field_res_config_settings__display_name
@@ -162,6 +163,8 @@ msgid "Failure type"
 msgstr "失敗種別"
 
 #. module: sms_twilio
+#. odoo-javascript
+#: code:addons/sms_twilio/static/src/core/notification_model.js:0
 #: model:ir.model.fields.selection,name:sms_twilio.selection__mail_notification__failure_type__twilio_from_to
 #: model:ir.model.fields.selection,name:sms_twilio.selection__sms_sms__failure_type__twilio_from_to
 msgid "From / To identic"
@@ -180,6 +183,8 @@ msgid "ID"
 msgstr "ID"
 
 #. module: sms_twilio
+#. odoo-javascript
+#: code:addons/sms_twilio/static/src/core/notification_model.js:0
 #: model:ir.model.fields.selection,name:sms_twilio.selection__mail_notification__failure_type__twilio_callback
 #: model:ir.model.fields.selection,name:sms_twilio.selection__sms_sms__failure_type__twilio_callback
 msgid "Incorrect callback URL"
@@ -220,6 +225,11 @@ msgid "Link SMS to mailing/sms tracking models"
 msgstr "SMSをメーリング/SMS追跡モデルにリンク"
 
 #. module: sms_twilio
+#: model_terms:ir.ui.view,arch_db:sms_twilio.sms_twilio_account_manage_view_form
+msgid "Load from Twilio"
+msgstr "Twilioから読み込む"
+
+#. module: sms_twilio
 #. odoo-python
 #: code:addons/sms_twilio/models/res_company.py:0
 #: code:addons/sms_twilio/wizard/sms_twilio_account_manage.py:0
@@ -228,10 +238,12 @@ msgstr "Twilio SMSを管理"
 
 #. module: sms_twilio
 #: model:ir.model,name:sms_twilio.model_mail_notification
-msgid "Message Notifications"
+msgid "Message Notification"
 msgstr "メッセージ通知"
 
 #. module: sms_twilio
+#. odoo-javascript
+#: code:addons/sms_twilio/static/src/core/notification_model.js:0
 #: model:ir.model.fields.selection,name:sms_twilio.selection__mail_notification__failure_type__twilio_from_missing
 #: model:ir.model.fields.selection,name:sms_twilio.selection__sms_sms__failure_type__twilio_from_missing
 msgid "Missing From Number"
@@ -241,11 +253,11 @@ msgstr "送信元番号が未設"
 #: model_terms:ir.ui.view,arch_db:sms_twilio.sms_twilio_account_manage_view_form
 msgid ""
 "Need help ?\n"
-"                            <i class=\"fa fa-external-link\" aria-"
+"                            <i class=\"oi\" data-icon=\"open_in_new\" aria-"
 "hidden=\"true\"/>"
 msgstr ""
 "サポートが必要ですか?\n"
-"                            <i class=\"fa fa-external-link\" aria-"
+"                            <i class=\"oi\" data-icon=\"open_in_new\" aria-"
 "hidden=\"true\"/>"
 
 #. module: sms_twilio
@@ -271,9 +283,10 @@ msgid "Please set the number to which you want to send a test SMS."
 msgstr "テストSMSを送信したい番号を設定してください。"
 
 #. module: sms_twilio
-#: model_terms:ir.ui.view,arch_db:sms_twilio.sms_twilio_account_manage_view_form
-msgid "Reload Numbers from Twilio"
-msgstr "Twilioから番号を再ロードする"
+#. odoo-python
+#: code:addons/sms_twilio/tools/sms_api.py:0
+msgid "Recheck your credentials"
+msgstr "認証情報を再確認してください"
 
 #. module: sms_twilio
 #: model:ir.model.fields,field_description:sms_twilio.field_res_company__sms_provider
@@ -291,6 +304,11 @@ msgstr "SMS Twilio接続ウィザード"
 #: model:ir.model,name:sms_twilio.model_sms_composer
 msgid "Send SMS Wizard"
 msgstr "SMS送信ウィザード"
+
+#. module: sms_twilio
+#: model:ir.module.module,summary:base.module_sms_twilio
+msgid "Send SMS messages using Twilio"
+msgstr ""
 
 #. module: sms_twilio
 #: model_terms:ir.ui.view,arch_db:sms_twilio.sms_twilio_account_manage_view_form
@@ -365,6 +383,7 @@ msgstr "Twilio番号"
 #. module: sms_twilio
 #. odoo-python
 #: code:addons/sms_twilio/wizard/sms_twilio_account_manage.py:0
+#: model:ir.module.module,shortdesc:base.module_sms_twilio
 msgid "Twilio SMS"
 msgstr "Twilio SMS"
 
@@ -384,6 +403,14 @@ msgstr "Twilio SMS SID"
 #: code:addons/sms_twilio/tools/sms_api.py:0
 msgid "Twilio StatusCallback URL is incorrect"
 msgstr "Twilio StatusCallbackのURLが正しくありません"
+
+#. module: sms_twilio
+#. odoo-javascript
+#: code:addons/sms_twilio/static/src/core/notification_model.js:0
+#: model:ir.model.fields.selection,name:sms_twilio.selection__mail_notification__failure_type__twilio_wrong_credentials
+#: model:ir.model.fields.selection,name:sms_twilio.selection__sms_sms__failure_type__twilio_wrong_credentials
+msgid "Twilio Wrong Credentials"
+msgstr "Twilioの認証情報が正しくありません"
 
 #. module: sms_twilio
 #. odoo-python
@@ -412,75 +439,3 @@ msgstr "アカウント更新"
 #: model_terms:ir.ui.view,arch_db:sms_twilio.sms_twilio_account_manage_view_form
 msgid "abcde12345abcde12345abcde12345ab"
 msgstr "abcde12345abcde12345abcde12345ab"
-
-#~ msgid "+1 555-123-4567"
-#~ msgstr "+1 555-123-4567"
-
-#~ msgid ""
-#~ "Any number here that is not on Twilio will be deleted and the ordering "
-#~ "will be reset to Twilio's."
-#~ msgstr ""
-#~ "Twilioに登録されていない番号はすべて削除され、順序はTwilioの設定にリセット"
-#~ "されます。"
-
-#~ msgid "Authentication error"
-#~ msgstr "認証エラー"
-
-#~ msgid "Cancel"
-#~ msgstr "キャンセル"
-
-#~ msgid "Error message"
-#~ msgstr "エラーメッセージ"
-
-#~ msgid "Manage Twilio Connection"
-#~ msgstr "Twilioコネクションを管理"
-
-#~ msgid "Odoo IAP"
-#~ msgstr "Odoo IAP"
-
-#~ msgid "Save"
-#~ msgstr "保存"
-
-#~ msgid "Success message"
-#~ msgstr "成功メッセージ"
-
-#~ msgid "Testing"
-#~ msgstr "テスト"
-
-#, python-format
-#~ msgid "The Twilio StatusCallback URL is incorrect"
-#~ msgstr "TwilioのStatusCallback URLが正しくありません"
-
-#, python-format
-#~ msgid "The number you're trying to reach is not correctly formatted."
-#~ msgstr "連絡しようとしている番号は正しくフォーマットされていません。"
-
-#~ msgid "To Number"
-#~ msgstr "送信先番号"
-
-#~ msgid "Twilio"
-#~ msgstr "Twilio"
-
-#~ msgid ""
-#~ "When sending an SMS to a partner, Odoo will pick the first number "
-#~ "available\n"
-#~ "                        from the same country as the recipient. If no "
-#~ "number exists for this country,\n"
-#~ "                        Odoo will use the first one available."
-#~ msgstr ""
-#~ "取引先にSMSを送信する際、Odooは受信者と同じ国の番号のうち、最初に利用可能"
-#~ "なものを使用します。\n"
-#~ "                        該当する国の番号が存在しない場合は、\n"
-#~ "                        Odooで最初に利用可能な番号が使用されます。"
-
-#~ msgid "You can access the documentation"
-#~ msgstr "ドキュメントにアクセスできます"
-
-#~ msgid ""
-#~ "by clicking here\n"
-#~ "                        <i class=\"fa fa-external-link\" aria-"
-#~ "hidden=\"true\"/>"
-#~ msgstr ""
-#~ "以下をクリックしてください：\n"
-#~ "                        <i class=\"fa fa-external-link\" aria-"
-#~ "hidden=\"true\"/>"

@@ -10,10 +10,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~14.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-11-18 12:16+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Croatian <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 20:36+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Croatian <https://translate.odoo.com/projects/odoo-s19-4/"
 "website_partner/hr/>\n"
 "Language: hr\n"
 "MIME-Version: 1.0\n"
@@ -21,7 +21,15 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: website_partner
+#: model:ir.module.module,description:base.module_website_partner
+msgid ""
+"\n"
+"This is a base module. It holds website-related stuff for Contact model "
+"(res.partner).\n"
+msgstr ""
 
 #. module: website_partner
 #: model:ir.model,name:website_partner.model_res_partner
@@ -34,14 +42,20 @@ msgid "Create a Customer"
 msgstr "Kreiraj kupca"
 
 #. module: website_partner
-#: model_terms:ir.ui.view,arch_db:website_partner.partner_page
-msgid "DROP BUILDING BLOCKS HERE TO MAKE THEM AVAILABLE ACROSS ALL PARTNERS"
-msgstr ""
-
-#. module: website_partner
 #: model:ir.model.fields,field_description:website_partner.field_res_partner__display_name
 msgid "Display Name"
 msgstr "Naziv"
+
+#. module: website_partner
+#: model_terms:ir.ui.view,arch_db:website_partner.partner_page
+msgid "Drag blocks here to add them on all partners"
+msgstr ""
+
+#. module: website_partner
+#. odoo-python
+#: code:addons/website_partner/models/res_partner.py:0
+msgid "Find Resellers"
+msgstr ""
 
 #. module: website_partner
 #: model:ir.model.fields,field_description:website_partner.field_res_partner__id
@@ -65,6 +79,11 @@ msgid "Partner Unpublished"
 msgstr ""
 
 #. module: website_partner
+#: model:ir.module.module,summary:base.module_website_partner
+msgid "Partner module for website"
+msgstr ""
+
+#. module: website_partner
 #: model:mail.message.subtype,name:website_partner.mt_partner_published
 msgid "Partner published"
 msgstr ""
@@ -72,6 +91,12 @@ msgstr ""
 #. module: website_partner
 #: model:mail.message.subtype,name:website_partner.mt_partner_unpublished
 msgid "Partner unpublished"
+msgstr ""
+
+#. module: website_partner
+#. odoo-python
+#: code:addons/website_partner/models/res_partner.py:0
+msgid "Resellers"
 msgstr ""
 
 #. module: website_partner
@@ -83,6 +108,11 @@ msgstr "SEO optimizirana"
 #: model:ir.model.fields,field_description:website_partner.field_res_partner__seo_name
 msgid "Seo name"
 msgstr "SEO naziv"
+
+#. module: website_partner
+#: model:ir.module.module,shortdesc:base.module_website_partner
+msgid "Website Partner"
+msgstr ""
 
 #. module: website_partner
 #: model:ir.model.fields,field_description:website_partner.field_res_partner__website_description
@@ -115,6 +145,3 @@ msgstr "Web meta naslov"
 #: model:ir.model.fields,field_description:website_partner.field_res_partner__website_meta_og_img
 msgid "Website opengraph image"
 msgstr "OpenGraph slika web stranice"
-
-#~ msgid "Short Description for List View"
-#~ msgstr "Kratki opis za prikaz popisa"

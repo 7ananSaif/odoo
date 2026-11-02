@@ -1,20 +1,23 @@
-import { Component } from "@odoo/owl";
+import { Component, t, useProps } from "@odoo/owl";
 import { basicContainerBuilderComponentProps } from "../utils";
 import { SelectMany2X } from "./select_many2x";
 
 export class BasicMany2Many extends Component {
-    static template = "html_builder.BasicMany2Many";
-    static props = {
-        ...basicContainerBuilderComponentProps,
-        model: String,
-        fields: { type: Array, element: String, optional: true },
-        domain: { type: Array, optional: true },
-        limit: { type: Number, optional: true },
-        selection: { type: Array, element: Object },
-        setSelection: Function,
-        create: { type: Function, optional: true },
-    };
     static components = { SelectMany2X };
+    static template = "html_builder.BasicMany2Many";
+
+    props = useProps({
+        ...basicContainerBuilderComponentProps,
+        model: t.string(),
+        fields: t.array(t.string()).optional(),
+        domain: t.array().optional(),
+        limit: t.number().optional(),
+        selection: t.array(t.object()),
+        setSelection: t.function(),
+        create: t.function().optional(),
+        displayNameField: t.string().optional("display_name"),
+        message: t.string().optional(),
+    });
 
     select(entry) {
         this.props.setSelection([...this.props.selection, entry]);

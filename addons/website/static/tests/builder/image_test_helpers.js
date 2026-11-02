@@ -1,5 +1,7 @@
 import { before, globals } from "@odoo/hoot";
-import { onRpc } from "@web/../tests/web_test_helpers";
+import { contains, onRpc, patchWithCleanup } from "@web/../tests/web_test_helpers";
+import { dummyBase64Img } from "@html_builder/../tests/helpers";
+import { ImagePositionOverlay } from "@html_builder/plugins/image/image_position_overlay";
 
 // Pre-fetch image routes so they're cached and available faster during tests
 const imgCache = new Map();
@@ -10,10 +12,10 @@ export function onRpcImg(route) {
     onRpc(route, async () => (await imgCache.get(route)).clone());
 }
 
-export const testImgSrc = "/web/image/website.s_text_image_default_image";
+export const testImgSrc = "/web/image/website.landscape_md_9";
 
 export const testImg = `
-    <img src='/web/image/website.s_text_image_default_image'
+    <img src='/web/image/website.landscape_md_9'
         data-attachment-id="1" data-original-id="1"
         data-original-src="/website/static/src/img/snippets_demo/s_text_image.webp"
         data-mimetype-before-conversion="image/webp"
@@ -30,6 +32,14 @@ export const testSvgImgSrc = "/web/image/457-test/test.svg";
 
 export const testSvgImg = `
     <img src='${testSvgImgSrc}'>
+    `;
+
+export const testBase64Img = `
+    <img src="${dummyBase64Img}"
+        data-attachment-id="1" data-original-id="1"
+        data-original-src="${dummyBase64Img}"
+        data-mimetype-before-conversion="image/png"
+        >
     `;
 
 const imageData = {
@@ -74,7 +84,7 @@ export function mockImageRequests() {
         onRpcImg("/html_builder/static/image_shapes/geometric/geo_shuriken.svg");
         onRpcImg("/html_builder/static/image_shapes/pattern/pattern_wave_4.svg");
         onRpcImg("/html_builder/static/image_shapes/geometric/geo_tetris.svg");
-        onRpcImg("/web/image/website.s_text_image_default_image");
+        onRpcImg("/web/image/website.landscape_md_9");
         onRpcImg("/website/static/src/img/snippets_demo/s_text_image.webp");
         onRpcImg("/website/static/src/img/snippets_options/header_effect_fade_out.gif");
         onRpcImg("/web/image/123/transparent.png");
@@ -82,4 +92,23 @@ export function mockImageRequests() {
         onRpcImg("/html_builder/static/image_shapes/geometric/geo_square.svg");
         onRpcImg("/website/static/src/img/website_logo.svg");
     });
+}
+
+export function patchDragImage(el, from, to) {
+    patchWithCleanup(ImagePositionOverlay.prototype, {
+        onDragMove(ev) {
+            // Mock the movementX and movementY readonly property
+            super.onDragMove({
+                preventDefault: () => {},
+                movementX: ev.clientX === to.x ? to.x - from.x : 0,
+                movementY: ev.clientY === to.y ? to.y - from.y : 0,
+            });
+        },
+    });
+    const startDrag = () => contains(el).drag({ position: from });
+    const endDrag = async (dragActions) => {
+        await dragActions.moveTo(el, { position: to });
+        await dragActions.drop();
+    };
+    return { startDrag, endDrag };
 }

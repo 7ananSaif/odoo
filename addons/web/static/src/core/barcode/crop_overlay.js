@@ -1,24 +1,20 @@
-import { Component, useRef, onPatched } from "@odoo/owl";
+import { Component, onPatched, signal, t, useProps } from "@odoo/owl";
 import { browser } from "@web/core/browser/browser";
 import { isIOS } from "@web/core/browser/feature_detection";
 import { clamp } from "@web/core/utils/numbers";
 
 export class CropOverlay extends Component {
     static template = "web.CropOverlay";
-    static props = {
-        onResize: Function,
-        isReady: Boolean,
-        slots: {
-            type: Object,
-            shape: {
-                default: {},
-            },
-        },
-    };
+    props = useProps({
+        onResize: t.function(),
+        isReady: t.boolean(),
+        slots: t.object({ default: t.any() }),
+    });
+
+    cropContainerRef = signal.ref();
 
     setup() {
         this.localStorageKey = "o-barcode-scanner-overlay";
-        this.cropContainerRef = useRef("crop-container");
         this.isMoving = false;
         this.boundaryOverlay = {};
         this.relativePosition = {
@@ -57,7 +53,7 @@ export class CropOverlay extends Component {
     }
 
     computeOverlayPosition() {
-        const cropOverlayElement = this.cropContainerRef.el.querySelector(".o_crop_overlay");
+        const cropOverlayElement = this.cropContainerRef().querySelector(".o_crop_overlay");
         this.boundaryOverlay = cropOverlayElement.getBoundingClientRect();
     }
 
@@ -72,7 +68,7 @@ export class CropOverlay extends Component {
     }
 
     computeDefaultPoint() {
-        const firstChildComputedStyle = getComputedStyle(this.cropContainerRef.el.firstChild);
+        const firstChildComputedStyle = getComputedStyle(this.cropContainerRef().firstChild);
         const elementWidth = firstChildComputedStyle.width.slice(0, -2);
         const elementHeight = firstChildComputedStyle.height.slice(0, -2);
 
@@ -109,10 +105,10 @@ export class CropOverlay extends Component {
         if (!iconPoint) {
             iconPoint = point;
         }
-        this.cropContainerRef.el.style.setProperty("--o-crop-x", `${point.x}px`);
-        this.cropContainerRef.el.style.setProperty("--o-crop-y", `${point.y}px`);
-        this.cropContainerRef.el.style.setProperty("--o-crop-icon-x", `${iconPoint.x}px`);
-        this.cropContainerRef.el.style.setProperty("--o-crop-icon-y", `${iconPoint.y}px`);
+        this.cropContainerRef().style.setProperty("--o-crop-x", `${point.x}px`);
+        this.cropContainerRef().style.setProperty("--o-crop-y", `${point.y}px`);
+        this.cropContainerRef().style.setProperty("--o-crop-icon-x", `${iconPoint.x}px`);
+        this.cropContainerRef().style.setProperty("--o-crop-icon-y", `${iconPoint.y}px`);
     }
 
     pointerDown(event) {

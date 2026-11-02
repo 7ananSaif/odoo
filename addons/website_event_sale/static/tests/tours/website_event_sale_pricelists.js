@@ -2,7 +2,6 @@ import { registry } from "@web/core/registry";
 import { getPriceListChecksSteps } from "@website_event_sale/../tests/tours/helpers/WebsiteEventSaleTourMethods";
 
 registry.category("web_tour.tours").add("event_sale_pricelists_different_currencies", {
-    url: "/event",
     steps: () => [
         // Register for tickets
         {
@@ -58,13 +57,13 @@ registry.category("web_tour.tours").add("event_sale_pricelists_different_currenc
             trigger: "body:not(:has(.modal#modal_attendees_registration))",
         },
         ...getPriceListChecksSteps({
-            pricelistName: "EUR Without Discount Included",
+            pricelistName: "EUR",
             eventName: "Pycon",
             price: "90.00",
             priceBeforeDiscount: "100.00",
         }),
         ...getPriceListChecksSteps({
-            pricelistName: "EX Without Discount Included",
+            pricelistName: "EX",
             eventName: "Pycon",
             price: "900.00",
             priceBeforeDiscount: "1,000.00",

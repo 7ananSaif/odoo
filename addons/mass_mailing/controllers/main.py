@@ -236,8 +236,9 @@ class MassMailController(http.Controller):
         # as there may be several contacts / email -> consider any opt-in overrides
         # opt-out
         contacts = self._fetch_contacts(email)
+        # private mailing lists are managed directly from received emails, with unsubscription links
         lists_optin = contacts.subscription_ids.filtered(
-            lambda sub: not sub.opt_out
+            lambda sub: not sub.opt_out and sub.list_id.is_public
         ).list_id.filtered('active')
         lists_optout = contacts.subscription_ids.filtered(
             lambda sub: sub.opt_out and sub.list_id not in lists_optin
@@ -263,11 +264,9 @@ class MassMailController(http.Controller):
             'feedback_readonly': False,
             'opt_out_reasons': opt_out_reasons,
             # blocklist
-            'blocklist_enabled': bool(
-                request.env['ir.config_parameter'].sudo().get_param(
-                    'mass_mailing.show_blacklist_buttons',
-                    default=True,
-                )
+            'blocklist_enabled': request.env['ir.config_parameter'].sudo().get_bool(
+                'mass_mailing.show_blacklist_buttons',
+                True,
             ),
             'blocklist_possible': mail_blocklist is not None,
             'is_blocklisted': mail_blocklist.active if mail_blocklist else False,
@@ -434,7 +433,7 @@ class MassMailController(http.Controller):
            not consteq(token, request.env['mailing.mailing']._generate_mailing_report_token(user.id)):
             raise Unauthorized()
 
-        request.env['ir.config_parameter'].sudo().set_param('mass_mailing.mass_mailing_reports', False)
+        request.env['ir.config_parameter'].sudo().set_bool('mass_mailing.mass_mailing_reports', False)
         render_vals = {}
         if user.has_group('base.group_system'):
             render_vals = {'menu_id': request.env.ref('mass_mailing.menu_mass_mailing_global_settings').id}
@@ -463,9 +462,15 @@ class MassMailController(http.Controller):
         )[document_id]
         # Update generic URLs (without parameters) to final ones
         if document_id:
+            # Keep the unsubscribe link on the recipient's website, as is done when
+            # the mail is sent (see mail.mail._prepare_outgoing_list). Sudo as the
+            # route is public and the record is only used to resolve the base URL.
+            recipient = request.env[mailing_sudo.mailing_model_real].sudo().browse(document_id)
             html_markupsafe = html_markupsafe.replace(
                 '/unsubscribe_from_list',
-                mailing_sudo._get_unsubscribe_url(email, document_id)
+                mailing_sudo.with_context(
+                    mailing_recipient_record=recipient
+                )._get_unsubscribe_url(email, document_id)
             )
         else:  # when manually trying a /view on a mailing, not through email link
             html_markupsafe = html_markupsafe.replace(

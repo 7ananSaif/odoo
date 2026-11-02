@@ -1,4 +1,3 @@
-import base64
 import json
 import logging
 import re
@@ -6,10 +5,12 @@ from collections import defaultdict
 
 
 from markupsafe import Markup
+from requests import RequestException
 
 from odoo import Command, _, api, fields, models
-from odoo.exceptions import AccessError, LockError, UserError
+from odoo.exceptions import LockError, UserError
 from odoo.tools import float_is_zero, float_compare
+from odoo.tools import BinaryBytes
 
 from odoo.addons.l10n_in.models.account_invoice import EDI_CANCEL_REASON
 
@@ -33,6 +34,7 @@ class AccountMove(models.Model):
             ('cancelled', "Cancelled"),
         ],
         copy=False,
+        index='btree_not_null',
         tracking=True,
         readonly=True,
     )
@@ -73,14 +75,12 @@ class AccountMove(models.Model):
                 and move.company_id.l10n_in_edi_feature
                 and move.is_sale_document(include_receipts=True)
                 and move.journal_id.type == 'sale'
-                and base64.b64encode(
-                    json.dumps(move._l10n_in_edi_generate_invoice_json()).encode()
-                )
+                and BinaryBytes(json.dumps(move._l10n_in_edi_generate_invoice_json()).encode())
             )
 
     def _compute_l10n_in_warning(self):
         super()._compute_l10n_in_warning()
-        gsp_provider = self.env["ir.config_parameter"].sudo().get_param("l10n_in.gsp_provider", "tera")
+        gsp_provider = self.env["ir.config_parameter"].sudo().get_str("l10n_in.gsp_provider", "tera")
         if gsp_provider != "tera":
             return
         indian_invoice = self.filtered(lambda m: m.country_code == 'IN' and m.move_type != 'entry' and
@@ -103,7 +103,7 @@ class AccountMove(models.Model):
                 'action': {
                     'name': _("Documentation"),
                     'type': 'ir.actions.act_url',
-                    'url': 'https://www.odoo.com/documentation/19.0/applications/finance/fiscal_localizations/india.html#gsp-configuration',
+                    'url': 'https://www.odoo.com/documentation/saas-19.1/applications/finance/fiscal_localizations/india.html#gsp-configuration',
                 }
             }
             move.l10n_in_warning = l10n_in_warning
@@ -191,7 +191,7 @@ class AccountMove(models.Model):
     def _get_l10n_in_edi_response_json(self):
         self.ensure_one()
         if self.l10n_in_edi_attachment_id:
-            return json.loads(self.l10n_in_edi_attachment_id.sudo().raw.decode("utf-8"))
+            return json.loads(self.l10n_in_edi_attachment_id.sudo().raw.content)
         return {}
 
     def _l10n_in_lock_invoice(self):
@@ -493,7 +493,7 @@ class AccountMove(models.Model):
             })
         return partner_details
 
-    def _get_l10n_in_edi_line_details(self, index, line, line_tax_details):
+    def _get_l10n_in_edi_line_details(self, index, line, line_tax_details, is_price_adjustment):
         """
         Create the dictionary with line details
         """
@@ -506,7 +506,7 @@ class AccountMove(models.Model):
                 line.price_unit,
                 line.company_currency_id,
                 line.company_id,
-                line.date or fields.Date.context_today(self)
+                line.date,
             )
         else:
             unit_price_in_inr = ((sign * line.balance) / (1 - (line.discount / 100))) / quantity
@@ -522,14 +522,16 @@ class AccountMove(models.Model):
             'SlNo': str(index),
             'IsServc': self._l10n_in_is_service_hsn(line.l10n_in_hsn_code) and 'Y' or 'N',
             'HsnCd': self._l10n_in_extract_digits(line.l10n_in_hsn_code),
-            'Qty': in_round(quantity or 0.0, 3),
+            # Price adjustment credit / debit notes do not alter quantities; they only adjust total amounts.
+            # Therefore, the EDI reports both quantity and unit price as 0.
+            'Qty': 0.0 if is_price_adjustment else in_round(quantity, 3),
             'Unit': (
                 line.product_uom_id.l10n_in_code
                 and line.product_uom_id.l10n_in_code.split('-')[0]
                 or 'OTH'
             ),
             # Unit price in company currency and tax excluded so its different then price_unit
-            'UnitPrice': in_round(unit_price_in_inr, 3),
+            'UnitPrice': 0.0 if is_price_adjustment else in_round(unit_price_in_inr, 3),
             # total amount is before discount
             'TotAmt': in_round(unit_price_in_inr * quantity),
             'Discount': in_round((unit_price_in_inr * quantity) * (line.discount / 100)),
@@ -555,8 +557,8 @@ class AccountMove(models.Model):
             'OthChrg': in_round(tax_details_by_code.get('other_amount', 0.00)),
             'TotItemVal': in_round((sign * line.balance) + line_tax_details.get('tax_amount', 0.00)),
         }
-        if line.name:
-            line_details['PrdDesc'] = line.name.replace("\n", "")[:300]
+        if line.label:
+            line_details['PrdDesc'] = line.label.replace("\n", " ")[:300]
         return line_details
 
     def _l10n_in_edi_generate_invoice_json_managing_negative_lines(self, json_payload):
@@ -631,6 +633,7 @@ class AccountMove(models.Model):
         tax_details_by_code = self._get_l10n_in_tax_details_by_line_code(tax_details['tax_details'])
         is_intra_state = self.l10n_in_state_id == self.company_id.state_id
         is_overseas = self.l10n_in_gst_treatment == "overseas"
+        is_price_adjustment = self.l10n_in_adjustment_type == 'price_adjustment'
         line_ids = []
         global_discount_line_ids = []
         grouping_lines = self.invoice_line_ids.grouped(
@@ -674,7 +677,8 @@ class AccountMove(models.Model):
                 self._get_l10n_in_edi_line_details(
                     index,
                     line,
-                    tax_details_per_record.get(line, {})
+                    tax_details_per_record.get(line, {}),
+                    is_price_adjustment
                 )
                 for index, line in enumerate(lines, start=1)
             ],
@@ -704,7 +708,7 @@ class AccountMove(models.Model):
         if self.company_currency_id != self.currency_id:
             json_payload["ValDtls"].update({
                 "TotInvValFc": in_round(
-                    (tax_details.get("base_amount_currency") + tax_details.get("tax_amount_currency")))
+                    tax_details.get("base_amount_currency") + tax_details.get("tax_amount_currency"))
             })
         if seller_buyer['seller_details'] != seller_buyer['dispatch_details']:
             json_payload['DispDtls'] = self._get_l10n_in_edi_partner_details(
@@ -818,7 +822,7 @@ class AccountMove(models.Model):
                 f"/iap/l10n_in_edi/1/{url_end_point}",
                 'l10n_in_edi.endpoint'
             )
-        except AccessError as e:
+        except RequestException as e:
             _logger.warning("Connection error: %s", e.args[0])
             return {
                 'error': [{

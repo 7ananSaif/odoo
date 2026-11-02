@@ -8,23 +8,15 @@ from markupsafe import Markup
 from odoo import _, api, fields, models
 from odoo.exceptions import LockError, UserError
 
-TBAI_REFUND_REASONS = [
-    ('R1', "R1: Art. 80.1, 80.2, 80.6 and rights founded error"),
-    ('R2', "R2: Art. 80.3"),
-    ('R3', "R3: Art. 80.4"),
-    ('R4', "R4: Art. 80 - other"),
-    ('R5', "R5: Factura rectificativa en facturas simplificadas"),
-]
-
 
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
     l10n_es_tbai_state = fields.Selection([
-            ('to_send', 'To Send'),
-            ('sent', 'Sent'),
-            ('cancelled', 'Cancelled'),
-        ],
+        ('to_send', 'To Send'),
+        ('sent', 'Sent'),
+        ('cancelled', 'Cancelled'),
+    ],
         string='TicketBAI status',
         compute='_compute_l10n_es_tbai_state',
     )
@@ -47,7 +39,7 @@ class AccountMove(models.Model):
 
     l10n_es_tbai_post_file = fields.Binary(
         string="TicketBAI Post File",
-        related='l10n_es_tbai_post_document_id.xml_attachment_id.datas',
+        related='l10n_es_tbai_post_document_id.xml_attachment_id.raw',
     )
     l10n_es_tbai_post_file_name = fields.Char(
         string="TicketBAI Post Attachment Name",
@@ -55,7 +47,7 @@ class AccountMove(models.Model):
     )
     l10n_es_tbai_cancel_file = fields.Binary(
         string="TicketBAI Cancel File",
-        related='l10n_es_tbai_cancel_document_id.xml_attachment_id.datas',
+        related='l10n_es_tbai_cancel_document_id.xml_attachment_id.raw',
     )
     l10n_es_tbai_cancel_file_name = fields.Char(
         string="TicketBAI Cancel File Name",
@@ -68,11 +60,8 @@ class AccountMove(models.Model):
         compute='_compute_l10n_es_tbai_is_required',
     )
 
-    l10n_es_tbai_refund_reason = fields.Selection(
-        selection=TBAI_REFUND_REASONS,
-        string="Invoice Refund Reason Code (TicketBai)",
-        help="BOE-A-1992-28740. Ley 37/1992, de 28 de diciembre, del Impuesto sobre el "
-        "Valor Añadido. Artículo 80. Modificación de la base imponible.",
+    l10n_es_tbai_original_invoice_date = fields.Date(
+        string="Original Invoice Date (TicketBAI)",
         copy=False,
     )
     l10n_es_tbai_reversed_ids = fields.Many2many(
@@ -81,6 +70,8 @@ class AccountMove(models.Model):
         domain="[('move_type', '=', 'in_invoice'), ('commercial_partner_id', '=', commercial_partner_id)]",
         help="In the case where a vendor refund has multiple original invoices, you can set them here. ",
     )
+
+    l10n_es_original_invoice_credited = fields.Char(string='Original Invoice Credited', store=True)
 
     # -------------------------------------------------------------------------
     # API-DECORATED & EXTENDED METHODS
@@ -126,7 +117,7 @@ class AccountMove(models.Model):
                 # button_cancel calls button_draft.
                 # Draft button does not appear for user.
                 raise UserError(_("You cannot reset to draft an entry that has been posted to TicketBAI's chain"))
-        super().button_draft()
+        return super().button_draft()
 
     @api.ondelete(at_uninstall=False)
     def _l10n_es_tbai_unlink_except_in_chain(self):
@@ -146,7 +137,6 @@ class AccountMove(models.Model):
             return _("This entry has already been posted.")
         if self.company_id.l10n_es_tbai_tax_agency == 'bizkaia' and self.is_purchase_document() and not self.ref:
             return _("You need to fill in the Reference field as the invoice number from your vendor.")
-
 
     def _l10n_es_tbai_get_attachment_name(self, cancel=False):
         return self.name + ('_post.xml' if not cancel else '_cancel.xml')
@@ -170,7 +160,8 @@ class AccountMove(models.Model):
                 test_suffix=test_suffix,
                 message=message,
             ),
-            attachment_ids=[self.l10n_es_tbai_post_document_id.xml_attachment_id.id] if not cancel else [self.l10n_es_tbai_cancel_document_id.xml_attachment_id.id],
+            attachment_ids=[self.l10n_es_tbai_post_document_id.xml_attachment_id.id] if not cancel else [
+                self.l10n_es_tbai_cancel_document_id.xml_attachment_id.id],
         )
 
     def _l10n_es_tbai_lock_move(self):
@@ -267,7 +258,7 @@ class AccountMove(models.Model):
         values = {
             'is_sale': self.is_sale_document(),
             'partner': self.commercial_partner_id,
-            'is_simplified': self.l10n_es_is_simplified,
+            'is_simplified': self.l10n_es_invoice_type in ('F2', 'R5'),
             'delivery_date': self.delivery_date if self.delivery_date != fields.Datetime.today() else None,
             **self._l10n_es_tbai_get_attachment_values(cancel),
         }
@@ -301,25 +292,29 @@ class AccountMove(models.Model):
             base_line['discount_amount'] = sign * base_line['discount_amount']
             base_line['price_total'] = sign * base_line['price_total']
         taxes = self.invoice_line_ids.tax_ids.flatten_taxes_hierarchy()
-        is_oss = any(tax._l10n_es_get_regime_code() == '17' for tax in taxes)
+        regime_code = self.env['account.tax']._l10n_es_regime_code_aeat(self.l10n_es_regime_code) or '01'
+        is_oss_or_canary = regime_code in ('17', '54')
 
         return {
             **self._l10n_es_tbai_get_credit_note_values(),
             'origin': self.invoice_origin and self.invoice_origin[:250] or 'manual',
             'taxes': taxes,
-            'rate':  abs(self.amount_total / self.amount_total_signed) if self.amount_total else 1,
+            'regime_code': regime_code,
+            'rate': abs(self.amount_total / self.amount_total_signed) if self.amount_total else 1,
             'base_lines': base_lines,
-            'nosujeto_causa': 'IE' if is_oss else 'RL',
+            'nosujeto_causa': 'IE' if is_oss_or_canary else 'RL',
             **({'post_doc': self.l10n_es_tbai_post_document_id} if cancel else {}),
         }
 
     def _l10n_es_tbai_get_credit_note_values(self):
+        reversed_entry = self.reversed_entry_id
+        fallback_refunded_name = self.l10n_es_original_invoice_credited
         return {
             'is_refund': self.move_type == 'out_refund',
-            'refund_reason': self.l10n_es_tbai_refund_reason,
-            'refunded_doc': self.reversed_entry_id.l10n_es_tbai_post_document_id,
-            'refunded_doc_invoice_date': self.reversed_entry_id.invoice_date if self.reversed_entry_id else False,
-            'refunded_name': self.reversed_entry_id.name if self.reversed_entry_id else False,
+            'refund_reason': self.l10n_es_invoice_type,
+            'refunded_doc': reversed_entry.l10n_es_tbai_post_document_id,
+            'refunded_doc_invoice_date': reversed_entry.invoice_date if reversed_entry else self.l10n_es_tbai_original_invoice_date,
+            'refunded_name': reversed_entry.name if reversed_entry else fallback_refunded_name,
         }
 
     def _l10n_es_tbai_get_vendor_bill_values_batuz(self):
@@ -328,30 +323,16 @@ class AccountMove(models.Model):
             'ref': self.ref,
             'is_refund': self.move_type == 'in_refund',
             'invoice_date': self.invoice_date,
-             **self._l10n_es_tbai_get_vendor_bill_tax_values(),
+            **self._l10n_es_tbai_get_vendor_bill_tax_values(),
         }
-        # Check if intracom
-        mod_303_10 = self.env.ref('l10n_es.mod_303_casilla_10_balance')._get_matching_tags()
-        mod_303_11 = self.env.ref('l10n_es.mod_303_casilla_11_balance')._get_matching_tags()
-        tax_tags = self.invoice_line_ids.tax_ids.flatten_taxes_hierarchy().repartition_line_ids.tag_ids
-        intracom = bool(tax_tags & (mod_303_10 + mod_303_11))
-        reagyp = self.invoice_line_ids.tax_ids.filtered(lambda t: t.l10n_es_type == 'sujeto_agricultura')
-        if intracom:
-            values['regime_key'] = ['09']
-        elif reagyp:
-            values['regime_key'] = ['02']
-        else:
-            values['regime_key'] = ['01']
+
+        regime_code = self.env['account.tax']._l10n_es_regime_code_aeat(self.l10n_es_regime_code) or '01'
+        values['regime_key'] = [regime_code]
         # Credit notes (factura rectificativa)
         if values['is_refund']:
-            values['refund_reason'] = self.l10n_es_tbai_refund_reason
+            values['refund_reason'] = self.l10n_es_invoice_type
             values['credit_note_invoices'] = self.reversed_entry_id | self.l10n_es_tbai_reversed_ids
-        if reagyp:
-            values['tipofactura'] = 'F6'
-        elif self._l10n_es_is_dua():
-            values['tipofactura'] = 'F5'
-        else:
-            values['tipofactura'] = 'F1'
+        values['tipofactura'] = self.l10n_es_invoice_type
         return values
 
     def _l10n_es_tbai_get_vendor_bill_tax_values(self):
@@ -387,3 +368,15 @@ class AccountMove(models.Model):
         if self.l10n_es_tbai_is_required:
             return True
         return super()._refunds_origin_required()
+
+    def action_post(self):
+        for move in self:
+            if (move.move_type in ('in_refund', 'out_refund')
+                and move.company_id.l10n_es_tbai_is_enabled
+                and not move.reversed_entry_id
+                and not move.l10n_es_tbai_reversed_ids
+                and not move.l10n_es_original_invoice_credited):
+                raise UserError(
+                    _("Please create the credit note from the original invoice. "
+                      "If that's not possible, fill in the 'Original Invoice Credited' field."))
+        return super().action_post()

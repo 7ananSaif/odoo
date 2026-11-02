@@ -11,17 +11,16 @@ import { registry } from "@web/core/registry";
 export const livechatRoutingMap = registry.category("discuss.routing_map");
 
 livechatRoutingMap
-    .add("/discuss/channel/messages", "/im_livechat/cors/channel/messages")
     .add("/discuss/channel/notify_typing", "/im_livechat/cors/channel/notify_typing")
     .add("/discuss/channel/mark_as_read", "/im_livechat/cors/channel/mark_as_read")
     .add("/mail/attachment/delete", "/im_livechat/cors/attachment/delete")
     .add("/discuss/channel/ping", "/im_livechat/cors/channel/ping")
-    .add("/mail/action", "/im_livechat/cors/action")
-    .add("/mail/data", "/im_livechat/cors/data")
+    .add("/mail/store", "/im_livechat/cors/store")
     .add("/mail/link_preview", "/im_livechat/cors/link_preview")
     .add("/mail/link_preview/hide", "/im_livechat/cors/link_preview/hide")
     .add("/mail/message/post", "/im_livechat/cors/message/post")
     .add("/mail/message/reaction", "/im_livechat/cors/message/reaction")
+    .add("/mail/message/translate", "/im_livechat/cors/message/translate")
     .add("/mail/message/update_content", "/im_livechat/cors/message/update_content")
     .add("/mail/rtc/channel/join_call", "/im_livechat/cors/rtc/channel/join_call")
     .add("/mail/rtc/channel/leave_call", "/im_livechat/cors/rtc/channel/leave_call")
@@ -41,4 +40,4 @@ livechatRoutingMap
     .add("/chatbot/restart", "/chatbot/cors/restart")
     .add("/chatbot/answer/save", "/chatbot/cors/answer/save")
     .add("/chatbot/step/trigger", "/chatbot/cors/step/trigger")
-    .add("/chatbot/step/validate_email", "/chatbot/cors/step/validate_email");
+    .add("/chatbot/step/validate_contact_info", "/chatbot/cors/step/validate_contact_info");

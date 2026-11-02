@@ -13,7 +13,7 @@ export class StarPlugin extends Plugin {
                 id: "addStars",
                 title: _t("Stars"),
                 description: _t("Insert a rating"),
-                icon: "fa-star",
+                icon: "star",
                 run: this.addStars.bind(this),
                 isAvailable: isHtmlContentSupported,
             },
@@ -23,7 +23,7 @@ export class StarPlugin extends Plugin {
                 title: _t("3 Stars"),
                 description: _t("Insert a rating over 3 stars"),
                 categoryId: "widget",
-                icon: "fa-star-o",
+                icon: "star",
                 commandId: "addStars",
                 commandParams: { length: 3 },
             },
@@ -31,6 +31,8 @@ export class StarPlugin extends Plugin {
                 title: _t("5 Stars"),
                 description: _t("Insert a rating over 5 stars"),
                 categoryId: "widget",
+                icon: "star",
+                iconClass: "oi-filled",
                 commandId: "addStars",
                 commandParams: { length: 5 },
             },
@@ -45,8 +47,7 @@ export class StarPlugin extends Plugin {
     onMouseDown(ev) {
         const node = ev.target;
         const isStar = (node) =>
-            node.nodeType === Node.ELEMENT_NODE &&
-            (node.classList.contains("fa-star") || node.classList.contains("fa-star-o"));
+            node.nodeType === Node.ELEMENT_NODE && node.dataset.icon === "star";
         if (
             isStar(node) &&
             node.parentElement &&
@@ -58,17 +59,15 @@ export class StarPlugin extends Plugin {
             const nextStars = allStars.slice(currentStarIndex + 1);
             if (nextStars.length || previousStars.length) {
                 const shouldToggleOff =
-                    node.classList.contains("fa-star") &&
-                    (!nextStars[0] || !nextStars[0].classList.contains("fa-star"));
+                    node.classList.contains("oi-filled") &&
+                    (!nextStars[0] || !nextStars[0].classList.contains("oi-filled"));
                 for (const star of [...previousStars, node]) {
-                    star.classList.toggle("fa-star-o", shouldToggleOff);
-                    star.classList.toggle("fa-star", !shouldToggleOff);
+                    star.classList.toggle("oi-filled", !shouldToggleOff);
                 }
                 for (const star of nextStars) {
-                    star.classList.toggle("fa-star-o", true);
-                    star.classList.toggle("fa-star", false);
+                    star.classList.toggle("oi-filled", false);
                 }
-                this.dependencies.history.addStep();
+                this.dependencies.history.commit();
             }
             ev.stopPropagation();
             ev.preventDefault();
@@ -76,9 +75,9 @@ export class StarPlugin extends Plugin {
     }
 
     addStars({ length }) {
-        const stars = Array.from({ length }, () => '<i class="fa fa-star-o"></i>').join("");
+        const stars = Array(length).fill('<i class="oi" data-icon="star"></i>').join("");
         const html = `<span contenteditable="false" class="o_stars">${stars}</span>`;
         this.dependencies.dom.insert(parseHTML(this.document, html));
-        this.dependencies.history.addStep();
+        this.dependencies.history.commit();
     }
 }

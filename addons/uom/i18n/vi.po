@@ -7,23 +7,31 @@
 # Thi Huong Nguyen, 2023
 #
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
-# Weblate <noreply-mt-weblate@weblate.org>, 2025, 2026.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
 # "Thi Huong Nguyen (thng)" <thng@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0beta\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:40+0000\n"
-"PO-Revision-Date: 2026-06-12 02:30+0000\n"
-"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
-"Language-Team: Vietnamese <https://translate.odoo.com/projects/odoo-19/uom/"
-"vi/>\n"
+"POT-Creation-Date: 2026-09-11 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 20:46+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Vietnamese <https://translate.odoo.com/projects/odoo-s19-4/"
+"uom/vi/>\n"
 "Language: vi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: uom
+#: model:ir.module.module,description:base.module_uom
+msgid ""
+"\n"
+"This is the base module for managing Units of measure.\n"
+"========================================================================\n"
+msgstr ""
 
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_uom__factor
@@ -31,12 +39,17 @@ msgid "Absolute Quantity"
 msgstr "Số lượng tuyệt đối"
 
 #. module: uom
+#: model:ir.model,name:uom.model_res_groups
+msgid "Access Groups"
+msgstr ""
+
+#. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_uom__active
 msgid "Active"
 msgstr "Đang hoạt động"
 
 #. module: uom
-#: model_terms:ir.actions.act_window,help:uom.product_uom_form_action
+#: model_terms:ir.actions.act_window,help:uom.uom_uom_action_list
 msgid "Add a new unit of measure"
 msgstr "Thêm một đơn vị tính mới"
 
@@ -66,6 +79,7 @@ msgid "Days"
 msgstr "Ngày"
 
 #. module: uom
+#: model:ir.model.fields,field_description:uom.field_res_groups__display_name
 #: model:ir.model.fields,field_description:uom.field_uom_uom__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
@@ -88,6 +102,7 @@ msgid ""
 msgstr "Đơn vị này lớn hơn hoặc nhỏ hơn bao nhiêu so với ĐVT tham chiếu"
 
 #. module: uom
+#: model:ir.model.fields,field_description:uom.field_res_groups__id
 #: model:ir.model.fields,field_description:uom.field_uom_uom__id
 msgid "ID"
 msgstr "ID"
@@ -119,9 +134,8 @@ msgstr "Quản lý Đa đơn vị Đo lường"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_minute
-#, fuzzy
 msgid "Minutes"
-msgstr "Phút"
+msgstr ""
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_pack_6
@@ -146,7 +160,7 @@ msgid "Product Unit of Measure"
 msgstr "Đơn vị tính sản phẩm"
 
 #. module: uom
-#: model_terms:ir.ui.view,arch_db:uom.product_uom_form_view
+#: model_terms:ir.ui.view,arch_db:uom.uom_uom_view_form
 msgid "Quantity"
 msgstr "Số lượng"
 
@@ -159,7 +173,7 @@ msgstr "Tên trường số lượng"
 
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_uom__relative_uom_id
-#: model_terms:ir.ui.view,arch_db:uom.product_uom_form_view
+#: model_terms:ir.ui.view,arch_db:uom.uom_uom_view_form
 msgid "Reference Unit"
 msgstr "Đơn vị tham chiếu"
 
@@ -173,11 +187,6 @@ msgstr "Thiếu đơn vị tính tham chiếu."
 #: model:ir.model.fields,field_description:uom.field_uom_uom__related_uom_ids
 msgid "Related UoMs"
 msgstr "ĐVT liên quan"
-
-#. module: uom
-#: model:ir.model.fields,field_description:uom.field_uom_uom__rounding
-msgid "Rounding Precision"
-msgstr "Làm tròn chính xác"
 
 #. module: uom
 #: model_terms:ir.ui.view,arch_db:uom.uom_uom_view_search
@@ -226,11 +235,6 @@ msgstr ""
 "Thay vào đó, bạn có thể lưu trữ chúng."
 
 #. module: uom
-#: model:uom.uom,name:uom.product_uom_ton
-msgid "Ton"
-msgstr "Tấn"
-
-#. module: uom
 #: model:ir.model.fields,help:uom.field_uom_uom__active
 msgid ""
 "Uncheck the active field to disable a unit of measure without deleting it."
@@ -247,15 +251,20 @@ msgid "Units"
 msgstr "Đơn vị"
 
 #. module: uom
-#: model:ir.actions.act_window,name:uom.product_uom_form_action
-#: model_terms:ir.ui.view,arch_db:uom.product_uom_tree_view
+#: model:ir.actions.act_window,name:uom.uom_uom_action_list
+#: model_terms:ir.ui.view,arch_db:uom.uom_uom_view_list
 msgid "Units & Packagings"
 msgstr "Đơn vị & đóng gói"
 
 #. module: uom
-#: model_terms:ir.ui.view,arch_db:uom.product_uom_form_view
+#: model_terms:ir.ui.view,arch_db:uom.uom_uom_view_form
 msgid "Units of Measure"
 msgstr "Đơn vị tính"
+
+#. module: uom
+#: model:ir.module.module,shortdesc:base.module_uom
+msgid "Units of measure"
+msgstr ""
 
 #. module: uom
 #. odoo-javascript
@@ -370,124 +379,11 @@ msgid "qt (US)"
 msgstr "qt (US)"
 
 #. module: uom
+#: model:uom.uom,name:uom.product_uom_ton
+msgid "t"
+msgstr ""
+
+#. module: uom
 #: model:uom.uom,name:uom.product_uom_yard
 msgid "yd"
 msgstr "yd"
-
-#~ msgid "Add a new unit of measure category"
-#~ msgstr "Add a new unit of measure category"
-
-#~ msgid "Bigger Ratio"
-#~ msgstr "Tỷ lệ lớn hơn"
-
-#~ msgid "Bigger than the reference Unit of Measure"
-#~ msgstr "Lớn hơn đơn vị đo lường gốc"
-
-#~ msgid "Category"
-#~ msgstr "Danh mục"
-
-#~ msgid "Color"
-#~ msgstr "Màu sắc"
-
-#~ msgid ""
-#~ "Conversion between Units of Measure can only occur if they belong to the "
-#~ "same category. The conversion will be made based on the ratios."
-#~ msgstr ""
-#~ "Việc chuyển đổi qua lại giữa các đơn vị đo lường chỉ có thể xảy ra nếu "
-#~ "chúng thuộc cùng một nhóm. Việc chuyển đổi sẽ dựa trên tỉ lệ."
-
-#~ msgid "Group By"
-#~ msgstr "Nhóm theo"
-
-#~ msgid ""
-#~ "How many times this Unit of Measure is bigger than the reference Unit of "
-#~ "Measure in this category: 1 * (this unit) = ratio * (reference unit)"
-#~ msgstr ""
-#~ "Số Đơn vị Đo lường này lớn hơn Đơn vị Đo lường trong đơn vị này bao nhiêu "
-#~ "lần: 1 * (đơn vị này) = tỷ lệ * (đơn vị tham chiếu)"
-
-#~ msgid ""
-#~ "How much bigger or smaller this unit is compared to the reference Unit of "
-#~ "Measure for this category: 1 * (reference unit) = ratio * (this unit)"
-#~ msgstr ""
-#~ "Đơn vị này lớn hơn hoặc nhỏ hơn bao nhiêu so với Đơn vị đo lường tham "
-#~ "chiếu cho danh mục này: 1 * (đơn vị tham chiếu) = tỷ lệ * (đơn vị này)"
-
-#~ msgid "Last Modified on"
-#~ msgstr "Sửa lần cuối vào"
-
-#~ msgid "Length / Distance"
-#~ msgstr "Chiều dài / Khoảng cách"
-
-#~ msgid "Product UoM Categories"
-#~ msgstr "Nhóm Đơn vị Đo lường Sản phẩm"
-
-#~ msgid "Ratio"
-#~ msgstr "Tỷ lệ"
-
-#~ msgid "Reference Unit of Measure for this category"
-#~ msgstr "Đơn vị gốc của nhóm này"
-
-#~ msgid "Smaller than the reference Unit of Measure"
-#~ msgstr "Nhỏ hơn đơn vị gốc của nhóm này"
-
-#~ msgid ""
-#~ "The computed quantity will be a multiple of this value. Use 1.0 for a "
-#~ "Unit of Measure that cannot be further split, such as a piece."
-#~ msgstr ""
-#~ "Số lượng được tính toán sẽ là bội số (số chia hết) của giá trị này. Sử "
-#~ "dụng 1.0 cho một đơn vị đo lường mà không thể được chia nhỏ nữa, ví du "
-#~ "như đơn vị là một miếng (một mảnh)."
-
-#~ msgid "The reference unit must have a conversion factor equal to 1."
-#~ msgstr "The reference unit must have a conversion factor equal to 1."
-
-#~ msgid "The rounding precision must be strictly positive."
-#~ msgstr "The rounding precision must be strictly positive."
-
-#~ msgid "Type"
-#~ msgstr "Loại"
-
-#~ msgid "Unit"
-#~ msgstr "Đơn vị"
-
-#~ msgid "Unit of Measure"
-#~ msgstr "Đơn vị tính"
-
-#~ msgid "Unit of Measure Category"
-#~ msgstr "Unit of Measure Category"
-
-#~ msgid "Units of Measure Categories"
-#~ msgstr "Danh mục đơn vị"
-
-#~ msgid "Units of Measure categories"
-#~ msgstr "Nhóm Đơn vị Đo lường"
-
-#~ msgid ""
-#~ "Units of measure belonging to the same category can be\n"
-#~ "            converted between each others. For example, in the category\n"
-#~ "            <i>'Time'</i>, you will have the following units of measure:\n"
-#~ "            Hours, Days."
-#~ msgstr ""
-#~ "Các đơn vị đo lường trong cùng một nhóm có thể được chuyển đối qua\n"
-#~ "            lại lẫn nhau. Ví dụ, trong nhóm <i>'Thời gian'</i>, bạn sẽ "
-#~ "có            các đơn vị đo lường như: giờ, ngày, phút.\n"
-
-#~ msgid "UoM category %s should only have one reference unit of measure."
-#~ msgstr "UoM category %s should only have one reference unit of measure."
-
-#~ msgid "Volume"
-#~ msgstr "Thể tích"
-
-#~ msgid "Weight"
-#~ msgstr "Khối lượng"
-
-#~ msgid "Working Time"
-#~ msgstr "Thời gian làm việc"
-
-#~ msgid ""
-#~ "You must define a conversion rate between several Units of\n"
-#~ "            Measure within the same category."
-#~ msgstr ""
-#~ "Bạn phải định nghĩa một tỉ lệ chuyển đổi giữa các Đơn vị\n"
-#~ "            Đo lường trong cùng một Nhóm"

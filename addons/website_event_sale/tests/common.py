@@ -9,6 +9,14 @@ from odoo.addons.website_sale.tests.common import WebsiteSaleCommon
 
 class TestWebsiteEventSaleCommon(WebsiteSaleCommon):
 
+    _test_user_groups = (
+        'base.group_user',
+        'product.group_product_manager',
+        'sales_team.group_sale_manager',  # FIXME: use sales_team.group_sale_salesman
+    )
+
+    _test_user_name = 'Test Sales & Product Manager'
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -58,7 +66,7 @@ class TestWebsiteEventSaleCommon(WebsiteSaleCommon):
                 'website_published': True,
             }
         ])
-        cls.ticket, cls.ticket_2 = cls.env['event.event.ticket'].create([
+        cls.ticket, cls.ticket_2 = cls.env['event.event.ticket'].sudo().create([
             {
                 'event_id': cls.event.id,
                 'name': 'Standard',
@@ -79,13 +87,14 @@ class TestWebsiteEventSaleCommon(WebsiteSaleCommon):
                 'item_ids': [
                     Command.create({
                         'applied_on': '3_global',
-                        'compute_price': 'percentage',
-                        'percent_price': 10,
+                        'compute_price': 'discount',
+                        'price_discount': 10,
                     }),
                 ],
                 'name': name,
                 'selectable': True,
             })
 
-        cls.pricelist_without_discount = create_pricelist(currency=cls.env.company.currency_id, name='EUR Without Discount Included')
-        cls.ex_pricelist_without_discount = create_pricelist(currency=cls.currency_test, name='EX Without Discount Included')
+        cls.pricelist = cls._enable_pricelists()
+        cls.pricelist_without_discount = create_pricelist(currency=cls.env.company.currency_id, name='EUR')
+        cls.ex_pricelist_without_discount = create_pricelist(currency=cls.currency_test, name='EX')

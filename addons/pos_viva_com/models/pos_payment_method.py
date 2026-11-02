@@ -18,18 +18,19 @@ class PosPaymentMethod(models.Model):
         string="Merchant ID", help="Log into Viva.com then navigate to Settings > API Access > Access credentials"
     )
     viva_com_api_key = fields.Char(
-        string="API Key", help="Log into Viva.com then navigate to Settings > API Access > Access credentials"
+        string="API Key", help="Log into Viva.com then navigate to Settings > API Access > Access credentials",
+        groups="point_of_sale.group_pos_manager"
     )
     viva_com_client_id = fields.Char(
         string="Client ID", help="Log into Viva.com then navigate to Settings > API Access > POS APIs Credentials"
     )
     viva_com_client_secret = fields.Char(
-        string="Client secret", help="Log into Viva.com then navigate to Settings > API Access > POS APIs Credentials"
+        string="Client secret", help="Log into Viva.com then navigate to Settings > API Access > POS APIs Credentials",
+        groups="point_of_sale.group_pos_manager"
     )
     viva_com_terminal_id = fields.Char(string="Terminal ID", help='[ID of the Viva.com terminal], e.g. 16002169')
-    viva_com_bearer_token = fields.Char(default='Bearer Token')
-    viva_com_webhook_verification_key = fields.Char()
-    viva_com_latest_response = fields.Json()  # not used anymore, to remove in master
+    viva_com_bearer_token = fields.Char(default='Bearer Token', groups="point_of_sale.group_pos_manager")
+    viva_com_webhook_verification_key = fields.Char(groups="point_of_sale.group_pos_manager")
     viva_com_test_mode = fields.Boolean(string="Test mode", help="Run transactions in the test environment.")
     viva_com_webhook_endpoint = fields.Char(compute='_compute_viva_com_webhook_endpoint', readonly=True)
 
@@ -50,51 +51,61 @@ class PosPaymentMethod(models.Model):
         return 'https://www.vivapayments.com'
 
     def _compute_viva_com_webhook_endpoint(self):
-        web_base_url = self.get_base_url()
-        self.viva_com_webhook_endpoint = (
-            f"{web_base_url}/pos_viva_com/notification?company_id={self.company_id.id}"
-            f"&token={self.viva_com_webhook_verification_key}"
-        )
+        for record in self:
+            web_base_url = record.get_base_url()
+            record.viva_com_webhook_endpoint = (
+                f"{web_base_url}/pos_viva_com/notification?company_id={record.company_id.id}"
+                f"&token={record.viva_com_webhook_verification_key}"
+            )
 
-    def _is_write_forbidden(self, fields):
-        # Allow the modification of these fields even if a pos_session is open
-        whitelisted_fields = {'viva_com_bearer_token', 'viva_com_webhook_verification_key', 'viva_com_latest_response'}
-        return super(PosPaymentMethod, self)._is_write_forbidden(fields - whitelisted_fields)
+    def _get_terminal_provider_selection(self):
+        return super()._get_terminal_provider_selection() + [('viva_com', 'Viva.com')]
 
-    def _get_payment_terminal_selection(self):
-        return super()._get_payment_terminal_selection() + [('viva_com', 'Viva.com')]
+    @api.model
+    def _allowed_actions_in_self_order(self):
+        return super()._allowed_actions_in_self_order() + ["viva_com_send_payment_request", "viva_com_get_payment_status"]
 
     def _bearer_token(self, session):
         self.ensure_one()
 
         data = {'grant_type': 'client_credentials'}
-        auth = requests.auth.HTTPBasicAuth(self.viva_com_client_id, self.viva_com_client_secret)
+        auth = requests.auth.HTTPBasicAuth(self.viva_com_client_id, self.sudo().viva_com_client_secret)
         try:
             resp = session.post(f"{self._viva_com_account_get_endpoint()}/connect/token", auth=auth, data=data, timeout=TIMEOUT)
-        except requests.exceptions.RequestException:
+        except requests.exceptions.RequestException as e:
             _logger.exception("Failed to call viva_com_bearer_token endpoint")
+            raise UserError(_("There are some issues between us and Viva.com, try again later.")) from e
 
-        access_token = resp.json().get('access_token')
-        if access_token:
-            self.sudo().write({'viva_com_bearer_token': access_token})
-            return {'Authorization': f"Bearer {access_token}"}
-        else:
+        try:
+            access_token = resp.json().get('access_token')
+        except ValueError:
+            access_token = False
+
+        if not access_token:
             raise UserError(_(
                 'Unable to retrieve Viva.com Bearer Token: Please verify that the Client ID '
                 'and Client Secret are correct'
             ))
+        self.sudo().write({'viva_com_bearer_token': access_token})
+        return {'Authorization': f"Bearer {access_token}"}
 
     def _call_viva_com(self, endpoint, action, data=None, should_retry=True):
         session = get_viva_com_session(should_retry)
-        session.headers.update({'Authorization': f"Bearer {self.viva_com_bearer_token}"})
+        session.headers.update({'Authorization': f"Bearer {self.sudo().viva_com_bearer_token}"})
         endpoint = f"{self._viva_com_api_get_endpoint()}/ecr/v1/{endpoint}"
         try:
             resp = session.request(action, endpoint, json=data, timeout=TIMEOUT)
         except requests.exceptions.RequestException as e:
             return {'error': _("There are some issues between us and Viva.com, try again later.%s)", e)}
         if resp.text and resp.json().get('detail') == 'Could not validate credentials':
-            session.headers.update(self._bearer_token(session))
-            resp = session.request(action, endpoint, json=data, timeout=TIMEOUT)
+            try:
+                session.headers.update(self._bearer_token(session))
+            except UserError as e:
+                return {'error': str(e)}
+            try:
+                resp = session.request(action, endpoint, json=data, timeout=TIMEOUT)
+            except requests.exceptions.RequestException:
+                return {'error': _("There are some issues between us and Viva.com, try again later.")}
 
         if resp.status_code == 200:
             if resp.text:
@@ -201,15 +212,11 @@ class PosPaymentMethod(models.Model):
 
         return records
 
-    def get_latest_viva_com_status(self):
-        # Not used anymore, to remove in master
-        return {'error': 'Your POS is out of date, please refresh the page.'}
-
-    @api.constrains('use_payment_terminal')
+    @api.constrains('payment_provider')
     def _check_viva_com_credentials(self):
         for record in self:
             if (
-                record.use_payment_terminal == 'viva_com'
+                record.payment_provider == 'viva_com'
                 and not all(record[f] for f in [
                     'viva_com_merchant_id',
                     'viva_com_api_key',

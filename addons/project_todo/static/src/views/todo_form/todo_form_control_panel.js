@@ -1,4 +1,4 @@
-import { onMounted, useEffect } from "@odoo/owl";
+import { useEffect, onMounted } from "@odoo/owl";
 import { browser } from "@web/core/browser/browser";
 import { router } from "@web/core/browser/router";
 import { ControlPanel } from "@web/search/control_panel/control_panel";
@@ -8,22 +8,19 @@ export class TodoFormControlPanel extends ControlPanel {
 
     setup() {
         super.setup();
-        useEffect(
-            (isSmall) => {
-                if (isSmall && !this.state.displayChatter) {
-                    this.toggleChatter();
-                }
-            },
-            () => [this.env.isSmall]
-        );
+        useEffect(() => {
+            if (this.uiService.isSmall && !this.embeddedPanelState.displayChatter) {
+                this.toggleChatter();
+            }
+        });
         onMounted(() => {
             // We check if we have come from activity view using router action stack and toggle chatter
             const isFromActivityView =
                 router.current.actionStack?.[router.current.actionStack?.length - 1]?.view_type ===
                 "activity";
             if (
-                !this.env.isSmall &&
-                !this.state.displayChatter &&
+                !this.uiService.isSmall &&
+                !this.embeddedPanelState.displayChatter &&
                 (isFromActivityView || JSON.parse(browser.localStorage.getItem("isChatterOpened")))
             ) {
                 this.toggleChatter();
@@ -32,10 +29,12 @@ export class TodoFormControlPanel extends ControlPanel {
     }
 
     toggleChatter(ev) {
-        this.state.displayChatter = !this.state.displayChatter;
+        this.embeddedPanelState.displayChatter = !this.embeddedPanelState.displayChatter;
         if (ev) {
-            browser.localStorage.setItem("isChatterOpened", this.state.displayChatter);
+            browser.localStorage.setItem("isChatterOpened", this.embeddedPanelState.displayChatter);
         }
-        this.env.bus.trigger("TODO:TOGGLE_CHATTER", { displayChatter: this.state.displayChatter });
+        this.env.bus.trigger("TODO:TOGGLE_CHATTER", {
+            displayChatter: this.embeddedPanelState.displayChatter,
+        });
     }
 }

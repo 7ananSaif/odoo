@@ -1,16 +1,19 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-#----------------------------------------------------------
+# ----------------------------------------------------------
 # ir_http modular http routing
-#----------------------------------------------------------
+# ----------------------------------------------------------
 import hashlib
 import json
 import logging
 import os
 import re
 import threading
+import time
+import typing
 import unicodedata
 
-import werkzeug
+from urllib3.exceptions import LocationParseError
+from urllib3.util import parse_url
 import werkzeug.exceptions
 import werkzeug.routing
 import werkzeug.utils
@@ -29,12 +32,21 @@ except ImportError:
     slugify_lib = None
 
 import odoo
-from odoo import api, http, models, tools
+from odoo import api, models
 from odoo.api import SUPERUSER_ID
 from odoo.exceptions import AccessDenied
-from odoo.http import ROUTING_KEYS, SAFE_HTTP_METHODS, Response, request
-from odoo.modules.registry import Registry
-from odoo.service import security
+from odoo.http import Response, request
+from odoo.http.dispatcher import SAFE_HTTP_METHODS
+from odoo.http.requestlib import is_cors_preflight
+from odoo.http.routing_map import ROUTING_KEYS
+from odoo.http.session import (
+    check,
+    CheckIdentityException,
+    SessionExpiredException,
+    get_device,
+    get_session_max_inactivity,
+    session_store,
+)
 from odoo.tools.json import json_default
 from odoo.tools.misc import get_lang, submap
 from odoo.tools.translate import code_translations
@@ -53,7 +65,45 @@ EXTENSION_TO_WEB_MIMETYPES = {
 }
 
 
-class RequestUID(object):
+class AuthRequirements(typing.TypedDict, total=False):
+    logout: bool
+    """True if a full login is required."""
+
+    check_identity: bool
+    """True if an identity check is required."""
+
+    mfa: bool
+    """True if multi-factor authentication is required."""
+
+    first_fa_method: str
+    """
+    Previously used first-factor authentication method.
+    Used to avoid reusing the same method as a second factor.
+    """
+
+    fingerprint_check: bool
+    """
+    True if re-authentication can be fully completed
+    using the device fingerprint alone.
+    """
+
+    log_reason: str
+    """Message to be logged if ``logout`` or ``check_identity`` is ``True``."""
+
+
+class CheckIdentityResult(typing.TypedDict, total=False):
+    auth_methods: list[str]
+    """
+    List of available authentication methods.
+    Present when no credential is provided, or when an additional
+    authentication factor is required.
+    """
+
+    mfa: bool
+    """True if a second authentication factor is required."""
+
+
+class RequestUID:
     def __init__(self, **kw):
         self.__dict__.update(kw)
 
@@ -65,17 +115,14 @@ class ModelConverter(werkzeug.routing.BaseConverter):
         super().__init__(url_map)
         self.model = model
 
-        IrHttp = Registry(threading.current_thread().dbname)['ir.http']
-        self.slug = IrHttp._slug
-        self.unslug = IrHttp._unslug
-
     def to_python(self, value: str) -> models.BaseModel:
-        _uid = RequestUID(value=value, converter=self)
-        env = api.Environment(request.env.cr, _uid, request.env.context)
-        return env[self.model].browse(self.unslug(value)[1])
+        uid = RequestUID(value=value, converter=self)
+        env = api.Environment(request.env.cr, uid, request.env.context)
+        unslug = env['ir.http']._unslug
+        return env[self.model].browse(unslug(value)[1])
 
     def to_url(self, value: models.BaseModel) -> str:
-        return self.slug(value)
+        return value.env['ir.http']._slug(value)
 
 
 class ModelsConverter(werkzeug.routing.BaseConverter):
@@ -86,12 +133,12 @@ class ModelsConverter(werkzeug.routing.BaseConverter):
         self.model = model
 
     def to_python(self, value: str) -> models.BaseModel:
-        _uid = RequestUID(value=value, converter=self)
-        env = api.Environment(request.env.cr, _uid, request.env.context)
+        uid = RequestUID(value=value, converter=self)
+        env = api.Environment(request.env.cr, uid, request.env.context)
         return env[self.model].browse(int(v) for v in value.split(','))
 
     def to_url(self, value: models.BaseModel) -> str:
-        return ",".join(value.ids)
+        return ",".join(map(str, value.ids))
 
 
 class SignedIntConverter(NumberConverter):
@@ -140,7 +187,12 @@ class IrHttp(models.AbstractModel):
     _description = "HTTP Routing"
 
     @classmethod
-    def _slugify_one(cls, value: str, max_length: int = None) -> str:
+    def _is_valid_char(cls, ch: str) -> bool:
+        """Returns True for any character allowed in a url"""
+        return unicodedata.category(ch).startswith("M") or (re.match(r"\w", ch) and ch != '_')
+
+    @classmethod
+    def _slugify_one(cls, value: str, max_length: int | None = None) -> str:
         """ Transform a string to a slug that can be used in a url path.
             This method will first try to do the job with python-slugify if present.
             Otherwise, every character that is not a word character will be replaced
@@ -150,33 +202,31 @@ class IrHttp(models.AbstractModel):
         if slugify_lib:
             # There are 2 different libraries only python-slugify is supported
             try:
-                return slugify_lib.slugify(value, max_length=max_length)
+                return slugify_lib.slugify(value, max_length=max_length, allow_unicode=True)
             except TypeError:
                 pass
-        uni = unicodedata.normalize('NFKD', value)
+        uni = unicodedata.normalize('NFKC', value)
 
-        # Strip combining marks (so accents like 'é' become 'e' instead of 'e-')
-        cleaned = ''.join(c for c in uni if unicodedata.category(c) != 'Mn')
         # Replace all non-word chars AND underscores with a single dash
-        slug = re.sub(r'[\W_]+', '-', cleaned).strip('-').lower()
-        slugified_str = unicodedata.normalize('NFC', slug)
-        return slugified_str[:max_length]
+        slug = ''.join(char if cls._is_valid_char(char) else '-' for char in uni).strip("-").lower()
+        slug = re.sub(r'-+', '-', slug)
+        return slug[:max_length]
 
     @classmethod
-    def _slugify(cls, value: str, max_length: int = None, path: bool = False) -> str:
+    def _slugify(cls, value: str, max_length: int | None = None, path: bool = False) -> str:
         if not path:
             return cls._slugify_one(value, max_length=max_length)
-        else:
-            res = []
-            for u in value.split('/'):
-                s = cls._slugify_one(u, max_length=max_length)
-                if s:
-                    res.append(s)
-            # check if supported extension
-            path_no_ext, ext = os.path.splitext(value)
-            if ext in EXTENSION_TO_WEB_MIMETYPES:
-                res[-1] = cls._slugify_one(path_no_ext) + ext
-            return '/'.join(res)
+
+        res = []
+        for u in value.split('/'):
+            s = cls._slugify_one(u, max_length=max_length)
+            if s:
+                res.append(s)
+        # check if supported extension
+        path_no_ext, ext = os.path.splitext(value)
+        if ext in EXTENSION_TO_WEB_MIMETYPES:
+            res[-1] = cls._slugify_one(path_no_ext) + ext
+        return '/'.join(res)
 
     @classmethod
     def _slug(cls, value: models.BaseModel | tuple[int, str]) -> str:
@@ -191,9 +241,9 @@ class IrHttp(models.AbstractModel):
         except ValueError:
             return None, None
 
-    #------------------------------------------------------
+    # ------------------------------------------------------
     # Routing map
-    #------------------------------------------------------
+    # ------------------------------------------------------
 
     @classmethod
     def _get_converters(cls) -> dict[str, type]:
@@ -204,12 +254,69 @@ class IrHttp(models.AbstractModel):
         rule, args = request.env['ir.http'].routing_map().bind_to_environ(request.httprequest.environ).match(path_info=path_info, return_rule=True)
         return rule, args
 
+    @api.model
+    @api.ormcache('domain_name')
+    def _get_host_id_from_domain(self, domain_name):
+        """Get the website that matches domain_name.
+
+        First find the website for which the configured ``domain`` (after
+        ignoring a potential scheme) is equal to the given
+        ``domain_name``. If a match is found, return it immediately.
+
+        If there is no website found for the given ``domain_name``, either
+        fallback to the first found website (no matter its ``domain``).
+
+        :param str domain_name: An URL (e.g. ``http://example.com:80/``)
+            from which the domain is extracted, or a domain name (e.g.
+            ``example.com``, possibly with a port) directly.
+
+        :returns: The ID of the first website that matched the domain,
+            falling back on the website with lowest ``(sequence, id)``.
+        """
+        #    http://example.com:8042/over/there?name=ferret#nose
+        #     \_/   \_________/ \__/\_________/ \_________/ \__/
+        #      |         |       |       |           |        |
+        #   scheme      host   port    path       query   fragment
+        #            \_____________/
+        #                  |
+        #               netloc
+        #
+        # http://localhost:8080/hẞello => http://localhost/hẞello
+
+        def _filter_domain(website, domain_name, ignore_port=False):
+            """Ignore ``scheme`` from the ``domain``, just match the ``netloc``
+            which is host:port in the version of ``parse_url`` we use."""
+            try:
+                url1 = parse_url(website.domain if '://' in str(website.domain) else f'//{website.domain}')
+                url2 = parse_url(domain_name if '://' in str(domain_name) else f'//{domain_name}')
+            except LocationParseError:
+                # If a domain name is invalid, don't match with anything
+                return False
+            if ignore_port:
+                return url1.host == url2.host
+            return url1.netloc == url2.netloc
+
+        Website = self.env['website'].sudo()
+        existings = Website.get_all().sorted(lambda w: (w.sequence, w.id))
+
+        # Filter for the exact domain (to filter out potential subdomains) due
+        # to the use of ilike.
+        # ``domain_name` could be an empty string, in that case multiple website
+        # without a domain will be returned
+        return (
+            existings.filtered(lambda w: _filter_domain(w, domain_name))
+            # If there is no domain matching for the given port, ignore the port.
+            or existings.filtered(lambda w: _filter_domain(w, domain_name, ignore_port=True))
+            # default to any
+            or existings
+        )[:1].id
+
     @classmethod
     def _get_public_users(cls):
         return [request.env['ir.model.data']._xmlid_to_res_model_res_id('base.public_user')[1]]
 
     @classmethod
-    def _auth_method_bearer(cls):
+    def _auth_method_bearer(cls, routing: dict):
         headers = request.httprequest.headers
 
         def get_http_authorization_bearer_token():
@@ -234,7 +341,7 @@ class IrHttp(models.AbstractModel):
 
         if token := get_http_authorization_bearer_token():
             # 'rpc' scope does not really exist, we basically require a global key (scope NULL)
-            uid = request.env['res.users.apikeys']._check_credentials(scope='rpc', key=token)
+            uid = request.env['res.users.apikeys']._check_credentials(scope=routing['bearer_scope'], key=token)
             if not uid:
                 e = "Invalid apikey"
                 raise Unauthorized(e, www_authenticate=WWWAuthenticate('bearer'))
@@ -243,48 +350,75 @@ class IrHttp(models.AbstractModel):
                 raise AccessDenied(e)
             request.update_env(user=uid)
             request.session.can_save = False  # stateless
+            threading.current_thread().req_ident = ('bearer', token[:8])
         elif not request.env.uid:
             e = "User not authenticated, use an API Key with a Bearer Authorization header."
             raise Unauthorized(e, www_authenticate=WWWAuthenticate('bearer'))
         elif not check_sec_headers():
             e = 'Missing "Authorization" or Sec-headers for interactive usage.'
             raise werkzeug.exceptions.Unauthorized(e, www_authenticate=WWWAuthenticate('bearer'))
-        cls._auth_method_user()
+        cls._authenticate_explicit(dict(routing, auth='user'))
 
     @classmethod
-    def _auth_method_user(cls):
+    def _auth_method_user(cls, routing: dict):
         if request.env.uid in [None] + cls._get_public_users():
-            raise http.SessionExpiredException("Session expired")
+            e = "user is not connected"
+            raise SessionExpiredException(e)
 
     @classmethod
-    def _auth_method_none(cls):
+    def _auth_method_none(cls, routing: dict):
         request.env = api.Environment(request.env.cr, None, request.env.context)
         request.env.transaction.default_env = request.env
 
     @classmethod
-    def _auth_method_public(cls):
+    def _auth_method_public(cls, routing: dict):
         if request.env.uid is None:
             public_user = request.env.ref('base.public_user')
             request.update_env(user=public_user.id)
 
     @classmethod
     def _authenticate(cls, endpoint):
-        auth = 'none' if http.is_cors_preflight(request, endpoint) else endpoint.routing['auth']
-        cls._authenticate_explicit(auth)
+        routing = dict(endpoint.routing, auth='none') if is_cors_preflight(request, endpoint) else endpoint.routing
+        cls._authenticate_explicit(routing)
 
     @classmethod
-    def _authenticate_explicit(cls, auth):
+    def _authenticate_explicit(cls, routing: dict):
+        session_expired_exc = None
         try:
             if request.session.uid is not None:
-                if not security.check_session(request.session, request.env, request):
-                    request.session.logout(keep_db=True)
-                    request.env = api.Environment(request.env.cr, None, request.session.context)
-            getattr(cls, f'_auth_method_{auth}')()
-        except (AccessDenied, http.SessionExpiredException, werkzeug.exceptions.HTTPException):
+                # website_id listed here, not overridable on purpose.
+                safe_context = submap(request.env.context, ('lang', 'tz', 'website_id'))
+                try:
+                    check(request.session, request)
+                except SessionExpiredException as exc:
+                    session_expired_exc = exc  # save the traceback
+                    safe_context.update(request.session.context)
+                    request.env = api.Environment(request.env.cr, None, safe_context)
+            getattr(cls, f'_auth_method_{routing['auth']}')(routing)
+        except SessionExpiredException as exc:
+            if session_expired_exc:
+                raise exc from session_expired_exc
             raise
-        except Exception:
-            _logger.info("Exception during request Authentication.", exc_info=True)
+        except (AccessDenied, werkzeug.exceptions.HTTPException):
+            raise
+        except Exception:  # noqa: BLE001
+            _logger.warning("Exception during request Authentication.", exc_info=True)
             raise AccessDenied()
+
+        if (
+            routing['auth'] == 'user'
+            and request.session.uid is not None
+            and (must_check_identity := cls._must_check_identity())
+        ):
+            log_reason = must_check_identity.get('log_reason')
+            if must_check_identity.get('logout'):
+                if log_reason:
+                    _logger.info("User %r (uid: %s): %s", request.session.login, request.session.uid, log_reason)
+                raise SessionExpiredException(f'User {request.session.uid} needs to login again')
+            if must_check_identity.get('check_identity') and routing.get('check_identity', True):
+                if log_reason:
+                    _logger.info("User %r (uid: %s): %s", request.session.login, request.session.uid, log_reason)
+                raise CheckIdentityException(f'User {request.session.uid} needs to confirm his identity')
 
     @classmethod
     def _geoip_resolve(cls):
@@ -302,14 +436,10 @@ class IrHttp(models.AbstractModel):
         # ICP value. Do it before calling http's generic pre_dispatch
         # so that the per-route limit @route(..., max_content_length=x)
         # takes over.
-        try:
-            key = 'web.max_file_upload_size'
-            if (value := ICP.get_param(key, None)) is not None:
-                request.httprequest.max_content_length = int(value)
-        except ValueError:  # better not crash on ALL requests
-            _logger.error("invalid %s: %r, using %s instead",
-                key, value, request.httprequest.max_content_length,
-            )
+        request.httprequest.max_content_length = ICP.get_int(
+            'web.max_file_upload_size',
+            request.httprequest.max_content_length
+        )
 
         request.dispatcher.pre_dispatch(rule, args)
 
@@ -373,18 +503,20 @@ class IrHttp(models.AbstractModel):
         attach = model.sudo()._get_serve_attachment(request.httprequest.path)
         if attach and (attach.store_fname or attach.db_datas):
             return attach._to_http_stream().get_response()
+        return None
 
     @classmethod
     def _redirect(cls, location, code=303):
         return werkzeug.utils.redirect(location, code=code, Response=Response)
 
     def _generate_routing_rules(self, modules, converters):
-        return http._generate_routing_rules(modules, False, converters)
+        from odoo.http.routing_map import _generate_routing_rules  # noqa: PLC0415
+        return _generate_routing_rules(modules, False, converters)
 
-    @tools.ormcache('key', cache='routing')
+    @api.ormcache('key', cache='routing')
     def routing_map(self, key=None):
-        _logger.info("Generating routing map for key %s", str(key))
-        registry = Registry(threading.current_thread().dbname)
+        _logger.info("Generating routing map for key %s", key)
+        registry = self.env.registry
         installed = registry._init_modules.union(odoo.tools.config['server_wide_modules'])
         mods = sorted(installed)
         # Note : when routing map is generated, we put it on the class `cls`
@@ -405,13 +537,13 @@ class IrHttp(models.AbstractModel):
     def _gc_sessions(self):
         if os.getenv("ODOO_SKIP_GC_SESSIONS"):
             return
-        http.root.session_store.vacuum(max_lifetime=http.get_session_max_inactivity(self.env))
+        session_store().vacuum(max_lifetime=get_session_max_inactivity(self.env))
 
     @api.model
     def _get_translations_for_webclient(self, modules, lang):
         if not lang:
             lang = self.env.context.get("lang")
-        lang_data = self.env['res.lang']._get_data(code=lang)
+        lang_data = self.env['res.lang'].sudo()._lang_get(lang)
         lang_params = {
             "name": lang_data.name,
             "code": lang_data.code,
@@ -433,7 +565,26 @@ class IrHttp(models.AbstractModel):
         return translations_per_module, lang_params
 
     @api.model
-    @tools.ormcache('frozenset(modules)', 'lang')
+    def _get_web_translations_modules(self):
+        """ Return the modules whose translations are served to the web client
+        when it doesn't ask for specific ones. """
+        return self.env.registry._init_modules.union(odoo.tools.config['server_wide_modules'])
+
+    @api.model
+    def _get_web_translations_lang(self, lang):
+        """ Return ``lang`` if it is an installed language, ``None`` otherwise.
+
+        Normalize the language with this method before calling
+        ``_get_web_translations_hash``, so that the hash served by the
+        translations endpoints and the one precomputed in the session info
+        are computed on the same language.
+        """
+        if lang and lang not in {code for code, _ in self.env['res.lang'].sudo().get_installed()}:
+            return None
+        return lang
+
+    @api.model
+    @api.ormcache('frozenset(modules)', 'lang')
     def _get_web_translations_hash(self, modules, lang):
         translations, lang_params = self._get_translations_for_webclient(modules, lang)
         translation_cache = {
@@ -447,10 +598,94 @@ class IrHttp(models.AbstractModel):
             self.env.cr.cache['translation_data'] = translation_cache
         return hashlib.sha1(json.dumps(translation_cache, sort_keys=True, default=json_default).encode()).hexdigest()
 
-    @classmethod
-    def _is_allowed_cookie(cls, cookie_type):
-        return True if cookie_type == 'required' else bool(request.env.user)
+    @api.model
+    def _get_cached_web_translations_hash(self, modules, lang):
+        """ Return the result of ``_get_web_translations_hash`` if it is in
+        the ormcache, an empty string otherwise.
+
+        Computing the hash requires building all the translations, which is
+        too expensive to do while rendering a page. On a cold cache, the client
+        gets no hash and asks the translations endpoint, which fills the cache.
+        """
+        return self._get_web_translations_hash.__cache__.get_value(self, modules, lang, cache_default='')
+
+    @api.model
+    def _is_allowed_cookie(self, cookie_type):
+        return True if cookie_type == 'required' else bool(self.env.user)
 
     @api.model
     def _verify_request_recaptcha_token(self, action: str):
         return
+
+    @classmethod
+    def _must_check_identity(cls) -> AuthRequirements:
+        """ Determine whether the current user session requires identity confirmation. """
+        device = get_device(request.session, request)
+        if device.get('trusted', False):
+            return {}
+        # If it is not an internal user or the feature is not activated, trust the device
+        must_check_device = request.env['ir.config_parameter'].sudo().get_bool('base.session_check_device')
+        if not request.env.user._is_internal() or not must_check_device:
+            device['trusted'] = True
+            request.session.is_dirty = True
+            return {}
+        # The current request is using an unknown device
+        return {
+            'check_identity': True,
+            'mfa': True,
+            'fingerprint_check': True,
+        }
+
+    @classmethod
+    def _check_identity(cls, credential) -> CheckIdentityResult | None:
+        """
+        Verify the user's identity using the given credentials.
+        Handles both single and multi-factor authentication flows depending on the
+        current session state and configured timeout rules.
+
+        :param dict credential: A dictionary containing authentication data. Must include
+            a "type" key (e.g., "password", "totp", "webauthn"). If empty, the method
+            returns the list of available authentication methods.
+        :raises AccessDenied: if the credential type is not one of the user's enabled
+            authentication methods, or if the credential itself is invalid.
+        """
+        user = request.env.user
+        auth_methods = user._get_auth_methods()
+
+        reauth_requirements = cls._must_check_identity()
+        first_fa_method = reauth_requirements.get('first_fa_method')
+
+        if not credential:
+            if first_fa_method in auth_methods:
+                auth_methods.remove(first_fa_method)
+            return {
+                'user_id': user.id,
+                'login': user.login,
+                'auth_methods': auth_methods,
+                'fingerprint_check': reauth_requirements.get('fingerprint_check'),
+            }
+
+        if credential.get('type') not in auth_methods:
+            raise AccessDenied()
+
+        auth = user._check_credentials(credential, {"interactive": True})
+
+        session = request.session
+
+        if first_fa_method and first_fa_method != auth['auth_method']:  # User checked with the 2fa
+            session.pop("identity-check-1fa")
+
+        # User checked with the 1fa
+        elif reauth_requirements.get('mfa') and auth['mfa'] != 'skip' and len(auth_methods) > 1:
+            session['identity-check-1fa'] = (time.time(), credential['type'])
+            auth_methods.remove(credential['type'])
+            return {'mfa': True, 'auth_methods': auth_methods}
+
+        # Use the same key as the one used for the `check_identity` wrapper
+        session['identity-check-last'] = time.time()
+        # Mark the current device as trusted
+        device = get_device(session, request)
+        device['trusted'] = True
+        session.is_dirty = True
+
+        return None

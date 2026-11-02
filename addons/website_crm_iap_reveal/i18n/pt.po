@@ -13,14 +13,15 @@
 # Manuela Silva <mmsrs@sky.com>, 2022
 # Nuno Silva <nuno.silva@arxi.pt>, 2022
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0beta\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2025-09-16 21:25+0000\n"
-"Last-Translator: \"Tiffany Chang (tic)\" <tic@odoo.com>\n"
-"Language-Team: Portuguese <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-08-28 17:43+0000\n"
+"PO-Revision-Date: 2026-08-31 19:16+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Portuguese <https://translate.odoo.com/projects/odoo-s19-4/"
 "website_crm_iap_reveal/pt/>\n"
 "Language: pt\n"
 "MIME-Version: 1.0\n"
@@ -28,7 +29,7 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=3; plural=(n == 0 || n == 1) ? 0 : ((n != 0 && n % "
 "1000000 == 0) ? 1 : 2);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: website_crm_iap_reveal
 #: model_terms:ir.ui.view,arch_db:website_crm_iap_reveal.crm_reveal_rule_form
@@ -38,6 +39,11 @@ msgid ""
 msgstr ""
 "É consumido 1 crédito por visitante que corresponda às condições de tráfego "
 "do site e cuja empresa possa ser identificada.<br/>"
+
+#. module: website_crm_iap_reveal
+#: model_terms:ir.ui.view,arch_db:website_crm_iap_reveal.enrich_company
+msgid "<b>Contacts</b>"
+msgstr ""
 
 #. module: website_crm_iap_reveal
 #: model_terms:ir.ui.view,arch_db:website_crm_iap_reveal.crm_reveal_rule_form
@@ -61,8 +67,8 @@ msgstr "Arquivados"
 
 #. module: website_crm_iap_reveal
 #: model:ir.model,name:website_crm_iap_reveal.model_crm_reveal_rule
-msgid "CRM Lead Generation Rules"
-msgstr "Regras de geração de leads do CRM"
+msgid "CRM Lead Generation Rule"
+msgstr ""
 
 #. module: website_crm_iap_reveal
 #: model:ir.model,name:website_crm_iap_reveal.model_crm_reveal_view
@@ -116,8 +122,9 @@ msgstr "Criar uma regra de conversão"
 
 #. module: website_crm_iap_reveal
 #: model:ir.model,website_form_label:website_crm_iap_reveal.model_crm_lead
+#, fuzzy
 msgid "Create an Opportunity"
-msgstr ""
+msgstr "Criar uma oportunidade"
 
 #. module: website_crm_iap_reveal
 #: model_terms:ir.actions.act_window,help:website_crm_iap_reveal.crm_reveal_rule_action
@@ -152,6 +159,11 @@ msgid "Display Name"
 msgstr "Nome"
 
 #. module: website_crm_iap_reveal
+#: model_terms:ir.ui.view,arch_db:website_crm_iap_reveal.enrich_company
+msgid "Email"
+msgstr ""
+
+#. module: website_crm_iap_reveal
 #. odoo-python
 #: code:addons/website_crm_iap_reveal/models/crm_reveal_rule.py:0
 msgid "Enter Valid Regex."
@@ -176,6 +188,11 @@ msgstr "Filtrar por tamanho"
 #: model_terms:ir.ui.view,arch_db:website_crm_iap_reveal.crm_reveal_rule_form
 msgid "From"
 msgstr "De"
+
+#. module: website_crm_iap_reveal
+#: model:ir.module.module,summary:base.module_website_crm_iap_reveal
+msgid "Generate Leads/Opportunities from your website's traffic"
+msgstr ""
 
 #. module: website_crm_iap_reveal
 #: model:ir.model.fields,field_description:website_crm_iap_reveal.field_crm_reveal_rule__lead_ids
@@ -240,6 +257,11 @@ msgid "Lead Data"
 msgstr "Dados do lead"
 
 #. module: website_crm_iap_reveal
+#: model:ir.module.module,shortdesc:base.module_website_crm_iap_reveal
+msgid "Lead Generation From Website Visits"
+msgstr ""
+
+#. module: website_crm_iap_reveal
 #: model_terms:ir.ui.view,arch_db:website_crm_iap_reveal.crm_reveal_lead_opportunity_form
 msgid "Lead Generation Information"
 msgstr "Informações de geração de leads"
@@ -291,6 +313,11 @@ msgstr "São permitidos no máximo 5 contatos!"
 #: model:ir.model.fields.selection,name:website_crm_iap_reveal.selection__crm_reveal_rule__priority__1
 msgid "Medium"
 msgstr "Médio"
+
+#. module: website_crm_iap_reveal
+#: model_terms:ir.ui.view,arch_db:website_crm_iap_reveal.enrich_company
+msgid "Name"
+msgstr ""
 
 #. module: website_crm_iap_reveal
 #: model:ir.model.fields.selection,name:website_crm_iap_reveal.selection__crm_reveal_view__reveal_state__not_found
@@ -354,6 +381,11 @@ msgstr "Oportunidade criada pelo Odoo Lead Generation"
 #: model:ir.model.fields,field_description:website_crm_iap_reveal.field_crm_reveal_rule__other_role_ids
 msgid "Other Roles"
 msgstr "Outras funções"
+
+#. module: website_crm_iap_reveal
+#: model_terms:ir.ui.view,arch_db:website_crm_iap_reveal.enrich_company
+msgid "Phone"
+msgstr ""
 
 #. module: website_crm_iap_reveal
 #: model:ir.model.fields,field_description:website_crm_iap_reveal.field_crm_reveal_rule__preferred_role_id
@@ -538,9 +570,3 @@ msgstr "funcionários"
 #: model_terms:ir.ui.view,arch_db:website_crm_iap_reveal.crm_reveal_rule_form
 msgid "to"
 msgstr "a"
-
-#~ msgid "Last Modified on"
-#~ msgstr "Última Modificação em"
-
-#~ msgid "Lead/Opportunity"
-#~ msgstr "Prospecto / Oportunidade"

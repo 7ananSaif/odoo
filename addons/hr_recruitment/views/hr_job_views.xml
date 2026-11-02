@@ -12,8 +12,8 @@
         <field name="model">hr.job</field>
         <field name="arch" type="xml">
             <kanban highlight_color="color"
-                class="o_hr_recruitment_kanban"
-                on_create="hr_recruitment.create_job_simple"
+                class="o_hr_recruitment_kanban o_kanban_list"
+                on_create="hr.action_create_job_position"
                 sample="1"
                 limit="40"
                 action="%(action_hr_job_applications)d"
@@ -31,12 +31,6 @@
                                     <h5 role="menuitem" class="o_kanban_card_manage_title">
                                         <span>View</span>
                                     </h5>
-                                    <div role="menuitem" name="menu_view_applications">
-                                        <a name="%(action_hr_job_applications)d" type="action">Applications</a>
-                                    </div>
-                                    <div role="menuitem">
-                                        <a name="action_open_activities" type="object">Activities</a>
-                                    </div>
                                     <div role="menuitem" name="menu_view_job_posts">
                                         <a name="%(action_hr_job_sources)d" type="action" context="{'default_job_id': id}">Trackers</a>
                                     </div>
@@ -62,7 +56,7 @@
                                 <div class="col-6" role="menuitem" aria-haspopup="true">
                                     <field name="color" widget="kanban_color_picker"/>
                                 </div>
-                                <div class="col-6" role="menuitem">
+                                <div class="col-6" role="menuitem" name="kanban_job_more_options">
                                     <a class="dropdown-item" t-if="widget.editable" name="edit_job" type="open">Configuration</a>
                                     <a class="dropdown-item" t-if="record.active.raw_value" type="archive" >Archive</a>
                                     <a class="dropdown-item" t-if="!record.active.raw_value" name="action_unarchive" type="object">Unarchive</a>
@@ -73,83 +67,84 @@
                     <t t-name="card">
                         <div class="o_hr_recruitment_kanban_card_large_screen">
                             <main>
-                                <div class="d-flex flex-row align-content-center ms-2">
-                                    <div class="col-3 d-flex flex-column align-self-center o_kanban_card_header">
-                                        <div class="d-flex flex-row justify-content-between">
-                                            <div class="d-flex fw-bold fs-3 o_kanban_card_header_title">
-                                                <field name="is_favorite" widget="boolean_favorite" nolabel="1"/>
-                                                <field class="fs-3" name="name"/>
-                                            </div>
-                                            <div t-if="record.alias_email.value" class="d-flex flex-wrap">
-                                                <field name="alias_id"
-                                                    groups="hr_recruitment.group_hr_recruitment_interviewer"/>
-                                            </div>
+                                <div class="d-flex ms-3 py-1">
+                                    <div class="o_kanban_card_header col-4 col-lg-3 d-flex flex-column pt-2 pt-lg-0">
+                                        <div class="o_kanban_card_header_title d-flex align-items-baseline fw-bold">
+                                            <field name="is_favorite" widget="boolean_favorite" nolabel="1"/>
+                                            <field class="fs-4" name="name"/>
                                         </div>
-                                        <div class="d-flex flex-row"
-                                            groups="hr_recruitment.group_hr_recruitment_interviewer,hr.group_hr_user">
-                                            <div class="col">
-                                                <div groups="!base.group_multi_company">
-                                                    <field name="user_id" widget="many2one_avatar_user"
+                                        <div groups="hr_recruitment.group_hr_recruitment_interviewer,hr.group_hr_user">
+                                            <div groups="!base.group_multi_company">
+                                                    <field name="recruiter_id" widget="many2one_avatar_employee" class="text-muted"
                                                         options="{'display_avatar_name': True}"/>
                                                 </div>
                                                 <div groups="base.group_multi_company">
                                                     <t t-if="record.company_id.raw_value != 0">
-                                                        <div class="d-flex flex-row align-items-center">
-                                                            <field name="user_id" widget="many2one_avatar_user"
+                                                        <div class="d-flex flex-row">
+                                                            <field name="recruiter_id" widget="many2one_avatar_employee"
                                                                 options="{'display_avatar_name': False}"/>
-                                                            <field class="ms-1" name="company_id"/>
+                                                            <field class="ms-1 text-muted" name="company_id" />
                                                         </div>
                                                     </t>
                                                     <t t-else="">
-                                                        <field name="user_id" widget="many2one_avatar_user"
+                                                        <field name="recruiter_id" widget="many2one_avatar_employee" class="text-muted"
                                                             options="{'display_avatar_name': True}"/>
                                                     </t>
                                                 </div>
-                                            </div>
+                                        </div>
+                                        <div t-if="record.alias_email.value" class="d-flex align-items-baseline mt-1 small text-muted">
+                                            <i class="oi oi-filled flex-shrink-0 me-1 text-center" data-icon="mail" title="Email"></i>
+                                            <field name="alias_id" class="d-flex flex-wrap"
+                                                groups="hr_recruitment.group_hr_recruitment_interviewer"/>
                                         </div>
                                     </div>
-                                    <div class="col align-content-center">
+                                    <div class="col align-content-center px-1">
                                         <div class="d-flex justify-content-center">
-                                            <field name="no_of_recruitment" class="number"/>
-                                            <div class="number_description fs-4 lh-1">
-                                                to<br/>recruit
+                                            <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}" class="flex-shrink-0 flex-basis-100"/>
+                                        </div>
+                                    </div>
+                                    <div class="col align-content-center px-1"
+                                        groups="hr_recruitment.group_hr_recruitment_interviewer">
+                                        <div t-attf-class="d-flex justify-content-center px-1 #{record.new_application_count.raw_value == 0  ? 'text-muted opacity-75' : ''}">
+                                            <field name="new_application_count" class="number flex-shrink-0 flex-basis-lg-50 fw-semibold text-lg-end"/>
+                                            <div class="number_description flex-shrink-0 flex-basis-50 fs-6 lh-1 text-muted">
+                                                new<br/><span class="text-nowrap">applications</span>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col align-content-center"
+                                    <div class="col d-none d-lg-block align-content-center px-1"
                                         groups="hr_recruitment.group_hr_recruitment_interviewer">
-                                        <div class="d-flex justify-content-center">
-                                            <field name="new_application_count" class="number"/>
-                                            <div class="number_description text-body-secondary fs-4 lh-1">
-                                                new<br/>applications
+                                        <div t-attf-class="d-flex justify-content-center #{record.open_application_count.raw_value == 0  ? 'text-muted opacity-75' : ''}">
+                                            <field name="open_application_count" class="number flex-shrink-0 flex-basis-50 fw-semibold text-lg-end"/>
+                                            <div class=" number_description flex-shrink-0 flex-basis-50 fs-6 lh-1 text-muted">
+                                                in<br/><span class="text-nowrap">progress</span>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col align-content-center"
-                                        groups="hr_recruitment.group_hr_recruitment_interviewer">
-                                        <div class="d-flex justify-content-center">
-                                            <field name="open_application_count" class="number"/>
-                                            <div class=" number_description text-body-secondary fs-4 lh-1">
-                                                in<br/>progress
+                                    <div class="col d-none d-lg-block align-content-center px-1">
+                                        <div t-attf-class="d-flex justify-content-center #{record.no_of_recruitment.raw_value == 0  ? 'text-muted opacity-75' : ''}">
+                                            <field name="no_of_recruitment" class="number flex-shrink-0 flex-basis-50 fw-semibold text-lg-end"/>
+                                            <div class="number_description flex-shrink-0 flex-basis-50 fs-6 lh-1 text-muted">
+                                                to<br/><span class="text-nowrap">recruit</span>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col align-content-center"
+                                    <div class="o_hr_recruitment_activity-col flex-shrink-0 align-content-center ps-xxl-1 pe-xxl-5" t-attf-class="#{record.activity_count.raw_value == 0 ? 'o_hr_recruitment_no-activity' : ''}"
                                         groups="hr_recruitment.group_hr_recruitment_interviewer">
-                                        <div class="d-flex flex-row justify-content-center mt-1">
+                                        <div class="d-flex justify-content-sm-start justify-content-xl-start mt-1">
                                             <div class="position-relative">
-                                                <button name="action_open_activities" type="object" class="ps-1 pe-1 pt-0 pb-0">
-                                                    <i class="fa fa-2x fa-clock-o" role="img" aria-label="Activities"></i>
-                                                    <span class="activity_badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger text-light">
+                                                <button name="action_open_activities" type="object" class="px-2 pt-2 pb-1">
+                                                    <i class="oi oi-2x" data-icon="schedule" role="img" aria-label="Activities"></i>
+                                                    <span class="activity_badge position-absolute translate-middle badge rounded-pill bg-danger text-light" t-if="record.activity_count.raw_value > 0">
                                                         <field name="activity_count"/>
                                                     </span> 
                                                 </button>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col align-content-center me-5">
-                                        <div class="d-flex justify-content-center">
-                                            <div name="large_screen_job_page_div" class="me-2" invisible="1">
+                                    <div class="align-content-center me-5">
+                                        <div class="d-flex flex-column flex-xl-row justify-content-center gap-2">
+                                            <div name="large_screen_job_page_div" invisible="1">
                                                 <button class="btn btn-primary" name="%(action_hr_job_applications)d" type="action">
                                                     Job Page
                                                 </button>
@@ -162,11 +157,11 @@
                                 </div>
                             </main>
                         </div>
-                        <div class="o_hr_recruitment_kanban_card_mobile_screen">
+                        <div class="o_hr_recruitment_kanban_card_mobile_screen py-1 px-2 py-md-0 px-md-0">
                             <main>
-                                <div class="d-flex flex-column gap-1 mb-1">
-                                    <div class="mb-2">
-                                        <div class="d-flex fw-bold fs-3">
+                                <div class="o_kanban_card_header d-flex flex-column gap-1 mb-1">
+                                    <div>
+                                        <div class="d-flex fs-4 fw-bold">
                                             <field name="is_favorite" widget="boolean_favorite" nolabel="1"/>
                                             <field name="name"/>
                                         </div>
@@ -175,11 +170,11 @@
                                                 groups="hr_recruitment.group_hr_recruitment_interviewer"/>
                                         </div>
                                     </div>
-                                    <div class="d-flex flex-row"
-                                        groups="hr_recruitment.group_hr_recruitment_interviewer">
-                                        <div class="col-1 align-content-end me-1">
+                                    <div class="d-flex flex-row">
+                                        <div class="col-1 me-1" style="max-width: 1.5rem;"
+                                            groups="hr_recruitment.group_hr_recruitment_interviewer">
                                             <div class="d-flex flex-row justify-content-center">
-                                                <field name="user_id" widget="many2one_avatar_user"
+                                                <field name="recruiter_id" widget="many2one_avatar_employee"
                                                     options="{'display_avatar_name': False}"/>
                                             </div>
                                         </div>
@@ -189,19 +184,19 @@
                                                     <field name="company_id"/>
                                                 </t>
                                                 <t t-else="">
-                                                    <field name="user_id"/>
+                                                    <field name="recruiter_id"/>
                                                 </t>
                                             </div>
                                             <div groups="!base.group_multi_company">
-                                                <field name="user_id"/>
+                                                <field name="recruiter_id"/>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="d-flex flex-row"
-                                        groups="hr_recruitment.group_hr_recruitment_interviewer">
-                                        <div class="col-1 align-content-end me-1">
+                                    <div class="d-flex flex-row">
+                                        <div class="col-1 align-content-end me-1" style="max-width: 1.5rem;"
+                                            groups="hr_recruitment.group_hr_recruitment_interviewer">
                                             <div class="d-flex flex-row justify-content-center">
-                                                <i class="fa fa-user fa-2x" title="new_applications_icon"/>
+                                                <i class="oi oi-filled" data-icon="person" title="new_applications_icon" aria-hidden="true"/>
                                             </div>
                                         </div>
                                         <div class="col align-content-end">
@@ -226,7 +221,7 @@
         <field name="inherit_id" ref="hr.view_job_filter"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='department_id']" position="after">
-                <filter string="My Favorites" name="my_favorite_jobs" domain="[('favorite_user_ids', 'in', uid)]"/>
+                <filter string="My Favorites" name="my_favorite_jobs" domain="[('favorite_recruiter_ids.user_id', 'in', uid)]"/>
                 <separator/>
             </xpath>
         </field>
@@ -245,17 +240,23 @@
                     <div name="alias_def">
                         <field name="alias_id" class="oe_read_only" string="Email Alias" required="0"
                             groups="hr_recruitment.group_hr_recruitment_interviewer"/>
-                        <div class="oe_edit_only" name="edit_alias">
-                            <field name="alias_name" class="oe_inline o_job_alias" placeholder="e.g. sales-manager"/>@
-                            <field name="alias_domain_id" class="oe_inline" placeholder="e.g. mycompany.com"
-                                   options="{'no_create': True, 'no_open': True}"/>
+                        <div class="oe_edit_only row" name="edit_alias">
+                            <div class="d-flex col-10 col-md-5 p-0">
+                                <field name="alias_name" class="o_job_alias o_field_highlight" placeholder="e.g. sales-manager"/>@
+                                <field name="alias_domain_id" class="o_field_highlight" placeholder="e.g. mycompany.com"
+                                    options="{'no_create': True, 'no_open': True}"/>
+                            </div>
+                            <div class="col-2" invisible="not alias_email">
+                                <field name="alias_email" widget="CopyClipboardButton"
+                                    class="copy_alias_email" options="{'btn_class': 'link'}" string=""/>
+                            </div>
                         </div>
-                        <div class="text-muted">Incoming emails create applications automatically. Use it for direct applications or when posting job offers on LinkedIn, Monster, etc.</div>
+                        <div class="text-muted">Incoming emails create applications automatically. Use it for direct applications or when posting job opportunities on LinkedIn, Monster, etc.</div>
                     </div>
                 </group>
                 <footer>
                     <button string="Create" name="%(action_hr_job_applications)d" type="action" class="btn-primary o_create_job" data-hotkey="q"/>
-                    <button string="Discard" class="btn-secondary" special="cancel" data-hotkey="x"/>
+                    <button class="btn-secondary" special="cancel" data-hotkey="x"/>
                 </footer>
             </form>
         </field>
@@ -276,7 +277,7 @@
         <field name="inherit_id" ref="hr.view_hr_job_form"/>
         <field name="arch" type="xml">
             <xpath expr="//h1" position="attributes">
-                <attribute name="class" add="d-flex align-items-center" separator=" "/>
+                <attribute name="class" add="d-flex align-items-center gap-2" separator=" "/>
             </xpath>
             <xpath expr="//field[@name='name']" position="before">
                 <field name="is_favorite" widget="boolean_favorite" class="hr_recruitment_is_favorite_job" nolabel="1"/>
@@ -292,6 +293,9 @@
                 <attribute name="invisible">0</attribute>
                 <attribute name="groups">hr_recruitment.group_hr_recruitment_interviewer,hr.group_hr_user</attribute>
             </page>
+            <xpath expr="//group[@name='hiring_process']" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </xpath>
             <group name="hiring_process" position="inside">
                 <field name="interviewer_ids" widget="many2many_tags_avatar"
                     options="{'no_create': True, 'no_create_edit': True}"
@@ -300,23 +304,38 @@
                     string="Email Alias"
                     help="Define a specific contact address for this job position. If you keep it empty, the default email address will be used which is in human resources settings"
                 />
-                <div class="o_wrap_label d-flex flex-row gap-1 align-items-baseline">
-                    <field name="alias_name" placeholder="e.g. jobs"/>
-                    <span>@</span>
-                    <field name="alias_domain_id" placeholder="e.g. domain.com" options="{'no_create': True, 'no_open': True}"/>
+                <div class="row">
+                    <div class="d-flex align-items-baseline gap-1">
+                        <field name="alias_name" placeholder="e.g. jobs" class="o_field_highlight"/>
+                        <span>@</span>
+                        <field name="alias_domain_id" placeholder="e.g. domain.com"
+                            options="{'no_create': True, 'no_open': True}" class="o_field_highlight"/>
+                    </div>
+                    <div class="col-2 p-0" invisible="not alias_email">
+                        <field name="alias_email" widget="CopyClipboardButton"
+                            class="copy_alias_email" options="{'btn_class': 'link'}" string=""/>
+                    </div>
                 </div>
+                <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}"/>
             </group>
 
-            <group name="job_posting" position="inside">
-                <field name="expected_degree" groups="hr_recruitment.group_hr_recruitment_interviewer"/>
+            <group name="job" position="inside">
+                <label for="salary_min" string="Salary Range" groups="hr.group_hr_user,hr_recruitment.group_hr_recruitment_user"/>
+                <div class="d-flex gap-2 align-items-baseline" groups="hr.group_hr_user,hr_recruitment.group_hr_recruitment_user">
+                    <field name="currency_id" invisible="1"/>
+                    <field name="salary_min" class="oe_inline" widget="monetary"/> -
+                    <field name="salary_max" class="oe_inline" widget="monetary"/> /
+                    <field name="payment_interval" class="oe_inline"/>
+                </div>
             </group>
 
             <group name="job" position="inside">
                 <label for="address_id"/>
                 <div class="o_row">
                     <span invisible="address_id" class="oe_read_only">Remote</span>
-                    <field name="address_id" context="{'show_address': 1}" placeholder="Remote"/>
+                    <field name="address_id" context="{'show_address': 1, 'default_parent_id': company_partner_id, 'default_type': 'other'}" placeholder="Remote"/>
                 </div>
+                <field name="expected_degree" groups="hr_recruitment.group_hr_recruitment_interviewer"/>
             </group>
 
             <xpath expr="//group" position="after">
@@ -325,15 +344,16 @@
             <div name="button_box" position="inside">
                 <button class="oe_stat_button"
                     groups="hr_recruitment.group_hr_recruitment_interviewer"
-                    icon="fa-pencil"
+                    icon="edit"
+                    icon_class="oi-filled"
                     name="%(action_hr_job_applications)d"
-                    context="{'default_user_id': user_id, 'active_test': False}"
+                    context="{'default_recruiter': recruiter_id, 'active_test': False}"
                     type="action">
                     <field name="all_application_count" widget="statinfo" string="Applications"/>
                 </button>
                 <button class="oe_stat_button"
                     groups="hr_recruitment.group_hr_recruitment_interviewer"
-                    icon="fa-file-text-o"
+                    icon="article"
                     name="action_open_attachments"
                     type="object"
                     invisible="documents_count == 0">
@@ -342,7 +362,8 @@
                 <button name="action_open_employees"
                     groups="hr_recruitment.group_hr_recruitment_interviewer"
                     class="oe_stat_button"
-                    icon="fa-users"
+                    icon="group"
+                    icon_class="oi-filled"
                     invisible="not employee_count"
                     type="object">
                     <field name="employee_count" widget="statinfo" string="Employees"/>
@@ -390,10 +411,10 @@
         <field name="arch" type="xml">
             <xpath expr="//filter[@name='my_favorite_jobs']" position="after">
                 <searchpanel class="w-auto">
-                    <field name="company_id" groups="base.group_multi_company" icon="fa-building" enable_counters="1"/>
-                    <field name="department_id" icon="fa-users" enable_counters="1"/>
+                    <field name="company_id" groups="base.group_multi_company" icon="business" icon_class="oi-filled" enable_counters="1"/>
+                    <field name="department_id" icon="group" icon_class="oi-filled" enable_counters="1"/>
                 </searchpanel>
-                <filter string="My Job Positions" name="my_positions" domain="[('user_id', '=', uid)]"/>
+                <filter string="My Job Positions" name="my_positions" domain="[('recruiter_id.user_id', '=', uid)]"/>
             </xpath>
         </field>
     </record>
@@ -403,8 +424,9 @@
         <field name="inherit_id" ref="hr.view_hr_job_tree"/>
         <field name="arch" type="xml">
             <field name="name" position="after">
-                <field name="department_id"/>
-                <field name="open_application_count" string="Open Applications" groups="hr_recruitment.group_hr_recruitment_interviewer"/>
+                <field name="department_id" optional="hide"/>
+                <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}" optional="show"/>
+                <field name="open_application_count" string="Open Applications" groups="hr_recruitment.group_hr_recruitment_interviewer" optional="hide"/>
                 <field name="no_of_recruitment"/>
             </field>
             <field name="no_of_employee" position="after">
@@ -413,12 +435,12 @@
                 <field name="no_of_hired_employee" optional="hide"
                     groups="hr_recruitment.group_hr_recruitment_interviewer"/>
                 <field name="message_needaction" column_invisible="True"/>
-                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" readonly="1" optional="hide"/>
                 <field name="company_id" column_invisible="True"/>
                 <field name="alias_name" column_invisible="True"/>
                 <field name="alias_id" invisible="not alias_name" optional="hide"
                     groups="hr_recruitment.group_hr_recruitment_interviewer"/>
-                <field name="user_id" widget="many2one_avatar_user" optional="hide"
+                <field name="recruiter_id" widget="many2one_avatar_employee" optional="show"
                     groups="hr_recruitment.group_hr_recruitment_interviewer,hr.group_hr_user"/>
             </field>
             <list position="attributes">

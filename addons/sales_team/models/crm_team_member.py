@@ -35,8 +35,8 @@ class CrmTeamMember(models.Model):
     image_1920 = fields.Image("Image", related="user_id.image_1920", max_width=1920, max_height=1920)
     image_128 = fields.Image("Image (128)", related="user_id.image_128", max_width=128, max_height=128)
     name = fields.Char(string='Name', related='user_id.display_name', readonly=False)
-    email = fields.Char(string='Email', related='user_id.email')
-    phone = fields.Char(string='Phone', related='user_id.phone')
+    email = fields.Char(string='Email', related='user_id.email', readonly=True)
+    phone = fields.Char(string='Phone', related='user_id.phone', readonly=True)
     company_id = fields.Many2one('res.company', string='Company', related='user_id.company_id')
 
     @api.constrains('crm_team_id', 'user_id', 'active')
@@ -114,7 +114,7 @@ class CrmTeamMember(models.Model):
 
     @api.depends('crm_team_id')
     def _compute_is_membership_multi(self):
-        multi_enabled = self.env['ir.config_parameter'].sudo().get_param('sales_team.membership_multi', False)
+        multi_enabled = self.env['ir.config_parameter'].sudo().get_bool('sales_team.membership_multi')
         self.is_membership_multi = multi_enabled
 
     @api.depends('is_membership_multi', 'active', 'user_id', 'crm_team_id')
@@ -163,7 +163,7 @@ class CrmTeamMember(models.Model):
         when creating them as chatter is mainly used for information purpose
         (tracked fields).
         """
-        is_membership_multi = self.env['ir.config_parameter'].sudo().get_param('sales_team.membership_multi', False)
+        is_membership_multi = self.env['ir.config_parameter'].sudo().get_bool('sales_team.membership_multi')
         if not is_membership_multi:
             self._synchronize_memberships(vals_list)
         return super(CrmTeamMember, self.with_context(
@@ -180,7 +180,7 @@ class CrmTeamMember(models.Model):
         maybe archive / activate them. Updating manually memberships by
         modifying user_id or team_id is advanced and does not benefit from our
         support. """
-        is_membership_multi = self.env['ir.config_parameter'].sudo().get_param('sales_team.membership_multi', False)
+        is_membership_multi = self.env['ir.config_parameter'].sudo().get_bool('sales_team.membership_multi')
         if not is_membership_multi and vals.get('active'):
             self._synchronize_memberships([
                 dict(user_id=membership.user_id.id, crm_team_id=membership.crm_team_id.id)

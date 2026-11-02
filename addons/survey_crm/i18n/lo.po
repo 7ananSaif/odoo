@@ -5,25 +5,40 @@
 # Bone NI <bounkirdni@gmail.com>, 2026.
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0\n"
+"Project-Id-Version: Odoo Server 19.4a1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 18:40+0000\n"
-"PO-Revision-Date: 2026-06-08 11:01+0000\n"
+"POT-Creation-Date: 2026-09-11 17:43+0000\n"
+"PO-Revision-Date: 2026-10-24 13:32+0000\n"
 "Last-Translator: Bone NI <bounkirdni@gmail.com>\n"
-"Language-Team: Lao <https://translate.odoo.com/projects/odoo-19/survey_crm/"
+"Language-Team: Lao <https://translate.odoo.com/projects/odoo-20/survey_crm/"
 "lo/>\n"
 "Language: lo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: survey_crm
+#: model:ir.module.module,description:base.module_survey_crm
+msgid ""
+"\n"
+"Bridge module between Survey and CRM.\n"
+"Enables the creation of a lead from a survey when the participant selects "
+"lead-generating answers.\n"
+"An option on the suggested answers can be activated to make them lead-"
+"generating.\n"
+msgstr ""
+"\n"
+"ໂມດູນເຊື່ອມຕໍ່ລະຫວ່າງ ແບບສຳຫຼວດ ແລະ CRM.\n"
+"ຊ່ວຍໃຫ້ສາມາດສ້າງລູກຄ້າເປົ້າໝາຍຈາກແບບສຳຫຼວດ ເມື່ອຜູ້ເຂົ້າຮ່ວມເລືອກຄຳຕອບທີ່ສ້າງລູກຄ້າເປົ້າໝາຍ.\n"
+"ສາມາດເປີດນຳໃຊ້ຕົວເລືອກໃນຄຳຕອບທີ່ແນະນຳ ເພື່ອໃຫ້ສ້າງລູກຄ້າເປົ້າໝາຍໄດ້.\n"
 
 #. module: survey_crm
 #. odoo-python
 #: code:addons/survey_crm/models/survey_user_input.py:0
 msgid "%(participant_name)s %(category_name)s results"
-msgstr "ຜົນການສຳຫຼວດ %(participant_name)s %(category_name)s"
+msgstr "ຜົນໄດ້ຮັບ %(category_name)s ຂອງ %(participant_name)s"
 
 #. module: survey_crm
 #. odoo-python
@@ -35,7 +50,7 @@ msgstr "ພະນັກງານ 1-10 ຄົນ"
 #. odoo-python
 #: code:addons/survey_crm/models/templates/survey_survey.py:0
 msgid "100+ employees"
-msgstr "ພະນັກງານ 100 ຄົນຂຶ້ນໄປ"
+msgstr "ພະນັກງານ 100+ ຄົນ"
 
 #. module: survey_crm
 #. odoo-python
@@ -44,29 +59,25 @@ msgid "11-100 employees"
 msgstr "ພະນັກງານ 11-100 ຄົນ"
 
 #. module: survey_crm
-#: model_terms:ir.ui.view,arch_db:survey_crm.survey_survey_view_kanban
-msgid ""
-"<br/>\n"
-"                        <span class=\"text-muted\">Leads</span>"
-msgstr ""
-"<br/>\n"
-"                        <span class=\"text-muted\">ລູກຄ້າຄາດຫວັງ</span>"
-
-#. module: survey_crm
 #: model_terms:ir.ui.view,arch_db:survey_crm.survey_user_input_view_form
 msgid "<span class=\"o_stat_text\">Lead</span>"
-msgstr "<span class=\"o_stat_text\">ລູກຄ້າຄາດຫວັງ</span>"
+msgstr "<span class=\"o_stat_text\">ລູກຄ້າເປົ້າໝາຍ</span>"
+
+#. module: survey_crm
+#: model_terms:ir.ui.view,arch_db:survey_crm.survey_survey_view_kanban
+msgid "<span>Leads</span>"
+msgstr "<span>ລູກຄ້າເປົ້າໝາຍ</span>"
 
 #. module: survey_crm
 #: model:survey.question.answer,value:survey_crm.lead_qualification_question_answer_row_3
 msgid "A client-relationship company?"
-msgstr "ບໍລິສັດທີ່ເນັ້ນຄວາມສຳພັນກັບລູກຄ້າ?"
+msgstr "ບໍລິສັດທີ່ເນັ້ນການພົວພັນກັບລູກຄ້າບໍ?"
 
 #. module: survey_crm
 #. odoo-python
 #: code:addons/survey_crm/models/templates/survey_survey.py:0
 msgid "A team/committee"
-msgstr "ທີມງານ/ຄະນະກໍາມະການ"
+msgstr "ທີມງານ/ຄະນະກຳມະການ"
 
 #. module: survey_crm
 #: model:survey.question,title:survey_crm.lead_qualification_question_0
@@ -86,7 +97,7 @@ msgstr "ກະສິກຳ"
 #. module: survey_crm
 #: model:survey.question.answer,value:survey_crm.lead_qualification_question_answer_row_2
 msgid "An IT-oriented company?"
-msgstr "ບໍລິສັດທີ່ເນັ້ນດ້ານໄອທີ (IT)?"
+msgstr "ບໍລິສັດທີ່ເນັ້ນດ້ານໄອທີບໍ?"
 
 #. module: survey_crm
 #. odoo-python
@@ -97,59 +108,52 @@ msgstr "ຄຳຕອບ"
 #. module: survey_crm
 #: model:survey.question,title:survey_crm.lead_qualification_question_11
 msgid "Anything to add?"
-msgstr "ມີຫຍັງເພີ່ມເຕີມບໍ່?"
+msgstr "ມີຫຍັງເພີ່ມເຕີມບໍ?"
 
 #. module: survey_crm
 #: model:ir.model.fields,field_description:survey_crm.field_survey_survey__team_id
 msgid "Assign Leads to"
-msgstr "ມອບໝາຍລູກຄ້າຄາດຫວັງໃຫ້"
+msgstr "ມອບໝາຍລູກຄ້າເປົ້າໝາຍໃຫ້"
 
 #. module: survey_crm
 #: model:ir.model.fields,help:survey_crm.field_survey_question__generate_lead
 msgid "At least one of the question answers can generate leads."
-msgstr "ຢ່າງໜ້ອຍໜຶ່ງໃນຄຳຕອບຂອງຄຳຖາມສາມາດສ້າງລູກຄ້າຄາດຫວັງໄດ້."
+msgstr "ຢ່າງໜ້ອຍໜຶ່ງໃນບັນດາຄຳຕອບຂອງຄຳຖາມສາມາດສ້າງລູກຄ້າເປົ້າໝາຍໄດ້."
 
 #. module: survey_crm
 #: model:survey.question,title:survey_crm.lead_qualification_question_1
 msgid "Before this survey, were you aware of our company?"
-msgstr "ກ່ອນການສຳຫຼວດນີ້, ທ່ານເຄີຍຮູ້ຈັກບໍລິສັດຂອງພວກເຮົາບໍ່?"
+msgstr "ກ່ອນໜ້າແບບສຳຫຼວດນີ້, ທ່ານເຄີຍຮູ້ຈັກບໍລິສັດຂອງພວກເຮົາບໍ?"
 
 #. module: survey_crm
 #. odoo-python
 #: code:addons/survey_crm/models/survey_user_input.py:0
 msgid "Comment"
-msgstr "ຄຳຄິດເຫັນ"
+msgstr "ຄຳເຫັນ"
 
 #. module: survey_crm
 #: model_terms:ir.ui.view,arch_db:survey_crm.survey_question_view_form
 msgid "Create Leads"
-msgstr "ສ້າງລູກຄ້າຄາດຫວັງ"
-
-#. module: survey_crm
-#: model:ir.model,website_form_label:survey_crm.model_crm_lead
-msgid "Create an Opportunity"
-msgstr "ສ້າງໂອກາດໃນການຂາຍ"
+msgstr "ສ້າງລູກຄ້າເປົ້າໝາຍ"
 
 #. module: survey_crm
 #. odoo-python
 #: code:addons/survey_crm/models/templates/survey_survey.py:0
 msgid "Create leads when key answers are chosen"
-msgstr "ສ້າງລູກຄ້າຄາດຫວັງເມື່ອມີການເລືອກຄຳຕອບທີ່ສຳຄັນ"
+msgstr "ສ້າງລູກຄ້າເປົ້າໝາຍເມື່ອມີການເລືອກຄຳຕອບຫຼັກ"
 
 #. module: survey_crm
 #: model:ir.model.fields,help:survey_crm.field_survey_question_answer__generate_lead
 msgid "Creates a lead when participants choose this answer"
-msgstr "ສ້າງລູກຄ້າຄາດຫວັງເມື່ອຜູ້ເຂົ້າຮ່ວມເລືອກຄຳຕອບນີ້"
+msgstr "ສ້າງລູກຄ້າເປົ້າໝາຍເມື່ອຜູ້ເຂົ້າຮ່ວມເລືອກຄຳຕອບນີ້"
 
 #. module: survey_crm
-#: model:ir.model.fields,field_description:survey_crm.field_crm_lead__display_name
-#: model:ir.model.fields,field_description:survey_crm.field_crm_team__display_name
 #: model:ir.model.fields,field_description:survey_crm.field_survey_question__display_name
 #: model:ir.model.fields,field_description:survey_crm.field_survey_question_answer__display_name
 #: model:ir.model.fields,field_description:survey_crm.field_survey_survey__display_name
 #: model:ir.model.fields,field_description:survey_crm.field_survey_user_input__display_name
 msgid "Display Name"
-msgstr "ຊື່ທີ່ສະແດງ"
+msgstr "ຊື່ສະແດງ"
 
 #. module: survey_crm
 #. odoo-python
@@ -158,66 +162,67 @@ msgid "Expanding sales"
 msgstr "ການຂະຫຍາຍຍອດຂາຍ"
 
 #. module: survey_crm
+#: model:ir.module.module,summary:base.module_survey_crm
+msgid "Generate leads from surveys"
+msgstr "ສ້າງລູກຄ້າເປົ້າໝາຍຈາກແບບສຳຫຼວດ"
+
+#. module: survey_crm
 #. odoo-python
 #: code:addons/survey_crm/models/templates/survey_survey.py:0
 msgid "Getting to know you"
-msgstr "ເຮັດຄວາມຮູ້ຈັກກັບທ່ານ"
+msgstr "ມາທຳຄວາມຮູ້ຈັກກັບທ່ານ"
 
 #. module: survey_crm
 #: model:survey.question,title:survey_crm.lead_qualification_question_10
 msgid "Have you ever worked with any of the following?"
-msgstr "ທ່ານເຄີຍຮ່ວມງານກັບສິ່ງໃດຕໍ່ໄປນີ້ບໍ່?"
+msgstr "ທ່ານເຄີຍເຮັດວຽກຮ່ວມກັບຂໍ້ໃດລຸ່ມນີ້ມາກ່ອນບໍ?"
 
 #. module: survey_crm
 #: model:survey.question,title:survey_crm.lead_qualification_question_6
 msgid "How is your company named?"
-msgstr "ບໍລິສັດຂອງທ່ານຊື່ວ່າແນວໃດ?"
+msgstr "ບໍລິສັດຂອງທ່ານຊື່ຫຍັງ?"
 
 #. module: survey_crm
-#: model:ir.model.fields,field_description:survey_crm.field_crm_lead__id
-#: model:ir.model.fields,field_description:survey_crm.field_crm_team__id
 #: model:ir.model.fields,field_description:survey_crm.field_survey_question__id
 #: model:ir.model.fields,field_description:survey_crm.field_survey_question_answer__id
 #: model:ir.model.fields,field_description:survey_crm.field_survey_survey__id
 #: model:ir.model.fields,field_description:survey_crm.field_survey_user_input__id
 msgid "ID"
-msgstr "ໄອດີ"
+msgstr "ID"
 
 #. module: survey_crm
 #. odoo-python
 #: code:addons/survey_crm/models/templates/survey_survey.py:0
 msgid "Improving efficiency"
-msgstr "ການປັບປຸງປະສິດທິພາບ"
+msgstr "ການເພີ່ມປະສິດທິພາບ"
 
 #. module: survey_crm
-#: model:ir.model,name:survey_crm.model_crm_lead
-#: model:ir.model.fields,field_description:survey_crm.field_survey_survey__lead_ids
 #: model:ir.model.fields,field_description:survey_crm.field_survey_user_input__lead_id
 msgid "Lead"
-msgstr "ລູກຄ້າຄາດຫວັງ"
+msgstr "ລູກຄ້າເປົ້າໝາຍ"
 
 #. module: survey_crm
 #: model:ir.model.fields,field_description:survey_crm.field_survey_question__generate_lead
 #: model:ir.model.fields,field_description:survey_crm.field_survey_survey__generate_lead
 msgid "Lead Generating"
-msgstr "ການສ້າງລູກຄ້າຄາດຫວັງ"
+msgstr "ການສ້າງລູກຄ້າເປົ້າໝາຍ"
 
 #. module: survey_crm
 #. odoo-python
 #: code:addons/survey_crm/models/templates/survey_survey.py:0
 msgid "Lead Qualification"
-msgstr "ການຄັດເລືອກລູກຄ້າຄາດຫວັງ"
+msgstr "ການປະເມີນຄຸນສົມບັດລູກຄ້າເປົ້າໝາຍ"
 
 #. module: survey_crm
 #: model:ir.model.fields,field_description:survey_crm.field_survey_question_answer__generate_lead
 msgid "Lead creation"
-msgstr "ການສ້າງລູກຄ້າຄາດຫວັງ"
+msgstr "ການສ້າງລູກຄ້າເປົ້າໝາຍ"
 
 #. module: survey_crm
 #: model:ir.model.fields,field_description:survey_crm.field_survey_survey__lead_count
 #: model_terms:ir.ui.view,arch_db:survey_crm.survey_survey_view_form
 msgid "Leads"
-msgstr "ລູກຄ້າຄາດຫວັງ"
+msgstr "ລູກຄ້າເປົ້າໝາຍ"
 
 #. module: survey_crm
 #: model:survey.survey,title:survey_crm.lead_qualification_survey
@@ -228,7 +233,7 @@ msgstr "ມາເຊື່ອມຕໍ່ກັນເທາະ!"
 #. odoo-python
 #: code:addons/survey_crm/models/templates/survey_survey.py:0
 msgid "Let's start with a basic question. What's your email address?"
-msgstr "ມາເລີ່ມຕົ້ນດ້ວຍຄຳຖາມພື້ນຖານ. ທີ່ຢູ່ອີເມລຂອງທ່ານແມ່ນຫຍັງ?"
+msgstr "ເລີ່ມຕົ້ນດ້ວຍຄຳຖາມພື້ນຖານກ່ອນ. ອີເມວຂອງທ່ານແມ່ນຫຍັງ?"
 
 #. module: survey_crm
 #: model:survey.question.answer,value:survey_crm.lead_qualification_question_7_question_answer_2
@@ -261,7 +266,7 @@ msgstr "ບໍ່"
 #. module: survey_crm
 #: model:ir.model.fields,help:survey_crm.field_survey_survey__lead_count
 msgid "Number of leads created by this survey"
-msgstr "ຈຳນວນລູກຄ້າຄາດຫວັງທີ່ສ້າງຂຶ້ນໂດຍແບບສຳຫຼວດນີ້"
+msgstr "ຈຳນວນລູກຄ້າເປົ້າໝາຍທີ່ສ້າງຂຶ້ນຈາກແບບສຳຫຼວດນີ້"
 
 #. module: survey_crm
 #: model:survey.question,comments_message:survey_crm.lead_qualification_question_7
@@ -271,7 +276,7 @@ msgstr "ອື່ນໆ"
 #. module: survey_crm
 #: model:survey.question.answer,value:survey_crm.lead_qualification_question_answer_row_1
 msgid "Our company in the past?"
-msgstr "ບໍລິສັດຂອງພວກເຮົາໃນອະດີດ?"
+msgstr "ບໍລິສັດຂອງພວກເຮົາໃນເມື່ອກ່ອນບໍ?"
 
 #. module: survey_crm
 #. odoo-python
@@ -280,14 +285,9 @@ msgid "Reducing costs"
 msgstr "ການຫຼຸດຜ່ອນຕົ້ນທຶນ"
 
 #. module: survey_crm
-#: model:ir.model,name:survey_crm.model_crm_team
-msgid "Sales Team"
-msgstr "ທີມຂາຍ"
-
-#. module: survey_crm
 #: model_terms:ir.ui.view,arch_db:survey_crm.survey_survey_view_form
 msgid "Select a Sales team"
-msgstr "ເລືອກທີມຂາຍ"
+msgstr "ເລືອກທີມງານຂາຍ"
 
 #. module: survey_crm
 #: model:survey.question.answer,value:survey_crm.lead_qualification_question_7_question_answer_3
@@ -302,14 +302,18 @@ msgstr "ຂ້າມແລ້ວ"
 
 #. module: survey_crm
 #: model:ir.model,name:survey_crm.model_survey_survey
-#: model:ir.model.fields,field_description:survey_crm.field_crm_lead__origin_survey_id
 msgid "Survey"
 msgstr "ແບບສຳຫຼວດ"
 
 #. module: survey_crm
+#: model:ir.module.module,shortdesc:base.module_survey_crm
+msgid "Survey CRM"
+msgstr "ແບບສຳຫຼວດ CRM"
+
+#. module: survey_crm
 #: model:ir.model,name:survey_crm.model_survey_question_answer
 msgid "Survey Label"
-msgstr "ປ້າຍຊື່ແບບສຳຫຼວດ"
+msgstr "ປ້າຍກຳກັບແບບສຳຫຼວດ"
 
 #. module: survey_crm
 #: model:ir.model,name:survey_crm.model_survey_question
@@ -324,12 +328,7 @@ msgstr "ປະເພດແບບສຳຫຼວດ"
 #. module: survey_crm
 #: model:ir.model,name:survey_crm.model_survey_user_input
 msgid "Survey User Input"
-msgstr "ຂໍ້ມູນທີ່ຜູ້ໃຊ້ປ້ອນໃນແບບສຳຫຼວດ"
-
-#. module: survey_crm
-#: model:ir.model.fields,field_description:survey_crm.field_crm_team__origin_survey_ids
-msgid "Survey opportunities related to the sales team"
-msgstr "ໂອກາດໃນແບບສຳຫຼວດທີ່ກ່ຽວຂ້ອງກັບທີມຂາຍ"
+msgstr "ຂໍ້ມູນປ້ອນເຂົ້າແບບສຳຫຼວດຂອງຜູ້ໃຊ້"
 
 #. module: survey_crm
 #: model_terms:survey.survey,description_done:survey_crm.lead_qualification_survey
@@ -340,36 +339,38 @@ msgstr "ຂອບໃຈຫຼາຍໆສຳລັບການເຂົ້າຮ
 #. odoo-python
 #: code:addons/survey_crm/models/templates/survey_survey.py:0
 msgid "Thanks for answering!"
-msgstr "ຂອບໃຈສຳລັບຄຳຕອບ!"
+msgstr "ຂອບໃຈສຳລັບການຕອບຄຳຖາມ!"
 
 #. module: survey_crm
 #: model_terms:ir.ui.view,arch_db:survey_crm.survey_survey_view_form
 msgid "This question generates leads"
-msgstr "ຄຳຖາມນີ້ສ້າງລູກຄ້າຄາດຫວັງ"
+msgstr "ຄຳຖາມນີ້ສ້າງລູກຄ້າເປົ້າໝາຍ"
 
 #. module: survey_crm
 #: model_terms:survey.survey,description:survey_crm.lead_qualification_survey
 msgid ""
 "Welcome, <br><br>\n"
-"                You're receiving this survey because you're likely to become one of our partners.<br>\n"
-"                Once submitted, one of our managers will follow up on the integration process based on your answers."
+"                You're receiving this survey because you're likely to become "
+"one of our partners.<br>\n"
+"                Once submitted, one of our managers will follow up on the "
+"integration process based on your answers."
 msgstr ""
 "ຍິນດີຕ້ອນຮັບ, <br><br>\n"
-"                ທ່ານໄດ້ຮັບແບບສຳຫຼວດນີ້ ເພາະວ່າທ່ານມີແນວໂນ້ມທີ່ຈະກາຍມາເປັນໜຶ່ງໃນຄູ່ຮ່ວມງານຂອງພວກ"
-"ເຮົາ.<br>\n"
-"                ເມື່ອສົ່ງຂໍ້ມູນແລ້ວ, ຜູ້ຈັດການຂອງພວກເຮົາຈະຕິດຕາມຂະບວນການເຊື່ອມໂຍງ ໂດຍອີງຕາມຄຳ"
+"                ທ່ານໄດ້ຮັບແບບສຳຫຼວດນີ້ເນື່ອງຈາກທ່ານມີໂອກາດທີ່ຈະມາເປັນໜຶ່ງໃນຄູ່ຮ່ວມງານຂອງພວກເຮົ"
+"າ.<br>\n"
+"                ເມື່ອສົ່ງແລ້ວ, ໜຶ່ງໃນຜູ້ຈັດການຂອງພວກເຮົາຈະຕິດຕາມຂະບວນການເຊື່ອມໂຍງໂດຍອີງຕາມຄຳ"
 "ຕອບຂອງທ່ານ."
 
 #. module: survey_crm
 #. odoo-python
 #: code:addons/survey_crm/models/templates/survey_survey.py:0
 msgid "What is the size of your company?"
-msgstr "ບໍລິສັດຂອງທ່ານມີຂະໜາດເທົ່າໃດ?"
+msgstr "ຂະໜາດບໍລິສັດຂອງທ່ານແມ່ນເທົ່າໃດ?"
 
 #. module: survey_crm
 #: model:survey.question,title:survey_crm.lead_qualification_question_7
 msgid "What sector do you primarily operate within?"
-msgstr "ທ່ານດຳເນີນທຸລະກິດໃນຂະແໜງການໃດເປັນຫຼັກ?"
+msgstr "ບໍລິສັດຂອງທ່ານດຳເນີນງານໃນຂະແໜງການໃດເປັນຕົ້ນຕໍ?"
 
 #. module: survey_crm
 #: model:survey.question,title:survey_crm.lead_qualification_question_4
@@ -390,7 +391,7 @@ msgstr "ຈຳນວນພະນັກງານທັງໝົດຂອງທ່
 #. odoo-python
 #: code:addons/survey_crm/models/templates/survey_survey.py:0
 msgid "Which of the following best describes your main goal?"
-msgstr "ຂໍ້ໃດຕໍ່ໄປນີ້ທີ່ອະທິບາຍເປົ້າໝາຍຫຼັກຂອງທ່ານໄດ້ດີທີ່ສຸດ?"
+msgstr "ຂໍ້ໃດລຸ່ມນີ້ອະທິບາຍເປົ້າໝາຍຫຼັກຂອງທ່ານໄດ້ດີທີ່ສຸດ?"
 
 #. module: survey_crm
 #. odoo-python
@@ -401,24 +402,24 @@ msgstr "ໃຜຈະເປັນຜູ້ຕັດສິນໃຈຂັ້ນສ
 #. module: survey_crm
 #: model:survey.question,title:survey_crm.lead_qualification_question_9
 msgid "Working together"
-msgstr "ການຮ່ວມມືກັນ"
+msgstr "ການເຮັດວຽກຮ່ວມກັນ"
 
 #. module: survey_crm
 #: model:survey.question.answer,value:survey_crm.lead_qualification_question_1_question_answer_1
 #: model:survey.question.answer,value:survey_crm.lead_qualification_question_answer_col_1
 msgid "Yes"
-msgstr "ໂດຍ/ແມ່ນ"
+msgstr "ແມ່ນ"
 
 #. module: survey_crm
 #: model:survey.question,title:survey_crm.lead_qualification_question_3
 msgid "Your email:"
-msgstr "ອີເມລຂອງທ່ານ:"
+msgstr "ອີເມວຂອງທ່ານ:"
 
 #. module: survey_crm
 #. odoo-python
 #: code:addons/survey_crm/models/survey_user_input.py:0
 msgid "live session"
-msgstr "ການສຳມະນາສົດ"
+msgstr "ເຊດຊັນສົດ"
 
 #. module: survey_crm
 #. odoo-python

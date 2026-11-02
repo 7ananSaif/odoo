@@ -2,7 +2,7 @@
 
 from urllib.parse import quote
 
-from odoo.tests.common import TransactionCase
+from odoo.tests.common import tagged, TransactionCase
 from odoo.exceptions import UserError
 
 from .. import uninstall_hook
@@ -28,18 +28,19 @@ class TestCloudStorageGoogleCommon(TransactionCase):
 '''
         self.bucket_name = 'bucket_name'
         ICP = self.env['ir.config_parameter']
-        ICP.set_param('cloud_storage_provider', 'google')
-        ICP.set_param('cloud_storage_google_bucket_name', self.bucket_name)
-        ICP.set_param('cloud_storage_google_account_info', self.DUMMY_GOOGLE_ACCOUNT_INFO)
+        ICP.set_str('cloud_storage_provider', 'google')
+        ICP.set_str('cloud_storage_google_bucket_name', self.bucket_name)
+        ICP.set_str('cloud_storage_google_account_info', self.DUMMY_GOOGLE_ACCOUNT_INFO)
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestCloudStorageGoogle(TestCloudStorageGoogleCommon):
     def test_generate_signed_url(self):
         file_name = ' ¥®°²Æçéðπ⁉€∇⓵▲☑♂♥✓➔『にㄅ㊀中한︸🌈🌍👌😀.txt'
         attachment = self.env['ir.attachment'].create([{
             'name': file_name,
             'mimetype': 'text/plain',
-            'datas': b'',
+            'raw': b'',
         }])
         attachment._post_add_create(cloud_storage=True)
         attachment._generate_cloud_storage_upload_info()
@@ -52,7 +53,7 @@ class TestCloudStorageGoogle(TestCloudStorageGoogleCommon):
             attachment = self.env['ir.attachment'].create([{
                 'name': 'test.txt',
                 'mimetype': 'text/plain',
-                'datas': b'',
+                'raw': b'',
             }])
             attachment._post_add_create(cloud_storage=True)
             attachment.flush_recordset()
@@ -62,6 +63,6 @@ class TestCloudStorageGoogle(TestCloudStorageGoogleCommon):
         uninstall_hook(self.env)
         # make sure all sensitive data are removed
         ICP = self.env['ir.config_parameter']
-        self.assertFalse(ICP.get_param('cloud_storage_provider'))
-        self.assertFalse(ICP.get_param('cloud_storage_google_bucket_name'))
-        self.assertFalse(ICP.get_param('cloud_storage_google_account_info'))
+        self.assertFalse(ICP.get_str('cloud_storage_provider'))
+        self.assertFalse(ICP.get_str('cloud_storage_google_bucket_name'))
+        self.assertFalse(ICP.get_str('cloud_storage_google_account_info'))

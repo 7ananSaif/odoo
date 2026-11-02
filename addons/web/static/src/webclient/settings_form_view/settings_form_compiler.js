@@ -1,7 +1,6 @@
 import { append, createElement } from "@web/core/utils/xml";
 import { FormCompiler } from "@web/views/form/form_compiler";
 import { toStringExpression } from "@web/views/utils";
-import { isTextNode } from "@web/views/view_compiler";
 
 export class SettingsFormCompiler extends FormCompiler {
     setup() {
@@ -73,11 +72,15 @@ export class SettingsFormCompiler extends FormCompiler {
         for (const child of el.children) {
             append(settingsApp, this.compileNode(child, params));
         }
-
         params.anchors.push(
-            ...[...settingsApp.querySelectorAll("SearchableSetting")]
-                .filter((s) => s.id)
-                .map((s) => ({ app: module.key, settingId: s.id.replaceAll("`", "") }))
+            ...[...settingsApp.querySelectorAll("SearchableSetting")].flatMap((s) => ({
+                app: module.key,
+                settingId: s.id?.replaceAll("`", ""),
+                fieldNames: [...s.querySelectorAll("Field")].flatMap((el) => {
+                    const name = el.getAttribute("name");
+                    return name ? [name.replaceAll("'", "")] : [];
+                }),
+            }))
         );
         return settingsApp;
     }
@@ -94,34 +97,17 @@ export class SettingsFormCompiler extends FormCompiler {
     }
 
     compileSetting(el, params) {
-        params.componentName =
-            el.getAttribute("type") === "header" ? "SettingHeader" : "SearchableSetting";
-        const res = super.compileSetting(el, params);
-        return res;
-    }
+        const type = el.getAttribute("type");
+        params.componentName = type === "header" ? "SettingHeader" : "SearchableSetting";
+        const setting = super.compileSetting(el, params);
 
-    compileNode(node, params, evalInvisible) {
-        if (isTextNode(node)) {
-            if (node.textContent.trim()) {
-                return createElement("HighlightText", {
-                    originalText: toStringExpression(node.textContent),
-                });
-            }
-        }
-        return super.compileNode(node, params, evalInvisible);
-    }
+        if (type !== "header") {
+            const fieldLabels = [...setting.querySelectorAll("FormLabel")].map(
+                (fl) => `{fieldId: ${fl.getAttribute("id")}, string: ${fl.getAttribute("string")}}`
+            );
 
-    compileButton(el, params) {
-        const res = super.compileButton(el, params);
-        if (res.hasAttribute("string") && res.children.length === 0) {
-            const contentSlot = createElement("t");
-            contentSlot.setAttribute("t-set-slot", "contents");
-            const content = createElement("HighlightText", {
-                originalText: res.getAttribute("string"),
-            });
-            append(contentSlot, content);
-            append(res, contentSlot);
+            setting.setAttribute("fieldLabels", `[${fieldLabels.join(",")}]`);
         }
-        return res;
+        return setting;
     }
 }

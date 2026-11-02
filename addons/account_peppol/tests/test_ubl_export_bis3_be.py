@@ -6,6 +6,8 @@ from odoo.tests import tagged
 @tagged('post_install_l10n', 'post_install', '-at_install', *TestUblExportBis3BE.extra_tags)
 class TestUblExportBis3BEPeppol(TestUblExportBis3BE):
 
+    _test_user_groups = None  # FIXME list needed groups
+
     def test_invoice_PEPPOL_EN16931_R010_R020_ensure_customer_supplier_endpoint_id(self):
         """
         [PEPPOL-EN16931-R010] Buyer electronic address MUST be provided.
@@ -28,9 +30,6 @@ class TestUblExportBis3BEPeppol(TestUblExportBis3BE):
         with self.assertRaisesRegex(UserError, r".*\[PEPPOL\-EN16931\-R010\].*"):
             self._generate_invoice_ubl_file(invoice, sending_methods=['peppol'])
 
-        # Check customer's endpoint without Peppol.
-        self._generate_invoice_ubl_file(invoice)
-
         # Check supplier's endpoint with Peppol.
         invoice = self._create_invoice_one_line(
             product_id=product,
@@ -38,14 +37,9 @@ class TestUblExportBis3BEPeppol(TestUblExportBis3BE):
             post=True,
         )
 
-        partner.peppol_eas = '0208'
-        partner.peppol_endpoint = '0477472701'
+        partner.routing_identifier = '0208:0477472701'
         self.env.company.partner_id.vat = None
-        self.env.company.partner_id.company_registry = None
-        self.env.company.partner_id.peppol_eas = None
-        self.env.company.partner_id.peppol_endpoint = None
+        self.env.company.partner_id.additional_identifiers = None
+        self.env.company.partner_id.routing_identifier = None
         with self.assertRaisesRegex(UserError, r".*\[PEPPOL\-EN16931\-R020\].*"):
             self._generate_invoice_ubl_file(invoice, sending_methods=['peppol'])
-
-        # Check supplier's endpoint without Peppol.
-        self._generate_invoice_ubl_file(invoice)

@@ -1,7 +1,7 @@
 import { expect, test } from "@odoo/hoot";
 import { press } from "@odoo/hoot-dom";
 import { setupEditor } from "../_helpers/editor";
-import { insertText } from "../_helpers/user_actions";
+import { insertSpace, insertText } from "../_helpers/user_actions";
 import { getContent } from "../_helpers/selection";
 import { unformat } from "../_helpers/format";
 import { animationFrame } from "@odoo/hoot-mock";
@@ -9,13 +9,29 @@ import { execCommand } from "../_helpers/userCommands";
 
 test("typing '1. ' should create number list", async () => {
     const { el, editor } = await setupEditor("<p>[]</p>");
-    await insertText(editor, "1. ");
+    await insertText(editor, "1.");
+    await insertSpace(editor);
     expect(getContent(el)).toBe(`<ol><li o-we-hint-text="List" class="o-we-hint">[]<br></li></ol>`);
+});
+
+test("typing '1. ' should create number list (with whitespace)", async () => {
+    const { el, editor } = await setupEditor(`<p>
+        []abc
+    </p>`);
+    await insertText(editor, "1. ");
+    expect(unformat(getContent(el))).toBe(unformat(`<ol><li>[]abc</li></ol>`));
+});
+
+test("typing '1. ' should create number list (with linebreak)", async () => {
+    const { el, editor } = await setupEditor(`<p>abc<br>[]def<br>ghi</p>`);
+    await insertText(editor, "1. ");
+    expect(unformat(getContent(el))).toBe(unformat(`<p>abc</p><ol><li>[]def</li></ol><p>ghi</p>`));
 });
 
 test("typing '1) ' should create number list", async () => {
     const { el, editor } = await setupEditor("<p>[]</p>");
-    await insertText(editor, "1) ");
+    await insertText(editor, "1)");
+    await insertSpace(editor);
     expect(getContent(el)).toBe(`<ol><li o-we-hint-text="List" class="o-we-hint">[]<br></li></ol>`);
 });
 
@@ -27,7 +43,8 @@ test("Typing '1. ' at the start of existing text should create a numbered list",
 
 test("typing '1. ' should keep cursor inside formatting element when creating a list", async () => {
     const { el, editor } = await setupEditor("<p><strong><u>[]</u></strong></p>");
-    await insertText(editor, "1. ");
+    await insertText(editor, "1.");
+    await insertSpace(editor);
     expect(getContent(el)).toBe(
         unformat(
             `<ol>
@@ -41,7 +58,8 @@ test("typing '1. ' should keep cursor inside formatting element when creating a 
 
 test("should convert simple number list into bullet list", async () => {
     const { el, editor } = await setupEditor("<p>[]</p>");
-    await insertText(editor, "1. ");
+    await insertText(editor, "1.");
+    await insertSpace(editor);
     await insertText(editor, "/bulletedlist");
     await press("Enter");
     expect(getContent(el)).toBe(`<ul><li o-we-hint-text="List" class="o-we-hint">[]<br></li></ul>`);
@@ -49,7 +67,8 @@ test("should convert simple number list into bullet list", async () => {
 
 test("typing 'a. ' should create number list", async () => {
     const { el, editor } = await setupEditor("<p>[]</p>");
-    await insertText(editor, "a. ");
+    await insertText(editor, "a.");
+    await insertSpace(editor);
     expect(getContent(el)).toBe(
         `<ol style="list-style: lower-alpha;"><li o-we-hint-text="List" class="o-we-hint">[]<br></li></ol>`
     );
@@ -57,7 +76,8 @@ test("typing 'a. ' should create number list", async () => {
 
 test("typing 'a) ' should create number list", async () => {
     const { el, editor } = await setupEditor("<p>[]</p>");
-    await insertText(editor, "a) ");
+    await insertText(editor, "a)");
+    await insertSpace(editor);
     expect(getContent(el)).toBe(
         `<ol style="list-style: lower-alpha;"><li o-we-hint-text="List" class="o-we-hint">[]<br></li></ol>`
     );
@@ -65,7 +85,8 @@ test("typing 'a) ' should create number list", async () => {
 
 test("should convert lower-alpha list into bullet list", async () => {
     const { el, editor } = await setupEditor("<p>[]</p>");
-    await insertText(editor, "a. ");
+    await insertText(editor, "a.");
+    await insertSpace(editor);
     await insertText(editor, "/bulletedlist");
     await press("Enter");
     expect(getContent(el)).toBe(
@@ -75,7 +96,8 @@ test("should convert lower-alpha list into bullet list", async () => {
 
 test("typing 'A. ' should create number list", async () => {
     const { el, editor } = await setupEditor("<p>[]</p>");
-    await insertText(editor, "A. ");
+    await insertText(editor, "A.");
+    await insertSpace(editor);
     expect(getContent(el)).toBe(
         `<ol style="list-style: upper-alpha;"><li o-we-hint-text="List" class="o-we-hint">[]<br></li></ol>`
     );
@@ -83,7 +105,8 @@ test("typing 'A. ' should create number list", async () => {
 
 test("typing 'A) ' should create number list", async () => {
     const { el, editor } = await setupEditor("<p>[]</p>");
-    await insertText(editor, "A) ");
+    await insertText(editor, "A)");
+    await insertSpace(editor);
     expect(getContent(el)).toBe(
         `<ol style="list-style: upper-alpha;"><li o-we-hint-text="List" class="o-we-hint">[]<br></li></ol>`
     );
@@ -91,7 +114,8 @@ test("typing 'A) ' should create number list", async () => {
 
 test("should convert upper-alpha list into bullet list", async () => {
     const { el, editor } = await setupEditor("<p>[]</p>");
-    await insertText(editor, "A. ");
+    await insertText(editor, "A.");
+    await insertSpace(editor);
     await insertText(editor, "/bulletedlist");
     await press("Enter");
     expect(getContent(el)).toBe(
@@ -106,11 +130,12 @@ test("creating list directly inside table column (td)", async () => {
     await animationFrame();
     await press("Enter");
     await press("Backspace");
-    await insertText(editor, "A. ");
+    await insertText(editor, "A.");
+    await insertSpace(editor);
     expect(getContent(el)).toBe(
         unformat(`
             <p data-selection-placeholder=""><br></p>
-            <table class="table table-bordered o_table">
+            <div class="o_table_wrapper"><table class="table table-bordered o_table">
                 <tbody>
                     <tr>
                         <td><ol style="list-style: upper-alpha;"><li o-we-hint-text="List" class="o-we-hint">[]<br></li></ol></td>
@@ -128,14 +153,15 @@ test("creating list directly inside table column (td)", async () => {
                         <td><p><br></p></td>
                     </tr>
                 </tbody>
-            </table>
+            </table></div>
             <p data-selection-placeholder="" style="margin: -9px 0px 8px;"><br></p>`)
     );
 });
 
 test("typing '* ' should create bullet list", async () => {
     const { el, editor } = await setupEditor("<p>[]</p>");
-    await insertText(editor, "* ");
+    await insertText(editor, "*");
+    await insertSpace(editor);
     expect(getContent(el)).toBe(`<ul><li o-we-hint-text="List" class="o-we-hint">[]<br></li></ul>`);
 });
 
@@ -147,13 +173,15 @@ test("Typing '* ' at the start of existing text should create a bullet list", as
 
 test("typing '- ' should create bullet list", async () => {
     const { el, editor } = await setupEditor("<p>[]</p>");
-    await insertText(editor, "- ");
+    await insertText(editor, "-");
+    await insertSpace(editor);
     expect(getContent(el)).toBe(`<ul><li o-we-hint-text="List" class="o-we-hint">[]<br></li></ul>`);
 });
 
 test("should convert a bullet list into a numbered list", async () => {
     const { el, editor } = await setupEditor("<p>[]</p>");
-    await insertText(editor, "- ");
+    await insertText(editor, "-");
+    await insertSpace(editor);
     await insertText(editor, "/numberedlist");
     await press("Enter");
     expect(getContent(el)).toBe(`<ol><li o-we-hint-text="List" class="o-we-hint">[]<br></li></ol>`);
@@ -161,13 +189,14 @@ test("should convert a bullet list into a numbered list", async () => {
 
 test("typing '[] ' should create checklist and restore the original text when undo", async () => {
     const { el, editor } = await setupEditor("<p>[]</p>");
-    await insertText(editor, "[] ");
+    await insertText(editor, "[]");
+    await insertSpace(editor);
     expect(getContent(el)).toBe(
         `<ul class="o_checklist"><li o-we-hint-text="List" class="o-we-hint">[]<br></li></ul>`
     );
 
     execCommand(editor, "historyUndo");
-    expect(getContent(el)).toBe(`<p>[] []</p>`);
+    expect(getContent(el)).toBe(`<p>[]&nbsp;[]</p>`);
 });
 
 test("Typing '[] ' at the start of existing text should create a checklist and restore the original text when undo", async () => {
@@ -181,7 +210,8 @@ test("Typing '[] ' at the start of existing text should create a checklist and r
 
 test("should convert a checklist into a numbered list", async () => {
     const { el, editor } = await setupEditor("<p>[]</p>");
-    await insertText(editor, "[] ");
+    await insertText(editor, "[]");
+    await insertSpace(editor);
     await insertText(editor, "/numberedlist");
     await press("Enter");
     expect(getContent(el)).toBe(`<ol><li o-we-hint-text="List" class="o-we-hint">[]<br></li></ol>`);

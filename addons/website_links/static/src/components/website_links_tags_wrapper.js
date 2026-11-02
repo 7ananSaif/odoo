@@ -1,4 +1,4 @@
-import { Component, onWillStart, useState } from "@odoo/owl";
+import { Component, onWillStart, proxy, t, useProps } from "@odoo/owl";
 import { KeepLast } from "@web/core/utils/concurrency";
 import { SelectMenu } from "@web/core/select_menu/select_menu";
 import { useService } from "@web/core/utils/hooks";
@@ -7,15 +7,15 @@ import { DropdownItem } from "@web/core/dropdown/dropdown_item";
 export class WebsiteLinksTagsWrapper extends Component {
     static template = "website_links.WebsiteLinksTagsWrapper";
     static components = { SelectMenu, DropdownItem };
-    static props = {
-        placeholder: { optional: true, type: String },
-        model: { optional: true, type: String },
-    };
+    props = useProps({
+        placeholder: t.string().optional(),
+        model: t.string().optional(),
+    });
 
     setup() {
         this.orm = useService("orm");
         this.keepLast = new KeepLast();
-        this.state = useState({
+        this.state = proxy({
             placeholder: this.props.placeholder,
             choices: [],
             value: undefined,
@@ -29,10 +29,10 @@ export class WebsiteLinksTagsWrapper extends Component {
         });
     }
 
-    get showCreateOption() {
+    showCreateOption(searchValue) {
         return (
-            this.select.data.searchValue &&
-            !this.state.choices.some((c) => c.label === this.select.data.searchValue) &&
+            searchValue &&
+            !this.state.choices.some((c) => c.label === searchValue) &&
             this.canCreateLinkTracker
         );
     }

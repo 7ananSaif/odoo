@@ -1,23 +1,18 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+import logging
 import uuid
 
 from odoo import fields, models, api
-from odoo.fields import Domain
+from odoo.tools import SQL
 from odoo.tools.urls import urljoin as url_join
+
+_logger = logging.getLogger(__name__)
 
 
 class ResCompany(models.Model):
     _inherit = 'res.company'
 
-    def _default_company_token(self):
-        return str(uuid.uuid4())
-
-    # TODO: Remove in master
-    overtime_company_threshold = fields.Integer(string="Tolerance Time In Favor Of Company", default=0)
-    # TODO: Remove in master
-    overtime_employee_threshold = fields.Integer(string="Tolerance Time In Favor Of Employee", default=0)
-    hr_attendance_display_overtime = fields.Boolean(string="Display Extra Hours")
     attendance_kiosk_mode = fields.Selection([
         ('barcode', 'Barcode / RFID'),
         ('barcode_manual', 'Barcode / RFID and Manual Selection'),
@@ -29,80 +24,108 @@ class ResCompany(models.Model):
         ('back', 'Back Camera'),
     ], string='Barcode Source', default='front')
     attendance_kiosk_delay = fields.Integer(default=10)
-    attendance_kiosk_key = fields.Char(default=lambda s: uuid.uuid4().hex, copy=False, groups='hr_attendance.group_hr_attendance_user')
+    attendance_kiosk_key = fields.Char(default=lambda s: uuid.uuid4().hex, copy=False, groups='hr_attendance.group_hr_attendance_user', init_storage='_init_column_attendance_kiosk_key')
     attendance_kiosk_url = fields.Char(compute="_compute_attendance_kiosk_url")
     attendance_kiosk_use_pin = fields.Boolean(string='Employee PIN Identification')
-    attendance_from_systray = fields.Boolean(string='Attendance From Systray', default=False)
-    attendance_overtime_validation = fields.Selection([
-        ('no_validation', 'Automatically Approved'),
-        ('by_manager', 'Approved by Manager'),
-    ], string='Extra Hours Validation', default='no_validation')
+    attendance_from_systray = fields.Boolean(string='Attendance From Systray', default=True)
     auto_check_out = fields.Boolean(string="Automatic Check Out", default=False)
+    single_check_in = fields.Boolean(string="Single Check-In Attendance System")
+    auto_check_out_mode = fields.Selection([('tolerance', 'Tolerance'), ('specific_time', 'Specific Time')], default='tolerance')
     auto_check_out_tolerance = fields.Float(default=2, export_string_translation=False)
+    auto_check_out_specific_time = fields.Float(default=20.0, export_string_translation=False)
     absence_management = fields.Boolean(string="Absence Management", default=False)
+    attendance_validation = fields.Selection([
+        ('no_validation', 'Worked days are automatically approved'),
+        ('manual_validation', 'Worked days require manual approval'),
+        ('tolerance_validation', 'Worked days require approval if outside tolerance'),
+    ], string="Attendance Validation", default='no_validation')
+    attendance_validation_tolerance = fields.Float(
+        string="Validation Tolerance (Hours)",
+        default=0.0,
+    )
+    attendance_work_entry_type_id = fields.Many2one(
+        'hr.work.entry.type',
+        string="Attendance Time Type",
+        domain=[('count_as', '=', 'working_time')],
+        store=True,
+        compute='_compute_attendance_work_entry_type_id',
+        readonly=False,
+        groups="hr.group_hr_user",
+        help="Work entry type assigned to attendances and read by the time rule engine.",
+    )
+
     attendance_device_tracking = fields.Boolean(string="Device & Location Tracking", default=False)
+    attendance_capture_check_in = fields.Boolean(string="Take Pictures on Check-In", default=False)
+    attendance_break_management = fields.Boolean(
+        string="Break Management on Checkout",
+        help="If enabled, employees can record their total break duration after checking out.",
+    )
+    attendance_based = fields.Boolean(default=False, groups="hr.group_hr_user")
+
+    _check_auto_check_out_specific_time_range = models.Constraint(
+        "CHECK (NOT (auto_check_out = true AND auto_check_out_mode = 'specific_time') OR (auto_check_out_specific_time >= 0 AND auto_check_out_specific_time < 24))",
+        'Specific Time must be within a 24-hour range (0h 0m 0s to 23h 59m 59s).',
+    )
 
     @api.depends("attendance_kiosk_key")
     def _compute_attendance_kiosk_url(self):
         for company in self:
             company.attendance_kiosk_url = url_join(self.env['res.company'].get_base_url(), '/hr_attendance/%s' % company.attendance_kiosk_key)
 
+    @api.depends('country_id')
+    def _compute_attendance_work_entry_type_id(self):
+        fallback = self.env.ref('hr_work_entry.generic_work_entry_type_attendance', raise_if_not_found=False)
+        country_codes = self.mapped('country_id.code')
+        country_types = self.env['hr.work.entry.type'].sudo().search([
+            ('count_as', '=', 'working_time'),
+            ('code', '=', '002.00'),
+            ('country_code', 'in', country_codes),
+        ])
+        type_by_country = {t.country_code: t for t in country_types}
+        for company in self:
+            current = company.attendance_work_entry_type_id
+            country_specific = type_by_country.get(company.country_id.code)
+            if current and (not country_specific or current != fallback):
+                continue
+            company.attendance_work_entry_type_id = country_specific or fallback
+
     # ---------------------------------------------------------
     # ORM Overrides
     # ---------------------------------------------------------
-    def _init_column(self, column_name):
-        """ Initialize the value of the given column for existing rows.
-            Overridden here because we need to generate different access tokens
-            and by default _init_column calls the default method once and applies
-            it for every record.
-        """
-        if column_name != 'attendance_kiosk_key':
-            super(ResCompany, self)._init_column(column_name)
-        else:
-            self.env.cr.execute("SELECT id FROM %s WHERE attendance_kiosk_key IS NULL" % self._table)
-            attendance_ids = self.env.cr.dictfetchall()
-            values_args = [(attendance_id['id'], self._default_company_token()) for attendance_id in attendance_ids]
-            query = """
-                UPDATE {table}
-                SET attendance_kiosk_key = vals.token
-                FROM (VALUES %s) AS vals(id, token)
-                WHERE {table}.id = vals.id
-            """.format(table=self._table)
-            self.env.cr.execute_values(query, values_args)
-
-    def write(self, vals):
-        search_domain = Domain.FALSE  # Overtime to generate
-        # Also recompute if the threshold have changed
-        if 'overtime_company_threshold' in vals or 'overtime_employee_threshold' in vals:
-            # If we modify the thresholds only
-            search_domain = Domain.OR(
-                Domain('employee_id.company_id', '=', company.id)
-                for company in self
-                if (vals.get('overtime_company_threshold') != company.overtime_company_threshold)
-                or (vals.get('overtime_employee_threshold') != company.overtime_employee_threshold)
-            )
-
-        res = super().write(vals)
-        if not search_domain.is_false():
-            self.env['hr.attendance'].search(search_domain)._update_overtime()
-
-        return res
+    def _init_column_attendance_kiosk_key(self):
+        """ Generate different access tokens. """
+        self.env.execute_query(SQL("""
+            UPDATE %s
+            SET attendance_kiosk_key = gen_random_uuid()
+            WHERE attendance_kiosk_key IS NULL
+        """, SQL.identifier(self._table)))
 
     def _regenerate_attendance_kiosk_key(self):
+        """Replace the kiosk key, which invalidates the current kiosk URL."""
         self.ensure_one()
         self.write({
             'attendance_kiosk_key': uuid.uuid4().hex
         })
 
     def _check_hr_presence_control(self, at_install):
+        """Switch the presence control of the companies on install and uninstall.
+
+        At install, the companies controlling presence by login also control it by attendance;
+        at uninstall, the companies controlling it by attendance fall back to the login.
+
+        :param bool at_install: ``True`` at install, ``False`` at uninstall
+        """
         companies = self.env.companies
         for company in companies:
             if at_install and company.hr_presence_control_login:
                 company.hr_presence_control_attendance = True
             if not at_install and company.hr_presence_control_attendance:
                 company.hr_presence_control_login = True
+                company.hr_presence_control_attendance = False
 
     def _action_open_kiosk_mode(self):
+        """Return an action opening the kiosk of the current company, through the route that
+        logs the user out first."""
         return {
             'type': 'ir.actions.act_url',
             'target': 'self',

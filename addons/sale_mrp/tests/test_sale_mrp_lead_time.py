@@ -6,10 +6,13 @@ from datetime import timedelta
 from odoo import fields
 from odoo.addons.stock.tests.common import TestStockCommon
 
-from odoo.tests import Form
+from odoo.tests import tagged, Form
 
 
+@tagged('at_install', '-post_install')  # LEGACY at_install
 class TestSaleMrpLeadTime(TestStockCommon):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @classmethod
     def setUpClass(cls):
@@ -19,11 +22,10 @@ class TestSaleMrpLeadTime(TestStockCommon):
         with Form(cls.product_1) as p1:
             # `type` is invisible in the view,
             # and it's a compute field based on `type` which is the field visible in the view
-            p1.is_storable = True
+            p1.store_by = 'quantity'
             p1.sale_delay = 5.0
             p1.route_ids.clear()
-            p1.route_ids.add(cls.warehouse_1.manufacture_pull_id.route_id)
-            p1.route_ids.add(cls.warehouse_1.mto_pull_id.route_id)
+            p1.route_ids.add(cls.route_mto)
 
         # Update the product_2 with type
         with Form(cls.product_2) as p2:
@@ -60,10 +62,8 @@ class TestSaleMrpLeadTime(TestStockCommon):
             and Customer Lead Time and also set company's Manufacturing Lead Time
             and Sales Safety Days."""
 
-        company = self.env.ref('base.main_company')
-
         # Update company with Manufacturing Lead Time and Sales Safety Days
-        company.security_lead = 3
+        self.company.security_lead = 3
 
         # Create sale order of product_1
         order_form = Form(self.env['sale.order'])
@@ -81,7 +81,7 @@ class TestSaleMrpLeadTime(TestStockCommon):
 
         # Check schedule date of picking
         deadline_picking = fields.Datetime.from_string(order.date_order) + timedelta(days=self.product_1.sale_delay)
-        out_date = deadline_picking - timedelta(days=company.security_lead)
+        out_date = deadline_picking - timedelta(days=self.company.security_lead)
         self.assertAlmostEqual(
             order.picking_ids[0].scheduled_date, out_date,
             delta=timedelta(seconds=1),

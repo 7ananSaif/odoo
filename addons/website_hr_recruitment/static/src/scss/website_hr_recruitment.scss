@@ -1,14 +1,14 @@
 .o_website_hr_recruitment_jobs_list {
     #jobs_grid {
         .o_job_infos {
-            .fa {
+            .oi {
                 color: theme-color('secondary');
                 margin-right: .5rem;
             }
         }
 
         .card {
-            &, * {
+            &, .o_unpublished_badge, & > a {
                 transition: all .1s;
             }
 
@@ -16,27 +16,6 @@
                 box-shadow: 0 6px 10px 0 rgba(0, 0, 0, 0.1), 0 2px 2px 0 rgba(0, 0, 0, 0.05);
             }
         }
-
-        .o_jobs_unpublished {
-            opacity: .6;
-        }
-    }
-
-    .o_website_hr_recruitment_job_description {
-        //The ellipsis may not be supported on all platforms, the text will just break for them
-        max-height: 60px; //Limit to 3 lines
-        line-height: 20px;
-        -webkit-line-clamp: 3;
-        -moz-line-clamp: 3;
-        -ms-line-clamp: 3;
-        line-clamp: 3;
-        word-break: break-word;
-        display: -webkit-box;
-        -webkit-box-orient: vertical;
-        -moz-box-orient: vertical;
-        -ms-box-orient: vertical;
-        box-orient: vertical;
-        overflow: hidden;
     }
 }
 

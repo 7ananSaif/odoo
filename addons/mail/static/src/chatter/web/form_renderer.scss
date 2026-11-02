@@ -49,3 +49,16 @@
     padding-bottom: map-get($spacers, 5);
     width: 100%;
 }
+
+.o-mail-Chatter-top {
+    padding-top: var(--Chatter-top-padding-top, #{map-get($spacers, 2)});
+}
+
+.o-mail-Chatter-topbar {
+    margin: -$focus-ring-width (-$focus-ring-width) 0;
+    padding: $focus-ring-width $focus-ring-width map-get($spacers, 2);
+}
+
+.o-mail-Chatter-topbar button.btn-link.text-muted:hover {
+    color: $o-action !important;
+}

@@ -8,16 +8,40 @@ patch(PaymentScreen.prototype, {
         onMounted(() => {
             const pendingPaymentLine = this.currentOrder.payment_ids.find(
                 (paymentLine) =>
-                    paymentLine.payment_method_id.use_payment_terminal === "adyen" &&
+                    paymentLine.payment_method_id.payment_provider === "adyen" &&
                     !paymentLine.isDone() &&
                     paymentLine.getPaymentStatus() !== "pending"
             );
             if (!pendingPaymentLine) {
                 return;
             }
-            pendingPaymentLine.payment_method_id.payment_terminal.setMostRecentServiceId(
+            pendingPaymentLine.payment_method_id.payment_interface.setMostRecentServiceId(
                 pendingPaymentLine.terminalServiceId
             );
         });
+    },
+
+    async addNewPaymentLine(paymentMethod, args = {}) {
+        if (paymentMethod.payment_provider === "adyen" && this.isRefundOrder) {
+            const refundedOrder = this.currentOrder.lines[0]?.refunded_orderline_id?.order_id;
+            const amountDue = Math.abs(this.currentOrder.remainingDue);
+            const matchedPaymentLine = refundedOrder?.payment_ids.find(
+                (line) =>
+                    line.payment_method_id.payment_provider === "adyen" && line.amount >= amountDue
+            );
+            if (matchedPaymentLine) {
+                const paymentLineAddedSuccessfully = await super.addNewPaymentLine(
+                    paymentMethod,
+                    args
+                );
+                if (paymentLineAddedSuccessfully) {
+                    const newPaymentLine = this.paymentLines.at(-1);
+                    newPaymentLine.updateRefundPaymentLine(matchedPaymentLine);
+                }
+                return paymentLineAddedSuccessfully;
+            }
+        }
+
+        return await super.addNewPaymentLine(paymentMethod, args);
     },
 });

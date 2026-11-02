@@ -8,11 +8,6 @@ class TalentPoolAddApplicants(models.TransientModel):
         "hr.applicant",
         string="Applicants",
         required=True,
-        domain=[
-            "|",
-            ("talent_pool_ids", "!=", False),
-            ("is_applicant_in_pool", "=", False),
-        ],
     )
     talent_pool_ids = fields.Many2many("hr.talent.pool", string="Talent Pool")
     categ_ids = fields.Many2many(
@@ -23,7 +18,10 @@ class TalentPoolAddApplicants(models.TransientModel):
     def _add_applicants_to_pool(self):
         talents = self.env["hr.applicant"]
         for applicant in self.applicant_ids:
-            if applicant.talent_pool_ids:
+            if applicant.pool_applicant_id:  # already has a linked talent
+                applicant = applicant.pool_applicant_id
+
+            if applicant.talent_pool_ids:  # is a talent
                 applicant.write(
                     {
                         "talent_pool_ids": [
@@ -37,8 +35,15 @@ class TalentPoolAddApplicants(models.TransientModel):
                 )
                 talents += applicant
             else:
+                applicant_attachments = self.env['ir.attachment']
+                for attachment in applicant.attachment_ids:
+                    applicant_attachments |= attachment.copy({
+                        'res_id': applicant.id
+                    })
                 talent = applicant.with_context(no_copy_in_partner_name=True).copy(
                     {
+                        'attachment_ids': [Command.link(applicant_attachment.id)
+                                           for applicant_attachment in applicant_attachments],
                         "job_id": False,
                         "talent_pool_ids": self.talent_pool_ids,
                         "categ_ids": applicant.categ_ids + self.categ_ids,
@@ -65,8 +70,24 @@ class TalentPoolAddApplicants(models.TransientModel):
                 "target": "current",
                 "res_id": talents.id,
             }
-        else:
+        if not talents:
             return {
                 "type": "ir.actions.client",
                 "tag": "soft_reload",
             }
+        message = self.env._(
+                "Added the following talents to %(talent_pools)s: %(talent_names)s.",
+                talent_pools=", ".join(self.talent_pool_ids.mapped('name')),
+                talent_names=", ".join(talents.mapped('partner_name')),
+            )
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': self.env._("Talents Added To Talent Pool(s)"),
+                'type': 'success',
+                'message': message,
+                'sticky': False,
+                'next': {'type': 'ir.actions.client', 'tag': 'soft_reload'},
+            },
+        }

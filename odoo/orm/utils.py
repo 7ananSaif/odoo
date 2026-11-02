@@ -1,13 +1,17 @@
+from __future__ import annotations
+
+import functools
 import re
-import warnings
+from collections.abc import Reversible
 from collections.abc import Set as AbstractSet
 
 import dateutil.relativedelta
 
-from odoo.exceptions import AccessError, ValidationError
-from odoo.tools import SQL
+from odoo.exceptions import ValidationError
+from odoo.tools import SQL, unique
+from odoo.tools.misc import freehash
 
-regex_alphanumeric = re.compile(r'^[a-z0-9_]+$')
+regex_alphanumeric = re.compile(r'^[a-z0-9_]+$', re.IGNORECASE)
 regex_object_name = re.compile(r'^[a-z0-9_.]+$')
 regex_pg_name = re.compile(r'^[a-z_][a-z0-9_$]*$', re.IGNORECASE)
 # match private methods, to prevent their remote invocation
@@ -66,13 +70,6 @@ SQL_OPERATORS = {
 }
 
 
-def check_method_name(name):
-    """ Raise an ``AccessError`` if ``name`` is a private method name. """
-    warnings.warn("Since 19.0, use odoo.service.model.get_public_method", DeprecationWarning)
-    if regex_private.match(name):
-        raise AccessError('Private methods (such as %s) cannot be called remotely.' % name)
-
-
 def check_object_name(name):
     """ Check if the given name is a valid model name.
 
@@ -126,7 +123,52 @@ def expand_ids(id0, ids):
             seen.add(id_)
 
 
-class OriginIds:
+#
+# The value of records._prefetch_ids must be iterable and reversible
+#
+
+class PrefetchRelational(Reversible):  # noqa: PLW1641
+    """ A prefetch object for the values of a relational field. """
+    __slots__ = ('_field', '_records')
+
+    def __init__(self, field, records):
+        self._field = field
+        self._records = records
+
+    def __eq__(self, other):
+        return (
+            isinstance(other, PrefetchRelational)
+            and self._field is other._field
+            and self._records._prefetch_ids == other._records._prefetch_ids
+        )
+
+    def __hash__(self):
+        return hash(self._field) ^ freehash(self._records._prefetch_ids)
+
+    def __iter__(self):
+        field_cache = self._field._get_cache(self._records.env)
+        if self._field.type == 'many2one':
+            for id_ in self._records._prefetch_ids:
+                if (coid := field_cache.get(id_)) is not None:
+                    yield coid
+        else:
+            for id_ in unique(self._records._prefetch_ids):
+                if (coids := field_cache.get(id_)):
+                    yield from coids
+
+    def __reversed__(self):
+        field_cache = self._field._get_cache(self._records.env)
+        if self._field.type == 'many2one':
+            for id_ in reversed(self._records._prefetch_ids):
+                if (coid := field_cache.get(id_)) is not None:
+                    yield coid
+        else:
+            for id_ in unique(reversed(self._records._prefetch_ids)):
+                if (coids := field_cache.get(id_)):
+                    yield from coids
+
+
+class OriginIds(Reversible):  # noqa: PLW1641
     """ A reversible iterable returning the origin ids of a collection of ``ids``.
         Actual ids are returned as is, and ids without origin are not returned.
     """
@@ -135,15 +177,123 @@ class OriginIds:
     def __init__(self, ids):
         self.ids = ids
 
+    def __eq__(self, other):
+        return isinstance(other, OriginIds) and self.ids == other.ids
+
+    def __hash__(self):
+        return freehash(self.ids) ^ 1
+
     def __iter__(self):
         for id_ in self.ids:
-            if id_ := id_ or getattr(id_, 'origin', None):
+            if id_ := id_ or id_.origin:
                 yield id_
 
     def __reversed__(self):
         for id_ in reversed(self.ids):
-            if id_ := id_ or getattr(id_, 'origin', None):
+            if id_ := id_ or id_.origin:
                 yield id_
 
 
-origin_ids = OriginIds
+class PrefetchUnion(Reversible):
+    """ A prefetch object for the concatenation/union of recordsets.
+    The constructor takes the ids of the concatenation/union and the prefetch
+    ids of the recordsets in the concatenation/union.  The given ids are
+    redundant but have priority when iterating, which makes them prioritary
+    when prefetching.
+    """
+    __slots__ = ('_ids', '_prefetches')
+
+    def __init__(self, ids: tuple, *prefetches: Reversible):
+        self._ids = ids
+        self._prefetches = prefetches
+
+    class __AlwaysHash:
+        __slots__ = ('obj',)
+
+        def __new__(cls, obj):
+            try:
+                hash(obj)
+                return obj
+            except TypeError:  # unhashable
+                pass
+            r = object.__new__(cls)
+            r.obj = obj
+            return r
+
+        def __eq__(self, value):
+            return isinstance(value, self.__class__) and self.obj == value.obj
+
+        def __hash__(self):
+            return id(self.obj)
+
+    def __iter__(self):
+        it = self._ids
+        yield from it
+        # flatten out prefetches in order to avoid recursion errors
+        stack = list(reversed(self._prefetches))
+        seen = {self.__AlwaysHash(it)}
+        while stack:
+            it = stack.pop()
+            h = self.__AlwaysHash(it)
+            if h in seen:
+                continue
+            seen.add(h)
+            if isinstance(it, PrefetchUnion):
+                stack.extend(reversed(it._prefetches))
+                continue
+            yield from it
+
+    def __reversed__(self):
+        it = self._ids
+        yield from it
+        # flatten out prefetches in order to avoid recursion errors
+        stack = list(self._prefetches)
+        seen = {self.__AlwaysHash(it)}
+        while stack:
+            it = stack.pop()
+            h = self.__AlwaysHash(it)
+            if h in seen:
+                continue
+            seen.add(h)
+            if isinstance(it, PrefetchUnion):
+                stack.extend(it._prefetches)
+                continue
+            yield from reversed(it)
+
+
+class Prefetch:
+    relational = PrefetchRelational
+    origin = OriginIds
+    union = PrefetchUnion
+
+
+@functools.total_ordering
+class ReversibleComparator:
+    __slots__ = ('__item', '__none_first', '__reverse')
+
+    def __init__(self, item, reverse: bool = False, none_first: bool = False):
+        self.__item = item
+        self.__reverse = reverse
+        self.__none_first = none_first
+
+    def __lt__(self, other: ReversibleComparator) -> bool:
+        item = self.__item
+        item_cmp = other.__item
+        if item == item_cmp:
+            return False
+        if item is None:
+            return self.__none_first
+        if item_cmp is None:
+            return not self.__none_first
+        if self.__reverse:
+            item, item_cmp = item_cmp, item
+        return item < item_cmp
+
+    def __eq__(self, other: ReversibleComparator) -> bool:
+        return self.__item == other.__item
+
+    def __hash__(self):
+        return hash(self.__item)
+
+    def __repr__(self):
+        return f"<ReversibleComparator {self.__item!r}{' reverse' if self.__reverse else ''}>"

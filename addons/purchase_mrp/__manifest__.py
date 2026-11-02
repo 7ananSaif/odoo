@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 
 {
     'name': 'Purchase and MRP Management',
-    'version': '1.0',
     'category': 'Supply Chain/Purchase',
     'description': """
 This module provides facility to the user to install mrp and purchase modules at a time.
@@ -18,19 +16,13 @@ from purchase order.
         'views/purchase_order_views.xml',
         'views/mrp_production_views.xml',
         'views/stock_orderpoint_views.xml',
-        'security/ir.model.access.csv',
+        'security/ir.access.csv',
     ],
     'demo': [
         'data/purchase_mrp_demo.xml',
     ],
     'depends': ['mrp', 'purchase_stock'],
-    'installable': True,
     'auto_install': True,
-    'assets': {
-        'web.assets_backend': [
-            'mrp/static/src/**/*.js',
-        ],
-    },
     'author': 'Odoo S.A.',
     'license': 'LGPL-3',
 }

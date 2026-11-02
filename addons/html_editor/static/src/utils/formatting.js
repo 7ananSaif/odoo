@@ -1,8 +1,5 @@
 import { normalizeCSSColor } from "@web/core/utils/colors";
-import { removeClass } from "./dom";
-import { isBold, isDirectionSwitched, isItalic, isStrikeThrough, isUnderline } from "./dom_info";
-import { closestElement, closestPath, findNode, findUpTo } from "./dom_traversal";
-import { closestBlock, isBlock } from "./blocks";
+import { closestElement, findUpTo } from "./dom_traversal";
 
 /**
  * Array of all the classes used by the editor to change the font size.
@@ -37,141 +34,7 @@ export const DEFAULT_FONT_SIZE_CLASSES = [
 
 export const FORMATTABLE_TAGS = ["SPAN", "FONT", "B", "STRONG", "I", "EM", "U", "S", "CODE"];
 
-export const formatsSpecs = {
-    italic: {
-        tagName: "em",
-        isFormatted: isItalic,
-        isTag: (node) => ["EM", "I"].includes(node.tagName),
-        hasStyle: (node) => Boolean(node.style && node.style["font-style"]),
-        addStyle: (node) => (node.style["font-style"] = "italic"),
-        addNeutralStyle: (node) => (node.style["font-style"] = "normal"),
-        removeStyle: (node) => removeStyle(node, "font-style"),
-    },
-    bold: {
-        tagName: "strong",
-        isFormatted: isBold,
-        isTag: (node) => ["STRONG", "B"].includes(node.tagName),
-        hasStyle: (node) => Boolean(node.style && node.style["font-weight"]),
-        addStyle: (node) => (node.style["font-weight"] = "bolder"),
-        addNeutralStyle: (node) => {
-            node.style["font-weight"] = "normal";
-        },
-        removeStyle: (node) => removeStyle(node, "font-weight"),
-    },
-    underline: {
-        tagName: "u",
-        isFormatted: isUnderline,
-        isTag: (node) => node.tagName === "U",
-        hasStyle: (node) =>
-            node.style &&
-            (node.style["text-decoration"].includes("underline") ||
-                node.style["text-decoration-line"].includes("underline")),
-        addStyle: (node) => (node.style["text-decoration-line"] += " underline"),
-        removeStyle: (node) =>
-            removeStyle(
-                node,
-                node.style["text-decoration"].includes("underline")
-                    ? "text-decoration"
-                    : "text-decoration-line",
-                "underline"
-            ),
-    },
-    strikeThrough: {
-        tagName: "s",
-        isFormatted: isStrikeThrough,
-        isTag: (node) => node.tagName === "S",
-        hasStyle: (node) =>
-            node.style &&
-            (node.style["text-decoration"].includes("line-through") ||
-                node.style["text-decoration-line"].includes("line-through")),
-        addStyle: (node) => (node.style["text-decoration-line"] += " line-through"),
-        removeStyle: (node) =>
-            removeStyle(
-                node,
-                node.style["text-decoration"].includes("line-through")
-                    ? "text-decoration"
-                    : "text-decoration-line",
-                "line-through"
-            ),
-    },
-    fontFamily: {
-        isFormatted: (node) => !!closestElement(node, (el) => el.style["font-family"]),
-        hasStyle: (node) => node.style && node.style["font-family"],
-        addStyle: (node, props) => {
-            removeStyle(node, "font-family");
-            if (props.fontFamily) {
-                node.style["font-family"] = props.fontFamily;
-            }
-        },
-        removeStyle: (node) => removeStyle(node, "font-family"),
-    },
-    fontSize: {
-        isFormatted: (node, props) => {
-            const fontSize = (
-                findNode(closestPath(node), (el) => el.style?.["font-size"], isBlock) ||
-                closestElement(node, "li")
-            )?.style["font-size"];
-            return props?.size ? fontSize === props.size : fontSize;
-        },
-        hasStyle: (node) => node.style && node.style["font-size"],
-        addStyle: (node, props) => {
-            node.style["font-size"] = props.size;
-            removeClass(node, ...FONT_SIZE_CLASSES);
-        },
-        removeStyle: (node) => removeStyle(node, "font-size"),
-    },
-    setFontSizeClassName: {
-        isFormatted: (node, props) =>
-            props?.className
-                ? FONT_SIZE_CLASSES.includes(props.className) &&
-                  !!(
-                      findNode(
-                          closestPath(node),
-                          (el) => el.classList?.contains(props.className),
-                          (el) => el === closestBlock(node).parentElement
-                      ) || closestElement(node, "li")?.classList?.contains(props.className)
-                  )
-                : !!findNode(
-                      closestPath(node),
-                      (el) => FONT_SIZE_CLASSES.find((cls) => el.classList?.contains(cls)),
-                      (el) => el === closestBlock(node).parentElement
-                  ) ||
-                  FONT_SIZE_CLASSES.find((cls) =>
-                      closestElement(node, "li")?.classList.contains(cls)
-                  ),
-        hasStyle: (node, props) =>
-            [...FONT_SIZE_CLASSES, ...TEXT_STYLE_CLASSES, ...DEFAULT_FONT_SIZE_CLASSES].find(
-                (cls) => node.classList.contains(cls)
-            ),
-        addStyle: (node, props) => {
-            node.style.removeProperty("font-size");
-            node.classList.add(props.className);
-        },
-        removeStyle: (node) => {
-            removeStyle(node, "font-size");
-            removeClass(node, ...FONT_SIZE_CLASSES);
-            // Typography classes should be preserved on block elements since
-            // they act as semantic equivalents of <h1>, <h2>, etc., not just
-            // removable styles.
-            if (!isBlock(node)) {
-                removeClass(node, ...TEXT_STYLE_CLASSES, ...DEFAULT_FONT_SIZE_CLASSES);
-            }
-        },
-        addNeutralStyle: function (node) {
-            const block = closestBlock(node);
-            if (["H1", "H2", "H3", "H4", "H5", "H6"].includes(block.nodeName)) {
-                node.classList.add(block.nodeName.toLowerCase());
-            } else {
-                node.classList.add("o_default_font_size");
-            }
-        },
-    },
-    switchDirection: {
-        isFormatted: (node, props) => isDirectionSwitched(node, props.editable),
-    },
-};
-
-function removeStyle(node, styleName, item) {
+export function removeStyle(node, styleName, item) {
     if (item) {
         const newStyle = node.style[styleName]
             .split(" ")
@@ -192,6 +55,14 @@ function removeStyle(node, styleName, item) {
  * @returns {string}
  */
 export function getCSSVariableValue(key, htmlStyle) {
+    if (!key) {
+        return "";
+    }
+    if (key.startsWith("var(--")) {
+        key = key.substring(6, key.length - 1);
+    } else if (key.startsWith("--")) {
+        key = key.substring(2);
+    }
     // Get trimmed value from the HTML element
     let value = htmlStyle.getPropertyValue(`--${key}`).trim();
     // If it is a color value, it needs to be normalized
@@ -210,7 +81,7 @@ export function getCSSVariableValue(key, htmlStyle) {
  *   unit A and $2 is the CSS symbol of unit B.
  * - The value is a function that converts the received value (expressed in
  *   unit A) to another value expressed in unit B. Two other parameters is
- *   received: the css property on which the unit applies and the jQuery element
+ *   received: the css property on which the unit applies and the element
  *   on which that css property may change.
  */
 const CSS_UNITS_CONVERSION = {
@@ -269,6 +140,7 @@ export function getFontSizeDisplayValue(sel, document) {
                 [style*='font-size'],
                 ${FONT_SIZE_CLASSES.map((className) => `.${className}`)},
                 ${TEXT_STYLE_CLASSES.map((className) => `.${className}`)},
+                ${DEFAULT_FONT_SIZE_CLASSES.map((className) => `.${className}`)},
                 ${tagNameRelatedToFontSize}
             `)
     );
@@ -285,22 +157,25 @@ export function getFontSizeDisplayValue(sel, document) {
             // options.
             return parseFloat(getComputedStyle(closestStartContainerEl).fontSize);
         }
-        // It's a class font size or a hN tag. We don't return the computed
-        // font size because it can be different from the one displayed in
-        // the toolbar because it's responsive.
-        const fontSizeClass = FONT_SIZE_CLASSES.find((className) =>
-            closestFontSizedEl.classList.contains(className)
-        );
+        // It's a font size class (custom or default/neutral) or a heading tag.
+        // Retrieve the theme CSS variable to get the desktop size instead of
+        // the computed font size, which can be different due to responsiveness.
+        const activeClass = [
+            ...FONT_SIZE_CLASSES,
+            ...DEFAULT_FONT_SIZE_CLASSES,
+            ...TEXT_STYLE_CLASSES,
+        ].find((cls) => closestFontSizedEl.classList.contains(cls));
+
         let fsName;
-        if (fontSizeClass) {
-            fsName = fontSizeClass.substring(0, fontSizeClass.length - 3); // Without -fs
+        if (activeClass === "o_default_font_size" || activeClass === "base-fs") {
+            fsName = "font-size-base";
+        } else if (activeClass) {
+            // e.g. o_small-fs -> small-font-size
+            fsName = `${activeClass.replace(/^o_/, "").replace(/-fs$/, "")}-font-size`;
         } else {
-            fsName =
-                TEXT_STYLE_CLASSES.find((className) =>
-                    closestFontSizedEl.classList.contains(className)
-                ) || closestFontSizedEl.tagName.toLowerCase();
+            fsName = `${closestFontSizedEl.tagName.toLowerCase()}-font-size`;
         }
-        remValue = parseFloat(getCSSVariableValue(`${fsName}-font-size`, htmlStyle));
+        remValue = parseFloat(getCSSVariableValue(fsName, htmlStyle));
     }
     const pxValue = remValue && convertNumericToUnit(remValue, "rem", "px", htmlStyle);
     return pxValue || parseFloat(getComputedStyle(closestStartContainerEl).fontSize);
@@ -320,4 +195,40 @@ export function getFontSizeOrClass(node) {
         return { type: "class", value: fontSizeClass };
     }
     return null;
+}
+
+/**
+ * Allows to iterate over all the CSS rules of all the stylesheets of the
+ * document and to map them to an array.
+ *
+ * @param {function(CSSStyleRule): any} fn A function that takes a
+ * CSSStyleRule and returns any value. If the function returns undefined, the
+ * rule is ignored.
+ * @returns {Array<any>} An array of elements returned by the function for
+ * each CSS rule.
+ */
+export function mapCSSRules(fn) {
+    const mapping = [];
+
+    for (const sheet of document.styleSheets) {
+        try {
+            if (!sheet.cssRules) {
+                continue;
+            }
+        } catch {
+            continue;
+        }
+        for (const rule of sheet.cssRules) {
+            if (!(rule instanceof CSSStyleRule)) {
+                continue;
+            }
+
+            const result = fn(rule);
+            if (result) {
+                mapping.push(result);
+            }
+        }
+    }
+
+    return mapping;
 }

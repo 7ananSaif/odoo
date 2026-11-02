@@ -10,10 +10,6 @@ class AccountChartTemplate(models.AbstractModel):
     def _get_th_template_data(self):
         return {
             'code_digits': '6',
-            'property_account_receivable_id': 'l10n_th_account_112100',
-            'property_account_payable_id': 'l10n_th_account_212100',
-            'property_stock_valuation_account_id': 'l10n_th_account_113100',
-            'downpayment_account_id': 'l10n_th_account_212400',
         }
 
     @template('th', 'res.company')
@@ -35,9 +31,33 @@ class AccountChartTemplate(models.AbstractModel):
                 'default_cash_difference_income_account_id': 'l10n_th_account_421600',
                 'default_cash_difference_expense_account_id': 'l10n_th_account_622200',
                 'transfer_account_id': 'l10n_th_account_111202',
+                'downpayment_account_id': 'l10n_th_account_212400',
                 'expense_account_id': 'l10n_th_account_511100',
                 'income_account_id': 'l10n_th_account_411100',
+                'receivable_account_id': 'l10n_th_account_112100',
+                'payable_account_id': 'l10n_th_account_212100',
                 'account_stock_valuation_id': 'l10n_th_account_113100',
                 'tax_exigibility': 'True'
+            },
+        }
+
+    @template('th', 'ir.sequence')
+    def _get_th_ir_sequence(self):
+        return {
+            'seq_l10n_th_tax_invoice_number': {
+                'name': 'Tax Invoice Number',
+                'code': 'l10n_th.tax.invoice.tax_invoice_number',
+                'prefix': 'TINV/%(year)s/',
+                'padding': 5,
+                'use_date_range': True,
+                'implementation': 'no_gap',
+            },
+            'seq_l10n_th_receipt_tax_invoice_number': {
+                'name': 'Receipt / Tax Invoice Number',
+                'code': 'l10n_th.tax.invoice.receipt_tax_invoice_number',
+                'prefix': 'RCT/%(year)s/',
+                'padding': 5,
+                'use_date_range': True,
+                'implementation': 'no_gap',
             },
         }

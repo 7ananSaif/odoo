@@ -8,10 +8,69 @@ from odoo.tests import Form, tagged
 @tagged('post_install', '-at_install')
 class TestSaleExpense(TestExpenseCommon, TestSaleCommon):
 
-    def test_analytic_account_expense_policy(self):
+    _test_user_groups = None  # FIXME list needed groups
+
+    def test_company_paid_expense_from_project_no_phantom_revenue(self):
+        """ The liquidity line of a company-paid expense created from a project must not get
+            the project analytic distribution, else it shows as a positive 'Expenses (Revenue)'.
+        """
+        project = self.env['project.project'].sudo().create({
+            'name': 'Project',
+            'account_id': self.analytic_account_1.id,
+        })
+        expense = self.env['hr.expense'].with_context(project_id=project.id).create({
+            'name': 'Company paid expense',
+            'employee_id': self.expense_employee.id,
+            'product_id': self.product_c.id,
+            'total_amount_currency': 321.0,
+            'payment_mode': 'company_account',
+        })
+        expense.action_submit()
+        expense.action_approve()
+        self.post_expenses(expense)
+
+        self.assertEqual(
+            expense.account_move_id.line_ids.analytic_line_ids.mapped('billable_type'),
+            ['13_expense']
+        )
+
+    def test_analytic_line_billable_type_expense_revenue(self):
+        line = self.env['account.analytic.line'].create({
+            'account_id': self.analytic_account_1.id,
+            'name': 'Refunded expense',
+            'category': 'expense',
+            'amount': 321.0,
+            'unit_amount': 1,
+        })
+        self.assertEqual(line.billable_type, '18_expense_revenues', "A positive expense line is an expense revenue, not a generic other revenue")
+        self.assertEqual(line.category_report, 'revenues')
+
+    def test_analytic_line_billable_type_reinvoiced_expense(self):
+        sale_order = self.env['sale.order'].create({'partner_id': self.partner_a.id})
+        so_line = self.env['sale.order.line'].create({
+            'order_id': sale_order.id,
+            'product_id': self.product_a.id,
+            'is_expense': True,
+        })
+        line = self.env['account.analytic.line'].create({
+            'account_id': self.analytic_account_1.id,
+            'name': 'Reinvoiced expense',
+            'category': 'invoice',
+            'so_line': so_line.id,
+            'product_id': self.product_a.id,
+            'amount': 321.0,
+            'unit_amount': 1,
+        })
+        self.assertEqual(
+            line.billable_type, '18_expense_revenues',
+            "Revenue reinvoiced from an expense is an expense revenue, not a service revenue",
+        )
+        self.assertEqual(line.category_report, 'revenues')
+
+    def test_analytic_account_reinvoice_policy(self):
         product_form = Form(self.product_a.product_tmpl_id)
         product_form.can_be_expensed = True
-        product_form.expense_policy = 'cost'
+        product_form.reinvoice_policy = 'cost'
         product_form.can_be_expensed = False
         self.product_a.product_tmpl_id = product_form.save()
 
@@ -39,7 +98,7 @@ class TestSaleExpense(TestExpenseCommon, TestSaleCommon):
         # in the view and will not be computed
         self.env.user.write({'group_ids': [Command.link(self.env.ref('analytic.group_analytic_accounting').id)]})
         # Set the expense policy to 'sales_price' to make the 'sale_order_id' field visible on the form view
-        self.product_c.expense_policy = 'sales_price'
+        self.product_c.reinvoice_policy = 'sales_price'
 
         self.analytic_plan_2 = self.env['account.analytic.plan'].create({'name': 'Other Plan Test'})
         self.analytic_account_3 = self.env['account.analytic.account'].create({
@@ -105,10 +164,10 @@ class TestSaleExpense(TestExpenseCommon, TestSaleCommon):
             "The analytic distribution of the expense should keep only the one from the project when the so and project share the same plan",
         )
 
-    def test_change_product_expense_policy_analytic_distribution(self):
+    def test_change_product_reinvoice_policy_analytic_distribution(self):
         """ Test that analytic distribution is not recomputed when changing the expense policy of the expense product """
         analytic_account_2 = self.analytic_account_1.copy()
-        self.product_a.expense_policy = 'sales_price'
+        self.product_a.reinvoice_policy = 'sales_price'
         distribution_model = self.env['account.analytic.distribution.model'].create({
             'account_prefix': self.company_data['default_account_expense'].code,
             'analytic_distribution': {self.analytic_account_1.id: 100.0},
@@ -138,7 +197,7 @@ class TestSaleExpense(TestExpenseCommon, TestSaleCommon):
             'product_id': self.product_a.id,
         })
 
-        self.product_a.expense_policy = 'cost'
+        self.product_a.reinvoice_policy = 'cost'
 
         self.assertRecordValues(expenses, [
             {
@@ -151,3 +210,45 @@ class TestSaleExpense(TestExpenseCommon, TestSaleCommon):
                 'analytic_distribution': {str(analytic_account_2.id): 100.0},
             },
         ])
+
+    def test_aal_category_expense(self):
+        """ This test ensures that when an expense generate an aal, its category and billable type are correctly set. """
+        expensed_product = self.env['product.product'].create({
+            'name': 'test product',
+            'can_be_expensed': True,
+            'type': 'service',
+            'invoice_policy': 'order',
+            'standard_price': 100,
+            'reinvoice_policy': 'cost',
+        })
+
+        project_plan, _other_plans = self.env['account.analytic.plan']._get_all_plans()
+        account = self.env['account.analytic.account'].create({
+            'plan_id': project_plan.id,
+            'name': 'Project account',
+        })
+        project = self.env['project.project'].sudo().create({'name': 'SO Project', 'account_id': account.id})
+        sale_order = self.env['sale.order'].create({
+            'partner_id': self.partner_a.id,
+            'partner_invoice_id': self.partner_a.id,
+            'partner_shipping_id': self.partner_a.id,
+            'order_line': [Command.create({'product_id': self.product_b.id})],
+            'project_id': project.id,
+        })
+        sale_order.action_confirm()
+        sale_order._create_invoices()
+
+        expense = self.create_expenses({
+            'product_id': expensed_product.id,
+            'quantity': 1000.00,
+            'analytic_distribution': {account.id: 100},
+            'sale_order_id': sale_order.id,
+        })
+        expense.action_submit()
+        expense.action_approve()
+        self.post_expenses(expense)
+
+        line = self.env['account.analytic.line'].search([('account_id', '=', account.id)])
+        self.assertEqual('expense', line.category)
+        self.assertEqual('costs', line.category_report)
+        self.assertEqual('13_expense', line.billable_type)

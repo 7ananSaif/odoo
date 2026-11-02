@@ -1,17 +1,54 @@
-import { Component, useState, onWillUpdateProps, onWillDestroy } from "@odoo/owl";
-import { useChildRef, useService } from "@web/core/utils/hooks";
+import { Component, onWillDestroy, useProps, proxy, signal, t, useEffect } from "@odoo/owl";
+import { useService } from "@web/core/utils/hooks";
 import { useCachedModel } from "@html_builder/core/cached_model_utils";
 import { _t } from "@web/core/l10n/translation";
 import { SelectMenu } from "@web/core/select_menu/select_menu";
 import { useDropdownCloser } from "@web/core/dropdown/dropdown_hooks";
 import { shallowEqual } from "@web/core/utils/arrays";
 
+export function useSelectMenuHandler(
+    menuRef,
+    { onSelectMenuOpened, onSelectMenuClosed, onNavigatedAway, onNavigatedBack } = {}
+) {
+    let removeListeners;
+    const addListener = (menuEl, event, callback) => {
+        if (typeof callback !== "function") {
+            return () => {};
+        }
+        menuEl.addEventListener(event, callback);
+        return () => menuEl.removeEventListener(event, callback);
+    };
+    return {
+        removeMenuListeners: () => {
+            removeListeners?.();
+        },
+        onOpened: () => {
+            const menuEl = menuRef();
+            if (menuEl) {
+                removeListeners?.();
+                const removeNavigatedAway = addListener(menuEl, "pointerleave", onNavigatedAway);
+                const removeNavigatedBack = addListener(menuEl, "pointerenter", onNavigatedBack);
+                removeListeners = () => {
+                    removeListeners = undefined;
+                    removeNavigatedAway();
+                    removeNavigatedBack();
+                };
+            }
+            onSelectMenuOpened?.();
+        },
+        onClosed: () => {
+            removeListeners?.();
+            onSelectMenuClosed?.();
+        },
+    };
+}
+
 class SelectMany2XCreate extends Component {
     static template = "html_builder.SelectMany2XCreate";
-    static props = {
-        name: String,
-        create: Function,
-    };
+    props = useProps({
+        name: t.string(),
+        create: t.function(),
+    });
 
     setup() {
         this.dropdown = useDropdownCloser();
@@ -26,30 +63,21 @@ class SelectMany2XCreate extends Component {
 
 export class SelectMany2X extends Component {
     static template = "html_builder.SelectMany2X";
-    static props = {
-        model: String,
-        fields: { type: Array, element: String, optional: true },
-        domain: { type: Array, optional: true },
-        limit: { type: Number, optional: true },
-        selected: {
-            type: Array,
-            element: { type: Object, shape: { id: [Number, String], "*": true } },
-        },
-        select: Function,
-        preview: { type: Function, optional: true },
-        revert: { type: Function, optional: true },
-        closeOnEnterKey: { type: Boolean, optional: true },
-        message: { type: String, optional: true },
-        create: { type: Function, optional: true },
-        nullText: { type: String, optional: true },
-    };
-    static defaultProps = {
-        fields: [],
-        domain: [],
-        limit: 5,
-        closeOnEnterKey: true,
-        message: _t("Choose a record..."),
-    };
+    props = useProps({
+        model: t.string(),
+        fields: t.array(t.string()).optional([]),
+        domain: t.array().optional([]),
+        limit: t.number().optional(5),
+        selected: t.array(t.object({ id: t.or([t.number(), t.string()]) })),
+        select: t.function(),
+        preview: t.function().optional(),
+        revert: t.function().optional(),
+        closeOnEnterKey: t.boolean().optional(true),
+        message: t.string().optional(_t("Choose a record...")),
+        create: t.function().optional(),
+        nullText: t.string().optional(),
+        displayNameField: t.string().optional("display_name"),
+    });
     static components = { SelectMenu, SelectMany2XCreate };
 
     setup() {
@@ -57,42 +85,28 @@ export class SelectMany2X extends Component {
         this.cachedModel = useCachedModel();
         this.prevSelectedIds = undefined;
         this.prevSearchValue = undefined;
-        this.state = useState({
+        this.state = proxy({
             nameToCreate: "",
             searchResults: [],
             limit: this.props.limit,
         });
-        onWillUpdateProps(async (newProps) => {
-            if (this.searchInvalidationKey(this.props) !== this.searchInvalidationKey(newProps)) {
-                this.prevSelectedIds = undefined;
-                this.prevSearchValue = undefined;
-                this.state.searchResults = [];
-            }
+        useEffect(() => {
+            this.searchInvalidationKey(this.props);
+            this.prevSelectedIds = undefined;
+            this.prevSearchValue = undefined;
+            this.state.searchResults = [];
         });
-        this.menuRef = useChildRef();
-        onWillDestroy(() => this.removeListeners?.());
-    }
-    onOpened() {
-        const menuEl = this.menuRef.el;
-        if (menuEl) {
-            this.removeListeners?.();
-            const onNavigatedAway = this.onNavigatedAway.bind(this);
-            const onNavigatedBack = this.onNavigatedBack.bind(this);
-            menuEl.addEventListener("pointerleave", onNavigatedAway);
-            menuEl.addEventListener("pointerenter", onNavigatedBack);
-            this.removeListeners = () => {
-                delete this.removeListeners;
-                menuEl.removeEventListener("pointerleave", onNavigatedAway);
-                menuEl.removeEventListener("pointerenter", onNavigatedBack);
-            };
-        }
-    }
-    onClosed() {
-        this.removeListeners?.();
-        this.onNavigatedAway();
+        this.menuRef = signal.ref();
+        const { removeMenuListeners, onOpened, onClosed } = useSelectMenuHandler(this.menuRef, {
+            onSelectMenuClosed: this.onNavigatedAway.bind(this),
+            onNavigatedAway: this.onNavigatedAway.bind(this),
+            onNavigatedBack: this.onNavigatedBack.bind(this),
+        });
+        Object.assign(this, { removeMenuListeners, onOpened, onClosed });
+        onWillDestroy(() => this.removeMenuListeners?.());
     }
     searchInvalidationKey(props) {
-        return JSON.stringify([props.model, props.fields, props.domain]);
+        return JSON.stringify([props.model, props.fields, props.domain, props.displayNameField]);
     }
     searchMore(searchValue) {
         this.state.limit += this.props.limit;
@@ -116,13 +130,13 @@ export class SelectMany2X extends Component {
         const results = await this.cachedModel.ormRead(
             this.props.model,
             tuples.map(([id, _name]) => id),
-            [...new Set(this.props.fields).add("display_name").add("name")]
+            [...new Set(this.props.fields).add(this.props.displayNameField).add("name")]
         );
         if (this.props.nullText && (!results.length || results[0].id)) {
             results.unshift({
                 id: 0,
                 name: this.props.nullText,
-                display_name: this.props.nullText,
+                [this.props.displayNameField]: this.props.nullText,
             });
         }
         this.state.searchResults = results;

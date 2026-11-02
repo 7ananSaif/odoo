@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+import json
+
 from odoo.api import Environment
 import odoo.tests
 from odoo.tools import html2plaintext
 import unittest
+from odoo.tests.common import new_test_user
 
 from odoo.addons.http_routing.tests.common import MockRequest
 from odoo.addons.website_hr_recruitment.controllers.main import WebsiteHrRecruitment
@@ -23,12 +26,11 @@ class TestWebsiteHrRecruitmentForm(odoo.tests.HttpCase):
             'is_published': True,
             'department_id': department.id,
         })
-        self.start_tour(self.env['website'].get_client_action_url('/jobs'), 'model_required_field_should_have_action_name', login='admin')
 
         self.start_tour(self.env['website'].get_client_action_url('/jobs'), 'website_hr_recruitment_tour_edit_form', login='admin')
 
         with odoo.tests.RecordCapturer(self.env['hr.applicant']) as capt:
-            self.start_tour("/", 'website_hr_recruitment_tour')
+            self.start_tour("/jobs", 'website_hr_recruitment_tour')
 
         # check result
         self.assertEqual(len(capt.records), 2)
@@ -37,9 +39,9 @@ class TestWebsiteHrRecruitmentForm(odoo.tests.HttpCase):
         self.assertEqual(guru_applicant.partner_name, 'John Smith')
         self.assertEqual(guru_applicant.email_from, 'john@smith.com')
         self.assertEqual(guru_applicant.partner_phone, '118.218')
-        self.assertTrue(
-            "Other Information:\n___________\n\nShort introduction from applicant : ### [GURU] HR RECRUITMENT TEST DATA ###"
-            in guru_applicant.message_ids.mapped(lambda m: html2plaintext(m.body))
+        self.assertIn(
+            "Other Information:\n___________\n\nShort Introduction : ### [GURU] HR RECRUITMENT TEST DATA ###",
+            guru_applicant.message_ids.mapped(lambda m: html2plaintext(m.body))
         )
         self.assertEqual(guru_applicant.job_id, job_guru)
 
@@ -47,9 +49,9 @@ class TestWebsiteHrRecruitmentForm(odoo.tests.HttpCase):
         self.assertEqual(internship_applicant.partner_name, 'Jack Doe')
         self.assertEqual(internship_applicant.email_from, 'jack@doe.com')
         self.assertEqual(internship_applicant.partner_phone, '118.712')
-        self.assertTrue(
-            "Other Information:\n___________\n\nShort introduction from applicant : ### HR [INTERN] RECRUITMENT TEST DATA ###"
-            in internship_applicant.message_ids.mapped(lambda m: html2plaintext(m.body))
+        self.assertIn(
+            "Other Information:\n___________\n\nShort Introduction : ### HR [INTERN] RECRUITMENT TEST DATA ###",
+            internship_applicant.message_ids.mapped(lambda m: html2plaintext(m.body))
         )
         self.assertEqual(internship_applicant.job_id, job_intern)
 
@@ -79,7 +81,7 @@ class TestWebsiteHrRecruitmentForm(odoo.tests.HttpCase):
             },
         ])
         WebsiteHrRecruitmentController = WebsiteHrRecruitment()
-        with MockRequest(self.env, website=self.env['website'].browse(1)):
+        with MockRequest(self.env, website=self.env.ref('base.default_website')):
             response = WebsiteHrRecruitmentController.jobs()
         self.assertEqual(response.status, '200 OK')
 
@@ -111,6 +113,7 @@ class TestWebsiteHrRecruitmentForm(odoo.tests.HttpCase):
         self.assertEqual(applicant.partner_name, 'Georges')
         self.assertEqual(applicant.email_from, 'georges@test.com')
         self.assertEqual(applicant.partner_phone, '12345678')
+        self.assertEqual(applicant.medium_id, self.env['utm.mixin']._utm_ref('utm.utm_medium_website'))
         self.assertTrue(
             any(
                 html2plaintext(message.body) == 'Other Information:\n___________\n\ndescription : This is a short introduction\nAdditional info : Test'
@@ -118,3 +121,80 @@ class TestWebsiteHrRecruitmentForm(odoo.tests.HttpCase):
             ),
             "One message in the chatter should contain the extra information filled in by the applicant"
         )
+
+    def test_apply_job_does_not_update_existing_user(self):
+        internal_user = new_test_user(
+            self.env,
+            login='internal.user@example.com',
+            name='Internal User',
+        )
+        job = self.env['hr.job'].create({
+            'name': 'Developer',
+            'is_published': True,
+        })
+
+        self.authenticate(None, None)
+        response = self.url_open('/website/form/hr.applicant', data={
+            'partner_name': 'Impersonated User',
+            'email_from': internal_user.email,
+            'partner_phone': '12345678',
+            'job_id': job.id,
+        })
+
+        applicant = self.env['hr.applicant'].browse(response.json().get('id'))
+        self.assertEqual(applicant.partner_id, internal_user.partner_id)
+        self.assertEqual(applicant.partner_name, 'Impersonated User')
+        self.assertEqual(internal_user.name, 'Internal User')
+
+    @odoo.tests.users('admin')
+    def test_interview_invite_url_with_multi_website(self):
+        if self.env['ir.module.module']._get('appointment_hr_recruitment').state != 'installed':
+            self.skipTest('`appointment_hr_recruitment` module not installed')
+
+        company_1 = self.env.company
+        company_2 = self.env['res.company'].create({
+            'email': 'company_2@test.example.com',
+            'name': 'Company 2',
+        })
+        base_url = 'http://127.0.0.1:8069'
+        self.env['ir.config_parameter'].sudo().set_str('web.base.url', base_url)
+        website_1 = company_1.website_id
+        website_1.domain = 'http://127.0.0.1:8069'
+        website_2 = self.env['website'].create({
+            'name': 'Website Company 2',
+            'company_id': company_2.id,
+            'domain': 'http://localhost:8069',
+        })
+
+        self.authenticate(self.env.user.login, self.env.user.login)
+        test_cases = [
+            (website_2, 'localhost:8069'),
+            (website_1, '127.0.0.1:8069'),
+            (None, base_url),
+        ]
+        for website, expected_host in test_cases:
+            company_id = website.company_id.id if website else company_1.id
+            job = self.env['hr.job'].create({
+                'name': f'Test Job {expected_host}',
+                'company_id': company_id,
+                'website_id': website.id if website else False,
+            })
+            applicant = self.env['hr.applicant'].create({
+                'job_id': job.id,
+                'partner_name': f'Test Applicant {expected_host}',
+                'email_from': 'test@example.com',
+                'company_id': company_id,
+            })
+
+            res = self.url_open(
+                '/appointment/appointment_type/search_create_anytime',
+                data=json.dumps({
+                    'params': {
+                        'applicant_code': applicant.interview_invite_code,
+                    },
+                }),
+                headers={'Content-Type': 'application/json'},
+            )
+            self.assertEqual(res.status_code, 200, 'Response should be OK')
+            res_data = res.json()
+            self.assertIn(expected_host, res_data['result']['invite_url'])

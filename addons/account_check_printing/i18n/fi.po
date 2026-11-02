@@ -15,22 +15,39 @@
 # Ossi Mantylahti <ossi.mantylahti@obs-solutions.fi>, 2023
 # "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
 # Saara Hakanen <sahak@odoo.com>, 2025, 2026.
-# Konsta Aavaranta <konsta.aavaranta@sprintit.fi>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2026-04-10 06:52+0000\n"
-"Last-Translator: Konsta Aavaranta <konsta.aavaranta@sprintit.fi>\n"
-"Language-Team: Finnish <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-09-10 13:11+0000\n"
+"Last-Translator: Saara Hakanen <sahak@odoo.com>\n"
+"Language-Team: Finnish <https://translate.odoo.com/projects/odoo-master/"
 "account_check_printing/fi/>\n"
 "Language: fi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.16.2\n"
+"X-Generator: Weblate 2026.8.1\n"
+
+#. module: account_check_printing
+#: model:ir.module.module,description:base.module_account_check_printing
+msgid ""
+"\n"
+"This module offers the basic functionalities to make payments by printing "
+"checks.\n"
+"It must be used as a dependency for modules that provide country-specific "
+"check templates.\n"
+"The check settings are located in the accounting journals configuration "
+"page.\n"
+msgstr ""
+"\n"
+"Tämä moduuli tarjoaa perustoiminnot maksujen suorittamiseen tulostamalla "
+"shekkejä.\n"
+"Sitä on käytettävä sellaisten moduulien riippuvuutena, jotka tarjoavat "
+"maakohtaisia shekkimalleja.\n"
+"Shekkiasetukset sijaitsevat kirjanpitopäiväkirjojen asetukset-sivulla.\n"
 
 #. module: account_check_printing
 #. odoo-python
@@ -75,11 +92,6 @@ msgid "Bills"
 msgstr "Laskut"
 
 #. module: account_check_printing
-#: model_terms:ir.ui.view,arch_db:account_check_printing.print_pre_numbered_checks_view
-msgid "Cancel"
-msgstr "Peruuta"
-
-#. module: account_check_printing
 #: model:ir.model.fields,field_description:account_check_printing.field_account_journal__bank_check_printing_layout
 #: model:ir.model.fields,field_description:account_check_printing.field_res_company__account_check_printing_layout
 #: model:ir.model.fields,field_description:account_check_printing.field_res_config_settings__account_check_printing_layout
@@ -103,6 +115,11 @@ msgid "Check Printing"
 msgstr "Shekkien tulostus"
 
 #. module: account_check_printing
+#: model:ir.module.module,shortdesc:base.module_account_check_printing
+msgid "Check Printing Base"
+msgstr "Shekkien tulostuspohja"
+
+#. module: account_check_printing
 #: model:ir.model.fields,field_description:account_check_printing.field_res_config_settings__account_check_printing_margin_right
 msgid "Check Right Margin"
 msgstr "Shekin oikea marginaali"
@@ -123,6 +140,11 @@ msgstr "Shekin ylämarginaali"
 #: code:addons/account_check_printing/models/account_payment.py:0
 msgid "Check numbers can only consist of digits"
 msgstr "Shekkinumerot voivat sisältää vain numeroita"
+
+#. module: account_check_printing
+#: model:ir.module.module,summary:base.module_account_check_printing
+msgid "Check printing basic features"
+msgstr "Shekkien tulostuksen perusominaisuudet"
 
 #. module: account_check_printing
 #: model:ir.model.fields,help:account_check_printing.field_account_journal__check_manual_sequencing
@@ -161,8 +183,8 @@ msgstr "Tulostettavat shekit"
 
 #. module: account_check_printing
 #: model:ir.model,name:account_check_printing.model_res_company
-msgid "Companies"
-msgstr "Yritykset"
+msgid "Company"
+msgstr "Yritys"
 
 #. module: account_check_printing
 #: model:ir.model,name:account_check_printing.model_res_config_settings
@@ -304,19 +326,15 @@ msgid "None"
 msgstr "Ei mitään"
 
 #. module: account_check_printing
-#: model:ir.model.fields,field_description:account_check_printing.field_account_payment__payment_method_line_id
-msgid "Payment Method"
-msgstr "Maksutapa"
+#: model:ir.model,name:account_check_printing.model_account_payment
+msgid "Payment"
+msgstr "Maksu"
 
 #. module: account_check_printing
 #: model:ir.model,name:account_check_printing.model_account_payment_method
-msgid "Payment Methods"
-msgstr "Maksutavat"
-
-#. module: account_check_printing
-#: model:ir.model,name:account_check_printing.model_account_payment
-msgid "Payments"
-msgstr "Maksut"
+#: model:ir.model.fields,field_description:account_check_printing.field_account_payment__payment_method_line_id
+msgid "Payment Method"
+msgstr "Maksutapa"
 
 #. module: account_check_printing
 #. odoo-python
@@ -386,11 +404,6 @@ msgid ""
 msgstr ""
 "Valitse shekkipaperia vastaava muoto, jolle olet tulostamassa shekit.\n"
 "Voit poistaa tulostusominaisuuden käytöstä valitsemalla 'Ei mitään'."
-
-#. module: account_check_printing
-#: model_terms:ir.ui.view,arch_db:account_check_printing.view_account_payment_form_inherited
-msgid "Sent"
-msgstr "Lähetetty"
 
 #. module: account_check_printing
 #: model:ir.model.fields,help:account_check_printing.field_account_journal__check_next_number
@@ -518,52 +531,5 @@ msgstr "out_refund"
 msgid "sep"
 msgstr "sep"
 
-#~ msgid "Contact"
-#~ msgstr "Kontakti"
-
-#~ msgid "Journal Entry"
-#~ msgstr "Päiväkirjan kirjaus"
-
-#~ msgid ""
-#~ "Manual: Pay or Get paid by any method outside of Odoo.\n"
-#~ "Payment Providers: Each payment provider has its own Payment Method. "
-#~ "Request a transaction on/to a card thanks to a payment token saved by the "
-#~ "partner when buying or subscribing online.\n"
-#~ "Check: Pay bills by check and print it from Odoo.\n"
-#~ "Batch Deposit: Collect several customer checks at once generating and "
-#~ "submitting a batch deposit to your bank. Module account_batch_payment is "
-#~ "necessary.\n"
-#~ "SEPA Credit Transfer: Pay in the SEPA zone by submitting a SEPA Credit "
-#~ "Transfer file to your bank. Module account_sepa is necessary.\n"
-#~ "SEPA Direct Debit: Get paid in the SEPA zone thanks to a mandate your "
-#~ "partner will have granted to you. Module account_sepa is necessary.\n"
-#~ msgstr ""
-#~ "Käsikirja: Maksa tai saat maksun millä tahansa Odoon ulkopuolisella "
-#~ "menetelmällä.\n"
-#~ "Maksupalveluntarjoajat: Jokaisella maksupalveluntarjoajalla on oma "
-#~ "maksutapansa. Pyydä maksutapahtuma kortilla/ kortille yhteistyökumppanin "
-#~ "tallentaman maksutunnisteen ansiosta, kun ostat tai tilaat verkossa.\n"
-#~ "Tarkista: Maksa laskut sekillä ja tulosta se Odoosta.\n"
-#~ "Erätalletus: Kerää useita asiakasshekkejä kerralla generoimalla ja "
-#~ "lähettämällä erätalletus pankkiin. Moduuli account_batch_payment on "
-#~ "välttämätön.\n"
-#~ "SEPA-tilisiirto: Maksa SEPA-alueella lähettämällä SEPA-tilisiirtotiedosto "
-#~ "pankkiin. Moduuli account_sepa on välttämätön.\n"
-#~ "SEPA-suoraveloitus: Saat maksun SEPA-alueella yhteistyökumppanisi sinulle "
-#~ "antaman valtuutuksen avulla. Moduuli account_sepa on välttämätön.\n"
-
-#~ msgid "Preferred Payment Method"
-#~ msgstr "Ensisijainen maksutapa"
-
-#~ msgid ""
-#~ "Preferred payment method when paying this vendor. This is used to filter "
-#~ "vendor bills by preferred payment method to register payments in mass. "
-#~ "Use cases: create bank files for batch wires, check runs."
-#~ msgstr ""
-#~ "Suositeltava maksutapa tälle toimittajalle maksettaessa. Käytetään "
-#~ "toimittajan laskujen suodattamiseen suositellun maksutavan mukaan "
-#~ "massamaksujen rekisteröimiseksi. Käyttötapaukset: luo pankkitiedostoja "
-#~ "eräsiirtoille, tarkista ajoja."
-
-#~ msgid "Register Payment"
-#~ msgstr "Kirjaa maksu"
+#~ msgid "Sent"
+#~ msgstr "Lähetetty"

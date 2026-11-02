@@ -9,17 +9,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-03 18:37+0000\n"
-"PO-Revision-Date: 2026-04-09 11:30+0000\n"
-"Last-Translator: \"Kwanghee Park (kwpa)\" <kwpa@odoo.com>\n"
-"Language-Team: Korean <https://translate.odoo.com/projects/odoo-19/"
+"POT-Creation-Date: 2026-09-18 17:39+0000\n"
+"PO-Revision-Date: 2026-08-31 20:14+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Korean <https://translate.odoo.com/projects/odoo-s19-4/"
 "certificate/ko/>\n"
 "Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.16.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: certificate
 #. odoo-python
@@ -65,11 +65,23 @@ msgid "Available date"
 msgstr "사용 가능한 날짜"
 
 #. module: certificate
+#: model_terms:ir.ui.view,arch_db:certificate.certificate_certificate_view_search
+msgid "CA certificates"
+msgstr ""
+
+#. module: certificate
 #: model:ir.model,name:certificate.model_certificate_certificate
 #: model:ir.model.fields,field_description:certificate.field_certificate_certificate__content
+#: model:ir.module.module,shortdesc:base.module_certificate
 #: model_terms:ir.ui.view,arch_db:certificate.certificate_certificate_view_list
 msgid "Certificate"
 msgstr "인증서"
+
+#. module: certificate
+#: model:ir.model.fields.selection,name:certificate.selection__certificate_certificate__scope__ca
+#: model_terms:ir.ui.view,arch_db:certificate.certificate_certificate_view_search
+msgid "Certificate Authority"
+msgstr ""
 
 #. module: certificate
 #: model:ir.model.fields,field_description:certificate.field_certificate_certificate__pkcs12_password
@@ -132,7 +144,7 @@ msgstr "작성일자"
 
 #. module: certificate
 #: model:ir.model,name:certificate.model_certificate_key
-msgid "Cryptographic Keys"
+msgid "Cryptographic Key"
 msgstr "암호화 키"
 
 #. module: certificate
@@ -173,6 +185,11 @@ msgstr "ID"
 #: model_terms:ir.ui.view,arch_db:certificate.certificate_key_view_search
 msgid "Invalid"
 msgstr "유효하지 않음"
+
+#. module: certificate
+#: model:ir.model.fields,field_description:certificate.field_certificate_certificate__issuer_cert_id
+msgid "Issuer Certificate"
+msgstr ""
 
 #. module: certificate
 #: model_terms:ir.ui.view,arch_db:certificate.certificate_key_view_list
@@ -223,6 +240,11 @@ msgstr "문서 서명에는 반드시 개인 키를 사용해야 합니다."
 #. odoo-python
 #: code:addons/certificate/models/key.py:0
 msgid "Make sure to use a public key to verify the signature of documents."
+msgstr ""
+
+#. module: certificate
+#: model:ir.module.module,summary:base.module_certificate
+msgid "Manage certificate"
 msgstr ""
 
 #. module: certificate
@@ -415,6 +437,7 @@ msgstr "이 인증서는 만료 날짜가 지났으므로 더 이상 유효하�
 #. module: certificate
 #. odoo-python
 #: code:addons/certificate/models/key.py:0
+#: code:addons/certificate/tests/test_keys_certificates.py:0
 msgid ""
 "This key could not be loaded. Either its content or its password is "
 "erroneous."

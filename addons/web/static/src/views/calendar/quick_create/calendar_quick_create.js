@@ -2,23 +2,25 @@ import { useAutofocus, useService } from "@web/core/utils/hooks";
 import { Dialog } from "@web/core/dialog/dialog";
 import { _t } from "@web/core/l10n/translation";
 
-import { Component } from "@odoo/owl";
+import { Component, signal, t, useProps } from "@odoo/owl";
 
 export class CalendarQuickCreate extends Component {
     static template = "web.CalendarQuickCreate";
     static components = {
         Dialog,
     };
-    static props = {
-        title: { type: String, optional: true },
-        close: Function,
-        record: Object,
-        model: Object,
-        editRecord: Function,
-    };
+    props = useProps({
+        title: t.string().optional(),
+        close: t.function(),
+        record: t.object(),
+        model: t.object(),
+        editRecord: t.function(),
+    });
+
+    titleRef = signal.ref();
 
     setup() {
-        this.titleRef = useAutofocus({ refName: "title" });
+        useAutofocus({ ref: this.titleRef });
         this.notification = useService("notification");
         this.creatingRecord = false;
     }
@@ -28,7 +30,7 @@ export class CalendarQuickCreate extends Component {
     }
 
     get recordTitle() {
-        return this.titleRef.el.value.trim();
+        return this.titleRef().value.trim();
     }
     get record() {
         return {
@@ -55,7 +57,7 @@ export class CalendarQuickCreate extends Component {
                 this.editRecord();
             }
         } else {
-            this.titleRef.el.classList.add("o_field_invalid");
+            this.titleRef().classList.add("o_field_invalid");
             this.notification.add(_t("Meeting Subject"), {
                 title: _t("Invalid fields"),
                 type: "danger",

@@ -1,9 +1,9 @@
+import { proxy } from "@odoo/owl";
 import { isHtmlContentSupported } from "@html_editor/core/selection_plugin";
 import { Plugin } from "@html_editor/plugin";
 import { _t } from "@web/core/l10n/translation";
 import { ColorSelector } from "./color_selector";
-import { reactive } from "@odoo/owl";
-import { isTextNode } from "@html_editor/utils/dom_info";
+import { isStylable, isTextNode } from "@html_editor/utils/dom_info";
 import { closestElement } from "@html_editor/utils/dom_traversal";
 import { isCSSColor, normalizeCSSColor, RGBA_REGEX } from "@web/core/utils/colors";
 import { withSequence } from "@html_editor/utils/resource";
@@ -13,6 +13,7 @@ const HEX_OPACITY = "99";
 
 /**
  * @typedef { Object } ColorUIShared
+ * @typedef {(() => string)[]} selected_background_color_providers
  * @property { ColorUIPlugin['getPropsForColorSelector'] } getPropsForColorSelector
  */
 
@@ -26,11 +27,12 @@ export class ColorUIPlugin extends Plugin {
             {
                 id: "forecolor",
                 groupId: "decoration",
-                namespaces: ["compact", "expanded"],
+                namespaces: ["compact", "expanded", "text", "table"],
                 description: _t("Apply Font Color"),
                 Component: ColorSelector,
                 props: this.getPropsForColorSelector("foreground"),
                 isAvailable: isHtmlContentSupported,
+                isDisabled: (sel, nodes) => nodes.some((node) => !isStylable(node)),
             },
             {
                 id: "backcolor",
@@ -39,10 +41,12 @@ export class ColorUIPlugin extends Plugin {
                 Component: ColorSelector,
                 props: this.getPropsForColorSelector("background"),
                 isAvailable: isHtmlContentSupported,
+                isDisabled: (sel, nodes) => nodes.some((node) => !isStylable(node)),
             },
         ],
-        selectionchange_handlers: withSequence(100, this.updateSelectedColor.bind(this)),
-        get_background_color_processors: this.getBackgroundColorProcessor.bind(this),
+        on_selectionchange_handlers: withSequence(100, this.updateSelectedColor.bind(this)),
+        on_color_requested_handlers: this.updateSelectedColor.bind(this),
+        background_color_processors: this.getBackgroundColorProcessor.bind(this),
         apply_background_color_processors: this.applyBackgroundColorProcessor.bind(this),
         /** Providers */
         selected_background_color_providers: withSequence(
@@ -52,10 +56,10 @@ export class ColorUIPlugin extends Plugin {
     };
 
     setup() {
-        this.selectedColors = reactive({ color: "", backgroundColor: "" });
+        this.selectedColors = proxy({ color: "", backgroundColor: "" });
         this.previewableApplyColor = this.dependencies.history.makePreviewableOperation(
             (color, mode, previewMode) =>
-                this.dependencies.color.applyColor(color, mode, previewMode)
+                this.dependencies.color.requestColor(color, mode, previewMode)
         );
     }
 
@@ -74,7 +78,11 @@ export class ColorUIPlugin extends Plugin {
             applyColorPreview: (color) => this.applyColorPreview({ color, mode }),
             applyColorResetPreview: this.applyColorResetPreview.bind(this),
             colorPrefix: mode === "color" ? "text-" : "bg-",
-            onClose: () => this.dependencies.selection.focusEditable(),
+            onClose: (res) => {
+                // onClose receives "escape" when closed via Escape,
+                // otherwise undefined. Focus editable only for non-escape closes.
+                !res && this.dependencies.selection.focusEditable();
+            },
             getTargetedElements: () => {
                 const nodes = this.dependencies.selection.getTargetedNodes().filter(isTextNode);
                 return nodes.map((node) => closestElement(node));
@@ -149,27 +157,39 @@ export class ColorUIPlugin extends Plugin {
             }
         }
 
-        this.selectedColors.backgroundColor = backgroundColor || "#00000000";
+        const pending = this.dependencies.color.getActiveColorInfo();
+        this.selectedColors.backgroundColor =
+            pending.backgroundColor ?? (backgroundColor || "#00000000");
 
         // Compute and update the text color.
         const nodes = this.dependencies.selection.getTargetedNodes().filter(isTextNode);
         if (nodes.length === 0) {
-            this.selectedColors.color = "";
+            this.selectedColors.color = pending.color ?? "";
             return;
         }
         const el = closestElement(nodes[0]);
         if (!el) {
-            this.selectedColors.color = "";
+            this.selectedColors.color = pending.color ?? "";
             return;
         }
-        this.selectedColors.color = this.dependencies.color.getElementColors(el).color;
+        const fromDom = this.dependencies.color.getElementColors(el);
+        this.selectedColors.color = pending.color ?? fromDom.color;
+    }
+
+    /**
+     * @returns { HTMLElement | null } the active tab button of the open color
+     * selector, if any.
+     */
+    getActiveColorTabEl() {
+        return document.querySelector(".o_font_color_selector .btn-tab.active");
     }
 
     getBackgroundColorProcessor(backgroundColor) {
-        const activeTab = document
-            .querySelector(".o_font_color_selector button.active")
-            ?.innerHTML.trim();
-        if (backgroundColor.startsWith("rgba") && (!activeTab || activeTab === "Solid")) {
+        const activeTab = this.getActiveColorTabEl();
+        if (
+            backgroundColor.startsWith("rgba") &&
+            (!activeTab || activeTab.classList.contains("solid-tab"))
+        ) {
             // Buttons in the solid tab of color selector have no
             // opacity, hence to match selected color correctly,
             // we need to remove applied 0.6 opacity.
@@ -183,10 +203,8 @@ export class ColorUIPlugin extends Plugin {
     }
 
     applyBackgroundColorProcessor(brackgroundColor) {
-        const activeTab = document
-            .querySelector(".o_font_color_selector button.active")
-            ?.innerHTML.trim();
-        if (activeTab === "Solid" && brackgroundColor.startsWith("#")) {
+        const activeTab = this.getActiveColorTabEl();
+        if (activeTab?.classList.contains("solid-tab") && brackgroundColor.startsWith("#")) {
             // Apply default transparency to selected solid tab colors in background
             // mode to make text highlighting more usable between light and dark modes.
             brackgroundColor += HEX_OPACITY;

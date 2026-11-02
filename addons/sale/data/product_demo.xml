@@ -103,7 +103,7 @@
 
     <record id="product.product_product_3" model="product.product">
         <field name="invoice_policy">delivery</field>
-        <field name="expense_policy">cost</field>
+        <field name="reinvoice_policy">cost</field>
     </record>
 
     <record id="product.product_product_2" model="product.product">
@@ -117,12 +117,12 @@
     <!-- Expensable products -->
     <record id="product.expense_product" model="product.product">
         <field name="invoice_policy">order</field>
-        <field name="expense_policy">sales_price</field>
+        <field name="reinvoice_policy">sales_price</field>
     </record>
 
     <record id="product.expense_hotel" model="product.product">
         <field name="invoice_policy">delivery</field>
-        <field name="expense_policy">cost</field>
+        <field name="reinvoice_policy">cost</field>
     </record>
 
     <record id="product.product_product_4e" model="product.product">
@@ -133,6 +133,7 @@
     <record id="product.product_product_4f" model="product.product">
         <field name="default_code">DESK0006</field>
         <field name="weight">0.01</field>
+        <field name="image_1920" type="bytes" file="product/static/img/table04.jpg"/>
     </record>
 
     <record id="advance_product_0" model="product.product">
@@ -144,7 +145,7 @@
         <field name="standard_price">100.0</field>
         <field name="uom_id" ref="uom.product_uom_unit"/>
         <field name="company_id" eval="[]"/>
-        <field name="image_1920" type="base64" file="sale/static/img/advance_product_0-image.jpg"/>
+        <field name="image_1920" type="bytes" file="sale/static/img/advance_product_0-image.jpg"/>
         <field name="taxes_id" eval="[]"/>
         <field name="supplier_taxes_id" eval="[]"/>
     </record>
@@ -156,8 +157,17 @@
         <field name="weight">0.01</field>
         <field name="uom_id" ref="uom.product_uom_unit"/>
         <field name="description_sale">Office chairs can harm your floor: protect it</field>
-        <field name="image_1920" type="base64" file="sale/static/img/floor_protection-image.jpg"/>
+        <field name="image_1920" type="bytes" file="sale/static/img/floor_protection-image.jpg"/>
     </record>
+
+    <!-- Assign XMLID to automatically created product variant -->
+    <function model="ir.model.data" name="_update_xmlids">
+        <value model="base" eval="[{
+            'xml_id': 'sale.product_product_1_product_product',
+            'record': obj().env.ref('sale.product_product_1_product_template').product_variant_id,
+            'noupdate': True,
+        }]"/>
+    </function>
 
     <record id="product.product_product_4_product_template" model="product.template">
         <field name="optional_product_ids" eval="[Command.set([ref('product.product_product_11_product_template')])]"/>

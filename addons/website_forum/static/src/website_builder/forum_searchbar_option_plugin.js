@@ -2,7 +2,7 @@ import { Plugin } from "@html_editor/plugin";
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
 
-class ForumSearchbarOptionPlugin extends Plugin {
+export class ForumSearchbarOptionPlugin extends Plugin {
     static id = "forumSearchbarOption";
 
     resources = {
@@ -15,18 +15,6 @@ class ForumSearchbarOptionPlugin extends Plugin {
             {
                 label: _t("Date (new to old)"),
                 orderBy: "write_date desc",
-                dependency: "search_forums_opt",
-            },
-        ],
-        searchbar_option_display_items: [
-            {
-                label: _t("Description"),
-                dataAttribute: "displayDescription",
-                dependency: "search_forums_opt",
-            },
-            {
-                label: _t("Date"),
-                dataAttribute: "displayDetail",
                 dependency: "search_forums_opt",
             },
         ],

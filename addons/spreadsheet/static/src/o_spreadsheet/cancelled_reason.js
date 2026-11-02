@@ -15,4 +15,8 @@ export const CommandResult = {
     EmptyName: "EmptyName",
     PivotIdNotFound: "PivotIdNotFound",
     InvalidFieldMatch: "InvalidFieldMatch",
+    InvalidDataSourceType: "InvalidDataSourceType",
+    InvalidDataSourceId: "InvalidDataSourceId",
+    ListDefinitionUnchanged: "ListDefinitionUnchanged",
+    InvalidListDefinition: "InvalidListDefinition",
 };

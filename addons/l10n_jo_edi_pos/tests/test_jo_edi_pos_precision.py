@@ -6,6 +6,8 @@ from odoo.addons.l10n_jo_edi_pos.tests.jo_edi_pos_common import JoEdiPosCommon
 
 @tagged('post_install_l10n', 'post_install', '-at_install')
 class TestJoEdiPosPrecision(JoEdiPosCommon, TestJoEdiPrecision):
+    _test_user_groups = None  # FIXME list needed groups
+
     def _validate_order_vals_jo_edi_pos_numbers(self, order_vals):
         with self.subTest(sub_test_name=order_vals['name']):
             order = self._l10n_jo_create_order(order_vals)
@@ -115,21 +117,21 @@ class TestJoEdiPosPrecision(JoEdiPosCommon, TestJoEdiPrecision):
                 {
                     'product_id': self.product_b.id,
                     'price_unit': 11.11,
-                    'qty': 3.11,
+                    'qty': -3.11,
                     'discount': 3.12,
                     'tax_ids': [Command.set((self.jo_general_tax_16_included).ids)],
                 },
                 {
                     'product_id': self.product_a.id,
                     'price_unit': 10000.01,
-                    'qty': 2.02,
+                    'qty': -2.02,
                     'discount': 99.71,
                     'tax_ids': [Command.set((self.jo_general_tax_16_included).ids)],
                 },
                 {
                     'product_id': self.product_a.id,
                     'price_unit': 0.01,
-                    'qty': 0.1,
+                    'qty': -0.1,
                     'discount': 2,
                     'tax_ids': [Command.set((self.jo_general_tax_16_included).ids)],
                 },

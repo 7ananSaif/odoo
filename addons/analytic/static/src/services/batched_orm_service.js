@@ -1,7 +1,6 @@
 import { registry } from "@web/core/registry";
-import { ORM } from "@web/core/orm_service";
+import { ORM } from "@web/core/orm_plugin";
 import { unique } from "@web/core/utils/arrays";
-import { Deferred } from "@web/core/utils/concurrency";
 
 class RequestBatcherORM extends ORM {
     constructor() {
@@ -22,7 +21,7 @@ class RequestBatcherORM extends ORM {
         let batch = this.batches[key];
         if (!batch) {
             batch = {
-                deferred: new Deferred(),
+                deferred: Promise.withResolvers(),
                 scheduled: false,
                 ids: [],
             };
@@ -44,7 +43,7 @@ class RequestBatcherORM extends ORM {
             });
         }
 
-        return batch.deferred;
+        return batch.deferred.promise;
     }
 
     /**
@@ -61,7 +60,7 @@ class RequestBatcherORM extends ORM {
      */
     async read(resModel, resIds, fields, kwargs) {
         const records = await this.batch(resIds, ["read", resModel, fields, kwargs], (resIds) =>
-            super.read(resModel, resIds, fields, kwargs)
+            super.read.call(this.unscoped, resModel, resIds, fields, kwargs)
         );
         return records.filter((r) => resIds.includes(r.id));
     }

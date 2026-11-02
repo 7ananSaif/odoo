@@ -81,7 +81,7 @@ class Order extends models.Model {
             </sheet>
             <footer>
                 <button name="add_to_cart" type="object" string="Add to cart" />
-                <button string="Discard" special="cancel"/>
+                <button special="cancel"/>
             </footer>
         </form>`,
     };
@@ -313,7 +313,7 @@ test("Change existing order", async () => {
     });
     await mountLunchView();
 
-    await contains("div.o_lunch_banner li[name='o_lunch_order_line']:contains(Big Plate) i.oi-plus").click();
+    await contains("div.o_lunch_banner li[name='o_lunch_order_line']:contains(Big Plate) i[data-icon='add']").click();
 });
 
 test("Confirm existing order", async () => {

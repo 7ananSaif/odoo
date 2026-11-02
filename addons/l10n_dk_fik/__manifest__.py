@@ -1,6 +1,5 @@
 {
     "name": "Denmark - FIK Number",
-    "version": "1.0",
     "category": "Accounting/Localizations",
     "description": """
 Support Danish FIK number as payment references on customer invoices.

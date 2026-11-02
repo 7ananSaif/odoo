@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 
 {
     'name': 'Mail Tests (Full)',
-    'version': '1.0',
     'category': 'Hidden',
     'sequence': 9876,
     'summary': 'Mail Tests: performances and tests specific to mail with all sub-modules',
@@ -13,12 +11,13 @@ real applications. """,
     'depends': [
         'mail',
         'mail_bot',
-        'portal',
-        'rating',
-        # 'snailmail',
+        'mail_tracking_mass_mailing',
         'mass_mailing',
         'mass_mailing_sms',  # adds portal
         'phone_validation',
+        'portal',
+        'rating',
+        # 'snailmail',
         'sms',
         'test_mail',
         'test_mail_sms',
@@ -26,9 +25,8 @@ real applications. """,
     ],
     'data': [
         'data/mail_message_subtype_data.xml',
-        'security/ir.model.access.csv',
-        'security/ir_rule_data.xml',
         'views/test_portal_template.xml',
+        'security/ir.access.csv',
     ],
     'assets': {
         'web.assets_unit_tests': [
@@ -39,7 +37,6 @@ real applications. """,
             'test_mail_full/static/tests/tours/**/*',
         ],
     },
-    'installable': True,
     'author': 'Odoo S.A.',
     'license': 'LGPL-3',
 }

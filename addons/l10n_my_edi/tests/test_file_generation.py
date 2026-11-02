@@ -1,86 +1,24 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-from datetime import datetime
-
 from freezegun import freeze_time
 from lxml import etree
-from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 
 from odoo.exceptions import UserError
 from odoo.fields import Command
 from odoo.tests import Form, tagged
 from odoo.tools import file_open
 
-NS_MAP = {
-    'cac': 'urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2',
-    'cbc': 'urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2',
-    'ext': 'urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2',
-    'sig': 'urn:oasis:names:specification:ubl:schema:xsd:CommonSignatureComponents-2',
-    'sac': 'urn:oasis:names:specification:ubl:schema:xsd:SignatureAggregateComponents-2',
-    'sbc': 'urn:oasis:names:specification:ubl:schema:xsd:SignatureBasicComponents-2',
-    'ds': 'http://www.w3.org/2000/09/xmldsig#',
-    'xades': 'http://uri.etsi.org/01903/v1.3.2#',
-    'inv': 'urn:oasis:names:specification:ubl:schema:xsd:Invoice-2',
-}
+from odoo.addons.l10n_my_edi.tests.test_file_generation_common import (
+    NS_MAP,
+    L10nMyEDITestFileGenerationCommon,
+)
 
 
 @tagged('post_install_l10n', 'post_install', '-at_install')
-class L10nMyEDITestFileGeneration(AccountTestInvoicingCommon):
+class L10nMyEDITestFileGeneration(L10nMyEDITestFileGenerationCommon):
 
-    @classmethod
-    @AccountTestInvoicingCommon.setup_country('my')
-    def setUpClass(cls):
-        super().setUpClass()
+    _test_user_groups = None  # FIXME list needed groups
 
-        cls.other_currency = cls.setup_other_currency('EUR')
-
-        # TIN number is required
-        cls.company_data['company'].write({
-            'vat': 'C2584563200',
-            'l10n_my_edi_mode': 'test',
-            'l10n_my_edi_industrial_classification': cls.env['l10n_my_edi.industry_classification'].search([('code', '=', '01111')]).id,
-            'l10n_my_identification_type': 'BRN',
-            'l10n_my_identification_number': '202001234567',
-            'state_id': cls.env.ref('base.state_my_jhr').id,
-            'street': 'that one street, 5',
-            'city': 'Main city',
-            'phone': '+60123456789',
-        })
-        cls.partner_a.write({
-            'vat': 'C2584563201',
-            'l10n_my_identification_type': 'BRN',
-            'l10n_my_identification_number': '202001234568',
-            'country_id': cls.env.ref('base.my').id,
-            'state_id': cls.env.ref('base.state_my_jhr').id,
-            'street': 'that other street, 3',
-            'city': 'Main city',
-            'phone': '+60123456786',
-            'l10n_my_edi_industrial_classification': cls.env['l10n_my_edi.industry_classification'].search([('code', '=', '01111')]).id,
-            'ref': "MY-REF",
-        })
-        cls.partner_b.write({
-            'vat': 'EI00000000020',
-            'l10n_my_identification_type': 'BRN',
-            'l10n_my_identification_number': 'NA',
-            'country_id': cls.env.ref('base.us').id,
-            'state_id': cls.env.ref('base.state_us_1'),
-            'street': 'that other street, 3',
-            'city': 'Main city',
-            'phone': '+60123456785',
-            'l10n_my_edi_industrial_classification': cls.env.ref('l10n_my_edi.class_00000', raise_if_not_found=False).id,
-        })
-        cls.product_a.l10n_my_edi_classification_code = "001"
-
-        cls.purchase_tax = cls.env['account.tax'].create({
-            'name': 'tax_10',
-            'amount_type': 'percent',
-            'amount': 10,
-            'type_tax_use': 'purchase',
-            'country_id': cls.env.ref('base.my').id,
-        })
-
-        cls.fakenow = datetime(2024, 7, 15, 10, 00, 00)
-        cls.startClassPatcher(freeze_time(cls.fakenow))
-
+    @freeze_time("2024-07-15 10:00:00")
     def test_01_can_generate_file(self):
         """
         Simply test that with a valid configuration, we can generate the file.
@@ -166,6 +104,7 @@ class L10nMyEDITestFileGeneration(AccountTestInvoicingCommon):
             expected_xml = etree.fromstring(f.read())
         self.assertXmlTreeEqual(root, expected_xml)
 
+    @freeze_time("2024-07-15 10:00:00")
     def test_02_multicurrency(self):
         """
         Simply ensure that in a multi currency environment, the rate is found in the file and is the expected one.
@@ -209,6 +148,7 @@ class L10nMyEDITestFileGeneration(AccountTestInvoicingCommon):
             expected_xml = etree.fromstring(f.read())
         self.assertXmlTreeEqual(root, expected_xml)
 
+    @freeze_time("2024-07-15 10:00:00")
     def test_03_optional_fields(self):
         """
         Set a few optional fields, and ensure that they appear as expecting in the file.
@@ -275,6 +215,7 @@ class L10nMyEDITestFileGeneration(AccountTestInvoicingCommon):
             expected_xml = etree.fromstring(f.read())
         self.assertXmlTreeEqual(root, expected_xml)
 
+    @freeze_time("2024-07-15 10:00:00")
     def test_04_credit_note(self):
         """
         Ensure that the type is correctly set for another move type, as well as that the original
@@ -328,12 +269,12 @@ class L10nMyEDITestFileGeneration(AccountTestInvoicingCommon):
             expected_xml = etree.fromstring(f.read())
         self.assertXmlTreeEqual(root, expected_xml)
 
+    @freeze_time("2024-07-15 10:00:00")
     def test_05_invoice_with_so(self):
         """
         Ensure that an invoice linked to an SO will not contain this information in the xml.
         """
-        if self.env.ref('base.module_sale').state != 'installed':
-            self.skipTest("This test requires the sale module to be installed.")
+        self.ensure_installed('sale')
 
         sale_order = self.env['sale.order'].sudo().create({
             'partner_id': self.partner_a.id,
@@ -374,6 +315,7 @@ class L10nMyEDITestFileGeneration(AccountTestInvoicingCommon):
             expected_xml = etree.fromstring(f.read())
         self.assertXmlTreeEqual(root, expected_xml)
 
+    @freeze_time("2024-07-15 10:00:00")
     def test_06_foreigner(self):
         """
         Check that the file is correct with a foreign customer.
@@ -400,11 +342,23 @@ class L10nMyEDITestFileGeneration(AccountTestInvoicingCommon):
             'cac:PartyIdentification/cbc:ID[@schemeID="BRN"]',
             self.partner_b.commercial_partner_id.l10n_my_identification_number,
         )
+        # The customer is not Malaysian, so the CountrySubentityCode should be fixed as '17'.
+        self._assert_node_values(
+            customer_root,
+            'cac:PostalAddress/cbc:CountrySubentityCode',
+            '17',
+        )
+        self._assert_node_values(
+            root,
+            'cac:Delivery/cac:DeliveryParty/cac:PostalAddress/cbc:CountrySubentityCode',
+            '17',
+        )
 
         with file_open('l10n_my_edi/tests/expected_xmls/invoice_foreigner.xml', 'rb') as f:
             expected_xml = etree.fromstring(f.read())
         self.assertXmlTreeEqual(root, expected_xml)
 
+    @freeze_time("2024-07-15 10:00:00")
     def test_07_tax_exempt(self):
         """
         Check that the file is correct with an exempt tax.
@@ -450,11 +404,22 @@ class L10nMyEDITestFileGeneration(AccountTestInvoicingCommon):
             'cac:TaxCategory/cbc:TaxExemptionReason',
             invoice.l10n_my_edi_exemption_reason,
         )
+        self._assert_node_values(
+            root,
+            'cac:AccountingCustomerParty/cac:Party/cac:PostalAddress/cbc:CountrySubentityCode',
+            '17',
+        )
+        self._assert_node_values(
+            root,
+            'cac:Delivery/cac:DeliveryParty/cac:PostalAddress/cbc:CountrySubentityCode',
+            '17',
+        )
 
         with file_open('l10n_my_edi/tests/expected_xmls/invoice_tax_exempt.xml', 'rb') as f:
             expected_xml = etree.fromstring(f.read())
         self.assertXmlTreeEqual(root, expected_xml)
 
+    @freeze_time("2024-07-15 10:00:00")
     def test_08_self_billing(self):
         bill = self.init_invoice(
             'in_invoice', partner=self.partner_b, products=self.product_a, taxes=self.purchase_tax, post=True
@@ -489,6 +454,7 @@ class L10nMyEDITestFileGeneration(AccountTestInvoicingCommon):
             expected_xml = etree.fromstring(f.read())
         self.assertXmlTreeEqual(root, expected_xml)
 
+    @freeze_time("2024-07-15 10:00:00")
     def test_09_refund_note(self):
         """ A refund note is issued when an invoice has received a credit note, and that credit note was paid to the customer. """
         # Create the original invoice, and receive the payment.
@@ -535,6 +501,7 @@ class L10nMyEDITestFileGeneration(AccountTestInvoicingCommon):
             expected_xml = etree.fromstring(f.read())
         self.assertXmlTreeEqual(root, expected_xml)
 
+    @freeze_time("2024-07-15 10:00:00")
     def test_10_credit_note(self):
         """ A credit note is issued when an invoice has received a credit note, and that credit note was not paid to the customer. """
         # Create the original invoice, don't receive a payment.
@@ -578,6 +545,7 @@ class L10nMyEDITestFileGeneration(AccountTestInvoicingCommon):
             expected_xml = etree.fromstring(f.read())
         self.assertXmlTreeEqual(root, expected_xml)
 
+    @freeze_time("2024-07-15 10:00:00")
     def test_11_bill_imports_form(self):
         """
         Ensure that when a bill contains a customs number; it is treated as an importation and not exportation.
@@ -613,6 +581,7 @@ class L10nMyEDITestFileGeneration(AccountTestInvoicingCommon):
             expected_xml = etree.fromstring(f.read())
         self.assertXmlTreeEqual(root, expected_xml)
 
+    @freeze_time("2024-07-15 10:00:00")
     def test_12_partner_ref_not_in_party_id(self):
         """
         Ensure that when an invoice contains a customs number; it is treated as an importation and not exportation.
@@ -636,15 +605,18 @@ class L10nMyEDITestFileGeneration(AccountTestInvoicingCommon):
             expected_xml = etree.fromstring(f.read())
         self.assertXmlTreeEqual(root, expected_xml)
 
+    @freeze_time("2024-07-15 10:00:00")
     def test_13_prepaid_amount_present(self):
         """
         Ensure the prepaid amount is present in the UBL XML under <cac:PrepaidPayment>
         """
-        invoice = self.init_invoice('out_invoice', currency=self.other_currency, taxes=self.company_data['default_tax_sale'], products=self.product_a, post=True)
+        # The payment must be strictly before the invoice date, and partial (a full advance payment is reported
+        # as a regular payable amount instead, see test_24), to be reported as a genuine prepayment.
+        invoice = self.init_invoice('out_invoice', invoice_date='2024-07-20', currency=self.other_currency, taxes=self.company_data['default_tax_sale'], products=self.product_a, post=True)
         myinvois_document = invoice._create_myinvois_document()
 
         self.env['account.payment.register'].with_context(active_model='account.move', active_ids=invoice.ids).create({
-            'amount': 2200.00, 'payment_date': '2024-07-15'
+            'amount': 1100.00, 'payment_date': '2024-07-15'
         })._create_payments()
 
         file, errors = myinvois_document._myinvois_generate_xml_file()
@@ -653,10 +625,11 @@ class L10nMyEDITestFileGeneration(AccountTestInvoicingCommon):
         self._assert_node_values(
             root,
             'cac:PrepaidPayment/cbc:PaidAmount',
-            '2200.00',
+            '1100.00',
             attributes={'currencyID': self.other_currency.name}
         )
 
+    @freeze_time("2024-07-15 10:00:00")
     def test_14_prioritize_invoice_line_classification_code(self):
         """
         Check if the classification code of invoice line is prioritized over the classification code of product
@@ -683,6 +656,45 @@ class L10nMyEDITestFileGeneration(AccountTestInvoicingCommon):
             invoice.line_ids[0].l10n_my_edi_classification_code,
         )
 
+    @freeze_time("2024-07-15 10:00:00")
+    def test_19_classification_code_004_requires_general_public(self):
+        """
+        Classification code '004' (Consolidated e-Invoice) is reserved for invoices issued to MyInvois'
+        generic buyer TIN 'EI00000000010'. Using it for a regular customer must be caught here instead of
+        round-tripping to MyInvois as a confusing raw validation error.
+        """
+        self.product_a.l10n_my_edi_classification_code = "004"
+        invoice = self.init_invoice('out_invoice', products=self.product_a, partner=self.partner_a, post=True)
+        myinvois_document = invoice._create_myinvois_document()
+
+        _file, errors = myinvois_document._myinvois_generate_xml_file()
+        self.assertTrue(any('EI00000000010' in error for error in errors))
+
+        # Using the same code for the actual general public buyer should not raise this constraint.
+        self.partner_a.write({'vat': 'EI00000000010', 'l10n_my_identification_number': 'NA'})
+        _file, errors = myinvois_document._myinvois_generate_xml_file()
+        self.assertFalse(any('EI00000000010' in error for error in errors))
+
+    @freeze_time("2024-07-15 10:00:00")
+    def test_20_general_public_requires_classification_code_004(self):
+        """
+        The inverse of test_19: TIN 'EI00000000010' (General Public / Consolidated e-Invoice) is reserved for
+        code '004' - using it with any other classification code must also be caught here.
+        """
+        self.product_a.l10n_my_edi_classification_code = "001"
+        self.partner_a.write({'vat': 'EI00000000010', 'l10n_my_identification_number': 'NA'})
+        invoice = self.init_invoice('out_invoice', products=self.product_a, partner=self.partner_a, post=True)
+        myinvois_document = invoice._create_myinvois_document()
+
+        _file, errors = myinvois_document._myinvois_generate_xml_file()
+        self.assertTrue(any('requires classification code' in error for error in errors))
+
+        # Using code '004' for the actual general public buyer should not raise this constraint.
+        invoice.invoice_line_ids.l10n_my_edi_classification_code = "004"
+        _file, errors = myinvois_document._myinvois_generate_xml_file()
+        self.assertFalse(any('requires classification code' in error for error in errors))
+
+    @freeze_time("2024-07-15 10:00:00")
     def test_15_none_tax(self):
         invoice = self.init_invoice(
             'out_invoice',
@@ -821,7 +833,7 @@ class L10nMyEDITestFileGeneration(AccountTestInvoicingCommon):
 
     def test_14_prepaid_amount_on_debit_credit_refund_notes(self):
         """
-        Ensure that the prepaid amount is 0 and payable_amount is invoice.amount_total
+        Ensure that the prepaid amount node is omitted and payable_amount is invoice.amount_total
         """
         basic_invoice = self.init_invoice('out_invoice', currency=self.other_currency,
             taxes=self.company_data['default_tax_sale'], products=self.product_a, post=True)
@@ -841,12 +853,8 @@ class L10nMyEDITestFileGeneration(AccountTestInvoicingCommon):
         self.assertFalse(errors)
         root = etree.fromstring(file)
 
-        # Check that the prepaid amount is 0
-        self._assert_node_values(
-            root,
-            'cac:PrepaidPayment/cbc:PaidAmount',
-            '0.00',
-        )
+        # Check that the prepaid amount node is not present, since there is no prepaid amount
+        self.assertFalse(root.xpath('cac:PrepaidPayment', namespaces=NS_MAP))
 
         # Check that the payable amount is the total amount of the invoice
         self._assert_node_values(
@@ -854,6 +862,172 @@ class L10nMyEDITestFileGeneration(AccountTestInvoicingCommon):
             'cac:LegalMonetaryTotal/cbc:PayableAmount',
             '2200.00',
         )
+
+    def _reconcile_invoice_with_payment(self, invoice, amount, date, currency=None):
+        payment = self.init_payment(amount, post=True, date=date, partner=invoice.partner_id, currency=currency)
+        (invoice + payment.move_id).line_ids.filtered_domain([
+            ('account_type', 'in', ('asset_receivable', 'liability_payable')),
+        ]).reconcile()
+        return payment
+
+    def _reconcile_invoice_with_credit_note(self, invoice, amount, date):
+        credit_note = self.init_invoice(
+            'out_refund', invoice_date=date, amounts=[amount], partner=invoice.partner_id, post=True,
+        )
+        (invoice + credit_note).line_ids.filtered_domain([
+            ('account_type', 'in', ('asset_receivable', 'liability_payable')),
+        ]).reconcile()
+        return credit_note
+
+    def _get_prepaid_and_payable_amounts(self, invoice):
+        myinvois_document = invoice._create_myinvois_document()
+        file, _errors = myinvois_document._myinvois_generate_xml_file()
+        root = etree.fromstring(file)
+        prepaid_node = root.xpath('cac:PrepaidPayment/cbc:PaidAmount', namespaces=NS_MAP)
+        prepaid_amount = float(prepaid_node[0].text) if prepaid_node else 0.0
+        payable_amount = float(root.xpath('cac:LegalMonetaryTotal/cbc:PayableAmount', namespaces=NS_MAP)[0].text)
+        return prepaid_amount, payable_amount
+
+    def _init_invoice_with_amount(self, move_type, invoice_date, amount, **kwargs):
+        """ Same as init_invoice with a single line built from `amount`, but with a valid classification code
+        set on it, since the CommodityClassification node is mandatory for MyInvois. """
+        invoice = self.init_invoice(move_type, invoice_date=invoice_date, amounts=[amount], **kwargs)
+        invoice.invoice_line_ids.l10n_my_edi_classification_code = '001'
+        invoice.action_post()
+        return invoice
+
+    def test_21_prepaid_amount_same_day_payment(self):
+        """ A payment made on the invoice date is a regular settlement, not a prepayment. """
+        invoice = self._init_invoice_with_amount('out_invoice', invoice_date='2024-10-10', amount=500)
+        self._reconcile_invoice_with_payment(invoice, 500, '2024-10-10')
+
+        prepaid_amount, payable_amount = self._get_prepaid_and_payable_amounts(invoice)
+        self.assertEqual(prepaid_amount, 0.0)
+        self.assertEqual(payable_amount, 500.0)
+
+    def test_22_prepaid_amount_late_payment(self):
+        """ A payment made after the invoice date is a regular settlement, not a prepayment. """
+        invoice = self._init_invoice_with_amount('out_invoice', invoice_date='2024-10-10', amount=500)
+        self._reconcile_invoice_with_payment(invoice, 500, '2024-10-15')
+
+        prepaid_amount, payable_amount = self._get_prepaid_and_payable_amounts(invoice)
+        self.assertEqual(prepaid_amount, 0.0)
+        self.assertEqual(payable_amount, 500.0)
+
+    def test_23_prepaid_amount_true_partial_deposit(self):
+        """ Only the portion paid before the invoice date counts as a prepayment. """
+        invoice = self._init_invoice_with_amount('out_invoice', invoice_date='2024-10-10', amount=1000)
+        self._reconcile_invoice_with_payment(invoice, 200, '2024-10-05')
+        self._reconcile_invoice_with_payment(invoice, 800, '2024-10-10')
+
+        prepaid_amount, payable_amount = self._get_prepaid_and_payable_amounts(invoice)
+        self.assertEqual(prepaid_amount, 200.0)
+        self.assertEqual(payable_amount, 800.0)
+
+    def test_24_prepaid_amount_full_advance_payment_override(self):
+        """ A full advanced payment should not be considered as prepayment. """
+        invoice = self._init_invoice_with_amount('out_invoice', invoice_date='2024-10-10', amount=1000)
+        self._reconcile_invoice_with_payment(invoice, 1000, '2024-10-01')
+
+        prepaid_amount, payable_amount = self._get_prepaid_and_payable_amounts(invoice)
+        self.assertEqual(prepaid_amount, 0.0)
+        self.assertEqual(payable_amount, 1000.0)
+
+    def test_25_prepaid_amount_foreign_currency_true_partial_deposit(self):
+        """ Same as test_23, but the invoice is in a foreign currency; the prepaid amount must stay expressed
+        in the invoice currency. """
+        foreign_currency = self.other_currency
+        invoice = self._init_invoice_with_amount(
+            'out_invoice', invoice_date='2017-10-10', amount=1000, currency=foreign_currency,
+        )
+        self._reconcile_invoice_with_payment(invoice, 200, '2017-10-05', currency=foreign_currency)
+        self._reconcile_invoice_with_payment(invoice, 800, '2017-10-10', currency=foreign_currency)
+
+        prepaid_amount, payable_amount = self._get_prepaid_and_payable_amounts(invoice)
+        self.assertEqual(prepaid_amount, 200.0)
+        self.assertEqual(payable_amount, 800.0)
+
+    def test_26_prepaid_amount_foreign_currency_full_advance_payment_override(self):
+        """ Same as test_24, but the invoice is in a foreign currency. """
+        foreign_currency = self.other_currency
+        invoice = self._init_invoice_with_amount(
+            'out_invoice', invoice_date='2017-10-10', amount=1000, currency=foreign_currency,
+        )
+        self._reconcile_invoice_with_payment(invoice, 1000, '2017-10-01', currency=foreign_currency)
+
+        prepaid_amount, payable_amount = self._get_prepaid_and_payable_amounts(invoice)
+        self.assertEqual(prepaid_amount, 0.0)
+        self.assertEqual(payable_amount, 1000.0)
+
+    def test_27_prepaid_amount_excludes_exchange_difference(self):
+        """ A prepayment reconciled at a different exchange rate than the invoice generates a separate
+        exchange difference entry. That entry must not be counted as part of the prepaid amount, which
+        should only reflect the actual amount paid in advance, expressed in invoice currency. """
+        foreign_currency = self.other_currency
+        # invoice_date falls under the 2017 rate (2.0), the payment under the 2016 rate (3.0):
+        # same amount in foreign currency, different amount once converted to company currency.
+        invoice = self._init_invoice_with_amount(
+            'out_invoice', invoice_date='2017-10-10', amount=1000, currency=foreign_currency,
+        )
+        self._reconcile_invoice_with_payment(invoice, 200, '2016-10-05', currency=foreign_currency)
+
+        prepaid_amount, payable_amount = self._get_prepaid_and_payable_amounts(invoice)
+        self.assertEqual(prepaid_amount, 200.0)
+        self.assertEqual(payable_amount, 800.0)
+
+    def test_28_prepaid_amount_excludes_cash_basis_moves(self):
+        """ When the invoice has a cash basis (tax on payment) tax, reconciling it with a payment also
+        generates a separate cash basis journal entry. That entry must not be counted as part of the
+        prepaid amount. """
+        self.company_data['company'].tax_exigibility = True
+        cash_basis_transition_account = self.safe_copy(self.company_data['default_account_tax_sale'])
+        cash_basis_transition_account.reconcile = True
+        cash_basis_tax = self.env['account.tax'].create({
+            'name': 'cash basis 15%',
+            'type_tax_use': 'sale',
+            'amount': 15,
+            'tax_exigibility': 'on_payment',
+            'cash_basis_transition_account_id': cash_basis_transition_account.id,
+        })
+        invoice = self._init_invoice_with_amount(
+            'out_invoice', invoice_date='2024-10-10', amount=1000, taxes=cash_basis_tax,
+        )
+        self._reconcile_invoice_with_payment(invoice, 200, '2024-10-05')
+        self._reconcile_invoice_with_payment(invoice, 950, '2024-10-10')
+
+        prepaid_amount, payable_amount = self._get_prepaid_and_payable_amounts(invoice)
+        self.assertEqual(prepaid_amount, 200.0)
+        self.assertEqual(payable_amount, 950.0)
+
+    def test_29_prepaid_amount_excludes_credit_note(self):
+        """ A credit note reconciled against the invoice is not a prepayment: it is reported to LHDN as its
+        own separate document, and must not also be counted as a prepaid amount on the invoice. """
+        invoice = self._init_invoice_with_amount('out_invoice', invoice_date='2024-10-10', amount=1000)
+        self._reconcile_invoice_with_credit_note(invoice, 200, '2024-10-05')
+
+        prepaid_amount, payable_amount = self._get_prepaid_and_payable_amounts(invoice)
+        self.assertEqual(prepaid_amount, 0.0)
+        self.assertEqual(payable_amount, 1000.0)
+
+    @freeze_time("2024-07-15 10:00:00")
+    def test_30_bill_reference_length(self):
+        """
+        On self billed documents, the bill reference is used as the InternalID (cbc:ID), which MyInvois
+        limits to 50 characters. A longer reference must be caught here instead of failing at submission.
+        """
+        bill = self.init_invoice(
+            'in_invoice', partner=self.partner_b, products=self.product_a, taxes=self.purchase_tax, post=True
+        )
+        bill.ref = 'B' * 51
+        myinvois_document = bill._create_myinvois_document()
+
+        _file, errors = myinvois_document._myinvois_generate_xml_file()
+        self.assertTrue(any('50 characters' in error for error in errors))
+
+        # A reference of exactly 50 characters is within the limit.
+        bill.ref = 'B' * 50
+        _file, errors = myinvois_document._myinvois_generate_xml_file()
+        self.assertFalse(errors)
 
     def _assert_node_values(self, root, node_path, text, attributes=None):
         node = root.xpath(node_path, namespaces=NS_MAP)

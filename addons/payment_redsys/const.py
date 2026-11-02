@@ -4,28 +4,18 @@ from odoo.tools.translate import LazyTranslate
 
 _lt = LazyTranslate(__name__, default_lang="en_US")
 
-# The codes of the payment methods to activate when Redsys is activated.
-DEFAULT_PAYMENT_METHOD_CODES = {
-    # Primary payment methods
-    'card',
-    'bizum',
-    # Brand payment methods
-    'visa',
-    'mastercard',
-    'amex',
-    'diners',
-    'jcb',
-}
+# The codes of the default primary payment methods to activate
+DEFAULT_PAYMENT_METHOD_CODES = {"bizum", "card"}
 
 # Mapping of payment method codes to Redsys codes.
 PAYMENT_METHODS_MAPPING = {
-    'bizum': 'z',
-    'card': 'C',
-    'visa': '1',
-    'mastercard': '2',
-    'amex': '8',
-    'diners': '6',
-    'jcb': '9',
+    "bizum": "z",
+    "card": "C",
+    "visa": "1",
+    "mastercard": "2",
+    "amex": "8",
+    "diners": "6",
+    "jcb": "9",
 }
 
 # Mapping of Redsys error codes to generic error messages. Error codes are received with 4-digits.

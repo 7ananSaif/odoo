@@ -1,13 +1,14 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
+from collections import defaultdict
 
-from odoo import _, api, fields, models
+from odoo import api, fields, models
 
 
 class StockLot(models.Model):
     _inherit = 'stock.lot'
 
     lot_valuated = fields.Boolean(related='product_id.lot_valuated', readonly=True, store=False)
-    avg_cost = fields.Monetary(string="Average Cost", compute='_compute_value', compute_sudo=True, store=False, readonly=True, currency_field='company_currency_id')
+    avg_cost = fields.Monetary(string="Average Cost", compute='_compute_value', compute_sudo=True, readonly=True, currency_field='company_currency_id')
     total_value = fields.Monetary(string="Total Value", compute='_compute_value', compute_sudo=True, currency_field='company_currency_id')
     company_currency_id = fields.Many2one('res.currency', 'Valuation Currency', compute='_compute_value', compute_sudo=True)
     standard_price = fields.Float(
@@ -19,39 +20,46 @@ class StockLot(models.Model):
     )
 
     @api.depends('product_id.lot_valuated', 'product_id.product_tmpl_id.lot_valuated', 'product_id.stock_move_ids.value', 'standard_price')
-    @api.depends_context('to_date', 'company', 'warehouse_id')
+    @api.depends_context('to_date', 'company', 'warehouse_id', 'allowed_company_ids')
     def _compute_value(self):
         """Compute totals of multiple svl related values"""
         company_id = self.env.company
         self.company_currency_id = company_id.currency_id
         at_date = fields.Datetime.to_datetime(self.env.context.get('to_date'))
-        for lot in self:
-            if not lot.lot_valuated:
-                lot.total_value = 0.0
-                lot.avg_cost = 0.0
-                continue
-            valuated_product = lot.product_id.with_context(at_date=at_date, lot_id=lot.id)
-            qty_valued = lot.product_qty
-            qty_available = lot.with_context(warehouse_id=False).product_qty
-            if valuated_product.uom_id.is_zero(qty_valued):
-                lot.total_value = 0
-                lot.avg_cost = 0.0
-            elif valuated_product.cost_method == 'standard' or valuated_product.uom_id.is_zero(qty_available):
-                lot.total_value = lot.standard_price * qty_valued
-                lot.avg_cost = lot.standard_price
-            elif valuated_product.cost_method == 'average':
-                avco_result = valuated_product.with_context(warehouse_id=False)._run_avco(at_date=at_date, lot=lot.with_context(warehouse_id=False))
-                lot.total_value = avco_result[1] * qty_valued / qty_available
-                lot.avg_cost = avco_result[0]
-            else:
-                fifo_value = valuated_product.with_context(warehouse_id=False)._run_fifo(qty_available, at_date=at_date, lot=lot.with_context(warehouse_id=False))
-                lot.total_value = fifo_value * qty_valued / qty_available
-                lot.avg_cost = fifo_value / qty_available if qty_available else 0.0
+        lots = self.with_context(owners=[False, self.env.company.partner_id.id])
+        total_value_by_lot_id = defaultdict(float)
+        valued_quantity_by_lot_id = defaultdict(float)
 
-    # TODO: remove avg cost column in master and merge the two compute methods
-    def _compute_avg_cost(self):
-        # DEPRECATED: This method is no longer used.
-        self.avg_cost = 0.0
+        for company in self.env.companies:
+            lots = lots.with_company(company.id).with_context(allowed_company_ids=company.ids)
+
+            for lot in lots:
+                if not lot.lot_valuated:
+                    continue
+                valuated_product = lot.product_id.with_context(at_date=at_date, lot_id=lot.id)
+                qty_valued = lot.product_qty
+                qty_available = lot.with_context(warehouse_id=False).product_qty
+                if valuated_product.uom_id.is_zero(qty_valued):
+                    continue
+                elif valuated_product.cost_method == 'standard' or valuated_product.uom_id.is_zero(qty_available):
+                    total_value = lot.standard_price * qty_valued
+                    total_value_by_lot_id[lot.id] += company.currency_id._convert(total_value, self.env.company.currency_id)
+                    valued_quantity_by_lot_id[lot.id] += qty_valued
+                elif valuated_product.cost_method == 'average':
+                    avco_result = valuated_product.with_context(warehouse_id=False)._run_avco(at_date=at_date, lot=lot.with_context(warehouse_id=False), force_recompute=True)
+                    total_value = avco_result[1][valuated_product.id] * qty_valued / qty_available
+                    total_value_by_lot_id[lot.id] += company.currency_id._convert(total_value, self.env.company.currency_id)
+                    valued_quantity_by_lot_id[lot.id] += qty_valued
+                else:
+                    fifo_value = valuated_product.with_context(warehouse_id=False)._run_fifo(at_date=at_date, lot=lot.with_context(warehouse_id=False))
+                    total_value = fifo_value[1].get(valuated_product.id, 0) * qty_valued / qty_available
+                    total_value_by_lot_id[lot.id] += company.currency_id._convert(total_value, self.env.company.currency_id)
+                    valued_quantity_by_lot_id[lot.id] += qty_valued
+
+        for lot in self:
+            lot.total_value = total_value_by_lot_id[lot.id]
+            quantity = valued_quantity_by_lot_id[lot.id]
+            lot.avg_cost = total_value_by_lot_id[lot.id] / quantity if quantity else 0
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -74,7 +82,8 @@ class StockLot(models.Model):
 
     def _update_standard_price(self):
         # TODO: Add extra value and extra quantity kwargs to avoid total recomputation
-        for lot in self:
+        lots = self.with_context(owners=[False, self.env.company.partner_id.id])
+        for lot in lots:
             lot = lot.with_context(disable_auto_revaluation=True)
             if not lot.product_id.lot_valuated:
                 continue
@@ -83,9 +92,9 @@ class StockLot(models.Model):
                     lot.standard_price = lot.product_id.standard_price
                 continue
             elif lot.product_id.cost_method == 'average':
-                lot.standard_price = lot.product_id._run_avco(lot=lot)[0]
+                lot.standard_price = lot.product_id._run_avco(lot=lot, force_recompute=True)[0][lot.product_id.id]
             else:
-                lot.standard_price = lot.product_id._run_fifo_batch(lot=lot)[0].get(lot.product_id.id, lot.standard_price)
+                lot.standard_price = lot.product_id._run_fifo(lot=lot)[0].get(lot.product_id.id, lot.standard_price)
 
     def _change_standard_price(self, old_price):
         """Helper to create the stock valuation layers and the account moves
@@ -94,17 +103,26 @@ class StockLot(models.Model):
         :param new_price: new standard price
         """
         product_values = []
+        now = fields.Datetime.now()
         for lot in self:
-            if lot.product_id.cost_method != 'average' or lot.standard_price == old_price:
-                continue
             product = lot.product_id
+            old_value = old_price.get(lot)
+            value = lot.standard_price
+            if product.cost_method != 'average' or value == old_value:
+                continue
+            quantity = lot.product_qty
             product_values.append({
                 'product_id': product.id,
                 'lot_id': lot.id,
-                'value': lot.standard_price,
+                'quantity': quantity,
+                'old_cost': old_value,
+                'new_cost': value,
+                'old_value': old_value * quantity,
+                'new_value': value * quantity,
+                'value': value,
                 'company_id': product.company_id.id or self.env.company.id,
-                'date': fields.Datetime.now(),
-                'description': _('%(lot)s price update from %(old_price)s to %(new_price)s by %(user)s',
-                    lot=lot.name, old_price=old_price, new_price=lot.standard_price, user=self.env.user.name)
+                'date': now,
+                'description': self.env._('%(lot)s cost update from %(old_value)s to %(new_value)s for %(quantity)s by %(user)s',
+                    lot=lot.name, old_value=old_value, new_value=value, quantity=quantity, user=self.env.user.name)
             })
         self.env['product.value'].sudo().create(product_values)

@@ -11,13 +11,12 @@ _logger = logging.getLogger(__name__)
 
 
 class SerialInterface(Interface):
-    connection_type = 'serial'
     allow_unsupported = True
 
     def get_devices(self):
         to_remove = set()
         for identifier, driver in iot_devices.items():
-            if driver.connection_type == self.connection_type and not driver.is_alive():
+            if driver.interface == self.__class__ and not driver.is_alive():
                 _logger.warning("Driver for %s is dead (Thread not alive). Forcing removal.", identifier)
                 to_remove.add(identifier)
 

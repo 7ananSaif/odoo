@@ -1,3 +1,4 @@
+import { onWillRender } from "@web/owl2/utils";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { useTrackedAsync } from "@point_of_sale/app/hooks/hooks";
@@ -5,7 +6,18 @@ import { useLongPress } from "@point_of_sale/app/hooks/long_press_hook";
 import { useBarcodeReader } from "@point_of_sale/app/hooks/barcode_reader_hook";
 import { _t } from "@web/core/l10n/translation";
 import { usePos } from "@point_of_sale/app/hooks/pos_hook";
-import { Component, onMounted, useEffect, useState, onWillRender, onWillUnmount } from "@odoo/owl";
+import {
+    Component,
+    onMounted,
+    onWillUnmount,
+    computed,
+    proxy,
+    useProps,
+    t,
+    signal,
+    usePlugin,
+} from "@odoo/owl";
+import { PosNumberBufferPlugin } from "@point_of_sale/app/plugins/pos_number_buffer_plugin";
 import { CategorySelector } from "@point_of_sale/app/components/category_selector/category_selector";
 import { Input } from "@point_of_sale/app/components/inputs/input/input";
 import {
@@ -28,6 +40,7 @@ import { AlertDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { OptionalProductPopup } from "@point_of_sale/app/components/popups/optional_products_popup/optional_products_popup";
 import { useRouterParamsChecker } from "@point_of_sale/app/hooks/pos_router_hook";
 import { debounce } from "@web/core/utils/timing";
+import { useSortable } from "@web/core/utils/sortable_owl";
 import { capitalize } from "@web/core/utils/strings";
 
 const { DateTime } = luxon;
@@ -45,24 +58,24 @@ export class ProductScreen extends Component {
         ProductCard,
         BarcodeVideoScanner,
     };
-    static props = {
-        orderUuid: { type: String },
-    };
+
+    props = useProps({
+        orderUuid: t.string(),
+    });
+
+    productsRootRef = signal.ref();
 
     setup() {
-        super.setup();
         this.pos = usePos();
         this.ui = useService("ui");
         this.dialog = useService("dialog");
         this.notification = useService("notification");
-        this.numberBuffer = useService("number_buffer");
-        this.state = useState({
-            previousSearchWord: "",
-            currentOffset: 0,
+        this.numberBuffer = usePlugin(PosNumberBufferPlugin);
+        this.state = proxy({
             quantityByProductTmplId: {},
         });
 
-        useRouterParamsChecker();
+        useRouterParamsChecker(this.constructor.name);
         onMounted(() => {
             this.currentOrder.deselectOrderline();
             this.pos.openOpeningControl();
@@ -75,7 +88,8 @@ export class ProductScreen extends Component {
         onWillRender(() => {
             // If its a shared order it can be paid from another POS
             if (this.currentOrder?.state !== "draft" && !this.isValidatingOrder) {
-                this.pos.addNewOrder();
+                const { table_id, preset_id } = this.currentOrder ?? {};
+                this.pos.addNewOrder({ table_id, preset_id });
             }
         });
 
@@ -91,19 +105,20 @@ export class ProductScreen extends Component {
                     await this.pos.syncAllOrders();
                 }
             }
+            this.pos.searchProductDBState = null;
         });
 
         this.barcodeReader = useService("barcode_reader");
         this.sound = useService("mail.sound_effects");
 
         useBarcodeReader({
-            product: this._barcodeProductAction,
-            quantity: this._barcodeProductAction,
-            weight: this._barcodeProductAction,
-            price: this._barcodeProductAction,
-            client: this._barcodePartnerAction,
-            discount: this._barcodeDiscountAction,
-            gs1: this._barcodeGS1Action,
+            product: this._barcodeProductAction.bind(this),
+            quantity: this._barcodeProductAction.bind(this),
+            weight: this._barcodeProductAction.bind(this),
+            price: this._barcodeProductAction.bind(this),
+            client: this._barcodePartnerAction.bind(this),
+            discount: this._barcodeDiscountAction.bind(this),
+            gs1: this._barcodeGS1Action.bind(this),
         });
 
         this.numberBuffer.use({
@@ -114,25 +129,89 @@ export class ProductScreen extends Component {
         this.longPressHandlers = useLongPress((product) => this.pos.onProductInfoClick(product));
         this.onScroll = debounce(this.longPressHandlers.onScroll, 200, { leading: true });
 
-        useEffect(
-            () => {
-                this.state.quantityByProductTmplId = this.currentOrder?.lines?.reduce((acc, ol) => {
+        Object.defineProperty(this.state, "quantityByProductTmplId", {
+            get: computed(() =>
+                this.currentOrder?.lines?.reduce((acc, ol) => {
                     if (!ol.combo_parent_id) {
                         const productTmplId = ol.product_id.product_tmpl_id.id;
                         acc[productTmplId] = (acc[productTmplId] || 0) + ol.qty;
                     }
                     return acc;
-                }, {});
+                }, {})
+            ),
+        });
+
+        useSortable({
+            ref: this.productsRootRef,
+            elements: ".product-sortable",
+            cursor: "move",
+            tolerance: 10,
+            connectGroups: false,
+            enable: () =>
+                this.pos.accessRight.canReorderProducts && this.pos.accessRight.canSortProducts,
+            preventDrag: (element) => isNaN(Number(element.dataset.productId)),
+            onDragStart: () => {
+                this.longPressHandlers.onMouseUp();
+                this.longPressHandlers.onTouchEnd();
             },
-            () => [this.currentOrder, this.currentOrder.totalQuantity]
-        );
+            onDrop: async (params) => this._sortDrop(params),
+        });
     }
 
-    onMouseDown(event, product) {
-        this.longPressHandlers.onMouseDown(event, product);
+    async _sortDrop({ element, previous, next }) {
+        const elementId = Number(element.dataset.productId);
+        if (isNaN(elementId)) {
+            return;
+        }
+        let currentSeq = 0;
+        while (previous) {
+            if (previous.dataset.pos_sequence) {
+                currentSeq = Number(previous.dataset.pos_sequence) + 1;
+                break;
+            }
+            previous = previous.previousElementSibling;
+        }
+        if (!currentSeq) {
+            currentSeq = 1;
+        }
+
+        const sequenceById = { [elementId]: currentSeq };
+
+        while (next) {
+            if (next == element) {
+                next = next.nextElementSibling;
+                if (!next) {
+                    break;
+                }
+            }
+            const nextSeq = Number(next.dataset.pos_sequence);
+            if (nextSeq > currentSeq) {
+                break;
+            }
+            currentSeq += 1;
+            const nextId = Number(next.dataset.productId);
+            if (!isNaN(nextId)) {
+                sequenceById[nextId] = currentSeq;
+            }
+            next = next.nextElementSibling;
+        }
+
+        // Force a rerender on the screen
+        for (const [id, seq] of Object.entries(sequenceById)) {
+            const record = this.pos.models["product.template"].get(Number(id));
+            record?.update({ pos_sequence: seq });
+        }
+        await this.pos.data.call("product.template", "set_pos_sequence", [sequenceById]);
     }
 
-    onTouchStart(product) {
+    onPointerDown(event, product) {
+        if (isNaN(Number(product.id))) {
+            return;
+        }
+        if (event.pointerType == "mouse") {
+            this.longPressHandlers.onMouseDown(event, product);
+            return;
+        }
         this.longPressHandlers.onTouchStart(product);
     }
 
@@ -143,30 +222,45 @@ export class ProductScreen extends Component {
             "-": "o_colorlist_item_numpad_color_3",
         };
 
+        const order = this.currentOrder;
         const defaultLastRowValues =
             DEFAULT_LAST_ROW.map((button) => button.value) + [BACKSPACE.value];
 
         return getButtons(DEFAULT_LAST_ROW, [
-            { value: "quantity", text: _t("Qty") },
+            {
+                value: "quantity",
+                text: _t("Qty"),
+                disabled:
+                    order?.getSelectedOrderline()?.isServiceFeeLine() &&
+                    order?.preset_id?.service_fee_type === "percent",
+            },
             {
                 value: "discount",
                 text: _t("%"),
-                disabled: !this.pos.config.manual_discount || this.pos.cashier._role === "minimal",
+                disabled:
+                    this.pos.accessRight.disableLinediscount ||
+                    order?.getSelectedOrderline()?.isServiceFeeLine(),
             },
             {
                 value: "price",
                 text: _t("Price"),
                 disabled:
-                    !this.pos.cashierHasPriceControlRights() ||
-                    this.pos.cashier._role === "minimal" ||
-                    this.pos.getOrder()?.getSelectedOrderline()?.isPartOfCombo(),
+                    this.pos.accessRight.disablePriceButton ||
+                    order?.getSelectedOrderline()?.isPartOfCombo(),
             },
-            BACKSPACE,
+            {
+                ...BACKSPACE,
+                disabled:
+                    this.pos.accessRight.disableBackSpaceButton &&
+                    !order.getSelectedOrderline()?.isDirty(),
+            },
         ]).map((button) => ({
             ...button,
             disabled:
                 button.disabled ||
-                (button.value === SWITCHSIGN.value && this.pos.cashier._role === "minimal"),
+                (button.value === SWITCHSIGN.value && !this.pos.accessRight.canSwitchSign) ||
+                (order?.getSelectedOrderline()?.isServiceFeeLine() &&
+                    order?.preset_id?.service_fee_type === "percent"),
             class: `
                 ${defaultLastRowValues.includes(button.value) ? "" : ""}
                 ${colorClassMap[button.value] || ""}
@@ -184,7 +278,7 @@ export class ProductScreen extends Component {
             this.pos.numpadMode = buttonValue;
             return;
         }
-        if (this.pos.selectedOrder.isRefund && buttonValue !== "Backspace") {
+        if (this.pos.getOrder().isRefund && buttonValue !== "Backspace") {
             return this.dialog.add(AlertDialog, {
                 title: _t("%s update not allowed", capitalize(this.pos.numpadMode)),
                 body: _t("You can not change the %s of the refund order.", this.pos.numpadMode),
@@ -199,7 +293,7 @@ export class ProductScreen extends Component {
         return this.currentOrder?.currencyDisplayPrice || 0;
     }
     get items() {
-        return this.env.utils.formatProductQty(
+        return this.pos.formatProductQty(
             this.currentOrder.lines?.reduce((items, line) => items + line.qty, 0) ?? 0,
             false
         );
@@ -266,7 +360,6 @@ export class ProductScreen extends Component {
     }
     async _barcodeProductAction(code) {
         const product = await this._getProductByBarcode(code);
-
         if (!product) {
             this.sound.play("scan-error");
             this.barcodeReader.showNotFoundNotification(code);
@@ -274,13 +367,22 @@ export class ProductScreen extends Component {
         }
         this.sound.play("beep");
 
-        await this.pos.addLineToCurrentOrder(
+        if (!(await this.pos.canAddProductToCurrentOrder(product.product_tmpl_id))) {
+            return;
+        }
+
+        const allocation = this.pos.autoCourseAllocation(product);
+        const line = await this.pos.addLineToCurrentOrder(
             { product_id: product, product_tmpl_id: product.product_tmpl_id },
             { code },
             product.needToConfigure()
         );
+        this.pos.cleanAutoCourseAllocation(line, allocation);
+
         this.numberBuffer.reset();
-        this.showOptionalProductPopupIfNeeded(product);
+        if (line) {
+            this.showOptionalProductPopupIfNeeded(product);
+        }
     }
     async _getPartnerByBarcode(code) {
         let partner = this.pos.models["res.partner"].getBy("barcode", code.code);
@@ -327,6 +429,11 @@ export class ProductScreen extends Component {
             return;
         }
         this.sound.play("beep");
+
+        if (!(await this.pos.canAddProductToCurrentOrder(product.product_tmpl_id))) {
+            return;
+        }
+
         const vals = { product_id: product, product_tmpl_id: product.product_tmpl_id };
         if (
             qty &&
@@ -337,9 +444,15 @@ export class ProductScreen extends Component {
             vals.qty = qty.value;
         }
 
-        await this.pos.addLineToCurrentOrder(vals, { code: lotBarcode }, product.needToConfigure());
+        const line = await this.pos.addLineToCurrentOrder(
+            vals,
+            { code: lotBarcode },
+            product.needToConfigure()
+        );
         this.numberBuffer.reset();
-        this.showOptionalProductPopupIfNeeded(product);
+        if (line) {
+            this.showOptionalProductPopupIfNeeded(product);
+        }
     }
     displayAllControlPopup() {
         this.dialog.add(ControlButtonsPopup);
@@ -358,76 +471,29 @@ export class ProductScreen extends Component {
         return this.pos.searchProductWord.trim();
     }
 
-    async onPressEnterKey() {
-        const { searchProductWord } = this.pos;
-        if (!searchProductWord) {
-            return;
-        }
-        if (this.state.previousSearchWord !== searchProductWord) {
-            this.state.currentOffset = 0;
-        }
-        const result = await this.loadProductFromDB();
-        if (result.length === 0) {
-            this.notification.add(_t('No other products found for "%s".', searchProductWord), 3000);
-        }
-        if (this.state.previousSearchWord === searchProductWord) {
-            this.state.currentOffset += result.length;
-        } else {
-            this.state.previousSearchWord = searchProductWord;
-            this.state.currentOffset = result.length;
-        }
-    }
-
-    loadProductFromDBDomain(searchProductWord) {
-        return [
-            "|",
-            "|",
-            "|",
-            ["name", "ilike", searchProductWord],
-            ["product_variant_ids.name", "ilike", searchProductWord],
-            "|",
-            ["default_code", "ilike", searchProductWord],
-            ["product_variant_ids.default_code", "ilike", searchProductWord],
-            "|",
-            ["barcode", "ilike", searchProductWord],
-            ["product_variant_ids.barcode", "ilike", searchProductWord],
-            ["available_in_pos", "=", true],
-            ["sale_ok", "=", true],
-        ];
-    }
-
-    async loadProductFromDB() {
-        const { searchProductWord } = this.pos;
-        if (!searchProductWord) {
-            return;
-        }
-
-        this.pos.setSelectedCategory(0);
-        const domain = this.loadProductFromDBDomain(searchProductWord);
-
-        const { limit_categories, iface_available_categ_ids } = this.pos.config;
-        if (limit_categories && iface_available_categ_ids.length > 0) {
-            const categIds = iface_available_categ_ids.map((categ) => categ.id);
-            domain.push(["pos_categ_ids", "in", categIds]);
-        }
-
-        const results = await this.pos.loadNewProducts(domain, this.state.currentOffset, 30);
-        return results["product.product"];
-    }
-
     async addProductToOrder(product) {
+        if (!(await this.pos.canAddProductToCurrentOrder(product))) {
+            return;
+        }
         const options = {};
         if (this.searchWord && product.isConfigurable()) {
-            const barcode = this.searchWord;
+            const searchWord = this.searchWord;
             const searchedProduct = product.product_variant_ids.filter(
-                (p) => p.barcode && p.barcode.includes(barcode)
+                (p) =>
+                    (p.barcode && p.barcode.includes(searchWord)) ||
+                    (p.default_code &&
+                        p.default_code.toLowerCase().includes(searchWord.toLowerCase()))
             );
             if (searchedProduct.length === 1) {
                 options["presetVariant"] = searchedProduct[0];
             }
         }
-        await this.pos.addLineToCurrentOrder({ product_tmpl_id: product }, options);
-        this.showOptionalProductPopupIfNeeded(product);
+        const line = await this.pos.addLineToCurrentOrder({ product_tmpl_id: product }, options);
+        if (line) {
+            this.showOptionalProductPopupIfNeeded(product);
+        }
+
+        return line;
     }
     showOptionalProductPopupIfNeeded(product) {
         if (product.pos_optional_product_ids?.length) {

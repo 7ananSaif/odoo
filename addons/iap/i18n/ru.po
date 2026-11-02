@@ -4,15 +4,16 @@
 #
 # Translators:
 # "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Anastasiia Koroleva (koan)" <koan@odoo.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:36+0000\n"
-"PO-Revision-Date: 2025-09-16 02:34+0000\n"
-"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
-"Language-Team: Russian <https://translate.odoo.com/projects/odoo-19/iap/ru/"
-">\n"
+"POT-Creation-Date: 2026-09-25 17:38+0000\n"
+"PO-Revision-Date: 2026-08-31 16:52+0000\n"
+"Last-Translator: \"Anastasiia Koroleva (koan)\" <koan@odoo.com>\n"
+"Language-Team: Russian <https://translate.odoo.com/projects/odoo-s19-4/iap/"
+"ru/>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -20,21 +21,26 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
 "(n%100>=11 && n%100<=14)? 2 : 3);\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: iap
-#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
+#: model:ir.module.module,description:base.module_iap
 msgid ""
-"<i class=\"oi oi-arrow-right\"/>\n"
-"                                    Buy Credit"
+"\n"
+"This module provides standard tools (account model, context manager and "
+"helpers)\n"
+"to support In-App Purchase inside Odoo. "
 msgstr ""
-"<i class=\"oi oi-arrow-right\"/>\n"
-"                                    Купить кредиты"
 
 #. module: iap
 #: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
 msgid "Account Information"
 msgstr "Информация об учетной записи"
+
+#. module: iap
+#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
+msgid "Account Name"
+msgstr ""
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__account_token
@@ -65,9 +71,25 @@ msgid "Balance"
 msgstr "Баланс"
 
 #. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_account__balance_amount
+msgid "Balance Amount"
+msgstr ""
+
+#. module: iap
 #: model:ir.model.fields.selection,name:iap.selection__iap_account__state__banned
 msgid "Banned"
 msgstr "Забанен"
+
+#. module: iap
+#: model:ir.module.module,summary:base.module_iap
+msgid "Basic models and helpers to support In-App Purchase."
+msgstr ""
+
+#. module: iap
+#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
+#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_tree
+msgid "Buy Credits"
+msgstr ""
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__company_ids
@@ -77,14 +99,21 @@ msgstr "Компания"
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__create_uid
 #: model:ir.model.fields,field_description:iap.field_iap_service__create_uid
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__create_uid
 msgid "Created by"
 msgstr "Создано:"
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__create_date
 #: model:ir.model.fields,field_description:iap.field_iap_service__create_date
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__create_date
 msgid "Created on"
 msgstr "Дата создания:"
+
+#. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__credit
+msgid "Credit"
+msgstr ""
 
 #. module: iap
 #: model:iap.service,unit_name:iap.iap_service_reveal
@@ -101,8 +130,14 @@ msgstr "Описание"
 #: model:ir.model.fields,field_description:iap.field_iap_account__display_name
 #: model:ir.model.fields,field_description:iap.field_iap_enrich_api__display_name
 #: model:ir.model.fields,field_description:iap.field_iap_service__display_name
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__display_name
 msgid "Display Name"
 msgstr "Отображаемое имя"
+
+#. module: iap
+#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
+msgid "Email Alert"
+msgstr ""
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__warning_user_ids
@@ -131,17 +166,9 @@ msgid "IAP"
 msgstr "IAP"
 
 #. module: iap
-#: model:ir.actions.act_window,name:iap.iap_account_action
 #: model:ir.model,name:iap.model_iap_account
-#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
 msgid "IAP Account"
 msgstr "IAP учетная запись"
-
-#. module: iap
-#: model:ir.ui.menu,name:iap.iap_account_menu
-#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_tree
-msgid "IAP Accounts"
-msgstr "IAP учетные записи"
 
 #. module: iap
 #: model:ir.model,name:iap.model_iap_enrich_api
@@ -154,11 +181,44 @@ msgid "IAP Service"
 msgstr "Услуги IAP"
 
 #. module: iap
+#: model:ir.model,name:iap.model_iap_service_pack
+msgid "IAP Service Pack"
+msgstr ""
+
+#. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__id
 #: model:ir.model.fields,field_description:iap.field_iap_enrich_api__id
 #: model:ir.model.fields,field_description:iap.field_iap_service__id
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__id
 msgid "ID"
 msgstr "ID"
+
+#. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__iap_service_pack_identifier
+msgid "Iap Service Pack Identifier"
+msgstr ""
+
+#. module: iap
+#: model:ir.module.module,shortdesc:base.module_iap
+msgid "In-App Purchase"
+msgstr ""
+
+#. module: iap
+#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_form
+msgid "In-App Purchase Account"
+msgstr ""
+
+#. module: iap
+#: model:ir.actions.act_window,name:iap.iap_account_action
+#: model:ir.ui.menu,name:iap.iap_account_menu
+#: model_terms:ir.ui.view,arch_db:iap.iap_account_view_tree
+msgid "In-App Purchase Accounts"
+msgstr ""
+
+#. module: iap
+#: model_terms:ir.ui.view,arch_db:iap.iap_service_pack_view_tree
+msgid "In-App Purchase Service Packs"
+msgstr ""
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_service__integer_balance
@@ -166,26 +226,39 @@ msgid "Integer Balance"
 msgstr "Баланс (целые числа)"
 
 #. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_account__is_balance_below_warning_threshold
+msgid "Is Balance Below Warning Threshold"
+msgstr ""
+
+#. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__write_uid
 #: model:ir.model.fields,field_description:iap.field_iap_service__write_uid
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__write_uid
 msgid "Last Updated by"
 msgstr "Последнее обновление:"
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__write_date
 #: model:ir.model.fields,field_description:iap.field_iap_service__write_date
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__write_date
 msgid "Last Updated on"
 msgstr "Дата последнего обновления:"
+
+#. module: iap
+#: model:iap.service,name:iap.iap_service_reveal
+msgid "Lead Generation"
+msgstr ""
 
 #. module: iap
 #. odoo-javascript
 #: code:addons/iap/static/src/action_buttons_widget/action_buttons_widget.xml:0
 msgid "Manage Service & Buy Credits"
-msgstr "Управление сервисом и покупка кредитов"
+msgstr ""
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__name
 #: model:ir.model.fields,field_description:iap.field_iap_service__name
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__name
 msgid "Name"
 msgstr "Имя"
 
@@ -193,12 +266,19 @@ msgstr "Имя"
 #. odoo-python
 #: code:addons/iap/models/iap_account.py:0
 msgid "No service exists with the provided technical name"
-msgstr ""
+msgstr "Сервис с указанным техническим наименованием не существует"
 
 #. module: iap
 #: model_terms:ir.ui.view,arch_db:iap.res_config_settings_view_form
-msgid "Odoo IAP"
-msgstr "Odoo IAP"
+msgid "Odoo In-App Purchase"
+msgstr ""
+
+#. module: iap
+#: model:ir.model.fields,help:iap.field_iap_account__warning_threshold
+msgid ""
+"Once you have this many credits or less, the system will automatically "
+"notify the following recipients by email. Set to 0 to disable email warnings."
+msgstr ""
 
 #. module: iap
 #. odoo-python
@@ -216,6 +296,12 @@ msgstr ""
 "Может существовать только одна услуга с указанным техническим названием"
 
 #. module: iap
+#: model:ir.model.constraint,message:iap.constraint_iap_service_pack_unique_iap_service_pack_identifier
+msgid ""
+"Only one service pack can exist with a specific iap_service_pack_identifier"
+msgstr ""
+
+#. module: iap
 #. odoo-python
 #: code:addons/iap/models/iap_account.py:0
 msgid "Please set a positive email alert threshold."
@@ -223,12 +309,24 @@ msgstr ""
 "Укажите положительное значение порога для оповещений по электронной почте."
 
 #. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_account__service_price_description
+#: model:ir.model.fields,field_description:iap.field_iap_service__price_description
+msgid "Price Description"
+msgstr ""
+
+#. module: iap
 #: model:ir.model.fields.selection,name:iap.selection__iap_account__state__registered
 msgid "Registered"
 msgstr "Зарегистрирован"
 
 #. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__price
+msgid "Sales Price (EUR)"
+msgstr ""
+
+#. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__service_id
+#: model:ir.model.fields,field_description:iap.field_iap_service_pack__service_id
 msgid "Service"
 msgstr "Услуга"
 
@@ -236,6 +334,11 @@ msgstr "Услуга"
 #: model:ir.model.fields,field_description:iap.field_iap_account__service_locked
 msgid "Service Locked"
 msgstr "Услуга заблокирована"
+
+#. module: iap
+#: model:ir.model.fields,field_description:iap.field_iap_service__pack_ids
+msgid "Service Packs"
+msgstr ""
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_account__state
@@ -251,18 +354,16 @@ msgstr "Техническое название"
 #. module: iap
 #. odoo-python
 #: code:addons/iap/models/iap_account.py:0
-msgid "The IAP token provided is invalid or empty."
+msgid ""
+"The IAP server is unreachable and the information may not be up to date. "
+"Please try again later."
 msgstr ""
 
 #. module: iap
 #. odoo-python
-#: code:addons/iap/tools/iap_tools.py:0
-msgid ""
-"The request to the service timed out. Please contact the author of the app. "
-"The URL it tried to contact was %s"
-msgstr ""
-"Запрос к сервису завершился по тайм-ауту. Пожалуйста, обратитесь к "
-"разработчику приложения. URL, который пытались вызвать: %s"
+#: code:addons/iap/models/iap_account.py:0
+msgid "The IAP token provided is invalid or empty."
+msgstr "Предоставленный токен IAP недействителен или пуст."
 
 #. module: iap
 #: model:ir.model.fields,field_description:iap.field_iap_service__unit_name
@@ -273,6 +374,11 @@ msgstr "Название единицы"
 #: model:ir.model.fields.selection,name:iap.selection__iap_account__state__unregistered
 msgid "Unregistered"
 msgstr "Незарегистрирован"
+
+#. module: iap
+#: model_terms:ir.ui.view,arch_db:iap.view_iap_users_tree
+msgid "Users"
+msgstr ""
 
 #. module: iap
 #. odoo-javascript
@@ -286,63 +392,9 @@ msgstr "Посмотреть мои услуги"
 msgid "View your IAP Services and recharge your credits"
 msgstr "Просматривайте свои услуги IAP и пополняйте кредиты"
 
-#~ msgid "Account Info"
-#~ msgstr "Информация Учетной Записи"
-
-#~ msgid "Account UUID"
-#~ msgstr "UUID учетной записи"
-
-#~ msgid "Accounts from IAP"
-#~ msgstr "Счета от IAP"
-
-#~ msgid "Buy Credit"
-#~ msgstr "Купить кредит"
-
-#~ msgid "Buy credits"
-#~ msgstr "Купить услуги"
-
-#~ msgid "Cancel"
-#~ msgstr "Отменить"
-
-#~ msgid "Hide Token"
-#~ msgstr "Скрыть токен"
-
-#~ msgid "IAP Account Info"
-#~ msgstr "Информация об учетной записи IAP"
-
-#~ msgid "Insufficient credit to perform this service."
-#~ msgstr "Недостаточно средств для проведения операции."
-
-#~ msgid "Related Service"
-#~ msgstr "Сопутствующие услуги"
-
-#~ msgid "Service Name"
-#~ msgstr "Название услуги"
-
-#~ msgid "Show Token"
-#~ msgstr "Показать токен"
-
-#~ msgid "Start a Trial at Odoo"
-#~ msgstr "Начните пробное использование Odoo"
-
 #~ msgid ""
-#~ "The url that this service requested returned an error. Please contact the "
-#~ "author of the app. The url it tried to contact was %s"
+#~ "The request to the service timed out. Please contact the author of the "
+#~ "app. The URL it tried to contact was %s"
 #~ msgstr ""
-#~ "Url, запрошенный этой службой, вернул ошибку. Пожалуйста, свяжитесь с "
-#~ "автором приложения. Url, с которым он пытался связаться, был %s"
-
-#~ msgid "Threshold"
-#~ msgstr "Порог"
-
-#~ msgid "Warn me"
-#~ msgstr "Предупредите меня"
-
-#~ msgid "Warning Email"
-#~ msgstr "Предупреждающее электронное письмо"
-
-#~ msgid ""
-#~ "We will send you an email when your balance gets below that threshold"
-#~ msgstr ""
-#~ "Мы отправим вам электронное письмо, когда ваш баланс опустится ниже этого "
-#~ "порога"
+#~ "Запрос к сервису завершился по тайм-ауту. Пожалуйста, обратитесь к "
+#~ "разработчику приложения. URL, который пытались вызвать: %s"

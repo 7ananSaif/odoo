@@ -10,9 +10,8 @@
                 <sheet>
                     <group>
                         <group>
-                            <field name="event_id" placeholder="All Events"/>
-                            <field name="template_ref" options="{'no_quick_create': True, 'no_create_edit': True}" context="{'filter_template_on_event': True, 'default_model': 'event.registration'}" widget="EventMailTemplateReferenceField"/>
-
+                            <field name="event_id"/>
+                            <field name="template_ref" options="{'no_quick_create': True}" context="{'filter_template_on_event': True, 'default_model': 'event.registration'}" widget="EventMailTemplateReferenceField"/>
                             <field name="mail_state"/>
                         </group>
                         <group>
@@ -47,11 +46,11 @@
         <field name="arch" type="xml">
             <list string="Event Mail Schedulers">
                 <field name="event_id"/>
-                <field name="template_ref" options="{'no_quick_create': True, 'no_create_edit': True}" context="{'filter_template_on_event': True, 'default_model': 'event.registration'}" widget="EventMailTemplateReferenceField"/>
+                <field name="template_ref" options="{'no_quick_create': True}" context="{'filter_template_on_event': True, 'default_model': 'event.registration'}" widget="EventMailTemplateReferenceField"/>
                 <field name="scheduled_date"/>
                 <field name="mail_count_done"/>
                 <field name="mail_state" widget="event_icon_selection" string=" " nolabel="1"
-                    options="{'sent': 'fa fa-check', 'scheduled': 'fa fa-hourglass-half', 'running': 'fa fa-cogs', 'cancelled': 'fa fa-times-circle'}"/>
+                    options="{'sent': ['check', ''], 'scheduled': ['hourglass_bottom', ''], 'running': ['settings_applications', ''], 'cancelled': ['cancel', 'oi-filled']}"/>
             </list>
         </field>
     </record>

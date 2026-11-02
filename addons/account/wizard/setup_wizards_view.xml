@@ -10,8 +10,13 @@
                     <div>
                         <span class="figure-caption">Never miss a deadline, with automated statements and alerts.</span>
                     </div>
+                    <div class="mt-2">
+                        <field name="company_vat_disabled"/>
+                        <span>Not Subject to VAT</span>
+                    </div>
                     <sheet>
                         <group>
+                            <field name="company_id" invisible="1"/>  <!-- Otherwise not present in the vals in the create -->
                             <field name="opening_move_posted" invisible="1"/>
                             <field name="opening_date"/>
 
@@ -25,7 +30,7 @@
                     <footer>
                         <button name="action_save_onboarding_fiscal_year" string="Apply"
                                class="oe_highlight" type="object" data-hotkey="q" />
-                        <button special="cancel" data-hotkey="x" string="Cancel" />
+                        <button special="cancel" data-hotkey="x"/>
                     </footer>
                 </form>
             </field>
@@ -38,8 +43,7 @@
                 <form>
                     <sheet>
                         <group>
-                            <field name="acc_number" placeholder="e.g BE15001559627230"/>
-                            <field name="bank_id" placeholder="e.g Bank of America"/>
+                            <field name="account_number" placeholder="e.g BE15001559627230" widget="account_number"/>
                             <field name="bank_bic" placeholder="e.g GEBABEBB" string="Bank Identifier Code"/>
                             <field name="linked_journal_id"
                                    options="{'no_create': True}"
@@ -51,7 +55,7 @@
                     </sheet>
                     <footer>
                         <button string="Create" class="oe_highlight" type="object" name="validate" data-hotkey="q"/>
-                        <button string="Cancel" special="cancel" data-hotkey="x"/>
+                        <button special="cancel" data-hotkey="x"/>
                     </footer>
                 </form>
             </field>
@@ -64,8 +68,8 @@
                 <form>
                     <sheet>
                         <group>
-                            <field name="acc_number" placeholder="e.g BE15001559627230"/>
-                            <field name="bank_id" placeholder="e.g Bank of America"/>
+                            <field name="account_number" placeholder="e.g BE15001559627230" widget="account_number"/>
+                            <field name="bank_bic" placeholder="e.g GEBABEBB"/>
                             <field name="linked_journal_id"
                                    options="{'no_create': True}"
                                    placeholder="Leave empty to create new"
@@ -76,7 +80,7 @@
                     </sheet>
                     <footer>
                         <button string="Create" class="oe_highlight" type="object" name="validate" data-hotkey="q"/>
-                        <button string="Cancel" special="cancel" data-hotkey="x"/>
+                        <button special="cancel" data-hotkey="x"/>
                     </footer>
                 </form>
             </field>
@@ -87,6 +91,15 @@
             <field name="model">account.account</field>
             <field name="arch" type="xml">
                 <list editable="top" create="1" delete="1" decoration-muted="opening_debit == 0 and opening_credit == 0" open_form_view="True">
+                    <header>
+                        <button name="action_validate_opening_move"
+                                type="object"
+                                string="Validate and Post"
+                                display="always"
+                                confirm="This action is irreversible: the credit/debit cannot be modified again from this screen.  -  This action will affect your current company only."
+                                confirm-label="Post"
+                                confirm-title="Post Entry?"/>
+                    </header>
                     <field name="code"/>
                     <field name="name"/>
                     <field name="company_ids" column_invisible="True"/>

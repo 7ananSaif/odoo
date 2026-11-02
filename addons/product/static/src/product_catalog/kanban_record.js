@@ -1,4 +1,4 @@
-import { useSubEnv } from "@odoo/owl";
+import { useSubEnv } from "@web/owl2/utils";
 import { rpc } from "@web/core/network/rpc";
 import { useDebounced } from "@web/core/utils/timing";
 import { KanbanRecord } from "@web/views/kanban/kanban_record";
@@ -13,7 +13,7 @@ export class ProductCatalogKanbanRecord extends KanbanRecord {
 
     setup() {
         super.setup();
-        this.debouncedUpdateQuantity = useDebounced(this._updateQuantity, 500, {
+        this.debouncedUpdateQuantity = useDebounced(this._onQuantityChange.bind(this), 500, {
             execBeforeUnmount: true,
         });
         this._pendingUpdate = Promise.resolve();
@@ -23,14 +23,13 @@ export class ProductCatalogKanbanRecord extends KanbanRecord {
             orderId: this.props.record.context.product_catalog_order_id,
             orderResModel: this.props.record.context.product_catalog_order_model,
             digits: this.props.record.context.product_catalog_digits,
-            displayUoM: this.props.record.context.display_uom,
             precision: this.props.record.context.precision,
             productId: this.props.record.resId,
             addProduct: this.addProduct.bind(this),
-            removeProduct: this.removeProduct.bind(this),
             increaseQuantity: this.increaseQuantity.bind(this),
             setQuantity: this.setQuantity.bind(this),
             decreaseQuantity: this.decreaseQuantity.bind(this),
+            setUom: this.setUom.bind(this),
             childField: this.props.record.context.child_field,
         });
     }
@@ -59,9 +58,15 @@ export class ProductCatalogKanbanRecord extends KanbanRecord {
     // Data Exchanges
     //--------------------------------------------------------------------------
 
-    async _updateQuantity() {
-        const price = await this._updateQuantityAndGetPrice();
-        this.productCatalogData.price = parseFloat(price);
+    async _onQuantityChange() {
+        const result = await this._updateQuantityAndGetPrice();
+        this._updateProductCatalogData(result);
+    }
+
+    _updateProductCatalogData(result) {
+        if (result.price) {
+            this.productCatalogData.price = parseFloat(result.price);
+        }
     }
 
     _updateQuantityAndGetPrice() {
@@ -76,17 +81,35 @@ export class ProductCatalogKanbanRecord extends KanbanRecord {
 
     _getUpdateQuantityAndGetPriceParams() {
         return {
+            res_model: this.env.orderResModel,
             order_id: this.env.orderId,
             product_id: this.env.productId,
             quantity: this.productCatalogData.quantity,
-            res_model: this.env.orderResModel,
             child_field: this.env.childField,
-        }
+            uom_id: this.productCatalogData.uomId || false,
+        };
     }
 
     //--------------------------------------------------------------------------
     // Handlers
     //--------------------------------------------------------------------------
+
+    async setUom(uomId) {
+        if (this.productCatalogData.readOnly) {
+            return;
+        }
+        const data = this.productCatalogData;
+        const newUom = data.availableUoms.find(u => u.id === uomId);
+        const oldUom = data.availableUoms.find(u => u.id === data.uomId);
+        if (newUom && oldUom) {
+            data.uomId = newUom.id;
+            data.uomDisplayName = newUom.name;
+            if (data.productUomFactor !== undefined) {
+                data.productUomFactor = data.productUomFactor * oldUom.factor / newUom.factor;
+            }
+            await this._onQuantityChange();
+        }
+    }
 
     updateQuantity(quantity) {
         if (this.productCatalogData.readOnly) {
@@ -101,13 +124,6 @@ export class ProductCatalogKanbanRecord extends KanbanRecord {
      */
     addProduct(qty=1) {
         this.updateQuantity(qty);
-    }
-
-    /**
-     * Remove the product to the order
-     */
-    removeProduct() {
-        this.updateQuantity(0);
     }
 
     /**

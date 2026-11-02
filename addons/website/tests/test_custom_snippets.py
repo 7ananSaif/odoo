@@ -18,7 +18,7 @@ class TestCustomSnippet(TransactionCase):
             'url_code': 'pa_GB',
         })
         ResLang._activate_lang(parseltongue.code)
-        website = self.env.ref('website.default_website')
+        website = self.env.ref('base.default_website')
         website.language_ids = [Command.link(parseltongue.id)]
         data_name_attr = "Custom Text Block Test Translations"
         data_name_attr2 = "Custom Title Test Translations"
@@ -67,7 +67,7 @@ class TestCustomSnippet(TransactionCase):
         ).save_snippet(
             name=data_name_attr,
             arch=snippet_arch,
-            thumbnail_url='/website/static/src/img/snippets_thumbs/s_text_block.svg',
+            thumbnail_url='/website/static/src/img/snippets_thumbs/thumb_snippets_text.svg',
             snippet_key='s_text_block',
             template_key='website.snippets'
         )
@@ -86,7 +86,7 @@ class TestCustomSnippet(TransactionCase):
         ).save_snippet(
             name=data_name_attr2,
             arch=snippet_arch2,
-            thumbnail_url='/website/static/src/img/snippets_thumbs/s_text_block.svg',
+            thumbnail_url='/website/static/src/img/snippets_thumbs/thumb_snippets_text.svg',
             snippet_key='s_text_block',
             template_key='website.snippets'
         )
@@ -150,7 +150,7 @@ class TestCustomSnippet(TransactionCase):
         ).save_snippet(
             name='Test Translation MegaMenu',
             arch=snippet_arch,
-            thumbnail_url='/website/static/src/img/snippets_thumbs/s_text_block.svg',
+            thumbnail_url='/website/static/src/img/snippets_thumbs/thumb_snippets_text.svg',
             snippet_key='s_text_block',
             template_key='website.snippets'
         )
@@ -191,6 +191,22 @@ class TestCustomSnippet(TransactionCase):
             'Parseltongue Text',
             view.with_context(lang=parseltongue.code).arch)
 
+        # Simulate snippet being dropped in generic page/view and ensure the
+        # specialized cow view is translated
+        key_view3 = 'test.generic_view_test_translation_3'
+        view3 = View.create({
+            'name': 'Generic View Test Translation 3',
+            'type': 'qweb',
+            'arch': '<body><div/><div/></body>',
+            'key': key_view3,
+        })
+        self.assertFalse(View.search([('key', '=', key_view3), ('website_id', '!=', False)], limit=1).exists())
+        view3.with_context(website_id=website.id).save(f"<div>{snippet_arch}</div>", xpath='/body[1]/div[1]')
+        cow_view3 = View.search([('key', '=', key_view3), ('website_id', '!=', False)], limit=1)
+        self.assertIn(
+            'Texte Francais',
+            cow_view3.with_context(lang=parseltongue.code).arch)
+
     def prepare_view_and_translated_custom_snippet(self):
         ResLang = self.env['res.lang']
         View = self.env['ir.ui.view']
@@ -203,7 +219,7 @@ class TestCustomSnippet(TransactionCase):
             'url_code': 'pa_GB',
         })
         ResLang._activate_lang(parseltongue.code)
-        website = self.env.ref('website.default_website')
+        website = self.env.ref('base.default_website')
         website.language_ids = [Command.link(parseltongue.id)]
         data_name_attr = "Custom Text Block Test Translations"
         # Note that `s_custom_snippet` is supposed to be added by the JS when
@@ -244,7 +260,7 @@ class TestCustomSnippet(TransactionCase):
         ).save_snippet(
             name=data_name_attr,
             arch=snippet_arch,
-            thumbnail_url='/website/static/src/img/snippets_thumbs/s_text_block.svg',
+            thumbnail_url='/website/static/src/img/snippets_thumbs/thumb_snippets_text.svg',
             snippet_key='s_text_block',
             template_key='website.snippets'
         )
@@ -278,14 +294,15 @@ class TestCustomSnippet(TransactionCase):
             'key': 'test.specific_view_test_translation_2',
             'website_id': website.id,
         })
-        self.assertEqual(list(view2._fields['arch_db']._get_stored_translations(view2).keys()), ["en_US"])
+        self.assertEqual(list(view2._get_stored_translations('arch_db').keys()), ["en_US"])
 
         # 5. Simulate edition of page (with delayed translation), and the
         #    copied translations directly goes to a new confirmed version
         view2.with_context(delay_translations=True).save(f"<div>{snippet_arch}</div>", xpath='/body[1]/div[1]')
 
-        self.assertEqual(list(view2._fields['arch_db']._get_stored_translations(view2).keys()), ["en_US", "pa_GB"])
-        self.assertIn('Texte Francais', view2.with_context(lang=parseltongue.code).arch)
+        self.assertEqual(list(view2._get_stored_translations('arch_db').keys()), ['en_US', '_pa_GB', 'pa_GB'])
+        self.assertNotIn('Texte Francais', view2.with_context(lang=parseltongue.code).arch)
+        self.assertIn('Texte Francais', view2.with_context(lang=parseltongue.code, check_translations=True).arch)
 
 
 @tagged('post_install', '-at_install')
@@ -310,9 +327,9 @@ class TestHttpCustomSnippet(HttpCase):
                 </t>
             """,
         })
-        custom_page = Page.create({
+        Page.create({
             'view_id': custom_page_view.id,
             'url': '/custom-page',
         })
 
-        self.start_tour(f'{custom_page.url}', 'editable_root_as_custom_snippet', login='admin')
+        self.start_tour(self.env["website"].get_client_action_url("/custom-page", True), 'editable_root_as_custom_snippet', login='admin')

@@ -2,7 +2,6 @@ import { registry } from "@web/core/registry";
 import { stepUtils } from "@web_tour/tour_utils";
 
 registry.category("web_tour.tours").add('purchase_matrix_tour', {
-    url: "/odoo",
     steps: () => [stepUtils.showAppsMenuItem(), {
     trigger: '.o_app[data-menu-xmlid="purchase.menu_purchase_root"]',
     run: "click",
@@ -21,7 +20,7 @@ registry.category("web_tour.tours").add('purchase_matrix_tour', {
     trigger: '.ui-menu-item > a:contains("Agrolait")',
     run: "click",
 }, {
-    trigger: "a:contains('Add a product')",
+    trigger: "button:contains('Add a product')",
     run: "click",
 }, {
     trigger: 'div[name="product_template_id"] input',
@@ -53,13 +52,13 @@ registry.category("web_tour.tours").add('purchase_matrix_tour', {
 },
 // Open the matrix through the pencil button next to the product in line edit mode.
 {
-    trigger: ".o_form_status_indicator_buttons:not(:visible)", // wait for save to be finished
+    trigger: ".o_form_saved", // wait for save to be finished
 },
 {
     trigger: '.o_field_pol_product_many2one',
     run: "click",
 }, {
-    trigger: '[name=product_template_id] button.fa-pencil', // edit the matrix
+    trigger: '[name=product_template_id] button[data-icon="edit"]', // edit the matrix
     run: "click",
 }, {
     trigger: '.o_matrix_input_table',
@@ -74,7 +73,7 @@ registry.category("web_tour.tours").add('purchase_matrix_tour', {
     run: 'click' // apply the matrix
 },
 {
-    trigger: '.o_field_cell.o_data_cell.o_list_number:contains("4.00")',
+    trigger: 'td[name=product_qty]:contains("4.00")',
 },
 {
     trigger: '.o_form_button_save',
@@ -82,10 +81,10 @@ registry.category("web_tour.tours").add('purchase_matrix_tour', {
 },
 // Ensures the matrix is opened with the values, when adding the same product.
 {
-    trigger: ".o_form_status_indicator_buttons:not(:visible)",
+    trigger: ".o_form_saved",
 },
 {
-    trigger: 'a:contains("Add a product")',
+    trigger: 'button:contains("Add a product")',
     run: "click",
 }, {
     trigger: 'div[name="product_template_id"] input',
@@ -106,7 +105,7 @@ registry.category("web_tour.tours").add('purchase_matrix_tour', {
     run: 'click' // apply the matrix
 },
 {
-    trigger: ".o_field_cell.o_data_cell.o_list_number:contains(8.20)",
+    trigger: "td[name=product_qty]:contains(8.20)",
 },
 ...stepUtils.saveForm()
 ]});

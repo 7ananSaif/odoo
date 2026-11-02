@@ -2,7 +2,8 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import api, fields, models
-from odoo.tools import get_lang, Query, SQL
+from odoo.tools import get_lang, SQL
+from odoo.models import TableSQL
 
 
 class Im_LivechatReportChannel(models.Model):
@@ -39,9 +40,17 @@ class Im_LivechatReportChannel(models.Model):
     nbr_message = fields.Integer("Messages per Session", readonly=True, aggregator="avg", help="Number of message in the conversation")
     country_id = fields.Many2one('res.country', 'Country of the visitor', readonly=True)
     lang_id = fields.Many2one("res.lang", related="channel_id.livechat_lang_id", string="Language", readonly=True)
-    rating = fields.Integer('Rating', aggregator="avg", readonly=True)
-    # TODO DBE : Use Selection field - Need : Pie chart must show labels, not keys.
-    rating_text = fields.Char('Satisfaction Rate', readonly=True)
+    rating = fields.Selection(
+        selection=[
+            ("1", "Unhappy"),
+            ("3", "Neutral"),
+            ("5", "Happy"),
+        ],
+        string="Satisfaction Rate",
+        readonly=True,
+        falsy_value_label="Not Rated Yet",
+    )
+    rating_percentage = fields.Float('Rating (%)', aggregator="avg", readonly=True)
     partner_id = fields.Many2one("res.partner", "Agent", readonly=True)
     handled_by_bot = fields.Integer("Handled by Bot", readonly=True, aggregator="sum")
     handled_by_agent = fields.Integer("Handled by Agent", readonly=True, aggregator="sum")
@@ -70,12 +79,6 @@ class Im_LivechatReportChannel(models.Model):
         related="channel_id.livechat_expertise_ids",
         string="Expertises used in this session",
     )
-    conversation_tag_ids = fields.Many2many(
-        "im_livechat.conversation.tag",
-        readonly=True,
-        related="channel_id.livechat_conversation_tag_ids",
-        string="Tags used in this conversation",
-    )
     agent_requesting_help_history = fields.Many2one(
         "im_livechat.channel.member.history",
         related="channel_id.livechat_agent_requesting_help_history",
@@ -92,10 +95,11 @@ class Im_LivechatReportChannel(models.Model):
         return self.env._("Unknown")
 
     @property
-    def _table_query(self):
-        return SQL("%s %s %s", self._select(), self._from(), self._where())
+    def _table_sql(self):
+        return SQL("(%s %s %s)", self._select(), self._from(), self._where())
 
     def _select(self) -> SQL:
+        start_date_tz = SQL("timezone(%s, timezone('UTC', C.create_date))", str(self.env.tz))
         return SQL(
             """
             SELECT
@@ -105,25 +109,18 @@ class Im_LivechatReportChannel(models.Model):
                 C.name as channel_name,
                 C.livechat_channel_id as livechat_channel_id,
                 C.create_date as start_date,
-                channel_member_history.visitor_partner_id AS visitor_partner_id,
-                to_char(date_trunc('hour', C.create_date), 'YYYY-MM-DD HH24:MI:SS') as start_date_hour,
-                to_char(date_trunc('hour', C.create_date), 'HH24') as start_hour,
-                to_char(date_trunc('minute', C.create_date), 'YYYY-MM-DD HH:MI:SS') AS start_date_minutes,
-                EXTRACT(dow from C.create_date)::text AS day_number,
+                livechat_visitor.partner_id AS visitor_partner_id,
+                to_char(date_trunc('hour', %(start_date_tz)s), 'YYYY-MM-DD HH24:MI:SS') as start_date_hour,
+                to_char(date_trunc('hour', %(start_date_tz)s), 'HH24') as start_hour,
+                to_char(date_trunc('minute', %(start_date_tz)s), 'YYYY-MM-DD HH:MI:SS') AS start_date_minutes,
+                EXTRACT(dow from %(start_date_tz)s)::text AS day_number,
                 EXTRACT('epoch' FROM COALESCE(C.livechat_end_dt, NOW() AT TIME ZONE 'utc') - C.create_date)/60 AS duration,
                 CASE
-                    WHEN C.livechat_end_dt IS NOT NULL
-                         AND channel_member_history.has_agent
-                         AND message_vals.first_agent_message_dt > C.livechat_end_dt THEN NULL
-                    WHEN C.livechat_end_dt IS NOT NULL
-                         AND NOT channel_member_history.has_agent
-                         AND message_vals.first_agent_message_dt_legacy > C.livechat_end_dt THEN NULL
-                    WHEN channel_member_history.has_agent AND channel_member_history.has_bot THEN
+                    WHEN message_vals.first_agent_message_dt > C.livechat_end_dt THEN NULL
+                    WHEN livechat_agent.partner_id IS NOT NULL AND livechat_bot.partner_id IS NOT NULL THEN
                         EXTRACT('epoch' FROM message_vals.first_agent_message_dt - message_vals.last_bot_message_dt)
-                    WHEN channel_member_history.has_agent THEN
+                    WHEN livechat_agent.partner_id IS NOT NULL THEN
                         EXTRACT('epoch' FROM message_vals.first_agent_message_dt - c.create_date)
-                    ELSE
-                        EXTRACT('epoch' FROM message_vals.first_agent_message_dt_legacy - c.create_date)
                 END/3600 AS time_to_answer,
                 message_vals.message_count as nbr_message,
                 CASE
@@ -131,23 +128,22 @@ class Im_LivechatReportChannel(models.Model):
                     ELSE C.livechat_failure
                 END AS session_outcome,
                 C.country_id,
-                NULLIF(C.rating_last_value, 0) AS rating,
-                CASE
-                    WHEN C.rating_last_value = 1 THEN 'Unhappy'
-                    WHEN C.rating_last_value = 5 THEN 'Happy'
-                    WHEN C.rating_last_value = 3 THEN 'Neutral'
-                    ELSE null
-                END as rating_text,
-                C.livechat_operator_id as partner_id,
-                CASE WHEN channel_member_history.has_agent THEN 1 ELSE 0 END as handled_by_agent,
-                CASE WHEN channel_member_history.has_bot and not channel_member_history.has_agent THEN 1 ELSE 0 END as handled_by_bot,
-                CASE WHEN channel_member_history.chatbot_script_id IS NOT NULL AND NOT channel_member_history.has_agent THEN channel_member_history.chatbot_script_id ELSE NULL END AS chatbot_script_id,
+                C.livechat_rating as rating,
+                %(rating_percentage)s as rating_percentage,
+                COALESCE(livechat_agent.partner_id, livechat_bot.partner_id) as partner_id,
+                CASE WHEN livechat_agent.partner_id IS NOT NULL THEN 1 ELSE 0 END as handled_by_agent,
+                CASE WHEN livechat_bot.partner_id IS NOT NULL AND livechat_agent.partner_id IS NULL THEN 1 ELSE 0 END as handled_by_bot,
+                CASE WHEN livechat_bot.chatbot_script_id IS NOT NULL AND livechat_agent.partner_id IS NULL THEN livechat_bot.chatbot_script_id END AS chatbot_script_id,
                 CASE WHEN call_history_data.call_duration_hour IS NOT NULL THEN 1 ELSE 0 END AS has_call,
                 call_history_data.call_duration_hour,
                 chatbot_answer_history.chatbot_answers_path,
                 chatbot_answer_history.chatbot_answers_path_str,
                 expertise_history.expertises session_expertises
             """,
+            rating_percentage=self.env["discuss.channel"]._rating_selection_to_percentage_sql(
+                SQL("C.livechat_rating")
+            ),
+            start_date_tz=start_date_tz,
         )
 
     def _from(self) -> SQL:
@@ -155,13 +151,29 @@ class Im_LivechatReportChannel(models.Model):
             """
             FROM discuss_channel C
        LEFT JOIN LATERAL (
-                SELECT BOOL_OR(livechat_member_type = 'agent') AS has_agent,
-                       BOOL_OR(livechat_member_type = 'bot') AS has_bot,
-                       MIN(CASE WHEN livechat_member_type = 'visitor' THEN partner_id END) AS visitor_partner_id,
-                       MIN(chatbot_script_id) AS chatbot_script_id
-                  FROM im_livechat_channel_member_history
-                 WHERE channel_id = C.id
-        ) AS channel_member_history ON TRUE
+                SELECT partner_id
+                  FROM im_livechat_channel_member_history AS H_AGENT
+                 WHERE H_AGENT.channel_id = C.id
+                   AND H_AGENT.livechat_member_type = 'agent'
+              ORDER BY H_AGENT.create_date ASC, H_AGENT.id ASC
+                 LIMIT 1
+       ) AS livechat_agent ON TRUE
+       LEFT JOIN LATERAL (
+                SELECT partner_id, chatbot_script_id
+                  FROM im_livechat_channel_member_history AS H_BOT
+                 WHERE H_BOT.channel_id = C.id
+                   AND H_BOT.livechat_member_type = 'bot'
+              ORDER BY H_BOT.create_date ASC, H_BOT.id ASC
+                 LIMIT 1
+       ) AS livechat_bot ON TRUE
+       LEFT JOIN LATERAL (
+                SELECT partner_id
+                  FROM im_livechat_channel_member_history as H_VISITOR
+                 WHERE H_VISITOR.channel_id = C.id
+                   AND H_VISITOR.livechat_member_type = 'visitor'
+              ORDER BY H_VISITOR.create_date ASC, H_VISITOR.id ASC
+                 LIMIT 1
+       ) AS livechat_visitor ON TRUE
        LEFT JOIN LATERAL
             (
                 SELECT SUM(
@@ -224,8 +236,7 @@ class Im_LivechatReportChannel(models.Model):
             (
                 SELECT COUNT(DISTINCT M.id) AS message_count,
                        MIN(CASE WHEN H.livechat_member_type = 'agent' THEN M.create_date END) AS first_agent_message_dt,
-                       MAX(CASE WHEN H.livechat_member_type = 'bot' THEN M.create_date END) AS last_bot_message_dt,
-                       MIN(CASE WHEN M.author_id = C.livechat_operator_id THEN M.create_date END) AS first_agent_message_dt_legacy
+                       MAX(CASE WHEN H.livechat_member_type = 'bot' THEN M.create_date END) AS last_bot_message_dt
                   FROM mail_message M
              LEFT JOIN im_livechat_channel_member_history H on H.channel_id = M.res_id AND (M.author_id = H.partner_id OR M.author_guest_id = H.guest_id)
                  WHERE M.res_id = C.id and M.model = 'discuss.channel'
@@ -269,9 +280,9 @@ class Im_LivechatReportChannel(models.Model):
             )
         return result
 
-    def _read_group_orderby(self, order: str, groupby_terms: dict[str, SQL], query: Query) -> SQL:
+    def _read_group_orderby(self, table: TableSQL, order: str, groupby_terms: dict[str, SQL]) -> SQL:
         if "day_number" not in groupby_terms:
-            return super()._read_group_orderby(order, groupby_terms, query)
+            return super()._read_group_orderby(table, order, groupby_terms)
         if not order:
             order = ",".join(groupby_terms)
         order_parts = [part.strip() for part in order.split(",")]
@@ -281,11 +292,11 @@ class Im_LivechatReportChannel(models.Model):
         other_order = ",".join(other_parts) if other_parts else None
         other_orderby = None
         if other_order or other_groupby_terms:
-            other_orderby = super()._read_group_orderby(other_order, other_groupby_terms, query)
+            other_orderby = super()._read_group_orderby(table, other_order, other_groupby_terms)
             groupby_terms.update(other_groupby_terms)
-            if query._order_groupby:
-                groupby_terms["day_number"] = SQL(", ").join([groupby_terms["day_number"], *query._order_groupby])
-                query._order_groupby.clear()
+            if table._query._order_groupby:
+                groupby_terms["day_number"] = SQL(", ").join([groupby_terms["day_number"], *table._query._order_groupby])
+                table._query._order_groupby.clear()
         if not day_number_part:
             return other_orderby
         parts = [p.upper() for p in day_number_part.split()]

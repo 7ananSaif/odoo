@@ -1,18 +1,20 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# 	* website_sale_stock
+# * website_sale_stock
 #
 # Translators:
 # Martin Trigaux, 2022
 #
+# Weblate <noreply-mt-weblate@weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.5alpha1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 18:37+0000\n"
-"PO-Revision-Date: 2022-09-22 05:57+0000\n"
-"Last-Translator: Martin Trigaux, 2022\n"
-"Language-Team: Ukrainian (https://app.transifex.com/odoo/teams/41243/uk/)\n"
+"POT-Creation-Date: 2026-09-11 17:44+0000\n"
+"PO-Revision-Date: 2026-08-31 19:17+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Ukrainian <https://translate.odoo.com/projects/odoo-s19-4/"
+"website_sale_stock/uk/>\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -21,44 +23,75 @@ msgstr ""
 "11 ? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % "
 "100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || "
 "(n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #. module: website_sale_stock
-#. odoo-python
-#: code:addons/website_sale_stock/models/sale_order.py:0
+#: model:ir.module.module,description:base.module_website_sale_stock
 msgid ""
-"%(product_name)s has not been added to your cart since it is not available."
-msgstr ""
-
-#. module: website_sale_stock
-#: model_terms:ir.ui.view,arch_db:website_sale_stock.res_config_settings_view_form
-msgid "<span invisible=\"not default_show_availability\">units</span>"
+"\n"
+"Manage the inventory of your products and display their availability status "
+"in your eCommerce store.\n"
+"In case of stockout, you can decide to block further sales or to keep "
+"selling.\n"
+"A default behavior can be selected in the Website settings.\n"
+"Then it can be made specific at the product level.\n"
 msgstr ""
 
 #. module: website_sale_stock
 #. odoo-javascript
 #: code:addons/website_sale_stock/static/src/js/product_card/product_card.js:0
+#, fuzzy
 msgid "All available quantity selected"
-msgstr ""
+msgstr "Обрано всю доступну кількість"
 
 #. module: website_sale_stock
 #: model_terms:ir.ui.view,arch_db:website_sale_stock.res_config_settings_view_form
+#, fuzzy
 msgid "All warehouses"
+msgstr "Всі склади"
+
+#. module: website_sale_stock
+#: model:ir.model.fields,field_description:website_sale_stock.field_delivery_carrier__publish_on
+msgid "Auto publish on"
 msgstr ""
 
 #. module: website_sale_stock
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_ribbon__assign
-msgid "Assign"
+#: model:ir.model.fields,help:website_sale_stock.field_delivery_carrier__publish_on
+msgid "Automatically publish the page on the chosen date and time."
 msgstr ""
 
 #. module: website_sale_stock
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_product__stock_notification_partner_ids
-msgid "Back in stock Notifications"
+#: model:ir.model.fields,field_description:website_sale_stock.field_delivery_carrier__can_publish
+#, fuzzy
+msgid "Can Publish"
+msgstr "Можна опублікувати"
+
+#. module: website_sale_stock
+#: model_terms:ir.ui.view,arch_db:website_sale_stock.pickup_delivery_method
+msgid "Change location"
 msgstr ""
 
 #. module: website_sale_stock
-#: model_terms:ir.ui.view,arch_db:website_sale_stock.product_template_form_view_inherit_website_sale_stock
-msgid "Below"
-msgstr ""
+#. odoo-javascript
+#: code:addons/website_sale_stock/static/src/js/location_selector/location_selector_dialog/location_selector_dialog.js:0
+#, fuzzy
+msgid "Choose a pick-up point"
+msgstr "Оберіть точку видачі"
+
+#. module: website_sale_stock
+#. odoo-javascript
+#: code:addons/website_sale_stock/static/src/js/location_selector/location_selector_dialog/location_selector_dialog.xml:0
+#: code:addons/website_sale_stock/static/src/js/location_selector/map_container/map_container.js:0
+#, fuzzy
+msgid "Choose this location"
+msgstr "Оберіть цю локацію"
+
+#. module: website_sale_stock
+#. odoo-javascript
+#: code:addons/website_sale_stock/static/src/js/location_selector/location_schedule/location_schedule.js:0
+#, fuzzy
+msgid "Closed"
+msgstr "Закрито"
 
 #. module: website_sale_stock
 #: model:ir.model,name:website_sale_stock.model_res_config_settings
@@ -66,155 +99,171 @@ msgid "Config Settings"
 msgstr "Налаштування"
 
 #. module: website_sale_stock
-#: model_terms:ir.ui.view,arch_db:website_sale_stock.res_config_settings_view_form
-msgid "Continue Selling"
-msgstr "Продовжити продаж"
+#: model:ir.model,name:website_sale_stock.model_res_partner
+#, fuzzy
+msgid "Contact"
+msgstr "Контакт"
 
 #. module: website_sale_stock
-#: model:ir.model.fields,field_description:website_sale_stock.field_res_config_settings__default_allow_out_of_stock_order
-msgid "Continue selling when out-of-stock"
-msgstr "Продовжуйте продавати, коли закінчуються товари на складі"
-
-#. module: website_sale_stock
-#: model_terms:ir.ui.view,arch_db:website_sale_stock.availability_email_body
-msgid "Dear Customer,"
-msgstr "Шановний клієнте,"
-
-#. module: website_sale_stock
-#: model_terms:ir.ui.view,arch_db:website_sale_stock.res_config_settings_view_form
-msgid ""
-"Default availability mode set on newly created storable products. This can "
-"be changed at the product level."
-msgstr ""
-"Режим доступності за замовчуванням встановлено на щойно створені товари, які "
-"можна зберігати. Це можна змінити на рівні товару."
-
-#. module: website_sale_stock
-#: model:ir.model.fields,help:website_sale_stock.field_product_ribbon__assign
-msgid ""
-"Defines how this ribbon is assigned to products:\n"
-"- Manually: You assign the ribbon manually to products.\n"
-"- Sale: Applied when the product is visibly on sale.\n"
-"- New: Applied based on the New period you will define.\n"
-"- Out Of Stock: Applied when the product is out of stock."
+#: model:ir.model,website_form_label:website_sale_stock.model_res_partner
+msgid "Create a Customer"
 msgstr ""
 
 #. module: website_sale_stock
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_combo__display_name
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_feed__display_name
+#: model:ir.model,name:website_sale_stock.model_delivery_carrier
+#, fuzzy
+msgid "Delivery Method"
+msgstr "Спосіб доставки"
+
+#. module: website_sale_stock
+#: model:ir.model,name:website_sale_stock.model_choose_delivery_carrier
+msgid "Delivery Method Selection Wizard"
+msgstr ""
+
+#. module: website_sale_stock
+#: model:ir.model.fields,field_description:website_sale_stock.field_choose_delivery_carrier__display_name
+#: model:ir.model.fields,field_description:website_sale_stock.field_delivery_carrier__display_name
 #: model:ir.model.fields,field_description:website_sale_stock.field_product_product__display_name
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_ribbon__display_name
 #: model:ir.model.fields,field_description:website_sale_stock.field_product_template__display_name
 #: model:ir.model.fields,field_description:website_sale_stock.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:website_sale_stock.field_res_partner__display_name
 #: model:ir.model.fields,field_description:website_sale_stock.field_sale_order__display_name
-#: model:ir.model.fields,field_description:website_sale_stock.field_sale_order_line__display_name
 #: model:ir.model.fields,field_description:website_sale_stock.field_stock_picking__display_name
 #: model:ir.model.fields,field_description:website_sale_stock.field_website__display_name
+#, fuzzy
 msgid "Display Name"
+msgstr "Назва для відображення"
+
+#. module: website_sale_stock
+#: model:ir.model.fields,field_description:website_sale_stock.field_choose_delivery_carrier__id
+#: model:ir.model.fields,field_description:website_sale_stock.field_delivery_carrier__id
+#: model:ir.model.fields,field_description:website_sale_stock.field_product_product__id
+#: model:ir.model.fields,field_description:website_sale_stock.field_product_template__id
+#: model:ir.model.fields,field_description:website_sale_stock.field_res_config_settings__id
+#: model:ir.model.fields,field_description:website_sale_stock.field_res_partner__id
+#: model:ir.model.fields,field_description:website_sale_stock.field_sale_order__id
+#: model:ir.model.fields,field_description:website_sale_stock.field_stock_picking__id
+#: model:ir.model.fields,field_description:website_sale_stock.field_website__id
+#, fuzzy
+msgid "ID"
+msgstr "ID"
+
+#. module: website_sale_stock
+#: model:ir.model.fields,field_description:website_sale_stock.field_delivery_carrier__is_published
+#, fuzzy
+msgid "Is Published"
+msgstr "Опубліковано"
+
+#. module: website_sale_stock
+#. odoo-javascript
+#: code:addons/website_sale_stock/static/src/js/location_selector/location_selector_dialog/location_selector_dialog.xml:0
+#, fuzzy
+msgid "List view"
+msgstr "Список перегляду"
+
+#. module: website_sale_stock
+#. odoo-javascript
+#: code:addons/website_sale_stock/static/src/js/location_selector/location_selector_dialog/location_selector_dialog.xml:0
+#, fuzzy
+msgid "Loading..."
+msgstr "Завантаження..."
+
+#. module: website_sale_stock
+#: model:ir.module.module,summary:base.module_website_sale_stock
+msgid "Manage product inventory & availability"
 msgstr ""
 
 #. module: website_sale_stock
 #. odoo-javascript
-#: code:addons/website_sale_stock/static/src/xml/website_sale_stock_product_availability.xml:0
-msgid "Get notified when back in stock"
-msgstr ""
-
-#. module: website_sale_stock
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_combo__id
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_feed__id
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_product__id
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_ribbon__id
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_template__id
-#: model:ir.model.fields,field_description:website_sale_stock.field_res_config_settings__id
-#: model:ir.model.fields,field_description:website_sale_stock.field_sale_order__id
-#: model:ir.model.fields,field_description:website_sale_stock.field_sale_order_line__id
-#: model:ir.model.fields,field_description:website_sale_stock.field_stock_picking__id
-#: model:ir.model.fields,field_description:website_sale_stock.field_website__id
-msgid "ID"
-msgstr ""
+#: code:addons/website_sale_stock/static/src/js/location_selector/location_selector_dialog/location_selector_dialog.xml:0
+#, fuzzy
+msgid "Map view"
+msgstr "Перегляд карти"
 
 #. module: website_sale_stock
 #. odoo-python
-#: code:addons/website_sale_stock/controllers/main.py:0
-msgid "Invalid Email"
-msgstr ""
+#: code:addons/website_sale_stock/models/delivery_carrier.py:0
+#, fuzzy
+msgid "No pick-up points are available for this delivery address."
+msgstr "Для цієї адреси доставки немає пунктів видачі."
 
 #. module: website_sale_stock
 #. odoo-javascript
-#: code:addons/website_sale_stock/static/src/xml/website_sale_stock_product_availability.xml:0
-msgid "Invalid email"
-msgstr ""
+#: code:addons/website_sale_stock/static/src/js/location_selector/location_selector_dialog/location_selector_dialog.xml:0
+#, fuzzy
+msgid "No result"
+msgstr "Немає результату"
 
 #. module: website_sale_stock
-#: model_terms:ir.ui.view,arch_db:website_sale_stock.res_config_settings_view_form
-msgid "Inventory Defaults"
-msgstr ""
-
-#. module: website_sale_stock
-#: model_terms:ir.ui.view,arch_db:website_sale_stock.availability_email_body
-msgid "Order Now"
-msgstr "Замовити зараз"
+#. odoo-javascript
+#: code:addons/website_sale_stock/static/src/js/location_selector/location/location.js:0
+#: code:addons/website_sale_stock/static/src/js/location_selector/map_container/map_container.js:0
+#, fuzzy
+msgid "Opening hours"
+msgstr "Відкриті години"
 
 #. module: website_sale_stock
 #. odoo-javascript
 #: code:addons/website_sale_stock/static/src/js/product_card/product_card.xml:0
-#: code:addons/website_sale_stock/static/src/xml/website_sale_stock_product_availability.xml:0
 msgid "Out of Stock"
 msgstr "Немає на складі"
 
 #. module: website_sale_stock
-#. odoo-javascript
-#: code:addons/website_sale_stock/static/src/js/product/product.xml:0
-msgid "Out of stock"
+#: model:ir.model.fields,field_description:website_sale_stock.field_res_partner__pickup_delivery_method_id
+#: model:ir.model.fields,field_description:website_sale_stock.field_res_users__pickup_delivery_method_id
+msgid "Pickup Delivery Method"
 msgstr ""
 
 #. module: website_sale_stock
-#: model_terms:ir.ui.view,arch_db:website_sale_stock.res_config_settings_view_form
-msgid "Out-of-Stock"
-msgstr "Немає на складі"
+#. odoo-javascript
+#: code:addons/website_sale_stock/static/src/js/location_selector/location_selector_dialog/location_selector_dialog.js:0
+msgid "Pickup Location"
+msgstr ""
 
 #. module: website_sale_stock
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_product__out_of_stock_message
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_template__out_of_stock_message
-msgid "Out-of-Stock Message"
-msgstr "Повідомлення Немає на складі"
+#: model:ir.model.fields,field_description:website_sale_stock.field_choose_delivery_carrier__partner_shipping_id
+#: model_terms:ir.ui.view,arch_db:website_sale_stock.choose_delivery_carrier_view_form_inherit_website_sale
+#: model_terms:ir.ui.view,arch_db:website_sale_stock.sale_order_view_form
+#: model_terms:ir.ui.view,arch_db:website_sale_stock.view_picking_form_inherit_website_sale
+msgid "Pickup Point"
+msgstr ""
+
+#. module: website_sale_stock
+#: model_terms:ir.ui.view,arch_db:website_sale_stock.pickup_address_on_checkout
+msgid "Pickup point"
+msgstr ""
 
 #. module: website_sale_stock
 #. odoo-python
-#: code:addons/website_sale_stock/models/product_product.py:0
-#: model:ir.model,name:website_sale_stock.model_product_template
-msgid "Product"
-msgstr "Товар"
-
-#. module: website_sale_stock
-#: model:ir.model,name:website_sale_stock.model_product_combo
-msgid "Product Combo"
+#: code:addons/website_sale_stock/wizard/choose_delivery_carrier.py:0
+msgid "Please select a pickup point before adding a delivery method"
 msgstr ""
 
 #. module: website_sale_stock
-#: model:ir.model,name:website_sale_stock.model_product_feed
-msgid "Product Feed"
+#: model:ir.model,name:website_sale_stock.model_product_template
+msgid "Product"
+msgstr ""
+
+#. module: website_sale_stock
+#: model:ir.module.module,shortdesc:base.module_website_sale_stock
+msgid "Product Availability"
 msgstr ""
 
 #. module: website_sale_stock
 #: model:ir.model,name:website_sale_stock.model_product_product
 msgid "Product Variant"
-msgstr "Варіант товару"
-
-#. module: website_sale_stock
-#: model:ir.model,name:website_sale_stock.model_product_ribbon
-msgid "Product ribbon"
 msgstr ""
 
 #. module: website_sale_stock
-#: model:ir.actions.server,name:website_sale_stock.ir_cron_send_availability_email_ir_actions_server
-msgid "Product: send email regarding products availability"
-msgstr ""
+#: model:ir.model.fields,field_description:website_sale_stock.field_delivery_carrier__published_date
+#, fuzzy
+msgid "Published date"
+msgstr "Опублікована дата"
 
 #. module: website_sale_stock
-#: model_terms:ir.ui.view,arch_db:website_sale_stock.availability_email_body
-msgid "Regards,"
-msgstr "З повагою,"
+#: model:ir.model.fields,help:website_sale_stock.field_delivery_carrier__website_id
+msgid "Restrict to a specific website."
+msgstr ""
 
 #. module: website_sale_stock
 #: model:ir.model,name:website_sale_stock.model_sale_order
@@ -222,65 +271,58 @@ msgid "Sales Order"
 msgstr "Замовлення на продаж"
 
 #. module: website_sale_stock
-#: model:ir.model,name:website_sale_stock.model_sale_order_line
-msgid "Sales Order Line"
-msgstr "Рядок замовлення"
+#. odoo-javascript
+#: code:addons/website_sale_stock/static/src/js/location_selector/location_selector_dialog/location_selector_dialog.xml:0
+#, fuzzy
+msgid "Search"
+msgstr "Пошук"
 
 #. module: website_sale_stock
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_product__allow_out_of_stock_order
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_template__allow_out_of_stock_order
-msgid "Sell when Out-of-Stock"
+#: model_terms:ir.ui.view,arch_db:website_sale_stock.pickup_delivery_method
+msgid "Select a location"
 msgstr ""
 
 #. module: website_sale_stock
-#: model_terms:ir.ui.view,arch_db:website_sale_stock.product_template_form_view_inherit_website_sale_stock
-msgid "Show Available Qty"
-msgstr "Показати наявну кількість"
-
-#. module: website_sale_stock
-#: model_terms:ir.ui.view,arch_db:website_sale_stock.res_config_settings_view_form
-msgid "Show Available Quantity"
+#: model:ir.model.fields,field_description:website_sale_stock.field_choose_delivery_carrier__is_pickup_required
+#: model:ir.model.fields,field_description:website_sale_stock.field_delivery_carrier__support_pickup_locations
+#: model:ir.model.fields,field_description:website_sale_stock.field_sale_order__is_pickup_required
+#: model:ir.model.fields,field_description:website_sale_stock.field_stock_picking__is_pickup_required
+msgid "Support Pickup Locations"
 msgstr ""
 
 #. module: website_sale_stock
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_product__available_threshold
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_template__available_threshold
-#: model:ir.model.fields,field_description:website_sale_stock.field_res_config_settings__default_available_threshold
-msgid "Show Threshold"
-msgstr "Показати поріг"
-
-#. module: website_sale_stock
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_product__show_availability
-#: model:ir.model.fields,field_description:website_sale_stock.field_product_template__show_availability
-#: model:ir.model.fields,field_description:website_sale_stock.field_res_config_settings__default_show_availability
-msgid "Show availability Qty"
-msgstr "Показати кількість в наявності"
-
-#. module: website_sale_stock
-#. odoo-python
-#: code:addons/website_sale_stock/models/sale_order.py:0
-msgid ""
-"Some products became unavailable and your cart has been updated. We're sorry "
-"for the inconvenience."
+#: model:ir.model.fields,help:website_sale_stock.field_res_partner__pickup_delivery_method_id
+#: model:ir.model.fields,help:website_sale_stock.field_res_users__pickup_delivery_method_id
+msgid "The delivery method that generated this pickup point."
 msgstr ""
-"Деякі товари стали недоступними, а ваш кошик був оновлений. Вибачте за "
-"незручності."
 
 #. module: website_sale_stock
-#: model_terms:ir.ui.view,arch_db:website_sale_stock.availability_email_body
-msgid "The following product is now available."
-msgstr "Наступний товару знову в наявності."
+#: model:ir.model.fields,help:website_sale_stock.field_delivery_carrier__website_absolute_url
+msgid "The full absolute URL to access the document through the website."
+msgstr ""
 
 #. module: website_sale_stock
-#. odoo-python
-#: code:addons/website_sale_stock/models/product_product.py:0
-msgid "The product '%(product_name)s' is now available"
-msgstr "Товар '%(product_name)s' тепер в наявності"
+#: model:ir.model.fields,help:website_sale_stock.field_delivery_carrier__website_url
+msgid "The full relative URL to access the document through the website."
+msgstr ""
+
+#. module: website_sale_stock
+#. odoo-javascript
+#: code:addons/website_sale_stock/static/src/js/location_selector/map_container/map_container.js:0
+#, fuzzy
+msgid "There was an error loading the map"
+msgstr "Сталася помилка під час завантаження карти"
 
 #. module: website_sale_stock
 #: model:ir.model,name:website_sale_stock.model_stock_picking
 msgid "Transfer"
 msgstr "Переміщення"
+
+#. module: website_sale_stock
+#: model:ir.model.fields,field_description:website_sale_stock.field_delivery_carrier__website_published
+#, fuzzy
+msgid "Visible on current website"
+msgstr "Видимий на поточному веб-сайті"
 
 #. module: website_sale_stock
 #: model:ir.model.fields,field_description:website_sale_stock.field_res_config_settings__website_warehouse_id
@@ -290,93 +332,43 @@ msgid "Warehouse"
 msgstr "Склад"
 
 #. module: website_sale_stock
-#. odoo-javascript
-#: code:addons/website_sale_stock/static/src/xml/website_sale_stock_product_availability.xml:0
-msgid "We'll notify you once the product is back in stock"
-msgstr ""
-
-#. module: website_sale_stock
 #: model:ir.model,name:website_sale_stock.model_website
+#: model:ir.model.fields,field_description:website_sale_stock.field_delivery_carrier__website_id
 #: model:ir.model.fields,field_description:website_sale_stock.field_stock_picking__website_id
 msgid "Website"
 msgstr "Веб-сайт"
 
 #. module: website_sale_stock
+#: model:ir.model.fields,field_description:website_sale_stock.field_delivery_carrier__website_absolute_url
+msgid "Website Absolute URL"
+msgstr ""
+
+#. module: website_sale_stock
+#: model:ir.model.fields,field_description:website_sale_stock.field_delivery_carrier__website_url
+#, fuzzy
+msgid "Website URL"
+msgstr "URL сайту"
+
+#. module: website_sale_stock
 #: model:ir.model.fields,help:website_sale_stock.field_stock_picking__website_id
+#, fuzzy
 msgid "Website where this order has been placed, for eCommerce orders."
 msgstr ""
-
-#. module: website_sale_stock
-#. odoo-javascript
-#: code:addons/website_sale_stock/static/src/xml/website_sale_stock_product_availability.xml:0
-msgid "You already added all the available product in your cart"
-msgstr ""
+"Веб-сайт, на якому було розміщено це замовлення, для замовлень електронної "
+"комерції."
 
 #. module: website_sale_stock
 #. odoo-python
-#: code:addons/website_sale_stock/models/sale_order_line.py:0
-msgid ""
-"You ask for %(desired_qty)s %(product_name)s but only %(new_qty)s is "
-"available"
-msgstr ""
-
-#. module: website_sale_stock
-#. odoo-python
-#: code:addons/website_sale_stock/models/sale_order.py:0
-msgid ""
-"You ask for %(desired_qty)s products but only %(available_qty)s is available."
-msgstr ""
-
-#. module: website_sale_stock
-#: model_terms:ir.ui.view,arch_db:website_sale_stock.product_template_form_view_inherit_website_sale_stock
-msgid "e.g. 'Will be back soon'"
+#: code:addons/website_sale_stock/models/stock_picking.py:0
+msgid "You must select a pickup address with this delivery method."
 msgstr ""
 
 #. module: website_sale_stock
 #. odoo-javascript
-#: code:addons/website_sale_stock/static/src/xml/website_sale_stock_product_availability.xml:0
-msgid "in stock"
+#: code:addons/website_sale_stock/static/src/js/location_selector/location_selector_dialog/location_selector_dialog.xml:0
+msgid "Zip or City"
 msgstr ""
 
-#. module: website_sale_stock
-#. odoo-javascript
-#: code:addons/website_sale_stock/static/src/xml/website_sale_stock_product_availability.xml:0
-msgid "in your cart)"
-msgstr ""
-
-#. module: website_sale_stock
-#: model_terms:ir.ui.view,arch_db:website_sale_stock.res_config_settings_view_form
-msgid "only if below"
-msgstr "тільки якщо нижче"
-
-#. module: website_sale_stock
-#: model:ir.model.fields.selection,name:website_sale_stock.selection__product_ribbon__assign__out_of_stock
-msgid "when out of stock"
-msgstr ""
-
-#. module: website_sale_stock
-#. odoo-javascript
-#: code:addons/website_sale_stock/static/src/xml/website_sale_stock_product_availability.xml:0
-msgid "youremail@gmail.com"
-msgstr ""
-
-#~ msgid "Default visibility for custom messages."
-#~ msgstr "Видимість за замовчуванням для користувацьких повідомлень."
-
-#~ msgid "Only"
-#~ msgstr "Тільки"
-
-#~ msgid "Units"
-#~ msgstr "Одиниці"
-
-#~ msgid "You already added"
-#~ msgstr "Ви вже додали"
-
-#~ msgid "You already added all the available product in your cart."
-#~ msgstr "Ви вже додали всі наявні товари до вашого кошика."
-
-#~ msgid "in your cart."
-#~ msgstr "у вашому кошику."
-
-#~ msgid "left in stock."
-#~ msgstr "залишені на складі."
+#, fuzzy
+#~ msgid "Out of stock"
+#~ msgstr "Немає на складі"

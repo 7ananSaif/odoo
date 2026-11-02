@@ -1,3 +1,4 @@
+from odoo import Command
 from odoo.addons.account_edi_ubl_cii.tests.test_ubl_import_bis3_invoice_be import TestUblImportBis3InvoiceBE
 from odoo.tests import tagged
 
@@ -6,6 +7,8 @@ from freezegun import freeze_time
 
 @tagged('post_install_l10n', 'post_install', '-at_install')
 class TestUblImportBis3InvoiceBERetrievePartner(TestUblImportBis3InvoiceBE):
+
+    _test_user_groups = None  # FIXME list needed groups
 
     @freeze_time('2020-01-01')
     def test_import_partner_creation(self):
@@ -24,8 +27,7 @@ class TestUblImportBis3InvoiceBERetrievePartner(TestUblImportBis3InvoiceBE):
             'city': "Bidule",
             'zip': "6713",
             'vat': 'BE0477472701',
-            'peppol_eas': '0208',
-            'peppol_endpoint': '0477472701',
+            'routing_identifier': '0208:0477472701',
         }])
 
         # Test the partner has been retrieved.
@@ -34,6 +36,52 @@ class TestUblImportBis3InvoiceBERetrievePartner(TestUblImportBis3InvoiceBE):
             journal=self.company_data['default_journal_sale'],
         )
         self.assertRecordValues(invoice.partner_id, [{'id': partner.id}])
+
+    @freeze_time('2020-01-01')
+    def test_import_partner_creation_ch(self):
+        """
+        Ensure that a CH partner can be created and re-matched on subsequent imports,
+        including when the partner's stored VAT uses a different language suffix
+        (TVA/IVA/MWST) than the one present in the EDI document.
+        """
+        self.assertFalse(self.env['res.partner']._retrieve_partner(vat='CHE-107.787.577 TVA'))
+
+        # Test the partner has been created.
+        invoice = self._import_invoice_as_attachment_on(
+            test_name='test_import_partner_creation_ch',
+            journal=self.company_data['default_journal_sale'],
+        )
+        partner = invoice.partner_id
+        self.assertRecordValues(partner, [{
+            'name': "CH Supplier",
+            'street': "Swiss 1",
+            'city': "Swiss",
+            'zip': "12345",
+            'vat': 'CHE-107.787.577 TVA',
+            'routing_identifier': '9927:CHE-107.787.577TVA',
+        }])
+
+        # Test the partner has been retrieved.
+        invoice = self._import_invoice_as_attachment_on(
+            test_name='test_import_partner_creation_ch',
+            journal=self.company_data['default_journal_sale'],
+        )
+        self.assertRecordValues(invoice.partner_id, [{'id': partner.id}])
+
+        # Test that other lang suffixes are correctly matched
+        partner.vat = 'CHE-107.787.577 IVA'
+        invoice_iva = self._import_invoice_as_attachment_on(
+            test_name='test_import_partner_creation_ch',
+            journal=self.company_data['default_journal_sale'],
+        )
+        self.assertRecordValues(invoice_iva.partner_id, [{'id': partner.id}])
+
+        partner.vat = 'CHE-107.787.577 MWST'
+        invoice_mwst = self._import_invoice_as_attachment_on(
+            test_name='test_import_partner_creation_ch',
+            journal=self.company_data['default_journal_sale'],
+        )
+        self.assertRecordValues(invoice_mwst.partner_id, [{'id': partner.id}])
 
     @freeze_time('2020-01-01')
     def test_import_partner_creation_email(self):
@@ -52,8 +100,8 @@ class TestUblImportBis3InvoiceBERetrievePartner(TestUblImportBis3InvoiceBE):
             'city': "Bidule",
             'zip': "6713",
             'vat': 'BE0477472701',
-            'peppol_eas': 'EM',
-            'peppol_endpoint': 'info@belgium.test',
+            'routing_scheme': 'EM',
+            'routing_endpoint': 'info@belgium.test',
         }])
 
         # Test the partner has been retrieved.
@@ -88,3 +136,99 @@ class TestUblImportBis3InvoiceBERetrievePartner(TestUblImportBis3InvoiceBE):
         )
         self.assertEqual(invoice.partner_id.vat, 'BE0239843188')
         self.assertEqual(invoice.partner_bank_id.partner_id, invoice.partner_id)
+
+    def test_import_bill_endpoint_in_party_tax_scheme(self):
+        """Test that if the supplier has no VAT and PartyTaxScheme/cbc:CompanyID
+        is filled with the Peppol endpoint, it is not imported as the VAT."""
+        self.partner_be.write({'vat': False, 'additional_identifiers': False})
+        self.assertRecordValues(self.partner_be, [{'vat': False, 'routing_scheme': '0208', 'routing_endpoint': '0477472701'}])
+
+        invoice = self._import_invoice_as_attachment_on(
+            test_name='test_import_bill_endpoint_in_party_tax_scheme',
+            journal=self.company_data['default_journal_purchase'],
+        )
+        self.assertEqual(invoice.partner_id, self.partner_be)
+        self.assertRecordValues(self.partner_be, [{'vat': False, 'routing_scheme': '0208', 'routing_endpoint': '0477472701'}])
+
+    def test_partial_import_partner_retrieval_bank_account_number(self):
+        """Check that the bank account number is used to retrieve the vendor when importing a Bis 3 bill."""
+        partner_bank = self.env['res.partner.bank'].create({
+            'account_number': 'BE43200112345678',
+            'partner_id': self.partner_a.id,
+            'allow_out_payment': True,
+        })
+        # Update partner_a and link it with the bank account we created
+        self.partner_a.update({
+            'name': "Test Partner",
+            'street': "42 Maze street",
+            'city': "Berlin",
+            'zip': "6534",
+            'vat': False,  # Clear the VAT field so the partner can only be found through the bank account number
+            'country_id': self.env.ref('base.be').id,
+            'bank_ids': partner_bank.ids,
+        })
+        invoice = self._import_invoice_as_attachment_on(
+            test_name='test_partial_import_partner_retrieval_bank_account_number',
+            journal=self.company_data['default_journal_purchase'],
+        )
+        # partner_a should be matched through the bank account number and its VAT should be filled in from the XML
+        self.assertEqual(invoice.partner_id, self.partner_a)
+        self.assertEqual(invoice.partner_id.vat, self.partner_a.vat)
+
+        # Change the VAT to trigger the VAT mismatch logic
+        self.partner_a.vat = 'BE0403170701'
+        # A new partner should be created
+        invoice = self._import_invoice_as_attachment_on(
+            test_name='test_partial_import_partner_retrieval_bank_account_number',
+            journal=self.company_data['default_journal_purchase'],
+        )
+        self.assertRecordValues(invoice.partner_id, [{
+            'name': "My Belgian Partner",
+            'street': "Rue des Trucs 9",
+            'city': "Bidule",
+            'zip': "6713",
+            'vat': 'BE0727720427',
+            'country_id': self.env.ref('base.be').id,
+        }])
+
+    def test_partial_import_partner_retrieval_own_bank_account_number(self):
+        """ Test that for a customer invoice, the PayeeFinancialAccount is the company's own bank account,
+        it must not be used to retrieve the customer.
+        """
+        invoice = self._import_invoice_as_attachment_on(
+            test_name='test_partial_import_partner_retrieval_own_bank_account_number',
+            journal=self.company_data['default_journal_sale'],
+        )
+        # The customer has no VAT so it can't be created
+        self.assertFalse(invoice.partner_id)
+
+        # Once the customer exists, it is retrieved with its email
+        customer = self.env['res.partner'].create({
+            'name': "Partner without VAT",
+            'email': "partner.without@vat.com",
+        })
+        invoice = self._import_invoice_as_attachment_on(
+            test_name='test_partial_import_partner_retrieval_own_bank_account_number',
+            journal=self.company_data['default_journal_sale'],
+        )
+        self.assertEqual(invoice.partner_id, customer)
+
+    def test_import_bill_multiple_payment_means(self):
+        """ A bill listing several PaymentMeans must keep the reference once
+        and use the bank account already trusted by the supplier instead of a "random" one
+        """
+        supplier = self._create_partner_be(
+            bank_ids=[Command.create({'account_number': 'BE00001', 'allow_out_payment': True})],
+        )
+        trusted_bank = supplier.bank_ids
+        invoice = self._import_invoice_as_attachment_on(test_name='test_import_bill_multiple_payment_means')
+        self.assertRecordValues(invoice, [{
+            'partner_id': supplier.id,
+            'payment_reference': '+++987/6543/12345+++',
+            'partner_bank_id': trusted_bank.id,
+        }])
+        self.assertEqual(
+            set(supplier.bank_ids.mapped('sanitized_account_number')),
+            {'BE00001', 'BE00002', 'BE00003'},
+        )
+        self.assertEqual(supplier.bank_ids.filtered('allow_out_payment'), trusted_bank)

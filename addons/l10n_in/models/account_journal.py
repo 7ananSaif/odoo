@@ -1,30 +1,26 @@
-from odoo import models
+from odoo import fields, models
 
 
 class AccountJournal(models.Model):
     _inherit = "account.journal"
 
-    def _update_payment_method_lines(self, payment_type):
-        bank_journals = self.filtered(lambda j: j.type == "bank" and j.company_id.chart_template == "in")
-        if not bank_journals:
-            return
-
-        if payment_type == 'inbound':
-            account_xmlid = "account_journal_payment_debit_account_id"
-        else:
-            account_xmlid = "account_journal_payment_credit_account_id"
-
-        lines_to_update = bank_journals[f"{payment_type}_payment_method_line_ids"].filtered(
-            lambda l: l.payment_method_id.code == 'manual'
-        )
-        for company, lines in lines_to_update.grouped('company_id').items():
-            if account := self.env['account.chart.template'].with_company(company).ref(account_xmlid, raise_if_not_found=False):
-                lines.payment_account_id = account
+    l10n_in_self_invoice = fields.Boolean(
+        string='Self Invoice',
+        help="This journal is for self-invoices."
+             "Invoices will be created using a different sequence as you configured.",
+    )
 
     def _compute_inbound_payment_method_line_ids(self):
         super()._compute_inbound_payment_method_line_ids()
-        self._update_payment_method_lines("inbound")
+        self._assign_outstanding_account_to_payment_method_lines("inbound", payment_method_codes=['manual'], chart_template="in")
 
     def _compute_outbound_payment_method_line_ids(self):
         super()._compute_outbound_payment_method_line_ids()
-        self._update_payment_method_lines("outbound")
+        self._assign_outstanding_account_to_payment_method_lines("outbound", payment_method_codes=['manual'], chart_template="in")
+
+    def _get_onboarding_action_data(self):
+        """E-invoicing onboarding is only relevant for GST-registered (regular) taxpayers."""
+        self.ensure_one()
+        if self.country_code == 'IN' and self.company_id.l10n_in_gst_registration_type != 'regular':
+            return None
+        return super()._get_onboarding_action_data()
